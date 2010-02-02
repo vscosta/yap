@@ -36,6 +36,16 @@
         REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
         REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
+#undef COMPUTE_SEGMENTS_TO_COPY_TO
+#define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
+        REMOTE_start_global_copy(Q) = (CELL) (H0);   \
+        REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
+        REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
+        REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
+        REMOTE_end_local_copy(Q)    = (CELL) (GetOrFr_node(GLOBAL_root_or_fr));         \
+        REMOTE_start_trail_copy(Q)  = (CELL) (Yap_TrailBase);  \
+        REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
+        REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 
 /* ------------------------------------- **
 **      Local functions declaration      **
@@ -145,7 +155,7 @@ int q_share_work(int worker_p) {
     return FALSE;
   }
 #ifdef YAPOR_ERRORS
-  if (OrFr_pend_prune_cp(LOCAL_top_or_fr) &&
+  if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr) &&
       BRANCH_LTT(worker_p, OrFr_depth(LOCAL_top_or_fr)) < OrFr_pend_prune_ltt(LOCAL_top_or_fr))
     YAPOR_ERROR_MESSAGE("prune ltt > worker_p branch ltt (q_share_work)");
 #endif /* YAPOR_ERRORS */
@@ -354,7 +364,7 @@ void share_private_nodes(int worker_q) {
       INIT_LOCK(OrFr_lock(or_frame));
       SetOrFr_node(or_frame, sharing_node);
       OrFr_alternative(or_frame) = sharing_node->cp_ap;
-      OrFr_pend_prune_cp(or_frame) = NULL;
+      Set_OrFr_pend_prune_cp(or_frame, NULL);
       OrFr_nearest_leftnode(or_frame) = LOCAL_top_or_fr;
       OrFr_qg_solutions(or_frame) = NULL;
 #ifdef TABLING_INNER_CUTS

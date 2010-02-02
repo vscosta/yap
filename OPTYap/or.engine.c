@@ -200,7 +200,7 @@ int q_share_work(int worker_p) {
     return FALSE;
   }
 #ifdef YAPOR_ERRORS
-  if (OrFr_pend_prune_cp(LOCAL_top_or_fr) &&
+  if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr) &&
       BRANCH_LTT(worker_p, OrFr_depth(LOCAL_top_or_fr)) < OrFr_pend_prune_ltt(LOCAL_top_or_fr))
     YAPOR_ERROR_MESSAGE("prune ltt > worker_p branch ltt (q_share_work)");
 #endif /* YAPOR_ERRORS */

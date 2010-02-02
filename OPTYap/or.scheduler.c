@@ -285,14 +285,14 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
 
 
   /* pending prune ? */
-  if (OrFr_pend_prune_cp(LOCAL_top_or_fr) 
+  if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr) 
       && ! Get_LOCAL_prune_request()
       && CUT_last_worker_left_pending_prune(LOCAL_top_or_fr)) {
 #ifdef TABLING
     choiceptr aux_cp = Get_LOCAL_top_cp();
 #endif /* TABLIG */
-    choiceptr prune_cp = OrFr_pend_prune_cp(LOCAL_top_or_fr);
-    OrFr_pend_prune_cp(LOCAL_top_or_fr) = NULL;
+    choiceptr prune_cp = Get_OrFr_pend_prune_cp(LOCAL_top_or_fr);
+    Set_OrFr_pend_prune_cp(LOCAL_top_or_fr, NULL);
     BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = OrFr_pend_prune_ltt(LOCAL_top_or_fr);
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     prune_shared_branch(prune_cp);

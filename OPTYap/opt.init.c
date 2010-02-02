@@ -213,7 +213,7 @@ void make_root_frames(void) {
   SetOrFr_node(or_fr, B_BASE);
   OrFr_nearest_livenode(or_fr) = NULL;
   OrFr_depth(or_fr) = 0;
-  OrFr_pend_prune_cp(or_fr) = NULL;
+  Set_OrFr_pend_prune_cp(or_fr, NULL);
   OrFr_nearest_leftnode(or_fr) = or_fr;
   OrFr_qg_solutions(or_fr) = NULL;
 #ifdef TABLING_INNER_CUTS

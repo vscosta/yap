@@ -39,7 +39,11 @@ typedef struct or_frame {
   struct or_frame *nearest_livenode;
   /* cut support */
   int depth;
+#ifdef THREADS
+  Int pending_prune_cp_offset;
+#else
   choiceptr pending_prune_cp;
+#endif
   volatile int pending_prune_ltt;
   struct or_frame *nearest_leftnode;
   struct query_goal_solution_frame *query_solutions;
@@ -69,7 +73,14 @@ typedef struct or_frame {
 #endif
 #define OrFr_nearest_livenode(X)  ((X)->nearest_livenode)
 #define OrFr_depth(X)             ((X)->depth)
+#ifdef THREADS
+#define Get_OrFr_pend_prune_cp(X) offset_to_cptr_with_null((X)->pending_prune_cp_offset)
+#define Set_OrFr_pend_prune_cp(X,V)  ((X)->pending_prune_cp_offset = cptr_to_offset_with_null(V))
+#else
 #define OrFr_pend_prune_cp(X)     ((X)->pending_prune_cp)
+#define Get_OrFr_pend_prune_cp(X) ((X)->pending_prune_cp)
+#define Set_OrFr_pend_prune_cp(X,V)  ((X)->pending_prune_cp = (V))
+#endif
 #define OrFr_pend_prune_ltt(X)    ((X)->pending_prune_ltt)
 #define OrFr_nearest_leftnode(X)  ((X)->nearest_leftnode)
 #define OrFr_qg_solutions(X)      ((X)->query_solutions)
