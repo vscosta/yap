@@ -41,21 +41,22 @@ static void share_private_nodes(int worker_q);
 **      Local macros      **
 ** ---------------------- */
 
-#if FULL_COPY
-#define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
-        REMOTE_start_global_copy(Q) = (CELL) (H0);   \
-        REMOTE_end_global_copy(Q)   = (CELL) (H);                  \
-        REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
-        REMOTE_end_local_copy(Q)    = (CELL) (LCL0);         \
-        REMOTE_start_trail_copy(Q)  = (CELL) (Yap_TrailBase);  \
-        REMOTE_end_trail_copy(Q)    = (CELL) (TR)
-#else
+#define INCREMENTAL_COPY 1
+#if INCREMENTAL_COPY
 #define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
         REMOTE_start_global_copy(Q) = (CELL) (REMOTE_top_cp(Q)->cp_h);   \
         REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
         REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
         REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
         REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
+        REMOTE_end_trail_copy(Q)    = (CELL) (TR)
+#else
+#define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
+        REMOTE_start_global_copy(Q) = (CELL) (H0);   \
+        REMOTE_end_global_copy(Q)   = (CELL) (H);                  \
+        REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
+        REMOTE_end_local_copy(Q)    = (CELL) (LCL0);         \
+        REMOTE_start_trail_copy(Q)  = (CELL) (Yap_TrailBase);  \
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 #endif
 
@@ -182,6 +183,7 @@ int p_share_work(void) {
 sync_with_q:
   REMOTE_reply_signal(worker_q) = copy_done;
   while (LOCAL_reply_signal == sharing);
+  while (REMOTE_reply_signal(worker_q) != worker_ready);
   LOCAL_share_request = MAX_WORKERS;
   PUT_IN_REQUESTABLE(worker_id);
 
@@ -315,6 +317,7 @@ sync_with_p:
 #if INCREMENTAL_COPY
   /* install fase --> TR and LOCAL_top_cp->cp_tr are equal */
   aux_tr = ((choiceptr) LOCAL_start_local_copy)->cp_tr;
+  TR = ((choiceptr) LOCAL_start_end_copy)->cp_tr;
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (TR != aux_tr) {
     aux_cell = TrailTerm(--aux_tr);
