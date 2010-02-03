@@ -58,8 +58,8 @@ void shm_map_memory(int id, int size, void *shmaddr) {
 void
 open_mapfile(long TotalArea) {
   char mapfile[20];
-  strcpy(mapfile,"/tmp/mapfile");
-  itos(getpid(), &mapfile[12]);
+  strcpy(mapfile,"./mapfile");
+  itos(getpid(), &mapfile[9]);
   if ((fd_mapfile = open(mapfile, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
     Yap_Error(FATAL_ERROR, TermNil, "open error (open_mapfile)");
   if (lseek(fd_mapfile, TotalArea, SEEK_SET) < 0) 
@@ -213,11 +213,11 @@ void unmap_memory (void) {
     else INFORMATION_MESSAGE("Can't remove shared memory segment %d", shm_mapid[i]);
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
-  strcpy(MapFile,"/tmp/mapfile");
+  strcpy(MapFile,"./mapfile");
 #ifdef ACOW
-  itos(GLOBAL_master_worker, &MapFile[12]);
+  itos(GLOBAL_master_worker, &MapFile[9]);
 #else /* ENV_COPY || SBA */
-  itos(worker_pid(0), &MapFile[12]);
+  itos(worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
