@@ -53,6 +53,9 @@ struct malloc_state *av_		Yap_av			void void
 #if USE_DL_MALLOC
 struct memory_hole memory_holes[MAX_DLMALLOC_HOLES] Yap_MemoryHoles void void
 UInt		nof_memory_holes	Yap_NOfMemoryHoles	void void
+#if defined(YAPOR) || defined(THREADS)
+lockvar         dlmalloc_lock		DLMallocLock		MkLock
+#endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed

@@ -51,6 +51,9 @@
 #if USE_DL_MALLOC
   struct memory_hole  memory_holes[MAX_DLMALLOC_HOLES];
   UInt  nof_memory_holes;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  dlmalloc_lock;
+#endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed

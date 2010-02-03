@@ -136,6 +136,9 @@ static inline char *
 call_malloc(unsigned long int size)
 {
   char *out;
+#if USE_DL_MALLOC
+  LOCK(DLMallocLock);
+#endif
 #if INSTRUMENT_MALLOC
   if (mallocs % 1024*4 == 0) 
     minfo('A');
@@ -145,6 +148,9 @@ call_malloc(unsigned long int size)
   Yap_PrologMode |= MallocMode;
   out = (char *) my_malloc(size);
   Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+  UNLOCK(DLMallocLock);
+#endif
   return out;
 }
 
@@ -158,6 +164,9 @@ static inline char *
 call_realloc(char *p, unsigned long int size)
 {
   char *out;
+#if USE_DL_MALLOC
+  LOCK(DLMallocLock);
+#endif
 #if INSTRUMENT_MALLOC
   if (mallocs % 1024*4 == 0) 
     minfo('A');
@@ -167,6 +176,9 @@ call_realloc(char *p, unsigned long int size)
   Yap_PrologMode |= MallocMode;
   out = (char *) my_realloc0(p, size);
   Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+  UNLOCK(DLMallocLock);
+#endif
   return out;
 }
 
@@ -179,6 +191,9 @@ Yap_ReallocCodeSpace(char *p, unsigned long int size)
 void
 Yap_FreeCodeSpace(char *p)
 {
+#if USE_DL_MALLOC
+  LOCK(DLMallocLock);
+#endif
   Yap_PrologMode |= MallocMode;
 
 #if INSTRUMENT_MALLOC
@@ -188,6 +203,9 @@ Yap_FreeCodeSpace(char *p)
 #endif
   my_free (p);
   Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+  UNLOCK(DLMallocLock);
+#endif
 }
 
 char *
@@ -199,6 +217,9 @@ Yap_AllocAtomSpace(unsigned long int size)
 void
 Yap_FreeAtomSpace(char *p)
 {
+#if USE_DL_MALLOC
+  LOCK(DLMallocLock);
+#endif
   Yap_PrologMode |= MallocMode;
 #if INSTRUMENT_MALLOC
   if (frees % 1024*4 == 0) 
@@ -207,6 +228,9 @@ Yap_FreeAtomSpace(char *p)
 #endif
   my_free (p);
   Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+  UNLOCK(DLMallocLock);
+#endif
 }
 
 #endif
@@ -219,16 +243,28 @@ Yap_InitPreAllocCodeSpace(void)
   char *ptr;
   UInt sz = ScratchPad.msz;
   if (ScratchPad.ptr == NULL) {
+#if USE_DL_MALLOC
+    LOCK(DLMallocLock);
+#endif
     Yap_PrologMode |= MallocMode;
     while (!(ptr = my_malloc(sz))) {
       Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+      UNLOCK(DLMallocLock);
+#endif
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(NULL);
       }
+#if USE_DL_MALLOC
+      LOCK(DLMallocLock);
+#endif
       Yap_PrologMode |= MallocMode;
     }
     Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+    UNLOCK(DLMallocLock);
+#endif
     ScratchPad.ptr = ptr;
   } else {
     ptr = ScratchPad.ptr;
@@ -251,6 +287,9 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
     sz = sz0;
   sz = AdjustLargePageSize(sz+sz/4);
 
+#if USE_DL_MALLOC
+  LOCK(DLMallocLock);
+#endif
 #if INSTRUMENT_MALLOC
   if (reallocs % 1024*4 == 0) 
     minfo('R');
@@ -259,9 +298,15 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
   Yap_PrologMode |= MallocMode;
   if (!(ptr = my_realloc(ScratchPad.ptr, sz, ScratchPad.sz, safe))) {
     Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+    UNLOCK(DLMallocLock);
+#endif
     return NULL;
   }
   Yap_PrologMode &= ~MallocMode;
+#if USE_DL_MALLOC
+  UNLOCK(DLMallocLock);
+#endif
   ScratchPad.sz = ScratchPad.msz = sz;
   ScratchPad.ptr = ptr;
   AuxBase = ptr;

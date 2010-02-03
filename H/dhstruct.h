@@ -51,6 +51,9 @@
 #if USE_DL_MALLOC
 #define Yap_MemoryHoles Yap_heap_regs->memory_holes
 #define Yap_NOfMemoryHoles Yap_heap_regs->nof_memory_holes
+#if defined(YAPOR) || defined(THREADS)
+#define DLMallocLock Yap_heap_regs->dlmalloc_lock
+#endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed

@@ -51,6 +51,9 @@
 #if USE_DL_MALLOC
 
 
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(Yap_heap_regs->dlmalloc_lock);
+#endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
 #ifndef  HeapUsed
