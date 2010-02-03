@@ -2531,6 +2531,7 @@ CheckVoids(compiler_struct *cglobs)
     case get_atom_op:
     case get_num_op:
     case get_float_op:
+    case get_dbterm_op:
     case get_longint_op:
     case get_bigint_op:
     case get_list_op:
@@ -2866,6 +2867,7 @@ c_layout(compiler_struct *cglobs)
     case get_num_op:
     case get_float_op:
     case get_longint_op:
+    case get_dbterm_op:
     case get_bigint_op:
       --cglobs->Uses[rn];
       /* This is not safe if we are in the middle of a disjunction and there
@@ -2943,6 +2945,7 @@ c_layout(compiler_struct *cglobs)
     case put_num_op:
     case put_float_op:
     case put_longint_op:
+    case put_dbterm_op:
     case put_bigint_op:
       rn = checkreg(arg, rn, ic, FALSE, cglobs);
       if (cglobs->Contents[rn] == arg)
