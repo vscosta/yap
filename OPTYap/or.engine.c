@@ -317,7 +317,7 @@ sync_with_p:
 #if INCREMENTAL_COPY
   /* install fase --> TR and LOCAL_top_cp->cp_tr are equal */
   aux_tr = ((choiceptr) LOCAL_start_local_copy)->cp_tr;
-  TR = ((choiceptr) LOCAL_start_end_copy)->cp_tr;
+  TR = ((choiceptr) LOCAL_end_local_copy)->cp_tr;
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (TR != aux_tr) {
     aux_cell = TrailTerm(--aux_tr);
