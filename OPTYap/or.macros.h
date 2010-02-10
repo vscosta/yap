@@ -319,10 +319,8 @@ void SCH_set_load(choiceptr current_cp) {
     LOCAL_load = lub;
   else
     LOCAL_load = lub + YAMOP_LTT(current_cp->cp_ap);
-
   return;
 }
-
 
 static inline
 void SCH_new_alternative(yamop *curpc, yamop *new) {

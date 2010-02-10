@@ -371,8 +371,6 @@ struct local_data{
 #endif /* TABLING */
 };
 
-extern struct local_data *LOCAL;
-
 #define LOCAL_lock                         (LOCAL->lock)
 #define LOCAL_load                         (LOCAL->load)
 #if THREADS

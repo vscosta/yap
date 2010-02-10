@@ -132,6 +132,9 @@ typedef struct
     int  sba_end_;
     int  sba_size_;
 #endif /* SBA */
+#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+    struct local_data *LOCAL_;
+#endif
 #endif /* YAPOR || THREADS */
 #if PUSH_REGS
     /* On a X86 machine, the best solution is to keep the
@@ -696,6 +699,9 @@ EXTERN inline void restore_B(void) {
 #endif /* YAPOR */
 #ifdef COROUTINING
 #define DelayedVars   Yap_REGS.DelayedVars_
+#endif
+#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#define LOCAL	      Yap_REGS.LOCAL_
 #endif
 #define CurrentModule Yap_REGS.CurrentModule_
 #define ARITH_EXCEPTION     Yap_REGS.ARITH_EXCEPTION_
