@@ -26,9 +26,6 @@
 #define _UNICODE 1
 
 #define _UXNT_KERNEL 1
-#include "uxnt.h"			/* my prototypes */
-#include "utf8.c"
-
 #include <windows.h>
 #include <tchar.h>
 #include <wchar.h>
@@ -46,6 +43,9 @@
 #define mkdir _xos_mkdir
 #endif
 #include <errno.h>
+
+#include "uxnt.h"			/* my prototypes */
+#include "utf8.c"
 
 #ifndef TRUE
 #define TRUE 1
