@@ -511,13 +511,16 @@ dnl Check for libraries.
 dnl mingw does not get along well with libm
 dnl cygnus and mingw32 also need wsock32 to use sockets.
 dnl
-if test "$target_os" = "cygwin"
+if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"
 then
   INSTALL_COMMAND=install_win32
-  if test "$cygwin" = "no"
+  if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
-    CC="${CC}  -mno-cygwin"
-    CXX="${CXX}  -mno-cygwin"
+    if test "$target_os" = "cygwin"
+    then
+      CC="${CC}  -mno-cygwin"
+      CXX="${CXX}  -mno-cygwin"
+    fi
     AC_CHECK_LIB(wsock32,main)
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
@@ -530,17 +533,6 @@ then
     ENABLE_WINCONSOLE="#"   
     LIBS="-lcygwin"
    fi
-elif test "$target_os" = "mingw32" 
-then
-  yap_cv_readline=no
-  INSTALL_COMMAND=install_win32
-  ENABLE_WINCONSOLE=""   
-  AC_CHECK_LIB(wsock32,main)
-  AC_CHECK_LIB(psapi,main)
-    if test "$prefix" = "NONE"
-    then
-      prefix="\${SYSTEMDRIVE}/Yap"
-    fi
 else
   INSTALL_COMMAND="install_unix"
   ENABLE_WINCONSOLE="#"
@@ -701,6 +693,9 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	JAVA_HOME="$yap_cv_jpl"
 	if test "x$JAVALIBS" = "x"; then
 	  case "$target_os" in
+	    *cygwin*|*mingw*)
+	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread  ../PLStream/plstream.dll"
+	       	  ;;
 	       *darwin*)
 	       JAVALIBS="-Wl,-framework,JavaVM"
 	       	  ;;
@@ -989,6 +984,8 @@ dnl Linux has both elf and a.out, in this case we found elf
       *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
+	JAVALIBPATH=""
+	JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	YAPLIB="libWYap.a"
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
@@ -1028,9 +1025,11 @@ esac
 
 if test "$dynamic_loading" = "yes"
 then 
+  DYNLIB_LD="$SHLIB_LD"
   YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
   case "$target_os" in
-  *cygwin*!*mingw32*)
+  *cygwin*|*mingw*)
+    DYNLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
     EXTEND_DYNLOADER_PATH=""
     PRE_DYNLOADER_PATH=""
     ;;
@@ -1059,7 +1058,6 @@ then
     LDFLAGS="$LDFLAGS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
-    DYNLIB_LD="$SHLIB_LD"
     ;;
   esac
 else
@@ -1165,7 +1163,7 @@ if test ! "$yap_cv_cplint" = "no"
 	AC_SEARCH_LIBS([array_do_alloc], [glu], [CPLINT_LIBS="-lglu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [])
 	AC_SEARCH_LIBS([Cudd_Init], [cu], [CPLINT_LIBS="-lcu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [-lglu -lm])
 	ENABLE_CPLINT=""
-	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32" 
+	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
 		CPLINT_SHLIB_LD="gcc -shared ../yap.dll"
 	else
