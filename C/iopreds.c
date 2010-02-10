@@ -522,8 +522,10 @@ InitPlIO (void)
 {
   Int i;
 
-  for (i = 0; i < MaxStreams; ++i)
+  for (i = 0; i < MaxStreams; ++i) {
+    INIT_LOCK(Stream[i].streamlock);    
     Stream[i].status = Free_Stream_f;
+  }
   /* alloca alias array */
   if (!FileAliases)
     FileAliases = (AliasDesc)Yap_AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);

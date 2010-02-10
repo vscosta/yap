@@ -368,7 +368,13 @@ Yap_gmp_big_from_64bits(YAP_LONG_LONG i)
   char s[64];
   MP_INT new;
 
+#ifdef _WIN32
+  snprintf(s,64,"%I64d", (long long int)i);
+#elif HAVE_SNPRINTF
+  snprintf(s, 64, "%lld", (long long int)i);
+#else
   sprintf(s, "%lld", (long long int)i);
+#endif
   mpz_init_set_str (&new, s, 10);
   return MkBigAndClose(&new);
 }

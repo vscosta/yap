@@ -584,7 +584,11 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 	return 0;
       }
       mpz_get_str (s, 10, &g);
+#ifdef _WIN32
+      sscanf(s, "%I64d", (long long int *)i);
+#else
       sscanf(s, "%lld", (long long int *)i);
+#endif
       return 1;
 #endif
     }
@@ -907,7 +911,13 @@ X_API int PL_put_int64(term_t t, int64_t n)
   char s[64];
   MP_INT rop;
 
+#ifdef _WIN32
+  snprintf(s, 64, "%I64d", (long long int)n);
+#elif HAVE_SNPRINTF
+  snprintf(s, 64, "%lld", (long long int)n);
+#else
   sprintf(s, "%lld", (long long int)n);
+#endif
   mpz_init_set_str (&rop, s, 10);
   Yap_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop));
   return TRUE;
@@ -1315,7 +1325,13 @@ X_API int PL_unify_int64(term_t t, int64_t n)
   char s[64];
   MP_INT rop;
 
+#ifdef _WIN32
+  snprintf(s, 64, "%I64d", (long long int)n);
+#elif HAVE_SNPRINTF
+  snprintf(s, 64, "%lld", (long long int)n);
+#else
   sprintf(s, "%lld", (long long int)n);
+#endif
   mpz_init_set_str (&rop, s, 10);
   iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(Yap_GetFromSlot(t),iterm);
@@ -1602,7 +1618,13 @@ X_API int PL_unify_term(term_t l,...)
 	  char s[64];
 	  MP_INT rop;
 
+#ifdef _WIN32
+	  snprintf(s, 64, "%I64d", va_arg(ap, long long int));
+#elif HAVE_SNPRINTF
+	  snprintf(s, 64, "%lld", va_arg(ap, long long int));
+#else
 	  sprintf(s, "%lld", va_arg(ap, long long int));
+#endif	  
 	  mpz_init_set_str (&rop, s, 10);
 	  *pt++ = YAP_MkBigNumTerm((void *)&rop);
 	}
@@ -2336,7 +2358,11 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
       return PL_error(NULL,0,NULL, ERR_EVALUATION, AtomToSWIAtom(Yap_LookupAtom("int_overflow")));
     }
     mpz_get_str (s, 10, &g);
+#ifdef _WIN32
+    sscanf(s, "%I64d", (long long int *)val);
+#else
     sscanf(s, "%lld", (long long int *)val);
+#endif
     return 1;
 #endif
   }

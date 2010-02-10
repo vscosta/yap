@@ -1141,8 +1141,8 @@ InitThreadHandles(void)
   Yap_heap_regs->thread_handle[0].in_use = TRUE;
   Yap_heap_regs->thread_handle[0].default_yaam_regs = 
     &Yap_standard_regs;
-  Yap_heap_regs->thread_handle[0].handle = pthread_self();
-  Yap_heap_regs->thread_handle[0].handle = pthread_self();
+  Yap_heap_regs->thread_handle[0].pthread_handle = pthread_self();
+  Yap_heap_regs->thread_handle[0].pthread_handle = pthread_self();
   pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
   pthread_mutex_init(&ThreadHandle[0].tlock_status, NULL);
   Yap_heap_regs->thread_handle[0].tdetach = MkAtomTerm(AtomFalse);
@@ -1183,8 +1183,8 @@ InitCodes(void)
       Yap_heap_regs->wl[i].consultbase = Yap_heap_regs->wl[i].consultsp =
 	Yap_heap_regs->wl[i].consultlow + Yap_heap_regs->wl[i].consultcapacity;
       Yap_heap_regs->wl[i].Gc_timestamp = 0;
+      Yap_heap_regs->wl[i].ball_term = NULL;
     }
-    Yap_heap_regs->wl[i].ball_term = NULL;
   }
 #else
   Yap_heap_regs->wl.dynamic_arrays = NULL;

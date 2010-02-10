@@ -76,7 +76,9 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
     char tmp[256];
     Term t;
 
-#if HAVE_SNPRINTF
+#ifdef _WIN32
+    snprintf(tmp,256,"%I64u",n);
+#elif HAVE_SNPRINTF
     snprintf(tmp,256,"%llu",n);
 #else    
     sprintf(tmp,"%llu",n);

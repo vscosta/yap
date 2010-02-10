@@ -113,12 +113,6 @@ STATIC_PROTO (int chdir, (char *));
 char yap_pwd[YAP_FILENAME_MAX];
 #endif
 
-#if HAVE_SIGNAL
-
-static int             snoozing = FALSE;
-
-#endif
-
 STD_PROTO (void exit, (int));
 
 #ifdef _WIN32
@@ -1492,6 +1486,13 @@ Yap_ProcessSIGINT(void)
   return ProcessSIGINT();
 }
 
+
+#if !_MSC_VER && !defined(__MINGW32__)
+
+#if HAVE_SIGNAL
+static int             snoozing = FALSE;
+#endif
+
 /* This function is called from the signal handler to process signals.
    We assume we are within the context of the signal handler, whatever
    that might be
@@ -1543,6 +1544,7 @@ HandleSIGINT (int sig)
   ProcessSIGINT();
   UNLOCK(SignalLock);
 }
+#endif
 
 #if !defined(_WIN32)
 /* this routine is called if the system activated the alarm */
@@ -3113,7 +3115,10 @@ p_win_registry_get_value(void)
     case REG_DWORD:
       recover_space(k, KeyAt);
       recover_space(name, NameAt);
-      return Yap_unify(MkIntegerTerm(*((DWORD *)data)),ARG3);
+      {
+	DWORD *d = (DWORD *)data;
+	return Yap_unify(MkIntegerTerm((Int)d[0]),ARG3);
+      }
     default:
       recover_space(k, KeyAt);
       recover_space(name, NameAt);

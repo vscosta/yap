@@ -659,7 +659,11 @@ p_socket_bind(void)
 
     if (IsVarTerm(tport)) {
       /* get the port number */
+#if _WIN32 || defined(__MINGW32__)
+      int namelen;
+#else
       unsigned int namelen;
+#endif
       Term t;
       if (getsockname(fd, (struct sockaddr *)&saddr, &namelen) < 0) {
 #if HAVE_STRERROR
@@ -908,7 +912,11 @@ p_socket_accept(void)
     struct sockaddr_in caddr;
     Term tcli;
     char *s;
+#if _WIN32 || defined(__MINGW32__)
+    int len;
+#else
     unsigned int len;
+#endif
 
     len = sizeof(caddr);
     memset((void *)&caddr,(int) 0, sizeof(caddr));
@@ -950,7 +958,13 @@ p_socket_buffering(void)
   Atom mode;
   int fd;
   int writing;
-  unsigned int bufsize, len;
+#if _WIN32 || defined(__MINGW32__)
+  int bufsize;
+  int len;
+#else
+  unsigned int bufsize;
+  unsigned int len;
+#endif
   int sno;
 
   if ((sno = Yap_CheckSocketStream(t1, "socket_buffering/4")) < 0) {

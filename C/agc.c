@@ -429,7 +429,11 @@ atom_gc(void)
   tot_agc_time += agc_time;
   tot_agc_recovered += agc_collected;
   if (gc_verbose) {
+#ifdef _WIN32
+    fprintf(Yap_stderr, "%%   Collected %I64d bytes.\n", agc_collected);
+#else
     fprintf(Yap_stderr, "%%   Collected %lld bytes.\n", agc_collected);
+#endif
     fprintf(Yap_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
   }
 }

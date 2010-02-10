@@ -161,7 +161,7 @@ typedef struct {
   struct yami *p;
 } YAP_dogoalinfo;
 
-typedef int   (*YAP_agc_hook)(YAP_Atom);
+typedef int  (*YAP_agc_hook)(void *_Atom);
 
 /********* execution mode ***********************/
 

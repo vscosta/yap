@@ -263,7 +263,7 @@ p_create_thread(void)
     return FALSE;
   ThreadHandle[new_worker_id].id = new_worker_id;
   ThreadHandle[new_worker_id].ref_count = 1;
-  if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
+  if ((ThreadHandle[new_worker_id].ret = pthread_create(&ThreadHandle[new_worker_id].pthread_handle, NULL, thread_run, (void *)(&(ThreadHandle[new_worker_id].id)))) == 0) {
     /* wait until the client is initialised */
     return TRUE;
   }
@@ -373,7 +373,7 @@ Yap_thread_create_engine(thread_attr *ops)
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return FALSE;
   ThreadHandle[new_id].id = new_id;
-  ThreadHandle[new_id].handle = pthread_self();
+  ThreadHandle[new_id].pthread_handle = pthread_self();
   ThreadHandle[new_id].ref_count = 0;
   setup_engine(new_id);
   return TRUE;
@@ -384,13 +384,12 @@ Yap_thread_attach_engine(int wid)
 {
   DEBUG_TLOCK_ACCESS(7, wid);
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
-  if (ThreadHandle[wid].ref_count &&
-      ThreadHandle[wid].handle != pthread_self()) {
+  if (ThreadHandle[wid].ref_count ) {
     DEBUG_TLOCK_ACCESS(8, wid);
     pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
     return FALSE;
   }
-  ThreadHandle[wid].handle = pthread_self();
+  ThreadHandle[wid].pthread_handle = pthread_self();
   ThreadHandle[wid].ref_count++;
   worker_id = wid;
   DEBUG_TLOCK_ACCESS(9, wid);
@@ -403,8 +402,6 @@ Yap_thread_detach_engine(int wid)
 {
   DEBUG_TLOCK_ACCESS(10, wid);
   pthread_mutex_lock(&(ThreadHandle[wid].tlock));
-  if (ThreadHandle[wid].handle == pthread_self())
-    ThreadHandle[wid].handle = 0;
   ThreadHandle[wid].ref_count--;
   DEBUG_TLOCK_ACCESS(11, wid);
   pthread_mutex_unlock(&(ThreadHandle[wid].tlock));
@@ -442,7 +439,7 @@ p_thread_join(void)
   }
   UNLOCK(ThreadHandlesLock);
   /* make sure this lock is accessible */
-  if (pthread_join(ThreadHandle[tid].handle, NULL) < 0) {
+  if (pthread_join(ThreadHandle[tid].pthread_handle, NULL) < 0) {
     /* ERROR */
     return FALSE;
   }
@@ -470,7 +467,7 @@ p_thread_detach(void)
   Int tid = IntegerOfTerm(Deref(ARG1));
   pthread_mutex_lock(&(ThreadHandle[tid].tlock));
   DEBUG_TLOCK_ACCESS(14, tid);
-  if (pthread_detach(ThreadHandle[tid].handle) < 0) {
+  if (pthread_detach(ThreadHandle[tid].pthread_handle) < 0) {
     /* ERROR */
     DEBUG_TLOCK_ACCESS(15, tid);
     pthread_mutex_unlock(&(ThreadHandle[tid].tlock));
