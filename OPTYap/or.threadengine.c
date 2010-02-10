@@ -36,16 +36,6 @@
         REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
         REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
-#undef COMPUTE_SEGMENTS_TO_COPY_TO
-#define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
-        REMOTE_start_global_copy(Q) = (CELL) (H0);   \
-        REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
-        REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
-        REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
-        REMOTE_end_local_copy(Q)    = (CELL) (GetOrFr_node(GLOBAL_root_or_fr));         \
-        REMOTE_start_trail_copy(Q)  = (CELL) (Yap_TrailBase);  \
-        REMOTE_start_trail_copy(Q)  = (CELL) (REMOTE_top_cp(Q)->cp_tr);  \
-        REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 
 /* ------------------------------------- **
 **      Local functions declaration      **
