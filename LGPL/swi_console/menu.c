@@ -218,15 +218,6 @@ rlc_add_menu_bar(HWND cwin)
 
 #define MEN_MAGIC 0x6c4a58e0
 
-typedef struct menu_data
-{ intptr_t magic;				/* safety */
-  const TCHAR *menu;			/* menu to operate on */
-  const TCHAR *label;			/* new label */
-  const TCHAR *before;			/* add before this one */
-  int         rc;			/* result */
-} menu_data;
-
-
 void
 rlc_menu_action(rlc_console c, menu_data *data)
 { RlcData b = rlc_get_data(c);
