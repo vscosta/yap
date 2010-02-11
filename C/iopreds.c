@@ -2263,6 +2263,34 @@ p_access(void)
 }
 
 static Int
+p_exists_directory(void)
+{
+  Term tname = Deref(ARG1);
+  char *file_name;
+
+  if (IsVarTerm(tname)) {
+    Yap_Error(INSTANTIATION_ERROR, tname, "exists_directory/1");
+    return FALSE;
+  } else if (!IsAtomTerm (tname)) {
+    Yap_Error(TYPE_ERROR_ATOM, tname, "exists_directory/1");
+    return FALSE;
+  } else {
+#if HAVE_STAT
+    struct SYSTEM_STAT ss;
+
+    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
+    if (SYSTEM_STAT(file_name, &ss) != 0) {
+    /* ignore errors while checking a file */
+      return FALSE;
+    }
+    return (S_ISDIR(ss.st_mode));
+#else
+    return FALSE;
+#endif
+  }
+}
+
+static Int
 p_open (void)
 {				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
   Term file_name, t, t2, topts, tenc;
@@ -6258,6 +6286,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$open", 5, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
