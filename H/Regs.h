@@ -132,10 +132,10 @@ typedef struct
     int  sba_end_;
     int  sba_size_;
 #endif /* SBA */
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#endif /* YAPOR || THREADS */
+#if (defined(YAPOR) || defined(TABLING))
     struct local_data *LOCAL_;
 #endif
-#endif /* YAPOR || THREADS */
 #if PUSH_REGS
     /* On a X86 machine, the best solution is to keep the
        X registers on a global variable, whose address is known between
@@ -700,7 +700,7 @@ EXTERN inline void restore_B(void) {
 #ifdef COROUTINING
 #define DelayedVars   Yap_REGS.DelayedVars_
 #endif
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#if defined(YAPOR) || defined(TABLING)
 #define LOCAL	      Yap_REGS.LOCAL_
 #endif
 #define CurrentModule Yap_REGS.CurrentModule_
