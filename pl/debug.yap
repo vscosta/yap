@@ -589,6 +589,9 @@ debugging :-
 '$debugger_write'(Stream, G) :-
 	writeq(Stream, G).
 
+'$action'(13,P,CallNumber,G,Module,Zip) :- !,	% newline 	creep
+	get0(user_input,C),
+	'$action'(C,P,CallNumber,G,Module,Zip).
 %'$action'(10,_,_,_,_,on) :-			% newline 	creep
 %	nb_setval('$debug_jump',false).
 '$action'(10,_,_,_,_,on) :- !,			% newline 	creep

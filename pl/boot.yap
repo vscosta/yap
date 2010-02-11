@@ -571,6 +571,9 @@ true :- true.
 '$another' :-
 	format(user_error,' ? ',[]),
 	get0(user_input,C),
+	'$do_another'(C).
+
+'$do_another'(C) :-
 	(   C== 0'; ->  '$skip'(user_input,10), %'
 	    '$add_nl_outside_console',
 	    fail
@@ -581,6 +584,10 @@ true :- true.
 	        ;
 		   print_message(help,yes)
 		)
+	;
+	    C== 13 -> 
+	    get0(user_input,NC),
+	    '$do_another'(NC)	    
 	;
 	    C== -1 -> halt
 	;
