@@ -34,7 +34,6 @@
 ** ------------------------------------------- */
 
 #ifndef THREADS
-struct local_data *LOCAL;
 #ifdef YAPOR
 struct worker WORKER;
 #endif /* YAPOR */
