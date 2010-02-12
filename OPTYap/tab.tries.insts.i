@@ -1395,9 +1395,9 @@
 
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
     heap_arity -= 4;
-    *t_dbl = *++aux_stack_ptr;
+    t_dbl[0] = *++aux_stack_ptr;
     ++aux_stack_ptr;  /* jump the float/longint extension mark */
-    *(t_dbl + 1) = *++aux_stack_ptr;
+    t_dbl[1] = *++aux_stack_ptr;
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
     heap_arity -= 2;
     *t_dbl = *++aux_stack_ptr;
