@@ -483,17 +483,19 @@ dump_action(bind(Who,What,Extra), _, T, L) :-
 	integer(Who), !,
 	handle_bind_extra(Extra, T, Command),
 	handle_constant(What, T, Constant),
+	check_atom_dbref(What, Constant, ExtraAction),
 	format(L,'      if (is_regcopy(myregs, nofregs, Yap_regnotoreg(~d))) {
-	clause->Tag = ~s;~s
+	~sclause->Tag = ~s;~s
 	return;
-      }~n', [Who,Constant,Command]).
+      }~n', [Who, ExtraAction, Constant, Command]).
 dump_action(bind(Who,What,Extra), _, T, L) :-
 	handle_bind_extra(Extra, T, Command),
 	handle_constant(What, T, Constant),
+	check_atom_dbref(What, Constant, ExtraAction),
 	format(L,'      if (is_regcopy(myregs, nofregs, cl->u.~s.~s)) {
-	clause->Tag = ~s;~s
+	~sclause->Tag = ~s;~s
 	return;
-      }~n', [T,Who,Constant,Command]).
+      }~n', [T, Who, ExtraAction, Constant, Command]).
 dump_action(new(Who), _, T, L) :-
 	format(L,'      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.~s.~s))) {
 	clause->Tag = (CELL)NULL;
@@ -532,7 +534,20 @@ dump_action(logical, _, _, L) :-
 	clause->Tag = (CELL)NULL;
       }
       return;~n', []).
-	
+
+
+%
+% atoms may actually be dbrefs :(
+check_atom_dbref(Constant, What, ExtraAction) :-
+	Constant = [0'c|_],  !, %0'c
+	format_to_chars("if (IsApplTerm(~s)) {
+          CELL *pt = RepAppl(~s);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = ~s;
+	} else
+	  ",[What,What,What], ExtraAction).	
+check_atom_dbref(_, _, "").
+
 handle_bind_extra([], _, "").
 handle_bind_extra(t_ptr=[], _,S) :- !,
 	format_to_chars("~n	clause->u.t_ptr = (CELL)NULL;",[],S).
@@ -589,17 +604,19 @@ dump_head_action(bind(Who,What,Extra), _, T, L) :-
 	integer(Who), !,
 	handle_bind_extra(Extra, T, Command),
 	handle_constant(What, T, Constant),
+	check_atom_dbref(What, Constant, ExtraAction),
 	format(L,'      if (iarg == Yap_regnotoreg(~d)) {
-	clause->Tag = ~s;~s
+	~sclause->Tag = ~s;~s
 	return;
-      }~n', [Who,Constant,Command]).
+      }~n', [Who,ExtraAction,Constant,Command]).
 dump_head_action(bind(Who,What,Extra), _, T, L) :-
 	handle_constant(What, T, Constant),
 	handle_bind_extra(Extra, T, Command),
+	check_atom_dbref(What, Constant, ExtraAction),
 	format(L,'      if (iarg == cl->u.~s.~s) {
-	clause->Tag = ~s;~s
+	~sclause->Tag = ~s;~s
 	return;
-      }~n', [T,Who,Constant,Command]).
+      }~n', [T,Who,ExtraAction,Constant,Command]).
 dump_head_action(new(Who), _, _, _) :- Who = [0'y|_], !. % 0'y done
 dump_head_action(new(Who), _, T, L) :-
 	format(L,'      if (iarg == cl->u.~s.~s) {

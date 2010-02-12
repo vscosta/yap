@@ -11,95 +11,195 @@
       break;
     case _get_2atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	clause->Tag = cl->u.cc.c1;
+	if (IsApplTerm(cl->u.cc.c1)) {
+          CELL *pt = RepAppl(cl->u.cc.c1);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cc.c1;
+	} else
+	  clause->Tag = cl->u.cc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	clause->Tag = cl->u.cc.c2;
+	if (IsApplTerm(cl->u.cc.c2)) {
+          CELL *pt = RepAppl(cl->u.cc.c2);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cc.c2;
+	} else
+	  clause->Tag = cl->u.cc.c2;
 	return;
       }
       cl = NEXTOP(cl,cc);
       break;
     case _get_3atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	clause->Tag = cl->u.ccc.c1;
+	if (IsApplTerm(cl->u.ccc.c1)) {
+          CELL *pt = RepAppl(cl->u.ccc.c1);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccc.c1;
+	} else
+	  clause->Tag = cl->u.ccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	clause->Tag = cl->u.ccc.c2;
+	if (IsApplTerm(cl->u.ccc.c2)) {
+          CELL *pt = RepAppl(cl->u.ccc.c2);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccc.c2;
+	} else
+	  clause->Tag = cl->u.ccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	clause->Tag = cl->u.ccc.c3;
+	if (IsApplTerm(cl->u.ccc.c3)) {
+          CELL *pt = RepAppl(cl->u.ccc.c3);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccc.c3;
+	} else
+	  clause->Tag = cl->u.ccc.c3;
 	return;
       }
       cl = NEXTOP(cl,ccc);
       break;
     case _get_4atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	clause->Tag = cl->u.cccc.c1;
+	if (IsApplTerm(cl->u.cccc.c1)) {
+          CELL *pt = RepAppl(cl->u.cccc.c1);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccc.c1;
+	} else
+	  clause->Tag = cl->u.cccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	clause->Tag = cl->u.cccc.c2;
+	if (IsApplTerm(cl->u.cccc.c2)) {
+          CELL *pt = RepAppl(cl->u.cccc.c2);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccc.c2;
+	} else
+	  clause->Tag = cl->u.cccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	clause->Tag = cl->u.cccc.c3;
+	if (IsApplTerm(cl->u.cccc.c3)) {
+          CELL *pt = RepAppl(cl->u.cccc.c3);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccc.c3;
+	} else
+	  clause->Tag = cl->u.cccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	clause->Tag = cl->u.cccc.c4;
+	if (IsApplTerm(cl->u.cccc.c4)) {
+          CELL *pt = RepAppl(cl->u.cccc.c4);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccc.c4;
+	} else
+	  clause->Tag = cl->u.cccc.c4;
 	return;
       }
       cl = NEXTOP(cl,cccc);
       break;
     case _get_5atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	clause->Tag = cl->u.ccccc.c1;
+	if (IsApplTerm(cl->u.ccccc.c1)) {
+          CELL *pt = RepAppl(cl->u.ccccc.c1);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccccc.c1;
+	} else
+	  clause->Tag = cl->u.ccccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	clause->Tag = cl->u.ccccc.c2;
+	if (IsApplTerm(cl->u.ccccc.c2)) {
+          CELL *pt = RepAppl(cl->u.ccccc.c2);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccccc.c2;
+	} else
+	  clause->Tag = cl->u.ccccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	clause->Tag = cl->u.ccccc.c3;
+	if (IsApplTerm(cl->u.ccccc.c3)) {
+          CELL *pt = RepAppl(cl->u.ccccc.c3);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccccc.c3;
+	} else
+	  clause->Tag = cl->u.ccccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	clause->Tag = cl->u.ccccc.c4;
+	if (IsApplTerm(cl->u.ccccc.c4)) {
+          CELL *pt = RepAppl(cl->u.ccccc.c4);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccccc.c4;
+	} else
+	  clause->Tag = cl->u.ccccc.c4;
 	return;
       }
       if (iarg == Yap_regnotoreg(5)) {
-	clause->Tag = cl->u.ccccc.c5;
+	if (IsApplTerm(cl->u.ccccc.c5)) {
+          CELL *pt = RepAppl(cl->u.ccccc.c5);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.ccccc.c5;
+	} else
+	  clause->Tag = cl->u.ccccc.c5;
 	return;
       }
       cl = NEXTOP(cl,ccccc);
       break;
     case _get_6atoms:
       if (iarg == Yap_regnotoreg(1)) {
-	clause->Tag = cl->u.cccccc.c1;
+	if (IsApplTerm(cl->u.cccccc.c1)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c1);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c1;
+	} else
+	  clause->Tag = cl->u.cccccc.c1;
 	return;
       }
       if (iarg == Yap_regnotoreg(2)) {
-	clause->Tag = cl->u.cccccc.c2;
+	if (IsApplTerm(cl->u.cccccc.c2)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c2);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c2;
+	} else
+	  clause->Tag = cl->u.cccccc.c2;
 	return;
       }
       if (iarg == Yap_regnotoreg(3)) {
-	clause->Tag = cl->u.cccccc.c3;
+	if (IsApplTerm(cl->u.cccccc.c3)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c3);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c3;
+	} else
+	  clause->Tag = cl->u.cccccc.c3;
 	return;
       }
       if (iarg == Yap_regnotoreg(4)) {
-	clause->Tag = cl->u.cccccc.c4;
+	if (IsApplTerm(cl->u.cccccc.c4)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c4);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c4;
+	} else
+	  clause->Tag = cl->u.cccccc.c4;
 	return;
       }
       if (iarg == Yap_regnotoreg(5)) {
-	clause->Tag = cl->u.cccccc.c5;
+	if (IsApplTerm(cl->u.cccccc.c5)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c5);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c5;
+	} else
+	  clause->Tag = cl->u.cccccc.c5;
 	return;
       }
       if (iarg == Yap_regnotoreg(6)) {
-	clause->Tag = cl->u.cccccc.c6;
+	if (IsApplTerm(cl->u.cccccc.c6)) {
+          CELL *pt = RepAppl(cl->u.cccccc.c6);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.cccccc.c6;
+	} else
+	  clause->Tag = cl->u.cccccc.c6;
 	return;
       }
       cl = NEXTOP(cl,cccccc);
@@ -455,7 +555,12 @@
       break;
     case _get_atom:
       if (iarg == cl->u.xc.x) {
-	clause->Tag = cl->u.xc.c;
+	if (IsApplTerm(cl->u.xc.c)) {
+          CELL *pt = RepAppl(cl->u.xc.c);
+	  clause->Tag = AbsAppl((CELL *)pt[0]);
+	  clause->u.t_ptr = cl->u.xc.c;
+	} else
+	  clause->Tag = cl->u.xc.c;
 	return;
       }
       cl = NEXTOP(cl,xc);
