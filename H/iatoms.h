@@ -58,6 +58,7 @@
   AtomCut = Yap_LookupAtom("!");
   AtomCutBy = Yap_FullLookupAtom("$cut_by");
   AtomDAbort = Yap_FullLookupAtom("$abort");
+  AtomDBREF = Yap_LookupAtom("DBRef");
   AtomDBReference = Yap_LookupAtom("db_reference");
   AtomDBTerm = Yap_LookupAtom("db_term");
   AtomDBref = Yap_FullLookupAtom("$dbref");
