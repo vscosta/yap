@@ -1171,6 +1171,8 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	t->Tok = Ord(kind = Name_tok);
 	if (ch == '(')
 	  solo_flag = FALSE;
+	else
+	  solo_flag = TRUE;
       }
       break;
     
