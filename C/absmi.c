@@ -14297,11 +14297,11 @@ Yap_absmi(int inp)
 	  goto creep;
 	}
 	UNLOCK(SignalLock);
-	saveregs();
+	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	}
-	setregs();
+	setregs_and_ycache();
 	goto execute_after_comma;
 	ENDCACHE_Y_AS_ENV();
 
