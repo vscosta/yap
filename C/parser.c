@@ -499,7 +499,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	  if (func == NULL) {
 	    Yap_ErrorMessage = "Heap Overflow";
 	    FAIL;
-	  }	  
+	  }
 	  t = ParseTerm(oprprio, FailBuff);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
