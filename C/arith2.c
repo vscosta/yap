@@ -1117,13 +1117,15 @@ p_binary_is(void)
     return(FALSE);
   }
   t1 = Yap_Eval(Deref(ARG3));
-  if (t1 == 0L)
+  if (!Yap_FoundArithError(t1, ARG3)) {
     return FALSE;
+  }
   t2 = Yap_Eval(Deref(ARG4));
-  if (t2 == 0L)
+  if (!Yap_FoundArithError(t2, ARG4)) {
     return FALSE;
+  }
   if (IsIntTerm(t)) {
-    Term tout = Yap_FoundArithError(eval2(IntegerOfTerm(t), t1, t2), 0L);
+    Term tout = Yap_FoundArithError(eval2(IntOfTerm(t), t1, t2), 0L);
     if (!tout)
       return FALSE;
     return Yap_unify_constant(ARG1,tout);

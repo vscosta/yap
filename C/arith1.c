@@ -797,8 +797,9 @@ p_unary_is(void)
     return FALSE;
   }
   top = Yap_Eval(Deref(ARG3));
-  if (top == 0L)
+  if (!Yap_FoundArithError(top, ARG3)) {
     return FALSE;
+  }
   if (IsIntTerm(t)) {
     Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top), Deref(ARG3));
     if (!tout)
