@@ -28,13 +28,12 @@
 		  itrie_save/2,
 		  itrie_save_as_trie/2,
 		  itrie_load/2,
+		  itrie_save2stream/2,
+		  itrie_loadFromstream/2,
 		  itrie_stats/4,
 		  itrie_max_stats/4,
 		  itrie_usage/4,
-		  itrie_print/1,
-		  %added by nf
-		  itrie_save2stream/2,
-		  itrie_loadFromstream/2
+		  itrie_print/1
           ]).
 
 :- load_foreign_files([itries], [], init_itries).

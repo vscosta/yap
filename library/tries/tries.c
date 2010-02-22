@@ -104,13 +104,13 @@ void init_tries(void) {
 /*      Backwards Compatibility      */
 /* --------------------------------- */
 
-/* open_trie(+Trie) */
+/* open_trie(-Trie) */
 static int p_open_trie(void) {
   return p_trie_open();
 }
 
 
-/* close_trie(-Trie) */
+/* close_trie(+Trie) */
 static int p_close_trie(void) {
   return p_trie_close();
 }
@@ -122,7 +122,7 @@ static int p_close_all_tries(void) {
 }
 
 
-/* put_trie_entry(-Mode,-Trie,-Entry,+Ref) */
+/* put_trie_entry(+Mode,+Trie,+Entry,-Ref) */
 #define arg_mode  YAP_ARG1
 #define arg_trie  YAP_ARG2
 #define arg_entry YAP_ARG3
@@ -156,7 +156,7 @@ static int p_put_trie_entry(void) {
 #undef arg_ref
 
 
-/* get_trie_entry(-Mode,-Ref,+Entry) */
+/* get_trie_entry(+Mode,+Ref,-Entry) */
 #define arg_mode  YAP_ARG1
 #define arg_ref   YAP_ARG2
 #define arg_entry YAP_ARG3
@@ -188,13 +188,13 @@ static int p_get_trie_entry(void) {
 #undef arg_entry
 
 
-/* remove_trie_entry(-Ref) */
+/* remove_trie_entry(+Ref) */
 static int p_remove_trie_entry(void) {
   return p_trie_remove_entry();
 }
 
 
-/* print_trie(-Trie) */
+/* print_trie(+Trie) */
 static int p_print_trie(void) {
   return p_trie_print();
 }
@@ -205,7 +205,7 @@ static int p_print_trie(void) {
 /*      Local Procedures      */
 /* -------------------------- */
 
-/* trie_open(+Trie) */
+/* trie_open(-Trie) */
 #define arg_trie YAP_ARG1
 static int p_trie_open(void) {
   TrEntry trie;
@@ -221,7 +221,7 @@ static int p_trie_open(void) {
 #undef arg_trie
 
 
-/* trie_close(-Trie) */
+/* trie_close(+Trie) */
 #define arg_trie YAP_ARG1
 static int p_trie_close(void) {
   /* check arg */
@@ -275,7 +275,7 @@ static int p_trie_mode(void) {
 #undef arg_mode
 
 
-/* trie_put_entry(-Trie,-Entry,+Ref) */
+/* trie_put_entry(+Trie,+Entry,-Ref) */
 #define arg_trie  YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
@@ -295,7 +295,7 @@ static int p_trie_put_entry(void) {
 #undef arg_ref
 
 
-/* trie_check_entry(-Trie,-Entry,+Ref) */
+/* trie_check_entry(+Trie,+Entry,-Ref) */
 #define arg_trie  YAP_ARG1
 #define arg_entry YAP_ARG2
 #define arg_ref   YAP_ARG3
@@ -316,7 +316,7 @@ static int p_trie_check_entry(void) {
 #undef arg_ref
 
 
-/* trie_get_entry(-Ref,+Entry) */
+/* trie_get_entry(+Ref,-Entry) */
 #define arg_ref   YAP_ARG1
 #define arg_entry YAP_ARG2
 static int p_trie_get_entry(void) {
@@ -334,7 +334,7 @@ static int p_trie_get_entry(void) {
 #undef arg_entry
 
 
-/* trie_get_first_entry(-Trie,+Ref) */
+/* trie_get_first_entry(+Trie,-Ref) */
 #define arg_trie YAP_ARG1
 #define arg_ref  YAP_ARG2
 static int p_trie_get_first_entry(void) {
@@ -353,7 +353,7 @@ static int p_trie_get_first_entry(void) {
 #undef arg_ref
 
 
-/* trie_get_last_entry(-Trie,+Ref) */
+/* trie_get_last_entry(+Trie,-Ref) */
 #define arg_trie YAP_ARG1
 #define arg_ref  YAP_ARG2
 static int p_trie_get_last_entry(void) {
@@ -372,7 +372,7 @@ static int p_trie_get_last_entry(void) {
 #undef arg_ref
 
 
-/* trie_traverse(-Trie,-FirstRef,+Ref) */
+/* trie_traverse(+Trie,+FirstRef,-Ref) */
 #define arg_trie     YAP_ARG1
 #define arg_init_ref YAP_ARG2
 #define arg_ref      YAP_ARG3
@@ -397,7 +397,7 @@ static int p_trie_traverse_init(void) {
 #undef arg_ref
 
 
-/* trie_traverse(-Trie,-FirstRef,+Ref) */
+/* trie_traverse(+Trie,+FirstRef,-Ref) */
 #define arg_trie     YAP_ARG1
 #define arg_init_ref YAP_ARG2
 #define arg_ref      YAP_ARG3
@@ -416,7 +416,7 @@ static int p_trie_traverse_cont(void) {
 #undef arg_ref
 
 
-/* trie_remove_entry(-Ref) */
+/* trie_remove_entry(+Ref) */
 #define arg_ref YAP_ARG1
 static int p_trie_remove_entry(void) {
   /* check arg */
@@ -430,7 +430,7 @@ static int p_trie_remove_entry(void) {
 #undef arg_ref
 
 
-/* trie_remove_subtree(-Ref) */
+/* trie_remove_subtree(+Ref) */
 #define arg_ref YAP_ARG1
 static int p_trie_remove_subtree(void) {
   /* check arg */
@@ -444,7 +444,7 @@ static int p_trie_remove_subtree(void) {
 #undef arg_ref
 
 
-/* trie_join(-TrieDest,-TrieSource) */
+/* trie_join(+TrieDest,+TrieSource) */
 #define arg_trie_dest   YAP_ARG1
 #define arg_trie_source YAP_ARG2
 static int p_trie_join(void) {
@@ -462,7 +462,7 @@ static int p_trie_join(void) {
 #undef arg_trie_source
 
 
-/* trie_intersect(-TrieDest,-TrieSource) */
+/* trie_intersect(+TrieDest,+TrieSource) */
 #define arg_trie_dest   YAP_ARG1
 #define arg_trie_source YAP_ARG2
 static int p_trie_intersect(void) {
@@ -480,7 +480,7 @@ static int p_trie_intersect(void) {
 #undef arg_trie_source
 
 
-/* trie_count_join(-Trie1,-Trie2,+Entries) */
+/* trie_count_join(+Trie1,+Trie2,-Entries) */
 #define arg_trie1   YAP_ARG1
 #define arg_trie2   YAP_ARG2
 #define arg_entries YAP_ARG3
@@ -502,7 +502,7 @@ static int p_trie_count_join(void) {
 #undef arg_entries
 
 
-/* trie_count_intersect(-Trie1,-Trie2,+Entries) */
+/* trie_count_intersect(+Trie1,+Trie2,-Entries) */
 #define arg_trie1   YAP_ARG1
 #define arg_trie2   YAP_ARG2
 #define arg_entries YAP_ARG3
@@ -524,7 +524,7 @@ static int p_trie_count_intersect(void) {
 #undef arg_entries
 
 
-/* trie_save(-Trie,-FileName) */
+/* trie_save(+Trie,+FileName) */
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
 static int p_trie_save(void) {
@@ -552,7 +552,7 @@ static int p_trie_save(void) {
 #undef arg_file
 
 
-/* trie_load(+Trie,-FileName) */
+/* trie_load(-Trie,+FileName) */
 #define arg_trie YAP_ARG1
 #define arg_file YAP_ARG2
 static int p_trie_load(void) {
@@ -572,10 +572,9 @@ static int p_trie_load(void) {
     return FALSE;
 
   /* load trie and close file */
-  data = trie_load(file);
-  if (fclose(file))
+  if (!(data = trie_load(file)))
     return FALSE;
-  if (!data)
+  if (fclose(file))
     return FALSE;
   return YAP_Unify(arg_trie, YAP_MkIntTerm((YAP_Int) data));
 }
@@ -583,7 +582,7 @@ static int p_trie_load(void) {
 #undef arg_file
 
 
-/* trie_stats(+Memory,+Tries,+Entries,+Nodes) */
+/* trie_stats(-Memory,-Tries,-Entries,-Nodes) */
 #define arg_memory  YAP_ARG1
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
@@ -609,7 +608,7 @@ static int p_trie_stats(void) {
 #undef arg_nodes
 
 
-/* trie_max_stats(+Memory,+Tries,+Entries,+Nodes) */
+/* trie_max_stats(-Memory,-Tries,-Entries,-Nodes) */
 #define arg_memory  YAP_ARG1
 #define arg_tries   YAP_ARG2
 #define arg_entries YAP_ARG3
@@ -635,7 +634,7 @@ static int p_trie_max_stats(void) {
 #undef arg_nodes
 
 
-/* trie_usage(-Trie,+Entries,+Nodes,+VirtualNodes) */
+/* trie_usage(+Trie,-Entries,-Nodes,-VirtualNodes) */
 #define arg_trie         YAP_ARG1
 #define arg_entries      YAP_ARG2
 #define arg_nodes        YAP_ARG3
@@ -663,7 +662,7 @@ static int p_trie_usage(void) {
 #undef arg_virtualnodes
 
 
-/* trie_print(-Trie) */
+/* trie_print(+Trie) */
 #define arg_trie YAP_ARG1
 static int p_trie_print(void) {
   /* check arg */

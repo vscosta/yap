@@ -72,8 +72,10 @@ void trie_data_destruct(TrNode node) {
   if (TrData_next(data)) {
     TrData_previous(TrData_next(data)) = TrData_previous(data);
     TrData_next(TrData_previous(data)) = TrData_next(data);
-  } else
+  } else {
+    TrEntry_last_data(trie) = TrData_previous(data);
     TrData_next(TrData_previous(data)) = NULL;
+  }
   free_trie_data(data);
   return;
 }
@@ -177,6 +179,8 @@ TrData trie_get_last_entry(TrEntry trie) {
   TrData data;
   
   data = TrEntry_last_data(trie);
+  if (data == AS_TR_DATA_NEXT(&TrEntry_first_data(trie)))
+    return NULL;
   return data;
 }
 
