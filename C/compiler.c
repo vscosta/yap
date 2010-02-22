@@ -229,7 +229,7 @@ STATIC_PROTO(void c_arg, (Int, Term, unsigned int, unsigned int, compiler_struct
 STATIC_PROTO(void c_args, (Term, unsigned int, compiler_struct *));
 STATIC_PROTO(void c_eq, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_test, (Int, Term, compiler_struct *));
-STATIC_PROTO(void c_bifun, (Int, Term, Term, Term, Term, Term, compiler_struct *));
+STATIC_PROTO(void c_bifun, (basic_preds, Term, Term, Term, Term, Term, compiler_struct *));
 STATIC_PROTO(void c_goal, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_body, (Term, Term, compiler_struct *));
 STATIC_PROTO(void c_head, (Term, compiler_struct *));
@@ -942,7 +942,7 @@ bip_cons	   Op,Xk,Ri,C
 
  */
 static void
-c_bifun(Int Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct *cglobs)
+c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct *cglobs)
 {
   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
@@ -1795,7 +1795,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       return;
     }
     else if (p->PredFlags & AsmPredFlag) {
-      int op = p->PredFlags & 0x7f;
+      basic_preds op = p->PredFlags & 0x7f;
 
       if (profiling)
 	Yap_emit(enter_profiling_op, (CELL)p, Zero, &cglobs->cint);
