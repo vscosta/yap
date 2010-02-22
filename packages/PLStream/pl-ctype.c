@@ -298,7 +298,8 @@ unify_char_type(term_t type, const char_type *ct, int context, int how)
 
 static foreign_t
 do_char_type(term_t chr, term_t class, control_t h, int how)
-{ generator *gen;
+{ GET_LD
+  generator *gen;
   fid_t fid;
 
   switch( ForeignControl(h) )
@@ -399,7 +400,9 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
       succeed;
   }
 
-  fid = PL_open_foreign_frame();
+  if ( !(fid = PL_open_foreign_frame()) )
+    goto error;
+
   for(;;)
   { int rval;
 
@@ -412,7 +415,7 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
       { if ( rval < 0 ||
 	     !unify_char_type(class, gen->class, rval, how) )
 	  goto next;
-	     
+
       } else if ( gen->do_enum & ENUM_CLASS )
       { if ( !unify_char_type(class, gen->class, rval, how) )
 	  goto next;
@@ -432,6 +435,7 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
       break;
   }
 
+error:
   freeHeap(gen, sizeof(*gen));
   fail;
 }
@@ -440,13 +444,13 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
 
 static
 PRED_IMPL("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
-{ return do_char_type(A1, A2, PL__ctx, CHAR_MODE);
+{ return do_char_type(A1, A2, PL__ctx, PL_CHAR);
 }
 
 
 static
 PRED_IMPL("code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
-{ return do_char_type(A1, A2, PL__ctx, CODE_MODE);
+{ return do_char_type(A1, A2, PL__ctx, PL_CODE);
 }
 
 
@@ -513,7 +517,8 @@ get_chr_from_text(const PL_chars_t *t, size_t index)
 
 static foreign_t
 modify_case_atom(term_t in, term_t out, int down)
-{ PL_chars_t tin, tout;
+{ GET_LD
+  PL_chars_t tin, tout;
 
   if ( !PL_get_text(in, &tin, CVT_ATOMIC|CVT_EXCEPTION) )
     return FALSE;
@@ -578,7 +583,7 @@ modify_case_atom(term_t in, term_t out, int down)
 	  { tout.text.t[i] = (char)c;
 	  }
 	}
-      } 
+      }
     } else
     { if ( down )
       { for(i=0; i<tin.length; i++)
@@ -619,7 +624,8 @@ PRED_IMPL("upcase_atom", 2, upcase_atom, 0)
 
 static int
 write_normalize_space(IOSTREAM *out, term_t in)
-{ PL_chars_t tin;
+{ GET_LD
+  PL_chars_t tin;
   size_t i, end;
 
   if ( !PL_get_text(in, &tin, CVT_ATOMIC|CVT_EXCEPTION) )
@@ -655,18 +661,12 @@ PRED_IMPL("normalize_space", 2, normalize_space, 0)
 { redir_context ctx;
   word rc;
 
-  EXCEPTION_GUARDED(/*code*/
-		    if ( setupOutputRedirect(A1, &ctx, FALSE) )
-		    { if ( (rc = write_normalize_space(ctx.stream, A2)) )
-			rc = closeOutputRedirect(&ctx);
-		      else
-			discardOutputRedirect(&ctx);
-		    } else
-		      rc = FALSE;
-		    /*cleanup*/,
-		    DEBUG(1, Sdprintf("Cleanup after throw()\n"));
-		    discardOutputRedirect(&ctx);
-		    rc = PL_rethrow(););
+  if ( (rc = setupOutputRedirect(A1, &ctx, FALSE)) )
+  { if ( (rc = write_normalize_space(ctx.stream, A2)) )
+      rc = closeOutputRedirect(&ctx);
+    else
+      discardOutputRedirect(&ctx);
+  }
 
   return rc;
 }
@@ -730,7 +730,8 @@ static lccat lccats[] =
 
 static
 PRED_IMPL("setlocale", 3, setlocale, 0)
-{ char *what;
+{ PRED_LD
+  char *what;
   char *locale;
   const lccat *lcp;
 
@@ -794,28 +795,28 @@ EndPredDefs
 
 const char _PL_char_types[] = {
 /* ^@  ^A  ^B  ^C  ^D  ^E  ^F  ^G  ^H  ^I  ^J  ^K  ^L  ^M  ^N  ^O    0-15 */
-   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, 
+   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
 /* ^P  ^Q  ^R  ^S  ^T  ^U  ^V  ^W  ^X  ^Y  ^Z  ^[  ^\  ^]  ^^  ^_   16-31 */
-   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, 
+   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
 /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   32-47 */
-   SP, SO, DQ, SY, SY, SO, SY, SQ, PU, PU, SY, SY, PU, SY, SY, SY, 
+   SP, SO, DQ, SY, SY, SO, SY, SQ, PU, PU, SY, SY, PU, SY, SY, SY,
 /*  0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?   48-63 */
-   DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, SY, SO, SY, SY, SY, SY, 
+   DI, DI, DI, DI, DI, DI, DI, DI, DI, DI, SY, SO, SY, SY, SY, SY,
 /*  @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O   64-79 */
-   SY, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, 
+   SY, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
 /*  P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _   80-95 */
-   UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, PU, SY, PU, SY, UC, 
+   UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, PU, SY, PU, SY, UC,
 /*  `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o   96-111 */
-   SY, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, 
+   SY, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
 /*  p   q   r   s   t   u   v   w   x   y   z   {   |   }   ~  ^?   112-127 */
-   LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, PU, PU, PU, SY, CT, 
+   LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, PU, PU, PU, SY, CT,
 			  /* 128-159 (C1 controls) */
-   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, 
-   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, 
+   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
+   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
 			  /* 160-255 (G1 graphics) */
 			  /* ISO Latin 1 is assumed */
    SP, SO, SO, SO, SO, SO, SO, SO, SO, SO, LC, SO, SO, SO, SO, SO,
-   SO, SO, SO, SO, SO, SO, SO, SO, SO, SO, LC, SO, SO, SO, SO, SO,   
+   SO, SO, SO, SO, SO, SO, SO, SO, SO, SO, LC, SO, SO, SO, SO, SO,
    UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
    UC, UC, UC, UC, UC, UC, UC, SO, UC, UC, UC, UC, UC, UC, UC, LC,
    LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
@@ -840,7 +841,9 @@ static const enc_map map[] =
 
 IOENC
 initEncoding(void)
-{ if ( LD )
+{ GET_LD
+
+  if ( LD )
   { if ( !LD->encoding )
     { char *enc;
 
@@ -882,7 +885,8 @@ initCharTypes(void)
 #if __SWI_PROLOG__
 bool
 systemMode(bool accept)
-{ bool old = SYSTEM_MODE ? TRUE : FALSE;
+{ GET_LD
+  bool old = SYSTEM_MODE ? TRUE : FALSE;
 
   if ( accept )
     debugstatus.styleCheck |= DOLLAR_STYLE;

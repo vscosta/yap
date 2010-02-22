@@ -245,8 +245,9 @@ extern char *Getenv(const char *, char *buf, size_t buflen);
 extern char *BaseName(const char *f);
 extern time_t LastModifiedFile(const char *f);
 extern bool  ExistsFile(const char *path);
-extern atom_t TemporaryFile(const char *id);
-extern int   RemoveFile(const char *path);
+extern atom_t TemporaryFile(const char *id, int *fdp);
+extern atom_t TemporaryFile(const char *id, int *fdp);
+extern int   DeleteTemporaryFile(atom_t name);
 extern bool  ChDir(const char *path);
 extern char *PrologPath(const char *ospath, char *path, size_t len);
 

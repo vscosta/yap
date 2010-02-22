@@ -109,8 +109,7 @@ typedef struct {
   } prolog_flag;
 
   struct
-  { TempFile		_tmpfile_head;
-    TempFile		_tmpfile_tail;
+  { Table		tmp_files;	/* Known temporary files */
     CanonicalDir	_canonical_dirlist;
     char *		myhome;		/* expansion of ~ */
     char *		fred;		/* last expanded ~user */
@@ -124,6 +123,25 @@ typedef struct {
   } os;
 
   struct
+  { size_t	heap;			/* heap in use */
+    size_t	atoms;			/* No. of atoms defined */
+    size_t	atomspace;		/* # bytes used to store atoms */
+    size_t	stack_space;		/* # bytes on stacks */
+#ifdef O_ATOMGC
+    size_t	atomspacefreed;		/* Freed atom-space */
+#endif
+    int		functors;		/* No. of functors defined */
+    int		predicates;		/* No. of predicates defined */
+    int		modules;		/* No. of modules in the system */
+    intptr_t	codes;			/* No. of byte codes generated */
+#ifdef O_PLMT
+    int		threads_created;	/* # threads created */
+    int		threads_finished;	/* # finished threads */
+    double	thread_cputime;		/* Total CPU time of threads */
+#endif
+  } statistics;
+
+  struct
   { atom_t *	array;			/* index --> atom */
     size_t	count;			/* elements in array */
     atom_t     *for_code[256];		/* code --> one-char-atom */
@@ -135,6 +153,8 @@ extern gds_t gds;
 
 #define GD (&gds)
 #define GLOBAL_LD (&gds)
+
+
 
 typedef struct
 { unsigned long flags;                  /* Fast access to some boolean Prolog flags */
@@ -280,6 +300,7 @@ typedef struct PL_local_data {
     term_t	tmp;			/* tmp for errors */
     term_t	pending;		/* used by the debugger */
     int		in_hook;		/* inside exception_hook() */
+    int		processing;		/* processing an exception */
     exception_frame *throw_environment;	/* PL_throw() environments */
   } exception;
   const char   *float_format;		/* floating point format */
@@ -289,6 +310,8 @@ typedef struct PL_local_data {
   int		current_buffer_id;
 
 }  PL_local_data_t;
+
+#define usedStack(D) 0
 
 #define features		(LD->feature.mask)
 
@@ -586,6 +609,8 @@ extern int get_atom_ptr_text(Atom a, PL_chars_t *text);
 
 /**** stuff from pl-files.c ****/
 void initFiles(void);
+int RemoveFile(const char *path);
+int PL_get_file_name(term_t n, char **namep, int flags);
 
 /* empty stub */
 void setPrologFlag(const char *name, int flags, ...);
