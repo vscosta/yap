@@ -3,9 +3,9 @@
     Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        wielemak@science.uva.nl
+    E-mail:        J.Wielemaker@uva.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2007, University of Amsterdam
+    Copyright (C): 1985-2009, University of Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ MT:
 
 Multithreading is supported through  Slock()   and  Sunlock(). These are
 recursive locks. If a stream handle  might   be  known to another thread
-locking is required. 
+locking is required.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 #ifdef MD
@@ -222,6 +222,7 @@ S__setbuf(IOSTREAM *s, char *buffer, size_t size)
 
 	  free(newunbuf);
 	  errno = oldeno;
+	  S__seterror(s);
 	  return -1;
 	}
       }
@@ -246,8 +247,8 @@ S__setbuf(IOSTREAM *s, char *buffer, size_t size)
 
 void
 Ssetbuffer(IOSTREAM *s, char *buffer, size_t size)
-{ S__setbuf(s, buffer, size);
-  s->flags &= ~SIO_USERBUF;
+{ if ( S__setbuf(s, buffer, size) != (size_t)-1 )
+    s->flags &= ~SIO_USERBUF;
 }
 
 
@@ -290,16 +291,16 @@ print_trace(void)
   size_t size;
   char **strings;
   size_t i;
-     
+
   size = backtrace(array, sizeof(array)/sizeof(void *));
   strings = backtrace_symbols(array, size);
-     
+
   printf(" Stack:");
   for(i = 1; i < size; i++)
   { printf("\n\t[%ld] %s", (long)i, strings[i]);
   }
   printf("\n");
-       
+
   free(strings);
 }
 #endif /*DEBUG_IO_LOCKS*/
@@ -339,8 +340,8 @@ StryLock(IOSTREAM *s)
 }
 
 
-static int
-S__unlock(IOSTREAM *s)
+int
+Sunlock(IOSTREAM *s)
 { int rval = 0;
 
 #ifdef DEBUG_IO_LOCKS
@@ -359,15 +360,7 @@ S__unlock(IOSTREAM *s)
   { assert(0);
   }
 
-  return rval;
-}
-
-
-int
-Sunlock(IOSTREAM *s)
-{ int rval = S__unlock(s);
   SUNLOCK(s);
-
   return rval;
 }
 
@@ -429,16 +422,15 @@ S__flushbufc(int c, IOSTREAM *s)
   } else
   { if ( s->flags & SIO_NBUF )
     { char chr = (char)c;
-    
+
       if ( (*s->functions->write)(s->handle, &chr, 1) != 1 )
-      { s->flags |= SIO_FERR;
+      { S__seterror(s);
 	c = -1;
       }
     } else
     { if ( S__setbuf(s, NULL, 0) == (size_t)-1 )
-      { s->flags |= SIO_FERR;
 	c = -1;
-      } else
+      else
 	*s->bufp++ = (char)c;
     }
   }
@@ -471,7 +463,7 @@ S__fillbuf(IOSTREAM *s)
     { fd_set wait;
       struct timeval time;
       int rc;
-      
+
       time.tv_sec  = s->timeout / 1000;
       time.tv_usec = (s->timeout % 1000) * 1000;
       FD_ZERO(&wait);
@@ -483,7 +475,7 @@ S__fillbuf(IOSTREAM *s)
 
       for(;;)
       { rc = select(fd+1, &wait, NULL, NULL, &time);
-	
+
 	if ( rc < 0 && errno == EINTR )
 	{ if ( PL_handle_signals() < 0 )
 	  { errno = EPLEXCEPTION;
@@ -557,6 +549,7 @@ S__fillbuf(IOSTREAM *s)
       } else if ( errno == EWOULDBLOCK )
       { s->bufp = s->buffer;
 	s->limitp = s->buffer;
+	S__seterror(s);
 	return -1;
 #endif
       } else
@@ -740,7 +733,7 @@ reperror(int c, IOSTREAM *s)
     { if ( put_byte(*q, s) < 0 )
 	return -1;
     }
-	
+
     return c;
   }
 
@@ -798,7 +791,7 @@ put_code(int c, IOSTREAM *s)
     case ENC_UTF8:
     { char buf[6];
       char *p, *end;
-      
+
       if ( c < 128 )
 	goto simple;
 
@@ -831,7 +824,7 @@ put_code(int c, IOSTREAM *s)
       { if ( put_byte(*q++, s) < 0 )
 	  return -1;
       }
-      
+
       break;
     }
     case ENC_UNKNOWN:
@@ -975,7 +968,7 @@ retry:
 	code = UTF8_FBV(c,extra);
 	for( ; extra > 0; extra-- )
 	{ int c2 = get_byte(s);
-	  
+
 	  if ( !ISUTF8_CB(c2) )
 	  { Sseterr(s, SIO_WARN, "Illegal UTF-8 continuation");
 	    c = UTF8_MALFORMED_REPLACEMENT;
@@ -1025,7 +1018,7 @@ retry:
 	    goto out;
 	  } else
 	  { Sseterr(s, SIO_WARN, "EOF in UCS character");
-	    c = UTF8_MALFORMED_REPLACEMENT; 
+	    c = UTF8_MALFORMED_REPLACEMENT;
 	    goto out;
 	  }
 	}
@@ -1228,16 +1221,16 @@ Sfread(void *data, size_t size, size_t elms, IOSTREAM *s)
 
       if ( (c = Sgetc(s)) == EOF )
 	break;
-      
+
       *buf++ = c & 0xff;
     }
-  } else 
+  } else
   { while(chars > 0)
     { int c;
 
       if ( s->bufp < s->limitp )
       { size_t avail = s->limitp - s->bufp;
-	
+
 	if ( chars <= avail )
 	{ memcpy(buf, s->bufp, chars);
 	  s->bufp += chars;
@@ -1249,7 +1242,7 @@ Sfread(void *data, size_t size, size_t elms, IOSTREAM *s)
 	  s->bufp += avail;
 	}
       }
-      
+
       if ( (c = S__fillbuf(s)) == EOF )
 	break;
 
@@ -1257,7 +1250,7 @@ Sfread(void *data, size_t size, size_t elms, IOSTREAM *s)
       chars--;
     }
   }
-  
+
   return (size*elms - chars)/size;
 }
 
@@ -1271,7 +1264,7 @@ Sfwrite(const void *data, size_t size, size_t elms, IOSTREAM *s)
   { if ( Sputc(*buf++, s) < 0 )
       break;
   }
-  
+
   return (size*elms - chars)/size;
 }
 
@@ -1406,19 +1399,22 @@ Sfeof(IOSTREAM *s)
   s->bufp--;
   return FALSE;
 }
-    
+
 
 static int
 S__seterror(IOSTREAM *s)
-{ if ( s->functions->control )
+{ s->io_errno = errno;
+
+  if ( !(s->flags&SIO_CLOSING) &&	/* s->handle is already invalid */
+       s->functions->control )
   { char *msg;
 
     if ( (*s->functions->control)(s->handle,
-				  SIO_LASTERROR, 
+				  SIO_LASTERROR,
 				  (void *)&msg) == 0 )
     { Sseterr(s, SIO_FERR, msg);
       return 0;
-    } 
+    }
   }
 
   s->flags |= SIO_FERR;
@@ -1430,7 +1426,7 @@ int
 Sferror(IOSTREAM *s)
 { return (s->flags & SIO_FERR) != 0;
 }
-    
+
 
 int
 Sfpasteof(IOSTREAM *s)
@@ -1441,6 +1437,7 @@ Sfpasteof(IOSTREAM *s)
 void
 Sclearerr(IOSTREAM *s)
 { s->flags &= ~(SIO_FEOF|SIO_WARN|SIO_FERR|SIO_FEOF2|SIO_TIMEOUT|SIO_CLEARERR);
+  s->io_errno = 0;
   Sseterr(s, 0, NULL);
 }
 
@@ -1485,7 +1482,7 @@ Ssetenc(IOSTREAM *s, IOENC enc, IOENC *old)
 
   if ( s->functions->control )
   { if ( (*s->functions->control)(s->handle,
-				  SIO_SETENCODING, 
+				  SIO_SETENCODING,
 				  (void *)&enc) != 0 )
       return -1;
   }
@@ -1563,6 +1560,7 @@ Ssize(IOSTREAM *s)
   }
 
   errno = ESPIPE;
+  S__seterror(s);
   return -1;
 }
 
@@ -1587,7 +1585,7 @@ Sseek64(IOSTREAM *s, int64_t pos, int whence)
     if ( now != -1 )
     { int64_t newpos;
       char *nbufp = (char *)-1;
-    
+
       if ( whence == SIO_SEEK_CUR )
       { nbufp = s->bufp + pos;
 	newpos = now + pos;
@@ -1608,11 +1606,12 @@ Sseek64(IOSTREAM *s, int64_t pos, int whence)
 
   if ( !s->functions->seek && !s->functions->seek64 )
   { errno = ESPIPE;
+    S__seterror(s);
     return -1;
   }
 
   Sflush(s);
-    
+
   s->bufp   = s->buffer;
   if ( (s->flags & SIO_INPUT) )
     s->limitp = s->buffer;
@@ -1621,18 +1620,19 @@ Sseek64(IOSTREAM *s, int64_t pos, int whence)
   { pos += Stell64(s);
     whence = SIO_SEEK_SET;
   }
-  
+
   if ( s->functions->seek64 )
     pos = (*s->functions->seek64)(s->handle, pos, whence);
   else if ( pos <= LONG_MAX )
     pos = (*s->functions->seek)(s->handle, (long)pos, whence);
   else
   { errno = EINVAL;
+    S__seterror(s);
     return -1;
   }
-  
+
   if ( pos < 0 )
-  { errno = EINVAL;
+  { S__seterror(s);
     return -1;
   }
 
@@ -1684,6 +1684,7 @@ Stell64(IOSTREAM *s)
     return pos;
   } else
   { errno = EINVAL;
+    S__seterror(s);
     return -1;
   }
 }
@@ -1693,10 +1694,13 @@ long
 Stell(IOSTREAM *s)
 { int64_t pos = Stell64(s);
 
+  if ( pos == -1 )
+    return -1;
   if ( pos <= LONG_MAX )
     return (long) pos;
 
   errno = EINVAL;
+  S__seterror(s);
   return -1;
 }
 
@@ -1717,7 +1721,7 @@ Sclose(IOSTREAM *s)
 { int rval = 0;
 
   if ( s->magic != SIO_MAGIC )		/* already closed!? */
-  { errno = EINVAL;
+  { s->io_errno = errno = EINVAL;
     return -1;
   }
 
@@ -1747,11 +1751,12 @@ Sclose(IOSTREAM *s)
   }
 #endif
   if ( s->functions->close && (*s->functions->close)(s->handle) < 0 )
-  { s->flags |= SIO_FERR;
+  { S__seterror(s);
     rval = -1;
   }
+
   while(s->locks > 0)			/* remove buffer-locks */
-  { int rc = S__unlock(s);
+  { int rc = Sunlock(s);
 
     if ( rval == 0 )
       rval = rc;
@@ -1759,7 +1764,6 @@ Sclose(IOSTREAM *s)
   if ( rval < 0 )
     reportStreamError(s);
   run_close_hooks(s);			/* deletes Prolog registration */
-
   SUNLOCK(s);
 
 #ifdef O_PLMT
@@ -1771,6 +1775,8 @@ Sclose(IOSTREAM *s)
 #endif
 
   s->magic = SIO_CMAGIC;
+  if ( s->message )
+    free(s->message);
   if ( !(s->flags & SIO_STATIC) )
     free(s);
 
@@ -1826,8 +1832,7 @@ Sgets(char *buf)
 
 int
 Sfputs(const char *q, IOSTREAM *s)
-{ 
-  for( ; *q; q++)
+{ for( ; *q; q++)
   { if ( Sputcode(*q&0xff, s) < 0 )
       return EOF;
   }
@@ -2003,7 +2008,7 @@ Svfprintf(IOSTREAM *s, const char *fm, va_list args)
 		v = va_arg(args, int);
 	        break;
 	      case 1:
-		v = va_arg(args, intptr_t);
+		v = va_arg(args, long);
 	        break;
 	      case 2:
 	        vl = va_arg(args, int64_t);
@@ -2168,7 +2173,7 @@ Svsprintf(char *buf, const char *fm, va_list args)
   s.buffer    = buf;
   s.flags     = SIO_FBUF|SIO_OUTPUT;
   s.encoding  = ENC_ISO_LATIN_1;
-  
+
   if ( (rval = Svfprintf(&s, fm, args)) >= 0 )
     *s.bufp = '\0';
 
@@ -2255,7 +2260,7 @@ Svfscanf(IOSTREAM *s, const char *fm, va_list args)
 	  continue;
 	}
       }
-	
+
       if ( *fm != '[' && *fm != c )
 	while(isblank(c))
 	  c = GET(s);
@@ -2408,13 +2413,13 @@ Svfscanf(IOSTREAM *s, const char *fm, va_list args)
 	      { float *fp = va_arg(args, float *);
 		*fp = v;
 		break;
-	      }	
+	      }
 	      case SZ_LONG:
 	      { double *fp = va_arg(args, double *);
 		*fp = v;
 		break;
 	      }
-	    }  
+	    }
 	    done++;
 	  }
 
@@ -2424,7 +2429,7 @@ Svfscanf(IOSTREAM *s, const char *fm, va_list args)
 	case 's':
 	  if ( !supress )
 	  { char *sp = va_arg(args, char *);
-	    
+
 	    while(!isblank(c) && field_width-- != 0)
 	    { *sp++ = c;
 	      c = GET(s);
@@ -2444,7 +2449,7 @@ Svfscanf(IOSTREAM *s, const char *fm, va_list args)
 	  continue;
 	case '[':
 	{ char set[256];
-	  
+
 	  memset(set, 0, sizeof(set));
 	  fm++;
 	  if ( *fm == ']' )
@@ -2455,7 +2460,7 @@ Svfscanf(IOSTREAM *s, const char *fm, va_list args)
 	  }
 	  while(*fm != ']')
 	  { if ( *fm == '-' )
-	      
+
 	  }
 	}
       }
@@ -2488,7 +2493,7 @@ Link two streams in a pipeline,  where   filter  filters data for stream
 `parent'. If parent is an output steam we have
 
 	application --> filter --> parent -->
-	  
+
 If parent is an input stream we have
 
 	--> parent --> filter --> application
@@ -2660,6 +2665,15 @@ IOFUNCTIONS Sttyfunctions =
 };
 
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+(*)  Windows  isatty()  is  totally  broken   since  VC9;  crashing  the
+application instead of returning EINVAL on  wrong   values  of fd. As we
+provide  the  socket-id  through   Sfileno,    this   code   crashes  on
+tcp_open_socket(). As ttys and its detection is   of no value on Windows
+anyway, we skip this. Second, Windows doesn't have fork(), so FD_CLOEXEC
+is of no value.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
 IOSTREAM *
 Snew(void *handle, int flags, IOFUNCTIONS *functions)
 { IOSTREAM *s;
@@ -2692,8 +2706,16 @@ Snew(void *handle, int flags, IOFUNCTIONS *functions)
     recursiveMutexInit(s->mutex);
   }
 #endif
-  if ( (fd = Sfileno(s)) >= 0 && isatty(fd) )
-    s->flags |= SIO_ISATTY;
+
+#ifndef __WINDOWS__			/* (*) */
+  if ( (fd = Sfileno(s)) >= 0 )
+  { if ( isatty(fd) )
+      s->flags |= SIO_ISATTY;
+#if defined(F_SETFD) && defined(FD_CLOEXEC)
+    fcntl(fd, F_SETFD, FD_CLOEXEC);
+#endif
+  }
+#endif
 
   return s;
 }
@@ -2718,7 +2740,7 @@ IOSTREAM *
 Sopen_file(const char *path, const char *how)
 { int fd;
   int oflags = O_BINARY;
-  int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS;
+  int flags = SIO_FILE|SIO_TEXT|SIO_RECORDPOS|SIO_FBUF;
   int op = *how++;
   intptr_t lfd;
   enum {lnone=0,lread,lwrite} lock = lnone;
@@ -2782,7 +2804,7 @@ Sopen_file(const char *path, const char *how)
     return NULL;
 
   if ( lock )
-  { 
+  {
 #ifdef FCNTL_LOCKS
     struct flock buf;
 
@@ -2830,8 +2852,8 @@ Sopen_file(const char *path, const char *how)
 
 IOSTREAM *
 Sfdopen(int fd, const char *type)
-{ int flags;
-  intptr_t lfd;
+{ intptr_t lfd;
+  int flags = SIO_FILE|SIO_RECORDPOS|SIO_FBUF;
 
   if ( fd < 0 )
   { errno = EINVAL;
@@ -2843,9 +2865,15 @@ Sfdopen(int fd, const char *type)
 #endif
 
   if ( *type == 'r' )
-    flags = SIO_FILE|SIO_INPUT|SIO_RECORDPOS;
-  else
-    flags = SIO_FILE|SIO_OUTPUT|SIO_RECORDPOS;
+  { flags |= SIO_INPUT;
+  } else if ( *type == 'w' )
+  { flags |= SIO_OUTPUT;
+  } else
+  { errno = EINVAL;
+    return NULL;
+  }
+  if ( type[1] != 'b' )
+    flags |= SIO_TEXT;
 
   lfd = (intptr_t)fd;
 
@@ -2948,9 +2976,9 @@ Sopen_pipe(const char *command, const char *type)
   { int flags;
 
     if ( *type == 'r' )
-      flags = SIO_PIPE|SIO_INPUT;
+      flags = SIO_PIPE|SIO_INPUT|SIO_FBUF;
     else
-      flags = SIO_PIPE|SIO_OUTPUT;
+      flags = SIO_PIPE|SIO_OUTPUT|SIO_FBUF;
 
     return Snew((void *)fd, flags, &Spipefunctions);
   }
@@ -3004,7 +3032,7 @@ Swrite_memfile(void *handle, char *buf, size_t size)
 { memfile *mf = handle;
 
   if ( mf->here + size + 1 >= mf->allocated )
-  { intptr_t ns = S__memfile_nextsize(mf->here + size + 1);
+  { size_t ns = S__memfile_nextsize(mf->here + size + 1);
     char *nb;
 
     if ( mf->allocated == 0 || !mf->malloced )
@@ -3052,7 +3080,7 @@ Sread_memfile(void *handle, char *buf, size_t size)
     else
       size = mf->size - mf->here;
   }
-  
+
   memcpy(buf, &(*mf->buffer)[mf->here], size);
   mf->here += size;
 
@@ -3095,7 +3123,7 @@ Sclose_memfile(void *handle)
   { free(mf);
     return 0;
   }
-	 
+
   errno = EINVAL;			/* not opened */
   return -1;
 }
@@ -3396,7 +3424,7 @@ Sreset(void)
   if ( (s=Serror) && s->magic == SIO_MAGIC )
   { s->bufp = s->buffer;
   }
-} 
+}
 
 
 void
@@ -3416,7 +3444,17 @@ Scleanup(void)
 
     s->bufp = s->buffer;		/* avoid actual flush */
     S__removebuf(s);
+
+#ifdef O_PLMT
+    if ( S__iob[i].mutex )
+    { recursiveMutex *m = S__iob[i].mutex;
+
+      S__iob[i].mutex = NULL;
+      recursiveMutexDelete(m);
+      free(m);
+    }
+#endif
+
     *s = S__iob0[i];			/* re-initialise */
   }
 }
-
