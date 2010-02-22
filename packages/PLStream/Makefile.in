@@ -46,7 +46,7 @@ HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
 	$(srcdir)/pl-text.h $(srcdir)/pl-utf8.h \
 	$(srcdir)/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/uxnt/dirent.h $(srcdir)/uxnt/utf8.h $(srcdir)/pl-utf8.c $(srcdir)/uxnt/uxnt.h
 C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
-	$(srcdir)/pl-error.c  $(srcdir)/pl-feature.c  \
+	$(srcdir)/pl-error.c  \
 	$(srcdir)/pl-file.c $(srcdir)/pl-files.c   $(srcdir)/pl-os.c \
 	$(srcdir)/pl-privitf.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
@@ -54,7 +54,7 @@ C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
 	$(srcdir)/pl-text.c \
 	$(srcdir)/pl-utils.c \
 	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/uxnt.c
-OBJS=pl-buffer.o pl-ctype.o pl-error.o  pl-feature.o  \
+OBJS=pl-buffer.o pl-ctype.o pl-error.o  \
 	pl-file.o pl-files.o pl-os.o pl-privitf.o \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-text.o pl-utils.o pl-utf8.o \

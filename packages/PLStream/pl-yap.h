@@ -148,7 +148,7 @@ EXTEND_SEQ_ATOMS(word gstore, int c) {
 }
 
 static inline int 
-CLOSE_SEQ_OF_CODES(word gstore, word lp, word arg2, word arg3) {
+CLOSE_SEQ_OF_CODES(word gstore, word lp, word arg2, word arg3, term_t l) {
   if (arg3 == (word)ATOM_nil) {
     if (!YAP_CloseList((YAP_Term)gstore, YAP_TermNil()))
       return FALSE;
@@ -172,14 +172,17 @@ valHandle(term_t tt)
 #define isAtom(A) YAP_IsAtomTerm((A))
 #define isList(A) YAP_IsPairTerm((A))
 #define isNil(A) ((A) == YAP_TermNil())
-#define isReal(A)YAP_IsFloatTerm((A))
+#define isReal(A) YAP_IsFloatTerm((A))
+#define isFloat(A) YAP_IsFloatTerm((A))
 #define isVar(A) YAP_IsVarTerm((A))
 #define varName(l, buf) buf
 #define valReal(w) YAP_FloatOfTerm((w))
+#define valFloat(w) YAP_FloatOfTerm((w))
 #define AtomLength(w) YAP_AtomNameLength(w)
 #define atomValue(atom) ((YAP_Atom)atom)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) (t = YAP_Deref(t))
+#define canBind(t) FALSE
 
 #define clearNumber(n)
 

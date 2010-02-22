@@ -1858,11 +1858,14 @@ PL_record(term_t ts)
   return (record_t)Yap_StoreTermInDB(t, 0);
 }
 
-X_API void
+X_API int
 PL_recorded(record_t db, term_t ts)
 {
   Term t = Yap_FetchTermFromDB((DBTerm *)db);
+  if (t == 0L)
+    return FALSE;
   Yap_PutInSlot(ts,t);
+  return TRUE;
 }
 
 X_API void
@@ -1957,6 +1960,12 @@ PL_exception(qid_t q)
   } else {
     return 0L;
   }
+}
+
+X_API void
+PL_clear_exception(void)
+{
+  EX = 0L;
 }
 
 X_API int

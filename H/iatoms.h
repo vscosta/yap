@@ -63,6 +63,7 @@
   AtomDBTerm = Yap_LookupAtom("db_term");
   AtomDBref = Yap_FullLookupAtom("$dbref");
   AtomDInteger = Yap_FullLookupAtom("$integer");
+  AtomDOUBLE = Yap_FullLookupAtom("Double");
   AtomDec10 = Yap_LookupAtom("dec10");
   AtomDefault = Yap_LookupAtom("default");
   AtomDevNull = Yap_LookupAtom("/dev/null");

@@ -3450,15 +3450,17 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	    if (cls->u.t_ptr != sp->extra) break;
 	  } else {
 	    CELL *pt = RepAppl(sp->extra);
-	    CELL *pt1 = RepAppl(cls->u.t_ptr);
+	    if (cls->u.t_ptr) {
+	      CELL *pt1 = RepAppl(cls->u.t_ptr);
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    Term t = MkIntTerm(pt[1]^pt[2]),
-	      t1 = MkIntTerm(pt1[1]^pt1[2]);
+	      Term t = MkIntTerm(pt[1]^pt[2]),
+		t1 = MkIntTerm(pt1[1]^pt1[2]);
 #else
-	    Term t = MkIntTerm(pt[1]),
-	      t1 = MkIntTerm(pt1[1]);
+	      Term t = MkIntTerm(pt[1]),
+		t1 = MkIntTerm(pt1[1]);
 #endif
 	      if (t != t1) break;
+	    }
 	  }
 	}
       }
