@@ -185,6 +185,7 @@ typedef void *PL_engine_t;
 #define CVT_MASK	0x00ff
 
 #define CVT_EXCEPTION	0x10000
+#define CVT_VARNOFAIL	0x20000		/* return 2 if argument is unbound */
 
 #define BUF_DISCARDABLE	0x0000
 #define BUF_RING	0x0100
@@ -409,6 +410,7 @@ extern X_API void PL_discard_foreign_frame(fid_t);
 extern X_API void PL_rewind_foreign_frame(fid_t);
 extern X_API fid_t PL_open_foreign_frame(void);
 extern X_API int PL_raise_exception(term_t);
+extern X_API void PL_clear_exception(void);
 extern X_API void PL_register_atom(atom_t);
 extern X_API void PL_unregister_atom(atom_t);
 extern X_API predicate_t PL_pred(functor_t, module_t);
@@ -419,6 +421,7 @@ extern X_API int PL_next_solution(qid_t);
 extern X_API void PL_cut_query(qid_t);
 extern X_API void PL_close_query(qid_t);
 extern X_API int PL_toplevel(void);
+extern X_API term_t PL_exception(qid_t);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
@@ -436,7 +439,7 @@ extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
 extern X_API int PL_get_string_chars(term_t, char **, int *);
 extern X_API record_t PL_record(term_t);
-extern X_API void PL_recorded(record_t, term_t);
+extern X_API int PL_recorded(record_t, term_t);
 extern X_API void PL_erase(record_t);
 extern X_API int PL_action(int,...);
 extern X_API void *PL_malloc(int);
