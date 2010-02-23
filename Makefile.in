@@ -29,7 +29,7 @@ INFODIR=$(SHAREDIR)/info
 #
 # where to store documentaion files
 #
-DOCSDIR=$(SHAREDIR)/docs/yap
+DOCSDIR=$(SHAREDIR)/docs/Yap
 
 #
 # Add this flag to YAP_EXTRAS if you need the extension:
@@ -511,6 +511,10 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ $(INSTALL_DATA) -m 755 @YAPLIB@ $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
+	mkdir -p $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
@@ -546,6 +550,10 @@ install_win32: startup.yss
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/swi
+	mkdir -p $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)/README.TXT
+	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)/COPYING.TXT
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done

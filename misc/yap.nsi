@@ -29,7 +29,7 @@ ComponentText "This will install YAP on your computer."
 DirText "This program will install YAP on your computer.\
          Choose a directory"
 
-LicenseData c:\Yap\share\docs\Artistic
+LicenseData c:\Yap\share\docs\Yap\Artistic
 LicenseText "YAP is governed by the Artistic License,\
 	but includes code under the GPL and LGPL."
 
@@ -53,16 +53,7 @@ Section "Base system (required)"
 
   SetOutPath $INSTDIR\bin
 ; SYSTEM STUFF
-  File c:\Yap\lib\Yap\matrix.dll
-  File c:\Yap\lib\Yap\plterm.dll
-  File c:\Yap\lib\Yap\random.dll
-  File c:\Yap\lib\Yap\regcomp.dll
-  File c:\Yap\lib\Yap\regerror.dll
-  File c:\Yap\lib\Yap\regexec.dll
-  File c:\Yap\lib\Yap\regexp.dll
-  File c:\Yap\lib\Yap\regfree.dll
-  File c:\Yap\lib\Yap\sys.dll
-  File c:\Yap\lib\Yap\yap_tries.dll
+  File c:\Yap\lib\Yap\*.dll
 
   SetOutPath $INSTDIR\lib
 ; SYSTEM STUFF
@@ -76,12 +67,12 @@ Section "Base system (required)"
 ; SYSTEM STUFF
   File /r c:\Yap\share\Yap\*
 
-  SetOutPath $INSTDIR\docs
-  File c:\Yap\share\docs\yap.html
-  File c:\Yap\share\docs\yap.pdf
-  File c:\Yap\share\docs\Artistic
-  File c:\Yap\share\docs\README.TXT
-  File c:\Yap\share\docs\COPYING.TXT
+  SetOutPath $INSTDIR\docs\Yap
+  File c:\Yap\share\docs\Yap\yap.html
+  File c:\Yap\share\docs\Yap\yap.pdf
+  File c:\Yap\share\docs\Yap\Artistic
+  File c:\Yap\share\docs\Yap\README.TXT
+  File c:\Yap\share\docs\Yap\COPYING.TXT
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
   WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup.yss"
@@ -277,4 +268,4 @@ Function .onInstFailed
 		    installer, please contact yap-users@sf.net"
 FunctionEnd
 
-outfile "yap-5.1.4-installer.exe"
+outfile "yap-6.0.0-installer.exe"
