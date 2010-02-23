@@ -876,10 +876,20 @@ yap_flag(max_threads,X) :-
 yap_flag(max_threads,X) :-
 	'$do_error'(domain_error(flag_value,max_threads+X),yap_flag(max_threads,X)).
 
+yap_flag(address_bits,X) :-
+	var(X), !,
+	'$address_bits'(X).
+yap_flag(address_bits,X) :-
+	integer(X), X > 0, !,
+	'$do_error'(permission_error(modify,flag,address_bits),yap_flag(address_bits,X)).
+yap_flag(address_bits,X) :-
+	'$do_error'(domain_error(flag_value,address_bits+X),yap_flag(address_bits,X)).
+
 yap_flag(dialect,yap).
 
 '$show_yap_flag_opts'(V,Out) :-
 	(
+		V = address_bits ;
 		V = answer_format ;
 		V = argv ;
 		V = bounded ;
