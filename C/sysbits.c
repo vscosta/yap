@@ -2972,6 +2972,16 @@ p_ld_path(void)
   return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR)));
 }
 
+static Int
+p_address_bits(void)
+{
+#if SIZEOF_INT_P==4
+  return Yap_unify(ARG1,MkIntTerm(32));
+#else
+  return Yap_unify(ARG1,MkIntTerm(64));
+#endif
+}
+
 
 
 #ifdef _WIN32
@@ -3193,6 +3203,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);
   Yap_InitCPred ("$ld_path", 1, p_ld_path, SafePredFlag);
+  Yap_InitCPred ("$address_bits", 1, p_address_bits, SafePredFlag);
 #ifdef _WIN32
   Yap_InitCPred ("win_registry_get_value", 3, p_win_registry_get_value,0);
 #endif

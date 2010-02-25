@@ -555,6 +555,17 @@ eval1(Int fi, Term t) {
       case db_ref_e:
 	RERROR();
       }
+#if HAVE_ISNAN
+      if (isnan(dbl)) {
+	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
+      }
+#endif
+#if HAVE_ISNAN
+      if (isinf(dbl)) {
+	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
+(%f)",dbl);
+      }
+#endif
       if (dbl <= (Float)Int_MAX && dbl >= (Float)Int_MIN) {
 	RINT((Int) dbl);
       } else {
@@ -797,8 +808,9 @@ p_unary_is(void)
     return FALSE;
   }
   top = Yap_Eval(Deref(ARG3));
-  if (top == 0L)
+  if (!Yap_FoundArithError(top, ARG3)) {
     return FALSE;
+  }
   if (IsIntTerm(t)) {
     Term tout = Yap_FoundArithError(eval1(IntegerOfTerm(t), top), Deref(ARG3));
     if (!tout)

@@ -69,7 +69,7 @@ handling times must be cleaned, but that not only holds for this module.
 #undef LD				/* fetch LD once per function */
 #define LD LOCAL_LD
 
-static int	bad_encoding(atom_t name);
+static int	bad_encoding(const char *msg, atom_t name);
 static int	noprotocol(void);
 
 static int streamStatus(IOSTREAM *s);
@@ -261,9 +261,13 @@ freeStream(IOSTREAM *s)
   if ( (symb=lookupHTable(streamContext, s)) )
   { stream_context *ctx = symb->value;
 
-    if ( ctx->filename == source_file_name )
-    { source_file_name = NULL_ATOM;	/* TBD: pop? */
-      source_line_no = -1;
+    if ( ctx->filename != NULL_ATOM )
+    { PL_unregister_atom(ctx->filename);
+
+      if ( ctx->filename == source_file_name )
+      { source_file_name = NULL_ATOM;	/* TBD: pop? */
+	source_line_no = -1;
+      }
     }
 
     freeHeap(ctx, sizeof(*ctx));
@@ -289,10 +293,18 @@ freeStream(IOSTREAM *s)
 
 
 /* MT: locked by caller (openStream()) */
+/* name must be registered by the caller */
 
 static void
 setFileNameStream(IOSTREAM *s, atom_t name)
-{ getStreamContext(s)->filename = name;
+{ stream_context *ctx = getStreamContext(s);
+
+  if ( ctx->filename )
+  { PL_unregister_atom(ctx->filename);
+    ctx->filename = NULL_ATOM;
+  }
+  if ( name != NULL_ATOM )
+    ctx->filename = name;
 }
 
 
@@ -520,12 +532,16 @@ PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
   } else
   { term_t a = PL_new_term_ref();
 
-    PL_put_pointer(a, s);
-    PL_cons_functor(a, FUNCTOR_dstream1, a);
-
-    rval = PL_unify(t, a);
+    rval = ( (a=PL_new_term_ref()) &&
+	     PL_put_pointer(a, s) &&
+	     PL_cons_functor(a, FUNCTOR_dstream1, a) &&
+	     PL_unify(t, a)
+	   );
   }
   UNLOCK();
+
+  if ( !rval && !PL_is_variable(t) )
+    return PL_error(NULL, 0, "stream-argument", ERR_MUST_BE_VAR, 0);
 
   return rval;
 }
@@ -541,8 +557,10 @@ PL_unify_stream(term_t t, IOSTREAM *s)
   ctx = getStreamContext(s);
   UNLOCK();
 
-  PL_put_pointer(a, s);
-  PL_cons_functor(a, FUNCTOR_dstream1, a);
+  if ( !(a = PL_new_term_ref()) ||
+       !PL_put_pointer(a, s) ||
+       !PL_cons_functor(a, FUNCTOR_dstream1, a) )
+    return FALSE;			/* resource error */
 
   if ( PL_unify(t, a) )
     return TRUE;
@@ -666,14 +684,21 @@ reportStreamError(IOSTREAM *s)
 
     if ( (s->flags & SIO_FERR) )
     { if ( s->exception )
-      { fid_t fid = PL_open_foreign_frame();
-	term_t ex = PL_new_term_ref();
-	PL_recorded(s->exception, ex);
+      { fid_t fid;
+	term_t ex;
+	int rc;
+
+	LD->exception.processing = TRUE;	/* allow using spare stack */
+	if ( !(fid = PL_open_foreign_frame()) )
+	  return FALSE;
+	ex = PL_new_term_ref();
+	rc = PL_recorded(s->exception, ex);
 	PL_erase(s->exception);
 	s->exception = NULL;
-	PL_raise_exception(ex);
+	if ( rc )
+	  rc = PL_raise_exception(ex);
 	PL_close_foreign_frame(fid);
-	return FALSE;
+	return rc;
       }
 
       if ( s->flags & SIO_INPUT )
@@ -1038,11 +1063,11 @@ closeOutputRedirect(redir_context *ctx)
     rval = PL_unify_wchars_diff(out, tail, ctx->out_format,
 				ctx->size/sizeof(wchar_t),
 				(wchar_t*)ctx->data);
-    if ( tail )
+    if ( rval && tail )
       rval = PL_unify(tail, diff);
 
     if ( ctx->data != ctx->buffer )
-      free(ctx->data);
+      Sfree(ctx->data);
   }
 
   return rval;
@@ -1064,7 +1089,7 @@ discardOutputRedirect(redir_context *ctx)
   } else
   { closeStream(ctx->stream);
     if ( ctx->data != ctx->buffer )
-      free(ctx->data);
+      Sfree(ctx->data);
   }
 }
 
@@ -1398,6 +1423,22 @@ PRED_IMPL("set_stream", 2, set_stream, 0)
 	}
 
 	goto ok;
+      } else if ( aname == ATOM_type ) /* type(Type) */
+      { atom_t type;
+
+	if ( !PL_get_atom_ex(a, &type) )
+	  return FALSE;
+	if ( type == ATOM_text )
+	{ s->flags |= SIO_TEXT;
+	} else if ( type == ATOM_binary )
+	{ s->flags &= ~SIO_TEXT;
+	} else
+	{ PL_error("set_stream", 2, NULL, ERR_DOMAIN,
+		   ATOM_type, a);
+	  goto error;
+	}
+
+	goto ok;
       } else if ( aname == ATOM_close_on_abort ) /* close_on_abort(Bool) */
       { int close;
 
@@ -1428,6 +1469,7 @@ PRED_IMPL("set_stream", 2, set_stream, 0)
 	if ( !PL_get_atom_ex(a, &fn) )
 	  goto error;
 
+	PL_register_atom(fn);
 	LOCK();
 	setFileNameStream(s, fn);
 	UNLOCK();
@@ -1467,7 +1509,7 @@ PRED_IMPL("set_stream", 2, set_stream, 0)
 	if ( !PL_get_atom_ex(a, &val) )
 	  goto error;
 	if ( (enc = atom_to_encoding(val)) == ENC_UNKNOWN )
-	{ bad_encoding(val);
+	{ bad_encoding(NULL, val);
 	  goto error;
 	}
 
@@ -2191,7 +2233,12 @@ PRED_IMPL("get_single_char", 1, get_single_char, 0)
   int c = getSingleChar(s, TRUE);
 
   if ( c == EOF )
-  { PL_unify_integer(A1, -1);
+  { if ( PL_exception(0) )
+    { releaseStream(s);
+      return FALSE;
+    }
+
+    PL_unify_integer(A1, -1);
     return streamStatus(s);
   }
 
@@ -2512,12 +2559,12 @@ encoding_to_atom(IOENC enc)
 
 
 static int
-bad_encoding(atom_t name)
+bad_encoding(const char *msg, atom_t name)
 { GET_LD
   term_t t = PL_new_term_ref();
 
   PL_put_atom(t, name);
-  return PL_error(NULL, 0, NULL, ERR_DOMAIN, ATOM_encoding, t);
+  return PL_error(NULL, 0, msg, ERR_DOMAIN, ATOM_encoding, t);
 }
 
 
@@ -2630,9 +2677,22 @@ openStream(term_t file, term_t mode, term_t options)
   if ( encoding != NULL_ATOM )
   { enc = atom_to_encoding(encoding);
     if ( enc == ENC_UNKNOWN )
-    { bad_encoding(encoding);
-
+    { bad_encoding(NULL, encoding);
       return NULL;
+    }
+    if ( type == ATOM_binary && enc != ENC_OCTET )
+    { bad_encoding("type(binary) implies encoding(octet)", encoding);
+      return NULL;
+    }
+    switch(enc)				/* explicitely specified: do not */
+    { case ENC_OCTET:			/* switch to Unicode.  For implicit */
+      case ENC_ASCII:			/* and unicode types we must detect */
+      case ENC_ISO_LATIN_1:		/* and skip the BOM */
+      case ENC_WCHAR:
+	bom = FALSE;
+        break;
+      default:
+	;
     }
   } else if ( type == ATOM_binary )
   { enc = ENC_OCTET;
@@ -2675,10 +2735,12 @@ openStream(term_t file, term_t mode, term_t options)
   }
 #ifdef HAVE_POPEN
   else if ( PL_is_functor(file, FUNCTOR_pipe1) )
-  { term_t a = PL_new_term_ref();
+  { term_t a;
     char *cmd;
 
-    PL_get_arg(1, file, a);
+    PL_clear_exception();
+    a = PL_new_term_ref();
+    _PL_get_arg(1, file, a);
     if ( !PL_get_chars(a, &cmd, CVT_ATOM|CVT_STRING|REP_FN) )
     { PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_atom, a);
       return NULL;
@@ -3520,7 +3582,15 @@ PRED_IMPL("stream_property", 2, stream_property,
   }
 
 
-  fid = PL_open_foreign_frame();
+  if ( !(fid = PL_open_foreign_frame()) )
+  { error:
+
+    if ( pe->e )
+      freeTableEnum(pe->e);
+
+    freeHeap(pe, sizeof(*pe));
+    return FALSE;
+  }
 
   for(;;)
   { if ( pe->s )				/* given stream */
@@ -3531,7 +3601,8 @@ PRED_IMPL("stream_property", 2, stream_property,
 	  goto enum_e;
       }
 
-      fid2 = PL_open_foreign_frame();
+      if ( !(fid2 = PL_open_foreign_frame()) )
+	goto error;
       for( ; pe->p->functor ; pe->p++ )
       { if ( PL_unify_functor(property, pe->p->functor) )
 	{ int rval;
@@ -3559,6 +3630,9 @@ PRED_IMPL("stream_property", 2, stream_property,
 	  }
 	}
 
+	if ( exception_term )
+	  goto error;
+
 	if ( pe->fixed_p )
 	  break;
 	PL_rewind_foreign_frame(fid2);
@@ -3579,6 +3653,8 @@ PRED_IMPL("stream_property", 2, stream_property,
 	    pe->p = sprop_list;
 	  break;
 	}
+	if ( exception_term )
+	  goto error;
       }
     }
 
@@ -4081,10 +4157,15 @@ PRED_IMPL("set_prolog_IO", 3, set_prolog_IO, 0)
 { PRED_LD
   IOSTREAM *in = NULL, *out = NULL, *error = NULL;
   int rval = FALSE;
+  int wrapin = FALSE;
 
-  if ( !PL_get_stream_handle(A1, &in) ||
-       !PL_get_stream_handle(A2, &out) )
+  if ( !get_stream_handle(A1, &in, SH_ERRORS|SH_ALIAS|SH_UNLOCKED) ||
+       !get_stream_handle(A2, &out, SH_ERRORS|SH_ALIAS) )
     goto out;
+
+  wrapin = (LD->IO.streams[0] != in);
+  if ( wrapin )
+    in = getStream(in);			/* lock it */
 
   if ( PL_compare(A2, A3) == 0 )	/* == */
   { error = getStream(Snew(out->handle, out->flags, out->functions));
@@ -4099,20 +4180,22 @@ PRED_IMPL("set_prolog_IO", 3, set_prolog_IO, 0)
   out->flags &= ~SIO_ABUF;		/* output: line buffered */
   out->flags |= SIO_LBUF;
 
-  LD->IO.streams[0] = in;		/* user_input */
   LD->IO.streams[1] = out;		/* user_output */
   LD->IO.streams[2] = error;		/* user_error */
-  LD->IO.streams[3] = in;		/* current_input */
   LD->IO.streams[4] = out;		/* current_output */
 
-  wrapIO(in, Sread_user, NULL);
-  LD->prompt.next = TRUE;
+  if ( wrapin )
+  { LD->IO.streams[3] = in;		/* current_input */
+    LD->IO.streams[0] = in;		/* user_input */
+    wrapIO(in, Sread_user, NULL);
+    LD->prompt.next = TRUE;
+  }
 
   UNLOCK();
   rval = TRUE;
 
 out:
-  if ( in )
+  if ( wrapin && in )
     releaseStream(in);
   if ( out )
     releaseStream(out);

@@ -250,7 +250,7 @@ scan_options(term_t options, int flags, atom_t optype,
   term_t val  = PL_new_term_ref();
   int n;
 
-  if ( trueFeature(ISO_FEATURE) )
+  if ( truePrologFlag(PLFLAG_ISO) )
     flags |= OPT_ALL;
 
   va_start(args, specs);
@@ -555,5 +555,36 @@ setPrologFlag(const char *name, int flags, ...)
 void
 PL_set_prolog_flag(const char *name, int flags, ...)
 {
+}
+
+int
+PL_unify_chars(term_t t, int flags, size_t len, const char *s)
+{ PL_chars_t text;
+  term_t tail;
+  int rc;
+
+  if ( len == (size_t)-1 )
+    len = strlen(s);
+
+  text.text.t    = (char *)s;
+  text.encoding  = ((flags&REP_UTF8) ? ENC_UTF8 : \
+		    (flags&REP_MB)   ? ENC_ANSI : ENC_ISO_LATIN_1);
+  text.storage   = PL_CHARS_HEAP;
+  text.length    = len;
+  text.canonical = FALSE;
+
+  flags &= ~(REP_UTF8|REP_MB|REP_ISO_LATIN_1);
+
+  if ( (flags & PL_DIFF_LIST) )
+  { tail = t+1;
+    flags &= (~PL_DIFF_LIST);
+  } else
+  { tail = 0;
+  }
+
+  rc = PL_unify_text(t, tail, &text, flags);
+  PL_free_text(&text);
+
+  return rc;
 }
 

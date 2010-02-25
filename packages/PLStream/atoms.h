@@ -504,6 +504,7 @@
 #define ATOM_term_position MK_ATOM("term_position")
 #define ATOM_terminal MK_ATOM("terminal")
 #define ATOM_terminal_capability MK_ATOM("terminal_capability")
+#define ATOM_temporary_files MK_ATOM("temporary_files")
 #define ATOM_text MK_ATOM("text")
 #define ATOM_thread MK_ATOM("thread")
 #define ATOM_thread_cputime MK_ATOM("thread_cputime")

@@ -788,25 +788,17 @@ p_execute_nonstop(void)
   }
   /*	N = arity; */
   /* call may not define new system predicates!! */
-  if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
-    Yap_signal(YAP_CREEP_SIGNAL);
-  }
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
+    if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
+      Yap_signal(YAP_CREEP_SIGNAL);
+    }
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
-  }  else if ((RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) &&
-	      RepPredProp(pe)->OpcodeOfPred != Yap_opcode(_call_bfunc_xx)) {
-    /* USER C-Code may walk over registers */
-    if (RepPredProp(pe)->PredFlags & UserCPredFlag) {
-      save_machine_regs();
+  }  else { if (ActiveSignals & YAP_CREEP_SIGNAL  && 
+		!Yap_InterruptsDisabled &&
+		(!(RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) ||
+		  RepPredProp(pe)->OpcodeOfPred == Yap_opcode(_call_bfunc_xx))) {
+      Yap_signal(YAP_CREEP_SIGNAL);
     }
-    if (RepPredProp(pe)->PredFlags & UserCPredFlag) {
-      Int out = RepPredProp(pe)->cs.f_code();
-      restore_machine_regs();
-      return out;
-    } else {
-      return RepPredProp(pe)->cs.f_code();
-    }
-  } else {
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->CodeOfPred);
   }
 }

@@ -53,32 +53,32 @@ typedef struct trie_data {
 /*           Macros            */
 /* --------------------------- */
 
-#define new_trie_entry(TR_ENTRY, TR_NODE)                                              \
-        { new_struct(TR_ENTRY, TYPE_TR_ENTRY, SIZEOF_TR_ENTRY);                        \
-          TrEntry_trie(TR_ENTRY) = TR_NODE;                                            \
-          TrEntry_first_data(TR_ENTRY) = NULL;                                         \
-          TrEntry_last_data(TR_ENTRY) = NULL;                                          \
-          TrEntry_traverse_data(TR_ENTRY) = NULL;                                      \
-          TrEntry_next(TR_ENTRY) = FIRST_TRIE;                                         \
-          TrEntry_previous(TR_ENTRY) = AS_TR_ENTRY_NEXT(&FIRST_TRIE);                  \
-          INCREMENT_MEMORY(TRIE_ENGINE, SIZEOF_TR_ENTRY);                              \
+#define new_trie_entry(TR_ENTRY, TR_NODE)                                                \
+        { new_struct(TR_ENTRY, TYPE_TR_ENTRY, SIZEOF_TR_ENTRY);                          \
+          TrEntry_trie(TR_ENTRY) = TR_NODE;                                              \
+          TrEntry_first_data(TR_ENTRY) = NULL;                                           \
+          TrEntry_last_data(TR_ENTRY) = AS_TR_DATA_NEXT(&TrEntry_first_data(TR_ENTRY));  \
+          TrEntry_traverse_data(TR_ENTRY) = NULL;                                        \
+          TrEntry_next(TR_ENTRY) = FIRST_TRIE;                                           \
+          TrEntry_previous(TR_ENTRY) = AS_TR_ENTRY_NEXT(&FIRST_TRIE);                    \
+          INCREMENT_MEMORY(TRIE_ENGINE, SIZEOF_TR_ENTRY);                                \
 	}
-#define new_trie_data(TR_DATA, TR_ENTRY, TR_NODE)                                      \
-        { TrData last_data = TrEntry_last_data(TR_ENTRY);                              \
-          new_struct(TR_DATA, TYPE_TR_DATA, SIZEOF_TR_DATA);                           \
-          TrData_trie(TR_DATA) = TR_ENTRY;                                             \
-          TrData_leaf(TR_DATA) = TR_NODE;                                              \
-          TrData_next(TR_DATA) = NULL;                                                 \
-          if (last_data) {                                                             \
-            TrData_next(last_data) = TR_DATA;	         	                       \
-            TrData_previous(TR_DATA) = last_data;		                       \
-            TrEntry_last_data(TR_ENTRY) = TR_DATA;                                     \
-          } else { 	                                                               \
-            TrData_previous(TR_DATA) = AS_TR_DATA_NEXT(&TrEntry_first_data(TR_ENTRY)); \
-            TrEntry_first_data(TR_ENTRY) = TR_DATA;                                    \
-            TrEntry_last_data(TR_ENTRY) = TR_DATA;                                     \
-          }                                                                            \
-          INCREMENT_MEMORY(TRIE_ENGINE, SIZEOF_TR_DATA);                               \
+#define new_trie_data(TR_DATA, TR_ENTRY, TR_NODE)                                        \
+        { TrData first_data = TrEntry_first_data(TR_ENTRY);                              \
+          new_struct(TR_DATA, TYPE_TR_DATA, SIZEOF_TR_DATA);                             \
+          TrData_trie(TR_DATA) = TR_ENTRY;                                               \
+          TrData_leaf(TR_DATA) = TR_NODE;                                                \
+          TrData_next(TR_DATA) = NULL;                                                   \
+          if (first_data) {                                                              \
+            TrData last_data = TrEntry_last_data(TR_ENTRY);                              \
+            TrData_next(last_data) = TR_DATA;	         	                         \
+            TrData_previous(TR_DATA) = last_data;		                         \
+          } else { 	                                                                 \
+            TrData_previous(TR_DATA) = AS_TR_DATA_NEXT(&TrEntry_first_data(TR_ENTRY));   \
+            TrEntry_first_data(TR_ENTRY) = TR_DATA;                                      \
+          }                                                                              \
+          TrEntry_last_data(TR_ENTRY) = TR_DATA;                                         \
+          INCREMENT_MEMORY(TRIE_ENGINE, SIZEOF_TR_DATA);                                 \
         } 
 
 

@@ -205,7 +205,7 @@ sysmktime(void)
   loc.tm_hour = YAP_IntOfTerm(YAP_ARG4);
   loc.tm_min = YAP_IntOfTerm(YAP_ARG5);
   loc.tm_sec = YAP_IntOfTerm(YAP_ARG6);
-  loc.tm_isdst = daylight;
+  loc.tm_isdst = -1;
 
   if ((tim = mktime(&loc)) == (time_t)-1) {
     return YAP_Unify(YAP_ARG8, YAP_MkIntTerm(errno));

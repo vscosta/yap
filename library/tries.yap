@@ -50,5 +50,4 @@ trie_dup(Trie, CopyTrie) :-
 	trie_join(CopyTrie, Trie).
 
 trie_traverse(Trie, Ref) :- 
-	trie_get_first_entry(Trie, InitRef),
-        (Ref = InitRef ; trie_traverse(Trie, InitRef, Ref)).
+	trie_traverse(Trie, 0, Ref).
