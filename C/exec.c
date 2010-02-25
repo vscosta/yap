@@ -729,8 +729,14 @@ p_execute_nonstop(void)
   Prop            pe;
 
  restart_exec:
+  if (IsVarTerm(mod)) {
+    mod = CurrentModule;
+  } else if (!IsAtomTerm(mod)) {
+    Yap_Error(TYPE_ERROR_ATOM, ARG2, "call/1");
+    return FALSE;
+  }
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,ARG3,"call/1");    
+    Yap_Error(INSTANTIATION_ERROR,ARG1,"call/1");    
     return FALSE;
   } else if (IsAtomTerm(t)) {
     Atom a = AtomOfTerm(t);
