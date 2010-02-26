@@ -963,7 +963,7 @@ stream_property(Stream, Props) :-
 '$process_stream_properties'([output|Props], Stream, F, write) :-
 	'$process_stream_properties'(Props, Stream, F, write).
 '$process_stream_properties'([position(P)|Props], Stream, F, Mode) :-
-	'$show_stream_bom'(Stream, P),
+	'$show_stream_position'(Stream,P),
 	'$process_stream_properties'(Props, Stream, F, Mode).
 '$process_stream_properties'([encoding(Enc)|Props], Stream, F, Mode) :-
 	% make sure this runs first, with EncCode unbound.
