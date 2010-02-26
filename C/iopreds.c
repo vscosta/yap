@@ -2386,7 +2386,10 @@ p_open (void)
   st->linecount = 1;
   st->linepos = 0;
   st->u.file.name = Yap_LookupAtom (Yap_FileNameBuf);
-  st->u.file.user_name = file_name;
+  if (IsAtomTerm(Deref(ARG6)))
+    st->u.file.user_name = Deref(ARG6);
+  else
+    st->u.file.user_name = file_name;
   st->stream_putc = FilePutc;
   st->stream_wputc = put_wchar;
   st->stream_getc = PlGetc;
@@ -3201,10 +3204,7 @@ StreamName(int i)
     if (Stream[i].status & InMemory_Stream_f)
       return(MkAtomTerm(AtomCharsio));
     else {
-      if (yap_flags[LANGUAGE_MODE_FLAG] == ISO_CHARACTER_ESCAPES) {
-	return(Stream[i].u.file.user_name);
-      } else
-	return(MkAtomTerm(Stream[i].u.file.name));
+      return(Stream[i].u.file.user_name);
     }
 }
 
