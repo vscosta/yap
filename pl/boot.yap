@@ -879,6 +879,7 @@ not(G) :-    \+ '$execute'(G).
 	    '$call'(B,CP,G0,M)
 	).
 '$call'(\+ X, _CP, _G0, M) :- !,
+	yap_hacks:current_choicepoint(CP),
 	\+  '$call'(X,CP,G0,M).
 '$call'(not(X), _CP, _G0, M) :- !,
 	\+  '$call'(X,CP,G0,M).
