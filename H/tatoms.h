@@ -794,6 +794,8 @@
 #define FunctorStreamPos Yap_heap_regs->FunctorStreamPos_
   Functor FunctorSyntaxError_;
 #define FunctorSyntaxError Yap_heap_regs->FunctorSyntaxError_
+  Functor FunctorShortSyntaxError_;
+#define FunctorShortSyntaxError Yap_heap_regs->FunctorShortSyntaxError_
   Functor FunctorThreadRun_;
 #define FunctorThreadRun Yap_heap_regs->FunctorThreadRun_
   Functor FunctorThrow_;

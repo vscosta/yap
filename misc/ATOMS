@@ -405,6 +405,7 @@ F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
 F	StreamPos		StreamPos	5
 F	SyntaxError		SyntaxError	7
+F	ShortSyntaxError	SyntaxError	1
 F	ThreadRun		TopThreadGoal	2
 F	Throw			Throw		1
 F	TimeoutError		TimeoutError	2

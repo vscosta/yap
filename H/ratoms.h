@@ -396,6 +396,7 @@
   FunctorStreamEOS = FuncAdjust(FunctorStreamEOS);
   FunctorStreamPos = FuncAdjust(FunctorStreamPos);
   FunctorSyntaxError = FuncAdjust(FunctorSyntaxError);
+  FunctorShortSyntaxError = FuncAdjust(FunctorShortSyntaxError);
   FunctorThreadRun = FuncAdjust(FunctorThreadRun);
   FunctorThrow = FuncAdjust(FunctorThrow);
   FunctorTimeoutError = FuncAdjust(FunctorTimeoutError);
