@@ -1203,7 +1203,7 @@ throw(Ball) :-
 	    throw(Ball)
 	).
 
-'catch_ball'('$abort', _) :- !, fail.
+'catch_ball'(Abort, _) :- Abort == '$abort', !, fail.
 % system defined throws should be ignored by used, unless the
 % user is hacking away.
 'catch_ball'(Ball, V) :-
