@@ -37,10 +37,10 @@ op(P,T,V) :-
 	 '$do_error'(type_error(atom,T),G)
 	;
 	 P < 0 ->
-	 '$do_error'(domain_error(out_of_range,P),G)
+	 '$do_error'(domain_error(operator_priority,P),G)
 	;
 	 P > 1200 ->
-	 '$do_error'(domain_error(out_of_range,P),G)
+	 '$do_error'(domain_error(operator_priority,P),G)
 	;
 	 \+ '$associativity'(T) ->
 	 '$do_error'(domain_error(operator_specifier,T),G)
@@ -116,6 +116,10 @@ current_op(X,Y,Z) :-
 
 
 '$current_opm'(X,Y,Z,M) :-
+	nonvar(Y),
+	\+ '$associativity'(Y),
+	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
+'$current_opm'(X,Y,Z,M) :-
 	var(Z), !,
 	'$do_current_op'(X,Y,Z,M).
 '$current_opm'(X,Y,M:Z,_) :- !,
@@ -123,6 +127,10 @@ current_op(X,Y,Z) :-
 '$current_opm'(X,Y,Z,M) :-
 	'$do_current_op'(X,Y,Z,M).
 
+'$do_current_op'(X,Y,Z,M) :-
+	nonvar(Y),
+	\+ '$associativity'(Y),
+	'$do_error'(domain_error(operator_specifier,Y),current_op(X,Y,M:Z)).
 '$do_current_op'(X,Y,Z,M) :-
 	atom(Z), !,
 	'$current_atom_op'(Z, M1, Prefix, Infix, Posfix),
