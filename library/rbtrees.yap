@@ -944,7 +944,7 @@ ord_list_to_rbtree(List, t(Nil,Tree)) :-
 	Nil = black('', _, _, ''),
 	Ar =.. [seq|List],
 	functor(Ar,_,L),
-	Height is integer(log(L)/log(2)),
+	Height is truncate(log(L)/log(2)),
 	construct_rbtree(1, L, Ar, Height, Nil, Tree).
 
 construct_rbtree(L, M, _, _, Nil, Nil) :- M < L, !.
