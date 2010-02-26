@@ -314,140 +314,140 @@ parms.h:	Makefile
 
 #special rule for this one: we cannot use -fomit-frame-pointer because this will
 # interface with the outside world.
-c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h
+c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/c_interface.c -o c_interface.o
 
-clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h
+clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
 
-init.o: $(srcdir)/C/init.c
+init.o: $(srcdir)/C/init.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/init.c -o $@
 
-load_foreign.o: $(srcdir)/C/load_foreign.c
+load_foreign.o: $(srcdir)/C/load_foreign.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
 
-save.o: $(srcdir)/C/save.c
+save.o: $(srcdir)/C/save.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
 
-sysbits.o: $(srcdir)/C/sysbits.c
+sysbits.o: $(srcdir)/C/sysbits.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/sysbits.c -o $@
 
-udi.o: $(srcdir)/C/udi.c
+udi.o: $(srcdir)/C/udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/C/udi.c -o $@
 
-rtree.o: $(srcdir)/packages/udi/rtree.c
+rtree.o: $(srcdir)/packages/udi/rtree.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree.c -o $@
 
-rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c
+rtree_udi.o: $(srcdir)/packages/udi/rtree_udi.c config.h
 	$(CC) -c $(C_INTERF_FLAGS) $(srcdir)/packages/udi/rtree_udi.c -o $@
 
-yap.o: $(srcdir)/console/yap.c parms.h
+yap.o: $(srcdir)/console/yap.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/yap.c -o $@
 
-mpi.o: $(srcdir)/library/mpi/mpi.c
+mpi.o: $(srcdir)/library/mpi/mpi.c config.h
 	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpi.c -o $@
 
-mpe.o: $(srcdir)/library/mpi/mpe.c
+mpe.o: $(srcdir)/library/mpi/mpe.c config.h
 	$(MPI_CC) -c $(CFLAGS) $(srcdir)/library/mpi/mpe.c -o $@
 
-myddas_mysql.o: $(srcdir)/MYDDAS/myddas_mysql.c
+myddas_mysql.o: $(srcdir)/MYDDAS/myddas_mysql.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_mysql.c -o $@
 
-myddas_odbc.o: $(srcdir)/MYDDAS/myddas_odbc.c
+myddas_odbc.o: $(srcdir)/MYDDAS/myddas_odbc.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_odbc.c -o $@
 
-myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c
+myddas_shared.o: $(srcdir)/MYDDAS/myddas_shared.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_shared.c -o $@
 
-myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c
+myddas_util.o: $(srcdir)/MYDDAS/myddas_util.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_util.c -o $@
 
-myddas_initialization.o: $(srcdir)/MYDDAS/myddas_initialization.c
+myddas_initialization.o: $(srcdir)/MYDDAS/myddas_initialization.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_initialization.c -o $@
 
-myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c
+myddas_top_level.o: $(srcdir)/MYDDAS/myddas_top_level.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_top_level.c -o $@
 
-myddas_wkb2prolog.o: $(srcdir)/MYDDAS/myddas_wkb2prolog.c
+myddas_wkb2prolog.o: $(srcdir)/MYDDAS/myddas_wkb2prolog.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_wkb2prolog.c -o $@
 
-myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c
+myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_statistics.c -o $@
 
-opt.memory.o: $(srcdir)/OPTYap/opt.memory.c
+opt.memory.o: $(srcdir)/OPTYap/opt.memory.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.memory.c -o $@
 
-opt.misc.o: $(srcdir)/OPTYap/opt.misc.c
+opt.misc.o: $(srcdir)/OPTYap/opt.misc.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.misc.c -o $@
 
-opt.init.o: $(srcdir)/OPTYap/opt.init.c
+opt.init.o: $(srcdir)/OPTYap/opt.init.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.init.c -o $@
 
-opt.preds.o: $(srcdir)/OPTYap/opt.preds.c
+opt.preds.o: $(srcdir)/OPTYap/opt.preds.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.preds.c -o $@
 
-or.cut.o: $(srcdir)/OPTYap/or.cut.c
+or.cut.o: $(srcdir)/OPTYap/or.cut.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cut.c -o $@
 
-or.engine.o: $(srcdir)/OPTYap/or.engine.c
+or.engine.o: $(srcdir)/OPTYap/or.engine.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.engine.c -o $@
 
-or.cowengine.o: $(srcdir)/OPTYap/or.cowengine.c
+or.cowengine.o: $(srcdir)/OPTYap/or.cowengine.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cowengine.c -o $@
 
-or.sbaengine.o: $(srcdir)/OPTYap/or.sbaengine.c
+or.sbaengine.o: $(srcdir)/OPTYap/or.sbaengine.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sbaengine.c -o $@
 
-or.threadengine.o: $(srcdir)/OPTYap/or.threadengine.c
+or.threadengine.o: $(srcdir)/OPTYap/or.threadengine.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.threadengine.c -o $@
 
-or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c
+or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.scheduler.c -o $@
 
-tab.tries.o: $(srcdir)/OPTYap/tab.tries.c
+tab.tries.o: $(srcdir)/OPTYap/tab.tries.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.tries.c -o $@
 
-tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c
+tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
 
-eam_showcode.o:  $(srcdir)/BEAM/eam_showcode.c
+eam_showcode.o:  $(srcdir)/BEAM/eam_showcode.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_showcode.c -o $@
 
-eam_am.o:  $(srcdir)/BEAM/eam_am.c
+eam_am.o:  $(srcdir)/BEAM/eam_am.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_am.c -o $@
 
-eamamasm.o:  $(srcdir)/BEAM/eamamasm.c
+eamamasm.o:  $(srcdir)/BEAM/eamamasm.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamamasm.c -o $@
 
-eamindex.o:  $(srcdir)/BEAM/eamindex.c
+eamindex.o:  $(srcdir)/BEAM/eamindex.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eamindex.c -o $@
 
-sys.o: $(srcdir)/library/system/sys.c
+sys.o: $(srcdir)/library/system/sys.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
 
-yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c
+yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
 
-random.o: $(srcdir)/library/random/random.c
+random.o: $(srcdir)/library/random/random.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/random.c  -o $@
 
-regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c
+regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexp.c -o regexp.o
 
-regcomp.o: $(srcdir)/library/regex/regcomp.c $(srcdir)/library/regex/regex2.h
+regcomp.o: $(srcdir)/library/regex/regcomp.c $(srcdir)/library/regex/regex2.h config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regcomp.c -o regcomp.o
 
-regerror.o: $(srcdir)/library/regex/regerror.c
+regerror.o: $(srcdir)/library/regex/regerror.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regerror.c -o regerror.o
 
-regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h
+regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regfree.c -o regfree.o
 
-regexec.o: $(srcdir)/library/regex/regexec.c
+regexec.o: $(srcdir)/library/regex/regexec.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
 
 # default rule
-%.o : $(srcdir)/C/%.c
+%.o : $(srcdir)/C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
 
@@ -484,7 +484,7 @@ all: startup.yss
 	@ENABLE_CPLINT@ (cd cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 
-startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES) parms.h
+startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
 	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program('startup.yss')." |  @PRE_DYNLOADER_PATH@ ./yap -b $(srcdir)/pl/boot.yap
 
