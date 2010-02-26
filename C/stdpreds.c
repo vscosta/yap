@@ -849,6 +849,7 @@ p_char_code(void)
       Yap_Error(INSTANTIATION_ERROR,t0,"char_code/2");
       return(FALSE);
     } else if (!IsIntegerTerm(t1)) {
+      fprintf(stderr,"hello\n"),
       Yap_Error(TYPE_ERROR_INTEGER,t1,"char_code/2");
       return(FALSE);
     } else {

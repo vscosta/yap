@@ -262,7 +262,7 @@ print_message(Severity, Term) :-
 	    )
 	).
 print_message(silent, _) :-  !.
-print_message(_, error(syntax_error(_,between(_,L,_),_,_,_,_,StreamName),_)) :-  !,
+print_message(_, error(syntax_error(syntax_error(_,between(_,L,_),_,_,_,_,StreamName)),_)) :-  !,
 	format(user_error,'SYNTAX ERROR at ~a, close to ~d~n',[StreamName,L]).
 print_message(_, loading(A, F)) :- !,
 	format(user_error,'  % ~a ~a~n',[A,F]).
@@ -284,7 +284,7 @@ print_message(_, Term) :-
 '$print_system_message'(_, banner, _) :-
 	current_prolog_flag(verbose, silent), !.
 '$print_system_message'(Term, Level, Lines) :-
-	Term = error(syntax_error(_,_,_,_,_,_,_),_), !,
+	Term = error(syntax_error(syntax_error(_,_,_,_,_,_,_)),_), !,
 	flush_output(user_output),
 	flush_output(user_error),
 	'$messages':prefix(Level, LinePrefix, Stream, _, Lines), !,
