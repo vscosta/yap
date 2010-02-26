@@ -40,6 +40,8 @@ assert(C) :-
 	'$do_error'(instantiation_error,assert(Mod:V)).
 '$assert'(V,Mod,_,_,_) :- var(Mod), !,
 	'$do_error'(instantiation_error,assert(Mod:V)).
+'$assert'(I,Mod,_,_,_) :- number(I), !,
+	'$do_error'(type_error(callable,I),assert(Mod:I)).
 '$assert'(M:C,_,Where,R,P) :- !,
 	'$assert'(C,M,Where,R,P).
 '$assert'((H:-G),M1,Where,R,P) :- !,
