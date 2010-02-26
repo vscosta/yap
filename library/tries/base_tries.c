@@ -189,7 +189,11 @@ inline
 TrData trie_traverse_init(TrEntry trie, TrData init_data) {
   TrData data;
 
-  data = TrData_next(init_data);
+  if (init_data) {
+    data = TrData_next(init_data);
+  } else {
+    data = TrEntry_first_data(trie);
+  }
   TrEntry_traverse_data(trie) = data;
   return data;
 }
