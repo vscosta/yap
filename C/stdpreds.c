@@ -2960,6 +2960,22 @@ Yap_IsOp(Atom at)
   return (!EndOfPAEntr(op));
 }
 
+int
+Yap_IsOpMaxPrio(Atom at)
+{
+  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)));
+  int max;
+
+  if (EndOfPAEntr(op))
+    return 0;
+  max = (op->Prefix & 0xfff);
+  if ((op->Infix & 0xfff) > max)
+    max = op->Infix & 0xfff;
+  if ((op->Posfix & 0xfff) > max)
+    max = op->Posfix & 0xfff;
+  return max;
+}
+
 static Int
 unify_op(OpEntry         *op)
 {

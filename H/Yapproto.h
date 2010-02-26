@@ -316,6 +316,7 @@ void	STD_PROTO(Yap_InitCPreds,(void));
 void	STD_PROTO(Yap_show_statistics,(void));
 void	STD_PROTO(Yap_signal,(yap_signals));
 void	STD_PROTO(Yap_undo_signal,(yap_signals));
+int	STD_PROTO(Yap_IsOpMaxPrio,(Atom));
 
 /* sysbits.c */
 void	STD_PROTO(Yap_set_fpu_exceptions,(int));

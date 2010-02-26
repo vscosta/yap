@@ -214,12 +214,12 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 
 static int LeftOpToProtect(Atom at, int p)
 {
-  return Yap_IsOp(at);
+  return Yap_IsOpMaxPrio(at) > p;
 }
 
 static int RightOpToProtect(Atom at, int p)
 {
-  return Yap_IsOp(at);
+  return Yap_IsOpMaxPrio(at) > p;
 }
 
 static wtype 
