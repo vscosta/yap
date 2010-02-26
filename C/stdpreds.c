@@ -1937,7 +1937,7 @@ p_number_chars(void)
       return FALSE;
     }
   }
-  if (IsNonVarTerm(t1)) {
+  if (IsNonVarTerm(t1) && IsVarTerm(t)) {
     Term            NewT;
     if (!IsNumTerm(t1)) {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_chars/2");
@@ -2147,7 +2147,7 @@ p_number_codes(void)
       return FALSE;
     }
   }
-  if (IsNonVarTerm(t1)) {
+  if (IsNonVarTerm(t1) && IsVarTerm(t)) {
     if (IsIntTerm(t1)) {
 #if SHORT_INTS
       sprintf(String, "%ld", IntOfTerm(t1));
