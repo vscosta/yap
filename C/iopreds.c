@@ -5897,13 +5897,10 @@ p_char_conversion(void)
 	return(FALSE);
     }
     for (i = 0; i < NUMBER_OF_CHARS; i++) 
-      CharConversionTable2[i] = '\0';
+      CharConversionTable2[i] = i;
   }
   /* just add the new entry */
-  if (s0[0] == s1[0])
-    CharConversionTable2[(int)s0[0]] = '\0';
-  else
-    CharConversionTable2[(int)s0[0]] = s1[0];
+  CharConversionTable2[(int)s0[0]] = s1[0];
   /* done */
   return(TRUE);
 }
