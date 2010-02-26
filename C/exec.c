@@ -712,7 +712,7 @@ p_execute0(void)
 #endif
     }
   } else {
-    Yap_Error(TYPE_ERROR_CALLABLE,ARG3,"call/1");    
+    Yap_Error(TYPE_ERROR_CALLABLE,ARG1,"call/1");    
     return FALSE;
   }
   /*	N = arity; */
