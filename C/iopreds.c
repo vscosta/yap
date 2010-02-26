@@ -2365,12 +2365,12 @@ p_open (void)
       if (open_mode == AtomCsult)
 	{
 	  if (!find_csult_file (Yap_FileNameBuf, Yap_FileNameBuf2, st, io_mode))
-	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, file_name, "open/3"));
+	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, ARG1, "open/3"));
 	  strncpy (Yap_FileNameBuf, Yap_FileNameBuf2, YAP_FILENAME_MAX);
 	}
       else {
 	if (errno == ENOENT)
-	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,file_name,"open/3"));
+	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG1,"open/3"));
 	else
 	  return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,file_name,"open/3"));
       }
@@ -3369,8 +3369,10 @@ p_close (void)
   Int sno = CheckStream (ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
   if (sno < 0)
     return (FALSE);
-  if (sno <= StdErrStream)
-    return (TRUE);
+  if (sno <= StdErrStream) {
+    UNLOCK(Stream[sno].streamlock);
+    return TRUE;
+  }
   CloseStream(sno);
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);

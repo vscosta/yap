@@ -512,6 +512,8 @@
 #define AtomStaticProcedure Yap_heap_regs->AtomStaticProcedure_
   Atom AtomStream_;
 #define AtomStream Yap_heap_regs->AtomStream_
+  Atom AtomVStream_;
+#define AtomVStream Yap_heap_regs->AtomVStream_
   Atom AtomStreams_;
 #define AtomStreams Yap_heap_regs->AtomStreams_
   Atom AtomStreamOrAlias_;
