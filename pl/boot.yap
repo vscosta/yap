@@ -1002,7 +1002,7 @@ break :-
 
 bootstrap(F) :-
 	'$open'(F, '$csult', Stream, 0, 0, F),
-	'$current_stream'(File,_,Stream),
+	'$file_name'(Stream,File),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	getcwd(OldD),

@@ -214,7 +214,7 @@ use_module(M,F,Is) :-
 	nb_getval('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
-	'$current_stream'(File,_,Stream),
+	'$file_name'(Stream,File),
 	'$fetch_stream_alias'(OldStream,'$loop_stream'),
 	'$change_alias_to_stream'('$loop_stream',Stream),
 	nb_getval('$consulting',Old),
