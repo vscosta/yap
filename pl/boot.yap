@@ -1255,7 +1255,7 @@ throw(Ball) :-
 '$notrace'(G) :-
 	'$execute'(G).
 
-'$oncenotrace'(M:G) :-
+'$oncenotrace'(G) :-
 	'$disable_creep', !,
 	(
 	 '$execute'(G)
