@@ -503,6 +503,10 @@ abolish(N,A) :-
 		( '$is_dynamic'(T, M) -> '$abolishd'(T,M) ;
 	      	 /* else */	      '$abolishs'(T,M) ).
 
+abolish(V) :- var(V), !,
+	'$do_error'(instantiation_error,abolish(V)).
+abolish(Mod:V) :- var(V), !,
+	'$do_error'(instantiation_error,abolish(M:V)).
 abolish(M:X) :- !,
 	'$abolish'(X,M).
 abolish(X) :- 
