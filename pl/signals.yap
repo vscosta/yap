@@ -36,7 +36,7 @@
 '$do_signal'(sig_creep, [M|G]) :-
 	'$creep_allowed', !,
 	(
-	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0) ; '$system_module'(M), G = G0 )
+	 ( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 )
 	->
 	 (
 	  '$execute_nonstop'(G0,M),
@@ -50,7 +50,7 @@
 	).
 % 
 '$do_signal'(sig_creep, [M|G]) :-
-	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0) ; '$system_module'(M), G = G0 ),
+	( G = '$notrace'(G0) ;  G = '$oncenotrace'(G0) ; G = '$execute0'(G0,M) ; '$system_module'(M), G = G0 ),
 	!,
 	(
 	 '$execute_nonstop'(G0,M),
