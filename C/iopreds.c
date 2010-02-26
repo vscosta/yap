@@ -2365,12 +2365,12 @@ p_open (void)
       if (open_mode == AtomCsult)
 	{
 	  if (!find_csult_file (Yap_FileNameBuf, Yap_FileNameBuf2, st, io_mode))
-	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, ARG1, "open/3"));
+	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, ARG6, "open/3"));
 	  strncpy (Yap_FileNameBuf, Yap_FileNameBuf2, YAP_FILENAME_MAX);
 	}
       else {
 	if (errno == ENOENT)
-	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG1,"open/3"));
+	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG6,"open/3"));
 	else
 	  return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,file_name,"open/3"));
       }
@@ -6291,7 +6291,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$open", 5, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$open", 6, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);

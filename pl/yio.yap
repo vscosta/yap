@@ -27,7 +27,7 @@ open(File0,Mode,Stream) :-
 	'$default_encoding'(Encoding),
 	'$default_expand'(Expansion),	
 	'$expand_filename'(Expansion, File0, File),
-	'$open'(File,Mode,Stream,16,Encoding).
+	'$open'(File, Mode, Stream, 16, Encoding, File0).
 
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
@@ -63,7 +63,7 @@ open(F,T,S,Opts) :-
 	'$check_io_opts'(Opts,open(F,T,S,Opts)),
 	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM, Expand),
 	'$expand_filename'(Expand, F, NF),
-	'$open2'(NF, T, S, N, E),
+	'$open2'(NF, T, S, N, E, F),
 	'$process_bom'(S, BOM),
 	'$process_open_aliases'(Aliases,S).
 
@@ -71,14 +71,14 @@ open(F,T,S,Opts) :-
 '$expand_filename'(true, F, NF) :-
 	system:true_file_name(F, NF).
 
-'$open2'(Source,M,T,N,_) :- var(Source), !,
+'$open2'(Source,M,T,N,_,_) :- var(Source), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N,_) :- var(M), !,
+'$open2'(Source,M,T,N,_,_) :- var(M), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N,_) :- nonvar(T), !,
+'$open2'(Source,M,T,N,_,_) :- nonvar(T), !,
 	'$do_error'(type_error(variable,T),open(Source,M,T,N)).
-'$open2'(File,Mode,Stream,N,Encoding) :-
-	'$open'(File,Mode,Stream,N,Encoding).
+'$open2'(File, Mode, Stream, N, Encoding, F0) :-
+	'$open'(File, Mode, Stream, N, Encoding, F0).
 
 '$process_bom'(S, BOM) :-
 	var(BOM), !,	( '$has_bom'(S) -> BOM = true ; BOM = false ).
@@ -151,8 +151,8 @@ open(F,T,S,Opts) :-
 '$valid_reperrorhandler'(prolog, 512).
 '$valid_reperrorhandler'(xml, 1024).
 
-'$valid_expand'(true, true),
-'$valid_expand'(false, false),
+'$valid_expand'(true, true).
+'$valid_expand'(false, false).
 
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,

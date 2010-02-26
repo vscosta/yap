@@ -1001,7 +1001,7 @@ break :-
 	nb_setval('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
-	'$open'(F,'$csult',Stream,0,0),
+	'$open'(F, '$csult', Stream, 0, 0, F),
 	'$current_stream'(File,_,Stream),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
@@ -1084,7 +1084,7 @@ access_file(F,Mode) :-
 	set_value(fileerrors,0),
 	system:true_file_name(F, F1),
 	(
-	 '$open'(F1,Mode,S,0,1)
+	 '$open'(F1, Mode, S, 0, 1, F)
 	->
 	 '$close'(S),
 	 set_value(fileerrors,V)
