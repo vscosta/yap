@@ -8,9 +8,9 @@ a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.0.0
-@set EDITION 4.2.5
-@set UPDATED June 2008
+@set VERSION 6.0.1
+@set EDITION 4.2.6
+@set UPDATED Feb 2010
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -6544,7 +6544,7 @@ Execute a new shell.
 @snindex alarm/3
 @cnindex alarm/3
 Arranges for YAP to be interrupted in @var{Seconds} seconds, or in
-@var{Seconds.MicroSeconds}. When interrupted, YAP will execute
+@var{[Seconds|MicroSeconds]}. When interrupted, YAP will execute
 @var{Callable} and then return to the previous execution. If
 @var{Seconds} is @code{0}, no new alarm is scheduled. In any event,
 any previously set alarm is canceled.
