@@ -50,6 +50,7 @@
 
 :- use_module(library(terms),
 	      [subsumes/2,
+	       subsumes_chk/2,
 	       term_hash/2,
 	       unifiable/3,
 	       variant/2]).
@@ -98,6 +99,7 @@ swi_predicate_table(_,sublist(X,Y),lists,sublist(X,Y)).
 swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
+swi_predicate_table(_,subsumes_chk(X,Y),terms,subsumes_chk(X,Y)).
 swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
 swi_predicate_table(_,cyclic_term(X),terms,cyclic_term(X)).
 swi_predicate_table(_,acyclic_term(X),terms,acyclic_term(X)).
