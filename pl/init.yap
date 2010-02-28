@@ -45,7 +45,8 @@ otherwise.
 :- [	 'utils.yap',
 	 'control.yap',
 	 'arith.yap',
-	 'directives.yap'].
+	 'directives.yap',
+	 'flags.yap'].
 
 :- compile_expressions.
 

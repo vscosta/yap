@@ -219,7 +219,9 @@ PL_SOURCES= \
 	$(srcdir)/pl/directives.yap \
 	$(srcdir)/pl/eam.yap \
 	$(srcdir)/pl/eval.yap \
-	$(srcdir)/pl/errors.yap	$(srcdir)/pl/grammar.yap \
+	$(srcdir)/pl/errors.yap	\
+	$(srcdir)/pl/flags.yap	\
+	$(srcdir)/pl/grammar.yap \
 	$(srcdir)/pl/ground.yap \
 	$(srcdir)/pl/hacks.yap \
 	$(srcdir)/pl/init.yap \
