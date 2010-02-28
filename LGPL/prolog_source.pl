@@ -69,10 +69,6 @@ users of the library are:
 
 :- if(current_prolog_flag(dialect, yap)).
 % yap
-'$set_source_module'(M1, M2) :-
-	source_module(M1),
-	module(M2).
-
 '$style_check'([Singleton,Discontiguous,Multiple], StyleF) :-
 	(
 	 prolog_flag(single_var_warnings,on)
