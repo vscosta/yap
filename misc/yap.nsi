@@ -68,8 +68,8 @@ Section "Base system (required)"
   File /r c:\Yap\share\Yap\*
 
   SetOutPath $INSTDIR\docs\Yap
-  File c:\Yap\share\docs\Yap\yap.html
-  File c:\Yap\share\docs\Yap\yap.pdf
+;  File c:\Yap\share\docs\Yap\yap.html
+;  File c:\Yap\share\docs\Yap\yap.pdf
   File c:\Yap\share\docs\Yap\Artistic
   File c:\Yap\share\docs\Yap\README.TXT
   File c:\Yap\share\docs\Yap\COPYING.TXT
