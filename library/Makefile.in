@@ -34,7 +34,7 @@ PROGRAMS= \
 	$(srcdir)/bhash.yap \
 	$(srcdir)/charsio.yap \
 	$(srcdir)/cleanup.yap \
-	$(srcdir)/clpfd.pl \
+	$(srcdir)/clp/clpfd.pl \
 	$(srcdir)/dbqueues.yap \
 	$(srcdir)/dbusage.yap \
 	$(srcdir)/dgraphs.yap \
