@@ -40,6 +40,7 @@
 :- use_module(library(system),
 	      [datime/1,
 	       mktime/2,
+	       file_property/2,
 	       sleep/1]).
 
 :- use_module(library(arg),
@@ -356,7 +357,33 @@ prolog:'$set_source_module'(Source0, SourceF) :-
 	prolog_load_context(module, Source0),
 	module(SourceF).
 
+prolog:'$set_source_module'(Source0, SourceF) :-
+	current_module(Source0, SourceF).
+
 prolog:'$declare_module'(Name, Context, _, _, _) :-
 	add_import_module(Name, Context, start).
 
 prolog:'$set_predicate_attribute'(_, _, _).
+
+prolog:time_file(File, Time) :-
+	file_property(File, mod_time(Date)),
+	Time is Date*1.0.
+
+prolog:flag(Key, Old, New) :-
+	recorded(Key, Old, R), !,
+	(
+	 Old \== New
+	->
+	 erase(R),
+	 recorda(Key, New, _)
+	;
+	 true
+	).
+prolog:flag(Key, 0, New) :-
+	functor(Key, N, Ar),
+	functor(K, N, Ar),
+	assert(swi:flag(K)),
+	recorda(K, New, _).
+
+prolog:current_flag(Key) :-
+	swi:flag(Key).
