@@ -7766,6 +7766,11 @@ procedures. If @code{on} compile predicates so that they will output
 profiling information. Profiling data can be read through the
 @code{profile_data/3} built-in.
 
+@item  prompt_alternatives_on(atom, changeable)
+@findex  prompt_alternatives_on  (yap_flag/2 option)
+SWI-Compatible opttion, determines prompting for alternatives in the Prolog toplevel. Default is @t{groundness}, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is @t{determinism} which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
+
+
 @item redefine_warnings
 @findex discontiguous_warnings (yap_flag/2 option)
 @*

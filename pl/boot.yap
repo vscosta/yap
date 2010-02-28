@@ -475,7 +475,9 @@ true :- true.
 	X == '$', !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
- /* Executing a query */
+'$prompt_alternatives_on'(groundness).
+
+/* Executing a query */
 
 '$query'(end_of_file,_).
 
@@ -493,21 +495,31 @@ true :- true.
 
  % end of YAPOR
 
- '$query'(G,[]) :- !,
+ '$query'(G,[]) :-
+	 '$prompt_alternatives_on'(groundness), !,
 	 '$yes_no'(G,(?-)).
  '$query'(G,V) :-
 	 (
 	   '$exit_system_mode',
+	  yap_hacks:current_choice_point(CP),
 	   '$execute'(G),
-	   ( '$enter_system_mode' ; '$exit_system_mode', fail),
-	   '$output_frozen'(G, V, LGs),
-	   '$write_answer'(V, LGs, Written),
-	   '$write_query_answer_true'(Written),
+	  yap_hacks:current_choice_point(NCP),
+	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
+	  '$output_frozen'(G, V, LGs),
+	  '$write_answer'(V, LGs, Written),
+	  '$write_query_answer_true'(Written),
+	  (
+	   '$prompt_alternatives_on'(determinism), CP = NCP ->
+	   nl(user_error),
+	   !
+	  ;
 	   '$another',
-	   !, fail
+	   !
+	  ),
+	  fail	 
 	 ;
-	   '$enter_system_mode',
-           '$out_neg_answer'
+	  '$enter_system_mode',
+	  '$out_neg_answer'
 	 ).
 
  '$yes_no'(G,C) :-

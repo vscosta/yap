@@ -761,6 +761,18 @@ yap_flag(write_strings,off) :- !,
 yap_flag(write_strings,X) :-
 	'$do_error'(domain_error(flag_value,write_strings+X),yap_flag(write_strings,X)).
 
+yap_flag(prompt_alternatives_on,OUT) :-
+	var(OUT), !,
+	'$prompt_alternatives_on'(OUT).
+yap_flag(prompt_alternatives_on,determinism) :- !,
+	'$purge_clauses'('$prompt_alternatives_on'(_),prolog),
+	'$compile'('$prompt_alternatives_on'(determinism),0,'$prompt_alternatives_on'(determinism),prolog).
+yap_flag(prompt_alternatives_on,groundness) :- !,
+	'$purge_clauses'('$prompt_alternatives_on'(_),prolog),
+	'$compile'('$prompt_alternatives_on'(groundness),0,'$prompt_alternatives_on'(groundness),prolog).
+yap_flag(prompt_alternatives_on,X) :-
+	'$do_error'(domain_error(flag_value,prompt_alternatives_on+X),yap_flag(prompt_alternatives_on,X)).
+
 yap_flag(stack_dump_on_error,OUT) :-
 	var(OUT), !,
 	'$access_yap_flags'(17,X),
@@ -933,6 +945,7 @@ yap_flag(dialect,yap).
 		V = n_of_integer_keys_in_db ;
 		V = open_expands_filename ;
 		V = profiling ;
+		V = prompt_alternatives_on ;
 		V = redefine_warnings ;
 		V = shared_object_search_path ;
 		V = single_var_warnings ;
