@@ -65,19 +65,12 @@ true :- true.
 	'$stream_representation_error'(user_output, 512),
 	'$stream_representation_error'(user_error, 512),
 	'$enter_system_mode',
+	'$init_globals',
 	set_value(fileerrors,1),
-	'$init_consult',
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
-	nb_setval('$break',0),
-	% '$set_read_error_handler'(error), let the user do that
-	nb_setval('$open_expands_filename',true),
 	'$debug_on'(false),
-	nb_setval('$trace',off),
-	nb_setval('$assert_all',off),
-	nb_setval('$if_skip_mode',no_skip),
-	b_setval('$spy_glist',[]),
 	% simple trick to find out if this is we are booting from Prolog.
 	get_value('$user_module',V),
 	(
@@ -100,6 +93,17 @@ true :- true.
 	'$set_input'(user_input),'$set_output'(user),
 	'$init_or_threads',
 	'$run_at_thread_start'.
+
+
+'$init_globals' :-
+	'$init_consult',
+	nb_setval('$break',0),
+	% '$set_read_error_handler'(error), let the user do that
+	nb_setval('$open_expands_filename',true),
+	nb_setval('$trace',off),
+	nb_setval('$assert_all',off),
+	nb_setval('$if_skip_mode',no_skip),
+	b_setval('$spy_glist',[]).
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),
@@ -1007,7 +1011,7 @@ break :-
 	nb_setval('$system_mode',SystemMode).
 
 '$silent_bootstrap'(F) :-
-	'$init_consult',
+	'$init_globals',
 	nb_setval('$if_level',0),
 	nb_getval('$lf_verbose',OldSilent),
 	nb_setval('$lf_verbose',silent),
