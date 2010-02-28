@@ -2976,6 +2976,29 @@ p_is_source(void)
 }
 
 static Int 
+p_owner_file(void)
+{				/* '$owner_file'(+P,M,F)	 */
+  PredEntry      *pe;
+  Atom            owner;
+
+  pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_source");
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  LOCK(pe->PELock);
+  if (pe->ModuleOfPred == IDB_MODULE) {
+    UNLOCK(pe->PELock);
+    return FALSE;
+  }
+  if (pe->PredFlags & MultiFileFlag) {
+    UNLOCK(pe->PELock);
+    return FALSE;
+  }
+  owner =  pe->src.OwnerFile
+  UNLOCK(pe->PELock);
+  return Yap_unify(ARG3, MkAtomTerm(owner));
+}
+
+static Int 
 p_mk_d(void)
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
@@ -5593,6 +5616,7 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("$is_expand_goal_or_meta_predicate", 2, p_is_expandgoalormetapredicate, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_log_updatable", 2, p_is_log_updatable, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$is_source", 2, p_is_source, TestPredFlag | SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$owner_file", 3, p_owner_file, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$mk_d", 2, p_mk_d, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$pred_exists", 2, p_pred_exists, TestPredFlag | SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$number_of_clauses", 3, p_number_of_clauses, SafePredFlag|SyncPredFlag|HiddenPredFlag);

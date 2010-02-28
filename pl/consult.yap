@@ -425,6 +425,23 @@ use_module(M,F,Is) :-
 '$skip_unix_comments'(_).
 
 
+source_file(FileName) :-
+	recorded('$lf_loaded','$lf_loaded'(FileName,Mod,_,_),_), Mod \= prolog.
+
+source_file(Mod:Pred, FileName) :-
+	current_module(Mod),
+	Mod \= prolog,
+	'$current_predicate_no_modules'(Mod,_,Pred),
+	'$owned_by'(Pred, Mod, FileName).
+
+'$owned_by'(T, Mod, FileName) :-
+	'$is_multifile'(T, Mod),
+	functor(T, Name, Arity),
+	setof(FileName, Ref^recorded('$multifile_defs','$defined'(FileName,Name,Arity,Mod), Ref), L),
+	lists:member(FileName, L).
+'$owned_by'(T, Mod, FileName) :-
+	'$owner_file'(T, Mod, FileName).
+
 source_location(FileName, Line) :-
 	prolog_load_context(file, FileName),
 	prolog_load_context(term_position,'$stream_position'(_, Line, _, _, _)).

@@ -8159,6 +8159,19 @@ Stream position at the stream currently being read in.
 @cnindex source_location/2
 SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use @code{prolog_load_context/2}.
 
+@item source_file(?@var{File})
+@findex source_file/1
+@syindex source_file/1
+@cnindex source_file/1
+SWI-compatible predicate. True if @var{File} is a loaded Prolog source file.
+
+@item source_file(?@var{ModuleAndPred},?@var{File})
+@findex source_file/2
+@syindex source_file/2
+@cnindex source_file/2
+SWI-compatible predicate. True if the predicate specified by @var{ModuleAndPred} was loaded from file @var{File}, where @var{File} is an absolute path name (see @code{absolute_file_name/2}).
+
+
 
 @end table
 
