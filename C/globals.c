@@ -1285,8 +1285,10 @@ p_nb_getval(void)
     return FALSE;
   }
   ge = FindGlobalEntry(AtomOfTerm(t));
-  if (!ge)
+  if (!ge) {
+    Yap_Error(EXISTENCE_ERROR_VARIABLE,t,"nb_getval");
     return FALSE;
+  }
   READ_LOCK(ge->GRWLock);
   to = ge->global;
   if (IsVarTerm(to) && IsUnboundVar(VarOfTerm(to))) {
@@ -1309,8 +1311,10 @@ nbdelete(Atom at)
   Prop gp, g0;
 
   ge = FindGlobalEntry(at);
-  if (!ge)
+  if (!ge) {
+    Yap_Error(EXISTENCE_ERROR_VARIABLE,MkAtomTerm(at),"nb_delete");
     return FALSE;
+  }
   WRITE_LOCK(ge->GRWLock);
   ae = ge->AtomOfGE;
   if (GlobalVariables == ge) {
@@ -1375,8 +1379,10 @@ p_nb_create(void)
     return FALSE;
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  if (!ge)
+  if (!ge) {
+    Yap_Error(EXISTENCE_ERROR_VARIABLE,t,"nb_create");
     return FALSE;
+  }
   if (IsVarTerm(tarity)) {
     Yap_Error(INSTANTIATION_ERROR,tarity,"nb_create");
     return FALSE;
@@ -1418,8 +1424,10 @@ p_nb_create2(void)
     return FALSE;
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  if (!ge)
+  if (!ge) {
+    Yap_Error(EXISTENCE_ERROR_VARIABLE,t,"nb_create");
     return FALSE;
+  }
   if (IsVarTerm(tarity)) {
     Yap_Error(INSTANTIATION_ERROR,tarity,"nb_create");
     return FALSE;

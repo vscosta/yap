@@ -90,7 +90,7 @@
 #undef  USE_THREADED_CODE
 #endif
 #define inline __inline
-#define YAP_VERSION "Yap-6.0.0"
+#define YAP_VERSION "Yap-6.0.1"
 
 #define BIN_DIR "c:\\Yap\\bin"
 #define LIB_DIR "c:\\Yap\\lib\\Yap"
@@ -464,6 +464,7 @@ typedef enum
   EXISTENCE_ERROR_KEY,
   EXISTENCE_ERROR_SOURCE_SINK,
   EXISTENCE_ERROR_STREAM,
+  EXISTENCE_ERROR_VARIABLE,
   INSTANTIATION_ERROR,
   INTERRUPT_ERROR,
   OPERATING_SYSTEM_ERROR,

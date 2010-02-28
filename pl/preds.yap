@@ -525,6 +525,11 @@ abolish(X) :-
 	'$abolish_all_atoms'(A,M).
 '$new_abolish'(M:PS,_) :- !,
 	'$new_abolish'(PS,M).
+'$new_abolish'(Na//Ar1, M) :-
+	integer(Ar1),
+	!,
+	Ar is Ar1+2,
+	'$new_abolish'(Na//Ar, M).
 '$new_abolish'(Na/Ar, M) :-
 	functor(H, Na, Ar),
 	'$is_dynamic'(H, M), !,
@@ -556,7 +561,8 @@ abolish(X) :-
 	'$check_error_in_module'(M, Msg),
 	'$check_error_in_predicate_indicator'(S, Msg).
 '$check_error_in_predicate_indicator'(S, Msg) :-
-	S \= _/_, !,
+	S \= _/_,
+	S \= _//_, !,
 	'$do_error'(type_error(predicate_indicator,S), Msg).
 '$check_error_in_predicate_indicator'(Na/_, Msg) :-
 	var(Na), !,
@@ -685,6 +691,10 @@ dynamic(X) :-
 
 '$dynamic2'(X, Mod) :- '$log_upd'(Stat), Stat\=0, !,
 	'$logical_updatable'(X, Mod).
+'$dynamic2'(A//N1, Mod) :-
+	integer(N1),
+	N is N1+2,
+	'$dynamic2'(A/N, Mod).
 '$dynamic2'(A/N, Mod) :-
 	integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
@@ -699,6 +709,9 @@ dynamic(X) :-
 	'$do_error'(type_error(callable,X),dynamic(Mod:X)).
 
 
+'$logical_updatable'(A//N,Mod) :- integer(N), !,
+	N1 is N+2,
+	'$logical_updatable'(A/N1,Mod).
 '$logical_updatable'(A/N,Mod) :- integer(N), atom(A), !,
 	functor(T,A,N), '$flags'(T,Mod,F,F),
 	(
@@ -747,6 +760,9 @@ dynamic_predicate(P,Sem) :-
 '$public'((A,B), M) :- !, '$public'(A,M), '$public'(B,M).
 '$public'([],_) :- !.
 '$public'([H|L], M) :- !, '$public'(H, M), '$public'(L, M).
+'$public'(A//N1, Mod) :- integer(N1), !,
+	N is N1+2,
+	'$public'(A//N, Mod).
 '$public'(A/N, Mod) :- integer(N), atom(A), !,
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).

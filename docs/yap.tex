@@ -8,9 +8,9 @@ a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.0.0
-@set EDITION 4.2.5
-@set UPDATED June 2008
+@set VERSION 6.0.1
+@set EDITION 4.2.6
+@set UPDATED Feb 2010
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -6395,6 +6395,7 @@ Grammar related built-in predicates:
 
 @table @code
 
+@item @var{CurrentModule}:expand_term(@var{T},-@var{X})
 @item user:expand_term(@var{T},-@var{X})
 @findex expand_term/2
 @syindex expand_term/2
@@ -6405,11 +6406,12 @@ Grammar related built-in predicates:
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
 It rewrites a term @var{T} to a term @var{X} according to the following
-rules: first try to use the user defined predicate
+rules: first try @code{term_expansion/2}  in the current module, and then try to use the user defined predicate
 @code{user:term_expansion/2}. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
 
+@item @var{CurrentModule}:goal_expansion(+@var{G},+@var{M},-@var{NG})
 @item user:goal_expansion(+@var{G},+@var{M},-@var{NG})
 @findex goal_expansion/3
 @snindex goal_expansion/3
@@ -6544,7 +6546,7 @@ Execute a new shell.
 @snindex alarm/3
 @cnindex alarm/3
 Arranges for YAP to be interrupted in @var{Seconds} seconds, or in
-@var{Seconds.MicroSeconds}. When interrupted, YAP will execute
+@var{[Seconds|MicroSeconds]}. When interrupted, YAP will execute
 @var{Callable} and then return to the previous execution. If
 @var{Seconds} is @code{0}, no new alarm is scheduled. In any event,
 any previously set alarm is canceled.
@@ -7766,6 +7768,11 @@ procedures. If @code{on} compile predicates so that they will output
 profiling information. Profiling data can be read through the
 @code{profile_data/3} built-in.
 
+@item  prompt_alternatives_on(atom, changeable)
+@findex  prompt_alternatives_on  (yap_flag/2 option)
+SWI-Compatible opttion, determines prompting for alternatives in the Prolog toplevel. Default is @t{groundness}, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is @t{determinism} which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
+
+
 @item redefine_warnings
 @findex discontiguous_warnings (yap_flag/2 option)
 @*
@@ -7935,6 +7942,11 @@ prompts from the system were redirected to the stream
 @code{mauri_tripa}. Last, we close the stream. At this point, YAP
 automatically redirects the @code{user_error} alias to the original
 @code{stderr}.
+
+@item user_flags
+@findex user_flags  (yap_flag/2 option)
+@*
+Define the behaviour of @code{set_prolog_flag/2} if the flag is not known. Values are @code{silent}, @code{warning} and @code{error}. The first two create the flag on-the-fly, with @code{warning} printing a message. The value @code{error} is consistent with ISO: it raises an existence error and does not create the flag. See also @code{create_prolog_flag/3}. The default is@code{error}, and developers are encouraged to use @code{create_prolog_flag/3} to create flags for their library.
 
 @item user_input
 @findex user_input (yap_flag/2 option)
@@ -8141,14 +8153,27 @@ Stream currently being read in.
 Stream position at the stream currently being read in.
 @end table
 
-
-@end table
-
 @item source_location(?@var{FileName}, ?@var{Line})
 @findex source_location/2
 @syindex source_location/2
 @cnindex source_location/2
 SWI-compatible predicate. If the last term has been read from a physical file (i.e., not from the file user or a string), unify File with an absolute path to the file and Line with the line-number in the file. Please use @code{prolog_load_context/2}.
+
+@item source_file(?@var{File})
+@findex source_file/1
+@syindex source_file/1
+@cnindex source_file/1
+SWI-compatible predicate. True if @var{File} is a loaded Prolog source file.
+
+@item source_file(?@var{ModuleAndPred},?@var{File})
+@findex source_file/2
+@syindex source_file/2
+@cnindex source_file/2
+SWI-compatible predicate. True if the predicate specified by @var{ModuleAndPred} was loaded from file @var{File}, where @var{File} is an absolute path name (see @code{absolute_file_name/2}).
+
+
+
+@end table
 
 @node Library, SWI-Prolog, Built-ins, Top
 

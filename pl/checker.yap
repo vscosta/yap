@@ -217,6 +217,10 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multifile'((X,Y), M) :- !, '$multifile'(X, M), '$multifile'(Y, M).
 '$multifile'(Mod:PredSpec, _) :- !,
 	'$multifile'(PredSpec, Mod).
+'$multifile'(N//A, M) :- !,
+	integer(A),
+	A1 is A+2,
+	'$multifile'(N/A1, M).
 '$multifile'(N/A, M) :-
 	'$add_multifile'(N,A,M),
 	fail.
@@ -247,6 +251,10 @@ discontiguous(F) :-
 	'$discontiguous'(Y,M).
 '$discontiguous'(M:A,_) :- !,
 	'$discontiguous'(A,M).
+'$discontiguous'(N//A1, M) :- !,
+	integer(A1), !,
+	A is A1+2,
+	'$discontiguous'(N/A, M).
 '$discontiguous'(N/A, M) :- !,
 	( recordzifnot('$discontiguous_defs','$df'(N,A,M),_) ->
 	    true

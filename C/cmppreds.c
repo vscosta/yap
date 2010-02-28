@@ -681,35 +681,35 @@ a_eq(Term t1, Term t2)
 static Int 
 a_dif(Term t1, Term t2)
 {
-  int out = a_cmp(Deref(t1),Deref(t2));
+  Int out = a_cmp(Deref(t1),Deref(t2));
   return !ArithError && out != 0;
 }
 
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
-  int out = a_cmp(Deref(t1),Deref(t2));
+  Int out = a_cmp(Deref(t1),Deref(t2));
   return !ArithError && out > 0;
 }
 
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
-  int out = a_cmp(Deref(t1),Deref(t2));
+  Int out = a_cmp(Deref(t1),Deref(t2));
   return !ArithError && out >= 0;
 }
 
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
-  int out = a_cmp(Deref(t1),Deref(t2));
+  Int out = a_cmp(Deref(t1),Deref(t2));
   return !ArithError && out < 0;
 }
 
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
-  int out = a_cmp(Deref(t1),Deref(t2));
+  Int out = a_cmp(Deref(t1),Deref(t2));
   return !ArithError && out <= 0;
 }
 

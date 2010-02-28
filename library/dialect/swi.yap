@@ -13,6 +13,8 @@
 
 :- load_foreign_files([plstream], [], initIO).
 
+:- set_prolog_flag(user_flags,silent).
+
 :- ensure_loaded(library(atts)).
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
@@ -38,6 +40,7 @@
 :- use_module(library(system),
 	      [datime/1,
 	       mktime/2,
+	       file_property/2,
 	       sleep/1]).
 
 :- use_module(library(arg),
@@ -48,6 +51,7 @@
 
 :- use_module(library(terms),
 	      [subsumes/2,
+	       subsumes_chk/2,
 	       term_hash/2,
 	       unifiable/3,
 	       variant/2]).
@@ -96,6 +100,7 @@ swi_predicate_table(_,sublist(X,Y),lists,sublist(X,Y)).
 swi_predicate_table(_,hash_term(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,term_hash(X,Y),terms,term_hash(X,Y)).
 swi_predicate_table(_,subsumes(X,Y),terms,subsumes(X,Y)).
+swi_predicate_table(_,subsumes_chk(X,Y),terms,subsumes_chk(X,Y)).
 swi_predicate_table(_,unifiable(X,Y,Z),terms,unifiable(X,Y,Z)).
 swi_predicate_table(_,cyclic_term(X),terms,cyclic_term(X)).
 swi_predicate_table(_,acyclic_term(X),terms,acyclic_term(X)).
@@ -352,7 +357,33 @@ prolog:'$set_source_module'(Source0, SourceF) :-
 	prolog_load_context(module, Source0),
 	module(SourceF).
 
+prolog:'$set_source_module'(Source0, SourceF) :-
+	current_module(Source0, SourceF).
+
 prolog:'$declare_module'(Name, Context, _, _, _) :-
 	add_import_module(Name, Context, start).
 
 prolog:'$set_predicate_attribute'(_, _, _).
+
+prolog:time_file(File, Time) :-
+	file_property(File, mod_time(Date)),
+	Time is Date*1.0.
+
+prolog:flag(Key, Old, New) :-
+	recorded(Key, Old, R), !,
+	(
+	 Old \== New
+	->
+	 erase(R),
+	 recorda(Key, New, _)
+	;
+	 true
+	).
+prolog:flag(Key, 0, New) :-
+	functor(Key, N, Ar),
+	functor(K, N, Ar),
+	assert(swi:flag(K)),
+	recorda(K, New, _).
+
+prolog:current_flag(Key) :-
+	swi:flag(Key).

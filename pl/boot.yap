@@ -65,17 +65,12 @@ true :- true.
 	'$stream_representation_error'(user_output, 512),
 	'$stream_representation_error'(user_error, 512),
 	'$enter_system_mode',
+	'$init_globals',
 	set_value(fileerrors,1),
-	'$init_consult',
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),
 	prompt('  ?- '),
-	nb_setval('$break',0),
-	% '$set_read_error_handler'(error), let the user do that
-	nb_setval('$open_expands_filename',true),
 	'$debug_on'(false),
-	nb_setval('$trace',off),
-	b_setval('$spy_glist',[]),
 	% simple trick to find out if this is we are booting from Prolog.
 	get_value('$user_module',V),
 	(
@@ -98,6 +93,17 @@ true :- true.
 	'$set_input'(user_input),'$set_output'(user),
 	'$init_or_threads',
 	'$run_at_thread_start'.
+
+
+'$init_globals' :-
+	'$init_consult',
+	nb_setval('$break',0),
+	% '$set_read_error_handler'(error), let the user do that
+	nb_setval('$open_expands_filename',true),
+	nb_setval('$trace',off),
+	nb_setval('$assert_all',off),
+	nb_setval('$if_skip_mode',no_skip),
+	b_setval('$spy_glist',[]).
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),
@@ -475,7 +481,9 @@ true :- true.
 	X == '$', !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
- /* Executing a query */
+'$prompt_alternatives_on'(groundness).
+
+/* Executing a query */
 
 '$query'(end_of_file,_).
 
@@ -493,21 +501,31 @@ true :- true.
 
  % end of YAPOR
 
- '$query'(G,[]) :- !,
+ '$query'(G,[]) :-
+	 '$prompt_alternatives_on'(groundness), !,
 	 '$yes_no'(G,(?-)).
  '$query'(G,V) :-
 	 (
 	   '$exit_system_mode',
+	  yap_hacks:current_choice_point(CP),
 	   '$execute'(G),
-	   ( '$enter_system_mode' ; '$exit_system_mode', fail),
-	   '$output_frozen'(G, V, LGs),
-	   '$write_answer'(V, LGs, Written),
-	   '$write_query_answer_true'(Written),
+	  yap_hacks:current_choice_point(NCP),
+	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
+	  '$output_frozen'(G, V, LGs),
+	  '$write_answer'(V, LGs, Written),
+	  '$write_query_answer_true'(Written),
+	  (
+	   '$prompt_alternatives_on'(determinism), CP = NCP ->
+	   nl(user_error),
+	   !
+	  ;
 	   '$another',
-	   !, fail
+	   !
+	  ),
+	  fail	 
 	 ;
-	   '$enter_system_mode',
-           '$out_neg_answer'
+	  '$enter_system_mode',
+	  '$out_neg_answer'
 	 ).
 
  '$yes_no'(G,C) :-
@@ -921,8 +939,6 @@ not(G) :-    \+ '$execute'(G).
 '$check_callable'(_,_).
 
 % Called by the abstract machine, if no clauses exist for a predicate
-'$undefp'([M|expand_goal(G,GEx)]) :- !,
-	G = GEx.
 '$undefp'([M|G]) :-
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
@@ -993,7 +1009,7 @@ break :-
 	nb_setval('$system_mode',SystemMode).
 
 '$silent_bootstrap'(F) :-
-	'$init_consult',
+	'$init_globals',
 	nb_setval('$if_level',0),
 	nb_getval('$lf_verbose',OldSilent),
 	nb_setval('$lf_verbose',silent),
@@ -1113,12 +1129,14 @@ access_file(F,Mode) :-
 	
 
 expand_term(Term,Expanded) :-
-	( \+ '$undefined'(term_expansion(_,_), user),
+	( '$current_module'(Mod), \+ '$undefined'(term_expansion(_,_), Mod),
+	  '$notrace'(Mod:term_expansion(Term,Expanded))
+        ; \+ '$undefined'(term_expansion(_,_), user),
 	  '$notrace'(user:term_expansion(Term,Expanded))
         ;
 	  '$expand_term_grammar'(Term,Expanded)
 	),
-!.
+	!.
 
 
 %

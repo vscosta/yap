@@ -297,6 +297,27 @@ module(N) :-
 '$module_expansion'(M:G,G1,GO,_,CM,_,HVars) :- !,
 	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
+	'$do_expand'(CurMod:G, CurMod:GI), !,
+	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
+	% is this imported from some other module M1?
+	'$imported_pred'(G, CurMod, GG, M1),
+	!,
+	'$module_expansion'(GG, G1, GO, M1, MM, HM,HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
+	'$meta_expansion'(G, CurMod, MM, HM, GI, HVars), !,
+	'$complete_goal_expansion'(GI, CurMod, MM, HM, G1, GO, HVars).
+'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
+	'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars).
+
+expand_goal(G, NG) :-
+	'$current_module'(Mod),
+	'$do_expand'(G, M, NG), !.
+expand_goal(M:G, M:NG) :-
+	'$do_expand'(G, M, NG), !.
+expand_goal(G, G).
+	
+'$do_expand'(G, CurMod, NG) :-
 	'$pred_goal_expansion_on',
 	( user:goal_expansion(G, CurMod, GI)
 	->
@@ -309,18 +330,7 @@ module(N) :-
 	  )
 	;
 	  user:goal_expansion(G, GI)
-	), !,
-	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
-	% is this imported from some other module M1?
-	'$imported_pred'(G, CurMod, GG, M1),
-	!,
-	'$module_expansion'(GG, G1, GO, M1, MM, HM,HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
-	'$meta_expansion'(G, CurMod, MM, HM, GI, HVars), !,
-	'$complete_goal_expansion'(GI, CurMod, MM, HM, G1, GO, HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
-	'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars).
+	).
 
 % args are:
 %       goal to expand
