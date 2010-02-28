@@ -3401,7 +3401,7 @@ p_peek_mem_write_stream (void)
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return(FALSE);
       }
-      i = 0;
+      i = Stream[sno].u.mem_string.pos;
       tf = ARG2;
       LOCK(Stream[sno].streamlock);
       goto restart;
