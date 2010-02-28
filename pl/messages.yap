@@ -166,6 +166,8 @@ system_message(error(existence_error(key,Key), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not an existing key' - [Where,Key] ].
 system_message(error(existence_error(thread,Thread), Where)) -->
 	[ 'EXISTENCE ERROR- ~w: ~w not a running thread' - [Where,Thread] ].
+system_message(error(existence_error(variable,Var), Where)) -->
+	[ 'EXISTENCE ERROR- ~w: variable ~w does not exist' - [Where,Var] ].
 system_message(error(existence_error(Name,F), W)) -->
 	{ object_name(Name, ObjName) },
 	[ 'EXISTENCE ERROR- ~w could not open ~a ~w' - [W,ObjName,F] ].

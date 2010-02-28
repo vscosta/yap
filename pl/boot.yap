@@ -75,6 +75,8 @@ true :- true.
 	nb_setval('$open_expands_filename',true),
 	'$debug_on'(false),
 	nb_setval('$trace',off),
+	nb_setval('$assert_all',off),
+	nb_setval('$if_skip_mode',no_skip),
 	b_setval('$spy_glist',[]),
 	% simple trick to find out if this is we are booting from Prolog.
 	get_value('$user_module',V),
