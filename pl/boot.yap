@@ -1131,12 +1131,14 @@ access_file(F,Mode) :-
 	
 
 expand_term(Term,Expanded) :-
-	( \+ '$undefined'(term_expansion(_,_), user),
+	( '$current_module'(Mod), \+ '$undefined'(term_expansion(_,_), Mod),
+	  '$notrace'(Mod:term_expansion(Term,Expanded))
+        ; \+ '$undefined'(term_expansion(_,_), user),
 	  '$notrace'(user:term_expansion(Term,Expanded))
         ;
 	  '$expand_term_grammar'(Term,Expanded)
 	),
-!.
+	!.
 
 
 %
