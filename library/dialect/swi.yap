@@ -13,6 +13,8 @@
 
 :- load_foreign_files([plstream], [], initIO).
 
+:- set_prolog_flag(user_flags,silent).
+
 :- ensure_loaded(library(atts)).
 
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).

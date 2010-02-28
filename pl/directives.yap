@@ -773,6 +773,23 @@ yap_flag(prompt_alternatives_on,groundness) :- !,
 yap_flag(prompt_alternatives_on,X) :-
 	'$do_error'(domain_error(flag_value,prompt_alternatives_on+X),yap_flag(prompt_alternatives_on,X)).
 
+'$user_flags'(error).
+
+yap_flag(user_flags,OUT) :-
+	var(OUT), !,
+	'$user_flags'(OUT).
+yap_flag(user_flags,silent) :- !,
+	'$purge_clauses'('$user_flags'(_),prolog),
+	'$compile'('$user_flags'(silent),0,'$user_flags'(silent),prolog).
+yap_flag(user_flags,warning) :- !,
+	'$purge_clauses'('$user_flags'(_),prolog),
+	'$compile'('$user_flags'(warning),0,'$user_flags'(warning),prolog).
+yap_flag(user_flags,error) :- !,
+	'$purge_clauses'('$user_flags'(_),prolog),
+	'$compile'('$user_flags'(error),0,'$user_flags'(error),prolog).
+yap_flag(user_flags,X) :-
+	'$do_error'(domain_error(flag_value,user_flags+X),yap_flag(user_flags,X)).
+
 yap_flag(stack_dump_on_error,OUT) :-
 	var(OUT), !,
 	'$access_yap_flags'(17,X),
@@ -899,78 +916,79 @@ yap_flag(address_bits,X) :-
 
 yap_flag(dialect,yap).
 
-'$show_yap_flag_opts'(V,Out) :-
-	(
-		V = address_bits ;
-		V = answer_format ;
-		V = argv ;
-		V = bounded ;
-		V = char_conversion ;
-		V = character_escapes ;
-		    V = chr_toplevel_show_store ;
-		V = debug ;
-		V = debugger_print_options ;
-		V = dialect ;
-		V = discontiguous_warnings ;
-		V = dollar_as_lower_case ;
-		V = double_quotes ;
-		V = encoding ;
-		V = executable ;
+'$yap_system_flag'(address_bits).
+'$yap_system_flag'(answer_format).
+'$yap_system_flag'(argv).
+'$yap_system_flag'(bounded).
+'$yap_system_flag'(char_conversion).
+'$yap_system_flag'(character_escapes).
+'$yap_system_flag'(chr_toplevel_show_store).
+'$yap_system_flag'(debug).
+'$yap_system_flag'(debugger_print_options).
+'$yap_system_flag'(dialect).
+'$yap_system_flag'(discontiguous_warnings).
+'$yap_system_flag'(dollar_as_lower_case).
+'$yap_system_flag'(double_quotes).
+'$yap_system_flag'(encoding).
+'$yap_system_flag'(executable).
 %		V = fast  ;
-		V = fileerrors  ;
-		V = float_format ;
+'$yap_system_flag'(fileerrors ).
+'$yap_system_flag'(float_format).
 %		V = float_mantissa_digits ;
 %		V = float_epsilon ;
 %		V = float_min_exponent ;
 %		V = float_max_exponent ;
-		V = gc    ;
-		V = gc_margin    ;
-		V = gc_trace     ;
-		V = generate_debug_info     ;
+'$yap_system_flag'(gc   ).
+'$yap_system_flag'(gc_margin   ).
+'$yap_system_flag'(gc_trace    ).
+'$yap_system_flag'(generate_debug_info    ).
 %	    V = hide  ;
-		V = home  ;
-		V = host_type  ;
-		V = index ;
-		V = tabling_mode ;
-		V = informational_messages ;
-		V = integer_rounding_function ;
-		V = language ;
-		V = max_arity ;
-		V = max_integer ;
-		V = max_tagged_integer ;
-		V = max_workers ;
-		V = max_threads ;
-		V = min_integer ;
-		V = min_tagged_integer ;
-		V = n_of_integer_keys_in_db ;
-		V = open_expands_filename ;
-		V = profiling ;
-		V = prompt_alternatives_on ;
-		V = redefine_warnings ;
-		V = shared_object_search_path ;
-		V = single_var_warnings ;
-		V = stack_dump_on_error ;
-		V = strict_iso ;
-		V = syntax_errors ;
-		V = system_options ;
-		V = to_chars_mode ;
-		V = toplevel_hook ;
-		V = toplevel_print_options ;
-		V = typein_module ;
-		V = unix ;
-		V = unknown ;
-		V = update_semantics ;
-		V = user_error ;
-		V = user_input ;
-		V = user_output ;
-		V = variable_names_may_end_with_quotes ;
-		V = verbose ;
-		V = verbose_auto_load ;
-		V = version ;
-		V = version_data ;
-		V = windows ;
-		V = write_strings
-	),
+'$yap_system_flag'(home ).
+'$yap_system_flag'(host_type ).
+'$yap_system_flag'(index).
+'$yap_system_flag'(tabling_mode).
+'$yap_system_flag'(informational_messages).
+'$yap_system_flag'(integer_rounding_function).
+'$yap_system_flag'(language).
+'$yap_system_flag'(max_arity).
+'$yap_system_flag'(max_integer).
+'$yap_system_flag'(max_tagged_integer).
+'$yap_system_flag'(max_workers).
+'$yap_system_flag'(max_threads).
+'$yap_system_flag'(min_integer).
+'$yap_system_flag'(min_tagged_integer).
+'$yap_system_flag'(n_of_integer_keys_in_db).
+'$yap_system_flag'(open_expands_filename).
+'$yap_system_flag'(profiling).
+'$yap_system_flag'(prompt_alternatives_on).
+'$yap_system_flag'(redefine_warnings).
+'$yap_system_flag'(shared_object_search_path).
+'$yap_system_flag'(single_var_warnings).
+'$yap_system_flag'(stack_dump_on_error).
+'$yap_system_flag'(strict_iso).
+'$yap_system_flag'(syntax_errors).
+'$yap_system_flag'(system_options).
+'$yap_system_flag'(to_chars_mode).
+'$yap_system_flag'(toplevel_hook).
+'$yap_system_flag'(toplevel_print_options).
+'$yap_system_flag'(typein_module).
+'$yap_system_flag'(unix).
+'$yap_system_flag'(unknown).
+'$yap_system_flag'(update_semantics).
+'$yap_system_flag'(user_error).
+'$yap_system_flag'(user_flags).
+'$yap_system_flag'(user_input).
+'$yap_system_flag'(user_output).
+'$yap_system_flag'(variable_names_may_end_with_quotes).
+'$yap_system_flag'(verbose).
+'$yap_system_flag'(verbose_auto_load).
+'$yap_system_flag'(version).
+'$yap_system_flag'(version_data).
+'$yap_system_flag'(windows).
+'$yap_system_flag'(write_strings).
+
+'$show_yap_flag_opts'(V,Out) :-
+	'$yap_system_flag'(V),
 	yap_flag(V, Out).
 
 '$trans_to_lang_flag'(0,cprolog).
@@ -1080,8 +1098,25 @@ set_prolog_flag(F, Val) :-
 set_prolog_flag(F,V) :-
 	\+ atom(F), !,
 	'$do_error'(type_error(atom,F),set_prolog_flag(F,V)).
+set_prolog_flag(F, Val) :-
+	prolog:'$user_defined_flag'(F,_,_,_), !,
+	yap_flag(F, Val).
 set_prolog_flag(F,V) :-
+	'$yap_system_flag'(F), !,
 	yap_flag(F,V).
+set_prolog_flag(F,V) :-
+	'$user_flags'(UFlag),
+	(
+	 UFlag = silent ->
+	 create_prolog_flag(F, V, [])
+	;
+	 UFlag = warning ->
+	 print_message(warning,existence_error(prolog_flag, F)),
+	 create_prolog_flag(F, V, [])
+	;
+	 UFlag = error ->
+	 '$do_error'(existence_error(prolog_flag, F),set_prolog_flag(F,V))
+	).
 
 prolog_flag(F, Old, New) :-
 	var(F), !,

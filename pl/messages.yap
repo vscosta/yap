@@ -127,6 +127,8 @@ system_message(no_match(P)) -->
 	[ 'No matching predicate for ~w.' - [P] ].
 system_message(leash([A|B])) -->
 	[ 'Leashing set to ~w.' - [[A|B]] ].
+system_message(existence_error(prolog_flag,F)) -->
+	[ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
 system_message(singletons([SV],P,CLN)) -->
 	[ 'Singleton variable ~s in ~q, clause ~d.' - [SV,P,CLN] ].
 system_message(singletons(SVs,P,CLN)) -->
@@ -154,6 +156,8 @@ system_message(error(context_error(Goal,Who),Where)) -->
 system_message(error(domain_error(DomainType,Opt), Where)) -->
 	[ 'DOMAIN ERROR- ~w: ' - Where],
 	domain_error(DomainType, Opt).
+system_message(error(existence_error(prolog_flag,P), Where)) --> !,
+	[ 'EXISTENCE ERROR- ~w: prolog flag ~w is undefined' - [Where,P] ].
 system_message(error(existence_error(procedure,P), context(Call,Parent))) --> !,
 	[ 'EXISTENCE ERROR- procedure ~w is undefined, called from context  ~w~n                 Goal was ~w' - [P,Parent,Call] ].
 system_message(error(existence_error(stream,Stream), Where)) -->

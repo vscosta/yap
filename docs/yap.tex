@@ -7941,6 +7941,11 @@ prompts from the system were redirected to the stream
 automatically redirects the @code{user_error} alias to the original
 @code{stderr}.
 
+@item user_flags
+@findex user_flags  (yap_flag/2 option)
+@*
+Define the behaviour of @code{set_prolog_flag/2} if the flag is not known. Values are @code{silent}, @code{warning} and @code{error}. The first two create the flag on-the-fly, with @code{warning} printing a message. The value @code{error} is consistent with ISO: it raises an existence error and does not create the flag. See also @code{create_prolog_flag/3}. The default is@code{error}, and developers are encouraged to use @code{create_prolog_flag/3} to create flags for their library.
+
 @item user_input
 @findex user_input (yap_flag/2 option)
 @*
