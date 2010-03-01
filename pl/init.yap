@@ -202,6 +202,8 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- multifile user:portray_message/2.
 
+:- multifile user:exception/3.
+
 file_search_path(library, Dir) :-
 	library_directory(Dir).
 file_search_path(commons, Dir) :-

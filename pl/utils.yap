@@ -580,3 +580,23 @@ nb_current(GlobalVariable, Val) :-
 	'$nb_current'(GlobalVariable),
 	nb_getval(GlobalVariable, Val).
 
+'$getval_exception'(GlobalVariable, Val, Caller) :-
+	user:exception(undefined_global_variable, GlobalVariable, Action),
+	!,
+	(
+	 Action == fail
+	->
+	 fail
+	;
+	 Action == retry
+	->
+	 b_getval(GlobalVariable, Val)
+	;
+	 Action == error
+	->
+	 '$do_error'(existence_error(variable, GlobalVariable),Caller)
+	;
+	 '$do_error'(type_error(atom, Action),Caller)
+	).
+
+

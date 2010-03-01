@@ -1286,8 +1286,7 @@ p_nb_getval(void)
   }
   ge = FindGlobalEntry(AtomOfTerm(t));
   if (!ge) {
-    Yap_Error(EXISTENCE_ERROR_VARIABLE,t,"nb_getval");
-    return FALSE;
+    return Yap_unify(TermNil, ARG3);
   }
   READ_LOCK(ge->GRWLock);
   to = ge->global;
@@ -2636,11 +2635,10 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("$allocate_arena", 2, p_allocate_arena, 0);
   Yap_InitCPred("arena_size", 1, p_default_arena_size, 0);
   Yap_InitCPred("b_setval", 2, p_b_setval, SafePredFlag);
-  Yap_InitCPred("b_getval", 2, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_setval", 2, p_nb_setval, 0L);
   Yap_InitCPred("nb_set_shared_val", 2, p_nb_set_shared_val, 0L);
   Yap_InitCPred("nb_linkval", 2, p_nb_linkval, 0L);
-  Yap_InitCPred("nb_getval", 2, p_nb_getval, SafePredFlag);
+  Yap_InitCPred("$nb_getval", 3, p_nb_getval, SafePredFlag);
   Yap_InitCPred("nb_setarg", 3, p_nb_setarg, 0L);
   Yap_InitCPred("nb_set_shared_arg", 3, p_nb_set_shared_arg, 0L);
   Yap_InitCPred("nb_linkarg", 3, p_nb_linkarg, 0L);

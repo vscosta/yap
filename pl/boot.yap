@@ -161,10 +161,10 @@ true :- true.
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$enter_top_level' :-
-	nb_getval('$break',BreakLevel),
+	'$nb_getval'('$break',BreakLevel,fail),
 	 '$debug_on'(DBON),
 	(
-	 nb_getval('$trace',on)
+	 '$nb_getval'('$trace', on, fail)
 	->
 	 TraceDebug = trace
 	;
@@ -349,7 +349,7 @@ true :- true.
 	 '$do_error'(type_error(callable,R),meta_call(Source)).
  '$execute_command'(end_of_file,_,_,_,_) :- !.
  '$execute_command'(Command,_,_,_,_) :-
-	 nb_getval('$if_skip_mode',skip),
+	 '$nb_getval'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
  '$execute_command'((:-G),_,_,Option,_) :- !,
@@ -1296,3 +1296,28 @@ throw(Ball) :-
 '$run_at_thread_start'.
 
 
+nb_getval(GlobalVariable, Val) :-
+	'$nb_getval'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, nb_getval(GlobalVariable, Val)) ->
+	 nb_getval(GlobalVariable, Val)
+	;
+	 '$do_error'(existence_error(variable, GlobalVariable),nb_getval(GlobalVariable, Val))
+	).
+		    
+
+b_getval(GlobalVariable, Val) :-
+	'$nb_getval'(GlobalVariable, Val, Error),
+	(var(Error)
+	->
+	 true
+	;
+	 '$getval_exception'(GlobalVariable, Val, b_getval(GlobalVariable, Val)) ->
+	 true
+	;
+	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
+	).
+		    
