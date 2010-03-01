@@ -6737,7 +6737,7 @@ namespace and values for global variables.
 @end itemize
 
 Currently global variables are scoped globally. We may consider module
-scoping in future versions.  Both @code{b_setval/2} and
+scoping in future versions.   Both @code{b_setval/2} and
 @code{nb_setval/2} implicitly create a variable if the referenced name
 does not already refer to a variable.
 
@@ -6775,6 +6775,8 @@ instantiate the value of the global variable. If this is undesirable
 the normal precautions (double negation or @code{copy_term/2}) must be
 taken. The @code{b_getval/2} predicate generates errors if @var{Name} is not
 an atom or the requested variable does not exist. 
+
+Notice that for compatibility with other systems @var{Name} @emph{must} be already associated with a term: otherwise the system will generate an error.
 
 @item nb_setval(+@var{Name}, +@var{Value}) 
 @findex nb_setval/2
