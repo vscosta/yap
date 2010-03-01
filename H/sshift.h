@@ -685,6 +685,14 @@ OpRTableAdjust (opentry * ptr)
   return (opentry *) (((opentry *) (CharP (ptr) + HDiff)));
 }
 
+inline EXTERN OpEntry *OpEntryAdjust (OpEntry *);
+
+inline EXTERN OpEntry *
+OpEntryAdjust (OpEntry * ptr)
+{
+  return (OpEntry *) (((OpEntry *) (CharP (ptr) + HDiff)));
+}
+
 inline EXTERN PredEntry *PtoPredAdjust (PredEntry *);
 
 inline EXTERN PredEntry *

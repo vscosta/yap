@@ -1537,6 +1537,9 @@ RestoreEntries(PropEntry *pp, int int_key)
 	if (opp->OpModule) {
 	 opp->OpModule = AtomTermAdjust(opp->OpModule);
 	}
+	if (opp->OpNext) {
+	 opp->OpNext = OpEntryAdjust(opp->OpNext);
+	}
       }
       break;
     case ModProperty:
