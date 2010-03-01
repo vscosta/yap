@@ -5888,11 +5888,6 @@ user:exception(undefined_global_variable, Name, retry) :-
         make_clpfd_var(Name), !.
 
 warn_if_bounded_arithmetic :-
-	make_queue,
-	enable_queue,
-	nb_setval('$clpfd_current_propagator', []),
-	fail.
-warn_if_bounded_arithmetic :-
         (   current_prolog_flag(bounded, true) ->
             print_message(warning, clpfd(bounded))
         ;   true
