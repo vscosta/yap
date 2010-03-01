@@ -97,6 +97,7 @@ true :- true.
 
 '$init_globals' :-
 	'$init_consult',
+	nb_setval('$chr_toplevel_show_store',false),
 	nb_setval('$break',0),
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$open_expands_filename',true),
