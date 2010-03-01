@@ -2613,10 +2613,16 @@ init_current_nb(void)
 {				/* current_atom(?Atom)		 */
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
-    if (IsAtomTerm(t1))
-      cut_succeed();
-    else
+    if (IsAtomTerm(t1)) {
+      if (!FindGlobalEntry(AtomOfTerm(t1))) {
+	  cut_fail();
+      } else {
+	cut_succeed();
+      }
+    } else {
+      Yap_Error(TYPE_ERROR_ATOM,t1,"nb_current");
       cut_fail();
+    }
   }
   READ_LOCK(HashChain[0].AERWLock);
   EXTRA_CBACK_ARG(1,1) =  MkIntegerTerm((Int)GlobalVariables);

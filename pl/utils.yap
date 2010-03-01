@@ -577,9 +577,6 @@ nth_instance(Key,Index,T,Ref) :-
 	instance(Ref,T).
 
 nb_current(GlobalVariable, Val) :-
-	var(GlobalVariable), !,
 	'$nb_current'(GlobalVariable),
-	nb_getval(GlobalVariable, Val).
-nb_current(GlobalVariable, Val) :-
 	nb_getval(GlobalVariable, Val).
 
