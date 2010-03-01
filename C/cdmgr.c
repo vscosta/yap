@@ -2993,7 +2993,7 @@ p_owner_file(void)
     UNLOCK(pe->PELock);
     return FALSE;
   }
-  owner =  pe->src.OwnerFile
+  owner =  pe->src.OwnerFile;
   UNLOCK(pe->PELock);
   return Yap_unify(ARG3, MkAtomTerm(owner));
 }
