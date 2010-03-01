@@ -2994,6 +2994,21 @@ goal, and the second @var{M} set to the current module. The predicate
 If @code{user:unknown_predicate_handler/3} succeeds, the system will
 execute @var{NG}. If  @code{user:unknown_predicate_handler/3} fails, the
 system will execute default action as specified by @code{unknown/2}.
+
+@item exception(+@var{Exception}, +@var{Context}, -@var{Action})
+@findex exception/3
+@syindex exception/3
+@cnindex exception/3
+ Dynamic predicate, normally not defined. Called by the Prolog system on run-time exceptions that can be repaired `just-in-time'. The values for @var{Exception} are described below. See also @code{catch/3} and @code{throw/1}.
+If this hook predicate succeeds it must instantiate the @var{Action} argument to the atom @code{fail} to make the operation fail silently, @code{retry} to tell Prolog to retry the operation or @code{error} to make the system generate an exception. The action @code{retry} only makes sense if this hook modified the environment such that the operation can now succeed without error.
+
+@table @code
+@item undefined_predicate
+@var{Context} is instantiated to a predicate-indicator (@var{Module:Name/Arity}). If the predicate fails Prolog will generate an existence_error exception. The hook is intended to implement alternatives to the SWI built-in autoloader, such as autoloading code from a database. Do not use this hook to suppress existence errors on predicates. See also @code{unknown}.
+@item undefined_global_variable
+@var{Context} is instantiated to the name of the missing global variable. The hook must call @code{nb_setval/2} or @code{b_setval/2} before returning with the action retry.
+@end table
+
 @end table
 
 @node Messages, Testing Terms, Undefined Procedures, Top
