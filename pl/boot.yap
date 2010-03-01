@@ -966,6 +966,25 @@ not(G) :-    \+ '$execute'(G).
 	  ).
 
 '$find_undefp_handler'(G,M,NG,user) :-
+	functor(G, Na, Ar),
+	user:exception(undefined_predicate,M:Na/Ar,Action), !,
+	'$exit_undefp',
+	(
+	 Action == fail
+	->
+	 NG = fail
+	;
+	 Action == retry
+	->
+	 NG = G
+	;
+	 Action = error
+	->
+	 '$unknown_error'(M:G)
+	;
+	 '$do_error'(type_error(atom, Action),M:G)
+	).
+'$find_undefp_handler'(G,M,NG,user) :-
 	\+ '$undefined'(unknown_predicate_handler(_,_,_), user),
 	'$system_catch'(unknown_predicate_handler(G,M,NG), user, Error, '$leave_undefp'(Error)), !,
 	'$exit_undefp'.
