@@ -268,4 +268,4 @@ Function .onInstFailed
 		    installer, please contact yap-users@sf.net"
 FunctionEnd
 
-outfile "yap-6.0.1-installer.exe"
+outfile "yap-6.0.2-installer.exe"
