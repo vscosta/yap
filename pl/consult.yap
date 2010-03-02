@@ -32,12 +32,36 @@
 load_files(Files,Opts) :-
 	'$load_files'(Files,Opts,load_files(Files,Opts)).
 
-'$load_files'(Files,Opts,Call) :-		    
+'$load_files'(Files,Opts,Call) :-
+	'$check_files'(Files,load_files(Files,Opts)),
 	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,Files,Call),
 	'$check_use_module'(Call,UseModule),
         '$current_module'(M0),
 	'$lf'(Files,M0,Call,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,UseModule),
 	'$close_lf'(Silent).
+
+'$check_files'(Files,Call) :-
+	var(Files), !,
+	'$do_error'(instantiation_error,Call).
+'$check_files'(M:Files,Call) :-
+	(var(M)
+	->
+	'$do_error'(instantiation_error,Call)
+	;
+	 atom(M)
+	->
+	 '$check_files'(Files,Call)
+	;
+	'$do_error'(type_error(atom,M),Call)
+	).
+'$check_files'(Files,Call) :-
+	(ground(Files)
+	->
+	 true
+	;
+	'$do_error'(instantiation_error,Call)
+	).
+	 
 
 '$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	var(V), !,
