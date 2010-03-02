@@ -3760,6 +3760,8 @@ syntax_error (TokEntry * tokptr, int sno, Term *outp)
   Term *error = tf+3;
   CELL *Hi = H;
 
+  /* make sure to globalise variable */
+  Yap_unify(*outp, MkVarTerm());
   start = tokptr->TokPos;
   clean_vars(Yap_VarTable);
   clean_vars(Yap_AnonVarTable);
