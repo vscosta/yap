@@ -3847,7 +3847,11 @@ syntax_error (TokEntry * tokptr, int sno, Term *outp)
     }
     tokptr = tokptr->TokNext;
   }
-  tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,outp);
+  if (IsVarTerm(*outp) && (VarOfTerm(*outp) > H || VarOfTerm(*outp) < H0)) {
+    tf[0] = Yap_MkNewApplTerm(Yap_MkFunctor(AtomRead,1),1);
+  } else {
+    tf[0] = Yap_MkApplTerm(Yap_MkFunctor(AtomRead,1),1,outp);
+  }
   {
     Term t[3];
 
