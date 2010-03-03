@@ -792,6 +792,12 @@ p_execute_nonstop(void)
     if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
       Yap_signal(YAP_CREEP_SIGNAL);
     }
+#if defined(YAPOR) || defined(THREADS)
+    if (RepPredProp(pe)->PredFlags & LogUpdatePredFlag) {
+      PP = RepPredProp(pe);
+      LOCK(PP->PELock);
+    }
+#endif
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
   }  else { if (ActiveSignals & YAP_CREEP_SIGNAL  && 
 		!Yap_InterruptsDisabled &&

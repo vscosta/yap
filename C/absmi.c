@@ -8143,7 +8143,6 @@ Yap_absmi(int inp)
 	PREG = pt0->CodeOfPred;
 	/* for profiler */
 #ifdef THREADS
-	pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
 	UNLOCK(ThreadHandlesLock);
 #endif
 	save_pc();
