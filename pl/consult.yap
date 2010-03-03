@@ -172,9 +172,9 @@ consult(Fs) :-
 '$consult'(Fs,Module) :-
 	'$access_yap_flags'(8, 2), % SICStus Prolog compatibility
 	!,
-	'$load_files'(Module:Fs,[],Fs).
+	'$load_files'(Module:Fs,[],consult(Fs)).
 '$consult'(Fs, Module) :-
-	'$load_files'(Module:Fs,[consult(consult)],Fs).
+	'$load_files'(Module:Fs,[consult(consult)],consult(Fs)).
 
 reconsult(Fs) :-
 	'$load_files'(Fs, [], reconsult(Fs)).
