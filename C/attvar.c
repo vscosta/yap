@@ -358,6 +358,15 @@ DelAtts(attvar_record *attv, Term oatt)
 }
 
 static void 
+DelAllAtts(attvar_record *attv)
+{
+  if (RepAppl(attv->Atts) >= HB)
+    RESET_VARIABLE(&attv->Atts);
+  else
+    MaBind(&(attv->Atts), MkVarTerm());
+}
+
+static void 
 PutAtt(Int pos, Term atts, Term att)
 {
   if (IsVarTerm(att) && (CELL *)att > H && (CELL *)att < LCL0) {
@@ -636,6 +645,21 @@ p_del_atts(void) {
   } else {
     return TRUE;
   }
+}
+
+static Int
+p_del_all_atts(void) {
+  /* receive a variable in ARG1 */
+  Term inp = Deref(ARG1);
+
+  /* if this is unbound, ok */
+  if (IsVarTerm(inp) && IsAttachedTerm(inp)) {
+    attvar_record *attv;
+      
+    attv = (attvar_record *)VarOfTerm(inp);
+    DelAllAtts(attv);
+  } 
+  return TRUE;
 }
 
 static Int
@@ -1010,6 +1034,7 @@ void Yap_InitAttVarPreds(void)
   Yap_InitCPred("put_att_term", 2, p_put_att_term, 0);
   Yap_InitCPred("put_module_atts", 2, p_put_atts, 0);
   Yap_InitCPred("del_all_module_atts", 2, p_del_atts, 0);
+  Yap_InitCPred("del_all_atts", 1, p_del_all_atts, 0);
   Yap_InitCPred("rm_att", 4, p_rm_att, 0);
   Yap_InitCPred("bind_attvar", 1, p_bind_attvar, SafePredFlag);
   Yap_InitCPred("unbind_attvar", 1, p_unbind_attvar, SafePredFlag);
