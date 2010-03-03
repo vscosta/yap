@@ -249,6 +249,10 @@
 :- style_check(all).
 :- yap_flag(unknown,error).
 
+:- multifile user:exception/3.
+
+user:exception(undefined_global_variable, _, fail).
+
 % problog related modules
 :- use_module('problog/flags',[set_problog_flag/2,
 	problog_flag/2,
