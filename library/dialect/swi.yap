@@ -284,6 +284,9 @@ prolog:del_attr(Var, Mod) :-
 	functor(AttTerm, Mod, 2),
 	attributes:del_all_module_atts(Var, AttTerm).
 
+prolog:del_attrs(Var) :-
+	attributes:del_all_atts(Var).
+
 prolog:get_attrs(AttVar, SWIAtts) :-
 	get_all_swi_atts(AttVar,SWIAtts).
 
