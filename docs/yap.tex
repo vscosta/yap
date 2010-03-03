@@ -11396,7 +11396,7 @@ available with the @code{use_module(library(timeout))} command.
 Execute goal @var{Goal} with time limited @var{Timeout}, where
 @var{Timeout} is measured in milliseconds. If the goal succeeds, unify
 @var{Result} with success. If the timer expires before the goal
-terminates, unify @var{Result} with @t{timeout}.
+terminates, unify @var{Result} with @t{time_out}.
 
 This command is implemented by activating an alarm at procedure
 entry. If the timer expires before the goal completes, the alarm will
