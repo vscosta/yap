@@ -16,17 +16,19 @@
 *************************************************************************/
 
 :- module(terms, [
-	term_hash/2,
-	term_hash/4,
-	instantiated_term_hash/4,
-	variant/2,
-	unifiable/3,
-	subsumes/2,
-	subsumes_chk/2,
-        cyclic_term/1,
-        acyclic_term/1,
-        variable_in_term/2
-    ]).
+		  term_hash/2,
+		  term_hash/4,
+		  instantiated_term_hash/4,
+		  variant/2,
+		  unifiable/3,
+		  subsumes/2,
+		  subsumes_chk/2,
+		  cyclic_term/1,
+		  acyclic_term/1,
+		  variable_in_term/2,
+		  variables_within_term/3,
+		  new_variables_in_term/3
+		 ]).
 
 term_hash(T,H) :-
 	term_hash(T, -1, 33554432, H).
