@@ -15,9 +15,7 @@
 *									 *
 *************************************************************************/
 
-:- module(attributes, []).
-
-:- op(1150, fx, attribute).
+:- module(attributes, [op(1150, fx, attribute)]).
 
 :- multifile
 	user:goal_expansion/3.
