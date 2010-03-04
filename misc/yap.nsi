@@ -100,12 +100,12 @@ Section "Start Menu shortcuts"
 		  "$INSTDIR\docs\README.txt" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
-  		  "$INSTDIR\docs\yap.html" "" \
-		  "$INSTDIR\docs\yap.html" 0 \
+  		  "$INSTDIR\docs\Yap\yap.html" "" \
+		  "$INSTDIR\docs\Yap\yap.html" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual PDF.lnk" \
-  		  "$INSTDIR\docs\yap.pdf" "" \
-		  "$INSTDIR\docs\yap.pdf" 0 \
+  		  "$INSTDIR\docs\Yap\yap.pdf" "" \
+		  "$INSTDIR\docs\Yap\yap.pdf" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Uninstall.lnk" \
 		 "$INSTDIR\uninstall.exe" \
