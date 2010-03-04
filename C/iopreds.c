@@ -295,6 +295,7 @@ unix_upd_stream_info (StreamDesc * s)
       s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
       /* make all console descriptors unbuffered */
       setvbuf(s->u.file.file, NULL, _IONBF, 0);
+      return;
     }
 #if _MSC_VER
     /* standard error stream should never be buffered */
@@ -302,6 +303,7 @@ unix_upd_stream_info (StreamDesc * s)
       setvbuf(s->u.file.file, NULL, _IONBF, 0);      
     }
 #endif
+    s->status |= Seekable_Stream_f;
     return;
   }
 #else
