@@ -734,7 +734,6 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-enable_cut_c
 enable_tabling
 enable_or_parallelism
 enable_rational_trees
@@ -1401,7 +1400,6 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
- --enable-cut-c             support for executing c code when a cut occurs
  --enable-tabling           support tabling
  --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
  --enable-rational-trees    support infinite rational trees
@@ -3552,13 +3550,6 @@ done
 
 
 
-# Check whether --enable-cut-c was given.
-if test "${enable_cut_c+set}" = set; then :
-  enableval=$enable_cut_c; cutc="$enableval"
-else
-  cutc=no
-fi
-
 # Check whether --enable-tabling was given.
 if test "${enable_tabling+set}" = set; then :
   enableval=$enable_tabling; tabling="$enableval"
@@ -5481,25 +5472,6 @@ $as_echo "$yap_cv_odbc" >&6; }
 	    	echo "--"
 	    	echo "-------------------------------"
 	    	exit
-	fi
-
-	if test "$cutc" = no
-	then
-		echo
-		echo
-		echo "********************************************************"
-		echo
-		echo
-		echo "!!!!!! WARNING !!!!!!"
-		echo "The MYDDAS interface makes no sense without cut-c"
-		echo "Please contact tiagosoares@ncc.up.pt for help"
-		echo
-		echo "Enabling cut-c"
-		echo
-		echo "********************************************************"
-		echo
-		echo
-		cutc="yes"
 	fi
 fi
 
