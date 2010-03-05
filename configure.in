@@ -1501,7 +1501,7 @@ dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(access)
 AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
-AC_CHECK_FUNCS(feclearexcept)
+AC_CHECK_FUNCS(erf feclearexcept)
 AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize)

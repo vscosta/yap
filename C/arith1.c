@@ -418,6 +418,26 @@ eval1(Int fi, Term t) {
       RERROR();
 #endif
     }
+ case op_erf:
+   {
+     Float dbl = get_float(t), out;
+#if HAVE_ERF
+     out = erf(dbl);
+     RFLOAT(out);
+#else
+     RERROR();
+#endif
+   }
+ case op_erfc:
+   {
+     Float dbl = get_float(t), out;
+#if HAVE_ERF
+     out = erfc(dbl);
+     RFLOAT(out);
+#else
+     RERROR();
+#endif
+   }
     /*
       floor(x) maximum integer greatest or equal to X
 
@@ -814,6 +834,8 @@ static InitUnEntry InitUnTab[] = {
   {"float_integer_part", op_fintp},
   {"sign", op_sign},
   {"lgamma", op_lgamma},
+  {"erf",op_erf},
+  {"erfc",op_erfc},
   {"random", op_random1}
 };
 

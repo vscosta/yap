@@ -93,6 +93,8 @@ typedef enum {
   op_fintp,
   op_sign,
   op_lgamma,
+  op_erf,
+  op_erfc,
   op_random1
 } arith1_op;
 
