@@ -9,6 +9,7 @@
 ifeq (@PROLOG_SYSTEM@,yap)
 
 prefix = @prefix@
+exec_prefix = @exec_prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 abs_top_builddir = @abs_top_builddir@

@@ -1,6 +1,7 @@
 #
 # default base directory for YAP installation
 #
+#
 ROOTDIR = @prefix@
 #
 # where the binary should be
