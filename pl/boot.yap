@@ -56,7 +56,7 @@ true :- true.
 	(
 	 retractall(user:library_directory(_)),
 	 '$system_library_directories'(D),
-	 assert(user:library_directory(D)),
+	 assertz(user:library_directory(D)),
 	 fail
 	;
 	 true
