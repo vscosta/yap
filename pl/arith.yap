@@ -308,6 +308,8 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$unaryop'(float_fractional_part(X)	,float_fractional_part	,X).
 '$unaryop'(float_integer_part(X)	,float_integer_part	,X).
 '$unaryop'(lgamma(X)	,lgamma	,X).
+'$unaryop'(erf(X)	,erf	,X).
+'$unaryop'(erfc(X)	,erfc	,X).
 
 % These are the binary arithmetic operators
 '$binaryop'(X+Y		,+	,X,Y).
