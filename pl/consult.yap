@@ -879,10 +879,9 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$system_library_directories'(Dir) :-
 	getenv('YAPSHAREDIR', Dir).
 '$system_library_directories'(Dir) :-
-	get_value(system_library_directory,Dir).
-
-'$system_library_directories'(Dir) :-
 	getenv('YAPCOMMONSDIR', Dir).
+'$system_library_directories'(Dir) :-
+	get_value(system_library_directory,Dir).
 '$system_library_directories'(Dir) :-
 	get_value(prolog_commons_directory,Dir).
 

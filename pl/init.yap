@@ -116,7 +116,7 @@ lists:member(X,[_|L]) :-
 
 :-	 ['protect.yap'].
 
-version(yap,[5,1]).
+version(yap,[6,0]).
 
 system_mode(verbose,on)  :- set_value('$verbose',on).
 system_mode(verbose,off) :- set_value('$verbose',off).
