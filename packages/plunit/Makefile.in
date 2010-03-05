@@ -17,9 +17,9 @@ EROOTDIR = @exec_prefix@
 srcdir=@srcdir@
 
 BINDIR = $(EROOTDIR)/bin
-LIBDIR=$(EROOTDIR)/lib
+LIBDIR=@libdir@
 SHAREDIR=$(EROOTDIR)/share/Yap
-YAPLIBDIR=$(EROOTDIR)/lib/Yap
+YAPLIBDIR=@libdir@/Yap
 
 PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 LN_S=@LN_S@

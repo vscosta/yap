@@ -12,8 +12,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for binary libraries
 #
-LIBDIR=$(EROOTDIR)/lib
-YAPLIBDIR=$(EROOTDIR)/lib/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #
@@ -59,7 +59,7 @@ YAPSTARTUP=startup.yss
 #
 CC=@CC@
 MPI_CC=@MPI_CC@
-CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/packages/MYDDAS
+CPPFLAGS=@CPPFLAGS@  -I. -I$(srcdir)/H -I$(srcdir)/OPTYap -I$(srcdir)/BEAM -I$(srcdir)/MYDDAS
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
 C_INTERF_FLAGS= @C_INTERF_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS) -I$(srcdir)/include
 C_PARSER_FLAGS= @C_PARSER_FLAGS@ $(YAP_EXTRAS) $(DEFS) $(CPPFLAGS)
@@ -499,7 +499,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLGS)
+	@DYNLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS)
 
 install: install_bin install_data
 

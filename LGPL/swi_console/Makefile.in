@@ -8,7 +8,7 @@ EROOTDIR = @exec_prefix@
 #
 # where YAP should look for libraries
 #
-LIBDIR=$(EROOTDIR)/lib/Yap
+LIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
