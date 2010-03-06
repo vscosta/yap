@@ -518,6 +518,8 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
     {
     case db_ref_e:
       return (d0 == d1);
+    case attvar_e:
+      return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);
     case big_int_e:

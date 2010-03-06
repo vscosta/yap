@@ -93,7 +93,7 @@ p_mod(Term t1, Term t2) {
 #ifdef USE_GMP
       return Yap_gmp_mod_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
       break;
     }
@@ -115,11 +115,11 @@ p_mod(Term t1, Term t2) {
       return Yap_gmp_mod_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
 zero_divisor:
@@ -157,7 +157,7 @@ p_rem(Term t1, Term t2) {
       /* I know the term is much larger, so: */
       RINT(IntegerOfTerm(t1));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -191,11 +191,11 @@ p_rem(Term t1, Term t2) {
       }
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
  zero_divisor:
@@ -234,7 +234,7 @@ p_fdiv(Term t1, Term t2)
 	RFLOAT(((Float)i1/f2));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -257,7 +257,7 @@ p_fdiv(Term t1, Term t2)
 	RFLOAT(FloatOfTerm(t1)/mpz_get_d(Yap_BigIntOfTerm(t2)));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -278,11 +278,11 @@ p_fdiv(Term t1, Term t2)
 	Float dbl = FloatOfTerm(t2);
 	RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t1))/dbl);
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -334,7 +334,7 @@ p_xor(Term t1, Term t2)
 	RBIG(&new);
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -362,11 +362,11 @@ p_xor(Term t1, Term t2)
       }
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -394,7 +394,7 @@ p_atan2(Term t1, Term t2)
 	RFLOAT(atan2(i1,f2));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
       break;
     }
@@ -417,7 +417,7 @@ p_atan2(Term t1, Term t2)
 	RFLOAT(atan2(FloatOfTerm(t1),mpz_get_d(Yap_BigIntOfTerm(t2))));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -437,11 +437,11 @@ p_atan2(Term t1, Term t2)
 	Float dbl = FloatOfTerm(t2);
 	RFLOAT(atan2(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -479,7 +479,7 @@ p_power(Term t1, Term t2)
 	RFLOAT(pow(i1,f2));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -502,7 +502,7 @@ p_power(Term t1, Term t2)
 	RFLOAT(pow(FloatOfTerm(t1),mpz_get_d(Yap_BigIntOfTerm(t2))));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -522,11 +522,11 @@ p_power(Term t1, Term t2)
 	Float dbl = FloatOfTerm(t2);
 	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -605,7 +605,7 @@ p_exp(Term t1, Term t2)
 	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -628,7 +628,7 @@ p_exp(Term t1, Term t2)
 	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -649,11 +649,11 @@ p_exp(Term t1, Term t2)
 	Float dbl = FloatOfTerm(t2);
 	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -741,7 +741,7 @@ p_gcd(Term t1, Term t2)
 	}
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -774,11 +774,11 @@ p_gcd(Term t1, Term t2)
       }
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -821,7 +821,7 @@ p_min(Term t1, Term t2)
 	return t1;
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -858,7 +858,7 @@ p_min(Term t1, Term t2)
 	}
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -897,11 +897,11 @@ p_min(Term t1, Term t2)
 	  return t1;
 	}
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -944,7 +944,7 @@ p_max(Term t1, Term t2)
 	return t1;
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -981,7 +981,7 @@ p_max(Term t1, Term t2)
 	}
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -1020,11 +1020,11 @@ p_max(Term t1, Term t2)
 	  return t1;
 	}
       }
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
