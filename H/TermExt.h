@@ -44,13 +44,15 @@
 typedef enum
 {
   db_ref_e = sizeof (Functor *),
-  long_int_e = 2 * sizeof (Functor *),
-  big_int_e = 3 * sizeof (Functor *),
-  double_e = 4 * sizeof (Functor *)
+  attvar_e = 2*sizeof (Functor *),
+  long_int_e = 3 * sizeof (Functor *),
+  big_int_e = 4 * sizeof (Functor *),
+  double_e = 5 * sizeof (Functor *)
 }
 blob_type;
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
+#define   FunctorAttVar   ((Functor)(attvar_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
 #define   FunctorBigInt   ((Functor)(big_int_e))
 #define   FunctorDouble   ((Functor)(double_e))
