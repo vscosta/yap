@@ -1242,17 +1242,7 @@ p_binary_op_as_integer(void)
     ExpEntry *p;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 2)))) {
-      Term ti[2];
-
-      /* error */
-      ti[0] = t;
-      ti[1] = MkIntTerm(1);
-      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,2);
-      P = FAILCODE;
-      return(FALSE);
+      return Yap_unify(ARG1,ARG2);
     }
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
   }
