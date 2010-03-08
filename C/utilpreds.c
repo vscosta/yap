@@ -254,7 +254,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	struct cp_frame *bp[1];
 
 	if (dvars == NULL) {
-	  dvars = (CELL *)DelayTop();
+	  dvars = H0;
 	} 	
 	if (ptd0 < dvars) {
 	  *ptf++ = (CELL) ptd0;

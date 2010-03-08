@@ -33,10 +33,6 @@
 #define strncat(s0,s1,sz)   strcat(s0,s1)
 #endif
 
-#if !COROUTINING
-#define DelayTop() H0
-#endif
-
 typedef enum {
   STACK_SHIFTING = 0,
   STACK_COPYING = 1,
@@ -134,7 +130,6 @@ SetHeapRegs(int copying_threads)
   OldTR = TR;
   OldHeapBase = Yap_HeapBase;
   OldHeapTop = HeapTop;
-  OldDelayTop = CurrentDelayTop;
   /* Adjust stack addresses */
   Yap_TrailBase = TrailAddrAdjust(Yap_TrailBase);
   Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
@@ -172,8 +167,6 @@ SetHeapRegs(int copying_threads)
     HB = PtoGloAdjust(HB);
   if (B)
     B = ChoicePtrAdjust(B);
-  if (CurrentDelayTop)
-    CurrentDelayTop = PtoDelayAdjust(CurrentDelayTop);
 #ifdef TABLING
   if (B_FZ)
     B_FZ = ChoicePtrAdjust(B_FZ);
@@ -195,12 +188,8 @@ SetHeapRegs(int copying_threads)
   if (!copying_threads) {
     if (GlobalArena)
       GlobalArena = AbsAppl(PtoGloAdjust(RepAppl(GlobalArena)));
-    if (GlobalDelayArena)
-      GlobalDelayArena = GlobalAdjust(GlobalDelayArena);
   }
 #ifdef COROUTINING
-  if (DelayedVars)
-    DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
   if (AttsMutableList)
     AttsMutableList = AbsAppl(PtoGloAdjust(RepAppl(AttsMutableList)));
   if (WokenGoals)
@@ -256,7 +245,7 @@ worker_p_binding(int worker_p, CELL *aux_ptr)
     reg = AdjustGlobTerm(reg);
     return reg;
   } else {
-    CELL reg = ThreadHandle[worker_p].current_yaam_regs->H0_[aux_ptr-H0];
+    CELL reg = ThreadHandle[worker_p].current_yaam_regs-> H0_[aux_ptr-H0];
     reg = AdjustGlobTerm(reg);
     return reg;
   }
@@ -567,12 +556,12 @@ AdjustGlobal(long sz, int thread_copying)
     pt_max =  (CELL *) (LOCAL_end_global_copy);
   } else {
 #endif
-    pt = CurrentDelayTop;
+    pt = H0;
     pt_max = (H-sz/CellSize);
 #if defined(YAPOR) && defined(THREADS)
   }
 #endif
-  pt = CurrentDelayTop;
+  pt = H0;
   while (pt < pt_max) {
     CELL reg;
     
@@ -777,7 +766,6 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   int gc_verbose;
   UInt minimal_request = 0L;
 
-  CurrentDelayTop = (CELL *)DelayTop();
   /* adjust to a multiple of 256) */
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
@@ -859,7 +847,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
-  char *omax = (ADDR)DelayTop();
+  char *omax = (char *)H0;
   ADDR old_GlobalBase = Yap_GlobalBase;
   UInt minimal_request = 0L;
   long size = request;
@@ -874,7 +862,6 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
     do_grow is whether we expand stacks
   */
 
-  CurrentDelayTop = (CELL *)omax;
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < H0 && hsplit > (CELL *)Yap_GlobalBase) {
@@ -1492,7 +1479,6 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   long size = size0;
   ADDR old_Yap_GlobalBase = Yap_GlobalBase;
   
-  CurrentDelayTop = (CELL *)DelayTop();
   if (!Yap_AllowGlobalExpansion) {
     Yap_ErrorMessage = "Database crashed against stacks";
     return FALSE;
@@ -1869,7 +1855,6 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   Yap_REGS.CUT_C_TOP = ThreadHandle[worker_p].current_yaam_regs->CUT_C_TOP;
 #endif
   DelayedVars = ThreadHandle[worker_p].current_yaam_regs->DelayedVars_;
-  CurrentDelayTop = (CELL *)DelayTop();
   DynamicArrays = NULL;
   StaticArrays = NULL;
   GlobalVariables = NULL;

@@ -259,7 +259,7 @@ loop:
       BIND_GLOBAL(ptd1, d0, bind_ocunify1);
 #ifdef COROUTINING
       DO_TRAIL(ptd1, d0);
-      if (ptd1 < H0) Yap_WakeUp(ptd1);
+      if (IsAttVar(ptd1)) Yap_WakeUp(ptd1);
     bind_ocunify1:
 #endif
       if (Yap_rational_tree_loop(ptd1-1, ptd1, (CELL **)to_visit, (CELL **)unif))
@@ -282,7 +282,7 @@ loop:
       BIND_GLOBAL(ptd0, d1, bind_ocunify2);
 #ifdef COROUTINING
       DO_TRAIL(ptd0, d1);
-      if (ptd0 < H0) Yap_WakeUp(ptd0);
+      if (IsAttVar(ptd0)) Yap_WakeUp(ptd0);
     bind_ocunify2:
 #endif
       if (Yap_rational_tree_loop(ptd0-1, ptd0, (CELL **)to_visit, (CELL **)unif))
@@ -403,7 +403,7 @@ oc_unify_nvar_nvar:
   BIND(pt1, d0, bind_ocunify4);
 #ifdef COROUTINING
   DO_TRAIL(pt1, d0);
-  if (pt1 < H0) Yap_WakeUp(pt1);
+  if (IsAttVar(pt1)) Yap_WakeUp(pt1);
  bind_ocunify4:
 #endif
   /* local variables cannot be in a term */
@@ -421,7 +421,7 @@ oc_unify_var_nvar:
   BIND(pt0, d1, bind_ocunify5);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d1);
-  if (pt0 < H0) Yap_WakeUp(pt0);
+  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
  bind_ocunify5:
 #endif
   /* local variables cannot be in a term */
@@ -436,14 +436,14 @@ oc_unify_var_nvar:
   UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
   DO_TRAIL(pt0, (CELL)pt1);
-  if (pt0 < H0) Yap_WakeUp(pt0);
+  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
  uc1:
 #endif
   return (TRUE);
 #ifdef COROUTINING
  uc2:
   DO_TRAIL(pt1, (CELL)pt0);
-  if (pt1 < H0) {
+  if (IsAttVar(pt1)) {
     Yap_WakeUp(pt1);
   }
 #endif
@@ -550,7 +550,7 @@ unify_nvar_nvar:
   BIND(pt1, d0, bind_unify3);
 #ifdef COROUTINING
   DO_TRAIL(pt1, d0);
-  if (pt1 < H0) Yap_WakeUp(pt1);
+  if (IsAttVar(pt1)) Yap_WakeUp(pt1);
  bind_unify3:
 #endif
   return (TRUE);
@@ -563,7 +563,7 @@ unify_var_nvar:
   BIND(pt0, d1, bind_unify4);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d1);
-  if (pt0 < H0) Yap_WakeUp(pt0);
+  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
  bind_unify4:
 #endif
   return TRUE;
@@ -579,14 +579,14 @@ unify_var_nvar_trail:
   UnifyCells(pt0, pt1, uc1, uc2);
 #ifdef COROUTINING
   DO_TRAIL(pt0, (CELL)pt1);
-  if (pt0 < H0) Yap_WakeUp(pt0);
+  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
  uc1:
 #endif
   return (TRUE);
 #ifdef COROUTINING
  uc2:
   DO_TRAIL(pt1, (CELL)pt0);
-  if (pt1 < H0) {
+  if (IsAttVar(pt1)) {
     Yap_WakeUp(pt1);
   }
   return (TRUE);

@@ -406,8 +406,8 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   wrputc('_', wglb->writewch);
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
-  if (CellPtr(t) < H0) {
-    Int vcount = (H0-t);
+  if (IsAttVar(t)) {
+    Int vcount = (t-H0);
 #if COROUTINING
 #if DEBUG
     if (Yap_Portray_delays) {
@@ -415,7 +415,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 
       Yap_Portray_delays = FALSE;
       if (ext == attvars_ext) {
-	attvar_record *attv = (attvar_record *)t;
+	attvar_record *attv = RepAttVar(t);
 	long sl = 0;
 	Term l = attv->Atts;
 
@@ -612,6 +612,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       switch((CELL)functor) {
       case (CELL)FunctorDouble:
 	wrputf(FloatOfTerm(t),wglb->writewch);
+	return;
+      case (CELL)FunctorAttVar:	
+	write_var(RepAppl(t)+1, wglb, &nrwt);
 	return;
       case (CELL)FunctorDBRef:
 	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->writewch);
