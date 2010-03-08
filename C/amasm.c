@@ -3510,6 +3510,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (!ystop_found &&
 	  cip->cpc->nextInst != NULL &&
 	  (cip->cpc->nextInst->op == mark_initialised_pvars_op ||
+	   cip->cpc->nextInst->op == mark_live_regs_op ||
 	   cip->cpc->nextInst->op == blob_op)) {
 	ystop_found = TRUE;
 	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
