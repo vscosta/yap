@@ -126,8 +126,8 @@ p_save_cp(void)
   td = cp_as_integer(B);
   BIND((CELL *)t,td,bind_save_cp);
 #ifdef COROUTINING
-  DO_TRAIL(CellPtr(t), td);
-  if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
+  DO_TRAIL(VarOfTerm(t), td);
+  if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
  bind_save_cp:
 #endif
   return(TRUE);
@@ -145,8 +145,8 @@ p_save_env_b(void)
   td = cp_as_integer((choiceptr)YENV[E_CB]);
   BIND((CELL *)t,td,bind_save_cp);
 #ifdef COROUTINING
-  DO_TRAIL(CellPtr(t), td);
-  if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
+  DO_TRAIL(VarOfTerm(t), td);
+  if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
  bind_save_cp:
 #endif
   return(TRUE);
@@ -1629,10 +1629,8 @@ Yap_InitYaamRegs(void)
   GlobalArena = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING
-  DelayedVars = Yap_NewTimedVar(h0var);
   WokenGoals = Yap_NewTimedVar(TermNil);
   AttsMutableList = Yap_NewTimedVar(h0var);
-  GlobalDelayArena = TermNil;
 #endif
   GcGeneration = Yap_NewTimedVar(h0var);
   GcCurrentPhase = 0L;
