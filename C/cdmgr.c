@@ -4024,8 +4024,8 @@ p_is_profiled(void)
     else ta = MkAtomTerm(AtomOff);
     BIND((CELL *)t,ta,bind_is_profiled);
 #ifdef COROUTINING
-    DO_TRAIL(CellPtr(t), ta);
-    if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
+    DO_TRAIL(VarOfTerm(t), ta);
+    if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
   bind_is_profiled:
 #endif
     return(TRUE);
@@ -4127,8 +4127,8 @@ p_is_call_counted(void)
     else ta = MkAtomTerm(AtomOff);
     BIND((CELL *)t,ta,bind_is_call_counted);
 #ifdef COROUTINING
-    DO_TRAIL(CellPtr(t), ta);
-    if (CellPtr(t) < H0) Yap_WakeUp((CELL *)t);
+    DO_TRAIL(VarOfTerm(t), ta);
+    if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
   bind_is_call_counted:
 #endif
     return(TRUE);
