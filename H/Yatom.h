@@ -216,6 +216,7 @@ typedef struct global_entry
   struct AtomEntryStruct *AtomOfGE; /* parent atom for deletion */
   struct global_entry *NextGE; /* linked list of global entries */
   Term  global;	/* index in module table                */
+  Term  AttChain;	/* index in module table                */
 } GlobalEntry;
 
 

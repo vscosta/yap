@@ -65,6 +65,30 @@
 #include <stdio.h>
 #endif 
 
+#ifdef FROZEN_STACKS
+#ifdef SBA
+#define PROTECT_FROZEN_H(CPTR)                                  \
+       ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
+	 Unsigned((Int)(B_FZ)-(Int)(H_FZ))) ?                   \
+	(CPTR)->cp_h : H_FZ)
+#define PROTECT_FROZEN_B(CPTR)                                  \
+       ((Unsigned((Int)(CPTR)-(Int)(H_FZ)) <                    \
+	 Unsigned((Int)(B_FZ)-(Int)(H_FZ)))  ?                  \
+	(CPTR) : B_FZ)
+	 /*
+#define PROTECT_FROZEN_H(CPTR) ((CPTR)->cp_h > H_FZ && (CPTR)->cp_h < (CELL *)B_FZ ? (CPTR)->cp_h : H_FZ )
+
+#define PROTECT_FROZEN_B(CPTR)  ((CPTR) < B_FZ && (CPTR) > (choiceptr)H_FZ ? (CPTR) : B_FZ )
+	 */
+#else /* TABLING */
+#define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
+#define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
+#endif /* SBA */
+#else
+#define PROTECT_FROZEN_B(CPTR)  (CPTR)
+#define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
+#endif /* FROZEN_STACKS */
+
 #if ALIGN_LONGS
 /*   */ typedef Int DISPREG;
 /*   */ typedef CELL SMALLUNSGN;

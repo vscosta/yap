@@ -110,9 +110,6 @@ typedef struct
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
 /* visualc*/
     CELL   EX_;	    	        /* 18                                         */
-#ifdef COROUTINING
-    Term  DelayedVars_;         /* maximum number of attributed variables     */
-#endif
     Term  CurrentModule_;
 #if defined(SBA) || defined(TABLING)
     CELL *H_FZ_;
@@ -697,9 +694,6 @@ EXTERN inline void restore_B(void) {
 #define frame_tail    Yap_REGS.frame_tail_
 #endif /* SBA */
 #endif /* YAPOR */
-#ifdef COROUTINING
-#define DelayedVars   Yap_REGS.DelayedVars_
-#endif
 #if defined(YAPOR) || defined(TABLING)
 #define LOCAL	      Yap_REGS.LOCAL_
 #endif

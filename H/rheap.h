@@ -1024,10 +1024,6 @@ restore_codes(void)
 	AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.global_arena)));
     }
   }
-  if (Yap_heap_regs->wl.global_delay_arena) {
-    Yap_heap_regs->wl.global_delay_arena =
-      GlobalAdjust(Yap_heap_regs->wl.global_delay_arena);
-  }
   Yap_heap_regs->wl.allow_restart = FALSE;
 #endif
 #endif

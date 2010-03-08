@@ -190,6 +190,7 @@ void	STD_PROTO(Yap_inform_profiler_of_clause,(struct yami *,struct yami *,struct
 
 /* globals.c */
 Term	STD_PROTO(Yap_NewArena,(UInt,CELL *));
+CELL   *STD_PROTO(Yap_GetFromArena,(Term *,UInt,UInt));
 void	STD_PROTO(Yap_InitGlobals,(void));
 Term	STD_PROTO(Yap_SaveTerm, (Term));
 Term	STD_PROTO(Yap_SetGlobalVal, (Atom, Term));

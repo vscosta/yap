@@ -58,6 +58,14 @@ blob_type;
 #define   FunctorDouble   ((Functor)(double_e))
 #define   EndSpecials     (double_e+sizeof(Functor *))
 
+inline EXTERN int IsAttVar (CELL *pt);
+
+inline EXTERN int
+IsAttVar (CELL *pt)
+{
+  return (pt)[-1] == (CELL)attvar_e;
+}
+
 typedef enum
   {
     BIG_INT =      0x01,
@@ -452,7 +460,7 @@ inline EXTERN Int IsAttachedTerm (Term);
 inline EXTERN Int
 IsAttachedTerm (Term t)
 {
-  return (Int) ((IsVarTerm (t) && VarOfTerm (t) < H0));
+  return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
 
 
@@ -463,8 +471,7 @@ inline EXTERN Int SafeIsAttachedTerm (Term);
 inline EXTERN Int
 SafeIsAttachedTerm (Term t)
 {
-  return (Int) ((IsVarTerm (t) && VarOfTerm (t) < H0
-		 && VarOfTerm (t) >= (CELL *) Yap_GlobalBase));
+  return (Int) (IsVarTerm (t) && IsAttVar(VarOfTerm(t)));
 }
 
 
