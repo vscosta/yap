@@ -2940,7 +2940,7 @@ YAP_IsAttVar(Term t)
   t = Deref(t);
   if (!IsVarTerm(t))
     return FALSE;
-  return (VarOfTerm(t) < H0);
+  return IsAttVar(VarOfTerm(t));
 }
 
 X_API Term
@@ -2951,7 +2951,7 @@ YAP_AttsOfVar(Term t)
   t = Deref(t);
   if (!IsVarTerm(t))
     return TermNil;
-  if (VarOfTerm(t) >= H0)
+  if (IsAttVar(VarOfTerm(t)))
     return TermNil;
   attv = (attvar_record *)VarOfTerm(t);
   return attv->Atts;
@@ -2965,7 +2965,7 @@ YAP_TermHash(Term t)
   t = Deref(t);
   if (!IsVarTerm(t))
     return TermNil;
-  if (VarOfTerm(t) >= H0)
+  if (IsAttVar(VarOfTerm(t)))
     return TermNil;
   attv = (attvar_record *)VarOfTerm(t);
   return attv->Atts;
