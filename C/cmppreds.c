@@ -643,8 +643,11 @@ p_acomp(void)
 {				/* $a_compare(?R,+X,+Y) */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
+  Int out;
 
-  return a_cmp(t1, t2);
+  out = a_cmp(t1, t2);
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out;
 }
 
 static Int 
@@ -675,42 +678,48 @@ a_eq(Term t1, Term t2)
     }
   }
   out = a_cmp(t1,t2);
-  return !ArithError && (out == 0);
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out == 0;
 }
 
 static Int 
 a_dif(Term t1, Term t2)
 {
   Int out = a_cmp(Deref(t1),Deref(t2));
-  return !ArithError && out != 0;
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out != 0;
 }
 
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
   Int out = a_cmp(Deref(t1),Deref(t2));
-  return !ArithError && out > 0;
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out > 0;
 }
 
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
   Int out = a_cmp(Deref(t1),Deref(t2));
-  return !ArithError && out >= 0;
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out >= 0;
 }
 
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
   Int out = a_cmp(Deref(t1),Deref(t2));
-  return !ArithError && out < 0;
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out < 0;
 }
 
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
   Int out = a_cmp(Deref(t1),Deref(t2));
-  return !ArithError && out <= 0;
+  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  return out <= 0;
 }
 
 
