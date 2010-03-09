@@ -624,7 +624,7 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RFLOAT(IntegerOfTerm(t));
     case double_e:
-      RFLOAT(FloatOfTerm(t));
+      return t;
     case big_int_e:
 #ifdef USE_GMP
       RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
