@@ -43,7 +43,7 @@ load_files(Files,Opts) :-
 '$check_files'(Files,Call) :-
 	var(Files), !,
 	'$do_error'(instantiation_error,Call).
-'$check_files'(M:Files,Call) :-
+'$check_files'(M:Files,Call) :- !,
 	(var(M)
 	->
 	'$do_error'(instantiation_error,Call)
