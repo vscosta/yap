@@ -79,7 +79,6 @@ BuildNewAttVar(void)
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
   RESET_VARIABLE(&(newv->Atts));
-  HB = PROTECT_FROZEN_H(B);
   return newv;
 }
 
@@ -104,7 +103,6 @@ CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res)
     to_visit->to = &(newv->Atts);
   }
   to_visit->oldv = vt[-1];
-  /* you're coming from a variable */
   to_visit->ground = FALSE;
   *to_visit_ptr = to_visit+1;
   *res = (CELL)&(newv->Done);
@@ -879,10 +877,75 @@ p_swi_all_atts(void) {
   }
 }
 
+
+static Term
+AllAttVars(void) {
+  CELL *pt = H0;
+  CELL *myH = H;
+  
+  while (pt < H) {
+    switch(*pt) {
+    case (CELL)FunctorAttVar:
+      if (IsUnboundVar(pt+1)) {
+	if (ASP - myH < 1024) {
+	  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+	  return 0L;
+	}
+	if (myH != H) {
+	  myH[-1] = AbsPair(myH);
+	}
+	myH[0] = AbsAttVar((attvar_record *)pt);
+	myH += 2;
+      }
+      pt += (1+ATT_RECORD_ARITY);
+      break;
+    case (CELL)FunctorDouble:
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      pt += 4;
+#else
+      pt += 3;
+#endif
+      break;
+    case (CELL)FunctorBigInt:
+      {
+	Int sz = 3 +
+	  (sizeof(MP_INT)+
+	   (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
+	pt += sz;
+      }
+      break;
+    case (CELL)FunctorLongInt:
+      pt += 3;
+      break;
+    default:
+      pt++;
+    }
+  }
+  if (myH != H) {
+    Term out = AbsPair(H);
+    myH[-1] = TermNil;
+    H = myH;
+    return out;
+  } else {
+    return TermNil;
+  }
+}
+  
 static Int
 p_all_attvars(void)
 {
-  return Yap_unify(ARG1,TermNil);
+  do {
+    Term out;
+
+    if (!(out = AllAttVars())) {
+      if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }    
+    } else {
+      return Yap_unify(ARG1,out);
+    }
+  } while (TRUE);
 }
 
 static Int

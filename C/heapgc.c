@@ -1150,6 +1150,33 @@ check_global(void) {
 
 /* mark a heap object and all heap objects accessible from it */
 
+static void
+mark_variable(CELL_PTR current);
+
+static void
+mark_att_var(CELL *hp)
+{
+  if (!MARKED_PTR(hp-1)) {
+    MARK(hp-1);
+    PUSH_POINTER(hp-1);
+    total_marked++;
+    if (hp < HGEN) {
+      total_oldies++;
+    }
+  }
+  if (!MARKED_PTR(hp)) {
+    MARK(hp);
+    PUSH_POINTER(hp);
+    total_marked++;
+    if (hp < HGEN) {
+      total_oldies++;
+    }
+  }
+  mark_variable(hp+1);
+  mark_variable(hp+2);
+}
+
+
 static void 
 mark_variable(CELL_PTR current)
 {
@@ -1173,7 +1200,10 @@ mark_variable(CELL_PTR current)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (ONHEAP(next)) {
+    if (IsAttVar(current) && current==next) {
+      mark_att_var(current);
+      POP_CONTINUATION();
+    } else if (ONHEAP(next)) {
 #ifdef EASY_SHUNTING
       CELL cnext;
       /* do variable shunting between variables in the global */
@@ -1575,18 +1605,6 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 					 * environment */
   }
 }
-
-static void
-mark_att_var(CELL *hp)
-{
-  attvar_record *attv = RepAttVar(hp);
-  Functor *cptr = &(attv->AttFunc);
-  mark_external_reference2(CellPtr(cptr));
-  mark_external_reference2(&attv->Done);
-  mark_external_reference2(&attv->Value);
-  mark_external_reference2(&attv->Atts);
-}
-
 
 /* 
    Cleaning the trail should be quick and simple, right? Well, not

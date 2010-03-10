@@ -37,27 +37,17 @@
 	   '$show_frozen_goals'(Level))).
 
 '$project_and_delayed_goals'(G,LGs) :-
-	'$att_vars'(G, LAV),
+	attributes:all_attvars(LAV),
 	LAV = [_|_], !,
 	% SICStus compatible step,
 	% just try to simplify store  by projecting constraints
 	% over query variables.
 	'$project_attributes'(LAV, G),
 	% now get a list of frozen goals.
-	'$att_vars'(G, NLAV),
+	attributes:all_attvars(NLAV),
 	'$get_goalist_from_attvars'(NLAV, LGs).
 '$project_and_delayed_goals'(_,[]).
 
-'$att_vars'(Term, LAV) :-
-	term_variables(Term, TVars),
-	'$select_atts'(TVars, LAV).
-
-'$select_atts'([], []).
-'$select_atts'(V.TVars, V.LAV) :-
-	attvar(V), !,
-	'$select_atts'(TVars, LAV).
-'$select_atts'(V.TVars, LAV) :-
-	'$select_atts'(TVars, LAV).
 
 %
 % wake_up_goal is called by the system whenever a suspended goal
@@ -563,8 +553,7 @@ frozen(V, LG) :-
 	'$fetch_same_done_goals'(G0, D0, LV, GF).
 
 
-/*
-call_residue_vars(Goal,Vars) :-
+call_residue_vars(Goal,Residue) :-
 	attributes:all_attvars(Vs0),
 	call(Goal),
 	attributes:all_attvars(Vs),
@@ -586,12 +575,49 @@ call_residue_vars(Goal,Vars) :-
 	;
 	  '$ord_remove'([V1|Vss], Vs0s, Residue)
 	).
-*/
 
 copy_term(Term, Copy, Goals) :-
 	term_variables(Term, TVars),
 	'$get_goalist_from_attvars'(TVars, Goals0),
 	copy_term_nat([Term|Goals0], [Copy|Goals]).
+
+call_residue(Goal,Residue) :-
+	var(Goal), !,
+	'$do_error'(instantiation_error,call_residue(Goal,Residue)).
+call_residue(Module:Goal,Residue) :-
+	atom(Module), !,
+	'$call_residue'(Goal,Module,Residue).
+call_residue(Goal,Residue) :-
+	'$current_module'(Module),
+	'$call_residue'(Goal,Module,Residue).
+
+'$call_residue'(Goal,Module,Residue) :-
+	'$read_svar_list'(OldAttsList),
+	copy_term_nat(Goal, NGoal),
+	( '$set_svar_list'(CurrentAttsList),
+	  '$system_catch'(NGoal,Module,Error,'$residue_catch_trap'(Error,OldAttsList)),
+	  '$project_and_delayed_goals'(NGoal,Residue0),
+	  '$add_vs_to_vlist'(Residue0, Residue),
+	  ( '$set_svar_list'(OldAttsList),
+	    copy_term_nat(NGoal+NResidue, Goal+Residue)
+	  ;
+	    '$set_svar_list'(CurrentAttsList), fail
+	  )
+	;
+          '$set_svar_list'(OldAttsList), fail
+        ).
+
+'$add_vs_to_vlist'([], []).
+'$add_vs_to_vlist'([G|Residue0], [Vs-G|Residue]) :-
+	term_variables(G, TVs),
+	'$pick_att_vars'(TVs, Vs),
+	'$add_vs_to_vlist'(Residue0, Residue).
+
+
+% make sure we set the suspended goal list to its previous state!
+'$residue_catch_trap'(Error,OldAttsList) :-
+	'$set_svar_list'(OldAttsList),
+	throw(Error).
 
 % make sure we have installed a SICStus like constraint solver.
 '$project_attributes'(_, _) :-

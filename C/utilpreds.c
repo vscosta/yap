@@ -69,8 +69,11 @@ clean_dirty_tr(tr_fr_ptr TR0) {
 	RESET_VARIABLE(p);
       } else {
 	/* copy downwards */
+#ifdef FROZEN_STACKS
+#else
 	TrailTerm(TR0+1) = TrailTerm(pt);
 	TrailTerm(TR0) = TrailTerm(TR0+2) = p;
+#endif
 	pt+=2;
 	TR0 += 3;
       }
@@ -89,7 +92,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
 #ifdef COROUTINING
-  CELL *dvars = NULL;
+  CELL *dvarsmin = NULL, *dvarsmax=NULL;
 #endif
 
   HB = HLow;
@@ -251,32 +254,25 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 #if COROUTINING
       if (newattvs && IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
-	struct cp_frame *bp[1];
+	struct cp_frame *bp;
 
-	if (dvars == NULL) {
-	  dvars = H0;
-	} 	
-	if (ptd0 < dvars) {
+	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
 	  *ptf++ = (CELL) ptd0;
 	} else {
-	  tr_fr_ptr CurTR;
+	  CELL new;
 
-	  CurTR = TR;
-	  bp[0] = to_visit;
-	  HB = HB0;
-	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, bp, ptf)) {
+	  bp = to_visit;
+	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf)) {
 	    goto overflow;
 	  }
-	  to_visit = bp[0];
-	  HB = HLow;
-	  ptf++;
-	  if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
-	    /* Trail overflow */
-	    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-	      goto trail_overflow;
-	    }
+	  to_visit = bp;
+	  new = *ptf;
+	  Bind(ptd0, new);
+	  if (dvarsmin == NULL) {
+	    dvarsmin = CellPtr(new);
 	  }
-	  Bind(ptd0, ptf[-1]);
+	  dvarsmax = CellPtr(new)+1;
+	  ptf++;
 	}
       } else {
 #endif
@@ -288,8 +284,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    goto trail_overflow;
 	  }
 	}
-	Bind(ptd0, (CELL)ptf);
-	ptf++;
+	Bind(ptd0, (CELL)ptf++);
 #ifdef COROUTINING
       }
 #endif
@@ -320,8 +315,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   }
 
   /* restore our nice, friendly, term to its original state */
-  HB = HB0;
   clean_dirty_tr(TR0);
+  HB = HB0;
   return ground;
 
  overflow:
@@ -521,7 +516,7 @@ Yap_CopyTermNoShare(Term inp) {
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-  Term t = CopyTerm(ARG1, 2, TRUE, TRUE); 
+v  Term t = CopyTerm(ARG1, 2, TRUE, TRUE); 
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */
