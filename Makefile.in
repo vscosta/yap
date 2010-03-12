@@ -210,7 +210,10 @@ C_SOURCES= \
 	$(srcdir)/MYDDAS/myddas_wkb2prolog.c
 
 PL_SOURCES= \
-	$(srcdir)/pl/arith.yap $(srcdir)/pl/arrays.yap $(srcdir)/pl/boot.yap \
+	$(srcdir)/pl/arith.yap \
+	$(srcdir)/pl/arrays.yap \
+	$(srcdir)/pl/attributes.yap \
+	$(srcdir)/pl/boot.yap \
 	$(srcdir)/pl/callcount.yap\
 	$(srcdir)/pl/checker.yap $(srcdir)/pl/chtypes.yap \
 	$(srcdir)/pl/consult.yap \

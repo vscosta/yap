@@ -83,7 +83,6 @@ lists:append([H|T], L, [H|R]) :-
 	 'eam.yap',
 	 'chtypes.yap',
 	 'yapor.yap',
-         'attributes.yap',
          'udi.yap'].
 
 :- dynamic prolog:'$user_defined_flag'/4.
@@ -126,14 +125,17 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 
 :- dynamic 'extensions_to_present_answer'/1.
 
-:- 	['corout.yap',
-	 'arrays.yap'].
+:- 	['arrays.yap'].
 
 :- use_module('messages.yap').
 :- use_module('hacks.yap').
+:- use_module('attributes.yap').
+:- use_module('corout.yap').
 
 '$system_module'('$messages').
 '$system_module'('$hacks').
+'$system_module'('$attributes').
+'$system_module'('$coroutining').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
