@@ -90,14 +90,8 @@ execute_continuation(Continuation, Mod) :-
 
 
 execute_woken_system_goals([]).
-execute_woken_system_goals([G|LG]) :-
+execute_woken_system_goals(['$att_do'(V,New)|LG]) :-
 	execute_woken_system_goals(LG),
-	execute_woken_system_goal(G).
-
-%
-% X surely was bound, otherwise we would not be awaken.
-%
-execute_woken_system_goal('$att_do'(V,New)) :-
 	call_atts(V,New).
 
 %
@@ -190,14 +184,14 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	call(Module:Goal).
 
-% called by top_level to find out about delayed goals
 project_delayed_goals(G,LGs) :-
-	% SICStus compatible step,
-	% just try to simplify store  by projecting constraints
-	% over query variables.
 	(
 	 current_predicate(attributes:modules_with_attributes/1), false
 	->
+% SICStus compatible step,
+% just try to simplify store  by projecting constraints
+% over query variables.
+% called by top_level to find out about delayed goals
 	 attributes:all_attvars(LAV),
 	 LAV = [_|_],
 	 !,
