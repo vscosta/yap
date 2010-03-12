@@ -37,16 +37,30 @@
 	   '$show_frozen_goals'(Level))).
 
 '$project_and_delayed_goals'(G,LGs) :-
-	attributes:all_attvars(LAV),
+	'$attributed'(G, LAV),
+%	attributes:all_attvars(LAV),
 	LAV = [_|_], !,
 	% SICStus compatible step,
 	% just try to simplify store  by projecting constraints
 	% over query variables.
 	'$project_attributes'(LAV, G),
 	% now get a list of frozen goals.
-	attributes:all_attvars(NLAV),
+	'$attributed'(G, NLAV),
+%	attributes:all_attvars(NLAV),
 	'$get_goalist_from_attvars'(NLAV, LGs).
 '$project_and_delayed_goals'(_,[]).
+
+
+'$attributed'(G, Vs) :-
+	term_variables(G, LAV),
+	'$find_att_vars'(LAV, Vs).
+
+'$check_atts'([], []).
+'$check_atts'(V.LAV, V.Vs) :-
+	attvar(V), !,
+	'$check_atts'(LAV, Vs).
+'$check_atts'(_.LAV, Vs) :-
+	'$check_atts'(LAV, Vs).
 
 
 %
