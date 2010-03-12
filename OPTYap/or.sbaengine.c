@@ -103,9 +103,9 @@ void make_root_choice_point(void) {
   LOCAL_load = 0;
   LOCAL_prune_request = NULL;
   BRANCH(worker_id, 0) = 0;
-  H_FZ = H_BASE;
-  B_FZ = B_BASE;
-  TR_FZ = TR_BASE;
+  H_FZ = (CELL *) Yap_GlobalBase;
+  B_FZ = (choiceptr) Yap_LocalBase;
+  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
 }
 
 
@@ -113,10 +113,10 @@ void free_root_choice_point(void) {
   reset_trail(LOCAL_top_cp->cp_tr, TR);
   TR = LOCAL_top_cp->cp_tr;
   B = LOCAL_top_cp->cp_b;
-  LOCAL_top_cp = B_BASE;
-  H_FZ = H_BASE;
-  B_FZ = B_BASE;
-  TR_FZ = TR_BASE;
+  LOCAL_top_cp = (choiceptr) Yap_LocalBase;
+  H_FZ = (CELL *) Yap_GlobalBase;
+  B_FZ = (choiceptr) Yap_LocalBase;
+  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
 }
 
 

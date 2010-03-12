@@ -1614,8 +1614,8 @@ Yap_InitYaamRegs(void)
 #ifdef SBA
   BSEG =
 #endif /* SBA */
-  BBREG = B_FZ = B_BASE;
-  TR = TR_FZ = TR_BASE;
+  BBREG = B_FZ = (choiceptr) Yap_LocalBase;
+  TR = TR_FZ = (tr_fr_ptr) Yap_TrailBase;
 #endif /* FROZEN_STACKS */
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();

@@ -96,11 +96,11 @@ void make_root_choice_point(void) {
 void free_root_choice_point(void) {
   B = Get_LOCAL_top_cp()->cp_b;
 #ifdef TABLING
-  Set_LOCAL_top_cp_on_stack(B_BASE);
+  Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase);
 #endif /* TABLING */
-  Set_GLOBAL_root_cp( B_BASE );
-  Set_LOCAL_top_cp( B_BASE );
-  SetOrFr_node(GLOBAL_root_or_fr, B_BASE);
+  Set_GLOBAL_root_cp((choiceptr) Yap_LocalBase);
+  Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
+  SetOrFr_node(GLOBAL_root_or_fr, (choiceptr) Yap_LocalBase);
   return;
 }
 

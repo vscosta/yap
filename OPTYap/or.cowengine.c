@@ -79,7 +79,7 @@ void make_root_choice_point(void) {
 
 void free_root_choice_point(void) {
   B = LOCAL_top_cp->cp_b;
-  LOCAL_top_cp = B_BASE;
+  LOCAL_top_cp = (choiceptr) Yap_LocalBase;
   return;
 }
 
