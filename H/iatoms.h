@@ -374,7 +374,7 @@
   FunctorMultiFileClause = Yap_MkFunctor(AtomMfClause,5);
   FunctorMutable = Yap_MkFunctor(AtomMutableVariable,(sizeof(timed_var)/sizeof(CELL)));
   FunctorNotImplemented = Yap_MkFunctor(AtomNotImplemented,2);
-  FunctorNBQueue = Yap_MkFunctor(AtomQueue,5);
+  FunctorNBQueue = Yap_MkFunctor(AtomQueue,4);
   FunctorNot = Yap_MkFunctor(AtomNot,1);
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);

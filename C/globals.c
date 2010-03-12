@@ -32,10 +32,14 @@ static char SccsId[] = "%W% %G%";
 
  */
 
+#define QUEUE_FUNCTOR_ARITY 4
+
 #define QUEUE_ARENA 0
 #define QUEUE_HEAD 1
 #define QUEUE_TAIL 2
 #define QUEUE_SIZE 3
+
+#define HEAP_FUNCTOR_MIN_ARITY
 
 #define HEAP_SIZE  0
 #define HEAP_MAX   1
@@ -1305,7 +1309,7 @@ p_nb_create2(void)
 static Int 
 nb_queue(UInt arena_sz)
 {
-  Term queue_arena, queue, ar[5], *nar;
+  Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
   Term t = Deref(ARG1);
 
   DepthArenas++;
@@ -1320,7 +1324,7 @@ nb_queue(UInt arena_sz)
     ar[QUEUE_TAIL] =
     ar[QUEUE_SIZE] =
     MkIntTerm(0);
-  queue = Yap_MkApplTerm(FunctorNBQueue,5,ar);
+  queue = Yap_MkApplTerm(FunctorNBQueue,QUEUE_FUNCTOR_ARITY,ar);
   if (!Yap_unify(queue,ARG1))
     return FALSE;
   if (arena_sz < 4*1024)
@@ -1419,7 +1423,7 @@ p_nb_queue_close(void)
   Term t = Deref(ARG1);
   Int out;
 
- DepthArenas--;
+  DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
 
@@ -1907,7 +1911,7 @@ p_nb_beam(void)
     hsize = IntegerOfTerm(tsize);
   }
   while ((beam = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,5*hsize+HEAP_START+1),5*hsize+HEAP_START+1)) == TermNil) {
-    if (!Yap_gcl((5*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
+    if (!Yap_gcl((4*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
