@@ -65,18 +65,7 @@ clean_dirty_tr(tr_fr_ptr TR0) {
 
     do {
       Term p = TrailTerm(pt++);
-      if (IsVarTerm(p)) {
-	RESET_VARIABLE(p);
-      } else {
-	/* copy downwards */
-#ifdef FROZEN_STACKS
-#else
-	TrailTerm(TR0+1) = TrailTerm(pt);
-	TrailTerm(TR0) = TrailTerm(TR0+2) = p;
-#endif
-	pt+=2;
-	TR0 += 3;
-      }
+      RESET_VARIABLE(p);
     } while (pt != TR);
     TR = TR0;
   }
@@ -270,6 +259,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	  Bind(ptd0, new);
 	  if (dvarsmin == NULL) {
 	    dvarsmin = CellPtr(new);
+	  } else {
+	    *dvarsmax = (CELL)(CellPtr(new)+1);
 	  }
 	  dvarsmax = CellPtr(new)+1;
 	  ptf++;
@@ -316,7 +307,23 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 
   /* restore our nice, friendly, term to its original state */
   clean_dirty_tr(TR0);
-  HB = HB0;
+  /* follow chain of multi-assigned variables */
+  if (dvarsmin) {
+    fprintf(stderr,"%ld--%ld\n", dvarsmin-H0,dvarsmax-H0);
+    dvarsmin += 1;
+    do {
+      CELL *newv;
+      fprintf(stderr,"mabind %ld %p %p\n", dvarsmin-H0, TR, dvarsmin+1);
+      Bind(dvarsmin+1, dvarsmin[1]);
+      fprintf(stderr,"redone %p\n", TR);
+      if (IsUnboundVar(dvarsmin))
+	break;
+      newv = CellPtr(*dvarsmin);
+      RESET_VARIABLE(dvarsmin);
+      dvarsmin = newv;
+    } while (TRUE);
+    HB = HB0;
+  }
   return ground;
 
  overflow:
@@ -516,7 +523,7 @@ Yap_CopyTermNoShare(Term inp) {
 static Int 
 p_copy_term(void)		/* copy term t to a new instance  */
 {
-v  Term t = CopyTerm(ARG1, 2, TRUE, TRUE); 
+  Term t = CopyTerm(ARG1, 2, TRUE, TRUE); 
   if (t == 0L)
     return FALSE;
   /* be careful, there may be a stack shift here */

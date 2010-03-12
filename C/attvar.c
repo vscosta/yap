@@ -96,7 +96,7 @@ CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res)
   to_visit->start_cp = vt-1;
   to_visit->end_cp = vt;
   if (IsVarTerm(attv->Atts)) {
-    newv->Atts = (CELL)H;
+    Bind(&newv->Atts, (CELL)H);
     to_visit->to = H;
     H++;
   } else {
@@ -123,7 +123,7 @@ TermToAttVar(Term attvar, Term to)
   attvar_record *attv = BuildNewAttVar();
   if (!attv)
     return FALSE;
-  attv->Atts = attvar;
+  Bind(&attv->Atts, attvar);
   *VarOfTerm(to) = AbsAttVar(attv);
   return TRUE;
 }
@@ -254,11 +254,7 @@ AddNewModule(attvar_record *attv, Term t, int new, int do_it)
   if (!do_it)
     return;
   if (IsVarTerm(attv->Atts)) {
-    if (new) {
-      attv->Atts = t;
-    } else {
-      Bind(&(attv->Atts),t);
-    }
+    Bind(&(attv->Atts),t);
   } else {
     Term *wherep = &attv->Atts;
 
@@ -480,7 +476,7 @@ p_put_att_term(void) {
     }
     if (new) {
       Bind(VarOfTerm(inp), AbsAttVar(attv));
-      attv->Atts = Deref(ARG2);
+      Bind(&attv->Atts, Deref(ARG2));
     } else {
       MaBind(&(attv->Atts), Deref(ARG2));
     }

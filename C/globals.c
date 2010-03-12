@@ -224,12 +224,17 @@ Yap_GetFromArena(Term *arenap, UInt cells, UInt arity)
     CELL *newH;
     UInt old_sz = ArenaSz(arena), new_size;
 
+    if (IN_BETWEEN(base, H, max)) {
+      base = H;
+      H += cells;
+      return base;
+    }
     if (base+cells > ASP-1024) {
       if (!GrowArena(arena, max, old_sz, old_sz+sizeof(CELL)*1024, arity))
 	return NULL;
       goto restart;
     }
-  
+
     newH = base+cells;
     new_size = old_sz - cells;
     *arenap = CreateNewArena(newH, new_size);
@@ -280,6 +285,9 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
+#ifdef COROUTINING
+  CELL *dvarsmin = NULL, *dvarsmax=NULL;
+#endif
 
   HB = HLow;
   to_visit0 = to_visit;
@@ -455,52 +463,50 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (IsAttVar(ptd0) && copy_att_vars) {
-	attvar_record *newv =  (attvar_record *)H;
-	newv->AttFunc = FunctorAttVar;
-	RESET_VARIABLE(&newv->Done);
-	*ptf = AbsAttVar(newv);
-	ptf++;
-	/* store the terms to visit */
-#ifdef RATIONAL_TREES
-	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
-	  goto heap_overflow;
-	}
-	to_visit->start_cp = pt0;
-	to_visit->end_cp = pt0_end;
-	to_visit->to = ptf;
-	to_visit->oldv = *pt0;
-	to_visit->ground = ground;
-	/* fool the system into thinking we had a variable there */
-	*pt0 = AbsAppl(H);
-	to_visit ++;
-#else
-	if (pt0 < pt0_end) {
-	  if (to_visit ++ >= (CELL **)AuxSp) {
-	    goto heap_overflow;
+      if (copy_att_vars && IsAttachedTerm((CELL)ptd0)) {
+	/* if unbound, call the standard copy term routine */
+	struct cp_frame *bp;
+
+	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
+	  *ptf++ = (CELL) ptd0;
+	} else {
+	  CELL new;
+
+	  bp = to_visit;
+	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf)) {
+	    goto overflow;
 	  }
-	  to_visit->start_cp = pt0;
-	  to_visit->end_cp = pt0_end;
-	  to_visit->to = ptf;
-	  to_visit->ground = ground;
-	  to_visit ++;
-	}
-#endif
-	pt0 = ptd0+(1-1);
-	pt0_end = ptd0 + (ATT_RECORD_ARITY-1);
-	/* store the functor for the new term */
-	ptf = H+2;
-	H = CellPtr(newv+1);
-	if (H > ASP - MIN_ARENA_SIZE) {
-	  goto overflow;
+	  to_visit = bp;
+	  new = *ptf;
+	  if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	    /* Trail overflow */
+	    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	      goto trail_overflow;
+	    }
+	  }
+	  Bind_and_Trail(ptd0, new);
+	  if (dvarsmin == NULL) {
+	    dvarsmin = CellPtr(new);
+	  } else {
+	    *dvarsmax = (CELL)(CellPtr(new)+1);
+	  }
+	  dvarsmax = CellPtr(new)+1;
+	  ptf++;
 	}
       } else {
-	*ptf++ = d0;
+#endif
+	/* first time we met this term */
+	RESET_VARIABLE(ptf);
+	if ((ADDR)TR > Yap_TrailTop-MIN_ARENA_SIZE)
+	  goto trail_overflow;
+	Bind_and_Trail(ptd0, (CELL)ptf);
+	ptf++;
+#ifdef COROUTINING
       }
-      continue;
 #endif
     }
   }
+
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
     to_visit --;
@@ -554,6 +560,24 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 #endif
   reset_trail(TR0);
   return -2;
+
+ trail_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit--;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  return -4;
 }
 
 static Term
