@@ -35,6 +35,7 @@ STD_PROTO(static inline void free_subgoal_trie_hash_chain, (sg_hash_ptr));
 STD_PROTO(static inline void free_answer_trie_hash_chain, (ans_hash_ptr));
 STD_PROTO(static inline choiceptr freeze_current_cp, (void));
 STD_PROTO(static inline void resume_frozen_cp, (choiceptr));
+STD_PROTO(static inline void abolish_all_frozen_cps, (void));
 
 #ifdef YAPOR
 STD_PROTO(static inline void pruning_over_tabling_data_structures, (void));
@@ -811,6 +812,15 @@ void resume_frozen_cp(choiceptr frozen_cp) {
   B = frozen_cp;
   TR = TR_FZ;
   TRAIL_LINK(B->cp_tr);
+  return;
+}
+
+
+static inline
+void abolish_all_frozen_cps(void) {
+  B_FZ  = B_BASE;
+  H_FZ  = H_BASE;
+  TR_FZ = TR_BASE;
   return;
 }
 

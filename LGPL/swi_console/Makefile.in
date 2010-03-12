@@ -3,6 +3,7 @@
 # (EROOT for architecture-dependent files)
 #
 prefix = @prefix@
+exec_prefix = @exec_prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 #
