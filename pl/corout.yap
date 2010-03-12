@@ -16,12 +16,14 @@
 *************************************************************************/
 
 
+:- module('$coroutining',[
+			  op(1150, fx, block)
 				%dif/2,
 				%when/2,
 				%block/1,
 				%wait/1,
 				%frozen/2
-:- module('$coroutining',[]).
+			 ]).
 
 
 attr_unify_hook(DelayList, _) :-
@@ -62,8 +64,6 @@ attgoal_for_delay(_, V) --> [].
 				%
 % operators defined in this module:
 %
-:- op(1150, fx, block).
-
 prolog:freeze(V, G) :-
 	var(V), !,
 	freeze_goal(V,G).
