@@ -3448,7 +3448,7 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
-	  } else {
+	  } else if (f == FunctorDouble) {
 	    CELL *pt = RepAppl(sp->extra);
 	    if (cls->u.t_ptr) {
 	      CELL *pt1 = RepAppl(cls->u.t_ptr);
@@ -3461,6 +3461,12 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 #endif
 	      if (t != t1) break;
 	    }
+	  } else {
+	    CELL *pt = RepAppl(sp->extra);
+	    CELL *pt1 = RepAppl(cls->u.t_ptr);
+	    Term t = MkIntTerm(pt[1] & (MAX_ABS_INT-1)),
+	      t1 = MkIntTerm(pt1[1] & (MAX_ABS_INT-1));
+	    if (t != t1) break;
 	  }
 	}
       }
@@ -3610,7 +3616,7 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	if (IsExtensionFunctor(f)) {
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
-	  } else {
+	  } else if (f == FunctorDouble) {
 	    CELL *pt = RepAppl(sp->extra);
 	    CELL *pt1 = RepAppl(cls->u.t_ptr);
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
@@ -3620,6 +3626,12 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	    Term t = MkIntTerm(pt[1]),
 	      t1 = MkIntTerm(pt1[1]);
 #endif
+	    if (t != t1) break;
+	  } else {
+	    CELL *pt = RepAppl(sp->extra);
+	    CELL *pt1 = RepAppl(cls->u.t_ptr);
+	    Term t = MkIntTerm(pt[1] & (MAX_ABS_INT-1)),
+	      t1 = MkIntTerm(pt1[1] & (MAX_ABS_INT-1));
 	    if (t != t1) break;
 	  }
 	}
