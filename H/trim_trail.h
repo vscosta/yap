@@ -27,7 +27,7 @@
 	    /* skip, this is a problem because we lose information,
 	       namely active references */
 	    pt1 = (tr_fr_ptr)pt;
-	  } else if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
+	  } else if (IsAttVar(pt)) {
 	    CELL val = Deref(*pt);
 	    if (IsVarTerm(val)) {
 	      Bind(pt, MkAtomTerm(AtomCut));
@@ -130,7 +130,7 @@
       } else if (IsPairTerm(d1)) {
 	CELL *pt = RepPair(d1);
 	      
-	if (IN_BETWEEN(Yap_GlobalBase, pt, H0)) {
+	if (IsAttVar(pt)) {
 	  CELL val = Deref(*pt);
 	  if (IsVarTerm(val)) {
 	    Bind(VarOfTerm(val), MkAtomTerm(AtomCut));
