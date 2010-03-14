@@ -39,6 +39,7 @@
 '$hide'('$stream') :- !, fail.			/* not $STREAM */
 '$hide'('$stream_position') :- !, fail.		/* not stream position */
 '$hide'('$hacks') :- !, fail.			
+'$hide'('$source_location') :- !, fail.			
 '$hide'('$messages') :- !, fail.		
 '$hide'(Name) :- hide(Name), fail.
 
