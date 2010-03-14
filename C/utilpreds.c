@@ -309,13 +309,10 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   clean_dirty_tr(TR0);
   /* follow chain of multi-assigned variables */
   if (dvarsmin) {
-    fprintf(stderr,"%ld--%ld\n", dvarsmin-H0,dvarsmax-H0);
     dvarsmin += 1;
     do {
       CELL *newv;
-      fprintf(stderr,"mabind %ld %p %p\n", dvarsmin-H0, TR, dvarsmin+1);
       Bind(dvarsmin+1, dvarsmin[1]);
-      fprintf(stderr,"redone %p\n", TR);
       if (IsUnboundVar(dvarsmin))
 	break;
       newv = CellPtr(*dvarsmin);
