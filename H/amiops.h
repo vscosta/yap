@@ -354,7 +354,7 @@ Binding Macros for Multiple Assignment Variables.
 
 #define BIND_GLOBALCELL(A,D)    *(A) = (D); \
 				if ((A) >= HBREG) continue; \
-                                TRAIL_GLOBAL(A,D); if ((A) >= H0) continue; \
+                                TRAIL_GLOBAL(A,D); if (!IsAttVar(A)) continue; \
                                 Yap_WakeUp((A)); continue
 
 #define BIND_GLOBALCELL_NONATT(A,D)    *(A) = (D); \
@@ -502,7 +502,7 @@ Yap_unify_constant(register Term a, register Term cons)
   BIND(pt,cons,wake_for_cons);
 #ifdef COROUTINING
   DO_TRAIL(pt, cons);
-  if (pt < H0) Yap_WakeUp(pt);
+  if (IsAttVar(pt)) Yap_WakeUp(pt);
  wake_for_cons:
 #endif
   return(TRUE);

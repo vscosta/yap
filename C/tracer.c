@@ -113,7 +113,7 @@ check_trail_consistency(void) {
       } else {
 	if (IsPairTerm(TrailTerm(ptr))) {
 	  CELL *p = RepPair(TrailTerm(ptr));
-	  if (p < H0) continue;
+	  if IsAttVar(p) continue;
 	}
 	printf("Oops at call %ld, B->cp(%p) TR(%p)  pt(%p)\n", vsc_count,B->cp_tr, TR, ptr);
 	return(FALSE);
