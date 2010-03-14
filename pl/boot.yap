@@ -401,6 +401,8 @@ true :- true.
 	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
 	 '$enter_system_mode'.
 
+ '$continue_with_command'(Where,V,'$stream_position'(C,_P,A1,A2,A3),'$source_location'(_F,L):G,Source) :- !,
+	  '$continue_with_command'(Where,V,'$stream_position'(C,L,A1,A2,A3),G,Source).
  '$continue_with_command'(reconsult,V,Pos,G,Source) :-
 	 '$go_compile_clause'(G,V,Pos,5,Source),
 	 fail.
