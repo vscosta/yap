@@ -71,6 +71,7 @@ clean_dirty_tr(tr_fr_ptr TR0) {
   }
 }
 
+int show;
 
 static int
 copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, CELL *HLow)
@@ -91,6 +92,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
     register CELL d0;
     register CELL *ptd0;
     ++ pt0;
+    if (show) fprintf(stderr,"pt0=%p\n",pt0);
     ptd0 = pt0;
     d0 = *ptd0;
     deref_head(d0, copy_term_unk);
@@ -142,6 +144,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	register CELL *ap2;
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
+	if (show) fprintf(stderr,"d0=%lx %p %lx\n",d0,ap2,*ap2);
 	if (ap2 >= HB && ap2 <= H) {
 	  /* If this is newer than the current term, just reuse */
 	  *ptf++ = d0;
@@ -275,7 +278,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    goto trail_overflow;
 	  }
 	}
-	Bind(ptd0, (CELL)ptf++);
+	Bind(ptd0, (CELL)ptf);
+	ptf++;
 #ifdef COROUTINING
       }
 #endif
