@@ -122,7 +122,8 @@ bagof(Template, Generator, Bag) :-
 % The fourth gives the free variables being currently used.
 % The fifth  outputs the current solution.
 %
-'$decide'([], Bag, Key, Key, Bag) :- !.
+'$decide'([], Bag, Key0, Key, Bag) :- !,
+	Key0=Key.
 '$decide'(_, Bag, Key, Key, Bag).
 '$decide'(Bags, _, _, Key, Bag) :-
 	'$pick'(Bags, Key, Bag).
