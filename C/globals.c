@@ -527,6 +527,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   clean_dirty_tr(TR0);
+  /* follow chain of multi-assigned variables */
+  close_attvar_chain(dvarsmin, dvarsmax);
   return 0;
 
  overflow:
@@ -545,6 +547,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
  heap_overflow:
@@ -563,6 +566,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -2;
 
  trail_overflow:
@@ -581,6 +585,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -4;
 }
 

@@ -307,20 +307,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 
   /* restore our nice, friendly, term to its original state */
   clean_dirty_tr(TR0);
-  /* follow chain of multi-assigned variables */
-  if (dvarsmin) {
-    dvarsmin += 1;
-    do {
-      CELL *newv;
-      Bind(dvarsmin+1, dvarsmin[1]);
-      if (IsUnboundVar(dvarsmin))
-	break;
-      newv = CellPtr(*dvarsmin);
-      RESET_VARIABLE(dvarsmin);
-      dvarsmin = newv;
-    } while (TRUE);
-    HB = HB0;
-  }
+  close_attvar_chain(dvarsmin, dvarsmax);
+  HB = HB0;
   return ground;
 
  overflow:
@@ -339,6 +327,8 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   }
 #endif
   reset_trail(TR0);
+  /* follow chain of multi-assigned variables */
+  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
 trail_overflow:
@@ -359,6 +349,7 @@ trail_overflow:
   {
     tr_fr_ptr oTR =  TR;
     reset_trail(TR0);
+    reset_attvars(dvarsmin, dvarsmax);
     if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
       return -4;
     }
@@ -381,6 +372,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }

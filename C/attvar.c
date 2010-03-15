@@ -137,6 +137,10 @@ WakeAttVar(CELL* pt1, CELL reg2)
   CELL *myH = H;
   CELL *bind_ptr;
 
+  if (IsVarTerm(Deref(attv->Atts))) {
+    /* no attributes to wake */
+    return;
+  }
   if (IsVarTerm(reg2)) {
     if (pt1 == VarOfTerm(reg2))
       return;
