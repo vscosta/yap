@@ -267,10 +267,21 @@ select(Element, [Head|Tail], [Head|Rest]) :-
 %   sublist(Sublist, List)
 %   is true when both append(_,Sublist,S) and append(S,_,List) hold.
 
-sublist(Sublist, List) :-
-	prefix(Sublist, List).
-sublist(Sublist, [_|List]) :-
-	sublist(Sublist, List).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%	sublist(?Sub, +List) is nondet.
+%
+%	True if all elements of Sub appear in List in the same order.
+
+sublist(L, L).
+sublist(Sub, [H|T]) :-
+	'$sublist1'(T, H, Sub).
+
+'$sublist1'(Sub, _, Sub).
+'$sublist1'([H|T], _, Sub) :-
+	'$sublist1'(T, H, Sub).
+'$sublist1'([H|T], X, [X|Sub]) :-
+	'$sublist1'(T, H, Sub).
 
 %   substitute(X, XList, Y, YList)
 %   is true when XList and YList only differ in that the elements X in XList

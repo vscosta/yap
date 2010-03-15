@@ -44,17 +44,27 @@
 typedef enum
 {
   db_ref_e = sizeof (Functor *),
-  long_int_e = 2 * sizeof (Functor *),
-  big_int_e = 3 * sizeof (Functor *),
-  double_e = 4 * sizeof (Functor *)
+  attvar_e = 2*sizeof (Functor *),
+  long_int_e = 3 * sizeof (Functor *),
+  big_int_e = 4 * sizeof (Functor *),
+  double_e = 5 * sizeof (Functor *)
 }
 blob_type;
 
 #define   FunctorDBRef    ((Functor)(db_ref_e))
+#define   FunctorAttVar   ((Functor)(attvar_e))
 #define   FunctorLongInt  ((Functor)(long_int_e))
 #define   FunctorBigInt   ((Functor)(big_int_e))
 #define   FunctorDouble   ((Functor)(double_e))
 #define   EndSpecials     (double_e+sizeof(Functor *))
+
+inline EXTERN int IsAttVar (CELL *pt);
+
+inline EXTERN int
+IsAttVar (CELL *pt)
+{
+  return (pt)[-1] == (CELL)attvar_e;
+}
 
 typedef enum
   {
@@ -450,7 +460,7 @@ inline EXTERN Int IsAttachedTerm (Term);
 inline EXTERN Int
 IsAttachedTerm (Term t)
 {
-  return (Int) ((IsVarTerm (t) && VarOfTerm (t) < H0));
+  return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
 
 
@@ -461,8 +471,7 @@ inline EXTERN Int SafeIsAttachedTerm (Term);
 inline EXTERN Int
 SafeIsAttachedTerm (Term t)
 {
-  return (Int) ((IsVarTerm (t) && VarOfTerm (t) < H0
-		 && VarOfTerm (t) >= (CELL *) Yap_GlobalBase));
+  return (Int) (IsVarTerm (t) && IsAttVar(VarOfTerm(t)));
 }
 
 
@@ -515,6 +524,8 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
   switch (BlobOfFunctor (f))
     {
     case db_ref_e:
+      return (d0 == d1);
+    case attvar_e:
       return (d0 == d1);
     case long_int_e:
       return (pt0[1] == RepAppl (d1)[1]);

@@ -409,9 +409,6 @@ save_regs(int mode)
     putcellptr((CELL *)P);
     putout(CreepFlag);
     putout(EX);
-#ifdef COROUTINING
-    putout(DelayedVars);
-#endif
 #if defined(SBA) || defined(TABLING)
     putcellptr(H_FZ);
     putcellptr((CELL *)B_FZ);
@@ -807,11 +804,6 @@ get_regs(int flag)
     EX = get_cell();
     if (Yap_ErrorMessage)
       return -1;
-#ifdef COROUTINING
-    DelayedVars = get_cell();
-    if (Yap_ErrorMessage)
-      return -1;
-#endif
 #if defined(SBA) || defined(TABLING)
     H_FZ = get_cellptr();
     if (Yap_ErrorMessage)
@@ -1035,12 +1027,7 @@ restore_regs(int flag)
     S = PtoGloAdjust(S);
     if (EX)
       EX = AbsAppl(PtoGloAdjust(RepAppl(EX)));
-#ifdef COROUTINING
-    DelayedVars = AbsAppl(PtoGloAdjust(RepAppl(DelayedVars)));
-#ifdef MULTI_ASSIGNMENT_VARIABLES
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
-#endif
-#endif
   }
 }
 

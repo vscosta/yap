@@ -2347,7 +2347,6 @@ static int
 copy_attachments(CELL *ts)
 {
   /* we will change delayed vars, and that also means the trail */
-  Term orig = Yap_ReadTimedVar(DelayedVars);
   tr_fr_ptr tr0 = TR;
 
   while (TRUE) {
@@ -2356,7 +2355,6 @@ copy_attachments(CELL *ts)
     if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
       /* reset queue of woken up goals */
-      Yap_UpdateTimedVar(DelayedVars, orig);      
       TR = tr0;
       return FALSE;
     }

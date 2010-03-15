@@ -91,7 +91,6 @@ typedef struct restore_info {
   CELL    *g_split;
   tr_fr_ptr old_TR;  
   CELL    *old_GlobalBase, *old_H, *old_H0;
-  CELL    *old_DelayTop, *current_DelayTop;
   ADDR     old_TrailBase, old_TrailTop;
   ADDR     old_HeapBase, old_HeapTop;
 } restoreinfo;
@@ -183,7 +182,6 @@ typedef struct worker_local_struct {
   int allow_restart;
   Term global_arena;
   UInt global_arena_overflows; 
-  Term global_delay_arena;
   yamop trust_lu_code[3];
 #if (defined(YAPOR) || defined(TABLING) ) && defined(THREADS)
 #ifdef YAPOR
@@ -293,8 +291,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  OldTrailTop              RINFO.old_TrailTop
 #define  OldHeapBase              RINFO.old_HeapBase
 #define  OldHeapTop               RINFO.old_HeapTop
-#define  OldDelayTop              RINFO.old_DelayTop
-#define  CurrentDelayTop          RINFO.current_DelayTop
 #define  ClDiff                   RINFO.cl_diff
 #define  GDiff                    RINFO.g_diff
 #define  GDiff0                   RINFO.g_diff0
@@ -360,7 +356,6 @@ extern struct various_codes *Yap_heap_regs;
 #define  GlobalArena              Yap_heap_regs->WL.global_arena
 #define  GlobalArenaOverflows     Yap_heap_regs->WL.global_arena_overflows
 #define  Yap_AllowRestart         Yap_heap_regs->WL.allow_restart
-#define  GlobalDelayArena         Yap_heap_regs->WL.global_delay_arena
 
 #define  PredHashInitialSize      1039L
 #define  PredHashIncrement        7919L

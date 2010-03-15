@@ -322,11 +322,7 @@ mark_global(void)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-#if COROUTINING
-  pt = (CELL *)DelayTop();
-#else
   pt = H0;
-#endif
   while (pt < H) {
     pt = mark_global_cell(pt);
   }

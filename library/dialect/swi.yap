@@ -15,8 +15,6 @@
 
 :- set_prolog_flag(user_flags,silent).
 
-:- ensure_loaded(library(atts)).
-
 :- use_module(library(charsio),[write_to_chars/2,read_from_chars/2]).
 
 :- use_module(library(lists),[append/2,
@@ -267,38 +265,6 @@ slp(T) :- sleep(T).
 
 prolog:sleep(T) :-
 	slp(T).
-
-% SWI has a dynamic attribute scheme
-
-prolog:get_attr(Var, Mod, Att) :-
-	functor(AttTerm, Mod, 2),
-	arg(2, AttTerm, Att),
-	attributes:get_module_atts(Var, AttTerm).
-
-prolog:put_attr(Var, Mod, Att) :-
-	functor(AttTerm, Mod, 2),
-	arg(2, AttTerm, Att),
-	attributes:put_module_atts(Var, AttTerm).
-
-prolog:del_attr(Var, Mod) :-
-	functor(AttTerm, Mod, 2),
-	attributes:del_all_module_atts(Var, AttTerm).
-
-prolog:del_attrs(Var) :-
-	attributes:del_all_atts(Var).
-
-prolog:get_attrs(AttVar, SWIAtts) :-
-	get_all_swi_atts(AttVar,SWIAtts).
-
-prolog:put_attrs(_, []).
-prolog:put_attrs(V, Atts) :-
-	cvt_to_swi_atts(Atts, YapAtts),
-	attributes:put_att_term(V, YapAtts).
-
-cvt_to_swi_atts([], _).
-cvt_to_swi_atts(att(Mod,Attribute,Atts), ModAttribute) :-
-	ModAttribute =.. [Mod, YapAtts, Attribute],
-	cvt_to_swi_atts(Atts, YapAtts).
 
 bindings_message(V) -->
        { cvt_bindings(V, Bindings) },

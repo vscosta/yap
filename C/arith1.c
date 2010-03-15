@@ -240,7 +240,7 @@ eval1(Int fi, Term t) {
 	RBIG(&new);
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_unot:
@@ -259,7 +259,7 @@ eval1(Int fi, Term t) {
 	RBIG(&new);
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_exp:
@@ -480,7 +480,7 @@ eval1(Int fi, Term t) {
 	}
 	break;
 #endif
-      case db_ref_e:
+      default:
 	RERROR();
       }
 #if HAVE_ISNAN
@@ -518,7 +518,7 @@ eval1(Int fi, Term t) {
 	}
 	break;
 #endif
-      case db_ref_e:
+      default:
 	RERROR();
       }
 #if HAVE_ISNAN
@@ -555,7 +555,7 @@ eval1(Int fi, Term t) {
 	}
 	return t;
 	break;
-      case db_ref_e:
+      default:
 #endif
 	RERROR();
       }
@@ -591,7 +591,7 @@ eval1(Int fi, Term t) {
 	  return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is round(BIGNUM)");
 	}
 	return t;
-      case db_ref_e:
+      default:
 #endif
 	RERROR();
       }
@@ -624,12 +624,12 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RFLOAT(IntegerOfTerm(t));
     case double_e:
-      RFLOAT(FloatOfTerm(t));
+      return t;
     case big_int_e:
 #ifdef USE_GMP
       RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_abs:
@@ -648,7 +648,7 @@ eval1(Int fi, Term t) {
 	RBIG(&new);
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_msb:
@@ -667,7 +667,7 @@ eval1(Int fi, Term t) {
 	RINT(mpz_sizeinbase(big,2));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_lsb:
@@ -686,7 +686,7 @@ eval1(Int fi, Term t) {
 	RINT(mpz_scan1(big,0));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_popcount:
@@ -705,7 +705,7 @@ eval1(Int fi, Term t) {
 	RINT(mpz_popcount(big));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_ffracp:
@@ -731,7 +731,7 @@ eval1(Int fi, Term t) {
 	RFLOAT(0.0);
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_fintp:
@@ -753,7 +753,7 @@ eval1(Int fi, Term t) {
 	RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t)));
       }
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_sign:
@@ -775,7 +775,7 @@ eval1(Int fi, Term t) {
 #ifdef USE_GMP
       RINT(mpz_sgn(Yap_BigIntOfTerm(t)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case op_random1:
@@ -788,7 +788,7 @@ eval1(Int fi, Term t) {
 #ifdef USE_GMP
       return Yap_ArithError(TYPE_ERROR_INTEGER, t, "random(%f)", FloatOfTerm(t));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   }

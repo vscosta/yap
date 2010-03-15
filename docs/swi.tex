@@ -1,8 +1,8 @@
 @chapter SWI-Prolog Emulation
 
 This library provides a number of SWI-Prolog builtins that are not by
-default in YAP. This library is loaded with the
-@code{use_module(library(swi))} command.
+default in YAP. This support is loaded with the
+@code{expects_dialect(swi)} command.
 
 @table @code
 
@@ -168,7 +168,7 @@ triple. See the example above.
 @c @var{Pred} applies.
 @end table
 
-@node Forall,hProlog and SWI-Prolog Attributed Variables,Invoking Predicates on all Members of a List, SWI-Prolog
+@node Forall, ,Invoking Predicates on all Members of a List, SWI-Prolog
 @section Forall			
 @c \label{sec:forall2}
 
@@ -189,176 +189,8 @@ The next example verifies that all arithmetic statements in the list
 
 @end table
 
-@node hProlog and SWI-Prolog Attributed Variables, SWI-Prolog Global Variables, Forall,SWI-Prolog
-@section hProlog and SWI-Prolog Attributed Variables
-@cindex hProlog Attributed Variables
-
-Attributed variables
-@c @ref{Attributed variables}
-provide a technique for extending the
-Prolog unification algorithm by hooking the binding of attributed
-variables. There is little consensus in the Prolog community on the
-exact definition and interface to attributed variables.  Yap Prolog
-traditionally implements a SICStus-like interface, but to enable
-SWI-compatibility we have implemented the SWI-Prolog interface,
-identical to the one realised by Bart Demoen for hProlog.
-
-Binding an attributed variable schedules a goal to be executed at the
-first possible opportunity. In the current implementation the hooks are
-executed immediately after a successful unification of the clause-head
-or successful completion of a foreign language (builtin) predicate. Each
-attribute is associated to a module and the hook (attr_unify_hook/2) is
-executed in this module.  The example below realises a very simple and
-incomplete finite domain reasoner.
-
-@example
-:- module(domain,
-	  [ domain/2			% Var, ?Domain
-	  ]).
-:- use_module(library(oset)).
-
-domain(X, Dom) :-
-	var(Dom), !,
-	get_attr(X, domain, Dom).
-domain(X, List) :-
-	sort(List, Domain),
-	put_attr(Y, domain, Domain),
-	X = Y.
-
-%	An attributed variable with attribute value Domain has been
-%	assigned the value Y
-
-attr_unify_hook(Domain, Y) :-
-	(   get_attr(Y, domain, Dom2)
-	->  oset_int(Domain, Dom2, NewDomain),
-	    (   NewDomain == []
-	    ->	fail
-	    ;	NewDomain = [Value]
-	    ->	Y = Value
-	    ;	put_attr(Y, domain, NewDomain)
-	    )
-	;   var(Y)
-	->  put_attr( Y, domain, Domain )
-	;   memberchk(Y, Domain)
-	).
-@end example
-
-
-Before explaining the code we give some example queries:
-
-@table @code
-@item ?- domain(X, [a,b]), X = c		     
-no
-@item ?- domain(X, [a,b]), domain(X, [a,c]).   
-      X = a
-@item ?- domain(X, [a,b,c]), domain(X, [a,c]). 
-  X = _D0
-@end table
-
-The predicate @code{domain/2} fetches (first clause) or assigns
-(second clause) the variable a @emph{domain}, a set of values it can
-be unified with.  In the second clause first associates the domain
-with a fresh variable and then unifies X to this variable to deal
-with the possibility that X already has a domain. The
-predicate @code{attr_unify_hook/2} is a hook called after a variable with
-a domain is assigned a value.  In the simple case where the variable
-is bound to a concrete value we simply check whether this value is in
-the domain. Otherwise we take the intersection of the domains and either
-fail if the intersection is empty (first example), simply assign the
-value if there is only one value in the intersection (second example) or
-assign the intersection as the new domain of the variable (third
-example).
-
-
-@table @code
-
-@item put_attr(+@var{Var},+@var{Module},+@var{Value})
-@findex put_attr/3
-@snindex put_attr/3
-@cnindex put_attr/3
-If @var{Var} is a variable or attributed variable, set the value for the
-attribute named @var{Module} to @var{Value}. If an attribute with this
-name is already associated with @var{Var}, the old value is replaced.
-Backtracking will restore the old value (i.e. an attribute is a mutable
-term. See also @code{setarg/3}). This predicate raises a type error if
-@var{Var} is not a variable or @var{Module} is not an atom.
-
-@item get_attr(+@var{Var},+@var{Module},+@var{Value})
-@findex get_attr/3
-@snindex get_attr/3
-@cnindex get_attr/3
-Request the current @var{value} for the attribute named @var{Module}.  If
-@var{Var} is not an attributed variable or the named attribute is not
-associated to @var{Var} this predicate fails silently.  If @var{Module}
-is not an atom, a type error is raised.
-
-@item del_attr(+@var{Var},+@var{Module})
-@findex del_attr/2
-@snindex del_attr/2
-@cnindex del_attr/2
-Delete the named attribute.  If @var{Var} loses its last attribute it
-is transformed back into a traditional Prolog variable.  If @var{Module}
-is not an atom, a type error is raised. In all other cases this
-predicate succeeds regardless of whether or not the named attribute is
-present.
-
-@item attr_unify_hook(+@var{AttValue},+@var{VarValue})
-@findex attr_unify_hook/2
-@snindex attr_unify_hook/2
-@cnindex attr_unify_hook/2
-Hook that must be defined in the module an attributed variable refers
-to. It is called @emph{after} the attributed variable has been
-unified with a non-var term, possibly another attributed variable.
-@var{AttValue} is the attribute that was associated to the variable
-in this module and @var{VarValue} is the new value of the variable.
-Normally this predicate fails to veto binding the variable to
-@var{VarValue}, forcing backtracking to undo the binding.  If
-@var{VarValue} is another attributed variable the hook often combines
-the two attribute and associates the combined attribute with 
-@var{VarValue} using @code{put_attr/3}.
-
-@c     \predicate{attr_portray_hook}{2}{+AttValue, +Var}
-@c Called by write_term/2 and friends for each attribute if the option
-@c \term{attributes}{portray} is in effect.  If the hook succeeds the
-@c attribute is considered printed.  Otherwise \exam{Module = ...} is
-@c printed to indicate the existence of a variable.
-@end table
-
-@subsection Special Purpose SWI Predicates for Attributes
-
-Normal user code should deal with @code{put_attr/3}, @code{get_attr/3}
-and @code{del_attr/2}.  The routines in this section fetch or set the
-entire attribute list of a variables. Use of these predicates is
-anticipated to be restricted to printing and other special purpose
-operations.
-
-@table @code
-@item get_attrs(+@var{Var},-@var{Attributes})
-@findex get_attrs/2
-@snindex get_attrs/2
-@cnindex get_attrs/2
-Get all attributes of @var{Var}. @var{Attributes} is a term of the form
-@code{att(Module, Value, MoreAttributes)}, where @var{MoreAttributes} is
-@code{[]} for the last attribute.
-
-@item put_attrs(+@var{Var},+@var{Attributes})
-@findex put_attrs/2
-@snindex put_attrs/2
-@cnindex put_attrs/2
-Set all attributes of @var{Var}.  See get_attrs/2 for a description of
-@var{Attributes}.
-
-@item copy_term_nat(?@var{TI},-@var{TF})
-@findex copy_term_nat/2
-@snindex copy_term_nat/2
-@cnindex copy_term_nat/2
-As @code{copy_term/2}.  Attributes however, are @emph{not} copied but replaced
-by fresh variables.
-@end table
-
-
-@node SWI-Prolog Global Variables,  ,hProlog and SWI-Prolog Attributed Variables,SWI-Prolog
-@section SWI Global variables
+@node SWI-Prolog Global Variables,  Extensions, SWI-Prolog, Top
+@chapter SWI Global variables
 @c		\label{sec:gvar}
 
 SWI-Prolog global variables are associations between names (atoms) and
@@ -478,11 +310,11 @@ enumeration is undefined.
 Delete the named global variable.
 @end table
 
-@subsection Compatibility of SWI-Prolog Global Variables
+@section Compatibility of Global Variables
 
 Global variables have been introduced by various Prolog
-implementations recently.  The implementation of them in SWI-Prolog is
-based on hProlog by Bart Demoen. In discussion with Bart it was
+implementations recently.  YAP follows their implementation in SWI-Prolog, itself
+based on hProlog by Bart Demoen. Jan and Bart
 decided that the semantics if hProlog @code{nb_setval/2}, which is
 equivalent to @code{nb_linkval/2} is not acceptable for normal Prolog
 users as the behaviour is influenced by how builtin predicates
@@ -493,10 +325,3 @@ Arrays can be implemented easily in SWI-Prolog using @code{functor/3} and
 @code{setarg/3} due to the unrestricted arity of compound terms.
 
 
-@node Extensions,Debugging,SWI-Prolog,Top 
-@chapter Extensions to Prolog
-
-YAP includes several extensions that are not enabled by
-default, but that can be used to extend the functionality of the
-system. These options can be set at compilation time by enabling the
-related compilation flag, as explained in the @code{Makefile}

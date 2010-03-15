@@ -27,54 +27,6 @@ static char SccsId[]="%W% %G%";
 #define NULL (void *)0
 #endif
 
-static Int
-p_read_svar_list(void)
-{
-#ifdef COROUTINING
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-  return Yap_unify(ARG1,Yap_ReadTimedVar(AttsMutableList));
-#else
-  return(TRUE);
-#endif
-#else
-  return(TRUE);
-#endif
-}
-
-static Int
-p_set_svar_list(void)
-{
-#ifdef COROUTINING
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-  Term newl = Deref(ARG1);
-  attvar_record *max = DelayTop();
-
-  if (IsVarTerm(newl) && VarOfTerm(newl) > H0) {
-    /* set to current top */
-    max--;
-    RESET_VARIABLE(&max->Done);
-    RESET_VARIABLE(&max->Value);
-    RESET_VARIABLE(&(max->Atts));
-    SetDelayTop(max);
-
-    Yap_UpdateTimedVar(AttsMutableList,(CELL)max);
-    return Yap_unify(ARG1,(CELL)max);
-  } else {
-    attvar_record *aold = (attvar_record *)Yap_UpdateTimedVar(AttsMutableList,newl);
-    
-    if (max < aold) {
-      /* we are moving forward */
-      /* these items are protected by call-residue, should not
-         be visible to AllAtts
-      */
-      MaBind(&(aold->Atts),(CELL)max);
-    }
-  }
-#endif
-#endif
-  return TRUE;
-}
-
 #ifdef COROUTINING
 
 /* check if variable was there */
@@ -612,8 +564,6 @@ Yap_InitCoroutPreds(void)
   Yap_InitAttVarPreds();
   Yap_InitCPred("$yap_has_rational_trees", 0, p_yap_has_rational_trees, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$yap_has_coroutining", 0, p_yap_has_coroutining, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$read_svar_list", 1, p_read_svar_list, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred("$set_svar_list", 1, p_set_svar_list, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$can_unify", 3, p_can_unify, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$non_ground", 2, p_non_ground, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$coroutining", 0, p_coroutining, SafePredFlag|HiddenPredFlag);

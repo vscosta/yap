@@ -569,7 +569,7 @@ true :- true.
 	\+ '$undefined'(bindings_message(_,_,_), swi),
 	swi:bindings_message(V, LGs, []), !.
 '$output_frozen'(G,V,LGs) :-
-	'$project_and_delayed_goals'(G,LGs).
+	'$attributes':project_delayed_goals(G,LGs).
 
 %
 % present_answer has three components. First it flushes the streams,

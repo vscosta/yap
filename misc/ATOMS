@@ -86,7 +86,7 @@ A	DollarUndef		F	"$undef"
 A	DomainError		N	"domain_error"
 A	E			N	"e"
 A	EOFBeforeEOT		N	"end_of_file_found_before_end_of_term"
-A	EQ			N	"="
+	A	EQ			N	"="
 A	EmptyAtom		N	""
 A	EndOfStream		N	"$end_of_stream"
 A	Eof			N	"end_of_file"
@@ -383,7 +383,7 @@ F	Module			Colomn		2
 F	MultiFileClause		MfClause	5
 F	Mutable			MutableVariable	(sizeof(timed_var)/sizeof(CELL))
 F	NotImplemented		NotImplemented	2
-F	NBQueue			Queue		5
+F	NBQueue			Queue		4
 F	Not			Not		1
 F	Or			Semic		2
 F	PermissionError		PermissionError	3

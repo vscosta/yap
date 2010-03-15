@@ -628,7 +628,7 @@ p_functor(void)			/* functor(?,?,?) */
     BIND(pt0, d0, bind_func_nvar_var);
 #ifdef COROUTINING
     DO_TRAIL(pt0, d0);
-    if (pt0 < H0) Yap_WakeUp(pt0);
+    if (IsAttVar(pt0)) Yap_WakeUp(pt0);
   bind_func_nvar_var:
 #endif
     /* have to buffer ENDP and label */
@@ -655,7 +655,7 @@ p_functor(void)			/* functor(?,?,?) */
     /* Done */
 #ifdef COROUTINING
     DO_TRAIL(pt0, d0);
-    if (pt0 < H0) Yap_WakeUp(pt0);
+    if (IsAttVar(pt0)) Yap_WakeUp(pt0);
   bind_func_nvar3_var:
 #endif
     return(TRUE);
@@ -738,7 +738,7 @@ p_functor(void)			/* functor(?,?,?) */
   BIND(pt0, d0, bind_func_var_3nvar);
 #ifdef COROUTINING
   DO_TRAIL(pt0, d0);
-  if (pt0 < H0) Yap_WakeUp(pt0);
+  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
  bind_func_var_3nvar:
 #endif
   return(TRUE);

@@ -42,24 +42,24 @@ Each attribute contains;
 */
 
 typedef struct attvar_struct {
+  Functor AttFunc;      /* functor for attvar */
   Term Done;		/* if unbound suspension active, if bound terminated */
   Term Value;           /* value the variable will take */
   Term Atts; /* actual data */
 } attvar_record;
 
+#define ATT_RECORD_ARITY  3
+
 /*********** tags for suspension variables */
 
-#define AbsAttVar(attvar_ptr)	AbsAppl(((CELL *)(attvar_ptr)))
-#define RepAttVar(val)		((attvar_record *)RepAppl(val))
-
-static inline attvar_record *
-DelayTop(void) {
-  return (attvar_record *)Yap_ReadTimedVar(DelayedVars);
+static inline Term
+AbsAttVar(attvar_record *attvar_ptr) {
+  return attvar_ptr->Done;
 }
 
-static inline void
-SetDelayTop(attvar_record *new_top) {
-  Yap_UpdateTimedVar(DelayedVars, (CELL)new_top);
+static inline attvar_record *
+RepAttVar(Term *var_ptr) {
+  return (attvar_record *)(var_ptr-1);
 }
 
 #endif

@@ -354,7 +354,7 @@ Binding Macros for Multiple Assignment Variables.
 
 #define BIND_GLOBALCELL(A,D)    *(A) = (D); \
 				if ((A) >= HBREG) continue; \
-                                TRAIL_GLOBAL(A,D); if ((A) >= H0) continue; \
+                                TRAIL_GLOBAL(A,D); if (!IsAttVar(A)) continue; \
                                 Yap_WakeUp((A)); continue
 
 #define BIND_GLOBALCELL_NONATT(A,D)    *(A) = (D); \
@@ -436,6 +436,38 @@ reset_trail(tr_fr_ptr TR0) {
   }
 }
 
+inline EXTERN void
+reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
+  if (dvarsmin) {
+    dvarsmin += 1;
+    do {
+      CELL *newv;
+      newv = CellPtr(*dvarsmin);
+      RESET_VARIABLE(dvarsmin+1);
+      if (IsUnboundVar(dvarsmin))
+	break;
+      RESET_VARIABLE(dvarsmin);
+      dvarsmin = newv;
+    } while (TRUE);
+  }
+}
+
+inline EXTERN void
+close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
+  if (dvarsmin) {
+    dvarsmin += 1;
+    do {
+      CELL *newv;
+      Bind(dvarsmin+1, dvarsmin[1]);
+      if (IsUnboundVar(dvarsmin))
+	break;
+      newv = CellPtr(*dvarsmin);
+      RESET_VARIABLE(dvarsmin);
+      dvarsmin = newv;
+    } while (TRUE);
+  }
+}
+
 EXTERN inline
 Int Yap_unify(Term t0, Term t1)
 {
@@ -502,7 +534,7 @@ Yap_unify_constant(register Term a, register Term cons)
   BIND(pt,cons,wake_for_cons);
 #ifdef COROUTINING
   DO_TRAIL(pt, cons);
-  if (pt < H0) Yap_WakeUp(pt);
+  if (IsAttVar(pt)) Yap_WakeUp(pt);
  wake_for_cons:
 #endif
   return(TRUE);

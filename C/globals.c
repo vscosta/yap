@@ -32,17 +32,19 @@ static char SccsId[] = "%W% %G%";
 
  */
 
+#define QUEUE_FUNCTOR_ARITY 4
+
 #define QUEUE_ARENA 0
-#define QUEUE_DELAY_ARENA 1
-#define QUEUE_HEAD 2
-#define QUEUE_TAIL 3
-#define QUEUE_SIZE 4
+#define QUEUE_HEAD 1
+#define QUEUE_TAIL 2
+#define QUEUE_SIZE 3
+
+#define HEAP_FUNCTOR_MIN_ARITY
 
 #define HEAP_SIZE  0
 #define HEAP_MAX   1
 #define HEAP_ARENA 2
-#define HEAP_DELAY_ARENA 3
-#define HEAP_START 4
+#define HEAP_START 3
 
 #define MIN_ARENA_SIZE 1048
 #define MAX_ARENA_SIZE (2048*16)
@@ -99,102 +101,6 @@ CreateNewArena(CELL *ptr, UInt size)
   return t;
 }
 
-#if COROUTINING
-
-/* pointer to top of an arena */
-static inline attvar_record *
-DelayArenaPt(Term arena)
-{
-  return (attvar_record *)arena;
-}
-
-static inline UInt
-DelayArenaSz(Term arena)
-{
-  attvar_record *ptr = (attvar_record *)arena-1;
-  return 1+(ptr-(attvar_record *)ptr->Done);
-}
-
-static void
-ResetDelayArena(Term old_delay_arena, Term *new_arenap)
-{
-  attvar_record *min = (attvar_record *)*new_arenap;
-  Term base = min[-1].Done;
-  while (min < (attvar_record *)old_delay_arena) {
-    min->Value = (Term)(min-1);
-    min->Done = base;
-    RESET_VARIABLE(&min->Atts);
-    min++;
-  }
-  *new_arenap = old_delay_arena;
-}
-
-
-static Term
-CreateDelayArena(attvar_record *max, attvar_record *min)
-{
-  attvar_record *ptr = max;
-  while (ptr > min) {
-    --ptr;
-    ptr->Done = (CELL)min;
-    ptr->Value = (CELL)(ptr-1);
-    RESET_VARIABLE(&ptr->Atts);
-  }
-  RESET_VARIABLE(&(ptr->Value));
-  return (CELL)max;
-}
-
-static Term
-NewDelayArena(UInt size)
-{
-  attvar_record *max = DelayTop(), *min = max-size;
-  Term out;
-  UInt howmuch;
-
-  while ((ADDR)min < Yap_GlobalBase+1024) {
-    UInt bsize = size*sizeof(attvar_record);
-    if ((howmuch = Yap_InsertInGlobal((CELL *)max, bsize))==0) {
-      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"No Stack Space for Non-Backtrackable terms");
-      return TermNil;
-    }
-    max = DelayTop(), min = max-size;
-  }
-  out = CreateDelayArena(max, min);
-  SetDelayTop(min);
-  return out;
-}
-
-static Term
-GrowDelayArena(Term *arenap, UInt old_size, UInt size, UInt arity)
-{
-  Term arena = *arenap;
-  UInt howmuch;
-
-  DelayArenaOverflows++;
-  if (size == 0) {
-    if (old_size < 1024) {
-      size = old_size*2;
-    } else {
-      size = old_size+1024;
-    }
-  }
-  if (size < 64) {
-    size = 64;
-  }
-  /* just make sure we are shifted up when we expand stacks */
-  XREGS[arity+1] = arena;
-  if ((howmuch = Yap_InsertInGlobal((CELL *)arena, (size-old_size)*sizeof(attvar_record)))==0) {
-    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-    return TermNil;
-  }
-  size = howmuch/sizeof(attvar_record)+old_size;
-  arena = XREGS[arity+1];
-  CreateDelayArena(DelayArenaPt(arena), DelayArenaPt(arena)-size);
-  return arena;
-}
-
-#endif
-
 static Term
 NewArena(UInt size, UInt arity, CELL *where)
 {
@@ -247,9 +153,6 @@ void
 Yap_AllocateDefaultArena(Int gsize, Int attsize)
 {
   GlobalArena = NewArena(gsize, 2, NULL);
-#if COROUTINING
-  GlobalDelayArena = NewDelayArena(attsize);
-#endif
 }
 
 static void
@@ -314,6 +217,35 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity)
   return TRUE;
 }
 
+CELL *
+Yap_GetFromArena(Term *arenap, UInt cells, UInt arity)
+{
+ restart:
+  {
+    Term arena = *arenap;
+    CELL *max = ArenaLimit(arena);
+    CELL *base = ArenaPt(arena);
+    CELL *newH;
+    UInt old_sz = ArenaSz(arena), new_size;
+
+    if (IN_BETWEEN(base, H, max)) {
+      base = H;
+      H += cells;
+      return base;
+    }
+    if (base+cells > ASP-1024) {
+      if (!GrowArena(arena, max, old_sz, old_sz+sizeof(CELL)*1024, arity))
+	return NULL;
+      goto restart;
+    }
+
+    newH = base+cells;
+    new_size = old_sz - cells;
+    *arenap = CreateNewArena(newH, new_size);
+    return base;
+  }
+}
+
 static void
 CloseArena(CELL *oldH, CELL *oldHB, CELL *oldASP, Term *oldArenaP, UInt old_size)
 {
@@ -349,54 +281,17 @@ clean_dirty_tr(tr_fr_ptr TR0) {
   }
 }
 
-#if COROUTINING
-
 static int
-CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res, Term *att_arenap)
-{
-  register attvar_record *attv = (attvar_record *)orig;
-  register attvar_record *newv;
-  struct cp_frame *to_visit = *to_visit_ptr;
-  CELL *vt;
-
-  /* add a new attributed variable */
-  if (DelayArenaSz(*att_arenap) < 8)
-    return FALSE;
-  newv = DelayArenaPt(*att_arenap);
-  newv--;
-  RESET_VARIABLE(&(newv->Value));
-  RESET_VARIABLE(&(newv->Done));
-  vt = &(attv->Atts);
-  to_visit->start_cp = vt-1;
-  to_visit->end_cp = vt;
-  if (IsVarTerm(attv->Atts)) {
-    newv->Atts = (CELL)H;
-    to_visit->to = H;
-    H++;
-  } else {
-    to_visit->to = &(newv->Atts);
-  }
-  to_visit->oldv = vt[-1];
-  /* you're coming from a variable */
-  to_visit->ground = FALSE;
-  *to_visit_ptr = to_visit+1;
-  *res = (CELL)&(newv->Done);
-  *att_arenap = (CELL)(newv);
-  return TRUE;
-}
-#endif
-
-static int
-copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int copy_att_vars, CELL *ptf, CELL *HLow, Term *att_arenap)
+copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int copy_att_vars, CELL *ptf, CELL *HLow)
 {
 
   struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
-#ifdef COROUTINING
-  CELL *dvars = NULL;
-#endif
   int ground = TRUE;
+#ifdef COROUTINING
+  CELL *dvarsmin = NULL, *dvarsmax=NULL;
+#endif
 
   HB = HLow;
   to_visit0 = to_visit;
@@ -468,6 +363,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	if (IsExtensionFunctor(f)) {
 	  switch((CELL)f) {
 	  case (CELL)FunctorDBRef:
+	  case (CELL)FunctorAttVar:
 	    *ptf++ = d0;
 	    break;
 	  case (CELL)FunctorLongInt:
@@ -571,34 +467,35 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (IsAttachedTerm((CELL)ptd0) && copy_att_vars) {
+      if (copy_att_vars && IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
-	struct cp_frame *bp[1];
+	struct cp_frame *bp;
 
-	if (dvars == NULL) {
-	  dvars = (CELL *)DelayArenaPt(*att_arenap);
-	} 	
-	if (ptd0 < dvars &&
-	    ptd0 >= (CELL *)DelayArenaPt(*att_arenap)) {
+	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
 	  *ptf++ = (CELL) ptd0;
 	} else {
-	  tr_fr_ptr CurTR;
+	  CELL new;
 
-	  CurTR = TR;
-	  bp[0] = to_visit;
-	  HB = HB0;
-	  if (!CopyAttVar(ptd0, bp, ptf, att_arenap)) {
-	    goto delay_overflow;
-	  }
-	  if (H > ASP - MIN_ARENA_SIZE) {
+	  bp = to_visit;
+	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf)) {
 	    goto overflow;
 	  }
-	  to_visit = bp[0];
-	  HB = HLow;
+	  to_visit = bp;
+	  new = *ptf;
+	  if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	    /* Trail overflow */
+	    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	      goto trail_overflow;
+	    }
+	  }
+	  Bind_and_Trail(ptd0, new);
+	  if (dvarsmin == NULL) {
+	    dvarsmin = CellPtr(new);
+	  } else {
+	    *dvarsmax = (CELL)(CellPtr(new)+1);
+	  }
+	  dvarsmax = CellPtr(new)+1;
 	  ptf++;
-	  if ((ADDR)TR > Yap_TrailTop-MIN_ARENA_SIZE)
-	    goto trail_overflow;
-	  Bind_and_Trail(ptd0, ptf[-1]);
 	}
       } else {
 #endif
@@ -613,6 +510,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 #endif
     }
   }
+
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
     to_visit --;
@@ -629,6 +527,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   /* restore our nice, friendly, term to its original state */
   HB = HB0;
   clean_dirty_tr(TR0);
+  /* follow chain of multi-assigned variables */
+  close_attvar_chain(dvarsmin, dvarsmax);
   return 0;
 
  overflow:
@@ -647,6 +547,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
  heap_overflow:
@@ -665,28 +566,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -2;
-
-
-#if COROUTINING
- delay_overflow:
-  /* oops, we're in trouble */
-  H = HLow;
-  /* we've done it */
-  /* restore our nice, friendly, term to its original state */
-  HB = HB0;
-#ifdef RATIONAL_TREES
-  while (to_visit > to_visit0) {
-    to_visit--;
-    pt0 = to_visit->start_cp;
-    pt0_end = to_visit->end_cp;
-    ptf = to_visit->to;
-    *pt0 = to_visit->oldv;
-  }
-#endif
-  reset_trail(TR0);
-  return -3;
-#endif
 
  trail_overflow:
   /* oops, we're in trouble */
@@ -704,26 +585,21 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
   return -4;
 }
 
 static Term
-CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Term *newarena, Term *att_arenap, UInt min_grow)
+CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Term *newarena, UInt min_grow)
 {
   UInt old_size = ArenaSz(arena);
   CELL *oldH = H;
   CELL *oldHB = HB;
   CELL *oldASP = ASP;
   int res = 0;
-#if COROUTINING
-  Term old_delay_arena;
-#endif
   Term tn;
 
  restart:
-#if COROUTINING
-  old_delay_arena = *att_arenap;
-#endif
   t = Deref(t);
   if (IsVarTerm(t)) {
     ASP = ArenaLimit(arena);
@@ -735,7 +611,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
       *H = t;
       Hi = H+1;
       H += 2;
-      if ((res = copy_complex_term(Hi-2, Hi-1, share, copy_att_vars, Hi, Hi, att_arenap)) < 0) 
+      if ((res = copy_complex_term(Hi-2, Hi-1, share, copy_att_vars, Hi, Hi)) < 0) 
 	goto error_handler;
       CloseArena(oldH, oldHB, oldASP, newarena, old_size);
       return Hi[0];
@@ -768,7 +644,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
     Hi = H;
     tf = AbsPair(H);
     H += 2;
-    if ((res = copy_complex_term(ap-1, ap+1, share, copy_att_vars, Hi, Hi, att_arenap)) < 0) {
+    if ((res = copy_complex_term(ap-1, ap+1, share, copy_att_vars, Hi, Hi)) < 0) {
 	goto error_handler;
     }
     CloseArena(oldH, oldHB, oldASP, newarena, old_size);
@@ -838,7 +714,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
 	res = -1;
 	goto error_handler;
       } 
-      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, copy_att_vars, HB0+1, HB0, att_arenap)) < 0) {
+      if ((res = copy_complex_term(ap, ap+ArityOfFunctor(f), share, copy_att_vars, HB0+1, HB0)) < 0) {
 	goto error_handler;
       }
     }
@@ -848,14 +724,9 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
  error_handler:
   H = HB;
   CloseArena(oldH, oldHB, oldASP, newarena, old_size);
-#if COROUTINING
-  if (old_delay_arena != MkIntTerm(0))
-    ResetDelayArena(old_delay_arena, att_arenap);
-#endif
   XREGS[arity+1] = t;
   XREGS[arity+2] = arena;
   XREGS[arity+3] = (CELL)newarena;
-  XREGS[arity+4] = (CELL)att_arenap;
   {
     CELL *old_top = ArenaLimit(*newarena);
     ASP = oldASP;
@@ -865,26 +736,8 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
     case -1:
       if (arena == GlobalArena)
 	GlobalArenaOverflows++;
-      if (!GrowArena(arena, old_top, old_size, min_grow, arity+4)) {
+      if (!GrowArena(arena, old_top, old_size, min_grow, arity+3)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-      break;
-#if COROUTINING
-    case -3:
-      /* handle delay arena overflow */
-      old_size = DelayArenaSz(*att_arenap);
-      
-      if (!GrowDelayArena(att_arenap, old_size, 0L, arity+4)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return 0L;
-      }
-      break;
-#endif
-    case -4:
-      /* handle trail overflow */
-      if(!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
-	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
       break;
@@ -898,7 +751,6 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
   oldH = H;
   oldHB = HB;
   oldASP = ASP;
-  att_arenap = (Term *)XREGS[arity+4];
   newarena = (CELL *)XREGS[arity+3];
   arena = Deref(XREGS[arity+2]);
   t = XREGS[arity+1];
@@ -1071,7 +923,7 @@ p_nb_setarg(void)
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1111,7 +963,7 @@ p_nb_set_shared_arg(void)
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1180,7 +1032,7 @@ Yap_SetGlobalVal(Atom at, Term t0)
   Term to;
   GlobalEntry *ge;
   ge = GetGlobalEntry(at);
-  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return to;
   WRITE_LOCK(ge->GRWLock);
@@ -1193,7 +1045,7 @@ Term
 Yap_SaveTerm(Term t0)
 {
   Term to;
-  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return to;
   return to;
@@ -1226,7 +1078,7 @@ p_nb_set_shared_val(void)
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t));
-  to = CopyTermToArena(ARG2, GlobalArena, TRUE, TRUE, 2, &GlobalArena, &GlobalDelayArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(ARG2, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1462,10 +1314,7 @@ p_nb_create2(void)
 static Int 
 nb_queue(UInt arena_sz)
 {
-  Term queue_arena, queue, ar[5], *nar;
-#if COROUTINING
-  Term delay_queue_arena;
-#endif
+  Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
   Term t = Deref(ARG1);
 
   DepthArenas++;
@@ -1476,32 +1325,13 @@ nb_queue(UInt arena_sz)
     return (FunctorOfTerm(t) == FunctorNBQueue);
   }
   ar[QUEUE_ARENA] = 
-    ar[QUEUE_DELAY_ARENA] = 
     ar[QUEUE_HEAD] =
     ar[QUEUE_TAIL] =
     ar[QUEUE_SIZE] =
     MkIntTerm(0);
-  queue = Yap_MkApplTerm(FunctorNBQueue,5,ar);
+  queue = Yap_MkApplTerm(FunctorNBQueue,QUEUE_FUNCTOR_ARITY,ar);
   if (!Yap_unify(queue,ARG1))
     return FALSE;
-#if COROUTINING
-  {
-    UInt delay_arena_sz = 2;
-    if (DelayArenaOverflows) {
-      delay_arena_sz = ((attvar_record *)H0- DelayTop())/16;
-      if (delay_arena_sz <2) 
-	delay_arena_sz = 2;
-      if (delay_arena_sz > 256)
-	delay_arena_sz = 256;
-    }
-    delay_queue_arena = NewDelayArena(delay_arena_sz);
-    if (delay_queue_arena == 0L) {
-      return FALSE;
-    }
-    nar = RepAppl(Deref(ARG1))+1;
-    nar[QUEUE_DELAY_ARENA] = delay_queue_arena;
-  }
-#endif
   if (arena_sz < 4*1024)
     arena_sz = 4*1024;
   queue_arena = NewArena(arena_sz,1,NULL);
@@ -1581,19 +1411,6 @@ GetQueueArena(CELL *qd, char* caller)
   return t;
 }
 
-#if COROUTINING
-static void
-RecoverDelayArena(Term delay_arena)
-{
-  attvar_record *pt = DelayArenaPt(delay_arena),
-    *max = DelayTop();
-  if (max == pt-DelayArenaSz(delay_arena)) {
-      SetDelayTop(pt);
-  } else {
-  }
-}
-#endif
-
 static void
 RecoverArena(Term arena)
 {
@@ -1611,7 +1428,7 @@ p_nb_queue_close(void)
   Term t = Deref(ARG1);
   Int out;
 
- DepthArenas--;
+  DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
 
@@ -1622,10 +1439,6 @@ p_nb_queue_close(void)
     }
     if (qp[QUEUE_ARENA] != MkIntTerm(0))
       RecoverArena(qp[QUEUE_ARENA]);
-#if COROUTINING
-    if (qp[QUEUE_DELAY_ARENA] != MkIntTerm(0))
-      RecoverDelayArena(qp[QUEUE_DELAY_ARENA]);
-#endif
     if (qp[QUEUE_SIZE] == MkIntTerm(0)) {
       return 
 	Yap_unify(ARG3, ARG2);
@@ -1635,7 +1448,6 @@ p_nb_queue_close(void)
       Yap_unify(ARG2, qp[QUEUE_HEAD]);
     qp[-1] = (CELL)Yap_MkFunctor(AtomHeap,1);
     qp[QUEUE_ARENA] =
-    qp[QUEUE_DELAY_ARENA] =
     qp[QUEUE_HEAD] = 
     qp[QUEUE_TAIL] = MkIntegerTerm(0);
     return out;
@@ -1662,7 +1474,7 @@ p_nb_queue_enqueue(void)
   } else {
     min_size = 0L;
   }
-  to = CopyTermToArena(ARG2, arena, FALSE, TRUE, 2, qd+QUEUE_ARENA, qd+QUEUE_DELAY_ARENA, min_size);
+  to = CopyTermToArena(ARG2, arena, FALSE, TRUE, 2, qd+QUEUE_ARENA, min_size);
   if (to == 0L)
     return FALSE;
   qd = GetQueue(ARG1,"enqueue");
@@ -1811,9 +1623,6 @@ static Int
 p_nb_heap(void)
 {
   Term heap_arena, heap, *ar, *nar;
-#if COROUTINING
-  Term delay_heap_arena;
-#endif
   UInt hsize;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
@@ -1839,7 +1648,6 @@ p_nb_heap(void)
     return FALSE;
   ar = RepAppl(heap)+1;
   ar[HEAP_ARENA] = 
-    ar[HEAP_DELAY_ARENA] = 
     ar[HEAP_SIZE] = 
     MkIntTerm(0);
   ar[HEAP_MAX] = tsize;
@@ -1851,19 +1659,6 @@ p_nb_heap(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_ARENA] = heap_arena;
-#if COROUTINING
-  arena_sz = ((attvar_record *)H0- DelayTop())/16;
-  if (arena_sz <2) 
-    arena_sz = 2;
-  if (arena_sz > 256)
-      arena_sz = 256;
-  delay_heap_arena = NewDelayArena(arena_sz);
-  if (delay_heap_arena == 0L) {
-    return FALSE;
-  }
-  nar = RepAppl(Deref(ARG2))+1;
-  nar[HEAP_DELAY_ARENA] = delay_heap_arena;
-#endif
   return TRUE;
 }
 
@@ -1877,10 +1672,6 @@ p_nb_heap_close(void)
     qp = RepAppl(t)+1;
     if (qp[HEAP_ARENA] != MkIntTerm(0))
       RecoverArena(qp[HEAP_ARENA]);
-#if COROUTINING
-    if (qp[HEAP_DELAY_ARENA] != MkIntTerm(0))
-      RecoverDelayArena(qp[HEAP_DELAY_ARENA]);
-#endif
     qp[-1] = (CELL)Yap_MkFunctor(AtomHeap,1);
     qp[0] = MkIntegerTerm(0);
     return TRUE;
@@ -1994,9 +1785,9 @@ p_nb_heap_add_to_heap(void)
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena));
-  key = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  key = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
@@ -2110,9 +1901,6 @@ static Int
 p_nb_beam(void)
 {
   Term beam_arena, beam, *ar, *nar;
-#if COROUTINING
-  Term delay_beam_arena;
-#endif
   UInt hsize;
   Term tsize = Deref(ARG1);
   UInt arena_sz = (H-H0)/16;
@@ -2128,7 +1916,7 @@ p_nb_beam(void)
     hsize = IntegerOfTerm(tsize);
   }
   while ((beam = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,5*hsize+HEAP_START+1),5*hsize+HEAP_START+1)) == TermNil) {
-    if (!Yap_gcl((5*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
+    if (!Yap_gcl((4*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
@@ -2137,7 +1925,6 @@ p_nb_beam(void)
     return FALSE;
   ar = RepAppl(beam)+1;
   ar[HEAP_ARENA] = 
-    ar[HEAP_DELAY_ARENA] = 
     ar[HEAP_SIZE] = 
     MkIntTerm(0);
   ar[HEAP_MAX] = tsize;
@@ -2149,19 +1936,6 @@ p_nb_beam(void)
   }
   nar = RepAppl(Deref(ARG2))+1;
   nar[HEAP_ARENA] = beam_arena;
-#if COROUTINING
-  arena_sz = ((attvar_record *)H0- DelayTop())/16;
-  if (arena_sz <2) 
-    arena_sz = 2;
-  if (arena_sz > 256)
-      arena_sz = 256;
-  delay_beam_arena = NewDelayArena(arena_sz);
-  if (delay_beam_arena == 0L) {
-    return FALSE;
-  }
-  nar = RepAppl(Deref(ARG2))+1;
-  nar[HEAP_DELAY_ARENA] = delay_beam_arena;
-#endif
   return TRUE;
 }
 
@@ -2397,9 +2171,9 @@ p_nb_beam_add_to_beam(void)
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena));
-  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  key = CopyTermToArena(ARG2, qd[HEAP_ARENA], FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
   arena = qd[HEAP_ARENA];
-  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, qd+HEAP_DELAY_ARENA, mingrow);
+  to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_beam");

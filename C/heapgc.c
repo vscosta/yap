@@ -34,8 +34,8 @@ static char     SccsId[] = "%W% %G%";
 STATIC_PROTO(Int  p_inform_gc, (void));
 STATIC_PROTO(Int  p_gc, (void));
 STATIC_PROTO(void push_registers, (Int, yamop *));
-STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
-STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop *, CELL *));
+STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop *));
+STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop *));
 STATIC_PROTO(void pop_registers, (Int, yamop *));
 STATIC_PROTO(void init_dbtable, (tr_fr_ptr));
 STATIC_PROTO(void mark_db_fixed, (CELL *));
@@ -442,7 +442,6 @@ push_registers(Int num_regs, yamop *nextop)
   ArrayEntry *al = DynamicArrays;
   GlobalEntry *gl = GlobalVariables;
   TrailTerm(TR++) = GlobalArena;
-  TrailTerm(TR++) = GlobalDelayArena;
   while (al) {
     check_pr_trail(TR);
     TrailTerm(TR++) = al->ValueOfVE;
@@ -474,8 +473,7 @@ push_registers(Int num_regs, yamop *nextop)
 #ifdef COROUTINING
   TrailTerm(TR) = WokenGoals;
   TrailTerm(TR+1) = AttsMutableList;
-  TrailTerm(TR+2) = DelayedVars;
-  TR += 3;
+  TR += 2;
 #endif
   for (i = 1; i <= num_regs; i++) {
     check_pr_trail(TR);
@@ -521,7 +519,6 @@ pop_registers(Int num_regs, yamop *nextop)
   GlobalEntry *gl = GlobalVariables;
 
   GlobalArena = TrailTerm(ptr++);
-  GlobalDelayArena = TrailTerm(ptr++);
   while (al) {
     al->ValueOfVE = TrailTerm(ptr++);
     al = al->NextAE;
@@ -549,7 +546,6 @@ pop_registers(Int num_regs, yamop *nextop)
 #ifdef MULTI_ASSIGNMENT_VARIABLES
   WokenGoals = TrailTerm(ptr++);
   AttsMutableList = TrailTerm(ptr++);
-  DelayedVars = TrailTerm(ptr++);
 #endif
 #endif
   for (i = 1; i <= num_regs; i++)
@@ -1154,6 +1150,33 @@ check_global(void) {
 
 /* mark a heap object and all heap objects accessible from it */
 
+static void
+mark_variable(CELL_PTR current);
+
+static void
+mark_att_var(CELL *hp)
+{
+  if (!MARKED_PTR(hp-1)) {
+    MARK(hp-1);
+    PUSH_POINTER(hp-1);
+    total_marked++;
+    if (hp < HGEN) {
+      total_oldies++;
+    }
+  }
+  if (!MARKED_PTR(hp)) {
+    MARK(hp);
+    PUSH_POINTER(hp);
+    total_marked++;
+    if (hp < HGEN) {
+      total_oldies++;
+    }
+  }
+  mark_variable(hp+1);
+  mark_variable(hp+2);
+}
+
+
 static void 
 mark_variable(CELL_PTR current)
 {
@@ -1177,7 +1200,10 @@ mark_variable(CELL_PTR current)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (ONHEAP(next)) {
+    if (IsAttVar(current) && current==next) {
+      mark_att_var(current);
+      POP_CONTINUATION();
+    } else if (ONHEAP(next)) {
 #ifdef EASY_SHUNTING
       CELL cnext;
       /* do variable shunting between variables in the global */
@@ -1597,20 +1623,6 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 
 static void
-mark_att_var(CELL *hp)
-{
-  attvar_record *top = (attvar_record *)Yap_GlobalBase;
-  Int relpos = top-(attvar_record *)hp;
-  attvar_record *attv = top-relpos;
-  if (attv != (attvar_record *)hp)
-    attv--;
-  mark_external_reference2(&attv->Done);
-  mark_external_reference2(&attv->Value);
-  mark_external_reference2(&attv->Atts);
-}
-
-
-static void
 mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B)
 {
 #ifdef EASY_SHUNTING
@@ -1652,7 +1664,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	discard_trail_entries++;
       } else {
-	if ( hp > (CELL*)Yap_GlobalBase && hp < H0) {
+	if ( IsAttVar(hp)) {
 	  if (!detatt || hp >= detatt) {
 	    mark_att_var(hp);
 	  } else {
@@ -1712,9 +1724,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       */
       if (cptr < (CELL *)gc_B && cptr >= gc_H) {
 	goto remove_trash_entry;
-      } else if (!detatt && cptr == RepAppl(DelayedVars)+1) {
-	/* detatt = cptr; */
-      } else if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
+      } else if (IsAttVar(cptr)) {
 	/* MABINDING that should be recovered */
 	if (detatt && cptr < detatt) {
 	  goto remove_trash_entry;
@@ -1846,24 +1856,6 @@ mark_slots(CELL *ptr)
   }
 }
 
-
-#ifdef COROUTINING
-static void 
-mark_delays(attvar_record *top, attvar_record *bottom)
-{
-  attvar_record *attv = (attvar_record *)top;
-  for (; attv < bottom; attv++) {
-    /* only mark what is accessible */
-    if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
-      mark_external_reference2(&attv->Done);
-      mark_external_reference2(&attv->Value);
-      mark_external_reference2(&attv->Atts);
-    }
-  }
-}
-#else
-#define mark_delays(T,B)
-#endif
 
 #ifdef TABLING
 static choiceptr
@@ -3595,7 +3587,7 @@ set_conditionals(tr_fr_ptr str) {
  */
 
 static void 
-marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
+marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
 {
 
 #ifdef EASY_SHUNTING
@@ -3615,7 +3607,6 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
      values */
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
-  mark_delays((attvar_record *)max, (attvar_record *)H0);
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp));
   mark_choicepoints(B, old_TR, is_gc_very_verbose());	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
@@ -3640,22 +3631,6 @@ sweep_oldgen(CELL *max, CELL *base)
   }
 }
 
-#ifdef COROUTINING
-static void
-sweep_delays(CELL *max, CELL *myH0)
-{
-  while (max < myH0) {
-    if (MARKED_PTR(max)) {
-      UNMARK(max);
-      if (HEAP_PTR(*max)) {
-	into_relocation_chain(max, GET_NEXT(*max));
-      }
-    }
-    max++;
-  }
-}
-#endif
-
 
 /*
  * move marked heap objects upwards over unmarked objects, and reset all
@@ -3663,9 +3638,9 @@ sweep_delays(CELL *max, CELL *myH0)
  */
 
 static void 
-compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
+compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
 {
-  CELL *CurrentH0 = NULL, *myH0 = H0;
+  CELL *CurrentH0 = NULL;
 
   int icompact = (iptop < (CELL_PTR *)ASP && 10*total_marked < H-H0);
 
@@ -3682,9 +3657,6 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp, CELL *max)
       sweep_oldgen(HGEN, CurrentH0);
     }
   }
-#ifdef COROUTINING
-  sweep_delays(max, myH0);
-#endif
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp));
   sweep_choicepoints(B);
   sweep_trail(B, old_TR);
@@ -3738,7 +3710,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   int		gc_verbose;
   volatile tr_fr_ptr     old_TR = NULL;
   UInt		m_time, c_time, time_start, gc_time;
-  CELL *max;
   Int           effectiveness, tot;
   int           gc_trace;
   UInt		gc_phase;
@@ -3795,24 +3766,9 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     }
     current_env = (CELL *)*ASP;
     ASP++;
-#if COROUTINING
-    max = (CELL *)DelayTop();
-#endif
   }
 #endif
   time_start = Yap_cputime();
-#if COROUTINING
-  max = (CELL *)DelayTop();
-  while (max - (CELL*)Yap_GlobalBase < 1024+(2*NUM_OF_ATTS)) {
-    if (!Yap_growglobal(&current_env)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-      return -1;
-    }
-    max = (CELL *)DelayTop();
-  }
-#else
-  max = NULL;
-#endif
   if (setjmp(Yap_gc_restore) == 2) {
     UInt sz;
 
@@ -3838,9 +3794,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       discard_trail_entries = 0;
       current_env = (CELL *)*ASP;
       ASP++;
-#if COROUTINING
-    max = (CELL *)DelayTop();
-#endif
     }
   }
 #if EASY_SHUNTING
@@ -3862,9 +3815,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
       return -1;
     current_env = (CELL *)*ASP;
     ASP++;
-#if COROUTINING
-    max = (CELL *)DelayTop();
-#endif
   }
   memset((void *)Yap_bp, 0, alloc_sz);
 #ifdef HYBRID_SCHEME
@@ -3882,7 +3832,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   OldTR = (tr_fr_ptr)(old_TR = TR);
   push_registers(predarity, nextop);
   /* make sure we clean bits after a reset */
-  marking_phase(old_TR, current_env, nextop, max);
+  marking_phase(old_TR, current_env, nextop);
   if (total_oldies > ((HGEN-H0)*8)/10) {
     total_marked -= total_oldies;
     tot = total_marked+(HGEN-H0);
@@ -3922,7 +3872,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #endif
   }
   time_start = m_time;
-  compaction_phase(old_TR, current_env, nextop, max);
+  compaction_phase(old_TR, current_env, nextop);
   TR = old_TR;
   pop_registers(predarity, nextop);
   TR = new_TR;

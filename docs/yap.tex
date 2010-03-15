@@ -91,6 +91,7 @@ us to include his text in this document.
 * Built-ins:: Built In Predicates
 * Library:: Library Predicates
 * SWI-Prolog:: SWI-Prolog emulation
+* Global Variables ::  Global Variables for Prolog
 * Extensions:: Extensions to Standard YAP
 * Rational Trees:: Working with Rational Trees
 * Co-routining:: Changing the Execution of Goals
@@ -242,7 +243,6 @@ Subnodes of Attributes
 
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
-* hProlog and SWI-Prolog Attributed Variables :: Emulating SWI-like attributed variables
 * SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
 
 @c Subnodes of CLP(Q,R)
@@ -3316,22 +3316,6 @@ structure. All suspended goals and attributes for attributed variables
 in @var{TI} are also duplicated.
 
 Also refer to @code{copy_term/2}.
-
-@item copy_term(?@var{TI},-@var{TF},-@var{Goals}) 
-@findex copy_term/3
-@syindex copy_term/3
-@cnindex copy_term/3
-Term @var{TF} is a variant of the original term @var{TI}, such that for
-each variable @var{V} in the term @var{TI} there is a new variable @var{V'}
-in term @var{TF} without any attributes attached.  Attributed
-variables are thus converted to standard variables.  @var{Goals} is
-unified with a list that represents the attributes.  The goal
-@code{maplist(call,@var{Goals})} can be called to recreate the
-attributes.
-
-Before the actual copying, @code{copy_term/3} calls
-@code{attribute_goals/1} in the module where the attribute is
-defined.
 
 @end table
 
@@ -6567,7 +6551,7 @@ Execute a new shell.
 @snindex alarm/3
 @cnindex alarm/3
 Arranges for YAP to be interrupted in @var{Seconds} seconds, or in
-@var{[Seconds|MicroSeconds]}. When interrupted, YAP will execute
+[@var{Seconds}|@var{MicroSeconds}]. When interrupted, YAP will execute
 @var{Callable} and then return to the previous execution. If
 @var{Seconds} is @code{0}, no new alarm is scheduled. In any event,
 any previously set alarm is canceled.
@@ -12222,18 +12206,24 @@ are released.
 @end table
 
 
-@node SWI-Prolog, Extensions, Library, Top
+@node SWI-Prolog, SWI-Prolog Global Variables, Library, Top
 @cindex SWI-Prolog
 
 @menu SWI-Prolog Emulation
 Subnodes of SWI-Prolog
 * Invoking Predicates on all Members of a List :: maplist and friends
 * Forall :: forall built-in
-* hProlog and SWI-Prolog Attributed Variables :: Emulating SWI-like attributed variables
-* SWI-Prolog Global Variables :: Emulating SWI-like attributed variables
 @end menu
 
 @include swi.tex
+
+@node Extensions,Debugging,SWI-Prolog Global Variables,Top 
+@chapter Extensions to Prolog
+
+YAP includes several extensions that are not enabled by
+default, but that can be used to extend the functionality of the
+system. These options can be set at compilation time by enabling the
+related compilation flag, as explained in the @code{Makefile}
 
 @menu
 Extensions to Traditional Prolog
@@ -12401,16 +12391,11 @@ no
 @cindex attributed variables
 
 @menu
-
-* Attribute Declarations:: Declaring New Attributes
-* Attribute Manipulation:: Setting and Reading Attributes
-* Attributed Unification:: Tuning the Unification Algorithm
-* Displaying Attributes:: Displaying Attributes in User-Readable Form
-* Projecting Attributes:: Obtaining the Attributes of Interest
-* Attribute Examples:: Two Simple Examples of how to use Attributes.
+* New Style Attribute Declarations:: New Style code
+* Old Style Attribute Declarations:: Old Style code (deprecated)
 @end menu
 
-YAP now supports the attributed variables packaged developed at OFAI by
+YAP supports attributed variables, originally developed at OFAI by
 Christian Holzbaur. Attributes are a means of declaring that an
 arbitrary term is a property for a variable. These properties can be
 updated during forward execution. Moreover, the unification algorithm is
@@ -12419,16 +12404,257 @@ trying to unify these variables.
 
 Attributed variables provide an elegant abstraction over which one can
 extend Prolog systems. Their main application so far has been in
-implementing constraint handlers, such as Holzbaur's CLPQR and Fruewirth
-and Holzbaur's CHR, but other applications have been proposed in the
-literature.
+implementing constraint handlers, such as Holzbaur's CLPQR, Fruewirth
+and Holzbaur's CHR, and CLP(BN). 
+
+Different Prolog systems implement attributed variables in different
+ways. Traditionally, YAP has used the interface designed by SICStus
+Prolog. This interface is still
+available in the @t{atts} library, but from YAP-6.0.3 we recommend using
+the hProlog, SWI style interface. The main reason to do so is that 
+most packages included in YAP that use attributed variables, such as CHR, CLP(FD), and CLP(QR),
+rely on the SWI-Prolog interface.
 
 
-The command
+@node New Style Attribute Declarations, Old Style Attribute Declarations, , Attributed Variables
+@section hProlog and SWI-Prolog style Attribute Declarations
+
+The following documentation is taken from the SWI-Prolog manual.
+
+Binding an attributed variable schedules a goal to be executed at the
+first possible opportunity. In the current implementation the hooks are
+executed immediately after a successful unification of the clause-head
+or successful completion of a foreign language (built-in) predicate. Each
+attribute is associated to a module and the hook @code{attr_unify_hook/2} is
+executed in this module.  The example below realises a very simple and
+incomplete finite domain reasoner.
+
+@example
+:- module(domain,
+	  [ domain/2			% Var, ?Domain
+	  ]).
+:- use_module(library(ordsets)).
+
+domain(X, Dom) :-
+	var(Dom), !,
+	get_attr(X, domain, Dom).
+domain(X, List) :-
+	list_to_ord_set(List, Domain),
+	put_attr(Y, domain, Domain),
+	X = Y.
+
+%	An attributed variable with attribute value Domain has been
+%	assigned the value Y
+
+attr_unify_hook(Domain, Y) :-
+	(   get_attr(Y, domain, Dom2)
+	->  ord_intersection(Domain, Dom2, NewDomain),
+	    (   NewDomain == []
+	    ->	fail
+	    ;	NewDomain = [Value]
+	    ->	Y = Value
+	    ;	put_attr(Y, domain, NewDomain)
+	    )
+	;   var(Y)
+	->  put_attr( Y, domain, Domain )
+	;   ord_memberchk(Y, Domain)
+	).
+
+%	Translate attributes from this module to residual goals
+
+attribute_goals(X) -->
+	@{ get_attr(X, domain, List) @},
+	[domain(X, List)].
+@end example
+
+
+Before explaining the code we give some example queries:
+
+@multitable @columnfractions .70 .30
+            @item @code{?- domain(X, [a,b]), X = c}
+@tab @code{fail}
+@item @code{domain(X, [a,b]), domain(X, [a,c]).}
+           @tab @code{X=a}
+    @item @code{domain(X, [a,b,c]), domain(X, [a,c]).}
+     @tab @code{domain(X, [a,c]).}
+    @end multitable
+
+The predicate @code{domain/2} fetches (first clause) or assigns
+(second clause) the variable a @emph{domain}, a set of values it can
+be unified with.  In the second clause first associates the domain
+with a fresh variable and then unifies X to this variable to deal
+with the possibility that X already has a domain. The
+predicate @code{attr_unify_hook/2} is a hook called after a variable with
+a domain is assigned a value.  In the simple case where the variable
+is bound to a concrete value we simply check whether this value is in
+the domain. Otherwise we take the intersection of the domains and either
+fail if the intersection is empty (first example), simply assign the
+value if there is only one value in the intersection (second example) or
+assign the intersection as the new domain of the variable (third
+example). The nonterminal @code{attribute_goals/3} is used to translate
+remaining attributes to user-readable goals that, when executed, reinstate
+these attributes.
+
+@table @code
+
+@item attvar(?@var{Term})
+@findex attvar/1
+@snindex attvar/1
+@cnindex attvar/1
+
+Succeeds if @code{Term} is an attributed variable. Note that @code{var/1} also
+succeeds on attributed variables.  Attributed variables are created with
+@code{put_attr/3}.
+
+@item put_attr(+@var{Var},+@var{Module},+@var{Value})
+@findex put_attr/3
+@snindex put_attr/3
+@cnindex put_attr/3
+
+If @var{Var} is a variable or attributed variable, set the value for the
+attribute named @var{Module} to @var{Value}. If an attribute with this
+name is already associated with @var{Var}, the old value is replaced.
+Backtracking will restore the old value (i.e., an attribute is a mutable
+term. See also @code{setarg/3}). This predicate raises a representation error if
+@var{Var} is not a variable and a type error if @var{Module} is not an atom.
+
+@item get_attr(+@var{Var},+@var{Module},-@var{Value})
+@findex get_attr/3
+@snindex get_attr/3
+@cnindex get_attr/3
+
+Request the current @var{value} for the attribute named @var{Module}.  If
+@var{Var} is not an attributed variable or the named attribute is not
+associated to @var{Var} this predicate fails silently.  If @var{Module}
+is not an atom, a type error is raised.
+
+@item del_attr(+@var{Var},+@var{Module})
+@findex del_attr/2
+@snindex del_attr/2
+@cnindex del_attr/2
+
+Delete the named attribute.  If @var{Var} loses its last attribute it
+is transformed back into a traditional Prolog variable.  If @var{Module}
+is not an atom, a type error is raised. In all other cases this
+predicate succeeds regardless whether or not the named attribute is
+present.
+
+@item attr_unify_hook(+@var{AttValue},+@var{VarValue})
+@findex attr_unify_hook/2
+@snindex attr_unify_hook/2
+@cnindex attr_unify_hook/2
+
+Hook that must be defined in the module an attributed variable refers
+to. Is is called @emph{after} the attributed variable has been
+unified with a non-var term, possibly another attributed variable.
+@var{AttValue} is the attribute that was associated to the variable
+in this module and @var{VarValue} is the new value of the variable.
+Normally this predicate fails to veto binding the variable to
+@var{VarValue}, forcing backtracking to undo the binding.  If
+@var{VarValue} is another attributed variable the hook often combines
+the two attribute and associates the combined attribute with
+@var{VarValue} using @code{put_attr/3}.
+
+@item attr_portray_hook(+@var{AttValue},+@var{Var})
+@findex attr_portray_hook/2
+@snindex attr_portray_hook/2
+@cnindex attr_portray_hook/2
+
+Called by @code{write_term/2} and friends for each attribute if the option
+@code{attributes(portray)} is in effect.  If the hook succeeds the
+attribute is considered printed.  Otherwise  @code{Module = ...} is
+printed to indicate the existence of a variable.
+
+@item attribute_goals(+@var{Var},-@var{Gs},+@var{GsRest})
+@findex attribute_goals/2
+@snindex attribute_goals/2
+@cnindex attribute_goals/2
+
+This nonterminal, if it is defined in a module, is used by @var{copy_term/3}
+to project attributes of that module to residual goals. It is also
+used by the toplevel to obtain residual goals after executing a query.
+@end table
+
+Normal user code should deal with @code{put_attr/3}, @code{get_attr/3} and @code{del_attr/2}.
+The routines in this section fetch or set the entire attribute list of a
+variables. Use of these predicates is anticipated to be restricted to
+printing and other special purpose operations.
+
+@table @code
+
+@item get_attrs(+@var{Var},-@var{Attributes})
+@findex get_attrs/2
+@snindex get_attrs/2
+@cnindex get_attrs/2
+
+Get all attributes of @var{Var}. @var{Attributes} is a term of the form
+@code{att(@var{Module}, @var{Value}, @var{MoreAttributes})}, where @var{MoreAttributes} is
+@code{[]} for the last attribute.
+
+@item put_attrs(+@var{Var},+@var{Attributes})
+@findex put_attrs/2
+@snindex put_attrs/2
+@cnindex put_attrs/2
+Set all attributes of @var{Var}.  See @code{get_attrs/2} for a description of
+@var{Attributes}.
+
+@item del_attrs(+@var{Var})
+@findex del_attrs/1
+@snindex del_attrs/1
+@cnindex del_attrs/1
+If @var{Var} is an attributed variable, delete @emph{all} its
+attributes.  In all other cases, this predicate succeeds without
+side-effects.
+
+@item term_attvars(+@var{Term},-@var{AttVars})
+@findex term_attvars/2
+@snindex term_attvars/2
+@cnindex term_attvars/2
+@var{AttVars} is a list of all attributed variables in @var{Term} and
+its attributes. I.e., @code{term_attvars/2} works recursively through
+attributes.  This predicate is Cycle-safe.
+
+@item copy_term(?@var{TI},-@var{TF},-@var{Goals}) 
+@findex copy_term/3
+@syindex copy_term/3
+@cnindex copy_term/3
+Term @var{TF} is a variant of the original term @var{TI}, such that for
+each variable @var{V} in the term @var{TI} there is a new variable @var{V'}
+in term @var{TF} without any attributes attached.  Attributed
+variables are thus converted to standard variables.  @var{Goals} is
+unified with a list that represents the attributes.  The goal
+@code{maplist(call,@var{Goals})} can be called to recreate the
+attributes.
+
+Before the actual copying, @code{copy_term/3} calls
+@code{attribute_goals/1} in the module where the attribute is
+defined.
+
+@item copy_term_nat(?@var{TI},-@var{TF}) 
+@findex copy_term_nat/2
+@syindex copy_term_nat/2
+@cnindex copy_term_nat/2
+As @code{copy_term/2}.  Attributes however, are @emph{not} copied but replaced
+by fresh variables.
+@end table
+
+@node Old Style Attribute Declarations, , New Style Attribute Declarations, Attributed Variables
+@section SICStus Prolog style Attribute Declarations
+
+@menu
+* Attribute Declarations:: Declaring New Attributes
+* Attribute Manipulation:: Setting and Reading Attributes
+* Attributed Unification:: Tuning the Unification Algorithm
+* Displaying Attributes:: Displaying Attributes in User-Readable Form
+* Projecting Attributes:: Obtaining the Attributes of Interest
+* Attribute Examples:: Two Simple Examples of how to use Attributes.
+@end menu
+
+Old style attribute declarations are activated through loading the library @t{atts} . The command
 @example
 | ?- use_module(library(atts)).
 @end example
-enables the use of attributed variables. The package provides the
+enables this form of use of attributed variables. The package provides the
 following functionality:
 @itemize @bullet
 @item Each attribute must be declared first. Attributes are described by a functor
@@ -12453,8 +12679,8 @@ the top-level, where it is used to output the set of
 floundered constraints at the end of a query.
 @end itemize
 
-@node Attribute Declarations, Attribute Manipulation, , Attributed Variables
-@section Attribute Declarations
+@node Attribute Declarations, Attribute Manipulation, , Old Style Attribute Declarations
+@subsection Attribute Declarations
 
 Attributes are compound terms associated with a variable. Each attribute
 has a @emph{name} which is @emph{private} to the module in which the
@@ -12480,8 +12706,8 @@ preprocessed depending on the module.  The @code{user:goal_expansion/3}
 mechanism is used for this purpose.
 
 
-@node Attribute Manipulation, Attributed Unification, Attribute Declarations, Attributed Variables
-@section Attribute Manipulation
+@node Attribute Manipulation, Attributed Unification, Attribute Declarations, Old Style Attribute Declarations
+@subsection Attribute Manipulation
 
 
 The  attribute manipulation predicates always work as follows:
@@ -12531,8 +12757,8 @@ Remove the attribute with the same name. If no such attribute existed,
 simply succeed.
 @end table
 
-@node Attributed Unification, Displaying Attributes, Attribute Manipulation, Attributed Variables
-@section Attributed Unification
+@node Attributed Unification, Displaying Attributes, Attribute Manipulation, Old Style Attribute Declarations
+@subsection Attributed Unification
 
 The user-predicate predicate @code{verify_attributes/3} is called when
 attempting to unify an attributed variable which might have attributes
@@ -12569,8 +12795,8 @@ Succeed if @var{Var} is an attributed variable.
 
 
 
-@node Displaying Attributes, Projecting Attributes,Attributed Unification, Attributed Variables 
-@section Displaying Attributes
+@node Displaying Attributes, Projecting Attributes,Attributed Unification, Old Style Attribute Declarations 
+@subsection Displaying Attributes
 
 Attributes are usually presented as goals. The following routines are
 used by built-in predicates such as @code{call_residue/2} and by the
@@ -12594,8 +12820,8 @@ User-defined procedure, called to project the attributes in the query,
 
 @end table
 
-@node Projecting Attributes, Attribute Examples, Displaying Attributes, Attributed Variables
-@section Projecting Attributes
+@node Projecting Attributes, Attribute Examples, Displaying Attributes, Old Style Attribute Declarations
+@subsection Projecting Attributes
 
 Constraint solvers must be able to project a set of constraints to a set
 of variables. This is useful when displaying the solution to a goal, but
@@ -12626,8 +12852,8 @@ original constraints into a set of new constraints on the projection,
 and these constraints are the ones that will have an
 @code{attribute_goal/2} handler.
 
-@node Attribute Examples, ,Projecting Attributes, Attributed Variables
-@section Attribute Examples
+@node Attribute Examples, ,Projecting Attributes, Old Style Attribute Declarations
+@subsection Attribute Examples
 
 The following two examples example is taken from the SICStus Prolog manual. It
 sketches the implementation of a simple finite domain ``solver''.  Note

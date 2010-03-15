@@ -156,21 +156,12 @@ expand_put_attributes(Atts,Mod,Var,attributes:put_module_atts(Var,AccessTerm)) :
 expand_put_attributes(Att,Mod,Var,Goal) :- 
 	expand_put_attributes([Att],Mod,Var,Goal).
 
-woken_att_do(AttVar, Binding) :-
-	get_all_swi_atts(AttVar,SWIAtts),
+woken_att_do(AttVar, Binding, NGoals, DoNotBind) :-
 	modules_with_attributes(AttVar,Mods0),
 	modules_with_attributes(Mods),
 	find_used(Mods,Mods0,[],ModsI),
 	do_verify_attributes(ModsI, AttVar, Binding, Goals),
-	process_goals(Goals, NGoals, DoNotBind),
-	( DoNotBind == true
-	->
-	  unbind_attvar(AttVar)
-	;
-	  bind_attvar(AttVar)
-	),
-	do_hook_attributes(SWIAtts, Binding),
-	lcall(NGoals).
+	process_goals(Goals, NGoals, DoNotBind).
 
 % dirty trick to be able to unbind a variable that has been constrained.
 process_goals([], [], _).
@@ -197,63 +188,6 @@ do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
 do_verify_attributes([_|Mods], AttVar, Binding, Goals) :-
 	do_verify_attributes(Mods, AttVar, Binding, Goals).
-
-do_hook_attributes([], _).
-do_hook_attributes(att(Mod,Att,Atts), Binding) :-
-	current_predicate(attr_unify_hook,Mod:attr_unify_hook(_,_)),
-	!,
-	Mod:attr_unify_hook(Att, Binding),
-	do_hook_attributes(Atts, Binding).
-do_hook_attributes(att(_,_,Atts), Binding) :-
-	do_hook_attributes(Atts, Binding).
-
-lcall([]).
-lcall([Mod:Gls|Goals]) :-
-	lcall2(Gls,Mod),
-	lcall(Goals).
-
-lcall2([], _).
-lcall2([Goal|Goals], Mod) :-
-	call(Mod:Goal),
-	lcall2(Goals, Mod).
-
-convert_att_var(V, Gs) :-
-	modules_with_attributes(V,LMods),
-	fetch_att_goals(LMods,V,Gs0), !,
-	simplify_trues(Gs0, Gs).
-convert_att_var(_, true).
-
-fetch_att_goals([Mod], Att, G1) :-
-	call_module_attributes(Mod, Att, G1), !.
-fetch_att_goals([_], _, true) :- !.
-fetch_att_goals([Mod|LMods], Att, (G1,LGoal)) :-
-	call_module_attributes(Mod, Att, G1), !,
-	fetch_att_goals(LMods, Att, LGoal).
-fetch_att_goals([_|LMods], Att, LGoal) :-
-	fetch_att_goals(LMods, Att, LGoal).
-
-%
-% if there is an active attribute for this module call attribute_goal.
-%
-call_module_attributes(Mod, AttV, G1) :-
-	current_predicate(attribute_goal, Mod:attribute_goal(AttV,G1)),
-	Mod:attribute_goal(AttV, G1).
-
-simplify_trues((A,B), NG) :- !,
-	simplify_trues(A, NA),
-	simplify_trues(B, NB),
-	simplify_true(NA, NB, NG).
-simplify_trues(G, G).
-
-simplify_true(true, G, G) :- !.
-simplify_true(G, true, G) :- !.
-simplify_true(A, B, (A,B)).
-
-
-convert_to_goals([G],G) :- !.
-convert_to_goals([A|G],(A,Gs)) :- 
-	convert_to_goals(G,Gs).
-
 
 
 	

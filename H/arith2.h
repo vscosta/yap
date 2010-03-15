@@ -158,7 +158,7 @@ p_plus(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_add_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case double_e:
@@ -172,7 +172,7 @@ p_plus(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_add_float_big(FloatOfTerm(t1),Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
   case big_int_e:
@@ -185,11 +185,11 @@ p_plus(Term t1, Term t2) {
       return(Yap_gmp_add_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2)));
     case double_e:
       return(Yap_gmp_add_float_big(FloatOfTerm(t2),Yap_BigIntOfTerm(t1)));
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -214,7 +214,7 @@ p_minus(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_sub_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -231,7 +231,7 @@ p_minus(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_sub_float_big(FloatOfTerm(t1),Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -244,11 +244,11 @@ p_minus(Term t1, Term t2) {
       return(Yap_gmp_sub_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2)));
     case double_e:
       return(Yap_gmp_sub_big_float(Yap_BigIntOfTerm(t1),FloatOfTerm(t2)));
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -274,7 +274,7 @@ p_times(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_mul_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -289,7 +289,7 @@ p_times(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_mul_float_big(FloatOfTerm(t1),Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -303,11 +303,11 @@ p_times(Term t1, Term t2) {
       return(Yap_gmp_mul_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2)));
     case double_e:
       return(Yap_gmp_mul_float_big(FloatOfTerm(t2),Yap_BigIntOfTerm(t1)));
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -343,7 +343,7 @@ p_div(Term t1, Term t2) {
       /* Cool */
       RINT(0);
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -360,11 +360,11 @@ p_div(Term t1, Term t2) {
       return Yap_gmp_div_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "// /2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -384,7 +384,7 @@ p_and(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_and_int_big(IntegerOfTerm(t1),Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -401,11 +401,11 @@ p_and(Term t1, Term t2) {
       return(Yap_gmp_and_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1)));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\ /2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -425,7 +425,7 @@ p_or(Term t1, Term t2) {
 #ifdef USE_GMP
       return(Yap_gmp_ior_int_big(IntegerOfTerm(t1),Yap_BigIntOfTerm(t2)));
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -442,11 +442,11 @@ p_or(Term t1, Term t2) {
       return Yap_gmp_ior_big_big(Yap_BigIntOfTerm(t2), Yap_BigIntOfTerm(t1));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -473,7 +473,7 @@ p_sll(Term t1, Term t2) {
 #ifdef USE_GMP
       return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "<</2");
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -488,11 +488,11 @@ p_sll(Term t1, Term t2) {
       return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
@@ -519,7 +519,7 @@ p_slr(Term t1, Term t2) {
 #ifdef USE_GMP
       return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
 #endif
-    case db_ref_e:
+    default:
       RERROR();
     }
     break;
@@ -534,11 +534,11 @@ p_slr(Term t1, Term t2) {
       return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
-    case db_ref_e:
+    default:
       RERROR();
     }
 #endif
-  case db_ref_e:
+  default:
     RERROR();
   }
   RERROR();
