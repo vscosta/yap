@@ -113,7 +113,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 '$safe_call_cleanup'(Goal, Cleanup, Catcher, Exception) :-
 	yap_hacks:current_choice_point(MyCP1),
-	'$freeze_goal'(Catcher, '$clean_call'(Active, Cleanup)),
+	'$coroutining':freeze_goal(Catcher, '$clean_call'(Active, Cleanup)),
 	(
 	 yap_hacks:trail_suspension_marker(Catcher),
 	 yap_hacks:enable_interrupts,
