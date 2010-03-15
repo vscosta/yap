@@ -96,8 +96,8 @@ Section "Start Menu shortcuts"
 		 0
   SetOutPath $INSTDIR
   CreateShortCut "$SMPROGRAMS\${GRP}\Readme.lnk" \
-  		  "$INSTDIR\docs\README.txt" "" \
-		  "$INSTDIR\docs\README.txt" 0 \
+  		  "$INSTDIR\docs\Yap\README.TXT" "" \
+		  "$INSTDIR\docs\Yap\README.TXT" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
   		  "$INSTDIR\docs\Yap\yap.html" "" \
