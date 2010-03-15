@@ -38,7 +38,7 @@
 	    split_at/4,			% +N, +List, -FirstElements, -LastElements
 	    max_go_list/2,		% +List, -Max
 	    or_list/2,			% +ListOfInts, -BitwiseOr
-	    chr_sublist/2,			% ?Sublist, +List
+	    sublist/2,			% ?Sublist, +List
 	    bounded_sublist/3,		% ?Sublist, +List, +Bound
 	    chr_delete/3,
 	    init_store/2,
@@ -54,7 +54,10 @@
 	    put_ds/4
 %	    lookup_ht1/4
 	  ]).
-:- use_module(library(lists)).
+
+:- reexport('../lists',[sublist/2]).
+
+%:- use_module(library(lists)).
 :- use_module(library(assoc)).
 
 /** <module> hProlog compatibility library
@@ -93,7 +96,7 @@ make_update_store_goal(Name,Value,Goal) :- Goal = b_setval(Name,Value).
 		 *******************************/
 
 %%	substitute_eq(+OldVal, +OldList, +NewVal, -NewList)
-%	
+%
 %	Substitute OldVal by NewVal in OldList and unify the result
 %	with NewList.
 
@@ -107,7 +110,7 @@ substitute_eq(X, [U|Us], Y, [V|Vs]) :-
         ).
 
 %%	memberchk_eq(+Val, +List)
-%	
+%
 %	Deterministic check of membership using == rather than
 %	unification.
 
@@ -120,7 +123,7 @@ memberchk_eq(X, [Y|Ys]) :-
 % :- load_foreign_library(chr_support).
 
 %%	list_difference_eq(+List, -Subtract, -Rest)
-%	
+%
 %	Delete all elements of Subtract from List and unify the result
 %	with Rest.  Element comparision is done using ==/2.
 
@@ -133,7 +136,7 @@ list_difference_eq([X|Xs],Ys,L) :-
 	).
 
 %%	intersect_eq(+List1, +List2, -Intersection)
-%	
+%
 %	Determine the intersection of two lists without unifying values.
 
 intersect_eq([], _, []).
@@ -146,7 +149,7 @@ intersect_eq([X|Xs], Ys, L) :-
 
 
 %%	take(+N, +List, -FirstElements)
-%	
+%
 %	Take the first  N  elements  from   List  and  unify  this  with
 %	FirstElements. The definition is based   on the GNU-Prolog lists
 %	library. Implementation by Jan Wielemaker.
@@ -178,7 +181,7 @@ split_at(N,[H|T],[H|L1],L2) :-
 	split_at(M,T,L1,L2).
 
 %%	max_go_list(+List, -Max)
-%	
+%
 %	Return the maximum of List in the standard order of terms.
 
 max_go_list([H|T], Max) :-
@@ -192,7 +195,7 @@ max_go_list([H|T], X, Max) :-
         ).
 
 %%	or_list(+ListOfInts, -BitwiseOr)
-%	
+%
 %	Do a bitwise disjuction over all integer members of ListOfInts.
 
 or_list(L, Or) :-
@@ -210,15 +213,15 @@ or_list([H|T], Or0, Or) :-
 %
 %	True if all elements of Sub appear in List in the same order.
 
-chr_sublist(L, L).
-chr_sublist(Sub, [H|T]) :-
-	'$sublist1'(T, H, Sub).
+%sublist(L, L).
+%sublist(Sub, [H|T]) :-
+%	'$sublist1'(T, H, Sub).
 
-'$sublist1'(Sub, _, Sub).
-'$sublist1'([H|T], _, Sub) :-
-	'$sublist1'(T, H, Sub).
-'$sublist1'([H|T], X, [X|Sub]) :-
-	'$sublist1'(T, H, Sub).
+%'$sublist1'(Sub, _, Sub).
+%'$sublist1'([H|T], _, Sub) :-
+%	'$sublist1'(T, H, Sub).
+%'$sublist1'([H|T], X, [X|Sub]) :-
+%	'$sublist1'(T, H, Sub).
 
 %%	bounded_sublist(?Sub, +List, +Bound:integer)
 %
