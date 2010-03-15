@@ -436,6 +436,38 @@ reset_trail(tr_fr_ptr TR0) {
   }
 }
 
+inline EXTERN void
+reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
+  if (dvarsmin) {
+    dvarsmin += 1;
+    do {
+      CELL *newv;
+      newv = CellPtr(*dvarsmin);
+      RESET_VARIABLE(dvarsmin+1);
+      if (IsUnboundVar(dvarsmin))
+	break;
+      RESET_VARIABLE(dvarsmin);
+      dvarsmin = newv;
+    } while (TRUE);
+  }
+}
+
+inline EXTERN void
+close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
+  if (dvarsmin) {
+    dvarsmin += 1;
+    do {
+      CELL *newv;
+      Bind(dvarsmin+1, dvarsmin[1]);
+      if (IsUnboundVar(dvarsmin))
+	break;
+      newv = CellPtr(*dvarsmin);
+      RESET_VARIABLE(dvarsmin);
+      dvarsmin = newv;
+    } while (TRUE);
+  }
+}
+
 EXTERN inline
 Int Yap_unify(Term t0, Term t1)
 {
