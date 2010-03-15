@@ -35,6 +35,7 @@ STD_PROTO(static inline void free_subgoal_trie_hash_chain, (sg_hash_ptr));
 STD_PROTO(static inline void free_answer_trie_hash_chain, (ans_hash_ptr));
 STD_PROTO(static inline choiceptr freeze_current_cp, (void));
 STD_PROTO(static inline void resume_frozen_cp, (choiceptr));
+STD_PROTO(static inline void abolish_all_frozen_cps, (void));
 
 #ifdef YAPOR
 STD_PROTO(static inline void pruning_over_tabling_data_structures, (void));
@@ -491,7 +492,7 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
       RESET_VARIABLE(ref);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= Yap_TrailBase) {
+      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
         /* avoid frozen segments */
         unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
@@ -530,7 +531,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= Yap_TrailBase) {
+      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
         /* avoid frozen segments */
   	rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
@@ -574,7 +575,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
         RESET_VARIABLE(ref);
       } else if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-        if ((ADDR)ref >= Yap_TrailBase) {
+	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+	  /* avoid frozen segments */
           unbind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
           if (unbind_tr > (tr_fr_ptr) Yap_TrailTop)
@@ -600,7 +602,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       ref = (CELL) TrailTerm(--end_tr);
       if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-        if ((ADDR)ref >= Yap_TrailBase) {
+	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+	  /* avoid frozen segments */
   	  end_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
 	  if (end_tr > (tr_fr_ptr) Yap_TrailTop)
@@ -617,7 +620,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if ((ADDR)ref >= Yap_TrailBase) {
+      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+	/* avoid frozen segments */
         rebind_tr = (tr_fr_ptr) ref;
 #ifdef TABLING_ERRORS
 	if (rebind_tr > (tr_fr_ptr) Yap_TrailTop)
@@ -811,6 +815,15 @@ void resume_frozen_cp(choiceptr frozen_cp) {
   B = frozen_cp;
   TR = TR_FZ;
   TRAIL_LINK(B->cp_tr);
+  return;
+}
+
+
+static inline
+void abolish_all_frozen_cps(void) {
+  B_FZ  = (choiceptr) Yap_LocalBase;
+  H_FZ  = (CELL *) Yap_GlobalBase;
+  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
   return;
 }
 

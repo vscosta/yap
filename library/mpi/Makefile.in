@@ -11,6 +11,7 @@
 # (EROOT for architecture-dependent files)
 #
 prefix = @prefix@
+exec_prefix = @exec_prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 abs_top_builddir = @abs_top_builddir@
@@ -21,8 +22,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for binary libraries
 #
-LIBDIR=$(EROOTDIR)/lib
-YAPLIBDIR=$(EROOTDIR)/lib/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #

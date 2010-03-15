@@ -9,13 +9,12 @@
 		  clpbn_run_solver/3,
 		  clpbn_init_solver/5,
 		  clpbn_run_solver/4,
-		  clpbn_init_graph/1]).
+		  clpbn_init_graph/1,
+		  op( 500, xfy, with)]).
 
 :- use_module(library(atts)).
 :- use_module(library(lists)).
 :- use_module(library(terms)).
-
-:- op( 500, xfy, with).
 
 %
 % avoid the overhead of using goal_expansion/2.

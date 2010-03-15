@@ -1,6 +1,7 @@
 #
 # default base directory for YAP installation
 #
+#
 ROOTDIR = @prefix@
 #
 # where the binary should be
@@ -9,7 +10,7 @@ BINDIR = $(ROOTDIR)/bin
 #
 # where YAP should look for binary libraries
 #
-LIBDIR=$(ROOTDIR)/lib/Yap
+LIBDIR=@libdir@/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #

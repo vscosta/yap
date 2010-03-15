@@ -85,7 +85,8 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$do_c_built_in'(X is Y, M, P) :-
         primitive(X), !,
 	'$do_c_built_in'(X =:= Y, M, P).
-'$do_c_built_in'(X is Y, M, (P,A=X)) :- nonvar(X), !,
+'$do_c_built_in'(X is Y, M, (P,A=X)) :-
+	nonvar(X), !,
 	'$do_c_built_in'(A is Y, M, P).
 '$do_c_built_in'(X is Y, _, P) :-
 	nonvar(Y),		% Don't rewrite variables
@@ -163,11 +164,11 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$expand_expr'(A, true, A) :-
 	atomic(A), !.
 '$expand_expr'(T, E, V) :-
-	'$unaryop'(T, O, A), !,
+	T =.. [O, A], !,
 	'$expand_expr'(A, Q, X),
 	'$expand_expr'(O, X, V, Q, E).
 '$expand_expr'(T, E, V) :-
-	'$binaryop'(T, O, A, B), !,
+	T =.. [O, A, B], !,
 	'$expand_expr'(A, Q, X),
 	'$expand_expr'(B, R, Y),
 	'$expand_expr'(O, X, Y, V, Q, S),
@@ -272,65 +273,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 '$preprocess_args_for_non_commutative'(X, Y, Z, W, E) :-
 	'$do_and'(Z = X, Y = W, E).
 	
-
-
-% These are the unary arithmetic operators
-'$unaryop'(+X		,+	,X).
-'$unaryop'(-X		,-	,X).
-'$unaryop'(\(X)		,\	,X).
-'$unaryop'(exp(X)	,exp	,X).
-'$unaryop'(log(X)	,log	,X).
-'$unaryop'(log10(X)	,log10	,X).
-'$unaryop'(sqrt(X)	,sqrt	,X).
-'$unaryop'(sin(X)	,sin	,X).
-'$unaryop'(cos(X)	,cos	,X).
-'$unaryop'(tan(X)	,tan	,X).
-'$unaryop'(asin(X)	,asin	,X).
-'$unaryop'(acos(X)	,acos	,X).
-'$unaryop'(atan(X)	,atan	,X).
-'$unaryop'(atan2(X)	,atan2	,X).
-'$unaryop'(sinh(X)	,sinh	,X).
-'$unaryop'(cosh(X)	,cosh	,X).
-'$unaryop'(tanh(X)	,tanh	,X).
-'$unaryop'(asinh(X)	,asinh	,X).
-'$unaryop'(acosh(X)	,acosh	,X).
-'$unaryop'(atanh(X)	,atanh	,X).
-'$unaryop'(floor(X)	,floor	,X).
-'$unaryop'(abs(X)	,abs	,X).
-'$unaryop'(float(X)	,float	,X).
-'$unaryop'(+(X)		,+	,X).
-'$unaryop'(integer(X)	,integer,X).
-'$unaryop'(truncate(X)	,truncate,X).
-'$unaryop'(round(X)	,round	,X).
-'$unaryop'(ceiling(X)	,ceiling,X).
-'$unaryop'(msb(X)	,msb	,X).
-'$unaryop'(sign(X)	,sign	,X).
-'$unaryop'(float_fractional_part(X)	,float_fractional_part	,X).
-'$unaryop'(float_integer_part(X)	,float_integer_part	,X).
-'$unaryop'(lgamma(X)	,lgamma	,X).
-
-% These are the binary arithmetic operators
-'$binaryop'(X+Y		,+	,X,Y).
-'$binaryop'(X-Y		,-	,X,Y).
-'$binaryop'(X*Y		,*	,X,Y).
-'$binaryop'(X/Y		,/	,X,Y).
-'$binaryop'(X mod Y	,mod	,X,Y).
-'$binaryop'(X rem Y	,rem 	,X,Y).
-'$binaryop'(X//Y	,//	,X,Y).
-'$binaryop'(X/\Y	,/\	,X,Y).
-'$binaryop'(X\/Y	,\/	,X,Y).
-'$binaryop'(X#Y		,'#'	,X,Y).
-'$binaryop'(X<<Y	,<<	,X,Y).
-'$binaryop'(X>>Y	,>>	,X,Y).
-'$binaryop'(X^Y		,^	,X,Y).
-'$binaryop'(X**Y	,**	,X,Y).
-'$binaryop'(exp(X,Y)	,exp	,X,Y).
-'$binaryop'(max(X,Y)	,max	,X,Y).
-'$binaryop'(min(X,Y)	,min	,X,Y).
-'$binaryop'(gcd(X,Y)	,gcd	,X,Y).
-'$binaryop'(atan2(X,Y)	,atan2	,X,Y).
-
-
 /* Arithmetics					*/
 
 % M and N nonnegative integers, N is the successor of M

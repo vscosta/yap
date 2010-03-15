@@ -123,7 +123,7 @@ void free_root_choice_point(void) {
 #ifdef TABLING
   LOCAL_top_cp_on_stack =
 #endif /* TABLING */
-  LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = B_BASE;
+  LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = (choiceptr) Yap_LocalBase;
   return;
 }
 
@@ -224,13 +224,13 @@ int q_share_work(int worker_p) {
       RESET_VARIABLE(aux_cell);
 #ifdef TABLING
     } else if (IsPairTerm(aux_cell)) {
-      /* avoid frozen segments */
       aux_cell = (CELL) RepPair(aux_cell);
-      if ((ADDR) aux_cell >= TrailBase) {
+      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
+	/* avoid frozen segments */
         TR = (tr_fr_ptr) aux_cell;
 #ifdef TABLING_ERRORS
-        if (TR > (tr_fr_ptr) TrailTop)
-          TABLING_ERROR_MESSAGE("TR > TrailTop (q_share_work)");
+        if (TR > (tr_fr_ptr) Yap_TrailTop)
+          TABLING_ERROR_MESSAGE("TR > Yap_TrailTop (q_share_work)");
         if (TR < aux_tr)
           TABLING_ERROR_MESSAGE("TR < aux_tr (q_share_work)");
 #endif /* TABLING_ERRORS */
@@ -338,9 +338,9 @@ sync_with_p:
       }
 #ifdef TABLING 
     } else if (IsPairTerm(aux_cell)) {
-      /* avoid frozen segments */
       aux_cell = (CELL) RepPair(aux_cell);
-      if ((ADDR) aux_cell >= TrailBase)
+      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
+        /* avoid frozen segments */
         aux_tr = (tr_fr_ptr) aux_cell;
 #endif /* TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES

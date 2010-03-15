@@ -364,6 +364,9 @@
 #if !HAVE_STRNCPY
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
+#if !HAVE_STRNCAT
+#define strncat(X,Y,Z) strcat(X,Y)
+#endif
 
 #if defined(_MSC_VER) && defined(YAP_EXPORTS)
 #define X_API __declspec(dllexport)
@@ -2264,6 +2267,25 @@ do_bootfile (char *bootfilename)
 #endif
 }
 
+static void
+construct_init_file(char *boot_file, char *BootFile)
+{
+  /* trust YAPSHAREDIR over YAP_PL_SRCDIR, and notice that the code is / dependent. */
+#if HAVE_GETENV
+  if (getenv("YAPSHAREDIR")) {
+    strncpy(boot_file, getenv("YAPSHAREDIR"), 256);
+    strncat(boot_file, "/pl/", 255);
+  } else {
+#endif
+    strncpy(boot_file, YAP_PL_SRCDIR, 256);
+    strncat(boot_file, "/", 255);
+#if HAVE_GETENV
+  }
+#endif
+  strncat(boot_file, BootFile, 255);
+}
+
+
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
@@ -2489,21 +2511,7 @@ YAP_Init(YAP_init_args *yap_init)
 
     /* read the bootfile */
     if (!do_bootstrap) {
-#if HAVE_STRNCAT
-      strncpy(boot_file, YAP_PL_SRCDIR, 256);
-#else
-      strcpy(boot_file, YAP_PL_SRCDIR);
-#endif
-#if HAVE_STRNCAT
-      strncat(boot_file, "/", 255);
-#else
-      strcat(boot_file, "/");
-#endif
-#if HAVE_STRNCAT
-      strncat(boot_file, BootFile, 255);
-#else
-      strcat(boot_file, BootFile);
-#endif
+      construct_init_file(boot_file, BootFile);
       yap_init->YapPrologBootFile = boot_file;
     }
     do_bootfile (yap_init->YapPrologBootFile ? yap_init->YapPrologBootFile : BootFile);
@@ -2513,21 +2521,7 @@ YAP_Init(YAP_init_args *yap_init)
       Atom atfile;
       Functor fgoal;
       YAP_Term goal, as[2];
-#if HAVE_STRNCAT
-      strncpy(init_file, YAP_PL_SRCDIR, 256);
-#else
-      strcpy(init_file, YAP_PL_SRCDIR);
-#endif
-#if HAVE_STRNCAT
-      strncat(init_file, "/", 255);
-#else
-      strcat(init_file, "/");
-#endif
-#if HAVE_STRNCAT
-      strncat(init_file, InitFile, 255);
-#else
-      strcat(init_file, InitFile);
-#endif
+      construct_init_file(init_file, InitFile);
       /* consult init file */
       atfile = Yap_LookupAtom(init_file);
       as[0] = MkAtomTerm(atfile);

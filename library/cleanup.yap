@@ -29,17 +29,17 @@
 % Read the Source.
 
 :- module( cleanup, [
-		call_cleanup/2,
-		call_cleanup/1,
-		on_cleanup/1,
-		cleanup_all/0
-	]).
+		     call_cleanup/2,
+		     call_cleanup/1,
+		     on_cleanup/1,
+		     cleanup_all/0,
+		     op(1150, fx,fragile)
+		    ]).
 
 
 :- multifile user:goal_expansion/3.
 
 :- user_defined_directive(fragile(G), cleanup:cleanup_expansion(G)).
-:- op(1150, fx,fragile).
 
 :- meta_predicate
 	call_cleanup(:,:),

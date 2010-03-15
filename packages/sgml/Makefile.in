@@ -9,6 +9,7 @@
 ifeq (@PROLOG_SYSTEM@,yap)
 
 prefix = @prefix@
+exec_prefix = @exec_prefix@
 ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 abs_top_builddir = @abs_top_builddir@
@@ -16,8 +17,8 @@ abs_top_builddir = @abs_top_builddir@
 srcdir=@srcdir@
 
 BINDIR = $(EROOTDIR)/bin
-LIBDIR=$(EROOTDIR)/lib
-YAPLIBDIR=$(EROOTDIR)/lib/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 SHAREDIR=$(ROOTDIR)/share/Yap
 
 SHELL=@SHELL@

@@ -176,7 +176,7 @@ void Yap_init_local(void) {
 #ifdef YAPOR
   /* local data related to or-parallelism */
   LOCAL = REMOTE + worker_id;
-  Set_LOCAL_top_cp(B_BASE);
+  Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
   LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
   LOCAL_share_request = MAX_WORKERS;
@@ -193,7 +193,7 @@ void Yap_init_local(void) {
   LOCAL_top_sg_fr = NULL; 
   LOCAL_top_dep_fr = GLOBAL_root_dep_fr; 
 #ifdef YAPOR
-  Set_LOCAL_top_cp_on_stack(B_BASE); /* ??? */
+  Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase); /* ??? */
   LOCAL_top_susp_or_fr = GLOBAL_root_or_fr;
 #endif /* YAPOR */
 #endif /* TABLING */
@@ -210,7 +210,7 @@ void make_root_frames(void) {
   INIT_LOCK(OrFr_lock(or_fr));
   OrFr_alternative(or_fr) = NULL;
   BITMAP_copy(OrFr_members(or_fr), GLOBAL_bm_present_workers);
-  SetOrFr_node(or_fr, B_BASE);
+  SetOrFr_node(or_fr, (choiceptr) Yap_LocalBase);
   OrFr_nearest_livenode(or_fr) = NULL;
   OrFr_depth(or_fr) = 0;
   Set_OrFr_pend_prune_cp(or_fr, NULL);
@@ -231,8 +231,9 @@ void make_root_frames(void) {
 
 #ifdef TABLING
   /* root dependency frame */
-  if (!GLOBAL_root_dep_fr)
+  if (!GLOBAL_root_dep_fr) {
     new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
+  }
 #endif /* TABLING */
 }
 

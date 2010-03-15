@@ -29,10 +29,6 @@
 
 extern int Yap_page_size;
 
-#define H_BASE   ((CELL *) Yap_GlobalBase)
-#define B_BASE   ((choiceptr) Yap_LocalBase)
-#define TR_BASE  ((tr_fr_ptr) Yap_TrailBase)
-
 #if SIZEOF_INT_P == 4
 #define ALIGN	                   3
 #define ALIGNMASK                  0xfffffffc

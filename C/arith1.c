@@ -418,6 +418,26 @@ eval1(Int fi, Term t) {
       RERROR();
 #endif
     }
+ case op_erf:
+   {
+     Float dbl = get_float(t), out;
+#if HAVE_ERF
+     out = erf(dbl);
+     RFLOAT(out);
+#else
+     RERROR();
+#endif
+   }
+ case op_erfc:
+   {
+     Float dbl = get_float(t), out;
+#if HAVE_ERF
+     out = erfc(dbl);
+     RFLOAT(out);
+#else
+     RERROR();
+#endif
+   }
     /*
       floor(x) maximum integer greatest or equal to X
 
@@ -814,6 +834,8 @@ static InitUnEntry InitUnTab[] = {
   {"float_integer_part", op_fintp},
   {"sign", op_sign},
   {"lgamma", op_lgamma},
+  {"erf",op_erf},
+  {"erfc",op_erfc},
   {"random", op_random1}
 };
 
@@ -879,17 +901,7 @@ p_unary_op_as_integer(void)
     ExpEntry *p;
 
     if (EndOfPAEntr(p = RepExpProp(Yap_GetExpProp(name, 1)))) {
-      Term ti[2];
-
-      /* error */
-      ti[0] = t;
-      ti[1] = MkIntTerm(1);
-      t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-      Yap_Error(TYPE_ERROR_EVALUABLE, t,
-		"functor %s/%d for arithmetic expression",
-		RepAtom(name)->StrOfAE,2);
-      P = FAILCODE;
-      return(FALSE);
+      return Yap_unify(ARG1,ARG2);
     }
     return Yap_unify_constant(ARG2,MkIntTerm(p->FOfEE));
   }

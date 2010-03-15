@@ -26,9 +26,6 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,
 #include "Yatom.h"
 #include "yapio.h"
 
-/* for AtomEof */
-#include "Heap.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <mpi.h>
