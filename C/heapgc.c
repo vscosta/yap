@@ -1664,22 +1664,13 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
 	discard_trail_entries++;
       } else {
-	if ( IsAttVar(hp)) {
-	  if (!detatt || hp >= detatt) {
-	    mark_att_var(hp);
-	  } else {
-	    trail_cell = TrailTerm(trail_base) = (CELL)trail_base;
-	    discard_trail_entries++;
-	  }
-	} else {
-	  if (trail_cell == (CELL)trail_base)
-	    discard_trail_entries++;
+	if (trail_cell == (CELL)trail_base)
+	  discard_trail_entries++;
 #ifdef FROZEN_STACKS
-	  else {
-	    mark_external_reference(&TrailVal(trail_base));
-	  }
-#endif
+	else {
+	  mark_external_reference(&TrailVal(trail_base));
 	}
+#endif
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0 && !MARKED_PTR(hp)) {
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
@@ -1707,10 +1698,11 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     } else if (IsPairTerm(trail_cell)) {
       /* can safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (cptr > (CELL*)Yap_GlobalBase && cptr < H0) {
-	trail_base++;
-	continue;
-      }
+      if (IsAttVar(cptr)) {
+	TrailTerm(trail_base) = (CELL)cptr;
+	mark_external_reference(&TrailTerm(trail_base));
+	TrailTerm(trail_base) = trail_cell;
+      } 
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
@@ -2483,9 +2475,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-
-	if (pt0 > (CELL*)Yap_GlobalBase && pt0 < H0) {
+	if (IsAttVar(pt0)) {
 	  TrailTerm(dest) = trail_cell;
+	  /* be careful with partial gc */
+	  if (HEAP_PTR(TrailTerm(dest))) {
+	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell));
+	  }
 	  dest++;
 	  trail_ptr++;
 	  continue;
