@@ -3,7 +3,7 @@
 
 Name: Yap
 Summary: Prolog Compiler
-Version: 6.0.3
+Version: 6.0.4
 Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
 Release: 1
 Source: http://www.dcc.fc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
@@ -11,7 +11,7 @@ License: Perl Artistic License
 Provides: yap
 Requires: readline
 Group: Development/Languages
-URL: http://www.ncc.up.pt/~vsc/Yap
+URL: http://www.dcc.fc.up.pt/~vsc/Yap
 Prefix: /usr
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
