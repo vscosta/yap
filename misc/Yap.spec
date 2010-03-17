@@ -4,7 +4,7 @@
 Name: Yap
 Summary: Prolog Compiler
 Version: 6.0.4
-Packager: Vitor Santos Costa <vitor@cos.ufrj.br>
+Packager: Vitor Santos Costa <vsc@dcc.fc.up.pt>
 Release: 1
 Source: http://www.dcc.fc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
 License: Perl Artistic License
@@ -16,8 +16,8 @@ Prefix: /usr
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 
 %description
-A high-performance Prolog compiler developed at LIACC,
-Universidade do Porto. The Prolog engine is based in the WAM (Warren
+A high-performance Prolog compiler developed at
+Universidade do Porto and Universidade Federal do Rio de Janeiro. The Prolog engine is based in the WAM (Warren
 Abstract Machine), with several optimizations for better
 performance. YAP follows the Edinburgh tradition, and is largely
 compatible with the ISO-Prolog standard and with Quintus and SICStus
