@@ -9,8 +9,8 @@ Use
 to execute the test
 
 */
-%:-use_module(library(lpadvel)).
-:-use_module(lpadvelor).
+:-use_module(library(lpadvel)).
+%:-use_module(lpadvelor).
 
 
 epsilon(0.000001).

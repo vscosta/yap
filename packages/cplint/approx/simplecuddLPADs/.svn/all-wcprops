@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs
+END
+ProblogBDD.c
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/ProblogBDD.c
+END
+simplecudd.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/simplecudd.h
+END
+general.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/general.h
+END
+ProblogBDDclus.c
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/ProblogBDDclus.c
+END
+simplecudd.c
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/simplecudd.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/Makefile
+END
+general.c
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/simplecuddLPADs/general.c
+END

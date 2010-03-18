@@ -3,16 +3,17 @@
 # (EROOT for architecture-dependent files)
 #
 prefix = @prefix@
+exec_prefix = ${prefix}
 ROOTDIR = $(prefix)
-EROOTDIR = @exec_prefix@
+EROOTDIR = ${prefix}
 #
 # where the binary should be
 #
-BINDIR = $(ROOTDIR)/bin
+BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+YAPLIBDIR=${exec_prefix}/lib/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #
@@ -20,7 +21,7 @@ SHAREDIR=$(ROOTDIR)/share/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../include
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include
 #
 #
 # You shouldn't need to change what follows.
@@ -57,7 +58,18 @@ CPLINT_PROGRAMS= \
 	$(CPLINT_SRCDIR)/lpadclpbn.pl \
 	$(CPLINT_SRCDIR)/lpadsld.pl \
 	$(CPLINT_SRCDIR)/lpad.pl \
-	$(CPLINT_SRCDIR)/cpl.pl 
+	$(CPLINT_SRCDIR)/cpl.pl \
+	$(CPLINT_SRCDIR)/approx/bestfirst.pl \
+	$(CPLINT_SRCDIR)/approx/bestk.pl \
+	$(CPLINT_SRCDIR)/approx/deepdyn.pl \
+	$(CPLINT_SRCDIR)/approx/deepit.pl \
+	$(CPLINT_SRCDIR)/approx/exact.pl \
+	$(CPLINT_SRCDIR)/approx/exact_mem.pl \
+	$(CPLINT_SRCDIR)/approx/montecarlo.pl \
+	$(CPLINT_SRCDIR)/approx/params.pl \
+	$(CPLINT_SRCDIR)/approx/parsing.pl \
+	$(CPLINT_SRCDIR)/approx/tptreefile.pl \
+	$(CPLINT_SRCDIR)/approx/utility.pl
 
 CPLINT_SEMANTICS_PROGRAMS= \
 	$(CPLINT_SRCDIR)/semlpadsld.pl \
@@ -67,7 +79,6 @@ CPLINT_SEMANTICS_PROGRAMS= \
 	
 CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testlpadvel.pl \
-	$(CPLINT_SRCDIR)/testlpadclpbn.pl \
 	$(CPLINT_SRCDIR)/testlpadsld_gbtrue.pl \
 	$(CPLINT_SRCDIR)/testlpadsld_gbfalse.pl \
 	$(CPLINT_SRCDIR)/testlpad.pl \
@@ -157,10 +168,11 @@ install: all
 	for h in $(CPLINT_DOCS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint/doc; done
 	for h in $(CPLINT_TEST_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/cplint; done
 	for h in $(CPLINT_SEMANTICS_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_PROGRAM) approx/simplecuddLPADs/LPADBDD $(SHAREDIR)
 
 installcheck: 
-	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | yap -l $$h; done
+	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
 
 # use the following target to run individual tests, e.g. make testlpad
 test%:  	

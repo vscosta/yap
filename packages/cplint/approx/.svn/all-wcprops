@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/cplint/!svn/ver/2160/cplint/trunk/cplint_new/approx_src
+END
+bestfirst.pl
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/bestfirst.pl
+END
+bestk.pl
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/bestk.pl
+END
+deepdyn.pl
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/deepdyn.pl
+END
+deepit.pl
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/deepit.pl
+END
+INSTALL.txt
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/svn/cplint/!svn/ver/2160/cplint/trunk/cplint_new/approx_src/INSTALL.txt
+END
+exact_mem.pl
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/exact_mem.pl
+END
+montecarlo.pl
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/montecarlo.pl
+END
+params.pl
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/params.pl
+END
+parsing.pl
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/parsing.pl
+END
+tptreefile.pl
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/tptreefile.pl
+END
+utility.pl
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/utility.pl
+END
+exact.pl
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/cplint/!svn/ver/2154/cplint/trunk/cplint_new/approx_src/exact.pl
+END

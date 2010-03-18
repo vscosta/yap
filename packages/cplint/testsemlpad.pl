@@ -68,7 +68,7 @@ test_all(F,[H|T]):-
 files_modes([
 exapprox, 
 exrange,  
-threesideddice, 
+%threesideddice, 
 %mendels, %ok only with grounding=variables
 coin2, 
 ex,exist,exist1 

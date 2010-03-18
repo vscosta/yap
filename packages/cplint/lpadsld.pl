@@ -70,7 +70,7 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime1 is CT1/1000,
 		statistics(walltime,[_,WT1]),
 		WallTime1 is WT1/1000,
-		print_mem,
+		%print_mem,
 		build_formula(L,Formula,[],Var,0,Conj),
 		length(L,ND),
 		length(Var,NV),
@@ -87,7 +87,7 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		statistics(walltime,[_,WT2]),
 		WallTime2 is WT2/1000
 	;
-		print_mem,
+		%print_mem,
 		Prob=0.0,
 		statistics(cputime,[_,CT1]),
 		CPUTime1 is CT1/1000,
@@ -96,9 +96,10 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 		CPUTime2 =0.0,
 		statistics(walltime,[_,WT2]),
 		WallTime2 =0.0
-	),!,
+	),!.
+	/*,
 	format(user_error,"~nMemory after inference~n",[]),
-	print_mem.
+	print_mem.*/
 
 si(GoalsList,ProbL,ProbU,CPUTime):-
         statistics(cputime,[_,_]),
@@ -239,7 +240,7 @@ solve_cond(Goals,Evidence,Prob):-
 	(setof(DerivE,find_deriv(Evidence,DerivE),LDupE)->
 		rem_dup_lists(LDupE,[],LE),
 		(setof(DerivGE,find_deriv_GE(LE,Goals,DerivGE),LDupGE)->
-			print_mem,
+			%print_mem,
 			rem_dup_lists(LDupGE,[],LGE),
 			build_formula(LE,FormulaE,[],VarE),
 			var2numbers(VarE,0,NewVarE),
@@ -249,15 +250,16 @@ solve_cond(Goals,Evidence,Prob):-
 			call_compute_prob(NewVarGE,FormulaGE,ProbGE),
 			Prob is ProbGE/ProbE
 		;
-			print_mem,
+			%print_mem,
 			Prob=0.0
 		)
 	;
-		print_mem,
+		%print_mem,
 		Prob=undefined
-	),
+	).
+	/*,
 	format(user_error,"~nMemory after inference~n",[]),
-	print_mem.
+	print_mem. */
 
 sci(Goals,Evidence,ProbL,ProbU,CPUTime):-
 	statistics(cputime,[_,_]),

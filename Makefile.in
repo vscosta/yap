@@ -487,6 +487,7 @@ all: startup.yss
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
+	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 

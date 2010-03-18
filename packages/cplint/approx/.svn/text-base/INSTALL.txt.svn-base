@@ -1,0 +1,5 @@
+To use the algorithms, you have to compile simplecudd for LPADs in folder
+simplecuddLPADs. Modify the makefile provided to suit your machine and run
+make, make install. Please note that glu is a library that includes cudd and
+that is distributed with vis http://vlsi.colorado.edu/~vis/.
+Instead of linking with libglu.a, you can link with libcudd-ver.a.
