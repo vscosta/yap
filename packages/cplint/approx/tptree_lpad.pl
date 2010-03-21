@@ -6,8 +6,14 @@
 % remembers shortest prefix of a conjunction only (i.e. a*b+a*b*c results in a*b only, but b*a+a*b*c is not reduced)
 % children are sorted, but branches aren't (to speed up search while keeping structure sharing from proof procedure)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+/* derived from tptree.yap from ProbLog by Fabrizio Riguzzi in 2009 
+for dealing with multivalued variables
+instead of variables or their negation, the script can contain equations of the 
+form
+variable=value
+*/
 
-:- module(ptree,[init_ptree/1,
+:- module(ptree_lpad,[init_ptree/1,
 	delete_ptree/1,
 	rename_ptree/2,
 	member_ptree/2,

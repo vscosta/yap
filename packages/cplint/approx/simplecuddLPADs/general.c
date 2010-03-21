@@ -140,6 +140,11 @@
 *         The End                                                              *
 *                                                                              *
 \******************************************************************************/
+/* modified by Fabrizio Riguzzi in 2009 for dealing with multivalued variables
+instead of variables or their negation, the script can contain equations of the 
+form
+variable=value
+*/
 
 
 #include "general.h"

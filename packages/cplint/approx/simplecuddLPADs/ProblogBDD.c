@@ -141,6 +141,13 @@
 *         The End                                                              *
 *                                                                              *
 \******************************************************************************/
+/* modified by Fabrizio Riguzzi in 2009 for dealing with multivalued variables:
+instead of variables or their negation, the script can contain equations of the 
+form
+variable=value
+Multivalued variables are translated to binary variables by means of a log 
+encodimg
+*/
 
 
 #include "simplecudd.h"
@@ -717,31 +724,17 @@ so that it is not recomputed
   double value;
 
 
-  //printf("Prob node %d\n",node);
-  //index=Cudd_NodeReadIndex(node);
-  //printf("Prob INdex %d\n",index);
   if (Cudd_IsConstant(node))
   {
-    value=Cudd_V(node);//node->type.value;
-    //printf("Value %e comp %d\n",value,comp);
-    if (comp)//Cudd_IsComplement(node))
-    	//return (1.0-value);
-	//if (value>0)
+    value=Cudd_V(node);
+    if (comp)
 	{
-//	printf("return 0");
 	return 0.0;
 	}
 	else
 	{
-//	printf("return 1");
 	return 1.0;
 	}
-/*else
-	if (value>0)
-	return 1.0;
-	else
-	return 0.0;
-*/    //return value;
   }
   else
 {
@@ -749,22 +742,15 @@ so that it is not recomputed
 	
 	if (Found!=NULL)
 	{
-	//printf("value found %e\n",Found->dvalue);
 		return Found->dvalue;
 	}
 	else
   	{
 		index=Cudd_NodeReadIndex(node);
-		//printf("node absent %d comp %d\n",node,comp);
-    		//mVarIndex=array_fetch(int,bVar2mVar,index);
 		mVarIndex=MyManager.varmap.bVar2mVar[index];
-    		//v=array_fetch(variable,vars,mVarIndex);
 		v=MyManager.varmap.mvars[mVarIndex];
     		nBit=v.nBit;
-//		printf("calling prob bool mvar %d nbit %d\n",mVarIndex,nBit);
-		//scanf("%d",&r);
     		res=ProbBool(MyManager,node,0,nBit,0,v,comp);
-		//printf("New val %e\n",res);
 		AddNode1(MyManager.varmap.bVar2mVar,MyManager.his, MyManager.varmap.varstart, node, res, 0, NULL);
     		return res;
   	}
@@ -778,68 +764,40 @@ double ProbBool(extmanager MyManager, DdNode *node, int bits, int nBit,int posBV
   double p,res;
   double * probs;
   int index;
-// printf("ProbBool nBit %d\n",nBit); 
- //scanf("%d",&r);
   probs=v.probabilities;
   if (nBit==0)
   {
-  	//printf("last var bits %d larray %d comp %d\n",bits,array_n(probs),comp);
-//	printf("bits %d v.nbit %d\n",bits,v.nBit);
     if (bits>=v.nVal)
-   	//if (comp)
 	{
-	//printf("bits>=v.nbit return 0\n"); 
 	return 0.0;
 	}
-	//else
-      //{printf("return 0\n");
-      //return 1.0;}}
     else
     {
-     // printf("Val %d\n",bits);
-
-      //p=array_fetch(double,probs,bits);
       p=probs[bits];
-      //printf("prob %e\n",p);
       res=p*Prob(MyManager,node,comp);
-      //printf("prob %e\n",p);
-      //printf("bottom %e\n",res);
       return res;
     }
   }
   else
   {
-    //if (correctPosition(node->index,v,node,posBVar))
     index=Cudd_NodeReadIndex(node);
-    //printf("index %d\n",Cudd_NodeReadIndex(node));
      if (correctPosition(index,v,posBVar))
     {
-      //printf("node %d\n",node);
-      T = Cudd_T(node);//node->type.kids.T;
-      F = Cudd_E(node);//node->type.kids.E;
+      T = Cudd_T(node);
+      F = Cudd_E(node);
       bits=bits<<1;
-      //printf("calling on the true child %di complement %d\n",T,Cudd_IsComplement(T));
       res=ProbBool(MyManager,T,bits+1,nBit-1,posBVar+1,v,comp);
-      //printf("res %e\ncalling on the else child %d c %d\n",res,F,Cudd_IsComplement(F));
-      //printf("comp %d ",comp);
       comp=(!comp && Cudd_IsComplement(F)) || (comp && !Cudd_IsComplement(F));
-      //printf("comp %d \n",comp);
 res=res+ 
         ProbBool(MyManager,F,bits,nBit-1,posBVar+1,v,comp);
-	//printf("res 2 %e\n",res);
       return res;
     }
     else
     {
-     //printf("absent var\n"); 
       bits=bits<<1;
-     // printf("Var =1\n");
       res=ProbBool(MyManager,node,bits+1,nBit-1,posBVar+1,v,comp);
-      //printf("res 1 %e\n",res);
-//printf("var =0\n");
       res=res+ 
         ProbBool(MyManager,node,bits,nBit-1,posBVar+1,v,comp);
-    //  printf("res 2 %e\n",res);
 return res;
     }
   }
@@ -850,12 +808,8 @@ int correctPosition(int index,variable v,int posBVar)
 currently explored by ProbBool */
 {
   int bvar;
-//printf("posbvar %d\n",posBVar);
-//printf("length %d\n",array_n(v.booleanVars));
-  //bvar=array_fetch(DdNode *,v.booleanVars,posBVar);
   bvar=v.booleanVars[posBVar];
 
- // return  var->index==index;
 return(bvar==index);
 }
 

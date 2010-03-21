@@ -15,7 +15,7 @@
 :- use_module(library(system)).
 :- use_module(library(ugraphs)).
 :- use_module(params).
-:- use_module(tptreefile).
+:- use_module(tptree_lpad).
 :- use_module(utility).
 
 % :- source.

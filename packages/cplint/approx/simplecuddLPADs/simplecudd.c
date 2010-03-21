@@ -140,8 +140,11 @@
 *         The End                                                              *
 *                                                                              *
 \******************************************************************************/
-
-
+/* modified by Fabrizio Riguzzi in 2009 for dealing with multivalued variables
+instead of variables or their negation, the script can contain equations of the 
+form
+variable=value
+*/
 #include "simplecudd.h"
 
 /* BDD manager initialization */
@@ -587,7 +590,6 @@ int LoadMultiVariableData(DdManager * mgr,namedvars varmap, char *filename) {
         varname = (char *) malloc(sizeof(char) * strlen(dataread));
         strcpy(varname, dataread);
 	varmap.vars[index]=varname;
-	//printf("vname %d %s\n",index, varmap.vars[index]);
 
 	fscanf(data, "%d\n", &values);
 			varmap.loaded[index] = 1;
@@ -767,7 +769,6 @@ int AddNamedMultiVar(DdManager *mgr,namedvars varmap, const char *varname, int *
   int *booleanVars;
   char * vname;
   l=strlen(varname);
-  //printf("addnamed %s\n",varname);
   i=0;
 	while (varname[i]!='-')
 	{
@@ -776,11 +777,8 @@ int AddNamedMultiVar(DdManager *mgr,namedvars varmap, const char *varname, int *
 	vname=(char *)malloc(sizeof(char)*(l+1));
 	strncpy(vname,varname,i);
 	vname[i]='\0';
-	//printf("addnamed vname %s\n",vname);
 	sscanf(varname+i+1,"%d",value);
   index= GetNamedVarIndex(varmap, vname);
-  //printf("index %d\n",index);
-  //printf("init %d\n",varmap.mvars[index].init);
   if (index == -1 * varmap.varcnt) {
     return -1;
   } else if ((index < 0) || (index == 0 && varmap.vars[0] == NULL)) {
@@ -790,16 +788,14 @@ int AddNamedMultiVar(DdManager *mgr,namedvars varmap, const char *varname, int *
   if (varmap.mvars[index].init==0){
   nBit=varmap.mvars[index].nBit;
   booleanVars= varmap.mvars[index].booleanVars;
-  //Cudd_MakeTreeNode(mgr,boolVars,nBit,MTR_FIXED);
   for (i=0;i<nBit;i++)
 {
-	//printf("index %d %d bv %d\n",index,i,boolVars);
 	booleanVars[i]=boolVars;
 	varmap.bVar2mVar[boolVars]=index;
 	boolVars=boolVars+1;
 }
 varmap.mvars[index].init=1;
-} //else  printf("index found %d %d bv %d\n",index,i,varmap.mvars[index].booleanVars[0]);
+} 
   return index;
 }
 
@@ -854,7 +850,6 @@ int SetNamedVarValues(namedvars varmap, const char *varname, double dvalue, int 
 int GetNamedVarIndex(const namedvars varmap, const char *varname) {
   int i,j;
   for (i = 0; i < varmap.varcnt; i++) {
-  //	printf(" %d %s %s\n",i,varmap.vars[i],varname);
     if (varmap.vars[i] == NULL) return -1 * i;
     if (strcmp(varmap.vars[i], varname) == 0) return i;
   }
@@ -969,11 +964,9 @@ DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader file
             Line = LineParser(manager, varmap, inter, fileheader.intercnt, inputline, iline);
 	endAt = clock();
 	secs = ((double) (endAt - startAt)) / ((double) CLOCKS_PER_SEC)*1000;
-	//printf("line %e\n",secs);
           } else {
             interfileheader = ReadFileHeader(filename);
             if (interfileheader.inputfile == NULL) {
-              //Line = simpleBDDload(manager, &varmap, filename);
               Line = NULL;
             } else {
               Line = FileGenerateBDD(manager, varmap, interfileheader);
@@ -1113,9 +1106,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
           inegvar = 1;
         } else {
           iconst = 0;
-	  //printf("term %s\n",term + inegvar);
           ivar = AddNamedMultiVar(manager,varmap, term + inegvar,&value);
-  	//printf("term %s var %d\n",term + inegvar,ivar);
 
           if (ivar == -1) {
             fprintf(stderr, "Line Parser Error at line: %i. More BDD variables than the reserved term: %s.\n", iline, term);
