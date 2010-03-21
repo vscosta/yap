@@ -332,8 +332,8 @@ bla bla
 #endif
 
 #if THREADS
-#define StartOfTimes (*(ThreadHandle[worker_id].start_of_timesp))
-#define last_time    (*(ThreadHandle[worker_id].last_timep))
+#define StartOfTimes (*(MY_ThreadHandle.start_of_timesp))
+#define last_time    (*(MY_ThreadHandle.last_timep))
 
 #else
 /* since the point YAP was started */
@@ -352,8 +352,8 @@ InitTime (void)
   struct rusage   rusage;
 
 #if THREADS
-  ThreadHandle[worker_id].start_of_timesp = (struct timeval *)malloc(sizeof(struct timeval));
-  ThreadHandle[worker_id].last_timep = (struct timeval *)malloc(sizeof(struct timeval));
+  MY_ThreadHandle.start_of_timesp = (struct timeval *)malloc(sizeof(struct timeval));
+  MY_ThreadHandle.last_timep = (struct timeval *)malloc(sizeof(struct timeval));
 #endif
   getrusage(RUSAGE_SELF, &rusage);
   last_time.tv_sec = StartOfTimes.tv_sec = rusage.ru_utime.tv_sec;
@@ -2724,14 +2724,14 @@ p_first_signal(void)
 {
   LOCK(SignalLock);
 #ifdef THREADS
-  pthread_mutex_lock(&(ThreadHandle[worker_id].tlock));
+  pthread_mutex_lock(&(MY_ThreadHandle.tlock));
 #endif  
   /* always do wakeups first, because you don't want to keep the
      non-backtrackable variable bad */
   if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
     ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigWakeUp));
@@ -2739,7 +2739,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_ITI_SIGNAL) {
     ActiveSignals &= ~YAP_ITI_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigIti));
@@ -2747,7 +2747,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_INT_SIGNAL) {
     ActiveSignals &= ~YAP_INT_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigInt));
@@ -2755,7 +2755,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_USR2_SIGNAL) {
     ActiveSignals &= ~YAP_USR2_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr2));
@@ -2763,7 +2763,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_USR1_SIGNAL) {
     ActiveSignals &= ~YAP_USR1_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr1));
@@ -2771,7 +2771,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_PIPE_SIGNAL) {
     ActiveSignals &= ~YAP_PIPE_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigPipe));
@@ -2779,7 +2779,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_HUP_SIGNAL) {
     ActiveSignals &= ~YAP_HUP_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigHup));
@@ -2797,7 +2797,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
     ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigDelayCreep));
@@ -2805,7 +2805,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
     ActiveSignals &= ~YAP_CREEP_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigCreep));
@@ -2813,7 +2813,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_TRACE_SIGNAL) {
     ActiveSignals &= ~YAP_TRACE_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigTrace));
@@ -2821,7 +2821,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_DEBUG_SIGNAL) {
     ActiveSignals &= ~YAP_DEBUG_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigDebug));
@@ -2829,7 +2829,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_BREAK_SIGNAL) {
     ActiveSignals &= ~YAP_BREAK_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigBreak));
@@ -2837,7 +2837,7 @@ p_first_signal(void)
   if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
     ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStackDump));
@@ -2845,13 +2845,13 @@ p_first_signal(void)
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStatistics));
   }
 #ifdef THREADS
-    pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
   UNLOCK(SignalLock);
   return FALSE;
@@ -2904,7 +2904,7 @@ p_continue_signals(void)
     Yap_signal(YAP_STATISTICS_SIGNAL);
   }
 #ifdef THREADS
-  pthread_mutex_unlock(&(ThreadHandle[worker_id].tlock));
+  pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
   return TRUE;
 }

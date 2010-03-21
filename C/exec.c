@@ -1586,8 +1586,8 @@ Yap_InitYaamRegs(void)
      machine registers */
 #ifdef THREADS
   int myworker_id = worker_id;
-  pthread_setspecific(Yap_yaamregs_key, (const void *)ThreadHandle[myworker_id].default_yaam_regs);
-  ThreadHandle[myworker_id].current_yaam_regs = ThreadHandle[myworker_id].default_yaam_regs;
+  pthread_setspecific(Yap_yaamregs_key, (const void *)FOREIGN_ThreadHandle(myworker_id).default_yaam_regs);
+  FOREIGN_ThreadHandle(myworker_id).current_yaam_regs = FOREIGN_ThreadHandle(myworker_id).default_yaam_regs;
   worker_id = myworker_id;
 #else
   Yap_regp = &Yap_standard_regs;

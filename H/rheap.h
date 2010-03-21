@@ -957,76 +957,36 @@ RestoreForeignCode(void)
   }
 }
 
+static void
+RestoreBallTerm(int wid)
+{
+  if (BallTerm) {
+    BallTerm  = DBTermAdjust(BallTerm);
+    RestoreDBTerm(BallTerm, TRUE);
+  }
+}
+
+static void
+RestoreScratchPad(int wid)
+{
+  if (ScratchPad.ptr) {
+    ScratchPad.ptr = AddrAdjust(ScratchPad.ptr);
+  }
+}
+
+#include "rglobals.h"
+
 /* restore the failcodes */
 static void 
 restore_codes(void)
 {
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #include "rhstruct.h"
-#if !defined(THREADS) && !defined(YAPOR)
-  /* restore consult stack. It consists of heap pointers, so it
-     is easy to fix.
-  */
-  if (Yap_heap_regs->wl.ball_term) {
-    Yap_heap_regs->wl.ball_term  = 
-      DBTermAdjust(Yap_heap_regs->wl.ball_term);
-    RestoreDBTerm(Yap_heap_regs->wl.ball_term, TRUE);
-  }
-  Yap_heap_regs->wl.consultlow  = 
-    ConsultObjAdjust(Yap_heap_regs->wl.consultlow);
-  Yap_heap_regs->wl.consultbase =
-    ConsultObjAdjust(Yap_heap_regs->wl.consultbase);
-  Yap_heap_regs->wl.consultsp   =
-    ConsultObjAdjust(Yap_heap_regs->wl.consultsp);
-  {
-    /* we assume all pointers have the same size */
-    register consult_obj *pt = Yap_heap_regs->wl.consultsp;
-    while (pt <
-	   Yap_heap_regs->wl.consultlow+Yap_heap_regs->wl.consultcapacity) {
-      pt->p = PropAdjust(pt->p);
-      pt ++;
-    }
-  }
+  RestoreGlobal();
+#ifndef worker_id
+#define worker_id 0
 #endif
-#if !defined(THREADS) && !defined(YAPOR)
-  if (Yap_heap_regs->wl.scratchpad.ptr) {
-    Yap_heap_regs->wl.scratchpad.ptr =
-      (char *)AddrAdjust((ADDR)Yap_heap_regs->wl.scratchpad.ptr);
-  }
-  Yap_heap_regs->wl.gc_generation = 
-    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.gc_generation)));
-  Yap_heap_regs->wl.gc_phase = 
-    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.gc_phase)));
-  /* current phase is an integer */
-#endif
-#ifdef COROUTINING
-#if !defined(THREADS) && !defined(YAPOR)
-  Yap_heap_regs->wl.atts_mutable_list =
-    AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.atts_mutable_list)));
-  if (Yap_heap_regs->wl.dynamic_arrays) {
-    Yap_heap_regs->wl.dynamic_arrays =
-      PtoArrayEAdjust(Yap_heap_regs->wl.dynamic_arrays);
-  }
-  if (Yap_heap_regs->wl.static_arrays) {
-    Yap_heap_regs->wl.static_arrays =
-      PtoArraySAdjust(Yap_heap_regs->wl.static_arrays);
-  }
-  if (Yap_heap_regs->wl.global_variables) {
-    Yap_heap_regs->wl.global_variables =
-      PtoGlobalEAdjust(Yap_heap_regs->wl.global_variables);
-  }
-  if (Yap_heap_regs->wl.global_arena) {
-    if (IsAtomTerm(Yap_heap_regs->wl.global_arena)) {
-      Yap_heap_regs->wl.global_arena =
-	AtomTermAdjust(Yap_heap_regs->wl.global_arena);
-    } else {
-      Yap_heap_regs->wl.global_arena =
-	AbsAppl(PtoGloAdjust(RepAppl(Yap_heap_regs->wl.global_arena)));
-    }
-  }
-  Yap_heap_regs->wl.allow_restart = FALSE;
-#endif
-#endif
+  RestoreWorker(worker_id);
  }
 
 

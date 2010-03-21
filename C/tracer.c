@@ -173,7 +173,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef THREADS
-  Yap_heap_regs->thread_handle[worker_id].thread_inst_count++;
+  MY_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
   //*(H0+(0xb65f2850-0xb64b2008)/sizeof(CELL))==0xc || 

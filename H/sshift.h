@@ -675,7 +675,31 @@ PtoAtomHashEntryAdjust (AtomHashEntry * ptr)
   return (AtomHashEntry *) (((AtomHashEntry *) (CharP (ptr) + HDiff)));
 }
 
+inline EXTERN Term TermToGlobalAdjust (Term);
 
+inline EXTERN Term
+TermToGlobalAdjust (Term t)
+{
+  if (t == 0L)
+    return t;
+  return AbsAppl(PtoGloAdjust(RepAppl(t)));
+}
+
+inline EXTERN Term TermToGlobalOrAtomAdjust (Term);
+
+inline EXTERN Term
+TermToGlobalOrAtomAdjust (Term t)
+{
+  if (t == 0L)
+    return t;
+  if (IsAtomTerm(t))
+    return AtomTermAdjust(t);
+  if (IsApplTerm(t))
+    return AbsAppl(PtoGloAdjust(RepAppl(t)));
+  if (IsPairTerm(t))
+    return AbsPair(PtoGloAdjust(RepPair(t)));
+  return t;
+}
 
 inline EXTERN opentry *OpRTableAdjust (opentry *);
 
@@ -718,6 +742,8 @@ inline EXTERN ArrayEntry *PtoArrayEAdjust (ArrayEntry *);
 inline EXTERN ArrayEntry *
 PtoArrayEAdjust (ArrayEntry * ptr)
 {
+  if (!ptr)
+    return NULL;
   return (ArrayEntry *) (((ArrayEntry *) (CharP (ptr) + HDiff)));
 }
 
@@ -727,6 +753,8 @@ inline EXTERN GlobalEntry *PtoGlobalEAdjust (GlobalEntry *);
 inline EXTERN GlobalEntry *
 PtoGlobalEAdjust (GlobalEntry * ptr)
 {
+  if (!ptr)
+    return NULL;
   return (GlobalEntry *) (((GlobalEntry *) (CharP (ptr) + HDiff)));
 }
 
@@ -736,13 +764,14 @@ inline EXTERN StaticArrayEntry *PtoArraySAdjust (StaticArrayEntry *);
 inline EXTERN StaticArrayEntry *
 PtoArraySAdjust (StaticArrayEntry * ptr)
 {
+  if (!ptr)
+    return NULL;
   return (StaticArrayEntry *) (((StaticArrayEntry *) (CharP (ptr) + HDiff)));
 }
 
 
 
-inline EXTERN struct logic_upd_clause *PtoLUCAdjust (struct logic_upd_clause
-						     *);
+inline EXTERN struct logic_upd_clause *PtoLUCAdjust (struct logic_upd_clause*);
 
 inline EXTERN struct logic_upd_clause *
 PtoLUCAdjust (struct logic_upd_clause *ptr)

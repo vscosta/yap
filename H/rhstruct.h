@@ -25,27 +25,6 @@
 
 
 
-#if defined(YAPOR) || defined(THREADS)
-
-
-
-
-
-
-
-  REINIT_LOCK(Yap_heap_regs->bgl);
-
-
-#ifndef WL
-#define WL	wl[worker_id]
-#endif
-#else
-
-#ifndef WL
-#define WL	wl
-#endif
-#endif
-
 
 
 #if USE_DL_MALLOC
@@ -274,16 +253,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
   Yap_heap_regs->op_list = OpListAdjust(Yap_heap_regs->op_list);
 
 
@@ -295,11 +264,6 @@
 
   Yap_heap_regs->atprompt = AtomAdjust(Yap_heap_regs->atprompt);
 
-
-#if HAVE_LIBREADLINE
-
-
-#endif
 
   Yap_heap_regs->char_conversion_table = CodeCharPAdjust(Yap_heap_regs->char_conversion_table);
   Yap_heap_regs->char_conversion_table2 = CodeCharPAdjust(Yap_heap_regs->char_conversion_table2);
@@ -327,8 +291,3 @@
 
 
 
-
-#ifdef THREADS
-  REINIT_LOCK(Yap_heap_regs->thread_handles_lock);
-
-#endif 

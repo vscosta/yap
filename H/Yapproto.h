@@ -138,6 +138,7 @@ void	STD_PROTO(Yap_end_consult,(void));
 void	STD_PROTO(Yap_Abolish,(struct pred_entry *));
 void	STD_PROTO(Yap_BuildMegaClause,(struct pred_entry *));
 void	STD_PROTO(Yap_EraseMegaClause,(yamop *,struct pred_entry *));
+void	STD_PROTO(Yap_ResetConsultStack,(void));
 
 
 /* cmppreds.c */
@@ -243,6 +244,7 @@ void	STD_PROTO(Yap_KillStacks,(void));
 void	STD_PROTO(Yap_InitYaamRegs,(void));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
 int	STD_PROTO(Yap_OpDec,(int,char *,Atom,Term));
+void    STD_PROTO(Yap_CloseScratchPad,(void));
 
 /* inlines.c */
 void         STD_PROTO(Yap_InitInlines,(void));

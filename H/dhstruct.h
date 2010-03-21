@@ -25,27 +25,6 @@
 
 
 
-#if defined(YAPOR) || defined(THREADS)
-
-#define NOfThreads Yap_heap_regs->n_of_threads
-
-#define NOfThreadsCreated Yap_heap_regs->n_of_threads_created
-
-#define ThreadsTotalTime Yap_heap_regs->threads_total_time
-
-#define BGL Yap_heap_regs->bgl
-
-#define WorkerLocal Yap_heap_regs->wl
-#ifndef WL
-#define WL	wl[worker_id]
-#endif
-#else
-#define WorkerLocak Yap_heap_regs->wl
-#ifndef WL
-#define WL	wl
-#endif
-#endif
-
 #define Yap_HoleSize Yap_heap_regs->hole_size
 #define Yap_av Yap_heap_regs->av_
 #if USE_DL_MALLOC
@@ -272,16 +251,6 @@
 #define Yap_AttsSize Yap_heap_regs->atts_size
 #endif
 
-#define Yap_AllowLocalExpansion Yap_heap_regs->allow_local_expansion
-#define Yap_AllowGlobalExpansion Yap_heap_regs->allow_global_expansion
-#define Yap_AllowTrailExpansion Yap_heap_regs->allow_trail_expansion
-#define SizeOfOverflow Yap_heap_regs->size_of_overflow
-
-#define AGcLastCall Yap_heap_regs->agc_last_call
-
-#define AGcThreshold Yap_heap_regs->agc_threshold
-#define AGCHook Yap_heap_regs->agc_hook
-
 #define yap_flags Yap_heap_regs->yap_flags_field
 
 #define OpList Yap_heap_regs->op_list
@@ -295,11 +264,6 @@
 
 #define AtPrompt Yap_heap_regs->atprompt
 #define Prompt Yap_heap_regs->prompt
-
-#if HAVE_LIBREADLINE
-#define ReadlineBuf Yap_heap_regs->readline_buf
-#define ReadlinePos Yap_heap_regs->readline_pos
-#endif
 
 #define CharConversionTable Yap_heap_regs->char_conversion_table
 #define CharConversionTable2 Yap_heap_regs->char_conversion_table2
@@ -327,8 +291,3 @@
 #define ForeignCodeBase Yap_heap_regs->foreign_code_base
 #define ForeignCodeTop Yap_heap_regs->foreign_code_top
 #define ForeignCodeMax Yap_heap_regs->foreign_code_max
-
-#ifdef THREADS
-#define ThreadHandlesLock Yap_heap_regs->thread_handles_lock
-#define ThreadHandle Yap_heap_regs->thread_handle
-#endif 

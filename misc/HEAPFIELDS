@@ -25,28 +25,6 @@
 // Restore... sets up call to RestoreFunc
 //
 
-/* multi-thread/ORP support */
-#if defined(YAPOR) || defined(THREADS)
-/* number of threads and processes in system */
-UInt		n_of_threads		NOfThreads	=1	void
-/* number of threads created since start */
-UInt		n_of_threads_created	NOfThreadsCreated =1	void
-/* total run time for dead threads */
-UInt  threads_total_time		ThreadsTotalTime =0L	void
-/* protect long critical regions   */
-lockvar		bgl			BGL			MkLock
-/* worker local data */
-worker_local	wl[MAX_AGENTS]		WorkerLocal		void void
-#ifndef WL
-#define WL	wl[worker_id]
-#endif
-#else
-worker_local	wl			WorkerLocak			void void
-#ifndef WL
-#define WL	wl
-#endif
-#endif
-
 /* memory management */
 UInt		hole_size		Yap_HoleSize		void void
 struct malloc_state *av_		Yap_av			void void
@@ -305,17 +283,6 @@ int		num_of_atts		NUM_OF_ATTS		=1	void
 UInt		atts_size		Yap_AttsSize		void void
 #endif
 
-/* stack overflow expansion/gc control */
-int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE void 
-int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE void 
-int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE void 
-UInt		size_of_overflow	SizeOfOverflow		=0 void
-/* amount of space recovered in all garbage collections */
-UInt		agc_last_call		AGcLastCall		=0 void
-/* amount of space recovered in all garbage collections */
-UInt		agc_threshold		AGcThreshold		=10000 void
-Agc_hook	agc_hook		AGCHook			=NULL void
-
 /* YAP control flags */
 Int		yap_flags_field[NUMBER_OF_YAP_FLAGS] yap_flags InitFlags() void
 
@@ -335,12 +302,6 @@ struct AliasDescS *file_aliases		FileAliases		=NULL RestoreAliases()
 /* prompting */
 Atom		atprompt		AtPrompt		=AtomNil AtomAdjust
 char		prompt[MAX_PROMPT]	Prompt			void void
-
-/* readline */
-#if HAVE_LIBREADLINE
-char		*readline_buf		ReadlineBuf		=NULL void
-char		*readline_pos		ReadlinePos		=0L   void
-#endif
 
 /* ISO char conversion: I will make no comments */
 char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust
@@ -376,8 +337,3 @@ ADDR		foreign_code_base	ForeignCodeBase		=NULL void
 ADDR		foreign_code_top	ForeignCodeTop		=NULL void
 ADDR		foreign_code_max	ForeignCodeMax		=NULL void
 
-/* Threads Array */
-#ifdef THREADS
-lockvar		thread_handles_lock	ThreadHandlesLock	MkLock
-struct thandle	thread_handle[MAX_THREADS] ThreadHandle		InitThreadHandles() void
-#endif 

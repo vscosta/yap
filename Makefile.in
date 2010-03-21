@@ -126,10 +126,18 @@ HEADERS = \
 	$(srcdir)/H/arith2.h $(srcdir)/H/attvar.h \
 	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
 	$(srcdir)/H/corout.h $(srcdir)/H/dlmalloc.h \
+	$(srcdir)/H/dglobals.h \
+	$(srcdir)/H/dhstruct.h \
 	$(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
+	$(srcdir)/H/hglobals.h \
+	$(srcdir)/H/hstruct.h \
+	$(srcdir)/H/iglobals.h \
+	$(srcdir)/H/ihstruct.h \
 	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
 	$(srcdir)/H/rclause.h \
+	$(srcdir)/H/rglobals.h \
 	$(srcdir)/H/rheap.h \
+	$(srcdir)/H/rhstruct.h \
 	$(srcdir)/H/threads.h \
 	$(srcdir)/H/tracer.h \
 	$(srcdir)/H/trim_trail.h \
@@ -593,13 +601,11 @@ install_data:
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
-#	(cd CLPQR ; $(MAKE) install)
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
-#	(cd CHR ; $(MAKE) install)
-	@ENABLE_CLPQR@(cd packages/clpqr ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
 	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
+	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)
 
 
 ##########

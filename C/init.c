@@ -1124,93 +1124,78 @@ InitInvisibleAtoms(void)
 }
 
 #ifdef  THREADS
-static void 
-InitThreadHandles(void)
+InitThreadHandle(wid)
 {
-  int i;
-  for (i=0; i < MAX_THREADS; i++) {
-    Yap_heap_regs->thread_handle[i].in_use = FALSE;
-    Yap_heap_regs->thread_handle[i].zombie = FALSE;
-    Yap_heap_regs->thread_handle[i].local_preds = NULL;
+    FOREIGN_ThreadHandle(wid).in_use = FALSE;
+    FOREIGN_ThreadHandle(wid).zombie = FALSE;
+    FOREIGN_ThreadHandle(wid).local_preds = NULL;
 #ifdef LOW_LEVEL_TRACER
-    Yap_heap_regs->thread_handle[i].thread_inst_count = 0LL;
+    FOREIGN_ThreadHandle(wid).thread_inst_count = 0LL;
 #endif
-    pthread_mutex_init(&Yap_heap_regs->thread_handle[i].tlock, NULL);
-  }
-  Yap_heap_regs->thread_handle[0].id = 0;
-  Yap_heap_regs->thread_handle[0].in_use = TRUE;
-  Yap_heap_regs->thread_handle[0].default_yaam_regs = 
-    &Yap_standard_regs;
-  Yap_heap_regs->thread_handle[0].pthread_handle = pthread_self();
-  Yap_heap_regs->thread_handle[0].pthread_handle = pthread_self();
-  pthread_mutex_init(&ThreadHandle[0].tlock, NULL);
-  pthread_mutex_init(&ThreadHandle[0].tlock_status, NULL);
-  Yap_heap_regs->thread_handle[0].tdetach = MkAtomTerm(AtomFalse);
+    pthread_mutex_init(&(FOREIGN_ThreadHandle(wid).tlock), NULL);  
 }
+#endif
+
+static void 
+InitFirstWorkerThreadHandle(void)
+{
+#ifdef  THREADS
+  ThreadHandle.id = 0;
+  ThreadHandle.in_use = TRUE;
+  ThreadHandle.default_yaam_regs = 
+    &Yap_standard_regs;
+  ThreadHandle.pthread_handle = pthread_self();
+  ThreadHandle.pthread_handle = pthread_self();
+  pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock, NULL);
+  pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock_status, NULL);
+  ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
+#endif
+}
+
+static void
+InitScratchPad(int wid)
+{
+  FOREIGN_WL(wid)->scratchpad.ptr = NULL;
+  FOREIGN_WL(wid)->scratchpad.sz = SCRATCH_START_SIZE;
+  FOREIGN_WL(wid)->scratchpad.msz = SCRATCH_START_SIZE;
+}
+
+void
+Yap_CloseScratchPad(void)
+{
+  Yap_FreeCodeSpace(ScratchPad.ptr);
+  ScratchPad.sz = SCRATCH_START_SIZE;
+  ScratchPad.msz = SCRATCH_START_SIZE;
+}
+
+#include "iglobals.h"
+
+#if defined(YAPOR) || defined(THREADS)
+#define MAX_INITS 1
+#else
+#define MAX_INITS 1
+#endif
+
+struct worker_shared Yap_Global;
+
+#if defined(YAPOR) || defined(THREADS)
+struct worker_local	Yap_WLocal[MAX_WORKERS];
+#else
+struct worker_local	Yap_WLocal;
 #endif
 
 static void 
 InitCodes(void)
 {
+  int wid;
 #include "ihstruct.h"
-#if defined(YAPOR) || defined(THREADS)
-  {
-    int i;
-    for (i=0; i < MAX_AGENTS; i++) {
-      INIT_LOCK(Yap_heap_regs->wl[i].signal_lock);
-      Yap_heap_regs->wl[i].active_signals = 0;
-      Yap_heap_regs->wl[i].scratchpad.ptr = NULL;
-      Yap_heap_regs->wl[i].scratchpad.sz = SCRATCH_START_SIZE;
-      Yap_heap_regs->wl[i].scratchpad.msz = SCRATCH_START_SIZE;
-      Yap_heap_regs->wl[i].dynamic_arrays = NULL;
-      Yap_heap_regs->wl[i].static_arrays = NULL;
-      Yap_heap_regs->wl[i].global_variables = NULL;
-      Yap_heap_regs->wl[i].global_arena = 0L;
-      Yap_heap_regs->wl[i].global_arena_overflows = 0;
-      Yap_heap_regs->wl[i].allow_restart = FALSE;
-      Yap_heap_regs->wl[i].tot_gc_time = 0;
-      Yap_heap_regs->wl[i].tot_gc_recovered = 0;
-      Yap_heap_regs->wl[i].gc_calls = 0;
-      Yap_heap_regs->wl[i].last_gc_time = 0;
-      Yap_heap_regs->wl[i].last_ss_time = 0;
-      Yap_heap_regs->wl[i].consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-      if (Yap_heap_regs->wl[i].consultlow == NULL) {
-	Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
-	return;
-      }
-      Yap_heap_regs->wl[i].consultcapacity = InitialConsultCapacity;
-      Yap_heap_regs->wl[i].consultbase = Yap_heap_regs->wl[i].consultsp =
-	Yap_heap_regs->wl[i].consultlow + Yap_heap_regs->wl[i].consultcapacity;
-      Yap_heap_regs->wl[i].Gc_timestamp = 0;
-      Yap_heap_regs->wl[i].ball_term = NULL;
-    }
-  }
-#else
-  Yap_heap_regs->wl.dynamic_arrays = NULL;
-  Yap_heap_regs->wl.static_arrays = NULL;
-  Yap_heap_regs->wl.global_variables = NULL;
-  Yap_heap_regs->wl.global_arena = 0L;
-  Yap_heap_regs->wl.global_arena_overflows = 0;
-  Yap_heap_regs->wl.allow_restart = FALSE;
-  Yap_heap_regs->wl.tot_gc_time = 0;
-  Yap_heap_regs->wl.tot_gc_recovered = 0;
-  Yap_heap_regs->wl.gc_calls = 0;
-  Yap_heap_regs->wl.last_gc_time = 0;
-  Yap_heap_regs->wl.last_ss_time = 0;
-  Yap_heap_regs->wl.consultlow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-  if (Yap_heap_regs->wl.consultlow == NULL) {
-    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
-    return;
-  }
-  Yap_heap_regs->wl.consultcapacity = InitialConsultCapacity;
-  Yap_heap_regs->wl.consultbase = Yap_heap_regs->wl.consultsp =
-    Yap_heap_regs->wl.consultlow + Yap_heap_regs->wl.consultcapacity;
-  Yap_heap_regs->wl.ball_term = NULL;
-#endif /* YAPOR */
-
+  InitGlobal();
+  for (wid = 0; wid < MAX_INITS; wid++)
+    InitWorker(wid);
+  InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
-  Yap_ReleaseAtom(AtomOfTerm(Yap_heap_regs->term_refound_var));
+  Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));
   /* make sure we have undefp defined */
   /* predicates can only be defined after this point */
   {
@@ -1304,14 +1289,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   for (i = 0; i <= LAST_FLAG; i++) {
     yap_flags[i] = 0;
   }
-  ActiveSignals = 0;
-  DoingUndefp = FALSE;
-  DelayArenaOverflows = 0;
-  ArenaOverflows = 0;
-  DepthArenas = 0;
-  DBErasedList = NULL;
-  DBErasedIList = NULL;
-  Yap_heap_regs->IntLUKeys = NULL;
 #ifdef MPW
   Yap_InitAbsmi(REGS, FunctorList);
 #else

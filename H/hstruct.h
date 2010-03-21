@@ -25,27 +25,6 @@
 
 
 
-#if defined(YAPOR) || defined(THREADS)
-
-  UInt  n_of_threads;
-
-  UInt  n_of_threads_created;
-
-  UInt  threads_total_time;
-
-  lockvar  bgl;
-
-  worker_local  wl[MAX_AGENTS];
-#ifndef WL
-#define WL	wl[worker_id]
-#endif
-#else
-  worker_local  wl;
-#ifndef WL
-#define WL	wl
-#endif
-#endif
-
   UInt  hole_size;
   struct malloc_state  *av_;
 #if USE_DL_MALLOC
@@ -272,16 +251,6 @@
   UInt  atts_size;
 #endif
 
-  int  allow_local_expansion;
-  int  allow_global_expansion;
-  int  allow_trail_expansion;
-  UInt  size_of_overflow;
-
-  UInt  agc_last_call;
-
-  UInt  agc_threshold;
-  Agc_hook  agc_hook;
-
   Int  yap_flags_field[NUMBER_OF_YAP_FLAGS];
 
   struct operator_entry  *op_list;
@@ -295,11 +264,6 @@
 
   Atom  atprompt;
   char  prompt[MAX_PROMPT];
-
-#if HAVE_LIBREADLINE
-  char  *readline_buf;
-  char  *readline_pos;
-#endif
 
   char  *char_conversion_table;
   char  *char_conversion_table2;
@@ -327,8 +291,3 @@
   ADDR  foreign_code_base;
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;
-
-#ifdef THREADS
-  lockvar  thread_handles_lock;
-  struct thandle  thread_handle[MAX_THREADS];
-#endif 

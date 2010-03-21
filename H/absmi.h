@@ -189,7 +189,7 @@ restore_absmi_regs(REGSTORE * old_regs)
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (void *)old_regs);
-  ThreadHandle[worker_id].current_yaam_regs = old_regs;
+  MY_ThreadHandle.current_yaam_regs = old_regs;
 #else
   Yap_regp = old_regs;
 #endif

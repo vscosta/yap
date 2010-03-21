@@ -414,8 +414,6 @@ IsModProperty (int flags)
   return (PropFlags) ((flags == ModProperty));
 }
 
-
-
 /*	    operator property entry structure				*/
 typedef struct operator_entry
 {
@@ -1396,6 +1394,9 @@ typedef enum
 
 #include "YapHeap.h"
 
+#define  PredHashInitialSize      1039L
+#define  PredHashIncrement        7919L
+
 EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
 
 EXTERN inline UInt
@@ -1417,7 +1418,7 @@ Yap_GetThreadPred(struct pred_entry *ap)
 {
   Functor f = ap->FunctorOfPred;
   Term  mod = ap->ModuleOfPred;
-  Prop p0 = AbsPredProp(Yap_heap_regs->thread_handle[worker_id].local_preds);
+  Prop p0 = AbsPredProp(MY_ThreadHandle.local_preds);
 
   while(p0) {
     PredEntry *ap = RepPredProp(p0);

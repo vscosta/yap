@@ -25,27 +25,6 @@
 
 
 
-#if defined(YAPOR) || defined(THREADS)
-
-  Yap_heap_regs->n_of_threads = 1;
-
-  Yap_heap_regs->n_of_threads_created = 1;
-
-  Yap_heap_regs->threads_total_time = 0L;
-
-  INIT_LOCK(Yap_heap_regs->bgl);
-
-
-#ifndef WL
-#define WL	wl[worker_id]
-#endif
-#else
-
-#ifndef WL
-#define WL	wl
-#endif
-#endif
-
 
 
 #if USE_DL_MALLOC
@@ -272,16 +251,6 @@
 
 #endif
 
-  Yap_heap_regs->allow_local_expansion = TRUE;
-  Yap_heap_regs->allow_global_expansion = TRUE;
-  Yap_heap_regs->allow_trail_expansion = TRUE;
-  Yap_heap_regs->size_of_overflow = 0;
-
-  Yap_heap_regs->agc_last_call = 0;
-
-  Yap_heap_regs->agc_threshold = 10000;
-  Yap_heap_regs->agc_hook = NULL;
-
   InitFlags();
 
   Yap_heap_regs->op_list = NULL;
@@ -295,11 +264,6 @@
 
   Yap_heap_regs->atprompt = AtomNil;
 
-
-#if HAVE_LIBREADLINE
-  Yap_heap_regs->readline_buf = NULL;
-  Yap_heap_regs->readline_pos = 0L;
-#endif
 
   Yap_heap_regs->char_conversion_table = NULL;
   Yap_heap_regs->char_conversion_table2 = NULL;
@@ -327,8 +291,3 @@
   Yap_heap_regs->foreign_code_base = NULL;
   Yap_heap_regs->foreign_code_top = NULL;
   Yap_heap_regs->foreign_code_max = NULL;
-
-#ifdef THREADS
-  INIT_LOCK(Yap_heap_regs->thread_handles_lock);
-  InitThreadHandles();
-#endif 

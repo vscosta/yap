@@ -351,7 +351,7 @@ InitExStacks(int Trail, int Stack)
 
 #ifdef THREADS
   if (worker_id)
-    Yap_GlobalBase = (ADDR)ThreadHandle[worker_id].stack_address;
+    Yap_GlobalBase = (ADDR)MY_ThreadHandle.stack_address;
 #endif
   Yap_TrailTop = Yap_GlobalBase + pm;
   Yap_LocalBase = Yap_GlobalBase + sa;
@@ -385,10 +385,10 @@ Yap_InitExStacks(int Trail, int Stack)
 void
 Yap_KillStacks(int wid)
 {
-  ADDR gb = ThreadHandle[wid].stack_address;
+  ADDR gb = FOREIGN_ThreadHandle(wid).stack_address;
   if (gb) {
     free(gb);
-    ThreadHandle[wid].stack_address = NULL;
+    FOREIGN_ThreadHandle(wid).stack_address = NULL;
   }
 }
 #else
@@ -417,7 +417,7 @@ Yap_ExtendWorkSpace(Int s)
   if (nbp == NULL) 
     return FALSE;
 #if defined(THREADS)
-  ThreadHandle[worker_id].stack_address = (char *)nbp;
+  MY_ThreadHandle.stack_address = (char *)nbp;
 #endif
   Yap_GlobalBase = (char *)nbp;
   return TRUE;

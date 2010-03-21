@@ -475,7 +475,10 @@ save_heap(void)
 #endif
   int j;
   /* Then save the whole heap */
+  Yap_ResetConsultStack();
 #if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
+  Yap_ResetConsultStack();
+  Yap_CloseScratchPad();
   /* skip the local and global data structures */
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
   putout(j);

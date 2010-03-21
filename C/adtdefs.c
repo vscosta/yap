@@ -800,8 +800,8 @@ Yap_NewThreadPred(PredEntry *ap)
   p->beamTable = NULL;
 #endif 
   /* careful that they don't cross MkFunctor */
-  p->NextOfPE = AbsPredProp(ThreadHandle[worker_id].local_preds);
-  ThreadHandle[worker_id].local_preds = p;
+  p->NextOfPE = AbsPredProp(MY_ThreadHandle.local_preds);
+  MY_ThreadHandle.local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
 #ifdef LOW_PROF
     if (ProfilerOn &&

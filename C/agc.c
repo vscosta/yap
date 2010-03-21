@@ -93,6 +93,14 @@ AtomTermAdjust(Term t)
   return(t);  
 }
 
+static inline Term
+TermToGlobalOrAtomAdjust(Term t)
+{
+  if (t && IsAtomTerm(t))
+    return AtomTermAdjust(t);
+  return(t);
+}
+
 static inline Atom
 AtomAdjust(Atom a)
 {
@@ -163,6 +171,7 @@ AtomAdjust(Atom a)
 #define PtoGloAdjust(P) (P)
 #define PtoLocAdjust(P) (P)
 #define PtoHeapCellAdjust(P) (P)
+#define TermToGlobalAdjust(P) (P)
 #define PtoOpAdjust(P) (P)
 #define PtoLUClauseAdjust(P) (P)
 #define PtoLUIndexAdjust(P) (P)

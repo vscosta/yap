@@ -631,6 +631,31 @@ Yap_PredForChoicePt(choiceptr cp) {
   return PredForChoicePt(cp->cp_ap);
 }
 
+static void
+InitConsultStack(void)
+{
+  ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+  if (ConsultLow == NULL) {
+    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
+    return;
+  }
+  ConsultCapacity = InitialConsultCapacity;
+  ConsultBase = ConsultSp =
+    ConsultLow + ConsultCapacity;
+}
+
+void
+Yap_ResetConsultStack(void)
+{
+  Yap_FreeCodeSpace((char *)ConsultLow);
+  ConsultBase =
+    ConsultSp =
+    ConsultLow =
+    NULL;
+  ConsultCapacity = InitialConsultCapacity;
+}
+
+
 /******************************************************************
   
 			EXECUTING PROLOG CLAUSES
@@ -1961,6 +1986,9 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   if (p == LastAssertedPred)
     return FALSE;
   LastAssertedPred = p;
+  if (!ConsultSp) {
+    InitConsultStack();
+  }
   if (p->cs.p_code.NOfClauses) {
     for (fp = ConsultSp; fp < ConsultBase; ++fp)
       if (fp->p == p0)
@@ -2431,7 +2459,7 @@ p_in_this_f_before(void)
     p0 = PredPropByFunc(Yap_MkFunctor(at, arity), mod);
   else
     p0 = PredPropByAtom(at, mod);
-  if (ConsultSp == ConsultBase || LastAssertedPred == RepPredProp(p0) || (fp = ConsultSp)->p == p0)
+  if (!ConsultSp || ConsultSp == ConsultBase || LastAssertedPred == RepPredProp(p0) || (fp = ConsultSp)->p == p0)
     return FALSE;
   else
     fp++;
@@ -2470,6 +2498,8 @@ p_first_cl_in_f(void)
   else
     p0 = PredPropByAtom(at, mod);
   if (LastAssertedPred == RepPredProp(p0))
+    return FALSE;
+  if (!ConsultSp)
     return FALSE;
   for (fp = ConsultSp; fp < ConsultBase; ++fp)
     if (fp->p == p0)
@@ -2593,6 +2623,9 @@ Yap_ConsultingFile (void)
 static void
 init_consult(int mode, char *file)
 {
+  if (!ConsultSp) {
+    InitConsultStack();
+  }
   ConsultSp--;
   ConsultSp->filename = file;
   ConsultSp--;
