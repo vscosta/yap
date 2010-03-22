@@ -1840,9 +1840,9 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
     if (!Yap_getcwd(ares1, YAP_FILENAME_MAX))
       return FALSE;
 #if _MSC_VER || defined(__MINGW32__)
-    strncat (ares1, "\\", YAP_FILENAME_MAX);
+    strncat (ares1, "\\", YAP_FILENAME_MAX-1);
 #else
-    strncat (ares1, "/", YAP_FILENAME_MAX);
+    strncat (ares1, "/", YAP_FILENAME_MAX-1);
 #endif
     if (root) {
       if (!dir_separator(root[0]) && !volume_header(root)) {
