@@ -466,8 +466,10 @@ p_inform_agc(void)
   Term tt = MkIntegerTerm(agc_calls);
   Term ts = MkIntegerTerm(tot_agc_recovered);
 
-  return(Yap_unify(tn, ARG2) && Yap_unify(tt, ARG1) && Yap_unify(ts, ARG3));
-
+  return
+    Yap_unify(tn, ARG2) &&
+    Yap_unify(tt, ARG1) &&
+    Yap_unify(ts, ARG3);
 }
 
 static Int

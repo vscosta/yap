@@ -99,6 +99,10 @@ yap_flag(syntax_errors, Option) :-
 yap_flag(enhanced,on) :- !, set_value('$enhanced',true).
 yap_flag(enhanced,off) :- set_value('$enhanced',[]).
 
+% compatibility flag
+yap_flag(agc_margin,Margin) :-
+	'$agc_threshold'(Margin).
+
 %
 % SWI compatibility flag
 %
@@ -768,6 +772,7 @@ yap_flag(address_bits,X) :-
 yap_flag(dialect,yap).
 
 '$yap_system_flag'(address_bits).
+'$yap_system_flag'(agc_margin).
 '$yap_system_flag'(answer_format).
 '$yap_system_flag'(argv).
 '$yap_system_flag'(bounded).

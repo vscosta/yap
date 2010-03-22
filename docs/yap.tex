@@ -7551,6 +7551,13 @@ Set or read system properties for @var{Param}:
 @* Read-only flag. It unifies with a list of atoms that gives the
 arguments to YAP after @code{--}.
 
+@item agc_margin
+@findex agc_margin (yap_flag/2 option)
+An integer: if this amount of atoms has been created since the last
+atom-garbage collection, perform atom garbage collection at the first
+opportunity. Initial value is 10,000. May be changed. A value of 0
+(zero) disables atom garbage collection.
+
 @item bounded [ISO]
 @findex bounded (yap_flag/2 option)
 @*
