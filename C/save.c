@@ -83,19 +83,19 @@ static char end_msg[256] ="*** End of YAP saved state *****";
 #endif
 
 STATIC_PROTO(int   myread, (int, char *, Int));
-STATIC_PROTO(void  mywrite, (int, char *, Int));
+STATIC_PROTO(Int   mywrite, (int, char *, Int));
 STATIC_PROTO(int   open_file, (char *, int));
-STATIC_PROTO(void  close_file, (void));
-STATIC_PROTO(void  putout, (CELL));
-STATIC_PROTO(void  putcellptr, (CELL *));
+STATIC_PROTO(int   close_file, (void));
+STATIC_PROTO(Int   putout, (CELL));
+STATIC_PROTO(Int   putcellptr, (CELL *));
 STATIC_PROTO(CELL  get_cell, (void));
 STATIC_PROTO(CELL  *get_cellptr, ( /* CELL * */ void));
-STATIC_PROTO(void  put_info, (int, int));
-STATIC_PROTO(void  save_regs, (int));
-STATIC_PROTO(void  save_code_info, (void));
-STATIC_PROTO(void  save_heap, (void));
-STATIC_PROTO(void  save_stacks, (int));
-STATIC_PROTO(void  save_crc, (void));
+STATIC_PROTO(int   put_info, (int, int));
+STATIC_PROTO(int   save_regs, (int));
+STATIC_PROTO(int   save_code_info, (void));
+STATIC_PROTO(int   save_heap, (void));
+STATIC_PROTO(int   save_stacks, (int));
+STATIC_PROTO(int   save_crc, (void));
 STATIC_PROTO(Int   do_save, (int));
 STATIC_PROTO(Int   p_save, (void));
 STATIC_PROTO(Int   p_save_program, (void));
@@ -156,7 +156,7 @@ LightBug(s)
 
 #endif				/* LIGHT */
 
-static int
+static Int
 do_system_error(yap_error_number etype, const char *msg)
 {
 #if HAVE_SNPRINTF
@@ -177,42 +177,10 @@ do_system_error(yap_error_number etype, const char *msg)
   return -1;
 }
 
-#if SHORT_INTS
-
-#ifdef M_WILLIAMS
-#include <fcntl.h>
-#endif
-
-static int 
-myread(int fd, char *buff, Int len)
-{
-  while (len > 0) {
-    int nchars = read(fd, buff, len);
-    if (nchars <= 0) {
-      return do_system_error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, "bad read on saved state");
-    }
-    len -= nchars;
-    buff += nchars;
-  }
-  return len;
-}
-
-static void 
-mywrite(int fd, char *buff, Int len)
-{
-  while (len > 16000) {
-    write(fd, buff, 16000);
-    len -= 16000;
-    buff += 16000;
-  }
-  write(fd, buff, (unsigned) len);
-}
-
-#else				/* SHORT_INTS */
 
 inline static
 int myread(int fd, char *buffer, Int len) {
-  int nread;
+  ssize_t nread;
 
   while (len > 0) {
     nread = read(fd, buffer,  (int)len);
@@ -226,21 +194,20 @@ int myread(int fd, char *buffer, Int len) {
 }
 
 inline static
-void mywrite(int fd, char *buff, Int len) {
-  Int nwritten;
+Int
+mywrite(int fd, char *buff, Int len) {
+  ssize_t nwritten;
 
   while (len > 0) {
-    nwritten = (Int)write(fd, buff, (int)len);
+    nwritten = write(fd, buff, (size_t)len);
     if (nwritten < 0) {
-      Yap_ErrorMessage = "bad write on saved state";
-      Yap_Error(SYSTEM_ERROR,TermNil,Yap_ErrorMessage);
+      return do_system_error(SYSTEM_ERROR,"bad write on saved state");
     }
     buff += nwritten;
     len -= nwritten;
   }
+  return len;
 }
-
-#endif				/* SHORT_INTS */
 
 #define FullSaved		1
 
@@ -299,27 +266,29 @@ open_file(char *my_file, int flag)
       return splfild;
 }
 
-static void 
+static int 
 close_file(void)
 {
   if (splfild == 0)
-    return;
-  close(splfild);
+    return 0;
+  if (close(splfild) < 0)
+    return do_system_error(SYSTEM_ERROR,"bad close on saved state");
   splfild = 0;
+  return 1;
 }
 
 /* stores a cell in a file */
-static void 
+static Int 
 putout(CELL l)
 {
-  mywrite(splfild, (char *) &l, sizeof(CELL));
+  return mywrite(splfild, (char *) &l, sizeof(CELL));
 }
 
 /* stores a pointer to a cell in a file */
-static void 
+static Int 
 putcellptr(CELL *l)
 {
-  mywrite(splfild, (char *) &l, sizeof(CELLPOINTER));
+  return mywrite(splfild, (char *) &l, sizeof(CELLPOINTER));
 }
 
 /* gets a cell from a file */
@@ -353,7 +322,8 @@ get_cellptr(void)
 {
   CELL           *l;
 
-  myread(splfild, (char *) &l, Unsigned(sizeof(CELLPOINTER)));
+  if (myread(splfild, (char *) &l, Unsigned(sizeof(CELLPOINTER))) < 0)
+    return NULL;
   return (l);
 }
 
@@ -361,96 +331,144 @@ get_cellptr(void)
  * writes the header (at the moment YAPV*), info about what kind of saved
  * set, the work size, and the space ocuppied 
  */
-static void 
+static int 
 put_info(int info, int mode)
 {
   char     msg[256];
 
   sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%cYAP-%s", YAP_BINDIR, 1, YAP_SVERSION);
-  mywrite(splfild, msg, strlen(msg) + 1);
-  putout(Unsigned(info));
+  if (mywrite(splfild, msg, strlen(msg) + 1))
+    return -1;
+  if (putout(Unsigned(info)) < 0)
+    return -1;
   /* say whether we just saved the heap or everything */
-  putout(mode);
+  if (putout(mode) < 0)
+    return -1;
   /* current state of stacks, to be used by SavedInfo */
   /* space available in heap area */
-  putout(Unsigned(Yap_GlobalBase)-Unsigned(Yap_HeapBase));
+  if (putout(Unsigned(Yap_GlobalBase)-Unsigned(Yap_HeapBase)) < 0)
+    return -1;
   /* space available for stacks */
-  putout(Unsigned(Yap_LocalBase)-Unsigned(Yap_GlobalBase));
+  if (putout(Unsigned(Yap_LocalBase)-Unsigned(Yap_GlobalBase)) < 0)
+    return -1;
   /* space available for trail */
-  putout(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase));
+  if (putout(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase)) < 0)
+    return -1;
   /* Space used in heap area */
-  putout(Unsigned(HeapTop)-Unsigned(Yap_HeapBase));
+  if (putout(Unsigned(HeapTop)-Unsigned(Yap_HeapBase)) < 0)
+    return -1;
   /* Space used for local stack */
-  putout(Unsigned(LCL0)-Unsigned(ASP));
+  if (putout(Unsigned(LCL0)-Unsigned(ASP)) < 0)
+    return -1;
   /* Space used for global stack */
-  putout(Unsigned(H) - Unsigned(Yap_GlobalBase));
+  if (putout(Unsigned(H) - Unsigned(Yap_GlobalBase)) < 0)
+    return -1;
   /* Space used for trail */
-  putout(Unsigned(TR) - Unsigned(Yap_TrailBase));
+  if (putout(Unsigned(TR) - Unsigned(Yap_TrailBase)) < 0)
+    return -1;
+  return 0;
 }
 
-static void
+static int
 save_regs(int mode)
 {
   /* save all registers */
-  putout((CELL)compile_arrays);
+  if (putout((CELL)compile_arrays) < 0)
+    return -1;    
   if (mode == DO_EVERYTHING) {
-    putcellptr((CELL *)CP);
-    putcellptr(ENV);
-    putcellptr(ASP);
-    /* putout((CELL)N); */
-    putcellptr(H0);
-    putcellptr(LCL0);
-    putcellptr(H);
-    putcellptr(HB);
-    putcellptr((CELL *)B);
-    putcellptr((CELL *)TR);
-    putcellptr(YENV);
-    putcellptr(S);
-    putcellptr((CELL *)P);
-    putout(CreepFlag);
-    putout(EX);
+    if (putcellptr((CELL *)CP) < 0)
+      return -1;
+    if (putcellptr(ENV) < 0)
+      return -1;
+    if (putcellptr(ASP) < 0)
+      return -1;
+    /* if (putout((CELL)N) < 0)
+       return -1; */
+    if (putcellptr(H0) < 0)
+      return -1;
+    if (putcellptr(LCL0) < 0)
+      return -1;
+    if (putcellptr(H) < 0)
+      return -1;
+    if (putcellptr(HB) < 0)
+      return -1;
+    if (putcellptr((CELL *)B) < 0)
+      return -1;
+    if (putcellptr((CELL *)TR) < 0)
+      return -1;
+    if (putcellptr(YENV) < 0)
+      return -1;
+    if (putcellptr(S) < 0)
+      return -1;
+    if (putcellptr((CELL *)P) < 0)
+      return -1;
+    if (putout(CreepFlag) < 0)
+      return -1;
+    if (putout(EX) < 0)
+      return -1;
 #if defined(SBA) || defined(TABLING)
-    putcellptr(H_FZ);
-    putcellptr((CELL *)B_FZ);
-    putcellptr((CELL *)TR_FZ);
+    if (putcellptr(H_FZ) < 0)
+      return -1;
+    if (putcellptr((CELL *)B_FZ) < 0)
+      return -1;
+    if (putcellptr((CELL *)TR_FZ) < 0)
+      return -1;
 #endif /* SBA || TABLING */
   }
-  putout(CurrentModule);
+  if (putout(CurrentModule) < 0)
+    return -1;
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
-    putout(WokenGoals);
+    if (putout(WokenGoals) < 0)
+      return -1;
 #endif
 #ifdef  DEPTH_LIMIT
-    putout(DEPTH);
+    if (putout(DEPTH) < 0)
+      return -1;
 #endif
-    putout(GcGeneration);
-    putout(GcPhase);
-    putout(GcCurrentPhase);
+    if (putout(GcGeneration) < 0)
+      return -1;
+    if (putout(GcPhase) < 0)
+      return -1;
+    if (putout(GcCurrentPhase) < 0)
+      return -1;
   }
   /* The operand base */
-  putcellptr(CellPtr(XREGS));
-  putout(which_save);
+  if (putcellptr(CellPtr(XREGS)) < 0)
+    return -1;
+  if (putout(which_save) < 0)
+    return -1;
   /* Now start by saving the code */
   /* the heap boundaries */
-  putcellptr(CellPtr(Yap_HeapBase));
-  putcellptr(CellPtr(HeapTop));
+  if (putcellptr(CellPtr(Yap_HeapBase)) < 0)
+    return -1;
+  if (putcellptr(CellPtr(HeapTop)) < 0)
+    return -1;
   /* and the space it ocuppies */
-  putout(Unsigned(Yap_heap_regs->heap_used));
+  if (putout(Unsigned(Yap_heap_regs->heap_used)) < 0)
+    return -1;
   /* Then the start of the free code */
-  putcellptr(CellPtr(FreeBlocks));
-  putcellptr(AuxSp);
-  putcellptr(CellPtr(AuxTop));
+  if (putcellptr(CellPtr(FreeBlocks)) < 0)
+    return -1;
+  if (putcellptr(AuxSp) < 0)
+    return -1;
+  if (putcellptr(CellPtr(AuxTop)) < 0)
+    return -1;
   if (mode == DO_EVERYTHING) {
     /* put the old trail base, just in case it moves again */
-    putout(ARG1);
+    if (putout(ARG1) < 0)
+      return -1;
     if (which_save == 2) {
-      putout(ARG2);
+      if (putout(ARG2) < 0)
+	return -1;
     }
-    putcellptr(CellPtr(Yap_TrailBase));
+    if (putcellptr(CellPtr(Yap_TrailBase)) < 0)
+      return -1;
   }
+  return 0;
 }
 
-static void
+static int
 save_code_info(void)
 {
 
@@ -461,13 +479,16 @@ save_code_info(void)
     OPCODE my_ops[_std_top+1];
     for (i = _Ystop; i <= _std_top; ++i)
       my_ops[i] = Yap_opcode(i);
-    mywrite(splfild, (char *)my_ops, sizeof(OPCODE)*(_std_top+1));
+    if (mywrite(splfild, (char *)my_ops, sizeof(OPCODE)*(_std_top+1)) < 0)
+      return -1;
   }
   /* and the current character codes */
-  mywrite(splfild, Yap_chtype, NUMBER_OF_CHARS);
+  if (mywrite(splfild, Yap_chtype, NUMBER_OF_CHARS) < 0)
+    return -1;
+  return 0;
 }
 
-static void
+static int
 save_heap(void)
 {
 #ifdef USE_SYSTEM_MALLOC
@@ -481,19 +502,24 @@ save_heap(void)
   Yap_CloseScratchPad();
   /* skip the local and global data structures */
   j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
-  putout(j);
+  if (putout(j) < 0)
+    return -1;
   mywrite(splfild, (char *) Yap_HeapBase, j);
   j = Unsigned(HeapTop) - Unsigned(REMOTE+MAX_WORKERS);
-  putout(j);
-  mywrite(splfild, (char *) &(REMOTE[MAX_WORKERS]), j);
+  if (putout(j) < 0)
+    return -1;
+  if (mywrite(splfild, (char *) &(REMOTE[MAX_WORKERS]), j) < 0)
+    return -1;
 #else
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
-  mywrite(splfild, (char *) Yap_HeapBase, j);
+  if (mywrite(splfild, (char *) Yap_HeapBase, j) < 0)
+    return -1;
 #endif /* YAPOR || (TABLING && !YAP_MEMORY_ALLOC_SCHEME) */
+  return 0;
 }
 
-static void
+static int
 save_stacks(int mode)
 {
   int j;
@@ -503,13 +529,16 @@ save_stacks(int mode)
     /* Now, go and save the state */
     /* Save the local stack */
     j = Unsigned(LCL0) - Unsigned(ASP);
-    mywrite(splfild, (char *) ASP, j);
+    if (mywrite(splfild, (char *) ASP, j) < 0)
+      return -1;
     /* Save the global stack */
     j = Unsigned(H) - Unsigned(Yap_GlobalBase);
-    mywrite(splfild, (char *) Yap_GlobalBase, j);
+    if (mywrite(splfild, (char *) Yap_GlobalBase, j) < 0)
+      return -1;
     /* Save the trail */
     j = Unsigned(TR) - Unsigned(Yap_TrailBase);
-    mywrite(splfild, (char *) Yap_TrailBase, j);
+    if (mywrite(splfild, (char *) Yap_TrailBase, j) < 0)
+      return -1;
     break;
   case DO_ONLY_CODE:
     {
@@ -518,39 +547,36 @@ save_stacks(int mode)
 	CELL val = TrailTerm(tr_ptr-1);
 	if (IsVarTerm(val)) {
 	  CELL *d1 = VarOfTerm(val);
-	  if (d1 < (CELL *)HeapTop)
-	    putout(val);
+	  if (d1 < (CELL *)HeapTop) {
+	    if (putout(val) < 0)
+	      return -1;
+	  }
 	} else if (IsPairTerm(val)) {
 	  CELL *d1 = RepPair(val);
-	  if (d1 < (CELL *)HeapTop)
-	    putout(val);
+	  if (d1 < (CELL *)HeapTop) {
+	    if (putout(val) < 0)
+	      return -1;
+	  }
 	}
 	tr_ptr--;
       }
     }
-    putcellptr(NULL);
+    if (putcellptr(NULL) < 0)
+      return -1;
     break;
   }
+  return 0;
 }
 
-static void
+static int
 save_crc(void)
 {
   /* Save a CRC */
-  mywrite(splfild, end_msg, 256);
-#ifdef MACYAP
-  NewFileInfo('TEXT', 'MYap');
-  if (DefVol)
-    SetVol(0l, DefVol);
-  DefVol = 0;
-#endif
+  return mywrite(splfild, end_msg, 256);
 }
 
 static Int
 do_save(int mode) {
-#ifdef MACYAP
-  NewFileInfo('YAPS', 'MYap');
-#endif
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
@@ -568,12 +594,18 @@ do_save(int mode) {
 	  "restore/1, open(%s)", strerror(errno));
     return(FALSE);
   }
-  put_info(FullSaved, mode);
-  save_regs(mode);
-  save_code_info();
-  save_heap();
-  save_stacks(mode);
-  save_crc();
+  if (put_info(FullSaved, mode) < 0)
+    return -1;
+  if (save_regs(mode) < 0)
+    return -1;
+  if (save_code_info() < 0)
+    return -1;
+  if (save_heap() < 0)
+    return -1;
+  if (save_stacks(mode) < 0)
+    return -1;
+  if (save_crc() < 0)
+    return -1;
   close_file();
   return (TRUE);
 }
