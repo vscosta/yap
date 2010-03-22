@@ -26,6 +26,7 @@ t:-
 	format("~nTesting cpl.yap~n~n",[]),
 	files(F),
 	statistics(runtime,[_,_]),
+	set(ground_body,false),
 	test_files(F,ground_body(false)),
 	statistics(runtime,[_,T]),
 	T1 is T /1000,

@@ -123,7 +123,7 @@ static int compute_prob(void)
 	char * names[1000];
 	GHashTable  * nodes; /* hash table that associates nodes with their probability if already 
 				computed, it is defined in glib */
-	Cudd_ReorderingType order;
+	//Cudd_ReorderingType order;
 	arg1=YAP_ARG1;
 	arg2=YAP_ARG2;
 	arg3=YAP_ARG3;

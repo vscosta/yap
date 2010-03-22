@@ -29,7 +29,7 @@
 
 % Sicstus
 /* Begin Sicstus specific code */
- append([],L,L).
+/* append([],L,L).
  append([X|L1],L2,[X|L3]) :- append(L1,L2,L3).
 
  member(X,[X|_]).
@@ -37,7 +37,7 @@
 
  memberchk(X,[X|_]) :- !.
  memberchk(X,[_|L]) :- memberchk(X,L).
-
+*/
  :- dynamic 'slg$prolog'/1, 'slg$tab'/2.
  :- dynamic slg_expanding/0.
  :- dynamic wfs_trace/0.

@@ -1140,7 +1140,8 @@ if test ! "$yap_cv_cplint" = "no"
 	AC_SEARCH_LIBS([g_hash_table_new], [glib-2.0], [CPLINT_LIBS="-lglib-2.0 "], [AC_MSG_ERROR([This package needs glib >=2.0.], [1])], [])
 	AC_SEARCH_LIBS([array_do_alloc], [glu], [CPLINT_LIBS="-lglu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [])
 	AC_SEARCH_LIBS([Cudd_Init], [cu], [CPLINT_LIBS="-lcu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [-lglu -lm])
-	ENABLE_CPLINT=""
+	AC_SEARCH_LIBS([pow], [m], [CPLINT_LIBS="-lm "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs m.], [1])], [-lglu -lm])
+ENABLE_CPLINT=""
 	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
 		CPLINT_SHLIB_LD="gcc -shared ../yap.dll"
@@ -1633,6 +1634,8 @@ mkdir -p  packages/chr
 mkdir -p  packages/CLPBN
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
+mkdir -p  packages/cplint/approx
+mkdir -p  packages/cplint/approx/simplecuddLPADs
 mkdir -p  packages/jpl
 mkdir -p  packages/jpl/src/java
 mkdir -p  packages/jpl/src/java/jpl
@@ -1664,6 +1667,7 @@ AC_CONFIG_FILES([LGPL/clp/Makefile])
 AC_CONFIG_FILES([LGPL/swi_console/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
+AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
