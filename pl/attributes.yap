@@ -186,8 +186,11 @@ call_residue(Goal,Module,Residue) :-
 
 project_delayed_goals(G,LGs) :-
 	(
-	 current_predicate(attributes:modules_with_attributes/1), false
+	 '$undefined'(modules_with_attributes(_),attributes)
 	->
+	 attributed(G, NLAV),
+	 NLAV = [_|_]
+	;
 % SICStus compatible step,
 % just try to simplify store  by projecting constraints
 % over query variables.
@@ -198,9 +201,6 @@ project_delayed_goals(G,LGs) :-
 	 project_attributes(LAV, G),
 	% now get a list of frozen goals.
 	 attributes:all_attvars(NLAV)
-	;
-	 attributed(G, NLAV),
-	 NLAV = [_|_]
 	),
 	!,
 	get_goalist_from_attvars(NLAV, LGs).
