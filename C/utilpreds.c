@@ -2231,7 +2231,6 @@ hash_complex_term(register CELL *pt0,
 		  CELL *st,
 		  int variant)
 {
-
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
 
   to_visit0 = to_visit;
@@ -2248,7 +2247,7 @@ hash_complex_term(register CELL *pt0,
       if (st + 1024 >= ASP) {
 	goto global_overflow;
       }
-      if (IsPrimitiveTerm(d0)) {
+      if (IsAtomOrIntTerm(d0)) {
 	if (d0 != TermFoundVar) {
 	  if (IsAtomTerm(d0)) {
 	    st = AddAtomToHash(st, AtomOfTerm(d0));
@@ -2290,7 +2289,7 @@ hash_complex_term(register CELL *pt0,
 	f = (Functor)(*ap2);
 
 	if (IsExtensionFunctor(f)) {
-	  CELL fc = (CELL)NameOfFunctor(f);
+	  CELL fc = (CELL)f;
 
 	  switch(fc) {
 	    
