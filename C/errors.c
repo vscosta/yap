@@ -290,10 +290,10 @@ dump_stack(void)
     fprintf (stderr,"%%\n%% PC: %s\n",(char *)H); 
     detect_bug_location(CP, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
     fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
-    fprintf (stderr,"%%    %ldKB of Global Stack (%p--%p)\n",(long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
-    fprintf (stderr,"%%    %ldKB of Local Stack (%p--%p)\n",(long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
-    fprintf (stderr,"%%    %ldKB of Trail (%p--%p)\n",(long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
-    fprintf (stderr,"%%    Performed %d garbage collections\n", GcCalls);
+    fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
+    fprintf (stderr,"%%    %luKB of Local Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
+    fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
+    fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)GcCalls);
 #if LOW_LEVEL_TRACER
     {
       extern long long vsc_count;

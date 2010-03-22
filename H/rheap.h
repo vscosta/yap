@@ -966,14 +966,6 @@ RestoreBallTerm(int wid)
   }
 }
 
-static void
-RestoreScratchPad(int wid)
-{
-  if (ScratchPad.ptr) {
-    ScratchPad.ptr = AddrAdjust(ScratchPad.ptr);
-  }
-}
-
 #include "rglobals.h"
 
 /* restore the failcodes */

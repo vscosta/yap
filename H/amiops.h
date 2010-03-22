@@ -436,6 +436,8 @@ reset_trail(tr_fr_ptr TR0) {
   }
 }
 
+inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
+
 inline EXTERN void
 reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   if (dvarsmin) {
@@ -451,6 +453,8 @@ reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
     } while (TRUE);
   }
 }
+
+inline EXTERN void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax);
 
 inline EXTERN void
 close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {

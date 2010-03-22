@@ -3302,15 +3302,15 @@ compact_heap(void)
 
 #ifdef DEBUG
   if (dest != start_from-1)
-    fprintf(Yap_stderr,"%% Bad Dest (%d): %p should be %p\n",
-	       GcCalls,
-	       dest,
-	       start_from);
+    fprintf(Yap_stderr,"%% Bad Dest (%lu): %p should be %p\n",
+	    (unsigned long int)GcCalls,
+	    dest,
+	    start_from);
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
-	       GcCalls,
-	       (unsigned long int)total_marked,
-	       (unsigned long int)found_marked);
+    fprintf(Yap_stderr,"%% Upward (%lu): %lu total against %lu found\n",
+	    (unsigned long int)GcCalls,
+	    (unsigned long int)total_marked,
+	    (unsigned long int)found_marked);
   found_marked = start_from-H0;
 #endif
 
@@ -3366,10 +3366,10 @@ compact_heap(void)
   }
 #ifdef DEBUG
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
-	       GcCalls,
-	       (unsigned long int)total_marked,
-	       (unsigned long int)found_marked);
+    fprintf(Yap_stderr,"%% Downward (%lu): %lu total against %lu found\n",
+	    (unsigned long int)GcCalls,
+	    (unsigned long int)total_marked,
+	    (unsigned long int)found_marked);
 #endif
 
   H = dest;		/* reset H */
@@ -3475,15 +3475,15 @@ icompact_heap(void)
 
 #ifdef DEBUG
   if (dest != H0-1)
-    fprintf(Yap_stderr,"%% Bad Dest (%d): %p should be %p\n",
-	       GcCalls,
-	       dest,
-	       H0-1);
+    fprintf(Yap_stderr,"%% Bad Dest (%lu): %p should be %p\n",
+	    (unsigned long int)GcCalls,
+	    dest,
+	    H0-1);
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"%% Upward (%d): %ld total against %ld found\n",
-	       GcCalls,
-	       (unsigned long int)total_marked,
-	       (unsigned long int)found_marked);
+    fprintf(Yap_stderr,"%% Upward (%lu): %lu total against %lu found\n",
+	    (unsigned long int)GcCalls,
+	    (unsigned long int)total_marked,
+	    (unsigned long int)found_marked);
   found_marked = 0;
 #endif
 
@@ -3538,15 +3538,15 @@ icompact_heap(void)
   }
 #ifdef DEBUG
   if (H0+total_marked != dest)
-    fprintf(Yap_stderr,"%% Downward (%d): %p total against %p found\n",
-	       GcCalls,
-	       H0+total_marked,
-	       dest);
+    fprintf(Yap_stderr,"%% Downward (%lu): %p total against %p found\n",
+	    (unsigned long int)GcCalls,
+	    H0+total_marked,
+	    dest);
   if (total_marked != found_marked)
-    fprintf(Yap_stderr,"%% Downward (%d): %ld total against %ld found\n",
-	       GcCalls,
-	       (unsigned long int)total_marked,
-	       (unsigned long int)found_marked);
+    fprintf(Yap_stderr,"%% Downward (%lu): %lu total against %lu found\n",
+	    (unsigned long int)GcCalls,
+	    (unsigned long int)total_marked,
+	    (unsigned long int)found_marked);
 #endif
 
   H = dest;		/* reset H */
@@ -3746,7 +3746,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
 #if  defined(YAPOR) || defined(THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Start of garbage collection %d:\n", GcCalls);
+    fprintf(Yap_stderr, "%% Start of garbage collection %lu:\n", (unsigned long int)GcCalls);
     fprintf(Yap_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
     fprintf(Yap_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%       Trail:%8ld cells (%p-%p)\n",
@@ -3885,7 +3885,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   TotGcTime += gc_time;
   TotGcRecovered += heap_cells-tot;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% GC %d took %g sec, total of %g sec doing GC so far.\n", GcCalls, (double)gc_time/1000, (double)TotGcTime/1000);
+    fprintf(Yap_stderr, "%% GC %lu took %g sec, total of %g sec doing GC so far.\n", (unsigned long int)GcCalls, (double)gc_time/1000, (double)TotGcTime/1000);
     fprintf(Yap_stderr, "%%  Left %ld cells free in stacks.\n",
 	       (unsigned long int)(ASP-H));
   }
