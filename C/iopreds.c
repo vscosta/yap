@@ -234,6 +234,9 @@ Yap_GetFreeStreamDForReading(void)
   if (sno < 0) return sno;
   s = Stream+sno;
   s->status |= User_Stream_f|Input_Stream_f;
+  s->charcount = 0;
+  s->linecount = 1;
+  s->linepos = 0;
   s->stream_wgetc = get_wchar;
   s->encoding = DefaultEncoding();
   if (CharConversionTable != NULL)
