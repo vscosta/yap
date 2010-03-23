@@ -1854,7 +1854,6 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
 #ifdef CUT_C
   Yap_REGS.CUT_C_TOP = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->CUT_C_TOP;
 #endif
-  DelayedVars = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->DelayedVars_;
   DynamicArrays = NULL;
   StaticArrays = NULL;
   GlobalVariables = NULL;
