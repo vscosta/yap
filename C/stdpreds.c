@@ -1174,58 +1174,82 @@ p_atom_chars(void)
       }
     } else {
       /* ISO Prolog Mode */
+      int has_atoms = yap_flags[STRICT_ISO_FLAG];
+      int has_ints =  FALSE;
+
       while (t != TermNil) {
-	register Term   Head;
-	register char   *is;
+	Term   Head;
+	char   *is;
 
 	Head = HeadOfTerm(t);
 	if (IsVarTerm(Head)) {
 	  Yap_Error(INSTANTIATION_ERROR,Head,"atom_chars/2");
 	  return(FALSE);
-	} else if (!IsAtomTerm(Head)) {
-	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
-	  return(FALSE);		
-	}
-	at = AtomOfTerm(Head);
-	if (IsWideAtom(at)) {
-	  wchar_t *wis = (wchar_t *)RepAtom(at)->StrOfAE;
-	  if (wis[1] != '\0') {
-	    Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
-	    return(FALSE);		
-	  }
-	  if (!ws) {
-	    ws = ch_to_wide(String, s);	    
-	  }
-	  if (ws+1024 == (wchar_t *)AuxSp) {
-	    goto expand_auxsp;
-	  }
-	  *ws++ = wis[0];
-	} else {
-	  is = RepAtom(at)->StrOfAE;
-	  if (is[1] != '\0') {
-	    Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
-	    return(FALSE);		
-	  }
-	  if (ws) {
+	} else if (IsAtomTerm(Head) && !has_ints) {
+	  at = AtomOfTerm(Head);
+	  if (IsWideAtom(at)) {
+	    wchar_t *wis = (wchar_t *)RepAtom(at)->StrOfAE;
+	    if (wis[1] != '\0') {
+	      Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
+	      return(FALSE);		
+	    }
+	    if (!ws) {
+	      ws = ch_to_wide(String, s);	    
+	    }
 	    if (ws+1024 == (wchar_t *)AuxSp) {
 	      goto expand_auxsp;
 	    }
-	    *ws++ = is[0];
+	    *ws++ = wis[0];
 	  } else {
-	    if (s+1024 == (char *)AuxSp) {
+	    is = RepAtom(at)->StrOfAE;
+	    if (is[1] != '\0') {
+	      Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
+	      return(FALSE);		
+	    }
+	    if (ws) {
+	      if (ws+1024 == (wchar_t *)AuxSp) {
+		goto expand_auxsp;
+	      }
+	      *ws++ = is[0];
+	    } else {
+	      if (s+1024 == (char *)AuxSp) {
+		goto expand_auxsp;
+	      }
+	      *s++ = is[0];
+	    }
+	  }
+	} else if (IsIntegerTerm(Head) && !has_atoms) {
+	  Int i = IntegerOfTerm(Head);
+	  if (i < 0) {
+	    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
+	    return(FALSE);		
+	  }
+	  if (i > MAX_ISO_LATIN1 && !ws) {
+	    ws = ch_to_wide(String, s);
+	  }
+	  if (ws) {
+	    if (ws+1024 > (wchar_t *)AuxSp) {
 	      goto expand_auxsp;
 	    }
-	    *s++ = is[0];
+	    *ws++ = i;
+	  } else {
+	    if (s+1024 > (char *)AuxSp) {
+	      goto expand_auxsp;
+	    }
+	    *s++ = i;
 	  }
+	} else {
+	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
+	  return(FALSE);		
 	}
-	t = TailOfTerm(t);
-	if (IsVarTerm(t)) {
-	  Yap_Error(INSTANTIATION_ERROR,t,"atom_chars/2");
-	  return(FALSE);
-	} else if (!IsPairTerm(t) && t != TermNil) {
-	  Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
-	  return(FALSE);
-	}
+      }
+      t = TailOfTerm(t);
+      if (IsVarTerm(t)) {
+	Yap_Error(INSTANTIATION_ERROR,t,"atom_chars/2");
+	return(FALSE);
+      } else if (!IsPairTerm(t) && t != TermNil) {
+	Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
+	return(FALSE);
       }
     }
     if (ws) {
@@ -1687,11 +1711,11 @@ p_atom_codes(void)
       if (IsVarTerm(Head)) {
 	Yap_Error(INSTANTIATION_ERROR,Head,"atom_codes/2");
 	return(FALSE);
-      } else if (!IsIntTerm(Head)) {
+      } else if (!IsIntegerTerm(Head)) {
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
 	return(FALSE);		
       }
-      i = IntOfTerm(Head);
+      i = IntegerOfTerm(Head);
       if (i < 0) {
 	Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"atom_codes/2");
 	return(FALSE);		
@@ -1906,20 +1930,6 @@ gen_syntax_error(Atom InpAtom, char *s)
   return(Yap_MkApplTerm(FunctorSyntaxError,7,ts));
 }
 
-static Term
-gen_syntax_type_error(void)
-{
-  Term ts[7], ti[2];
-  ti[0] = ARG1;
-  ti[1] = ARG2;
-  ts[0] = Yap_MkApplTerm(Yap_MkFunctor(Yap_LookupAtom("number_chars"),2),2,ti);
-  ts[1] = ts[4] = ts[5] = MkIntTerm(0);
-  ts[2] = MkAtomTerm(AtomExpectedNumber);
-  ts[3] = TermNil;
-  ts[6] = ARG2;
-  return(Yap_MkApplTerm(FunctorSyntaxError,7,ts));
-}
-
 static Int 
 p_number_chars(void)
 {
@@ -1984,15 +1994,15 @@ p_number_chars(void)
       register Int    i;
       Head = HeadOfTerm(t);
       if (IsVarTerm(Head)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(INSTANTIATION_ERROR,Head,"number_chars/2");
 	return(FALSE);
-      } else if (!IsIntTerm(Head)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+      } else if (!IsIntegerTerm(Head)) {
+	Yap_Error(TYPE_ERROR_INTEGER,Head,"number_chars/2");
 	return(FALSE);		
       }
       i = IntOfTerm(Head);
       if (i < 0 || i > 255) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(TYPE_ERROR_INTEGER,Head,"number_chars/2");
 	return(FALSE);		
       }
       if (s+1024 > (char *)AuxSp) {
@@ -2008,30 +2018,44 @@ p_number_chars(void)
       *s++ = i;
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(INSTANTIATION_ERROR,t,"number_chars/2");
 	return(FALSE);
       } else if (!IsPairTerm(t) && t != TermNil) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(TYPE_ERROR_LIST,t,"number_chars/2");
 	return(FALSE);
       }
     }
   } else {
     /* ISO code */
+    int has_atoms = yap_flags[STRICT_ISO_FLAG];
+    int has_ints =  FALSE;
+
     while (t != TermNil) {
-      register Term   Head;
-      register char   *is;
+      Term   Head;
+      char   *is;
+      Int    ch;
       
       Head = HeadOfTerm(t);
       if (IsVarTerm(Head)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(INSTANTIATION_ERROR,Head,"number_chars/2");
 	return(FALSE);
-      } else if (!IsAtomTerm(Head)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
-	return(FALSE);		
-      }
-      is = RepAtom(AtomOfTerm(Head))->StrOfAE;
-      if (is[1] != '\0') {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+      } else if (IsAtomTerm(Head) && !has_ints) {
+	has_atoms = TRUE;
+	is = RepAtom(AtomOfTerm(Head))->StrOfAE;
+	if (is[1] != '\0') {
+	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
+	  return FALSE;	     
+	}
+	ch = is[0];
+      } else if (IsIntTerm(Head) && !has_atoms) {
+	has_ints = TRUE;
+	ch = IntOfTerm(Head);
+	if (ch < 0 || ch > 255) {
+	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
+	  return(FALSE);		
+	}
+      } else {
+	Yap_Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
 	return(FALSE);		
       }
       if (s+1 == (char *)AuxSp) {
@@ -2043,13 +2067,13 @@ p_number_chars(void)
 	s = nString+(s-String);
 	String = nString;
       }
-      *s++ = is[0];
+      *s++ = ch;
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(INSTANTIATION_ERROR,t,"number_chars/2");
 	return(FALSE);
       } else if (!IsPairTerm(t) && t != TermNil) {
-	Yap_Error(SYNTAX_ERROR,gen_syntax_type_error(),"number_chars/2");
+	Yap_Error(TYPE_ERROR_LIST,t,"number_chars/2");
 	return(FALSE);
       }
     }
