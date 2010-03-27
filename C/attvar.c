@@ -326,34 +326,36 @@ ReplaceAtts(attvar_record *attv, Term oatt, Term att)
 }
 
 static void 
+DelAllAtts(attvar_record *attv)
+{
+  MaBind(&(attv->Done), attv->Value);
+}
+
+static void 
 DelAtts(attvar_record *attv, Term oatt)
 {
+  Term t = ArgOfTerm(1,oatt);
   if (attv->Atts == oatt) {
+    if (IsVarTerm(t)) {
+      DelAllAtts(attv);
+      return;
+    }
     if (RepAppl(attv->Atts) >= HB)
-      attv->Atts = ArgOfTerm(1,oatt);
+      attv->Atts = t;
     else
-      MaBind(&(attv->Atts), ArgOfTerm(1,oatt));
+      MaBind(&(attv->Atts), t);
   } else {
     Term *wherep = &attv->Atts;
 
     do {
       if (*wherep == oatt) {
-	MaBind(wherep, ArgOfTerm(1,oatt));
+	MaBind(wherep, t);
 	return;
       } else {
 	wherep = RepAppl(Deref(*wherep))+1;
       }
     } while (TRUE);
   }
-}
-
-static void 
-DelAllAtts(attvar_record *attv)
-{
-  if (RepAppl(attv->Atts) >= HB)
-    RESET_VARIABLE(&attv->Atts);
-  else
-    MaBind(&(attv->Atts), MkVarTerm());
 }
 
 static void 
