@@ -494,7 +494,7 @@ true :- true.
  % * -------- YAPOR -------- *
  % ***************************
 
- '$query'(G,V) :-
+'$query'(G,V) :-
 	 \+ '$undefined'('$yapor_on', prolog),
 	 '$yapor_on',
 	 \+ '$undefined'('$start_yapor', prolog),
@@ -504,18 +504,18 @@ true :- true.
 
  % end of YAPOR
 
- '$query'(G,[]) :-
+'$query'(G,[]) :-
 	 '$prompt_alternatives_on'(groundness), !,
 	 '$yes_no'(G,(?-)).
- '$query'(G,V) :-
+'$query'(G,V) :-
 	 (
 	   '$exit_system_mode',
 	  yap_hacks:current_choice_point(CP),
-	   '$execute'(G),
+	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
-	  '$output_frozen'(G, V, LGs),
-	  '$write_answer'(V, LGs, Written),
+	  '$delayed_goals'(G, V, NV, LGs),
+	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
 	   '$prompt_alternatives_on'(determinism), CP = NCP ->
@@ -534,8 +534,8 @@ true :- true.
  '$yes_no'(G,C) :-
 	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
-	 '$output_frozen'(G, [], LGs),
-	 '$write_answer'([], LGs, Written),
+	 '$delayed_goals'(G, [], NV, LGs),
+	 '$write_answer'(NV, LGs, Written),
 	 ( Written = [] ->
 	 !,'$present_answer'(C, yes);
 	 '$another', !
@@ -546,6 +546,11 @@ true :- true.
 	 '$out_neg_answer'.
 
 '$add_env_and_fail' :- fail.
+
+'$delayed_goals'(G, V, NV, LGs) :-
+	'$attributes':delayed_goals(G, V, NV, LGs), !.
+'$delayed_goals'(_, V, NV, []) :-
+	copy_term_nat(V, NV).
 
 '$out_neg_answer' :-
 	 ( '$undefined'(print_message(_,_),prolog) -> 
@@ -565,11 +570,6 @@ true :- true.
 	format(user_error,'~ntrue',[]).
 '$write_query_answer_true'(_).
 
-'$output_frozen'(_,V,LGs) :-
-	\+ '$undefined'(bindings_message(_,_,_), swi),
-	swi:bindings_message(V, LGs, []), !.
-'$output_frozen'(G,V,LGs) :-
-	'$attributes':project_delayed_goals(G,LGs).
 
 %
 % present_answer has three components. First it flushes the streams,
@@ -735,11 +735,10 @@ true :- true.
 	   format(user_error,'~w',[G])
         ).
 
-'$name_vars_in_goals'(G, VL0, NG) :-
-	copy_term_nat(G+VL0, NG+NVL0),
-	'$name_well_known_vars'(NVL0),
-	'$variables_in_term'(NG, [], NGVL),
-	'$name_vars_in_goals1'(NGVL, 0, _).
+'$name_vars_in_goals'(G, VL0, G) :-
+	'$name_well_known_vars'(VL0),
+	'$variables_in_term'(G, [], GVL),
+	'$name_vars_in_goals1'(GVL, 0, _).
 
 '$name_well_known_vars'([]).
 '$name_well_known_vars'([[Name|V]|NVL0]) :-

@@ -16,7 +16,7 @@
 *************************************************************************/
 
 :- module('$attributes', [
-			  project_delayed_goals/2
+			  delayed_goals/4
 			  ]).
 
 prolog:get_attr(Var, Mod, Att) :-
@@ -241,6 +241,11 @@ prolog:call_residue(Goal,Residue) :-
 
 call_residue(Goal,Module,Residue) :-
 	call(Module:Goal).
+
+
+delayed_goals(G, Vs, NVs, Gs) :-
+	project_delayed_goals(G),
+	copy_term(G.Vs, _.NVs, Gs).
 
 project_delayed_goals(G) :-
 	'$undefined'(modules_with_attributes(_),attributes), !.
