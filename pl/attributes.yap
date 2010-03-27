@@ -166,10 +166,68 @@ prolog:call_residue_vars(Goal,Residue) :-
 	  '$ord_remove'([V1|Vss], Vs0s, Residue)
 	).
 
-prolog:copy_term(Term, Copy, Goals) :-
-	term_variables(Term, TVars),
-	'$get_goalist_from_attvars'(TVars, Goals0),
-	copy_term_nat([Term|Goals0], [Copy|Goals]).
+%%  from SWI
+%%	copy_term(+Term, -Copy, -Gs) is det.
+%
+%	Creates a regular term Copy  as  a   copy  of  Term (without any
+%	attributes), and a list Gs of goals that when executed reinstate
+%	all attributes onto Copy. The nonterminal attribute_goals//1, as
+%	defined in the modules the  attributes   stem  from,  is used to
+%	convert attributes to lists of goals.
+
+prolog:copy_term(Term, Copy, Gs) :-
+	term_attvars(Term, Vs),
+	(   Vs == []
+	->  Gs = [],
+	    copy_term(Term, Copy)
+	;   findall(Term-Gs,
+		    ( attvars_residuals(Vs, Gs, []),
+		      delete_attributes(Term)
+		    ),
+		    [Copy-Gs])
+	).
+
+attvars_residuals([]) --> [].
+attvars_residuals([V|Vs]) -->
+	(   { get_attrs(V, As) }
+	->  attvar_residuals(As, V)
+	;   []
+	),
+	attvars_residuals(Vs).
+
+attvar_residuals([], _) --> [].
+attvar_residuals(att(Module,Value,As), V) -->
+	(   { nonvar(V) }
+	->  % a previous projection predicate could have instantiated
+	    % this variable, for example, to avoid redundant goals
+	    []
+	;   (	{ current_predicate(Module:attribute_goals/3) }
+	    ->	{ '$notrace'(Module:attribute_goals(V, Goals, [])) },
+		list(Goals)
+	    ;	{ current_predicate(Module:attribute_goal/2) }
+	    ->	{ '$notrace'(Module:attribute_goal(V, Goal)) },
+		dot_list(Goal)
+	    ;	[put_attr(V, Module, Value)]
+	    )
+	),
+	attvar_residuals(As, V).
+
+list([])     --> [].
+list([L|Ls]) --> [L], list(Ls).
+
+dot_list((A,B)) --> !, dot_list(A), dot_list(B).
+dot_list(A)	--> [A].
+
+delete_attributes(Term) :-
+	term_attvars(Term, Vs),
+	delete_attributes_(Vs).
+
+delete_attributes_([]).
+delete_attributes_([V|Vs]) :-
+	del_attrs(V),
+	delete_attributes_(Vs).
+
+
 
 prolog:call_residue(Goal,Residue) :-
 	var(Goal), !,
@@ -184,27 +242,17 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	call(Module:Goal).
 
-project_delayed_goals(G,LGs) :-
-	(
-	 '$undefined'(modules_with_attributes(_),attributes)
-	->
-	 attributed(G, NLAV),
-	 NLAV = [_|_]
-	;
+project_delayed_goals(G) :-
+	'$undefined'(modules_with_attributes(_),attributes), !.
+project_delayed_goals(G) :-
 % SICStus compatible step,
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
-	 attributes:all_attvars(LAV),
-	 LAV = [_|_],
-	 !,
-	 project_attributes(LAV, G),
-	% now get a list of frozen goals.
-	 attributes:all_attvars(NLAV)
-	),
-	!,
-	get_goalist_from_attvars(NLAV, LGs).
-project_delayed_goals(_,[]).
+	attributes:all_attvars(LAV),
+	LAV = [_|_],
+	project_attributes(LAV, G), !.
+project_delayed_goals(_).
 
 
 attributed(G, Vs) :-
@@ -241,65 +289,4 @@ project_module([Mod|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,NLAV).
 project_module([_|LMods], LIV, LAV) :-
 	project_module(LMods,LIV,LAV).
-
-% given a list of attributed variables, generate a conjunction of goals.
-%
-get_conj_from_attvars(TVars, Goals) :-
-	get_goalist_from_attvars(TVars, [], GoalList, []),
-	list_to_conjunction(GoalList, Goals).
-
-%
-% same, but generate list
-%
-get_goalist_from_attvars(TVars, GoalList) :-
-	get_goalist_from_attvars(TVars, GoalList, []).
-
-get_goalist_from_attvars([]) --> [].
-get_goalist_from_attvars([V|TVars]) -->
-	get_goalist_from_attvar(V),
-	get_goalist_from_attvars(TVars).
-
-get_goalist_from_attvar(V) --> { attvar(V) }, !,
-	{ attributes:get_all_atts(V, AllAtts) },
-	all_atts_to_goals(AllAtts, V).
-get_goalist_from_attvar(_) --> [].
-
-all_atts_to_goals(AllAtts, _) --> { var(AllAtts) }, !.
-all_atts_to_goals(AllAtts, V) --> 
-	{
-	 functor(AllAtts, Mod, _),
-	 arg(1, AllAtts, MoreAtts)
-	},
-	attgoals_for_module(Mod, V, AllAtts),
-	all_atts_to_goals(MoreAtts, V).
-
-%
-% check constraints for variable
-%
-attgoals_for_module(Mod, V, _Gs, GoalListF, GoalList0) :-
-	 % SWI, HProlog
-	'$pred_exists'(attribute_goals(V,GoalListF,GoalList0), Mod), !,
-	(
-	 '$notrace'(Mod:attribute_goals(V,GoalListF,GoalList0))
-	->
-	 true
-	;
-	 GoalListF = GoalList0
-	).
-attgoals_for_module(Mod, V, _, GoalListF, GoalList0) :-
-	 % SICStus
-	'$pred_exists'(attribute_goal(V,G),Mod), !,
-	(
-	 '$notrace'(Mod:attribute_goal(V,G))
-	->
-	 GoalListF = [G|GoalList0]
-	;
-	 GoalListF = GoalList0
-	).
-attgoals_for_module(Mod, V, _, GoalList, GoalList).
-
-list_to_conjunction([], true).
-list_to_conjunction([G], G)  :- !.
-list_to_conjunction([G|GoalList], (G,Goals0))  :-
-	list_to_conjunction(GoalList, Goals0).
 
