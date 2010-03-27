@@ -64,13 +64,15 @@ listing(V) :-
         fail.
 
 portray_clause(Stream, Clause) :-
-	'$portray_clause'(Stream, Clause),
+	copy_term_nat(Clause, CopiedClause),
+	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_, _).
 
 portray_clause(Clause) :-
         current_output(Stream),
-	'$portray_clause'(Stream, Clause),
+	copy_term_nat(Clause, CopiedClause),
+	'$portray_clause'(Stream, CopiedClause),
 	fail.
 portray_clause(_).
 
@@ -170,11 +172,14 @@ portray_clause(_).
 	'$list_get_vars'(Args, M, N).
 
 '$list_transform'([],_) :- !.
-'$list_transform'([X|L],M) :-
-	attvar(X), !,
+'$list_transform'([X,Y|L],M) :-
+	X == Y,
+	X = '$VAR'(M),
+	!,
+	N is M+1,
 	'$list_transform'(L,N).
-'$list_transform'([X,Y|L],M) :- X == Y, X = '$VAR'(M), !, N is M+1,
-			'$list_transform'(L,N).
-'$list_transform'('$VAR'(-1).L,M) :- !, '$list_transform'(L,M).
-'$list_transform'(_.L,M) :- '$list_transform'(L,M).
+'$list_transform'('$VAR'(-1).L,M) :- !,
+	'$list_transform'(L,M).
+'$list_transform'(_.L,M) :-
+	'$list_transform'(L,M).
 
