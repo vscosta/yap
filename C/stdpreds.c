@@ -1242,14 +1242,14 @@ p_atom_chars(void)
 	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"atom_chars/2");
 	  return(FALSE);		
 	}
-      }
-      t = TailOfTerm(t);
-      if (IsVarTerm(t)) {
-	Yap_Error(INSTANTIATION_ERROR,t,"atom_chars/2");
-	return(FALSE);
-      } else if (!IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
-	return(FALSE);
+	t = TailOfTerm(t);
+	if (IsVarTerm(t)) {
+	  Yap_Error(INSTANTIATION_ERROR,t,"atom_chars/2");
+	  return(FALSE);
+	} else if (!IsPairTerm(t) && t != TermNil) {
+	  Yap_Error(TYPE_ERROR_LIST, t, "atom_chars/2");
+	  return(FALSE);
+	}
       }
     }
     if (ws) {
