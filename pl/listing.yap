@@ -170,6 +170,9 @@ portray_clause(_).
 	'$list_get_vars'(Args, M, N).
 
 '$list_transform'([],_) :- !.
+'$list_transform'([X|L],M) :-
+	attvar(X), !,
+	'$list_transform'(L,N).
 '$list_transform'([X,Y|L],M) :- X == Y, X = '$VAR'(M), !, N is M+1,
 			'$list_transform'(L,N).
 '$list_transform'('$VAR'(-1).L,M) :- !, '$list_transform'(L,M).
