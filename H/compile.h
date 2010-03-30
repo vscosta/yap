@@ -256,7 +256,7 @@ typedef struct intermediates {
   struct PSEUDO *icpc;
   struct PSEUDO *BlobsStart;
   struct dbterm_list *dbterml;
-  int  *label_offset;
+  Int  *label_offset;
   Int  *uses;
   Term *contents;
   struct pred_entry *CurrentPred;  
