@@ -1655,19 +1655,22 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
+  long size0 = size;
 
 #if USE_SYSTEM_MALLOC
   if (contiguous_only)
     return FALSE;
 #endif
   /* at least 64K for trail */
-  if (!size)
+  if (!size) 
     size = ((ADDR)TR-Yap_TrailBase);
   size *= 2;
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
   if (size > 2048*1024)
     size = 2048*1024;
+  if (size < size0)
+    size=size0;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
   trail_overflows++;
