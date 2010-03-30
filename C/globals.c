@@ -1942,7 +1942,7 @@ p_nb_beam(void)
 static Int
 p_nb_beam_close(void)
 {
-  return p_nb_beam_close();
+  p_nb_heap_close();
 }
 
 
