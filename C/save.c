@@ -492,7 +492,7 @@ static int
 save_heap(void)
 {
 #ifdef USE_SYSTEM_MALLOC
-  return;
+  return -1;
 #endif
   int j;
   /* Then save the whole heap */
