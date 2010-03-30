@@ -342,7 +342,7 @@ GC_ALLOC_NEW_MASPACE(void)
   gc_ma_h_top++;
   cont_top = (cont *)gc_ma_h_top;
 #ifdef EASY_SHUNTING
-  sTR = (tr_fr_ptr)cont_top;
+  sTR = sTR0 = (tr_fr_ptr)cont_top;
 #else
   cont_top0 = cont_top;
 #endif
@@ -1627,11 +1627,13 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 {
 #ifdef EASY_SHUNTING
   tr_fr_ptr begsTR = NULL, endsTR = NULL;
+  tr_fr_ptr OldsTR0 = sTR0;
 #endif
 #ifdef COROUTINING
   CELL *detatt = NULL;
 #endif
   cont *old_cont_top0 = cont_top0;
+
 
   GC_NEW_MAHASH((gc_ma_hash_entry *)cont_top0);
   while (trail_base < trail_ptr) {
@@ -1804,6 +1806,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
  }
 #endif /* TABLING */
 #ifdef EASY_SHUNTING
+  /* set back old variables */
   sTR = (tr_fr_ptr)old_cont_top0;
   while (begsTR != NULL) {
     tr_fr_ptr newsTR = (tr_fr_ptr)TrailTerm(begsTR);
@@ -1812,6 +1815,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     begsTR = newsTR;
     sTR += 2;
   } 
+  sTR0 = OldsTR0;
 #else
   cont_top0 = old_cont_top0;
 #endif
