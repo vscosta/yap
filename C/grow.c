@@ -1277,7 +1277,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
     }
     fix_compiler_instructions(pcpc);
     cip->freep = (char *)GlobalAddrAdjust((ADDR)cip->freep);
-    cip->label_offset = (int *)GlobalAddrAdjust((ADDR)cip->label_offset);
+    cip->label_offset = (Int *)GlobalAddrAdjust((ADDR)cip->label_offset);
   }
 #ifdef TABLING
   fix_tabling_info();

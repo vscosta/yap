@@ -3832,7 +3832,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   int clause_has_blobs = FALSE;
   int clause_has_dbterm = FALSE;
 
-  cip->label_offset = (int *)cip->freep;
+  cip->label_offset = (Int *)cip->freep;
   cip->code_addr = NULL;
   code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
   if (clause_has_dbterm) {
