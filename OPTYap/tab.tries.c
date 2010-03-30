@@ -1404,64 +1404,86 @@ void private_completion(sg_fr_ptr sg_fr) {
 
 #ifdef GLOBAL_TRIE
 void free_subgoal_trie_branch(sg_node_ptr current_node, int nodes_left, int position) {
-  if (nodes_left != 1)
+  if (nodes_left) {
     free_subgoal_trie_branch(TrNode_child(current_node), nodes_left - 1, TRAVERSE_POSITION_FIRST);
 #else
 void free_subgoal_trie_branch(sg_node_ptr current_node, int nodes_left, int nodes_extra, int position) {
-  int current_nodes_left = 0, current_nodes_extra = 0;
+  if (nodes_left) {
+    int current_nodes_left = 0, current_nodes_extra = 0;
 
-  /* save current state if first sibling node */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    current_nodes_left = nodes_left;
-    current_nodes_extra = nodes_extra;
-  }
-
-  if (nodes_extra) {
-#ifdef TRIE_COMPACT_PAIRS
-    if (nodes_extra < 0) {
-      Term t = TrNode_entry(current_node);
-      if (IsPairTerm(t)) {
-	if (t == CompactPairInit)
-	  nodes_extra--;
-	else  /* CompactPairEndList / CompactPairEndTerm */
-	  nodes_extra++;
-      }
-    } else 
-#endif /* TRIE_COMPACT_PAIRS */
-    if (--nodes_extra == 0)
-      nodes_left--;
-  } else {
-    Term t = TrNode_entry(current_node);
-    if (IsVarTerm(t) || IsAtomOrIntTerm(t))
-      nodes_left--;
-    else if (IsPairTerm(t))
-#ifdef TRIE_COMPACT_PAIRS
-      /* CompactPairInit */
-      nodes_extra = -1;
-#else
-      nodes_left++;
-#endif /* TRIE_COMPACT_PAIRS */
-    else if (IsApplTerm(t)) {
-      Functor f = (Functor) RepAppl(t);
-      if (f == FunctorDouble)
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	nodes_extra = 2;
-#else
-        nodes_extra = 1;
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-      else if (f == FunctorLongInt)
-	nodes_extra = 1;
-      else
-	nodes_left += ArityOfFunctor(f) - 1;
+    /* save current state if first sibling node */
+    if (position == TRAVERSE_POSITION_FIRST) {
+      current_nodes_left = nodes_left;
+      current_nodes_extra = nodes_extra;
     }
-  }
-  if (nodes_left)
+
+    if (nodes_extra) {
+#ifdef TRIE_COMPACT_PAIRS
+      if (nodes_extra < 0) {
+	Term t = TrNode_entry(current_node);
+	if (IsPairTerm(t)) {
+	  if (t == CompactPairInit)
+	    nodes_extra--;
+	  else  /* CompactPairEndList / CompactPairEndTerm */
+	    nodes_extra++;
+	}
+      } else 
+#endif /* TRIE_COMPACT_PAIRS */
+	if (--nodes_extra == 0)
+	  nodes_left--;
+    } else {
+      Term t = TrNode_entry(current_node);
+      if (IsVarTerm(t) || IsAtomOrIntTerm(t))
+	nodes_left--;
+      else if (IsPairTerm(t))
+#ifdef TRIE_COMPACT_PAIRS
+	/* CompactPairInit */
+	nodes_extra = -1;
+#else
+        nodes_left++;
+#endif /* TRIE_COMPACT_PAIRS */
+      else if (IsApplTerm(t)) {
+	Functor f = (Functor) RepAppl(t);
+	if (f == FunctorDouble)
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	  nodes_extra = 2;
+#else
+          nodes_extra = 1;
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	else if (f == FunctorLongInt)
+	  nodes_extra = 1;
+	else
+	  nodes_left += ArityOfFunctor(f) - 1;
+      }
+    }
     free_subgoal_trie_branch(TrNode_child(current_node), nodes_left, nodes_extra, TRAVERSE_POSITION_FIRST);
 #endif /* GLOBAL_TRIE */
-  else {
+    if (position == TRAVERSE_POSITION_FIRST) {
+      sg_node_ptr next_node = TrNode_next(current_node);
+      DECREMENT_GLOBAL_TRIE_REFS(TrNode_entry(current_node));
+      FREE_SUBGOAL_TRIE_NODE(current_node);
+#ifndef GLOBAL_TRIE
+      /* restore the initial state */
+      nodes_left = current_nodes_left;
+      nodes_extra = current_nodes_extra;
+#endif /* GLOBAL_TRIE */
+      while (next_node) {
+	current_node = next_node;
+	next_node = TrNode_next(current_node);
+#ifdef GLOBAL_TRIE
+	free_subgoal_trie_branch(current_node, nodes_left, TRAVERSE_POSITION_NEXT);
+#else
+	free_subgoal_trie_branch(current_node, nodes_left, nodes_extra, TRAVERSE_POSITION_NEXT);
+#endif /* GLOBAL_TRIE */
+      }
+    } else {
+      DECREMENT_GLOBAL_TRIE_REFS(TrNode_entry(current_node));
+      FREE_SUBGOAL_TRIE_NODE(current_node);
+    }
+  } else {
     sg_fr_ptr sg_fr;
     ans_node_ptr ans_node;
-    sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_node);
+    sg_fr = (sg_fr_ptr) current_node;
     free_answer_trie_hash_chain(SgFr_hash_chain(sg_fr));
     ans_node = SgFr_answer_trie(sg_fr);
     if (TrNode_child(ans_node))
@@ -1473,28 +1495,6 @@ void free_subgoal_trie_branch(sg_node_ptr current_node, int nodes_left, int node
     FREE_SUBGOAL_FRAME(sg_fr);
   }
 
-  if (position == TRAVERSE_POSITION_FIRST) {
-    sg_node_ptr next_node = TrNode_next(current_node);
-    DECREMENT_GLOBAL_TRIE_REFS(TrNode_entry(current_node));
-    FREE_SUBGOAL_TRIE_NODE(current_node);
-#ifndef GLOBAL_TRIE
-    /* restore the initial state */
-    nodes_left = current_nodes_left;
-    nodes_extra = current_nodes_extra;
-#endif /* GLOBAL_TRIE */
-    while (next_node) {
-      current_node = next_node;
-      next_node = TrNode_next(current_node);
-#ifdef GLOBAL_TRIE
-      free_subgoal_trie_branch(current_node, nodes_left, TRAVERSE_POSITION_NEXT);
-#else
-      free_subgoal_trie_branch(current_node, nodes_left, nodes_extra, TRAVERSE_POSITION_NEXT);
-#endif /* GLOBAL_TRIE */
-    }
-  } else {
-    DECREMENT_GLOBAL_TRIE_REFS(TrNode_entry(current_node));
-    FREE_SUBGOAL_TRIE_NODE(current_node);
-  }
   return;
 }
 
