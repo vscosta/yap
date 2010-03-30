@@ -543,15 +543,16 @@ static Int
 p_put_atts(void) {
   /* receive a variable in ARG1 */
   Term inp = Deref(ARG1);
-  Term otatts;
 
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
+    Term otatts;
     Term tatts = Deref(ARG2);
     Functor mfun = FunctorOfTerm(tatts);
     int new = FALSE;
 
+    tatts = Deref(ARG2);
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
     } else {
@@ -566,6 +567,8 @@ p_put_atts(void) {
       new = TRUE;
       Yap_unify(ARG1, AbsAttVar(attv));
     }
+    /* we may have a stack shift meanwhile!! */ 
+    tatts = Deref(ARG2);
     if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts,mfun))) {
       AddNewModule(attv,tatts,new,FALSE);
     } else {
