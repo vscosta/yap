@@ -233,7 +233,7 @@ Yap_GetFromArena(Term *arenap, UInt cells, UInt arity)
       H += cells;
       return base;
     }
-    if (base+cells > ASP-1024) {
+    if (base+cells > max-1024) {
       if (!GrowArena(arena, max, old_sz, old_sz+sizeof(CELL)*1024, arity))
 	return NULL;
       goto restart;
