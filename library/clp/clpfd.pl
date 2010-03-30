@@ -436,6 +436,13 @@ cis_times_(inf, A, P)     :- cis_times(inf, n(A), P).
 cis_times_(sup, A, P)     :- cis_times(sup, n(A), P).
 cis_times_(n(B), A, n(P)) :- P is A * B.
 
+cis_exp(inf, Y, R) :-
+        (   Y mod 2 =:= 0 -> R = sup
+        ;   R = inf
+        ).
+cis_exp(sup, _, sup).
+cis_exp(n(N), Y, n(R)) :- R is N^Y.
+
 % compactified is/2 for expressions of interest
 
 goal_expansion(A cis B, Expansion) :-
@@ -477,6 +484,10 @@ cis_goals(A0//B0, R)     -->
         cis_goals(A0, A),
         cis_goals(B0, B),
         [cis_slash(A, B, R)].
+cis_goals(A0^B0, R)      -->
+        cis_goals(A0, A),
+        cis_goals(B0, B),
+        [cis_exp(A, B, R)].
 
 list_goal([], true).
 list_goal([C|Cs], Goal) :- list_goal_(Cs, C, Goal).
@@ -2244,6 +2255,10 @@ gcd([N|Ns], G0, G) :-
         G1 is gcd(N, G0),
         gcd(Ns, G1, G).
 
+even(N) :- N mod 2 =:= 0.
+
+odd(N) :- \+ even(N).
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    k-th root of N, if N is a k-th power.
 
@@ -2251,12 +2266,12 @@ gcd([N|Ns], G0, G) :-
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 integer_kth_root(N, K, R) :-
-        (   K mod 2 =:= 0 ->
+        (   even(K) ->
             N >= 0
         ;   true
         ),
         (   N < 0 ->
-            K mod 2 =:= 1,
+            odd(K),
             integer_kroot(N, 0, N, K, R)
         ;   integer_kroot(0, N, N, K, R)
         ).
@@ -2275,6 +2290,35 @@ integer_kroot(L, U, N, K, R) :-
             )
         ).
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+   Largest R such that R^K =< N.
+
+   TODO: Replace this when the GMP function becomes available.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+integer_kth_root_leq(N, K, R) :-
+        (   even(K) ->
+            N >= 0
+        ;   true
+        ),
+        (   N < 0 ->
+            odd(K),
+            integer_kroot_leq(N, 0, N, K, R)
+        ;   integer_kroot_leq(0, N, N, K, R)
+        ).
+
+integer_kroot_leq(L, U, N, K, R) :-
+        (   L =:= U -> R = L
+        ;   L + 1 =:= U ->
+            (   U^K =< N -> R = U
+            ;   R = L
+            )
+        ;   Mid is (L + U)//2,
+            (   Mid^K > N ->
+                integer_kroot_leq(L, Mid, N, K, R)
+            ;   integer_kroot_leq(Mid, U, N, K, R)
+            )
+        ).
 
 %% ?X #\= ?Y
 %
@@ -2550,6 +2594,19 @@ reify_(V in Drep, B) --> !,
         { drep_to_domain(Drep, Dom), fd_variable(V) },
         propagator_init_trigger(reified_in(V,Dom,B)),
         a(B).
+reify_(tuples_in(Tuples, Relation), B) --> !,
+        { must_be(list, Tuples),
+          append(Tuples, Vs),
+          maplist(fd_variable, Vs),
+          must_be(list(list(integer)), Relation),
+          maplist(relation_tuple_b_prop(Relation), Tuples, Bs, Ps),
+          (   Bs == [] -> B = 1
+          ;   Bs = [B1|Rest],
+              bs_and(Rest, B1, And),
+              And #<==> B
+          ) },
+        list(Ps),
+        as([B|Bs]).
 reify_(finite_domain(V), B) --> !,
         { fd_variable(V) },
         propagator_init_trigger(reified_fd(V,B)),
@@ -2614,6 +2671,19 @@ a(B) -->
         (   { var(B) } -> [a(B)]
         ;   []
         ).
+
+as([])     --> [].
+as([B|Bs]) --> a(B), as(Bs).
+
+bs_and([], A, A).
+bs_and([B|Bs], A0, A) :-
+        bs_and(Bs, A0#/\B, A).
+
+relation_tuple_b_prop(Relation, Tuple, B, p(Prop)) :-
+        put_attr(R, clpfd_relation, Relation),
+        make_propagator(reified_tuple_in(Tuple, R, B), Prop),
+        tuple_freeze(Tuple, Tuple, Prop),
+        init_propagator(B, Prop).
 
 % Match variables to created skeleton.
 
@@ -3070,19 +3140,17 @@ tuples_in(Tuples, Relation) :-
         append(Tuples, Vs),
         maplist(fd_variable, Vs),
         must_be(list(list(integer)), Relation),
-        tuples_domain(Tuples, Relation),
+        maplist(relation_tuple(Relation), Tuples),
         do_queue.
 
-tuples_domain([], _).
-tuples_domain([Tuple|Tuples], Relation) :-
+relation_tuple(Relation, Tuple) :-
         relation_unifiable(Relation, Tuple, Us, _, _),
         (   ground(Tuple) -> memberchk(Tuple, Relation)
         ;   tuple_domain(Tuple, Us),
             (   Tuple = [_,_|_] -> tuple_freeze(Tuple, Us)
             ;   true
             )
-        ),
-        tuples_domain(Tuples, Relation).
+        ).
 
 tuple_domain([], _).
 tuple_domain([T|Ts], Relation0) :-
@@ -3470,7 +3538,7 @@ run_propagator(pplus(X,Y,Z), MState) :-
             )
         ;   nonvar(Y) -> run_propagator(pplus(Y,X,Z), MState)
         ;   nonvar(Z) ->
-            (   X == Y -> kill(MState), Z mod 2 =:= 0, X is Z // 2
+            (   X == Y -> kill(MState), even(Z), X is Z // 2
             ;   fd_get(X, XD, _),
                 fd_get(Y, YD, YPs),
                 domain_negate(XD, XDN),
@@ -3869,33 +3937,57 @@ run_propagator(pexp(X,Y,Z), MState) :-
         ;   nonvar(Z), nonvar(Y) ->
             integer_kth_root(Z, Y, R),
             kill(MState),
-            (   Y mod 2 =:= 0 ->
+            (   even(Y) ->
                 N is -R,
                 X in N \/ R
             ;   X = R
             )
         ;   nonvar(Y), Y > 0 ->
-            (   Y mod 2 =:= 0 ->
+            (   even(Y) ->
                 geq(Z, 0)
             ;   true
             ),
-            (   fd_get(X, XD, XL, XU, _), fd_get(Z, ZD, ZPs) ->
-                (   domain_contains(ZD, 0) -> true
-                ;   neq_num(X, 0)
+            (   fd_get(X, XD, XL, XU, _), fd_get(Z, ZD, ZL, ZU, ZPs) ->
+                (   domain_contains(ZD, 0) -> XD1 = XD
+                ;   domain_remove(XD, 0, XD1)
                 ),
-                (   domain_contains(XD, 0) -> true
-                ;   neq_num(Z, 0)
+                (   domain_contains(XD, 0) -> ZD1 = ZD
+                ;   domain_remove(ZD, 0, ZD1)
                 ),
-                (   XL = n(NXL), NXL >= 0 ->
-                    NZL is NXL ^ Y,
-                    domain_remove_smaller_than(ZD, NZL, ZD1),
-                    (   XU = n(NXU) ->
-                        NZU is NXU ^ Y,
-                        domain_remove_greater_than(ZD1, NZU, ZD2)
-                    ;   ZD2 = ZD1
+                (   even(Y) ->
+                    (   cis_geq_zero(XL) ->
+                        NZL cis XL^Y
+                    ;   NZL = n(0)
                     ),
-                    fd_put(Z, ZD2, ZPs)
-                ;   true        % TODO: propagate more
+                    NZU cis max(abs(XL),abs(XU))^Y,
+                    domains_intersection(ZD1, from_to(NZL,NZU), ZD2)
+                ;   (   finite(XL) ->
+                        NZL cis XL^Y,
+                        NZU cis XU^Y,
+                        domains_intersection(ZD1, from_to(NZL,NZU), ZD2)
+                    ;   ZD2 = ZD1
+                    )
+                ),
+                fd_put(Z, ZD2, ZPs),
+                (   even(Y), ZU = n(Num) ->
+                    integer_kth_root_leq(Num, Y, RU),
+                    (   cis_geq_zero(XL), ZL = n(Num1) ->
+                        integer_kth_root_leq(Num1, Y, RL)
+                    ;   RL is -RU
+                    ),
+                    NXD = from_to(n(RL),n(RU))
+                ;   odd(Y), cis_geq_zero(ZL), ZU = n(Num) ->
+                    integer_kth_root_leq(Num, Y, RU),
+                    ZL = n(Num1),
+                    integer_kth_root_leq(Num1, Y, RL),
+                    NXD = from_to(n(RL),n(RU))
+                ;   NXD = XD1   % TODO: propagate more
+                ),
+                (   fd_get(X, XD2, XPs) ->
+                    domains_intersection(XD2, XD1, XD3),
+                    domains_intersection(XD3, NXD, XD4),
+                    fd_put(X, XD4, XPs)
+                ;   true
                 )
             ;   true
             )
@@ -3952,6 +4044,21 @@ run_propagator(reified_in(V,Dom,B), MState) :-
                 ;   true
                 )
             ;   kill(MState), B = 0
+            )
+        ).
+
+run_propagator(reified_tuple_in(Tuple, R, B), MState) :-
+        get_attr(R, clpfd_relation, Relation),
+        (   B == 1 -> kill(MState), tuples_in([Tuple], Relation)
+        ;   (   ground(Tuple) ->
+                kill(MState),
+                (   memberchk(Tuple, Relation) -> B = 1
+                ;   B = 0
+                )
+            ;   relation_unifiable(Relation, Tuple, Us, _, _),
+                (   Us = [] -> kill(MState), B = 0
+                ;   true
+                )
             )
         ).
 
@@ -4013,6 +4120,7 @@ run_propagator(reified_geq(DX,X,DY,Y,Ps,B), MState) :-
                     ;   XU cis_lt n(Y) -> kill(MState, Ps), B = 0
                     ;   true
                     )
+                ;   X == Y -> kill(MState, Ps), B = 1
                 ;   fd_get(X, _, XL, XU, _),
                     fd_get(Y, _, YL, YU, _),
                     (   XL cis_geq YU -> kill(MState, Ps), B = 1
@@ -4195,14 +4303,6 @@ max_divide(L1,U1,L2,U2,Max) :-
    CSPs", AAAI-94, Seattle, WA, USA, pp 362--367, 1994
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-distinct_attach(Ls) :-
-         must_be(list, Ls),
-         maplist(fd_variable, Ls),
-         make_propagator(pdistinct(Ls), Prop),
-         distinct_attach(Ls, Prop, []),
-         trigger_prop(Prop),
-         do_queue.
-
 distinct_attach([], _, _).
 distinct_attach([X|Xs], Prop, Right) :-
         (   var(X) ->
@@ -4231,7 +4331,7 @@ distinct_attach([X|Xs], Prop, Right) :-
 
 difference_arcs(Vars, FreeLeft, FreeRight) :-
         empty_assoc(E),
-        difference_arcs(Vars, FreeLeft, E, NumVar),
+        phrase(difference_arcs(Vars, FreeLeft), [E], [NumVar]),
         assoc_to_list(NumVar, LsNumVar),
         pairs_values(LsNumVar, FreeRight).
 
@@ -4242,32 +4342,32 @@ domain_to_list(split(_, Left, Right)) -->
 domain_to_list(empty)                 --> [].
 domain_to_list(from_to(n(F),n(T)))    --> { numlist(F, T, Ns) }, list(Ns).
 
-difference_arcs([], [], NumVar, NumVar).
-difference_arcs([V|Vs], FL0, NumVar0, NumVar) :-
-        (   fd_get(V, Dom, _), domain_to_list(Dom, Ns) ->
-            FL0 = [V|FL],
-            enumerate(Ns, V, NumVar0, NumVar1),
-            difference_arcs(Vs, FL, NumVar1, NumVar)
-        ;   difference_arcs(Vs, FL0, NumVar0, NumVar)
+difference_arcs([], []) --> [].
+difference_arcs([V|Vs], FL0) -->
+        (   { fd_get(V, Dom, _), domain_to_list(Dom, Ns) } ->
+            { FL0 = [V|FL] },
+            enumerate(Ns, V),
+            difference_arcs(Vs, FL)
+        ;   difference_arcs(Vs, FL0)
         ).
 
-enumerate([], _, NumVar, NumVar).
-enumerate([N|Ns], V, NumVar0, NumVar) :-
-        put_attr(F, flow, 0),
-        (   get_assoc(N, NumVar0, Y) ->
-            get_attr(Y, edges, Es),
-            put_attr(Y, edges, [flow_from(F,V)|Es]),
-            NumVar0 = NumVar1
-        ;   put_assoc(N, NumVar0, Y, NumVar1),
-            put_attr(Y, value, N),
-            put_attr(Y, edges, [flow_from(F,V)])
-        ),
-        (   get_attr(V, edges, Es1) ->
-            put_attr(V, edges, [flow_to(F,Y)|Es1])
-        ;   put_attr(V, edges, [flow_to(F,Y)])
-        ),
-        enumerate(Ns, V, NumVar1, NumVar).
+enumerate([], _) --> [].
+enumerate([N|Ns], V) -->
+        state(NumVar0, NumVar),
+        { (   get_assoc(N, NumVar0, Y) -> NumVar0 = NumVar
+          ;   put_assoc(N, NumVar0, Y, NumVar),
+              put_attr(Y, value, N)
+          ),
+          put_attr(F, flow, 0),
+          append_edge(Y, edges, flow_from(F,V)),
+          append_edge(V, edges, flow_to(F,Y)) },
+        enumerate(Ns, V).
 
+append_edge(V, Attr, E) :-
+        (   get_attr(V, Attr, Es) ->
+            put_attr(V, Attr, [E|Es])
+        ;   put_attr(V, Attr, [E])
+        ).
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Strategy: Breadth-first search until we find a free right vertex in
@@ -4316,7 +4416,7 @@ augmenting_path_to(Level, Levels0, Levels, Right) :-
         Levels1 = [Tos|Levels0],
         phrase(reachables(Vs), Tos),
         Tos = [_|_],
-        (   Level mod 2 =:= 1, member(Free, Tos), get_attr(Free, free, true) ->
+        (   odd(Level), member(Free, Tos), get_attr(Free, free, true) ->
             Right = Free, Levels = Levels1
         ;   Level1 is Level + 1,
             augmenting_path_to(Level1, Levels1, Levels, Right)
@@ -4353,14 +4453,8 @@ g_g0(V) :-
 
 g_g0_(V, flow_to(F,To)) :-
         (   get_attr(F, flow, 1) ->
-            (   get_attr(V, g0_edges, Es) ->
-                put_attr(V, g0_edges, [flow_to(F,To)|Es])
-            ;   put_attr(V, g0_edges, [flow_to(F,To)])
-            )
-        ;   (   get_attr(To, g0_edges, Es1) ->
-                put_attr(To, g0_edges, [flow_to(F,V)|Es1])
-            ;   put_attr(To, g0_edges, [flow_to(F,V)])
-            )
+            append_edge(V, g0_edges, flow_to(F,To))
+        ;   append_edge(To, g0_edges, flow_to(F,V))
         ).
 
 
@@ -4395,9 +4489,8 @@ distinct(Vars) :-
 
 distinct_clear_attributes(V) :-
         (   get_attr(V, edges, Es) ->
-            del_attr(V, edges),
             % parent and in_stack are already cleared
-            maplist(del_attr(V), [index,lowlink,value,visited]),
+            maplist(del_attr(V), [edges,index,lowlink,value,visited]),
             maplist(clear_edge, Es),
             (   get_attr(V, g0_edges, Es1) ->
                 del_attr(V, g0_edges),
@@ -4541,7 +4634,13 @@ v_in_stack(V) --> { get_attr(V, in_stack, true) }.
 %  false.
 %  ==
 
-all_distinct(Ls) :- distinct_attach(Ls).
+all_distinct(Ls) :-
+        must_be(list, Ls),
+        maplist(fd_variable, Ls),
+        make_propagator(pdistinct(Ls), Prop),
+        distinct_attach(Ls, Prop, []),
+        trigger_prop(Prop),
+        do_queue.
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
    Weak arc consistent constraint of difference, currently only
@@ -4848,9 +4947,9 @@ gcc_global(Vs, KNs) :-
 
 gcc_consistent(T) :-
         get_attr(T, edges, Es),
-        maplist(positive_flow, Es).
+        maplist(saturated_arc, Es).
 
-positive_flow(arc_from(_,_,_,Flow)) :- get_attr(Flow, flow, F), F > 0.
+saturated_arc(arc_from(_,U,_,Flow)) :- get_attr(Flow, flow, U).
 
 gcc_goals([]) --> [].
 gcc_goals([Val|Vals]) -->
@@ -4983,12 +5082,8 @@ gcc_arcs([Key-Num0|KNs], S, Vals) :-
             ),
             put_attr(Val, value, Key),
             Vals = [Val|Rest],
-            Edge = arc_to(L, U, Val, F),
             put_attr(F, flow, 0),
-            (   get_attr(S, edges, SEs) ->
-                put_attr(S, edges, [Edge|SEs])
-            ;   put_attr(S, edges, [Edge])
-            ),
+            append_edge(S, edges, arc_to(L, U, Val, F)),
             put_attr(Val, edges, [arc_from(L, U, S, F)]),
             variables_with_num_occurrences(Vs, VNs),
             maplist(val_to_v(Val), VNs)
@@ -5015,26 +5110,14 @@ variables_with_num_occurrences([V|Vs], Prev, Count0, VNs) :-
 
 
 target_to_v(T, V-Count) :-
-        (   get_attr(V, edges, VarEs) -> true
-        ;   VarEs = []
-        ),
         put_attr(F, flow, 0),
-        put_attr(V, edges, [arc_to(0, Count, T, F)|VarEs]),
-        TE = arc_from(0, Count, V, F),
-        (   get_attr(T, edges, TEs) ->
-            put_attr(T, edges, [TE|TEs])
-        ;   put_attr(T, edges, [TE])
-        ).
-
+        append_edge(V, edges, arc_to(0, Count, T, F)),
+        append_edge(T, edges, arc_from(0, Count, V, F)).
 
 val_to_v(Val, V-Count) :-
         put_attr(F, flow, 0),
-        (   get_attr(V, edges, VarEs) -> true
-        ;   VarEs = []
-        ),
-        put_attr(V, edges, [arc_from(0, Count, Val, F)|VarEs]),
-        get_attr(Val, edges, VEs),
-        put_attr(Val, edges, [arc_to(0, Count, V, F)|VEs]).
+        append_edge(V, edges, arc_from(0, Count, Val, F)),
+        append_edge(Val, edges, arc_to(0, Count, V, F)).
 
 
 gcc_clear(V) :-
@@ -5808,6 +5891,9 @@ attribute_goal_(pzcompare(O,A,B)) --> [zcompare(O,A,B)].
 attribute_goal_(reified_in(V, D, B)) -->
         [V in Drep #<==> B],
         { domain_to_drep(D, Drep) }.
+attribute_goal_(reified_tuple_in(Tuple, R, B)) -->
+        { get_attr(R, clpfd_relation, Rel) },
+        [tuples_in([Tuple], Rel) #<==> B].
 attribute_goal_(reified_fd(V,B)) --> [finite_domain(V) #<==> B].
 attribute_goal_(reified_neq(DX,X,DY,Y,_,B)) --> conjunction(DX, DY, X#\=Y, B).
 attribute_goal_(reified_eq(DX,X,DY,Y,_,B))  --> conjunction(DX, DY, X #= Y, B).
