@@ -135,7 +135,7 @@ typedef struct trie_hash {
 #define TrieVarIndex(TERM)                 ((TERM) >> 4)
 
 #define BASE_HASH_BUCKETS        64
-#define MAX_NODES_PER_TRIE_LEVEL 2
+#define MAX_NODES_PER_TRIE_LEVEL 8
 #define MAX_NODES_PER_BUCKET     (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define HASH_TERM(TERM, SEED)    (((TERM) >> 4) & (SEED))
 #define IS_HASH_NODE(NODE)       (TrHash_mark(NODE) == NULL)
