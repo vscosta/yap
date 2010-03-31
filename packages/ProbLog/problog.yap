@@ -524,14 +524,13 @@ make_add_to_proof(ID2,ProbEval,O) :-
 	O = fast_positive_add_to_proof(ID2,ProbEval).
 make_add_to_proof(ID2,ProbEval,add_to_proof(ID2,ProbEval)).
 
+:- nb_setval(probclause_counter,0).
 
 % generate next global identifier
 probclause_id(ID) :-
-	nb_getval(probclause_counter,ID), !,
+	nb_getval(probclause_counter,ID),
 	C1 is ID+1,
-	nb_setval(probclause_counter,C1), !.
-probclause_id(0) :-
-	nb_setval(probclause_counter,1).
+	nb_setval(probclause_counter,C1).
 
 non_ground_fact_grounding_id(Goal,ID) :-
 	(
