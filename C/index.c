@@ -553,6 +553,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
   OPCODE ecls = Yap_opcode(_expand_clauses);
   UInt log_upd_pred = cint->CurrentPred->PredFlags & LogUpdatePredFlag;
 
+  Yap_ReleaseCMem(cint);
   while (cpc) {
     switch(cpc->op) {
     case enter_lu_op:
@@ -825,30 +826,36 @@ static void
 sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
 {
   int max = (grp->LastClause-grp->FirstClause)+1, i;
-  CELL *pt = top;
+  CELL *pt, *base;
 
-  while (top+2*max > (CELL *)Yap_TrailTop) {
 #if USE_SYSTEM_MALLOC
-    Yap_Error_Size = 2*max*sizeof(CELL);
-    /* grow stack */
+  if (!(base = (CELL *)Yap_AllocCodeSpace(2*max*sizeof(CELL)))) {
     save_machine_regs();
-    longjmp(cint->CompilerBotch,4);
+    Yap_Error_Size = 2*max*sizeof(CELL);
+    longjmp(cint->CompilerBotch,2);
+  }
 #else
+  base = top;
+  while (top+2*max > (CELL *)Yap_TrailTop) {
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
       save_machine_regs();
       longjmp(cint->CompilerBotch,4);
       return;
     }
-#endif
   }
+#endif
+  pt = base;
   /* initialise vector */
   for (i=0; i < max; i++) {
     *pt = i;
     pt += 2;
   }
 #define M_EVEN  0
-  msort(grp->FirstClause, top, max, M_EVEN);
-  copy_back(grp->FirstClause, top, max);
+  msort(grp->FirstClause, base, max, M_EVEN);
+  copy_back(grp->FirstClause, base, max);
+#if USE_SYSTEM_MALLOC
+  Yap_FreeCodeSpace((ADDR)base);
+#endif
 }
 
 /* add copy to register stack for original reg */
@@ -3299,14 +3306,27 @@ compile_index(struct intermediates *cint)
 {
   PredEntry *ap = cint->CurrentPred;
   int NClauses = ap->cs.p_code.NOfClauses;
-  ClauseDef *cls = (ClauseDef *)H;
+  ClauseDef *cls;
   CELL *top = (CELL *) TR;
+  UInt res;
 
   /* only global variable I use directly */
   cint->i_labelno = 1;
 
   Yap_Error_Size = 0;
+#if USE_SYSTEM_MALLOC
+  cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
+  if (!cls) {
+    /* tell how much space we need */
+    Yap_Error_Size += NClauses*sizeof(ClauseDef);
+    /* grow stack */
+    save_machine_regs();
+    longjmp(cint->CompilerBotch,2);
+  }
+  cint->freep = (char *)H;
+#else
   /* reserve double the space for compiler */
+  cls = (ClauseDef *)H;
   if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
     /* tell how much space we need */
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
@@ -3315,6 +3335,7 @@ compile_index(struct intermediates *cint)
     longjmp(cint->CompilerBotch,3);
   }
   cint->freep = (char *)(cls+NClauses);
+#endif
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* throw away a label */
     new_label(cint);
@@ -3327,7 +3348,11 @@ compile_index(struct intermediates *cint)
     /* prepare basic data structures */ 
     init_clauses(cls,ap);
   }
-  return do_index(cls, cls+(NClauses-1), cint, 1, (UInt)FAILCODE, TRUE, 0, top);
+  res = do_index(cls, cls+(NClauses-1), cint, 1, (UInt)FAILCODE, TRUE, 0, top);
+#if USE_SYSTEM_MALLOC
+  Yap_FreeCodeSpace((ADDR)cls);
+#endif
+  return res;
 }
 
 
@@ -3341,6 +3366,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
 
   cint.CurrentPred = ap;
   cint.code_addr = NULL;
+  cint.blks = NULL;
   Yap_Error_Size = 0;
 
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
@@ -4312,6 +4338,16 @@ expand_index(struct intermediates *cint) {
     yamop **clp = (yamop **)NEXTOP(ipc,sssllp);
 
     eblk = cint->expand_block = ipc;
+#if USE_SYSTEM_MALLOC
+    cls = (ClauseDef *)Yap_AllocCodeSpace(nclauses*sizeof(ClauseDef));
+    if (!cls) {
+      /* tell how much space we need */
+      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      /* grow stack */
+      save_machine_regs();
+      longjmp(cint->CompilerBotch,2);
+    }
+#else
     if (cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
@@ -4319,6 +4355,7 @@ expand_index(struct intermediates *cint) {
       save_machine_regs();
       longjmp(cint->CompilerBotch,3);
     }
+#endif
     if (ap->PredFlags & LogUpdatePredFlag) {
       max = install_log_upd_clauseseq(cls, ap, stack, clp, clp+nclauses);
     } else {
@@ -4326,12 +4363,23 @@ expand_index(struct intermediates *cint) {
     }    
   } else {
     cint->expand_block = NULL;
+#if USE_SYSTEM_MALLOC
+    cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
+    if (!cls) {
+      /* tell how much space we need */
+      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      /* grow stack */
+      save_machine_regs();
+      longjmp(cint->CompilerBotch,2);
+    }
+#else
     if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       save_machine_regs();
       longjmp(cint->CompilerBotch,3);
     }
+#endif
     if (ap->PredFlags & LogUpdatePredFlag) {
       max = install_log_upd_clauses(cls, ap, stack, first, last);
     } else {
@@ -4350,9 +4398,16 @@ expand_index(struct intermediates *cint) {
   if (alt && max->Code == last) max--;
   if (max < cls && labp != NULL) {
       *labp = FAILCODE;
+#if USE_SYSTEM_MALLOC
+      Yap_FreeCodeSpace((ADDR)cls);
+#endif
     return labp;
   }
+#if USE_SYSTEM_MALLOC
+  cint->freep = (char *)H;
+#else
   cint->freep = (char *)(max+1);
+#endif
   cint->CodeStart = cint->BlobsStart = cint->cpc = cint->icpc = NULL;
   
   if (!IsVarTerm(sp[-1].val)  && sp > stack) {
@@ -4409,6 +4464,9 @@ expand_index(struct intermediates *cint) {
   if (labp && !(lab & 1)) {
     *labp = (yamop *)lab; /* in case we have a single clause */
   }
+#if USE_SYSTEM_MALLOC
+  Yap_FreeCodeSpace((ADDR)cls);
+#endif
   return labp;
 }
 
@@ -4420,6 +4478,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   int cb;
   struct intermediates cint;
 
+  cint.blks = NULL;
   cint.code_addr = NULL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
@@ -4456,6 +4515,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
     }
   } else if (cb == 4) {
     restore_machine_regs();
+    Yap_ReleaseCMem(&cint);
     if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {

@@ -82,9 +82,25 @@ char            Yap_Option[20];
 YP_FILE *Yap_logfile;
 #endif
 
+typedef struct mem_blk {
+  struct mem_blk *next;
+  char contents[1];
+} MemBlk;
+
 static char *
 AllocCMem (int size, struct intermediates *cip)
 {
+#if USE_SYSTEM_MALLOC
+  struct mem_blk *p = (struct mem_blk *)Yap_AllocCodeSpace(size+sizeof(struct mem_blk *));
+  if (!p) {
+    Yap_Error_Size = size;
+    save_machine_regs();
+    longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+  }
+  p->next = cip->blks;
+  cip->blks = p;
+  return p->contents;
+#else
   char *p;
   p = cip->freep;
 #if SIZEOF_INT_P==8
@@ -99,12 +115,27 @@ AllocCMem (int size, struct intermediates *cip)
     longjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   }
   return (p);
+#endif
+}
+
+void
+Yap_ReleaseCMem (struct intermediates *cip)
+{
+#if USE_SYSTEM_MALLOC
+  struct mem_blk *p = cip->blks;
+  while (p) {
+    struct mem_blk *nextp = p->next;
+    Yap_FreeCodeSpace((ADDR)p);
+    p = nextp;
+  }
+  cip->blks = NULL;
+#endif
 }
 
 char *
 Yap_AllocCMem (int size, struct intermediates *cip)
 {
-  return(AllocCMem(size, cip));
+  return AllocCMem(size, cip);
 }
 
 static int

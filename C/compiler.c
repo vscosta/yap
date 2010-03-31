@@ -285,7 +285,11 @@ active_branch(int i, int onbranch)
 
 #define FAIL(M,T,E) { Yap_ErrorMessage=M; Yap_Error_TYPE = T; Yap_Error_Term = E; return; }
 
+#if USE_SYSTEM_MALLOC
+#define IsNewVar(v) ((CELL *)(v) >= H0  && (CELL *)(v) < LCL0)
+#else
 #define IsNewVar(v) (Addr(v)<cglobs->cint.freep0 || Addr(v)>cglobs->cint.freep)
+#endif
 
 inline static void pop_code(unsigned int, compiler_struct *);
 
@@ -3311,6 +3315,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
   if ((botch_why = setjmp(cglobs.cint.CompilerBotch))) {
     restore_machine_regs();
     reset_vars(cglobs.vtable);
+    Yap_ReleaseCMem(&cglobs.cint);
     switch(botch_why) {
     case OUT_OF_STACK_BOTCH:
       /* out of local stack, just duplicate the stack */
@@ -3398,6 +3403,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
   cglobs.cint.CodeStart = cglobs.cint.cpc = NULL;
   cglobs.cint.BlobsStart = cglobs.cint.icpc = NULL;
   cglobs.cint.dbterml = NULL;
+  cglobs.cint.blks = NULL;
   cglobs.cint.freep =
     cglobs.cint.freep0 =
     (char *) (H + maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps+MaxTemps);
@@ -3555,6 +3561,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
   /* phase 3: assemble code                                                */
   acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs && !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)), &cglobs.cint);
   /* check first if there was space for us */
+  Yap_ReleaseCMem (&cglobs.cint);
   if (acode == NULL) {
     return NULL;
   } else {
