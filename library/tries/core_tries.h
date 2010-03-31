@@ -27,16 +27,17 @@
 /* --------------------------- */
 
 #ifdef TAG_LOW_BITS_32
-#define ApplTag        1  /* 0x01 */ 
+#define ApplTag           1  /* 0x01 */ 
 #else  /* TAG_64BITS */
-#define ApplTag        5  /* 0x05 */
+#define ApplTag           5  /* 0x05 */
 #endif /* TAG_SCHEME */
-#define PairInitTag    3  /* 0x03 */
-#define PairEndTag    19  /* 0x13 */
-#define CommaInitTag  35  /* 0x23 */
-#define CommaEndTag   51  /* 0x33 */
-#define FloatInitTag  67  /* 0x43 */
-#define FloatEndTag   83  /* 0x53 */
+#define PairInitTag       3  /* 0x03 */
+#define PairEndEmptyTag  19  /* 0x13 */
+#define PairEndTermTag   99  /* 0x63 */
+#define CommaInitTag     35  /* 0x23 */
+#define CommaEndTag      51  /* 0x33 */
+#define FloatInitTag     67  /* 0x43 */
+#define FloatEndTag      83  /* 0x53 */
 
 #define TRIE_MODE_STANDARD   0
 #define TRIE_MODE_REVERSE    1
@@ -134,7 +135,7 @@ typedef struct trie_hash {
 #define TrieVarIndex(TERM)                 ((TERM) >> 4)
 
 #define BASE_HASH_BUCKETS        64
-#define MAX_NODES_PER_TRIE_LEVEL 8
+#define MAX_NODES_PER_TRIE_LEVEL 2
 #define MAX_NODES_PER_BUCKET     (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define HASH_TERM(TERM, SEED)    (((TERM) >> 4) & (SEED))
 #define IS_HASH_NODE(NODE)       (TrHash_mark(NODE) == NULL)

@@ -13,6 +13,7 @@
 
 #include <YapInterface.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "core_tries.h"
 
@@ -36,7 +37,7 @@ static YAP_Int  traverse_and_count_entries(TrNode node);
 static void     traverse_and_get_usage(TrNode node, YAP_Int depth);
 static void     traverse_and_save(TrNode node, FILE *file, int float_block);
 static void     traverse_and_load(TrNode parent, FILE *file);
-static void     traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, int mode);
+static void     traverse_and_print(TrNode node, int *arity, char *str, int str_index, int mode);
 
 
 
@@ -512,7 +513,7 @@ inline
 void core_trie_print(TrNode node, void (*print_function)(TrNode)) {
   DATA_PRINT_FUNCTION = print_function;
   if (TrNode_child(node)) {
-    YAP_Int arity[100];
+    int arity[1000];
     char str[10000];
     arity[0] = 0;
     traverse_and_print(TrNode_child(node), arity, str, 0, TRIE_PRINT_NORMAL);
@@ -562,16 +563,29 @@ TrNode put_entry(TrNode node, YAP_Term entry) {
 	node = put_entry(node, YAP_HeadOfTerm(t));
 	t = YAP_Deref(YAP_TailOfTerm(t));
       } while (YAP_IsPairTerm(t));
+      if (t == YAP_TermNil()) {
+	node = trie_node_check_insert(node, PairEndEmptyTag);
+      } else {
+	node = put_entry(node, t);
+	node = trie_node_check_insert(node, PairEndTermTag);
+      }
     } else { /* TRIE_MODE_REVERSE */
       YAP_Term *stack_list = stack_args;
       do {
 	PUSH_DOWN(stack_args, YAP_HeadOfTerm(t), stack_vars);
 	t = YAP_Deref(YAP_TailOfTerm(t));
       } while (YAP_IsPairTerm(t));
-      while (STACK_NOT_EMPTY(stack_args, stack_list))
-	node = put_entry(node, POP_UP(stack_args));
+      if (t == YAP_TermNil()) {
+	while (STACK_NOT_EMPTY(stack_args, stack_list))
+	  node = put_entry(node, POP_UP(stack_args));
+	node = trie_node_check_insert(node, PairEndEmptyTag);
+      } else {
+	PUSH_DOWN(stack_args, t, stack_vars);
+	while (STACK_NOT_EMPTY(stack_args, stack_list))
+	  node = put_entry(node, POP_UP(stack_args));
+	node = trie_node_check_insert(node, PairEndTermTag);
+      }
     }
-    node = trie_node_check_insert(node, PairEndTag);
   } else if (YAP_IsApplTerm(t)) {
     YAP_Functor f = YAP_FunctorOfTerm(t);
     if (f == FunctorComma) {
@@ -642,18 +656,36 @@ TrNode check_entry(TrNode node, YAP_Term entry) {
 	  return NULL;
 	t = YAP_Deref(YAP_TailOfTerm(t));
       } while (YAP_IsPairTerm(t));
+      if (t == YAP_TermNil()) {
+	if (!(node = trie_node_check(node, PairEndEmptyTag)))
+	  return NULL;
+      } else {
+	if (!(node = check_entry(node, t)))
+	  return NULL;
+	if (!(node = trie_node_check(node, PairEndTermTag)))
+	  return NULL;
+      }
     } else { /* TRIE_MODE_REVERSE */
       YAP_Term *stack_list = stack_args;
       do {
 	PUSH_DOWN(stack_args, YAP_HeadOfTerm(t), stack_vars);
 	t = YAP_Deref(YAP_TailOfTerm(t));
       } while (YAP_IsPairTerm(t));
-      while (STACK_NOT_EMPTY(stack_args, stack_list))
-	if (!(node = check_entry(node, POP_UP(stack_args))))
+      if (t == YAP_TermNil()) {
+	while (STACK_NOT_EMPTY(stack_args, stack_list))
+	  if (!(node = check_entry(node, POP_UP(stack_args))))
+	    return NULL;
+	if (!(node = trie_node_check(node, PairEndEmptyTag)))
 	  return NULL;
+      } else {
+	PUSH_DOWN(stack_args, t, stack_vars);
+	while (STACK_NOT_EMPTY(stack_args, stack_list))
+	  if (!(node = check_entry(node, POP_UP(stack_args))))
+	    return NULL;
+	if (!(node = trie_node_check(node, PairEndTermTag)))
+	  return NULL;
+      }
     }
-    if (!(node = trie_node_check(node, PairEndTag)))
-      return NULL;
   } else if (YAP_IsApplTerm(t)) {
     YAP_Functor f = YAP_FunctorOfTerm(t);
     if (f == FunctorComma) {
@@ -717,18 +749,7 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
     } else if (YAP_IsIntTerm(t)) {
       PUSH_UP(stack_args, t, stack_vars);
     } else if (YAP_IsPairTerm(t)) {
-      if (t == PairEndTag) {
-        if (CURRENT_TRIE_MODE == TRIE_MODE_STANDARD) {
-          t = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-          PUSH_UP(stack_args, t, stack_vars);
-          node = TrNode_parent(node);
-          t = get_entry(node, &stack_args[1], &node);
-        } else { /* TRIE_MODE_REVERSE */
-          node = TrNode_parent(node);
-          t = get_entry(node, stack_args, &node);
-        }
-        PUSH_UP(stack_args, t, stack_vars);
-      } else if (t == PairInitTag) {
+      if (t == PairInitTag) {
         YAP_Term t2;
         if (CURRENT_TRIE_MODE == TRIE_MODE_STANDARD) {
           YAP_Term *stack_aux = stack_mark;
@@ -737,16 +758,31 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
             t2 = *stack_aux--;
             t = YAP_MkPairTerm(t2, t);
           }
-          stack_args = stack_mark;
         } else { /* TRIE_MODE_REVERSE */
-          t = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
-          while (STACK_NOT_EMPTY(stack_args, stack_mark)) {
+          YAP_Term *stack_aux = stack_mark;
+          t = *stack_aux;
+	  if (t == YAP_TermNil())
+	    stack_aux--;
+	  else
+	    t = POP_DOWN(stack_args);
+          while (STACK_NOT_EMPTY(stack_args, stack_aux)) {
             t2 = POP_DOWN(stack_args);
             t = YAP_MkPairTerm(t2, t);
           }
         }
+	stack_args = stack_mark;
         *cur_node = node;
         return t;
+      } else if (t == PairEndEmptyTag) {
+	t = YAP_TermNil();
+	PUSH_UP(stack_args, t, stack_vars);
+	node = TrNode_parent(node);
+	t = get_entry(node, &stack_args[1], &node);
+        PUSH_UP(stack_args, t, stack_vars);
+      } else if (t == PairEndTermTag) {
+	node = TrNode_parent(node);
+	t = get_entry(node, stack_args, &node);
+        PUSH_UP(stack_args, t, stack_vars);
       } else if (t == CommaEndTag) {
         node = TrNode_parent(node);
         t = get_entry(node, stack_args, &node);
@@ -1341,30 +1377,56 @@ void traverse_and_load(TrNode parent, FILE *file) {
 
 
 static
-void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, int mode) {
+void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int mode) {
   YAP_Term t;
-  YAP_Int new_arity[100];
+  int last_pair_mark = -arity[arity[0]];
 
   if (IS_HASH_NODE(node)) {
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
     TrNode *first_bucket, *bucket;
     TrHash hash;
     hash = (TrHash) node;
     first_bucket = TrHash_buckets(hash);
     bucket = first_bucket + TrHash_num_buckets(hash);
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*--bucket) {
         node = *bucket;
-        memcpy(new_arity, arity, sizeof(YAP_Int) * 100);
-        traverse_and_print(node, new_arity, str, str_index, mode);
+        traverse_and_print(node, arity, str, str_index, mode);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+	if (arity[arity[0]] < 0) {
+	  /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
+	  if (str[str_index - 1] != '[')
+	    str[str_index - 1] = ',';
+	  /* restore possible PairEndTermTag side-effect */
+	  if (str[last_pair_mark] == '|')
+	    str[last_pair_mark] = ',';
+	}
       }
     } while (bucket != first_bucket);
+    free(current_arity);
     return;
   }
 
   if (TrNode_next(node)) {
-    memcpy(new_arity, arity, sizeof(YAP_Int) * 100);
-    traverse_and_print(TrNode_next(node), new_arity, str, str_index, mode);
+    int *current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    traverse_and_print(TrNode_next(node), arity, str, str_index, mode);
+    memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+    if (arity[arity[0]] < 0) {
+      /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
+      if (str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+      /* restore possible PairEndTermTag side-effect */
+      if (str[last_pair_mark] == '|')
+	str[last_pair_mark] = ',';
+    }
+    free(current_arity);
   }
+
+  /* update position for possible PairEndTermTag side-effect */
+  if (arity[arity[0]] < 0 && str_index > 1)
+    arity[arity[0]] = -str_index + 1;
 
   t = TrNode_entry(node);
   if (mode == TRIE_PRINT_FLOAT) {
@@ -1383,16 +1445,17 @@ void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, i
     p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
     *p = t;
 #endif /* TAG_SCHEME */
-    str_index += sprintf(& str[str_index], "%.10f", f);
+    str_index += sprintf(& str[str_index], "%.15g", f);
     mode = TRIE_PRINT_FLOAT_END;
   } else if (mode == TRIE_PRINT_FLOAT_END) {
     arity[0]--;
     while (arity[0]) {
-      arity[arity[0]]--;
-      if (arity[arity[0]] == 0) {
+      if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");
 	arity[0]--;
       } else {
+	if (arity[arity[0]] > 1)
+	  arity[arity[0]]--;
 	str_index += sprintf(& str[str_index], ",");
 	break;
       }
@@ -1401,11 +1464,12 @@ void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, i
   } else if (YAP_IsVarTerm(t)) {
     str_index += sprintf(& str[str_index], "VAR%ld", TrieVarIndex(t));
     while (arity[0]) {
-      arity[arity[0]]--;
-      if (arity[arity[0]] == 0) {
+      if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");
 	arity[0]--;
       } else {
+	if (arity[arity[0]] > 1)
+	  arity[arity[0]]--;
 	str_index += sprintf(& str[str_index], ",");
 	break;
       }
@@ -1413,11 +1477,12 @@ void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, i
   } else if (YAP_IsAtomTerm(t)) {
     str_index += sprintf(& str[str_index], "%s", YAP_AtomName(YAP_AtomOfTerm(t)));
     while (arity[0]) {
-      arity[arity[0]]--;
-      if (arity[arity[0]] == 0) {
+      if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");
 	arity[0]--;
       } else {
+	if (arity[arity[0]] > 1)
+	  arity[arity[0]]--;
 	str_index += sprintf(& str[str_index], ",");
 	break;
       }
@@ -1425,11 +1490,12 @@ void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, i
   } else if (YAP_IsIntTerm(t)) {
     str_index += sprintf(& str[str_index], "%ld", YAP_IntOfTerm(t));
     while (arity[0]) {
-      arity[arity[0]]--;
-      if (arity[arity[0]] == 0) {
+      if (arity[arity[0]] == 1) {
 	str_index += sprintf(& str[str_index], ")");
 	arity[0]--;
       } else {
+	if (arity[arity[0]] > 1)
+	  arity[arity[0]]--;
 	str_index += sprintf(& str[str_index], ",");
 	break;
       }
@@ -1448,31 +1514,25 @@ void traverse_and_print(TrNode node, YAP_Int *arity, char *str, int str_index, i
       arity[0]++;
       arity[arity[0]] = -1;
     } else {
-      if (t == PairEndTag)
+      if (t == PairEndEmptyTag)
 	str[str_index - 1] = ']';
-      else /*   (t == CommaEndTag)   */
+      else if (t == PairEndTermTag) {
+	str[last_pair_mark] = '|';
+	str[str_index - 1] = ']';
+      } else /*   (t == CommaEndTag)   */
 	str[str_index - 1] = ')';
       arity[0]--;
       while (arity[0]) {
-	arity[arity[0]]--;
-	if (arity[arity[0]] == 0) {
+	if (arity[arity[0]] == 1) {
 	  str_index += sprintf(& str[str_index], ")");
 	  arity[0]--;
 	} else {
+	  if (arity[arity[0]] > 1)
+	    arity[arity[0]]--;
 	  str_index += sprintf(& str[str_index], ",");
 	  break;
 	}
       }
-      if (arity[0]) {
-	traverse_and_print(TrNode_child(node), arity, str, str_index, mode);
-      } else {
-	str[str_index] = 0;
-	fprintf(stdout, "%s\n", str);
-        if (DATA_PRINT_FUNCTION)
-          (*DATA_PRINT_FUNCTION)(node);
-      }
-      str[str_index - 1] = ',';
-      return;
     }
   } else if (ApplTag & t) {
     str_index += sprintf(& str[str_index], "%s(", YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & t))));
