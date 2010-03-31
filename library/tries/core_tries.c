@@ -1394,7 +1394,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
         node = *bucket;
         traverse_and_print(node, arity, str, str_index, mode);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-	if (arity[arity[0]] < 0) {
+	if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
 	  /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
 	  if (str[str_index - 1] != '[')
 	    str[str_index - 1] = ',';
@@ -1413,7 +1413,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     traverse_and_print(TrNode_next(node), arity, str, str_index, mode);
     memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-    if (arity[arity[0]] < 0) {
+    if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
       /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
       if (str[str_index - 1] != '[')
 	str[str_index - 1] = ',';
@@ -1425,7 +1425,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
   }
 
   /* update position for possible PairEndTermTag side-effect */
-  if (arity[arity[0]] < 0 && str_index > 1)
+  if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0 && str_index > 1)
     arity[arity[0]] = -str_index + 1;
 
   t = TrNode_entry(node);
@@ -1439,6 +1439,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
     *(p + 1) = t;
     *p = (YAP_Term) arity[arity[0]];
+    arity[arity[0]] = -1;
 #else /* TAG_64BITS */
     volatile double f;
     volatile YAP_Term *p;
