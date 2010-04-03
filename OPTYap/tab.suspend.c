@@ -97,7 +97,6 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
 
   return;
 }
-#endif /* TABLING && YAPOR */
 
 
 
@@ -427,3 +426,4 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
 
   return;
 }
+#endif /* TABLING && YAPOR */
