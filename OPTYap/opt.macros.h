@@ -1,31 +1,26 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.macros.h 
-  version:     $Id: opt.macros.h,v 1.12 2007-04-26 14:11:08 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ------------------------------ **
-**      Includes and defines      **
-** ------------------------------ */
+/********************************
+**      Memory management      **
+********************************/
 
 #ifdef SHM_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
-
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
 /* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
 #endif /* SHM_MEMORY_ALLOC_SCHEME */
-
-
-
-/* --------------------------- **
-**      Memory management      **
-** --------------------------- */
 
 extern int Yap_page_size;
 
@@ -48,7 +43,7 @@ extern int Yap_page_size;
 
 #define UPDATE_STATS(STAT, VALUE)  STAT += VALUE
 
-#ifdef MALLOC_MEMORY_ALLOC_SCHEME  /* ---------------------------------------------------------------- */
+#ifdef MALLOC_MEMORY_ALLOC_SCHEME  /********************************************************************/
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                          \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                                      \
         if ((STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))) == NULL)                                       \
@@ -58,7 +53,7 @@ extern int Yap_page_size;
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                           \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                                     \
         free(STR)
-#elif YAP_MEMORY_ALLOC_SCHEME  /* -------------------------------------------------------------------- */
+#elif YAP_MEMORY_ALLOC_SCHEME  /************************************************************************/
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                          \
         { char *ptr = Yap_AllocCodeSpace(sizeof(STR_TYPE) + sizeof(CELL));                              \
           if (ptr) {                                                                                    \
@@ -88,7 +83,7 @@ extern int Yap_page_size;
             free(ptr);                                                                                  \
           UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                                   \
         }
-#elif SHM_MEMORY_ALLOC_SCHEME  /* -------------------------------------------------------------------- */
+#elif SHM_MEMORY_ALLOC_SCHEME  /************************************************************************/
 #ifdef LIMIT_TABLING
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                                           \
         { int i;                                                                                        \
@@ -353,9 +348,7 @@ extern int Yap_page_size;
             UNLOCK(Pg_lock(STR_PAGES));                                                                 \
           }                                                                                             \
         }
-#endif /* --------------------------- MEMORY_ALLOC_SCHEME -------------------------------------------- */
-
-
+#endif /************************************************************************************************/
 
 #ifdef YAPOR
 #define ALLOC_BLOCK(BLOCK, SIZE)                                                                        \
@@ -432,9 +425,9 @@ extern int Yap_page_size;
 
 
 
-/* ------------------------------------- **
+/******************************************
 **      Bitmap tests and operations      **
-** ------------------------------------- */
+******************************************/
 
 #define BITMAP_empty(b)		       ((b) == 0)
 #define BITMAP_member(b,n)	       (((b) & (1<<(n))) != 0)
@@ -453,9 +446,9 @@ extern int Yap_page_size;
 
 
 
-/* ---------------------------------- **
+/***************************************
 **      Message and debug macros      **
-** ---------------------------------- */
+***************************************/
 
 #define INFORMATION_MESSAGE(MESG, ARGS...)  information_message(MESG, ##ARGS)
 
@@ -476,54 +469,3 @@ extern int Yap_page_size;
 #else
 #define OPTYAP_ERROR_MESSAGE(MESG, ARGS...)
 #endif /* OPTYAP_ERRORS */
-
-
-
-/* ----------------------- **
-**      SimICS macros      **
-** ----------------------- */
-
-/*
-**  Counter  0. Total time
-**  Counter  1. Prolog
-**  Counter  2. P Share
-**  Counter  3. Scheduler
-**  Counter  4. Cut request
-**  Counter  5. End operations
-**  Counter  6. Cut shared (Counter 1 or 3 or 5)
-**  Counter  7. Number of requests to share work (Counter 3)
-**  Counter  8. Number of refused requests (Counter 3)
-**  Counter  9. Number of tasks (Counter 1)
-**  Counter 10. Number of calls (Counter 1)
-**  Counter 11. Number of failed TRY_LOCK's
-*/
-
-#define START_COUNTER             1
-#define STOP_COUNTER              2
-
-#define TOTAL_TIME                0
-#define PROLOG                    1
-#define SHARE                     2
-#define SCHEDULER                 3
-#define CUT_REQUEST               4
-#define END_OPERATIONS            5
-#define CUT_SHARED                6
-#define ONE_MORE_REQUEST          7
-#define ONE_MORE_REFUSED_REQUEST  8
-#define ONE_MORE_TASK             9
-#define ONE_MORE_CALL            10
-
-#ifdef SIMICS
-#define SIMICS_ATOMIC_SERVICE(COUNTER)           \
-        SIMICS_SERVICE(START_COUNTER, COUNTER);  \
-        SIMICS_SERVICE(STOP_COUNTER, COUNTER)
-#define SIMICS_SERVICE(COMMAND, COUNTER)         \
-        do {                                     \
-          asm volatile ("sethi %0, %%g0" :       \
-          /* no outputs */ :                     \
-          "g" ((COMMAND << 16) | COUNTER));      \
-	} while(0)
-#else
-#define SIMICS_ATOMIC_SERVICE(COUNTER)
-#define SIMICS_SERVICE(COMMAND, COUNTER)
-#endif /* SIMICS */

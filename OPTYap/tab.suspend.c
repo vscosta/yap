@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        tab.suspend.c
-  version:     $Id: tab.suspend.c,v 1.5 2008-05-23 18:28:58 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ------------------ **
-**      Includes      **
-** ------------------ */
+/************************************
+**      Includes & Prototypes      **
+************************************/
 
 #include "Yap.h"
 #if defined(TABLING) && defined(YAPOR)
@@ -20,19 +22,88 @@
 #include "tab.macros.h"
 #include "or.macros.h"
 
-
-
-/* ------------------------------------- **
-**      Local functions declaration      **
-** ------------------------------------- */
-
-static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr *chain_or_fr, dep_fr_ptr *chain_dep_fr);
+static void complete_suspension_branch(susp_fr_ptr, choiceptr, or_fr_ptr *, dep_fr_ptr *);
 
 
 
-/* -------------------------- **
+/******************************
+**      Local functions      **
+******************************/
+
+static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr *chain_or_fr, dep_fr_ptr *chain_dep_fr) {
+  or_fr_ptr aux_or_fr;
+  sg_fr_ptr aux_sg_fr;
+  dep_fr_ptr aux_dep_fr;
+
+  /* complete all subgoals */
+  aux_dep_fr = SuspFr_top_dep_fr(susp_fr);
+  aux_sg_fr = SuspFr_top_sg_fr(susp_fr);
+  if (DepFr_leader_dep_is_on_stack(aux_dep_fr)) {
+    while (aux_sg_fr && 
+	   /* continue if the subgoal was early completed */ 
+           /* SgFr_state(aux_sg_fr) == evaluating && */
+           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
+           EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
+      mark_as_completed(aux_sg_fr);
+      aux_sg_fr = SgFr_next(aux_sg_fr);
+    }
+  } else {
+    while (aux_sg_fr && 
+	   /* continue if the subgoal was early completed */ 
+           /* SgFr_state(aux_sg_fr) == evaluating && */
+           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
+           YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
+      mark_as_completed(aux_sg_fr);
+      aux_sg_fr = SgFr_next(aux_sg_fr);
+    }
+  }
+
+  /* chain dependency frames to release (using DepFr_next) */
+  while (IS_UNLOCKED(DepFr_lock(aux_dep_fr)) && 
+         YOUNGER_CP(DepFr_cons_cp(aux_dep_fr), top_cp)) {
+    dep_fr_ptr next_dep_fr;
+    LOCK(DepFr_lock(aux_dep_fr));
+    next_dep_fr = DepFr_next(aux_dep_fr);
+    DepFr_next(aux_dep_fr) = *chain_dep_fr;
+    *chain_dep_fr = aux_dep_fr;
+    aux_dep_fr = next_dep_fr;
+  }
+
+  /* chain or-frames to release (using OrFr_next_on_stack)    **
+  ** we use the OrFr_next_on_stack field instead of OrFr_next **
+  ** to avoid conflicts with the 'find_dependency_node' macro */
+  aux_or_fr = SuspFr_top_or_fr_on_stack(susp_fr);
+  while (IS_UNLOCKED(OrFr_lock(aux_or_fr))) {
+    susp_fr_ptr aux_susp_fr;
+    or_fr_ptr next_or_fr_on_stack;
+#ifdef OPTYAP_ERRORS
+    if (YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)))
+      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)) (complete_suspension_branch)");
+#endif /* OPTYAP_ERRORS */
+    LOCK_OR_FRAME(aux_or_fr);
+    aux_susp_fr = OrFr_suspensions(aux_or_fr);
+    while (aux_susp_fr) {
+      susp_fr_ptr next_susp_fr;
+      complete_suspension_branch(aux_susp_fr, GetOrFr_node(aux_or_fr), chain_or_fr, chain_dep_fr);
+      next_susp_fr = SuspFr_next(aux_susp_fr);
+      FREE_SUSPENSION_FRAME(aux_susp_fr);
+      aux_susp_fr = next_susp_fr;
+    }
+    next_or_fr_on_stack = OrFr_next_on_stack(aux_or_fr);
+    OrFr_next_on_stack(aux_or_fr) = *chain_or_fr;
+    *chain_or_fr = aux_or_fr;
+    aux_or_fr = next_or_fr_on_stack;
+  }
+
+  return;
+}
+#endif /* TABLING && YAPOR */
+
+
+
+/*******************************
 **      Global functions      **
-** -------------------------- */
+*******************************/
 
 void public_completion(void) {
   dep_fr_ptr chain_dep_fr, next_dep_fr;
@@ -356,79 +427,3 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
 
   return;
 }
-
-
-
-/* ------------------------- **
-**      Local functions      **
-** ------------------------- */
-
-static
-void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr *chain_or_fr, dep_fr_ptr *chain_dep_fr) {
-  or_fr_ptr aux_or_fr;
-  sg_fr_ptr aux_sg_fr;
-  dep_fr_ptr aux_dep_fr;
-
-  /* complete all subgoals */
-  aux_dep_fr = SuspFr_top_dep_fr(susp_fr);
-  aux_sg_fr = SuspFr_top_sg_fr(susp_fr);
-  if (DepFr_leader_dep_is_on_stack(aux_dep_fr)) {
-    while (aux_sg_fr && 
-	   /* continue if the subgoal was early completed */ 
-           /* SgFr_state(aux_sg_fr) == evaluating && */
-           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
-           EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
-      mark_as_completed(aux_sg_fr);
-      aux_sg_fr = SgFr_next(aux_sg_fr);
-    }
-  } else {
-    while (aux_sg_fr && 
-	   /* continue if the subgoal was early completed */ 
-           /* SgFr_state(aux_sg_fr) == evaluating && */
-           (SgFr_state(aux_sg_fr) == evaluating || SgFr_first_answer(aux_sg_fr) == SgFr_answer_trie(aux_sg_fr)) &&
-           YOUNGER_CP(SgFr_gen_cp(aux_sg_fr), top_cp)) {
-      mark_as_completed(aux_sg_fr);
-      aux_sg_fr = SgFr_next(aux_sg_fr);
-    }
-  }
-
-  /* chain dependency frames to release (using DepFr_next) */
-  while (IS_UNLOCKED(DepFr_lock(aux_dep_fr)) && 
-         YOUNGER_CP(DepFr_cons_cp(aux_dep_fr), top_cp)) {
-    dep_fr_ptr next_dep_fr;
-    LOCK(DepFr_lock(aux_dep_fr));
-    next_dep_fr = DepFr_next(aux_dep_fr);
-    DepFr_next(aux_dep_fr) = *chain_dep_fr;
-    *chain_dep_fr = aux_dep_fr;
-    aux_dep_fr = next_dep_fr;
-  }
-
-  /* chain or-frames to release (using OrFr_next_on_stack)    **
-  ** we use the OrFr_next_on_stack field instead of OrFr_next **
-  ** to avoid conflicts with the 'find_dependency_node' macro */
-  aux_or_fr = SuspFr_top_or_fr_on_stack(susp_fr);
-  while (IS_UNLOCKED(OrFr_lock(aux_or_fr))) {
-    susp_fr_ptr aux_susp_fr;
-    or_fr_ptr next_or_fr_on_stack;
-#ifdef OPTYAP_ERRORS
-    if (YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)) (complete_suspension_branch)");
-#endif /* OPTYAP_ERRORS */
-    LOCK_OR_FRAME(aux_or_fr);
-    aux_susp_fr = OrFr_suspensions(aux_or_fr);
-    while (aux_susp_fr) {
-      susp_fr_ptr next_susp_fr;
-      complete_suspension_branch(aux_susp_fr, GetOrFr_node(aux_or_fr), chain_or_fr, chain_dep_fr);
-      next_susp_fr = SuspFr_next(aux_susp_fr);
-      FREE_SUSPENSION_FRAME(aux_susp_fr);
-      aux_susp_fr = next_susp_fr;
-    }
-    next_or_fr_on_stack = OrFr_next_on_stack(aux_or_fr);
-    OrFr_next_on_stack(aux_or_fr) = *chain_or_fr;
-    *chain_or_fr = aux_or_fr;
-    aux_or_fr = next_or_fr_on_stack;
-  }
-
-  return;
-}
-#endif /* TABLING && YAPOR */

@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.init.c  
-  version:     $Id: opt.init.c,v 1.16 2008-04-11 16:26:18 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ------------------ **
+/***********************
 **      Includes      **
-** ------------------ */
+***********************/
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
@@ -42,9 +44,9 @@ ma_h_inner_struct *Yap_ma_h_top;
 
 
 
-/* ---------------------- **
-**      Local macros      **
-** ---------------------- */
+/*********************
+**      Macros      **
+*********************/
 
 #ifdef SHM_MEMORY_ALLOC_SCHEME
 #define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
@@ -61,9 +63,9 @@ ma_h_inner_struct *Yap_ma_h_top;
 
 
 
-/* -------------------------- **
+/*******************************
 **      Global functions      **
-** -------------------------- */
+*******************************/
 
 void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_load) {
   int i;

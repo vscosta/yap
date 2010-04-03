@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.preds.c
-  version:     $Id: opt.preds.c,v 1.29 2008/04/11 16:26:19 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ----------------------------------------------- **
-**      Includes, defines and local variables      **
-** ----------------------------------------------- */
+/************************************
+**      Includes & Prototypes      **
+************************************/
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
@@ -31,20 +33,6 @@
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
-
-#ifdef YAPOR
-#define TIME_RESOLUTION 1000000
-#define NO_ANSWER   0
-#define YES_ANSWER -1
-static int length_answer;
-static qg_ans_fr_ptr actual_answer;
-#endif /* YAPOR */
-
-
-
-/* ------------------------------------- **
-**      Local functions declaration      **
-** ------------------------------------- */
 
 static Int p_yapor_threads(void);
 #ifdef YAPOR
@@ -121,13 +109,27 @@ static void shm_suspension_frames(long *pages_in_use, long *bytes_in_use);
 
 
 
-/* -------------------------- **
+/************************************
+**      Macros & Declarations      **
+************************************/
+
+#ifdef YAPOR
+#define TIME_RESOLUTION 1000000
+#define NO_ANSWER   0
+#define YES_ANSWER -1
+static int length_answer;
+static qg_ans_fr_ptr actual_answer;
+#endif /* YAPOR */
+
+
+
+/*******************************
 **      Global functions      **
-** -------------------------- */
+*******************************/
 
 void Yap_init_optyap_preds(void) {
-#ifdef YAPOR
   Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+#ifdef YAPOR
   Yap_InitCPred("$worker", 0, p_worker, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$yapor_on", 0, p_yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$start_yapor", 0, p_start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -175,9 +177,9 @@ void finish_yapor(void) {
 
 
 
-/* ------------------------- **
+/******************************
 **      Local functions      **
-** ------------------------- */
+******************************/
 
 static
 Int p_yapor_threads(void) {

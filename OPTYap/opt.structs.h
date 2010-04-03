@@ -1,21 +1,22 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.structs.h
-  version:     $Id: opt.structs.h,v 1.11 2007-04-26 14:11:08 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ----------------- **
+/**********************
 **      Typedefs     **
-** ----------------- */
+**********************/
 
 typedef double realtime;
 typedef unsigned long bitmap;
-
 
 #ifdef THREADS
 /* Threads may not assume addresses are the same at different workers */
@@ -44,12 +45,13 @@ cptr_to_offset_with_null(choiceptr node)
   if (node == NULL) return 0L;
   return (Int)((CELL *)node-LCL0);
 }
+#endif /* THREADS */
 
-#endif
 
-/* ---------------------------- **
+
+/*********************************
 **      Struct page_header      **
-** ---------------------------- */
+*********************************/
 
 typedef struct page_header {
   volatile int structs_in_use;
@@ -65,9 +67,9 @@ typedef struct page_header {
 
 
 
-/* ---------------------- **
+/***************************
 **      Struct pages      **
-** ---------------------- */
+***************************/
 
 struct pages {
 #ifdef SHM_MEMORY_ALLOC_SCHEME
@@ -90,9 +92,9 @@ struct pages {
 
 
 
-/* ----------------------------- **
+/**********************************
 **      Struct global_pages      **
-** ----------------------------- */
+**********************************/
 
 struct global_pages {
 #ifdef LIMIT_TABLING
@@ -128,9 +130,9 @@ struct global_pages {
 
 
 
-/* ----------------------------- **
+/**********************************
 **      Struct global_locks      **
-** ----------------------------- */
+**********************************/
 
 #ifdef YAPOR
 struct global_locks {
@@ -155,9 +157,9 @@ struct global_locks {
 
 
 
-/* ---------------------------- **
+/*********************************
 **      Struct global_data      **
-** ---------------------------- */
+*********************************/
 
 struct global_data{
   /* global data related to memory management */
@@ -294,9 +296,9 @@ struct global_data{
 
 
 
-/* ------------------------------ **
+/***********************************
 **      Struct local_signals      **
-** ------------------------------ */
+***********************************/
 
 #ifdef YAPOR
 struct local_signals{
@@ -322,9 +324,9 @@ struct local_signals{
 
 
 
-/* --------------------------- **
+/********************************
 **      Struct local_data      **
-** --------------------------- */
+********************************/
 
 struct local_data{
 #if defined(YAPOR) || defined(THREADS)

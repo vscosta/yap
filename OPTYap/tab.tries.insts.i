@@ -1,70 +1,74 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        tab.tries.insts.i
-  version:     $Id: tab.tries.insts.i,v 1.12 2007-04-26 14:11:08 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* --------------------------------------------------------- **
-**      Trie instructions: auxiliary stack organization      **
-** --------------------------------------------------------- **
-                 STANDARD_TRIE
-              -------------------
-              | ha = heap_arity | 
-              -------------------  --
-              |   heap ptr 1    |    |
-              -------------------    |
-              |       ...       |    -- heap_arity
-              -------------------    |
-              |   heap ptr ha   |    |
-              -------------------  --
-              | va = vars_arity |
-              -------------------
-              | sa = subs_arity |
-              -------------------  --
-              |   subs ptr sa   |    |
-              -------------------    |
-              |       ...       |    -- subs_arity 
-              -------------------    |
-              |   subs ptr 1    |    |
-              -------------------  --
-              |    var ptr va   |    |
-              -------------------    |
-              |       ...       |    -- vars_arity
-              -------------------    |
-              |    var ptr 1    |    |
-              -------------------  -- 
+/************************************************************************
+**           Trie instructions: auxiliary stack organization           **
+*************************************************************************
 
-
-                  GLOBAL_TRIE
-              -------------------
-              | va = vars_arity |
-              -------------------  --
-              |    var ptr va   |    |
-              -------------------    |
-              |       ...       |    -- vars_arity
-              -------------------    |
-              |    var ptr 1    |    |
-              -------------------  -- 
-              | sa = subs_arity |
-              -------------------  --
-              |   subs ptr sa   |    |
-              -------------------    |
-              |       ...       |    -- subs_arity 
-              -------------------    |
-              |   subs ptr 1    |    |
-              -------------------  --
-** --------------------------------------------------------- */
+                      STANDARD_TRIE
+                   -------------------
+                   | ha = heap_arity | 
+                   -------------------  --
+                   |   heap ptr 1    |    |
+                   -------------------    |
+                   |       ...       |    -- heap_arity
+                   -------------------    |
+                   |   heap ptr ha   |    |
+                   -------------------  --
+                   | va = vars_arity |
+                   -------------------
+                   | sa = subs_arity |
+                   -------------------  --
+                   |   subs ptr sa   |    |
+                   -------------------    |
+                   |       ...       |    -- subs_arity 
+                   -------------------    |
+                   |   subs ptr 1    |    |
+                   -------------------  --
+                   |    var ptr va   |    |
+                   -------------------    |
+                   |       ...       |    -- vars_arity
+                   -------------------    |
+                   |    var ptr 1    |    |
+                   -------------------  -- 
 
 
+                       GLOBAL_TRIE
+                   -------------------
+                   | va = vars_arity |
+                   -------------------  --
+                   |    var ptr va   |    |
+                   -------------------    |
+                   |       ...       |    -- vars_arity
+                   -------------------    |
+                   |    var ptr 1    |    |
+                   -------------------  -- 
+                   | sa = subs_arity |
+                   -------------------  --
+                   |   subs ptr sa   |    |
+                   -------------------    |
+                   |       ...       |    -- subs_arity 
+                   -------------------    |
+                   |   subs ptr 1    |    |
+                   -------------------  --
 
-/* --------------------------------------------- **
-**      Trie instructions: auxiliary macros      **
-** --------------------------------------------- */
+************************************************************************/
+
+
+
+/************************************************************************
+**                 Trie instructions: auxiliary macros                 **
+************************************************************************/
 
 #ifdef GLOBAL_TRIE
 #define copy_arity_stack()                                      \
@@ -98,12 +102,8 @@
         PREFETCH_OP(PREG);                                      \
         GONext()
 
-
-
-/* ---------------------------------------------------------------------------- **
-** the 'store_trie_node', 'restore_trie_node' and 'pop_trie_node' macros do not **
-** include the 'set_cut' macro because there are no cuts in trie instructions.  **
-** ---------------------------------------------------------------------------- */
+/* the 'store_trie_node', 'restore_trie_node' and 'pop_trie_node' macros do not **
+** include the 'set_cut' macro because there are no cuts in trie instructions   */
 
 #define store_trie_node(AP)                           \
         { register choiceptr cp;                      \
@@ -162,15 +162,15 @@
 
 
 
-/* ------------------- **
-**      trie_null      **
-** ------------------- */
+/************************************************************************
+**                              trie_null                              **
+************************************************************************/
 
 #define stack_trie_null_instr()                              \
         next_trie_instruction(node)
 
 #ifdef TRIE_COMPACT_PAIRS
-/* trie compiled code for term 'CompactPairInit' */
+/*       trie compiled code for term 'CompactPairInit'      */
 #define stack_trie_null_in_new_pair_instr()                  \
         if (heap_arity) {                                    \
           aux_stack_ptr++;                                   \
@@ -200,9 +200,9 @@
 
 
 
-/* ------------------ **
-**      trie_var      **
-** ------------------ */
+/************************************************************************
+**                              trie_var                               **
+************************************************************************/
 
 #define stack_trie_var_instr()                                   \
         if (heap_arity) {                                        \
@@ -267,9 +267,9 @@
 
 
 
-/* ------------------ **
-**      trie_val      **
-** ------------------ */
+/************************************************************************
+**                              trie_val                               **
+************************************************************************/
 
 #define stack_trie_val_instr()                                                              \
         if (heap_arity) {                                                                   \
@@ -371,9 +371,9 @@
 
 
 
-/* ------------------- **
-**      trie_atom      **
-** ------------------- */
+/************************************************************************
+**                              trie_atom                              **
+************************************************************************/
 
 #define stack_trie_atom_instr()                                      \
         if (heap_arity) {                                            \
@@ -421,12 +421,12 @@
 
 
 
-/* ------------------- **
-**      trie_pair      **
-** ------------------- */
+/************************************************************************
+**                              trie_pair                              **
+************************************************************************/
 
 #ifdef TRIE_COMPACT_PAIRS
-/* trie compiled code for term 'CompactPairEndList' */
+/*     trie compiled code for term 'CompactPairEndList'     */
 #define stack_trie_pair_instr()		                     \
         if (heap_arity) {                                    \
           aux_stack_ptr++;                                   \
@@ -479,9 +479,9 @@
 
 
 
-/* --------------------- **
-**      trie_struct      **
-** --------------------- */
+/************************************************************************
+**                             trie_struct                             **
+************************************************************************/
 
 #define stack_trie_struct_instr()                                \
         if (heap_arity) {                                        \
@@ -547,9 +547,9 @@
 
 
 
-/* ------------------------ **
-**      trie_extension      **
-** ------------------------ */
+/************************************************************************
+**                            trie_extension                           **
+************************************************************************/
 
 #define stack_trie_extension_instr()                               \
         *aux_stack_ptr-- = 0;  /* float/longint extension mark */  \
@@ -560,9 +560,9 @@
 
 
 
-/* ---------------------------- **
-**      trie_float_longint      **
-** ---------------------------- */
+/************************************************************************
+**                          trie_float_longint                         **
+************************************************************************/
 
 #define stack_trie_float_longint_instr()                         \
         if (heap_arity) {                                        \
@@ -587,9 +587,9 @@
 
 
 
-/* --------------------------- **
-**      Trie instructions      **
-** --------------------------- */
+/************************************************************************
+**                          Trie instructions                          **
+************************************************************************/
 
   PBOp(trie_do_null, e)
 #ifndef GLOBAL_TRIE
@@ -978,7 +978,7 @@
     register CELL *aux_stack_ptr = YENV;
 #ifdef GLOBAL_TRIE
     int subs_arity = *(aux_stack_ptr + *aux_stack_ptr + 1);
-    YENV = aux_stack_ptr = load_substitution_variable(TrNode_entry(node), aux_stack_ptr);
+    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
     next_instruction(subs_arity - 1 , node);
 #else
     int heap_arity = *aux_stack_ptr;
@@ -1003,7 +1003,7 @@
 #endif /* GLOBAL_TRIE */
     pop_trie_node();
 #ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable(TrNode_entry(node), aux_stack_ptr);
+    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
     next_instruction(subs_arity - 1 , node);
 #else
     stack_trie_atom_instr();
@@ -1024,7 +1024,7 @@
 #endif /* GLOBAL_TRIE */
     store_trie_node(TrNode_next(node));
 #ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable(TrNode_entry(node), aux_stack_ptr);
+    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
     next_instruction(subs_arity - 1, node); 
 #else
     stack_trie_atom_instr();
@@ -1045,7 +1045,7 @@
 #endif /* GLOBAL_TRIE */
     restore_trie_node(TrNode_next(node));
 #ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable(TrNode_entry(node), aux_stack_ptr);
+    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
     next_instruction(subs_arity - 1, node); 
 #else
     stack_trie_atom_instr();

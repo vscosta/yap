@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.memory.c  
-  version:     $Id: opt.memory.c,v 1.10 2008-03-25 16:45:53 vsc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* -------------------------------------- **
-**      Includes and local variables      **
-** -------------------------------------- */
+/**************************************
+**      Includes & Declarations      **
+**************************************/
 
 #include "Yap.h"
 #if defined(YAPOR) && !defined(THREADS)
@@ -39,9 +41,9 @@ int shm_mapid[MAX_WORKERS + 1];
 
 
 
-/* --------------------------- **
+/********************************
 **      Global functions       **
-** --------------------------- */
+********************************/
 
 #ifdef SHM_MEMORY_MAPPING_SCHEME
 void shm_map_memory(int id, int size, void *shmaddr) {

@@ -1,13 +1,15 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        or.engine.c
-  version:     $Id: or.engine.c,v 1.11 2008-03-25 16:45:53 vsc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
 /* ------------------ **
 **      Includes      **
@@ -464,7 +466,7 @@ void share_private_nodes(int worker_q) {
     choiceptr consumer_cp, next_node_on_branch;
     dep_fr_ptr dep_frame;
     sg_fr_ptr sg_frame;
-    CELL *stack, *stack_base, *stack_limit;
+    CELL *stack, *stack_limit;
 
     /* find top dependency frame above current choice point */
     dep_frame = LOCAL_top_dep_fr;
@@ -475,7 +477,7 @@ void share_private_nodes(int worker_q) {
     consumer_cp = DepFr_cons_cp(dep_frame);
     next_node_on_branch = NULL;
     stack_limit = (CELL *)TR;
-    stack_base = stack = (CELL *)Yap_TrailTop;
+    stack = (CELL *)Yap_TrailTop;
 #endif /* TABLING */
 
     /* initialize auxiliary variables */
@@ -564,9 +566,9 @@ void share_private_nodes(int worker_q) {
         if (! next_node_on_branch)
           next_node_on_branch = sharing_node;
         STACK_PUSH_UP(or_frame, stack);
-        STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
+        STACK_CHECK_EXPAND(stack, stack_limit);
         STACK_PUSH(sharing_node, stack);
-        STACK_CHECK_EXPAND1(stack, stack_limit, stack_base);
+        STACK_CHECK_EXPAND(stack, stack_limit);
         sharing_node = consumer_cp;
         dep_frame = DepFr_next(dep_frame);
         consumer_cp = DepFr_cons_cp(dep_frame);
@@ -594,7 +596,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef TABLING
     /* update or-frames stored in auxiliary stack */
-    while (STACK_NOT_EMPTY(stack, stack_base)) {
+    while (STACK_NOT_EMPTY(stack, (CELL *)Yap_TrailTop)) {
       next_node_on_branch = (choiceptr) STACK_POP_DOWN(stack);
       or_frame = (or_fr_ptr) STACK_POP_DOWN(stack);
       OrFr_nearest_livenode(or_frame) = OrFr_next(or_frame) = next_node_on_branch->cp_or_fr;

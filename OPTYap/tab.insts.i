@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        tab.insts.i
-  version:     $Id: tab.insts.i,v 1.26 2008-05-23 18:28:58 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ------------------------------------------------ **
-**      Tabling instructions: auxiliary macros      **
-** ------------------------------------------------ */
+/************************************************************************
+**               Tabling instructions: auxiliary macros                **
+************************************************************************/
 
 #ifdef LOW_LEVEL_TRACER
 #define store_low_level_trace_info(CP, TAB_ENT)  CP->cp_pred_entry = TabEnt_pe(TAB_ENT)
@@ -277,9 +279,9 @@
 
 
 
-/* ------------------------------ **
-**      Tabling instructions      **
-** ------------------------------ */  
+/************************************************************************
+**                           clause_with_cut                           **
+************************************************************************/
 
 #ifdef TABLING_INNER_CUTS
   Op(clause_with_cut, e)
@@ -296,6 +298,10 @@
 #endif /* TABLING_INNER_CUTS */
 
 
+
+/************************************************************************
+**                          table_load_answer                          **
+************************************************************************/
 
   PBOp(table_load_answer, Otapl)
     CELL *subs_ptr;
@@ -328,6 +334,10 @@
   ENDPBOp();
 
 
+
+/************************************************************************
+**                          table_try_answer                           **
+************************************************************************/
 
   PBOp(table_try_answer, Otapl)
 #ifdef INCOMPLETE_TABLING
@@ -387,6 +397,10 @@
   ENDPBOp();
 
 
+
+/************************************************************************
+**                          table_try_single                           **
+************************************************************************/
 
   PBOp(table_try_single, Otapl)
     tab_ent_ptr tab_ent;
@@ -506,6 +520,10 @@
 
 
 
+/************************************************************************
+**                            table_try_me                             **
+************************************************************************/
+
   PBOp(table_try_me, Otapl)
     tab_ent_ptr tab_ent;
     sg_fr_ptr sg_fr;
@@ -616,6 +634,10 @@
   ENDPBOp();
 
 
+
+/************************************************************************
+**                             table_try                               **
+************************************************************************/
 
   PBOp(table_try, Otapl)
     tab_ent_ptr tab_ent;
@@ -728,6 +750,10 @@
 
 
 
+/************************************************************************
+**                           table_retry_me                            **
+************************************************************************/
+
   Op(table_retry_me, Otapl)
     restore_generator_node(PREG->u.Otapl.s, PREG->u.Otapl.d);
     YENV = (CELL *) PROTECT_FROZEN_B(B);
@@ -740,6 +766,10 @@
 
 
 
+/************************************************************************
+**                            table_retry                              **
+************************************************************************/
+
   Op(table_retry, Otapl)
     restore_generator_node(PREG->u.Otapl.s, NEXTOP(PREG,Otapl));
     YENV = (CELL *) PROTECT_FROZEN_B(B);
@@ -751,6 +781,10 @@
   ENDOp();
 
 
+
+/************************************************************************
+**                           table_trust_me                            **
+************************************************************************/
 
   Op(table_trust_me, Otapl)
     restore_generator_node(PREG->u.Otapl.s, COMPLETION);
@@ -780,6 +814,10 @@
 
 
 
+/************************************************************************
+**                            table_trust                              **
+************************************************************************/
+
   Op(table_trust, Otapl)
     restore_generator_node(PREG->u.Otapl.s, COMPLETION);
 #ifdef DETERMINISTIC_TABLING
@@ -807,6 +845,10 @@
   ENDOp();
 
 
+
+/************************************************************************
+**                          table_new_answer                           **
+************************************************************************/
 
   PBOp(table_new_answer, s)
     CELL *subs_ptr;
@@ -1062,6 +1104,10 @@
   ENDPBOp();
 
 
+
+/************************************************************************
+**                      table_answer_resolution                        **
+************************************************************************/
 
   BOp(table_answer_resolution, Otapl)
 #ifdef YAPOR
@@ -1348,6 +1394,10 @@
   ENDBOp();
 
 
+
+/************************************************************************
+**                          table_completion                           **
+************************************************************************/
 
   BOp(table_completion, Otapl)
 #ifdef YAPOR

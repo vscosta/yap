@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        opt.misc.c  
-  version:     $Id: opt.misc.c,v 1.11 2005-06-03 18:28:11 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ------------------ **
+/***********************
 **      Includes      **
-** ------------------ */
+***********************/
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
@@ -29,20 +31,21 @@
 
 
 
-/* ------------------------------------------- **
+/************************************************
 **      Global variables are defined here      **
-** ------------------------------------------- */
+************************************************/
 
 #ifndef THREADS
 #ifdef YAPOR
 struct worker WORKER;
 #endif /* YAPOR */
-#endif
+#endif /* ! THREADS */
 
 
-/* -------------------------- **
+
+/*******************************
 **      Global functions      **
-** -------------------------- */
+*******************************/
 
 void itos(int i, char *s) {
   int n,r,j;

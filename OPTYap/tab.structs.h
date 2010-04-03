@@ -1,17 +1,19 @@
-/**********************************************************************
-                                                               
-                       The OPTYap Prolog system                
-  OPTYap extends the Yap Prolog system to support or-parallel tabling
-                                                               
-  Copyright:   R. Rocha and NCC - University of Porto, Portugal
-  File:        tab.structs.h
-  version:     $Id: tab.structs.h,v 1.10 2005-08-04 15:45:56 ricroc Exp $   
-                                                                     
-**********************************************************************/
+/************************************************************************
+**                                                                     **
+**                   The YapTab/YapOr/OPTYap systems                   **
+**                                                                     **
+** YapTab extends the Yap Prolog engine to support sequential tabling  **
+** YapOr extends the Yap Prolog engine to support or-parallelism       **
+** OPTYap extends the Yap Prolog engine to support or-parallel tabling **
+**                                                                     **
+**                                                                     **
+**      Yap Prolog was developed at University of Porto, Portugal      **
+**                                                                     **
+************************************************************************/
 
-/* ---------------------------- **
+/*********************************
 **      Tabling mode flags      **
-** ---------------------------- */
+*********************************/
 
 #define Mode_SchedulingOn       0x00000001L  /* yap_flags[TABLING_MODE_FLAG] */
 #define Mode_CompletedOn        0x00000002L  /* yap_flags[TABLING_MODE_FLAG] */
@@ -49,9 +51,9 @@
 
 
 
-/* ---------------------------- **
+/*********************************
 **      Struct table_entry      **
-** ---------------------------- */
+*********************************/
 
 typedef struct table_entry {
 #if defined(YAPOR) || defined(THREADS)
@@ -77,9 +79,9 @@ typedef struct table_entry {
 
 
 
-/* -------------------------------------------------------------------------- **
+/*******************************************************************************
 **      Structs global_trie_node, subgoal_trie_node and answer_trie_node      **
-** -------------------------------------------------------------------------- */
+*******************************************************************************/
 
 #ifdef GLOBAL_TRIE
 typedef struct global_trie_node {
@@ -91,11 +93,7 @@ typedef struct global_trie_node {
 #endif /* GLOBAL_TRIE */
 
 typedef struct subgoal_trie_node {
-#ifdef GLOBAL_TRIE
-  struct global_trie_node *entry;
-#else
   Term entry;
-#endif /* GLOBAL_TRIE */
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
@@ -109,11 +107,7 @@ typedef struct answer_trie_node {
 #ifdef YAPOR
   int or_arg;               /* u.Otapl.or_arg */
 #endif /* YAPOR */
-#ifdef GLOBAL_TRIE
-  struct global_trie_node *entry;
-#else
   Term entry;
-#endif /* GLOBAL_TRIE */
 #ifdef TABLE_LOCK_AT_NODE_LEVEL
   lockvar lock;
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
@@ -133,14 +127,14 @@ typedef struct answer_trie_node {
 
 
 
-/* -------------------------------------------------------------------------- **
+/*******************************************************************************
 **      Structs global_trie_hash, subgoal_trie_hash and answer_trie_hash      **
-** -------------------------------------------------------------------------- */
+*******************************************************************************/
 
 #ifdef GLOBAL_TRIE
 typedef struct global_trie_hash {
   /* the first field is used for compatibility **
-  ** with the global_trie_node data structure */
+  ** with the global_trie_node data structure  */
   Term mark;
   int number_of_buckets;
   struct global_trie_node **buckets;
@@ -151,11 +145,7 @@ typedef struct global_trie_hash {
 typedef struct subgoal_trie_hash {
   /* the first field is used for compatibility **
   ** with the subgoal_trie_node data structure */
-#ifdef GLOBAL_TRIE
-  struct global_trie_node *mark;
-#else
   Term mark;    
-#endif /* GLOBAL_TRIE */
   int number_of_buckets;
   struct subgoal_trie_node **buckets;
   int number_of_nodes;
@@ -182,9 +172,9 @@ typedef struct answer_trie_hash {
 
 
 
-/* ------------------------------ **
+/***********************************
 **      Struct subgoal_frame      **
-** ------------------------------ */
+***********************************/
 
 typedef struct subgoal_frame {
 #if defined(YAPOR) || defined(THREADS)
@@ -234,35 +224,37 @@ typedef struct subgoal_frame {
 #define SgFr_previous(X)       ((X)->previous)
 #define SgFr_next(X)           ((X)->next)
 
-/* ------------------------------------------------------------------------------------------- **
-   SgFr_lock:          spin-lock to modify the frame fields.
-   SgFr_gen_worker:    the id of the worker that had allocated the frame.
-   SgFr_gen_top_or_fr: a pointer to the top or-frame in the generator choice point branch. 
-                       When the generator choice point is shared the pointer is updated 
-                       to its or-frame. It is used to find the direct dependency node for 
-                       consumer nodes in other workers branches.
-   SgFr_code           initial instruction of the subgoal's compiled code.
-   SgFr_tab_ent        a pointer to the correspondent table entry.
-   SgFr_arity          the arity of the subgoal.
-   SgFr_state:         a flag that indicates the subgoal state.
-   SgFr_gen_cp:        a pointer to the correspondent generator choice point.
-   SgFr_hash_chain:    a pointer to the first answer_trie_hash struct for the subgoal in hand.
-   SgFr_answer_trie:   a pointer to the top answer trie node.
-                       It is used to check for/insert new answers.
-   SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
-   SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
-   SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
-                       It is used when a subgoal was not completed during the previous evaluation.
-                       Not completed subgoals start by trying the answers already found.
-   SgFr_previous:      a pointer to the previous subgoal frame on the chain.
-   SgFr_next:          a pointer to the next subgoal frame on the chain.
-** ------------------------------------------------------------------------------------------- */
+/**************************************************************************************************
+
+  SgFr_lock:          spin-lock to modify the frame fields.
+  SgFr_gen_worker:    the id of the worker that had allocated the frame.
+  SgFr_gen_top_or_fr: a pointer to the top or-frame in the generator choice point branch. 
+                      When the generator choice point is shared the pointer is updated 
+                      to its or-frame. It is used to find the direct dependency node for 
+                      consumer nodes in other workers branches.
+  SgFr_code           initial instruction of the subgoal's compiled code.
+  SgFr_tab_ent        a pointer to the correspondent table entry.
+  SgFr_arity          the arity of the subgoal.
+  SgFr_state:         a flag that indicates the subgoal state.
+  SgFr_gen_cp:        a pointer to the correspondent generator choice point.
+  SgFr_hash_chain:    a pointer to the first answer_trie_hash struct for the subgoal in hand.
+  SgFr_answer_trie:   a pointer to the top answer trie node.
+                      It is used to check for/insert new answers.
+  SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
+  SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
+  SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
+                      It is used when a subgoal was not completed during the previous evaluation.
+                      Not completed subgoals start by trying the answers already found.
+  SgFr_previous:      a pointer to the previous subgoal frame on the chain.
+  SgFr_next:          a pointer to the next subgoal frame on the chain.
+
+**************************************************************************************************/
 
 
 
-/* --------------------------------- **
+/**************************************
 **      Struct dependency_frame      **
-** --------------------------------- */
+**************************************/
 
 typedef struct dependency_frame {
 #if defined(YAPOR) || defined(THREADS)
@@ -292,30 +284,32 @@ typedef struct dependency_frame {
 #define DepFr_last_answer(X)             ((X)->last_consumed_answer)
 #define DepFr_next(X)                    ((X)->next)
 
-/* ---------------------------------------------------------------------------------------------------- **
-   DepFr_lock:                   lock variable to modify the frame fields.
-   DepFr_leader_dep_is_on_stack: the generator choice point for the correspondent consumer choice point 
-                                 is on the worker's stack (FALSE/TRUE).
-   DepFr_top_or_fr:              a pointer to the top or-frame in the consumer choice point branch. 
-                                 When the consumer choice point is shared the pointer is updated to 
-                                 its or-frame. It is used to update the LOCAL_top_or_fr when a worker 
-                                 backtracks through answers.
-   DepFr_timestamp:              a timestamp used to optimize the search for suspension frames to be 
-                                 resumed.
-   DepFr_backchain_cp:           a pointer to the nearest choice point with untried alternatives.
-                                 It is used to efficiently return (backtrack) to the leader node where 
-                                 we perform the last backtracking through answers operation.
-   DepFr_leader_cp:              a pointer to the leader choice point.
-   DepFr_cons_cp:                a pointer to the correspondent consumer choice point.
-   DepFr_last_answer:            a pointer to the last consumed answer.
-   DepFr_next:                   a pointer to the next dependency frame on the chain.  
-** ---------------------------------------------------------------------------------------------------- */
+/*******************************************************************************************************
+
+  DepFr_lock:                   lock variable to modify the frame fields.
+  DepFr_leader_dep_is_on_stack: the generator choice point for the correspondent consumer choice point 
+                                is on the worker's stack (FALSE/TRUE).
+  DepFr_top_or_fr:              a pointer to the top or-frame in the consumer choice point branch. 
+                                When the consumer choice point is shared the pointer is updated to 
+                                its or-frame. It is used to update the LOCAL_top_or_fr when a worker 
+                                backtracks through answers.
+  DepFr_timestamp:              a timestamp used to optimize the search for suspension frames to be 
+                                resumed.
+  DepFr_backchain_cp:           a pointer to the nearest choice point with untried alternatives.
+                                It is used to efficiently return (backtrack) to the leader node where 
+                                we perform the last backtracking through answers operation.
+  DepFr_leader_cp:              a pointer to the leader choice point.
+  DepFr_cons_cp:                a pointer to the correspondent consumer choice point.
+  DepFr_last_answer:            a pointer to the last consumed answer.
+  DepFr_next:                   a pointer to the next dependency frame on the chain.  
+
+*******************************************************************************************************/
 
 
 
-/* --------------------------------- **
+/**************************************
 **      Struct suspension_frame      **
-** --------------------------------- */
+**************************************/
 
 #ifdef YAPOR
 typedef struct suspension_frame {
@@ -347,9 +341,9 @@ typedef struct suspension_frame {
 
 
 
-/* ------------------------------- **
+/************************************
 **      Structs choice points      **
-** ------------------------------- */
+************************************/
 
 struct generator_choicept {
   struct choicept cp;
