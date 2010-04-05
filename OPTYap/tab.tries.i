@@ -15,6 +15,12 @@
 **      Macros      **
 *********************/
 
+#undef NEW_SUBGOAL_TRIE_NODE
+#undef NEW_ANSWER_TRIE_NODE
+#undef NEW_GLOBAL_TRIE_NODE
+#undef LOCK_NODE
+#undef UNLOCK_NODE
+
 #ifdef IS_GLOBAL_TRIE_REFERENCE
 #define NEW_SUBGOAL_TRIE_NODE(NODE, ENTRY, CHILD, PARENT, NEXT)        \
         INCREMENT_GLOBAL_TRIE_REFERENCE(ENTRY);                        \

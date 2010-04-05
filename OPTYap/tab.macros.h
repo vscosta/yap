@@ -227,48 +227,32 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TrNode_init_lock_field(NODE)
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
 
-#ifdef GLOBAL_TRIE
-#define INCREMENT_GLOBAL_TRIE_REFS(NODE)                                                          \
-        { register gt_node_ptr gt_node = (gt_node_ptr) (NODE);                                    \
- 	  TrNode_child(gt_node) = (gt_node_ptr) ((unsigned long int) TrNode_child(gt_node) + 1);  \
-	}
-#define DECREMENT_GLOBAL_TRIE_REFS(NODE)                                                          \
-        { register gt_node_ptr gt_node = (gt_node_ptr) (NODE);	                                  \
-	  TrNode_child(gt_node) = (gt_node_ptr) ((unsigned long int) TrNode_child(gt_node) - 1);  \
-          if (TrNode_child(gt_node) == 0)                                                         \
-            free_global_trie_branch(gt_node);                                                     \
-	}
-#else
-#define INCREMENT_GLOBAL_TRIE_REFS(NODE)
-#define DECREMENT_GLOBAL_TRIE_REFS(NODE)
-#endif /* GLOBAL_TRIE */
-
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)  \
-        { register sg_node_ptr sg_node;                    \
-          new_root_subgoal_trie_node(sg_node);             \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                      \
-          TabEnt_init_lock_field(TAB_ENT);                 \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                 \
-          TabEnt_atom(TAB_ENT) = ATOM;                     \
-          TabEnt_arity(TAB_ENT) = ARITY;                   \
-          TabEnt_mode(TAB_ENT) = 0;                        \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;          \
-          TabEnt_hash_chain(TAB_ENT) = NULL;               \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;      \
-          GLOBAL_root_tab_ent = TAB_ENT;                   \
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)       \
+        { register sg_node_ptr sg_node;                         \
+          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);  \
+          ALLOC_TABLE_ENTRY(TAB_ENT);                           \
+          TabEnt_init_lock_field(TAB_ENT);                      \
+          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                      \
+          TabEnt_atom(TAB_ENT) = ATOM;                          \
+          TabEnt_arity(TAB_ENT) = ARITY;                        \
+          TabEnt_mode(TAB_ENT) = 0;                             \
+          TabEnt_subgoal_trie(TAB_ENT) = sg_node;               \
+          TabEnt_hash_chain(TAB_ENT) = NULL;                    \
+          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;           \
+          GLOBAL_root_tab_ent = TAB_ENT;                        \
         }
 
-#define new_subgoal_frame(SG_FR, CODE)          \
-        { register ans_node_ptr ans_node;       \
-          new_root_answer_trie_node(ans_node);  \
-          ALLOC_SUBGOAL_FRAME(SG_FR);           \
-          INIT_LOCK(SgFr_lock(SG_FR));          \
-          SgFr_code(SG_FR) = CODE;              \
-          SgFr_state(SG_FR) = ready;            \
-          SgFr_hash_chain(SG_FR) = NULL;        \
-          SgFr_answer_trie(SG_FR) = ans_node;   \
-          SgFr_first_answer(SG_FR) = NULL;      \
-          SgFr_last_answer(SG_FR) = NULL;       \
+#define new_subgoal_frame(SG_FR, CODE)                             \
+        { register ans_node_ptr ans_node;                          \
+          new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
+          ALLOC_SUBGOAL_FRAME(SG_FR);                              \
+          INIT_LOCK(SgFr_lock(SG_FR));                             \
+          SgFr_code(SG_FR) = CODE;                                 \
+          SgFr_state(SG_FR) = ready;                               \
+          SgFr_hash_chain(SG_FR) = NULL;                           \
+          SgFr_answer_trie(SG_FR) = ans_node;                      \
+          SgFr_first_answer(SG_FR) = NULL;                         \
+          SgFr_last_answer(SG_FR) = NULL;                          \
 	}
 #define init_subgoal_frame(SG_FR)               \
         { SgFr_init_yapor_fields(SG_FR);        \
@@ -309,33 +293,21 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);    \
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
-#define new_root_subgoal_trie_node(NODE)                          \
-        ALLOC_SUBGOAL_TRIE_NODE(NODE);                            \
-        init_subgoal_trie_node(NODE, 0, NULL, NULL, NULL)
-#define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)   \
-        INCREMENT_GLOBAL_TRIE_REFS(ENTRY);                        \
-        ALLOC_SUBGOAL_TRIE_NODE(NODE);                            \
-        init_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)
-#define init_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
-        TrNode_entry(NODE) = ENTRY;				  \
-        TrNode_init_lock_field(NODE);                             \
-	TrNode_child(NODE) = CHILD;	                          \
-        TrNode_parent(NODE) = PARENT;                             \
+#define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
+        ALLOC_SUBGOAL_TRIE_NODE(NODE);                           \
+        TrNode_entry(NODE) = ENTRY;				 \
+        TrNode_init_lock_field(NODE);                            \
+	TrNode_child(NODE) = CHILD;	                         \
+        TrNode_parent(NODE) = PARENT;                            \
 	TrNode_next(NODE) = NEXT
 
-#define new_root_answer_trie_node(NODE)                                 \
-        ALLOC_ANSWER_TRIE_NODE(NODE);                                   \
-        init_answer_trie_node(NODE, 0, 0, NULL, NULL, NULL)
-#define new_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)   \
-        INCREMENT_GLOBAL_TRIE_REFS(ENTRY);                              \
-        ALLOC_ANSWER_TRIE_NODE(NODE);                                   \
-        init_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)
-#define init_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)  \
-        TrNode_instr(NODE) = INSTR;                                     \
-        TrNode_entry(NODE) = ENTRY;                                     \
-        TrNode_init_lock_field(NODE);                                   \
-        TrNode_child(NODE) = CHILD;                                     \
-        TrNode_parent(NODE) = PARENT;                                   \
+#define new_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)  \
+        ALLOC_ANSWER_TRIE_NODE(NODE);                                  \
+        TrNode_instr(NODE) = INSTR;                                    \
+        TrNode_entry(NODE) = ENTRY;                                    \
+        TrNode_init_lock_field(NODE);                                  \
+        TrNode_child(NODE) = CHILD;                                    \
+        TrNode_parent(NODE) = PARENT;                                  \
         TrNode_next(NODE) = NEXT
 
 #define new_global_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \

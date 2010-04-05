@@ -1400,7 +1400,7 @@
     t_dbl[1] = *++aux_stack_ptr;
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
     heap_arity -= 2;
-    *t_dbl = *++aux_stack_ptr;
+    t_dbl[0] = *++aux_stack_ptr;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
     ++aux_stack_ptr;  /* jump the float/longint extension mark */
     t = MkFloatTerm(dbl);
