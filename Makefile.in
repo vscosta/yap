@@ -312,7 +312,6 @@ parms.h:	Makefile
 		@echo "#define YAP_SHAREDIR	    \"$(SHAREDIR)\""   >> $@%
 		@echo "#define YAP_PL_SRCDIR	    \"$(SHAREDIR)/Yap/pl\""   >> $@%
 		@echo "#define YAP_STARTUP   \"$(YAPSTARTUP)\"" >> $@%
-		@echo "#define YAP_SVERSION   \"$(VERSION)\"" >> $@%
 		@echo $(VERSION) | $(AWK) -F. '{ printf("#define YAP_VERSION %d\n", $$1 * 10000 + $$2 * 100 + $$3); }' >> $@%
 		@echo "#define MYDDAS_VERSION	    \"$(MYDDAS_VERSION)\""       >> $@%
 		@echo "#define YAP_ARCH	    \"$(ARCH)\""       >> $@%
@@ -323,6 +322,7 @@ parms.h:	Makefile
 		@echo "#define YAP_LDFLAGS    \"$(LDFLAGS)\""    >> $@%
 		@echo "#define YAP_SHLIB_SUFFIX    \"$(SHLIB_SUFFIX)\""    >> $@%
 		@echo "#define YAP_TIMESTAMP \"`date +%s`\"" >> $@%
+		@echo "#define YAP_SVERSION   \"YAP $(VERSION) ($(ARCH)): `date`\"" >> $@%
 		@if cmp -s $@% $@; then rm $@%; else mv $@% $@; fi
 
 

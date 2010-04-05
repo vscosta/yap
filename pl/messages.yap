@@ -141,7 +141,7 @@ system_message(trace_command(C)) -->
 system_message(trace_help) -->
 	[ '   Please enter a valid debugger command (h for help).'  ].
 system_message(version(Version)) -->
-	[ 'YAP version ~a' - [Version] ].
+	[ '~a' - [Version] ].
 system_message(myddas_version(Version)) -->
 	[ 'MYDDAS version ~a' - [Version] ].
 system_message(yes) -->
