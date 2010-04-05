@@ -480,7 +480,7 @@ set_problog_flag(fast_proofs,true) :-
 	assert(fast_proofs(true)).
 set_problog_flag(fast_proofs,false) :-
 	retractall(fast_proofs(_)),
-	assert(fast_proofs(true)).
+	assert(fast_proofs(false)).
 set_problog_flag(fast_proofs,V) :-
 	format(user,'\% ERROR: value ~w should be \'true\' or \'false\'!~n',[V]),
 	flush_output(user),
