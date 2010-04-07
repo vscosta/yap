@@ -713,7 +713,8 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
     }
     WRITE_UNLOCK(PredHashRWLock);
     /* make sure that we have something here */
-    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
+    p->NextOfPE = RepPredProp(fe->PropsOfFE)->NextOfPE;
+    RepPredProp(fe->PropsOfFE)->NextOfPE = AbsPredProp(p);
   } else {
     fe->PropsOfFE = AbsPredProp(p);
     p->NextOfPE = NIL;
