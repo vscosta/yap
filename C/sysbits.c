@@ -116,7 +116,7 @@ char yap_pwd[YAP_FILENAME_MAX];
 STD_PROTO (void exit, (int));
 
 #ifdef _WIN32
-static void
+void
 Yap_WinError(char *yap_error)
 {
   char msg[256];

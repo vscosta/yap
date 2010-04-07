@@ -343,6 +343,7 @@ int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));
 #ifdef _WIN32
 char	*STD_PROTO(Yap_RegistryGetString,(char *));
+void	STD_PROTO(Yap_WinError,(char *));
 #endif
 
 /* threads.c */
