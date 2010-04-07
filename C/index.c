@@ -2622,8 +2622,8 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
 
     ics = fetch_centry(cs, min->Tag, i, n);
     ics->Tag = min->Tag;
-    while ((max+1)->Tag == min->Tag &&
-	   max != grp->LastClause) max++;
+    while (max != grp->LastClause && (max+1)->Tag == min->Tag)
+      max++;
     if (min != max) {
       if (sreg != NULL) {
 	if (ap->PredFlags & LogUpdatePredFlag && max > min) {
@@ -2698,8 +2698,8 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 
     ifs = fetch_fentry(fs, f, i, n);
     ifs->Tag = f;
-    while ((max+1)->Tag == min->Tag &&
-	   max != grp->LastClause) max++; 
+    while (max != grp->LastClause && (max+1)->Tag == min->Tag)
+      max++; 
     /* delay non-trivial indexing  
        if (min != max &&
        !IsExtensionFunctor(f)) {
