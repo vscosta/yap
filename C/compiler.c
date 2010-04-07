@@ -171,6 +171,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "compile.h"
 #include "clause.h"
+#include "alloc.h"
 #include "yapio.h"
 #if HAVE_STRING_H
 #include <string.h>
@@ -2698,7 +2699,7 @@ checkreg(Int arg, Int rn, compiler_vm_op ic, int var_arg, compiler_struct *cglob
 static CELL
 copy_live_temps_bmap(int max, compiler_struct *cglobs)
 {
-  unsigned int size = (max|7)/8+1;
+  unsigned int size = AdjustSize((max|7)/8+1);
   int i;
   CELL *dest = Yap_emit_extra_size(mark_live_regs_op, max, size, &cglobs->cint);
   CELL *ptr=dest;

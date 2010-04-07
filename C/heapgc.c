@@ -1700,7 +1700,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     } else if (IsPairTerm(trail_cell)) {
       /* can safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IsAttVar(cptr)) {
+      if (IN_BETWEEN(H0,cptr,H) &&
+	  IsAttVar(cptr)) {
 	TrailTerm(trail_base) = (CELL)cptr;
 	mark_external_reference(&TrailTerm(trail_base));
 	TrailTerm(trail_base) = trail_cell;
