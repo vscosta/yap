@@ -859,8 +859,7 @@ SocketPutc (int sno, int ch)
     }
   }
 #endif
-  console_count_output_char(ch,s);
-  return ((int) ch);
+  return (int) ch;
 }
 
 #endif
@@ -1414,8 +1413,8 @@ PipeGetc(int sno)
   /* should be able to use a buffer */
 #if _MSC_VER || defined(__MINGW32__) 
   DWORD count;
-  if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
+  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+    Yap_WinError("read from pipe returned error");
     return EOF;
   }
 #else
@@ -1460,9 +1459,9 @@ ConsolePipeGetc(int sno)
     newline = FALSE;
   }
 #if _MSC_VER || defined(__MINGW32__) 
-  if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
+  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
     Yap_PrologMode |= ConsoleGetcMode;
-    PlIOError (SYSTEM_ERROR,TermNil, "read from pipe returned error");
+    Yap_WinError("read from console pipe returned error");
     Yap_PrologMode &= ~ConsoleGetcMode;
     return console_post_process_eof(s);
   }
@@ -2774,7 +2773,9 @@ p_open_pipe_stream (void)
   st->u.pipe.fd = filedes[1];
 #endif
   t2 = MkStream (sno);
-  return (Yap_unify (ARG1, t1) && Yap_unify (ARG2, t2));
+  return
+    Yap_unify (ARG1, t1) &&
+    Yap_unify (ARG2, t2);
 }
 
 static int
