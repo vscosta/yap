@@ -1351,11 +1351,12 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  AtomAdjust(fe->NameOfFE);
 	p0 = fe->PropsOfFE =
 	  PropAdjust(fe->PropsOfFE);
-	if (!EndOfPAEntr(p0)) {
+	while (!EndOfPAEntr(p0)) {
 	  /* at most one property */
 	  CleanCode(RepPredProp(p0));
 	  RepPredProp(p0)->NextOfPE =
 	    PropAdjust(RepPredProp(p0)->NextOfPE);
+	  p0 = RepPredProp(p0)->NextOfPE;
 	}
       }
       break;
