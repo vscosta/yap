@@ -104,7 +104,8 @@ true :- true.
 	nb_setval('$trace',off),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_skip_mode',no_skip),
-	b_setval('$spy_glist',[]).
+	b_setval('$spy_glist',[]),
+	nb_setval('$spy_gn',1).
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),
