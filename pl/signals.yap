@@ -184,7 +184,8 @@
 	'$creep'.
 % do not debug if we are zipping through.  
 '$start_creep'([Mod|G]) :-
-	nb_getval('$debug_zip',on),
+	nb_getval('$debug_run',Run),
+	Run \= off,
 	'$zip'(-1, G, Mod), !,
         '$signal_creep',
 	'$execute_nonstop'(G,Mod).

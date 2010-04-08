@@ -102,10 +102,14 @@ true :- true.
 	% '$set_read_error_handler'(error), let the user do that
 	nb_setval('$open_expands_filename',true),
 	nb_setval('$trace',off),
+	nb_setval('$system_mode',off),
+	nb_setval('$chr_toplevel_show_store',false),
 	nb_setval('$assert_all',off),
 	nb_setval('$if_skip_mode',no_skip),
 	b_setval('$spy_glist',[]),
-	nb_setval('$spy_gn',1).
+	nb_setval('$spy_gn',1),
+	nb_setval('$debug_run',off),
+	nb_setval('$debug_jump',off).
 
 '$init_consult' :-
 	nb_setval('$lf_verbose',informational),
@@ -191,7 +195,7 @@ true :- true.
 	nb_setval('$spy_gn',1),
 		% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
-	nb_setval('$debug_zip',off),
+	nb_setval('$debug_jump',off),
 	prompt(_,'   |: '),
 	'$command'((?-Command),Varnames,Pos,top),
 	'$sync_mmapped_arrays',
@@ -1010,6 +1014,8 @@ break :-
 	nb_getval('$system_mode',SystemMode),
 	nb_getval('$trace',Trace),
 	nb_setval('$trace',off),
+	nb_getval('$debug_jump',Jump),
+	nb_getval('$debug_run',Run),
 	'$debug_on'(Debug),
 	'$debug_on'(false),
 	nb_getval('$break',BL), NBL is BL+1,
@@ -1026,6 +1032,8 @@ break :-
 	nb_setval('$spy_gn',SPY_GN),
 	'$set_input'(InpStream), '$set_output'(OutStream),
 	'$debug_on'(Debug),
+	nb_setval('$debug_jump',Jump),
+	nb_setval('$debug_run',Run),
 	nb_setval('$trace',Trace),
 	nb_setval('$break',BL),
 	nb_setval('$system_mode',SystemMode).

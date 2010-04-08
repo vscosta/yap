@@ -455,6 +455,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     where = TermNil;
     Yap_PrologMode &= ~AbortMode;
     Yap_PrologMode |= InErrorMode;
+    P = FAILCODE;
   } else {
     if (IsVarTerm(where)) {
       /* we must be careful someone gave us a copy to a local variable */
