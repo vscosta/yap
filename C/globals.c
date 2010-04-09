@@ -1785,9 +1785,12 @@ p_nb_heap_add_to_heap(void)
   if (arena == 0L)
     return FALSE;
   mingrow = garena_overflow_size(ArenaPt(arena));
-  key = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
+  ARG2 = CopyTermToArena(ARG2, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
+  qd = GetHeap(ARG1,"add_to_heap");
   arena = qd[HEAP_ARENA];
   to = CopyTermToArena(ARG3, arena, FALSE, TRUE, 3, qd+HEAP_ARENA, mingrow);
+  /* protect key in ARG2 in case there is an overflow while copying to */
+  key = ARG2;
   if (key == 0 || to == 0L)
     return FALSE;
   qd = GetHeap(ARG1,"add_to_heap");
