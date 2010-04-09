@@ -712,9 +712,8 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
       PredHash[hsh] = p;
     }
     WRITE_UNLOCK(PredHashRWLock);
-    /* make sure that we have something here */
-    p->NextOfPE = RepPredProp(fe->PropsOfFE)->NextOfPE;
-    RepPredProp(fe->PropsOfFE)->NextOfPE = AbsPredProp(p);
+    /* make sure that we have something here: note that this is not a valid pointer!! */
+    RepPredProp(fe->PropsOfFE)->NextOfPE = fe->PropsOfFE;
   } else {
     fe->PropsOfFE = AbsPredProp(p);
     p->NextOfPE = NIL;

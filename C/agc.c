@@ -194,6 +194,29 @@ AtomAdjust(Atom a)
 
 #include "rheap.h"
 
+static void
+RestoreHashPreds(void)
+{
+  UInt i;
+
+  for (i = 0; i < PredHashTableSize; i++) {
+    PredEntry *p = PredHash[i];
+
+    if (p)
+      p = PredEntryAdjust(p);
+    while (p) {
+      Prop nextp;
+      
+      if (p->NextOfPE)
+	p->NextOfPE = PropAdjust(p->NextOfPE);
+      nextp = p->NextOfPE;
+      CleanCode(p);
+      p = RepPredProp(nextp);
+    }
+  }
+}
+
+
 static void init_reg_copies(void)
 {
   OldASP = ASP;

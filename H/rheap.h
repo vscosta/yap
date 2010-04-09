@@ -379,6 +379,7 @@ AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
 
 STATIC_PROTO(void  RestoreAtomList, (Atom));
 STATIC_PROTO(void  RestoreAtom, (AtomEntry *));
+STATIC_PROTO(void  RestoreHashPreds, (void));
 
 static void
 RestoreAtoms(void)
@@ -658,7 +659,7 @@ RestorePredHash(void)
     Yap_Error(FATAL_ERROR,MkIntTerm(0),"restore should find predicate hash table");
   }
   REINIT_RWLOCK(PredHashRWLock);
-  /* RestoreHashPreds() does most of the work */
+  RestoreHashPreds(); /* does most of the work */
 }
 
 static void

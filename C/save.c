@@ -1321,7 +1321,6 @@ static void
 restore_heap(void)
 {
   restore_codes();
-  RestoreHashPreds();
   RestoreIOStructures();
 }
 
