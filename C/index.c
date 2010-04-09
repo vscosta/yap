@@ -3343,6 +3343,9 @@ compile_index(struct intermediates *cint)
   } else if (ap->PredFlags & UDIPredFlag) {
     UInt lbl = new_label(cint);
     Yap_emit(user_switch_op, Unsigned(ap), Unsigned(&(ap->cs.p_code.ExpandCode)), cint);
+#if USE_SYSTEM_MALLOC
+    Yap_FreeCodeSpace((ADDR)cls);
+#endif
     return lbl;
   } else {
     /* prepare basic data structures */ 
@@ -3404,6 +3407,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.expand_block = NULL;
   Yap_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
+    Yap_ReleaseCMem(&cint);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -3418,14 +3422,17 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+	Yap_ReleaseCMem(&cint);
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
       goto restart_index;
     }
   } else {
+    Yap_ReleaseCMem(&cint);
     return NULL;
   }
+  Yap_ReleaseCMem(&cint);
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(indx_out);
     cl->ClFlags |= SwitchRootMask;
@@ -4591,6 +4598,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       P = FAILCODE;
       recover_ecls_block(expand_clauses);
     }
+    Yap_ReleaseCMem(&cint);
     return FAILCODE;
   }
   if (*labp == FAILCODE) {
@@ -4598,6 +4606,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       P = FAILCODE;
       recover_ecls_block(expand_clauses);
     }
+    Yap_ReleaseCMem(&cint);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -4613,6 +4622,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_ReleaseCMem(&cint);
 	return FAILCODE;
       }
       goto restart_index;
@@ -4623,6 +4633,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       P = *labp;
       recover_ecls_block(expand_clauses);
     }
+    Yap_ReleaseCMem(&cint);
     return *labp;
   }
   if (indx_out == NULL) {
@@ -4630,8 +4641,10 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       P = FAILCODE;
       recover_ecls_block(expand_clauses);
     }
+    Yap_ReleaseCMem(&cint);
     return FAILCODE;
   }
+  Yap_ReleaseCMem(&cint);
   *labp = indx_out;
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* add to head of current code children */
