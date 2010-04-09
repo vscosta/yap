@@ -2414,8 +2414,10 @@ YAP_Init(YAP_init_args *yap_init)
   }
   yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
+#ifdef TABLING
   /* make sure we initialise this field */
   GLOBAL_root_dep_fr = NULL;
+#endif
   make_root_frames();
 #ifdef YAPOR
   init_workers();

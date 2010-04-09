@@ -70,7 +70,7 @@ void make_root_choice_point(void) {
       and convert back to our own stack;
      */
     OldLCL0 = LCL0;
-    LCL0 = ThreadHandle[0].current_yaam_regs->LCL0_;
+    LCL0 = FOREIGN_ThreadHandle(0).current_yaam_regs->LCL0_;
     imageB = Get_GLOBAL_root_cp();
     /* we know B */
     B->cp_tr = TR = 
