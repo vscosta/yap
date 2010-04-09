@@ -1352,7 +1352,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  AtomAdjust(fe->NameOfFE);
 	p0 = fe->PropsOfFE =
 	  PropAdjust(fe->PropsOfFE);
-	while (!EndOfPAEntr(p0)) {
+	if (!EndOfPAEntr(p0)) {
 	  /* at most one property */
 	  CleanCode(RepPredProp(p0));
 	  RepPredProp(p0)->NextOfPE =
