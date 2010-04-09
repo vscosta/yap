@@ -2039,7 +2039,7 @@ Yap_absmi(int inp)
 	      goto failloop;
 	    } else
 #endif /* FROZEN_STACKS */
-	      if (IsAttVar(pt1))
+	      if (IN_BETWEEN(H0,pt1,H) && IsAttVar(pt1))
 		goto failloop;		       	    
 	    flags = *pt1;
 #if defined(YAPOR) || defined(THREADS)
