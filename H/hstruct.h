@@ -287,7 +287,7 @@
   UInt  prof_preds;
 #endif /* LOW_PROF */
 
-  void  *foreign_code_loaded;
+  struct ForeignLoadItem  *foreign_code_loaded;
   ADDR  foreign_code_base;
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;

@@ -332,7 +332,7 @@ UInt		prof_preds		ProfPreds		=0L void
 #endif /* LOW_PROF */
 
 /* foreign code loaded */
-void		*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
+struct ForeignLoadItem 	*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
 ADDR		foreign_code_base	ForeignCodeBase		=NULL void
 ADDR		foreign_code_top	ForeignCodeTop		=NULL void
 ADDR		foreign_code_max	ForeignCodeMax		=NULL void
