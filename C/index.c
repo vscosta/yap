@@ -3458,10 +3458,7 @@ push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates
 static istack_entry *
 install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 {
-  int last_arg = TRUE;
-
   istack_entry *sp = stack;
-  last_arg = TRUE;
   while (sp->pos) {
     if ((Int)(sp->pos) > 0) {
       add_info(cls, sp->pos);
@@ -3508,10 +3505,6 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
       } else if (sp->pos) {
 	UInt argno = -sp->pos;
 	skip_to_arg(cls, ap, argno, FALSE);
-	if (ArityOfFunctor((Functor)RepAppl(sp[-1].val))
-	    != argno+1) {
-	  last_arg = FALSE;
-	}
       }
     }
     sp++;
