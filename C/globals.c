@@ -1708,6 +1708,8 @@ DelHeapRoot(CELL *pt, UInt sz)
   sz--;
   tk = pt[2*sz];
   tv = pt[2*sz+1];
+  pt[2*sz] = TermNil;
+  pt[2*sz+1] = TermNil;
   while (TRUE) {
     if (sz < 2*indx+3 || Yap_compare_terms(pt[4*indx+2],pt[4*indx+4]) < 0) {
       if (sz < 2*indx+2 || Yap_compare_terms(tk, pt[4*indx+2]) < 0) {
