@@ -268,10 +268,10 @@ yap_flag(version_data,X) :-
 
 '$get_version_codes'(Major,Minor,Patch) :-
 	get_value('$version_name',X),
-	atom_codes(X,VersionTag), %'
+	atom_codes(X,[_,_,_,_|VersionTag]), %'
 	'$fetch_num_code'(VersionTag,0,Major,L1),
 	'$fetch_num_code'(L1,0,Minor,L2),
-	'$fetch_num_code'(L2,0,Patch,[]).
+	'$fetch_num_code'(L2,0,Patch,_).
 
 '$fetch_num_code'([],Code,Code,[]).
 '$fetch_num_code'([C|Cs],Code0,CodeF,L) :-
