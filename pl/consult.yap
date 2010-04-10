@@ -694,7 +694,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 '$process_fn_opts'(V,_,_,_,_,_,_,_,_,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
-'$process_fn_opts'([],[],_,source,read,error,first,false,false,_) :- !.
+'$process_fn_opts'([],[],_,source,none,error,first,false,false,_) :- !.
 '$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
