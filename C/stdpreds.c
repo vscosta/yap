@@ -3456,7 +3456,10 @@ p_statistics_heap_info(void)
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  Term tmax = MkIntegerTerm((mi.arena+mi.hblkhd)-Yap_HoleSize);
+  UInt sstack = Yap_HoleSize+(Yap_TrailTop-Yap_GlobalBase);
+  UInt mmax = (mi.arena+mi.hblkhd);
+  Term tmax = MkIntegerTerm(mmax-sstack);
+  tusage = MkIntegerTerm(mmax-(mi.fordblks+sstack));
 #else
   Term tmax = MkIntegerTerm((Yap_GlobalBase - Yap_HeapBase)-Yap_HoleSize);
 #endif
