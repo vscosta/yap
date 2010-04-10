@@ -7,9 +7,14 @@
 
 db_usage :-
 	statistics(heap,[HeapUsed,HeapFree]),
+	statistics(local_stack,[GInU,FreeS]),
+	statistics(global_stack,[SInU,_]),
+	statistics(trail,[TInU,FreeT]),
 	HeapUsedK is HeapUsed//1024,
 	HeapFreeK is HeapFree//1024,
-	format(user_error, 'Heap Space = ~d KB (+ ~d free)~n',[HeapUsedK,HeapFreeK]),	
+	StackSpace is (GInU+SInU+FreeS+TInU+FreeT)//1024,
+	format(user_error, 'Heap Space = ~d KB (+ ~dKB free)~n',[HeapUsedK,HeapFreeK]),	
+	format(user_error, 'Stack Space = ~d KB~n',[StackSpace]),	
 	findall(p(Cls,CSz,ISz),
 		(current_module(M),
 		 current_predicate(_,M:P),
