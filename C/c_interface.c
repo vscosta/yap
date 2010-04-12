@@ -1943,7 +1943,7 @@ YAP_RestartGoal(void)
 {
   int out;
   BACKUP_MACHINE_REGS();
-  
+
   if (Yap_AllowRestart) {
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
@@ -2023,7 +2023,9 @@ YAP_PruneGoal(void)
     B = B->cp_b;
   }
   Yap_TrimTrail();
-  B = B->cp_b;
+  /* make sure that we do not destroy the guard choice-point */
+  if (Yap_op_from_opcode(B->cp_ap->opc) != _Nstop)
+    B = B->cp_b;
 
   RECOVER_B();
 }
@@ -2619,6 +2621,7 @@ YAP_Reset(void)
   }
   /* reinitialise the engine */
   Yap_InitYaamRegs();
+  Yap_Initialised = TRUE;
 
   RECOVER_MACHINE_REGS();
   return(TRUE);
