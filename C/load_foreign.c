@@ -93,7 +93,7 @@ p_load_foreign(void)
     f_code->f = InitProcName;
     f_code->next = ForeignCodeLoaded;
     f_code->module = CurrentModule;
-    ForeignCodeLoaded = (void *)f_code;
+    ForeignCodeLoaded = f_code;
   } else {
     while (ofiles) {
       new = ofiles->next;
