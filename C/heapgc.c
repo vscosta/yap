@@ -2480,7 +2480,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IsAttVar(pt0)) {
+	if (IN_BETWEEN(H0, pt0, H) && IsAttVar(pt0)) {
 	  TrailTerm(dest) = trail_cell;
 	  /* be careful with partial gc */
 	  if (HEAP_PTR(TrailTerm(dest))) {
