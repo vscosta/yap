@@ -1984,13 +1984,24 @@ PL_initialise(int myargc, char **myargv)
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
+
+  Yap_PL_Argc = myargc;
+  Yap_PL_Argv = myargv;
+  Yap_InitialisedFromPL = TRUE;
+
   return YAP_Init(&init_args);
 }
 
 X_API int
-PL_is_initialised(int *argc, char ***argv)
+PL_is_initialised(int *argcp, char ***argvp)
 {
-  return TRUE;
+  if (Yap_InitialisedFromPL) {
+    if (argcp) 
+      *argcp = Yap_PL_Argc;
+    if (argvp) 
+      *argvp = Yap_PL_Argv;
+  }
+  return Yap_InitialisedFromPL;
 }
 
 X_API module_t

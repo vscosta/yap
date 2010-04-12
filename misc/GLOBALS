@@ -205,5 +205,11 @@ struct global_data	global			GLOBAL		void
 struct local_data	remote[MAX_WORKERS]	REMOTE		void
 #endif
 
+// initialization: tell whether the system has been initialised and by whom.
+int		initialised		Yap_Initialised		=FALSE
+int		initialised_from_pl	Yap_InitialisedFromPL	=FALSE
+int		pl_argc			Yap_PL_Argc		=0
+char	      **pl_argv			Yap_PL_Argv		=NULL
+
 END_WORKER_SHARED
 

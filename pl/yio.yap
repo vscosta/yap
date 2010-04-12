@@ -1107,6 +1107,13 @@ current_stream(File, Opts, Stream) :-
 	close(Stream),
 	fail.
 
+sformat(String, Form, Args) :-
+	charsio:open_mem_write_stream(Stream),
+	format(Stream, Form, Args),
+	charsio:peek_mem_write_stream(Stream, [], String),
+	close(Stream).
+
+
 '$handle_exception'(Exception, Stream, SO) :-
 	set_output(SO),
 	close(Stream),
@@ -1144,3 +1151,5 @@ prolog_file_name(File, PrologFileName) :-
 	system:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
 	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
+
+s

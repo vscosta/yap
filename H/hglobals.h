@@ -183,4 +183,9 @@ typedef struct worker_shared {
   struct global_data  global;
   struct local_data  remote[MAX_WORKERS];
 #endif
+
+  int  initialised;
+  int  initialised_from_pl;
+  int  pl_argc;
+  char  **pl_argv;
 } w_shared;

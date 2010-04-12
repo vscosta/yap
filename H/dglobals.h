@@ -182,3 +182,8 @@
 #define REMOTE Yap_global->remote
 #endif
 
+#define Yap_Initialised Yap_global->initialised
+#define Yap_InitialisedFromPL Yap_global->initialised_from_pl
+#define Yap_PL_Argc Yap_global->pl_argc
+#define Yap_PL_Argv Yap_global->pl_argv
+

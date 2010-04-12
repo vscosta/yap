@@ -181,4 +181,9 @@ static void InitGlobal(void) {
 
 
 #endif
+
+  Yap_global->initialised = FALSE;
+  Yap_global->initialised_from_pl = FALSE;
+  Yap_global->pl_argc = 0;
+  Yap_global->pl_argv = NULL;
 }
