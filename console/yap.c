@@ -197,11 +197,11 @@ add_end_dot(char arg[])
 static int
 dump_runtime_variables(void)
 {
-  fprintf(stderr,"CC=\"%s\"\n",YAP_CC);
-  fprintf(stderr,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
-  fprintf(stderr,"YAP_LIBS=\"%s\"\n",YAP_LIBS);
-  fprintf(stderr,"YAP_SHLIB_SUFFIX=\"%s\"\n",YAP_SHLIB_SUFFIX);
-  fprintf(stderr,"YAP_VERSION=%d\n",YAP_VERSION);
+  fprintf(stdout,"CC=\"%s\"\n",YAP_CC);
+  fprintf(stdout,"YAP_ROOTDIR=\"%s\"\n",YAP_ROOTDIR);
+  fprintf(stdout,"YAP_LIBS=\"%s\"\n",YAP_LIBS);
+  fprintf(stdout,"YAP_SHLIB_SUFFIX=\"%s\"\n",YAP_SHLIB_SUFFIX);
+  fprintf(stdout,"YAP_VERSION=%d\n",YAP_VERSION);
   exit(0);
   return 1;
 }
