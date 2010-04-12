@@ -867,12 +867,22 @@ All the arguments and flags are optional and have the following meaning:
 @table @code
 @item -?
 print a short error message.
-@item -s @var{n}
-allocate @var{n} K bytes for local and global stacks
-@item -h @var{n}
-allocate @var{n} K bytes for heap and auxiliary stacks
-@item -t @var{n}
-allocate @var{n} K bytes for the trail stack
+@item -s@var{Size}
+allocate @var{Size} K bytes for local and global stacks. The user may
+ specify @t{M} bytes.
+@item -h@var{Size}
+allocate @var{Size} K bytes for heap and auxiliary stacks
+@item -t@var{Size}
+allocate @var{Size} K bytes for the trail stack
+@item -L@var{Size} 
+SWI-compatible option to allocate @var{Size} K bytes for local and global stacks, the local stack
+ cannot be expanded. To avoid confusion with the load option, @var{Size}
+ must immediately follow the letter @code{L}.
+@item -G@var{Size}
+SWI-compatible option to allocate @var{Size} K bytes for local and global stacks; the global
+stack cannot be expanded
+@item -T@var{Size}
+SWI-compatible option to allocate @var{Size} K bytes for the trail stack; the trail cannot be expanded.
 @item -l @var{YAP_FILE}
 compile the Prolog file @var{YAP_FILE} before entering the top-level.
 @item -L @var{YAP_FILE}
