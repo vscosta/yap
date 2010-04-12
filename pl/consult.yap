@@ -265,7 +265,6 @@ use_module(M,F,Is) :-
 	    true
 	),
 	'$loop'(Stream,Reconsult),
-	( recorded('$dialect',swi,_) -> '$exec_initialisation_goals' ; true ),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	'$current_module'(Mod,OldModule),
 	print_message(InfLevel, loaded(EndMsg, File, Mod, T, H)),
@@ -386,8 +385,7 @@ use_module(M,F,Is) :-
 	'$notrace'(G),
 	fail.
 '$exec_initialisation_goals' :-
-	'$show_consult_level'(Level1),
-	( recorded('$dialect',swi,_) -> Level is Level1-1 ; Level = Level1),
+	'$show_consult_level'(Level),
 	recorded('$initialisation',do(Level,G),R),
 	erase(R),
 	G \= '$',
