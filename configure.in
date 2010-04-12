@@ -796,7 +796,7 @@ case "$target_os" in
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
 	      x86*)
-	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/amd64 -L$JAVA_HOME/jre/lib/amd64/client -L$JAVA_HOME/jre/lib/amd64/server"
+	      	JAVALIBPATH="\$(LIBDIR)/libYap.so \$(YAPLIBDIR)/plstream.so $LIBS -L$JAVA_HOME/jre/lib/amd64 -L$JAVA_HOME/jre/lib/amd64/client -L$JAVA_HOME/jre/lib/amd64/server"
 		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
@@ -804,7 +804,7 @@ case "$target_os" in
                 fi
               ;;
               *)
-	      	JAVALIBPATH="-L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
+	      	JAVALIBPATH="\$(LIBDIR)/libYap.so \$(YAPLIBDIR)/plstream.so $LIBS ../PLStream/plstream.so $LIBS -L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
 		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
