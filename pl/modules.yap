@@ -631,7 +631,6 @@ abolish_module(_).
 	'$load_files'(File, [if(not_loaded),imports([])], Goal),
 	recorded('$module', '$module'(FullFile, Mod, Exports),_),
 	atom_concat(File, _, FullFile), !,
-	(recorded('$import','$import'(Mod,Module,G,G1,N0,K0),_), writeln('$import'(Mod,Module,G,G1,N0,K0)), fail; true),
 	'$convert_for_reexport'(Spec, Exports, Tab, MyExports, Goal),
 	'$add_to_imports'(Tab, Module, Mod),
 	recorded('$lf_loaded','$lf_loaded'(TopFile,TopModule,_,_),_),
