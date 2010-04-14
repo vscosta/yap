@@ -3857,8 +3857,8 @@ p_set_yap_flags(void)
     break;
   case QUIET_MODE_FLAG:
     if (value != 0  && value != 1)
-      return(FALSE);
-    yap_flags[VARS_CAN_HAVE_QUOTE_FLAG] = value;
+      return FALSE;
+    yap_flags[QUIET_MODE_FLAG] = value;
     break;
   default:
     return(FALSE);

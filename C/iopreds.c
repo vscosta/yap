@@ -3994,11 +3994,7 @@ static Int
       if (Stream[inp_stream].status & InMemory_Stream_f) {
 	cpos = Stream[inp_stream].u.mem_string.pos;
       } else {
-#if HAVE_FGETPOS
-	fgetpos(Stream[inp_stream].u.file.file, &rpos);
-#else
-	cpos = ftell(Stream[inp_stream].u.file.file);
-#endif
+	cpos = Stream[inp_stream].charcount;
       }
     }
     /* Scans the term using stack space */
@@ -4356,16 +4352,12 @@ static Term
 StreamPosition(int sno)
 {
   Term sargs[5];
-  if (Stream[sno].status & (Tty_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f))
-    sargs[0] = MkIntTerm (Stream[sno].charcount);
-  else if (Stream[sno].status & Null_Stream_f)
-    sargs[0] = MkIntTerm (Stream[sno].charcount);
-  else {
-    if (Stream[sno].stream_getc == PlUnGetc)
-      sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file) - 1);
-    else
-      sargs[0] = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
+  Int cpos;
+  cpos = Stream[sno].charcount;
+  if (Stream[sno].stream_getc == PlUnGetc) {
+    cpos--;
   }
+  sargs[0] = MkIntegerTerm (cpos);
   sargs[1] = MkIntegerTerm (StartLine = Stream[sno].linecount);
   sargs[2] = MkIntegerTerm (Stream[sno].linepos);
   sargs[3] = sargs[4] = MkIntTerm (0);
