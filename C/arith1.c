@@ -488,7 +488,7 @@ eval1(Int fi, Term t) {
 	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
-#if HAVE_ISNAN
+#if HAVE_ISINF
       if (isinf(dbl)) {
 	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
@@ -526,7 +526,7 @@ eval1(Int fi, Term t) {
 	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
-#if HAVE_ISNAN
+#if HAVE_ISINF
       if (isinf(dbl)) {
 	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
@@ -555,8 +555,8 @@ eval1(Int fi, Term t) {
 	}
 	return t;
 	break;
-      default:
 #endif
+      default:
 	RERROR();
       }
 #if HAVE_ISNAN
@@ -564,7 +564,7 @@ eval1(Int fi, Term t) {
 	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
-#if HAVE_ISNAN
+#if HAVE_ISINF
       if (isinf(dbl)) {
 	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
@@ -585,14 +585,14 @@ eval1(Int fi, Term t) {
       case double_e:
 	dbl = FloatOfTerm(t);
 	break;
-#ifdef USE_GMP
       case big_int_e:
+#ifdef USE_GMP
 	if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
 	  return Yap_ArithError(TYPE_ERROR_FLOAT, t, "X is round(BIGNUM)");
 	}
 	return t;
-      default:
 #endif
+      default:
 	RERROR();
       }
 #if HAVE_ISNAN
@@ -600,7 +600,7 @@ eval1(Int fi, Term t) {
 	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "integer(%f)", dbl);
       }
 #endif
-#if HAVE_ISNAN
+#if HAVE_ISINF
       if (isinf(dbl)) {
 	return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, MkFloatTerm(dbl), "integer\
 (%f)",dbl);
