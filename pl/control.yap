@@ -73,7 +73,7 @@ setup_call_catcher_cleanup(Setup, Goal, Catcher, Cleanup) :-
 
 % make sure we don't lose interrupts if we get exceptions
 % with setup.
-'$handle_broken_setup'(Setup) :-
+'$handle_broken_setup'(Exception) :-
 	yap_hacks:enable_interrupts,
 	throw(Exception).
 
