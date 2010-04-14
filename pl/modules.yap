@@ -597,6 +597,7 @@ source_module(Mod) :-
 	use_module(?,:,?),
 	when(?,:),
 	with_mutex(+,:),
+	with_output_to(?,:),
 	(: -> :),
 	(: *-> :),
 	(: ; :),

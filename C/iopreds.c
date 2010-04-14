@@ -1406,8 +1406,8 @@ ConsoleSocketGetc(int sno)
 static int
 PipeGetc(int sno)
 {
-  register StreamDesc *s = &Stream[sno];
-  register Int ch;
+  StreamDesc *s = &Stream[sno];
+  Int ch;
   char c;
   
   /* should be able to use a buffer */
@@ -1426,7 +1426,11 @@ PipeGetc(int sno)
   } else if (count > 0) {
     ch = c;
   } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, "read");
+#if HAVE_STRERROR
+    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc: %s", strerror(errno));
+#else
+    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc");
+#endif
     return post_process_eof(s);
   }
   return post_process_read_char(ch, s);
@@ -4010,14 +4014,16 @@ static Int
 	  Stream[inp_stream].stream_getc = PlUnGetc;
 	  Stream[inp_stream].och = ungetc_oldc;
 	}
-	if (Stream[inp_stream].status & InMemory_Stream_f) {
-	  Stream[inp_stream].u.mem_string.pos = cpos;
-	} else {
+	if (seekable) {
+	  if (Stream[inp_stream].status & InMemory_Stream_f) {
+	    Stream[inp_stream].u.mem_string.pos = cpos;
+	  } else if (Stream[inp_stream].status) {
 #if HAVE_FGETPOS
-	  fsetpos(Stream[inp_stream].u.file.file, &rpos);
+	      fsetpos(Stream[inp_stream].u.file.file, &rpos);
 #else
-	  fseek(Stream[inp_stream].u.file.file, cpos, 0L);
+	      fseek(Stream[inp_stream].u.file.file, cpos, 0L);
 #endif
+	  }
 	}
 	if (Yap_Error_TYPE == OUT_OF_TRAIL_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;

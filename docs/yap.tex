@@ -1,4 +1,4 @@
-a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+´a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -4995,6 +4995,46 @@ Print formatted output to the current output stream.
 @cnindex format/3
 Print formatted output to stream @var{S}.
 
+@item with_output_to(+@var{Ouput},:@var{Goal})
+@findex with_output_to/2
+@saindex with_output_to/2
+@cnindex with_output_to/2
+Run @var{Goal} as @code{once/1}, while characters written to the current
+output are sent to @var{Output}. The predicate is SWI-Prolog
+specific.
+
+Applications should generally avoid creating atoms by breaking and
+concatenating other atoms as the creation of large numbers of
+intermediate atoms generally leads to poor performance, even more so in
+multi-threaded applications. This predicate supports creating
+difference-lists from character data efficiently. The example below
+defines the DCG rule @code{term/3} to insert a term in the output:
+
+@example
+ term(Term, In, Tail) :-
+        with_output_to(codes(In, Tail), write(Term)).
+
+?- phrase(term(hello), X).
+
+X = [104, 101, 108, 108, 111]
+@end example
+
+@table @code
+@item A Stream handle or alias
+    Temporary switch current output to the given stream. Redirection using with_output_to/2 guarantees the original output is restored, also if Goal fails or raises an exception. See also call_cleanup/2. 
+@item atom(-@var{Atom})
+    Create an atom from the emitted characters. Please note the remark above. 
+@item string(-@var{String})
+    Create a string-object (not supported in YAP). 
+@item codes(-@var{Codes})
+    Create a list of character codes from the emitted characters, similar to atom_codes/2. 
+@item codes(-@var{Codes}, -@var{Tail})
+    Create a list of character codes as a difference-list. 
+@item chars(-@var{Chars})
+    Create a list of one-character-atoms codes from the emitted characters, similar to atom_chars/2. 
+@item chars(-@var{Chars}, -@var{Tail})
+    Create a list of one-character-atoms as a difference-list. 
+@end table
 
 @end table
 
