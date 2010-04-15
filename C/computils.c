@@ -170,7 +170,12 @@ Yap_ReleaseCMem (struct intermediates *cip)
     p = nextp;
   }
   cip->blks = NULL;
+  if (cip->label_offset &&
+      cip->label_offset != Yap_LabelFirstArray) {
+    Yap_FreeCodeSpace((ADDR)cip->label_offset);
+  }
 #endif
+  cip->label_offset = NULL;
 }
 
 char *

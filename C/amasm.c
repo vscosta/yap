@@ -3836,21 +3836,23 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   int clause_has_dbterm = FALSE;
 
 #if USE_SYSTEM_MALLOC
-  if (!Yap_LabelFirstArray && max_label <= DEFAULT_NLABELS) { 
-     Yap_LabelFirstArray = (Int *)Yap_AllocCodeSpace(sizeof(Int)*DEFAULT_NLABELS);
-     Yap_LabelFirstArraySz = DEFAULT_NLABELS;
-     if (!Yap_LabelFirstArray) {
-      save_machine_regs();
-      longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+  if (!cip->label_offset) {
+    if (!Yap_LabelFirstArray && max_label <= DEFAULT_NLABELS) { 
+      Yap_LabelFirstArray = (Int *)Yap_AllocCodeSpace(sizeof(Int)*DEFAULT_NLABELS);
+      Yap_LabelFirstArraySz = DEFAULT_NLABELS;
+      if (!Yap_LabelFirstArray) {
+	save_machine_regs();
+	longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+      }
     }
-  }
-  if (Yap_LabelFirstArray && max_label <= Yap_LabelFirstArraySz) { 
-    cip->label_offset = Yap_LabelFirstArray;
-  } else {
-    cip->label_offset = (Int *)Yap_AllocCodeSpace(sizeof(Int)*max_label);
-    if (!cip->label_offset) {
-      save_machine_regs();
-      longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+    if (Yap_LabelFirstArray && max_label <= Yap_LabelFirstArraySz) { 
+      cip->label_offset = Yap_LabelFirstArray;
+    } else {
+      cip->label_offset = (Int *)Yap_AllocCodeSpace(sizeof(Int)*max_label);
+      if (!cip->label_offset) {
+	save_machine_regs();
+	longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+      }
     }
   }
 #else
@@ -3875,10 +3877,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     UInt osize;
 
     if(!(x = fetch_clause_space(&t,size,cip,&osize))){
-#if USE_SYSTEM_MALLOC
-      if (cip->label_offset != Yap_LabelFirstArray)
-	Yap_FreeCodeSpace((ADDR)cip->label_offset);
-#endif
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
@@ -3893,10 +3891,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     StaticClause *cl;
     UInt osize;
     if(!(x = fetch_clause_space(&t,size,cip,&osize))) {
-#if USE_SYSTEM_MALLOC
-      if (cip->label_offset != Yap_LabelFirstArray)
-	Yap_FreeCodeSpace((ADDR)cip->label_offset);
-#endif
       return NULL;
     }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
@@ -3906,10 +3900,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cl->usc.ClSource = x;
     cl->ClSize = osize;
     ProfEnd=code_p;
-#if USE_SYSTEM_MALLOC
-    if (cip->label_offset != Yap_LabelFirstArray)
-      Yap_FreeCodeSpace((ADDR)cip->label_offset);
-#endif
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
@@ -3917,10 +3907,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       if (!Yap_growheap(TRUE, size, cip)) {
 	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	Yap_Error_Size = size;
-#if USE_SYSTEM_MALLOC
-	if (cip->label_offset != Yap_LabelFirstArray)
-	  Yap_FreeCodeSpace((ADDR)cip->label_offset);
-#endif
 	return NULL;
       }
     }
@@ -3944,10 +3930,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     Yap_inform_profiler_of_clause(entry_code, ProfEnd, ap, mode == ASSEMBLING_INDEX); 
   }
 #endif /* LOW_PROF */
-#if USE_SYSTEM_MALLOC
-  if (cip->label_offset != Yap_LabelFirstArray)
-    Yap_FreeCodeSpace((ADDR)cip->label_offset);
-#endif
   return entry_code;
 }
 

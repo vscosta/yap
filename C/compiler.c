@@ -3405,6 +3405,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
   cglobs.cint.BlobsStart = cglobs.cint.icpc = NULL;
   cglobs.cint.dbterml = NULL;
   cglobs.cint.blks = NULL;
+  cglobs.cint.label_offset = NULL;
   cglobs.cint.freep =
     cglobs.cint.freep0 =
     (char *) (H + maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps+MaxTemps);

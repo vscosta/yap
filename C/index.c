@@ -3419,6 +3419,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   Yap_BuildMegaClause(ap);
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;
+  cint.label_offset = NULL;
   Yap_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
@@ -4499,6 +4500,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   cint.blks = NULL;
   cint.cls = NULL;
   cint.code_addr = NULL;
+  cint.label_offset = NULL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     /* grow stack */
