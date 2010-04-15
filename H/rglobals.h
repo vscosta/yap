@@ -131,6 +131,12 @@ static void RestoreWorker(int wid) {
   FOREIGN_WL(wid)->global_variables = PtoGlobalEAdjust(FOREIGN_WL(wid)->global_variables);
 
 
+
+
+
+
+
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 
 #endif

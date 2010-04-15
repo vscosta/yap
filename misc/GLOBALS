@@ -145,6 +145,14 @@ struct static_array_entry*	static_arrays		StaticArrays	=NULL PtoArraySAdjust
 struct global_entry*		global_variables	GlobalVariables	=NULL PtoGlobalEAdjust
 int				allow_restart		Yap_AllowRestart	=FALSE
 
+// Thread Local Area for Fast Storage of Intermediate Compiled Code.
+struct mem_blk*			cmem_first_block	Yap_CMemFirstBlock	=NULL
+UInt				cmem_first_block_sz	Yap_CMemFirstBlockSz	=0L
+
+// Thread Local Area for Labels.
+Int*				label_first_array	Yap_LabelFirstArray	=NULL
+UInt				label_first_array_sz	Yap_LabelFirstArraySz	=0L
+
 // Ricardo's stuff
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 struct worker			worker			WORKER		void

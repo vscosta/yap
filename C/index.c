@@ -2666,8 +2666,8 @@ do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
 
     ics = fetch_centry(cs, min->Tag, i, n);
     ics->Tag = min->Tag;
-    while ((max+1)->Tag == min->Tag &&
-	   max != grp->LastClause) max++;
+    while (max != grp->LastClause &&
+	   (max+1)->Tag == min->Tag) max++;
     if (min != max &&
 	(ap->PredFlags & LogUpdatePredFlag)) {
       ics->u.Label = suspend_indexing(min, max, ap, cint);
@@ -3310,7 +3310,6 @@ compile_index(struct intermediates *cint)
 {
   PredEntry *ap = cint->CurrentPred;
   int NClauses = ap->cs.p_code.NOfClauses;
-  ClauseDef *cls;
   CELL *top = (CELL *) TR;
   UInt res;
 
@@ -3319,49 +3318,55 @@ compile_index(struct intermediates *cint)
 
   Yap_Error_Size = 0;
 #if USE_SYSTEM_MALLOC
-  cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
-  if (!cls) {
-    /* tell how much space we need */
-    Yap_Error_Size += NClauses*sizeof(ClauseDef);
-    /* grow stack */
-    save_machine_regs();
-    longjmp(cint->CompilerBotch,2);
+  if (!cint->cls) {
+    cint->cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
+    if (!cint->cls) {
+      /* tell how much space we need */
+      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      /* grow stack */
+      save_machine_regs();
+      longjmp(cint->CompilerBotch,2);
+    }
   }
   cint->freep = (char *)H;
 #else
   /* reserve double the space for compiler */
-  cls = (ClauseDef *)H;
-  if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
+  cint->cls = (ClauseDef *)H;
+  if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
     /* tell how much space we need */
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
     save_machine_regs();
     longjmp(cint->CompilerBotch,3);
   }
-  cint->freep = (char *)(cls+NClauses);
+  cint->freep = (char *)(cint->cls+NClauses);
 #endif
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* throw away a label */
     new_label(cint);
-    init_log_upd_clauses(cls,ap);
+    init_log_upd_clauses(cint->cls,ap);
   } else if (ap->PredFlags & UDIPredFlag) {
     UInt lbl = new_label(cint);
     Yap_emit(user_switch_op, Unsigned(ap), Unsigned(&(ap->cs.p_code.ExpandCode)), cint);
-#if USE_SYSTEM_MALLOC
-    Yap_FreeCodeSpace((ADDR)cls);
-#endif
     return lbl;
   } else {
     /* prepare basic data structures */ 
-    init_clauses(cls,ap);
+    init_clauses(cint->cls,ap);
   }
-  res = do_index(cls, cls+(NClauses-1), cint, 1, (UInt)FAILCODE, TRUE, 0, top);
-#if USE_SYSTEM_MALLOC
-  Yap_FreeCodeSpace((ADDR)cls);
-#endif
+  res = do_index(cint->cls, cint->cls+(NClauses-1), cint, 1, (UInt)FAILCODE, TRUE, 0, top);
   return res;
 }
 
+static void
+CleanCls(struct intermediates *cint)
+{
+#if USE_SYSTEM_MALLOC
+  if (cint->cls) {
+    Yap_FreeCodeSpace((ADDR)cint->cls);
+  }
+#endif
+  cint->cls = NULL;
+}
 
 yamop *
 Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
@@ -3374,12 +3379,14 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.CurrentPred = ap;
   cint.code_addr = NULL;
   cint.blks = NULL;
+  cint.cls = NULL;
   Yap_Error_Size = 0;
 
   if ((setjres = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, next_pc)) {
+      CleanCls(&cint);
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
@@ -3387,6 +3394,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     restore_machine_regs();
     Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+      CleanCls(&cint);
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
@@ -3394,6 +3402,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
+      CleanCls(&cint);
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
       return FAILCODE;
     }
@@ -3402,6 +3411,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      CleanCls(&cint);
       return FAILCODE;
     }
   }
@@ -3412,6 +3422,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   Yap_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -3427,6 +3438,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_ReleaseCMem(&cint);
+	CleanCls(&cint);
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return NULL;
       }
@@ -3434,9 +3446,11 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     }
   } else {
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return NULL;
   }
   Yap_ReleaseCMem(&cint);
+  CleanCls(&cint);
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdIndex *cl = ClauseCodeToLogUpdIndex(indx_out);
     cl->ClFlags |= SwitchRootMask;
@@ -3908,7 +3922,7 @@ expand_index(struct intermediates *cint) {
   PredEntry *ap = cint->CurrentPred;
   yamop *first, *last = NULL, *alt = NULL;
   istack_entry *stack, *sp;
-  ClauseDef *cls = (ClauseDef *)H, *max;
+  ClauseDef *max;
   int NClauses;
   /* last clause to experiment with */
   yamop *ipc;
@@ -4343,16 +4357,19 @@ expand_index(struct intermediates *cint) {
 
     eblk = cint->expand_block = ipc;
 #if USE_SYSTEM_MALLOC
-    cls = (ClauseDef *)Yap_AllocCodeSpace(nclauses*sizeof(ClauseDef));
-    if (!cls) {
-      /* tell how much space we need */
-      Yap_Error_Size += NClauses*sizeof(ClauseDef);
-      /* grow stack */
-      save_machine_regs();
-      longjmp(cint->CompilerBotch,2);
+    if (!cint->cls) {
+      cint->cls = (ClauseDef *)Yap_AllocCodeSpace(nclauses*sizeof(ClauseDef));
+      if (!cint->cls) {
+	/* tell how much space we need */
+	Yap_Error_Size += NClauses*sizeof(ClauseDef);
+	/* grow stack */
+	save_machine_regs();
+	longjmp(cint->CompilerBotch,2);
+      }
     }
 #else
-    if (cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
+    cint->cls = (ClauseDef *)H;
+    if (cint->cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
@@ -4361,23 +4378,26 @@ expand_index(struct intermediates *cint) {
     }
 #endif
     if (ap->PredFlags & LogUpdatePredFlag) {
-      max = install_log_upd_clauseseq(cls, ap, stack, clp, clp+nclauses);
+      max = install_log_upd_clauseseq(cint->cls, ap, stack, clp, clp+nclauses);
     } else {
-      max = install_clauseseq(cls, ap, stack, clp, clp+nclauses);
+      max = install_clauseseq(cint->cls, ap, stack, clp, clp+nclauses);
     }    
   } else {
     cint->expand_block = NULL;
 #if USE_SYSTEM_MALLOC
-    cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
-    if (!cls) {
-      /* tell how much space we need */
-      Yap_Error_Size += NClauses*sizeof(ClauseDef);
-      /* grow stack */
-      save_machine_regs();
-      longjmp(cint->CompilerBotch,2);
+    if (!cint->cls) {
+      cint->cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
+      if (!cint->cls) {
+	/* tell how much space we need */
+	Yap_Error_Size += NClauses*sizeof(ClauseDef);
+	/* grow stack */
+	save_machine_regs();
+	longjmp(cint->CompilerBotch,2);
+      }
     }
 #else
-    if (cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
+    cint->cls = (ClauseDef *)H;
+    if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       save_machine_regs();
@@ -4385,9 +4405,9 @@ expand_index(struct intermediates *cint) {
     }
 #endif
     if (ap->PredFlags & LogUpdatePredFlag) {
-      max = install_log_upd_clauses(cls, ap, stack, first, last);
+      max = install_log_upd_clauses(cint->cls, ap, stack, first, last);
     } else {
-      max = install_clauses(cls, ap, stack, first, last);
+      max = install_clauses(cint->cls, ap, stack, first, last);
     }
 #if DEBUG_EXPAND
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4400,11 +4420,8 @@ expand_index(struct intermediates *cint) {
   }
   /* don't count last clause if you don't have to */
   if (alt && max->Code == last) max--;
-  if (max < cls && labp != NULL) {
+  if (max < cint->cls && labp != NULL) {
       *labp = FAILCODE;
-#if USE_SYSTEM_MALLOC
-      Yap_FreeCodeSpace((ADDR)cls);
-#endif
     return labp;
   }
 #if USE_SYSTEM_MALLOC
@@ -4417,14 +4434,14 @@ expand_index(struct intermediates *cint) {
   if (!IsVarTerm(sp[-1].val)  && sp > stack) {
     if (IsAtomOrIntTerm(sp[-1].val)) {
       if (s_reg == NULL) { /* we have not yet looked into terms */
-	lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
+	lab = do_index(cint->cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
 	UInt arity = 0;
 
 	if (ap->PredFlags & LogUpdatePredFlag) {
-	  reinstall_log_upd_clauses(cls, max, ap, stack);
+	  reinstall_log_upd_clauses(cint->cls, max, ap, stack);
 	} else {
-	  reinstall_clauses(cls, max, ap, stack);
+	  reinstall_clauses(cint->cls, max, ap, stack);
 	}
 	sp--;
 	while (sp > stack) {
@@ -4444,33 +4461,30 @@ expand_index(struct intermediates *cint) {
 	    sp--;
 	  }
 	}
-	lab = do_compound_index(cls, max, s_reg, cint, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+	lab = do_compound_index(cint->cls, max, s_reg, cint, i, arity, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     } else if (IsPairTerm(sp[-1].val) && sp > stack) {
-      lab = do_compound_index(cls, max, s_reg, cint, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+      lab = do_compound_index(cint->cls, max, s_reg, cint, i, 2, argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
     } else {
       Functor f = (Functor)RepAppl(sp[-1].val);
       /* we are continuing within a compound term */
       if (IsExtensionFunctor(f)) {
-	lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
+	lab = do_index(cint->cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
       } else {
-	lab = do_compound_index(cls, max, s_reg, cint, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
+	lab = do_compound_index(cint->cls, max, s_reg, cint, i, ArityOfFunctor(f), argno, fail_l, isfirstcl, is_last_arg, clleft, top, FALSE);
       }
     }
   } else {
     if (argno == ap->ArityOfPE) {
       lab = 
-	do_var_clauses(cls, max, FALSE, cint, isfirstcl, clleft, fail_l, ap->ArityOfPE+1);
+	do_var_clauses(cint->cls, max, FALSE, cint, isfirstcl, clleft, fail_l, ap->ArityOfPE+1);
     } else {
-      lab = do_index(cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
+      lab = do_index(cint->cls, max, cint, argno+1, fail_l, isfirstcl, clleft, top);
     }
   }
   if (labp && !(lab & 1)) {
     *labp = (yamop *)lab; /* in case we have a single clause */
   }
-#if USE_SYSTEM_MALLOC
-  Yap_FreeCodeSpace((ADDR)cls);
-#endif
   return labp;
 }
 
@@ -4483,6 +4497,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   struct intermediates cint;
 
   cint.blks = NULL;
+  cint.cls = NULL;
   cint.code_addr = NULL;
   if ((cb = setjmp(cint.CompilerBotch)) == 3) {
     restore_machine_regs();
@@ -4515,6 +4530,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       }
 #endif
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      CleanCls(&cint);
       return FAILCODE;
     }
   } else if (cb == 4) {
@@ -4530,6 +4546,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
 	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
 	Yap_kill_iblock((ClauseUnion *)cl, NULL, ap);
       }
+      CleanCls(&cint);
       return FAILCODE;
     }
   }
@@ -4596,6 +4613,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       recover_ecls_block(expand_clauses);
     }
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return FAILCODE;
   }
   if (*labp == FAILCODE) {
@@ -4604,6 +4622,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       recover_ecls_block(expand_clauses);
     }
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return FAILCODE;
   }
 #ifdef DEBUG
@@ -4620,6 +4639,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	Yap_ReleaseCMem(&cint);
+	CleanCls(&cint);
 	return FAILCODE;
       }
       goto restart_index;
@@ -4631,6 +4651,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       recover_ecls_block(expand_clauses);
     }
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return *labp;
   }
   if (indx_out == NULL) {
@@ -4639,9 +4660,11 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
       recover_ecls_block(expand_clauses);
     }
     Yap_ReleaseCMem(&cint);
+    CleanCls(&cint);
     return FAILCODE;
   }
   Yap_ReleaseCMem(&cint);
+  CleanCls(&cint);
   *labp = indx_out;
   if (ap->PredFlags & LogUpdatePredFlag) {
     /* add to head of current code children */

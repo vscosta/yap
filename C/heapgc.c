@@ -1200,7 +1200,7 @@ mark_variable(CELL_PTR current)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IsAttVar(current) && current==next) {
+    if (IN_BETWEEN(H0,current,H) && IsAttVar(current) && current==next) {
       mark_att_var(current);
       POP_CONTINUATION();
     } else if (ONHEAP(next)) {

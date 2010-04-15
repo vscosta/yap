@@ -133,6 +133,12 @@ typedef struct worker_local {
   struct global_entry*  global_variables;
   int  allow_restart;
 
+  struct mem_blk*  cmem_first_block;
+  UInt  cmem_first_block_sz;
+
+  Int*  label_first_array;
+  UInt  label_first_array_sz;
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
   struct worker  worker;
 #endif

@@ -83,31 +83,71 @@ YP_FILE *Yap_logfile;
 #endif
 
 typedef struct mem_blk {
-  struct mem_blk *next;
+  union {
+    struct mem_blk *next;
+    double fill;
+  } u;
   char contents[1];
 } MemBlk;
+
+#define CMEM_BLK_SIZE (4*4096)
+#define FIRST_CMEM_BLK_SIZE (16*4096)
 
 static char *
 AllocCMem (int size, struct intermediates *cip)
 {
-#if USE_SYSTEM_MALLOC
-  struct mem_blk *p = (struct mem_blk *)Yap_AllocCodeSpace(size+sizeof(struct mem_blk *));
-  if (!p) {
-    Yap_Error_Size = size;
-    save_machine_regs();
-    longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
-  }
-  p->next = cip->blks;
-  cip->blks = p;
-  return p->contents;
-#else
-  char *p;
-  p = cip->freep;
 #if SIZEOF_INT_P==8
   size = (size + 7) & 0xfffffffffffffff8L;
 #else
   size = (size + 3) & 0xfffffffcL;
 #endif
+#if USE_SYSTEM_MALLOC
+  if (!cip->blks || cip->blk_cur+size > cip->blk_top) {
+    UInt blksz;
+    struct mem_blk *p;
+
+    if (size > CMEM_BLK_SIZE)
+      blksz = size+sizeof(struct mem_blk);
+    else
+      blksz = CMEM_BLK_SIZE;
+    if (!cip->blks) {
+      if (Yap_CMemFirstBlock) {
+	p = Yap_CMemFirstBlock;
+	blksz = Yap_CMemFirstBlockSz;
+	p->u.next = NULL;
+      } else {
+	if (blksz < FIRST_CMEM_BLK_SIZE)
+	  blksz = FIRST_CMEM_BLK_SIZE;
+	p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
+	if (!p) {
+	  Yap_Error_Size = size;
+	  save_machine_regs();
+	  longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+	}
+	Yap_CMemFirstBlock = p;
+	Yap_CMemFirstBlockSz = blksz;
+      }
+    } else {
+      p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
+      if (!p) {
+	Yap_Error_Size = size;
+	save_machine_regs();
+	longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+      }
+    }
+    p->u.next = cip->blks;
+    cip->blks = p;
+    cip->blk_cur = p->contents;
+    cip->blk_top = (char *)p+blksz;
+  }
+  {
+    char *out = cip->blk_cur;
+    cip->blk_cur += size;
+    return out;
+  }
+#else
+  char *p;
+  p = cip->freep;
   cip->freep += size;
   if (ASP <= CellPtr (cip->freep) + 256) {
     Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
@@ -124,8 +164,9 @@ Yap_ReleaseCMem (struct intermediates *cip)
 #if USE_SYSTEM_MALLOC
   struct mem_blk *p = cip->blks;
   while (p) {
-    struct mem_blk *nextp = p->next;
-    Yap_FreeCodeSpace((ADDR)p);
+    struct mem_blk *nextp = p->u.next;
+    if (p != Yap_CMemFirstBlock)
+      Yap_FreeCodeSpace((ADDR)p);
     p = nextp;
   }
   cip->blks = NULL;

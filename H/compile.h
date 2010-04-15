@@ -252,6 +252,7 @@ typedef struct intermediates {
   char *freep;
   char *freep0;
   struct mem_blk *blks;
+  char *blk_cur, *blk_top;
   struct PSEUDO *cpc;
   struct PSEUDO *CodeStart;
   struct PSEUDO *icpc;
@@ -269,6 +270,8 @@ typedef struct intermediates {
   /* for expanding code */
   yamop **current_try_lab, **current_trust_lab;
   yamop *try_instructions;
+  struct StructClauseDef *cls;
+  /* for expanding code */
   union { 
     struct static_index *si;
     struct logic_upd_index *lui;

@@ -122,9 +122,7 @@ static char * my_realloc(char *ptr, UInt sz, UInt osz, int safe)
 long long unsigned int mallocs, reallocs, frees;
 long long unsigned int tmalloc;
 
-#if DEBUG
-#define INSTRUMENT_MALLOC 1
-#endif
+#undef INSTRUMENT_MALLOC
 
 
 static inline char *
@@ -264,7 +262,6 @@ Yap_InitPreAllocCodeSpace(void)
 	return(NULL);
       }
 #if INSTRUMENT_MALLOC
-      fprintf(stderr,"vsc ptr=%p\n",ptr);
       sz -= sizeof(CELL);
       *(CELL*)ptr = sz;
       ptr += sizeof(CELL);
@@ -308,7 +305,6 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
   reallocs++;
   tmalloc -= ScratchPad.sz;
   tmalloc += sz;
-  fprintf(stderr,"vsc ptr=%p\n",ScratchPad.ptr);
 #endif
   if (!(ptr = my_realloc(ScratchPad.ptr, sz, ScratchPad.sz, safe))) {
     Yap_PrologMode &= ~MallocMode;

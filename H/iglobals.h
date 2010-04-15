@@ -131,6 +131,12 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->global_variables = NULL;
   FOREIGN_WL(wid)->allow_restart = FALSE;
 
+  FOREIGN_WL(wid)->cmem_first_block = NULL;
+  FOREIGN_WL(wid)->cmem_first_block_sz = 0L;
+
+  FOREIGN_WL(wid)->label_first_array = NULL;
+  FOREIGN_WL(wid)->label_first_array_sz = 0L;
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 
 #endif

@@ -131,6 +131,12 @@
 #define GlobalVariables WL->global_variables
 #define Yap_AllowRestart WL->allow_restart
 
+#define Yap_CMemFirstBlock WL->cmem_first_block
+#define Yap_CMemFirstBlockSz WL->cmem_first_block_sz
+
+#define Yap_LabelFirstArray WL->label_first_array
+#define Yap_LabelFirstArraySz WL->label_first_array_sz
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 #define WORKER WL->worker
 #endif
