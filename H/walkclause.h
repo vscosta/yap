@@ -614,62 +614,66 @@
       pc = NEXTOP(pc,s);
       break;
       /* instructions type e */
+    case _trie_do_appl:
+    case _trie_do_appl_in_pair:
     case _trie_do_atom:
-    case _trie_do_atom_in_new_pair:
+    case _trie_do_atom_in_pair:
+    case _trie_do_double:
     case _trie_do_extension:
-    case _trie_do_float:
-    case _trie_do_long:
+    case _trie_do_gterm:
+    case _trie_do_longint:
     case _trie_do_null:
-    case _trie_do_null_in_new_pair:
+    case _trie_do_null_in_pair:
     case _trie_do_pair:
-    case _trie_do_struct:
-    case _trie_do_struct_in_new_pair:
     case _trie_do_val:
-    case _trie_do_val_in_new_pair:
+    case _trie_do_val_in_pair:
     case _trie_do_var:
-    case _trie_do_var_in_new_pair:
+    case _trie_do_var_in_pair:
+    case _trie_retry_appl:
+    case _trie_retry_appl_in_pair:
     case _trie_retry_atom:
-    case _trie_retry_atom_in_new_pair:
+    case _trie_retry_atom_in_pair:
+    case _trie_retry_double:
     case _trie_retry_extension:
-    case _trie_retry_float:
-    case _trie_retry_long:
+    case _trie_retry_gterm:
+    case _trie_retry_longint:
     case _trie_retry_null:
-    case _trie_retry_null_in_new_pair:
+    case _trie_retry_null_in_pair:
     case _trie_retry_pair:
-    case _trie_retry_struct:
-    case _trie_retry_struct_in_new_pair:
     case _trie_retry_val:
-    case _trie_retry_val_in_new_pair:
+    case _trie_retry_val_in_pair:
     case _trie_retry_var:
-    case _trie_retry_var_in_new_pair:
+    case _trie_retry_var_in_pair:
+    case _trie_trust_appl:
+    case _trie_trust_appl_in_pair:
     case _trie_trust_atom:
-    case _trie_trust_atom_in_new_pair:
+    case _trie_trust_atom_in_pair:
+    case _trie_trust_double:
     case _trie_trust_extension:
-    case _trie_trust_float:
-    case _trie_trust_long:
+    case _trie_trust_gterm:
+    case _trie_trust_longint:
     case _trie_trust_null:
-    case _trie_trust_null_in_new_pair:
+    case _trie_trust_null_in_pair:
     case _trie_trust_pair:
-    case _trie_trust_struct:
-    case _trie_trust_struct_in_new_pair:
     case _trie_trust_val:
-    case _trie_trust_val_in_new_pair:
+    case _trie_trust_val_in_pair:
     case _trie_trust_var:
-    case _trie_trust_var_in_new_pair:
+    case _trie_trust_var_in_pair:
+    case _trie_try_appl:
+    case _trie_try_appl_in_pair:
     case _trie_try_atom:
-    case _trie_try_atom_in_new_pair:
+    case _trie_try_atom_in_pair:
+    case _trie_try_double:
     case _trie_try_extension:
-    case _trie_try_float:
-    case _trie_try_long:
+    case _trie_try_gterm:
+    case _trie_try_longint:
     case _trie_try_null:
-    case _trie_try_null_in_new_pair:
+    case _trie_try_null_in_pair:
     case _trie_try_pair:
-    case _trie_try_struct:
-    case _trie_try_struct_in_new_pair:
     case _trie_try_val:
-    case _trie_try_val_in_new_pair:
+    case _trie_try_val_in_pair:
     case _trie_try_var:
-    case _trie_try_var_in_new_pair:
+    case _trie_try_var_in_pair:
       pc = NEXTOP(pc,e);
       break;
 #endif

@@ -60,20 +60,20 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 **      Macros      **
 *********************/
 
-#define SHOW_MODE_STRUCTURE     0
-#define SHOW_MODE_STATISTICS    1
-#define TRAVERSE_TYPE_SUBGOAL   0
-#define TRAVERSE_TYPE_ANSWER    1
-#define TRAVERSE_MODE_NORMAL    0
-#define TRAVERSE_MODE_FLOAT     1
-#define TRAVERSE_MODE_FLOAT2    2
-#define TRAVERSE_MODE_FLOAT_END 3
-#define TRAVERSE_MODE_LONG      4
-#define TRAVERSE_MODE_LONG_END  5
+#define SHOW_MODE_STRUCTURE        0
+#define SHOW_MODE_STATISTICS       1
+#define TRAVERSE_TYPE_SUBGOAL      0
+#define TRAVERSE_TYPE_ANSWER       1
+#define TRAVERSE_MODE_NORMAL       0
+#define TRAVERSE_MODE_DOUBLE       1
+#define TRAVERSE_MODE_DOUBLE2      2
+#define TRAVERSE_MODE_DOUBLE_END   3
+#define TRAVERSE_MODE_LONGINT      4
+#define TRAVERSE_MODE_LONGINT_END  5
 /* do not change order !!! */
-#define TRAVERSE_POSITION_NEXT  0
-#define TRAVERSE_POSITION_FIRST 1
-#define TRAVERSE_POSITION_LAST  2
+#define TRAVERSE_POSITION_NEXT     0
+#define TRAVERSE_POSITION_FIRST    1
+#define TRAVERSE_POSITION_LAST     2
 
 /* LowTagBits is 3 for 32 bit-machines and 7 for 64 bit-machines */
 #define NumberOfLowTagBits         (LowTagBits == 3 ? 2 : 3)

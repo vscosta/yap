@@ -3560,7 +3560,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
 #endif
 
   /* phase 3: assemble code                                                */
-  acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs && !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)), &cglobs.cint);
+ acode = Yap_assemble(ASSEMBLING_CLAUSE, src, cglobs.cint.CurrentPred, (cglobs.is_a_fact && !cglobs.hasdbrefs && !(cglobs.cint.CurrentPred->PredFlags & TabledPredFlag)), &cglobs.cint, cglobs.labelno+1);
   /* check first if there was space for us */
   Yap_ReleaseCMem (&cglobs.cint);
   if (acode == NULL) {

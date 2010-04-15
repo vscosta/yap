@@ -553,7 +553,6 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
   OPCODE ecls = Yap_opcode(_expand_clauses);
   UInt log_upd_pred = cint->CurrentPred->PredFlags & LogUpdatePredFlag;
 
-  Yap_ReleaseCMem(cint);
   while (cpc) {
     switch(cpc->op) {
     case enter_lu_op:
@@ -635,6 +634,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
     }
     cpc = cpc->nextInst;
   }
+  Yap_ReleaseCMem(cint);
   if (cint->code_addr) {
     Yap_FreeCodeSpace((char *)cint->code_addr);
     cint->code_addr = NULL;
@@ -1069,62 +1069,66 @@ has_cut(yamop *pc)
     case _getwork_first_time:
 #endif /* YAPOR */
 #ifdef TABLING
-    case _trie_do_null:
-    case _trie_trust_null:
-    case _trie_try_null:
-    case _trie_retry_null:
-    case _trie_do_null_in_new_pair:
-    case _trie_trust_null_in_new_pair:
-    case _trie_try_null_in_new_pair:
-    case _trie_retry_null_in_new_pair:
     case _trie_do_var:
     case _trie_trust_var:
     case _trie_try_var:
     case _trie_retry_var:
-    case _trie_do_var_in_new_pair:
-    case _trie_trust_var_in_new_pair:
-    case _trie_try_var_in_new_pair:
-    case _trie_retry_var_in_new_pair:
+    case _trie_do_var_in_pair:
+    case _trie_trust_var_in_pair:
+    case _trie_try_var_in_pair:
+    case _trie_retry_var_in_pair:
     case _trie_do_val:
     case _trie_trust_val:
     case _trie_try_val:
     case _trie_retry_val:
-    case _trie_do_val_in_new_pair:
-    case _trie_trust_val_in_new_pair:
-    case _trie_try_val_in_new_pair:
-    case _trie_retry_val_in_new_pair:
+    case _trie_do_val_in_pair:
+    case _trie_trust_val_in_pair:
+    case _trie_try_val_in_pair:
+    case _trie_retry_val_in_pair:
     case _trie_do_atom:
     case _trie_trust_atom:
     case _trie_try_atom:
     case _trie_retry_atom:
-    case _trie_do_atom_in_new_pair:
-    case _trie_trust_atom_in_new_pair:
-    case _trie_try_atom_in_new_pair:
-    case _trie_retry_atom_in_new_pair:
+    case _trie_do_atom_in_pair:
+    case _trie_trust_atom_in_pair:
+    case _trie_try_atom_in_pair:
+    case _trie_retry_atom_in_pair:
+    case _trie_do_null:
+    case _trie_trust_null:
+    case _trie_try_null:
+    case _trie_retry_null:
+    case _trie_do_null_in_pair:
+    case _trie_trust_null_in_pair:
+    case _trie_try_null_in_pair:
+    case _trie_retry_null_in_pair:
     case _trie_do_pair:
     case _trie_trust_pair:
     case _trie_try_pair:
     case _trie_retry_pair:
-    case _trie_do_struct:
-    case _trie_trust_struct:
-    case _trie_try_struct:
-    case _trie_retry_struct:
-    case _trie_do_struct_in_new_pair:
-    case _trie_trust_struct_in_new_pair:
-    case _trie_try_struct_in_new_pair:
-    case _trie_retry_struct_in_new_pair:
+    case _trie_do_appl:
+    case _trie_trust_appl:
+    case _trie_try_appl:
+    case _trie_retry_appl:
+    case _trie_do_appl_in_pair:
+    case _trie_trust_appl_in_pair:
+    case _trie_try_appl_in_pair:
+    case _trie_retry_appl_in_pair:
     case _trie_do_extension:
     case _trie_trust_extension:
     case _trie_try_extension:
     case _trie_retry_extension:
-    case _trie_do_float:
-    case _trie_trust_float:
-    case _trie_try_float:
-    case _trie_retry_float:
-    case _trie_do_long:
-    case _trie_trust_long:
-    case _trie_try_long:
-    case _trie_retry_long:
+    case _trie_do_double:
+    case _trie_trust_double:
+    case _trie_try_double:
+    case _trie_retry_double:
+    case _trie_do_longint:
+    case _trie_trust_longint:
+    case _trie_try_longint:
+    case _trie_retry_longint:
+    case _trie_do_gterm:
+    case _trie_trust_gterm:
+    case _trie_try_gterm:
+    case _trie_retry_gterm:
 #endif /* TABLING */
       pc = NEXTOP(pc,e);
       break;
@@ -3420,7 +3424,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   /* globals for assembler */
   IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_ReleaseCMem(&cint);
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
@@ -4612,7 +4616,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   /* globals for assembler */
   IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	Yap_ReleaseCMem(&cint);

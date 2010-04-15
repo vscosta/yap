@@ -122,15 +122,10 @@ static char * my_realloc(char *ptr, UInt sz, UInt osz, int safe)
 long long unsigned int mallocs, reallocs, frees;
 long long unsigned int tmalloc;
 
-#if INSTRUMENT_MALLOC
-static void
-minfo(char mtype)
-{
-  struct mallinfo minfo = mallinfo();
-
-  fprintf(stderr,"%c %lld (%lld), %lld, %lld %d/%d/%d\n", mtype, mallocs, tmalloc, reallocs, frees,minfo.arena,minfo.ordblks,minfo.fordblks);
-}
+#if DEBUG
+#define INSTRUMENT_MALLOC 1
 #endif
+
 
 static inline char *
 call_malloc(unsigned long int size)
@@ -140,13 +135,16 @@ call_malloc(unsigned long int size)
   LOCK(DLMallocLock);
 #endif
 #if INSTRUMENT_MALLOC
-  if (mallocs % 1024*4 == 0) 
-    minfo('A');
   mallocs++;
   tmalloc += size;
+  size += sizeof(CELL);
 #endif
   Yap_PrologMode |= MallocMode;
   out = (char *) my_malloc(size);
+#if INSTRUMENT_MALLOC
+  *(CELL*)out = size-sizeof(CELL);
+  out += sizeof(CELL);
+#endif
   Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
   UNLOCK(DLMallocLock);
@@ -168,13 +166,18 @@ call_realloc(char *p, unsigned long int size)
   LOCK(DLMallocLock);
 #endif
 #if INSTRUMENT_MALLOC
-  if (mallocs % 1024*4 == 0) 
-    minfo('A');
-  mallocs++;
+  reallocs++;
   tmalloc += size;
+  size += sizeof(CELL);
+  p -= sizeof(CELL);
+  tmalloc -= *(CELL*)p;
 #endif
   Yap_PrologMode |= MallocMode;
   out = (char *) my_realloc0(p, size);
+#if INSTRUMENT_MALLOC
+  *(CELL*)out = size-sizeof(CELL);
+  out += sizeof(CELL);
+#endif
   Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
   UNLOCK(DLMallocLock);
@@ -195,10 +198,9 @@ Yap_FreeCodeSpace(char *p)
   LOCK(DLMallocLock);
 #endif
   Yap_PrologMode |= MallocMode;
-
 #if INSTRUMENT_MALLOC
-  if (frees % 1024*4 == 0) 
-    minfo('F');
+  p -= sizeof(CELL);
+  tmalloc -= *(CELL*)p;
   frees++;
 #endif
   my_free (p);
@@ -222,8 +224,8 @@ Yap_FreeAtomSpace(char *p)
 #endif
   Yap_PrologMode |= MallocMode;
 #if INSTRUMENT_MALLOC
-  if (frees % 1024*4 == 0) 
-    minfo('F');
+  p -= sizeof(CELL);
+  tmalloc -= *(CELL*)p;
   frees++;
 #endif
   my_free (p);
@@ -247,6 +249,11 @@ Yap_InitPreAllocCodeSpace(void)
     LOCK(DLMallocLock);
 #endif
     Yap_PrologMode |= MallocMode;
+#if INSTRUMENT_MALLOC
+    mallocs++;
+    tmalloc += sz;
+    sz += sizeof(CELL);
+#endif
     while (!(ptr = my_malloc(sz))) {
       Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
@@ -256,6 +263,12 @@ Yap_InitPreAllocCodeSpace(void)
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return(NULL);
       }
+#if INSTRUMENT_MALLOC
+      fprintf(stderr,"vsc ptr=%p\n",ptr);
+      sz -= sizeof(CELL);
+      *(CELL*)ptr = sz;
+      ptr += sizeof(CELL);
+#endif
 #if USE_DL_MALLOC
       LOCK(DLMallocLock);
 #endif
@@ -290,12 +303,13 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
 #if USE_DL_MALLOC
   LOCK(DLMallocLock);
 #endif
-#if INSTRUMENT_MALLOC
-  if (reallocs % 1024*4 == 0) 
-    minfo('R');
-  reallocs++;
-#endif
   Yap_PrologMode |= MallocMode;
+#if INSTRUMENT_MALLOC
+  reallocs++;
+  tmalloc -= ScratchPad.sz;
+  tmalloc += sz;
+  fprintf(stderr,"vsc ptr=%p\n",ScratchPad.ptr);
+#endif
   if (!(ptr = my_realloc(ScratchPad.ptr, sz, ScratchPad.sz, safe))) {
     Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC

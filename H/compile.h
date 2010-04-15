@@ -318,7 +318,7 @@ typedef enum special_label_op_enum {
 #define Two	 2
 
 
-yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int, struct intermediates *));
+yamop  *STD_PROTO(Yap_assemble,(int,Term,struct pred_entry *,int, struct intermediates *, UInt));
 void	STD_PROTO(Yap_emit,(compiler_vm_op,Int,CELL, struct intermediates *));
 void	STD_PROTO(Yap_emit_3ops,(compiler_vm_op,CELL,CELL,CELL, struct intermediates *));
 void	STD_PROTO(Yap_emit_4ops,(compiler_vm_op,CELL,CELL,CELL,CELL, struct intermediates *));
