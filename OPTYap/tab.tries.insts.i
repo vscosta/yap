@@ -14,576 +14,395 @@
 /************************************************************************
 **           Trie instructions: auxiliary stack organization           **
 *************************************************************************
-
-                      STANDARD_TRIE
-                   -------------------
-                   | ha = heap_arity | 
-                   -------------------  --
-                   |   heap ptr 1    |    |
-                   -------------------    |
-                   |       ...       |    -- heap_arity
-                   -------------------    |
-                   |   heap ptr ha   |    |
-                   -------------------  --
-                   | va = vars_arity |
-                   -------------------
-                   | sa = subs_arity |
-                   -------------------  --
-                   |   subs ptr sa   |    |
-                   -------------------    |
-                   |       ...       |    -- subs_arity 
-                   -------------------    |
-                   |   subs ptr 1    |    |
-                   -------------------  --
-                   |    var ptr va   |    |
-                   -------------------    |
-                   |       ...       |    -- vars_arity
-                   -------------------    |
-                   |    var ptr 1    |    |
-                   -------------------  -- 
-
-
-                       GLOBAL_TRIE
-                   -------------------
-                   | va = vars_arity |
-                   -------------------  --
-                   |    var ptr va   |    |
-                   -------------------    |
-                   |       ...       |    -- vars_arity
-                   -------------------    |
-                   |    var ptr 1    |    |
-                   -------------------  -- 
-                   | sa = subs_arity |
-                   -------------------  --
-                   |   subs ptr sa   |    |
-                   -------------------    |
-                   |       ...       |    -- subs_arity 
-                   -------------------    |
-                   |   subs ptr 1    |    |
-                   -------------------  --
-
+                -------------------
+                | ha = heap_arity | 
+                -------------------  --
+                |   heap ptr 1    |    |
+                -------------------    |
+                |       ...       |    -- heap_arity (0 if GLOBAL_TRIE)
+                -------------------    |
+                |   heap ptr ha   |    |
+                -------------------  --
+                | va = vars_arity |
+                -------------------  --
+                |    var ptr va   |    |
+                -------------------    |
+                |       ...       |    -- vars_arity
+                -------------------    |
+                |    var ptr 1    |    |
+                -------------------  -- 
+                | sa = subs_arity |
+                -------------------  --
+                |   subs ptr sa   |    |
+                -------------------    |
+                |       ...       |    -- subs_arity 
+                -------------------    |
+                |   subs ptr 1    |    |
+                -------------------  --
 ************************************************************************/
 
 
 
 /************************************************************************
-**                 Trie instructions: auxiliary macros                 **
+**                      Trie instructions: macros                      **
 ************************************************************************/
 
-#ifdef GLOBAL_TRIE
-#define copy_arity_stack()                                      \
-        { int size = subs_arity + vars_arity + 2;               \
-          YENV -= size;                                         \
-          memcpy(YENV, aux_stack_ptr, size * sizeof(CELL *));   \
-          aux_stack_ptr = YENV;                                 \
-	}
-#else
-#define copy_arity_stack()                                      \
-        { int size = heap_arity + subs_arity + vars_arity + 3;  \
-          YENV -= size;                                         \
-          memcpy(YENV, aux_stack_ptr, size * sizeof(CELL *));   \
-          aux_stack_ptr = YENV;                                 \
-	}
-#endif /* GLOBAL_TRIE */
+#define TOP_STACK          YENV
 
-#define next_trie_instruction(NODE)                             \
-        PREG = (yamop *) TrNode_child(NODE);                    \
-        PREFETCH_OP(PREG);                                      \
+#define HEAP_ARITY_ENTRY   (0)
+#define VARS_ARITY_ENTRY   (1 + heap_arity)
+#define SUBS_ARITY_ENTRY   (1 + heap_arity + 1 + vars_arity)
+
+/* macros 'HEAP_ENTRY', 'VARS_ENTRY' and 'SUBS_ENTRY' **
+** assume that INDEX starts at 1 (and not at 0 !!!)   */
+#define HEAP_ENTRY(INDEX)  (HEAP_ARITY_ENTRY + (INDEX))
+#define VARS_ENTRY(INDEX)  (VARS_ARITY_ENTRY + 1 + vars_arity - (INDEX))
+#define SUBS_ENTRY(INDEX)  (SUBS_ARITY_ENTRY + 1 + subs_arity - (INDEX))
+
+#define next_trie_instruction(NODE)                                     \
+        PREG = (yamop *) TrNode_child(NODE);                            \
+        PREFETCH_OP(PREG);                                              \
         GONext()
 
-#define next_instruction(CONDITION, NODE)                       \
-        if (CONDITION) {                                        \
-          PREG = (yamop *) TrNode_child(NODE);                  \
-        } else {                                                \
-          /* procceed */                                        \
-	  PREG = (yamop *) CPREG;                               \
-	  YENV = ENV;                                           \
-        }                                                       \
-        PREFETCH_OP(PREG);                                      \
+#define next_instruction(CONDITION, NODE)                               \
+        if (CONDITION) {                                                \
+          PREG = (yamop *) TrNode_child(NODE);                          \
+        } else {  /* procceed */                                        \
+	  PREG = (yamop *) CPREG;                                       \
+	  TOP_STACK = ENV;                                              \
+        }                                                               \
+        PREFETCH_OP(PREG);                                              \
         GONext()
 
-/* the 'store_trie_node', 'restore_trie_node' and 'pop_trie_node' macros do not **
-** include the 'set_cut' macro because there are no cuts in trie instructions   */
+#define copy_aux_stack()                                                \
+        { int size = 3 + heap_arity + subs_arity + vars_arity;          \
+          TOP_STACK -= size;                                            \
+          memcpy(TOP_STACK, aux_stack, size * sizeof(CELL *));          \
+          aux_stack = TOP_STACK;                                        \
+	}
 
-#define store_trie_node(AP)                           \
-        { register choiceptr cp;                      \
-          YENV = (CELL *) (NORM_CP(YENV) - 1);        \
-          cp = NORM_CP(YENV);                         \
-          HBREG = H;                                  \
-          store_yaam_reg_cpdepth(cp);                 \
-          cp->cp_tr = TR;                             \
-          cp->cp_h  = H;                              \
-          cp->cp_b  = B;                              \
-          cp->cp_cp = CPREG;                          \
-          cp->cp_ap = (yamop *) AP;                   \
-          cp->cp_env= ENV;                            \
-          B = cp;                                     \
-          YAPOR_SET_LOAD(B);                          \
-          SET_BB(B);                                  \
-          TABLING_ERRORS_check_stack;                 \
-	}                                             \
-        copy_arity_stack()
+/* macros 'store_trie_node', 'restore_trie_node' and 'pop_trie_node'   **
+** do not include 'set_cut' because trie instructions are cut safe     */
 
-#define restore_trie_node(AP)                         \
-        H = HBREG = PROTECT_FROZEN_H(B);              \
-        restore_yaam_reg_cpdepth(B);                  \
-        CPREG = B->cp_cp;                             \
-        ENV = B->cp_env;                              \
-        YAPOR_update_alternative(PREG, (yamop *) AP)  \
-        B->cp_ap = (yamop *) AP;                      \
-        YENV = (CELL *) PROTECT_FROZEN_B(B);          \
-        SET_BB(NORM_CP(YENV));                        \
-        copy_arity_stack()
+#define store_trie_node(AP)                                             \
+        { register choiceptr cp;                                        \
+          TOP_STACK = (CELL *) (NORM_CP(TOP_STACK) - 1);                \
+          cp = NORM_CP(TOP_STACK);                                      \
+          HBREG = H;                                                    \
+          store_yaam_reg_cpdepth(cp);                                   \
+          cp->cp_tr = TR;                                               \
+          cp->cp_h  = H;                                                \
+          cp->cp_b  = B;                                                \
+          cp->cp_cp = CPREG;                                            \
+          cp->cp_ap = (yamop *) AP;                                     \
+          cp->cp_env= ENV;                                              \
+          B = cp;                                                       \
+          YAPOR_SET_LOAD(B);                                            \
+          SET_BB(B);                                                    \
+          TABLING_ERRORS_check_stack;                                   \
+	}                                                               \
+        copy_aux_stack()
 
-#define really_pop_trie_node()                        \
-        YENV = (CELL *) PROTECT_FROZEN_B((B + 1));    \
-        H = PROTECT_FROZEN_H(B);                      \
-        pop_yaam_reg_cpdepth(B);                      \
-	CPREG = B->cp_cp;                             \
-        TABLING_close_alt(B);                         \
-        ENV = B->cp_env;                              \
-	B = B->cp_b;                                  \
-        HBREG = PROTECT_FROZEN_H(B);                  \
-        SET_BB(PROTECT_FROZEN_B(B));                  \
-        if ((choiceptr) YENV == B_FZ) {               \
-          copy_arity_stack();                         \
+#define restore_trie_node(AP)                                           \
+        H = HBREG = PROTECT_FROZEN_H(B);                                \
+        restore_yaam_reg_cpdepth(B);                                    \
+        CPREG = B->cp_cp;                                               \
+        ENV = B->cp_env;                                                \
+        YAPOR_update_alternative(PREG, (yamop *) AP)                    \
+        B->cp_ap = (yamop *) AP;                                        \
+        TOP_STACK = (CELL *) PROTECT_FROZEN_B(B);                       \
+        SET_BB(NORM_CP(TOP_STACK));                                     \
+        copy_aux_stack()
+
+#define really_pop_trie_node()                                          \
+        TOP_STACK = (CELL *) PROTECT_FROZEN_B((B + 1));                 \
+        H = PROTECT_FROZEN_H(B);                                        \
+        pop_yaam_reg_cpdepth(B);                                        \
+	CPREG = B->cp_cp;                                               \
+        TABLING_close_alt(B);                                           \
+        ENV = B->cp_env;                                                \
+	B = B->cp_b;                                                    \
+        HBREG = PROTECT_FROZEN_H(B);                                    \
+        SET_BB(PROTECT_FROZEN_B(B));                                    \
+        if ((choiceptr) TOP_STACK == B_FZ) {                            \
+          copy_aux_stack();                                             \
         }
 
 #ifdef YAPOR
-#define pop_trie_node()                               \
-        if (SCH_top_shared_cp(B)) {                   \
-          restore_trie_node(NULL);                    \
-        } else {                                      \
-          really_pop_trie_node();                     \
+#define pop_trie_node()                                                 \
+        if (SCH_top_shared_cp(B)) {                                     \
+          restore_trie_node(NULL);                                      \
+        } else {                                                        \
+          really_pop_trie_node();                                       \
         }
 #else
-#define pop_trie_node()  really_pop_trie_node()
+#define pop_trie_node()                                                 \
+        really_pop_trie_node()
 #endif /* YAPOR */
 
 
 
 /************************************************************************
-**                              trie_null                              **
+**                         aux_stack_null_instr                        **
 ************************************************************************/
 
-#define stack_trie_null_instr()                              \
+#define aux_stack_null_instr()                                          \
         next_trie_instruction(node)
-
-#ifdef TRIE_COMPACT_PAIRS
-/*       trie compiled code for term 'CompactPairInit'      */
-#define stack_trie_null_in_new_pair_instr()                  \
-        if (heap_arity) {                                    \
-          aux_stack_ptr++;                                   \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));  \
-          *aux_stack_ptr-- = (CELL) (H + 1);                 \
-          *aux_stack_ptr-- = (CELL) H;                       \
-          *aux_stack_ptr = heap_arity - 1 + 2;               \
-          YENV = aux_stack_ptr;                              \
-        } else {                                             \
-          int i;                                             \
-          *aux_stack_ptr-- = (CELL) (H + 1);                 \
-          *aux_stack_ptr-- = (CELL) H;                       \
-          *aux_stack_ptr = 2;                                \
-          YENV = aux_stack_ptr;                              \
-          aux_stack_ptr += 2 + 2;                            \
-          *aux_stack_ptr = subs_arity - 1;                   \
-          aux_stack_ptr += subs_arity;                       \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));         \
-          for (i = 0; i < vars_arity; i++) {                 \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);           \
-            aux_stack_ptr++;                                 \
-          }                                                  \
-        }                                                    \
-        H += 2;                                              \
-        next_trie_instruction(node)
-#endif /* TRIE_COMPACT_PAIRS */
 
 
 
 /************************************************************************
-**                              trie_var                               **
+**                      aux_stack_extension_instr                      **
 ************************************************************************/
 
-#define stack_trie_var_instr()                                   \
-        if (heap_arity) {                                        \
-          CELL var;                                              \
-          int i;                                                 \
-          *aux_stack_ptr = heap_arity - 1;                       \
-          var = *++aux_stack_ptr;                                \
-          RESET_VARIABLE(var);                                   \
-          for (i = 0; i < heap_arity - 1; i++) {                 \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-          *aux_stack_ptr++ = vars_arity + 1;                     \
-          *aux_stack_ptr++ = subs_arity;                         \
-          for (i = 0; i < subs_arity; i++) {                     \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-          *aux_stack_ptr = var;                                  \
-          next_instruction(heap_arity - 1 || subs_arity, node);  \
-        } else {                                                 \
-          *++aux_stack_ptr = vars_arity + 1;                     \
-          *++aux_stack_ptr = subs_arity - 1;                     \
-          next_instruction(subs_arity - 1, node);                \
+#define aux_stack_extension_instr()                                     \
+        TOP_STACK = &aux_stack[-2];                                     \
+        TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + 2;                   \
+        TOP_STACK[HEAP_ENTRY(1)] = TrNode_entry(node);                  \
+        TOP_STACK[HEAP_ENTRY(2)] = 0;             /* extension mark */  \
+        next_trie_instruction(node)
+
+
+
+/************************************************************************
+**                    aux_stack_term_(in_pair_)instr                   **
+************************************************************************/
+
+#define aux_stack_term_instr()                                          \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], t);            \
+          TOP_STACK = &aux_stack[1];                                    \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity - 1;                 \
+          next_instruction(heap_arity - 1 || subs_arity, node);         \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], t);                   \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          next_instruction(subs_arity - 1, node);                       \
         }
 
-#ifdef TRIE_COMPACT_PAIRS
-#define stack_trie_var_in_new_pair_instr()                       \
-        if (heap_arity) {                                        \
-          int i;                                                 \
-          *aux_stack_ptr-- = (CELL) (H + 1);                     \
-          *aux_stack_ptr = heap_arity - 1 + 1;                   \
-          YENV = aux_stack_ptr;                                  \
-          aux_stack_ptr += 2;                                    \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));      \
-          for (i = 0; i < heap_arity - 1; i++) {                 \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-          *aux_stack_ptr++ = vars_arity + 1;                     \
-          *aux_stack_ptr++ = subs_arity;                         \
-          for (i = 0; i < subs_arity; i++) {                     \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-          *aux_stack_ptr = (CELL) H;                             \
-        } else {                                                 \
-          *aux_stack_ptr-- = (CELL) (H + 1);                     \
-          *aux_stack_ptr = 1;                                    \
-          YENV = aux_stack_ptr;                                  \
-          aux_stack_ptr += 2;                                    \
-          *aux_stack_ptr++ = vars_arity + 1;                     \
-          *aux_stack_ptr = subs_arity - 1;                       \
-          aux_stack_ptr += subs_arity;                           \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));             \
-          *aux_stack_ptr = (CELL) H;                             \
-        }                                                        \
-        RESET_VARIABLE((CELL) H);                                \
-        H += 2;                                                  \
+#define aux_stack_term_in_pair_instr()                                  \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
+        }                                                               \
+        Bind_Global(H, TrNode_entry(node));                             \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                      \
+        H += 2;                                                         \
         next_trie_instruction(node)
-#endif /* TRIE_COMPACT_PAIRS */
 
 
 
 /************************************************************************
-**                              trie_val                               **
+**                      aux_stack_(new_)pair_instr                     **
 ************************************************************************/
 
-#define stack_trie_val_instr()                                                              \
-        if (heap_arity) {                                                                   \
-          CELL aux_sub, aux_var, *vars_ptr;				                    \
-          YENV = ++aux_stack_ptr;                                                           \
-          vars_ptr = aux_stack_ptr + heap_arity + 1 + subs_arity + vars_arity - var_index;  \
-          aux_sub = *aux_stack_ptr;                                                         \
-          aux_var = *vars_ptr;                                                              \
-          if (aux_sub > aux_var) {                                                          \
-            Bind_Global((CELL *) aux_sub, aux_var);                                         \
-          } else {                                                                          \
-            RESET_VARIABLE(aux_sub);                                                        \
-	    Bind_Local((CELL *) aux_var, aux_sub);                                          \
-            *vars_ptr = aux_sub;                                                            \
-          }                                                                                 \
-          *aux_stack_ptr = heap_arity - 1;                                                  \
-          next_instruction(heap_arity - 1 || subs_arity, node);                             \
-        } else {                                                                            \
-          CELL aux_sub, aux_var, *vars_ptr;                                                 \
-          int i;                                                                            \
-          aux_stack_ptr += 2;                                                               \
-          *aux_stack_ptr = subs_arity - 1;                                                  \
-          aux_stack_ptr += subs_arity;                                                      \
-          vars_ptr = aux_stack_ptr + vars_arity - var_index;                                \
-          aux_sub = *aux_stack_ptr;                                                         \
-          aux_var = *vars_ptr;                                                              \
-          if (aux_sub > aux_var) {                                                          \
-	    if ((CELL *) aux_sub <= H) {                                                    \
-              Bind_Global((CELL *) aux_sub, aux_var);                                       \
-            } else if ((CELL *) aux_var <= H) {                                             \
-              Bind_Local((CELL *) aux_sub, aux_var);                                        \
-            } else {                                                                        \
-              Bind_Local((CELL *) aux_var, aux_sub);                                        \
-              *vars_ptr = aux_sub;                                                          \
-            }                                                                               \
-          } else {                                                                          \
-	    if ((CELL *) aux_var <= H) {                                                    \
-              Bind_Global((CELL *) aux_var, aux_sub);                                       \
-              *vars_ptr = aux_sub;                                                          \
-            } else if ((CELL *) aux_sub <= H) {                                             \
-              Bind_Local((CELL *) aux_var, aux_sub);                                        \
-              *vars_ptr = aux_sub;                                                          \
-            } else {                                                                        \
-              Bind_Local((CELL *) aux_sub, aux_var);                                        \
-            }                                                                               \
-          }                                                                                 \
-          for (i = 0; i < vars_arity; i++) {                                                \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);                                          \
-            aux_stack_ptr++;                                                                \
-          }                                                                                 \
-          next_instruction(subs_arity - 1, node);                                           \
-        }
-
-#ifdef TRIE_COMPACT_PAIRS      
-#define stack_trie_val_in_new_pair_instr()                                                  \
-        if (heap_arity) {                                                                   \
-          CELL aux_sub, aux_var, *vars_ptr;	      	               		            \
-          aux_stack_ptr++;				                                    \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));                                 \
-          *aux_stack_ptr = (CELL) (H + 1);                                                  \
-          aux_sub = (CELL) H;                                                               \
-          vars_ptr = aux_stack_ptr + heap_arity + 1 + subs_arity + vars_arity - var_index;  \
-          aux_var = *vars_ptr;                                                              \
-          if (aux_sub > aux_var) {                                                          \
-            Bind_Global((CELL *) aux_sub, aux_var);                                         \
-          } else {                                                                          \
-            RESET_VARIABLE(aux_sub);                                                        \
-  	    Bind_Local((CELL *) aux_var, aux_sub);                                          \
-            *vars_ptr = aux_sub;                                                            \
-          }                                                                                 \
-        } else {                                                                            \
-          CELL aux_sub, aux_var, *vars_ptr;                                                 \
-          int i;                                                                            \
-          *aux_stack_ptr-- = (CELL) (H + 1);                                                \
-          *aux_stack_ptr = 1;                                                               \
-          YENV = aux_stack_ptr;                                                             \
-          aux_stack_ptr += 1 + 2;                                                           \
-          aux_sub = (CELL) H;                                                               \
-          vars_ptr = aux_stack_ptr + subs_arity + vars_arity - var_index;                   \
-          aux_var = *vars_ptr;                                                              \
-          if (aux_sub > aux_var) {                                                          \
-            Bind_Global((CELL *) aux_sub, aux_var);                                         \
-          } else {                                                                          \
-            RESET_VARIABLE(aux_sub);                                                        \
-	    Bind_Local((CELL *) aux_var, aux_sub);                                          \
-            *vars_ptr = aux_sub;                                                            \
-          }                                                                                 \
-          *aux_stack_ptr = subs_arity - 1;                                                  \
-          aux_stack_ptr += subs_arity;                                                      \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));                                        \
-          for (i = 0; i < vars_arity; i++) {                                                \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);                                          \
-            aux_stack_ptr++;                                                                \
-          }                                                                                 \
-        }                                                                                   \
-        H += 2;                                                                             \
+#define aux_stack_new_pair_instr()    /* for term 'CompactPairInit' */  \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + 1;                 \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-2];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 2;                              \
+	}                                                               \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) H;                            \
+        TOP_STACK[HEAP_ENTRY(2)] = (CELL) (H + 1);                      \
+        H += 2;                                                         \
         next_trie_instruction(node)
-#endif /* TRIE_COMPACT_PAIRS */
-
-
-
-/************************************************************************
-**                              trie_atom                              **
-************************************************************************/
-
-#define stack_trie_atom_instr()                                      \
-        if (heap_arity) {                                            \
-          YENV = ++aux_stack_ptr;                                    \
-          Bind_Global((CELL *) *aux_stack_ptr, TrNode_entry(node));  \
-          *aux_stack_ptr = heap_arity - 1;                           \
-          next_instruction(heap_arity - 1 || subs_arity, node);      \
-        } else {                                                     \
-          int i;                                                     \
-          aux_stack_ptr += 2;                                        \
-          *aux_stack_ptr = subs_arity - 1;                           \
-          aux_stack_ptr += subs_arity;                               \
-          Bind((CELL *) *aux_stack_ptr, TrNode_entry(node));         \
-          for (i = 0; i < vars_arity; i++) {                         \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);                   \
-            aux_stack_ptr++;                                         \
-          }                                                          \
-          next_instruction(subs_arity - 1, node);                    \
-        }
 
 #ifdef TRIE_COMPACT_PAIRS
-#define stack_trie_atom_in_new_pair_instr()                          \
-        if (heap_arity) {                                            \
-          aux_stack_ptr++;		                             \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));          \
-          *aux_stack_ptr = (CELL) (H + 1);                           \
-        } else {                                                     \
-          int i;                                                     \
-          *aux_stack_ptr-- = (CELL) (H + 1);                         \
-          *aux_stack_ptr = 1;                                        \
-          YENV = aux_stack_ptr;                                      \
-          aux_stack_ptr += 1 + 2;                                    \
-          *aux_stack_ptr = subs_arity - 1;                           \
-          aux_stack_ptr += subs_arity;                               \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));                 \
-          for (i = 0; i < vars_arity; i++) {                         \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);                   \
-            aux_stack_ptr++;                                         \
-          }                                                          \
-        }                                                            \
-        Bind_Global(H, TrNode_entry(node));                          \
-        H += 2;                                                      \
-        next_trie_instruction(node)
-#endif /* TRIE_COMPACT_PAIRS */
-
-
-
-/************************************************************************
-**                              trie_pair                              **
-************************************************************************/
-
-#ifdef TRIE_COMPACT_PAIRS
-/*     trie compiled code for term 'CompactPairEndList'     */
-#define stack_trie_pair_instr()		                     \
-        if (heap_arity) {                                    \
-          aux_stack_ptr++;                                   \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));  \
-          *aux_stack_ptr = (CELL) H;                         \
-	} else {                                             \
-          int i;                                             \
-          *aux_stack_ptr-- = (CELL) H;                       \
-          *aux_stack_ptr = 1;                                \
-          YENV = aux_stack_ptr;                              \
-          aux_stack_ptr += 1 + 2;                            \
-          *aux_stack_ptr = subs_arity - 1;                   \
-          aux_stack_ptr += subs_arity;                       \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));         \
-          for (i = 0; i < vars_arity; i++) {                 \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);           \
-            aux_stack_ptr++;                                 \
-          }                                                  \
-	}                                                    \
-        Bind_Global(H + 1, TermNil);                         \
-        H += 2;                                              \
+#define aux_stack_pair_instr()	   /* for term 'CompactPairEndList' */  \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+	} else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
+	}                                                               \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) H;                            \
+        Bind_Global(H + 1, TermNil);                                    \
+        H += 2;                                                         \
         next_trie_instruction(node)
 #else
-#define stack_trie_pair_instr()                              \
-        if (heap_arity) {                                    \
-          aux_stack_ptr++;                                   \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));  \
-          *aux_stack_ptr-- = (CELL) (H + 1);                 \
-          *aux_stack_ptr-- = (CELL) H;                       \
-          *aux_stack_ptr = heap_arity - 1 + 2;               \
-          YENV = aux_stack_ptr;                              \
-        } else {                                             \
-          int i;                                             \
-          *aux_stack_ptr-- = (CELL) (H + 1);                 \
-          *aux_stack_ptr-- = (CELL) H;                       \
-          *aux_stack_ptr = 2;                                \
-          YENV = aux_stack_ptr;                              \
-          aux_stack_ptr += 2 + 2;                            \
-          *aux_stack_ptr = subs_arity - 1;                   \
-          aux_stack_ptr += subs_arity;                       \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));         \
-          for (i = 0; i < vars_arity; i++) {                 \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);           \
-            aux_stack_ptr++;                                 \
-          }                                                  \
-        }                                                    \
-        H += 2;                                              \
-        next_trie_instruction(node)
+#define aux_stack_pair_instr()                                          \
+        aux_stack_new_pair_instr()
 #endif /* TRIE_COMPACT_PAIRS */
 
 
 
 /************************************************************************
-**                             trie_struct                             **
+**                    aux_stack_appl_(in_pair_)instr                   **
 ************************************************************************/
 
-#define stack_trie_struct_instr()                                \
-        if (heap_arity) {                                        \
-          int i;                                                 \
-          aux_stack_ptr++;                                       \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsAppl(H));      \
-          for (i = 0; i < func_arity; i++)                       \
-            *aux_stack_ptr-- = (CELL) (H + func_arity - i);      \
-          *aux_stack_ptr = heap_arity - 1 + func_arity;          \
-          YENV = aux_stack_ptr;                                  \
-        } else {                                                 \
-          int i;                                                 \
-          for (i = 0; i < func_arity; i++)                       \
-            *aux_stack_ptr-- = (CELL) (H + func_arity - i);      \
-          *aux_stack_ptr = func_arity;                           \
-          YENV = aux_stack_ptr;                                  \
-          aux_stack_ptr += func_arity + 2;                       \
-          *aux_stack_ptr = subs_arity - 1;                       \
-          aux_stack_ptr += subs_arity;                           \
-          Bind((CELL *) *aux_stack_ptr, AbsAppl(H));             \
-          for (i = 0; i < vars_arity; i++) {                     \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-        }                                                        \
-        *H = (CELL) func;                                        \
-        H += 1 + func_arity;                                     \
+#define aux_stack_appl_instr()                                          \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsAppl(H));   \
+          TOP_STACK = &aux_stack[-func_arity + 1];                      \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity - 1;    \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsAppl(H));          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-func_arity];                          \
+          TOP_STACK[HEAP_ARITY_ENTRY] = func_arity;                     \
+	}                                                               \
+        *H = (CELL) func;                                               \
+        { int i;                                                        \
+          for (i = 1; i <= func_arity; i++)	       	                \
+            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (H + i);                  \
+	}                                                               \
+        H += 1 + func_arity;                                            \
         next_trie_instruction(node)
 
-#ifdef TRIE_COMPACT_PAIRS
-#define stack_trie_struct_in_new_pair_instr()	                 \
-        if (heap_arity) {                                        \
-          int i;                                                 \
-          aux_stack_ptr++;		                         \
-          Bind_Global((CELL *) *aux_stack_ptr, AbsPair(H));      \
-          *aux_stack_ptr-- = (CELL) (H + 1);                     \
-          for (i = 0; i < func_arity; i++)                       \
-            *aux_stack_ptr-- = (CELL) (H + 2 + func_arity - i);  \
-          *aux_stack_ptr = heap_arity - 1 + 1 + func_arity;      \
-          YENV = aux_stack_ptr;                                  \
-        } else {                                                 \
-          int i;                                                 \
-          *aux_stack_ptr-- = (CELL) (H + 1);                     \
-          for (i = 0; i < func_arity; i++)                       \
-            *aux_stack_ptr-- = (CELL) (H + 2 + func_arity - i);  \
-          *aux_stack_ptr = 1 + func_arity;                       \
-          YENV = aux_stack_ptr;                                  \
-          aux_stack_ptr += 1 + func_arity + 2;                   \
-          *aux_stack_ptr = subs_arity - 1;                       \
-          aux_stack_ptr += subs_arity;                           \
-          Bind((CELL *) *aux_stack_ptr, AbsPair(H));             \
-          for (i = 0; i < vars_arity; i++) {                     \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-        }                                                        \
-        Bind_Global(H, AbsAppl(H + 2));                          \
-        H += 2;                                                  \
-        *H = (CELL) func;                                        \
-        H += 1 + func_arity;                                     \
-        next_trie_instruction(node)
-#endif /* TRIE_COMPACT_PAIRS */
-
-
-
-/************************************************************************
-**                            trie_extension                           **
-************************************************************************/
-
-#define stack_trie_extension_instr()                               \
-        *aux_stack_ptr-- = 0;  /* float/longint extension mark */  \
-        *aux_stack_ptr-- = TrNode_entry(node);                     \
-        *aux_stack_ptr = heap_arity + 2;                           \
-        YENV = aux_stack_ptr;                                      \
+#define aux_stack_appl_in_pair_instr()	                                \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          TOP_STACK = &aux_stack[-func_arity];                          \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity + func_arity;        \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-func_arity - 1];                      \
+          TOP_STACK[HEAP_ARITY_ENTRY] = func_arity + 1;                 \
+        }                                                               \
+        TOP_STACK[HEAP_ENTRY(func_arity + 1)] = (CELL) (H + 1);         \
+        Bind_Global(H, AbsAppl(H + 2));                                 \
+        H += 2;                                                         \
+        *H = (CELL) func;                                               \
+        { int i;                                                        \
+          for (i = 1; i <= func_arity; i++)		                \
+            TOP_STACK[HEAP_ENTRY(i)] = (CELL) (H + i);                  \
+	}                                                               \
+        H += 1 + func_arity;                                            \
         next_trie_instruction(node)
 
 
 
 /************************************************************************
-**                          trie_float_longint                         **
+**                    aux_stack_var_(in_pair_)instr                    **
 ************************************************************************/
 
-#define stack_trie_float_longint_instr()                         \
-        if (heap_arity) {                                        \
-          YENV = ++aux_stack_ptr;                                \
-          Bind_Global((CELL *) *aux_stack_ptr, t);               \
-          *aux_stack_ptr = heap_arity - 1;                       \
-          next_instruction(heap_arity - 1 || subs_arity, node);  \
-        } else {                                                 \
-          int i;                                                 \
-          YENV = aux_stack_ptr;                                  \
-          *aux_stack_ptr = 0;                                    \
-          aux_stack_ptr += 2;                                    \
-          *aux_stack_ptr = subs_arity - 1;                       \
-          aux_stack_ptr += subs_arity;                           \
-          Bind((CELL *) *aux_stack_ptr, t);                      \
-          for (i = 0; i < vars_arity; i++) {                     \
-            *aux_stack_ptr = *(aux_stack_ptr + 1);               \
-            aux_stack_ptr++;                                     \
-          }                                                      \
-	  next_instruction(subs_arity - 1, node);                \
+#define aux_stack_var_instr()					        \
+        if (heap_arity) {                                               \
+          int i;                                                        \
+          CELL var = aux_stack[HEAP_ENTRY(1)];                          \
+          RESET_VARIABLE(var);                                          \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity - 1;                 \
+          for (i = 2; i <= heap_arity; i++)                             \
+            TOP_STACK[HEAP_ENTRY(i - 1)] = aux_stack[HEAP_ENTRY(i)];    \
+          aux_stack[VARS_ARITY_ENTRY - 1] = vars_arity + 1;             \
+	  aux_stack[VARS_ENTRY(vars_arity + 1)] = var;                  \
+          next_instruction(heap_arity - 1 || subs_arity, node);         \
+        } else {				                        \
+	  CELL var = aux_stack[SUBS_ENTRY(1)];                          \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 0;                              \
+          aux_stack[VARS_ARITY_ENTRY - 1] = vars_arity + 1;             \
+          aux_stack[VARS_ENTRY(vars_arity + 1)] = var;                  \
+          next_instruction(subs_arity - 1, node);	                \
+        }							 
+
+#define aux_stack_var_in_pair_instr()                                   \
+        if (heap_arity) {                                               \
+	  int i;                                                        \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;                     \
+          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                    \
+          for (i = 2; i <= heap_arity; i++)                             \
+            TOP_STACK[HEAP_ENTRY(i)] = aux_stack[HEAP_ENTRY(i)];        \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));		\
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-2];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
+          TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                    \
+        }                                                               \
+        aux_stack[VARS_ARITY_ENTRY - 1] = vars_arity + 1;               \
+        aux_stack[VARS_ENTRY(vars_arity + 1)] = (CELL) H;		\
+        RESET_VARIABLE((CELL) H);                                       \
+        H += 2;                                                         \
+        next_trie_instruction(node)
+
+
+
+/************************************************************************
+**                    aux_stack_val_(in_pair_)instr                    **
+************************************************************************/
+
+#define aux_stack_val_instr()                                           \
+        if (heap_arity) {                                               \
+          CELL aux_sub, aux_var;				        \
+          aux_sub = aux_stack[HEAP_ENTRY(1)];                           \
+          aux_var = aux_stack[VARS_ENTRY(var_index + 1)];               \
+          if (aux_sub > aux_var) {                                      \
+            Bind_Global((CELL *) aux_sub, aux_var);                     \
+          } else {                                                      \
+            RESET_VARIABLE(aux_sub);                                    \
+	    Bind_Local((CELL *) aux_var, aux_sub);                      \
+            aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;             \
+          }                                                             \
+          TOP_STACK = &aux_stack[1];                                    \
+          TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity - 1;                 \
+          next_instruction(heap_arity - 1 || subs_arity, node);         \
+        } else {                                                        \
+          CELL aux_sub, aux_var;                                        \
+          aux_sub = aux_stack[SUBS_ENTRY(1)];                           \
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          aux_var = aux_stack[VARS_ENTRY(var_index + 1)];		\
+          if (aux_sub > aux_var) {                                      \
+	    if ((CELL *) aux_sub <= H) {                                \
+              Bind_Global((CELL *) aux_sub, aux_var);                   \
+            } else if ((CELL *) aux_var <= H) {                         \
+              Bind_Local((CELL *) aux_sub, aux_var);                    \
+            } else {                                                    \
+              Bind_Local((CELL *) aux_var, aux_sub);                    \
+              aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
+            }                                                           \
+          } else {                                                      \
+	    if ((CELL *) aux_var <= H) {                                \
+              Bind_Global((CELL *) aux_var, aux_sub);                   \
+              aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
+            } else if ((CELL *) aux_sub <= H) {                         \
+              Bind_Local((CELL *) aux_var, aux_sub);                    \
+              aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;           \
+            } else {                                                    \
+              Bind_Local((CELL *) aux_sub, aux_var);                    \
+            }                                                           \
+          }                                                             \
+          next_instruction(subs_arity - 1, node);                       \
         }
+
+#define aux_stack_val_in_pair_instr()                                   \
+        if (heap_arity) {                                               \
+          Bind_Global((CELL *) aux_stack[HEAP_ENTRY(1)], AbsPair(H));   \
+        } else {                                                        \
+          Bind((CELL *) aux_stack[SUBS_ENTRY(1)], AbsPair(H));		\
+          aux_stack[SUBS_ARITY_ENTRY] = subs_arity - 1;                 \
+          TOP_STACK = &aux_stack[-1];                                   \
+          TOP_STACK[HEAP_ARITY_ENTRY] = 1;                              \
+	}                                                               \
+        { CELL aux_sub, aux_var;                                        \
+          aux_sub = (CELL) H;                                           \
+          aux_var = aux_stack[VARS_ENTRY(var_index + 1)];               \
+          if (aux_sub > aux_var) {                                      \
+            Bind_Global((CELL *) aux_sub, aux_var);                     \
+          } else {                                                      \
+            RESET_VARIABLE(aux_sub);                                    \
+	    Bind_Local((CELL *) aux_var, aux_sub);                      \
+            aux_stack[VARS_ENTRY(var_index + 1)] = aux_sub;             \
+          }                                                             \
+        }                                                               \
+        TOP_STACK[HEAP_ENTRY(1)] = (CELL) (H + 1);                      \
+        H += 2;                                                         \
+        next_trie_instruction(node)
 
 
 
@@ -591,870 +410,805 @@
 **                          Trie instructions                          **
 ************************************************************************/
 
-  PBOp(trie_do_null, e)
-#ifndef GLOBAL_TRIE
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-
-    stack_trie_null_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_null)");
-#endif /* GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_trust_null, e)
-#ifndef GLOBAL_TRIE
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    pop_trie_node();
-    stack_trie_null_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_null)");
-#endif /* GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_try_null, e)
-#ifndef GLOBAL_TRIE
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    store_trie_node(TrNode_next(node));
-    stack_trie_null_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_null)");
-#endif /* GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_retry_null, e)
-#ifndef GLOBAL_TRIE
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    restore_trie_node(TrNode_next(node));
-    stack_trie_null_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_null)");
-#endif /* GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_do_null_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    stack_trie_null_in_new_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_null_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_trust_null_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    pop_trie_node();
-    stack_trie_null_in_new_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_null_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_try_null_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    store_trie_node(TrNode_next(node));
-    stack_trie_null_in_new_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_null_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
-  ENDPBOp();
-
-
-  PBOp(trie_retry_null_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
-    register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-
-    restore_trie_node(TrNode_next(node));
-    stack_trie_null_in_new_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_null_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
-  ENDPBOp();
-
-
   PBOp(trie_do_var, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
-    stack_trie_var_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_var)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_var_instr();
   ENDPBOp();
 
 
   PBOp(trie_trust_var, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
-    stack_trie_var_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_var)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_var_instr();
   ENDPBOp();
 
 
   PBOp(trie_try_var, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
-    stack_trie_var_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_var)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_var_instr();
   ENDPBOp();
 
 
   PBOp(trie_retry_var, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_var_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_var)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_var_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_var_in_new_pair, e)
+  PBOp(trie_do_var_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
-    stack_trie_var_in_new_pair_instr();
+    aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_var_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_var_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_trust_var_in_new_pair, e)
+  PBOp(trie_trust_var_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
-    stack_trie_var_in_new_pair_instr();
+    aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_var_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_var_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_try_var_in_new_pair, e)
+  PBOp(trie_try_var_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
-    stack_trie_var_in_new_pair_instr();
+    aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_var_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_var_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_retry_var_in_new_pair, e)
+  PBOp(trie_retry_var_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_var_in_new_pair_instr();
+    aux_stack_var_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_var_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_var_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_do_val, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
-    stack_trie_val_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_val)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_val_instr();
   ENDPBOp();
 
 
   PBOp(trie_trust_val, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     pop_trie_node();
-    stack_trie_val_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_val)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_val_instr();
   ENDPBOp();
 
 
   PBOp(trie_try_val, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     store_trie_node(TrNode_next(node));
-    stack_trie_val_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_val)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_val_instr();
   ENDPBOp();
 
 
   PBOp(trie_retry_val, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_val_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_val)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_val_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_val_in_new_pair, e)
+  PBOp(trie_do_val_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
-    stack_trie_val_in_new_pair_instr();
+    aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_val_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_val_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_trust_val_in_new_pair, e)
+  PBOp(trie_trust_val_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     pop_trie_node();
-    stack_trie_val_in_new_pair_instr();
+    aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_val_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_val_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_try_val_in_new_pair, e)
+  PBOp(trie_try_val_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     store_trie_node(TrNode_next(node));
-    stack_trie_val_in_new_pair_instr();
+    aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_val_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_val_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_retry_val_in_new_pair, e)
+  PBOp(trie_retry_val_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     int var_index = VarIndexOfTableTerm(TrNode_entry(node));
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_val_in_new_pair_instr();
+    aux_stack_val_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_val_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_val_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_do_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-#ifdef GLOBAL_TRIE
-    int subs_arity = *(aux_stack_ptr + *aux_stack_ptr + 1);
-    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
-    next_instruction(subs_arity - 1 , node);
-#else
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = TrNode_entry(node);
 
-    stack_trie_atom_instr();
-#endif /* GLOBAL_TRIE */
+    aux_stack_term_instr();
   ENDPBOp();
 
 
   PBOp(trie_trust_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-#ifdef GLOBAL_TRIE
-    int vars_arity = *(aux_stack_ptr);
-    int subs_arity = *(aux_stack_ptr + vars_arity + 1);
-#else
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-#endif /* GLOBAL_TRIE */
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = TrNode_entry(node);
+
     pop_trie_node();
-#ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
-    next_instruction(subs_arity - 1 , node);
-#else
-    stack_trie_atom_instr();
-#endif /* GLOBAL_TRIE */
+    aux_stack_term_instr();
   ENDPBOp();
 
 
   PBOp(trie_try_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-#ifdef GLOBAL_TRIE
-    int vars_arity = *(aux_stack_ptr);
-    int subs_arity = *(aux_stack_ptr + vars_arity + 1);
-#else
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-#endif /* GLOBAL_TRIE */
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = TrNode_entry(node);
+
     store_trie_node(TrNode_next(node));
-#ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
-    next_instruction(subs_arity - 1, node); 
-#else
-    stack_trie_atom_instr();
-#endif /* GLOBAL_TRIE */    
+    aux_stack_term_instr();
   ENDPBOp();
 
 
   PBOp(trie_retry_atom, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-#ifdef GLOBAL_TRIE
-    int vars_arity = *(aux_stack_ptr);
-    int subs_arity = *(aux_stack_ptr + vars_arity + 1);
-#else
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-#endif /* GLOBAL_TRIE */
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = TrNode_entry(node);
+
     restore_trie_node(TrNode_next(node));
-#ifdef GLOBAL_TRIE
-    YENV = aux_stack_ptr = load_substitution_variable((gt_node_ptr)TrNode_entry(node), aux_stack_ptr);
-    next_instruction(subs_arity - 1, node); 
-#else
-    stack_trie_atom_instr();
-#endif /* GLOBAL_TRIE */
+    aux_stack_term_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_atom_in_new_pair, e)
+  PBOp(trie_do_atom_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
-    stack_trie_atom_in_new_pair_instr();
+    aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_atom_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_atom_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_trust_atom_in_new_pair, e)
+  PBOp(trie_trust_atom_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
-    stack_trie_atom_in_new_pair_instr();
+    aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_atom_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_atom_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_try_atom_in_new_pair, e)
+  PBOp(trie_try_atom_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
-    stack_trie_atom_in_new_pair_instr();
+    aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_atom_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_atom_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_retry_atom_in_new_pair, e)
+  PBOp(trie_retry_atom_in_pair, e)
 #if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_atom_in_new_pair_instr();
+    aux_stack_term_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_atom_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_atom_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+  ENDPBOp();
+
+
+  PBOp(trie_do_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+
+    aux_stack_null_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_trust_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    pop_trie_node();
+    aux_stack_null_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_try_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    store_trie_node(TrNode_next(node));
+    aux_stack_null_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_retry_null, e)
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    restore_trie_node(TrNode_next(node));
+    aux_stack_null_instr();
+  ENDPBOp();
+
+
+  PBOp(trie_do_null_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    aux_stack_new_pair_instr();
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_null_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+  ENDPBOp();
+
+
+  PBOp(trie_trust_null_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    pop_trie_node();
+    aux_stack_new_pair_instr();
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_null_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+  ENDPBOp();
+
+
+  PBOp(trie_try_null_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    store_trie_node(TrNode_next(node));
+    aux_stack_new_pair_instr();
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_null_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+  ENDPBOp();
+
+
+  PBOp(trie_retry_null_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    restore_trie_node(TrNode_next(node));
+    aux_stack_new_pair_instr();
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_null_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_do_pair, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
-    stack_trie_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_pair)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_pair_instr();
   ENDPBOp();
 
 
   PBOp(trie_trust_pair, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
-    stack_trie_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_pair)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_pair_instr();
   ENDPBOp();
 
 
   PBOp(trie_try_pair, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
-    stack_trie_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_pair)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_pair_instr();
   ENDPBOp();
 
 
   PBOp(trie_retry_pair, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_pair_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_pair)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_pair_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_struct, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_do_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
-    stack_trie_struct_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_struct)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_appl_instr();
   ENDPBOp();
 
 
-  PBOp(trie_trust_struct, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_trust_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     pop_trie_node();
-    stack_trie_struct_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_struct)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_appl_instr();
   ENDPBOp();
 
 
-  PBOp(trie_try_struct, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_try_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     store_trie_node(TrNode_next(node));
-    stack_trie_struct_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_struct)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_appl_instr();
   ENDPBOp();
 
 
-  PBOp(trie_retry_struct, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_retry_appl, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_struct_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_struct)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_appl_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_struct_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+  PBOp(trie_do_appl_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
-    stack_trie_struct_in_new_pair_instr();
+    aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_struct_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_appl_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_trust_struct_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+  PBOp(trie_trust_appl_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     pop_trie_node();
-    stack_trie_struct_in_new_pair_instr();
+    aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_struct_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_appl_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_try_struct_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+  PBOp(trie_try_appl_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     store_trie_node(TrNode_next(node));
-    stack_trie_struct_in_new_pair_instr();
+    aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_struct_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_appl_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
-  PBOp(trie_retry_struct_in_new_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+  PBOp(trie_retry_appl_in_pair, e)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     Functor func = (Functor) RepAppl(TrNode_entry(node));
     int func_arity = ArityOfFunctor(func);
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_struct_in_new_pair_instr();
+    aux_stack_appl_in_pair_instr();
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_struct_in_new_pair)");
-#endif /* TRIE_COMPACT_PAIRS && GLOBAL_TRIE */
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_appl_in_pair: invalid instruction");
+#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_do_extension, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
 
-    stack_trie_extension_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_extension)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_extension_instr();
   ENDPBOp();
 
 
   PBOp(trie_trust_extension, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     pop_trie_node();
-    stack_trie_extension_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_extension)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_extension_instr();
   ENDPBOp();
 
 
   PBOp(trie_try_extension, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     store_trie_node(TrNode_next(node));
-    stack_trie_extension_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_extension)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_extension_instr();
   ENDPBOp();
 
 
   PBOp(trie_retry_extension, e)
-#ifndef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = (CELL *) (B + 1);
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
 
     restore_trie_node(TrNode_next(node));
-    stack_trie_extension_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_extension)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_extension_instr();
   ENDPBOp();
 
 
-  PBOp(trie_do_float, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_do_double, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
     volatile Float dbl;
     volatile Term *t_dbl = (Term *)((void *) &dbl);
     Term t;
 
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+    t_dbl[0] = aux_stack[HEAP_ENTRY(1)];
+    t_dbl[1] = aux_stack[HEAP_ENTRY(3)];  /* jump the first extension mark */
     heap_arity -= 4;
-    t_dbl[0] = *++aux_stack_ptr;
-    ++aux_stack_ptr;  /* jump the float/longint extension mark */
-    t_dbl[1] = *++aux_stack_ptr;
+    TOP_STACK = aux_stack = &aux_stack[4];  /* jump until the second extension mark */
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
+    t_dbl[0] = aux_stack[HEAP_ENTRY(1)];
     heap_arity -= 2;
-    t_dbl[0] = *++aux_stack_ptr;
+    TOP_STACK = aux_stack = &aux_stack[2];  /* jump until the extension mark */
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-    ++aux_stack_ptr;  /* jump the float/longint extension mark */
+    TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;
     t = MkFloatTerm(dbl);
-    stack_trie_float_longint_instr();
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_float)");
-#endif /* GLOBAL_TRIE */
+    aux_stack_term_instr();
   ENDPBOp();
 
 
-  BOp(trie_trust_float, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_float)");
+  BOp(trie_trust_double, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_double: invalid instruction");
   ENDBOp();
 
 
-  BOp(trie_try_float, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_float)");
+  BOp(trie_try_double, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_double: invalid instruction");
   ENDBOp();
 
 
-  BOp(trie_retry_float, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_float)");
+  BOp(trie_retry_double, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_double: invalid instruction");
   ENDBOp();
 
 
-  PBOp(trie_do_long, e)
-#ifndef GLOBAL_TRIE
+  PBOp(trie_do_longint, e)
     register ans_node_ptr node = (ans_node_ptr) PREG;
-    register CELL *aux_stack_ptr = YENV;
-    int heap_arity = *aux_stack_ptr;
-    int vars_arity = *(aux_stack_ptr + heap_arity + 1);
-    int subs_arity = *(aux_stack_ptr + heap_arity + 2);
-    Term t;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+    Term t = MkLongIntTerm(aux_stack[HEAP_ENTRY(1)]);
 
     heap_arity -= 2;
-    t = MkLongIntTerm(*++aux_stack_ptr);
-    ++aux_stack_ptr;  /* jump the float/longint extension mark */
-    stack_trie_float_longint_instr();
+    TOP_STACK = aux_stack = &aux_stack[2];  /* jump until the extension mark */
+    TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;
+    aux_stack_term_instr();
+  ENDPBOp();
+
+
+  BOp(trie_trust_longint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_longint: invalid instruction");
+  ENDBOp();
+
+
+  BOp(trie_try_longint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_longint: invalid instruction");
+  ENDBOp();
+
+
+  BOp(trie_retry_longint, e)
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_longint: invalid instruction");
+  ENDBOp();
+
+
+  PBOp(trie_do_gterm, e)
+#ifdef GLOBAL_TRIE
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = 0;
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
+    next_instruction(subs_arity - 1 , node);
 #else
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_do_long)");
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_gterm: invalid instruction");
 #endif /* GLOBAL_TRIE */
   ENDPBOp();
 
 
-  BOp(trie_trust_long, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_trust_long)");
-  ENDBOp();
+  PBOp(trie_trust_gterm, e)
+#ifdef GLOBAL_TRIE
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = 0;
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    pop_trie_node();
+    TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
+    next_instruction(subs_arity - 1 , node);
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_gterm: invalid instruction");
+#endif /* GLOBAL_TRIE */
+  ENDPBOp();
 
 
-  BOp(trie_try_long, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_try_long)");
-  ENDBOp();
+  PBOp(trie_try_gterm, e)
+#ifdef GLOBAL_TRIE
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = TOP_STACK;
+    int heap_arity = 0;
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    store_trie_node(TrNode_next(node));
+    TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
+    next_instruction(subs_arity - 1, node); 
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_gterm: invalid instruction");
+#endif /* GLOBAL_TRIE */
+  ENDPBOp();
 
 
-  BOp(trie_retry_long, e)
-    Yap_Error(INTERNAL_ERROR, TermNil, "invalid instruction (trie_retry_long)");
-  ENDBOp();
+  PBOp(trie_retry_gterm, e)
+#ifdef GLOBAL_TRIE
+    register ans_node_ptr node = (ans_node_ptr) PREG;
+    register CELL *aux_stack = (CELL *) (B + 1);
+    int heap_arity = 0;
+    int vars_arity = aux_stack[VARS_ARITY_ENTRY];
+    int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
+
+    restore_trie_node(TrNode_next(node));
+    TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
+    next_instruction(subs_arity - 1, node); 
+#else
+    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_gterm: invalid instruction");
+#endif /* GLOBAL_TRIE */
+  ENDPBOp();

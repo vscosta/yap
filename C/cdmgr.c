@@ -558,34 +558,36 @@ PredForChoicePt(yamop *p_code) {
     case _profiled_trust_logical:
       return p_code->u.OtaLl.d->ClPred;
 #ifdef TABLING
-    case _trie_trust_null:
-    case _trie_retry_null:
-    case _trie_trust_null_in_new_pair:
-    case _trie_retry_null_in_new_pair:
     case _trie_trust_var:
     case _trie_retry_var:
-    case _trie_trust_var_in_new_pair:
-    case _trie_retry_var_in_new_pair:
+    case _trie_trust_var_in_pair:
+    case _trie_retry_var_in_pair:
     case _trie_trust_val:
     case _trie_retry_val:
-    case _trie_trust_val_in_new_pair:
-    case _trie_retry_val_in_new_pair:
+    case _trie_trust_val_in_pair:
+    case _trie_retry_val_in_pair:
     case _trie_trust_atom:
     case _trie_retry_atom:
-    case _trie_trust_atom_in_new_pair:
-    case _trie_retry_atom_in_new_pair:
+    case _trie_trust_atom_in_pair:
+    case _trie_retry_atom_in_pair:
+    case _trie_trust_null:
+    case _trie_retry_null:
+    case _trie_trust_null_in_pair:
+    case _trie_retry_null_in_pair:
     case _trie_trust_pair:
     case _trie_retry_pair:
-    case _trie_trust_struct:
-    case _trie_retry_struct:
-    case _trie_trust_struct_in_new_pair:
-    case _trie_retry_struct_in_new_pair:
+    case _trie_trust_appl:
+    case _trie_retry_appl:
+    case _trie_trust_appl_in_pair:
+    case _trie_retry_appl_in_pair:
     case _trie_trust_extension:
     case _trie_retry_extension:
-    case _trie_trust_float:
-    case _trie_retry_float:
-    case _trie_trust_long:
-    case _trie_retry_long:
+    case _trie_trust_double:
+    case _trie_retry_double:
+    case _trie_trust_longint:
+    case _trie_retry_longint:
+    case _trie_trust_gterm:
+    case _trie_retry_gterm:
       return NULL;
     case _table_load_answer:
     case _table_try_answer:
@@ -5506,34 +5508,36 @@ p_choicepoint_info(void)
 #endif
       t = MkVarTerm();
       break;
-    case _trie_trust_null:
-    case _trie_retry_null:
-    case _trie_trust_null_in_new_pair:
-    case _trie_retry_null_in_new_pair:
     case _trie_trust_var:
     case _trie_retry_var:
-    case _trie_trust_var_in_new_pair:
-    case _trie_retry_var_in_new_pair:
+    case _trie_trust_var_in_pair:
+    case _trie_retry_var_in_pair:
     case _trie_trust_val:
     case _trie_retry_val:
-    case _trie_trust_val_in_new_pair:
-    case _trie_retry_val_in_new_pair:
+    case _trie_trust_val_in_pair:
+    case _trie_retry_val_in_pair:
     case _trie_trust_atom:
     case _trie_retry_atom:
-    case _trie_trust_atom_in_new_pair:
-    case _trie_retry_atom_in_new_pair:
+    case _trie_trust_atom_in_pair:
+    case _trie_retry_atom_in_pair:
+    case _trie_trust_null:
+    case _trie_retry_null:
+    case _trie_trust_null_in_pair:
+    case _trie_retry_null_in_pair:
     case _trie_trust_pair:
     case _trie_retry_pair:
-    case _trie_trust_struct:
-    case _trie_retry_struct:
-    case _trie_trust_struct_in_new_pair:
-    case _trie_retry_struct_in_new_pair:
+    case _trie_trust_appl:
+    case _trie_retry_appl:
+    case _trie_trust_appl_in_pair:
+    case _trie_retry_appl_in_pair:
     case _trie_trust_extension:
     case _trie_retry_extension:
-    case _trie_trust_float:
-    case _trie_retry_float:
-    case _trie_trust_long:
-    case _trie_retry_long:
+    case _trie_trust_double:
+    case _trie_retry_double:
+    case _trie_trust_longint:
+    case _trie_retry_longint:
+    case _trie_trust_gterm:
+    case _trie_retry_gterm:
       pe = UndefCode;
       t = MkVarTerm();
       break;

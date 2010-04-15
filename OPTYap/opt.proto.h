@@ -75,7 +75,7 @@ void load_answer(ans_node_ptr, CELL *);
 #ifndef GLOBAL_TRIE
 void free_subgoal_trie_branch(sg_node_ptr, int, int, int);
 #else /* GLOBAL_TRIE */
-CELL *load_substitution_variable(gt_node_ptr, CELL *);
+CELL *exec_substitution(gt_node_ptr, CELL *);
 void free_subgoal_trie_branch(sg_node_ptr, int, int);
 #endif /* GLOBAL_TRIE */
 void free_answer_trie_branch(ans_node_ptr, int);

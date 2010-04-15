@@ -509,9 +509,7 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
-#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
-#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -624,9 +622,7 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
-#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
-#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -739,9 +735,7 @@
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
-#ifndef GLOBAL_TRIE
 	  *--YENV = 0;  /* heap_arity */
-#endif /* GLOBAL_TRIE */
 	  GONext();
 	}
       }
@@ -1758,9 +1752,7 @@
 	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	    PREFETCH_OP(PREG);
 	    *--YENV = 0;  /* vars_arity */
-#ifndef GLOBAL_TRIE
-	  *--YENV = 0;  /* heap_arity */
-#endif /* GLOBAL_TRIE */
+            *--YENV = 0;  /* heap_arity */
 	    GONext();
 	  }
 	}
