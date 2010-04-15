@@ -2095,58 +2095,61 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
 	}
 	nargs = 0;
 	break;
-      case _trie_trust_null:
-      case _trie_retry_null:
-      case _trie_trust_null_in_new_pair:
-      case _trie_retry_null_in_new_pair:
       case _trie_trust_var:
       case _trie_retry_var:
-      case _trie_trust_var_in_new_pair:
-      case _trie_retry_var_in_new_pair:
+      case _trie_trust_var_in_pair:
+      case _trie_retry_var_in_pair:
       case _trie_trust_val:
       case _trie_retry_val:
-      case _trie_trust_val_in_new_pair:
-      case _trie_retry_val_in_new_pair:
+      case _trie_trust_val_in_pair:
+      case _trie_retry_val_in_pair:
       case _trie_trust_atom:
       case _trie_retry_atom:
-      case _trie_trust_atom_in_new_pair:
-      case _trie_retry_atom_in_new_pair:
+      case _trie_trust_atom_in_pair:
+      case _trie_retry_atom_in_pair:
+      case _trie_trust_null:
+      case _trie_retry_null:
+      case _trie_trust_null_in_pair:
+      case _trie_retry_null_in_pair:
       case _trie_trust_pair:
       case _trie_retry_pair:
-      case _trie_trust_struct:
-      case _trie_retry_struct:
-      case _trie_trust_struct_in_new_pair:
-      case _trie_retry_struct_in_new_pair:
+      case _trie_trust_appl:
+      case _trie_retry_appl:
+      case _trie_trust_appl_in_pair:
+      case _trie_retry_appl_in_pair:
       case _trie_trust_extension:
       case _trie_retry_extension:
-      case _trie_trust_float:
-      case _trie_retry_float:
-      case _trie_trust_long:
-      case _trie_retry_long:
+      case _trie_trust_double:
+      case _trie_retry_double:
+      case _trie_trust_longint:
+      case _trie_retry_longint:
+      case _trie_trust_gterm:
+      case _trie_retry_gterm:
 	{
 	  CELL *vars_ptr;
 	  int heap_arity, vars_arity, subs_arity;
 	  vars_ptr = (CELL *)(gc_B + 1);
-	  heap_arity = *vars_ptr;
-	  vars_arity = *(vars_ptr + heap_arity + 1);
-	  subs_arity = *(vars_ptr + heap_arity + 2);
-	  vars_ptr += heap_arity + subs_arity + vars_arity + 2;
-	  if (vars_arity) {
-	    while (vars_arity--) {	
-	      mark_external_reference(vars_ptr);
-	      vars_ptr--;
-	    }
-	  }
+	  heap_arity = vars_ptr[0];
+	  vars_arity = vars_ptr[1 + heap_arity];
+	  subs_arity = vars_ptr[2 + heap_arity + vars_arity];
+	  vars_ptr += 2 + heap_arity + subs_arity + vars_arity;
 	  if (subs_arity) {
 	    while (subs_arity--) {	
 	      mark_external_reference(vars_ptr);
 	      vars_ptr--;
 	    }
 	  }
-	  vars_ptr -= 2;
+	  vars_ptr--;  /* skip subs_arity entry */
+	  if (vars_arity) {
+	    while (vars_arity--) {	
+	      mark_external_reference(vars_ptr);
+	      vars_ptr--;
+	    }
+	  }
+	  vars_ptr--;  /* skip vars_arity entry */
 	  if (heap_arity) {
 	    while (heap_arity--) {	
-	      if (*vars_ptr == 0)  /* float/longint extension mark */
+	      if (*vars_ptr == 0)  /* double/longint extension mark */
 		break;
 	      mark_external_reference(vars_ptr);
 	      vars_ptr--;
@@ -3006,55 +3009,45 @@ sweep_choicepoints(choiceptr gc_B)
 	}
       }
       break;
-    case _trie_trust_null:
-    case _trie_retry_null:
-    case _trie_trust_null_in_new_pair:
-    case _trie_retry_null_in_new_pair:
     case _trie_trust_var:
     case _trie_retry_var:
-    case _trie_trust_var_in_new_pair:
-    case _trie_retry_var_in_new_pair:
+    case _trie_trust_var_in_pair:
+    case _trie_retry_var_in_pair:
     case _trie_trust_val:
     case _trie_retry_val:
-    case _trie_trust_val_in_new_pair:
-    case _trie_retry_val_in_new_pair:
+    case _trie_trust_val_in_pair:
+    case _trie_retry_val_in_pair:
     case _trie_trust_atom:
     case _trie_retry_atom:
-    case _trie_trust_atom_in_new_pair:
-    case _trie_retry_atom_in_new_pair:
+    case _trie_trust_atom_in_pair:
+    case _trie_retry_atom_in_pair:
+    case _trie_trust_null:
+    case _trie_retry_null:
+    case _trie_trust_null_in_pair:
+    case _trie_retry_null_in_pair:
     case _trie_trust_pair:
     case _trie_retry_pair:
-    case _trie_trust_struct:
-    case _trie_retry_struct:
-    case _trie_trust_struct_in_new_pair:
-    case _trie_retry_struct_in_new_pair:
+    case _trie_trust_appl:
+    case _trie_retry_appl:
+    case _trie_trust_appl_in_pair:
+    case _trie_retry_appl_in_pair:
     case _trie_trust_extension:
     case _trie_retry_extension:
-    case _trie_trust_float:
-    case _trie_retry_float:
-    case _trie_trust_long:
-    case _trie_retry_long:
+    case _trie_trust_double:
+    case _trie_retry_double:
+    case _trie_trust_longint:
+    case _trie_retry_longint:
+    case _trie_trust_gterm:
+    case _trie_retry_gterm:
       {
 	CELL *vars_ptr;
 	int heap_arity, vars_arity, subs_arity;
 	sweep_environments(gc_B->cp_env, EnvSize(gc_B->cp_cp), EnvBMap(gc_B->cp_cp));
 	vars_ptr = (CELL *)(gc_B + 1);
-	heap_arity = *vars_ptr;
-	vars_arity = *(vars_ptr + heap_arity + 1);
-	subs_arity = *(vars_ptr + heap_arity + 2);
-	vars_ptr += heap_arity + subs_arity + vars_arity + 2;
-	if (vars_arity) {
-	  while (vars_arity--) {	
-	    CELL cp_cell = *vars_ptr;
-	    if (MARKED_PTR(vars_ptr)) {
-	      UNMARK(vars_ptr);
-	      if (HEAP_PTR(cp_cell)) {
-		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
-	      }
-	    }
-	    vars_ptr--;
-	  }
-	}
+	heap_arity = vars_ptr[0];
+	vars_arity = vars_ptr[1 + heap_arity];
+	subs_arity = vars_ptr[2 + heap_arity + vars_arity];
+	vars_ptr += 2 + heap_arity + subs_arity + vars_arity;
 	if (subs_arity) {
 	  while (subs_arity--) {	
 	    CELL cp_cell = *vars_ptr;
@@ -3067,11 +3060,24 @@ sweep_choicepoints(choiceptr gc_B)
 	    vars_ptr--;
 	  }
 	}
-	vars_ptr -= 2;
+	vars_ptr--;  /* skip subs_arity entry */
+	if (vars_arity) {
+	  while (vars_arity--) {	
+	    CELL cp_cell = *vars_ptr;
+	    if (MARKED_PTR(vars_ptr)) {
+	      UNMARK(vars_ptr);
+	      if (HEAP_PTR(cp_cell)) {
+		into_relocation_chain(vars_ptr, GET_NEXT(cp_cell));
+	      }
+	    }
+	    vars_ptr--;
+	  }
+	}
+	vars_ptr--;  /* skip vars_arity entry */
 	if (heap_arity) {
 	  while (heap_arity--) {
 	    CELL cp_cell = *vars_ptr;
-	    if (*vars_ptr == 0)  /* float/longint extension mark */
+	    if (*vars_ptr == 0)  /* double/longint extension mark */
 	      break;
 	    if (MARKED_PTR(vars_ptr)) {
 	      UNMARK(vars_ptr);
