@@ -553,7 +553,6 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
   OPCODE ecls = Yap_opcode(_expand_clauses);
   UInt log_upd_pred = cint->CurrentPred->PredFlags & LogUpdatePredFlag;
 
-  Yap_ReleaseCMem(cint);
   while (cpc) {
     switch(cpc->op) {
     case enter_lu_op:
@@ -635,6 +634,7 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
     }
     cpc = cpc->nextInst;
   }
+  Yap_ReleaseCMem(cint);
   if (cint->code_addr) {
     Yap_FreeCodeSpace((char *)cint->code_addr);
     cint->code_addr = NULL;
@@ -3420,7 +3420,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   /* globals for assembler */
   IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_ReleaseCMem(&cint);
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
@@ -4612,7 +4612,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   /* globals for assembler */
   IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
-    if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint)) == NULL) {
+    if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
       if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	Yap_ReleaseCMem(&cint);

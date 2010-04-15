@@ -3516,14 +3516,16 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	code_p = a_il((CELL)*entry_codep, _Ystop, code_p, pass_no, cip);
       }
       if (!pass_no) {
+#if !USE_SYSTEM_MALLOC
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
 	  Yap_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
 	  save_machine_regs();
 	  longjmp(cip->CompilerBotch, 3);	  
 	}
-	
 	if ( (char *)(cip->label_offset+cip->cpc->rnd1) >= cip->freep)
 	  cip->freep = (char *)(cip->label_offset+(cip->cpc->rnd1+1));
+#endif
+
 	cip->label_offset[cip->cpc->rnd1] = (CELL) code_p;
       }
       /* reset dealloc_found in case there was a branch */
@@ -3819,7 +3821,7 @@ init_dbterms_list(yamop *code_p, PredEntry *ap)
 
 
 yamop *
-Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates *cip)
+Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates *cip, UInt max_label)
 {
   /*
    * the assembly proccess is done in two passes: 1 - a first pass
@@ -3832,7 +3834,15 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   int clause_has_blobs = FALSE;
   int clause_has_dbterm = FALSE;
 
+#if USE_SYSTEM_MALLOC
+  cip->label_offset = (Int *)Yap_AllocCodeSpace(sizeof(Int)*max_label);
+  if (!cip->label_offset) {
+    save_machine_regs();
+    longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+  }
+#else
   cip->label_offset = (Int *)cip->freep;
+#endif
   cip->code_addr = NULL;
   code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
   if (clause_has_dbterm) {
@@ -3852,6 +3862,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     UInt osize;
 
     if(!(x = fetch_clause_space(&t,size,cip,&osize))){
+#if USE_SYSTEM_MALLOC
+      Yap_FreeCodeSpace((ADDR)cip->label_offset);
+#endif
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
@@ -3866,6 +3879,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     StaticClause *cl;
     UInt osize;
     if(!(x = fetch_clause_space(&t,size,cip,&osize))) {
+#if USE_SYSTEM_MALLOC
+      Yap_FreeCodeSpace((ADDR)cip->label_offset);
+#endif
       return NULL;
     }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
@@ -3875,6 +3891,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cl->usc.ClSource = x;
     cl->ClSize = osize;
     ProfEnd=code_p;
+#if USE_SYSTEM_MALLOC
+    Yap_FreeCodeSpace((ADDR)cip->label_offset);
+#endif
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
@@ -3882,6 +3901,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       if (!Yap_growheap(TRUE, size, cip)) {
 	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
 	Yap_Error_Size = size;
+#if USE_SYSTEM_MALLOC
+	Yap_FreeCodeSpace((ADDR)cip->label_offset);
+#endif
 	return NULL;
       }
     }
@@ -3905,6 +3927,9 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     Yap_inform_profiler_of_clause(entry_code, ProfEnd, ap, mode == ASSEMBLING_INDEX); 
   }
 #endif /* LOW_PROF */
+#if USE_SYSTEM_MALLOC
+  Yap_FreeCodeSpace((ADDR)cip->label_offset);
+#endif
   return entry_code;
 }
 
