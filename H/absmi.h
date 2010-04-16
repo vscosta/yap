@@ -36,16 +36,6 @@ static char SccsId[] = "%W% %G%";
  */
 #ifdef __GNUC__
 
-#if defined(sparc) || defined(__sparc)
-#define SHADOW_P       1
-#define SHADOW_Y       1
-#define SHADOW_S       1
-#define SHADOW_REGS    1
-#define SHADOW_CP      1
-#define SHADOW_HB      1
-#define USE_PREFETCH   1
-#endif
-
 #ifdef hppa
 #define SHADOW_P       1
 #define SHADOW_Y       1
@@ -90,6 +80,16 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define NEEDS_TO_SET_PC 1
 #endif /* BP_FREE */
 #endif /* i386 */
+
+#ifdef sparc
+#define SHADOW_P       1
+#ifdef BP_FREE
+#undef BP_FREE
+#endif
+#define S_IN_MEM       1
+#define      Y_IN_MEM  1
+#define     TR_IN_MEM  1
+#endif /* sparc_ */
 
 #ifdef __x86_64__
 #define SHADOW_P       1

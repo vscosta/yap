@@ -165,7 +165,7 @@ extern YP_FILE yp_iob[YP_MAX_FILES];
 
 typedef YP_FILE *YP_File;
 
-enum TokenKinds {
+typedef enum TokenKinds {
   Name_tok,
   Number_tok,
   Var_tok,
@@ -174,16 +174,16 @@ enum TokenKinds {
   Ponctuation_tok,
   Error_tok,
   eot_tok
-};
+} tkinds;
 
 typedef	 struct	TOKEN {
-  unsigned char Tok;
+  enum TokenKinds Tok;
   Term TokInfo;
   int	TokPos;
   struct TOKEN *TokNext;
 } TokEntry;
 
-#define	Ord(X) ((int) (X))
+#define	Ord(X) ((enum TokenKinds) (X))
 
 #define	NextToken GNextToken()
 
