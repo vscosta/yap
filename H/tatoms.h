@@ -230,8 +230,10 @@
 #define AtomGetwork Yap_heap_regs->AtomGetwork_
   Atom AtomGetworkSeq_;
 #define AtomGetworkSeq Yap_heap_regs->AtomGetworkSeq_
-  Atom AtomGlobal_;
-#define AtomGlobal Yap_heap_regs->AtomGlobal_
+  Atom AtomGlobalSp_;
+#define AtomGlobalSp Yap_heap_regs->AtomGlobalSp_
+  Atom AtomGlobalTrie_;
+#define AtomGlobalTrie Yap_heap_regs->AtomGlobalTrie_
   Atom AtomGoalExpansion_;
 #define AtomGoalExpansion Yap_heap_regs->AtomGoalExpansion_
   Atom AtomHERE_;
@@ -288,8 +290,10 @@
 #define AtomLoadAnswers Yap_heap_regs->AtomLoadAnswers_
   Atom AtomLocal_;
 #define AtomLocal Yap_heap_regs->AtomLocal_
-  Atom AtomLocalA_;
-#define AtomLocalA Yap_heap_regs->AtomLocalA_
+  Atom AtomLocalSp_;
+#define AtomLocalSp Yap_heap_regs->AtomLocalSp_
+  Atom AtomLocalTrie_;
+#define AtomLocalTrie Yap_heap_regs->AtomLocalTrie_
   Atom AtomMaxArity_;
 #define AtomMaxArity Yap_heap_regs->AtomMaxArity_
   Atom AtomMaxFiles_;

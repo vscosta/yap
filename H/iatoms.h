@@ -114,7 +114,8 @@
   AtomGeneratePredInfo = Yap_FullLookupAtom("$generate_pred_info");
   AtomGetwork = Yap_FullLookupAtom("$getwork");
   AtomGetworkSeq = Yap_FullLookupAtom("$getwork_seq");
-  AtomGlobal = Yap_LookupAtom("global_sp");
+  AtomGlobalSp = Yap_LookupAtom("global_sp");
+  AtomGlobalTrie = Yap_LookupAtom("global_trie");
   AtomGoalExpansion = Yap_LookupAtom("goal_expansion");
   AtomHERE = Yap_LookupAtom("\n   <====HERE====>  \n");
   AtomHandleThrow = Yap_FullLookupAtom("$handle_throw");
@@ -142,8 +143,9 @@
   AtomList = Yap_LookupAtom("list");
   AtomLive = Yap_FullLookupAtom("$live");
   AtomLoadAnswers = Yap_LookupAtom("load_answers");
-  AtomLocal = Yap_LookupAtom("local_sp");
-  AtomLocalA = Yap_LookupAtom("local");
+  AtomLocal = Yap_LookupAtom("local");
+  AtomLocalSp = Yap_LookupAtom("local_sp");
+  AtomLocalTrie = Yap_LookupAtom("local_trie");
   AtomMaxArity = Yap_LookupAtom("max_arity");
   AtomMaxFiles = Yap_LookupAtom("max_files");
   AtomMegaClause = Yap_FullLookupAtom("$mega_clause");

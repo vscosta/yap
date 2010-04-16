@@ -56,6 +56,35 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 
 
 
+/*********************************
+**      Tabling mode flags      **
+*********************************/
+
+#define Flag_Batched            0x001
+#define Flag_Local              0x002
+#define Flags_SchedulingMode    (Flag_Batched | Flag_Local)
+#define Flag_ExecAnswers        0x010
+#define Flag_LoadAnswers        0x020
+#define Flags_AnswersMode       (Flag_ExecAnswers | Flag_LoadAnswers)
+#define Flag_LocalTrie          0x100
+#define Flag_GlobalTrie         0x200
+#define Flags_TrieMode          (Flag_LocalTrie | Flag_GlobalTrie)
+
+#define SetMode_Batched(X)      (X) = ((X) & ~Flags_SchedulingMode) | Flag_Batched
+#define SetMode_Local(X)        (X) = ((X) & ~Flags_SchedulingMode) | Flag_Local
+#define SetMode_ExecAnswers(X)  (X) = ((X) & ~Flags_AnswersMode) | Flag_ExecAnswers
+#define SetMode_LoadAnswers(X)  (X) = ((X) & ~Flags_AnswersMode) | Flag_LoadAnswers
+#define SetMode_LocalTrie(X)    (X) = ((X) & ~Flags_TrieMode) | Flag_LocalTrie
+#define SetMode_GlobalTrie(X)   (X) = ((X) & ~Flags_TrieMode) | Flag_GlobalTrie
+#define IsMode_Batched(X)       ((X) & Flag_Batched)
+#define IsMode_Local(X)         ((X) & Flag_Local)
+#define IsMode_ExecAnswers(X)   ((X) & Flag_ExecAnswers)
+#define IsMode_LoadAnswers(X)   ((X) & Flag_LoadAnswers)
+#define IsMode_LocalTrie(X)     ((X) & Flag_LocalTrie)
+#define IsMode_GlobalTrie(X)    ((X) & Flag_GlobalTrie)
+
+
+
 /*********************
 **      Macros      **
 *********************/
@@ -227,19 +256,29 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TrNode_init_lock_field(NODE)
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
 
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)       \
-        { register sg_node_ptr sg_node;                         \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);  \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                           \
-          TabEnt_init_lock_field(TAB_ENT);                      \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                      \
-          TabEnt_atom(TAB_ENT) = ATOM;                          \
-          TabEnt_arity(TAB_ENT) = ARITY;                        \
-          TabEnt_mode(TAB_ENT) = 0;                             \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;               \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                    \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;           \
-          GLOBAL_root_tab_ent = TAB_ENT;                        \
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)        \
+        { register sg_node_ptr sg_node;                          \
+          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);   \
+          ALLOC_TABLE_ENTRY(TAB_ENT);                            \
+          TabEnt_init_lock_field(TAB_ENT);                       \
+          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                       \
+          TabEnt_atom(TAB_ENT) = ATOM;                           \
+          TabEnt_arity(TAB_ENT) = ARITY;                         \
+          TabEnt_flags(TAB_ENT) = 0;                             \
+          SetMode_Batched(TabEnt_flags(TAB_ENT));                \
+          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));            \
+          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));              \
+          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);          \
+          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))        \
+            SetMode_Local(TabEnt_mode(TAB_ENT));                 \
+          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))  \
+            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));           \
+          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))   \
+            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
+          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
+          TabEnt_hash_chain(TAB_ENT) = NULL;                     \
+          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
+          GLOBAL_root_tab_ent = TAB_ENT;                         \
         }
 
 #define new_subgoal_frame(SG_FR, CODE)                             \

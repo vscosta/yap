@@ -190,25 +190,25 @@ yap_flag(home,X) :-
 yap_flag(tabling_mode,Options) :- 
    var(Options), !,
    '$access_yap_flags'(20,Options).
-yap_flag(tabling_mode,[]) :- !.
+yap_flag(tabling_mode,[]) :- !,
+   yap_flag(tabling_mode,default).
 yap_flag(tabling_mode,[HOption|TOption]) :- !,
-   yap_flag(tabling_mode,HOption),
-   yap_flag(tabling_mode,TOption).
-yap_flag(tabling_mode,(Option1,Option2)) :- !,
-   yap_flag(tabling_mode,Option1),
-   yap_flag(tabling_mode,Option2).
+   yap_flag(tabling_mode,TOption),
+   yap_flag(tabling_mode,HOption).
 yap_flag(tabling_mode,Option) :-
-   '$transl_to_tabling_mode'(Flag,Option),
+   '$transl_to_yap_flag_tabling_mode'(Flag,Option), !,
    '$set_yap_flags'(20,Flag).
 yap_flag(tabling_mode,Options) :-
    '$do_error'(domain_error(flag_value,tabling_mode+Options),yap_flag(tabling_mode,Options)).
 
 % should match with code in stdpreds.c
-'$transl_to_tabling_mode'(0,default).
-'$transl_to_tabling_mode'(1,batched).
-'$transl_to_tabling_mode'(2,local).
-'$transl_to_tabling_mode'(3,exec_answers).
-'$transl_to_tabling_mode'(4,load_answers).
+'$transl_to_yap_flag_tabling_mode'(0,default).
+'$transl_to_yap_flag_tabling_mode'(1,batched).
+'$transl_to_yap_flag_tabling_mode'(2,local).
+'$transl_to_yap_flag_tabling_mode'(3,exec_answers).
+'$transl_to_yap_flag_tabling_mode'(4,load_answers).
+'$transl_to_yap_flag_tabling_mode'(5,local_trie).
+'$transl_to_yap_flag_tabling_mode'(6,global_trie).
 
 yap_flag(informational_messages,X) :- var(X), !,
 	 get_value('$verbose',X).

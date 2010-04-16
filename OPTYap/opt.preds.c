@@ -65,6 +65,7 @@ static Int p_show_table(void);
 static Int p_show_all_tables(void);
 #ifdef GLOBAL_TRIE
 static Int p_show_global_trie(void);
+static Int p_global_trie_statistics(void);
 #endif /* GLOBAL_TRIE */
 static Int p_table_statistics(void);
 static Int p_tabling_statistics(void);
@@ -154,6 +155,7 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("show_all_tables", 0, p_show_all_tables, SafePredFlag|SyncPredFlag);
 #ifdef GLOBAL_TRIE
   Yap_InitCPred("show_global_trie", 0, p_show_global_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("global_trie_statistics", 0, p_global_trie_statistics, SafePredFlag|SyncPredFlag);
 #endif /* GLOBAL_TRIE */
   Yap_InitCPred("$c_table_statistics", 2, p_table_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("tabling_statistics", 0, p_tabling_statistics, SafePredFlag|SyncPredFlag);
@@ -616,10 +618,6 @@ Int p_table(void) {
     return (FALSE);  /* predicate already compiled */
   pe->PredFlags |= TabledPredFlag;
   new_table_entry(tab_ent, pe, at, arity);
-  if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))
-    SetMode_Local(TabEnt_mode(tab_ent));
-  if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))
-    SetMode_LoadAnswers(TabEnt_mode(tab_ent));
   pe->TableOfPred = tab_ent;
   return (TRUE);
 }
@@ -627,7 +625,7 @@ Int p_table(void) {
 
 static
 Int p_tabling_mode(void) {
-  Term mod, t, val;
+  Term mod, t, tvalue;
   tab_ent_ptr tab_ent;
 
   mod = Deref(ARG1);
@@ -638,62 +636,70 @@ Int p_tabling_mode(void) {
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else
     return (FALSE);
-  val = Deref(ARG3);
-  if (IsVarTerm(val)) {
-    Term mode;
-    t = MkAtomTerm(AtomNil);
-    if (IsDefaultMode_LoadAnswers(TabEnt_mode(tab_ent)))
-      mode = MkAtomTerm(Yap_LookupAtom("load_answers"));
-    else
-      mode = MkAtomTerm(Yap_LookupAtom("exec_answers"));
-    t = MkPairTerm(mode, t);
-    if (IsDefaultMode_Local(TabEnt_mode(tab_ent)))
-      mode = MkAtomTerm(Yap_LookupAtom("local"));
-    else
-      mode = MkAtomTerm(Yap_LookupAtom("batched"));
-    t = MkPairTerm(mode, t);
-    mode = MkAtomTerm(Yap_LookupAtom("default"));
-    t = MkPairTerm(mode, t);
-    t = MkPairTerm(t, MkAtomTerm(AtomNil));
-    if (IsMode_LoadAnswers(TabEnt_mode(tab_ent)))
-      mode = MkAtomTerm(Yap_LookupAtom("load_answers"));
-    else
-      mode = MkAtomTerm(Yap_LookupAtom("exec_answers"));
-    t = MkPairTerm(mode, t);
-    if (IsMode_Local(TabEnt_mode(tab_ent)))
-      mode = MkAtomTerm(Yap_LookupAtom("local"));
-    else
-      mode = MkAtomTerm(Yap_LookupAtom("batched"));
-    t = MkPairTerm(mode, t);
-    Bind((CELL *)val, t);
+  tvalue = Deref(ARG3);
+  if (IsVarTerm(tvalue)) {
+    t = TermNil;
+   if (IsMode_LocalTrie(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLocalTrie), t);
+    else if (IsMode_GlobalTrie(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomGlobalTrie), t);
+    if (IsMode_ExecAnswers(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomExecAnswers), t);
+    else if (IsMode_LoadAnswers(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLoadAnswers), t);
+    if (IsMode_Batched(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomBatched), t);
+    else if (IsMode_Local(TabEnt_flags(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLocal), t);
+    t = MkPairTerm(MkAtomTerm(AtomDefault), t);
+    t = MkPairTerm(t, TermNil);
+    if (IsMode_LocalTrie(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLocalTrie), t);
+    else if (IsMode_GlobalTrie(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomGlobalTrie), t);
+    if (IsMode_ExecAnswers(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomExecAnswers), t);
+    else if (IsMode_LoadAnswers(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLoadAnswers), t);
+    if (IsMode_Batched(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomBatched), t);
+    else if (IsMode_Local(TabEnt_mode(tab_ent)))
+      t = MkPairTerm(MkAtomTerm(AtomLocal), t);
+    Bind((CELL *) tvalue, t);
     return(TRUE);
-  }
-  if (IsAtomTerm(val)) {
-    char *str_val = RepAtom(AtomOfTerm(val))->StrOfAE;
-    if (strcmp(str_val,"batched") == 0) {
-      SetDefaultMode_Batched(TabEnt_mode(tab_ent));
-      if (IsMode_SchedulingOff(yap_flags[TABLING_MODE_FLAG]))
+  } else if (IsIntTerm(tvalue)) {
+    Int value = IntOfTerm(tvalue);
+    if (value == 1) {  /* batched */
+      SetMode_Batched(TabEnt_flags(tab_ent));
+      if (! IsMode_Local(yap_flags[TABLING_MODE_FLAG]))
 	SetMode_Batched(TabEnt_mode(tab_ent));
       return(TRUE);
-    } 
-    if (strcmp(str_val,"local") == 0) {
-      SetDefaultMode_Local(TabEnt_mode(tab_ent));
-      if (IsMode_SchedulingOff(yap_flags[TABLING_MODE_FLAG]))
+    } else if (value == 2) {  /* local */
+      SetMode_Local(TabEnt_flags(tab_ent));
+      if (! IsMode_Batched(yap_flags[TABLING_MODE_FLAG]))
 	SetMode_Local(TabEnt_mode(tab_ent));
       return(TRUE);
-    }
-    if (strcmp(str_val,"exec_answers") == 0) {
-      SetDefaultMode_ExecAnswers(TabEnt_mode(tab_ent));
-      if (IsMode_CompletedOff(yap_flags[TABLING_MODE_FLAG]))
+    } else if (value == 3) {  /* exec_answers */
+      SetMode_ExecAnswers(TabEnt_flags(tab_ent));
+      if (! IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))
 	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
       return(TRUE);
-    } 
-    if (strcmp(str_val,"load_answers") == 0) {
-      SetDefaultMode_LoadAnswers(TabEnt_mode(tab_ent));
-      if (IsMode_CompletedOff(yap_flags[TABLING_MODE_FLAG]))
+    } else if (value == 4) {  /* load_answers */
+      SetMode_LoadAnswers(TabEnt_flags(tab_ent));
+      if (! IsMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]))
 	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
       return(TRUE);
-    }
+    } else if (value == 5) {  /* local_trie */
+      SetMode_LocalTrie(TabEnt_flags(tab_ent));
+      if (! IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_LocalTrie(TabEnt_mode(tab_ent));
+      return(TRUE);
+    } else if (value == 6) {  /* global_trie */
+      SetMode_GlobalTrie(TabEnt_flags(tab_ent));
+      if (! IsMode_LocalTrie(yap_flags[TABLING_MODE_FLAG]))
+	SetMode_GlobalTrie(TabEnt_mode(tab_ent));
+      return(TRUE);
+    }    
   }
   return (FALSE);
 }
@@ -763,7 +769,7 @@ Int p_show_tabled_predicates(void) {
   tab_ent = GLOBAL_root_tab_ent;
   fprintf(Yap_stdout, "Tabled predicates\n");
   if (tab_ent == NULL)
-    fprintf(Yap_stdout, "  none\n");
+    fprintf(Yap_stdout, "  NONE\n");
   else
     while(tab_ent) {
       fprintf(Yap_stdout, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
@@ -807,7 +813,13 @@ Int p_show_all_tables(void) {
 #ifdef GLOBAL_TRIE
 static
 Int p_show_global_trie(void) {
-  show_global_trie();
+  show_global_trie(SHOW_MODE_STRUCTURE);
+  return (TRUE);
+}
+
+static 
+Int p_global_trie_statistics(void) {
+  show_global_trie(SHOW_MODE_STATISTICS);
   return (TRUE);
 }
 #endif /* GLOBAL_TRIE */

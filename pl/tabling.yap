@@ -120,9 +120,12 @@ tabling_mode(Pred,Options) :-
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
-   (Flags /\ 0x000040 =\= 0, !, '$set_tabling_mode'(Mod,PredFunctor,Options)
+   (
+       Flags /\ 0x000040 =\= 0, !, '$set_tabling_mode'(Mod,PredFunctor,Options)
    ;
-   '$do_error'(domain_error(table,Mod:PredName/PredArity),tabling_mode(Mod:PredName/PredArity,Options))).
+write(icardioi),nl,
+       '$do_error'(domain_error(table,Mod:PredName/PredArity),tabling_mode(Mod:PredName/PredArity,Options))
+   ).
 '$do_tabling_mode'(Mod,Pred,Options) :- 
    '$do_error'(type_error(callable,Mod:Pred),tabling_mode(Mod:Pred,Options)).
 
@@ -137,11 +140,19 @@ tabling_mode(Pred,Options) :-
    '$set_tabling_mode'(Mod,PredFunctor,Option1),
    '$set_tabling_mode'(Mod,PredFunctor,Option2).
 '$set_tabling_mode'(Mod,PredFunctor,Option) :- 
-   (Option = batched ; Option = local ; Option = exec_answers ; Option = load_answers), !, 
-   '$c_tabling_mode'(Mod,PredFunctor,Option).
+   '$transl_to_pred_flag_tabling_mode'(Flag,Option), !,
+   '$c_tabling_mode'(Mod,PredFunctor,Flag).
 '$set_tabling_mode'(Mod,PredFunctor,Options) :- 
    functor(PredFunctor,PredName,PredArity), 
    '$do_error'(domain_error(flag_value,tabling_mode+Options),tabling_mode(Mod:PredName/PredArity,Options)).
+
+% should match with code in OPTYap/opt.preds.c
+'$transl_to_pred_flag_tabling_mode'(1,batched).
+'$transl_to_pred_flag_tabling_mode'(2,local).
+'$transl_to_pred_flag_tabling_mode'(3,exec_answers).
+'$transl_to_pred_flag_tabling_mode'(4,load_answers).
+'$transl_to_pred_flag_tabling_mode'(5,local_trie).
+'$transl_to_pred_flag_tabling_mode'(6,global_trie).
 
 
 
@@ -170,9 +181,11 @@ abolish_table(Pred) :-
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
-   (Flags /\ 0x000040 =\= 0, !, '$c_abolish_table'(Mod,PredFunctor)
+   (
+       Flags /\ 0x000040 =\= 0, !, '$c_abolish_table'(Mod,PredFunctor)
    ;
-   '$do_error'(domain_error(table,Mod:PredName/PredArity),abolish_table(Mod:PredName/PredArity))).
+       '$do_error'(domain_error(table,Mod:PredName/PredArity),abolish_table(Mod:PredName/PredArity))
+   ).
 '$do_abolish_table'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),abolish_table(Mod:Pred)).
 
@@ -203,9 +216,11 @@ show_table(Pred) :-
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
-   (Flags /\ 0x000040 =\= 0, !, '$c_show_table'(Mod,PredFunctor)
+   (
+       Flags /\ 0x000040 =\= 0, !, '$c_show_table'(Mod,PredFunctor)
    ;
-   '$do_error'(domain_error(table,Mod:PredName/PredArity),show_table(Mod:PredName/PredArity))).
+       '$do_error'(domain_error(table,Mod:PredName/PredArity),show_table(Mod:PredName/PredArity))
+   ).
 '$do_show_table'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),show_table(Mod:Pred)).
 
@@ -236,8 +251,10 @@ table_statistics(Pred) :-
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
-   (Flags /\ 0x000040 =\= 0, !, '$c_table_statistics'(Mod,PredFunctor)
+   (
+       Flags /\ 0x000040 =\= 0, !, '$c_table_statistics'(Mod,PredFunctor)
    ;
-   '$do_error'(domain_error(table,Mod:PredName/PredArity),table_statistics(Mod:PredName/PredArity))).
+       '$do_error'(domain_error(table,Mod:PredName/PredArity),table_statistics(Mod:PredName/PredArity))
+   ).
 '$do_table_statistics'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table_statistics(Mod:Pred)).
