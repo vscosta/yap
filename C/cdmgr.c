@@ -3509,7 +3509,7 @@ static Term
 all_calls(void)
 {
   Term ts[4];
-  Functor f = Yap_MkFunctor(AtomLocal,4);
+  Functor f = Yap_MkFunctor(AtomLocalSp,4);
 
   ts[0] = MkIntegerTerm((Int)P);
   ts[1] = MkIntegerTerm((Int)CP);

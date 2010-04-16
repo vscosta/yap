@@ -114,7 +114,8 @@
   AtomGeneratePredInfo = AtomAdjust(AtomGeneratePredInfo);
   AtomGetwork = AtomAdjust(AtomGetwork);
   AtomGetworkSeq = AtomAdjust(AtomGetworkSeq);
-  AtomGlobal = AtomAdjust(AtomGlobal);
+  AtomGlobalSp = AtomAdjust(AtomGlobalSp);
+  AtomGlobalTrie = AtomAdjust(AtomGlobalTrie);
   AtomGoalExpansion = AtomAdjust(AtomGoalExpansion);
   AtomHERE = AtomAdjust(AtomHERE);
   AtomHandleThrow = AtomAdjust(AtomHandleThrow);
@@ -143,7 +144,8 @@
   AtomLive = AtomAdjust(AtomLive);
   AtomLoadAnswers = AtomAdjust(AtomLoadAnswers);
   AtomLocal = AtomAdjust(AtomLocal);
-  AtomLocalA = AtomAdjust(AtomLocalA);
+  AtomLocalSp = AtomAdjust(AtomLocalSp);
+  AtomLocalTrie = AtomAdjust(AtomLocalTrie);
   AtomMaxArity = AtomAdjust(AtomMaxArity);
   AtomMaxFiles = AtomAdjust(AtomMaxFiles);
   AtomMegaClause = AtomAdjust(AtomMegaClause);

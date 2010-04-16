@@ -273,6 +273,9 @@ static char     SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "eval.h"
 #include "yapio.h"
+#ifdef TABLING
+#include "tab.macros.h"
+#endif /* TABLING */
 #include <stdio.h>
 #if HAVE_STRING_H
 #include <string.h>
@@ -3656,28 +3659,19 @@ p_access_yap_flags(void)
   }
 #ifdef TABLING
   if (flag == TABLING_MODE_FLAG) {
-    int n = 0;
-    if (IsMode_CompletedOn(yap_flags[flag])) {
-      if (IsMode_LoadAnswers(yap_flags[flag]))
-	tout = MkAtomTerm(AtomLoadAnswers);
-      else
-	tout = MkAtomTerm(AtomExecAnswers);
-      n++;
-    }
-    if (IsMode_SchedulingOn(yap_flags[flag])) {
-      Term taux = tout;
-      if (IsMode_Local(yap_flags[flag]))
-	tout = MkAtomTerm(AtomLocalA);
-      else
-	tout = MkAtomTerm(AtomBatched);
-      if (n) {
-	taux = MkPairTerm(taux, MkAtomTerm(AtomNil));
-	tout = MkPairTerm(tout, taux);
-      }
-      n++;
-    }
-    if (n == 0)
-      tout = MkAtomTerm(AtomDefault);
+    tout = TermNil;
+    if (IsMode_LocalTrie(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomLocalTrie), tout);
+    else if (IsMode_GlobalTrie(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomGlobalTrie), tout);
+    if (IsMode_ExecAnswers(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomExecAnswers), tout);
+    else if (IsMode_LoadAnswers(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomLoadAnswers), tout);
+    if (IsMode_Batched(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomBatched), tout);
+    else if (IsMode_Local(yap_flags[flag]))
+      tout = MkPairTerm(MkAtomTerm(AtomLocal), tout);
   } else
 #endif /* TABLING */
   tout = MkIntegerTerm(yap_flags[flag]);
@@ -3804,14 +3798,7 @@ p_set_yap_flags(void)
     if (value == 0) {  /* default */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
       while(tab_ent) {
-	if (IsDefaultMode_Local(TabEnt_mode(tab_ent)))
-	  SetMode_Local(TabEnt_mode(tab_ent));
-	else
-	  SetMode_Batched(TabEnt_mode(tab_ent));
-	if (IsDefaultMode_LoadAnswers(TabEnt_mode(tab_ent)))
-	  SetMode_LoadAnswers(TabEnt_mode(tab_ent));
-	else
-	  SetMode_ExecAnswers(TabEnt_mode(tab_ent));
+	TabEnt_mode(tab_ent) = TabEnt_flags(tab_ent);
 	tab_ent = TabEnt_next(tab_ent);
       }
       yap_flags[TABLING_MODE_FLAG] = 0;
@@ -3822,7 +3809,6 @@ p_set_yap_flags(void)
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Batched(yap_flags[TABLING_MODE_FLAG]);
-      SetMode_SchedulingOn(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 2) {  /* local */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
       while(tab_ent) {
@@ -3830,7 +3816,6 @@ p_set_yap_flags(void)
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Local(yap_flags[TABLING_MODE_FLAG]);
-      SetMode_SchedulingOn(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 3) {  /* exec_answers */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
       while(tab_ent) {
@@ -3838,7 +3823,6 @@ p_set_yap_flags(void)
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]);
-      SetMode_CompletedOn(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 4) {  /* load_answers */
       tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
       while(tab_ent) {
@@ -3846,7 +3830,20 @@ p_set_yap_flags(void)
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]);
-      SetMode_CompletedOn(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 5) {  /* local_trie */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_LocalTrie(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_LocalTrie(yap_flags[TABLING_MODE_FLAG]);
+    } else if (value == 6) {  /* global_trie */
+      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      while(tab_ent) {
+	SetMode_GlobalTrie(TabEnt_mode(tab_ent));
+	tab_ent = TabEnt_next(tab_ent);
+      }
+      SetMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]);
     } 
     break;
 #endif /* TABLING */
