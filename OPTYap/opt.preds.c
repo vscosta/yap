@@ -65,6 +65,7 @@ static Int p_show_table(void);
 static Int p_show_all_tables(void);
 #ifdef GLOBAL_TRIE
 static Int p_show_global_trie(void);
+static Int p_global_trie_statistics(void);
 #endif /* GLOBAL_TRIE */
 static Int p_table_statistics(void);
 static Int p_tabling_statistics(void);
@@ -154,6 +155,7 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("show_all_tables", 0, p_show_all_tables, SafePredFlag|SyncPredFlag);
 #ifdef GLOBAL_TRIE
   Yap_InitCPred("show_global_trie", 0, p_show_global_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("global_trie_statistics", 0, p_global_trie_statistics, SafePredFlag|SyncPredFlag);
 #endif /* GLOBAL_TRIE */
   Yap_InitCPred("$c_table_statistics", 2, p_table_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("tabling_statistics", 0, p_tabling_statistics, SafePredFlag|SyncPredFlag);
@@ -767,7 +769,7 @@ Int p_show_tabled_predicates(void) {
   tab_ent = GLOBAL_root_tab_ent;
   fprintf(Yap_stdout, "Tabled predicates\n");
   if (tab_ent == NULL)
-    fprintf(Yap_stdout, "  none\n");
+    fprintf(Yap_stdout, "  NONE\n");
   else
     while(tab_ent) {
       fprintf(Yap_stdout, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
@@ -811,7 +813,13 @@ Int p_show_all_tables(void) {
 #ifdef GLOBAL_TRIE
 static
 Int p_show_global_trie(void) {
-  show_global_trie();
+  show_global_trie(SHOW_MODE_STRUCTURE);
+  return (TRUE);
+}
+
+static 
+Int p_global_trie_statistics(void) {
+  show_global_trie(SHOW_MODE_STATISTICS);
   return (TRUE);
 }
 #endif /* GLOBAL_TRIE */

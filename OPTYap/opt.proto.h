@@ -82,7 +82,7 @@ void free_answer_trie_branch(ans_node_ptr, int);
 void update_answer_trie(sg_fr_ptr);
 void show_table(tab_ent_ptr, int);
 #ifdef GLOBAL_TRIE
-void show_global_trie(void);
+void show_global_trie(int);
 #endif /* GLOBAL_TRIE */
 void private_completion(sg_fr_ptr);
 #endif /* TABLING */
