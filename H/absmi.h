@@ -102,6 +102,7 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #define S_IN_MEM       1
 #define      Y_IN_MEM  1
 #define     TR_IN_MEM  1
+#define USE_PREFETCH   1
 #endif /* __x86_64__ */
 
 #else /* other compilers */
