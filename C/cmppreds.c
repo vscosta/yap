@@ -563,6 +563,9 @@ a_cmp(Term t1, Term t2)
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
+	Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = "trying to evaluate nan";
 	ArithError = TRUE;
       }
 #endif      
@@ -579,6 +582,9 @@ a_cmp(Term t1, Term t2)
     Float f1 = FloatOfTerm(t1);
 #if HAVE_ISNAN
     if (isnan(f1)) {
+      Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
+      Yap_Error_Term = t1;
+      Yap_ErrorMessage = "trying to evaluate nan";
       ArithError = TRUE;
     }
 #endif      
@@ -595,6 +601,9 @@ a_cmp(Term t1, Term t2)
       Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
       if (isnan(f2)) {
+	Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
+	Yap_Error_Term = t2;
+	Yap_ErrorMessage = "trying to evaluate nan";
 	ArithError = TRUE;
       }
 #endif      
@@ -620,6 +629,9 @@ a_cmp(Term t1, Term t2)
 	Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
 	if (isnan(f2)) {
+	  Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
+	  Yap_Error_Term = t2;
+	  Yap_ErrorMessage = "trying to evaluate nan";
 	  ArithError = TRUE;
 	}
 #endif      
