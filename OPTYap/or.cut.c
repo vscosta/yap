@@ -103,10 +103,7 @@ void prune_shared_branch(choiceptr prune_cp) {
       SCH_update_local_or_tops();
     } while (Get_LOCAL_top_cp() != prune_cp);
 
-#ifdef YAPOR_ERRORS
-    if (Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
-      YAPOR_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, LOCAL_top_cp) (prune_shared_branch)");
-#endif /* YAPOR_ERRORS */
+    YAPOR_ERROR_CHECKING(prune_shared_branch, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
     /* store answers not pruned */
     if (qg_solutions)
       CUT_join_answers_in_an_unique_frame(qg_solutions);
@@ -193,10 +190,7 @@ void prune_shared_branch(choiceptr prune_cp) {
       SCH_update_local_or_tops();
     }
 
-#ifdef YAPOR_ERRORS
-    if (Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
-      YAPOR_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(LOCAL_prune_request, Get_LOCAL_top_cp()) (prune_shared_branch)");
-#endif /* YAPOR_ERRORS */
+    YAPOR_ERROR_CHECKING(prune_shared_branch, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
     /* store answers not pruned */
     if (qg_solutions)
       CUT_join_answers_in_an_unique_frame(qg_solutions);

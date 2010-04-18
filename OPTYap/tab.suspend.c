@@ -76,10 +76,7 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
   while (IS_UNLOCKED(OrFr_lock(aux_or_fr))) {
     susp_fr_ptr aux_susp_fr;
     or_fr_ptr next_or_fr_on_stack;
-#ifdef OPTYAP_ERRORS
-    if (YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)) (complete_suspension_branch)");
-#endif /* OPTYAP_ERRORS */
+    OPTYAP_ERROR_CHECKING(complete_suspension_branch, YOUNGER_CP(top_cp, GetOrFr_node(aux_or_fr)));
     LOCK_OR_FRAME(aux_or_fr);
     aux_susp_fr = OrFr_suspensions(aux_or_fr);
     while (aux_susp_fr) {
@@ -285,24 +282,17 @@ void suspend_branch(void) {
 
   /* suspension only occurs in shared nodes that **
   **   are leaders with younger consumer nodes   */
-#ifdef OPTYAP_ERRORS
-  if (Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr)
-    OPTYAP_ERROR_MESSAGE("LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr (suspend_branch)");
-  if (B_FZ == Get_LOCAL_top_cp())
-    OPTYAP_ERROR_MESSAGE("B_FZ = LOCAL_top_cp (suspend_branch)");
-  if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()))
-    OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, LOCAL_top_cp_on_stack) (suspend_branch)");
-  if (Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr)
-    OPTYAP_ERROR_MESSAGE("LOCAL_top_cp->cp_or_fr != LOCAL_top_or_fr (suspend_branch)");
+#ifdef DEBUG_OPTYAP
+  OPTYAP_ERROR_CHECKING(suspend_branch, Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr);
+  OPTYAP_ERROR_CHECKING(suspend_branch, B_FZ == Get_LOCAL_top_cp());
+  OPTYAP_ERROR_CHECKING(suspend_branch, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
+  OPTYAP_ERROR_CHECKING(suspend_branch, Get_LOCAL_top_cp()->cp_or_fr != LOCAL_top_or_fr);
   or_frame = Get_LOCAL_top_cp_on_stack()->cp_or_fr;
   while (or_frame != LOCAL_top_or_fr) {
-    if (YOUNGER_CP(Get_LOCAL_top_cp(), GetOrFr_node(or_frame))) {
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, GetOrFr_node(or_frame)) (suspend_branch)");
-      break;
-    }
+    OPTYAP_ERROR_CHECKING(suspend_branch, YOUNGER_CP(Get_LOCAL_top_cp(), GetOrFr_node(or_frame)));
     or_frame = OrFr_next_on_stack(or_frame);
   }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
 
   or_frame = Get_LOCAL_top_cp_on_stack()->cp_or_fr;
   LOCK_OR_FRAME(or_frame);
@@ -378,16 +368,10 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
          SuspFr_trail_start(resume_fr),
          SuspFr_trail_size(resume_fr));
 
-#ifdef OPTYAP_ERRORS
-  if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_h != SuspFr_global_reg(resume_fr) + SuspFr_global_size(resume_fr))
-    OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr)->cp_h != SuspFr_global_reg + SuspFr_global_size (resume_suspension_frame)");
-  if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_tr != SuspFr_trail_reg(resume_fr) + SuspFr_trail_size(resume_fr))
-    OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr)->cp_tr != SuspFr_trail_reg + SuspFr_trail_size (resume_suspension_frame)");
-  if (DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)) != SuspFr_local_reg(resume_fr))
-    OPTYAP_ERROR_MESSAGE("DepFr_cons_cp(SuspFr_top_dep_fr) != SuspFr_local_reg (resume_suspension_frame)");
-  if ((void *)Get_LOCAL_top_cp() < SuspFr_local_reg(resume_fr) + SuspFr_local_size(resume_fr))
-    OPTYAP_ERROR_MESSAGE("LOCAL_top_cp < SuspFr_local_reg + SuspFr_local_size (resume_suspension_frame)");
-#endif /* OPTYAP_ERRORS */
+  OPTYAP_ERROR_CHECKING(resume_suspension_frame, DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_h != SuspFr_global_reg(resume_fr) + SuspFr_global_size(resume_fr));
+  OPTYAP_ERROR_CHECKING(resume_suspension_frame, DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr))->cp_tr != SuspFr_trail_reg(resume_fr) + SuspFr_trail_size(resume_fr));
+  OPTYAP_ERROR_CHECKING(resume_suspension_frame, DepFr_cons_cp(SuspFr_top_dep_fr(resume_fr)) != SuspFr_local_reg(resume_fr));
+  OPTYAP_ERROR_CHECKING(resume_suspension_frame, (void *)Get_LOCAL_top_cp() < SuspFr_local_reg(resume_fr) + SuspFr_local_size(resume_fr));
 
   /* update shared nodes */
   or_frame = top_or_fr;

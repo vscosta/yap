@@ -1106,10 +1106,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
-#ifdef TABLING_ERRORS
-    if (IsNonVarTerm(subs_ptr[i]))
-      TABLING_ERROR_MESSAGE("IsNonVarTem(subs_ptr[i]) (answer_search)");
-#endif /* TABLING_ERRORS */
+    TABLING_ERROR_CHECKING(answer search, IsNonVarTerm(subs_ptr[i]));
     current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
   }
 
@@ -1130,10 +1127,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
   CELL *stack_terms;
   int i;
 
-#ifdef TABLING_ERRORS
-  if (H < H_FZ)
-    TABLING_ERROR_MESSAGE("H < H_FZ (load_answer)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(load_answer, H < H_FZ);
   if (subs_arity == 0)
     return;
 
@@ -1143,10 +1137,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
     Term t = STACK_POP_DOWN(stack_terms);
     Bind((CELL *) subs_ptr[i], t);
   }
-#ifdef TABLING_ERRORS
-  if (stack_terms != (CELL *)Yap_TrailTop)
-    TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (load_answer)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)Yap_TrailTop);
 
   return;
 #undef subs_arity
@@ -1166,10 +1157,7 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
   subs_ptr = aux_stack + aux_stack[1] + 2;
   t = STACK_POP_DOWN(stack_terms);
   Bind((CELL *) subs_ptr[subs_arity], t);
-#ifdef TABLING_ERRORS
-  if (stack_terms != (CELL *)Yap_TrailTop)
-    TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (exec_substitution)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)Yap_TrailTop);
   *subs_ptr = subs_arity - 1;
 
   return aux_stack;

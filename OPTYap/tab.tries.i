@@ -383,11 +383,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
   ans_node_ptr child_node;
 
-#ifdef TABLING_ERRORS
-  if (IS_ANSWER_LEAF_NODE(parent_node))
-    TABLING_ERROR_MESSAGE("IS_ANSWER_LEAF_NODE(parent_node) (answer_trie_check_insert_(gt)_entry)");
-#endif /* TABLING_ERRORS */
-
+  TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));
   LOCK_NODE(parent_node);
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
@@ -485,11 +481,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
   ans_node_ptr child_node;
   ans_hash_ptr hash;
 
-#ifdef TABLING_ERRORS
-  if (IS_ANSWER_LEAF_NODE(parent_node))
-    TABLING_ERROR_MESSAGE("IS_ANSWER_LEAF_NODE(parent_node) (answer_trie_check_insert_(gt)_entry)");
-#endif /* TABLING_ERRORS */
-
+  TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
 #ifdef ALLOC_BEFORE_CHECK

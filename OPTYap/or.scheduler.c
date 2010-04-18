@@ -100,10 +100,7 @@ void PUT_OUT_ROOT_NODE(int worker_num) {
 
 static inline
 void move_up_to_prune_request(void) {
-#ifdef YAPOR_ERRORS
-  if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
-    YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_to_prune_request)");
-#endif /* YAPOR_ERRORS */
+  YAPOR_ERROR_CHECKING(move_up_to_prune_request, EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
 
   do {
     LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -268,15 +265,9 @@ int get_work(void) {
 
 static
 int move_up_one_node(or_fr_ptr nearest_livenode) {
-#ifdef YAPOR_ERRORS
-  if (Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
-    YAPOR_ERROR_MESSAGE("invalid LOCAL_prune_request (move_up_one_node)");
-#endif /* YAPOR_ERRORS */
-
+  YAPOR_ERROR_CHECKING(move_up_one_node, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
 
   LOCK_OR_FRAME(LOCAL_top_or_fr);
-
-
   /* last worker in a sequential choicepoint ? */
   if (OrFr_alternative(LOCAL_top_or_fr) 
       && YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)) 
@@ -284,7 +275,6 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
     return FALSE;
   }
-
 
   /* pending prune ? */
   if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr) 
@@ -306,18 +296,9 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     return FALSE;
   }
 
-
-#ifdef OPTYAP_ERRORS
-  if (B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr))
-    OPTYAP_ERROR_MESSAGE("B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr) (move_up_one_node)");
-  if (LOCAL_top_susp_or_fr) {
-    if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp()) (move_up_one_node)");
-    if (YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ))
-      OPTYAP_ERROR_MESSAGE("YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ) (move_up_one_node)");
-  }
-#endif /* OPTYAP_ERRORS */
-
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr));
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, LOCAL_top_susp_or_fr && EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp));
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, LOCAL_top_susp_or_fr && YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ));
 
 #ifdef TABLING
   /* frozen stacks on branch ? */
@@ -358,7 +339,6 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     return TRUE;
   }
 
-
   /* suspension frames to resume ? */
   if (OrFr_suspensions(LOCAL_top_or_fr)) {
     susp_fr_ptr resume_fr;
@@ -386,7 +366,6 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     OrFr_nearest_suspnode(LOCAL_top_or_fr) = LOCAL_top_or_fr;
   }
   
-   
   /* top node frozen ? */
   if (B_FZ == Get_LOCAL_top_cp()) {
     if (nearest_livenode)
@@ -427,20 +406,12 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     return TRUE;
   }
 
-
-#ifdef OPTYAP_ERRORS
-  if (OrFr_alternative(LOCAL_top_or_fr) && ! YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)))
-    OPTYAP_ERROR_MESSAGE("OrFr_alternative(LOCAL_top_or_fr) not sequential (move_up_one_node)");
-  if (Get_LOCAL_top_cp() == DepFr_cons_cp(LOCAL_top_dep_fr))
-    OPTYAP_ERROR_MESSAGE("LOCAL_top_cp == DepFr_cons_cp(LOCAL_top_dep_fr) (move_up_one_node)");
-  if (Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack())
-    OPTYAP_ERROR_MESSAGE("LOCAL_top_cp != LOCAL_top_cp_on_stack (move_up_one_node)");
-#endif /* OPTYAP_ERRORS */
-
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, OrFr_alternative(LOCAL_top_or_fr) && ! YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)));
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, Get_LOCAL_top_cp() == DepFr_cons_cp(LOCAL_top_dep_fr));
+  OPTYAP_ERROR_MESSAGE(move_up_one_node, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
 
   /* no frozen nodes */
   Set_LOCAL_top_cp_on_stack(GetOrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)));
-
 
   /* no more owners ? */
   if (OrFr_owners(LOCAL_top_or_fr) == 1) {
@@ -499,7 +470,6 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     }
     return TRUE;
   }
-
 
   /* more owners */
   if (nearest_livenode)

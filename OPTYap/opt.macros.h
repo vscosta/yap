@@ -11,9 +11,9 @@
 **                                                                     **
 ************************************************************************/
 
-/********************************
-**      Memory management      **
-********************************/
+/************************************************************************
+**                          Memory management                          **
+************************************************************************/
 
 #ifdef SHM_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
@@ -425,16 +425,15 @@ extern int Yap_page_size;
 
 
 
-/******************************************
-**      Bitmap tests and operations      **
-******************************************/
+/************************************************************************
+**                         Bitmap manipulation                         **
+************************************************************************/
 
 #define BITMAP_empty(b)		       ((b) == 0)
 #define BITMAP_member(b,n)	       (((b) & (1<<(n))) != 0)
 #define BITMAP_alone(b,n)	       ((b) == (1<<(n)))
 #define BITMAP_subset(b1,b2)	       (((b1) & (b2)) == b2)
 #define BITMAP_same(b1,b2)             ((b1) == (b2))
-
 #define BITMAP_clear(b)	               ((b) = 0)
 #define BITMAP_and(b1,b2)              ((b1) &= (b2))
 #define BITMAP_minus(b1,b2)            ((b1) &= ~(b2))
@@ -446,26 +445,38 @@ extern int Yap_page_size;
 
 
 
-/***************************************
-**      Message and debug macros      **
-***************************************/
+/************************************************************************
+**                            Debug macros                             **
+************************************************************************/
 
-#define INFORMATION_MESSAGE(MESG, ARGS...)  information_message(MESG, ##ARGS)
+#define INFORMATION_MESSAGE(MESSAGE,ARGS...)                            \
+        fprintf(stderr, "[ " MESSAGE " ]\n", ##ARGS)
 
-#ifdef YAPOR_ERRORS
-#define YAPOR_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef YAPOR
+#define ERROR_MESSAGE(MESSAGE)                                          \
+        Yap_Error(INTERNAL_ERROR, TermNil, "W%d - " MESSAGE, worker_id)
 #else
-#define YAPOR_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* YAPOR_ERRORS */
+#define ERROR_MESSAGE(MESSAGE)                                          \
+        Yap_Error(INTERNAL_ERROR, TermNil, MESSAGE)
+#endif /* YAPOR */
 
-#ifdef TABLING_ERRORS
-#define TABLING_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef DEBUG_TABLING
+#define TABLING_ERROR_CHECKING(PROCEDURE,TEST)                          \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
 #else
-#define TABLING_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* TABLING_ERRORS */
+#define TABLING_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_TABLING */
 
-#ifdef OPTYAP_ERRORS
-#define OPTYAP_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef DEBUG_YAPOR
+#define YAPOR_ERROR_CHECKING(PROCEDURE,TEST)                            \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
 #else
-#define OPTYAP_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* OPTYAP_ERRORS */
+#define YAPOR_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_YAPOR */
+
+#ifdef DEBUG_OPTYAP
+#define OPTYAP_ERROR_CHECKING(PROCEDURE,TEST)                           \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
+#else
+#define OPTYAP_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_OPTYAP */

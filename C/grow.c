@@ -268,14 +268,9 @@ RestoreTrail(int worker_p)
   while (TR != aux_tr) {
     CELL aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
-      if (aux_cell < LOCAL_start_global_copy || 
-          EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
-#ifdef YAPOR_ERRORS
-        if ((CELL *)aux_cell < H0)
-          YAPOR_ERROR_MESSAGE("aux_cell < H0 (q_share_work)");
-        if ((ADDR)aux_cell > Yap_LocalBase)
-          YAPOR_ERROR_MESSAGE("aux_cell > LocalBase (q_share_work)");
-#endif /* YAPOR_ERRORS */
+      if (aux_cell < LOCAL_start_global_copy || EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
+	YAPOR_ERROR_CHECKING((CELL *)aux_cell < H0, "RestoreTrail: aux_cell < H0");
+	YAPOR_ERROR_CHECKING((ADDR)aux_cell > Yap_LocalBase, "RestoreTrail: aux_cell > LocalBase");
 #ifdef TABLING
         *((CELL *) aux_cell) = TrailVal(aux_tr);
 #else

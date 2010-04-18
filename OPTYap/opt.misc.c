@@ -17,15 +17,9 @@
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 #if HAVE_UNISTD_H
 #include <unistd.h>
 #endif /* HAVE_UNISTD_H */
-#if HAVE_STDARG_H
-#include <stdarg.h>
-#endif /* HAVE_STDARG_H */
 #include "Yatom.h"
 #include "yapio.h"
 
@@ -35,11 +29,9 @@
 **      Global variables are defined here      **
 ************************************************/
 
-#ifndef THREADS
-#ifdef YAPOR
+#if defined(YAPOR) && ! defined(THREADS)
 struct worker WORKER;
-#endif /* YAPOR */
-#endif /* ! THREADS */
+#endif /* YAPOR && ! THREADS */
 
 
 
@@ -61,35 +53,4 @@ void itos(int i, char *s) {
   s[j] = 0;
   return;
 }
-
-
-void information_message(const char *mesg,...) {
-  va_list args;
-  va_start(args, mesg);
-  fprintf(stderr, "[ ");
-  vfprintf(stderr, mesg, args);
-  fprintf(stderr, " ]\n");
-  return;
-}
-
-
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-void error_message(const char *mesg, ...) {
-  va_list args;
-  va_start(args, mesg);
-#ifdef YAPOR
-  LOCK(GLOBAL_LOCKS_stderr_messages);
-#endif /* YAPOR */
-  fprintf(stderr, "% POTENCIAL ERROR- ");
-#ifdef YAPOR
-  fprintf(stderr, "W%d: ", worker_id);
-#endif /* YAPOR */
-  vfprintf(stderr, mesg, args);
-  fprintf(stderr, "\n");
-#ifdef YAPOR
-  UNLOCK(GLOBAL_LOCKS_stderr_messages);
-#endif /* YAPOR */
-  return;
-}
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
 #endif /* YAPOR || TABLING */

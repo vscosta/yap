@@ -75,7 +75,7 @@
 /*************************************************
 **      enable error checking ? (optional)      **
 *************************************************/
-/* #define TABLING_ERRORS 1 */
+/* #define DEBUG_TABLING 1 */
 
 
 
@@ -99,7 +99,7 @@
 /*************************************************
 **      enable error checking ? (optional)      **
 *************************************************/
-/* #define YAPOR_ERRORS   1 */
+/* #define DEBUG_YAPOR 1 */
 
 
 
@@ -225,7 +225,7 @@
 #endif /* !TABLING || !YAPOR */
 
 #ifndef YAPOR
-#undef YAPOR_ERRORS
+#undef DEBUG_YAPOR
 #endif /* !YAPOR */
 
 #ifndef TABLING
@@ -238,13 +238,13 @@
 #undef DETERMINISTIC_TABLING
 #undef LIMIT_TABLING
 #undef INCOMPLETE_TABLING
-#undef TABLING_ERRORS
+#undef DEBUG_TABLING
 #endif /* !TABLING */
 
 #ifndef SHM_MEMORY_ALLOC_SCHEME
 #undef LIMIT_TABLING
 #endif /* !SHM_MEMORY_ALLOC_SCHEME */
 
-#if defined(YAPOR_ERRORS) && defined(TABLING_ERRORS)
-#define OPTYAP_ERRORS
-#endif /* YAPOR_ERRORS && TABLING_ERRORS */
+#if defined(DEBUG_YAPOR) && defined(DEBUG_TABLING)
+#define DEBUG_OPTYAP
+#endif /* DEBUG_YAPOR && DEBUG_TABLING */

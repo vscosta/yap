@@ -139,9 +139,9 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
   GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;
   INIT_LOCK(GLOBAL_LOCKS_heap_access);
   INIT_LOCK(GLOBAL_LOCKS_alloc_block);
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
+#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
   INIT_LOCK(GLOBAL_LOCKS_stderr_messages);
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
+#endif /* DEBUG_YAPOR || DEBUG_TABLING */
   if (number_workers == 1)
     PARALLEL_EXECUTION_MODE = FALSE;
   else

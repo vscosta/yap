@@ -99,7 +99,7 @@
           B = cp;                                                       \
           YAPOR_SET_LOAD(B);                                            \
           SET_BB(B);                                                    \
-          TABLING_ERRORS_check_stack;                                   \
+          TABLING_ERROR_CHECKING_STACK;                                 \
 	}                                                               \
         copy_aux_stack()
 

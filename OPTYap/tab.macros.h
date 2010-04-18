@@ -449,10 +449,7 @@ void mark_as_completed(sg_fr_ptr sg_fr) {
 
 static inline
 void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
-#ifdef TABLING_ERRORS
-  if (unbind_tr < end_tr)
-    TABLING_ERROR_MESSAGE("unbind_tr < end_tr (function unbind_variables)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
   /* unbind loop */
   while (unbind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--unbind_tr);
@@ -465,12 +462,8 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
       if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
         /* avoid frozen segments */
         unbind_tr = (tr_fr_ptr) ref;
-#ifdef TABLING_ERRORS
-        if (unbind_tr > (tr_fr_ptr) Yap_TrailTop)
-          TABLING_ERROR_MESSAGE("unbind_tr > Yap_TrailTop (function unbind_variables)");
-        if (unbind_tr < end_tr)
-          TABLING_ERROR_MESSAGE("unbind_tr < end_tr (function unbind_variables)");
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(unbind_variables, unbind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
@@ -487,10 +480,7 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
 
 static inline
 void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
-#ifdef TABLING_ERRORS
-  if (rebind_tr < end_tr)
-    TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function rebind_variables)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (rebind_tr != end_tr) {
@@ -504,12 +494,8 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
       if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
         /* avoid frozen segments */
   	rebind_tr = (tr_fr_ptr) ref;
-#ifdef TABLING_ERRORS
-        if (rebind_tr > (tr_fr_ptr) Yap_TrailTop)
-          TABLING_ERROR_MESSAGE("rebind_tr > Yap_TrailTop (function rebind_variables)");
-        if (rebind_tr < end_tr)
-          TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function rebind_variables)");
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(rebind_variables, rebind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
@@ -531,10 +517,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
   CELL ref;
   tr_fr_ptr end_tr;
 
-#ifdef TABLING_ERRORS
-  if (unbind_tr < rebind_tr)
-    TABLING_ERROR_MESSAGE("unbind_tr < rebind_tr (function restore_bindings)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(restore_variables, unbind_tr < rebind_tr);
   end_tr = rebind_tr;
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
   while (unbind_tr != end_tr) {
@@ -548,10 +531,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
 	  /* avoid frozen segments */
           unbind_tr = (tr_fr_ptr) ref;
-#ifdef TABLING_ERRORS
-          if (unbind_tr > (tr_fr_ptr) Yap_TrailTop)
-            TABLING_ERROR_MESSAGE("unbind_tr > Yap_TrailTop (function restore_bindings)");
-#endif /* TABLING_ERRORS */
+	  TABLING_ERROR_CHECKING(restore_variables, unbind_tr > (tr_fr_ptr) Yap_TrailTop);
         }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
       }	else if (IsApplTerm(ref)) {
@@ -564,7 +544,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 	if (!Yap_lookup_ma_var(pt)) {
 	  pt[0] = TrailVal(unbind_tr);
 	}
-#endif
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
       }
     }
     /* look for end */
@@ -575,10 +555,7 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
 	  /* avoid frozen segments */
   	  end_tr = (tr_fr_ptr) ref;
-#ifdef TABLING_ERRORS
-	  if (end_tr > (tr_fr_ptr) Yap_TrailTop)
-            TABLING_ERROR_MESSAGE("end_tr > Yap_TrailTop (function restore_bindings)");
-#endif /* TABLING_ERRORS */
+	  TABLING_ERROR_CHECKING(restore_variables, end_tr > (tr_fr_ptr) Yap_TrailTop);
         }
       }
     }
@@ -593,12 +570,8 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
 	/* avoid frozen segments */
         rebind_tr = (tr_fr_ptr) ref;
-#ifdef TABLING_ERRORS
-	if (rebind_tr > (tr_fr_ptr) Yap_TrailTop)
-          TABLING_ERROR_MESSAGE("rebind_tr > Yap_TrailTop (function restore_bindings)");
-        if (rebind_tr < end_tr)
-          TABLING_ERROR_MESSAGE("rebind_tr < end_tr (function restore_bindings)");
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(restore_variables, rebind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(restore_variables, rebind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
@@ -811,12 +784,8 @@ void collect_suspension_frames(or_fr_ptr or_fr) {
   int depth;
   or_fr_ptr *susp_ptr;
 
-#ifdef OPTYAP_ERRORS
-  if (IS_UNLOCKED(or_fr))
-    OPTYAP_ERROR_MESSAGE("or_fr unlocked (collect_suspension_frames)");
-  if (OrFr_suspensions(or_fr) == NULL)
-    OPTYAP_ERROR_MESSAGE("OrFr_suspensions(or_fr) == NULL (collect_suspension_frames)");
-#endif /* OPTYAP_ERRORS */
+  OPTYAP_ERROR_CHECKING(collect_suspension_frames, IS_UNLOCKED(or_fr));
+  OPTYAP_ERROR_CHECKING(collect_suspension_frames, OrFr_suspensions(or_fr) == NULL);
 
   /* order collected suspension frames by depth */
   depth = OrFr_depth(or_fr);

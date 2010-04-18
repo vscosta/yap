@@ -34,10 +34,6 @@ void remap_memory(void);
 *************************/
 
 void itos(int, char *);
-void information_message(const char *,...);
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-void error_message(const char *, ...);
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
 
 
 

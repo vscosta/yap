@@ -149,9 +149,9 @@ struct global_locks {
   int who_locked_heap;
   lockvar heap_access;
   lockvar alloc_block;
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
+#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
   lockvar stderr_messages;
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
+#endif /* DEBUG_YAPOR || DEBUG_TABLING */
 };
 #endif /* YAPOR */
 
