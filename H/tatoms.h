@@ -1,3 +1,7 @@
+
+  /* This file, tatoms.h, was generated automatically by "yap -L misc/buildatoms"
+     please do not update, update misc/ATOMS instead */
+
   Atom Atom3Dots_;
 #define Atom3Dots Yap_heap_regs->Atom3Dots_
   Atom AtomAbol_;

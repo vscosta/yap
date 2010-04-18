@@ -1,3 +1,7 @@
+
+  /* This file, ratoms.h, was generated automatically by "yap -L misc/buildatoms"
+     please do not update, update misc/ATOMS instead */
+
   Atom3Dots = AtomAdjust(Atom3Dots);
   AtomAbol = AtomAdjust(AtomAbol);
   AtomAccess = AtomAdjust(AtomAccess);

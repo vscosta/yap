@@ -1,4 +1,8 @@
 
+  /* This file, hstruct.h, was generated automatically by "yap -L misc/buildheap"
+     please do not update, update misc/HEAPFIELDS instead */
+
+
 
 
 
