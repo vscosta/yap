@@ -11,10 +11,11 @@
 	   copy_line/2,
 	   filter/3,
 	   file_filter/3,
+	   file_filter_with_init/5,
 	   process/2
 	  ]).
 
-:- meta_predicate filter(+,+,:), file_filter(+,+,:), process(+,:).
+:- meta_predicate filter(+,+,:), file_filter(+,+,:), file_filter_with_init(+,+,:,+,:), process(+,:).
 
 :- use_module(library(lists),
 	      [member/2,
@@ -133,6 +134,14 @@ process(StreamInp, Command) :-
 file_filter(Inp, Out, Command) :-
 	open(Inp, read, StreamInp),
 	open(Out, write, StreamOut),
+	filter(StreamInp, StreamOut, Command),
+	close(StreamInp),
+	close(StreamOut).
+
+file_filter_with_init(Inp, Out, Command, FormatString, Parameters) :-
+	open(Inp, read, StreamInp),
+	open(Out, write, StreamOut),
+	format(StreamOut, FormatString, Parameters),
 	filter(StreamInp, StreamOut, Command),
 	close(StreamInp),
 	close(StreamOut).
