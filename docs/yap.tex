@@ -9113,13 +9113,23 @@ For every line @var{LineIn} in stream @var{StreamInp}, execute
 stream @var{StreamOut}.
 
 @item file_filter(+@var{FileIn}, +@var{FileOut}, +@var{Goal})
-@findex filter/3
-@snindex filter/3
-@cnindex filter/3
+@findex file_filter/3
+@snindex file_filter/3
+@cnindex file_filter/3
 
 For every line @var{LineIn} in file @var{FileIn}, execute
 @code{call(Goal,LineIn,LineOut)}, and output @var{LineOut} to file
 @var{FileOut}.
+
+@item file_filter(+@var{FileIn}, +@var{FileOut}, +@var{Goal},
++@var{FormatCommand},   +@var{Arguments})
+@findex file_filter_with_init/5
+@snindex file_filter_with_init/5
+@cnindex file_filter_with_init/5
+
+Same as @code{file_filter/3}, but before starting the filter execute
+@code{format/3} on the output stream, using @var{FormatCommand} and
+@var{Arguments}.
 
 @end table
 

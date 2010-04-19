@@ -548,17 +548,15 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     }
     *chp = ch;
   }
-  else if ((ch == 'o') && base == 0) {
+  else if ((ch == 'o' || ch == 'O') && base == 0) {
     might_be_float = FALSE;
     base = 8;
-    if (--max_size == 0) {
-      Yap_ErrorMessage = "Number Too Long";
-      return (TermNil);
-    }
-    *sp++ = ch;
-    *chp = Nxtch(inp_stream);
-  }
-  else {
+    ch = Nxtch(inp_stream);
+  } else if ((ch == 'b' || ch == 'B') && base == 0) {
+    might_be_float = FALSE;
+    base = 2;
+    ch = Nxtch(inp_stream);
+  } else {
     val = base;
     base = 10;
   }
@@ -666,6 +664,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     *chp = ch;
     if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
       return read_int_overflow(s+2,16,val,sign);
+    else if (s[0] == '0' && (s[1] == 'o' || s[1] == 'O'))
+      return read_int_overflow(s+2,8,val,sign);
+    else if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B'))
+      return read_int_overflow(s+2,2,val,sign);
     if (s[1] == '\'')
       return read_int_overflow(s+2,base,val,sign);
     if (s[2] == '\'')
