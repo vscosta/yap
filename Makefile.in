@@ -146,12 +146,12 @@ HEADERS = \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
 	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \
-	$(srcdir)/OPTYap/sbaamiops.h $(srcdir)/OPTYap/sbaunify.h \
-	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/x86_locks.h \
-	$(srcdir)/OPTYap/sparc_locks.h $(srcdir)/OPTYap/mips_locks.h \
-	$(srcdir)/OPTYap/mips_locks_funcs.h $(srcdir)/OPTYap/alpha_locks.h \
-	$(srcdir)/OPTYap/alpha_locks_funcs.h \
-	$(srcdir)/OPTYap/pthread_locks.h \
+	$(srcdir)/OPTYap/or.sbaamiops.h $(srcdir)/OPTYap/or.sbaunify.h \
+	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/locks_x86.h \
+	$(srcdir)/OPTYap/locks_sparc.h $(srcdir)/OPTYap/locks_mips.h \
+	$(srcdir)/OPTYap/locks_mips_funcs.h $(srcdir)/OPTYap/locks_alpha.h \
+	$(srcdir)/OPTYap/locks_alpha_funcs.h \
+	$(srcdir)/OPTYap/locks_pthread.h \
 	$(srcdir)/H/cut_c.h \
 	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
 	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
@@ -197,13 +197,12 @@ C_SOURCES= \
 	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
 	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
 	$(srcdir)/BEAM/eam_gc.c $(srcdir)/BEAM/eam_split.c \
-	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.misc.c \
-        $(srcdir)/OPTYap/opt.init.c \
+	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.init.c \
 	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
 	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
 	$(srcdir)/OPTYap/or.threadengine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
-	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.suspend.c \
+	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.completion.c \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
 	$(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
 	$(srcdir)/C/cut_c.c \
@@ -280,10 +279,10 @@ C_INTERFACE_OBJECTS = \
 	c_interface.o clause_list.o
 
 OR_OBJECTS = \
-	opt.memory.o opt.misc.o opt.init.o opt.preds.o   \
+	opt.memory.o opt.init.o opt.preds.o   \
 	or.engine.o or.cowengine.o or.sbaengine.o or.threadengine.o \
 	or.scheduler.o or.cut.o      \
-	tab.tries.o tab.suspend.o
+	tab.tries.o tab.completion.o
 
 BEAM_OBJECTS = \
 	eamamasm.o eam_showcode.o eamindex.o eam_am.o
@@ -391,9 +390,6 @@ myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c config.h
 opt.memory.o: $(srcdir)/OPTYap/opt.memory.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.memory.c -o $@
 
-opt.misc.o: $(srcdir)/OPTYap/opt.misc.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.misc.c -o $@
-
 opt.init.o: $(srcdir)/OPTYap/opt.init.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.init.c -o $@
 
@@ -421,8 +417,8 @@ or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c config.h
 tab.tries.o: $(srcdir)/OPTYap/tab.tries.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.tries.c -o $@
 
-tab.suspend.o: $(srcdir)/OPTYap/tab.suspend.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.suspend.c -o $@
+tab.completion.o: $(srcdir)/OPTYap/tab.completion.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/tab.completion.c -o $@
 
 eam_showcode.o:  $(srcdir)/BEAM/eam_showcode.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/BEAM/eam_showcode.c -o $@

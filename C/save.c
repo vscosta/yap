@@ -497,25 +497,10 @@ save_heap(void)
   int j;
   /* Then save the whole heap */
   Yap_ResetConsultStack();
-#if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
-  Yap_ResetConsultStack();
-  Yap_CloseScratchPad();
-  /* skip the local and global data structures */
-  j = Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase);
-  if (putout(j) < 0)
-    return -1;
-  mywrite(splfild, (char *) Yap_HeapBase, j);
-  j = Unsigned(HeapTop) - Unsigned(REMOTE+MAX_WORKERS);
-  if (putout(j) < 0)
-    return -1;
-  if (mywrite(splfild, (char *) &(REMOTE[MAX_WORKERS]), j) < 0)
-    return -1;
-#else
   j = Unsigned(HeapTop) - Unsigned(Yap_HeapBase);
   /* store 10 more cells because of the memory manager */
   if (mywrite(splfild, (char *) Yap_HeapBase, j) < 0)
     return -1;
-#endif /* YAPOR || (TABLING && !YAP_MEMORY_ALLOC_SCHEME) */
   return 0;
 }
 
@@ -934,27 +919,8 @@ get_hash(void)
 static int 
 CopyCode(void)
 {
-#if defined(YAPOR) || (defined(TABLING) && !defined(YAP_MEMORY_ALLOC_SCHEME))
-  /* skip the local and global data structures */
-  CELL j = get_cell();
-  if (Yap_ErrorMessage)
+  if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)
     return -1;
-  if (j != Unsigned(&GLOBAL) - Unsigned(Yap_HeapBase)) {
-    Yap_ErrorMessage = "code space size does not match saved state";
-    return -1;
-  }
-  if (myread(splfild, (char *) Yap_HeapBase, j) < 0)
-    return -1;
-  j = get_cell();
-  if (Yap_ErrorMessage)
-      return -1;
-  if (myread(splfild, (char *) &(REMOTE[MAX_WORKERS]), j) < 0)
-      return -1;
-#else
-  if (myread(splfild, (char *) Yap_HeapBase,
-	     (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)
-    return -1;
-#endif /* YAPOR || (TABLING && !YAP_MEMORY_ALLOC_SCHEME) */
   return 1;
 }
 

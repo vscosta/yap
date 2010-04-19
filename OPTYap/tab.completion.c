@@ -11,18 +11,18 @@
 **                                                                     **
 ************************************************************************/
 
-/************************************
-**      Includes & Prototypes      **
-************************************/
+/***********************
+**      Includes      **
+***********************/
 
 #include "Yap.h"
-#if defined(TABLING) && defined(YAPOR)
+#ifdef TABLING
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "tab.macros.h"
+#ifdef YAPOR
 #include "or.macros.h"
-
-static void complete_suspension_branch(susp_fr_ptr, choiceptr, or_fr_ptr *, dep_fr_ptr *);
+#endif /* YAPOR */
 
 
 
@@ -30,6 +30,7 @@ static void complete_suspension_branch(susp_fr_ptr, choiceptr, or_fr_ptr *, dep_
 **      Local functions      **
 ******************************/
 
+#ifdef YAPOR
 static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or_fr_ptr *chain_or_fr, dep_fr_ptr *chain_dep_fr) {
   or_fr_ptr aux_or_fr;
   sg_fr_ptr aux_sg_fr;
@@ -94,6 +95,7 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
 
   return;
 }
+#endif /* YAPOR */
 
 
 
@@ -101,6 +103,44 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
 **      Global functions      **
 *******************************/
 
+void private_completion(sg_fr_ptr sg_fr) {
+  /* complete subgoals */
+#ifdef LIMIT_TABLING
+  sg_fr_ptr aux_sg_fr;
+  while (LOCAL_top_sg_fr != sg_fr) {
+    aux_sg_fr = LOCAL_top_sg_fr;
+    LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
+    mark_as_completed(aux_sg_fr);
+    insert_into_global_sg_fr_list(aux_sg_fr);
+  }
+  aux_sg_fr = LOCAL_top_sg_fr;
+  LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
+  mark_as_completed(aux_sg_fr);
+  insert_into_global_sg_fr_list(aux_sg_fr);
+#else
+  while (LOCAL_top_sg_fr != sg_fr) {
+    mark_as_completed(LOCAL_top_sg_fr);
+    LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
+  }
+  mark_as_completed(LOCAL_top_sg_fr);
+  LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
+#endif /* LIMIT_TABLING */
+
+  /* release dependency frames */
+  while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {  /* never equal if batched scheduling */
+    dep_fr_ptr dep_fr = DepFr_next(LOCAL_top_dep_fr);
+    FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
+    LOCAL_top_dep_fr = dep_fr;
+  }
+
+  /* adjust freeze registers */
+  adjust_freeze_registers();
+
+  return;
+}
+
+
+#ifdef YAPOR
 void public_completion(void) {
   dep_fr_ptr chain_dep_fr, next_dep_fr;
   or_fr_ptr chain_or_fr, top_or_fr, next_or_fr;
@@ -410,4 +450,5 @@ void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
 
   return;
 }
-#endif /* TABLING && YAPOR */
+#endif /* YAPOR */
+#endif /* TABLING */

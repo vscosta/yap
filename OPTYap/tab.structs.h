@@ -55,17 +55,20 @@ typedef struct global_trie_node {
   struct global_trie_node *parent;
   struct global_trie_node *child;
   struct global_trie_node *next;
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  lockvar lock;
+#endif /* TABLE_LOCK_AT_NODE_LEVEL */
 } *gt_node_ptr;
 #endif /* GLOBAL_TRIE */
 
 typedef struct subgoal_trie_node {
   Term entry;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-  lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
   struct subgoal_trie_node *parent;
   struct subgoal_trie_node *child;
   struct subgoal_trie_node *next;
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  lockvar lock;
+#endif /* TABLE_LOCK_AT_NODE_LEVEL */
 } *sg_node_ptr;
 
 typedef struct answer_trie_node {
@@ -74,22 +77,22 @@ typedef struct answer_trie_node {
   int or_arg;               /* u.Otapl.or_arg */
 #endif /* YAPOR */
   Term entry;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-  lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
   struct answer_trie_node *parent;
   struct answer_trie_node *child;
   struct answer_trie_node *next;
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  lockvar lock;
+#endif /* TABLE_LOCK_AT_NODE_LEVEL */
 } *ans_node_ptr;
 
 #define TrNode_instr(X)        ((X)->trie_instruction)
 #define TrNode_or_arg(X)       ((X)->or_arg)
 #define TrNode_entry(X)        ((X)->entry)
-#define TrNode_lock(X)         ((X)->lock)
 #define TrNode_parent(X)       ((X)->parent)
 #define TrNode_child(X)        ((X)->child)
 #define TrNode_sg_fr(X)        ((X)->child)
 #define TrNode_next(X)         ((X)->next)
+#define TrNode_lock(X)         ((X)->lock)
 
 
 
@@ -190,7 +193,7 @@ struct loader_choicept {
 typedef struct subgoal_frame {
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;
-#endif
+#endif /* YAPOR || THREADS */
 #ifdef YAPOR
   int generator_worker;
   struct or_frame *top_or_frame_on_generator_branch;

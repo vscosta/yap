@@ -336,22 +336,22 @@ typedef CELL Term;
 #define _XOPEN_SOURCE 600
 #endif
 
-#include <pthread_locks.h>
+#include <locks_pthread.h>
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 
 #elif defined(i386) || defined(__x86_64__)
 typedef volatile int lockvar;
-#include <x86_locks.h>
+#include <locks_x86.h>
 #elif defined(sparc) || defined(__sparc)
 typedef volatile int lockvar;
-#include <sparc_locks.h>
+#include <locks_sparc.h>
 #elif defined(mips)
 typedef volatile int lockvar;
-#include <mips_locks.h>
+#include <locks_mips.h>
 #elif defined(__alpha)
 typedef volatile int lockvar;
-#include <alpha_locks.h>
+#include <locks_alpha.h>
 #else
 
 #ifndef _XOPEN_SOURCE
@@ -360,7 +360,7 @@ typedef volatile int lockvar;
 
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
-#include <pthread_locks.h>
+#include <locks_pthread.h>
 #endif
 
 /********************** use an auxiliary function for ranges ************/
@@ -397,10 +397,10 @@ typedef pthread_rwlock_t rwlock_t;
 
 #if defined(YAPOR) ||defined(THREADS)
 #ifdef mips
-#include <mips_locks_funcs.h>
+#include <locks_mips_funcs.h>
 #endif
 #ifdef __alpha
-#include <alpha_locks_funcs.h>
+#include <locks_alpha_funcs.h>
 #endif
 #ifdef YAPOR
 #define MAX_AGENTS MAX_WORKERS
@@ -1033,7 +1033,7 @@ IntegerOfTerm (Term t)
 /*************** unification routines ***********************************/
 
 #ifdef SBA
-#include "sbaamiops.h"
+#include "or.sbaamiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1270,7 +1270,7 @@ extern char emacs_tmp[], emacs_tmp2[];
 #endif /* YAPOR || TABLING */
 
 #ifdef SBA
-#include "sbaunify.h"
+#include "or.sbaunify.h"
 #endif
 
 /********* execution mode ***********************/

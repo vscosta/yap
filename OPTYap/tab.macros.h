@@ -18,21 +18,19 @@
 #include <stdlib.h>
 #if HAVE_STRING_H
 #include <string.h>
-#endif
+#endif /* HAVE_STRING_H */
 #include "opt.mavar.h"
 
-static inline CELL *expand_auxiliary_stack(CELL *);
+static inline choiceptr freeze_current_cp(void);
+static inline void resume_frozen_cp(choiceptr);
+static inline void abolish_all_frozen_cps(void);
 static inline void adjust_freeze_registers(void);
 static inline void mark_as_completed(sg_fr_ptr);
 static inline void unbind_variables(tr_fr_ptr, tr_fr_ptr);
 static inline void rebind_variables(tr_fr_ptr, tr_fr_ptr);
 static inline void restore_bindings(tr_fr_ptr, tr_fr_ptr);
+static inline CELL *expand_auxiliary_stack(CELL *);
 static inline void abolish_incomplete_subgoals(choiceptr);
-static inline void free_subgoal_trie_hash_chain(sg_hash_ptr);
-static inline void free_answer_trie_hash_chain(ans_hash_ptr);
-static inline choiceptr freeze_current_cp(void);
-static inline void resume_frozen_cp(choiceptr);
-static inline void abolish_all_frozen_cps(void);
 #ifdef YAPOR
 static inline void pruning_over_tabling_data_structures(void);
 static inline void collect_suspension_frames(or_fr_ptr);
@@ -85,9 +83,9 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 
 
 
-/*********************
-**      Macros      **
-*********************/
+/******************************
+**      Tabling defines      **
+******************************/
 
 #define SHOW_MODE_STRUCTURE        0
 #define SHOW_MODE_STATISTICS       1
@@ -165,6 +163,12 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #else
 #define EXPAND_AUX_STACK(STACK)    STACK = expand_auxiliary_stack(STACK)
 #endif /* YAPOR */
+
+
+
+/*************************************
+**      Data structures macros      **
+*************************************/
 
 #ifdef YAPOR
 #define frame_with_suspensions_not_collected(OR_FR)                               \
@@ -413,24 +417,36 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 **      Inline funcions      **
 ******************************/
 
-static inline
-CELL *expand_auxiliary_stack(CELL *stack) {
-  void *old_top = Yap_TrailTop;
-  INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
-  if (! Yap_growtrail(64 * 1024L, TRUE)) {  /* TRUE means 'contiguous_only' */
-    Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
-    return NULL;
-  } else {
-    UInt diff = (void *)Yap_TrailTop - old_top;
-    CELL *new_stack = (CELL *)((void *)stack + diff);
-    memmove((void *)new_stack, (void *)stack, old_top - (void *)stack);
-    return new_stack;
-  }
+static inline choiceptr freeze_current_cp(void) {
+  choiceptr freeze_cp = B;
+
+  B_FZ  = freeze_cp;
+  H_FZ  = freeze_cp->cp_h;
+  TR_FZ = freeze_cp->cp_tr;
+  B = B->cp_b;
+  HB = B->cp_h;
+  return freeze_cp;
 }
 
 
-static inline
-void adjust_freeze_registers(void) {
+static inline void resume_frozen_cp(choiceptr frozen_cp) {
+  restore_bindings(TR, frozen_cp->cp_tr);
+  B = frozen_cp;
+  TR = TR_FZ;
+  TRAIL_LINK(B->cp_tr);
+  return;
+}
+
+
+static inline void abolish_all_frozen_cps(void) {
+  B_FZ  = (choiceptr) Yap_LocalBase;
+  H_FZ  = (CELL *) Yap_GlobalBase;
+  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
+  return;
+}
+
+
+static inline void adjust_freeze_registers(void) {
   B_FZ  = DepFr_cons_cp(LOCAL_top_dep_fr);
   H_FZ  = B_FZ->cp_h;
   TR_FZ = B_FZ->cp_tr;
@@ -438,8 +454,7 @@ void adjust_freeze_registers(void) {
 }
 
 
-static inline
-void mark_as_completed(sg_fr_ptr sg_fr) {
+static inline void mark_as_completed(sg_fr_ptr sg_fr) {
   LOCK(SgFr_lock(sg_fr));
   SgFr_state(sg_fr) = complete;
   UNLOCK(SgFr_lock(sg_fr));
@@ -447,8 +462,7 @@ void mark_as_completed(sg_fr_ptr sg_fr) {
 }
 
 
-static inline
-void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
+static inline void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
   TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
   /* unbind loop */
   while (unbind_tr != end_tr) {
@@ -478,8 +492,7 @@ void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
 }
 
 
-static inline
-void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
+static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
@@ -512,8 +525,7 @@ void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 }
 
 
-static inline
-void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
+static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
   CELL ref;
   tr_fr_ptr end_tr;
 
@@ -586,8 +598,22 @@ void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 }
 
 
-static inline
-void abolish_incomplete_subgoals(choiceptr prune_cp) {
+static inline CELL *expand_auxiliary_stack(CELL *stack) {
+  void *old_top = Yap_TrailTop;
+  INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
+  if (! Yap_growtrail(64 * 1024L, TRUE)) {  /* TRUE means 'contiguous_only' */
+    Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+    return NULL;
+  } else {
+    UInt diff = (void *)Yap_TrailTop - old_top;
+    CELL *new_stack = (CELL *)((void *)stack + diff);
+    memmove((void *)new_stack, (void *)stack, old_top - (void *)stack);
+    return new_stack;
+  }
+}
+
+
+static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #ifdef YAPOR
   if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();
@@ -653,134 +679,14 @@ void abolish_incomplete_subgoals(choiceptr prune_cp) {
 }
 
 
-static inline
-void free_subgoal_trie_hash_chain(sg_hash_ptr hash) {
-  while (hash) {
-    sg_node_ptr chain_node, *bucket, *last_bucket;
-    sg_hash_ptr next_hash;
-
-    bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    while (! *bucket)
-      bucket++;
-    chain_node = *bucket;
-    TrNode_child(TrNode_parent(chain_node)) = chain_node;
-    while (++bucket != last_bucket) {
-      if (*bucket) {
-        while (TrNode_next(chain_node))
-          chain_node = TrNode_next(chain_node);
-        TrNode_next(chain_node) = *bucket;
-        chain_node = *bucket;
-      }
-    }
-    next_hash = Hash_next(hash);
-    FREE_HASH_BUCKETS(Hash_buckets(hash));
-    FREE_SUBGOAL_TRIE_HASH(hash);
-    hash = next_hash;
-  }
-  return;
-}
-
-
-static inline
-void free_answer_trie_hash_chain(ans_hash_ptr hash) {
-  while (hash) {
-    ans_node_ptr chain_node, *bucket, *last_bucket;
-    ans_hash_ptr next_hash;
-
-    bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    while (! *bucket)
-      bucket++;
-    chain_node = *bucket;
-    TrNode_child(UNTAG_ANSWER_LEAF_NODE(TrNode_parent(chain_node))) = chain_node;
-    while (++bucket != last_bucket) {
-      if (*bucket) {
-        while (TrNode_next(chain_node))
-          chain_node = TrNode_next(chain_node);
-        TrNode_next(chain_node) = *bucket;
-        chain_node = *bucket;
-      }
-    }
-    next_hash = Hash_next(hash);
-    FREE_HASH_BUCKETS(Hash_buckets(hash));
-    FREE_ANSWER_TRIE_HASH(hash);
-    hash = next_hash;
-  }
-  return;
-}
-
-
-/*
-static inline
-choiceptr create_cp_and_freeze(void) {
-  choiceptr freeze_cp;
-
-  // initialize and store freeze choice point
-  //  freeze_cp = (NORM_CP(YENV) - 1);
-  freeze_cp = (NORM_CP(YENV) - 2);
-  HBREG = H;
-  store_yaam_reg_cpdepth(freeze_cp);
-  freeze_cp->cp_tr = TR;
-  freeze_cp->cp_ap = (yamop *)(TRUSTFAILCODE);
-  freeze_cp->cp_h  = H;
-  freeze_cp->cp_b  = B;
-  freeze_cp->cp_env = ENV;
-  freeze_cp->cp_cp = CPREG;
-  // set_cut((CELL *)freeze_cp, B);
-  B = freeze_cp;
-  SET_BB(B);
-  // adjust freeze registers
-  B_FZ  = freeze_cp;
-  H_FZ  = H;
-  TR_FZ = TR;
-  return freeze_cp;
-}
-*/
-
-
-static inline
-choiceptr freeze_current_cp(void) {
-  choiceptr freeze_cp = B;
-
-  B_FZ  = freeze_cp;
-  H_FZ  = freeze_cp->cp_h;
-  TR_FZ = freeze_cp->cp_tr;
-  B = B->cp_b;
-  HB = B->cp_h;
-  return freeze_cp;
-}
-
-
-static inline
-void resume_frozen_cp(choiceptr frozen_cp) {
-  restore_bindings(TR, frozen_cp->cp_tr);
-  B = frozen_cp;
-  TR = TR_FZ;
-  TRAIL_LINK(B->cp_tr);
-  return;
-}
-
-
-static inline
-void abolish_all_frozen_cps(void) {
-  B_FZ  = (choiceptr) Yap_LocalBase;
-  H_FZ  = (CELL *) Yap_GlobalBase;
-  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
-  return;
-}
-
-
 #ifdef YAPOR
-static inline
-void pruning_over_tabling_data_structures(void) {
+static inline void pruning_over_tabling_data_structures(void) {
   Yap_Error(INTERNAL_ERROR, TermNil, "pruning over tabling data structures");
   return;
 }
 
 
-static inline
-void collect_suspension_frames(or_fr_ptr or_fr) {  
+static inline void collect_suspension_frames(or_fr_ptr or_fr) {  
   int depth;
   or_fr_ptr *susp_ptr;
 
@@ -838,8 +744,7 @@ susp_fr_ptr suspension_frame_to_resume(or_fr_ptr susp_or_fr) {
 
 
 #ifdef TABLING_INNER_CUTS
-static inline
-void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr gen_cp, int ltt) {
+static inline void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr gen_cp, int ltt) {
   tg_sol_fr_ptr tg_sol_fr, *solution_ptr, next, ltt_next;
   tg_ans_fr_ptr tg_ans_fr;
 
@@ -892,8 +797,7 @@ void CUT_store_tg_answer(or_fr_ptr or_frame, ans_node_ptr ans_node, choiceptr ge
 }
 
 
-static inline
-tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solution, int ltt) {
+static inline tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solution, int ltt) {
   tg_sol_fr_ptr *old_solution_ptr, next_new_solution;
   choiceptr node, gen_cp;
 
@@ -941,8 +845,7 @@ tg_sol_fr_ptr CUT_store_tg_answers(or_fr_ptr or_frame, tg_sol_fr_ptr new_solutio
 }
 
 
-static inline
-void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
+static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
   tg_ans_fr_ptr valid_answers, free_answer;
   tg_sol_fr_ptr ltt_valid_solutions, free_solution;
   ans_node_ptr first_answer, last_answer, ans_node;
@@ -1011,8 +914,7 @@ void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
 }
 
 
-static inline
-void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol_fr_ptr new_solution) {
+static inline void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol_fr_ptr new_solution) {
   tg_sol_fr_ptr next_old_solution, next_new_solution;
   choiceptr gen_cp;
 
@@ -1059,8 +961,7 @@ void CUT_join_tg_solutions(tg_sol_fr_ptr *old_solution_ptr, tg_sol_fr_ptr new_so
 }
 
 
-static inline 
-void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solution) {
+static inline void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solution) {
   tg_sol_fr_ptr next_solution;
 
   while ((next_solution = TgSolFr_ltt_next(join_solution))) {
@@ -1073,8 +974,7 @@ void CUT_join_solution_frame_tg_answers(tg_sol_fr_ptr join_solution) {
 }
 
 
-static inline 
-void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_solution) {
+static inline void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_solution) {
   do {
     CUT_join_solution_frame_tg_answers(join_solution);
     join_solution = TgSolFr_next(join_solution);
@@ -1083,8 +983,7 @@ void CUT_join_solution_frames_tg_answers(tg_sol_fr_ptr join_solution) {
 }
 
 
-static inline 
-void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
+static inline void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
   tg_ans_fr_ptr current_answer, next_answer;
 
   current_answer = TgSolFr_first(solution);
@@ -1098,8 +997,7 @@ void CUT_free_tg_solution_frame(tg_sol_fr_ptr solution) {
 }
 
 
-static inline 
-void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
+static inline void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
   tg_sol_fr_ptr ltt_solution, next_solution;
 
   while (current_solution) {
@@ -1117,8 +1015,7 @@ void CUT_free_tg_solution_frames(tg_sol_fr_ptr current_solution) {
 }
 
 
-static inline 
-tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr solutions, int ltt) {
+static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr solutions, int ltt) {
   tg_sol_fr_ptr ltt_next_solution, return_solution;
 
   if (! solutions) return NULL;

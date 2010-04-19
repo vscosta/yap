@@ -44,6 +44,17 @@ ma_h_inner_struct *Yap_ma_h_top;
 
 
 
+
+/************************************************
+**      Global variables are defined here      **
+************************************************/
+
+#if defined(YAPOR) && ! defined(THREADS)
+struct worker WORKER;
+#endif /* YAPOR && ! THREADS */
+
+
+
 /*********************
 **      Macros      **
 *********************/
@@ -139,9 +150,6 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
   GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;
   INIT_LOCK(GLOBAL_LOCKS_heap_access);
   INIT_LOCK(GLOBAL_LOCKS_alloc_block);
-#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
-  INIT_LOCK(GLOBAL_LOCKS_stderr_messages);
-#endif /* DEBUG_YAPOR || DEBUG_TABLING */
   if (number_workers == 1)
     PARALLEL_EXECUTION_MODE = FALSE;
   else
@@ -282,4 +290,20 @@ void init_workers(void) {
   }
 }
 #endif /* YAPOR */
+
+
+void itos(int i, char *s) {
+  int n,r,j;
+  n = 10;
+  while (n <= i) n *= 10;
+  j = 0;
+  while (n > 1) {
+    n = n / 10;   
+    r = i / n;
+    i = i - r * n;
+    s[j++] = r + '0';
+  }
+  s[j] = 0;
+  return;
+}
 #endif /* YAPOR || TABLING */
