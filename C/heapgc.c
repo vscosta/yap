@@ -1153,30 +1153,6 @@ check_global(void) {
 static void
 mark_variable(CELL_PTR current);
 
-static void
-mark_att_var(CELL *hp)
-{
-  if (!MARKED_PTR(hp-1)) {
-    MARK(hp-1);
-    PUSH_POINTER(hp-1);
-    total_marked++;
-    if (hp < HGEN) {
-      total_oldies++;
-    }
-  }
-  if (!MARKED_PTR(hp)) {
-    MARK(hp);
-    PUSH_POINTER(hp);
-    total_marked++;
-    if (hp < HGEN) {
-      total_oldies++;
-    }
-  }
-  mark_variable(hp+1);
-  mark_variable(hp+2);
-}
-
-
 static void 
 mark_variable(CELL_PTR current)
 {
@@ -1201,7 +1177,30 @@ mark_variable(CELL_PTR current)
 
   if (IsVarTerm(ccur)) {
     if (IN_BETWEEN(H0,current,H) && IsAttVar(current) && current==next) {
-      mark_att_var(current);
+      if (next < H0) POP_CONTINUATION();
+      if (!UNMARKED_MARK(next-1,local_bp)) {
+	total_marked++;
+	if (next-1 < HGEN) {
+	  total_oldies++;
+	}
+	PUSH_POINTER(next-1);
+      }
+      next++;
+      if (!UNMARKED_MARK(next,local_bp)) {
+	total_marked++;
+	if (next < HGEN) {
+	  total_oldies++;
+	}
+	PUSH_POINTER(next);
+      }
+      next++;
+      if (!UNMARKED_MARK(next,local_bp)) {
+	total_marked++;
+	if (next < HGEN) {
+	  total_oldies++;
+	}
+	PUSH_POINTER(next);
+      }
       POP_CONTINUATION();
     } else if (ONHEAP(next)) {
 #ifdef EASY_SHUNTING
@@ -1725,7 +1724,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  goto remove_trash_entry;
 	} else {
 	  /* This attributed variable is still in play */
-	  mark_att_var(cptr);
+	  mark_variable(cptr);
 	}
       }
       if (!gc_lookup_ma_var(cptr, trail_base)) {
