@@ -149,9 +149,6 @@ struct global_locks {
   int who_locked_heap;
   lockvar heap_access;
   lockvar alloc_block;
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-  lockvar stderr_messages;
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
 };
 #endif /* YAPOR */
 
@@ -279,7 +276,6 @@ struct global_data{
 #define GLOBAL_LOCKS_who_locked_heap            (GLOBAL.locks.who_locked_heap)
 #define GLOBAL_LOCKS_heap_access                (GLOBAL.locks.heap_access)
 #define GLOBAL_LOCKS_alloc_block                (GLOBAL.locks.alloc_block)
-#define GLOBAL_LOCKS_stderr_messages            (GLOBAL.locks.stderr_messages)
 #define GLOBAL_branch(worker, depth)            (GLOBAL.branch[worker][depth])
 #define PARALLEL_EXECUTION_MODE                 (GLOBAL.parallel_execution_mode)
 #define GLOBAL_answers                          (GLOBAL.answers)
@@ -460,11 +456,9 @@ struct local_data{
 #define REMOTE_top_susp_or_fr(worker)      (REMOTE[worker].top_or_frame_with_suspensions)
 
 
-
 #ifdef YAPOR
 #include "or.structs.h"
 #endif /* YAPOR */
-
 
 
 #ifdef TABLING

@@ -82,7 +82,6 @@ CLEAN :
 	-@erase "$(INTDIR)\modules.obj"
 	-@erase "$(INTDIR)\opt.init.obj"
 	-@erase "$(INTDIR)\opt.memory.obj"
-	-@erase "$(INTDIR)\opt.misc.obj"
 	-@erase "$(INTDIR)\opt.preds.obj"
 	-@erase "$(INTDIR)\or.cowengine.obj"
 	-@erase "$(INTDIR)\or.cut.obj"
@@ -96,7 +95,7 @@ CLEAN :
 	-@erase "$(INTDIR)\sort.obj"
 	-@erase "$(INTDIR)\stdpreds.obj"
 	-@erase "$(INTDIR)\sysbits.obj"
-	-@erase "$(INTDIR)\tab.suspend.obj"
+	-@erase "$(INTDIR)\tab.completion.obj"
 	-@erase "$(INTDIR)\tab.tries.obj"
 	-@erase "$(INTDIR)\tracer.obj"
 	-@erase "$(INTDIR)\unify.obj"
@@ -163,7 +162,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\modules.obj" \
 	"$(INTDIR)\opt.init.obj" \
 	"$(INTDIR)\opt.memory.obj" \
-	"$(INTDIR)\opt.misc.obj" \
 	"$(INTDIR)\opt.preds.obj" \
 	"$(INTDIR)\or.cowengine.obj" \
 	"$(INTDIR)\or.cut.obj" \
@@ -177,7 +175,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\sort.obj" \
 	"$(INTDIR)\stdpreds.obj" \
 	"$(INTDIR)\sysbits.obj" \
-	"$(INTDIR)\tab.suspend.obj" \
+	"$(INTDIR)\tab.completion.obj" \
 	"$(INTDIR)\tab.tries.obj" \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\unify.obj" \
@@ -245,7 +243,6 @@ CLEAN :
 	-@erase "$(INTDIR)\modules.obj"
 	-@erase "$(INTDIR)\opt.init.obj"
 	-@erase "$(INTDIR)\opt.memory.obj"
-	-@erase "$(INTDIR)\opt.misc.obj"
 	-@erase "$(INTDIR)\opt.preds.obj"
 	-@erase "$(INTDIR)\or.cowengine.obj"
 	-@erase "$(INTDIR)\or.cut.obj"
@@ -259,7 +256,7 @@ CLEAN :
 	-@erase "$(INTDIR)\sort.obj"
 	-@erase "$(INTDIR)\stdpreds.obj"
 	-@erase "$(INTDIR)\sysbits.obj"
-	-@erase "$(INTDIR)\tab.suspend.obj"
+	-@erase "$(INTDIR)\tab.completion.obj"
 	-@erase "$(INTDIR)\tab.tries.obj"
 	-@erase "$(INTDIR)\tracer.obj"
 	-@erase "$(INTDIR)\unify.obj"
@@ -329,7 +326,6 @@ LINK32_OBJS= \
 	"$(INTDIR)\modules.obj" \
 	"$(INTDIR)\opt.init.obj" \
 	"$(INTDIR)\opt.memory.obj" \
-	"$(INTDIR)\opt.misc.obj" \
 	"$(INTDIR)\opt.preds.obj" \
 	"$(INTDIR)\or.cowengine.obj" \
 	"$(INTDIR)\or.cut.obj" \
@@ -343,7 +339,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\sort.obj" \
 	"$(INTDIR)\stdpreds.obj" \
 	"$(INTDIR)\sysbits.obj" \
-	"$(INTDIR)\tab.suspend.obj" \
+	"$(INTDIR)\tab.completion.obj" \
 	"$(INTDIR)\tab.tries.obj" \
 	"$(INTDIR)\tracer.obj" \
 	"$(INTDIR)\unify.obj" \
@@ -647,12 +643,6 @@ SOURCE="\Yap\Yap-4.3.17\OPTYap\opt.memory.c"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE="\Yap\Yap-4.3.17\OPTYap\opt.misc.c"
-
-"$(INTDIR)\opt.misc.obj" : $(SOURCE) "$(INTDIR)"
-	$(CPP) $(CPP_PROJ) $(SOURCE)
-
-
 SOURCE="\Yap\Yap-4.3.17\OPTYap\opt.preds.c"
 
 "$(INTDIR)\opt.preds.obj" : $(SOURCE) "$(INTDIR)"
@@ -731,9 +721,9 @@ SOURCE="\Yap\Yap-4.3.17\C\sysbits.c"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE="\Yap\Yap-4.3.17\OPTYap\tab.suspend.c"
+SOURCE="\Yap\Yap-4.3.17\OPTYap\tab.completion.c"
 
-"$(INTDIR)\tab.suspend.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\tab.completion.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 

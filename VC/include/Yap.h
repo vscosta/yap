@@ -320,16 +320,16 @@ typedef CELL Term;
 #include <nolocks.h>
 #else
 #ifdef i386
-#include <x86_locks.h>
+#include <locks_x86.h>
 #endif
 #if defined(sparc) || defined(__sparc)
-#include <sparc_locks.h>
+#include <locks_sparc.h>
 #endif
 #ifdef mips
-#include <mips_locks.h>
+#include <locks_mips.h>
 #endif
 #ifdef __alpha
-#include <alpha_locks.h>
+#include <locks_alpha.h>
 #endif
 #endif
 
@@ -367,10 +367,10 @@ typedef CELL Term;
 
 #if defined(YAPOR) ||defined(THREADS)
 #ifdef mips
-#include <mips_locks_funcs.h>
+#include <locks_mips_funcs.h>
 #endif
 #ifdef __alpha
-#include <alpha_locks_funcs.h>
+#include <locks_alpha_funcs.h>
 #endif
 #endif
 
@@ -826,7 +826,7 @@ inline EXTERN Int IntegerOfTerm(Term t)
 /*************** unification routines ***********************************/
 
 #if SBA
-#include "sbaamiops.h"
+#include "or.sbaamiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1047,6 +1047,6 @@ extern int      snoozing;
 #endif /* YAPOR || TABLING */
 
 #if SBA
-#include "sbaunify.h"
+#include "or.sbaunify.h"
 #endif
 

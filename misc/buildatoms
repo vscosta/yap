@@ -1,6 +1,6 @@
 
 :- use_module(library(lineutils),
-	[file_filter/3,
+	[file_filter_with_init/5,
 	 split/3]).
 
 :- use_module(library(lists),
@@ -11,11 +11,13 @@
 :- yap_flag(write_strings,on).
 
 main :-
-	file_filter('misc/ATOMS','H/tatoms.h',gen_fields),
-	file_filter('misc/ATOMS','H/iatoms.h',gen_decl),
-	file_filter('misc/ATOMS','H/ratoms.h',gen_rcov).
-%	file_filter('misc/ATOMS','packages/PLStream/natoms.h',gen_swiatoms).
+	warning(Warning),
+	file_filter_with_init('misc/ATOMS','H/tatoms.h',gen_fields, Warning, ['tatoms.h']),
+	file_filter_with_init('misc/ATOMS','H/iatoms.h',gen_decl, Warning, ['iatoms.h']),
+	file_filter_with_init('misc/ATOMS','H/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
+%	file_filter_with_init('misc/ATOMS','packages/PLStream/natoms.h', gen_swiatoms, Warning, ['natoms.h']).
 
+warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     please do not update, update misc/ATOMS instead */~n~n').
 
 gen_fields(Inp,Out) :-
 	split(Inp,"	",["A",Atom,_,_]), !,

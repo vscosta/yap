@@ -448,276 +448,89 @@ static void free_global_trie_branch(gt_node_ptr current_node, int mode) {
   }
   return;
 }
-
-
-static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
-  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
-
-  /* test if hashing */
-  if (IS_GLOBAL_TRIE_HASH(current_node)) {
-    gt_node_ptr *bucket, *last_bucket;
-    gt_hash_ptr hash;
-    hash = (gt_hash_ptr) current_node;
-    bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    do {
-      if (*bucket) {
-        traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
-	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	  str[str_index - 1] = ',';
-#else
-	if (arity[arity[0]] == -1)
-	  str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      }
-    } while (++bucket != last_bucket);
-    free(current_arity);
-    return;
-  }
-
-  /* save current state if first sibling node */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    current_str_index = str_index;
-    current_mode = mode;
-  }
-
-  /* process current trie node */
-  TrStat_gt_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL);
-
-  /* continue with child node ... */
-  if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
-    traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
-  /* ... or show term */
-  else {
-    TrStat_gt_terms++;
-    str[str_index] = 0;
-    SHOW_TABLE_STRUCTURE("  TERMx%ld: %s\n", (unsigned long int) TrNode_child(current_node), str);
-  }
-
-  /* restore the initial state and continue with sibling nodes */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    str_index = current_str_index;
-    mode = current_mode;
-    current_node = TrNode_next(current_node);
-    while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	str[str_index - 1] = ',';
-#else
-      if (arity[arity[0]] == -1)
-	str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
-      current_node = TrNode_next(current_node);
-    }
-    free(current_arity);
-  }
-
-  return;
-}
-
-
-static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type) {
-  if (TrNode_parent(current_node) != GLOBAL_root_gt)
-    traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type);
-  traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type);
-  return;
-}
 #endif /* GLOBAL_TRIE */
 
 
-static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
-  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
-
-  /* test if hashing */
-  if (IS_SUBGOAL_TRIE_HASH(current_node)) {
-    sg_node_ptr *bucket, *last_bucket;
-    sg_hash_ptr hash;
-    hash = (sg_hash_ptr) current_node;
-    bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    do {
-      if (*bucket) {
-        traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
-	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	  str[str_index - 1] = ',';
-#else
-	if (arity[arity[0]] == -1)
-	  str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      }
-    } while (++bucket != last_bucket);
-    free(current_arity);
-    return;
-  }
-
-  /* save current state if first sibling node */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    current_str_index = str_index;
-    current_mode = mode;
-  }
-
-  /* process current trie node */
-  TrStat_sg_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL);
-
-  /* continue with child node ... */
-  if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
-    traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
-  /* ... or show answers */
-  else {
-    sg_fr_ptr sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_node);
-    TrStat_subgoals++;
-    str[str_index] = 0;
-    SHOW_TABLE_STRUCTURE("%s.\n", str);
-    TrStat_ans_nodes++;
-    if (SgFr_first_answer(sg_fr) == NULL) {
-      if (SgFr_state(sg_fr) < complete) {
-	TrStat_sg_incomplete++;
-	SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
-      } else {
-	TrStat_answers_no++;
-	SHOW_TABLE_STRUCTURE("    NO\n");
-      }
-    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
-      TrStat_answers_true++;
-      SHOW_TABLE_STRUCTURE("    TRUE\n");
-    } else {
-      arity[0] = 0;
-      traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
-      if (SgFr_state(sg_fr) < complete) {
-	TrStat_sg_incomplete++;
-	SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
-      }
-    }
-  }
-
-  /* restore the initial state and continue with sibling nodes */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    str_index = current_str_index;
-    mode = current_mode;
-    current_node = TrNode_next(current_node);
-    while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	str[str_index - 1] = ',';
-#else
-      if (arity[arity[0]] == -1)
-	str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
-      current_node = TrNode_next(current_node);
-    }
-    free(current_arity);
-  }
-
-  return;
-}
-
-
-static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position) {
-  int *current_arity = NULL, current_str_index = 0, current_var_index = 0, current_mode = 0;
-
-  /* test if hashing */
-  if (IS_ANSWER_TRIE_HASH(current_node)) {
-    ans_node_ptr *bucket, *last_bucket;
-    ans_hash_ptr hash;
-    hash = (ans_hash_ptr) current_node;
-    bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    do {
-      if (*bucket) {
-        traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
-	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	  str[str_index - 1] = ',';
-#else
-	if (arity[arity[0]] == -1)
-	  str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      }
-    } while (++bucket != last_bucket);
-    free(current_arity);
-    return;
-  }
-
-  /* save current state if first sibling node */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
-    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
-    current_str_index = str_index;
-    current_var_index = var_index;
-    current_mode = mode;
-  }
-
-  /* print VAR if starting a term */
-  if (arity[0] == 0 && mode == TRAVERSE_MODE_NORMAL) {
-    str_index += sprintf(& str[str_index], "    VAR%d: ", var_index);
-    var_index++;
-  }
-
-  /* process current trie node */
-  TrStat_ans_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER);
-
-  /* show answer .... */
-  if (IS_ANSWER_LEAF_NODE(current_node)) {
-    TrStat_answers++;
-    str[str_index] = 0;
-    SHOW_TABLE_STRUCTURE("%s\n", str);
-  }
+#ifdef YAPOR
 #ifdef TABLING_INNER_CUTS
-  /* ... or continue with pruned node */
-  else if (TrNode_child(current_node) == NULL) {
-    TrStat_answers++;
-    TrStat_answers_pruned++;
-  }
-#endif /* TABLING_INNER_CUTS */
-  /* ... or continue with child node */
-  else
-    traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
-
-  /* restore the initial state and continue with sibling nodes */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    str_index = current_str_index;
-    var_index = current_var_index;
-    mode = current_mode;
-    current_node = TrNode_next(current_node);
-    while (current_node) {
-      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
-#ifdef TRIE_COMPACT_PAIRS
-      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
-	str[str_index - 1] = ',';
-#else
-      if (arity[arity[0]] == -1)
-	str[str_index - 1] = '|';
-#endif /* TRIE_COMPACT_PAIRS */
-      traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT);
-      current_node = TrNode_next(current_node);
+static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr current_node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(current_node)) {
+    if (TrNode_child(current_node)) {
+      TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
+      update_answer_trie_branch(NULL, TrNode_child(current_node));
+      if (TrNode_child(current_node))
+        goto update_next_trie_branch;
     }
-    free(current_arity);
+    /* node belonging to a pruned answer */
+    if (previous_node) {
+      TrNode_next(previous_node) = TrNode_next(current_node);
+      FREE_ANSWER_TRIE_NODE(current_node);
+      if (TrNode_next(previous_node)) {
+        return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
+      } else {
+        TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
+        return 0;
+      }
+    } else {
+      TrNode_child(TrNode_parent(current_node)) = TrNode_next(current_node);
+      if (TrNode_next(current_node)) {
+        TrNode_instr(TrNode_next(current_node)) -= 1;  /* retry --> try */
+        update_answer_trie_branch(NULL, TrNode_next(current_node));          
+      }
+      FREE_ANSWER_TRIE_NODE(current_node);
+      return 0;
+    }
+  }
+update_next_trie_branch:
+  if (TrNode_next(current_node)) {
+    ltt = 1 + update_answer_trie_branch(current_node, TrNode_next(current_node));
+  } else {
+    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
   }
 
+  TrNode_or_arg(current_node) = ltt;
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
+  return ltt;
+}
+#else /* YAPOR && ! TABLING_INNER_CUTS */
+static int update_answer_trie_branch(ans_node_ptr current_node) {
+  int ltt;
+  if (! IS_ANSWER_LEAF_NODE(current_node)) {
+    TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
+    update_answer_trie_branch(TrNode_child(current_node));
+  }
+  if (TrNode_next(current_node)) {
+    ltt = 1 + update_answer_trie_branch(TrNode_next(current_node));
+  } else {
+    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
+    ltt = 1;
+  }
+  TrNode_or_arg(current_node) = ltt;
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
+  return ltt;
+}
+#endif
+#else /* ! YAPOR */
+static void update_answer_trie_branch(ans_node_ptr current_node, int position) {
+  if (! IS_ANSWER_LEAF_NODE(current_node))
+    update_answer_trie_branch(TrNode_child(current_node), TRAVERSE_POSITION_FIRST);  /* retry --> try */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    ans_node_ptr next = TrNode_next(current_node);
+    if (next) {
+      while (TrNode_next(next)) {
+	update_answer_trie_branch(next, TRAVERSE_POSITION_NEXT);  /* retry --> retry */
+	next = TrNode_next(next);
+      }
+      update_answer_trie_branch(next, TRAVERSE_POSITION_LAST);  /* retry --> trust */
+    } else
+      position += TRAVERSE_POSITION_LAST;  /* try --> do */
+  }
+  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node) - position);
   return;
 }
+#endif /* YAPOR */
 
 
 static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int *arity, int *mode_ptr, int type) {
@@ -953,86 +766,275 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
 }
 
 
-#ifdef YAPOR
-#ifdef TABLING_INNER_CUTS
-static int update_answer_trie_branch(ans_node_ptr previous_node, ans_node_ptr current_node) {
-  int ltt;
-  if (! IS_ANSWER_LEAF_NODE(current_node)) {
-    if (TrNode_child(current_node)) {
-      TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
-      update_answer_trie_branch(NULL, TrNode_child(current_node));
-      if (TrNode_child(current_node))
-        goto update_next_trie_branch;
-    }
-    /* node belonging to a pruned answer */
-    if (previous_node) {
-      TrNode_next(previous_node) = TrNode_next(current_node);
-      FREE_ANSWER_TRIE_NODE(current_node);
-      if (TrNode_next(previous_node)) {
-        return update_answer_trie_branch(previous_node, TrNode_next(previous_node));
-      } else {
-        TrNode_instr(previous_node) -= 2;  /* retry --> trust : try --> do */
-        return 0;
-      }
-    } else {
-      TrNode_child(TrNode_parent(current_node)) = TrNode_next(current_node);
-      if (TrNode_next(current_node)) {
-        TrNode_instr(TrNode_next(current_node)) -= 1;  /* retry --> try */
-        update_answer_trie_branch(NULL, TrNode_next(current_node));          
-      }
-      FREE_ANSWER_TRIE_NODE(current_node);
-      return 0;
-    }
-  }
-update_next_trie_branch:
-  if (TrNode_next(current_node)) {
-    ltt = 1 + update_answer_trie_branch(current_node, TrNode_next(current_node));
-  } else {
-    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
-    ltt = 1;
-  }
-
-  TrNode_or_arg(current_node) = ltt;
-  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
-  return ltt;
-}
-#else /* YAPOR && ! TABLING_INNER_CUTS */
-static int update_answer_trie_branch(ans_node_ptr current_node) {
-  int ltt;
-  if (! IS_ANSWER_LEAF_NODE(current_node)) {
-    TrNode_instr(TrNode_child(current_node)) -= 1;  /* retry --> try */
-    update_answer_trie_branch(TrNode_child(current_node));
-  }
-  if (TrNode_next(current_node)) {
-    ltt = 1 + update_answer_trie_branch(TrNode_next(current_node));
-  } else {
-    TrNode_instr(current_node) -= 2;  /* retry --> trust : try --> do */
-    ltt = 1;
-  }
-  TrNode_or_arg(current_node) = ltt;
-  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node));
-  return ltt;
-}
-#endif
-#else /* ! YAPOR */
-static void update_answer_trie_branch(ans_node_ptr current_node, int position) {
-  if (! IS_ANSWER_LEAF_NODE(current_node))
-    update_answer_trie_branch(TrNode_child(current_node), TRAVERSE_POSITION_FIRST);  /* retry --> try */
-  if (position == TRAVERSE_POSITION_FIRST) {
-    ans_node_ptr next = TrNode_next(current_node);
-    if (next) {
-      while (TrNode_next(next)) {
-	update_answer_trie_branch(next, TRAVERSE_POSITION_NEXT);  /* retry --> retry */
-	next = TrNode_next(next);
-      }
-      update_answer_trie_branch(next, TRAVERSE_POSITION_LAST);  /* retry --> trust */
-    } else
-      position += TRAVERSE_POSITION_LAST;  /* try --> do */
-  }
-  TrNode_instr(current_node) = Yap_opcode(TrNode_instr(current_node) - position);
+#ifdef GLOBAL_TRIE
+static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type) {
+  if (TrNode_parent(current_node) != GLOBAL_root_gt)
+    traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type);
+  traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type);
   return;
 }
-#endif /* YAPOR */
+
+
+static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
+  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
+
+  /* test if hashing */
+  if (IS_GLOBAL_TRIE_HASH(current_node)) {
+    gt_node_ptr *bucket, *last_bucket;
+    gt_hash_ptr hash;
+    hash = (gt_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
+
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_mode = mode;
+  }
+
+  /* process current trie node */
+  TrStat_gt_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL);
+
+  /* continue with child node ... */
+  if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
+    traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+  /* ... or show term */
+  else {
+    TrStat_gt_terms++;
+    str[str_index] = 0;
+    SHOW_TABLE_STRUCTURE("  TERMx%ld: %s\n", (unsigned long int) TrNode_child(current_node), str);
+  }
+
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+
+  return;
+}
+#endif /* GLOBAL_TRIE */
+
+
+static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position) {
+  int *current_arity = NULL, current_str_index = 0, current_var_index = 0, current_mode = 0;
+
+  /* test if hashing */
+  if (IS_ANSWER_TRIE_HASH(current_node)) {
+    ans_node_ptr *bucket, *last_bucket;
+    ans_hash_ptr hash;
+    hash = (ans_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
+
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_var_index = var_index;
+    current_mode = mode;
+  }
+
+  /* print VAR if starting a term */
+  if (arity[0] == 0 && mode == TRAVERSE_MODE_NORMAL) {
+    str_index += sprintf(& str[str_index], "    VAR%d: ", var_index);
+    var_index++;
+  }
+
+  /* process current trie node */
+  TrStat_ans_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER);
+
+  /* show answer .... */
+  if (IS_ANSWER_LEAF_NODE(current_node)) {
+    TrStat_answers++;
+    str[str_index] = 0;
+    SHOW_TABLE_STRUCTURE("%s\n", str);
+  }
+#ifdef TABLING_INNER_CUTS
+  /* ... or continue with pruned node */
+  else if (TrNode_child(current_node) == NULL) {
+    TrStat_answers++;
+    TrStat_answers_pruned++;
+  }
+#endif /* TABLING_INNER_CUTS */
+  /* ... or continue with child node */
+  else
+    traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
+
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    var_index = current_var_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+
+  return;
+}
+
+
+static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
+  int *current_arity = NULL, current_str_index = 0, current_mode = 0;
+
+  /* test if hashing */
+  if (IS_SUBGOAL_TRIE_HASH(current_node)) {
+    sg_node_ptr *bucket, *last_bucket;
+    sg_hash_ptr hash;
+    hash = (sg_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    do {
+      if (*bucket) {
+        traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	  str[str_index - 1] = ',';
+#else
+	if (arity[arity[0]] == -1)
+	  str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      }
+    } while (++bucket != last_bucket);
+    free(current_arity);
+    return;
+  }
+
+  /* save current state if first sibling node */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    current_arity = (int *) malloc(sizeof(int) * (arity[0] + 1));
+    memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
+    current_str_index = str_index;
+    current_mode = mode;
+  }
+
+  /* process current trie node */
+  TrStat_sg_nodes++;
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL);
+
+  /* continue with child node ... */
+  if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
+    traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+  /* ... or show answers */
+  else {
+    sg_fr_ptr sg_fr = (sg_fr_ptr) TrNode_sg_fr(current_node);
+    TrStat_subgoals++;
+    str[str_index] = 0;
+    SHOW_TABLE_STRUCTURE("%s.\n", str);
+    TrStat_ans_nodes++;
+    if (SgFr_first_answer(sg_fr) == NULL) {
+      if (SgFr_state(sg_fr) < complete) {
+	TrStat_sg_incomplete++;
+	SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
+      } else {
+	TrStat_answers_no++;
+	SHOW_TABLE_STRUCTURE("    NO\n");
+      }
+    } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
+      TrStat_answers_true++;
+      SHOW_TABLE_STRUCTURE("    TRUE\n");
+    } else {
+      arity[0] = 0;
+      traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+      if (SgFr_state(sg_fr) < complete) {
+	TrStat_sg_incomplete++;
+	SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
+      }
+    }
+  }
+
+  /* restore the initial state and continue with sibling nodes */
+  if (position == TRAVERSE_POSITION_FIRST) {
+    str_index = current_str_index;
+    mode = current_mode;
+    current_node = TrNode_next(current_node);
+    while (current_node) {
+      memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
+#ifdef TRIE_COMPACT_PAIRS
+      if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
+	str[str_index - 1] = ',';
+#else
+      if (arity[arity[0]] == -1)
+	str[str_index - 1] = '|';
+#endif /* TRIE_COMPACT_PAIRS */
+      traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
+      current_node = TrNode_next(current_node);
+    }
+    free(current_arity);
+  }
+
+  return;
+}
 
 
 
@@ -1106,10 +1108,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   current_ans_node = SgFr_answer_trie(sg_fr);
 
   for (i = subs_arity; i >= 1; i--) {
-#ifdef TABLING_ERRORS
-    if (IsNonVarTerm(subs_ptr[i]))
-      TABLING_ERROR_MESSAGE("IsNonVarTem(subs_ptr[i]) (answer_search)");
-#endif /* TABLING_ERRORS */
+    TABLING_ERROR_CHECKING(answer search, IsNonVarTerm(subs_ptr[i]));
     current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
   }
 
@@ -1130,10 +1129,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
   CELL *stack_terms;
   int i;
 
-#ifdef TABLING_ERRORS
-  if (H < H_FZ)
-    TABLING_ERROR_MESSAGE("H < H_FZ (load_answer)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(load_answer, H < H_FZ);
   if (subs_arity == 0)
     return;
 
@@ -1143,10 +1139,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
     Term t = STACK_POP_DOWN(stack_terms);
     Bind((CELL *) subs_ptr[i], t);
   }
-#ifdef TABLING_ERRORS
-  if (stack_terms != (CELL *)Yap_TrailTop)
-    TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (load_answer)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)Yap_TrailTop);
 
   return;
 #undef subs_arity
@@ -1166,16 +1159,36 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
   subs_ptr = aux_stack + aux_stack[1] + 2;
   t = STACK_POP_DOWN(stack_terms);
   Bind((CELL *) subs_ptr[subs_arity], t);
-#ifdef TABLING_ERRORS
-  if (stack_terms != (CELL *)Yap_TrailTop)
-    TABLING_ERROR_MESSAGE("stack_terms != Yap_TrailTop (exec_substitution)");
-#endif /* TABLING_ERRORS */
+  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)Yap_TrailTop);
   *subs_ptr = subs_arity - 1;
 
   return aux_stack;
 #undef subs_arity
 }
 #endif /* GLOBAL_TRIE */
+
+
+void update_answer_trie(sg_fr_ptr sg_fr) {
+  ans_node_ptr current_node;
+
+  free_answer_trie_hash_chain(SgFr_hash_chain(sg_fr));
+  SgFr_hash_chain(sg_fr) = NULL;
+  SgFr_state(sg_fr) += 2;  /* complete --> compiled : complete_in_use --> compiled_in_use */
+  current_node = TrNode_child(SgFr_answer_trie(sg_fr));
+  if (current_node) {
+#ifdef YAPOR
+    TrNode_instr(current_node) -= 1;
+#ifdef TABLING_INNER_CUTS
+    update_answer_trie_branch(NULL, current_node);
+#else
+    update_answer_trie_branch(current_node);
+#endif /* TABLING_INNER_CUTS */
+#else /* TABLING */
+    update_answer_trie_branch(current_node, TRAVERSE_POSITION_FIRST);
+#endif /* YAPOR */
+  }
+  return;
+}
 
 
 #ifdef GLOBAL_TRIE
@@ -1300,24 +1313,57 @@ void free_answer_trie_branch(ans_node_ptr current_node, int position) {
 }
 
 
-void update_answer_trie(sg_fr_ptr sg_fr) {
-  ans_node_ptr current_node;
+void free_subgoal_trie_hash_chain(sg_hash_ptr hash) {
+  while (hash) {
+    sg_node_ptr chain_node, *bucket, *last_bucket;
+    sg_hash_ptr next_hash;
 
-  free_answer_trie_hash_chain(SgFr_hash_chain(sg_fr));
-  SgFr_hash_chain(sg_fr) = NULL;
-  SgFr_state(sg_fr) += 2;  /* complete --> compiled : complete_in_use --> compiled_in_use */
-  current_node = TrNode_child(SgFr_answer_trie(sg_fr));
-  if (current_node) {
-#ifdef YAPOR
-    TrNode_instr(current_node) -= 1;
-#ifdef TABLING_INNER_CUTS
-    update_answer_trie_branch(NULL, current_node);
-#else
-    update_answer_trie_branch(current_node);
-#endif /* TABLING_INNER_CUTS */
-#else /* TABLING */
-    update_answer_trie_branch(current_node, TRAVERSE_POSITION_FIRST);
-#endif /* YAPOR */
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    while (! *bucket)
+      bucket++;
+    chain_node = *bucket;
+    TrNode_child(TrNode_parent(chain_node)) = chain_node;
+    while (++bucket != last_bucket) {
+      if (*bucket) {
+        while (TrNode_next(chain_node))
+          chain_node = TrNode_next(chain_node);
+        TrNode_next(chain_node) = *bucket;
+        chain_node = *bucket;
+      }
+    }
+    next_hash = Hash_next(hash);
+    FREE_HASH_BUCKETS(Hash_buckets(hash));
+    FREE_SUBGOAL_TRIE_HASH(hash);
+    hash = next_hash;
+  }
+  return;
+}
+
+
+void free_answer_trie_hash_chain(ans_hash_ptr hash) {
+  while (hash) {
+    ans_node_ptr chain_node, *bucket, *last_bucket;
+    ans_hash_ptr next_hash;
+
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    while (! *bucket)
+      bucket++;
+    chain_node = *bucket;
+    TrNode_child(UNTAG_ANSWER_LEAF_NODE(TrNode_parent(chain_node))) = chain_node;
+    while (++bucket != last_bucket) {
+      if (*bucket) {
+        while (TrNode_next(chain_node))
+          chain_node = TrNode_next(chain_node);
+        TrNode_next(chain_node) = *bucket;
+        chain_node = *bucket;
+      }
+    }
+    next_hash = Hash_next(hash);
+    FREE_HASH_BUCKETS(Hash_buckets(hash));
+    FREE_ANSWER_TRIE_HASH(hash);
+    hash = next_hash;
   }
   return;
 }
@@ -1425,41 +1471,4 @@ void show_global_trie(int show_mode) {
   return;
 }
 #endif /* GLOBAL_TRIE */
-
-
-void private_completion(sg_fr_ptr sg_fr) {
-  /* complete subgoals */
-#ifdef LIMIT_TABLING
-  sg_fr_ptr aux_sg_fr;
-  while (LOCAL_top_sg_fr != sg_fr) {
-    aux_sg_fr = LOCAL_top_sg_fr;
-    LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
-    mark_as_completed(aux_sg_fr);
-    insert_into_global_sg_fr_list(aux_sg_fr);
-  }
-  aux_sg_fr = LOCAL_top_sg_fr;
-  LOCAL_top_sg_fr = SgFr_next(aux_sg_fr);
-  mark_as_completed(aux_sg_fr);
-  insert_into_global_sg_fr_list(aux_sg_fr);
-#else
-  while (LOCAL_top_sg_fr != sg_fr) {
-    mark_as_completed(LOCAL_top_sg_fr);
-    LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
-  }
-  mark_as_completed(LOCAL_top_sg_fr);
-  LOCAL_top_sg_fr = SgFr_next(LOCAL_top_sg_fr);
-#endif /* LIMIT_TABLING */
-
-  /* release dependency frames */
-  while (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), B)) {  /* never equal if batched scheduling */
-    dep_fr_ptr dep_fr = DepFr_next(LOCAL_top_dep_fr);
-    FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
-    LOCAL_top_dep_fr = dep_fr;
-  }
-
-  /* adjust freeze registers */
-  adjust_freeze_registers();
-
-  return;
-}
 #endif /* TABLING */

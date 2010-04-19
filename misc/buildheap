@@ -1,6 +1,6 @@
 
 :- use_module(library(lineutils),
-	[file_filter/3,
+	[file_filter_with_init/5,
 	 split/3,
 	 glue/3]).
 
@@ -17,15 +17,18 @@
 :- style_check(all).
 
 main :-
-	file_filter('misc/HEAPFIELDS','H/hstruct.h',gen_struct),
-	file_filter('misc/HEAPFIELDS','H/dhstruct.h',gen_dstruct),
-	file_filter('misc/HEAPFIELDS','H/rhstruct.h',gen_hstruct),
-	file_filter('misc/HEAPFIELDS','H/ihstruct.h',gen_init),
-	file_filter('misc/GLOBALS','H/hglobals.h',gen_struct),
-	file_filter('misc/GLOBALS','H/dglobals.h',gen_dstruct),
-	file_filter('misc/GLOBALS','H/rglobals.h',gen_hstruct),
-	file_filter('misc/GLOBALS','H/iglobals.h',gen_init).
+	warning(Warning),
+	file_filter_with_init('misc/HEAPFIELDS','H/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
+	file_filter_with_init('misc/HEAPFIELDS','H/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
+	file_filter_with_init('misc/HEAPFIELDS','H/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
+	file_filter_with_init('misc/HEAPFIELDS','H/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
+	file_filter_with_init('misc/GLOBALS','H/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
+	file_filter_with_init('misc/GLOBALS','H/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
+	file_filter_with_init('misc/GLOBALS','H/rglobals.h',gen_hstruct,Warning,['rglobals.h','GLOBALS']),
+	file_filter_with_init('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
 	
+warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildheap\"~n     please do not update, update misc/~a instead */~n~n').
+
 
 
 /* define the field */

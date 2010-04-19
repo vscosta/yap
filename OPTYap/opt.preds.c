@@ -75,9 +75,9 @@ static Int p_tabling_statistics(void);
 static Int p_opt_statistics(void);
 #endif /* YAPOR && TABLING */
 
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
+#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
 static int p_debug_prolog(void);
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
+#endif /* DEBUG_YAPOR || DEBUG_TABLING */
 
 #ifdef SHM_MEMORY_ALLOC_SCHEME
 static void shm_pages(long pages_in_use, long bytes_in_use);
@@ -163,9 +163,9 @@ void Yap_init_optyap_preds(void) {
 #if defined(YAPOR) && defined(TABLING)
   Yap_InitCPred("opt_statistics", 0, p_opt_statistics, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR && TABLING */
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
+#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
   Yap_InitCPred("debug_prolog", 1, p_debug_prolog, SafePredFlag|SyncPredFlag);
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
+#endif /* DEBUG_YAPOR || DEBUG_TABLING */
 }
 
 
@@ -976,7 +976,7 @@ Int p_opt_statistics(void) {
 #endif /* YAPOR && TABLING */
 
 
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
+#if defined(DEBUG_YAPOR) || defined(DEBUG_TABLING)
 static
 int p_debug_prolog(void) {
   Term t;
@@ -984,17 +984,17 @@ int p_debug_prolog(void) {
   if (IsAtomTerm(t)) {
     char *s;
     s = RepAtom(AtomOfTerm(t))->StrOfAE;
-#ifdef YAPOR_ERRORS
+#ifdef DEBUG_YAPOR
     fprintf(Yap_stderr, "W%d: %s\n", worker_id, s);
-#else /* TABLING_ERRORS */
+#else /* DEBUG_TABLING */
     fprintf(Yap_stderr, "%s\n", s);
-#endif /* YAPOR_ERRORS */
+#endif
     return(TRUE);
   } else {
     return (FALSE);
   }
 }
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
+#endif /* DEBUG_YAPOR || DEBUG_TABLING */
 
 
 

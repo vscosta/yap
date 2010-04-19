@@ -11,9 +11,11 @@
 **                                                                     **
 ************************************************************************/
 
-/********************************
-**      Memory management      **
-********************************/
+/************************************************************************
+**                          Memory management                          **
+************************************************************************/
+
+extern int Yap_page_size;
 
 #ifdef SHM_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
@@ -21,8 +23,6 @@
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
 /* #define SHMMAX  0x800000 - 8 Mbytes: shmget limit for Solaris (?) */
 #endif /* SHM_MEMORY_ALLOC_SCHEME */
-
-extern int Yap_page_size;
 
 #if SIZEOF_INT_P == 4
 #define ALIGN	                   3
@@ -43,48 +43,58 @@ extern int Yap_page_size;
 
 #define UPDATE_STATS(STAT, VALUE)  STAT += VALUE
 
-#ifdef MALLOC_MEMORY_ALLOC_SCHEME  /********************************************************************/
+
+#ifdef MALLOC_MEMORY_ALLOC_SCHEME
+/********************************************************************************************************
+**                                      MALLOC_MEMORY_ALLOC_SCHEME                                     **
+********************************************************************************************************/
+#define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                                \
+        if ((STR = (STR_TYPE *) malloc(SIZE)) == NULL)                                                  \
+          Yap_Error(FATAL_ERROR, TermNil, "ALLOC_BLOCK: malloc error")
+#define FREE_BLOCK(STR)                                                                                 \
+        free(STR)
+#else
+/********************************************************************************************************
+**                                     ! MALLOC_MEMORY_ALLOC_SCHEME                                    **
+********************************************************************************************************/
+#define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                                \
+        { char *block_ptr;                                                                              \
+          if ((block_ptr = Yap_AllocCodeSpace(SIZE + sizeof(CELL))) != NULL)                            \
+            *block_ptr = 'y';                                                                           \
+          else if ((block_ptr = (char *) malloc(SIZE + sizeof(CELL))) != NULL)                          \
+            *block_ptr = 'm';                                                                           \
+          else                                                                                          \
+            Yap_Error(FATAL_ERROR, TermNil, "ALLOC_BLOCK: malloc error");                               \
+          block_ptr += sizeof(CELL);                                                                    \
+          STR = (STR_TYPE *) block_ptr;                                                                 \
+        }
+#define FREE_BLOCK(STR)                                                                                 \
+        { char *block_ptr = (char *)(STR) - sizeof(CELL);                                               \
+          if (block_ptr[0] == 'y')                                                                      \
+            Yap_FreeCodeSpace(block_ptr);                                                               \
+          else                                                                                          \
+            free(block_ptr);                                                                            \
+        }
+#endif /************************************************************************************************/
+
+
+#if defined(MALLOC_MEMORY_ALLOC_SCHEME) || defined(YAP_MEMORY_ALLOC_SCHEME)
+/********************************************************************************************************
+**                        MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME                        **
+********************************************************************************************************/
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                          \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                                      \
-        if ((STR = (STR_TYPE *)malloc(sizeof(STR_TYPE))) == NULL)                                       \
-          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_STRUCT)")
+        ALLOC_BLOCK(STR, sizeof(STR_TYPE), STR_TYPE)
 #define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                \
         ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                           \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                                     \
-        free(STR)
-#elif YAP_MEMORY_ALLOC_SCHEME  /************************************************************************/
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                          \
-        { char *ptr = Yap_AllocCodeSpace(sizeof(STR_TYPE) + sizeof(CELL));                              \
-          if (ptr) {                                                                                    \
-            *ptr = 'y';                                                                                 \
-            ptr += sizeof(CELL);                                                                        \
-            STR = (STR_TYPE *)ptr;                                                                      \
-          } else {                                                                                      \
-            ptr = (char *)malloc(sizeof(STR_TYPE) + sizeof(CELL));                                      \
-            if (ptr) {                                                                                  \
-              *ptr = 'm';                                                                               \
-              ptr += sizeof(CELL);                                                                      \
-              STR = (STR_TYPE *)ptr;                                                                    \
-            } else {                                                                                    \
-              Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_STRUCT)");                           \
-              STR = NULL;                                                                               \
-	    }                                                                                           \
-          }                                                                                             \
-          UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                                    \
-        }
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                \
-        ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
-#define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                           \
-        { char *ptr = (char *)(STR) - sizeof(CELL);                                                     \
-          if (ptr[0] == 'y') {                                                                          \
-            Yap_FreeCodeSpace(ptr);                                                                     \
-          } else                                                                                        \
-            free(ptr);                                                                                  \
-          UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                                   \
-        }
-#elif SHM_MEMORY_ALLOC_SCHEME  /************************************************************************/
+        FREE_BLOCK(STR)
+#elif SHM_MEMORY_ALLOC_SCHEME
 #ifdef LIMIT_TABLING
+/********************************************************************************************************
+**                              SHM_MEMORY_ALLOC_SCHEME && LIMIT_TABLING                               **
+********************************************************************************************************/
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                                           \
         { int i;                                                                                        \
           STR_TYPE *aux_str;                                                                            \
@@ -220,6 +230,9 @@ extern int Yap_page_size;
 	}                                                                                               \
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #else
+/********************************************************************************************************
+**                              SHM_MEMORY_ALLOC_SCHEME && !LIMIT_TABLING                              **
+********************************************************************************************************/
 #define ALLOC_PAGE(PG_HD)                                                                               \
         LOCK(Pg_lock(GLOBAL_PAGES_void));                                                               \
         if (Pg_free_pg(GLOBAL_PAGES_void) == NULL) {                                                    \
@@ -313,7 +326,9 @@ extern int Yap_page_size;
 	}                                                                                               \
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #endif /* LIMIT_TABLING */
-
+/********************************************************************************************************
+**                                       SHM_MEMORY_ALLOC_SCHEME                                       **
+********************************************************************************************************/
 #define FREE_PAGE(PG_HD)                                                                                \
         LOCK(Pg_lock(GLOBAL_PAGES_void));                                                               \
         UPDATE_STATS(Pg_str_in_use(GLOBAL_PAGES_void), -1);                                             \
@@ -350,26 +365,12 @@ extern int Yap_page_size;
         }
 #endif /************************************************************************************************/
 
-#ifdef YAPOR
-#define ALLOC_BLOCK(BLOCK, SIZE)                                                                        \
-        if ((BLOCK = (void *) Yap_AllocCodeSpace(SIZE)) == NULL)                                        \
-          Yap_Error(FATAL_ERROR, TermNil, "Yap_AllocCodeSpace error (ALLOC_BLOCK)")
-#define FREE_BLOCK(BLOCK)                                                                               \
-        Yap_FreeCodeSpace((char *) (BLOCK))
-#else /* TABLING */
-#define ALLOC_BLOCK(BLOCK, SIZE)                                                                        \
-        if ((BLOCK = malloc(SIZE)) == NULL)                                                             \
-          Yap_Error(FATAL_ERROR, TermNil, "malloc error (ALLOC_BLOCK)")
-#define FREE_BLOCK(BLOCK)                                                                               \
-        free(BLOCK)
-#endif /* YAPOR - TABLING */
-
 #define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                                     \
-        { int i; void **ptr;                                                                            \
-          ALLOC_BLOCK(ptr, NUM_BUCKETS * sizeof(void *));                                               \
-          BUCKET_PTR = (void *) ptr;                                                                    \
+        { int i; void **bucket_ptr;                                                                     \
+          ALLOC_BLOCK(bucket_ptr, NUM_BUCKETS * sizeof(void *), void *);	                        \
+          BUCKET_PTR = (void *) bucket_ptr;                                                             \
           for (i = NUM_BUCKETS; i != 0; i--)                                                            \
-            *ptr++ = NULL;                                                                              \
+            *bucket_ptr++ = NULL;                                                                       \
         }
 #define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
 
@@ -391,21 +392,8 @@ extern int Yap_page_size;
 #define ALLOC_TABLE_ENTRY(STR)         ALLOC_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
 #define FREE_TABLE_ENTRY(STR)          FREE_STRUCT(STR, GLOBAL_PAGES_tab_ent, struct table_entry)
 
-#define ALLOC_GLOBAL_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
-#define FREE_GLOBAL_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
-
-#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
-#define FREE_SUBGOAL_TRIE_NODE(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
-
 #define ALLOC_SUBGOAL_FRAME(STR)       ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
 #define FREE_SUBGOAL_FRAME(STR)        FREE_STRUCT(STR, GLOBAL_PAGES_sg_fr, struct subgoal_frame)
-
-#ifdef YAPOR
-#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_NEXT_FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
-#else /* TABLING */
-#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
-#endif /* YAPOR - TABLING */
-#define FREE_ANSWER_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
 
 #define ALLOC_DEPENDENCY_FRAME(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
 #define FREE_DEPENDENCY_FRAME(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_dep_fr, struct dependency_frame)
@@ -413,6 +401,19 @@ extern int Yap_page_size;
 #define ALLOC_SUSPENSION_FRAME(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
 #define FREE_SUSPENSION_FRAME(STR)     FREE_BLOCK(SuspFr_global_start(STR));                         \
                                        FREE_STRUCT(STR, GLOBAL_PAGES_susp_fr, struct suspension_frame)
+
+#define ALLOC_GLOBAL_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
+#define FREE_GLOBAL_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_gt_node, struct global_trie_node)
+
+#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
+#define FREE_SUBGOAL_TRIE_NODE(STR)    FREE_STRUCT(STR, GLOBAL_PAGES_sg_node, struct subgoal_trie_node)
+
+#ifdef YAPOR
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_NEXT_FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
+#else /* TABLING */
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
+#endif /* YAPOR - TABLING */
+#define FREE_ANSWER_TRIE_NODE(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_ans_node, struct answer_trie_node)
 
 #define ALLOC_GLOBAL_TRIE_HASH(STR)    ALLOC_STRUCT(STR, GLOBAL_PAGES_gt_hash, struct global_trie_hash)
 #define FREE_GLOBAL_TRIE_HASH(STR)     FREE_STRUCT(STR, GLOBAL_PAGES_gt_hash, struct global_trie_hash)
@@ -425,16 +426,15 @@ extern int Yap_page_size;
 
 
 
-/******************************************
-**      Bitmap tests and operations      **
-******************************************/
+/************************************************************************
+**                         Bitmap manipulation                         **
+************************************************************************/
 
 #define BITMAP_empty(b)		       ((b) == 0)
 #define BITMAP_member(b,n)	       (((b) & (1<<(n))) != 0)
 #define BITMAP_alone(b,n)	       ((b) == (1<<(n)))
 #define BITMAP_subset(b1,b2)	       (((b1) & (b2)) == b2)
 #define BITMAP_same(b1,b2)             ((b1) == (b2))
-
 #define BITMAP_clear(b)	               ((b) = 0)
 #define BITMAP_and(b1,b2)              ((b1) &= (b2))
 #define BITMAP_minus(b1,b2)            ((b1) &= ~(b2))
@@ -446,26 +446,38 @@ extern int Yap_page_size;
 
 
 
-/***************************************
-**      Message and debug macros      **
-***************************************/
+/************************************************************************
+**                            Debug macros                             **
+************************************************************************/
 
-#define INFORMATION_MESSAGE(MESG, ARGS...)  information_message(MESG, ##ARGS)
+#define INFORMATION_MESSAGE(MESSAGE,ARGS...)                            \
+        fprintf(stderr, "[ " MESSAGE " ]\n", ##ARGS)
 
-#ifdef YAPOR_ERRORS
-#define YAPOR_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef YAPOR
+#define ERROR_MESSAGE(MESSAGE)                                          \
+        Yap_Error(INTERNAL_ERROR, TermNil, "W%d - " MESSAGE, worker_id)
 #else
-#define YAPOR_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* YAPOR_ERRORS */
+#define ERROR_MESSAGE(MESSAGE)                                          \
+        Yap_Error(INTERNAL_ERROR, TermNil, MESSAGE)
+#endif /* YAPOR */
 
-#ifdef TABLING_ERRORS
-#define TABLING_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef DEBUG_TABLING
+#define TABLING_ERROR_CHECKING(PROCEDURE,TEST)                          \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
 #else
-#define TABLING_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* TABLING_ERRORS */
+#define TABLING_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_TABLING */
 
-#ifdef OPTYAP_ERRORS
-#define OPTYAP_ERROR_MESSAGE(MESG, ARGS...)  error_message(MESG, ##ARGS)
+#ifdef DEBUG_YAPOR
+#define YAPOR_ERROR_CHECKING(PROCEDURE,TEST)                            \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
 #else
-#define OPTYAP_ERROR_MESSAGE(MESG, ARGS...)
-#endif /* OPTYAP_ERRORS */
+#define YAPOR_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_YAPOR */
+
+#ifdef DEBUG_OPTYAP
+#define OPTYAP_ERROR_CHECKING(PROCEDURE,TEST)                           \
+        if (TEST) ERROR_MESSAGE(#PROCEDURE ": " #TEST)
+#else
+#define OPTYAP_ERROR_CHECKING(PROCEDURE,TEST)
+#endif /* DEBUG_OPTYAP */

@@ -16,25 +16,15 @@
 ************************************************************************/
 
 #ifdef LOW_LEVEL_TRACER
-#define store_low_level_trace_info(CP, TAB_ENT)  CP->cp_pred_entry = TabEnt_pe(TAB_ENT)
+#define store_low_level_trace_info(CP, TAB_ENT)  \
+        CP->cp_pred_entry = TabEnt_pe(TAB_ENT)
 #else
 #define store_low_level_trace_info(CP, TAB_ENT)
 #endif /* LOW_LEVEL_TRACER */
 
-
-#ifdef TABLING_ERRORS
-#define TABLING_ERRORS_check_stack                                                     \
-        if (Unsigned(H) + 1024 > Unsigned(B))                                          \
-	  TABLING_ERROR_MESSAGE("H + 1024 > B (check_stack)");                         \
-        if (Unsigned(H_FZ) + 1024 > Unsigned(B))                                       \
-	  TABLING_ERROR_MESSAGE("H_FZ + 1024 > B (check_stack)")
-#define TABLING_ERRORS_consume_answer_and_procceed                                     \
-        if (IS_BATCHED_GEN_CP(B))                                                      \
-	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (consume_answer_and_procceed)")
-#else
-#define TABLING_ERRORS_check_stack
-#define TABLING_ERRORS_consume_answer_and_procceed
-#endif /* TABLING_ERRORS */
+#define TABLING_ERROR_CHECKING_STACK                                           \
+        TABLING_ERROR_CHECKING(store_node, Unsigned(H) + 1024 > Unsigned(B));  \
+	TABLING_ERROR_CHECKING(store_node, Unsigned(H_FZ) + 1024 > Unsigned(B))
 
 
 #define store_generator_node(TAB_ENT, SG_FR, ARITY, AP)               \
@@ -83,7 +73,7 @@
           B = gcp;                                                    \
           YAPOR_SET_LOAD(B);                                          \
           SET_BB(B);                                                  \
-          TABLING_ERRORS_check_stack;                                 \
+          TABLING_ERROR_CHECKING_STACK;                               \
         }
 
 
@@ -107,7 +97,7 @@
           B = gcp;                                                    \
           YAPOR_SET_LOAD(B);                                          \
           SET_BB(B);                                                  \
-          TABLING_ERRORS_check_stack;                                 \
+          TABLING_ERROR_CHECKING_STACK;                               \
 	}
 #endif /* DETERMINISTIC_TABLING */
 
@@ -188,34 +178,34 @@
           B = ccp;                                                         \
           YAPOR_SET_LOAD(B);                                               \
           SET_BB(B);                                                       \
-          TABLING_ERRORS_check_stack;                                      \
+          TABLING_ERROR_CHECKING_STACK;                                    \
         }
 
 
-#define consume_answer_and_procceed(DEP_FR, ANSWER)       \
-        { CELL *subs_ptr;                                 \
-          /* restore consumer choice point */             \
-          H = HBREG = PROTECT_FROZEN_H(B);                \
-          restore_yaam_reg_cpdepth(B);                    \
-          CPREG = B->cp_cp;                               \
-          ENV = B->cp_env;                                \
-          /* set_cut(YENV, B->cp_b); --> no effect */     \
-          PREG = (yamop *) CPREG;                         \
-          PREFETCH_OP(PREG);                              \
-          /* load answer from table to global stack */    \
-          if (B == DepFr_leader_cp(DEP_FR)) {             \
-            /*  B is a generator-consumer node  */        \
-            /* never here if batched scheduling */        \
-            TABLING_ERRORS_consume_answer_and_procceed;   \
-            subs_ptr = (CELL *) (GEN_CP(B) + 1);          \
-            subs_ptr += SgFr_arity(GEN_CP(B)->cp_sg_fr);  \
-	  } else {                                        \
-            subs_ptr = (CELL *) (CONS_CP(B) + 1);         \
-	  }                                               \
-          load_answer(ANSWER, subs_ptr);                  \
-          /* procceed */                                  \
-          YENV = ENV;                                     \
-          GONext();                                       \
+#define consume_answer_and_procceed(DEP_FR, ANSWER)                            \
+        { CELL *subs_ptr;                                                      \
+          /* restore consumer choice point */                                  \
+          H = HBREG = PROTECT_FROZEN_H(B);                                     \
+          restore_yaam_reg_cpdepth(B);                                         \
+          CPREG = B->cp_cp;                                                    \
+          ENV = B->cp_env;                                                     \
+          /* set_cut(YENV, B->cp_b); --> no effect */                          \
+          PREG = (yamop *) CPREG;                                              \
+          PREFETCH_OP(PREG);                                                   \
+          /* load answer from table to global stack */                         \
+          if (B == DepFr_leader_cp(DEP_FR)) {                                  \
+            /*  B is a generator-consumer node  */                             \
+            /* never here if batched scheduling */                             \
+            TABLING_ERROR_CHECKING(generator_consumer, IS_BATCHED_GEN_CP(B));  \
+            subs_ptr = (CELL *) (GEN_CP(B) + 1);                               \
+            subs_ptr += SgFr_arity(GEN_CP(B)->cp_sg_fr);                       \
+	  } else {                                                             \
+            subs_ptr = (CELL *) (CONS_CP(B) + 1);                              \
+	  }                                                                    \
+          load_answer(ANSWER, subs_ptr);                                       \
+          /* procceed */                                                       \
+          YENV = ENV;                                                          \
+          GONext();                                                            \
         }
 
 
@@ -238,7 +228,7 @@
           B = lcp;                                            \
           YAPOR_SET_LOAD(B);                                  \
           SET_BB(B);                                          \
-          TABLING_ERRORS_check_stack;                         \
+          TABLING_ERROR_CHECKING_STACK;                       \
         }
 
 
@@ -451,21 +441,19 @@
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_single)");
+	OPTYAP_ERROR_CHECKING(table_try_single, aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr));
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_single)");
+	OPTYAP_ERROR_CHECKING(table_try_single, aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr));
       }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
       goto answer_resolution;
     } else {
       /* subgoal completed */
@@ -564,21 +552,19 @@
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try_me)");
+	OPTYAP_ERROR_CHECKING(table_try_me, aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr));
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try_me)");
+	OPTYAP_ERROR_CHECKING(table_try_me, aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr));
       }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
       goto answer_resolution;
     } else {
       /* subgoal completed */
@@ -677,21 +663,19 @@
       UNLOCK(SgFr_lock(sg_fr));
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
       if (PARALLEL_EXECUTION_MODE) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (table_try)");
+	OPTYAP_ERROR_CHECKING(table_try, aux_cp->cp_or_fr != DepFr_top_or_fr(LOCAL_top_dep_fr));
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, DepFr_leader_cp(LOCAL_top_dep_fr)))
 	  aux_cp = aux_cp->cp_b;
-	if (aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr))
-	  OPTYAP_ERROR_MESSAGE("Error on DepFr_leader_cp (table_try)");
+	OPTYAP_ERROR_CHECKING(table_try, aux_cp != DepFr_leader_cp(LOCAL_top_dep_fr));
       }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
       goto answer_resolution;
     } else {
       /* subgoal completed */
@@ -861,7 +845,7 @@
       sg_fr = GEN_CP(gcp)->cp_sg_fr;
       subs_ptr = (CELL *)(GEN_CP(gcp) + 1) + PREG->u.s.s;
     }
-#if defined(TABLING_ERRORS) && !defined(DETERMINISTIC_TABLING)
+#if defined(DEBUG_TABLING) && !defined(DETERMINISTIC_TABLING)
     {
       int i, j, arity_args, arity_subs;
       CELL *aux_args;
@@ -877,11 +861,10 @@
           Term term_arg = Deref(*(aux_args + j));
           if (term_subs == term_arg) break;
 	}
-        if (j == arity_args)
-          TABLING_ERROR_MESSAGE("j == arity_args (table_new_answer)");
+	TABLING_ERROR_CHECKING(table_new_answer, j == arity_args);
       }
     }
-#endif /* TABLING_ERRORS && !DETERMINISTIC_TABLING */
+#endif /* DEBUG_TABLING && !DETERMINISTIC_TABLING */
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
     LOCK(SgFr_lock(sg_fr));
 #endif /* TABLE_LOCK_LEVEL */
@@ -1032,16 +1015,15 @@
       else
         TrNode_child(SgFr_last_answer(sg_fr)) = ans_node;
       SgFr_last_answer(sg_fr) = ans_node;
-#ifdef TABLING_ERRORS
+#ifdef DEBUG_TABLING
       { 
         ans_node_ptr aux_ans_node = SgFr_first_answer(sg_fr);
         while (aux_ans_node != SgFr_last_answer(sg_fr)) {
-          if (! IS_ANSWER_LEAF_NODE(aux_ans_node))
-            TABLING_ERROR_MESSAGE("! IS_ANSWER_LEAF_NODE(aux_ans_node) (table_new_answer)");
+	  TABLING_ERROR_CHECKING(table_new_answer, !IS_ANSWER_LEAF_NODE(aux_ans_node));
           aux_ans_node = TrNode_child(aux_ans_node);
         }
       }
-#endif /* TABLING_ERRORS */
+#endif /* DEBUG_TABLING */
       UNLOCK(SgFr_lock(sg_fr));
       if (IS_BATCHED_GEN_CP(gcp)) {
 #ifdef TABLING_EARLY_COMPLETION
@@ -1116,15 +1098,8 @@
     dep_fr_ptr dep_fr;
     ans_node_ptr ans_node;
 
-#ifdef OPTYAP_ERRORS
-    if (SCH_top_shared_cp(B)) {
-      if (B->cp_or_fr->alternative != ANSWER_RESOLUTION)
-        OPTYAP_ERROR_MESSAGE("B->cp_or_fr->alternative != ANSWER_RESOLUTION (answer_resolution)");
-    } else {
-      if (B->cp_ap != ANSWER_RESOLUTION)
-        OPTYAP_ERROR_MESSAGE("B->cp_ap != ANSWER_RESOLUTION (answer_resolution)");
-    }
-#endif /* OPTYAP_ERRORS */
+    OPTYAP_ERROR_CHECKING(answer_resolution, SCH_top_shared_cp(B) && B->cp_or_fr->alternative != ANSWER_RESOLUTION);
+    OPTYAP_ERROR_CHECKING(answer_resolution, !SCH_top_shared_cp(B) && B->cp_ap != ANSWER_RESOLUTION);
     dep_fr = CONS_CP(B)->cp_dep_fr;
     LOCK(DepFr_lock(dep_fr));
     ans_node = DepFr_last_answer(dep_fr);
@@ -1140,10 +1115,7 @@
     if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
       /*  B is a generator-consumer node  **
       ** never here if batched scheduling */
-#ifdef TABLING_ERRORS
-      if (IS_BATCHED_GEN_CP(B))
-        TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (answer_resolution)");
-#endif /* TABLING_ERRORS */
+      TABLING_ERROR_CHECKING(answer_resolution, IS_BATCHED_GEN_CP(B));
       goto completion;
     }
 #endif /* YAPOR */
@@ -1170,12 +1142,8 @@
       chain_cp = DepFr_leader_cp(LOCAL_top_dep_fr);
       if (YOUNGER_CP(top_chain_cp, chain_cp))
         chain_cp = top_chain_cp;
-#ifdef TABLING_ERRORS
-      if (EQUAL_OR_YOUNGER_CP(top_chain_cp, B))
-        TABLING_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(top_chain_cp, B) (answer_resolution)");
-      else if (EQUAL_OR_YOUNGER_CP(chain_cp, B))
-        TABLING_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(chain_cp, B) (answer_resolution)");
-#endif /* TABLING_ERRORS */
+      TABLING_ERROR_CHECKING(answer_resolution, EQUAL_OR_YOUNGER_CP(top_chain_cp, B));
+      TABLING_ERROR_CHECKING(answer_resolution, EQUAL_OR_YOUNGER_CP(chain_cp, B));
 
       /* check for dependency frames with unconsumed answers */
       dep_fr = DepFr_next(dep_fr);
@@ -1244,37 +1212,22 @@
               pruning_over_tabling_data_structures(); 	
           }
 #endif /* YAPOR */
-#ifdef OPTYAP_ERRORS
-          if (PARALLEL_EXECUTION_MODE) {
-            if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack())) {
-              OPTYAP_ERROR_MESSAGE("YOUNGER_CP(Get_LOCAL_top_cp(), LOCAL_top_cp_on_stack) (answer_resolution)");
-    	    } else {
-              choiceptr aux_cp;
-              aux_cp = chain_cp;
-              while (aux_cp != Get_LOCAL_top_cp()) {
-                if (YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp)) {
-                  OPTYAP_ERROR_MESSAGE("LOCAL_top_cp not in branch (answer_resolution)");
-                  break;
-                }
-                if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp)) {
-                  OPTYAP_ERROR_MESSAGE("shared frozen segments in branch (answer_resolution)");
-                  break;
-                }
-                aux_cp = aux_cp->cp_b;
-              }
-    	    }
+#ifdef DEBUG_OPTYAP
+	  if (PARALLEL_EXECUTION_MODE) {
+	    choiceptr aux_cp;
+	    OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
+	    aux_cp = chain_cp;
+	    while (aux_cp != Get_LOCAL_top_cp()) {
+	      OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp));
+	      OPTYAP_ERROR_CHECKING(completion, EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp));
+	      aux_cp = aux_cp->cp_b;
+	    }
 	  }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
           /* restore bindings, update registers, consume answer and procceed */
           restore_bindings(B->cp_tr, chain_cp->cp_tr);
-#ifdef TABLING_ERRORS
-          if (TR != B->cp_tr) {
-            if(! IsPairTerm((CELL)TrailTerm(TR - 1)))
-              TABLING_ERROR_MESSAGE("! IsPairTerm((CELL)TrailTerm(TR - 1)) (answer_resolution)");
-            if ((tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr)
-              TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (answer_resolution)");
-	  }
-#endif /* TABLING_ERRORS */
+	  TABLING_ERROR_CHECKING(answer_resolution, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
+	  TABLING_ERROR_CHECKING(answer_resolution, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
           B = chain_cp;
           TR = TR_FZ;
           TRAIL_LINK(B->cp_tr);
@@ -1330,37 +1283,22 @@
         }
       }
 #endif /* YAPOR */
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
       if (PARALLEL_EXECUTION_MODE) {
-        if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack())) {
-          OPTYAP_ERROR_MESSAGE("YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()) (answer_resolution)");
-	} else {
-          choiceptr aux_cp;
-          aux_cp = chain_cp;
-          while (aux_cp != Get_LOCAL_top_cp()) {
-            if (YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp)) {
-              OPTYAP_ERROR_MESSAGE("LOCAL_top_cp not in branch (answer_resolution)");
-              break;
-            }
-            if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp)) {
-              OPTYAP_ERROR_MESSAGE("shared frozen segments in branch (answer_resolution)");
-              break;
-            }
-            aux_cp = aux_cp->cp_b;
-          }
+	choiceptr aux_cp;
+	OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
+	aux_cp = chain_cp;
+	while (aux_cp != Get_LOCAL_top_cp()) {
+	  OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp));
+	  OPTYAP_ERROR_CHECKING(completion, EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp));
+	  aux_cp = aux_cp->cp_b;
 	}
       }
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
       /* unbind variables */
       unbind_variables(B->cp_tr, chain_cp->cp_tr);
-#ifdef TABLING_ERRORS
-      if (TR != B->cp_tr) {
-        if(! IsPairTerm((CELL)TrailTerm(TR - 1)))
-          TABLING_ERROR_MESSAGE("! IsPairTerm((CELL)TrailTerm(TR - 1)) (answer_resolution)");
-        if ((tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr)
-          TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (answer_resolution)");
-      }
-#endif /* TABLING_ERRORS */
+      TABLING_ERROR_CHECKING(answer_resolution, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
+      TABLING_ERROR_CHECKING(answer_resolution, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
       if (DepFr_leader_cp(LOCAL_top_dep_fr) == chain_cp && (
         /* chain_cp is a leader node AND ... */
 #ifdef YAPOR
@@ -1470,20 +1408,16 @@
 	}
         UNLOCK(DepFr_lock(dep_fr));
 
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
         if (PARALLEL_EXECUTION_MODE) {
-          if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack())) {
-            OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, LOCAL_top_cp_on_stack) (completion)");
-          } else {
-            choiceptr aux_cp;
-            aux_cp = DepFr_cons_cp(dep_fr);
-            while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
-              aux_cp = aux_cp->cp_b;
-            if (aux_cp->cp_or_fr != DepFr_top_or_fr(dep_fr))
-              OPTYAP_ERROR_MESSAGE("Error on DepFr_top_or_fr (completion)");
-	  }
+	  choiceptr aux_cp;
+	  OPTYAP_ERROR_CHECKING(completion, Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack());
+	  aux_cp = DepFr_cons_cp(dep_fr);
+	  while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
+	    aux_cp = aux_cp->cp_b;
+	  OPTYAP_ERROR_CHECKING(completion, aux_cp->cp_or_fr != DepFr_top_or_fr(dep_fr));
 	}
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
 #ifdef YAPOR
         /* update shared nodes */
         if (YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), Get_LOCAL_top_cp())) {
@@ -1499,43 +1433,24 @@
           Set_LOCAL_top_cp(GetOrFr_node(LOCAL_top_or_fr));
         }
 #endif /* YAPOR */
-#ifdef OPTYAP_ERRORS
+#ifdef DEBUG_OPTYAP
         if (PARALLEL_EXECUTION_MODE) {
-          if (YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack())) {
-            OPTYAP_ERROR_MESSAGE("YOUNGER_CP(LOCAL_top_cp, LOCAL_top_cp_on_stack) (completion)");
-          } else {
-            choiceptr aux_cp;
-            aux_cp = DepFr_cons_cp(dep_fr);
-            while (aux_cp != Get_LOCAL_top_cp()) {
-              if (YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp)) {
-                OPTYAP_ERROR_MESSAGE("LOCAL_top_cp not in branch (completion)");
-                break;
-              }
-              if (EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp)) {
-                OPTYAP_ERROR_MESSAGE("shared frozen segments in branch (completion)");
-                break;
-              }
-              aux_cp = aux_cp->cp_b;
-            }
-          }
+	  choiceptr aux_cp;
+	  OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
+	  aux_cp = DepFr_cons_cp(dep_fr);
+	  while (aux_cp != Get_LOCAL_top_cp()) {
+	    OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), aux_cp));
+	    OPTYAP_ERROR_CHECKING(completion, EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp_on_stack(), aux_cp));
+	    aux_cp = aux_cp->cp_b;
+	  }
 	}
-#endif /* OPTYAP_ERRORS */
+#endif /* DEBUG_OPTYAP */
         /* rebind variables, update registers, consume answer and procceed */
-#ifdef TABLING_ERRORS
-        if (EQUAL_OR_YOUNGER_CP(B, DepFr_cons_cp(dep_fr)))
-          TABLING_ERROR_MESSAGE("EQUAL_OR_YOUNGER_CP(B, DepFr_cons_cp(dep_fr)) (completion)");
-        if (B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr)
-          TABLING_ERROR_MESSAGE("B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr (completion)");
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(completion, EQUAL_OR_YOUNGER_CP(B, DepFr_cons_cp(dep_fr)));
+	TABLING_ERROR_CHECKING(completion, B->cp_tr > DepFr_cons_cp(dep_fr)->cp_tr);
         rebind_variables(DepFr_cons_cp(dep_fr)->cp_tr, B->cp_tr);
-#ifdef TABLING_ERRORS
-        if (TR != B->cp_tr) {
-          if(! IsPairTerm((CELL)TrailTerm(TR - 1)))
-            TABLING_ERROR_MESSAGE("! IsPairTerm((CELL)TrailTerm(TR - 1)) (completion)");
-          if ((tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr)
-            TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (completion)");
-	}
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
+	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
         B = DepFr_cons_cp(dep_fr);
         TR = TR_FZ;
         if (TR != B->cp_tr)
@@ -1622,22 +1537,13 @@
         /* complete all */
         public_completion();
       }
-#ifdef TABLING_ERRORS
-      if (TR != B->cp_tr) {
-        if(! IsPairTerm((CELL)TrailTerm(TR - 1)))
-          TABLING_ERROR_MESSAGE("! IsPairTerm((CELL)TrailTerm(TR - 1)) (completion)");
-        if ((tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr)
-          TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (completion)");
-      }
-#endif /* TABLING_ERRORS */
+      TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
+      TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
       if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
         /*  B is a generator-consumer node  */
         /* never here if batched scheduling */
         ans_node_ptr ans_node;
-#ifdef TABLING_ERRORS
-	if (IS_BATCHED_GEN_CP(B))
-	  TABLING_ERROR_MESSAGE("IS_BATCHED_GEN_CP(B) (completion)");
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(completion, IS_BATCHED_GEN_CP(B));
         TR = B->cp_tr;
         SET_BB(B);
         LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -1710,14 +1616,8 @@
           SET_BB(PROTECT_FROZEN_B(B));
           goto fail;
         }
-#ifdef TABLING_ERRORS
-        if (TR != B->cp_tr) {
-          if(! IsPairTerm((CELL)TrailTerm(TR - 1)))
-            TABLING_ERROR_MESSAGE("! IsPairTerm((CELL)TrailTerm(TR - 1)) (completion)");
-          if ((tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr)
-            TABLING_ERROR_MESSAGE("RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr (completion)");
-        }
-#endif /* TABLING_ERRORS */
+	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && !IsPairTerm((CELL)TrailTerm(TR - 1)));
+	TABLING_ERROR_CHECKING(completion, TR != B->cp_tr && (tr_fr_ptr) RepPair((CELL)TrailTerm(TR - 1)) != B->cp_tr);
         pop_generator_node(SgFr_arity(sg_fr));
         if (ans_node == SgFr_answer_trie(sg_fr)) {
           /* yes answer --> procceed */

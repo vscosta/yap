@@ -30,18 +30,6 @@ void remap_memory(void);
 
 
 /*************************
-**      opt.misc.c      **
-*************************/
-
-void itos(int, char *);
-void information_message(const char *,...);
-#if defined(YAPOR_ERRORS) || defined(TABLING_ERRORS)
-void error_message(const char *, ...);
-#endif /* YAPOR_ERRORS || TABLING_ERRORS */
-
-
-
-/*************************
 **      opt.init.c      **
 *************************/
 
@@ -51,6 +39,7 @@ void make_root_frames(void);
 #ifdef YAPOR
 void init_workers(void);
 #endif /* YAPOR */
+void itos(int, char *);
 
 
 
@@ -72,33 +61,39 @@ void finish_yapor(void);
 sg_fr_ptr subgoal_search(yamop *, CELL **);
 ans_node_ptr answer_search(sg_fr_ptr, CELL *);
 void load_answer(ans_node_ptr, CELL *);
+#ifdef GLOBAL_TRIE
+CELL *exec_substitution(gt_node_ptr, CELL *);
+#endif /* GLOBAL_TRIE */
+void update_answer_trie(sg_fr_ptr);
 #ifndef GLOBAL_TRIE
 void free_subgoal_trie_branch(sg_node_ptr, int, int, int);
 #else /* GLOBAL_TRIE */
-CELL *exec_substitution(gt_node_ptr, CELL *);
 void free_subgoal_trie_branch(sg_node_ptr, int, int);
 #endif /* GLOBAL_TRIE */
 void free_answer_trie_branch(ans_node_ptr, int);
-void update_answer_trie(sg_fr_ptr);
+void free_subgoal_trie_hash_chain(sg_hash_ptr);
+void free_answer_trie_hash_chain(ans_hash_ptr);
 void show_table(tab_ent_ptr, int);
 #ifdef GLOBAL_TRIE
 void show_global_trie(int);
 #endif /* GLOBAL_TRIE */
-void private_completion(sg_fr_ptr);
 #endif /* TABLING */
 
 
 
-/****************************
-**      tab.suspend.c      **
-****************************/
+/*******************************
+**      tab.completion.c      **
+*******************************/
 
-#if defined(TABLING) && defined(YAPOR)
+#ifdef TABLING 
+void private_completion(sg_fr_ptr);
+#ifdef YAPOR
 void public_completion(void);
 void complete_suspension_frames(or_fr_ptr);
 void suspend_branch(void);
 void resume_suspension_frame(susp_fr_ptr, or_fr_ptr);
-#endif /* TABLING && YAPOR */
+#endif /* YAPOR */
+#endif /* TABLING */
 
 
 
