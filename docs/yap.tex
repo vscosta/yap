@@ -192,14 +192,15 @@ Subnodes of Database
 * BlackBoard:: Storing and Fetching Terms in the BlackBoard
 
 Subnodes of Library
+* Aggregate :: SWI and SICStus compatible aggregate library
 * Apply:: SWI-Compatible Apply library.
-* Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * LineUtilities:: Line Manipulation Utilities
 * Lists:: List Manipulation
+* MapList:: SWI-Compatible Apply library.
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
@@ -4091,15 +4092,53 @@ generator. The argument should be an integer, but floats are acceptable.
 
 @itemize @bullet
 @item 
-In contrast to previous versions of YAP, YAP4 @emph{does not} convert
-automatically between integers and floats.
+Since YAP4, YAP @emph{does not} convert automatically between integers
+and floats.
 @item
 arguments to trigonometric functions are expressed in radians.
 @item
-if a (non-instantiated) variable occurs in an arithmetic expression
-YAP will generate an exception. If no error handler is
-available, execution will be thrown back to the top-level.
+if a (non-instantiated) variable occurs in an arithmetic expression YAP
+will generate an exception. If no error handler is available, execution
+will be thrown back to the top-level.
 @end itemize
+
+
+The following predicates provide counting:
+
+@table @code
+
+@item between(+@var{Low}, +@var{High}, ?@var{Value})
+@findex between/3
+@syindex between/3
+@cnindex between/3
+
+    @var{Low} and @var{High} are integers, @var{High} >=@var{Low}. If
+    @var{Value} is an integer, @var{Low} =<@var{Value}
+    =<@var{High}. When @var{Value} is a variable it is successively
+    bound to all integers between @var{Low} and @var{High}. If
+    @var{High} is inf or infinite @code{between/3} is true iff
+    @var{Value} >= @var{Low}, a feature that is particularly interesting
+    for generating integers from a certain value.
+
+@item succ(?@var{Int1}, ?@var{Int2})
+@findex succ/3
+@syindex succ/3
+@cnindex succ/3
+
+    True if @var{Int2} = @var{Int1} + 1 and @var{Int1} >= 0. At least
+    one of the arguments must be instantiated to a natural number. This
+    predicate raises the domain-error not_less_than_zero if called with
+    a negative integer. E.g. @code{succ(X, 0)} fails silently and succ(X, -1)
+    raises a domain-error. The behaviour to deal with natural numbers
+    only was defined by Richard O'Keefe to support the common
+    count-down-to-zero in a natural way. 
+
+@item plus(?@var{Int1}, ?@var{Int2}, ?@var{Int3})
+@findex plus/3
+@syindex plus/3
+@cnindex plus/3
+    True if @var{Int3} = @var{Int1} + @var{Int2}. At least two of the
+    three arguments must be instantiated to integers.
 
 
 @node I/O, Database, Arithmetic, Top
@@ -8251,8 +8290,8 @@ most files in the library are from the Edinburgh Prolog library.
 @menu
  
 Library, Extensions, Built-ins, Top
+* Aggregate :: SWI and SICStus compatible aggregate library
 * Apply:: SWI-Compatible Apply library.
-* Apply Macros:: Apply a Predicate to a list or to sub-terms.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
 * Cleanup:: Call With registered Cleanup Calls
@@ -8262,6 +8301,7 @@ Library, Extensions, Built-ins, Top
 * LAM:: LAM MPI
 * Lists:: List Manipulation
 * LineUtilities:: Line Manipulation Utilities
+* MapList:: SWI-Compatible Apply library.
 * matrix:: Matrix Objects
 * MATLAB:: Matlab Interface
 * Non-Backtrackable Data Structures:: Queues, Heaps, and Beams.
@@ -8286,190 +8326,172 @@ Library, Extensions, Built-ins, Top
 @end menu
 
  
-@node Apply, Apply Macros, , Library
-@section Apply Macros
-@cindex macros
+@node Aggregate, Apply, , Library
+@section Aggregate
+@cindex aggregate
+This is the SWI-Prolog library based on  the Quintus and SICStus 4
+library. Notice that  @code{forall/2}
+is a SWI-Prolog built-in and @code{term_variables/3} is a SWI-Prolog with a
+different definition.  @c To be done - Analysing the aggregation template
+@c and compiling a predicate for the list aggregation can be done at
+@c compile time.  - aggregate_all/3 can be rewritten to run in constant
+@c space using non-backtrackable assignment on a term.
 
-This library provides a SWI-compatible set of utilities for applying a
-predicate to all elements of a list. The library just forwards
-definitions from the @code{apply_macros} library.
+This library provides aggregating operators over the solutions of a
+predicate. The operations are a generalisation of the @code{bagof/3},
+@code{setof/3} and @code{findall/3} built-in predicates. The defined
+aggregation operations are counting, computing the sum, minimum,
+maximum, a bag of solutions and a set of solutions. We first give a
+simple example, computing the country with the smallest area:
 
-@node Apply Macros, Association Lists, Apply, Library
-@section Apply Macros
-@cindex macros
+@example
+smallest_country(Name, Area) :-
+        aggregate(min(A, N), country(N, A), min(Area, Name)).
+@end example
 
-This library provides a set of utilities for applying a predicate to
-all elements of a list or to all sub-terms of a term. They allow to
-easily perform the most common do-loop constructs in Prolog. To avoid
-performance degradation due to apply/2, each call creates an
-equivalent Prolog program, without meta-calls, which is executed by
-the Prolog engine instead. Note that if the equivalent Prolog program
-already exists, it will be simply used. The library is based on code
-by Joachim Schimpf.
-
-The following routines are available once included with the
-@code{use_module(library(apply_macros))} command.
+There are four aggregation predicates, distinguished on two properties.
 
 @table @code
-@item maplist(+@var{Pred}, ?@var{ListIn}, ?@var{ListOut})
-@findex maplist/3
-@snindex maplist/3
-@cnindex maplist/3
-      Creates @var{ListOut} by applying the predicate @var{Pred} to all
-elements of @var{ListIn}.
 
-@item maplist(+@var{Pred}, ?@var{ListIn})
-@findex maplist/3
-@snindex maplist/3
-@cnindex maplist/3
-      Creates @var{ListOut} by applying the predicate @var{Pred} to all
-elements of @var{ListIn}.
+@item aggregate vs. aggregate_all
+    The aggregate predicates use setof/3 (aggregate/4) or bagof/3
+    (aggregate/3), dealing with existential qualified variables
+    (@var{Var}/\@var{Goal}) and providing multiple solutions for the
+    remaining free variables in @var{Goal}. The aggregate_all/3
+    predicate uses findall/3, implicitly qualifying all free variables
+    and providing exactly one solution, while aggregate_all/4 uses
+    sort/2 over solutions and Distinguish (see below) generated using
+    findall/3. 
+@item The @var{Distinguish} argument
+    The versions with 4 arguments provide a @var{Distinguish} argument
+    that allow for keeping duplicate bindings of a variable in the
+    result. For example, if we wish to compute the total population of
+    all countries we do not want to lose results because two countries
+    have the same population. Therefore we use:
 
-@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3})
-@findex maplist/4
-@snindex maplist/4
-@cnindex maplist/4
-      @var{L1},  @var{L2}, and @var{L3} are such that
-      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3})} holds for every
-      corresponding element in lists @var{L1},  @var{L2}, and @var{L3}.
-
-@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3}, ?@var{L4})
-@findex maplist/5
-@snindex maplist/5
-@cnindex maplist/5
-      @var{L1}, @var{L2}, @var{L3}, and @var{L4} are such that
-      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3},@var{A4})} holds
-      for every corresponding element in lists @var{L1}, @var{L2}, @var{L3}, and
-      @var{L4}.
-
-@item checklist(+@var{Pred}, +@var{List})
-@findex checklist/2
-@snindex checklist/2
-@cnindex checklist/2
-      Succeeds if the predicate @var{Pred} succeeds on all elements of @var{List}.
-
-@item selectlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
-@findex selectlist/3
-@snindex selectlist/3
-@cnindex selectlist/3
-      Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
-
-@item convlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
-@findex convlist/3
-@snindex convlist/3
-@cnindex convlist/3
-      A combination of @code{maplist} and @code{selectlist}: creates @var{ListOut} by
-applying the predicate @var{Pred} to all list elements on which
-@var{Pred} succeeds
-
-@item sumlist(+@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumlist/4
-@snindex sumlist/4
-@cnindex sumlist/4
-      Calls @var{Pred} on all elements of List and collects a result in
-@var{Accumulator}.
-
-@item mapargs(+@var{Pred}, ?@var{TermIn}, ?@var{TermOut})
-@findex mapargs/3
-@snindex mapargs/3
-@cnindex mapargs/3
-      Creates @var{TermOut} by applying the predicate @var{Pred} to all
-      arguments of @var{TermIn}
-
-@item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumargs/4
-@snindex sumargs/4
-@cnindex sumargs/4
-  Calls the predicate @var{Pred} on all arguments of @var{Term} and
-collects a  result in @var{Accumulator}
-
-@item mapnodes(+@var{Pred}, +@var{TermIn}, ?@var{TermOut}) 
-@findex mapnodes/3
-@snindex mapnodes/3
-@cnindex mapnodes/3
-      Creates @var{TermOut} by applying the predicate @var{Pred}
-      to all sub-terms of @var{TermIn} (depth-first and left-to-right order)
-
-@item checknodes(+@var{Pred}, +@var{Term}) 
-@findex checknodes/3
-@snindex checknodes/3
-@cnindex checknodes/3
-      Succeeds if the predicate @var{Pred} succeeds on all sub-terms of
-      @var{Term} (depth-first and left-to-right order)
-
-@item sumnodes(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
-@findex sumnodes/4
-@snindex sumnodes/4
-@cnindex sumnodes/4
-      Calls the predicate @var{Pred} on all sub-terms of @var{Term} and
-collect a result in @var{Accumulator} (depth-first and left-to-right
-order)
-
-@item include(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
-@findex include/3
-@snindex include/3
-@cnindex include/3
-      Same as @code{selectlist/3}.
-
-@item exclude(+@var{Goal}, +@var{List1}, ?@var{List2})
-@findex exclude/3
-@snindex exclude/3
-@cnindex exclude/3
-Filter elements for which @var{Goal} fails. True if @var{List2} contains
-      those elements @var{Xi} of @var{List1} for which @code{call(Goal, Xi)} fails.
-
-@item partition(+@var{Pred},  +@var{List1}, ?@var{Included}, ?@var{Excluded})
-@findex partition/4
-@snindex partition/4
-@cnindex partition/4
-Filter elements of @var{List} according to @var{Pred}. True if
-@var{Included} contains all elements for which @code{call(Pred, X)}
-succeeds and @var{Excluded} contains the remaining elements.
-
-@item partition(+@var{Pred},  +@var{List1}, ?@var{Lesser}, ?@var{Equal}, ?@var{Greater})
-@findex partition/5
-@snindex partition/5
-@cnindex partition/5
-Filter list according to @var{Pred} in three sets. For each element
-@var{Xi} of @var{List}, its destination is determined by
-@code{call(Pred, Xi, Place)}, where @var{Place} must be unified to one
-of @code{<}, @code{=} or @code{>}. @code{Pred} must be deterministic.
+@example
+        aggregate(sum(P), Name, country(Name, P), Total)
+@end example
 
 @end table
 
-Examples:
+All aggregation predicates support the following operator below in
+@var{Template}. In addition, they allow for an arbitrary named compound
+term where each of the arguments is a term from the list below. I.e. the
+term @code{r(min(X), max(X))} computes both the minimum and maximum
+binding for @var{X}.
 
+@table @code
+
+@item count
+    Count number of solutions. Same as @code{sum(1)}. 
+@item sum(@var{Expr})
+    Sum of @var{Expr} for all solutions. 
+@item min(@var{Expr})
+    Minimum of @var{Expr} for all solutions. 
+@item min(@var{Expr}, @var{Witness})
+    A term min(@var{Min}, @var{Witness}), where @var{Min} is the minimal version of @var{Expr}
+    over all Solution and @var{Witness} is any other template applied to
+    Solution that produced @var{Min}. If multiple solutions provide the same
+    minimum, @var{Witness} corresponds to the first solution. 
+@item max(@var{Expr})
+    Maximum of @var{Expr} for all solutions. 
+@item max(@var{Expr}, @var{Witness})
+    As min(@var{Expr}, @var{Witness}), but producing the maximum result. 
+@item set(@var{X})
+    An ordered set with all solutions for @var{X}. 
+@item bag(@var{X})
+    A list of all solutions for @var{X}. 
+@end table
+
+The predicates are:
+@table @code
+
+@item [nondet]aggregate(+@var{Template}, :@var{Goal}, -@var{Result})
+@findex aggregate/3
+@syindex aggregate/3
+@cnindex aggregate/3
+    Aggregate bindings in @var{Goal} according to @var{Template}. The
+    aggregate/3 version performs bagof/3 on @var{Goal}.
+@item [nondet]aggregate(+@var{Template}, +@var{Discriminator}, :@var{Goal}, -@var{Result})
+@findex aggregate/4
+@syindex aggregate/4
+@cnindex aggregate/4
+    Aggregate bindings in @var{Goal} according to @var{Template}. The
+    aggregate/3 version performs setof/3 on @var{Goal}.
+@item [semidet]aggregate_all(+@var{Template}, :@var{Goal}, -@var{Result})
+@findex aggregate_all/3
+@syindex aggregate_all/3
+@cnindex aggregate_all/3
+    Aggregate bindings in @var{Goal} according to @var{Template}. The
+    aggregate_all/3 version performs findall/3 on @var{Goal}.
+@item [semidet]aggregate_all(+@var{Template}, +@var{Discriminator}, :@var{Goal}, -@var{Result})
+@findex aggregate_all/4
+@syindex aggregate_all/4
+@cnindex aggregate_all/4
+    Aggregate bindings in @var{Goal} according to @var{Template}. The
+    aggregate_all/3 version performs findall/3 followed by sort/2 on
+    @var{Goal}.
+@item foreach(:Generator, :@var{Goal})
+@findex foreach/2
+@syindex foreach/2
+@cnindex foreach/2
+    True if the conjunction of instances of @var{Goal} using the
+    bindings from Generator is true. Unlike forall/2, which runs a
+    failure-driven loop that proves @var{Goal} for each solution of
+    Generator, foreach creates a conjunction. Each member of the
+    conjunction is a copy of @var{Goal}, where the variables it shares
+    with Generator are filled with the values from the corresponding
+    solution.
+
+    The implementation executes forall/2 if @var{Goal} does not contain
+    any variables that are not shared with Generator.
+
+    Here is an example:
 @example
-%given
-plus(X,Y,Z) :- Z is X + Y.
-plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
-vars(X, Y, [X|Y]) :- var(X), !.
-vars(_, Y, Y).
-trans(TermIn, TermOut) :-
-  (compound(TermIn) ; atom(TermIn)),
-  TermIn =.. [p|Args],
-  TermOut =..[q|Args],
-  !.
-trans(X,X).
-
-%success
-
-maplist(plus(1), [1,2,3,4], [2,3,4,5]).
-checklist(var, [X,Y,Z]).
-selectlist(<(0), [-1,0,1], [1]).
-convlist(plus_if_pos(1), [-1,0,1], [2]).
-sumlist(plus, [1,2,3,4], 1, 11).
-mapargs(number_atom,s(1,2,3), s('1','2','3')).
-sumargs(vars, s(1,X,2,Y), [], [Y,X]).
-mapnodes(trans, p(a,p(b,a),c), q(a,q(b,a),c)).
-checknodes(\==(T), p(X,p(Y,X),Z)).
-sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
-% another one
-maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+    ?- foreach(between(1,4,X), dif(X,Y)), Y = 5.
+    Y = 5
+    ?- foreach(between(1,4,X), dif(X,Y)), Y = 3.
+    No
 @end example
 
+    Notice that @var{Goal} is copied repeatetly, which may cause
+    problems if attributed variables are involved.
 
-@node Association Lists, AVL Trees, Apply Macros, Library
+@item [det]free_variables(:Generator, +@var{Template}, +VarList0, -VarList)
+@findex free_variables/4
+@syindex free_variables/4
+@cnindex free_variables/4
+    In order to handle variables properly, we have to find all the universally quantified variables in the Generator. All variables as yet unbound are universally quantified, unless
+
+@enumerate
+@item they occur in the template
+@item they are bound by X/\P, setof, or bagof
+@end enumerate
+
+    @code{free_variables(Generator, Template, OldList, NewList)} finds this set, using OldList as an accumulator.
+@end table
+
+The original author of this code was Richard O'Keefe. Jan Wielemaker
+    made some SWI-Prolog enhancements, sponsored by SecuritEase,
+    http://www.securitease.com. The code is public domain (from DEC10 library).
+    @c To be done
+    @c     - Distinguish between control-structures and data terms.
+    @c     - Exploit our built-in term_variables/2 at some places? 
+
+
+
+@node Apply, Association Lists, Aggregate, Library
+@section Apply Macros
+@cindex apply
+
+This library provides a SWI-compatible set of utilities for applying a
+predicate to all elements of a list. The library just forwards
+definitions from the @code{maplist} library.
+
+
+
+@node Association Lists, AVL Trees, Apply, Library
 @section Association Lists
 @cindex association list
 
@@ -8976,7 +8998,7 @@ also @code{between/3}.
 
 @end table
 
-@node LineUtilities, matrix, Lists, Library
+@node LineUtilities, MapList, Lists, Library
 @section Line Manipulation Utilities
 @cindex Line Utilities Library
 
@@ -9135,7 +9157,181 @@ Same as @code{file_filter/3}, but before starting the filter execute
 
 
 
-@node matrix, MATLAB, LineUtilities, Library
+@node MapList, matrix, LineUtilities, Library
+@section Maplist
+@cindex macros
+
+This library provides a set of utilities for applying a predicate to
+all elements of a list or to all sub-terms of a term. They allow to
+easily perform the most common do-loop constructs in Prolog. To avoid
+performance degradation due to @code{apply/2}, each call creates an
+equivalent Prolog program, without meta-calls, which is executed by
+the Prolog engine instead. Note that if the equivalent Prolog program
+already exists, it will be simply used. The library is based on code
+by Joachim Schimpf and on code from SWI-Prolog.
+
+The following routines are available once included with the
+@code{use_module(library(apply_macros))} command.
+
+@table @code
+@item maplist(+@var{Pred}, ?@var{ListIn}, ?@var{ListOut})
+@findex maplist/3
+@snindex maplist/3
+@cnindex maplist/3
+      Creates @var{ListOut} by applying the predicate @var{Pred} to all
+elements of @var{ListIn}.
+
+@item maplist(+@var{Pred}, ?@var{ListIn})
+@findex maplist/3
+@snindex maplist/3
+@cnindex maplist/3
+      Creates @var{ListOut} by applying the predicate @var{Pred} to all
+elements of @var{ListIn}.
+
+@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3})
+@findex maplist/4
+@snindex maplist/4
+@cnindex maplist/4
+      @var{L1},  @var{L2}, and @var{L3} are such that
+      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3})} holds for every
+      corresponding element in lists @var{L1},  @var{L2}, and @var{L3}.
+
+@item maplist(+@var{Pred}, ?@var{L1}, ?@var{L2}, ?@var{L3}, ?@var{L4})
+@findex maplist/5
+@snindex maplist/5
+@cnindex maplist/5
+      @var{L1}, @var{L2}, @var{L3}, and @var{L4} are such that
+      @code{call(@var{Pred},@var{A1},@var{A2},@var{A3},@var{A4})} holds
+      for every corresponding element in lists @var{L1}, @var{L2}, @var{L3}, and
+      @var{L4}.
+
+@item checklist(+@var{Pred}, +@var{List})
+@findex checklist/2
+@snindex checklist/2
+@cnindex checklist/2
+      Succeeds if the predicate @var{Pred} succeeds on all elements of @var{List}.
+
+@item selectlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex selectlist/3
+@snindex selectlist/3
+@cnindex selectlist/3
+      Creates @var{ListOut} of all list elements of @var{ListIn} that pass a given test
+
+@item convlist(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex convlist/3
+@snindex convlist/3
+@cnindex convlist/3
+      A combination of @code{maplist} and @code{selectlist}: creates @var{ListOut} by
+applying the predicate @var{Pred} to all list elements on which
+@var{Pred} succeeds
+
+@item sumlist(+@var{Pred}, +@var{List}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumlist/4
+@snindex sumlist/4
+@cnindex sumlist/4
+      Calls @var{Pred} on all elements of List and collects a result in
+@var{Accumulator}.
+
+@item mapargs(+@var{Pred}, ?@var{TermIn}, ?@var{TermOut})
+@findex mapargs/3
+@snindex mapargs/3
+@cnindex mapargs/3
+      Creates @var{TermOut} by applying the predicate @var{Pred} to all
+      arguments of @var{TermIn}
+
+@item sumargs(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumargs/4
+@snindex sumargs/4
+@cnindex sumargs/4
+  Calls the predicate @var{Pred} on all arguments of @var{Term} and
+collects a  result in @var{Accumulator}
+
+@item mapnodes(+@var{Pred}, +@var{TermIn}, ?@var{TermOut}) 
+@findex mapnodes/3
+@snindex mapnodes/3
+@cnindex mapnodes/3
+      Creates @var{TermOut} by applying the predicate @var{Pred}
+      to all sub-terms of @var{TermIn} (depth-first and left-to-right order)
+
+@item checknodes(+@var{Pred}, +@var{Term}) 
+@findex checknodes/3
+@snindex checknodes/3
+@cnindex checknodes/3
+      Succeeds if the predicate @var{Pred} succeeds on all sub-terms of
+      @var{Term} (depth-first and left-to-right order)
+
+@item sumnodes(+@var{Pred}, +@var{Term}, ?@var{AccIn}, ?@var{AccOut})
+@findex sumnodes/4
+@snindex sumnodes/4
+@cnindex sumnodes/4
+      Calls the predicate @var{Pred} on all sub-terms of @var{Term} and
+collect a result in @var{Accumulator} (depth-first and left-to-right
+order)
+
+@item include(+@var{Pred}, +@var{ListIn}, ?@var{ListOut})
+@findex include/3
+@snindex include/3
+@cnindex include/3
+      Same as @code{selectlist/3}.
+
+@item exclude(+@var{Goal}, +@var{List1}, ?@var{List2})
+@findex exclude/3
+@snindex exclude/3
+@cnindex exclude/3
+Filter elements for which @var{Goal} fails. True if @var{List2} contains
+      those elements @var{Xi} of @var{List1} for which @code{call(Goal, Xi)} fails.
+
+@item partition(+@var{Pred},  +@var{List1}, ?@var{Included}, ?@var{Excluded})
+@findex partition/4
+@snindex partition/4
+@cnindex partition/4
+Filter elements of @var{List} according to @var{Pred}. True if
+@var{Included} contains all elements for which @code{call(Pred, X)}
+succeeds and @var{Excluded} contains the remaining elements.
+
+@item partition(+@var{Pred},  +@var{List1}, ?@var{Lesser}, ?@var{Equal}, ?@var{Greater})
+@findex partition/5
+@snindex partition/5
+@cnindex partition/5
+Filter list according to @var{Pred} in three sets. For each element
+@var{Xi} of @var{List}, its destination is determined by
+@code{call(Pred, Xi, Place)}, where @var{Place} must be unified to one
+of @code{<}, @code{=} or @code{>}. @code{Pred} must be deterministic.
+
+@end table
+
+Examples:
+
+@example
+%given
+plus(X,Y,Z) :- Z is X + Y.
+plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
+vars(X, Y, [X|Y]) :- var(X), !.
+vars(_, Y, Y).
+trans(TermIn, TermOut) :-
+  (compound(TermIn) ; atom(TermIn)),
+  TermIn =.. [p|Args],
+  TermOut =..[q|Args],
+  !.
+trans(X,X).
+
+%success
+
+maplist(plus(1), [1,2,3,4], [2,3,4,5]).
+checklist(var, [X,Y,Z]).
+selectlist(<(0), [-1,0,1], [1]).
+convlist(plus_if_pos(1), [-1,0,1], [2]).
+sumlist(plus, [1,2,3,4], 1, 11).
+mapargs(number_atom,s(1,2,3), s('1','2','3')).
+sumargs(vars, s(1,X,2,Y), [], [Y,X]).
+mapnodes(trans, p(a,p(b,a),c), q(a,q(b,a),c)).
+checknodes(\==(T), p(X,p(Y,X),Z)).
+sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
+% another one
+maplist(mapargs(number_atom),[c(1),s(1,2,3)],[c('1'),s('1','2','3')]).
+@end example
+
+@node matrix, MATLAB, MapList, Library
 @section Matrix Library
 @cindex Matrix Library
 

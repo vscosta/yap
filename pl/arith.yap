@@ -275,12 +275,6 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	
 /* Arithmetics					*/
 
-% M and N nonnegative integers, N is the successor of M
-succ(M,N) :- integer(M), !, '$plus'(M,1,N).
-succ(M,N) :- integer(N), !,  N > 0, '$plus'(N,-1,M).
-succ(0,1).
-
-
 between(I,M,J) :-
 	(
 	 var(I)
@@ -351,3 +345,117 @@ between(I,M,J) :-
 	'$between_inf'(I1,J).
 
 
+plus(X, Y, Z) :-
+	(
+	 var(X)
+	->
+	 (
+	  integer(Y), integer(Z)
+	 ->
+	  '$minus'(Z,Y,X)
+	 ;
+	  '$plus_error'(X,Y,Z)
+	 )
+	;
+	 integer(X)
+	->
+	 (
+	  var(Y)
+	 ->
+	  (
+	   integer(Z)
+	  ->
+	   '$minus'(Z,X,Y)
+	  ;
+	  '$plus_error'(X,Y,Z)
+	  )
+	 ;
+	  integer(Y)
+	 ->
+	  (
+	   integer(Z)
+	  ->
+	   '$minus'(Z,Y,X)
+	  ;
+	   var(Z)
+	  ->
+	   '$plus'(X,Y,Z)
+	  ;
+	   '$plus_error'(X,Y,Z)
+	  )
+	 ;
+	  '$plus_error'(X,Y,Z)
+	 )
+	;
+	 '$plus_error'(X,Y,Z)
+	).
+
+'$plus_error'(X,Y,Z) :-
+	nonvar(X),
+	\+ integer(X),
+	'$do_error'(type_error(integer, X),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :-
+	nonvar(Y),
+	\+ integer(Y),
+	'$do_error'(type_error(integer, Y),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :-
+	nonvar(Z),
+	\+ integer(Z),
+	'$do_error'(type_error(integer, Z),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :-
+	'$do_error'(instantiation_error,plus(X,Y,Z)).
+
+
+% M and N nonnegative integers, N is the successor of M
+succ(M,N) :-
+	(
+	 var(M)
+	->
+	 (
+	  integer(N),
+	  N > 0
+	 ->
+	  '$plus'(N,-1,M)
+	 ;
+	  '$succ_error'(M,N)
+	 )
+	;
+	 integer(M),
+	 M >= 0
+	->
+	 (
+	  var(N)
+	 ->
+	 '$plus'(M,1,N)
+	 ;
+	  integer(N),
+	  N > 0
+	 ->
+	 '$plus'(M,1,N)
+	 ;
+	  '$succ_error'(M,N)
+	 )
+	;
+	 '$succ_error'(M,N)
+	).
+
+'$succ_error'(M,N) :-
+	var(M),
+	var(N), !,
+	'$do_error'(instantiation_error,succ(M,N)).
+'$succ_error'(M,N) :-
+	nonvar(M),
+	\+ integer(M),
+	'$do_error'(type_error(integer, M),succ(M,N)).
+'$succ_error'(M,N) :-
+	nonvar(M),
+	M < 0,
+	'$do_error'(domain_error(not_less_than_zero, M),succ(M,N)).
+'$succ_error'(M,N) :-
+	nonvar(N),
+	\+ integer(N),
+	'$do_error'(type_error(integer, N),succ(M,N)).
+'$succ_error'(M,N) :-
+	nonvar(N),
+	N < 0,
+	'$do_error'(domain_error(not_less_than_zero, N),succ(M,N)).
