@@ -35,7 +35,8 @@
 	   flatten/2,
 	   max_list/2,	 
 	   min_list/2,
-	   numlist/3
+	   numlist/3,
+	   intersection/3
 	  ]).
 
 :- use_module(library(error),
@@ -389,4 +390,13 @@ numlist_(L, U, [L|Ns]) :-
         succ(L, L2),
         numlist_(L2, U, Ns).
 
+
+% copied from SWI lists library.
+intersection([], _, []) :- !.
+intersection([X|T], L, Intersect) :-
+	memberchk(X, L), !, 
+	Intersect = [X|R], 
+	intersection(T, L, R).
+intersection([_|T], L, R) :-
+	intersection(T, L, R).
 

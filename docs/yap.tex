@@ -4149,7 +4149,7 @@ The following predicates provide counting:
 @cnindex plus/3
     True if @var{Int3} = @var{Int1} + @var{Int2}. At least two of the
     three arguments must be instantiated to integers.
-
+@end table
 
 @node I/O, Database, Arithmetic, Top
 @section I/O Predicates
@@ -9006,6 +9006,13 @@ If @var{Low} and @var{High} are integers with @var{Low} =<
 @var{High}, unify @var{List} to a list @code{[Low, Low+1, ...High]}. See
 also @code{between/3}.
 
+@item intersection(+@var{Set1}, +@var{Set2}, +@var{Set3})
+@findex intersection/3
+@syindex intersection/3
+@cnindex intersection/3
+Succeeds if @var{Set3} unifies with the intersection of @var{Set1} and
+@var{Set2}. @var{Set1} and @var{Set2} are lists without duplicates. They
+need not be ordered.
 @end table
 
 @node LineUtilities, MapList, Lists, Library
