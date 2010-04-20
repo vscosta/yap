@@ -4155,8 +4155,8 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifndef YAPOR
-  Yap_InitCPred("$default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #endif
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
@@ -4168,9 +4168,6 @@ Yap_InitCPreds(void)
 #endif
 #ifdef DEBUG
   Yap_InitCPred("dump_active_goals", 0, p_dump_active_goals, SafePredFlag|SyncPredFlag);
-#endif
-#ifndef YAPOR
-  Yap_InitCPred("$yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag);
 #endif
 
   Yap_InitArrayPreds();
