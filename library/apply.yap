@@ -1,7 +1,7 @@
 
 :- module(apply,[]).
 
-:- reexport(library(apply_macros),
+:- reexport(library(maplist),
 	    [maplist/2,
 	     maplist/3,
 	     maplist/4,

@@ -500,6 +500,63 @@ contains_illegal_dcgnt(NT) :-
 %	nl.
 
 goal_expansion_allowed(Pred, Mod) :-
-	predicate_property(Mod:Pred, number_of_clauses(_)),
-	prolog_load_context(_, _), % make sure we are compiling.
+	allowed_module(Pred,Mod),
+	once( prolog_load_context(_, _) ), % make sure we are compiling.
 	\+ current_prolog_flag(xref, true).
+
+allowed_module(checklist(_,_),expand_macros).
+allowed_module(checklist(_,_),apply_macros).
+allowed_module(checklist(_,_),maplist).
+allowed_module(maplist(_,_),expand_macros).
+allowed_module(maplist(_,_),apply_macros).
+allowed_module(maplist(_,_),maplist).
+allowed_module(maplist(_,_,_),expand_macros).
+allowed_module(maplist(_,_,_),apply_macros).
+allowed_module(maplist(_,_,_),maplist).
+allowed_module(maplist(_,_,_,_),expand_macros).
+allowed_module(maplist(_,_,_,_),apply_macros).
+allowed_module(maplist(_,_,_,_),maplist).
+allowed_module(maplist(_,_,_,_,_),expand_macros).
+allowed_module(maplist(_,_,_,_,_),apply_macros).
+allowed_module(maplist(_,_,_,_,_),maplist).
+allowed_module(maplist(_,_,_,_,_,_),expand_macros).
+allowed_module(maplist(_,_,_,_,_,_),apply_macros).
+allowed_module(maplist(_,_,_,_,_,_),maplist).
+allowed_module(selectlist(_,_,_),expand_macros).
+allowed_module(selectlist(_,_,_),apply_macros).
+allowed_module(selectlist(_,_,_),maplist).
+allowed_module(include(_,_,_),expand_macros).
+allowed_module(include(_,_,_),apply_macros).
+allowed_module(include(_,_,_),maplist).
+allowed_module(exclude(_,_,_),expand_macros).
+allowed_module(exclude(_,_,_),apply_macros).
+allowed_module(exclude(_,_,_),maplist).
+allowed_module(partition(_,_,_,_),expand_macros).
+allowed_module(partition(_,_,_,_),apply_macros).
+allowed_module(partition(_,_,_,_),maplist).
+allowed_module(partition(_,_,_,_,_),expand_macros).
+allowed_module(partition(_,_,_,_,_),apply_macros).
+allowed_module(partition(_,_,_,_,_),maplist).
+allowed_module(convlist(_,_,_),expand_macros).
+allowed_module(convlist(_,_,_),apply_macros).
+allowed_module(convlist(_,_,_),maplist).
+allowed_module(sumlist(_,_,_,_),expand_macros).
+allowed_module(sumlist(_,_,_,_),apply_macros).
+allowed_module(sumlist(_,_,_,_),maplist).
+allowed_module(mapargs(_,_,_),expand_macros).
+allowed_module(mapargs(_,_,_),apply_macros).
+allowed_module(mapargs(_,_,_),maplist).
+allowed_module(sumargs(_,_,_,_),expand_macros).
+allowed_module(sumargs(_,_,_,_),apply_macros).
+allowed_module(sumargs(_,_,_,_),maplist).
+allowed_module(mapnodes(_,_,_),expand_macros).
+allowed_module(mapnodes(_,_,_),apply_macros).
+allowed_module(mapnodes(_,_,_),maplist).
+allowed_module(checknodes(_,_),expand_macros).
+allowed_module(checknodes(_,_),apply_macros).
+allowed_module(checknodes(_,_),maplist).
+allowed_module(sumnodes(_,_,_,_),expand_macros).
+allowed_module(sumnodes(_,_,_,_),apply_macros).
+allowed_module(sumnodes(_,_,_,_),maplist).
+allowed_module(phrase(_,_),_).
+allowed_module(phrase(_,_,_),_).

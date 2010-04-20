@@ -26,6 +26,3 @@
 			]).
 
 
-:- use_module(expand_macros,[]).
-
-
