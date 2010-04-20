@@ -1150,9 +1150,6 @@ check_global(void) {
 
 /* mark a heap object and all heap objects accessible from it */
 
-static void
-mark_variable(CELL_PTR current);
-
 static void 
 mark_variable(CELL_PTR current)
 {
@@ -1185,23 +1182,9 @@ mark_variable(CELL_PTR current)
 	}
 	PUSH_POINTER(next-1);
       }
-      next++;
-      if (!UNMARKED_MARK(next,local_bp)) {
-	total_marked++;
-	if (next < HGEN) {
-	  total_oldies++;
-	}
-	PUSH_POINTER(next);
-      }
-      next++;
-      if (!UNMARKED_MARK(next,local_bp)) {
-	total_marked++;
-	if (next < HGEN) {
-	  total_oldies++;
-	}
-	PUSH_POINTER(next);
-      }
-      POP_CONTINUATION();
+      PUSH_CONTINUATION(next+1,2);
+      current = next;
+      goto begin;
     } else if (ONHEAP(next)) {
 #ifdef EASY_SHUNTING
       CELL cnext;
@@ -1273,7 +1256,7 @@ mark_variable(CELL_PTR current)
       goto begin;
 #ifdef DEBUG
     } else if (next < (CELL *)Yap_GlobalBase || next > (CELL *)Yap_TrailTop) {
-      fprintf(Yap_stderr, "ooops while marking %lx, %p at %p\n", (unsigned long int)ccur, current, next);
+      fprintf(Yap_stderr, "ooops while marking, current=%p, *current=%lx next=%p\n", current, (unsigned long int)ccur, next);
 #endif
     } else {
 #ifdef COROUTING
