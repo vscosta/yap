@@ -55,10 +55,18 @@ attgoal_for_delays([G|AllAtts], V) -->
 	attgoal_for_delay(G, V),
 	attgoal_for_delays(AllAtts, V).
 	
-attgoal_for_delay(redo_dif(Done, X, Y), V) --> { var(Done), first_att(dif(X,Y), V) }, !, [prolog:dif(X,Y)].
-attgoal_for_delay(redo_freeze(Done, V, Goal), V) --> { var(Done) },  !, [prolog:freeze(V,Goal)].
-attgoal_for_delay(redo_eq(Done, X, Y, Goal), V) --> { var(Done), first_att(Goal, V) }, !, [prolog:when(X=Y,Goal)].
-attgoal_for_delay(redo_ground(Done, X, Goal), V) --> { var(Done) },  !, [prolog:when(ground(X),Goal)].
+attgoal_for_delay(redo_dif(Done, X, Y), V) -->
+	{ var(Done), first_att(dif(X,Y), V) }, !,
+	[prolog:dif(X,Y)].
+attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
+	{ var(Done) },  !,
+	[prolog:freeze(V,Goal)].
+attgoal_for_delay(redo_eq(Done, X, Y, Goal), V) -->
+	{ var(Done), first_att(Goal, V) }, !,
+	[prolog:when(X=Y,Goal)].
+attgoal_for_delay(redo_ground(Done, X, Goal), V) -->
+	{ var(Done) },  !,
+	[prolog:when(ground(X),Goal)].
 attgoal_for_delay(_, V) --> [].
 
 				%
@@ -244,7 +252,7 @@ prepare_goal_for_when(G, Mod, Mod:G).
 % Done is used to synchronise: when it is bound someone else did the
 % goal and we can give up.
 %
-% $when/5 and $when_suspend succeds when there is need to suspend a goal
+% when/5 and when_suspend succeds when there is need to suspend a goal
 %
 %
 when(V, G, Done, LG0, LGF) :- var(V), !,
