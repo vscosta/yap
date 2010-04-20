@@ -672,7 +672,7 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	if test "x$JAVALIBS" = "x"; then
 	  case "$target_os" in
 	    *cygwin*|*mingw*)
-	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread  ../PLStream/plstream.dll"
+	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread  \$(YAPLIBDIR)/PLStream/plstream.dll"
 	       	  ;;
 	       *darwin*)
 	       JAVALIBS="-Wl,-framework,JavaVM"
@@ -804,7 +804,7 @@ case "$target_os" in
                 fi
               ;;
               *)
-	      	JAVALIBPATH="\$(LIBDIR)/libYap.so \$(YAPLIBDIR)/plstream.so $LIBS ../PLStream/plstream.so $LIBS -L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
+	      	JAVALIBPATH="\$(LIBDIR)/libYap.so \$(YAPLIBDIR)/plstream.so $LIBS $LIBS -L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
 		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
