@@ -68,6 +68,7 @@ lists:append([H|T], L, [H|R]) :-
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
 	 % must follow grammar
+         'dialect.yap',
 	 'eval.yap',
 	 'signals.yap',
 	 'profile.yap',
