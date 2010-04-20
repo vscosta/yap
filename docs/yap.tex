@@ -3743,6 +3743,16 @@ would return:
 S = [1-b,1-a,1-b,2-c,3-a]
 @end example
 
+@item predsort(+@var{Pred}, +@var{List}, -@var{Sorted})
+@findex predsort/3
+@snindex predsort/3
+@cnindex predsort/3
+Sorts similar to sort/2, but determines the order of two terms by
+calling @var{Pred}(-@var{Delta}, +@var{E1}, +@var{E2}) . This call must
+unify @var{Delta} with one of @code{<}, @code{>} or @code{=}. If
+built-in predicate compare/3 is used, the result is the same as
+sort/2.
+
 @item length(?@var{L},?@var{S})
 @findex length/2
 @syindex length/2
