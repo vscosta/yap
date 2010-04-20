@@ -42,12 +42,12 @@
 :- use_module(library(error)).
 :- use_module(library(lists)).
 
-:- module_transparent
-	foreach/2,
-	aggregate/3,
-	aggregate/4,
-	aggregate_all/3,
-	aggregate_all/4.
+:- meta_predicate
+	foreach(0,0),
+	aggregate(?,0,-),
+	aggregate(?,?,0,-),
+	aggregate_all(?,0,-),
+	aggregate_all(?,?,0,-).
 
 /** <module> Aggregation operators on backtrackable predicates
 
