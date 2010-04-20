@@ -296,10 +296,6 @@ module(N) :-
 '$module_expansion'(M:G,call(M:G),'$execute_wo_mod'(G,M),_,_,_,_) :- var(M), !.
 '$module_expansion'(M:G,G1,GO,_,CM,_,HVars) :- !,
 	'$module_expansion'(G,G1,GO,M,M,HM,HVars).
-'$module_expansion'(G, G1, GO, CurMod, MM, HM, HVars) :-
-	'$pred_goal_expansion_on',
-	'$do_expand'(G, CurMod, GI), !,
-	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
 '$module_expansion'(G, G1, GO, CurMod, MM, HM,HVars) :-
 	% is this imported from some other module M1?
 	'$imported_pred'(G, CurMod, GG, M1),
@@ -342,6 +338,11 @@ expand_goal(G, G).
 %       goal to pass to listing
 %       goal to pass to compiler
 %       head variables.
+'$complete_goal_expansion'(G, CurMod, MM, HM, G1, GO, HVars) :-
+%	'$pred_goal_expansion_on',
+	'$do_expand'(G, CurMod, GI),
+	GI \== G, !,
+	'$module_expansion'(GI, G1, GO, CurMod, MM, HM, HVars).
 '$complete_goal_expansion'(G, M, CM, HM, G1, G2, HVars) :-
 	'$all_system_predicate'(G,M,ORIG), !,
 	% make built-in processing transparent.
