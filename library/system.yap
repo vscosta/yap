@@ -15,7 +15,7 @@
 *									 *
 *************************************************************************/
 
-:- module(system, [
+:- module(operating_system_support, [
 	datime/1,
 	delete_file/1,
 	delete_file/2,
