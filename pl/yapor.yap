@@ -146,7 +146,7 @@ default_sequential(_).
        ;  
           NewFlags is Flags \/ 0x00000020,
           '$flags'(PredFunctor,Mod,Flags,NewFlags)
-       ),
+       )
    ;
        write(user_error, '[ Error: '),
        write(user_error, Mod:PredName/PredArity),
@@ -186,7 +186,7 @@ default_sequential(_).
        ;
           NewFlags is Flags /\ 0xffffffdf, 
           '$flags'(PredFunctor,Mod,Flags,NewFlags)
-       ),
+       )
    ;
        write(user_error, '[ Error: '),
        write(user_error, Mod:PredName/PredArity),
