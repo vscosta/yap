@@ -184,6 +184,7 @@
   AtomOnline = AtomAdjust(AtomOnline);
   AtomOpen = AtomAdjust(AtomOpen);
   AtomOperatingSystemError = AtomAdjust(AtomOperatingSystemError);
+  AtomOperatingSystemSupport = AtomAdjust(AtomOperatingSystemSupport);
   AtomOperator = AtomAdjust(AtomOperator);
   AtomOperatorPriority = AtomAdjust(AtomOperatorPriority);
   AtomOperatorSpecifier = AtomAdjust(AtomOperatorSpecifier);

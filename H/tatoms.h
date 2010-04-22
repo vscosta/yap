@@ -366,6 +366,8 @@
 #define AtomOpen Yap_heap_regs->AtomOpen_
   Atom AtomOperatingSystemError_;
 #define AtomOperatingSystemError Yap_heap_regs->AtomOperatingSystemError_
+  Atom AtomOperatingSystemSupport_;
+#define AtomOperatingSystemSupport Yap_heap_regs->AtomOperatingSystemSupport_
   Atom AtomOperator_;
 #define AtomOperator Yap_heap_regs->AtomOperator_
   Atom AtomOperatorPriority_;

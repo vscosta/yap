@@ -90,6 +90,7 @@
 #define CHARSIO_MODULE Yap_heap_regs->charsio_module
 #define TERMS_MODULE Yap_heap_regs->terms_module
 #define SYSTEM_MODULE Yap_heap_regs->system_module
+#define OPERATING_SYSTEM_MODULE Yap_heap_regs->operating_system_module
 #define READUTIL_MODULE Yap_heap_regs->readutil_module
 #define HACKS_MODULE Yap_heap_regs->hacks_module
 #define ARG_MODULE Yap_heap_regs->arg_module

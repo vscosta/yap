@@ -3211,7 +3211,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("virtual_alarm", 4, p_virtual_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("enable_interrupts", 0, p_enable_interrupts, SafePredFlag);
   Yap_InitCPred ("disable_interrupts", 0, p_disable_interrupts, SafePredFlag);
-  CurrentModule = SYSTEM_MODULE;
+  CurrentModule = OPERATING_SYSTEM_MODULE;
   Yap_InitCPred ("true_file_name", 2, p_true_file_name, SyncPredFlag);
   Yap_InitCPred ("true_file_name", 3, p_true_file_name3, SyncPredFlag);
   CurrentModule = cm;

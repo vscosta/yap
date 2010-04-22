@@ -93,6 +93,7 @@ Term		attributes_module	ATTRIBUTES_MODULE	MkAT AtomAttributes
 Term		charsio_module		CHARSIO_MODULE		MkAT AtomCharsio
 Term		terms_module		TERMS_MODULE		MkAT AtomTerms
 Term		system_module		SYSTEM_MODULE		MkAT AtomSystem
+Term		operating_system_module	OPERATING_SYSTEM_MODULE	MkAT AtomOperatingSystemSupport
 Term		readutil_module		READUTIL_MODULE		MkAT AtomReadutil
 Term		hacks_module		HACKS_MODULE		MkAT AtomYapHacks
 Term		arg_module		ARG_MODULE		MkAT AtomArg

@@ -184,6 +184,7 @@
   AtomOnline = Yap_LookupAtom("online");
   AtomOpen = Yap_LookupAtom("open");
   AtomOperatingSystemError = Yap_LookupAtom("operating_system_error");
+  AtomOperatingSystemSupport = Yap_LookupAtom("operating_system_support");
   AtomOperator = Yap_LookupAtom("operator");
   AtomOperatorPriority = Yap_LookupAtom("operator_priority");
   AtomOperatorSpecifier = Yap_LookupAtom("operator_specifier");

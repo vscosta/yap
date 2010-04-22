@@ -90,6 +90,7 @@
   Term  charsio_module;
   Term  terms_module;
   Term  system_module;
+  Term  operating_system_module;
   Term  readutil_module;
   Term  hacks_module;
   Term  arg_module;
