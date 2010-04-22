@@ -19,7 +19,7 @@
 	time_out/3
     ]).
 
-:- meta_predicate time_out(:,+,-).
+:- meta_predicate time_out(0,+,-).
 
 :- use_module(library(hacks), [
 	virtual_alarm/3
