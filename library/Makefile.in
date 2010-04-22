@@ -25,11 +25,13 @@ srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
 PROGRAMS= \
+	$(srcdir)/INDEX.pl \
 	$(srcdir)/apply.yap \
 	$(srcdir)/apply_macros.yap \
 	$(srcdir)/arg.yap \
 	$(srcdir)/assoc.yap \
 	$(srcdir)/atts.yap \
+	$(srcdir)/autoloader.yap \
 	$(srcdir)/avl.yap \
 	$(srcdir)/bhash.yap \
 	$(srcdir)/charsio.yap \
@@ -43,7 +45,6 @@ PROGRAMS= \
 	$(srcdir)/hacks.yap \
 	$(srcdir)/heaps.yap \
 	$(srcdir)/lineutils.yap \
-	$(srcdir)/listing.yap \
 	$(srcdir)/lists.yap \
 	$(srcdir)/nb.yap \
 	$(srcdir)/ordsets.yap \
@@ -88,12 +89,18 @@ DIALECT_PROGRAMS= \
 	$(srcdir)/dialect/hprolog.yap \
 	$(srcdir)/dialect/swi.yap
 
+DIALECT_SWI= \
+	$(srcdir)/dialect/swi/INDEX.pl \
+	$(srcdir)/dialect/swi/listing.pl
+
 
 install: $(PROGRAMS) install_myddas
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(DIALECT_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect; done
+	for p in $(DIALECT_SWI); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/dialect/swi; done
 
 install_myddas: $(MYDDAS_PROGRAMS)
 	count=`echo "$(YAP_EXTRAS)" | grep MYDDAS | wc -l`; \

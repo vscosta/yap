@@ -68,7 +68,6 @@ lists:append([H|T], L, [H|R]) :-
 	 % with meta-predicate expansion being invoked
 	 'modules.yap',
 	 % must follow grammar
-         'dialect.yap',
 	 'eval.yap',
 	 'signals.yap',
 	 'profile.yap',
@@ -132,6 +131,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('hacks.yap').
 :- use_module('attributes.yap').
 :- use_module('corout.yap').
+:- use_module('dialect.yap').
 
 '$system_module'('$messages').
 '$system_module'('$hacks').

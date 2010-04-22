@@ -323,6 +323,10 @@ expand_goal(G, G).
 	->
 	 true
 	;
+	 recorded('$dialect',swi,_), system:goal_expansion(G, GI)
+	->
+	  true
+	;
 	 user:goal_expansion(G, CurMod, GI)
 	->
 	  true
@@ -378,10 +382,18 @@ expand_goal(G, G).
 
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	recorded('$import','$import'(ExportingModI,ImportingMod,G0I,G,_,_),_),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I), !.
+% SWI builtin
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
-	swi:swi_predicate_table(ImportingMod,G,ExportingModI,G0I),
-	'$continue_imported'(ExportingMod, ExportingModI, G0, G0I).
+	recorded('$dialect',Dialect,_),
+	Dialect \= yap,
+	functor(G, Name, Arity),
+	call(Dialect:index(Name,Arity,ExportingModI,_)), !,
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
+'$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
+	autoloader:autoload, !,
+	autoloader:find_predicate(G,ExportingModI), !,
+	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-
 	prolog:'$parent_module'(ImportingMod,ExportingModI),
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G).
