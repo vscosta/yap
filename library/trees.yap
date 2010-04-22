@@ -33,7 +33,7 @@
     ]).
 
 :- meta_predicate
-        map_tree(:, ?, ?).
+        map_tree(2, ?, ?).
 
 /*
 :- mode
