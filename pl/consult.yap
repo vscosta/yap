@@ -828,7 +828,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	atom_codes(File, L).
 
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
-	system:true_file_name(File,D0,AbsFile).
+	operating_system_support:true_file_name(File,D0,AbsFile).
 
 '$search_in_path'(File,opts(Extensions,_,_,Access,_,_,_),F) :-
 	'$add_extensions'(Extensions,File,F),
