@@ -263,9 +263,9 @@ number_of_expansions(0).
 goal_expansion(checklist(Meta, List), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(checklist, 2, Proto, GoalName),
 	append(MetaVars, [List], GoalArgs),
@@ -284,9 +284,9 @@ goal_expansion(checklist(Meta, List), Mod:Goal) :-
 goal_expansion(maplist(Meta, List), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
-	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	aux_preds(Meta, MetaVars, Pred, PredVars, Proto), 
+	!,
 	% the new goal
 	pred_name(maplist, 2, Proto, GoalName),
 	append(MetaVars, [List], GoalArgs),
@@ -305,9 +305,9 @@ goal_expansion(maplist(Meta, List), Mod:Goal) :-
 goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),	
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(maplist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
@@ -326,9 +326,9 @@ goal_expansion(maplist(Meta, ListIn, ListOut), Mod:Goal) :-
 goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(maplist, 4, Proto, GoalName),
 	append(MetaVars, [L1, L2, L3], GoalArgs),
@@ -347,9 +347,9 @@ goal_expansion(maplist(Meta, L1, L2, L3), Mod:Goal) :-
 goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(maplist, 5, Proto, GoalName),
 	append(MetaVars, [L1, L2, L3, L4], GoalArgs),
@@ -368,9 +368,9 @@ goal_expansion(maplist(Meta, L1, L2, L3, L4), Mod:Goal) :-
 goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(selectlist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
@@ -392,9 +392,9 @@ goal_expansion(selectlist(Meta, ListIn, ListOut), Mod:Goal) :-
 goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(include, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
@@ -415,9 +415,9 @@ goal_expansion(include(Meta, ListIn, ListOut), Mod:Goal) :-
 goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(exclude, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
@@ -438,9 +438,9 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(partition, 4, Proto, GoalName),
 	append(MetaVars, [ListIn, List1, List2], GoalArgs),
@@ -461,9 +461,9 @@ goal_expansion(partition(Meta, ListIn, List1, List2), Mod:Goal) :-
 goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(partition2, 5, Proto, GoalName),
 	append(MetaVars, [ListIn, List1, List2, List3], GoalArgs),
@@ -501,9 +501,9 @@ goal_expansion(partition(Meta, ListIn, List1, List2, List3), Mod:Goal) :-
 goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(convlist, 3, Proto, GoalName),
 	append(MetaVars, [ListIn, ListOut], GoalArgs),
@@ -524,9 +524,9 @@ goal_expansion(convlist(Meta, ListIn, ListOut), Mod:Goal) :-
 goal_expansion(sumlist(Meta, List, AccIn, AccOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(sumlist, 4, Proto, GoalName),
 	append(MetaVars, [List, AccIn, AccOut], GoalArgs),
@@ -571,9 +571,9 @@ goal_expansion(sumargs(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(mapnodes, 3, Proto, GoalName),
 	append(MetaVars, [[InTerm], [OutTerm]], GoalArgs),
@@ -603,9 +603,9 @@ goal_expansion(mapnodes(Meta, InTerm, OutTerm), Mod:Goal) :-
 goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(checknodes, 2, Proto, GoalName),
 	append(MetaVars, [[Term]], GoalArgs),
@@ -633,9 +633,9 @@ goal_expansion(checknodes(Meta, Term), Mod:Goal) :-
 goal_expansion(sumnodes(Meta, Term, AccIn, AccOut), Mod:Goal) :-
 	goal_expansion_allowed,
 	callable(Meta),
-	!,
 	prolog_load_context(module, Mod),
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto),
+	!,
 	% the new goal
 	pred_name(sumnodes, 4, Proto, GoalName),
 	append(MetaVars, [[Term], AccIn, AccOut], GoalArgs),
@@ -719,6 +719,9 @@ append_args(Term, Args, NewTerm) :-
 	append(OldArgs, Args, GoalArgs),
 	NewTerm =.. [Meta|GoalArgs].
 
+aux_preds(Meta, MetaVars, Pred, PredVars, Proto) :-
+	var(Meta), !,
+	fail.
 aux_preds(_:Meta, MetaVars, Pred, PredVars, Proto) :- !,
 	aux_preds(Meta, MetaVars, Pred, PredVars, Proto).
 aux_preds(Meta, MetaVars, Pred, PredVars, Proto) :-
