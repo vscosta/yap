@@ -1128,7 +1128,7 @@ access_file(F,Mode) :-
 '$exists'(F,Mode) :-
 	get_value(fileerrors,V),
 	set_value(fileerrors,0),
-	system:true_file_name(F, F1),
+	operating_system_support:true_file_name(F, F1),
 	(
 	 '$open'(F1, Mode, S, 0, 1, F)
 	->
