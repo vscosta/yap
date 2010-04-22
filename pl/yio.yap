@@ -69,7 +69,7 @@ open(F,T,S,Opts) :-
 
 '$expand_filename'(false, F, F) :- !.
 '$expand_filename'(true, F, NF) :-
-	system:true_file_name(F, NF).
+	operating_system_support:true_file_name(F, NF).
 
 '$open2'(Source,M,T,N,_,_) :- var(Source), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
@@ -1148,10 +1148,9 @@ prolog_file_name(File, PrologFileName) :-
 prolog_file_name(user, Out) :- !, Out = user.
 prolog_file_name(File, PrologFileName) :-
 	atom(File), !,
-	system:true_file_name(File, PrologFileName).
+	operating_system_support:true_file_name(File, PrologFileName).
 prolog_file_name(File, PrologFileName) :-
 	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
-
 
 with_output_to(Output, Command) :-
 	setup_call_cleanup( '$setup_wot'(Output, Stream, OldStream, with_output_to(Output, Command)),
