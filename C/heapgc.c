@@ -1173,7 +1173,7 @@ mark_variable(CELL_PTR current)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IN_BETWEEN(H0,current,H) && IsAttVar(current) && current==next) {
+    if (IN_BETWEEN(Yap_GlobalBase,current,H) && IsAttVar(current) && current==next) {
       if (next < H0) POP_CONTINUATION();
       if (!UNMARKED_MARK(next-1,local_bp)) {
 	total_marked++;
@@ -1682,7 +1682,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     } else if (IsPairTerm(trail_cell)) {
       /* can safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IN_BETWEEN(H0,cptr,H) &&
+      if (IN_BETWEEN(Yap_GlobalBase,cptr,H) &&
 	  IsAttVar(cptr)) {
 	TrailTerm(trail_base) = (CELL)cptr;
 	mark_external_reference(&TrailTerm(trail_base));
@@ -2465,7 +2465,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IN_BETWEEN(H0, pt0, H) && IsAttVar(pt0)) {
+	if (IN_BETWEEN(Yap_GlobalBase, pt0, H) && IsAttVar(pt0)) {
 	  TrailTerm(dest) = trail_cell;
 	  /* be careful with partial gc */
 	  if (HEAP_PTR(TrailTerm(dest))) {
