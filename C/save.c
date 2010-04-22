@@ -450,9 +450,17 @@ save_regs(int mode)
   /* Then the start of the free code */
   if (putcellptr(CellPtr(FreeBlocks)) < 0)
     return -1;
+  if (putcellptr(CellPtr(AuxBase)) < 0)
+    return -1;
   if (putcellptr(AuxSp) < 0)
     return -1;
   if (putcellptr(CellPtr(AuxTop)) < 0)
+    return -1;
+  if (putcellptr(CellPtr(ScratchPad.ptr)) < 0)
+    return -1;
+  if (putout(ScratchPad.sz) < 0)
+    return -1;
+  if (putout(ScratchPad.msz) < 0)
     return -1;
   if (mode == DO_EVERYTHING) {
     /* put the old trail base, just in case it moves again */
@@ -756,10 +764,22 @@ get_heap_info(void)
   FreeBlocks = (BlockHeader *) get_cellptr();
   if (Yap_ErrorMessage)
       return -1;
+  AuxBase = (ADDR)get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
   AuxSp = get_cellptr();
   if (Yap_ErrorMessage)
       return -1;
   AuxTop = (ADDR)get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
+  ScratchPad.ptr = (ADDR)get_cellptr();
+  if (Yap_ErrorMessage)
+      return -1;
+  ScratchPad.sz = get_cell();
+  if (Yap_ErrorMessage)
+      return -1;
+  ScratchPad.msz = get_cell();
   if (Yap_ErrorMessage)
       return -1;
   HDiff = Unsigned(Yap_HeapBase) - Unsigned(OldHeapBase);
@@ -1184,6 +1204,7 @@ RestoreFreeSpace(void)
       AuxSp = PtoHeapCellAdjust(AuxSp);
       AuxBase = AddrAdjust(AuxBase);
       AuxTop = AddrAdjust(AuxTop);
+      ScratchPad.ptr = AddrAdjust(ScratchPad.ptr);
     }
   }
 #else
