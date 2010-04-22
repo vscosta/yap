@@ -121,13 +121,13 @@ true :- true.
 	nb_setval('$included_file',[]).
 	
 '$init_or_threads' :-
-	'$yapor_threads'(W), !,
+	'$c_yapor_threads'(W), !,
 	'$start_orp_threads'(W).
 '$init_or_threads'.
 
 '$start_orp_threads'(1) :- !.
 '$start_orp_threads'(W) :-
-	thread_create('$worker',_,[detached(true)]),
+	thread_create('$c_worker',_,[detached(true)]),
 	W1 is W-1,
 	'$start_orp_threads'(W1).
 
@@ -500,9 +500,9 @@ true :- true.
  % ***************************
 
 '$query'(G,V) :-
-	 \+ '$undefined'('$yapor_on', prolog),
-	 '$yapor_on',
-	 \+ '$undefined'('$start_yapor', prolog),
+	 \+ '$undefined'('$c_yapor_on', prolog),
+	 '$c_yapor_on',
+	 \+ '$undefined'('$c_start_yapor', prolog),
 	 '$parallelizable'(G), !,
 	 '$parallel_query'(G,V),
 	 fail.

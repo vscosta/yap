@@ -1,27 +1,30 @@
-/*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		tabling.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	support tabling predicates				 *
-*									 *
-*************************************************************************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                     %%
+%%                   The YapTab/YapOr/OPTYap systems                   %%
+%%                                                                     %%
+%% YapTab extends the Yap Prolog engine to support sequential tabling  %%
+%% YapOr extends the Yap Prolog engine to support or-parallelism       %%
+%% OPTYap extends the Yap Prolog engine to support or-parallel tabling %%
+%%                                                                     %%
+%%                                                                     %%
+%%      Yap Prolog was developed at University of Porto, Portugal      %%
+%%                                                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- meta_predicate table(:), is_tabled(:), tabling_mode(:), abolish_table(:), show_table(:), table_statistics(:).
+:- meta_predicate 
+   table(:), 
+   is_tabled(:), 
+   tabling_mode(:), 
+   abolish_table(:), 
+   show_table(:), 
+   table_statistics(:),
+   table_statistics(:,:).
 
 
 
-/******************
-*     table/1     *
-******************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               table/1                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 table(Pred) :-
    '$current_module'(Mod),
@@ -64,9 +67,9 @@ table(Pred) :-
 
 
 
-/**********************
-*     is_tabled/1     *
-**********************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                             is_tabled/1                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 is_tabled(Pred) :- 
    '$current_module'(Mod), 
@@ -95,9 +98,9 @@ is_tabled(Pred) :-
 
 
 
-/*************************
-*     tabling_mode/2     *
-*************************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                            tabling_mode/2                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 tabling_mode(Pred,Options) :- 
    '$current_module'(Mod), 
@@ -123,7 +126,6 @@ tabling_mode(Pred,Options) :-
    (
        Flags /\ 0x000040 =\= 0, !, '$set_tabling_mode'(Mod,PredFunctor,Options)
    ;
-write(icardioi),nl,
        '$do_error'(domain_error(table,Mod:PredName/PredArity),tabling_mode(Mod:PredName/PredArity,Options))
    ).
 '$do_tabling_mode'(Mod,Pred,Options) :- 
@@ -146,7 +148,7 @@ write(icardioi),nl,
    functor(PredFunctor,PredName,PredArity), 
    '$do_error'(domain_error(flag_value,tabling_mode+Options),tabling_mode(Mod:PredName/PredArity,Options)).
 
-% should match with code in OPTYap/opt.preds.c
+%% should match with code in OPTYap/opt.preds.c
 '$transl_to_pred_flag_tabling_mode'(1,batched).
 '$transl_to_pred_flag_tabling_mode'(2,local).
 '$transl_to_pred_flag_tabling_mode'(3,exec_answers).
@@ -156,9 +158,9 @@ write(icardioi),nl,
 
 
 
-/**************************
-*     abolish_table/1     *
-**************************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           abolish_table/1                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 abolish_table(Pred) :-
    '$current_module'(Mod),
@@ -191,9 +193,9 @@ abolish_table(Pred) :-
 
 
 
-/***********************
-*     show_table/1     *
-***********************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                             show_table/1                            %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 show_table(Pred) :-
    '$current_module'(Mod),
@@ -226,9 +228,9 @@ show_table(Pred) :-
 
 
 
-/*****************************
-*     table_statistics/1     *
-*****************************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                         table_statistics/1                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 table_statistics(Pred) :-
    '$current_module'(Mod),
@@ -258,3 +260,33 @@ table_statistics(Pred) :-
    ).
 '$do_table_statistics'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table_statistics(Mod:Pred)).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                        tabling_statistics/2                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% should match with code in OPTYap/opt.preds.c
+tabling_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
+   '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
+tabling_statistics(table_entries,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(1,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(2,BytesInUse,StructsInUse).
+tabling_statistics(dependency_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(3,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(6,BytesInUse,StructsInUse).
+tabling_statistics(answer_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(7,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(8,BytesInUse,StructsInUse).
+tabling_statistics(answer_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(9,BytesInUse,StructsInUse).
+tabling_statistics(global_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(10,BytesInUse,StructsInUse).
+tabling_statistics(global_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(11,BytesInUse,StructsInUse).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

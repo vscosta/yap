@@ -1,122 +1,222 @@
-/*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		yapor.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	support or-parallelism					 *
-*									 *
-*************************************************************************/
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                     %%
+%%                   The YapTab/YapOr/OPTYap systems                   %%
+%%                                                                     %%
+%% YapTab extends the Yap Prolog engine to support sequential tabling  %%
+%% YapOr extends the Yap Prolog engine to support or-parallelism       %%
+%% OPTYap extends the Yap Prolog engine to support or-parallel tabling %%
+%%                                                                     %%
+%%                                                                     %%
+%%      Yap Prolog was developed at University of Porto, Portugal      %%
+%%                                                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-'$parallel_query'(G,[]) :- !, '$start_yapor', '$execute'(G), !,
-'$parallel_yes_answer'.
-'$parallel_query'(G,V)  :- '$start_yapor', '$execute'(G), '$parallel_new_answer'(V).
+:- meta_predicate 
+   or_statistics(:,:),
+   opt_statistics(:,:),
+   default_sequential(:).
 
-% ***************************
-% * -------- YAPOR -------- *
-% ***************************
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           or_statistics/2                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+or_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
+   '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
+or_statistics(or_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(4,BytesInUse,StructsInUse).
+or_statistics(query_goal_solution_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(12,BytesInUse,StructsInUse).
+or_statistics(query_goal_answer_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(13,BytesInUse,StructsInUse).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          opt_statistics/2                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+opt_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
+   '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
+opt_statistics(table_entries,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(1,BytesInUse,StructsInUse).
+opt_statistics(subgoal_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(2,BytesInUse,StructsInUse).
+opt_statistics(dependency_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(3,BytesInUse,StructsInUse).
+opt_statistics(or_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(4,BytesInUse,StructsInUse).
+opt_statistics(suspension_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(5,BytesInUse,StructsInUse).
+opt_statistics(subgoal_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(6,BytesInUse,StructsInUse).
+opt_statistics(answer_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(7,BytesInUse,StructsInUse).
+opt_statistics(subgoal_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(8,BytesInUse,StructsInUse).
+opt_statistics(answer_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(9,BytesInUse,StructsInUse).
+opt_statistics(global_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(10,BytesInUse,StructsInUse).
+opt_statistics(global_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(11,BytesInUse,StructsInUse).
+opt_statistics(query_goal_solution_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(12,BytesInUse,StructsInUse).
+opt_statistics(query_goal_answer_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(13,BytesInUse,StructsInUse).
+opt_statistics(table_subgoal_solution_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(14,BytesInUse,StructsInUse).
+opt_statistics(table_subgoal_answer_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(15,BytesInUse,StructsInUse).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                        default_sequential/1                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 default_sequential(X) :-
-	'$default_sequential'(X), !.
+   '$c_default_sequential'(X), !.
 default_sequential(_).
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          $parallel_query/2                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'$parallel_query'(G,[]) :- !, 
+   '$c_start_yapor', 
+   '$execute'(G), !,
+   '$c_parallel_yes_answer'.
+'$parallel_query'(G,V) :- 
+   '$c_start_yapor', 
+   '$execute'(G), 
+   '$c_parallel_new_answer'(V).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                            $sequential/0                            %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 '$sequential' :-
-	'$default_sequential'(X),
-	'$initialization'('$default_sequential'(X)),
-	'$default_sequential'(on).
+   '$c_default_sequential'(X),
+   '$initialization'('$c_default_sequential'(X)),
+   '$c_default_sequential'(on).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                             $parallel/0                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 '$parallel' :-
-	'$default_sequential'(X),
-	'$initialization'('$default_sequential'(X)),
-	'$default_sequential'(off).
-
-'$sequential_directive'(X,_) :- var(X), !,
-                 write(user_error, '[ Error: argument to sequential/1 should be a predicate ]'),
-                 nl(user_error),
-                 fail.
-'$sequential_directive'((A,B),M) :- !,
-	'$sequential_directive'(A,M), '$sequential_directive'(B,M).
-'$sequential_directive'(M:A,_) :- !,
-	'$sequential_directive'(A,M).
-'$sequential_directive'(A/N,M) :- integer(N), atom(A), !,
-                   functor(T,A,N),
-	           '$flags'(T,M,F,F),
-                   (
-                     X is F /\ 0x00000020, X =\= 0, !,
-                     write(user_error, '[ Warning: '),
-                     write(user_error, M:A/N),
-                     write(user_error, ' is already declared as sequential ]'),
-                     nl(user_error)
-                   ;
-                     X is F /\ 0x1991F880, X =:= 0, !, '$sequential'(T,M)
-                   ;
-                     write(user_error, '[ Error: '),
-                     write(user_error, M:A/N),
-                     write(user_error, ' cannot be declared as sequential ]'),
-                     nl(user_error),
-                     fail
-                   ).
-'$sequential_directive'(X,_) :- write(user_error, '[ Error: '),
-                 write(user_error, X),
-                 write(user_error, ' is an invalid argument to sequential/1 ]'),
-                 nl(user_error),
-                 fail.
-
-'$parallel_directive'(X,M) :- var(X), !,
-	'$do_error'(instantiation_error,parallel(M:X)).
-'$parallel_directive'((A,B),M) :- !,
-	'$parallel_directive'(A,M),
-	'parallel_directive'(B,M).
-'$parallel_directive'(M:A,_) :- !,
-	'$parallel_directive'(A,M).
-'$parallel_directive'(A/N,M) :- integer(N), atom(A), !,
-                   functor(T,A,N), '$flags'(T,M,F,F),
-                   (
-                     NF is F /\ 0x00000020, '$flags'(T,F,NF) ;
-                     write(user_error, '[ Warning: '),
-                     write(user_error, M:A/N),
-                     write(user_error, ' is already declared as sequential ]'),
-                     nl(user_error)
-                   ;
-                     X is F /\ 0x1991FC80, X =:= 0, !, '$sequential'(T)
-                   ;
-                     write(user_error, '[ Error: '),
-                     write(user_error, M:A/N),
-                     write(user_error, ' cannot be declared as parallel ]'),
-                     nl(user_error),
-                     fail
-                   ).
-'$parallel_directive'(X,_) :- write(user_error, '[ Error: '),
-                 write(user_error, X),
-                 write(user_error, ' is an invalid argument to parallel/1 ]'),
-                 nl(user_error),
-                 fail.
+   '$c_default_sequential'(X),
+   '$initialization'('$c_default_sequential'(X)),
+   '$c_default_sequential'(off).
 
 
-%
-% do not try to run consult in the parallel system.
-%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                       $sequential_directive/2                       %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'$sequential_directive'(Pred,Mod) :-
+    var(Pred), !,
+   '$do_error'(instantiation_error,sequential(Mod:Pred)).
+'$sequential_directive'(Mod:Pred,_) :- !,
+   '$sequential_directive'(Pred,Mod).
+'$sequential_directive'((Pred1,Pred2),Mod) :- !,
+   '$sequential_directive'(Pred1,Mod), 
+   '$sequential_directive'(Pred2,Mod).
+'$sequential_directive'(PredName/PredArity,Mod) :- 
+   atom(PredName), integer(PredArity),
+   functor(PredFunctor,PredName,PredArity), !,
+   '$flags'(PredFunctor,Mod,Flags,Flags),
+   (
+       Flags /\ 0x1991F880 =:= 0, !, 
+       (
+          Flags /\ 0x00000020 =\= 0, !,
+          write(user_error, '[ Warning: '),
+          write(user_error, Mod:PredName/PredArity),
+          write(user_error, ' is already declared as sequential ]'),
+          nl(user_error)
+       ;  
+          NewFlags is Flags \/ 0x00000020,
+          '$flags'(PredFunctor,Mod,Flags,NewFlags)
+       ),
+   ;
+       write(user_error, '[ Error: '),
+       write(user_error, Mod:PredName/PredArity),
+       write(user_error, ' cannot be declared as sequential ]'),
+       nl(user_error),
+       fail
+   ).
+'$sequential_directive'(Pred,Mod) :- 
+   '$do_error'(type_error(callable,Mod:Pred),sequential(Mod:Pred)).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                        $parallel_directive/2                        %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+'$parallel_directive'(Pred,Mod) :-
+    var(Pred), !,
+   '$do_error'(instantiation_error,parallel(Mod:Pred)).
+'$parallel_directive'((Pred1,Pred2),Mod) :- !,
+   '$parallel_directive'(Pred1,Mod),
+   '$parallel_directive'(Pred2,Mod).
+'$parallel_directive'(Mod:Pred,_) :- !,
+   '$parallel_directive'(Pred,Mod).
+'$parallel_directive'(PredName/PredArity,Mod) :- 
+   atom(PredName), integer(PredArity),
+   functor(PredFunctor,PredName,PredArity), !,
+   '$flags'(PredFunctor,Mod,Flags,Flags),
+   (
+       Flags /\ 0x1991F880 =:= 0, !, 
+       (
+          Flags /\ 0x00000020 =:= 0, !,
+          write(user_error, '[ Warning: '),
+          write(user_error, Mod:PredName/PredArity),
+          write(user_error, ' is already declared as parallel ]'),
+          nl(user_error)
+       ;
+          NewFlags is Flags /\ 0xffffffdf, 
+          '$flags'(PredFunctor,Mod,Flags,NewFlags)
+       ),
+   ;
+       write(user_error, '[ Error: '),
+       write(user_error, Mod:PredName/PredArity),
+       write(user_error, ' cannot be declared as parallel ]'),
+       nl(user_error),
+       fail
+   ).
+'$parallel_directive'(Pred,Mod) :- 
+   '$do_error'(type_error(callable,Mod:Pred),parallel(Mod:Pred)).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                          $parallelizable/1                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 '$parallelizable'(_) :-
-	nb_getval('$consulting_file',S), S\=[], !, fail.
+   nb_getval('$consulting_file',S), S\=[], !, fail.
 '$parallelizable'((G1,G2)) :- !,
-	'$parallelizable'(G1),
-	'$parallelizable'(G2).
+   '$parallelizable'(G1),
+   '$parallelizable'(G2).
 '$parallelizable'((G1;G2)) :- !,
-	'$parallelizable'(G1),
-	'$parallelizable'(G2).
+   '$parallelizable'(G1),
+   '$parallelizable'(G2).
 '$parallelizable'((G1|G2)) :- !,
-	'$parallelizable'(G1),
-	'$parallelizable'(G2).
+   '$parallelizable'(G1),
+   '$parallelizable'(G2).
 '$parallelizable'((G1->G2)) :- !,
-	'$parallelizable'(G1),
-	'$parallelizable'(G2).
+   '$parallelizable'(G1),
+   '$parallelizable'(G2).
 '$parallelizable'([]) :- !, fail.
 '$parallelizable'([_|_]) :- !, fail.
 '$parallelizable'(consult(_)) :- !, fail.
@@ -125,5 +225,4 @@ default_sequential(_).
 '$parallelizable'(use_module(_)) :- !, fail.
 '$parallelizable'(_).
 
-
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
