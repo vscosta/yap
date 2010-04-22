@@ -33,28 +33,28 @@
 
 
 :- meta_predicate
-	selectlist(:,+,-),
-	checklist(:,+),
-	maplist(:,+),
-	maplist(:,+,-),
-	maplist(:,+,+,-),
-	maplist(:,+,+,+,-),
-	convlist(:,+,-),
-	mapargs(:,+,-),
-	mapargs_args(:,+,-,+),
-	sumargs(:,+,+,-),
-	sumargs_args(:,+,+,-,+),
-	mapnodes(:,+,-),
-	mapnodes_list(:,+,-),
-	checknodes(:,+),
-	checknodes_list(:,+),
-	sumlist(:,+,+,-),
-	sumnodes(:,+,+,-),
-	sumnodes_body(:,+,+,-,+,+),
-	include(:,+,-),
-	exclude(:,+,-),
-	partition(:,+,-,-),
-	partition(:,+,-,-,-).
+	selectlist(2,+,-),
+	checklist(1,+),
+	maplist(1,+),
+	maplist(2,+,-),
+	maplist(3,+,+,-),
+	maplist(4,+,+,+,-),
+	convlist(2,+,-),
+	mapargs(2,+,-),
+	mapargs_args(2,+,-,+),
+	sumargs(3,+,+,-),
+	sumargs_args(3,+,+,-,+),
+	mapnodes(2,+,-),
+	mapnodes_list(2,+,-),
+	checknodes(1,+),
+	checknodes_list(1,+),
+	sumlist(3,+,+,-),
+	sumnodes(3,+,+,-),
+	sumnodes_body(3,+,+,-,+,+),
+	include(1,+,-),
+	exclude(1,+,-),
+	partition(2,+,-,-),
+	partition(2,+,-,-,-).
 	
 	
 :- use_module(library(lists), [append/3]).
@@ -215,7 +215,7 @@ mapnodes(Pred, TermIn, TermOut) :-
     TermOut =.. [Func|ArgsOut].
 
 mapnodes_list(_, [], []).
-appnodes_list(Pred, [TermIn|ArgsIn], [TermOut|ArgsOut]) :-
+mapnodes_list(Pred, [TermIn|ArgsIn], [TermOut|ArgsOut]) :-
     mapnodes(Pred, TermIn, TermOut),
     mapnodes_list(Pred, ArgsIn, ArgsOut).
 

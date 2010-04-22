@@ -19,4 +19,9 @@ test(read, [ setup(create_file(Tmp)),
 	read_file_to_terms(Tmp, Terms, []),
 	Terms =@= [hello(_)].
 
-%:- end_tests(read).
+:- end_tests(read).
+
+:- trace,run_tests.
+
+
+

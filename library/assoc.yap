@@ -25,7 +25,7 @@
 	del_max_assoc/4
     ]).
 
-:- meta_predicate map_assoc(:, +, -), map_assoc(:, +).
+:- meta_predicate map_assoc(2, +, -), map_assoc(1, +).
 
 :- use_module(library(rbtrees), [
 	rb_empty/1,

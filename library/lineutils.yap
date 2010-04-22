@@ -15,7 +15,11 @@
 	   process/2
 	  ]).
 
-:- meta_predicate filter(+,+,:), file_filter(+,+,:), file_filter_with_init(+,+,:,+,:), process(+,:).
+:- meta_predicate
+	filter(+,+,2),
+	file_filter(+,+,2),
+	file_filter_with_init(+,+,2,+,:),
+	process(+,1).
 
 :- use_module(library(lists),
 	      [member/2,
