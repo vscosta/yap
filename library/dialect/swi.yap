@@ -4,23 +4,25 @@
 
 
 :- module(system, [term_to_atom/2,
-		concat_atom/2,
-		concat_atom/3,
-		setenv/2,
-		prolog_to_os_filename/2,
-		is_absolute_file_name/1,
-		read_clause/1,
-		string/1,
-		working_directory/2,
-		chdir/1,
-		compile_aux_clauses/1,
-		convert_time/2,
-		'$set_source_module'/2,
-		'$declare_module'/5,
-		'$set_predicate_attribute'/3,
-		time_file/2,
-		flag/3,
-		current_flag/1
+		   concat_atom/2,
+		   concat_atom/3,
+		   setenv/2,
+		   prolog_to_os_filename/2,
+		   is_absolute_file_name/1,
+		   read_clause/1,
+		   string/1,
+		   working_directory/2,
+		   chdir/1,
+		   compile_aux_clauses/1,
+		   convert_time/2,
+		   '$set_source_module'/2,
+		   '$declare_module'/5,
+		   '$set_predicate_attribute'/3,
+		   load_foreign_library/1,
+		   load_foreign_library/2,
+		   time_file/2,
+		   flag/3,
+		   current_flag/1
 		]).
 
 :- reexport(library(charsio),[
