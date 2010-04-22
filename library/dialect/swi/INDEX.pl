@@ -53,6 +53,8 @@ index(convert_time,2,system,library(dialect/swi)).
 index('$set_source_module',2,system,library(dialect/swi)).
 index('$declare_module',5,system,library(dialect/swi)).
 index('$set_predicate_attribute',3,system,library(dialect/swi)).
+index(load_foreign_library,1,system,library(dialect/swi)).
+index(load_foreign_library,2,system,library(dialect/swi)).
 index(time_file,2,system,library(dialect/swi)).
 index(flag,3,system,library(dialect/swi)).
 index(current_flag,1,system,library(dialect/swi)).
