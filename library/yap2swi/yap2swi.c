@@ -2145,7 +2145,7 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 {
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
-  PL_cut_query(qi);
+  PL_close_query(qi);
   return ret;
 }
 
@@ -2461,7 +2461,7 @@ SWI_ctime(void)
     return FALSE;
   }
 #if HAVE_CTIME
-  tim = (time_t)YAP_IntOfTerm(t1);
+  tim = (time_t)YAP_FloatOfTerm(t1);
   return YAP_Unify(YAP_BufferToString(ctime(&tim)), YAP_ARG2);
 #else
   YAP_Error(0,0L,"convert_time requires ctime");
