@@ -2461,7 +2461,12 @@ SWI_ctime(void)
     return FALSE;
   }
 #if HAVE_CTIME
-  tim = (time_t)YAP_FloatOfTerm(t1);
+  if (YAP_IsIntTerm(t1))
+    tim = (time_t)YAP_IntOfTerm(t1);
+  else if (YAP_IsFloatTerm(t1))
+    tim = (time_t)YAP_FloatOfTerm(t1);
+  else
+    return FALSE;
   return YAP_Unify(YAP_BufferToString(ctime(&tim)), YAP_ARG2);
 #else
   YAP_Error(0,0L,"convert_time requires ctime");
