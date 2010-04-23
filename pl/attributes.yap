@@ -240,8 +240,15 @@ prolog:call_residue(Goal,Residue) :-
 	call_residue(Goal,Module,Residue).
 
 call_residue(Goal,Module,Residue) :-
-	call(Module:Goal).
-
+	prolog:call_residue_vars(Module:Goal,NewAttVars),
+	(
+	 '$undefined'(modules_with_attributes(_),attributes)
+	->
+	 project_attributes(NewAttVars, Module:Goal)
+	;
+	 true
+	),
+	copy_term(Goal, Goal, Residue).
 
 delayed_goals(G, Vs, NVs, Gs) :-
 	project_delayed_goals(G),
