@@ -99,17 +99,15 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
   INIT_PAGES(GLOBAL_PAGES_tg_ans_fr, struct table_subgoal_answer_frame);
 #endif /* TABLING_INNER_CUTS */
 #ifdef TABLING
-#ifdef GLOBAL_TRIE
-  INIT_PAGES(GLOBAL_PAGES_gt_node, struct global_trie_node);
-  INIT_PAGES(GLOBAL_PAGES_gt_hash, struct global_trie_hash);
-#endif /* GLOBAL_TRIE */
   INIT_PAGES(GLOBAL_PAGES_tab_ent, struct table_entry);
   INIT_PAGES(GLOBAL_PAGES_sg_fr, struct subgoal_frame);
+  INIT_PAGES(GLOBAL_PAGES_dep_fr, struct dependency_frame);
   INIT_PAGES(GLOBAL_PAGES_sg_node, struct subgoal_trie_node);
   INIT_PAGES(GLOBAL_PAGES_ans_node, struct answer_trie_node);
+  INIT_PAGES(GLOBAL_PAGES_gt_node, struct global_trie_node);
   INIT_PAGES(GLOBAL_PAGES_sg_hash, struct subgoal_trie_hash);
   INIT_PAGES(GLOBAL_PAGES_ans_hash, struct answer_trie_hash);
-  INIT_PAGES(GLOBAL_PAGES_dep_fr, struct dependency_frame);
+  INIT_PAGES(GLOBAL_PAGES_gt_hash, struct global_trie_hash);
 #endif /* TABLING */
 #if defined(YAPOR) && defined(TABLING)
   INIT_PAGES(GLOBAL_PAGES_susp_fr, struct suspension_frame);
@@ -158,10 +156,8 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
 
 #ifdef TABLING
   /* global data related to tabling */
-  GLOBAL_root_tab_ent = NULL;
-#ifdef GLOBAL_TRIE
   new_global_trie_node(GLOBAL_root_gt, 0, NULL, NULL, NULL);
-#endif /* GLOBAL_TRIE */
+  GLOBAL_root_tab_ent = NULL;
 #ifdef LIMIT_TABLING
   GLOBAL_first_sg_fr = NULL;
   GLOBAL_last_sg_fr = NULL;

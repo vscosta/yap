@@ -51,10 +51,9 @@
 ******************************************************/
 #define TRIE_COMPACT_PAIRS 1
 
-/***********************************************************
-**      support global trie ? (optional, define one)      **
-***********************************************************/
-/* #define GLOBAL_TRIE_FOR_TERMS 1 */
+/************************************************************
+**      support global trie for subterms ? (optional)      **
+************************************************************/
 /* #define GLOBAL_TRIE_FOR_SUBTERMS 1 */
 
 /******************************************************
@@ -189,12 +188,6 @@
 #if defined(BFZ_TRAIL_SCHEME) && defined(BBREG_TRAIL_SCHEME)
 #error Do not define multiple trail schemes
 #endif /* BFZ_TRAIL_SCHEME && BBREG_TRAIL_SCHEME */
-#if defined(GLOBAL_TRIE_FOR_TERMS) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-#error Do not define multiple global trie schemes
-#endif /* GLOBAL_TRIE_FOR_TERMS && GLOBAL_TRIE_FOR_SUBTERMS */
-#if defined(GLOBAL_TRIE_FOR_TERMS) || defined(GLOBAL_TRIE_FOR_SUBTERMS)
-#define GLOBAL_TRIE
-#endif /* GLOBAL_TRIE_FOR_TERMS || GLOBAL_TRIE_FOR_SUBTERMS */
 #endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
@@ -233,7 +226,6 @@
 #undef BBREG_TRAIL_SCHEME
 #undef TABLING_EARLY_COMPLETION
 #undef TRIE_COMPACT_PAIRS
-#undef GLOBAL_TRIE_FOR_TERMS
 #undef GLOBAL_TRIE_FOR_SUBTERMS
 #undef DETERMINISTIC_TABLING
 #undef LIMIT_TABLING
