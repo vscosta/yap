@@ -89,14 +89,17 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 
 #define SHOW_MODE_STRUCTURE        0
 #define SHOW_MODE_STATISTICS       1
-#define TRAVERSE_TYPE_SUBGOAL      0
-#define TRAVERSE_TYPE_ANSWER       1
 #define TRAVERSE_MODE_NORMAL       0
 #define TRAVERSE_MODE_DOUBLE       1
 #define TRAVERSE_MODE_DOUBLE2      2
 #define TRAVERSE_MODE_DOUBLE_END   3
 #define TRAVERSE_MODE_LONGINT      4
 #define TRAVERSE_MODE_LONGINT_END  5
+/* do not change order !!! */
+#define TRAVERSE_TYPE_SUBGOAL      0
+#define TRAVERSE_TYPE_ANSWER       1
+#define TRAVERSE_TYPE_GT_SUBGOAL   2
+#define TRAVERSE_TYPE_GT_ANSWER    3
 /* do not change order !!! */
 #define TRAVERSE_POSITION_NEXT     0
 #define TRAVERSE_POSITION_FIRST    1
@@ -131,22 +134,23 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_BATCHED_GEN_CP(CP)       (GEN_CP(CP)->cp_dep_fr == NULL)
 #endif /* DETERMINISTIC_TABLING */
 
-#define TAG_AS_ANSWER_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
-#define UNTAG_ANSWER_LEAF_NODE(NODE)   ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x1)))
-#define IS_ANSWER_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x1)
+#define TAG_AS_SUBGOAL_LEAF_NODE(NODE)  TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
+#define UNTAG_SUBGOAL_LEAF_NODE(NODE)   ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
+#define IS_SUBGOAL_LEAF_NODE(NODE)      ((unsigned long int) TrNode_child(NODE) & 0x1)
+#define TAG_AS_ANSWER_LEAF_NODE(NODE)   TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
+#define UNTAG_ANSWER_LEAF_NODE(NODE)    ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x1)))
+#define IS_ANSWER_LEAF_NODE(NODE)       ((unsigned long int) TrNode_parent(NODE) & 0x1)
 
 #define MAX_NODES_PER_TRIE_LEVEL    8
 #define MAX_NODES_PER_BUCKET        (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define BASE_HASH_BUCKETS           64
 #define HASH_ENTRY(ENTRY, SEED)     ((((unsigned long int) ENTRY) >> NumberOfLowTagBits) & (SEED))
-#ifdef GLOBAL_TRIE
-#define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
-#define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
-#endif /* GLOBAL_TRIE */
 #define SUBGOAL_TRIE_HASH_MARK      ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_SUBGOAL_TRIE_HASH(NODE)  (TrNode_entry(NODE) == SUBGOAL_TRIE_HASH_MARK)
 #define ANSWER_TRIE_HASH_MARK       0
 #define IS_ANSWER_TRIE_HASH(NODE)   (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
+#define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
+#define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
 
 #define HASH_TABLE_LOCK(NODE)  ((((unsigned long int) (NODE)) >> 5) & (TABLE_LOCK_BUCKETS - 1))
 #define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
@@ -660,14 +664,14 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #else
       ans_node_ptr node;
       SgFr_state(sg_fr) = ready;
-      free_answer_trie_hash_chain(SgFr_hash_chain(sg_fr));
+      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
       SgFr_hash_chain(sg_fr) = NULL;
       SgFr_first_answer(sg_fr) = NULL;
       SgFr_last_answer(sg_fr) = NULL;
       node = TrNode_child(SgFr_answer_trie(sg_fr));
       TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
       UNLOCK(SgFr_lock(sg_fr));
-      free_answer_trie_branch(node, TRAVERSE_POSITION_FIRST);
+      free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
 #endif /* INCOMPLETE_TABLING */
     }
 #ifdef LIMIT_TABLING

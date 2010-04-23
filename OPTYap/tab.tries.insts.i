@@ -14,31 +14,31 @@
 /************************************************************************
 **           Trie instructions: auxiliary stack organization           **
 *************************************************************************
-                -------------------
-                | ha = heap_arity | 
-                -------------------  --
-                |   heap ptr 1    |    |
-                -------------------    |
-                |       ...       |    -- heap_arity (0 if GLOBAL_TRIE)
-                -------------------    |
-                |   heap ptr ha   |    |
-                -------------------  --
-                | va = vars_arity |
-                -------------------  --
-                |    var ptr va   |    |
-                -------------------    |
-                |       ...       |    -- vars_arity
-                -------------------    |
-                |    var ptr 1    |    |
-                -------------------  -- 
-                | sa = subs_arity |
-                -------------------  --
-                |   subs ptr sa   |    |
-                -------------------    |
-                |       ...       |    -- subs_arity 
-                -------------------    |
-                |   subs ptr 1    |    |
-                -------------------  --
+               -------------------
+               | ha = heap_arity | 
+               -------------------  --
+               |   heap ptr 1    |    |
+               -------------------    |
+               |       ...       |    -- heap_arity (0 if in global trie)
+               -------------------    |
+               |   heap ptr ha   |    |
+               -------------------  --
+               | va = vars_arity |
+               -------------------  --
+               |    var ptr va   |    |
+               -------------------    |
+               |       ...       |    -- vars_arity
+               -------------------    |
+               |    var ptr 1    |    |
+               -------------------  -- 
+               | sa = subs_arity |
+               -------------------  --
+               |   subs ptr sa   |    |
+               -------------------    |
+               |       ...       |    -- subs_arity 
+               -------------------    |
+               |   subs ptr 1    |    |
+               -------------------  --
 ************************************************************************/
 
 
@@ -458,7 +458,7 @@
 
 
   PBOp(trie_do_var_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -468,12 +468,12 @@
     aux_stack_var_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_var_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_trust_var_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -484,12 +484,12 @@
     aux_stack_var_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_var_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_try_var_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -500,12 +500,12 @@
     aux_stack_var_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_var_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_retry_var_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -516,7 +516,7 @@
     aux_stack_var_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_var_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -572,7 +572,7 @@
 
 
   PBOp(trie_do_val_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -583,12 +583,12 @@
     aux_stack_val_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_val_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_trust_val_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -600,12 +600,12 @@
     aux_stack_val_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_val_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_try_val_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -617,12 +617,12 @@
     aux_stack_val_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_val_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_retry_val_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -634,7 +634,7 @@
     aux_stack_val_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_val_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -690,7 +690,7 @@
 
 
   PBOp(trie_do_atom_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -700,12 +700,12 @@
     aux_stack_term_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_atom_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_trust_atom_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -716,12 +716,12 @@
     aux_stack_term_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_atom_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_try_atom_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -732,12 +732,12 @@
     aux_stack_term_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_atom_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
   PBOp(trie_retry_atom_in_pair, e)
-#if defined(TRIE_COMPACT_PAIRS) && !defined(GLOBAL_TRIE)
+#ifdef TRIE_COMPACT_PAIRS
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
@@ -748,7 +748,7 @@
     aux_stack_term_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_atom_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -806,7 +806,7 @@
     aux_stack_new_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_null_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -822,7 +822,7 @@
     aux_stack_new_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_null_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -838,7 +838,7 @@
     aux_stack_new_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_null_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -854,7 +854,7 @@
     aux_stack_new_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_null_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -973,7 +973,7 @@
     aux_stack_appl_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_appl_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -991,7 +991,7 @@
     aux_stack_appl_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_appl_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -1009,7 +1009,7 @@
     aux_stack_appl_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_appl_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -1027,7 +1027,7 @@
     aux_stack_appl_in_pair_instr();
 #else
     Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_appl_in_pair: invalid instruction");
-#endif /* TRIE_COMPACT_PAIRS && ! GLOBAL_TRIE */
+#endif /* TRIE_COMPACT_PAIRS */
   ENDPBOp();
 
 
@@ -1148,7 +1148,6 @@
 
 
   PBOp(trie_do_gterm, e)
-#ifdef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = 0;
@@ -1157,14 +1156,10 @@
 
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1 , node);
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_do_gterm: invalid instruction");
-#endif /* GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_trust_gterm, e)
-#ifdef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = 0;
@@ -1174,14 +1169,10 @@
     pop_trie_node();
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1 , node);
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_trust_gterm: invalid instruction");
-#endif /* GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_try_gterm, e)
-#ifdef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = TOP_STACK;
     int heap_arity = 0;
@@ -1191,14 +1182,10 @@
     store_trie_node(TrNode_next(node));
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1, node); 
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_try_gterm: invalid instruction");
-#endif /* GLOBAL_TRIE */
   ENDPBOp();
 
 
   PBOp(trie_retry_gterm, e)
-#ifdef GLOBAL_TRIE
     register ans_node_ptr node = (ans_node_ptr) PREG;
     register CELL *aux_stack = (CELL *) (B + 1);
     int heap_arity = 0;
@@ -1208,7 +1195,4 @@
     restore_trie_node(TrNode_next(node));
     TOP_STACK = exec_substitution((gt_node_ptr)TrNode_entry(node), aux_stack);
     next_instruction(subs_arity - 1, node); 
-#else
-    Yap_Error(INTERNAL_ERROR, TermNil, "trie_retry_gterm: invalid instruction");
-#endif /* GLOBAL_TRIE */
   ENDPBOp();

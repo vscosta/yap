@@ -22,6 +22,7 @@
 %%                           or_statistics/2                           %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% should match with code in OPTYap/opt.preds.c
 or_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
    '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
 or_statistics(or_frames,[BytesInUse,StructsInUse]) :-
@@ -37,6 +38,7 @@ or_statistics(query_goal_answer_frames,[BytesInUse,StructsInUse]) :-
 %%                          opt_statistics/2                           %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+%% should match with code in OPTYap/opt.preds.c
 opt_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
    '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
 opt_statistics(table_entries,[BytesInUse,StructsInUse]) :-

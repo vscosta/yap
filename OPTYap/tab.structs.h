@@ -49,18 +49,6 @@ typedef struct table_entry {
 **      global_trie_node, subgoal_trie_node and answer_trie_node      **
 ***********************************************************************/
 
-#ifdef GLOBAL_TRIE
-typedef struct global_trie_node {
-  Term entry;
-  struct global_trie_node *parent;
-  struct global_trie_node *child;
-  struct global_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-  lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
-} *gt_node_ptr;
-#endif /* GLOBAL_TRIE */
-
 typedef struct subgoal_trie_node {
   Term entry;
   struct subgoal_trie_node *parent;
@@ -85,31 +73,30 @@ typedef struct answer_trie_node {
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
 } *ans_node_ptr;
 
-#define TrNode_instr(X)        ((X)->trie_instruction)
-#define TrNode_or_arg(X)       ((X)->or_arg)
-#define TrNode_entry(X)        ((X)->entry)
-#define TrNode_parent(X)       ((X)->parent)
-#define TrNode_child(X)        ((X)->child)
-#define TrNode_sg_fr(X)        ((X)->child)
-#define TrNode_next(X)         ((X)->next)
-#define TrNode_lock(X)         ((X)->lock)
+typedef struct global_trie_node {
+  Term entry;
+  struct global_trie_node *parent;
+  struct global_trie_node *child;
+  struct global_trie_node *next;
+#ifdef TABLE_LOCK_AT_NODE_LEVEL
+  lockvar lock;
+#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+} *gt_node_ptr;
+
+#define TrNode_instr(X)   ((X)->trie_instruction)
+#define TrNode_or_arg(X)  ((X)->or_arg)
+#define TrNode_entry(X)   ((X)->entry)
+#define TrNode_parent(X)  ((X)->parent)
+#define TrNode_child(X)   ((X)->child)
+#define TrNode_sg_fr(X)   ((X)->child)
+#define TrNode_next(X)    ((X)->next)
+#define TrNode_lock(X)    ((X)->lock)
 
 
 
 /***********************************************************************
 **      global_trie_hash, subgoal_trie_hash and answer_trie_hash      **
 ***********************************************************************/
-
-#ifdef GLOBAL_TRIE
-typedef struct global_trie_hash {
-  /* the first field is used for compatibility **
-  ** with the global_trie_node data structure  */
-  Term mark;
-  int number_of_buckets;
-  struct global_trie_node **buckets;
-  int number_of_nodes;
-} *gt_hash_ptr;
-#endif /* GLOBAL_TRIE */
 
 typedef struct subgoal_trie_hash {
   /* the first field is used for compatibility **
@@ -131,13 +118,22 @@ typedef struct answer_trie_hash {
   struct answer_trie_hash *next;
 } *ans_hash_ptr;
 
-#define Hash_mark(X)            ((X)->mark)
-#define Hash_num_buckets(X)     ((X)->number_of_buckets)
-#define Hash_seed(X)            ((X)->number_of_buckets - 1)
-#define Hash_buckets(X)         ((X)->buckets)
-#define Hash_bucket(X,N)        ((X)->buckets + N)
-#define Hash_num_nodes(X)       ((X)->number_of_nodes)
-#define Hash_next(X)            ((X)->next)
+typedef struct global_trie_hash {
+  /* the first field is used for compatibility **
+  ** with the global_trie_node data structure  */
+  Term mark;
+  int number_of_buckets;
+  struct global_trie_node **buckets;
+  int number_of_nodes;
+} *gt_hash_ptr;
+
+#define Hash_mark(X)         ((X)->mark)
+#define Hash_num_buckets(X)  ((X)->number_of_buckets)
+#define Hash_seed(X)         ((X)->number_of_buckets - 1)
+#define Hash_buckets(X)      ((X)->buckets)
+#define Hash_bucket(X,N)     ((X)->buckets + N)
+#define Hash_num_nodes(X)    ((X)->number_of_nodes)
+#define Hash_next(X)         ((X)->next)
 
 
 
