@@ -2128,6 +2128,7 @@ X_API void PL_cut_query(qid_t qi)
 {
   if (qi->open != 1) return;
   YAP_PruneGoal();
+  YAP_cut_up();
   qi->open = 0;
 }
 
@@ -2145,7 +2146,7 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 {
   qid_t qi = PL_open_query(ctx, flags, p, t0);
   int ret = PL_next_solution(qi);
-  PL_close_query(qi);
+  PL_cut_query(qi);
   return ret;
 }
 
