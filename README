@@ -13,8 +13,8 @@ Triska, and many others. You should read the rest of this file for
 information on what Yap is and for instructions on how to build it.
 
 YAP 6 has been built with several versions on GCC on a variety of
-Linux, MacOSX. It has been built on Windows XP and VISTA using
-cygwin/mingw from Cygnus Solutions.
+Linux, MacOSX. It has been built on Windows XP and VISTA using the
+mingw toolkit and cygwin from Cygnus Solutions.
 
 The main core of the YAP distribution is distributed under a dual
 license: the Perl Artistic license 2 and the FSF's LGPL. The YAP
@@ -35,7 +35,7 @@ http://lists.sourceforge.net/lists/listinfo/yap-users
 
 Online documentation is available for Yap at:
 
-	http://www.ncc.up.pt/~vsc/Yap/
+	http://www.dcc.fc.up.pt/~vsc/Yap/
 
 Recent versions of Yap, including both source and selected binaries,
 can be found from this same URL.
@@ -81,26 +81,22 @@ to obtain a copy of the current YAP tree.
 
 3. How to compile YAP
 
-To compile YAP just do:
+To compile YAP from the source directory just do:
 
- (1) mkdir arch
+ (1) ./configure
 
- (2) cd arch
+ (2) check the Makefile for any extensions or changes you want to make.
 
- (3) ../configure
+ (3) make
 
- (4) check the Makefile for any extensions or changes you want to make.
+ (4) If the compilation succeeds, try ./yap
 
- (5) make
+ (5) Happy? make install
 
- (6) If the compilation succeeds, try ./yap
-
- (7) Happy? make install
-
- (8) "make install_info" will create the info files in the standard
+ (6) "make install_info" will create the info files in the standard
      info directory.
 
- (9) "make html" will create documentation in html format in the
+ (7) "make html" will create documentation in html format in the
      current directory.
 
 In most systems you will need to be superuser in order to do "make
@@ -109,10 +105,12 @@ install" and "make info" on the standard directories.
 3.1 Where to install Yap
 
  YAP uses autoconf. Recent versions of Yap try to follow GNU
-conventions on where to place software. You can use the --prefix
-configure option to set the ROOTDIR macro and the --exec-prefix option
-to set the EROOTDIR macro (for architecture-dependent files). EROOTDIR
-defaults to ROOTDIR.
+conventions on where to place software. By default, this location is
+/usr/local on Unix, Linux, and OS/X machines. 
+
+You can use the --prefix configure option to set the ROOTDIR macro and
+the --exec-prefix option to set the EROOTDIR macro (for
+architecture-dependent files). EROOTDIR defaults to ROOTDIR.
 
   o The main executable is placed at BINDIR, which defaults at
 $(EROOTDIR)/bin. This executable is actually a script that calls the
@@ -135,22 +133,20 @@ binary Prolog libraries.
   o INFODIR is where the info help files will be stored. It defaults
 to $(SHAREDIR)/info.
 
-3.2 Which Yap to compile
+3.2 Which YAP to compile
 
-Compiling Yap with the standard options give you a plain vanilla
+Compiling YAP with the standard options give you a plain vanilla
 Prolog. You can tune Yap to use extra functionality by using the
 following options to configure:
 
- o --enable-rational-trees=yes gives you support for infinite rational
-trees (enabled by default).
-
- o --enable-coroutining=yes gives you support for coroutining,
-including freezing of goals, attributed variables, and
-constraints. This will also enable support for infinite rational
-trees  (enabled by default).
-
  o --enable-depth-limit=yes allows depth limited evaluation, say for
-implementing iterative deepening.
+implementing iterative deepening. It is required by the ILP system
+Aleph.
+
+ o --enable-use-malloc=yes makes YAP use the system's library for all
+ memory allocation. 
+
+ o --enable-threads=yes enables POSIX thread support.
 
  o --enable-low-level-tracer=yes allows support for tracing all calls,
 retries, and backtracks in the system. This can help in debugging your
@@ -164,6 +160,10 @@ useful for normal users.
 supported by one of these three forms. This is still highly experimental.
 
  o --enable-tabling=yes allows tabling support. This is still experimental.
+
+ o --with-jpl=JAVA_PATH activates the Java Interface Library JPL. In
+ Linux and WIN32 you have to provide a path to the Java library, in
+ OSX it is sufficient to say yes.
 
 3.3 Porting Yap
 
