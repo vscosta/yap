@@ -3685,9 +3685,18 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	move_next(cls, sp->pos);
       } else if (sp->pos) {
 	UInt argno = -sp->pos;
+	UInt arity;
 	skip_to_arg(cls, ap, argno, FALSE);
-	if (ArityOfFunctor((Functor)RepAppl(sp[-1].val))
-	    != argno+1) {
+	if (IsPairTerm(sp[-1].val))
+	  arity = 2;
+	else {
+	  Functor f = (Functor)RepAppl(sp[-1].val);
+	  if (IsExtensionFunctor(f))
+	      arity = 0;
+	  else
+	    arity = ArityOfFunctor((Functor)f);
+	}
+	if (arity != argno+1) {
 	  last_arg = FALSE;
 	}
       }
