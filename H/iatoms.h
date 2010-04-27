@@ -247,7 +247,7 @@
   AtomSigPending = Yap_FullLookupAtom("$sig_pending");
   AtomSigPipe = Yap_LookupAtom("sig_pipe");
   AtomSigStackDump = Yap_LookupAtom("sig_stack_dump");
-  AtomSigStatistics = Yap_LookupAtom("sig_statistic");
+  AtomSigStatistics = Yap_LookupAtom("sig_statistics");
   AtomSigTrace = Yap_LookupAtom("sig_trace");
   AtomSigUsr1 = Yap_LookupAtom("sig_usr1");
   AtomSigUsr2 = Yap_LookupAtom("sig_usr2");
