@@ -1437,6 +1437,10 @@ InteractSIGINT(int ch) {
     /* exit */
     Yap_exit(0);
     return -1;
+  case 'g':
+    /* exit */
+    Yap_signal (YAP_STACK_DUMP_SIGNAL);
+    return -1;
   case 't':
     /* start tracing */
     Yap_signal (YAP_TRACE_SIGNAL);
@@ -1459,7 +1463,7 @@ InteractSIGINT(int ch) {
     /* show an helpful message */
     fprintf(Yap_stderr, "Please press one of:\n");
     fprintf(Yap_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    fprintf(Yap_stderr, "  e for exit\n  s for statistics\n  t for trace\n");
+    fprintf(Yap_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
     fprintf(Yap_stderr, "  b for break\n");
     return(0);
   }

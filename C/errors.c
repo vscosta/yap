@@ -1819,7 +1819,15 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     nt[1] = MkAtomTerm(Yap_LookupAtom(tmpbuf));
     break;
   default:
-    nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), Yap_all_calls());
+    {
+      Term stack_dump;
+
+      if ((stack_dump = Yap_all_calls()) == 0L) {
+	stack_dump = TermNil;
+	Yap_Error_Size = 0L;
+      }
+      nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), stack_dump);
+    }
   }
   if (serious) {
     /* disable active signals at this point */
@@ -1838,9 +1846,10 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       siglongjmp(Yap_RestartEnv,1);      
     }
     UNLOCK(SignalLock);
-    if (type == PURE_ABORT)
+    if (type == PURE_ABORT) {
       Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
-    else
+      CreepFlag = LCL0-ASP;
+    } else
       Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
     P = (yamop *)FAILCODE;
   } else {

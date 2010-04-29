@@ -3461,17 +3461,23 @@ static Term
 all_envs(CELL *env_ptr)
 {
   Term tf = AbsPair(H);
+  CELL *start = H;
   CELL *bp = NULL;
   
   /* walk the environment chain */
-  while (env_ptr != NULL) {
+  while (env_ptr) {
     bp = H;
     H += 2;
     /* notice that MkIntegerTerm may increase the Heap */
     bp[0] = MkIntegerTerm(LCL0-env_ptr);
-    if (H >= ASP) {
-      bp[1] = TermNil;
-      return tf;
+    if (H >= ASP-1024) {
+      H = start;
+      Yap_Error_Size = (ASP-1024)-H;
+      while (env_ptr) {
+	Yap_Error_Size += 2;
+	env_ptr = (CELL *)(env_ptr[E_E]);      
+      }
+      return 0L;
     } else {
       bp[1] = AbsPair(H);
     }
@@ -3485,16 +3491,22 @@ static Term
 all_cps(choiceptr b_ptr)
 {
   CELL *bp = NULL;
+  CELL *start = H;
   Term tf = AbsPair(H);
 
-  while (b_ptr != NULL) {
+  while (b_ptr) {
     bp = H;
     H += 2;
     /* notice that MkIntegerTerm may increase the Heap */
     bp[0] = MkIntegerTerm((Int)(LCL0-(CELL *)b_ptr));
-    if (H >= ASP) {
-      bp[1] = TermNil;
-      return tf;
+    if (H >= ASP-1024) {
+      H = start;
+      Yap_Error_Size = (ASP-1024)-H;
+      while (b_ptr) {
+	Yap_Error_Size += 2;
+	b_ptr = b_ptr->cp_b;
+      }
+      return 0L;
     } else {
       bp[1] = AbsPair(H);
     }
@@ -3516,6 +3528,9 @@ all_calls(void)
   if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
     ts[2] = all_envs(ENV);
     ts[3] = all_cps(B);
+    if (ts[2] == 0L ||
+	ts[3] == 0L)
+      return 0L;
   } else {
     ts[2] = ts[3] = TermNil;
   }
@@ -3531,13 +3546,27 @@ Yap_all_calls(void)
 static Int
 p_all_choicepoints(void)
 {
-  return Yap_unify(ARG1,all_cps(B));
+  Term t;
+  while ((t = all_cps(B)) == 0L) {
+    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping choicepoints");
+      return FALSE;
+    }
+  }
+  return Yap_unify(ARG1,t);
 }
 
 static Int
 p_all_envs(void)
 {
-  return Yap_unify(ARG1,all_envs(ENV));
+  Term t;
+  while ((t = all_envs(ENV)) == 0L) {
+    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping environments");
+      return FALSE;
+    }
+  }
+  return Yap_unify(ARG1,t);
 }
 
 static Int
@@ -3546,7 +3575,14 @@ p_current_stack(void)
 #ifdef YAPOR
   return(FALSE);
 #else
-  return(Yap_unify(ARG1,all_calls()));
+  Term t;
+  while ((t = all_calls()) == 0L) {
+    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping stack");
+      return FALSE;
+    }
+  }
+  return Yap_unify(ARG1,t);
 #endif
 }
 
