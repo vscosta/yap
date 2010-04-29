@@ -248,6 +248,7 @@ typedef struct AliasDescS {
 
 /************ SWI compatible support for different encodings ************/
 
+#ifndef SIO_NL_POSIX
 typedef enum {
   ENC_OCTET      = 0,
   ENC_ISO_LATIN1 = 1,
@@ -257,6 +258,7 @@ typedef enum {
   ENC_UNICODE_BE = 16,
   ENC_UNICODE_LE = 32
 } encoding_t;
+#endif
 
 #define MAX_ISO_LATIN1 255
 

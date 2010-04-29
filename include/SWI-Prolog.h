@@ -181,6 +181,7 @@ typedef void *PL_engine_t;
 #define CVT_NUMBER	(CVT_INTEGER|CVT_FLOAT)
 #define CVT_ATOMIC	(CVT_NUMBER|CVT_ATOM|CVT_STRING)
 #define CVT_WRITE	0x0040		/* as of version 3.2.10 */
+#define CVT_WRITE_CANONICAL	0x0080		/* as of version 3.2.10 */
 #define CVT_ALL		(CVT_ATOMIC|CVT_LIST)
 #define CVT_MASK	0x00ff
 

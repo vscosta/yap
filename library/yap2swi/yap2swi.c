@@ -33,6 +33,8 @@
 #include	<SWI-Stream.h>
 #include	<SWI-Prolog.h>
 
+#include	<yapio.h>
+
 #ifdef USE_GMP
 #include <gmp.h>
 #endif
@@ -348,18 +350,60 @@ buf_writer(int c)
 #define snprintf(X,Y,Z,A) sprintf(X,Z,A)
 #endif
 
+/* This does not understand UNICODE yet */
+static int do_yap_putc(int sno, wchar_t ch) {
+  if (putc_curp < putc_cur_lim) {
+    *putc_curp++ = ch;
+    return TRUE;
+  } else if (putc_cur_flags & BUF_MALLOC) {
+    /* handle overflow by using realloc(); */
+    UInt bufsize = putc_cur_lim-putc_cur_buf;
+    UInt bufpos = putc_curp-putc_cur_buf;
+
+    if (!(putc_cur_buf = realloc(putc_cur_buf, bufsize+BUF_SIZE))) {
+      /* we can+t go forever */
+      return FALSE;
+    }
+    putc_curp = putc_cur_buf+bufpos;
+    putc_cur_lim = putc_cur_buf+(bufsize+BUF_SIZE);
+    return do_yap_putc(sno, ch);
+  }
+  return FALSE;
+}
 
 X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
 {
   YAP_Term t = Yap_GetFromSlot(l);
   char *tmp;
 
-  if (!(flags & BUF_RING)) {
+  if ((flags & BUF_RING)) {
     tmp = alloc_ring_buf();
+  } else if ((flags & BUF_MALLOC)) {
+    tmp = malloc(BUF_SIZE);
   } else {
     tmp = buffers;
   }
   *sp = tmp;
+  if (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) {
+    Int write_flags;
+
+    putc_cur_buf = putc_curp = tmp;
+    putc_cur_flags = flags;
+    if (flags & CVT_WRITE_CANONICAL) {
+      write_flags = (Quote_illegal_f|Ignore_ops_f);
+    } else {
+      write_flags = 0;
+    }
+    if ((flags & BUF_RING)) {
+      putc_cur_lim = tmp+(TMP_BUF_SIZE-1);
+    } else {
+      putc_cur_lim = tmp+(BUF_SIZE-1);
+    }
+    Yap_plwrite(t, do_yap_putc, write_flags, 1200);
+    /* may have changed due to overflows */
+    *sp = putc_cur_buf;
+    return TRUE;
+  }
   if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))

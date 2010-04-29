@@ -141,6 +141,11 @@
 #define Yap_LabelFirstArray WL->label_first_array
 #define Yap_LabelFirstArraySz WL->label_first_array_sz
 
+#define putc_curp WL->putc_curp_
+#define putc_cur_buf WL->putc_cur_buf_
+#define putc_cur_lim WL->putc_cur_lim_
+#define putc_cur_flags WL->putc_cur_flags_
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 #define WORKER WL->worker
 #endif

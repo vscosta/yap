@@ -141,6 +141,11 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->label_first_array = NULL;
   FOREIGN_WL(wid)->label_first_array_sz = 0L;
 
+  FOREIGN_WL(wid)->putc_curp_ = NULL;
+  FOREIGN_WL(wid)->putc_cur_buf_ = NULL;
+  FOREIGN_WL(wid)->putc_cur_lim_ = NULL;
+  FOREIGN_WL(wid)->putc_cur_flags_ = 0L;
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 
 #endif

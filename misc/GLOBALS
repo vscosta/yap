@@ -153,6 +153,12 @@ UInt				cmem_first_block_sz	Yap_CMemFirstBlockSz	=0L
 Int*				label_first_array	Yap_LabelFirstArray	=NULL
 UInt				label_first_array_sz	Yap_LabelFirstArraySz	=0L
 
+// Thread Local Area for SWI-Prolog emulation routines.
+char*				putc_curp_		putc_curp		=NULL
+char*				putc_cur_buf_		putc_cur_buf		=NULL
+char*				putc_cur_lim_		putc_cur_lim		=NULL
+UInt				putc_cur_flags_		putc_cur_flags		=0L
+
 // Ricardo's stuff
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 struct worker			worker			WORKER		void

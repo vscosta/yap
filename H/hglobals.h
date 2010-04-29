@@ -143,6 +143,11 @@ typedef struct worker_local {
   Int*  label_first_array;
   UInt  label_first_array_sz;
 
+  char*  putc_curp_;
+  char*  putc_cur_buf_;
+  char*  putc_cur_lim_;
+  UInt  putc_cur_flags_;
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
   struct worker  worker;
 #endif
