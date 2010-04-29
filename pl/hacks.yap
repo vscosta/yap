@@ -22,6 +22,21 @@
 	   display_pc/3,
 	   code_location/3]).
 
+prolog:'$stack_dump' :-
+	yap_hacks:current_choicepoints(CPs),
+	yap_hacks:current_continuations([Env|Envs]),
+	yap_hacks:continuation(Env,_,ContP,_),
+	length(CPs, LCPs),
+	length(Envs, LEnvs),
+	format(user_error,'~n~n~tStack Dump~t~40+~n~nAddress~tChoiceP~16+ Clause          Goal~n',[LCPs,LEnvs]),
+	display_stack_info(CPs, Envs, 20, ContP, StackInfo, []),
+	run_formats(StackInfo, user_error).
+
+run_formats([], _).
+run_formats([Com-Args|StackInfo], Stream) :-
+	format(Stream, Com, Args),
+	run_formats(StackInfo, user_error).
+
 display_stack_info(CPs,Envs,Lim,PC) :-
 	display_stack_info(CPs,Envs,Lim,CP,Lines,[]),
 	flush_output(user_output),
@@ -81,11 +96,11 @@ display_stack_info([CP|LCPs],[Env|LEnvs],I,Cont) -->
 	( { CP == Env, CB < CP } ->
 	    % if we follow choice-point and we cut to before choice-point
 	    % we are the same goal
-	   show_cp(CP, 'Cur'), %
+	   show_cp(CP, ''), %
            display_stack_info(LCPs, LEnvs, I1, NCont)
 	;
           { CP > Env } ->
-	   show_cp(CP, 'Next'),
+	   show_cp(CP, ' < '),
 	   display_stack_info(LCPs,[Env|LEnvs],I1,Cont)
 	;
 	   show_env(Env,Cont,NCont),
@@ -96,13 +111,15 @@ show_cp(CP, Continuation) -->
 	{ yap_hacks:choicepoint(CP, Addr, Mod, Name, Arity, Goal, ClNo) },
 	( { Goal = (_;_) }
           ->
-	  [ '0x~16r~t*~16+ Cur~t~d~16+ ~q:~q/~d( ? ; ? )~n'-
-		[Addr, ClNo, Mod, Name, Arity] ]
+	  { scratch_goal(Name,Arity,Mod,Caller) },
+	  [ '0x~16r~t*~16+ ~d~16+ ~q ~n'-
+		[Addr, ClNo, Caller] ]
+	  
 	    ;
-	  { prolog_flag( debugger_print_options, Opts) },
-	  [ '0x~16r~t *~16+ ~a~t ~d~16+ ~q:' -
+	  [ '0x~16r~t *~16+~a ~d~16+ ~q:' -
 		[Addr, Continuation, ClNo, Mod]]
 	),
+	{ prolog_flag( debugger_print_options, Opts) },
 	{clean_goal(Goal,Mod,G)},
 	['~@.~n' -  write_term(G,Opts)].
 
@@ -111,15 +128,18 @@ show_env(Env,Cont,NCont) -->
 	 yap_hacks:continuation(Env, Addr, NCont, _),
 	 yap_hacks:cp_to_predicate(Cont, Mod, Name, Arity, ClId)
 	},
-        [ '0x~16r~t  ~16+ Cur~t ~d~16+ ~q:' -
+        [ '0x~16r~t  ~16+ ~d~16+ ~q:' -
 		[Addr, ClId, Mod] ],
 	{scratch_goal(Name, Arity, Mod, G)},
+	{ prolog_flag( debugger_print_options, Opts) },
 	['~@.~n' - write_term(G,Opts)].
 
 clean_goal(G,Mod,NG) :-
 	beautify_hidden_goal(G,Mod,[NG],[]), !.
 clean_goal(G,_,G).
 
+scratch_goal(N,0,Mod,Mod:N) :-
+	!.
 scratch_goal(N,A,Mod,NG) :-
 	list_of_qmarks(A,L),
 	G=..[N|L],
