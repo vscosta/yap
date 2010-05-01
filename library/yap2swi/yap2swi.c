@@ -400,7 +400,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       putc_cur_lim = tmp+(BUF_SIZE-1);
     }
     Yap_plwrite(t, do_yap_putc, write_flags, 1200);
-    *putc_cur_buf = '\0';
+    *putc_curp = '\0';
     /* may have changed due to overflows */
     *sp = putc_cur_buf;
     return TRUE;
