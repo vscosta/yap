@@ -153,7 +153,7 @@ p_evalstring3(void)
 static int
 p_create_cell_vector(void)
 {
-  int dims[1];
+  mwSize dims[1];
   mxArray *mat;
 
   dims[0] = YAP_IntOfTerm(YAP_ARG1);
@@ -184,7 +184,7 @@ p_create_cell_array(void)
 static int
 p_create_double_vector(void)
 {
-  int dims[1];
+  mwSize dims[1];
   mxArray *mat;
 
   dims[0] = YAP_IntOfTerm(YAP_ARG1);
@@ -215,7 +215,7 @@ p_create_double_array(void)
 static int
 p_create_double_array3(void)
 {
-  int dims[3];
+  mwSize dims[3];
   mxArray *mat;
 
   dims[0] = YAP_IntOfTerm(YAP_ARG1);
@@ -308,17 +308,18 @@ p_set_float_array(void)
 static int
 p_set_float_vector(void)
 {
-  int len, i = 0;
+  mwSize len[1];
+  int i = 0;
   double *input;
   mxArray *mat;
   YAP_Term tl = YAP_ARG2;
 
-  len = YAP_IntOfTerm(YAP_ARG1);
-  if (!(mat = mxCreateNumericArray(1,&len, mxDOUBLE_CLASS, mxREAL)))
+  len[0] = YAP_IntOfTerm(YAP_ARG1);
+  if (!(mat = mxCreateNumericArray(1,len, mxDOUBLE_CLASS, mxREAL)))
     return FALSE;
   input = mxGetPr(mat);
   /* copy ints to matrix. */
-  for (i = 0; i < len; i++) {
+  for (i = 0; i < len[0]; i++) {
     YAP_Term th;
 
     if (!YAP_IsPairTerm(tl)) {
@@ -487,7 +488,7 @@ p_get_variable(void)
 {
   YAP_Term t;
   mxArray *mat;
-  const int *dims;
+  const mwSize *dims;
   int ndims;
 
   mat = get_array(YAP_ARG1);
