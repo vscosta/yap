@@ -166,10 +166,10 @@ Yap_InitSWIHash(void)
   int i, j;
   memset(SWI_ReverseHash, N_SWI_HASH, sizeof(swi_rev_hash));
   for (i=0; i < N_SWI_ATOMS; i++) {
-    add_to_hash(i, (ADDR)SWI_Atoms[i]);
+    add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash(j, (ADDR)SWI_Functors[j]);
+    add_to_hash(j*2+1, (ADDR)SWI_Functors[j]);
   }
 }
 
@@ -698,11 +698,11 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  if (!YAP_IsPairTerm(t) ) {
+  if (IsVarTerm(t) || !IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(h,YAP_HeadOfTerm(t));
-  Yap_PutInSlot(tl,YAP_TailOfTerm(t));
+  Yap_PutInSlot(h,HeadOfTerm(t));
+  Yap_PutInSlot(tl,TailOfTerm(t));
   return 1;
 }
 
@@ -1428,9 +1428,9 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   } else if (!IsPairTerm(t)) {
     return FALSE;
   }
-  return 
-    Yap_unify(Yap_GetFromSlot(h),HeadOfTerm(t)) &&
-    Yap_unify(Yap_GetFromSlot(tail),TailOfTerm(t));
+  Yap_PutInSlot(h,HeadOfTerm(t));
+  Yap_PutInSlot(tail,TailOfTerm(t));
+  return TRUE;
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
