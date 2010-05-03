@@ -7505,7 +7505,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y_AS_ENV();
 #ifdef LOW_LEVEL_TRACER
 	if (Yap_do_low_level_trace) {
-	  low_level_trace(enter_pred,PREG->u.Osbpp.p0,XREGS+1);
+	  low_level_trace(enter_pred,PREG->u.Osbpp.p,XREGS+1);
 	}
 #endif	/* LOW_LEVEL_TRACE */
 #ifdef FROZEN_STACKS
