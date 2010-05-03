@@ -94,8 +94,10 @@ register_catalog(Base) :-
 			       SocFile),
 	sgml_register_catalog_file(SocFile, end).
 
+% make sure this is loaded in the current module, not user.
+:- load_foreign.
+	
 init :-
-	load_foreign,
 	ignore(register_catalog('HTML4')).
 
 :- initialization
@@ -158,10 +160,10 @@ load_dtd(DTD, DtdFile) :-
 load_dtd(DTD, DtdFile, Options) :-
 	split_dtd_options(Options, DTDOptions, FileOptions),
 	open_dtd(DTD, DTDOptions, DtdOut),
-	swi:swi_open(DtdFile, read, DtdIn, FileOptions),
-	swi:swi_copy_stream_data(DtdIn, DtdOut),
-	swi:swi_close(DtdIn),
-	swi:swi_close(DtdOut).
+	system:swi_open(DtdFile, read, DtdIn, FileOptions),
+	system:swi_copy_stream_data(DtdIn, DtdOut),
+	system:swi_close(DtdIn),
+	system:swi_close(DtdOut).
 
 split_dtd_options([], [], []).
 split_dtd_options([H|T], [H|TD], S) :-
@@ -294,12 +296,12 @@ load_structure(stream(In), Term, Options) :- !,
 	),
 	Term = TermRead.
 load_structure(Stream, Term, Options) :-
-	swi:swi_is_stream(Stream), !,
+	system:swi_is_stream(Stream), !,
 	load_structure(stream(Stream), Term, Options).
 load_structure(File, Term, Options) :-
-	swi:swi_open(File, read, In, [type(binary)]),
+	system:swi_open(File, read, In, [type(binary)]),
 	load_structure(stream(In), Term, [file(File)|Options]),
-	swi:swi_close(In).
+	system:swi_close(In).
 
 parse(Parser, Options, Document, In) :-
 	set_parser_options(Parser, Options, Options1),
@@ -319,8 +321,8 @@ def_entities([H|T0], DTD, [H|T]) :-
 def_entity(DTD, Name, Value) :-
 	open_dtd(DTD, [], Stream),
 	xml_quote_attribute(Value, QValue),
-	swi:swi_format(Stream, '<!ENTITY ~w "~w">~n', [Name, QValue]),
-	swi:close(Stream).
+	system:swi_format(Stream, '<!ENTITY ~w "~w">~n', [Name, QValue]),
+	system:close(Stream).
 	
 	
 		 /*******************************
