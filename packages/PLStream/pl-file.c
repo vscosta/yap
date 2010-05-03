@@ -74,18 +74,16 @@ static int	noprotocol(void);
 
 static int streamStatus(IOSTREAM *s);
 
-#if __YAP_PROLOG__
-INIT_DEF(atom_t, standardStreams, 6)
-  ADD_STDSTREAM(ATOM_user_input)			/* 0 */
-  ADD_STDSTREAM(ATOM_user_output)			/* 1 */
-  ADD_STDSTREAM(ATOM_user_error)			/* 2 */
-  ADD_STDSTREAM(ATOM_current_input)			/* 3 */
-  ADD_STDSTREAM(ATOM_current_output)			/* 4 */
-  ADD_STDSTREAM(ATOM_protocol)			/* 5 */
-END_STDSTREAMS(NULL_ATOM)
-#else
+const atom_t standardStreams[] =
+{ ATOM_user_input,			/* 0 */
+  ATOM_user_output,			/* 1 */
+  ATOM_user_error,			/* 2 */
+  ATOM_current_input,			/* 3 */
+  ATOM_current_output,			/* 4 */
+  ATOM_protocol,			/* 5 */
+  NULL_ATOM
+};
 
-#endif
 
 static int
 standardStreamIndexFromName(atom_t name)
@@ -2500,26 +2498,6 @@ PRED_IMPL("tab", 1, tab1, 0)
 		 *******************************/
 
 
-#if __YAP_PROLOG__
-typedef struct encname
-{ IOENC  code;
-  atom_t name;
-} encoding_name;
-
-INIT_DEF(struct encname, encoding_names, 10)
-  ADD_ENCODING( ENC_UNKNOWN,     ATOM_unknown )
-  ADD_ENCODING( ENC_OCTET,       ATOM_octet )
-  ADD_ENCODING( ENC_ASCII,       ATOM_ascii )
-  ADD_ENCODING( ENC_ISO_LATIN_1, ATOM_iso_latin_1 )
-  ADD_ENCODING( ENC_ANSI,	     ATOM_text )
-  ADD_ENCODING( ENC_UTF8,        ATOM_utf8 )
-  ADD_ENCODING( ENC_UNICODE_BE,  ATOM_unicode_be )
-  ADD_ENCODING( ENC_UNICODE_LE,  ATOM_unicode_le )
-  ADD_ENCODING( ENC_WCHAR,	     ATOM_wchar_t )
-END_ENCODINGS( ENC_UNKNOWN,     0 )
-
-#else
-
 static struct encname
 { IOENC  code;
   atom_t name;
@@ -2535,8 +2513,6 @@ static struct encname
   { ENC_WCHAR,	     ATOM_wchar_t },
   { ENC_UNKNOWN,     0 },
 };
-
-#endif
 
 
 IOENC
@@ -2597,21 +2573,6 @@ fn_to_atom(const char *fn)
 		/********************************
 		*       STREAM BASED I/O        *
 		*********************************/
-#if __YAP_PROLOG__
-
-INIT_DEF(opt_spec, open4_options, 10)
-  ADD_OPEN4_OPT( ATOM_type,		 OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_reposition,     OPT_BOOL )
-  ADD_OPEN4_OPT( ATOM_alias,	         OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_eof_action,     OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_close_on_abort, OPT_BOOL )
-  ADD_OPEN4_OPT( ATOM_buffer,	 OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_lock,		 OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_encoding,	 OPT_ATOM )
-  ADD_OPEN4_OPT( ATOM_bom,	 	 OPT_BOOL )
-END_OPEN4_DEFS(NULL_ATOM, 0)
-
-#else
 static const opt_spec open4_options[] =
 { { ATOM_type,		 OPT_ATOM },
   { ATOM_reposition,     OPT_BOOL },
@@ -2624,7 +2585,6 @@ static const opt_spec open4_options[] =
   { ATOM_bom,	 	 OPT_BOOL },
   { NULL_ATOM,	         0 }
 };
-#endif
 
 IOSTREAM *
 openStream(term_t file, term_t mode, term_t options)
@@ -3065,19 +3025,10 @@ PRED_IMPL("close", 1, close, PL_FA_ISO)
   return FALSE;
 }
 
-#if __YAP_PROLOG__
-
-INIT_DEF(opt_spec, close2_options, 2)
-  ADD_CLOSE2_OPT( ATOM_force,		 OPT_BOOL )
-END_CLOSE2_DEFS( NULL_ATOM,		 0 )
-
-#else
-
 static const opt_spec close2_options[] =
 { { ATOM_force,		 OPT_BOOL },
   { NULL_ATOM,		 0 }
 };
-#endif
 
 
 static
@@ -3404,33 +3355,6 @@ typedef struct
 } sprop;
 
 
-#if __YAP_PROLOG__
-
-INIT_DEF(sprop, sprop_list, 25)
-  ADD_SPROP( FUNCTOR_file_name1,	    stream_file_name_propery )
-  ADD_SPROP( FUNCTOR_mode1,	    stream_mode_property )
-  ADD_SPROP( FUNCTOR_input0,	    stream_input_prop )
-  ADD_SPROP( FUNCTOR_output0,	    stream_output_prop )
-  ADD_SPROP( FUNCTOR_alias1,	    stream_alias_prop )
-  ADD_SPROP( FUNCTOR_position1,	    stream_position_prop )
-  ADD_SPROP( FUNCTOR_end_of_stream1, stream_end_of_stream_prop )
-  ADD_SPROP( FUNCTOR_eof_action1,    stream_eof_action_prop )
-  ADD_SPROP( FUNCTOR_reposition1,    stream_reposition_prop )
-  ADD_SPROP( FUNCTOR_type1,    	    stream_type_prop )
-  ADD_SPROP( FUNCTOR_file_no1,	    stream_file_no_prop )
-  ADD_SPROP( FUNCTOR_buffer1,	    stream_buffer_prop )
-  ADD_SPROP( FUNCTOR_buffer_size1,   stream_buffer_size_prop )
-  ADD_SPROP( FUNCTOR_close_on_abort1,stream_close_on_abort_prop )
-  ADD_SPROP( FUNCTOR_tty1,	    stream_tty_prop )
-  ADD_SPROP( FUNCTOR_encoding1,	    stream_encoding_prop )
-  ADD_SPROP( FUNCTOR_bom1,	    stream_bom_prop )
-  ADD_SPROP( FUNCTOR_newline1,	    stream_newline_prop )
-  ADD_SPROP( FUNCTOR_representation_errors1, stream_reperror_prop )
-  ADD_SPROP( FUNCTOR_timeout1,       stream_timeout_prop )
-  ADD_SPROP( FUNCTOR_nlink1,       stream_nlink_prop )
-END_SPROP_DEFS( 0,			    NULL)
-
-#else
 static const sprop sprop_list [] =
 { { FUNCTOR_file_name1,	    stream_file_name_propery },
   { FUNCTOR_mode1,	    stream_mode_property },
@@ -3455,7 +3379,6 @@ static const sprop sprop_list [] =
   { FUNCTOR_nlink1,         stream_nlink_prop },
   { 0,			    NULL }
 };
-#endif
 
 
 typedef struct
@@ -4385,11 +4308,6 @@ static void
 init_yap_extras()
 {
   initCharTypes();
-  init_standardStreams();
-  init_encoding_names();
-  init_open4_options();
-  init_close2_options();
-  init_sprop_list();
   PL_register_extensions(PL_predicates_from_file);
   fileerrors = TRUE;
   SinitStreams();

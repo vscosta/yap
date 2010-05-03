@@ -218,34 +218,34 @@ mkfunction(iswupper)
 mkfunction(iswpunct)
 mkfunction(iswspace)
 
-INIT_DEF(char_type, char_types, 26)
-ADD_DEF2(ATOM_alnum, fiswalnum)
-ADD_DEF2(ATOM_alpha, fiswalpha)
-ADD_DEF2(ATOM_csym,	fiscsym )
-ADD_DEF2(ATOM_csymf,	fiscsymf )
-ADD_DEF2(ATOM_ascii,	fisascii )
-ADD_DEF2(ATOM_white,	iswhite )
-ADD_DEF2(ATOM_cntrl,	fiswcntrl )
-ADD_DEF2(ATOM_digit,	fiswdigit )
-ADD_DEF2(ATOM_graph,	fiswgraph )
-ADD_DEF2(ATOM_lower,	fiswlower )
-ADD_DEF2(ATOM_upper,	fiswupper )
-ADD_DEF2(ATOM_punct,	fiswpunct )
-ADD_DEF2(ATOM_space,	fiswspace )
-ADD_DEF2(ATOM_end_of_file,iseof )
-ADD_DEF2(ATOM_end_of_line,iseol )
-ADD_DEF2(ATOM_newline,isnl )
-ADD_DEF2(ATOM_period,isperiod )
-ADD_DEF2(ATOM_quote,        isquote )
-ADD_DEF5(ATOM_lower,	fupper,		flower,   1, CTX_CHAR )
-ADD_DEF5(ATOM_upper,	flower,		fupper,   1, CTX_CHAR )
-ADD_DEF5(ATOM_to_lower,ftoupper,	ftolower, 1, CTX_CHAR )
-ADD_DEF5(ATOM_to_upper,ftolower,	ftoupper, 1, CTX_CHAR )
-ADD_DEF5(ATOM_paren,	fparen,		rparen,   1, CTX_CHAR )
-ADD_DEF5(ATOM_digit,	fdigit,		rdigit,   1, CTX_CODE  )
-ADD_DEF5(ATOM_xdigit,fxdigit,	rxdigit,  1, CTX_CODE  )
-END_DEFS(NULL_ATOM,	NULL)
-
+static const char_type char_types[] =
+{ { ATOM_alnum,		fiswalnum },
+  { ATOM_alpha,		fiswalpha },
+  { ATOM_csym,		fiscsym },
+  { ATOM_csymf,		fiscsymf },
+  { ATOM_ascii,		fisascii },
+  { ATOM_white,		iswhite },
+  { ATOM_cntrl,		fiswcntrl },
+  { ATOM_digit,		fiswdigit },
+  { ATOM_graph,		fiswgraph },
+  { ATOM_lower,		fiswlower },
+  { ATOM_upper,		fiswupper },
+  { ATOM_punct,		fiswpunct },
+  { ATOM_space,		fiswspace },
+  { ATOM_end_of_file,	iseof },
+  { ATOM_end_of_line,	iseol },
+  { ATOM_newline,	isnl },
+  { ATOM_period,	isperiod },
+  { ATOM_quote,	        isquote },
+  { ATOM_lower,		fupper,		flower,   1, CTX_CHAR },
+  { ATOM_upper,		flower,		fupper,   1, CTX_CHAR },
+  { ATOM_to_lower,	ftoupper,	ftolower, 1, CTX_CHAR },
+  { ATOM_to_upper,	ftolower,	ftoupper, 1, CTX_CHAR },
+  { ATOM_paren,		fparen,		rparen,   1, CTX_CHAR },
+  { ATOM_digit,		fdigit,		rdigit,   1, CTX_CODE  },
+  { ATOM_xdigit,	fxdigit,	rxdigit,  1, CTX_CODE  },
+  { NULL_ATOM,		NULL }
+};
 
 static const char_type *
 char_type_by_name(atom_t name, int arity)
@@ -878,7 +878,6 @@ initEncoding(void)
 void
 initCharTypes(void)
 { 
-  init_char_types();
   initEncoding();
 }
 
