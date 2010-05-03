@@ -192,6 +192,8 @@ AtomAdjust(Atom a)
 
 #define rehash(oldcode, NOfE, KindOfEntries)
 
+#define RestoreSWIHash()
+
 #include "rheap.h"
 
 static void

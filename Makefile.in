@@ -106,6 +106,7 @@ MYDDAS_VERSION=MYDDAS-0.9.1
 INTERFACE_HEADERS = \
 	$(srcdir)/include/c_interface.h \
 	$(srcdir)/include/clause_list.h \
+	$(srcdir)/include/dswiatoms.h \
 	$(srcdir)/include/udi.h \
 	$(srcdir)/include/rtree_udi.h \
 	$(srcdir)/include/yap_structs.h \
@@ -114,26 +115,41 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/SWI-Stream.h
 
 HEADERS = \
-	$(srcdir)/H/TermExt.h $(srcdir)/H/Atoms.h \
-	$(srcdir)/H/Tags_32bits.h $(srcdir)/H/Tags_32Ops.h \
-	$(srcdir)/H/Tags_32LowTag.h $(srcdir)/H/Tags_64bits.h \
-	$(srcdir)/H/Tags_24bits.h $(srcdir)/H/sshift.h \
-	$(srcdir)/H/Yap.h $(srcdir)/H/Yatom.h \
+	$(srcdir)/H/TermExt.h \
+	$(srcdir)/H/Atoms.h \
+	$(srcdir)/H/Tags_32bits.h \
+	$(srcdir)/H/Tags_32Ops.h \
+	$(srcdir)/H/Tags_32LowTag.h \
+	$(srcdir)/H/Tags_64bits.h \
+	$(srcdir)/H/Tags_24bits.h \
+	$(srcdir)/H/sshift.h \
+	$(srcdir)/H/Yap.h \
+	$(srcdir)/H/Yatom.h \
 	$(srcdir)/H/YapHeap.h \
-	$(srcdir)/H/Regs.h $(srcdir)/H/Yapproto.h \
-	$(srcdir)/H/absmi.h  $(srcdir)/H/alloc.h \
-	$(srcdir)/H/amidefs.h $(srcdir)/H/amiops.h $(srcdir)/H/arrays.h \
-	$(srcdir)/H/arith2.h $(srcdir)/H/attvar.h \
-	$(srcdir)/H/clause.h $(srcdir)/H/compile.h \
-	$(srcdir)/H/corout.h $(srcdir)/H/dlmalloc.h \
+	$(srcdir)/H/Regs.h \
+	$(srcdir)/H/Yapproto.h \
+	$(srcdir)/H/absmi.h  \
+	$(srcdir)/H/alloc.h \
+	$(srcdir)/H/amidefs.h \
+	$(srcdir)/H/amiops.h \
+	$(srcdir)/H/arrays.h \
+	$(srcdir)/H/arith2.h \
+	$(srcdir)/H/attvar.h \
+	$(srcdir)/H/clause.h \
+	$(srcdir)/H/compile.h \
+	$(srcdir)/H/corout.h \
+	$(srcdir)/H/dlmalloc.h \
 	$(srcdir)/H/dglobals.h \
 	$(srcdir)/H/dhstruct.h \
-	$(srcdir)/H/eval.h $(srcdir)/H/heapgc.h   \
+	$(srcdir)/H/eval.h \
+	$(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/hglobals.h \
 	$(srcdir)/H/hstruct.h \
 	$(srcdir)/H/iglobals.h \
 	$(srcdir)/H/ihstruct.h \
-	$(srcdir)/H/index.h $(srcdir)/H/iopreds.h \
+	$(srcdir)/H/index.h \
+	$(srcdir)/H/iopreds.h \
+	$(srcdir)/H/iswiatoms.h \
 	$(srcdir)/H/rclause.h \
 	$(srcdir)/H/rglobals.h \
 	$(srcdir)/H/rheap.h \

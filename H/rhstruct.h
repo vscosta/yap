@@ -296,3 +296,7 @@
 
 
 
+
+  RestoreSWIAtoms();
+
+

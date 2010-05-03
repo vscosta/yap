@@ -22,6 +22,8 @@
 #include <stdio.h>
 #endif
 
+#include "../include/dswiatoms.h"
+
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
 #endif
@@ -29,6 +31,11 @@
 #if USE_DL_MALLOC
 
 #define MAX_DLMALLOC_HOLES 32
+
+typedef struct swi_reverse_hash {
+  ADDR key;
+  Int pos;
+} swi_rev_hash;
 
 typedef struct memory_hole {
   ADDR start;

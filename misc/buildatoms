@@ -15,7 +15,6 @@ main :-
 	file_filter_with_init('misc/ATOMS','H/tatoms.h',gen_fields, Warning, ['tatoms.h']),
 	file_filter_with_init('misc/ATOMS','H/iatoms.h',gen_decl, Warning, ['iatoms.h']),
 	file_filter_with_init('misc/ATOMS','H/ratoms.h',gen_rcov, Warning, ['ratoms.h']).
-%	file_filter_with_init('misc/ATOMS','packages/PLStream/natoms.h', gen_swiatoms, Warning, ['natoms.h']).
 
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildatoms\"~n     please do not update, update misc/ATOMS instead */~n~n').
 
@@ -64,17 +63,3 @@ gen_decl(Inp,Out) :-
 %	split(Inp," 	",["F",Name,Arity]), !,
 %	append(["  Functor_",Name,Arity," = Yap_MkFunctor(Atom_",Name,",",Arity,");"],Out).
 
-gen_swi(Inp,Out) :-
-	split(Inp," 	",["A",Atom,String]), !,
-	append(["#define  ATOM_",Atom," YAP_AtomToSWIAtom(Atom_",Atom,")"],Out).
-gen_swi(Inp,Out) :-
-	split(Inp," 	",["F",Name,Arity]), !,
-	append(["#define  FUNCTOR_",Name,Arity," YAP_FunctorToSWIFunctor(Functor_",Name,Arity,")"],Out).
-
-
-
-
-	
-
-
-	

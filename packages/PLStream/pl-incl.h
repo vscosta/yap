@@ -12,7 +12,11 @@ typedef int bool;
 
 /* atom_t macro layer */
 #define NULL_ATOM ((atom_t)0)
+#if __YAP_PROLOG__
+#include "dswiatoms.h"
+#else
 #include "atoms.h"
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif

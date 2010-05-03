@@ -651,6 +651,19 @@ CleanSIndex(StaticIndex *idx, int recurse)
   }
 }
 
+static void 
+RestoreSWIAtoms(void)
+{
+  int i, j;
+  for (i=0; i < N_SWI_ATOMS; i++) {
+    SWI_Atoms[i] = AtomAdjust(SWI_Atoms[i]);
+  }
+  for (j=0; j < N_SWI_FUNCTORS; j++) {
+    SWI_Functors[j] = FuncAdjust(SWI_Functors[j]);
+  }
+  RestoreSWIHash();
+}
+
 static void
 RestorePredHash(void)
 {

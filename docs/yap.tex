@@ -9358,8 +9358,18 @@ matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack. Matrices are available
 by loading the library @code{library(matrix)}.
 
+Accessing the matlab dynamic libraries can be complicated. In Linux
+machines, to use this interface, you may have to set the environment
+variable @t{LD_LIBRARY_PATH}. Next, follows an example using bash in a
+64-bit Linux PC:
+@example
+export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
+@end example
+where @code{MATLAB_HOME} is the directory where matlab is installed
+at. Please replace @code{ax64} for @code{x86} on a 32-bit PC.
+
 Notice that the functionality in this library is only partial. Please
-contact the YAP maintainers if you need for extra functionality.
+contact the YAP maintainers if you require extra functionality.
 
 @table @code
 

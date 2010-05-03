@@ -19,6 +19,7 @@
 
 #include	<Yap.h>
 #include	<Yatom.h>
+#include	<YapHeap.h>
 #include	<eval.h>
 
 #if HAVE_MATH_H
@@ -89,15 +90,46 @@
 #define ERR_CHARS_TYPE	       37	/* char *, term */
 #define ERR_MUST_BE_VAR	       38	/* int argn, term_t term */
 
+#define addr_hash(V) (((CELL) (V)) >> 4 & (N_SWI_HASH-1))
+
+static void
+add_to_hash(Int i, ADDR key)
+{
+  UInt h = addr_hash(key);
+  while (SWI_ReverseHash[h].key) {
+    h = (h+1)%N_SWI_HASH;
+  }
+  SWI_ReverseHash[h].key = key;
+  SWI_ReverseHash[h].pos = i;
+}
+
+static atom_t
+in_hash(ADDR key)
+{
+  UInt h = addr_hash(key);
+  while (SWI_ReverseHash[h].key) {
+    if (SWI_ReverseHash[h].key == key)
+      return SWI_ReverseHash[h].pos;
+    h = (h+1)%N_SWI_HASH;
+  }
+  return 0;
+}
+
+
 static inline atom_t
 AtomToSWIAtom(Atom at)
 {
+  atom_t ats;
+  if ((ats = in_hash((ADDR)at)))
+    return ats;
   return (atom_t)at;
 }
 
 static inline Atom
 SWIAtomToAtom(atom_t at)
 {
+  if ((CELL)at & 1)
+    return SWI_Atoms[at>>1];
   return (Atom)at;
 }
 
@@ -114,13 +146,31 @@ SWIModuleToModule(module_t m)
 static inline functor_t
 FunctorToSWIFunctor(Functor at)
 {
+  atom_t ats;
+  if ((ats = in_hash((ADDR)at)))
+    return (functor_t)ats;
   return (functor_t)at;
 }
 
 static inline Functor
 SWIFunctorToFunctor(functor_t at)
 {
+  if ((CELL)at & 1)
+    return SWI_Functors[at>>1];
   return (Functor)at;
+}
+
+void
+Yap_InitSWIHash(void)
+{
+  int i, j;
+  memset(SWI_ReverseHash, N_SWI_HASH, sizeof(swi_rev_hash));
+  for (i=0; i < N_SWI_ATOMS; i++) {
+    add_to_hash(i, (ADDR)SWI_Atoms[i]);
+  }
+  for (j=0; j < N_SWI_FUNCTORS; j++) {
+    add_to_hash(j, (ADDR)SWI_Functors[j]);
+  }
 }
 
 static void
@@ -1027,26 +1077,6 @@ X_API int PL_raise_exception(term_t exception)
   YAP_Throw(Yap_GetFromSlot(exception));
   return 0;
 }
-
-#define ATOM_instantiation_error AtomToSWIAtom(AtomInstantiationError)
-#define ATOM_max_files AtomToSWIAtom(AtomMaxFiles)
-#define ATOM_no_memory AtomToSWIAtom(AtomNoMemory)
-#define ATOM_procedure AtomToSWIAtom(AtomProcedure)
-#define ATOM_system_error AtomToSWIAtom(AtomSystemError)
-#define ATOM_variable AtomToSWIAtom(AtomVariable)
-#define FUNCTOR_error2 FunctorToSWIFunctor(FunctorError)
-#define FUNCTOR_context2 FunctorToSWIFunctor(FunctorContext2)
-#define FUNCTOR_divide2 FunctorToSWIFunctor(FunctorSlash)
-#define FUNCTOR_domain_error2 FunctorToSWIFunctor(FunctorDomainError)
-#define FUNCTOR_existence_error2 FunctorToSWIFunctor(FunctorExistenceError)
-#define FUNCTOR_evaluation_error1 FunctorToSWIFunctor(FunctorEvaluationError)
-#define FUNCTOR_not_implemented2 FunctorToSWIFunctor(FunctorNotImplemented)
-#define FUNCTOR_permission_error3 FunctorToSWIFunctor(FunctorPermissionError)
-#define FUNCTOR_representation_error1 FunctorToSWIFunctor(FunctorRepresentationError)
-#define FUNCTOR_resource_error1 FunctorToSWIFunctor(FunctorResourceError)
-#define FUNCTOR_timeout_error2 FunctorToSWIFunctor(FunctorTimeoutError)
-#define FUNCTOR_type_error2 FunctorToSWIFunctor(FunctorTypeError)
-
 
 static char *
 OsError(void)

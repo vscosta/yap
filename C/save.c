@@ -1180,6 +1180,13 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries)
   }
 }
 
+static void
+RestoreSWIHash(void)
+{
+  Yap_InitSWIHash();
+}
+
+
 #include "rheap.h"
 
 /* restore the atom entries which are invisible for the user */
@@ -1299,7 +1306,6 @@ RestoreHashPreds(void)
   else
     Yap_FreeAtomSpace((ADDR)np);
 }
-
 
 /*
  * This is the really tough part, to restore the whole of the heap 

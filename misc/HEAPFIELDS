@@ -338,3 +338,7 @@ ADDR		foreign_code_base	ForeignCodeBase		=NULL void
 ADDR		foreign_code_top	ForeignCodeTop		=NULL void
 ADDR		foreign_code_max	ForeignCodeMax		=NULL void
 
+/* SWI atoms and functors */
+Atom		swi_atoms[N_SWI_ATOMS]	SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
+Functor		swi_functors[N_SWI_FUNCTORS] SWI_Functors	void void
+struct swi_reverse_hash	swi_reverse_hash[N_SWI_HASH] SWI_ReverseHash	void void

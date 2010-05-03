@@ -28,6 +28,7 @@ static char     SccsId[] = "%W% %G%";
 #include "alloc.h"
 #include "clause.h"
 #include "Foreign.h"
+
 #ifdef LOW_LEVEL_TRACER
 #include "tracer.h"
 #endif
@@ -1065,6 +1066,16 @@ InitLogDBErasedMarker(void)
   Yap_heap_regs->logdb_erased_marker->ClSize = (UInt)NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
   Yap_heap_regs->logdb_erased_marker->ClCode->opc = Yap_opcode(_op_fail);
   INIT_CLREF_COUNT(Yap_heap_regs->logdb_erased_marker);
+}
+
+#define SWIAtomToAtom(X) SWI_Atoms[(X)>>1]
+
+static void 
+InitSWIAtoms(void)
+{
+  int i=0, j=0;
+#include "iswiatoms.h"
+  Yap_InitSWIHash();
 }
 
 static void 

@@ -454,6 +454,7 @@ void    STD_PROTO(Yap_InitMYDDAS_TopLevelPreds,(void));
 
 /* yap2swi.c */
 void	STD_PROTO(Yap_swi_install,(void));
+void    STD_PROTO(Yap_InitSWIHash,(void));
 
 /* ypsocks.c */
 void	STD_PROTO(Yap_InitSockets,(void));

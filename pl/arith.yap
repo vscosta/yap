@@ -345,67 +345,6 @@ between(I,M,J) :-
 	'$between_inf'(I1,J).
 
 
-plus(X, Y, Z) :-
-	(
-	 var(X)
-	->
-	 (
-	  integer(Y), integer(Z)
-	 ->
-	  '$minus'(Z,Y,X)
-	 ;
-	  '$plus_error'(X,Y,Z)
-	 )
-	;
-	 integer(X)
-	->
-	 (
-	  var(Y)
-	 ->
-	  (
-	   integer(Z)
-	  ->
-	   '$minus'(Z,X,Y)
-	  ;
-	  '$plus_error'(X,Y,Z)
-	  )
-	 ;
-	  integer(Y)
-	 ->
-	  (
-	   integer(Z)
-	  ->
-	   '$minus'(Z,Y,X)
-	  ;
-	   var(Z)
-	  ->
-	   '$plus'(X,Y,Z)
-	  ;
-	   '$plus_error'(X,Y,Z)
-	  )
-	 ;
-	  '$plus_error'(X,Y,Z)
-	 )
-	;
-	 '$plus_error'(X,Y,Z)
-	).
-
-'$plus_error'(X,Y,Z) :-
-	nonvar(X),
-	\+ integer(X),
-	'$do_error'(type_error(integer, X),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :-
-	nonvar(Y),
-	\+ integer(Y),
-	'$do_error'(type_error(integer, Y),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :-
-	nonvar(Z),
-	\+ integer(Z),
-	'$do_error'(type_error(integer, Z),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :-
-	'$do_error'(instantiation_error,plus(X,Y,Z)).
-
-
 % M and N nonnegative integers, N is the successor of M
 succ(M,N) :-
 	(
