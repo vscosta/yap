@@ -18,15 +18,22 @@
 	    test/0
 	  ]).
 
-:- prolog_load_context(directory, CWD),
-   working_directory(_, CWD).
 
-:- asserta(user:file_search_path(library, '..')).
-:- asserta(user:file_search_path(foreign, '..')).
+:- expects_dialect(swi).
+
 :- use_module(library(sgml)).
+
+:- prolog_load_context(directory, CWD),
+   assert(wd(CWD)).
+
+%:- asserta(user:file_search_path(library, '..')).
+%:- asserta(user:file_search_path(foreign, '..')).
+%:- use_module(library(sgml)).
 
 
 test :-
+	wd(CWD),
+	working_directory(_, CWD),
 	testdir(.).
 
 testdir(Dir) :-
@@ -159,5 +166,4 @@ compare_attributes(A1, A2) :-
 	sort(A2, L2),
 	L1 == L2.
 
-	    
-	
+pp(X) :- writeln(X).
