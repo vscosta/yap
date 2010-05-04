@@ -2487,15 +2487,6 @@ X_API void PL_load_extensions(const PL_extension *ptr)
   }
 }
 
-X_API int PL_handle_signals(void)
-{
-  if (EX) {
-    return -1;
-  }
-  fprintf(stderr,"PL_handle_signals not implemented\n");
-  return 0;
-}
-
 X_API  int PL_is_inf(term_t st)
 {
   Term t = Deref(Yap_GetFromSlot(st));
