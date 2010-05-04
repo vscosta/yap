@@ -861,10 +861,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$type_extension'(source,'.yap').
 '$type_extension'(source,'.pl').
 '$type_extension'(source,'').
-'$type_extension'(executable,'.so').
-'$type_extension'(executable,'.dylib').
-'$type_extension'(executable,'.dll').
-'$type_extension'(executable,'').
+'$type_extension'(executable,Suffix) :- '$obj_suffix'(String), atom_codes(Suffix, String).
 '$type_extension'(qlf,'.qlf').
 '$type_extension'(qlf,'').
 '$type_extension'(directory,'').
