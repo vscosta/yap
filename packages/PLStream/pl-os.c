@@ -791,7 +791,7 @@ OsPath(const char *plpath, char *path)
 }
 #endif /* O_HPFS */
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 char *
 PrologPath(const char *p, char *buf, size_t len)
 { strncpy(buf, p, len);
