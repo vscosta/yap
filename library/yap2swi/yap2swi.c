@@ -195,12 +195,29 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
 {
   PredEntry *pe;
   Term cm = CurrentModule;
+  /* fprintf(stderr,"doing %s:%s/%d\n", RepAtom(AtomOfTerm(mod))->StrOfAE, a,arity); */
   CurrentModule = mod;
   Yap_InitCPred(a, arity, def, UserCPredFlag);
   if (arity == 0) {
-    pe = RepPredProp(PredPropByAtom(Yap_LookupAtom(a),mod));
+    Atom at;
+    while ((at = Yap_LookupAtom(a)) == NULL) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return;
+      }
+    }
+    pe = RepPredProp(PredPropByAtom(at,mod));
   } else {
-    Functor f = Yap_MkFunctor(Yap_LookupAtom(a), arity);
+    Atom at;
+    Functor f;
+
+    while ((at = Yap_LookupAtom(a)) == NULL) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return;
+      }
+    }
+    f = Yap_MkFunctor(at, arity);
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
   pe->PredFlags |= (CArgsPredFlag|flags);
@@ -498,7 +515,8 @@ X_API int PL_get_nchars(term_t l, size_t *len, char **sp, unsigned flags)
 {
   int out = PL_get_chars(l, sp, flags);
   if (!out) return out;
-  *len = strlen(*sp);
+  if (len)
+    *len = strlen(*sp);
   return out;
 }
 
@@ -818,7 +836,13 @@ X_API int PL_get_tail(term_t ts, term_t tl)
       */
 X_API atom_t PL_new_atom(const char *c)
 {
-  Atom at = Yap_LookupAtom((char *)c);
+  Atom at;
+  while ((at = Yap_LookupAtom((char *)c)) == NULL) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return 0L;
+    }
+  }
   Yap_AtomIncreaseHold(at);
   return AtomToSWIAtom(at);
 }
@@ -832,18 +856,45 @@ X_API atom_t PL_new_atom_wchars(int len, const wchar_t *c)
     if (c[i] > 255) break;
   }
   if (i!=len) {
-    wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t));
+    Atom at0;
+    wchar_t *nbf;
+    while (!(nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t)))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return 0;
+      }
+    }
     for (i=0;i<len;i++)
       nbf[i] = c[i];
     nbf[len]='\0';
-    at = AtomToSWIAtom(Yap_LookupMaybeWideAtom(nbf));
+    while ((at0 = Yap_LookupWideAtom(nbf)) == NULL) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return 0L;
+      }
+    }
+    at = AtomToSWIAtom(at0);
     YAP_FreeSpaceFromYap(nbf);
   } else {
-    char *nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char));
+    char *nbf;
+    Atom at0;
+
+    while (!(nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char)))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return 0;
+      }
+    }
     for (i=0;i<len;i++)
       nbf[i] = c[i];
     nbf[len]='\0';
-    at = AtomToSWIAtom(Yap_LookupAtom(nbf));
+    while (!(at0 = Yap_LookupAtom(nbf))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return 0;
+      }
+    }
+    at = AtomToSWIAtom(at0);
     YAP_FreeSpaceFromYap(nbf);
   }
   return at;
@@ -930,9 +981,14 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
   }
   va_end (ap);
   if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,YAP_MkPairTerm(tmp[0],tmp[1]));
+    Yap_PutInSlot(d,MkPairTerm(tmp[0],tmp[1]));
   else
-    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)ff,arity,tmp));
+    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,tmp));
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   return TRUE;
 }
 
@@ -947,9 +1003,14 @@ X_API int PL_cons_functor_v(term_t d, functor_t f,term_t a0)
   }
   arity = ArityOfFunctor(ff);
   if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,YAP_MkPairTerm(Yap_GetFromSlot(a0),Yap_GetFromSlot(a0+1)));    
+    Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(a0),Yap_GetFromSlot(a0+1)));    
   else
-    Yap_PutInSlot(d,YAP_MkApplTerm((YAP_Functor)ff,arity,YAP_AddressFromSlot(a0)));
+    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,Yap_AddressFromSlot(a0)));
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   return TRUE;
 }
 
@@ -967,7 +1028,14 @@ X_API int PL_put_atom(term_t t, atom_t a)
 
 X_API int PL_put_atom_chars(term_t t, const char *s)
 {
-  Yap_PutInSlot(t,MkAtomTerm(Yap_LookupAtom((char *)s)));
+  Atom at;
+  while (!(at = Yap_LookupAtom((char *)s))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
+  Yap_PutInSlot(t,MkAtomTerm(at));
   return TRUE;
 }
 
@@ -990,6 +1058,11 @@ X_API int PL_put_functor(term_t t, functor_t f)
       Yap_PutInSlot(t,YAP_MkNewPairTerm());    
     else
       Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity));
+    if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+      if (!Yap_gc(0, ENV, CP)) {
+	return FALSE;
+      }
+    }
   }
   return TRUE;
 }
@@ -1024,12 +1097,22 @@ X_API int PL_put_int64(term_t t, int64_t n)
 X_API int PL_put_list(term_t t)
 {
   Yap_PutInSlot(t,YAP_MkNewPairTerm());
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   return TRUE;
 }
 
 X_API int PL_put_list_chars(term_t t, const char *s)
 {
   Yap_PutInSlot(t,YAP_BufferToString((char *)s));
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   return TRUE;
 }
 
@@ -1062,7 +1145,7 @@ X_API int PL_put_term(term_t d, term_t s)
 
 X_API int PL_put_variable(term_t t)
 {
-  Yap_PutInSlot(t,YAP_MkVarTerm());
+  Yap_PutInSlot(t,MkVarTerm());
   return TRUE;
 }
 
@@ -1338,7 +1421,14 @@ X_API int PL_unify_atom(term_t t, atom_t at)
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
   Atom catom = Yap_LookupAtom((char *)s);
-  Term cterm = MkAtomTerm(catom);
+  Term cterm;
+  while (!(catom = Yap_LookupAtom((char *)s))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
+  cterm = MkAtomTerm(catom);
   return Yap_unify(Yap_GetFromSlot(t),cterm);
 }
 
@@ -1354,7 +1444,12 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
     return FALSE;
   strncpy(buf, s, len);
   buf[len] = '\0';
-  catom = Yap_LookupAtom(buf);
+  while (!(catom = Yap_LookupAtom(buf))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
   free(buf);
   cterm = MkAtomTerm(catom);
   return YAP_Unify(Yap_GetFromSlot(t),cterm);
@@ -1382,6 +1477,11 @@ X_API int PL_unify_functor(term_t t, functor_t f)
 {	
   YAP_Term tt = Yap_GetFromSlot(t);
   Functor ff = SWIFunctorToFunctor(f);
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   if (YAP_IsVarTerm(tt))
     return YAP_Unify(tt, YAP_MkNewApplTerm((YAP_Functor)ff,YAP_ArityOfFunctor((YAP_Functor)f)));
   if (YAP_IsPairTerm(tt))
@@ -1419,7 +1519,13 @@ X_API int PL_unify_int64(term_t t, int64_t n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
-  Term t = Deref(Yap_GetFromSlot(tt));
+  Term t;
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
+  t = Deref(Yap_GetFromSlot(tt));
   if (IsVarTerm(t)) {
     Term pairterm = Yap_MkNewPairTerm();
     Yap_unify(t, pairterm);
@@ -1464,7 +1570,13 @@ X_API int PL_unify_arg(int index, term_t tt, term_t arg)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
-  YAP_Term chterm = YAP_BufferToString((char *)chars);
+  YAP_Term chterm;
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
+  chterm = YAP_BufferToString((char *)chars);
   return YAP_Unify(Yap_GetFromSlot(t), chterm);
 }
 
@@ -1489,7 +1601,13 @@ X_API int PL_unify_pointer(term_t t, void *ptr)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
-  YAP_Term chterm = YAP_BufferToString((char *)chars);
+  YAP_Term chterm;
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
+  chterm = YAP_BufferToString((char *)chars);
   return YAP_Unify(Yap_GetFromSlot(t), chterm);
 }
 
@@ -1502,9 +1620,23 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   if (len == (size_t)-1)
     len = wcslen(chars);
 
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   switch (type) {
   case PL_ATOM:
-    chterm = MkAtomTerm(Yap_LookupMaybeWideAtom((wchar_t *)chars));
+    {
+      Atom at;
+      while ((at = Yap_LookupMaybeWideAtom((wchar_t *)chars)) == NULL) {
+	if (!Yap_growheap(FALSE, 0L, NULL)) {
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
+      chterm = MkAtomTerm(at);
+    }
     break;
   case PL_STRING:
   case PL_CODE_LIST:
@@ -1526,6 +1658,11 @@ X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, cons
 {
   YAP_Term chterm;
 
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   if (len == (size_t)-1)
     len = wcslen(chars);
 
@@ -1578,6 +1715,12 @@ LookupMaxAtom(size_t n, char *s)
   strncpy(buf, s, n);
   buf[n] = '\0';
   catom = Yap_LookupAtom(buf);
+  while (!(catom = Yap_LookupAtom(buf))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return NULL;
+    }
+  }
   Yap_FreeCodeSpace(buf);
   return catom;
 }
@@ -1592,7 +1735,12 @@ LookupMaxWideAtom(size_t n, wchar_t *s)
     return FALSE;
   wcsncpy(buf, s, n);
   buf[n] = '\0';
-  catom = Yap_LookupMaybeWideAtom(buf);
+  while (!(catom = Yap_LookupMaybeWideAtom(buf))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return NULL;
+    }
+  }
   Yap_FreeAtomSpace((ADDR)buf);
   return catom;
 }
@@ -1625,6 +1773,11 @@ X_API int PL_unify_term(term_t l,...)
   stack_el stack[MAX_DEPTH];
   
 
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
   va_start (ap, l);
   pt = a;
   while (depth > 0) {
@@ -1657,7 +1810,16 @@ X_API int PL_unify_term(term_t l,...)
 	*pt++ = YAP_BufferToString(va_arg(ap, char *));
 	break;
       case PL_CHARS:
-	*pt++ = MkAtomTerm(Yap_LookupAtom(va_arg(ap, char *)));
+	{
+	  Atom at;
+	  while (!(at = Yap_LookupAtom(va_arg(ap, char *)))) {
+	    if (!Yap_growheap(FALSE, 0L, NULL)) {
+	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	      return FALSE;
+	    }
+	  }
+	  *pt++ = MkAtomTerm(at);
+	}
 	break;
       case PL_NCHARS:
 	{
@@ -1742,11 +1904,28 @@ X_API int PL_unify_term(term_t l,...)
 	  size_t arity = va_arg(ap, size_t);
 
 	  if (!arity) {
-	    *pt++ = MkAtomTerm(Yap_LookupAtom(fname));
-	  } else {
-	    Functor ff = Yap_MkFunctor(Yap_LookupAtom(fname),arity);
-	    Term t = Yap_MkNewApplTerm(ff, arity);
+	    Atom at;
 
+	    while (!(at = Yap_LookupAtom(fname))) {
+	      if (!Yap_growheap(FALSE, 0L, NULL)) {
+		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+		return FALSE;
+	      }
+	    }
+	    *pt++ = MkAtomTerm(at);
+	  } else {
+	    Atom at;
+	    Functor ff;
+	    Term t;
+
+	    while (!(at = Yap_LookupAtom(fname))) {
+	      if (!Yap_growheap(FALSE, 0L, NULL)) {
+		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+		return FALSE;
+	      }
+	    }
+	    ff = Yap_MkFunctor(at,arity);
+	    t = Yap_MkNewApplTerm(ff, arity);
 	    if (nels) {
 	      if (depth == MAX_DEPTH) {
 		fprintf(stderr,"very deep term in PL_unify_term\n");
@@ -2120,15 +2299,27 @@ X_API predicate_t PL_pred(functor_t f, module_t m)
 X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
 {
   Term mod;
+  Atom at;
   if (m == NULL) {
     mod = CurrentModule;
     if (!mod) mod = USER_MODULE;
   } else {
-    mod = MkAtomTerm(Yap_LookupAtom((char *)m));
+    Atom at;
+    while (!(at = Yap_LookupAtom((char *)m))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return NULL;
+      }
+    }
+    mod = MkAtomTerm(at);
   }
-  return YAP_Predicate(YAP_LookupAtom((char *)name),
-		       arity,
-		       mod);
+  while (!(at = Yap_LookupAtom((char *)name))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return NULL;
+    }
+  }
+  return YAP_Predicate((YAP_Atom)at, arity, mod);
 }
 
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)
@@ -2188,6 +2379,7 @@ X_API int PL_next_solution(qid_t qi)
 
   if (qi->open != 1) return 0;
   if (qi->state == 0) {
+
     result = YAP_RunGoal(qi->g);
   } else {
     result = YAP_RestartGoal();
