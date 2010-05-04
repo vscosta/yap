@@ -977,6 +977,35 @@ PRED_IMPL("mark_executable", 1, mark_executable, 0)
 }
 
 
+
+		 /*******************************
+		 *      PUBLISH PREDICATES	*
+		 *******************************/
+
+BeginPredDefs(files)
+  PRED_DEF("swi_working_directory", 2, working_directory, 0)
+  PRED_DEF("swi_access_file", 2, access_file, 0)
+  PRED_DEF("swi_time_file", 2, time_file, 0)
+  PRED_DEF("swi_size_file", 2, size_file, 0)
+  PRED_DEF("swi_read_link", 3, read_link, 0)
+  PRED_DEF("swi_exists_file", 1, exists_file, 0)
+  PRED_DEF("swi_exists_directory", 1, exists_directory, 0)
+  PRED_DEF("swi_tmp_file", 2, tmp_file, 0)
+  PRED_DEF("swi_tmp_file_stream", 3, tmp_file_stream, 0)
+  PRED_DEF("swi_delete_file", 1, delete_file, 0)
+  PRED_DEF("swi_delete_directory", 1, delete_directory, 0)
+  PRED_DEF("swi_make_directory", 1, make_directory, 0)
+  PRED_DEF("swi_same_file", 2, same_file, 0)
+  PRED_DEF("swi_rename_file", 2, rename_file, 0)
+  PRED_DEF("swi_is_absolute_file_name", 1, is_absolute_file_name, 0)
+  PRED_DEF("swi_file_base_name", 2, file_base_name, 0)
+  PRED_DEF("swi_file_directory_name", 2, file_directory_name, 0)
+  PRED_DEF("swi_file_name_extension", 3, file_name_extension, 0)
+  PRED_DEF("swi_prolog_to_os_filename", 2, prolog_to_os_filename, 0)
+  PRED_DEF("swi_$mark_executable", 1, mark_executable, 0)
+  PRED_DEF("swi_$absolute_file_name", 2, absolute_file_name, 0)
+EndPredDefs
+
 		 /*******************************
 		 *	       INIT		*
 		 *******************************/
@@ -984,33 +1013,6 @@ PRED_IMPL("mark_executable", 1, mark_executable, 0)
 void
 initFiles(void)
 {
+  PL_register_extensions(PL_predicates_from_files);
 }
 
-
-		 /*******************************
-		 *      PUBLISH PREDICATES	*
-		 *******************************/
-
-BeginPredDefs(files)
-  PRED_DEF("working_directory", 2, working_directory, 0)
-  PRED_DEF("access_file", 2, access_file, 0)
-  PRED_DEF("time_file", 2, time_file, 0)
-  PRED_DEF("size_file", 2, size_file, 0)
-  PRED_DEF("read_link", 3, read_link, 0)
-  PRED_DEF("exists_file", 1, exists_file, 0)
-  PRED_DEF("exists_directory", 1, exists_directory, 0)
-  PRED_DEF("tmp_file", 2, tmp_file, 0)
-  PRED_DEF("tmp_file_stream", 3, tmp_file_stream, 0)
-  PRED_DEF("delete_file", 1, delete_file, 0)
-  PRED_DEF("delete_directory", 1, delete_directory, 0)
-  PRED_DEF("make_directory", 1, make_directory, 0)
-  PRED_DEF("same_file", 2, same_file, 0)
-  PRED_DEF("rename_file", 2, rename_file, 0)
-  PRED_DEF("is_absolute_file_name", 1, is_absolute_file_name, 0)
-  PRED_DEF("file_base_name", 2, file_base_name, 0)
-  PRED_DEF("file_directory_name", 2, file_directory_name, 0)
-  PRED_DEF("file_name_extension", 3, file_name_extension, 0)
-  PRED_DEF("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-  PRED_DEF("$mark_executable", 1, mark_executable, 0)
-  PRED_DEF("$absolute_file_name", 2, absolute_file_name, 0)
-EndPredDefs

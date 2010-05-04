@@ -198,7 +198,7 @@ switch(n->type)
 int
 _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
-  return YAP_Unify(YAP_GetFromSlot(t), (YAP_Term)a);
+  return PL_unify_atom(t, a);
 }
 
 word lookupAtom(const char *s, size_t len)
@@ -586,5 +586,13 @@ PL_unify_chars(term_t t, int flags, size_t len, const char *s)
   PL_free_text(&text);
 
   return rc;
+}
+
+X_API int PL_handle_signals(void)
+{
+  if ( !LD || LD->critical || !LD->signal.pending )
+    return 0;
+  fprintf(stderr,"PL_handle_signals not implemented\n");
+  return 0;
 }
 

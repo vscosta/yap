@@ -4308,6 +4308,8 @@ static void
 init_yap_extras()
 {
   initCharTypes();
+  initFiles();
+  initGlob();
   PL_register_extensions(PL_predicates_from_file);
   fileerrors = TRUE;
   SinitStreams();

@@ -286,6 +286,7 @@ typedef struct PL_local_data {
     occurs_check_t occurs_check;        /* Unify and occurs check */
   } prolog_flag;
 
+  void *        glob_info;              /* pl-glob.c */
   IOENC		encoding;		/* default I/O encoding */
 
   struct
@@ -296,6 +297,18 @@ typedef struct PL_local_data {
 #endif
     int		rand_initialised;	/* have we initialised random? */
   } os;
+
+ struct
+  { int64_t     pending;                /* PL_raise() pending signals */
+    int         current;                /* currently processing signal */
+    int         is_sync;                /* current signal is synchronous */
+    record_t    exception;              /* Pending exception from signal */
+#ifdef O_PLMT
+    simpleMutex sig_lock;               /* lock delivery and processing */
+#endif
+  } signal;
+
+  int		critical;		/* heap is being modified */
 
   struct
   { term_t	term;			/* exception term */
@@ -577,6 +590,9 @@ extern word notImplemented(char *name, int arity);
 
 /**** stuff from pl-ctype.c ****/
 extern void  initCharTypes(void);
+
+/**** stuff from pl-glob.c ****/
+extern void  initGlob(void);
 
 /**** stuff from pl-os.c ****/
 extern void cleanupOs(void);
