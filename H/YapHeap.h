@@ -32,17 +32,16 @@
 
 #define MAX_DLMALLOC_HOLES 32
 
-typedef struct swi_reverse_hash {
-  ADDR key;
-  Int pos;
-} swi_rev_hash;
-
 typedef struct memory_hole {
   ADDR start;
   ADDR end;
 } memory_hole_type;
 #endif
 
+typedef struct swi_reverse_hash {
+  ADDR key;
+  Int pos;
+} swi_rev_hash;
 
 #define GC_MAVARS_HASH_SIZE 512
 
