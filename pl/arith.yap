@@ -444,19 +444,19 @@ plus(X, Y, Z) :-
         '$plus_error'(X,Y,Z)
        ).
 
-'$plus_error'(X,Y,Z) :
+'$plus_error'(X,Y,Z) :-
        nonvar(X),
        \+ integer(X),
        '$do_error'(type_error(integer, X),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :
+'$plus_error'(X,Y,Z) :-
        nonvar(Y),
        \+ integer(Y),
        '$do_error'(type_error(integer, Y),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :
+'$plus_error'(X,Y,Z) :-
        nonvar(Z),
        \+ integer(Z),
        '$do_error'(type_error(integer, Z),plus(X,Y,Z)).
-'$plus_error'(X,Y,Z) :
+'$plus_error'(X,Y,Z) :-
        '$do_error'(instantiation_error,plus(X,Y,Z)).
 
 
