@@ -1019,6 +1019,10 @@ YAP_cut_up(void)
 	  }
       }
 #endif /* CUT_C */
+      /* This is complicated: make sure we can restore the ASP
+	 pointer back to where cut_up called it. Slots depend on it. */
+  if (ENV > B->cp_env) 
+    ASP = B->cp_env;
 #ifdef YAPOR
   {
     choiceptr cut_pt;
@@ -1033,7 +1037,6 @@ YAP_cut_up(void)
   B = B->cp_b;  /* cut_fail */
 #endif
   HB = B->cp_h; /* cut_fail */
-
   RECOVER_B();
 }
 
