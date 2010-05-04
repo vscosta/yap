@@ -158,9 +158,15 @@
 /*   */ typedef int Int;
 /*   */ typedef unsigned int UInt;
 
+#define Int_FORMAT "%d"
+#define UInt_FORMAT "%u"
+
 #elif SIZEOF_LONG_INT==4
 /*   */ typedef long int Int;
 /*   */ typedef unsigned long int UInt;
+
+#define Int_FORMAT "%l"
+#define UInt_FORMAT "%ul"
 
 #else
 #	error Yap require integer types of the same size as a pointer
@@ -180,13 +186,22 @@
 /*   */ typedef int Int;
 /*   */ typedef unsigned int UInt;
 
+#define Int_FORMAT "%d"
+#define UInt_FORMAT "%ud"
+
 #elif SIZEOF_LONG_INT==8
 /*   */ typedef long int Int;
 /*   */ typedef unsigned long int UInt;
 
+#define Int_FORMAT "%l"
+#define UInt_FORMAT "%ul"
+
 #   elif SIZEOF_LONG_LONG_INT==8
 /*   */ typedef long long int Int;
 /*   */ typedef unsigned long long int UInt;
+
+#define Int_FORMAT "%I64d"
+#define UInt_FORMAT "%I64u"
 
 #   else
 #	error Yap requires integer types of the same size as a pointer
