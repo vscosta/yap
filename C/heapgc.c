@@ -1256,7 +1256,7 @@ mark_variable(CELL_PTR current)
       goto begin;
 #ifdef DEBUG
     } else if (next < (CELL *)Yap_GlobalBase || next > (CELL *)Yap_TrailTop) {
-      fprintf(Yap_stderr, "ooops while marking, current=%p, *current=%lx next=%p\n", current, (unsigned long int)ccur, next);
+      fprintf(Yap_stderr, "OOPS in GC: marking, current=%p, *current=%lx next=%p\n", current, (unsigned long int)ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1495,7 +1495,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 #ifdef DEBUG
     if (size <  0 || size > 512)
-      fprintf(Yap_stderr,"Oops, env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
+      fprintf(Yap_stderr,"OOPS in GC: env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP]);
     /* for each saved variable */
@@ -2219,13 +2219,13 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
       case _retry:
       case _trust:
 	if (IN_BETWEEN(H0,(CELL *)(gc_B->cp_ap),H)) {
-	  fprintf(stderr,"OOPS: gc not supported in this case!!!\n");
+	  fprintf(stderr,"OOPS in GC: gc not supported in this case!!!\n");
 	  exit(1);
 	}
 	nargs = rtp->u.Otapl.s;
 	break;
       default:
-	fprintf(Yap_stderr, "OOps in GC: Unexpected opcode: %d\n", opnum);
+	fprintf(Yap_stderr, "OOPS in GC: Unexpected opcode: %d\n", opnum);
 	nargs = 0;
 #else
       default:
@@ -3593,6 +3593,8 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
   cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
+  if (Yap_PrologMode & UserCCallMode)
+    mark_slots(ASP);
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp));
@@ -3645,6 +3647,8 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
       sweep_oldgen(HGEN, CurrentH0);
     }
   }
+  if (Yap_PrologMode & UserCCallMode)
+    sweep_slots(ASP);
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp));
   sweep_choicepoints(B);
   sweep_trail(B, old_TR);
