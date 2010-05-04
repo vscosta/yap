@@ -187,14 +187,14 @@
 /*   */ typedef unsigned int UInt;
 
 #define Int_FORMAT "%d"
-#define UInt_FORMAT "%ud"
+#define UInt_FORMAT "%u"
 
 #elif SIZEOF_LONG_INT==8
 /*   */ typedef long int Int;
 /*   */ typedef unsigned long int UInt;
 
 #define Int_FORMAT "%l"
-#define UInt_FORMAT "%ul"
+#define UInt_FORMAT "%lu"
 
 #   elif SIZEOF_LONG_LONG_INT==8
 /*   */ typedef long long int Int;

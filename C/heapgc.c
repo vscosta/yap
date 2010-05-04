@@ -1256,7 +1256,7 @@ mark_variable(CELL_PTR current)
       goto begin;
 #ifdef DEBUG
     } else if (next < (CELL *)Yap_GlobalBase || next > (CELL *)Yap_TrailTop) {
-      fprintf(Yap_stderr, "OOPS in GC: marking, current=%p, *current=%lx next=%p\n", current, (unsigned long int)ccur, next);
+      fprintf(Yap_stderr, "OOPS in GC: marking, current=%p, *current=" UInt_FORMAT " next=%p\n", current, ccur, next);
 #endif
     } else {
 #ifdef COROUTING
@@ -1495,7 +1495,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 
 #ifdef DEBUG
     if (size <  0 || size > 512)
-      fprintf(Yap_stderr,"OOPS in GC: env size for %p is %ld\n", gc_ENV, (unsigned long int)size);
+      fprintf(Yap_stderr,"OOPS in GC: env size for %p is " UInt_FORMAT "\n", gc_ENV, (CELL)size);
 #endif
     mark_db_fixed((CELL *)gc_ENV[E_CP]);
     /* for each saved variable */
