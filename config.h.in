@@ -84,8 +84,10 @@
 #undef  HAVE_STRING_H
 #undef  HAVE_STROPTS_H
 #undef  HAVE_SYS_CONF_H
+#undef  HAVE_SYS_DIR_H
 #undef  HAVE_SYS_FILE_H
 #undef  HAVE_SYS_MMAN_H
+#undef  HAVE_SYS_NDIR_H
 #undef  HAVE_SYS_PARAM_H
 #undef  HAVE_SYS_RESOURCE_H
 #undef  HAVE_SYS_SELECT_H
