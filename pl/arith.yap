@@ -398,3 +398,66 @@ succ(M,N) :-
 	nonvar(N),
 	N < 0,
 	'$do_error'(domain_error(not_less_than_zero, N),succ(M,N)).
+
+plus(X, Y, Z) :
+       (
+        var(X)
+       >
+        (
+         integer(Y), integer(Z)
+        >
+         '$minus'(Z,Y,X)
+        ;
+         '$plus_error'(X,Y,Z)
+        )
+       ;
+        integer(X)
+       >
+        (
+         var(Y)
+        >
+         (
+          integer(Z)
+         >
+          '$minus'(Z,X,Y)
+         ;
+         '$plus_error'(X,Y,Z)
+         )
+        ;
+         integer(Y)
+        >
+         (
+          integer(Z)
+         >
+          '$minus'(Z,Y,X)
+         ;
+          var(Z)
+         >
+          '$plus'(X,Y,Z)
+         ;
+          '$plus_error'(X,Y,Z)
+         )
+        ;
+         '$plus_error'(X,Y,Z)
+        )
+       ;
+        '$plus_error'(X,Y,Z)
+       ).
+
+'$plus_error'(X,Y,Z) :
+       nonvar(X),
+       \+ integer(X),
+       '$do_error'(type_error(integer, X),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :
+       nonvar(Y),
+       \+ integer(Y),
+       '$do_error'(type_error(integer, Y),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :
+       nonvar(Z),
+       \+ integer(Z),
+       '$do_error'(type_error(integer, Z),plus(X,Y,Z)).
+'$plus_error'(X,Y,Z) :
+       '$do_error'(instantiation_error,plus(X,Y,Z)).
+
+
+
