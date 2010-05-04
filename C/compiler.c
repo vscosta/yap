@@ -3298,7 +3298,7 @@ c_optimize(PInstr *pc)
 }
 
 yamop *
-Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
+Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
   /* returns address of code for clause */
   Term head, body;
@@ -3326,6 +3326,7 @@ Yap_cclause(volatile Term inp_clause, int NOfArgs, Term mod, volatile Term src)
 	ARG3 = src;
 
 	YAPLeaveCriticalSection();
+	fprintf(stderr,"ENV=%p %d\n",ENV, Yap_op_from_opcode(((yamop *)ENV[E_CP])->opc));
 	if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	  Yap_Error_Term = inp_clause;
