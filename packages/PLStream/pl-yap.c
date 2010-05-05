@@ -596,3 +596,15 @@ X_API int PL_handle_signals(void)
   return 0;
 }
 
+/* just a stub for now */
+int
+warning(const char *fm, ...)
+{  va_list args;
+
+  va_start(args, fm);
+  fprintf(stderr,"warning: %s\n", fm);
+  va_end(args);
+
+  return TRUE;
+}
+
