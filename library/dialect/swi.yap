@@ -100,7 +100,7 @@ swi_get_time(FSecs) :- datime(Datime),  mktime(Datime, Secs), FSecs is Secs*1.0.
 
 goal_expansion(atom_concat(A,B),atomic_concat(A,B)).
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
-goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
+%goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
 goal_expansion(arg(A,B,C),genarg(A,B,C)).
 goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
 
