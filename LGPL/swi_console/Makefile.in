@@ -14,7 +14,7 @@ LIBDIR=@libdir@/Yap
 #
 CC=@CC@
 CPPFLAGS=@CPPFLAGS@ 
-CFLAGS= @CFLAGS@ $(DEFS) $(CPPFLAGS)  -I$(srcdir)
+CFLAGS= @CFLAGS@ $(DEFS) $(CPPFLAGS)  -I$(srcdir) -DRLC_VENDOR="\"YAP\""
 #
 #
 # You shouldn't need to change what follows.
