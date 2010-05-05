@@ -27,7 +27,7 @@
 #endif
 
 #ifdef __WINDOWS__
-#include <uxnt.h>
+#include <uxnt/uxnt.h>
 #ifdef __MINGW32__
 #include "config.h"
 #include <windows.h>
