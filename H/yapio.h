@@ -275,7 +275,6 @@ chtype(Int ch)
 {
   if (ch < NUMBER_OF_CHARS)
     return Yap_chtype[ch];
-  printf("type=%d\n",Yap_wide_chtype(ch));
   return Yap_wide_chtype(ch);
 }
 

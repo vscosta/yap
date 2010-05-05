@@ -48,6 +48,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_WCTYPE_H
+#include <wctype.h>
+#endif
 
 /* You just can't trust some machines */
 #define my_isxdigit(C,SU,SL)	(chtype(C) == NU || (C >= 'A' &&	\
@@ -124,12 +127,14 @@ char *Yap_chtype = chtype0+1;
 
 int
 Yap_wide_chtype(Int ch) {
+#if HAVE_WCTYPE_H
   if (iswalnum(ch)) {
     if (iswlower(ch)) return LC;
     if (iswdigit(ch)) return NU;
     return UC;
   }
   if (iswpunct(ch)) return SY;
+#endif
   return BS;
 }
 
