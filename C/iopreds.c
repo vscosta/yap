@@ -186,11 +186,13 @@ DefaultEncoding(void)
   char *s = getenv("LANG");
   size_t sz;
 
-  /* if we don't have a LNAG then just use ISO_LATIN1 */
+  /* if we don't have a LANG then just use ISO_LATIN1 */
+  if (s == NULL)
+    s = getenv("LC_CTYPE");
   if (s == NULL)
     return ENC_ISO_LATIN1;
   sz = strlen(s);
-  if (sz > 5) {
+  if (sz >= 5) {
     if (s[sz-5] == 'U' &&
 	s[sz-4] == 'T' &&
 	s[sz-3] == 'F' &&

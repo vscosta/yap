@@ -263,17 +263,20 @@ typedef enum {
 #define MAX_ISO_LATIN1 255
 
 /****************** character definition table **************************/
+
 #define NUMBER_OF_CHARS 256
 extern char *Yap_chtype;
 
-EXTERN inline int STD_PROTO(chtype,(int));
+EXTERN inline int STD_PROTO(chtype,(Int));
+int STD_PROTO(Yap_wide_chtype,(Int));
 
 EXTERN inline int
-chtype(int ch)
+chtype(Int ch)
 {
-  if (ch < 256)
+  if (ch < NUMBER_OF_CHARS)
     return Yap_chtype[ch];
-  return SL;
+  printf("type=%d\n",Yap_wide_chtype(ch));
+  return Yap_wide_chtype(ch);
 }
 
 

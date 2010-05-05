@@ -119,7 +119,21 @@ EF,
 #endif
 };
 
+
 char *Yap_chtype = chtype0+1;
+
+int
+Yap_wide_chtype(Int ch) {
+  if (iswalnum(ch)) {
+    if (iswlower(ch)) return LC;
+    if (iswdigit(ch)) return NU;
+    return UC;
+  }
+  if (iswpunct(ch)) return SY;
+  return BS;
+}
+
+
 
 /* in case there is an overflow */
 typedef struct scanner_extra_alloc {
@@ -737,6 +751,17 @@ ch_to_wide(char *base, char *charp)
   return nb+n;
 }
 
+#define  add_ch_to_buff(ch) \
+  if (wcharp) { *wcharp++ = (ch); charp = (char *)wcharp; }	\
+  else { \
+    if (ch > MAX_ISO_LATIN1 && !wcharp) { \
+      /* does not fit in ISO-LATIN */		\
+      wcharp = ch_to_wide(TokImage, charp);	\
+      if (!wcharp) goto huge_var_error;		\
+      *wcharp++ = (ch); charp = (char *)wcharp; \
+    } else *charp++ = ch;			\
+  }
+
 TokEntry *
 Yap_tokenizer(int inp_stream, Term *tposp)
 {
@@ -820,8 +845,9 @@ Yap_tokenizer(int inp_stream, Term *tposp)
     scan_name:
       TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
       charp = TokImage;
+      wcharp = NULL;
       isvar = (chtype(och) != LC);
-      *charp++ = och;
+      add_ch_to_buff(och);
       for (; chtype(ch) <= NU; ch = Nxtch(inp_stream)) {
 	if (charp == (char *)AuxSp-1024) {
 	huge_var_error:
@@ -835,19 +861,24 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  UNLOCK(Stream[inp_stream].streamlock);
 	  return l;
 	}
-	*charp++ = ch;
+	add_ch_to_buff(ch);
       }
       while (ch == '\'' && isvar && yap_flags[VARS_CAN_HAVE_QUOTE_FLAG]) {
 	if (charp == (char *)AuxSp-1024) {
 	  goto huge_var_error;
 	}
-	*charp++ = ch;
+	add_ch_to_buff(ch);
 	ch = Nxtch(inp_stream);
       }
-      *charp++ = '\0';
+      add_ch_to_buff('\0');
       if (!isvar) {
+	Atom ae;
 	/* don't do this in iso */
-	Atom ae = Yap_LookupAtom(TokImage);
+	if (wcharp) {
+	  ae = Yap_LookupWideAtom((wchar_t *)TokImage);
+	} else {
+	  ae = Yap_LookupAtom(TokImage);
+	}
 	if (ae == NIL) {
 	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
 	  Yap_ErrorMessage = "Code Space Overflow";
@@ -1005,18 +1036,10 @@ Yap_tokenizer(int inp_stream, Term *tposp)
       wcharp = NULL;
 
       while (TRUE) {
-	if (wcharp && wcharp + 1024 > (wchar_t *)AuxSp) {
+	if (charp + 1024 > (char *)AuxSp) {
 	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
-	} else if (charp + 1024 > (char *)AuxSp) {
-	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
-	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
-	  break;
-	}
-	if (!wcharp && ch > MAX_ISO_LATIN1){
-	  /* does not fit in ISO-LATIN */
-	  wcharp = ch_to_wide(TokImage, charp);
 	}
 	if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
 	  /* in ISO a new line terminates a string */
@@ -1027,25 +1050,12 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  ch = QuotedNxtch(inp_stream);
 	  if (ch != quote)
 	    break;
-	  if (wcharp) 
-	    *wcharp++ = ch;
-	  else
-	    *charp++ = ch;
+	  add_ch_to_buff(ch);
 	  ch = QuotedNxtch(inp_stream);
 	} else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	  int scan_next = TRUE;
-	  if (wcharp) 
-	    *wcharp++ = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
-	  else {
-	    wchar_t next = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
-	    if (next > MAX_ISO_LATIN1){
-	      /* does not fit in ISO-LATIN */
-	      wcharp = ch_to_wide(TokImage, charp);
-	      *wcharp++ = next;
-	    } else {
-	      *charp++ = next;
-	    }
-	  }
+	  ch = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
+	  add_ch_to_buff(ch);
 	  if (scan_next) {
 	    ch = QuotedNxtch(inp_stream);
 	  }
@@ -1054,10 +1064,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  t->Tok = Ord(kind = eot_tok);
 	  break;
 	} else {
-	  if (wcharp) 
-	    *wcharp++ = ch;
-	  else
-	    *charp++ = ch;
+	  add_ch_to_buff(ch);
 	  ch = QuotedNxtch(inp_stream);
 	}
 	++len;
@@ -1106,15 +1113,15 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  t->TokInfo = Unsigned(Yap_LookupWideAtom((wchar_t *)TokImage));
 	} else {
 	  t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
-	  if (t->TokInfo == (CELL)NIL) {
-	    Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
-	    Yap_ErrorMessage = "Code Space Overflow";
-	    if (p)
-	      t->Tok = Ord(kind = eot_tok);
-	    /* serious error now */
-	    UNLOCK(Stream[inp_stream].streamlock);
-	    return l;
-	  }
+	}
+	if (!(t->TokInfo)) {
+	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  Yap_ErrorMessage = "Code Space Overflow";
+	  if (p)
+	    t->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  UNLOCK(Stream[inp_stream].streamlock);
+	  return l;
 	}
 	Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	t->Tok = Ord(kind = Name_tok);
