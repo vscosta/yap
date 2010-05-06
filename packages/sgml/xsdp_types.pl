@@ -31,6 +31,7 @@
 
 :- module(xsdp_type,
 	  [ xsdp_type/1,		% ?Type
+	    xsdp_uri_type/2,		% ?URI, ?Type
 	    xsdp_numeric_uri/2,		% ?URI, ?Primary
 	    xsdp_subtype_of/2,		% ?Type, ?Super
 	    xsdp_convert/3		% +Type, +Content, -Value
@@ -64,14 +65,22 @@ ns('http://www.w3.org/2001/XMLSchema#').
 		 *******************************/
 
 %%	xsdp_type(?Type)
-%	
+%
 %	Test/generate the names for the XML schema primitive types
 
 xsdp_type(Type) :-
 	subtype_of(Type, _).
 
+%%	xsdp_uri_type(?URI, ?Type)
+%
+%	True if URI is the URI for the the XML-Schema primitive Type.
+
+xsdp_uri_type(URI, Type) :-
+	xsd_local_id(URI, Type),
+	subtype_of(Type, _).
+
 %%	xsdp_subtype_of(?Type, ?Super)
-%	
+%
 %	True if Type is a (transitive) subtype of Super.
 
 xsdp_subtype_of(Type, Type).
@@ -167,7 +176,7 @@ xsd_local_ids.
 numeric_uirs.
 
 %%	xsdp_convert(+Type, +Content, -Value)
-%	
+%
 %	Convert the content model Content to an  object of the given XSD
 %	type and return the Prolog value in Value.
 

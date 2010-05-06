@@ -3,9 +3,9 @@
     Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        wielemak@science.uva.nl
+    E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2005, University of Amsterdam
+    Copyright (C): 1985-2009, University of Amsterdam
 
     This program is free software; you can redistribute it and/or
     modify it under the terms of the GNU General Public License
@@ -58,10 +58,13 @@
 	    xml_quote_attribute/2,	% +In, -Quoted
 	    xml_quote_cdata/2,		% +In, -Quoted
 	    xml_name/1,			% +In
+	    xml_name/2,			% +In, +Encoding
+	    iri_xml_namespace/2,	% +IRI, -Namespace
+	    iri_xml_namespace/3,	% +IRI, -Namespace, -LocalName
 	    xml_is_dom/1		% +Term
 	  ]).
-
 :- expects_dialect(swi).
+:- assert(system:swi_io).
 
 :- use_module(library(lists)).
 :- use_module(library(option)).
@@ -73,17 +76,15 @@ user:file_search_path(dtd, '.').
 :- if(current_prolog_flag(version_data, swi(_,_,_,_))).
 user:file_search_path(dtd, swi('library/DTD')).
 :- else.
-user:file_search_path(dtd, library('DTD')).
+user:file_search_path(dtd, swi('DTD')).
 :- endif.
+
 
 sgml_register_catalog_file(File, Location) :-
 	prolog_to_os_filename(File, OsFile),
 	'_sgml_register_catalog_file'(OsFile, Location).
 
-load_foreign :-
-	current_predicate(_, _:sgml_parse(_,_)), !.
-load_foreign :-
-	load_foreign_library(foreign(sgml2pl)).
+:- use_foreign_library(foreign(sgml2pl)).
 
 register_catalog(Base) :-
 	absolute_file_name(dtd(Base),
@@ -94,15 +95,9 @@ register_catalog(Base) :-
 			       SocFile),
 	sgml_register_catalog_file(SocFile, end).
 
-% make sure this is loaded in the current module, not user.
-:- load_foreign.
-	
-init :-
+:- initialization
 	ignore(register_catalog('HTML4')).
 
-:- initialization
-	init.
-	
 
 		 /*******************************
 		 *	   DTD HANDLING		*
@@ -146,9 +141,9 @@ dtd(Type, DTD) :-
 	asserta(current_dtd(Type, DTD)).
 
 %%	load_dtd(+DTD, +DtdFile, +Options)
-%	
+%
 %	Load file into a DTD.  Defined options are:
-%	
+%
 %		* dialect(+Dialect)
 %		Dialect to use (xml, xmlns, sgml)
 %
@@ -160,10 +155,10 @@ load_dtd(DTD, DtdFile) :-
 load_dtd(DTD, DtdFile, Options) :-
 	split_dtd_options(Options, DTDOptions, FileOptions),
 	open_dtd(DTD, DTDOptions, DtdOut),
-	system:swi_open(DtdFile, read, DtdIn, FileOptions),
-	system:swi_copy_stream_data(DtdIn, DtdOut),
-	system:swi_close(DtdIn),
-	system:swi_close(DtdOut).
+	open(DtdFile, read, DtdIn, FileOptions),
+	copy_stream_data(DtdIn, DtdOut),
+	close(DtdIn),
+	close(DtdOut).
 
 split_dtd_options([], [], []).
 split_dtd_options([H|T], [H|TD], S) :-
@@ -176,7 +171,7 @@ dtd_option(dialect(_)).
 
 
 %%	destroy_dtds
-%	
+%
 %	Destroy  DTDs  cached  by  this  thread   as  they  will  become
 %	unreachable anyway.
 
@@ -270,7 +265,10 @@ set_parser_options(Parser, Options, RestOptions) :-
 set_parser_options(_, Options, Options).
 
 
-load_structure(stream(In), Term, Options) :- !,
+:- meta_predicate
+	load_structure(+, -, :).
+
+load_structure(stream(In), Term, M:Options) :- !,
 	(   select_option(offset(Offset), Options, Options1)
 	->  seek(In, Offset, bof, _)
 	;   Options1 = Options
@@ -283,8 +281,8 @@ load_structure(stream(In), Term, Options) :- !,
 	new_sgml_parser(Parser,
 			[ dtd(DTD)
 			]),
-	def_entities(Options2, DTD, Options3),
-	call_cleanup(parse(Parser, Options3, TermRead, In),
+	def_entities(Options2, Parser, Options3),
+	call_cleanup(parse(Parser, M:Options3, TermRead, In),
 		     free_sgml_parser(Parser)),
 	(   ExplicitDTD == true
 	->  (   DTD = dtd(_, DocType),
@@ -296,35 +294,49 @@ load_structure(stream(In), Term, Options) :- !,
 	),
 	Term = TermRead.
 load_structure(Stream, Term, Options) :-
-	system:swi_is_stream(Stream), !,
+	is_stream(Stream), !,
 	load_structure(stream(Stream), Term, Options).
-load_structure(File, Term, Options) :-
-	system:swi_open(File, read, In, [type(binary)]),
-	load_structure(stream(In), Term, [file(File)|Options]),
-	system:swi_close(In).
+load_structure(File, Term, M:Options) :-
+	open(File, read, In, [type(binary)]),
+	load_structure(stream(In), Term, M:[file(File)|Options]),
+	close(In).
 
-parse(Parser, Options, Document, In) :-
+parse(Parser, M:Options, Document, In) :-
 	set_parser_options(Parser, Options, Options1),
+	parser_meta_options(Options1, M, Options2),
 	sgml_parse(Parser,
 		   [ document(Document),
 		     source(In)
-		   | Options1
+		   | Options2
 		   ]).
 
-def_entities([], _, []).
-def_entities([entity(Name, Value)|T], DTD, Opts) :- !,
-	def_entity(DTD, Name, Value),
-	def_entities(T, DTD, Opts).
-def_entities([H|T0], DTD, [H|T]) :-
-	def_entities(T0, DTD, T).
+parser_meta_options([], _, []).
+parser_meta_options([call(When, Closure)|T0], M, [call(When, M:Closure)|T]) :- !,
+	parser_meta_options(T0, M, T).
+parser_meta_options([H|T0], M, [H|T]) :-
+	parser_meta_options(T0, M, T).
 
-def_entity(DTD, Name, Value) :-
-	open_dtd(DTD, [], Stream),
+
+def_entities([], _, []).
+def_entities([H|T], Parser, Opts) :-
+	def_entity(H, Parser), !,
+	def_entities(T, Parser, Opts).
+def_entities([H|T0], Parser, [H|T]) :-
+	def_entities(T0, Parser, T).
+
+def_entity(entity(Name, Value), Parser) :-
+	get_sgml_parser(Parser, dtd(DTD)),
 	xml_quote_attribute(Value, QValue),
-	system:swi_format(Stream, '<!ENTITY ~w "~w">~n', [Name, QValue]),
-	system:close(Stream).
-	
-	
+	setup_call_cleanup(open_dtd(DTD, [], Stream),
+			   format(Stream, '<!ENTITY ~w "~w">~n',
+				  [Name, QValue]),
+			   close(Stream)).
+def_entity(xmlns(URI), Parser) :-
+	set_sgml_parser(Parser, xmlns(URI)).
+def_entity(xmlns(NS, URI), Parser) :-
+	set_sgml_parser(Parser, xmlns(NS, URI)).
+
+
 		 /*******************************
 		 *	     UTILITIES		*
 		 *******************************/
@@ -350,7 +362,7 @@ load_html_file(File, Term) :-
 
 %	xml_quote_attribute(+In, -Quoted)
 %	xml_quote_cdata(+In, -Quoted)
-%	
+%
 %	Backward  compatibility  for  versions  that  allow  to  specify
 %	encoding. All characters that cannot fit the encoding are mapped
 %	to XML character entities (&#dd;).  Using   ASCII  is the safest
@@ -371,7 +383,7 @@ xml_name(In) :-
 		 *******************************/
 
 %	xml_is_dome(@Term)
-%	
+%
 %	True  if  term  statisfies   the    structure   as  returned  by
 %	load_structure/3 and friends.
 
@@ -434,3 +446,5 @@ prolog:called_by(sgml_parse(_, Options), Called) :-
 		    callable(G)
 		),
 		Called).
+
+:- retract(system:swi_io).
