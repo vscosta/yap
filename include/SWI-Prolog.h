@@ -80,6 +80,23 @@ stuff.
 #endif /*HAVE_DECLSPEC*/
 #endif /*_PL_EXPORT_DONE*/
 
+
+                 /*******************************
+                 *        GCC ATTRIBUTES        *
+                 *******************************/
+
+#if __GNUC__ >= 4
+#define WUNUSED __attribute__((warn_unused_result))
+#else
+#define WUNUSED
+#endif
+
+
+                 /*******************************
+                 *             TYPES            *
+                 *******************************/
+
+
 typedef	unsigned long    term_t;
 typedef	void *module_t;
 typedef	void *record_t;
@@ -313,6 +330,7 @@ extern X_API term_t PL_new_term_refs(int);
 extern X_API void PL_reset_term_refs(term_t);
 /* begin PL_get_* functions =============================*/
 extern X_API int PL_get_arg(int, term_t, term_t);
+extern X_API int _PL_get_arg(int, term_t, term_t);
 extern X_API int PL_get_atom(term_t, atom_t *);
 extern X_API int PL_get_atom_chars(term_t, char **);
 extern X_API int PL_get_bool(term_t, int *);
