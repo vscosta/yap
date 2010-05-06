@@ -1,0 +1,64 @@
+
+:- use_module(library(lineutils),
+	[file_filter_with_init/5,
+	 split/3]).
+
+:- use_module(library(lists),
+	[append/2]).
+
+:- initialization(main).
+
+:- yap_flag(write_strings,on).
+
+main :-
+	warning(Warning),
+	nb_setval(atom_counter,0),
+	nb_setval(functor_counter,0),
+	file_filter_with_init('misc/SWIATOMS','include/dswiatoms.h',gen_defs, Warning, ['dswiatoms.h']),
+	open('include/dswiatoms.h',append,W),
+	nb_getval(atom_counter,SWIAtoms),
+	nb_getval(functor_counter,SWIFunctors),
+	format(W,'~n~n#define N_SWI_ATOMS ~d~n',[SWIAtoms]),
+	format(W,'#define N_SWI_FUNCTORS ~d~n',[SWIFunctors]),
+	HashSizeBits is msb(SWIAtoms+SWIFunctors)+2,
+	HashSize is 2^HashSizeBits,
+	format(W,'#define N_SWI_HASH_BITS ~d~n',[HashSizeBits]),
+	format(W,'#define N_SWI_HASH ~d~n',[HashSize]),
+	close(W),
+	file_filter_with_init('misc/SWIATOMS','H/iswiatoms.h',gen_init, Warning, ['iswiatoms.h']).
+
+warning('~n  /* This file, ~a, was generated automatically~n     by calling \"yap -L misc/buildswiatoms\"~n     and is based on SWIATOMS, copied from the SWI-Prolog distribution~n     please do not update */~n~n').
+
+gen_defs(Inp,Out) :-
+	split(Inp,"	 ",["A",Atom,_]), !,
+	nb_getval(atom_counter, Pos),
+	NPos is Pos+1,
+	nb_setval(atom_counter, NPos),
+	OffPos is Pos*2+1,
+	number_codes(OffPos, Val),
+	append(["#define ATOM_",Atom," ",Val], Out).
+gen_defs(Inp,Out) :-
+	split(Inp,"	 ",["F",Functor,Arity]), !,
+	nb_getval(functor_counter, Pos),
+	NPos is Pos+1,
+	nb_setval(functor_counter, NPos),
+	OffPos is Pos*2+1,
+	number_codes(OffPos, Val),
+	append(["#define FUNCTOR_",Functor,Arity," ",Val], Out).
+
+
+gen_init(Inp,Out) :-
+	split(Inp," 	",["A",_,String]), !,
+	append(["  SWI_Atoms[i++] = Yap_LookupAtom(",String,");"],Out).
+gen_init(Inp,Out) :-
+	split(Inp," 	",["F",String,Arity]), !,
+	append(["  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_",String,"),",Arity,");"],Out).
+
+
+
+
+
+	
+
+
+	
