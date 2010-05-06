@@ -316,6 +316,27 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
   return 1;
 }
    
+/* SWI: int PL_get_arg(int index, term_t t, term_t a)
+   YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
+X_API int _PL_get_arg(int index, term_t ts, term_t a)
+{
+  YAP_Term t = Yap_GetFromSlot(ts);
+  if ( !YAP_IsApplTerm(t) ) {
+    if (YAP_IsPairTerm(t)) {
+      if (index == 1){
+	Yap_PutInSlot(a,YAP_HeadOfTerm(t));
+	return 1;
+      } else if (index == 2) {
+	Yap_PutInSlot(a,YAP_TailOfTerm(t));
+	return 1;
+      }
+    }
+    return 0;
+  }
+  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t));
+  return 1;
+}
+   
 /* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_atom(term_t ts, atom_t *a)
@@ -1420,7 +1441,7 @@ X_API int PL_unify_atom(term_t t, atom_t at)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
-  Atom catom = Yap_LookupAtom((char *)s);
+  Atom catom;
   Term cterm;
   while (!(catom = Yap_LookupAtom((char *)s))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
@@ -1629,7 +1650,7 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   case PL_ATOM:
     {
       Atom at;
-      while ((at = Yap_LookupMaybeWideAtom((wchar_t *)chars)) == NULL) {
+      while ((at = Yap_LookupMaybeWideAtomWithLength((wchar_t *)chars, len)) == NULL) {
 	if (!Yap_growheap(FALSE, 0L, NULL)) {
 	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
@@ -1714,7 +1735,6 @@ LookupMaxAtom(size_t n, char *s)
     return FALSE;
   strncpy(buf, s, n);
   buf[n] = '\0';
-  catom = Yap_LookupAtom(buf);
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
@@ -1812,7 +1832,8 @@ X_API int PL_unify_term(term_t l,...)
       case PL_CHARS:
 	{
 	  Atom at;
-	  while (!(at = Yap_LookupAtom(va_arg(ap, char *)))) {
+	  char *s = va_arg(ap, char *);
+	  while (!(at = Yap_LookupAtom(s))) {
 	    if (!Yap_growheap(FALSE, 0L, NULL)) {
 	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	      return FALSE;
@@ -1830,7 +1851,8 @@ X_API int PL_unify_term(term_t l,...)
       case PL_NWCHARS:
 	{
 	  size_t sz = va_arg(ap, size_t);
-	  *pt++ = MkAtomTerm(LookupMaxWideAtom(sz,va_arg(ap, wchar_t *)));
+	  wchar_t * arg = va_arg(ap, wchar_t *);
+	  *pt++ = MkAtomTerm(LookupMaxWideAtom(sz,arg));
 	}
 	break;
       case PL_TERM:
