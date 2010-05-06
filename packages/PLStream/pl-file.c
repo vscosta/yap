@@ -62,6 +62,9 @@ handling times must be cleaned, but that not only holds for this module.
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
 
 #define LOCK()   PL_LOCK(L_FILE)	/* MT locking */
 #define UNLOCK() PL_UNLOCK(L_FILE)
