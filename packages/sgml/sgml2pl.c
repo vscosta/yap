@@ -34,6 +34,7 @@
 #include "dtd.h"
 #include "catalog.h"
 #include "model.h"
+#include "util.h"
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 #include <errno.h>
@@ -86,7 +87,7 @@ typedef struct _parser_data
   int	      max_warnings;		/* warning limit */
   errormode   error_mode;		/* how to handle errors */
   int	      positions;		/* report file-positions */
-  int         exception;		/* pending exception from callback */
+  term_t      exception;		/* pending exception from callback */
 
   predicate_t on_begin;			/* begin element */
   predicate_t on_end;			/* end element */
@@ -150,6 +151,7 @@ static functor_t FUNCTOR_sdata1;
 static functor_t FUNCTOR_ndata1;
 static functor_t FUNCTOR_number1;
 static functor_t FUNCTOR_syntax_errors1;
+static functor_t FUNCTOR_xml_no_ns1;
 static functor_t FUNCTOR_minus2;
 static functor_t FUNCTOR_positions1;
 static functor_t FUNCTOR_event_class1;
@@ -160,6 +162,8 @@ static functor_t FUNCTOR_defaults1;
 static functor_t FUNCTOR_shorttag1;
 static functor_t FUNCTOR_qualify_attributes1;
 static functor_t FUNCTOR_encoding1;
+static functor_t FUNCTOR_xmlns1;
+static functor_t FUNCTOR_xmlns2;
 
 static atom_t ATOM_true;
 static atom_t ATOM_false;
@@ -173,7 +177,7 @@ static atom_t ATOM_position;
 #define mkfunctor(n, a) PL_new_functor(PL_new_atom(n), a)
 
 static void
-initConstants(void)
+initConstants()
 {
   FUNCTOR_sgml_parser1	 = mkfunctor("sgml_parser", 1);
   FUNCTOR_equal2	 = mkfunctor("=", 2);
@@ -211,6 +215,7 @@ initConstants(void)
   FUNCTOR_ndata1	 = mkfunctor("ndata", 1);
   FUNCTOR_number1	 = mkfunctor("number", 1);
   FUNCTOR_syntax_errors1 = mkfunctor("syntax_errors", 1);
+  FUNCTOR_xml_no_ns1     = mkfunctor("xml_no_ns", 1);
   FUNCTOR_minus2 	 = mkfunctor("-", 2);
   FUNCTOR_positions1 	 = mkfunctor("positions", 1);
   FUNCTOR_event_class1 	 = mkfunctor("event_class", 1);
@@ -221,6 +226,8 @@ initConstants(void)
   FUNCTOR_shorttag1	 = mkfunctor("shorttag", 1);
   FUNCTOR_qualify_attributes1 = mkfunctor("qualify_attributes", 1);
   FUNCTOR_encoding1	 = mkfunctor("encoding", 1);
+  FUNCTOR_xmlns1	 = mkfunctor("xmlns", 1);
+  FUNCTOR_xmlns2	 = mkfunctor("xmlns", 2);
 
   ATOM_true = PL_new_atom("true");
   ATOM_false = PL_new_atom("false");
@@ -249,7 +256,7 @@ get_parser(term_t parser, dtd_parser **p)
   { term_t a = PL_new_term_ref();
     void *ptr;
 
-    PL_get_arg(1, parser, a);
+    _PL_get_arg(1, parser, a);
     if ( PL_get_pointer(a, &ptr) )
     { dtd_parser *tmp = ptr;
 
@@ -285,7 +292,7 @@ get_dtd(term_t t, dtd **dtdp)
   { term_t a = PL_new_term_ref();
     void *ptr;
 
-    PL_get_arg(1, t, a);
+    _PL_get_arg(1, t, a);
     if ( PL_get_pointer(a, &ptr) )
     { dtd *tmp = ptr;
 
@@ -317,7 +324,7 @@ pl_new_sgml_parser(term_t ref, term_t options)
 
   while ( PL_get_list(tail, head, tail) )
   { if ( PL_is_functor(head, FUNCTOR_dtd1) )
-    { PL_get_arg(1, head, tmp);
+    { _PL_get_arg(1, head, tmp);
 
       if ( PL_is_variable(tmp) )	/* dtd(X) */
       { dtd = new_dtd(NULL);		/* no known doctype */
@@ -382,10 +389,10 @@ pl_free_dtd(term_t t)
 		 *	   DATA EXCHANGE	*
 		 *******************************/
 
-static void
+static int
 put_atom_wchars(term_t t, wchar_t const *s)
 { PL_put_variable(t);
-  PL_unify_wchars(t, PL_ATOM, ENDSNUL, s);
+  return PL_unify_wchars(t, PL_ATOM, ENDSNUL, s);
 }
 
 
@@ -405,7 +412,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
     wchar_t *file;
     dtd_symbol *fs;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_wchars(a, NULL, &file, CVT_ATOM|CVT_EXCEPTION) )
       return FALSE;
     fs = dtd_add_symbol(p->dtd, file);	/* symbol will be freed */
@@ -413,20 +420,20 @@ pl_set_sgml_parser(term_t parser, term_t option)
   } else if ( PL_is_functor(option, FUNCTOR_line1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_integer(a, &p->location.line) )
       return sgml2pl_error(ERR_TYPE, "integer", a);
   } else if ( PL_is_functor(option, FUNCTOR_charpos1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_long(a, &p->location.charpos) )
       return sgml2pl_error(ERR_TYPE, "integer", a);
   } else if ( PL_is_functor(option, FUNCTOR_dialect1) )
   { term_t a = PL_new_term_ref();
     char *s;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_atom_chars(a, &s) )
       return sgml2pl_error(ERR_TYPE, "atom", a);
 
@@ -442,7 +449,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     char *s;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_atom_chars(a, &s) )
       return sgml2pl_error(ERR_TYPE, "atom", a);
 
@@ -461,7 +468,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     int val;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_bool(a, &val) )
       return sgml2pl_error(ERR_TYPE, "boolean", a);
 
@@ -473,7 +480,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     int val;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_bool(a, &val) )
       return sgml2pl_error(ERR_TYPE, "boolean", a);
 
@@ -485,7 +492,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     int val;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_bool(a, &val) )
       return sgml2pl_error(ERR_TYPE, "boolean", a);
 
@@ -494,7 +501,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     char *s;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_atom_chars(a, &s) )
       return sgml2pl_error(ERR_TYPE, "atom", a);
 
@@ -508,7 +515,7 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     char *val;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( !PL_get_atom_chars(a, &val) )
       return sgml2pl_error(ERR_TYPE, "atom", a);
     if ( !xml_set_encoding(p, val) )
@@ -517,15 +524,37 @@ pl_set_sgml_parser(term_t parser, term_t option)
   { term_t a = PL_new_term_ref();
     ichar *s;
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( PL_is_variable(a) )
     { p->enforce_outer_element = NULL;
     } else
     { if ( !PL_get_wchars(a, NULL, &s, CVT_ATOM) )
 	return sgml2pl_error(ERR_TYPE, "atom_or_variable", a);
-    
+
       p->enforce_outer_element = dtd_add_symbol(p->dtd, s);
     }
+  } else if ( PL_is_functor(option, FUNCTOR_xmlns1) )
+  { term_t a = PL_new_term_ref();
+    ichar ns[1] = {0};
+    ichar *uri;
+
+    _PL_get_arg(1, option, a);
+    if ( !PL_get_wchars(a, NULL, &uri, CVT_ATOM|CVT_EXCEPTION) )
+      return FALSE;
+
+    xmlns_push(p, ns, uri);
+  } else if ( PL_is_functor(option, FUNCTOR_xmlns2) )
+  { term_t a = PL_new_term_ref();
+    ichar *ns, *uri;
+
+    _PL_get_arg(1, option, a);
+    if ( !PL_get_wchars(a, NULL, &ns, CVT_ATOM|CVT_EXCEPTION) )
+      return FALSE;
+    _PL_get_arg(2, option, a);
+    if ( !PL_get_wchars(a, NULL, &uri, CVT_ATOM|CVT_EXCEPTION) )
+      return FALSE;
+
+    xmlns_push(p, ns, uri);
   } else
     return sgml2pl_error(ERR_DOMAIN, "sgml_parser_option", option);
 
@@ -552,12 +581,12 @@ pl_get_sgml_parser(term_t parser, term_t option)
   if ( PL_is_functor(option, FUNCTOR_charpos1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     return PL_unify_integer(a, file_location(p, &p->startloc)->charpos);
   } else if ( PL_is_functor(option, FUNCTOR_line1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     return PL_unify_integer(a, file_location(p, &p->startloc)->line);
   } else if ( PL_is_functor(option, FUNCTOR_charpos2) )
   { term_t a = PL_new_term_ref();
@@ -575,7 +604,7 @@ pl_get_sgml_parser(term_t parser, term_t option)
     if ( l->type == IN_FILE && l->name.file )
     { term_t a = PL_new_term_ref();
 
-      PL_get_arg(1, option, a);
+      _PL_get_arg(1, option, a);
       return PL_unify_wchars(a, PL_ATOM, ENDSNUL, l->name.file);
     }
   } else if ( PL_is_functor(option, FUNCTOR_source1) )
@@ -584,13 +613,13 @@ pl_get_sgml_parser(term_t parser, term_t option)
     if ( pd && pd->magic == PD_MAGIC && pd->source )
     { term_t a = PL_new_term_ref();
 
-      PL_get_arg(1, option, a);
+      _PL_get_arg(1, option, a);
       return PL_unify_stream(a, pd->source);
     }
   } else if ( PL_is_functor(option, FUNCTOR_dialect1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     switch(p->dtd->dialect)
     { case DL_SGML:
 	return PL_unify_atom_chars(a, "sgml");
@@ -602,7 +631,7 @@ pl_get_sgml_parser(term_t parser, term_t option)
   } else if ( PL_is_functor(option, FUNCTOR_event_class1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     switch(p->event_class)
     { case EV_EXPLICIT:
 	return PL_unify_atom_chars(a, "explicit");
@@ -616,45 +645,51 @@ pl_get_sgml_parser(term_t parser, term_t option)
   } else if ( PL_is_functor(option, FUNCTOR_dtd1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
 
     return unify_dtd(a, p->dtd);
   } else if ( PL_is_functor(option, FUNCTOR_doctype1) )
   { term_t a = PL_new_term_ref();
 
-    PL_get_arg(1, option, a);
+    _PL_get_arg(1, option, a);
     if ( p->enforce_outer_element )
       return PL_unify_wchars(a, PL_ATOM, ENDSNUL,
 			     p->enforce_outer_element->name);
     else
       return TRUE;			/* leave variable */
   } else if ( PL_is_functor(option, FUNCTOR_allowed1) )
-  { term_t tail = PL_new_term_ref();
-    term_t head = PL_new_term_ref();
-    term_t tmp = PL_new_term_ref();
+  { term_t tail, head, tmp;
     sgml_environment *env = p->environments;
-      
-    PL_get_arg(1, option, tail);
+
+    if ( !(tail = PL_new_term_ref()) ||
+	 !(head = PL_new_term_ref()) ||
+	 !(tmp = PL_new_term_ref()) )
+      return FALSE;
+
+    _PL_get_arg(1, option, tail);
 
     if ( env )
     { for( ; env; env = env->parent)
       { dtd_element *buf[256];		/* MAX_VISITED! */
 	int n = sizeof(buf)/sizeof(dtd_element *); /* not yet used! */
 	int i;
-  
+
 	state_allows_for(env->state, buf, &n);
-  
+
 	for(i=0; i<n; i++)
-	{ if ( buf[i] == CDATA_ELEMENT )
-	    PL_put_atom_chars(tmp, "#pcdata");
+	{ int rc;
+
+	  if ( buf[i] == CDATA_ELEMENT )
+	    rc = PL_put_atom_chars(tmp, "#pcdata");
 	  else
-	    put_atom_wchars(tmp, buf[i]->name->name);
-  
-	  if ( !PL_unify_list(tail, head, tail) ||
+	    rc = put_atom_wchars(tmp, buf[i]->name->name);
+
+	  if ( !rc ||
+	       !PL_unify_list(tail, head, tail) ||
 	       !PL_unify(head, tmp) )
 	    return FALSE;
 	}
-  
+
 	if ( !env->element->structure ||
 	     !env->element->structure->omit_close )
 	  break;
@@ -673,8 +708,8 @@ pl_get_sgml_parser(term_t parser, term_t option)
     term_t head = PL_new_term_ref();
     term_t tmp = PL_new_term_ref();
     sgml_environment *env = p->environments;
-      
-    PL_get_arg(1, option, tail);
+
+    _PL_get_arg(1, option, tail);
 
     for( ; env; env = env->parent)
     { put_atom_wchars(tmp, env->element->name->name);
@@ -709,7 +744,7 @@ call_prolog(parser_data *pd, predicate_t pred, term_t av)
 
 
 static void
-end_frame(fid_t fid, int ex)
+end_frame(fid_t fid, term_t ex)
 { if ( ex )
     PL_close_foreign_frame(fid);
   else
@@ -740,7 +775,7 @@ typedef struct
 static url_cache cache[URL_CACHE];
 
 static void
-reset_url_cache(void)
+reset_url_cache()
 { int i;
   url_cache *c = cache;
 
@@ -753,24 +788,21 @@ reset_url_cache(void)
 }
 
 
-static void
+WUNUSED static int
 put_url(dtd_parser *p, term_t t, const ichar *url)
 { parser_data *pd = p->closure;
+  fid_t fid;
   int i;
 
   if ( !pd->on_urlns )
-  { put_atom_wchars(t, url);
-    return;
-  }
+    return put_atom_wchars(t, url);
 
   for(i=0; i<URL_CACHE; i++)
   { if ( cache[i].url == url )		/* cache hit */
     { if ( cache[i].canonical )		/* and a canonical value */
-	PL_put_atom(t, cache[i].canonical);
+	return PL_put_atom(t, cache[i].canonical);
       else
-	put_atom_wchars(t, url);
-
-      return;
+	return put_atom_wchars(t, url);
     }
   }
 					/* shift the cache */
@@ -782,26 +814,33 @@ put_url(dtd_parser *p, term_t t, const ichar *url)
   cache[0].url = url;
   cache[0].canonical = 0;
 
-  { fid_t fid = PL_open_foreign_frame();
+  if ( (fid = PL_open_foreign_frame()) )
+  { int rc;
     term_t av = PL_new_term_refs(3);
     atom_t a;
 
-    put_atom_wchars(av+0, url);
-    unify_parser(av+2, p);
-    if ( PL_call_predicate(NULL, PL_Q_NORMAL, pd->on_urlns, av) &&
+    rc = (put_atom_wchars(av+0, url) &&
+	  unify_parser(av+2, p));
+
+    if ( rc &&
+	 PL_call_predicate(NULL, PL_Q_NORMAL, pd->on_urlns, av) &&
 	 PL_get_atom(av+1, &a) )
     { PL_register_atom(a);
       cache[0].canonical = a;
       PL_put_atom(t, a);
-    } else
-    { put_atom_wchars(t, url);
+    } else if ( rc )
+    { rc = put_atom_wchars(t, url);
     }
     PL_discard_foreign_frame(fid);
+
+    return rc;
   }
+
+  return FALSE;
 }
 
 
-static void
+WUNUSED static int
 put_attribute_name(dtd_parser *p, term_t t, dtd_symbol *nm)
 { const ichar *url, *local;
 
@@ -809,19 +848,20 @@ put_attribute_name(dtd_parser *p, term_t t, dtd_symbol *nm)
   { xmlns_resolve_attribute(p, nm, &local, &url);
 
     if ( url )
-    { term_t av = PL_new_term_refs(2);
-    
-      put_url(p, av+0, url);
-      put_atom_wchars(av+1, local);
-      PL_cons_functor_v(t, FUNCTOR_ns2, av);
+    { term_t av;
+
+      return ( (av=PL_new_term_refs(2)) &&
+	       put_url(p, av+0, url) &&
+	       put_atom_wchars(av+1, local) &&
+	       PL_cons_functor_v(t, FUNCTOR_ns2, av) );
     } else
-      put_atom_wchars(t, local);
+      return put_atom_wchars(t, local);
   } else
-    put_atom_wchars(t, nm->name);
+    return put_atom_wchars(t, nm->name);
 }
 
 
-static void
+WUNUSED static int
 put_element_name(dtd_parser *p, term_t t, dtd_element *e)
 { const ichar *url, *local;
 
@@ -830,15 +870,16 @@ put_element_name(dtd_parser *p, term_t t, dtd_element *e)
     xmlns_resolve_element(p, &local, &url);
 
     if ( url )
-    { term_t av = PL_new_term_refs(2);
-    
-      put_url(p, av+0, url);
-      put_atom_wchars(av+1, local);
-      PL_cons_functor_v(t, FUNCTOR_ns2, av);
+    { term_t av;
+
+      return ( (av=PL_new_term_refs(2)) &&
+	       put_url(p, av+0, url) &&
+	       put_atom_wchars(av+1, local) &&
+	       PL_cons_functor_v(t, FUNCTOR_ns2, av) );
     } else
-      put_atom_wchars(t, local);
+      return put_atom_wchars(t, local);
   } else
-    put_atom_wchars(t, e->name->name);
+    return put_atom_wchars(t, e->name->name);
 }
 
 
@@ -880,44 +921,47 @@ static int
 put_att_text(term_t t, sgml_attribute *a)
 { if ( a->value.textW )
   { PL_put_variable(t);
-    PL_unify_wchars(t, PL_ATOM, a->value.number, a->value.textW);
-    return TRUE;
+    return PL_unify_wchars(t, PL_ATOM, a->value.number, a->value.textW);
   } else
     return FALSE;
 }
 
 
-static void
+static int
 put_attribute_value(dtd_parser *p, term_t t, sgml_attribute *a)
 { switch(a->definition->type)
   { case AT_CDATA:
-      put_att_text(t, a);
-      break;
+      return put_att_text(t, a);
     case AT_NUMBER:
     { if ( !put_att_text(t, a) )
-	PL_put_integer(t, a->value.number);
-      break;
+	return PL_put_integer(t, a->value.number);
+      return TRUE;
     }
     default:				/* multi-valued attribute */
     { if ( a->definition->islist && a->value.textW )
-      { term_t tail, head = PL_new_term_ref();
+      { term_t tail, head;
 	const ichar *val = a->value.textW;
 	const ichar *e;
 
 	PL_put_variable(t);
-	tail = PL_copy_term_ref(t);
-	
+	if ( !(head = PL_new_term_ref()) ||
+	     !(tail = PL_copy_term_ref(t)) )
+	  return FALSE;
+
 	for(e=istrblank(val); e; val = e+1, e=istrblank(val))
 	{ if ( e == val )
 	    continue;			/* skip spaces */
-	  PL_unify_list(tail, head, tail);
-	  unify_listval(p, head, a->definition->type, e-val, val);
+	  if ( !PL_unify_list(tail, head, tail) ||
+	       !unify_listval(p, head, a->definition->type, e-val, val) )
+	    return FALSE;
 	}
-        PL_unify_list(tail, head, tail);
-	unify_listval(p, head, a->definition->type, istrlen(val), val);
-        PL_unify_nil(tail);
+
+	return ( PL_unify_list(tail, head, tail) &&
+		 unify_listval(p, head, a->definition->type,
+			       istrlen(val), val) &&
+		 PL_unify_nil(tail) );
       } else
-	put_att_text(t, a);
+	return put_att_text(t, a);
     }
   }
 }
@@ -926,7 +970,7 @@ put_attribute_value(dtd_parser *p, term_t t, sgml_attribute *a)
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Produce a tag-location in the format
 
-	start_location=file:char-char	
+	start_location=file:char-char
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 static int
@@ -935,13 +979,12 @@ put_tag_position(dtd_parser *p, term_t pos)
 
   if ( l->type == IN_FILE && l->name.file )
   { PL_put_variable(pos);
-    PL_unify_term(pos,
-		  PL_FUNCTOR, FUNCTOR_ns2,
-		    PL_NWCHARS, wcslen(l->name.file), l->name.file,
-		    PL_FUNCTOR, FUNCTOR_minus2,
-		      PL_LONG, l->charpos,
-		      PL_LONG, p->location.charpos);
-    return TRUE;
+    return PL_unify_term(pos,
+			 PL_FUNCTOR, FUNCTOR_ns2,
+			   PL_NWCHARS, wcslen(l->name.file), l->name.file,
+			   PL_FUNCTOR, FUNCTOR_minus2,
+			 PL_LONG, l->charpos,
+			 PL_LONG, p->location.charpos);
   }
 
   return FALSE;
@@ -959,22 +1002,22 @@ unify_attribute_list(dtd_parser *p, term_t alist,
   parser_data *pd = p->closure;
 
   for(i=0; i<argc; i++)
-  { put_attribute_name(p, a+0, argv[i].definition->name);
-    put_attribute_value(p, a+1, &argv[i]);
-    PL_cons_functor_v(a, FUNCTOR_equal2, a);
-    if ( !PL_unify_list(tail, h, tail) ||
+  { if ( !put_attribute_name(p, a+0, argv[i].definition->name) ||
+	 !put_attribute_value(p, a+1, &argv[i]) ||
+	 !PL_cons_functor_v(a, FUNCTOR_equal2, a) ||
+	 !PL_unify_list(tail, h, tail) ||
 	 !PL_unify(h, a) )
       return FALSE;
   }
 
   if ( pd->positions && put_tag_position(p, a+1) )
   { PL_put_atom(a, ATOM_position);
-    
-    PL_cons_functor_v(a, FUNCTOR_equal2, a);
-    if ( !PL_unify_list(tail, h, tail) ||
+
+    if ( !PL_cons_functor_v(a, FUNCTOR_equal2, a) ||
+	 !PL_unify_list(tail, h, tail) ||
 	 !PL_unify(h, a) )
       return FALSE;
-  } 
+  }
 
   if ( PL_unify_nil(tail) )
   { PL_reset_term_refs(tail);
@@ -1000,12 +1043,18 @@ on_begin(dtd_parser *p, dtd_element *e, int argc, sgml_attribute *argv)
     term_t et	   = PL_new_term_ref();	/* element structure */
     term_t h       = PL_new_term_ref();
 
-    put_element_name(p, h, e);
-    unify_attribute_list(p, alist, argc, argv);
-    PL_unify_term(et, PL_FUNCTOR, FUNCTOR_element3,
-		    PL_TERM, h,
-		    PL_TERM, alist,
-		    PL_TERM, content);
+    if ( !h ||
+	 !put_element_name(p, h, e) ||
+	 !unify_attribute_list(p, alist, argc, argv) ||
+	 !PL_unify_term(et,
+			PL_FUNCTOR, FUNCTOR_element3,
+			  PL_TERM, h,
+			  PL_TERM, alist,
+			  PL_TERM, content) )
+    { pd->exception = PL_exception(0);
+      return FALSE;
+    }
+
     if ( PL_unify_list(pd->tail, h, pd->tail) &&
 	 PL_unify(h, et) )
     { env *env = sgml_calloc(1, sizeof(*env));
@@ -1016,21 +1065,34 @@ on_begin(dtd_parser *p, dtd_element *e, int argc, sgml_attribute *argv)
 
       pd->tail = content;
       PL_reset_term_refs(alist);
+
+      return TRUE;
     }
 
-    return TRUE;
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->on_begin )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(3);
+  { fid_t fid;
 
-    put_element_name(p, av+0, e);
-    unify_attribute_list(p, av+1, argc, argv);
-    unify_parser(av+2, p);
+    if ( (fid = PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(3);
 
-    call_prolog(pd, pd->on_begin, av);
-    end_frame(fid, pd->exception);
+      rc = ( put_element_name(p, av+0, e) &&
+	     unify_attribute_list(p, av+1, argc, argv) &&
+	     unify_parser(av+2, p) &&
+	     call_prolog(pd, pd->on_begin, av)
+	   );
+
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   return TRUE;
@@ -1045,18 +1107,29 @@ on_end(dtd_parser *p, dtd_element *e)
     return TRUE;
 
   if ( pd->on_end )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(2);
+  { fid_t fid;
 
-    put_element_name(p, av+0, e);
-    unify_parser(av+1, p);
+    if ( (fid = PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(2);
 
-    call_prolog(pd, pd->on_end, av);
-    end_frame(fid, pd->exception);
+      rc = ( put_element_name(p, av+0, e) &&
+	     unify_parser(av+1, p) &&
+	     call_prolog(pd, pd->on_end, av)
+	   );
+
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->tail && !pd->stopped )
-  { PL_unify_nil(pd->tail);
+  { if ( !PL_unify_nil(pd->tail) )
+      return FALSE;
     PL_reset_term_refs(pd->tail);	/* ? */
 
     if ( pd->stack )
@@ -1086,36 +1159,55 @@ on_entity(dtd_parser *p, dtd_entity *e, int chr)
     return TRUE;
 
   if ( pd->on_entity )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(2);
+  { fid_t fid;
 
-    if ( e )
-      put_atom_wchars(av+0, e->name->name);
-    else
-      PL_put_integer(av+0, chr);
+    if ( (fid=PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(2);
 
-    unify_parser(av+1, p);
+      if ( e )
+	rc = put_atom_wchars(av+0, e->name->name);
+      else
+	rc = PL_put_integer(av+0, chr);
 
-    call_prolog(pd, pd->on_end, av);
-    end_frame(fid, pd->exception);
+      if ( rc )
+	rc = ( unify_parser(av+1, p) &&
+	       call_prolog(pd, pd->on_end, av)
+	     );
+
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->tail )
-  { term_t h = PL_new_term_ref();
+  { int rc;
+    term_t h = PL_new_term_ref();
 
-    if ( !PL_unify_list(pd->tail, h, pd->tail) )
+    if ( !h ||
+	 !PL_unify_list(pd->tail, h, pd->tail) )
+    { pd->exception = PL_exception(0);
       return FALSE;
+    }
 
     if ( e )
-      PL_unify_term(h,
-		    PL_FUNCTOR, FUNCTOR_entity1,
-		    PL_CHARS, e->name->name);
+      rc = PL_unify_term(h,
+			 PL_FUNCTOR, FUNCTOR_entity1,
+			   PL_CHARS, e->name->name);
     else
-      PL_unify_term(h,
-		    PL_FUNCTOR, FUNCTOR_entity1,
-		    PL_INT, chr);
-		
+      rc = PL_unify_term(h,
+			 PL_FUNCTOR, FUNCTOR_entity1,
+			   PL_INT, chr);
+
     PL_reset_term_refs(h);
+    if ( !rc )
+      pd->exception = PL_exception(0);
+
+    return rc;
   }
 
   return TRUE;
@@ -1127,15 +1219,23 @@ on_data(dtd_parser *p, data_type type, int len, const wchar_t *data)
 { parser_data *pd = p->closure;
 
   if ( pd->on_cdata )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(2);
+  { fid_t fid;
 
-    PL_unify_wchars(av+0, PL_ATOM, len, data);
+    if ( (fid=PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(2);
 
-    unify_parser(av+1, p);
+      rc = ( PL_unify_wchars(av+0, PL_ATOM, len, data) &&
+	     unify_parser(av+1, p) &&
+	     call_prolog(pd, pd->on_cdata, av) );
 
-    call_prolog(pd, pd->on_cdata, av);
-    end_frame(fid, pd->exception);
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->tail && !pd->stopped )
@@ -1167,13 +1267,15 @@ on_data(dtd_parser *p, data_type type, int len, const wchar_t *data)
 	  rval = FALSE;
 	  assert(0);
       }
-			       
+
       if ( rval )
 	rval = PL_unify_wchars(a, PL_ATOM, len, data);
 
       if ( rval )
       { PL_reset_term_refs(h);
 	return TRUE;
+      } else
+      { pd->exception = PL_exception(0);
       }
     }
   }
@@ -1238,46 +1340,69 @@ on_error(dtd_parser *p, dtd_error *error)
   }
 
   if ( pd->on_error )			/* msg, parser */
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(3);
-    
-    PL_put_atom_chars(av+0, severity);
-    PL_unify_wchars(av+1, PL_ATOM,
-		    wcslen(error->plain_message), error->plain_message);
-    unify_parser(av+2, p);
+  { fid_t fid;
 
-    call_prolog(pd, pd->on_error, av);
-    end_frame(fid, pd->exception);
+    if ( (fid=PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(3);
+
+      rc = ( PL_put_atom_chars(av+0, severity) &&
+	     PL_unify_wchars(av+1, PL_ATOM,
+			     wcslen(error->plain_message),
+			     error->plain_message) &&
+	     unify_parser(av+2, p) &&
+	     call_prolog(pd, pd->on_error, av)
+	   );
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+    pd->exception = PL_exception(0);
+    return FALSE;
   } else if ( pd->error_mode != EM_QUIET )
-  { fid_t fid = PL_open_foreign_frame();
-    predicate_t pred = PL_predicate("print_message", 2, "user");
-    term_t av = PL_new_term_refs(2);
-    term_t src = PL_new_term_ref();
-    term_t parser = PL_new_term_ref();
-    dtd_srcloc *l = file_location(p, &p->startloc);
+  { fid_t fid;
 
-    unify_parser(parser, p);
-    PL_put_atom_chars(av+0, severity);
+    if ( (fid=PL_open_foreign_frame()) )
+    { int rc;
+      predicate_t pred = PL_predicate("print_message", 2, "user");
+      term_t av = PL_new_term_refs(2);
+      term_t src = PL_new_term_ref();
+      term_t parser = PL_new_term_ref();
+      dtd_srcloc *l = file_location(p, &p->startloc);
 
-    if ( l->name.file )
-    { if ( l->type == IN_FILE )
-	put_atom_wchars(src, l->name.file);
-      else
-	put_atom_wchars(src, l->name.entity);
-    } else
-    { PL_put_nil(src);
+      rc = ( unify_parser(parser, p) &&
+	     PL_put_atom_chars(av+0, severity) );
+
+      if ( rc )
+      { if ( l->name.file )
+	{ if ( l->type == IN_FILE )
+	    rc = put_atom_wchars(src, l->name.file);
+	  else
+	    rc = put_atom_wchars(src, l->name.entity);
+	} else
+	{ PL_put_nil(src);
+	}
+      }
+
+      if ( rc )
+	rc = PL_unify_term(av+1,
+			   PL_FUNCTOR_CHARS, "sgml", 4,
+			     PL_TERM, parser,
+			     PL_TERM, src,
+			     PL_INT, l->line,
+			     PL_NWCHARS, wcslen(error->plain_message),
+					 error->plain_message);
+
+      if ( rc )
+	rc = PL_call_predicate(NULL, PL_Q_NODEBUG, pred, av);
+
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
     }
 
-    PL_unify_term(av+1,
-		  PL_FUNCTOR_CHARS, "sgml", 4,
-		    PL_TERM, parser,
-		    PL_TERM, src,
-		    PL_INT, l->line,
-		    PL_NWCHARS, wcslen(error->plain_message), error->plain_message);
-
-    PL_call_predicate(NULL, PL_Q_NODEBUG, pred, av);
-
-    PL_discard_foreign_frame(fid);
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   return TRUE;
@@ -1292,18 +1417,34 @@ on_xmlns(dtd_parser *p, dtd_symbol *ns, dtd_symbol *url)
     return TRUE;
 
   if ( pd->on_xmlns )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(3);
+  { fid_t fid;
+    term_t av;
 
-    if ( ns )
-      put_atom_wchars(av+0, ns->name);
-    else
-      PL_put_nil(av+0);
-    put_atom_wchars(av+1, url->name);
-    unify_parser(av+2, p);
+    if ( (fid = PL_open_foreign_frame()) &&
+	 (av = PL_new_term_refs(3)) )
+    { int rc;
 
-    call_prolog(pd, pd->on_xmlns, av);
-    end_frame(fid, pd->exception);
+      if ( ns )
+      { rc = put_atom_wchars(av+0, ns->name);
+      } else
+      { PL_put_nil(av+0);
+	rc = TRUE;
+      }
+
+      if ( rc )
+      { rc = ( put_atom_wchars(av+1, url->name) &&
+	       unify_parser(av+2, p) &&
+	       call_prolog(pd, pd->on_xmlns, av)
+	     );
+      }
+      end_frame(fid, pd->exception);
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   return TRUE;
@@ -1318,26 +1459,42 @@ on_pi(dtd_parser *p, const ichar *pi)
     return TRUE;
 
   if ( pd->on_pi )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(2);
+  { fid_t fid;
 
-    put_atom_wchars(av+0, pi);
-    unify_parser(av+1, p);
+    if ( (fid=PL_open_foreign_frame()) )
+    { int rc;
+      term_t av = PL_new_term_refs(2);
 
-    call_prolog(pd, pd->on_pi, av);
-    end_frame(fid, pd->exception);
+      rc = ( put_atom_wchars(av+0, pi) &&
+	     unify_parser(av+1, p) &&
+	     call_prolog(pd, pd->on_pi, av)
+	   );
+
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->tail )
-  { term_t h = PL_new_term_ref();
+  { term_t h;
 
-    if ( !PL_unify_list(pd->tail, h, pd->tail) )
+    if ( !(h = PL_new_term_ref()) ||
+	 !PL_unify_list(pd->tail, h, pd->tail) )
+    { pd->exception = PL_exception(0);
       return FALSE;
+    }
 
-    PL_unify_term(h,
-		  PL_FUNCTOR, FUNCTOR_pi1,
-		  PL_NWCHARS, wcslen(pi), pi);
-			 
+    if ( !PL_unify_term(h,
+			PL_FUNCTOR, FUNCTOR_pi1,
+			  PL_NWCHARS, wcslen(pi), pi) )
+    { pd->exception = PL_exception(0);
+      return FALSE;
+    }
+
     PL_reset_term_refs(h);
   }
 
@@ -1353,14 +1510,25 @@ on_decl(dtd_parser *p, const ichar *decl)
     return TRUE;
 
   if ( pd->on_decl )
-  { fid_t fid = PL_open_foreign_frame();
-    term_t av = PL_new_term_refs(2);
+  { fid_t fid;
+    term_t av;
 
-    put_atom_wchars(av+0, decl);
-    unify_parser(av+1, p);
+    if ( (fid = PL_open_foreign_frame()) &&
+	 (av = PL_new_term_refs(2)) )
+    { int rc;
 
-    call_prolog(pd, pd->on_decl, av);
-    end_frame(fid, pd->exception);
+      rc = ( put_atom_wchars(av+0, decl) &&
+	     unify_parser(av+1, p) &&
+	     call_prolog(pd, pd->on_decl, av)
+	   );
+      end_frame(fid, pd->exception);
+      PL_discard_foreign_frame(fid);
+      if ( rc )
+	return TRUE;
+    }
+
+    pd->exception = PL_exception(0);
+    return FALSE;
   }
 
   if ( pd->stopat == SA_DECL )
@@ -1380,14 +1548,17 @@ write_parser(void *h, char *buf, int len)
   { errno = EINVAL;
     return -1;
   }
-  
+
   if ( (pd->errors > pd->max_errors && pd->max_errors >= 0) || pd->stopped )
   { errno = EIO;
     return -1;
   }
 
   for(; s<e; s++)
-    putchar_dtd_parser(pd->parser, *s);
+  { putchar_dtd_parser(pd->parser, *s);
+    if ( pd->exception )
+      break;
+  }
 
   return len;
 }
@@ -1404,7 +1575,9 @@ close_parser(void *h)
   }
 
   if ( pd->tail )
-    PL_unify_nil(pd->tail);
+  { if ( !PL_unify_nil(pd->tail) )
+      return -1;			/* resource error */
+  }
 
   if ( p->dmode == DM_DTD )
     p->dtd->implicit = FALSE;		/* assume we loaded a DTD */
@@ -1441,7 +1614,7 @@ new_parser_data(dtd_parser *p)
   pd->error_mode = EM_PRINT;
   pd->exception = FALSE;
   p->closure = pd;
-  
+
   return pd;
 }
 
@@ -1466,11 +1639,11 @@ pl_open_dtd(term_t ref, term_t options, term_t stream)
   { if ( PL_is_functor(option, FUNCTOR_dialect1) )
     { term_t a = PL_new_term_ref();
       char *s;
-  
-      PL_get_arg(1, option, a);
+
+      _PL_get_arg(1, option, a);
       if ( !PL_get_atom_chars(a, &s) )
 	return sgml2pl_error(ERR_TYPE, "atom", a);
-  
+
       if ( streq(s, "xml") )
 	set_dialect_dtd(dtd, DL_XML);
       else if ( streq(s, "xmlns") )
@@ -1503,14 +1676,14 @@ set_callback_predicates(parser_data *pd, term_t option)
   int arity;
   module_t m = NULL;
 
-  PL_get_arg(2, option, a);
+  _PL_get_arg(2, option, a);
   PL_strip_module(a, &m, a);
   if ( !PL_get_atom(a, &pname) )
     return sgml2pl_error(ERR_TYPE, "atom", a);
-  PL_get_arg(1, option, a);
+  _PL_get_arg(1, option, a);
   if ( !PL_get_atom_chars(a, &fname) )
     return sgml2pl_error(ERR_TYPE, "atom", a);
-  
+
   if ( streq(fname, "begin") )
   { pp = &pd->on_begin;			/* tag, attributes, parser */
     arity = 3;
@@ -1570,7 +1743,7 @@ pl_sgml_parse(term_t parser, term_t options)
     if ( oldpd->magic != PD_MAGIC || oldpd->parser != p )
       return sgml2pl_error(ERR_MISC, "sgml",
 			   "Parser associated with illegal data");
-    
+
     pd = sgml_calloc(1, sizeof(*pd));
     *pd = *oldpd;
     p->closure = pd;
@@ -1590,37 +1763,50 @@ pl_sgml_parse(term_t parser, term_t options)
     p->on_error	        = on_error;
     p->on_xmlns		= on_xmlns;
     p->on_decl		= on_decl;
-  
+
     pd = new_parser_data(p);
   }
 
   while ( PL_get_list(tail, head, tail) )
-    { if ( PL_is_functor(head, FUNCTOR_document1) )
+  { if ( PL_is_functor(head, FUNCTOR_document1) )
     { pd->list  = PL_new_term_ref();
-      PL_get_arg(1, head, pd->list);
+      _PL_get_arg(1, head, pd->list);
       pd->tail  = PL_copy_term_ref(pd->list);
       pd->stack = NULL;
     } else if ( PL_is_functor(head, FUNCTOR_source1) )
     { term_t a = PL_new_term_ref();
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_stream_handle(a, &in) )
 	return FALSE;
     } else if ( PL_is_functor(head, FUNCTOR_content_length1) )
     { term_t a = PL_new_term_ref();
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_int64(a, &content_length) )
 	return sgml2pl_error(ERR_TYPE, "integer", a);
       has_content_length = TRUE;
     } else if ( PL_is_functor(head, FUNCTOR_call2) )
     { if ( !set_callback_predicates(pd, head) )
 	return FALSE;
+    } else if ( PL_is_functor(head, FUNCTOR_xml_no_ns1) )
+    { term_t a = PL_new_term_ref();
+      char *s;
+
+      _PL_get_arg(1, head, a);
+      if ( !PL_get_atom_chars(a, &s) )
+	return sgml2pl_error(ERR_TYPE, "atom", a);
+      if ( streq(s, "error") )
+	p->xml_no_ns = NONS_ERROR;
+      else if ( streq(s, "quiet") )
+	p->xml_no_ns = NONS_QUIET;
+      else
+	return sgml2pl_error(ERR_DOMAIN, "xml_no_ns", a);
     } else if ( PL_is_functor(head, FUNCTOR_parse1) )
     { term_t a = PL_new_term_ref();
       char *s;
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_atom_chars(a, &s) )
 	return sgml2pl_error(ERR_TYPE, "atom", a);
       if ( streq(s, "element") )
@@ -1638,14 +1824,14 @@ pl_sgml_parse(term_t parser, term_t options)
     } else if ( PL_is_functor(head, FUNCTOR_max_errors1) )
     { term_t a = PL_new_term_ref();
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_integer(a, &pd->max_errors) )
 	return sgml2pl_error(ERR_TYPE, "integer", a);
     } else if ( PL_is_functor(head, FUNCTOR_syntax_errors1) )
     { term_t a = PL_new_term_ref();
       char *s;
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_atom_chars(a, &s) )
 	return sgml2pl_error(ERR_TYPE, "atom", a);
 
@@ -1661,7 +1847,7 @@ pl_sgml_parse(term_t parser, term_t options)
     { term_t a = PL_new_term_ref();
       char *s;
 
-      PL_get_arg(1, head, a);
+      _PL_get_arg(1, head, a);
       if ( !PL_get_atom_chars(a, &s) )
 	return sgml2pl_error(ERR_TYPE, "atom", a);
 
@@ -1767,7 +1953,9 @@ pl_sgml_parse(term_t parser, term_t options)
   out:
     reset_url_cache();
     if ( pd->tail )
-      PL_unify_nil(pd->tail);
+    { if ( !PL_unify_nil(pd->tail) )
+	return FALSE;
+    }
 
     if ( recursive )
     { p->closure = oldpd;
@@ -1791,7 +1979,7 @@ pl_sgml_parse(term_t parser, term_t options)
 		 *	  DTD PROPERTIES	*
 		 *******************************/
 
-static void	put_model(term_t t, dtd_model *m);
+static int put_model(term_t t, dtd_model *m) WUNUSED;
 
 /* doctype(DocType) */
 
@@ -1805,31 +1993,37 @@ dtd_prop_doctype(dtd *dtd, term_t prop)
 
 /* elements(ListOfElements) */
 
-static void
+WUNUSED static int
 make_model_list(term_t t, dtd_model *m, functor_t f)
 { if ( !m->next )
-  { put_model(t, m);
+  { return put_model(t, m);
   } else
-  { term_t av = PL_new_term_refs(2);
+  { term_t av;
 
-    put_model(av+0, m);
-    make_model_list(av+1, m->next, f);
-    PL_cons_functor_v(t, f, av);
-    PL_reset_term_refs(av);
+    if ( (av=PL_new_term_refs(2)) &&
+	 put_model(av+0, m) &&
+	 make_model_list(av+1, m->next, f) &&
+	 PL_cons_functor_v(t, f, av) )
+    { PL_reset_term_refs(av);
+      return TRUE;
+    }
+
+    return FALSE;
   }
 }
 
 
-static void
+WUNUSED static int
 put_model(term_t t, dtd_model *m)
-{ functor_t f;
+{ int rc = TRUE;
+  functor_t f;
 
   switch(m->type)
   { case MT_PCDATA:
-      PL_put_atom(t, ATOM_pcdata);
+      rc = PL_put_atom(t, ATOM_pcdata);
       goto card;
     case MT_ELEMENT:
-      put_atom_wchars(t, m->content.element->name->name);
+      rc = put_atom_wchars(t, m->content.element->name->name);
       goto card;
     case MT_AND:
       f = FUNCTOR_and2;
@@ -1847,46 +2041,51 @@ put_model(term_t t, dtd_model *m)
       break;
   }
 
-  if ( !m->content.group )
-    PL_put_atom(t, ATOM_empty);
-  else
-    make_model_list(t, m->content.group, f);
-  
+  if ( rc )
+  { if ( !m->content.group )
+      rc = PL_put_atom(t, ATOM_empty);
+    else
+      rc = make_model_list(t, m->content.group, f);
+  }
+
 card:
+  if ( !rc )
+    return FALSE;
+
   switch(m->cardinality)
   { case MC_ONE:
       break;
     case MC_OPT:
-      PL_cons_functor_v(t, FUNCTOR_opt1, t);
+      rc = PL_cons_functor_v(t, FUNCTOR_opt1, t);
       break;
     case MC_REP:
-      PL_cons_functor_v(t, FUNCTOR_rep1, t);
+      rc = PL_cons_functor_v(t, FUNCTOR_rep1, t);
       break;
     case MC_PLUS:
-      PL_cons_functor_v(t, FUNCTOR_plus1, t);
+      rc = PL_cons_functor_v(t, FUNCTOR_plus1, t);
       break;
   }
+
+  return rc;
 }
 
 
-static void
+WUNUSED static int
 put_content(term_t t, dtd_edef *def)
 { switch(def->type)
   { case C_EMPTY:
-      PL_put_atom(t, ATOM_empty);
-      return;
+      return PL_put_atom(t, ATOM_empty);
     case C_CDATA:
-      PL_put_atom(t, ATOM_cdata);
-      return;
+      return PL_put_atom(t, ATOM_cdata);
     case C_RCDATA:
-      PL_put_atom(t, ATOM_rcdata);
-      return;
+      return PL_put_atom(t, ATOM_rcdata);
     case C_ANY:
-      PL_put_atom(t, ATOM_any);
-      return;
+      return PL_put_atom(t, ATOM_any);
     default:
       if ( def->content )
-	put_model(t, def->content);
+	return put_model(t, def->content);
+
+      return TRUE;
   }
 }
 
@@ -1897,7 +2096,7 @@ dtd_prop_elements(dtd *dtd, term_t prop)
   term_t head = PL_new_term_ref();
   term_t et   = PL_new_term_ref();
   dtd_element *e;
-  
+
   for( e=dtd->elements; e; e=e->next )
   { put_atom_wchars(et, e->name->name);
     if ( !PL_unify_list(tail, head, tail) ||
@@ -1937,14 +2136,14 @@ dtd_prop_element(dtd *dtd, term_t name, term_t omit, term_t content)
 
   if ( !get_element(dtd, name, &e) || !(def=e->structure) )
     return FALSE;
-  
+
   if ( !PL_unify_term(omit, PL_FUNCTOR, FUNCTOR_omit2,
 		        PL_ATOM, def->omit_open ?  ATOM_true : ATOM_false,
 		        PL_ATOM, def->omit_close ? ATOM_true : ATOM_false) )
     return FALSE;
 
-  put_content(model, def);
-  return PL_unify(content, model);
+  return ( put_content(model, def) &&
+	   PL_unify(content, model) );
 }
 
 
@@ -1958,7 +2157,7 @@ dtd_prop_attributes(dtd *dtd, term_t ename, term_t atts)
 
   if ( !get_element(dtd, ename, &e) )
     return FALSE;
-  
+
   for(al=e->attributes; al; al=al->next)
   { put_atom_wchars(elem, al->attribute->name->name);
 
@@ -1978,7 +2177,7 @@ typedef struct _plattrdef
   atom_t	atom;			/* name as atom */
 } plattrdef;
 
-static plattrdef plattrs[] = 
+static plattrdef plattrs[] =
 {
   { AT_CDATA,	 "cdata",    FALSE },
   { AT_ENTITY,	 "entity",   FALSE },
@@ -2020,21 +2219,22 @@ unify_attribute_type(term_t type, dtd_attr *a)
 
   if ( a->type == AT_NAMEOF || a->type == AT_NOTATION )
   { dtd_name_list *nl;
-    term_t tail = PL_new_term_ref();
-    term_t head = PL_new_term_ref();
-    term_t elem = PL_new_term_ref();
+    term_t tail, head, elem;
 
-    if ( !PL_unify_functor(type,
+    if ( !(tail = PL_new_term_ref()) ||
+	 !(head = PL_new_term_ref()) ||
+	 !(elem = PL_new_term_ref()) ||
+	 !PL_unify_functor(type,
 			   a->type == AT_NAMEOF ?
 			     FUNCTOR_nameof1 :
 			     FUNCTOR_notation1) )
       return FALSE;
-    PL_get_arg(1, type, tail);
+
+    _PL_get_arg(1, type, tail);
 
     for(nl = a->typeex.nameof; nl; nl = nl->next)
-    { put_atom_wchars(elem, nl->value->name);
-      
-      if ( !PL_unify_list(tail, head, tail) ||
+    { if ( !put_atom_wchars(elem, nl->value->name) ||
+	   !PL_unify_list(tail, head, tail) ||
 	   !PL_unify(head, elem) )
 	return FALSE;
     }
@@ -2067,9 +2267,12 @@ unify_attribute_default(term_t defval, dtd_attr *a)
       v = PL_unify_functor(defval, FUNCTOR_fixed1);
     common:
       if ( v )
-      { term_t tmp = PL_new_term_ref();
+      { term_t tmp;
 
-	PL_get_arg(1, defval, tmp);
+	if ( !(tmp=PL_new_term_ref()) )
+	  return FALSE;
+
+	_PL_get_arg(1, defval, tmp);
 	switch( a->type )
 	{ case AT_CDATA:
 	    return PL_unify_wchars(tmp, PL_ATOM, ENDSNUL, a->att_def.cdata);
@@ -2116,8 +2319,8 @@ dtd_prop_attribute(dtd *dtd, term_t ename, term_t aname,
 
       return FALSE;
     }
-  } 
-  
+  }
+
   return FALSE;
 }
 
@@ -2128,7 +2331,7 @@ dtd_prop_entities(dtd *dtd, term_t list)
   term_t head = PL_new_term_ref();
   term_t et   = PL_new_term_ref();
   dtd_entity *e;
-  
+
   for( e=dtd->entities; e; e=e->next )
   { put_atom_wchars(et, e->name->name);
     if ( !PL_unify_list(tail, head, tail) ||
@@ -2206,7 +2409,7 @@ dtd_prop_notations(dtd *dtd, term_t list)
   { if ( PL_unify_list(tail, head, tail) &&
 	 PL_unify_wchars(head, PL_ATOM, wcslen(n->name->name), n->name->name) )
       continue;
-      
+
     return FALSE;
   }
 
@@ -2278,7 +2481,7 @@ static prop dtd_props[] =
 
 
 static void
-initprops(void)
+initprops()
 { static int done = FALSE;
 
   if ( !done )
@@ -2319,7 +2522,7 @@ pl_dtd_property(term_t ref, term_t property)
       int i;
 
       for(i=0; i<p->arity; i++)
-	PL_get_arg(i+1, property, a+i);
+	_PL_get_arg(i+1, property, a+i);
 
       switch(p->arity)
       { case 1:
@@ -2361,7 +2564,7 @@ pl_sgml_register_catalog_file(term_t file, term_t where)
     loc = CTL_END;
   else
     return sgml2pl_error(ERR_DOMAIN, "location", where);
-  
+
   return register_catalog_file(fn, loc);
 }
 
@@ -2376,8 +2579,10 @@ extern void sgml_statistics(void);
 #endif
 
 install_t
-install(void)
+install()
 { initConstants();
+
+  init_ring();
 
   PL_register_foreign("new_dtd",	  2, pl_new_dtd,	  0);
   PL_register_foreign("free_dtd",	  1, pl_free_dtd,	  0);
@@ -2390,8 +2595,8 @@ install(void)
 		      PL_FA_TRANSPARENT);
   PL_register_foreign("_sgml_register_catalog_file", 2,
 		      pl_sgml_register_catalog_file, 0);
-  PL_register_foreign("$dtd_property",	  2, pl_dtd_property,
-		      0);
+
+  PL_register_foreign("$dtd_property",	  2, pl_dtd_property, 0);
 
   install_xml_quote();
 #ifdef O_STATISTICS

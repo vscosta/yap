@@ -34,16 +34,16 @@
 #include <malloc.h>
 #endif
 
-typedef struct 
+typedef struct
 { int allocated;
   int size;
   ichar *data;
 } icharbuf;
 
-typedef struct 
+typedef struct
 { int allocated;
   int size;
-  union 
+  union
   { wchar_t *w;				/* UCS */
   } data;
   wchar_t localbuf[256];		/* Initial local store */
@@ -98,6 +98,7 @@ void		empty_ocharbuf(ocharbuf *buf);
 	{ buf->data.w[at] = chr; \
 	}
 
+void		init_ring(void);
 const wchar_t *	str_summary(const wchar_t *s, int len);
 wchar_t *	str2ring(const wchar_t *in);
 void *		ringallo(size_t);
@@ -106,8 +107,6 @@ char *		wcstoutf8(const wchar_t *in);
 ichar *		load_sgml_file_to_charp(const ichar *file, int normalise_rsre,
 					size_t *len);
 FILE *		wfopen(const wchar_t *name, const char *mode);
-
-void wputs(ichar *s);
 
 #if defined(USE_STRING_FUNCTIONS) && !defined(UTIL_H_IMPLEMENTATION)
 

@@ -29,8 +29,6 @@
     the GNU General Public License.
 */
 
-#include "xml_unicode.h"
-
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 XML character classification.
