@@ -45,9 +45,16 @@ typedef struct FunctorEntry *YAP_Functor;
 
 typedef struct AtomEntry *YAP_Atom;
 
+#if _WIN64
+typedef unsigned long long YAP_CELL;  
+
+typedef unsigned long long int  YAP_UInt;
+
+#else
 typedef long int  YAP_Int;
 
 typedef unsigned long int  YAP_UInt;
+#endif
 
 typedef double YAP_Float;
 
