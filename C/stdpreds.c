@@ -948,11 +948,7 @@ p_name(void)
       String = Yap_PreAllocCodeSpace();
       if (String + 1024 > (char *)AuxSp) 
 	goto expand_auxsp;
-#if SHORT_INTS
-      sprintf(String, "%ld", IntOfTerm(AtomNameT));
-#else
-      sprintf(String, "%d", IntOfTerm(AtomNameT));
-#endif
+      sprintf(String, Int_FORMAT, IntOfTerm(AtomNameT));
     } else if (IsFloatTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
       if (String + 1024 > (char *)AuxSp) 
@@ -964,11 +960,7 @@ p_name(void)
       if (String + 1024 > (char *)AuxSp) 
 	goto expand_auxsp;
 
-#if SHORT_INTS
-      sprintf(String, "%ld", LongIntOfTerm(AtomNameT));
-#else
-      sprintf(String, "%d", LongIntOfTerm(AtomNameT));
-#endif
+      sprintf(String, Int_FORMAT, LongIntOfTerm(AtomNameT));
 #if USE_GMP
     } else if (IsBigIntTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
@@ -1505,9 +1497,9 @@ p_atomic_concat(void)
 	char *cptr = (char *)wcptr;
 
 #if HAVE_SNPRINTF
-	sz = snprintf(cptr, (wtop-wcptr)-1024,"%ld", (long int)IntegerOfTerm(thead));
+	sz = snprintf(cptr, (wtop-wcptr)-1024,Int_FORMAT, IntegerOfTerm(thead));
 #else
-	sz = sprintf(cptr,"%ld", (long int)IntegerOfTerm(thead));
+	sz = sprintf(cptr,Int_FORMAT, IntegerOfTerm(thead));
 #endif
 	for (i=sz; i>0; i--) {
 	  wcptr[i-1] = cptr[i-1];
@@ -1608,9 +1600,9 @@ p_atomic_concat(void)
 	cptr += sz;
       } else if (IsIntegerTerm(thead)) {
 #if HAVE_SNPRINTF
-	snprintf(cptr, (top-cptr)-1024,"%ld", (long int)IntegerOfTerm(thead));
+	snprintf(cptr, (top-cptr)-1024,Int_FORMAT, IntegerOfTerm(thead));
 #else
-	sprintf(cptr,"%ld", (long int)IntegerOfTerm(thead));
+	sprintf(cptr, Int_FORMAT, IntegerOfTerm(thead));
 #endif
 	while (*cptr && cptr < top-1024) cptr++;
       } else if (IsFloatTerm(thead)) {
@@ -1957,19 +1949,11 @@ p_number_chars(void)
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_chars/2");
       return(FALSE);
     } else if (IsIntTerm(t1)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", IntOfTerm(t1));
-#else
-      sprintf(String, "%d", IntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, IntOfTerm(t1));
     } else if (IsFloatTerm(t1)) {
       sprintf(String, "%f", FloatOfTerm(t1));
     } else if (IsLongIntTerm(t1)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", LongIntOfTerm(t1));
-#else
-      sprintf(String, "%d", LongIntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, LongIntOfTerm(t1));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
@@ -2111,20 +2095,12 @@ p_number_atom(void)
 
     if (IsIntTerm(t1)) {
 
-#if SHORT_INTS
-      sprintf(String, "%ld", IntOfTerm(t1));
-#else
-      sprintf(String, "%d", IntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, IntOfTerm(t1));
     } else if (IsFloatTerm(t1)) {
       sprintf(String, "%f", FloatOfTerm(t1));
     } else if (IsLongIntTerm(t1)) {
 
-#if SHORT_INTS
-      sprintf(String, "%ld", LongIntOfTerm(t1));
-#else
-      sprintf(String, "%d", LongIntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, LongIntOfTerm(t1));
 
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
@@ -2177,19 +2153,11 @@ p_number_codes(void)
   }
   if (IsNonVarTerm(t1) && IsVarTerm(t)) {
     if (IsIntTerm(t1)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", IntOfTerm(t1));
-#else
-      sprintf(String, "%d", IntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, IntOfTerm(t1));
     } else if (IsFloatTerm(t1)) {
       sprintf(String, "%f", FloatOfTerm(t1));
     } else if (IsLongIntTerm(t1)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", LongIntOfTerm(t1));
-#else
-      sprintf(String, "%d", LongIntOfTerm(t1));
-#endif
+      sprintf(String, Int_FORMAT, LongIntOfTerm(t1));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
@@ -2276,19 +2244,11 @@ p_atom_number(void)
       }
     }
     if (IsIntTerm(t2)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", IntOfTerm(t2));
-#else
-      sprintf(String, "%d", IntOfTerm(t2));
-#endif
+      sprintf(String, Int_FORMAT, IntOfTerm(t2));
     } else if (IsFloatTerm(t2)) {
       sprintf(String, "%g", FloatOfTerm(t2));
     } else if (IsLongIntTerm(t2)) {
-#if SHORT_INTS
-      sprintf(String, "%ld", LongIntOfTerm(t2));
-#else
-      sprintf(String, "%d", LongIntOfTerm(t2));
-#endif
+      sprintf(String, Int_FORMAT, LongIntOfTerm(t2));
 #if USE_GMP
     } else if (IsBigIntTerm(t2)) {
       mpz_get_str(String, 10, Yap_BigIntOfTerm(t2));

@@ -3848,7 +3848,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
     fprintf(Yap_stderr, "%%   Mark: Marked %ld cells of %ld (efficiency: %ld%%) in %g sec\n",
 	       (long int)tot, (long int)heap_cells, (long int)effectiveness, (double)(m_time-time_start)/1000);
     if (HGEN-H0)
-      fprintf(Yap_stderr,"%%       previous generation has size %lu, with %lu (%lu%%) unmarked\n", (unsigned long)(HGEN-H0), (HGEN-H0)-total_oldies, 100*((HGEN-H0)-total_oldies)/(HGEN-H0));
+      fprintf(Yap_stderr,"%%       previous generation has size " UInt_FORMAT ", with " UInt_FORMAT " (" UInt_FORMAT "%%) unmarked\n", (UInt)(HGEN-H0), (UInt)((HGEN-H0)-total_oldies), (UInt)(100*((HGEN-H0)-total_oldies)/(HGEN-H0)));
 #ifdef INSTRUMENT_GC
     {
       int i;

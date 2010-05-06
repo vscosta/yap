@@ -74,6 +74,9 @@ AC_ARG_ENABLE(chr,
 AC_ARG_ENABLE(clpqr,
 	[ --enable-clpqr            install clpqr library ],
 	use_clpqr="$enableval", use_clpqr=yes)
+AC_ARG_ENABLE(win64,
+	[ --enable-win64            compile YAP for win64 ],
+	target_win64="$enableval", target_win64=no)
 
 AC_ARG_ENABLE(april,
 	[ --enable-april             compile Yap to support April ILP system],
@@ -513,12 +516,17 @@ then
   INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
-    if test "$target_os" = "cygwin"
+    if test "$target_win64" = yes
     then
-      CC="${CC}  -mno-cygwin"
-      CXX="${CXX}  -mno-cygwin"
+      AC_CHECK_LIB(ws2_32,main)
+    else
+      if test "$target_os" = "cygwin"
+      then
+        CC="${CC}  -mno-cygwin"
+        CXX="${CXX}  -mno-cygwin"
+      fi
+      AC_CHECK_LIB(wsock32,main)
     fi
-    AC_CHECK_LIB(wsock32,main)
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
     if test "$prefix" = "NONE"
@@ -529,7 +537,7 @@ then
   else
     ENABLE_WINCONSOLE="#"   
     LIBS="-lcygwin"
-   fi
+  fi
 else
   INSTALL_COMMAND="install_unix"
   ENABLE_WINCONSOLE="#"
@@ -964,7 +972,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         # and -fomit-frame-point -DBP_FREE
 	JAVALIBPATH=""
 	JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
-	YAPLIB="libWYap.a"
+	YAPLIB="yap.dll"
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
         SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
@@ -972,7 +980,10 @@ dnl Linux has both elf and a.out, in this case we found elf
         SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
-	LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
+        if test "$target_win64" = no
+        then
+	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
+        fi
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""

@@ -2000,7 +2000,7 @@ find_csult_file (char *source, char *buf, StreamDesc * st, char *io_mode)
 }
 
 /* given a stream index, get the corresponding fd */
-static int
+static Int
 GetStreamFd(int sno)
 {
 #if USE_SOCKET
@@ -2010,7 +2010,7 @@ GetStreamFd(int sno)
 #endif
   if (Stream[sno].status & Pipe_Stream_f) {
 #if _MSC_VER || defined(__MINGW32__) 
-    return((int)(Stream[sno].u.pipe.hdl));
+    return((Int)(Stream[sno].u.pipe.hdl));
 #else
     return(Stream[sno].u.pipe.fd);
 #endif
@@ -2020,7 +2020,7 @@ GetStreamFd(int sno)
   return(YP_fileno(Stream[sno].u.file.file));
 }
 
-int
+Int
 Yap_GetStreamFd(int sno)
 {
   return GetStreamFd(sno);
@@ -5990,7 +5990,7 @@ p_all_char_conversions(void)
   return(Yap_unify(ARG1,out));
 }
 
-int
+Int
 Yap_StreamToFileNo(Term t)
 {
   int sno  =
@@ -5998,7 +5998,7 @@ Yap_StreamToFileNo(Term t)
   if (Stream[sno].status & Pipe_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
 #if _MSC_VER || defined(__MINGW32__) 
-    return((int)(Stream[sno].u.pipe.hdl));
+    return((Int)(Stream[sno].u.pipe.hdl));
 #else
     return(Stream[sno].u.pipe.fd);
 #endif

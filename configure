@@ -753,6 +753,7 @@ enable_use_malloc
 enable_condor
 enable_chr
 enable_clpqr
+enable_win64
 enable_april
 enable_dlcompat
 enable_cplint
@@ -1419,6 +1420,7 @@ Optional Features:
  --enable-condor            allow Yap to be used from condor
  --enable-chr            install chr library
  --enable-clpqr            install clpqr library
+ --enable-win64            compile YAP for win64
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-cplint=DIR       enable the cplint library using the glu library in DIR/lib
@@ -3683,6 +3685,13 @@ else
   use_clpqr=yes
 fi
 
+# Check whether --enable-win64 was given.
+if test "${enable_win64+set}" = set; then :
+  enableval=$enable_win64; target_win64="$enableval"
+else
+  target_win64=no
+fi
+
 
 # Check whether --enable-april was given.
 if test "${enable_april+set}" = set; then :
@@ -4897,13 +4906,55 @@ then
   INSTALL_COMMAND=install_win32
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
-    if test "$target_os" = "cygwin"
+    if test "$target_win64" = yes
     then
-      CC="${CC}  -mno-cygwin"
-      CXX="${CXX}  -mno-cygwin"
-    fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lws2_32" >&5
+$as_echo_n "checking for main in -lws2_32... " >&6; }
+if test "${ac_cv_lib_ws2_32_main+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lws2_32  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_ws2_32_main=yes
+else
+  ac_cv_lib_ws2_32_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ws2_32_main" >&5
+$as_echo "$ac_cv_lib_ws2_32_main" >&6; }
+if test "x$ac_cv_lib_ws2_32_main" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBWS2_32 1
+_ACEOF
+
+  LIBS="-lws2_32 $LIBS"
+
+fi
+
+    else
+      if test "$target_os" = "cygwin"
+      then
+        CC="${CC}  -mno-cygwin"
+        CXX="${CXX}  -mno-cygwin"
+      fi
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
 $as_echo_n "checking for main in -lwsock32... " >&6; }
 if test "${ac_cv_lib_wsock32_main+set}" = set; then :
   $as_echo_n "(cached) " >&6
@@ -4942,7 +4993,7 @@ _ACEOF
 
 fi
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
 $as_echo_n "checking for main in -lpsapi... " >&6; }
 if test "${ac_cv_lib_psapi_main+set}" = set; then :
   $as_echo_n "(cached) " >&6
@@ -4981,6 +5032,7 @@ _ACEOF
 
 fi
 
+    fi
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
@@ -4990,7 +5042,7 @@ fi
   else
     ENABLE_WINCONSOLE="#"
     LIBS="-lcygwin"
-   fi
+  fi
 else
   INSTALL_COMMAND="install_unix"
   ENABLE_WINCONSOLE="#"
@@ -6780,7 +6832,7 @@ fi
         # and -fomit-frame-point -DBP_FREE
 	JAVALIBPATH=""
 	JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
-	YAPLIB="libWYap.a"
+	YAPLIB="yap.dll"
 	SHLIB_CFLAGS=""
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
         SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
@@ -6788,7 +6840,10 @@ fi
         SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
-	LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
+        if test "$target_win64" = no
+        then
+	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
+        fi
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""

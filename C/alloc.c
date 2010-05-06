@@ -869,11 +869,12 @@ static MALLOC_T
 InitWorkSpace(Int s)
 {
   SYSTEM_INFO si;
+  Int psz;
 
   GetSystemInfo(&si);
-  Yap_page_size = si.dwPageSize;
+  psz = Yap_page_size = si.dwPageSize;
   s = ((s+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
-  brk = (LPVOID)Yap_page_size;
+  brk = (LPVOID)psz;
   if (!ExtendWorkSpace(s,0))
     return FALSE;
   return (MALLOC_T)brk-s;
@@ -1535,13 +1536,8 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 	       (UInt) Yap_LocalBase, (UInt) Yap_TrailTop);
 #endif
 
-#if !SHORT_INTS
-    fprintf(stderr, "Heap+Aux: %d\tLocal+Global: %d\tTrail: %d\n",
+    fprintf(stderr, "Heap+Aux: " UInt_FORMAT "\tLocal+Global: " UInt_FORMAT "\tTrail: " UInt_FORMAT "\n",
 	       pm - sa - ta, sa, ta);
-#else /* SHORT_INTS */
-    fprintf(stderr, "Heap+Aux: %ld\tLocal+Global: %ld\tTrail: %ld\n",
-	       pm - sa - ta, sa, ta);
-#endif /* SHORT_INTS */
   }
 #endif /* DEBUG */
 }

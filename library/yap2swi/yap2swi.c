@@ -984,7 +984,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  YAP_Term *tmp = (YAP_CELL *)buffers;
+  Term *tmp = (Term *)buffers;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {

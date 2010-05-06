@@ -303,7 +303,7 @@ void  STD_PROTO(Yap_UnLockStream,(int));
 #define Yap_LockStream(X)
 #define Yap_UnLockStream(X)
 #endif
-int   STD_PROTO(Yap_GetStreamFd,(int));
+Int   STD_PROTO(Yap_GetStreamFd,(int));
 void  STD_PROTO(Yap_CloseStreams,(int));
 void  STD_PROTO(Yap_FlushStreams,(void));
 void  STD_PROTO(Yap_CloseStream,(int));
@@ -311,7 +311,7 @@ int   STD_PROTO(Yap_PlGetchar,(void));
 int   STD_PROTO(Yap_PlGetWchar,(void));
 int   STD_PROTO(Yap_PlFGetchar,(void));
 int   STD_PROTO(Yap_GetCharForSIGINT,(void));
-int   STD_PROTO(Yap_StreamToFileNo,(Term));
+Int   STD_PROTO(Yap_StreamToFileNo,(Term));
 Term  STD_PROTO(Yap_OpenStream,(FILE *,char *,Term,int));
 Term  STD_PROTO(Yap_StringToTerm,(char *,Term *));
 Term  STD_PROTO(Yap_TermToString,(Term,char *,unsigned int,int));

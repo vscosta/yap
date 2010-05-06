@@ -98,17 +98,9 @@ wrputn(Int n, wrf writewch)	/* writes an integer	 */
       wrputc(' ', writewch);
   }
 #if HAVE_SNPRINTF
-#if SHORT_INTS
-  snprintf(s, 256, "%ld", n);
+  snprintf(s, 256, Int_FORMAT, n);
 #else
-  snprintf(s, 256, "%d", n);
-#endif
-#else
-#if SHORT_INTS
-  sprintf(s, "%ld", n);
-#else
-  sprintf(s, "%d", n);
-#endif
+  sprintf(s, Int_FORMAT, n);
 #endif
   while (*s1)
     wrputc(*s1++, writewch);

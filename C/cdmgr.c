@@ -2031,22 +2031,14 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
       sprintf(Yap_ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
     else
       sprintf(Yap_ErrorMessage,
-#if SHORT_INTS
-	      "static predicate %s/%ld is in use",
-#else
-	      "static predicate %s/%d is in use",
-#endif
+	      "static predicate %s/" Int_FORMAT " is in use",
 	      ap->StrOfAE, Arity);
   } else {
     if (Arity == 0)
       sprintf(Yap_ErrorMessage, "system predicate %s", ap->StrOfAE);
     else
       sprintf(Yap_ErrorMessage,
-#if SHORT_INTS
-	      "system predicate %s/%ld",
-#else
-	      "system predicate %s/%d",
-#endif
+	      "system predicate %s/" Int_FORMAT,
 	      ap->StrOfAE, Arity);
   }
 }

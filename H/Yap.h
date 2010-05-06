@@ -165,8 +165,8 @@
 /*   */ typedef long int Int;
 /*   */ typedef unsigned long int UInt;
 
-#define Int_FORMAT "%l"
-#define UInt_FORMAT "%ul"
+#define Int_FORMAT "%ld"
+#define UInt_FORMAT "%lu"
 
 #else
 #	error Yap require integer types of the same size as a pointer
@@ -193,7 +193,7 @@
 /*   */ typedef long int Int;
 /*   */ typedef unsigned long int UInt;
 
-#define Int_FORMAT "%l"
+#define Int_FORMAT "%ld"
 #define UInt_FORMAT "%lu"
 
 #   elif SIZEOF_LONG_LONG_INT==8

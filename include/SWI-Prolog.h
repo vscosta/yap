@@ -97,10 +97,21 @@ stuff.
                  *******************************/
 
 
-typedef	unsigned long    term_t;
+#ifdef __WINDOWS__
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+#if (_MSC_VER < 1300)
+typedef long intptr_t;
+typedef unsigned long uintptr_t;
+#endif
+#else
+#include <inttypes.h>			/* more portable than stdint.h */
+#endif
+
+typedef	uintptr_t    term_t;
 typedef	void *module_t;
 typedef	void *record_t;
-typedef unsigned long	atom_t;
+typedef uintptr_t	atom_t;
 typedef	YAP_Term    *predicate_t;
 typedef struct  open_query_struct *qid_t;
 typedef long    functor_t;

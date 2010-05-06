@@ -94,7 +94,7 @@ typedef struct mem_blk {
 #define FIRST_CMEM_BLK_SIZE (16*4096)
 
 static char *
-AllocCMem (int size, struct intermediates *cip)
+AllocCMem (UInt size, struct intermediates *cip)
 {
 #if SIZEOF_INT_P==8
   size = (size + 7) & 0xfffffffffffffff8L;
@@ -179,7 +179,7 @@ Yap_ReleaseCMem (struct intermediates *cip)
 }
 
 char *
-Yap_AllocCMem (int size, struct intermediates *cip)
+Yap_AllocCMem (UInt size, struct intermediates *cip)
 {
   return AllocCMem(size, cip);
 }
