@@ -507,7 +507,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
       return 0;
 #if _WIN64
-    snprintf(tmp,BUF_SIZE,"%ll",YAP_IntOfTerm(t));
+    snprintf(tmp,BUF_SIZE,"%I64d",YAP_IntOfTerm(t));
 #else
     snprintf(tmp,BUF_SIZE,"%ld",YAP_IntOfTerm(t));
 #endif
