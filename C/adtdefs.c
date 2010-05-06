@@ -319,7 +319,7 @@ Yap_LookupMaybeWideAtomWithLength(wchar_t *atom, size_t len)
     while (len--) {*ptr++ = *p++;}
     ptr[0] = '\0';
     at = LookupWideAtom(ptr0);
-    Yap_FreeCodeSpace(ptr0);
+    Yap_FreeCodeSpace((char *)ptr0);
     return at;
   } else {
     char *ptr, *ptr0;

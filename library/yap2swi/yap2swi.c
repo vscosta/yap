@@ -2462,7 +2462,7 @@ X_API int PL_call(term_t tp, module_t m)
   return out;
 }
 
-X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, foreign_t (*function)(void), int flags)
+X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, pl_function_t function, int flags)
 {
   Term tmod;
   Int nflags = 0;
@@ -2495,7 +2495,7 @@ X_API void PL_register_extensions(const PL_extension *ptr)
   PL_load_extensions(ptr);
 }
 
-X_API void PL_register_foreign(const char *name, int arity, foreign_t (*function)(void), int flags)
+X_API void PL_register_foreign(const char *name, int arity, pl_function_t function, int flags)
 {
   PL_register_foreign_in_module(NULL, name, arity, function, flags);
 }

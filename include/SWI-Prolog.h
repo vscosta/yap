@@ -117,14 +117,14 @@ typedef unsigned __int64 uint64_t;
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #endif
 
-typedef void *function_t;
+typedef void *pl_function_t;
 
 #define fid_t PL_fid_t			/* avoid AIX name-clash */
 
 typedef struct _PL_extension
 { const char 		*predicate_name;	/* Name of the predicate */
   short		arity;			/* Arity of the predicate */
-  function_t	function;		/* Implementing functions */
+  pl_function_t	function;		/* Implementing functions */
   short		flags;			/* Or of PL_FA_... */
 } PL_extension;
 
@@ -444,8 +444,8 @@ extern X_API term_t PL_exception(qid_t);
 extern X_API term_t PL_exception(qid_t);
 extern X_API int PL_call_predicate(module_t, int, predicate_t, term_t);
 extern X_API int PL_call(term_t, module_t);
-extern X_API void PL_register_foreign(const char *, int, foreign_t (*)(void), int);
-extern X_API void PL_register_foreign_in_module(const char *, const char *, int, foreign_t (*)(void), int);
+extern X_API void PL_register_foreign(const char *, int, pl_function_t, int);
+extern X_API void PL_register_foreign_in_module(const char *, const char *, int, pl_function_t, int);
 extern X_API void PL_register_extensions(const PL_extension *);
 extern X_API void PL_load_extensions(const PL_extension *);
 extern X_API int PL_handle_signals(void);
