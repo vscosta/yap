@@ -507,7 +507,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
       return 0;
 #if _WIN64
-    snprintf(tmp,BUF_SIZE,"%lld",YAP_IntOfTerm(t));
+    snprintf(tmp,BUF_SIZE,"%ll",YAP_IntOfTerm(t));
 #else
     snprintf(tmp,BUF_SIZE,"%ld",YAP_IntOfTerm(t));
 #endif
@@ -2612,7 +2612,7 @@ PL_destroy_engine(PL_engine_t e)
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
-  Yap_Int cwid = YAP_ThreadSelf();
+  YAP_Int cwid = YAP_ThreadSelf();
   if (*old) *old = (PL_engine_t)cwid;
   if (engine == PL_ENGINE_CURRENT)
     return PL_ENGINE_SET;
