@@ -28,7 +28,7 @@
 #include <io.h>
 
 #undef _export
-#if defined(_UXNT_KERNEL) && !defined(__LCC__)
+#if defined(_UXNT_KERNEL) && !defined(__LCC__) && !defined(_WIN64)
 #define _export _declspec(dllexport)
 #else
 #define _export extern
