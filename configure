@@ -6834,16 +6834,18 @@ fi
 	JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	YAPLIB="yap.dll"
 	SHLIB_CFLAGS=""
-        SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
-        SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
-        SHLIB_LOWER_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols ../../../yap.dll"
-        SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
-	SHLIB_SUFFIX=".dll"
-	C_PARSER_FLAGS="$C_INTERF_FLAGS"
         if test "$target_win64" = no
         then
+          SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols -L ../.. yap.dll"
 	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
+        else
+	  SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols -L ../.. yap.dll $LIBS"
         fi
+        SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols -L ../../.. yap.dll"
+        SHLIB_LOWER_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols -L ../../.. yap.dll"
+        SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols -L ../..  -L ../../packages/PLStream yap.dll plstream.dll"
+	SHLIB_SUFFIX=".dll"
+	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""
