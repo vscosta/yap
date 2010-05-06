@@ -164,7 +164,7 @@ void
 Yap_InitSWIHash(void)
 {
   int i, j;
-  memset(SWI_ReverseHash, N_SWI_HASH, sizeof(swi_rev_hash));
+  memset(SWI_ReverseHash, 0, N_SWI_HASH*sizeof(swi_rev_hash));
   for (i=0; i < N_SWI_ATOMS; i++) {
     add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
   }
