@@ -506,7 +506,11 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   } else if (YAP_IsIntTerm(t)) {
     if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
       return 0;
+#if _WIN64
+    snprintf(tmp,BUF_SIZE,"%lld",YAP_IntOfTerm(t));
+#else
     snprintf(tmp,BUF_SIZE,"%ld",YAP_IntOfTerm(t));
+#endif
   } else if (YAP_IsFloatTerm(t)) {
     if (!(flags & (CVT_FLOAT|CVT_ATOMIC|CVT_NUMBER|CVT_ALL)))
       return 0;
@@ -1147,7 +1151,7 @@ X_API void PL_put_nil(term_t t)
 /* SAM TO DO */
 X_API int PL_put_pointer(term_t t, void *ptr)
 {
-  YAP_Term tptr = YAP_MkIntTerm((long int)ptr);
+  YAP_Term tptr = YAP_MkIntTerm((YAP_Int)ptr);
   Yap_PutInSlot(t,tptr);
   return TRUE;
 }
@@ -1614,7 +1618,7 @@ X_API int PL_unify_nil(term_t l)
 /* SAM TO DO */
 X_API int PL_unify_pointer(term_t t, void *ptr)
 {
-  YAP_Term ptrterm = YAP_MkIntTerm((long int)ptr);
+  YAP_Term ptrterm = YAP_MkIntTerm((YAP_Int)ptr);
   return YAP_Unify(Yap_GetFromSlot(t), ptrterm);
 }
 
@@ -2608,13 +2612,13 @@ PL_destroy_engine(PL_engine_t e)
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
-  long int cwid = YAP_ThreadSelf();
+  Yap_Int cwid = YAP_ThreadSelf();
   if (*old) *old = (PL_engine_t)cwid;
   if (engine == PL_ENGINE_CURRENT)
     return PL_ENGINE_SET;
   if (engine < 0) /* should really check if engine does not exist */
     return PL_ENGINE_INVAL;
-  if (!(YAP_ThreadAttachEngine((long int)engine))) {
+  if (!(YAP_ThreadAttachEngine((YAP_Int)engine))) {
     return PL_ENGINE_INUSE;
   }
   return PL_ENGINE_SET;
