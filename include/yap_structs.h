@@ -29,7 +29,11 @@
 
 /* Type definitions */
 
-typedef unsigned long YAP_CELL;  /* this is common to all current machines */
+#if _WIN64
+typedef unsigned long long YAP_CELL;  
+#else
+typedef unsigned long YAP_CELL;  
+#endif
 
 typedef int YAP_Bool;
 
