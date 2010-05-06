@@ -31,6 +31,7 @@ int     STD_PROTO(Yap_HasOp,(Atom));
 struct operator_entry *STD_PROTO(Yap_GetOpPropForAModuleHavingALock,(AtomEntry *, Term));
 Atom	STD_PROTO(Yap_LookupAtom,(char *));
 Atom	STD_PROTO(Yap_LookupMaybeWideAtom,(wchar_t *));
+Atom	STD_PROTO(Yap_LookupMaybeWideAtomWithLength,(wchar_t *, size_t));
 Atom	STD_PROTO(Yap_FullLookupAtom,(char *));
 void	STD_PROTO(Yap_LookupAtomWithAddress,(char *,AtomEntry *));
 Prop	STD_PROTO(Yap_NewPredPropByFunctor,(struct FunctorEntryStruct *, Term));
