@@ -4993,7 +4993,8 @@ _ACEOF
 
 fi
 
-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
+    fi
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
 $as_echo_n "checking for main in -lpsapi... " >&6; }
 if test "${ac_cv_lib_psapi_main+set}" = set; then :
   $as_echo_n "(cached) " >&6
@@ -5032,7 +5033,6 @@ _ACEOF
 
 fi
 
-    fi
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
