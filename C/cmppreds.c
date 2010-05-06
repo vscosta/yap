@@ -570,8 +570,8 @@ a_cmp(Term t1, Term t2)
       }
 #endif      
       return flt_cmp(i1-f2);
-    } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
+    } else if (IsBigIntTerm(t2)) {
       MP_INT *b2 = Yap_BigIntOfTerm(t2);
       return int_cmp(-mpz_cmp_si(b2,i1));
 #endif
@@ -608,8 +608,8 @@ a_cmp(Term t1, Term t2)
       }
 #endif      
       return flt_cmp(f1-f2);
-    } else if (IsBigIntTerm(t2)) {
 #ifdef USE_GMP
+    } else if (IsBigIntTerm(t2)) {
       MP_INT *b2 = Yap_BigIntOfTerm(t2);
       return flt_cmp(f1-mpz_get_d(b2));
 #endif
