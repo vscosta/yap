@@ -1650,11 +1650,24 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       } else {
 	if (trail_cell == (CELL)trail_base)
 	  discard_trail_entries++;
-#ifdef FROZEN_STACKS
 	else {
+	  /* This is a bit of a mess: when I find an attributed variable that was bound
+	     nondeterministically, I know that after backtracking it will be back to be an unbound variable.
+	     The ideal solution would be to unbind all variables. The current solution is to
+	     remark it as an attributed variable */
+	  if (IsAttVar(hp) && !UNMARKED_MARK(hp-1,Yap_bp)) {
+	    total_marked++;
+	    PUSH_POINTER(hp-1);
+	    if (hp-1 < HGEN) {
+	      total_oldies++;
+	    }
+	    mark_variable(hp+1);
+	    mark_variable(hp+2);
+	  }
+#ifdef FROZEN_STACKS
 	  mark_external_reference(&TrailVal(trail_base));
-	}
 #endif
+	}
 #ifdef EASY_SHUNTING
 	if (hp < gc_H   && hp >= H0 && !MARKED_PTR(hp)) {
 	  tr_fr_ptr nsTR = (tr_fr_ptr)cont_top0;
