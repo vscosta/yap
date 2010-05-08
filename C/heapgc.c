@@ -1655,7 +1655,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	     nondeterministically, I know that after backtracking it will be back to be an unbound variable.
 	     The ideal solution would be to unbind all variables. The current solution is to
 	     remark it as an attributed variable */
-	  if (IsAttVar(hp) && !UNMARKED_MARK(hp-1,Yap_bp)) {
+	  if (IN_BETWEEN(Yap_GlobalBase,hp,H) && IsAttVar(hp) && !UNMARKED_MARK(hp-1,Yap_bp)) {
 	    total_marked++;
 	    PUSH_POINTER(hp-1);
 	    if (hp-1 < HGEN) {
