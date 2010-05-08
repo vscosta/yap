@@ -573,7 +573,7 @@ install_win32: startup.yss
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
-	$(INSTALL_PROGRAM) -m 755 libWYap.a $(DESTDIR)$(YAPLIBDIR)/libWYap.a
+	$(INSTALL_PROGRAM) -m 755 @YAPLIB@ $(DESTDIR)$(YAPLIBDIR)/@YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/pl
