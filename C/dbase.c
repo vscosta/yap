@@ -304,14 +304,14 @@ static void create_hash_table(DBProp p, Int hint) {
   if (hint < p->NOfEntries)
     hint = p->NOfEntries;
   while (off) {
-    Int limit = 1L << (off);
+    Int limit = ((CELL)1) << (off);
     if (inp >= limit) {
       out += off;
       inp >>= off;
     }
     off >>= 1;
   }
-  if ((size = 1L << out) < hint)
+  if ((size = ((CELL)1) << out) < hint)
     hint <<= 1;
   /* clean up the table */
   pt = tbl = (hash_db_entry *)AllocDBSpace(hint*sizeof(hash_db_entry));

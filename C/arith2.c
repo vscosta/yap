@@ -542,12 +542,12 @@ ipow(Int x, Int p)
 {
   Int r;
 
-  if (p == 0) return 1L;
+  if (p == 0) return ((CELL)1);
   if (x == 0 && p > 0) return 0L;
   if(p < 0) 
-    return (-p % 2) ? x : 1L;
+    return (-p % 2) ? x : ((CELL)1);
 	
-  r = 1L;
+  r = ((CELL)1);
   for(;;) {
     if(p & 1) {
       if (mul_overflow((r*x), r, x)) {

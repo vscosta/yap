@@ -1507,7 +1507,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	pvbmap += tsize/(sizeof(CELL)*8);
 	bmap = *pvbmap;
       } else {
-	bmap = -1L;
+	bmap = ((CELL)-1);
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
@@ -1518,7 +1518,7 @@ mark_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	  pvbmap--;
 	  bmap = *pvbmap;
 	} else {
-	  bmap = -1L;
+	  bmap = ((CELL)-1);
 	}
 	currv = 0;
       }
@@ -2734,7 +2734,7 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	pvbmap += tsize/(sizeof(CELL)*8);
 	bmap = *pvbmap;
       } else {
-	bmap = -1L;
+	bmap = ((CELL)-1);
       }
       bmap = (Int)(((CELL)bmap) << currv);
     }
@@ -2745,7 +2745,7 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 	  pvbmap--;
 	  bmap = *pvbmap;
 	} else {
-	  bmap = -1L;
+	  bmap = ((CELL)-1);
 	}
 	currv = 0;
       }

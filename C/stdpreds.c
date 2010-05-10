@@ -3980,7 +3980,7 @@ p_in_range2(void) {
 
 static Int
 p_max_tagged_integer(void) {
-  return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-1L));
+  return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-((CELL)1)));
 }
 
 static Int

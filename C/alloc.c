@@ -804,7 +804,7 @@ Yap_AllocCodeSpace(unsigned long int size)
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
-#undef DEBUG_WIN32_ALLOC
+#undef DEBUG_WIN32_ALLOC 
 
 #include "windows.h"
 
@@ -821,7 +821,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   Yap_PrologMode = ExtendStackMode;
 
 #if DEBUG_WIN32_ALLOC
-  fprintf(stderr,"trying: %p--%x %d\n",b, s, fixed_allocation);
+  fprintf(stderr,"trying: %p (" Int_FORMAT "K) %d\n",b, s/1024, fixed_allocation);
 #endif
   if (fixed_allocation) {
     b = VirtualAlloc(b, s, MEM_RESERVE, PAGE_NOACCESS);
@@ -840,7 +840,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 		    NULL, GetLastError(), 
 		    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), msg, 256,
 		    NULL);
-      fprintf(stderr,"NOT OK1: %p--%p %s\n",b, brk, msg);
+      fprintf(stderr,"NOT OK1: %p %p %s\n", brk, b, msg);
     }
 #endif
     return FALSE;

@@ -565,7 +565,7 @@ compile_sf_term(Term t, int argno, int level)
 	Yap_Error_Term = TermNil;
 	Yap_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+	longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       }
       else
 	c_var(t, -argno, arity, level, cglobs);
@@ -592,7 +592,7 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+      longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
     if (Arity > cglobs->max_args)
       cglobs->max_args = Arity;
@@ -2247,14 +2247,10 @@ static CELL *
 init_bvarray(int nperm, compiler_struct *cglobs)
 {
   CELL *vinfo = NULL;
-  unsigned int i;
-  CELL *vptr;
-
-  vptr = vinfo = (CELL *)Yap_AllocCMem(sizeof(CELL)*(1+nperm/(8*sizeof(CELL))), &cglobs->cint);
-  for (i = 0; i <= nperm/(8*sizeof(CELL)); i++) {
-    *vptr++ = (CELL)(0L);
-  }
-  return(vinfo);
+  size_t sz = sizeof(CELL)*(1+nperm/(8*sizeof(CELL)));
+  vinfo = (CELL *)Yap_AllocCMem(sz, &cglobs->cint);
+  memset((void *)vinfo, 0, sz);
+  return vinfo;
 }
 
 static void
@@ -2273,15 +2269,16 @@ clear_bvarray(int var, CELL *bvarray
     var -= max;
   }
   /* now put a 0 on it, from now on the variable is initialised */
-  nbit = (1L << var);
+  nbit = ((CELL)1 << var);
 #ifdef DEBUG
   if (*bvarray & nbit) {
     /* someone had already marked this variable: complain */
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "compiler internal error: variable initialised twice";
+ fprintf(stderr," vsc: compiling7\n");
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   cglobs->pbvars++;
 #endif
@@ -2322,7 +2319,7 @@ push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   /* the label instruction */
   bvstack[bvindex].lab = label;
@@ -2345,7 +2342,7 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   env_size = (bvstack[bvindex-1].pc)->rnd1;
   size = env_size/(8*sizeof(CELL));

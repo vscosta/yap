@@ -150,7 +150,7 @@ msb(Int inp)	/* calculate the most significant bit for an integer */
   }
 
   while (off) {
-    Int limit = 1L << (off);
+    Int limit = ((CELL)1) << (off);
     if (inp >= limit) {
       out += off;
       inp >>= off;
@@ -179,7 +179,7 @@ lsb(Int inp)	/* calculate the least significant bit for an integer */
   if (!(inp &       0xffL)) {inp >>=  8; out +=  8;}
   if (!(inp &   0xfL)) {inp >>=  4; out +=  4;}
   if (!(inp &        0x3L)) {inp >>=  2; out +=  2;}
-  if (!(inp &        0x1L)) out++;
+  if (!(inp &        ((CELL)0x1))) out++;
 
   return out;
 }
@@ -188,7 +188,7 @@ static Int
 popcount(Int inp)	/* calculate the least significant bit for an integer */
 {
   /* the obvious solution: do it by using binary search */
-  Int c = 0, j = 0, m = 1L;
+  Int c = 0, j = 0, m = ((CELL)1);
 
   if (inp < 0) {
     return Yap_ArithError(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, MkIntegerTerm(inp),
