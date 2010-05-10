@@ -39,6 +39,8 @@ typedef int YAP_Bool;
 
 typedef YAP_CELL YAP_Term;
 
+typedef YAP_CELL YAP_Arity;
+
 typedef YAP_Term YAP_Module;
 
 typedef struct FunctorEntry *YAP_Functor;
