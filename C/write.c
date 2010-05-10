@@ -46,8 +46,8 @@ static wtype lastw;
 typedef  int      (*wrf) (int, wchar_t);
 
 typedef struct union_slots {
-  long old;
-  long ptr;
+  Int old;
+  Int ptr;
 } uslots;
 
 typedef struct union_direct {
@@ -408,7 +408,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
       Yap_Portray_delays = FALSE;
       if (ext == attvars_ext) {
 	attvar_record *attv = RepAttVar(t);
-	long sl = 0;
+	Int sl = 0;
 	Term l = attv->Atts;
 
 	wrputs("$AT(",wglb->writewch);
@@ -488,7 +488,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   nrwt.u.s.ptr = 0;
 
   while (1) {
-    long            sl= 0;
+    Int            sl= 0;
     int ndirection;
     int do_jump;
 
@@ -570,7 +570,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (wglb->Use_portray) {
       Term targs[1];
       Term old_EX = 0L;
-      long sl = 0;
+      Int sl = 0;
 
       targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
@@ -685,7 +685,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrputc('(', wglb->writewch);
       lastw = separator;
       while (*p) {
-	long sl = 0;
+	Int sl = 0;
 
 	while (argno < *p) {
 	  wrputc('_', wglb->writewch), wrputc(',', wglb->writewch);
@@ -717,7 +717,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (wglb->Use_portray) {
       Term targs[1];
       Term old_EX = 0L;
-      long sl = 0;
+      Int sl = 0;
 
       targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
@@ -771,7 +771,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	       Arity == 1 &&
 	       Yap_IsPosfixOp(atom, &op, &lp)) {
       Term  tleft = ArgOfTerm(1, t);
-      long sl = 0;
+      Int sl = 0;
       int            bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
 	LeftOpToProtect(AtomOfTerm(tleft), lp); 
@@ -811,7 +811,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 						 &rp) ) {
       Term  tleft = ArgOfTerm(1, t);
       Term  tright = ArgOfTerm(2, t);
-      long sl = 0;
+      Int sl = 0;
       int   bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
 	LeftOpToProtect(AtomOfTerm(tleft), lp);
@@ -891,7 +891,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  putUnquotedString(ti, wglb->writewch);
 	}
       } else {
-	long sl = 0;
+	Int sl = 0;
 
 	wrputs("'$VAR'(",wglb->writewch);
 	lastw = separator;
@@ -917,7 +917,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrputc('}', wglb->writewch);
       lastw = separator;
     } else  if (atom == AtomArray) {
-      long sl = 0;
+      Int sl = 0;
 
       wrputc('{', wglb->writewch);
       lastw = separator;
@@ -951,7 +951,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       lastw = separator;
       wrputc('(', wglb->writewch);
       for (op = 1; op <= Arity; ++op) {
-	long sl = 0;
+	Int sl = 0;
 
 	if (op == wglb->MaxArgs) {
 	  wrputc('.', wglb->writewch);

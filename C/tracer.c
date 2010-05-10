@@ -172,7 +172,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-#ifdef THREADS
+  #ifdef THREADS
   MY_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
@@ -385,10 +385,13 @@ static Int p_start_low_level_trace2(void)
 }
 #endif
 
+#include <stdio.h>
+
 static Int p_stop_low_level_trace(void)
 {
   Yap_do_low_level_trace = FALSE;
   do_trace_primitives = TRUE;
+  fprintf(stderr,"vsc_count = %I64d\n",vsc_count);
   return(TRUE);
 }
 

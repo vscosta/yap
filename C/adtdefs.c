@@ -1372,7 +1372,7 @@ ArgsOfSFTerm(Term t)
 
 #endif
 
-long
+Int
 Yap_NewSlots(int n)
 {
   Int old_slots = IntOfTerm(ASP[0]), oldn = n;
@@ -1385,7 +1385,7 @@ Yap_NewSlots(int n)
   return((ASP+1)-LCL0);
 }
 
-long
+Int
 Yap_InitSlot(Term t)
 {
   Int old_slots = IntOfTerm(ASP[0]);
@@ -1408,25 +1408,25 @@ Yap_RecoverSlots(int n)
 }
 
 Term
-Yap_GetFromSlot(long slot)
+Yap_GetFromSlot(Int slot)
 {
   return(Deref(LCL0[slot]));
 }
 
 Term
-Yap_GetPtrFromSlot(long slot)
+Yap_GetPtrFromSlot(Int slot)
 {
   return(LCL0[slot]);
 }
 
 Term *
-Yap_AddressFromSlot(long slot)
+Yap_AddressFromSlot(Int slot)
 {
   return(LCL0+slot);
 }
 
 void
-Yap_PutInSlot(long slot, Term t)
+Yap_PutInSlot(Int slot, Term t)
 {
   LCL0[slot] = t;
 }

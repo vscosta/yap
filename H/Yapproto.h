@@ -61,13 +61,13 @@ int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
 
 #define Yap_StartSlots() (*--ASP = MkIntTerm(0))
 #define Yap_CurrentSlot() IntOfTerm(ASP[0])
-long    STD_PROTO(Yap_InitSlot,(Term));
-long    STD_PROTO(Yap_NewSlots,(int));
-Term    STD_PROTO(Yap_GetFromSlot,(long));
+Int	STD_PROTO(Yap_InitSlot,(Term));
+Int     STD_PROTO(Yap_NewSlots,(int));
+Term    STD_PROTO(Yap_GetFromSlot,(Int));
 int     STD_PROTO(Yap_RecoverSlots,(int));
-Term    STD_PROTO(Yap_GetPtrFromSlot,(long));
-Term   *STD_PROTO(Yap_AddressFromSlot,(long));
-void    STD_PROTO(Yap_PutInSlot,(long, Term));
+Term    STD_PROTO(Yap_GetPtrFromSlot,(Int));
+Term   *STD_PROTO(Yap_AddressFromSlot,(Int));
+void    STD_PROTO(Yap_PutInSlot,(Int, Term));
 
 
 #ifdef SFUNC

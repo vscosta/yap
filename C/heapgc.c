@@ -3719,7 +3719,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   int           gc_trace;
   UInt		gc_phase;
   UInt		alloc_sz;
-
   heap_cells = H-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;

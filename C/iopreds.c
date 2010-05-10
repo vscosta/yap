@@ -5330,8 +5330,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    { 
-	      long sl = Yap_InitSlot(args);
-	      long sl2;
+	      Int sl = Yap_InitSlot(args);
+	      Int sl2;
 	      Int res;
 	      Term ta[2];
 	      Term ts;
@@ -5360,7 +5360,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    { 
-	      long sl = Yap_InitSlot(args);
+	      Int sl = Yap_InitSlot(args);
 	      Yap_plwrite(t, f_putc, Handle_vars_f|Use_portray_f|To_heap_f, 1200);
 	      FormatInfo = &finfo;
 	      args = Yap_GetFromSlot(sl);

@@ -406,8 +406,8 @@ X_API Term    STD_PROTO(YAP_MkPairTerm,(Term,Term));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_TailOfTerm,(Term));
-X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,unsigned long int,Term *));
-X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,unsigned long int));
+X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,UInt,Term *));
+X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,UInt));
 X_API Functor STD_PROTO(YAP_FunctorOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_ArgOfTerm,(Int,Term));
 X_API Term   *STD_PROTO(YAP_ArgsOfTerm,(Term));
@@ -470,23 +470,23 @@ X_API int     STD_PROTO(YAP_StreamToFileNo, (Term));
 X_API void    STD_PROTO(YAP_CloseAllOpenStreams,(void));
 X_API void    STD_PROTO(YAP_FlushAllStreams,(void));
 X_API Term    STD_PROTO(YAP_OpenStream,(void *, char *, Term, int));
-X_API long    STD_PROTO(YAP_CurrentSlot,(void));
-X_API long    STD_PROTO(YAP_NewSlots,(int));
-X_API long    STD_PROTO(YAP_InitSlot,(Term));
-X_API Term    STD_PROTO(YAP_GetFromSlot,(long));
-X_API Term   *STD_PROTO(YAP_AddressFromSlot,(long));
-X_API void    STD_PROTO(YAP_PutInSlot,(long, Term));
+X_API Int     STD_PROTO(YAP_CurrentSlot,(void));
+X_API Int     STD_PROTO(YAP_NewSlots,(int));
+X_API Int     STD_PROTO(YAP_InitSlot,(Term));
+X_API Term    STD_PROTO(YAP_GetFromSlot,(Int));
+X_API Term   *STD_PROTO(YAP_AddressFromSlot,(Int));
+X_API void    STD_PROTO(YAP_PutInSlot,(Int, Term));
 X_API int     STD_PROTO(YAP_RecoverSlots,(int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
-X_API void   *STD_PROTO(YAP_Predicate,(Atom,unsigned long int,Term));
-X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,unsigned long int *,Term *));
-X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,unsigned long int));
-X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,unsigned long int,unsigned int));
-X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,unsigned long int,Term));
+X_API void   *STD_PROTO(YAP_Predicate,(Atom,UInt,Term));
+X_API void    STD_PROTO(YAP_PredicateInfo,(void *,Atom *,UInt *,Term *));
+X_API void    STD_PROTO(YAP_UserCPredicate,(char *,CPredicate,UInt));
+X_API void    STD_PROTO(YAP_UserBackCPredicate,(char *,CPredicate,CPredicate,UInt,unsigned int));
+X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,UInt,Term));
 #ifdef CUT_C
-X_API void    STD_PROTO(YAP_UserBackCutCPredicate,(char *,CPredicate,CPredicate,CPredicate,unsigned long int,unsigned int));
+X_API void    STD_PROTO(YAP_UserBackCutCPredicate,(char *,CPredicate,CPredicate,CPredicate,UInt,unsigned int));
 X_API void   *STD_PROTO(YAP_ExtraSpaceCut,(void));
 #endif
 X_API Term     STD_PROTO(YAP_CurrentModule,(void));
@@ -864,8 +864,8 @@ YAP_MkPairTerm(Term t1, Term t2)
   BACKUP_H();
 
   if (H > ASP-1024) {
-    long sl1 = Yap_InitSlot(t1);
-    long sl2 = Yap_InitSlot(t2);
+    Int sl1 = Yap_InitSlot(t1);
+    Int sl2 = Yap_InitSlot(t2);
     if (!dogc()) {
       RECOVER_H();
       return TermNil;
@@ -907,7 +907,7 @@ YAP_TailOfTerm(Term t)
 }
 
 X_API Term
-YAP_MkApplTerm(Functor f,unsigned long int arity, Term args[])
+YAP_MkApplTerm(Functor f,UInt arity, Term args[])
 {
   Term t; 
   BACKUP_H();
@@ -922,7 +922,7 @@ YAP_MkApplTerm(Functor f,unsigned long int arity, Term args[])
 }
 
 X_API Term
-YAP_MkNewApplTerm(Functor f,unsigned long int arity)
+YAP_MkNewApplTerm(Functor f,UInt arity)
 {
   Term t; 
   BACKUP_H();
@@ -1052,19 +1052,19 @@ YAP_Unify(Term t1, Term t2)
   return out;
 }
 
-X_API long
+X_API Int
 YAP_CurrentSlot(void)
 {
   return Yap_CurrentSlot();
 }
 
-X_API long
+X_API Int
 YAP_NewSlots(int n)
 {
   return Yap_NewSlots(n);
 }
 
-X_API long
+X_API Int
 YAP_InitSlot(Term t)
 {
   return Yap_InitSlot(t);
@@ -1077,19 +1077,19 @@ YAP_RecoverSlots(int n)
 }
 
 X_API Term
-YAP_GetFromSlot(long slot)
+YAP_GetFromSlot(Int slot)
 {
   return Yap_GetFromSlot(slot);
 }
 
 X_API Term *
-YAP_AddressFromSlot(long slot)
+YAP_AddressFromSlot(Int slot)
 {
   return Yap_AddressFromSlot(slot);
 }
 
 X_API void
-YAP_PutInSlot(long slot, Term t)
+YAP_PutInSlot(Int slot, Term t)
 {
   Yap_PutInSlot(slot, t);
 }
@@ -1107,14 +1107,14 @@ typedef  struct foreign_context
       struct PL_local_data *engine;		/* invoking engine */
 } scontext ;
 
-typedef Int (*CPredicate1)(long);
-typedef Int (*CPredicate2)(long,long);
-typedef Int (*CPredicate3)(long,long,long);
-typedef Int (*CPredicate4)(long,long,long,long);
-typedef Int (*CPredicate5)(long,long,long,long,long);
-typedef Int (*CPredicate6)(long,long,long,long,long,long);
-typedef Int (*CPredicate7)(long,long,long,long,long,long,long);
-typedef Int (*CPredicate8)(long,long,long,long,long,long,long,long);
+typedef Int (*CPredicate1)(Int);
+typedef Int (*CPredicate2)(Int,Int);
+typedef Int (*CPredicate3)(Int,Int,Int);
+typedef Int (*CPredicate4)(Int,Int,Int,Int);
+typedef Int (*CPredicate5)(Int,Int,Int,Int,Int);
+typedef Int (*CPredicate6)(Int,Int,Int,Int,Int,Int);
+typedef Int (*CPredicate7)(Int,Int,Int,Int,Int,Int,Int);
+typedef Int (*CPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
 static Int
@@ -1200,14 +1200,14 @@ execute_cargs(PredEntry *pe, CPredicate exec_code)
 }
 
 typedef Int (*CBPredicate)(struct foreign_context *);
-typedef Int (*CBPredicate1)(long,struct foreign_context *);
-typedef Int (*CBPredicate2)(long,long,struct foreign_context *);
-typedef Int (*CBPredicate3)(long,long,long,struct foreign_context *);
-typedef Int (*CBPredicate4)(long,long,long,long,struct foreign_context *);
-typedef Int (*CBPredicate5)(long,long,long,long,long,struct foreign_context *);
-typedef Int (*CBPredicate6)(long,long,long,long,long,long,struct foreign_context *);
-typedef Int (*CBPredicate7)(long,long,long,long,long,long,long,struct foreign_context *);
-typedef Int (*CBPredicate8)(long,long,long,long,long,long,long,long,struct foreign_context *);
+typedef Int (*CBPredicate1)(Int,struct foreign_context *);
+typedef Int (*CBPredicate2)(Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate3)(Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate4)(Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 
 static Int
 execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx)
@@ -2712,7 +2712,7 @@ YAP_TopOfLocalStack(void)
 }
 
 X_API void *
-YAP_Predicate(Atom a, unsigned long int arity, Term m)
+YAP_Predicate(Atom a, UInt arity, Term m)
 {
   if (arity == 0) {
     return((void *)RepPredProp(PredPropByAtom(a,m)));
@@ -2723,7 +2723,7 @@ YAP_Predicate(Atom a, unsigned long int arity, Term m)
 } 
 
 X_API void
-YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
+YAP_PredicateInfo(void *p, Atom* a, UInt* arity, Term* m)
 {
   PredEntry *pd = (PredEntry *)p;
   if (pd->ArityOfPE) {
@@ -2740,14 +2740,14 @@ YAP_PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 } 
 
 X_API void 
-YAP_UserCPredicate(char *name, CPredicate def, unsigned long int arity)
+YAP_UserCPredicate(char *name, CPredicate def, UInt arity)
 {
   Yap_InitCPred(name, arity, def, UserCPredFlag);
 }
 
 X_API void 
 YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
-		   unsigned long int arity, unsigned int extra)
+		   UInt arity, unsigned int extra)
 {
 #ifdef CUT_C
   Yap_InitCPredBackCut(name, arity, extra, init, cont, NULL ,UserCPredFlag);
@@ -2760,7 +2760,7 @@ YAP_UserBackCPredicate(char *name, CPredicate init, CPredicate cont,
 #ifdef CUT_C
 X_API void 
 YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredicate cut,
-			  unsigned long int arity, unsigned int extra)
+			  UInt arity, unsigned int extra)
 {
   Yap_InitCPredBackCut(name, arity, extra, init, cont, cut, UserCPredFlag);
 }
@@ -2768,7 +2768,7 @@ YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredica
 
 
 X_API void
-YAP_UserCPredicateWithArgs(char *a, CPredicate f, unsigned long int arity, Term mod)
+YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)
 {
   PredEntry *pe;
   Term cm = CurrentModule;
