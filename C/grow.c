@@ -567,7 +567,7 @@ AdjustGlobal(long sz, int thread_copying)
 	*pt = GlobalAdjust(reg);
       else if (IsOldLocal(reg))
 	*pt = LocalAdjust(reg);
-      else if (IsOldCode(reg)) {
+      else if (IsOldCode(reg) || IsExtensionFunctor((Functor)reg)) {
 	Functor f;
 	f = (Functor)reg;
 	/* skip bitmaps */
@@ -857,6 +857,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
     do_grow is whether we expand stacks
   */
 
+  if (delay_overflows==833) jmp_deb(1);
   if (hsplit) {
     /* just a little bit of sanity checking */
     if (hsplit < H0 && hsplit > (CELL *)Yap_GlobalBase) {
