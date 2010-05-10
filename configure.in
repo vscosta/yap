@@ -519,6 +519,7 @@ then
     if test "$target_win64" = yes
     then
       AC_CHECK_LIB(ws2_32,main)
+      EXTRA_LIBS_FOR_DLLS=-lws2_32
     else
       if test "$target_os" = "cygwin"
       then
@@ -531,7 +532,12 @@ then
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="\${SYSTEMDRIVE}/Yap"
+      if test "$target_win64" = yes
+      then
+        prefix="\${SYSTEMDRIVE}/Yap64"
+      else
+        prefix="\${SYSTEMDRIVE}/Yap"
+      fi
     fi
     ENABLE_WINCONSOLE=""   
   else
@@ -1306,6 +1312,7 @@ AC_SUBST(SHLIB_LOWER_LD)
 AC_SUBST(SHLIB_LOWER_CXX_LD)
 AC_SUBST(SHLIB_SWI_LD)
 AC_SUBST(DYNLIB_LD)
+AC_SUBST(EXTRA_LIBS_FOR_DLLS)
 dnl objects in YAP library
 AC_SUBST(YAPLIB)
 AC_SUBST(DYNYAPLIB)

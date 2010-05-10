@@ -631,6 +631,7 @@ NO_BUILTIN_REGEXP
 YAP_EXTRAS
 DYNYAPLIB
 YAPLIB
+EXTRA_LIBS_FOR_DLLS
 DYNLIB_LD
 SHLIB_SWI_LD
 SHLIB_LOWER_CXX_LD
@@ -4948,6 +4949,7 @@ _ACEOF
 
 fi
 
+      EXTRA_LIBS_FOR_DLLS=-lws2_32
     else
       if test "$target_os" = "cygwin"
       then
@@ -5036,7 +5038,12 @@ fi
     yap_cv_readline=no
     if test "$prefix" = "NONE"
     then
-      prefix="\${SYSTEMDRIVE}/Yap"
+      if test "$target_win64" = yes
+      then
+        prefix="\${SYSTEMDRIVE}/Yap64"
+      else
+        prefix="\${SYSTEMDRIVE}/Yap"
+      fi
     fi
     ENABLE_WINCONSOLE=""
   else
@@ -8193,6 +8200,7 @@ fi
 
 
 EXEC_SUFFIX=""
+
 
 
 

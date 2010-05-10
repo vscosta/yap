@@ -80,7 +80,7 @@ uxnt.o: $(srcdir)/uxnt/uxnt.c
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
 
 @DO_SECOND_LD@plstream@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ -o plstream@SHLIB_SUFFIX@ $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ -o plstream@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
