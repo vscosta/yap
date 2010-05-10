@@ -415,13 +415,13 @@ extern X_API YAP_Int PROTO(YAP_CurrentSlot,(void));
 extern X_API YAP_Int PROTO(YAP_InitSlot,(YAP_Term));
 
 /*  YAP_Term  YAP_GetFromSlots(t)  */
-extern X_API YAP_Term PROTO(YAP_GetFromSlot,(YAP_Int int));
+extern X_API YAP_Term PROTO(YAP_GetFromSlot,(YAP_Int));
 
 /*  YAP_Term  YAP_AddressFromSlots(t)  */
-extern X_API YAP_Term *PROTO(YAP_AddressFromSlot,(YAP_Int int));
+extern X_API YAP_Term *PROTO(YAP_AddressFromSlot,(YAP_Int));
 
 /*  YAP_Term  YAP_PutInSlots(t)  */
-extern X_API void PROTO(YAP_PutInSlot,(YAP_Int int, YAP_Term));
+extern X_API void PROTO(YAP_PutInSlot,(YAP_Int, YAP_Term));
 
 /*  void  YAP_RecoverSlots()  */
 extern X_API int PROTO(YAP_RecoverSlots,(int));

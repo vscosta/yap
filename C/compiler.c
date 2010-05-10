@@ -2081,7 +2081,7 @@ c_head(Term t, compiler_struct *cglobs)
     Yap_emit(name_op, (CELL) AtomOfTerm(t), Zero, &cglobs->cint);
 #ifdef BEAM
    if (EAM) {
-     Yap_emit(run_op,Zero,(unsigned long) cglobs->cint.CurrentPred,&cglobs->cint);
+     Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
    }
 #endif
     return;
@@ -2090,7 +2090,7 @@ c_head(Term t, compiler_struct *cglobs)
   Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f), &cglobs->cint);
 #ifdef BEAM
    if (EAM) {
-     Yap_emit(run_op,Zero,(unsigned long) cglobs->cint.CurrentPred,&cglobs->cint);
+     Yap_emit(run_op,Zero,(UInt) cglobs->cint.CurrentPred,&cglobs->cint);
    }
 #endif
    if (Yap_ExecutionMode == MIXED_MODE_USER)
