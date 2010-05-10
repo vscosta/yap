@@ -558,7 +558,7 @@ p_put_atts(void) {
     } else {
       while (!(attv = BuildNewAttVar())) {
 	Yap_Error_Size = sizeof(attvar_record);
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
+	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  return FALSE;
 	}    
