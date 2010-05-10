@@ -2208,7 +2208,7 @@ X_API int PL_action(int action,...)
 X_API fid_t
 PL_open_foreign_frame(void)
 {
-  return 0;
+  return (fid_t)ASP;
 }
 
 X_API void
@@ -2224,8 +2224,6 @@ PL_rewind_foreign_frame(fid_t f)
 X_API void
 PL_discard_foreign_frame(fid_t f)
 {
-  if (f)
-    fprintf(stderr,"WARNING: PL_discard_foreign_frame not fully implemented!!\n");
   /* Missing: undo Trail!! */
 }
 
