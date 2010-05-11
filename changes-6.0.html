@@ -13,11 +13,26 @@
 
 <hr>
 
-<h1>Changes in YAP-5.1</h1>
+<h1>Changes in YAP-6</h1>
+
+<h2>Yap-6.0.6:</h2>
+<ul>
+<li> .</li>
+</ul>
 
 <h2>Yap-6.0.5:</h2>
 <ul>
-<li> .</li>
+<li> FIXED: get rid of L constants (use cast).</li>
+<li> FIXED: outputing inf and nan in WIN32/64 (obs from Paulo Moura).</li>
+<li> NEW: WIN64 port.</li>
+<li> FIXED: improve SWI frame handling.</li>
+<li> FIXED: stack expansion could rewrite doubles and big ints.</li>
+<li> FIXED: unsafe test for attvar could crash.</li>
+<li> FIXED: rbtree doc (from Jan Wielemaker).</li>
+<li> FIXED: trail marking should be careful to reset attvars to attvars.</li>
+<li> FIXED: pl_function_t not function_t.</li>
+<li> NEW: update sgml package to latest SWI.</li>
+<li> FIXED: automatic generation of SWI atoms.</li>
 <li> IMPROVEMENT: better emulation of SWI atom_t and functor_t. Now
 they can be defined to be a constant.</li>
 <li> FIXED: 64 bit complaints in Matlab interface.</li>
