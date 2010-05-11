@@ -19,6 +19,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 #include <stdlib.h>
+#include <math.h>
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
@@ -128,10 +129,31 @@ wrputf(Float f, wrf writewch)		/* writes a float	 */
 {
   char            s[256], *pt = s, ch;
 
+#if HAVE_ISNAN || defined(__WIN32)
+  if (isnan(f)) {
+    wrputs("(nan)", writewch);
+    lastw = separator;
+    return;
+  }
+#endif
   if (f < 0) {
+#if HAVE_ISINF || defined(_WIN32)
+    if (isinf(f)) {
+      wrputs("(-inf)", writewch);
+      lastw = separator;
+      return;
+    }
+#endif
     if (lastw == symbol)
       wrputc(' ', writewch);  
   } else {
+#if HAVE_ISINF || defined(_WIN32)
+    if (isinf(f)) {
+      wrputs("(+inf)", writewch);
+      lastw = separator;
+      return;
+    }
+#endif
     if (lastw == alphanum)
       wrputc(' ', writewch);
   }
@@ -140,14 +162,7 @@ wrputf(Float f, wrf writewch)		/* writes a float	 */
   sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
   while (*pt == ' ')
     pt++;
-  if (*pt == 'i' || *pt == 'n')  /* inf or nan */ {
-    wrputc('(', writewch);    
-    wrputc('+', writewch);    
-    wrputs(pt, writewch);
-    wrputc(')', writewch);    
-  } else {    
-    wrputs(pt, writewch);
-  }
+  wrputs(pt, writewch);
   if (*pt == '-') pt++;
   while ((ch = *pt) != '\0') {
     if (ch < '0' || ch > '9')
