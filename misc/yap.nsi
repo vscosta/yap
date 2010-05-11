@@ -56,8 +56,6 @@ Section "Base system (required)"
   File c:\Yap\lib\Yap\*.dll
 
   SetOutPath $INSTDIR\lib
-; SYSTEM STUFF
-  File c:\Yap\lib\Yap\libWYap.a
 
   SetOutPath $INSTDIR\lib
 ; SYSTEM STUFF
