@@ -33,8 +33,6 @@ yap_flag(V,Out) :-
 yap_flag(fast,on) :- set_value('$fast',true).
 yap_flag(fast,off) :- !, set_value('$fast',[]).
 
-:- dynamic autolader:autoload/0.
-
 % do or do not machine code
 yap_flag(autoload,V) :-
 	var(V), !,
