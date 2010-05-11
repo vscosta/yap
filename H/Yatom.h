@@ -1394,8 +1394,8 @@ typedef enum
 
 #include "YapHeap.h"
 
-#define  PredHashInitialSize      1039L
-#define  PredHashIncrement        7919L
+#define  PredHashInitialSize      ((UInt)1039)
+#define  PredHashIncrement        ((UInt)7919)
 
 EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
 

@@ -1236,7 +1236,7 @@ fix_tabling_info(void)
 static int
 do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
-  unsigned long size = sizeof(CELL) * 16 * 1024L;
+  unsigned long size = sizeof(CELL) * K16;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
   unsigned long sz =  size << shift_factor;
 
@@ -1252,7 +1252,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
       size = YAP_ALLOC_SIZE;
     sz = AdjustPageSize(SizeOfOverflow);
   }
-  while(sz >= sizeof(CELL) * 16 * 1024L && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep)) {
+  while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep)) {
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
@@ -1277,7 +1277,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
 #ifdef TABLING
   fix_tabling_info();
 #endif /* TABLING */
-  if (sz >= sizeof(CELL) * 16 * 1024L) {
+  if (sz >= sizeof(CELL) * K16) {
     LOCK(SignalLock);
     ActiveSignals &= ~YAP_CDOVF_SIGNAL;
     if (!ActiveSignals)
@@ -1427,7 +1427,7 @@ Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 int
 Yap_growglobal(CELL **ptr)
 {
-  unsigned long sz = sizeof(CELL) * 16 * 1024L;
+  unsigned long sz = sizeof(CELL) * K16;
 
 #if defined(YAPOR) || defined(THREADS)
   if (NOfThreads != 1) {
@@ -1662,8 +1662,8 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   size *= 2;
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
-  if (size > 2048*1024)
-    size = 2048*1024;
+  if (size > M2)
+    size = M2;
   if (size < size0)
     size=size0;
   /* adjust to a multiple of 256) */
@@ -1824,7 +1824,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   Int p_size = FOREIGN_ThreadHandle(worker_p).ssize+FOREIGN_ThreadHandle(worker_p).tsize;
   Int q_size = FOREIGN_ThreadHandle(worker_q).ssize+FOREIGN_ThreadHandle(worker_q).tsize;
   if (p_size != q_size) {
-    if (!(FOREIGN_ThreadHandle(worker_q).stack_address = realloc(FOREIGN_ThreadHandle(worker_q).stack_address,p_size*1024))) {
+    if (!(FOREIGN_ThreadHandle(worker_q).stack_address = realloc(FOREIGN_ThreadHandle(worker_q).stack_address,p_size*K1))) {
       exit(1);
     }
   }

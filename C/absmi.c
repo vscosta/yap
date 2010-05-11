@@ -835,7 +835,7 @@ Yap_absmi(int inp)
 	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
 	if(!Yap_growtrail (0, FALSE)) {
-	  Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	  Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	  setregs();
 	  FAIL();
 	}
@@ -14277,7 +14277,7 @@ Yap_absmi(int inp)
 #endif
 	  saveregs_and_ycache();
 	  if(!Yap_growtrail (0, FALSE)) {
-	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * 16 * 1024L);
+	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	    setregs_and_ycache();
 	    FAIL();
 	  }

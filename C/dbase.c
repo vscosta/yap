@@ -249,10 +249,10 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 static UInt new_trail_size(void)
 {
   UInt sz = (Yap_TrailTop-(ADDR)TR)/2;
-  if (sz < 64 * 1024L)
-    return 64 * 1024L;
-  if (sz > 1024*1024L)
-    return 1024*1024L;
+  if (sz < K64)
+    return K64;
+  if (sz > M1)
+    return M1;
   return sz;
 }
 

@@ -756,7 +756,7 @@ showprofres(UInt type) {
     pr->pcs = 0L;
     pr++;
     if (pr > (clauseentry *)Yap_TrailTop - 1024) {
-      Yap_growtrail(64 * 1024L, FALSE);
+      Yap_growtrail(K64, FALSE);
     }
     ProfPreds++;
 

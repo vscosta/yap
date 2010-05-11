@@ -605,7 +605,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 static inline CELL *expand_auxiliary_stack(CELL *stack) {
   void *old_top = Yap_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
-  if (! Yap_growtrail(64 * 1024L, TRUE)) {  /* TRUE means 'contiguous_only' */
+  if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
     Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
     return NULL;
   } else {

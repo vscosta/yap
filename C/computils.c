@@ -97,9 +97,9 @@ static char *
 AllocCMem (UInt size, struct intermediates *cip)
 {
 #if SIZEOF_INT_P==8
-  size = (size + 7) & 0xfffffffffffffff8L;
+  size = (size + 7) & ((UInt)-8);
 #else
-  size = (size + 3) & 0xfffffffcL;
+  size = (size + 3) & ((UInt)0xfffffffc);
 #endif
 #if USE_SYSTEM_MALLOC
   if (!cip->blks || cip->blk_cur+size > cip->blk_top) {

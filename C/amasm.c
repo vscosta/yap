@@ -3769,7 +3769,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
     case OUT_OF_TRAIL_ERROR:
       /* don't just return NULL */
       ARG1 = *tp;
-      if (!Yap_growtrail(64 * 1024L, FALSE)) {
+      if (!Yap_growtrail(K64, FALSE)) {
 	return NULL;
       }
       Yap_Error_TYPE = YAP_NO_ERROR;

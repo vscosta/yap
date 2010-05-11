@@ -1059,8 +1059,8 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
       sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+64 * 1024L)) {
-    Yap_growtrail(64 * 1024L, TRUE);
+      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+K64)) {
+    Yap_growtrail(K64, TRUE);
   }  else
 #endif
     {
@@ -1204,7 +1204,7 @@ SearchForTrailFault(siginfo_t *siginfo)
   if ((ptr > (void *)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr) Yap_TrailTop+(64*1024))) {
     if (!Yap_growtrail(64*1024, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */
@@ -1334,13 +1334,13 @@ SearchForTrailFault(void)
 #if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
   if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
        TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
-    long trsize = 64*2014L;
+    long trsize = K64;
 
     while ((CELL)TR > (CELL)Yap_TrailTop+trsize) {
-      trsize += 64*2014L;
+      trsize += K64;
     }
     if (!Yap_growtrail(trsize, TRUE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", 64*1024L);
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
     }
     /* just in case, make sure the OS keeps the signal handler. */
     /*    my_signal_info(SIGSEGV, HandleSIGSEGV); */

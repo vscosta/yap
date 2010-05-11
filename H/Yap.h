@@ -303,6 +303,12 @@ extern char Yap_Option[20];
 #define ALIGN_LONGS 1
 #endif
 
+#define K1   ((CELL)1024)
+#define K16  ((CELL)(1024*64))
+#define K64  ((CELL)(1024*64))
+#define M1   ((CELL)(1024*1024))
+#define M2   ((CELL)(2048*1024))
+
 /*  basic data types  */
 
 typedef UInt CELL;

@@ -4025,7 +4025,7 @@ static Int
 	}
 	if (Yap_Error_TYPE == OUT_OF_TRAIL_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_growtrail (sizeof(CELL) * 16 * 1024L, FALSE)) {
+	  if (!Yap_growtrail (sizeof(CELL) * K16, FALSE)) {
 	    return FALSE;
 	  }
 	} else if (Yap_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {

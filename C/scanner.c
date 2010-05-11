@@ -163,7 +163,7 @@ AllocScannerMemory(unsigned int size)
     ScannerExtraBlocks = ptr;
     return (char *)(ptr+1);
   } else if (Yap_TrailTop <= AuxSpScan+size) {
-    UInt alloc_size = sizeof(CELL) * 16 * 1024L;
+    UInt alloc_size = sizeof(CELL) * K16;
  
     if (size > alloc_size)
       alloc_size = size;
