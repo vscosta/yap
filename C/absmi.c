@@ -6283,7 +6283,7 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
       BEGD(d1);
       d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oi);
+      PREG = NEXTOP(PREG, oc);
       BIND_GLOBAL(pt0, d1, bind_ubigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
