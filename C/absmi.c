@@ -6360,8 +6360,8 @@ Yap_absmi(int inp)
 
       derefa_body(d0, pt0, udbterm_unk, udbterm_nonvar);
       BEGD(d1);
-      d1 = AbsAppl(PREG->u.oi.i);
-      PREG = NEXTOP(PREG, oi);
+      d1 = AbsAppl(PREG->u.oc.i);
+      PREG = NEXTOP(PREG, oc);
       BIND_GLOBAL(pt0, d1, bind_udbterm);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
