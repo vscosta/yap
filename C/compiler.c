@@ -3323,7 +3323,6 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 	ARG3 = src;
 
 	YAPLeaveCriticalSection();
-	fprintf(stderr,"ENV=%p %d\n",ENV, Yap_op_from_opcode(((yamop *)ENV[E_CP])->opc));
 	if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
 	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
 	  Yap_Error_Term = inp_clause;
