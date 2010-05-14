@@ -1521,15 +1521,6 @@ extend(_G,[],[],CompSub,CompSub):-!.
 extend(G,Cand,Not,CS,CSOut):-
 	extend_cycle(G,Cand,Not,CS,CSOut).
 	
-intersection([],_Y,[]).
-
-intersection([H|T],Y,[H|Z]):-
-	member(H,Y),!,
-	intersection(T,Y,Z).
-	
-intersection([_H|T],Y,Z):-
-	intersection(T,Y,Z).
-
 /* set(Par,Value) can be used to set the value of a parameter */
 set(Parameter,Value):-
 	retract(setting(Parameter,_)),

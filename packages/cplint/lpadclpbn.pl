@@ -283,7 +283,7 @@ get_prob(GL,AV,AVL,CVL,P):-
 	{G=goal with p([f,t],Table, Parents)},
 	append(AVL,CVL,Vars),
 	append(Vars,[G],Vars1),
-	clpbn:call_solver([G], Vars1),
+	clpbn:clpbn_run_solver([G], Vars1,_State),
 	clpbn_display:get_atts(G, [posterior(Vs,Vals,[_P0,P],AllDiffs)]).
 	
 lookup_gvars([],_AV,[],S,S).	
@@ -1166,15 +1166,6 @@ extend(_G,[],[],CompSub,CompSub):-!.
 extend(G,Cand,Not,CS,CSOut):-
 	extend_cycle(G,Cand,Not,CS,CSOut).
 	
-intersection([],_Y,[]).
-
-intersection([H|T],Y,[H|Z]):-
-	member(H,Y),!,
-	intersection(T,Y,Z).
-	
-intersection([_H|T],Y,Z):-
-	intersection(T,Y,Z).
-
 /* set(Par,Value) can be used to set the value of a parameter */
 set(Parameter,Value):-
 	retract(setting(Parameter,_)),
