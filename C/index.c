@@ -1802,14 +1802,11 @@ add_arg_info(ClauseDef *clause, PredEntry *ap, UInt argno)
     case _unify_bigint:
     case _unify_l_bigint:
       if (argno == 1) {
-#ifdef USE_GMP
 	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
-#else
-	clause->Tag = AbsAppl((CELL *)FunctorLongInt);	
-#endif
 	clause->u.t_ptr = cl->u.oc.c;
 	return;
       }
+      cl = NEXTOP(cl,oc);
       argno--;
       break;
     case _unify_n_atoms:
@@ -2714,7 +2711,7 @@ do_funcs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int firs
     if (IsExtensionFunctor(f)) {
       if (f == FunctorDBRef) 
 	ifs->u.Label = do_dbref_index(min, max, t, cint, argno, nxtlbl, first, clleft, top);
-      else if (f == FunctorLongInt) 
+      else if (f == FunctorLongInt || f == FunctorBigInt) 
 	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, FALSE);
       else
 	ifs->u.Label = do_blob_index(min, max, t, cint, argno, nxtlbl, first, clleft, top, TRUE);
@@ -3238,15 +3235,9 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
     if (cl->u.t_ptr == (CELL)NULL) { /* check whether it is a builtin */
       cl->Tag = Zero;
     } else if (blob) {
-      CELL *pt = RepAppl(cl->u.t_ptr);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-      cl->Tag = MkIntTerm(pt[1]^pt[2]);
-#else
-      cl->Tag = MkIntTerm(pt[1]);
-#endif
+      cl->Tag = Yap_Double_key(cl->u.t_ptr);
     } else {
-      CELL *pt = RepAppl(cl->u.t_ptr);
-      cl->Tag = MkIntTerm((pt[1] & (MAX_ABS_INT-1)));
+      cl->Tag = Yap_Int_key(cl->u.t_ptr);
     }
     cl++;
   }
@@ -3498,24 +3489,13 @@ install_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
 	  } else if (f == FunctorDouble) {
-	    CELL *pt = RepAppl(sp->extra);
-	    if (cls->u.t_ptr) {
-	      CELL *pt1 = RepAppl(cls->u.t_ptr);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	      Term t = MkIntTerm(pt[1]^pt[2]),
-		t1 = MkIntTerm(pt1[1]^pt1[2]);
-#else
-	      Term t = MkIntTerm(pt[1]),
-		t1 = MkIntTerm(pt1[1]);
-#endif
-	      if (t != t1) break;
-	    }
+	    if (cls->u.t_ptr &&
+		Yap_Double_key(sp->extra) != Yap_Double_key(cls->u.t_ptr))
+		break;
 	  } else {
-	    CELL *pt = RepAppl(sp->extra);
-	    CELL *pt1 = RepAppl(cls->u.t_ptr);
-	    Term t = MkIntTerm(pt[1] & (MAX_ABS_INT-1)),
-	      t1 = MkIntTerm(pt1[1] & (MAX_ABS_INT-1));
-	    if (t != t1) break;
+	    if (cls->u.t_ptr && 
+		Yap_Int_key(sp->extra) != Yap_Int_key(cls->u.t_ptr))
+		break;
 	  }
 	}
       }
@@ -3662,22 +3642,13 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	  if (f == FunctorDBRef) {
 	    if (cls->u.t_ptr != sp->extra) break;
 	  } else if (f == FunctorDouble) {
-	    CELL *pt = RepAppl(sp->extra);
-	    CELL *pt1 = RepAppl(cls->u.t_ptr);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	    Term t = MkIntTerm(pt[1]^pt[2]),
-	      t1 = MkIntTerm(pt1[1]^pt1[2]);
-#else
-	    Term t = MkIntTerm(pt[1]),
-	      t1 = MkIntTerm(pt1[1]);
-#endif
-	    if (t != t1) break;
+	    if (cls->u.t_ptr &&  
+		Yap_Double_key(sp->extra) != Yap_Double_key(cls->u.t_ptr))
+		break;
 	  } else {
-	    CELL *pt = RepAppl(sp->extra);
-	    CELL *pt1 = RepAppl(cls->u.t_ptr);
-	    Term t = MkIntTerm(pt[1] & (MAX_ABS_INT-1)),
-	      t1 = MkIntTerm(pt1[1] & (MAX_ABS_INT-1));
-	    if (t != t1) break;
+	    if (cls->u.t_ptr && 
+		Yap_Int_key(sp->extra) != Yap_Int_key(cls->u.t_ptr))
+		break;
 	  }
 	}
       }
@@ -4109,17 +4080,13 @@ expand_index(struct intermediates *cint) {
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-      t = MkIntTerm(s_reg[0]^s_reg[1]);
-#else
-      t = MkIntTerm(s_reg[0]);
-#endif
+      t = Yap_DoubleP_key(s_reg);
       sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      t = MkIntTerm((s_reg[0] & (MAX_ABS_INT-1)));
+      t = Yap_IntP_key(s_reg);
       sp[-1].extra = AbsAppl(s_reg-1);
       s_reg = NULL;
       ipc = NEXTOP(ipc,e);
@@ -5935,21 +5902,11 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      {
-	CELL *pt = RepAppl(cls->u.t_ptr);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	cls->Tag = MkIntTerm(pt[1]^pt[2]);
-#else
-	cls->Tag = MkIntTerm(pt[1]);
-#endif
-      }
+      cls->Tag = Yap_Double_key(cls->u.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      {
-	CELL *pt = RepAppl(cls->u.t_ptr);
-	cls->Tag = MkIntTerm((pt[1] & (MAX_ABS_INT-1)));
-      }
+      cls->Tag = Yap_Int_key(cls->u.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -6436,21 +6393,11 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-      {
-	CELL *pt = RepAppl(cls->u.t_ptr);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-	cls->Tag = MkIntTerm(pt[1]^pt[2]);
-#else
-	cls->Tag = MkIntTerm(pt[1]);
-#endif
-      }
+      cls->Tag = Yap_Double_key(cls->u.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      {
-	CELL *pt = RepAppl(cls->u.t_ptr);
-	cls->Tag = MkIntTerm(pt[1] & (MAX_ABS_INT-1));
-      }
+      cls->Tag = Yap_Int_key(cls->u.t_ptr);
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -7109,15 +7056,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-      t = MkIntTerm(s_reg[0]^s_reg[1]);
-#else
-      t = MkIntTerm(s_reg[0]);
-#endif
+      t = Yap_DoubleP_key(s_reg);
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
-      t = MkIntTerm(s_reg[0] & (MAX_ABS_INT-1));
+      t = Yap_IntP_key(s_reg);
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
