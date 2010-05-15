@@ -683,15 +683,6 @@ extend(_G,[],[],CompSub,CompSub):-!.
 extend(G,Cand,Not,CS,CSOut):-
 	extend_cycle(G,Cand,Not,CS,CSOut).
 	
-intersection([],_Y,[]).
-
-intersection([H|T],Y,[H|Z]):-
-	member(H,Y),!,
-	intersection(T,Y,Z).
-	
-intersection([_H|T],Y,Z):-
-	intersection(T,Y,Z).
-
 convert_body((~ A & B),[\+ A|B1]):-!,
 	convert_body(B,B1).
 
