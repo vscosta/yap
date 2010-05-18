@@ -21,9 +21,10 @@
 #endif /* HAVE_STRING_H */
 #include "opt.mavar.h"
 
-static inline choiceptr freeze_current_cp(void);
-static inline void resume_frozen_cp(choiceptr);
-static inline void abolish_all_frozen_cps(void);
+static inline Int freeze_current_cp(void);
+static inline void wake_frozen_cp(Int);
+static inline void abolish_frozen_cps_until(Int);
+static inline void abolish_frozen_cps_all(void);
 static inline void adjust_freeze_registers(void);
 static inline void mark_as_completed(sg_fr_ptr);
 static inline void unbind_variables(tr_fr_ptr, tr_fr_ptr);
@@ -421,7 +422,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 **      Inline funcions      **
 ******************************/
 
-static inline choiceptr freeze_current_cp(void) {
+static inline Int freeze_current_cp(void) {
   choiceptr freeze_cp = B;
 
   B_FZ  = freeze_cp;
@@ -429,11 +430,13 @@ static inline choiceptr freeze_current_cp(void) {
   TR_FZ = freeze_cp->cp_tr;
   B = B->cp_b;
   HB = B->cp_h;
-  return freeze_cp;
+  return (Yap_LocalBase - (ADDR)freeze_cp);
 }
 
 
-static inline void resume_frozen_cp(choiceptr frozen_cp) {
+static inline void wake_frozen_cp(Int frozen_offset) {
+  choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
+
   restore_bindings(TR, frozen_cp->cp_tr);
   B = frozen_cp;
   TR = TR_FZ;
@@ -442,7 +445,17 @@ static inline void resume_frozen_cp(choiceptr frozen_cp) {
 }
 
 
-static inline void abolish_all_frozen_cps(void) {
+static inline void abolish_frozen_cps_until(Int frozen_offset) {
+  choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
+
+  B_FZ  = frozen_cp;
+  H_FZ  = frozen_cp->cp_h;
+  TR_FZ = frozen_cp->cp_tr;
+  return;
+}
+
+
+static inline void abolish_frozen_cps_all(void) {
   B_FZ  = (choiceptr) Yap_LocalBase;
   H_FZ  = (CELL *) Yap_GlobalBase;
   TR_FZ = (tr_fr_ptr) Yap_TrailBase;
