@@ -37,7 +37,9 @@
 #ifdef TABLING
 static Int p_freeze_choice_point(void);
 static Int p_wake_choice_point(void);
-static Int p_abolish_all_frozen_choice_points(void);
+static Int p_reset_frozen_choice_points(void);
+static Int p_abolish_frozen_choice_points_until(void);
+static Int p_abolish_frozen_choice_points_all(void);
 static Int p_table(void);
 static Int p_tabling_mode(void);
 static Int p_abolish_table(void);
@@ -122,7 +124,8 @@ void Yap_init_optyap_preds(void) {
 #ifdef TABLING
   Yap_InitCPred("freeze_choice_point", 1, p_freeze_choice_point, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("wake_choice_point", 1, p_wake_choice_point, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("abolish_all_frozen_choice_points", 0, p_abolish_all_frozen_choice_points, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("abolish_frozen_choice_points", 1, p_abolish_frozen_choice_points_until, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("abolish_frozen_choice_points", 0, p_abolish_frozen_choice_points_all, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -170,32 +173,32 @@ void finish_yapor(void) {
 
 #ifdef TABLING
 static Int p_freeze_choice_point(void) {
-  Term term_arg, term_cp;
-
-  term_arg = Deref(ARG1);
-  if (IsVarTerm(term_arg)) {
-    choiceptr cp = freeze_current_cp();
-    term_cp = MkIntegerTerm((Int) cp);
-    return Yap_unify(ARG1, term_cp);
+  if (IsVarTerm(Deref(ARG1))) {
+    Int offset = freeze_current_cp();
+    return Yap_unify(ARG1, MkIntegerTerm(offset));
   }
   return (FALSE);
 }
 
 
 static Int p_wake_choice_point(void) {
-  Term term_arg;
-
-  term_arg = Deref(ARG1);
-  if (IsIntegerTerm(term_arg)) {
-    choiceptr cp = (choiceptr) IntegerOfTerm(term_arg);
-    resume_frozen_cp(cp);
-  }
+  Term term_offset = Deref(ARG1);
+  if (IsIntegerTerm(term_offset))
+    wake_frozen_cp(IntegerOfTerm(term_offset));
   return (FALSE);
 }
 
 
-static Int p_abolish_all_frozen_choice_points(void) {
-  abolish_all_frozen_cps();
+static Int p_abolish_frozen_choice_points_until(void) {
+  Term term_offset = Deref(ARG1);
+  if (IsIntegerTerm(term_offset))
+    abolish_frozen_cps_until(IntegerOfTerm(term_offset));
+  return (TRUE);
+}
+
+
+static Int p_abolish_frozen_choice_points_all(void) {
+  abolish_frozen_cps_all();
   return (TRUE);
 }
 

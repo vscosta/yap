@@ -551,3 +551,41 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
     }
   return (FALSE);
 }
+
+static inline
+CELL Yap_IntP_key(CELL *pt)
+{
+#ifdef USE_GMP
+  if (((Functor)pt[-1] == FunctorBigInt)) {
+    MP_INT *b1 = Yap_BigIntOfTerm(AbsAppl(pt-1));
+    /* first cell in program */
+    CELL val = ((CELL *)(b1+1))[0];
+    return MkIntTerm(val & (MAX_ABS_INT-1));
+  }
+#endif
+  return MkIntTerm(pt[0] & (MAX_ABS_INT-1));
+}
+
+static inline
+CELL Yap_Int_key(Term t)
+{
+  return Yap_IntP_key(RepAppl(t)+1);
+}
+
+static inline
+CELL Yap_DoubleP_key(CELL *pt)
+{
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+  CELL val = pt[0]^pt[1];
+#else
+  CELL val = pt[0];
+#endif
+  return MkIntTerm(val & (MAX_ABS_INT-1));  
+}
+
+static inline
+CELL Yap_Double_key(Term t)
+{
+  return Yap_DoubleP_key(RepAppl(t)+1);
+}
+

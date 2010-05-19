@@ -9012,17 +9012,13 @@ Yap_absmi(int inp)
       
       Op(index_blob, e);
       PREG = NEXTOP(PREG, e);
-#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
-      I_R = MkIntTerm(SREG[0]^SREG[1]);
-#else
-      I_R = MkIntTerm(SREG[0]);
-#endif
+      I_R = Yap_DoubleP_key(SREG);
       GONext();
       ENDOp();
       
       Op(index_long, e);
       PREG = NEXTOP(PREG, e);
-      I_R = MkIntTerm(SREG[0] & (MAX_ABS_INT-1));
+      I_R = Yap_IntP_key(SREG);
       GONext();
       ENDOp();
       
