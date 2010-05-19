@@ -155,8 +155,10 @@ FunctorToSWIFunctor(Functor at)
 static inline Functor
 SWIFunctorToFunctor(functor_t at)
 {
-  if ((CELL)at & 1)
-    return SWI_Functors[at>>1];
+  if (IsAtomTerm(at))
+    return (Functor)at;
+  if (IsApplTerm(at))
+    return SWI_Functors[((CELL)RepAppl((CELL)at))/sizeof(CELL)];
   return (Functor)at;
 }
 
@@ -169,7 +171,7 @@ Yap_InitSWIHash(void)
     add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash(j*2+1, (ADDR)SWI_Functors[j]);
+    add_to_hash(AbsAppl((CELL *)(j*sizeof(CELL))), (ADDR)SWI_Functors[j]);
   }
 }
 
