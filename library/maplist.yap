@@ -431,7 +431,7 @@ goal_expansion(exclude(Meta, ListIn, ListOut), Mod:Goal) :-
 	compile_aux([
 		     Base,
 		     (RecursionHead :-
-		         (Apply -> Outs = [In|NOuts]; Outs = NOuts),
+		         (Apply -> Outs = NOuts; Outs = [In|NOuts]),
 			 RecursiveCall)
 		    ], Mod).
 
