@@ -3328,6 +3328,20 @@ in @var{TI} are also duplicated.
 
 Also refer to @code{copy_term/2}.
 
+@item is_list(+@var{List})
+@findex is_list/1
+@syindex is_list/1
+@cnindex is_list/1
+True when @var{List} is a proper list. That is, @var{List}
+is bound to the empty list (nil) or a term with functor '.' and arity 2.
+
+@item ?@var{Term1} =@= ?@var{Term2}
+@findex  =@=/2
+@syindex =@=/2
+@cnindex =@=/2
+
+Same as @code{variant/2}, succeeds if @var{Term1} and @var{Term2} are variant terms.
+
 @end table
 
 @node Predicates on Atoms, Predicates on Characters, Testing Terms, Top
@@ -8813,13 +8827,6 @@ L = [1,2,3,4,5,6,7,8] ? ;
 
 no
 @end example
-
-@item is_list(+@var{List})
-@findex is_list/1
-@syindex is_list/1
-@cnindex is_list/1
-True when @var{List} is a proper list. That is, @var{List}
-is bound to the empty list (nil) or a term with functor '.' and arity 2.
 
 @item last(+@var{List},?@var{Last})
 @findex last/2
