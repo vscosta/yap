@@ -325,7 +325,7 @@ db_sql(Connection,SQL,LA):-
 	    db_my_result_set(Mode),
 	    c_db_my_query(SQL,ResultSet,Con,Mode,Arity)
 	;
-	    c_db_odbc_number_of_fields(SQL,Con,Arity)
+	    c_db_odbc_number_of_fields_in_query(SQL,Con,Arity)
 	),
 	'$make_a_list'(Arity,LA),
 	( ConType == mysql ->
