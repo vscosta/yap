@@ -25,11 +25,6 @@
 				      '$check_list_on_list'/2
 				      ]).
 
-:- use_module(lists,[
-		     is_list/1
-		     ]).
-
-
 '$error_checks'(db_abolish(ModulePredName,Arity)):-!,
 	(ModulePredName = Module:PredName ->
 	    atom(Module),

@@ -39,119 +39,157 @@ STATIC_PROTO(Int c_db_odbc_row_cut,(void));
 STATIC_PROTO(Int c_db_odbc_get_fields_properties,(void));
 STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,(void));
 
+static int
+odbc_error(SQLSMALLINT type, SQLHANDLE hdbc, char *msg, char *print)
+{                                                             
+  SQLCHAR       SqlState[6], Msg[SQL_MAX_MESSAGE_LENGTH];	  
+  SQLINTEGER    NativeError;                                  
+  SQLSMALLINT   i=1, MsgLen;
 
-#define SQLALLOCHANDLE(A,B,C,print)                               \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLAllocHandle(A,B,C);                                \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLAllocHandle(ENV) %s\n",print);           \
-      return FALSE;                                               \
-    }                                                             \
+  SQLGetDiagRec(type, hdbc,i,SqlState,&NativeError,Msg, sizeof(Msg), &MsgLen);
+  fprintf(stderr,"%% error in SQLConnect: %s got error code %s\n%% SQL Message: %s\n", print, SqlState, Msg);
+  return FALSE;                                               
 }
 
-#define SQLSETENVATTR(A,B,C,D,print)                              \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLSetEnvAttr(A,B,C,D);                               \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLSetEnvAttr %s\n",print);                 \
-      return FALSE;                                               \
-    }                                                             \
+static int
+SQLALLOCHANDLE(SQLSMALLINT HandleType, SQLHANDLE hdbc, SQLHANDLE *outHandle, char *print)
+{
+  SQLRETURN retcode;                                              
+
+  retcode = SQLAllocHandle(HandleType,hdbc,outHandle);
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    {                                                    
+      return odbc_error(HandleType, hdbc, "SQLAllocHandle(ENV)", print);
+    }
+  return TRUE;
 }
 
-#define SQLCONNECT(A,B,C,D,E,F,G,print)                           \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLConnect(A,B,C,D,E,F,G);                            \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLConnect %s\n",print);                    \
-      return FALSE;                                               \
-    }                                                             \
+static int
+SQLSETENVATTR(SQLHENV henv, SQLINTEGER att, SQLPOINTER p, SQLINTEGER len, char *print)
+{
+  SQLRETURN retcode;                                              
+
+  retcode = SQLSetEnvAttr(henv,att,p,len);
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    {                                                    
+      return odbc_error(SQL_HANDLE_ENV, henv, "SQLSetEnvAttr", print);
+    }
+  return TRUE;
 }
 
-#define SQLEXECDIRECT(A,B,C,print)                                \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLExecDirect(A,B,C);                                 \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLExecDirect %s \n",print);                \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLCONNECT(SQLHDBC     hdbc, 
+		       SQLCHAR *driver,
+		       SQLCHAR *user,
+		       SQLCHAR *password,
+		       char *print)				  
+{                                                                 
+  SQLRETURN retcode;                                              
+
+  retcode = SQLConnect(hdbc,driver,SQL_NTS,user,SQL_NTS,password,SQL_NTS);	    
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_DBC, hdbc, "SQLConnect", print);
+  return TRUE;
 }
 
-#define SQLDESCRIBECOL(A,B,C,D,E,F,G,H,I,print)                   \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLDescribeCol(A,B,C,D,E,F,G,H,I);                    \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLDescribeCol %s\n",print);                \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLEXECDIRECT(SQLHSTMT     StatementHandle,
+			 SQLCHAR *    StatementText,
+			 char *print)				  
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLExecDirect(StatementHandle,StatementText,SQL_NTS);
+  
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, StatementHandle, "SQLExecDirect", print);
+  return TRUE;
 }
 
-#define SQLSETCONNECTATTR(A,B,C,D,print)                          \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLSetConnectAttr(A,B,C,D);                           \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLSetConnectAttr %s\n",print);             \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLDESCRIBECOL(SQLHSTMT       sth,
+			  SQLSMALLINT    colno,
+			  SQLCHAR *      colname,
+			  SQLSMALLINT    bflength,
+			  SQLSMALLINT *  nmlengthp,
+			  SQLSMALLINT *  dtptr,
+			  SQLULEN *      colszptr,
+			  SQLSMALLINT *  ddptr,
+			  SQLSMALLINT *  nullableptr,
+			  char *         print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLDescribeCol(sth, colno, colname, bflength,
+			   nmlengthp, dtptr, colszptr, ddptr,
+			   nullableptr);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sth, "SQLDescribeCol", print);
+  return TRUE;
 }
 
-#define SQLBINDCOL(A,B,C,D,E,F,print)                             \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLBindCol(A,B,C,D,E,F);                              \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLbindCol %s\n",print);                    \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLSETCONNECTATTR(SQLHDBC       hdbc,
+			     SQLINTEGER    attr,
+			     SQLPOINTER    vptr,
+			     SQLINTEGER    slen,
+			     char *         print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLSetConnectAttr(hdbc, attr, vptr, slen);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, hdbc, "SQLSetConnectAttr", print);
+  return TRUE;
 }
 
-#define SQLFREESTMT(A,B,print)                                    \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLFreeStmt(A,B);                                     \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLFreeStmt %s\n",print);                   \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLBINDCOL(SQLHSTMT       sthandle,
+		      SQLUSMALLINT   colno,
+		      SQLSMALLINT    tt,
+		      SQLPOINTER     tvptr,
+		      SQLLEN         blen,
+		      SQLLEN *       strl,
+		      char *         print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLBindCol(sthandle,colno,tt,tvptr,blen,strl);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLBindCol", print);
+  return TRUE;
 }
 
-#define SQLNUMRESULTCOLS(A,B,print)                               \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLNumResultCols(A,B);                                \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLNumResultCols %s\n",print);              \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLFREESTMT(SQLHSTMT       sthandle,
+		       SQLUSMALLINT   opt,
+		       char *         print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLFreeStmt(sthandle,opt);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLFreeStmt", print);
+  return TRUE;
+}
+
+static int SQLNUMRESULTCOLS(SQLHSTMT        sthandle,
+			    SQLSMALLINT *   ncols,
+			    char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLNumResultCols(sthandle,ncols);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLNumResultCols", print);
+  return TRUE;
+}
+
+static int SQLCLOSECURSOR(SQLHSTMT        sthandle,
+			  char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLCloseCursor(sthandle);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLCloseCursor", print);
+  return TRUE;
 }
 
 
-#define SQLCLOSECURSOR(A,print)                                   \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLCloseCursor(A);                                    \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLCloseCursor %s\n",print);                \
-      return FALSE;                                               \
-    }                                                             \
-}
-
-/* no db_odbc_row não é utilizada esta macro*/
 #define SQLFETCH(A,print)                                         \
 {                                                                 \
   SQLRETURN retcode;                                              \
@@ -160,77 +198,111 @@ STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,(void));
     break;                                                        \
   if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
     {                                                             \
-      printf("erro no SQLFETCH %s\n",print);                      \
+      printf("Error in SQLFETCH: %s\n",print);                    \
       return FALSE;                                               \
     }                                                             \
 }
 
-#define SQLGETDATA(A,B,C,D,E,F,print)                             \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLGetData(A,B,C,D,E,F);                              \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLgetdata %s\n",print);                    \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLGETDATA(SQLHSTMT       sthandle,
+		      SQLUSMALLINT   Col_or_Param_Num,
+		      SQLSMALLINT    TargetType,
+		      SQLPOINTER     TargetValuePtr,
+		      SQLLEN         BufferLength,
+		      SQLLEN *       StrLen_or_IndPtr,
+		      char *         print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLGetData(sthandle, Col_or_Param_Num, 
+		       TargetType, TargetValuePtr,
+		       BufferLength, StrLen_or_IndPtr);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLGetData", print);
+  return TRUE;
 }
 
-#define SQLDISCONNECT(A,print)                                    \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLDisconnect(A);                                     \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLDisconnect %s\n",print);                 \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLDISCONNECT(SQLHSTMT        sthandle,
+			 char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLDisconnect(sthandle);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_DBC, sthandle, "SQLDisconnect", print);
+  return TRUE;
 }
 
-#define SQLFREEHANDLE(A,B,print)                                  \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLFreeHandle(A,B);                                   \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLFreeHandle %s\n",print);                 \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLFREEHANDLE(SQLSMALLINT   HandleType,
+			 SQLHANDLE     Handle,
+			 char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLFreeHandle(HandleType, Handle);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(HandleType, Handle, "SQLDisconnect", print);
+  return TRUE;
 }
 
-#define SQLPRIMARYKEYS(A,B,C,D,E,F,G,print)                       \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLPrimaryKeys(A,B,C,D,E,F,G);                        \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLPrimaryKeys %s\n",print);                \
-      return FALSE;                                               \
-    }                                                             \
+static int SQLPRIMARYKEYS(SQLHSTMT       StatementHandle,
+			  SQLCHAR *      CatalogName,
+			  SQLSMALLINT    NameLength1,
+			  SQLCHAR *      SchemaName,
+			  SQLSMALLINT    NameLength2,
+			  SQLCHAR *      TableName,
+			  SQLSMALLINT    NameLength3,
+			  char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLPrimaryKeys(StatementHandle, 
+			   CatalogName, NameLength1,
+			   SchemaName, NameLength2,
+			   TableName, NameLength3
+			   );
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, StatementHandle, "SQLPrimaryKeys", print);
+  return TRUE;
 }
 
-#define SQLGETTYPEINFO(A,B,print)                                 \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLGetTypeInfo(A,B);                                  \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLGetTypeInfo %s\n",print);                \
-      return FALSE;                                               \
-    }                                                             \
-}
+/********************************************
+ NOT IN USE
+static int SQLGETTYPEINFO(SQLHSTMT      StatementHandle,
+			  SQLSMALLINT   DataType,
+			  char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLGetTypeInfo(StatementHandle, DataType);
 
-#define SQLCOLATTRIBUTE(A,B,C,D,E,F,G,print)                      \
-{                                                                 \
-  SQLRETURN retcode;                                              \
-  retcode = SQLColAttribute(A,B,C,D,E,F,G);                       \
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) \
-    {                                                             \
-      printf("erro no SQLColAttribute %s\n",print);               \
-      return FALSE;                                               \
-    }                                                             \
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, StatementHandle, "SQLGetTypeInfo", print);
+  return TRUE;
 }
+********************************************/
 
+static int SQLCOLATTRIBUTE( SQLHSTMT        StatementHandle,
+			    SQLUSMALLINT    ColumnNumber,
+			    SQLUSMALLINT    FieldIdentifier,
+			    SQLPOINTER      CharacterAttributePtr,
+			    SQLSMALLINT     BufferLength,
+			    SQLSMALLINT *   StringLengthPtr,
+			    SQLLEN *        NumericAttributePtr,
+			    char *          print)
+{                                                                 
+  SQLRETURN retcode;                                              
+  retcode = SQLColAttribute(StatementHandle,
+			    ColumnNumber,
+			    FieldIdentifier,
+			    CharacterAttributePtr,
+			    BufferLength,
+			    StringLengthPtr,
+			    NumericAttributePtr
+);
+
+  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
+    return odbc_error(SQL_HANDLE_STMT, StatementHandle, "SQLColAttribute", print);
+  return TRUE;
+}
 
 
 /* Verificar tipo de dados*/
@@ -265,19 +337,23 @@ c_db_odbc_connect(void) {
   SQLHDBC     hdbc;
    
   /*Allocate environment handle */
-  SQLALLOCHANDLE(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv, "connect"); 
+  if (!SQLALLOCHANDLE(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv, "connect"))
+    return FALSE;
   /* Set the ODBC version environment attribute */
-  SQLSETENVATTR(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0, "connect"); 
+  if (!SQLSETENVATTR(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER)SQL_OV_ODBC3, 0, "connect"))
+    return FALSE; 
   /* Allocate connection handle */
-  SQLALLOCHANDLE(SQL_HANDLE_DBC, henv, &hdbc, "connect"); 
+  if (!SQLALLOCHANDLE(SQL_HANDLE_DBC, henv, &hdbc, "connect"))
+    return FALSE; 
   /* Set login timeout to 6 seconds. */
-  SQLSETCONNECTATTR(hdbc, SQL_LOGIN_TIMEOUT,(SQLPOINTER) 6, 0, "connect");
+  if (!SQLSETCONNECTATTR(hdbc, SQL_LOGIN_TIMEOUT,(SQLPOINTER) 6, 0, "connect"))
+    return FALSE;
   /* Connect to data source */
-  SQLCONNECT(hdbc,
-	     (SQLCHAR*) driver, SQL_NTS,
-	     (SQLCHAR*) user, SQL_NTS,
-	     (SQLCHAR*) passwd, SQL_NTS, "connect");
-  
+  if (!SQLCONNECT(hdbc,
+		  (SQLCHAR*) driver,
+		  (SQLCHAR*) user,
+		  (SQLCHAR*) passwd, "connect"))
+    return FALSE;
   if (!Yap_unify(arg_conn, MkIntegerTerm((Int)(hdbc))))
     return FALSE;
   else
@@ -286,7 +362,7 @@ c_db_odbc_connect(void) {
       //new = add_connection(&TOP,hdbc,henv);
       new = myddas_util_add_connection(hdbc,henv);
       if (new == NULL){
-	printf("Erro ao alocar memoria para lista\n");
+	fprintf(stderr,"Error: could not allocate list memory\n");
 	return FALSE;
       }
       return TRUE;
@@ -302,20 +378,21 @@ c_db_odbc_query(void) {
   Term arg_bind_list = Deref(ARG4);
   Term arg_conn = Deref(ARG5);
 
-  SQLCHAR *sql = AtomName(AtomOfTerm(arg_sql_query));
+  SQLCHAR *sql = (SQLCHAR *)AtomName(AtomOfTerm(arg_sql_query));
   
   
   SQLHDBC  hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
   SQLHSTMT hstmt;
   SQLSMALLINT type;
-  
-  /*Allocate an handle for the query*/ 
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_query");
-  /* Executes the query*/ 
-  SQLEXECDIRECT(hstmt,sql,SQL_NTS, "db_query");
-  
   Int arity;
   Int i;
+  
+  /*Allocate an handle for the query*/ 
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_query"))
+    return FALSE;
+  /* Executes the query*/ 
+  if (!SQLEXECDIRECT(hstmt, sql, "db_query"))
+    return FALSE;
   
   if (IsNonVarTerm(arg_arity)){
     arity = IntegerOfTerm(arg_arity);
@@ -330,20 +407,22 @@ c_db_odbc_query(void) {
   
     Term head,list=arg_bind_list;
 
-    SQLUINTEGER ColumnSizePtr;
-    SQLINTEGER *data_info=NULL;
+    SQLULEN     ColumnSizePtr;
+    SQLLEN *data_info=NULL;
 
     for (i=1;i<=arity;i++)
       {
 	head = HeadOfTerm(list);
 	list = TailOfTerm(list);
         
-	SQLDESCRIBECOL(hstmt,i,NULL,0,NULL,&type,&ColumnSizePtr,NULL,NULL,"db_query");
+	if (!SQLDESCRIBECOL(hstmt,i,NULL,0,NULL,&type,&ColumnSizePtr,NULL,NULL,"db_query"))
+	  return FALSE;
 	
 	/* +1 because of '\0' */
 	bind_space = malloc(sizeof(char)*(ColumnSizePtr+1));
 	data_info = malloc(sizeof(SQLINTEGER));
-	SQLBINDCOL(hstmt,i,SQL_C_CHAR,bind_space,(ColumnSizePtr+1),data_info,"db_query");
+	if (!SQLBINDCOL(hstmt,i,SQL_C_CHAR,bind_space,(ColumnSizePtr+1),data_info,"db_query"))
+	  return FALSE;
 	
 	properties[0] = MkIntegerTerm((Int)bind_space);
 	properties[2] = MkIntegerTerm((Int)data_info);
@@ -363,8 +442,10 @@ c_db_odbc_query(void) {
   
   if (!Yap_unify(arg_result_set, MkIntegerTerm((Int) hstmt)))
     {
-      SQLCLOSECURSOR(hstmt,"db_query");
-      SQLFREESTMT(hstmt,SQL_CLOSE,"db_query");
+      if (!SQLCLOSECURSOR(hstmt,"db_query"))
+	return FALSE;
+      if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_query"))
+	return FALSE;
       return FALSE;
     }
   return TRUE;
@@ -387,8 +468,10 @@ c_db_odbc_number_of_fields(void) {
 
   sprintf(sql,"DESCRIBE %s",relation);
   
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_number_of_fields");
-  SQLEXECDIRECT(hstmt,sql,SQL_NTS, "db_number_of_fields");  
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_number_of_fields"))
+    return FALSE;
+  if (!SQLEXECDIRECT(hstmt, (SQLCHAR *)sql, "db_number_of_fields"))
+    return FALSE;  
   
   /* Calcula o numero de campos*/
   number_fields=0;
@@ -397,8 +480,10 @@ c_db_odbc_number_of_fields(void) {
     number_fields++;
   }
   
-  SQLCLOSECURSOR(hstmt,"db_number_of_fields");
-  SQLFREESTMT(hstmt,SQL_CLOSE,"db_number_of_fields");
+  if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields"))
+    return FALSE;
+  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_number_of_fields"))
+    return FALSE;
   
   if (!Yap_unify(arg_fields, MkIntegerTerm(number_fields)))
     return FALSE;
@@ -423,8 +508,10 @@ c_db_odbc_get_attributes_types(void) {
 
   sprintf(sql,"DESCRIBE %s",relation);
 
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_attributes_types");
-  SQLEXECDIRECT(hstmt,sql,SQL_NTS, "db_get_attributes_types");
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_attributes_types"))
+    return FALSE;
+  if (!SQLEXECDIRECT(hstmt, (SQLCHAR *)sql, "db_get_attributes_types"))
+    return FALSE;
   
   while (TRUE) 
     {
@@ -433,7 +520,8 @@ c_db_odbc_get_attributes_types(void) {
       /* Tentar fazer de uma maneira que a gente consiga calcular o tamanho que o 
        nome do campo vai ocupar, assim podemos alocar memoria dinamicamente*/
       sql[0]='\0';
-      SQLGETDATA(hstmt, 1, SQL_C_CHAR, sql, 256, NULL, "db_get_attributes_types");
+      if (!SQLGETDATA(hstmt, 1, SQL_C_CHAR, sql, 256, NULL, "db_get_attributes_types"))
+	return FALSE;
       
       head = HeadOfTerm(list);
       Yap_unify(head, MkAtomTerm(Yap_LookupAtom(sql)));
@@ -442,7 +530,8 @@ c_db_odbc_get_attributes_types(void) {
       list = TailOfTerm(list);
   
       sql[0]='\0';
-      SQLGETDATA(hstmt, 2, SQL_C_CHAR, sql, 256, NULL, "db_get_attributes_types");
+      if (!SQLGETDATA(hstmt, 2, SQL_C_CHAR, sql, 256, NULL, "db_get_attributes_types"))
+	return FALSE;
       
       if (strncmp(sql, "smallint",8) == 0 || strncmp(sql,"int",3) == 0 ||
 	  strncmp(sql, "mediumint",9) == 0 || strncmp(sql, "tinyint",7) == 0 ||
@@ -456,8 +545,10 @@ c_db_odbc_get_attributes_types(void) {
 	  Yap_unify(head, MkAtomTerm(Yap_LookupAtom("string")));
     }
   
-  SQLCLOSECURSOR(hstmt,"db_get_attributes_types");
-  SQLFREESTMT(hstmt,SQL_CLOSE, "db_get_attributes_types");
+  if (!SQLCLOSECURSOR(hstmt,"db_get_attributes_types"))
+    return FALSE;
+  if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_get_attributes_types"))
+    return FALSE;
   return TRUE;
 }
 
@@ -474,9 +565,12 @@ c_db_odbc_disconnect(void) {
       myddas_util_delete_connection(conn);
       /* More information about this process on
 	 msdn.microsoft.com*/
-      SQLDISCONNECT(conn,"db_disconnect");
-      SQLFREEHANDLE(SQL_HANDLE_DBC,conn,"db_disconnect");
-      SQLFREEHANDLE(SQL_HANDLE_ENV,henv,"db_disconnect");
+      if (!SQLDISCONNECT(conn,"db_disconnect"))
+	return FALSE;
+      if (!SQLFREEHANDLE(SQL_HANDLE_DBC,conn,"db_disconnect"))
+	return FALSE;
+      if (!SQLFREEHANDLE(SQL_HANDLE_ENV,henv,"db_disconnect"))
+	return FALSE;
       
       return TRUE;
     }
@@ -489,8 +583,10 @@ c_db_odbc_row_cut(void) {
     
   SQLHSTMT hstmt = (SQLHSTMT) IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,1)); 
   
-  SQLCLOSECURSOR(hstmt,"db_row_cut"); 
-  SQLFREESTMT(hstmt,SQL_CLOSE,"db_row_cut"); 
+  if (!SQLCLOSECURSOR(hstmt,"db_row_cut"))
+    return FALSE; 
+  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_row_cut"))
+    return FALSE; 
    
   return TRUE;
 }
@@ -513,8 +609,10 @@ c_db_odbc_row(void) {
   SQLRETURN retcode = SQLFetch(hstmt);
   if (retcode == SQL_NO_DATA)
     {
-      SQLCLOSECURSOR(hstmt,"db_row"); 
-      SQLFREESTMT(hstmt,SQL_CLOSE,"db_row"); 
+      if (!SQLCLOSECURSOR(hstmt,"db_row"))
+	return FALSE; 
+      if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_row"))
+	return FALSE; 
   
       cut_fail(); 
       return FALSE;
@@ -587,20 +685,25 @@ c_db_odbc_number_of_fields_in_query(void) {
   SQLHSTMT hstmt;
   SQLSMALLINT number_cols=0;
 
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, 
-		 "db_number_of_fields_in_query");
-  SQLEXECDIRECT(hstmt,sql,SQL_NTS, 
-		"db_number_of_fields_in_query");
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, 
+		      "db_number_of_fields_in_query"))
+    return FALSE;
+  if (!SQLEXECDIRECT(hstmt ,(SQLCHAR *)sql, 
+		     "db_number_of_fields_in_query"))
+    return FALSE;
   
-  SQLNUMRESULTCOLS(hstmt,&number_cols,
-		   "db_number_of_fields_in_query");
+  if (!SQLNUMRESULTCOLS(hstmt,&number_cols,
+			"db_number_of_fields_in_query"))
+    return FALSE;
   
   if (!Yap_unify(arg_fields, MkIntegerTerm(number_cols))){
     return FALSE;
   }
   
-  SQLCLOSECURSOR(hstmt,"db_number_of_fields_in_query");
-  SQLFREESTMT(hstmt,SQL_CLOSE, "db_number_of_fields_in_query");
+  if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields_in_query"))
+    return FALSE;
+  if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_number_of_fields_in_query"))
+    return FALSE;
  
   return TRUE;
 }
@@ -612,7 +715,7 @@ c_db_odbc_get_fields_properties(void) {
   Term fields_properties_list = Deref(ARG3);
   Term head, list;
 
-  char *relacao = AtomName(AtomOfTerm(nome_relacao));
+  SQLCHAR *relacao = (SQLCHAR *)AtomName(AtomOfTerm(nome_relacao));
   char sql[256];
   char name[200];
   Int i;
@@ -620,7 +723,7 @@ c_db_odbc_get_fields_properties(void) {
   
   SQLSMALLINT num_fields=0;
   SQLSMALLINT NullablePtr=0;
-  SQLSMALLINT AutoIncrementPointer=0;
+  SQLLEN AutoIncrementPointer=0;
   SQLHSTMT hstmt,hstmt2;
   SQLHDBC  hdbc =(SQLHDBC) (IntegerOfTerm(arg_conn));
 
@@ -630,28 +733,34 @@ c_db_odbc_get_fields_properties(void) {
   sprintf (sql,"SELECT * FROM `%s` LIMIT 0",relacao);
 
   /*Allocate an handle for the query*/ 
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_fields_properties");
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_fields_properties"))
+    return FALSE;
   /* Executes the query*/ 
-  SQLEXECDIRECT(hstmt,sql,SQL_NTS, "db_get_fields_properties");
+  if (!SQLEXECDIRECT(hstmt ,(SQLCHAR *)sql, "db_get_fields_properties"))
+    return FALSE;
       
   Functor functor = Yap_MkFunctor(Yap_LookupAtom("property"),4);
   Term properties[4];
   
-  SQLNUMRESULTCOLS(hstmt,&num_fields,
-		   "db_get_fields_properties");
+  if (!SQLNUMRESULTCOLS(hstmt,&num_fields,
+			"db_get_fields_properties"))
+    return FALSE;
   
   list = fields_properties_list;
   
   SQLSMALLINT bind_prim_key;
   //por causa de as rows em odbc começam em 1 :)
-  Short *null=malloc(sizeof(Short)*(1+num_fields));
+  Short *null=(Short *)malloc(sizeof(Short)*(1+num_fields));
   
-  SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt2, "db_get_fields_properties");
+  if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt2, "db_get_fields_properties"))
+    return FALSE;
   /* Executes the query*/ 
-  SQLPRIMARYKEYS(hstmt2,NULL,0,NULL,0,relacao,SQL_NTS, "db_get_fields_properties");
+  if (!SQLPRIMARYKEYS(hstmt2,NULL,0,NULL,0,relacao,SQL_NTS, "db_get_fields_properties"))
+    return FALSE;
   /* Associates bind value for the 5 column*/
-  SQLBINDCOL(hstmt2,5,SQL_C_SSHORT,&bind_prim_key,sizeof(SQLSMALLINT),NULL,
-	     "db_get_fields_properties");
+  if (!SQLBINDCOL(hstmt2,5,SQL_C_SSHORT,&bind_prim_key,sizeof(SQLSMALLINT),NULL,
+		  "db_get_fields_properties"))
+    return FALSE;
   
   while(1)
     {
@@ -659,18 +768,21 @@ c_db_odbc_get_fields_properties(void) {
       null[bind_prim_key]=1;
     }
 
-  SQLCLOSECURSOR(hstmt2,"db_get_fields_properties");
-  SQLFREESTMT(hstmt2,SQL_CLOSE,"db_get_fields_properties");
+  if (!SQLCLOSECURSOR(hstmt2,"db_get_fields_properties"))
+    return FALSE;
+  if (!SQLFREESTMT(hstmt2,SQL_CLOSE,"db_get_fields_properties"))
+    return FALSE;
   
   for (i=1;i<=num_fields;i++)
     {
       head = HeadOfTerm(list);
       name[0]='\0';
-      SQLDESCRIBECOL(hstmt,i,name,200,NULL,NULL,NULL,NULL,&NullablePtr,
+      SQLDESCRIBECOL(hstmt,i,(SQLCHAR *)name,200,NULL,NULL,NULL,NULL,&NullablePtr,
 		     "db_get_fields_properties");
 
-      SQLCOLATTRIBUTE(hstmt,i,SQL_DESC_AUTO_UNIQUE_VALUE,NULL,0,NULL,&AutoIncrementPointer,
-		      "db_get_fields_properties");
+      if (!SQLCOLATTRIBUTE(hstmt,i,SQL_DESC_AUTO_UNIQUE_VALUE,NULL,0,NULL,&AutoIncrementPointer,
+			   "db_get_fields_properties"))
+ 	return FALSE;
       
       properties[0] = MkAtomTerm(Yap_LookupAtom(name));
        
@@ -697,8 +809,10 @@ c_db_odbc_get_fields_properties(void) {
       }
     }
   
-  SQLCLOSECURSOR(hstmt,"db_get_fields_properties");
-  SQLFREESTMT(hstmt,SQL_CLOSE,"db_get_fields_properties");
+  if (!SQLCLOSECURSOR(hstmt,"db_get_fields_properties"))
+    return FALSE;
+  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_get_fields_properties"))
+    return FALSE;
     
   return TRUE;
 }

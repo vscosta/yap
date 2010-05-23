@@ -113,7 +113,7 @@ db_import(Connection,RelationName,PredName) :-
 	    Assert =..[':-',P,','(M:'$copy_term_nv'(P,[],G,_),
 			      ','(M:translate(G,G,Code),
 			      ','(M:queries_atom(Code,FinalSQL),
-			      ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Connection),
+			      ','(M:c_db_odbc_query(FinalSQL,ResultSet,Arity,BindList,Con),
 		              ','(M:'$write_or_not'(FinalSQL),
 			      ','(!,M:c_db_odbc_row(ResultSet,BindList,LA)))))))]
 	    ),
