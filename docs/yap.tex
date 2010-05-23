@@ -10886,6 +10886,15 @@ Convert the atom @var{Number} to the difference list of character codes
 @cnindex atom_to_term/3
 Use @var{Atom} as input to @code{read_term/2} using the option @code{variable_names} and return the read term in @var{Term} and the variable bindings in @var{Bindings}. @var{Bindings} is a list of @code{Name = Var} couples, thus providing access to the actual variable names. See also @code{read_term/2}. If Atom has no valid syntax, a syntax_error exception is raised.
 
+@item term_to_atom(?@var{Term}, ?@var{Atom})
+@findex term_to_atom/2
+@syindex term_to_atom/2
+@cnindex term_to_atom/2
+True if @var{Atom} describes a term that unifies with @var{Term}. When
+@var{Atom} is instantiated @var{Atom} is converted and then unified with
+@var{Term}. If @var{Atom} has no valid syntax, a syntax_error exception
+is raised. Otherwise @var{Term} is ``written'' on @var{Atom} using
+@code{write_term/2} with the option quoted(true).
 
 @item read_from_chars(+@var{Chars}, -@var{Term})
 @findex read_from_chars/2

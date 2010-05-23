@@ -553,6 +553,14 @@ atom_to_term(Atom, Term, Bindings) :-
 	close(Stream),
 	T = Term.
 
+term_to_atom(Term,Atom) :-
+	nonvar(Atom), !,
+	atom_codes(Atom,S),
+	read_from_chars(S,Term).
+term_to_atom(Term,Atom) :-
+	write_to_chars(Term,S),
+	atom_codes(Atom,S).
+
 simple(V) :- var(V), !.
 simple(A) :- atom(A), !.
 simple(N) :- number(N).

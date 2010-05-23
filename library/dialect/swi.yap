@@ -3,8 +3,7 @@
 % written in an on-demand basis.
 
 
-:- module(system, [term_to_atom/2,
-		   concat_atom/2,
+:- module(system, [concat_atom/2,
 		   concat_atom/3,
 		   setenv/2,
 		   prolog_to_os_filename/2,
@@ -259,14 +258,6 @@ use_foreign_library(A) :-
 use_foreign_library(A) :-
 	load_foreign_library(A),
 	assert(loaded(foreign_library(A))).
-
-term_to_atom(Term,Atom) :-
-	nonvar(Atom), !,
-	atom_codes(Atom,S),
-	read_from_chars(S,Term).
-term_to_atom(Term,Atom) :-
-	write_to_chars(Term,S),
-	atom_codes(Atom,S).
 
 concat_atom([A|List], Separator, New) :- var(List), !,
 	atom_codes(Separator,[C]),
