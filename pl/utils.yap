@@ -556,9 +556,9 @@ atom_to_term(Atom, Term, Bindings) :-
 term_to_atom(Term,Atom) :-
 	nonvar(Atom), !,
 	atom_codes(Atom,S),
-	read_from_chars(S,Term).
+	charsio:read_from_chars(S,Term).
 term_to_atom(Term,Atom) :-
-	write_to_chars(Term,S),
+	charsio:write_to_chars(Term,S),
 	atom_codes(Atom,S).
 
 simple(V) :- var(V), !.
