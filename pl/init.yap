@@ -30,6 +30,8 @@ otherwise.
 
 (:- G) :- '$execute'(G), !.
 
+(?- G) :- '$execute'(G).
+
 '$$!'(CP) :- '$cut_by'(CP).
 
 [] :- true.

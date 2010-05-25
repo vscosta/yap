@@ -197,7 +197,7 @@ true :- true.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	prompt(_,'   |: '),
-	'$command'((?-Command),Varnames,Pos,top),
+	'$command'(Command,Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
 
@@ -357,16 +357,19 @@ true :- true.
 	 '$nb_getval'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
- '$execute_command'((:-G),_,_,Option,_) :- !,
+ '$execute_command'((:-G),_,_,Option,_) :-
+%          !,
+	 Option \= top, !,
 	 '$current_module'(M),
 	 % allow user expansion
 	 expand_term((:- G), O),
          O = (:- G1),
 	 '$process_directive'(G1, Option, M).
- '$execute_command'((?-G),V,Pos,_,Source) :- !,
-	 '$execute_command'(G,V,Pos,top,Source).
- '$execute_command'(G,V,Pos,Option,Source) :-
-	 '$continue_with_command'(Option,V,Pos,G,Source).
+ '$execute_command'((?-G), V, Pos, Option, Source) :-
+	 Option \= top, !,
+	 '$execute_command'(G, V, Pos, top, Source).
+ '$execute_command'(G, V, Pos, Option, Source) :-
+	 '$continue_with_command'(Option, V, Pos, G, Source).
 
  %
  % This command is very different depending on the language mode we are in.
