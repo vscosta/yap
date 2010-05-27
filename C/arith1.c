@@ -218,11 +218,7 @@ eval1(Int fi, Term t) {
 	Int i = IntegerOfTerm(t);
       
 	if (i == Int_MIN) {
-	  MP_INT new;
-
-	  mpz_init_set_si(&new, i);
-	  mpz_neg(&new, &new);
-	  RBIG(&new);	
+	  return Yap_gmp_neg_int(i);
 	}
 	else
 #endif
@@ -231,15 +227,7 @@ eval1(Int fi, Term t) {
     case double_e:
       RFLOAT(-FloatOfTerm(t));
     case big_int_e:
-#ifdef USE_GMP
-      {
-	MP_INT new;
-
-	mpz_init_set(&new, Yap_BigIntOfTerm(t));
-	mpz_neg(&new, &new);
-	RBIG(&new);
-      }
-#endif
+      return Yap_gmp_neg_big(t);
     default:
       RERROR();
     }
@@ -248,16 +236,10 @@ eval1(Int fi, Term t) {
     case long_int_e:
       RINT(~IntegerOfTerm(t));
     case double_e:
-      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(f)", FloatOfTerm(t));
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\(%f)", FloatOfTerm(t));
     case big_int_e:
 #ifdef USE_GMP
-      {
-	MP_INT new;
-
-	mpz_init_set(&new, Yap_BigIntOfTerm(t));
-	mpz_com(&new, &new);
-	RBIG(&new);
-      }
+      return Yap_gmp_unot_big(t);
 #endif
     default:
       RERROR();

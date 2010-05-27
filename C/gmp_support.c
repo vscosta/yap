@@ -33,6 +33,17 @@ MkBigAndClose(MP_INT *new)
   return t;
 }
 
+static inline Term
+MkRatAndClose(MP_RAT *new)
+{
+  Term t = Yap_MkBigRatTerm(new);
+  mpq_clear(new);
+  if (t == TermNil) {
+    return Yap_ArithError(RESOURCE_ERROR_STACK, t, ">>/2");
+  }
+  return t;
+}
+
 /* add i + j using temporary bigint new */
 Term
 Yap_gmp_add_ints(Int i, Int j)
@@ -98,244 +109,741 @@ Yap_gmp_sll_ints(Int i, Int j)
 
 /* add i + b using temporary bigint new */
 Term 
-Yap_gmp_add_int_big(Int i, MP_INT *b)
+Yap_gmp_add_int_big(Int i, Term t)
 {
-  MP_INT new;
-
-  mpz_init_set_si(&new, i);
-  mpz_add(&new, &new, b);
-  return MkBigAndClose(&new);
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    mpz_init_set_si(&new, i);
+    mpz_add(&new, &new, b);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_add(&new, &new, b);
+    return MkRatAndClose(&new);    
+  }
 }
 
 /* sub i - b using temporary bigint new */
 Term 
-Yap_gmp_sub_int_big(Int i, MP_INT *b)
+Yap_gmp_sub_int_big(Int i, Term t)
 {
-  MP_INT new;
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
 
-  mpz_init_set_si(&new, i);
-  mpz_sub(&new, &new, b);
-  return MkBigAndClose(&new);
+    mpz_init_set_si(&new, i);
+    mpz_sub(&new, &new, b);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_sub(&new, &new, b);
+    return MkRatAndClose(&new);    
+  }
 }
 
 /* add i + b using temporary bigint new */
 Term 
-Yap_gmp_mul_int_big(Int i, MP_INT *b)
+Yap_gmp_mul_int_big(Int i, Term t)
 {
-  MP_INT new;
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
 
-  mpz_init_set_si(&new, i);
-  mpz_mul(&new, &new, b);
-  return MkBigAndClose(&new);
+    mpz_init_set_si(&new, i);
+    mpz_mul(&new, &new, b);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_mul(&new, &new, b);
+    return MkRatAndClose(&new);    
+  }
 }
 
 /* sub i - b using temporary bigint new */
 Term 
-Yap_gmp_sub_big_int(MP_INT *b, Int i)
+Yap_gmp_sub_big_int(Term t, Int i)
 {
-  MP_INT new;
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
 
-  mpz_init_set_si(&new, i);
-  mpz_neg(&new, &new);
-  mpz_add(&new, &new, b);
-  return MkBigAndClose(&new);
+    mpz_init_set_si(&new, i);
+    mpz_neg(&new, &new);
+    mpz_add(&new, &new, b);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_sub(&new, b, &new);
+    return MkRatAndClose(&new);    
+  }
 }
 
 /* div i / b using temporary bigint new */
 Term 
-Yap_gmp_div_big_int(MP_INT *b, Int i)
+Yap_gmp_div_int_big(Int i, Term t)
 {
-  MP_INT new;
-
-  mpz_init_set(&new, b);
-  if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
-    if (i > 0) {
-      mpz_tdiv_q_ui(&new, &new, i);
-    } else if (i == 0) {
-      return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
-    } else {
-      /* we do not handle MIN_INT */
-      mpz_tdiv_q_ui(&new, &new, -i);
-      mpz_neg(&new, &new);
-    }
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    /* cool */
+    return MkIntTerm(0);
   } else {
-    if (i > 0) {
-      mpz_fdiv_q_ui(&new, &new, i);
-    } else if (i == 0) {
-      return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
-    } else {
-      /* we do not handle MIN_INT */
-      mpz_fdiv_q_ui(&new, &new, -i);
-      mpz_neg(&new, &new);
-    }
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_div(&new, &new, b);
+    return MkRatAndClose(&new);    
   }
-  return MkBigAndClose(&new);
 }
 
-/* sub i - b using temporary bigint new */
+/* div i / b using temporary bigint new */
 Term 
-Yap_gmp_and_int_big(Int i, MP_INT *b)
+Yap_gmp_div_big_int(Term t, Int i)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
+
+    mpz_init_set(&new, b);
+    if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
+      if (i > 0) {
+	mpz_tdiv_q_ui(&new, &new, i);
+      } else if (i == 0) {
+	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
+      } else {
+	/* we do not handle MIN_INT */
+	mpz_tdiv_q_ui(&new, &new, -i);
+	mpz_neg(&new, &new);
+      }
+    } else {
+      if (i > 0) {
+	mpz_fdiv_q_ui(&new, &new, i);
+      } else if (i == 0) {
+	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, MkIntTerm(0), "// /2");
+      } else {
+	/* we do not handle MIN_INT */
+	mpz_fdiv_q_ui(&new, &new, -i);
+	mpz_neg(&new, &new);
+      }
+    }
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    mpq_init(&new);
+    mpq_set_si(&new, i, 1L);
+    mpq_div(&new, b, &new);
+    return MkRatAndClose(&new);    
+  }
+}
+
+/* and i - b using temporary bigint new */
+Term 
+Yap_gmp_and_int_big(Int i, Term t)
 {
   MP_INT new;
+  CELL *pt = RepAppl(t);
+  MP_INT *b;
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "/\\/2");    
+  }
+  b = Yap_BigIntOfTerm(t);
 
   mpz_init_set_si(&new, i);
   mpz_and(&new, &new, b);
   return MkBigAndClose(&new);
 }
 
-/* sub i - b using temporary bigint new */
+/* or i - b using temporary bigint new */
 Term 
-Yap_gmp_ior_int_big(Int i, MP_INT *b)
+Yap_gmp_ior_int_big(Int i, Term t)
 {
   MP_INT new;
+  CELL *pt = RepAppl(t);
+  MP_INT *b;
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "\\/ /2");
+  }
+  b = Yap_BigIntOfTerm(t);
 
   mpz_init_set_si(&new, i);
   mpz_ior(&new, &new, b);
   return MkBigAndClose(&new);
 }
 
-/* add i + b using temporary bigint new */
+#if USE_GMP
+#if !defined(HAVE_MPZ_XOR)
+static void
+mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
+{
+  MP_INT *n2, *n3;
+  
+  mpz_new(n2);
+  mpz_new(n3);
+  mpz_ior(new, r1, r2);
+  mpz_com(n2,  r1);
+  mpz_and(n2, n2, new);
+  mpz_com(n3,  r2);
+  mpz_and(n3, n3, new);
+  mpz_ior(new, n2, n3);
+  mpz_clear(n2);
+  mpz_clear(n3);
+}
+#endif
+#endif
+
+/* or i - b using temporary bigint new */
 Term 
-Yap_gmp_sll_big_int(MP_INT *b, Int i)
+Yap_gmp_xor_int_big(Int i, Term t)
 {
   MP_INT new;
-
-  if (i > 0) {
-    mpz_init_set(&new, b);
-    mpz_mul_2exp(&new, &new, i);
-  } else if (i == 0) {
-    mpz_init_set(&new, b);
-  } else {
-    mpz_init_set(&new, b);
-    if (i == Int_MIN) {
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, MkIntegerTerm(i), "<</2");
-    }
-    mpz_tdiv_q_2exp(&new, &new, -i);
+  CELL *pt = RepAppl(t);
+  MP_INT *b;
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "#/2");
   }
+  b = Yap_BigIntOfTerm(t);
+
+  mpz_init_set_si(&new,i);
+  mpz_xor(&new, &new, b);
   return MkBigAndClose(&new);
 }
 
+/* <<< i + b using temporary bigint new */
 Term 
-Yap_gmp_add_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_sll_big_int(Term t, Int i)
 {
-  MP_INT new;
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b = Yap_BigIntOfTerm(t);
 
-  mpz_init_set(&new, b1);
-  mpz_add(&new, &new, b2);
-  return MkBigAndClose(&new);
+    if (i > 0) {
+      mpz_init_set(&new, b);
+      mpz_mul_2exp(&new, &new, i);
+    } else if (i == 0) {
+      return t;
+    } else {
+      mpz_init_set(&new, b);
+      if (i == Int_MIN) {
+	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, MkIntegerTerm(i), "<</2");
+      }
+      mpz_tdiv_q_2exp(&new, &new, -i);
+    }
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+
+    if (i > 0) {
+      mpq_init(&new);
+      mpq_mul_2exp (&new, b, i);
+    } else if (i == 0) {
+      return t;
+    } else {
+      mpq_init(&new);
+      mpq_div_2exp (&new, b, i);
+    }
+    return MkRatAndClose(&new);
+  }
 }
 
 Term 
-Yap_gmp_sub_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_add_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set(&new, b1);
-  mpz_sub(&new, &new, b2);
-  return MkBigAndClose(&new);
+    mpz_init_set(&new, b1);
+    mpz_add(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b1, bb1;
+    MP_RAT *b2, bb2;
+    if (pt1[1] == BIG_INT) {
+      b1 = &bb1;
+      mpq_init(b1);
+      mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      b2 = &bb2;
+      mpq_init(b2);
+      mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    mpq_init(&new);
+    mpq_add(&new, b1, b2);
+    return MkRatAndClose(&new);
+  }
 }
 
 Term 
-Yap_gmp_mul_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_sub_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set(&new, b1);
-  mpz_mul(&new, &new, b2);
-  return MkBigAndClose(&new);
+    mpz_init_set(&new, b1);
+    mpz_sub(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b1, bb1;
+    MP_RAT *b2, bb2;
+    if (pt1[1] == BIG_INT) {
+      b1 = &bb1;
+      mpq_init(b1);
+      mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      b2 = &bb2;
+      mpq_init(b2);
+      mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    mpq_init(&new);
+    mpq_sub(&new, b1, b2);
+    return MkRatAndClose(&new);
+  }
+}
+
+Term 
+Yap_gmp_mul_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+    mpz_init_set(&new, b1);
+    mpz_mul(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT new;
+    MP_RAT *b1, bb1;
+    MP_RAT *b2, bb2;
+    if (pt1[1] == BIG_INT) {
+      b1 = &bb1;
+      mpq_init(b1);
+      mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      b2 = &bb2;
+      mpq_init(b2);
+      mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    mpq_init(&new);
+    mpq_mul(&new, b1, b2);
+    return MkRatAndClose(&new);
+  }
 }
 
 /* div i / b using temporary bigint new */
 Term 
-Yap_gmp_div_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_div_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set(&new, b1);
-  if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
-    mpz_tdiv_q(&new, &new, b2);
+    mpz_init_set(&new, b1);
+    if (yap_flags[INTEGER_ROUNDING_FLAG] == 0) {
+      mpz_tdiv_q(&new, &new, b2);
+    } else {
+      mpz_fdiv_q(&new, &new, b2);
+    }
+    return MkBigAndClose(&new);
   } else {
-    mpz_fdiv_q(&new, &new, b2);
+    MP_RAT new;
+    MP_RAT *b1, bb1;
+    MP_RAT *b2, bb2;
+    if (pt1[1] == BIG_INT) {
+      b1 = &bb1;
+      mpq_init(b1);
+      mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      b2 = &bb2;
+      mpq_init(b2);
+      mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    mpq_init(&new);
+    mpq_div(&new, b1, b2);
+    return MkRatAndClose(&new);
   }
-  return MkBigAndClose(&new);
 }
 
 Term 
-Yap_gmp_and_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_and_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set(&new, b1);
-  mpz_and(&new, &new, b2);
-  return MkBigAndClose(&new);
+    mpz_init_set(&new, b1);
+    mpz_and(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "/\\/2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "/\\/2");    
+  }
 }
 
 Term 
-Yap_gmp_ior_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_ior_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set(&new, b1);
-  mpz_ior(&new, &new, b2);
-  return MkBigAndClose(&new);
+    mpz_init_set(&new, b1);
+    mpz_ior(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
+  }
 }
 
 Term 
-Yap_gmp_mod_big_big(MP_INT *b1, MP_INT *b2)
+Yap_gmp_xor_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init(&new);
-  mpz_fdiv_r(&new, b1, b2);
-  return MkBigAndClose(&new);
+    mpz_init_set(&new, b1);
+    mpz_xor(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "\\/ /2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "\\/ /2");    
+  }
 }
 
 Term 
-Yap_gmp_mod_big_int(MP_INT *b, Int i2)
+Yap_gmp_mod_big_big(Term t1, Term t2)
 {
-  MP_INT new;
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
 
-  mpz_init_set_si(&new, i2);
-  mpz_fdiv_r(&new, b, &new);
-  return MkBigAndClose(&new);
+    mpz_init(&new);
+    mpz_fdiv_r(&new, b1, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "mod/2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");    
+  }
 }
 
 Term 
-Yap_gmp_mod_int_big(Int i1, MP_INT *b)
+Yap_gmp_mod_big_int(Term t, Int i2)
 {
-  MP_INT new;
+  CELL *pt = RepAppl(t);
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
+  } else {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    MP_INT new;
 
-  mpz_init_set_si(&new, i1);
-  mpz_fdiv_r(&new, &new, b);
-  RBIG(&new);
+    mpz_init_set_si(&new, i2);
+    mpz_fdiv_r(&new, b, &new);
+    return MkBigAndClose(&new);
+  }
+}
+
+Term 
+Yap_gmp_mod_int_big(Int i1, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
+  } else {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    /* integer is much smaller */
+
+    if (mpz_sgn(b) > 0) {
+      /* easy case next */
+      if (i1 > 0) {
+	/* 2 mod 23 -> 2 */
+	return MkIntegerTerm(i1);
+      } else {
+	MP_INT new;
+    
+	/* 2 mod -23 -> 21 */
+	mpz_init_set_si(&new, i1);
+	mpz_add(&new, &new, b);
+	return MkBigAndClose(&new);    
+      }
+    } else {
+      if (i1 > 0) {
+	MP_INT new;
+    
+	/* -2 mod 23 -> 21 */
+	mpz_init_set_si(&new, i1);
+	mpz_add(&new, b, &new);
+	return MkBigAndClose(&new);    
+      } else {
+	/* -2 mod -23 -> -2 */
+	return MkIntegerTerm(i1);
+      }
+    }
+  }
+}
+
+Term 
+Yap_gmp_rem_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+    mpz_init(&new);
+    mpz_tdiv_r(&new, b1, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "rem/2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rem/2");    
+  }
+}
+
+Term 
+Yap_gmp_rem_big_int(Term t, Int i2)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
+  } else {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    MP_INT new;
+
+    mpz_init_set_si(&new, i2);
+    mpz_tdiv_r(&new, b, &new);
+    return MkBigAndClose(&new);
+  }
+}
+
+Term 
+Yap_gmp_rem_int_big(Int i1, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
+  } else {
+    /* integer is much smaller */
+    return MkIntegerTerm(i1);
+  }
+}
+
+Term 
+Yap_gmp_gcd_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT new;
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+    mpz_init_set(&new, b1);
+    mpz_gcd(&new, &new, b2);
+    return MkBigAndClose(&new);
+  } else {
+    if (pt1[1] != BIG_INT) {
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t1, "gcd/2");    
+    }
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");    
+  }
+}
+
+Term 
+Yap_gmp_gcd_int_big(Int i, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] != BIG_INT) {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "mod/2");
+  } else {
+    /* integer is much smaller */
+    if (i > 0) {
+      return MkIntegerTerm(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t),i));
+    } else if (i == 0) {
+      return MkIntTerm(0);
+    } else {
+      return MkIntegerTerm(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t),-i));
+    }
+  }
+}
+
+Float
+Yap_gmp_to_float(Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return mpz_get_d(b);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return mpq_get_d(b);
+  }
 }
 
 Term
-Yap_gmp_add_float_big(Float d, MP_INT *b)
+Yap_gmp_add_float_big(Float d, Term t)
 {
-  return MkFloatTerm(d+mpz_get_d(b));
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(d+mpz_get_d(b));
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(d+mpq_get_d(b));
+  }
 }
 
 Term
-Yap_gmp_sub_float_big(Float d, MP_INT *b)
+Yap_gmp_sub_float_big(Float d, Term t)
 {
-  return MkFloatTerm(d-mpz_get_d(b));
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(d-mpz_get_d(b));
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(d-mpq_get_d(b));
+  }
 }
 
 Term
-Yap_gmp_sub_big_float(MP_INT *b, Float d)
+Yap_gmp_sub_big_float(Term t, Float d)
 {
-  return MkFloatTerm(mpz_get_d(b)-d);
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(mpz_get_d(b)-d);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(mpq_get_d(b)-d);
+  }
 }
 
 Term
-Yap_gmp_mul_float_big(Float d, MP_INT *b)
+Yap_gmp_mul_float_big(Float d, Term t)
 {
-  return MkFloatTerm(d*mpz_get_d(b));
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(d*mpz_get_d(b));
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(d*mpq_get_d(b));
+  }
 }
 
 Term
-Yap_gmp_exp_ints(Int i1, Int i2)
+Yap_gmp_fdiv_float_big(Float d, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(d/mpz_get_d(b));
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(d/mpq_get_d(b));
+  }
+}
+
+Term
+Yap_gmp_fdiv_big_float(Term t, Float d)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return MkFloatTerm(mpz_get_d(b)/d);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return MkFloatTerm(mpq_get_d(b)/d);
+  }
+}
+
+Term
+Yap_gmp_exp_int_int(Int i1, Int i2)
 {
   MP_INT new;
   
@@ -345,22 +853,68 @@ Yap_gmp_exp_ints(Int i1, Int i2)
 }
 
 Term
-Yap_gmp_exp_big_int(MP_INT *b, Int i)
+Yap_gmp_exp_big_int(Term t, Int i)
 {
   MP_INT new;
   
-  if (b > 0) {
-    mpz_init(&new);
-    mpz_pow_ui (&new, b, (unsigned long int)i);
-  } else {
-    MP_INT new;
-    if (b==0) return MkIntTerm(1);
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
 
-    mpz_init_set_si(&new, i);
-    mpz_powm (&new, b, &new, b);
+    if (i > 0) {
+      mpz_init(&new);
+      mpz_pow_ui (&new, b, (unsigned long int)i);
+    } else {
+      MP_INT new;
+      if (i==0) return MkIntTerm(1);
+      mpz_init_set_si(&new, i);
+      mpz_powm (&new, b, &new, b);
+    }
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    Float dbl = mpq_get_d(b);
+    return MkFloatTerm(pow(dbl,i));
   }
-  return MkBigAndClose(&new);
 }
+
+Term
+Yap_gmp_exp_int_big(Int i, Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t, "^/2");
+  } else {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    Float dbl = mpz_get_d(b);
+    return MkFloatTerm(pow(i,dbl));
+  }
+}
+
+Term 
+Yap_gmp_exp_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  Float dbl1, dbl2;
+
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
+  } else {
+    if (pt1[1] != BIG_INT) {
+      dbl1 = mpz_get_d(Yap_BigIntOfTerm(t1));
+    } else {
+      dbl1 = mpq_get_d(Yap_BigRatOfTerm(t1));
+    }
+    if (pt2[2] != BIG_INT) {
+      dbl2 = mpz_get_d(Yap_BigIntOfTerm(t2));
+    } else {
+      dbl2 = mpq_get_d(Yap_BigRatOfTerm(t2));
+    }
+    return MkFloatTerm(pow(dbl1,dbl2));
+  }
+}
+
 
 Term
 Yap_gmp_big_from_64bits(YAP_LONG_LONG i)
@@ -377,6 +931,252 @@ Yap_gmp_big_from_64bits(YAP_LONG_LONG i)
 #endif
   mpz_init_set_str (&new, s, 10);
   return MkBigAndClose(&new);
+}
+
+Term 
+Yap_gmq_rdiv_int_int(Int i1, Int i2)
+{
+  MP_RAT new;
+
+  mpq_init(&new);
+  mpq_set_si(&new, i1, i2);
+  mpq_canonicalize(&new);
+  return MkRatAndClose(&new);    
+}
+
+Term 
+Yap_gmq_rdiv_int_big(Int i1, Term t2)
+{
+  MP_RAT new, new2;
+  MP_INT *b = Yap_BigIntOfTerm(t2);
+
+  mpq_init(&new);
+  mpq_set_si(&new, i1, 1L);
+  mpq_init(&new2);
+  mpq_set_z(&new2, b);
+  mpq_div(&new,&new,&new2);
+  mpq_clear(&new2);
+  return MkRatAndClose(&new);    
+}
+
+Term 
+Yap_gmq_rdiv_big_int(Term t1, Int i2)
+{
+  MP_RAT new, new2;
+  MP_INT *b = Yap_BigIntOfTerm(t1);
+
+  mpq_init(&new);
+  mpq_set_si(&new, i2, 1L);
+  mpq_init(&new2);
+  mpq_set_z(&new2, b);
+  mpq_div(&new,&new2,&new);
+  mpq_clear(&new2);
+  return MkRatAndClose(&new);    
+}
+
+Term 
+Yap_gmq_rdiv_big_big(Term t1, Term t2)
+{
+  MP_RAT new, new2;
+  MP_INT *b1 = Yap_BigIntOfTerm(t1);
+  MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+  mpq_init(&new);
+  mpq_set_z(&new, b1);
+  mpq_init(&new2);
+  mpq_set_z(&new2, b2);
+  mpq_div(&new,&new,&new2);
+  mpq_clear(&new2);
+  return MkRatAndClose(&new);    
+}
+
+Term 
+Yap_gmp_fdiv_int_big(Int i1, Term t2)
+{
+  MP_RAT new;
+  MP_RAT *b1, *b2;
+  MP_RAT bb1, bb2;
+  Float d;
+  CELL *pt2 = RepAppl(t2);
+
+  b1 = &bb1;
+  mpq_init(b1);
+  mpq_set_si(b1, i1, 1L);
+  if (pt2[1] == BIG_INT) {
+    b2 = &bb2;
+    mpq_init(b2);
+    mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+  } else {
+    b2 = Yap_BigRatOfTerm(t2);
+  }
+  mpq_init(&new);
+  mpq_div(&new, b1, b2);
+  d = mpq_get_d(&new);
+  mpq_clear(&new);
+  return MkFloatTerm(d);
+}
+
+Term 
+Yap_gmp_fdiv_big_int(Term t2, Int i1)
+{
+  MP_RAT new;
+  MP_RAT *b1, *b2;
+  MP_RAT bb1, bb2;
+  Float d;
+  CELL *pt2 = RepAppl(t2);
+
+  b1 = &bb1;
+  mpq_init(b1);
+  mpq_set_si(b1, i1, 1L);
+  if (pt2[1] == BIG_INT) {
+    b2 = &bb2;
+    mpq_init(b2);
+    mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+  } else {
+    b2 = Yap_BigRatOfTerm(t2);
+  }
+  mpq_init(&new);
+  mpq_div(&new, b2, b1);
+  d = mpq_get_d(&new);
+  mpq_clear(&new);
+  return MkFloatTerm(d);
+}
+
+Term 
+Yap_gmp_fdiv_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  MP_RAT new;
+  MP_RAT *b1, bb1;
+  MP_RAT *b2, bb2;
+  Float d;
+
+  if (pt1[1] == BIG_INT) {
+    b1 = &bb1;
+    mpq_init(b1);
+    mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+  } else {
+    b1 = Yap_BigRatOfTerm(t1);
+  }
+  if (pt2[1] == BIG_INT) {
+    b2 = &bb2;
+    mpq_init(b2);
+    mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+  } else {
+    b2 = Yap_BigRatOfTerm(t2);
+  }
+  mpq_init(&new);
+  mpq_div(&new, b1, b2);
+  d = mpq_get_d(&new);
+  mpq_clear(&new);
+  return MkFloatTerm(d);
+}
+
+int 
+Yap_gmp_cmp_big_int(Term t, Int i)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return mpz_cmp_si(b,i);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return mpq_cmp_si(b,i,1);
+  }
+}
+
+int 
+Yap_gmp_cmp_big_float(Term t, Float d)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return mpz_cmp_d(b,d);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    Float d1 = mpq_get_d(b);
+    if (d1 < d)
+      return -1;
+    if (d1 == d)
+      return 0;
+    return 1;
+  }
+}
+
+int 
+Yap_gmp_cmp_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+    return mpz_cmp(b1, b2);
+  } else {
+    MP_RAT *b1 = NULL, bb1;
+    MP_RAT *b2 = NULL, bb2;
+    if (pt1[1] == BIG_INT) {
+      b1 = &bb1;
+      mpq_init(b1);
+      mpq_set_z(b1, Yap_BigIntOfTerm(t1));
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      b2 = &bb2;
+      mpq_init(b2);
+      mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    return mpq_cmp(b1, b2);
+  }
+}
+
+Term
+Yap_gmp_neg_int(Int i)
+{
+  MP_INT new;
+
+  mpz_init_set_si(&new, Int_MIN);
+  mpz_neg(&new, &new);
+  return MkBigAndClose(&new);
+}
+
+Term
+Yap_gmp_neg_big(Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    MP_INT new;
+    mpz_init_set(&new, b);
+    mpz_neg(&new, &new);
+    return MkBigAndClose(&new);
+  } else {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    MP_INT new;
+    mpq_init(&new);
+    mpq_neg(&new, b);
+    return MkRatAndClose(&new);
+  }
+}
+
+Term
+Yap_gmp_unot_big(Term t)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    MP_INT new;
+    mpz_init_set(&new, b);
+    mpz_com(&new, &new);
+    return MkBigAndClose(&new);
+  } else {
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t, "#/1");
+  }
 }
 
 #endif

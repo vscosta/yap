@@ -36,31 +36,6 @@ typedef struct init_un_eval {
 } InitBinEntry;
 
 
-#ifdef USE_GMP
-static Float
-fdiv_bigint(MP_INT *b1,MP_INT *b2)
-{
-  Float f1 = mpz_get_d(b1);
-  Float f2 = mpz_get_d(b2);
-  if (1) {
-    mpf_t f1,f2;
-    Float res;
-
-    mpf_init(f1);
-    mpf_init(f2);
-    mpf_set_z(f1, b1);
-    mpf_set_z(f2, b2);
-    mpf_div(f1, f1, f2);
-    res = mpf_get_d(f1);
-    mpf_clear(f1);
-    mpf_clear(f2);
-    return(res);
-  } else {
-    return(f1/f2);
-  }
-}
-#endif
-
 static Term
 p_mod(Term t1, Term t2) {
   switch (ETypeOfTerm(t1)) {
@@ -91,7 +66,7 @@ p_mod(Term t1, Term t2) {
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case (CELL)big_int_e:
 #ifdef USE_GMP
-      return Yap_gmp_mod_int_big(IntegerOfTerm(t1), Yap_BigIntOfTerm(t2));
+      return Yap_gmp_mod_int_big(IntegerOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -108,11 +83,11 @@ p_mod(Term t1, Term t2) {
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0) goto zero_divisor;
-	return Yap_gmp_mod_big_int(Yap_BigIntOfTerm(t1), i2);
+	return Yap_gmp_mod_big_int(t1, i2);
       }
     case (CELL)big_int_e:
       /* two bignums */
-      return Yap_gmp_mod_big_big(Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
+      return Yap_gmp_mod_big_big(t1, t2);
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     default:
@@ -154,8 +129,7 @@ p_rem(Term t1, Term t2) {
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     case (CELL)big_int_e:
 #ifdef USE_GMP
-      /* I know the term is much larger, so: */
-      RINT(IntegerOfTerm(t1));
+      return Yap_gmp_rem_int_big(IntegerOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -167,28 +141,57 @@ p_rem(Term t1, Term t2) {
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      /* modulo between bignum and integer */
+      return Yap_gmp_rem_big_int(t1, IntegerOfTerm(t2));
+    case (CELL)big_int_e:
+      /* two bignums */
+      return Yap_gmp_rem_big_big(t1, t2);
+    case double_e:
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
+    default:
+      RERROR();
+    }
+#endif
+  default:
+    RERROR();
+  }
+ zero_divisor:
+  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
+}
+
+
+static Term
+p_rdiv(Term t1, Term t2) {
+  switch (ETypeOfTerm(t1)) {
+  case (CELL)double_e:
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
+#ifdef USE_GMP
+  case (CELL)long_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case (CELL)long_int_e:
+      /* two integers */
       {
-	mpz_t tmp;
-	MP_INT new;
+	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
 
 	if (i2 == 0) goto zero_divisor;
-	mpz_init(&new);
-	mpz_init_set_si(tmp, i2);
-	mpz_tdiv_r(&new, Yap_BigIntOfTerm(t1), tmp);
-	mpz_clear(tmp);
-	RBIG(&new);
+	return Yap_gmq_rdiv_int_int(i1, i2);
       }
     case (CELL)big_int_e:
-      /* two bignums */
-      {
-	MP_INT new;
-
-	mpz_init(&new);
-	mpz_tdiv_r(&new, Yap_BigIntOfTerm(t1), Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      /* I know the term is much larger, so: */
+      return Yap_gmq_rdiv_int_big(IntegerOfTerm(t1), t2);
+#endif
+    default:
+      RERROR();
+    }
+    break;
+#ifdef USE_GMP
+  case (CELL)big_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* I know the term is much larger, so: */
+      return Yap_gmq_rdiv_big_int(t1, IntegerOfTerm(t2));
+    case (CELL)big_int_e:
+      return Yap_gmq_rdiv_big_big(t1, t2);
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
     default:
@@ -228,11 +231,7 @@ p_fdiv(Term t1, Term t2)
       }
     case (CELL)big_int_e:
 #ifdef USE_GMP
-      {
-	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(Yap_BigIntOfTerm(t2));
-	RFLOAT(((Float)i1/f2));
-      }
+      return Yap_gmp_fdiv_int_big(IntegerOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -253,9 +252,7 @@ p_fdiv(Term t1, Term t2)
       }
     case big_int_e:
 #ifdef USE_GMP
-      {
-	RFLOAT(FloatOfTerm(t1)/mpz_get_d(Yap_BigIntOfTerm(t2)));
-      }
+      return Yap_gmp_fdiv_float_big(FloatOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -265,19 +262,12 @@ p_fdiv(Term t1, Term t2)
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	Int i = IntegerOfTerm(t2);
-	RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t1))/(Float)i);
-      }
+      return Yap_gmp_fdiv_big_int(t1, IntegerOfTerm(t2));
     case big_int_e:
       /* two bignums*/
-      RFLOAT(fdiv_bigint(Yap_BigIntOfTerm(t1),Yap_BigIntOfTerm(t2)));
-      //      RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t1))/mpz_get_d(Yap_BigIntOfTerm(t2)));
+      return Yap_gmp_fdiv_big_big(t1, t2);
     case double_e:
-      {
-	Float dbl = FloatOfTerm(t2);
-	RFLOAT(mpz_get_d(Yap_BigIntOfTerm(t1))/dbl);
-      }
+      return Yap_gmp_fdiv_big_float(t1, FloatOfTerm(t2));
     default:
       RERROR();
     }
@@ -287,27 +277,6 @@ p_fdiv(Term t1, Term t2)
   }
   RERROR();
 }
-
-#if USE_GMP
-#if !defined(HAVE_MPZ_XOR)
-static void
-mpz_xor(MP_INT *new, MP_INT *r1, MP_INT *r2)
-{
-  MP_INT *n2, *n3;
-  
-  mpz_new(n2);
-  mpz_new(n3);
-  mpz_ior(new, r1, r2);
-  mpz_com(n2,  r1);
-  mpz_and(n2, n2, new);
-  mpz_com(n3,  r2);
-  mpz_and(n3, n3, new);
-  mpz_ior(new, n2, n3);
-  mpz_clear(n2);
-  mpz_clear(n3);
-}
-#endif
-#endif
 
 /*
   xor #
@@ -326,13 +295,7 @@ p_xor(Term t1, Term t2)
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
     case big_int_e:
 #ifdef USE_GMP
-      {
-	MP_INT new;
-
-	mpz_init_set_si(&new,IntegerOfTerm(t1));
-	mpz_xor(&new, &new, Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      return Yap_gmp_xor_int_big(IntegerOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -344,22 +307,9 @@ p_xor(Term t1, Term t2)
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	MP_INT new;
-
-	mpz_init_set_si(&new,IntegerOfTerm(t2));
-	mpz_xor(&new, Yap_BigIntOfTerm(t1), &new);
-	RBIG(&new);
-      }
+      return Yap_gmp_xor_int_big(IntegerOfTerm(t2), t1);
     case big_int_e:
-      /* two bignums */
-      {
-	MP_INT new;
-
-	mpz_init_set(&new, Yap_BigIntOfTerm(t1));
-	mpz_xor(&new, &new, Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      return Yap_gmp_xor_big_big(t1, t2);
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "#/2");
     default:
@@ -390,7 +340,7 @@ p_atan2(Term t1, Term t2)
 #ifdef USE_GMP
       {
 	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(Yap_BigIntOfTerm(t2));
+	Float f2 = Yap_gmp_to_float(t2);
 	RFLOAT(atan2(i1,f2));
       }
 #endif
@@ -414,7 +364,7 @@ p_atan2(Term t1, Term t2)
     case big_int_e:
 #ifdef USE_GMP
       {
-	RFLOAT(atan2(FloatOfTerm(t1),mpz_get_d(Yap_BigIntOfTerm(t2))));
+	RFLOAT(atan2(FloatOfTerm(t1),Yap_gmp_to_float(t2)));
       }
 #endif
     default:
@@ -423,22 +373,25 @@ p_atan2(Term t1, Term t2)
     break;
   case big_int_e:
 #ifdef USE_GMP
-    switch (ETypeOfTerm(t2)) {
-    case long_int_e:
-      {
-	Int i = IntegerOfTerm(t2);
-	RFLOAT(atan2(mpz_get_d(Yap_BigIntOfTerm(t1)),i));
+    {
+      Float dbl1 = Yap_gmp_to_float(t1);
+      switch (ETypeOfTerm(t2)) {
+      case long_int_e:
+	{
+	  Int i = IntegerOfTerm(t2);
+	  RFLOAT(atan2(dbl1,i));
+	}
+      case big_int_e:
+	/* two bignums */
+	RFLOAT(atan2(dbl1,Yap_gmp_to_float(t2)));
+      case double_e:
+	{
+	  Float dbl = FloatOfTerm(t2);
+	  RFLOAT(atan2(dbl1,dbl));
+	}
+      default:
+	RERROR();
       }
-    case big_int_e:
-      /* two bignums */
-      RFLOAT(atan2(mpz_get_d(Yap_BigIntOfTerm(t1)),mpz_get_d(Yap_BigIntOfTerm(t2))));
-    case double_e:
-      {
-	Float dbl = FloatOfTerm(t2);
-	RFLOAT(atan2(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
-      }
-    default:
-      RERROR();
     }
 #endif
   default:
@@ -475,7 +428,7 @@ p_power(Term t1, Term t2)
 #ifdef USE_GMP
       {
 	Int i1 = IntegerOfTerm(t1);
-	Float f2 = mpz_get_d(Yap_BigIntOfTerm(t2));
+	Float f2 = Yap_gmp_to_float(t2);
 	RFLOAT(pow(i1,f2));
       }
 #endif
@@ -499,7 +452,7 @@ p_power(Term t1, Term t2)
     case big_int_e:
 #ifdef USE_GMP
       {
-	RFLOAT(pow(FloatOfTerm(t1),mpz_get_d(Yap_BigIntOfTerm(t2))));
+	RFLOAT(pow(FloatOfTerm(t1),Yap_gmp_to_float(t2)));
       }
 #endif
     default:
@@ -512,15 +465,15 @@ p_power(Term t1, Term t2)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),i));
+	RFLOAT(pow(Yap_gmp_to_float(t1),i));
       }
     case big_int_e:
       /* two bignums */
-      RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),mpz_get_d(Yap_BigIntOfTerm(t2))));
+      RFLOAT(pow(Yap_gmp_to_float(t1),Yap_gmp_to_float(t2)));
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
-	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
+	RFLOAT(pow(Yap_gmp_to_float(t1),dbl));
       }
     default:
       RERROR();
@@ -587,7 +540,7 @@ p_exp(Term t1, Term t2)
 	/* two integers */
 	if ((i1 && !pow)) {
 	  /* overflow */
-	  return Yap_gmp_exp_ints(i1, i2);
+	  return Yap_gmp_exp_int_int(i1, i2);
 	}
 #endif
 	RINT(pow);
@@ -602,7 +555,8 @@ p_exp(Term t1, Term t2)
     case big_int_e:
 #ifdef USE_GMP
       {
-	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
+	Int i = IntegerOfTerm(t1);
+	return Yap_gmp_exp_int_big(i,t2);
       }
 #endif
     default:
@@ -625,7 +579,7 @@ p_exp(Term t1, Term t2)
     case big_int_e:
 #ifdef USE_GMP
       {
-	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, "^/2");
+	RFLOAT(pow(FloatOfTerm(t1),Yap_gmp_to_float(t2)));
       }
 #endif
     default:
@@ -638,16 +592,15 @@ p_exp(Term t1, Term t2)
     case long_int_e:
       {
 	Int i = IntegerOfTerm(t2);
-	return Yap_gmp_exp_big_int(Yap_BigIntOfTerm(t1),i);
+	return Yap_gmp_exp_big_int(t1,i);
       }
     case big_int_e:
       /* two bignums, makes no sense */
-      //
-      return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t1, "^/2");
+      return Yap_gmp_exp_big_big(t1,t2);
     case double_e:
       {
 	Float dbl = FloatOfTerm(t2);
-	RFLOAT(pow(mpz_get_d(Yap_BigIntOfTerm(t1)),dbl));
+	RFLOAT(pow(Yap_gmp_to_float(t1),dbl));
       }
     default:
       RERROR();
@@ -728,18 +681,7 @@ p_gcd(Term t1, Term t2)
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
     case big_int_e:
 #ifdef USE_GMP
-      /* I know the term is much larger, so: */
-      {
-	Int i = IntegerOfTerm(t1);
-
-	if (i > 0) {
-	  RINT(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t2),i));
-	} else if (i == 0) {
-	  RINT(0);
-	} else {
-	  RINT(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t2),-i));
-	}
-      }
+      return Yap_gmp_gcd_int_big(IntegerOfTerm(t1), t2);
 #endif
     default:
       RERROR();
@@ -751,27 +693,9 @@ p_gcd(Term t1, Term t2)
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      /* modulo between bignum and integer */
-      {
-	Int i = IntegerOfTerm(t2);
-
-	if (i > 0) {
-	  RINT(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t1),i));
-	} else if (i == 0) {
-	  RINT(0);
-	} else {
-	  RINT(mpz_gcd_ui(NULL,Yap_BigIntOfTerm(t1),-i));
-	}
-      }
+      return Yap_gmp_gcd_int_big(IntegerOfTerm(t2), t1);
     case big_int_e:
-      /* two bignums */
-      {
-	MP_INT new;
-
-	mpz_init_set(&new, Yap_BigIntOfTerm(t1));
-	mpz_gcd(&new, &new, Yap_BigIntOfTerm(t2));
-	RBIG(&new);
-      }
+      return Yap_gmp_gcd_big_big(t1, t2);
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "gcd/2");
     default:
@@ -811,15 +735,10 @@ p_min(Term t1, Term t2)
       }
     case big_int_e:
 #ifdef USE_GMP
-      {
-	Int i = IntegerOfTerm(t1);
-	MP_INT *b = Yap_BigIntOfTerm(t2);
-
-	if (mpz_cmp_si(b,i) < 0) {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_int_big(IntegerOfTerm(t1), t2) < 0) {
 	return t1;
       }
+      return t2;
 #endif
     default:
       RERROR();
@@ -848,15 +767,10 @@ p_min(Term t1, Term t2)
       }
     case big_int_e:
 #ifdef USE_GMP
-      {
-	Float fl1 = FloatOfTerm(t1);
-	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t2));
-	if (fl1 <= fl2) {
-	  return t1;
-	} else {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_float_big(FloatOfTerm(t1), t2) < 0) {
+	return t1;
       }
+      return t2;
 #endif
     default:
       RERROR();
@@ -866,37 +780,20 @@ p_min(Term t1, Term t2)
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	Int i = IntegerOfTerm(t2);
-	MP_INT *b = Yap_BigIntOfTerm(t1);
-
-	if (mpz_cmp_si(b,i) < 0) {
-	  return t1;
-	}
-	return t2;
+      if (Yap_gmp_cmp_big_int(t1, IntegerOfTerm(t2)) < 0) {
+	return t1;
       }
+      return t2;
     case big_int_e:
-      /* two bignums */
-      {
-	MP_INT *b1 = Yap_BigIntOfTerm(t1);
-	MP_INT *b2 = Yap_BigIntOfTerm(t2);
-
-	if (mpz_cmp(b1,b2) < 0) {
-	  return t1;
-	} else {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_big_big(t1, t2) < 0) {
+	return t1;
       }
+      return t2;
     case double_e:
-      {
-	Float fl1 = FloatOfTerm(t2);
-	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t1));
-	if (fl1 <= fl2) {
-	  return t2;
-	} else {
-	  return t1;
-	}
+      if (Yap_gmp_cmp_big_float(t1, FloatOfTerm(t2)) < 0) {
+	return t1;
       }
+      return t2;
     default:
       RERROR();
     }
@@ -934,15 +831,10 @@ p_max(Term t1, Term t2)
       }
     case big_int_e:
 #ifdef USE_GMP
-      {
-	Int i = IntegerOfTerm(t1);
-	MP_INT *b = Yap_BigIntOfTerm(t2);
-
-	if (mpz_cmp_si(b,i) > 0) {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_int_big(IntegerOfTerm(t1), t2) > 0) {
 	return t1;
       }
+      return t2;
 #endif
     default:
       RERROR();
@@ -971,15 +863,10 @@ p_max(Term t1, Term t2)
       }
     case big_int_e:
 #ifdef USE_GMP
-      {
-	Float fl1 = FloatOfTerm(t1);
-	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t2));
-	if (fl1 >= fl2) {
-	  return t1;
-	} else {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_float_big(FloatOfTerm(t1), t2) > 0) {
+	return t1;
       }
+      return t2;
 #endif
     default:
       RERROR();
@@ -989,37 +876,20 @@ p_max(Term t1, Term t2)
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
-      {
-	Int i = IntegerOfTerm(t2);
-	MP_INT *b = Yap_BigIntOfTerm(t1);
-
-	if (mpz_cmp_si(b,i) > 0) {
-	  return t1;
-	}
-	return t2;
+      if (Yap_gmp_cmp_big_int(t1, IntegerOfTerm(t2)) > 0) {
+	return t1;
       }
+      return t2;
     case big_int_e:
-      /* two bignums */
-      {
-	MP_INT *b1 = Yap_BigIntOfTerm(t1);
-	MP_INT *b2 = Yap_BigIntOfTerm(t2);
-
-	if (mpz_cmp(b1,b2) > 0) {
-	  return t1;
-	} else {
-	  return t2;
-	}
+      if (Yap_gmp_cmp_big_big(t1, t2) > 0) {
+	return t1;
       }
+      return t2;
     case double_e:
-      {
-	Float fl1 = FloatOfTerm(t2);
-	Float fl2 = mpz_get_d(Yap_BigIntOfTerm(t1));
-	if (fl1 >= fl2) {
-	  return t2;
-	} else {
-	  return t1;
-	}
+      if (Yap_gmp_cmp_big_float(t1, FloatOfTerm(t2)) > 0) {
+	return t1;
       }
+      return t2;
     default:
       RERROR();
     }
@@ -1070,6 +940,8 @@ eval2(Int fi, Term t1, Term t2) {
     return p_min(t1, t2);
   case op_max:
     return p_max(t1, t2);
+  case op_rdiv:
+    return p_rdiv(t1, t2);
   }
   RERROR();
 }
@@ -1103,7 +975,8 @@ static InitBinEntry InitBinTab[] = {
   {"exp", op_power2},
   {"gcd", op_gcd},
   {"min", op_min},
-  {"max", op_max}
+  {"max", op_max},
+  {"rdiv", op_rdiv}
 };
 
 static Int 

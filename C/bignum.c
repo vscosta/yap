@@ -66,6 +66,54 @@ Yap_BigIntOfTerm(Term t)
   return(new);
 }
 
+Term
+Yap_MkBigRatTerm(MP_RAT *big)
+{
+  Int nlimbs;
+  MP_INT *dst = (MP_INT *)(H+2);
+  MP_INT *num = mpq_numref(big);
+  MP_INT *den = mpq_denref(big);
+  MP_RAT *rat;
+  CELL *ret = H;
+
+  if (mpz_cmp_si(den, 1) == 0)
+    return Yap_MkBigIntTerm(num);
+  if ((num->_mp_alloc+den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize) > (ASP-ret)-1024) {
+    return TermNil;
+  }
+  H[0] = (CELL)FunctorBigInt;
+  H[1] = BIG_RATIONAL;
+  dst->_mp_alloc = 0;
+  rat = (MP_RAT *)(dst+1);
+  rat->_mp_num._mp_size = num->_mp_size;
+  rat->_mp_num._mp_alloc = num->_mp_alloc;
+  nlimbs = (num->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
+  memmove((void *)(rat+1), (const void *)(num->_mp_d), nlimbs*CellSize);
+  rat->_mp_den._mp_size = den->_mp_size;
+  rat->_mp_den._mp_alloc = den->_mp_alloc;
+  H = (CELL *)(rat+1)+nlimbs;
+  nlimbs = (den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
+  memmove((void *)(H), (const void *)(den->_mp_d), nlimbs*CellSize);
+  H += nlimbs;
+  dst->_mp_size = (H-(CELL *)rat);
+  H[0] = EndSpecials;
+  H++;
+  return AbsAppl(ret);
+}
+
+MP_RAT *
+Yap_BigRatOfTerm(Term t)
+{
+  MP_RAT *new = (MP_RAT *)(RepAppl(t)+2+sizeof(MP_INT)/sizeof(CELL));
+  mp_limb_t *nt;
+
+  nt = new->_mp_num._mp_d = (mp_limb_t *)(new+1);
+  nt += new->_mp_num._mp_alloc;
+  new->_mp_den._mp_d = nt;
+  return new;
+}
+
+
 #endif
 
 Term

@@ -311,6 +311,11 @@ typedef struct {
   mp_limb_t *_mp_d;
 } MP_INT;
 
+typedef struct {
+  MP_INT _mp_num;
+  MP_INT _mp_den;
+} MP_RAT;
+
 #endif
 
 inline EXTERN int IsBigIntTerm (Term);
@@ -325,6 +330,9 @@ IsBigIntTerm (Term t)
 
 Term STD_PROTO (Yap_MkBigIntTerm, (MP_INT *));
 MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
+
+Term STD_PROTO (Yap_MkBigRatTerm, (MP_RAT *));
+MP_RAT *STD_PROTO (Yap_BigRatOfTerm, (Term));
 
 inline EXTERN void MPZ_SET (mpz_t, MP_INT *);
 

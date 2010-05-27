@@ -123,6 +123,116 @@ wrputws(wchar_t *s, wrf writewch)		/* writes a string	 */
     wrputc(*s++, writewch);
 }
 
+#ifdef USE_GMP
+
+static char *
+ensure_space(size_t sz) {
+  char *s;
+
+  s = (char *) Yap_PreAllocCodeSpace();
+  while (s+sz >= (char *)AuxSp) {
+#if USE_SYSTEM_MALLOC
+    /* may require stack expansion */
+    if (!Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE)) {
+      s = NULL;
+      break;
+    }
+    s = (char *) Yap_PreAllocCodeSpace();
+#else
+    s = NULL;
+#endif
+  }
+  if (!s) {
+    s = (char *)TR;
+    while (s+sz >= Yap_TrailTop) {
+      if (!Yap_growtrail(sz/sizeof(CELL), FALSE)) {
+	s = NULL;
+	break;
+      }
+      s = (char *)TR;
+    }
+  }
+  if (!s) {
+    s = (char *)H;
+    if (s+sz >= (char *)ASP) {
+      Yap_Error(OUT_OF_STACK_ERROR,TermNil,"not enough space to write bignum: it requires %d bytes", sz);
+      s = NULL;
+    }
+  }
+  return s;
+}
+
+static void
+write_mpint(MP_INT *big, wrf writewch) {
+  char *s;
+
+  s = ensure_space(3+mpz_sizeinbase(big, 10));
+  if (mpz_sgn(big) < 0) {
+    if (lastw == symbol)
+      wrputc(' ', writewch);  
+  } else {
+    if (lastw == alphanum)
+      wrputc(' ', writewch);
+  }
+  if (!s) {
+    s = mpz_get_str(NULL, 10, big);
+    if (!s)
+      return;
+    wrputs(s,writewch);
+    free(s);
+  } else {
+    mpz_get_str(s, 10, big);
+    wrputs(s,writewch);
+  }
+}
+
+static void
+write_mpq(MP_RAT *q, wrf writewch) {
+  char *s;
+  size_t sz;
+  
+  fprintf(stderr,"%ld %ld\n",mpz_sizeinbase (mpq_numref(q), 10),mpz_sizeinbase (mpq_denref(q), 10));
+  sz = ((size_t)3) +mpz_sizeinbase(mpq_numref(q), 10)+ mpz_sizeinbase (mpq_denref(q), 10);
+  s = ensure_space(sz);
+  if (mpq_sgn(q) < 0) {
+    if (lastw == symbol)
+      wrputc(' ', writewch);  
+  } else {
+    if (lastw == alphanum)
+      wrputc(' ', writewch);
+  }
+  if (!s) {
+    s = mpq_get_str(NULL, 10, q);
+    if (!s)
+      return;
+    wrputs(s,writewch);
+    free(s);
+  } else {
+    mpq_get_str(s, 10, q);
+    wrputs(s,writewch);
+  }
+}
+#endif
+
+static void 
+writebig(Term t, wrf writewch)	/* writes an integer	 */
+{
+#ifdef USE_GMP
+  CELL *pt = RepAppl(t)+1;
+  if (pt[0] == BIG_INT) 
+  {
+    MP_INT *big = Yap_BigIntOfTerm(t);
+    write_mpint(big, writewch);
+    return;
+  } else if (pt[0] == BIG_RATIONAL) {
+    MP_RAT *q = Yap_BigRatOfTerm(t);
+    write_mpq(q, writewch);
+    return;
+  }
+#endif
+  wrputs("0",writewch);
+}	                  
+
 static void 
 wrputf(Float f, wrf writewch)		/* writes a float	 */
 	                  
@@ -630,6 +740,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputn(LongIntOfTerm(t),wglb->writewch);
 	return;
       case (CELL)FunctorBigInt:
+	writebig(t,wglb->writewch);
+	return;
 #ifdef USE_GMP
 	{
 	  MP_INT *big = Yap_BigIntOfTerm(t);
