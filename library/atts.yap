@@ -17,6 +17,8 @@
 
 :- module(attributes, [op(1150, fx, attribute)]).
 
+:- use_module(library(lists), [member/2]).
+
 :- multifile
 	user:goal_expansion/3.
 :- multifile
@@ -26,7 +28,7 @@
 :- dynamic modules_with_attributes/1.
 :- dynamic attributed_module/3.
 
-modules_with_attributes([prolog]).
+modules_with_attributes([]).
 
 %
 % defining a new attribute is just a question of establishing a
@@ -172,14 +174,10 @@ process_goals(G.Goals, G.NGoals, Do) :-
 
 find_used([],_,L,L).
 find_used([M|Mods],Mods0,L0,Lf) :-
-        in(M,Mods0), !,
+        member(M,Mods0), !,
 	find_used(Mods,Mods0,[M|L0],Lf).
 find_used([_|Mods],Mods0,L0,Lf) :-
 	find_used(Mods,Mods0,L0,Lf).
-
-in(X,[X|_]).
-in(X,[_|L]) :-
-	in(X,L).
 
 do_verify_attributes([], _, _, []).
 do_verify_attributes([Mod|Mods], AttVar, Binding, [Mod:Goal|Goals]) :-
