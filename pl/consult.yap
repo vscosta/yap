@@ -321,7 +321,8 @@ use_module(M,F,Is) :-
 	'$show_consult_level'(Level1),
 	% it will be done after we leave the current consult level.
 	Level is Level1-1,
-	recorda('$initialisation',do(Level,G),_),
+	writeln(+Level:G),
+	recordz('$initialisation',do(Level,G),_),
 	fail.
 '$initialization'(_).
 
@@ -386,10 +387,13 @@ use_module(M,F,Is) :-
 	fail.
 '$exec_initialisation_goals' :-
 	'$show_consult_level'(Level),
-	recorded('$initialisation',do(Level,G),R),
-	erase(R),
-	G \= '$',
 	'$current_module'(M),
+	findall(
+		G,
+		(recorded('$initialisation',do(Level,G),R), erase(R), G\='$'),
+		LGs),
+	lists:member(G,LGs),
+	writeln(doing:Level:G),
 	nb_getval('$system_mode', OldMode),
         ( OldMode == on -> '$exit_system_mode' ; true ),
 	% run initialization under user control (so allow debugging this stuff).
