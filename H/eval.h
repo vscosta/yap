@@ -95,6 +95,8 @@ typedef enum {
   op_lgamma,
   op_erf,
   op_erfc,
+  op_rational,
+  op_rationalize,
   op_random1
 } arith1_op;
 
@@ -263,6 +265,9 @@ Term  STD_PROTO(Yap_gmp_gcd_big_big,(Term,Term));
 
 Term  STD_PROTO(Yap_gmp_big_from_64bits,(YAP_LONG_LONG));
 
+Term  STD_PROTO(Yap_gmp_float_to_big,(Float));
+Term  STD_PROTO(Yap_gmp_float_to_rational,(Float));
+Term  STD_PROTO(Yap_gmp_float_rationalize,(Float));
 Float STD_PROTO(Yap_gmp_to_float,(Term));
 Term  STD_PROTO(Yap_gmp_add_float_big,(Float, Term));
 Term  STD_PROTO(Yap_gmp_sub_float_big,(Float, Term));
@@ -278,8 +283,19 @@ int   STD_PROTO(Yap_gmp_cmp_big_float,(Term, Float));
 int   STD_PROTO(Yap_gmp_cmp_big_big,(Term, Term));
 
 Term  STD_PROTO(Yap_gmp_neg_int,(Int));
+Term  STD_PROTO(Yap_gmp_abs_big,(Term));
 Term  STD_PROTO(Yap_gmp_neg_big,(Term));
 Term  STD_PROTO(Yap_gmp_unot_big,(Term));
+Term  STD_PROTO(Yap_gmp_floor,(Term));
+Term  STD_PROTO(Yap_gmp_ceiling,(Term));
+Term  STD_PROTO(Yap_gmp_round,(Term));
+Term  STD_PROTO(Yap_gmp_trunc,(Term));
+Term  STD_PROTO(Yap_gmp_float_fractional_part,(Term));
+Term  STD_PROTO(Yap_gmp_float_integer_part,(Term));
+Term  STD_PROTO(Yap_gmp_sign,(Term));
+Term  STD_PROTO(Yap_gmp_lsb,(Term));
+Term  STD_PROTO(Yap_gmp_msb,(Term));
+Term  STD_PROTO(Yap_gmp_popcount,(Term));
 
 
 #endif

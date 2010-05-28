@@ -226,6 +226,7 @@
   AtomRepeatSpace = AtomAdjust(AtomRepeatSpace);
   AtomReposition = AtomAdjust(AtomReposition);
   AtomRepresentationError = AtomAdjust(AtomRepresentationError);
+  AtomRDiv = AtomAdjust(AtomRDiv);
   AtomResize = AtomAdjust(AtomResize);
   AtomResourceError = AtomAdjust(AtomResourceError);
   AtomRestoreRegs = AtomAdjust(AtomRestoreRegs);
@@ -389,6 +390,7 @@
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);
   FunctorRecordedWithKey = FuncAdjust(FunctorRecordedWithKey);
+  FunctorRDiv = FuncAdjust(FunctorRDiv);
   FunctorRedoFreeze = FuncAdjust(FunctorRedoFreeze);
   FunctorRepresentationError = FuncAdjust(FunctorRepresentationError);
   FunctorResourceError = FuncAdjust(FunctorResourceError);

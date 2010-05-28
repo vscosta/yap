@@ -83,7 +83,7 @@ Yap_MkBigRatTerm(MP_RAT *big)
   }
   H[0] = (CELL)FunctorBigInt;
   H[1] = BIG_RATIONAL;
-  dst->_mp_alloc = 0;
+  dst->_mp_size = 0;
   rat = (MP_RAT *)(dst+1);
   rat->_mp_num._mp_size = num->_mp_size;
   rat->_mp_num._mp_alloc = num->_mp_alloc;
@@ -95,7 +95,7 @@ Yap_MkBigRatTerm(MP_RAT *big)
   nlimbs = (den->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
   memmove((void *)(H), (const void *)(den->_mp_d), nlimbs*CellSize);
   H += nlimbs;
-  dst->_mp_size = (H-(CELL *)rat);
+  dst->_mp_alloc = (H-(CELL *)(dst+1));
   H[0] = EndSpecials;
   H++;
   return AbsAppl(ret);
@@ -111,6 +111,17 @@ Yap_BigRatOfTerm(Term t)
   nt += new->_mp_num._mp_alloc;
   new->_mp_den._mp_d = nt;
   return new;
+}
+
+Term 
+Yap_RatTermToApplTerm(Term t)
+{
+  Term ts[2];
+  MP_RAT *rat = Yap_BigRatOfTerm(t);
+
+  ts[0] =  Yap_MkBigIntTerm(mpq_numref(rat));
+  ts[1] =  Yap_MkBigIntTerm(mpq_denref(rat));
+  return Yap_MkApplTerm(FunctorRDiv,2,ts);
 }
 
 
@@ -150,7 +161,11 @@ p_is_bignum(void)
 #ifdef USE_GMP
   Term t = Deref(ARG1);
   return(
-	 IsNonVarTerm(t) && IsApplTerm(t) && FunctorOfTerm(t) == FunctorBigInt);
+	 IsNonVarTerm(t) && 
+	 IsApplTerm(t) && 
+	 FunctorOfTerm(t) == FunctorBigInt &&
+	 RepAppl(t)[1] == BIG_INT
+	 );
 #else
   return FALSE;
 #endif
@@ -166,9 +181,72 @@ p_has_bignums(void)
 #endif
 }
 
+static Int 
+p_is_rational(void)
+{
+  Term t = Deref(ARG1);
+  if (IsVarTerm(t))
+    return FALSE;
+  if (IsIntTerm(t))
+    return TRUE;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    CELL *pt;
+
+    if (f == FunctorLongInt)
+      return TRUE;
+    if (f != FunctorBigInt)
+      return FALSE;
+    pt = RepAppl(t);
+    return (  pt[1] == BIG_RATIONAL || pt[1] == BIG_INT );
+  }
+  return FALSE;
+}
+
+static Int 
+p_rational(void)
+{
+#ifdef USE_GMP
+  Term t = Deref(ARG1);
+  Functor f;
+  CELL *pt;
+  MP_RAT *rat;
+  Term t1, t2;
+
+  if (IsVarTerm(t))
+    return FALSE;
+  if (!IsApplTerm(t))
+    return FALSE;
+  f = FunctorOfTerm(t);
+  if (f != FunctorBigInt)
+    return FALSE;
+  pt = RepAppl(t);
+  if (pt[1] != BIG_RATIONAL)
+    return FALSE;
+  rat = Yap_BigRatOfTerm(t);
+  while ((t1 = Yap_MkBigIntTerm(mpq_numref(rat))) == TermNil ||
+	 (t2 = Yap_MkBigIntTerm(mpq_denref(rat))) == TermNil) {
+    UInt size =
+      (mpq_numref(rat)->_mp_alloc)*(sizeof(mp_limb_t)/CellSize) +
+      (mpq_denref(rat)->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
+    if (!Yap_gcl(size, 3, ENV, P)) {
+      Yap_Error(OUT_OF_STACK_ERROR, t, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
+  return 
+    Yap_unify(ARG2, t1) &&
+    Yap_unify(ARG3, t2);
+#else
+  return FALSE;
+#endif
+}
+
 void
 Yap_InitBigNums(void)
 {
   Yap_InitCPred("$has_bignums", 0, p_has_bignums, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$bignum", 1, p_is_bignum, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("rational", 3, p_rational, 0);
+  Yap_InitCPred("rational", 1, p_is_rational, SafePredFlag);
 }

@@ -398,7 +398,8 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	  default:
 	    {
 	      /* big int */
-	      UInt sz = ArenaSz(d0), i;
+	      UInt sz = (sizeof(MP_INT)+3*CellSize+
+			 ((MP_INT *)(ap2+2))->_mp_alloc*sizeof(mp_limb_t))/CellSize, i;
 
 	      if (H > ASP - (MIN_ARENA_SIZE+sz)) {
 		goto overflow;

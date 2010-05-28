@@ -117,8 +117,9 @@ void   STD_PROTO(Yap_InitAttVarPreds,(void));
 void   STD_PROTO(Yap_InitBBPreds,(void));
 
 /* bignum.c */
-Term   STD_PROTO(Yap_MkULLIntTerm,(YAP_ULONG_LONG));
-void   STD_PROTO(Yap_InitBigNums,(void));
+Term   STD_PROTO(Yap_MkULLIntTerm, (YAP_ULONG_LONG));
+Term   STD_PROTO(Yap_RatTermToApplTerm, (Term));
+void   STD_PROTO(Yap_InitBigNums, (void));
 
 /* c_interface.c */
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));

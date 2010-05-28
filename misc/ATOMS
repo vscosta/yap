@@ -231,6 +231,7 @@ A	Repeat			N	"repeat"
 A	RepeatSpace		N	"repeat "
 A	Reposition		N	"reposition"
 A	RepresentationError	N	"representation_error"
+A	RDiv			N	"rdiv"
 A	Resize			N	"resize"
 A	ResourceError		N	"resource_error"
 A	RestoreRegs		F	"$restore_regs"
@@ -394,6 +395,7 @@ F	Portray			Portray		1
 F	PrologConstraint	Prolog		2
 F	Query			Query		1
 F	RecordedWithKey		RecordedWithKey	6
+F	RDiv			RDiv		2
 F	RedoFreeze		RedoFreeze	3
 F	RepresentationError	RepresentationError	1
 F	ResourceError		ResourceError	1

@@ -450,6 +450,8 @@
 #define AtomReposition Yap_heap_regs->AtomReposition_
   Atom AtomRepresentationError_;
 #define AtomRepresentationError Yap_heap_regs->AtomRepresentationError_
+  Atom AtomRDiv_;
+#define AtomRDiv Yap_heap_regs->AtomRDiv_
   Atom AtomResize_;
 #define AtomResize Yap_heap_regs->AtomResize_
   Atom AtomResourceError_;
@@ -776,6 +778,8 @@
 #define FunctorQuery Yap_heap_regs->FunctorQuery_
   Functor FunctorRecordedWithKey_;
 #define FunctorRecordedWithKey Yap_heap_regs->FunctorRecordedWithKey_
+  Functor FunctorRDiv_;
+#define FunctorRDiv Yap_heap_regs->FunctorRDiv_
   Functor FunctorRedoFreeze_;
 #define FunctorRedoFreeze Yap_heap_regs->FunctorRedoFreeze_
   Functor FunctorRepresentationError_;

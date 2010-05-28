@@ -226,6 +226,7 @@
   AtomRepeatSpace = Yap_LookupAtom("repeat ");
   AtomReposition = Yap_LookupAtom("reposition");
   AtomRepresentationError = Yap_LookupAtom("representation_error");
+  AtomRDiv = Yap_LookupAtom("rdiv");
   AtomResize = Yap_LookupAtom("resize");
   AtomResourceError = Yap_LookupAtom("resource_error");
   AtomRestoreRegs = Yap_FullLookupAtom("$restore_regs");
@@ -389,6 +390,7 @@
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);
   FunctorRecordedWithKey = Yap_MkFunctor(AtomRecordedWithKey,6);
+  FunctorRDiv = Yap_MkFunctor(AtomRDiv,2);
   FunctorRedoFreeze = Yap_MkFunctor(AtomRedoFreeze,3);
   FunctorRepresentationError = Yap_MkFunctor(AtomRepresentationError,1);
   FunctorResourceError = Yap_MkFunctor(AtomResourceError,1);
