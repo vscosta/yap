@@ -964,9 +964,8 @@ p_name(void)
 #if USE_GMP
     } else if (IsBigIntTerm(AtomNameT)) {
       String = Yap_PreAllocCodeSpace();
-      if (String + 1024 > (char *)AuxSp) 
+      if (!Yap_gmp_to_string(AtomNameT, String, ((char *)AuxSp-String)-1024, 10 ))
 	goto expand_auxsp;
-      mpz_get_str(String, 10, Yap_BigIntOfTerm(AtomNameT));
 #endif
     } else {
       Yap_Error(TYPE_ERROR_ATOMIC,AtomNameT,"name/2");
@@ -1520,19 +1519,18 @@ p_atomic_concat(void)
 	wcptr += sz;
 #if USE_GMP
       } else if (IsBigIntTerm(thead)) {
-	MP_INT *n = Yap_BigIntOfTerm(thead);
-	int sz, i;
+	size_t sz, i;
 	char *tmp = (char *)wcptr;
 
-	if ((sz = mpz_sizeinbase (n, 10)) > (wtop-wcptr)-1024) {
+	sz = Yap_gmp_to_size(thead, 10);
+	if (!Yap_gmp_to_string(thead, tmp, (wtop-wcptr)-1024, 10 )) {
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
 	  goto restart;
 	}
-	mpz_get_str(tmp, 10, n);
 	for (i=sz; i>0; i--) {
 	  wcptr[i-1] = tmp[i-1];
 	}
@@ -1614,18 +1612,15 @@ p_atomic_concat(void)
 	while (*cptr && cptr < top-1024) cptr++;
 #if USE_GMP
       } else if (IsBigIntTerm(thead)) {
-	MP_INT *n = Yap_BigIntOfTerm(thead);
-	int sz;
-
-	if ((sz = mpz_sizeinbase (n, 10)) > (top-cptr)-1024) {
+	if (!Yap_gmp_to_string(thead, cptr, (top-cptr)-1024, 10 )) {
+	  size_t sz = Yap_gmp_to_size(thead, 10);
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
 	    return(FALSE);
 	  }
 	  goto restart;
 	}
-	mpz_get_str(cptr, 10, n);
 	while (*cptr) cptr++;
 #endif
       }
@@ -1956,7 +1951,15 @@ p_number_chars(void)
       sprintf(String, Int_FORMAT, LongIntOfTerm(t1));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
-      mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
+      if (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 )) {
+	size_t sz = Yap_gmp_to_size(t1, 10);
+	Yap_ReleasePreAllocCodeSpace((ADDR)String);
+	if (!Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE)) {
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	  return FALSE;
+	}
+	goto restart_aux;
+      }
 #endif
     }
     if (yap_flags[YAP_TO_CHARS_FLAG] == QUINTUS_TO_CHARS) {
@@ -2104,7 +2107,13 @@ p_number_atom(void)
 
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
-      mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
+      while (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 )) {
+	size_t sz = Yap_gmp_to_size(t1, 10);
+	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
 #endif
     } else {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_atom/2");
@@ -2160,7 +2169,13 @@ p_number_codes(void)
       sprintf(String, Int_FORMAT, LongIntOfTerm(t1));
 #if USE_GMP
     } else if (IsBigIntTerm(t1)) {
-      mpz_get_str(String, 10, Yap_BigIntOfTerm(t1));
+      while (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 )) {
+	size_t sz = Yap_gmp_to_size(t1, 10);
+	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
 #endif
     } else {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_codes/2");
@@ -2251,7 +2266,13 @@ p_atom_number(void)
       sprintf(String, Int_FORMAT, LongIntOfTerm(t2));
 #if USE_GMP
     } else if (IsBigIntTerm(t2)) {
-      mpz_get_str(String, 10, Yap_BigIntOfTerm(t2));
+      while (!Yap_gmp_to_string(t2, String, ((char *)AuxSp-String)-1024, 10 )) {
+	size_t sz = Yap_gmp_to_size(t2, 10);
+	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t2, Yap_ErrorMessage);
+	  return FALSE;
+	}
+      }
 #endif
     } else {
       Yap_Error(TYPE_ERROR_NUMBER, t2, "atom_number/2");

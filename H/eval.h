@@ -303,7 +303,8 @@ Term  STD_PROTO(Yap_gmp_lsb,(Term));
 Term  STD_PROTO(Yap_gmp_msb,(Term));
 Term  STD_PROTO(Yap_gmp_popcount,(Term));
 
-
+char *  STD_PROTO(Yap_gmp_to_string,(Term, char *, size_t, int));
+size_t  STD_PROTO(Yap_gmp_to_size,(Term, int));
 #endif
 
 inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);

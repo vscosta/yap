@@ -50,6 +50,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
+#include "eval.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
@@ -448,12 +449,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	    t = MkFloatTerm(-FloatOfTerm(t));
 #ifdef USE_GMP
 	  else if (IsBigIntTerm(t)) {
-	    mpz_t new;
-
-	    mpz_init(new);
-	    mpz_neg(new, Yap_BigIntOfTerm(t));
-	    t = Yap_MkBigIntTerm(new);
-	    mpz_clear(new);
+	    t = Yap_gmp_neg_big(t);
 	  }
 #endif
 	  else

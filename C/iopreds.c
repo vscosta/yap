@@ -28,6 +28,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
+#include "eval.h"
 #include <stdlib.h>
 #if HAVE_STDARG_H
 #include <stdarg.h>
@@ -4914,10 +4915,12 @@ base_dig(Int dig, Int ch)
     return (dig-10)+'A';
 }
 
+#define TMP_STRING_SIZE 1024
+
 static Int
 format(volatile Term otail, volatile Term oargs, int sno)
 {
-  char tmp1[256];
+  char tmp1[TMP_STRING_SIZE], *tmpbase;
   int ch;
   int column_boundary;
   Term mytargs[8], *targs;
@@ -5180,6 +5183,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  {
 	    Int siz = 0;
 	    char *ptr = tmp1;
+	    tmpbase = tmp1;
 
 	    if (IsIntegerTerm(t)) {
 	      Int il = IntegerOfTerm(t);
@@ -5190,20 +5194,29 @@ format(volatile Term otail, volatile Term oargs, int sno)
 #endif
 	      siz = strlen(tmp1);
 	      if (il < 0)  siz--;
-	    }
 #ifdef USE_GMP
-	    else if (IsBigIntTerm(t)) {
-	      MP_INT *dst = Yap_BigIntOfTerm(t);
-	      siz = mpz_sizeinbase (dst, 10);
+	    } else if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
+	      char *res;
 
-	      if (siz+2 > 256) {
-		goto do_type_int_error;
+	      tmpbase = tmp1;
+
+	      while (!(res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE, 10))) {
+		if (tmpbase == tmp1) {
+		  tmpbase = NULL;
+		} else {
+		  tmpbase = res;
+		  goto do_type_int_error;
+		}
 	      }
-	      mpz_get_str (tmp1, 10, dst);
-	    }
+	      tmpbase = res;
+	      ptr = tmpbase;
 #endif
-
-	    if (tmp1[0] == '-') {
+	      siz = strlen(tmpbase);
+	    } else {
+	      goto do_type_int_error;
+	    }
+	      
+	    if (tmpbase[0] == '-') {
 	      f_putc(sno, (int) '-');
 	      ptr++;
 	    }
@@ -5226,7 +5239,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      }
 	    }
 	    if (repeats) {
-	      if (ptr == tmp1 ||
+	      if (ptr == tmpbase ||
 		  ptr[-1] == '-') {
 		f_putc(sno, (int) '0');
 	      }
@@ -5240,6 +5253,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		repeats--;
 	      }
 	    }
+	    if (tmpbase != tmp1)
+	      free(tmpbase);
 	    break;
 	  case 'r':
 	  case 'R':
@@ -5261,24 +5276,24 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      if (radix > 36 || radix < 2)
 		goto do_domain_error_radix;
 #ifdef USE_GMP
-	      if (IsBigIntTerm(t)) {
-		MP_INT *dst = Yap_BigIntOfTerm(t);
-		char *tmp2, *pt;
-		int ch;
+	      if (IsBigIntTerm(t) && RepAppl(t)[1] == BIG_INT) {
+		char *pt, *res;
 
-		siz = mpz_sizeinbase (dst, radix)+2;
-		if (siz > 256) {
-		  if (!(tmp2 = Yap_AllocCodeSpace(siz)))
+		tmpbase = tmp1;
+		while (!(res = Yap_gmp_to_string(t, tmpbase, TMP_STRING_SIZE, radix))) {
+		  if (tmpbase == tmp1) {
+		    tmpbase = NULL;
+		  } else {
+		    tmpbase = res;
 		    goto do_type_int_error;
+		  }
 		}
-		else
-		  tmp2 = tmp1;
-		mpz_get_str (tmp2, radix, dst);
-		pt = tmp2;
+		tmpbase = res;
+		pt = tmpbase;
 		while ((ch = *pt++))
 		  f_putc(sno, ch);
-		if (tmp2 != tmp1)
-		  Yap_FreeCodeSpace(tmp2);
+		if (tmpbase != tmp1)
+		  free(tmpbase);
 		break;
 	      }
 #endif

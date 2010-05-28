@@ -19,6 +19,9 @@
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "eval.h"
+#if HAVE_STRING_H
+#include <string.h>
+#endif
 
 #if USE_GMP
 
@@ -1534,6 +1537,63 @@ Yap_gmp_popcount(Term t)
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount");    
   }
 }
+
+char * 
+Yap_gmp_to_string(Term t, char *s, size_t sz, int base)
+{
+  if (RepAppl(t)[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+
+    if (s) {
+      size_t size = mpz_sizeinbase(b, base);
+      if (size+2 > sz) {
+	return NULL;
+      }
+    }
+    return mpz_get_str (s, base, b);
+  } else if (RepAppl(t)[1] == BIG_RATIONAL) {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    size_t pos;
+    size_t siz =
+	mpz_sizeinbase(mpq_numref(b), base)+
+	mpz_sizeinbase(mpq_denref(b), base)+
+	8;
+    if (s) {
+      if (siz > sz) {
+	return NULL;
+      }
+    } else {
+      if (!(s = malloc(siz)))
+	return NULL;
+    }
+    strncpy(s,"rdiv(",sz);
+    pos = strlen(s);
+    mpz_get_str (s+pos, base, mpq_numref(b));
+    pos = strlen(s);
+    s[pos] = ',';
+    mpz_get_str (s+(pos+1), base, mpq_denref(b));
+    pos = strlen(s);
+    s[pos] = ')';
+  }
+  return s;
+}
+
+size_t 
+Yap_gmp_to_size(Term t, int base)
+{
+  if (RepAppl(t)[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return mpz_sizeinbase(b, base);
+  } else if (RepAppl(t)[1] == BIG_RATIONAL) {
+    MP_RAT *b = Yap_BigRatOfTerm(t);
+    return
+	mpz_sizeinbase(mpq_numref(b), base)+
+	mpz_sizeinbase(mpq_denref(b), base)+
+	8;
+  }
+  return 1;
+}
+
 #endif
 
 
