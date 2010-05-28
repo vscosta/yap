@@ -120,12 +120,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  out = IntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
 	} else if (IsBigIntTerm(d1)) {
-	  MP_INT *b1 = Yap_BigIntOfTerm(d1);
-	  if (!mpz_size(b1)) {
-	    out = -1; 
-	  } else {
-	    out = -mpz_cmp_si(b1, IntOfTerm(d0));
-	  }
+	  out = Yap_gmp_tcmp_int_big(IntOfTerm(d0), d1);
 #endif
 	} else if (IsRefTerm(d1))
 		out = 1 ;
@@ -151,12 +146,7 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 	  out = LongIntOfTerm(d0) - LongIntOfTerm(d1);
 #ifdef USE_GMP
 	} else if (IsBigIntTerm(d1)) {
-	  MP_INT *b1 = Yap_BigIntOfTerm(d1);
-	  if (!mpz_size(b1)) {
-	    out = -1; 
-	  } else {
-	    out = -mpz_cmp_si(b1, LongIntOfTerm(d0));
-	  }
+	  out = Yap_gmp_tcmp_int_big(LongIntOfTerm(d0), d1);
 #endif
 	} else if (IsRefTerm(d1)) {
 	  out = 1 ;
@@ -168,29 +158,14 @@ static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
       }
 #ifdef USE_GMP
       else if (IsBigIntTerm(d0)) {
-	MP_INT *b0 = Yap_BigIntOfTerm(d0);
-
-	if (!mpz_size(b0)) {
-	  if (IsBigIntTerm(d1)) {
-	    MP_INT *b1 = Yap_BigIntOfTerm(d1);
-	    out = b0-b1;
-	  } else {
-	    out = 1;
-	  }
-	} else if (IsIntTerm(d1))
-	  out = mpz_cmp_si(b0, IntOfTerm(d1));
-	else if (IsFloatTerm(d1)) {
+	if (IsIntTerm(d1)) {
+	  out = Yap_gmp_tcmp_int_big(d0, IntOfTerm(d1));
+	} else if (IsFloatTerm(d1)) {
 	  out = 1;
-	} else if (IsLongIntTerm(d1))
-	  out = mpz_cmp_si(b0, LongIntOfTerm(d1));
-	else if (IsBigIntTerm(d1)) {
-	  MP_INT *b1 = Yap_BigIntOfTerm(d1);
-
-	  if (!mpz_size(b1)) {
-	    out = -1; 
-	  } else {
-	    out = mpz_cmp(b0, b1);
-	  }
+	} else if (IsLongIntTerm(d1)) {
+	  out = Yap_gmp_tcmp_int_big(d0, LongIntOfTerm(d1));
+	} else if (IsBigIntTerm(d1)) {
+	  out = Yap_gmp_tcmp_big_big(d1, d1);
 	} else if (IsRefTerm(d1))
 	  out = 1 ;
 	else out = -1;
@@ -352,12 +327,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
       }
 #ifdef USE_GMP
       if (IsBigIntTerm(t2)) {
-	MP_INT *b1 = Yap_BigIntOfTerm(t2);
-	if (!mpz_size(b1)) {
-	  return -1; 
-	} else {
-	  return -mpz_cmp_si(b1,IntOfTerm(t1));
-	}
+	return Yap_gmp_tcmp_int_big(IntOfTerm(t1), t2);
       }
 #endif
       if (IsRefTerm(t2))
@@ -408,12 +378,7 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	    return LongIntOfTerm(t1) - LongIntOfTerm(t2);
 #ifdef USE_GMP
 	  if (IsBigIntTerm(t2)) {
-	    MP_INT *b1 = Yap_BigIntOfTerm(t2);
-	    if (!mpz_size(b1)) {
-	      return -1; 
-	    } else {
-	      return -mpz_cmp_si(b1, LongIntOfTerm(t1));
-	    }
+	    return Yap_gmp_tcmp_int_big(LongIntOfTerm(t1), t2);
 	  }
 #endif
 	  if (IsRefTerm(t2))
@@ -423,30 +388,15 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 #ifdef USE_GMP
       case big_int_e:
 	{
-	  MP_INT *b0 = Yap_BigIntOfTerm(t1);
-
-	  if (!mpz_size(b0)) {
-	    if (IsBigIntTerm(t2)) {
-	      MP_INT *b1 = Yap_BigIntOfTerm(t2);
-	      return b0-b1;
-	    } else {
-	      return 1;
-	    }
-	  } else if (IsIntTerm(t2))
-	    return mpz_cmp_si(Yap_BigIntOfTerm(t1), IntOfTerm(t2));
+	  if (IsIntTerm(t2))
+	    return Yap_gmp_tcmp_big_int(t1, IntOfTerm(t2));
 	  if (IsFloatTerm(t2)) {
 	    return 1;
 	  }
 	  if (IsLongIntTerm(t2))
-	    return mpz_cmp_si(Yap_BigIntOfTerm(t1), LongIntOfTerm(t2));
+	    return Yap_gmp_tcmp_big_int(t1, LongIntOfTerm(t2));
 	  if (IsBigIntTerm(t2)) {
-	    MP_INT *b1 = Yap_BigIntOfTerm(t2);
-
-	    if (!mpz_size(b1)) {
-	      return -1; 
-	    } else {
-	      return mpz_cmp(b0, b1);
-	    }
+	    return Yap_gmp_tcmp_big_big(t1, t2);
 	  }
 	  if (IsRefTerm(t2))
 	    return 1;
@@ -572,8 +522,7 @@ a_cmp(Term t1, Term t2)
       return flt_cmp(i1-f2);
 #ifdef USE_GMP
     } else if (IsBigIntTerm(t2)) {
-      MP_INT *b2 = Yap_BigIntOfTerm(t2);
-      return int_cmp(-mpz_cmp_si(b2,i1));
+      return Yap_gmp_cmp_int_big(i1,t2);
 #endif
     } else {
       return FALSE;
@@ -610,8 +559,7 @@ a_cmp(Term t1, Term t2)
       return flt_cmp(f1-f2);
 #ifdef USE_GMP
     } else if (IsBigIntTerm(t2)) {
-      MP_INT *b2 = Yap_BigIntOfTerm(t2);
-      return flt_cmp(f1-mpz_get_d(b2));
+      return Yap_gmp_cmp_float_big(f1,t2);
 #endif
     } else {
       return FALSE;
@@ -619,12 +567,8 @@ a_cmp(Term t1, Term t2)
 #ifdef USE_GMP
   } else if (IsBigIntTerm(t1)) {
     {
-      MP_INT *b1 = Yap_BigIntOfTerm(t1);
-      t2 = Yap_Eval(t2);
-
       if (IsIntegerTerm(t2)) {
-	Int i2 = IntegerOfTerm(t2);
-	return int_cmp(mpz_cmp_si(b1,i2));
+	return Yap_gmp_cmp_big_int(t1, IntegerOfTerm(t2));
       } else if (IsFloatTerm(t2)) {
 	Float f2 = FloatOfTerm(t2);
 #if HAVE_ISNAN
@@ -635,10 +579,9 @@ a_cmp(Term t1, Term t2)
 	  ArithError = TRUE;
 	}
 #endif      
-	return flt_cmp(mpz_get_d(b1)-f2);
+	return Yap_gmp_cmp_big_float(t1, f2);
       } else if (IsBigIntTerm(t2)) {
-	MP_INT *b2 = Yap_BigIntOfTerm(t2);
-	return int_cmp(mpz_cmp(b1,b2));
+	return Yap_gmp_cmp_big_big(t1, t2);
       } else {
 	return FALSE;
       }

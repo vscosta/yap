@@ -5128,7 +5128,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    fl = (Float)IntegerOfTerm(t);
 #ifdef USE_GMP
 	  } else if (IsBigIntTerm(t)) {
-	    fl = mpz_get_d(Yap_BigIntOfTerm(t));
+	    fl = Yap_gmp_to_float(t);
 #endif
 	  } else {
 	    fl = FloatOfTerm(t);

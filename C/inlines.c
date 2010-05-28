@@ -321,7 +321,7 @@ p_eq(void)
 	    return(LongIntOfTerm(d0) == LongIntOfTerm(d1));
 #ifdef USE_GMP
 	  case (CELL)FunctorBigInt:
-	    return (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0);
+	    return (Yap_gmp_tcmp_big_big(d0, d1) == 0);
 #endif
 	  case (CELL)FunctorDouble:
 	    return(FloatOfTerm(d0) == FloatOfTerm(d1));

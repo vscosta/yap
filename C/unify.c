@@ -385,7 +385,7 @@ oc_unify_nvar_nvar:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
+	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);
@@ -532,7 +532,7 @@ unify_nvar_nvar:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
+	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);
@@ -920,7 +920,7 @@ unifiable_nvar_nvar:
 	  return(FloatOfTerm(AbsAppl(pt0)) == FloatOfTerm(AbsAppl(pt1)));
 #ifdef USE_GMP
 	case (CELL)FunctorBigInt:
-	  return(mpz_cmp(Yap_BigIntOfTerm(AbsAppl(pt0)),Yap_BigIntOfTerm(AbsAppl(pt0))) == 0);
+	  return(Yap_gmp_tcmp_big_big(AbsAppl(pt0),AbsAppl(pt0)) == 0);
 #endif /* USE_GMP */
 	default:
 	  return(FALSE);

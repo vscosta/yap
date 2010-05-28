@@ -1166,9 +1166,12 @@ Yap_gmp_cmp_big_big(Term t1, Term t2)
     return mpz_cmp(b1, b2);
   } else {
     MP_RAT *b1 = NULL, bb1;
+    int f1 = FALSE;
     MP_RAT *b2 = NULL, bb2;
+    int f2 = FALSE;
     if (pt1[1] == BIG_INT) {
       b1 = &bb1;
+      f1 = TRUE;
       mpq_init(b1);
       mpq_set_z(b1, Yap_BigIntOfTerm(t1));
     } else {
@@ -1176,8 +1179,59 @@ Yap_gmp_cmp_big_big(Term t1, Term t2)
     }
     if (pt2[1] == BIG_INT) {
       b2 = &bb2;
+      f2 = TRUE;
+
       mpq_init(b2);
       mpq_set_z(b2, Yap_BigIntOfTerm(t2));
+    } else {
+      b2 = Yap_BigRatOfTerm(t2);
+    }
+    if (f1)
+      mpq_clear(b1);
+    if (f2)
+      mpq_clear(b2);
+    return mpq_cmp(b1, b2);
+  }
+}
+
+int 
+Yap_gmp_tcmp_big_int(Term t, Int i)
+{
+  CELL *pt = RepAppl(t);
+  if (pt[1] == BIG_INT) {
+    MP_INT *b = Yap_BigIntOfTerm(t);
+    return mpz_cmp_si(b,i);
+  } else {
+    return -1;
+  }
+}
+
+int 
+Yap_gmp_tcmp_big_float(Term t, Float d)
+{
+  return 1;
+}
+
+int 
+Yap_gmp_tcmp_big_big(Term t1, Term t2)
+{
+  CELL *pt1 = RepAppl(t1);
+  CELL *pt2 = RepAppl(t2);
+  if (pt1[1] == BIG_INT && pt2[1] == BIG_INT) {
+    MP_INT *b1 = Yap_BigIntOfTerm(t1);
+    MP_INT *b2 = Yap_BigIntOfTerm(t2);
+
+    return mpz_cmp(b1, b2);
+  } else {
+    MP_RAT *b1, *b2;
+
+    if (pt1[1] == BIG_INT) {
+      return 1;
+    } else {
+      b1 = Yap_BigRatOfTerm(t1);
+    }
+    if (pt2[1] == BIG_INT) {
+      return -1;
     } else {
       b2 = Yap_BigRatOfTerm(t2);
     }
@@ -1480,7 +1534,6 @@ Yap_gmp_popcount(Term t)
     return Yap_ArithError(TYPE_ERROR_INTEGER, t, "popcount");    
   }
 }
-
 #endif
 
 

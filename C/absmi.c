@@ -4185,7 +4185,7 @@ Yap_absmi(int inp)
 	{
 	  FAIL();
 	}
-      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.xc.c)))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.xc.c))
 	FAIL();
       PREG = NEXTOP(PREG, xc);      
       ENDP(pt0);
@@ -6274,7 +6274,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       ENDD(d1);
-      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oc.c))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
       ENDP(pt0);
@@ -6319,7 +6319,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       ENDD(d0);
-      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(PREG->u.oc.c)))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oc.c))
 	FAIL();
       PREG = NEXTOP(PREG, oc);
       ENDP(pt0);
@@ -11992,7 +11992,7 @@ Yap_absmi(int inp)
 	      PREG = PREG->u.l.l;
 	      GONext();
 	    }
-	    if (mpz_cmp(Yap_BigIntOfTerm(d0), Yap_BigIntOfTerm(d1)) == 0) {
+	    if (Yap_gmp_tcmp_big_big(d0,d1) == 0) {
 	      PREG = NEXTOP(PREG, l);
 	      GONext();
 	    }

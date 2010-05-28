@@ -526,6 +526,8 @@ inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
 
 EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
 
+int   STD_PROTO(Yap_gmp_tcmp_big_big,(Term, Term));
+
 inline EXTERN int
 unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
 {
@@ -539,11 +541,7 @@ unify_extension (Functor f, CELL d0, CELL * pt0, CELL d1)
       return (pt0[1] == RepAppl (d1)[1]);
     case big_int_e:
 #ifdef USE_GMP
-      {
-	MP_INT *m0 = Yap_BigIntOfTerm (d0);
-	MP_INT *m1 = Yap_BigIntOfTerm (d1);
-	return mpz_cmp (m0, m1) == 0;
-      }
+      return (Yap_gmp_tcmp_big_big(d0,d1) == 0);
 #else
       return d0 == d1;
 #endif /* USE_GMP */

@@ -154,7 +154,7 @@ static int can_unify_complex(register CELL *pt0,
 	      goto comparison_failed;
 #ifdef USE_GMP
 	    case (CELL)FunctorBigInt:
-	      if (mpz_cmp(Yap_BigIntOfTerm(d0),Yap_BigIntOfTerm(d1)) == 0) continue;
+	      if (Yap_gmp_tcmp_big_big(d0,d1) == 0) continue;
 	      goto comparison_failed;
 #endif /* USE_GMP */
 	    default:
@@ -293,7 +293,7 @@ can_unify(Term t1, Term t2, Term *Vars)
 	return FALSE;
 #ifdef USE_GMP
       case (CELL)FunctorBigInt:
-	if (mpz_cmp(Yap_BigIntOfTerm(t1),Yap_BigIntOfTerm(t2)) == 0) return(TRUE);
+	if (Yap_gmp_tcmp_big_big(t1,t2) == 0) return(TRUE);
 	return(FALSE);
 #endif /* USE_GMP */
       default:

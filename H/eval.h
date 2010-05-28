@@ -282,6 +282,12 @@ int   STD_PROTO(Yap_gmp_cmp_big_float,(Term, Float));
 #define Yap_gmp_cmp_float_big(D, T) (-Yap_gmp_cmp_big_float(T, D))
 int   STD_PROTO(Yap_gmp_cmp_big_big,(Term, Term));
 
+int   STD_PROTO(Yap_gmp_tcmp_big_int,(Term, Int));
+#define Yap_gmp_tcmp_int_big(I, T) (-Yap_gmp_tcmp_big_int(T, I))
+int   STD_PROTO(Yap_gmp_tcmp_big_float,(Term, Float));
+#define Yap_gmp_tcmp_float_big(D, T) (-Yap_gmp_tcmp_big_float(T, D))
+int   STD_PROTO(Yap_gmp_tcmp_big_big,(Term, Term));
+
 Term  STD_PROTO(Yap_gmp_neg_int,(Int));
 Term  STD_PROTO(Yap_gmp_abs_big,(Term));
 Term  STD_PROTO(Yap_gmp_neg_big,(Term));

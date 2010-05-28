@@ -520,11 +520,7 @@ Yap_unify_constant(register Term a, register Term cons)
 	  }
 	case (CELL)FunctorBigInt:
 #ifdef USE_GMP
-	  {
-	    MP_INT *d0 = Yap_BigIntOfTerm(a);
-	    MP_INT *d1 = Yap_BigIntOfTerm(cons);
-	    return mpz_cmp(d0,d1) == 0;
-	  }
+	  return (Yap_gmp_tcmp_big_big(a, cons) == 0);
 #endif /* USE_GMP */
 	default:
 	  return FALSE;
