@@ -3174,6 +3174,12 @@ Checks whether @var{T} is a database reference.
 @cnindex float/1
 Checks whether @var{T} is a floating point number.
 
+@item rational(@var{T}) [ISO]
+@findex rational/1
+@syindex rational/1
+@cyindex rational/1
+Checks whether @code{T} is a rational number.
+
 @item integer(@var{T}) [ISO]
 @findex integer/1
 @syindex integer/1
@@ -3190,7 +3196,7 @@ The opposite of @code{var(@var{T})}.
 @findex number/1
 @syindex number/1
 @cyindex number/1
-Checks whether @code{T} is an integer or a float.
+Checks whether @code{T} is an integer, rational or a float.
 
 @item primitive(@var{T})
 @findex primitive/1
@@ -3640,16 +3646,18 @@ variables come before numbers, numbers come before atoms which in turn
 come before compound terms, i.e.: variables @@< numbers @@< atoms @@<
 compound terms.
 @item
-variables are roughly ordered by "age" (the "oldest" variable is put
+Variables are roughly ordered by "age" (the "oldest" variable is put
 first);
 @item
-floating point numbers are sorted in increasing order;
+Floating point numbers are sorted in increasing order;
+@item
+Rational numbers are sorted in increasing order;
 @item
 Integers are sorted in increasing order;
 @item
-atoms are sorted in lexicographic order;
+Atoms are sorted in lexicographic order;
 @item
-compound terms are ordered first by arity of the main functor, then by
+Compound terms are ordered first by arity of the main functor, then by
 the name of the main functor, and finally by their arguments in
 left-to-right order.
 @end itemize
@@ -3779,8 +3787,50 @@ of length @var{S}.
 
 @node Arithmetic, I/O, Comparing Terms, Top
 @section Arithmetic
-Arithmetic expressions in YAP may use the following operators
-or @i{evaluable predicates}:
+
+YAP now supposets several different numeric types:
+
+@table @code
+@item integers
+      When YAP is built using the GNU multiple precision arithmetic
+      library (GMP), integer arithmetic is unbounded, which means that
+      the size of integers is limited by available memory only. Without
+      GMP, SWI-Prolog integers have the same size as an address. The
+      type of integer support can be detected using the Prolog flags
+      bounded, min_integer and max_integer. As the use of GMP is
+      default, most of the following descriptions assume unbounded
+      integer arithmetic.
+
+      Internally, SWI-Prolog has three integer representations. Small
+      integers (defined by the Prolog flag max_tagged_integer) are
+      encoded directly. Larger integers are represented as cell values
+      on the global stack. Integers that do not fit in 64-bit are
+      represented as serialised GNU MPZ structures on the global stack.
+
+@item number
+      Rational numbers (Q) are quotients of two integers. Rational
+      arithmetic is only provided if GMP is used (see above). Rational
+      numbers that are returned from is/2 are canonical, which means M
+      is positive and N and M have no common divisors. Rational numbers
+      are introduced in the computation using the rational/1,
+      rationalize/1 or the rdiv/2 (rational division) function. 
+
+@item float
+      Floating point numbers are represented using the C-type double. On most today platforms these are 64-bit IEEE floating point numbers.
+
+@end table
+
+Arithmetic functions that require integer arguments accept, in addition
+to integers, rational numbers with denominator `1' and floating point
+numbers that can be accurately converted to integers. If the required
+argument is a float the argument is converted to float. Note that
+conversion of integers to floating point numbers may raise an overflow
+exception. In all other cases, arguments are converted to the same type
+using the order integer to rational number to floating point number.
+
+
+Arithmetic expressions in YAP may use the following operators or
+@i{evaluable predicates}:
 
 @table @code
 
@@ -3866,13 +3916,13 @@ Hyperbolic arc cosine.
 Hyperbolic arc tangent.
 
 @item lgamma(@var{X})
-gamma function.
+Logarithm of gamma function.
 
 @item erf(@var{X})
-gaussian error function.
+Gaussian error function.
 
 @item erfc(@var{X})
-complementary gaussian error function.
+Complementary gaussian error function.
 
 @item random(@var{X}) [ISO]
 An integer random number between 0 and @var{X}.
@@ -3904,13 +3954,13 @@ or @var{X} if @var{X} is an integer. In the @code{iso} language mode,
 The absolute value of @var{X}.
 
 @item ceiling(@var{X}) [ISO]
-The float that is the smallest integral value not smaller than @var{X}.
+The integer that is the smallest integral value not smaller than @var{X}.
 
 In @code{iso} language mode the argument must be a floating
 point-number and the result is an integer.
 
 @item floor(@var{X}) [ISO]
-The float that is the greatest integral value not greater than @var{X}.
+The integer that is the greatest integral value not greater than @var{X}.
 
 In @code{iso} language mode the argument must be a floating
 point-number and the result is an integer.
@@ -3931,8 +3981,42 @@ evaluates to a floating-point number return 1.0 for a positive @var{X},
 0.0 for 0.0, and -1.0 otherwise.
 
 @item truncate(@var{X}) [ISO]
-The float that is the integral value between @var{X} and 0 closest to
+The integral value between @var{X} and 0 closest to
 @var{X}.
+
+@item rational(@var{X})
+Convert the expression @var{X} to a rational number or integer. The
+function returns the input on integers and rational numbers. For
+floating point numbers, the returned rational number exactly represents
+the float. As floats cannot exactly represent all decimal numbers the
+results may be surprising. In the examples below, doubles can represent
+@code{0.25} and the result is as expected, in contrast to the result of
+@code{rational(0.1)}. The function @code{rationalize/1} gives a more
+intuitive result.
+
+@example
+?- A is rational(0.25).
+
+A is 1 rdiv 4
+?- A is rational(0.1).
+A = 3602879701896397 rdiv 36028797018963968
+@end example
+
+@item rationalize(@var{X})
+Convert the Expr to a rational number or integer. The function is
+similar to @code{rational/1}, but the result is only accurate within the
+rounding error of floating point numbers, generally producing a much
+smaller denominator. 
+
+@example
+?- A is rationalize(0.25).
+
+A = 1 rdiv 4
+?- A is rationalize(0.1).
+
+A = 1 rdiv 10
+@end example
+
 
 @item max(@var{X},@var{Y})
 The greater value of @var{X} and @var{Y}.
