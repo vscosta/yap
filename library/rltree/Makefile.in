@@ -18,7 +18,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -52,13 +53,13 @@ yaprl.o: $(srcdir)/yap_rl.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap_rl.c -o yaprl.o
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@yap_rl@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@  -o yap_rl@SHLIB_SUFFIX@ $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@  -o yap_rl@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
-	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR); fi
+	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

@@ -10,7 +10,8 @@ BINDIR = $(ROOTDIR)/bin
 #
 # where YAP should look for binary libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
 #

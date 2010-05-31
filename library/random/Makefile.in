@@ -14,7 +14,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -47,13 +48,13 @@ random.o: $(srcdir)/random.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/random.c -o random.o
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@random@SHLIB_SUFFIX@: random.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o random@SHLIB_SUFFIX@ random.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o random@SHLIB_SUFFIX@ random.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

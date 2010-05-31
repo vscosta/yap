@@ -13,6 +13,7 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
+LIBDIR=${exec_prefix}/lib
 YAPLIBDIR=${exec_prefix}/lib/Yap
 #
 # where YAP should look for architecture-independent Prolog libraries
@@ -76,7 +77,7 @@ CPLINT_SEMANTICS_PROGRAMS= \
 	$(CPLINT_SRCDIR)/semlpad.pl \
 	$(CPLINT_SRCDIR)/semcpl.pl \
 	$(CPLINT_SRCDIR)/slg.pl 
-	
+
 CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testlpadvel.pl \
 	$(CPLINT_SRCDIR)/testlpadsld_gbtrue.pl \
@@ -86,7 +87,7 @@ CPLINT_TEST_PROGRAMS= \
 	$(CPLINT_SRCDIR)/testsemlpadsld.pl \
 	$(CPLINT_SRCDIR)/testsemlpad.pl \
 	$(CPLINT_SRCDIR)/testsemcpl.pl 
-	
+
 CPLINT_EXAMPLES= \
 	$(CPLINT_EXDIR)/dice.cpl \
 	$(CPLINT_EXDIR)/dice.uni \
@@ -141,7 +142,7 @@ CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/manual.css \
 	$(CPLINT_DOCDIR)/manual0x.png \
 	$(CPLINT_DOCDIR)/Makefile
-	
+
 
 all: $(SOBJS)
 
@@ -150,11 +151,11 @@ cplint_yap.o: $(srcdir)/cplint_yap.c  $(srcdir)/cplint.h
 
 cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h 
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_Prob.c -o cplint_Prob.o
-	
+
 
 
 @DO_SECOND_LD@cplint@SHLIB_SUFFIX@: cplint_yap.o cplint_Prob.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) 
+@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

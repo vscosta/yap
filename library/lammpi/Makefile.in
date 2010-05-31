@@ -8,7 +8,7 @@
 #
 prefix = @prefix@
 exec_prefix = @exec_prefix@
-OOTDIR = $(prefix)
+ROOTDIR = $(prefix)
 EROOTDIR = @exec_prefix@
 abs_top_builddir = @abs_top_builddir@
 #
@@ -18,7 +18,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -51,7 +52,7 @@ SOBJS=@LAMOBJS@
 all: $(SOBJS)
 
 yap_mpi.o: $(srcdir)/yap_mpi.c   $(srcdir)/yap_mpi.c  
-	$(MPI_CC)  $(CFLAGS) $(SHLIB_CFLAGS) $(MPICF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o
+	$(MPI_CC)  $(CFLAGS) $(SHLIB_CFLAGS) $(MPICF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o 
 
 prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/prologterms2c.c -o prologterms2c.o
@@ -60,13 +61,13 @@ hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/hash.c -o hash.o
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@yap_mpi@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi@SHLIB_SUFFIX@ $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi@SHLIB_SUFFIX@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
 
 install: all
-	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR); fi
+	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

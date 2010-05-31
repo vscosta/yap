@@ -764,7 +764,7 @@ with_cudd
 enable_myddas
 enable_myddas_stats
 enable_myddas_top_level
-with_jpl
+with_java
 with_readline
 with_matlab
 with_mpi
@@ -1435,7 +1435,7 @@ Optional Packages:
  --with-gmp=DIR           use GNU Multiple Precision in DIR
  --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
- --with-jpl=JAVA_HOME       use Java instalation in JAVA_HOME
+ --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
  --with-readline=DIR      use GNU Readline Library in DIR
  --with-matlab=DIR      use MATLAB package in DIR
  --with-mpi=DIR           use MPI library in DIR
@@ -3808,21 +3808,21 @@ fi
 
 
 
-# Check whether --with-jpl was given.
-if test "${with_jpl+set}" = set; then :
-  withval=$with_jpl; if test "$withval" = yes; then
-		yap_cv_jpl="$JAVA_HOME"
+# Check whether --with-java was given.
+if test "${with_java+set}" = set; then :
+  withval=$with_java; if test "$withval" = yes; then
+		yap_cv_java="$JAVA_HOME"
 		dynamic_loading=yes
 		maxmemory=yes
 	elif test "$withval" = no; then
-		yap_cv_jpl=no
+		yap_cv_java=no
 	else
-		yap_cv_jpl=$with_jpl
+		yap_cv_java=$with_java
 		dynamic_loading=yes
 		maxmemory=yes
 	fi
 else
-  yap_cv_jpl=no
+  yap_cv_java=no
 fi
 
 
@@ -6050,12 +6050,12 @@ else
   ENABLE_CLPQR="@# "
 fi
 
-if test "$yap_cv_jpl" = no; then
+if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
 	JAVA=java
-	JAVA_HOME="$yap_cv_jpl"
+	JAVA_HOME="$yap_cv_java"
 	if test "x$JAVALIBS" = "x"; then
 	  case "$target_os" in
 	    *cygwin*|*mingw*)
@@ -6072,16 +6072,16 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	       	  ;;
 	    esac
         fi
-	if test "$yap_cv_jpl" = ""; then
+	if test "$yap_cv_java" = ""; then
 	  JAVA=java
           JAR=jar
           JAVAC=javac
           JAVADOC=javadoc
         else
-	  JAVA="$yap_cv_jpl"/bin/java
-	  JAR="$yap_cv_jpl"/bin/jar
-	  JAVAC="$yap_cv_jpl"/bin/javac
-	  JAVADOC="$yap_cv_jpl"/bin/javadoc
+	  JAVA="$yap_cv_java"/bin/java
+	  JAR="$yap_cv_java"/bin/jar
+	  JAVAC="$yap_cv_java"/bin/javac
+	  JAVADOC="$yap_cv_java"/bin/javadoc
         fi
 else
       ENABLE_JPL="@#"
@@ -6950,9 +6950,10 @@ then
        esac
     EXTEND_DYNLOADER_PATH="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     PRE_DYNLOADER_PATH="LD_LIBRARY_PATH=\$(abs_top_builddir)"
-    LDFLAGS="$LDFLAGS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET"
+    LDFLAGS="$LDFLAGS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
+    EXTRA_LIBS_FOR_DLLS="-Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
     ;;
   esac
 else
@@ -9112,7 +9113,7 @@ ac_config_files="$ac_config_files packages/clpqr/Makefile"
 fi
 
 if test "$ENABLE_JPL" = ""; then
-ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile"
+ac_config_files="$ac_config_files packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile packages/pyswip/Makefile"
 
 fi
 
@@ -9841,6 +9842,7 @@ do
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;
     "packages/jpl/jpl_paths.yap") CONFIG_FILES="$CONFIG_FILES packages/jpl/jpl_paths.yap" ;;
     "packages/jpl/src/java/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/src/java/Makefile" ;;
+    "packages/pyswip/Makefile") CONFIG_FILES="$CONFIG_FILES packages/pyswip/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;

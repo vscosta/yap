@@ -557,6 +557,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
+	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done

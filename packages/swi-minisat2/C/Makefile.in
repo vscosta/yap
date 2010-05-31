@@ -15,7 +15,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -69,10 +70,10 @@ pl-minisat.o : $(srcdir)/pl-minisat.C
 	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $(srcdir)/pl-minisat.C -o pl-minisat.o
 
 @DO_SECOND_LD@pl-minisat@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LOWER_CXX_LD@ -o pl-minisat@SHLIB_SUFFIX@ $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LOWER_CXX_LD@ -o pl-minisat@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

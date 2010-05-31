@@ -14,7 +14,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -47,13 +48,13 @@ matlab.o: $(srcdir)/matlab.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/matlab.c -o matlab.o
 
 @DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
+@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@matlab@SHLIB_SUFFIX@: matlab.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o matlab@SHLIB_SUFFIX@ matlab.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o matlab@SHLIB_SUFFIX@ matlab.o  @EXTRA_LIBS_FOR_DLLS@
 
 install: all
-	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
