@@ -1955,6 +1955,7 @@ YAP_RestartGoal(void)
     Yap_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
+      Yap_CloseSlots();
       Yap_trust_last();
       Yap_AllowRestart = FALSE;
     }
@@ -2719,6 +2720,7 @@ YAP_Predicate(Atom a, UInt arity, Term m)
   } else {
     Functor f = Yap_MkFunctor(a, arity);
     return((void *)RepPredProp(PredPropByFunc(f,m)));
+    fprintf(stderr,"here\n");
   }
 } 
 

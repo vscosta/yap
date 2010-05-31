@@ -7530,10 +7530,7 @@ Yap_absmi(int inp)
       Yap_PrologMode = UserCCallMode;
       {
 	PredEntry *p = PREG->u.Osbpp.p;
-#ifdef LOW_LEVEL_TRACER
-	if (Yap_do_low_level_trace)
-	  low_level_trace(enter_pred,p,XREGS+1);
-#endif	/* LOW_LEVEL_TRACE */
+
 	PREG = NEXTOP(PREG, Osbpp);
 	saveregs();
 	save_machine_regs();
@@ -7541,6 +7538,7 @@ Yap_absmi(int inp)
 	SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
 	EX = 0L;
       }
+      Yap_CloseSlots();
 
       restore_machine_regs();
       setregs();
@@ -7714,6 +7712,7 @@ Yap_absmi(int inp)
       restore_machine_regs();
       setregs();
       Yap_PrologMode = UserMode;
+      Yap_CloseSlots();
       if (!SREG) {
 	FAIL();
       }
@@ -7756,6 +7755,7 @@ Yap_absmi(int inp)
       restore_machine_regs();
       setregs();
       Yap_PrologMode = UserMode;
+      Yap_CloseSlots();
       if (!SREG) {
 #ifdef CUT_C
 	/* Removes the cut functions from the stack

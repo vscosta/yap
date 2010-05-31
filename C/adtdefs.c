@@ -1382,6 +1382,7 @@ Yap_NewSlots(int n)
     n--;
   }
   ASP[0] = MkIntTerm(old_slots+oldn);
+  CurSlot = LCL0-ASP;
   return((ASP+1)-LCL0);
 }
 
@@ -1391,6 +1392,7 @@ Yap_InitSlot(Term t)
   Int old_slots = IntOfTerm(ASP[0]);
   *ASP = t;
   ASP--;
+  CurSlot ++;
   ASP[0] = MkIntTerm(old_slots+1);
   return((ASP+1)-LCL0);
 }
@@ -1403,6 +1405,7 @@ Yap_RecoverSlots(int n)
     return FALSE;
   }
   ASP += n;
+  CurSlot -= n;
   ASP[0] = MkIntTerm(old_slots-n);
   return TRUE;
 }

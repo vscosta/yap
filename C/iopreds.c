@@ -3660,6 +3660,7 @@ int beam_write (void)
 {
   Yap_StartSlots();
   Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0, 1200);
+  Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -3679,6 +3680,7 @@ p_write (void)
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
   Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags, 1200);
+  Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -3697,6 +3699,7 @@ p_write_prio (void)
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
   Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, flags, (int)IntOfTerm(Deref(ARG2)));
+  Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = EX;
     EX = 0L;
@@ -3720,6 +3723,7 @@ p_write2_prio (void)
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
   Yap_plwrite (ARG4, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), (int) IntOfTerm (Deref (ARG3)));
+  Yap_CloseSlots();
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
@@ -3744,6 +3748,7 @@ p_write2 (void)
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
   Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), 1200);
+  Yap_CloseSlots();
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
     Term ball = EX;
@@ -5089,6 +5094,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	  goto do_type_atom_error;
 	Yap_StartSlots();
 	Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f, 1200);
+	Yap_CloseSlots();
 	FormatInfo = &finfo;
 	break;
       case 'c':
@@ -5338,8 +5344,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Quote_illegal_f|Ignore_ops_f|To_heap_f , 1200);
+	    Yap_CloseSlots();
 	    FormatInfo = &finfo;
-	    ASP++;
 	    break;
 	  case '@':
 	    t = targs[targ++];
@@ -5368,6 +5374,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 		goto do_default_error;
 	      }
 	    }
+	    Yap_CloseSlots();
 	    break;
 	  case 'p':
 	    if (targ > tnum-1 || has_repeats)
@@ -5381,6 +5388,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      args = Yap_GetFromSlot(sl);
 	      Yap_RecoverSlots(1);
 	    }
+	    Yap_CloseSlots();
 	    if (EX != 0L) {
 	      Term ball;
 
@@ -5399,7 +5407,6 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      Yap_JumpToEnv(ball);
 	      return FALSE;
 	    }
-	    ASP++;
 	    break;
 	  case 'q':
 	    if (targ > tnum-1 || has_repeats)
@@ -5407,8 +5414,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|Quote_illegal_f|To_heap_f, 1200);
+	    Yap_CloseSlots();
 	    FormatInfo = &finfo;
-	    ASP++;
 	    break;
 	  case 'w':
 	    if (targ > tnum-1 || has_repeats)
@@ -5416,8 +5423,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	    t = targs[targ++];
 	    Yap_StartSlots();
 	    Yap_plwrite (t, f_putc, Handle_vars_f|To_heap_f, 1200);
+	    Yap_CloseSlots();
 	    FormatInfo = &finfo;
-	    ASP++;
 	    break;
 	  case '~':
 	    if (has_repeats)
@@ -6262,10 +6269,10 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 
   if (sno < 0)
     return FALSE;
-  Yap_StartSlots();
   Yap_c_output_stream = sno;
   Yap_StartSlots();
   Yap_plwrite (t, Stream[sno].stream_wputc, flags, 1200);
+  Yap_CloseSlots();
   s[Stream[sno].u.mem_string.pos] = '\0';
   Stream[sno].status = Free_Stream_f;
   Yap_c_output_stream = old_output_stream;

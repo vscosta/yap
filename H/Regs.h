@@ -80,6 +80,7 @@ EXTERN void save_B(void);
 
 typedef struct
   {
+    Int     CurSlot_;
     CELL    CreepFlag_;		/* 13                                         */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
 #if defined(SBA) || defined(TABLING)
@@ -609,11 +610,10 @@ EXTERN inline void restore_B(void) {
 
 #endif
 
+#define	CurSlot       Yap_REGS.CurSlot_
 #define	AuxBase       Yap_REGS.AuxBase_
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_
-#define TopB          Yap_REGS.TopB_
-#define DelayedB      Yap_REGS.DelayedB_
 #define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
 #if defined(SBA) || defined(TABLING)

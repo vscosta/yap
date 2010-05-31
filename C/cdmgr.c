@@ -3299,7 +3299,10 @@ search_for_static_predicate_in_use(PredEntry *p, int check_everything)
 	 only for retracts
       */
       while (env_ptr && b_ptr > (choiceptr)env_ptr) {
-	PredEntry *pe = EnvPreg((yamop *)env_ptr[E_CP]);
+	yamop *cp = (yamop *)env_ptr[E_CP];
+	PredEntry *pe;
+
+	pe = EnvPreg(cp);
 	if (p == pe) return(TRUE);
 	if (env_ptr != NULL)
 	  env_ptr = (CELL *)(env_ptr[E_E]);

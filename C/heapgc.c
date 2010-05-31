@@ -1837,14 +1837,22 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 
 
 static void
-mark_slots(CELL *ptr)
+mark_slots(void)
 {
-  Int ns = IntOfTerm(*ptr);
-  ptr++;
-  while (ns > 0) {
-    mark_external_reference(ptr);
+  Int curslot = CurSlot;
+  while (curslot) {
+    CELL *ptr = LCL0-curslot;
+    Int ns = IntegerOfTerm(*ptr);
+
     ptr++;
-    ns--;
+    while (ns > 0) {
+      //      Yap_DebugPlWrite(ptr);
+      //fprintf(stderr,"\n");
+      mark_external_reference(ptr);
+      ptr++;
+      ns--;
+    }
+    curslot = IntegerOfTerm(*ptr);
   }
 }
 
@@ -1978,7 +1986,6 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose)
     restart_cp:
       switch (opnum) {
       case _Nstop:
-	mark_slots(gc_B->cp_env);
 	if (gc_B->cp_b != NULL) {
 	  nargs = 0;
 	  break;
@@ -2777,20 +2784,25 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap)
 }
 
 static void
-sweep_slots(CELL *ptr)
+sweep_slots(void)
 {
-  Int ns = IntOfTerm(*ptr);
-  ptr++;
-  while (ns > 0) {
-    CELL cp_cell = *ptr;
-    if (MARKED_PTR(ptr)) {
-      UNMARK(ptr);
-      if (HEAP_PTR(cp_cell)) {
-	into_relocation_chain(ptr, GET_NEXT(cp_cell));
-      }
-    }
+  Int curslot = CurSlot;
+  while (curslot) {
+    CELL *ptr = LCL0-curslot;
+    Int ns = IntOfTerm(*ptr);
     ptr++;
-    ns--;
+    while (ns > 0) {
+      CELL cp_cell = *ptr;
+      if (MARKED_PTR(ptr)) {
+	UNMARK(ptr);
+	if (HEAP_PTR(cp_cell)) {
+	  into_relocation_chain(ptr, GET_NEXT(cp_cell));
+	}
+      }
+      ptr++;
+      ns--;
+    }
+    curslot = IntegerOfTerm(*ptr);
   }
 }
 
@@ -2870,7 +2882,6 @@ sweep_choicepoints(choiceptr gc_B)
       sweep_environments(gc_B->cp_env,
 			 EnvSizeInCells,
 			 NULL);
-      sweep_slots(gc_B->cp_env);
       if (gc_B->cp_b != NULL) {
 	break;
       } else
@@ -3606,8 +3617,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
   cont_top = (cont *)db_vec;
   /* These two must be marked first so that our trail optimisation won't lose
      values */
-  if (Yap_PrologMode & UserCCallMode)
-    mark_slots(ASP);
+  mark_slots();
   mark_regs(old_TR);		/* active registers & trail */
   /* active environments */
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp));
@@ -3660,8 +3670,7 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp)
       sweep_oldgen(HGEN, CurrentH0);
     }
   }
-  if (Yap_PrologMode & UserCCallMode)
-    sweep_slots(ASP);
+  sweep_slots();
   sweep_environments(current_env, EnvSize(curp), EnvBMap(curp));
   sweep_choicepoints(B);
   sweep_trail(B, old_TR);

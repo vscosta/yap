@@ -14,7 +14,8 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
-LIBDIR=@libdir@/Yap
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
@@ -60,4 +61,4 @@ clean:
 	rm -f *.o ProblogBDD Example
 
 install: default
-	$(INSTALL_PROGRAM) ProblogBDD $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) ProblogBDD $(DESTDIR)$(YAPLIBDIR)

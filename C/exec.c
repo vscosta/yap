@@ -994,6 +994,7 @@ exec_absmi(int top)
   } else {
     Yap_PrologMode = UserMode;
   }
+  Yap_CloseSlots();
   out = Yap_absmi(0);
   Yap_StartSlots();
   return out;
@@ -1049,6 +1050,7 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
 #endif
   YENV[E_CB] = Unsigned (B);
   CP = YESCODE;
+  Yap_StartSlots();
 }
 
 static Term
@@ -1200,7 +1202,6 @@ void
 Yap_trust_last(void)
 {
   ASP  = B->cp_env;
-  P    = (yamop *)(B->cp_env[E_CP]);
   CP   = B->cp_cp;
   H    = B->cp_h;
 #ifdef DEPTH_LIMIT
@@ -1209,6 +1210,7 @@ Yap_trust_last(void)
   YENV= ASP = B->cp_env;
   ENV  = (CELL *)((B->cp_env)[E_E]);
   B    = B->cp_b;
+  P    = (yamop *)(ENV[E_CP]);
   if (B) {
     SET_BB(B);
     HB = PROTECT_FROZEN_H(B);
@@ -1621,11 +1623,9 @@ Yap_InitYaamRegs(void)
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
   EX = 0L;
-  /* for slots to work */
-  Yap_StartSlots();
   init_stack(0, NULL, TRUE, NULL);
   /* the first real choice-point will also have AP=FAIL */ 
-  Yap_StartSlots();
+  CurSlot = 0;
   GlobalArena = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING

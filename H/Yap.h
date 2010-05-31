@@ -1305,4 +1305,27 @@ typedef enum
     COMPILE_ALL          /* compile all predicates */
   } yap_exec_mode;
 
+/********* slots ***********************/
+
+
+static inline void
+Yap_StartSlots(void) {
+  *--ASP = MkIntegerTerm(CurSlot);
+  *--ASP = MkIntTerm(0);
+  CurSlot = LCL0-ASP;
+}
+
+static inline void
+Yap_CloseSlots(void) {
+  Int old_slots;
+  old_slots = IntOfTerm(ASP[0]);
+  ASP += (old_slots+1);
+  CurSlot = IntegerOfTerm(*ASP);
+  ASP++;
+}
+
+static inline Int
+Yap_CurrentSlot(void) {
+  return IntOfTerm(ASP[0]);
+}
 

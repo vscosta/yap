@@ -2207,28 +2207,6 @@ X_API int PL_action(int action,...)
   return 0;
 }
 
-X_API fid_t
-PL_open_foreign_frame(void)
-{
-  return (fid_t)ASP;
-}
-
-X_API void
-PL_close_foreign_frame(fid_t f)
-{
-}
-
-X_API void
-PL_rewind_foreign_frame(fid_t f)
-{
-}
-
-X_API void
-PL_discard_foreign_frame(fid_t f)
-{
-  /* Missing: undo Trail!! */
-}
-
 X_API term_t
 PL_exception(qid_t q)
 {
@@ -2371,9 +2349,52 @@ typedef struct open_query_struct {
   int open;
   int state;
   YAP_Term g;
+  yamop *p, *cp;
+  Int slots;
+  struct open_query_struct *old;
 } open_query;
 
-open_query execution;
+static open_query *execution = NULL;
+
+X_API fid_t
+PL_open_foreign_frame(void)
+{
+  open_query *new = (open_query *)malloc(sizeof(open_query));
+  if (!new) return 0;
+  new->old = execution;
+  new->g = TermNil;
+  new->open = FALSE;
+  new->cp = CP;
+  new->p = P;
+  new->slots = CurSlot;
+  Yap_StartSlots();
+  execution = new;
+  return (fid_t)new;
+}
+
+X_API void
+PL_close_foreign_frame(fid_t f)
+{
+  CP = execution->cp;
+  P = execution->p;
+  CurSlot = execution->slots;
+  execution = execution->old;
+}
+
+X_API void
+PL_rewind_foreign_frame(fid_t f)
+{
+  CurSlot = execution->slots;
+}
+
+X_API void
+PL_discard_foreign_frame(fid_t f)
+{
+  CP = execution->cp;
+  P = execution->p;
+  CurSlot = execution->slots;
+  execution = execution->old;
+}
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
@@ -2382,11 +2403,14 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   Term t[2], m;
 
   /* ignore flags  and module for now */
-  if (execution.open != 0) {
+  if (execution == NULL)
+    PL_open_foreign_frame();
+  if (execution->open != 0) {
     YAP_Error(0, 0L, "only one query at a time allowed\n");
+    return FALSE;
   }
-  execution.open=1;
-  execution.state=0;
+  execution->open=1;
+  execution->state=0;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
   t[0] = SWIModuleToModule(ctx);
   if (arity == 0) {
@@ -2395,8 +2419,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     Functor f = Yap_MkFunctor(yname, arity);
     t[1] = Yap_MkApplTerm(f,arity,Yap_AddressFromSlot(t0));
   }
-  execution.g = Yap_MkApplTerm(FunctorModule,2,t);
-  return &execution;
+  execution->g = Yap_MkApplTerm(FunctorModule,2,t);
+  return execution;
 }
 
 X_API int PL_next_solution(qid_t qi)
@@ -2405,7 +2429,6 @@ X_API int PL_next_solution(qid_t qi)
 
   if (qi->open != 1) return 0;
   if (qi->state == 0) {
-
     result = YAP_RunGoal(qi->g);
   } else {
     result = YAP_RestartGoal();

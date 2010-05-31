@@ -19,8 +19,8 @@ srcdir=@srcdir@
 
 BINDIR = $(EROOTDIR)/bin
 LIBDIR=@libdir@
-SHAREDIR=$(EROOTDIR)/share/Yap
 YAPLIBDIR=@libdir@/Yap
+SHAREDIR=$(EROOTDIR)/share/Yap
 
 PL=@EXTEND_DYNLOADER_PATH@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 LN_S=@LN_S@

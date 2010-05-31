@@ -59,8 +59,6 @@ Term	STD_PROTO(Yap_NWideStringToDiffListOfAtoms,(wchar_t *, Term, size_t));
 int     STD_PROTO(Yap_AtomIncreaseHold,(Atom));
 int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
 
-#define Yap_StartSlots() (*--ASP = MkIntTerm(0))
-#define Yap_CurrentSlot() IntOfTerm(ASP[0])
 Int	STD_PROTO(Yap_InitSlot,(Term));
 Int     STD_PROTO(Yap_NewSlots,(int));
 Term    STD_PROTO(Yap_GetFromSlot,(Int));
