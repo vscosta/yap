@@ -1,0 +1,45 @@
+#
+# default base directory for YAP installation
+#
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
+
+install:
+	(cd $(srcdir); python setup.py install)
+
+clean:
+
+test:
+	(cd $(srcdir)/examples; python create_term.py)
+	(cd $(srcdir)/examples; python knowledgebase.py)
+	(cd $(srcdir)/examples; python knowledgebase.py)
+	(cd $(srcdir)/examples; python register_foreign.py)
+	(cd $(srcdir)/examples; python register_foreign_simple.py)
+	(cd $(srcdir)/examples/coins; python coins.py)
+	(cd $(srcdir)/examples/draughts; python puzzle1.py)
+	(cd $(srcdir)/examples/hanoi; python hanoi.py)
+	(cd $(srcdir)/examples/sendmoremoney; python money.py)
+	(cd $(srcdir)/examples/sudoku; python sudoku.py)
+	(cd $(srcdir)/examples/sudoku; python sudoku_daily.py)
