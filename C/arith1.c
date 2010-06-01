@@ -207,7 +207,9 @@ eval1(Int fi, Term t) {
     case double_e:
       RFLOAT(-FloatOfTerm(t));
     case big_int_e:
+#ifdef USE_GMP
       return Yap_gmp_neg_big(t);
+#endif
     default:
       RERROR();
     }

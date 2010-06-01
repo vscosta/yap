@@ -161,10 +161,10 @@ p_rem(Term t1, Term t2) {
 
 static Term
 p_rdiv(Term t1, Term t2) {
+#ifdef USE_GMP
   switch (ETypeOfTerm(t1)) {
   case (CELL)double_e:
     return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "rdiv/2");
-#ifdef USE_GMP
   case (CELL)long_int_e:
     switch (ETypeOfTerm(t2)) {
     case (CELL)long_int_e:
@@ -179,12 +179,10 @@ p_rdiv(Term t1, Term t2) {
     case (CELL)big_int_e:
       /* I know the term is much larger, so: */
       return Yap_gmq_rdiv_int_big(IntegerOfTerm(t1), t2);
-#endif
     default:
       RERROR();
     }
     break;
-#ifdef USE_GMP
   case (CELL)big_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
@@ -197,12 +195,14 @@ p_rdiv(Term t1, Term t2) {
     default:
       RERROR();
     }
-#endif
   default:
     RERROR();
   }
  zero_divisor:
   return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
+#else
+  RERROR();
+#endif
 }
 
 
