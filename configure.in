@@ -556,20 +556,17 @@ then
     if test "$target_win64" = yes
     then
       AC_CHECK_LIB(ws2_32,main)
-      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
-      EXTRA_LIBS_FOR_SWIDLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
+      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(wsock32,main)
-      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll"
-      EXTRA_LIBS_FOR_SWIDLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
     else
       AC_CHECK_LIB(wsock32,main)
       EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
-      EXTRA_LIBS_FOR_SWIDLLS="\$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
     fi
+    EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/packages/PLStream/plstream.dll"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
     if test "$prefix" = "NONE"
@@ -719,6 +716,9 @@ else
   ENABLE_CLPQR="@# "
 fi
 
+dnl
+dnl java is hard
+dnl
 if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"   
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
@@ -727,16 +727,35 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	JAVA_HOME="$yap_cv_java"
 	case "$target_os" in
 	    *cygwin*|*mingw*)
-	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS \"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+	       JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+	       JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
-	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -Wl,-framework,JavaVM"
-	       	  ;;
-	       *powerpc-linux*)
-	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -ljava -ljvm"
+	       LIBS="$LIBS -framework JavaVM"
+	       JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
+	       JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	       	  ;;
 	       *)
-	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -ljava -lverify -ljvm"
+              case "$target_os" in
+	         *linux*)
+		   JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
+                ;;
+	         *solaris*)
+	        JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
+                ;;
+              esac
+              case "$target_cpu" in
+	        i*86*)
+                JAVA_TARGET=i386
+                ;;
+                x86*)
+                JAVA_TARGET=amd64
+               ;;
+               sparc*)
+               JAVA_TARGET=sparc
+                ;;
+               esac
+	       JAVALIBPATH="-L$JAVA_HOME/jre/lib/$JAVA_TARGET -L$JAVA_HOME/jre/lib/$JAVA_TARGET/client  -L$JAVA_HOME/jre/lib/$JAVA_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -ljava -lverify -ljvm "
 	       	  ;;
 	esac
 	if test "$yap_cv_java" = ""; then
@@ -845,17 +864,7 @@ case "$target_os" in
 	      alpha*)
 	        LDFLAGS="-dynamic $LDFLAGS"
               ;;
-	      x86*)
-	      	JAVALIBPATH="\$(DESTDIR)\$(LIBDIR)/libYap.so \$(DESTDIR)\$(YAPLIBDIR)/plstream.so $LIBS -L$JAVA_HOME/jre/lib/amd64 -L$JAVA_HOME/jre/lib/amd64/client -L$JAVA_HOME/jre/lib/amd64/server"
-		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
-	        if test "$CC" != "lcc"
-                then
-	          LDFLAGS="-rdynamic $LDFLAGS"
-                fi
-              ;;
               *)
-	      	JAVALIBPATH="\$(DESTDIR)\$(LIBDIR)/libYap.so \$(DESTDIR)\$(YAPLIBDIR)/plstream.so $LIBS $LIBS -L$JAVA_HOME/jre/lib/i386 -L$JAVA_HOME/jre/lib/i386/client -L$JAVA_HOME/jre/lib/i386/server"
-		JAVAINCPATH="-I$JAVA_HOME/include -I$JAVA_HOME/include/linux"
 	        if test "$CC" != "lcc"
                 then
 	          LDFLAGS="-rdynamic $LDFLAGS"
@@ -958,7 +967,6 @@ dnl Linux has both elf and a.out, in this case we found elf
 	    LIBS="$LIBS -ldl"	  
 	  fi
 	fi
-	LIBS="$LIBS -framework JavaVM"
 	SHLIB_CFLAGS="-fno-common"
 	SHLIB_SUFFIX=".dylib"
         DO_SECOND_LD=""
@@ -968,8 +976,6 @@ dnl Linux has both elf and a.out, in this case we found elf
         SHLIB_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
-	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
-	JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -1001,8 +1007,6 @@ dnl Linux has both elf and a.out, in this case we found elf
       *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
-	JAVALIBPATH=""
-	JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	YAPLIB="yap.dll"
 	SHLIB_CFLAGS=""
         if test "$target_win64" = no
@@ -1060,21 +1064,11 @@ then
 #    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
     ;;
   *)
-       case "$target_cpu" in
-        i*86*)
-        JAVA_TARGET=i386
-        ;;
-        x86*)
-        JAVA_TARGET=amd64
-        ;;
-        sparc*)
-        JAVA_TARGET=sparc
-        ;;
-       esac
-    LDFLAGS="$LDFLAGS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+    LDFLAGS="$LDFLAGS -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir)/packages/PLStream/plstream.$SHLIB_SUFFIX"
     PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
     INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
