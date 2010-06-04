@@ -28,7 +28,7 @@ except ImportError:
 try:
     if sys.platform[:3] == "win":
         # we're on windows
-        _lib = CDLL("libYap.dll")
+        _lib = CDLL("yap.dll")
     elif sys.platform[:3] == "dar":
        # we're on Mac OS
        _lib = CDLL("libYap.dylib") 
