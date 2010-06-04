@@ -618,7 +618,6 @@ LAM_MPI_CC
 YAPMPILIB
 IN_UNIX
 JAR
-JAVALIBS
 JAVADOC
 JAVAC
 JUNIT
@@ -631,11 +630,10 @@ NO_BUILTIN_REGEXP
 YAP_EXTRAS
 DYNYAPLIB
 YAPLIB
+EXTRA_LIBS_FOR_SWIDLLS
 EXTRA_LIBS_FOR_DLLS
 DYNLIB_LD
-SHLIB_SWI_LD
-SHLIB_LOWER_CXX_LD
-SHLIB_LOWER_LD
+SHLIB_CXX_LD
 SHLIB_LD
 DO_SECOND_LD
 EXEC_SUFFIX
@@ -646,8 +644,8 @@ INSTALL_DLLS
 ARCH
 M4GENHDRS
 M4
-EXTEND_DYNLOADER_PATH
-PRE_DYNLOADER_PATH
+PRE_INSTALL_ENV
+INSTALL_ENV
 ENABLE_CPLINT
 CPLINT_SHLIB_LD
 CPLINT_LDFLAGS
@@ -4311,7 +4309,8 @@ then
    then
     RANLIB="sslittle-na-sstrix-ranlib"
     AR="sslittle-na-sstrix-ar"
-    PRE_DYNLOADER_PATH="sim-fast"
+    PRE_INSTALL_ENV="sim-fast"
+    INSTALL_ENV="sim-fast"
    fi
 else
    if test -z "${mycflags}"
@@ -4949,13 +4948,12 @@ _ACEOF
 
 fi
 
-      EXTRA_LIBS_FOR_DLLS=-lws2_32
-    else
-      if test "$target_os" = "cygwin"
-      then
-        CC="${CC}  -mno-cygwin"
-        CXX="${CXX}  -mno-cygwin"
-      fi
+      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
+      EXTRA_LIBS_FOR_SWIDLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
+    elif test "$target_os" = "cygwin"
+    then
+      CC="${CC}  -mno-cygwin"
+      CXX="${CXX}  -mno-cygwin"
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
 $as_echo_n "checking for main in -lwsock32... " >&6; }
 if test "${ac_cv_lib_wsock32_main+set}" = set; then :
@@ -4995,6 +4993,50 @@ _ACEOF
 
 fi
 
+      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll"
+      EXTRA_LIBS_FOR_SWIDLLS="-lws2_32 \$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
+    else
+      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
+$as_echo_n "checking for main in -lwsock32... " >&6; }
+if test "${ac_cv_lib_wsock32_main+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lwsock32  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_wsock32_main=yes
+else
+  ac_cv_lib_wsock32_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_wsock32_main" >&5
+$as_echo "$ac_cv_lib_wsock32_main" >&6; }
+if test "x$ac_cv_lib_wsock32_main" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBWSOCK32 1
+_ACEOF
+
+  LIBS="-lwsock32 $LIBS"
+
+fi
+
+      EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
+      EXTRA_LIBS_FOR_SWIDLLS="\$(abs_top_builddir)/yap.dll  \$(abs_top_builddir)/packages/PLStream/plstream.dll"
     fi
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
 $as_echo_n "checking for main in -lpsapi... " >&6; }
@@ -6056,22 +6098,20 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
 	JAVA=java
 	JAVA_HOME="$yap_cv_java"
-	if test "x$JAVALIBS" = "x"; then
-	  case "$target_os" in
+	case "$target_os" in
 	    *cygwin*|*mingw*)
-	       JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread  \$(YAPLIBDIR)/PLStream/plstream.dll"
+	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS \"$JAVA_HOME\"/lib/jvm.lib -lpthread"
 	       	  ;;
 	       *darwin*)
-	       JAVALIBS="-Wl,-framework,JavaVM"
+	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -Wl,-framework,JavaVM"
 	       	  ;;
 	       *powerpc-linux*)
-	       JAVALIBS="-ljava -ljvm"
+	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -ljava -ljvm"
 	       	  ;;
 	       *)
-	       JAVALIBS="-ljava -lverify -ljvm"
+	       EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_SWIDLLS -ljava -lverify -ljvm"
 	       	  ;;
-	    esac
-        fi
+	esac
 	if test "$yap_cv_java" = ""; then
 	  JAVA=java
           JAR=jar
@@ -6519,9 +6559,7 @@ fi
 INSTALL_DLLS="#"
 EXTRA_OBJS=""
 SHLIB_LD="#"
-SHLIB_LOWER_LD="#"
-SHLIB_LOWER_CXX_LD="#"
-SHLIB_SWI_LD="#"
+SHLIB_CXX_LD="#"
 DO_SECOND_LD="#"
 M4="m4"
 MERGE_DLL_OBJS="#"
@@ -6580,9 +6618,7 @@ fi
 	  then
 	    SHLIB_SUFFIX=".so"
             SHLIB_LD="$CC -shared -export-dynamic"
-            SHLIB_LOWER_LD="$SHLIB_LD"
-            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic"
-            SHLIB_SWI_LD="$CC -shared -export-dynamic"
+            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
 	    LIBS="$LIBS -ldl"
 	    case "$target_cpu" in
@@ -6641,9 +6677,7 @@ fi
 	    #this tells ld to export all non-static symbols,
 	    #otherwise no external predicates.
             SHLIB_LD="$CC -shared -export-dynamic"
-            SHLIB_LOWER_LD="$SHLIB_LD"
-            SHLIB_LOWER_CXX_LD="$CXX -shared -export-dynamic"
-            SHLIB_SWI_LD="$CC -shared -export-dynamic"
+            SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
             SHLIB_SUFFIX=".sl"
 	    SHLIB_CFLAGS="+z"
@@ -6723,7 +6757,6 @@ fi
 
           SHLIB_SUFFIX=".so"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
-          SHLIB_SWI_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
 	;;
@@ -6732,9 +6765,7 @@ fi
 	SHLIB_SUFFIX=".so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
-        SHLIB_LOWER_LD="$SHLIB_LD"
-        SHLIB_LOWER_CXX_LD="$SHLIB_LD"
-	SHLIB_SWI_LD="ld -n32 -shared -rdata_shared"
+        SHLIB_CXX_LD="$SHLIB_LD"
 	INSTALL_DLLS=""
 	;;
       *darwin*)
@@ -6795,9 +6826,7 @@ fi
 # 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
 	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
-        SHLIB_LOWER_LD="$SHLIB_LD"
-        SHLIB_LOWER_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
-	SHLIB_SWI_LD="$CC -bundle -flat_namespace -undefined suppress"
+        SHLIB_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
 	JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries"
@@ -6814,9 +6843,7 @@ fi
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
 	  SHLIB_CFLAGS="-fPIC"
 	  SHLIB_LD="ld -Bshareable -x"
-          SHLIB_LOWER_LD="$SHLIB_LD"
-          SHLIB_LOWER_CXX_LD="$SHLIB_LOWER_LD"
-	  SHLIB_SWI_LD="ld -Bshareable -x"
+          SHLIB_CXX_LD="$SHLIB_LD"
           DO_SECOND_LD=""
 	  SHLIB_SUFFIX=".so"
 	  INSTALL_DLLS=""
@@ -6827,9 +6854,7 @@ fi
         LDFLAGS="-dynamic $LDFLAGS"
 	SHLIB_CFLAGS="-fPIC"
 	SHLIB_LD="$CC -shared"
-        SHLIB_LOWER_LD="$SHLIB_LD"
-        SHLIB_LOWER_CXX_LD="$CXX -shared"
-	SHLIB_SWI_LD="$CC -shared"
+        SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
 	SHLIB_SUFFIX=".so"
 	INSTALL_DLLS=""
@@ -6845,10 +6870,8 @@ fi
         then
 	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
         fi
-        SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll"
-        SHLIB_LOWER_LD="\$(CC) -shared -Wl,--export-all-symbols ../../../yap.dll"
-        SHLIB_LOWER_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols ../../../yap.dll"
-        SHLIB_SWI_LD="\$(CC) -shared -Wl,--export-all-symbols ../../yap.dll  ../../packages/PLStream/plstream.dll"
+        SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
+        SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
 	SHLIB_SUFFIX=".dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
@@ -6925,15 +6948,15 @@ then
   case "$target_os" in
   *cygwin*|*mingw*)
     DYNLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
-    EXTEND_DYNLOADER_PATH=""
-    PRE_DYNLOADER_PATH=""
+    PRE_INSTALL_ENV=""
+    INSTALL_ENV=""
     ;;
   *darwin*)
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
-    PRE_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
-    EXTEND_DYNLOADER_PATH="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+    PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
+    INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 #    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
     ;;
   *)
@@ -6948,17 +6971,16 @@ then
         JAVA_TARGET=sparc
         ;;
        esac
-    EXTEND_DYNLOADER_PATH="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-    PRE_DYNLOADER_PATH="LD_LIBRARY_PATH=\$(abs_top_builddir)"
     LDFLAGS="$LDFLAGS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
     DYNYAPLIB=libYap"$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
-    EXTRA_LIBS_FOR_DLLS="-Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+    INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
   esac
 else
-  PRE_DYNLOADER_PATH=""
-  EXTEND_DYNLOADER_PATH="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+  PRE_INSTALL_ENV=""
   DYNYAPLIB=libYap.notused
 fi
 
@@ -7305,6 +7327,7 @@ ENABLE_CPLINT=""
 else
 	ENABLE_CPLINT="@#"
 fi
+
 
 
 
@@ -8201,8 +8224,6 @@ fi
 
 
 EXEC_SUFFIX=""
-
-
 
 
 
