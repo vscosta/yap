@@ -185,32 +185,6 @@ write_mpint(MP_INT *big, wrf writewch) {
     wrputs(s,writewch);
   }
 }
-
-static void
-write_mpq(MP_RAT *q, wrf writewch) {
-  char *s;
-  size_t sz;
-  
-  sz = ((size_t)3) +mpz_sizeinbase(mpq_numref(q), 10)+ mpz_sizeinbase (mpq_denref(q), 10);
-  s = ensure_space(sz);
-  if (mpq_sgn(q) < 0) {
-    if (lastw == symbol)
-      wrputc(' ', writewch);  
-  } else {
-    if (lastw == alphanum)
-      wrputc(' ', writewch);
-  }
-  if (!s) {
-    s = mpq_get_str(NULL, 10, q);
-    if (!s)
-      return;
-    wrputs(s,writewch);
-    free(s);
-  } else {
-    mpq_get_str(s, 10, q);
-    wrputs(s,writewch);
-  }
-}
 #endif
 
 	/* writes a bignum	 */
