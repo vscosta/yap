@@ -2234,11 +2234,16 @@ PL_initialise(int myargc, char **myargv)
   memset((void *)&init_args,0,sizeof(init_args));
   init_args.Argv = myargv;
   init_args.Argc = myargc;
+#if BOOT_FROM_SAVED_STATE
   init_args.SavedState = "startup.yss";
+#else
+  init_args.SavedState = NULL;
+#endif
   init_args.YapLibDir = NULL;
   init_args.YapPrologBootFile = NULL;
   init_args.HaltAfterConsult = FALSE;
   init_args.FastBoot = FALSE;
+  init_args.MaxTableSpaceSize = 0;
   init_args.NumberWorkers = 1;
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
@@ -2246,8 +2251,7 @@ PL_initialise(int myargc, char **myargv)
   Yap_PL_Argc = myargc;
   Yap_PL_Argv = myargv;
   Yap_InitialisedFromPL = TRUE;
-
-  return YAP_Init(&init_args);
+  return YAP_Init(&init_args) != YAP_BOOT_ERROR;
 }
 
 X_API int
