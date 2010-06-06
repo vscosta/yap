@@ -2313,7 +2313,7 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_argc = yap_init->Argc;
 #if !BOOT_FROM_SAVED_STATE
   if (yap_init->SavedState) {
-    fprintf(stderr,"[ WARNING: threaded Yap will ignore saved state %s ]\n",yap_init->SavedState);
+    fprintf(stderr,"[ WARNING: threaded YAP will ignore saved state %s ]\n",yap_init->SavedState);
     yap_init->SavedState = NULL;
   }    
 #endif
@@ -2547,7 +2547,7 @@ YAP_Init(YAP_init_args *yap_init)
     }
     Yap_PutValue(Yap_FullLookupAtom("$live"), MkAtomTerm (Yap_FullLookupAtom("$true")));
   }
-  return restore_result;
+  return YAP_BOOT_FROM_PROLOG;
 }
 
 X_API Int
