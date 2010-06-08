@@ -2813,7 +2813,7 @@ YAP_StripModule(Term t,  Term *modp)
 X_API int
 YAP_ThreadSelf(void)
 {
-#if USE_THREADS
+#if THREADS
   return Yap_thread_self();
 #else
   return 0;
@@ -2823,7 +2823,7 @@ YAP_ThreadSelf(void)
 X_API CELL
 YAP_ThreadCreateEngine(struct thread_attr_struct *attr)
 {
-#if USE_THREADS
+#if THREADS
   return Yap_thread_create_engine(attr);
 #else
   return FALSE;
@@ -2833,7 +2833,7 @@ YAP_ThreadCreateEngine(struct thread_attr_struct *attr)
 X_API int
 YAP_ThreadAttachEngine(int wid)
 {
-#if USE_THREADS
+#if THREADS
   return Yap_thread_attach_engine(wid);
 #else
   return FALSE;
@@ -2843,7 +2843,7 @@ YAP_ThreadAttachEngine(int wid)
 X_API int
 YAP_ThreadDetachEngine(int wid)
 {
-#if USE_THREADS
+#if THREADS
   return Yap_thread_detach_engine(wid);
 #else
   return FALSE;
@@ -2853,7 +2853,7 @@ YAP_ThreadDetachEngine(int wid)
 X_API int
 YAP_ThreadDestroyEngine(int wid)
 {
-#if USE_THREADS
+#if THREADS
   return Yap_thread_destroy_engine(wid);
 #else
   return FALSE;
