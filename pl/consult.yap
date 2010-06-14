@@ -66,7 +66,7 @@ load_files(Files,Opts) :-
 '$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	var(V), !,
 	'$do_error'(instantiation_error,Call).
-'$process_lf_opts'([],_,_,_,_,_,_,_,Encoding,_,_,_,_,_) :-
+'$process_lf_opts'([],_,InfLevel,_,_,_,_,_,Encoding,_,_,_,_,_) :-
 	(var(Encoding) ->
 	    '$default_encoding'(Encoding)
 	    ;
@@ -78,12 +78,16 @@ load_files(Files,Opts) :-
 '$process_lf_opts'([Opt|_],_,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,Opt),Call).
 
-'$process_lf_opt'(autoload(true),_,InfLevel,_,_,_,_,_,_,_,_,_,_,_) :-
+'$process_lf_opt'(autoload(true),Silent,InfLevel,_,_,_,_,_,_,_,_,_,_,_) :-
 	get_value('$verbose_auto_load',VAL),
 	(VAL = true ->
-	    InfLevel = informational
+	    InfLevel = informational,
+	    (get_value('$lf_verbose',informational) -> true ;  Silent = silent),
+	    set_value('$lf_verbose',informational)
 	;
-	    InfLevel = silent
+	    InfLevel = silent,
+	    (get_value('$lf_verbose',silent) -> true ;  Silent = informational),
+	    set_value('$lf_verbose',silent)
 	).
 '$process_lf_opt'(autoload(false),_,_,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(derived_from(File),_,_,_,_,_,_,_,_,_,_,_,Files,Call) :-
@@ -112,13 +116,15 @@ load_files(Files,Opts) :-
 	'$do_error'(domain_error(unimplemented_option,qcompile),Call).
 '$process_lf_opt'(qcompile(false),_,_,_,_,false,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(silent(true),Silent,silent,_,_,_,_,_,_,_,_,_,_,_) :-
-	( nb_getval('$lf_verbose',Silent) -> true ;  Silent = informational),
-	nb_setval('$lf_verbose',silent).
+	( get_value('$lf_verbose',silent) -> true ;  Silent = informational),
+	set_value('$lf_verbose',silent).
+'$process_lf_opt'(silent(false),Silent,informational,_,_,_,_,_,_,_,_,_,_,_) :-
+	( get_value('$lf_verbose',informational) -> true ;  Silent = silent),
+	set_value('$lf_verbose',informational).
 '$process_lf_opt'(skip_unix_comments,_,_,_,_,_,_,_,_,skip_unix_comments,_,_,_,_).
 '$process_lf_opt'(compilation_mode(source),_,_,_,_,_,_,_,_,_,source,_,_,_).
 '$process_lf_opt'(compilation_mode(compact),_,_,_,_,_,_,_,_,_,compact,_,_,_).
 '$process_lf_opt'(compilation_mode(assert_all),_,_,_,_,_,_,_,_,_,assert_all,_,_,_).
-'$process_lf_opt'(silent(false),_,_,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,_,reconsult,_,_).
 '$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,_,_,consult,_,_).
 '$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,_,Files,Call) :-
@@ -172,7 +178,7 @@ load_files(Files,Opts) :-
 
 '$close_lf'(Silent) :- 
 	nonvar(Silent), !,
-	nb_setval('$lf_verbose',Silent).
+	set_value('$lf_verbose',Silent).
 '$close_lf'(_).
 
 ensure_loaded(Fs) :-
@@ -303,7 +309,7 @@ use_module(M,F,Is) :-
 
 '$consult_infolevel'(InfoLevel) :- nonvar(InfoLevel), !.
 '$consult_infolevel'(InfoLevel) :-
-	nb_getval('$lf_verbose',InfoLevel), InfoLevel \= [], !.
+	get_value('$lf_verbose',InfoLevel), InfoLevel \= [], !.
 '$consult_infolevel'(informational).
 
 '$start_reconsulting'(F) :-
@@ -413,7 +419,7 @@ use_module(M,F,Is) :-
 	'$include'(F, Status),
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
-	nb_getval('$lf_verbose',Verbosity),
+	get_value('$lf_verbose',Verbosity),
 	'$find_in_path'(X,Y,include(X)),
 	nb_getval('$included_file',OY),
 	nb_setval('$included_file', Y),
