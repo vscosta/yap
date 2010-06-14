@@ -37,7 +37,7 @@ CWD=$(PWD)
 #
 
 OBJS=regexp.o @NO_BUILTIN_REGEXP@ regcomp.o regexec.o regerror.o regfree.o
-SOBJS=regexp.@SO@  @NO_BUILTIN_REGEXP@ regcomp@SO@ regexec@SO@ regerror@SO@ regfree@SO@ 
+SOBJS=regexp.@SO@  @NO_BUILTIN_REGEXP@ regcomp.@SO@ regexec.@SO@ regerror.@SO@ regfree.@SO@ 
 
 #in some systems we just create a single object, in others we need to
 # create a libray
