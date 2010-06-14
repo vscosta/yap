@@ -112,7 +112,7 @@ true :- true.
 	nb_setval('$debug_jump',off).
 
 '$init_consult' :-
-	nb_setval('$lf_verbose',informational),
+	set_value('$lf_verbose',informational),
 	nb_setval('$if_level',0),
 	nb_setval('$endif',off),
 	nb_setval('$consulting_file',[]),
@@ -1044,10 +1044,10 @@ break :-
 '$silent_bootstrap'(F) :-
 	'$init_globals',
 	nb_setval('$if_level',0),
-	nb_getval('$lf_verbose',OldSilent),
-	nb_setval('$lf_verbose',silent),
+	get_value('$lf_verbose',OldSilent),
+	set_value('$lf_verbose',silent),
 	bootstrap(F),
-	nb_setval('$lf_verbose', OldSilent).
+	set_value('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
 	'$open'(F, '$csult', Stream, 0, 0, F),
@@ -1057,7 +1057,7 @@ bootstrap(F) :-
 	getcwd(OldD),
 	cd(Dir),
 	(
-	  nb_getval('$lf_verbose',silent)
+	  get_value('$lf_verbose',silent)
 	->
 	  true
 	;
@@ -1068,7 +1068,7 @@ bootstrap(F) :-
 	cd(OldD),
 	'$end_consult',
 	(
-	  nb_getval('$lf_verbose',silent)
+	  get_value('$lf_verbose',silent)
 	->
 	  true
 	;
