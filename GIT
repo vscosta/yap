@@ -4,16 +4,7 @@ You need at least git-1.6 to install the development version.
 Please proceed as follows for the main branch:
 
 git clone git://gitorious.org/yap-git/mainline.git yap
-cd yap
-./configure
-
-Please proceed as follows for the development branch:
-
-git clone git://gitorious.org/yap-git/mainline.git yap
-cd yap
-git branch --track devel origin/devel 
-git checkout devel
-git submodule add git://prolog.cs.vu.nl/home/pl/git/chr.git packages/chr
-git submodule add git://prolog.cs.vu.nl/home/pl/git/clpqr.git packages/clpqr
-./configure
+cd yap-6
+git submodule init
+git submodule update
 

@@ -730,7 +730,7 @@ yap_flag(verbose_load,false) :- !,
 	set_value('$lf_verbose',silent),
 	'$set_yap_flags'(7,1).
 yap_flag(verbose_load,X) :-
-	'$do_error'(domain_error(flag_value,verbose_auto_load+X),yap_flag(verbose_auto_load,X)).
+	'$do_error'(domain_error(flag_value,verbose_load+X),yap_flag(verbose_load,X)).
 
 yap_flag(verbose_auto_load,X) :-
 	var(X), !,
@@ -848,6 +848,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(user_output).
 '$yap_system_flag'(variable_names_may_end_with_quotes).
 '$yap_system_flag'(verbose).
+'$yap_system_flag'(verbose_load).
 '$yap_system_flag'(verbose_auto_load).
 '$yap_system_flag'(version).
 '$yap_system_flag'(version_data).
