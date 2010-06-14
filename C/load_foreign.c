@@ -114,6 +114,15 @@ p_obj_suffix(void) {
   return Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1);
 }
 
+static Int
+p_open_shared_objects(void) {
+#ifdef YAP_SHLIB_SUFFIX
+  return TRUE;
+#else
+  return FALSE;
+#endif
+}
+
 void
 Yap_InitLoadForeign(void)
 {
@@ -122,6 +131,7 @@ Yap_InitLoadForeign(void)
   else
     Yap_FindExecutable(Yap_argv[0]);
   Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag|HiddenPredFlag);
 }
 

@@ -165,11 +165,20 @@ yap_flag(dollar_as_lower_case,off) :-
 yap_flag(call_counting,X) :- (var(X); X = on; X = off), !,
 	'$is_call_counted'(X).
 
+yap_flag(open_shared_object,X) :-
+	var(X), !,
+	('$open_shared_objects' -> X = true ; X = false).
+yap_flag(open_shared_object,X) :-
+	(X = true ; X = false), !,
+	'$do_error'(permission_error(modify,flag,open_shared_object),yap_flag(open_shared_object,X)).
+yap_flag(open_shared_object,X) :-
+	'$do_error'(domain_error(flag_value,open_shared_object+X),yap_flag(open_shared_object,X)).
+
 yap_flag(bounded,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, X1),
 	'$transl_to_true_false'(X1,X).
-yap_flag(bounded,X) :- !,
+yap_flag(bounded,X) :-
 	(X = true ; X = false), !,
 	'$do_error'(permission_error(modify,flag,bounded),yap_flag(bounded,X)).
 yap_flag(bounded,X) :-
@@ -826,6 +835,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(min_tagged_integer).
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
+'$yap_system_flag'(open_shared_object).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(redefine_warnings).
