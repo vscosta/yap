@@ -111,7 +111,7 @@ p_load_foreign(void)
 
 static Int
 p_obj_suffix(void) {
-  return(Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1));
+  return Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1);
 }
 
 void
