@@ -36,12 +36,12 @@ LD=$(CC)
 PLLD=$(CC)
 
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
 
-TARGETS=	sgml2pl.@SHLIB_SUFFIX@
+TARGETS=	sgml2pl.@SO@
 
 else	# SWI
 
@@ -113,8 +113,8 @@ ifeq (@PROLOG_SYSTEM@,yap)
 %.o : $(srcdir)/%.c
 	$(CC) $(CFLAGS) $(SHLIB_CFLAGS)  -o $@ -c $<
 
-@DO_SECOND_LD@sgml2pl.@SHLIB_SUFFIX@: $(PLOBJ)
-@DO_SECOND_LD@	@SHLIB_LD@ -o sgml2pl.@SHLIB_SUFFIX@ $(PLOBJ) @EXTRA_LIBS_FOR_SWIDLLS@
+@DO_SECOND_LD@sgml2pl.@SO@: $(PLOBJ)
+@DO_SECOND_LD@	@SHLIB_LD@ -o sgml2pl.@SO@ $(PLOBJ) @EXTRA_LIBS_FOR_SWIDLLS@
 
 all:		$(TARGETS) $(PROGRAMS)
 

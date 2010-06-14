@@ -31,13 +31,13 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
 
 OBJS=regexp.o @NO_BUILTIN_REGEXP@ regcomp.o regexec.o regerror.o regfree.o
-SOBJS=regexp.@SHLIB_SUFFIX@  @NO_BUILTIN_REGEXP@ regcomp@SHLIB_SUFFIX@ regexec@SHLIB_SUFFIX@ regerror@SHLIB_SUFFIX@ regfree@SHLIB_SUFFIX@ 
+SOBJS=regexp.@SO@  @NO_BUILTIN_REGEXP@ regcomp@SO@ regexec@SO@ regerror@SO@ regfree@SO@ 
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -59,23 +59,23 @@ regfree.o: $(srcdir)/regfree.c $(srcdir)/regex2.h
 regexec.o: $(srcdir)/regexec.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/regexec.c -o regexec.o
 
-@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@regexp.@SHLIB_SUFFIX@: regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regexp.@SHLIB_SUFFIX@ regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@regexp.@SO@: regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regexp.@SO@ regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@regcomp.@SHLIB_SUFFIX@: regcomp.o @MERGE_DLL_OBJS@ regfree.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regcomp.@SHLIB_SUFFIX@ regcomp.o @MERGE_DLL_OBJS@ regfree.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@regcomp.@SO@: regcomp.o @MERGE_DLL_OBJS@ regfree.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regcomp.@SO@ regcomp.o @MERGE_DLL_OBJS@ regfree.o @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@regerror.@SHLIB_SUFFIX@: regerror.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regerror.@SHLIB_SUFFIX@ regerror.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@regerror.@SO@: regerror.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regerror.@SO@ regerror.o @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@regfree.@SHLIB_SUFFIX@: regfree.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regfree.@SHLIB_SUFFIX@ regfree.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@regfree.@SO@: regfree.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regfree.@SO@ regfree.o @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@regexec.@SHLIB_SUFFIX@: regexec.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regexec.@SHLIB_SUFFIX@ regexec.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@regexec.@SO@: regexec.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o regexec.@SO@ regexec.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

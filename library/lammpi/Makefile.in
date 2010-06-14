@@ -36,7 +36,7 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 CWD=$(PWD)
 MPILDF=`$(MPI_CC) -showme|sed "s/[^ ]*//"|sed "s/-pt/-lpt/"`
 MPICF=`$(MPI_CC) -showme| cut -d " " -f 2`
@@ -44,7 +44,7 @@ MPICF=`$(MPI_CC) -showme| cut -d " " -f 2`
 
 OBJS=yap_mpi.o hash.o prologterms2c.o
 SOBJS=@LAMOBJS@
-#yap_mpi.@SHLIB_SUFFIX@
+#yap_mpi.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -60,11 +60,11 @@ prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
 hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/hash.c -o hash.o
 
-@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@yap_mpi.@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi.@SHLIB_SUFFIX@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@yap_mpi.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi.@SO@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi

@@ -594,6 +594,8 @@ ac_includes_default="\
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
 CHR_TARGETS
+PLTARGETS
+TARGETS
 IN_SWI
 IN_YAP
 PROLOG_SYSTEM
@@ -637,7 +639,7 @@ SHLIB_CXX_LD
 SHLIB_LD
 DO_SECOND_LD
 EXEC_SUFFIX
-SHLIB_SUFFIX
+SO
 SHLIB_CFLAGS
 MERGE_DLL_OBJS
 INSTALL_DLLS
@@ -6631,7 +6633,7 @@ fi
 
           if test "$have_dl" = "yes"
 	  then
-	    SHLIB_SUFFIX="so"
+	    SO="so"
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
@@ -6666,7 +6668,7 @@ fi
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
-        SHLIB_SUFFIX="o"
+        SO="o"
 	INSTALL_DLLS=""
 	;;
       *hpux*)
@@ -6684,7 +6686,7 @@ fi
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
-            SHLIB_SUFFIX="sl"
+            SO="sl"
 	    SHLIB_CFLAGS="+z"
 	    INSTALL_DLLS=""
 	    # If the xnet library was found, turn on X/Open networking
@@ -6710,7 +6712,7 @@ fi
 	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
 	# I won't bother for now.
 	#
-        # SHLIB_SUFFIX="a"
+        # SO="a"
         #SHLIB_LD="\$(srcdir)/../../ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
 	#INSTALL_DLLS=""
 	;;
@@ -6760,14 +6762,14 @@ else
   have_dl=no
 fi
 
-          SHLIB_SUFFIX="so"
+          SO="so"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
 	;;
       *irix6*)
 	SHLIB_CFLAGS=""
-	SHLIB_SUFFIX="so"
+	SO="so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
@@ -6825,7 +6827,7 @@ fi
 	  fi
 	fi
 	SHLIB_CFLAGS="-fno-common"
-	SHLIB_SUFFIX="dylib"
+	SO="dylib"
         DO_SECOND_LD=""
 # 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
@@ -6839,7 +6841,7 @@ fi
         then
 	  #an a.out system
 	  SHLIB_CFLAGS=""
-	  SHLIB_SUFFIX="o"
+	  SO="o"
         else
 	  #an elf system
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
@@ -6847,7 +6849,7 @@ fi
 	  SHLIB_LD="ld -Bshareable -x"
           SHLIB_CXX_LD="$SHLIB_LD"
           DO_SECOND_LD=""
-	  SHLIB_SUFFIX="so"
+	  SO="so"
 	  INSTALL_DLLS=""
         fi
 	;;
@@ -6858,7 +6860,7 @@ fi
 	SHLIB_LD="$CC -shared"
         SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
-	SHLIB_SUFFIX="so"
+	SO="so"
 	INSTALL_DLLS=""
 	;;
       *cyg*|*mingw*)
@@ -6872,7 +6874,7 @@ fi
         fi
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
-	SHLIB_SUFFIX="dll"
+	SO="dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
@@ -6926,7 +6928,7 @@ fi
 
         if test "$have_dl" = yes
 	 then
-         SHLIB_SUFFIX="o"
+         SO="o"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS=""
 	 if test "$GCC" = "yes"
@@ -6952,7 +6954,7 @@ then
     INSTALL_ENV=""
     ;;
   *darwin*)
-    DYNYAPLIB=libYap."$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap."$SO"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
     PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
@@ -6961,7 +6963,7 @@ then
     ;;
   *)
     LDFLAGS="$LDFLAGS -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
-    DYNYAPLIB=libYap."$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap."$SO"
     YAPLIB="$DYNYAPLIB"
     EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
     PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
@@ -7357,7 +7359,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lam_main" >&5
 $as_echo "$ac_cv_lib_lam_main" >&6; }
 if test "x$ac_cv_lib_lam_main" = x""yes; then :
-  LAMOBJS=yap_mpi."$SHLIB_SUFFIX"
+  LAMOBJS=yap_mpi."$SO"
 else
   LAMOBJS=no
 fi
@@ -9028,7 +9030,9 @@ fi
 PROLOG_SYSTEM=yap
 IN_YAP=
 IN_SWI="#"
-CHR_TARGETS=chr_support."$SHLIB_SUFFIX"
+CHR_TARGETS=chr_support."$SO"
+
+
 
 
 

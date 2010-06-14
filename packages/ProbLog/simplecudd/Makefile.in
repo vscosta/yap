@@ -30,7 +30,7 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #

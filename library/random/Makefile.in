@@ -31,13 +31,13 @@ SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
-SHLIB_SUFFIX=@SHLIB_SUFFIX@
+SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
 
 OBJS=random.o
-SOBJS=random.@SHLIB_SUFFIX@
+SOBJS=random.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -47,11 +47,11 @@ all: $(SOBJS)
 random.o: $(srcdir)/random.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/random.c -o random.o
 
-@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@random.@SHLIB_SUFFIX@: random.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o random.@SHLIB_SUFFIX@ random.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@random.@SO@: random.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o random.@SO@ random.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
