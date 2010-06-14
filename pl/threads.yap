@@ -16,12 +16,14 @@
 *************************************************************************/
 
 :- meta_predicate
-	thread_create(:,-,:),
-	thread_create(:,-),
-	thread_create(:),
-	thread_at_exit(:),
-	thread_signal(+,:),
-	with_mutex(+,:),
+	thread_initialization(0),
+	thread_at_exit(0),
+	thread_create(0, -, :),
+	thread_create(0, -),
+	thread_create(0),
+	thread_signal(+, 0),
+	with_mutex(+, 0),
+	thread_signal(+,0),
 	volatile(:).
 
 volatile(P) :- var(P),
