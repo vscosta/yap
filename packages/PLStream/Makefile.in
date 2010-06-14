@@ -63,7 +63,7 @@ OBJS=pl-buffer.o pl-ctype.o pl-error.o  \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-text.o pl-util.o pl-utf8.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
-SOBJS=plstream@SHLIB_SUFFIX@
+SOBJS=libplstream.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -77,11 +77,11 @@ uxnt.o: $(srcdir)/uxnt/uxnt.c
 %.o : $(srcdir)/%.c
 	$(CC) -c $(CFLAGS)  $(SHLIB_CFLAGS) $< -o $@
 
-@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@plstream@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ -o plstream@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@libplstream.@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ -o libplstream.@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

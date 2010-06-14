@@ -37,7 +37,7 @@ CWD=$(PWD)
 #
 
 OBJS=sys.o
-SOBJS=sys@SHLIB_SUFFIX@
+SOBJS=sys.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -47,11 +47,11 @@ all: $(SOBJS)
 sys.o: $(srcdir)/sys.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/sys.c -o sys.o
 
-@DO_SECOND_LD@@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@sys@SHLIB_SUFFIX@: sys.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o sys@SHLIB_SUFFIX@ sys.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@sys.@SHLIB_SUFFIX@: sys.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o sys.@SHLIB_SUFFIX@ sys.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

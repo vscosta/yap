@@ -37,7 +37,7 @@ CWD=$(PWD)
 #
 
 OBJS=matrix.o
-SOBJS=matrix@SHLIB_SUFFIX@
+SOBJS=matrix.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -47,11 +47,11 @@ all: $(SOBJS)
 matrix.o: $(srcdir)/matrix.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/matrix.c -o matrix.o
 
-@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@matrix@SHLIB_SUFFIX@: matrix.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o matrix@SHLIB_SUFFIX@ matrix.o  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@matrix.@SHLIB_SUFFIX@: matrix.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o matrix.@SHLIB_SUFFIX@ matrix.o  @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

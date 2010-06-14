@@ -37,7 +37,7 @@ CWD=$(PWD)
 #
 
 OBJS=matlab.o
-SOBJS=matlab@SHLIB_SUFFIX@
+SOBJS=matlab.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -47,11 +47,11 @@ all: $(SOBJS)
 matlab.o: $(srcdir)/matlab.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/matlab.c -o matlab.o
 
-@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@matlab@SHLIB_SUFFIX@: matlab.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o matlab@SHLIB_SUFFIX@ matlab.o  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@matlab.@SHLIB_SUFFIX@: matlab.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o matlab.@SHLIB_SUFFIX@ matlab.o  @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

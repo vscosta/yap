@@ -40,7 +40,7 @@ SHLIB_SUFFIX=@SHLIB_SUFFIX@
 #
 
 OBJS=yaprl.o range_list.o
-SOBJS=yap_rl@SHLIB_SUFFIX@
+SOBJS=yap_rl.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -52,11 +52,11 @@ range_list.o: $(srcdir)/range_list.c $(srcdir)/range_list.h
 yaprl.o: $(srcdir)/yap_rl.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap_rl.c -o yaprl.o
 
-@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@yap_rl@SHLIB_SUFFIX@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@  -o yap_rl@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@yap_rl.@SHLIB_SUFFIX@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@  -o yap_rl.@SHLIB_SUFFIX@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi

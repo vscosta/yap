@@ -42,7 +42,7 @@ CPLINT_LIBS=@CPLINT_LIBS@
 CWD=$(PWD)
 #
 OBJS=cplint_yap.o cplint_Prob.o
-SOBJS=cplint@SHLIB_SUFFIX@
+SOBJS=cplint.@SHLIB_SUFFIX@
 
 
 
@@ -154,8 +154,8 @@ cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h
 
 
 
-@DO_SECOND_LD@cplint@SHLIB_SUFFIX@: cplint_yap.o cplint_Prob.o
-@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@cplint.@SHLIB_SUFFIX@: cplint_yap.o cplint_Prob.o
+@DO_SECOND_LD@	@CPLINT_SHLIB_LD@ -o cplint.@SHLIB_SUFFIX@ $(CPLINT_LDFLAGS) cplint_yap.o cplint_Prob.o $(CPLINT_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK

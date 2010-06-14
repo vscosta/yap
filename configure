@@ -5034,7 +5034,6 @@ fi
 
       EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     fi
-    EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/packages/PLStream/plstream.dll"
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpsapi" >&5
 $as_echo_n "checking for main in -lpsapi... " >&6; }
 if test "${ac_cv_lib_psapi_main+set}" = set; then :
@@ -6632,7 +6631,7 @@ fi
 
           if test "$have_dl" = "yes"
 	  then
-	    SHLIB_SUFFIX=".so"
+	    SHLIB_SUFFIX="so"
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
@@ -6667,7 +6666,7 @@ fi
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
-        SHLIB_SUFFIX=".o"
+        SHLIB_SUFFIX="o"
 	INSTALL_DLLS=""
 	;;
       *hpux*)
@@ -6685,7 +6684,7 @@ fi
             SHLIB_LD="$CC -shared -export-dynamic"
             SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
-            SHLIB_SUFFIX=".sl"
+            SHLIB_SUFFIX="sl"
 	    SHLIB_CFLAGS="+z"
 	    INSTALL_DLLS=""
 	    # If the xnet library was found, turn on X/Open networking
@@ -6711,7 +6710,7 @@ fi
 	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
 	# I won't bother for now.
 	#
-        # SHLIB_SUFFIX=".a"
+        # SHLIB_SUFFIX="a"
         #SHLIB_LD="\$(srcdir)/../../ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
 	#INSTALL_DLLS=""
 	;;
@@ -6761,14 +6760,14 @@ else
   have_dl=no
 fi
 
-          SHLIB_SUFFIX=".so"
+          SHLIB_SUFFIX="so"
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
 	;;
       *irix6*)
 	SHLIB_CFLAGS=""
-	SHLIB_SUFFIX=".so"
+	SHLIB_SUFFIX="so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
@@ -6826,7 +6825,7 @@ fi
 	  fi
 	fi
 	SHLIB_CFLAGS="-fno-common"
-	SHLIB_SUFFIX=".dylib"
+	SHLIB_SUFFIX="dylib"
         DO_SECOND_LD=""
 # 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
 # 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
@@ -6840,7 +6839,7 @@ fi
         then
 	  #an a.out system
 	  SHLIB_CFLAGS=""
-	  SHLIB_SUFFIX=".o"
+	  SHLIB_SUFFIX="o"
         else
 	  #an elf system
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
@@ -6848,7 +6847,7 @@ fi
 	  SHLIB_LD="ld -Bshareable -x"
           SHLIB_CXX_LD="$SHLIB_LD"
           DO_SECOND_LD=""
-	  SHLIB_SUFFIX=".so"
+	  SHLIB_SUFFIX="so"
 	  INSTALL_DLLS=""
         fi
 	;;
@@ -6859,7 +6858,7 @@ fi
 	SHLIB_LD="$CC -shared"
         SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
-	SHLIB_SUFFIX=".so"
+	SHLIB_SUFFIX="so"
 	INSTALL_DLLS=""
 	;;
       *cyg*|*mingw*)
@@ -6873,7 +6872,7 @@ fi
         fi
         SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
-	SHLIB_SUFFIX=".dll"
+	SHLIB_SUFFIX="dll"
 	C_PARSER_FLAGS="$C_INTERF_FLAGS"
 	EXEC_SUFFIX=".exe"
 	INSTALL_DLLS=""
@@ -6927,7 +6926,7 @@ fi
 
         if test "$have_dl" = yes
 	 then
-         SHLIB_SUFFIX=".o"
+         SHLIB_SUFFIX="o"
 	 LIBS="$LIBS -ldl"
 	 INSTALL_DLLS=""
 	 if test "$GCC" = "yes"
@@ -6953,7 +6952,7 @@ then
     INSTALL_ENV=""
     ;;
   *darwin*)
-    DYNYAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap."$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
     PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
@@ -6962,10 +6961,9 @@ then
     ;;
   *)
     LDFLAGS="$LDFLAGS -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
-    DYNYAPLIB=libYap"$SHLIB_SUFFIX"
+    DYNYAPLIB=libYap."$SHLIB_SUFFIX"
     YAPLIB="$DYNYAPLIB"
     EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
-    EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir)/packages/PLStream/plstream.$SHLIB_SUFFIX"
     PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
     INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
@@ -6974,6 +6972,8 @@ else
   PRE_INSTALL_ENV=""
   DYNYAPLIB=libYap.notused
 fi
+
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir)/packages/PLStream -lplstream"
 
 if test "$coroutining" = "yes"
   then
@@ -7357,7 +7357,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lam_main" >&5
 $as_echo "$ac_cv_lib_lam_main" >&6; }
 if test "x$ac_cv_lib_lam_main" = x""yes; then :
-  LAMOBJS=yap_mpi"$SHLIB_SUFFIX"
+  LAMOBJS=yap_mpi."$SHLIB_SUFFIX"
 else
   LAMOBJS=no
 fi
@@ -9028,7 +9028,7 @@ fi
 PROLOG_SYSTEM=yap
 IN_YAP=
 IN_SWI="#"
-CHR_TARGETS=chr_support"$SHLIB_SUFFIX"
+CHR_TARGETS=chr_support."$SHLIB_SUFFIX"
 
 
 

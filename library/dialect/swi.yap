@@ -93,7 +93,7 @@
 
 :- set_prolog_flag(user_flags,silent).
 
-:- load_foreign_files([plstream], [], initIO).
+:- load_foreign_files([libplstream], [], initIO).
 
 % Time is given as a float in SWI-Prolog.
 swi_get_time(FSecs) :- datime(Datime),  mktime(Datime, Secs), FSecs is Secs*1.0.
