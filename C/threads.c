@@ -365,11 +365,19 @@ Yap_thread_self(void)
 CELL
 Yap_thread_create_engine(thread_attr *ops)
 {
+  thread_attr opsv;
   Term t = TermNil;
   int new_id = allocate_new_tid();
   if (new_id == -1) {
     /* YAP ERROR */
     return FALSE;
+  }
+  if (ops == NULL) {
+    ops = &opsv;
+    ops->tsize = DefHeapSpace;
+    ops->ssize = DefStackSpace;
+    ops->sysize = 0;
+    ops->egoal = t;
   }
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return FALSE;
