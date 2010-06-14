@@ -159,6 +159,8 @@ char*				putc_cur_buf_		putc_cur_buf		=NULL
 char*				putc_cur_lim_		putc_cur_lim		=NULL
 UInt				putc_cur_flags_		putc_cur_flags		=0L
 
+struct open_query_struct*	_execution		execution		=NULL
+
 // Ricardo's stuff
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 struct worker			worker			WORKER		void
@@ -169,6 +171,7 @@ struct thandle			thread_handle		ThreadHandle	InitThreadHandle
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)].thread_handle)		       						
 #define MY_ThreadHandle	       (Yap_WLocal[worker_id].thread_handle)
 #endif
+
 // END WORKER LOCAL STUFF
 END_WORKER_LOCAL
 

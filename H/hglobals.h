@@ -147,6 +147,7 @@ typedef struct worker_local {
   char*  putc_cur_buf_;
   char*  putc_cur_lim_;
   UInt  putc_cur_flags_;
+  struct open_query_struct*  _execution;
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
   struct worker  worker;

@@ -145,6 +145,7 @@
 #define putc_cur_buf WL->putc_cur_buf_
 #define putc_cur_lim WL->putc_cur_lim_
 #define putc_cur_flags WL->putc_cur_flags_
+#define execution WL->_execution
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 #define WORKER WL->worker

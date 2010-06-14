@@ -2358,8 +2358,6 @@ typedef struct open_query_struct {
   struct open_query_struct *old;
 } open_query;
 
-static open_query *execution = NULL;
-
 X_API fid_t
 PL_open_foreign_frame(void)
 {
@@ -2564,6 +2562,7 @@ X_API int PL_thread_self(void)
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
   int wid = YAP_ThreadSelf();
+  fprintf(stderr,"attaching new engine %p\n", attr);
   
   if (wid < 0) {
     /* we do not have an engine */
@@ -2623,7 +2622,7 @@ PL_create_engine(const PL_thread_attr_t *attr)
     yapt.tsize = attr->global_size;
     yapt.alias = (YAP_Term)attr->alias;
     yapt.cancel =  attr->cancel;
-    return (PL_engine_t)YAP_ThreadCreateEngine(&yapt);
+    return  (PL_engine_t)YAP_ThreadCreateEngine(&yapt);
   } else {
     return (PL_engine_t)YAP_ThreadCreateEngine(NULL);
   }

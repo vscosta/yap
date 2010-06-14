@@ -35,7 +35,7 @@ CWD=$(PWD)
 #
 
 OBJS=yap2swi.o
-SOBJS=yap2swi@SHLIB_SUFFIX@
+SOBJS=yap2swi.@SHLIB_SUFFIX@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -47,11 +47,11 @@ all:
 yap2swi.o: $(srcdir)/yap2swi.c $(srcdir)/yap2swi.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap2swi.c -o yap2swi.o
 
-@DO_SECOND_LD@@DO_SECOND_LD@%@SHLIB_SUFFIX@: %.o
+@DO_SECOND_LD@@DO_SECOND_LD@%.@SHLIB_SUFFIX@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<
 
-@DO_SECOND_LD@yap2swi@SHLIB_SUFFIX@: yap2swi.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o yap2swi@SHLIB_SUFFIX@ yap2swi.o @
+@DO_SECOND_LD@yap2swi.@SHLIB_SUFFIX@: yap2swi.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o yap2swi.@SHLIB_SUFFIX@ yap2swi.o @
 
 install: 
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(LIBDIR)
