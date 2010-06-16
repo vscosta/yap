@@ -331,6 +331,9 @@ use_module(M,F,Is) :-
 	fail.
 '$initialization'(_).
 
+initialization(G,OPT) :-
+	'$initialization'(G,OPT).
+
 '$initialization'(G,OPT) :-
 	( 
 	   var(G)
@@ -1023,4 +1026,42 @@ make :-
 	'$load_files'(F1, [if(changed)],make),
 	fail.
 make.
+
+file_name_extension(A1,A2,F) :-
+	var(F),
+	nonvar(A1), nonvar(A2), !,
+	atom_codes(A2, S2),
+	(
+	 S2 = [0'.|_] %'
+	->
+	 atom_concat(A1, A2, F)
+	;
+	 atom_concat([A1, '.', A2], F)
+	).
+file_name_extension(A1,A2,F) :-
+	var(F), !,
+	'$do_error'(instantiation_error,file_name_extension(A1,A2,F)).
+file_name_extension(A1,A2,F) :-
+	nonvar(A2), !,
+	atom_codes(F, S),
+	atom_codes(A2, S2),
+	'$file_name_extension'(S, S1, E2),
+	(
+	 S2 = [0'.|E2] %'
+	->
+	 true 
+	;
+	 S2 = E2
+	),
+	atom_codes(A1, S1).
+file_name_extension(A1,A2,F) :-
+	atom_codes(F, S),
+	'$file_name_extension'(S, S1, S2),
+	atom_codes(A2, S2),
+	atom_codes(A1, S1).
+
+'$file_name_extension'(S, S1, S2) :-
+	lists:append(S1, [0'.|S2], S),
+	\+ lists:append(_, [0'.|_], S2), !.
+'$file_name_extension'(S, S, []).
 
