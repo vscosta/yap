@@ -1667,10 +1667,12 @@ mkdir -p  library/yap2swi
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
 mkdir -p  GPL
-mkdir -p  packages/chr
-dnl mkdir -p  packages/clib
-dnl mkdir -p  packages/clib/maildrop/rfc822
-dnl mkdir -p  packages/clib/maildrop/rfc2045
+mkdir -p  packages/
+mkdir -p  packages/clib
+mkdir -p  packages/clib/sha1
+mkdir -p  packages/clib/maildrop
+mkdir -p  packages/clib/maildrop/rfc822
+mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
@@ -1705,9 +1707,9 @@ AC_CONFIG_FILES([library/yap2swi/Makefile])
 AC_CONFIG_FILES([LGPL/Makefile])
 AC_CONFIG_FILES([LGPL/clp/Makefile])
 AC_CONFIG_FILES([LGPL/swi_console/Makefile])
-dnl AC_CONFIG_FILES([packages/clib/Makefile])
-dnl AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
-dnl AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
+AC_CONFIG_FILES([packages/clib/Makefile])
+AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
+AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])

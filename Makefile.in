@@ -254,6 +254,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/hacks.yap \
 	$(srcdir)/pl/init.yap \
 	$(srcdir)/pl/listing.yap \
+	$(srcdir)/pl/lists.yap \
 	$(srcdir)/pl/messages.yap \
 	$(srcdir)/pl/load_foreign.yap \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
@@ -565,6 +566,7 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 
 
 install_win32: startup.yss
