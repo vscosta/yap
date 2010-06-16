@@ -301,6 +301,11 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 	    break;
 #endif /* EMACS */
+	  case 'F':
+	    /* just ignore for now */
+	      argc--;
+	      argv++;
+	      break;
 	  case 'f':
 	    if (argc > 1 && argv[1][0] != '-') {
 	      argc--;
