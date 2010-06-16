@@ -109,6 +109,29 @@ mydlclose(void *handle)
   return TRUE;
 } 
 
+void *
+Yap_LoadForeignFile(char *file, int flags)
+{
+  return (void *)mydlopen(file);
+}
+
+int
+Yap_CallForeignFile(void *handle, char *f)
+{
+  YapInitProc proc = (YapInitProc) mydlsym(f);
+  if (!proc)
+    return FALSE;
+  (*proc)();
+  return TRUE;
+}
+
+int
+Yap_CloseForeignFile(void *handle)
+{
+  return mydlclose(handle);
+}
+
+
 /*
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
  * code files and libraries and locates an initialization routine

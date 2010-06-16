@@ -110,6 +110,119 @@ p_load_foreign(void)
 }
 
 static Int
+p_open_shared_object(void) {
+  StringList ofiles = NULL;
+  Term t = Deref(ARG1);
+  Term tflags = Deref(ARG2);
+  void *ptr;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    return FALSE;
+  } 
+  if (!IsAtomTerm(t)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"open_shared_object/3");
+    return FALSE;
+  }
+  
+  if (IsVarTerm(tflags)) {
+    Yap_Error(INSTANTIATION_ERROR,tflags,"open_shared_object/3");
+    return FALSE;
+  } 
+  if (!IsIntTerm(tflags)) {
+    Yap_Error(TYPE_ERROR_INTEGER,tflags,"open_shared_object/3");
+    return FALSE;
+  }
+  
+  ofiles = (StringList) Yap_AllocCodeSpace(sizeof(StringListItem));
+  ofiles->next = ofiles;
+  ofiles->s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  if ((ptr = Yap_LoadForeignFile(ofiles->s, IntOfTerm(tflags)))==NULL) {
+      return FALSE;
+  } else {
+    ForeignObj *f_code = (ForeignObj *)Yap_AllocCodeSpace(sizeof(ForeignObj));
+    ofiles->handle = ptr;
+
+    f_code->objs = ofiles;
+    f_code->libs = NULL;
+    f_code->f = NULL;
+    f_code->next = ForeignCodeLoaded;
+    f_code->module = CurrentModule;
+    ForeignCodeLoaded = f_code;
+
+    return Yap_unify(MkIntegerTerm((Int)f_code),ARG3);
+  }
+}
+
+static Int
+p_close_shared_object(void) {
+  Term t = Deref(ARG1);
+  ForeignObj *f, *f0 = NULL, *fi = ForeignCodeLoaded;
+  void *handle;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    return FALSE;
+  } 
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t,"open_shared_object/3");
+    return FALSE;
+  }
+  f = (ForeignObj *)IntegerOfTerm(t);
+ 
+  while (fi != f && fi) {
+    f0 = fi;
+    fi = f->next;
+  }
+  if (!fi)
+    return FALSE;
+  if (f0) {
+    f0->next = f->next;
+  } else {
+    ForeignCodeLoaded->next = f->next;
+  }
+  handle = f->objs->handle;
+  Yap_FreeCodeSpace((ADDR)f->objs);
+  Yap_FreeCodeSpace((ADDR)f);
+  return Yap_CloseForeignFile(f->f);
+}
+
+static Int
+p_call_shared_object_function(void) {
+  Term t = Deref(ARG1);
+  Term tfunc = Deref(ARG2);
+  ForeignObj *f, *f0 = NULL, *fi = ForeignCodeLoaded;
+  void *handle;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    return FALSE;
+  } 
+  if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t,"open_shared_object/3");
+    return FALSE;
+  }
+  f = (ForeignObj *)IntegerOfTerm(t);
+  if (IsVarTerm(tfunc)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    return FALSE;
+  } 
+  if (!IsAtomTerm(tfunc)) {
+    Yap_Error(TYPE_ERROR_ATOM,t,"open_shared_object/3");
+    return FALSE;
+  }
+ 
+  while (fi != f && fi) {
+    f0 = fi;
+    fi = f->next;
+  }
+  if (!fi)
+    return FALSE;
+  handle = f->objs->handle;
+  return Yap_CallForeignFile(handle, RepAtom(AtomOfTerm(tfunc))->StrOfAE);
+}
+
+static Int
 p_obj_suffix(void) {
   return Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1);
 }
@@ -132,6 +245,9 @@ Yap_InitLoadForeign(void)
     Yap_FindExecutable(Yap_argv[0]);
   Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$open_shared_object", 3, p_open_shared_object, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("close_shared_object", 1, p_close_shared_object, SyncPredFlag|SafePredFlag);
+  Yap_InitCPred("call_shared_object_function", 2, p_call_shared_object_function, SyncPredFlag);
   Yap_InitCPred("$obj_suffix", 1, p_obj_suffix, SafePredFlag|HiddenPredFlag);
 }
 

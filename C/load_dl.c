@@ -34,6 +34,39 @@ Yap_FindExecutable(char *name)
 {
 }
 
+void *
+Yap_LoadForeignFile(char *file, int flags)
+{
+  int dlflag;
+
+  if (flags &  EAGER_LOADING)
+    dlflag = RTLD_NOW;
+  else
+    dlflag = RTLD_LAZY;
+  if (flags &  GLOBAL_LOADING)
+    dlflag |= RTLD_GLOBAL;
+  else 
+    dlflag |= RTLD_LOCAL;
+  
+  return (void *)dlopen(file,dlflag);
+}
+
+int
+Yap_CallForeignFile(void *handle, char *f)
+{
+  YapInitProc proc = (YapInitProc) dlsym(handle, f);
+  if (!proc)
+    return FALSE;
+  (*proc) ();
+  return TRUE;
+}
+
+int
+Yap_CloseForeignFile(void *handle)
+{
+  return dlclose(handle);
+}
+
 
 /*
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
@@ -58,7 +91,6 @@ LoadForeign(StringList ofiles, StringList libs,
 #endif
     {
       strcpy(Yap_ErrorSay,dlerror());
-    fprintf(stderr,"f=%s\n",Yap_ErrorSay);
       return LOAD_FAILLED;
     }
     libs = libs->next;

@@ -87,6 +87,27 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$check_entry_for_load_foreign_files'(Entry,G) :-
 	'$do_error'(type_error(atom,Entry),G).
 
+open_shared_object(File, Handle) :-
+	'$open_shared_object'(File, 0, Handle).
 
+open_shared_object(File, Opts, Handle) :-
+	'$open_shared_opts'(Opts, open_shared_object(File, Opts, Handle), OptsI),
+	'$open_shared_object'(File, OptsI, Handle).
 
-
+'$open_shared_opts'(Opts, G, OptsI) :-
+	var(Opts), !,
+	'$do_error'(instantiation_error,G).
+'$open_shared_opts'([], _, 0) :- !.
+'$open_shared_opts'(Opt.Opts, G, V) :-
+	'$open_shared_opts'(Opts, G, V0),
+	'$open_shared_opt'(Opt, G, OptV),
+	V0 is V \/ OptV.
+	
+'$open_shared_opt'(Opt, G, _) :-
+	var(Opt), !,
+	'$do_error'(instantiation_error,G).
+'$open_shared_opt'(now, __, 1) :- !.
+'$open_shared_opt'(global, __, 2) :- !.
+'$open_shared_opt'(Opt, Goal, _) :-
+	'$do_error'(domain_error(open_shared_object_option,Opt),Goal).
+	

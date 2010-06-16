@@ -100,6 +100,25 @@ Yap_FindExecutable(char *name)
 	  "cannot find file being executed");
 }
 
+void *
+Yap_LoadForeignFile(char *file, int flags)
+{
+  /* not implemented */
+  return NULL;
+}
+
+int
+Yap_CallForeignFile(void *handle, char *f)
+{
+  return FALSE;
+}
+
+int
+Yap_CloseForeignFile(void *handle)
+{
+  return -1;
+}
+
 
 /*
  * LoadForeign(ofiles,libs,proc_name,init_proc) dynamically loads foreign
