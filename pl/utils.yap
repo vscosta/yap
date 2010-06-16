@@ -352,6 +352,15 @@ atom_concat(X,Y,At) :-
 atomic_list_concat(L,At) :-
 	atomic_concat(L, At).
 	
+atomic_list_concat(L, El, At) :-
+	'$add_els'(L,El,LEl),
+	atomic_concat(LEl, At).
+
+'$add_els'([A,B|L],El,[A,El|NL]) :- !,
+	'$add_els'([B|L],El,NL).
+'$add_els'(L,_,L).
+	
+
 atomic_concat(X,Y,At) :-
 	(
 	  nonvar(X),  nonvar(Y)
