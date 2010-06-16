@@ -211,6 +211,7 @@ Subnodes of Library
 * Read Utilities:: SWI inspired utilities for fast stream scanning.
 * Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
+* shlib:: SWI Prolog shlib library
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
 * System:: System Utilities
@@ -4463,6 +4464,19 @@ name is @code{user}.
 @cnindex file_base_name/2
 Give the path a full path @var{FullPath} extract the @var{FileName}.
 
+@item file_name_extension(?@var{Base},?@var{Extension}, ?@var{Name})
+@findex file_name_extension/3
+@snindex file_name_extension/3
+@cnindex file_name_extension/3
+
+This predicate is used to add, remove or test filename extensions. The
+main reason for its introduction is to deal with different filename
+properties in a portable manner. If the file system is
+case-insensitive, testing for an extension will be done
+case-insensitive too. @var{Extension} may be specified with or
+without a leading dot (.). If an @var{Extension} is generated, it
+will not have a leading dot.
+
 @item current_stream(@var{F},@var{M},@var{S})
 @findex current_stream/3
 @syindex current_stream/3
@@ -7972,6 +7986,13 @@ If @code{true} the @code{open/3} builtin performs filename-expansion
 before opening a file (SICStus Prolog like). If @code{false} it does not
 (SWI-Prolog like).
 
+@item open_shared_object
+@findex open_shared_object (yap_flag/2 option)
+@*
+If true, @code{open_shared_object/2} and friends are implemented,
+providing access to shared libraries (@code{.so} files) or to dynamic link
+libraries (@code{.DLL} files).
+
 @item  profiling
 @findex profiling (yap_flag/2 option)
 @*
@@ -8420,6 +8441,7 @@ Library, Extensions, Built-ins, Top
 * Read Utilities:: SWI inspired utilities for fast stream scanning.
 * Red-Black Trees:: Predicates to add, lookup and delete in red-black binary  trees.
 * RegExp:: Regular Expression Manipulation
+* shlib:: SWI Prolog shlib library
 * Splay Trees:: Splay Trees
 * String I/O:: Writing To and Reading From Strings
 * System:: System Utilities
@@ -10684,7 +10706,7 @@ associated with @var{Val}.
 list @var{L}.
 @end table
 
-@node RegExp, Splay Trees, Red-Black Trees, Library
+@node RegExp, shlib, Red-Black Trees, Library
 @section Regular Expressions
 @cindex regular expressions
 
@@ -10815,7 +10837,136 @@ sub-expression.  Thus the @code{"b"} has already been claimed before the
 
 @end table
 
-@node Splay Trees, String I/O, RegExp, Library
+@node shlib, Splay Trees, RegExp, Library
+@section SWI-Prolog's shlib library
+
+@cindex SWI-Compatible foreign file loading
+This section discusses the functionality of the (autoload)
+@code{library(shlib)}, providing an interface to manage shared
+libraries.
+
+One of the files provides a global function @code{install_mylib()} that
+initialises the module using calls to @code{PL_register_foreign()}. Here is a
+simple example file @code{mylib.c}, which creates a Windows MessageBox:
+
+@example
+#include <windows.h>
+#include <SWI-Prolog.h>
+
+static foreign_t
+pl_say_hello(term_t to)
+@{ char *a;
+
+  if ( PL_get_atom_chars(to, &a) )
+  @{ MessageBox(NULL, a, "DLL test", MB_OK|MB_TASKMODAL);
+
+    PL_succeed;
+  @}
+
+  PL_fail;
+@}
+
+install_t
+install_mylib()
+@{ PL_register_foreign("say_hello", 1, pl_say_hello, 0);
+@}
+@end example
+
+Now write a file mylib.pl:
+
+@example
+:- module(mylib, [ say_hello/1 ]).
+:- use_foreign_library(foreign(mylib)).
+@end example
+
+The file mylib.pl can be loaded as a normal Prolog file and provides the predicate defined in C.
+
+@table @code
+@item [det]load_foreign_library(:@var{FileSpec})
+@item [det]load_foreign_library(:@var{FileSpec}, +@var{Entry}:atom)
+@findex load_foreign_library/1
+@snindex load_foreign_library/1
+@cnindex load_foreign_library/1
+@findex load_foreign_library/2
+@snindex load_foreign_library/2
+@cnindex load_foreign_library/2
+    Load a shared object or DLL. After loading the @var{Entry} function is
+    called without arguments. The default entry function is composed
+    from @code{install_}, followed by the file base-name. E.g., the
+    load-call below calls the function @code{install_mylib()}. If the platform
+    prefixes extern functions with @code{_}, this prefix is added before
+    calling.
+
+@example
+          ...
+          load_foreign_library(foreign(mylib)),
+          ...
+@end example
+
+    @var{FileSpec} is a specification for
+    @code{absolute_file_name/3}. If searching the file fails, the plain
+    name is passed to the OS to try the default method of the OS for
+    locating foreign objects. The default definition of
+    @code{file_search_path/2} searches <prolog home>/lib/Yap.
+
+    See also
+        @code{use_foreign_library/1,2} are intended for use in
+        directives. 
+
+@item [det]use_foreign_library(+@var{FileSpec})
+@item [det]use_foreign_library(+@var{FileSpec}, +@var{Entry}:atom)
+@findex use_foreign_library/1
+@snindex use_foreign_library/1
+@cnindex use_foreign_library/1
+@findex use_foreign_library/2
+@snindex use_foreign_library/2
+@cnindex use_foreign_library/2
+    Load and install a foreign library as load_foreign_library/1,2 and
+    register the installation using @code{initialization/2} with the option
+    now. This is similar to using:
+
+@example
+    :- initialization(load_foreign_library(foreign(mylib))).
+@end example
+
+    but using the @code{initialization/1} wrapper causes the library to
+    be loaded after loading of the file in which it appears is
+    completed, while @code{use_foreign_library/1} loads the library
+    immediately. I.e. the difference is only relevant if the remainder
+    of the file uses functionality of the @code{C}-library. 
+
+@item [det]unload_foreign_library(+@var{FileSpec})
+@item [det]unload_foreign_library(+@var{FileSpec}, +@var{Exit}:atom) 
+@findex unload_foreign_library/1
+@snindex unload_foreign_library/1
+@cnindex unload_foreign_library/1
+@findex unload_foreign_library/2
+@snindex unload_foreign_library/2
+@cnindex unload_foreign_library/2
+
+Unload a shared
+object or DLL. After calling the @var{Exit} function, the shared object is
+removed from the process. The default exit function is composed from
+@code{uninstall_}, followed by the file base-name.
+
+@item current_foreign_library(?@var{File}, ?@var{Public}) 
+@findex current_foreign_library/2
+@snindex current_foreign_library/2
+@cnindex current_foreign_library/2
+
+Query currently
+loaded shared libraries.  
+
+@c @item reload_foreign_libraries 
+@c @findex reload_foreign_libraries/0
+@c @snindex reload_foreign_libraries/0
+@c @cnindex reload_foreign_libraries/0
+@c Reload all foreign
+@c libraries loaded (after restore of a state created using
+@c @code{qsave_program/2}).
+@end table
+
+@node Splay Trees, String I/O, shlib, Library
 @section Splay Trees
 @cindex splay trees
 
@@ -15782,10 +15933,52 @@ YAP will search for @var{ObjectFiles} in the current directory first. If
 it cannot find them it will search for the files using the environment
 variable @code{YAPLIBDIR}, if defined, or in the default library.
 
-In a.out systems YAP by default only reserves a fixed amount of memory
-for object code (64 Kbytes in the current version). Should this size
-prove inadequate the flag @code{-c n} can be passed to YAP (in the
-command line invoking YAP) to force the allocation of @code{n} Kbytes.
+YAP also supports the SWI-Prolog interface to loading foreign code:
+
+@table @code
+@item open_shared_object(+@var{File}, -@var{Handle})
+@findex open_shared_object/2
+@snindex open_shared_object/2
+@cnindex open_shared_object/2
+    File is the name of a shared object file (called dynamic load
+    library in MS-Windows). This file is attached to the current process
+    and @var{Handle} is unified with a handle to the library. Equivalent to
+    @code{open_shared_object(File, [], Handle)}. See also
+    load_foreign_library/[1,2].
+
+    On errors, an exception @code{shared_object}(@var{Action},
+    @var{Message}) is raised. @var{Message} is the return value from
+    dlerror().
+
+@item open_shared_object(+@var{File}, -@var{Handle}, +@var{Options})
+@findex open_shared_object/3
+@snindex open_shared_object/3
+@cnindex open_shared_object/3
+    As @code{open_shared_object/2}, but allows for additional flags to
+    be passed. @var{Options} is a list of atoms. @code{now} implies the
+    symbols are 
+    resolved immediately rather than lazily (default). @code{global} implies
+    symbols of the loaded object are visible while loading other shared
+    objects (by default they are local). Note that these flags may not
+    be supported by your operating system. Check the documentation of
+    @code{dlopen()} or equivalent on your operating system. Unsupported
+    flags  are silently ignored. 
+
+@item close_shared_object(+@var{Handle})
+@findex close_shared_object/1
+@snindex close_shared_object/1
+@cnindex close_shared_object/1
+    Detach the shared object identified by @var{Handle}. 
+
+@item call_shared_object_function(+@var{Handle}, +@var{Function})
+@findex call_shared_object_function/2
+@snindex call_shared_object_function/2
+@cnindex call_shared_object_function/2
+    Call the named function in the loaded shared library. The function
+    is called without arguments and the return-value is
+    ignored. In SWI-Prolog, normally this function installs foreign
+    language predicates using calls to @code{PL_register_foreign()}.
+@end table
 
 @node Save&Rest, YAP4 Notes, Loading Objects, C-Interface
 @section Saving and Restoring
