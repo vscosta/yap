@@ -74,7 +74,9 @@ typedef enum
     EMPTY_ARENA =  0x10,
     ARRAY_INT =    0x21,
     ARRAY_FLOAT =  0x22,
-    CLAUSE_LIST =  0x40
+    CLAUSE_LIST =  0x40,
+    STRING =  0x80, /* unsupported, reserved */
+    EXTERNAL_BLOB =  0x100 /* for SWI emulation */
   } 
 big_blob_type;
 
