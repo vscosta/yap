@@ -315,6 +315,33 @@ typedef struct foreign_context *control_t;
 
 /* end from pl-itf.h */
 
+typedef struct PL_blob_t
+{ uintptr_t		magic;		/* PL_BLOB_MAGIC */
+  uintptr_t		flags;		/* PL_BLOB_* */
+  char *		name;		/* name of the type */
+  int			(*release)(atom_t a);
+  int			(*compare)(atom_t a, atom_t b);
+#ifdef SIO_MAGIC
+  int			(*write)(IOSTREAM *s, atom_t a, int flags);
+#else
+  int			(*write)(void *s, atom_t a, int flags);
+#endif
+  void			(*acquire)(atom_t a);
+#ifdef SIO_MAGIC
+  int			(*save)(atom_t a, IOSTREAM *s);
+  atom_t		(*load)(IOSTREAM *s);
+#else
+  int			(*save)(atom_t a, void*);
+  atom_t		(*load)(void *s);
+#endif
+					/* private */
+  void *		reserved[10];	/* for future extension */
+  int			registered;	/* Already registered? */
+  int			rank;		/* Rank for ordering atoms */
+  struct PL_blob_t *    next;		/* next in registered type-chain */
+  atom_t		atom_name;	/* Name as atom */
+} PL_blob_t;
+
 		 /*******************************
 		 *	     CALL-BACK		*
 		 *******************************/
@@ -370,7 +397,8 @@ extern X_API int PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/
 /* begin PL_new_* functions =============================*/
 extern X_API atom_t PL_new_atom(const char *);
-extern X_API atom_t PL_new_atom_wchars(int, const pl_wchar_t *);
+extern X_API atom_t PL_new_atom_nchars(size_t, const char *);
+extern X_API atom_t PL_new_atom_wchars(size_t, const pl_wchar_t *);
 extern X_API char *PL_atom_nchars(atom_t, size_t *);
 extern X_API pl_wchar_t *PL_atom_wchars(atom_t, size_t *);
 extern X_API functor_t PL_new_functor(atom_t, int);
@@ -408,9 +436,11 @@ extern X_API  int PL_unify_int64(term_t, int64_t);
 extern X_API  int PL_unify_integer(term_t, long);
 extern X_API  int PL_unify_list(term_t, term_t, term_t);
 extern X_API  int PL_unify_list_chars(term_t, const char *);
+extern X_API  int PL_unify_list_ncodes(term_t, size_t, const char *);
 extern X_API  int PL_unify_nil(term_t);
 extern X_API  int PL_unify_pointer(term_t, void *);
 extern X_API  int PL_unify_string_chars(term_t, const char *);
+extern X_API  int PL_unify_string_nchars(term_t, size_t, const char *);
 extern X_API  int PL_unify_term(term_t,...);
 extern X_API  int PL_unify_chars(term_t, int, size_t, const char *);
 extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
@@ -440,6 +470,7 @@ extern X_API void PL_discard_foreign_frame(fid_t);
 extern X_API void PL_rewind_foreign_frame(fid_t);
 extern X_API fid_t PL_open_foreign_frame(void);
 extern X_API int PL_raise_exception(term_t);
+extern X_API int PL_throw(term_t);
 extern X_API void PL_clear_exception(void);
 extern X_API void PL_register_atom(atom_t);
 extern X_API void PL_unregister_atom(atom_t);
@@ -467,18 +498,49 @@ extern X_API int PL_thread_at_exit(void (*)(void *), void *, int);
 extern X_API PL_engine_t PL_create_engine(const PL_thread_attr_t *);
 extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
-extern X_API int PL_get_string_chars(term_t, char **, int *);
+extern X_API int PL_get_string_chars(term_t, char **, size_t *);
 extern X_API record_t PL_record(term_t);
 extern X_API int PL_recorded(record_t, term_t);
 extern X_API void PL_erase(record_t);
 extern X_API int PL_action(int,...);
+extern X_API void PL_on_halt(void (*)(int, void *), void *);
 extern X_API void *PL_malloc(int);
 extern X_API void *PL_realloc(void*,int);
 extern X_API void PL_free(void *);
 extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
+extern X_API void  PL_cleanup_fork(void);
+extern X_API int PL_get_signum_ex(term_t sig, int *n);
+extern X_API size_t PL_utf8_strlen(const char *s, size_t len);
+
+extern X_API int PL_is_blob(term_t t, PL_blob_t **type);
+extern X_API void *PL_blob_data(term_t t, size_t *len, PL_blob_t **type);
+
+#define PL_SIGSYNC	0x00010000	/* call handler synchronously */
+#define PL_SIGNOFRAME	0x00020000	/* Do not create a Prolog frame */
+
+extern X_API void (*PL_signal(int sig, void (*func)(int)))(int);
+extern X_API void  PL_fatal_error(const char *msg);
 
 extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);
+
+extern X_API int PL_get_file_name(term_t n, char **name, int flags);
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+NOTE: the functions in this section are   not  documented, as as yet not
+adviced for public usage.  They  are   intended  to  provide an abstract
+interface for the GNU readline  interface   as  defined in pl-rl.c. This
+abstract interface is necessary to make an embeddable system without the
+readline overhead.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+					/* PL_dispatch() modes */
+#define PL_DISPATCH_NOWAIT    0		/* Dispatch only once */
+#define PL_DISPATCH_WAIT      1		/* Dispatch till input available */
+#define PL_DISPATCH_INSTALLED 2		/* dispatch function installed? */
+
+extern X_API int PL_dispatch(int fd, int wait);
+
+typedef int  (*PL_dispatch_hook_t)(int fd);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Output   representation   for   PL_get_chars()     and    friends.   The
