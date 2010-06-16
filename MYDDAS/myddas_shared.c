@@ -681,14 +681,14 @@ void Yap_MYDDAS_delete_all_myddas_structs(void)
 #ifdef DEBUG
   MyddasULInt nr;
   MYDDAS_MEMORY_MALLOC_NR(nr);
-  printf ("Number of times malloc was called in MYDDAS: %lu \n",nr);
+  printf ("Number of times malloc was called in MYDDAS: " UInt_FORMAT " \n",(UInt)nr);
   MYDDAS_MEMORY_FREE_NR(nr);
-  printf ("Number of times free was called in MYDDAS  : %lu \n",nr);
+  printf ("Number of times free was called in MYDDAS  : " UInt_FORMAT " \n",(UInt)nr);
   
   MYDDAS_MEMORY_MALLOC_SIZE(nr);
-  printf ("Total memory allocated in MYDDAS: %lu \n",nr);
+  printf ("Total memory allocated in MYDDAS: " UInt_FORMAT " \n",(UInt)nr);
   MYDDAS_MEMORY_FREE_SIZE(nr);
-  printf ("Total memory freed in MYDDAS    : %lu \n",nr);
+  printf ("Total memory freed in MYDDAS    : " UInt_FORMAT " \n",(UInt)nr);
 #endif
   
 }
