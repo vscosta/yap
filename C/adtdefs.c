@@ -1135,10 +1135,10 @@ Term
 Yap_NStringToList(char *s, size_t len)
 {
   Term t;
-  char *cp = s + len;
+  unsigned char *cp = (unsigned char *)s + len;
 
   t = MkAtomTerm(AtomNil);
-  while (cp > s) {
+  while (cp > (unsigned char *)s) {
     t = MkPairTerm(MkIntegerTerm(*--cp), t);
   }
   return t;
