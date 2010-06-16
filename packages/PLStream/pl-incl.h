@@ -102,6 +102,8 @@ typedef enum
 typedef struct tempfile *	TempFile; 	/* pl-os.c */
 typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
 typedef struct on_halt *	OnHalt;		/* pl-os.c */
+typedef struct extension_cell *	ExtensionCell;  /* pl-ext.c */
+typedef struct initialise_handle * InitialiseHandle;
 
 /* The GD global variable */
 typedef struct {
@@ -150,6 +152,17 @@ typedef struct {
     size_t	count;			/* elements in array */
     atom_t     *for_code[256];		/* code --> one-char-atom */
   } atoms;
+
+  struct
+  { ExtensionCell _ext_head;		/* head of registered extensions */
+    ExtensionCell _ext_tail;		/* tail of this chain */
+
+    InitialiseHandle initialise_head;	/* PL_initialise_hook() */
+    InitialiseHandle initialise_tail;
+    PL_dispatch_hook_t dispatch_events; /* PL_dispatch_hook() */
+
+    int		  _loaded;		/* system extensions are loaded */
+  } foreign;
 
 } gds_t;
 
@@ -498,7 +511,6 @@ typedef double			real;
 
 #endif
 
-#define PL_dispatch(FD, COM)
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
 extern int PL_get_text(term_t l, PL_chars_t *text, int flags);

@@ -608,3 +608,49 @@ warning(const char *fm, ...)
   return TRUE;
 }
 
+#if defined(HAVE_SELECT) && !defined(__WINDOWS__)
+
+#ifdef __WINDOWS__
+#include <winsock2.h>
+#endif
+
+static int
+input_on_fd(int fd)
+{ fd_set rfds;
+  struct timeval tv;
+
+  FD_ZERO(&rfds);
+  FD_SET(fd, &rfds);
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+
+  return select(fd+1, &rfds, NULL, NULL, &tv) != 0;
+}
+
+#else
+#define input_on_fd(fd) 1
+#endif
+
+
+X_API int
+PL_dispatch(int fd, int wait)
+{ if ( wait == PL_DISPATCH_INSTALLED )
+    return GD->foreign.dispatch_events ? TRUE : FALSE;
+
+  if ( GD->foreign.dispatch_events && PL_thread_self() == 1 )
+  { if ( wait == PL_DISPATCH_WAIT )
+    { while( !input_on_fd(fd) )
+      { if ( PL_handle_signals() < 0 )
+	  return FALSE;
+	(*GD->foreign.dispatch_events)(fd);
+      }
+    } else
+    { (*GD->foreign.dispatch_events)(fd);
+      if ( PL_handle_signals() < 0 )
+	  return FALSE;
+    }
+  }
+
+  return TRUE;
+}
+
