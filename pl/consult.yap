@@ -794,24 +794,17 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$find_in_path'(user,_,user_input, _) :- !.
 '$find_in_path'(user_input,_,user_input, _) :- !.
 '$find_in_path'(library(F0),_,_, _) :-
-	'$cat_file_name'(F0,F),
 	% make sure library_directory is open.
 	\+ clause(user:library_directory(_),_),
 	'$system_library_directories'(D),
 	assert(user:library_directory(D)),
 	fail.
 '$find_in_path'(commons(F0),_,_, _) :-
-	'$cat_file_name'(F0,F),
 	% make sure library_directory is open.
 	\+ clause(user:commons_directory(_),_),
 	'$system_commons_directories'(D),
 	assert(user:commons_directory(D)),
 	fail.
-'$find_in_path'(library(File0),Opts,NewFile, Call) :- !,
-	'$dir_separator'(D),
-	'$cat_file_name'(File0,File),
-	atom_codes(A,[D]),
-	'$extend_path_directory'(library, A, File, Opts, NewFile, Call).
 '$find_in_path'(S, Opts, NewFile, Call) :-
 	S =.. [Name,File0], !,
 	'$dir_separator'(D),
