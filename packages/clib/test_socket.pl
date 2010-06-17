@@ -67,7 +67,6 @@ server(Port) :-
 	run_server(Socket).
 
 run_server(Socket) :-
-	writeln(before_main),
 	tcp_open_socket(Socket, In, _Out),
 	add_stream_to_pool(In, accept(Socket)),
 	stream_pool_main_loop.
@@ -185,7 +184,6 @@ receive_loop(Socket, Queue) :-
 	repeat,
 	    udp_receive(Socket, Data, From, [as(atom)]),
 	    thread_send_message(Queue, got(Data, From)),
-	writeln(before_main:Data:done),
 	    Data == quit, !,
 	    tcp_close_socket(Socket).
 
@@ -213,7 +211,6 @@ run_udp :-
 	udp_send(S, 'quit', localhost:Port, []),
 	thread_get_message(got(Q, _)),
 	thread_join(ThreadId, Exit),
-	writeln(done),
 	tcp_close_socket(S),
 	assertion(X=='hello world'),
 	assertion(Q=='quit'),

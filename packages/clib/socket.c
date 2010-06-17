@@ -278,7 +278,6 @@ udp_receive(term_t Socket, term_t Data, term_t From, term_t options)
   if ( (n=nbio_recvfrom(socket, buf, sizeof(buf), flags,
 			(struct sockaddr*)&sockaddr, &alen)) == -1 )
     return nbio_error(errno, TCP_ERRNO);
-
   if ( !PL_unify_chars(Data, as, n, buf) )
     return FALSE;
 
