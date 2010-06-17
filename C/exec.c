@@ -1164,11 +1164,11 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     CP   = saved_cp;
     P    = saved_p;
     ASP  = ENV;
-    Yap_StartSlots();
 #ifdef DEPTH_LIMIT
     DEPTH= ENV[E_DEPTH];
 #endif
     ENV  = (CELL *)(ENV[E_E]);
+    Yap_StartSlots();
     /* we have failed, and usually we would backtrack to this B,
        trouble is, we may also have a delayed cut to do */
     if (B != NULL)
