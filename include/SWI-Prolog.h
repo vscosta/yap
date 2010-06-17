@@ -510,7 +510,10 @@ extern X_API void PL_free(void *);
 extern X_API int  PL_eval_expression_to_int64_ex(term_t t, int64_t *val);
 extern X_API void  PL_cleanup_fork(void);
 extern X_API int PL_get_signum_ex(term_t sig, int *n);
+
 extern X_API size_t PL_utf8_strlen(const char *s, size_t len);
+
+extern X_API int PL_unify_list_codes(term_t l, const char *chars);
 
 extern X_API int PL_is_blob(term_t t, PL_blob_t **type);
 extern X_API void *PL_blob_data(term_t t, size_t *len, PL_blob_t **type);
