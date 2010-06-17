@@ -104,9 +104,15 @@ code_type(?Code, ?Type)
 				  
 char_type(A, Spec) :-
 	var(A), !,
-	'$char_spec_code_from_spec'(Spec, SpecCode),
-	'$code_enum'(Code, SpecCode),
-	'$spec_code_to_char'(SpecCode, Spec),
+	(ground(Spec),
+	 '$handle_special_char_type'(Code, Spec)
+	->
+	 true
+	;
+	 '$char_spec_code_from_spec'(Spec, SpecCode),
+	 '$code_enum'(Code, SpecCode),
+	 '$spec_code_to_char'(SpecCode, Spec)
+	),
 	atom_codes(A,[Code]).
 char_type(A, Spec) :-
 	atom(A), !,
@@ -130,7 +136,13 @@ char_type(Code, Spec) :-
 
 code_type(Code, Spec) :-
 	var(Code), !,
-	'$code_enum'(Code, Spec).
+	(ground(Spec),
+	 '$handle_special_char_type'(Code, Spec)
+	->
+	 true
+	;
+	 '$code_enum'(Code, Spec)
+	).
 code_type(A, Spec) :-
 	atom(A), !,
 	atom_codes(A,[Code]),
@@ -363,12 +375,66 @@ code_type(Code, Spec) :-
 '$type_code_period'(0'.).
 '$type_code_period'(0'?).
 
-'$type_code_quote'(  0).
+'$type_code_quote'(  0). %'
 '$type_code_quote'(0'").
 '$type_code_quote'(0'').
 '$type_code_quote'(0'`).
 
 '$type_code_paren'(0'{, 0'}).
 '$type_code_paren'(0'[, 0']).
-'$type_code_paren'(0'(, 0'().
+'$type_code_paren'(0'(, 0'(). %'
+
+'$handle_special_char_type'(Spec, digit(N)) :-
+	integer(N),
+	N >= 0,
+	N =< 9,
+	Spec is "0"+N.
+'$handle_special_char_type'(Spec, xdigit(N)) :-
+	integer(N),
+	N >= 0,
+	(
+	 N =< 9
+	 ->
+	 Spec is "0"+N
+	;
+	 N =< 15
+	->
+	 Spec is "a"+(N-10)
+	).
+'$handle_special_char_type'(Spec, lower(Upper)) :-
+	Upper >= "A",
+	Upper =< "Z",
+	Spec is Upper + ("a"-"A").
+'$handle_special_char_type'(Spec, to_lower(Upper)) :-
+	( Upper >= "A",
+	  Upper =< "Z"
+	->
+	  Spec is Upper + ("a"-"A")
+	;
+	  Upper >= "a",
+	  Upper =< "z"
+	->
+	  fail
+	;
+	  Spec = Upper
+	).
+'$handle_special_char_type'(Spec, upper(Lower)) :-
+	Lower >= "a",
+	Lower =< "z",
+	Spec is Lower + ("A"-"a").
+'$handle_special_char_type'(Spec, upper(Lower)) :-
+	( Lower >= "a",
+	  Lower =< "z"
+	->
+	  Spec is Lower + ("A"-"a")
+	;
+	  Lower >= "A",
+	  Lower =< "Z"
+	->
+	  fail
+	;
+	  Spec = Lower
+	).
+	  
+
 
