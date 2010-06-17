@@ -39,6 +39,7 @@ scan_library_exports :-
 	scan_exports(rbtrees, library(rbtrees)),
 	scan_exports(readutil, library(readutil)),
 	scan_exports(regexp, library(regexp)),
+	scan_exports('../LGPL/shlib', library(shlib)),
 	scan_exports(system, library(system)),
 	scan_exports(terms, library(terms)),
 	scan_exports(timeout, library(timeout)),

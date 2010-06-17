@@ -345,6 +345,14 @@ index(read_file_to_terms,2,readutil,library(readutil)).
 index(read_file_to_terms,3,readutil,library(readutil)).
 index(regexp,3,regexp,library(regexp)).
 index(regexp,4,regexp,library(regexp)).
+index(load_foreign_library,1,shlib,library(shlib)).
+index(load_foreign_library,2,shlib,library(shlib)).
+index(unload_foreign_library,1,shlib,library(shlib)).
+index(unload_foreign_library,2,shlib,library(shlib)).
+index(current_foreign_library,2,shlib,library(shlib)).
+index(reload_foreign_libraries,0,shlib,library(shlib)).
+index(use_foreign_library,1,shlib,library(shlib)).
+index(use_foreign_library,2,shlib,library(shlib)).
 index(datime,1,operating_system_support,library(system)).
 index(delete_file,1,operating_system_support,library(system)).
 index(delete_file,2,operating_system_support,library(system)).
