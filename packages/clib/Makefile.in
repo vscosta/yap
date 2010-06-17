@@ -100,7 +100,8 @@ LIBPL=		@PLTARGETS@ $(srcdir)/streaminfo.pl $(srcdir)/process.pl \
 		$(srcdir)/uri.pl
 TARGETS=	@TARGETS@ readutil.@SO@ streaminfo.@SO@ process.@SO@ \
 		sha4pl.@SO@ uri.@SO@ memfile.@SO@ mime.@SO@ time.@SO@ \
-		files.@SO@ rlimit.@SO@ random.@SO@ cgi.@SO@ socket.@SO@
+		files.@SO@ rlimit.@SO@ random.@SO@ cgi.@SO@ socket.@SO@ \
+		crypt.@SO@
 
 UNXOBJ=		error.o unix.o
 SOCKOBJ=	error.o socket.o nonblockio.o
