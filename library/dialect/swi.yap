@@ -17,9 +17,6 @@
 		   '$set_source_module'/2,
 		   '$declare_module'/5,
 		   '$set_predicate_attribute'/3,
-		   load_foreign_library/1,
-		   load_foreign_library/2,
-		   use_foreign_library/1,
 		   time_file/2,
 		   flag/3,
 		   current_flag/1
@@ -241,24 +238,6 @@ user:file_search_path(foreign, swi(ArchLib)) :-
 user:file_search_path(foreign, swi(lib)).
 
 
-%
-% maybe a good idea to eventually support this in YAP.
-% but for now just ignore it.
-%
-load_foreign_library(P,Command) :-
-	absolute_file_name(P,[file_type(executable),solutions(first),file_errors(fail)],Lib),
-	load_foreign_files([Lib],[],Command).
-
-load_foreign_library(P) :-
-	prolog:load_foreign_library(P,install).
-
-:- dynamic loaded/1.
-use_foreign_library(A) :-
-	loaded(foreign_library(A)), !.
-use_foreign_library(A) :-
-	load_foreign_library(A),
-	assert(loaded(foreign_library(A))).
-
 concat_atom([A|List], Separator, New) :- var(List), !,
 	atom_codes(Separator,[C]),
 	atom_codes(New, NewChars),
@@ -332,6 +311,16 @@ compile_aux_clauses([Cl|Cls]) :-
 '$set_source_module'(Source0, SourceF) :-
 	current_module(Source0, SourceF).
 
+/** '$declare_module'(+Module, +Super, +File, +Line, +Redefine) is det.
+
+Start a new (source-)module
+
+@param	Module is the name of the module to declare
+@param	File is the canonical name of the file from which the module
+	is loaded
+@param  Line is the line-number of the :- module/2 directive.
+@param	Redefine If =true=, allow associating the module to a new file
+*/
 '$declare_module'(Name, Context, _, _, _) :-
 	add_import_module(Name, Context, start).
 

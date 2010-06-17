@@ -38,7 +38,6 @@ index(term_hash,2,system,library(dialect/swi)).
 index(unifiable,3,system,library(dialect/swi)).
 index(cyclic_term,1,system,library(dialect/swi)).
 index(variant,2,system,library(dialect/swi)).
-index(term_to_atom,2,system,library(dialect/swi)).
 index(concat_atom,2,system,library(dialect/swi)).
 index(concat_atom,3,system,library(dialect/swi)).
 index(setenv,2,system,library(dialect/swi)).
@@ -53,8 +52,6 @@ index(convert_time,2,system,library(dialect/swi)).
 index('$set_source_module',2,system,library(dialect/swi)).
 index('$declare_module',5,system,library(dialect/swi)).
 index('$set_predicate_attribute',3,system,library(dialect/swi)).
-index(load_foreign_library,1,system,library(dialect/swi)).
-index(load_foreign_library,2,system,library(dialect/swi)).
 index(time_file,2,system,library(dialect/swi)).
 index(flag,3,system,library(dialect/swi)).
 index(current_flag,1,system,library(dialect/swi)).
