@@ -328,6 +328,7 @@ Int	STD_PROTO(Yap_walltime,(void));
 int	STD_PROTO(Yap_dir_separator,(int));
 int	STD_PROTO(Yap_volume_header,(char *));
 void	STD_PROTO(Yap_InitSysPath,(void));
+int	STD_PROTO(Yap_signal_index,(const char *));
 #ifdef MAC
 void	STD_PROTO(Yap_SetTextFile,(char *));
 #endif

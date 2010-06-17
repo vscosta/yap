@@ -1033,6 +1033,139 @@ p_srandom (void)
 
 STATIC_PROTO (void InitSignals, (void));
 
+#define PLSIG_PREPARED 0x01		/* signal is prepared */
+#define PLSIG_THROW    0x02		/* throw signal(num, name) */
+#define PLSIG_SYNC     0x04		/* call synchronously */
+#define PLSIG_NOFRAME  0x08		/* Do not create a Prolog frame */
+
+#define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
+
+#define SIG_EXCEPTION	  (SIG_PROLOG_OFFSET+0)
+#ifdef O_ATOMGC
+#define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
+#endif
+#define SIG_GC		  (SIG_PROLOG_OFFSET+2)
+#ifdef O_PLMT
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
+#endif
+#define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
+#define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
+
+static struct signame
+{ int 	      sig;
+  const char *name;
+  int	      flags;
+} signames[] =
+{
+#ifdef SIGHUP
+  { SIGHUP,	"hup",    0},
+#endif
+  { SIGINT,	"int",    0},
+#ifdef SIGQUIT
+  { SIGQUIT,	"quit",   0},
+#endif
+  { SIGILL,	"ill",    0},
+  { SIGABRT,	"abrt",   0},
+  { SIGFPE,	"fpe",    PLSIG_THROW},
+#ifdef SIGKILL
+  { SIGKILL,	"kill",   0},
+#endif
+  { SIGSEGV,	"segv",   0},
+#ifdef SIGPIPE
+  { SIGPIPE,	"pipe",   0},
+#endif
+#ifdef SIGALRM
+  { SIGALRM,	"alrm",   PLSIG_THROW},
+#endif
+  { SIGTERM,	"term",   0},
+#ifdef SIGUSR1
+  { SIGUSR1,	"usr1",   0},
+#endif
+#ifdef SIGUSR2
+  { SIGUSR2,	"usr2",   0},
+#endif
+#ifdef SIGCHLD
+  { SIGCHLD,	"chld",   0},
+#endif
+#ifdef SIGCONT
+  { SIGCONT,	"cont",   0},
+#endif
+#ifdef SIGSTOP
+  { SIGSTOP,	"stop",   0},
+#endif
+#ifdef SIGTSTP
+  { SIGTSTP,	"tstp",   0},
+#endif
+#ifdef SIGTTIN
+  { SIGTTIN,	"ttin",   0},
+#endif
+#ifdef SIGTTOU
+  { SIGTTOU,	"ttou",   0},
+#endif
+#ifdef SIGTRAP
+  { SIGTRAP,	"trap",   0},
+#endif
+#ifdef SIGBUS
+  { SIGBUS,	"bus",    0},
+#endif
+#ifdef SIGSTKFLT
+  { SIGSTKFLT,	"stkflt", 0},
+#endif
+#ifdef SIGURG
+  { SIGURG,	"urg",    0},
+#endif
+#ifdef SIGIO
+  { SIGIO,	"io",     0},
+#endif
+#ifdef SIGPOLL
+  { SIGPOLL,	"poll",   0},
+#endif
+#ifdef SIGXCPU
+  { SIGXCPU,	"xcpu",   PLSIG_THROW},
+#endif
+#ifdef SIGXFSZ
+  { SIGXFSZ,	"xfsz",   PLSIG_THROW},
+#endif
+#ifdef SIGVTALRM
+  { SIGVTALRM,	"vtalrm", PLSIG_THROW},
+#endif
+#ifdef SIGPROF
+  { SIGPROF,	"prof",   0},
+#endif
+#ifdef SIGPWR
+  { SIGPWR,	"pwr",    0},
+#endif
+  { SIG_EXCEPTION,     "prolog:exception",     0 },
+#ifdef SIG_ATOM_GC
+  { SIG_ATOM_GC,   "prolog:atom_gc",       0 },
+#endif
+  { SIG_GC,	       "prolog:gc",	       0 },
+#ifdef SIG_THREAD_SIGNAL
+  { SIG_THREAD_SIGNAL, "prolog:thread_signal", 0 },
+#endif
+
+  { -1,		NULL,     0}
+};
+
+/* SWI emulation */
+int
+Yap_signal_index(const char *name)
+{ struct signame *sn = signames;
+  char tmp[12];
+
+  if ( strncmp(name, "SIG", 3) == 0 && strlen(name) < 12 ) 
+    { char *p = (char *)name+3, *q = tmp;
+      while ((*q++ = tolower(*p++))) {};
+      name = tmp;
+    }
+
+  for( ; sn->name; sn++ )
+  { if ( !strcmp(sn->name, name) )
+      return sn->sig;
+  }
+
+  return -1;
+}
 
 #if (defined(__svr4__) || defined(__SVR4))
 

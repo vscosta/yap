@@ -203,12 +203,36 @@ _PL_unify_atomic(term_t t, PL_atomic_t a)
 
 word lookupAtom(const char *s, size_t len)
 {
-  return (word)YAP_LookupAtom(s);
+  if (len >= strlen(s)) {
+    return (word)YAP_LookupAtom(s);
+  } else {
+    char * buf = PL_malloc(len+1);
+    word out;
+
+    if (!buf)
+      return 0;
+    strncpy(buf,s,len);
+    out = (word)YAP_LookupAtom(buf);
+    PL_free(buf);
+    return out;
+  }
 }
 
 atom_t lookupUCSAtom(const pl_wchar_t *s, size_t len)
 {
-  return (atom_t)YAP_LookupWideAtom(s);
+  if (len >= wcslen(s)) {
+    return (atom_t)YAP_LookupWideAtom(s);
+  } else {
+    pl_wchar_t * buf = PL_malloc((len+1)*sizeof(pl_wchar_t));
+    word out;
+
+    if (!buf)
+      return 0;
+    wcsncpy(buf,s,len);
+    out = (word)YAP_LookupWideAtom(buf);
+    PL_free(buf);
+    return out;
+  }
 }
 
 
