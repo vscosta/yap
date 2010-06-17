@@ -391,7 +391,7 @@ expand_goal(G, G).
 	call(Dialect:index(Name,Arity,ExportingModI,_)), !,
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
 '$get_undefined_pred'(G, _ImportingMod, G0, ExportingMod) :-
-	autoloader:autoload, !,
+	autoloader:autoload,
 	autoloader:find_predicate(G,ExportingModI), !,
 	'$continue_imported'(ExportingMod, ExportingModI, G0, G), !.
 '$get_undefined_pred'(G, ImportingMod, G0, ExportingMod) :-

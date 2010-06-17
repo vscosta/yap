@@ -68,7 +68,6 @@ otherwise.
 	 'modules.yap',
 	 % must follow grammar
 	 'eval.yap',
-	 'lists.yap',
 	 'signals.yap',
 	 'profile.yap',
 	 'callcount.yap',
