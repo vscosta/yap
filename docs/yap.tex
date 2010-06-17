@@ -3437,6 +3437,29 @@ the second unifies with the atom obtained by concatenating all the
 atomic terms in the first list. The first argument thus may contain
 atoms or numbers.
 
+@item atomic_list_concat(?@var{As},+@var{Separator},?@var{A})
+@findex atomic_list_concat/3
+@snindex atomic_list_concat/3
+@cnindex atomic_list_concat/3
+Creates an atom just like @code{atomic_list_concat/2}, but inserts
+@var{Separator} between each pair of atoms. For example:
+
+@example
+?- atomic_list_concat([gnu, gnat], ', ', A).
+
+A = 'gnu, gnat'
+@end example
+
+YAP emulates the SWI-Prolog version of this predicate that can also be
+used to split atoms by instantiating @var{Separator} and @var{Atom} as
+shown below.
+
+@example
+?- atomic_list_concat(L, -, 'gnu-gnat').
+
+L = [gnu, gnat]
+@end example
+
 @item atom_length(+@var{A},?@var{I}) [ISO]
 @findex atom_length/2
 @snindex atom_length/2
