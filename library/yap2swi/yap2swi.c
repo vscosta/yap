@@ -1651,6 +1651,11 @@ X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
   return Yap_unify(Yap_GetFromSlot(t), chterm);
 }
 
+X_API int
+PL_unify_list_codes(term_t l, const char *chars)
+{ return PL_unify_list_ncodes(l, strlen(chars), chars);
+}
+
 /* SWI: int PL_unify_nil(term_t ?l)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_nil(term_t l)
