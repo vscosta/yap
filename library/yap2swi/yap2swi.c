@@ -265,6 +265,15 @@ X_API char* PL_atom_chars(atom_t a)	 /* SAM check type */
   return RepAtom(SWIAtomToAtom(a))->StrOfAE;
 }
 
+/* SWI: char* PL_atom_chars(atom_t atom)
+   YAP: char* AtomName(Atom) */
+X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
+{
+  char *s = RepAtom(SWIAtomToAtom(a))->StrOfAE;
+  *len = strlen(s);
+  return s;
+}
+
 X_API int
 PL_chars_to_term(const char *s, term_t term) { 
   YAP_Term t,error;

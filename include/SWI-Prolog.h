@@ -362,6 +362,7 @@ typedef struct PL_blob_t
 
 extern X_API PL_agc_hook_t PL_agc_hook(PL_agc_hook_t);
 extern X_API char* PL_atom_chars(atom_t);
+extern X_API char* PL_atom_nchars(atom_t, size_t *);
 extern X_API term_t PL_copy_term_ref(term_t);
 extern X_API term_t PL_new_term_ref(void);
 extern X_API term_t PL_new_term_refs(int);
