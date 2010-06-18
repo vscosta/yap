@@ -38,6 +38,7 @@ void *
 Yap_LoadForeignFile(char *file, int flags)
 {
   int dlflag;
+  void *out;
 
   if (flags &  EAGER_LOADING)
     dlflag = RTLD_NOW;
@@ -48,15 +49,21 @@ Yap_LoadForeignFile(char *file, int flags)
   else 
     dlflag |= RTLD_LOCAL;
   
-  return (void *)dlopen(file,dlflag);
+  out = (void *)dlopen(file,dlflag);
+  if (!out) {
+    Yap_Error(SYSTEM_ERROR, ARG1, "dlopen error %s\n", dlerror());
+  }
+  return out;
 }
 
 int
 Yap_CallForeignFile(void *handle, char *f)
 {
   YapInitProc proc = (YapInitProc) dlsym(handle, f);
-  if (!proc)
+  if (!proc) {
+    Yap_Error(SYSTEM_ERROR, ARG1, "dlsym error %s\n", dlerror());
     return FALSE;
+  }
   (*proc) ();
   return TRUE;
 }
@@ -64,7 +71,11 @@ Yap_CallForeignFile(void *handle, char *f)
 int
 Yap_CloseForeignFile(void *handle)
 {
-  return dlclose(handle);
+  if ( dlclose(handle) < 0) {
+    Yap_Error(SYSTEM_ERROR, ARG1, "dlclose error %s\n", dlerror());
+    return -1;
+  }
+  return 0;
 }
 
 
