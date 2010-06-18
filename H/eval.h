@@ -305,6 +305,9 @@ Term  STD_PROTO(Yap_gmp_popcount,(Term));
 
 char *  STD_PROTO(Yap_gmp_to_string,(Term, char *, size_t, int));
 size_t  STD_PROTO(Yap_gmp_to_size,(Term, int));
+
+int   STD_PROTO(Yap_term_to_existing_big,(Term, MP_INT *));
+int   STD_PROTO(Yap_term_to_existing_rat,(Term, MP_RAT *));
 #endif
 
 inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);

@@ -757,6 +757,40 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 }
 
 
+#if USE_GMP
+
+		 /*******************************
+		 *	       GMP		*
+		 *******************************/
+
+X_API int PL_get_mpz(term_t t, mpz_t mpz)
+{
+  Term t0 = Yap_GetFromSlot(t);
+
+  return Yap_term_to_existing_big(t0, mpz);
+}
+
+X_API int PL_unify_mpz(term_t t, mpz_t mpz)
+{
+  Term iterm = Yap_MkBigIntTerm(mpz);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
+}
+
+X_API int PL_get_mpq(term_t t, mpq_t mpz)
+{
+  Term t0 = Yap_GetFromSlot(t);
+
+  return Yap_term_to_existing_rat(t0, mpz);
+}
+
+X_API int PL_unify_mpq(term_t t, mpq_t mpq)
+{
+  Term iterm = Yap_MkBigRatTerm(mpq);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
+}
+
+#endif
+
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
@@ -1083,6 +1117,32 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
 {
   Atom at;
   while (!(at = Yap_LookupAtom((char *)s))) {
+    if (!Yap_growheap(FALSE, 0L, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      return FALSE;
+    }
+  }
+  Yap_PutInSlot(t,MkAtomTerm(at));
+  return TRUE;
+}
+
+X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
+{
+  Atom at;
+  char *buf;
+
+  if (strlen(s) > len) {
+    while (!(buf = (char *)Yap_AllocCodeSpace(len+1))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return FALSE;
+      }
+    }
+    strncpy(buf, s, len);
+  } else {
+    buf = (char *)s;
+  }
+  while (!(at = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;

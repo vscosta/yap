@@ -1594,6 +1594,47 @@ Yap_gmp_to_size(Term t, int base)
   return 1;
 }
 
+int
+Yap_term_to_existing_big(Term t, MP_INT *b)
+{
+  if  (IsVarTerm(t))
+    return FALSE;
+  if (IsIntegerTerm(t)) {
+    mpz_set_si(b,IntegerOfTerm(t));
+    return TRUE;
+  }
+  if  (IsBigIntTerm(t)) {
+    if (RepAppl(t)[1] != BIG_INT)
+      return FALSE;
+    mpz_set(b,Yap_BigIntOfTerm(t));
+    return TRUE;
+  }
+  return FALSE;
+}
+
+int
+Yap_term_to_existing_rat(Term t, MP_RAT *b)
+{
+  if  (IsVarTerm(t))
+    return FALSE;
+  if (IsIntegerTerm(t)) {
+    mpq_set_si(b, IntegerOfTerm(t), 1);
+    return TRUE;
+  }
+  if  (IsBigIntTerm(t)) {
+    CELL flag = RepAppl(t)[1];
+    if (flag == BIG_INT) {
+      mpq_set_z(b, Yap_BigIntOfTerm(t));
+      return TRUE;
+    }
+    if (flag == BIG_RATIONAL) {
+      mpq_set(b, Yap_BigRatOfTerm(t));
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 #endif
 
 

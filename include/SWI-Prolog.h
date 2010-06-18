@@ -399,6 +399,7 @@ extern X_API int PL_cons_functor_v(term_t, functor_t,term_t);
 extern X_API int PL_cons_list(term_t, term_t, term_t);
 extern X_API int PL_put_atom(term_t, atom_t);
 extern X_API int PL_put_atom_chars(term_t, const char *);
+extern X_API int PL_put_atom_nchars(term_t, size_t ,const char *);
 extern X_API int PL_put_float(term_t, double);
 extern X_API int PL_put_functor(term_t, functor_t t);
 extern X_API int PL_put_int64(term_t, int64_t);
@@ -559,6 +560,13 @@ PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 
+#endif
+
+#if USE_GMP
+PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);
+PL_EXPORT(int)		PL_unify_mpz(term_t t, mpz_t mpz);
+PL_EXPORT(int)		PL_get_mpq(term_t t, mpq_t mpz);
+PL_EXPORT(int)		PL_unify_mpq(term_t t, mpq_t mpz);
 #endif
 
 extern X_API  const char *PL_cwd(void);
