@@ -33,6 +33,8 @@ LN_S=@LN_S@
 CC=@CC@
 CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822 @SHLIB_CFLAGS@
 MKINDEX=true
+NETLIBS=@CLIB_NETLIBS@
+CRYPTLIBS=@CLIB_CRYPTLIBS@
 
 LD=@DO_SECOND_LD@	@SHLIB_CXX_LD@
 LDFLAGS=@EXTRA_LIBS_FOR_SWIDLLS@
@@ -98,11 +100,8 @@ LIBPL=		@PLTARGETS@ $(srcdir)/streaminfo.pl $(srcdir)/process.pl \
 		$(srcdir)/prolog_server.pl $(srcdir)/sha.pl \
 		$(srcdir)/socket.pl \
 		$(srcdir)/uri.pl
-TARGETS=	@TARGETS@ readutil.@SO@ streaminfo.@SO@ process.@SO@ \
-		sha4pl.@SO@ uri.@SO@ memfile.@SO@ mime.@SO@ time.@SO@ \
-		files.@SO@ rlimit.@SO@ random.@SO@ cgi.@SO@ socket.@SO@ \
-		crypt.@SO@
-
+TARGETS=	@CLIB_TARGETS@ readutil.@SO@ streaminfo.@SO@ process.@SO@ \
+		sha4pl.@SO@ uri.@SO@
 UNXOBJ=		error.o unix.o
 SOCKOBJ=	error.o socket.o nonblockio.o
 CGIOBJ=		error.o form.o cgi.o

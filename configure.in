@@ -594,6 +594,7 @@ else
 	have_nsl=yes
 	,
 	have_nsl=no)
+  AC_CHECK_LIB(crypt,main)
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -969,10 +970,8 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS="-fno-common"
 	SO="dylib"
         DO_SECOND_LD=""
-# 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
-# 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
-	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
-        SHLIB_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
+	SHLIB_LD="$CC  -dynamiclib"
+        SHLIB_CXX_LD="$CXX  -dynamiclib"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
 	;;
@@ -1059,14 +1058,15 @@ then
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
     PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
     INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 #    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
     ;;
   *)
-    LDFLAGS="$LDFLAGS -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+    LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
     DYNYAPLIB=libYap."$SO"
     YAPLIB="$DYNYAPLIB"
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
     PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
     INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
@@ -1076,7 +1076,7 @@ else
   DYNYAPLIB=libYap.notused
 fi
 
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir)/packages/PLStream -lplstream"
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLStream -lplstream"
 
 if test "$coroutining" = "yes"
   then
@@ -1205,11 +1205,12 @@ CC=${OLD_CC}
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(arpa/inet.h ctype.h direct.h dirent.h dlfcn.h)
-AC_CHECK_HEADERS(errno.h fcntl.h fenv.h)
+AC_CHECK_HEADERS(arpa/inet.h alloca.h crypt.h)
+AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
+AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
 AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
 AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h mpi.h)
-AC_CHECK_HEADERS(netdb.h netinet/in.h pwd.h regex.h)
+AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
 AC_CHECK_HEADERS(sys/mman.h sys/ndir.h sys/param.h)
@@ -1217,7 +1218,7 @@ AC_CHECK_HEADERS(sys/resource.h sys/select.h)
 AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
 AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
-AC_CHECK_HEADERS(time.h unistd.h wctype.h winsock.h winsock2.h)
+AC_CHECK_HEADERS(time.h unistd.h utime.h wctype.h winsock.h winsock2.h)
 AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
@@ -1513,13 +1514,13 @@ fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(access)
-AC_CHECK_FUNCS(acosh asinh atanh chdir ctime dlopen dup2)
+AC_CHECK_FUNCS(_NSGetEnviron access acosh)
+AC_CHECK_FUNCS(alloca asinh atanh chdir ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
 AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
-AC_CHECK_FUNCS(gethostbyname gethostid gethostname)
+AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)
 AC_CHECK_FUNCS(gethrtime getpagesize)
-AC_CHECK_FUNCS(getpwnam getrusage gettimeofday getwd)
+AC_CHECK_FUNCS(getpwnam getrlimit getrusage gettimeofday getwd)
 AC_CHECK_FUNCS(isatty isnan isinf kill labs link lgamma)
 AC_CHECK_FUNCS(localtime lstat mallinfo)
 AC_CHECK_FUNCS(mbsnrtowcs)
@@ -1527,11 +1528,11 @@ AC_CHECK_FUNCS(memcpy memmove mkstemp mktemp)
 AC_CHECK_FUNCS(nanosleep mktime opendir)
 AC_CHECK_FUNCS(putenv rand random readlink regexec)
 AC_CHECK_FUNCS(rename rint rl_set_prompt sbrk select)
-AC_CHECK_FUNCS(setbuf setitimer setlinebuf sigaction)
+AC_CHECK_FUNCS(setbuf setitimer setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket stat)
 AC_CHECK_FUNCS(strchr strerror stricmp strncat strncpy strtod)
-AC_CHECK_FUNCS(time times tmpnam usleep vsnprintf)
+AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf)
 
 AC_CHECK_FUNC(regexec, [NO_BUILTIN_REGEXP="#"], [NO_BUILTIN_REGEXP=""])
 
@@ -1653,6 +1654,69 @@ AC_SUBST(IN_SWI)
 AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
+
+AC_SUBST(CLIB_TARGETS)
+AC_SUBST(CLIB_PLTARGETS)
+AC_SUBST(CLIB_NETLIBS)
+AC_SUBST(CLIB_CRYPTLIBS)
+
+CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+
+AC_CHECK_FUNC(socket, [], [
+             AC_CHECK_LIB(socket, socket,
+                      [CLIB_NETLIBS="$CLIB_NETLIBS -lsocket"]
+                      AC_DEFINE(HAVE_LIBSOCKET, 1,
+                      "Define if you have the socket library (-lsocket)."))])
+AC_CHECK_FUNC(gethostent, [], [
+             AC_CHECK_LIB(nsl, gethostent,
+                      [CLIB_NETLIBS="$CLIB_NETLIBS -lnsl"]
+                      AC_DEFINE(HAVE_LIBNSL, 1,
+                      "Define if you have the nsl library (-lnsl)."))])
+
+oldlibs="$LIBS"
+AC_CHECK_LIB(crypt, crypt)
+CRYPTLIBS="$LIBS"
+AC_CHECK_FUNCS(crypt)
+LIBS="$oldlibs"
+
+AC_CHECK_TYPES(socklen_t, [], [],
+[
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+AC_CHECK_TYPES(ssize_t, [], [],
+[
+#include <sys/types.h>
+#include <sys/socket.h>
+])
+
+AC_MSG_CHECKING(_XOPEN_SOURCE)
+AC_TRY_COMPILE(
+[
+#define _XOPEN_SOURCE
+#include <unistd.h>
+],
+[
+], AC_DEFINE(DEFINE_XOPEN_SOURCE, 1,
+	     "Define if _XOPEN_SOURCE is needed")
+   AC_MSG_RESULT(yes),
+   AC_MSG_RESULT(no))
+
+if test "$with_time" = yes; then
+  if test "$ac_cv_func_setitimer" = "yes"; then
+    TARGETS="$TARGETS time.$SO"
+  else
+    echo "WARNING: no setitimer(); dropping time.pl from targets"
+  fi
+fi
+
+if test "$ac_cv_func_getrlimit" = "yes"; then
+  TARGETS="$TARGETS rlimit.$SO"
+else
+  "WARNING: no getrlimit(); dropping rlimit.pl from targets"
+fi
+
+
 
 mkdir -p  library/matrix
 mkdir -p  library/matlab

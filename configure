@@ -593,6 +593,10 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+CLIB_CRYPTLIBS
+CLIB_NETLIBS
+CLIB_PLTARGETS
+CLIB_TARGETS
 CHR_TARGETS
 PLTARGETS
 TARGETS
@@ -2103,6 +2107,60 @@ rm -f conftest.val
   as_fn_set_status $ac_retval
 
 } # ac_fn_c_compute_int
+
+# ac_fn_c_check_type LINENO TYPE VAR INCLUDES
+# -------------------------------------------
+# Tests whether TYPE exists after having included INCLUDES, setting cache
+# variable VAR accordingly.
+ac_fn_c_check_type ()
+{
+  as_lineno=${as_lineno-"$1"} as_lineno_stack=as_lineno_stack=$as_lineno_stack
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $2" >&5
+$as_echo_n "checking for $2... " >&6; }
+if { as_var=$3; eval "test \"\${$as_var+set}\" = set"; }; then :
+  $as_echo_n "(cached) " >&6
+else
+  eval "$3=no"
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof ($2))
+	 return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+$4
+int
+main ()
+{
+if (sizeof (($2)))
+	    return 0;
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+else
+  eval "$3=yes"
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+eval ac_res=\$$3
+	       { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+  eval $as_lineno_stack; test "x$as_lineno_stack" = x && { as_lineno=; unset as_lineno;}
+
+} # ac_fn_c_check_type
 cat >config.log <<_ACEOF
 This file contains any messages produced by compilers while
 running configure, to aid debugging if configure makes a mistake.
@@ -5304,6 +5362,45 @@ else
   have_nsl=no
 fi
 
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lcrypt" >&5
+$as_echo_n "checking for main in -lcrypt... " >&6; }
+if test "${ac_cv_lib_crypt_main+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lcrypt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_crypt_main=yes
+else
+  ac_cv_lib_crypt_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypt_main" >&5
+$as_echo "$ac_cv_lib_crypt_main" >&6; }
+if test "x$ac_cv_lib_crypt_main" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBCRYPT 1
+_ACEOF
+
+  LIBS="-lcrypt $LIBS"
+
+fi
+
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -6829,10 +6926,8 @@ fi
 	SHLIB_CFLAGS="-fno-common"
 	SO="dylib"
         DO_SECOND_LD=""
-# 	SHLIB_LD="$CC -bundle -bundle_loader \$(abs_top_builddir)/yap -L\$(abs_top_builddir) -lYap -undefined dynamic_lookup -Wl,-x -dead-strip -dead_strip_dylibs"
-# 	LDFLAGS="-Wl,-x -dead_strip -dead_strip_dylibs $LDFLAGS"
-	SHLIB_LD="$CC -bundle -flat_namespace -undefined suppress"
-        SHLIB_CXX_LD="$CXX -bundle -flat_namespace -undefined suppress"
+	SHLIB_LD="$CC  -dynamiclib"
+        SHLIB_CXX_LD="$CXX  -dynamiclib"
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
 	;;
@@ -6958,14 +7053,15 @@ then
     YAPLIB="$DYNYAPLIB"
     DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
     PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
     INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 #    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
     ;;
   *)
-    LDFLAGS="$LDFLAGS -L \$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+    LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
     DYNYAPLIB=libYap."$SO"
     YAPLIB="$DYNYAPLIB"
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
     PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
     INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
     ;;
@@ -6975,7 +7071,7 @@ else
   DYNYAPLIB=libYap.notused
 fi
 
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L \$(abs_top_builddir)/packages/PLStream -lplstream"
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLStream -lplstream"
 
 if test "$coroutining" = "yes"
   then
@@ -7519,7 +7615,7 @@ $as_echo "#define HAVE_SYS_WAIT_H 1" >>confdefs.h
 
 fi
 
-for ac_header in arpa/inet.h ctype.h direct.h dirent.h dlfcn.h
+for ac_header in arpa/inet.h alloca.h crypt.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7533,7 +7629,21 @@ fi
 
 done
 
-for ac_header in errno.h fcntl.h fenv.h
+for ac_header in ctype.h direct.h dirent.h dlfcn.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+eval as_val=\$$as_ac_Header
+   if test "x$as_val" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in errno.h execinfo.h fcntl.h fenv.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7575,7 +7685,7 @@ fi
 
 done
 
-for ac_header in netdb.h netinet/in.h pwd.h regex.h
+for ac_header in netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -7687,7 +7797,7 @@ fi
 
 done
 
-for ac_header in time.h unistd.h wctype.h winsock.h winsock2.h
+for ac_header in time.h unistd.h utime.h wctype.h winsock.h winsock2.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -8598,18 +8708,20 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
-for ac_func in access
+for ac_func in _NSGetEnviron access acosh
 do :
-  ac_fn_c_check_func "$LINENO" "access" "ac_cv_func_access"
-if test "x$ac_cv_func_access" = x""yes; then :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+eval as_val=\$$as_ac_var
+   if test "x$as_val" = x""yes; then :
   cat >>confdefs.h <<_ACEOF
-#define HAVE_ACCESS 1
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
 _ACEOF
 
 fi
 done
 
-for ac_func in acosh asinh atanh chdir ctime dlopen dup2
+for ac_func in alloca asinh atanh chdir ctime dlopen dup2
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8648,7 +8760,7 @@ _ACEOF
 fi
 done
 
-for ac_func in gethostbyname gethostid gethostname
+for ac_func in gethostbyname gethostent gethostid gethostname
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8674,7 +8786,7 @@ _ACEOF
 fi
 done
 
-for ac_func in getpwnam getrusage gettimeofday getwd
+for ac_func in getpwnam getrlimit getrusage gettimeofday getwd
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8776,7 +8888,7 @@ _ACEOF
 fi
 done
 
-for ac_func in setbuf setitimer setlinebuf sigaction
+for ac_func in setbuf setitimer setsid setlinebuf sigaction
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8828,7 +8940,7 @@ _ACEOF
 fi
 done
 
-for ac_func in time times tmpnam usleep vsnprintf
+for ac_func in time times tmpnam usleep utime vsnprintf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -9036,6 +9148,248 @@ CHR_TARGETS=chr_support."$SO"
 
 
 
+
+
+
+
+
+
+
+
+CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+
+ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
+if test "x$ac_cv_func_socket" = x""yes; then :
+
+else
+
+             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for socket in -lsocket" >&5
+$as_echo_n "checking for socket in -lsocket... " >&6; }
+if test "${ac_cv_lib_socket_socket+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lsocket  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char socket ();
+int
+main ()
+{
+return socket ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_socket_socket=yes
+else
+  ac_cv_lib_socket_socket=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_socket_socket" >&5
+$as_echo "$ac_cv_lib_socket_socket" >&6; }
+if test "x$ac_cv_lib_socket_socket" = x""yes; then :
+  CLIB_NETLIBS="$CLIB_NETLIBS -lsocket"
+
+$as_echo "#define HAVE_LIBSOCKET 1" >>confdefs.h
+
+fi
+
+fi
+
+ac_fn_c_check_func "$LINENO" "gethostent" "ac_cv_func_gethostent"
+if test "x$ac_cv_func_gethostent" = x""yes; then :
+
+else
+
+             { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gethostent in -lnsl" >&5
+$as_echo_n "checking for gethostent in -lnsl... " >&6; }
+if test "${ac_cv_lib_nsl_gethostent+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lnsl  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char gethostent ();
+int
+main ()
+{
+return gethostent ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_nsl_gethostent=yes
+else
+  ac_cv_lib_nsl_gethostent=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_nsl_gethostent" >&5
+$as_echo "$ac_cv_lib_nsl_gethostent" >&6; }
+if test "x$ac_cv_lib_nsl_gethostent" = x""yes; then :
+  CLIB_NETLIBS="$CLIB_NETLIBS -lnsl"
+
+$as_echo "#define HAVE_LIBNSL 1" >>confdefs.h
+
+fi
+
+fi
+
+
+oldlibs="$LIBS"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for crypt in -lcrypt" >&5
+$as_echo_n "checking for crypt in -lcrypt... " >&6; }
+if test "${ac_cv_lib_crypt_crypt+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lcrypt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char crypt ();
+int
+main ()
+{
+return crypt ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_crypt_crypt=yes
+else
+  ac_cv_lib_crypt_crypt=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypt_crypt" >&5
+$as_echo "$ac_cv_lib_crypt_crypt" >&6; }
+if test "x$ac_cv_lib_crypt_crypt" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBCRYPT 1
+_ACEOF
+
+  LIBS="-lcrypt $LIBS"
+
+fi
+
+CRYPTLIBS="$LIBS"
+for ac_func in crypt
+do :
+  ac_fn_c_check_func "$LINENO" "crypt" "ac_cv_func_crypt"
+if test "x$ac_cv_func_crypt" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_CRYPT 1
+_ACEOF
+
+fi
+done
+
+LIBS="$oldlibs"
+
+ac_fn_c_check_type "$LINENO" "socklen_t" "ac_cv_type_socklen_t" "
+#include <sys/types.h>
+#include <sys/socket.h>
+
+"
+if test "x$ac_cv_type_socklen_t" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_SOCKLEN_T 1
+_ACEOF
+
+
+fi
+
+ac_fn_c_check_type "$LINENO" "ssize_t" "ac_cv_type_ssize_t" "
+#include <sys/types.h>
+#include <sys/socket.h>
+
+"
+if test "x$ac_cv_type_ssize_t" = x""yes; then :
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_SSIZE_T 1
+_ACEOF
+
+
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking _XOPEN_SOURCE" >&5
+$as_echo_n "checking _XOPEN_SOURCE... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#define _XOPEN_SOURCE
+#include <unistd.h>
+
+int
+main ()
+{
+
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+
+$as_echo "#define DEFINE_XOPEN_SOURCE 1" >>confdefs.h
+
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+
+if test "$with_time" = yes; then
+  if test "$ac_cv_func_setitimer" = "yes"; then
+    TARGETS="$TARGETS time.$SO"
+  else
+    echo "WARNING: no setitimer(); dropping time.pl from targets"
+  fi
+fi
+
+if test "$ac_cv_func_getrlimit" = "yes"; then
+  TARGETS="$TARGETS rlimit.$SO"
+else
+  "WARNING: no getrlimit(); dropping rlimit.pl from targets"
+fi
 
 
 
