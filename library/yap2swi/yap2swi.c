@@ -417,22 +417,22 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
     BUF_MALLOC Data is copied to a new buffer returned by malloc(3)
 */
 
-static int CvtToStringTerm(YAP_Term t, char *buf, char *buf_max)
+static int CvtToStringTerm(Term t, char *buf, char *buf_max)
 {
-  while (YAP_IsPairTerm(t)) {
-    YAP_Term hd = YAP_HeadOfTerm(t);
+  while (IsPairTerm(t)) {
+    YAP_Term hd = HeadOfTerm(t);
     long int  i;
-    if (!YAP_IsIntTerm(hd))
+    if (!IsVarTerm(hd) || !IsIntTerm(hd))
       return 0;
-    i = YAP_IntOfTerm(hd);
+    i = IntOfTerm(hd);
     if (i <= 0 || i >= 255)
       return 0;
-    if (!YAP_IsIntTerm(hd))
+    if (!IsIntTerm(hd))
       return 0;
     *buf++ = i;
     if (buf == buf_max)
       return 0;
-    t = YAP_TailOfTerm(t);
+    t = TailOfTerm(t);
   }
   if (t != TermNil)
     return 0;
@@ -534,7 +534,10 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_FLOAT|CVT_ATOMIC|CVT_NUMBER|CVT_ALL)))
       return 0;
     snprintf(tmp,BUF_SIZE,"%f",YAP_FloatOfTerm(t));
-  } else if (flags & (CVT_LIST|CVT_LIST)) {
+  } else if (flags & (CVT_STRING)) {
+    char *s = Yap_BlobStringOfTerm(t);
+    strncat(tmp, s, BUF_SIZE-1);
+  } else if (flags & CVT_LIST) {
     if (CvtToStringTerm(t,tmp,tmp+BUF_SIZE) == 0)
       return 0;
   } else {
@@ -668,6 +671,17 @@ X_API int PL_get_head(term_t ts, term_t h)
   Yap_PutInSlot(h,YAP_HeadOfTerm(t));
   return 1;
 }
+
+X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
+{
+  Term tt = Yap_GetFromSlot(t);
+  if (!IsBlobStringTerm(tt)) {
+    return 0;
+  }
+  *s = Yap_BlobStringOfTermAndLength(tt, len);
+  return TRUE;
+}
+
 
 /* SWI: int PL_get_integer(term_t t, int *i)
    YAP: long int  YAP_IntOfTerm(Term) */
@@ -872,24 +886,6 @@ X_API int PL_get_pointer(term_t ts, void **i)
   if (!YAP_IsIntTerm(t) )
     return 0;
   *i = (void *)YAP_IntOfTerm(t);
-  return 1;
-}
-
-/* SWI: int PL_get_atom_chars(term_t t, char **s)
-   YAP: char* AtomName(Atom) */
-X_API int PL_get_string(term_t ts, char **sp, int *lenp)  /* SAM check type */
-{
-  YAP_Term t = Yap_GetFromSlot(ts);
-  char *to;
-  int len;
-  if (!YAP_IsPairTerm(t))
-    return 0;
-  if (!YAP_StringToBuffer(t, buffers, TMP_BUF_SIZE))
-      return(FALSE);
-  len = strlen(buffers);
-  to = (char *)Yap_NewSlots((len/sizeof(YAP_Term))+1);
-  strncpy(to, buffers, TMP_BUF_SIZE);
-  *sp = to;
   return 1;
 }
 
@@ -1244,9 +1240,13 @@ X_API int PL_put_pointer(term_t t, void *ptr)
   return TRUE;
 }
 
-X_API int PL_put_string_chars(term_t t, const char *s)
+X_API int PL_put_string_nchars(term_t t, size_t len, const char *chars)
 {
-  Yap_PutInSlot(t,YAP_BufferToString((char *)s));
+  Term tt;
+
+  if ((tt = Yap_MkBlobStringTerm(chars, len)) == TermNil)
+    return FALSE;
+  Yap_PutInSlot(t,tt);
   return TRUE;
 }
 
@@ -1796,6 +1796,8 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
     }
     break;
   case PL_STRING:
+    chterm = Yap_MkBlobWideStringTerm(chars, len);
+    break;
   case PL_CODE_LIST:
     chterm = YAP_NWideBufferToString(chars, len);
     break;
@@ -1824,7 +1826,6 @@ X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, cons
     len = wcslen(chars);
 
   switch (type) {
-  case PL_STRING:
   case PL_CODE_LIST:
     chterm = YAP_NWideBufferToDiffList(chars, Yap_GetFromSlot(tail), len);
     break;
@@ -1963,7 +1964,7 @@ X_API int PL_unify_term(term_t l,...)
 	*pt++ = MkFloatTerm(va_arg(ap, double));
 	break;
       case PL_STRING:
-	*pt++ = YAP_BufferToString(va_arg(ap, char *));
+	*pt++ = Yap_MkBlobStringTerm(va_arg(ap, char *), -1);
 	break;
       case PL_CHARS:
 	{
@@ -2147,12 +2148,6 @@ X_API void PL_register_atom(atom_t atom)
 X_API void PL_unregister_atom(atom_t atom)
 {
   Yap_AtomDecreaseHold(SWIAtomToAtom(atom));
-}
-
-X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
-{
-  /* there are no such objects in Prolog */
-  return FALSE;
 }
 
 X_API int PL_term_type(term_t t)

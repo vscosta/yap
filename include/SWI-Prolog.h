@@ -380,7 +380,6 @@ extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
 extern X_API int PL_get_nil(term_t);
 extern X_API int PL_get_pointer(term_t, void **);
 extern X_API int PL_get_intptr(term_t, intptr_t *);
-extern X_API int PL_get_string(term_t, char **, int *);
 extern X_API int PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/
 /* begin PL_new_* functions =============================*/
@@ -409,6 +408,7 @@ extern X_API int PL_put_list_chars(term_t, const char *);
 extern X_API void PL_put_nil(term_t);
 extern X_API int PL_put_pointer(term_t, void *);
 extern X_API int PL_put_string_chars(term_t, const char *);
+extern X_API int PL_put_string_nchars(term_t, size_t, const char *);
 extern X_API int PL_put_term(term_t, term_t);
 extern X_API int PL_put_variable(term_t);
 extern X_API  int PL_compare(term_t, term_t);

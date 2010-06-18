@@ -75,7 +75,8 @@ typedef enum
     ARRAY_INT =    0x21,
     ARRAY_FLOAT =  0x22,
     CLAUSE_LIST =  0x40,
-    STRING =  0x80, /* unsupported, reserved */
+    BLOB_STRING =  0x80, /* SWI style strings */
+    BLOB_WIDE_STRING =  0x81, /* SWI style strings */
     EXTERNAL_BLOB =  0x100 /* for SWI emulation */
   } 
 big_blob_type;
@@ -384,6 +385,34 @@ IsLargeIntTerm (Term t)
 
 
 #endif
+
+typedef struct string_struct {
+  size_t len;
+}  blob_string_t;
+
+Term STD_PROTO (Yap_MkBlobStringTerm, (const char *, size_t len));
+Term STD_PROTO (Yap_MkBlobWideStringTerm, (const wchar_t *, size_t len));
+char *STD_PROTO (Yap_BlobStringOfTerm, (Term));
+wchar_t *STD_PROTO (Yap_BlobWideStringOfTerm, (Term));
+char *STD_PROTO (Yap_BlobStringOfTermAndLength, (Term, size_t *));
+
+inline EXTERN int IsBlobStringTerm (Term);
+
+inline EXTERN int
+IsBlobStringTerm (Term t)
+{
+  return (int) (IsApplTerm (t) &&
+		FunctorOfTerm (t) == FunctorBigInt &&
+		(RepAppl(t)[1] & BLOB_STRING) == BLOB_STRING);
+}
+
+inline EXTERN int
+IsWideBlobString (Term t)
+{
+  return (int) (IsApplTerm (t) &&
+		FunctorOfTerm (t) == FunctorBigInt &&
+		RepAppl(t)[1] == BLOB_WIDE_STRING);
+}
 
 /* extern Functor FunctorLongInt; */
 
