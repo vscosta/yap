@@ -55,7 +55,7 @@ OBJS = \
 	Solver.o \
 	pl-minisat.o
 
-SOBJS=pl-minisat@SO@
+SOBJS=pl-minisat.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
@@ -69,8 +69,8 @@ Solver.o : $(srcdir)/Solver.C
 pl-minisat.o : $(srcdir)/pl-minisat.C
 	$(CXX) -c $(CXXFLAGS)  $(SHLIB_CFLAGS) $(srcdir)/pl-minisat.C -o pl-minisat.o
 
-@DO_SECOND_LD@pl-minisat@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o pl-minisat@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
+@DO_SECOND_LD@pl-minisat.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o pl-minisat.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
