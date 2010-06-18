@@ -63,7 +63,7 @@ regexec.o: $(srcdir)/regexec.c
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@regexp.@SO@: regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regexp.@SO@ regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ -o regexp.@SO@ regexp.o  @EXTRA_LIBS_FOR_DLLS@ @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o 
 
 @DO_SECOND_LD@regcomp.@SO@: regcomp.o @MERGE_DLL_OBJS@ regfree.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o regcomp.@SO@ regcomp.o @MERGE_DLL_OBJS@ regfree.o @EXTRA_LIBS_FOR_DLLS@
