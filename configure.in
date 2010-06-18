@@ -340,16 +340,9 @@ AC_ARG_WITH(junit, [  --with-junit=PATH	  Specify location of the junit JAR file
 			;;
 	     esac])
 
-if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
-then
-  AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
-  AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) 
-  AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
-else
-  AC_DEFINE(MinHeapSpace, (300*SIZEOF_INT_P))
-  AC_DEFINE(MinStackSpace,(200*SIZEOF_INT_P))
-  AC_DEFINE(MinTrailSpace,( 32*SIZEOF_INT_P))
-fi
+AC_DEFINE(MinHeapSpace, (1000*SIZEOF_INT_P))
+AC_DEFINE(MinStackSpace,(300*SIZEOF_INT_P)) 
+AC_DEFINE(MinTrailSpace,( 48*SIZEOF_INT_P))
 
 AC_DEFINE_UNQUOTED(DefHeapSpace,$yap_cv_heap_space)
 AC_DEFINE_UNQUOTED(DefStackSpace,$yap_cv_stack_space)

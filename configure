@@ -4058,22 +4058,12 @@ if test "${with_junit+set}" = set; then :
 fi
 
 
-if test "$tabling" = yes -o "$orparallelism" = yes -o "$threads" = yes
-then
-  $as_echo "#define MinHeapSpace (1000*SIZEOF_INT_P)" >>confdefs.h
+$as_echo "#define MinHeapSpace (1000*SIZEOF_INT_P)" >>confdefs.h
 
-  $as_echo "#define MinStackSpace (300*SIZEOF_INT_P)" >>confdefs.h
+$as_echo "#define MinStackSpace (300*SIZEOF_INT_P)" >>confdefs.h
 
-  $as_echo "#define MinTrailSpace ( 48*SIZEOF_INT_P)" >>confdefs.h
+$as_echo "#define MinTrailSpace ( 48*SIZEOF_INT_P)" >>confdefs.h
 
-else
-  $as_echo "#define MinHeapSpace (300*SIZEOF_INT_P)" >>confdefs.h
-
-  $as_echo "#define MinStackSpace (200*SIZEOF_INT_P)" >>confdefs.h
-
-  $as_echo "#define MinTrailSpace ( 32*SIZEOF_INT_P)" >>confdefs.h
-
-fi
 
 cat >>confdefs.h <<_ACEOF
 #define DefHeapSpace $yap_cv_heap_space
