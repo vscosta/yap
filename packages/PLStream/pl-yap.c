@@ -678,3 +678,10 @@ PL_dispatch(int fd, int wait)
   return TRUE;
 }
 
+extern  size_t PL_utf8_strlen(const char *s, size_t len);
+
+X_API size_t
+PL_utf8_strlen(const char *s, size_t len)
+{ return utf8_strlen(s, len);
+}
+
