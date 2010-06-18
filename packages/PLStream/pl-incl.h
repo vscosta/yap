@@ -10,6 +10,20 @@
 #include <SWI-Prolog.h>
 typedef int bool;
 
+#define Arg(N)  (PL__t0+((n)-1))
+#define A1      (PL__t0)
+#define A2      (PL__t0+1)
+#define A3      (PL__t0+2)
+#define A3      (PL__t0+2)
+#define A4      (PL__t0+3)
+#define A5      (PL__t0+4)
+#define A6      (PL__t0+5)
+#define A7      (PL__t0+6)
+#define A8      (PL__t0+7)
+#define A9      (PL__t0+8)
+#define A10     (PL__t0+9)
+
+
 /* atom_t macro layer */
 #define NULL_ATOM ((atom_t)0)
 #if __YAP_PROLOG__
