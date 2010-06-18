@@ -539,28 +539,28 @@ p_tmpdir(void)
 static int
 p_environ(void)
 {
-#if HAVE_ENVIRON
-#if defined(__MINGW32__) || _MSC_VER
+#if HAVE_ENVIRON && 0
+#if HAVE__NSGETENVIRON
+  char ** ptr = _NSGetEnviron();
+#elif defined(__MINGW32__) || _MSC_VER
   extern char **_environ;
+  char ** ptr = _environ;
 #else
   extern char **environ;
+  char ** ptr = environ;
 #endif
   YAP_Term t1 = YAP_ARG1;
   long int i;
 
   i = YAP_IntOfTerm(t1);
-#if defined(__MINGW32__) || _MSC_VER
-  if (_environ[i] == NULL)
-#else
-  if (environ[i] == NULL)
-#endif
+  if (ptr[i] == NULL)
     return(FALSE);
   else {
-    YAP_Term t = YAP_BufferToString(environ[i]);
+    YAP_Term t = YAP_BufferToString(ptr[i]);
     return(YAP_Unify(t, YAP_ARG2));
   }
 #else
-  YAP_Error(0,0L,"environ not available in this configuration");
+  YAP_Error(0, 0L, "environ not available in this configuration" );
   return(FALSE);
 #endif
 }
