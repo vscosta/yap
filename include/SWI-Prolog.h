@@ -20,6 +20,19 @@ extern "C" {
 //=== includes ===============================================================
 #ifdef          _YAP_NOT_INSTALLED_
 #include	"config.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+#if USE_GMP
+#include <gmp.h>
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include	"YapInterface.h"
 #else
 #include	<Yap/config.h>
@@ -359,6 +372,7 @@ extern X_API int PL_get_arg(int, term_t, term_t);
 extern X_API int _PL_get_arg(int, term_t, term_t);
 extern X_API int PL_get_atom(term_t, atom_t *);
 extern X_API int PL_get_atom_chars(term_t, char **);
+extern X_API int PL_get_atom_nchars(term_t, char **, size_t *);
 extern X_API int PL_get_bool(term_t, int *);
 extern X_API int PL_get_chars(term_t, char **, unsigned);
 extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
@@ -563,8 +577,6 @@ PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 #endif
 
 #if USE_GMP
-
-#include <gmp.h>
 
 PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_unify_mpz(term_t t, mpz_t mpz);
