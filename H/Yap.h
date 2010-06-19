@@ -276,7 +276,7 @@ extern char Yap_Option[20];
 #endif
 #endif /* !IN_SECOND_QUADRANT */
 
-/* #define RANDOMIZE_START_ADDRESS 1*/
+/* #define RANDOMIZE_START_ADDRESS 1 */
 
 #ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE  0L

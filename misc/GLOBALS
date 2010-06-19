@@ -127,7 +127,7 @@ Term				*new_tr		new_TR		=NULL
 #endif
 struct gc_mark_continuation*	conttop0	cont_top0	=NULL
 struct gc_mark_continuation*	conttop		cont_top	=NULL
-int				disc_trail_entries	discard_trail_entries		=NULL
+int				disc_trail_entries	discard_trail_entries		=0
 gc_ma_hash_entry		Gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	gc_ma_hash_table	void
 gc_ma_hash_entry*		Gc_ma_h_top	gc_ma_h_top	=NULL
 gc_ma_hash_entry*		Gc_ma_h_list	gc_ma_h_list	=NULL
@@ -167,7 +167,7 @@ struct worker			worker			WORKER		void
 #endif
 
 #ifdef THREADS
-struct thandle			thread_handle		ThreadHandle	InitThreadHandle	
+struct thandle			thread_handle		ThreadHandle	InitThreadHandle(wid)
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)].thread_handle)		       						
 #define MY_ThreadHandle	       (Yap_WLocal[worker_id].thread_handle)
 #endif

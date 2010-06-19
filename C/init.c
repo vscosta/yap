@@ -1135,7 +1135,8 @@ InitInvisibleAtoms(void)
 }
 
 #ifdef  THREADS
-InitThreadHandle(wid)
+static void
+InitThreadHandle(int wid)
 {
     FOREIGN_ThreadHandle(wid).in_use = FALSE;
     FOREIGN_ThreadHandle(wid).zombie = FALSE;

@@ -119,7 +119,7 @@ static void InitWorker(int wid) {
 #endif
   FOREIGN_WL(wid)->conttop0 = NULL;
   FOREIGN_WL(wid)->conttop = NULL;
-  FOREIGN_WL(wid)->disc_trail_entries = NULL;
+  FOREIGN_WL(wid)->disc_trail_entries = 0;
 
   FOREIGN_WL(wid)->Gc_ma_h_top = NULL;
   FOREIGN_WL(wid)->Gc_ma_h_list = NULL;
@@ -151,7 +151,7 @@ static void InitWorker(int wid) {
 
 #endif
 #ifdef THREADS
-  InitThreadHandle;
+  InitThreadHandle(wid);
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)].thread_handle)		       						
 #define MY_ThreadHandle	       (Yap_WLocal[worker_id].thread_handle)
 #endif
