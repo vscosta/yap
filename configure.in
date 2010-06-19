@@ -875,6 +875,11 @@ case "$target_os" in
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *sunos4*)
 	M4="/usr/5bin/m4"
@@ -885,6 +890,11 @@ case "$target_os" in
         fi
         SO="o"
 	INSTALL_DLLS=""
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *hpux*)
 	#do not use the first memory quadrant
@@ -918,6 +928,11 @@ case "$target_os" in
 	then
 	  AC_DEFINE(MPI_AVOID_REALLOC,1)
 	fi
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *aix*)
 	# To actually use dlls in AIX I'd need to build YAP as a DLL first.
@@ -926,6 +941,11 @@ case "$target_os" in
         # SO="a"
         #SHLIB_LD="\$(srcdir)/../../ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
 	#INSTALL_DLLS=""
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *osf*)
         if ${use_condor} = no
@@ -939,6 +959,11 @@ dnl Linux has both elf and a.out, in this case we found elf
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *irix6*)
 	SHLIB_CFLAGS=""
@@ -947,6 +972,11 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
 	INSTALL_DLLS=""
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *darwin*)
 	if test ${use_dlcompat} = yes
@@ -963,10 +993,23 @@ dnl Linux has both elf and a.out, in this case we found elf
 	SHLIB_CFLAGS="-fno-common"
 	SO="dylib"
         DO_SECOND_LD=""
-	SHLIB_LD="$CC  -dynamiclib"
-        SHLIB_CXX_LD="$CXX  -dynamiclib"
+        if test "$dynamic_loading" = "yes"
+        then 
+	   SHLIB_LD="$CC  -dynamiclib"
+           SHLIB_CXX_LD="$CXX  -dynamiclib"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
+           INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+        else
+	   SHLIB_LD="$CC  -dynamiclib -Wl,-undefined,dynamic_lookup"
+           SHLIB_CXX_LD="$CXX  -dynamiclib -Wl,-undefined,dynamic_lookup"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
+           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+        fi
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
+        DYNYAPLIB=libYap."$SO"
+        DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
+        PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
@@ -984,6 +1027,11 @@ dnl Linux has both elf and a.out, in this case we found elf
 	  SO="so"
 	  INSTALL_DLLS=""
         fi
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *solaris*)
        #an elf system
@@ -994,6 +1042,11 @@ dnl Linux has both elf and a.out, in this case we found elf
         DO_SECOND_LD=""
 	SO="so"
 	INSTALL_DLLS=""
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
@@ -1013,6 +1066,9 @@ dnl Linux has both elf and a.out, in this case we found elf
 	DO_SECOND_LD=""
 	MERGE_DLL_OBJS=""
 	IN_UNIX="#"
+        DYNLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
+        PRE_INSTALL_ENV=""
+        INSTALL_ENV=""
 	;;
       *)
 	AC_CHECK_LIB(dl,dlopen,
@@ -1033,43 +1089,21 @@ dnl Linux has both elf and a.out, in this case we found elf
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        DYNYAPLIB=libYap."$SO"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
 esac
 
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLStream -lplstream"
+
+
 if test "$dynamic_loading" = "yes"
 then 
-  DYNLIB_LD="$SHLIB_LD"
-  YAP_EXTRAS="$SHLIB_CFLAGS $YAP_EXTRAS"
-  case "$target_os" in
-  *cygwin*|*mingw*)
-    DYNLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
-    PRE_INSTALL_ENV=""
-    INSTALL_ENV=""
-    ;;
-  *darwin*)
-    DYNYAPLIB=libYap."$SO"
-    YAPLIB="$DYNYAPLIB"
-    DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
-    PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
-    INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-#    CROSS_SIMULATOR="DYLD_LIBRARY_PATH=."
-    ;;
-  *)
-    LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
-    DYNYAPLIB=libYap."$SO"
-    YAPLIB="$DYNYAPLIB"
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
-    PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
-    INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-    ;;
-  esac
-else
-  PRE_INSTALL_ENV=""
-  DYNYAPLIB=libYap.notused
+  YAPLIB="$DYNYAPLIB"
 fi
-
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLStream -lplstream"
 
 if test "$coroutining" = "yes"
   then
