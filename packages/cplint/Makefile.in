@@ -22,7 +22,7 @@ SHAREDIR=$(ROOTDIR)/share/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include
+CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include  @CPPFLAGS@
 #
 #
 # You shouldn't need to change what follows.
