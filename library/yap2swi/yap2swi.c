@@ -2888,13 +2888,6 @@ PL_foreign_context_address(control_t ctx)
   }
 }
 
-X_API void 
-PL_cleanup_fork(void)
-{
-  Yap_CloseStreams(FALSE);
-}
-
-
 static int
 SWI_ctime(void)
 {

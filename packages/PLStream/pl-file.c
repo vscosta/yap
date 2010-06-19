@@ -868,7 +868,7 @@ in use by Prolog. This can't work as   the  table is guarded by a mutex.
 Now we use the FD_CLOEXEC flag in Snew();
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-void
+X_API void
 PL_cleanup_fork(void)
 { stopItimer();
 }
