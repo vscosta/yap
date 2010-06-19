@@ -391,6 +391,18 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
   return 1;
 }
 
+/* SWI: int PL_get_atom_chars(term_t t, char **s)
+   YAP: char* AtomName(Atom) */
+X_API int PL_get_atom_nchars(term_t ts, char **s, size_t *len)  /* SAM check type */
+{
+  Term t = Yap_GetFromSlot(ts);
+  if (!IsAtomTerm(t))
+    return 0;
+  *s = RepAtom(AtomOfTerm(t))->StrOfAE;
+  *len = strlen(*s);
+  return 1;
+}
+
 /*
   int PL_get_chars(term_t +t, char **s, unsigned flags) Convert the
   argument term t to a 0-terminated C-string. flags is a bitwise
