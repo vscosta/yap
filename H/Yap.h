@@ -361,7 +361,7 @@ typedef CELL Term;
 typedef pthread_mutex_t lockvar;
 typedef pthread_rwlock_t rwlock_t;
 
-#elif defined(i386) || defined(__x86_64__)
+#elif defined(i386)
 typedef volatile int lockvar;
 #include <locks_x86.h>
 #elif defined(sparc) || defined(__sparc)
