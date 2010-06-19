@@ -563,6 +563,9 @@ PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 #endif
 
 #if USE_GMP
+
+#include <gmp.h>
+
 PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_unify_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_get_mpq(term_t t, mpq_t mpz);
