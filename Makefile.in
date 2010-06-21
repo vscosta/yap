@@ -307,7 +307,7 @@ BEAM_OBJECTS = \
 	eamamasm.o eam_showcode.o eamindex.o eam_am.o
 
 STATIC_OBJECTS = \
-	@STATIC_MODE@sys.o random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
+	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
 LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS)
 
@@ -457,8 +457,8 @@ sys.o: $(srcdir)/library/system/sys.c config.h
 yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
 
-random.o: $(srcdir)/library/random/random.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/random.c  -o $@
+yap_random.o: $(srcdir)/library/random/yap_random.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/yap_random.c  -o $@
 
 regexp.o: $(srcdir)/library/regex/regexp.c  @NO_BUILTIN_REGEXP@ $(srcdir)/library/regex/regex2.h  $(srcdir)/library/regex/engine.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexp.c -o regexp.o

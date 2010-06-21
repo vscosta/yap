@@ -31,7 +31,7 @@
 	setrand/1
     ]).
 
-:- load_foreign_files([random], [], init_random).
+:- load_foreign_files([yap_random], [], init_random).
 
 
 %   random(R) binds R to a new random number in [0.0,1.0)

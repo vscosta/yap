@@ -35,22 +35,22 @@ SO=@SO@
 CWD=$(PWD)
 #
 
-OBJS=random.o
-SOBJS=random.@SO@
+OBJS=yap_random.o
+SOBJS=yap_random.@SO@
 
 #in some systems we just create a single object, in others we need to
 # create a libray
 
 all: $(SOBJS) 
 
-random.o: $(srcdir)/random.c
-	$(CC) -c $(CFLAGS) $(srcdir)/random.c -o random.o
+yap_random.o: $(srcdir)/yap_random.c
+	$(CC) -c $(CFLAGS) $(srcdir)/yap_random.c -o yap_random.o
 
 @DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
-@DO_SECOND_LD@random.@SO@: random.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o random.@SO@ random.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@yap_random.@SO@: yap_random.o
+@DO_SECOND_LD@	@SHLIB_LD@ -o yap_random.@SO@ yap_random.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
