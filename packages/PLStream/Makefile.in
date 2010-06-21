@@ -20,7 +20,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CPPFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -31,7 +31,6 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
-SHLIB_CFLAGS=@SHLIB_CFLAGS@
 SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
@@ -71,11 +70,11 @@ SOBJS=libplstream.@SO@
 all: $(SOBJS) 
 
 uxnt.o: $(srcdir)/uxnt/uxnt.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/uxnt/uxnt.c -o uxnt.o
+	$(CC) -c $(CFLAGS) $(srcdir)/uxnt/uxnt.c -o uxnt.o
 
 # default rule
 %.o : $(srcdir)/%.c
-	$(CC) -c $(CFLAGS)  $(SHLIB_CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@

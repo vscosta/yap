@@ -29,13 +29,12 @@ LN_S=@LN_S@
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
 MKINDEX=true
 
 LD=$(CC)
 PLLD=$(CC)
 
-SHLIB_CFLAGS=@SHLIB_CFLAGS@
 SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
@@ -111,7 +110,7 @@ DTDFILES=	HTML4.dcl HTML4.dtd \
 ifeq (@PROLOG_SYSTEM@,yap)
 
 %.o : $(srcdir)/%.c
-	$(CC) $(CFLAGS) $(SHLIB_CFLAGS)  -o $@ -c $<
+	$(CC) $(CFLAGS)  -o $@ -c $<
 
 @DO_SECOND_LD@sgml2pl.@SO@: $(PLOBJ)
 @DO_SECOND_LD@	@SHLIB_LD@ -o sgml2pl.@SO@ $(PLOBJ) @EXTRA_LIBS_FOR_SWIDLLS@

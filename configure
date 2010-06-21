@@ -638,12 +638,14 @@ DYNYAPLIB
 YAPLIB
 EXTRA_LIBS_FOR_SWIDLLS
 EXTRA_LIBS_FOR_DLLS
-DYNLIB_LD
+YAPLIB_CFLAGS
+YAPLIB_LD
 SHLIB_CXX_LD
 SHLIB_LD
 DO_SECOND_LD
 EXEC_SUFFIX
 SO
+SHLIB_CXXFLAGS
 SHLIB_CFLAGS
 MERGE_DLL_OBJS
 INSTALL_DLLS
@@ -6739,7 +6741,8 @@ fi
           fi
 	  if test "$ac_cv_c_compiler_gnu" = "yes"
 	  then
-	   SHLIB_CFLAGS="-shared -fPIC"
+	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
+	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
 	   INSTALL_DLLS=""
           fi
         fi
@@ -6751,13 +6754,15 @@ fi
         DYNYAPLIB=libYap."$SO"
         if test "$dynamic_loading" = "yes"
         then
+           YAPLIB_LD="\$(CC) -shared"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
-           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
            INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         else
+           YAPLIB_LD="\$(CC)"
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
-           PRE_INSTALL_ENV=""
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+           PRE_INSTALL_ENV=""
         fi
 	;;
       *sunos4*)
@@ -6791,7 +6796,8 @@ fi
             SHLIB_CXX_LD="$CXX -shared -export-dynamic"
             DO_SECOND_LD=""
             SO="sl"
-	    SHLIB_CFLAGS="+z"
+	    SHLIB_CFLAGS="+z $CFLAGS"
+	    SHLIB_CXXFLAGS="+z $CXXFLAGS"
 	    INSTALL_DLLS=""
 	    # If the xnet library was found, turn on X/Open networking
 	    if test "$ac_cv_lib_xnet_getsockname" = yes
@@ -6887,7 +6893,8 @@ fi
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
       *irix6*)
-	SHLIB_CFLAGS=""
+	SHLIB_CFLAGS="$CFLAGS"
+	SHLIB_CXXFLAGS="$CXXFLAGS"
 	SO="so"
         DO_SECOND_LD=""
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
@@ -6950,7 +6957,6 @@ fi
 	    LIBS="$LIBS -ldl"
 	  fi
 	fi
-	SHLIB_CFLAGS="-fno-common"
 	SO="dylib"
         DO_SECOND_LD=""
         if test "$dynamic_loading" = "yes"
@@ -6968,19 +6974,21 @@ fi
 	INSTALL_DLLS=""
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
         DYNYAPLIB=libYap."$SO"
-        DYNLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
+        YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
 	;;
       *netbsd*|*freebsd*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
 	  #an a.out system
-	  SHLIB_CFLAGS=""
+	  SHLIB_CFLAGS="$CFLAGS"
+	  SHLIB_CXXFLAGS="$CXXFLAGS"
 	  SO="o"
         else
 	  #an elf system
 	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
-	  SHLIB_CFLAGS="-fPIC"
+	  SHLIB_CFLAGS="-fPIC $CFLAGS"
+	  SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
 	  SHLIB_LD="ld -Bshareable -x"
           SHLIB_CXX_LD="$SHLIB_LD"
           DO_SECOND_LD=""
@@ -6996,7 +7004,8 @@ fi
       *solaris*)
        #an elf system
         LDFLAGS="-dynamic $LDFLAGS"
-	SHLIB_CFLAGS="-fPIC"
+	SHLIB_CFLAGS="-fPIC $CFLAGS"
+	SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
 	SHLIB_LD="$CC -shared"
         SHLIB_CXX_LD="$CXX -shared"
         DO_SECOND_LD=""
@@ -7004,15 +7013,25 @@ fi
 	INSTALL_DLLS=""
 	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
-        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+        if test "$dynamic_loading" = "yes"
+        then
+           YAPLIB_LD="\$(CC)"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
+           INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+        else
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           PRE_INSTALL_ENV=""
+           YAPLIB_LD="\$(CC) -shared"
+           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+        fi
 	;;
       *cyg*|*mingw*)
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="yap.dll"
-	SHLIB_CFLAGS=""
+	SHLIB_CFLAGS="$CFLAGS"
+	SHLIB_CXXFLAGS="$CXXFLAGS"
         if test "$target_win64" = no
         then
 	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
@@ -7026,7 +7045,7 @@ fi
 	DO_SECOND_LD=""
 	MERGE_DLL_OBJS=""
 	IN_UNIX="#"
-        DYNLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
+        YAPLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         PRE_INSTALL_ENV=""
         INSTALL_ENV=""
 	;;
@@ -7081,7 +7100,7 @@ fi
 	 INSTALL_DLLS=""
 	 if test "$GCC" = "yes"
 	 then
-	   SHLIB_CFLAGS="-fPIC"
+	   SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
 	 fi
         fi
         if test "$have_nsl" = yes
@@ -7101,7 +7120,10 @@ EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLS
 
 if test "$dynamic_loading" = "yes"
 then
+  YAPLIB_CFLAGS="$SHLIB_CFLAGS"
   YAPLIB="$DYNYAPLIB"
+else
+  YAPLIB_CFLAGS"$CFLAGS"
 fi
 
 if test "$coroutining" = "yes"
@@ -8357,7 +8379,9 @@ fi
 
 
 
+
 EXEC_SUFFIX=""
+
 
 
 

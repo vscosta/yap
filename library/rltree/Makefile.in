@@ -24,7 +24,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 MPI_CC=mpicc
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
 #
 #
 # You shouldn't need to change what follows.
@@ -35,7 +35,6 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
-SHLIB_CFLAGS=@SHLIB_CFLAGS@
 SO=@SO@
 #
 
@@ -47,10 +46,10 @@ SOBJS=yap_rl.@SO@
 all: $(SOBJS)
 
 range_list.o: $(srcdir)/range_list.c $(srcdir)/range_list.h
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/range_list.c -o range_list.o
+	$(CC) -c $(CFLAGS) $(srcdir)/range_list.c -o range_list.o
 
 yaprl.o: $(srcdir)/yap_rl.c
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/yap_rl.c -o yaprl.o
+	$(CC) -c $(CFLAGS) $(srcdir)/yap_rl.c -o yaprl.o
 
 @DO_SECOND_LD@%.@SO@: %.o
 @DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@

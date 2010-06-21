@@ -31,7 +31,7 @@ LN_S=@LN_S@
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822  @CPPFLAGS@ @SHLIB_CFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822  @CPPFLAGS@
 MKINDEX=true
 NETLIBS=@CLIB_NETLIBS@
 CRYPTLIBS=@CLIB_CRYPTLIBS@

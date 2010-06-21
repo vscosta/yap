@@ -22,7 +22,7 @@ SHAREDIR=$(ROOTDIR)/share/Yap
 #
 #
 CC=@CC@
-CFLAGS= @CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include  @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I$(srcdir)/../../include  @CPPFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -33,7 +33,6 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 SHELL=/bin/sh
 RANLIB=@RANLIB@
 srcdir=@srcdir@
-SHLIB_CFLAGS=@SHLIB_CFLAGS@
 SHLIB_SUFFIX=@SHLIB_SUFFIX@
 CPLINT_CFLAGS=@CPLINT_CFLAGS@
 CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
@@ -147,10 +146,10 @@ CPLINT_DOCS=\
 all: $(SOBJS)
 
 cplint_yap.o: $(srcdir)/cplint_yap.c  $(srcdir)/cplint.h 
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_yap.c -o cplint_yap.o
+	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_yap.c -o cplint_yap.o
 
 cplint_Prob.o: $(srcdir)/cplint_Prob.c  $(srcdir)/cplint.h 
-	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_Prob.c -o cplint_Prob.o
+	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS) $(srcdir)/cplint_Prob.c -o cplint_Prob.o
 
 
 
