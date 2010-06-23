@@ -24,13 +24,19 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
-PROGRAMS= $(srcdir)/debug.pl \
+PROGRAMS= $(srcdir)/base64.pl \
+	$(srcdir)/broadcast.pl \
+	$(srcdir)/debug.pl \
 	$(srcdir)/maplist.pl \
 	$(srcdir)/operators.pl \
 	$(srcdir)/option.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl \
-	$(srcdir)/shlib.pl
+	$(srcdir)/quintus.pl \
+	$(srcdir)/settings.pl \
+	$(srcdir)/shlib.pl \
+	$(srcdir)/url.pl \
+	$(srcdir)/utf8.pl
 
 
 install: $(PROGRAMS)
