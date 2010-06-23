@@ -91,6 +91,10 @@
 #define TotGcRecovered WL->tot_gc_recovered
 #define LastGcTime WL->last_gc_time
 #define LastSSTime WL->last_ss_time
+#define FSWIStream WL->f_swi_stream
+#define SWIGetc WL->swi_getc
+#define SWIPutc WL->swi_putc
+#define SWIClose WL->swi_close
 
 #if defined(YAPOR) || defined(THREADS)
 #define SignalLock WL->signal_lock

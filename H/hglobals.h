@@ -93,6 +93,10 @@ typedef struct worker_local {
   YAP_ULONG_LONG  tot_gc_recovered;
   Int  last_gc_time;
   Int  last_ss_time;
+  Functor  f_swi_stream;
+  SWI_GetFunction  swi_getc;
+  SWI_PutFunction  swi_putc;
+  SWI_CloseFunction  swi_close;
 
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;

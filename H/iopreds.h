@@ -49,6 +49,9 @@ typedef struct stream_desc
   {
     union {
       struct {
+	struct io_stream *swi_ptr;
+      } swi_stream;
+      struct {
 	Atom name;
 	Term user_name;
 #if defined(__MINGW32__) || defined(_MSC_VER)
@@ -129,6 +132,7 @@ StreamDesc;
 #define HAS_BOM_f		0x200000
 #define RepError_Prolog_f	0x400000
 #define RepError_Xml_f		0x800000
+#define SWI_Stream_f		0x1000000
 
 #define EXPAND_FILENAME		0x000080
 

@@ -22,6 +22,10 @@
 #include <stdio.h>
 #endif
 
+typedef int (*SWI_PutFunction)(int, void *);
+typedef int (*SWI_GetFunction)(void *);
+typedef int (*SWI_CloseFunction)(void *);
+
 #include "../include/dswiatoms.h"
 
 #ifndef INT_KEYS_DEFAULT_SIZE
