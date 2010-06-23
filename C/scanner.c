@@ -261,9 +261,13 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
   ch = QuotedNxtch(inp_stream);
   switch (ch) {
   case 10:
-    ch = QuotedNxtch(inp_stream);
-    if (ch == '\\') goto restart;
-    return ch;
+    do {
+      ch = QuotedNxtch(inp_stream);
+      if (ch == '\\') goto restart;
+      if (chtype(ch) != BS || ch == 10) {
+	return ch;
+      }
+    } while (TRUE);
   case 'a':
     return '\a';
   case 'b':

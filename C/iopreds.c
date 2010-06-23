@@ -806,6 +806,20 @@ MemPutc(int sno, int ch)
   return ((int) ch);
 }
 
+/* static */
+static int
+IOSWIPutc(int sno, int ch)
+{
+  return (SWIPutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
+}
+
+/* static */
+static int
+IOSWIGetc(int sno, int ch)
+{
+  return (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
+}
+
 #if USE_SOCKET
 /* static */
 static int
@@ -3108,6 +3122,43 @@ FindStreamForAlias (Atom al)
 }
 
 static int
+LookupSWIStream (struct io_stream *swi_s)
+{
+  int i = 0;
+
+  while (i < MaxStreams) {
+    LOCK(Stream[i].streamlock);
+    if (Stream[i].status & SWI_Stream_f &&
+	Stream[i].u.swi_stream.swi_ptr == swi_s
+	) {
+      UNLOCK(Stream[i].streamlock);
+      return i;
+    }
+    UNLOCK(Stream[i].streamlock);
+    i++;
+  }
+  i = GetFreeStreamD();
+  if (i < 0)
+    return i;
+  Stream[i].u.swi_stream.swi_ptr = swi_s;
+  Stream[i].status = SWI_Stream_f|Output_Stream_f|Input_Stream_f|Append_Stream_f|Tty_Stream_f|Promptable_Stream_f;
+  Stream[i].linepos = 0;
+  Stream[i].linecount = 1;
+  Stream[i].charcount = 0;
+  Stream[i].encoding = DefaultEncoding();
+  Stream[i].stream_getc = IOSWIGetc;
+  Stream[i].stream_putc = IOSWIPutc;
+  Stream[i].stream_wputc = put_wchar;
+  Stream[i].stream_wgetc = get_wchar;
+  Stream[i].stream_gets = DefaultGets;
+  if (CharConversionTable != NULL)
+    Stream[i].stream_wgetc_for_read = ISOWGetc;
+  else
+    Stream[i].stream_wgetc_for_read = get_wchar;
+  return i;
+}
+
+static int
 CheckStream (Term arg, int kind, char *msg)
 {
   int sno = -1;
@@ -3136,8 +3187,18 @@ CheckStream (Term arg, int kind, char *msg)
     }
   } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
     arg = ArgOfTerm (1, arg);
-    if (!IsVarTerm (arg) && IsIntTerm (arg))
-      sno = IntOfTerm (arg);
+    if (!IsVarTerm (arg) && IsIntegerTerm (arg)) {
+      Int xsno = IntegerOfTerm(arg);
+      if (xsno > MaxStreams) {
+	sno = LookupSWIStream((struct io_stream *)xsno);
+      } else {
+	sno = xsno;
+      }
+    }
+  } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FSWIStream) {
+    arg = ArgOfTerm (1, arg);
+    if (!IsVarTerm (arg) && IsIntegerTerm (arg))
+      sno = LookupSWIStream((struct io_stream *)IntegerOfTerm (arg));
   }
   if (sno < 0)
     {
@@ -3332,7 +3393,7 @@ Yap_CloseStreams (int loud)
 static void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
     YP_fclose (Stream[sno].u.file.file);
 #if USE_SOCKET
   else if (Stream[sno].status & (Socket_Stream_f)) {
@@ -3353,6 +3414,9 @@ CloseStream(int sno)
       Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
     else
       free(Stream[sno].u.mem_string.buf);
+  }
+  else if (Stream[sno].status & (SWI_Stream_f)) {
+    SWIClose(Stream[sno].u.swi_stream.swi_ptr);
   }
   Stream[sno].status = Free_Stream_f;
   PurgeAlias(sno);

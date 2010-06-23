@@ -61,7 +61,7 @@ Yap_CallForeignFile(void *handle, char *f)
 {
   YapInitProc proc = (YapInitProc) dlsym(handle, f);
   if (!proc) {
-    Yap_Error(SYSTEM_ERROR, ARG1, "dlsym error %s\n", dlerror());
+    /* Yap_Error(SYSTEM_ERROR, ARG1, "dlsym error %s\n", dlerror());*/
     return FALSE;
   }
   (*proc) ();
