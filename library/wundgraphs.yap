@@ -12,7 +12,9 @@
 	    wundgraph_del_vertex/3,
 	    wundgraph_edges/2,
 	    wundgraph_neighbours/3,
+	    wundgraph_neighbors/3,
 	    wundgraph_wneighbours/3,
+	    wundgraph_wneighbors/3,
 	    wundgraph_min_tree/3,
 	    wundgraph_max_tree/3]).
 
@@ -97,7 +99,7 @@ wundgraph_neighbours(V,Vertices,Children) :-
 wundgraph_neighbors(V,Vertices,Children) :-
 	wdgraph_neighbours(V,Vertices,Children0),
 	(
-	    wdel_me(Children0,V,Children)
+	    del_me(Children0,V,Children)
 	->
 	    true
 	;
@@ -116,7 +118,7 @@ wundgraph_wneighbours(V,Vertices,Children) :-
 wundgraph_wneighbors(V,Vertices,Children) :-
 	wdgraph_wneighbours(V,Vertices,Children0),
 	(
-	    del_me(Children0,V,Children)
+	    wdel_me(Children0,V,Children)
 	->
 	    true
 	;
