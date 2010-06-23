@@ -285,7 +285,6 @@ textToAtom(PL_chars_t *text)
 }
 
 
-#if __SWI_PROLOG__
 word
 textToString(PL_chars_t *text)
 { PL_canonise_text(text);
@@ -296,7 +295,6 @@ textToString(PL_chars_t *text)
   { return globalWString(text->length, text->text.w);
   }
 }
-#endif
 
 
 int
@@ -310,7 +308,6 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
       return rval;
     }
     case PL_STRING:
-#if __SWI_PROLOG__
     { word w = textToString(text);
 
       if ( w )
@@ -318,7 +315,6 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
       else
 	return FALSE;
     }
-#endif
     case PL_CODE_LIST:
     case PL_CHAR_LIST:
     { if ( text->length == 0 )

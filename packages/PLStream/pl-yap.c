@@ -62,6 +62,20 @@ codeToAtom(int chrcode)
   return a;
 }
 
+word
+globalString(size_t size, char *s)
+{
+  // return YAP_MkBlobStringTerm(s, size);
+  return 0L;
+}
+
+word
+globalWString(size_t size, wchar_t *s)
+{
+  // return YAP_MkBlobWideStringTerm(size, s);
+  return 0L;
+}
+
 int
 PL_rethrow(void)
 { GET_LD

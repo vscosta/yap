@@ -4307,9 +4307,15 @@ BeginPredDefs(file)
 EndPredDefs
 
 #if __YAP_PROLOG__
+static pl_Sgetc(IOSTREAM *s)
+{
+  return Sgetc(s);
+}
+
 static void
 init_yap_extras()
 {
+  PL_YAP_InitSWIIO(FUNCTOR_dstream1, pl_Sgetc, Sputc, Sclose);
   initCharTypes();
   initFiles();
   initGlob();

@@ -43,6 +43,9 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 
 extern atom_t codeToAtom(int chrcode);
 
+extern word globalString(size_t size, char *s);
+extern word globalWString(size_t size, wchar_t *s);
+
 static inline word
 INIT_SEQ_CODES(size_t n)
 {
@@ -61,7 +64,7 @@ EXTEND_SEQ_ATOMS(word gstore, int c) {
 
 static inline int 
 CLOSE_SEQ_OF_CODES(word gstore, word lp, word arg2, word arg3, term_t l) {
-  if (arg3 == (word)ATOM_nil) {
+  if (arg2 == 0) {
     if (!YAP_CloseList((YAP_Term)gstore, YAP_TermNil()))
       return FALSE;
   } else {

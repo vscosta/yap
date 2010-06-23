@@ -72,6 +72,7 @@ extern void	PL_save_text(PL_chars_t *text, int flags);
 
 extern int		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
 extern atom_t		textToAtom(PL_chars_t *text);
+extern word		textToString(PL_chars_t *text);
 
 extern IOSTREAM *	Sopen_text(PL_chars_t *text, const char *mode);
 extern void		PL_text_recode(PL_chars_t *text, IOENC encoding);
