@@ -2720,7 +2720,6 @@ YAP_Predicate(Atom a, UInt arity, Term m)
   } else {
     Functor f = Yap_MkFunctor(a, arity);
     return((void *)RepPredProp(PredPropByFunc(f,m)));
-    fprintf(stderr,"here\n");
   }
 } 
 
