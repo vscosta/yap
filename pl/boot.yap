@@ -1164,6 +1164,8 @@ access_file(F,Mode) :-
 expand_term(Term,Expanded) :-
 	( '$current_module'(Mod), \+ '$undefined'(term_expansion(_,_), Mod),
 	  '$notrace'(Mod:term_expansion(Term,Expanded))
+        ; \+ '$undefined'(term_expansion(_,_), system),
+	  '$notrace'(system:term_expansion(Term,Expanded))
         ; \+ '$undefined'(term_expansion(_,_), user),
 	  '$notrace'(user:term_expansion(Term,Expanded))
         ;
