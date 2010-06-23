@@ -411,30 +411,38 @@ code_type(Code, Spec) :-
 	->
 	  Spec is Upper + ("a"-"A")
 	;
-	  Upper >= "a",
-	  Upper =< "z"
-	->
-	  fail
-	;
 	  Spec = Upper
 	).
 '$handle_special_char_type'(Spec, upper(Lower)) :-
 	Lower >= "a",
 	Lower =< "z",
 	Spec is Lower + ("A"-"a").
-'$handle_special_char_type'(Spec, upper(Lower)) :-
+'$handle_special_char_type'(Spec, to_upper(Lower)) :-
 	( Lower >= "a",
 	  Lower =< "z"
 	->
 	  Spec is Lower + ("A"-"a")
 	;
-	  Lower >= "A",
-	  Lower =< "Z"
-	->
-	  fail
-	;
 	  Spec = Lower
 	).
 	  
 
+downcase_atom(U, D) :-
+	atom_codes(U, Codes),
+	'$downcase_codes'(Codes, DCodes),
+	atom_codes(D, DCodes).
 
+'$downcase_codes'([], []).
+'$downcase_codes'(C.Codes, D.DCodes) :-
+	code_type(D, to_lower(C)),	
+	'$downcase_codes'(Codes, DCodes).
+
+upcase_atom(U, D) :-
+	atom_codes(U, Codes),
+	'$upcase_codes'(Codes, DCodes),
+	atom_codes(D, DCodes).
+
+'$upcase_codes'([], []).
+'$upcase_codes'(C.Codes, D.DCodes) :-
+	code_type(D, to_upper(C)),	
+	'$upcase_codes'(Codes, DCodes).
