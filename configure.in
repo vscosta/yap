@@ -1134,7 +1134,7 @@ then
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
   YAPLIB="$DYNYAPLIB"
 else
-  YAPLIB_CFLAGS"$CFLAGS"
+  YAPLIB_CFLAGS="$CFLAGS"
 fi
 
 if test "$coroutining" = "yes"
@@ -1722,6 +1722,7 @@ AC_SUBST(CLIB_NETLIBS)
 AC_SUBST(CLIB_CRYPTLIBS)
 
 CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/unix.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
 
 AC_CHECK_FUNC(socket, [], [
              AC_CHECK_LIB(socket, socket,
@@ -1779,6 +1780,7 @@ fi
 
 
 
+mkdir -p  library/lammpi
 mkdir -p  library/matrix
 mkdir -p  library/matlab
 mkdir -p  library/mpi
@@ -1787,7 +1789,6 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
@@ -1803,6 +1804,7 @@ mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
+mkdir -p  packages/http
 mkdir -p  packages/jpl
 mkdir -p  packages/jpl/src/java
 mkdir -p  packages/jpl/src/java/jpl
@@ -1838,6 +1840,7 @@ AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
+AC_CONFIG_FILES([packages/http/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])

@@ -505,6 +505,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
+	@INSTALL_DLLS@ (cd packages/http; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE))
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
@@ -547,6 +548,7 @@ install_unix: startup.yss libYap.a
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
@@ -593,6 +595,7 @@ install_win32: startup.yss
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
+	(cd packages/http; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	(cd library/random; $(MAKE) install)

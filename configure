@@ -7123,7 +7123,7 @@ then
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
   YAPLIB="$DYNYAPLIB"
 else
-  YAPLIB_CFLAGS"$CFLAGS"
+  YAPLIB_CFLAGS="$CFLAGS"
 fi
 
 if test "$coroutining" = "yes"
@@ -9212,6 +9212,7 @@ CHR_TARGETS=chr_support."$SO"
 
 
 CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/unix.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
 
 ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
 if test "x$ac_cv_func_socket" = x""yes; then :
@@ -9448,6 +9449,7 @@ fi
 
 
 
+mkdir -p  library/lammpi
 mkdir -p  library/matrix
 mkdir -p  library/matlab
 mkdir -p  library/mpi
@@ -9456,7 +9458,6 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  library/lammpi
 mkdir -p  library/yap2swi
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
@@ -9472,6 +9473,7 @@ mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
+mkdir -p  packages/http
 mkdir -p  packages/jpl
 mkdir -p  packages/jpl/src/java
 mkdir -p  packages/jpl/src/java/jpl
@@ -9528,6 +9530,8 @@ ac_config_files="$ac_config_files packages/CLPBN/Makefile"
 ac_config_files="$ac_config_files packages/cplint/Makefile"
 
 ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefile"
+
+ac_config_files="$ac_config_files packages/http/Makefile"
 
 ac_config_files="$ac_config_files packages/PLStream/Makefile"
 
@@ -10272,6 +10276,7 @@ do
     "packages/CLPBN/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/Makefile" ;;
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
     "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
+    "packages/http/Makefile") CONFIG_FILES="$CONFIG_FILES packages/http/Makefile" ;;
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/plunit/Makefile") CONFIG_FILES="$CONFIG_FILES packages/plunit/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
