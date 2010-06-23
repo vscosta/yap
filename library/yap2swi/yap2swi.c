@@ -167,8 +167,8 @@ SWIFunctorToFunctor(functor_t at)
 {
   if (IsAtomTerm(at))
     return (Functor)at;
-  if (IsApplTerm(at))
-    return SWI_Functors[((CELL)RepAppl((CELL)at))/sizeof(CELL)];
+  if ((CELL)(at) & 1)
+    return SWI_Functors[((CELL)at)/2];
   return (Functor)at;
 }
 
@@ -181,7 +181,7 @@ Yap_InitSWIHash(void)
     add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash(AbsAppl((CELL *)(j*sizeof(CELL))), (ADDR)SWI_Functors[j]);
+    add_to_hash((((CELL)(j))*2+1), (ADDR)SWI_Functors[j]);
   }
 }
 
@@ -1512,6 +1512,17 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 		      PL_ATOM, what);
       break;
     }
+    case ERR_STREAM_OP:
+    { atom_t action = va_arg(args, atom_t);
+      term_t stream = va_arg(args, term_t);
+      int rc;
+
+      rc = PL_unify_term(formal,
+			 PL_FUNCTOR, FUNCTOR_io_error2,
+			   PL_ATOM, action,
+			   PL_TERM, stream);
+      break;
+    }
       
   default:
     fprintf(stderr, "unimplemented SWI error %d\n",id);
@@ -2187,6 +2198,18 @@ X_API int PL_is_atom(term_t t)
 X_API int PL_is_ground(term_t t)
 {
   return Yap_IsGroundTerm(Yap_GetFromSlot(t));
+}
+
+X_API int PL_is_callable(term_t t)
+{
+  YAP_Term t1 = Yap_GetFromSlot(t);
+  if (IsVarTerm(t1))
+    return FALSE;
+  if (IsAtomTerm(t1) || IsPairTerm(t1)) 
+    return TRUE;
+  if (IsApplTerm(t1) && !IsExtensionFunctor(FunctorOfTerm(t1)))
+      return TRUE;
+  return FALSE;
 }
 
 X_API int PL_is_atomic(term_t ts)
@@ -2979,6 +3002,16 @@ PL_blob_data(term_t ts, size_t *len, PL_blob_t **type)
   *type = b->blb;
   *len = b->size;
   return (void *)(&b->blob_data);
+}
+
+/* glue function to connect back PLStream to YAP IO */
+X_API void
+PL_YAP_InitSWIIO(functor_t f, void * gc, void * pc, void* cc)
+{
+  FSWIStream = SWIFunctorToFunctor(f);
+  SWIGetc = gc;
+  SWIPutc = pc;
+  SWIClose = cc;
 }
 
 

@@ -457,6 +457,7 @@ extern X_API  int PL_is_compound(term_t);
 extern X_API  int PL_is_float(term_t);
 extern X_API  int PL_is_functor(term_t, functor_t);
 extern X_API  int PL_is_ground(term_t);
+extern X_API  int PL_is_callable(term_t);
 extern X_API  int PL_is_integer(term_t);
 extern X_API  int PL_is_list(term_t);
 extern X_API  int PL_is_number(term_t);
@@ -616,6 +617,12 @@ PL_EXPORT(int)	 	PL_foreign_control(control_t);
 PL_EXPORT(intptr_t)	PL_foreign_context(control_t);
 PL_EXPORT(void *)	PL_foreign_context_address(control_t);
 
+
+/*  SWI stream info */
+PL_EXPORT(void)         PL_YAP_InitSWIIO(functor_t f, 
+					 void *gc,
+					 void *pc,
+					 void *cc);
 
 
 #ifdef __cplusplus
