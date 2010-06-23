@@ -99,6 +99,11 @@ YAP_ULONG_LONG		tot_gc_recovered	TotGcRecovered	=0L
 Int			last_gc_time		LastGcTime	=0L
 Int			last_ss_time		LastSSTime	=0L
 
+Functor			f_swi_stream		FSWIStream	=NULL
+SWI_GetFunction		swi_getc		SWIGetc		=NULL
+SWI_PutFunction		swi_putc		SWIPutc		=NULL
+SWI_CloseFunction	swi_close		SWIClose	=NULL
+
 // global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
 lockvar				signal_lock	SignalLock	MkLock
