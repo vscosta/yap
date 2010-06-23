@@ -96,7 +96,7 @@ INSTALL=@INSTALL@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 INSTALL_DATA=@INSTALL_DATA@
 
-LIBPL=		@PLTARGETS@ $(srcdir)/streaminfo.pl $(srcdir)/process.pl \
+LIBPL=		@CLIB_PLTARGETS@ $(srcdir)/streaminfo.pl $(srcdir)/process.pl \
 		$(srcdir)/prolog_server.pl $(srcdir)/sha.pl \
 		$(srcdir)/socket.pl \
 		$(srcdir)/uri.pl
