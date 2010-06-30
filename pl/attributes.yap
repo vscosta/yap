@@ -19,6 +19,8 @@
 			  delayed_goals/4
 			  ]).
 
+:- dynamic attributes:attributed_module/3, attributes:modules_with_attributes/1.
+
 prolog:get_attr(Var, Mod, Att) :-
 	functor(AttTerm, Mod, 2),
 	arg(2, AttTerm, Att),
@@ -201,6 +203,20 @@ attvar_residuals(att(Module,Value,As), V) -->
 	->  % a previous projection predicate could have instantiated
 	    % this variable, for example, to avoid redundant goals
 	    []
+	; { attributes:attributed_module(Module, _, _)  } ->
+	    % SICStus like run, put attributes back first
+	    { Value =.. [Name,_|Vs],
+	      NValue =.. [Name,_|Vs],
+	      attributes:put_module_atts(V,NValue)
+	    },
+	    attvar_residuals(As, V),
+	    ( { '$undefined'(attribute_goal(V, Goal), Module) }
+	       ->
+	      []
+	      ;
+	      { '$notrace'(Module:attribute_goal(V, Goal)) },
+	      dot_list(Goal)
+	    )
 	;   (	{ current_predicate(Module:attribute_goals/3) }
 	    ->	{ '$notrace'(Module:attribute_goals(V, Goals, [])) },
 		list(Goals)
@@ -208,9 +224,9 @@ attvar_residuals(att(Module,Value,As), V) -->
 	    ->	{ '$notrace'(Module:attribute_goal(V, Goal)) },
 		dot_list(Goal)
 	    ;	[put_attr(V, Module, Value)]
-	    )
-	),
-	attvar_residuals(As, V).
+	    ),
+	    attvar_residuals(As, V)
+	).
 
 list([])     --> [].
 list([L|Ls]) --> [L], list(Ls).
@@ -242,7 +258,7 @@ prolog:call_residue(Goal,Residue) :-
 call_residue(Goal,Module,Residue) :-
 	prolog:call_residue_vars(Module:Goal,NewAttVars),
 	(
-	 '$undefined'(modules_with_attributes(_),attributes)
+	 attributes:modules_with_attributes([_|_])
 	->
 	 project_attributes(NewAttVars, Module:Goal)
 	;
@@ -255,12 +271,11 @@ delayed_goals(G, Vs, NVs, Gs) :-
 	copy_term(G.Vs, _.NVs, Gs).
 
 project_delayed_goals(G) :-
-	'$undefined'(modules_with_attributes(_),attributes), !.
-project_delayed_goals(G) :-
 % SICStus compatible step,
 % just try to simplify store  by projecting constraints
 % over query variables.
 % called by top_level to find out about delayed goals
+	attributes:modules_with_attributes([_|_]), !,
 	attributes:all_attvars(LAV),
 	LAV = [_|_],
 	project_attributes(LAV, G), !.
@@ -279,10 +294,9 @@ att_vars([_|LGs], AttVars) :-
 
 % make sure we set the suspended goal list to its previous state!
 % make sure we have installed a SICStus like constraint solver.
-project_attributes(_, _) :-
-	'$undefined'(modules_with_attributes(_),attributes), !.
 project_attributes(AllVs, G) :-
 	attributes:modules_with_attributes(LMods),
+	LMods = [_|_],
 	term_variables(G, InputVs),
 	pick_att_vars(InputVs, AttIVs),
 	project_module(LMods, AttIVs, AllVs).

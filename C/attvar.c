@@ -859,15 +859,19 @@ p_swi_all_atts(void) {
 	  return Yap_unify(ARG2,TermNil);
       while (!IsVarTerm(tatt)) {
 	Functor f = FunctorOfTerm(tatt);
+	UInt ar = ArityOfFunctor(f);
 
-	if (ArityOfFunctor(f) == 2) {
-	  if (H != h0)
-	    H[-1] = AbsAppl(H);
-	  H[0] = (CELL) attf;
-	  H[1] = MkAtomTerm(NameOfFunctor(f));
-	  H[2] = ArgOfTerm(2,tatt);
-	  H+=4;
-	}
+	if (H != h0)
+	  H[-1] = AbsAppl(H);
+	H[0] = (CELL) attf;
+	H[1] = MkAtomTerm(NameOfFunctor(f));
+	/* SWI */
+	if (ar == 2) 
+	  H[2] =  ArgOfTerm(2,tatt);
+	else
+	  H[2] =  tatt;
+	H += 4;
+	H[-1] = AbsAppl(H);
 	tatt = ArgOfTerm(1,tatt);
       }
       if (h0 != H) {
