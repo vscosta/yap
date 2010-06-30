@@ -167,8 +167,8 @@ SWIFunctorToFunctor(functor_t at)
 {
   if (IsAtomTerm(at))
     return (Functor)at;
-  if ((CELL)(at) & 1)
-    return SWI_Functors[((CELL)at)/2];
+  if ((CELL)(at) & 2)
+    return SWI_Functors[((CELL)at)/4];
   return (Functor)at;
 }
 
@@ -181,7 +181,7 @@ Yap_InitSWIHash(void)
     add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash((((CELL)(j))*2+1), (ADDR)SWI_Functors[j]);
+    add_to_hash((((CELL)(j))*4+2), (ADDR)SWI_Functors[j]);
   }
 }
 
