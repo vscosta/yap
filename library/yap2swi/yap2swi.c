@@ -684,6 +684,11 @@ X_API int PL_get_head(term_t ts, term_t h)
   return 1;
 }
 
+X_API int PL_get_string(term_t t, char **s, size_t *len)
+{
+  return PL_get_string_chars(t, s, len);
+}
+
 X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
 {
   Term tt = Yap_GetFromSlot(t);

@@ -502,6 +502,7 @@ extern X_API int PL_thread_at_exit(void (*)(void *), void *, int);
 extern X_API PL_engine_t PL_create_engine(const PL_thread_attr_t *);
 extern X_API int PL_destroy_engine(PL_engine_t);
 extern X_API int PL_set_engine(PL_engine_t,PL_engine_t *);
+extern X_API int PL_get_string(term_t, char **, size_t *);
 extern X_API int PL_get_string_chars(term_t, char **, size_t *);
 extern X_API record_t PL_record(term_t);
 extern X_API int PL_recorded(record_t, term_t);
