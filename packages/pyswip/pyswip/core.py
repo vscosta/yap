@@ -244,7 +244,7 @@ PL_get_atom_chars.argtypes = [term_t, POINTER(c_char_p)]
 ##define PL_get_string_chars(t, s, l) PL_get_string(t,s,l)
 #					/* PL_get_string() is depricated */
 #PL_EXPORT(int)		PL_get_string(term_t t, char **s, size_t *len);
-PL_get_string = _lib.PL_get_string
+PL_get_string = _lib.PL_get_string_chars
 PL_get_string.argtypes = [term_t, POINTER(c_char_p), c_int_p]
 PL_get_string_chars = PL_get_string
 PL_get_string_chars.argtypes = [term_t, POINTER(c_char_p), c_int_p]
