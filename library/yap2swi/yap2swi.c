@@ -393,7 +393,7 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 
 /* SWI: int PL_get_atom_chars(term_t t, char **s)
    YAP: char* AtomName(Atom) */
-X_API int PL_get_atom_nchars(term_t ts, char **s, size_t *len)  /* SAM check type */
+X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check type */
 {
   Term t = Yap_GetFromSlot(ts);
   if (!IsAtomTerm(t))

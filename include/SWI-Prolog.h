@@ -372,7 +372,7 @@ extern X_API int PL_get_arg(int, term_t, term_t);
 extern X_API int _PL_get_arg(int, term_t, term_t);
 extern X_API int PL_get_atom(term_t, atom_t *);
 extern X_API int PL_get_atom_chars(term_t, char **);
-extern X_API int PL_get_atom_nchars(term_t, char **, size_t *);
+extern X_API int PL_get_atom_nchars(term_t, size_t *, char **);
 extern X_API int PL_get_bool(term_t, int *);
 extern X_API int PL_get_chars(term_t, char **, unsigned);
 extern X_API int PL_get_nchars(term_t, size_t *, char **, unsigned);
