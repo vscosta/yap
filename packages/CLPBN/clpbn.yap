@@ -169,7 +169,7 @@ add_evidence(V,K,_,V) :-
 clpbn_marginalise(V, Dist) :-
 	attributes:all_attvars(AVars),
 	project_attributes([V], AVars),
-	vel:get_atts(V, posterior(_,_,Dist,_)).
+	clpbn_display:get_atts(V, posterior(_,_,Dist,_)).
 
 %
 % called by top-level

@@ -1021,7 +1021,12 @@ dnl Linux has both elf and a.out, in this case we found elf
            EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         fi
-	INSTALL_DLLS=""
+	if test "$ac_cv_prog_gcc" = "yes"
+	then
+	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
+	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
+	   INSTALL_DLLS=""
+        fi
         CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
         DYNYAPLIB=libYap."$SO"
         YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"

@@ -111,6 +111,8 @@ kill_thread_engine (int wid, int always_die)
   Prop p0 = AbsPredProp(FOREIGN_ThreadHandle(wid).local_preds);
   GlobalEntry *gl = GlobalVariables;
 
+  FOREIGN_ThreadHandle(wid).local_preds = NIL;
+  GlobalVariables = NULL;
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);

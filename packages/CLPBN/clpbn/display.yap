@@ -33,7 +33,7 @@ gen_eqs([V], D, (V=D)) :- !.
 gen_eqs([V|Vs], [D|Ds], ((V=D),Eqs)) :-
 	gen_eqs(Vs,Ds,Eqs).
 
-add_alldiffs([],Eqs,Eqs).
+add_alldiffs([],Eqs,Eqs) :- !.
 add_alldiffs(AllDiffs,Eqs,(Eqs/alldiff(AllDiffs))).
 
 
