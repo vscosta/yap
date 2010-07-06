@@ -1545,7 +1545,11 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 	Term t;
 
-	ASP = YREG+E_CB;
+	if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	  ASP = (CELL *) PROTECT_FROZEN_B(B);
+	} else {
+	  ASP = YREG+E_CB;
+	}
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
@@ -2665,6 +2669,8 @@ Yap_absmi(int inp)
 	if (SREG <= ASP) {
 	  ASP = SREG-EnvSizeInCells;
 	}
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	  goto noheapleft;
 	}
@@ -7745,7 +7751,11 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
 
       Yap_PrologMode = UserCCallMode;
-      ASP = YREG;
+      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
+	ASP = (CELL *) PROTECT_FROZEN_B(B);
+      } else {
+	ASP = YREG;
+      }
       /* for slots to work */
       Yap_StartSlots();
       saveregs();
@@ -13780,6 +13790,8 @@ Yap_absmi(int inp)
 	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
@@ -13977,6 +13989,8 @@ Yap_absmi(int inp)
 	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
+	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
