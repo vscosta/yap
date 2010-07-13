@@ -51,6 +51,62 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
+#if defined(__x86_64__) && defined (__linux__)
+
+#define __USE_GNU
+
+#include <ucontext.h>
+
+typedef greg_t context_reg;
+#define CONTEXT_PC(scv) (((ucontext_t *)(scv))->uc_mcontext.gregs[14])
+#define CONTEXT_BP(scv) (((ucontext_t *)(scv))->uc_mcontext.gregs[6])
+
+#elif defined(__i386__) && defined (__linux__)
+
+#include <ucontext.h>
+
+typedef greg_t context_reg;
+#define CONTEXT_PC(scv) (((ucontext_t *)(scv))->uc_mcontext.gregs[14])
+#define CONTEXT_BP(scv) (((ucontext_t *)(scv))->uc_mcontext.gregs[6])
+
+#elif defined(__APPLE__) && defined(__x86_64__)
+
+#include <AvailabilityMacros.h>
+#include <sys/ucontext.h>
+
+#if !defined(MAC_OS_X_VERSION_10_5) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#define CONTEXT_REG(r) r
+#else
+#define CONTEXT_REG(r) __##r
+#endif
+
+#define CONTEXT_STATE(scv) (((ucontext_t *)(scv))->uc_mcontext->CONTEXT_REG(ss))
+#define CONTEXT_PC(scv) (CONTEXT_STATE(scv).CONTEXT_REG(rip))
+#define CONTEXT_BP(scv) (CONTEXT_STATE(scv).CONTEXT_REG(rbp))
+
+#elif defined(__APPLE__) && defined(__i386__)
+
+#include <AvailabilityMacros.h>
+#include <sys/ucontext.h>
+
+#if !defined(MAC_OS_X_VERSION_10_5) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#define CONTEXT_REG(r) r
+#else
+#define CONTEXT_REG(r) __##r
+#endif
+
+#define CONTEXT_STATE(scv) (((ucontext_t *)(scv))->uc_mcontext->CONTEXT_REG(ss))
+#define CONTEXT_PC(scv) (CONTEXT_STATE(scv).CONTEXT_REG(eip))
+#define CONTEXT_BP(scv) (CONTEXT_STATE(scv).CONTEXT_REG(ebp))
+#define CONTEXT_FAULTING_ADDRESS ((char *) info->si_addr)
+
+#else
+
+#define CONTEXT_PC NULL
+#define CONTEXT_BP NULL
+
+#endif
+
 #include "absmi.h"
 #include <stdio.h>
 
@@ -63,7 +119,6 @@ static char     SccsId[] = "%W% %G%";
 #include <unistd.h>
 #include <sys/time.h>
 #ifdef __APPLE__
-#include <sys/ucontext.h>
 #else
 #include <ucontext.h>
 #endif
@@ -910,55 +965,11 @@ showprofres(UInt type) {
 
 #define TestMode (GCMode | GrowHeapMode | GrowStackMode | ErrorHandlingMode | InErrorMode | AbortMode | MallocMode)
 
-#ifdef __APPLE__
-#include <sys/ucontext.h>
-
-#ifdef __x86_64__
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
-#define CONTEXT_STATE (((ucontext_t *)context)->uc_mcontext->ss)
-#define CONTEXT_PC (CONTEXT_STATE.rip)
-#define CONTEXT_BP (CONTEXT_STATE.rbp)
-#else
-#define CONTEXT_STATE (((ucontext_t *)scv)->uc_mcontext->__ss)
-#define CONTEXT_PC (CONTEXT_STATE.__rip)
-#define CONTEXT_BP (CONTEXT_STATE.__rbp)
-#endif
-#else /* i386 */
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
-#define CONTEXT_STATE (((ucontext_t *)context)->uc_mcontext->ss)
-#define CONTEXT_PC (CONTEXT_STATE.rip)
-#define CONTEXT_BP (CONTEXT_STATE.rbp)
-#else
-#define CONTEXT_STATE (((ucontext_t *)scv)->uc_mcontext->__ss)
-#define CONTEXT_PC (CONTEXT_STATE.__eip)
-#define CONTEXT_BP (CONTEXT_STATE.__ebp)
-#endif
-#endif
-#endif
 
 static void
 prof_alrm(int signo, siginfo_t *si, void *scv)
 {
-  
-#ifdef __linux__ 
-  ucontext_t *sc = (ucontext_t *)scv;
-#if (defined(i386) || defined(__amd64__))
-  void * oldpc=(void *) sc->uc_mcontext.gregs[14]; /* 14= REG_EIP */
-#else
-  void * oldpc= NULL;
-#endif
-#else
-#if defined(__APPLE__) && defined(i386)
-#ifdef __darwin__
-  ucontext_t *sc = (ucontext_t *)scv;
-  void * oldpc=(void *) sc->uc_mcontext->ss.srr0; /* 14= POWER PC */
-#else
-  void * oldpc=(void *) CONTEXT_PC;
-#endif
-#else
-  void *oldpc = NULL;
-#endif
-#endif
+  void * oldpc=(void *) CONTEXT_PC(scv);
   rb_red_blk_node *node = NULL;
   yamop *current_p;
 
@@ -1000,11 +1011,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   if (oldpc>(void *) &Yap_absmi && oldpc <= (void *) &Yap_absmiEND) { 
     /* we are running emulator code */
 #if BP_FREE
-#ifdef __APPLE__
-    current_p =(yamop *) CONTEXT_BP;
-#else
-    current_p =(yamop *) sc->uc_mcontext.gregs[6]; /* 6= REG_EBP */
-#endif
+    current_p =(yamop *) CONTEXT_BP(scv);
 #else
     current_p = P;
 #endif
