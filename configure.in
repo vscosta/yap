@@ -1821,6 +1821,7 @@ mkdir -p  packages/PLStream
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 
 AC_CONFIG_FILES([Makefile])
@@ -1849,6 +1850,7 @@ AC_CONFIG_FILES([packages/http/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
+AC_CONFIG_FILES([packages/semweb/Makefile])
 AC_CONFIG_FILES([packages/sgml/Makefile])
 
 if test "$ENABLE_CHR" = ""; then

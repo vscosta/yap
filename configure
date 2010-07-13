@@ -9490,6 +9490,7 @@ mkdir -p  packages/PLStream
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 
 ac_config_files="$ac_config_files Makefile"
@@ -9543,6 +9544,8 @@ ac_config_files="$ac_config_files packages/PLStream/Makefile"
 ac_config_files="$ac_config_files packages/plunit/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/Makefile"
+
+ac_config_files="$ac_config_files packages/semweb/Makefile"
 
 ac_config_files="$ac_config_files packages/sgml/Makefile"
 
@@ -10285,6 +10288,7 @@ do
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;
     "packages/plunit/Makefile") CONFIG_FILES="$CONFIG_FILES packages/plunit/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
+    "packages/semweb/Makefile") CONFIG_FILES="$CONFIG_FILES packages/semweb/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
