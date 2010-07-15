@@ -540,6 +540,23 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
   return(Yap_unify(ARG2,t));
 }
 
+/* 
+   FAST EXPORT ROUTINE. Export a Prolog term to something like:
+
+   CELL 0: offset for start of term
+   CELL 1: size of actual term (to be copied to stack)
+   CELL 2: the original term (just for reference)
+
+   Atoms and functors:
+   - atoms are either:
+     0 and a char *string
+     -1 and a wchar_t *string
+   - functors are a CELL with arity and a string.
+
+   Compiled Term.
+
+ */
+
 static inline
 CELL *CellDifH(CELL *hptr, CELL *hlow)
 {
@@ -558,11 +575,22 @@ Atom export_atom(Atom at, char **hpp, size_t len)
   ptr = AdjustSizeAtom(ptr);
   
   p0 = ptr;
-  sz = strlen(RepAtom(at)->StrOfAE);
-  if (sz +1 >= len)
-    return (Atom)NULL;
-  strcpy(ptr, RepAtom(at)->StrOfAE);
-  *hpp = ptr+(sz+1);
+  if (IsWideAtom(at)) {
+    wchar_t *wptr = (wchar_t *)ptr;
+    *wptr++ = -1;
+    sz = wcslen(RepAtom(at)->WStrOfAE);
+    if (sizeof(wchar_t)*(sz+1) >= len)
+      return (Atom)NULL;
+    wcsncpy(wptr, RepAtom(at)->WStrOfAE, len);
+    *hpp = (char *)(wptr+(sz+1));
+  } else {
+    *ptr++ = 0;
+    sz = strlen(RepAtom(at)->StrOfAE);
+    if (sz +1 >= len)
+      return (Atom)NULL;
+    strcpy(ptr, RepAtom(at)->StrOfAE);
+    *hpp = ptr+(sz+1);
+  }
   ptr += sz;
   return (Atom)p0;
 }
@@ -571,7 +599,6 @@ static inline
 Functor export_functor(Functor f, char **hpp, size_t len)
 {
   CELL *hptr = (UInt *)AdjustSizeAtom(*hpp);
-  fprintf(stderr,"hptr=%p\n",hptr);
   UInt arity = ArityOfFunctor(f);
   if (2*sizeof(CELL) >= len)
     return (Functor)NULL;
@@ -584,7 +611,7 @@ Functor export_functor(Functor f, char **hpp, size_t len)
 
 #define export_derefa_body(D,A,LabelUnk,LabelNonVar)                \
 		do {                                         \
-		  if ((D) < CellDifH(H,HLow)) { (A) = (CELL *)(D); break; } \
+		  if ((CELL *)(D) < CellDifH(H,HLow)) { (A) = (CELL *)(D); break; } \
                    (A) = (CELL *)(D);                        \
                    (D) = *(CELL *)(D);                       \
                    if(!IsVarTerm(D)) goto LabelNonVar;       \
@@ -599,8 +626,6 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
   CELL *bf = (CELL *)buf;
   if (buf + len < (char *)(td + (tf-t0)))
     return FALSE;
-  printf("t0=%p tf=%p len=%d\n",t0,tf,len);
-  printf("t0.0=%lx t0.1=%lx  t0.2=%lx t0.3=%lx\n",t0[0],t0[1],t0[2],t0[3]);
   memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
   bf[0] = (td-buf);
   bf[1] = (tf-t0);
@@ -743,7 +768,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	  goto overflow;
 	}
 	ptf[-1] = (CELL)export_functor(f, &bptr, len);
-	jmp_deb(1);
 	len = len0 - (bptr-buf);
 	if (H > ASP - 2048) {
 	  goto overflow;
@@ -761,7 +785,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
     }
 
     export_derefa_body(d0, ptd0, export_term_unk, export_term_nvar);
-    fprintf(stderr,"2 ptf=%p HLow=%p\n",ptf,HLow);
     ground = FALSE;
     if (ptd0 < CellDifH(H,HLow)) { 
       /* we have already found this cell */
@@ -796,7 +819,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 #endif
 	/* first time we met this term */
 	*ptf = (CELL)CellDifH(ptf,HLow);
-	fprintf(stderr,"3 ptf=%p %x HLow=%p\n",ptf,*ptf,HLow);
 	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
 	  /* Trail overflow */
 	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
@@ -928,7 +950,13 @@ ShiftPtr(CELL t, char *base)
 static Atom
 AddAtom(Atom t)
 {
-  return Yap_LookupAtom((char *)t);
+  char *s = (char *)t;
+  if (!*s) {
+    return Yap_LookupAtom(s+1);
+  } else {
+    wchar_t *w = (wchar_t *)s;
+    return Yap_LookupWideAtom(w+1);
+  }
 }
 
 static UInt
@@ -941,7 +969,7 @@ FetchFunctor(CELL *pt)
   // and then an atom
   ++ptr;
   name = (char *)ptr;
-  name = (CELL *)AdjustSizeAtom(name);
+  name = AdjustSizeAtom(name);
   *pt = (CELL)Yap_MkFunctor(AddAtom((Atom)name), arity);
   return arity;
 }
@@ -983,7 +1011,6 @@ import_compound(CELL *hp, char *abase, CELL *amax)
   if (IsExtensionFunctor(f))
     return amax;
   ar = FetchFunctor(hp);
-  fprintf(stderr,"arity %d\n",ar);
   for (i=1; i<=ar; i++) {
     amax = import_arg(hp+i, abase, amax);
   }    
@@ -1017,7 +1044,6 @@ Yap_ImportTerm(char * buf) {
   if (H + sz > ASP)
     return (Term)0;
   memcpy(H, buf+bc[0], sizeof(CELL)*sz);
-  fprintf(stderr,"*hp=%lx hp[1]=%lx hp[2]=%lx\n",*H, H[1], H[2]);
   if (IsApplTerm(tinp)) {
     tret = AbsAppl(H);
     import_compound(H, (char *)H, H);
@@ -1025,12 +1051,13 @@ Yap_ImportTerm(char * buf) {
     tret = AbsPair(H);
     import_pair(H, (char *)H, H);
   }
-  fprintf(stderr,"*hp=%lx hp[1]=%lx hp[2]=%lx hp[3]=%lx hp[4]=%lx\n",*H, H[1], H[2], H[3], H[4]);
   H += sz;
   return tret;
 }
 
-#if DEBUG
+#define DEBUG_IMPORT 1
+
+#if DEBUG_IMPORT
 
 static char export_debug_buf[2048];
 
@@ -3582,7 +3609,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
   Yap_InitCPred("=@=", 2, p_variant, 0);
-#ifdef DEBUG
+#ifdef DEBUG_IMPORT
   Yap_InitCPred("import_term", 1, p_import_term, 0);
   Yap_InitCPred("export_term", 1, p_export_term, 0);
 #endif
