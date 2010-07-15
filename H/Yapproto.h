@@ -371,6 +371,8 @@ void	STD_PROTO(Yap_InitUserBacks,(void));
 
 /* utilpreds.c */
 Term	STD_PROTO(Yap_CopyTerm,(Term));
+int	STD_PROTO(Yap_ExportTerm,(Term, char *, size_t));
+Term	STD_PROTO(Yap_ImportTerm,(char *));
 int	STD_PROTO(Yap_IsListTerm,(Term));
 Term	STD_PROTO(Yap_CopyTermNoShare,(Term));
 int	STD_PROTO(Yap_SizeGroundTerm,(Term, int));

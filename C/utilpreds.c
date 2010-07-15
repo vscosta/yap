@@ -540,6 +540,514 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
   return(Yap_unify(ARG2,t));
 }
 
+static inline
+CELL *CellDifH(CELL *hptr, CELL *hlow)
+{
+  return (CELL *)((char *)hptr-(char *)hlow);
+}
+
+#define AdjustSizeAtom(X)	((char *)(((CELL)X+7) & (CELL)(-8)))
+
+static inline 
+Atom export_atom(Atom at, char **hpp, size_t len)
+{				 
+  char *ptr, *p0;
+  size_t sz;
+
+  ptr = *hpp;
+  ptr = AdjustSizeAtom(ptr);
+  
+  p0 = ptr;
+  sz = strlen(RepAtom(at)->StrOfAE);
+  if (sz +1 >= len)
+    return (Atom)NULL;
+  strcpy(ptr, RepAtom(at)->StrOfAE);
+  *hpp = ptr+(sz+1);
+  ptr += sz;
+  return (Atom)p0;
+}
+
+static inline 
+Functor export_functor(Functor f, char **hpp, size_t len)
+{
+  CELL *hptr = (UInt *)AdjustSizeAtom(*hpp);
+  fprintf(stderr,"hptr=%p\n",hptr);
+  UInt arity = ArityOfFunctor(f);
+  if (2*sizeof(CELL) >= len)
+    return (Functor)NULL;
+  hptr[0] = arity;
+  *hpp = (char *)(hptr+1);
+  if (!export_atom(NameOfFunctor(f), hpp, len))
+    return 0L;
+  return (Functor)hptr;
+}
+
+#define export_derefa_body(D,A,LabelUnk,LabelNonVar)                \
+		do {                                         \
+		  if ((D) < CellDifH(H,HLow)) { (A) = (CELL *)(D); break; } \
+                   (A) = (CELL *)(D);                        \
+                   (D) = *(CELL *)(D);                       \
+                   if(!IsVarTerm(D)) goto LabelNonVar;       \
+		LabelUnk:      ;                             \
+		} while (Unsigned(A) != (D))
+
+
+static int
+export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, size_t len)
+{
+  char *td = bptr;
+  CELL *bf = (CELL *)buf;
+  if (buf + len < (char *)(td + (tf-t0)))
+    return FALSE;
+  printf("t0=%p tf=%p len=%d\n",t0,tf,len);
+  printf("t0.0=%lx t0.1=%lx  t0.2=%lx t0.3=%lx\n",t0[0],t0[1],t0[2],t0[3]);
+  memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
+  bf[0] = (td-buf);
+  bf[1] = (tf-t0);
+  bf[2] = inpt;
+  return TRUE;
+}
+
+
+static int
+export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, int newattvs, CELL *ptf, CELL *HLow)
+{
+
+  struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
+  CELL *HB0 = HB;
+  tr_fr_ptr TR0 = TR;
+  int ground = TRUE;
+#ifdef COROUTINING
+  CELL *dvarsmin = NULL, *dvarsmax=NULL;
+#endif
+  char *bptr = buf+ 3*sizeof(CELL);
+  size_t len = len0;
+
+  HB = HLow;
+  to_visit0 = to_visit;
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, export_term_unk);
+  export_term_nvar:
+    {
+      if (IsPairTerm(d0)) {
+	CELL *ap2 = RepPair(d0);
+	if (ap2 < CellDifH(H,HLow)) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	*ptf = AbsPair(CellDifH(H,HLow));
+	ptf++;
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = AbsPair(CellDifH(H,HLow));
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	pt0 = ap2 - 1;
+	pt0_end = ap2 + 1;
+	ptf = H;
+	H += 2;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2;
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	if (ap2 < CellDifH(H,HLow)) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	f = (Functor)(*ap2);
+
+	*ptf++ = AbsAppl(CellDifH(H,HLow));
+	if (IsExtensionFunctor(f)) {
+	  UInt sz;
+
+	  /* make sure to export floats */
+	  if (f== FunctorDouble) {
+	    sz = sizeof(Float)/sizeof(CELL)+2;
+	  } else if (f== FunctorLongInt) {
+	    sz = 3;
+	  } else {
+	    CELL *pt = ap2+1;
+	    sz = 2+sizeof(MP_INT)+(((MP_INT *)(pt+1))->_mp_alloc*sizeof(mp_limb_t));
+	  }
+	  if (H+sz > ASP - 2048) {
+	    goto overflow;
+	  }
+	  memcpy((void *)H, (void *)ap2, sz*sizeof(CELL));
+	  H += sz;
+	  continue;
+	}
+	/* store the terms to visit */
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct cp_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = AbsAppl(H);
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct cp_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	ground = (f != FunctorMutable);
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	/* store the functor for the new term */
+	ptf = H+1;
+	H += 1+d0;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+	ptf[-1] = (CELL)export_functor(f, &bptr, len);
+	jmp_deb(1);
+	len = len0 - (bptr-buf);
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else {
+	if (IsAtomTerm(d0)) {
+	  *ptf = MkAtomTerm(export_atom(AtomOfTerm(d0), &bptr, len));
+	  ptf++;
+	  len = len0 - (bptr-buf);
+	} else {
+	  *ptf++ = d0;
+	}
+      }
+      continue;
+    }
+
+    export_derefa_body(d0, ptd0, export_term_unk, export_term_nvar);
+    fprintf(stderr,"2 ptf=%p HLow=%p\n",ptf,HLow);
+    ground = FALSE;
+    if (ptd0 < CellDifH(H,HLow)) { 
+      /* we have already found this cell */
+      *ptf++ = (CELL) ptd0;
+    } else {
+#if COROUTINING
+      if (newattvs && IsAttachedTerm((CELL)ptd0) && FALSE) {
+	/* if unbound, call the standard export term routine */
+	struct cp_frame *bp;
+
+	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
+	  *ptf++ = (CELL) ptd0;
+	} else {
+	  CELL new;
+
+	  bp = to_visit;
+	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf)) {
+	    goto overflow;
+	  }
+	  to_visit = bp;
+	  new = *ptf;
+	  Bind(ptd0, new);
+	  if (dvarsmin == NULL) {
+	    dvarsmin = CellPtr(new);
+	  } else {
+	    *dvarsmax = (CELL)(CellPtr(new)+1);
+	  }
+	  dvarsmax = CellPtr(new)+1;
+	  ptf++;
+	}
+      } else {
+#endif
+	/* first time we met this term */
+	*ptf = (CELL)CellDifH(ptf,HLow);
+	fprintf(stderr,"3 ptf=%p %x HLow=%p\n",ptf,*ptf,HLow);
+	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	  /* Trail overflow */
+	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	    goto trail_overflow;
+	  }
+	}
+	Bind(ptd0, (CELL)ptf);
+	ptf++;
+#ifdef COROUTINING
+      }
+#endif
+    }
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+#ifdef RATIONAL_TREES
+    *pt0 = to_visit->oldv;
+#endif
+    ground = (ground && to_visit->ground);
+    goto loop;
+  }
+
+  /* restore our nice, friendly, term to its original state */
+  clean_dirty_tr(TR0);
+  close_attvar_chain(dvarsmin, dvarsmax);
+  HB = HB0;
+  return export_term_to_buffer(tf, buf, bptr, HLow, H, len0);
+
+ overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  /* follow chain of multi-assigned variables */
+  reset_attvars(dvarsmin, dvarsmax);
+  return -1;
+
+trail_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  {
+    tr_fr_ptr oTR =  TR;
+    reset_trail(TR0);
+    reset_attvars(dvarsmin, dvarsmax);
+    if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+      return -4;
+    }
+    return -2;
+  }
+
+ heap_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  reset_attvars(dvarsmin, dvarsmax);
+  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  return -3;
+}
+
+static int
+ExportTerm(Term inp, char * buf, size_t len, UInt arity, int newattvs) {
+  Term t = Deref(inp);
+  tr_fr_ptr TR0 = TR;
+  int res;
+  CELL *Hi;
+
+ restart:
+  Hi = H;
+  if ((res = export_complex_term(inp, &t-1, &t, buf, len, newattvs, Hi, Hi)) < 0) {
+    H = Hi;
+    if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
+      return FALSE;
+    goto restart;
+  }
+  return res;
+}
+ 
+int
+Yap_ExportTerm(Term inp, char * buf, size_t len) {
+  return ExportTerm(inp, buf, len, 0, TRUE);
+}
+
+
+static CELL *
+ShiftPtr(CELL t, char *base)
+{
+  return (CELL *)(base+t);
+}
+
+static Atom
+AddAtom(Atom t)
+{
+  return Yap_LookupAtom((char *)t);
+}
+
+static UInt
+FetchFunctor(CELL *pt)
+{
+  CELL *ptr = (CELL *)(*pt); 
+  // do arity first
+  UInt arity = *ptr;
+  char *name;
+  // and then an atom
+  ++ptr;
+  name = (char *)ptr;
+  name = (CELL *)AdjustSizeAtom(name);
+  *pt = (CELL)Yap_MkFunctor(AddAtom((Atom)name), arity);
+  return arity;
+}
+
+
+static CELL *import_compound(CELL *hp, char *abase, CELL *amax);
+static CELL *import_pair(CELL *hp, char *abase, CELL *amax);
+
+static CELL *
+import_arg(CELL *hp, char *abase, CELL *amax)
+{
+  Term t = *hp;
+  if (IsVarTerm(t)) {
+    hp[0] = (CELL)ShiftPtr(t, abase);
+  } else if (IsAtomTerm(t)) {
+    hp[0] = MkAtomTerm(AddAtom(AtomOfTerm(t)));
+  } else if (IsPairTerm(t)) {
+    CELL *newp = ShiftPtr((CELL)RepPair(t), abase);
+    hp[0] = AbsPair(newp);
+    if (newp > amax) {
+      amax = import_pair(newp, abase, newp);
+    }
+  } else {
+    CELL *newp = ShiftPtr((CELL)RepAppl(t), abase);
+    hp[0] = AbsAppl(newp);
+    if (newp > amax) {
+      amax = import_compound(newp, abase, newp);
+    }
+  }
+  return amax;
+}
+
+static CELL *
+import_compound(CELL *hp, char *abase, CELL *amax)
+{
+  Functor f = (Functor)*hp;
+  UInt ar, i;
+
+  if (IsExtensionFunctor(f))
+    return amax;
+  ar = FetchFunctor(hp);
+  fprintf(stderr,"arity %d\n",ar);
+  for (i=1; i<=ar; i++) {
+    amax = import_arg(hp+i, abase, amax);
+  }    
+  return amax;
+}
+
+static CELL *
+import_pair(CELL *hp, char *abase, CELL *amax)
+{
+  amax = import_arg(hp, abase, amax);
+  amax = import_arg(hp+1, abase, amax);
+  return amax;
+}
+
+Term
+Yap_ImportTerm(char * buf) {
+  CELL *bc = (CELL *)buf;
+  size_t sz = bc[1];
+  Term tinp, tret;
+
+  tinp = bc[2];
+  if (IsVarTerm(tinp))
+    return MkVarTerm();
+  if (IsAtomOrIntTerm(tinp)) {
+    if (IsAtomTerm(tinp)) {
+      char *pt = AdjustSizeAtom((char *)(bc+3));
+      return MkAtomTerm(Yap_LookupAtom(pt));
+    } else
+      return tinp;
+  }
+  if (H + sz > ASP)
+    return (Term)0;
+  memcpy(H, buf+bc[0], sizeof(CELL)*sz);
+  fprintf(stderr,"*hp=%lx hp[1]=%lx hp[2]=%lx\n",*H, H[1], H[2]);
+  if (IsApplTerm(tinp)) {
+    tret = AbsAppl(H);
+    import_compound(H, (char *)H, H);
+  } else {
+    tret = AbsPair(H);
+    import_pair(H, (char *)H, H);
+  }
+  fprintf(stderr,"*hp=%lx hp[1]=%lx hp[2]=%lx hp[3]=%lx hp[4]=%lx\n",*H, H[1], H[2], H[3], H[4]);
+  H += sz;
+  return tret;
+}
+
+#if DEBUG
+
+static char export_debug_buf[2048];
+
+static Int
+p_export_term(void)
+{
+  Yap_ExportTerm(ARG1, export_debug_buf, 2048);
+  return TRUE;
+}
+
+static Int
+p_import_term(void)
+{
+  return Yap_unify(ARG1,Yap_ImportTerm(export_debug_buf));
+}
+#endif
+
 
 static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp)
 {
@@ -3074,6 +3582,10 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
   Yap_InitCPred("=@=", 2, p_variant, 0);
+#ifdef DEBUG
+  Yap_InitCPred("import_term", 1, p_import_term, 0);
+  Yap_InitCPred("export_term", 1, p_export_term, 0);
+#endif
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
   Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
