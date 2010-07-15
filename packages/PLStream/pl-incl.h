@@ -531,7 +531,6 @@ extern int PL_get_text(term_t l, PL_chars_t *text, int flags);
 extern void PL_cleanup_fork(void);
 extern int PL_rethrow(void);
 extern void PL_get_number(term_t l, number *n);
-extern int PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags);
 extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 
 #define _PL_get_arg(X,Y,Z) PL_get_arg(X,Y,Z)

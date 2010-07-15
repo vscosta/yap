@@ -3,6 +3,14 @@
 
 #include <stdio.h>
 #include "pl-incl.h"
+
+#define	Quote_illegal_f		1
+#define	Ignore_ops_f		2
+#define	Handle_vars_f		4
+#define	Use_portray_f		8
+#define	To_heap_f	       16
+#define	Unfold_cyclics_f       32
+
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
 #endif
@@ -128,7 +136,16 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex)
 int
 PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
 {
-
+  int nflags = 0;
+  if (flags & PL_WRT_QUOTED)
+    nflags |= Quote_illegal_f;
+  if (flags & PL_WRT_IGNOREOPS)
+    nflags |= Ignore_ops_f;
+  if (flags & PL_WRT_NUMBERVARS)
+    nflags |= Handle_vars_f;
+  if (flags & PL_WRT_PORTRAY)
+    nflags |= Use_portray_f;
+  /* ignore other flags for now */
   YAP_Write(YAP_GetFromSlot(term), (void (*)(int))Sputc, flags);
   return TRUE;
 }
