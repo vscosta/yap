@@ -630,7 +630,7 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
   bf[0] = (td-buf);
   bf[1] = (tf-t0);
   bf[2] = inpt;
-  return TRUE;
+  return bf[0]+sizeof(CELL)*bf[1];
 }
 
 

@@ -2298,6 +2298,54 @@ X_API int PL_compare(term_t ts1, term_t ts2)
   return YAP_CompareTerms(t1, t2);
 }
 
+X_API char *
+PL_record_external
+(term_t ts, size_t *sz)
+{
+  Term t = Yap_GetFromSlot(ts);
+  size_t len = 512, nsz;
+  char *s;
+
+  while(TRUE) {
+    if (!(s = Yap_AllocCodeSpace(len)))
+      return NULL;
+    if ((nsz = Yap_ExportTerm(t, s, len))) {
+      *sz = nsz;
+      return s;
+    } else {
+      if (len < 16*1024) 
+	len = len *2;
+      else 
+	len += 16*1024;
+    }
+  }
+  return NULL;
+}
+
+/* 
+   partial implementation of recorded_external, does not guarantee endianness nor portability, and does not
+   support constraints.
+ */
+
+X_API int
+PL_recorded_external
+(char *tp, term_t ts)
+{
+  Term t = Yap_ImportTerm(tp);
+  if (t == 0)
+    return FALSE;
+  Yap_PutInSlot(ts,t);
+  return TRUE;
+}
+
+X_API int
+PL_erase_external
+(char *tp)
+{
+  Yap_FreeCodeSpace(tp);
+  return TRUE;
+}
+
 X_API record_t
 PL_record(term_t ts)
 {
@@ -2989,6 +3037,23 @@ PL_is_blob(term_t ts, PL_blob_t **type)
   *type = b->blb;
   return TRUE;
 }
+
+X_API intptr_t
+PL_query(int query)
+{
+  switch(query) {
+  case PL_QUERY_ARGC:
+    return (intptr_t)Yap_argc;
+  case PL_QUERY_ARGV:
+    return (intptr_t)Yap_argv;
+  case PL_QUERY_USER_CPU:
+    return (intptr_t)Yap_cputime();
+  default:
+    fprintf(stderr,"Unimplemented PL_query %d\n",query);
+    return (intptr_t)0;
+  }
+}  
+
 
 X_API void *
 PL_blob_data(term_t ts, size_t *len, PL_blob_t **type)

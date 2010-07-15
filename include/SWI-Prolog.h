@@ -507,6 +507,10 @@ extern X_API int PL_get_string_chars(term_t, char **, size_t *);
 extern X_API record_t PL_record(term_t);
 extern X_API int PL_recorded(record_t, term_t);
 extern X_API void PL_erase(record_t);
+/* only partial implementation, does not guarantee export between different architectures and versions of YAP */
+extern X_API char *PL_record_external(term_t, size_t *);
+extern X_API int PL_recorded_external(char *, term_t);
+extern X_API int PL_erase_external(char *);
 extern X_API int PL_action(int,...);
 extern X_API void PL_on_halt(void (*)(int, void *), void *);
 extern X_API void *PL_malloc(int);
@@ -550,6 +554,27 @@ extern X_API int PL_dispatch(int fd, int wait);
 
 typedef int  (*PL_dispatch_hook_t)(int fd);
 
+		/********************************
+		*         QUERY PROLOG          *
+		*********************************/
+
+#define PL_QUERY_ARGC		1	/* return main() argc */
+#define PL_QUERY_ARGV		2	/* return main() argv */
+					/* 3: Obsolete PL_QUERY_SYMBOLFILE */
+					/* 4: Obsolete PL_QUERY_ORGSYMBOLFILE*/
+#define PL_QUERY_GETC		5	/* Read character from terminal */
+#define PL_QUERY_MAX_INTEGER	6	/* largest integer */
+#define PL_QUERY_MIN_INTEGER	7	/* smallest integer */
+#define PL_QUERY_MAX_TAGGED_INT	8	/* largest tagged integer */
+#define PL_QUERY_MIN_TAGGED_INT	9	/* smallest tagged integer */
+#define PL_QUERY_VERSION        10	/* 207006 = 2.7.6 */
+#define PL_QUE_MAX_THREADS	11	/* maximum thread count */
+#define PL_QUERY_ENCODING	12	/* I/O encoding */
+#define PL_QUERY_USER_CPU	13	/* User CPU in milliseconds */
+#define PL_QUERY_HALTING	14	/* If TRUE, we are in PL_cleanup() */
+
+X_API intptr_t		PL_query(int);	/* get information from Prolog */
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Output   representation   for   PL_get_chars()     and    friends.   The
 prepresentation type REP_FN is for   PL_get_file_name()  and friends. On
@@ -568,6 +593,23 @@ UNICODE file functions.
 
 #define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
 
+#define PL_WRT_QUOTED		0x01	/* quote atoms */
+#define PL_WRT_IGNOREOPS	0x02	/* ignore list/operators */
+#define PL_WRT_NUMBERVARS	0x04	/* print $VAR(N) as a variable */
+#define PL_WRT_PORTRAY		0x08	/* call portray */
+#define PL_WRT_CHARESCAPES	0x10	/* Output ISO escape sequences */
+#define PL_WRT_BACKQUOTED_STRING 0x20	/* Write strings as `...` */
+					/* Write attributed variables */
+#define PL_WRT_ATTVAR_IGNORE	0x040	/* Default: just write the var */
+#define PL_WRT_ATTVAR_DOTS	0x080	/* Write as Var{...} */
+#define PL_WRT_ATTVAR_WRITE	0x100	/* Write as Var{Attributes} */
+#define PL_WRT_ATTVAR_PORTRAY	0x200	/* Use Module:portray_attrs/2 */
+#define PL_WRT_ATTVAR_MASK \
+	(PL_WRT_ATTVAR_IGNORE | \
+	 PL_WRT_ATTVAR_DOTS | \
+	 PL_WRT_ATTVAR_WRITE | \
+	 PL_WRT_ATTVAR_PORTRAY)
+
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 					/* Make IOSTREAM known to Prolog */
 PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
@@ -576,7 +618,10 @@ PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 
+PL_EXPORT(int)          PL_write_term(IOSTREAM *s,term_t term,int precedence,int flags);
+
 #endif
+
 
 #if USE_GMP
 
