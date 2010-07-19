@@ -820,7 +820,7 @@ IOSWIPutc(int sno, int ch)
 
 /* static */
 static int
-IOSWIGetc(int sno, int ch)
+IOSWIGetc(int sno)
 {
   int i;
   Yap_StartSlots();
