@@ -264,6 +264,10 @@
 
 #undef  HAVE_ENVIRON
 
+#undef HAVE_VAR_TIMEZONE
+
+#undef HAVE_STRUCT_TIME_TM_GMTOFF
+
 #define  SELECT_TYPE_ARG1    
 #define  SELECT_TYPE_ARG234  
 #define  SELECT_TYPE_ARG5    

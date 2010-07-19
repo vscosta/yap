@@ -497,6 +497,7 @@ mycb: $(srcdir)/mycb.c
 
 all: startup.yss
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE))
+	@INSTALL_DLLS@ (cd packages/tai; $(MAKE))
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
@@ -547,6 +548,7 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
 	#@INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
@@ -595,6 +597,7 @@ install_win32: startup.yss
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	(cd packages/PLStream; $(MAKE) install)
+	(cd packages/tai; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
 	(cd packages/http; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
@@ -646,6 +649,7 @@ depend: $(HEADERS) $(C_SOURCES)
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)

@@ -139,6 +139,7 @@ AC_ARG_WITH(gmp,
 		yap_cv_gmp=$with_gmp
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
+		CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
 
@@ -433,17 +434,17 @@ then
    then
      if test "$debugyap" = "yes" 
      then
-       CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CXXFLAGS="-O -g -Wall"
-       C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
      else
-       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes"
-       CXXFLAGS="-O3 -fomit-frame-pointer -Wall"
+       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
+       CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CFLAGS"
        case "`$CC --version < /dev/null`" in	
 	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
        esac
-       C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
-       C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes"
+       C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
+       C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        case "$target_cpu" in
         i*86*)
            CFLAGS="-DBP_FREE $CFLAGS"
@@ -1757,6 +1758,40 @@ AC_CHECK_TYPES(ssize_t, [], [],
 #include <sys/socket.h>
 ])
 
+dnl tszet and timezone trouble
+
+AC_MSG_CHECKING("variable timezone in tzset")
+AC_TRY_RUN(
+[ #include <time.h>
+  #include <stdlib.h>
+  #ifdef __CYGWIN__
+  #define timezone _timezone
+  #endif
+  extern long timezone;
+
+  main()
+  { tzset();
+
+    if ( timezone > -15*3600 &&
+	 timezone < 15*3600 &&
+	 timezone % 60 == 0 )
+      return 0;
+
+    exit(1);
+  }
+],
+AC_MSG_RESULT(yes)
+AC_DEFINE(HAVE_VAR_TIMEZONE, 1,
+	  [Define if tzset sets timezone variable]),
+AC_MSG_RESULT(no),
+AC_MSG_RESULT(assuming no))
+
+AC_CHECK_MEMBER(struct tm.tm_gmtoff,
+		AC_DEFINE(HAVE_STRUCT_TIME_TM_GMTOFF, [],
+			  [Define is struct tm has tm_gmtoff]),
+		[],
+		[#include <time.h>])
+
 AC_MSG_CHECKING(_XOPEN_SOURCE)
 AC_TRY_COMPILE(
 [
@@ -1817,6 +1852,8 @@ mkdir -p  packages/jpl/src/java/jpl/fli
 mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
+mkdir -p  packages/tai
+mkdir -p  packages/tai/libtai
 mkdir -p  packages/PLStream
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
@@ -1847,6 +1884,8 @@ AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
 AC_CONFIG_FILES([packages/http/Makefile])
+AC_CONFIG_FILES([packages/tai/Makefile])
+AC_CONFIG_FILES([packages/tai/libtai/Makefile])
 AC_CONFIG_FILES([packages/PLStream/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
