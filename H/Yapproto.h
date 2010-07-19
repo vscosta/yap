@@ -295,6 +295,7 @@ void    STD_PROTO(Yap_InitMPE,(void));
 Term	STD_PROTO(Yap_MkApplTerm,(Functor,unsigned int,Term *));
 Term	STD_PROTO(Yap_MkNewApplTerm,(Functor,unsigned int));
 Term	STD_PROTO(Yap_MkNewPairTerm,(void));
+Term	STD_PROTO(Yap_Globalise,(Term));
 
 
 /* parser.c */

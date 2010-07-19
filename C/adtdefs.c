@@ -1175,6 +1175,7 @@ Yap_StringToDiffList(char *s, Term t)
 {
   register unsigned char *cp = (unsigned char *)s + strlen(s);
 
+ t = Yap_Globalise(t);
   while (cp > (unsigned char *)s) {
     t = MkPairTerm(MkIntTerm(*--cp), t);
   }
@@ -1186,6 +1187,7 @@ Yap_NStringToDiffList(char *s, Term t, size_t len)
 {
   register unsigned char *cp = (unsigned char *)s + len;
 
+  t = Yap_Globalise(t);
   while (cp > (unsigned char *)s) {
     t = MkPairTerm(MkIntTerm(*--cp), t);
   }
@@ -1197,6 +1199,7 @@ Yap_WideStringToDiffList(wchar_t *s, Term t)
 {
  wchar_t *cp = s + wcslen(s);
 
+  t = Yap_Globalise(t);
   while (cp > s) {
     t = MkPairTerm(MkIntegerTerm(*--cp), t);
   }
@@ -1208,6 +1211,7 @@ Yap_NWideStringToDiffList(wchar_t *s, Term t, size_t len)
 {
  wchar_t *cp = s + len;
 
+ t = Yap_Globalise(t);
   while (cp > s) {
     t = MkPairTerm(MkIntegerTerm(*--cp), t);
   }
@@ -1286,7 +1290,7 @@ Yap_NWideStringToDiffListOfAtoms(wchar_t *s, Term t0, size_t len)
   wchar_t *cp = s + len;
 
   so[1] = '\0';
-  t = t0;
+  t = Yap_Globalise(t0);
   while (cp > s) {
     so[0] = *--cp;
     t = MkPairTerm(MkAtomTerm(LookupWideAtom(so)), t);

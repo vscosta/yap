@@ -100,3 +100,18 @@ Yap_MkNewApplTerm(Functor f, unsigned int n)
 }
 
 
+Term
+Yap_Globalise(Term t)
+{
+  CELL *vt;
+  Term tn;
+
+  if (!IsVarTerm(t))
+    return t;
+  vt = VarOfTerm(t);
+  if (vt <= H && vt > H0)
+    return t;
+  tn = MkVarTerm();
+  Yap_unify(t, tn);
+  return tn;
+}
