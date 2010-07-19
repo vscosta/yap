@@ -100,7 +100,10 @@ ALLCSRC=	$(LIBOBJ:.o=.c) \
 		$(HDRS)
 
 LIBPL=		$(srcdir)/sgml.pl $(srcdir)/xsdp_types.pl \
-		$(srcdir)/iso_639.pl $(srcdir)/sgml_write.pl
+		$(srcdir)/iso_639.pl $(srcdir)/sgml_write.pl \
+		$(srcdir)/xpath.pl\
+		$(srcdir)/pwp.pl \
+		$(srcdir)/pltotex.pl
 PROGRAMS=	dtd2pl sgml
 DTDFILES=	HTML4.dcl HTML4.dtd \
 		HTML4.soc \
