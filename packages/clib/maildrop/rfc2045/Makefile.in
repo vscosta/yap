@@ -17,7 +17,7 @@ srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
 
 %.o: $(srcdir)/%.c
-		$(CC) -c $(CFLAGS) -I$(srcdir) -I$(srcdir)/.. $(SHLIB_CFLAGS) $< -o $@
+		$(CC) -c $(CFLAGS) -I$(srcdir) -I$(srcdir)/.. -I../../../.. $(SHLIB_CFLAGS) $< -o $@
 endif
 
 OBJ=	rfc2045.o rfc2045acchk.o rfc2045acprep.o \

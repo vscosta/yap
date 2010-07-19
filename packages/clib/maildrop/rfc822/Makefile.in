@@ -17,7 +17,7 @@ srcdir=@srcdir@
 SHLIB_CFLAGS=@SHLIB_CFLAGS@
 
 %.o: $(srcdir)/%.c
-		$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $< -o $@
+		$(CC) -c $(CFLAGS)  -I../../../..  $(SHLIB_CFLAGS) $< -o $@
 endif
 
 OBJ=	rfc822.o rfc822_getaddr.o rfc822_getaddrs.o \
