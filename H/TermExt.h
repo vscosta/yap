@@ -406,8 +406,10 @@ IsBlobStringTerm (Term t)
 		(RepAppl(t)[1] & BLOB_STRING) == BLOB_STRING);
 }
 
+inline EXTERN int IsWideBlobStringTerm (Term);
+
 inline EXTERN int
-IsWideBlobString (Term t)
+IsWideBlobStringTerm (Term t)
 {
   return (int) (IsApplTerm (t) &&
 		FunctorOfTerm (t) == FunctorBigInt &&
