@@ -810,14 +810,24 @@ MemPutc(int sno, int ch)
 static int
 IOSWIPutc(int sno, int ch)
 {
-  return (SWIPutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
+  int i;
+  Yap_StartSlots();
+  i = (SWIPutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
+  Yap_CloseSlots();
+  YENV = ENV;
+  return i;
 }
 
 /* static */
 static int
 IOSWIGetc(int sno, int ch)
 {
-  return (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  int i;
+  Yap_StartSlots();
+  i = (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  Yap_CloseSlots();
+  YENV = ENV;
+  return i;
 }
 
 #if USE_SOCKET
@@ -5627,7 +5637,7 @@ static Int
 p_format2(void)
 {				/* 'format'(Stream,Control,Args)          */
   int old_c_stream = Yap_c_output_stream;
-  int mem_stream = FALSE;
+  int mem_stream = FALSE, codes_stream = FALSE;
   Int out;
   Term tin = Deref(ARG1);
 
@@ -5637,6 +5647,10 @@ p_format2(void)
   }
   if (IsApplTerm(tin) && FunctorOfTerm(tin) == FunctorAtom) {
     Yap_c_output_stream = OpenBufWriteStream();
+    mem_stream = TRUE;
+  } else if (IsApplTerm(tin) && FunctorOfTerm(tin) == FunctorCodes) {
+    Yap_c_output_stream = OpenBufWriteStream();
+    codes_stream = TRUE;
     mem_stream = TRUE;
   } else {
     /* needs to change Yap_c_output_stream for write */
@@ -5650,12 +5664,18 @@ p_format2(void)
   out = format(Deref(ARG2),Deref(ARG3),Yap_c_output_stream);
   if (mem_stream) {
     Term tat;
+    Term inp = Deref(ARG1);
     int stream = Yap_c_output_stream;
     Yap_c_output_stream = old_c_stream;  
     if (out) {
-      tat = MkAtomTerm(Yap_LookupAtom(Stream[stream].u.mem_string.buf));
+      Stream[stream].u.mem_string.buf[Stream[stream].u.mem_string.pos] = '\0';
+      if (codes_stream) {
+	tat = Yap_StringToDiffList(Stream[stream].u.mem_string.buf, ArgOfTerm(2,inp));
+      } else {
+	tat = MkAtomTerm(Yap_LookupAtom(Stream[stream].u.mem_string.buf));
+      }
       CloseStream(stream);
-      if (!Yap_unify(tat,ArgOfTerm(1,ARG1)))
+      if (!Yap_unify(tat,ArgOfTerm(1,inp)))
 	return FALSE;
     } else {
       CloseStream(stream);
