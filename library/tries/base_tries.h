@@ -8,6 +8,14 @@
 
 
 /* --------------------------- */
+/*           Defines           */
+/* --------------------------- */
+
+#define TRAVERSE_MODE_FORWARD   0
+#define TRAVERSE_MODE_BACKWARD  1
+
+
+/* --------------------------- */
 /*           Structs           */
 /* --------------------------- */
 
@@ -126,3 +134,15 @@ inline void     trie_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YA
 inline void     trie_max_stats(YAP_Int *memory, YAP_Int *tries, YAP_Int *entries, YAP_Int *nodes);
 inline void     trie_usage(TrEntry trie, YAP_Int *entries, YAP_Int *nodes, YAP_Int *virtual_nodes);
 inline void     trie_print(TrEntry trie);
+
+inline void     trie_data_construct(TrNode node);
+inline void     trie_set_traverse_mode(YAP_Int mode);
+inline YAP_Int  trie_get_traverse_mode(void);
+inline TrData   trie_traverse_first(TrEntry trie);
+inline TrData   trie_traverse_next(TrData data);
+inline void     trie_disable_hash_table(void);
+inline void     trie_enable_hash_table(void);
+
+inline YAP_Term trie_to_list(TrEntry trie);
+
+#include "base_dbtries.h"
