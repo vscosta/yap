@@ -329,7 +329,7 @@ TrNode core_trie_put_entry(TrEngine engine, TrNode node, YAP_Term entry, YAP_Int
   }
   /* reset var terms */
   while (STACK_NOT_EMPTY(stack_vars++, stack_vars_base)) {
-    POP_DOWN(stack_vars);
+    (void) POP_DOWN(stack_vars);
     *((YAP_Term *)*stack_vars) = *stack_vars;
   }
   if (depth)
@@ -347,7 +347,7 @@ TrNode core_trie_check_entry(TrNode node, YAP_Term entry) {
   node = check_entry(node, entry);
   /* reset var terms */
   while (STACK_NOT_EMPTY(stack_vars++, stack_vars_base)) {
-    POP_DOWN(stack_vars);
+    (void) POP_DOWN(stack_vars);
     *((YAP_Term *)*stack_vars) = *stack_vars;
   }
   return node;
@@ -473,14 +473,15 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
   TrNode node;
   char version[15];
   fpos_t curpos;
+  int n;
 
-  fscanf(file, "%14s", version);
+  n = fscanf(file, "%14s", version);
   if (fgetpos(file, &curpos))
     return NULL;
 
   if (!strcmp(version, "BEGIN_TRIE_v2")) {
     fseek(file, -11, SEEK_END);
-    fscanf(file, "%s", version);
+    n = fscanf(file, "%s", version);
     if (strcmp(version, "END_TRIE_v2")) {
       fprintf(stderr, "******************************************\n");
       fprintf(stderr, "  Tries core module: trie file corrupted\n");
@@ -492,7 +493,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
     CURRENT_LOAD_VERSION = 2;
   } else if (!strcmp(version, "BEGIN_TRIE")) {
     fseek(file, -8, SEEK_END);
-    fscanf(file, "%s", version);
+    n = fscanf(file, "%s", version);
     if (strcmp(version, "END_TRIE")) {
       fprintf(stderr, "******************************************\n");
       fprintf(stderr, "  Tries core module: trie file corrupted\n");
@@ -1377,6 +1378,7 @@ static
 void traverse_and_load(TrNode parent, FILE *file) {
   TrHash hash = NULL;
   YAP_Term t;
+  int n;
 
   if (!fscanf(file, "%lu", &t)) {
     MARK_AS_LEAF_TRIE_NODE(parent);
@@ -1389,16 +1391,16 @@ void traverse_and_load(TrNode parent, FILE *file) {
   if (t == HASH_SAVE_MARK) {
     /* alloc a new trie hash */
     int num_buckets;
-    fscanf(file, "%d", &num_buckets);
+    n = fscanf(file, "%d", &num_buckets);
     new_trie_hash(hash, 0, num_buckets);
     TrNode_child(parent) = (TrNode) hash;
-    fscanf(file, "%lu", &t);
+    n = fscanf(file, "%lu", &t);
   }
   do {
     TrNode child;
     if (t == ATOM_SAVE_MARK) {
       int index;
-      fscanf(file, "%d", &index);
+      n = fscanf(file, "%d", &index);
       if (index > CURRENT_INDEX) {
 	char atom[1000];
 	if (CURRENT_LOAD_VERSION == 2) {
@@ -1409,7 +1411,7 @@ void traverse_and_load(TrNode parent, FILE *file) {
 	    *ptr++ = ch;
 	  *ptr = '\0';
 	} else if (CURRENT_LOAD_VERSION == 1) {
-	  fscanf(file, "%s", atom);
+	  n = fscanf(file, "%s", atom);
 	}
 	CURRENT_INDEX = index;
 	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
@@ -1419,11 +1421,11 @@ void traverse_and_load(TrNode parent, FILE *file) {
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FUNCTOR_SAVE_MARK) {
       int index;
-      fscanf(file, "%d", &index);
+      n = fscanf(file, "%d", &index);
       if (index > CURRENT_INDEX) {
 	char atom[1000];
 	int arity;
-	fscanf(file, "%s %d", atom, &arity);
+	n = fscanf(file, "%s %d", atom, &arity);
 	CURRENT_INDEX = index;
 	if (CURRENT_INDEX == CURRENT_AUXILIARY_TERM_STACK_SIZE)
 	  expand_auxiliary_term_stack();
@@ -1431,7 +1433,7 @@ void traverse_and_load(TrNode parent, FILE *file) {
       }
       t = AUXILIARY_TERM_STACK[index];
     } else if (t == FLOAT_SAVE_MARK)
-      fscanf(file, "%lu", &t);
+      n = fscanf(file, "%lu", &t);
     child = trie_node_insert(parent, t, hash);
     traverse_and_load(child, file);
   } while (fscanf(file, "%lu", &t));
