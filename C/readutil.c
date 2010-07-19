@@ -178,10 +178,10 @@ Yap_InitReadUtil(void)
 {
   Term cm = CurrentModule;
   CurrentModule = READUTIL_MODULE;
-  Yap_InitCPred("read_line_to_codes", 2, p_rl_to_codes, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("read_line_to_codes", 3, p_rl_to_codes2, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 2, p_rl_to_codes, SyncPredFlag);
+  Yap_InitCPred("read_line_to_codes", 3, p_rl_to_codes2, SyncPredFlag);
   Yap_InitCPred("read_stream_to_codes", 3, p_stream_to_codes, SyncPredFlag);
-  Yap_InitCPred("read_stream_to_terms", 3, p_stream_to_terms, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("read_stream_to_terms", 3, p_stream_to_terms, SyncPredFlag);
   CurrentModule = cm;
 }
 
