@@ -42,7 +42,7 @@ gen_defs(Inp,Out) :-
 	nb_getval(functor_counter, Pos),
 	NPos is Pos+1,
 	nb_setval(functor_counter, NPos),
-	OffPos is Pos*2+1,
+	OffPos is Pos*4+2,
 	number_codes(OffPos, Val),
 	append(["#define FUNCTOR_",Functor,Arity," ",Val], Out).
 
