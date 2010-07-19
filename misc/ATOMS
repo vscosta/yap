@@ -53,6 +53,7 @@ A	CharacterCode		N	"character_code"
 A	CleanCall		F	"$clean_call"
 A	Colomn			N	":"
 A	CodeSpace		N	"code_space"
+A	Codes			N	"codes"
 A	Comma			N	","
 A	Compound		N	"compound"
 A	ConsistencyError	N	"consistency_error"
@@ -331,6 +332,7 @@ F	Catch			Catch		3
 F	ChangeModule		ChangeModule	1
 F	CleanCall		CleanCall	2
 F	Clist			When		4
+F	Codes			Codes		2
 F	Comma			Comma		2
 F	Context2		Context		2
 F	ConsistencyError	ConsistencyError	1

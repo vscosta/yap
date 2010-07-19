@@ -94,6 +94,8 @@
 #define AtomColomn Yap_heap_regs->AtomColomn_
   Atom AtomCodeSpace_;
 #define AtomCodeSpace Yap_heap_regs->AtomCodeSpace_
+  Atom AtomCodes_;
+#define AtomCodes Yap_heap_regs->AtomCodes_
   Atom AtomComma_;
 #define AtomComma Yap_heap_regs->AtomComma_
   Atom AtomCompound_;
@@ -650,6 +652,8 @@
 #define FunctorCleanCall Yap_heap_regs->FunctorCleanCall_
   Functor FunctorClist_;
 #define FunctorClist Yap_heap_regs->FunctorClist_
+  Functor FunctorCodes_;
+#define FunctorCodes Yap_heap_regs->FunctorCodes_
   Functor FunctorComma_;
 #define FunctorComma Yap_heap_regs->FunctorComma_
   Functor FunctorContext2_;

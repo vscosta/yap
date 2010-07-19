@@ -48,6 +48,7 @@
   AtomCleanCall = Yap_FullLookupAtom("$clean_call");
   AtomColomn = Yap_LookupAtom(":");
   AtomCodeSpace = Yap_LookupAtom("code_space");
+  AtomCodes = Yap_LookupAtom("codes");
   AtomComma = Yap_LookupAtom(",");
   AtomCompound = Yap_LookupAtom("compound");
   AtomConsistencyError = Yap_LookupAtom("consistency_error");
@@ -326,6 +327,7 @@
   FunctorChangeModule = Yap_MkFunctor(AtomChangeModule,1);
   FunctorCleanCall = Yap_MkFunctor(AtomCleanCall,2);
   FunctorClist = Yap_MkFunctor(AtomWhen,4);
+  FunctorCodes = Yap_MkFunctor(AtomCodes,2);
   FunctorComma = Yap_MkFunctor(AtomComma,2);
   FunctorContext2 = Yap_MkFunctor(AtomContext,2);
   FunctorConsistencyError = Yap_MkFunctor(AtomConsistencyError,1);
