@@ -7553,7 +7553,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       /* in case we call Execute */
-      YREG = ENV;
+      YREG = YENV = ENV;
       JMPNext();
       ENDBOp();
 
@@ -12155,9 +12155,12 @@ Yap_absmi(int inp)
 	ENDP(pt0);
       }
       else {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+	/*
+	  don't complain here for SWI Prolog compatibility 
+	  saveregs();
+	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	  setregs();
+	*/
 	FAIL();
       }
 
@@ -12243,9 +12246,12 @@ Yap_absmi(int inp)
 	ENDP(pt0);
       }
       else {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+	/*
+	  keep SWI Prolog compatibility, just fail on trying to obtain an argument of a compound term.
+	  saveregs();
+	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	  setregs();
+	*/
 	FAIL();
       }
 
@@ -12350,9 +12356,12 @@ Yap_absmi(int inp)
 	ENDP(pt0);
       }
       else {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+	/*
+	  don't complain here for SWI Prolog compatibility 
+	  saveregs();
+	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	  setregs();
+	*/
 	FAIL();
       }
 
@@ -12453,9 +12462,12 @@ Yap_absmi(int inp)
 	ENDP(pt0);
       }
       else {
-	saveregs();
-	Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
-	setregs();
+	/*
+	  don't complain here for SWI Prolog compatibility 
+	  saveregs();
+	  Yap_Error(TYPE_ERROR_COMPOUND, d1, "arg 2 of arg/3");
+	  setregs();
+	*/
 	FAIL();
       }
 
