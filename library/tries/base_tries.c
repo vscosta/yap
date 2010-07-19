@@ -18,6 +18,12 @@
 #include "base_tries.h"
 
 
+/* -------------------------- */
+/*      Local Procedures      */
+/* -------------------------- */
+
+static TrData get_data_from_trie_node(TrNode node);
+
 
 /* -------------------------- */
 /*       Local Variables      */
@@ -26,6 +32,7 @@
 static TrEngine TRIE_ENGINE;
 static TrEntry FIRST_TRIE, CURRENT_TRIE;
 
+static YAP_Int CURRENT_TRAVERSE_MODE;
 
 
 /* -------------------------- */
@@ -36,6 +43,7 @@ inline
 void trie_init_module(void) {
   TRIE_ENGINE = core_trie_init_module();
   FIRST_TRIE = NULL;
+  CURRENT_TRAVERSE_MODE = TRAVERSE_MODE_FORWARD;
   return;
 }
 
@@ -192,7 +200,10 @@ TrData trie_traverse_init(TrEntry trie, TrData init_data) {
   if (init_data) {
     data = TrData_next(init_data);
   } else {
-    data = TrEntry_first_data(trie);
+    if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
+      data = TrEntry_first_data(trie);
+    else
+      data = TrEntry_last_data(trie);
   }
   TrEntry_traverse_data(trie) = data;
   return data;
@@ -205,7 +216,13 @@ TrData trie_traverse_cont(TrEntry trie) {
 
   data = TrEntry_traverse_data(trie);
   if (data) {
-    data = TrData_next(data);
+    if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
+      data = TrData_next(data);
+    else {
+      data = TrData_previous(data);
+      if (data == TrData_previous(TrEntry_first_data(trie)))
+        data = NULL;
+    }
     TrEntry_traverse_data(trie) = data;
   }
   return data;
@@ -305,3 +322,87 @@ void trie_print(TrEntry trie) {
   core_trie_print(TrEntry_trie(trie), NULL);
   return;
 }
+
+
+inline
+void trie_data_construct(TrNode node) {
+  TrData data;
+
+  new_trie_data(data, CURRENT_TRIE, node);
+  PUT_DATA_IN_LEAF_TRIE_NODE(node, data);
+  return;
+}
+
+
+inline
+void trie_set_traverse_mode(YAP_Int mode) {
+  CURRENT_TRAVERSE_MODE = mode;
+  return;
+}
+
+
+inline
+YAP_Int trie_get_traverse_mode(void) {
+  return CURRENT_TRAVERSE_MODE;
+}
+
+
+inline
+TrData trie_traverse_first(TrEntry trie) {
+  TrData data;
+  if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
+    data = TrEntry_first_data(trie);
+  else
+    data = TrEntry_last_data(trie);
+  return data;
+}
+
+
+inline
+TrData trie_traverse_next(TrData cur) {
+  TrData data = NULL;
+  if (cur) {
+    if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
+      data = TrData_next(cur);
+    else {
+      data = TrData_previous(cur);
+      if (data == TrData_previous(TrEntry_first_data(TrData_trie(cur))))
+        data = NULL;
+    }
+  }
+  return data;
+}
+
+
+inline
+void trie_disable_hash_table(void) {
+  core_disable_hash_table();
+  return;
+}
+
+
+inline
+void trie_enable_hash_table(void) {
+  core_enable_hash_table();
+  return;
+}
+
+
+/* -------------------------- */
+/*      Local Procedures      */
+/* -------------------------- */
+
+static
+TrData get_data_from_trie_node(TrNode node) {
+  while(!IS_LEAF_TRIE_NODE(node))
+    node = TrNode_child(node);
+  return (TrData) GET_DATA_FROM_LEAF_TRIE_NODE(node);
+}
+
+
+inline
+YAP_Term trie_to_list(TrEntry trie) {
+  return core_trie_to_list(TrEntry_trie(trie));
+}
+
+#include "base_dbtries.c"

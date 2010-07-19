@@ -44,13 +44,13 @@ SOBJS=tries.@SO@ itries.@SO@
 
 all: $(SOBJS)
 
-core_tries.o: $(srcdir)/core_tries.h $(srcdir)/core_tries.c
+core_tries.o: $(srcdir)/core_tries.h $(srcdir)/core_tries.c $(srcdir)/core_dbtries.h $(srcdir)/core_dbtries.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/core_tries.c -o core_tries.o
 
-base_tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/base_tries.c
+base_tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/base_tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h $(srcdir)/base_dbtries.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/base_tries.c -o base_tries.o
 
-tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/tries.c
+tries.o: $(srcdir)/core_tries.h $(srcdir)/base_tries.h $(srcdir)/tries.c $(srcdir)/core_dbtries.h $(srcdir)/base_dbtries.h
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/tries.c -o tries.o
 
 base_itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/base_itries.c

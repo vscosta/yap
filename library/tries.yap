@@ -37,7 +37,18 @@
 		  put_trie_entry/4,
 		  get_trie_entry/3,
 		  remove_trie_entry/1,
-		  print_trie/1
+		  print_trie/1,
+          trie_traverse_mode/1,
+          trie_disable_hash/0,
+          trie_enable_hash/0,
+          trie_traverse_first/2,
+          trie_traverse_next/2,
+          trie_to_list/2,
+          trie_to_depth_breadth_trie/4,
+          trie_to_depth_breadth_trie/6,
+          trie_get_depth_breadth_reduction_entry/1,
+          trie_get_depth_breadth_reduction_opt_level_count/2,
+          trie_replace_nested_trie/3
           ]).
 
 :- load_foreign_files([tries], [], init_tries).
@@ -51,3 +62,13 @@ trie_dup(Trie, CopyTrie) :-
 
 trie_traverse(Trie, Ref) :- 
 	trie_traverse(Trie, 0, Ref).
+
+trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel) :-
+  integer(OptimizationLevel),
+  trie_dup(Trie, CopyTrie),
+  trie_open(DepthBreadthTrie),
+  trie_depth_breadth(CopyTrie, DepthBreadthTrie, FinalLabel, OptimizationLevel, 0, _),
+  trie_close(CopyTrie).
+
+trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, StartCounter, EndCounter) :-
+  trie_depth_breadth(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, StartCounter, EndCounter).
