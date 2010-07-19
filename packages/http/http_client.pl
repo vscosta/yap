@@ -47,6 +47,7 @@
 :- use_module(library(lists)).
 :- use_module(library(error)).
 :- use_module(library(option)).
+:- use_module(http_stream).
 :- use_module(dcg_basics).
 
 :- multifile

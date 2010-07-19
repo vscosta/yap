@@ -43,7 +43,6 @@
 :- expects_dialect(swi).
 :- assert(system:swi_io).
 
-
 /** <module> Test CGI stream object
 
 This module defines a series of tests   outside  the context of the HTTP
@@ -199,12 +198,12 @@ test(traditional,
      ]) :-
 	data(Name, Data, ContentType),
 	cgi_open(Out, CGI, cgi_hook, []),
-	start_low_level_trace,
 	format(CGI, 'Content-type: ~w\n\n', [ContentType]),
 	format(CGI, '~w', [Data]),
 	close(CGI),
 	close(Out),
-	http_read_mf(TmpF, Header, Reply),
+	( 
+	http_read_mf(TmpF, Header, Reply) ; stop_low_level_trace, halt),
 	assert_header(Header, status(ok, _)).
 
 test(unicode,

@@ -131,6 +131,9 @@ bytes, dispite the fact that the underlying stream may be longer.
 %	size(ContentLength).   Closing   DataStream   does   not   close
 %	RawStream.
 
+:- meta_predicate cgi_open(+, -, :, +).
+
+
 %%	cgi_open(+OutStream, -CGIStream, :Hook, +Options) is det.
 %
 %	Process CGI output. OutStream is   normally the socket returning
