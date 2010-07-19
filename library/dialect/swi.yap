@@ -17,6 +17,10 @@
 		   '$set_source_module'/2,
 		   '$declare_module'/5,
 		   '$set_predicate_attribute'/3,
+		   stamp_date_time/3,
+		   date_time_stamp/2,
+		   format_time/3,
+		   format_time/4,
 		   time_file/2,
 		   flag/3,
 		   current_flag/1
@@ -92,6 +96,8 @@
 
 :- load_foreign_files([libplstream], [], initIO).
 
+:- load_foreign_files(['pl-tai'], [], install).
+
 % Time is given as a float in SWI-Prolog.
 swi_get_time(FSecs) :- datime(Datime),  mktime(Datime, Secs), FSecs is Secs*1.0.
 
@@ -101,6 +107,10 @@ goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 goal_expansion(arg(A,B,C),genarg(A,B,C)).
 goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
 
+goal_expansion(stamp_date_time(A,B,C),system:swi_stamp_date_time(A,B,C)).
+goal_expansion(date_time_stamp(A,B),system:swi_date_time_stamp(A,B)).
+goal_expansion(format_time(A,B,C),system:swi_format_time(A,B,C)).
+goal_expansion(format_time(A,B,C,D),system:swi_format_time(A,B,C,D)).
 goal_expansion(get_time(A),system:swi_get_time(A)).
 goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
 goal_expansion(expand_file_name(A,B),system:swi_expand_file_name(A,B)).
