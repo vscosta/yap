@@ -1649,7 +1649,10 @@ X_API int PL_unify_functor(term_t t, functor_t f)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_int64(term_t t, int64_t n)
 {	
-#if USE_GMP
+#if SIZEOF_INT_P==8
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
+#elif USE_GMP
   YAP_Term iterm;
   char s[64];
   MP_INT rop;
@@ -1665,8 +1668,10 @@ X_API int PL_unify_int64(term_t t, int64_t n)
   iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(Yap_GetFromSlot(t),iterm);
 #else
+  fprintf(stderr,"Error: please install GM\n");
   return FALSE;
 #endif
+
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
@@ -1984,6 +1989,9 @@ X_API int PL_unify_term(term_t l,...)
 	break;
       case PL_SHORT:
 	*pt++ = MkIntegerTerm(va_arg(ap, int));
+	break;
+      case PL_LONG:
+	*pt++ = MkIntegerTerm(va_arg(ap, long));
 	break;
       case PL_INT:
 	*pt++ = MkIntegerTerm(va_arg(ap, int));
@@ -2625,7 +2633,15 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     Functor f = Yap_MkFunctor(yname, arity);
     t[1] = Yap_MkApplTerm(f,arity,Yap_AddressFromSlot(t0));
   }
-  execution->g = Yap_MkApplTerm(FunctorModule,2,t);
+  if (ctx) {
+    Term ti;
+    t[0] = MkAtomTerm((Atom)ctx);
+    ti = Yap_MkApplTerm(FunctorModule,2,t);
+    t[0] = ti;
+    execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+  } else {
+    execution->g = t[1];
+  }
   return execution;
 }
 
