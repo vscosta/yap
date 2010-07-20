@@ -88,7 +88,7 @@ static void initHeapDebug(void);
 #define UNICODE_NOCHAR 0xFFFF
 #endif
 
-#if (_MSC_VER < 1400)
+#if (_MSC_VER < 1400) && !_WIN64
 typedef DWORD DWORD_PTR;
 #endif
 
