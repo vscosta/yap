@@ -33,7 +33,7 @@
 
 #ifndef _export
 #ifdef _MAKE_DLL
-#define _export _declspec(dllexport)
+#define _export __declspec(dllexport)
 #else
 #define _export extern
 #endif
