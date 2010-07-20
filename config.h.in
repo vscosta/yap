@@ -115,6 +115,10 @@
 #undef  HAVE_WINSOCK_H
 #undef  HAVE_WINSOCK2_H
 
+#if __MINGW32__
+#define __WINDOWS__ 1
+#endif
+
 /* Do we have restartable syscalls */
 #undef  HAVE_RESTARTABLE_SYSCALLS
 
