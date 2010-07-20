@@ -26,7 +26,9 @@
 #include <tchar.h>
 #include "console.h"
 
+#ifndef __TCHAR_DEFINED
 typedef wint_t _TINT;
+#endif
 
 #ifndef EOS
 #define EOS 0
