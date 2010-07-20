@@ -150,7 +150,9 @@ resource_error(const char *resource)
 #include <stdio.h>
 #include <fcntl.h>
 #include <io.h>
+#ifndef __MINGW32__
 typedef DWORD  pid_t;
+#endif
 typedef wchar_t echar;			/* environment character */
 #else
 typedef char echar;

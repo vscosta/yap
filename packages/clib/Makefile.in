@@ -36,7 +36,7 @@ MKINDEX=true
 NETLIBS=@CLIB_NETLIBS@
 CRYPTLIBS=@CLIB_CRYPTLIBS@
 
-LD=@DO_SECOND_LD@	@SHLIB_CXX_LD@
+LD=@DO_SECOND_LD@	@SHLIB_LD@
 LDFLAGS=@EXTRA_LIBS_FOR_SWIDLLS@
 
 BINTARGET=$(DESTDIR)$(YAPLIBDIR)
@@ -105,7 +105,7 @@ TARGETS=	@CLIB_TARGETS@ readutil.@SO@ streaminfo.@SO@ process.@SO@ \
 UNXOBJ=		error.o unix.o
 SOCKOBJ=	error.o socket.o nonblockio.o
 CGIOBJ=		error.o form.o cgi.o
-CRYPTOBJ=	error.o crypt.o md5.o md5passwd.o
+CRYPTOBJ=	error.o crypt.o md5.o md5passwd.o @ENABLE_WINCONSOLE@ crypt-bsd.o
 MEMOBJ=		error.o memfile.o
 MIMEOBJ=	error.o mime.o
 TIMEOBJ=	error.o time.o
