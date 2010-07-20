@@ -7553,7 +7553,8 @@ Yap_absmi(int inp)
 	FAIL();
       }
       /* in case we call Execute */
-      YREG = YENV = ENV;
+      YENV = ENV;
+      YREG = ENV;
       JMPNext();
       ENDBOp();
 
