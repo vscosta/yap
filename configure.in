@@ -573,7 +573,7 @@ then
 	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
-	CLIB_NETLIBS="-lws2_32 -lpsapi -lgid32"
+	CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
       fi
     fi
     ENABLE_WINCONSOLE=""   
