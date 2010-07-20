@@ -1046,7 +1046,7 @@ extern YAP_ULONG_LONG Yap_2opcount[_std_top + 1][_std_top + 1];
   Make this into an even number so that the system will know
   it should ignore the depth limit
 */   
-#define RESET_DEPTH() DEPTH = MkIntTerm(MAX_ABS_INT-1)
+#define RESET_DEPTH() MkIntTerm(MAX_ABS_INT-1)
 #else
 
 #endif
