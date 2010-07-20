@@ -5189,8 +5189,10 @@ fi
       if test "$target_win64" = yes
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
+	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
+	CLIB_NETLIBS="-lws2_32 -lpsapi -lgid32"
       fi
     fi
     ENABLE_WINCONSOLE=""
@@ -9273,14 +9275,14 @@ CHR_TARGETS=chr_support."$SO"
 
 
 
+CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
 
-
-
-
-
-CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
-CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/unix.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
-
+if test "$IN_UNIX" = ""; then
+CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
+CLIB_PLTARGETS="\$(srcdir)/unix.pl $CLIB_PLTARGETS"
+CLIB_NETLIBS=
+else
 ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
 if test "x$ac_cv_func_socket" = x""yes; then :
 
@@ -9381,6 +9383,8 @@ fi
 
 fi
 
+fi
+
 
 oldlibs="$LIBS"
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for crypt in -lcrypt" >&5
@@ -9441,6 +9445,11 @@ fi
 done
 
 LIBS="$oldlibs"
+
+
+
+
+
 
 ac_fn_c_check_type "$LINENO" "socklen_t" "ac_cv_type_socklen_t" "
 #include <sys/types.h>
