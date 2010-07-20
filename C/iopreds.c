@@ -77,12 +77,10 @@ static char SccsId[] = "%W% %G%";
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
 #if _MSC_VER || defined(__MINGW32__) 
-#include <windows.h>
-#endif
-#if _MSC_VER || defined(__MINGW32__) 
 #if USE_SOCKET
 #include <winsock2.h>
 #endif
+#include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
 #endif
