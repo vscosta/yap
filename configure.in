@@ -724,7 +724,11 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	JAVA_HOME="$yap_cv_java"
 	case "$target_os" in
 	    *cygwin*|*mingw*)
-	       JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+	       if test $threads = yes; then
+	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+               else
+	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib"
+               fi
 	       JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
