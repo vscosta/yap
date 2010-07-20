@@ -3618,9 +3618,9 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
   Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, SafePredFlag);
   Yap_InitCPred("variant", 2, p_variant, 0);
-  Yap_InitCPred("subsumes", 2, p_subsumes, SafePredFlag);
-  Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 3);
-  Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 3);
+  Yap_InitCPred("subsumes", 2, p_subsumes, 0);
+  Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
+  Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
   CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag|HiddenPredFlag);
