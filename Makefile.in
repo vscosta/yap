@@ -598,6 +598,7 @@ install_win32: startup.yss
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/tai; $(MAKE) install)
+	(cd packages/clib; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
 	(cd packages/http; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
