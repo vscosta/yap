@@ -7093,6 +7093,7 @@ fi
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="yap.dll"
+	DYNYAPLIB="yap.dll"
 	SHLIB_CFLAGS="$CFLAGS"
 	SHLIB_CXXFLAGS="$CXXFLAGS"
         if test "$target_win64" = no
@@ -8443,7 +8444,6 @@ fi
 
 
 
-EXEC_SUFFIX=""
 
 
 
@@ -9559,7 +9559,7 @@ fi
 if test "$ac_cv_func_getrlimit" = "yes"; then
   TARGETS="$TARGETS rlimit.$SO"
 else
-  "WARNING: no getrlimit(); dropping rlimit.pl from targets"
+  echo "WARNING: no getrlimit(); dropping rlimit.pl from targets"
 fi
 
 

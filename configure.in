@@ -1086,6 +1086,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	# gcc on cygwin seems to have trouble with longjmp
         # and -fomit-frame-point -DBP_FREE
 	YAPLIB="yap.dll"
+	DYNYAPLIB="yap.dll"
 	SHLIB_CFLAGS="$CFLAGS"
 	SHLIB_CXXFLAGS="$CXXFLAGS"
         if test "$target_win64" = no
@@ -1388,7 +1389,6 @@ AC_SUBST(SHLIB_CXXFLAGS)
 dnl suffix for loadable binary (.so,.dll,.o)
 AC_SUBST(SO)
 dnl suffix for executable (.exe)
-EXEC_SUFFIX=""
 AC_SUBST(EXEC_SUFFIX)
 dnl how to call the loader
 AC_SUBST(DO_SECOND_LD)
@@ -1815,7 +1815,7 @@ fi
 if test "$ac_cv_func_getrlimit" = "yes"; then
   TARGETS="$TARGETS rlimit.$SO"
 else
-  "WARNING: no getrlimit(); dropping rlimit.pl from targets"
+  echo "WARNING: no getrlimit(); dropping rlimit.pl from targets"
 fi
 
 
