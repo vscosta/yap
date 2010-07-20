@@ -38,9 +38,23 @@ is supposed to give the POSIX standard one.
 #include <stdio.h>
 #include <ctype.h>
 
-#if defined(__WINDOWS__) || defined (__CYGWIN__)
+#if defined(__WINDOWS__) || defined (__CYGWIN__)  || defined (__MINGW32__)
 #define timezone _timezone
-#define HAVE_VAR_TIMEZONE
+#ifndef _POSIX
+#endif
+#define localtime_r(_Time, _Tm)	({ struct tm *___tmp_tm =		\
+						localtime((_Time));	\
+						if (___tmp_tm) {	\
+						  *(_Tm) = *___tmp_tm;	\
+						  ___tmp_tm = (_Tm);	\
+						}			\
+						___tmp_tm;	})
+#define asctime_r(_Tm, _Buf)	({ char *___tmp_tm = asctime((_Tm));	\
+						if (___tmp_tm)		\
+						 ___tmp_tm =		\
+						   strcpy((_Buf),___tmp_tm);\
+						___tmp_tm;	})
+#include <time.h>
 #else
 extern char *tzname[2];
 #ifdef HAVE_VAR_TIMEZONE

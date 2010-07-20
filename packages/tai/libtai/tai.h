@@ -8,7 +8,7 @@ typedef unsigned __int64 uint64_t;
 #include <inttypes.h>			/* more portable than stdint.h */
 #endif
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__) && !defined(__GNUC__)
 #define LL(x)  x ## i64
 #define ULL(x) x ## ui64
 #else
