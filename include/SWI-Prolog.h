@@ -111,11 +111,14 @@ stuff.
 
 
 #ifdef __WINDOWS__
+#ifndef INT64_T_DEFINED
+#define INT64_T_DEFINED 1
 typedef __int64 int64_t;
 typedef unsigned __int64 uint64_t;
-#if (_MSC_VER < 1300)
+#if (_MSC_VER < 1300) && !defined(__MINGW32__)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
+#endif
 #endif
 #else
 #include <inttypes.h>			/* more portable than stdint.h */
@@ -131,12 +134,7 @@ typedef uintptr_t    functor_t;
 typedef int     (*PL_agc_hook_t)(atom_t);
 typedef unsigned long	foreign_t;	/* return type of foreign functions */
 typedef wchar_t pl_wchar_t;             /* wide character support */
-#ifdef WIN32
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
-#else
 #include <inttypes.h>			/* more portable than stdint.h */
-#endif
 #if  !defined(_MSC_VER) 
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #endif

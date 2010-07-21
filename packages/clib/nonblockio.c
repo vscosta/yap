@@ -823,13 +823,21 @@ socket_wnd_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     for(i=0; i<n; i++)
     { if ( s[i] )
-      { __try
+      {
+#if __MINGW32__
+	{ if ( s[i]->magic != PLSOCK_MAGIC )
+	  { goto nosocket;
+	  }
+	} 
+#else
+	__try
 	{ if ( s[i]->magic != PLSOCK_MAGIC )
 	  { goto nosocket;
 	  }
 	} __except(EXCEPTION_EXECUTE_HANDLER)
 	{ goto nosocket;
 	}
+#endif
 
 	doRequest(s[i]);
       }

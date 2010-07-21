@@ -570,8 +570,10 @@ then
       if test "$target_win64" = yes
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
+	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
+	CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
       fi
     fi
     ENABLE_WINCONSOLE=""   
@@ -1726,14 +1728,14 @@ AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
-AC_SUBST(CLIB_TARGETS)
-AC_SUBST(CLIB_PLTARGETS)
-AC_SUBST(CLIB_NETLIBS)
-AC_SUBST(CLIB_CRYPTLIBS)
+CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
+CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
 
-CLIB_TARGETS="random.$SO unix.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
-CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/unix.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
-
+if test "$IN_UNIX" = ""; then
+CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
+CLIB_PLTARGETS="\$(srcdir)/unix.pl $CLIB_PLTARGETS"
+CLIB_NETLIBS=
+else
 AC_CHECK_FUNC(socket, [], [
              AC_CHECK_LIB(socket, socket,
                       [CLIB_NETLIBS="$CLIB_NETLIBS -lsocket"]
@@ -1744,12 +1746,19 @@ AC_CHECK_FUNC(gethostent, [], [
                       [CLIB_NETLIBS="$CLIB_NETLIBS -lnsl"]
                       AC_DEFINE(HAVE_LIBNSL, 1,
                       "Define if you have the nsl library (-lnsl)."))])
+fi
+
 
 oldlibs="$LIBS"
 AC_CHECK_LIB(crypt, crypt)
 CRYPTLIBS="$LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$oldlibs"
+
+AC_SUBST(CLIB_TARGETS)
+AC_SUBST(CLIB_PLTARGETS)
+AC_SUBST(CLIB_NETLIBS)
+AC_SUBST(CLIB_CRYPTLIBS)
 
 AC_CHECK_TYPES(socklen_t, [], [],
 [

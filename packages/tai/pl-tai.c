@@ -107,7 +107,7 @@ value is EAST and includes the DST offset.
 static int
 tz_offset()
 {
-#ifdef HAVE_VAR_TIMEZONE
+#if defined(HAVE_VAR_TIMEZONE) || _WIN64
   do_tzset();
   return timezone;
 #else

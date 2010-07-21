@@ -46,11 +46,15 @@
 #include <wchar.h>
 #include <stddef.h>
 #ifdef __WINDOWS__
+#ifndef INT64_T_DEFINED
+#define INT64_T_DEFINED 1
 typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
 #if (_MSC_VER < 1300) && !defined(__MINGW32__)
 typedef long intptr_t;
 typedef unsigned long uintptr_t;
 typedef intptr_t ssize_t;		/* signed version of size_t */
+#endif
 #endif
 #else
 #include <unistd.h>
@@ -207,7 +211,7 @@ PL_EXPORT(IOSTREAM *)	S__getiob(void);	/* get DLL's __iob[] address */
 
 PL_EXPORT_DATA(IOFUNCTIONS)  Sfilefunctions;	/* OS file functions */
 PL_EXPORT_DATA(int)	     Slinesize;		/* Sgets() linesize */
-#if defined(__CYGWIN__) && !defined(PL_KERNEL)
+#if (defined(__CYGWIN__) || defined(__MINGW32__)) && !defined(PL_KERNEL)
 #define S__iob S__getiob()
 #else
 PL_EXPORT_DATA(IOSTREAM)    S__iob[3];		/* Libs standard streams */
