@@ -852,7 +852,6 @@ p_char_code(void)
       Yap_Error(INSTANTIATION_ERROR,t0,"char_code/2");
       return(FALSE);
     } else if (!IsIntegerTerm(t1)) {
-      fprintf(stderr,"hello\n"),
       Yap_Error(TYPE_ERROR_INTEGER,t1,"char_code/2");
       return(FALSE);
     } else {
@@ -918,7 +917,7 @@ ch_to_wide(char *base, char *charp)
     return NULL;
   }
   for (i=n; i > 0; i--) {
-    nb[i-1] = base[i-1];
+    nb[i-1] = (unsigned char)base[i-1];
   }
   return nb+n;
 }
