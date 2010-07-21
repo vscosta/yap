@@ -663,13 +663,17 @@ PL_EXPORT(int)	 	PL_foreign_control(control_t);
 PL_EXPORT(intptr_t)	PL_foreign_context(control_t);
 PL_EXPORT(void *)	PL_foreign_context_address(control_t);
 
+typedef struct SWI_IO {
+  functor_t f; 
+  void *get_c;
+  void *put_c;
+  void *get_w;
+  void *put_w;
+  void *close_s;
+} swi_io_struct;
 
 /*  SWI stream info */
-PL_EXPORT(void)         PL_YAP_InitSWIIO(functor_t f, 
-					 void *gc,
-					 void *pc,
-					 void *cc);
-
+PL_EXPORT(void)         PL_YAP_InitSWIIO(struct SWI_IO *swio);
 
 #ifdef __cplusplus
 }

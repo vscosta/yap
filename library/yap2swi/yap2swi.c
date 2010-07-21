@@ -3092,12 +3092,12 @@ PL_blob_data(term_t ts, size_t *len, PL_blob_t **type)
 
 /* glue function to connect back PLStream to YAP IO */
 X_API void
-PL_YAP_InitSWIIO(functor_t f, void * gc, void * pc, void* cc)
+PL_YAP_InitSWIIO(struct SWI_IO *swio)
 {
-  FSWIStream = SWIFunctorToFunctor(f);
-  SWIGetc = gc;
-  SWIPutc = pc;
-  SWIClose = cc;
+  FSWIStream = SWIFunctorToFunctor(swio->f);
+  SWIGetc = swio->get_c;
+  SWIPutc = swio->put_c;
+  SWIClose = swio->close_s;
 }
 
 

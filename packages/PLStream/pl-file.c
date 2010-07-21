@@ -4315,7 +4315,14 @@ static pl_Sgetc(IOSTREAM *s)
 static void
 init_yap_extras()
 {
-  PL_YAP_InitSWIIO(FUNCTOR_dstream1, pl_Sgetc, Sputc, Sclose);
+  swi_io_struct swiio;
+  swiio.f = FUNCTOR_dstream1;
+  swiio.get_c = pl_Sgetc;
+  swiio.put_c = Sputc;
+  swiio.get_w = Sgetcode;
+  swiio.put_w = Sputcode;
+  swiio.close_s = Sclose;
+  PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
   initFiles();
   initGlob();
