@@ -4316,6 +4316,7 @@ static void
 init_yap_extras()
 {
   swi_io_struct swiio;
+
   swiio.f = FUNCTOR_dstream1;
   swiio.get_c = pl_Sgetc;
   swiio.put_c = Sputc;

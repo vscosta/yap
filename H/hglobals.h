@@ -93,10 +93,6 @@ typedef struct worker_local {
   YAP_ULONG_LONG  tot_gc_recovered;
   Int  last_gc_time;
   Int  last_ss_time;
-  Functor  f_swi_stream;
-  SWI_GetFunction  swi_getc;
-  SWI_PutFunction  swi_putc;
-  SWI_CloseFunction  swi_close;
 
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;
@@ -179,6 +175,12 @@ typedef struct worker_shared {
 
   lockvar  bgl;
 #endif
+  Functor  f_swi_stream;
+  SWI_GetFunction  swi_getc;
+  SWI_PutFunction  swi_putc;
+  SWI_GetWideFunction  swi_wgetc;
+  SWI_PutWideFunction  swi_wputc;
+  SWI_CloseFunction  swi_close;
 
   int  allow_local_expansion;
   int  allow_global_expansion;

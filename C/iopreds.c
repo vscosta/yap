@@ -828,6 +828,30 @@ IOSWIGetc(int sno)
   return i;
 }
 
+/* static */
+static int
+IOSWIWidePutc(int sno, int ch)
+{
+  int i;
+  Yap_StartSlots();
+  i = (SWIWidePutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
+  Yap_CloseSlots();
+  YENV = ENV;
+  return i;
+}
+
+/* static */
+static int
+IOSWIWideGetc(int sno)
+{
+  int i;
+  Yap_StartSlots();
+  i = (SWIWideGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  Yap_CloseSlots();
+  YENV = ENV;
+  return i;
+}
+
 #if USE_SOCKET
 /* static */
 static int
@@ -1271,7 +1295,10 @@ EOFGetc(int sno)
       s->stream_getc = PlGetc;
       s->stream_gets = PlGetsFunc();
     }
-    s->stream_wgetc = get_wchar;
+    if (s->status & SWI_Stream_f)
+      s->stream_wgetc = IOSWIWideGetc;
+    else
+      s->stream_wgetc = get_wchar;
     if (CharConversionTable != NULL)
       s->stream_wgetc_for_read = ISOWGetc;
     else
@@ -3156,13 +3183,13 @@ LookupSWIStream (struct io_stream *swi_s)
   Stream[i].encoding = DefaultEncoding();
   Stream[i].stream_getc = IOSWIGetc;
   Stream[i].stream_putc = IOSWIPutc;
-  Stream[i].stream_wputc = put_wchar;
-  Stream[i].stream_wgetc = get_wchar;
+  Stream[i].stream_wputc = IOSWIWidePutc;
+  Stream[i].stream_wgetc = IOSWIWideGetc;
   Stream[i].stream_gets = DefaultGets;
   if (CharConversionTable != NULL)
     Stream[i].stream_wgetc_for_read = ISOWGetc;
   else
-    Stream[i].stream_wgetc_for_read = get_wchar;
+    Stream[i].stream_wgetc_for_read = IOSWIWideGetc;
   return i;
 }
 
@@ -4575,9 +4602,9 @@ p_get (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
     return FALSE;
   }
-  while ((ch = get_wchar(sno)) <= 32 && ch >= 0);
+  while ((ch = Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0);
   UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, MkIntTerm (ch)));
+  return (Yap_unify_constant (ARG2, MkIntegerTerm (ch)));
 }
 
 static Int
@@ -4595,7 +4622,7 @@ p_get0 (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
     return FALSE;
   }
-  out = get_wchar(sno);
+  out = Stream[sno].stream_wgetc(sno);
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, MkIntegerTerm (out)) );
 }
@@ -5698,7 +5725,7 @@ p_skip (void)
     UNLOCK(Stream[sno].streamlock);
     return (FALSE);
   }
-  while ((ch = get_wchar(sno)) != n && ch != -1);
+  while ((ch = Stream[sno].stream_wgetc(sno)) != n && ch != -1);
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
 }

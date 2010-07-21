@@ -91,10 +91,6 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->tot_gc_recovered = 0L;
   FOREIGN_WL(wid)->last_gc_time = 0L;
   FOREIGN_WL(wid)->last_ss_time = 0L;
-  FOREIGN_WL(wid)->f_swi_stream = NULL;
-  FOREIGN_WL(wid)->swi_getc = NULL;
-  FOREIGN_WL(wid)->swi_putc = NULL;
-  FOREIGN_WL(wid)->swi_close = NULL;
 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(FOREIGN_WL(wid)->signal_lock);
@@ -177,6 +173,12 @@ static void InitGlobal(void) {
 
   INIT_LOCK(Yap_global->bgl);
 #endif
+  Yap_global->f_swi_stream = NULL;
+  Yap_global->swi_getc = NULL;
+  Yap_global->swi_putc = NULL;
+  Yap_global->swi_wgetc = NULL;
+  Yap_global->swi_wputc = NULL;
+  Yap_global->swi_close = NULL;
 
   Yap_global->allow_local_expansion = TRUE;
   Yap_global->allow_global_expansion = TRUE;

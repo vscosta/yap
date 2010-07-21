@@ -3097,6 +3097,8 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   FSWIStream = SWIFunctorToFunctor(swio->f);
   SWIGetc = swio->get_c;
   SWIPutc = swio->put_c;
+  SWIWideGetc = swio->get_w;
+  SWIWidePutc = swio->put_w;
   SWIClose = swio->close_s;
 }
 

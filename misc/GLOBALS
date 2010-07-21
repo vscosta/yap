@@ -99,11 +99,6 @@ YAP_ULONG_LONG		tot_gc_recovered	TotGcRecovered	=0L
 Int			last_gc_time		LastGcTime	=0L
 Int			last_ss_time		LastSSTime	=0L
 
-Functor			f_swi_stream		FSWIStream	=NULL
-SWI_GetFunction		swi_getc		SWIGetc		=NULL
-SWI_PutFunction		swi_putc		SWIPutc		=NULL
-SWI_CloseFunction	swi_close		SWIClose	=NULL
-
 // global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
 lockvar				signal_lock	SignalLock	MkLock
@@ -198,6 +193,13 @@ UInt  threads_total_time		ThreadsTotalTime =0L
 // protect long critical regions
 lockvar		bgl			BGL		MkLock
 #endif
+
+Functor			f_swi_stream		FSWIStream	=NULL
+SWI_GetFunction		swi_getc		SWIGetc		=NULL
+SWI_PutFunction		swi_putc		SWIPutc		=NULL
+SWI_GetWideFunction	swi_wgetc		SWIWideGetc	=NULL
+SWI_PutWideFunction	swi_wputc		SWIWidePutc	=NULL
+SWI_CloseFunction	swi_close		SWIClose	=NULL
 
 // stack overflow expansion/gc control
 int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE

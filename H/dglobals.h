@@ -91,10 +91,6 @@
 #define TotGcRecovered WL->tot_gc_recovered
 #define LastGcTime WL->last_gc_time
 #define LastSSTime WL->last_ss_time
-#define FSWIStream WL->f_swi_stream
-#define SWIGetc WL->swi_getc
-#define SWIPutc WL->swi_putc
-#define SWIClose WL->swi_close
 
 #if defined(YAPOR) || defined(THREADS)
 #define SignalLock WL->signal_lock
@@ -177,6 +173,12 @@
 
 #define BGL Yap_global->bgl
 #endif
+#define FSWIStream Yap_global->f_swi_stream
+#define SWIGetc Yap_global->swi_getc
+#define SWIPutc Yap_global->swi_putc
+#define SWIWideGetc Yap_global->swi_wgetc
+#define SWIWidePutc Yap_global->swi_wputc
+#define SWIClose Yap_global->swi_close
 
 #define Yap_AllowLocalExpansion Yap_global->allow_local_expansion
 #define Yap_AllowGlobalExpansion Yap_global->allow_global_expansion

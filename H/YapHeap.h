@@ -24,6 +24,8 @@
 
 typedef int (*SWI_PutFunction)(int, void *);
 typedef int (*SWI_GetFunction)(void *);
+typedef int (*SWI_PutWideFunction)(int, void *);
+typedef int (*SWI_GetWideFunction)(void *);
 typedef int (*SWI_CloseFunction)(void *);
 
 #include "../include/dswiatoms.h"
