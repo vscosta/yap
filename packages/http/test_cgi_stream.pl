@@ -202,8 +202,7 @@ test(traditional,
 	format(CGI, '~w', [Data]),
 	close(CGI),
 	close(Out),
-	( 
-	http_read_mf(TmpF, Header, Reply) ; stop_low_level_trace, halt),
+	http_read_mf(TmpF, Header, Reply),
 	assert_header(Header, status(ok, _)).
 
 test(unicode,
