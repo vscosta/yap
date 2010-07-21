@@ -2040,7 +2040,24 @@ YAP_GoalHasException(Term *t)
   int out = FALSE;
   BACKUP_MACHINE_REGS();
   if (EX) {
-    *t = EX;
+    do {
+      *t = Yap_FetchTermFromDB(EX);
+      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growglobal(NULL)) {
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  RECOVER_MACHINE_REGS();
+	  return FALSE;
+	}
+      } else {
+	Yap_Error_TYPE = YAP_NO_ERROR;
+	if (!Yap_growstack(EX->NOfCells*CellSize)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  RECOVER_MACHINE_REGS();
+	  return FALSE;
+	}
+      }
+    } while (*t == (CELL)0);
     out = TRUE;
   }
   RECOVER_MACHINE_REGS();
@@ -2051,7 +2068,11 @@ X_API void
 YAP_ClearExceptions(void)
 {
   Yap_ResetExceptionTerm();
-  EX = 0L;
+  if (EX) {
+    BallTerm = EX;
+  }
+  EX = NULL;
+  Yap_ResetExceptionTerm();    
   UncaughtThrow = FALSE;
 }
 

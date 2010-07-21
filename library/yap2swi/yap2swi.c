@@ -2444,7 +2444,7 @@ PL_exception(qid_t q)
 X_API void
 PL_clear_exception(void)
 {
-  EX = 0L;
+  EX = NULL;
 }
 
 X_API int

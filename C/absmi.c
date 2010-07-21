@@ -7542,13 +7542,16 @@ Yap_absmi(int inp)
 	save_machine_regs();
 
 	SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
-	EX = 0L;
       }
       Yap_CloseSlots();
-
-      restore_machine_regs();
       setregs();
       Yap_PrologMode = UserMode;
+      restore_machine_regs();
+      if (EX) {
+	struct DB_TERM *exp = EX;
+	EX = NULL;
+	Yap_JumpToEnv(Yap_PopTermFromDB(exp));
+      }
       if (!SREG) {
 	FAIL();
       }

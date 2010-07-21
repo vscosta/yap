@@ -110,7 +110,7 @@ typedef struct
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
 /* visualc*/
-    CELL   EX_;	    	        /* 18                                         */
+    struct DB_TERM   * EX_;     /* 18                                         */
     Term  CurrentModule_;
 #if defined(SBA) || defined(TABLING)
     CELL *H_FZ_;

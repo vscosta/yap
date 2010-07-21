@@ -1007,7 +1007,7 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
   /* create an initial pseudo environment so that when garbage
      collection is going up in the environment chain it doesn't get
      confused */
-  EX = 0L;
+  EX = NULL;
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)P;
@@ -1502,7 +1502,8 @@ JumpToEnv(Term t) {
 	  B = handler;
 	else 
 	  previous->cp_b = handler;
-	EX = t;
+	EX = BallTerm;
+	BallTerm = NULL;
 	P = (yamop *)FAILCODE;
 	HB = B->cp_h;
 	return TRUE;
@@ -1622,7 +1623,7 @@ Yap_InitYaamRegs(void)
   LOCK(SignalLock);
   CreepFlag = CalculateStackGap();
   UNLOCK(SignalLock);
-  EX = 0L;
+  EX = NULL;
   init_stack(0, NULL, TRUE, NULL);
   /* the first real choice-point will also have AP=FAIL */ 
   CurSlot = 0;
@@ -1725,7 +1726,7 @@ static Int
 p_reset_exception(void)
 {
   Term t;
-  EX = 0L;
+  EX = NULL;
   t = GetException();
   if (!t) 
     return FALSE;
