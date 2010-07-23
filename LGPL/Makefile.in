@@ -33,6 +33,7 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl \
 	$(srcdir)/quintus.pl \
+	$(srcdir)/record.pl \
 	$(srcdir)/settings.pl \
 	$(srcdir)/shlib.pl \
 	$(srcdir)/url.pl \
