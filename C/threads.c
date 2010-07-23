@@ -264,6 +264,7 @@ p_create_thread(void)
   /* make sure we can proceed */
   if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, &ARG1, &ARG5, &ARG6))
     return FALSE;
+  FOREIGN_ThreadHandle(new_worker_id).pthread_handle = NULL;
   FOREIGN_ThreadHandle(new_worker_id).id = new_worker_id;
   FOREIGN_ThreadHandle(new_worker_id).ref_count = 1;
   if ((FOREIGN_ThreadHandle(new_worker_id).ret = pthread_create(&FOREIGN_ThreadHandle(new_worker_id).pthread_handle, NULL, thread_run, (void *)(&(FOREIGN_ThreadHandle(new_worker_id).id)))) == 0) {
@@ -377,7 +378,7 @@ Yap_thread_create_engine(thread_attr *ops)
   */
   if (new_id == -1) {
     /* YAP ERROR */
-    return FALSE;
+    return -1;
   }
   if (ops == NULL) {
     ops = &opsv;
@@ -392,9 +393,9 @@ Yap_thread_create_engine(thread_attr *ops)
     pthread_mutex_lock(&(FOREIGN_ThreadHandle(0).tlock));
   }
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
-    return FALSE;
+    return -1;
+  FOREIGN_ThreadHandle(new_id).pthread_handle = NULL;
   FOREIGN_ThreadHandle(new_id).id = new_id;
-  FOREIGN_ThreadHandle(new_id).pthread_handle = pthread_self();
   FOREIGN_ThreadHandle(new_id).ref_count = 0;
   setup_engine(new_id);
   if (pthread_self() != Yap_master_thread) {
@@ -410,8 +411,10 @@ Yap_thread_attach_engine(int wid)
   pthread_mutex_lock(&(FOREIGN_ThreadHandle(wid).tlock));
   if (FOREIGN_ThreadHandle(wid).ref_count ) {
     DEBUG_TLOCK_ACCESS(8, wid);
+    FOREIGN_ThreadHandle(wid).ref_count++;
+    FOREIGN_ThreadHandle(wid).pthread_handle = pthread_self();
     pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
-    return FALSE;
+    return TRUE;
   }
   FOREIGN_ThreadHandle(wid).pthread_handle = pthread_self();
   FOREIGN_ThreadHandle(wid).ref_count++;
@@ -426,6 +429,12 @@ Yap_thread_detach_engine(int wid)
 {
   DEBUG_TLOCK_ACCESS(10, wid);
   pthread_mutex_lock(&(FOREIGN_ThreadHandle(wid).tlock));
+  if (FOREIGN_ThreadHandle(wid).ref_count == 0) {
+    FOREIGN_ThreadHandle(wid).pthread_handle = NULL;
+    DEBUG_TLOCK_ACCESS(11, wid);
+    pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
+    return FALSE;
+  }
   FOREIGN_ThreadHandle(wid).ref_count--;
   DEBUG_TLOCK_ACCESS(11, wid);
   pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
@@ -435,6 +444,8 @@ Yap_thread_detach_engine(int wid)
 Int
 Yap_thread_destroy_engine(int wid)
 {
+  DEBUG_TLOCK_ACCESS(10, wid);
+  pthread_mutex_lock(&(FOREIGN_ThreadHandle(wid).tlock));
   if (FOREIGN_ThreadHandle(wid).ref_count == 0) {
     kill_thread_engine(wid, TRUE);
     return TRUE;

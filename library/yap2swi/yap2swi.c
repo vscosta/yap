@@ -2778,12 +2778,25 @@ X_API  int PL_is_inf(term_t st)
 
 X_API int PL_thread_self(void)
 {
-  return YAP_ThreadSelf();
+#if THREADS
+  if (pthread_getspecific(Yap_yaamregs_key) == NULL)
+    return -1;
+  return worker_id;
+#else
+  return -2;
+#endif
 }
+
+X_API int PL_unify_thread_id(term_t t, int i)
+{
+  Term iterm = MkIntegerTerm(i);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
+}
+
 
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
-  int wid = YAP_ThreadSelf();
+  int wid = PL_thread_self();
   
   if (wid < 0) {
     /* we do not have an engine */
@@ -2807,14 +2820,13 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
     return -1;
   } else {
     /* attach myself again */
-    YAP_ThreadAttachEngine(wid);
-    return wid;
+    return YAP_ThreadAttachEngine(wid);
   }
 }
 
 X_API int PL_thread_destroy_engine(void)
 {
-  int wid = YAP_ThreadSelf();
+  int wid = PL_thread_self();
 
   if (wid < 0) {
     /* we do not have an engine */
@@ -2843,9 +2855,9 @@ PL_create_engine(const PL_thread_attr_t *attr)
     yapt.tsize = attr->global_size;
     yapt.alias = (YAP_Term)attr->alias;
     yapt.cancel =  attr->cancel;
-    return  (PL_engine_t)YAP_ThreadCreateEngine(&yapt);
+    return  Yap_WLocal+YAP_ThreadCreateEngine(&yapt);
   } else {
-    return (PL_engine_t)YAP_ThreadCreateEngine(NULL);
+    return Yap_WLocal+YAP_ThreadCreateEngine(NULL);
   }
 }
 
@@ -2853,22 +2865,36 @@ PL_create_engine(const PL_thread_attr_t *attr)
 X_API int
 PL_destroy_engine(PL_engine_t e)
 {
-  return YAP_ThreadDestroyEngine((YAP_Int)e);
+  return YAP_ThreadDestroyEngine((struct worker_local *)e-Yap_WLocal);
 }
 
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
-  YAP_Int cwid = YAP_ThreadSelf();
-  if (old) {
-    if (*old) *old = (PL_engine_t)cwid;
+  int cwid = PL_thread_self(), nwid;
+
+  if (cwid >= 0) {
+    if (old) *old = (PL_engine_t)(Yap_WLocal+cwid);
   }
-  if (engine == PL_ENGINE_CURRENT)
+  if (engine == PL_ENGINE_MAIN) {
+    nwid = 0;
+  } else if (engine == PL_ENGINE_CURRENT) {
+    if (cwid < 0)
+      return PL_ENGINE_INVAL;
     return PL_ENGINE_SET;
-  if (engine < 0) /* should really check if engine does not exist */
+  }
+  if (FOREIGN_ThreadHandle(nwid).pthread_handle) {
+    if (cwid != nwid)
+      return PL_ENGINE_INUSE;
+    return PL_ENGINE_SET;
+  }
+  if (cwid) {
+    if (!YAP_ThreadDetachEngine(nwid)) {
+      return PL_ENGINE_INVAL;
+    }
+  }
+  if (!YAP_ThreadAttachEngine(nwid)) {
     return PL_ENGINE_INVAL;
-  if (!(YAP_ThreadAttachEngine((YAP_Int)engine))) {
-    return PL_ENGINE_INUSE;
   }
   return PL_ENGINE_SET;
 }

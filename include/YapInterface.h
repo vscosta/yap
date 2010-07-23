@@ -468,11 +468,11 @@ extern X_API YAP_agc_hook  PROTO(YAP_AGCRegisterHook,(YAP_agc_hook));
 extern X_API char *  PROTO(YAP_cwd,(void));
 
 /* thread stuff */
-extern X_API int  PROTO(YAP_ThreadSelf,(void));
-extern X_API YAP_CELL PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
-extern X_API int  PROTO(YAP_ThreadAttachEngine,(int));
-extern X_API int  PROTO(YAP_ThreadDetachEngine,(int));
-extern X_API int  PROTO(YAP_ThreadDestroyEngine,(int));
+extern X_API int PROTO(YAP_ThreadSelf,(void));
+extern X_API int PROTO(YAP_ThreadCreateEngine,(YAP_thread_attr *));
+extern X_API int PROTO(YAP_ThreadAttachEngine,(int));
+extern X_API int PROTO(YAP_ThreadDetachEngine,(int));
+extern X_API int PROTO(YAP_ThreadDestroyEngine,(int));
 
 /* blob stuff */
 extern X_API YAP_Term PROTO(YAP_MkBlobTerm,(unsigned int));

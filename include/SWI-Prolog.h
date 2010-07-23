@@ -231,7 +231,8 @@ typedef void *PL_engine_t;
 #define BUF_RING	0x0100
 #define BUF_MALLOC	0x0200
 
-#define PL_ENGINE_CURRENT   ((PL_engine_t)-1)
+#define PL_ENGINE_MAIN      ((PL_engine_t)0x1)
+#define PL_ENGINE_CURRENT   ((PL_engine_t)0x2)
 
 #define PL_ENGINE_SET   0               /* engine set successfully */
 #define PL_ENGINE_INVAL 2               /* engine doesn't exist */
@@ -494,6 +495,7 @@ extern X_API void PL_register_extensions(const PL_extension *);
 extern X_API void PL_load_extensions(const PL_extension *);
 extern X_API int PL_handle_signals(void);
 extern X_API int  PL_thread_self(void);
+extern X_API int  PL_unify_thread_id(term_t, int);
 extern X_API int PL_thread_attach_engine(const PL_thread_attr_t *);
 extern X_API int PL_thread_destroy_engine(void);
 extern X_API int PL_thread_at_exit(void (*)(void *), void *, int);

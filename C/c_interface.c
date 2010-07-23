@@ -493,9 +493,7 @@ X_API Term     STD_PROTO(YAP_CurrentModule,(void));
 X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
 X_API Term     STD_PROTO(YAP_StripModule,(Term, Term *));
 X_API int      STD_PROTO(YAP_ThreadSelf,(void));
-X_API int      STD_PROTO(YAP_GetThreadRefCount,(int));
-X_API void     STD_PROTO(YAP_SetThreadRefCount,(int,int));
-X_API CELL     STD_PROTO(YAP_ThreadCreateEngine,(struct thread_attr_struct *));
+X_API int      STD_PROTO(YAP_ThreadCreateEngine,(struct thread_attr_struct *));
 X_API int      STD_PROTO(YAP_ThreadAttachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDetachEngine,(int));
 X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
@@ -2836,22 +2834,22 @@ YAP_ThreadSelf(void)
 #if THREADS
   return Yap_thread_self();
 #else
-  return 0;
-#endif
-} 
-
-X_API CELL
-YAP_ThreadCreateEngine(struct thread_attr_struct *attr)
-{
-#if THREADS
-  return Yap_thread_create_engine(attr);
-#else
-  return FALSE;
+  return NULL;
 #endif
 } 
 
 X_API int
-YAP_ThreadAttachEngine(int wid)
+YAP_ThreadCreateEngine(struct thread_attr_struct * attr)
+{
+#if THREADS
+  return Yap_thread_create_engine(attr);
+#else
+  return -1;
+#endif
+} 
+
+X_API int
+YAP_ThreadAttachEngine( int wid)
 {
 #if THREADS
   return Yap_thread_attach_engine(wid);
