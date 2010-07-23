@@ -773,7 +773,6 @@ typedef struct thread_globs
 
 extern struct thread_globs Yap_thread_gl[MAX_THREADS];
 
-
 #define    Yap_LocalBase  Yap_thread_gl[worker_id].local_base
 #define    Yap_GlobalBase Yap_thread_gl[worker_id].global_base
 #define    Yap_TrailBase  Yap_thread_gl[worker_id].trail_base
@@ -784,6 +783,10 @@ extern struct thread_globs Yap_thread_gl[MAX_THREADS];
 #define    Yap_Error_Size   Yap_thread_gl[worker_id].error_size
 #define    Yap_ErrorSay    Yap_thread_gl[worker_id].error_say
 #define    Yap_RestartEnv    Yap_thread_gl[worker_id].restart_env
+
+/* This is the guy who actually started the system, and who has the correct registers */
+extern pthread_t Yap_master_thread;
+
 #else
 extern ADDR Yap_HeapBase,
   Yap_LocalBase, Yap_GlobalBase, Yap_TrailBase, Yap_TrailTop;

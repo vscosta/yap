@@ -368,8 +368,13 @@ CELL
 Yap_thread_create_engine(thread_attr *ops)
 {
   thread_attr opsv;
-  Term t = TermNil;
   int new_id = allocate_new_tid();
+  Term t = TermNil;
+
+  /* 
+     ok, this creates a problem, because we are initializing an engine from some "empty" thread. 
+     We need first to foool the thread into believing it is the main thread
+  */
   if (new_id == -1) {
     /* YAP ERROR */
     return FALSE;
@@ -381,13 +386,21 @@ Yap_thread_create_engine(thread_attr *ops)
     ops->sysize = 0;
     ops->egoal = t;
   }
+  if (pthread_self() != Yap_master_thread) {
+    pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
+    /* we are worker_id 0 for now, lock master thread so that no one messes with us */ 
+    pthread_mutex_lock(&(FOREIGN_ThreadHandle(0).tlock));
+  }
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return FALSE;
   FOREIGN_ThreadHandle(new_id).id = new_id;
   FOREIGN_ThreadHandle(new_id).pthread_handle = pthread_self();
   FOREIGN_ThreadHandle(new_id).ref_count = 0;
   setup_engine(new_id);
-  return TRUE;
+  if (pthread_self() != Yap_master_thread) {
+    pthread_mutex_unlock(&(FOREIGN_ThreadHandle(0).tlock));
+  }
+  return new_id;
 }
 
 Int

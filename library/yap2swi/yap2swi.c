@@ -2784,7 +2784,6 @@ X_API int PL_thread_self(void)
 X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
 {
   int wid = YAP_ThreadSelf();
-  fprintf(stderr,"attaching new engine %p\n", attr);
   
   if (wid < 0) {
     /* we do not have an engine */
@@ -2861,7 +2860,9 @@ X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
   YAP_Int cwid = YAP_ThreadSelf();
-  if (*old) *old = (PL_engine_t)cwid;
+  if (old) {
+    if (*old) *old = (PL_engine_t)cwid;
+  }
   if (engine == PL_ENGINE_CURRENT)
     return PL_ENGINE_SET;
   if (engine < 0) /* should really check if engine does not exist */

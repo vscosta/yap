@@ -88,6 +88,8 @@ struct restore_info rinfo[MAX_THREADS];
 
 struct thread_globs Yap_thread_gl[MAX_THREADS];
 
+pthread_t Yap_master_thread;
+
 #else
 
 struct restore_info rinfo;
@@ -1246,6 +1248,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #ifdef THREADS
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
+  Yap_master_thread = pthread_self();
 #else
   /* In this case we need to initialise the abstract registers */
   Yap_regp = &Yap_standard_regs;
