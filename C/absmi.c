@@ -1094,7 +1094,7 @@ Yap_absmi(int inp)
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(ap->PELock);
+	PELOCK(1, ap);
 	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
@@ -1395,7 +1395,7 @@ Yap_absmi(int inp)
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
 #if defined(YAPOR) || defined(THREADS)
-	LOCK(ap->PELock);
+	PELOCK(2, ap);
 	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
@@ -1492,7 +1492,7 @@ Yap_absmi(int inp)
 	GONext();
       }
       PP = PREG->u.p.p;
-      LOCK(PP->PELock);
+      PELOCK(3, PP);
 #endif
       PREG = NEXTOP(PREG, p);
       GONext();
@@ -1676,7 +1676,7 @@ Yap_absmi(int inp)
 
       /* spy_or_trymark                   */
       BOp(spy_or_trymark, Otapl);
-      LOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
+      PELOCK(5, ((PredEntry *)(PREG->u.Otapl.p)));
       PREG = (yamop *)(&(((PredEntry *)(PREG->u.Otapl.p))->OpcodeOfPred));
       UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
       goto dospy;
@@ -1691,7 +1691,7 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       if (PREG->u.Otapl.p->PredFlags & LogUpdatePredFlag) {
-	LOCK(PREG->u.Otapl.p->PELock);
+	PELOCK(6,PREG->u.Otapl.p);
 	PP = PREG->u.Otapl.p;
       }
       if (PREG->u.Otapl.p->CodeOfPred != PREG) {
@@ -1774,7 +1774,7 @@ Yap_absmi(int inp)
       CUT_wait_leftmost();
 #endif /* YAPOR */
       /* need to make the DB stable until I get the new clause */
-      LOCK(PREG->u.Otapl.p->PELock);
+      PELOCK(7,PREG->u.Otapl.p);
       CACHE_Y(B);
       PREG = PREG->u.Otapl.d;
       LOCK(DynamicLock(PREG));
@@ -2069,7 +2069,7 @@ Yap_absmi(int inp)
 		  int erase;
 		  PredEntry *ap = cl->ClPred;
 
-		  LOCK(ap->PELock);
+		  PELOCK(8,ap);
 		  DEC_CLREF_COUNT(cl);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
@@ -2093,7 +2093,7 @@ Yap_absmi(int inp)
 		  int erase;
 		  PredEntry *ap = cl->ClPred;
 
-		  LOCK(ap->PELock);
+		  PELOCK(9,ap);
 		  DEC_CLREF_COUNT(cl);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
@@ -7813,7 +7813,7 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
       {
 	PredEntry *ap = PredFromDefCode(PREG);
- 	LOCK(ap->PELock);
+ 	PELOCK(10,ap);
 	PP = ap;
 	if (!ap->cs.p_code.NOfClauses) {
 	  FAIL();
@@ -7852,10 +7852,13 @@ Yap_absmi(int inp)
 	we must take extra care here
       */
 	if (!PP) {
-	  LOCK(ap->PELock);
+	  PELOCK(11,ap);
 	}
 	if (ap->OpcodeOfPred != INDEX_OPCODE) {
 	  /* someone was here before we were */
+	  if (!PP) {
+	    UNLOCKPE(11,ap);
+	  }
 	  PREG = ap->CodeOfPred;
 	  /* for profiler */
 	  save_pc();
@@ -7909,12 +7912,13 @@ Yap_absmi(int inp)
 	}
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
-	  LOCK(pe->PELock);
+	  PELOCK(12,pe);
 	}
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
-	  if (!PP)
+	  if (!PP) {
 	    UNLOCK(pe->PELock);
+	  }
 	  JMPNext();
 	}
 #endif
@@ -7930,9 +7934,10 @@ Yap_absmi(int inp)
 #endif /* SHADOW_S */
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
-	if (!PP)
+	if (!PP) {
+	  UNLOCKPE(12,pe);
+	}
 #endif
-	  UNLOCK(pe->PELock);
 	JMPNext();
       }
       ENDBOp();
@@ -7949,7 +7954,7 @@ Yap_absmi(int inp)
 	}
 #if defined(YAPOR) || defined(THREADS)
 	if (PP == NULL) {
-	  LOCK(pe->PELock);
+	  PELOCK(13,pe);
 	}
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
@@ -8048,7 +8053,7 @@ Yap_absmi(int inp)
       {
 	PredEntry *pe = PredFromDefCode(PREG);
 	BEGD(d0);
- 	LOCK(pe->PELock);
+ 	PELOCK(14,pe);
 	if (!(pe->PredFlags & IndexedPredFlag) &&
 	      pe->cs.p_code.NOfClauses > 1) {
 	  /* update ASP before calling IPred */
@@ -8446,7 +8451,7 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
 	  PP = PREG->u.OtaLl.d->ClPred;
-	  LOCK(PP->PELock);
+	  PELOCK(15,PP);
 	}
 #endif
 	timestamp = IntegerOfTerm(((CELL *)(B_YREG+1))[PREG->u.OtaLl.s]);
@@ -8485,7 +8490,7 @@ Yap_absmi(int inp)
 	/* fprintf(stderr,"- %p/%p %d %d %p\n",PREG,ap,timestamp,ap->TimeStampOfPred,PREG->u.OtILl.d->ClCode);*/
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
-	  LOCK(ap->PELock);
+	  PELOCK(16,ap);
 	  PP = ap;
 	}
 #endif

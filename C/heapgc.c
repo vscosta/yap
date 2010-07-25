@@ -2546,7 +2546,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 		*/
 		PredEntry *ap = indx->ClPred;
 		if (ap != PP)
-		  LOCK(ap->PELock);
+		  PELOCK(85,ap);
 #endif
 		DEC_CLREF_COUNT(indx);
 		indx->ClFlags &= ~InUseMask;
@@ -2570,7 +2570,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR)
 
 #if  defined(YAPOR) || defined(THREADS)
 		if (ap != PP)
-		    LOCK(ap->PELock);
+		  PELOCK(86,ap);
 #endif
 		DEC_CLREF_COUNT(cl);
 		cl->ClFlags &= ~InUseMask;

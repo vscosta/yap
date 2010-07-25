@@ -758,7 +758,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
       pop_code(level, cglobs);
     }
   } else if (IsRefTerm(t)) {
-    LOCK(cglobs->cint.CurrentPred->PELock);
+    PELOCK(40,cglobs->cint.CurrentPred);
     if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
       UNLOCK(cglobs->cint.CurrentPred->PELock);
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
@@ -1466,7 +1466,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(41,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
@@ -1487,7 +1487,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	/* never a problem here with a -> b, !, c ; d */
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(42,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
@@ -1535,7 +1535,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       Yap_emit(label_op, l2, Zero, &cglobs->cint);
       if (cglobs->onlast) {
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(43,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
@@ -1781,7 +1781,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(44,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
@@ -1811,7 +1811,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	if (cglobs->onlast) {
 	  Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  LOCK(cglobs->cint.CurrentPred->PELock);
+	  PELOCK(45,cglobs->cint.CurrentPred);
 	  if (is_tabled(cglobs->cint.CurrentPred))
 	    Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	  else
@@ -1843,7 +1843,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	if (cglobs->onlast) {
 	  Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	  LOCK(cglobs->cint.CurrentPred->PELock);
+	  PELOCK(46,cglobs->cint.CurrentPred);
 	  if (is_tabled(cglobs->cint.CurrentPred))
 	    Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	  else
@@ -1926,7 +1926,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(47,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
@@ -1961,7 +1961,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     if (cglobs->onlast) {
       Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-      LOCK(cglobs->cint.CurrentPred->PELock);
+      PELOCK(48,cglobs->cint.CurrentPred);
       if (is_tabled(cglobs->cint.CurrentPred))
 	Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
       else
@@ -1993,7 +1993,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 	cglobs->or_found = TRUE;
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(49,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	else
@@ -2008,7 +2008,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (cglobs->onlast) {
 	Yap_emit(deallocate_op, Zero, Zero, &cglobs->cint);
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(50,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  cglobs->needs_env = TRUE;
 	  Yap_emit_3ops(call_op, (CELL) p0, Zero, Zero, &cglobs->cint);
@@ -2810,7 +2810,7 @@ c_layout(compiler_struct *cglobs)
 	cglobs->cint.cpc->op = nop_op;
       } else {
 #ifdef TABLING
-	LOCK(cglobs->cint.CurrentPred->PELock);
+	PELOCK(51,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred))
 	  cglobs->cint.cpc->op = nop_op;
 	else
@@ -3460,7 +3460,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       cglobs.cint.CurrentPred = RepPredProp(PredPropByFunc(FunctorOfTerm(head),mod));
     }
     /* insert extra instructions to count calls */
-    LOCK(cglobs.cint.CurrentPred->PELock);
+    PELOCK(52,cglobs.cint.CurrentPred);
     if ((cglobs.cint.CurrentPred->PredFlags & ProfiledPredFlag) ||
 	(PROFILING && (cglobs.cint.CurrentPred->cs.p_code.FirstClause == NIL))) {
       profiling = TRUE;
@@ -3482,7 +3482,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 
   if (cglobs.is_a_fact && !cglobs.vtable) {
 #ifdef TABLING
-    LOCK(cglobs.cint.CurrentPred->PELock);
+    PELOCK(53,cglobs.cint.CurrentPred);
     if (is_tabled(cglobs.cint.CurrentPred))
       Yap_emit(table_new_answer_op, Zero, cglobs.cint.CurrentPred->ArityOfPE, &cglobs.cint);
     else

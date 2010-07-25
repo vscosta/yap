@@ -795,7 +795,7 @@ p_execute_nonstop(void)
 #if defined(YAPOR) || defined(THREADS)
     if (RepPredProp(pe)->PredFlags & LogUpdatePredFlag) {
       PP = RepPredProp(pe);
-      LOCK(PP->PELock);
+      PELOCK(80,PP);
     }
 #endif
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred);
@@ -1119,7 +1119,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   if (pe == NIL) {
     return(CallMetaCall(mod));
   }
-  LOCK(ppe->PELock);
+  PELOCK(81,ppe);
   if (IsAtomTerm(t)) {
     CodeAdr = RepPredProp (pe)->CodeOfPred;
     UNLOCK(ppe->PELock);
@@ -1271,7 +1271,7 @@ Yap_RunTopGoal(Term t)
     /* we must always start the emulator with Prolog code */
     return FALSE;
   }
-  LOCK(ppe->PELock);
+  PELOCK(82,ppe);
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
 #if !USE_SYSTEM_MALLOC

@@ -67,7 +67,7 @@ legal_env (CELL *ep)
     return (FALSE);
   ps = *((CELL *) (Addr (cp) - CellSize));
   pe = (PredEntry *) (ps - sizeof (OPREG) - sizeof (Prop));
-  LOCK(pe->PELock);
+  PELOCK(70,pe);
   if (!ONHEAP (pe) || Unsigned (pe) & 3 || pe->KindOfPE & 0xff00) {
     UNLOCK(pe->PELock);
     return (FALSE);
@@ -100,7 +100,7 @@ DumpActiveGoals (void)
       pe = EnvPreg((yamop *)cp);
       if (!ONHEAP (pe) || Unsigned (pe) & (sizeof(CELL)-1))
 	break;
-      LOCK(pe->PELock);
+      PELOCK(71,pe);
       if (pe->KindOfPE & 0xff00) {
 	UNLOCK(pe->PELock);
 	break;
@@ -142,7 +142,7 @@ DumpActiveGoals (void)
       if (!ONLOCAL (b_ptr) || b_ptr->cp_b == NULL)
 	break;
       pe = Yap_PredForChoicePt(b_ptr);
-      LOCK(pe->PELock);
+      PELOCK(72,pe);
       {
 	Functor f;
 	Term mod = PROLOG_MODULE;

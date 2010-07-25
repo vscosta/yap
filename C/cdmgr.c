@@ -2112,7 +2112,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     p = RepPredProp(PredPropByFunc(f, mod));
   }
   Yap_PutValue(AtomAbol, TermNil);
-  LOCK(p->PELock);
+  PELOCK(20,p);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
   if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
@@ -2731,7 +2731,7 @@ p_purge_clauses(void)
     pred = RepPredProp(PredPropByFunc(fun, mod));
   } else
     return (FALSE);
-  LOCK(pred->PELock);
+  PELOCK(21,pred);
   if (pred->PredFlags & StandardPredFlag) {
     UNLOCK(pred->PELock);
     Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE, t, "assert/1");
@@ -2774,7 +2774,7 @@ p_setspy(void)
   } else {
     return (FALSE);
   }
-  LOCK(pred->PELock);
+  PELOCK(22,pred);
  restart_spy:
   if (pred->PredFlags & (CPredFlag | SafePredFlag)) {
     UNLOCK(pred->PELock);
@@ -2829,7 +2829,7 @@ p_rmspy(void)
     pred = RepPredProp(Yap_PredPropByFunctorNonThreadLocal(fun, mod));
   } else
     return FALSE;
-  LOCK(pred->PELock);
+  PELOCK(23,pred);
   if (!(pred->PredFlags & SpiedPredFlag)) {
     UNLOCK(pred->PELock);
     return FALSE;
@@ -2897,7 +2897,7 @@ p_number_of_clauses(void)
   }
   if (EndOfPAEntr(pe))
     return FALSE;
-  LOCK(RepPredProp(pe)->PELock);
+  PELOCK(24,RepPredProp(pe));
   ncl = RepPredProp(pe)->cs.p_code.NOfClauses;
   UNLOCK(RepPredProp(pe)->PELock);
   return (Yap_unify_constant(ARG3, MkIntegerTerm(ncl)));
@@ -2912,7 +2912,7 @@ p_in_use(void)
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$in_use");
   if (EndOfPAEntr(pe))
     return FALSE;
-  LOCK(pe->PELock);
+  PELOCK(25,pe);
   out = static_in_use(pe,TRUE);
   UNLOCK(pe->PELock);
   return(out);
@@ -2944,7 +2944,7 @@ p_new_multifile(void)
     pe = RepPredProp(PredPropByAtom(at, mod));
   else 
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
-  LOCK(pe->PELock);
+  PELOCK(26,pe);
   pe->PredFlags |= MultiFileFlag;
   if (pe->ModuleOfPred == PROLOG_MODULE)
     pe->ModuleOfPred = TermProlog;
@@ -2966,7 +2966,7 @@ p_is_multifile(void)
   pe = get_pred(Deref(ARG1),  Deref(ARG2), "$is_multifile");
   if (EndOfPAEntr(pe))
     return FALSE;
-  LOCK(pe->PELock);
+  PELOCK(27,pe);
   out = (pe->PredFlags & MultiFileFlag);
   UNLOCK(pe->PELock);
   return(out);

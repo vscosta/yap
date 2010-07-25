@@ -1159,7 +1159,6 @@ InitFirstWorkerThreadHandle(void)
   ThreadHandle.default_yaam_regs = 
     &Yap_standard_regs;
   ThreadHandle.pthread_handle = pthread_self();
-  ThreadHandle.pthread_handle = pthread_self();
   pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock, NULL);
   pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock_status, NULL);
   ThreadHandle.tdetach = MkAtomTerm(AtomFalse);

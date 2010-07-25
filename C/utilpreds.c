@@ -154,7 +154,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    DBRef  entryref = DBRefOfTerm(d0);
 	    if (entryref->Flags & LogUpdMask) {
 	      LogUpdClause *luclause = (LogUpdClause *)entryref;
-	      LOCK(luclause->ClPred->PELock);
+	      PELOCK(100,luclause->ClPred);
 	      UNLOCK(luclause->ClPred->PELock);
 	    } else {
 	      LOCK(entryref->lock);

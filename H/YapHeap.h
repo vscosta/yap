@@ -129,6 +129,9 @@ typedef struct thandle {
   int been_here1;
   int been_here2;
 #endif
+#ifdef DEBUG
+  int been_here;
+#endif
   pthread_mutex_t tlock;
   pthread_mutex_t tlock_status;
 #if HAVE_GETRUSAGE||defined(_WIN32)

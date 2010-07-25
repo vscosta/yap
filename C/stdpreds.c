@@ -607,7 +607,7 @@ FindAtom(codeToFind, arity)
 	pp = RepPredProp(pp->NextOfPE);
       if (pp != NIL) {
 	CODEADDR *out;
-	LOCK(pp->PELock);
+	PELOCK(90,pp);
 	out = &(pp->CodeOfPred)
 	*arityp = pp->ArityOfPE;
 	UNLOCK(pp->PELock);
@@ -632,7 +632,7 @@ FindAtom(codeToFind, arity)
 	pp = RepPredProp(pp->NextOfPE);
       if (pp != NIL) {
 	CODEADDR *out;
-	LOCK(pp->PELock);
+	PELOCK(91,pp);
 	out = &(pp->CodeOfPred)
 	*arityp = pp->ArityOfPE;
 	UNLOCK(pp->PELock);
@@ -3124,7 +3124,7 @@ p_flags(void)
     return (FALSE);
   if (EndOfPAEntr(pe))
     return (FALSE);
-  LOCK(pe->PELock);
+  PELOCK(92,pe);
   if (!Yap_unify_constant(ARG3, MkIntegerTerm(pe->PredFlags))) {
     UNLOCK(pe->PELock);
     return(FALSE);
