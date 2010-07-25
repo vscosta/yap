@@ -2848,6 +2848,7 @@ PL_thread_at_exit(void (*function)(void *), void *closure, int global)
 X_API PL_engine_t
 PL_create_engine(const PL_thread_attr_t *attr)
 {
+#if THREADS
   if (attr) {
     YAP_thread_attr yapt;
 
@@ -2859,37 +2860,63 @@ PL_create_engine(const PL_thread_attr_t *attr)
   } else {
     return Yap_WLocal+YAP_ThreadCreateEngine(NULL);
   }
+#else
+  return NULL;
+#endif
 }
 
 
 X_API int
 PL_destroy_engine(PL_engine_t e)
 {
+#if THREADS
   return YAP_ThreadDestroyEngine((struct worker_local *)e-Yap_WLocal);
+#else
+  return FALSE;
+#endif
 }
 
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
+#if THREADS
   int cwid = PL_thread_self(), nwid;
 
   if (cwid >= 0) {
     if (old) *old = (PL_engine_t)(Yap_WLocal+cwid);
   }
+  if (!engine) {
+    if (cwid < 0)
+      return PL_ENGINE_INVAL;
+    if (!YAP_ThreadDetachEngine(worker_id)) {
+      return PL_ENGINE_INVAL;
+    }
+    return PL_ENGINE_SET;
+  }
   if (engine == PL_ENGINE_MAIN) {
     nwid = 0;
   } else if (engine == PL_ENGINE_CURRENT) {
-    if (cwid < 0)
+    if (cwid < 0) {
+      if (old) *old = NULL;
       return PL_ENGINE_INVAL;
+    }
     return PL_ENGINE_SET;
+  } else {
+    nwid = (struct worker_local *)engine-Yap_WLocal;
   }
+
+  pthread_mutex_lock(&(FOREIGN_ThreadHandle(nwid).tlock));
   if (FOREIGN_ThreadHandle(nwid).pthread_handle) {
-    if (cwid != nwid)
+    pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
+    if (cwid != nwid) {
       return PL_ENGINE_INUSE;
+    }
     return PL_ENGINE_SET;
   }
-  if (cwid) {
-    if (!YAP_ThreadDetachEngine(nwid)) {
+  if (cwid >= 0) {
+    if (!YAP_ThreadDetachEngine(cwid)) {
+      *old = NULL;
+      pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
       return PL_ENGINE_INVAL;
     }
   }
@@ -2897,6 +2924,9 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     return PL_ENGINE_INVAL;
   }
   return PL_ENGINE_SET;
+#else
+  return FALSE;
+#endif
 }
 
 
