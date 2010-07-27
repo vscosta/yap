@@ -165,8 +165,6 @@ int      Yap_CritLocks = 0;
 
 /********* streams ********************************************/
 
-int Yap_c_input_stream, Yap_c_output_stream, Yap_c_error_stream;
-
 YP_FILE *Yap_stdin;
 YP_FILE *Yap_stdout;
 YP_FILE *Yap_stderr;

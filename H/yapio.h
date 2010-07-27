@@ -322,11 +322,6 @@ Term	STD_PROTO(Yap_WStringToList,(wchar_t *));
 Term	STD_PROTO(Yap_WStringToListOfAtoms,(wchar_t *));
 Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 
-extern int
-  Yap_c_input_stream,
-  Yap_c_output_stream,
-  Yap_c_error_stream;
-
 #define YAP_INPUT_STREAM	0x01
 #define YAP_OUTPUT_STREAM	0x02
 #define YAP_APPEND_STREAM	0x04

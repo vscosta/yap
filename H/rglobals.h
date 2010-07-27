@@ -59,6 +59,10 @@ static void RestoreWorker(int wid) {
 
 
 
+
+
+
+
   FOREIGN_WL(wid)->global_arena = TermToGlobalOrAtomAdjust(FOREIGN_WL(wid)->global_arena);
 
 

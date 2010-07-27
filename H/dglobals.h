@@ -22,6 +22,10 @@
 
 
 
+#define Yap_c_input_stream WL->c_input_stream
+#define Yap_c_output_stream WL->c_output_stream
+#define Yap_c_error_stream WL->c_error_stream
+
 #define OldASP WL->rinfo.old_ASP
 #define OldLCL0 WL->rinfo.old_LCL0
 #define OldTR WL->rinfo.old_TR

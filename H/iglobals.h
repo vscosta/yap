@@ -22,6 +22,10 @@
 
 static void InitWorker(int wid) {
 
+  FOREIGN_WL(wid)->c_input_stream = 0;
+  FOREIGN_WL(wid)->c_output_stream = 1;
+  FOREIGN_WL(wid)->c_error_stream = 2;
+
   FOREIGN_WL(wid)->rinfo.old_ASP = NULL;
   FOREIGN_WL(wid)->rinfo.old_LCL0 = NULL;
   FOREIGN_WL(wid)->rinfo.old_TR = NULL;

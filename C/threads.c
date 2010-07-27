@@ -81,6 +81,9 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   FOREIGN_ThreadHandle(new_worker_id).ssize = ssize;
   FOREIGN_ThreadHandle(new_worker_id).tsize = tsize;
   FOREIGN_ThreadHandle(new_worker_id).sysize = sysize;
+  FOREIGN_WL(new_worker_id)->c_input_stream = Yap_c_input_stream;
+  FOREIGN_WL(new_worker_id)->c_output_stream = Yap_c_output_stream;
+  FOREIGN_WL(new_worker_id)->c_error_stream = Yap_c_error_stream;
   pm = (ssize + tsize)*1024;
   if (!(FOREIGN_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
