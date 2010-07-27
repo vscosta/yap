@@ -3257,20 +3257,22 @@ CheckStream (Term arg, int kind, char *msg)
       Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
       return (-1);
     }
+  LOCK(Stream[sno].streamlock);
   if (Stream[sno].status & Free_Stream_f)
     {
+      UNLOCK(Stream[sno].streamlock);
       Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
       return (-1);
     }
   if ((Stream[sno].status & kind) == 0)
     {
+      UNLOCK(Stream[sno].streamlock);
       if (kind & Input_Stream_f)
 	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
       else
 	Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
       return (-1);
     }
-  LOCK(Stream[sno].streamlock);
   return (sno);
 }
 
