@@ -49,10 +49,6 @@ typedef struct
 variables createVars(YAP_Term t,DdManager * mgr, int create_dot, char inames[1000][20]);
 expr createExpression(YAP_Term t);
 void init_my_predicates(void);
-int compare(char *a, char *b);
-gint my_equal(gconstpointer v,gconstpointer v2);
-guint my_hash(gconstpointer key);
-void  dealloc(gpointer key,gpointer value,gpointer user_data);
 
 
 
@@ -63,4 +59,5 @@ DdNode * retFactor(DdManager * mgr, factor f, variables v);
 double Prob(DdNode *node, variables vars,GHashTable * nodes);
 
 double ProbBool(DdNode *node, int bits, int nBit,int posBVar,variable v,
-variables vars,GHashTable * nodes);
+int mVarIndex,
+variables vars,GHashTable * nodes, int comp);
