@@ -18,10 +18,8 @@ for the relative license.
 #include <string.h>
 
 
-unsigned long dividend;
 
 FILE *open_file (char *filename, const char *mode);
-void reverse(char s[]);
 static int compute_prob(void);
 
 variables  createVars(YAP_Term t,DdManager * mgr, int create_dot,  char inames[1000][20])
@@ -141,7 +139,7 @@ static int compute_prob(void)
 	expr expression; 
 	DdNode * function;
 	DdManager * mgr;
-	int nBVar,i,j,intBits,create_dot;
+	int nBVar,i,intBits,create_dot;
         FILE * file;
         DdNode * array[1];
 	double prob;
@@ -195,18 +193,10 @@ static int compute_prob(void)
   		fclose(file);
 	}
 	
-	nodes=g_hash_table_new(my_hash,my_equal);
+	nodes=g_hash_table_new_full(NULL,NULL,NULL,free);
 	intBits=sizeof(unsigned int)*8;
-	/* dividend is a global variable used by my_hash 
-	   it is equal to an unsigned int with binary representation 11..1 */ 
-	dividend=1;
-	for(j=1;j<intBits;j++)
-	{
-		dividend=(dividend<<1)+1;
-	}
 	prob=Prob(function,vars,nodes);
 	out=YAP_MkFloatTerm(prob);
-	g_hash_table_foreach (nodes,dealloc,NULL);
 	g_hash_table_destroy(nodes);
 	Cudd_Quit(mgr);
 	for(i=0;i<vars.nVar;i++)
@@ -223,22 +213,7 @@ static int compute_prob(void)
 	free(expression.terms);
     	return(YAP_Unify(out,arg3));
 }
-/*
-int compare(char *a, char *b)
-{
-	int aval,bval;
-	aval=(int) *((DdNode **)a);
-	aval=(int) *((DdNode **)b);
 
-	if (aval<bval)
-		return -1;
-	else
- 		if (aval>bval)
-			return 1;
-		else
-			return 0;
-}
-*/
 void init_my_predicates()
 /* function required by YAP for intitializing the predicates defined by a C function*/
 {
@@ -257,35 +232,4 @@ open_file(char *filename, const char *mode)
     return fp;
 
 }
-void reverse(char s[])
-/* reverses a string */
-{
-	int i,c,j;
-	for (i=0,j=strlen(s)-1;i<j;i++,j--)
-	{
-		c=s[i];
-		s[i]=s[j];
-		s[j]=c;
-	}
-}
 
-gint my_equal(gconstpointer v,gconstpointer v2)
-/* function used by GHashTable to compare two keys */
-{
-	DdNode *a,*b;
-	a=*(DdNode **)v;
-	b=*(DdNode **)v2;
-	return (a==b);
-}
-guint my_hash(gconstpointer key)
-/* function used by GHashTable to hash a key */
-{
-	unsigned int h;
-	h=(unsigned int)((unsigned long) *((DdNode **)key) % dividend);
-	return h;
-}
-void  dealloc(gpointer key,gpointer value,gpointer user_data)
-{
-	free(key);
-	free(value);
-}

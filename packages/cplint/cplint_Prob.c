@@ -121,7 +121,7 @@ so that it is not recomputed
   variable v;
   double res;
   double * value_p;
-  DdNode **key,*nodereg;
+  DdNode *nodereg;
   double *rp;
 
   index=Cudd_NodeReadIndex(node);
@@ -136,7 +136,7 @@ so that it is not recomputed
   else
 {
 	nodereg=Cudd_Regular(node);
-	value_p=g_hash_table_lookup(nodes,&nodereg);
+	value_p=g_hash_table_lookup(nodes,nodereg);
 	if (value_p!=NULL)
 	{
 		if (comp)
@@ -150,11 +150,9 @@ so that it is not recomputed
     		v=vars.varar[mVarIndex];
     		nBit=v.nBit;
     		res=ProbBool(node,0,nBit,0,v,mVarIndex,vars,nodes,0);
-		key=(DdNode **)malloc(sizeof(DdNode *));
-		*key=nodereg;
 		rp=(double *)malloc(sizeof(double));
 		*rp=res;
-		g_hash_table_insert(nodes, key, rp);
+		g_hash_table_insert(nodes, nodereg, rp);
 		if (comp)
 			return 1-res;
 		else
