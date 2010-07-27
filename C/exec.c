@@ -968,7 +968,7 @@ exec_absmi(int top)
 	/* H is not so important, because we're gonna backtrack */
 	restore_H();
 	/* set stack */
-	ASP = B;
+	ASP =(CELL *) PROTECT_FROZEN_B(B);
 	Yap_StartSlots();
 	LOCK(SignalLock);
 	CreepFlag = CalculateStackGap();
