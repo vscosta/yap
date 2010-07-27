@@ -139,7 +139,7 @@ static int compute_prob(void)
 	YAP_Term out,arg1,arg2,arg3,arg4;
 	variables  vars;
 	expr expression; 
-	DdNode * function, * add;
+	DdNode * function;
 	DdManager * mgr;
 	int nBVar,i,j,intBits,create_dot;
         FILE * file;
@@ -179,7 +179,7 @@ static int compute_prob(void)
 
 	/* the BDD build by retFunction is converted to an ADD (algebraic decision diagram)
 	because it is easier to interpret and to print */
-	add=Cudd_BddToAdd(mgr,function);
+	//add=Cudd_BddToAdd(mgr,function);
 	//Cudd_PrintInfo(mgr,stderr);
 
 	if (create_dot)
@@ -188,7 +188,7 @@ static int compute_prob(void)
 		nBVar=vars.nBVar;
 		for(i=0;i<nBVar;i++)
 		   names[i]=inames[i];
-	  	array[0]=add;
+	  	array[0]=function;
 		onames[0]="Out";
 		file = open_file("cpl.dot", "w");
 		Cudd_DumpDot(mgr,1,array,names,onames,file);
@@ -204,7 +204,7 @@ static int compute_prob(void)
 	{
 		dividend=(dividend<<1)+1;
 	}
-	prob=Prob(add,vars,nodes);
+	prob=Prob(function,vars,nodes);
 	out=YAP_MkFloatTerm(prob);
 	g_hash_table_foreach (nodes,dealloc,NULL);
 	g_hash_table_destroy(nodes);

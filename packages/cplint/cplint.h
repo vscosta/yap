@@ -63,4 +63,5 @@ DdNode * retFactor(DdManager * mgr, factor f, variables v);
 double Prob(DdNode *node, variables vars,GHashTable * nodes);
 
 double ProbBool(DdNode *node, int bits, int nBit,int posBVar,variable v,
-variables vars,GHashTable * nodes);
+int mVarIndex,
+variables vars,GHashTable * nodes, int comp);
