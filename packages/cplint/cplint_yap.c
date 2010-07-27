@@ -42,6 +42,7 @@ returns also the names of the variables to be used to save the ADD in dot format
 
 	b=0;
 	vars.nVar=0;
+	varIndex=0;
 	while(YAP_IsPairTerm(t))
 	{
 		

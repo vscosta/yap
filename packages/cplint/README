@@ -1,32 +1,26 @@
 This directory contains the code of the LPAD anc CP-logic interpreter cplint
 
 COMPILATION:
-This package requires GLU (a subpackage of VIS) and GLIB version 1.2.
-You can download GLU from http://vlsi.colorado.edu/~vis/getting_VIS_2.1.html
+This package requires CUDD and GLIB version 1.2.
+You can download CUDD from http://vlsi.colorado.edu/~fabio/CUDD/ 
 You can download GLIB from http://www.gtk.org/. This is a standard Linux package 
 so it is easy to install using the package management software of your Linux 
 distribution
 
 INSTALLATION:
-Install glu:
-	1) downlad glu-2.1.tar.gz
+Compile CUDD:
+	1) downlad cudd-2.4.2.tar.gz
 	2) decompress it
-	3) cd glu-2.1
-	3) mkdir arch
-	4) cd arch
-	5) ../configure
-	6) make
-	7) su
-	8) make install
-This will install glu into /usr/local, if you want to install to a different DIR
-use ../configure --prefix DIR
+	3) cd cudd-2.4.2
+	4) check makefile options
+	5) make
 
 Installation of cplint:
 When compiling Yap, use
-	configure --enable-cplint
-Under Windows, you have to use cygwin (glu does not compile under MinGW), so
-	configure --enable-cplint --enable-cygwin
-If you installed glu in DIR, use --enable-cplint=DIR
+	configure --enable-cplint=DIR
+Under Windows, you have to use cygwin (CUDD does not compile under MinGW), so
+	configure --enable-cplint --enable-cygwin=DIR
+where DIR is the directory where you compiled CUDD 
 
 
 FEEDBACK:
