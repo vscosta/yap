@@ -1250,7 +1250,8 @@ if test ! "$yap_cv_cplint" = "no"
 ENABLE_CPLINT=""
 	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
-		CPLINT_SHLIB_LD="gcc -shared ../yap.dll"
+		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
+		SHLIB_SUFFIX="dll"
 	else
 		CPLINT_SHLIB_LD=$SHLIB_LD
 	fi
