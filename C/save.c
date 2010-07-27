@@ -110,6 +110,7 @@ STATIC_PROTO(int   get_coded, (int, OPCODE []));
 STATIC_PROTO(void  restore_codes, (void));
 STATIC_PROTO(Term  AdjustDBTerm, (Term, Term *));
 STATIC_PROTO(void  RestoreDB, (DBEntry *));
+STATIC_PROTO(void  RestoreDBTerm, (DBTerm *, int));
 STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
 STATIC_PROTO(void  rehash, (CELL *, int, int));
 STATIC_PROTO(void  CleanCode, (PredEntry *));
@@ -404,7 +405,7 @@ save_regs(int mode)
       return -1;
     if (putout(CreepFlag) < 0)
       return -1;
-    if (putout(EX) < 0)
+    if (putcellptr((CELL *)EX) < 0)
       return -1;
 #if defined(SBA) || defined(TABLING)
     if (putcellptr(H_FZ) < 0)
@@ -841,7 +842,7 @@ get_regs(int flag)
     CreepFlag = get_cell();
     if (Yap_ErrorMessage)
       return -1;
-    EX = get_cell();
+    EX = (struct DB_TERM *)get_cellptr();
     if (Yap_ErrorMessage)
       return -1;
 #if defined(SBA) || defined(TABLING)
@@ -1046,8 +1047,10 @@ restore_regs(int flag)
     HB = PtoLocAdjust(HB);
     YENV = PtoLocAdjust(YENV);
     S = PtoGloAdjust(S);
-    if (EX)
-      EX = AbsAppl(PtoGloAdjust(RepAppl(EX)));
+    if (EX) {
+      EX = DBTermAdjust(EX);
+      RestoreDBTerm(EX, TRUE);
+    }
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
   }
 }

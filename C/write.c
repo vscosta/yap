@@ -656,7 +656,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
     return;
   }
-  if (EX != 0)
+  if (EX)
     return;
   t = Deref(t);
   if (IsVarTerm(t)) {
@@ -668,17 +668,17 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   } else if (IsPairTerm(t)) {
     if (wglb->Use_portray) {
       Term targs[1];
-      Term old_EX = 0L;
+      struct DB_TERM *old_EX = NULL;
       Int sl = 0;
 
       targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      if (EX != 0L) old_EX = EX;
+      if (EX) old_EX = EX;
       sl = Yap_InitSlot(t);      
       Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs), 0, 1);
       t = Yap_GetFromSlot(sl);
       Yap_RecoverSlots(1);
-      if (old_EX != 0L) EX = old_EX;
+      if (old_EX != NULL) EX = old_EX;
       if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue))
 	return;
     }
@@ -760,18 +760,18 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 #endif
     if (wglb->Use_portray) {
       Term targs[1];
-      Term old_EX = 0L;
+      struct DB_TERM *old_EX = NULL;
       Int sl = 0;
 
       targs[0] = t;
       Yap_PutValue(AtomPortray, MkAtomTerm(AtomNil));
-      if (EX != 0L) old_EX = EX;
+      if (EX) old_EX = EX;
       sl = Yap_InitSlot(t);      
       Yap_execute_goal(Yap_MkApplTerm(FunctorPortray, 1, targs),0, 1);
       t = Yap_GetFromSlot(sl);
       Yap_RecoverSlots(1);
-      if (old_EX != 0L) EX = old_EX;
-      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX != 0L)
+      if (old_EX) EX = old_EX;
+      if (Yap_GetValue(AtomPortray) == MkAtomTerm(AtomTrue) || EX)
 	return;
     }
     if (!wglb->Ignore_ops &&

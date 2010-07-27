@@ -2839,7 +2839,7 @@ YAP_ThreadSelf(void)
 #if THREADS
   return Yap_thread_self();
 #else
-  return NULL;
+  return -2;
 #endif
 } 
 
