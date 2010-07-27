@@ -7,6 +7,7 @@
 \documentclass{article}
 \usepackage{graphicx}
 \DeclareGraphicsExtensions{.png, .gif, .jpg}
+\newcommand{\url}[1]{\Link[#1]{}{} #1 \EndLink}
 \newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
 \newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
 \newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
@@ -15,7 +16,7 @@
 
 
 \begin{document}
-\title{\texttt{cplint} Version beta2.0 Manual}
+\title{\texttt{cplint} Version 2.0 Manual}
 
 
 \author{Fabrizio Riguzzi\\
@@ -57,39 +58,33 @@ The modules for answering queries using the definition of the semantics of LPADs
 %For program with function symbols, the semantics of LPADs and CP-logic are not defined. However, the interpreter accepts programs with function symbols and, if it does not go into a loop, it returns an answer. What is the meaning of this answer is subject of current study. 
 
 \section{Installation}
-\texttt{cplint} is distributed in source code in the CVS version of Yap. It includes Prolog and C files. Download it by following the instruction in \href{http://www.ncc.up.pt/~vsc/Yap/downloads.html}{http://www.ncc.up.pt/$\sim$vsc/Yap/downloads.html}.
+\texttt{cplint} is distributed in source code in the git version of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
 
-\texttt{cplint} requires glu (a subpackage of vis) and glib-2.0.
-You can download glu from \href{http://vlsi.colorado.edu/~vis/getting_VIS_2.1.html}{http://vlsi.colorado.edu/$\sim$vis/getting\_VIS\_2.1.html}
-You can download glib-2.0 (version $\geq 2.0$) from \href{http://www.gtk.org/}{http://www.gtk.org/}. This is a standard GNU package 
+\texttt{cplint} requires cudd  and glib-2.0.
+You can download cudd from \url{http://vlsi.colorado.edu/~fabio/CUDD/}.
+You can download glib-2.0 (version $\geq 2.0$) from \url{http://www.gtk.org/}. This is a standard GNU package 
 so it is easy to install it using the package management software of your Linux or Cygwin 
 distribution.
 
-Install glu:
+Compile cudd:
 \begin{enumerate}
-\item downlad \texttt{glu-2.1.tar.gz}
+\item downlad \texttt{cudd-2.4.2.tar.gz}
 \item decompress it
-\item \texttt{cd glu-2.1}
-\item \texttt{mkdir arch}
-\item \texttt{cd arch}
-\item \texttt{../configure}
+\item \texttt{cd cudd-2.4.2}
+\item check makefile options
 \item \texttt{make}
-	\item \texttt{su}
-	\item \texttt{make install}
 \end{enumerate}
-This will install glu into \texttt{/usr/local}, if you want to install to a different \texttt{DIR}
-use \texttt{../configure --prefix DIR}
 
 Install Yap together with \texttt{cplint}:
 when compiling Yap following the instuction of the \texttt{INSTALL} file in the root of the Yap folder, use
 \begin{verbatim}
-configure --enable-cplint
+configure --enable-cplint=DIR
 \end{verbatim}
 Under Windows, you have to use Cygwin (glu does not compile under MinGW), so\\
 \begin{verbatim}
-configure --enable-cplint --enable-cygwin
+configure --enable-cplint=DIR --enable-cygwin
 \end{verbatim}
-If you installed glu in \texttt{DIR}, use \texttt{--enable-cplint=DIR}
+where \texttt{DIR} is the path to the directory \texttt{cudd-2.4.2} (including  \texttt{cudd-2.4.2}).
 
 After having performed \texttt{make install} you can do \texttt{make installcheck} that will execute a suite of tests of the various programs. If no error is reported you have a working installation of \texttt{cplint}.
 
@@ -201,7 +196,7 @@ Variables: [(2,[X=2,X1=1]),(2,[X=1,X1=0]),(1,[])]
 		In the example above variable \texttt{X0} corresponds to clause \texttt{2} with the substitutions \texttt{X=2,X1=1},
 		variable \texttt{X1} corresponds to clause \texttt{2} with the substitutions \texttt{X=1,X1=0} and
 		variable \texttt{X2} corresponds to clause \texttt{1} with the empty substitution.
-		You can view the graph with \texttt{graphviz} (\href{www.graphviz.org}{www.graphviz.org}) using the
+		You can view the graph with \texttt{graphviz} (\url{www.graphviz.org}) using the
 		command
 \begin{verbatim}
 dotty cpl.dot &

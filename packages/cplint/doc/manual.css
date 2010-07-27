@@ -11,6 +11,7 @@
 .cmtt-10{font-family: monospace;}
 .cmti-10{ font-style: italic;}
 p.noindent { text-indent: 0em }
+td p.noindent { text-indent: 0em; margin-top:0em; }
 p.nopar { text-indent: 0em; }
 p.indent{ text-indent: 1.5em }
 @media print {div.crosslinks {visibility:hidden;}}
@@ -20,6 +21,9 @@ td center { margin-top:0em; margin-bottom:0em; }
 .Canvas { position:relative; }
 img.math{vertical-align:middle;}
 li p.indent { text-indent: 0em }
+li p:first-child{ margin-top:0em; }
+li p:last-child, li div:last-child { margin-bottom:0.5em; }
+li p~ul:last-child, li p~ol:last-child{ margin-bottom:0.5em; }
 .enumerate1 {list-style-type:decimal;}
 .enumerate2 {list-style-type:lower-alpha;}
 .enumerate3 {list-style-type:lower-roman;}
@@ -32,11 +36,11 @@ div.obeylines-v p { margin-top:0; margin-bottom:0; }
 td.displaylines {text-align:center; white-space:nowrap;}
 .centerline {text-align:center;}
 .rightline {text-align:right;}
-div.verbatim {font-family: monospace; white-space: nowrap; }
-table.verbatim {width:100%;}
+div.verbatim {font-family: monospace; white-space: nowrap; text-align:left; clear:both; }
 .fbox {padding-left:3.0pt; padding-right:3.0pt; text-indent:0pt; border:solid black 0.4pt; }
+div.fbox {display:table}
 div.center div.fbox {text-align:center; clear:both; padding-left:3.0pt; padding-right:3.0pt; text-indent:0pt; border:solid black 0.4pt; }
-table.minipage{width:100%;}
+div.minipage{width:100%;}
 div.center, div.center div.center {text-align: center; margin-left:1em; margin-right:1em;}
 div.center div {text-align: left;}
 div.flushright, div.flushright div.flushright {text-align: right;}
@@ -53,6 +57,8 @@ span.footnote-mark sup.textsuperscript, span.footnote-mark a sup.textsuperscript
 div.tabular, div.center div.tabular {text-align: center; margin-top:0.5em; margin-bottom:0.5em; }
 table.tabular td p{margin-top:0em;}
 table.tabular {margin-left: auto; margin-right: auto;}
+td p:first-child{ margin-top:0em; }
+td p:last-child{ margin-bottom:0em; }
 div.td00{ margin-left:0pt; margin-right:0pt; }
 div.td01{ margin-left:0pt; margin-right:5pt; }
 div.td10{ margin-left:5pt; margin-right:0pt; }
@@ -70,8 +76,9 @@ span.TEX span.E{ position:relative;top:0.5ex;left:-0.0417em;}
 a span.TEX span.E {text-decoration: none; }
 span.LATEX span.A{ position:relative; top:-0.5ex; left:-0.4em; font-size:85%;}
 span.LATEX span.TEX{ position:relative; left: -0.4em; }
-div.float img, div.float .caption {text-align:center;}
-div.figure img, div.figure .caption {text-align:center;}
+div.float, div.figure {margin-left: auto; margin-right: auto;}
+div.float img {text-align:center;}
+div.figure img {text-align:center;}
 .marginpar {width:20%; float:right; text-align:left; margin-left:auto; margin-top:0.5em; font-size:85%; text-decoration:underline;}
 .marginpar p{margin-top:0.4em; margin-bottom:0.4em;}
 table.equation {width:100%;}
@@ -88,10 +95,12 @@ table.pmatrix {width:100%;}
 span.pmatrix img{vertical-align:middle;}
 div.pmatrix {text-align:center;}
 table.pmatrix {width:100%;}
+span.bar-css {text-decoration:overline;}
 img.cdots{vertical-align:middle;}
 .partToc a, .partToc, .likepartToc a, .likepartToc {line-height: 200%; font-weight:bold; font-size:110%;}
-.caption td.id{font-weight: bold; white-space: nowrap; }
-table.caption {text-align:center;}
+.index-item, .index-subitem, .index-subsubitem {display:block}
+div.caption {text-indent:-2em; margin-left:3em; margin-right:1em; text-align:left;}
+div.caption span.id{font-weight: bold; white-space: nowrap; }
 h1.partHead{text-align: center}
 p.bibitem { text-indent: -2em; margin-left: 2em; margin-top:0.6em; margin-bottom:0.6em; }
 p.bibitem-p { text-indent: 0em; margin-left: 2em; margin-top:0.6em; margin-bottom:0.6em; }
@@ -107,7 +116,7 @@ div.thanks{text-align:left; margin-left:10%; font-size:85%; font-style:italic; }
 div.author{white-space: nowrap;}
 .quotation {margin-bottom:0.25em; margin-top:0.25em; margin-left:1em; }
 .abstract p {margin-left:5%; margin-right:5%;}
-table.abstract {width:100%;}
+div.abstract {width:100%;}
 .figure img.graphics {margin-left:10%;}
 /* end css.sty */
 

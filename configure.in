@@ -1239,25 +1239,27 @@ if test ! "$yap_cv_cplint" = "no"
 		LDFLAGS=${LDFLAGS}" `echo $GLIBS | awk '{print $1}'` -L$prefix/lib/"
 	if test ! "$yap_cv_cplint" = "yes"
 	then
-		LDFLAGS+=" -L${yap_cv_cplint}/lib"
-		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/lib"
+		CPLINT_LDFLAGS+=" -L${yap_cv_cplint}/cudd -L${yap_cv_cplint}/mtr -L${yap_cv_cplint}/st -L${yap_cv_cplint}/util -L${yap_cv_cplint}/epd "
 		CPLINT_CFLAGS+=" -I${yap_cv_cplint}/include"
+		CPLINT_LIBS="-lcudd  -lmtr -lst -lutil -lepd -lm "$CPLINT_LIBS
 	fi
-	AC_SEARCH_LIBS([g_hash_table_new], [glib-2.0], [CPLINT_LIBS="-lglib-2.0 "], [AC_MSG_ERROR([This package needs glib >=2.0.], [1])], [])
-	AC_SEARCH_LIBS([array_do_alloc], [glu], [CPLINT_LIBS="-lglu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [])
-	AC_SEARCH_LIBS([Cudd_Init], [cu], [CPLINT_LIBS="-lcu "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs glu.], [1])], [-lglu -lm])
-	AC_SEARCH_LIBS([pow], [m], [CPLINT_LIBS="-lm "$CPLINT_LIBS], [AC_MSG_ERROR([This package needs m.], [1])], [-lglu -lm])
+	#AC_SEARCH_LIBS([g_hash_table_new], [glib-2.0], [], [AC_MSG_ERROR([This package needs glib >=2.0.], [1])], [])
+	#AC_SEARCH_LIBS([Cudd_Init], [cudd], [], [AC_MSG_ERROR([This package needs CUDD.], [1])], [-lcudd -lmtr -lst -lutil -lepd -lm])
+	#AC_SEARCH_LIBS([pow], [m], [], [AC_MSG_ERROR([This package needs m.], [1])], [-lm])
 ENABLE_CPLINT=""
 	if test "$target_os" = "cygwin" -o "$target_os" = "mingw32"
 	then
-		CPLINT_SHLIB_LD="gcc -shared ../yap.dll"
+		CPLINT_SHLIB_LD="gcc -shared ../../yap.dll"
+		SHLIB_SUFFIX="dll"
 	else
 		CPLINT_SHLIB_LD=$SHLIB_LD
+		SHLIB_SUFFIX="so"
 	fi
 	AC_SUBST(CPLINT_LIBS)
 	AC_SUBST(CPLINT_CFLAGS)
 	AC_SUBST(CPLINT_LDFLAGS)
 	AC_SUBST(CPLINT_SHLIB_LD)
+	AC_SUBST(SHLIB_SUFFIX)
 else
 	ENABLE_CPLINT="@#"
 fi
