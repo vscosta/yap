@@ -24,9 +24,9 @@ FILE *open_file (char *filename, const char *mode);
 void reverse(char s[]);
 static int compute_prob(void);
 
-void createVars(array_t * vars, YAP_Term t,DdManager * mgr, array_t * bVar2mVar,int create_dot,  char inames[1000][20])
+variables  createVars(YAP_Term t,DdManager * mgr, int create_dot,  char inames[1000][20])
 /* adds the boolean variables to the BDD and returns
-an array_t containing them (array_t is defined in the util library of glu)
+the array vars containing them 
 returns also the names of the variables to be used to save the ADD in dot format
  */
 {
@@ -35,10 +35,16 @@ returns also the names of the variables to be used to save the ADD in dot format
 	variable v;	
 	char numberVar[10],numberBit[10];
 	double p;
-	b=0;
+	variables  vars;
+	
+  	vars.varar= (variable *) malloc(0* sizeof(variable));
+	vars.bVar2mVar=(int *) malloc(0* sizeof(int));
 
+	b=0;
+	vars.nVar=0;
 	while(YAP_IsPairTerm(t))
 	{
+		
 		varTerm=YAP_HeadOfTerm(t);
 		varIndex=YAP_IntOfTerm(YAP_HeadOfTerm(varTerm));
 
@@ -48,10 +54,18 @@ returns also the names of the variables to be used to save the ADD in dot format
       		probTerm=YAP_HeadOfTerm(varTerm);
 		v.nVal=nVal;
 		v.nBit=(int)ceil(log(nVal)/log(2));
-		v.probabilities=array_alloc(double,0);
-		v.booleanVars=array_alloc(DdNode *,0);
+		v.probabilities=(double *) malloc(nVal* sizeof(double));
+		v.booleanVars=(DdNode * *) malloc(v.nBit* sizeof(DdNode *));
 		for (i=0;i<nVal;i++)
 		{
+			p=YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
+			v.probabilities[i]=p;
+			probTerm=YAP_TailOfTerm(probTerm);
+		}
+
+		for (i=0;i<v.nBit;i++)
+		{
+
 			if (create_dot)
 			{
 				strcpy(inames[b+i],"X");
@@ -61,20 +75,24 @@ returns also the names of the variables to be used to save the ADD in dot format
 				sprintf(numberBit,"%d",i);
 				strcat(inames[b+i],numberBit);
 			}
-			p=YAP_FloatOfTerm(YAP_HeadOfTerm(probTerm));
-			array_insert(double,v.probabilities,i,p);
-			probTerm=YAP_TailOfTerm(probTerm);
-			array_insert(DdNode *,v.booleanVars,i,Cudd_bddIthVar(mgr,b+i));
-			array_insert(int,bVar2mVar,b+i,varIndex);
+			v.booleanVars[i]=Cudd_bddIthVar(mgr,b+i);
+			vars.bVar2mVar=(int *)realloc(vars.bVar2mVar,(b+i+1)*sizeof(int));
+			vars.bVar2mVar[b+i]=varIndex;
 		}
-		Cudd_MakeTreeNode(mgr,b,nVal,MTR_FIXED);
-		b=b+nVal;
-		array_insert(variable,vars,varIndex,v);
+		Cudd_MakeTreeNode(mgr,b,v.nBit,MTR_FIXED);
+		b=b+v.nBit;
+		vars.varar=(variable *) realloc(vars.varar,(varIndex+1)* sizeof(variable));
+	vars.varar[varIndex]=v;
 		t=YAP_TailOfTerm(t);
 	}
+	vars.nVar=varIndex+1;
+	vars.nBVar=b;
+
+
+	return vars;
 }
 
-void createExpression(array_t * expression, YAP_Term t)
+expr createExpression(YAP_Term t)
 /* returns the expression as an array_t of terms (cubes) starting from the prolog lists of terms
 each term is an array_t of factors obtained from a prolog list of factors
 each factor is a couple (index of variable, index of value) obtained from a prolog list containing 
@@ -84,12 +102,13 @@ two integers
      	YAP_Term  termTerm,factorTerm;
 	factor f;	
 	int i,j;
-	array_t * term;
-
+	term term1;
+	expr expression;
+	expression.terms=(term *)malloc(0 *sizeof(term));
 	i=0;
 	while(YAP_IsPairTerm(t))
 	{
-		term=array_alloc(factor,0);
+		term1.factors=(factor *)malloc(0 *sizeof(factor));
 		termTerm=YAP_HeadOfTerm(t);
 		j=0;
 		while(YAP_IsPairTerm(termTerm))
@@ -97,14 +116,19 @@ two integers
 			factorTerm=YAP_HeadOfTerm(termTerm);
 			f.var=YAP_IntOfTerm(YAP_HeadOfTerm(factorTerm));
 			f.value=YAP_IntOfTerm(YAP_HeadOfTerm(YAP_TailOfTerm(factorTerm)));
-			array_insert(factor,term,j,f);
+			term1.factors=(factor *)realloc(term1.factors,(j+1)* sizeof(factor));
+			term1.factors[j]=f;
 			termTerm=YAP_TailOfTerm(termTerm);
 			j++;
 		}
-		array_insert(array_t *,expression,i,term);
+		term1.nFact=j;
+		expression.terms=(term *)realloc(expression.terms,(i+1)* sizeof(term));
+		expression.terms[i]=term1;
 		t=YAP_TailOfTerm(t);
 		i++;
 	}
+	expression.nTerms=i;
+	return(expression);
 }
 
 static int compute_prob(void)
@@ -112,30 +136,30 @@ static int compute_prob(void)
 */
 {
 	YAP_Term out,arg1,arg2,arg3,arg4;
-	array_t * variables,* expression, * bVar2mVar;
+	variables  vars;
+	expr expression; 
 	DdNode * function, * add;
 	DdManager * mgr;
 	int nBVar,i,j,intBits,create_dot;
         FILE * file;
         DdNode * array[1];
+	double prob;
         char * onames[1];
         char inames[1000][20];
 	char * names[1000];
 	GHashTable  * nodes; /* hash table that associates nodes with their probability if already 
 				computed, it is defined in glib */
-	//Cudd_ReorderingType order;
 	arg1=YAP_ARG1;
 	arg2=YAP_ARG2;
 	arg3=YAP_ARG3;
 	arg4=YAP_ARG4;
 
   	mgr=Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
-	variables=array_alloc(variable,0);
-	bVar2mVar=array_alloc(int,0);
 	create_dot=YAP_IntOfTerm(arg4);
-	createVars(variables,arg1,mgr,bVar2mVar,create_dot,inames);
-        //Cudd_PrintInfo(mgr,stderr);
+	vars=createVars(arg1,mgr,create_dot,inames);
 
+        //Cudd_PrintInfo(mgr,stderr);
+	
 	/* automatic variable reordering, default method CUDD_REORDER_SIFT used */
 	//printf("status %d\n",Cudd_ReorderingStatus(mgr,&order));
 	//printf("order %d\n",order);
@@ -148,10 +172,10 @@ static int compute_prob(void)
 */
 
 
-	expression=array_alloc(array_t *,0);
-	createExpression(expression,arg2);	
+	expression=createExpression(arg2);	
 
-	function=retFunction(mgr,expression,variables);
+	function=retFunction(mgr,expression,vars);
+
 	/* the BDD build by retFunction is converted to an ADD (algebraic decision diagram)
 	because it is easier to interpret and to print */
 	add=Cudd_BddToAdd(mgr,function);
@@ -160,7 +184,7 @@ static int compute_prob(void)
 	if (create_dot)
 	/* if specified by the user, a dot file for the BDD is written to cpl.dot */
 	{	
-		nBVar=array_n(bVar2mVar);
+		nBVar=vars.nBVar;
 		for(i=0;i<nBVar;i++)
 		   names[i]=inames[i];
 	  	array[0]=add;
@@ -179,13 +203,23 @@ static int compute_prob(void)
 	{
 		dividend=(dividend<<1)+1;
 	}
-	out=YAP_MkFloatTerm(Prob(add,variables,bVar2mVar,nodes));
+	prob=Prob(add,vars,nodes);
+	out=YAP_MkFloatTerm(prob);
 	g_hash_table_foreach (nodes,dealloc,NULL);
 	g_hash_table_destroy(nodes);
 	Cudd_Quit(mgr);
-	array_free(variables);
- 	array_free(bVar2mVar);
-	array_free(expression);
+	for(i=0;i<vars.nVar;i++)
+	{
+		free(vars.varar[i].probabilities);
+		free(vars.varar[i].booleanVars);
+	}
+	free(vars.varar);
+	free(vars.bVar2mVar);
+	for(i=0;i<expression.nTerms;i++)
+	{
+		free(expression.terms[i].factors);
+	}
+	free(expression.terms);
     	return(YAP_Unify(out,arg3));
 }
 /*
