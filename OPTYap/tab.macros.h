@@ -163,11 +163,15 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define STACK_POP_DOWN(STACK)                       *(STACK)++
 #define STACK_NOT_EMPTY(STACK, STACK_BASE)          (STACK) != (STACK_BASE)
 #define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)) EXPAND_AUX_STACK(STACK)
-#ifdef YAPOR
-#define EXPAND_AUX_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)+4096) EXPAND_STACK(STACK)
+#ifdef YAPOR && !defined(THREADS)
+#define EXPAND_AUX_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)");
+#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
 #else
 #define EXPAND_AUX_STACK(STACK)    STACK = expand_auxiliary_stack(STACK)
+#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
 #endif /* YAPOR */
+#define OPTYAP_ERROR_MESSAGE(OP, COND)  
 
 
 
@@ -331,7 +335,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         SuspFr_global_reg(SUSP_FR) = (void *) (H_REG);                             \
         SuspFr_local_reg(SUSP_FR) = (void *) (B_REG);                              \
         SuspFr_trail_reg(SUSP_FR) = (void *) (TR_REG);                             \
-        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE);      \
+        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE, void *); \
         SuspFr_local_start(SUSP_FR) = SuspFr_global_start(SUSP_FR) + H_SIZE;       \
         SuspFr_trail_start(SUSP_FR) = SuspFr_local_start(SUSP_FR) + B_SIZE;        \
         SuspFr_global_size(SUSP_FR) = H_SIZE;                                      \

@@ -296,9 +296,9 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     return FALSE;
   }
 
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr));
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, LOCAL_top_susp_or_fr && EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), LOCAL_top_cp));
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, LOCAL_top_susp_or_fr && YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ));
+  OPTYAP_ERROR_CHECKING(move_up_one_node, B_FZ != DepFr_cons_cp(LOCAL_top_dep_fr));
+  OPTYAP_ERROR_CHECKING(move_up_one_node, LOCAL_top_susp_or_fr && EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), B_FZ) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), Get_LOCAL_top_cp()));
+  OPTYAP_ERROR_CHECKING(move_up_one_node, LOCAL_top_susp_or_fr && YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()) && YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), B_FZ));
 
 #ifdef TABLING
   /* frozen stacks on branch ? */
@@ -406,9 +406,9 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     return TRUE;
   }
 
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, OrFr_alternative(LOCAL_top_or_fr) && ! YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)));
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, Get_LOCAL_top_cp() == DepFr_cons_cp(LOCAL_top_dep_fr));
-  OPTYAP_ERROR_MESSAGE(move_up_one_node, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
+  OPTYAP_ERROR_CHECKING(move_up_one_node, OrFr_alternative(LOCAL_top_or_fr) && ! YAMOP_SEQ(OrFr_alternative(LOCAL_top_or_fr)));
+  OPTYAP_ERROR_CHECKING(move_up_one_node, Get_LOCAL_top_cp() == DepFr_cons_cp(LOCAL_top_dep_fr));
+  OPTYAP_ERROR_CHECKING(move_up_one_node, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
 
   /* no frozen nodes */
   Set_LOCAL_top_cp_on_stack(GetOrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)));

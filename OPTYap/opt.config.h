@@ -20,9 +20,12 @@
 /**********************************************************
 **      memory alloc scheme (mandatory, define one)      **
 **********************************************************/
+#ifdef USE_SYSTEM_MALLOC
+#define MALLOC_MEMORY_ALLOC_SCHEME 1
+#else
 #define YAP_MEMORY_ALLOC_SCHEME 1
+#endif
 /* #define SHM_MEMORY_ALLOC_SCHEME 1 */
-/* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
 
 
 

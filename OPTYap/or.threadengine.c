@@ -152,8 +152,8 @@ int q_share_work(int worker_p) {
   Set_LOCAL_prune_request(NULL);
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 
-  OPTYAP_ERROR_MESSAGE(q_share_work, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
-  OPTYAP_ERROR_MESSAGE(q_share_work, YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()));
+  OPTYAP_ERROR_CHECKING(q_share_work, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
+  OPTYAP_ERROR_CHECKING(q_share_work, YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()));
   YAPOR_ERROR_CHECKING(q_share_work, LOCAL_reply_signal != worker_ready);
 
   /* make sharing request */
@@ -374,7 +374,7 @@ void share_private_nodes(int worker_q) {
       if (next_node_on_branch == sharing_node)
         next_node_on_branch = NULL;
 #endif /* TABLING */
-      OPTYAP_ERROR_MESSAGE(share_private_nodes, next_node_on_branch && YOUNGER_CP(next_node_on_branch, sharing_node));
+      OPTYAP_ERROR_CHECKING(share_private_nodes, next_node_on_branch && YOUNGER_CP(next_node_on_branch, sharing_node));
     }
 
     /* initialize last or-frame pointer */

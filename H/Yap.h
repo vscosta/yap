@@ -40,7 +40,7 @@
 #error Do not define multiple or-parallel models
 #endif /* (ENV_COPY && (ACOW || SBA)) || (ACOW && SBA) */
 
-#if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
+#if defined(ENV_COPY) || defined(ACOW) || defined(SBA) || defined(THREADS)
 #define YAPOR 1
 #endif /* ENV_COPY || ACOW || SBA */
 

@@ -210,7 +210,7 @@ MoveLocalAndTrail(void)
 #endif
 }
 
-#if defined(THREADS) && defined(YAPOR)
+#ifdef THREADS
 
 static void
 CopyLocalAndTrail(void)
@@ -234,8 +234,6 @@ IncrementalCopyStacksFromWorker(void)
 	 (void *) (LOCAL_start_trail_copy),
 	 (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy));
 }
-
-#include "opt.mavar.h"
 
 static CELL
 worker_p_binding(int worker_p, CELL *aux_ptr)
@@ -281,8 +279,9 @@ RestoreTrail(int worker_p)
     } else if (IsPairTerm(aux_cell)) {
       /* avoid frozen segments */
       aux_cell = (CELL) RepPair(aux_cell);
-      if ((ADDR) aux_cell >= TrailBase)
+      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
         aux_tr = (tr_fr_ptr) aux_cell;
+      }
 #endif /* TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else if (IsApplTerm(aux_cell)) {
@@ -1867,9 +1866,9 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
     LOCAL_end_local_copy = 
       (CELL)PtoLocAdjust((CELL *)LOCAL_end_local_copy);
     LOCAL_start_trail_copy = 
-      (CELL)PtoTRAdjust((CELL *)LOCAL_start_trail_copy);
+      (CELL)PtoTRAdjust((tr_fr_ptr)LOCAL_start_trail_copy);
     LOCAL_end_trail_copy = 
-      (CELL)PtoTRAdjust((CELL *)LOCAL_end_trail_copy);
+      (CELL)PtoTRAdjust((tr_fr_ptr)LOCAL_end_trail_copy);
     AdjustStacksAndTrail(0, STACK_INCREMENTAL_COPYING);
     RestoreTrail(worker_p);
     TR = (tr_fr_ptr) LOCAL_end_trail_copy;
