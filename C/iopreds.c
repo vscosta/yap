@@ -3780,7 +3780,7 @@ int beam_write (void)
   Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0, 1200);
   Yap_CloseSlots();
   if (EX != 0L) {
-    Term ball = EX;
+    Term ball = Yap_PopTermFromDB(EX);
     EX = 0L;
     Yap_JumpToEnv(ball);
     return(FALSE);
@@ -3800,8 +3800,8 @@ p_write (void)
   Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags, 1200);
   Yap_CloseSlots();
   if (EX != 0L) {
-    Term ball = EX;
-    EX = 0L;
+    Term ball = Yap_PopTermFromDB(EX);
+    EX = NULL;
     Yap_JumpToEnv(ball);
     return(FALSE);
   }
@@ -3819,8 +3819,8 @@ p_write_prio (void)
   Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, flags, (int)IntOfTerm(Deref(ARG2)));
   Yap_CloseSlots();
   if (EX != 0L) {
-    Term ball = EX;
-    EX = 0L;
+    Term ball = Yap_PopTermFromDB(EX);
+    EX = NULL;
     Yap_JumpToEnv(ball);
     return(FALSE);
   }
@@ -3844,8 +3844,8 @@ p_write2_prio (void)
   Yap_CloseSlots();
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
-    Term ball = EX;
-    EX = 0L;
+    Term ball = Yap_PopTermFromDB(EX);
+    EX = NULL;
     Yap_JumpToEnv(ball);
     return(FALSE);
   }
@@ -3869,8 +3869,8 @@ p_write2 (void)
   Yap_CloseSlots();
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
-    Term ball = EX;
-    EX = 0L;
+    Term ball = Yap_PopTermFromDB(EX);
+    EX = NULL;
     Yap_JumpToEnv(ball);
     return(FALSE);
   }
@@ -5511,8 +5511,8 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      Term ball;
 
 	    ex_handler:
-	      ball = EX;
-	      EX = 0L;
+	      ball = Yap_PopTermFromDB(EX);
+	      EX = NULL;
 	      if (tnum <= 8)
 		targs = NULL;
 	      if (IsAtomTerm(tail)) {
@@ -6402,10 +6402,11 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
   Yap_plwrite (t, Stream[sno].stream_wputc, flags, 1200);
   Yap_CloseSlots();
   s[Stream[sno].u.mem_string.pos] = '\0';
+  LOCK(Stream[sno].streamlock);
   Stream[sno].status = Free_Stream_f;
+  UNLOCK(Stream[sno].streamlock);
   Yap_c_output_stream = old_output_stream;
-  ++ASP;
-  return EX;
+  return EX != NULL;
 }
 
 FILE *
