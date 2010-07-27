@@ -488,14 +488,12 @@ static Int p_show_statistics_tabling(void) {
 
   return (TRUE);
 }
-#endif /* TABLING */
-
 
 static Int p_show_statistics_global_trie(void) {
   show_global_trie(SHOW_MODE_STATISTICS);
   return (TRUE);
 }
-
+#endif /* TABLING */
 
 
 /*********************************

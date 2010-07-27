@@ -28,6 +28,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if THREADS
+#include <opt.mavar.h>
+#endif
 
 #if !HAVE_STRNCAT
 #define strncat(s0,s1,sz)   strcat(s0,s1)
