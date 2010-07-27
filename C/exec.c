@@ -948,10 +948,12 @@ p_pred_goal_expansion_on(void) {
   return PRED_GOAL_EXPANSION_ON;
 }
 
+
 static int
 exec_absmi(int top)
 {
   int lval, out;
+
   if (top && (lval = sigsetjmp (Yap_RestartEnv, 1)) != 0) {
     switch(lval) {
     case 1:
@@ -965,6 +967,9 @@ exec_absmi(int top)
 	restore_B();
 	/* H is not so important, because we're gonna backtrack */
 	restore_H();
+	/* set stack */
+	ASP = B;
+	Yap_StartSlots();
 	LOCK(SignalLock);
 	CreepFlag = CalculateStackGap();
 	Yap_PrologMode = UserMode;
