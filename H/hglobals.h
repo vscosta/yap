@@ -22,6 +22,10 @@
 
 typedef struct worker_local {
 
+  int  c_input_stream;
+  int  c_output_stream;
+  int  c_error_stream;
+
   restoreinfo  rinfo;
 
 

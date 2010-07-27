@@ -2039,8 +2039,12 @@ YAP_GoalHasException(Term *t)
   BACKUP_MACHINE_REGS();
   if (EX) {
     do {
+      Yap_Error_TYPE = YAP_NO_ERROR;
       *t = Yap_FetchTermFromDB(EX);
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      if (Yap_Error_TYPE == YAP_NO_ERROR) {
+	RECOVER_MACHINE_REGS();
+	return TRUE;
+      } else if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
 	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
@@ -2107,7 +2111,7 @@ YAP_Read(int (*mygetc)(void))
   BACKUP_MACHINE_REGS();
 
   do_getf = mygetc;
-  sno = Yap_GetFreeStreamDForReading();
+  sno =  Yap_GetFreeStreamDForReading();
   if (sno < 0) {
     Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
     return TermNil;
@@ -2116,6 +2120,7 @@ YAP_Read(int (*mygetc)(void))
   Stream[sno].status |= Tty_Stream_f;
   tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
   Stream[sno].status = Free_Stream_f;
+  UNLOCK(Stream[sno].streamlock);
   if (Yap_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);

@@ -208,14 +208,17 @@ GetFreeStreamD(void)
 {
   int sno;
 
-  for (sno = 0; sno < MaxStreams; ++sno)
-    if (Stream[sno].status & Free_Stream_f)
+  for (sno = 0; sno < MaxStreams; ++sno) {
+    LOCK(Stream[sno].streamlock);
+    if (Stream[sno].status & Free_Stream_f) {
       break;
+    }
+    UNLOCK(Stream[sno].streamlock);
+  }
   if (sno == MaxStreams) {
     return -1;
   }
   Stream[sno].encoding = DefaultEncoding();
-  INIT_LOCK(Stream[sno].streamlock);
   return sno;
 }
 
@@ -244,6 +247,7 @@ Yap_GetFreeStreamDForReading(void)
     s->stream_wgetc_for_read = ISOWGetc;
   else
     s->stream_wgetc_for_read = s->stream_wgetc;
+  UNLOCK(s->streamlock);
   return sno;
 }
 
@@ -2120,6 +2124,7 @@ Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc;
+  UNLOCK(st->streamlock);
   return(MkStream(sno));
 }
 
@@ -2409,8 +2414,10 @@ p_open (void)
   st = &Stream[sno];
   /* can never happen */
   tenc = Deref(ARG5);
-  if (IsVarTerm(tenc) || !IsIntegerTerm(tenc))
+  if (IsVarTerm(tenc) || !IsIntegerTerm(tenc)) {
+    UNLOCK(st->streamlock);
     return FALSE;
+  }
   encoding = IntegerOfTerm(tenc);
 #ifdef _WIN32
   if (opts & 2) {
@@ -2422,6 +2429,7 @@ p_open (void)
   if ((st->u.file.file = YP_fopen (Yap_FileNameBuf, io_mode)) == YAP_ERROR ||
       (!(opts & 2 /* binary */) && binary_file(Yap_FileNameBuf)))
     {
+      UNLOCK(st->streamlock);
       if (open_mode == AtomCsult)
 	{
 	  if (!find_csult_file (Yap_FileNameBuf, Yap_FileNameBuf2, st, io_mode))
@@ -2494,6 +2502,7 @@ p_open (void)
 	  st->stream_getc = PlGetc;
 	  st->stream_gets = PlGetsFunc();
 	}
+	UNLOCK(st->streamlock);
 	ta[1] = MkAtomTerm(AtomTrue);
 	t = Yap_MkApplTerm(Yap_MkFunctor(AtomReposition,1),1,ta);
 	Yap_Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
@@ -2537,6 +2546,7 @@ p_open (void)
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc;
+  UNLOCK(st->streamlock);
   t = MkStream (sno);
   if (open_mode == AtomWrite ) {
     if (needs_bom && !write_bom(sno,st))
@@ -2693,6 +2703,7 @@ p_open_null_stream (void)
   st->stream_wgetc = get_wchar;
   st->stream_wgetc_for_read = get_wchar;
   st->u.file.user_name = MkAtomTerm (st->u.file.name = AtomDevNull);
+  UNLOCK(st->streamlock);
   t = MkStream (sno);
   return (Yap_unify (ARG1, t));
 }
@@ -2754,6 +2765,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
     st->stream_wgetc_for_read = ISOWGetc;
   else
     st->stream_wgetc_for_read = st->stream_wgetc; 
+  UNLOCK(st->streamlock);
   t = MkStream (sno);
   return t;
 }
@@ -2806,6 +2818,7 @@ p_open_pipe_stream (void)
 #else
   st->u.pipe.fd = filedes[0];
 #endif
+  UNLOCK(st->streamlock);
   sno = GetFreeStreamD();
   if (sno < 0)
     return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
@@ -2828,6 +2841,7 @@ p_open_pipe_stream (void)
 #else
   st->u.pipe.fd = filedes[1];
 #endif
+  UNLOCK(st->streamlock);
   t2 = MkStream (sno);
   return
     Yap_unify (ARG1, t1) &&
@@ -2864,6 +2878,7 @@ open_buf_read_stream(char *nbuf, Int nchars)
   st->u.mem_string.max_size = nchars;
   st->u.mem_string.error_handler = NULL;
   st->u.mem_string.src = MEM_BUF_CODE;
+  UNLOCK(st->streamlock);
   return sno;
 }
 
@@ -2942,6 +2957,7 @@ open_buf_write_stream(char *nbuf, UInt  sz)
   st->u.mem_string.buf = nbuf;
   st->u.mem_string.max_size = sz;
   st->u.mem_string.src = MEM_BUF_CODE;
+  UNLOCK(st->streamlock);
   return sno;
 }
 
@@ -3190,6 +3206,7 @@ LookupSWIStream (struct io_stream *swi_s)
     Stream[i].stream_wgetc_for_read = ISOWGetc;
   else
     Stream[i].stream_wgetc_for_read = IOSWIWideGetc;
+  UNLOCK(Stream[i].streamlock);
   return i;
 }
 
@@ -3240,20 +3257,22 @@ CheckStream (Term arg, int kind, char *msg)
       Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
       return (-1);
     }
+  LOCK(Stream[sno].streamlock);
   if (Stream[sno].status & Free_Stream_f)
     {
+      UNLOCK(Stream[sno].streamlock);
       Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
       return (-1);
     }
   if ((Stream[sno].status & kind) == 0)
     {
+      UNLOCK(Stream[sno].streamlock);
       if (kind & Input_Stream_f)
 	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
       else
 	Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
       return (-1);
     }
-  LOCK(Stream[sno].streamlock);
   return (sno);
 }
 

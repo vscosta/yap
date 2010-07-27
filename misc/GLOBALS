@@ -20,6 +20,11 @@
 // Stuff that must be considered local to a thread or worker
 START_WORKER_LOCAL
 
+// Streams
+int			c_input_stream		Yap_c_input_stream	=0
+int			c_output_stream		Yap_c_output_stream	=1
+int			c_error_stream		Yap_c_error_stream	=2
+
 /* shifts and restore: per local data-structure */
 restoreinfo	rinfo
 .	rinfo.old_ASP	OldASP				=NULL
