@@ -652,6 +652,9 @@ INSTALL_DLLS
 ARCH
 M4GENHDRS
 M4
+ZLIB_PLTARGETS
+ZLIB_TARGETS
+ZLIBS
 PRE_INSTALL_ENV
 INSTALL_ENV
 ENABLE_CPLINT
@@ -7315,6 +7318,70 @@ fi
 
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for zlibVersion in -lz" >&5
+$as_echo_n "checking for zlibVersion in -lz... " >&6; }
+if test "${ac_cv_lib_z_zlibVersion+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lz  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char zlibVersion ();
+int
+main ()
+{
+return zlibVersion ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_z_zlibVersion=yes
+else
+  ac_cv_lib_z_zlibVersion=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_z_zlibVersion" >&5
+$as_echo "$ac_cv_lib_z_zlibVersion" >&6; }
+if test "x$ac_cv_lib_z_zlibVersion" = x""yes; then :
+  ZLIBS="-lz"
+	     ZLIB=yes
+else
+  ZLIB=no
+fi
+
+
+if test "$ZLIB" = yes; then
+  ZLIB_TARGETS="zlib4pl.$SO"
+  ZLIB_PLTARGETS='$(srcdir)/zlib.pl'
+else
+  ZLIB_TARGETS=nolib
+  cat << EOF
+##################################################################
+# ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
+# Library zlib is available from http://www.zlib.net/
+# Most Unix/Linux distributions are shipped with binaries.  Make
+# sure to have the development library installed.
+##################################################################
+EOF
+fi
+
+
+
+
+
+
 # LAM
 OLD_CC=${CC}
 CC=${LAM_MPI_CC}
@@ -7692,6 +7759,20 @@ fi
 done
 
 for ac_header in time.h unistd.h utime.h wctype.h winsock.h winsock2.h
+do :
+  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
+eval as_val=\$$as_ac_Header
+   if test "x$as_val" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
+_ACEOF
+
+fi
+
+done
+
+for ac_header in zlib.h zutil.h
 do :
   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
@@ -9389,6 +9470,7 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/RDF
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/zlib
 
 ac_config_files="$ac_config_files Makefile"
 
@@ -9451,6 +9533,8 @@ ac_config_files="$ac_config_files packages/RDF/Makefile"
 ac_config_files="$ac_config_files packages/semweb/Makefile"
 
 ac_config_files="$ac_config_files packages/sgml/Makefile"
+
+ac_config_files="$ac_config_files packages/zlib/Makefile"
 
 
 if test "$ENABLE_CHR" = ""; then
@@ -10196,6 +10280,7 @@ do
     "packages/RDF/Makefile") CONFIG_FILES="$CONFIG_FILES packages/RDF/Makefile" ;;
     "packages/semweb/Makefile") CONFIG_FILES="$CONFIG_FILES packages/semweb/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
+    "packages/zlib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/zlib/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;
     "packages/jpl/Makefile") CONFIG_FILES="$CONFIG_FILES packages/jpl/Makefile" ;;

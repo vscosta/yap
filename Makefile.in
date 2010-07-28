@@ -511,6 +511,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/semweb; $(MAKE))
+	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
@@ -550,11 +551,6 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
 	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
-	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
@@ -562,8 +558,15 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
-	@INSTALL_DLLS@ (cd library/RDF; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/RDF; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/semweb; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) install)
+	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
@@ -575,7 +578,6 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 
 
 install_win32: startup.yss
@@ -599,6 +601,14 @@ install_win32: startup.yss
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
 	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
+	(cd library/random; $(MAKE) install)
+	(cd library/matrix; $(MAKE) install)
+	(cd library/regex; $(MAKE) install)
+	(cd library/rltree; $(MAKE) install)
+	(cd library/system; $(MAKE) install)
+	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
+	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
+	(cd library/tries; $(MAKE) install)
 	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/tai; $(MAKE) install)
 	(cd packages/clib; $(MAKE) install)
@@ -607,16 +617,8 @@ install_win32: startup.yss
 	(cd packages/RDF; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
 	(cd packages/semweb; $(MAKE) install)
+	(cd packages/zlib; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
-	(cd library/random; $(MAKE) install)
-	(cd library/matrix; $(MAKE) install)
-	(cd library/regex; $(MAKE) install)
-	(cd library/rltree; $(MAKE) install)
-	(cd library/system; $(MAKE) install)
-	(cd packages/swi-minisat2; $(MAKE) install)
-	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
-	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
-	(cd library/tries; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 

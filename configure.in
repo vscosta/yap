@@ -1268,6 +1268,31 @@ AC_SUBST(ENABLE_CPLINT)
 AC_SUBST(INSTALL_ENV)
 AC_SUBST(PRE_INSTALL_ENV)
 
+AC_CHECK_LIB(z, zlibVersion,
+	     ZLIBS="-lz"
+	     ZLIB=yes,
+	     ZLIB=no)
+
+if test "$ZLIB" = yes; then
+  ZLIB_TARGETS="zlib4pl.$SO"
+  ZLIB_PLTARGETS='$(srcdir)/zlib.pl'
+else
+  ZLIB_TARGETS=nolib
+  cat << EOF
+##################################################################
+# ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
+# Library zlib is available from http://www.zlib.net/
+# Most Unix/Linux distributions are shipped with binaries.  Make
+# sure to have the development library installed.
+##################################################################
+EOF
+fi
+
+AC_SUBST(ZLIBS)
+AC_SUBST(ZLIB_TARGETS)
+AC_SUBST(ZLIB_PLTARGETS)
+
+
 # LAM
 OLD_CC=${CC}	
 CC=${LAM_MPI_CC}
@@ -1293,6 +1318,7 @@ AC_CHECK_HEADERS(sys/shm.h sys/socket.h sys/stat.h)
 AC_CHECK_HEADERS(sys/time.h sys/times.h sys/types.h)
 AC_CHECK_HEADERS(sys/ucontext.h sys/un.h sys/wait.h)
 AC_CHECK_HEADERS(time.h unistd.h utime.h wctype.h winsock.h winsock2.h)
+AC_CHECK_HEADERS(zlib.h zutil.h)
 AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
@@ -1876,6 +1902,7 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/RDF
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/zlib
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([GPL/Makefile])
@@ -1908,6 +1935,7 @@ AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 AC_CONFIG_FILES([packages/RDF/Makefile])
 AC_CONFIG_FILES([packages/semweb/Makefile])
 AC_CONFIG_FILES([packages/sgml/Makefile])
+AC_CONFIG_FILES([packages/zlib/Makefile])
 
 if test "$ENABLE_CHR" = ""; then
 AC_CONFIG_FILES([packages/chr/Makefile])
