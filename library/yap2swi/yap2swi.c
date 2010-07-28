@@ -599,11 +599,15 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
       if (IsWideAtom(at)) {
 	/* will this always work? */
 	*wsp = RepAtom(at)->WStrOfAE;
+	if (len)
+	  *len = wcslen(RepAtom(at)->WStrOfAE);
       } else {
 	char *sp = RepAtom(at)->StrOfAE;
 	size_t sz;
 
 	sz = strlen(sp);
+	if (len)
+	  *len = sz;
 	if (flags & BUF_MALLOC) {
 	  int i;
 	  wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap((sz+1)*sizeof(wchar_t));
@@ -2589,6 +2593,7 @@ PL_open_foreign_frame(void)
 X_API void
 PL_close_foreign_frame(fid_t f)
 {
+  execution = (open_query *)f;
   CP = execution->cp;
   P = execution->p;
   CurSlot = execution->slots;
@@ -2598,12 +2603,14 @@ PL_close_foreign_frame(fid_t f)
 X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
+  execution = (open_query *)f;
   CurSlot = execution->slots;
 }
 
 X_API void
 PL_discard_foreign_frame(fid_t f)
 {
+  execution = (open_query *)f;
   CP = execution->cp;
   P = execution->p;
   CurSlot = execution->slots;
