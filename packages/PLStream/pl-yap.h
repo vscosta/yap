@@ -79,7 +79,10 @@ valHandle(term_t tt)
 {
   return (word)YAP_GetFromSlot(tt);
 }
-#define arityFunctor(f) YAP_ArityOfFunctor((YAP_Functor)f)
+
+YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
+
+#define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
 #define stringAtom(w)	YAP_AtomName((YAP_Atom)(w))
 #define isInteger(A) (YAP_IsIntTerm((A)) && YAP_IsBigNumTerm((A)))
