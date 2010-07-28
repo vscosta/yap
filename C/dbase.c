@@ -5386,7 +5386,6 @@ Yap_ReleaseTermFromDB(DBTerm *ref)
 static Int 
 p_install_thread_local(void)
 {				/* '$is_dynamic'(+P)	 */
-#if THREADS
   PredEntry      *pe;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
@@ -5418,11 +5417,14 @@ p_install_thread_local(void)
       pe->cs.p_code.NOfClauses) {
     return FALSE;
   }
+#if THREADS
   pe->PredFlags |= ThreadLocalPredFlag|LogUpdatePredFlag;
   pe->OpcodeOfPred = Yap_opcode(_thread_local);
   pe->CodeOfPred = (yamop *)&pe->OpcodeOfPred;
-  UNLOCK(pe->PELock);
+#else
+  pe->PredFlags |= LogUpdatePredFlag;
 #endif
+  UNLOCK(pe->PELock);
   return TRUE;
 }
 
