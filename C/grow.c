@@ -28,7 +28,7 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#if THREADS
+#if THREADS && !defined(TABLING)
 #include <opt.mavar.h>
 #endif
 
