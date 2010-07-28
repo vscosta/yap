@@ -21,6 +21,7 @@
 	map_assoc/3,
 	put_assoc/4,
 	del_assoc/4,
+		  assoc_to_keys/2,
 	del_min_assoc/4,
 	del_max_assoc/4
     ]).
@@ -42,6 +43,7 @@
 	ord_list_to_rbtree/2,
 	rb_map/2,
 	rb_map/3,
+	rb_keys/2,
 	rb_update/4,
 	rb_insert/4,
 	rb_delete/4,
@@ -122,5 +124,8 @@ del_min_assoc(T, K, V, NT) :-
 del_max_assoc(T, K, V, NT) :-
 	rb_del_max(T, K, V, NT).
 
+
+assoc_to_keys(T, Ks) :-
+	rb_keys(T, Ks).
 
 
