@@ -52,6 +52,9 @@
 :- use_module(library(semweb/rdf_db)).
 :- use_module(rdf).
 
+:- expects_dialect(swi).
+:- assert(system:swi_io).
+
 test_write :-
 	run_tests([ rdf_write
 		  ]).
@@ -160,3 +163,4 @@ test(type, true) :-
 :- end_tests(rdf_write).
 
 
+:- retract(system:swi_io).

@@ -40,6 +40,9 @@
 :- use_module(library(pairs)).
 :- use_module(library(debug)).
 
+:- expects_dialect(swi).
+:- assert(system:swi_io).
+
 
 /** <module> Write RDF/XML from a list of triples
 
@@ -634,3 +637,6 @@ to_be_described('http://t-d-b.org?').
 
 ns(Id, Full) :-
 	rdf_db:ns(Id, Full).
+
+:- retract(system:swi_io).
+

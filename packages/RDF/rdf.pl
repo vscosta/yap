@@ -37,6 +37,9 @@
 	    process_rdf/3		% +File, :OnTriples, :Options
 	  ]).
 
+:- expects_dialect(swi).
+:- assert(system:swi_io).
+
 :- meta_predicate
 	load_rdf(+, -, :),
 	process_rdf(+, :, :).
@@ -411,3 +414,5 @@ quote(X)   --> [X].
 
 :- multifile prolog:meta_goal/2.
 prolog:meta_goal(process_rdf(_,G,_), [G+2]).
+
+:- retract(system:swi_io).	%

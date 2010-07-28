@@ -315,3 +315,4 @@ show_ok(Test) :-
 	new(D, rdf_diagram(string('Ok for %s', File))),
 	send(D, triples, OkTriples),
 	send(D, open).
+
