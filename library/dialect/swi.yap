@@ -116,7 +116,6 @@ goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
 goal_expansion(expand_file_name(A,B),system:swi_expand_file_name(A,B)).
 goal_expansion(wildcard_match(A,B),system:swi_wilcard_match(A,B)).
 goal_expansion(directory_files(A,B),system:swi_directory_files(A,B)).
-goal_expansion(file_name_extension(A,B,C), system:swi_file_name_extension(A,B,C)).
 goal_expansion(exists_file(A), system:swi_exists_file(A)).
 goal_expansion(exists_directory(A), system:swi_exists_directory(A)).
 
