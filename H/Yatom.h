@@ -1522,7 +1522,7 @@ PredPropByAtom (Atom at, Term cur_mod)
 
 #if DEBUG_PELOCKING
 #define PELOCK(I,Z)						\
-  { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I),(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
+  { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I);(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
 #define UNLOCKPE(I,Z)						\
   ( (Z)->StatisticsForPred.NOfRetries=(I),  UNLOCK((Z)->PELock) )
 #else

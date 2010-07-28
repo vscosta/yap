@@ -1502,7 +1502,7 @@ Yap_absmi(int inp)
       /* lock logical updates predicate.  */
       Op(unlock_lu, e);
 #if defined(YAPOR) || defined(THREADS)
-      UNLOCK(PP->PELock);
+      UNLOCKPE(1,PP);
       PP = NULL;
 #endif
       PREG = NEXTOP(PREG, e);
@@ -1523,7 +1523,7 @@ Yap_absmi(int inp)
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(ap->PELock);
+	UNLOCKPE(2,ap);
 	PP = NULL;
       }
 #else
@@ -1555,7 +1555,7 @@ Yap_absmi(int inp)
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
-	      UNLOCK(PP->PELock);
+	      UNLOCKPE(3,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
@@ -1565,7 +1565,7 @@ Yap_absmi(int inp)
 	  } else {
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
-	      UNLOCK(PP->PELock);
+	      UNLOCKPE(4,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
@@ -1576,7 +1576,7 @@ Yap_absmi(int inp)
 	}
 	if (!Yap_IUnify(ARG2, t)) {
 	  setregs();
-	  UNLOCK(PP->PELock);
+	  UNLOCKPE(5,PP);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
@@ -1584,7 +1584,7 @@ Yap_absmi(int inp)
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
-	  UNLOCK(PP->PELock);
+	  UNLOCKPE(6,PP);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
@@ -1596,7 +1596,7 @@ Yap_absmi(int inp)
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(PP->PELock);
+	UNLOCKPE(7,PP);
 	PP = NULL;
 #else
 	if (!(cl->ClFlags & InUseMask)) {
@@ -1626,7 +1626,7 @@ Yap_absmi(int inp)
 	saveregs();
 	if (!Yap_IUnify(ARG2, cl->ClSource->Entry)) {
 	  setregs();
-	  UNLOCK(PP->PELock);
+	  UNLOCKPE(8,PP);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
@@ -1634,7 +1634,7 @@ Yap_absmi(int inp)
 	}
 	if (!Yap_IUnify(ARG3, MkDBRefTerm((DBRef)cl))) {
 	  setregs();
-	  UNLOCK(PP->PELock);
+	  UNLOCKPE(9,PP);
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
@@ -1648,7 +1648,7 @@ Yap_absmi(int inp)
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
-	UNLOCK(PP->PELock);
+	UNLOCKPE(10,PP);
 	PP = NULL;
 #else
 	if (!(cl->ClFlags & InUseMask)) {
@@ -1678,7 +1678,7 @@ Yap_absmi(int inp)
       BOp(spy_or_trymark, Otapl);
       PELOCK(5, ((PredEntry *)(PREG->u.Otapl.p)));
       PREG = (yamop *)(&(((PredEntry *)(PREG->u.Otapl.p))->OpcodeOfPred));
-      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
+      UNLOCKPE(11,(PredEntry *)(PREG->u.Otapl.p));
       goto dospy;
       ENDBOp();
 
@@ -1700,7 +1700,7 @@ Yap_absmi(int inp)
 	   anything yet */
 	PP = NULL;
 	PREG = PREG->u.Otapl.p->CodeOfPred;
-	UNLOCK(PREG->u.Otapl.p->PELock);
+	UNLOCKPE(12,PREG->u.Otapl.p);
 	/* for profiler */
 	save_pc();
 	JMPNext();
@@ -1714,7 +1714,7 @@ Yap_absmi(int inp)
       */
       LOCK(DynamicLock(PREG));
       /* one can now mess around with the predicate */
-      UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->PELock);
+      UNLOCKPE(13,((PredEntry *)(PREG->u.Otapl.p)));
       BEGD(d1);
       d1 = PREG->u.Otapl.s;
       store_args(d1);
@@ -7881,7 +7881,7 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP)
 #endif
-	  UNLOCK(ap->PELock);
+	  UNLOCKPE(14,ap);
 
       }
       JMPNext();
@@ -7917,7 +7917,7 @@ Yap_absmi(int inp)
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
 	  if (!PP) {
-	    UNLOCK(pe->PELock);
+	    UNLOCKPE(15,pe);
 	  }
 	  JMPNext();
 	}
@@ -7959,7 +7959,7 @@ Yap_absmi(int inp)
 	if (!same_lu_block(PREG_ADDR, PREG)) {
 	  PREG = *PREG_ADDR;
 	  if (!PP) {
-	    UNLOCK(pe->PELock);	    
+	    UNLOCKPE(16,pe);	    
 	  }
 	  JMPNext();
 	}
@@ -7968,11 +7968,11 @@ Yap_absmi(int inp)
 	pt0 = Yap_ExpandIndex(pe, 0);
 	/* restart index */
 	setregs();
-	UNLOCK(pe->PELock);
+	UNLOCKPE(17,pe);
  	PREG = pt0;
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
-	  UNLOCK(pe->PELock);
+	  UNLOCKPE(18,pe);
 	}
 #endif
 	JMPNext();
@@ -7990,11 +7990,11 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	  PP = NULL;
 #endif
-	  UNLOCK(pe->PELock);
+	  UNLOCKPE(19,pe);
 	  FAIL();
 	}
 	d0 = pe->ArityOfPE;
-	UNLOCK(pe->PELock);
+	UNLOCKPE(19,pe);
 	if (d0 == 0) {
 	  H[1] = MkAtomTerm((Atom)(pe->FunctorOfPred));
 	}
@@ -8073,7 +8073,7 @@ Yap_absmi(int inp)
 	  UNLOCK(pe->StatisticsForPred.lock);
 	  ReductionsCounter--;
 	  if (ReductionsCounter == 0 && ReductionsCounterOn) {
-	    UNLOCK(pe->PELock);
+	    UNLOCKPE(20,pe);
 	    saveregs();
 	    Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
@@ -8081,7 +8081,7 @@ Yap_absmi(int inp)
 	  } 
 	  PredEntriesCounter--;
 	  if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
-	    UNLOCK(pe->PELock);
+	    UNLOCKPE(21,pe);
 	    saveregs();
 	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
@@ -8090,7 +8090,7 @@ Yap_absmi(int inp)
 	  if ((pe->PredFlags & (CountPredFlag|ProfiledPredFlag|SpiedPredFlag)) == 
 	    CountPredFlag) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
-	    UNLOCK(pe->PELock);
+	    UNLOCKPE(22,pe);
 	    JMPNext();
 	  }
 	}
@@ -8101,16 +8101,16 @@ Yap_absmi(int inp)
 	  UNLOCK(pe->StatisticsForPred.lock);
 	  if (!(pe->PredFlags & SpiedPredFlag)) {
 	    PREG = pe->cs.p_code.TrueCodeOfPred;
-	    UNLOCK(pe->PELock);
+	    UNLOCKPE(23,pe);
 	    JMPNext();
 	  }
 	}
 	if (!DebugOn) {
 	  PREG = pe->cs.p_code.TrueCodeOfPred;
-	  UNLOCK(pe->PELock);
+	  UNLOCKPE(24,pe);
 	  JMPNext();
 	}
-	UNLOCK(pe->PELock);
+	UNLOCKPE(25,pe);
 	
 	d0 = pe->ArityOfPE;
 	/* save S for ModuleName */
@@ -8582,7 +8582,7 @@ Yap_absmi(int inp)
 	ENDCACHE_Y();
 #if defined(YAPOR) || defined(THREADS)
 	if (PREG == FAILCODE) {
-	  UNLOCK(PP->PELock);
+	  UNLOCKPE(26,PP);
 	  PP = NULL;
 	}
 #endif
