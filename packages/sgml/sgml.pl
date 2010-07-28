@@ -68,6 +68,7 @@
 
 :- use_module(library(lists)).
 :- use_module(library(option)).
+:- use_module(library(shlib)).
 
 :- multifile user:file_search_path/2.
 :- dynamic   user:file_search_path/2.

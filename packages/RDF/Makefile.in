@@ -1,0 +1,129 @@
+################################################################
+# SWI-Prolog `RDF' package
+# Author:    Jan Wielemaker. jan@swi.psy.uva.nl
+# Copyright: LGPL (see COPYING or www.gnu.org
+################################################################
+
+.SUFFIXES: .tex .dvi .doc .pl
+
+SHELL=@SHELL@
+
+
+ifeq (@PROLOG_SYSTEM@,yap)
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+
+srcdir=@srcdir@
+
+BINDIR = $(EROOTDIR)/bin
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+SHAREDIR=$(EROOTDIR)/share/Yap
+
+PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
+LN_S=@LN_S@
+EXDIR=$(LIBDIR)/examples/plunit
+
+INSTALLDIR=$(SHAREDIR)
+
+else	# SWI
+
+srcdir=.
+
+PLBASE=@PLBASE@
+PLARCH=@PLARCH@
+PL=@PL@
+XPCEBASE=$(PLBASE)/xpce
+PKGDOC=$(PLBASE)/doc/packages
+PCEHOME=../xpce
+
+LIBDIR=$(PLBASE)/library
+INSTALLDIR=$(LIBDIR)
+
+endif
+
+DOCTOTEX=$(PCEHOME)/bin/doc2tex
+PLTOTEX=$(PCEHOME)/bin/pl2tex
+RUNTEX=../../man/runtex
+LATEX=latex
+DOC=rdf2pl
+TEX=$(DOC).tex
+DVI=$(DOC).dvi
+PDF=$(DOC).pdf
+HTML=$(DOC).html
+
+INSTALL=@INSTALL@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+INSTALL_DATA=@INSTALL_DATA@
+
+LIBPL=		$(srcdir)/rdf.pl $(srcdir)/rdf_parser.pl $(srcdir)/rdf_triple.pl $(srcdir)/rewrite.pl \
+		$(srcdir)/rdf_ntriples.pl $(srcdir)/rdf_write.pl
+XPCEPL=		$(srcdir)/rdf_diagram.pl
+
+all:
+		@echo "Nothing to do for this package"
+
+install:	$(LIBPL) xpce-install
+		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(INSTALLDIR)
+		$(PL) -f none -g make -t halt
+
+ln-install::
+		@$(MAKE) INSTALL_DATA=../ln-install install
+
+xpce-install:	$(XPCEPL)
+		if [ -d $(DESTDIR)$(XPCEBASE) ]; then \
+		   $(INSTALL) -m 644 $(XPCEPL) $(DESTDIR)$(XPCEBASE)/prolog/lib; \
+		fi
+
+rpm-install:	install
+
+pdf-install::
+		-$(INSTALL_DATA) $(DOC).pdf $(DESTDIR)$(PKGDOC)
+
+html-install::
+		-$(INSTALL_DATA) $(DOC).html $(DESTDIR)$(PKGDOC)
+
+uninstall:
+		(cd $(PLBASE)/library && rm -f $(LIBPL))
+		$(PL) -f none -g make -t halt
+
+check::
+		$(PL) -q -f $(srcdir)/test_rdf.pl -g true -t test_rdf
+		$(PL) -q -f $(srcdir)/test_write.pl -g true -t test_write
+
+################################################################
+# Documentation
+################################################################
+
+doc:		$(PDF) $(HTML)
+pdf:		$(PDF)
+html:		$(HTML)
+
+$(HTML):	$(TEX)
+		latex2html $(DOC)
+		mv html/index.html $@
+
+$(PDF):		$(TEX)
+		$(RUNTEX) --pdf $(DOC)
+
+$(TEX):		$(DOCTOTEX)
+
+.doc.tex:
+		$(DOCTOTEX) $*.doc > $*.tex
+.pl.tex:
+		$(PLTOTEX) $*.pl > $*.tex
+
+################################################################
+# Clean
+################################################################
+
+clean:
+		rm -f *~ *% config.log
+
+distclean:	clean
+		rm -f $(TARGETS) config.h config.cache config.status Makefile
+		rm -f $(TEX)
+		$(RUNTEX) --clean $(DOC)
