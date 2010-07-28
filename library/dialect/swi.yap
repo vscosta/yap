@@ -23,6 +23,7 @@
 		   format_time/4,
 		   time_file/2,
 		   flag/3,
+		   require/1,
 		   current_flag/1
 		]).
 
@@ -80,6 +81,9 @@
 	       unifiable/3,
 	       cyclic_term/1,
 	       variant/2]).
+
+:- use_module(library(error),[must_be/2]).
+
 
 :- source.
 
@@ -353,3 +357,26 @@ flag(Key, 0, New) :-
 
 current_flag(Key) :-
 	swi:flag(Key).
+
+require(F) :-
+	must_be(list, F),
+	% notice that this must be used as a declaration.
+	prolog_load_context(module, Mod),
+	required_predicates(F, Mod).
+
+required_predicates([], _).
+required_predicates(F.Fs, M) :-
+	required_predicate(F, M),
+	required_predicates(Fs, M).
+
+required_predicate(Na/Ar, M) :-
+	functor(G, Na, Ar),
+	(
+	 predicate_property(M:G, _) ->
+	 true
+	;
+         autoloader:find_predicate(G, _)
+	).
+
+
+
