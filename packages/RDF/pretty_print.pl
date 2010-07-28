@@ -14,6 +14,8 @@
 	  [ pretty_print/1
 	  ]).
 
+:- expects_dialect(swi).
+
 :- require([ atom_length/2
 	   , between/3
 	   , forall/2
