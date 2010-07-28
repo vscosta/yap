@@ -4602,8 +4602,6 @@ p_log_update_clause(void)
   Int ret;
   yamop *new_cp;
 
-  if (vscx==444)
-    jmp_deb(1);
   if (P->opc == EXECUTE_CPRED_OP_CODE) {
     new_cp = CP;
   } else {
