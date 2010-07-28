@@ -602,6 +602,7 @@ install_win32: startup.yss
 	(cd packages/clib; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
 	(cd packages/http; $(MAKE) install)
+	(cd packages/RDF; $(MAKE) install)
 	(cd packages/sgml; $(MAKE) install)
 	(cd packages/semweb; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
