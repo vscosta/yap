@@ -4680,7 +4680,12 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
       }
       P = cl->ClCode;
 #if defined(YAPOR) || defined(THREADS)
-      PP = pe;
+      if (pe->PredFlags & ThreadLocalPredFlag) {
+	/* we don't actually need to execute code */
+	UNLOCK(pe->PELock);	
+      } else {
+	PP = pe;
+      }
 #endif
     } else {
       /* we don't actually need to execute code */
@@ -4951,21 +4956,24 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   Terms[1] = tb;
   Terms[2] = tr;
   cl = (StaticClause *)Yap_FollowIndexingCode(pe, i_code, Terms, NEXTOP(PredStaticClause->CodeOfPred,Otapl), cp_ptr);
-  PELOCK(45,pe);
   th = Deref(Terms[0]);
   tb = Deref(Terms[1]);
   tr = Deref(Terms[2]);
   /* don't do this!! I might have stored a choice-point and changed ASP
      Yap_RecoverSlots(3);
   */
-  if (cl == NULL)
+  if (cl == NULL) {
+    UNLOCKPE(45,pe);
     return FALSE;
+  }
   if (pe->PredFlags & MegaClausePredFlag) {
     yamop *code = (yamop *)cl;
     rtn = Yap_MkMegaRefTerm(pe,code);
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
-	!Yap_unify(tr, rtn))
+	!Yap_unify(tr, rtn)) {
+      UNLOCKPE(45,pe);
       return FALSE;
+    }
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
       UInt arity = ArityOfFunctor(f), i;
@@ -4988,8 +4996,10 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
   rtn = Yap_MkStaticRefTerm(cl);
   if (cl->ClFlags & FactMask) {
     if (!Yap_unify(tb, MkAtomTerm(AtomTrue)) ||
-	!Yap_unify(tr, rtn))
+	!Yap_unify(tr, rtn)) {
+      UNLOCKPE(45,pe);
       return FALSE;
+    }
 
     if (pe->ArityOfPE) {
       Functor f = FunctorOfTerm(th);
@@ -5009,6 +5019,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
       }
       P = cl->ClCode;
     }
+    UNLOCKPE(45,pe);
     return TRUE;
   } else {
     Term t;
@@ -5016,6 +5027,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     if (!(pe->PredFlags & SourcePredFlag)) {
       /* no source */
       rtn = Yap_MkStaticRefTerm(cl);
+      UNLOCKPE(45,pe);
       return Yap_unify(tr, rtn);
     }
 
@@ -5059,6 +5071,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
       }
     }
     rtn = Yap_MkStaticRefTerm(cl);
+    UNLOCKPE(45,pe);
     if (!IsApplTerm(t) || FunctorOfTerm(t) != FunctorAssert) {
       return(Yap_unify(th, t) &&
 	     Yap_unify(tb, MkAtomTerm(AtomTrue)) &&
