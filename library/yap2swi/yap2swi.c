@@ -172,6 +172,17 @@ SWIFunctorToFunctor(functor_t at)
   return (Functor)at;
 }
 
+extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
+
+X_API Int
+YAP_PLArityOfSWIFunctor(functor_t at) {
+  if (IsAtomTerm(at))
+    return 0;
+  if ((CELL)(at) & 2)
+    return ArityOfFunctor(SWI_Functors[((CELL)at)/4]);
+  return ArityOfFunctor((Functor)at);
+}
+
 void
 Yap_InitSWIHash(void)
 {
@@ -2647,7 +2658,15 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t[0] = ti;
     execution->g = Yap_MkApplTerm(FunctorCall,1,t);
   } else {
-    execution->g = t[1];
+    if (m && m != CurrentModule) {
+      Term ti;
+      t[0] = m;
+      ti = Yap_MkApplTerm(FunctorModule,2,t);
+      t[0] = ti;
+      execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+    } else {
+      execution->g = t[1];
+    }
   }
   return execution;
 }
