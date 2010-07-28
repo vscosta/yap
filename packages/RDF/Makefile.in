@@ -25,7 +25,6 @@ SHAREDIR=$(EROOTDIR)/share/Yap
 
 PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 LN_S=@LN_S@
-EXDIR=$(LIBDIR)/examples/plunit
 
 INSTALLDIR=$(SHAREDIR)
 
@@ -66,9 +65,16 @@ XPCEPL=		$(srcdir)/rdf_diagram.pl
 all:
 		@echo "Nothing to do for this package"
 
+
+ifeq (@PROLOG_SYSTEM@,yap)
+install:	$(LIBPL)
+		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(INSTALLDIR)
+		$(PL) -f none -g make -t halt
+else
 install:	$(LIBPL) xpce-install
 		$(INSTALL_DATA) $(LIBPL) $(DESTDIR)$(INSTALLDIR)
 		$(PL) -f none -g make -t halt
+endif
 
 ln-install::
 		@$(MAKE) INSTALL_DATA=../ln-install install
