@@ -1302,173 +1302,190 @@ iequ_complex(register CELL *pt0, register CELL *pt0_end,
 	       register CELL *pt1
 )
 {
-  register CELL **to_visit = (CELL **) H;
+#ifdef THREADS
+#undef Yap_REGS
+  register REGSTORE *regp = Yap_regp;
+#define Yap_REGS (*regp)
+#elif defined(SHADOW_REGS)
+#if defined(B) || defined(TR)
+  register REGSTORE *regp = &Yap_REGS;
 
-#ifdef RATIONAL_TREES
-  register CELL *visited = AuxSp;
+#define Yap_REGS (*regp)
+#endif /* defined(B) || defined(TR) || defined(HB) */
 #endif
+
+#ifdef SHADOW_HB
+  register CELL *HBREG = HB;
+#endif /* SHADOW_HB */
+
+  struct unif_record  *unif = (struct unif_record *)AuxBase;
+  struct v_record *to_visit  = (struct v_record *)AuxSp;
+#define unif_base ((struct unif_record *)AuxBase)
+#define to_visit_base ((struct v_record *)AuxSp)
 
 loop:
   while (pt0 < pt0_end) {
-    register CELL *ptd0 = ++pt0; 
-    register CELL d0 = *ptd0;
+    register CELL *ptd0 = pt0+1; 
+    register CELL d0;
 
     ++pt1;
-    deref_head(d0, eq_comp_unk);
-  eq_comp_nvar:
+    pt0 = ptd0;
+    d0 = *ptd0;
+    deref_head(d0, iequ_comp_unk);
+  iequ_comp_nvar:
     {
       register CELL *ptd1 = pt1;
       register CELL d1 = *ptd1;
 
-      deref_head(d1, eq_comp_nvar_unk);
-    eq_comp_nvar_nvar:
+      deref_head(d1, iequ_comp_nvar_unk);
+    iequ_comp_nvar_nvar:
       if (d0 == d1)
 	continue;
-      else if (IsPairTerm(d0)) {
+      if (IsPairTerm(d0)) {
 	if (!IsPairTerm(d1)) {
-	  UNWIND_CUNIF();
-	  return (FALSE);
+	  goto cufail;
 	}
-#ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	if (d0 > d1) {
-	  visited -= 2;
-	  visited[0] = (CELL) pt0;
-	  visited[1] = *pt0;
-	  *pt0 = d1;
-	}
-	else {
-	  visited -= 2;
-	  visited[0] = (CELL) pt1;
-	  visited[1] = *pt1;
-	  *pt1 = d0;
-	}
-#endif
 	/* store the terms to visit */
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = pt1;
-	  to_visit += 3;
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
 	}
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
-	pt0_end = RepPair(d0) + 1;
 	pt1 = RepPair(d1) - 1;
 	continue;
       }
-      else if (IsApplTerm(d0)) {
+      if (IsApplTerm(d0)) {
 	register Functor f;
 	register CELL *ap2, *ap3;
 
+	if (!IsApplTerm(d1)) {
+	  goto cufail;
+	}
 	/* store the terms to visit */
 	ap2 = RepAppl(d0);
-	f = (Functor) (*ap2);
-	if (IsExtensionFunctor(f)) {
-	  switch ((CELL)f) {
-	  case (CELL)FunctorDBRef:
-	    if (d0 == d1) continue;
-	    UNWIND_CUNIF();
-	    return (FALSE);
-	  case (CELL)FunctorLongInt:
-	    if (IsLongIntTerm(d1) && (Int)(ap2[1]) == LongIntOfTerm(d1)) continue;
-	    UNWIND_CUNIF();
-	    return (FALSE);
-	  case (CELL)FunctorDouble:
-	    if (IsFloatTerm(d1) && FloatOfTerm(d0) == FloatOfTerm(d1)) continue;
-	    UNWIND_CUNIF();
-	    return (FALSE);
-#ifdef USE_GMP
-	  case (CELL)FunctorBigInt:
-	    if (IsBigIntTerm(d1) && Yap_gmp_tcmp_big_big(d0,d1) == 0) continue;
-	    UNWIND_CUNIF();
-	    return (FALSE);
-#endif /* USE_GMP */
-	  default:
-	    break;
-	  }
-	}
-	if (!IsApplTerm(d1)) {
-	  UNWIND_CUNIF();
-	  return (FALSE);
-	}
 	ap3 = RepAppl(d1);
+	f = (Functor) (*ap2);
 	/* compare functors */
-	if (f != (Functor) *ap3) {
-	  UNWIND_CUNIF();
-	  return (FALSE);
+	if (f != (Functor) *ap3)
+	  goto cufail;
+	if (IsExtensionFunctor(f)) {
+	  if (unify_extension(f, d0, ap2, d1))
+	    continue;
+	  goto cufail;
 	}
-#ifdef RATIONAL_TREES
 	/* now link the two structures so that no one else will */
 	/* come here */
-	if (d0 > d1) {
-	  visited -= 2;
-	  visited[0] = (CELL) pt0;
-	  visited[1] = *pt0;
-	  *pt0 = d1;
-	}
-	else {
-	  visited -= 2;
-	  visited[0] = (CELL) pt1;
-	  visited[1] = *pt1;
-	  *pt1 = d0;
-	}
-#endif
 	/* store the terms to visit */
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = pt1;
-	  to_visit += 3;
+	if (RATIONAL_TREES || pt0 < pt0_end) {
+	  to_visit --;
+#ifdef RATIONAL_TREES
+	  unif++;
+#endif
+	  if ((void *)to_visit < (void *)unif) {
+	    CELL **urec = (CELL **)unif;
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    unif = (struct unif_record *)urec;
+	  }
+	  to_visit->start0 = pt0;
+	  to_visit->end0 = pt0_end;
+	  to_visit->start1 = pt1;
+#ifdef RATIONAL_TREES
+	  unif[-1].old = *pt0;
+	  unif[-1].ptr = pt0;
+	  *pt0 = d1;
+#endif
 	}
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
 	pt1 = ap3;
 	continue;
-      } else {
-	UNWIND_CUNIF();
-	return (FALSE);
       }
+      goto cufail;
 
-      derefa_body(d1, ptd1, eq_comp_nvar_unk, eq_comp_nvar_nvar);
-      /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      UNWIND_CUNIF();
-      return (FALSE);
+      derefa_body(d1, ptd1, iequ_comp_nvar_unk, iequ_comp_nvar_nvar);
+	/* d1 and pt2 have the unbound value, whereas d0 is bound */
+      goto cufail;
+
     }
 
-    derefa_body(d0, ptd0, eq_comp_unk, eq_comp_nvar);
+    derefa_body(d0, ptd0, iequ_comp_unk, iequ_comp_nvar);
+    /* first arg var */
     {
       register CELL d1;
       register CELL *ptd1;
 
-      d1 = *( ptd1 = pt1);
+      ptd1 = pt1;
+      d1 = ptd1[0];
       /* pt2 is unbound */
-      deref_head(d1, eq_comp_var_unk);
-    eq_comp_var_nvar:
+      deref_head(d1, iequ_comp_var_unk);
+    iequ_comp_var_nvar:
       /* pt2 is unbound and d1 is bound */
-      UNWIND_CUNIF();
-      return (FALSE);
+      goto cufail;
 
-      derefa_body(d1, ptd1, eq_comp_var_unk, eq_comp_var_nvar);
+      derefa_body(d1, ptd1, iequ_comp_var_unk, iequ_comp_var_nvar);
       /* pt2 and pt3 are unbound */
       if (ptd0 == ptd1)
 	continue;
-      UNWIND_CUNIF();
-      return (FALSE);
+      goto cufail;
+
     }
   }
   /* Do we still have compound terms to visit */
-  if (to_visit > (CELL **) H) {
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    pt1 = to_visit[2];
+  if (to_visit < to_visit_base) {
+    pt0 = to_visit->start0;
+    pt0_end = to_visit->end0;
+    pt1 = to_visit->start1;
+    to_visit++;
     goto loop;
   }
-  /* successful exit */
-  UNWIND_CUNIF();
-  return (TRUE);
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
+  return TRUE;
+
+cufail:
+#ifdef RATIONAL_TREES
+  /* restore bindigs */
+  while (unif-- != unif_base) {
+    CELL *pt0;
+
+    pt0 = unif->ptr;
+    *pt0 = unif->old;
+  }
+#endif
+  return FALSE;
+#ifdef THREADS
+#undef Yap_REGS
+#define Yap_REGS (*Yap_regp)  
+#elif defined(SHADOW_REGS)
+#if defined(B) || defined(TR)
+#undef Yap_REGS
+#endif /* defined(B) || defined(TR) */
+#endif
 }
 
 #endif
