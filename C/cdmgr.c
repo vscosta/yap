@@ -3567,9 +3567,6 @@ p_all_envs(void)
 static Int
 p_current_stack(void)
 {
-#ifdef YAPOR
-  return(FALSE);
-#else
   Term t;
   while ((t = all_calls()) == 0L) {
     if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
@@ -3578,7 +3575,6 @@ p_current_stack(void)
     }
   }
   return Yap_unify(ARG1,t);
-#endif
 }
 
 /* This predicate is to be used by reconsult to mark all predicates
