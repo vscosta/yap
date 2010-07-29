@@ -36,7 +36,7 @@ LN_S=@LN_S@
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
 MKINDEX=true
-LIBS=@LIBS@ @ZLIBS@                                                            
+LIBS=@ZLIBS@                                                            
 
 
 SO=@SO@
