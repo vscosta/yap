@@ -13,6 +13,7 @@
 
 ifeq (@PROLOG_SYSTEM@,yap)
 
+
 prefix = @prefix@
 exec_prefix = @exec_prefix@
 ROOTDIR = $(prefix)
@@ -35,6 +36,7 @@ LN_S=@LN_S@
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
 MKINDEX=true
+LIBS=@LIBS@ @ZLIBS@                                                            
 
 
 SO=@SO@
@@ -72,7 +74,7 @@ CWFLAGS=@CWFLAGS@
 CMFLAGS=@CMFLAGS@
 CIFLAGS=
 CFLAGS=$(COFLAGS) $(CWFLAGS) $(CMFLAGS) $(CIFLAGS) @DEFS@
-LIBS=@LIBS@ @ZLIBS@
+LIBS=@LIBS@ @ZLIBS@                                                            
 
 DOCTOTEX=$(PCEHOME)/bin/doc2tex
 PLTOTEX=$(PCEHOME)/bin/pl2tex

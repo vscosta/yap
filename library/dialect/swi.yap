@@ -66,6 +66,7 @@
 	      [datime/1,
 	       mktime/2,
 	       file_property/2,
+	       delete_file/1,
 	       sleep/1]).
 
 :- reexport(library(arg),
@@ -377,6 +378,5 @@ required_predicate(Na/Ar, M) :-
 	;
          autoloader:find_predicate(G, _)
 	).
-
 
 

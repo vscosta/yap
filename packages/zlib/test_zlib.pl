@@ -13,6 +13,10 @@
 :- use_module(library(socket)).
 :- use_module(library(debug)).
 
+:- expects_dialect(swi).
+:- assert(system:swi_io).
+
+
 test_zlib :-
 	run_tests([ zlib
 		  ]).
@@ -27,7 +31,7 @@ test(gunzip,
      ]) :-
 	gzopen('plunit-tmp.gz', read, ZIn),
 	call_cleanup(read_stream_to_codes(ZIn, Codes0), close(ZIn)),
-	read_file_to_codes('test_zlib.pl', Codes1),
+	myread_file_to_codes('test_zlib.pl', Codes1),
 	Codes0 == Codes1.
 
 %	gzip: Can gunzip read our compressed file
@@ -35,11 +39,11 @@ test(gunzip,
 test(gzip,
      [ cleanup(delete_file('plunit-tmp.gz'))
      ]) :-
-	read_file_to_codes('test_zlib.pl', Codes),
+	myread_file_to_codes('test_zlib.pl', Codes),
 	gzopen('plunit-tmp.gz', write, ZOut),
 	format(ZOut, '~s', [Codes]),
 	close(ZOut),
-	read_file_to_codes(pipe('gunzip < plunit-tmp.gz'), Codes1),
+	myread_file_to_codes(pipe('gunzip < plunit-tmp.gz'), Codes1),
 	Codes == Codes1.
 
 %	deflate: test read/write of deflate format
@@ -47,7 +51,7 @@ test(gzip,
 test(deflate,
      [ cleanup(delete_file('plunit-tmp.z'))
      ]) :-
-	read_file_to_codes('test_zlib.pl', Codes),
+	myread_file_to_codes('test_zlib.pl', Codes),
 	open('plunit-tmp.z', write, Out),
 	zopen(Out, ZOut, []),
 	format(ZOut, '~s', [Codes]),
@@ -198,7 +202,9 @@ get_data(ZIn, N) :-
 		 *	       UTIL		*
 		 *******************************/
 
-read_file_to_codes(File, Codes) :-
+myread_file_to_codes(File, Codes) :-
 	open(File, read, In),
 	call_cleanup(read_stream_to_codes(In, Codes), close(In)).
+
+:- retract(system:swi_io).
 
