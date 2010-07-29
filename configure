@@ -4361,21 +4361,19 @@ fi
 
 if test "$GCC" = "yes"
 then
-   if test -z "${mycflags}"
-   then
      if test "$debugyap" = "yes"
      then
-       CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
-       CXXFLAGS="-O -g -Wall"
+       CXXFLAGS="-O -g -Wall $CFLAGS"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
+       CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
      else
-       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CFLAGS"
+       C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
+       C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
+       CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        case "`$CC --version < /dev/null`" in
 	  *3.4*) CFLAGS="-fno-gcse -fno-crossjumping $CFLAGS" ;;
        esac
-       C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
-       C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        case "$target_cpu" in
         i*86*)
            CFLAGS="-DBP_FREE $CFLAGS"
@@ -4417,7 +4415,6 @@ then
           ;;
          esac
        fi
-     fi
    fi
    if test "$CC" = "sslittle-na-sstrix-gcc"
    then
@@ -4427,13 +4424,11 @@ then
     INSTALL_ENV="sim-fast"
    fi
 else
-   if test -z "${mycflags}"
-   then
      case "$target_cpu" in
        i?86*)
         if test "$CC" = "lcc"
         then
-          CFLAGS="-A -A"
+          CFLAGS="-A -A $CFLAGS"
         elif test "$CC" = "cl"
         then
           CFLAGS="/nologo"
@@ -4446,16 +4441,15 @@ else
          then
            if test "$debugyap" = "yes"
            then
-             CFLAGS="-Ae -g -O"
-             CXXFLAGS="-Ae -g -O"
+             CXXFLAGS="-Ae -g -O $CFLAGS"
+             CFLAGS="-Ae -g -O $CFLAGS"
            else
-             CFLAGS="-Ae +O3 +Onolimit"
-             CXXFLAGS="-Ae +O3 +Onolimit"
+             CXXFLAGS="-Ae +O3 +Onolimit  $CFLAGS"
+             CFLAGS="-Ae +O3 +Onolimit $CFLAGS"
            fi
         fi
         ;;
      esac
-   fi
    C_INTERF_FLAGS="$CFLAGS"
    C_PARSER_FLAGS="$CFLAGS"
 fi
