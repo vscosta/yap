@@ -288,7 +288,7 @@ int main(int argc, char **arg) {
   if (params.debug) DEBUGON;
   RAPIDLOADON;
   SETMAXBUFSIZE(params.maxbufsize);
-
+#ifndef _WIN32
   signal(SIGINT, termhandler);
   if (params.ppid != NULL) {
     signal(SIGALRM, pidhandler);
@@ -297,6 +297,7 @@ int main(int argc, char **arg) {
     signal(SIGALRM, handler);
     alarm(params.timeout);
   }
+#endif
   if (params.online) {
     MyManager.manager = simpleBDDinit(0);
     MyManager.t = HIGH(MyManager.manager);
@@ -344,8 +345,9 @@ int main(int argc, char **arg) {
         break;
     }
   }
+#ifndef _WIN32
   alarm(0);
-
+#endif
   // problem specifics
 
   if (bdd != NULL) {
@@ -625,8 +627,10 @@ void pidhandler(int num) {
   s = (char *) malloc(sizeof(char) * (19 + strlen(params.ppid)));
   strcpy(s, "ps "); strcat(s, params.ppid); strcat(s, " >/dev/null");
   if (system(s) != 0) exit(4);
+#ifndef _WIN32
   signal(SIGALRM, pidhandler);
   alarm(5);
+#endif
   free(s);
 }
 
