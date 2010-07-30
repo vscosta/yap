@@ -651,10 +651,10 @@ abolish(X) :-
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
 % I cannot allow modifying static procedures in YAPOR
 % this code has to be here because of abolish/2
-'$abolishs'(G, Module) :-
-	'$has_yap_or', !,
-        functor(G,A,N),
-	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
+% '$abolishs'(G, Module) :-
+% 	'$has_yap_or', !,
+%         functor(G,A,N),
+% 	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
 '$abolishs'(G, M) :-
 	'$is_multifile'(G,M), !,
 	functor(G,Name,Arity),

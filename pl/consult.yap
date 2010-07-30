@@ -187,9 +187,9 @@ ensure_loaded(Fs) :-
 compile(Fs) :-
 	'$load_files'(Fs, [], compile(Fs)).
 
-consult(Fs) :-
-	'$has_yap_or',
-	'$do_error'(context_error(consult(Fs),clause),query).
+% consult(Fs) :-
+% 	'$has_yap_or',
+% 	'$do_error'(context_error(consult(Fs),clause),query).
 consult(V) :-
 	var(V), !,
 	'$do_error'(instantiation_error,consult(V)).
