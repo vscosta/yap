@@ -4101,6 +4101,11 @@ static Int
     return FALSE;
   }
   Yap_Error_TYPE = YAP_NO_ERROR;
+  tpos = StreamPosition(inp_stream);
+  if (!Yap_unify(tpos,ARG5)) {
+    /* do this early so that we do not have to protect it in case of stack expansion */  
+    return FALSE;
+  }
   while (TRUE) {
     CELL *old_H;
     UInt cpos = 0;
@@ -4195,8 +4200,7 @@ static Int
 	} else {
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
-	  return Yap_unify(tpos,ARG5) &&
-	    Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
+	  return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
 	    && Yap_unify_constant(ARG4, TermNil);
 	}
       }
@@ -4258,8 +4262,7 @@ static Int
 	  t[0] = terr;
 	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
 	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	  return(Yap_unify(tpos,ARG5) &&
-		 Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(AtomError,2),2,t)));
+	  return Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(AtomError,2),2,t));
 	}
       }
     } else {
@@ -4271,7 +4274,7 @@ static Int
 #if EMACS
   first_char = tokstart->TokPos;
 #endif /* EMACS */
-  if (!Yap_unify(t, ARG2) || !Yap_unify(tpos,ARG5))
+  if (!Yap_unify(t, ARG2))
     return FALSE;
   if (AtomOfTerm (Deref (ARG1)) == AtomTrue) {
     while (TRUE) {
@@ -4291,7 +4294,6 @@ static Int
 	Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
 	ScannerStack = (char *)TR;
 	TR = old_TR;
-	old_H = H;
       }
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
