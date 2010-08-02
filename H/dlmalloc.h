@@ -1,6 +1,10 @@
 
 #if USE_DL_MALLOC
 
+#if HAVE_SYS_PARAM_H
+#include <sys/param.h>
+#endif
+
 /* YAP only stuff */
 
 void STD_PROTO(Yap_initdlmalloc,(void));
@@ -489,7 +493,7 @@ extern Void_t*     sbrk();
   HAVE_USR_INCLUDE_MALLOC_H.
 */
 
-#if HAVE_MALLOC_H && !defined(_WIN32)
+#if HAVE_MALLOC_H && !defined(_WIN32) && !defined(__NetBSD_Version__)
 #define HAVE_USR_INCLUDE_MALLOC_H 1
 #endif
 

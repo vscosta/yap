@@ -44,7 +44,7 @@ SOBJS=pl-tai.@SO@
 all: $(SOBJS) 
 
 pl-tai.o: $(srcdir)/pl-tai.c
-	(cd libtai ; make)
+	(cd libtai ; $(MAKE))
 	$(CC) -c $(CFLAGS) $(srcdir)/pl-tai.c -o pl-tai.o
 
 @DO_SECOND_LD@pl-tai.@SO@: pl-tai.o
