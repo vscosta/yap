@@ -77,6 +77,7 @@ typedef enum compiler_op {
   unify_last_dbterm_op,
   unify_last_longint_op,
   unify_last_bigint_op,
+  ensure_space_op,
   native_op,
   f_var_op,
   f_val_op,

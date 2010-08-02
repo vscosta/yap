@@ -714,6 +714,7 @@ static char *opformat[] =
   "unify_last_dbterm\t%w",
   "unify_last_longint\t%w",
   "unify_last_bigint\t%l",
+  "ensure_space",
   "native_code",
   "function_to_var\t%v,%B",
   "function_to_val\t%v,%B",

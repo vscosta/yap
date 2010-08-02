@@ -1671,6 +1671,34 @@ Yap_absmi(int inp)
 
 
 /*****************************************************************
+*        check for enough room			                 *
+*****************************************************************/
+
+      /* ensure_space                   */
+      BOp(ensure_space, ip);
+      {
+	Int sz =  PREG->u.ip.i;   
+	fprintf(stderr,"ensuring %ld\n", sz);
+	PREG = NEXTOP(PREG,ip);
+	if (Unsigned(H) + sz > Unsigned(YREG)-CreepFlag) {
+	  ASP = YREG+E_CB;
+	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	    ASP = (CELL *)PROTECT_FROZEN_B(B);
+	  saveregs();
+	  if (!Yap_gcl(sz, 0, ENV, NEXTOP(PREG,ip))) {
+	    PREG = NEXTOP(PREG,ip);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    setregs();
+	    FAIL();
+	  } else {
+	    setregs();
+	  }
+	} 
+      }
+      JMPNext();
+      ENDBOp();
+
+/*****************************************************************
 *        try and retry of dynamic predicates                     *
 *****************************************************************/
 

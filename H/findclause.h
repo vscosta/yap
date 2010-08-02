@@ -289,6 +289,9 @@
     case _write_longint:
       cl = NEXTOP(cl,i);
       break;
+    case _ensure_space:
+      cl = NEXTOP(cl,ip);
+      break;
     case _unify_l_list:
       cl = NEXTOP(cl,o);
       break;
@@ -644,9 +647,6 @@
       cl = NEXTOP(cl,x);
       break;
     case _write_x_loc:
-      cl = NEXTOP(cl,x);
-      break;
-    case _write_x_val:
       cl = NEXTOP(cl,x);
       break;
     case _write_x_var:

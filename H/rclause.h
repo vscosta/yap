@@ -240,6 +240,12 @@ restore_opcodes(yamop *pc, yamop *max)
       IntegerInCodeAdjust(pc->u.i.i);
       pc = NEXTOP(pc,i);
       break;
+      /* instructions type ip */
+    case _ensure_space:
+      IntegerInCodeAdjust(pc->u.ip.i);
+      pc->u.ip.p = PtoPredAdjust(pc->u.ip.p);
+      pc = NEXTOP(pc,ip);
+      break;
       /* instructions type l */
     case _Ystop:
     case _jump:

@@ -478,6 +478,11 @@ typedef struct yami {
       CELL next;
     } ollll;
     struct {
+      Int		  i;
+      struct pred_entry  *p;
+      CELL next;
+    } ip;
+    struct {
       struct yami        *l;
       struct pred_entry  *p;
       CELL next;

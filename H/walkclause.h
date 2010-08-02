@@ -184,6 +184,10 @@
     case _write_longint:
       pc = NEXTOP(pc,i);
       break;
+      /* instructions type ip */
+    case _ensure_space:
+      pc = NEXTOP(pc,ip);
+      break;
       /* instructions type l */
     case _Ystop:
       return found_ystop(pc, clause_code, startp, endp, pp);

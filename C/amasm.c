@@ -509,6 +509,7 @@ a_cle(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip)
   return code_p;
 }
 
+
 inline static yamop *
 a_e(op_numbers opcode, yamop *code_p, int pass_no)
 {
@@ -1093,6 +1094,21 @@ a_blob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int 
   GONEXT(c);
   return code_p;
 }
+
+static yamop *
+a_ensure_space(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip, clause_info *clinfo) 
+{
+  if (cip->cpc->rnd1 > 4096 && FALSE) {
+    if (pass_no) {
+      code_p->opc = emit_op(opcode);
+      code_p->u.ip.i = sizeof(CELL) * cip->cpc->rnd1;
+      code_p->u.ip.p = clinfo->CurrentPred;
+    }
+    GONEXT(ip);
+  }
+  return code_p;
+}
+
 
 inline static yamop *
 a_wdbt(CELL rnd1, op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, struct intermediates *cip)
@@ -3530,6 +3546,9 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       /* reset dealloc_found in case there was a branch */
       clinfo.dealloc_found = FALSE;
+      break;
+    case ensure_space_op:
+      code_p = a_ensure_space(_ensure_space, code_p, pass_no, cip, &clinfo);
       break;
     case pop_op:
       if (cip->cpc->rnd1 == 1)

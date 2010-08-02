@@ -201,6 +201,8 @@ typedef struct compiler_struct_struct {
   int onhead;
   int onbranch;
   int curbranch;
+  Int space_used;
+  PInstr *space_op;
   Prop current_p0;
 #ifdef TABLING_INNER_CUTS
   PInstr *cut_mark;
@@ -458,6 +460,7 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     } else
 #endif
     if (cglobs->onhead) {
+      cglobs->space_used ++;
       if (level == 0)
 	Yap_emit((new ? (++cglobs->nvars, get_var_op) : get_val_op), t, argno, &cglobs->cint);
       else
@@ -725,6 +728,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 		      : unify_num_op) :
 	    write_num_op), (CELL) t, Zero, &cglobs->cint);
   } else if (IsPairTerm(t)) {
+    cglobs->space_used += 2;
     if (optimizer_on && level < 6) {
 #if !defined(THREADS)
       /* discard code sharing because we cannot write on shared stuff */
@@ -792,6 +796,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	return;
       }
     }
+    cglobs->space_used += 1+arity;
     if (level == 0)
       Yap_emit((cglobs->onhead ? get_struct_op : put_struct_op),
 	   (CELL) FunctorOfTerm(t), argno, &cglobs->cint);
@@ -2077,6 +2082,8 @@ c_head(Term t, compiler_struct *cglobs)
   cglobs->onlast = FALSE;
   cglobs->curbranch = cglobs->onbranch = 0;
   cglobs->branch_pointer = cglobs->parent_branches;
+  cglobs->space_used = 0;
+  cglobs->space_op = NULL;
   if (IsAtomTerm(t)) {
     Yap_emit(name_op, (CELL) AtomOfTerm(t), Zero, &cglobs->cint);
 #ifdef BEAM
@@ -2086,6 +2093,8 @@ c_head(Term t, compiler_struct *cglobs)
 #endif
     return;
   }
+  Yap_emit(ensure_space_op, Zero , Zero, &cglobs->cint);
+  cglobs->space_op = cglobs->cint.cpc;
   f = FunctorOfTerm(t);
   Yap_emit(name_op, (CELL) NameOfFunctor(f), ArityOfFunctor(f), &cglobs->cint);
 #ifdef BEAM
@@ -3515,6 +3524,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 
     c_body(body, mod, &cglobs);
     /* Insert blobs at the very end */ 
+
+    if (cglobs.space_op)
+      cglobs.space_op->rnd1 = cglobs.space_used;
 
     if (cglobs.cint.BlobsStart != NULL) {
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
