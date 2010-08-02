@@ -282,15 +282,15 @@ p_equal(void)
 }
 
 static Int 
-p_eq(void)
+eq(Term t1, Term t2)
 {				/* ? == ? */
       BEGD(d0);
-      d0 = ARG1;
+      d0 = t1;
       deref_head(d0, p_eq_unk1);
     p_eq_nvar1:
       /* first argument is bound */
       BEGD(d1);
-      d1 = ARG2;
+      d1 = t2;
       deref_head(d1, p_eq_nvar1_unk2);
     p_eq_nvar1_nvar2:
       /* both arguments are bound */
@@ -363,6 +363,18 @@ p_eq(void)
       ENDP(pt0);
 
       ENDD(d0);
+}
+
+static Int 
+p_eq(void)
+{				/* ? == ? */
+  return eq(ARG1,ARG2);
+}
+
+int 
+Yap_eq(Term t1, Term t2)
+{				/* ? == ? */
+  return eq(t1,t2);
 }
 
 static Int 

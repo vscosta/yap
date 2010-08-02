@@ -509,9 +509,14 @@ X_API Term     STD_PROTO(YAP_ExtendList,(Term, Term));
 X_API int      STD_PROTO(YAP_CloseList,(Term, Term));
 X_API int      STD_PROTO(YAP_IsAttVar,(Term));
 X_API Term     STD_PROTO(YAP_AttsOfVar,(Term));
-X_API Term     STD_PROTO(YAP_TermHash,(Term));
 X_API int      STD_PROTO(YAP_FileNoFromStream,(Term));
 X_API void    *STD_PROTO(YAP_FileDescriptorFromStream,(Term));
+X_API void    *STD_PROTO(YAP_Record,(Term));
+X_API Term     STD_PROTO(YAP_Recorded,(void *));
+X_API int      STD_PROTO(YAP_Erase,(void *));
+X_API int      STD_PROTO(YAP_Variant,(Term, Term));
+X_API int      STD_PROTO(YAP_ExactlyEqual,(Term, Term));
+X_API Int      STD_PROTO(YAP_TermHash,(Term, Int, Int, int));
 
 static int (*do_getf)(void);
 
@@ -1045,6 +1050,46 @@ YAP_Unify(Term t1, Term t2)
   BACKUP_MACHINE_REGS();
 
   out = Yap_unify(t1, t2);
+
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+/* == */
+X_API int
+YAP_ExactlyEqual(Term t1, Term t2)
+{
+  int out;
+  BACKUP_MACHINE_REGS();
+
+  out = Yap_eq(t1, t2);
+
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+/* =@= */
+X_API int
+YAP_Variant(Term t1, Term t2)
+{
+  int out;
+  BACKUP_MACHINE_REGS();
+
+  out = Yap_Variant(Deref(t1), Deref(t2));
+
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+/* =@= */
+X_API Int
+YAP_TermHash(Term t, Int sz, Int depth, int variant)
+{
+  Int out;
+
+  BACKUP_MACHINE_REGS();
+
+  out = Yap_TermHash(t, sz, depth, variant);
 
   RECOVER_MACHINE_REGS();
   return out;
@@ -2992,20 +3037,6 @@ YAP_AttsOfVar(Term t)
   return attv->Atts;
 }
 
-X_API Term
-YAP_TermHash(Term t)
-{
-  attvar_record *attv;
-  
-  t = Deref(t);
-  if (!IsVarTerm(t))
-    return TermNil;
-  if (IsAttVar(VarOfTerm(t)))
-    return TermNil;
-  attv = (attvar_record *)VarOfTerm(t);
-  return attv->Atts;
-}
-
 X_API int
 YAP_FileNoFromStream(Term t)
 {
@@ -3025,4 +3056,25 @@ YAP_FileDescriptorFromStream(Term t)
     return NULL;
   return Yap_FileDescriptorFromStream(t);
 }
+
+X_API void *
+YAP_Record(Term t)
+{
+ 
+  return (void *)Yap_StoreTermInDB(Deref(t), 0);
+}
+
+X_API Term
+YAP_Recorded(void *handle)
+{
+  return Yap_FetchTermFromDB((DBTerm *)handle);
+}
+
+X_API int
+YAP_Erase(void *handle)
+{
+  Yap_ReleaseTermFromDB((DBTerm *)handle);
+  return 1;
+}
+
 

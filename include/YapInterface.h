@@ -494,6 +494,16 @@ extern X_API YAP_Term	PROTO(YAP_AttsOfVar,(YAP_Term));
 extern X_API void      *PROTO(YAP_FileDescriptorFromStream,(YAP_Term));
 extern X_API int        PROTO(YAP_FileNoFromStream,(YAP_Term));
 
+/*  store and recover terms */
+extern X_API void      *PROTO(YAP_Record,(YAP_Term));
+extern X_API YAP_Term   PROTO(YAP_Recorded,(void *));
+extern X_API int        PROTO(YAP_Erase,(void *));
+
+/*  term utilities */
+extern X_API int        PROTO(YAP_Variant,(YAP_Term,YAP_Term));
+extern X_API int        PROTO(YAP_ExactlyEqual,(YAP_Term,YAP_Term));
+extern X_API YAP_Int    PROTO(YAP_TermHash,(YAP_Term, YAP_Int, YAP_Int, int));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

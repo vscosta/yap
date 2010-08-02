@@ -2936,6 +2936,37 @@ hash_complex_term(register CELL *pt0,
   return (CELL *) -2;
 }
  
+Int
+Yap_TermHash(Term t, Int size, Int depth, int variant)
+{
+  unsigned int i1;
+  Term t1 = Deref(t);
+
+  while (TRUE) {
+    CELL *ar = hash_complex_term(&t1-1, &t1, depth, H, FALSE);
+    if (ar == (CELL *)-1) {
+      if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in term_hash");
+	return FALSE;
+      } 
+      t1 = Deref(ARG1);
+    } else if(ar == (CELL *)-2) {
+      if (!Yap_gcl((ASP-H)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_hash");
+	return FALSE;
+      }
+      t1 = Deref(ARG1);
+    } else if (ar == NULL) {
+      return FALSE;
+    } else {
+      i1 = MurmurHashNeutral2((const void *)H, CellSize*(ar-H),0x1a3be34a);
+      break;
+    }
+  }
+  /* got the seed and hash from SWI-Prolog */
+  return i1 % size;
+}
+
 static Int
 p_term_hash(void)
 {
@@ -3239,11 +3270,9 @@ static int variant_complex(register CELL *pt0, register CELL *pt0_end, register
   return FALSE;
 }
 
-static Int 
-p_variant(void) /* variant terms t1 and t2	 */
+static int
+is_variant(Term t1, Term t2, int parity)
 {
-  Term t1 = Deref(ARG1);
-  Term t2 = Deref(ARG2);
   int out;
 
   if (t1 == t2)
@@ -3284,13 +3313,25 @@ p_variant(void) /* variant terms t1 and t2	 */
   }
  error:
   if (out == -1) {
-    if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
+    if (!Yap_gcl((ASP-H)*sizeof(CELL), parity, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in variant");
       return FALSE;
     }
-    return p_variant();
+    return is_variant(t1, t2, parity);
   }
   return FALSE;
+}
+
+int
+Yap_Variant(Term t1, Term t2) 
+{
+  return is_variant(t1, t2, 0);
+}
+
+static Int 
+p_variant(void) /* variant terms t1 and t2	 */
+{
+  return is_variant(Deref(ARG1), Deref(ARG2), 2);
 }
 
 

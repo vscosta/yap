@@ -247,7 +247,8 @@ int	STD_PROTO(Yap_OpDec,(int,char *,Atom,Term));
 void    STD_PROTO(Yap_CloseScratchPad,(void));
 
 /* inlines.c */
-void         STD_PROTO(Yap_InitInlines,(void));
+void    STD_PROTO(Yap_InitInlines,(void));
+int      STD_PROTO(Yap_eq,(Term, Term));
 
 /* iopreds.c */
 void	STD_PROTO(Yap_InitPlIO,(void));
@@ -372,6 +373,7 @@ void	STD_PROTO(Yap_InitUserBacks,(void));
 
 /* utilpreds.c */
 Term	STD_PROTO(Yap_CopyTerm,(Term));
+int	STD_PROTO(Yap_Variant,(Term, Term));
 int	STD_PROTO(Yap_ExportTerm,(Term, char *, size_t));
 Term	STD_PROTO(Yap_ImportTerm,(char *));
 int	STD_PROTO(Yap_IsListTerm,(Term));
@@ -379,7 +381,7 @@ Term	STD_PROTO(Yap_CopyTermNoShare,(Term));
 int	STD_PROTO(Yap_SizeGroundTerm,(Term, int));
 int	STD_PROTO(Yap_IsGroundTerm,(Term));
 void	STD_PROTO(Yap_InitUtilCPreds,(void));
-
+Int     STD_PROTO(Yap_TermHash,(Term, Int, Int, int));
 /* yap.c */
 
 /* MYDDAS */

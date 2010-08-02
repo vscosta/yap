@@ -296,6 +296,7 @@ Subnodes of C-Interface
 * Manipulating Strings:: From character arrays to Lists of codes and back
 * Memory Allocation:: Stealing Memory From YAP
 * Controlling Streams:: Control How YAP sees Streams
+* Utility Functions:: From character arrays to Lists of codes and back
 * Calling YAP From C:: From C to YAP to C to YAP 
 * Module Manipulation in C:: Create and Test Modules from within C
 * Writing C:: Writing Predicates in C
@@ -15140,6 +15141,7 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 * Manipulating Strings:: From character arrays to Lists of codes and back
 * Memory Allocation:: Stealing Memory From YAP
 * Controlling Streams:: Control How YAP sees Streams
+* Utility Functions:: From character arrays to Lists of codes and back
 * Calling YAP From C:: From C to YAP to C to YAP 
 * Module Manipulation in C:: Create and Test Modules from within C
 * Writing C:: Writing Predicates in C
@@ -15509,7 +15511,7 @@ The routine releases a buffer allocated from the code area. The system
 may crash if @code{buf} is not a valid pointer to a buffer in the code
 area.
 
-@node Controlling Streams, Calling YAP From C, Memory Allocation, C-Interface
+@node Controlling Streams, Utility Functions, Memory Allocation, C-Interface
 @section Controlling YAP Streams from @code{C}
 
 @findex YAP_StreamToFileNo (C-Interface function)
@@ -15561,7 +15563,71 @@ The available flags are @code{YAP_INPUT_STREAM},
 stream is supposed to be at position 0. The argument @var{name} gives
 the name by which YAP should know the new stream.
 
-@node Calling YAP From C, Module Manipulation in C, Controlling Streams, C-Interface
+@node Utility Functions, Calling YAP From C, Controlling Streams, C-Interface
+@section Utility Functions in @code{C}
+
+
+The C-Interface  provides the C-application with a a number of utility
+functions that are useful.
+
+
+@findex YAP_Record (C-Interface function)
+The first provides a way to insert a term into the data-base
+@example
+      void      *YAP_Record(YAP_Term @var{t})
+@end example
+@noindent
+This function returns a pointer to a copy of the term in the database
+(or to @t{NULL} if the operation fails.
+
+@findex YAP_Recorded (C-Interface function)
+The next functions provides a way to recover the term from the data-base:
+@example
+      YAP_Term      YAP_Recorded(void *@var{handle})
+@end example
+@noindent
+Notice that the semantics are the same as for @code{recorded/3}: this
+function creates a new copy of the term in the stack, with fresh
+variables. The function returns @t{0L} if it cannot create a new term.
+
+@findex YAP_Erase (C-Interface function)
+Last, the next function allows one to recover space:
+@example
+      int      YAP_Erase(void *@var{handle})
+@end example
+@noindent
+Notice that any accesses using @var{handle} after this operation may
+lead to a crash.
+
+The following functions are often required to compare terms.
+
+@findex YAP_ExactlyEqual (C-Interface function)
+The first function succeeds if two terms are actually the same term, as
+@code{==/2}:
+@example
+      int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
+@end example
+@noindent
+
+The second function succeeds if two terms are variant terms, and returns
+0 otherwise, as
+@code{=@=/2}:
+@example
+      int      YAP_Variant(YAP_Term t1, YAP_Term t2)
+@end example
+@noindent
+
+The second function computes a hash function for a term, as in
+@code{term_hash/4}.
+@example
+     YAP_Int    YAP_TermHash(YAP_Term t, YAP_Int range, YAP_Int depth, int  ignore_variables));
+@end example
+@noindent
+The first three arguments follow @code{term_has/4}. The last argument
+indicates what to do if we find a variable: if @code{0} fail, otherwise
+ignore the variable. 
+
+@node Calling YAP From C, Module Manipulation in C, Utility Functions, C-Interface
 @section From @code{C} back to Prolog
 
 @findex YAP_RunGoal (C-Interface function)
