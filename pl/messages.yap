@@ -463,7 +463,7 @@ prolog:print_message_lines(S, P-Opts, Lines) :- !,
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, Opts),
 	print_message_line(S, Lines, Rest),
-	prolog:print_message_lines(S, P, Rest).
+	prolog:print_message_lines(S, P-Opts, Rest).
 prolog:print_message_lines(S, P, Lines) :-
 	atom_concat('~N', P, Prefix),
 	format(S, Prefix, []),
