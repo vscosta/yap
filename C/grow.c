@@ -1073,6 +1073,7 @@ fix_compiler_instructions(PInstr *pcpc)
       break;
       /* hopefully nothing to do */
     case nop_op:
+    case ensure_space_op:
     case get_atom_op:
     case put_atom_op:
     case get_num_op:
