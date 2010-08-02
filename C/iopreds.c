@@ -4271,6 +4271,8 @@ static Int
 #if EMACS
   first_char = tokstart->TokPos;
 #endif /* EMACS */
+  if (!Yap_unify(t, ARG2) || !Yap_unify(tpos,ARG5))
+    return FALSE;
   if (AtomOfTerm (Deref (ARG1)) == AtomTrue) {
     while (TRUE) {
       CELL *old_H = H;
@@ -4293,11 +4295,10 @@ static Int
       }
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    return Yap_unify(t, ARG2) && Yap_unify (v, ARG4) &&
-	   Yap_unify(tpos,ARG5);
+    return Yap_unify (v, ARG4);
   } else {
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    return(Yap_unify(t, ARG2) && Yap_unify(tpos,ARG5));
+    return TRUE;
   }
 }
 
