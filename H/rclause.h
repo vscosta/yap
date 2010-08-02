@@ -44,10 +44,16 @@ restore_opcodes(yamop *pc, yamop *max)
     case _p_execute:
       OrArgAdjust(pc->u.Osbmp.or_arg);
       pc->u.Osbmp.s = ConstantAdjust(pc->u.Osbmp.s);
-      pc->u.Osbmp.bmap = CellPtoHeapAdjust(pc->u.Osbmp.bmap);
-      pc->u.Osbmp.mod = ModuleAdjust(pc->u.Osbmp.mod);
-      pc->u.Osbmp.p0 = PtoPredAdjust(pc->u.Osbmp.p0);
-      pc = NEXTOP(pc,Osbmp);
+      pc->u.Osbmp.mod = CellPtoHeapAdjust(pc->u.Osbmp.mod);
+      pc->u.Osbmp.p0 = ModuleAdjust(pc->u.Osbmp.p0);
+      /* instructions type Osbpi */
+    case _ensure_space:
+      OrArgAdjust(pc->u.Osbpi.or_arg);
+      pc->u.Osbpi.s = ConstantAdjust(pc->u.Osbpi.s);
+      pc->u.Osbpi.bmap = CellPtoHeapAdjust(pc->u.Osbpi.bmap);
+      pc->u.Osbpi.p = PtoPredAdjust(pc->u.Osbpi.p);
+      IntegerInCodeAdjust(pc->u.Osbpi.i);
+      pc = NEXTOP(pc,Osbpi);
       break;
       /* instructions type Osbpp */
     case _call:
@@ -239,12 +245,6 @@ restore_opcodes(yamop *pc, yamop *max)
     case _write_longint:
       IntegerInCodeAdjust(pc->u.i.i);
       pc = NEXTOP(pc,i);
-      break;
-      /* instructions type ip */
-    case _ensure_space:
-      IntegerInCodeAdjust(pc->u.ip.i);
-      pc->u.ip.p = PtoPredAdjust(pc->u.ip.p);
-      pc = NEXTOP(pc,ip);
       break;
       /* instructions type l */
     case _Ystop:

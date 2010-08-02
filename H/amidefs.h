@@ -658,6 +658,16 @@ typedef struct yami {
       COUNT               s;
       CELL               *bmap;
       struct pred_entry  *p;
+      Int		  i;
+      CELL next;
+    } Osbpi;
+    struct {
+#ifdef YAPOR
+      unsigned int        or_arg;
+#endif
+      COUNT               s;
+      CELL               *bmap;
+      struct pred_entry  *p;
       struct pred_entry  *p0;
       CELL next;
     } Osbpp;

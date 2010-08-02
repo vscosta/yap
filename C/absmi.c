@@ -1675,18 +1675,21 @@ Yap_absmi(int inp)
 *****************************************************************/
 
       /* ensure_space                   */
-      BOp(ensure_space, ip);
+      BOp(ensure_space, Osbpi);
       {
-	Int sz =  PREG->u.ip.i;   
-	fprintf(stderr,"ensuring %ld\n", sz);
-	PREG = NEXTOP(PREG,ip);
+	Int sz =  PREG->u.Osbpi.i;   
+	PREG = NEXTOP(PREG,Osbpi);
 	if (Unsigned(H) + sz > Unsigned(YREG)-CreepFlag) {
+	  YENV[E_CP] = (CELL) CPREG;
+	  YENV[E_E] = (CELL) ENV;
+#ifdef DEPTH_LIMIT
+	  YENV[E_DEPTH] = DEPTH;
+#endif	/* DEPTH_LIMIT */
 	  ASP = YREG+E_CB;
 	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	    ASP = (CELL *)PROTECT_FROZEN_B(B);
 	  saveregs();
-	  if (!Yap_gcl(sz, 0, ENV, NEXTOP(PREG,ip))) {
-	    PREG = NEXTOP(PREG,ip);
+	  if (!Yap_gcl(sz, 0, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    FAIL();

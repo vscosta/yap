@@ -1098,13 +1098,15 @@ a_blob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int 
 static yamop *
 a_ensure_space(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip, clause_info *clinfo) 
 {
-  if (cip->cpc->rnd1 > 4096 && FALSE) {
+  if (cip->cpc->rnd1 > 4096) {
     if (pass_no) {
       code_p->opc = emit_op(opcode);
-      code_p->u.ip.i = sizeof(CELL) * cip->cpc->rnd1;
-      code_p->u.ip.p = clinfo->CurrentPred;
+      code_p->u.Osbpi.i = sizeof(CELL) * cip->cpc->rnd1;
+      code_p->u.Osbpi.p = clinfo->CurrentPred;
+      code_p->u.Osbpi.bmap = NULL;
+      code_p->u.Osbpi.s = emit_count(-Signed(RealEnvSize));
     }
-    GONEXT(ip);
+    GONEXT(Osbpi);
   }
   return code_p;
 }

@@ -26,6 +26,10 @@
     case _p_execute:
       pc = NEXTOP(pc,Osbmp);
       break;
+      /* instructions type Osbpi */
+    case _ensure_space:
+      pc = NEXTOP(pc,Osbpi);
+      break;
       /* instructions type Osbpp */
     case _call_cpred:
       pp = pc->u.Osbpp.p;
@@ -183,10 +187,6 @@
       /* instructions type i */
     case _write_longint:
       pc = NEXTOP(pc,i);
-      break;
-      /* instructions type ip */
-    case _ensure_space:
-      pc = NEXTOP(pc,ip);
       break;
       /* instructions type l */
     case _Ystop:

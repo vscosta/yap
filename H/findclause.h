@@ -9,6 +9,9 @@
     case _alloc_for_logical_pred:
       cl = NEXTOP(cl,L);
       break;
+    case _ensure_space:
+      cl = NEXTOP(cl,Osbpi);
+      break;
     case _native_me:
       cl = NEXTOP(cl,aFlp);
       break;
@@ -288,9 +291,6 @@
       break;
     case _write_longint:
       cl = NEXTOP(cl,i);
-      break;
-    case _ensure_space:
-      cl = NEXTOP(cl,ip);
       break;
     case _unify_l_list:
       cl = NEXTOP(cl,o);
