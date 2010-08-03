@@ -15777,7 +15777,7 @@ runall(YAP_Term g)
     YAP_dogoalinfo goalInfo;
     YAP_Term *goalArgs = YAP_ArraysOfTerm(g);
     YAP_Functor *goalFunctor = YAP_FunctorOfTerm(g);
-    YAP_PredEntryPtr goalPred = YAP_FunctorToGoal(goalFunctor);
+    YAP_PredEntryPtr goalPred = YAP_FunctorToPred(goalFunctor);
     
     result = YAP_EnterGoal( goalPred, goalArgs, &goalInfo );
     while (result)
