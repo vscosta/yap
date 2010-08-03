@@ -445,17 +445,17 @@ static int CvtToStringTerm(Term t, char *buf, char *buf_max)
   while (IsPairTerm(t)) {
     YAP_Term hd = HeadOfTerm(t);
     long int  i;
-    if (!IsVarTerm(hd) || !IsIntTerm(hd))
+    if (IsVarTerm(hd) || !IsIntTerm(hd))
       return 0;
     i = IntOfTerm(hd);
     if (i <= 0 || i >= 255)
-      return 0;
-    if (!IsIntTerm(hd))
       return 0;
     *buf++ = i;
     if (buf == buf_max)
       return 0;
     t = TailOfTerm(t);
+    if (IsVarTerm(t))
+      return 0;
   }
   if (t != TermNil)
     return 0;
@@ -463,17 +463,6 @@ static int CvtToStringTerm(Term t, char *buf, char *buf_max)
     return 0;
   buf[0] = '\0';
   return 1;
-}
-
-char *bf, *bf_lim;
-
-static void
-buf_writer(int c)
-{
-  if (bf == bf_lim) {
-    return;
-  }
-  *bf++ = c;
 }
 
 #if !HAVE_SNPRINTF
@@ -501,6 +490,39 @@ static int do_yap_putc(int sno, wchar_t ch) {
   return FALSE;
 }
 
+static int
+CvtToGenericTerm(Term t, char *tmp, unsigned flags, char **sp)
+{
+  int wflags = 0;
+
+  putc_cur_buf = putc_curp = tmp;
+  putc_cur_flags = flags;
+  if ((flags & BUF_RING)) {
+    putc_cur_lim = tmp+(TMP_BUF_SIZE-1);
+  } else {
+    putc_cur_lim = tmp+(BUF_SIZE-1);
+  }
+  if (flags & CVT_WRITE_CANONICAL) {
+    wflags |= (YAP_WRITE_IGNORE_OPS|YAP_WRITE_QUOTED);
+  }
+  Yap_plwrite(t, do_yap_putc, wflags, 1200);
+  if (putc_cur_buf == putc_cur_lim)
+    return 0;
+  *putc_curp = '\0';
+  /* may have changed due to overflows */
+  *sp = putc_cur_buf;
+  return 1;
+}
+
+static int 
+cv_error(unsigned flags)
+{
+  if (flags & CVT_EXCEPTION) {
+    YAP_Error(0, 0L, "PL_get_chars");
+  }
+  return 0;
+}
+
 X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
 {
   YAP_Term t = Yap_GetFromSlot(l);
@@ -514,62 +536,66 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     tmp = buffers;
   }
   *sp = tmp;
-  if (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) {
-    Int write_flags;
-
-    putc_cur_buf = putc_curp = tmp;
-    putc_cur_flags = flags;
-    if (flags & CVT_WRITE_CANONICAL) {
-      write_flags = (Quote_illegal_f|Ignore_ops_f);
-    } else {
-      write_flags = 0;
-    }
-    if ((flags & BUF_RING)) {
-      putc_cur_lim = tmp+(TMP_BUF_SIZE-1);
-    } else {
-      putc_cur_lim = tmp+(BUF_SIZE-1);
-    }
-    Yap_plwrite(t, do_yap_putc, write_flags, 1200);
-    *putc_curp = '\0';
-    /* may have changed due to overflows */
-    *sp = putc_cur_buf;
-    return TRUE;
-  }
-  if (IsAtomTerm(t)) {
+  if (IsVarTerm(t)) {
+    if (!(flags & (CVT_VARIABLE|CVT_WRITE|CVT_WRITE_CANONICAL)))
+      return cv_error(flags);  
+    if (!CvtToGenericTerm(t, tmp, flags, sp))
+      return 0;
+  } else if (IsAtomTerm(t)) {
     Atom at = AtomOfTerm(t);
-    if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
-      return 0;
-    if (IsWideAtom(at))
-      /* will this always work? */
+    if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+      return cv_error(flags);
+    if (IsWideAtom(at)) {
+      /* this is not enough!!! */
       snprintf(*sp,BUF_SIZE,"%ls",RepAtom(at)->WStrOfAE);
-    else
+    } else {
       *sp = RepAtom(at)->StrOfAE;
-    return 1;
-  } else if (YAP_IsIntTerm(t)) {
-    if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_ALL)))
-      return 0;
+    }
+  } else if (IsNumTerm(t)) {
+    if (IsFloatTerm(t)) {
+      if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+	return cv_error(flags);
+      snprintf(tmp,BUF_SIZE,"%f",FloatOfTerm(t));
+    } else {
+      if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+	return cv_error(flags);
 #if _WIN64
-    snprintf(tmp,BUF_SIZE,"%I64d",YAP_IntOfTerm(t));
+      snprintf(tmp,BUF_SIZE,"%I64d",IntegerOfTerm(t));
 #else
-    snprintf(tmp,BUF_SIZE,"%ld",YAP_IntOfTerm(t));
+      snprintf(tmp,BUF_SIZE,"%ld",IntegerOfTerm(t));
 #endif
-  } else if (YAP_IsFloatTerm(t)) {
-    if (!(flags & (CVT_FLOAT|CVT_ATOMIC|CVT_NUMBER|CVT_ALL)))
-      return 0;
-    snprintf(tmp,BUF_SIZE,"%f",YAP_FloatOfTerm(t));
-  } else if (flags & (CVT_STRING)) {
-    char *s = Yap_BlobStringOfTerm(t);
-    strncat(tmp, s, BUF_SIZE-1);
-  } else if (flags & CVT_LIST) {
-    if (CvtToStringTerm(t,tmp,tmp+BUF_SIZE) == 0)
-      return 0;
+    }
+  } else if (IsPairTerm(t))  {
+    if (!(flags & (CVT_LIST|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) { 
+      return cv_error(flags);
+    }
+    if (CvtToStringTerm(t,tmp,tmp+BUF_SIZE) == 0) {
+      if (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) {
+	if (!CvtToGenericTerm(t, tmp, flags, sp))
+	  return 0;
+      } else {
+	return cv_error(flags);
+      }
+    }
   } else {
-    bf = tmp;
-    bf_lim = tmp+(BUF_SIZE-1);
-    YAP_Write(t,buf_writer,0);
-    if (bf == bf_lim)
-      return 0;
-    *bf = '\0';
+    if (IsBigIntTerm(t)) {
+      if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+	return cv_error(flags);
+      Yap_gmp_to_string(t, tmp, BUF_SIZE-1, 10);
+    } else if (IsBlobStringTerm(t)) {
+      if (!(flags & (CVT_STRING|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) {
+	return cv_error(flags);
+      } else {
+	char *s = Yap_BlobStringOfTerm(t);
+	strncat(tmp, s, BUF_SIZE-1);
+      } 
+    } else {
+      if (!(flags & (CVT_WRITE|CVT_WRITE_CANONICAL))) {
+	return cv_error(flags);
+      }
+      if (!CvtToGenericTerm(t, tmp, flags, sp))
+	return 0;
+    }
   }
   if (flags & BUF_MALLOC) {
     char *nbf = YAP_AllocSpaceFromYap(strlen(tmp)+1);
