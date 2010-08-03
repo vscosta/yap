@@ -5198,6 +5198,7 @@ fi
   else
     ENABLE_WINCONSOLE="#"
     LIBS="-lcygwin"
+    EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
   fi
 else
   INSTALL_COMMAND="install_unix"
@@ -9279,7 +9280,7 @@ _ACEOF
 
 fi
 
-CRYPTLIBS="$LIBS"
+CLIB_CRYPTLIBS="$LIBS"
 for ac_func in crypt
 do :
   ac_fn_c_check_func "$LINENO" "crypt" "ac_cv_func_crypt"

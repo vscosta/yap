@@ -575,6 +575,7 @@ then
   else
     ENABLE_WINCONSOLE="#"   
     LIBS="-lcygwin"
+    EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
   fi
 else
   INSTALL_COMMAND="install_unix"
@@ -1774,7 +1775,7 @@ fi
 
 oldlibs="$LIBS"
 AC_CHECK_LIB(crypt, crypt)
-CRYPTLIBS="$LIBS"
+CLIB_CRYPTLIBS="$LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$oldlibs"
 
