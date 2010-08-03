@@ -55,22 +55,25 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity)
     if (do_as_binary && !binary_stream)
       Stream[sno].status &= ~Binary_Stream_f;
     if (sz == -1 || sz == 0) {
-      UNLOCK(Stream[sno].streamlock);
       if (Stream[sno].status & Eof_Stream_f) {
+	UNLOCK(Stream[sno].streamlock);
 	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
       }
+      UNLOCK(Stream[sno].streamlock);
       return FALSE;
     }
     if (Stream[sno].status & Eof_Stream_f || buf[sz-1] == 10) {
       /* we're done */
       Term end;
-      UNLOCK(Stream[sno].streamlock);
       if (!(do_as_binary || Stream[sno].status & Eof_Stream_f)) {
+	UNLOCK(Stream[sno].streamlock);
 	/* handle CR before NL */
 	if (sz-2 >= 0 && buf[sz-2] == 13)
 	  buf[sz-2] = '\0';
 	else
 	  buf[sz-1] = '\0';
+      } else {
+	UNLOCK(Stream[sno].streamlock);
       }
       if (arity == 2)
 	end = TermNil;
@@ -133,6 +136,7 @@ p_stream_to_codes(void)
       HBASE = RepPair(ARG4);
     }
   }
+  UNLOCK(Stream[sno].streamlock);
   if (H == HBASE)
     return Yap_unify(ARG2,ARG3);
   RESET_VARIABLE(H-1);
@@ -156,12 +160,14 @@ p_stream_to_terms(void)
     {
       Term th = Yap_Parse();
       if (H >= ASP-1024) {
+	UNLOCK(Stream[sno].streamlock);
 	Yap_Error(OUT_OF_STACK_ERROR, ARG1, "read_stream_to_terms/3");
 	return FALSE;      
       }
       if (!th || Yap_ErrorMessage)
 	break;
       if (th == MkAtomTerm (AtomEof)) {
+	UNLOCK(Stream[sno].streamlock);
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	return Yap_unify(t,ARG2);
       } else {
@@ -170,6 +176,7 @@ p_stream_to_terms(void)
     }
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
   }
+  UNLOCK(Stream[sno].streamlock);
   return Yap_unify(t,ARG2);
 }
 
