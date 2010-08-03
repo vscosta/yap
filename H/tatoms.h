@@ -178,6 +178,8 @@
 #define AtomEvaluable Yap_heap_regs->AtomEvaluable_
   Atom AtomEvaluationError_;
 #define AtomEvaluationError Yap_heap_regs->AtomEvaluationError_
+  Atom AtomExecute_;
+#define AtomExecute Yap_heap_regs->AtomExecute_
   Atom AtomExecAnswers_;
 #define AtomExecAnswers Yap_heap_regs->AtomExecAnswers_
   Atom AtomExecuteInMod_;
@@ -186,6 +188,8 @@
 #define AtomExecuteWithin Yap_heap_regs->AtomExecuteWithin_
   Atom AtomExecuteWoMod_;
 #define AtomExecuteWoMod Yap_heap_regs->AtomExecuteWoMod_
+  Atom AtomExist_;
+#define AtomExist Yap_heap_regs->AtomExist_
   Atom AtomExistenceError_;
 #define AtomExistenceError Yap_heap_regs->AtomExistenceError_
   Atom AtomExpectedNumber_;
@@ -342,6 +346,8 @@
 #define AtomNew Yap_heap_regs->AtomNew_
   Atom AtomNoMemory_;
 #define AtomNoMemory Yap_heap_regs->AtomNoMemory_
+  Atom AtomNone_;
+#define AtomNone Yap_heap_regs->AtomNone_
   Atom AtomNonEmptyList_;
 #define AtomNonEmptyList Yap_heap_regs->AtomNonEmptyList_
   Atom AtomNot_;

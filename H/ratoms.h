@@ -90,10 +90,12 @@
   AtomError = AtomAdjust(AtomError);
   AtomEvaluable = AtomAdjust(AtomEvaluable);
   AtomEvaluationError = AtomAdjust(AtomEvaluationError);
+  AtomExecute = AtomAdjust(AtomExecute);
   AtomExecAnswers = AtomAdjust(AtomExecAnswers);
   AtomExecuteInMod = AtomAdjust(AtomExecuteInMod);
   AtomExecuteWithin = AtomAdjust(AtomExecuteWithin);
   AtomExecuteWoMod = AtomAdjust(AtomExecuteWoMod);
+  AtomExist = AtomAdjust(AtomExist);
   AtomExistenceError = AtomAdjust(AtomExistenceError);
   AtomExpectedNumber = AtomAdjust(AtomExpectedNumber);
   AtomExtendFileSearchPath = AtomAdjust(AtomExtendFileSearchPath);
@@ -172,6 +174,7 @@
   AtomNbTerm = AtomAdjust(AtomNbTerm);
   AtomNew = AtomAdjust(AtomNew);
   AtomNoMemory = AtomAdjust(AtomNoMemory);
+  AtomNone = AtomAdjust(AtomNone);
   AtomNonEmptyList = AtomAdjust(AtomNonEmptyList);
   AtomNot = AtomAdjust(AtomNot);
   AtomNotImplemented = AtomAdjust(AtomNotImplemented);

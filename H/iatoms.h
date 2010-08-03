@@ -90,10 +90,12 @@
   AtomError = Yap_LookupAtom("error");
   AtomEvaluable = Yap_LookupAtom("evaluable");
   AtomEvaluationError = Yap_LookupAtom("evaluation_error");
+  AtomExecute = Yap_LookupAtom("execute");
   AtomExecAnswers = Yap_LookupAtom("exec_answers");
   AtomExecuteInMod = Yap_FullLookupAtom("$execute_in_mod");
   AtomExecuteWithin = Yap_FullLookupAtom("$execute_within");
   AtomExecuteWoMod = Yap_FullLookupAtom("$execute_wo_mod");
+  AtomExist = Yap_LookupAtom("exist");
   AtomExistenceError = Yap_LookupAtom("existence_error");
   AtomExpectedNumber = Yap_LookupAtom("expected_number_syntax");
   AtomExtendFileSearchPath = Yap_FullLookupAtom("$extend_file_search_path");
@@ -172,6 +174,7 @@
   AtomNbTerm = Yap_LookupAtom("nb_term");
   AtomNew = Yap_LookupAtom("new");
   AtomNoMemory = Yap_LookupAtom("no_memory");
+  AtomNone = Yap_LookupAtom("none");
   AtomNonEmptyList = Yap_LookupAtom("non_empty_list");
   AtomNot = Yap_LookupAtom("\\+");
   AtomNotImplemented = Yap_LookupAtom("not_implemented");

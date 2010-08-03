@@ -1120,29 +1120,6 @@ bootstrap(F) :-
 	'$do_error'(type_error(callable,H),P).
 '$check_head'(_,_).
 
-% Path predicates
-
-access_file(F,Mode) :-
-	'$exists'(F,Mode).
-
-'$exists'(_,none) :- !.
-'$exists'(F,exist) :- !,
-	'$access'(F).
-'$exists'(F,Mode) :-
-	get_value(fileerrors,V),
-	set_value(fileerrors,0),
-	operating_system_support:true_file_name(F, F1),
-	(
-	 '$open'(F1, Mode, S, 0, 1, F)
-	->
-	 '$close'(S),
-	 set_value(fileerrors,V)
-	;
-	 set_value(fileerrors,V),
-	 fail
-	).
-
-
 % term expansion
 %
 % return two arguments: Expanded0 is the term after "USER" expansion.
