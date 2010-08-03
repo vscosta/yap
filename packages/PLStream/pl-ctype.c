@@ -780,11 +780,11 @@ PRED_IMPL("setlocale", 3, setlocale, 0)
 		 *******************************/
 
 BeginPredDefs(ctype)
-  PRED_DEF("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
-  PRED_DEF("code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("swi_char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("swi_code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
   PRED_DEF("setlocale", 3, setlocale, 0)
-  PRED_DEF("downcase_atom", 2, downcase_atom, 0)
-  PRED_DEF("upcase_atom", 2, upcase_atom, 0)
+  PRED_DEF("swi_downcase_atom", 2, downcase_atom, 0)
+  PRED_DEF("swi_upcase_atom", 2, upcase_atom, 0)
   PRED_DEF("normalize_space", 2, normalize_space, 0)
 EndPredDefs
 
@@ -868,6 +868,9 @@ initEncoding(void)
       }
     }
 
+#if __YAP_PROLOG__
+    PL_register_extensions(PL_predicates_from_ctype);
+#endif
     return LD->encoding;
   }
 
