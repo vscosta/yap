@@ -549,7 +549,8 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       /* this is not enough!!! */
       snprintf(*sp,BUF_SIZE,"%ls",RepAtom(at)->WStrOfAE);
     } else {
-      *sp = RepAtom(at)->StrOfAE;
+      char *s = RepAtom(at)->StrOfAE;
+      strncpy(tmp,s,BUF_SIZE);
     }
   } else if (IsNumTerm(t)) {
     if (IsFloatTerm(t)) {
@@ -598,10 +599,12 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     }
   }
   if (flags & BUF_MALLOC) {
-    char *nbf = YAP_AllocSpaceFromYap(strlen(tmp)+1);
-    if (nbf == NULL)
+    size_t sz = strlen(tmp);
+    char *nbf = YAP_AllocSpaceFromYap(sz+1);
+    if (!nbf)
       return 0;
-    strncpy(nbf,tmp,BUF_SIZE);
+    strncpy(nbf,tmp,sz+1);
+    free(tmp);
     *sp = nbf;
   }
   return 1;
