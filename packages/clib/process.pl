@@ -43,6 +43,7 @@
 :- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(option)).
+:- use_module(library(error)).
 
 :- use_foreign_library(foreign(process)).
 
