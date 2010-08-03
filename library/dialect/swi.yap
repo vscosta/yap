@@ -24,6 +24,7 @@
 		   time_file/2,
 		   flag/3,
 		   require/1,
+		   normalize_space/2,
 		   current_flag/1
 		]).
 
