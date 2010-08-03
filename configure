@@ -652,6 +652,7 @@ INSTALL_DLLS
 ARCH
 M4GENHDRS
 M4
+ZLIB_INSTALL
 ZLIB_PLTARGETS
 ZLIB_TARGETS
 ZLIBS
@@ -3849,6 +3850,7 @@ if test "${with_gmp+set}" = set; then :
 	else
 		yap_cv_gmp=$with_gmp
 		LDFLAGS="$LDFLAGS -L${yap_cv_gmp}/lib"
+		LIBS="$LIBS -L${yap_cv_gmp}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_gmp}/include"
 		CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi
@@ -5183,6 +5185,11 @@ _ACEOF
 fi
 
     yap_cv_readline=no
+    if test "$target_win64" = yes
+	CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
+    then
+	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
+    fi
     if test "$prefix" = "NONE"
     then
       if test "$target_win64" = yes
@@ -5191,7 +5198,6 @@ fi
 	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
-	CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
       fi
     fi
     ENABLE_WINCONSOLE=""
@@ -7361,8 +7367,10 @@ fi
 if test "$ZLIB" = yes; then
   ZLIB_TARGETS="zlib4pl.$SO"
   ZLIB_PLTARGETS='$(srcdir)/zlib.pl'
+  ZLIB_INSTALL=install
 else
   ZLIB_TARGETS=nolib
+  ZLIB_INSTALL=nolib
   cat << EOF
 ##################################################################
 # ERROR: Could not find library zlib (-lz).  Dropped library(zlib)
@@ -7372,6 +7380,7 @@ else
 ##################################################################
 EOF
 fi
+
 
 
 
