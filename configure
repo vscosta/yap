@@ -5100,6 +5100,7 @@ _ACEOF
 
 fi
 
+      EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     else
       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lwsock32" >&5
 $as_echo_n "checking for main in -lwsock32... " >&6; }
@@ -7112,7 +7113,7 @@ fi
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""
 	MERGE_DLL_OBJS=""
-	IN_UNIX="#"
+        IN_UNIX="#"
         YAPLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         PRE_INSTALL_ENV=""
         INSTALL_ENV=""

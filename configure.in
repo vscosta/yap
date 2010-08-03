@@ -553,6 +553,7 @@ then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(wsock32,main)
+      EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     else
       AC_CHECK_LIB(wsock32,main)
       EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
@@ -1101,7 +1102,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	INSTALL_DLLS=""
 	DO_SECOND_LD=""
 	MERGE_DLL_OBJS=""
-	IN_UNIX="#"
+        IN_UNIX="#"
         YAPLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
         PRE_INSTALL_ENV=""
         INSTALL_ENV=""

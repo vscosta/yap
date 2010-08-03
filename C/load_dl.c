@@ -46,8 +46,10 @@ Yap_LoadForeignFile(char *file, int flags)
     dlflag = RTLD_LAZY;
   if (flags &  GLOBAL_LOADING)
     dlflag |= RTLD_GLOBAL;
+#ifndef __CYGWIN__
   else 
     dlflag |= RTLD_LOCAL;
+#endif
   
   out = (void *)dlopen(file,dlflag);
   if (!out) {
