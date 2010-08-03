@@ -487,8 +487,6 @@ add_decoded_range_charbuf(charbuf *cb, const range *r, int flags)
 static int
 add_normalized_range_charbuf(charbuf *cb, const range *r, int iri, int flags)
 { const pl_wchar_t *s = r->start;
-  fprintf(stderr,"s=%s r->start=%p r->end=%p\n",s,r->start,r->end);
-  jmp_deb(1);
   while(s<r->end)
   { int c;
 
