@@ -170,8 +170,8 @@ html-install::
 		$(INSTALL_DATA) sgml.html $(DESTDIR)$(PKGDOC)
 
 check::
-		$(PL) -f Test/test.pl -g test,halt
-		$(PL) -f Test/wrtest.pl -g test,halt
+		$(PL) -f $(srcdir)/Test/test.pl -g test,halt
+		$(PL) -f $(srcdir)/Test/wrtest.pl -g test,halt
 
 uninstall::
 		(cd $(PLBASE)/lib/$(PLARCH) && rm -f $(TARGETS))

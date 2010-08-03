@@ -140,7 +140,7 @@ uninstall::
 ################################################################
 
 check::
-		$(PL) -q -f test_zlib.pl -g test_zlib,halt -t 'halt(1)'
+		$(PL) -q -f $(srcdir)/test_zlib.pl -g test_zlib,halt -t 'halt(1)'
 
 ################################################################
 # Documentation
