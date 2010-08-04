@@ -41,6 +41,7 @@
 	    call_with_time_limit/2	% +Time, :Callable
 	  ]).
 :- use_module(library(lists)).
+:- use_module(library(shlib)).
 :- set_prolog_flag(generate_debug_info, false).
 
 :- meta_predicate
