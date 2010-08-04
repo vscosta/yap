@@ -3350,6 +3350,16 @@ is bound to the empty list (nil) or a term with functor '.' and arity 2.
 
 Same as @code{variant/2}, succeeds if @var{Term1} and @var{Term2} are variant terms.
 
+
+@item subsumes_term(?@var{Subsumer}, ?@var{Subsumed})
+@findex  subsumes_term/2
+@syindex subsumes_term/2
+@cnindex subsumes_term/2
+
+Succeed if @var{Submuser} subsumes @var{Subsuned} but does not bind any
+variable in @var{Subsumer}.
+
+
 @end table
 
 @node Predicates on Atoms, Predicates on Characters, Testing Terms, Top
