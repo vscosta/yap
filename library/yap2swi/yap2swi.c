@@ -580,15 +580,15 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       return cv_error(flags);
     if (IsWideAtom(at)) {
       size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
-      if (!(tmp = ensure_space(sp, sz, flags)))
+      if (!(tmp = ensure_space(sp, (sz+1)*sizeof(wchar_t), flags)))
 	return 0;
     } else {
       char *s = RepAtom(at)->StrOfAE;
-      size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
+      size_t sz = strlen(RepAtom(at)->StrOfAE)+1;
 
       if (!(tmp = ensure_space(sp, sz, flags)))
 	return 0;
-      strncpy(*sp,s,sz+1);
+      strncpy(*sp,s,sz);
     }
   } else if (IsNumTerm(t)) {
     if (IsFloatTerm(t)) {
@@ -617,11 +617,14 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       }
     }
   } else {
+#if USE_GMP
     if (IsBigIntTerm(t)) {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
       Yap_gmp_to_string(t, tmp, SWI_BUF_SIZE-1, 10);
-    } else if (IsBlobStringTerm(t)) {
+    } else 
+#endif
+      if (IsBlobStringTerm(t)) {
       if (!(flags & (CVT_STRING|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) {
 	return cv_error(flags);
       } else {
