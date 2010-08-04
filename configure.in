@@ -1763,6 +1763,13 @@ AC_SUBST(CHR_TARGETS)
 CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
 CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
 
+if test "$ac_cv_func_setitimer" = "yes"; then
+  CLIB_TARGETS="$CLIB_TARGETS time.$SO"
+  CLIB_PLTARGETS="$CLIB_PLTARGETS \$(srcdir)/time.pl"
+else
+  echo "WARNING: no setitimer(); dropping time.pl from targets"
+fi
+
 if test "$IN_UNIX" = ""; then
 CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
 CLIB_PLTARGETS="\$(srcdir)/unix.pl $CLIB_PLTARGETS"
