@@ -62,8 +62,8 @@ test(cwd, [true, condition(\+current_prolog_flag(windows, true))]) :-
 			 cwd(Tmp)
 		       ]),
 	read_process(Out, CWD0),
-	normalize_space(atom(CWD), CWD0),
-	same_file(CWD, Tmp).
+	system:normalize_space(atom(CWD), CWD0),
+	system:swi_same_file(CWD, Tmp).
 test(cwd, [true, condition(current_prolog_flag(windows, true))]) :-
 	tmp_dir(Tmp),
 	getenv('COMSPEC', Shell),
@@ -72,8 +72,8 @@ test(cwd, [true, condition(current_prolog_flag(windows, true))]) :-
 			 cwd(Tmp)
 		       ]),
 	read_process(Out, CWD0),
-	normalize_space(atom(CWD), CWD0),
-	same_file(CWD, Tmp).
+	system:normalize_space(atom(CWD), CWD0),
+	system:swi_same_file(CWD, Tmp).
 
 tmp_dir(Dir) :-
 	getenv('TEMP', Dir), !.
