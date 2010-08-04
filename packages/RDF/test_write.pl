@@ -35,14 +35,6 @@
             run_tests/1
 	  ]).
 
-:- asserta(user:file_search_path(foreign, '../sgml')).
-:- asserta(user:file_search_path(foreign, '../semweb')).
-:- asserta(user:file_search_path(foreign, '../clib')).
-:- asserta(user:file_search_path(library, '..')).
-:- asserta(user:file_search_path(library, '../sgml')).
-:- asserta(user:file_search_path(library, '.')).
-:- asserta(user:file_search_path(library, '../plunit')).
-:- asserta(user:file_search_path(library, '../clib')).
 
 :- use_module(library(plunit)).
 :- use_module(library(rdf_write)).
@@ -50,7 +42,7 @@
 :- use_module(library(lists)).
 :- use_module(library(debug)).
 :- use_module(library(semweb/rdf_db)).
-:- use_module(rdf).
+:- use_module(library(rdf)).
 
 :- expects_dialect(swi).
 :- assert(system:swi_io).

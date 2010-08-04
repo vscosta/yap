@@ -15674,12 +15674,12 @@ YAP that the slot @var{sl} is not needed and can be given back to the
 system. The slot functions are as follows:
 
 @table @code
-@item long int YAP_NewSlots(int @var{NumberOfSlots})
+@item YAP_Int YAP_NewSlots(int @var{NumberOfSlots})
 @findex YAP_NewSlots (C-Interface function)
 Allocate @var{NumberOfSlots} from the stack and return an handle to the
 last one. The other handle can be obtained by decrementing the handle.
 
-@item long int YAP_CurrentSlot(void)
+@item YAP_Int YAP_CurrentSlot(void)
 @findex YAP_CurrentSlot (C-Interface function)
 Return a handle to the system's default slot.
 
@@ -15688,11 +15688,11 @@ Return a handle to the system's default slot.
 Create a new slot, initialise it with @var{t}, and return a handle to
 this slot, that also becomes the current slot.
 
-@item YAP_Term *YAP_AddressFromSlot(long int @var{slot})
+@item YAP_Term *YAP_AddressFromSlot(YAP_Int @var{slot})
 @findex YAP_AddressFromSlot (C-Interface function)
 Return the address of slot @var{slot}: please use with care.
 
-@item void YAP_PutInSlot(long int @var{slot}, YAP_Term @var{t})
+@item void YAP_PutInSlot(YAP_Int @var{slot}, YAP_Term @var{t})
 @findex YAP_PutInSlot (C-Interface function)
 Set the contents of slot @var{slot} to @var{t}.
 
@@ -15700,6 +15700,15 @@ Set the contents of slot @var{slot} to @var{t}.
 @findex YAP_RecoverSlots (C-Interface function)
 Recover the space for @var{HowMany} slots: these will include the
 current default slot. Fails if no such slots exist.
+
+@item YAP_Int YAP_ArgsToSlots(int @var{HowMany})
+@findex YAP_ArgsToSlots (C-Interface function)
+Store the current first  @var{HowMany} arguments in new slots.
+
+@item void YAP_SlotsToArgs(int @var{HowMany}, YAP_Int @var{slot})
+@findex YAP_SlotsToArgs (C-Interface function)
+Set the first @var{HowMany} arguments to the @var{HowMany} slots
+starting at @var{slot}.
 @end table
 
 The following functions complement @var{YAP_RunGoal}:

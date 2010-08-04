@@ -426,6 +426,12 @@ extern X_API void PROTO(YAP_PutInSlot,(YAP_Int, YAP_Term));
 /*  void  YAP_RecoverSlots()  */
 extern X_API int PROTO(YAP_RecoverSlots,(int));
 
+/*  void  YAP_RecoverSlots()  */
+extern X_API YAP_Int PROTO(YAP_ArgsToSlots,(int));
+
+/*  void  YAP_RecoverSlots()  */
+extern X_API void PROTO(YAP_SlotsToArgs,(int, YAP_Int));
+
 /*  void  YAP_Throw()  */
 extern X_API void PROTO(YAP_Throw,(YAP_Term));
 
