@@ -22,8 +22,8 @@
 					% get libraries locally
 :- asserta(user:file_search_path(library, '.')).
 
-:- use_module(rdf).			% our RDF parser
-:- use_module(rdf_ntriples).			% read .nt files
+:- use_module(library(rdf)).			% our RDF parser
+:- use_module(library(rdf_ntriples)).			% read .nt files
 :- load_files([ library(pce),
 		library(toolbar),
 		library(pce_report),

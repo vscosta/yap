@@ -477,6 +477,8 @@ X_API Term    STD_PROTO(YAP_GetFromSlot,(Int));
 X_API Term   *STD_PROTO(YAP_AddressFromSlot,(Int));
 X_API void    STD_PROTO(YAP_PutInSlot,(Int, Term));
 X_API int     STD_PROTO(YAP_RecoverSlots,(int));
+X_API Int     STD_PROTO(YAP_ArgsToSlots,(int));
+X_API void    STD_PROTO(YAP_SlotsToArgs,(int, Int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
@@ -3076,5 +3078,26 @@ YAP_Erase(void *handle)
   Yap_ReleaseTermFromDB((DBTerm *)handle);
   return 1;
 }
+
+X_API Int
+YAP_ArgsToSlots(int n)
+{
+  Int slot = Yap_NewSlots(n);
+  CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
+  while (n--) {
+    *ptr0++ = *ptr1++;
+  }
+  return slot;
+}
+
+X_API void
+YAP_SlotsToArgs(int n, Int slot)
+{
+  CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
+  while (n--) {
+    *ptr1++ = *ptr0++;
+  }
+}
+
 
 
