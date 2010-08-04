@@ -8,9 +8,9 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.0.6
-@set EDITION 4.2.7
-@set UPDATED May 2010
+@set VERSION 6.0.7
+@set EDITION 4.2.8
+@set UPDATED Aug 2010
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -15683,7 +15683,7 @@ last one. The other handle can be obtained by decrementing the handle.
 @findex YAP_CurrentSlot (C-Interface function)
 Return a handle to the system's default slot.
 
-@item long YAP_InitSlot(YAP_Term @var{t})
+@item YAP_Int YAP_InitSlot(YAP_Term @var{t})
 @findex YAP_InitSlot (C-Interface function)
 Create a new slot, initialise it with @var{t}, and return a handle to
 this slot, that also becomes the current slot.
