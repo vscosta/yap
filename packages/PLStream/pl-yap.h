@@ -97,7 +97,7 @@ YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
 #define valReal(w) YAP_FloatOfTerm((w))
 #define valFloat(w) YAP_FloatOfTerm((w))
 #define AtomLength(w) YAP_AtomNameLength(w)
-#define atomValue(atom) ((YAP_Atom)atom)
+#define atomValue(atom) AtomOfTerm(atom)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) (t = YAP_Deref(t))
 #define canBind(t) FALSE

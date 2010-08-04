@@ -45,7 +45,7 @@
 #include <fcntl.h>
 #endif
 
-#define BUF_SIZE 256
+#define BUF_SIZE 512
 #define TMP_BUF_SIZE 2*BUF_SIZE
 #define BUF_RINGS 16
 
@@ -247,18 +247,59 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
   CurrentModule = cm;
 } 
 
-char buffers[TMP_BUF_SIZE+BUF_SIZE*BUF_RINGS];
+static char *buffers[1+BUF_RINGS];
+static size_t buffers_sz[1+BUF_RINGS];
 static int buf_index = 0;
-
 
 static char *
 alloc_ring_buf(void)
 {
-  int ret = buf_index;
   buf_index++;
   if (buf_index == BUF_RINGS)
     buf_index = 0;
-  return buffers+(TMP_BUF_SIZE+ret*BUF_SIZE);
+  if (buffers_sz[buf_index+1] == 0) {
+    char * new;
+    if (!(new = malloc(512))) {
+      return NULL;
+    }
+    buffers_sz[buf_index+1] = 512;
+    buffers[buf_index+1] = new;
+  }
+  return buffers[buf_index+1];
+}
+
+static char *
+ensure_space(char **sp, size_t room, unsigned flags) {
+  size_t min = 512;
+  int i = 0;
+  char *ptr = *sp;
+
+  if (room < BUF_SIZE)
+    return *sp;
+  while (min < room)
+    min += 512;
+
+  if (flags & BUF_MALLOC) {
+    free(*sp);
+    *sp = malloc(room);
+    return *sp; 
+  } else if (flags & BUF_RING) {
+    for (i=1; i<= BUF_RINGS; i++)
+      if (buffers[i] == ptr)
+	break;
+  } else {
+    i = 0;
+  }
+  if (buffers_sz[i] >= room)
+    return ptr;
+  free(buffers[i]);
+  buffers[i] = malloc(min);
+  if (buffers[i]) 
+    buffers_sz[i] = min;
+  else
+    buffers_sz[i] = 0;
+  *sp = buffers[i];
+  return *sp;
 }
 
 /* SWI: void PL_agc_hook(void) */
@@ -533,7 +574,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   } else if ((flags & BUF_MALLOC)) {
     tmp = malloc(BUF_SIZE);
   } else {
-    tmp = buffers;
+    tmp = buffers[0];
   }
   *sp = tmp;
   if (IsVarTerm(t)) {
@@ -546,11 +587,16 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
       return cv_error(flags);
     if (IsWideAtom(at)) {
-      /* this is not enough!!! */
-      snprintf(*sp,BUF_SIZE,"%ls",RepAtom(at)->WStrOfAE);
+      size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
+      if (!(tmp = ensure_space(sp, sz, flags)))
+	return 0;
     } else {
       char *s = RepAtom(at)->StrOfAE;
-      strncpy(tmp,s,BUF_SIZE);
+      size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
+
+      if (!(tmp = ensure_space(sp, sz, flags)))
+	return 0;
+      strncpy(*sp,s,sz+1);
     }
   } else if (IsNumTerm(t)) {
     if (IsFloatTerm(t)) {
@@ -600,7 +646,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   }
   if (flags & BUF_MALLOC) {
     size_t sz = strlen(tmp);
-    char *nbf = YAP_AllocSpaceFromYap(sz+1);
+    char *nbf = malloc(sz+1);
     if (!nbf)
       return 0;
     strncpy(nbf,tmp,sz+1);
@@ -623,74 +669,49 @@ X_API int PL_get_nchars(term_t l, size_t *len, char **sp, unsigned flags)
 /* same as get_chars, but works on buffers of wide chars */
 X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
 {
+  unsigned nflags = ((CVT_MASK & flags) | (CVT_EXCEPTION & flags) | BUF_MALLOC);
+  size_t room;
+  wchar_t *buf, *wbuf = NULL;
+  size_t sz, i;
+  char *sp, *sp0;
   Term t = Yap_GetFromSlot(l);
 
-  if (IsVarTerm(t)) {
+  if (!IsVarTerm(t) && IsAtomTerm(t) && IsWideAtom(AtomOfTerm(t))) {
+    if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+      return cv_error(flags);
+    wbuf = RepAtom(AtomOfTerm(t))->WStrOfAE;
+    sz = wcslen(wbuf);
+    *len = sz;
+  } else {
+    if (!PL_get_nchars(l, len, &sp, nflags))
+      return 0;
+    sz = *len;
+  }
+  room = (sz+1)*sizeof(wchar_t);
+  if (flags & BUF_MALLOC) {
+    *wsp = buf = (wchar_t *)malloc(room);
+  } else if (flags & BUF_RING) {
+    *wsp = (wchar_t *)alloc_ring_buf();
+    buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
+  } else {
+    *wsp = (wchar_t *)buffers[0];
+    buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
+  }
+  if (!buf) {
     if (flags & CVT_EXCEPTION)
-      YAP_Error(0, 0L, "PL_get_wchars");
+      YAP_Error(0, 0L, "PL_get_wchars: buf_discardable too small for %ld wchars", sz);
     return 0;
   }
-  if (flags & CVT_ATOM) {
-    if (IsAtomTerm(t)) {
-      Atom at = AtomOfTerm(t);
-
-      if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_ALL)))
-	return 0;
-      if (IsWideAtom(at)) {
-	/* will this always work? */
-	*wsp = RepAtom(at)->WStrOfAE;
-	if (len)
-	  *len = wcslen(RepAtom(at)->WStrOfAE);
-      } else {
-	char *sp = RepAtom(at)->StrOfAE;
-	size_t sz;
-
-	sz = strlen(sp);
-	if (len)
-	  *len = sz;
-	if (flags & BUF_MALLOC) {
-	  int i;
-	  wchar_t *nbf = (wchar_t *)YAP_AllocSpaceFromYap((sz+1)*sizeof(wchar_t));
-	  if (nbf == NULL) {
-	    if (flags & CVT_EXCEPTION)
-	      YAP_Error(0, 0L, "PL_get_wchars: lack of memory");
-	    return 0;
-	  }
-	  *wsp = nbf;
-	  for (i=0; i<= sz; i++)
-	    *nbf++ = *sp++;
-	} else if (flags & BUF_DISCARDABLE) {
-	  wchar_t *buf = (wchar_t *)buffers;
-	  int i;
-	
-	  if ((sz+1)*sizeof(wchar_t) >= BUF_SIZE) {
-	    if (flags & CVT_EXCEPTION)
-	      YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
-	    return 0;
-	  }
-	  *wsp = buf;
-	  for (i=0; i<= sz; i++)
-	    *buf++ = *sp++;
-	} else {
-	  wchar_t *tmp = (wchar_t *)alloc_ring_buf();
-	  int i;
-
-	  if ((sz+1)*sizeof(wchar_t) >= BUF_SIZE) {
-	    if (flags & CVT_EXCEPTION)
-	      YAP_Error(0, 0L, "PL_get_wchars: wcstombs");
-	    return 0;
-	  }
-	  *wsp = tmp;
-	  for (i=0; i<= sz; i++)
-	    *tmp++ = *sp++;
-	}
-	return 1;
-      }
-    }
+  if (wbuf) {
+    wcsncpy(buf, wbuf, sz);
+  } else {
+    sp0 = sp;
+    for (i=0; i< sz; i++)
+      *buf++ = *sp++;
+    buf[sz] = '\0';
+    free(sp0);
   }
-  if (flags & CVT_EXCEPTION)
-    YAP_Error(0, 0L, "PL_get_wchars");
-  return 0;
+  return 1;
 }
 
 
@@ -712,9 +733,13 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {	
   YAP_Term t = Yap_GetFromSlot(ts);
-  if ( !YAP_IsFloatTerm(t))
+  if ( YAP_IsFloatTerm(t)) {
+    *f = YAP_FloatOfTerm(t);
+  } else if ( YAP_IsIntTerm(t)) {
+    *f = YAP_IntOfTerm(t);
+  } else {
     return 0;
-  *f = YAP_FloatOfTerm(t);
+  }
   return 1;
 }
 
@@ -994,6 +1019,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
       }
     }
     strncpy(pt, c, len);
+    pt[len] = '\0';
   } else {
     pt = (char *)c;
   }
@@ -1107,7 +1133,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  Term *tmp = (Term *)buffers;
+  Term *tmp = (Term *)buffers[0];
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
@@ -1894,6 +1920,8 @@ X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, cons
 {
   YAP_Term chterm;
 
+  if (tail == 0)
+    return PL_unify_wchars(t, type, len, chars);
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
@@ -1910,6 +1938,7 @@ X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, cons
     chterm = YAP_NWideBufferToAtomDiffList(chars, Yap_GetFromSlot(tail), len);
     break;
   default:
+    fprintf(stderr,"NOT GOOD option %d PL_unify_chars_wdiff\n",type);
     /* should give error?? */
     return FALSE;
   }
@@ -3230,6 +3259,14 @@ void Yap_swi_install(void);
 void
 Yap_swi_install(void)
 {
+  int i;
+
+  buffers[0] = malloc(BUF_SIZE);
+  buffers_sz[0] = BUF_SIZE;
+  for (i=1; i <= BUF_RINGS; i++) {
+    buffers[i] = NULL;
+    buffers_sz[i] = 0;
+  }
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 

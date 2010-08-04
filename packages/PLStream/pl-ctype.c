@@ -61,7 +61,7 @@ typedef struct
 } generator;
 
 
-static  int unicode_separator(pl_wchar_t c);
+static  int unicode_separator(wint_t c);
 
 static int
 iswhite(wint_t chr)
@@ -70,10 +70,18 @@ iswhite(wint_t chr)
 
 
 #ifdef __YAP_PROLOG__
+#include "pl-umap.c"			/* Unicode map */
+
+#define CharTypeW(c, t, w) \
+	((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned)(c)] t) \
+			       : (uflagsW(c) & w))
+
+#define PlBlankW(c)	CharTypeW(c, <= SP, U_SEPARATOR)
+
+
 inline int
-unicode_separator(pl_wchar_t c)
-{ //return PlBlankW(c); // vsc: we need to look into this
-  return iswhite(c);
+unicode_separator(wint_t c)
+{ return PlBlankW(c);
 }
 #endif
 
