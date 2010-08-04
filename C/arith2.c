@@ -674,7 +674,7 @@ p_gcd(Term t1, Term t2)
 	Int i1 = IntegerOfTerm(t1), i2 = IntegerOfTerm(t2);
 	i1 = (i1 >= 0 ? i1 : -i1);
 	i2 = (i2 >= 0 ? i2 : -i2);
-      
+
 	RINT(gcd(i1,i2));
       }
     case double_e:
@@ -965,7 +965,6 @@ static InitBinEntry InitBinTab[] = {
   {"\\/", op_or},
   {"#", op_xor},
   {"><", op_xor},
-  {"atan", op_atan2},
   {"atan2", op_atan2},
   /* C-Prolog exponentiation */
   {"^", op_power},
