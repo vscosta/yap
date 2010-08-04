@@ -3359,6 +3359,12 @@ Same as @code{variant/2}, succeeds if @var{Term1} and @var{Term2} are variant te
 Succeed if @var{Submuser} subsumes @var{Subsuned} but does not bind any
 variable in @var{Subsumer}.
 
+@item acyclic_term(?@var{Term})
+@findex cyclic_term/1
+@syindex cyclic_term/1
+@cnindex cyclic_term/1
+Succeed if the argument @var{Term} is an acyclic term.
+
 
 @end table
 
@@ -11583,12 +11589,6 @@ efficiency. They are available through the
 @code{use_module(library(terms))} command.
 
 @table @code
-
-@item acyclic_term(?@var{Term})
-@findex cyclic_term/1
-@syindex cyclic_term/1
-@cnindex cyclic_term/1
-Succeed if the argument @var{Term} is an acyclic term.
 
 @item cyclic_term(?@var{Term})
 @findex cyclic_term/1

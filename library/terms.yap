@@ -24,7 +24,6 @@
 		  subsumes/2,
 		  subsumes_chk/2,
 		  cyclic_term/1,
-		  acyclic_term/1,
 		  variable_in_term/2,
 		  variables_within_term/3,
 		  new_variables_in_term/3
