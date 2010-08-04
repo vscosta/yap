@@ -224,10 +224,10 @@ pl_hmac_sha(term_t key, term_t data, term_t mac, term_t options)
   unsigned char digest[SHA2_MAX_DIGEST_SIZE];
 
   if ( !PL_get_nchars(key, &keylen, &skey,
-		      CVT_ATOM|CVT_STRING|CVT_LIST|CVT_EXCEPTION) )
+		      CVT_ATOM|CVT_STRING|CVT_LIST|CVT_EXCEPTION|BUF_RING) )
     return FALSE;
   if ( !PL_get_nchars(data, &datalen, &sdata,
-		      CVT_ATOM|CVT_STRING|CVT_LIST|CVT_EXCEPTION) )
+		      CVT_ATOM|CVT_STRING|CVT_LIST|CVT_EXCEPTION|BUF_RING) )
     return FALSE;
 
   if ( !sha_options(options, &opts) )
