@@ -42,7 +42,9 @@ static int des_setkey(const char *key);
 static int des_cipher(const char *in, char *out, long salt, int num_iter);
 
 #ifdef __WINDOWS__
+#ifndef __MINGW32__
 typedef __int32 int32_t;
+#endif
 #else
 #include <sys/cdefs.h>
 #endif
