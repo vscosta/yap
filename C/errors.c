@@ -1846,12 +1846,24 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       siglongjmp(Yap_RestartEnv,1);      
     }
     UNLOCK(SignalLock);
-    if (type == PURE_ABORT) {
-      Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
-      CreepFlag = LCL0-ASP;
-    } else
-      Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
-    P = (yamop *)FAILCODE;
+    /* wait if we we are in user code,
+       it's up to her to decide */
+
+    if (Yap_PrologMode & UserCCallMode) {
+      if (EX) {
+	if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
+	  /* fat chance */
+	  siglongjmp(Yap_RestartEnv,1);
+	}
+      }
+    } else {
+      if (type == PURE_ABORT) {
+	Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
+	CreepFlag = LCL0-ASP;
+      } else
+	Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
+      P = (yamop *)FAILCODE;
+    }
   } else {
     Yap_PrologMode &= ~InErrorMode;
   }
