@@ -27,6 +27,7 @@ typedef int (*SWI_GetFunction)(void *);
 typedef int (*SWI_PutWideFunction)(int, void *);
 typedef int (*SWI_GetWideFunction)(void *);
 typedef int (*SWI_CloseFunction)(void *);
+typedef int (*SWI_FlushFunction)(void *);
 
 #include "../include/dswiatoms.h"
 
@@ -105,6 +106,10 @@ typedef struct restore_info {
   ADDR old_HeapTop;
 } restoreinfo;
 
+/* SWI Emulation */
+#define SWI_BUF_SIZE 512
+#define SWI_TMP_BUF_SIZE 2*SWI_BUF_SIZE
+#define SWI_BUF_RINGS 16
 
 #ifdef THREADS
 typedef struct thandle {

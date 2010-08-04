@@ -149,6 +149,9 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->putc_cur_buf_ = NULL;
   FOREIGN_WL(wid)->putc_cur_lim_ = NULL;
   FOREIGN_WL(wid)->putc_cur_flags_ = 0L;
+  InitSWIBuffers(wid);
+
+  FOREIGN_WL(wid)->SWI_buf_index_ = 0;
   FOREIGN_WL(wid)->_execution = NULL;
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
@@ -183,6 +186,7 @@ static void InitGlobal(void) {
   Yap_global->swi_wgetc = NULL;
   Yap_global->swi_wputc = NULL;
   Yap_global->swi_close = NULL;
+  Yap_global->swi_flush = NULL;
 
   Yap_global->allow_local_expansion = TRUE;
   Yap_global->allow_global_expansion = TRUE;

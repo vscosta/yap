@@ -45,10 +45,6 @@
 #include <fcntl.h>
 #endif
 
-#define BUF_SIZE 512
-#define TMP_BUF_SIZE 2*BUF_SIZE
-#define BUF_RINGS 16
-
 /* Required by PL_error */
 #define ERR_NO_ERROR		0
 #define ERR_INSTANTIATION	1	/* void */
@@ -247,25 +243,21 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
   CurrentModule = cm;
 } 
 
-static char *buffers[1+BUF_RINGS];
-static size_t buffers_sz[1+BUF_RINGS];
-static int buf_index = 0;
-
 static char *
 alloc_ring_buf(void)
 {
-  buf_index++;
-  if (buf_index == BUF_RINGS)
-    buf_index = 0;
-  if (buffers_sz[buf_index+1] == 0) {
+  SWI_buf_index++;
+  if (SWI_buf_index == SWI_BUF_RINGS)
+    SWI_buf_index = 0;
+  if (SWI_buffers_sz[SWI_buf_index+1] == 0) {
     char * new;
     if (!(new = malloc(512))) {
       return NULL;
     }
-    buffers_sz[buf_index+1] = 512;
-    buffers[buf_index+1] = new;
+    SWI_buffers_sz[SWI_buf_index+1] = 512;
+    SWI_buffers[SWI_buf_index+1] = new;
   }
-  return buffers[buf_index+1];
+  return SWI_buffers[SWI_buf_index+1];
 }
 
 static char *
@@ -274,7 +266,7 @@ ensure_space(char **sp, size_t room, unsigned flags) {
   int i = 0;
   char *ptr = *sp;
 
-  if (room < BUF_SIZE)
+  if (room < SWI_BUF_SIZE)
     return *sp;
   while (min < room)
     min += 512;
@@ -284,21 +276,21 @@ ensure_space(char **sp, size_t room, unsigned flags) {
     *sp = malloc(room);
     return *sp; 
   } else if (flags & BUF_RING) {
-    for (i=1; i<= BUF_RINGS; i++)
-      if (buffers[i] == ptr)
+    for (i=1; i<= SWI_BUF_RINGS; i++)
+      if (SWI_buffers[i] == ptr)
 	break;
   } else {
     i = 0;
   }
-  if (buffers_sz[i] >= room)
+  if (SWI_buffers_sz[i] >= room)
     return ptr;
-  free(buffers[i]);
-  buffers[i] = malloc(min);
-  if (buffers[i]) 
-    buffers_sz[i] = min;
+  free(SWI_buffers[i]);
+  SWI_buffers[i] = malloc(min);
+  if (SWI_buffers[i]) 
+    SWI_buffers_sz[i] = min;
   else
-    buffers_sz[i] = 0;
-  *sp = buffers[i];
+    SWI_buffers_sz[i] = 0;
+  *sp = SWI_buffers[i];
   return *sp;
 }
 
@@ -520,12 +512,12 @@ static int do_yap_putc(int sno, wchar_t ch) {
     UInt bufsize = putc_cur_lim-putc_cur_buf;
     UInt bufpos = putc_curp-putc_cur_buf;
 
-    if (!(putc_cur_buf = realloc(putc_cur_buf, bufsize+BUF_SIZE))) {
+    if (!(putc_cur_buf = realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
       /* we can+t go forever */
       return FALSE;
     }
     putc_curp = putc_cur_buf+bufpos;
-    putc_cur_lim = putc_cur_buf+(bufsize+BUF_SIZE);
+    putc_cur_lim = putc_cur_buf+(bufsize+SWI_BUF_SIZE);
     return do_yap_putc(sno, ch);
   }
   return FALSE;
@@ -539,9 +531,9 @@ CvtToGenericTerm(Term t, char *tmp, unsigned flags, char **sp)
   putc_cur_buf = putc_curp = tmp;
   putc_cur_flags = flags;
   if ((flags & BUF_RING)) {
-    putc_cur_lim = tmp+(TMP_BUF_SIZE-1);
+    putc_cur_lim = tmp+(SWI_TMP_BUF_SIZE-1);
   } else {
-    putc_cur_lim = tmp+(BUF_SIZE-1);
+    putc_cur_lim = tmp+(SWI_BUF_SIZE-1);
   }
   if (flags & CVT_WRITE_CANONICAL) {
     wflags |= (YAP_WRITE_IGNORE_OPS|YAP_WRITE_QUOTED);
@@ -572,9 +564,9 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   if ((flags & BUF_RING)) {
     tmp = alloc_ring_buf();
   } else if ((flags & BUF_MALLOC)) {
-    tmp = malloc(BUF_SIZE);
+    tmp = malloc(SWI_BUF_SIZE);
   } else {
-    tmp = buffers[0];
+    tmp = SWI_buffers[0];
   }
   *sp = tmp;
   if (IsVarTerm(t)) {
@@ -602,21 +594,21 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (IsFloatTerm(t)) {
       if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
-      snprintf(tmp,BUF_SIZE,"%f",FloatOfTerm(t));
+      snprintf(tmp,SWI_BUF_SIZE,"%f",FloatOfTerm(t));
     } else {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
 #if _WIN64
-      snprintf(tmp,BUF_SIZE,"%I64d",IntegerOfTerm(t));
+      snprintf(tmp,SWI_BUF_SIZE,"%I64d",IntegerOfTerm(t));
 #else
-      snprintf(tmp,BUF_SIZE,"%ld",IntegerOfTerm(t));
+      snprintf(tmp,SWI_BUF_SIZE,"%ld",IntegerOfTerm(t));
 #endif
     }
   } else if (IsPairTerm(t))  {
     if (!(flags & (CVT_LIST|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) { 
       return cv_error(flags);
     }
-    if (CvtToStringTerm(t,tmp,tmp+BUF_SIZE) == 0) {
+    if (CvtToStringTerm(t,tmp,tmp+SWI_BUF_SIZE) == 0) {
       if (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) {
 	if (!CvtToGenericTerm(t, tmp, flags, sp))
 	  return 0;
@@ -628,13 +620,13 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (IsBigIntTerm(t)) {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
-      Yap_gmp_to_string(t, tmp, BUF_SIZE-1, 10);
+      Yap_gmp_to_string(t, tmp, SWI_BUF_SIZE-1, 10);
     } else if (IsBlobStringTerm(t)) {
       if (!(flags & (CVT_STRING|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) {
 	return cv_error(flags);
       } else {
 	char *s = Yap_BlobStringOfTerm(t);
-	strncat(tmp, s, BUF_SIZE-1);
+	strncat(tmp, s, SWI_BUF_SIZE-1);
       } 
     } else {
       if (!(flags & (CVT_WRITE|CVT_WRITE_CANONICAL))) {
@@ -683,9 +675,10 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
     sz = wcslen(wbuf);
     *len = sz;
   } else {
-    if (!PL_get_nchars(l, len, &sp, nflags))
+    if (!PL_get_nchars(l, &sz, &sp, nflags))
       return 0;
-    sz = *len;
+    if (len)
+      *len = sz;
   }
   room = (sz+1)*sizeof(wchar_t);
   if (flags & BUF_MALLOC) {
@@ -694,7 +687,7 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
     *wsp = (wchar_t *)alloc_ring_buf();
     buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
   } else {
-    *wsp = (wchar_t *)buffers[0];
+    *wsp = (wchar_t *)SWI_buffers[0];
     buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
   }
   if (!buf) {
@@ -706,9 +699,9 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
     wcsncpy(buf, wbuf, sz);
   } else {
     sp0 = sp;
+    buf[sz] = '\0';
     for (i=0; i< sz; i++)
       *buf++ = *sp++;
-    buf[sz] = '\0';
     free(sp0);
   }
   return 1;
@@ -1133,7 +1126,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  Term *tmp = (Term *)buffers[0];
+  Term *tmp = (Term *)SWI_buffers[0];
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
@@ -1141,7 +1134,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (arity > TMP_BUF_SIZE/sizeof(YAP_CELL)) {
+  if (arity > SWI_TMP_BUF_SIZE/sizeof(YAP_CELL)) {
     fprintf(stderr,"PL_cons_functor: arity too large (%d)\n", arity); 
     return FALSE;
   }
@@ -3240,6 +3233,7 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   SWIPutc = swio->put_c;
   SWIWideGetc = swio->get_w;
   SWIWidePutc = swio->put_w;
+  SWIFlush = swio->flush_s;
   SWIClose = swio->close_s;
 }
 
@@ -3259,14 +3253,6 @@ void Yap_swi_install(void);
 void
 Yap_swi_install(void)
 {
-  int i;
-
-  buffers[0] = malloc(BUF_SIZE);
-  buffers_sz[0] = BUF_SIZE;
-  for (i=1; i <= BUF_RINGS; i++) {
-    buffers[i] = NULL;
-    buffers_sz[i] = 0;
-  }
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 

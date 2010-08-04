@@ -151,6 +151,9 @@ static void RestoreWorker(int wid) {
 
 
 
+
+
+
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
 
 #endif
@@ -177,6 +180,7 @@ static void RestoreGlobal(void) {
 
   REINIT_LOCK(Yap_global->bgl);
 #endif
+
 
 
 

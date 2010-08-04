@@ -133,7 +133,9 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex)
   }
 }
 
-int
+extern X_API int PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags);
+
+X_API int 
 PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
 {
   int nflags = 0;
@@ -709,10 +711,41 @@ PL_dispatch(int fd, int wait)
   return TRUE;
 }
 
-extern  size_t PL_utf8_strlen(const char *s, size_t len);
+extern size_t PL_utf8_strlen(const char *s, size_t len);
 
 X_API size_t
 PL_utf8_strlen(const char *s, size_t len)
 { return utf8_strlen(s, len);
 }
 
+#define COUNT_MUTEX_INITIALIZER(name) \
+ { PTHREAD_MUTEX_INITIALIZER, \
+   name, \
+   0L \
+ }
+
+#if THREADS
+counting_mutex _PL_mutexes[] =
+{ COUNT_MUTEX_INITIALIZER("L_MISC"),
+  COUNT_MUTEX_INITIALIZER("L_ALLOC"),
+  COUNT_MUTEX_INITIALIZER("L_ATOM"),
+  COUNT_MUTEX_INITIALIZER("L_FLAG"),
+  COUNT_MUTEX_INITIALIZER("L_FUNCTOR"),
+  COUNT_MUTEX_INITIALIZER("L_RECORD"),
+  COUNT_MUTEX_INITIALIZER("L_THREAD"),
+  COUNT_MUTEX_INITIALIZER("L_PREDICATE"),
+  COUNT_MUTEX_INITIALIZER("L_MODULE"),
+  COUNT_MUTEX_INITIALIZER("L_TABLE"),
+  COUNT_MUTEX_INITIALIZER("L_BREAK"),
+  COUNT_MUTEX_INITIALIZER("L_FILE"),
+  COUNT_MUTEX_INITIALIZER("L_PLFLAG"),
+  COUNT_MUTEX_INITIALIZER("L_OP"),
+  COUNT_MUTEX_INITIALIZER("L_INIT"),
+  COUNT_MUTEX_INITIALIZER("L_TERM"),
+  COUNT_MUTEX_INITIALIZER("L_GC"),
+  COUNT_MUTEX_INITIALIZER("L_AGC"),
+  COUNT_MUTEX_INITIALIZER("L_FOREIGN"),
+  COUNT_MUTEX_INITIALIZER("L_OS")
+};
+
+#endif

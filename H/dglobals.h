@@ -149,6 +149,9 @@
 #define putc_cur_buf WL->putc_cur_buf_
 #define putc_cur_lim WL->putc_cur_lim_
 #define putc_cur_flags WL->putc_cur_flags_
+#define SWI_buffers WL->SWI_buffers_
+#define SWI_buffers_sz WL->SWI_buffers_sz_
+#define SWI_buf_index WL->SWI_buf_index_
 #define execution WL->_execution
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
@@ -183,6 +186,7 @@
 #define SWIWideGetc Yap_global->swi_wgetc
 #define SWIWidePutc Yap_global->swi_wputc
 #define SWIClose Yap_global->swi_close
+#define SWIFlush Yap_global->swi_flush
 
 #define Yap_AllowLocalExpansion Yap_global->allow_local_expansion
 #define Yap_AllowGlobalExpansion Yap_global->allow_global_expansion

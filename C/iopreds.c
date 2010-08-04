@@ -272,6 +272,9 @@ yap_fflush(int sno)
 	  Socket_Stream_f|
 	  Pipe_Stream_f|
 	  Free_Stream_f)) ) {
+    if (Stream[sno].status & SWI_Stream_f) {
+      return SWIFlush(Stream[sno].u.swi_stream.swi_ptr);
+    }
     return(fflush(Stream[sno].u.file.file));
   } else
     return(0);
@@ -2697,7 +2700,7 @@ static Int p_change_alias_to_stream (void)
   if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "change_stream_alias/2")) == -1) {
     UNLOCK(Stream[sno].streamlock);
     return(FALSE);
-    }
+  }
   SetAlias(at, sno);
   UNLOCK(Stream[sno].streamlock);
   return(TRUE);
@@ -3647,14 +3650,13 @@ p_peek_byte (void)
     Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
     return(FALSE);
   }
+  UNLOCK(Stream[sno].streamlock);
   if (Stream[sno].stream_getc == PlUnGetc) {
     ch = MkIntTerm(Stream[sno].och);
     /* sequence of peeks */
-    UNLOCK(Stream[sno].streamlock);
     return Yap_unify_constant(ARG2,ch);
   }
   if (status & Eof_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
     Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
     return(FALSE);
   }
@@ -3698,17 +3700,20 @@ p_peek (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
     return FALSE;
   }
+  UNLOCK(Stream[sno].streamlock);
   if (Stream[sno].stream_getc == PlUnGetc) {
     ch = MkIntTerm(Stream[sno].och);
-    UNLOCK(Stream[sno].streamlock);
     /* sequence of peeks */
     return Yap_unify_constant(ARG2,ch);
   }
+  LOCK(Stream[sno].streamlock);
   s = Stream+sno;
   ocharcount = s->charcount;
   olinecount = s->linecount;
   olinepos = s->linepos;
+  UNLOCK(Stream[sno].streamlock);
   ch = get_wchar(sno);
+  LOCK(Stream[sno].streamlock);
   s->charcount = ocharcount;
   s->linecount = olinecount;
   s->linepos = olinepos;
@@ -4693,8 +4698,8 @@ p_get (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
     return FALSE;
   }
-  while ((ch = Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0);
   UNLOCK(Stream[sno].streamlock);
+  while ((ch = Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0);
   return (Yap_unify_constant (ARG2, MkIntegerTerm (ch)));
 }
 
@@ -4713,8 +4718,8 @@ p_get0 (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
     return FALSE;
   }
-  out = Stream[sno].stream_wgetc(sno);
   UNLOCK(Stream[sno].streamlock);
+  out = Stream[sno].stream_wgetc(sno);
   return (Yap_unify_constant (ARG2, MkIntegerTerm (out)) );
 }
 
@@ -4754,8 +4759,8 @@ p_get0_line_codes (void)
     Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
     return FALSE;
   }
-  out = read_line(sno);
   UNLOCK(Stream[sno].streamlock);
+  out = read_line(sno);
   if (rewind) 
     return Yap_unify(MkPairTerm(MkIntegerTerm(ch),out), ARG2);
   else
@@ -5816,8 +5821,8 @@ p_skip (void)
     UNLOCK(Stream[sno].streamlock);
     return (FALSE);
   }
-  while ((ch = Stream[sno].stream_wgetc(sno)) != n && ch != -1);
   UNLOCK(Stream[sno].streamlock);
+  while ((ch = Stream[sno].stream_wgetc(sno)) != n && ch != -1);
   return (TRUE);
 }
 

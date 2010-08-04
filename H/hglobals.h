@@ -151,6 +151,9 @@ typedef struct worker_local {
   char*  putc_cur_buf_;
   char*  putc_cur_lim_;
   UInt  putc_cur_flags_;
+  char*  SWI_buffers_[1+SWI_BUF_RINGS];
+  size_t  SWI_buffers_sz_[1+SWI_BUF_RINGS];
+  int  SWI_buf_index_;
   struct open_query_struct*  _execution;
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
@@ -185,6 +188,7 @@ typedef struct worker_shared {
   SWI_GetWideFunction  swi_wgetc;
   SWI_PutWideFunction  swi_wputc;
   SWI_CloseFunction  swi_close;
+  SWI_FlushFunction  swi_flush;
 
   int  allow_local_expansion;
   int  allow_global_expansion;

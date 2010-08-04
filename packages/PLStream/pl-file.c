@@ -4322,6 +4322,7 @@ init_yap_extras()
   swiio.put_c = Sputc;
   swiio.get_w = Sgetcode;
   swiio.put_w = Sputcode;
+  swiio.flush_s = Sflush;
   swiio.close_s = Sclose;
   PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
