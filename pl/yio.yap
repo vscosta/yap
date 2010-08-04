@@ -389,7 +389,7 @@ open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
 fileerrors :- set_value(fileerrors,1).
 nofileerrors :- set_value(fileerrors,0).
 
-exists(F) :- '$exists'(F,'$csult').
+exists(F) :- access_file(F,'$csult').
 
 see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
@@ -1208,3 +1208,4 @@ with_output_to(Output, Command) :-
 '$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
 	atom_codes(Char, [Code]),
 	'$codes_to_chars'(String0, String, Chars).
+
