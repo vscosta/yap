@@ -963,6 +963,10 @@ has_cut(yamop *pc)
     case _p_cut_by_x:
     case _commit_b_y:
     case _commit_b_x:
+#if CUT_C
+    case _cut_c:
+    case _cut_userc:
+#endif
       return TRUE;
     case _try_me:
     case _retry_me:
@@ -1010,6 +1014,10 @@ has_cut(yamop *pc)
       break;
     case _native_me:
       pc = NEXTOP(pc,aFlp);
+      break;
+      /* instructions type Osbpi */
+    case _ensure_space:
+      pc = NEXTOP(pc,Osbpi);
       break;
       /* instructions type l */
     case _enter_profiling:
