@@ -39,8 +39,7 @@ rl_to_codes(Term TEnd, int do_as_binary, int arity)
   binary_stream = Stream[sno].status & Binary_Stream_f;
   if (status & Eof_Stream_f) {
     UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "read_line_to_codes/%d", arity);
-    return FALSE;
+    return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof));
   }
   max_inp = (ASP-H)/2-1024;
   buf = (char *)TR;
