@@ -37,7 +37,7 @@ librfc822.a: $(OBJ)
 ################################################################
 
 clean:
-		rm -f $(OBJ) *~ *.o *% a.out core config.log
+		rm -f $(OBJ) *~ *.o *% a.out core config.log librfc822.a
 
 distclean:	clean
 		rm -f Makefile config.status config.h librfc822.a

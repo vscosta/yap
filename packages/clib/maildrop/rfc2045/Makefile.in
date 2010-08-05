@@ -40,7 +40,7 @@ librfc2045.a: $(OBJ)
 ################################################################
 
 clean:
-		rm -f $(OBJ) *~ *.o *% a.out core config.log
+		rm -f $(OBJ) *~ *.o *% a.out core config.log librfc2045.a
 
 distclean:	clean
 		rm -f Makefile config.status config.h librfc2045.a
