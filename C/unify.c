@@ -1009,9 +1009,9 @@ Yap_InitUnify(void)
 {
   Term cm = CurrentModule;
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
+  Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
   Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
   CurrentModule = cm;
 }

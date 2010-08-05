@@ -15,11 +15,11 @@
 *									 *
 *************************************************************************/
 
-:- meta_predicate ^(?,0,?).
-^(Xs, Goal, Xs) :- call(Goal).
+% :- meta_predicate ^(?,0,?).
+% ^(Xs, Goal, Xs) :- call(Goal).
 
-:- meta_predicate ^(?,1,?,?).
-^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
+% :- meta_predicate ^(?,1,?,?).
+% ^(Xs0, Goal, Xs0, Xs) :- call(Goal, Xs).
 
 /*
     Variables X in grammar rule bodies are translated as
