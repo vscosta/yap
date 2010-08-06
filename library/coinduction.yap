@@ -165,7 +165,7 @@ user:term_expansion(G, NG) :-
 %-----------------------------------------------------
 
 in_stack(_, V, V) :- var(V), !.
-in_stack(G, [G|_], [G|_]).
+in_stack(G, [G|_], [G|_]) :- !.
 in_stack(G, [_|T], End) :- in_stack(G, T, End).
 
 writeG_val(G_var) :- 
