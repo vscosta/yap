@@ -49,7 +49,7 @@ notably on infinite trees (cyclic terms).
     i(s(N)) :- i(N).
 
     ?- X=[s(s(A))|X], stream(X).
-     X=[s(s(A))|X], stream(X).
+     X= [s(s(A))|X], stream(X).
      A = 0,
      X = [s(s(0)),**]
     ==
@@ -67,31 +67,12 @@ regardless of the cycle-length.
         by Luke Somin et al.
 */
 
-:- meta_predicate coinductive(0).
+:- meta_predicate coinductive(:).
 
 :- dynamic coinductive/3.
 
 
 %-----------------------------------------------------
-
-expand_coinductive_declaration(Spec, Clauses) :-
-        prolog_load_context(module, Module),
-        phrase(expand_specs(Spec, Module), Clauses).
-
-expand_specs(Var, _) -->
-        { var(Var), !,
-          instantiation_error(Var)
-        }.
-expand_specs(M:Spec, _) --> !,
-        expand_specs(Spec, M).
-expand_specs((A,B), Module) --> !,
-        expand_specs(A, Module),
-        expand_specs(B, Module).
-expand_specs(Head, Module) -->
-        { valid_pi(Head, Name, Arity),
-          functor(GenHead, Name, Arity)
-        },
-        [ coinduction:coinductive_declaration(GenHead, Module) ].
 
 coinductive(Spec) :-
 	var(Spec),
