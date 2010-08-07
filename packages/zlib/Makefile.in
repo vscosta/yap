@@ -107,7 +107,7 @@ zlib4pl.@SO@:	$(ZOBJ)
 		$(LD) $(LDFLAGS) -o $@ $(ZOBJ) $(LIBS)
 
 install:	$(TARGETS) $(LIBPL)
-		mkdir -p $(DESTDIR)$(BINTARGET)
+		mkdir -p $(BINTARGET)
 		for f in $(TARGETS); do \
 		  $(INSTALL_PROGRAM) $$f $(BINTARGET); \
 		done

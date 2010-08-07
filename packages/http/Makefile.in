@@ -110,7 +110,7 @@ install:	$(LIBPL)
 		$(INSTALL_PROGRAM) $(SOLIBS) $(BINTARGET)
 		mkdir -p $(PLTARGET)
 		mkdir -p $(PLTARGET)/web/icons
-		mkdir -p $(LIBDIR)/web/css
+		mkdir -p $(DESTDIR)$(LIBDIR)/web/css
 		$(INSTALL_DATA) $(LIBPL) $(PLTARGET)
 		$(INSTALL_DATA) $(srcdir)/README $(PLTARGET)
 		$(INSTALL_DATA) $(srcdir)/web/icons/*.png $(PLTARGET)/web/icons
