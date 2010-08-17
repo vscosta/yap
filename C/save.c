@@ -1386,7 +1386,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
    */
   errout = Yap_stderr;
 #endif
-  return(mode);
+  return mode;
 }
 
 static void
@@ -1401,10 +1401,27 @@ cat_file_name(char *s, char *prefix, char *name, unsigned int max_length)
   strncat(s, name, max_length-1);
 }
 
+static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, char *buf) {
+  int mode;
+
+  
+  if ((splfild = open_file(inpf, O_RDONLY)) < 0) {
+    return FAIL_RESTORE;
+  }
+  if (buf[0] == '\0')
+    strncpy(buf, inpf, YAP_FILENAME_MAX);
+  if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+    Yap_ErrorMessage = NULL;
+    return mode;
+  }
+  return mode;
+}
+
 static int 
 OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
   int mode = FAIL_RESTORE;
+  char save_buffer[YAP_FILENAME_MAX+1];
 
   //  Yap_ErrorMessage = NULL;
   if (inpf == NULL) {
@@ -1413,21 +1430,25 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 #endif
       inpf = StartUpFile;
   }
+  /* careful it starts from the root */
+  if (inpf[0] != '/') {
 #if __simplescalar__
-  /* does not implement getcwd */
-  strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+    /* does not implement getcwd */
+    strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
-  if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-    Yap_FileNameBuf[0] = '\0';
+    if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
+      Yap_FileNameBuf[0] = '\0';
 #else
-  if (getwd (Yap_FileNameBuf) == NULL)
-    Yap_FileNameBuf[0] = '\0';
+    if (getwd (Yap_FileNameBuf) == NULL)
+      Yap_FileNameBuf[0] = '\0';
 #endif
-  strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
-  strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
+    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+  } else {
+    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+  }
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
-    if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
-      Yap_ErrorMessage = NULL;
+    if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
       return mode;
     }
   }
@@ -1438,11 +1459,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     */
     if (YapLibDir != NULL) {
       cat_file_name(Yap_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
-      if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
-	  Yap_ErrorMessage = NULL;
-	  return mode;
-	}
+      if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	return mode;
+      }
+    } else {
+      if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	return mode;
       }
     }
 #if HAVE_GETENV
@@ -1450,11 +1472,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       char *yap_env = getenv("YAPLIBDIR");
       if (yap_env != NULL) {
 	cat_file_name(Yap_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
-	if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	  if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
-	    Yap_ErrorMessage = NULL;
-	    return mode;
-	  }
+	if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	  return mode;
 	}
       }
     }
@@ -1462,9 +1481,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     if (YAP_LIBDIR != NULL) {
       cat_file_name(Yap_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
       if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
-	  Yap_ErrorMessage = NULL;
-	  return(mode);
+	if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	  return mode;
 	}
       }
     }
@@ -1503,11 +1521,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       pt[1] = '\0';
       strncat(Yap_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
     }
-    if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-      if ((mode = commit_to_saved_state(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
-	Yap_ErrorMessage = NULL;
-	return(mode);
-      }
+    if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      return mode;
     }
   }
  end:
@@ -1515,19 +1530,13 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   /* try to open from current directory */
   /* could not open file */
   if (Yap_ErrorMessage == NULL) {
-#if __simplescalar__
-    /* does not implement getcwd */
-    strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
-#elif HAVE_GETCWD
-    if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-      Yap_FileNameBuf[0] = '\0';
-#else
-    if (getwd (Yap_FileNameBuf) == NULL)
-      Yap_FileNameBuf[0] = '\0';
-#endif
-    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
-    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
-    do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
+    if (save_buffer[0]) {
+      strncpy(Yap_FileNameBuf, save_buffer, YAP_FILENAME_MAX-1);
+      do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
+    } else {
+      strncpy(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+      do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
+    }
   }
   return FAIL_RESTORE;
 }
