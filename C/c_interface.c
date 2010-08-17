@@ -2457,71 +2457,71 @@ YAP_Init(YAP_init_args *yap_init)
     yap_flags[QUIET_MODE_FLAG] = TRUE;
   }
 
-{ BACKUP_MACHINE_REGS();
-  Yap_InitYaamRegs();
+  { BACKUP_MACHINE_REGS();
+    Yap_InitYaamRegs();
 
 #if HAVE_MPI
-  Yap_InitMPI ();
+    Yap_InitMPI ();
 #endif
 #if HAVE_MPE
-  Yap_InitMPE ();
+    Yap_InitMPE ();
 #endif
-
-  if (yap_init->YapPrologRCFile != NULL) {
-    /*
-      This must be done before restore, otherwise
-      restore will print out messages ....
-    */
-    yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
-  }
-  /* tell the system who should cope with interruptions */
-  Yap_ExecutionMode = yap_init->ExecutionMode;
-  if (do_bootstrap) {
-    restore_result = YAP_BOOT_FROM_PROLOG;
-  } else if (BOOT_FROM_SAVED_STATE) {
-    restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
-    if (restore_result == FAIL_RESTORE) {
-      yap_init->ErrorNo = Yap_Error_TYPE;
-      yap_init->ErrorCause = Yap_ErrorMessage;
-      /* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
-      return YAP_BOOT_ERROR;
+    
+    if (yap_init->YapPrologRCFile != NULL) {
+      /*
+	This must be done before restore, otherwise
+	restore will print out messages ....
+      */
+      yap_flags[HALT_AFTER_CONSULT_FLAG] = yap_init->HaltAfterConsult;
     }
-  } else {
-    restore_result = YAP_BOOT_FROM_PROLOG;
-  }
-  yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
+    /* tell the system who should cope with interruptions */
+    Yap_ExecutionMode = yap_init->ExecutionMode;
+    if (do_bootstrap) {
+      restore_result = YAP_BOOT_FROM_PROLOG;
+    } else if (BOOT_FROM_SAVED_STATE) {
+      restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
+      if (restore_result == FAIL_RESTORE) {
+	yap_init->ErrorNo = Yap_Error_TYPE;
+	yap_init->ErrorCause = Yap_ErrorMessage;
+	/* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
+	return YAP_BOOT_ERROR;
+      }
+    } else {
+      restore_result = YAP_BOOT_FROM_PROLOG;
+    }
+    yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
 #ifdef TABLING
-  /* make sure we initialise this field */
-  GLOBAL_root_dep_fr = NULL;
+    /* make sure we initialise this field */
+    GLOBAL_root_dep_fr = NULL;
 #endif
-  make_root_frames();
+    make_root_frames();
 #ifdef YAPOR
-  init_workers();
+    init_workers();
 #endif /* YAPOR */
-  Yap_init_local();
+    Yap_init_local();
 #ifdef YAPOR
-  if (worker_id != 0) {
+    if (worker_id != 0) {
 #if SBA
-    /*
-      In the SBA we cannot just happily inherit registers
-      from the other workers
-    */
-    Yap_InitYaamRegs();
+      /*
+	In the SBA we cannot just happily inherit registers
+	from the other workers
+      */
+      Yap_InitYaamRegs();
 #endif /* SBA */
 #ifndef THREADS
-    Yap_InitPreAllocCodeSpace();
+      Yap_InitPreAllocCodeSpace();
 #endif
-    /* slaves, waiting for work */
-    CurrentModule = USER_MODULE;
-    P = GETWORK_FIRST_TIME;
-    Yap_exec_absmi(FALSE);
-    Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
-  }
+      /* slaves, waiting for work */
+      CurrentModule = USER_MODULE;
+      P = GETWORK_FIRST_TIME;
+      Yap_exec_absmi(FALSE);
+      Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
+    }
 #endif /* YAPOR */
 #endif /* YAPOR || TABLING */
-  RECOVER_MACHINE_REGS();
- }
+    RECOVER_MACHINE_REGS();
+  }
   /* make sure we do this after restore */
   if (yap_init->MaxStackSize) {
     Yap_AllowLocalExpansion = FALSE;
