@@ -7563,21 +7563,28 @@ Yap_absmi(int inp)
       }
       /* for slots to work */
 #endif /* FROZEN_STACKS */
-      Yap_StartSlots();
-      Yap_PrologMode = UserCCallMode;
       {
-	PredEntry *p = PREG->u.Osbpp.p;
+	/* make sure that we can still have access to our old PREG after calling user defined goals and backtracking or failing */
+	yamop *savedP;
 
-	PREG = NEXTOP(PREG, Osbpp);
-	saveregs();
-	save_machine_regs();
+	Yap_StartSlots();
+	Yap_PrologMode = UserCCallMode;
+	{
+	  PredEntry *p = PREG->u.Osbpp.p;
 
-	SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
+	  PREG = NEXTOP(PREG, Osbpp);
+	  savedP = PREG;
+	  saveregs();
+	  save_machine_regs();
+
+	  SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
+	}
+	Yap_CloseSlots();
+	setregs();
+	Yap_PrologMode = UserMode;
+	restore_machine_regs();
+	PREG = savedP;
       }
-      Yap_CloseSlots();
-      setregs();
-      Yap_PrologMode = UserMode;
-      restore_machine_regs();
       if (EX) {
 	struct DB_TERM *exp = EX;
 	EX = NULL;
