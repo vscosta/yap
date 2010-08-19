@@ -3087,7 +3087,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       code_p = cl_u->sc.ClCode;
     }
-    IPredArity = cip->cpc->rnd2;	/* number of args */
+    IPredArity = cip->CurrentPred->ArityOfPE;	/* number of args */
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
