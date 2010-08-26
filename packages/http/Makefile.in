@@ -104,7 +104,7 @@ json.@SO@:	$(JSONOBJ)
 
 http_stream.o:	$(srcdir)/http_error.c $(srcdir)/http_chunked.c $(srcdir)/cgi_stream.c $(srcdir)/stream_range.c
 
-install:	$(LIBPL)
+install:	$(LIBPL) $(SOLIBS)
 		mkdir -p $(BINTARGET)
 		rm -f $(BINTARGET)/http_chunked.@SO@
 		$(INSTALL_PROGRAM) $(SOLIBS) $(BINTARGET)
