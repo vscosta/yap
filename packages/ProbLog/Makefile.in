@@ -27,29 +27,38 @@ YAP_EXTRAS=@YAP_EXTRAS@
 
 PROGRAMS= \
 	$(srcdir)/problog.yap \
-	$(srcdir)/learning.yap
+	$(srcdir)/dtproblog.yap \
+	$(srcdir)/problog_learning.yap
 
 PROBLOG_PROGRAMS= \
+	$(srcdir)/problog/extlists.yap \
 	$(srcdir)/problog/flags.yap \
+	$(srcdir)/problog/gflags.yap \
+	$(srcdir)/problog/hash_table.yap \
+	$(srcdir)/problog/intervals.yap \
+	$(srcdir)/problog/logger.yap \
+	$(srcdir)/problog/mc_DNF_sampling.yap \
+	$(srcdir)/problog/os.yap \
 	$(srcdir)/problog/print.yap \
-	$(srcdir)/problog/tptree.yap
+	$(srcdir)/problog/sampling.yap \
+	$(srcdir)/problog/tabling.yap \
+	$(srcdir)/problog/timer.yap \
+	$(srcdir)/problog/tptree.yap \
+	$(srcdir)/problog/variable_elimination.yap \
+	$(srcdir)/problog/variables.yap
 
-LEARNING_PROGRAMS = \
-	$(srcdir)/learning/flags_learning.yap \
-	$(srcdir)/learning/logger.yap
+PROBLOG_EXAMPLES = \
+	$(srcdir)/problog_examples/graph.pl \
+	$(srcdir)/problog_examples/graph_tabled.pl \
+	$(srcdir)/problog_examples/learn_graph.pl \
+	$(srcdir)/problog_examples/office.pl \
+	$(srcdir)/problog_examples/viralmarketing.pl \
+	$(srcdir)/problog_examples/viralmarketing_tabled.pl
 
-EXAMPLES = \
-	$(srcdir)/examples/graph.pl \
-	$(srcdir)/examples/learn_graph.pl
-
-install: $(PROGRAMS) $(LEARNING_PROGRAMS)  $(EXAMPLE_PROGRAMS) 
+install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog_learning
-	$(INSTALL_DATA) $(srcdir)/problog.yap $(DESTDIR)$(SHAREDIR)/Yap
-	$(INSTALL_DATA) $(srcdir)/learning.yap $(DESTDIR)$(SHAREDIR)/Yap/problog_learning.yap
+	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
-	for p in $(LEARNING_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_learning; done
-	for p in $(EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
-
+	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
