@@ -2,16 +2,16 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-07-31 14:57:09 +0200 (Fri, 31 Jul 2009) $
-%  $Revision: 1826 $
+%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
+%  $Revision: 4672 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
 %  ProbLog was developed at Katholieke Universiteit Leuven
 %                                                            
-%  Copyright 2009
-%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
+%  Copyright 2008, 2009, 2010
+%  Katholieke Universiteit Leuven
 %                                                              
 %  Main authors of this file:
 %  Bernd Gutmann
@@ -204,295 +204,296 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(flags_learning, [set_learning_flag/2,
-	learning_flag/2,
-	learning_flags/0]).
+:- module(intervals, [intervals_merge/3,
+		      intervals_disjoin/3,
+		      intervals_disjoin/4,
+		      intervals_partition/2,
+		      intervals_encode/2]).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
-
-:- use_module(logger).
-:- use_module('../problog/flags').
-:- use_module('../problog/print').
-
-:- ensure_loaded(library(system)).
-
-:- dynamic init_method/5.
-:- dynamic rebuild_bdds/1.
-:- dynamic reuse_initialized_bdds/1.
-:- dynamic learning_rate/1.
-:- dynamic probability_initializer/3.
-:- dynamic check_duplicate_bdds/1.
-:- dynamic output_directory/1.
-:- dynamic query_directory/1.
-:- dynamic log_frequency/1.
-:- dynamic alpha/1.
-:- dynamic sigmoid_slope/1.
-:- dynamic line_search/1.
-:- dynamic line_search_tolerance/1.
-:- dynamic line_search_tau/1.
-:- dynamic line_search_never_stop/1.
-:- dynamic line_search_interval/2.
-:- dynamic verbosity_level/1.
+:- use_module(library(lists)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% global parameters that can be set using set_learning_flag/2
+%  intervals_merge(+Interval1,+Interval2,-ResultingInterval)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+intervals_merge(all,X,X).
+intervals_merge(none,_,none).
+intervals_merge(above(X),Other,Result) :-
+	number(X),
+	intervals_merge_above(Other,X,Result).
+intervals_merge(below(X),Other,Result) :-
+	number(X),
+	intervals_merge_below(Other,X,Result).
+intervals_merge(interval(X1,X2),Other,Result) :-
+	number(X1),
+	number(X2),
+	intervals_merge_interval(Other,X1,X2,Result).
 
-learning_flag(Flag,Option) :-
-	get_learning_flag(Flag,Option).
-
-get_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,Call)) :-
-	init_method(Query,Probability,BDDFile,ProbFile,Call).
-
-get_learning_flag(rebuild_bdds,Iteration) :-
-	rebuild_bdds(Iteration).
-
-get_learning_flag(reuse_initialized_bdds,Flag) :-
-	reuse_initialized_bdds(Flag).
-
-get_learning_flag(learning_rate,R) :-
-	learning_rate(R).
-
-get_learning_flag(probability_initializer,(FactID,Probability,Query)) :-
-	probability_initializer(FactID,Probability,Query).
-
-get_learning_flag(check_duplicate_bdds,Flag) :-
-	check_duplicate_bdds(Flag).
-
-get_learning_flag(output_directory,Directory) :-
-	output_directory(Directory).
-
-get_learning_flag(query_directory,Directory) :-
-	query_directory(Directory).
-
-get_learning_flag(log_frequency,Frequency) :-
-	log_frequency(Frequency).
-
-get_learning_flag(alpha,Alpha) :-
-	alpha(Alpha).
-
-get_learning_flag(sigmoid_slope,Slope) :-
-	sigmoid_slope(Slope).
-
-get_learning_flag(line_search,Flag) :-
-	line_search(Flag).
-
-get_learning_flag(line_search_tolerance,Tolerance) :-
-	line_search_tolerance(Tolerance).
-
-get_learning_flag(line_search_interval,(L,R)) :-
-	line_search_interval(L,R).
-
-get_learning_flag(line_search_tau,Tau) :-
-	line_search_tau(Tau).
-
-get_learning_flag(line_search_never_stop,Flag) :-
-	line_search_never_stop(Flag).
-
-get_learning_flag(verbosity_level,Number) :-
-	verbosity_level(Number).
-
-
-
-
-set_learning_flag(init_method,(Query,Probability,BDDFile,ProbFile,Call)) :-
-	retractall(init_method(_,_,_,_,_)),
-	assert(init_method(Query,Probability,BDDFile,ProbFile,Call)).
-
-
-set_learning_flag(rebuild_bdds,Frequency) :-
-	integer(Frequency),
-	Frequency>=0,
-	retractall(rebuild_bdds(_)),
-	assert(rebuild_bdds(Frequency)).
-
-
-set_learning_flag(reuse_initialized_bdds,Flag) :-
-	(Flag==true;Flag==false),
-	!,
-	retractall(reuse_initialized_bdds(_)),
-	assert(reuse_initialized_bdds(Flag)).
-
-set_learning_flag(learning_rate,V) :-
-	(V=examples -> true;(number(V),V>=0)),
-	!,
-	retractall(learning_rate(_)),
-	assert(learning_rate(V)).
-
-set_learning_flag(probability_initializer,(FactID,Probability,Query)) :-
-	var(FactID),
-	var(Probability),
-	callable(Query),
-	retractall(probability_initializer(_,_,_)),
-	assert(probability_initializer(FactID,Probability,Query)).
-
-set_learning_flag(check_duplicate_bdds,Flag) :-
-	(Flag==true;Flag==false),
-	!,
-	retractall(check_duplicate_bdds(_)),
-	assert(check_duplicate_bdds(Flag)).
-
-set_learning_flag(output_directory,Directory) :-
+intervals_merge_above(all,X,above(X)).
+intervals_merge_above(none,_,none).
+intervals_merge_above(above(Y),X,above(Z)) :-
+	number(Y),
+	Z is max(X,Y).
+intervals_merge_above(below(Y),X,Result) :-
+	number(Y),
 	(
-	    file_exists(Directory)
+	 X=<Y
 	->
-	    file_property(Directory,type(directory));
-	    make_directory(Directory)
-	),
-
-	absolute_file_name(Directory,Path),
-	atomic_concat([Path,'/'],PathSlash),
-	atomic_concat([Path,'/log.dat'],Log_File),
-		
-	retractall(output_directory(_)),
-	assert(output_directory(PathSlash)),
-	logger_set_filename(Log_File),
-	set_problog_flag(dir,Directory).
-
-set_learning_flag(query_directory,Directory) :-
-	(
-	    file_exists(Directory)
-	->
-	    file_property(Directory,type(directory));
-	    make_directory(Directory)
-	),
-	absolute_file_name(Directory,Path),
-	atomic_concat([Path,'/'],PathSlash),
-	retractall(query_directory(_)),
-	assert(query_directory(PathSlash)).
-
-set_learning_flag(log_frequency,Frequency) :-
-	integer(Frequency),
-	Frequency>=0,
-	retractall(log_frequency(_)),
-	assert(log_frequency(Frequency)).
-
-set_learning_flag(alpha,Alpha) :-
-	(number(Alpha);Alpha==auto),
-	!,
-	retractall(alpha(_)),
-	assert(alpha(Alpha)).
-set_learning_flag(sigmoid_slope,Slope) :-
-	number(Slope),
-	Slope>0,
-	retractall(sigmoid_slope(_)),
-	assert(sigmoid_slope(Slope)).
-
-
-set_learning_flag(line_search,Flag) :-
-	(Flag==true;Flag==false),
-	!,
-	retractall(line_search(_)),
-	assert(line_search(Flag)).
-set_learning_flag(line_search_tolerance,Number) :-
-	number(Number),
-	Number>0,
-	retractall(line_search_tolerance(_)),
-	assert(line_search_tolerance(Number)).
-set_learning_flag(line_search_interval,(L,R)) :-
-	number(L),
-	number(R),
-	L<R,
-	retractall(line_search_interval(_,_)),
-	assert(line_search_interval(L,R)).
-set_learning_flag(line_search_tau,Number) :-
-	number(Number),
-	Number>0,
-	retractall(line_search_tau(_)),
-	assert(line_search_tau(Number)).
-set_learning_flag(line_search_never_stop,Flag) :-
-	(Flag==true;Flag==false),
-	!,
-	retractall(line_search_nerver_stop(_)),
-	assert(line_search_never_stop(Flag)).
-
-set_learning_flag(verbosity_level,Level) :-
-	integer(Level),
-	retractall(verbosity_level(_)),
-	assert(verbosity_level(Level)),
-	(
-	 Level<4
-	->
-	 set_problog_flag(verbose,false);
-	 set_problog_flag(verbose,true)
+	 Result=interval(X,Y);
+	 Result=none
 	).
-	
+intervals_merge_above(interval(Y1,Y2),X,Result):-
+	number(Y1),
+	number(Y2),
+	(
+	 X=<Y1
+	->
+	 Result=interval(Y1,Y2);
+	 (
+	  X=<Y2
+	 ->
+	  Result=interval(X,Y2);
+	  Result=none
+	 )
+	).
+
+intervals_merge_below(all,X,below(X)).
+intervals_merge_below(none,_,none).
+intervals_merge_below(above(Y),X,Result) :-
+	number(Y),
+	(
+	 Y=<X
+	->
+	 Result=interval(Y,X);
+	 Result=none
+	).
+intervals_merge_below(below(Y),X,below(Z)) :-
+	number(Y),
+	Z is min(X,Y).
+intervals_merge_below(interval(Y1,Y2),X,Result) :-
+	number(Y1),
+	number(Y2),
+	(
+	 X>=Y2
+	->
+	 Result=interval(Y1,Y2);
+	 (
+	  X>=Y1
+	 ->
+	  Result=interval(Y1,X);
+	  Result=none
+	 )
+	).
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%
-% show values
-%%%%%%%%%%%%%%%%%%%%%%%%
 
-skolemize(T1,T2):-
-	copy_term(T1,T2),
-	numbervars(T2,0,_).
+intervals_merge_interval(all,X1,X2,interval(X1,X2)).
+intervals_merge_interval(none,_,_,none).
+intervals_merge_interval(above(X),Y1,Y2,Result) :-
+	number(X),
+	intervals_merge_above(interval(Y1,Y2),X,Result).
+intervals_merge_interval(below(X),Y1,Y2,Result) :-
+	number(X),
+	intervals_merge_below(interval(Y1,Y2),X,Result).
+intervals_merge_interval(interval(X1,X2),Y1,Y2,Result) :-
+	number(X1),
+	number(X2),
+	(
+	    X1<Y1
+	->
+	    intervals_merge_interval_intern(X1,X2,Y1,Y2,Result);
+	    intervals_merge_interval_intern(Y1,Y2,X1,X2,Result)
+	).
+intervals_merge_interval_intern(_X1,X2,Y1,Y2,Result) :-
+	(
+	 Y1=<X2
+	->
+	 (
+	  Y2=<X2
+	 ->
+	  Result=interval(Y1,Y2);
+	  Result=interval(Y1,X2)
+	 );
+	 Result=none
+	).
+	 
 
-learning_flags :-
-	format('~n',[]),
-	print_sep_line,
-	format('learning flags: use set_learning_flag(Flag,Option) to change, learning_flag(Flag,Option) to view~n',[]),
-	print_sep_line,
-	print_param(description,value,flag,option),
-	print_sep_line,
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	learning_flag(output_directory,Output_Directory),
-	print_long_param('Where to store results',Output_Directory,'output_directory','path'),
+select_all([],List,List).
+select_all([H|T],List,Remainder) :-
+	once(select(H,List,TMP)),
+	select_all(T,TMP,Remainder).
 
-	learning_flag(query_directory,Query_Directory),
-	print_long_param('Where to store BDD files',Query_Directory,'query_directory','path'),
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	learning_flag(verbosity_level,Verbosity_Level),
-	print_param('How much output shall be given (0=nothing,5=all)',Verbosity_Level,'verbosity_level','0,1,..,5'),
+intervals_disjoin(X,P,In,Out) :-
+	disjoin_intern(X,P,In),
+	select_all(In,P,Out).
+intervals_disjoin(X,P,In) :-
+	disjoin_intern(X,P,In).
+disjoin_intern(below(X),P,In) :-
+	findall((interval(A,B),Tail),(member((interval(A,B),Tail),P),B=<X),Tmp),
+	(
+	 (member((below(Y),Tail),P),Y=<X)
+	->
+	 In=[(below(Y),Tail)|Tmp];
+	 In=Tmp
+	).
+disjoin_intern(above(X),P,In) :-
+	findall((interval(A,B),Tail),(member((interval(A,B),Tail),P),A>=X),Tmp),
+	(
+	 (member((above(Y),Tail),P),Y>=X)
+	->
+	 In=[(above(Y),Tail)|Tmp];
+	 In=Tmp
+	).
+disjoin_intern(interval(X,Y),P,In) :-
+	findall((interval(A,B),Tail),(member((interval(A,B),Tail),P),A>=X,B=<Y),In).
 
-	print_sep_line,
-
-	learning_flag(reuse_initialized_bdds,Reuse_Initialized_Bdds),
-	print_param('Reuse BDDs from previous runs',Reuse_Initialized_Bdds,'reuse_initialized_bdds','true/false'),
-
-	learning_flag(rebuild_bdds,Rebuild_BDDs),
-	print_param('Rebuild BDDs every nth iteration (0=never)',Rebuild_BDDs,'rebuild_bdds','Integer>=0'),
-	learning_flag(check_duplicate_bdds,Check_Duplicate_BDDs),
-	print_param('Store intermediate results in hash table',Check_Duplicate_BDDs,'check_duplicate_bdds','true/false'),
-
-	learning_flag(init_method,Init_Method),
-	skolemize(Init_Method,Init_Method_SK),
-	print_long_param('ProbLog predicate to search proofs',Init_Method_SK,'init_method','(+Query,-P,+BDDFile,+ProbFile,+Call)'),
-
-	learning_flag(probability_initializer,Prob_Initializer),
-	skolemize(Prob_Initializer,Prob_Initializer_SK),
-	print_long_param('Predicate to initialize probabilities',Prob_Initializer_SK,'probability_initializer','(+FactID,-P,+Call)'),
-
-	print_sep_line,
 
 
-	learning_flag(log_frequency,Log_Frequency),
-	print_param('log results every nth iteration',Log_Frequency,'log_frequency','integer>0'),
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% partitions a list of intervals into disjoined intervals
+% together with their prefix
+%
+%
+% ?- intervals_partition([below(10),above(5)],X).
+%    X = [(below(5.0),[]),
+%         (interval(5.0,10.0),[below(5.0)]),
+%         (above(10.0),[interval(5.0,10.0),below(5.0)])]   
+%
+%
+% intervals_partition(+List,-List)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	learning_flag(alpha,Alpha),
-	print_param('weight of negative examples (auto=n_p/n_n)',Alpha,'alpha','number or "auto"'),
+intervals_partition([],[]).
+intervals_partition([X|T],[(below(A), [])|T2]) :-
+	once(extract_points([X|T],[],[A|PT])),
+	to_interval(PT,A,[below(A)],T2).
 
-	learning_flag(sigmoid_slope,Slope),
-	print_param('slope of sigmoid function',Slope,'slope','number>0'),
 
-	print_sep_line,
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% extracts from list of intervals all relevant constants
+%
+%    ?- intervals:extract_points([below(10),above(5)],[],L).
+%        L = [5.0,10.0] ?
+%
+% extract_points(+List, +List, -List)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	
-	learning_flag(learning_rate,Learning_Rate),
-	print_param('Default Learning rate (If line_search=false)',Learning_Rate,'learning_rate','0<Number or "examples"'),
-	learning_flag(line_search,Line_Search),
-	print_param('Use line search to estimate learning rate',Line_Search,'line_search','true/false'),
-	learning_flag(line_search_tau,Line_Search_Tau),
-	print_param('Tau value for line search',Line_Search_Tau,'line_search_tau','0<Number<1'),
-	learning_flag(line_search_tolerance,Line_Search_Tolerance),
-	print_param('Tolerance value for line search',Line_Search_Tolerance,'line_search_tolerance','0<Number'),
-	learning_flag(line_search_interval,Line_Search_Interval),
-	print_param('Interval for line search',Line_Search_Interval,'line_search_interval','(a,b) an interval with 0<=a<b'),
-	learning_flag(line_search_never_stop,Line_Search_Never_Stop),
-	print_param('Make tiny step if line search returns 0',Line_Search_Never_Stop,'line_search_never_stop','true/false'),
-	
-	print_sep_line,
-	
-	format('~n',[]),
-	flush_output.
+extract_points([],X,Y) :-
+	sort(X,Y).
+extract_points([below(A)|T],X,Y) :-
+	A2 is float(A),
+	extract_points(T,[A2|X],Y).
+extract_points([above(A)|T],X,Y) :-
+	A2 is float(A),
+	extract_points(T,[A2|X],Y).
+extract_points([interval(A,B)|T],X,Y) :-
+	A2 is float(A),
+	B2 is float(B),
+	extract_points(T,[A2,B2|X],Y).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% transforms a sorted list of constants into a list of
+% intervals together with their prefixes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+to_interval([],A,Tail,[(above(A),Tail)]).
+to_interval([B|T],A,Tail,[(interval(A,B),Tail)|T2]) :-
+	to_interval(T,B,[interval(A,B)|Tail],T2).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% encodes an interval as an atom
+%
+% ?- intervals_encode(below(42),X).
+%    X = lm1000h42
+% ?- intervals_encode(above(23),X).
+%    X = l23h1000
+% ?- intervals_encode(interval(-2.3,4.2),X).
+%    X = lm2d3h4d2 ? 
+%
+% intervals_encode(+Interval,-Atom)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+intervals_encode(below(X),Atom) :-
+	(
+	 X < -1000
+	->
+	 X2 is 2*X;
+	 X2 is -1000
+	),
+	intervals_encode(interval(X2,X),Atom).
+intervals_encode(above(X),Atom) :-
+	(
+	 X > 1000
+	->
+	 X2 is 2*X;
+	 X2 is 1000
+	),
+	intervals_encode(interval(X,X2),Atom).
+intervals_encode(interval(Low,High),Atom) :-
+	once(my_number_atom(Low,LowA)),
+	once(my_number_atom(High,HighA)),
+	atomic_concat([l,LowA,h,HighA],Atom).
+
+my_number_atom(Number,Atom) :-
+	% make float
+	NumberF is Number+0.0,
+	number_codes(NumberF,XC),
+	reverse(XC,A),
+	remove_prefix_zeros(A,B),
+	remove_prefix_dot(B,C),
+	fix_special_cases(C,D),
+	reverse(D,DC),
+	replace_special_characters(DC,DC_Final),
+
+	atom_codes(Atom,DC_Final).
+
+remove_prefix_zeros([],[]).
+remove_prefix_zeros([X|T],Result) :-
+	(
+	 X==48  % 48 = '0'
+	->
+	 remove_prefix_zeros(T,Result);
+	 Result=[X|T]
+	).
+
+remove_prefix_dot([],[]).
+remove_prefix_dot([X|T],Result) :-
+	(
+	 X==46  % 46 = '.'
+	->
+	 Result=T;
+	 Result=[X|T]
+	).
+
+fix_special_cases([],[48]).
+fix_special_cases([H|T],Result) :-
+	(
+	 [H|T] == [48,45]     % ='0-'
+	->
+	 Result=[48];
+	 Result=[H|T]
+	).
+
+replace_special_characters([],[]).
+replace_special_characters([H|T],[H2|T2]) :-
+	(
+	 H==45   % '-'
+	->
+	 H2=109;		% 'm'
+	 (
+	  H==46
+	 ->
+	  H2=100;		% 'd'
+	  H2=H
+	 )
+	),
+	replace_special_characters(T,T2).
