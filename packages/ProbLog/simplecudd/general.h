@@ -3,7 +3,7 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008                               *
+*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: general.h                                                             *

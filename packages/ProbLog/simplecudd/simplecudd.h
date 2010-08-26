@@ -3,7 +3,7 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008                               *
+*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: simplecudd.h                                                          *
@@ -263,6 +263,7 @@ typedef struct _nodeline {
 /* Initialization */
 
 DdManager* simpleBDDinit(int varcnt);
+DdManager* simpleBDDinitNoReOrder(int varcnt);
 
 /* BDD Generation */
 
@@ -274,6 +275,7 @@ DdNode* D_BDDXor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
 DdNode* D_BDDXnor(DdManager *manager, DdNode *bdd1, DdNode *bdd2);
 
 DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader fileheader);
+DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfileheader fileheader);
 DdNode* OnlineGenerateBDD(DdManager *manager, namedvars *varmap);
 DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int maxinter, char *function, int iline);
 DdNode* OnlineLineParser(DdManager *manager, namedvars *varmap, DdNode **inter, int maxinter, char *function, int iline);
@@ -281,10 +283,13 @@ DdNode* BDD_Operator(DdManager *manager, DdNode *bdd1, DdNode *bdd2, char Operat
 int getInterBDD(char *function);
 char* getFileName(const char *function);
 int GetParam(char *inputline, int iParam);
+char** GetVariableOrder(char *filename, int varcnt);
 int LoadVariableData(namedvars varmap, char *filename);
 
 /* Named variables */
 
+int ImposeOrder(DdManager *manager, const namedvars varmap, char **map);
+int get_var_pos_in_map(char **map, const char *var, int varcnt);
 namedvars InitNamedVars(int varcnt, int varstart);
 void EnlargeNamedVars(namedvars *varmap, int newvarcnt);
 int AddNamedVarAt(namedvars varmap, const char *varname, int index);

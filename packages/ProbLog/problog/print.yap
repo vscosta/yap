@@ -2,20 +2,19 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2009-06-17 22:22:00 +0200 (Mi, 17 Jun 2009) $
-%  $Revision: 1550 $
+%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
+%  $Revision: 4672 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
 %
-%  Copyright 2009 Katholieke Universiteit Leuven
-%
-%  Authors: Luc De Raedt, Bernd Gutmann, Angelika Kimmig,
-%           Vitor Santos Costa
-%
-%                                                                      
+%  ProbLog was developed at Katholieke Universiteit Leuven
+%                                                            
+%  Copyright 2008, 2009, 2010
+%  Katholieke Universiteit Leuven
+%                                                              
 %  Main authors of this file:
-%  Angelika Kimmig, Vitor Santos Costa
+%  Angelika Kimmig, Vitor Santos Costa, Theofrastos Mantadelis
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -213,20 +212,216 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(print, [print_param/4,
-	print_sep_line/0,
-	print_inference/2]).
+                  print_long_param/4,
+                  print_sep_line/0,
+                  print_sep_line_bold/0,
+                  print_group_line/1,
+                  print_group_line_bold/1,
+                  print_inference/2,
+                  problog_statistics/0,
+                  show_inference/0,
+                  problog_flags/0,
+                  problog_flags/1,
+                  problog_help/0]).
 
-print_param(Keyword,Value,Function,Legal) :-
-	format(user,'~w~55+~q~15+~w~30+~w~25+~n',[Keyword,Value,Function,Legal]).
-print_sep_line :-
-	sep_line(125).
-sep_line(0) :- 
-	!,
-	format('~n',[]).
-sep_line(N) :-
-	format('-',[]),
-	NN is N-1,
-	sep_line(NN).
+% load library modules
+:- ensure_loaded(library(lists)).
+
+% load our own modules
+:- ensure_loaded(flags).
+:- ensure_loaded(variables).
+
+
+% size, line_char, line_char_bold
+problog_pane_properties(125, 45, 61).
+problog_pane_split_inference([65,60], [w,w]).
+problog_pane_split_stat([40,3,1,1], ['t~w',w,q,w]).
+problog_pane_split_param([55,30,20,20], [w,w,w,q]).
 
 print_inference(Call,Description) :-
-	format(user,'~w~65+~w~60+~n',[Call,Description]).
+  problog_pane_split_inference(Columns, Style),
+  print_column(Columns, Style, [Call,Description]).
+%   format(user,'~w~65+~w~60+~n',[Call,Description]).
+
+print_param(Keyword,Value,Function,Legal) :-
+  problog_pane_split_param(Columns, Style),
+  print_column(Columns, Style, [Keyword,Value,Function,Legal]).
+% 	format(user,'~w~55+~w~29+~w~25+~q~25+~n',[Keyword,Value,Function,Legal]).
+print_long_param(Keyword,Value,Function,Legal) :-
+	format(user,'~w~55+~q~25+~w~20+~w~25+~n',[Keyword,Value,'','']),
+	format(user,'~w~55+~w~25+~w~20+~w~25+~n',['','',Function,Legal]).
+
+print_stat(StatName, Seperator, StatValue, StatUnit) :-
+  problog_pane_split_stat(Columns, Style),
+  print_column(Columns, Style, [StatName, Seperator, StatValue, StatUnit]).
+
+print_sep_line :-
+  problog_pane_properties(Size, LineChar, _LineCharBold),
+  format(user,"~*c~n", [Size, LineChar]).
+print_sep_line_bold :-
+  problog_pane_properties(Size, _LineChar, LineCharBold),
+  format(user,"~*c~n", [Size, LineCharBold]).
+
+print_group_line(Group) :-
+  atom_length(Group, L),
+  problog_pane_properties(Size, LineChar, _LineCharBold),
+  Rest is Size - 5 - L,
+  format(user,"~*c ~w ~*c~n", [3, LineChar, Group, Rest, LineChar]).
+print_group_line_bold(Group) :-
+  atom_length(Group, L),
+  problog_pane_properties(Size, _LineChar, LineCharBold),
+  Rest is Size - 5 - L,
+  format(user,"~*c ~w ~*c~n", [3, LineCharBold, Group, Rest, LineCharBold]).
+
+print_column(Columns, Style, Messages):-
+  make_column_format(Columns, Style, Format),
+  format(user, Format, Messages).
+
+make_column_format(Columns, Style, Format):-
+  make_column_format(Columns, Style, PreFormat, ''),
+  atomic_concat(PreFormat, '~n', Format).
+make_column_format([], [], Format, Format).
+make_column_format([HC|TC], [HS|TS], Format, Acc):-
+  atomic_concat([Acc,'~', HS,'~',HC,'+'], NAcc),
+  make_column_format(TC, TS, Format, NAcc).
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This is the help part of problog %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+problog_help :-
+  format('~2nProbLog inference currently offers the following inference methods:~n',[]),
+  show_inference,
+  problog:problog_path(PD),
+  format('~nProblog directory: ~q~n',[PD]),
+  format('~nThe following global parameters are available:~n',[]),
+  problog_flags,
+  print_sep_line,
+  format('~n     use problog_help/0 to display this information~n',[]),
+  format('~n     use problog_flags/0 to display current parameter values~n',[]),
+  format('~n     use problog_flags/1 to display current parameter values of a group~2n',[]),
+  print_sep_line,
+  nl,
+  flush_output.
+
+show_inference :-
+  format('~n',[]),
+  print_sep_line,
+  print_inference(call,description),
+  print_sep_line,
+  print_inference('problog_delta(+Query,+Delta,-Low,-High,-Status)','approximation with interval width Delta (IJCAI07)'), 
+  print_inference('problog_threshold(+Query,+Threshold,-Low,-High,-Status)','bounds based on single probability threshold'), 
+  print_inference('problog_low(+Query,+Threshold,-Low,-Status)','lower bound based on single probability threshold'), 
+  print_inference('problog_kbest(+Query,+K,-Low,-Status)','lower bound based on K most likely proofs'), 
+  print_inference('problog_max(+Query,-Prob,-FactsUsed)','explanation probability (ECML07)'),
+  print_inference('problog_exact(+Query,-Prob,-Status)','exact probability'),
+  print_inference('problog_montecarlo(+Query,+Delta,-Prob)','program sampling with 95\%-confidence-interval-width Delta'),
+  print_inference('problog_dnf_sampling(+Query,+Delta,-Prob)','DNF sampling with 95\%-confidence-interval-width Delta'),
+  print_sep_line.
+
+%%%%%%%%%%%%%%% This is the flag part towards screen %%%%%%%%%%%%%%%%%%%%
+
+% Currently does not print default values to gain space
+problog_flags(Group):-
+  problog_defined_flag_group(Group),
+  print_group_line(Group),
+  print_param(description, domain, flag, value),
+  print_sep_line,
+  (                         % iterate over all flags in this group
+    problog_defined_flag(Flag, Group, _Default, LValues, Desc),
+    problog_flag(Flag, Value),
+    (is_list(LValues) ->
+      atomic_concat(LValues, Values)
+    ;
+      Values = LValues
+    ),
+    print_param(Desc, Values, Flag, Value),
+    fail
+    ; % go to next flag
+    true
+  ),
+  print_sep_line.
+
+problog_flags:-
+  format('~n',[]),
+  print_sep_line_bold,
+  format('problog flags: use set_problog_flag(Flag,Option) to change, problog_flag(Flag,Option) to view~n',[]),
+  print_sep_line_bold,
+  format('~n',[]),
+  (     % iterate over all groups
+    problog_flags(_),
+    format('~n',[]),
+    fail;      % go to next group
+    true
+  ),
+  format('~n',[]).
+
+
+
+%%%%%%%%%%%%%%% This is statistics part towards screen %%%%%%%%%%%%%%%%%%%
+
+problog_statistics:-
+  nb_setval(problog_statistics, false),
+  problog_var_group(Group),
+  findall(Stat/Result, (
+    problog_var_defined(Stat, Group, _, _),
+    problog_var_is_set(Stat),
+    problog_var_get(Stat, Result)
+  ), GroupStats),
+  \+ GroupStats == [],
+  nb_setval(problog_statistics, true),
+  print_group_line(Group),
+  forall(member(Stat/Result, GroupStats), (
+    problog_var_defined(Stat, Group, _, messages(MsgBefore, Seperator, MsgAfter)),
+    print_stat(MsgBefore, Seperator, Result, MsgAfter)
+  )),
+  fail.
+problog_statistics:-
+  (nb_getval(problog_statistics, true)->
+    print_sep_line
+  ;
+    true
+  ),
+  nb_delete(problog_statistics).
+
+
+% namee(A, Name):-
+%   atomic(A), !,
+%   name(A, Name).
+% namee(L, Name):-
+%   is_list(L), !,
+%   namee(L, Name, []).
+% namee(A, Name):-
+%   A =.. L,
+%   namee(L, Name, []).
+% namee([], Name, Name).
+% namee([H|T], Name, Acc):-
+%   namee(H, N),
+%   append(Acc, N, NAcc),
+%   namee(T, Name, NAcc).
+
+% print_sep_line :-
+%   sep_line(125).
+% sep_line(0) :- 
+% 	!,
+% 	format('~n',[]).
+% sep_line(N) :-
+% 	format('-',[]),
+% 	NN is N-1,
+% 	sep_line(NN).
+
+% print_sep_line_bold :-
+% 	sep_line_bold(125).
+% sep_line_bold(0) :- 
+% 	!,
+% 	format('~n',[]).
+% sep_line_bold(N) :-
+% 	format('=',[]),
+% 	NN is N-1,
+% 	sep_line_bold(NN).

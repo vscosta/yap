@@ -204,164 +204,132 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:-module(flags, [problog_define_flag/4,
-                         problog_define_flag/5,
-                         problog_define_flag/6,
-                         problog_defined_flag/5,
-                         problog_defined_flag_group/1,
-                         set_problog_flag/2,
-                         reset_problog_flags/0,
-                         problog_flag/2]).
+%%%%%%%%
+% Collected OS depended instructions
+%%%%%%%%
+:- module(os, [set_problog_path/1,
+	       problog_path/1,
+	       convert_filename_to_working_path/2,
+	       convert_filename_to_problog_path/2,
+	       concat_path_with_filename/3,
+	       empty_bdd_directory/1,
+	       empty_output_directory/1,
+	       calc_md5/2]).
 
 
-:-ensure_loaded(gflags).
-:-ensure_loaded(os).
-:-ensure_loaded(logger).
+% load library modules
+:- ensure_loaded(library(system)).
 
-problog_define_flag(Flag, Type, Description, DefaultValue):-
-  flag_define(Flag, Type, DefaultValue, Description).
+% load our own modules
+:- ensure_loaded(flags).
 
-problog_define_flag(Flag, Type, Description, DefaultValue, FlagGroup):-
-  flag_define(Flag, FlagGroup, Type, DefaultValue, Description).
+:- dynamic [problog_dir/1, problog_working_path/1].
 
-problog_define_flag(Flag, Type, Description, DefaultValue, FlagGroup, Handler):-
-  flag_define(Flag, FlagGroup, Type, DefaultValue, Handler, Description).
+set_problog_path(Path):-
+	retractall(problog_path(_)),
+	assert(problog_path(Path)).
 
-problog_defined_flag(Flag, Group, DefaultValue, Domain, Message):-
-  flag_defined(Flag, Group, DefaultValue, Domain, Message).
+convert_filename_to_working_path(File_Name, Path):-
+	problog_flag(dir, Dir),
+	concat_path_with_filename(Dir, File_Name, Path).
 
-problog_defined_flag_group(Group):-
-  flag_group_defined(Group).
+convert_filename_to_problog_path(File_Name, Path):-
+	problog_path(Dir),
+	concat_path_with_filename(Dir, File_Name, Path).
 
-set_problog_flag(Flag, Value):-
-  flag_set(Flag, Value).
+concat_path_with_filename(Path, File_Name, Result):-
+	nonvar(File_Name),
+	nonvar(Path),
 
-problog_flag(Flag, Value):-
-  flag_get(Flag, Value).
+	% make sure, that there is no path delimiter at the end
+	prolog_file_name(Path,Path_Absolute),
 
-reset_problog_flags:- flags_reset.
+	(
+	 yap_flag(windows, true)
+	->
+	 Path_Seperator = '\\';
+	 Path_Seperator = '/'
+	),
 
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atom, flag_validate_atom).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atomic, flag_validate_atomic).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_number, flag_validate_number).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer, flag_validate_integer).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_directory, flag_validate_directory).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_file, flag_validate_file).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_list(L), flag_validate_in_list(L)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval(I, Type), flag_validate_in_interval(I, Type)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_closed([L, U]), flag_validate_in_interval([L, U], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_open([L, U]), flag_validate_in_interval((L, U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_closed([L, U]), flag_validate_in_interval([L, U], integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_open([L, U]), flag_validate_in_interval((L, U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_closed([L, U]), flag_validate_in_interval([L, U], float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_open([L, U]), flag_validate_in_interval((L, U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posnumber, flag_validate_in_interval((0, [+inf]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posint, flag_validate_in_interval((0, +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_nonegint, flag_validate_in_interval(([0], +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_boolean, flag_validate_in_list([true, false])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_switch, flag_validate_in_list([on, off])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_method, flag_validate_in_list([max, delta, exact, montecarlo, low, kbest])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_aggregate, flag_validate_in_list([sum, prod, soft_prod])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_open, flag_validate_in_interval((0, 1), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_close, flag_validate_in_interval([0, 1], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_0to5, flag_validate_in_interval([0, 5], integer)).
+	 atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
-last_threshold_handler(message, '').
-last_threshold_handler(validating, _Value).
-last_threshold_handler(validated, _Value).
-last_threshold_handler(stored, Value):-
-  ValueLog is log(Value),
-  flag_store(last_threshold_log, ValueLog).
+%========================================================================
+%= store the current succes probabilities for training and test examples
+%= 
+%========================================================================
 
-id_stepsize_handler(message, '').
-id_stepsize_handler(validating, _Value).
-id_stepsize_handler(validated, _Value).
-id_stepsize_handler(stored, Value):-
-  ValueLog is log(Value),
-  flag_store(id_stepsize_log, ValueLog).
+empty_bdd_directory(Path) :-
+	ground(Path),
 
-bdd_file_handler(message, '').
-bdd_file_handler(validating, _Value).
-bdd_file_handler(validated, _Value).
-bdd_file_handler(stored, Value):-
-  atomic_concat(Value, '_probs', ParValue),
-  flag_set(bdd_par_file, ParValue),
-  atomic_concat(Value, '_res', ResValue),
-  flag_set(bdd_result, ResValue).
+	concat_path_with_filename(Path,'query_*',Files),	
+	atomic_concat(['rm -f ',Files],Command),
+	(shell(Command) -> true; true).
+%========================================================================
+%= store the current succes probabilities for training and test examples
+%= 
+%========================================================================
 
-auto_handler(message, 'auto non-zero').
-auto_handler(validating, Value) :-
-	number(Value),
-	Value =\= 0.
-auto_handler(validate, Value):-
-  Value == auto.
-auto_handler(validated, _Value).
-auto_handler(stored, _Value).
+empty_output_directory(Path) :-
+	ground(Path),
 
+	concat_path_with_filename(Path,'log.dat',F1),
+	concat_path_with_filename(Path,'factprobs_*.pl',F2),
+	concat_path_with_filename(Path,'predictions_*.pl',F3),
+	
+	atomic_concat(['rm -f ',F1, ' ', F2, ' ', F3],Command),
+	(shell(Command) -> true; true).
 
-examples_handler(message, 'examples').
-examples_handler(validating, _Value).
-examples_handler(validate, Value):-
-  Value == examples.
-examples_handler(validated, _Value).
-examples_handler(stored, _Value).
+%========================================================================
+%= Calculate the MD5 checksum of +Filename by calling md5sum
+%= in case m5sum is not installed, try md5, otherwise fail
+%= +Filename, -MD5
+%========================================================================
 
+calc_md5(Filename,MD5):-
+	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
+	!.
+calc_md5(Filename,MD5):-
+	catch(calc_md5_intern(Filename,'md5',MD5),_,fail),
+	!.
+calc_md5(Filename,MD5):-
+	throw(md5error(calc_md5(Filename,MD5))).
 
-learning_init_handler(message, '(Q,P,BDDFile,ProbFile,Query)').
-learning_init_handler(validating, (_,_,_,_,_)).
-%learning_init_handler(validate, V_).
-learning_init_handler(validated, _Value).
-learning_init_handler(stored, _Value).
+calc_md5_intern(Filename,Command,MD5) :-
+	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
 
-learning_prob_init_handler(message, '(Q,P,Query)').
-learning_prob_init_handler(validating, (_,_,_)).
-%learning_prob_init_handler(validate, V_).
-learning_prob_init_handler(validated, _Value).
-learning_prob_init_handler(stored, _Value).
+	atomic_concat([Command,' "',Filename,'"'],Call),  
 
+	% execute the md5 command
+	exec(Call,[null,pipe(S),null],_PID),
+	bb_put(calc_md5_temp,End-End),  % use difference list
+	bb_put(calc_md5_temp2,0),
 
-linesearch_interval_handler(message,'nonempty interval(L,H)').
-linesearch_interval_handler(validating,V):-
-	V=(L,H),
-	number(L),
-	number(H),
-	L<H.
-%linesearch_interval_handler(validate,_).
-linesearch_interval_handler(validated,_).
-linesearch_interval_handler(stored,_).
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	(	% read 32 Bytes from stdout of process
+		repeat,
+		get0(S,C),
 
+		(
+		 C== -1
+		->
+		 (
+		  close(S),
+		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
+		 );
+		 true
+		),
 
-
-learning_output_dir_handler(message, '').
-learning_output_dir_handler(validating, _Value).
-learning_output_dir_handler(validated, _Value).
-learning_output_dir_handler(stored, Value):-
-	concat_path_with_filename(Value,'out.dat',Filename),
-	logger_set_filename(Filename).
-
-/*
-problog_flag_validate_learninginit
-problog_flag_validate_interval
-
-
-validation_type_values(problog_flag_validate_learninginit,'(QueryID,P, BDD,Probs,Call)').
-
-validation_type_values(problog_flag_validate_learningprobinit,'(FactID,P,Call)').
-
-validation_type_values(problog_flag_validate_interval,'any nonempty interval (a,b)').
-
-
-problog_flag_validate_interval.
-problog_flag_validate_interval( (V1,V2) ) :-
-  number(V1),
-  number(V2),
-  V1<V2.
-
-*/
+		bb_get(calc_md5_temp,List-[C|NewEnd]),
+		bb_put(calc_md5_temp,List-NewEnd),
+		bb_get(calc_md5_temp2,OldLength),
+		NewLength is OldLength+1,
+		bb_put(calc_md5_temp2,NewLength),
+		NewLength=32
+	),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
+	
+	close(S),
+	bb_delete(calc_md5_temp, FinalList-[]),
+	bb_delete(calc_md5_temp2,_),
+	atom_codes(MD5,FinalList).

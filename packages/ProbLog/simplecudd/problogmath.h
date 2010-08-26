@@ -3,10 +3,13 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008                               *
+*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
-*  Author: Theofrastos Mantadelis                                              *
-*  File: Example.c                                                             *
+*  Author:       Bernd Gutmann                                                 *
+*  File:         problogmath.h                                                 *
+*  $Date:: 2010-08-25 15:23:30 +0200 (Wed, 25 Aug 2010)           $            *
+*  $Revision:: 4683                                               $            *
+*                                                                              *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -184,141 +187,30 @@
 *                                                                              *
 \******************************************************************************/
 
+#include <math.h>
+#include <float.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "simplecudd.h"
+typedef struct _density_integral {
+  double low;
+  double high;
+  double mu;
+  double log_sigma;
+} density_integral;
 
-typedef struct _extmanager {
-  DdManager *manager;
-  DdNode *t, *f;
-  hisqueue *his;
-  namedvars varmap;
-} extmanager;
 
-void DFS(extmanager MyManager, DdNode *Current);
-int compexpand(extmanager MyManager, DdNode *Current, extmanager MyManager2, DdNode *Current2);
-int bufstrcat(char *targetstr, int targetmem, const char *srcstr);
-void getalltruepaths(extmanager MyManager, DdNode *Current, const char *startpath, const char *prevvar);
 
-int main(int argc, char **arg) {
-  extmanager MyManager;
-  DdNode *bdd;
-  bddfileheader fileheader;
-  int code;
-  char yn;
-  code = -1;
-  if (argc != 2) {
-    fprintf(stderr, "\nUsage: %s [filename]\nGenerates and traverses a BDD from file\n", arg[0]);
-    fprintf(stderr, "\nUsage: %s -online\nGenerates and traverses a BDD online mode\n", arg[0]);
-    return code;
-  }
-  RAPIDLOADON;
-  if (strcmp("-online", arg[1]) == 0) {
-    MyManager.manager = simpleBDDinit(0);
-    MyManager.t = HIGH(MyManager.manager);
-    MyManager.f = LOW(MyManager.manager);
-    MyManager.varmap = InitNamedVars(1, 0);
-    bdd = OnlineGenerateBDD(MyManager.manager, &MyManager.varmap);
-  } else {
-    fileheader = ReadFileHeader(arg[1]);
-    switch(fileheader.filetype) {
-      case BDDFILE_SCRIPT:
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
-        bdd = FileGenerateBDD(MyManager.manager, MyManager.varmap, fileheader);
-        break;
-      case BDDFILE_NODEDUMP:
-        MyManager.manager = simpleBDDinit(fileheader.varcnt);
-        MyManager.t = HIGH(MyManager.manager);
-        MyManager.f = LOW(MyManager.manager);
-        MyManager.varmap = InitNamedVars(fileheader.varcnt, fileheader.varstart);
-        bdd = LoadNodeDump(MyManager.manager, MyManager.varmap, fileheader.inputfile);
-        break;
-      default:
-        fprintf(stderr, "Error: not a valid file format to load.\n");
-        return code;
-        break;
-    }
-  }
-  if (bdd != NULL) {
-    printf("Do you want to load parameter values from testdata.txt [y]? "); yn = getchar(); getchar();
-    if (yn == 'y') LoadVariableData(MyManager.varmap, "testdata.txt");
-    code = 0;
-    MyManager.his = InitHistory(GetVarCount(MyManager.manager));
-    if (strcmp("-online", arg[1]) != 0) {
-      DFS(MyManager, bdd);
-      printf("Do you need an export [y]? "); yn = getchar(); getchar();
-      if (yn == 'y') simpleNamedBDDtoDot(MyManager.manager, MyManager.varmap, bdd, "SimpleCUDDExport.dot");
-      printf("Do you want a save [y]? "); yn = getchar(); getchar();
-      if (yn == 'y') SaveNodeDump(MyManager.manager, MyManager.varmap, bdd, "SimpleCUDDSave.sav");
-      printf("Do you want to see all true paths [y]? "); yn = getchar(); getchar();
-      if (yn == 'y') {
-        ReInitHistory(MyManager.his, GetVarCount(MyManager.manager));
-        getalltruepaths(MyManager, bdd, "", "");
-      }
-    } else {
-      onlinetraverse(MyManager.manager, MyManager.varmap, MyManager.his, bdd);
-    }
-  }
-  if (MyManager.manager != NULL) KillBDD(MyManager.manager);
-  return code;
-}
+double sigmoid(double x, double slope);
+double Phi(double x);
 
-void DFS(extmanager MyManager, DdNode *Current) {
-  DdNode *h, *l;
-  hisnode *Found;
-  char *curnode;
-  curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
-  if (GetIndex(Current) < MyManager.varmap.varcnt) {
-    printf("%s(%f,%i,%s)\n", curnode, MyManager.varmap.dvalue[GetIndex(Current)], MyManager.varmap.ivalue[GetIndex(Current)], (char *) MyManager.varmap.dynvalue[GetIndex(Current)]);
-  } else {
-    printf("%s\n", curnode);
-  }
-  if ((Current != MyManager.t) && (Current != MyManager.f) &&
-      ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) == NULL)) {
-    l = LowNodeOf(MyManager.manager, Current);
-    h = HighNodeOf(MyManager.manager, Current);
-    printf("l(%s)->", curnode);
-    DFS(MyManager, l);
-    printf("h(%s)->", curnode);
-    DFS(MyManager, h);
-    AddNode(MyManager.his, MyManager.varmap.varstart, Current, 0.0, 0, NULL);
-  }
-}
+double cumulative_normal(double low, double high, double sigma, double mu);
+double cumulative_normal_dmu(double low, double high,double mu,double sigma);
+double cumulative_normal_dsigma(double low, double high,double mu,double sigma);
 
-void getalltruepaths(extmanager MyManager, DdNode *Current, const char *startpath, const char *prevvar) {
-  DdNode *h, *l;
-  char *curnode, *curpath;
-  int pathmaxsize = 1024;
-  curpath = (char *) malloc(sizeof(char) * pathmaxsize);
-  curpath[0] = '\0';
-  pathmaxsize = bufstrcat(curpath, pathmaxsize, startpath);
-  pathmaxsize = bufstrcat(curpath, pathmaxsize, prevvar);
-  pathmaxsize = bufstrcat(curpath, pathmaxsize, "*");
-  curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
-  if (Current == MyManager.t) {
-    printf("%s\n", curpath);
-  } else if (Current != MyManager.f) {
-    h = HighNodeOf(MyManager.manager, Current);
-    if (h != MyManager.f) {
-      getalltruepaths(MyManager, h, curpath, curnode);
-    }
-    l = LowNodeOf(MyManager.manager, Current);
-    if (l != MyManager.f) {
-      pathmaxsize = bufstrcat(curpath, pathmaxsize, "~");
-      getalltruepaths(MyManager, l, curpath, curnode);
-    }
-  }
-  free(curpath);
-}
+double cumulative_normal_upper(double high, double mu, double sigma);
+double cumulative_normal_upper_dsigma(double high,double mu,double sigma);
+double cumulative_normal_upper_dmu(double high,double mu,double sigma);
 
-int bufstrcat(char *targetstr, int targetmem, const char *srcstr) {
-  int strinc = strlen(srcstr), strsize = strlen(targetstr);
-  while ((strsize + strinc) > (targetmem - 1)) {
-    targetmem *= 2;
-    targetstr = (char *) realloc(targetstr, sizeof(char) * targetmem);
-  }
-  strcat(targetstr, srcstr);
-  return targetmem;
-}
+density_integral parse_density_integral_string(char *input, char *variablename);

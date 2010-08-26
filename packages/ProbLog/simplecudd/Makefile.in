@@ -17,6 +17,10 @@ BINDIR = $(EROOTDIR)/bin
 LIBDIR=@libdir@
 YAPLIBDIR=@libdir@/Yap
 #
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
 #
 CC=@CC@
 #
@@ -34,30 +38,25 @@ SO=@SO@
 CWD=$(PWD)
 #
 
-CUDD = cudd-2.4.1
 DYNAMIC =
 CFLAGS = @CFLAGS@
 INCLUDE = @CUDD_CPPFLAGS@
 LINKFLAGS = -lm
 LINKLIBS =  @CUDD_LDFLAGS@
 
-default: Example ProbLogBDD
+default: problogbdd
 
-Example: Example.o simplecudd.o general.o
-	@echo Making Example...
-	@echo Copyright T. Mantadelis and Katholieke Universiteit Leuven 2008
-	$(CC) Example.o simplecudd.o general.o $(LINKLIBS) $(LINKFLAGS) -o Example
-
-ProbLogBDD: ProblogBDD.o simplecudd.o general.o
-	@echo Making ProblogBDD...
-	@echo Copyright T. Mantadelis, A. Kimmig, B. Gutmann and Katholieke Universiteit Leuven 2008
-	$(CC) ProblogBDD.o simplecudd.o general.o $(LINKLIBS) $(LINKFLAGS) -o ProblogBDD
+problogbdd: problogbdd.o simplecudd.o general.o problogmath.o
+	@echo Making problogbdd...
+	@echo Copyright Katholieke Universiteit Leuven 2008
+	@echo Authors: T. Mantadelis, A. Kimmig, B. Gutmann, I. Thon, G. Van den Broeck
+	$(CC) problogbdd.o simplecudd.o general.o problogmath.o $(LINKLIBS) $(LINKFLAGS) -o problogbdd
 
 %.o : $(srcdir)/%.c
 	$(CC) $(CFLAGS) $(INCLUDE) $(DYNAMIC) -c $<
 
-clean: 
-	rm -f *.o ProblogBDD Example
+clean:
+	rm -f *.o problogbdd
 
 install: default
-	$(INSTALL_PROGRAM) ProblogBDD $(DESTDIR)$(YAPLIBDIR)
+	$(INSTALL_PROGRAM) problogbdd $(DESTDIR)$(SHAREDIR)/Yap
