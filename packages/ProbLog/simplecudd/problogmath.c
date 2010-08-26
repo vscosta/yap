@@ -5,8 +5,11 @@
 *                                                                              *
 *  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
-*  Author: Theofrastos Mantadelis                                              *
-*  File: general.c                                                             *
+*  Author:       Bernd Gutmann                                                 *
+*  File:         problogmath.c                                                 *
+*  $Date:: 2010-08-25 15:23:30 +0200 (Wed, 25 Aug 2010)           $            *
+*  $Revision:: 4683                                               $            *
+*                                                                              *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -184,94 +187,168 @@
 *                                                                              *
 \******************************************************************************/
 
+#include "problogmath.h"
 
-#include "general.h"
 
-/* Number Handling */
+double sigmoid(double x, double slope) {
+  return 1.0 / (1.0 + exp(-x * slope));
+}
 
-int IsRealNumber(char *c) {
-  int i, l;
-  l = strlen(c);
-  if (l <= 0) return 0;
-  if (l == 1) return IsNumberDigit(c[0]);
-  for(i = 1; i < strlen(c); i++) {
-    if (c[i] == '.') return IsPosNumber(&c[i + 1]);
-    if (!IsNumberDigit(c[i])) return 0;
+// This function calculates the accumulated density of the normal distribution
+// For details see G. Marsaglia, Evaluating the Normal Distribution, Journal of Statistical Software, 2004:11(4).
+double Phi(double x)  {
+  double s=x;
+  double t=0.0;
+  double b=x;
+  double q=x*x;
+  double i=1;
+
+  // if the value is too small or too big, return
+  // 0/1 to avoid long computations
+  if (x < -10.0) {
+    return 0.0;
   }
-  return (IsNumberDigit(c[0]) || IsSignDigit(c[0]));
-}
 
-int IsPosNumber(const char *c) {
-  int i, l;
-  l = strlen(c);
-  if (l <= 0) return 0;
-  for(i = 0; i < strlen(c); i++) {
-    if (!IsNumberDigit(c[i])) return 0;
+  if (x > 10.0) {
+    return 1.0;
   }
-  return 1;
-}
 
-int IsNumber(const char *c) {
-  int i, l;
-  l = strlen(c);
-  if (l <= 0) return 0;
-  if (l == 1) return IsNumberDigit(c[0]);
-  for(i = 1; i < strlen(c); i++) {
-    if (!IsNumberDigit(c[i])) return 0;
+  // t is the value from last iteration
+  // s is the value from the current iteration
+  // iterate until they are equal
+  while(fabs(s-t) >= DBL_MIN) {
+    t=s;
+    i+=2;
+    b*=q/i;
+    s+=b;
   }
-  return (IsNumberDigit(c[0]) || IsSignDigit(c[0]));
+
+  return 0.5+s*exp(-0.5*q-0.91893853320467274178);
 }
 
-/* File Handling */
-
-char * freadstr(FILE *fd, const char *separators) {
-  char *str;
-  int buf, icur = 0, max = 10;
-  str = (char *) malloc(sizeof(char) * max);
-  str[0] = '\0';
-  do {
-    if ((buf = fgetc(fd)) != EOF) {
-      if (icur == (max - 1)) {
-        max = max * 2;
-        str = (char *) realloc(str, sizeof(char) * max);
-      }
-      if (!CharIn((char) buf, separators)) {
-        str[icur] = (char) buf;
-        icur++;
-        str[icur] = '\0';
-      }
-    }
-  } while(!CharIn(buf, separators) && !feof(fd));
-  return str;
+// integrates the normal distribution over [low,high]
+double cumulative_normal(double low, double high, double mu, double sigma) {
+  return Phi((high-mu)/sigma) - Phi((low-mu)/sigma);
 }
 
-int CharIn(const char c, const char *in) {
+// integrates the normal distribution over [-oo,high]
+double cumulative_normal_upper(double high, double mu, double sigma) {
+  return Phi((high-mu)/sigma);
+}
+
+
+// evaluates the density of the normal distribution
+double normal(double x, double mu,double sigma) {
+  double inner=(x-mu)/sigma;
+  double denom=sigma*sqrt(2*3.14159265358979323846);
+  return exp(-inner*inner/2)/denom;
+}
+
+double cumulative_normal_dmu(double low, double high,double mu,double sigma) {
+  return normal(low,mu,sigma) - normal(high,mu,sigma);
+}
+
+double cumulative_normal_upper_dmu(double high,double mu,double sigma) {
+  return  - normal(high,mu,sigma);
+}
+
+
+double cumulative_normal_dsigma(double low, double high,double mu,double sigma) {
+  return (((mu-high)*normal(high,mu,sigma) - (mu-low)*normal(low,mu,sigma))/sigma);
+}
+
+double cumulative_normal_upper_dsigma(double high,double mu,double sigma) {
+  return (mu-high)*normal(high,mu,sigma);
+}
+
+
+// this function parses two strings "$a;$b" and "???_???l$ch$d" where $a-$d are (real) numbers
+// it is used to parse in the parameters of continues variables from the input file
+density_integral parse_density_integral_string(char *input, char *variablename) {
+  density_integral result;
   int i;
-  for (i = 0; i < strlen(in); i++)
-    if (c == in[i]) return 1;
-  return 0;
-}
+  char garbage[64], s1[64],s2[64],s3[64],s4[64];
 
-/* string handling */
+  if(sscanf(input, "%64[^;];%64[^;]", s1,s2) != 2) {
+    fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "The string should contain 2 fields seperated by ; characters.\n");
+    exit(EXIT_FAILURE);
+  }
 
-int patternmatch(char *pattern, char *thestr) {
-  int i, j = -1, pl = strlen(pattern), sl = strlen(thestr);
-  for(i = 0; i < pl; i++) {
-    if (pattern[i] == '*') {
-      do {
-        i++;
-        if (i == pl) return 1;
-      } while(pattern[i] == '*');
-      do {
-        j++;
-        if (j >= sl) return 0;
-        if ((thestr[j] == pattern[i]) && patternmatch(pattern + i, thestr + j)) return 1;
-      } while(1);
-    } else {
-      j++;
-      if (j >= sl) return 0;
-      if (pattern[i] != thestr[j]) return 0;
+  if (IsRealNumber(s1)) {
+    result.mu=atof(s1);
+  } else {
+    fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "%s is not a number\n",s1);
+    exit(EXIT_FAILURE);
+  }
+
+  if (IsRealNumber(s2)) {
+    result.log_sigma=atof(s2);
+  } else {
+    fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "%s is not a number\n",s2);
+    exit(EXIT_FAILURE);
+  }
+
+/*  if (result.sigma<=0) { */
+/*     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string",input); */
+/*     fprintf(stderr, "The value for sigma has to be larger than 0.\n"); */
+
+/*     exit(EXIT_FAILURE); */
+/*   } */
+
+  if (sscanf(variablename,"%64[^lh]l%64[^lh]h%64[^lh]",garbage,s3,s4) != 3) {
+    fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",variablename);
+    fprintf(stderr, "The string should contain 2 fields seperated by ; characters.\n");
+    exit(EXIT_FAILURE);
+  }
+
+  //  replace the d by . in s1 and s2
+  for(i=0; s3[i]!='\0' ; i++) {
+    if (s3[i]=='d') {
+      s3[i]='.';
+    }
+    if (s3[i]=='m') {
+      s3[i]='-';
     }
   }
-  return (pl == sl);
+  for(i=0; s4[i]!='\0' ; i++) {
+    if (s4[i]=='d') {
+      s4[i]='.';
+    }
+    if (s4[i]=='m') {
+      s4[i]='-';
+    }
+  }
+
+  if (IsRealNumber(s3)) {
+    result.low=atof(s3);
+  } else {
+    fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "%s is not a number\n",s1);
+    exit(EXIT_FAILURE);
+  }
+
+ if (IsRealNumber(s4)) {
+    result.high=atof(s4);
+  } else {
+    fprintf(stderr, "Error ar parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "%s is not a number\n",s1);
+    exit(EXIT_FAILURE);
+  }
+
+  
+  if (result.low>result.high) {
+    fprintf(stderr, "Error ar parsing the string %s in the function parse_density_integral_string\n",input);
+    fprintf(stderr, "The value for low has to be larger than then value for high.\n");
+    fprintf(stderr, " was [%f, %f]\n",result.low, result.high);
+    fprintf(stderr, " input %s \n",input);
+    fprintf(stderr, " variablename %s \n",variablename);
+ 
+    exit(EXIT_FAILURE);
+  }
+
+
+  return result;
 }

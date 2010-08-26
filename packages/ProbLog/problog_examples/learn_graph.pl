@@ -1,3 +1,5 @@
+%%% -*- Mode: Prolog; -*-
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog program describing a probabilistic graph
 % (running example from ProbLog presentations)
@@ -10,7 +12,7 @@
 % will run 20 iterations of learning with default settings 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module(library(problog_learning)).
+:- use_module('../problog_learning').
 
 %%%%
 % background knowledge
