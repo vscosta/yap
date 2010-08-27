@@ -255,7 +255,6 @@ void myexpand(extmanager MyManager, DdNode *Current);
 double CalcProbability(extmanager MyManager, DdNode *Current);
 double CalcProbabilitySigmoid(extmanager MyManager, DdNode *Current);
 gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, char *TargetPattern, int type);
-double CalcExpectedCounts(extmanager MyManager, DdNode *Current);
 int patterncalculated(char *pattern, extmanager MyManager, int loc);
 char * extractpattern(char *thestr);
 
@@ -307,15 +306,15 @@ int main(int argc, char **arg) {
     return -1;
   }
 
-  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o' && arg[params.method][0] != 'l' && arg[params.method][0] != 's' && arg[params.method][0] != 'e') {
+  if (params.method != 0 && arg[params.method][0] != 'g' && arg[params.method][0] != 'p' && arg[params.method][0] != 'o' && arg[params.method][0] != 'l' && arg[params.method][0] != 's') {
     printhelp(argc, arg);
-    fprintf(stderr, "Error: you must choose a calculation method beetween [p]robability, [g]radient, [l]ine search, [s]earch for strategy, [o]nline, [e]xpected counts.\n");
+    fprintf(stderr, "Error: you must choose a calculation method beetween [p]robability, [g]radient, [l]ine search, [s]earch for strategy, [o]nline.\n");
     return -1;
   }
 
-  if (params.method != 0 && (arg[params.method][0] == 'g' || arg[params.method][0] == 'p' || arg[params.method][0] == 'l'|| arg[params.method][0] == 'e') && params.inputfile == -1) {
+  if (params.method != 0 && (arg[params.method][0] == 'g' || arg[params.method][0] == 'p' || arg[params.method][0] == 'l') && params.inputfile == -1) {
     printhelp(argc, arg);
-    fprintf(stderr, "Error: an input file is necessary for probability, gradient, line search calculation or expected counts methods.\n");
+    fprintf(stderr, "Error: an input file is necessary for probability, gradient or line search calculation methods.\n");
     return -1;
   }
 
@@ -483,9 +482,6 @@ int main(int argc, char **arg) {
 					  tvalue = CalcGradient(MyManager, bdd, 0 + MyManager.varmap.varstart, NULL, 0);
 					  probability = tvalue.probability;
 					  printf("query_probability(%s,%e).\n", arg[params.queryid], probability);
-					  break;
-				  case 'e':
-					  printf("probability(%e).\n", CalcExpectedCounts(MyManager, bdd));
 					  break;
 				  case 'p':
 					  printf("probability(%e).\n", CalcProbability(MyManager, bdd));
@@ -1555,7 +1551,7 @@ void printhelp(int argc, char **arg) {
   fprintf(stderr, "Optional parameters:\n");
   fprintf(stderr, "\t-sd [filename]\t->\tfilename to save generated BDD in node dump format (fast loading, traverse valid only)\n");
   fprintf(stderr, "\t-e [filename]\t->\tfilename to export generated BDD in dot format\n");
-  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [l]ine search, [o]nline, [e]xpexted counts\n");
+  fprintf(stderr, "\t-m [method]\t->\tthe calculation method to be used: none(default), [p]robability, [g]radient, [l]ine search, [o]nline\n");
   fprintf(stderr, "\t-id [queryid]\t->\tthe queries identity name (used by gradient) default: %s\n", arg[0]);
   fprintf(stderr, "\t-sl [double]\t->\tthe sigmoid slope (used by gradient) default: 1.0\n");
   fprintf(stderr, "\t-if \t\t->\tbuild a forest of -independent- BDDs where each BDD is in a different manager. \n");
@@ -1837,47 +1833,6 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
   }
   
   tvalue = tvalue * hvalue + lvalue * (1.0 - tvalue);
-  AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue, 0, NULL);
-  return tvalue;
-}
-
-
-
-
-
-// START HERE
-double CalcExpectedCounts(extmanager MyManager, DdNode *Current) {
-  DdNode *h, *l;
-  hisnode *Found;
-  char *curnode, *dynvalue;
-  double lvalue, hvalue, tvalue;
-  int ivalue;
-  if (params.debug) {
-    curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
-    fprintf(stderr, "%s\n", curnode);
-  }
-  if (Current == MyManager.t) return 1.0;
-  if (Current == MyManager.f) return 0.0;
-
-  if ((Found = GetNode(MyManager.his, MyManager.varmap.varstart, Current)) != NULL) return Found->dvalue;
-  l = LowNodeOf(MyManager.manager, Current);
-  h = HighNodeOf(MyManager.manager, Current);
-  if (params.debug) fprintf(stderr, "l(%s)->", curnode);
-  lvalue = CalcProbability(MyManager, l);
-  if (params.debug) fprintf(stderr, "h(%s)->", curnode);
-  hvalue = CalcProbability(MyManager, h);
-
-  dynvalue = (char*) MyManager.varmap.dynvalue[GetIndex(Current) - MyManager.varmap.varstart];
-  //  if (dynvalue == NULL) {
-    // no dynvalue, node is regular probabilistic fact
-  tvalue = MyManager.varmap.dvalue[GetIndex(Current) - MyManager.varmap.varstart];
-  ivalue = MyManager.varmap.ivalue[GetIndex(Current) - MyManager.varmap.varstart];
-
-  if(ivalue == 0){
-    tvalue = tvalue * hvalue + lvalue * (1.0 - tvalue);
-  }else if (ivalue ==1){
-    tvalue = hvalue + lvalue ;
-  }
   AddNode(MyManager.his, MyManager.varmap.varstart, Current, tvalue, 0, NULL);
   return tvalue;
 }
