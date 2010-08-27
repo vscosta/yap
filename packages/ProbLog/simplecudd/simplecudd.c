@@ -643,7 +643,7 @@ int LoadVariableData(namedvars varmap, char *filename) {
   char *dataread, buf, *varname, *dynvalue;
   double dvalue = 0.0;
   int icur = 0, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0;
-  dynvalue = NULL;
+  dynvalue = NULL; varname = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
     perror(filename);
     return -1;
@@ -975,12 +975,12 @@ DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader file
   return (FileGenerateBDDForest(manager, varmap, fileheader))[0];
 }
 
-void unreference(DdManager *manager, DdNode ** intermediates, int count){
-//	int i;
-//	for(i = 0;i<count;i++){
-//		if(intermediates[i] != NULL) Cudd_RecursiveDeref(manager,intermediates[i]);
-//	}
-}
+// void unreference(DdManager *manager, DdNode ** intermediates, int count){
+// //	int i;
+// //	for(i = 0;i<count;i++){
+// //		if(intermediates[i] != NULL) Cudd_RecursiveDeref(manager,intermediates[i]);
+// //	}
+// }
 
 DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfileheader fileheader) {
   int icomment, maxlinesize, icur, iline, curinter, iequal;
@@ -1031,7 +1031,7 @@ DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfilehead
                 result = (DdNode **) malloc(sizeof(DdNode *) * 1);
                 result[0] = inter[curinter];
                 Cudd_Ref(result[0]);
-                unreference(manager, inter, fileheader.intercnt);
+                //unreference(manager, inter, fileheader.intercnt);
                 free(inter);
                 free(inputline);
                 return result;
@@ -1084,7 +1084,7 @@ DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfilehead
             }
             if (_debug) fprintf(stderr, "Returned: %s\n", inputline);
             fclose(fileheader.inputfile);
-            unreference(manager, inter, fileheader.intercnt);
+            //unreference(manager, inter, fileheader.intercnt);
             free(inter);
             free(inputline);
             free(subl);
@@ -1198,7 +1198,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
   double secs;
-  DdNode *bdd, *temp;
+  DdNode *bdd;//, *temp;
   char *term, curoper;
   bdd = HIGH(manager);
   Cudd_Ref(bdd);
@@ -1684,8 +1684,8 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ, iRoot;
-  double dvalue;
+  int icur, maxlinesize, iline, index, iloop, iQsize, i, inQ, iRoot; //ivalue, 
+//  double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
@@ -1723,10 +1723,10 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
               inQ = 0;
               for(i = 0; (i < iQsize / 2) && (inQ < 3); i++)
                 inQ = (Q[i] == l_node) || (Q[iQsize - i] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i] == h_node);
-              if (inQ & 1 == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
-              if (inQ & 2 == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
-              if (inQ & 1 == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
-              if (inQ & 2 == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
+              if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
+              if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
+              if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
+              if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
               inQ = 0;
               switch(inQ) {
                 case 0:

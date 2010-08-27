@@ -260,9 +260,12 @@ char * extractpattern(char *thestr);
 
 // added by GUY
 double* read_util_file(char * filename);
+int forestSize(DdNode **forest);
+int compare_util_adds(const void* A, const void* B);
 void exact_strategy_search(extmanager* MyManager, DdNode **forest, double* utilities);
 DdNode* buildADDfromBDD(extmanager* MyManager, DdNode *Current, DdManager* addmgr);
 void ReInitAndUnrefHistory(hisqueue *HisQueue, int varcnt, DdManager* mgr);
+char* GetAddNodeVarNameDisp(namedvars varmap, DdNode *node);
 int extractstrategy(extmanager* MyManager, DdManager * add_mgr, DdNode *Current, DdNode *max_node);
 DdNode * setLowerBound(DdManager * dd, DdNode * f, double lowerBound);
 DdNode * setLowerBoundRecur(DdManager * dd, DdNode * f, double lowerBound);
@@ -273,6 +276,7 @@ void print_strategy(namedvars varmap);
 void newManager(extmanager* MyManager,bddfileheader fileheader, int nbManagers);
 bdd_mgr* generateIndependentBDDForest(bddfileheader fileheader);
 int LoadVariableDataForForest(namedvars varmap, char *filename);
+int printTime(void);
 
 int main(int argc, char **arg) {
   extmanager MyManager;
@@ -289,6 +293,7 @@ int main(int argc, char **arg) {
 
   //Initializin to NULL to be safe?
   bdd = NULL;
+  bakbdd = NULL;
   forest = NULL;
   bdd_mgrs = NULL;
 
@@ -619,7 +624,7 @@ double* read_util_file(char *filename){
 	return utils;
 }
 
-int forestSize(DdNode **forest){
+int forestSize(DdNode **forest) {
 	int i = 0;
 	do{
 		i++;
@@ -651,6 +656,7 @@ void exact_strategy_search(extmanager* MyManager, DdNode **forest, double* utili
 	double utility_to_go = 0.000001;
 	util_add * util_adds = (util_add *) malloc(sizeof(util_add)*n);
 
+  names = NULL;
 	if (params.debug) {
         fprintf(stderr, "init add\n");
     }
@@ -807,6 +813,8 @@ DdNode* buildADDfromBDD(extmanager* MyManager, DdNode *Current, DdManager* addmg
 	DdNode *lowAdd, *highAdd;
 	DdNode* var;
 	DdNode *posprob, *negprob;
+  
+  curnode = NULL;
 
 	//if (_debug && Cudd_DebugCheck(addmgr)!=0) exit(-1);
 
@@ -1181,7 +1189,7 @@ void print_strategy(namedvars varmap){
 
 // new manager for bdd forest needs very low memory requirements! -l
 void newManager(extmanager* MyManager, bddfileheader fileheader, int nbManagers){
-	MyManager->manager;
+// 	MyManager->manager;
 	if (_debug) fprintf(stderr,"Creating new BDD manager.\n\n");
 	if (_debug) fprintf(stderr,"Setting BDD manager memory consumption to %i.\n", max(1024,(512*1024*1024)/nbManagers));
 	MyManager->manager = Cudd_Init((unsigned int)fileheader.varcnt, 0,
@@ -1206,15 +1214,16 @@ int printTime(void){
 	time(&now);
 	current = localtime(&now);
 	fprintf(stderr, "%i:%i:%i: ", current->tm_hour, current->tm_min, current->tm_sec);
+  return 1;
 }
 
 bdd_mgr* generateIndependentBDDForest(bddfileheader fileheader) {
-  int i;
   int icomment, maxlinesize, icur, iline, curinter, iequal;
   DdNode *Line;
   bdd_mgr * bdd_mgrs;
   char buf, *inputline, *filename, *subl;
   bddfileheader interfileheader;
+  subl = NULL; // This addition might hide a real bug GUY you need to check your free(subl) instructions
   // Initialization of intermediate steps
   //Guy: +1 to delimit array????
   bdd_mgrs = (bdd_mgr *) malloc(sizeof(bdd_mgr) * (fileheader.intercnt+1));
@@ -1399,6 +1408,7 @@ int LoadVariableDataForForest(namedvars varmap, char *filename) {
   double dvalue = 0.0;
   int icur = 0, maxbufsize = 10, hasvar = 0, index = 0, idat = 0, ivalue = 0;
   dynvalue = NULL;
+  varname = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
     perror(filename);
     return -1;
@@ -1797,6 +1807,13 @@ double CalcProbability(extmanager MyManager, DdNode *Current) {
   double lvalue, hvalue, tvalue;
   density_integral dynvalue_parsed;
 
+  dynvalue_parsed.low = 0.0;
+  dynvalue_parsed.high = 0.0;
+  dynvalue_parsed.mu = 0.0;
+  dynvalue_parsed.log_sigma = 0.0;
+
+  curnode = NULL;
+
   if (params.debug) {
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     fprintf(stderr, "%s\n", curnode);
@@ -1847,12 +1864,18 @@ gradientpair CalcGradient(extmanager MyManager, DdNode *Current, int TargetVar, 
   hisnode *Found;
   char *curnode, *dynvalue;
   gradientpair lowvalue, highvalue, tvalue;
-  double this_probability;
-  double this_gradient;
-  double continuous_denominator,continuous_numerator;
+  double this_probability = 0.0;
+  double this_gradient = 0.0;
+  double continuous_denominator = 0.0, continuous_numerator = 0.0;
   double *gradient;
   density_integral dynvalue_parsed;
 
+  dynvalue_parsed.low = 0.0;
+  dynvalue_parsed.high = 0.0;
+  dynvalue_parsed.mu = 0.0;
+  dynvalue_parsed.log_sigma = 0.0;
+
+  curnode = NULL;
   if (params.debug) {
     curnode = GetNodeVarNameDisp(MyManager.manager, MyManager.varmap, Current);
     fprintf(stderr, "%s\n", curnode);
