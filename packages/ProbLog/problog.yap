@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-25 15:45:22 +0200 (Wed, 25 Aug 2010) $
-%  $Revision: 4692 $
+%  $Date: 2010-08-30 18:09:17 +0200 (Mon, 30 Aug 2010) $
+%  $Revision: 4728 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -1559,7 +1559,8 @@ eval_dnf(OriTrie1, Prob, Status) :-
   % naive method with nested trie support but not loops
   ((problog_flag(use_naive_trie, true); (problog_flag(use_old_trie, true), nb_getval(problog_nested_tries, true))) ->
     statistics(walltime, _),
-    atomic_concat([BDDFile, '_naive'], BDDFile_naive),
+%     atomic_concat([BDDFile, '_naive'], BDDFile_naive),
+    BDDFile = BDDFile_naive,
     nested_ptree_to_BDD_script(Trie, BDDFile_naive, BDDParFile),
     statistics(walltime, [_, ScriptGenerationTime_naive]),
     problog_var_set(bdd_script_time(naive), ScriptGenerationTime_naive),
@@ -1593,7 +1594,8 @@ eval_dnf(OriTrie1, Prob, Status) :-
     (problog_flag(use_db_trie, true) ->
       tries:trie_db_opt_min_prefix(MinPrefix),
       statistics(walltime, _),
-      atomic_concat([BDDFile, '_builtin_', OptLevel], BDDFile_builtin),
+%       atomic_concat([BDDFile, '_builtin_', OptLevel], BDDFile_builtin),
+      BDDFile = BDDFile_builtin,
       (nb_getval(problog_nested_tries, false) ->
         trie_to_bdd_trie(Trie, DBTrie, BDDFile_builtin, OptLevel, BDDParFile)
       ;
@@ -1631,7 +1633,8 @@ eval_dnf(OriTrie1, Prob, Status) :-
   % decomposition method
   (problog_flag(use_dec_trie, true) ->
     statistics(walltime, _),
-    atomic_concat([BDDFile, '_dec'], BDDFile_dec),
+%     atomic_concat([BDDFile, '_dec'], BDDFile_dec),
+    BDDFile = BDDFile_dec,
     ptree_decomposition(Trie, BDDFile_dec, BDDParFile),
     statistics(walltime, [_, ScriptGenerationTime_dec]),
     problog_var_set(bdd_script_time(dec), ScriptGenerationTime_dec),

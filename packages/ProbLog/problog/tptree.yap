@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-26 14:27:24 +0200 (Thu, 26 Aug 2010) $
-%  $Revision: 4711 $
+%  $Date: 2010-08-30 18:09:17 +0200 (Mon, 30 Aug 2010) $
+%  $Revision: 4728 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -1253,7 +1253,8 @@ get_variable(R, R).
 
 trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
   trie_to_depth_breadth_trie(A, B, LL, OptimizationLevel),
-  (atomic_concat('L', InterStep, LL) ->
+  (islabel(LL) ->
+    atomic_concat('L', InterStep, LL),
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
       asserta(deref(LL,no)),
@@ -1289,8 +1290,13 @@ trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     write(1), nl,
     write(0), nl,
     write(1), nl,
-    get_var_name(LL, NLL),
-    write('L1 = '),write(NLL),nl,
+    (LL = not(ID) ->
+      get_var_name(ID, NLL),
+      write('L1 = ~'), write(NLL),nl
+    ;
+      get_var_name(LL, NLL),
+      write('L1 = '), write(NLL),nl
+    ),
     write('L1'), nl,
     told
   ).
