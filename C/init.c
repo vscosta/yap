@@ -23,6 +23,7 @@ static char     SccsId[] = "%W% %G%";
  *
  */
 
+#include <stdlib.h>
 #include "Yap.h"
 #include "yapio.h"
 #include "alloc.h"
@@ -408,6 +409,7 @@ static Opdef    Ops[] = {
   {"#", yfx, 500},
   {"xor", yfx, 400},
   {"rdiv", yfx, 400},
+  {"div", yfx, 400},
   {"*", yfx, 400},
   {"/", yfx, 400},
   {"//", yfx, 400},
