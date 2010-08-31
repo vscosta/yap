@@ -55,6 +55,8 @@ PROBLOG_EXAMPLES = \
 	$(srcdir)/problog_examples/viralmarketing.pl \
 	$(srcdir)/problog_examples/viralmarketing_tabled.pl
 
+MANUAL = $(srcdir)/problog.tex
+
 install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
@@ -62,3 +64,8 @@ install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
 	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
+
+pdf: $(MANUAL)
+	pdflatex $(MANUAL)
+	pdflatex $(MANUAL)
+	$(INSTALL_DATA) problog.pdf $(DESTDIR)$(SHAREDIR)/docs/Yap/problog.pdf
