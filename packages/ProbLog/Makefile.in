@@ -15,6 +15,7 @@ YAPLIBDIR=@libdir@/Yap
 # where YAP should look for architecture-independent Prolog libraries
 #
 SHAREDIR=$(ROOTDIR)/share
+DOCSDIR=$(SHAREDIR)/docs/Yap
 #
 #
 # You shouldn't need to change what follows.
@@ -24,6 +25,8 @@ INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
+PDFLATEX=pdflatex
+BIBTEX=bibtex
 
 PROGRAMS= \
 	$(srcdir)/problog.yap \
@@ -49,13 +52,14 @@ PROBLOG_PROGRAMS= \
 
 PROBLOG_EXAMPLES = \
 	$(srcdir)/problog_examples/graph.pl \
-	$(srcdir)/problog_examples/graph_tabled.pl \
+	$(srcdir)/p	roblog_examples/graph_tabled.pl \
 	$(srcdir)/problog_examples/learn_graph.pl \
 	$(srcdir)/problog_examples/office.pl \
 	$(srcdir)/problog_examples/viralmarketing.pl \
 	$(srcdir)/problog_examples/viralmarketing_tabled.pl
 
-MANUAL = $(srcdir)/problog.tex
+MANUAL_NAME = problog
+MANUAL = $(srcdir)/$(MANUAL_NAME)
 
 install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
@@ -66,6 +70,9 @@ install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
 
 pdf: $(MANUAL)
-	pdflatex $(MANUAL)
-	pdflatex $(MANUAL)
-	$(INSTALL_DATA) problog.pdf $(DESTDIR)$(SHAREDIR)/docs/Yap/problog.pdf
+	$(PDFLATEX) $(MANUAL)
+	#$(BIBTEX) $(MANUAL_NAME)
+	$(PDFLATEX) $(MANUAL)
+
+install_docs: pdf
+	$(INSTALL_DATA) problog.pdf $(DESTDIR)$(DOCSDIR)
