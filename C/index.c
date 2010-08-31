@@ -2515,7 +2515,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     } else {
       tels = cls;
     }
-    sz = (UInt)NEXTOP((yamop *)NULL,sssllp)+tels*sizeof(yamop *), sz;
+    sz = (UInt)NEXTOP((yamop *)NULL,sssllp)+tels*sizeof(yamop *);
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
       save_machine_regs();
       longjmp(cint->CompilerBotch, 2);
