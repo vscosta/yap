@@ -102,6 +102,69 @@ zero_divisor:
 }
 
 static Term
+p_div2(Term t1, Term t2) {
+  switch (ETypeOfTerm(t1)) {
+  case (CELL)long_int_e:
+    switch (ETypeOfTerm(t2)) {
+    case (CELL)long_int_e:
+      /* two integers */
+      {
+	Int i1 = IntegerOfTerm(t1);
+	Int i2 = IntegerOfTerm(t2);
+	Int res;
+
+	if (i2 == 0) goto zero_divisor;
+	if (i1 == Int_MIN && i2 == -1) {
+#ifdef USE_GMP
+	  return Yap_gmp_add_ints(Int_MAX, 1);	  
+#else
+	  return Yap_ArithError(EVALUATION_ERROR_INT_OVERFLOW, t1,
+		    "// /2 with %d and %d", i1, i2);
+#endif
+	}
+	res = (i1 - i1%i2) / i2;
+	RINT(res);
+      }
+    case (CELL)double_e:
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+    case (CELL)big_int_e:
+#ifdef USE_GMP
+      return Yap_gmp_div_int_big(IntegerOfTerm(t1), t2);
+#endif
+    default:
+      RERROR();
+      break;
+    }
+  case (CELL)double_e:
+    return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "div/2");
+  case (CELL)big_int_e:
+#ifdef USE_GMP
+    switch (ETypeOfTerm(t2)) {
+    case long_int_e:
+      /* modulo between bignum and integer */
+      {
+	Int i2 = IntegerOfTerm(t2);
+
+	if (i2 == 0) goto zero_divisor;
+	return Yap_gmp_div2_big_int(t1, i2);
+      }
+    case (CELL)big_int_e:
+      /* two bignums */
+      return Yap_gmp_div2_big_big(t1, t2);
+    case double_e:
+      return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "mod/2");
+    default:
+      RERROR();
+    }
+#endif
+  default:
+    RERROR();
+  }
+zero_divisor:
+  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is div 0");
+}
+
+static Term
 p_rem(Term t1, Term t2) {
   switch (ETypeOfTerm(t1)) {
   case (CELL)long_int_e:
@@ -912,6 +975,8 @@ eval2(Int fi, Term t1, Term t2) {
     return p_times(t1, t2);
   case op_div:
     return p_div(t1, t2);
+  case op_idiv:
+    return p_div2(t1, t2);
   case op_and:
     return p_and(t1, t2);
   case op_or:
@@ -959,6 +1024,7 @@ static InitBinEntry InitBinTab[] = {
   {"mod", op_mod},
   {"rem", op_rem},
   {"//", op_div},
+  {"div", op_idiv},
   {"<<", op_sll},
   {">>", op_slr},
   {"/\\", op_and},

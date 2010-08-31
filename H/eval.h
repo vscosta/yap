@@ -108,6 +108,7 @@ typedef enum {
   op_mod,
   op_rem,
   op_div,
+  op_idiv,
   op_sll,
   op_slr,
   op_and,
@@ -236,6 +237,7 @@ Term  STD_PROTO(Yap_gmp_sub_big_int,(Term, Int));
 Term  STD_PROTO(Yap_gmp_mul_int_big,(Int, Term));
 Term  STD_PROTO(Yap_gmp_div_int_big,(Int, Term));
 Term  STD_PROTO(Yap_gmp_div_big_int,(Term, Int));
+Term  STD_PROTO(Yap_gmp_div2_big_int,(Term, Int));
 Term  STD_PROTO(Yap_gmp_fdiv_int_big,(Int, Term));
 Term  STD_PROTO(Yap_gmp_fdiv_big_int,(Term, Int));
 Term  STD_PROTO(Yap_gmp_and_int_big,(Int, Term));
@@ -246,6 +248,7 @@ Term  STD_PROTO(Yap_gmp_add_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_sub_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_mul_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_div_big_big,(Term, Term));
+Term  STD_PROTO(Yap_gmp_div2_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_fdiv_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_and_big_big,(Term, Term));
 Term  STD_PROTO(Yap_gmp_ior_big_big,(Term, Term));

@@ -3903,6 +3903,9 @@ Integer remainder.
 @item @var{X} rem @var{Y} [ISO]
 Integer remainder, the same as @code{mod}.
 
+@item @var{X} div @var{Y} [ISO]
+Integer division, as if defined by @code{(@var{X} - @var{X} mod @var{Y}) // @var{Y}}.
+
 @item exp(@var{X}) [ISO]
 Natural exponential.
 
@@ -15850,6 +15853,7 @@ a solution was found.
 Notice that you cannot create new slots if an YAP_EnterGoal goal is open.
 
 @item  @code{YAP_Bool} YAP_RetryGoal(@code{YAP_dogoalinfo *} @var{infop})
+
 @findex YAP_RetryGoal (C-Interface function)
 Backtrack to a query created by @code{YAP_EnterGoal}. The query is
 given by the handle @var{infop}. Returns whether a new solution could
