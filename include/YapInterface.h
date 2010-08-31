@@ -510,6 +510,9 @@ extern X_API int        PROTO(YAP_Variant,(YAP_Term,YAP_Term));
 extern X_API int        PROTO(YAP_ExactlyEqual,(YAP_Term,YAP_Term));
 extern X_API YAP_Int    PROTO(YAP_TermHash,(YAP_Term, YAP_Int, YAP_Int, int));
 
+/*  stack expansion control */
+extern X_API int        PROTO(YAP_SetYAPFlag,(yap_flag_t,int));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

@@ -187,3 +187,11 @@ typedef enum
     YAPC_COMPILE_ALL          /* compile all predicates */
   } yapc_exec_mode;
 
+/********* YAP C-Flags ***********************/
+
+typedef enum
+  {
+    YAPC_ENABLE_GC,                 /* enable or disable garbage collection */
+    YAPC_ENABLE_AGC                 /* enable or disable atom garbage collection */
+  } yap_flag_t;
+

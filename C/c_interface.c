@@ -519,6 +519,7 @@ X_API int      STD_PROTO(YAP_Erase,(void *));
 X_API int      STD_PROTO(YAP_Variant,(Term, Term));
 X_API int      STD_PROTO(YAP_ExactlyEqual,(Term, Term));
 X_API Int      STD_PROTO(YAP_TermHash,(Term, Int, Int, int));
+X_API int      STD_PROTO(YAP_SetYAPFlag,(yap_flag_t, int));
 
 static int (*do_getf)(void);
 
@@ -3096,6 +3097,30 @@ YAP_SlotsToArgs(int n, Int slot)
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr1++ = *ptr0++;
+  }
+}
+
+
+X_API int
+YAP_SetYAPFlag(yap_flag_t flag, int val)
+{
+  switch (flag) {
+  case YAPC_ENABLE_GC:
+    if (val) {
+      Yap_PutValue(AtomGc, MkAtomTerm(AtomTrue));
+    } else {
+      Yap_PutValue(AtomGc, TermNil);
+    }
+    return TRUE;
+  case YAPC_ENABLE_AGC:
+    if (val) {
+      AGcThreshold = 10000;
+    } else {
+      AGcThreshold = 0;
+    }
+    return TRUE;
+  default:
+    return FALSE;
   }
 }
 

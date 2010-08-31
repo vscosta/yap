@@ -300,6 +300,7 @@ Subnodes of C-Interface
 * Utility Functions:: From character arrays to Lists of codes and back
 * Calling YAP From C:: From C to YAP to C to YAP 
 * Module Manipulation in C:: Create and Test Modules from within C
+* Miscellaneous C-Functions:: Other Helpful Interface Functions
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
 * Save&Rest:: Saving and Restoring
@@ -15232,6 +15233,7 @@ The rest of this appendix describes exhaustively how to interface C to YAP.
 * Utility Functions:: From character arrays to Lists of codes and back
 * Calling YAP From C:: From C to YAP to C to YAP 
 * Module Manipulation in C:: Create and Test Modules from within C
+* Miscellaneous C-Functions:: Other Helpful Interface Functions
 * Writing C:: Writing Predicates in C
 * Loading Objects:: Loading Object Files
 * Save&Rest:: Saving and Restoring
@@ -15901,7 +15903,7 @@ finding the first solution to the goal, but you can call
 Notice that during execution, garbage collection or stack shifting may
 have moved the terms 
 
-@node Module Manipulation in C, Writing C, Calling YAP From C, C-Interface
+@node Module Manipulation in C, Miscellaneous C-Functions, Calling YAP From C, C-Interface
 @section Module Manipulation in C
 
 YAP allows one to create a new module from C-code. To create the new
@@ -15925,7 +15927,22 @@ possible by using:
 Notice that this function returns a term, and not an atom. You can
 @code{YAP_AtomOfTerm} to extract the corresponding Prolog atom.
 
-@node Writing C, Loading Objects, Module Manipulation in C, C-Interface
+@node Miscellaneous C-Functions, Writing C, Module Manipulation in C, C-Interface
+@section Miscellaneous C Functions
+
+@table @code
+@item  @code{int} YAP_SetYAPFlag(@code{yap_flag_t flag, int value})
+@findex YAP_SetYAPFlag (C-Interface function)
+
+This function allows setting some YAP flags from @code{C} .Currently,
+only two boolean flags are accepted: @code{YAPC_ENABLE_GC} and
+@code{YAPC_ENABLE_AGC}.  The first enables/disables the standard garbage
+collector, the second does the same for the atom garbage collector.`
+
+@end table
+
+
+@node Writing C, Loading Objects, Miscellaneous C-Functions, C-Interface
 @section Writing predicates in C
 
 We will distinguish two kinds of predicates:
