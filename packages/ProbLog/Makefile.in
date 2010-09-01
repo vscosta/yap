@@ -52,7 +52,7 @@ PROBLOG_PROGRAMS= \
 
 PROBLOG_EXAMPLES = \
 	$(srcdir)/problog_examples/graph.pl \
-	$(srcdir)/p	roblog_examples/graph_tabled.pl \
+	$(srcdir)/problog_examples/graph_tabled.pl \
 	$(srcdir)/problog_examples/learn_graph.pl \
 	$(srcdir)/problog_examples/office.pl \
 	$(srcdir)/problog_examples/viralmarketing.pl \
