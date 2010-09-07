@@ -338,9 +338,9 @@ TrNode breadth_reduction(TrEntry trie, TrNode breadth_node, YAP_Int opt_level) {
   stop_data = TrData_previous(TrEntry_first_data(trie));
   data = TrEntry_traverse_data(trie) = TrEntry_last_data(trie);
   while ((data != stop_data) && (data != NULL)) {
-/*  printf("hi1\n");*/
+//     printf("hi\n");
     node = core_breadth_reduction(TRIE_ENGINE, TrData_leaf(data), breadth_node, opt_level, &trie_data_construct, &trie_data_destruct, &trie_data_copy, &trie_data_order_correction);
-//   printf("bye1\n");
+//     printf("bye\n");
     if (node && IS_FUNCTOR_NODE(TrNode_parent(node)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(node))))), NESTED_TRIE_TERM) == 0)) {
       //nested trie stop procedure return nested trie node
       return node;
