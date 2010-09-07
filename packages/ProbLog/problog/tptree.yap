@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-30 18:09:17 +0200 (Mon, 30 Aug 2010) $
-%  $Revision: 4728 $
+%  $Date: 2010-09-07 23:20:03 +0200 (Tue, 07 Sep 2010) $
+%  $Revision: 4765 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -268,12 +268,12 @@
 % Define module flags
 %%%%%%%%%%%%%%%%%%%%%%%
 
-:- problog_define_flag(use_db_trie,     problog_flag_validate_boolean, 'use the builtin trie 2 trie transformation', true).
+:- problog_define_flag(use_db_trie,     problog_flag_validate_boolean, 'use the builtin trie 2 trie transformation', false).
 :- problog_define_flag(db_trie_opt_lvl, problog_flag_validate_integer, 'optimization level for the trie 2 trie transformation', 0).
 :- problog_define_flag(compare_opt_lvl, problog_flag_validate_boolean, 'comparison mode for optimization level', false).
 :- problog_define_flag(db_min_prefix,   problog_flag_validate_integer, 'minimum size of prefix for dbtrie to optimize', 2).
 :- problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false).
-:- problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', false).
+:- problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true).
 :- problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false).
 :- problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true).
 :- problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false).
@@ -502,7 +502,7 @@ trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables) :-
     write(VarCNT), nl,
     write(0), nl,
     write(InterStep), nl,
-    trie_write(B),
+    trie_write(B, LL),
     write(LL), nl,
     told
   ;
@@ -545,13 +545,13 @@ nested_trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables):-
       InterStep is NegStepN + 1,
       atomic_concat('L', InterStep, FL),
       write(InterStep), nl,
-      trie_write(B),
+      trie_write(B, FL),
       write(FL), write(' = ~'), write(NegL), nl,
       write(FL), nl
     ;
       atomic_concat('L', InterStep, LL),
       write(InterStep), nl,
-      trie_write(B),
+      trie_write(B, LL),
       write(LL), nl
     ),
     told
@@ -1273,7 +1273,7 @@ trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     write(VarCNT), nl,
     write(0), nl,
     write(InterStep), nl,
-    trie_write(B),
+    trie_write(B, LL),
     write(LL), nl,
     told
   ;
@@ -1331,13 +1331,13 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
       InterStep is NegStepN + 1,
       atomic_concat('L', InterStep, FL),
       write(InterStep), nl,
-      trie_write(B),
+      trie_write(B, FL),
       write(FL), write(' = ~'), write(NegL), nl,
       write(FL), nl
     ;
       atomic_concat('L', InterStep, LL),
       write(InterStep), nl,
-      trie_write(B),
+      trie_write(B, LL),
       write(LL), nl
     ),
     told
@@ -1375,7 +1375,7 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     write(VarCNT), nl,
     write(0), nl,
     write(InterStep), nl,
-    trie_write(B),
+    trie_write(B, LL),
     write(LL), nl,
     told
   ;
@@ -1675,19 +1675,24 @@ replace_in_functor(F, NF, T, R):-
 
 
 
-trie_write(T):-
+trie_write(T, MAXL):-
+  atomic_concat('L', MAXLA, MAXL),
+  atom_number(MAXLA, MAXLN),
   trie_traverse(T, R),
   trie_get_entry(R, L),
   %write(user_output, L),nl(user_output),
-  (dnfbddformat(L) ->
+  (dnfbddformat(L, MAXLN) ->
     true
   ;
-    write(error(L)), nl
+    write(user_error, warning(L, not_processed)), nl(user_error)
   ),
   fail.
-trie_write(_).
+trie_write(_, _).
 
-dnfbddformat(depth(T, L)):-
+dnfbddformat(depth(T, L), MAXL):-
+  atomic_concat('L', LA, L),
+  atom_number(LA, LN),
+  MAXL >= LN,
   seperate(T, Li, V),
   %sort(Li, SL),
   %reverse(SL, RSL),
@@ -1697,7 +1702,10 @@ dnfbddformat(depth(T, L)):-
     atomic_concat('L', D, I),
     write('D'), write(D), nl
     )).
-dnfbddformat(breadth(T, L)):-
+dnfbddformat(breadth(T, L), MAXL):-
+  atomic_concat('L', LA, L),
+  atom_number(LA, LN),
+  MAXL >= LN,
   seperate(T, Li, V),
   %sort(Li, SL),
   %reverse(SL, RSL),
