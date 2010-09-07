@@ -99,6 +99,7 @@ us to include his text in this document.
 * CLPR:: The CLP(R) System
 * CHR:: The CHR System
 * Logtalk:: The Logtalk Object-Oriented System
+* MYDDAS:: The YAP Database Interface
 * Threads:: Thread Library
 * Parallelism:: Running in Or-Parallel
 * Tabling:: Storing Intermediate Solutions of programs 
@@ -12888,6 +12889,7 @@ Extensions to Traditional Prolog
 * Attributed Variables:: Using attributed Variables
 * CLPR:: The CLP(R) System
 * Logtalk:: The Logtalk Object-Oriented system
+* MYDDAS:: The MYDDAS Database Interface package
 * Threads:: Thread Library
 * Parallelism:: Running in Or-Parallel
 * Tabling:: Storing Intermediate Solutions of programs 
@@ -13701,7 +13703,7 @@ attributes from other known solvers/modules via the module prefix in
 
 @include chr.tex
 
-@node Logtalk, Threads, CHR, Extensions
+@node Logtalk, MYDDAS, CHR, Extensions
 @chapter Logtalk
 @cindex Logtalk
 
@@ -13711,7 +13713,757 @@ systems or by using the @code{Logtalk - YAP} shortcut in the Logtalk
 program group in the Start Menu on Windows systems. For more information 
 please see the URL @url{http://logtalk.org/}.
 
-@node Threads, Parallelism, Logtalk, Extensions
+@node MYDDAS, Threads, Logtalk, Extensions
+@chapter MYDDAS
+@cindex MYDDAS
+
+The MYDDAS database project was developed within a FCT project aiming at
+the development of a highly efficient deductive database system, based
+on the coupling of the MySQL relational database system with the Yap
+Prolog system. MYDDAS was later expanded to support the ODBC interface.
+
+@menu
+Subnodes of MYDDAS
+* Requirements and Installation Guide:: 
+* MYDDAS Architecture:: 
+* Loading MYDDAS:: 
+* Connecting to and disconnecting from a Database Server:: 
+* Accessing a Relation:: 
+* View Level Interface :: 
+* Accessing Tables in Data Sources Using SQL:: 
+* Insertion of Rows:: 
+* Types of Attributes:: 
+* Number of Fields:: 
+* Describing a Relation:: 
+* Enumerating Relations:: 
+* The MYDDAS MySQL Top Level:: 
+* Other MYDDAS Properties:: 
+@end menu
+
+@node Requirements and Installation Guide, MYDDAS Architecture, , MYDDAS
+@section Requirements and Installation Guide
+
+Next, we describe how to usen of the YAP with the MYDDAS System.  The
+use of this system is entirely depend of the MySQL development libraries
+or the ODBC development libraries. At least one of the this development
+libraries must be installed on the computer system, otherwise MYDDAS
+will not compile. The MySQL development libraries from MySQL 3.23 an
+above are know to work. We recommend the usage of MySQL versusODBC,
+but it is possible to have both options installed
+
+At the same time, without any problem. The MYDDAS system automatically
+controls the two options. Currently, MYDDAS is know to compile without
+problems in Linux. The usage of this system on Windows has not been
+tested yet.  MYDDAS must be enabled at configure time. This can be done
+with the following options: 
+
+@table @code
+
+@item --enable-myddas
+ This option will detect which development libraries are installed on the computer system, MySQL, ODBC or both, and will compile the Yap system with the support for which libraries it detects;
+@item  --enable-myddas-stats
+This option is only available in MySQL. It includes code to get
+statistics from the MYDDAS system;
+@item  --enable-top-level
+This option is only available in MySQL.  It enables the option to interact with the MySQL server in
+two different ways. As if we were on the MySQL Client Shell, and as if
+we were using Datalog. 
+@end table
+
+@node MYDDAS Architecture, Loading MYDDAS, Requirements and Installation Guide, MYDDAS
+@section MYDDAS Architecture
+
+The system includes four main blocks that are put together through the
+MYDDAS interface: the Yap Prolog compiler, the MySQL database system, an
+ODBC layer and a Prolog to SQL compiler. Current effort is put on the
+MySQL interface rather than on the ODBC interface. If you want to use
+the full power of the MYDDAS interface we recommend you to use a MySQL
+database. Other databases, such as Oracle, PostGres or Microsoft SQL
+Server, can be interfaced through the ODBC layer, but with limited
+performance and features support.  
+
+The main structure of the MYDDAS interface is simple. Prolog queries
+involving database goals are translated to SQL using the Prolog to SQL
+compiler; then the SQL expression is sent to the database system, which
+returns the set of tuples satisfying the query; and finally those tuples
+are made available to the Prolog engine as terms. For recursive queries
+involving database goals, the YapTab tabling engine provides the
+necessary support for an efficient evaluation of such queries.
+
+An important aspect of the MYDDAS interface is that for the programmer
+the use of predicates which are defined in database relations is
+completely transparent. An example of this transparent support is the
+Prolog cut operator, which has exactly the same behaviour from
+predicates defined in the Prolog program source code, or from predicates
+defined in database as relations.
+
+@node Loading MYDDAS, Connecting to and disconnecting from a Database Server, MYDDAS Architecture, MYDDAS 
+@section Loading MYDDAS
+
+Begin by starting YAP and loading the library
+@code{use_module(library(myddas))}.  This library already includes the
+Prolog to SQL Compiler described in [2] and [1]. In MYDDAS this compiler
+has been extended to support further constructs which allow a more
+efficient SQL translation.  
+
+@node Connecting to and disconnecting from a Database Server, Accessing a Relation, Loading MYDDAS, MYDDAS
+@section Connecting to and disconnecting from a Database Server
+
+
+@table @code
+@item db open(+,+,+,+,+). 
+@findex db_open/5
+@snindex db_open/5
+@cnindex db_open/5
+
+@item db open(+,+,+,+). 
+@findex db_open/4
+@snindex db_open/4
+@cnindex db_open/4
+
+@item db close(+). 
+@findex db_close/1
+@snindex db_close/1
+@cnindex db_close/1
+
+@item db_close.
+
+@end table 
+
+  Assuming the MySQL server is running and we have an account, we can
+login to MySQL by invoking @code{db_open/5} as one of the following:
+@example
+?- db_open(mysql,Connection,Host/Database,User,Password). 
+?- db_open(mysql,Connection,Host/Database/Port,User,Password).
+?- db_open(mysql,Connection,Host/Database/UnixSocket,User,Password). 
+?- db_open(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
+
+@end example
+If the login is successful, there will be a response of @code{yes}. For
+instance:
+ @example
+?- db_open(mysql,con1,localhost/guest_db,guest,'').
+@end example
+uses the MySQL native interface, selected by the first argument, to open
+a connection identified by the @code{con1} atom, to an instance of a
+MySQL server running on host @code{localhost}, using database guest @code{db}
+and user @code{guest} with empty @code{password}.  To disconnect from the @code{con1}
+connection we use: 
+@example
+?- db_close(con1).
+@end example
+ Alternatively, we can use @code{db_open/4} and @code{db_close/0,} without an argument
+to identify the connection. In this case the default connection is used,
+with atom @code{myddas}. Thus using 
+@example
+?- db_open(mysql,localhost/guest_db,guest,''). 
+?- db_close.  
+@end example
+or
+@example
+?- db_open(mysql,myddas,localhost/guest_db,guest,''). 
+?- db_close(myddas). 
+@end example
+is exactly the same.
+
+MYDDAS also supports ODBC. To connect to a database using an ODBC driver
+you must have configured on your system a ODBC DSN. If so, the @code{db_open/4}
+and @code{db_open/5} have the following mode:
+@example
+ ?- db_open(odbc,Connection,ODBC_DSN,User,Password). 
+ ?- db_open(odbc,ODBC_DSN,User,Password).
+@end example
+
+For instance, if you do @code{db_open(odbc,odbc_dsn,guest,'')}. it will connect
+to a database, through ODBC, using the definitions on the @code{odbc_dsn} DSN
+configured on the system. The user will be the user @code{guest} with no
+password.
+
+@node Accessing a Relation, View Level Interface , Connecting to and disconnecting from a Database Server, MYDDAS 
+@section Accessing a Relation
+
+@table @code
+@item db_import(+Conn,+RelationName,+PredName). 
+@findex db_import/3
+@snindex db_import/3
+@cnindex db_import/3
+
+@item db_import(+RelationName,+PredName).  
+@findex db_import/2
+@snindex db_import/2
+@cnindex db_import/2
+@end table
+
+Assuming you have access permission for the relation you wish to import,
+you can use @code{db_import/3} or @code{db_import/2} as:
+@example
+?- db_import(Conn,RelationName,PredName).
+?- db_import(RelationName,PredName).
+@end example
+ where @var{RelationName}, is the name of
+relation we wish to access, @var{PredName} is the name of the predicate we
+wish to use to access the relation from YAP. @var{Conn}, is the connection
+identifier, which again can be dropped so that the default myddas connection
+is used. For instance, if we want to access the relation phonebook,
+using the predicate @code{phonebook/3} we write: 
+@example
+?- db_import(con1,phonebook,phonebook). 
+yes
+?- phonebook(Letter,Name,Number).
+Letter = 'D',
+Name = 'John Doe',
+Number = 123456789 ? 
+yes
+@end example
+Backtracking can then be used to retrieve the next row
+of the relation phonebook.  Records with particular field values may be
+selected in the same way as in Prolog. (In particular, no mode
+specification for database predicates is required). For instance: 
+@example
+?- phonebook(Letter,'John Doe',Letter). 
+Letter = 'D', 
+Number = 123456789 ?
+yes
+@end example
+generates the query @example
+SELECT A.Letter , 'John Doe' , A.Number 
+FROM 'phonebook' A 
+WHERE A.Name = 'John Doe';
+@end example
+
+@node View Level Interface, Accessing Tables in Data Sources Using SQL, Accessing a Relation, MYDDAS
+@section View Level Interface
+
+@table @code
+@item db view(+,+,+).
+@findex db_view/3
+@snindex db_view/3
+@cnindex db_view/3
+
+@item db view(+,+).
+@findex db_view/2
+@snindex db_view/2
+@cnindex db_view/2
+@end table
+If we import a database relation, such as an edge relation representing the edges of a directed graph, through
+@example
+?- db_import('Edge',edge). 
+yes
+@end example
+and we then write a query to retrieve all the direct cycles in the
+graph, such as
+@example
+?- edge(A,B), edge(B,A). 
+A = 10, 
+B = 20 ?
+@end example
+this is clearly inefficient [3], because of relation-level
+access. Relation-level access means that a separate SQL query will be
+generated for every goal in the body of the clause. For the second
+@code{edge/2} goal, a SQL query is generated using the variable bindings that
+result from the first @code{edge/2} goal execution. If the second
+@code{edge/2} goal
+fails, or if alternative solutions are demanded, backtracking access the
+next tuple for the first @code{edge/2} goal and another SQL query will be
+generated for the second @code{edge/2} goal. The generation of this large
+number of queries and the communication overhead with the database
+system for each of them, makes the relation-level approach inefficient.
+To solve this problem the view level interface can be used for the
+definition of rules whose bodies includes only imported database
+predicates.  One can use the view level interface through the predicates
+@code{db_view/3} and @code{db_view/2}:
+@example
+?- db_view(Conn,PredName(Arg_1,...,Arg_n),DbGoal).  
+?- db_view(PredName(Arg_1,...,Arg_n),DbGoal).
+@end example
+ All arguments are standard Prolog terms. @var{Arg1} through @var{Argn}
+define the attributes to be retrieved from the database, while
+@var{DbGoal} defines the selection restrictions and join
+conditions. @var{Conn} is the connection identifier, which again can be
+dropped. Calling predicate @code{PredName/n} will retrieve database
+tuples using a single SQL query generated for the @var{DbGoal}.  We next show
+an example of a view definition for the direct cycles discussed
+above. Assuming the declaration: 
+@example
+?- db_import('Edge',edge). 
+yes
+@end example
+we
+write:@example
+?- db_view(direct_cycle(A,B),(edge(A,B), edge(B,A))). 
+yes 
+?- direct_cycle(A,B)). 
+A = 10, 
+B = 20 ?  
+@end example
+This call generates the SQL
+statement: @example
+SELECT A.attr1 , A.attr2
+FROM Edge A , Edge B 
+WHERE B.attr1 = A.attr2 AND B.attr2 = A.attr1;
+@end example
+
+Backtracking, as in relational level interface, can be used to retrieve the next row of the view.
+The view interface also supports aggregate function predicates such as
+@code{sum}, @code{avg}, @code{count}, @code{min} and @code{max}. For
+instance:
+@example
+?- db_view(count(X),(X is count(B, B^edge(10,B)))).
+@end example
+generates the query :
+@example
+SELECT COUNT(A.attr2) 
+FROM Edge A WHERE A.attr1 = 10;
+@end example
+
+To know how to use db @code{view/3}, please refer to Draxler's Prolog to
+SQL Compiler Manual. 
+
+@node Accessing Tables in Data Sources Using SQL, Insertion of Rows, View Level Interface , MYDDAS 
+@section Accessing Tables in Data Sources Using SQL 
+
+@table @code
+@item db_sql(+,+,?). 
+@findex db_sql/3
+@snindex db_sql/3
+@cnindex db_sql/3
+
+@item db_sql(+,?).
+@findex db_sql/2
+@snindex db_sql/2
+@cnindex db_sql/2
+@end table
+
+It is also possible to explicitly send a SQL query to the database server using
+@example
+?- db_sql(Conn,SQL,List).
+?- db_sql(SQL,List).
+@end example
+where @var{SQL} is an arbitrary SQL expression, and @var{List} is a list
+holding the first tuple of result set returned by the server. The result
+set can also be navigated through backtracking.
+
+Example:
+@example
+?- db_sql('SELECT * FROM phonebook',LA).
+LA = ['D','John Doe',123456789] ?
+@end example
+
+@node  Insertion of Rows, Types of Attributes, Accessing Tables in Data Sources Using SQL, MYDDAS 
+@section Insertion of Rows 
+
+@table @code
+@item db_assert(+,+). 
+@findex db_assert/2
+@snindex db_assert/2
+@cnindex db_assert/2
+
+@item db_assert(+).
+@findex db_assert/1
+@snindex db_assert/1
+@cnindex db_assert/1
+
+@end table
+
+Assuming you have imported the related base table using
+ @code{db_import/2} or @code{db_import/3}, you can insert to that table
+ by using @code{db_assert/2} predicate any given fact.
+@example
+?- db_assert(Conn,Fact).
+?- db_assert(Fact).
+@end example
+The second argument must be declared with all of its arguments bound to
+constants. For example assuming @code{helloWorld} is imported through
+@code{db_import/2}:
+@example
+?- db_import('Hello World',helloWorld).
+yes
+?- db_assert(helloWorld('A' ,'Ana',31)). 
+yes
+@end example
+This, would generate the following query 
+@example
+INSERT INTO helloWorld
+VALUES ('A','Ana',3)
+@end example
+which would insert into the helloWorld, the following row:
+@code{A,Ana,31}. If we want to insert @code{NULL}  values into the
+relation, we call @code{db_assert/2} with a uninstantiated variable in
+the data base imported predicate. For example, the following query on
+the YAP-prolog system:
+
+@example
+?- db_assert(helloWorld('A',NULL,31)).
+yes
+@end example
+
+Would insert the row: @code{A,null value,31} into the relation
+@code{Hello World}, assuming that the second row allows null values.
+
+@table @code
+@item db insert(+,+,+). 
+@findex db_insert/3
+@snindex db_insert/3
+@cnindex db_insert/3
+
+@item db insert(+,+).  
+@findex db_insert/2
+@snindex db_insert/2
+@cnindex db_insert/2
+@end table
+ 
+This predicate would create a new database predicate, which will insert
+any given tuple into the database.
+@example
+?- db_insert(Conn,RelationName,PredName).
+?- db_insert(RelationName,PredName).
+@end example
+This would create a new predicate with name @var{PredName}, that will
+insert tuples into the relation @var{RelationName}. is the connection
+identifier. For example, if we wanted to insert the new tuple
+@code{('A',null,31)} into the relation @code{Hello World}, we do: 
+@example
+?- db_insert('Hello World',helloWorldInsert). 
+yes
+?- helloWorldInsert('A',NULL,31).
+yes
+@end example
+
+@node  Types of Attributes, Number of Fields, Insertion of Rows, MYDDAS 
+@section Types of Attributes
+
+
+@table @code
+@item db_get_attributes_types(+,+,?).
+@findex db_get_attributes_types/3
+@snindex db_get_attributes_types/3
+@cnindex db_get_attributes_types/3
+
+@item db_get_attributes_types(+,?). 
+@findex db_get_attributes_types/2
+@snindex db_get_attributes_types/2
+@cnindex db_get_attributes_types/2
+
+@end table
+ 
+The prototype for this predicate is the following: 
+@example
+?- db_get_attributes_types(Conn,RelationName,ListOfFields).
+?- db_get_attributes_types(RelationName,ListOfFields). 
+@end example
+
+You can use the
+predicate @code{db_get_attributes types/2} or @code{db_get_attributes_types/3}, to
+know what are the names and attributes types of the fields of a given
+relation. For example: 
+@example
+?- db_get_attributes_types(myddas,'Hello World',LA).
+LA = ['Number',integer,'Name',string,'Letter',string] ? 
+yes
+@end example
+where @t{Hello World} is the name of the relation and @t{myddas} is the
+connection identifier. 
+
+@node  Number of Fields, Describing a Relation, Types of Attributes, MYDDAS 
+@section Number of Fields
+
+@table @code
+@item db_number_of_fields(+,?).
+@findex db_number_of_fields/2
+@snindex db_number_of_fields/2
+@cnindex db_number_of_fields/2
+
+@item db_number_of_fields(+,+,?).
+@findex db_number_of_fields/3
+@snindex db_number_of_fields/3
+@cnindex db_number_of_fields/3
+@end table
+ 
+The prototype for this
+predicate is the following:
+@example
+ ?- db_number_of_fields(Conn,RelationName,Arity).
+ ?- db_number_of_fields(RelationName,Arity).  
+@end example
+You can use the predicate @code{db_number_of_fields/2} or
+@code{db_number_of_fields/3} to know what is the arity of a given
+relation. Example: 
+@example
+?- db_number_of_fields(myddas,'Hello World',Arity). 
+Arity = 3 ? 
+yes 
+@end example
+where @code{Hello World} is the name of the
+relation and @code{myddas} is the connection identifier.
+
+@node Describing a Relation, Enumerating Relations, Number of Fields, MYDDAS
+@section Describing a Relation
+
+@table @code
+@item db_datalog_describe(+,+).
+@findex db_datalog_describe/2
+@snindex db_datalog_describe/2
+@cnindex db_datalog_describe/2
+
+@item db_datalog_describe(+).
+@findex db_datalog_describe/1
+@snindex db_datalog_describe/1
+@cnindex db_datalog_describe/1
+@end table
+ 
+
+The db @code{datalog_describe/2} predicate does not really returns any
+value. It simply prints to the screen the result of the MySQL describe
+command, the same way as @code{DESCRIBE} in the MySQL prompt would.
+@example
+?- db_datalog_describe(myddas,'Hello World'). 
++----------+----------+------+-----+---------+-------+ 
+|   Field  |  Type    | Null | Key | Default | Extra |
++----------+----------+------+-----+---------+-------+
++  Number  | int(11)  | YES  |     |   NULL  |       |
++  Name    | char(10) | YES  |     |   NULL  |       |
++  Letter  | char(1)  | YES  |     |   NULL  |       |
++----------+----------+------+-----+---------+-------+
+yes
+@end example
+
+@table @code
+@item db_describe(+,+).
+@findex db_describe/2
+@snindex db_describe/2
+@cnindex db_describe/2
+
+@item db_describe(+).
+@findex db_describe/1
+@snindex db_describe/1
+@cnindex db_describe/1
+
+@end table
+ 
+The @code{db_describe/3} predicate does the same action as
+@code{db_datalog_describe/2} predicate but with one major
+difference. The results are returned by backtracking. For example, the
+last query:
+@example
+ ?- db_describe(myddas,'Hello World',Term). 
+Term = tableInfo('Number',int(11),'YES','',null(0),'') ? ;
+Term = tableInfo('Name',char(10),'YES','',null(1),'' ? ; 
+Term = tableInfo('Letter',char(1),'YES','',null(2),'') ? ;
+no
+@end example
+
+@node Enumerating Relations, The MYDDAS MySQL Top Level, Describing a Relation, MYDDAS
+@section Enumeration Relations
+
+@table @code
+@item db_datalog_show_tables(+).
+@item db_datalog_show_tables
+@end table
+ 
+
+If we need to know what relations exists in a given MySQL Schema, we can use
+the @code{db_datalog_show_tables/1} predicate. As @t{db_datalog_describe/2},
+it does not returns any value, but instead prints to the screen the result of the
+@code{SHOW TABLES} command, the same way as it would be in the MySQL prompt. 
+@example
+?- db_datalog_show_tables(myddas).
++-----------------+
+| Tables_in_guest |
++-----------------+
+|   Hello World   |
++-----------------+ 
+yes
+@end example
+
+@table @code
+@item db_show_tables(+, ?).
+@findex db_show_tables/2
+@snindex db_show_tables/2
+@cnindex db_show_tables/2
+
+@item db_show_tables(?)
+@findex db_show_tables/1
+@snindex db_show_tables/1
+@cnindex db_show_tables/1
+
+@end table
+ 
+The @code{db_show_tables/2} predicate does the same action as
+@code{db_show_tables/1} predicate but with one major difference. The
+results are returned by backtracking. For example, given the last query:
+@example
+?- db_show_tables(myddas,Table).
+Table = table('Hello World') ? ;
+no
+@end example
+
+@node The MYDDAS MySQL Top Level, Other MYDDAS Properties, Enumerating Relations, MYDDAS
+@section The MYDDAS MySQL Top Level
+
+
+@table @code
+@item db_top_level(+,+,+,+,+). 
+@findex db_top_level/5
+@snindex db_top_level/5
+@cnindex db_top_level/5
+
+@item db_top_level(+,+,+,+).
+@findex db_top_level/4
+@snindex db_top_level/4
+@cnindex db_top_level/4
+
+@end table
+ 
+Through MYDDAS is also possible to access the MySQL Database Server, in
+the same wthe mysql client. In this mode, is possible to query the
+SQL server by just using the standard SQL language. This mode is exactly the same as 
+different from the standard mysql client. We can use this
+mode, by invoking the db top level/5. as one of the following:
+@example
+?- db_top_level(mysql,Connection,Host/Database,User,Password). 
+?- db_top_level(mysql,Connection,Host/Database/Port,User,Password). 
+?- db_top_level(mysql,Connection,Host/Database/UnixSocket,User,Password). 
+?- db_top_level(mysql,Connection,Host/Database/Port/UnixSocket,User,Password).
+@end example
+
+Usage is similar as the one described for the @code{db_open/5} predicate
+discussed above. If the login is successful, automatically the prompt of
+the mysql client will be used.  For example:
+@example
+ ?- db_top_level(mysql,con1,localhost/guest_db,guest,''). 
+@end  example
+opens a
+connection identified by the @code{con1} atom, to an instance of a MySQL server
+running on host @code{localhost}, using database guest @code{db} and user @code{guest} with
+empty password. After this is possible to use MYDDAS as the mysql
+client.
+@example
+  ?- db_top_level(mysql,con1,localhost/guest_db,guest,''). 
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Welcome to the MySQL monitor.
+Commands end with ; or \g.
+
+Your MySQL connection id is 4468 to server version: 4.0.20
+Type 'help;' or '\h' for help.
+Type '\c' to clear the buffer. 
+mysql> exit
+Bye 
+yes
+?- 
+@end  example
+
+@node Other MYDDAS Properties, , The MYDDAS MySQL Top Level , MYDDAS 
+@section Other MYDDAS Properties 
+
+
+@table @code
+@item db_verbose(+). 
+@item db_top_level(+,+,+,+).
+@end table
+ 
+When we ask a question to YAP, using a predicate asserted by
+@code{db_import/3}, or by @code{db_view/3}, this will generate a SQL
+@code{QUERY}. If we want to see that query, we must to this at a given
+point in our session on YAP.
+@example
+?- db_verbose(1).
+yes 
+?- 
+@end example
+If we want to
+disable this feature, we must call the @code{db_verbose/1} predicate with the value 0.
+
+@table @code
+@item db_module(?). 
+@findex db_module/1
+@snindex db_module/1
+@cnindex db_module/1
+
+@end table
+
+When we create a new database predicate, by using @code{db_import/3},
+@code{db_view/3} or @code{db_insert/3}, that predicate will be asserted
+by default on the @code{user} module. If we want to change this value, we can
+use the @code{db_module/1} predicate to do so.
+@example
+?- db_module(lists).
+yes
+?-
+@end example
+By executing this predicate, all of the predicates asserted by the
+predicates enumerated earlier will created in the lists module.
+If we want to put back the value on default, we can manually put the
+value user. Example: 
+@example
+?- db_module(user).
+yes
+?-
+@end example
+
+We can also see in what module the predicates are being asserted by doing:
+@example
+?- db_module(X). 
+X=user
+yes
+ ?-
+@end example
+
+@table @code
+@item db_my_result_set(?).
+@findex db_my_result_set/1
+@snindex db_my_result_set/1
+@cnindex db_my_result_set/1
+
+@end table
+
+
+The MySQL C API permits two modes for transferring the data generated by
+a query to the client, in our case YAP. The first mode, and the default
+mode used by the MYDDAS-MySQL, is to store the result. This mode copies all the
+information generated to the client side.@example
+?- db_my_result_set(X).
+X=store_result
+yes
+@end example
+
+
+The other mode that we can use is use result. This one uses the result
+set created directly from the server. If we want to use this mode, he
+simply do
+@example
+ ?- db_my_result_set(use_result). 
+yes
+@end example
+After this command, all
+of the database predicates will use use result by default. We can change
+this by doing again @code{db_my_result_set(store_result)}.  
+
+@table @code
+@item db_my_sql_mode(+Conn,?SQL_Mode).
+@findex db_my_sql_mode/2
+@snindex db_my_sql_mode/2
+@cnindex db_my_sql_mode/2
+
+@item db_my_sql_mode(?SQL_Mode).
+@findex db_my_sql_mode/1
+@snindex db_my_sql_mode/1
+@cnindex db_my_sql_mode/1
+
+@end table
+
+The MySQL server allows the user to change the SQL mode. This can be
+very useful for debugging proposes. For example, if we want MySQL server
+not to ignore the INSERT statement warnings and instead of taking
+action, report an error, we could use the following SQL mode.
+@example
+  ?-db_my_sql_mode(traditional). yes
+@end example
+You can see the available SQL Modes at the MySQL homepage at
+@url{http://www.mysql.org}.
+
+@node Threads, Parallelism, MYDDAS, Extensions
 @chapter Threads
 
 YAP implements a SWI-Prolog compatible multithreading
