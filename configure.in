@@ -126,7 +126,7 @@ AC_ARG_ENABLE(dlcompat,
 	use_dlcompat="$enableval", use_dlcompat=no)
 
 AC_ARG_ENABLE(cplint,
-	[ --enable-cplint[=DIR]       enable the cplint library using the glu library in DIR/lib],
+	[ --enable-cplint[=DIR]       enable the cplint library using the CUDD software in DIR],
 		yap_cv_cplint=$enableval, yap_cv_cplint=no)
 
 AC_ARG_WITH(gmp,
