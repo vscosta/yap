@@ -553,7 +553,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
       child = TrNode_child(child);
   } else
     child = TrNode_child(node);
-/*  printf("start node: "); displaynode(child);*/
+//   printf("Chosen start node: "); displaynode(child);
   if (IS_HASH_NODE(child)) {
   printf("warning\n");
     TrNode *first_bucket, *bucket;
@@ -576,6 +576,8 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
             }
           }
           TrNode temp = TrNode_child(child);
+          if (temp == NULL)
+            return NULL;
           if (IS_HASH_NODE(temp)) {
             TrNode *first_bucket2, *bucket2;
             TrHash hash2 = (TrHash) temp;
@@ -591,8 +593,6 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
             while((temp != NULL) && (TrNode_entry(temp) != PairEndTag))
               temp = TrNode_next(temp);
           }
-          if (temp == NULL)
-            return NULL;
           //Nested Trie code
           if (IS_FUNCTOR_NODE(TrNode_parent(child)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(child))))), NESTED_TRIE_TERM) == 0)) {
             /* nested trie: stop procedure and return nested trie node */
@@ -628,6 +628,9 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
         }
       }
       TrNode temp = TrNode_child(child);
+      if (temp == NULL)
+        return NULL;
+// printf("Chosen start node child: "); displaynode(temp);
       if (IS_HASH_NODE(temp)) {
         TrNode *first_bucket, *bucket;
         TrHash hash = (TrHash) temp;
@@ -644,8 +647,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
         while((temp != NULL) && (TrNode_entry(temp) != PairEndTag))
           temp = TrNode_next(temp);
       }
-      if (temp == NULL)
-        return NULL;
+// printf("while end\n");
       //Nested Trie code
       if (IS_FUNCTOR_NODE(TrNode_parent(child)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(child))))), NESTED_TRIE_TERM) == 0)) {
         /* nested trie: stop procedure and return nested trie node */
@@ -664,7 +666,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
       }
       child = TrNode_next(child);
     } while (child);
-//     printf("pass through\n");
+//      printf("pass through\n");
   }
   if (!count) {
     /* termination condition */
@@ -684,7 +686,7 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
   node = trie_node_check_insert(node, t);
   node = trie_node_check_insert(node, PairEndTag);
   INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
-//   printf("end node: "); displaynode(node);
+//    printf("end node: "); displaynode(node);
   return node;
 }
 
