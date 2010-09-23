@@ -276,7 +276,7 @@ empty_output_directory(Path) :-
 	concat_path_with_filename(Path,'factprobs_*.pl',F2),
 	concat_path_with_filename(Path,'predictions_*.pl',F3),
 	
-	atomic_concat(['rm -f ',F1, ' ', F2, ' ', F3],Command),
+	atomic_concat(['rm -f "', F1, '" "', F2, '" "', F3, '"'],Command),
 	(shell(Command) -> true; true).
 
 %========================================================================
