@@ -234,7 +234,7 @@ assertz_static(C) :-
 
 '$erase_all_mf_dynamic'(Na,A,M) :-
 	get_value('$consulting_file',F),
-	'$recorded'('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
+	recorded('$multifile_dynamic'(_,_,_), '$mf'(Na,A,M,F,R), R1),
 	erase(R1),
 	erase(R),
 	fail.
@@ -649,12 +649,6 @@ abolish(X) :-
 	'$undefined'(G, Module),
 	functor(G,Name,Arity),
 	print_message(warning,no_match(abolish(Module:Name/Arity))).
-% I cannot allow modifying static procedures in YAPOR
-% this code has to be here because of abolish/2
-% '$abolishs'(G, Module) :-
-% 	'$has_yap_or', !,
-%         functor(G,A,N),
-% 	'$do_error'(permission_error(modify,static_procedure,A/N),abolish(Module:G)).
 '$abolishs'(G, M) :-
 	'$is_multifile'(G,M), !,
 	functor(G,Name,Arity),
@@ -927,7 +921,8 @@ current_predicate(A,T) :-
 current_predicate(A) :-
 	'$current_predicate_inside'(A).
 
-'$current_predicate_inside'(F) :-	var(F), !,		% only for the predicate
+'$current_predicate_inside'(F) :-
+	var(F), !,		% only for the predicate
 	'$current_module'(M),
 	'$current_predicate3'(M,F).
 '$current_predicate_inside'(M:F) :-			% module specified
@@ -955,7 +950,14 @@ system_predicate(P) :-
 	'$ifunctor'(T,A,Arity),
 	'$pred_exists'(T,M).
 
-'$current_predicate3'(M,A/Arity) :- nonvar(A), nonvar(Arity), !,
+'$current_predicate3'(M,A/Arity) :-
+	nonvar(M),
+	nonvar(A),
+	nonvar(Arity), !,
+	'$ifunctor'(Pred,A,Arity),
+	'$pred_exists'(Pred,M).
+'$current_predicate3'(M,A/Arity) :-
+	nonvar(A), nonvar(Arity), !,
 	(
 	 '$current_predicate'(M,A,Arity)
 	->
