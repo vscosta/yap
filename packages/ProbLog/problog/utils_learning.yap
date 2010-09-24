@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
-%  $Revision: 4672 $
+%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
+%  $Revision: 4822 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Theofrastos Mantadelis, Bernd Gutmann
+%  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -204,185 +204,96 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:-module(flags, [problog_define_flag/4,
-                         problog_define_flag/5,
-                         problog_define_flag/6,
-                         problog_defined_flag/5,
-                         problog_defined_flag_group/1,
-                         set_problog_flag/2,
-                         reset_problog_flags/0,
-                         problog_flag/2]).
+%%%%%%%%
+% Collected OS depended instructions
+%%%%%%%%
+:- module(utils_learning, [empty_bdd_directory/1,
+			   empty_output_directory/1,
+			   delete_file_silent/1
+			   ]).
 
 
-:-ensure_loaded(gflags).
-:-ensure_loaded(os).
-:-ensure_loaded(logger).
+% load library modules
+:- ensure_loaded(library(lists)).
+:- ensure_loaded(library(system)).
 
-problog_define_flag(Flag, Type, Description, DefaultValue):-
-  flag_define(Flag, Type, DefaultValue, Description).
+% load our own modules
+:- ensure_loaded(os).
 
-problog_define_flag(Flag, Type, Description, DefaultValue, FlagGroup):-
-  flag_define(Flag, FlagGroup, Type, DefaultValue, Description).
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-problog_define_flag(Flag, Type, Description, DefaultValue, FlagGroup, Handler):-
-  flag_define(Flag, FlagGroup, Type, DefaultValue, Handler, Description).
+empty_bdd_directory(Path) :-
+	ground(Path),
 
-problog_defined_flag(Flag, Group, DefaultValue, Domain, Message):-
-  flag_defined(Flag, Group, DefaultValue, Domain, Message).
+	atom_codes('query_', PF1),           % 'query_*'
 
-problog_defined_flag_group(Group):-
-  flag_group_defined(Group).
+	directory_files(Path,List),
+	delete_files_with_matching_prefix(List,Path,[PF1]).
 
-set_problog_flag(Flag, Value):-
-  flag_set(Flag, Value).
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-problog_flag(Flag, Value):-
-  flag_get(Flag, Value).
+empty_output_directory(Path) :-
+	ground(Path),
 
-reset_problog_flags:- flags_reset.
+	concat_path_with_filename(Path,'log.dat',F1),
+	concat_path_with_filename(Path,'out.dat',F2),
+	
+	(
+	 file_exists(F1)
+	->
+	 delete_file_silent(F1);
+	 true
+	),
 
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atom, flag_validate_atom).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atomic, flag_validate_atomic).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_number, flag_validate_number).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer, flag_validate_integer).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_directory, flag_validate_directory).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_file, flag_validate_file).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_list(L), flag_validate_in_list(L)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval(I, Type), flag_validate_in_interval(I, Type)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_closed([L, U]), flag_validate_in_interval([L, U], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_open([L, U]), flag_validate_in_interval((L, U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_closed([L, U]), flag_validate_in_interval([L, U], integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_open([L, U]), flag_validate_in_interval((L, U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_closed([L, U]), flag_validate_in_interval([L, U], float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_open([L, U]), flag_validate_in_interval((L, U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posnumber, flag_validate_in_interval((0, [+inf]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posint, flag_validate_in_interval((0, +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_nonegint, flag_validate_in_interval(([0], +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_boolean, flag_validate_in_list([true, false])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_switch, flag_validate_in_list([on, off])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_method, flag_validate_in_list([max, delta, exact, montecarlo, low, kbest])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_aggregate, flag_validate_in_list([sum, prod, soft_prod])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_open, flag_validate_in_interval((0, 1), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_close, flag_validate_in_interval([0, 1], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_0to5, flag_validate_in_interval([0, 5], integer)).
+	(
+	 file_exists(F2)
+	->
+	 delete_file_silent(F2);
+	 true
+	),
 
-last_threshold_handler(message, '').
-last_threshold_handler(validating, _Value).
-last_threshold_handler(validated, _Value).
-last_threshold_handler(stored, Value):-
-  ValueLog is log(Value),
-  flag_store(last_threshold_log, ValueLog).
+	atom_codes('values_', PF1),           % 'values_*_q_*.dat'
+	atom_codes('factprobs_', PF2),        % 'factprobs_*.pl'
+	atom_codes('input_', PF3),            % 'input_*.pl'
+	atom_codes('trainpredictions_',PF4), % 'trainpredictions_*.pl'
+	atom_codes('testpredictions_',PF5),   % 'testpredictions_*.pl'
+	atom_codes('predictions_',PF6),       % 'predictions_*.pl'
+	directory_files(Path,List),
+	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
 
-id_stepsize_handler(message, '').
-id_stepsize_handler(validating, _Value).
-id_stepsize_handler(validated, _Value).
-id_stepsize_handler(stored, Value):-
-  ValueLog is log(Value),
-  flag_store(id_stepsize_log, ValueLog).
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-bdd_file_handler(message, '').
-bdd_file_handler(validating, _Value).
-bdd_file_handler(validate, Value):-
-  convert_filename_to_working_path(Value, Path),
-  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
-bdd_file_handler(validate, Value):-
-  convert_filename_to_working_path(Value, Path),
-  catch((not(file_exists(Path)), tell(Path)), _, fail),
-  told,
-  delete_file(Path).
-bdd_file_handler(validated, _Value).
-bdd_file_handler(stored, Value):-
-  atomic_concat(Value, '_probs', ParValue),
-  flag_set(bdd_par_file, ParValue),
-  atomic_concat(Value, '_res', ResValue),
-  flag_set(bdd_result, ResValue).
+delete_file_silent(File) :-
+	delete_file(File),
+	!.
+delete_file_silent(_).
 
-working_file_handler(message, '').
-working_file_handler(validating, _Value).
-working_file_handler(validate, Value):-
-  convert_filename_to_working_path(Value, Path),
-  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
-working_file_handler(validate, Value):-
-  convert_filename_to_working_path(Value, Path),
-  catch((not(file_exists(Path)), tell(Path)), _, fail),
-  told,
-  delete_file(Path).
-working_file_handler(validated, _Value).
-working_file_handler(stored, _Value).
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-auto_handler(message, 'auto non-zero').
-auto_handler(validating, Value) :-
-	number(Value),
-	Value =\= 0.
-auto_handler(validate, Value):-
-  Value == auto.
-auto_handler(validated, _Value).
-auto_handler(stored, _Value).
+delete_files_with_matching_prefix([],_,_).
+delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
+	atom_codes(Name,NameCode),
 
+	(
+	 (member(Prefix,Prefixes), append(Prefix,_Suffix,NameCode))
+	->
+	 (
+	  concat_path_with_filename(Path,Name,F),
+	  delete_file_silent(F)
+	 );
+	 true
+	),
 
-examples_handler(message, 'examples').
-examples_handler(validating, _Value).
-examples_handler(validate, Value):-
-  Value == examples.
-examples_handler(validated, _Value).
-examples_handler(stored, _Value).
-
-
-learning_init_handler(message, '(Q,P,BDDFile,ProbFile,Query)').
-learning_init_handler(validating, (_,_,_,_,_)).
-%learning_init_handler(validate, V_).
-learning_init_handler(validated, _Value).
-learning_init_handler(stored, _Value).
-
-learning_prob_init_handler(message, '(Q,P,Query)').
-learning_prob_init_handler(validating, (_,_,_)).
-%learning_prob_init_handler(validate, V_).
-learning_prob_init_handler(validated, _Value).
-learning_prob_init_handler(stored, _Value).
-
-
-linesearch_interval_handler(message,'nonempty interval(L,H)').
-linesearch_interval_handler(validating,V):-
-	V=(L,H),
-	number(L),
-	number(H),
-	L<H.
-%linesearch_interval_handler(validate,_).
-linesearch_interval_handler(validated,_).
-linesearch_interval_handler(stored,_).
-
-
-
-learning_output_dir_handler(message, '').
-learning_output_dir_handler(validating, _Value).
-learning_output_dir_handler(validated, _Value).
-learning_output_dir_handler(stored, Value):-
-	concat_path_with_filename(Value,'out.dat',Filename),
-	logger_set_filename(Filename).
-
-/*
-problog_flag_validate_learninginit
-problog_flag_validate_interval
-
-
-validation_type_values(problog_flag_validate_learninginit,'(QueryID,P, BDD,Probs,Call)').
-
-validation_type_values(problog_flag_validate_learningprobinit,'(FactID,P,Call)').
-
-validation_type_values(problog_flag_validate_interval,'any nonempty interval (a,b)').
-
-
-problog_flag_validate_interval.
-problog_flag_validate_interval( (V1,V2) ) :-
-  number(V1),
-  number(V2),
-  V1<V2.
-
-*/
+	delete_files_with_matching_prefix(T,Path,Prefixes).

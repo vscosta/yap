@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
-%  $Revision: 4672 $
+%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
+%  $Revision: 4822 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -212,8 +212,6 @@
 	       convert_filename_to_working_path/2,
 	       convert_filename_to_problog_path/2,
 	       concat_path_with_filename/3,
-	       empty_bdd_directory/1,
-	       empty_output_directory/1,
 	       calc_md5/2]).
 
 
@@ -221,7 +219,7 @@
 :- ensure_loaded(library(system)).
 
 % load our own modules
-:- ensure_loaded(flags).
+:- use_module(gflags, _, [flag_get/2]).
 
 :- dynamic [problog_path/1, problog_working_path/1].
 
@@ -230,7 +228,7 @@ set_problog_path(Path):-
 	assert(problog_path(Path)).
 
 convert_filename_to_working_path(File_Name, Path):-
-	problog_flag(dir, Dir),
+	flag_get(dir, Dir),
 	concat_path_with_filename(Dir, File_Name, Path).
 
 convert_filename_to_problog_path(File_Name, Path):-
@@ -252,32 +250,6 @@ concat_path_with_filename(Path, File_Name, Result):-
 	),
 
 	 atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
-
-%========================================================================
-%= store the current succes probabilities for training and test examples
-%= 
-%========================================================================
-
-empty_bdd_directory(Path) :-
-	ground(Path),
-
-	concat_path_with_filename(Path,'query_*',Files),	
-	atomic_concat(['rm -f "', Files, '"'],Command),
-	(shell(Command) -> true; true).
-%========================================================================
-%= store the current succes probabilities for training and test examples
-%= 
-%========================================================================
-
-empty_output_directory(Path) :-
-	ground(Path),
-
-	concat_path_with_filename(Path,'log.dat',F1),
-	concat_path_with_filename(Path,'factprobs_*.pl',F2),
-	concat_path_with_filename(Path,'predictions_*.pl',F3),
-	
-	atomic_concat(['rm -f "', F1, '" "', F2, '" "', F3, '"'],Command),
-	(shell(Command) -> true; true).
 
 %========================================================================
 %= Calculate the MD5 checksum of +Filename by calling md5sum
