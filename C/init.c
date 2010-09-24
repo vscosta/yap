@@ -1333,6 +1333,33 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   }
 }
 
+int
+Yap_HaltRegisterHook (HaltHookFunc f, void * env)
+{
+  struct halt_hook *h;
+
+  if (!(h = (struct halt_hook *)Yap_AllocCodeSpace(sizeof(struct halt_hook))))
+    return FALSE;
+  h->environment = env;
+  h->hook = f;
+  LOCK(BGL);
+  h->next = Yap_HaltHooks;
+  Yap_HaltHooks = h;
+  UNLOCK(BGL);
+  return TRUE;
+}
+
+static void
+run_halt_hooks(int code)
+{
+  struct halt_hook *hooke = Yap_HaltHooks;
+
+  while (hooke) {
+    hooke->hook(code, hooke->environment);
+    hooke = hooke->next;
+  }
+}
+
 void
 Yap_exit (int value)
 {
@@ -1340,15 +1367,17 @@ Yap_exit (int value)
   unmap_memory();
 #endif /* YAPOR */
 
+  if (! (Yap_PrologMode & BootMode) ) {
 #ifdef LOW_PROF
-  remove("PROFPREDS");
-  remove("PROFILING");
+    remove("PROFPREDS");
+    remove("PROFILING");
 #endif
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
-  Yap_MYDDAS_delete_all_myddas_structs();
+    Yap_MYDDAS_delete_all_myddas_structs();
 #endif
-  if (! (Yap_PrologMode & BootMode) )
+    run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
+  }
   exit(value);
 }
 

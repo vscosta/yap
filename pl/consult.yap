@@ -834,12 +834,22 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
 	operating_system_support:true_file_name(File,D0,AbsFile).
 
-'$search_in_path'(File,opts(Extensions,_,_,Access,_,_,_),F) :-
-	'$add_extensions'(Extensions,File,F),
-	access_file(F,Access).
+'$search_in_path'(File,opts(Extensions,_,Type,Access,_,_,_),F) :-
+	'$add_extensions'(Extensions, File, F0),
+	'$check_file'(F0, Type, Access, F).
 '$search_in_path'(File,opts(_,_,Type,Access,_,_,_),F) :-
-	'$add_type_extensions'(Type,File,F),
-	access_file(F,Access).
+	'$add_type_extensions'(Type, File, F0),
+	'$check_file'(F0, Type, Access, F).
+
+'$check_file'(F, Type, none, F) :- !.
+'$check_file'(F0, Type, Access, F0) :-
+	access_file(F0, Access),
+	(Type == directory
+	->
+	 exists_directory(F0)
+	;
+	 true
+	).
 
 '$add_extensions'([Ext|_],File,F) :-
 	'$mk_sure_true_ext'(Ext,NExt),

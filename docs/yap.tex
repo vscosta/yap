@@ -1384,7 +1384,7 @@ anonymous variables.
 
 Punctuation tokens consist of one of the following characters:
 @example
-@center ( ) , [ ] @{ @} |
+( ) , [ ] @{ @} |
 @end example
 
 These characters are used to group terms.
@@ -3346,7 +3346,7 @@ Also refer to @code{copy_term/2}.
 True when @var{List} is a proper list. That is, @var{List}
 is bound to the empty list (nil) or a term with functor '.' and arity 2.
 
-@item ?@var{Term1} =@= ?@var{Term2}
+@item ?@var{Term1} =@@= ?@var{Term2}
 @findex  =@=/2
 @syindex =@=/2
 @cnindex =@=/2
@@ -4084,6 +4084,8 @@ Integer bitwise conjunction.
 Integer bitwise disjunction.
 
 @item @var{X} # @var{Y}
+@item @var{X} >< @var{Y}
+@item xor(@var{X} , @var{Y})
 Integer bitwise exclusive disjunction.
 
 @item @var{X} << @var{Y}
@@ -4467,7 +4469,9 @@ Defines extensions. Current mapping: @code{txt} implies @code{['']},
 @code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
 @code{directory} implies @code{['']}.  The file-type @code{source}
 is an alias for @code{prolog} for compatibility to SICStus Prolog.
-See also @code{prolog_file_type/2}.
+See also @code{prolog_file_type/2}. Notice also that this predicate only
+returns non-directories, unless the option @code{file_type(directory)} is
+specified, or unless @code{access(none)}.
 
     @item file_errors(@code{fail}/@code{error})
 If @code{error} (default), throw and @code{existence_error} exception
@@ -9515,16 +9519,6 @@ matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack. Matrices are available
 by loading the library @code{library(matrix)}.
 
-Accessing the matlab dynamic libraries can be complicated. In Linux
-machines, to use this interface, you may have to set the environment
-variable @t{LD_LIBRARY_PATH}. Next, follows an example using bash in a
-64-bit Linux PC:
-@example
-export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
-@end example
-where @code{MATLAB_HOME} is the directory where matlab is installed
-at. Please replace @code{ax64} for @code{x86} on a 32-bit PC.
-
 Notice that the functionality in this library is only partial. Please
 contact the YAP maintainers if you require extra functionality.
 
@@ -9828,6 +9822,16 @@ processing. YAP now includes a straightforward interface to MATLAB. To
 actually use it, you need to install YAP calling @code{configure} with
 the @code{--with-matlab=DIR} option, and you need to call
 @code{use_module(library(lists))} command.
+
+Accessing the matlab dynamic libraries can be complicated. In Linux
+machines, to use this interface, you may have to set the environment
+variable @t{LD_LIBRARY_PATH}. Next, follows an example using bash in a
+64-bit Linux PC:
+@example
+export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
+@end example
+where @code{MATLAB_HOME} is the directory where matlab is installed
+at. Please replace @code{ax64} for @code{x86} on a 32-bit PC.
 
 @table @code
 
@@ -16691,6 +16695,14 @@ only two boolean flags are accepted: @code{YAPC_ENABLE_GC} and
 @code{YAPC_ENABLE_AGC}.  The first enables/disables the standard garbage
 collector, the second does the same for the atom garbage collector.`
 
+@item  @code{int} YAP_HaltRegisterHook(@code{YAP_halt_hook f, void *closure})
+@findex YAP_HaltRegisterHook (C-Interface function)
+
+Register the function @var{f} to be called if YAP is halted. The
+function is called with two arguments: the exit code of the process (@code{0}
+if this cannot be determined on your operating system) and the closure
+argument @var{closure}. 
+@c See also @code{at_halt/1}.
 @end table
 
 

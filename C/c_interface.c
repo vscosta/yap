@@ -505,6 +505,7 @@ X_API Term     STD_PROTO(YAP_TermNil,(void));
 X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
+X_API int      STD_PROTO(YAP_HaltRegisterHook,(HaltHookFunc, void *));
 X_API char    *STD_PROTO(YAP_cwd,(void));
 X_API Term     STD_PROTO(YAP_OpenList,(int));
 X_API Term     STD_PROTO(YAP_ExtendList,(Term, Term));
@@ -2955,6 +2956,12 @@ YAP_AGCRegisterHook(Agc_hook hook)
   Agc_hook old = AGCHook;
   AGCHook = hook;
   return old;
+} 
+
+X_API int
+YAP_HaltRegisterHook(HaltHookFunc hook, void * closure)
+{
+  return Yap_HaltRegisterHook(hook, closure);
 } 
 
 X_API char *

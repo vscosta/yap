@@ -210,6 +210,18 @@
 '$signal_def'(sig_alarm, true). 
 
 
+'$signal'(sig_hup).
+'$signal'(sig_usr1).
+'$signal'(sig_usr2).
+'$signal'(sig_pipe).
+'$signal'(sig_alarm).
+'$signal'(sig_vtalarm).
+
+on_signal(Signal,OldAction,NewAction) :-
+	var(Signal), !,
+	(nonvar(OldAction) -> throw(error(instantiation_error,on_signal/3)) ; true),
+        '$signal'(Signal),
+	on_signal(Signal, OldAction, NewAction).
 on_signal(Signal,OldAction,default) :-
 	'$reset_signal'(Signal, OldAction).
 on_signal(Signal,OldAction,Action) :-
@@ -219,7 +231,7 @@ on_signal(Signal,OldAction,Action) :-
 	Action = (_:Goal),
 	var(Goal), !,
 	'$check_signal'(Signal, OldAction),
-	Action = OldAction.
+	Goal = OldAction.
 on_signal(Signal,OldAction,Action) :-
 	'$reset_signal'(Signal, OldAction),
         % 13211-2 speaks only about callable
