@@ -465,8 +465,7 @@ problog_dir(PD):- problog_path(PD).
 
 init_global_params :-
   %grow_atom_table(1000000),
-  getcwd(Work),
-  concat_path_with_filename(Work, output, WorkDir),
+
   %%%%%%%%%%%%
   % working directory: all the temporary and output files will be located there
   % it assumes a subdirectory of the current working dir
@@ -475,7 +474,7 @@ init_global_params :-
   %%%%%%%%%%%%
   tmpnam(TempFolder),
   atomic_concat([TempFolder, '_problog'], TempProblogFolder),
-  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', WorkDir, TempProblogFolder),
+  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
   check_existance('problogbdd').
 
 check_existance(FileName):-
