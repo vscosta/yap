@@ -223,7 +223,7 @@
 % load our own modules
 :- ensure_loaded(flags).
 
-:- dynamic [problog_dir/1, problog_working_path/1].
+:- dynamic [problog_path/1, problog_working_path/1].
 
 set_problog_path(Path):-
 	retractall(problog_path(_)),
@@ -262,7 +262,7 @@ empty_bdd_directory(Path) :-
 	ground(Path),
 
 	concat_path_with_filename(Path,'query_*',Files),	
-	atomic_concat(['rm -f ',Files],Command),
+	atomic_concat(['rm -f "', Files, '"'],Command),
 	(shell(Command) -> true; true).
 %========================================================================
 %= store the current succes probabilities for training and test examples
@@ -307,7 +307,7 @@ calc_md5_intern(Filename,Command,MD5) :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(	% read 32 Bytes from stdout of process
 		repeat,
-		get0(S,C),
+		get_code(S,C),
 
 		(
 		 C== -1
