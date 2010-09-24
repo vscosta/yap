@@ -220,7 +220,7 @@ prolog:when(_,Goal) :-
 
 %
 % support for when/2 like declaration.
-v%
+%
 %
 % when will block on a conjunction or disjunction of nonvar, ground,
 % ?=, where ?= is both terms being bound together
