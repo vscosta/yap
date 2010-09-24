@@ -419,6 +419,7 @@ merge_ptree(T1, T2, T3) :-
 % - ptree_decomposition -> ptree_decomposition_struct
 % - bdd_ptree_script -> bdd_struct_ptree_script
 %%%%%%%%%%%%%%%%%%%%%%%%
+:- dynamic c_num/1.
 
 bdd_struct_ptree(Trie, FileBDD, Variables) :-
     bdd_struct_ptree_script(Trie, FileBDD, Variables),
@@ -734,13 +735,13 @@ bdd_vars_script_intern2(A) :-
 bdd_pt(Trie, false) :-
 	empty_ptree(Trie),
 	!,
-	once(retractall(c_num(_))),
-	once(assert(c_num(2))).
+	retractall(c_num(_)),
+	assert(c_num(2)).
 bdd_pt(Trie, true) :-
 	trie_check_entry(Trie, [true], _),
 	!,
-	once(retractall(c_num(_))),
-	once(assert(c_num(2))).
+	retractall(c_num(_)),
+	assert(c_num(2)).
 
 % general case: transform trie to nested tree structure for compression
 bdd_pt(Trie, CT) :-

@@ -372,7 +372,7 @@
 :- dynamic dynamic_probability_fact_extract/2.
 
 % for storing continuous parts of proofs (Hybrid ProbLog)
-:- dynamic hybrid_proof/4.
+:- dynamic hybrid_proof/3, hybrid_proof/4.
 :- dynamic hybrid_proof_disjoint/4.
 
 % ProbLog files declare prob. facts as P::G
@@ -473,7 +473,9 @@ init_global_params :-
   % on initialization, the current dir is the one where the user's file is located
   % should be changed to use temporary folder structure of operating system
   %%%%%%%%%%%%
-  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', WorkDir, output),
+  tmpname(TempFolder),
+  atomic_concat([TempFolder, '_problog'], TempProblogFolder),
+  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', WorkDir, TempProblogFolder),
   check_existance('problogbdd').
 
 check_existance(FileName):-
@@ -676,6 +678,7 @@ is_valid_gaussian(X) :-
 	 throw(invalid_gaussian(X))
 	).
 
+:- multifile(user:term_expansion/1).
 
 user:term_expansion(Goal, problog:ProbFact) :-
 	compound(Goal),
