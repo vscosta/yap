@@ -1384,7 +1384,7 @@ anonymous variables.
 
 Punctuation tokens consist of one of the following characters:
 @example
-@center ( ) , [ ] @{ @} |
+( ) , [ ] @{ @} |
 @end example
 
 These characters are used to group terms.
@@ -3346,7 +3346,7 @@ Also refer to @code{copy_term/2}.
 True when @var{List} is a proper list. That is, @var{List}
 is bound to the empty list (nil) or a term with functor '.' and arity 2.
 
-@item ?@var{Term1} =@= ?@var{Term2}
+@item ?@var{Term1} =@@= ?@var{Term2}
 @findex  =@=/2
 @syindex =@=/2
 @cnindex =@=/2
@@ -16695,6 +16695,14 @@ only two boolean flags are accepted: @code{YAPC_ENABLE_GC} and
 @code{YAPC_ENABLE_AGC}.  The first enables/disables the standard garbage
 collector, the second does the same for the atom garbage collector.`
 
+@item  @code{int} YAP_HaltRegisterHook(@code{YAP_halt_hook f, void *closure})
+@findex YAP_HaltRegisterHook (C-Interface function)
+
+Register the function @var{f} to be called if YAP is halted. The
+function is called with two arguments: the exit code of the process (@code{0}
+if this cannot be determined on your operating system) and the closure
+argument @var{closure}. 
+@c See also @code{at_halt/1}.
 @end table
 
 

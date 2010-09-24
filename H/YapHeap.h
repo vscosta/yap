@@ -62,6 +62,16 @@ typedef struct gc_ma_hash_entry_struct {
   struct gc_ma_hash_entry_struct *next;
 } gc_ma_hash_entry;
 
+typedef void (*HaltHookFunc)(int, void *);
+
+typedef struct halt_hook {
+  void * environment;
+  HaltHookFunc hook;
+  struct halt_hook *next;
+} halt_hook_entry;
+
+int	STD_PROTO(Yap_HaltRegisterHook,(HaltHookFunc, void *));
+
 typedef struct atom_hash_entry {
 #if defined(YAPOR) || defined(THREADS)
   rwlock_t AERWLock;
