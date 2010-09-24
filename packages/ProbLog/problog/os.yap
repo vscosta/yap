@@ -219,7 +219,7 @@
 :- ensure_loaded(library(system)).
 
 % load our own modules
-:- ensure_loaded(flags).
+:- use_module(gflags, _, [flag_get/2]).
 
 :- dynamic [problog_path/1, problog_working_path/1].
 
@@ -228,7 +228,7 @@ set_problog_path(Path):-
 	assert(problog_path(Path)).
 
 convert_filename_to_working_path(File_Name, Path):-
-	problog_flag(dir, Dir),
+	flag_get(dir, Dir),
 	concat_path_with_filename(Dir, File_Name, Path).
 
 convert_filename_to_problog_path(File_Name, Path):-

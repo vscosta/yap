@@ -289,12 +289,33 @@ id_stepsize_handler(stored, Value):-
 
 bdd_file_handler(message, '').
 bdd_file_handler(validating, _Value).
+bdd_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
+bdd_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch((not(file_exists(Path)), tell(Path)), _, fail),
+  told,
+  delete_file(Path).
 bdd_file_handler(validated, _Value).
 bdd_file_handler(stored, Value):-
   atomic_concat(Value, '_probs', ParValue),
   flag_set(bdd_par_file, ParValue),
   atomic_concat(Value, '_res', ResValue),
   flag_set(bdd_result, ResValue).
+
+working_file_handler(message, '').
+working_file_handler(validating, _Value).
+working_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
+working_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch((not(file_exists(Path)), tell(Path)), _, fail),
+  told,
+  delete_file(Path).
+working_file_handler(validated, _Value).
+working_file_handler(stored, _Value).
 
 auto_handler(message, 'auto non-zero').
 auto_handler(validating, Value) :-

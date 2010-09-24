@@ -475,6 +475,15 @@ init_global_params :-
   tmpnam(TempFolder),
   atomic_concat([TempFolder, '_problog'], TempProblogFolder),
   problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
+  problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd, flags:working_file_handler),
+  problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
+  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
+  problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
+%%%%%%%%%%%%
+% montecarlo: recalculate current approximation after N samples
+% montecarlo: write log to this file
+%%%%%%%%%%%%
+  problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc, flags:working_file_handler),
   check_existance('problogbdd').
 
 check_existance(FileName):-
@@ -487,18 +496,6 @@ check_existance(FileName):-
 
 % parameter initialization to be called after returning to user's directory:
 :- initialization(init_global_params).
-
-:- problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd).
-:- problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd).
-:- problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler).
-:- problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd).
-
-%%%%%%%%%%%%
-% montecarlo: recalculate current approximation after N samples
-% montecarlo: write log to this file
-%%%%%%%%%%%%
-
-:- problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
