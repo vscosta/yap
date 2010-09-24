@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
-%  $Revision: 4822 $
+%  $Date: 2010-09-23 11:13:10 +0200 (Thu, 23 Sep 2010) $
+%  $Revision: 4804 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Theofrastos Mantadelis, Bernd Gutmann
+%  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -207,12 +207,7 @@
 %%%%%%%%
 % Collected OS depended instructions
 %%%%%%%%
-:- module(os, [set_problog_path/1,
-	       problog_path/1,
-	       convert_filename_to_working_path/2,
-	       convert_filename_to_problog_path/2,
-	       concat_path_with_filename/3,
-	       calc_md5/2]).
+:- module(print_learning, [format_learning/3]).
 
 
 % load library modules
@@ -221,87 +216,20 @@
 % load our own modules
 :- ensure_loaded(flags).
 
-:- dynamic [problog_path/1, problog_working_path/1].
+:- initialization(problog_define_flag(verbosity_learning, problog_flag_validate_0to5,'How much output shall be given (0=nothing,5=all)',5, learning_general)).
 
-set_problog_path(Path):-
-	retractall(problog_path(_)),
-	assert(problog_path(Path)).
-
-convert_filename_to_working_path(File_Name, Path):-
-	problog_flag(dir, Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
-
-convert_filename_to_problog_path(File_Name, Path):-
-	problog_path(Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
-
-concat_path_with_filename(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
-
-	% make sure, that there is no path delimiter at the end
-	prolog_file_name(Path,Path_Absolute),
-
-	(
-	 yap_flag(windows, true)
-	->
-	 Path_Seperator = '\\';
-	 Path_Seperator = '/'
-	),
-
-	 atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
 %========================================================================
-%= Calculate the MD5 checksum of +Filename by calling md5sum
-%= in case m5sum is not installed, try md5, otherwise fail
-%= +Filename, -MD5
+%= 
+%= 
+%=
 %========================================================================
 
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	throw(md5error(calc_md5(Filename,MD5))).
-
-calc_md5_intern(Filename,Command,MD5) :-
-	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
-
-	atomic_concat([Command,' "',Filename,'"'],Call),  
-
-	% execute the md5 command
-	exec(Call,[null,pipe(S),null],_PID),
-	bb_put(calc_md5_temp,End-End),  % use difference list
-	bb_put(calc_md5_temp2,0),
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(	% read 32 Bytes from stdout of process
-		repeat,
-		get_code(S,C),
-
-		(
-		 C== -1
-		->
-		 (
-		  close(S),
-		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
-		 );
-		 true
-		),
-
-		bb_get(calc_md5_temp,List-[C|NewEnd]),
-		bb_put(calc_md5_temp,List-NewEnd),
-		bb_get(calc_md5_temp2,OldLength),
-		NewLength is OldLength+1,
-		bb_put(calc_md5_temp2,NewLength),
-		NewLength=32
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+format_learning(Level,String,Arguments) :-
+	problog_flag(verbosity_learning,V_Level),
+	V_Level >= Level,
 	!,
-	
-	close(S),
-	bb_delete(calc_md5_temp, FinalList-[]),
-	bb_delete(calc_md5_temp2,_),
-	atom_codes(MD5,FinalList).
+	format(String,Arguments),
+	flush_output(user).
+format_learning(_,_,_) :-
+	true.

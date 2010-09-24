@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Theofrastos Mantadelis, Bernd Gutmann
+%  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -207,101 +207,93 @@
 %%%%%%%%
 % Collected OS depended instructions
 %%%%%%%%
-:- module(os, [set_problog_path/1,
-	       problog_path/1,
-	       convert_filename_to_working_path/2,
-	       convert_filename_to_problog_path/2,
-	       concat_path_with_filename/3,
-	       calc_md5/2]).
+:- module(utils_learning, [empty_bdd_directory/1,
+			   empty_output_directory/1,
+			   delete_file_silent/1
+			   ]).
 
 
 % load library modules
+:- ensure_loaded(library(lists)).
 :- ensure_loaded(library(system)).
 
 % load our own modules
-:- ensure_loaded(flags).
+:- ensure_loaded(os).
 
-:- dynamic [problog_path/1, problog_working_path/1].
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-set_problog_path(Path):-
-	retractall(problog_path(_)),
-	assert(problog_path(Path)).
+empty_bdd_directory(Path) :-
+	ground(Path),
 
-convert_filename_to_working_path(File_Name, Path):-
-	problog_flag(dir, Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
+	atom_codes('query_', PF1),           % 'query_*'
 
-convert_filename_to_problog_path(File_Name, Path):-
-	problog_path(Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
+	directory_files(Path,List),
+	delete_files_with_matching_prefix(List,Path,[PF1]).
 
-concat_path_with_filename(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-	% make sure, that there is no path delimiter at the end
-	prolog_file_name(Path,Path_Absolute),
+empty_output_directory(Path) :-
+	ground(Path),
+
+	concat_path_with_filename(Path,'log.dat',F1),
+	concat_path_with_filename(Path,'out.dat',F2),
+	
+	(
+	 file_exists(F1)
+	->
+	 delete_file_silent(F1);
+	 true
+	),
 
 	(
-	 yap_flag(windows, true)
+	 file_exists(F2)
 	->
-	 Path_Seperator = '\\';
-	 Path_Seperator = '/'
+	 delete_file_silent(F2);
+	 true
 	),
 
-	 atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+	atom_codes('values_', PF1),           % 'values_*_q_*.dat'
+	atom_codes('factprobs_', PF2),        % 'factprobs_*.pl'
+	atom_codes('input_', PF3),            % 'input_*.pl'
+	atom_codes('trainpredictions_',PF4), % 'trainpredictions_*.pl'
+	atom_codes('testpredictions_',PF5),   % 'testpredictions_*.pl'
+	atom_codes('predictions_',PF6),       % 'predictions_*.pl'
+	directory_files(Path,List),
+	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
 
 %========================================================================
-%= Calculate the MD5 checksum of +Filename by calling md5sum
-%= in case m5sum is not installed, try md5, otherwise fail
-%= +Filename, -MD5
+%= 
+%= 
 %========================================================================
 
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
+delete_file_silent(File) :-
+	delete_file(File),
 	!.
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	throw(md5error(calc_md5(Filename,MD5))).
+delete_file_silent(_).
 
-calc_md5_intern(Filename,Command,MD5) :-
-	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
+%========================================================================
+%= 
+%= 
+%========================================================================
 
-	atomic_concat([Command,' "',Filename,'"'],Call),  
+delete_files_with_matching_prefix([],_,_).
+delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
+	atom_codes(Name,NameCode),
 
-	% execute the md5 command
-	exec(Call,[null,pipe(S),null],_PID),
-	bb_put(calc_md5_temp,End-End),  % use difference list
-	bb_put(calc_md5_temp2,0),
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(	% read 32 Bytes from stdout of process
-		repeat,
-		get_code(S,C),
-
-		(
-		 C== -1
-		->
-		 (
-		  close(S),
-		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
-		 );
-		 true
-		),
-
-		bb_get(calc_md5_temp,List-[C|NewEnd]),
-		bb_put(calc_md5_temp,List-NewEnd),
-		bb_get(calc_md5_temp2,OldLength),
-		NewLength is OldLength+1,
-		bb_put(calc_md5_temp2,NewLength),
-		NewLength=32
+	(
+	 (member(Prefix,Prefixes), append(Prefix,_Suffix,NameCode))
+	->
+	 (
+	  concat_path_with_filename(Path,Name,F),
+	  delete_file_silent(F)
+	 );
+	 true
 	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	!,
-	
-	close(S),
-	bb_delete(calc_md5_temp, FinalList-[]),
-	bb_delete(calc_md5_temp2,_),
-	atom_codes(MD5,FinalList).
+
+	delete_files_with_matching_prefix(T,Path,Prefixes).

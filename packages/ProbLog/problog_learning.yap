@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-25 15:45:22 +0200 (Wed, 25 Aug 2010) $
-%  $Revision: 4692 $
+%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
+%  $Revision: 4822 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -231,7 +231,8 @@
 :- ensure_loaded('problog/logger').
 :- ensure_loaded('problog/flags').
 :- ensure_loaded('problog/os').
-
+:- ensure_loaded('problog/print_learning').
+:- ensure_loaded('problog/utils_learning').
 
 % used to indicate the state of the system
 :- dynamic values_correct/0.
@@ -246,23 +247,15 @@
 :- dynamic query_is_similar/2.
 :- dynamic query_md5/3.
 
-:- assert_static(user:(example(A,B,C,=) :- current_predicate(example/3), example(A,B,C))).
-:- assert_static(user:(test_example(A,B,C,=) :- current_predicate(test_example/3), test_example(A,B,C))).
+:- multifile(user:example/4).
+user:example(A,B,C,=) :-
+	current_predicate(user:example/3),
+	user:example(A,B,C).
 
-%========================================================================
-%= 
-%= 
-%=
-%========================================================================
-
-my_format(Level,String,Arguments) :-
-	problog_flag(learning_verbosity_level,V_Level),
-	(
-	 V_Level >= Level
-	->
-	 (format(String,Arguments),flush_output(user));
-	 true
-	).
+:- multifile(user:test_example/4).
+user:test_example(A,B,C,=) :-
+	current_predicate(user:test_example/3),
+	user:test_example(A,B,C).
 
 
 %========================================================================
@@ -462,7 +455,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	assert(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
 	
-	my_format(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
+	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
 	logger_set_variable(iteration,CurrentIteration),
 
 	logger_start_timer(duration),
@@ -543,7 +536,7 @@ init_learning :-
 
 	logger_write_header,
 
-	my_format(1,'Initializing everything~n',[]),
+	format_learning(1,'Initializing everything~n',[]),
 	empty_output_directory,
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -594,7 +587,7 @@ init_learning :-
 	  true
 	),
 	bb_delete(test_examples,TestExampleCount),
-	my_format(3,'~q test examples~n',[TestExampleCount]),
+	format_learning(3,'~q test examples~n',[TestExampleCount]),
 	!,
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop count test examples
@@ -616,7 +609,7 @@ init_learning :-
 	),
 	bb_delete(training_examples,TrainingExampleCount),
 	assert(example_count(TrainingExampleCount)),
-	my_format(3,'~q training examples~n',[TrainingExampleCount]),
+	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 	!,
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop count training examples
@@ -643,7 +636,6 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% build BDD script for every example
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	once(initialize_fact_probabilities),
 	once(init_queries),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -652,7 +644,7 @@ init_learning :-
 	assert(current_iteration(0)),
 	assert(learning_initialized),
 
-	my_format(1,'~n',[]).
+	format_learning(1,'~n',[]).
 
 
 %========================================================================
@@ -681,11 +673,11 @@ empty_output_directory :-
 
 
 init_queries :-
-	my_format(2,'Build BDDs for examples~n',[]),
+	format_learning(2,'Build BDDs for examples~n',[]),
 	(			% go over all test examples
 	  current_predicate(user:test_example/4),
 	  user:test_example(ID,Query,Prob,_),
-	  my_format(3,' test example ~q: ~q~n',[ID,Query]),
+	  format_learning(3,' test example ~q: ~q~n',[ID,Query]),
 	  flush_output(user),
 	  init_one_query(ID,Query,test),
 
@@ -695,7 +687,7 @@ init_queries :-
 	(			% go over all training examples
 	  current_predicate(user:example/4),
 	  user:example(ID,Query,Prob,_),
-	  my_format(3,' training example ~q: ~q~n',[ID,Query]),
+	  format_learning(3,' training example ~q: ~q~n',[ID,Query]),
 	  flush_output(user),
 	  init_one_query(ID,Query,training),
 	  
@@ -721,10 +713,10 @@ init_one_query(QueryID,Query,Type) :-
 	(
 	 file_exists(Filename)
 	->
-	 my_format(3,' Reuse existing BDD ~q~n~n',[Filename]);
+	 format_learning(3,' Reuse existing BDD ~q~n~n',[Filename]);
 	 (
 	  problog_flag(init_method,(Query,_Prob,Filename,Probabilities_File,Call)),
-	  once(call(Call)),
+	  once(Call),
 	  delete_file(Probabilities_File)
 	 )
 	),
@@ -742,37 +734,16 @@ init_one_query(QueryID,Query,Type) :-
 	  ->
 	    ( 
 	      assert(query_is_similar(QueryID,OtherQueryID)),
-	      my_format(3, '~q is similar to ~q~2n', [QueryID,OtherQueryID])
+	      format_learning(3, '~q is similar to ~q~2n', [QueryID,OtherQueryID])
 	    );
 	    assert(query_md5(QueryID,Query_MD5,Type))
 	  )
 	 );
 
 	 true
-	).
+	),!,
+	garbage_collect.
 
-
-%========================================================================
-%= set all unknown fact probabilities to random values
-%=
-%=
-%========================================================================
-
-initialize_fact_probabilities :-
-	( % go over all tunable facts
-	  tunable_fact(FactID,_),
-	  problog_flag(probability_initializer,(FactID,Probability,Query)),
-	  once(call(Query)),
-	  set_fact_probability(FactID,Probability),
-	  
-	  fail; % go to next tunable fact
-	  true
-	).
-
-random_probability(_FactID,Probability) :-
-	% use probs around 0.5 to not confuse k-best search
-	random(Random),
-	Probability is 0.5+(Random-0.5)/100.
 
 
 
@@ -791,8 +762,8 @@ update_values :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% delete old values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	once(retractall(query_probability_intern(_,_))),
-	once(retractall(query_gradient_intern(_,_,_,_))),	
+	retractall(query_probability_intern(_,_)),
+	retractall(query_gradient_intern(_,_,_,_)),	
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start write current probabilities to file
@@ -854,7 +825,7 @@ update_query_cleanup(QueryID) :-
 	    % either this query is similar to another or vice versa,
 	    % therefore we don't delete anything
 	 true;
-	 once(retractall(query_gradient_intern(QueryID,_,_,_)))
+	 retractall(query_gradient_intern(QueryID,_,_,_))
 	).
 
 
@@ -867,13 +838,13 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	 query_is_similar(QueryID,_)
 	->
 				% we don't have to evaluate the BDD
-	 my_format(4,'#',[]);
+	 format_learning(4,'#',[]);
 	 (
 	  problog_flag(sigmoid_slope,Slope),
 	  problog_dir(PD),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
 	  atomic_concat([PD,
-			 '/problogbdd',
+			 '/ProblogBDD',
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
 			 ' -m ', Method,
@@ -921,7 +892,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  ),
 	  
 	  delete_file(Values_Filename),
-	  my_format(4,'~w',[Symbol])
+	  format_learning(4,'~w',[Symbol])
 	 )
 	),
 	flush_output(user).
@@ -1056,7 +1027,7 @@ mse_trainingset_only_for_linesearch(MSE) :-
 	  length(AllSquaredErrors,Length),
 	  sum_list(AllSquaredErrors,SumAllSquaredErrors),
 	  MSE is SumAllSquaredErrors/Length,
-	  my_format(3,' (~8f)~n',[MSE])
+	  format_learning(3,' (~8f)~n',[MSE])
 	 ); true
 	),
 	retractall(values_correct).
@@ -1066,7 +1037,7 @@ mse_testset :-
 	 (current_predicate(user:test_example/4),user:test_example(_,_,_,_))
 	->
 	 (
-	  my_format(2,'MSE_Test ',[]),
+	  format_learning(2,'MSE_Test ',[]),
 	  update_values,
 	  findall(SquaredError,
 		  (user:test_example(QueryID,_Query,QueryProb,Type),
@@ -1091,7 +1062,7 @@ mse_testset :-
 	  logger_set_variable(mse_testset,MSE),
 	  logger_set_variable(mse_min_testset,MinError),
 	  logger_set_variable(mse_max_testset,MaxError),
-	  my_format(2,' (~8f)~n',[MSE])
+	  format_learning(2,' (~8f)~n',[MSE])
 	 ); true
 	).
 
@@ -1227,7 +1198,7 @@ add_gradient(Learning_Rate) :-
 
 
 gradient_descent :-
-	my_format(2,'Gradient ',[]),
+	format_learning(2,'Gradient ',[]),
 	
 	save_old_probabilities,
 	update_values,
@@ -1411,7 +1382,7 @@ gradient_descent :-
 	logger_set_variable(mse_min_trainingset,MSE_Train_Min),
 	logger_set_variable(mse_max_trainingset,MSE_Train_Max),
 
-	my_format(2,'~n',[]),
+	format_learning(2,'~n',[]),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start add gradient to current probabilities
@@ -1422,7 +1393,7 @@ gradient_descent :-
 	    problog_flag(learning_rate,LearningRate);
 	    lineSearch(LearningRate,_)
 	),
-	my_format(3,'learning rate:~8f~n',[LearningRate]),
+	format_learning(3,'learning rate:~8f~n',[LearningRate]),
 	add_gradient(LearningRate),
 	logger_set_variable(learning_rate,LearningRate),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1438,7 +1409,7 @@ gradient_descent :-
 
 line_search_evaluate_point(Learning_Rate,MSE) :-
 	add_gradient(Learning_Rate),
-	my_format(2,'Line search (h=~8f) ',[Learning_Rate]),
+	format_learning(2,'Line search (h=~8f) ',[Learning_Rate]),
 	mse_trainingset_only_for_linesearch(MSE).
 
 
@@ -1449,7 +1420,7 @@ lineSearch(Final_X,Final_Value) :-
 	problog_flag(line_search_tau,Tau),
 	problog_flag(line_search_interval,(A,B)),
 
-	my_format(3,'Line search in interval (~4f,~4f)~n',[A,B]),
+	format_learning(3,'Line search in interval (~4f,~4f)~n',[A,B]),
 	
 	% init values
 	Acc is Tol * (B-A),
@@ -1677,11 +1648,9 @@ init_flags :-
 	problog_define_flag(output_directory, problog_flag_validate_directory, 'directory for logfiles etc', Output_Folder,learning_general,flags:learning_output_dir_handler),
 	problog_define_flag(log_frequency, problog_flag_validate_posint, 'log results every nth iteration', 1, learning_general),
 	problog_define_flag(rebuild_bdds, problog_flag_validate_nonegint, 'rebuild BDDs every nth iteration', 0, learning_general),
-	problog_define_flag(learning_verbosity_level, problog_flag_validate_0to5,'How much output shall be given (0=nothing,5=all)',5, learning_general),
 	problog_define_flag(reuse_initialized_bdds,problog_flag_validate_boolean, 'Reuse BDDs from previous runs',false, learning_general),	
 	problog_define_flag(check_duplicate_bdds,problog_flag_validate_boolean,'Store intermediate results in hash table',true,learning_general),
 	problog_define_flag(init_method,problog_flag_validate_dummy,'ProbLog predicate to search proofs',(Query,Probability,BDDFile,ProbFile,problog_kbest_save(Query,100,Probability,_Status,BDDFile,ProbFile)),learning_general,flags:learning_init_handler),
-	problog_define_flag(probability_initializer,problog_flag_validate_dummy,'Predicate to initialize probabilities',(FactID,P,random_probability(FactID,P)),learning_general,flags:learning_prob_init_handler),
 	problog_define_flag(alpha,problog_flag_validate_number,'weight of negative examples (auto=n_p/n_n)',auto,learning_general,flags:auto_handler),
 	problog_define_flag(sigmoid_slope,problog_flag_validate_posnumber,'slope of sigmoid function',1.0,learning_general),
 
