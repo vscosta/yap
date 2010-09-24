@@ -473,7 +473,7 @@ init_global_params :-
   % on initialization, the current dir is the one where the user's file is located
   % should be changed to use temporary folder structure of operating system
   %%%%%%%%%%%%
-  tmpname(TempFolder),
+  tmpnam(TempFolder),
   atomic_concat([TempFolder, '_problog'], TempProblogFolder),
   problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', WorkDir, TempProblogFolder),
   check_existance('problogbdd').
