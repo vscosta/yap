@@ -310,7 +310,7 @@
 
 
 % general yap modules
-:- use_module(library(system)).
+:- use_module(library(system), [delete_file/2, shell/2]).
 
 :- initialization((
 	problog_define_flag(optimization, problog_flag_validate_atom, 'optimization algorithm [local/global]', global, dtproblog),

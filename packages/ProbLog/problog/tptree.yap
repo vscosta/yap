@@ -1056,9 +1056,9 @@ spacy_print(Msg, Level, Space):-
 
 % Theo Naive method works with Nested Trie to BDD Script
 
-:-dynamic(get_used_vars/2).
-:-dynamic(generated_trie/2).
-:-dynamic(next_intermediate_step/1).
+:- dynamic(get_used_vars/2).
+:- dynamic(generated_trie/2).
+:- dynamic(next_intermediate_step/1).
 
 %
 % This needs to be modified

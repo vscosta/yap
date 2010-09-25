@@ -338,7 +338,7 @@
 :- dynamic(tunable_fact/2).
 :- dynamic(non_ground_fact/1).
 :- dynamic(continuous_fact/1).
-%:- dynamic problog_dir/1.
+%:- dynamic(problog_dir/1).
 % global, manipulated via problog_control/2
 :- dynamic(up/0).
 :- dynamic(limit/0).
@@ -1147,7 +1147,7 @@ get_fact(ID,OutsideTerm) :-
 	ProblogTerm =.. [_Functor,ID|Args],
 	atomic_concat('problog_',OutsideFunctor,ProblogName),
 	Last is ProblogArity-1,
-	nth(Last,Args,_LogProb,OutsideArgs),
+	nth(Last,Args,_LogProb,OutsideArgs),    % PM avoid nth/3; use nth0/3 or nth1/3 instead
 	OutsideTerm =.. [OutsideFunctor|OutsideArgs].
 % ID of instance of non-ground fact: get fact from grounding table
 get_fact(ID,OutsideTerm) :-
@@ -2698,7 +2698,7 @@ build_trie(Goal, Trie) :-
     throw(error('Flag settings not supported by build_trie/2.'))
   ).
 
-build_trie_supported :- problog_flag(inference,exact).
+build_trie_supported :- problog_flag(inference,exact).  % PM this can easily be written to avoid creating choice-points
 build_trie_supported :- problog_flag(inference,low(_)).
 build_trie_supported :- problog_flag(inference,atleast-_-best).
 build_trie_supported :- problog_flag(inference,_-best).
@@ -2991,7 +2991,7 @@ write_global_bdd_file_line(I,Max) :-
   ).
 
 write_global_bdd_file_query(I,Max) :-
-  (I=Max ->
+  (I=Max ->                     % PM shouldn't this be instead I =:= Max ?
       format("L~q~n",[I])
   ;
       format("L~q,",[I]),
