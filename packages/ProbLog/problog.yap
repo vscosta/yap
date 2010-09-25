@@ -230,7 +230,7 @@
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_exact/3,
-		    problog_exact_save/5,
+                    problog_exact_save/5,
                     problog_montecarlo/3,
                     problog_dnf_sampling/3,
                     problog_answers/2,
@@ -296,7 +296,6 @@
                     above/2]).
 
 :- style_check(all).
-
 :- yap_flag(unknown,error).
 
 :- set_prolog_flag(to_chars_mode,quintus).
@@ -333,56 +332,56 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 % global over all inference methods, internal use only
-:- dynamic problog_predicate/2.
-:- dynamic problog_continuous_predicate/3.
+:- dynamic(problog_predicate/2).
+:- dynamic(problog_continuous_predicate/3).
 % global over all inference methods, exported
-:- dynamic tunable_fact/2.
-:- dynamic non_ground_fact/1.
-:- dynamic continuous_fact/1.
+:- dynamic(tunable_fact/2).
+:- dynamic(non_ground_fact/1).
+:- dynamic(continuous_fact/1).
 %:- dynamic problog_dir/1.
 % global, manipulated via problog_control/2
-:- dynamic up/0.
-:- dynamic limit/0.
-:- dynamic mc/0.
-:- dynamic remember/0.
-:- dynamic exact/0.                         % Theo tabling
-:- dynamic find_decisions/0.
-:- dynamic internal_strategy/0.
+:- dynamic(up/0).
+:- dynamic(limit/0).
+:- dynamic(mc/0).
+:- dynamic(remember/0).
+:- dynamic(exact/0).                         % Theo tabling
+:- dynamic(find_decisions/0).
+:- dynamic(internal_strategy/0).
 % local to problog_delta
-:- dynamic low/2.
-:- dynamic up/2.
-:- dynamic stopDiff/1.
+:- dynamic(low/2).
+:- dynamic(up/2).
+:- dynamic(stopDiff/1).
 % local to problog_kbest
-:- dynamic current_kbest/3.
+:- dynamic(current_kbest/3).
 % local to problog_max
-:- dynamic max_probability/1.
-:- dynamic max_proof/1.
+:- dynamic(max_probability/1).
+:- dynamic(max_proof/1).
 % local to problog_montecarlo
-:- dynamic mc_prob/1.
+:- dynamic(mc_prob/1).
 % local to problog_answers
-:- dynamic answer/1.
+:- dynamic(answer/1).
 % to keep track of the groundings for non-ground facts
-:- dynamic grounding_is_known/2.
+:- dynamic(grounding_is_known/2).
 
 % for decisions
-:- dynamic decision_fact/2.
+:- dynamic(decision_fact/2).
 
 % for fact where the proabability is a variable
-:- dynamic dynamic_probability_fact/1.
-:- dynamic dynamic_probability_fact_extract/2.
+:- dynamic(dynamic_probability_fact/1).
+:- dynamic(dynamic_probability_fact_extract/2).
 
 % for storing continuous parts of proofs (Hybrid ProbLog)
-:- dynamic hybrid_proof/3, hybrid_proof/4.
-:- dynamic hybrid_proof_disjoint/4.
+:- dynamic(hybrid_proof/3, hybrid_proof/4).
+:- dynamic(hybrid_proof_disjoint/4).
 
 % ProbLog files declare prob. facts as P::G
 % and this module provides the predicate X::Y to iterate over them
-:- multifile '::'/2.
+:- multifile('::'/2).
 
 
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
-:- getcwd(PD), set_problog_path(PD).
+:- initialization((getcwd(PD), set_problog_path(PD))).
 
 
 
@@ -395,22 +394,28 @@
 % - factor used to decrease threshold for next level, NewMin=Factor*OldMin (saved also in log-space)
 %%%%%%%%%%%%
 
-:- problog_define_flag(first_threshold, problog_flag_validate_indomain_0_1_open, 'starting threshold iterative deepening', 0.1, inference).
-:- problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1e-30, inference, flags:last_threshold_handler).
-:- problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler).
+:- initialization((
+	problog_define_flag(first_threshold, problog_flag_validate_indomain_0_1_open, 'starting threshold iterative deepening', 0.1, inference),
+	problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1e-30, inference, flags:last_threshold_handler),
+	problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler)
+)).
 
 %%%%%%%%%%%%
 % prune check stops derivations if they use a superset of facts already known to form a proof
 % (very) costly test, can be switched on/off here (This is obsolete as it is not included in implementation)
 %%%%%%%%%%%%
 
-:- problog_define_flag(prunecheck,      problog_flag_validate_switch, 'stop derivations including all facts of known proof', off, inference).
+:- initialization(
+	problog_define_flag(prunecheck,      problog_flag_validate_switch, 'stop derivations including all facts of known proof', off, inference)
+).
 
 %%%%%%%%%%%%
 % max number of calls to probabilistic facts per derivation (to ensure termination)
 %%%%%%%%%%%%
 
-:- problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference).
+:- initialization(
+	problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference)
+).
 
 %%%%%%%%%%%%
 % BDD timeout in seconds, used as option in BDD tool
@@ -422,12 +427,13 @@
 % located in the directory given by problog_flag dir
 %%%%%%%%%%%%
 
-%:- problog_define_flag(bdd_path,        problog_flag_validate_directory, 'problogbdd directory', '.',bdd).
-:- problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd).
-:- problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd).
-:- problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd).
-:- problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd).
-
+:- initialization((
+%	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'problogbdd directory', '.',bdd),
+	problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd),
+	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd),
+	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),
+	problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd)
+)).
 
 %%%%%%%%%%%%
 % determine whether ProbLog outputs information (number of proofs, intermediate results, ...)
@@ -435,27 +441,34 @@
 % default is false now, as dtproblog will flood the user with verbosity
 %%%%%%%%%%%%
 
-:- problog_define_flag(verbose,         problog_flag_validate_boolean, 'output intermediate information', false,output).
+:- initialization(
+	problog_define_flag(verbose,         problog_flag_validate_boolean, 'output intermediate information', false,output)
+).
 
 %%%%%%%%%%%%
 % determine whether ProbLog outputs proofs when adding to trie
 % default is false
 %%%%%%%%%%%%
 
-:- problog_define_flag(show_proofs,     problog_flag_validate_boolean, 'output proofs', false,output).
+:- initialization(
+	problog_define_flag(show_proofs,     problog_flag_validate_boolean, 'output proofs', false,output)
+).
 
 %%%%%%%%%%%%
 % Trie dump parameter for saving a file with the trie structure in the directory by problog_flag dir
 %%%%%%%%%%%%
 
-:- problog_define_flag(triedump,        problog_flag_validate_boolean, 'generate file: trie_file containing the trie structure', false,output).
+:- initialization(
+	problog_define_flag(triedump,        problog_flag_validate_boolean, 'generate file: trie_file containing the trie structure', false,output)
+).
 
 %%%%%%%%%%%%
 % Default inference method
 %%%%%%%%%%%%
 
-:- problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference).
-
+:- initialization(
+	problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)
+).
 
 problog_dir(PD):- problog_path(PD).
 
@@ -522,7 +535,7 @@ reset_control :-
 %   problog_control(off,exact),
 	problog_control(off,remember).
 
-:- reset_control.
+:- initialization(reset_control).
 
 grow_atom_table(N):-
 	generate_atoms(N, 0),
@@ -898,7 +911,8 @@ prove_problog_fact_negated(ClauseID,GroundID,Prob) :-
   ).
 
 % generate next global identifier
-:- nb_setval(probclause_counter,0).
+:- initialization(nb_setval(probclause_counter,0)).
+
 probclause_id(ID) :-
 	nb_getval(probclause_counter,ID), !,
 	C1 is ID+1,
@@ -1406,19 +1420,21 @@ put_module(Goal,Module,Module:Goal).
 % if remember is on, input files for problogbdd will be saved
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- problog_var_define(sld_time, times, time, messages('SLD resolution', ':', ' ms')).
-:- problog_var_define(bdd_script_time, times, time, messages('Generating BDD script', ':', ' ms')).
-:- problog_var_define(bdd_generation_time, times, time, messages('Constructing BDD', ':', ' ms')).
-:- problog_var_define(trie_statistics, memory, untyped, messages('Trie usage', ':', '')).
-:- problog_var_define(probability, result, number, messages('Probabilty', ' = ', '')).
-:- problog_var_define(bdd_script_time(Method), times, time, messages('Generating BDD script '(Method), ':', ' ms')).
-:- problog_var_define(bdd_generation_time(Method), times, time, messages('Constructing BDD '(Method), ':', ' ms')).
-:- problog_var_define(probability(Method), result, number, messages('Probabilty '(Method), ' = ', '')).
-:- problog_var_define(trie_statistics(Method), memory, untyped, messages('Trie usage '(Method), ':', '')).
-:- problog_var_define(dbtrie_statistics(Method), memory, untyped, messages('Depth Breadth Trie usage '(Method), ':', '')).
-:- problog_var_define(db_trie_opts_performed(Method), memory, untyped, messages('Optimisations performed '(Method), ':', '')).
-:- problog_var_define(variable_elimination_time, times, time, messages('Variable Elimination', ':', ' ms')).
-:- problog_var_define(variable_elimination_stats, memory, untyped, messages('Variable Elimination', ':', '')).
+:- initialization((
+	problog_var_define(sld_time, times, time, messages('SLD resolution', ':', ' ms')),
+	problog_var_define(bdd_script_time, times, time, messages('Generating BDD script', ':', ' ms')),
+	problog_var_define(bdd_generation_time, times, time, messages('Constructing BDD', ':', ' ms')),
+	problog_var_define(trie_statistics, memory, untyped, messages('Trie usage', ':', '')),
+	problog_var_define(probability, result, number, messages('Probabilty', ' = ', '')),
+	problog_var_define(bdd_script_time(Method), times, time, messages('Generating BDD script '(Method), ':', ' ms')),
+	problog_var_define(bdd_generation_time(Method), times, time, messages('Constructing BDD '(Method), ':', ' ms')),
+	problog_var_define(probability(Method), result, number, messages('Probabilty '(Method), ' = ', '')),
+	problog_var_define(trie_statistics(Method), memory, untyped, messages('Trie usage '(Method), ':', '')),
+	problog_var_define(dbtrie_statistics(Method), memory, untyped, messages('Depth Breadth Trie usage '(Method), ':', '')),
+	problog_var_define(db_trie_opts_performed(Method), memory, untyped, messages('Optimisations performed '(Method), ':', '')),
+	problog_var_define(variable_elimination_time, times, time, messages('Variable Elimination', ':', ' ms')),
+	problog_var_define(variable_elimination_stats, memory, untyped, messages('Variable Elimination', ':', ''))
+)).
 
 problog_statistics(Stat, Result):-
 	problog_var_defined(Stat),

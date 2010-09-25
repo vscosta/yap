@@ -205,9 +205,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- module(learning,[do_learning/1,
-	            do_learning/2,
-	            set_learning_flag/2,
+:- module(learning,[
+		    do_learning/1,
+		    do_learning/2,
+		    set_learning_flag/2,
 		    learning_flag/2,
 		    learning_flags/0,
 		    problog_help/0,
@@ -215,7 +216,7 @@
 		    problog_flag/2,
 		    problog_flags/0,
 		    auto_alpha/0
-		    ]).
+		]).
 
 % switch on all the checks to reduce bug searching time
 :- style_check(all).
@@ -235,17 +236,17 @@
 :- use_module('problog/utils_learning').
 
 % used to indicate the state of the system
-:- dynamic values_correct/0.
-:- dynamic learning_initialized/0.
-:- dynamic current_iteration/1.
-:- dynamic example_count/1.
-:- dynamic query_probability_intern/2.
-:- dynamic query_gradient_intern/4.
-:- dynamic last_mse/1.
+:- dynamic(values_correct/0).
+:- dynamic(learning_initialized/0).
+:- dynamic(current_iteration/1).
+:- dynamic(example_count/1).
+:- dynamic(query_probability_intern/2).
+:- dynamic(query_gradient_intern/4).
+:- dynamic(last_mse/1).
 
 % used to identify queries which have identical proofs
-:- dynamic query_is_similar/2.
-:- dynamic query_md5/3.
+:- dynamic(query_is_similar/2).
+:- dynamic(query_md5/3).
 
 :- multifile(user:example/4).
 user:example(A,B,C,=) :-

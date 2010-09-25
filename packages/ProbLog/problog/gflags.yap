@@ -259,10 +259,10 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
-  (catch(call(Type), _, fail)->
+  (catch(Type, _, fail)->
     fail
   ;
-    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(call(SyntacticSugar), _, fail)),
+    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
 
@@ -371,13 +371,13 @@ flag_validate(_Flag, Value, Type, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((call(M:GoalValidating), call(G)), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(call(G), _, fail), !.
+  catch(G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -386,14 +386,14 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((call(M:GoalValidating), call(G)), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(call(G), _, fail), !.
+  catch(G, _, fail), !.
 flag_validate(Flag, Value, Type, Handler):-
   (var(Value) ->
     Value = 'free variable'
