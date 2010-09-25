@@ -216,12 +216,13 @@
 
 
 % load library modules
-:- use_module(library(system)).
+:- use_module(library(system), [exec/3, file_exists/1]).
 
 % load our own modules
 :- use_module(gflags, _, [flag_get/2]).
 
-:- dynamic [problog_path/1, problog_working_path/1].
+:- dynamic(problog_path/1).
+:- dynamic(problog_working_path/1).
 
 set_problog_path(Path):-
 	retractall(problog_path(_)),

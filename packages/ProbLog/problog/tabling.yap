@@ -233,7 +233,7 @@
                     problog_tabling_get_negated_from_id/2,
                     op(1150, fx, problog_table)]).
 
-:- use_module(library(lists)).
+:- use_module(library(lists)).  % not necessary?
 
 :- use_module(extlists, _, [open_end_memberchk/2,
                             open_end_add/3,
@@ -248,11 +248,18 @@
                          empty_ptree/1]).
 
 :- op( 1150, fx, problog_table ).
+
 :- meta_predicate(problog_table(0)).
 :- meta_predicate(problog_neg(0)).
-:- dynamic problog_tabled/1, has_synonyms/0, problog_tabling_retain/1.
-:- problog_define_flag(max_depth, problog_flag_validate_integer, 'maximum proof depth', -1).
-:- problog_define_flag(retain_tables, problog_flag_validate_boolean, 'retain tables after query', false).
+
+:- dynamic(problog_tabled/1).
+:- dynamic(has_synonyms/0).
+:- dynamic(problog_tabling_retain/1).
+
+:- initialization((
+  problog_define_flag(max_depth, problog_flag_validate_integer, 'maximum proof depth', -1),
+  problog_define_flag(retain_tables, problog_flag_validate_boolean, 'retain tables after query', false)
+)).
 
 init_tabling :-
   nb_setval(problog_current_depth, 0),

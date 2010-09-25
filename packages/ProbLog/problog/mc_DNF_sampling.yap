@@ -206,7 +206,7 @@
 
 :- module(mc_DNF_sampling, [problog_dnf_sampling/3]).
 
-:- use_module(library(lists)).
+:- use_module(library(lists), [memberchk/2]).
 
 :- use_module(variables).
 :- use_module(sampling, _, [problog_random/1,
@@ -219,12 +219,14 @@
 
 :- use_module(hash_table).
 
-:- problog_define_flag(search_method, problog_flag_validate_in_list([linear, binary]), 'search method for picking proof', binary, monte_carlo_sampling_dnf).
-:- problog_define_flag(represent_world, problog_flag_validate_in_list([list, record, array, hash_table]), 'structure that represents sampled world', array, monte_carlo_sampling_dnf).
+:- initialization((
+  problog_define_flag(search_method, problog_flag_validate_in_list([linear, binary]), 'search method for picking proof', binary, monte_carlo_sampling_dnf),
+  problog_define_flag(represent_world, problog_flag_validate_in_list([list, record, array, hash_table]), 'structure that represents sampled world', array, monte_carlo_sampling_dnf),
 
-:- problog_var_define(dnf_sampling_time, times, time, messages('DNF Sampling', ':', ' ms')).
-:- problog_var_define(probability_lower, result, untyped, messages('Lower probability bound', ' = ', '')).
-:- problog_var_define(probability_upper, result, untyped, messages('Upper probability bound', ' = ', '')).
+  problog_var_define(dnf_sampling_time, times, time, messages('DNF Sampling', ':', ' ms')),
+  problog_var_define(probability_lower, result, untyped, messages('Lower probability bound', ' = ', '')),
+  problog_var_define(probability_upper, result, untyped, messages('Upper probability bound', ' = ', ''))
+)).
 
 % problog_independed(T, P):-
 %   tries:trie_traverse_first(T, FirstRef), !,

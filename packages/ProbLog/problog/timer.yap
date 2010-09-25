@@ -214,8 +214,8 @@
 :- yap_flag(unknown,error).
 :- style_check(single_var).
 
-:- dynamic timer/2.
-:- dynamic timer_paused/2.
+:- dynamic(timer/2).
+:- dynamic(timer_paused/2).
 
 
 timer_start(Name) :-

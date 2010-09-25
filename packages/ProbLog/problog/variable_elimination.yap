@@ -204,7 +204,12 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(variable_elimination, [trie_check_for_and_cluster/1, trie_replace_and_cluster/2, clean_up/0, variable_elimination_stats/3]).
+:- module(variable_elimination, [
+    trie_check_for_and_cluster/1,
+    trie_replace_and_cluster/2,
+    clean_up/0,
+    variable_elimination_stats/3
+]).
 
 :- use_module(library(lists)).
 :- use_module(library(tries)).
@@ -212,10 +217,10 @@
 :- use_module('flags', _, [problog_define_flag/5]).
 
 
-:- nb_setval(prob_fact_count, 0).
-
-:- problog_define_flag(variable_elimination, problog_flag_validate_boolean, 'enable variable elimination', false, variable_elimination).
-
+:- initialization((
+  nb_setval(prob_fact_count, 0),
+  problog_define_flag(variable_elimination, problog_flag_validate_boolean, 'enable variable elimination', false, variable_elimination)
+)).
 
 bit_encode(L, ON):-
   bit_encode(L, ON, 0).
@@ -386,7 +391,7 @@ replace([], _, _, []).
 replace([H|T], H, NH, [NH|NT]):-
   replace(T, H, NH, NT).
 replace([H|T], R, NR, [H|NT]):-
-  \+ H == R,
+  H \== R,
   replace(T, R, NR, NT).
 
 clean_up:-

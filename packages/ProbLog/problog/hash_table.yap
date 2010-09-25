@@ -299,7 +299,7 @@ get_digits(Num, Digits, Acc):-
 %
 % Simple Counters
 %
-:- bb_put(array_count, 1).
+:- initialization(bb_put(array_count, 1)).
 
 get_next_array(ID, Name):-
   bb_get(array_count, ID),

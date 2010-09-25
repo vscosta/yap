@@ -259,28 +259,32 @@
 
 
 % this is a test to determine whether YAP provides the needed trie library
-:- current_predicate(tries:trie_disable_hash/0)
-	->
-	trie_disable_hash;
-	print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.').
+:- initialization(
+	(	current_predicate(tries:trie_disable_hash/0) ->
+		trie_disable_hash
+	;	print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
+	)
+).
 
 %%%%%%%%%%%%%%%%%%%%%%%
 % Define module flags
 %%%%%%%%%%%%%%%%%%%%%%%
 
-:- problog_define_flag(use_db_trie,     problog_flag_validate_boolean, 'use the builtin trie 2 trie transformation', false).
-:- problog_define_flag(db_trie_opt_lvl, problog_flag_validate_integer, 'optimization level for the trie 2 trie transformation', 0).
-:- problog_define_flag(compare_opt_lvl, problog_flag_validate_boolean, 'comparison mode for optimization level', false).
-:- problog_define_flag(db_min_prefix,   problog_flag_validate_integer, 'minimum size of prefix for dbtrie to optimize', 2).
-:- problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false).
-:- problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true).
-:- problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false).
-:- problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true).
-:- problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false).
-
-:- problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false).
-:- problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false).
-:- problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list).
+:- initialization((
+	problog_define_flag(use_db_trie,     problog_flag_validate_boolean, 'use the builtin trie 2 trie transformation', false),
+	problog_define_flag(db_trie_opt_lvl, problog_flag_validate_integer, 'optimization level for the trie 2 trie transformation', 0),
+	problog_define_flag(compare_opt_lvl, problog_flag_validate_boolean, 'comparison mode for optimization level', false),
+	problog_define_flag(db_min_prefix,   problog_flag_validate_integer, 'minimum size of prefix for dbtrie to optimize', 2),
+	problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false),
+	problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true),
+	problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false),
+	problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true),
+	problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false),
+	
+	problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false),
+	problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false),
+	problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list)
+)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -419,7 +423,7 @@ merge_ptree(T1, T2, T3) :-
 % - ptree_decomposition -> ptree_decomposition_struct
 % - bdd_ptree_script -> bdd_struct_ptree_script
 %%%%%%%%%%%%%%%%%%%%%%%%
-:- dynamic c_num/1.
+:- dynamic(c_num/1).
 
 bdd_struct_ptree(Trie, FileBDD, Variables) :-
     bdd_struct_ptree_script(Trie, FileBDD, Variables),
@@ -1018,7 +1022,7 @@ statistics_ptree:-
   write('--------------------------------'),nl.
 
 
-:- dynamic nested_ptree_printed/1.
+:- dynamic(nested_ptree_printed/1).
 
 print_nested_ptree(Trie):-
   retractall(nested_ptree_printed(_)),
@@ -1987,7 +1991,7 @@ ptree_db_trie_opt_performed(LVL1, LVL2, LVL3):-
   trie_get_depth_breadth_reduction_opt_level_count(2, LVL2),
   trie_get_depth_breadth_reduction_opt_level_count(3, LVL3).
 
-:- dynamic deref/2.
+:- dynamic(deref/2).
 
 mark_for_deref(DB_Trie):-
   traverse_ptree_mode(OLD),

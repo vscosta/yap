@@ -210,9 +210,6 @@
 :- module(print_learning, [format_learning/3]).
 
 
-% load library modules
-:- use_module(library(system)).
-
 % load our own modules
 :- use_module(flags).
 

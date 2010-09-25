@@ -225,7 +225,7 @@
                   problog_help/0]).
 
 % load library modules
-:- use_module(library(lists)).
+:- use_module(library(lists), [member/2]).
 
 % load our own modules
 :- use_module(flags).

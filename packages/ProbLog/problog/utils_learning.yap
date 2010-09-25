@@ -212,10 +212,13 @@
 			   delete_file_silent/1
 			   ]).
 
+% switch on all tests to reduce bug searching time
+:- style_check(all).
+:- yap_flag(unknown,error).
 
 % load library modules
-:- use_module(library(lists)).
-:- use_module(library(system)).
+:- use_module(library(lists), [append/3, member/2]).
+:- use_module(library(system), [delete_file/1, directory_files/2, file_exists/1]).
 
 % load our own modules
 :- use_module(os).
