@@ -225,11 +225,11 @@
                   problog_help/0]).
 
 % load library modules
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists)).
 
 % load our own modules
-:- ensure_loaded(flags).
-:- ensure_loaded(variables).
+:- use_module(flags).
+:- use_module(variables).
 
 
 % size, line_char, line_char_bold

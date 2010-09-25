@@ -211,10 +211,10 @@
 
 
 % load library modules
-:- ensure_loaded(library(system)).
+:- use_module(library(system)).
 
 % load our own modules
-:- ensure_loaded(flags).
+:- use_module(flags).
 
 :- initialization(problog_define_flag(verbosity_learning, problog_flag_validate_0to5,'How much output shall be given (0=nothing,5=all)',5, learning_general)).
 

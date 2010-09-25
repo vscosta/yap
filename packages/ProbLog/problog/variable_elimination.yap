@@ -206,8 +206,8 @@
 
 :- module(variable_elimination, [trie_check_for_and_cluster/1, trie_replace_and_cluster/2, clean_up/0, variable_elimination_stats/3]).
 
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(tries)).
+:- use_module(library(lists)).
+:- use_module(library(tries)).
 
 :- use_module('flags', _, [problog_define_flag/5]).
 
@@ -373,7 +373,7 @@ last_cluster_element(L, Cluster, R):-
 
 nocluster([], _).
 nocluster([H|T], L):-
-  not(memberchk(H, L)),
+  \+ memberchk(H, L),
   nocluster(T, L).
 
 eliminate_list([], L, L).
@@ -418,8 +418,8 @@ make_prob_fact(L, P, ID):-
     (clause(problog:problog_predicate(var_elimination, 1), true) ->
       true
     ;
-      assert(problog:problog_predicate(var_elimination, 1))
+      assertz(problog:problog_predicate(var_elimination, 1))
     ),
-    assert(problog:problog_var_elimination(ID, L, P))
+    assertz(problog:problog_var_elimination(ID, L, P))
   ).
 

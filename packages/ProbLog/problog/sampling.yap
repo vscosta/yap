@@ -212,7 +212,7 @@
 
 :- use_module(os, _, [convert_filename_to_working_path/2]).
 
-:- ensure_loaded(library(random)).
+:- use_module(library(random)).
 
 :- problog_define_flag(mc_batchsize, problog_flag_validate_posint, 'number of samples before update in montecarlo', 1000, monte_carlo_sampling).
 

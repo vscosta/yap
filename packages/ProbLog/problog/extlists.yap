@@ -212,7 +212,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(extlists, [open_end_memberchk/2, open_end_add/3, open_end_add_unique/3, open_end_close_end/2]).
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists)).
 
 open_end_memberchk(_A, []):-!, fail.
 open_end_memberchk(A, L-E):-

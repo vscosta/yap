@@ -245,13 +245,13 @@
                  ]).
 
 % load library modules
-:- ensure_loaded(library(tries)).
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(system)).
-:- ensure_loaded(library(ordsets)).
+:- use_module(library(tries)).
+:- use_module(library(lists)).
+:- use_module(library(system)).
+:- use_module(library(ordsets)).
 
 % load our own modules
-:- ensure_loaded(flags).
+:- use_module(flags).
 
 % switch on all tests to reduce bug searching time
 :- style_check(all).
@@ -435,7 +435,7 @@ bdd_struct_ptree_script(Trie, FileBDD, Variables) :-
     edges_ptree(Trie, Variables),
     name_vars(Variables), % expected by output_compressed_script/1?
     length(Variables, VarCount),
-    assert(c_num(1)),
+    assertz(c_num(1)),
     bdd_pt(Trie, CT),
     c_num(NN),
     IntermediateSteps is NN - 1,
@@ -643,7 +643,7 @@ bdd_ptree_script(Trie, FileBDD, FileParam) :-
 
 	told,
 	length(Edges, VarCount),
-	assert(c_num(1)),
+	assertz(c_num(1)),
 	bdd_pt(Trie, CT),
 	c_num(NN),
 	IntermediateSteps is NN - 1,
@@ -736,12 +736,12 @@ bdd_pt(Trie, false) :-
 	empty_ptree(Trie),
 	!,
 	retractall(c_num(_)),
-	assert(c_num(2)).
+	assertz(c_num(2)).
 bdd_pt(Trie, true) :-
 	trie_check_entry(Trie, [true], _),
 	!,
 	retractall(c_num(_)),
-	assert(c_num(2)).
+	assertz(c_num(2)).
 
 % general case: transform trie to nested tree structure for compression
 bdd_pt(Trie, CT) :-
@@ -977,7 +977,7 @@ format_compression_script([A, B|C]) :-
 get_next_name(Name) :-
 	retract(c_num(N)),
 	NN is N + 1,
-	assert(c_num(NN)),
+	assertz(c_num(NN)),
 	atomic_concat('L', N, Name).
 
 % create BDD-var as fact id prefixed by x
@@ -1030,7 +1030,7 @@ print_nested_ptree(Trie, Level, Space):-
   spacy_print(begin(t(Trie)), Level, Space),
   fail.
 print_nested_ptree(Trie, Level, Space):-
-  assert(nested_ptree_printed(Trie)),
+  assertz(nested_ptree_printed(Trie)),
   trie_path(Trie, Path),
   NewLevel is Level + 1,
   spacy_print(Path, NewLevel, Space),
@@ -1117,7 +1117,7 @@ generate_BDD_from_trie(Trie, TrieInter, Stream):-
     get_next_intermediate_step(TrieInter),
     write_bdd_line(OrLineTerms, TrieInter, '+', Stream)
   ),
-  assert(generated_trie(Trie, TrieInter)).
+  assertz(generated_trie(Trie, TrieInter)).
 
 write_bdd_line([], _LineInter, _Operator, _Stream):-!.
 write_bdd_line(LineTerms, LineInter, Operator, Stream):-
@@ -1172,13 +1172,13 @@ bddvars_to_script([H|T], Stream):-
   bddvars_to_script(T, Stream).
 
 get_next_intermediate_step('L1'):-
-  not(clause(next_intermediate_step(_), _)), !,
-  assert(next_intermediate_step(2)).
+  \+ clause(next_intermediate_step(_), _), !,
+  assertz(next_intermediate_step(2)).
 get_next_intermediate_step(Inter):-
   next_intermediate_step(InterStep),
   retract(next_intermediate_step(InterStep)),
   NextInterStep is InterStep + 1,
-  assert(next_intermediate_step(NextInterStep)),
+  assertz(next_intermediate_step(NextInterStep)),
   atomic_concat(['L', InterStep], Inter).
 
 make_bdd_var('true', 'TRUE'):-!.
@@ -1201,9 +1201,9 @@ add_to_vars(V):-
   clause(get_used_vars(Vars, Cnt), true), !,
   retract(get_used_vars(Vars, Cnt)),
   NewCnt is Cnt + 1,
-  assert(get_used_vars([V|Vars], NewCnt)).
+  assertz(get_used_vars([V|Vars], NewCnt)).
 add_to_vars(V):-
-  assert(get_used_vars([V], 1)).
+  assertz(get_used_vars([V], 1)).
 
 
 %%%%%%%%%%%%%%% depth breadth builtin support %%%%%%%%%%%%%%%%%
@@ -1232,14 +1232,14 @@ variable_in_dbtrie(Trie, V):-
 
 get_next_variable(V, depth(L, _S)):-
   member(V, L),
-  not(islabel(V)).
+  \+ islabel(V).
 get_next_variable(V, breadth(L, _S)):-
   member(V, L),
-  not(islabel(V)).
+  \+ islabel(V).
 get_next_variable(V, L):-
   member(V, L),
-  not(islabel(V)),
-  not(isnestedtrie(V)).
+  \+ islabel(V),
+  \+ isnestedtrie(V).
 
 get_variable(not(V), R):-
   !, get_variable(V, R).
@@ -1408,7 +1408,7 @@ preprocess(_, _, _, FinalEndCount, FinalEndCount).
 
 make_nested_trie_base_cases(Trie, t(ID), DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount, Ancestors):-
   trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, Label, OptimizationLevel, StartCount, EndCount),
-  (not(Label = t(_)) ->
+  (Label \= t(_) ->
     FinalEndCount = EndCount,
     problog:problog_chktabled(ID, RTrie),!,
     get_set_trie_from_id(t(ID), Label, RTrie, Ancestors, _, Ancestors)
@@ -1439,7 +1439,7 @@ trie_nested_to_db_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, St
 
 nested_trie_to_db_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel, StartCount, FinalEndCount, Module:GetTriePredicate, Ancestors, ContainsLoop, Childs, ChildsAcc):-
   trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, Label, OptimizationLevel, StartCount, EndCount),
-  (not(Label = t(_)) ->
+  (Label \= t(_) ->
     (var(ContainsLoop) ->
       ContainsLoop = false
     ;
@@ -1933,7 +1933,7 @@ dwriteln(A):-
 
 non_false([], []):-!.
 non_false([H|T], [H|NT]):-
-  not(H == false),
+  H \== false,
   non_false(T, NT).
 non_false([H|T], NT):-
   H == false,
@@ -1945,11 +1945,11 @@ one_true(_, _, 'TRUE'):-!.
 
 all_false(false,false,false).
 one_non_false(L, false, false, L):-
-  not(L == false), !.
+  L \== false, !.
 one_non_false(false, L, false, L):-
-  not(L == false), !.
+  L \== false, !.
 one_non_false(false, false, L, L):-
-  not(L == false), !.
+  L \== false, !.
 
 trie_seperate(Trie, Var, TrieWith, TrieWithNeg, TrieWithOut):-
   trie_traverse(Trie, R),
@@ -1999,7 +1999,7 @@ mark_deref(DB_Trie):-
   traverse_ptree(DB_Trie, DB_Term),
   (DB_Term = depth(List, Inter); DB_Term = breadth(List, Inter)),
   member(L, List),
-  ((islabel(L), not(deref(L, _))) ->
+  ((islabel(L), \+ deref(L, _)) ->
     asserta(deref(L, Inter))
   ;
     true

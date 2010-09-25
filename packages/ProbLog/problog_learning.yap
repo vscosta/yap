@@ -222,17 +222,17 @@
 :- yap_flag(unknown,error).
 
 % load modules from the YAP library
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(random)).
-:- ensure_loaded(library(system)).
+:- use_module(library(lists)).
+:- use_module(library(random)).
+:- use_module(library(system)).
 
 % load our own modules
-:- ensure_loaded(problog).
-:- ensure_loaded('problog/logger').
-:- ensure_loaded('problog/flags').
-:- ensure_loaded('problog/os').
-:- ensure_loaded('problog/print_learning').
-:- ensure_loaded('problog/utils_learning').
+:- use_module(problog).
+:- use_module('problog/logger').
+:- use_module('problog/flags').
+:- use_module('problog/os').
+:- use_module('problog/print_learning').
+:- use_module('problog/utils_learning').
 
 % used to indicate the state of the system
 :- dynamic values_correct/0.
@@ -452,7 +452,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	retractall(current_iteration(_)),
 	!,
 	NextIteration is CurrentIteration+1,
-	assert(current_iteration(NextIteration)),
+	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
 	
 	format_learning(1,'~nIteration ~d of ~d~n',[CurrentIteration,EndIteration]),
@@ -484,12 +484,12 @@ do_learning_intern(Iterations,Epsilon) :-
 	 (
 	  retractall(last_mse(_)),
 	  logger_get_variable(mse_trainingset,Current_MSE),
-	  assert(last_mse(Current_MSE)),
+	  assertz(last_mse(Current_MSE)),
 	  !,
 	  MSE_Diff is abs(Last_MSE-Current_MSE)
 	 );  (
 	      logger_get_variable(mse_trainingset,Current_MSE),
-	      assert(last_mse(Current_MSE)), 
+	      assertz(last_mse(Current_MSE)), 
 	      MSE_Diff is Epsilon+1
 	     )
 	),
@@ -608,7 +608,7 @@ init_learning :-
 	  true
 	),
 	bb_delete(training_examples,TrainingExampleCount),
-	assert(example_count(TrainingExampleCount)),
+	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
 	!,
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -641,8 +641,8 @@ init_learning :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% done
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	assert(current_iteration(0)),
-	assert(learning_initialized),
+	assertz(current_iteration(0)),
+	assertz(learning_initialized),
 
 	format_learning(1,'~n',[]).
 
@@ -733,10 +733,10 @@ init_one_query(QueryID,Query,Type) :-
 	    query_md5(OtherQueryID,Query_MD5,Type)
 	  ->
 	    ( 
-	      assert(query_is_similar(QueryID,OtherQueryID)),
+	      assertz(query_is_similar(QueryID,OtherQueryID)),
 	      format_learning(3, '~q is similar to ~q~2n', [QueryID,OtherQueryID])
 	    );
-	    assert(query_md5(QueryID,Query_MD5,Type))
+	    assertz(query_md5(QueryID,Query_MD5,Type))
 	  )
 	 );
 
@@ -808,7 +808,7 @@ update_values :-
 	% stop write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	assert(values_correct).
+	assertz(values_correct).
 
 
 
@@ -917,14 +917,14 @@ my_load_intern(end_of_file,_,_) :-
 	!.
 my_load_intern(query_probability(QueryID,Prob),Handle,QueryID) :-
 	!,
-	assert(query_probability_intern(QueryID,Prob)),
+	assertz(query_probability_intern(QueryID,Prob)),
 	read(Handle,X),
 	my_load_intern(X,Handle,QueryID).
 my_load_intern(query_gradient(QueryID,XFactID,Type,Value),Handle,QueryID) :-
 	!,
 	atomic_concat(x,StringFactID,XFactID),
 	atom_number(StringFactID,FactID),
-	assert(query_gradient_intern(QueryID,FactID,Type,Value)),
+	assertz(query_gradient_intern(QueryID,FactID,Type,Value)),
 	read(Handle,X),
 	my_load_intern(X,Handle,QueryID).
 my_load_intern(X,Handle,QueryID) :-

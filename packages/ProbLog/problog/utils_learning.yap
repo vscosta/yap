@@ -214,11 +214,11 @@
 
 
 % load library modules
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(system)).
+:- use_module(library(lists)).
+:- use_module(library(system)).
 
 % load our own modules
-:- ensure_loaded(os).
+:- use_module(os).
 
 %========================================================================
 %= 

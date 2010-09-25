@@ -233,7 +233,7 @@
                     problog_tabling_get_negated_from_id/2,
                     op(1150, fx, problog_table)]).
 
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists)).
 
 :- use_module(extlists, _, [open_end_memberchk/2,
                             open_end_add/3,
@@ -248,8 +248,8 @@
                          empty_ptree/1]).
 
 :- op( 1150, fx, problog_table ).
-:- meta_predicate problog_table(:).
-:- meta_predicate problog_neg(:).
+:- meta_predicate(problog_table(0)).
+:- meta_predicate(problog_neg(0)).
 :- dynamic problog_tabled/1, has_synonyms/0, problog_tabling_retain/1.
 :- problog_define_flag(max_depth, problog_flag_validate_integer, 'maximum proof depth', -1).
 :- problog_define_flag(retain_tables, problog_flag_validate_boolean, 'retain tables after query', false).
@@ -277,7 +277,7 @@ clear_tabling:-
 clear_tabling.
 
 retain_tabling:-
-  forall(problog_chktabled(_, Trie), assert(problog_tabling_retain(Trie))).
+  forall(problog_chktabled(_, Trie), assertz(problog_tabling_retain(Trie))).
 
 clear_retained_tables:-
   forall(problog_tabling_retain(Trie), delete_ptree(Trie)),
@@ -311,7 +311,7 @@ problog_table((P1, P2), M) :-
 problog_table(Name/Arity, Module) :-
   makeargs(Arity, Args),
   Head =.. [Name|Args],
-  not(predicate_property(Module:Head, dynamic)), !,
+  \+ predicate_property(Module:Head, dynamic), !,
   throw(error('problog_table: Problog tabling currently requires the predicate to be declared dynamic and compiles it to static.')).
 problog_table(Name/Arity, Module) :-
   makeargs(Arity, Args),
@@ -322,7 +322,7 @@ problog_table(Name/Arity, Module) :-
 
   % Monte carlo tabling
   table(Module:MCName/Arity),
-  assert(problog_tabled(Module:Name/Arity)),
+  assertz(problog_tabled(Module:Name/Arity)),
 
   findall(_,(
     OriginalPred =.. [OriginalName|Args],
@@ -334,7 +334,7 @@ problog_table(Name/Arity, Module) :-
   OriginalPred =.. [OriginalName|Args],
   MCPred =.. [MCName|Args],
   ExactPred =.. [ExactName|Args],
-  assert(Module:(
+  assertz(Module:(
                   Head:-
                     (problog:problog_control(check, exact) ->
                       ExactPred
@@ -361,7 +361,7 @@ problog_table(Name/Arity, Module) :-
               Finished
             ),
             b_getval(problog_current_proof, IDs),
-            not(open_end_memberchk(not(t(Hash)), IDs)),
+            \+ open_end_memberchk(not(t(Hash)), IDs),
             open_end_add_unique(t(Hash), IDs, NIDs),
             b_setval(problog_current_proof, NIDs)
           ;
@@ -413,7 +413,7 @@ problog_table(Name/Arity, Module) :-
               delete_ptree(SuspTrie)
             ),
             b_setval(CurrentControlTrie, OCurTrie),
-            not(open_end_memberchk(not(t(Hash)), OIDs)),
+            \+ open_end_memberchk(not(t(Hash)), OIDs),
             open_end_add_unique(t(Hash), OIDs, NOIDs),
             b_setval(problog_current_proof, NOIDs)
           )
@@ -435,8 +435,8 @@ problog_abolish_table(M:P/A):-
 problog_neg(M:G):-
   problog:problog_control(check, exact),
   functor(G, Name, Arity),
-  not(problog_tabled(M:Name/Arity)),
-  not(problog:problog_predicate(Name, Arity)),
+  \+ problog_tabled(M:Name/Arity),
+  \+ problog:problog_predicate(Name, Arity),
   throw(problog_neg_error('Error: goal must be dynamic and tabled', M:G)).
 problog_neg(M:G):-
   % exact inference
@@ -446,20 +446,20 @@ problog_neg(M:G):-
   M:G,
   b_getval(problog_current_proof, L),
   open_end_close_end(L, [Trie]),
-  not(open_end_memberchk(Trie, IDs)),
+  \+ open_end_memberchk(Trie, IDs),
   open_end_add_unique(not(Trie), IDs, NIDs),
   b_setval(problog_current_proof, NIDs).
 problog_neg(M:G):-
   % monte carlo sampling
   problog:problog_control(check, mc),
-  not(M:G).
+  \+ M:G.
 
 % This predicate assigns a synonym for negation that means: NotName = problog_neg(Name)
 problog_tabling_negated_synonym(Name, NotName):-
   recorded(problog_table_synonyms, negated(Name, NotName), _), !.
 problog_tabling_negated_synonym(Name, NotName):-
   retractall(has_synonyms),
-  assert(has_synonyms),
+  assertz(has_synonyms),
   recordz(problog_table_synonyms, negated(Name, NotName), _).
 
 problog_tabling_get_negated_from_pred(Pred, Ref):-

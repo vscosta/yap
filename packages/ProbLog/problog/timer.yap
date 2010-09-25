@@ -225,7 +225,7 @@ timer_start(Name) :-
 	 throw(timer_already_started(timer_start(Name)));
 
 	 statistics(walltime,[StartTime,_]),
-	 assert(timer(Name,StartTime))
+	 assertz(timer(Name,StartTime))
 	).
 
 timer_stop(Name,Duration) :-
@@ -244,7 +244,7 @@ timer_pause(Name) :-
   ->
    statistics(walltime,[StopTime,_]),
    Duration is StopTime-StartTime,
-   assert(timer_paused(Name,Duration));
+   assertz(timer_paused(Name,Duration));
 
    throw(timer_not_started(timer_pause(Name)))
   ).
@@ -255,7 +255,7 @@ timer_pause(Name, Duration) :-
   ->
    statistics(walltime,[StopTime,_]),
    Duration is StopTime-StartTime,
-   assert(timer_paused(Name,Duration));
+   assertz(timer_paused(Name,Duration));
 
    throw(timer_not_started(timer_pause(Name)))
   ).
@@ -266,7 +266,7 @@ timer_resume(Name):-
 	->
 	 statistics(walltime,[ResumeTime,_]),
 	 CorrectedStartTime is ResumeTime-Duration,
-	 assert(timer(Name,CorrectedStartTime));
+	 assertz(timer(Name,CorrectedStartTime));
 	 
 	 throw(timer_not_paused(timer_resume(Name)))
 	).

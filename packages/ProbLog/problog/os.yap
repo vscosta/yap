@@ -216,7 +216,7 @@
 
 
 % load library modules
-:- ensure_loaded(library(system)).
+:- use_module(library(system)).
 
 % load our own modules
 :- use_module(gflags, _, [flag_get/2]).
@@ -225,7 +225,7 @@
 
 set_problog_path(Path):-
 	retractall(problog_path(_)),
-	assert(problog_path(Path)).
+	assertz(problog_path(Path)).
 
 convert_filename_to_working_path(File_Name, Path):-
 	flag_get(dir, Dir),

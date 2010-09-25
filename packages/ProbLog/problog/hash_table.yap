@@ -276,7 +276,7 @@
                        hash_table_display/3,
                        problog_key_to_tuple/2]).
 
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists)).
 %
 % General use predicates
 %
@@ -705,7 +705,7 @@ hash_table_get_elements(RevArray, RevSize, RevSize, Tupples):-
 hash_table_get_elements(_RevArray, RevSize, RevSize, []).
 
 hash_table_get_chains(Array, Size, Chains):-
-  ((array_element(Array, Size, ChainID), not(ChainID == 0)) ->
+  ((array_element(Array, Size, ChainID), ChainID \== 0) ->
     (integer(ChainID) ->
       get_array_name(ChainID, ChainName)
     ;

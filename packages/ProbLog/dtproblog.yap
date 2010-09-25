@@ -310,7 +310,7 @@
 
 
 % general yap modules
-:- ensure_loaded(library(system)).
+:- use_module(library(system)).
 
 :- problog_define_flag(optimization, problog_flag_validate_atom, 'optimization algorithm [local/global]', global, dtproblog).
 :- problog_define_flag(forest_type, problog_flag_validate_atom, 'type of BDD forest [dependent/independent]', dependent, dtproblog).
@@ -413,7 +413,7 @@ set_strategy([Term|R]) :-
       set_ground_strategy(ID2,LogProb)
   ;
       copy_term(Decision, Decision2),
-      assert(non_ground_strategy(Decision2,LogProb))
+      assertz(non_ground_strategy(Decision2,LogProb))
   ),
   set_strategy(R).
 

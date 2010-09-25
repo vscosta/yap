@@ -302,26 +302,26 @@
 :- set_prolog_flag(to_chars_mode,quintus).
 
 % general yap modules
-:- ensure_loaded(library(charsio)).
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(terms)).
-:- ensure_loaded(library(random)).
-:- ensure_loaded(library(system)).
-:- ensure_loaded(library(rbtrees)).
-:- ensure_loaded(library(ordsets)).
+:- use_module(library(charsio)).
+:- use_module(library(lists)).
+:- use_module(library(terms)).
+:- use_module(library(random)).
+:- use_module(library(system)).
+:- use_module(library(rbtrees)).
+:- use_module(library(ordsets)).
 
 % problog related modules
-:- ensure_loaded('problog/variables').
-:- ensure_loaded('problog/extlists').
-:- ensure_loaded('problog/flags').
-:- ensure_loaded('problog/print').
-:- ensure_loaded('problog/os').
-:- ensure_loaded('problog/tptree').
-:- ensure_loaded('problog/tabling').
-:- ensure_loaded('problog/sampling').
-:- ensure_loaded('problog/intervals').
-:- ensure_loaded('problog/mc_DNF_sampling').
-:- catch(ensure_loaded('problog/variable_elimination'),_,true).
+:- use_module('problog/variables').
+:- use_module('problog/extlists').
+:- use_module('problog/flags').
+:- use_module('problog/print').
+:- use_module('problog/os').
+:- use_module('problog/tptree').
+:- use_module('problog/tabling').
+:- use_module('problog/sampling').
+:- use_module('problog/intervals').
+:- use_module('problog/mc_DNF_sampling').
+:- use_module('problog/variable_elimination').
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
@@ -509,7 +509,7 @@ check_existance(FileName):-
 problog_control(on,X) :-
 	call(X),!.
 problog_control(on,X) :-
-	assert(X).
+	assertz(X).
 problog_control(off,X) :-
 	retractall(X).
 problog_control(check,X) :-
@@ -572,7 +572,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 	 append(Args,[LProb],LongArgs),
 	 probclause_id(ID),
 	 ProbFactHead =.. [LongFunctor,ID|LongArgs],
-	 assert(decision_fact(ID,Head)),
+	 assertz(decision_fact(ID,Head)),
 	 ExpandedClause = (ProbFactHead :-
 			  user:Body,
 			   (problog_control(check,internal_strategy) ->
@@ -581,14 +581,14 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 			    LProb = '?'
 			   )
 			  ),
-	 assert(dynamic_probability_fact(ID)),
-	 assert((dynamic_probability_fact_extract(HeadCopy,P_New) :-
+	 assertz(dynamic_probability_fact(ID)),
+	 assertz((dynamic_probability_fact_extract(HeadCopy,P_New) :-
 		dtproblog:strategy(ID,HeadCopy,P_New)
 		)),
 	 (ground(Head) ->
 	  true
 	 ;
-	  assert(non_ground_fact(ID))
+	  assertz(non_ground_fact(ID))
 	 ),
 	 problog_predicate(Functor, Arity, LongFunctor, Module)
 	;
@@ -622,7 +622,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 (nonvar(P), P = t(TrueProb))
 	->
 	 (
-	  assert(tunable_fact(ID,TrueProb)),
+	  assertz(tunable_fact(ID,TrueProb)),
 	  LProb is log(random*0.9+0.05)	% set unknown probability randomly in [0.05, 0.95]
 	 );
 	 (
@@ -644,8 +644,8 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	    )
 	   ),
 	   LProb=log(P),
-	   assert(dynamic_probability_fact(ID)),
-	   assert(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
+	   assertz(dynamic_probability_fact(ID)),
+	   assertz(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
 	  )
 	 )
 	),
@@ -653,7 +653,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 ground(Goal)
 	->
 	 true;
-	 assert(non_ground_fact(ID))
+	 assertz(non_ground_fact(ID))
 	),
 	problog_predicate(Name, Arity, ProblogName,Module).
 
@@ -710,7 +710,7 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	  Sigma_Random is 0.4, % random*2+0.5,
 	  nth(Pos,Args,_,KeepArgs),
 	  nth(Pos,NewArgs,gaussian(Mu_Random,Sigma_Random),KeepArgs),
-	  assert(tunable_fact(ID,gaussian(Mu_Arg,Sigma_Arg)))
+	  assertz(tunable_fact(ID,gaussian(Mu_Arg,Sigma_Arg)))
 	 )
 	),
 	ProbFact =.. [ProblogName,ID|NewArgs],
@@ -719,9 +719,9 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	 ground(Goal)
 	->
 	 true;
-	 assert(non_ground_fact(ID))
+	 assertz(non_ground_fact(ID))
 	),
-	assert(continuous_fact(ID)),
+	assertz(continuous_fact(ID)),
 	problog_continuous_predicate(Name, Arity, Pos,ProblogName).
 
 
@@ -758,7 +758,7 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 	ProbFact =.. [ProblogName,ID|ProbArgs],
 	prolog_load_context(module,Mod),
 
-	assert( (Mod:OriginalGoal :- ProbFact,
+	assertz( (Mod:OriginalGoal :- ProbFact,
 		                   % continuous facts always get a grounding ID, even when they are actually ground
 		                   % this simplifies the BDD script generation
 		                     non_ground_fact_grounding_id(ProbFact,Ground_ID),
@@ -766,7 +766,7 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 		                     add_continuous_to_proof(ID,ID2)
 		 )),
 
-	assert(problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition)),
+	assertz(problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition)),
 	ArityPlus1 is Arity+1,
 	dynamic(problog:ProblogName/ArityPlus1).
 
@@ -794,11 +794,11 @@ interval_merge((_ID,GroundID,_Type),Interval) :-
 
 
 
-problog_assert(P::Goal) :-
-	problog_assert(user,P::Goal).
-problog_assert(Module, P::Goal) :-
+problog_assertz(P::Goal) :-
+	problog_assertz(user,P::Goal).
+problog_assertz(Module, P::Goal) :-
 	term_expansion_intern(P::Goal,Module,problog:ProbFact),
-	assert(problog:ProbFact).
+	assertz(problog:ProbFact).
 
 problog_retractall(Goal) :-
 	Goal =.. [F|Args],
@@ -817,18 +817,18 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 	OriginalGoal =.. [_|Args],
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
-	assert( (Mod:OriginalGoal :-
+	assertz( (Mod:OriginalGoal :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
 				prove_problog_fact(ID,ID2,Prob)
 		 )),
 
-	assert( (Mod:problog_not(OriginalGoal) :-
+	assertz( (Mod:problog_not(OriginalGoal) :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
                 prove_problog_fact_negated(ID,ID2,Prob)
 		 )),
-	assert(problog_predicate(Name, Arity)),
+	assertz(problog_predicate(Name, Arity)),
 	ArityPlus2 is Arity+2,
 	dynamic(problog:ProblogName/ArityPlus2).
 
@@ -924,7 +924,7 @@ non_ground_fact_grounding_id(Goal,ID) :-
 		nb_getval(non_ground_fact_grounding_id_counter,ID),
 		ID2 is ID+1,
 		nb_setval(non_ground_fact_grounding_id_counter,ID2),
-		assert(grounding_is_known(Goal,ID))
+		assertz(grounding_is_known(Goal,ID))
 	    )
 	).
 
@@ -996,7 +996,7 @@ prob_for_id(dummy,dummy,dummy).
 
 get_fact_probability(A, Prob) :-
   ground(A),
-  not(number(A)),
+  \+ number(A),
   atom_codes(A, A_Codes),
   once(append(Part1, [95|Part2], A_Codes)), % 95 = '_'
   number_codes(ID, Part1), !,
@@ -1054,7 +1054,7 @@ set_fact_probability(ID,Prob) :-
 	NewLogProb is log(Prob),
 	nth(ProblogArity,NewProblogTermArgs,NewLogProb,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
-	assert(NewProblogTerm).
+	assertz(NewProblogTerm).
 
 get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity) :-
 	problog_predicate(Name,Arity),
@@ -1089,7 +1089,7 @@ set_continuous_fact_parameters(ID,Parameters) :-
 	nth0(ContinuousPos,ProblogTermArgs,_,KeepArgs),
 	nth0(ContinuousPos,NewProblogTermArgs,Parameters,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
-	assert(NewProblogTerm).
+	assertz(NewProblogTerm).
 
 
 
@@ -1141,12 +1141,12 @@ get_fact(ID,OutsideTerm) :-
 	grounding_is_known(OutsideTerm,GID).
 
 recover_grounding_id(Atom,ID) :-
-	name(Atom,List),
+	atom_codes(Atom,List),
 	reverse(List,Rev),
 	recover_number(Rev,NumRev),
 	reverse(NumRev,Num),
-	name(ID,Num).
-recover_number([95|_],[]) :- !.  % name('_',[95])
+	atom_codes(ID,Num).
+recover_number([95|_],[]) :- !.  % atom_codes('_',[95])
 recover_number([A|B],[A|C]) :-
 	recover_number(B,C).
 
@@ -1280,9 +1280,9 @@ montecarlo_check(ComposedID) :-
   fail.
 % (c) for unknown groundings of non-ground facts: generate a new sample (decompose the ID first)
 montecarlo_check(ID) :-
-	name(ID,IDN),
+	atom_codes(ID,IDN),
 	recover_number(IDN,FactIDName),
-	name(FactID,FactIDName),
+	atom_codes(FactID,FactIDName),
 	new_sample_nonground(ID,FactID).
 
 % sampling from ground fact: set array value to 1 (in) or 2 (out)
@@ -1318,10 +1318,10 @@ new_sample_nonground(ComposedID,ID) :-
 %         fail.
 
 split_grounding_id(Composed,Fact,Grounding) :-
-	name(Composed,C),
+	atom_codes(Composed,C),
 	split_g_id(C,F,G),
-	name(Fact,F),
-	name(Grounding,G).
+	atom_codes(Fact,F),
+	atom_codes(Grounding,G).
 split_g_id([95|Grounding],[],Grounding) :- !.
 split_g_id([A|B],[A|FactID],GroundingID) :-
 	split_g_id(B,FactID,GroundingID).
@@ -1779,7 +1779,7 @@ add_solution :-
 	    Continuous=[];
 	    (
 	     Continuous=[continuous(ProofID)],
-	     assert(hybrid_proof(ProofID,Cont_IDs,AllIntervals))
+	     assertz(hybrid_proof(ProofID,Cont_IDs,AllIntervals))
 	    )
 	   )
 	 )
@@ -1807,7 +1807,7 @@ collect_all_intervals([(ID,GroundID)|T],ProofID,[Interval|T2]) :-
 	Interval \= all,  % we do not need to store continuous
 	                  % variables with domain [-oo,oo] (they have probability 1)
 	!,
-	assert(hybrid_proof(ProofID,ID,GroundID,Interval)),
+	assertz(hybrid_proof(ProofID,ID,GroundID,Interval)),
 	collect_all_intervals(T,ProofID,T2).
 collect_all_intervals([_|T],ProofID,T2) :-
 	collect_all_intervals(T,ProofID,T2).
@@ -1864,7 +1864,7 @@ disjoin_hybrid_proofs([GroundID|T]) :-
 	(
 	 hybrid_proof(ProofID,ID,GroundID,Interval),
 	 intervals_disjoin(Interval,Partition,PInterval),
-	 assert(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval)),
+	 assertz(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval)),
 
 	 fail; % go to next proof
 	 true
@@ -1959,9 +1959,9 @@ init_problog_delta(Threshold,Delta) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_ptree(Trie_Stopped_Proofs),
 	nb_setval(problog_stopped_proofs, Trie_Stopped_Proofs),
-	assert(low(0,0.0)),
-	assert(up(0,1.0)),
-	assert(stopDiff(Delta)),
+	assertz(low(0,0.0)),
+	assertz(up(0,1.0)),
+	assertz(stopDiff(Delta)),
 	init_problog(Threshold).
 
 problog_delta_id(Goal, _) :-
@@ -2047,7 +2047,7 @@ eval_lower(N,P,Status) :-
 	eval_dnf(Trie_Completed_Proofs,P,Status),
 	(Status = ok ->
 	    retract(low(_,_)),
-	    assert(low(N,P)),
+	    assertz(low(N,P)),
 	    (problog_flag(verbose,true) -> format(user,'lower bound: ~6f~n',[P]);true),
 	    flush_output(user)
 	;
@@ -2057,7 +2057,7 @@ eval_lower(N,P,Status) :-
 eval_upper(0,P,ok) :-
 	retractall(up(_,_)),
 	low(N,P),
-	assert(up(N,P)).
+	assertz(up(N,P)).
 % else merge proofs and stopped derivations to get upper bound
 % in case of timeout or other problems, skip and use bound from last level
 eval_upper(N,UpP,ok) :-
@@ -2070,7 +2070,7 @@ eval_upper(N,UpP,ok) :-
   delete_ptree(Trie_All_Proofs),
   (StatusUp = ok ->
     retract(up(_,_)),
-    assert(up(N,UpP))
+    assertz(up(N,UpP))
   ;
     (problog_flag(verbose,true) -> format(user,'~w - continue using old up~n',[StatusUp]);true),
     flush_output(user),
@@ -2098,8 +2098,8 @@ problog_max(Goal, Prob, Facts) :-
 init_problog_max(Threshold) :-
 	retractall(max_probability(_)),
 	retractall(max_proof(_)),
-	assert(max_probability(-999999)),
-	assert(max_proof(unprovable)),
+	assertz(max_probability(-999999)),
+	assertz(max_proof(unprovable)),
 	init_problog(Threshold).
 
 update_max :-
@@ -2111,10 +2111,10 @@ update_max :-
     b_getval(problog_current_proof, IDs),
     open_end_close_end(IDs, R),
     retractall(max_proof(_)),
-    assert(max_proof(R)),
+    assertz(max_proof(R)),
     nb_setval(problog_threshold, CurrP),
     retractall(max_probability(_)),
-    assert(max_probability(CurrP))
+    assertz(max_probability(CurrP))
   ).
 
 problog_max_id(Goal, _Prob, _Clauses) :-
@@ -2195,7 +2195,7 @@ problog_real_kbest(Goal, K, Prob, Status) :-
 
 init_problog_kbest(Threshold) :-
 	retractall(current_kbest(_,_,_)),
-	assert(current_kbest(-999999,[],0)),  %(log-threshold,proofs,num_proofs)
+	assertz(current_kbest(-999999,[],0)),  %(log-threshold,proofs,num_proofs)
 	init_ptree(Trie_Completed_Proofs),
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
@@ -2236,7 +2236,7 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	sorted_insert(NewLogProb-Cl,List,NewList),
 	NewLength is Length+1,
 	(NewLength < K ->
-	    assert(current_kbest(OldThres,NewList,NewLength))
+	    assertz(current_kbest(OldThres,NewList,NewLength))
 	;
 	(NewLength>K ->
 	    First is NewLength-K+1,
@@ -2244,7 +2244,7 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	   ; FinalList=NewList, FinalLength=NewLength),
 	FinalList=[NewThres-_|_],
 	nb_setval(problog_threshold,NewThres),
-	assert(current_kbest(NewThres,FinalList,FinalLength))).
+	assertz(current_kbest(NewThres,FinalList,FinalLength))).
 
 sorted_insert(A,[],[A]).
 sorted_insert(A-LA,[B1-LB1|B], [A-LA,B1-LB1|B] ) :-
@@ -2405,7 +2405,7 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
     ;
       true
     ),
-    assert(mc_prob(Prob))
+    assertz(mc_prob(Prob))
   ;
     montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
   ).
@@ -2427,7 +2427,7 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
 %     ;
 %       true
 %     ),
-%     assert(mc_prob(Prob))
+%     assertz(mc_prob(Prob))
 %   ;
 %     montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
 %   ).
@@ -2472,7 +2472,7 @@ problog_answers(Goal,File) :-
 	set_problog_flag(verbose,false),
 	retractall(answer(_)),
 % this will not give the exact prob of Goal!
-	problog_exact((Goal,ground(Goal),\+problog:answer(Goal),assert(problog:answer(Goal))),_,_),
+	problog_exact((Goal,ground(Goal),\+problog:answer(Goal),assertz(problog:answer(Goal))),_,_),
 	open(File,write,_,[alias(answer)]),
 	eval_answers,
 	close(answer).
@@ -2530,13 +2530,13 @@ update_current_kbest_answers(_,NewLogProb,Goal) :-
 	!,
 	keysort(NewList,SortedList),%format(user_error,'updated variant of ~w~n',[Goal]),
 	retract(current_kbest(K,_,Len)),
-	assert(current_kbest(K,SortedList,Len)).
+	assertz(current_kbest(K,SortedList,Len)).
 update_current_kbest_answers(K,NewLogProb,Goal) :-
 	retract(current_kbest(OldThres,List,Length)),
 	sorted_insert(NewLogProb-Goal,List,NewList),%format(user_error,'inserted new element ~w~n',[Goal]),
 	NewLength is Length+1,
 	(NewLength < K ->
-	    assert(current_kbest(OldThres,NewList,NewLength))
+	    assertz(current_kbest(OldThres,NewList,NewLength))
 	;
 	(NewLength>K ->
 	    First is NewLength-K+1,
@@ -2544,7 +2544,7 @@ update_current_kbest_answers(K,NewLogProb,Goal) :-
 	   ; FinalList=NewList, FinalLength=NewLength),
 	FinalList=[NewThres-_|_],
 	nb_setval(problog_threshold,NewThres),
-	assert(current_kbest(NewThres,FinalList,FinalLength))).
+	assertz(current_kbest(NewThres,FinalList,FinalLength))).
 
 % this fails if there is no variant -> go to second case above
 update_prob_of_known_answer([OldLogP-OldGoal|List],Goal,NewLogProb,[MaxLogP-OldGoal|List]) :-
@@ -2861,7 +2861,7 @@ write_bdd_struct_script(Trie,BDDFile,Variables) :-
     Levels = [ROptLevel]
   ),
   % Removed forall here, because it hides 'Variables' from what comes afterwards
-  once(member(OptLevel, Levels)),
+  memberchk(OptLevel, Levels),
   (
     (problog_flag(use_db_trie, true) ->
       tries:trie_db_opt_min_prefix(MinPrefix),

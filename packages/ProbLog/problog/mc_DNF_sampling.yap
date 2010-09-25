@@ -206,9 +206,9 @@
 
 :- module(mc_DNF_sampling, [problog_dnf_sampling/3]).
 
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists)).
 
-:- ensure_loaded(variables).
+:- use_module(variables).
 :- use_module(sampling, _, [problog_random/1,
                             problog_convergence_check/6]).
 
@@ -217,7 +217,7 @@
 
 :- use_module(os, _, [convert_filename_to_working_path/2]).
 
-:- ensure_loaded(hash_table).
+:- use_module(hash_table).
 
 :- problog_define_flag(search_method, problog_flag_validate_in_list([linear, binary]), 'search method for picking proof', binary, monte_carlo_sampling_dnf).
 :- problog_define_flag(represent_world, problog_flag_validate_in_list([list, record, array, hash_table]), 'structure that represents sampled world', array, monte_carlo_sampling_dnf).

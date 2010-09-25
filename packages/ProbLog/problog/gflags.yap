@@ -435,14 +435,14 @@ flag_validate_directory(Value):-
 flag_validate_directory(Value):-
   atomic(Value),
   % fixme : why not inform the user???
-  catch((not(file_exists(Value)), make_directory(Value)), _, fail).
+  catch((\+ file_exists(Value), make_directory(Value)), _, fail).
 
 flag_validate_file.
 flag_validate_file(Value):-
   catch(file_exists(Value), _, fail), file_property(Value, type(regular)), !.
 flag_validate_file(Value):-
   atomic(Value),
-  catch((not(file_exists(Value)), tell(Value)), _, fail),
+  catch((\+ file_exists(Value), tell(Value)), _, fail),
   told,
   delete_file(Value).
 
