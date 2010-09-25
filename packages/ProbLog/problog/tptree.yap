@@ -248,7 +248,7 @@
 :- use_module(library(tries)).
 :- use_module(library(lists)).
 :- use_module(library(system)).
-:- use_module(library(ordsets)).
+:- use_module(library(ordsets), [ord_intersection/3, ord_union/3]).
 
 % load our own modules
 :- use_module(flags).
@@ -260,7 +260,7 @@
 
 % this is a test to determine whether YAP provides the needed trie library
 :- initialization(
-	(	current_predicate(tries:trie_disable_hash/0) ->
+	(	predicate_property(trie_disable_hash, imported_from(tries)) ->
 		trie_disable_hash
 	;	print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
 	)
@@ -529,7 +529,7 @@ trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables) :-
 
 nested_trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables):-
   trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
-  (islabel(LL) ->
+  (is_label(LL) ->
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
       asserta(deref(LL,no)),
@@ -585,7 +585,7 @@ ptree_decomposition_struct(Trie, BDDFileName, Variables) :-
   length(Variables, VarCnt),
   tell(TmpFile1),
   decompose_trie(Trie, Variables, L),
-  (islabel(L)->
+  (is_label(L)->
     atomic_concat('L', LCnt, L),
     write(L),nl
   ;
@@ -1236,13 +1236,13 @@ variable_in_dbtrie(Trie, V):-
 
 get_next_variable(V, depth(L, _S)):-
   member(V, L),
-  \+ islabel(V).
+  \+ is_label(V).
 get_next_variable(V, breadth(L, _S)):-
   member(V, L),
-  \+ islabel(V).
+  \+ is_label(V).
 get_next_variable(V, L):-
   member(V, L),
-  \+ islabel(V),
+  \+ is_label(V),
   \+ isnestedtrie(V).
 
 get_variable(not(V), R):-
@@ -1258,7 +1258,7 @@ get_variable(R, R).
 
 trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
   trie_to_depth_breadth_trie(A, B, LL, OptimizationLevel),
-  (islabel(LL) ->
+  (is_label(LL) ->
     atomic_concat('L', InterStep, LL),
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
@@ -1311,7 +1311,7 @@ is_state(false).
 
 nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
   trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
-  (islabel(LL) ->
+  (is_label(LL) ->
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
       asserta(deref(LL,no)),
@@ -1726,14 +1726,14 @@ bddlineformat([not(H)|T], O):-
   write('~'), !,
   bddlineformat([H|T], O).
 bddlineformat([H], _O):-
-  (islabel(H) ->
+  (is_label(H) ->
     Var = H
   ;
     get_var_name(H, Var)
   ),
   write(Var), nl, !.
 bddlineformat([H|T], O):-
-  (islabel(H) ->
+  (is_label(H) ->
     Var = H
   ;
     get_var_name(H, Var)
@@ -1746,7 +1746,7 @@ bddlineformat([not(H)], O):-
   !, write('~'),
   bddlineformat([H], O).
 bddlineformat([H], _O):-!,
-  (islabel(H) ->
+  (is_label(H) ->
     VarName = H
   ;
     get_var_name(H, VarName)
@@ -1756,7 +1756,7 @@ bddlineformat([not(H)|T], O):-
   !, write('~'),
   bddlineformat([H|T], O).
 bddlineformat([H|T], O):-
-  (islabel(H) ->
+  (is_label(H) ->
     VarName = H
   ;
     get_var_name(H, VarName)
@@ -1765,16 +1765,16 @@ bddlineformat([H|T], O):-
   bddlineformat(T, O).*/
 
 bddlineformat(T, L, O):-
-  (islabel(L) ->
+  (is_label(L) ->
     write(L), write(' = '),
     bddlineformat(T, O)
   ;
     write(user_output,bdd_script_error([L,T,O])),nl(user_output)
   ).
 
-islabel(not(L)):-
-  !, islabel(L).
-islabel(Label):-
+is_label(not(L)):-
+  !, is_label(L).
+is_label(Label):-
   atom(Label),
   atomic_concat('L', _, Label).
 
@@ -1784,7 +1784,7 @@ isnestedtrie(t(_T)).
 
 seperate([], [], []).
 seperate([H|T], [H|Labels], Vars):-
-  islabel(H), !,
+  is_label(H), !,
   seperate(T, Labels, Vars).
 seperate([H|T], Labels, [H|Vars]):-
   seperate(T, Labels, Vars).
@@ -1801,7 +1801,7 @@ ptree_decomposition(Trie, BDDFileName, VarFileName) :-
   told,
   tell(TmpFile1),
   decompose_trie(Trie, T, L),
-  (islabel(L)->
+  (is_label(L)->
     atomic_concat('L', LCnt, L),
     write(L),nl
   ;
@@ -2003,7 +2003,7 @@ mark_deref(DB_Trie):-
   traverse_ptree(DB_Trie, DB_Term),
   (DB_Term = depth(List, Inter); DB_Term = breadth(List, Inter)),
   member(L, List),
-  ((islabel(L), \+ deref(L, _)) ->
+  ((is_label(L), \+ deref(L, _)) ->
     asserta(deref(L, Inter))
   ;
     true
