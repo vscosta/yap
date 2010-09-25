@@ -245,8 +245,8 @@
                  flag_get/2,
                  flags_reset/0]).
 
-:-ensure_loaded(library(lists)).
-:-ensure_loaded(library(system)). % for file operations
+:- use_module(library(lists)).
+:- use_module(library(system)). % for file operations
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).

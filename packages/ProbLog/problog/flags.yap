@@ -214,9 +214,9 @@
                          problog_flag/2]).
 
 
-:-ensure_loaded(gflags).
-:-ensure_loaded(os).
-:-ensure_loaded(logger).
+:- use_module(gflags).
+:- use_module(os).
+:- use_module(logger).
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).
