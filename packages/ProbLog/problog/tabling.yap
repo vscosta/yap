@@ -233,7 +233,7 @@
                     problog_tabling_get_negated_from_id/2,
                     op(1150, fx, problog_table)]).
 
-:- use_module(library(lists)).  % not necessary?
+:- use_module(library(lists), [memberchk/2]).
 
 :- use_module(extlists, _, [open_end_memberchk/2,
                             open_end_add/3,

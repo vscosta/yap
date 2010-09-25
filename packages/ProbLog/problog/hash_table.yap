@@ -276,7 +276,7 @@
                        hash_table_display/3,
                        problog_key_to_tuple/2]).
 
-:- use_module(library(lists)).
+:- use_module(library(lists), [member/2]).
 %
 % General use predicates
 %

@@ -245,8 +245,8 @@
                  flag_get/2,
                  flags_reset/0]).
 
-:- use_module(library(lists)).
-:- use_module(library(system)). % for file operations
+:- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
+:- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).

@@ -211,7 +211,7 @@
     variable_elimination_stats/3
 ]).
 
-:- use_module(library(lists)).
+:- use_module(library(lists), [append/3, delete/3, memberchk/2, reverse/2]).
 :- use_module(library(tries)).
 
 :- use_module('flags', _, [problog_define_flag/5]).

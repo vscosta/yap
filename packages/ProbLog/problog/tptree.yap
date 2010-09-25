@@ -246,8 +246,8 @@
 
 % load library modules
 :- use_module(library(tries)).
-:- use_module(library(lists)).
-:- use_module(library(system)).
+:- use_module(library(lists), [append/3, member/2, memberchk/2]).
+:- use_module(library(system), [delete_file/1, shell/1]).
 :- use_module(library(ordsets), [ord_intersection/3, ord_union/3]).
 
 % load our own modules
