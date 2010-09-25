@@ -567,7 +567,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
     % It's a decision with a body
 	 copy_term((Head,Body),(HeadCopy,_BodyCopy)),
 	 functor(Head, Functor, Arity),
-	 atomic_concat([problog_,Functor],LongFunctor),
+	 atom_concat(problog_, Functor, LongFunctor),
 	 Head =.. [Functor|Args],
 	 append(Args,[LProb],LongArgs),
 	 probclause_id(ID),
@@ -613,7 +613,7 @@ user:term_expansion(P::Goal,Goal) :-
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
-	atomic_concat([problog_,Name],ProblogName),
+	atom_concat(problog_, Name, ProblogName),
 	Goal =.. [Name|Args],
 	append(Args,[LProb],L1),
 	probclause_id(ID),
@@ -695,7 +695,7 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	),
 
 	functor(Goal, Name, Arity),
-	atomic_concat([problogcontinuous_,Name],ProblogName),
+	atom_concat(problogcontinuous_, Name, ProblogName),
 	probclause_id(ID),
 
 	GaussianArg=gaussian(Mu_Arg,Sigma_Arg),
@@ -803,7 +803,7 @@ problog_assert(Module, P::Goal) :-
 problog_retractall(Goal) :-
 	Goal =.. [F|Args],
 	append([_ID|Args],[_Prob],Args2),
-	atomic_concat(['problog_',F],F2),
+	atom_concat('problog_', F, F2),
 	ProbLogGoal=..[F2|Args2],
 	retractall(problog:ProbLogGoal).
 
@@ -950,7 +950,7 @@ probabilistic_fact(P2,Goal,ID) :-
 	->
 	 (
 	  Goal =.. [F|Args],
-	  atomic_concat('problog_',F,F2),
+	  atom_concat('problog_', F, F2),
 	  append([ID|Args],[P],Args2),
 	  Goal2 =..[F2|Args2],
 	  length(Args2,N),
@@ -1058,7 +1058,7 @@ set_fact_probability(ID,Prob) :-
 
 get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity) :-
 	problog_predicate(Name,Arity),
-	atomic_concat([problog_,Name],ProblogName),
+	atom_concat(problog_, Name, ProblogName),
 	ProblogArity is Arity+2,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -1076,7 +1076,7 @@ get_continuous_fact_parameters(ID,Parameters) :-
 
 get_internal_continuous_fact(ID,ProblogTerm,ProblogName,ProblogArity,ContinuousPos) :-
 	problog_continuous_predicate(Name,Arity,ContinuousPos),
-	atomic_concat([problogcontinuous_,Name],ProblogName),
+	atom_concat(problogcontinuous_, Name, ProblogName),
 	ProblogArity is Arity+1,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -3010,8 +3010,8 @@ bdd_par_file(BDDParFile) :-
 
 require(Feature) :-
   atom(Feature),
-  atomic_concat(['problog_required_',Feature],Feature_Required),
-  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
+  atom_concat('problog_required_', Feature, Feature_Required),
+  atom_concat(Feature_Required, '_depth', Feature_Depth),
   (required(Feature) ->
       b_getval(Feature_Depth,Depth),
       Depth1 is Depth+1,
@@ -3024,8 +3024,8 @@ require(Feature) :-
 
 unrequire(Feature) :-
   atom(Feature),
-  atomic_concat(['problog_required_',Feature],Feature_Required),
-  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
+  atom_concat('problog_required_', Feature, Feature_Required),
+  atom_concat(Feature_Required, '_depth', Feature_Depth),
   b_getval(Feature_Depth,Depth),
   (Depth=1 ->
       nb_delete(Feature_Required),
@@ -3038,7 +3038,7 @@ unrequire(Feature) :-
 
 required(Feature) :-
 	atom(Feature),
-	atomic_concat(['problog_required_',Feature],Feature_Required),
+	atom_concat('problog_required_', Feature, Feature_Required),
 	catch(b_getval(Feature_Required,Val),error(existence_error(variable,Feature_Required),_),fail),
 	Val == required.
 
