@@ -304,10 +304,10 @@
 :- use_module(library(charsio)).
 :- use_module(library(lists)).
 :- use_module(library(terms)).
-:- use_module(library(random)).
+:- use_module(library(random)).		% PM doesn't seem to be used!
 :- use_module(library(system)).
-:- use_module(library(rbtrees)).
-:- use_module(library(ordsets)).
+:- use_module(library(rbtrees)).	% PM doesn't seem to be used!
+:- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
 
 % problog related modules
 :- use_module('problog/variables').

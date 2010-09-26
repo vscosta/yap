@@ -223,9 +223,9 @@
 :- yap_flag(unknown,error).
 
 % load modules from the YAP library
-:- use_module(library(lists)).
-:- use_module(library(random)).
-:- use_module(library(system)).
+:- use_module(library(lists), [max_list/2, min_list/2, sum_list/2]).
+:- use_module(library(random)).	% PM doesn't seem to be used!
+:- use_module(library(system), [delete_file/1, file_exists/1, shell/2]).
 
 % load our own modules
 :- use_module(problog).
