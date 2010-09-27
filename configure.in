@@ -175,7 +175,7 @@ AC_ARG_WITH(cudd,
 AC_ARG_ENABLE(myddas,
 	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then
-		yap_cv_myddas=/usr/
+		yap_cv_myddas=/usr
 	elif test "$enableval" = no; then
 		yap_cv_myddas=no
 	else
@@ -183,7 +183,7 @@ AC_ARG_ENABLE(myddas,
 		LDFLAGS="$LDFLAGS -L${yap_cv_myddas}/lib "
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_myddas}/include "
 	fi,
-	[yap_cv_myddas=no])
+	[yap_cv_myddas=/usr])
 
 AC_ARG_ENABLE(myddas-stats,
 	[ --enable-myddas-stats      enable the MYDDAS library statistics support],
@@ -603,6 +603,9 @@ else
 	,
 	have_nsl=no)
   AC_CHECK_LIB(crypt,main)
+  AC_CHECK_LIB(nss_files,main)
+  AC_CHECK_LIB(nss_dns,main)
+  AC_CHECK_LIB(resolv,main)
 fi
 
 if test "$yap_cv_readline" != "no"
@@ -621,6 +624,16 @@ dnl then
 dnl   AC_CHECK_LIB(cudd,Cudd_Init)
 dnl fi
 
+dnl check if we have zlib
+AC_CHECK_LIB(z, zlibVersion,
+	     ZLIBS="-lz"
+	     ZLIB=yes,
+	     ZLIB=no)
+if test $ZLIB = yes
+then
+  LIBS="$LIBS -lz"
+fi
+
 if test "$yap_cv_myddas" != "no"
 then
 	dnl check for mysql
@@ -638,7 +651,7 @@ then
 	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient -lz -lcrypt -lnsl -lm -lc -lnss_files -lnss_dns -lresolv "
+		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient"
 	fi
 	
 	dnl check for odbc
@@ -660,19 +673,6 @@ then
 		LIBS="$LIBS -lodbc "
 	fi
 	
-	if test "$yap_cv_mysql" = no -a "$yap_cv_odbc" = no
-	then
-		echo "-------------------------------"
-	    	echo "--"
-	    	echo "--"
-	    	echo "--"
-	    	echo "-- There\'s no devel libraries for MySQL or ODBC"
-	    	echo "--"
-	    	echo "--"
-	    	echo "--"
-	    	echo "-------------------------------"
-	    	exit
-	fi
 fi	
 
 if test "$myddasstats" = "yes"
