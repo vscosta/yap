@@ -60,14 +60,19 @@ attgoal_for_delay(redo_dif(Done, X, Y), V) -->
 	[prolog:dif(X,Y)].
 attgoal_for_delay(redo_freeze(Done, V, Goal), V) -->
 	{ var(Done) },  !,
-	[prolog:freeze(V,Goal)].
+	{ remove_when_declarations(Goal, NoWGoal) },
+	[ prolog:freeze(V,NoWGoal) ].
 attgoal_for_delay(redo_eq(Done, X, Y, Goal), V) -->
 	{ var(Done), first_att(Goal, V) }, !,
-	[prolog:when(X=Y,Goal)].
+	[ prolog:when(X=Y,Goal) ].
 attgoal_for_delay(redo_ground(Done, X, Goal), V) -->
 	{ var(Done) },  !,
-	[prolog:when(ground(X),Goal)].
+	[ prolog:when(ground(X),Goal) ].
 attgoal_for_delay(_, V) --> [].
+
+remove_when_declarations(when(Cond,Goal,_), when(Cond,NoWGoal)) :- !,
+	remove_when_declarations(Goal, NoWGoal).
+remove_when_declarations(Goal, Goal).
 
 				%
 % operators defined in this module:
@@ -215,7 +220,7 @@ prolog:when(_,Goal) :-
 
 %
 % support for when/2 like declaration.
-%
+v%
 %
 % when will block on a conjunction or disjunction of nonvar, ground,
 % ?=, where ?= is both terms being bound together
@@ -357,8 +362,8 @@ prolog:'$block'(Conds) :-
 prolog:'$block'(_).
 
 generate_blocking_code(Conds, G, Code) :-
-	'$extract_head_for_block'(Conds, G),
-	'$recorded'('$blocking_code','$code'(G,OldConds),R), !,
+	extract_head_for_block(Conds, G),
+	recorded('$blocking_code','$code'(G,OldConds),R), !,
 	erase(R),
 	functor(G, Na, Ar),
 	'$current_module'(M),
