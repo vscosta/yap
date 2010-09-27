@@ -1,65 +1,80 @@
-/*************************************************************************
-*									 *
-*	 YAP Prolog 							 *
-*									 *
-*	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
-*									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
-*									 *
-**************************************************************************
-*									 *
-* File:		utils.yap						 *
-* Last rev:	8/2/88							 *
-* mods:									 *
-* comments:	Some utility predicates available in yap		 *
-*									 *
-*************************************************************************/
+ /*************************************************************************
+ *									 *
+ *	 YAP Prolog 							 *
+ *									 *
+ *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
+ *									 *
+ * Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+ *									 *
+ **************************************************************************
+ *									 *
+ * File:		utils.yap						 *
+ * Last rev:	8/2/88							 *
+ * mods:									 *
+ * comments:	Some utility predicates available in yap		 *
+ *									 *
+ *************************************************************************/
 
-op(P,T,V) :-
-	'$check_op'(P,T,V,op(P,T,V)),
-	'$op'(P, T, V).
+ op(P,T,V) :-
+	 '$check_op'(P,T,V,op(P,T,V)),
+	 '$op'(P, T, V).
 
-'$check_op'(P,T,V,G) :-
-	(
-	 var(P) ->
-	 '$do_error'(instantiation_error,G)
-	;
-	 var(T) ->
-	 '$do_error'(instantiation_error,G)
-	;
-	 var(V) ->
-	 '$do_error'(instantiation_error,G)
-	;
-	 \+ integer(P) ->
-	 '$do_error'(type_error(integer,P),G)
-	;
-	 \+ atom(T) ->
-	 '$do_error'(type_error(atom,T),G)
-	;
-	 P < 0 ->
-	 '$do_error'(domain_error(operator_priority,P),G)
-	;
-	 P > 1200 ->
-	 '$do_error'(domain_error(operator_priority,P),G)
-	;
-	 \+ '$associativity'(T) ->
-	 '$do_error'(domain_error(operator_specifier,T),G)
-	;
-	 '$check_op_name'(V,G)
-	).
+ '$check_op'(P,T,V,G) :-
+	 (
+	  var(P) ->
+	  '$do_error'(instantiation_error,G)
+	 ;
+	  var(T) ->
+	  '$do_error'(instantiation_error,G)
+	 ;
+	  var(V) ->
+	  '$do_error'(instantiation_error,G)
+	 ;
+	  \+ integer(P) ->
+	  '$do_error'(type_error(integer,P),G)
+	 ;
+	  \+ atom(T) ->
+	  '$do_error'(type_error(atom,T),G)
+	 ;
+	  P < 0 ->
+	  '$do_error'(domain_error(operator_priority,P),G)
+	 ;
+	  P > 1200 ->
+	  '$do_error'(domain_error(operator_priority,P),G)
+	 ;
+	  \+ '$associativity'(T) ->
+	  '$do_error'(domain_error(operator_specifier,T),G)
+	 ;
+	  '$check_op_name'(V,G)
+	 ).
 
-'$associativity'(xfx).
-'$associativity'(xfy).
-'$associativity'(yfx).
-'$associativity'(yfy).
-'$associativity'(xf).
-'$associativity'(yf).
-'$associativity'(fx).
-'$associativity'(fy).
+ '$associativity'(xfx).
+ '$associativity'(xfy).
+ '$associativity'(yfx).
+ '$associativity'(yfy).
+ '$associativity'(xf).
+ '$associativity'(yf).
+ '$associativity'(fx).
+ '$associativity'(fy).
 
-'$check_op_name'(V,G) :-
-	 var(V), !,
-	 '$do_error'(instantiation_error,G).
+ '$check_op_name'(V,G) :-
+	  var(V), !,
+	  '$do_error'(instantiation_error,G).
+ '$check_op_name'(',',G) :- !,
+	  '$do_error'(permission_error(modify,operator,','),G).
+ '$check_op_name'('[]',G) :- !,
+	  '$do_error'(permission_error(create,operator,'[]'),G).
+ '$check_op_name'('{}',G) :- !,
+	  '$do_error'(permission_error(create,operator,'{}'),G).
+ '$check_op_name'('|',G) :- !,
+	 G = op(P, T, _),
+	 (
+	  integer(P),
+	  P < 1001
+	 ;
+	  Fix \== xfx, Fix \== xfy, Fix \== yfx, Fix \== yfy
+	 ),
+	 '$do_error'(permission_error(create,operator,'|'),G).
 '$check_op_name'(V,_) :-
 	 atom(V), !.
 '$check_op_name'(M:A, G) :-
