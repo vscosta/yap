@@ -245,8 +245,8 @@
                  flag_get/2,
                  flags_reset/0]).
 
-:-ensure_loaded(library(lists)).
-:-ensure_loaded(library(system)). % for file operations
+:- use_module(library(lists), [append/3, memberchk/2, reverse/2]).
+:- use_module(library(system), [delete_file/1, file_exists/1, file_property/2, make_directory/1]). % for file operations
 
 flag_define(Flag, Type, DefaultValue, Message):-
   flag_define(Flag, general, Type, DefaultValue, flags:true, Message).
@@ -259,10 +259,10 @@ flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
   throw(duplicate_flag_definition(flag_define(Flag, Group, Type, DefaultValue, Handler, Message))).
 
 flag_define(Flag, Group, Type, DefaultValue, Handler, Message):-
-  (catch(call(Type), _, fail)->
+  (catch(Type, _, fail)->
     fail
   ;
-    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(call(SyntacticSugar), _, fail)),
+    \+ (flag_validation_syntactic_sugar(Type, SyntacticSugar), catch(SyntacticSugar, _, fail)),
     throw(unknown_flag_type(flag_define(Flag, Group, Type, DefaultValue, Handler, Message)))
   ).
 
@@ -371,13 +371,13 @@ flag_validate(_Flag, Value, Type, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((call(M:GoalValidating), call(G)), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, Type, _M:Handler):-
   Handler == true,
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(call(G), _, fail), !.
+  catch(G, _, fail), !.
 
 flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Handler \= true,
@@ -386,14 +386,14 @@ flag_validate(_Flag, Value, SyntacticSugar, M:Handler):-
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch((call(M:GoalValidating), call(G)), _, fail), !.
+  catch((M:GoalValidating, G), _, fail), !.
 flag_validate(_Flag, Value, SyntacticSugar, _M:Handler):-
   Handler == true,
   flag_validation_syntactic_sugar(SyntacticSugar, Type),
   Type =.. LType,
   append(LType, [Value], LGoal),
   G =.. LGoal,
-  catch(call(G), _, fail), !.
+  catch(G, _, fail), !.
 flag_validate(Flag, Value, Type, Handler):-
   (var(Value) ->
     Value = 'free variable'
@@ -435,14 +435,14 @@ flag_validate_directory(Value):-
 flag_validate_directory(Value):-
   atomic(Value),
   % fixme : why not inform the user???
-  catch((not(file_exists(Value)), make_directory(Value)), _, fail).
+  catch((\+ file_exists(Value), make_directory(Value)), _, fail).
 
 flag_validate_file.
 flag_validate_file(Value):-
   catch(file_exists(Value), _, fail), file_property(Value, type(regular)), !.
 flag_validate_file(Value):-
   atomic(Value),
-  catch((not(file_exists(Value)), tell(Value)), _, fail),
+  catch((\+ file_exists(Value), tell(Value)), _, fail),
   told,
   delete_file(Value).
 

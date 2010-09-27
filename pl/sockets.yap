@@ -51,7 +51,7 @@ socket_select(Socks, OutSocks, TimeOut, Streams, OutStreams) :-
 '$check_select_time'(Sec0:USec0, Sec, USec, _) :-
 	Sec is Sec0,
 	USec is USec0,
-	Sec > 0, USec > 0.
+	Sec >= 0, USec >= 0.
 	
 '$cp_socket_fds'([], Fds, [], Fds).
 '$cp_socket_fds'([_|Scks], [[]|Fds], Out, StrFds) :- !,

@@ -3249,6 +3249,7 @@ X_API void (*PL_signal(int sig, void (*func)(int)))(int)
 
 X_API void PL_on_halt(void (*f)(int, void *), void *closure)
 {
+  Yap_HaltRegisterHook((HaltHookFunc)f,closure);
 }
 
 void Yap_swi_install(void);

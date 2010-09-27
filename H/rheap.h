@@ -900,6 +900,18 @@ RestoreDBErasedIList(void)
 }
 
 static void
+RestoreHaltHooks(void)
+{
+  struct halt_hook *hooke = Yap_HaltHooks = HaltHookAdjust(Yap_HaltHooks);
+
+  while (hooke) {
+    hooke->next = HaltHookAdjust(hooke->next);
+    hooke = hooke->next;
+  }
+}
+
+
+static void
 RestoreStreams(void)
 {
   if (Yap_heap_regs->yap_streams != NULL) {

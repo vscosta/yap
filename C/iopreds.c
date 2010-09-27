@@ -6462,6 +6462,9 @@ p_file_base_name (void)
       char *c = RepAtom(at)->StrOfAE;
       Int i = strlen(c);
       while (i && !Yap_dir_separator((int)c[--i]));
+      if (Yap_dir_separator((int)c[i])) {
+	i++;
+      }
       return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(c+i)));
   }
 }

@@ -188,7 +188,6 @@ Yap_init_socks(char *host, long interface_port)
    struct sockaddr_in soadr;
    struct in_addr adr;
    struct hostent *he; 
-   struct linger ling;			/* For making sockets linger. */
 
 
 #if   USE_SOCKET
@@ -224,10 +223,22 @@ Yap_init_socks(char *host, long interface_port)
      return;
    }
 
+#if ENABLE_SO_LINGER
+   struct linger ling;			/* disables socket lingering. */
    ling.l_onoff = 1;
    ling.l_linger = 0;
-   setsockopt(s, SOL_SOCKET, SO_LINGER, (void *) &ling,
-            sizeof(ling));
+   if (setsockopt(s, SOL_SOCKET, SO_LINGER, (void *) &ling,
+		  sizeof(ling)) < 0) {
+#if HAVE_STRERROR
+      Yap_Error(SYSTEM_ERROR, TermNil, 
+	    "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
+#else
+      Yap_Error(SYSTEM_ERROR, TermNil,
+	    "socket_connect/3 (setsockopt_linger)");
+#endif
+      return;
+   }
+#endif
 
    r = connect ( s, (struct sockaddr *) &soadr, sizeof(soadr));
    if (r<0) {
@@ -760,7 +771,6 @@ p_socket_connect(void)
     struct hostent *he;
     struct sockaddr_in saddr;
     unsigned short int port;
-    struct linger ling;			/* For making sockets linger. */
 
     memset((void *)&saddr,(int) 0, sizeof(saddr));
     if (IsVarTerm(thost)) {
@@ -794,19 +804,41 @@ p_socket_connect(void)
     }
     saddr.sin_port = htons(port); 
     saddr.sin_family = AF_INET;
-    ling.l_onoff = 1;
-    ling.l_linger = 0;
-    if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (void *) &ling,
-		   sizeof(ling)) < 0) {
+#if ENABLE_SO_LINGER
+    { 
+      struct linger ling;			/* For making sockets linger. */
+      /* disabled: I see why no reason why we should throw things away by default!! */
+      ling.l_onoff = 1;
+      ling.l_linger = 0;
+      if (setsockopt(fd, SOL_SOCKET, SO_LINGER, (void *) &ling,
+		     sizeof(ling)) < 0) {
 #if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil, 
-	    "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
+	Yap_Error(SYSTEM_ERROR, TermNil, 
+		  "socket_connect/3 (setsockopt_linger: %s)", strerror(socket_errno));
 #else
-      Yap_Error(SYSTEM_ERROR, TermNil,
-	    "socket_connect/3 (setsockopt_linger)");
+	Yap_Error(SYSTEM_ERROR, TermNil,
+		  "socket_connect/3 (setsockopt_linger)");
 #endif
-      return(FALSE);
+	return FALSE;
+      }
     }
+#endif
+
+    {
+      int one = 1;			/* code by David MW Powers */
+
+      if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST, (void *)&one, sizeof(one))) {
+#if HAVE_STRERROR
+	Yap_Error(SYSTEM_ERROR, TermNil, 
+		  "socket_connect/3 (setsockopt_broadcast: %s)", strerror(socket_errno));
+#else
+	Yap_Error(SYSTEM_ERROR, TermNil,
+		  "socket_connect/3 (setsockopt_broadcast)");
+#endif
+	return FALSE;
+      }
+    }
+
     flag = connect(fd,(struct sockaddr *)&saddr, sizeof(saddr));
     if(flag<0) {
 #if HAVE_STRERROR
@@ -816,7 +848,7 @@ p_socket_connect(void)
       Yap_Error(SYSTEM_ERROR, TermNil,
 	    "socket_connect/3 (connect)");
 #endif
-      return(FALSE);
+      return FALSE;
     }
     Yap_UpdateSocketStream(sno, client_socket, af_inet);
   } else 

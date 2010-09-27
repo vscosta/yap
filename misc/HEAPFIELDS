@@ -295,6 +295,9 @@ struct operator_entry	*op_list	OpList			=NULL OpListAdjust
 /* stream array */
 struct stream_desc *yap_streams		Stream			=NULL RestoreStreams()
 
+/* halt hooks */
+struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL RestoreHaltHooks()
+
 /* stream aliases */
 UInt		n_of_file_aliases	NOfFileAliases		=0 void
 UInt		sz_of_file_aliases	SzOfFileAliases		=0 void

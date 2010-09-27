@@ -276,7 +276,7 @@
                        hash_table_display/3,
                        problog_key_to_tuple/2]).
 
-:- ensure_loaded(library(lists)).
+:- use_module(library(lists), [member/2]).
 %
 % General use predicates
 %
@@ -299,7 +299,7 @@ get_digits(Num, Digits, Acc):-
 %
 % Simple Counters
 %
-:- bb_put(array_count, 1).
+:- initialization(bb_put(array_count, 1)).
 
 get_next_array(ID, Name):-
   bb_get(array_count, ID),
@@ -705,7 +705,7 @@ hash_table_get_elements(RevArray, RevSize, RevSize, Tupples):-
 hash_table_get_elements(_RevArray, RevSize, RevSize, []).
 
 hash_table_get_chains(Array, Size, Chains):-
-  ((array_element(Array, Size, ChainID), not(ChainID == 0)) ->
+  ((array_element(Array, Size, ChainID), ChainID \== 0) ->
     (integer(ChainID) ->
       get_array_name(ChainID, ChainName)
     ;

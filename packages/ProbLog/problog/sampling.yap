@@ -212,14 +212,14 @@
 
 :- use_module(os, _, [convert_filename_to_working_path/2]).
 
-:- ensure_loaded(library(random)).
+:- use_module(library(random)).
 
-:- problog_define_flag(mc_batchsize, problog_flag_validate_posint, 'number of samples before update in montecarlo', 1000, monte_carlo_sampling).
-
-:- problog_define_flag(min_mc_samples, problog_flag_validate_nonegint, 'minimum number of samples before to converge', 0, monte_carlo_sampling).
-:- problog_define_flag(max_mc_samples, problog_flag_validate_nonegint, 'maximum number of samples waiting to converge', 1000000, monte_carlo_sampling).
-
-:- problog_define_flag(randomizer, problog_flag_validate_in_list([repeatable, nonrepeatable]), 'whether the random numbers are repeatable or not', repeatable, monte_carlo_sampling).
+:- initialization((
+  problog_define_flag(mc_batchsize, problog_flag_validate_posint, 'number of samples before update in montecarlo', 1000, monte_carlo_sampling),
+  problog_define_flag(min_mc_samples, problog_flag_validate_nonegint, 'minimum number of samples before to converge', 0, monte_carlo_sampling),
+  problog_define_flag(max_mc_samples, problog_flag_validate_nonegint, 'maximum number of samples waiting to converge', 1000000, monte_carlo_sampling),
+  problog_define_flag(randomizer, problog_flag_validate_in_list([repeatable, nonrepeatable]), 'whether the random numbers are repeatable or not', repeatable, monte_carlo_sampling)
+ )).
 
 problog_convergence_check(Time, P, SamplesSoFar, Delta, Epsilon, Converged):-
   Epsilon is 2.0 * sqrt(P * abs(1.0 - P) / SamplesSoFar),

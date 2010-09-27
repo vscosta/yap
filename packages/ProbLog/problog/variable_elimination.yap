@@ -204,18 +204,23 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(variable_elimination, [trie_check_for_and_cluster/1, trie_replace_and_cluster/2, clean_up/0, variable_elimination_stats/3]).
+:- module(variable_elimination, [
+    trie_check_for_and_cluster/1,
+    trie_replace_and_cluster/2,
+    clean_up/0,
+    variable_elimination_stats/3
+]).
 
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(tries)).
+:- use_module(library(lists), [append/3, delete/3, memberchk/2, reverse/2]).
+:- use_module(library(tries)).
 
 :- use_module('flags', _, [problog_define_flag/5]).
 
 
-:- nb_setval(prob_fact_count, 0).
-
-:- problog_define_flag(variable_elimination, problog_flag_validate_boolean, 'enable variable elimination', false, variable_elimination).
-
+:- initialization((
+  nb_setval(prob_fact_count, 0),
+  problog_define_flag(variable_elimination, problog_flag_validate_boolean, 'enable variable elimination', false, variable_elimination)
+)).
 
 bit_encode(L, ON):-
   bit_encode(L, ON, 0).
@@ -373,7 +378,7 @@ last_cluster_element(L, Cluster, R):-
 
 nocluster([], _).
 nocluster([H|T], L):-
-  not(memberchk(H, L)),
+  \+ memberchk(H, L),
   nocluster(T, L).
 
 eliminate_list([], L, L).
@@ -386,7 +391,7 @@ replace([], _, _, []).
 replace([H|T], H, NH, [NH|NT]):-
   replace(T, H, NH, NT).
 replace([H|T], R, NR, [H|NT]):-
-  \+ H == R,
+  H \== R,
   replace(T, R, NR, NT).
 
 clean_up:-
@@ -418,8 +423,8 @@ make_prob_fact(L, P, ID):-
     (clause(problog:problog_predicate(var_elimination, 1), true) ->
       true
     ;
-      assert(problog:problog_predicate(var_elimination, 1))
+      assertz(problog:problog_predicate(var_elimination, 1))
     ),
-    assert(problog:problog_var_elimination(ID, L, P))
+    assertz(problog:problog_var_elimination(ID, L, P))
   ).
 

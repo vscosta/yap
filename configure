@@ -1435,7 +1435,7 @@ Optional Features:
  --enable-win64            compile YAP for win64
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
- --enable-cplint=DIR       enable the cplint library using the glu library in DIR/lib
+ --enable-cplint=DIR       enable the cplint library using the CUDD software in DIR
  --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
@@ -6820,17 +6820,17 @@ fi
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
         if test "$dynamic_loading" = "yes"
         then
            YAPLIB_LD="\$(CC) -shared"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
            PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         else
            YAPLIB_LD="\$(CC)"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
            PRE_INSTALL_ENV=""
         fi
@@ -6844,9 +6844,9 @@ fi
         fi
         SO="o"
 	INSTALL_DLLS=""
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -6887,9 +6887,9 @@ fi
 	  $as_echo "#define MPI_AVOID_REALLOC 1" >>confdefs.h
 
 	fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -6900,9 +6900,9 @@ fi
         # SO="a"
         #SHLIB_LD="\$(srcdir)/../../ldAix /bin/ld -bhalt:4 -bM:SRE -bE:lib.exp -H512 -T512 -bnoentry"
 	#INSTALL_DLLS=""
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -6956,9 +6956,9 @@ fi
           SHLIB_LD="ld -shared -expect_unresolved '*'"
           DO_SECOND_LD=""
         fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -6970,9 +6970,9 @@ fi
 	SHLIB_LD="ld -n32 -shared -rdata_shared"
         SHLIB_CXX_LD="$SHLIB_LD"
 	INSTALL_DLLS=""
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -7033,12 +7033,12 @@ fi
         then
 	   SHLIB_LD="$CC  -dynamiclib"
            SHLIB_CXX_LD="$CXX  -dynamiclib"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         else
 	   SHLIB_LD="$CC  -dynamiclib -Wl,-undefined,dynamic_lookup"
            SHLIB_CXX_LD="$CXX  -dynamiclib -Wl,-undefined,dynamic_lookup"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS   -Wl,-install_name,\$(DESTDIR)\$(YAPLIBDIR)/\$@"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         fi
 	if test "$ac_cv_c_compiler_gnu" = "yes"
@@ -7070,9 +7070,9 @@ fi
 	  SO="so"
 	  INSTALL_DLLS=""
         fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -Wl,-R,\$(YAPLIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;
@@ -7086,16 +7086,16 @@ fi
         DO_SECOND_LD=""
 	SO="so"
 	INSTALL_DLLS=""
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
         if test "$dynamic_loading" = "yes"
         then
            YAPLIB_LD="\$(CC)"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
            INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
         else
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
            PRE_INSTALL_ENV=""
            YAPLIB_LD="\$(CC) -shared"
            INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
@@ -7183,9 +7183,9 @@ fi
 	 then
 	 LIBS="$LIBS -lnsl"
         fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(DESTDIR)\$(LIBDIR) -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR)"
+	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
         DYNYAPLIB=libYap."$SO"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(DESTDIR)\$(YAPLIBDIR) -Wl,-R,\$(DESTDIR)\$(LIBDIR)"
+        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
         PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
         INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
 	;;

@@ -620,7 +620,7 @@ static int p_itrie_loadFromStream(void) {
   /* check args */
   if (!YAP_IsVarTerm(arg_itrie)) 
     return FALSE;
-  if (!(file = (FILE*) Yap_FileDescriptorFromStream(arg_stream)))
+  if (!(file = (FILE*) YAP_FileDescriptorFromStream(arg_stream)))
     return FALSE;
 
   /* load itrie */
