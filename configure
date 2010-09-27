@@ -5648,7 +5648,11 @@ _ACEOF
 
 fi
 
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lncurses" >&5
+  case "$target_os" in
+    *darwin*)
+    ;;
+    *)
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lncurses" >&5
 $as_echo_n "checking for main in -lncurses... " >&6; }
 if test "${ac_cv_lib_ncurses_main+set}" = set; then :
   $as_echo_n "(cached) " >&6
@@ -5687,6 +5691,7 @@ _ACEOF
 
 fi
 
+  esac
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for readline in -lreadline" >&5
 $as_echo_n "checking for readline in -lreadline... " >&6; }
 if test "${ac_cv_lib_readline_readline+set}" = set; then :

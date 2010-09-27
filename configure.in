@@ -611,7 +611,12 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_LIB(termcap,tgetent)
-  AC_CHECK_LIB(ncurses,main)
+  case "$target_os" in
+    *darwin*)
+    ;;
+    *)
+    AC_CHECK_LIB(ncurses,main)
+  esac
   AC_CHECK_LIB(readline,readline)
 fi
 if test "$yap_cv_gmp" != "no"
