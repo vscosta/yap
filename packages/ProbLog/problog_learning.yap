@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
-%  $Revision: 4822 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -205,10 +205,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-:- module(learning,[
-		    do_learning/1,
-		    do_learning/2,
-		    set_learning_flag/2,
+:- module(learning,[do_learning/1,
+	            do_learning/2,
+	            set_learning_flag/2,
 		    learning_flag/2,
 		    learning_flags/0,
 		    problog_help/0,
@@ -216,7 +215,7 @@
 		    problog_flag/2,
 		    problog_flags/0,
 		    auto_alpha/0
-		]).
+		    ]).
 
 % switch on all the checks to reduce bug searching time
 :- style_check(all).
@@ -500,7 +499,9 @@ do_learning_intern(Iterations,Epsilon) :-
 	->
 	 (
 	  retractall(values_correct),
-	  once(delete_all_queries),
+	  retractall(query_is_similar(_,_)),
+	  retractall(query_md5(_,_,_)),
+	  once(empty_bdd_directory),
 	  once(init_queries)
 	 ); true
 	),
@@ -551,7 +552,7 @@ init_learning :-
 	 )
 	->
 	 true;
-	 delete_all_queries
+	 empty_bdd_directory
 	),
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -648,23 +649,6 @@ init_learning :-
 	format_learning(1,'~n',[]).
 
 
-%========================================================================
-%= 
-%= 
-%= 
-%========================================================================
-
-
-
-delete_all_queries :-
-	problog_flag(bdd_directory,BDD_Directory),
-	empty_bdd_directory(BDD_Directory),
-	retractall(query_is_similar(_,_)),
-	retractall(query_md5(_,_,_)).
-
-empty_output_directory :-
-	problog_flag(output_directory,Directory),
-	empty_output_directory(Directory).
 
 %========================================================================
 %= This predicate goes over all training and test examples,
@@ -1681,10 +1665,6 @@ init_logger :-
 	logger_define_variable(learning_rate,float),
 	logger_define_variable(alpha,float).
 
-%========================================================================
-%= 
-%=
-%========================================================================
+:- initialization(init_flags).
+:- initialization(init_logger).
 
-
-:- initialization((init_flags,init_logger)).

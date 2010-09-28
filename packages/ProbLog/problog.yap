@@ -230,7 +230,7 @@
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_exact/3,
-                    problog_exact_save/5,
+		    problog_exact_save/5,
                     problog_montecarlo/3,
                     problog_dnf_sampling/3,
                     problog_answers/2,
@@ -320,7 +320,7 @@
 :- use_module('problog/sampling').
 :- use_module('problog/intervals').
 :- use_module('problog/mc_DNF_sampling').
-:- use_module('problog/variable_elimination').
+:- catch(use_module('problog/variable_elimination'),_,true).
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
@@ -371,7 +371,7 @@
 :- dynamic(dynamic_probability_fact_extract/2).
 
 % for storing continuous parts of proofs (Hybrid ProbLog)
-:- dynamic(hybrid_proof/3, hybrid_proof/4).
+:- dynamic([hybrid_proof/3, hybrid_proof/4]).
 :- dynamic(hybrid_proof_disjoint/4).
 
 % ProbLog files declare prob. facts as P::G
@@ -381,7 +381,7 @@
 
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
-:- initialization((getcwd(PD), set_problog_path(PD))).
+:- getcwd(PD), set_problog_path(PD).
 
 
 
@@ -466,9 +466,7 @@
 % Default inference method
 %%%%%%%%%%%%
 
-:- initialization(
-	problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)
-).
+:- initialization(problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)).
 
 problog_dir(PD):- problog_path(PD).
 
@@ -580,7 +578,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
     % It's a decision with a body
 	 copy_term((Head,Body),(HeadCopy,_BodyCopy)),
 	 functor(Head, Functor, Arity),
-	 atom_concat(problog_, Functor, LongFunctor),
+	 atomic_concat([problog_,Functor],LongFunctor),
 	 Head =.. [Functor|Args],
 	 append(Args,[LProb],LongArgs),
 	 probclause_id(ID),
@@ -626,7 +624,7 @@ user:term_expansion(P::Goal,Goal) :-
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
-	atom_concat(problog_, Name, ProblogName),
+	atomic_concat([problog_,Name],ProblogName),
 	Goal =.. [Name|Args],
 	append(Args,[LProb],L1),
 	probclause_id(ID),
@@ -708,7 +706,7 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	),
 
 	functor(Goal, Name, Arity),
-	atom_concat(problogcontinuous_, Name, ProblogName),
+	atomic_concat([problogcontinuous_,Name],ProblogName),
 	probclause_id(ID),
 
 	GaussianArg=gaussian(Mu_Arg,Sigma_Arg),
@@ -807,16 +805,16 @@ interval_merge((_ID,GroundID,_Type),Interval) :-
 
 
 
-problog_assertz(P::Goal) :-
-	problog_assertz(user,P::Goal).
-problog_assertz(Module, P::Goal) :-
+problog_assert(P::Goal) :-
+	problog_assert(user,P::Goal).
+problog_assert(Module, P::Goal) :-
 	term_expansion_intern(P::Goal,Module,problog:ProbFact),
 	assertz(problog:ProbFact).
 
 problog_retractall(Goal) :-
 	Goal =.. [F|Args],
 	append([_ID|Args],[_Prob],Args2),
-	atom_concat('problog_', F, F2),
+	atomic_concat(['problog_',F],F2),
 	ProbLogGoal=..[F2|Args2],
 	retractall(problog:ProbLogGoal).
 
@@ -964,7 +962,7 @@ probabilistic_fact(P2,Goal,ID) :-
 	->
 	 (
 	  Goal =.. [F|Args],
-	  atom_concat('problog_', F, F2),
+	  atomic_concat('problog_',F,F2),
 	  append([ID|Args],[P],Args2),
 	  Goal2 =..[F2|Args2],
 	  length(Args2,N),
@@ -977,8 +975,8 @@ probabilistic_fact(P2,Goal,ID) :-
 	  get_internal_fact(ID,ProblogTerm,_ProblogName,_ProblogArity),
 	  ProblogTerm =.. [F,_ID|Args],
 	  append(Args2,[P],Args),
-	  atom_codes(F,[_p,_r,_o,_b,_l,_o,_g,_|F2Chars]),
-	  atom_codes(F2,F2Chars),
+	  name(F,[_p,_r,_o,_b,_l,_o,_g,_|F2Chars]),
+	  name(F2,F2Chars),
 	  Goal =.. [F2|Args2],
 	  (
 	   dynamic_probability_fact(ID)
@@ -1011,7 +1009,7 @@ prob_for_id(dummy,dummy,dummy).
 get_fact_probability(A, Prob) :-
   ground(A),
   \+ number(A),
-  atom_codes(A, A_Codes),
+  name(A, A_Codes),
   once(append(Part1, [95|Part2], A_Codes)), % 95 = '_'
   number_codes(ID, Part1), !,
   % let's check whether Part2 contains an 'l' (l=low)
@@ -1072,7 +1070,7 @@ set_fact_probability(ID,Prob) :-
 
 get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity) :-
 	problog_predicate(Name,Arity),
-	atom_concat(problog_, Name, ProblogName),
+	atomic_concat([problog_,Name],ProblogName),
 	ProblogArity is Arity+2,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -1090,7 +1088,7 @@ get_continuous_fact_parameters(ID,Parameters) :-
 
 get_internal_continuous_fact(ID,ProblogTerm,ProblogName,ProblogArity,ContinuousPos) :-
 	problog_continuous_predicate(Name,Arity,ContinuousPos),
-	atom_concat(problogcontinuous_, Name, ProblogName),
+	atomic_concat([problogcontinuous_,Name],ProblogName),
 	ProblogArity is Arity+1,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -1155,12 +1153,12 @@ get_fact(ID,OutsideTerm) :-
 	grounding_is_known(OutsideTerm,GID).
 
 recover_grounding_id(Atom,ID) :-
-	atom_codes(Atom,List),
+	name(Atom,List),
 	reverse(List,Rev),
 	recover_number(Rev,NumRev),
 	reverse(NumRev,Num),
-	atom_codes(ID,Num).
-recover_number([95|_],[]) :- !.  % atom_codes('_',[95])
+	name(ID,Num).
+recover_number([95|_],[]) :- !.  % name('_',[95])
 recover_number([A|B],[A|C]) :-
 	recover_number(B,C).
 
@@ -1294,9 +1292,9 @@ montecarlo_check(ComposedID) :-
   fail.
 % (c) for unknown groundings of non-ground facts: generate a new sample (decompose the ID first)
 montecarlo_check(ID) :-
-	atom_codes(ID,IDN),
+	name(ID,IDN),
 	recover_number(IDN,FactIDName),
-	atom_codes(FactID,FactIDName),
+	name(FactID,FactIDName),
 	new_sample_nonground(ID,FactID).
 
 % sampling from ground fact: set array value to 1 (in) or 2 (out)
@@ -1332,10 +1330,10 @@ new_sample_nonground(ComposedID,ID) :-
 %         fail.
 
 split_grounding_id(Composed,Fact,Grounding) :-
-	atom_codes(Composed,C),
+	name(Composed,C),
 	split_g_id(C,F,G),
-	atom_codes(Fact,F),
-	atom_codes(Grounding,G).
+	name(Fact,F),
+	name(Grounding,G).
 split_g_id([95|Grounding],[],Grounding) :- !.
 split_g_id([A|B],[A|FactID],GroundingID) :-
 	split_g_id(B,FactID,GroundingID).
@@ -3026,8 +3024,8 @@ bdd_par_file(BDDParFile) :-
 
 require(Feature) :-
   atom(Feature),
-  atom_concat('problog_required_', Feature, Feature_Required),
-  atom_concat(Feature_Required, '_depth', Feature_Depth),
+  atomic_concat(['problog_required_',Feature],Feature_Required),
+  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
   (required(Feature) ->
       b_getval(Feature_Depth,Depth),
       Depth1 is Depth+1,
@@ -3040,8 +3038,8 @@ require(Feature) :-
 
 unrequire(Feature) :-
   atom(Feature),
-  atom_concat('problog_required_', Feature, Feature_Required),
-  atom_concat(Feature_Required, '_depth', Feature_Depth),
+  atomic_concat(['problog_required_',Feature],Feature_Required),
+  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
   b_getval(Feature_Depth,Depth),
   (Depth=1 ->
       nb_delete(Feature_Required),
@@ -3054,7 +3052,7 @@ unrequire(Feature) :-
 
 required(Feature) :-
 	atom(Feature),
-	atom_concat('problog_required_', Feature, Feature_Required),
+	atomic_concat(['problog_required_',Feature],Feature_Required),
 	catch(b_getval(Feature_Required,Val),error(existence_error(variable,Feature_Required),_),fail),
 	Val == required.
 

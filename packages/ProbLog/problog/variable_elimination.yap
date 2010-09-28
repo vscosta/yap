@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
-%  $Revision: 4672 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -204,12 +204,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(variable_elimination, [
-    trie_check_for_and_cluster/1,
-    trie_replace_and_cluster/2,
-    clean_up/0,
-    variable_elimination_stats/3
-]).
+:- module(variable_elimination, [trie_check_for_and_cluster/1, trie_replace_and_cluster/2, clean_up/0, variable_elimination_stats/3]).
 
 :- use_module(library(lists), [append/3, delete/3, memberchk/2, reverse/2]).
 :- use_module(library(tries)).

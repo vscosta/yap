@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
-%  $Revision: 4672 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -515,16 +515,15 @@ logger_write_header :-
 	bb_get(logger_filename,FName),
 	bb_get(logger_variables,Variables),
 	open(FName,'append',Handle),
-	write(Handle,'# '),
-	logger_write_header_intern(Variables,Handle),
-	write(Handle,'\n'),
+	format(Handle,'#####################################################################~n',[]),
+	format(Handle,'# ~w~6+~w~7+~w~n',['Pos','Type','Name']),
+	format(Handle,'#####################################################################~n',[]),
+	logger_write_header_intern(Variables,1,Handle),
+	format(Handle,'#####################################################################~n',[]),
 	close(Handle).
 	
-logger_write_header_intern([],_).
-logger_write_header_intern([(Name,_Type)],Handle) :-
-	write(Handle,Name).
-logger_write_header_intern([(Name,_Type),Next|T],Handle) :-
-	bb_get(logger_delimiter,D),
-	write(Handle,Name),
-	write(Handle,D),
-	logger_write_header_intern([Next|T],Handle).
+logger_write_header_intern([],_,_).
+logger_write_header_intern([(Name,Type)|T],Position,Handle) :-
+	format(Handle,'# ~q~6+~q~7+~q~n',[Position,Type,Name]),
+	Position2 is Position+1,
+	logger_write_header_intern(T,Position2,Handle).

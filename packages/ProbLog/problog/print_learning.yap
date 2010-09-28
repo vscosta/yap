@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-23 11:13:10 +0200 (Thu, 23 Sep 2010) $
-%  $Revision: 4804 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog

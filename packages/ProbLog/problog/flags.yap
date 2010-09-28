@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-24 15:23:06 +0200 (Tue, 24 Aug 2010) $
-%  $Revision: 4672 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -204,15 +204,14 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:-module(flags, [
-            problog_define_flag/4,
-            problog_define_flag/5,
-            problog_define_flag/6,
-            problog_defined_flag/5,
-            problog_defined_flag_group/1,
-            set_problog_flag/2,
-            reset_problog_flags/0,
-            problog_flag/2]).
+:-module(flags, [problog_define_flag/4,
+                         problog_define_flag/5,
+                         problog_define_flag/6,
+                         problog_defined_flag/5,
+                         problog_defined_flag_group/1,
+                         set_problog_flag/2,
+                         reset_problog_flags/0,
+                         problog_flag/2]).
 
 
 :- use_module(gflags).
@@ -344,8 +343,17 @@ learning_init_handler(validating, (_,_,_,_,_)).
 learning_init_handler(validated, _Value).
 learning_init_handler(stored, _Value).
 
-learning_prob_init_handler(message, '(Q,P,Query)').
-learning_prob_init_handler(validating, (_,_,_)).
+learning_prob_init_handler(message, '(0,1] or uniform(l,h) ').
+learning_prob_init_handler(validating, uniform(Low,High)) :-
+	number(Low),
+	number(High),
+	Low<High,
+	Low>0,
+	High =< 1.
+learning_prob_init_handler(validating, N) :-
+	number(N),
+	N>0,
+	N =< 1.
 %learning_prob_init_handler(validate, V_).
 learning_prob_init_handler(validated, _Value).
 learning_prob_init_handler(stored, _Value).

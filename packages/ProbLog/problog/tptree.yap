@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-07 23:20:03 +0200 (Tue, 07 Sep 2010) $
-%  $Revision: 4765 $
+%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
+%  $Revision: 4838 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -246,7 +246,7 @@
 
 % load library modules
 :- use_module(library(tries)).
-:- use_module(library(lists), [append/3, member/2, memberchk/2]).
+:- use_module(library(lists), [append/3, member/2, memberchk/2, delete/3]).
 :- use_module(library(system), [delete_file/1, shell/1]).
 :- use_module(library(ordsets), [ord_intersection/3, ord_union/3]).
 
@@ -260,10 +260,10 @@
 
 % this is a test to determine whether YAP provides the needed trie library
 :- initialization(
-	(	predicate_property(trie_disable_hash, imported_from(tries)) ->
-		trie_disable_hash
-	;	print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
-	)
+        (       predicate_property(trie_disable_hash, imported_from(tries)) ->
+                trie_disable_hash
+        ;       print_message(warning,'The predicate tries:trie_disable_hash/0 does not exist. Please update trie library.')
+        )
 ).
 
 %%%%%%%%%%%%%%%%%%%%%%%
