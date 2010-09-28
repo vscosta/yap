@@ -48,6 +48,8 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/timer.yap \
 	$(srcdir)/problog/tptree.yap \
 	$(srcdir)/problog/variable_elimination.yap \
+	$(srcdir)/problog/print_learning.yap \
+	$(srcdir)/problog/utils_learning.yap \
 	$(srcdir)/problog/variables.yap
 
 PROBLOG_EXAMPLES = \

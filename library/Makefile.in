@@ -114,7 +114,7 @@ install_myddas: $(MYDDAS_PROGRAMS)
 	done; \
 	for p in $(DESTDIR)$(SHAREDIR)/Yap/myddas*.ypp; \
 	do name=`basename $$p .ypp`; \
-	cpp $(YAP_EXTRAS) -P -E -w $$p -o $(DESTDIR)$(SHAREDIR)/Yap/$$name.yap; \
+	cpp $(YAP_EXTRAS) -P -E -w $$p > $(DESTDIR)$(SHAREDIR)/Yap/$$name.yap; \
 	rm -fr $$p; \
 	done; \
 	fi

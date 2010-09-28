@@ -610,7 +610,15 @@ CodeVoidPAdjust (void * addr)
   return addr + HDiff;
 }
 
+inline EXTERN struct halt_hook *HaltHookAdjust (struct halt_hook *);
 
+inline EXTERN struct halt_hook *
+HaltHookAdjust (struct halt_hook * addr)
+{
+  if (!addr)
+    return NULL;
+  return  (struct halt_hook *) (CharP (addr) + HDiff);
+}
 
 inline EXTERN BlockHeader *BlockAdjust (BlockHeader *);
 
@@ -619,8 +627,6 @@ BlockAdjust (BlockHeader * addr)
 {
   return (BlockHeader *) ((BlockHeader *) (CharP (addr) + HDiff));
 }
-
-
 
 inline EXTERN yamop *PtoOpAdjust (yamop *);
 

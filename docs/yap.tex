@@ -1384,7 +1384,7 @@ anonymous variables.
 
 Punctuation tokens consist of one of the following characters:
 @example
-@center ( ) , [ ] @{ @} |
+( ) , [ ] @{ @} |
 @end example
 
 These characters are used to group terms.
@@ -1701,7 +1701,7 @@ if they have not been loaded before, does nothing otherwise.
 
 @var{F} must be a list containing the names of the files to load.
 
-@item make [ISO]
+@item make
 @findex make/0
 @snindex make/0
 @cnindex make/0
@@ -2719,7 +2719,7 @@ between 0 and 10.
 @cnindex call_with_args/n
 Meta-call where @var{Name} is the name of the procedure to be called and
 the @var{Ai} are the arguments. The number of arguments varies between 0
-and 10.
+and 10. New code should use @code{call/N} for better portability.
 
 If @var{Name} is a complex term, then @code{call_with_args/n} behaves as
 @code{call/n}:
@@ -3179,7 +3179,7 @@ Checks whether @var{T} is a database reference.
 @cnindex float/1
 Checks whether @var{T} is a floating point number.
 
-@item rational(@var{T}) [ISO]
+@item rational(@var{T})
 @findex rational/1
 @syindex rational/1
 @cyindex rational/1
@@ -3346,7 +3346,7 @@ Also refer to @code{copy_term/2}.
 True when @var{List} is a proper list. That is, @var{List}
 is bound to the empty list (nil) or a term with functor '.' and arity 2.
 
-@item ?@var{Term1} =@= ?@var{Term2}
+@item ?@var{Term1} =@@= ?@var{Term2}
 @findex  =@=/2
 @syindex =@=/2
 @cnindex =@=/2
@@ -3412,15 +3412,7 @@ will return:
 The predicate holds when at least one of the arguments is ground
 (otherwise, an error message will be displayed). The argument @var{A} must
 be unifiable with an atom, and the argument @var{L} with the list of the
-ASCII codes for the characters of the external representation of @var{A}.
-
-The ISO-Prolog standard dictates that @code{atom_chars/2} should unify
-the second argument with a list of one-char atoms, and not the character
-codes. For compatibility with previous versions of YAP, and
-with other Prolog implementations, YAP unifies the second
-argument with the character codes, as in @code{atom_codes/2}. Use the
-@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
-compatibility.
+characters of @var{A}.
 
 @item atom_codes(?@var{A},?@var{L}) [ISO]
 @findex atom_codes/2
@@ -3498,7 +3490,7 @@ concatenated are the representation for @var{A12}.
 If @var{A1} and @var{A2} are unbound, the built-in will find all the atoms
 that concatenated give @var{A12}.
 
-@item number_chars(?@var{I},?@var{L})
+@item number_chars(?@var{I},?@var{L}) [ISO]
 @findex number_chars/2
 @saindex number_chars/2
 @cnindex number_chars/2
@@ -3506,15 +3498,7 @@ that concatenated give @var{A12}.
 The predicate holds when at least one of the arguments is ground
 (otherwise, an error message will be displayed). The argument @var{I} must
 be unifiable with a number, and the argument @var{L} with the list of the
-ASCII codes for the characters of the external representation of @var{I}.
-
-The ISO-Prolog standard dictates that @code{number_chars/2} should unify
-the second argument with a list of one-char atoms, and not the character
-codes. For compatibility with previous versions of YAP, and
-with other Prolog implementations, YAP unifies the second
-argument with the character codes, as in @code{number_codes/2}. Use the
-@code{set_prolog_flag(to_chars_mode,iso)} to obtain ISO standard
-compatibility.
+characters of the external representation of @var{I}.
 
 @item number_codes(?@var{A},?@var{L}) [ISO]
 @findex number_codes/2
@@ -4084,6 +4068,8 @@ Integer bitwise conjunction.
 Integer bitwise disjunction.
 
 @item @var{X} # @var{Y}
+@item @var{X} >< @var{Y}
+@item xor(@var{X} , @var{Y})
 Integer bitwise exclusive disjunction.
 
 @item @var{X} << @var{Y}
@@ -4348,23 +4334,23 @@ these options:
 
 @table @code
 
-@item type(+@var{T})
+@item type(+@var{T}) [ISO]
 Specify whether the stream is a @code{text} stream (default), or a
 @code{binary} stream.
 
-@item reposition(+@var{Bool})
+@item reposition(+@var{Bool}) [ISO]
 Specify whether it is possible to reposition the stream (@code{true}), or
 not (@code{false}). By default, YAP enables repositioning for all
 files, except terminal files and sockets.
 
-@item eof_action(+@var{Action})
+@item eof_action(+@var{Action}) [ISO]
 Specify the action to take if attempting to input characters from a
 stream where we have previously found an @code{end_of_file}. The possible
 actions are @code{error}, that raises an error, @code{reset}, that tries to
 reset the stream and is used for @code{tty} type files, and @code{eof_code},
 which generates a new @code{end_of_file} (default for non-tty files).
 
-@item alias(+@var{Name})
+@item alias(+@var{Name}) [ISO]
 Specify an alias to the stream. The alias @t{Name} must be an atom. The
 alias can be used instead of the stream descriptor for every operation
 concerning the stream.
@@ -4467,7 +4453,9 @@ Defines extensions. Current mapping: @code{txt} implies @code{['']},
 @code{['.so', '']}, @code{qlf} implies @code{['.qlf', '']} and
 @code{directory} implies @code{['']}.  The file-type @code{source}
 is an alias for @code{prolog} for compatibility to SICStus Prolog.
-See also @code{prolog_file_type/2}.
+See also @code{prolog_file_type/2}. Notice also that this predicate only
+returns non-directories, unless the option @code{file_type(directory)} is
+specified, or unless @code{access(none)}.
 
     @item file_errors(@code{fail}/@code{error})
 If @code{error} (default), throw and @code{existence_error} exception
@@ -4547,14 +4535,14 @@ Send out all data in the output buffer of the current output stream.
 @cnindex flush_output/1
 Send all data in the output buffer for stream @var{S}.
 
-@item set_input(+@var{S})
+@item set_input(+@var{S}) [ISO]
 @findex set_input/1
 @syindex set_input/1
 @cnindex set_input/1
 Set stream @var{S} as the current input stream. Predicates like @code{read/1}
 and @code{get/1} will start using stream @var{S}.
 
-@item set_output(+@var{S})
+@item set_output(+@var{S}) [ISO]
 @findex set_output/1
 @syindex set_output/1
 @cnindex set_output/1
@@ -4917,16 +4905,16 @@ Displays term @var{T} on the current output stream, according to the
 following options:
 
 @table @code
-@item quoted(+@var{Bool})
+@item quoted(+@var{Bool}) [ISO]
 If @code{true}, quote atoms if this would be necessary for the atom to
 be recognized as an atom by YAP's parser. The default value is
 @code{false}.
 
-@item ignore_ops(+@var{Bool})
+@item ignore_ops(+@var{Bool}) [ISO]
 If @code{true}, ignore operator declarations when writing the term. The
 default value is @code{false}.
 
-@item numbervars(+@var{Bool})
+@item numbervars(+@var{Bool}) [ISO]
 If @code{true}, output terms of the form
 @code{'$VAR'(N)}, where @var{N} is an integer, as a sequence of capital
 letters. The default value is @code{false}.
@@ -5536,7 +5524,7 @@ input stream.
 @cnindex tab/2
 The same as @code{tab/1}, but using stream @var{S}.
 
-@item nl(+@var{S})
+@item nl(+@var{S}) [ISO]
 @findex nl/1
 @syindex nl/1
 @cnindex nl/1
@@ -5910,8 +5898,8 @@ predicates:
 @findex assert/1
 @saindex assert/1
 @caindex assert/1
- Adds clause @var{C} to the program. If the predicate is undefined,
-declare it as dynamic.
+ Same as @code{assertz/1}. Adds clause @var{C} to the program. If the predicate is undefined,
+declare it as dynamic. New code should use @code{assertz/1} for better portability.
 
  Most Prolog systems only allow asserting clauses for dynamic
 predicates. This is also as specified in the ISO standard. YAP allows
@@ -6101,7 +6089,7 @@ name is the atom @var{A}.
 Defines the relation:  @var{P} is a built-in predicate whose name
 is the atom @var{A}.
 
-@item predicate_property(@var{P},@var{Prop})
+@item predicate_property(@var{P},@var{Prop}) [ISO]
 @findex predicate_property/2
 @saindex predicate_property/2
 @cnindex predicate_property/2
@@ -8174,7 +8162,8 @@ this version of YAP either defines @code{__unix__} or @code{unix}.
 @item unknown [ISO]
 @findex unknown (yap_flag/2 option)
 @*
-Corresponds to calling the @code{unknown/2} built-in.
+Corresponds to calling the @code{unknown/2} built-in. Possible values 
+are @code{error}, @code{fail}, and @code{warning}.
 
 @item update_semantics
 @findex update_semantics (yap_flag/2 option)
@@ -9515,16 +9504,6 @@ matrices are multi-dimensional and compact. In contrast to static
 arrays. these arrays are allocated in the stack. Matrices are available
 by loading the library @code{library(matrix)}.
 
-Accessing the matlab dynamic libraries can be complicated. In Linux
-machines, to use this interface, you may have to set the environment
-variable @t{LD_LIBRARY_PATH}. Next, follows an example using bash in a
-64-bit Linux PC:
-@example
-export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
-@end example
-where @code{MATLAB_HOME} is the directory where matlab is installed
-at. Please replace @code{ax64} for @code{x86} on a 32-bit PC.
-
 Notice that the functionality in this library is only partial. Please
 contact the YAP maintainers if you require extra functionality.
 
@@ -9828,6 +9807,16 @@ processing. YAP now includes a straightforward interface to MATLAB. To
 actually use it, you need to install YAP calling @code{configure} with
 the @code{--with-matlab=DIR} option, and you need to call
 @code{use_module(library(lists))} command.
+
+Accessing the matlab dynamic libraries can be complicated. In Linux
+machines, to use this interface, you may have to set the environment
+variable @t{LD_LIBRARY_PATH}. Next, follows an example using bash in a
+64-bit Linux PC:
+@example
+export LD_LIBRARY_PATH=''$MATLAB_HOME"/sys/os/glnxa64:''$MATLAB_HOME"/bin/glnxa64:''$LD_LIBRARY_PATH"
+@end example
+where @code{MATLAB_HOME} is the directory where matlab is installed
+at. Please replace @code{ax64} for @code{x86} on a 32-bit PC.
 
 @table @code
 
@@ -16691,6 +16680,14 @@ only two boolean flags are accepted: @code{YAPC_ENABLE_GC} and
 @code{YAPC_ENABLE_AGC}.  The first enables/disables the standard garbage
 collector, the second does the same for the atom garbage collector.`
 
+@item  @code{int} YAP_HaltRegisterHook(@code{YAP_halt_hook f, void *closure})
+@findex YAP_HaltRegisterHook (C-Interface function)
+
+Register the function @var{f} to be called if YAP is halted. The
+function is called with two arguments: the exit code of the process (@code{0}
+if this cannot be determined on your operating system) and the closure
+argument @var{closure}. 
+@c See also @code{at_halt/1}.
 @end table
 
 

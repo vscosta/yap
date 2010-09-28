@@ -376,7 +376,8 @@ problog_var_timer_timeout(Variable):-
 %%% This is possible for future use %%%
 
 :- use_module(library(timeout)).
-:- meta_predicate problog_var_time_out(:,_,_,_), problog_time_out(:,_,_,_).
+:- meta_predicate(problog_var_time_out(0, *, *, *)).
+:- meta_predicate(problog_time_out(0, *, *, *)).
 %
 % Problems with nesting, use with care
 % always succeeds returns Success = true/fail, Time = Msec taken/timeout

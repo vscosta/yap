@@ -230,7 +230,7 @@
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_exact/3,
-		    problog_exact_save/5,
+                    problog_exact_save/5,
                     problog_montecarlo/3,
                     problog_dnf_sampling/3,
                     problog_answers/2,
@@ -296,32 +296,31 @@
                     above/2]).
 
 :- style_check(all).
-
 :- yap_flag(unknown,error).
 
 :- set_prolog_flag(to_chars_mode,quintus).
 
 % general yap modules
-:- ensure_loaded(library(charsio)).
-:- ensure_loaded(library(lists)).
-:- ensure_loaded(library(terms)).
-:- ensure_loaded(library(random)).
-:- ensure_loaded(library(system)).
-:- ensure_loaded(library(rbtrees)).
-:- ensure_loaded(library(ordsets)).
+:- use_module(library(charsio)).
+:- use_module(library(lists)).
+:- use_module(library(terms)).
+:- use_module(library(random)).		% PM doesn't seem to be used!
+:- use_module(library(system)).
+:- use_module(library(rbtrees)).	% PM doesn't seem to be used!
+:- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
 
 % problog related modules
-:- ensure_loaded('problog/variables').
-:- ensure_loaded('problog/extlists').
-:- ensure_loaded('problog/flags').
-:- ensure_loaded('problog/print').
-:- ensure_loaded('problog/os').
-:- ensure_loaded('problog/tptree').
-:- ensure_loaded('problog/tabling').
-:- ensure_loaded('problog/sampling').
-:- ensure_loaded('problog/intervals').
-:- ensure_loaded('problog/mc_DNF_sampling').
-:- catch(ensure_loaded('problog/variable_elimination'),_,true).
+:- use_module('problog/variables').
+:- use_module('problog/extlists').
+:- use_module('problog/flags').
+:- use_module('problog/print').
+:- use_module('problog/os').
+:- use_module('problog/tptree').
+:- use_module('problog/tabling').
+:- use_module('problog/sampling').
+:- use_module('problog/intervals').
+:- use_module('problog/mc_DNF_sampling').
+:- use_module('problog/variable_elimination').
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
@@ -333,56 +332,56 @@
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 % global over all inference methods, internal use only
-:- dynamic problog_predicate/2.
-:- dynamic problog_continuous_predicate/3.
+:- dynamic(problog_predicate/2).
+:- dynamic(problog_continuous_predicate/3).
 % global over all inference methods, exported
-:- dynamic tunable_fact/2.
-:- dynamic non_ground_fact/1.
-:- dynamic continuous_fact/1.
-%:- dynamic problog_dir/1.
+:- dynamic(tunable_fact/2).
+:- dynamic(non_ground_fact/1).
+:- dynamic(continuous_fact/1).
+%:- dynamic(problog_dir/1).
 % global, manipulated via problog_control/2
-:- dynamic up/0.
-:- dynamic limit/0.
-:- dynamic mc/0.
-:- dynamic remember/0.
-:- dynamic exact/0.                         % Theo tabling
-:- dynamic find_decisions/0.
-:- dynamic internal_strategy/0.
+:- dynamic(up/0).
+:- dynamic(limit/0).
+:- dynamic(mc/0).
+:- dynamic(remember/0).
+:- dynamic(exact/0).                         % Theo tabling
+:- dynamic(find_decisions/0).
+:- dynamic(internal_strategy/0).
 % local to problog_delta
-:- dynamic low/2.
-:- dynamic up/2.
-:- dynamic stopDiff/1.
+:- dynamic(low/2).
+:- dynamic(up/2).
+:- dynamic(stopDiff/1).
 % local to problog_kbest
-:- dynamic current_kbest/3.
+:- dynamic(current_kbest/3).
 % local to problog_max
-:- dynamic max_probability/1.
-:- dynamic max_proof/1.
+:- dynamic(max_probability/1).
+:- dynamic(max_proof/1).
 % local to problog_montecarlo
-:- dynamic mc_prob/1.
+:- dynamic(mc_prob/1).
 % local to problog_answers
-:- dynamic answer/1.
+:- dynamic(answer/1).
 % to keep track of the groundings for non-ground facts
-:- dynamic grounding_is_known/2.
+:- dynamic(grounding_is_known/2).
 
 % for decisions
-:- dynamic decision_fact/2.
+:- dynamic(decision_fact/2).
 
 % for fact where the proabability is a variable
-:- dynamic dynamic_probability_fact/1.
-:- dynamic dynamic_probability_fact_extract/2.
+:- dynamic(dynamic_probability_fact/1).
+:- dynamic(dynamic_probability_fact_extract/2).
 
 % for storing continuous parts of proofs (Hybrid ProbLog)
-:- dynamic hybrid_proof/4.
-:- dynamic hybrid_proof_disjoint/4.
+:- dynamic(hybrid_proof/3, hybrid_proof/4).
+:- dynamic(hybrid_proof_disjoint/4).
 
 % ProbLog files declare prob. facts as P::G
 % and this module provides the predicate X::Y to iterate over them
-:- multifile '::'/2.
+:- multifile('::'/2).
 
 
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
-:- getcwd(PD), set_problog_path(PD).
+:- initialization((getcwd(PD), set_problog_path(PD))).
 
 
 
@@ -395,22 +394,28 @@
 % - factor used to decrease threshold for next level, NewMin=Factor*OldMin (saved also in log-space)
 %%%%%%%%%%%%
 
-:- problog_define_flag(first_threshold, problog_flag_validate_indomain_0_1_open, 'starting threshold iterative deepening', 0.1, inference).
-:- problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1e-30, inference, flags:last_threshold_handler).
-:- problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler).
+:- initialization((
+	problog_define_flag(first_threshold, problog_flag_validate_indomain_0_1_open, 'starting threshold iterative deepening', 0.1, inference),
+	problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1e-30, inference, flags:last_threshold_handler),
+	problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler)
+)).
 
 %%%%%%%%%%%%
 % prune check stops derivations if they use a superset of facts already known to form a proof
 % (very) costly test, can be switched on/off here (This is obsolete as it is not included in implementation)
 %%%%%%%%%%%%
 
-:- problog_define_flag(prunecheck,      problog_flag_validate_switch, 'stop derivations including all facts of known proof', off, inference).
+:- initialization(
+	problog_define_flag(prunecheck,      problog_flag_validate_switch, 'stop derivations including all facts of known proof', off, inference)
+).
 
 %%%%%%%%%%%%
 % max number of calls to probabilistic facts per derivation (to ensure termination)
 %%%%%%%%%%%%
 
-:- problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference).
+:- initialization(
+	problog_define_flag(maxsteps,        problog_flag_validate_posint, 'max. number of prob. steps per derivation', 1000, inference)
+).
 
 %%%%%%%%%%%%
 % BDD timeout in seconds, used as option in BDD tool
@@ -422,12 +427,13 @@
 % located in the directory given by problog_flag dir
 %%%%%%%%%%%%
 
-%:- problog_define_flag(bdd_path,        problog_flag_validate_directory, 'problogbdd directory', '.',bdd).
-:- problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd).
-:- problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd).
-:- problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd).
-:- problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd).
-
+:- initialization((
+%	problog_define_flag(bdd_path,        problog_flag_validate_directory, 'problogbdd directory', '.',bdd),
+	problog_define_flag(bdd_time,        problog_flag_validate_posint, 'BDD computation timeout in seconds', 60, bdd),
+	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd),
+	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),
+	problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd)
+)).
 
 %%%%%%%%%%%%
 % determine whether ProbLog outputs information (number of proofs, intermediate results, ...)
@@ -435,27 +441,34 @@
 % default is false now, as dtproblog will flood the user with verbosity
 %%%%%%%%%%%%
 
-:- problog_define_flag(verbose,         problog_flag_validate_boolean, 'output intermediate information', false,output).
+:- initialization(
+	problog_define_flag(verbose,         problog_flag_validate_boolean, 'output intermediate information', false,output)
+).
 
 %%%%%%%%%%%%
 % determine whether ProbLog outputs proofs when adding to trie
 % default is false
 %%%%%%%%%%%%
 
-:- problog_define_flag(show_proofs,     problog_flag_validate_boolean, 'output proofs', false,output).
+:- initialization(
+	problog_define_flag(show_proofs,     problog_flag_validate_boolean, 'output proofs', false,output)
+).
 
 %%%%%%%%%%%%
 % Trie dump parameter for saving a file with the trie structure in the directory by problog_flag dir
 %%%%%%%%%%%%
 
-:- problog_define_flag(triedump,        problog_flag_validate_boolean, 'generate file: trie_file containing the trie structure', false,output).
+:- initialization(
+	problog_define_flag(triedump,        problog_flag_validate_boolean, 'generate file: trie_file containing the trie structure', false,output)
+).
 
 %%%%%%%%%%%%
 % Default inference method
 %%%%%%%%%%%%
 
-:- problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference).
-
+:- initialization(
+	problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)
+).
 
 problog_dir(PD):- problog_path(PD).
 
@@ -465,15 +478,25 @@ problog_dir(PD):- problog_path(PD).
 
 init_global_params :-
   %grow_atom_table(1000000),
-  getcwd(Work),
-  concat_path_with_filename(Work, output, WorkDir),
+
   %%%%%%%%%%%%
   % working directory: all the temporary and output files will be located there
   % it assumes a subdirectory of the current working dir
   % on initialization, the current dir is the one where the user's file is located
   % should be changed to use temporary folder structure of operating system
   %%%%%%%%%%%%
-  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', WorkDir, output),
+  tmpnam(TempFolder),
+  atomic_concat([TempFolder, '_problog'], TempProblogFolder),
+  problog_define_flag(dir, problog_flag_validate_directory, 'directory for files', TempProblogFolder, output),
+  problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd, flags:working_file_handler),
+  problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
+  problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
+  problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
+%%%%%%%%%%%%
+% montecarlo: recalculate current approximation after N samples
+% montecarlo: write log to this file
+%%%%%%%%%%%%
+  problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc, flags:working_file_handler),
   check_existance('problogbdd').
 
 check_existance(FileName):-
@@ -487,18 +510,6 @@ check_existance(FileName):-
 % parameter initialization to be called after returning to user's directory:
 :- initialization(init_global_params).
 
-:- problog_define_flag(bdd_par_file,    problog_flag_validate_file, 'file for BDD variable parameters', example_bdd_probs, bdd).
-:- problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd).
-:- problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler).
-:- problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd).
-
-%%%%%%%%%%%%
-% montecarlo: recalculate current approximation after N samples
-% montecarlo: write log to this file
-%%%%%%%%%%%%
-
-:- problog_define_flag(mc_logfile,      problog_flag_validate_file, 'logfile for montecarlo', 'log.txt', mcmc).
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % internal control flags
@@ -511,7 +522,7 @@ check_existance(FileName):-
 problog_control(on,X) :-
 	call(X),!.
 problog_control(on,X) :-
-	assert(X).
+	assertz(X).
 problog_control(off,X) :-
 	retractall(X).
 problog_control(check,X) :-
@@ -524,7 +535,7 @@ reset_control :-
 %   problog_control(off,exact),
 	problog_control(off,remember).
 
-:- reset_control.
+:- initialization(reset_control).
 
 grow_atom_table(N):-
 	generate_atoms(N, 0),
@@ -569,12 +580,12 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
     % It's a decision with a body
 	 copy_term((Head,Body),(HeadCopy,_BodyCopy)),
 	 functor(Head, Functor, Arity),
-	 atomic_concat([problog_,Functor],LongFunctor),
+	 atom_concat(problog_, Functor, LongFunctor),
 	 Head =.. [Functor|Args],
 	 append(Args,[LProb],LongArgs),
 	 probclause_id(ID),
 	 ProbFactHead =.. [LongFunctor,ID|LongArgs],
-	 assert(decision_fact(ID,Head)),
+	 assertz(decision_fact(ID,Head)),
 	 ExpandedClause = (ProbFactHead :-
 			  user:Body,
 			   (problog_control(check,internal_strategy) ->
@@ -583,14 +594,14 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 			    LProb = '?'
 			   )
 			  ),
-	 assert(dynamic_probability_fact(ID)),
-	 assert((dynamic_probability_fact_extract(HeadCopy,P_New) :-
+	 assertz(dynamic_probability_fact(ID)),
+	 assertz((dynamic_probability_fact_extract(HeadCopy,P_New) :-
 		dtproblog:strategy(ID,HeadCopy,P_New)
 		)),
 	 (ground(Head) ->
 	  true
 	 ;
-	  assert(non_ground_fact(ID))
+	  assertz(non_ground_fact(ID))
 	 ),
 	 problog_predicate(Functor, Arity, LongFunctor, Module)
 	;
@@ -615,7 +626,7 @@ user:term_expansion(P::Goal,Goal) :-
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	copy_term((P,Goal),(P_Copy,Goal_Copy)),
 	functor(Goal, Name, Arity),
-	atomic_concat([problog_,Name],ProblogName),
+	atom_concat(problog_, Name, ProblogName),
 	Goal =.. [Name|Args],
 	append(Args,[LProb],L1),
 	probclause_id(ID),
@@ -624,7 +635,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 (nonvar(P), P = t(TrueProb))
 	->
 	 (
-	  assert(tunable_fact(ID,TrueProb)),
+	  assertz(tunable_fact(ID,TrueProb)),
 	  LProb is log(random*0.9+0.05)	% set unknown probability randomly in [0.05, 0.95]
 	 );
 	 (
@@ -646,8 +657,8 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	    )
 	   ),
 	   LProb=log(P),
-	   assert(dynamic_probability_fact(ID)),
-	   assert(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
+	   assertz(dynamic_probability_fact(ID)),
+	   assertz(dynamic_probability_fact_extract(Goal_Copy,P_Copy))
 	  )
 	 )
 	),
@@ -655,7 +666,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	 ground(Goal)
 	->
 	 true;
-	 assert(non_ground_fact(ID))
+	 assertz(non_ground_fact(ID))
 	),
 	problog_predicate(Name, Arity, ProblogName,Module).
 
@@ -676,6 +687,7 @@ is_valid_gaussian(X) :-
 	 throw(invalid_gaussian(X))
 	).
 
+:- multifile(user:term_expansion/1).
 
 user:term_expansion(Goal, problog:ProbFact) :-
 	compound(Goal),
@@ -696,7 +708,7 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	),
 
 	functor(Goal, Name, Arity),
-	atomic_concat([problogcontinuous_,Name],ProblogName),
+	atom_concat(problogcontinuous_, Name, ProblogName),
 	probclause_id(ID),
 
 	GaussianArg=gaussian(Mu_Arg,Sigma_Arg),
@@ -711,7 +723,7 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	  Sigma_Random is 0.4, % random*2+0.5,
 	  nth(Pos,Args,_,KeepArgs),
 	  nth(Pos,NewArgs,gaussian(Mu_Random,Sigma_Random),KeepArgs),
-	  assert(tunable_fact(ID,gaussian(Mu_Arg,Sigma_Arg)))
+	  assertz(tunable_fact(ID,gaussian(Mu_Arg,Sigma_Arg)))
 	 )
 	),
 	ProbFact =.. [ProblogName,ID|NewArgs],
@@ -720,9 +732,9 @@ user:term_expansion(Goal, problog:ProbFact) :-
 	 ground(Goal)
 	->
 	 true;
-	 assert(non_ground_fact(ID))
+	 assertz(non_ground_fact(ID))
 	),
-	assert(continuous_fact(ID)),
+	assertz(continuous_fact(ID)),
 	problog_continuous_predicate(Name, Arity, Pos,ProblogName).
 
 
@@ -759,7 +771,7 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 	ProbFact =.. [ProblogName,ID|ProbArgs],
 	prolog_load_context(module,Mod),
 
-	assert( (Mod:OriginalGoal :- ProbFact,
+	assertz( (Mod:OriginalGoal :- ProbFact,
 		                   % continuous facts always get a grounding ID, even when they are actually ground
 		                   % this simplifies the BDD script generation
 		                     non_ground_fact_grounding_id(ProbFact,Ground_ID),
@@ -767,7 +779,7 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 		                     add_continuous_to_proof(ID,ID2)
 		 )),
 
-	assert(problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition)),
+	assertz(problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition)),
 	ArityPlus1 is Arity+1,
 	dynamic(problog:ProblogName/ArityPlus1).
 
@@ -795,16 +807,16 @@ interval_merge((_ID,GroundID,_Type),Interval) :-
 
 
 
-problog_assert(P::Goal) :-
-	problog_assert(user,P::Goal).
-problog_assert(Module, P::Goal) :-
+problog_assertz(P::Goal) :-
+	problog_assertz(user,P::Goal).
+problog_assertz(Module, P::Goal) :-
 	term_expansion_intern(P::Goal,Module,problog:ProbFact),
-	assert(problog:ProbFact).
+	assertz(problog:ProbFact).
 
 problog_retractall(Goal) :-
 	Goal =.. [F|Args],
 	append([_ID|Args],[_Prob],Args2),
-	atomic_concat(['problog_',F],F2),
+	atom_concat('problog_', F, F2),
 	ProbLogGoal=..[F2|Args2],
 	retractall(problog:ProbLogGoal).
 
@@ -818,18 +830,18 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 	OriginalGoal =.. [_|Args],
 	append(Args,[Prob],L1),
 	ProbFact =.. [ProblogName,ID|L1],
-	assert( (Mod:OriginalGoal :-
+	assertz( (Mod:OriginalGoal :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
 				prove_problog_fact(ID,ID2,Prob)
 		 )),
 
-	assert( (Mod:problog_not(OriginalGoal) :-
+	assertz( (Mod:problog_not(OriginalGoal) :-
                 ProbFact,
                 grounding_id(ID,OriginalGoal,ID2),
                 prove_problog_fact_negated(ID,ID2,Prob)
 		 )),
-	assert(problog_predicate(Name, Arity)),
+	assertz(problog_predicate(Name, Arity)),
 	ArityPlus2 is Arity+2,
 	dynamic(problog:ProblogName/ArityPlus2).
 
@@ -899,7 +911,8 @@ prove_problog_fact_negated(ClauseID,GroundID,Prob) :-
   ).
 
 % generate next global identifier
-:- nb_setval(probclause_counter,0).
+:- initialization(nb_setval(probclause_counter,0)).
+
 probclause_id(ID) :-
 	nb_getval(probclause_counter,ID), !,
 	C1 is ID+1,
@@ -925,7 +938,7 @@ non_ground_fact_grounding_id(Goal,ID) :-
 		nb_getval(non_ground_fact_grounding_id_counter,ID),
 		ID2 is ID+1,
 		nb_setval(non_ground_fact_grounding_id_counter,ID2),
-		assert(grounding_is_known(Goal,ID))
+		assertz(grounding_is_known(Goal,ID))
 	    )
 	).
 
@@ -951,7 +964,7 @@ probabilistic_fact(P2,Goal,ID) :-
 	->
 	 (
 	  Goal =.. [F|Args],
-	  atomic_concat('problog_',F,F2),
+	  atom_concat('problog_', F, F2),
 	  append([ID|Args],[P],Args2),
 	  Goal2 =..[F2|Args2],
 	  length(Args2,N),
@@ -997,7 +1010,7 @@ prob_for_id(dummy,dummy,dummy).
 
 get_fact_probability(A, Prob) :-
   ground(A),
-  not(number(A)),
+  \+ number(A),
   atom_codes(A, A_Codes),
   once(append(Part1, [95|Part2], A_Codes)), % 95 = '_'
   number_codes(ID, Part1), !,
@@ -1055,11 +1068,11 @@ set_fact_probability(ID,Prob) :-
 	NewLogProb is log(Prob),
 	nth(ProblogArity,NewProblogTermArgs,NewLogProb,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
-	assert(NewProblogTerm).
+	assertz(NewProblogTerm).
 
 get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity) :-
 	problog_predicate(Name,Arity),
-	atomic_concat([problog_,Name],ProblogName),
+	atom_concat(problog_, Name, ProblogName),
 	ProblogArity is Arity+2,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -1077,7 +1090,7 @@ get_continuous_fact_parameters(ID,Parameters) :-
 
 get_internal_continuous_fact(ID,ProblogTerm,ProblogName,ProblogArity,ContinuousPos) :-
 	problog_continuous_predicate(Name,Arity,ContinuousPos),
-	atomic_concat([problogcontinuous_,Name],ProblogName),
+	atom_concat(problogcontinuous_, Name, ProblogName),
 	ProblogArity is Arity+1,
 	functor(ProblogTerm,ProblogName,ProblogArity),
 	arg(1,ProblogTerm,ID),
@@ -1090,7 +1103,7 @@ set_continuous_fact_parameters(ID,Parameters) :-
 	nth0(ContinuousPos,ProblogTermArgs,_,KeepArgs),
 	nth0(ContinuousPos,NewProblogTermArgs,Parameters,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
-	assert(NewProblogTerm).
+	assertz(NewProblogTerm).
 
 
 
@@ -1134,7 +1147,7 @@ get_fact(ID,OutsideTerm) :-
 	ProblogTerm =.. [_Functor,ID|Args],
 	atomic_concat('problog_',OutsideFunctor,ProblogName),
 	Last is ProblogArity-1,
-	nth(Last,Args,_LogProb,OutsideArgs),
+	nth(Last,Args,_LogProb,OutsideArgs),    % PM avoid nth/3; use nth0/3 or nth1/3 instead
 	OutsideTerm =.. [OutsideFunctor|OutsideArgs].
 % ID of instance of non-ground fact: get fact from grounding table
 get_fact(ID,OutsideTerm) :-
@@ -1142,12 +1155,12 @@ get_fact(ID,OutsideTerm) :-
 	grounding_is_known(OutsideTerm,GID).
 
 recover_grounding_id(Atom,ID) :-
-	name(Atom,List),
+	atom_codes(Atom,List),
 	reverse(List,Rev),
 	recover_number(Rev,NumRev),
 	reverse(NumRev,Num),
-	name(ID,Num).
-recover_number([95|_],[]) :- !.  % name('_',[95])
+	atom_codes(ID,Num).
+recover_number([95|_],[]) :- !.  % atom_codes('_',[95])
 recover_number([A|B],[A|C]) :-
 	recover_number(B,C).
 
@@ -1281,9 +1294,9 @@ montecarlo_check(ComposedID) :-
   fail.
 % (c) for unknown groundings of non-ground facts: generate a new sample (decompose the ID first)
 montecarlo_check(ID) :-
-	name(ID,IDN),
+	atom_codes(ID,IDN),
 	recover_number(IDN,FactIDName),
-	name(FactID,FactIDName),
+	atom_codes(FactID,FactIDName),
 	new_sample_nonground(ID,FactID).
 
 % sampling from ground fact: set array value to 1 (in) or 2 (out)
@@ -1319,10 +1332,10 @@ new_sample_nonground(ComposedID,ID) :-
 %         fail.
 
 split_grounding_id(Composed,Fact,Grounding) :-
-	name(Composed,C),
+	atom_codes(Composed,C),
 	split_g_id(C,F,G),
-	name(Fact,F),
-	name(Grounding,G).
+	atom_codes(Fact,F),
+	atom_codes(Grounding,G).
 split_g_id([95|Grounding],[],Grounding) :- !.
 split_g_id([A|B],[A|FactID],GroundingID) :-
 	split_g_id(B,FactID,GroundingID).
@@ -1407,19 +1420,21 @@ put_module(Goal,Module,Module:Goal).
 % if remember is on, input files for problogbdd will be saved
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- problog_var_define(sld_time, times, time, messages('SLD resolution', ':', ' ms')).
-:- problog_var_define(bdd_script_time, times, time, messages('Generating BDD script', ':', ' ms')).
-:- problog_var_define(bdd_generation_time, times, time, messages('Constructing BDD', ':', ' ms')).
-:- problog_var_define(trie_statistics, memory, untyped, messages('Trie usage', ':', '')).
-:- problog_var_define(probability, result, number, messages('Probabilty', ' = ', '')).
-:- problog_var_define(bdd_script_time(Method), times, time, messages('Generating BDD script '(Method), ':', ' ms')).
-:- problog_var_define(bdd_generation_time(Method), times, time, messages('Constructing BDD '(Method), ':', ' ms')).
-:- problog_var_define(probability(Method), result, number, messages('Probabilty '(Method), ' = ', '')).
-:- problog_var_define(trie_statistics(Method), memory, untyped, messages('Trie usage '(Method), ':', '')).
-:- problog_var_define(dbtrie_statistics(Method), memory, untyped, messages('Depth Breadth Trie usage '(Method), ':', '')).
-:- problog_var_define(db_trie_opts_performed(Method), memory, untyped, messages('Optimisations performed '(Method), ':', '')).
-:- problog_var_define(variable_elimination_time, times, time, messages('Variable Elimination', ':', ' ms')).
-:- problog_var_define(variable_elimination_stats, memory, untyped, messages('Variable Elimination', ':', '')).
+:- initialization((
+	problog_var_define(sld_time, times, time, messages('SLD resolution', ':', ' ms')),
+	problog_var_define(bdd_script_time, times, time, messages('Generating BDD script', ':', ' ms')),
+	problog_var_define(bdd_generation_time, times, time, messages('Constructing BDD', ':', ' ms')),
+	problog_var_define(trie_statistics, memory, untyped, messages('Trie usage', ':', '')),
+	problog_var_define(probability, result, number, messages('Probabilty', ' = ', '')),
+	problog_var_define(bdd_script_time(Method), times, time, messages('Generating BDD script '(Method), ':', ' ms')),
+	problog_var_define(bdd_generation_time(Method), times, time, messages('Constructing BDD '(Method), ':', ' ms')),
+	problog_var_define(probability(Method), result, number, messages('Probabilty '(Method), ' = ', '')),
+	problog_var_define(trie_statistics(Method), memory, untyped, messages('Trie usage '(Method), ':', '')),
+	problog_var_define(dbtrie_statistics(Method), memory, untyped, messages('Depth Breadth Trie usage '(Method), ':', '')),
+	problog_var_define(db_trie_opts_performed(Method), memory, untyped, messages('Optimisations performed '(Method), ':', '')),
+	problog_var_define(variable_elimination_time, times, time, messages('Variable Elimination', ':', ' ms')),
+	problog_var_define(variable_elimination_stats, memory, untyped, messages('Variable Elimination', ':', ''))
+)).
 
 problog_statistics(Stat, Result):-
 	problog_var_defined(Stat),
@@ -1780,7 +1795,7 @@ add_solution :-
 	    Continuous=[];
 	    (
 	     Continuous=[continuous(ProofID)],
-	     assert(hybrid_proof(ProofID,Cont_IDs,AllIntervals))
+	     assertz(hybrid_proof(ProofID,Cont_IDs,AllIntervals))
 	    )
 	   )
 	 )
@@ -1808,7 +1823,7 @@ collect_all_intervals([(ID,GroundID)|T],ProofID,[Interval|T2]) :-
 	Interval \= all,  % we do not need to store continuous
 	                  % variables with domain [-oo,oo] (they have probability 1)
 	!,
-	assert(hybrid_proof(ProofID,ID,GroundID,Interval)),
+	assertz(hybrid_proof(ProofID,ID,GroundID,Interval)),
 	collect_all_intervals(T,ProofID,T2).
 collect_all_intervals([_|T],ProofID,T2) :-
 	collect_all_intervals(T,ProofID,T2).
@@ -1865,7 +1880,7 @@ disjoin_hybrid_proofs([GroundID|T]) :-
 	(
 	 hybrid_proof(ProofID,ID,GroundID,Interval),
 	 intervals_disjoin(Interval,Partition,PInterval),
-	 assert(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval)),
+	 assertz(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval)),
 
 	 fail; % go to next proof
 	 true
@@ -1960,9 +1975,9 @@ init_problog_delta(Threshold,Delta) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_ptree(Trie_Stopped_Proofs),
 	nb_setval(problog_stopped_proofs, Trie_Stopped_Proofs),
-	assert(low(0,0.0)),
-	assert(up(0,1.0)),
-	assert(stopDiff(Delta)),
+	assertz(low(0,0.0)),
+	assertz(up(0,1.0)),
+	assertz(stopDiff(Delta)),
 	init_problog(Threshold).
 
 problog_delta_id(Goal, _) :-
@@ -2048,7 +2063,7 @@ eval_lower(N,P,Status) :-
 	eval_dnf(Trie_Completed_Proofs,P,Status),
 	(Status = ok ->
 	    retract(low(_,_)),
-	    assert(low(N,P)),
+	    assertz(low(N,P)),
 	    (problog_flag(verbose,true) -> format(user,'lower bound: ~6f~n',[P]);true),
 	    flush_output(user)
 	;
@@ -2058,7 +2073,7 @@ eval_lower(N,P,Status) :-
 eval_upper(0,P,ok) :-
 	retractall(up(_,_)),
 	low(N,P),
-	assert(up(N,P)).
+	assertz(up(N,P)).
 % else merge proofs and stopped derivations to get upper bound
 % in case of timeout or other problems, skip and use bound from last level
 eval_upper(N,UpP,ok) :-
@@ -2071,7 +2086,7 @@ eval_upper(N,UpP,ok) :-
   delete_ptree(Trie_All_Proofs),
   (StatusUp = ok ->
     retract(up(_,_)),
-    assert(up(N,UpP))
+    assertz(up(N,UpP))
   ;
     (problog_flag(verbose,true) -> format(user,'~w - continue using old up~n',[StatusUp]);true),
     flush_output(user),
@@ -2099,8 +2114,8 @@ problog_max(Goal, Prob, Facts) :-
 init_problog_max(Threshold) :-
 	retractall(max_probability(_)),
 	retractall(max_proof(_)),
-	assert(max_probability(-999999)),
-	assert(max_proof(unprovable)),
+	assertz(max_probability(-999999)),
+	assertz(max_proof(unprovable)),
 	init_problog(Threshold).
 
 update_max :-
@@ -2112,10 +2127,10 @@ update_max :-
     b_getval(problog_current_proof, IDs),
     open_end_close_end(IDs, R),
     retractall(max_proof(_)),
-    assert(max_proof(R)),
+    assertz(max_proof(R)),
     nb_setval(problog_threshold, CurrP),
     retractall(max_probability(_)),
-    assert(max_probability(CurrP))
+    assertz(max_probability(CurrP))
   ).
 
 problog_max_id(Goal, _Prob, _Clauses) :-
@@ -2196,7 +2211,7 @@ problog_real_kbest(Goal, K, Prob, Status) :-
 
 init_problog_kbest(Threshold) :-
 	retractall(current_kbest(_,_,_)),
-	assert(current_kbest(-999999,[],0)),  %(log-threshold,proofs,num_proofs)
+	assertz(current_kbest(-999999,[],0)),  %(log-threshold,proofs,num_proofs)
 	init_ptree(Trie_Completed_Proofs),
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
@@ -2237,7 +2252,7 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	sorted_insert(NewLogProb-Cl,List,NewList),
 	NewLength is Length+1,
 	(NewLength < K ->
-	    assert(current_kbest(OldThres,NewList,NewLength))
+	    assertz(current_kbest(OldThres,NewList,NewLength))
 	;
 	(NewLength>K ->
 	    First is NewLength-K+1,
@@ -2245,7 +2260,7 @@ update_current_kbest(K,NewLogProb,Cl) :-
 	   ; FinalList=NewList, FinalLength=NewLength),
 	FinalList=[NewThres-_|_],
 	nb_setval(problog_threshold,NewThres),
-	assert(current_kbest(NewThres,FinalList,FinalLength))).
+	assertz(current_kbest(NewThres,FinalList,FinalLength))).
 
 sorted_insert(A,[],[A]).
 sorted_insert(A-LA,[B1-LB1|B], [A-LA,B1-LB1|B] ) :-
@@ -2406,7 +2421,7 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
     ;
       true
     ),
-    assert(mc_prob(Prob))
+    assertz(mc_prob(Prob))
   ;
     montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
   ).
@@ -2428,7 +2443,7 @@ montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
 %     ;
 %       true
 %     ),
-%     assert(mc_prob(Prob))
+%     assertz(mc_prob(Prob))
 %   ;
 %     montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
 %   ).
@@ -2473,7 +2488,7 @@ problog_answers(Goal,File) :-
 	set_problog_flag(verbose,false),
 	retractall(answer(_)),
 % this will not give the exact prob of Goal!
-	problog_exact((Goal,ground(Goal),\+problog:answer(Goal),assert(problog:answer(Goal))),_,_),
+	problog_exact((Goal,ground(Goal),\+problog:answer(Goal),assertz(problog:answer(Goal))),_,_),
 	open(File,write,_,[alias(answer)]),
 	eval_answers,
 	close(answer).
@@ -2531,13 +2546,13 @@ update_current_kbest_answers(_,NewLogProb,Goal) :-
 	!,
 	keysort(NewList,SortedList),%format(user_error,'updated variant of ~w~n',[Goal]),
 	retract(current_kbest(K,_,Len)),
-	assert(current_kbest(K,SortedList,Len)).
+	assertz(current_kbest(K,SortedList,Len)).
 update_current_kbest_answers(K,NewLogProb,Goal) :-
 	retract(current_kbest(OldThres,List,Length)),
 	sorted_insert(NewLogProb-Goal,List,NewList),%format(user_error,'inserted new element ~w~n',[Goal]),
 	NewLength is Length+1,
 	(NewLength < K ->
-	    assert(current_kbest(OldThres,NewList,NewLength))
+	    assertz(current_kbest(OldThres,NewList,NewLength))
 	;
 	(NewLength>K ->
 	    First is NewLength-K+1,
@@ -2545,7 +2560,7 @@ update_current_kbest_answers(K,NewLogProb,Goal) :-
 	   ; FinalList=NewList, FinalLength=NewLength),
 	FinalList=[NewThres-_|_],
 	nb_setval(problog_threshold,NewThres),
-	assert(current_kbest(NewThres,FinalList,FinalLength))).
+	assertz(current_kbest(NewThres,FinalList,FinalLength))).
 
 % this fails if there is no variant -> go to second case above
 update_prob_of_known_answer([OldLogP-OldGoal|List],Goal,NewLogProb,[MaxLogP-OldGoal|List]) :-
@@ -2683,7 +2698,7 @@ build_trie(Goal, Trie) :-
     throw(error('Flag settings not supported by build_trie/2.'))
   ).
 
-build_trie_supported :- problog_flag(inference,exact).
+build_trie_supported :- problog_flag(inference,exact).  % PM this can easily be written to avoid creating choice-points
 build_trie_supported :- problog_flag(inference,low(_)).
 build_trie_supported :- problog_flag(inference,atleast-_-best).
 build_trie_supported :- problog_flag(inference,_-best).
@@ -2862,7 +2877,7 @@ write_bdd_struct_script(Trie,BDDFile,Variables) :-
     Levels = [ROptLevel]
   ),
   % Removed forall here, because it hides 'Variables' from what comes afterwards
-  once(member(OptLevel, Levels)),
+  memberchk(OptLevel, Levels),
   (
     (problog_flag(use_db_trie, true) ->
       tries:trie_db_opt_min_prefix(MinPrefix),
@@ -2976,7 +2991,7 @@ write_global_bdd_file_line(I,Max) :-
   ).
 
 write_global_bdd_file_query(I,Max) :-
-  (I=Max ->
+  (I=Max ->                     % PM shouldn't this be instead I =:= Max ?
       format("L~q~n",[I])
   ;
       format("L~q,",[I]),
@@ -3011,8 +3026,8 @@ bdd_par_file(BDDParFile) :-
 
 require(Feature) :-
   atom(Feature),
-  atomic_concat(['problog_required_',Feature],Feature_Required),
-  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
+  atom_concat('problog_required_', Feature, Feature_Required),
+  atom_concat(Feature_Required, '_depth', Feature_Depth),
   (required(Feature) ->
       b_getval(Feature_Depth,Depth),
       Depth1 is Depth+1,
@@ -3025,8 +3040,8 @@ require(Feature) :-
 
 unrequire(Feature) :-
   atom(Feature),
-  atomic_concat(['problog_required_',Feature],Feature_Required),
-  atomic_concat([Feature_Required,'_',depth],Feature_Depth),
+  atom_concat('problog_required_', Feature, Feature_Required),
+  atom_concat(Feature_Required, '_depth', Feature_Depth),
   b_getval(Feature_Depth,Depth),
   (Depth=1 ->
       nb_delete(Feature_Required),
@@ -3039,7 +3054,7 @@ unrequire(Feature) :-
 
 required(Feature) :-
 	atom(Feature),
-	atomic_concat(['problog_required_',Feature],Feature_Required),
+	atom_concat('problog_required_', Feature, Feature_Required),
 	catch(b_getval(Feature_Required,Val),error(existence_error(variable,Feature_Required),_),fail),
 	Val == required.
 

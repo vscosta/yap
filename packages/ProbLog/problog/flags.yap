@@ -204,19 +204,20 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:-module(flags, [problog_define_flag/4,
-                         problog_define_flag/5,
-                         problog_define_flag/6,
-                         problog_defined_flag/5,
-                         problog_defined_flag_group/1,
-                         set_problog_flag/2,
-                         reset_problog_flags/0,
-                         problog_flag/2]).
+:-module(flags, [
+            problog_define_flag/4,
+            problog_define_flag/5,
+            problog_define_flag/6,
+            problog_defined_flag/5,
+            problog_defined_flag_group/1,
+            set_problog_flag/2,
+            reset_problog_flags/0,
+            problog_flag/2]).
 
 
-:-ensure_loaded(gflags).
-:-ensure_loaded(os).
-:-ensure_loaded(logger).
+:- use_module(gflags).
+:- use_module(os).
+:- use_module(logger).
 
 problog_define_flag(Flag, Type, Description, DefaultValue):-
   flag_define(Flag, Type, DefaultValue, Description).
@@ -241,37 +242,39 @@ problog_flag(Flag, Value):-
 
 reset_problog_flags:- flags_reset.
 
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atom, flag_validate_atom).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_atomic, flag_validate_atomic).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_number, flag_validate_number).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer, flag_validate_integer).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_directory, flag_validate_directory).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_file, flag_validate_file).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_list(L), flag_validate_in_list(L)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval(I, Type), flag_validate_in_interval(I, Type)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_closed([L, U]), flag_validate_in_interval([L, U], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_open([L, U]), flag_validate_in_interval((L, U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_closed([L, U]), flag_validate_in_interval([L, U], integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_open([L, U]), flag_validate_in_interval((L, U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_closed([L, U]), flag_validate_in_interval([L, U], float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_open([L, U]), flag_validate_in_interval((L, U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), float)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posnumber, flag_validate_in_interval((0, [+inf]), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_posint, flag_validate_in_interval((0, +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_nonegint, flag_validate_in_interval(([0], +inf), integer)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_boolean, flag_validate_in_list([true, false])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_switch, flag_validate_in_list([on, off])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_method, flag_validate_in_list([max, delta, exact, montecarlo, low, kbest])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_aggregate, flag_validate_in_list([sum, prod, soft_prod])).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_open, flag_validate_in_interval((0, 1), number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_close, flag_validate_in_interval([0, 1], number)).
-:- flag_add_validation_syntactic_sugar(problog_flag_validate_0to5, flag_validate_in_interval([0, 5], integer)).
+:- initialization((
+  flag_add_validation_syntactic_sugar(problog_flag_validate_dummy, flag_validate_dummy),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_atom, flag_validate_atom),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_atomic, flag_validate_atomic),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_number, flag_validate_number),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_integer, flag_validate_integer),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_directory, flag_validate_directory),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_file, flag_validate_file),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_list(L), flag_validate_in_list(L)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval(I, Type), flag_validate_in_interval(I, Type)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_closed([L, U]), flag_validate_in_interval([L, U], number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_open([L, U]), flag_validate_in_interval((L, U), number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_closed([L, U]), flag_validate_in_interval([L, U], integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_open([L, U]), flag_validate_in_interval((L, U), integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_integer_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_closed([L, U]), flag_validate_in_interval([L, U], float)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_open([L, U]), flag_validate_in_interval((L, U), float)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_left_open([L, U]), flag_validate_in_interval((L, [U]), float)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_float_in_interval_right_open([L, U]), flag_validate_in_interval(([L], U), float)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_posnumber, flag_validate_in_interval((0, [+inf]), number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_posint, flag_validate_in_interval((0, +inf), integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_nonegint, flag_validate_in_interval(([0], +inf), integer)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_boolean, flag_validate_in_list([true, false])),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_switch, flag_validate_in_list([on, off])),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_method, flag_validate_in_list([max, delta, exact, montecarlo, low, kbest])),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_aggregate, flag_validate_in_list([sum, prod, soft_prod])),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_open, flag_validate_in_interval((0, 1), number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_indomain_0_1_close, flag_validate_in_interval([0, 1], number)),
+  flag_add_validation_syntactic_sugar(problog_flag_validate_0to5, flag_validate_in_interval([0, 5], integer))
+)).
 
 last_threshold_handler(message, '').
 last_threshold_handler(validating, _Value).
@@ -289,12 +292,33 @@ id_stepsize_handler(stored, Value):-
 
 bdd_file_handler(message, '').
 bdd_file_handler(validating, _Value).
+bdd_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
+bdd_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch((\+ file_exists(Path), tell(Path)), _, fail),
+  told,
+  delete_file(Path).
 bdd_file_handler(validated, _Value).
 bdd_file_handler(stored, Value):-
   atomic_concat(Value, '_probs', ParValue),
   flag_set(bdd_par_file, ParValue),
   atomic_concat(Value, '_res', ResValue),
   flag_set(bdd_result, ResValue).
+
+working_file_handler(message, '').
+working_file_handler(validating, _Value).
+working_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch(file_exists(Path), _, fail), file_property(Path, type(regular)), !.
+working_file_handler(validate, Value):-
+  convert_filename_to_working_path(Value, Path),
+  catch((\+ file_exists(Path), tell(Path)), _, fail),
+  told,
+  delete_file(Path).
+working_file_handler(validated, _Value).
+working_file_handler(stored, _Value).
 
 auto_handler(message, 'auto non-zero').
 auto_handler(validating, Value) :-

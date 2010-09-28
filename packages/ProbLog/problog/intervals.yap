@@ -212,7 +212,8 @@
 
 :- style_check(all).
 :- yap_flag(unknown,error).
-:- use_module(library(lists)).
+
+:- use_module(library(lists), [member/2, reverse/2, select/3]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  intervals_merge(+Interval1,+Interval2,-ResultingInterval)

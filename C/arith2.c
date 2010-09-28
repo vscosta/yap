@@ -1032,6 +1032,7 @@ static InitBinEntry InitBinTab[] = {
   {"#", op_xor},
   {"><", op_xor},
   {"xor", op_xor},
+  {"atan", op_atan2},
   {"atan2", op_atan2},
   /* C-Prolog exponentiation */
   {"^", op_power},

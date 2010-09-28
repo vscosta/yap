@@ -222,8 +222,8 @@ system_message(error(permission_error(modify,dynamic_procedure,_), Where)) -->
 	[ 'PERMISSION ERROR- ~w: modifying a dynamic procedure' - [Where] ].
 system_message(error(permission_error(modify,flag,W), _)) -->
 	[ 'PERMISSION ERROR- cannot modify flag ~w' - [W] ].
-system_message(error(permission_error(modify,operator,W), _)) -->
-	[ 'PERMISSION ERROR- T cannot declare ~w an operator' - [W] ].
+system_message(error(permission_error(modify,operator,W), Q)) -->
+	[ 'PERMISSION ERROR- ~w: cannot modify operator ~q' - [Q,W] ].
 system_message(error(permission_error(modify,dynamic_procedure,F), Where)) -->
 	[ 'PERMISSION ERROR- ~w: modifying dynamic procedure ~w' - [Where,F] ].
 system_message(error(permission_error(modify,static_procedure,F), Where)) -->

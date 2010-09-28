@@ -225,10 +225,11 @@
 :- yap_flag(unknown,error).
 :- style_check(single_var).
 
-:- bb_put(logger_filename,'out.dat').
-:- bb_put(logger_delimiter,';').
-:- bb_put(logger_variables,[]).
-
+:- initialization((
+	bb_put(logger_filename,'out.dat'),
+	bb_put(logger_delimiter,';'),
+	bb_put(logger_variables,[])
+)).
 
 %========================================================================
 %= Defines a new variable, possible types are: int, float and time

@@ -187,6 +187,7 @@ AtomAdjust(Atom a)
 #define HoldEntryAdjust(P) (P)
 #define CodeCharPAdjust(P) (P)
 #define CodeVoidPAdjust(P) (P)
+#define HaltHookAdjust(P) (P)
 
 #define recompute_mask(dbr)
 

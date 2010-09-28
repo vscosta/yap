@@ -176,6 +176,8 @@ typedef struct {
 
 typedef int  (*YAP_agc_hook)(void *_Atom);
 
+typedef void  (*YAP_halt_hook)(int exit_code, void *closure);
+
 /********* execution mode ***********************/
 
 typedef enum
