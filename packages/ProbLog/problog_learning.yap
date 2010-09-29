@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-09-29 14:52:00 +0200 (Wed, 29 Sep 2010) $
+%  $Revision: 4853 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -206,15 +206,7 @@
 
 
 :- module(learning,[do_learning/1,
-	            do_learning/2,
-	            set_learning_flag/2,
-		    learning_flag/2,
-		    learning_flags/0,
-		    problog_help/0,
-		    set_problog_flag/2,
-		    problog_flag/2,
-		    problog_flags/0,
-		    auto_alpha/0
+	            do_learning/2
 		    ]).
 
 % switch on all the checks to reduce bug searching time
@@ -223,7 +215,6 @@
 
 % load modules from the YAP library
 :- use_module(library(lists), [max_list/2, min_list/2, sum_list/2]).
-:- use_module(library(random)).	% PM doesn't seem to be used!
 :- use_module(library(system), [delete_file/1, file_exists/1, shell/2]).
 
 % load our own modules
@@ -438,7 +429,7 @@ do_learning(Iterations,Epsilon) :-
 	Iterations>0,
 	do_learning_intern(Iterations,Epsilon).
 do_learning(_,_) :-
-	format(user_error,'~n~nWarning: No training examples specified !!!~n~n',[]).
+	format(user_error,'~n~Error: No training examples specified.~n~n',[]).
 
 
 do_learning_intern(0,_) :-
@@ -448,9 +439,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	
 	init_learning,
 	current_iteration(CurrentIteration),
-	!,
 	retractall(current_iteration(_)),
-	!,
 	NextIteration is CurrentIteration+1,
 	assertz(current_iteration(NextIteration)),
 	EndIteration is CurrentIteration+Iterations-1,
@@ -461,7 +450,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_start_timer(duration),
 
 	mse_testset,
-	once(ground_truth_difference),  
+	ground_truth_difference,  
 	gradient_descent,
 
 	problog_flag(log_frequency,Log_Frequency),
@@ -501,8 +490,8 @@ do_learning_intern(Iterations,Epsilon) :-
 	  retractall(values_correct),
 	  retractall(query_is_similar(_,_)),
 	  retractall(query_md5(_,_,_)),
-	  once(empty_bdd_directory),
-	  once(init_queries)
+	  empty_bdd_directory,
+	  init_queries
 	 ); true
 	),
 
@@ -754,13 +743,8 @@ update_values :-
 	% start write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	bdd_input_file(Probabilities_File),
-	(
-	 file_exists(Probabilities_File)
-	->
-	 delete_file(Probabilities_File);
-	 true
-	),
-	
+	delete_file_silent(Probabilities_File),
+
 	open(Probabilities_File,'write',Handle),
 
 	(			% go over all probabilistic facts
@@ -1623,7 +1607,7 @@ auto_alpha :-
 
 %========================================================================
 %= initialize the logger module and set the flags for learning
-%= don't change anything here! use set_learning_flag/2 instead
+%= don't change anything here! use set_problog_flag/2 instead
 %========================================================================
 
 init_flags :-

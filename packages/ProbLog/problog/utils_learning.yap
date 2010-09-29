@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-09-29 13:24:43 +0200 (Wed, 29 Sep 2010) $
+%  $Revision: 4845 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -278,6 +278,7 @@ empty_output_directory :-
 %========================================================================
 
 delete_file_silent(File) :-
+	file_exists(File),
 	delete_file(File),
 	!.
 delete_file_silent(_).

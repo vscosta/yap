@@ -12,6 +12,7 @@
 % will run 20 iterations of learning with default settings 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- use_module('../problog').
 :- use_module('../problog_learning').
 
 %%%%
