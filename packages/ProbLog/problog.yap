@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-08-30 18:09:17 +0200 (Mon, 30 Aug 2010) $
-%  $Revision: 4728 $
+%  $Date: 2010-09-29 13:03:26 +0200 (Wed, 29 Sep 2010) $
+%  $Revision: 4843 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -230,7 +230,7 @@
                     problog_kbest_save/6,
                     problog_max/3,
                     problog_exact/3,
-		    problog_exact_save/5,
+                    problog_exact_save/5,
                     problog_montecarlo/3,
                     problog_dnf_sampling/3,
                     problog_answers/2,
@@ -290,6 +290,7 @@
                     problog_real_kbest/4,
                     op( 550, yfx, :: ),
                     op( 550, fx, ?:: ),
+                    op(1149, yfx, <-- ),
                     op( 1150, fx, problog_table ),
                     in_interval/3,
                     below/2,
@@ -320,12 +321,15 @@
 :- use_module('problog/sampling').
 :- use_module('problog/intervals').
 :- use_module('problog/mc_DNF_sampling').
+:- catch(use_module('problog/ad_converter'),_,true).
 :- catch(use_module('problog/variable_elimination'),_,true).
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
 :- op( 550, fx, ?:: ).
 
+% for annotated disjunctions
+% :- op(1149, yfx, <-- ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % control predicates on various levels
@@ -378,14 +382,9 @@
 % and this module provides the predicate X::Y to iterate over them
 :- multifile('::'/2).
 
-
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
 :- getcwd(PD), set_problog_path(PD).
-
-
-
-
 
 %%%%%%%%%%%%
 % iterative deepening on minimal probabilities (delta, max, kbest):
@@ -467,6 +466,14 @@
 %%%%%%%%%%%%
 
 :- initialization(problog_define_flag(inference,        problog_flag_validate_dummy, 'default inference method', exact, inference)).
+
+%%%%%%%%%%%%
+% Tunable Facts
+%%%%%%%%%%%%
+
+:- initialization(problog_define_flag(tunable_fact_start_value,problog_flag_validate_dummy,'How to initialize tunable probabilities',uniform(0.1,0.9),learning_general,flags:learning_prob_init_handler)).
+
+
 
 problog_dir(PD):- problog_path(PD).
 
@@ -565,6 +572,9 @@ generate_atoms(N, A):-
 % dynamic predicate problog_predicate(Name,Arity) keeps track of predicates that already have wrapper clause
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+term_expansion_intern(A, B, C):-
+  catch(term_expansion_intern_ad(A, B, C), _, false).
+
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
 	Annotation == '?',
@@ -634,7 +644,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	->
 	 (
 	  assertz(tunable_fact(ID,TrueProb)),
-	  LProb is log(random*0.9+0.05)	% set unknown probability randomly in [0.05, 0.95]
+	  sample_initial_value_for_tunable_fact(LProb)
 	 );
 	 (
 	  ground(P)
@@ -669,7 +679,34 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	problog_predicate(Name, Arity, ProblogName,Module).
 
 
+sample_initial_value_for_tunable_fact(LogP) :-
+	problog_flag(tunable_fact_start_value,Initializer),
 
+	(
+	 Initializer=uniform(Low,High)
+	->
+	 (
+	  Spread is High-Low,
+	  random(Rand),
+	  P1 is Rand*Spread+Low,
+
+	  % security check, to avoid log(0)
+	  (
+	   P1>0
+	  ->
+	   P=P1;
+	   P=0.5
+	  )	  
+	 );
+	 (
+	  number(Initializer)
+	 ->
+	  P=Initializer;
+	  throw(unkown_probability_initializer(Initializer))
+	 )
+	),
+
+	LogP is log(P).
 
 
 
@@ -1145,7 +1182,7 @@ get_fact(ID,OutsideTerm) :-
 	ProblogTerm =.. [_Functor,ID|Args],
 	atomic_concat('problog_',OutsideFunctor,ProblogName),
 	Last is ProblogArity-1,
-	nth(Last,Args,_LogProb,OutsideArgs),    % PM avoid nth/3; use nth0/3 or nth1/3 instead
+	nth(Last,Args,_LogProb,OutsideArgs),
 	OutsideTerm =.. [OutsideFunctor|OutsideArgs].
 % ID of instance of non-ground fact: get fact from grounding table
 get_fact(ID,OutsideTerm) :-
@@ -2696,7 +2733,7 @@ build_trie(Goal, Trie) :-
     throw(error('Flag settings not supported by build_trie/2.'))
   ).
 
-build_trie_supported :- problog_flag(inference,exact).  % PM this can easily be written to avoid creating choice-points
+build_trie_supported :- problog_flag(inference,exact).
 build_trie_supported :- problog_flag(inference,low(_)).
 build_trie_supported :- problog_flag(inference,atleast-_-best).
 build_trie_supported :- problog_flag(inference,_-best).
@@ -2989,7 +3026,7 @@ write_global_bdd_file_line(I,Max) :-
   ).
 
 write_global_bdd_file_query(I,Max) :-
-  (I=Max ->                     % PM shouldn't this be instead I =:= Max ?
+  (I=Max ->
       format("L~q~n",[I])
   ;
       format("L~q,",[I]),
