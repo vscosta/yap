@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-29 14:52:00 +0200 (Wed, 29 Sep 2010) $
-%  $Revision: 4853 $
+%  $Date: 2010-09-29 18:43:14 +0200 (Wed, 29 Sep 2010) $
+%  $Revision: 4854 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -813,7 +813,7 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	  problog_dir(PD),
 	  ((What_To_Update=all;query_is_similar(_,QueryID)) -> Method='g' ; Method='l'),
 	  atomic_concat([PD,
-			 '/ProblogBDD',
+			 '/problogbdd',
 			 ' -i "', Probabilities_File, '"',
 			 ' -l "', Query_Directory,'/query_',QueryID, '"',
 			 ' -m ', Method,
