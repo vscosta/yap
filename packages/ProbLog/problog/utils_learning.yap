@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-24 15:54:45 +0200 (Fri, 24 Sep 2010) $
-%  $Revision: 4822 $
+%  $Date: 2010-09-29 13:24:43 +0200 (Wed, 29 Sep 2010) $
+%  $Revision: 4845 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -204,17 +204,11 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%
-% Collected OS depended instructions
-%%%%%%%%
-:- module(utils_learning, [empty_bdd_directory/1,
-			   empty_output_directory/1,
-			   delete_file_silent/1
-			   ]).
+:- module(utils_learning, [empty_bdd_directory/0,
+			   empty_output_directory/0,
+			   delete_file_silent/1,
+			   slice_n/4]).
 
-% switch on all tests to reduce bug searching time
-:- style_check(all).
-:- yap_flag(unknown,error).
 
 % load library modules
 :- use_module(library(lists), [append/3, member/2]).
@@ -222,28 +216,33 @@
 
 % load our own modules
 :- use_module(os).
+:- use_module(flags).
 
 %========================================================================
 %= 
 %= 
 %========================================================================
 
-empty_bdd_directory(Path) :-
-	ground(Path),
+empty_bdd_directory :-
+	problog_flag(bdd_directory,Path),
+	!,
 
 	atom_codes('query_', PF1),           % 'query_*'
 
 	directory_files(Path,List),
 	delete_files_with_matching_prefix(List,Path,[PF1]).
+empty_bdd_directory :-
+	throw(error(problog_flag_does_not_exist(bdd_directory))).
 
 %========================================================================
 %= 
 %= 
 %========================================================================
 
-empty_output_directory(Path) :-
-	ground(Path),
-
+empty_output_directory :-
+	problog_flag(output_directory,Path),
+	!,
+	
 	concat_path_with_filename(Path,'log.dat',F1),
 	concat_path_with_filename(Path,'out.dat',F2),
 	
@@ -270,12 +269,16 @@ empty_output_directory(Path) :-
 	directory_files(Path,List),
 	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
 
+empty_output_directory :-
+	throw(error(problog_flag_does_not_exist(output_directory))).
+
 %========================================================================
 %= 
 %= 
 %========================================================================
 
 delete_file_silent(File) :-
+	file_exists(File),
 	delete_file(File),
 	!.
 delete_file_silent(_).
@@ -300,3 +303,18 @@ delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
 	),
 
 	delete_files_with_matching_prefix(T,Path,Prefixes).
+
+%========================================================================
+%= Split a list into the first n elements and the tail
+%= +List +Integer -Prefix -Residuum
+%========================================================================
+
+
+slice_n([],_,[],[]) :-
+	!.
+slice_n([H|T],N,[H|T2],T3) :-
+	N>0,
+	!,
+	N2 is N-1,
+	slice_n(T,N2,T2,T3).
+slice_n(L,_,[],L).
