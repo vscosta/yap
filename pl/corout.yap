@@ -166,8 +166,8 @@ redo_freeze(Done, _, _) :- nonvar(Done), !.
 %
 % We still have some more conditions: continue the analysis.
 %
-redo_freeze(Done, _, '$when'(C, G, Done)) :- !,
-	'$when'(C, G, Done).
+redo_freeze(Done, _, when(C, G, Done)) :- !,
+	when(C, G, Done).
 	
 %
 % check if the variable was really bound
