@@ -3884,13 +3884,15 @@ Quotient.
 Integer quotient.
 
 @item @var{X} mod @var{Y} [ISO]
-Integer remainder.
+Integer module operator, always positive.
 
 @item @var{X} rem @var{Y} [ISO]
-Integer remainder, the same as @code{mod}.
+Integer remainder, similar to @code{mod} but always has the same sign
+@code{X}.
 
 @item @var{X} div @var{Y} [ISO]
-Integer division, as if defined by @code{(@var{X} - @var{X} mod @var{Y}) // @var{Y}}.
+Integer division, as if defined by @code{(@var{X} - @var{X} mod @var{Y})
+// @var{Y}}.
 
 @item exp(@var{X}) [ISO]
 Natural exponential.
@@ -12931,7 +12933,8 @@ The argument to @code{block/1} is a condition on a goal or a conjunction
 of conditions, with each element separated by commas. Each condition is
 of the form @code{predname(@var{C1},...,@var{CN})}, where @var{N} is the
 arity of the goal, and each @var{CI} is of the form @code{-}, if the
-argument must suspend until the variable is bound, or @code{?}, otherwise.
+argument must suspend until the first such variable is bound, or
+@code{?}, otherwise.
 
 @item wait/1
 The argument to @code{wait/1} is a predicate descriptor or a conjunction

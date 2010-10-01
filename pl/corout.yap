@@ -166,8 +166,8 @@ redo_freeze(Done, _, _) :- nonvar(Done), !.
 %
 % We still have some more conditions: continue the analysis.
 %
-redo_freeze(Done, _, '$when'(C, G, Done)) :- !,
-	'$when'(C, G, Done).
+redo_freeze(Done, _, when(C, G, Done)) :- !,
+	when(C, G, Done).
 	
 %
 % check if the variable was really bound
@@ -220,7 +220,7 @@ prolog:when(_,Goal) :-
 
 %
 % support for when/2 like declaration.
-v%
+%
 %
 % when will block on a conjunction or disjunction of nonvar, ground,
 % ?=, where ?= is both terms being bound together

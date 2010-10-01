@@ -70,10 +70,8 @@ load_foreign_files(Objs,Libs,Entry) :-
 '$checklib_prefix'(NewObjCodes,[0'l,0'i,0'b|NewObjCodes]).
 
 '$rooted_path'([C|_]) :- '$dir_separator'(C), !.
-'$rooted_path'(Cs) :-
-        % win32 machine
-        '$dir_separator'(0'\\),
-        '$get_drive'(Cs).
+% windows drive z:\
+'$rooted_path'([_,0':,0'\\|_]) .
 
 '$get_drive'([0':|_]) :- !.
 '$get_drive'([0'\\|_]) :- !, fail.

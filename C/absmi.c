@@ -1689,7 +1689,7 @@ Yap_absmi(int inp)
 	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	    ASP = (CELL *)PROTECT_FROZEN_B(B);
 	  saveregs();
-	  if (!Yap_gcl(sz, 0, YENV, PREG)) {
+	  if (!Yap_gcl(sz, PREG->u.Osbpi.p->ArityOfPE, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    FAIL();
