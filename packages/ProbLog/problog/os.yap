@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-09-30 16:05:52 +0200 (Thu, 30 Sep 2010) $
+%  $Revision: 4863 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -212,11 +212,13 @@
 	       convert_filename_to_working_path/2,
 	       convert_filename_to_problog_path/2,
 	       concat_path_with_filename/3,
+        split_path_file/3, 
 	       calc_md5/2]).
 
 
 % load library modules
 :- use_module(library(system), [exec/3, file_exists/1]).
+:- use_module(library(lists), [memberchk/2]).
 
 % load our own modules
 :- use_module(gflags, _, [flag_get/2]).
@@ -237,20 +239,14 @@ convert_filename_to_problog_path(File_Name, Path):-
 	concat_path_with_filename(Dir, File_Name, Path).
 
 concat_path_with_filename(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
+  nonvar(File_Name),
+  nonvar(Path),
 
-	% make sure, that there is no path delimiter at the end
-	prolog_file_name(Path,Path_Absolute),
+  % make sure, that there is no path delimiter at the end
+  prolog_file_name(Path,Path_Absolute),
 
-	(
-	 yap_flag(windows, true)
-	->
-	 Path_Seperator = '\\';
-	 Path_Seperator = '/'
-	),
-
-	 atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+  path_seperator(Path_Seperator),
+  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
 %========================================================================
 %= Calculate the MD5 checksum of +Filename by calling md5sum
@@ -306,3 +302,17 @@ calc_md5_intern(Filename,Command,MD5) :-
 	bb_delete(calc_md5_temp, FinalList-[]),
 	bb_delete(calc_md5_temp2,_),
 	atom_codes(MD5,FinalList).
+  
+
+path_seperator('\\'):-
+   yap_flag(windows, true), !.
+path_seperator('/').
+
+split_path_file(PathFile, Path, File):-
+	path_seperator(PathSeperator),
+	atomic_concat(Path, File, PathFile),
+	name(PathSeperator, [PathSeperatorName]),
+	name(File, FileName),
+	\+ memberchk(PathSeperatorName, FileName),
+	!.
+%	(Path = '' ; atomic_concat(_, PathSeperator, Path)).

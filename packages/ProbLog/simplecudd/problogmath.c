@@ -3,185 +3,143 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
+*  Copyright T. Mantadelis, A. Kimmig, B. Gutmann                              *
+*            and Katholieke Universiteit Leuven 2008                           *
 *                                                                              *
 *  Author:       Bernd Gutmann                                                 *
 *  File:         problogmath.c                                                 *
-*  $Date:: 2010-08-25 15:23:30 +0200 (Wed, 25 Aug 2010)           $            *
-*  $Revision:: 4683                                               $            *
+*  $Date:: 2010-09-30 14:29:42 +0200 (Thu, 30 Sep 2010)           $            *
+*  $Revision:: 4858                                               $            *
 *                                                                              *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
-* Artistic License 2.0                                                         *
+*        The "Artistic License"                                                *
 *                                                                              *
-* Copyright (c) 2000-2006, The Perl Foundation.                                *
+*         Preamble                                                             *
 *                                                                              *
-* Everyone is permitted to copy and distribute verbatim copies of this license *
-* document, but changing it is not allowed.                                    *
+* The intent of this document is to state the conditions under which a         *
+* Package may be copied, such that the Copyright Holder maintains some         *
+* semblance of artistic control over the development of the package,           *
+* while giving the users of the package the right to use and distribute        *
+* the Package in a more-or-less customary fashion, plus the right to make      *
+* reasonable modifications.                                                    *
 *                                                                              *
-* Preamble                                                                     *
+* Definitions:                                                                 *
 *                                                                              *
-* This license establishes the terms under which a given free software Package *
-* may be copied, modified, distributed, and/or redistributed. The intent is    *
-* that the Copyright Holder maintains some artistic control over the           *
-* development of that Package while still keeping the Package available as     *
-* open source and free software.                                               *
+*   "Package" refers to the collection of files distributed by the             *
+*   Copyright Holder, and derivatives of that collection of files              *
+*   created through textual modification.                                      *
 *                                                                              *
-* You are always permitted to make arrangements wholly outside of this license *
-* directly with the Copyright Holder of a given Package. If the terms of this  *
-* license do not permit the full use that you propose to make of the Package,  *
-* you should contact the Copyright Holder and seek a different licensing       *
-* arrangement.                                                                 *
-* Definitions                                                                  *
+*   "Standard Version" refers to such a Package if it has not been             *
+*   modified, or has been modified in accordance with the wishes               *
+*   of the Copyright Holder as specified below.                                *
 *                                                                              *
-* "Copyright Holder" means the individual(s) or organization(s) named in the   *
-* copyright notice for the entire Package.                                     *
+*   "Copyright Holder" is whoever is named in the copyright or                 *
+*   copyrights for the package.                                                *
 *                                                                              *
-* "Contributor" means any party that has contributed code or other material to *
-* the Package, in accordance with the Copyright Holder's procedures.           *
+*   "You" is you, if you're thinking about copying or distributing             *
+*   this Package.                                                              *
 *                                                                              *
-* "You" and "your" means any person who would like to copy, distribute, or     *
-* modify the Package.                                                          *
+*   "Reasonable copying fee" is whatever you can justify on the                *
+*   basis of media cost, duplication charges, time of people involved,         *
+*   and so on.  (You will not be required to justify it to the                 *
+*   Copyright Holder, but only to the computing community at large             *
+*   as a market that must bear the fee.)                                       *
 *                                                                              *
-* "Package" means the collection of files distributed by the Copyright Holder, *
-* and derivatives of that collection and/or of those files. A given Package    *
-* may consist of either the Standard Version, or a Modified Version.           *
+*   "Freely Available" means that no fee is charged for the item               *
+*   itself, though there may be fees involved in handling the item.            *
+*   It also means that recipients of the item may redistribute it              *
+*   under the same conditions they received it.                                *
 *                                                                              *
-* "Distribute" means providing a copy of the Package or making it accessible   *
-* to anyone else, or in the case of a company or organization, to others       *
-* outside of your company or organization.                                     *
+* 1. You may make and give away verbatim copies of the source form of the      *
+* Standard Version of this Package without restriction, provided that you      *
+* duplicate all of the original copyright notices and associated disclaimers.  *
 *                                                                              *
-* "Distributor Fee" means any fee that you charge for Distributing this        *
-* Package or providing support for this Package to another party. It does not  *
-* mean licensing fees.                                                         *
+* 2. You may apply bug fixes, portability fixes and other modifications        *
+* derived from the Public Domain or from the Copyright Holder.  A Package      *
+* modified in such a way shall still be considered the Standard Version.       *
 *                                                                              *
-* "Standard Version" refers to the Package if it has not been modified, or has *
-* been modified only in ways explicitly requested by the Copyright Holder.     *
+* 3. You may otherwise modify your copy of this Package in any way, provided   *
+* that you insert a prominent notice in each changed file stating how and      *
+* when you changed that file, and provided that you do at least ONE of the     *
+* following:                                                                   *
 *                                                                              *
-* "Modified Version" means the Package, if it has been changed, and such       *
-* changes were not explicitly requested by the Copyright Holder.               *
+*    a) place your modifications in the Public Domain or otherwise make them   *
+*    Freely Available, such as by posting said modifications to Usenet or      *
+*    an equivalent medium, or placing the modifications on a major archive     *
+*    site such as uunet.uu.net, or by allowing the Copyright Holder to include *
+*    your modifications in the Standard Version of the Package.                *
 *                                                                              *
-* "Original License" means this Artistic License as Distributed with the       *
-* Standard Version of the Package, in its current version or as it may be      *
-* modified by The Perl Foundation in the future.                               *
+*    b) use the modified Package only within your corporation or organization. *
 *                                                                              *
-* "Source" form means the source code, documentation source, and configuration *
-* files for the Package.                                                       *
+*    c) rename any non-standard executables so the names do not conflict       *
+*    with standard executables, which must also be provided, and provide       *
+*    a separate manual page for each non-standard executable that clearly      *
+*    documents how it differs from the Standard Version.                       *
 *                                                                              *
-* "Compiled" form means the compiled bytecode, object code, binary, or any     *
-* other form resulting from mechanical transformation or translation of the    *
-* Source form.                                                                 *
-* Permission for Use and Modification Without Distribution                     *
+*    d) make other distribution arrangements with the Copyright Holder.        *
 *                                                                              *
-* (1) You are permitted to use the Standard Version and create and use         *
-* Modified Versions for any purpose without restriction, provided that you do  *
-* not Distribute the Modified Version.                                         *
-* Permissions for Redistribution of the Standard Version                       *
+* 4. You may distribute the programs of this Package in object code or         *
+* executable form, provided that you do at least ONE of the following:         *
 *                                                                              *
-* (2) You may Distribute verbatim copies of the Source form of the Standard    *
-* Version of this Package in any medium without restriction, either gratis or  *
-* for a Distributor Fee, provided that you duplicate all of the original       *
-* copyright notices and associated disclaimers. At your discretion, such       *
-* verbatim copies may or may not include a Compiled form of the Package.       *
+*    a) distribute a Standard Version of the executables and library files,    *
+*    together with instructions (in the manual page or equivalent) on where    *
+*    to get the Standard Version.                                              *
 *                                                                              *
-* (3) You may apply any bug fixes, portability changes, and other              *
-* modifications made available from the Copyright Holder. The resulting        *
-* Package will still be considered the Standard Version, and as such will be   *
-* subject to the Original License.                                             *
-* Distribution of Modified Versions of the Package as Source                   *
+*    b) accompany the distribution with the machine-readable source of         *
+*    the Package with your modifications.                                      *
 *                                                                              *
-* (4) You may Distribute your Modified Version as Source (either gratis or for *
-* a Distributor Fee, and with or without a Compiled form of the Modified       *
-* Version) provided that you clearly document how it differs from the Standard *
-* Version, including, but not limited to, documenting any non-standard         *
-* features, executables, or modules, and provided that you do at least ONE of  *
-* the following:                                                               *
+*    c) give non-standard executables non-standard names, and clearly          *
+*    document the differences in manual pages (or equivalent), together        *
+*    with instructions on where to get the Standard Version.                   *
 *                                                                              *
-* (a) make the Modified Version available to the Copyright Holder of the       *
-* Standard Version, under the Original License, so that the Copyright Holder   *
-* may include your modifications in the Standard Version.                      *
-* (b) ensure that installation of your Modified Version does not prevent the   *
-* user installing or running the Standard Version. In addition, the Modified   *
-* Version must bear a name that is different from the name of the Standard     *
-* Version.                                                                     *
-* (c) allow anyone who receives a copy of the Modified Version to make the     *
-* Source form of the Modified Version available to others under                *
-* (i) the Original License or                                                  *
-* (ii) a license that permits the licensee to freely copy, modify and          *
-* redistribute the Modified Version using the same licensing terms that apply  *
-* to the copy that the licensee received, and requires that the Source form of *
-* the Modified Version, and of any works derived from it, be made freely       *
-* available in that license fees are prohibited but Distributor Fees are       *
-* allowed.                                                                     *
-* Distribution of Compiled Forms of the Standard Version or Modified Versions  *
-* without the Source                                                           *
+*    d) make other distribution arrangements with the Copyright Holder.        *
 *                                                                              *
-* (5) You may Distribute Compiled forms of the Standard Version without the    *
-* Source, provided that you include complete instructions on how to get the    *
-* Source of the Standard Version. Such instructions must be valid at the time  *
-* of your distribution. If these instructions, at any time while you are       *
-* carrying out such distribution, become invalid, you must provide new         *
-* instructions on demand or cease further distribution. If you provide valid   *
-* instructions or cease distribution within thirty days after you become aware *
-* that the instructions are invalid, then you do not forfeit any of your       *
-* rights under this license.                                                   *
+* 5. You may charge a reasonable copying fee for any distribution of this      *
+* Package.  You may charge any fee you choose for support of this              *
+* Package.  You may not charge a fee for this Package itself.  However,        *
+* you may distribute this Package in aggregate with other (possibly            *
+* commercial) programs as part of a larger (possibly commercial) software      *
+* distribution provided that you do not advertise this Package as a            *
+* product of your own.  You may embed this Package's interpreter within        *
+* an executable of yours (by linking); this shall be construed as a mere       *
+* form of aggregation, provided that the complete Standard Version of the      *
+* interpreter is so embedded.                                                  *
 *                                                                              *
-* (6) You may Distribute a Modified Version in Compiled form without the       *
-* Source, provided that you comply with Section 4 with respect to the Source   *
-* of the Modified Version.                                                     *
-* Aggregating or Linking the Package                                           *
+* 6. The scripts and library files supplied as input to or produced as         *
+* output from the programs of this Package do not automatically fall           *
+* under the copyright of this Package, but belong to whoever generated         *
+* them, and may be sold commercially, and may be aggregated with this          *
+* Package.  If such scripts or library files are aggregated with this          *
+* Package via the so-called "undump" or "unexec" methods of producing a        *
+* binary executable image, then distribution of such an image shall            *
+* neither be construed as a distribution of this Package nor shall it          *
+* fall under the restrictions of Paragraphs 3 and 4, provided that you do      *
+* not represent such an executable image as a Standard Version of this         *
+* Package.                                                                     *
 *                                                                              *
-* (7) You may aggregate the Package (either the Standard Version or Modified   *
-* Version) with other packages and Distribute the resulting aggregation        *
-* provided that you do not charge a licensing fee for the Package. Distributor *
-* Fees are permitted, and licensing fees for other components in the           *
-* aggregation are permitted. The terms of this license apply to the use and    *
-* Distribution of the Standard or Modified Versions as included in the         *
-* aggregation.                                                                 *
+* 7. C subroutines (or comparably compiled subroutines in other                *
+* languages) supplied by you and linked into this Package in order to          *
+* emulate subroutines and variables of the language defined by this            *
+* Package shall not be considered part of this Package, but are the            *
+* equivalent of input as in Paragraph 6, provided these subroutines do         *
+* not change the language in any way that would cause it to fail the           *
+* regression tests for the language.                                           *
 *                                                                              *
-* (8) You are permitted to link Modified and Standard Versions with other      *
-* works, to embed the Package in a larger work of your own, or to build        *
-* stand-alone binary or bytecode versions of applications that include the     *
-* Package, and Distribute the result without restriction, provided the result  *
-* does not expose a direct interface to the Package.                           *
-* Items That are Not Considered Part of a Modified Version                     *
+* 8. Aggregation of this Package with a commercial distribution is always      *
+* permitted provided that the use of this Package is embedded; that is,        *
+* when no overt attempt is made to make this Package's interfaces visible      *
+* to the end user of the commercial distribution.  Such use shall not be       *
+* construed as a distribution of this Package.                                 *
 *                                                                              *
-* (9) Works (including, but not limited to, modules and scripts) that merely   *
-* extend or make use of the Package, do not, by themselves, cause the Package  *
-* to be a Modified Version. In addition, such works are not considered parts   *
-* of the Package itself, and are not subject to the terms of this license.     *
-* General Provisions                                                           *
+* 9. The name of the Copyright Holder may not be used to endorse or promote    *
+* products derived from this software without specific prior written           *
+* permission.                                                                  *
 *                                                                              *
-* (10) Any use, modification, and distribution of the Standard or Modified     *
-* Versions is governed by this Artistic License. By using, modifying or        *
-* distributing the Package, you accept this license. Do not use, modify, or    *
-* distribute the Package, if you do not accept this license.                   *
-*                                                                              *
-* (11) If your Modified Version has been derived from a Modified Version made  *
-* by someone other than you, you are nevertheless required to ensure that your *
-* Modified Version complies with the requirements of this license.             *
-*                                                                              *
-* (12) This license does not grant you the right to use any trademark, service *
-* mark, tradename, or logo of the Copyright Holder.                            *
-*                                                                              *
-* (13) This license includes the non-exclusive, worldwide, free-of-charge      *
-* patent license to make, have made, use, offer to sell, sell, import and      *
-* otherwise transfer the Package with respect to any patent claims licensable  *
-* by the Copyright Holder that are necessarily infringed by the Package. If    *
-* you institute patent litigation (including a cross-claim or counterclaim)    *
-* against any party alleging that the Package constitutes direct or            *
-* contributory patent infringement, then this Artistic License to you shall    *
-* terminate on the date that such litigation is filed.                         *
-*                                                                              *
-* (14) Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER *
-* AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES. THE  *
-* IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR  *
-* NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW.   *
-* UNLESS REQUIRED BY LAW, NO COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE    *
-* FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN    *
-* ANY WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF *
-* SUCH DAMAGE.                                                                 *
+* 10. THIS PACKAGE IS PROVIDED "AS IS" AND WITHOUT ANY EXPRESS OR              *
+* IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED               *
+* WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.          *
 *                                                                              *
 *         The End                                                              *
 *                                                                              *
@@ -266,6 +224,7 @@ double cumulative_normal_upper_dsigma(double high,double mu,double sigma) {
 // it is used to parse in the parameters of continues variables from the input file
 density_integral parse_density_integral_string(char *input, char *variablename) {
   density_integral result;
+  double sigma;
   int i;
   char garbage[64], s1[64],s2[64],s3[64],s4[64];
 
@@ -275,21 +234,18 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     exit(EXIT_FAILURE);
   }
 
-  if (IsRealNumber(s1)) {
-    result.mu=atof(s1);
-  } else {
+  if (!getRealNumber(s1, &result.mu)) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
   }
 
-  if (IsRealNumber(s2)) {
-    result.log_sigma=atof(s2);
-  } else {
+  if (!getRealNumber(s2, &sigma) || sigma<=0.0) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s2);
     exit(EXIT_FAILURE);
   }
+  result.log_sigma=log(sigma);
 
 /*  if (result.sigma<=0) { */
 /*     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string",input); */
@@ -322,17 +278,13 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     }
   }
 
-  if (IsRealNumber(s3)) {
-    result.low=atof(s3);
-  } else {
+  if (!getRealNumber(s3, &result.low)) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
   }
 
- if (IsRealNumber(s4)) {
-    result.high=atof(s4);
-  } else {
+ if (!getRealNumber(s4, &result.high)) {
     fprintf(stderr, "Error ar parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
@@ -349,6 +301,6 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     exit(EXIT_FAILURE);
   }
 
-
+  
   return result;
 }

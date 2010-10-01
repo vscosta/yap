@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-29 18:43:14 +0200 (Wed, 29 Sep 2010) $
-%  $Revision: 4854 $
+%  $Date: 2010-09-30 16:15:04 +0200 (Thu, 30 Sep 2010) $
+%  $Revision: 4864 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -206,7 +206,8 @@
 
 
 :- module(learning,[do_learning/1,
-	            do_learning/2
+	            do_learning/2,
+		    reset_learning/0
 		    ]).
 
 % switch on all the checks to reduce bug searching time
@@ -233,6 +234,9 @@
 :- dynamic(query_probability_intern/2).
 :- dynamic(query_gradient_intern/4).
 :- dynamic(last_mse/1).
+:- dynamic(query_is_similar/2).
+:- dynamic(query_md5/2).
+
 
 % used to identify queries which have identical proofs
 :- dynamic(query_is_similar/2).
@@ -409,6 +413,27 @@ check_examples :-
 	  throw(error(examples))
 	 ); true
 	).
+%========================================================================
+%= 
+%========================================================================
+
+reset_learning :-
+	retractall(current_iteration(_)),
+	retractall(learning_initialized),
+
+	retractall(values_correct),
+	retractall(current_iteration(_)),
+	retractall(example_count(_)),
+	retractall(query_probability_intern(_,_)),
+	retractall(query_gradient_intern(_,_,_)),
+	retractall(last_mse(_)),
+	retractall(query_is_similar(_,_)),
+	retractall(query_md5(_,_,_)),
+
+	set_problog_flag(alpha,auto),
+	set_problog_flag(learning_rate,examples),
+	logger_reset_all_variables.
+
 
 
 %========================================================================
@@ -763,9 +788,7 @@ update_values :-
 
  	(			% go over all continuous facts
  	 get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
- 	 %SigmaL is log(Sigma),
-				SigmaL=Sigma,
- 	 format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,SigmaL]),
+ 	 format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma]),
  
  	 fail;			% go to next continuous fact
  	 true

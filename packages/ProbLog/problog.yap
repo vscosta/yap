@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-29 13:03:26 +0200 (Wed, 29 Sep 2010) $
-%  $Revision: 4843 $
+%  $Date: 2010-09-30 14:48:30 +0200 (Thu, 30 Sep 2010) $
+%  $Revision: 4859 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -313,6 +313,7 @@
 % problog related modules
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
+:- use_module('problog/gflags', [flag_store/2]).
 :- use_module('problog/flags').
 :- use_module('problog/print').
 :- use_module('problog/os').
@@ -2208,16 +2209,27 @@ problog_max_id(Goal, Prob, Clauses) :-
 % version with _save at the end  renames files for problogbdd to keep them
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 problog_kbest_save(Goal, K, Prob, Status, BDDFile, ParamFile) :-
-	problog_kbest(Goal, K, Prob, Status),
-	( Status=ok ->
-	    problog_flag(bdd_file,InternBDDFlag),
-	    problog_flag(bdd_par_file,InternParFlag),
-	    convert_filename_to_working_path(InternBDDFlag, InternBDD),
-	    convert_filename_to_working_path(InternParFlag, InternPar),
-	    rename_file(InternBDD,BDDFile),
-	    rename_file(InternPar,ParamFile)
-	;
-	true).
+  problog_flag(dir, InternWorkingDir),
+  problog_flag(bdd_file, InternBDDFlag),
+  problog_flag(bdd_par_file, InternParFlag),
+  split_path_file(BDDFile, WorkingDir, BDDFileName),
+  split_path_file(ParamFile, _WorkingDir, ParamFileName),
+  flag_store(dir, WorkingDir),
+  flag_store(bdd_file, BDDFileName),
+  flag_store(bdd_par_file, ParamFileName),
+  problog_kbest(Goal, K, Prob, Status),
+  flag_store(dir, InternWorkingDir),
+  flag_store(bdd_file, InternBDDFlag),
+  flag_store(bdd_par_file, InternParFlag).
+% 	( Status=ok ->
+% 	    problog_flag(bdd_file,InternBDDFlag),
+% 	    problog_flag(bdd_par_file,InternParFlag),
+% 	    convert_filename_to_working_path(InternBDDFlag, InternBDD),
+% 	    convert_filename_to_working_path(InternParFlag, InternPar),
+% 	    rename_file(InternBDD,BDDFile),
+% 	    rename_file(InternPar,ParamFile)
+% 	;
+% 	true).
 
 problog_kbest(Goal, K, Prob, Status) :-
 	problog_flag(first_threshold,InitT),
@@ -2357,23 +2369,34 @@ problog_exact(Goal,Prob,Status) :-
 	problog_control(off, exact).
 
 problog_exact_save(Goal,Prob,Status,BDDFile,ParamFile) :-
-	problog_control(on, exact),
+  problog_flag(dir, InternWorkingDir),
+  problog_flag(bdd_file, InternBDDFlag),
+  problog_flag(bdd_par_file, InternParFlag),
+  split_path_file(BDDFile, WorkingDir, BDDFileName),
+  split_path_file(ParamFile, _WorkingDir, ParamFileName),
+  flag_store(dir, WorkingDir),
+  flag_store(bdd_file, BDDFileName),
+  flag_store(bdd_par_file, ParamFileName),
+  problog_control(on, exact),
 	problog_low(Goal,0,Prob,Status),
 	problog_control(off, exact),
-	(
-	 Status==ok
-	->
-	 (
-	  problog_flag(bdd_file,InternBDDFlag),
-	  problog_flag(bdd_par_file,InternParFlag),
-	  problog_flag(dir,DirFlag),
-	  atomic_concat([DirFlag,InternBDDFlag],InternBDD),
-	  atomic_concat([DirFlag,InternParFlag],InternPar),
-	  rename_file(InternBDD,BDDFile),
-	  rename_file(InternPar,ParamFile)
-	 );
-	 true
-	).
+  flag_store(dir, InternWorkingDir),
+  flag_store(bdd_file, InternBDDFlag),
+  flag_store(bdd_par_file, InternParFlag).
+% 	(
+% 	 Status==ok
+% 	->
+% 	 (
+% 	  problog_flag(bdd_file,InternBDDFlag),
+% 	  problog_flag(bdd_par_file,InternParFlag),
+% 	  problog_flag(dir,DirFlag),
+% 	  atomic_concat([DirFlag,InternBDDFlag],InternBDD),
+% 	  atomic_concat([DirFlag,InternParFlag],InternPar),
+% 	  rename_file(InternBDD,BDDFile),
+% 	  rename_file(InternPar,ParamFile)
+% 	 );
+% 	 true
+% 	).
 
 problog_collect_trie(Goal):-
 	problog_call(Goal),
