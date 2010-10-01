@@ -188,12 +188,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <limits.h>
 
 #define IsNumberDigit(c)       ('0' <= c && c <= '9')
 #define IsSignDigit(c)         (c == '+' || c == '-')
 #define isOperator(x)          (x == '+' || x == '*' || x == '#' || x == '=')
 #define freadline(fd)          freadstr(fd, "\n");
 
+int getRealNumber(char *c, double *number);
+int getIntNumber(char *c, int *number);
+inline int getPosNumber(char *c, int *number);
 int IsRealNumber(char *c);
 int IsPosNumber(const char *c);
 int IsNumber(const char *c);

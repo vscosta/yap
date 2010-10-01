@@ -189,6 +189,25 @@
 
 /* Number Handling */
 
+int getRealNumber(char *c, double *number) {
+  char *unparsed_string;
+  errno = 0;
+  *number = strtod(c, &unparsed_string);
+  return !(errno == ERANGE || unparsed_string == c || *unparsed_string != '\0');
+}
+
+int getIntNumber(char *c, int *number) {
+  char *unparsed_string;
+  errno = 0;
+  long int numberl = strtol(c, &unparsed_string, 10);
+  *number = (int) numberl;
+  return !(errno == ERANGE || unparsed_string == c || *unparsed_string != '\0' || numberl > INT_MAX || numberl < INT_MIN);
+}
+
+inline int getPosNumber(char *c, int *number) {
+  return (getIntNumber(c, number) && *number >= 0);
+}
+
 int IsRealNumber(char *c) {
   int i, l;
   l = strlen(c);

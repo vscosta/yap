@@ -6,7 +6,7 @@
 *  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
 *  Author: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann              *
-*  File: ProblogBDD.c                                                          *
+*  File: problogbdd.c                                                          *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -1451,8 +1451,7 @@ int LoadVariableDataForForest(namedvars varmap, char *filename) {
         if (hasvar >= 0) {
           switch(idat) {
             case 0:
-              if (IsRealNumber(dataread)) dvalue = atof(dataread);
-              else {
+              if (!getRealNumber(dataread, &dvalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non real value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -1462,8 +1461,7 @@ int LoadVariableDataForForest(namedvars varmap, char *filename) {
               idat++;
               break;
             case 1:
-              if (IsNumber(dataread)) ivalue = atoi(dataread);
-              else {
+              if (!getIntNumber(dataread, &ivalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non integer value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -1675,9 +1673,8 @@ parameters loadparam(int argc, char **arg) {
         }
         break;
       case 10:
-        if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
+        if ((argc > i + 1) && (getRealNumber(arg[i + 1], & params.sigmoid_slope))) {
           i++;
-          params.sigmoid_slope = atof(arg[i]);
         } else {
           params.error[params.errorcnt] = i;
           params.errorcnt++;
