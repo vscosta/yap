@@ -3,6 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog program describing a probabilistic graph using tabling
 % (running example from ProbLog presentations)
+% $Id: graph_tabled.pl 4875 2010-10-05 15:28:35Z theo $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module('../problog').

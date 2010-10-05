@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-30 16:05:52 +0200 (Thu, 30 Sep 2010) $
-%  $Revision: 4863 $
+%  $Date: 2010-10-05 18:15:57 +0200 (Tue, 05 Oct 2010) $
+%  $Revision: 4876 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -208,12 +208,13 @@
 % Collected OS depended instructions
 %%%%%%%%
 :- module(os, [set_problog_path/1,
-	       problog_path/1,
-	       convert_filename_to_working_path/2,
-	       convert_filename_to_problog_path/2,
-	       concat_path_with_filename/3,
-        split_path_file/3, 
-	       calc_md5/2]).
+               problog_path/1,
+               convert_filename_to_working_path/2,
+               convert_filename_to_problog_path/2,
+               concat_path_with_filename/3,
+               split_path_file/3,
+               check_existance/1,
+               calc_md5/2]).
 
 
 % load library modules
@@ -316,3 +317,11 @@ split_path_file(PathFile, Path, File):-
 	\+ memberchk(PathSeperatorName, FileName),
 	!.
 %	(Path = '' ; atomic_concat(_, PathSeperator, Path)).
+
+check_existance(FileName):-
+  convert_filename_to_problog_path(FileName, Path),
+  catch(file_exists(Path), _, fail).
+check_existance(FileName):-
+  problog_path(PD),
+  write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
+  write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
