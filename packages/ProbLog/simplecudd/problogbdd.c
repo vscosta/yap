@@ -7,6 +7,8 @@
 *                                                                              *
 *  Author: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann              *
 *  File: problogbdd.c                                                          *
+*  $Date:: 2010-10-06 13:22:55 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4881                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
