@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-05 18:15:57 +0200 (Tue, 05 Oct 2010) $
-%  $Revision: 4876 $
+%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
+%  $Revision: 4877 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -249,6 +249,7 @@
                     non_ground_fact/1,
                     export_facts/1,
                     problog_help/0,
+                    problog_version/0,
                     show_inference/0,
                     problog_dir/1,
                     set_problog_flag/2,
