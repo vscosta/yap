@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-05 18:15:57 +0200 (Tue, 05 Oct 2010) $
-%  $Revision: 4876 $
+%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
+%  $Revision: 4877 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -212,6 +212,7 @@
                convert_filename_to_working_path/2,
                convert_filename_to_problog_path/2,
                concat_path_with_filename/3,
+               concat_path_with_filename2/3,
                split_path_file/3,
                check_existance/1,
                calc_md5/2]).
@@ -247,6 +248,13 @@ concat_path_with_filename(Path, File_Name, Result):-
   prolog_file_name(Path,Path_Absolute),
 
   path_seperator(Path_Seperator),
+  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+
+concat_path_with_filename2(Path, File_Name, Result):-
+  nonvar(File_Name),
+  nonvar(Path),
+  path_seperator(Path_Seperator),
+  (atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
   atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
 %========================================================================

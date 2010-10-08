@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
+%  $Revision: 4877 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -328,8 +328,9 @@ problog_table(Name/Arity, Module) :-
   atom_concat(['problog_', Name, '_tabled'], ExactName),
 
   % Monte carlo tabling
-  table(Module:MCName/Arity),
-  assertz(problog_tabled(Module:Name/Arity)),
+  catch((table(Module:MCName/Arity),
+         assertz(problog_tabled(Module:Name/Arity))), _,
+        (format(user_error, 'Warning: Tabling was not enabled over compilation, montecarlo tabling is disabled!~nPredicate: ~q~n', [Module:MCName/Arity]))),
 
   findall(_,(
     OriginalPred =.. [OriginalName|Args],

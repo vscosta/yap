@@ -7,6 +7,8 @@
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: simplecudd.c                                                          *
+*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4880                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -1710,7 +1712,16 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
         switch(inputline[1]) {
           case '?':
             printf("Available instructions:\n\t@c : current node\n\t@n,[BFS, DFS] : expand and go to next node\n\t@t,[BFS, DFS] : throw and go to next node\n");
-            printf("\t@h : high node of current\n\t@l : low node of current\n\t@v,[variable] : variable values\n\t@e terminates\n");
+            printf("\t@h : high node of current\n\t@l : low node of current\n\t@v,[variable] : variable values\n\t@r restart traverse from parent node\n\t@e terminates\n");
+            break;
+          case 'r':
+            curnode = bdd;
+            iQsize = 0;
+            iRoot = 1;
+            free(Q);
+            Q = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
+            Q2 = NULL;
+            ReInitHistory(his, varmap.varcnt);
             break;
           case 'c':
             if (iRoot) {

@@ -7,6 +7,8 @@
 *                                                                              *
 *  Author: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann              *
 *  File: problogbdd.c                                                          *
+*  $Date:: 2010-10-06 18:06:08 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4883                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -345,6 +347,7 @@ int main(int argc, char **arg) {
     MyManager.f = LOW(MyManager.manager);
     MyManager.varmap = InitNamedVars(1, 0);
     bdd = OnlineGenerateBDD(MyManager.manager, &MyManager.varmap);
+    bakbdd = bdd;
     ivarcnt = GetVarCount(MyManager.manager);
   } else if(params.independent_forest>0){
 	  // the flag to create a forest of independent bdds is set
