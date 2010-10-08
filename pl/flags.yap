@@ -938,8 +938,8 @@ yap_flag(dialect,yap).
 '$transl_to_arity'(X1,X) :- X1 < 0, !, X = unbounded.
 '$transl_to_arity'(X,X).
 
-'$transl_to_rounding_function'(0,down).
-'$transl_to_rounding_function'(1,toward_zero).
+'$transl_to_rounding_function'(0,toward_zero).
+'$transl_to_rounding_function'(1,down).
 
 '$transl_to_trl_types'(0,chars).
 '$transl_to_trl_types'(1,codes).
