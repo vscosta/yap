@@ -6,7 +6,9 @@
 *  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
 *  Author: Theofrastos Mantadelis, Angelika Kimmig, Bernd Gutmann              *
-*  File: ProblogBDD.c                                                          *
+*  File: problogbdd.c                                                          *
+*  $Date:: 2010-10-06 18:06:08 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4883                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -345,6 +347,7 @@ int main(int argc, char **arg) {
     MyManager.f = LOW(MyManager.manager);
     MyManager.varmap = InitNamedVars(1, 0);
     bdd = OnlineGenerateBDD(MyManager.manager, &MyManager.varmap);
+    bakbdd = bdd;
     ivarcnt = GetVarCount(MyManager.manager);
   } else if(params.independent_forest>0){
 	  // the flag to create a forest of independent bdds is set
@@ -1451,8 +1454,7 @@ int LoadVariableDataForForest(namedvars varmap, char *filename) {
         if (hasvar >= 0) {
           switch(idat) {
             case 0:
-              if (IsRealNumber(dataread)) dvalue = atof(dataread);
-              else {
+              if (!getRealNumber(dataread, &dvalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non real value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -1462,8 +1464,7 @@ int LoadVariableDataForForest(namedvars varmap, char *filename) {
               idat++;
               break;
             case 1:
-              if (IsNumber(dataread)) ivalue = atoi(dataread);
-              else {
+              if (!getIntNumber(dataread, &ivalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non integer value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -1675,9 +1676,8 @@ parameters loadparam(int argc, char **arg) {
         }
         break;
       case 10:
-        if ((argc > i + 1) && (IsRealNumber(arg[i + 1]))) {
+        if ((argc > i + 1) && (getRealNumber(arg[i + 1], & params.sigmoid_slope))) {
           i++;
-          params.sigmoid_slope = atof(arg[i]);
         } else {
           params.error[params.errorcnt] = i;
           params.errorcnt++;

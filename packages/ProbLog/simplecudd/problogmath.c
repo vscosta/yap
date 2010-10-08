@@ -5,11 +5,10 @@
 *                                                                              *
 *  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
 *                                                                              *
-*  Author:       Bernd Gutmann                                                 *
-*  File:         problogmath.c                                                 *
-*  $Date:: 2010-08-25 15:23:30 +0200 (Wed, 25 Aug 2010)           $            *
-*  $Revision:: 4683                                               $            *
-*                                                                              *
+*  Author: Bernd Gutmann                                                       *
+*  File: problogmath.c                                                         *
+*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4880                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -266,6 +265,7 @@ double cumulative_normal_upper_dsigma(double high,double mu,double sigma) {
 // it is used to parse in the parameters of continues variables from the input file
 density_integral parse_density_integral_string(char *input, char *variablename) {
   density_integral result;
+  double sigma;
   int i;
   char garbage[64], s1[64],s2[64],s3[64],s4[64];
 
@@ -275,21 +275,18 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     exit(EXIT_FAILURE);
   }
 
-  if (IsRealNumber(s1)) {
-    result.mu=atof(s1);
-  } else {
+  if (!getRealNumber(s1, &result.mu)) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
   }
 
-  if (IsRealNumber(s2)) {
-    result.log_sigma=atof(s2);
-  } else {
+  if (!getRealNumber(s2, &sigma) || sigma<=0.0) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s2);
     exit(EXIT_FAILURE);
   }
+  result.log_sigma=log(sigma);
 
 /*  if (result.sigma<=0) { */
 /*     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string",input); */
@@ -322,17 +319,13 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     }
   }
 
-  if (IsRealNumber(s3)) {
-    result.low=atof(s3);
-  } else {
+  if (!getRealNumber(s3, &result.low)) {
     fprintf(stderr, "Error at parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
   }
 
- if (IsRealNumber(s4)) {
-    result.high=atof(s4);
-  } else {
+ if (!getRealNumber(s4, &result.high)) {
     fprintf(stderr, "Error ar parsing the string %s in the function parse_density_integral_string\n",input);
     fprintf(stderr, "%s is not a number\n",s1);
     exit(EXIT_FAILURE);
@@ -349,6 +342,6 @@ density_integral parse_density_integral_string(char *input, char *variablename) 
     exit(EXIT_FAILURE);
   }
 
-
+  
   return result;
 }

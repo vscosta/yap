@@ -2651,7 +2651,7 @@ Note also that you can use chains of commit operators like:
 Note that @code{(->)/2} does not affect the scope of cuts in its
 arguments.
 
-@item  +@var{Conditon} *-> +@var{Action} ; +@var{Else}
+@item  +@var{Condition} *-> +@var{Action} ; +@var{Else}
 @findex ->*/2
 @snindex ->*/2
 @cnindex ->*/2
@@ -3593,13 +3593,13 @@ the call.
 @item    digit
         @var{Char} is a digit.
 
-@item    digit(@var{Weigth})
+@item    digit(@var{Weight})
         @var{Char} is a digit with value
-        @var{Weigth}. I.e. @code{char_type(X, digit(6))} yields @code{X =
+        @var{Weight}. I.e. @code{char_type(X, digit(6))} yields @code{X =
         '6'}. Useful for parsing numbers.
 
-@item    xdigit(@var{Weigth})
-        @var{Char} is a hexa-decimal digit with value @var{Weigth}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
+@item    xdigit(@var{Weight})
+        @var{Char} is a hexa-decimal digit with value @var{Weight}. I.e. char_type(a, xdigit(X) yields X = '10'. Useful for parsing numbers.
 
 @item    graph
         @var{Char} produces a visible mark on a page when printed. Note that the space is not included!
@@ -3816,7 +3816,7 @@ of length @var{S}.
 @node Arithmetic, I/O, Comparing Terms, Top
 @section Arithmetic
 
-YAP now supposets several different numeric types:
+YAP now supports several different numeric types:
 
 @table @code
 @item integers
@@ -4712,9 +4712,9 @@ Unify @var{LinePosition} with the position on current text stream
 @cnindex stream_position/2
 Unify @var{StreamPosition} with the packaged information of position on
 current stream @var{Stream}. Use @code{stream_position_data/3} to
-retrieve information on charater or line count.
+retrieve information on character or line count.
 
-@item stream_position_data(+@var{Field},+@var{StreamPsition},-@var{Info})
+@item stream_position_data(+@var{Field},+@var{StreamPosition},-@var{Info})
 @findex stream_position_data/3
 @syindex stream_position_data/3
 @cnindex stream_position_data/3
@@ -8036,7 +8036,7 @@ profiling information. Profiling data can be read through the
 
 @item  prompt_alternatives_on(atom, changeable)
 @findex  prompt_alternatives_on  (yap_flag/2 option)
-SWI-Compatible opttion, determines prompting for alternatives in the Prolog toplevel. Default is @t{groundness}, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is @t{determinism} which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
+SWI-Compatible option, determines prompting for alternatives in the Prolog toplevel. Default is @t{groundness}, YAP prompts for alternatives if and only if the query contains variables. The alternative, default in SWI-Prolog is @t{determinism} which implies the system prompts for alternatives if the goal succeeded while leaving choicepoints.
 
 
 @item redefine_warnings
@@ -8620,7 +8620,7 @@ The predicates are:
     No
 @end example
 
-    Notice that @var{Goal} is copied repeatetly, which may cause
+    Notice that @var{Goal} is copied repeatedly, which may cause
     problems if attributed variables are involved.
 
 @item [det]free_variables(:Generator, +@var{Template}, +VarList0, -VarList)
@@ -9169,7 +9169,7 @@ need not be ordered.
 
 This package provides a set of useful predicates to manipulate
 sequences of characters codes, usually first read in as a line. It is
-avalailable by loading the library @code{library(lineutils)}.
+available by loading the library @code{library(lineutils)}.
 
 @table @code
 

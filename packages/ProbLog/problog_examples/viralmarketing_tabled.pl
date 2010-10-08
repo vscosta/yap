@@ -1,5 +1,11 @@
 %%% -*- Mode: Prolog; -*-
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ProbLog program describing a viral marketing problem
+% example for using tabled decision theory ProbLog
+% $Id: viralmarketing_tabled.pl 4875 2010-10-05 15:28:35Z theo $
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 % The viral marketing example consists of a social network of friend relations. You have to decido which persons to market. Sending marketing has a cost of 2, but might cause people to buy your product, giving you a profit of 5. When someone buys the product, it becomes more likely that his friends also buy the product.
 
 :- use_module('../dtproblog').

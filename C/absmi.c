@@ -1677,7 +1677,8 @@ Yap_absmi(int inp)
       /* ensure_space                   */
       BOp(ensure_space, Osbpi);
       {
-	Int sz =  PREG->u.Osbpi.i;   
+	Int sz =  PREG->u.Osbpi.i; 
+	UInt arity = PREG->u.Osbpi.p->ArityOfPE;
 	PREG = NEXTOP(PREG,Osbpi);
 	if (Unsigned(H) + sz > Unsigned(YREG)-CreepFlag) {
 	  YENV[E_CP] = (CELL) CPREG;
@@ -1689,7 +1690,7 @@ Yap_absmi(int inp)
 	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	    ASP = (CELL *)PROTECT_FROZEN_B(B);
 	  saveregs();
-	  if (!Yap_gcl(sz, PREG->u.Osbpi.p->ArityOfPE, YENV, PREG)) {
+	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	    setregs();
 	    FAIL();

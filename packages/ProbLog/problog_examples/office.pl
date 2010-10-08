@@ -2,12 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog program describing an office window
-% 
 % example for using hybrid ProbLog
-%
-% query ?- problog_exact(room_has_window, Prob, Status).
-% Prob = 0.008527075,
-% Status = ok ?
+% $Id: office.pl 4876 2010-10-05 16:15:57Z theo $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module('../problog').
@@ -25,3 +21,8 @@ room_has_window:-
 room_has_window:-
 	in_corridor,corridor_has_window.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% query ?- problog_exact(room_has_window, Prob, Status).
+% Prob = 0.01517076,
+% Status = ok ?
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

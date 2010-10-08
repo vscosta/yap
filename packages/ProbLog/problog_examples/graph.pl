@@ -3,6 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog program describing a probabilistic graph
 % (running example from ProbLog presentations)
+% $Id: graph.pl 4875 2010-10-05 15:28:35Z theo $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module('../problog').

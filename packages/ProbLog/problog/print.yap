@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
+%  $Revision: 4877 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -222,14 +222,18 @@
                   show_inference/0,
                   problog_flags/0,
                   problog_flags/1,
-                  problog_help/0]).
+                  problog_help/0,
+                  problog_version/0]).
 
 % load library modules
 :- use_module(library(lists), [member/2]).
+:- use_module(library(system), [directory_files/2]).
 
 % load our own modules
 :- use_module(flags).
 :- use_module(variables).
+:- use_module(os, [check_existance/1, convert_filename_to_problog_path/2, concat_path_with_filename2/3]).
+:- use_module(version_control, [get_version/3]).
 
 
 % size, line_char, line_char_bold
@@ -299,7 +303,7 @@ problog_help :-
   format('~2nProbLog inference currently offers the following inference methods:~n',[]),
   show_inference,
   problog:problog_path(PD),
-  format('~nProblog directory: ~q~n',[PD]),
+  format('~nProbLog directory: ~q~n',[PD]),
   format('~nThe following global parameters are available:~n',[]),
   problog_flags,
   print_sep_line,
@@ -309,6 +313,35 @@ problog_help :-
   print_sep_line,
   nl,
   flush_output.
+
+problog_version :-
+  MainProblogFiles = ['problog.yap', 'problog_learning.yap', 'dtproblog.yap'],
+  nl,
+  print_group_line_bold('Version Information'),
+  print_version(MainProblogFiles, ''),
+  print_sep_line,
+  convert_filename_to_problog_path('problog', ProblogPath),
+  directory_files(ProblogPath, ProblogFiles),
+  sort(ProblogFiles, ProblogFilesS),
+  print_version(ProblogFilesS, 'problog'),
+  print_sep_line_bold.
+
+print_version([], _Path).
+print_version([H|T], Path):-
+  atom_concat(_, '.yap', H), !,
+  (Path == '' ->
+    FileName = H
+  ;
+    concat_path_with_filename2(Path, H, FileName)
+  ),
+  check_existance(FileName),
+  convert_filename_to_problog_path(FileName, FilePath),
+  get_version(FilePath, Version, Revision),
+  format('~w~35+ Last Modified at:~w~65+Revision:~w~n', [FileName, Version, Revision]),
+  print_version(T, Path).
+print_version([_H|T], Path):-
+  print_version(T, Path).
+
 
 show_inference :-
   format('~n',[]),

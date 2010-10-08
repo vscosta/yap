@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-09-30 13:50:45 +0200 (Thu, 30 Sep 2010) $
+%  $Revision: 4857 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -217,7 +217,8 @@
 		  logger_write_data/0,
 		  logger_write_header/0,
 		  logger_variable_is_set/1,
-		  logger_add_to_variable/2]).
+		  logger_add_to_variable/2,
+		  logger_reset_all_variables/0]).
 
 :- use_module(library(system),[datime/1,mktime/2]).
 :- use_module(library(lists),[append/3,member/2]).
@@ -480,9 +481,7 @@ logger_write_data :-
 	logger_write_data_intern(Variables,Handle),
 	close(Handle),
 
-	% reset variables
-	findall(_,(member((Name,_),Variables),atom_concat(logger_data_,Name,Key),bb_put(Key,null)),_),
-	findall(_,(member((Name,time),Variables),atom_concat(logger_start_time_,Name,Key2),bb_put(Key2,null)),_).
+	logger_reset_all_variables.
 	
 logger_write_data_intern([],_).
 logger_write_data_intern([(Name,_Type)],Handle) :-
@@ -510,6 +509,21 @@ variablevalue_with_nullcheck(Name,Result) :-
 %= 
 %= 
 %========================================================================
+
+logger_reset_all_variables :-
+	bb_get(logger_variables,Variables),
+
+	% reset variables
+	findall(_,(member((Name,_),Variables),atom_concat(logger_data_,Name,Key),bb_put(Key,null)),_),
+	findall(_,(member((Name,time),Variables),atom_concat(logger_start_time_,Name,Key2),bb_put(Key2,null)),_).
+
+
+%========================================================================
+%= 
+%= 
+%= 
+%========================================================================
+
 
 logger_write_header :-
 	bb_get(logger_filename,FName),

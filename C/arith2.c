@@ -111,7 +111,7 @@ p_div2(Term t1, Term t2) {
       {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
-	Int res;
+	Int res, mod;
 
 	if (i2 == 0) goto zero_divisor;
 	if (i1 == Int_MIN && i2 == -1) {
@@ -122,7 +122,10 @@ p_div2(Term t1, Term t2) {
 		    "// /2 with %d and %d", i1, i2);
 #endif
 	}
-	res = (i1 - i1%i2) / i2;
+	mod = i1%i2;
+	if (mod && (mod ^ i2) < 0)
+	  mod += i2;
+	res = (i1 - mod) / i2;
 	RINT(res);
       }
     case (CELL)double_e:

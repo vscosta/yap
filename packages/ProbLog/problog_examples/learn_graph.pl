@@ -3,13 +3,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ProbLog program describing a probabilistic graph
 % (running example from ProbLog presentations)
-% 
+% $Id: learn_graph.pl 4875 2010-10-05 15:28:35Z theo $
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % example for parameter learning with LeProbLog
 %
 % training and test examples are included at the end of the file
-% 
-% query ?- do_learning(20). 
-% will run 20 iterations of learning with default settings 
+% query ?- do_learning(20).
+% will run 20 iterations of learning with default settings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- use_module('../problog').
@@ -23,10 +25,10 @@ path(X,Y) :- path(X,Y,[X],_).
 
 path(X,X,A,A).
 path(X,Y,A,R) :- 
-	X\==Y, 
-	edge(X,Z), 
-	absent(Z,A), 
-	path(Z,Y,[Z|A],R).
+  X\==Y, 
+  edge(X,Z), 
+  absent(Z,A), 
+  path(Z,Y,[Z|A],R).
 
 % using directed edges in both directions
 edge(X,Y) :- dir_edge(Y,X).

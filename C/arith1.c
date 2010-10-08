@@ -301,7 +301,7 @@ eval1(Int fi, Term t) {
       out = asin(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	return Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "asin(%f)", dbl);
       }
 #endif
       RFLOAT(out);
@@ -314,7 +314,7 @@ eval1(Int fi, Term t) {
       out = acos(dbl);
 #if HAVE_ISNAN
       if (isnan(out)) {
-	return Yap_ArithError(DOMAIN_ERROR_OUT_OF_RANGE, t, "atanh(%f)", dbl);
+	return Yap_ArithError(EVALUATION_ERROR_UNDEFINED, t, "acos(%f)", dbl);
       }
 #endif
       RFLOAT(out);

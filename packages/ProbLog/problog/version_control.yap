@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
-%  $Revision: 4877 $
+%  $Date: 2010-10-05 18:15:57 +0200 (Tue, 05 Oct 2010) $
+%  $Revision: 4876 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Theofrastos Mantadelis, Bernd Gutmann
+%  Theofrastos Mantadelis
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -204,132 +204,38 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%
-% Collected OS depended instructions
-%%%%%%%%
-:- module(os, [set_problog_path/1,
-               problog_path/1,
-               convert_filename_to_working_path/2,
-               convert_filename_to_problog_path/2,
-               concat_path_with_filename/3,
-               concat_path_with_filename2/3,
-               split_path_file/3,
-               check_existance/1,
-               calc_md5/2]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Figuring out the version of a problog file in a nasty way :-D
+% This way SVN does the work of keeping the file date
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- module(version_control, [get_version/3]).
 
-% load library modules
-:- use_module(library(system), [exec/3, file_exists/1]).
-:- use_module(library(lists), [memberchk/2]).
+:- use_module(library(lists), [append/3, reverse/2]).
 
-% load our own modules
-:- use_module(gflags, _, [flag_get/2]).
+get_version(FilePath, Version, Revision):-
+  open(FilePath, read, SI),
+  repeat,
+  get_line(SI, Line),
+  (append(_, ['D','a','t','e',':'|Date], Line) ; at_end_of_stream(SI)),
+  !,
+  repeat,
+  get_line(SI, NLine),
+  (append(_, ['R','e','v','i','s','i','o','n',':'|Revision1], NLine) ; at_end_of_stream(SI)),
+  !,
+  close(SI),
+  append(ReadDate,['$'|_],Date),
+  append(Revision2,['$'|_],Revision1),
+  atomic_concat(ReadDate, Version),
+  atomic_concat(Revision2, Revision).
 
-:- dynamic(problog_path/1).
-:- dynamic(problog_working_path/1).
-
-set_problog_path(Path):-
-	retractall(problog_path(_)),
-	assertz(problog_path(Path)).
-
-convert_filename_to_working_path(File_Name, Path):-
-	flag_get(dir, Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
-
-convert_filename_to_problog_path(File_Name, Path):-
-	problog_path(Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
-
-concat_path_with_filename(Path, File_Name, Result):-
-  nonvar(File_Name),
-  nonvar(Path),
-
-  % make sure, that there is no path delimiter at the end
-  prolog_file_name(Path,Path_Absolute),
-
-  path_seperator(Path_Seperator),
-  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
-
-concat_path_with_filename2(Path, File_Name, Result):-
-  nonvar(File_Name),
-  nonvar(Path),
-  path_seperator(Path_Seperator),
-  (atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
-  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
-
-%========================================================================
-%= Calculate the MD5 checksum of +Filename by calling md5sum
-%= in case m5sum is not installed, try md5, otherwise fail
-%= +Filename, -MD5
-%========================================================================
-
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	throw(md5error(calc_md5(Filename,MD5))).
-
-calc_md5_intern(Filename,Command,MD5) :-
-	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
-
-	atomic_concat([Command,' "',Filename,'"'],Call),  
-
-	% execute the md5 command
-	exec(Call,[null,pipe(S),null],_PID),
-	bb_put(calc_md5_temp,End-End),  % use difference list
-	bb_put(calc_md5_temp2,0),
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(	% read 32 Bytes from stdout of process
-		repeat,
-		get_code(S,C),
-
-		(
-		 C== -1
-		->
-		 (
-		  close(S),
-		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
-		 );
-		 true
-		),
-
-		bb_get(calc_md5_temp,List-[C|NewEnd]),
-		bb_put(calc_md5_temp,List-NewEnd),
-		bb_get(calc_md5_temp2,OldLength),
-		NewLength is OldLength+1,
-		bb_put(calc_md5_temp2,NewLength),
-		NewLength=32
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	!,
-	
-	close(S),
-	bb_delete(calc_md5_temp, FinalList-[]),
-	bb_delete(calc_md5_temp2,_),
-	atom_codes(MD5,FinalList).
-  
-
-path_seperator('\\'):-
-   yap_flag(windows, true), !.
-path_seperator('/').
-
-split_path_file(PathFile, Path, File):-
-	path_seperator(PathSeperator),
-	atomic_concat(Path, File, PathFile),
-	name(PathSeperator, [PathSeperatorName]),
-	name(File, FileName),
-	\+ memberchk(PathSeperatorName, FileName),
-	!.
-%	(Path = '' ; atomic_concat(_, PathSeperator, Path)).
-
-check_existance(FileName):-
-  convert_filename_to_problog_path(FileName, Path),
-  catch(file_exists(Path), _, fail).
-check_existance(FileName):-
-  problog_path(PD),
-  write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
-  write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
+get_line(Stream, Line):-
+  get_line(Stream, LineR, []),
+  reverse(LineR, Line).
+get_line(Stream, Line, Acc):-
+  get_char(Stream, Char),
+  ((Char = '\n' ; at_end_of_stream(Stream)) ->
+    Line = Acc
+  ;
+    get_line(Stream, Line, [Char|Acc])
+  ).

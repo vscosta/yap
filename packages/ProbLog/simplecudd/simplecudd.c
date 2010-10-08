@@ -7,6 +7,8 @@
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: simplecudd.c                                                          *
+*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
+*  $Revision:: 4880                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -378,6 +380,10 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char 
   DdNode *f[1];
   int ret;
   FILE *fd;
+  // Reordering until getting the optimal bdd //
+/*  Cudd_AutodynDisable(manager);
+  Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT_CONVERGE, 1);*/
+  // better before making an ADD //
   f[0] = Cudd_BddToAdd(manager, bdd);
   fd = fopen(filename, "w");
   if (fd == NULL) {
@@ -690,8 +696,7 @@ int LoadVariableData(namedvars varmap, char *filename) {
         if (hasvar >= 0) {
           switch(idat) {
             case 0:
-              if (IsRealNumber(dataread)) dvalue = atof(dataread);
-              else {
+              if (!getRealNumber(dataread, &dvalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non real value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -701,8 +706,7 @@ int LoadVariableData(namedvars varmap, char *filename) {
               idat++;
               break;
             case 1:
-              if (IsNumber(dataread)) ivalue = atoi(dataread);
-              else {
+              if (!getIntNumber(dataread, &ivalue)) {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non integer value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -1706,34 +1710,55 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
       inputline[icur] = '\0';
       if ((icur > 0) && (inputline[0] == '@') && (inputline[2] == ',' || inputline[2] == '\0')) {
         switch(inputline[1]) {
+          case '?':
+            printf("Available instructions:\n\t@c : current node\n\t@n,[BFS, DFS] : expand and go to next node\n\t@t,[BFS, DFS] : throw and go to next node\n");
+            printf("\t@h : high node of current\n\t@l : low node of current\n\t@v,[variable] : variable values\n\t@r restart traverse from parent node\n\t@e terminates\n");
+            break;
+          case 'r':
+            curnode = bdd;
+            iQsize = 0;
+            iRoot = 1;
+            free(Q);
+            Q = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
+            Q2 = NULL;
+            ReInitHistory(his, varmap.varcnt);
+            break;
           case 'c':
             if (iRoot) {
               iRoot = 0;
-              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), 1);
+              printf("bdd_temp_value('%s', %i, %p).\n", GetNodeVarNameDisp(manager, varmap, curnode), 1, (void *) curnode);
             } else {
-              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize);
+              printf("bdd_temp_value('%s', %i, %p).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize, (void *) curnode);
             }
             fflush(stdout);
             break;
           case 'n':
             if (curnode != HIGH(manager) && curnode != LOW(manager) && (hnode = GetNode(his, varmap.varstart, curnode)) == NULL) {
-              //AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
               l_node = LowNodeOf(manager, curnode);
               h_node = HighNodeOf(manager, curnode);
-              inQ = 0;
+              iQsize += 2;
+              Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
+              Q[iQsize - 2] = l_node;
+              Q[iQsize - 1] = h_node;
+              //AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
+/*              inQ = 0;
               for(i = 0; (i < iQsize / 2) && (inQ < 3); i++)
-                inQ = (Q[i] == l_node) || (Q[iQsize - i] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i] == h_node);
-              if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
-              if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
-              if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
-              if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
-              inQ = 0;
+                inQ = (Q[i] == l_node) || (Q[iQsize - i - 1] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i - 1] == h_node);
+              if ((l_node == HIGH(manager) || l_node == LOW(manager))) {
+                inQ = (inQ & 2);
+              } else {
+                if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
+              }
+              if (h_node == HIGH(manager) || h_node == LOW(manager)) {
+                inQ = (inQ & 1);
+              } else {
+                if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
+              }*/
+/*              if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
+              if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));*/
+/*              inQ = 0;
               switch(inQ) {
                 case 0:
-                  iQsize += 2;
-                  Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
-                  Q[iQsize - 2] = l_node;
-                  Q[iQsize - 1] = h_node;
                   break;
                 case 1:
                   iQsize++;
@@ -1749,8 +1774,32 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
                   break;
                 default:
                   break;
-              }
+              }*/
             }
+            if (inputline[2] == '\0' || strcmp(inputline + 3, "DFS") == 0) {
+              if (iQsize > 0) {
+                iQsize--;
+                curnode = Q[iQsize];
+                Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
+              }
+            } else if (strcmp(inputline + 3, "BFS") == 0) {
+              if (iQsize > 0) {
+                iQsize--;
+                curnode = Q[0];
+                Q2 = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
+                for(i = 0; i < iQsize; i++)
+                  Q2[i] = Q[i + 1];
+                free(Q);
+                Q = Q2;
+              }
+            } else {
+              fprintf(stderr, "Error: Could not find method: %s, Correct syntax @n,[DFS, BFS].\n", inputline + 3);
+              free(Q);
+              free(inputline);
+              exit(-1);
+            }
+            break;
+          case 't':
             if (inputline[2] == '\0' || strcmp(inputline + 3, "DFS") == 0) {
               if (iQsize > 0) {
                 iQsize--;

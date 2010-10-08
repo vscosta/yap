@@ -19,34 +19,37 @@
 	 '$check_op'(P,T,V,op(P,T,V)),
 	 '$op'(P, T, V).
 
- '$check_op'(P,T,V,G) :-
-	 (
-	  var(P) ->
-	  '$do_error'(instantiation_error,G)
-	 ;
-	  var(T) ->
-	  '$do_error'(instantiation_error,G)
-	 ;
-	  var(V) ->
-	  '$do_error'(instantiation_error,G)
-	 ;
-	  \+ integer(P) ->
-	  '$do_error'(type_error(integer,P),G)
-	 ;
-	  \+ atom(T) ->
-	  '$do_error'(type_error(atom,T),G)
-	 ;
-	  P < 0 ->
-	  '$do_error'(domain_error(operator_priority,P),G)
-	 ;
-	  P > 1200 ->
-	  '$do_error'(domain_error(operator_priority,P),G)
-	 ;
-	  \+ '$associativity'(T) ->
-	  '$do_error'(domain_error(operator_specifier,T),G)
-	 ;
-	  '$check_op_name'(V,G)
-	 ).
+% just check the operator declarations for correctness.
+'$check_op'(P,T,Op,G) :-
+	( var(P) ; var(T); var(Op)), !,
+	'$do_error'(instantiation_error,G).
+'$check_op'(P,_,_,G) :-
+	\+ integer(P), !,
+	'$do_error'(type_error(integer,P),G).
+'$check_op'(P,_,_,G) :-
+	P < 0, !,
+	'$do_error'(domain_error(operator_priority,P),G).
+'$check_op'(P,_,_,G) :-
+	P > 1200, !,
+	'$do_error'(domain_error(operator_priority,P),G).
+'$check_op'(_,T,_,G) :-
+	\+ atom(T), !,
+	'$do_error'(type_error(atom,P),G).
+'$check_op'(_,T,_,G) :-
+	\+  '$associativity'(T), !,
+	'$do_error'(domain_error(operator_specifier,T),G).
+'$check_op'(P,T,V,G) :-
+	'$check_module_for_op'(V, G, NV),
+	'$check_top_op'(P, T, NV, G).
+
+'$check_top_op'(_, _, [], _).
+'$check_top_op'(P, T, Op.NV, G) :- !,
+	'$check_ops'(P, T, Op.NV, G).
+'$check_top_op'(P, T, V, G) :-
+	atom(V), !,
+	'$check_op_name'(P, T, V, G).
+'$check_top_op'(P, T, V, G) :-
+	'$do_error'(type_error(atom,V),G).
 
  '$associativity'(xfx).
  '$associativity'(xfy).
@@ -57,17 +60,43 @@
  '$associativity'(fx).
  '$associativity'(fy).
 
- '$check_op_name'(V,G) :-
+'$check_module_for_op'(MOp, G, _) :-
+	var(MOp), !,
+	'$do_error'(instantiation_error,G).
+'$check_module_for_op'(M:V, G, _) :-
+	var(M), !,
+	'$do_error'(instantiation_error,G).
+'$check_module_for_op'(M:V, G, NV) :-
+	atom(M), !,
+	'$check_module_for_op'(V, G, NV).
+'$check_module_for_op'(M:V, G, _) :- !,
+	'$do_error'(type_error(atom,P),G).
+'$check_module_for_op'(V, G, V).
+
+'$check_ops'(P, T, [], G) :- !.
+'$check_ops'(P, T, Op.NV, G) :- !,
+	(
+	 var(NV)
+	->
+	 '$do_error'(instantiation_error,G)
+	;
+	 '$check_module_for_op'(Op, G, NOp),
+	 '$check_op_name'(P, T, NOp, G),
+	 '$check_ops'(P, T, NV, G)
+	).	
+'$check_ops'(P, T, Ops, G) :-
+	'$do_error'(type_error(list,Ops),G).
+
+'$check_op_name'(_,_,V,G) :-
 	  var(V), !,
 	  '$do_error'(instantiation_error,G).
- '$check_op_name'(',',G) :- !,
+ '$check_op_name'(_,_,',',G) :- !,
 	  '$do_error'(permission_error(modify,operator,','),G).
- '$check_op_name'('[]',G) :- !,
-	  '$do_error'(permission_error(create,operator,'[]'),G).
- '$check_op_name'('{}',G) :- !,
+ '$check_op_name'(_,_,'[]',G) :- !,
+	  '$do_error'(permispsion_error(create,operator,'[]'),G).
+ '$check_op_name'(_,_,'{}',G) :- !,
 	  '$do_error'(permission_error(create,operator,'{}'),G).
- '$check_op_name'('|',G) :- !,
-	 G = op(P, T, _),
+ '$check_op_name'(P,T,'|',G) :- !,
 	 (
 	  integer(P),
 	  P < 1001
@@ -75,35 +104,13 @@
 	  Fix \== xfx, Fix \== xfy, Fix \== yfx, Fix \== yfy
 	 ),
 	 '$do_error'(permission_error(create,operator,'|'),G).
-'$check_op_name'(V,_) :-
+'$check_op_name'(_,_,V,_) :-
 	 atom(V), !.
-'$check_op_name'(M:A, G) :-
-	 (
-	  var(M) ->
-	 '$do_error'(instantiation_error,G)
-	 ;
-	  var(A) ->
-	 '$do_error'(instantiation_error,G)
-	 ;
-	  atom(M) ->
-	  '$check_op_name'(A, G)
-	 ;
-	 '$do_error'(instantiation_error,G)
-	 ).
- '$check_op_name'([A|As], G) :-
-	  '$check_op_name'(A, G),
-	  '$check_op_names'(As, G).
+'$check_op_name'(_,_,A,G) :-
+	 '$do_error'(type_error(atom,A),G).
 
-'$check_op_names'([], _).
-'$check_op_names'([A|As], G) :-
-	'$check_op_name'(A, G),
-	'$check_op_names'(As, G).
-
-	  
-'$op'(P, T, M:[A|As]) :- !,
-	'$current_module'(M),
-	'$opl'(P, T, M, [A|As]).
-'$op'(P, T, [A|As]) :- !,
+'$op'(P, T, ML) :-
+	strip_module(ML, M, [A|As]), !,
 	'$opl'(P, T, M, [A|As]).
 '$op'(P, T, A) :-
 	'$op2'(P,T,A).

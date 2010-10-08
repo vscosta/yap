@@ -50,6 +50,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/variable_elimination.yap \
 	$(srcdir)/problog/print_learning.yap \
 	$(srcdir)/problog/utils_learning.yap \
+	$(srcdir)/problog/version_control.yap \
 	$(srcdir)/problog/variables.yap
 
 PROBLOG_EXAMPLES = \
