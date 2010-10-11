@@ -335,6 +335,7 @@
     case _deallocate:
     case _enter_profiling:
     case _retry_profiled:
+    case _safe_procceed:
       pc = NEXTOP(pc,p);
       break;
       /* instructions type plxxs */

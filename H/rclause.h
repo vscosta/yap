@@ -424,6 +424,7 @@ restore_opcodes(yamop *pc, yamop *max)
     case _lock_lu:
     case _procceed:
     case _retry_profiled:
+    case _safe_procceed:
       pc->u.p.p = PtoPredAdjust(pc->u.p.p);
       pc = NEXTOP(pc,p);
       break;

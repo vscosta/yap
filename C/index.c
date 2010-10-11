@@ -1396,6 +1396,7 @@ has_cut(yamop *pc)
       return FALSE;
     case _deallocate:
     case _procceed:
+    case _safe_procceed:
       pc = NEXTOP(pc,p);
       break;
       /* instructions type sc */
