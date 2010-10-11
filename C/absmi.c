@@ -2692,10 +2692,9 @@ Yap_absmi(int inp)
 	   a execute_c, just wait a bit more */
 	if (ActiveSignals & YAP_CREEP_SIGNAL ||
 	    (PREG->opc != Yap_opcode(_procceed) &&
-	     PREG->opc != Yap_opcode(_safe_procceed) &&
 	     PREG->opc != Yap_opcode(_cut_e))) {
 	  GONext();
-	}
+	}  
 	PP = PREG->u.p.p;
 	ASP = YREG+E_CB;
 	/* cut_e */
@@ -3090,7 +3089,6 @@ Yap_absmi(int inp)
       BOp(safe_procceed, p);
       CACHE_Y_AS_ENV(YREG);
       check_trail(TR);
-      check_stack(NoStackDeallocate, H);
       ALWAYS_LOOKAHEAD(CPREG->opc);
       PREG = CPREG;
       /* for profiler */
@@ -3100,6 +3098,7 @@ Yap_absmi(int inp)
       DEPTH = ENV_YREG[E_DEPTH];
 #endif
       WRITEBACK_Y_AS_ENV();
+      check_stack(NoStackDeallocate, H);
       ALWAYS_GONext();
       ALWAYS_END_PREFETCH();
       ENDCACHE_Y_AS_ENV();
