@@ -567,6 +567,8 @@ a_cmp(Term t1, Term t2)
 #ifdef USE_GMP
   } else if (IsBigIntTerm(t1)) {
     {
+      t2 = Yap_Eval(t2);
+
       if (IsIntegerTerm(t2)) {
 	return Yap_gmp_cmp_big_int(t1, IntegerOfTerm(t2));
       } else if (IsFloatTerm(t2)) {

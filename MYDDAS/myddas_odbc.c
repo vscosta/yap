@@ -652,7 +652,7 @@ c_db_odbc_row(void) {
 	  
 	  if (!strcmp(AtomName(AtomOfTerm(type)),"integer"))
 	    {
-	      if (!Yap_unify(head, MkIntegerTerm(atoi(bind_value))))
+	      if (!Yap_unify(head, MkIntegerTerm(atol(bind_value))))
 		continue;
 	    }
 	  else if (!strcmp(AtomName(AtomOfTerm(type)),"real"))
@@ -697,6 +697,11 @@ c_db_odbc_number_of_fields_in_query(void) {
     return FALSE;
   
   if (!Yap_unify(arg_fields, MkIntegerTerm(number_cols))){
+    if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields_in_query"))
+      return FALSE;
+    if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_number_of_fields_in_query"))
+      return FALSE;
+ 
     return FALSE;
   }
   

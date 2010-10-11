@@ -635,19 +635,23 @@ CleanLUIndex(LogUpdIndex *idx, int recurse)
 static void 
 CleanSIndex(StaticIndex *idx, int recurse)
 {
-  idx->ClPred = PtoPredAdjust(idx->ClPred);
-  if (idx->SiblingIndex) {
-    idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
-    if (recurse)
-      CleanSIndex(idx->SiblingIndex, TRUE);
+ beginning:
+  if (!(idx->ClFlags & SwitchTableMask)) {
+    restore_opcodes(idx->ClCode, NULL);
   }
+  idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->ChildIndex) {
     idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
     if (recurse)
       CleanSIndex(idx->ChildIndex, TRUE);
   }
-  if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode, NULL);
+  if (idx->SiblingIndex) {
+    idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
+    /* use loop to avoid recursion with very complex indices */
+    if (recurse) {
+      idx =  idx->SiblingIndex;
+      goto beginning;
+    }
   }
 }
 
