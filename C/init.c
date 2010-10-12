@@ -1146,6 +1146,9 @@ InitThreadHandle(int wid)
     FOREIGN_ThreadHandle(wid).thread_inst_count = 0LL;
 #endif
     pthread_mutex_init(&(FOREIGN_ThreadHandle(wid).tlock), NULL);  
+    pthread_mutex_init(&(FOREIGN_ThreadHandle(wid).tlock_status), NULL);  
+    FOREIGN_ThreadHandle(wid).tdetach = (CELL)0;
+    FOREIGN_ThreadHandle(wid).cmod = (CELL)0;
 }
 #endif
 
@@ -1197,7 +1200,7 @@ Yap_CloseScratchPad(void)
 #include "iglobals.h"
 
 #if defined(YAPOR) || defined(THREADS)
-#define MAX_INITS MAX_WORKERS
+#define MAX_INITS MAX_AGENTS
 #else
 #define MAX_INITS 1
 #endif
@@ -1205,7 +1208,7 @@ Yap_CloseScratchPad(void)
 struct worker_shared Yap_Global;
 
 #if defined(YAPOR) || defined(THREADS)
-struct worker_local	Yap_WLocal[MAX_WORKERS];
+struct worker_local	Yap_WLocal[MAX_AGENTS];
 #else
 struct worker_local	Yap_WLocal;
 #endif
@@ -1216,8 +1219,9 @@ InitCodes(void)
   int wid;
 #include "ihstruct.h"
   InitGlobal();
-  for (wid = 0; wid < MAX_INITS; wid++)
+  for (wid = 0; wid < MAX_INITS; wid++) {
     InitWorker(wid);
+  }
   InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;

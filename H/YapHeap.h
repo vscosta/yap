@@ -175,7 +175,7 @@ extern struct worker_shared Yap_Global;
 #define Yap_global (&Yap_Global)
 
 #if defined(YAPOR) || defined(THREADS)
-extern struct worker_local	Yap_WLocal[MAX_WORKERS];
+extern struct worker_local	Yap_WLocal[MAX_AGENTS];
 #define WL (Yap_WLocal+worker_id)
 #define FOREIGN_WL(wid) (Yap_WLocal+(wid))
 #else
