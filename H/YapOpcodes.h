@@ -43,7 +43,6 @@
   OPCODE(dexecute                   ,pp),
   OPCODE(fcall                      ,Osbpp),
   OPCODE(call                       ,Osbpp),
-  OPCODE(safe_procceed              ,p),
   OPCODE(procceed                   ,p),
   OPCODE(allocate                   ,e),
   OPCODE(deallocate                 ,p),

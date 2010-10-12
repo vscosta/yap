@@ -3439,7 +3439,7 @@ lu_recorded(PredEntry *pe) {
   PELOCK(66,pe);
   PP = pe;
 #endif
-  if (opc == _procceed || opc == _safe_procceed) {
+  if (opc == _procceed) {
     P = pe->CodeOfPred;
   } else {
     if (P->opc != Yap_opcode(_execute_cpred)) {
@@ -3504,7 +3504,7 @@ p_recorded(void)
       if (!Yap_unify(GetDBLUKey(ap), ARG1))
 	return FALSE;
 
-      if (opc == _procceed || opc == _safe_procceed) {
+      if (opc == _procceed) {
 	P = cl->ClCode;
       } else {
 	CP = P;

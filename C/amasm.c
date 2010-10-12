@@ -3507,11 +3507,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  !clinfo.alloc_found)
 	code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
-      if (clinfo.alloc_found) {
-	code_p = a_pl(_safe_procceed, cip->CurrentPred, code_p, pass_no);
-      } else {
-	code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
-      }
+      code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
       break;
     case call_op:
       code_p = a_p(_call, &clinfo, code_p, pass_no, cip);

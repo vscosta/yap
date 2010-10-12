@@ -118,7 +118,6 @@ p_show_op_counters()
   print_instruction(_call_cpred);
   print_instruction(_call_c_wfail);
   print_instruction(_procceed);
-  print_instruction(_safe_procceed);
   print_instruction(_allocate);
   print_instruction(_deallocate);
 
@@ -480,8 +479,7 @@ p_show_ops_by_group(void)
     Yap_opcount[_fcall];
 
   c_control.nproceeds =
-    Yap_opcount[_procceed]+
-    Yap_opcount[_safe_procceed];
+    Yap_opcount[_procceed];
 
   c_control.ncallbips =
     Yap_opcount[_call_cpred] +
