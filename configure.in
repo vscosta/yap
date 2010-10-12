@@ -610,14 +610,15 @@ fi
 
 if test "$yap_cv_readline" != "no"
 then
-  AC_CHECK_LIB(termcap,tgetent)
-  case "$target_os" in
-    *darwin*)
-    ;;
-    *)
-    AC_CHECK_LIB(ncurses,main)
-  esac
-  AC_CHECK_LIB(readline,readline)
+  AC_CHECK_LIB([readline], [main],[
+                AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
+		LIBS="$LIBS -lreadline -lncurses"
+              ],
+              [if test "x$with_readline" != xcheck; then
+                 AC_MSG_FAILURE(
+                   [--with-readline was given, but test for readline failed])
+               fi
+              ], -lncurses)
 fi
 if test "$yap_cv_gmp" != "no"
 then
