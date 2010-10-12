@@ -443,7 +443,7 @@ prolog:'$wait'(Na/Ar) :-
 prolog:'$wait'(_).
 
 frozen(V, G) :- nonvar(V), !,
-	'$do_error'(type_error(variable,V),frozen(V,G)).
+	'$do_error'(uninstantiation_error(V),frozen(V,G)).
 frozen(V, LG) :-
 	'$attributes':get_conj_from_attvars([V], LG).
 

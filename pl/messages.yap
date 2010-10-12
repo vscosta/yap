@@ -296,6 +296,8 @@ system_message(error(unknown, Where)) -->
 	[ 'EXISTENCE ERROR- procedure ~w undefined' - [Where] ].
 system_message(error(unhandled_exception,Throw)) -->
 	[ 'UNHANDLED EXCEPTION - message ~w unknown' - [Throw] ].
+system_message(error(uninstantiation_error(TE), Where)) -->
+	[ 'UNINSTANTIATION ERROR - expected unbound term, got ~q' - [TE] ].
 system_message(Messg) -->
 	[ '~q' - Messg ].
 

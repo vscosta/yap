@@ -42,11 +42,11 @@ regexp(RegExp, String, Opts, OUT) :-
 check_out(V,_,_,_) :- var(V), !.
 check_out([],I,I,_) :- !.
 check_out([V|L],I0,IF,G) :- !,
-	(nonvar(V) -> throw(error(type_error(variable,V),G)) ; true),
+	(nonvar(V) -> throw(error(uninstantiation_error(V),G)) ; true),
 	I is I0+1,
 	check_out(L,I,IF,G).
 check_out(OUT,_,_,G) :-
-	throw(error(type_error(variable,OUT),G)).
+	throw(error(uninstantiation_error(OUT),G)).
 
 %
 % Option processing

@@ -22,7 +22,7 @@ open(Source,M,T) :- var(Source), !,
 open(Source,M,T) :- var(M), !,
 	'$do_error'(instantiation_error,open(Source,M,T)).
 open(Source,M,T) :- nonvar(T), !,
-	'$do_error'(type_error(variable,T),open(Source,M,T)).
+	'$do_error'(uninstantiation_error(T),open(Source,M,T)).
 open(File0,Mode,Stream) :-
 	'$default_encoding'(Encoding),
 	'$default_expand'(Expansion),	
@@ -76,7 +76,7 @@ open(F,T,S,Opts) :-
 '$open2'(Source,M,T,N,_,_) :- var(M), !,
 	'$do_error'(instantiation_error,open(Source,M,T,N)).
 '$open2'(Source,M,T,N,_,_) :- nonvar(T), !,
-	'$do_error'(type_error(variable,T),open(Source,M,T,N)).
+	'$do_error'(uninstantiation_error(T),open(Source,M,T,N)).
 '$open2'(File, Mode, Stream, N, Encoding, F0) :-
 	'$open'(File, Mode, Stream, N, Encoding, F0).
 

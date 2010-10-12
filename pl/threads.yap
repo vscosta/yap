@@ -99,7 +99,7 @@ thread_create(Goal) :-
 thread_create(Goal, Id) :-
 	G0 = thread_create(Goal, Id),
 	'$check_callable'(Goal, G0),
-	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
+	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'([], [], Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
@@ -116,7 +116,7 @@ thread_create(Goal, Id) :-
 thread_create(Goal, Id, Options) :-
 	G0 = thread_create(Goal, Id, Options),
 	'$check_callable'(Goal,G0),
-	( nonvar(Id) -> '$do_error'(type_error(variable,Id),G0) ; true ),
+	( nonvar(Id) -> '$do_error'(uninstantiation_error(Id),G0) ; true ),
 	'$thread_options'(Options, Alias, Stack, Trail, System, Detached, AtExit, G0),
 	'$thread_new_tid'(Id),
 %	'$erase_thread_info'(Id), % this should not be here
@@ -159,7 +159,7 @@ thread_create(Goal, Id, Options) :-
 	;
 	 \+ atom(Mod)
 	->
-	 '$do_error'(type_error(atom,Mod),G)
+	 '$do_error'(uninstantiation_error(Mod),G)
 	;
 	 var(LOpts)
 	->
@@ -207,7 +207,7 @@ thread_create(Goal, Id, Options) :-
 % vsc: ?????
 thread_defaults(Defaults) :-
 	nonvar(Defaults), !,
-	'$do_error'(type_error(variable, Defaults), thread_defaults(Defaults)).
+	'$do_error'(uninstantion_error(Defaults), thread_defaults(Defaults)).
 thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached), at_exit(AtExit)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System, Detached, AtExit], _).
 
@@ -314,7 +314,7 @@ thread_self(Id) :-
 /* Exit status may be either true, false, exception(Term), or exited(Term) */
 thread_join(Id, Status) :-
 	nonvar(Status), !,
-	'$do_error'(type_error(variable,Status),thread_join(Id, Status)).
+	'$do_error'(uninstantiation_error(Status),thread_join(Id, Status)).
 thread_join(Id, Status) :-
 	'$check_thread_or_alias'(Id, thread_join(Id, Status)),
 	'$thread_id_alias'(Id0, Id),
@@ -385,7 +385,7 @@ mutex_create(Mutex) :-
 
 mutex_create(Id, Options) :-
 	nonvar(Id), !,
-	'$do_error'(type_error(variable, Id), mutex_create(Id, Options)).
+	'$do_error'(uninstantiation_error(Id), mutex_create(Id, Options)).
 mutex_create(Id, Options) :-
 	Goal = mutex_create(Id, Options),
 	'$mutex_options'(Options, Alias, Goal),
@@ -562,7 +562,7 @@ mutex_property(Mutex, Prop) :-
 
 message_queue_create(Id, Options) :-
 	nonvar(Id), !,
-	'$do_error'(type_error(variable, Id), message_queue_create(Id, Options)).
+	'$do_error'(uninstantiation_error(Id), message_queue_create(Id, Options)).
 message_queue_create(Id, Options) :-
 	var(Options), !,
 	'$do_error'(instantiation_error, message_queue_create(Id, Options)).
@@ -594,7 +594,7 @@ message_queue_create(Id) :-
 		message_queue_create(Id, [])
 	;	atom(Id) ->		% old behavior
 		message_queue_create(_, [alias(Id)])
-	;	'$do_error'(type_error(variable, Id), message_queue_create(Id))
+	;	'$do_error'(uninstantiation_error(Id), message_queue_create(Id))
 	).
 
 '$do_msg_queue_create'(Id) :-
