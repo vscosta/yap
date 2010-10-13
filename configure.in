@@ -657,7 +657,7 @@ then
 	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient"
+		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient "
 	fi
 	
 	dnl check for odbc
@@ -676,7 +676,14 @@ then
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
-		LIBS="$LIBS -lodbc "
+                case "$target_os" in
+			*darwin9*)
+			LIBS="$LIBS -lodbc -framework CoreFoundation"
+			;;
+			**)		
+			LIBS="$LIBS -lodbc"
+			;;
+		esac
 	fi
 	
 fi	
