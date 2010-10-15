@@ -2089,6 +2089,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
     }
     return code_p;
   }
+#ifndef YAPOR
   switch (opr) {
   case 2:
     if (opcode == _try_clause) {
@@ -2139,6 +2140,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
       return code_p;
     }
   }
+#endif
   if (pass_no) {
     code_p->opc = emit_op(opcode);
     code_p->u.Otapl.d = emit_a(lab);
