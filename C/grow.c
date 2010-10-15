@@ -1432,7 +1432,12 @@ Yap_growglobal(CELL **ptr)
 {
   unsigned long sz = sizeof(CELL) * K16;
 
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) && !defined(THREADS)
+  if (number_workers != 1) {
+    Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
+    return(FALSE);
+  }
+#elif defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);

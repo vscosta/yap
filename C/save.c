@@ -608,7 +608,12 @@ do_save(int mode) {
 static Int 
 p_save(void)
 {
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) && !defined(THREADS)
+  if (number_workers != 1) {
+    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    return(FALSE);
+  }
+#elif defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
@@ -622,7 +627,13 @@ p_save(void)
 static Int 
 p_save2(void)
 {
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) && !defined(THREADS)
+  if (number_workers != 1) {
+    Yap_Error(SYSTEM_ERROR,TermNil,
+	       "cannot perform save: more than a worker/thread running");
+    return(FALSE);
+  }
+#elif defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
@@ -757,6 +768,7 @@ get_heap_info(void)
   if (Yap_ErrorMessage)
       return -1;
   OldHeapTop = (ADDR) get_cellptr();
+
   if (Yap_ErrorMessage)
       return -1;
   OldHeapUsed = (Int) get_cell();
@@ -940,8 +952,9 @@ get_hash(void)
 static int 
 CopyCode(void)
 {
-  if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0)
+  if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0) {
     return -1;
+  }
   return 1;
 }
 
@@ -987,7 +1000,7 @@ static int
 get_coded(int flag, OPCODE old_ops[])
 {
   char my_end_msg[256];
-
+  
   if (get_regs(flag) < 0)
     return -1;
   if (get_insts(old_ops) < 0)
@@ -1762,7 +1775,12 @@ p_restore(void)
   int mode;
 
   Term t1 = Deref(ARG1);
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) && !defined(THREADS)
+  if (number_workers != 1) {
+    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    return(FALSE);
+  }
+#elif defined(THREADS)
   if (NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
