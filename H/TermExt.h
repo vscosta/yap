@@ -63,7 +63,7 @@ inline EXTERN int IsAttVar (CELL *pt);
 inline EXTERN int
 IsAttVar (CELL *pt)
 {
-  return (pt)[-1] == (CELL)attvar_e;
+  return (pt)[-1] == (CELL)attvar_e && pt < H;
 }
 
 typedef enum
