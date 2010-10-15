@@ -168,7 +168,7 @@
   Yap_heap_regs->beam_retry_code->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
-  Yap_heap_regs->seq_def = TRUE;
+  Yap_heap_regs->seq_def = FALSE;
   InitOtaplInst(GETWORK,_getwork,PredGetwork);
   InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
   Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
