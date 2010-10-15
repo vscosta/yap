@@ -3487,28 +3487,4 @@ rw_lock_voodoo(void) {
 #endif /* sparc */
 
 
-#if (defined(i386) || defined(__x86_64__) ) && !defined(__APPLE__) && !defined(__CYGWIN__)
-asm(
-
-".align	4\n"
-".globl	__write_lock_failed\n"
-"__write_lock_failed:\n"
-"	lock;   addl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
-"1:	cmpl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
-"	jne	1b\n"
-"	lock;   subl	$" RW_LOCK_BIAS_STR ",(%eax)\n"
-"	jnz	__write_lock_failed\n"
-"	ret\n"
-".align	4\n"
-".globl	__read_lock_failed\n"
-"__read_lock_failed:\n"
-"	lock ; incl	(%eax)\n"
-"1:	cmpl	$1,(%eax)\n"
-"	js	1b\n"
-"	lock ; decl	(%eax)\n"
-"	js	__read_lock_failed\n"
-"	ret\n"
-
-);
-#endif /* i386 */
 #endif /* YAPOR || THREADS */
