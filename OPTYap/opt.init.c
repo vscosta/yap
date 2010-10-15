@@ -243,14 +243,12 @@ void make_root_frames(void) {
 #endif /* TABLING */
 }
 
-
 #ifdef YAPOR
 void init_workers(void) {
   int proc;
 #ifdef THREADS
   return;
 #endif
-  NOfThreads = number_workers;
 #ifdef ACOW
   if (number_workers > 1) {
     int son;

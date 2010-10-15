@@ -1205,9 +1205,15 @@ Yap_CloseScratchPad(void)
 #define MAX_INITS 1
 #endif
 
+#if defined(YAPOR) &&  !defined(THREADS)
+struct worker_shared *Yap_global;
+#else
 struct worker_shared Yap_Global;
+#endif
 
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) &&  !defined(THREADS)
+struct worker_local	*Yap_WLocal;
+#elif defined(YAPOR) || defined(THREADS)
 struct worker_local	Yap_WLocal[MAX_AGENTS];
 #else
 struct worker_local	Yap_WLocal;
@@ -1259,7 +1265,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   int             i;
 
   /* initialise system stuff */
-
 #if PUSH_REGS
 #ifdef THREADS
   pthread_key_create(&Yap_yaamregs_key, NULL);

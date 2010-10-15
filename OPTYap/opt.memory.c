@@ -39,6 +39,7 @@ int fd_mapfile;
 int shm_mapid[MAX_WORKERS + 1];
 #endif /* MEMORY_MAPPING_SCHEME */
 
+static  Int extra_area = 0;
 
 
 /********************************
@@ -98,6 +99,11 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   TrailAuxArea = ADJUST_SIZE(TrailAuxArea);
 
   /* we'll need this later */
+#if defined(YAPOR) && !defined(THREADS)
+  Yap_global = (struct worker_shared *)( mmap_addr  - sizeof(struct worker_shared));
+  Yap_WLocal =  (struct worker_local *)( mmap_addr  - (sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local)));
+  extra_area = ADJUST_SIZE_TO_PAGE(sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local));
+#endif
   Yap_HeapBase = (ADDR)mmap_addr;
   Yap_GlobalBase = mmap_addr + HeapArea;
 
@@ -113,14 +119,16 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   WorkerArea = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = HeapArea + WorkerArea * n_workers;
 #endif /* YAPOR_MODEL */
-
   /* mmap heap area */
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* map total area in a single go */
-  open_mapfile(TotalArea);
-  if ((mmap_addr = mmap((void *) MMAP_ADDR, (size_t) TotalArea, PROT_READ|PROT_WRITE, 
+  open_mapfile(TotalArea+extra_area);
+  if ((mmap_addr = mmap((void *) MMAP_ADDR-extra_area, (size_t) (TotalArea+extra_area), PROT_READ|PROT_WRITE, 
                          MAP_SHARED|MAP_FIXED, fd_mapfile, 0)) == (void *) -1)
     Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
+#if defined(YAPOR) && !defined(THREADS)
+  mmap_addr += extra_area;
+#endif
 #else /* SHM_MEMORY_MAPPING_SCHEME */
 /* Most systems are limited regarding what we can allocate */
 #ifdef ACOW
@@ -267,7 +275,7 @@ void remap_memory(void) {
   for (i = 0; i < number_workers; i++) {
     worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
     if (mmap(worker_area(i), (size_t)WorkerArea, PROT_READ|PROT_WRITE, 
-        MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * WorkerArea) == (void *) -1)
+        MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * WorkerArea + extra_area) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (remap_memory)");
   }
 #endif /* MEMORY_MAPPING_SCHEME */
