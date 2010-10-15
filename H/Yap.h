@@ -351,7 +351,7 @@ typedef CELL Term;
 
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
-#elif USE_PTHREAD_LOCKING || defined(__APPLE__) || defined(__CYGWIN__)
+#elif USE_PTHREAD_LOCKING || defined(__CYGWIN__)
 
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
