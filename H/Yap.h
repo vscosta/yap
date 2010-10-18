@@ -90,7 +90,7 @@
 #undef  USE_THREADED_CODE
 #endif
 #define inline __inline
-#define YAP_VERSION "YAP-6.0.7"
+#define YAP_VERSION "YAP-6.2.0"
 
 #define BIN_DIR "c:\\Yap\\bin"
 #define LIB_DIR "c:\\Yap\\lib\\Yap"
