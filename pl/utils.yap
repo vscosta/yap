@@ -96,13 +96,13 @@
 	  '$do_error'(permispsion_error(create,operator,'[]'),G).
  '$check_op_name'(_,_,'{}',G) :- !,
 	  '$do_error'(permission_error(create,operator,'{}'),G).
- '$check_op_name'(P,T,'|',G) :- !,
+ '$check_op_name'(P,T,'|',G) :-
 	 (
 	  integer(P),
 	  P < 1001
 	 ;
-	  Fix \== xfx, Fix \== xfy, Fix \== yfx, Fix \== yfy
-	 ),
+	  atom_codes(T,[_,_])
+	 ), !,
 	 '$do_error'(permission_error(create,operator,'|'),G).
 '$check_op_name'(_,_,V,_) :-
 	 atom(V), !.
