@@ -1,16 +1,16 @@
 
 
-			README for Yap6
+			README for YAP6
 
 
-This directory contains a release of the Yap 6.0.* Prolog system,
+This directory contains a release of the YAP 6.0.* Prolog system,
 originally developed at the Universidade do Porto by Luis Damas and
 Vitor Santos Costa, with contributions from the Edinburgh Prolog
 library, the C-Prolog manual authors, Ricardo Lopes, Ricardo Rocha,
 M. Hermenegildo, D. Cabeza, Eric Alphonse, Paulo Moura, Nuno Fonseca,
 Jan Wielemaker, Paul Singleton, Fred Dushin, Jan Wielemaker, Markus
 Triska, and many others. You should read the rest of this file for
-information on what Yap is and for instructions on how to build it.
+information on what YAP is and for instructions on how to build it.
 
 YAP 6 has been built with several versions on GCC on a variety of
 Linux, MacOSX. It has been built on Windows XP and VISTA using the
@@ -21,7 +21,7 @@ license: the Perl Artistic license 2 and the FSF's LGPL. The YAP
 distribution also contains files distributed under the LGPL
 exclusively, and under the GPL.
 
-The YAP distribution includes several packages ported to Yap, such as
+The YAP distribution includes several packages ported to YAP, such as
 Pillow, JPL, CLP(R) and CHR. We would like to take the opportunity to
 thank the developers of these packages for their generosity in
 allowing YAP to distribute these packages. Any bugs in these packages
@@ -33,35 +33,35 @@ assistance, please send e-mail to yap-users@lists.sourceforge.net. To
 subscribe to the mailing list or access the list archives, please see
 http://lists.sourceforge.net/lists/listinfo/yap-users
 
-Online documentation is available for Yap at:
+Online documentation is available for YAP at:
 
-	http://www.dcc.fc.up.pt/~vsc/Yap/
+	http://www.dcc.fc.up.pt/~vsc/YAP/
 
-Recent versions of Yap, including both source and selected binaries,
+Recent versions of YAP, including both source and selected binaries,
 can be found from this same URL.
 
 1. What is YAP
 
-The Yap Prolog System is a high-performance Prolog compiler developed
-at LIACC, Universidade do Porto. Yap provides several important
+The YAP Prolog System is a high-performance Prolog compiler developed
+at LIACC, Universidade do Porto. YAP provides several important
 features:
 
- o speed: Yap is widely considered one of the fastest available Prolog
+ o speed: YAP is widely considered one of the fastest available Prolog
 systems.
 
  o functionality: it supports stream I/O, sockets, modules,
 exceptions, Prolog debugger, C-interface, dynamic code, internal
 database, DCGs, saved states, co-routining, arrays.
 
- o we explicitly allow both commercial and non-commercial use of Yap.
+ o we explicitly allow both commercial and non-commercial use of YAP.
 
-Yap is based on the David H. D. Warren's WAM (Warren Abstract
-Machine), with several optimizations for better performance. Yap
+YAP is based on the David H. D. Warren's WAM (Warren Abstract
+Machine), with several optimizations for better performance. YAP
 follows the Edinburgh tradition, and was originally designed to be
 largely compatible with DEC-10 Prolog, Quintus Prolog, and especially
 with C-Prolog.
 
-Yap implements most of the ISO-Prolog standard. We are striving at
+YAP implements most of the ISO-Prolog standard. We are striving at
 full compatibility, and the manual describes what is still
 missing. The manual also includes a (largely incomplete) comparison
 with SICStus Prolog.
@@ -81,7 +81,10 @@ to obtain a copy of the current YAP tree.
 
 3. How to compile YAP
 
-To compile YAP from the source directory just do:
+First, make sure you have gmp and readline development packages
+installed. If you plan to use ProbLog, also check for cudd.
+
+Now, to compile YAP from the source directory just do:
 
  (1) ./configure
 
@@ -91,7 +94,7 @@ To compile YAP from the source directory just do:
 
  (4) If the compilation succeeds, try ./yap
 
- (5) Happy? make install
+ (5) Happy? "make install"
 
  (6) "make install_info" will create the info files in the standard
      info directory.
@@ -100,11 +103,11 @@ To compile YAP from the source directory just do:
      current directory.
 
 In most systems you will need to be superuser in order to do "make
-install" and "make info" on the standard directories.
+install" and "make info" on the standard system directories.
 
-3.1 Where to install Yap
+3.1 Where to install YAP
 
- YAP uses autoconf. Recent versions of Yap try to follow GNU
+ YAP uses autoconf. Recent versions of YAP try to follow GNU
 conventions on where to place software. By default, this location is
 /usr/local on Unix, Linux, and OS/X machines. 
 
@@ -119,16 +122,16 @@ Prolog engine, stored at YAPLIBDIR.
   o SHAREDIR is the directory where the Prolog libraries are stored.
 Its default value is $(ROOTDIR)/share. The Prolog libraries are
 machine-independent text files that only need to be installed once,
-even on systems where multiple copies of Yap of the same version are
+even on systems where multiple copies of YAP of the same version are
 installed. (e.g. with different configurations or for different
 architectures sharing a file server.)
 
   o LIBDIR is the directory where binary libraries are stored. It is
 set to $(EROOTDIR)/lib by default. YAPLIBDIR is a subdirectory (by
-default $(EROOTDIR)/lib/Yap) that contains the Prolog engine and the
+default $(EROOTDIR)/lib/YAP) that contains the Prolog engine and the
 binary Prolog libraries.
 
-  o INCLUDEDIR is used if you want to use Yap as a library.
+  o INCLUDEDIR is used if you want to use YAP as a library.
 
   o INFODIR is where the info help files will be stored. It defaults
 to $(SHAREDIR)/info.
@@ -136,17 +139,22 @@ to $(SHAREDIR)/info.
 3.2 Which YAP to compile
 
 Compiling YAP with the standard options give you a plain vanilla
-Prolog. You can tune Yap to use extra functionality by using the
+Prolog. You can tune YAP to use extra functionality by using the
 following options to configure:
+
+Compilation options:
 
  o --enable-depth-limit=yes allows depth limited evaluation, say for
 implementing iterative deepening. It is required by the ILP system
 Aleph.
 
- o --enable-use-malloc=yes makes YAP use the system's library for all
- memory allocation. 
+ o --enable-use-malloc=yes makes YAP use the system's C-library
+ allocation routines for all memory allocation. It is not compatible
+ with save and restore.
 
  o --enable-threads=yes enables POSIX thread support.
+
+ o --enable-pthread-locking=yes always use POSIX p-thread routines for locking.
 
  o --enable-low-level-tracer=yes allows support for tracing all calls,
 retries, and backtracks in the system. This can help in debugging your
@@ -156,19 +164,60 @@ application, but results in performance loss.
 instructions. This is useful when developing YAP, should not be very
 useful for normal users.
 
- o --enable-parallelism={env-copy,sba,a-cow} allows or-parallelism
-supported by one of these three forms. This is still highly experimental.
+ o --enable-or-parallelism={env-copy,sba,a-cow} allows or-parallelism
+supported by one of these three forms. This is still experimental.
 
- o --enable-tabling=yes allows tabling support. This is still experimental.
+ o --enable-tabling=yes allows tabling support.
 
- o --with-jpl=JAVA_PATH activates the Java Interface Library JPL. In
+ o --enable-dynamic-loading compile YAP as as a shared library.
+
+ o --enable-win64 compile YAP as a WIN64 application (still experimental).
+
+ o --enable-cygwin compile YAP as a CYGWIN environment application, and not as stand-alone application.
+
+ o --with-cudd=CUDD_PATH enable support of the CUDD library, used by
+ packages such as ProbLog. Usually CUDD has to compiled from source
+ (http://vlsi.colorado.edu/~fabio/CUDD/), but Fedora and MacPorts have
+ cudd packages. In the case of Fedora, install cudd-dev and use
+ --with-cud=/usr, in the case of MacPorts install cudd-dev and use
+ --with-cud=/opt/local.
+
+ o --with-gmp=GMP_PATH provide a path for GMP, in case GMP is not
+ installed in the system. In a Linux machine, make sure you have
+ installed the gmp-dev package. Binary versions of GMP are available
+ for WIN32.
+
+Functionality options:
+
+ o --with-java=JAVA_PATH activates the Java Interface Library JPL. In
  Linux and WIN32 you have to provide a path to the Java library, in
  OSX it is sufficient to say yes.
 
-3.3 Porting Yap
+ o --enable-condor compile YAP as a static program that can be run by condor
+
+ o --enable-chr install CHR (enabled by default, if CHR is available)
+
+ o --enable-clpqr install CLPQR (enabled by default, if CLPQR is available)
+
+ o --enable-myddas install the MYDDAS MYSQL and/or ODBC interface
+ package. YAP tries to compile this by default, if the odbc or MySql
+ development files can be found.
+
+ o --with-matlab install the MATLAB interface (not default). You need
+ to provide the full path of the MATLAB install.
+
+ o --with-mpi install the MPICH based MPI interface. This is default,
+ if the development libraries can be found.
+
+ o --with-mpe install the MPE interface.
+
+ o --with-lam install the MPI LAM-based interface.
+
+
+3.3 Porting YAP
 
 The system has been mainly tested with GCC, but we have been able to
-compile older versions of Yap under lcc in Linux, Sun's cc compiler,
+compile older versions of YAP under lcc in Linux, Sun's cc compiler,
 IBM's xlc, SGI's cc, HP's cc, and Microsoft's Visual C++ 6.0. Recent
 versions of YAP have also been compiled using Intel's lcc.
 
