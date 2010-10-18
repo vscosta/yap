@@ -1450,7 +1450,7 @@ Optional Features:
  --enable-april             compile Yap to support April ILP system
  --enable-dlcompat          use dlcompat library for dynamic loading on Mac OS X
  --enable-cplint=DIR       enable the cplint library using the glu library in DIR/lib
- --enable-myddas[=DIR]      enable the MYDDAS library
+v	 --enable-myddas[=DIR]      enable the MYDDAS library
  --enable-myddas-stats      enable the MYDDAS library statistics support
  --enable-myddas-top-level  enable the MYDDAS top-level support to MySQL
 
@@ -3902,10 +3902,14 @@ if test "${with_cudd+set}" = set; then :
 		yap_cv_cudd=yes
 	elif test "$withval" = no; then
 		yap_cv_cudd=no
-	@	elif test "$withval" = /opt/local; then
+	elif test "$withval" = /opt/local; then
 		yap_cv_cudd=$with_cudd
 		CUDD_LDFLAGS="-L/opt/local/lib/cudd -lcudd"
 		CUDD_CPPFLAGS="-I /opt/local/include/cudd"
+	elif test "$withval" = /usr; then
+		yap_cv_cudd=$with_cudd
+		CUDD_LDFLAGS="-lcudd -lmtr -lcuddst -lcuddutil -lepd"
+		CUDD_CPPFLAGS="-I /usr/include/cudd"
 	else
 		yap_cv_cudd=$with_cudd
 		CUDD_LDFLAGS="$yap_cv_cudd/cudd/libcudd.a  $yap_cv_cudd/mtr/libmtr.a  $yap_cv_cudd/st/libst.a  $yap_cv_cudd/util/libutil.a  $yap_cv_cudd/epd/libepd.a"
