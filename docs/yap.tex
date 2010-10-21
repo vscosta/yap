@@ -7298,6 +7298,7 @@ Show profiling info for the top-most @var{N} predicates.
 
 @end table
 
+The @code{showprofres/0} and @code{showprofres/1} predicates call a user-defined multifile hook predicate, @code{user:prolog_predicate_name/2}, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
 
 @node Call Counting, Arrays, Profiling, Top
 @section Counting Calls
