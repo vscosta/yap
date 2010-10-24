@@ -29,7 +29,7 @@ ComponentText "This will install YAP on your computer."
 DirText "This program will install YAP on your computer.\
          Choose a directory"
 
-LicenseData c:\Yap\share\docs\Yap\Artistic
+LicenseData c:\Yap\share\doc\Yap\Artistic
 LicenseText "YAP is governed by the Artistic License,\
 	but includes code under the GPL and LGPL."
 
@@ -65,12 +65,12 @@ Section "Base system (required)"
 ; SYSTEM STUFF
   File /r c:\Yap\share\Yap\*
 
-  SetOutPath $INSTDIR\docs\Yap
-  File c:\Yap\share\docs\Yap\yap.html
-  File c:\Yap\share\docs\Yap\yap.pdf
-  File c:\Yap\share\docs\Yap\Artistic
-  File c:\Yap\share\docs\Yap\README.TXT
-  File c:\Yap\share\docs\Yap\COPYING.TXT
+  SetOutPath $INSTDIR\doc\Yap
+  File c:\Yap\share\doc\Yap\yap.html
+  File c:\Yap\share\doc\Yap\yap.pdf
+  File c:\Yap\share\doc\Yap\Artistic
+  File c:\Yap\share\doc\Yap\README.TXT
+  File c:\Yap\share\doc\Yap\COPYING.TXT
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
   WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup.yss"
@@ -94,16 +94,16 @@ Section "Start Menu shortcuts"
 		 0
   SetOutPath $INSTDIR
   CreateShortCut "$SMPROGRAMS\${GRP}\Readme.lnk" \
-  		  "$INSTDIR\docs\Yap\README.TXT" "" \
-		  "$INSTDIR\docs\Yap\README.TXT" 0 \
+  		  "$INSTDIR\doc\Yap\README.TXT" "" \
+		  "$INSTDIR\doc\Yap\README.TXT" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual Html.lnk" \
-  		  "$INSTDIR\docs\Yap\yap.html" "" \
-		  "$INSTDIR\docs\Yap\yap.html" 0 \
+  		  "$INSTDIR\doc\Yap\yap.html" "" \
+		  "$INSTDIR\doc\Yap\yap.html" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Manual PDF.lnk" \
-  		  "$INSTDIR\docs\Yap\yap.pdf" "" \
-		  "$INSTDIR\docs\Yap\yap.pdf" 0 \
+  		  "$INSTDIR\doc\Yap\yap.pdf" "" \
+		  "$INSTDIR\doc\Yap\yap.pdf" 0 \
 		  "SW_SHOWNORMAL" "" "View readme"
   CreateShortCut "$SMPROGRAMS\${GRP}\Uninstall.lnk" \
 		 "$INSTDIR\uninstall.exe" \
@@ -256,7 +256,7 @@ FunctionEnd
 
 Function .onInstSuccess
   MessageBox MB_YESNO "Installation complete. View readme?" IDNO NoReadme
-  ExecShell "open" "$INSTDIR\docs\README.TXT"
+  ExecShell "open" "$INSTDIR\doc\README.TXT"
   NoReadme:
 FunctionEnd
 
