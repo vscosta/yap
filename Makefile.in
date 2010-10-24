@@ -517,6 +517,7 @@ all: startup.yss
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
+	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
@@ -568,7 +569,6 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
-	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
@@ -619,6 +619,7 @@ install_win32: startup.yss
 	(cd packages/sgml; $(MAKE) install)
 	(cd packages/semweb; $(MAKE) install)
 	(cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
+	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@USE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
@@ -632,7 +633,6 @@ install_data:
 	(cd packages/swi-minisat2; $(MAKE) install)
 	(cd LGPL ; $(MAKE) install)
 	(cd GPL ; $(MAKE) install)
-	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/icon_address.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
