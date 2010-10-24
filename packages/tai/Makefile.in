@@ -18,8 +18,9 @@ LIBDIR=@libdir@
 YAPLIBDIR=@libdir@/Yap
 #
 #
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ -D_YAP_NOT_INSTALLED_=1 $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../PLStream
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../PLStream
 #
 #
 # You shouldn't need to change what follows.
