@@ -11614,15 +11614,6 @@ is considered. Otherwise, the term is considered only up to depth
 @code{1}, where the constants and the principal functor have depth
 @code{1}, and an argument of a term with depth @var{I} has depth @var{I+1}. 
 
-@item term_variables(?@var{Term}, -@var{Variables})
-@findex  term_variables/2
-@syindex term_variables/2
-@cnindex term_variables/2
-
-Unify @var{Variables} with the list of all variables of term
-@var{Term}.  The variables occur in the order of their first
-appearance when traversing the term depth-first, left-to-right.
-
 @item variables_within_term(+@var{Variables},?@var{Term}, -@var{OutputVariables})
 @findex  variables_within_term/3
 @snindex variables_within_term/3 
@@ -13286,6 +13277,16 @@ defined.
 @cnindex copy_term_nat/2
 As @code{copy_term/2}.  Attributes however, are @emph{not} copied but replaced
 by fresh variables.
+
+@item term_variables(?@var{Term}, -@var{Variables})
+@findex  term_variables/2
+@syindex term_variables/2
+@cnindex term_variables/2
+
+Unify @var{Variables} with the list of all variables of term
+@var{Term}.  The variables occur in the order of their first
+appearance when traversing the term depth-first, left-to-right.
+
 @end table
 
 @node Old Style Attribute Declarations, , New Style Attribute Declarations, Attributed Variables
@@ -15712,12 +15713,11 @@ loop(Env) :-
 
 @section Profiling
 
-The indexation mechanism restricts the set of clauses to be tried in a 
-procedure by using information about the status of a selected argument of 
-the goal (in YAP, as in most compilers, the first argument). 
-This argument 
-is then used as a key, selecting a restricted set of a clauses from all the 
-clauses forming the procedure.
+The indexation mechanism restricts the set of clauses to be tried in a
+procedure by using information about the status of the instantiated
+arguments of the goal.  These arguments are then used as a key,
+selecting a restricted set of a clauses from all the clauses forming the
+procedure.
 
 As an example, the two clauses for concatenate:
 
