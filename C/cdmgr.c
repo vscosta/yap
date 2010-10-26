@@ -200,7 +200,7 @@
 * Revision 1.174  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
-* Try to saveregs before longjmp.
+* Try to saveregs before _longjmp.
 *
 * Revision 1.173  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
@@ -5170,6 +5170,31 @@ p_continue_static_clause(void)
 #if LOW_PROF
 
 static void
+add_code_in_lu_index(LogUpdIndex *cl, PredEntry *pp)
+{
+  char *code_end = (char *)cl + cl->ClSize;
+  Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
+  cl = cl->ChildIndex;
+  while (cl != NULL) {
+    add_code_in_lu_index(cl, pp);
+    cl = cl->SiblingIndex;
+  }
+}
+
+static void
+add_code_in_static_index(StaticIndex *cl, PredEntry *pp)
+{
+  char *code_end = (char *)cl + cl->ClSize;
+  Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
+  cl = cl->ChildIndex;
+  while (cl != NULL) {
+    add_code_in_static_index(cl, pp);
+    cl = cl->SiblingIndex;
+  }
+}
+
+
+static void
 add_code_in_pred(PredEntry *pp) {
   yamop *clcode;
 
@@ -5192,15 +5217,13 @@ add_code_in_pred(PredEntry *pp) {
   Yap_inform_profiler_of_clause((yamop *)&(pp->cs.p_code.ExpandCode), (yamop *)(&(pp->cs.p_code.ExpandCode)+1), pp, 1);
   clcode = pp->cs.p_code.TrueCodeOfPred;
   if (pp->PredFlags & IndexedPredFlag) {
-    char *code_end;
     if (pp->PredFlags & LogUpdatePredFlag) {
       LogUpdIndex *cl = ClauseCodeToLogUpdIndex(clcode);
-      code_end = (char *)cl + cl->ClSize;
+      add_code_in_lu_index(cl, pp);
     } else {
       StaticIndex *cl = ClauseCodeToStaticIndex(clcode);
-      code_end = (char *)cl + cl->ClSize;
+      add_code_in_static_index(cl, pp);
     }
-    Yap_inform_profiler_of_clause(clcode, (yamop *)code_end, pp,0);
   }	      
   clcode = pp->cs.p_code.FirstClause;
   if (clcode != NULL) {
@@ -5232,7 +5255,7 @@ add_code_in_pred(PredEntry *pp) {
 
 	code_end = (char *)cl + cl->ClSize;
 	Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)code_end, pp,0);
-	if (cl->ClCode == pp->cs.p_code.FirstClause)
+	if (cl->ClCode == pp->cs.p_code.LastClause)
 	  break;
 	cl = cl->ClNext;
       } while (TRUE);

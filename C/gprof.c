@@ -126,7 +126,6 @@ typedef greg_t context_reg;
 static Int ProfCalls, ProfGCs, ProfHGrows, ProfSGrows, ProfMallocs, ProfOn, ProfOns;
 
 #define TIMER_DEFAULT 100
-#define MORE_INFO_FILE 1
 #define PROFILING_FILE 1
 #define PROFPREDS_FILE 2
 
@@ -712,19 +711,10 @@ static Int order=0;
   ProfOn = TRUE;
   if (FPreds != NULL) {
     Int temp;
+
     order++;
     if (index_code) temp=-order; else temp=order;
-    fprintf(FPreds,"+%p %p %p %ld",code_start,code_end, pe, (long int)temp);
-#if MORE_INFO_FILE
-    if (pe->FunctorOfPred->KindOfPE==47872) {
-      if (pe->ArityOfPE) {
-	fprintf(FPreds," %s/%d", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE);
-      } else {
-	fprintf(FPreds," %s",RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE);
-      }
-      }
-#endif
-    fprintf(FPreds,"\n");
+    fprintf(FPreds,"+%p %p %p %ld\n",code_start,code_end, pe, (long int)temp);
   }
   ProfOn = FALSE;
 }
@@ -737,228 +727,189 @@ typedef struct clause_entry {
   int ts;    /* start end timestamp towards retracts, eventually */
 } clauseentry;
 
-static int
-cl_cmp(const void *c1, const void *c2)
-{
-  const clauseentry *cl1 = (const clauseentry *)c1;
-  const clauseentry *cl2 = (const clauseentry *)c2;
-  if (cl1->beg > cl2->beg) return 1;
-  if (cl1->beg < cl2->beg) return -1;
-  return 0;
+static Int profend(void); 
+
+static void
+clean_tree(rb_red_blk_node* node) {
+  if (node == ProfilerNil)
+    return;
+  clean_tree(node->left);
+  clean_tree(node->right);
+  Yap_FreeCodeSpace((char *)node);
+}
+
+static void
+reset_tree(void) {
+  clean_tree(ProfilerRoot);
+  Yap_FreeCodeSpace((char *)ProfilerNil);
+  ProfilerNil = ProfilerRoot = NULL;
+  ProfCalls = ProfGCs = ProfHGrows = ProfSGrows = ProfMallocs = ProfOns = 0L;
 }
 
 static int
-p_cmp(const void *c1, const void *c2)
+InitProfTree(void)
 {
-  const clauseentry *cl1 = (const clauseentry *)c1;
-  const clauseentry *cl2 = (const clauseentry *)c2;
-  if (cl1->pp > cl2->pp) return 1;
-  if (cl1->pp < cl2->pp) return -1;
-
-  /* else same pp, but they are always different on the ts */
-  if (cl1->ts > cl2->ts) return 1;
-  else return -1;
+  if (ProfilerRoot) 
+    reset_tree();
+  while (!(ProfilerRoot = RBTreeCreate())) {
+    if (!Yap_growheap(FALSE, 0, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
+      return FALSE;
+    }    
+  }
+  return TRUE;
 }
 
-static clauseentry *
-search_pc_pred(yamop *pc_ptr,clauseentry *beg, clauseentry *end) {
-  Int i, j, f, l;
-  f = 0; l = (end-beg);
-  i = l/2;
-  while (TRUE) {
-    if (beg[i].beg > pc_ptr) {
-      l = i-1;
-      if (l < f) {
-	return NULL;
-      }
-      j = i;
-      i = (f+l)/2;
-    } else if (beg[i].end < pc_ptr) {
-      f = i+1;
-      if (f > l) {
-	return NULL;
-      }
-      i = (f+l)/2;
-    } else if (beg[i].beg <= pc_ptr && beg[i].end >= pc_ptr) {
-      return (&beg[i]);
-    } else {
-      return NULL;
+static void LookupNode(yamop *current_p) {
+  rb_red_blk_node *node;
+
+  if ((node = RBLookup(current_p))) {
+    node->pcs++;
+    return;
+  } else {
+    PredEntry *pp = NULL;
+    CODEADDR start, end;
+
+    pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);
+    if (!pp) {
+#if DEBUG
+      fprintf(stderr,"lost %p, %d\n", P, Yap_op_from_opcode(P->opc));
+#endif
+      /* lost profiler event !! */
+      return;
     }
+#if !USE_SYSTEM_MALLOC
+    /* add this clause as new node to the tree */
+    if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
+	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
+#if DEBUG
+      fprintf(stderr,"Oops2: %p->%lu %p, %p\n", current_p, (unsigned long int)(current_p->opc), start, end);
+#endif
+      return;
+    }
+#endif
+    if (pp->ArityOfPE > 100) {
+#if DEBUG
+      fprintf(stderr,"%p(%lu)-->%p\n",current_p,(unsigned long int)Yap_op_from_opcode(current_p->opc),pp);
+#endif
+     return;
+    }
+    node = RBTreeInsert((yamop *)start, (yamop *)end);
+    node->pe = pp;
+    node->pcs = 1;
   }
 }
 
-static Int profend(void); 
+static void RemoveCode(CODEADDR clau)
+{
+  rb_red_blk_node* x, *node;
+  PredEntry *pp;
+  UInt count;
+
+  if (!ProfilerRoot) return;
+  if (!(x = RBExactQuery((yamop *)clau))) {
+    /* send message */
+    ProfOn = FALSE;
+    return;
+  }
+  pp = x->pe;
+  count = x->pcs;
+  RBDelete(x);
+  /* use a single node to represent all deleted clauses */
+  if (!(node = RBExactQuery((yamop *)(pp->OpcodeOfPred)))) {
+    node = RBTreeInsert((yamop *)(pp->OpcodeOfPred), NEXTOP((yamop *)(pp->OpcodeOfPred),e));
+    node->lim = (yamop *)pp;
+    node->pe = pp;
+    node->pcs = count;
+    /* send message */
+    ProfOn = FALSE;
+    return;
+  } else {
+    node->pcs += count;
+  }  
+}
+
+#define MAX_LINE_SIZE 1024
 
 static int
-showprofres(UInt type) { 
-  clauseentry *pr, *t, *t2;
-  PredEntry *mype;
-  UInt count=0, ProfCalls=0, InGrowHeap=0, InGrowStack=0, InGC=0, InError=0, InUnify=0, InCCall=0;
-  yamop *pc_ptr,*y; void *oldpc; 
+showprofres(void) { 
+  char line[MAX_LINE_SIZE];
+  yamop *pr_beg, *pr_end;
+  PredEntry *pr_pp;
+  long int pr_count;
+  
 
   profend(); /* Make sure profiler has ended */
 
   /* First part: Read information about predicates and store it on yap trail */
 
-  FPreds=fopen(profile_names(PROFPREDS_FILE),"r"); 
-
-  if (FPreds == NULL) { printf("Sorry, profiler couldn't find PROFPREDS file. \n"); return FALSE; }
-
-  ProfPreds=0;
-  pr=(clauseentry *) TR;
-  while (fscanf(FPreds,"+%p %p %p %d",&(pr->beg),&(pr->end),&(pr->pp),&(pr->ts)) > 0){
-    int c;
-    pr->pcs = 0L;
-    pr++;
-    if (pr > (clauseentry *)Yap_TrailTop - 1024) {
-      Yap_growtrail(K64, FALSE);
-    }
-    ProfPreds++;
-
-    do {
-      c=fgetc(FPreds);
-    } while(c!=EOF && c!='\n');
-  }
-  fclose(FPreds);
-  if (ProfPreds==0) return(TRUE);
-
-  qsort((void *)TR, ProfPreds, sizeof(clauseentry), cl_cmp);
-
-  /* Second part: Read Profiling to know how many times each predicate has been profiled */
-
+  InitProfTree();
   FProf=fopen(profile_names(PROFILING_FILE),"r"); 
-  if (FProf==NULL) { printf("Sorry, profiler couldn't find PROFILING file. \n"); return FALSE; }
+  if (FProf==NULL) { fclose(FProf); return FALSE; }
+  while (fgets(line, MAX_LINE_SIZE, FProf) != NULL) {
+    if (line[0] == '+') {
+      rb_red_blk_node *node;
+      sscanf(line+1,"%p %p %p %ld",&pr_beg,&pr_end,&pr_pp,&pr_count);
+      node = RBTreeInsert(pr_beg, pr_end);
+      node->pe = pr_pp;
+      node->pcs = 0;
+    } else if  (line[0] == '-') {
+      sscanf(line+1,"%p",&pr_beg);
+      RemoveCode((CODEADDR)pr_beg);
+    } else {
+      rb_red_blk_node *node;
 
-  t2=NULL;
-  ProfCalls=0;
-  while(fscanf(FProf,"%p %p %p\n",&oldpc, &pc_ptr,&mype) >0){
-    if (type<10) ProfCalls++;
-    
-    if (oldpc!=0 && type<=2) {
-      if ((unsigned long)oldpc< 70000) {
-        if ((unsigned long) oldpc & GrowHeapMode) { InGrowHeap++; continue; }
-        if ((unsigned long)oldpc & GrowStackMode) { InGrowStack++; continue; }
-        if ((unsigned long)oldpc & GCMode) { InGC++; continue; }
-        if ((unsigned long)oldpc & (ErrorHandlingMode | InErrorMode)) { InError++; continue; }
+      sscanf(line,"%p",&pr_beg);
+      node = RBLookup(pr_beg);
+      if (!node) {
+#if DEBUG
+	fprintf(stderr,"Oops: %p\n", pr_beg);
+#endif
+      } else {
+	node->pcs++; 
       }
-      if (oldpc>(void *) Yap_rational_tree_loop && oldpc<(void *) Yap_InitAbsmi) { InUnify++; continue; }
-      y=(yamop *) ((long) pc_ptr-20);
-      if (y->opc==Yap_opcode(_call_cpred) || y->opc==Yap_opcode(_call_usercpred)) {
-             InCCall++;  /* I Was in a C Call */
-	     pc_ptr=y;
-    	     /* 
-	      printf("Aqui está um call_cpred(%p) \n",y->u.Osbpp.p->cs.f_code);
-              for(i=0;i<_std_top && pc_ptr->opc!=Yap_ABSMI_OPCODES[i];i++);
-      	         printf("Outro syscall diferente  %s\n", Yap_op_names[i]);
-             */
-             continue;
-       } 
-       /* I should never get here, but since I'm, it is certanly Unknown Code, so 
-	  continue running to try to count it as Prolog Code  */
     }
-   
-    t=search_pc_pred(pc_ptr,(clauseentry *)TR,pr);
-    if (t!=NULL) { /* pc was found */
-        if (type<10) t->pcs++;
-        else {
-	  if (t->pp==(PredEntry *)type) {
-	    ProfCalls++;
-	    if (t2!=NULL) t2->pcs++;
-	  }
-        } 
-        t2=t;
-    }
-
   }
-
   fclose(FProf);
-  if (ProfCalls==0) return(TRUE);
+  if (ProfCalls==0) 
+    return TRUE;
+  return TRUE;
+}
 
-  /*I have the counting by clauses, but we also need them by predicate */
-  qsort((void *)TR, ProfPreds, sizeof(clauseentry), p_cmp);
-  t = (clauseentry *)TR;
-  while (t < pr) {
-      UInt calls=t->pcs;
+static Int
+p_test(void) { 
+  char line[MAX_LINE_SIZE];
+  yamop *pr_beg, *pr_end;
+  PredEntry *pr_pp;
+  long int pr_count;
 
-      t2=t+1;
-      while(t2<pr && t2->pp==t->pp) {
-	calls+=t2->pcs;
-	t2++;
-      }
-      while(t<t2) {
-	t->pca=calls;
-	t++;
-      }
-  }
 
-  /* counting done: now it is time to present the results */
-  fflush(stdout);
+  profend(); /* Make sure profiler has ended */
 
-  /*
-  if (type>10) {
-    PredEntry *myp = (PredEntry *)type;
-    if (myp->FunctorOfPred->KindOfPE==47872) {
-	printf("Details on predicate:");
-	printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
-	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
-        if (myp->ArityOfPE) printf("/%d\n",myp->ArityOfPE);	
-    }    
-    type=1;
-  }
-  */
+  /* First part: Read information about predicates and store it on yap trail */
 
-  if (type==0 || type==1 || type==3) {  /* Results by predicate */
-    t = (clauseentry *)TR;
-    while (t < pr) {
-      UInt calls=t->pca;
-      PredEntry *myp = t->pp;
-      
-      if (calls && myp->FunctorOfPred->KindOfPE==47872) {
-        count+=calls;
-	printf("%p",myp);
-	if (myp->ModuleOfPred) printf(" %s",RepAtom(AtomOfTerm(myp->ModuleOfPred))->StrOfAE);
-	printf(":%s",RepAtom(NameOfFunctor(myp->FunctorOfPred))->StrOfAE);
-        if (myp->ArityOfPE) printf("/%d",myp->ArityOfPE);	
-	printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
-      }
-      while (t<pr && t->pp == myp) t++;
-    }
-  } else { /* Results by clauses */
-    t = (clauseentry *)TR;
-    while (t < pr) {
-      if (t->pca!=0 && (t->ts>=0 || t->pcs!=0) && t->pp->FunctorOfPred->KindOfPE==47872) {
-	UInt calls=t->pcs;
-	if (t->ts<0) { /* join all index entries */
-	  t2=t+1;
-	  while(t2<pr && t2->pp==t->pp && t2->ts<0) {
-	    t++;
-	    calls+=t->pcs;
-	    t2++;
-	  }
-          printf("IDX"); 
-	} else {
-          printf("   ");
-	}
-        count+=calls;
-	//	printf("%p %p",t->pp, t->beg);
-        if (t->pp->ModuleOfPred) printf(" %s",RepAtom(AtomOfTerm(t->pp->ModuleOfPred))->StrOfAE);
-        printf(":%s",RepAtom(NameOfFunctor(t->pp->FunctorOfPred))->StrOfAE);
-        if (t->pp->ArityOfPE) printf("/%d",t->pp->ArityOfPE);	
-        printf(" -> %lu (%3.1f%c)\n",(unsigned long int)calls,(float) calls*100/ProfCalls,'%');
-      }
-      t++;
+  InitProfTree();
+  FProf=fopen("PROFILING_93920","r"); 
+  if (FProf==NULL) { fclose(FProf); return FALSE; }
+  while (fgets(line, MAX_LINE_SIZE, FProf) != NULL) {
+    if (line[0] == '+') {
+      rb_red_blk_node *node;
+      sscanf(line+1,"%p %p %p %ld",&pr_beg,&pr_end,&pr_pp,&pr_count);
+      node = RBTreeInsert(pr_beg, pr_end);
+      node->pe = pr_pp;
+      node->pcs = 0;
+    } else if  (line[0] == '-') {
+      sscanf(line+1,"%p",&pr_beg);
+      RemoveCode((CODEADDR)pr_beg);
+    } else {
+      rb_red_blk_node *node = RBTreeInsert(pr_beg, pr_end);
+      node->pe = pr_pp;
+      node->pcs = 1;
     }
   }
-  count=ProfCalls-(count+InGrowHeap+InGrowStack+InGC+InError+InUnify+InCCall); // Falta +InCCall
-  if (InGrowHeap>0) printf("%p sys: GrowHeap -> %lu (%3.1f%c)\n",(void *) GrowHeapMode,(unsigned long int)InGrowHeap,(float) InGrowHeap*100/ProfCalls,'%');
-  if (InGrowStack>0) printf("%p sys: GrowStack -> %lu (%3.1f%c)\n",(void *) GrowStackMode,(unsigned long int)InGrowStack,(float) InGrowStack*100/ProfCalls,'%');
-  if (InGC>0) printf("%p sys: GC -> %lu (%3.1f%c)\n",(void *) GCMode,(unsigned long int)InGC,(float) InGC*100/ProfCalls,'%');
-  if (InError>0) printf("%p sys: ErrorHandling -> %lu (%3.1f%c)\n",(void *) ErrorHandlingMode,(unsigned long int)InError,(float) InError*100/ProfCalls,'%');
-  if (InUnify>0) printf("%p sys: Unify -> %lu (%3.1f%c)\n",(void *) UnifyMode,(unsigned long int)InUnify,(float) InUnify*100/ProfCalls,'%');
-  if (InCCall>0) printf("%p sys: C Code -> %lu (%3.1f%c)\n",(void *) CCallMode,(unsigned long int)InCCall,(float) InCCall*100/ProfCalls,'%');
-  if (count>0) printf("Unknown:Unknown -> %lu (%3.1f%c)\n",(unsigned long int)count,(float) count*100/ProfCalls,'%');
-  printf("Total of Calls=%lu \n",(unsigned long int)ProfCalls);
-
+  fclose(FProf);
+  if (ProfCalls==0) 
+    return TRUE;
   return TRUE;
 }
 
@@ -970,17 +921,16 @@ static void
 prof_alrm(int signo, siginfo_t *si, void *scv)
 {
   void * oldpc=(void *) CONTEXT_PC(scv);
-  rb_red_blk_node *node = NULL;
   yamop *current_p;
 
   ProfCalls++;
+  /* skip an interrupt */
+  if (ProfOn) {
+    ProfOns++;
+    return;
+  }
+  ProfOn = TRUE;
   if (Yap_PrologMode & TestMode) {
-    if (Yap_OffLineProfiler) {
-      fprintf(FProf,"%p %p\n", (void *) ((CELL)Yap_PrologMode & TestMode), P);
-      ProfOn = FALSE;
-      return;
-    }
-  
     if (Yap_PrologMode & GCMode) {
       ProfGCs++;
       ProfOn = FALSE;
@@ -1034,60 +984,18 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 #if DEBUG
     fprintf(stderr,"Oops: %p, %p\n", oldpc, current_p);
 #endif
+    ProfOn = FALSE;
     return;
   }
 #endif
 
   if (Yap_OffLineProfiler) {
-    fprintf(FProf,"%p %p ", oldpc, current_p);
-    ProfOn = FALSE;
-    //    return;
-  }
-
-  if (ProfOn) {
-    ProfOns++;
-    return;
-  }
-  ProfOn = TRUE;
-  if ((node = RBLookup((yamop *)current_p))) {
-    node->pcs++;
-    if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", node->pe);
+    fprintf(FProf,"%p\n", current_p);
     ProfOn = FALSE;
     return;
-  } else {
-    PredEntry *pp = NULL;
-    CODEADDR start, end;
-
-    pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);
-    if (Yap_OffLineProfiler) fprintf(FProf,"%p\n", pp);
-    if (!pp) {
-#if DEBUG
-      fprintf(stderr,"lost %p, %d\n", P, Yap_op_from_opcode(P->opc));
-#endif
-      /* lost profiler event !! */
-      ProfOn=FALSE;
-      return;
-    }
-#if !USE_SYSTEM_MALLOC
-    /* add this clause as new node to the tree */
-    if (start < (CODEADDR)Yap_HeapBase || start > (CODEADDR)HeapTop ||
-	end < (CODEADDR)Yap_HeapBase || end > (CODEADDR)HeapTop) {
-#if DEBUG
-      fprintf(stderr,"Oops2: %p->%lu %p, %p\n", current_p, (unsigned long int)(current_p->opc), start, end);
-#endif
-      return;
-    }
-#endif
-    if (pp->ArityOfPE > 100) {
-#if DEBUG
-      fprintf(stderr,"%p:%p(%lu)-->%p\n",oldpc,current_p,(unsigned long int)Yap_op_from_opcode(current_p->opc),pp);
-#endif
-     return;
-    }
-    node = RBTreeInsert((yamop *)start, (yamop *)end);
-    node->pe = pp;
-    node->pcs = 1;
   }
+
+  LookupNode(current_p);
   ProfOn = FALSE;
 }
 
@@ -1095,57 +1003,15 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 void
 Yap_InformOfRemoval(CODEADDR clau)
 {
-  rb_red_blk_node* x, *node;
-  UInt count;
-  PredEntry *pp;
-
-  if (FPreds != NULL) {
-    /* ricardo? */
-    /* do something  */
-    return;
-  }
-  if (!ProfilerRoot) return;
   ProfOn = TRUE;
-  if (!(x = RBExactQuery((yamop *)clau))) {
-    /* send message */
+  if (FPreds != NULL) {
+    /* just store info about what is going on  */
+    fprintf(FPreds,"-%p\n",clau);
     ProfOn = FALSE;
     return;
   }
-  /* just keep within the other profiler for now */
-  pp = x->pe;
-  count = x->pcs;
-  /* fprintf(stderr,"D %p:%p\n",x,pp); */
-  RBDelete(x);
-  /* use a single node to represent all deleted clauses */
-  if (!(node = RBExactQuery((yamop *)(pp->OpcodeOfPred)))) {
-    node = RBTreeInsert((yamop *)(pp->OpcodeOfPred), NEXTOP((yamop *)(pp->OpcodeOfPred),e));
-    node->lim = (yamop *)pp;
-    node->pe = pp;
-    node->pcs = count;
-    /* send message */
-    ProfOn = FALSE;
-    return;
-  } else {
-    node->pcs += count;
-  }
+  RemoveCode(clau);
   ProfOn = FALSE;
-}
-
-static void
-clean_tree(rb_red_blk_node* node) {
-  if (node == ProfilerNil)
-    return;
-  clean_tree(node->left);
-  clean_tree(node->right);
-  Yap_FreeCodeSpace((char *)node);
-}
-
-static void
-reset_tree(void) {
-  clean_tree(ProfilerRoot);
-  Yap_FreeCodeSpace((char *)ProfilerNil);
-  ProfilerNil = ProfilerRoot = NULL;
-  ProfCalls = ProfGCs = ProfHGrows = ProfSGrows = ProfMallocs = ProfOns = 0L;
 }
 
 static Int profend(void); 
@@ -1201,21 +1067,15 @@ static Int
 do_profinit(void)
 {
   if (Yap_OffLineProfiler) {
-    FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
-    if (FPreds == NULL) return FALSE;
+    //    FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
+    // if (FPreds == NULL) return FALSE;
     FProf=fopen(profile_names(PROFILING_FILE),"w+"); 
-    if (FProf==NULL) { fclose(FPreds); return FALSE; }
+    if (FProf==NULL) { fclose(FProf); return FALSE; }
+    FPreds = FProf;
 
     Yap_dump_code_area_for_profiler();
   } else {
-    if (ProfilerRoot) 
-      reset_tree();
-    while (!(ProfilerRoot = RBTreeCreate())) {
-      if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "while initialisating profiler");
-	return FALSE;
-      }    
-    }
+    InitProfTree();
   }
   return TRUE;
 }
@@ -1330,7 +1190,9 @@ static Int profend(void)
   if (ProfilerOn==0) return(FALSE);
   profoff();         /* Make sure profiler is off */
   ProfilerOn=0;
-
+  if (Yap_OffLineProfiler) {
+    fclose(FProf);
+  }
   return TRUE;
 }
 
@@ -1370,15 +1232,8 @@ static Int getpredinfo(void)
     Yap_unify(ARG4, MkIntegerTerm(arity));
 }
 
-static Int profres(void) { 
-  Term p;
-  p=Deref(ARG1);
-  if (IsLongIntTerm(p)) return(showprofres(LongIntOfTerm(p)));
-  else return(showprofres(IntOfTerm(p)));
-}
-
 static Int profres0(void) { 
-  return(showprofres(0));
+  return(showprofres());
 }
 
 #endif /* LOW_PROF */
@@ -1399,11 +1254,11 @@ Yap_InitLowProf(void)
   Yap_InitCPred("profoff", 0, profoff, SafePredFlag);
   Yap_InitCPred("profalt", 0, profalt, SafePredFlag);
   Yap_InitCPred("$offline_showprofres", 0, profres0, SafePredFlag);
-  Yap_InitCPred("$offline_showprofres", 1, profres, SafePredFlag);
   Yap_InitCPred("$profnode", 6, profnode, SafePredFlag);
   Yap_InitCPred("$profglobs", 6, profglobs, SafePredFlag);
   Yap_InitCPred("$profison",0 , profison, SafePredFlag);
   Yap_InitCPred("$get_pred_pinfo", 4, getpredinfo, SafePredFlag);
   Yap_InitCPred("showprofres", 4, getpredinfo, SafePredFlag);
+  Yap_InitCPred("prof_test", 0, p_test, 0);
 #endif
 }
