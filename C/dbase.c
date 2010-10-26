@@ -34,7 +34,7 @@ static char     SccsId[] = "%W% %G%";
 /* There are two options to implement traditional immediate update semantics.
 
    - In the first option, we only remove an element of the chain when
-   it is phisically disposed of. This simplifies things, because
+   it is physically disposed of. This simplifies things, because
    pointers are always valid, but it complicates some stuff a bit:
 
    o You may have go through long lines of deleted db entries before you 
