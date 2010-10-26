@@ -780,7 +780,7 @@ MemPutc(int sno, int ch)
       if (Stream[sno].u.mem_string.error_handler) {
 	Yap_Error_Size = new_max_size*sizeof(char);
 	save_machine_regs();
-	longjmp(*(jmp_buf *)Stream[sno].u.mem_string.error_handler,1);
+	_longjmp(*(jmp_buf *)Stream[sno].u.mem_string.error_handler,1);
       } else {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
       }
@@ -4354,7 +4354,7 @@ static Int
     while (TRUE) {
       CELL *old_H = H;
 
-      if (setjmp(Yap_IOBotch) == 0) {
+      if (_setjmp(Yap_IOBotch) == 0) {
 	v = Yap_VarNames(Yap_VarTable, TermNil);
 	break;
       } else {
@@ -5145,7 +5145,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
     Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
     old_pos = Stream[sno].u.mem_string.pos;
     /* set up an error handler */
-    if (setjmp(format_botch)) {
+    if (_setjmp(format_botch)) {
       restore_machine_regs();
       *H++ = oargs;
       *H++ = otail;
