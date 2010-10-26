@@ -148,13 +148,13 @@ static rb_red_blk_node *ProfilerRoot, *ProfilerNil;
 static rb_red_blk_node *
 RBMalloc(UInt size)
 {
-  return (rb_red_blk_node *)Yap_AllocCodeSpace(size);
+  return (rb_red_blk_node *)malloc(size);
 }
 
 static void
 RBfree(rb_red_blk_node *ptr)
 {
-  Yap_FreeCodeSpace((char *)ptr);
+  free((char *)ptr);
 }
 
 static rb_red_blk_node *
