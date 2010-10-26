@@ -320,6 +320,14 @@ AtomAdjust (Atom at)
   return (Atom) ((at));
 }
 
+inline EXTERN Atom NoAGCAtomAdjust (Atom);
+
+inline EXTERN Atom
+NoAGCAtomAdjust (Atom at)
+{
+  return (Atom) ((at));
+}
+
 
 
 inline EXTERN Prop PropAdjust (Prop);
@@ -337,6 +345,14 @@ inline EXTERN Atom AtomAdjust (Atom);
 
 inline EXTERN Atom
 AtomAdjust (Atom at)
+{
+  return (Atom) ((at == NULL ? (at) : (Atom) (CharP (at) + HDiff)));
+}
+
+inline EXTERN Atom NoAGCAtomAdjust (Atom);
+
+inline EXTERN Atom
+NoAGCAtomAdjust (Atom at)
 {
   return (Atom) ((at == NULL ? (at) : (Atom) (CharP (at) + HDiff)));
 }

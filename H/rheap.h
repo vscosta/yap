@@ -391,7 +391,7 @@ RestoreAtoms(void)
     PtoAtomHashEntryAdjust(Yap_heap_regs->hash_chain);
   HashPtr = HashChain;
   for (i = 0; i < AtomHashTableSize; ++i) {
-    HashPtr->Entry = AtomAdjust(HashPtr->Entry);
+    HashPtr->Entry = NoAGCAtomAdjust(HashPtr->Entry);
     RestoreAtomList(HashPtr->Entry);
     HashPtr++;
   }  
