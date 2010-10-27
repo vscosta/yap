@@ -798,6 +798,21 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case DOMAIN_ERROR_STREAM_ENCODING:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomEncoding);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorDomainError, 2, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case DOMAIN_ERROR_STREAM_POSITION:
     {
       int i;

@@ -81,7 +81,7 @@ STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
         Volatile CELL *saveH=H;                \
         Volatile int savecurprio=curprio;      \
         saveenv=FailBuff;                      \
-        if(!setjmp(newenv.JmpBuff)) {          \
+        if(!_setjmp(newenv.JmpBuff)) {          \
                 FailBuff = &newenv;            \
 		S;                             \
 		FailBuff=saveenv;              \
@@ -99,7 +99,7 @@ STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
 	Volatile TokEntry *saveT=Yap_tokptr;   \
         Volatile CELL *saveH=H;                \
         saveenv=FailBuff;                      \
-        if(!setjmp(newenv.JmpBuff)) {          \
+        if(!_setjmp(newenv.JmpBuff)) {          \
                 FailBuff = &newenv;            \
 		S;                             \
 		FailBuff=saveenv;              \
@@ -113,7 +113,7 @@ STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
    }
 
 
-#define FAIL  longjmp(FailBuff->JmpBuff,1)
+#define FAIL  _longjmp(FailBuff->JmpBuff,1)
 
 VarEntry *
 Yap_LookupVar(char *var)	/* lookup variable in variables table   */
@@ -181,7 +181,7 @@ VarNames(VarEntry *p,Term l)
 				   VarNames(p->VarLeft,l)));
       if (H > ASP-4096) {
 	save_machine_regs();
-	longjmp(Yap_IOBotch,1);
+	_longjmp(Yap_IOBotch,1);
       }  
       return(o);
     } else {
@@ -710,7 +710,7 @@ Yap_Parse(void)
   Volatile Term t;
   JMPBUFF FailBuff;
 
-  if (!setjmp(FailBuff.JmpBuff)) {
+  if (!_setjmp(FailBuff.JmpBuff)) {
     t = ParseTerm(1200, &FailBuff);
     if (Yap_tokptr->Tok != Ord(eot_tok))
       return (0L);

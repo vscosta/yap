@@ -65,15 +65,10 @@ profile_reset :-
 profile_reset.
 
 showprofres :-
-	'$proftype'(offline), !,
-	'$offline_showprofres'.
-showprofres :-
 	showprofres(-1).
 
 showprofres(A) :-
-	'$proftype'(offline), !,
-	'$offline_showprofres'(A).
-showprofres(A) :-
+	('$proftype'(offline) -> '$offline_showprofres' ; true),
 	('$profison' -> profoff, Stop = true ; Stop = false),
 	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
 	% root node has no useful info.

@@ -84,6 +84,7 @@
   AtomEOFBeforeEOT = AtomAdjust(AtomEOFBeforeEOT);
   AtomEQ = AtomAdjust(AtomEQ);
   AtomEmptyAtom = AtomAdjust(AtomEmptyAtom);
+  AtomEncoding = AtomAdjust(AtomEncoding);
   AtomEndOfStream = AtomAdjust(AtomEndOfStream);
   AtomEof = AtomAdjust(AtomEof);
   AtomEq = AtomAdjust(AtomEq);

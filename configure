@@ -7166,7 +7166,7 @@ fi
         YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
 	;;
-      *netbsd*|*freebsd*)
+      *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
 	  #an a.out system
@@ -8566,6 +8566,46 @@ $as_echo "#define HAVE_SIGSETJMP 1" >>confdefs.h
 
 else
 $as_echo "#define HAVE_SIGSETJMP 0" >>confdefs.h
+
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for _setjmp" >&5
+$as_echo_n "checking for _setjmp... " >&6; }
+if ${yap_cv__setjmp+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <setjmp.h>
+
+int
+main ()
+{
+jmp_buf         RestartEnv;
+
+	_longjmp (RestartEnv, 1);
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  yap_cv__setjmp=yes
+else
+  yap_cv__setjmp=no
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $yap_cv__setjmp" >&5
+$as_echo "$yap_cv__setjmp" >&6; }
+if test "$yap_cv__setjmp" = yes
+then
+$as_echo "#define HAVE__SETJMP 1" >>confdefs.h
+
+else
+$as_echo "#define HAVE__SETJMP 0" >>confdefs.h
 
 fi
 

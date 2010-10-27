@@ -1736,6 +1736,21 @@ PlUnGetc376 (int sno)
   return ch;
 }
 
+/* give back 0376+ch  */
+static int
+PlUnGetc00 (int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  Int ch;
+
+  if (s->stream_getc != PlUnGetc00)
+    return(s->stream_getc(sno));
+  s->stream_getc = PlUnGetc;
+  ch = s->och;
+  s->och = 0x00;
+  return ch;
+}
+
 /* give back 0377+ch  */
 static int
 PlUnGetc377 (int sno)
@@ -1778,6 +1793,66 @@ PlUnGetc357273 (int sno)
   s->stream_getc = PlUnGetc357;
   ch = s->och;
   s->och = 0xBB;
+  return ch;
+}
+
+/* give back 000+000+ch  */
+static int
+PlUnGetc0000 (int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  Int ch;
+
+  if (s->stream_getc != PlUnGetc0000)
+    return(s->stream_getc(sno));
+  s->stream_getc = PlUnGetc00;
+  ch = s->och;
+  s->och = 0x00;
+  return ch;
+}
+
+/* give back 000+000+ch  */
+static int
+PlUnGetc0000fe (int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  Int ch;
+
+  if (s->stream_getc != PlUnGetc0000fe)
+    return(s->stream_getc(sno));
+  s->stream_getc = PlUnGetc0000;
+  ch = s->och;
+  s->och = 0xfe;
+  return ch;
+}
+
+/* give back 0377+0376+ch  */
+static int
+PlUnGetc377376 (int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  Int ch;
+
+  if (s->stream_getc != PlUnGetc377376)
+    return(s->stream_getc(sno));
+  s->stream_getc = PlUnGetc377;
+  ch = s->och;
+  s->och = 0xFE;
+  return ch;
+}
+
+/* give back 0377+0376+000+ch  */
+static int
+PlUnGetc37737600 (int sno)
+{
+  register StreamDesc *s = &Stream[sno];
+  Int ch;
+
+  if (s->stream_getc != PlUnGetc37737600)
+    return(s->stream_getc(sno));
+  s->stream_getc = PlUnGetc377376;
+  ch = s->och;
+  s->och = 0x00;
   return ch;
 }
 
@@ -1886,6 +1961,26 @@ get_wchar(int sno)
       how_many=1;
       wch = ch;
       break;
+    case ENC_ISO_UTF32_LE:
+      if (!how_many) {
+	how_many = 4;
+	wch = 0;
+      }
+      how_many--;
+      wch += ((unsigned char) (ch & 0xff)) << (how_many*8);
+      if (how_many == 0)
+	return wch;
+      break;
+    case ENC_ISO_UTF32_BE:
+      if (!how_many) {
+	how_many = 4;
+	wch = 0;
+      }
+      how_many--;
+      wch += ((unsigned char) (ch & 0xff)) << ((3-how_many)*8);
+      if (how_many == 0)
+	return wch;
+      break;
     }
   }
   return EOF;
@@ -1992,6 +2087,16 @@ put_wchar(int sno, wchar_t ch)
     case ENC_UNICODE_LE:
       Stream[sno].stream_putc(sno, (ch&0xff));
       return Stream[sno].stream_putc(sno, (ch>>8));
+    case ENC_ISO_UTF32_BE:
+      Stream[sno].stream_putc(sno, (ch>>24) & 0xff);
+      Stream[sno].stream_putc(sno, (ch>>16) &0xff);
+      Stream[sno].stream_putc(sno, (ch>>8) & 0xff);
+      return Stream[sno].stream_putc(sno, ch&0xff);
+    case ENC_ISO_UTF32_LE:
+      Stream[sno].stream_putc(sno, ch&0xff);
+      Stream[sno].stream_putc(sno, (ch>>8) & 0xff);
+      Stream[sno].stream_putc(sno, (ch>>16) &0xff);
+      return Stream[sno].stream_putc(sno, (ch>>24) & 0xff);
     }
   }
   return -1;
@@ -2219,6 +2324,24 @@ write_bom(int sno, StreamDesc *st)
       return FALSE;
     if (st->stream_putc(sno,0xFE)<0)
       return FALSE;
+  case ENC_ISO_UTF32_BE:
+    if (st->stream_putc(sno,0x00)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0x00)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0xFE)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0xFF)<0)
+      return FALSE;
+  case ENC_ISO_UTF32_LE:
+    if (st->stream_putc(sno,0xFF)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0xFE)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0x00)<0)
+      return FALSE;
+    if (st->stream_putc(sno,0x00)<0)
+      return FALSE;
   default:
     return TRUE;
   }
@@ -2240,36 +2363,87 @@ check_bom(int sno, StreamDesc *st)
     return TRUE;
   }
   switch(ch) {
+  case 0x00:
+    {
+      ch = st->stream_getc(sno);
+      if (ch == EOFCHAR || ch != 0x00) {
+	      st->och = ch;
+	      st->stream_getc = PlUnGetc00;
+	      st->stream_wgetc = get_wchar;
+	      st->stream_gets = DefaultGets;
+	      return TRUE;
+      } else {
+        ch = st->stream_getc(sno);
+        if (ch == EOFCHAR || ch != 0xFE) {
+    	    st->och = ch;
+    	    st->stream_getc = PlUnGetc0000;
+    	    st->stream_wgetc = get_wchar;
+    	    st->stream_gets = DefaultGets;
+	    return TRUE;
+	} else {
+          if (ch == EOFCHAR || ch != 0xFF) {
+    	      st->och = ch;
+    	      st->stream_getc = PlUnGetc0000fe;
+    	      st->stream_wgetc = get_wchar;
+    	      st->stream_gets = DefaultGets;
+	          return TRUE;
+	        } else {
+	          st->status  |= HAS_BOM_f;
+	          st->encoding = ENC_ISO_UTF32_BE;
+	          return TRUE;
+          }
+        }
+      }
+    }
   case 0xFE:
     {
       ch = st->stream_getc(sno);
       if (ch != 0xFF) {
-	st->och = ch;
-	st->stream_getc = PlUnGetc376;
-	st->stream_wgetc = get_wchar;
-	st->stream_gets = DefaultGets;
-	return TRUE;
+	      st->och = ch;
+	      st->stream_getc = PlUnGetc376;
+	      st->stream_wgetc = get_wchar;
+	      st->stream_gets = DefaultGets;
+	      return TRUE;
       } else {
-	st->status  |= HAS_BOM_f;
-	st->encoding = ENC_UNICODE_BE;
-	return TRUE;
+	      st->status  |= HAS_BOM_f;
+	      st->encoding = ENC_UNICODE_BE;
+	      return TRUE;
       }
     }
   case 0xFF:
     {
       ch = st->stream_getc(sno);
       if (ch != 0xFE) {
-	st->och = ch;
-	st->stream_getc = PlUnGetc377;
-	st->stream_wgetc = get_wchar;
-	st->stream_gets = DefaultGets;
-	return TRUE;
+	      st->och = ch;
+	      st->stream_getc = PlUnGetc377;
+	      st->stream_wgetc = get_wchar;
+	      st->stream_gets = DefaultGets;
+	      return TRUE;
       } else {
-	st->status  |= HAS_BOM_f;
-	st->encoding  = ENC_UNICODE_LE;
-	return TRUE;
+        ch = st->stream_getc(sno);
+        if (ch == EOFCHAR || ch != 0x00) {
+    	    st->och = ch;
+    	    st->stream_getc = PlUnGetc377376;
+    	    st->stream_wgetc = get_wchar;
+    	    st->stream_gets = DefaultGets;
+	      } else {
+          ch = st->stream_getc(sno);
+          if (ch == EOFCHAR || ch != 0x00) {
+    	      st->och = ch;
+    	      st->stream_getc = PlUnGetc37737600;
+    	      st->stream_wgetc = get_wchar;
+    	      st->stream_gets = DefaultGets;
+	        } else {
+		        st->status  |= HAS_BOM_f;
+		        st->encoding = ENC_ISO_UTF32_LE;
+		        return TRUE;
+	        }
+	    st->status  |= HAS_BOM_f;
+	    st->encoding  = ENC_UNICODE_LE;
+	    return TRUE;
       }
     }
+  }
   case 0xEF:
     ch = st->stream_getc(sno);
     if (ch != 0xBB) {
@@ -2281,15 +2455,15 @@ check_bom(int sno, StreamDesc *st)
     } else {
       ch = st->stream_getc(sno);
       if (ch != 0xBF) {
-	st->och = ch;
-	st->stream_getc = PlUnGetc357273;
-	st->stream_wgetc = get_wchar;
-	st->stream_gets = DefaultGets;
-	return TRUE;
+	      st->och = ch;
+	      st->stream_getc = PlUnGetc357273;
+	      st->stream_wgetc = get_wchar;
+	      st->stream_gets = DefaultGets;
+	      return TRUE;
       } else {
-	st->status  |= HAS_BOM_f;
-	st->encoding  = ENC_ISO_UTF8;
-	return TRUE;
+	      st->status  |= HAS_BOM_f;
+	      st->encoding  = ENC_ISO_UTF8;
+	      return TRUE;
       }
     }
   default:
@@ -2628,6 +2802,14 @@ p_open (void)
 	     (needs_bom || (st->status & Seekable_Stream_f))) {
     if (!check_bom(sno, st))
       return FALSE;
+    /*
+      if (st->encoding == ENC_ISO_UTF32_BE ||
+	st->encoding == ENC_ISO_UTF32_LE)
+      {
+	Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "unsupported stream encoding");
+	return FALSE;
+      }
+    */
   }
   st->status &= ~(Free_Stream_f);
   return (Yap_unify (ARG3, t));

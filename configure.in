@@ -1069,7 +1069,7 @@ dnl Linux has both elf and a.out, in this case we found elf
         YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
 	;;
-      *netbsd*|*freebsd*)
+      *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
 	  #an a.out system 	
@@ -1565,6 +1565,25 @@ then
 AC_DEFINE(HAVE_SIGSETJMP,1)
 else
 AC_DEFINE(HAVE_SIGSETJMP,0)
+fi
+
+dnl check for _setjmp
+AC_MSG_CHECKING(for _setjmp)
+AC_CACHE_VAL(yap_cv__setjmp,[
+AC_TRY_COMPILE(
+	#include <setjmp.h>
+	,
+	jmp_buf         RestartEnv;
+
+	_longjmp (RestartEnv, 1);
+	,
+	yap_cv__setjmp=yes,yap_cv__setjmp=no)])
+AC_MSG_RESULT($yap_cv__setjmp)
+if test "$yap_cv__setjmp" = yes 
+then
+AC_DEFINE(HAVE__SETJMP,1)
+else
+AC_DEFINE(HAVE__SETJMP,0)
 fi
 
 dnl check for sigsegv
