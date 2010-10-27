@@ -7166,7 +7166,7 @@ fi
         YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.dylib"
         PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
 	;;
-      *netbsd*|*freebsd*)
+      *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
 	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
         then
 	  #an a.out system

@@ -262,7 +262,7 @@ extern char Yap_Option[20];
 #endif
 
 #if !defined(IN_SECOND_QUADRANT)
-#if __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(mips) || defined(__APPLE__) || defined(__DragonFly__)
 #if defined(YAPOR) && defined(__alpha)
 
 #define MMAP_ADDR 0x40000000
@@ -688,7 +688,7 @@ typedef enum
 	if you place things in the lower addresses (power to the libc people).
 */
 
-#if (defined(_AIX) || (defined(__APPLE__) && !defined(__LP64__)) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) || defined(__NetBSD__)
+#if (defined(_AIX) || (defined(__APPLE__) && !defined(__LP64__)) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) || defined(__NetBSD__) || defined(__DragonFly__)
 #define USE_LOW32_TAGS 1
 #endif
 
