@@ -2802,14 +2802,13 @@ p_open (void)
 	     (needs_bom || (st->status & Seekable_Stream_f))) {
     if (!check_bom(sno, st))
       return FALSE;
-    /*
-      if (st->encoding == ENC_ISO_UTF32_BE ||
-	st->encoding == ENC_ISO_UTF32_LE)
-      {
-	Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "unsupported stream encoding");
-	return FALSE;
-      }
-    */
+    if (st->encoding == ENC_ISO_UTF32_BE) {
+	    Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "UTF-32 (BE) stream encoding unsupported");
+	    return FALSE;
+    } else if (st->encoding == ENC_ISO_UTF32_LE) {
+	    Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "UTF-32 (LE) stream encoding unsupported");
+	    return FALSE;
+    }
   }
   st->status &= ~(Free_Stream_f);
   return (Yap_unify (ARG3, t));
