@@ -6125,6 +6125,22 @@ Number of clauses in the predicate definition. Always one if external
 or built-in.
 @end table
 
+@item predicate_statistics(@var{P},@var{NCls},@var{Sz},@var{IndexSz}) 
+@findex predicate_statistics/4
+
+Given predicate @var{P}, @var{NCls} is the number of clauses for
+@var{P}, @var{Sz} is the amount of space taken to store those clauses
+(in bytes), and @var{IndexSz} is the amount of space required to store
+indices to those clauses (in bytes).
+
+@item predicate_erased_statistics(@var{P},@var{NCls},@var{Sz},@var{IndexSz}) 
+@findex predicate_statistics/4
+
+Given predicate @var{P}, @var{NCls} is the number of erased clauses for
+@var{P} that could not be discarded yet, @var{Sz} is the amount of space
+taken to store those clauses (in bytes), and @var{IndexSz} is the amount
+of space required to store indices to those clauses (in bytes).
+
 @end table
 
 @node Database References, Internal Database, Looking at the Database, Database
