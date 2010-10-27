@@ -2379,8 +2379,9 @@ check_bom(int sno, StreamDesc *st)
     	    st->stream_getc = PlUnGetc0000;
     	    st->stream_wgetc = get_wchar;
     	    st->stream_gets = DefaultGets;
-	    return TRUE;
-	} else {
+	        return TRUE;
+	      } else {
+          ch = st->stream_getc(sno);
           if (ch == EOFCHAR || ch != 0xFF) {
     	      st->och = ch;
     	      st->stream_getc = PlUnGetc0000fe;
