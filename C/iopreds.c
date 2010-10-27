@@ -2438,12 +2438,12 @@ check_bom(int sno, StreamDesc *st)
 		        st->encoding = ENC_ISO_UTF32_LE;
 		        return TRUE;
 	        }
+	      }
 	    st->status  |= HAS_BOM_f;
 	    st->encoding  = ENC_UNICODE_LE;
 	    return TRUE;
       }
     }
-  }
   case 0xEF:
     ch = st->stream_getc(sno);
     if (ch != 0xBB) {
