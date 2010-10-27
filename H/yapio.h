@@ -256,7 +256,9 @@ typedef enum {
   ENC_ISO_ANSI   = 4,
   ENC_ISO_UTF8   = 8,
   ENC_UNICODE_BE = 16,
-  ENC_UNICODE_LE = 32
+  ENC_UNICODE_LE = 32,
+  ENC_ISO_UTF32_BE = 64,
+  ENC_ISO_UTF32_LE = 128
 } encoding_t;
 #endif
 

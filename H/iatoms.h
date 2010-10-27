@@ -84,6 +84,7 @@
   AtomEOFBeforeEOT = Yap_LookupAtom("end_of_file_found_before_end_of_term");
   AtomEQ = Yap_LookupAtom("=");
   AtomEmptyAtom = Yap_LookupAtom("");
+  AtomEncoding = Yap_LookupAtom("encoding");
   AtomEndOfStream = Yap_LookupAtom("$end_of_stream");
   AtomEof = Yap_LookupAtom("end_of_file");
   AtomEq = Yap_LookupAtom("=");
