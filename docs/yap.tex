@@ -8,9 +8,9 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.2.0
-@set EDITION 4.2.8
-@set UPDATED Aug 2010
+@set VERSION 6.2.1
+@set EDITION 4.2.9
+@set UPDATED Oct 2010
 
 @c Index for C-Prolog compatible predicate
 @defindex cy
@@ -3367,6 +3367,15 @@ variable in @var{Subsumer}.
 @syindex cyclic_term/1
 @cnindex cyclic_term/1
 Succeed if the argument @var{Term} is an acyclic term.
+
+@item term_variables(?@var{Term}, -@var{Variables})
+@findex  term_variables/2
+@syindex term_variables/2
+@cnindex term_variables/2
+
+Unify @var{Variables} with the list of all variables of term
+@var{Term}.  The variables occur in the order of their first
+appearance when traversing the term depth-first, left-to-right.
 
 
 @end table
@@ -8512,9 +8521,7 @@ Library, Extensions, Built-ins, Top
 @section Aggregate
 @cindex aggregate
 This is the SWI-Prolog library based on  the Quintus and SICStus 4
-library. Notice that  @code{forall/2}
-is a SWI-Prolog built-in and @code{term_variables/3} is a SWI-Prolog with a
-different definition.  @c To be done - Analysing the aggregation template
+library.   @c To be done - Analysing the aggregation template
 @c and compiling a predicate for the list aggregation can be done at
 @c compile time.  - aggregate_all/3 can be rewritten to run in constant
 @c space using non-backtrackable assignment on a term.
@@ -13293,15 +13300,6 @@ defined.
 @cnindex copy_term_nat/2
 As @code{copy_term/2}.  Attributes however, are @emph{not} copied but replaced
 by fresh variables.
-
-@item term_variables(?@var{Term}, -@var{Variables})
-@findex  term_variables/2
-@syindex term_variables/2
-@cnindex term_variables/2
-
-Unify @var{Variables} with the list of all variables of term
-@var{Term}.  The variables occur in the order of their first
-appearance when traversing the term depth-first, left-to-right.
 
 @end table
 
