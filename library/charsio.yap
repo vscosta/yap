@@ -31,6 +31,10 @@
 	with_output_to_chars/4
     ]).
 
+:- meta_predicate(with_output_to_chars(0,?)).
+:- meta_predicate(with_output_to_chars(0,-,?)).
+:- meta_predicate(with_output_to_chars(0,-,?,?)).
+
 format_to_chars(Form, Args, OUT) :-
 	format_to_chars(Form, Args, OUT, []).
 
