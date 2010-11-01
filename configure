@@ -9585,6 +9585,7 @@ mkdir -p  packages/jpl/src/java/jpl/fli
 mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
+mkdir -p  packages/meld
 mkdir -p  packages/tai
 mkdir -p  packages/tai/libtai
 mkdir -p  packages/PLStream
@@ -9641,6 +9642,8 @@ ac_config_files="$ac_config_files packages/cplint/Makefile"
 ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefile"
 
 ac_config_files="$ac_config_files packages/http/Makefile"
+
+ac_config_files="$ac_config_files packages/meld/Makefile"
 
 ac_config_files="$ac_config_files packages/tai/Makefile"
 
@@ -10415,6 +10418,7 @@ do
     "packages/cplint/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/Makefile" ;;
     "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
     "packages/http/Makefile") CONFIG_FILES="$CONFIG_FILES packages/http/Makefile" ;;
+    "packages/meld/Makefile") CONFIG_FILES="$CONFIG_FILES packages/meld/Makefile" ;;
     "packages/tai/Makefile") CONFIG_FILES="$CONFIG_FILES packages/tai/Makefile" ;;
     "packages/tai/libtai/Makefile") CONFIG_FILES="$CONFIG_FILES packages/tai/libtai/Makefile" ;;
     "packages/PLStream/Makefile") CONFIG_FILES="$CONFIG_FILES packages/PLStream/Makefile" ;;

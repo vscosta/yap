@@ -10,9 +10,9 @@
 
 :- style_check(all).
 
-:- reexport(meldi).
+:- reexport(meld/meldi).
 
-:- reexport(meldc).
+:- reexport(meld/meldc).
 
 simulate(G) :-
 	 input_graph(G),
