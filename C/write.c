@@ -546,15 +546,46 @@ from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
   while (IsVarTerm(*ptr) && !IsUnboundVar(ptr))
     ptr = (CELL *)*ptr;
   t = *ptr;
-  if (!IsVarTerm(t)) {
+  if (!IsVarTerm(t) && !IsAtomOrIntTerm(t)) {
+    struct rewind_term *x = rwt->parent;
     if (wglb->keep_terms) {
       rwt->u.s.old = Yap_InitSlot(t);
       rwt->u.s.ptr = Yap_InitSlot((CELL)ptr);
+      while (x) {
+	if (Yap_GetFromSlot(x->u.s.old) == t)
+	  return TermFoundVar;
+	x = x->parent;
+      }
     } else {
       rwt->u.d.old = t;
       rwt->u.d.ptr = ptr;
+      while (x) {
+	if (x->u.d.old == t)
+	  return TermFoundVar;
+	x = x->parent;
+      }
     }
-    *ptr = TermFoundVar;
+  } else {
+    rwt->u.s.ptr = 0;
+  }
+  return t;
+}
+
+static Term
+check_infinite_loop(Term t, struct rewind_term *x, struct write_globs *wglb)
+{
+  if (wglb->keep_terms) {
+    while (x) {
+      if (Yap_GetFromSlot(x->u.s.old) == t)
+	return TermFoundVar;
+      x = x->parent;
+    }
+  } else {
+    while (x) {
+      if (x->u.d.old == t)
+	return TermFoundVar;
+	x = x->parent;
+    }
   }
   return t;
 }
@@ -573,7 +604,6 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
       ptr = rwt->u.d.ptr;
       t = rwt->u.d.old;
     }
-    *ptr = t;
   }
   rwt->u.s.ptr = 0;
 }
@@ -604,35 +634,45 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     ti = TailOfTerm(t);
     if (IsVarTerm(ti))
       break;
-    if (!IsPairTerm(ti))
+    if (!IsPairTerm(ti) ||
+	!IsPairTerm((ti = check_infinite_loop(ti, rwt, wglb))))
       break;
     ndirection = RepPair(ti)-RepPair(t);
     /* make sure we're not trapped in loops */
     if (ndirection > 0) {
-      do_jump = (direction < 0);
+      do_jump = (direction <= 0);
     } else if (ndirection == 0) {
       wrputc(',', wglb->writewch);
       putAtom(AtomFoundVar, wglb->Quote_illegal, wglb->writewch);
       lastw = separator;
       return;
     } else {
-      do_jump = (direction > 0);
+      do_jump = (direction >= 0);
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
       wrputc('|', wglb->writewch);
       putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
       return;
     }
-    wrputc(',', wglb->writewch);
     lastw = separator;
     direction = ndirection;
     depth++;
     if (do_jump)
       break;
+    wrputc(',', wglb->writewch);
     t = ti;
   }
   if (IsPairTerm(ti)) {
-    write_list(from_pointer(RepPair(t)+1, &nrwt, wglb), direction, depth, wglb, &nrwt);
+    Term nt = from_pointer(RepPair(t)+1, &nrwt, wglb);
+    /* we found an infinite loop */
+    if (IsAtomTerm(nt)) {
+      wrputc('|', wglb->writewch);      
+      writeTerm(nt, 999, depth, FALSE, wglb, rwt);
+    } else {
+      /* keep going on the list */
+      wrputc(',', wglb->writewch);      
+      write_list(nt, direction, depth, wglb, &nrwt);
+    }
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
     wrputc('|', wglb->writewch);
@@ -685,11 +725,10 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
       putString(t, wglb->writewch);
     } else {
-      Term ls  = t;
       wrputc('[', wglb->writewch);
       lastw = separator;
-      write_list(from_pointer(&ls, &nrwt, wglb), 0, depth, wglb, &nrwt);
-      restore_from_write(&nrwt, wglb);
+      /* we assume t was already saved in the stack */ 
+      write_list(t, 0, depth, wglb, rwt);
       wrputc(']', wglb->writewch);
       lastw = separator;
     }
@@ -1033,8 +1072,6 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
 {
   struct write_globs wglb;
   struct rewind_term rwt;
-  rwt.parent = NULL;
-  rwt.u.s.ptr = 0;
 
   wglb.writewch = mywrite;
   lastw = separator;
@@ -1046,6 +1083,8 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
+  /* initialise wglb */
+  rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
   /* protect slots for portray */
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
