@@ -145,6 +145,7 @@
   AtomKey = AtomAdjust(AtomKey);
   AtomLDLibraryPath = AtomAdjust(AtomLDLibraryPath);
   AtomLONGINT = AtomAdjust(AtomLONGINT);
+  AtomLOOP = AtomAdjust(AtomLOOP);
   AtomLT = AtomAdjust(AtomLT);
   AtomLastExecuteWithin = AtomAdjust(AtomLastExecuteWithin);
   AtomLeash = AtomAdjust(AtomLeash);
@@ -381,6 +382,7 @@
   FunctorIs = FuncAdjust(FunctorIs);
   FunctorLastExecuteWithin = FuncAdjust(FunctorLastExecuteWithin);
   FunctorList = FuncAdjust(FunctorList);
+  FunctorLOOP = FuncAdjust(FunctorLOOP);
   FunctorMegaClause = FuncAdjust(FunctorMegaClause);
   FunctorMetaCall = FuncAdjust(FunctorMetaCall);
   FunctorMinus = FuncAdjust(FunctorMinus);
