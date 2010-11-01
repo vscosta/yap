@@ -1,0 +1,34 @@
+
+%:- ensure_loaded(l
+
+type logical_neighbor parent(module, first module).
+type maxTemp(module, max float).
+
+parent(A, A) :- root(A).
+parent(A, B) :-
+	neighbor(A, B),
+	parent(B, _).
+
+maxTemp(A, T) :-
+	temperature(A, T).
+maxTemp(B, T) :-
+	parent(A, B),
+	maxTemp(A, T).
+
+type globalMax(module, max float).
+
+globalMax(A, T) :-
+	maxTemp(A, T),
+	root(A).
+globalMax(B, T) :-
+	neighbor(A, B),
+	globalMax(A, T).
+
+type localMax(module).
+localMax(A) :-
+	temperature(A,T),
+	forall
+	   neighbor(A, B)
+	then
+	    ( temperature(B, TT), T > TT ).
+

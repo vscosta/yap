@@ -1,0 +1,10 @@
+root(a).
+
+neighbor(a,b).
+neighbor(b,a).
+neighbor(a,c).
+neighbor(c,a).
+
+temperature(a, 20).
+temperature(b, 12).
+temperature(c, 15).

@@ -4394,6 +4394,73 @@ p_erase(void)
   return TRUE;
 }
 
+/* increase_reference_counter(+Ref)	 */
+static Int 
+p_increase_reference_counter(void)
+{
+  Term t1 = Deref(ARG1);
+  LogUpdClause *cl;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    return FALSE;
+  }
+  if (!IsDBRefTerm(t1)) {
+    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    return FALSE;
+  }
+  cl = (LogUpdClause *)DBRefOfTerm(t1);
+  PELOCK(67,cl->ClPred);
+  cl->ClRefCount++;
+  UNLOCK(cl->ClPred);
+  return TRUE;
+}
+
+/* increase_reference_counter(+Ref)	 */
+static Int 
+p_decrease_reference_counter(void)
+{
+  Term t1 = Deref(ARG1);
+  LogUpdClause *cl;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    return FALSE;
+  }
+  if (!IsDBRefTerm(t1)) {
+    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    return FALSE;
+  }
+  cl = (LogUpdClause *)DBRefOfTerm(t1);
+  PELOCK(67,cl->ClPred);
+  if (cl->ClRefCount) {
+    cl->ClRefCount--;
+    UNLOCK(cl->ClPred);
+    return TRUE;
+  }
+  UNLOCK(cl->ClPred);
+  return FALSE;
+}
+
+/* erase(+Ref)	 */
+static Int 
+p_current_reference_counter(void)
+{
+  Term t1 = Deref(ARG1);
+  LogUpdClause *cl;
+
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR, t1, "increase_reference_counter/1");
+    return FALSE;
+  }
+  if (!IsDBRefTerm(t1)) {
+    Yap_Error(TYPE_ERROR_DBREF, t1, "increase_reference_counter");
+    return FALSE;
+  }
+  cl = (LogUpdClause *)DBRefOfTerm(t1);
+  return Yap_unify(ARG2, MkIntegerTerm(cl->ClRefCount));
+}
+
 static Int
 p_erase_clause(void)
 {
@@ -5443,6 +5510,9 @@ Yap_InitDBPreds(void)
   Yap_InitCPred("$recordzp", 4, p_drcdzp, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("erase", 1, p_erase, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$erase_clause", 2, p_erase_clause, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("increase_reference_count", 1, p_increase_reference_counter, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("decrease_reference_count", 1, p_decrease_reference_counter, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("current_reference_count", 2, p_current_reference_counter, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("erased", 1, p_erased, TestPredFlag | SafePredFlag|SyncPredFlag);
   Yap_InitCPred("instance", 2, p_instance, SyncPredFlag);
   Yap_InitCPred("$instance_module", 2, p_instance_module, SyncPredFlag|HiddenPredFlag);
