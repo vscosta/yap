@@ -150,6 +150,7 @@ A	Is			N	"is"
 A	Key			N	"key"
 A	LDLibraryPath		N	"LD_LIBRARY_PATH"
 A	LONGINT			N	"LongInt"
+A	LOOP			N	"_LOOP_"
 A	LT			N	"<"
 A	LastExecuteWithin	F	"$last_execute_within"
 A	Leash			F	"$leash"
@@ -386,6 +387,7 @@ F	Id			Id		1
 F	Is			Is		2
 F	LastExecuteWithin	LastExecuteWithin	1
 F	List			Dot		2
+F	LOOP			LOOP		1
 F	MegaClause		MegaClause	2
 F	MetaCall		MetaCall	4
 F	Minus			Minus		2

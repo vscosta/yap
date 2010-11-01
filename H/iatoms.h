@@ -145,6 +145,7 @@
   AtomKey = Yap_LookupAtom("key");
   AtomLDLibraryPath = Yap_LookupAtom("LD_LIBRARY_PATH");
   AtomLONGINT = Yap_LookupAtom("LongInt");
+  AtomLOOP = Yap_LookupAtom("_LOOP_");
   AtomLT = Yap_LookupAtom("<");
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within");
   AtomLeash = Yap_FullLookupAtom("$leash");
@@ -381,6 +382,7 @@
   FunctorIs = Yap_MkFunctor(AtomIs,2);
   FunctorLastExecuteWithin = Yap_MkFunctor(AtomLastExecuteWithin,1);
   FunctorList = Yap_MkFunctor(AtomDot,2);
+  FunctorLOOP = Yap_MkFunctor(AtomLOOP,1);
   FunctorMegaClause = Yap_MkFunctor(AtomMegaClause,2);
   FunctorMetaCall = Yap_MkFunctor(AtomMetaCall,4);
   FunctorMinus = Yap_MkFunctor(AtomMinus,2);

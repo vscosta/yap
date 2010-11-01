@@ -540,6 +540,626 @@ p_copy_term_no_delays(void)		/* copy term t to a new instance  */
   return(Yap_unify(ARG2,t));
 }
 
+typedef struct copy_frame {
+  CELL *start_cp;
+  CELL *end_cp;
+  CELL *to;
+#ifdef RATIONAL_TREES
+  CELL oldv;
+  CELL *parent;
+  int ground;
+#endif
+} copy_frame_t;
+
+static int
+break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow)
+{
+
+  struct copy_frame *to_visit0, *to_visit = (struct copy_frame *)Yap_PreAllocCodeSpace();
+  CELL *HB0 = HB;
+  tr_fr_ptr TR0 = TR;
+  int ground = TRUE;
+  CELL *parent = ptf;
+
+  HB = HLow;
+  to_visit0 = to_visit;
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, break_rationals_unk);
+  break_rationals_nvar:
+    {
+      if (IsPairTerm(d0)) {
+	CELL *ap2 = RepPair(d0);
+	if (ap2 >= HB && ap2 < H) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	*ptf = AbsPair(H);
+	ptf++;
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct copy_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	to_visit->parent = parent;
+	parent = ptf-1;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = TermFoundVar;
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct copy_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	ground = TRUE;
+	pt0 = ap2 - 1;
+	pt0_end = ap2 + 1;
+	ptf = H;
+	H += 2;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2;
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	if (ap2 >= HB && ap2 <= H) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	f = (Functor)(*ap2);
+
+	if (IsExtensionFunctor(f)) {
+	  *ptf++ = d0;  /* you can just copy extensions, what about DB?*/
+	  continue;
+	}
+	*ptf = AbsAppl(H);
+	ptf++;
+	/* store the terms to visit */
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct copy_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	to_visit->parent = parent;
+	parent = ptf-1;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = TermFoundVar;
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct copy_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	/* store the functor for the new term */
+	H[0] = (CELL)f;
+	ptf = H+1;
+	H += 1+d0;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else {
+	/* just copy atoms or integers */
+	if (d0 == TermFoundVar) {
+	  struct copy_frame *visited = to_visit-1;
+	  CELL *end = pt0_end;
+	  RESET_VARIABLE(ptf);
+	  while (visited >= to_visit0) {
+	    if (visited->end_cp == end) {
+	      Term t[1];
+	      t[0] = MkIntegerTerm(to_visit-visited);
+	      *parent = Yap_MkApplTerm(FunctorLOOP,1,t);
+	      break;
+	    }
+	    visited--;
+	  }
+	  ptf++;
+	  ground = FALSE;
+	} else {
+	  *ptf++ = d0;
+	}
+      }
+      continue;
+    }
+
+    derefa_body(d0, ptd0, break_rationals_unk, break_rationals_nvar);
+    /* we have already found this cell */
+    *ptf++ = (CELL) ptd0;
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit --;
+    if (ground) {
+      CELL old = to_visit->oldv;
+      CELL *newp = to_visit->to-1;
+      CELL new = *newp;
+
+      *newp = old;
+      if (IsApplTerm(new))
+	H = RepAppl(new);
+      else
+	H = RepPair(new);
+    }
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    parent = to_visit->parent;
+#ifdef RATIONAL_TREES
+    *pt0 = to_visit->oldv;
+#endif
+    ground = (ground && to_visit->ground);
+    goto loop;
+  }
+
+  /* restore our nice, friendly, term to its original state */
+  clean_dirty_tr(TR0);
+  HB = HB0;
+  return ground;
+
+ overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    parent = to_visit->parent;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  /* follow chain of multi-assigned variables */
+  return -1;
+
+ heap_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    parent = to_visit->parent;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  return -3;
+}
+
+
+static Term
+BreakRational(Term inp, UInt arity) {
+  Term t = Deref(inp);
+  tr_fr_ptr TR0 = TR;
+
+  if (IsVarTerm(t)) {
+    return t;
+  } else if (IsPrimitiveTerm(t)) {
+    return t;
+  } else if (IsPairTerm(t)) {
+    Term tf;
+    CELL *ap;
+    CELL *Hi;
+
+  restart_list:
+    ap = RepPair(t);
+    Hi = H;
+    tf = AbsPair(H);
+    H += 2;
+    {
+      int res;
+      if ((res = break_rationals_complex_term(ap-1, ap+1, Hi, Hi)) < 0) {
+	H = Hi;
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
+	  return FALSE;
+	goto restart_list;
+      } else if (res) {
+	H = Hi;
+	return t;
+      }
+    }
+    return tf;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    Term tf;
+    CELL *HB0;
+    CELL *ap;
+
+  restart_appl:
+    f = FunctorOfTerm(t);
+    HB0 = H;
+    ap = RepAppl(t);
+    tf = AbsAppl(H);
+    H[0] = (CELL)f;
+    H += 1+ArityOfFunctor(f);
+    if (H > ASP-128) {
+      H = HB0;
+      if ((t = handle_cp_overflow(-1, TR0, arity, t))== 0L)
+	return FALSE;
+      goto restart_appl;
+    } else {
+      int res;
+
+      if ((res = break_rationals_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0)) < 0) {
+	H = HB0;
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
+	  return FALSE;
+	goto restart_appl;
+      } else if (res && FunctorOfTerm(t) != FunctorMutable) {
+	H = HB0;
+	return t;
+      }
+    }
+    return tf;
+  }
+}
+ 
+static Int
+p_break_rational(void) 
+{
+  return Yap_unify(ARG2, BreakRational(ARG1, 2));
+}
+
+
+typedef struct restore_frame {
+  CELL *start_cp;
+  CELL *end_cp;
+  CELL *to;
+#ifdef RATIONAL_TREES
+  CELL oldv;
+  CELL *parent;
+  int ground;
+  int term_type;
+#endif
+} restore_frame_t;
+
+static int
+restore_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int pair)
+{
+
+  struct restore_frame *to_visit0, *to_visit = (struct restore_frame *)Yap_PreAllocCodeSpace();
+  CELL *HB0 = HB;
+  tr_fr_ptr TR0 = TR;
+  int ground = TRUE;
+  CELL *parent = ptf;
+
+  HB = HLow;
+  to_visit0 = to_visit;
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0;
+    register CELL *ptd0;
+    ++ pt0;
+    ptd0 = pt0;
+    d0 = *ptd0;
+    deref_head(d0, restore_rationals_unk);
+  restore_rationals_nvar:
+    {
+      if (IsPairTerm(d0)) {
+	CELL *ap2 = RepPair(d0);
+	if (ap2 >= HB && ap2 < H) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	*ptf = AbsPair(H);
+	ptf++;
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct restore_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	to_visit->parent = parent;
+	to_visit->term_type = pair;
+	parent = ptf;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = TermFoundVar;
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct restore_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	ground = TRUE;
+	pair = TRUE;
+	pt0 = ap2 - 1;
+	pt0_end = ap2 + 1;
+	ptf = H;
+	H += 2;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else if (IsApplTerm(d0)) {
+	register Functor f;
+	register CELL *ap2;
+	/* store the terms to visit */
+	ap2 = RepAppl(d0);
+	if (ap2 >= HB && ap2 <= H) {
+	  /* If this is newer than the current term, just reuse */
+	  *ptf++ = d0;
+	  continue;
+	} 
+	f = (Functor)(*ap2);
+
+	if (IsExtensionFunctor(f)) {
+	  *ptf++ = d0;  /* you can just copy extensions, what about DB?*/
+	  continue;
+	} else if (f == FunctorLOOP) {
+	  Int nlevels = IntegerOfTerm(ap2[1])-1;
+	  struct restore_frame *visited = to_visit-nlevels;
+	  CELL *p;
+	  int type_pair;
+
+	  if (nlevels) {
+	    p = visited->parent;
+	    type_pair = visited->term_type;
+	  } else {
+	    p = parent;
+	    type_pair = pair;
+	  }
+	  if (type_pair) {
+	    *ptf++ = AbsPair(p);
+	  } else {
+	    *ptf++ = AbsAppl(p-1);
+	  }
+	  ground = FALSE;
+	  continue;
+	} 
+	*ptf = AbsAppl(H);
+	ptf++;
+	/* store the terms to visit */
+#ifdef RATIONAL_TREES
+	if (to_visit+1 >= (struct restore_frame *)AuxSp) {
+	  goto heap_overflow;
+	}
+	to_visit->start_cp = pt0;
+	to_visit->end_cp = pt0_end;
+	to_visit->to = ptf;
+	to_visit->oldv = *pt0;
+	to_visit->ground = ground;
+	to_visit->parent = parent;
+	to_visit->term_type = pair;
+	parent = ptf;
+	/* fool the system into thinking we had a variable there */
+	*pt0 = TermFoundVar;
+	to_visit ++;
+#else
+	if (pt0 < pt0_end) {
+	  if (to_visit+1 >= (struct restore_frame *)AuxSp) {
+	    goto heap_overflow;
+	  }
+	  to_visit->start_cp = pt0;
+	  to_visit->end_cp = pt0_end;
+	  to_visit->to = ptf;
+	  to_visit->ground = ground;
+	  to_visit ++;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	/* store the functor for the new term */
+	H[0] = (CELL)f;
+	ptf = H+1;
+	H += 1+d0;
+	pair = FALSE;
+	if (H > ASP - 2048) {
+	  goto overflow;
+	}
+      } else {
+	*ptf++ = d0;
+      }
+      continue;
+    }
+
+    derefa_body(d0, ptd0, restore_rationals_unk, restore_rationals_nvar);
+    /* we have already found this cell */
+    *ptf++ = (CELL) ptd0;
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit > to_visit0) {
+    to_visit --;
+    if (ground) {
+      CELL old = to_visit->oldv;
+      CELL *newp = to_visit->to-1;
+      CELL new = *newp;
+
+      *newp = old;
+      if (IsApplTerm(new))
+	H = RepAppl(new);
+      else
+	H = RepPair(new);
+    }
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+#ifdef RATIONAL_TREES
+    parent = to_visit->parent;
+    pair = to_visit->term_type;
+    *pt0 = to_visit->oldv;
+#endif
+    ground = (ground && to_visit->ground);
+    goto loop;
+  }
+
+  /* restore our nice, friendly, term to its original state */
+  clean_dirty_tr(TR0);
+  HB = HB0;
+  return ground;
+
+ overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    parent = to_visit->parent;
+    pair = to_visit->term_type;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  /* follow chain of multi-assigned variables */
+  return -1;
+
+ heap_overflow:
+  /* oops, we're in trouble */
+  H = HLow;
+  /* we've done it */
+  /* restore our nice, friendly, term to its original state */
+  HB = HB0;
+#ifdef RATIONAL_TREES
+  while (to_visit > to_visit0) {
+    to_visit --;
+    pt0 = to_visit->start_cp;
+    pt0_end = to_visit->end_cp;
+    ptf = to_visit->to;
+    parent = to_visit->parent;
+    pair = to_visit->term_type;
+    *pt0 = to_visit->oldv;
+  }
+#endif
+  reset_trail(TR0);
+  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  return -3;
+}
+
+
+static Term
+RestoreRational(Term inp, UInt arity) {
+  Term t = Deref(inp);
+  tr_fr_ptr TR0 = TR;
+
+  if (IsVarTerm(t)) {
+    return t;
+  } else if (IsPrimitiveTerm(t)) {
+    return t;
+  } else if (IsPairTerm(t)) {
+    Term tf;
+    CELL *ap;
+    CELL *Hi;
+
+  restart_list:
+    ap = RepPair(t);
+    Hi = H;
+    tf = AbsPair(H);
+    H += 2;
+    {
+      int res;
+      if ((res = restore_rationals_complex_term(ap-1, ap+1, Hi, Hi, TRUE)) < 0) {
+	H = Hi;
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
+	  return FALSE;
+	goto restart_list;
+      } else if (res) {
+	H = Hi;
+	return t;
+      }
+    }
+    return tf;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    Term tf;
+    CELL *HB0;
+    CELL *ap;
+
+  restart_appl:
+    f = FunctorOfTerm(t);
+    HB0 = H;
+    ap = RepAppl(t);
+    tf = AbsAppl(H);
+    H[0] = (CELL)f;
+    H += 1+ArityOfFunctor(f);
+    if (H > ASP-128) {
+      H = HB0;
+      if ((t = handle_cp_overflow(-1, TR0, arity, t))== 0L)
+	return FALSE;
+      goto restart_appl;
+    } else {
+      int res;
+
+      if ((res = restore_rationals_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0, FALSE)) < 0) {
+	H = HB0;
+	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
+	  return FALSE;
+	goto restart_appl;
+      } else if (res && FunctorOfTerm(t) != FunctorMutable) {
+	H = HB0;
+	return t;
+      }
+    }
+    return tf;
+  }
+}
+ 
+static Int
+p_restore_rational(void) 
+{
+  return Yap_unify(ARG2, RestoreRational(ARG1, 2));
+}
+
+
 /* 
    FAST EXPORT ROUTINE. Export a Prolog term to something like:
 
@@ -3649,6 +4269,8 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
+  Yap_InitCPred("rational_term_to_tree", 2, p_break_rational, 0);
+  Yap_InitCPred("tree_to_rational_term", 2, p_restore_rational, 0);
   Yap_InitCPred("=@=", 2, p_variant, 0);
 #ifdef DEBUG_IMPORT
   Yap_InitCPred("import_term", 1, p_import_term, 0);

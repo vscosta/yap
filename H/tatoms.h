@@ -288,6 +288,8 @@
 #define AtomLDLibraryPath Yap_heap_regs->AtomLDLibraryPath_
   Atom AtomLONGINT_;
 #define AtomLONGINT Yap_heap_regs->AtomLONGINT_
+  Atom AtomLOOP_;
+#define AtomLOOP Yap_heap_regs->AtomLOOP_
   Atom AtomLT_;
 #define AtomLT Yap_heap_regs->AtomLT_
   Atom AtomLastExecuteWithin_;
@@ -760,6 +762,8 @@
 #define FunctorLastExecuteWithin Yap_heap_regs->FunctorLastExecuteWithin_
   Functor FunctorList_;
 #define FunctorList Yap_heap_regs->FunctorList_
+  Functor FunctorLOOP_;
+#define FunctorLOOP Yap_heap_regs->FunctorLOOP_
   Functor FunctorMegaClause_;
 #define FunctorMegaClause Yap_heap_regs->FunctorMegaClause_
   Functor FunctorMetaCall_;

@@ -3377,6 +3377,24 @@ Unify @var{Variables} with the list of all variables of term
 @var{Term}.  The variables occur in the order of their first
 appearance when traversing the term depth-first, left-to-right.
 
+@item rational_term_to_tree(?@var{TI},-@var{TF})
+@findex rational_term_to_tree/2
+@syindex rational_term_to_term/2
+@cnindex rational_term_to_tree/2
+The term @var{TF} is a tree representation (without cycles) for the
+ Prolog term @var{TI}. Loops are replaced by terms of the form
+ @code{_LOOP_(@var{LevelsAbove})} where @var{LevelsAbove} is the size of
+ the loop.
+
+@item tree_to_rational_term(?@var{TI},-@var{TF})
+@findex tree_to_rational_term/2
+@syindex tree_to_rational_term/2
+@cnindex tree_to_rational_term/2
+Inverse of above. The term @var{TI} is a tree representation (without
+ cycles) for the Prolog term @var{TF}. Loops replace terms of the form
+ @code{_LOOP_(@var{LevelsAbove})} where @var{LevelsAbove} is the size of
+ the loop.
+
 
 @end table
 

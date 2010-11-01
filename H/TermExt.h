@@ -90,7 +90,6 @@ BlobOfFunctor (Functor f)
 }
 
 typedef struct cp_frame {
-  CELL *original_cp;
   CELL *start_cp;
   CELL *end_cp;
   CELL *to;
