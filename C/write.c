@@ -24,6 +24,7 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 #include "yapio.h"
+#include "clause.h"
 #if COROUTINING
 #include "attvar.h"
 #endif
@@ -264,9 +265,9 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base 
 
   putAtom(AtomDBref, Quote_illegal, writewch);
 #if defined(__linux__) || defined(__APPLE__)
-  sprintf(s, "(%p,0)", ref);
+  sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause*)ref)->ClRefCount);
 #else
-  sprintf(s, "(0x%p,0)", ref);
+  sprintf(s, "(0x%p," UInt_FORMAT ")", ref, ((LogUpdClause*)ref)->ClRefCount);
 #endif
   wrputs(s, writewch);
   lastw = alphanum;
