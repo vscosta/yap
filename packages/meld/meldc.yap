@@ -1,7 +1,3 @@
-:- style_check(all).
-
-:- yap_flag(unknown,error).
-
 :- module(meld_compiler,
 	[
 	 mcompile/1,
@@ -17,7 +13,13 @@
 	 max/3
 	]).
 
-:- use_module(meld).
+:- use_module(library(meld)).
+
+:- use_module(meldtd,
+	      [
+	       meld_top_down_compile/2,
+	       meld_top_down_aggregate/3
+	       ]).
 
 :- use_module(library(terms), [
         variable_in_term/2
@@ -47,6 +49,11 @@ mcompile(type(T), Program, Vars) :-
 mcompile((Head :- Body), _, _Vars) :-
 	rule(Head, Body).
 
+type_declaration(extensional(T), Program) :- !,
+	functor(T, Na, Arity),
+	functor(NT, Na, Arity),
+	assert(meld_topdown:extensional(NT, Na, Arity)),
+	type_declaration(T, Program). 
 type_declaration(logical_neighbor(T), Program) :- !,
 	type_declaration(T, Program). 
 type_declaration(T, _) :-
@@ -58,8 +65,10 @@ type_declaration(T, Program) :-
 	check_aggregate(Args, 1, NewArgs, Aggregation, Arg),
 	!,
 	NT =.. [P|NewArgs],
+	meld_top_down_aggregate(T, Aggregation, Arg),
 	assert_type(NT, Program, aggregation(Aggregation, Arg)).
 type_declaration(T, Program) :-
+	meld_top_down_aggregate(T, horn, _),
 	assert_type(T, Program, horn).
 
 assert_type(NT, Program, Agg) :-
@@ -79,7 +88,8 @@ ground_term(_, []).
 
 rule(Head, Body) :-
         bodytolist(Body, L, []),
-	compile_goals(L, [], Head).
+	compile_goals(L, [], Head),
+	meld_top_down_compile(Head, Body).
 
 compile_goals([], _, _).
 compile_goals([Goal|Goals], Gs, Head) :-

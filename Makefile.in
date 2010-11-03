@@ -637,7 +637,7 @@ install_data:
 	$(INSTALL_DATA) $(srcdir)/LGPL/pillow/pillow.pl $(DESTDIR)$(SHAREDIR)/Yap/
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
-	(cd packages/meld; $(MAKE))
+	(cd packages/meld; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
 	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
 	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)

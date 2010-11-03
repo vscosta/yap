@@ -6,7 +6,9 @@
 	 push/1,
 	 first/2,
 	 min/3,
-	 max/3
+	 max/3,
+	 minval/3,
+	 maxval/3
 	]).
 
 
@@ -51,7 +53,7 @@ done.
 delete(Fact) :-
 	nb_getval(meld_queue, Queue),
 	retract(meld_program:Fact),
-nb_queue_enqueue(Queue, deleted(Fact)),
+	nb_queue_enqueue(Queue, deleted(Fact)),
 	live.
 
 pop(Goal) :-
@@ -61,12 +63,10 @@ pop(Goal) :-
 push(Goal) :-
 	clause(meld_program:Goal,_,Ref),
 	!,
-	writeln(Goal+ref),
 	increase_reference_count(Ref),
 	fail.
 push(Goal) :-
-%	format('+~w~n',[Goal]),
-	writeln(Goal+0),
+	format('+~w~n',[Goal]),
 	nb_getval(meld_queue, Queue), !,
 	assert(meld_program:Goal),
 	nb_queue_enqueue(Queue, Goal).
@@ -124,14 +124,21 @@ deleted(Goal) :-
 	clause(meld_program:Goal,_,Ref),
 	decrease_reference_count(Ref),
 	!,
-	fail.
+	force_delete(Goal),
+	complete_delete(Goal).
 deleted(Goal) :-
 %	format('-~w~n',[Goal]),
+	complete_delete(Goal).
+
+force_delete(Goal) :-
+	meld_topdown:Goal, !, abolish_all_tables, fail.
+force_delete(Goal) :-
+	abolish_all_tables.
+
+complete_delete(Goal) :-
 	nb_getval(meld_queue, Queue), !,
 	retract(meld_program:Goal),
 	nb_queue_enqueue(Queue, deleted(Goal)).
-
-
 
 %
 % first, cleanup cache
@@ -160,9 +167,11 @@ delete_from_first(VGoal,Goal) :-
 
 delete_from_max(VGoal,Arg,Goal) :-
 	clause(meld_cache:Goal,_,Ref),
+	trace,
 	(
-	 decrease_reference_count(Ref)
-	->
+	 decrease_reference_count(Ref),
+	 \+ force_delete(Goal)
+	;
 	 clause(meld_program:Goal,_,CRef),
 	 decrease_reference_count(CRef),
 	 fail
@@ -175,14 +184,14 @@ new_max(VGoal,Arg,Goal) :-
 %	format('-~w~n',[Goal]),
 	retract(meld_program:Goal),
 	push(deleted(Goal)),
-	writeln(delete_from_max(VGoal,Arg,Goal)),
 	maxval(Arg, meld_cache:VGoal, VGoal),
 	push(VGoal).
 
 delete_from_min(VGoal,Arg,Goal) :-
 	clause(meld_cache:Goal,_,Ref),
 	(
-	 decrease_reference_count(Ref)
+	 decrease_reference_count(Ref),
+	 \+ force_delete(Goal)
 	->
 	 clause(meld_program:Goal,_,CRef),
 	 decrease_reference_count(CRef),
@@ -199,6 +208,8 @@ new_min(VGoal,Arg,Goal) :-
 	writeln(delete_from_min(VGoal,Arg,Goal)),
 	minval(Arg, meld_cache:VGoal, VGoal),
 	push(VGoal).
+
+:- meta_predicate minval(+,:,-), maxval(+,:,-).
 
 minval(_,_,_) :-
 	nb_setval(min, +inf),
