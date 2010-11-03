@@ -226,17 +226,26 @@ minval(V,_,GMax) :-
 	nb_getval(min_arg, V.GMax).
 	
 
-maxval(_,_,_) :-
-	nb_setval(max, -inf),
-	nb_setval(max_arg, '$none'),
-	fail.
 maxval(V,G,GMax) :-
-	call(G),
-	nb_getval(max, V0),
-	V > V0,
-	nb_setval(max, V),
-	nb_setval(max_arg, V.GMax),
-	fail.
-maxval(V,_,GMax) :-
-	nb_getval(max_arg, V.GMax).
+	Memory = f(-inf,[]),
+	(
+	 call(G),
+	 arg(1, Memory, V0),
+	 V > V0,
+	 nb_setarg(1, Memory, V),
+	 nb_setarg(2, Memory, V.GMax)
+	 ;
+	 arg(2, Memory, V.GMax)
+	).
 
+minval(V,G,GMin) :-
+	Memory = f(+inf,[]),
+	(
+	 call(G),
+	 arg(1, Memory, V0),
+	 V < V0,
+	 nb_setarg(1, Memory, V),
+	 nb_setarg(2, Memory, V.GMin)
+	 ;
+	 arg(2, Memory, V.GMin)
+	).
