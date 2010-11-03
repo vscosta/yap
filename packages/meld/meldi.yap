@@ -29,6 +29,8 @@
 :- initialization
 	init_meld_queue.
 
+:- dynamic speculative_delete/3.
+
 live :-
 	repeat,
 	( pop(Goal) ->
@@ -40,6 +42,10 @@ live :-
 	  done
 	).
 
+done :-
+	speculative_delete(_, _, _), !,
+	push_residuals,
+	live.
 done :-
 	current_predicate(meld_program:P),
 	P \= run/1,
@@ -111,8 +117,6 @@ clean(Skel) :-
 	retractall(meld_program:Skel).
 
 cache(Goal) :-
-	writeln(cache(Goal)),fail.
-cache(Goal) :-
 	clause(meld_cache:Goal,_,Ref),
 	!,
 	increase_reference_count(Ref).
@@ -124,107 +128,136 @@ deleted(Goal) :-
 	clause(meld_program:Goal,_,Ref),
 	decrease_reference_count(Ref),
 	!,
-	force_delete(Goal),
+	force_delete(Goal, Ref),
 	complete_delete(Goal).
+deleted(Goal) :-
+	retract(speculative_delete(Goal, Ref, Count)), !,
+	NCount is Count-1,
+	(
+	    NCount > 0 
+	->
+	   assert(speculative_delete(Goal, Ref, Count))
+       ;
+	   true
+       ).
 deleted(Goal) :-
 %	format('-~w~n',[Goal]),
 	complete_delete(Goal).
-
-force_delete(Goal) :-
-	meld_topdown:Goal, !, abolish_all_tables, fail.
-force_delete(Goal) :-
-	abolish_all_tables.
 
 complete_delete(Goal) :-
 	nb_getval(meld_queue, Queue), !,
 	retract(meld_program:Goal),
 	nb_queue_enqueue(Queue, deleted(Goal)).
 
+force_delete(Goal, Ref) :-
+	current_reference_count(Ref, Count),
+	assert(speculative_delete(Goal, Ref, Count)).
+
+push_residuals :-
+	retract(speculative_delete(Goal, _, _)),
+	push(Goal),
+	fail.
+push_residuals.
+
+
 %
 % first, cleanup cache
 %
 delete_from_first(_,Goal) :-
-	clause(meld_cache:Goal,_,Ref),
+	clause(meld_program:Goal,_,Ref), !,
 	(
-	 decrease_reference_count(Ref)
+	    decrease_reference_count(Ref)
 	->
-	 fail
+	    true
 	;
-	 erase(Ref),
-	 fail
-	).
-delete_from_first(_,Goal) :-
-	clause(meld_program:Goal,_,Ref),
-	decrease_reference_count(Ref),
-	!,
-	fail.
-delete_from_first(VGoal,Goal) :-
+	    force_delete(Goal, Ref)
+	),
+	erase(Ref),
+	retract(meld_cache:Goal),
 	retract(meld_program:Goal),
 	push(deleted(Goal)),
 	once(meld_cache:VGoal),
 	push(VGoal).
+delete_from_first(Goal) :-
+	retract(speculative_delete(Goal, Ref, Count)), !,
+	NCount is Count-1,
+	(
+	    NCount > 0 
+	->
+	   assert(speculative_delete(Goal, Ref, Count))
+       ;
+	   true
+       ).
+delete_from_first(Goal) :-
+	retract(meld_cache:Goal),
+	push(deleted(Goal)).
 
 
 delete_from_max(VGoal,Arg,Goal) :-
-	clause(meld_cache:Goal,_,Ref),
-	trace,
+	clause(meld_program:Goal,_,Ref), !,
 	(
-	 decrease_reference_count(Ref),
-	 \+ force_delete(Goal)
-	;
-	 clause(meld_program:Goal,_,CRef),
-	 decrease_reference_count(CRef),
-	 fail
-	;
-	 erase(Ref),
-	 new_max(VGoal, Arg, Goal)
-	).
-
-new_max(VGoal,Arg,Goal) :-
-%	format('-~w~n',[Goal]),
-	retract(meld_program:Goal),
+	 decrease_reference_count(Ref)
+	->
+	 true
+        ;
+	    force_delete(Goal, Ref)
+	),
+	erase(Ref),
+	retract(meld_cache:Goal),
 	push(deleted(Goal)),
-	maxval(Arg, meld_cache:VGoal, VGoal),
+	new_max(VGoal, Arg).
+delete_from_max(Goal) :-
+	retract(speculative_delete(Goal, Ref, Count)), !,
+	NCount is Count-1,
+	(
+	    NCount > 0 
+	->
+	   assert(speculative_delete(Goal, Ref, Count))
+       ;
+	   true
+       ).
+delete_from_max(Goal) :-
+	retract(meld_cache:Goal),
+	push(deleted(Goal)).
+
+new_max(VGoal,Arg) :-
+	arg(Arg, VGoal, A),
+	maxval(A, meld_cache:VGoal, VGoal),
 	push(VGoal).
 
 delete_from_min(VGoal,Arg,Goal) :-
-	clause(meld_cache:Goal,_,Ref),
+	clause(meld_program:Goal,_,Ref), !,
 	(
-	 decrease_reference_count(Ref),
-	 \+ force_delete(Goal)
+	 decrease_reference_count(Ref)
 	->
-	 clause(meld_program:Goal,_,CRef),
-	 decrease_reference_count(CRef),
-	 fail
-	;
-	 erase(Ref),
-	 new_min(VGoal, Arg, Goal)
-	).
-
-new_min(VGoal,Arg,Goal) :-
-%	format('-~w~n',[Goal]),
-	retract(meld_program:Goal),
+	 true
+        ;
+	 force_delete(Goal, Ref)
+	),
+	erase(Ref),
+	retract(meld_cache:Goal),
 	push(deleted(Goal)),
-	writeln(delete_from_min(VGoal,Arg,Goal)),
-	minval(Arg, meld_cache:VGoal, VGoal),
+	new_min(VGoal, Arg).
+delete_from_min(Goal) :- !,
+	retract(speculative_delete(Goal, Ref, Count)),
+	NCount is Count-1,
+	(
+	    NCount > 0 
+	->
+	   assert(speculative_delete(Goal, Ref, Count))
+       ;
+	   true
+       ).
+delete_from_min(Goal) :-
+	retract(meld_cache:Goal),
+	push(deleted(Goal)).
+
+new_min(VGoal,Arg) :-
+	arg(Arg, VGoal, A),
+	minval(A, meld_cache:VGoal, VGoal),
 	push(VGoal).
 
 :- meta_predicate minval(+,:,-), maxval(+,:,-).
-
-minval(_,_,_) :-
-	nb_setval(min, +inf),
-	nb_setval(min_arg, '$none'),
-	fail.
-minval(V,G,GMax) :-
-	call(G),
-	nb_getval(min, V0),
-	V < V0,
-	nb_setval(min, V),
-	nb_setval(min_arg, V.GMax),
-	fail.
-minval(V,_,GMax) :-
-	nb_getval(min_arg, V.GMax).
-	
 
 maxval(V,G,GMax) :-
 	Memory = f(-inf,[]),
@@ -233,7 +266,8 @@ maxval(V,G,GMax) :-
 	 arg(1, Memory, V0),
 	 V > V0,
 	 nb_setarg(1, Memory, V),
-	 nb_setarg(2, Memory, V.GMax)
+	 nb_setarg(2, Memory, V.GMax),
+	 fail
 	 ;
 	 arg(2, Memory, V.GMax)
 	).
@@ -245,7 +279,8 @@ minval(V,G,GMin) :-
 	 arg(1, Memory, V0),
 	 V < V0,
 	 nb_setarg(1, Memory, V),
-	 nb_setarg(2, Memory, V.GMin)
+	 nb_setarg(2, Memory, V.GMin),
+	 fail
 	 ;
 	 arg(2, Memory, V.GMin)
 	).

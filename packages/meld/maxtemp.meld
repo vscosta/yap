@@ -1,10 +1,4 @@
 
-%:- ensure_loaded(l
-
-type extensional root(module).
-type extensional neighbor(module, module).
-type extensional temperature(module, float).
-
 type logical_neighbor parent(module, first module).
 type maxTemp(module, max float).
 
@@ -29,6 +23,7 @@ globalMax(B, T) :-
 	globalMax(A, T).
 
 type localMax(module).
+
 localMax(A) :-
 	temperature(A,T),
 	forall

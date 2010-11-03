@@ -21,8 +21,6 @@
 
 :- reexport(meld/meldc).
 
-:- reexport(meld/meldtd).
-
 simulate(G) :-
 	 input_graph(G),
 	 live.
