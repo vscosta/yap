@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-10-15 17:09:55 +0200 (Fri, 15 Oct 2010) $
+%  $Revision: 4939 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -208,9 +208,10 @@
 :- module(timer,[timer_start/1,    % +ID
 		 timer_stop/2,     % +ID,-Duration
 		 timer_pause/1,    % +ID
-		 timer_pause/2,    % +ID
-		 timer_resume/1]). % +ID
-
+		 timer_pause/2,    % +ID,-Duration
+		 timer_resume/1,   % +ID
+		 timer_elapsed/2,  % +ID, -Duration
+		 timer_reset/1]).  % +ID
 :- yap_flag(unknown,error).
 :- style_check(single_var).
 
@@ -227,6 +228,11 @@ timer_start(Name) :-
 	 statistics(walltime,[StartTime,_]),
 	 assertz(timer(Name,StartTime))
 	).
+
+timer_start_forced(Name) :-
+	retractall(timer(Name,_)),
+	statistics(walltime,[StartTime,_]),
+	assertz(timer(Name,StartTime)).
 
 timer_stop(Name,Duration) :-
 	(
@@ -270,3 +276,17 @@ timer_resume(Name):-
 	 
 	 throw(timer_not_paused(timer_resume(Name)))
 	).
+
+timer_elapsed(Name,Duration) :-
+	(
+	 timer(Name,StartTime)
+	->
+	 statistics(walltime,[StopTime,_]),
+	 Duration is StopTime-StartTime;
+
+	 throw(timer_not_started(timer_elapsed(Name,Duration)))
+	).
+
+timer_reset(Name) :-
+	retractall(timer(Name,_)),
+	retractall(timer_paused(Name,_)).

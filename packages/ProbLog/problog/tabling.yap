@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
-%  $Revision: 4877 $
+%  $Date: 2010-11-03 19:08:13 +0100 (Wed, 03 Nov 2010) $
+%  $Revision: 4984 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -445,6 +445,7 @@ problog_neg(M:G):-
   functor(G, Name, Arity),
   \+ problog_tabled(M:Name/Arity),
   \+ problog:problog_predicate(Name, Arity),
+  \+ (Name == problog_neg, Arity == 1),
   throw(problog_neg_error('Error: goal must be dynamic and tabled', M:G)).
 problog_neg(M:G):-
   % exact inference

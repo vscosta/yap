@@ -204,82 +204,54 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(utils_learning, [empty_bdd_directory/0,
-			   empty_output_directory/0]).
+:- module(utils, [delete_file_silent/1,
+		  variable_in_term_exactly_once/2,
+		  slice_n/4]).
 
-
-% load library modules
-:- use_module(library(lists), [append/3, member/2]).
-:- use_module(library(system), [delete_file/1, directory_files/2, file_exists/1]).
-
-% load our own modules
-:- use_module(os).
-:- use_module(flags).
-:- use_module(utils).
+:- use_module(library(system), [delete_file/1, file_exists/1]).
 
 %========================================================================
 %= 
 %= 
 %========================================================================
 
-empty_bdd_directory :-
-	problog_flag(bdd_directory,Path),
+delete_file_silent(File) :-
+	file_exists(File),
+	delete_file(File),
+	!.
+delete_file_silent(_).
+
+%========================================================================
+%= Split a list into the first n elements and the tail
+%= +List +Integer -Prefix -Residuum
+%========================================================================
+
+
+slice_n([],_,[],[]) :-
+	!.
+slice_n([H|T],N,[H|T2],T3) :-
+	N>0,
 	!,
-
-	atom_codes('query_', PF1),           % 'query_*'
-
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1]).
-empty_bdd_directory :-
-	throw(error(problog_flag_does_not_exist(bdd_directory))).
+	N2 is N-1,
+	slice_n(T,N2,T2,T3).
+slice_n(L,_,[],L).
 
 %========================================================================
-%= 
-%= 
+%= succeeds if the variable V appears exactly once in the term T
 %========================================================================
+variable_in_term_exactly_once(T,V) :-
+	term_variables(T,Vars),
+	var_memberchk_once(Vars,V).
 
-empty_output_directory :-
-	problog_flag(output_directory,Path),
+var_memberchk_once([H|T],V) :-
+	H==V,
 	!,
-	
-	concat_path_with_filename(Path,'log.dat',F1),
-	concat_path_with_filename(Path,'out.dat',F2),
-	
-	delete_file_silent(F1),
-	delete_file_silent(F2),
+	var_memberchk_none(T,V).
+var_memberchk_once([_|T],V) :-
+	var_memberchk_once(T,V).
 
-	atom_codes('values_', PF1),           % 'values_*_q_*.dat'
-	atom_codes('factprobs_', PF2),        % 'factprobs_*.pl'
-	atom_codes('input_', PF3),            % 'input_*.pl'
-	atom_codes('trainpredictions_',PF4), % 'trainpredictions_*.pl'
-	atom_codes('testpredictions_',PF5),   % 'testpredictions_*.pl'
-	atom_codes('predictions_',PF6),       % 'predictions_*.pl'
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
-
-empty_output_directory :-
-	throw(error(problog_flag_does_not_exist(output_directory))).
-
-
-
-%========================================================================
-%= 
-%= 
-%========================================================================
-
-delete_files_with_matching_prefix([],_,_).
-delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
-	atom_codes(Name,NameCode),
-
-	(
-	 (member(Prefix,Prefixes), append(Prefix,_Suffix,NameCode))
-	->
-	 (
-	  concat_path_with_filename(Path,Name,F),
-	  delete_file_silent(F)
-	 );
-	 true
-	),
-
-	delete_files_with_matching_prefix(T,Path,Prefixes).
+var_memberchk_none([H|T],V) :-
+	H\==V,
+	var_memberchk_none(T,V).
+var_memberchk_none([],_).
 

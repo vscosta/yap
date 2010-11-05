@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-20 18:06:47 +0200 (Wed, 20 Oct 2010) $
-%  $Revision: 4969 $
+%  $Date: 2010-11-03 19:13:53 +0100 (Wed, 03 Nov 2010) $
+%  $Revision: 4986 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Bernd Gutmann
+%  Theofrastos Mantadelis
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -204,82 +204,220 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(utils_learning, [empty_bdd_directory/0,
-			   empty_output_directory/0]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% nested tries handling
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- module(nestedtries, [nested_trie_to_depth_breadth_trie/4]).
+
+:- use_module(library(ordsets), [list_to_ord_set/2, ord_subset/2]). % this two might be better to do a custom fast implementation
+:- use_module(library(lists), [memberchk/2, delete/3]).
+:- use_module(library(tries), [trie_to_depth_breadth_trie/6, trie_get_depth_breadth_reduction_entry/1, trie_dup/2, trie_close/1, trie_open/1, trie_replace_nested_trie/3, trie_remove_entry/1, trie_get_entry/2, trie_put_entry/3, trie_traverse/2]).
+
+:- use_module(flags, [problog_define_flag/5, problog_flag/2]).
+
+:- style_check(all).
+:- yap_flag(unknown,error).
+
+:- initialization((
+%   problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true, nested_tries),
+  problog_define_flag(loop_refine_ancs, problog_flag_validate_boolean, 'refine ancestors if no loop exists', true, nested_tries)
+%   problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false, nested_tries),
+%   problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false, nested_tries),
+%   problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list, nested_tries)
+)).
 
 
-% load library modules
-:- use_module(library(lists), [append/3, member/2]).
-:- use_module(library(system), [delete_file/1, directory_files/2, file_exists/1]).
+trie_replace_entry(_Trie, Entry, _E, false):-
+  !, trie_remove_entry(Entry).
+trie_replace_entry(Trie, Entry, E, true):-
+  !, trie_get_entry(Entry, Proof),
+  delete(Proof, E, NewProof),
+  (NewProof == [] ->
+    trie_delete(Trie),
+    trie_put_entry(Trie, [true], _)
+  ;
+    trie_remove_entry(Entry),
+    trie_put_entry(Trie, NewProof, _)
+  ).
+trie_replace_entry(Trie, _Entry, t(ID), R):-
+  trie_replace_nested_trie(Trie, ID, R).
 
-% load our own modules
-:- use_module(os).
-:- use_module(flags).
-:- use_module(utils).
+trie_delete(Trie):-
+  trie_traverse(Trie, R),
+  trie_remove_entry(R),
+  fail.
+trie_delete(_Trie).
 
-%========================================================================
-%= 
-%= 
-%========================================================================
+is_state(Variable):-
+  Variable == true, !.
+is_state(Variable):-
+  Variable == false.
+is_state(Variable):-
+  nonvar(Variable),
+  Variable = not(NestedVariable),
+  is_state(NestedVariable).
 
-empty_bdd_directory :-
-	problog_flag(bdd_directory,Path),
-	!,
+is_trie(Trie, ID):-
+  nonvar(Trie),
+  Trie = t(ID), !.
+is_trie(Trie, ID):-
+  nonvar(Trie),
+  Trie = not(NestedTrie),
+  is_trie(NestedTrie, ID).
 
-	atom_codes('query_', PF1),           % 'query_*'
+is_label(Label, ID):-
+  atom(Label), !,
+  atomic_concat('L', ID, Label).
+is_label(Label, ID):-
+  nonvar(Label),
+  Label = not(NestedLabel),
+  is_label(NestedLabel, ID).
 
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1]).
-empty_bdd_directory :-
-	throw(error(problog_flag_does_not_exist(bdd_directory))).
+% Ancestor related stuff
 
-%========================================================================
-%= 
-%= 
-%========================================================================
+initialise_ancestors(0):-
+  problog_flag(anclst_represent, integer).
+initialise_ancestors([]):-
+  problog_flag(anclst_represent, list).
 
-empty_output_directory :-
-	problog_flag(output_directory,Path),
-	!,
-	
-	concat_path_with_filename(Path,'log.dat',F1),
-	concat_path_with_filename(Path,'out.dat',F2),
-	
-	delete_file_silent(F1),
-	delete_file_silent(F2),
+add_to_ancestors(ID, Ancestors, NewAncestors):-
+  integer(Ancestors), !,
+  NewAncestors is (1 << (ID - 1)) \/ Ancestors.
+add_to_ancestors(ID, Ancestors, NewAncestors):-
+  is_list(Ancestors),
+  list_to_ord_set([ID|Ancestors], NewAncestors).
 
-	atom_codes('values_', PF1),           % 'values_*_q_*.dat'
-	atom_codes('factprobs_', PF2),        % 'factprobs_*.pl'
-	atom_codes('input_', PF3),            % 'input_*.pl'
-	atom_codes('trainpredictions_',PF4), % 'trainpredictions_*.pl'
-	atom_codes('testpredictions_',PF5),   % 'testpredictions_*.pl'
-	atom_codes('predictions_',PF6),       % 'predictions_*.pl'
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
+ancestor_subset_check(SubAncestors, Ancestors):-
+  integer(SubAncestors), !,
+  SubAncestors is Ancestors /\ SubAncestors.
+ancestor_subset_check(SubAncestors, Ancestors):-
+  is_list(SubAncestors),
+  ord_subset(SubAncestors, Ancestors).
 
-empty_output_directory :-
-	throw(error(problog_flag_does_not_exist(output_directory))).
+ancestor_loop_refine(Loop, Ancestors, 0):-
+  var(Loop), integer(Ancestors), !.
+ancestor_loop_refine(Loop, Ancestors, []):-
+  var(Loop), is_list(Ancestors), !.
+ancestor_loop_refine(true, Ancestors, Ancestors).
+
+% Cycle check related stuff
+% missing synonym check
+
+cycle_check(ID, Ancestors):-
+  integer(Ancestors), !,
+  Bit is 1 << (ID - 1),
+  Bit is Bit /\ Ancestors.
+cycle_check(ID, Ancestors):-
+  is_list(Ancestors),
+  memberchk(ID, Ancestors).
+
+preprocess(Index, DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount):-
+  problog:problog_chktabled(Index, Trie), !,
+  trie_dup(Trie, CopyTrie),
+  initialise_ancestors(Ancestors),
+  make_nested_trie_base_cases(CopyTrie, t(Index), DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors),
+  trie_close(CopyTrie),
+  Next is Index + 1,
+  preprocess(Next, DepthBreadthTrie, OptimizationLevel, EndCount, FinalEndCount).
+preprocess(_, _, _, FinalEndCount, FinalEndCount).
+
+make_nested_trie_base_cases(Trie, t(ID), DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount, Ancestors):-
+  trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, Label, OptimizationLevel, StartCount, EndCount),
+  (is_trie(Label, SID) ->
+    trie_get_depth_breadth_reduction_entry(NestedEntry),
+    trie_replace_entry(Trie, NestedEntry, Label, false),
+    add_to_ancestors(SID, Ancestors, NewAncestors),
+    make_nested_trie_base_cases(Trie, t(ID), DepthBreadthTrie, OptimizationLevel, EndCount, FinalEndCount, NewAncestors)
+  ;
+    FinalEndCount = EndCount,
+    get_set_trie(ID, Label, Ancestors)
+  ).
+
+nested_trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel):-
+  integer(OptimizationLevel),
+  trie_open(DepthBreadthTrie),
+  (problog_flag(trie_preprocess, true) ->
+    preprocess(1, DepthBreadthTrie, OptimizationLevel, 0, StartCount)
+  ;
+    StartCount = 0
+  ),
+  initialise_ancestors(Ancestors),
+%   initialise_ancestors(Childs),
+  (problog_flag(loop_refine_ancs, true) ->
+    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, _)
+  ;
+    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, true)
+  ),
+  eraseall(problog_trie_table).
+
+trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop):-
+  get_trie_pointer(ID, Trie),
+  trie_dup(Trie, CopyTrie),
+  trie_2_dbtrie_intern(CopyTrie, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop),
+  trie_close(CopyTrie).
+
+trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop):-
+  trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, Label, OptimizationLevel, StartCount, EndCount),
+  (is_trie(Label, ID) ->             % Label might have issues with negation
+    trie_get_depth_breadth_reduction_entry(NestedEntry),
+    % check if Trie introduces a loop
+    (cycle_check(ID, Ancestors) ->
+      ContainLoop = true,
+      NewLabel = false,
+      NewEndCount = EndCount
+    ;
+      % check if Trie is resolved and extract it
+      (get_set_trie(ID, NewLabel, Ancestors) ->
+        NewEndCount = EndCount
+      ;
+        % calculate the nested trie
+        add_to_ancestors(ID, Ancestors, NewAncestors), % to be able to support 2 representations
+        trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, EndCount, NewEndCount, NewAncestors, NewLabel, NewContainLoop),
+        ancestor_loop_refine(NewContainLoop, Ancestors, RefinedAncestors),
+        get_set_trie(ID, NewLabel, RefinedAncestors),
+        ContainLoop = NewContainLoop
+      )
+    ),
+    trie_replace_entry(Trie, NestedEntry, t(ID), NewLabel), % should be careful to verify that it works also with not(t(ID))
+    trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, NewEndCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop)
+  ;
+    % else we can terminate and return
+    FinalEndCount = EndCount,
+    TrieLabel = Label
+  ).
+
+% predicate to check/remember resolved tries
+% no refiment of ancestor list included
+
+get_trie_pointer(ID, Trie):-
+  problog:problog_chktabled(ID, Trie), !.
+get_trie_pointer(Trie, Trie).
+
+get_set_trie(Trie, Label, Ancestors):-
+  recorded(problog_trie_table, store(Trie, StoredAncestors, Label), _),
+  (problog_flag(subset_check, true) ->
+    ancestor_subset_check(StoredAncestors, Ancestors)
+  ;
+    StoredAncestors == Ancestors
+  ), !.
+get_set_trie(Trie, Label, Ancestors):-
+  ground(Label),
+  recordz(problog_trie_table, store(Trie, Ancestors, Label), _).
 
 
+% chk_negated([H|T], ID):-
+%   simplify(H, not(t(ID))), !.
+% chk_negated([_|T], ID):-
+%   chk_negated(T, ID).
 
-%========================================================================
-%= 
-%= 
-%========================================================================
 
-delete_files_with_matching_prefix([],_,_).
-delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
-	atom_codes(Name,NameCode),
-
-	(
-	 (member(Prefix,Prefixes), append(Prefix,_Suffix,NameCode))
-	->
-	 (
-	  concat_path_with_filename(Path,Name,F),
-	  delete_file_silent(F)
-	 );
-	 true
-	),
-
-	delete_files_with_matching_prefix(T,Path,Prefixes).
-
+/*
+chk_negated([], ID, ID).
+chk_negated([H|T], ID, not(ID)):-
+  simplify(H, not(t(ID))), !.
+chk_negated([H|T], ID, ID):-
+  simplify(H, t(ID)), !.
+chk_negated([_|T], ID, FID):-
+  chk_negated(T, ID, FID).*/
