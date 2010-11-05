@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
-%  $Revision: 4877 $
+%  $Date: 2010-10-21 10:47:36 +0200 (Thu, 21 Oct 2010) $
+%  $Revision: 4970 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -14,7 +14,7 @@
 %  Katholieke Universiteit Leuven
 %
 %  Main authors of this file:
-%  Angelika Kimmig, Vitor Santos Costa,Bernd Gutmann,
+%  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann,
 %  Theofrastos Mantadelis, Guy Van den Broeck
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -300,21 +300,17 @@
 :- style_check(all).
 :- yap_flag(unknown,error).
 
-:- set_prolog_flag(to_chars_mode,quintus).
-
 % general yap modules
-:- use_module(library(charsio)).
-:- use_module(library(lists)).
-:- use_module(library(terms)).
-:- use_module(library(random)).		% PM doesn't seem to be used!
-:- use_module(library(system)).
-:- use_module(library(rbtrees)).	% PM doesn't seem to be used!
+:- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4]).
+:- use_module(library(terms), [variable_in_term/2] ).
+:- use_module(library(random), [random/1]).
+:- use_module(library(system), [tmpnam/1,shell/2,delete_file/1,delete_file/2]).
 :- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
 
 % problog related modules
 :- use_module('problog/variables').
 :- use_module('problog/extlists').
-:- use_module('problog/gflags', [flag_store/2]).
+:- use_module('problog/gflags').
 :- use_module('problog/flags').
 :- use_module('problog/print').
 :- use_module('problog/os').
@@ -323,6 +319,8 @@
 :- use_module('problog/sampling').
 :- use_module('problog/intervals').
 :- use_module('problog/mc_DNF_sampling').
+:- use_module('problog/timer').
+:- use_module('problog/utils').
 :- catch(use_module('problog/ad_converter'),_,true).
 :- catch(use_module('problog/variable_elimination'),_,true).
 
@@ -344,7 +342,6 @@
 :- dynamic(tunable_fact/2).
 :- dynamic(non_ground_fact/1).
 :- dynamic(continuous_fact/1).
-%:- dynamic(problog_dir/1).
 % global, manipulated via problog_control/2
 :- dynamic(up/0).
 :- dynamic(limit/0).
@@ -368,14 +365,11 @@
 :- dynamic(answer/1).
 % to keep track of the groundings for non-ground facts
 :- dynamic(grounding_is_known/2).
-
 % for decisions
 :- dynamic(decision_fact/2).
-
 % for fact where the proabability is a variable
 :- dynamic(dynamic_probability_fact/1).
 :- dynamic(dynamic_probability_fact_extract/2).
-
 % for storing continuous parts of proofs (Hybrid ProbLog)
 :- dynamic([hybrid_proof/3, hybrid_proof/4]).
 :- dynamic(hybrid_proof_disjoint/4).
@@ -383,6 +377,8 @@
 % ProbLog files declare prob. facts as P::G
 % and this module provides the predicate X::Y to iterate over them
 :- multifile('::'/2).
+
+:- multifile(user:term_expansion/1).
 
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
@@ -566,6 +562,7 @@ generate_atoms(N, A):-
 % dynamic predicate problog_predicate(Name,Arity) keeps track of predicates that already have wrapper clause
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% converts annotated disjunctions - if loaded
 term_expansion_intern(A, B, C):-
   catch(term_expansion_intern_ad(A, B, C), _, false).
 
@@ -617,12 +614,69 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 	).
 
 
-/* this can slow down prolog time by several orders if there's lots of them
-user:term_expansion(P::Goal,Goal) :-
-	P \= t(_),
-	P =:= 1,
-	!.
-*/
+
+
+% handles continuous facts
+term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
+	nonvar(Head),
+	Head=(X,Distribution),
+	!,
+	(
+	 Distribution=gaussian(Mu,Sigma)
+	->
+	 true;
+	 ( throw(unknown_distribution)
+	 )
+	),
+
+	 (
+	  variable_in_term_exactly_once(Goal,X)
+	 ->
+	  true;
+	  (
+	   throw(variable)
+	  )
+	 ),
+
+	copy_term(((X,Distribution) :: Goal), ((X2,Distribution2) :: Goal2)),
+	% bind_the_variable
+	X2=Distribution2,
+
+	% find position in term
+	Goal2=..[Name|Args],
+	once(nth1(Pos,Args,Distribution2)),
+
+	length(Args,Arity),
+	atomic_concat([problogcontinuous_,Name],ProblogName),
+	probclause_id(ID),
+	
+	% is it a tunable fact?
+	(
+	 (number(Mu),number(Sigma))
+	->
+	 NewArgs=Args;
+	 (
+	  Mu_Random is 0.1, % random*4-2,
+	  Sigma_Random is 0.4, % random*2+0.5,
+	  nth1(Pos,Args,_,KeepArgs),
+	  nth1(Pos,NewArgs,gaussian(Mu_Random,Sigma_Random),KeepArgs),
+	  assertz(tunable_fact(ID,gaussian(Mu,Sigma)))
+	 )
+	),
+	ProbFact =.. [ProblogName,ID|NewArgs],
+
+	(
+	 ground(Goal)
+	->
+	 true;
+	 assertz(non_ground_fact(ID))
+	),
+	assertz(continuous_fact(ID)),
+	problog_continuous_predicate(Name, Arity, Pos,ProblogName,Module).
+
+
+
+	
 
 % handles probabilistic facts
 term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
@@ -704,71 +758,11 @@ sample_initial_value_for_tunable_fact(LogP) :-
 
 
 
-% Hybrid ProbLog stuff
-
-is_valid_gaussian(X) :-
-	compound(X),
-	X=gaussian(Mu,Sigma),
-	(
-	 ((number(Mu),number(Sigma));(Mu=t(_),Sigma=t(_)))
-	->
-	 true;
-	 throw(invalid_gaussian(X))
-	).
-
-:- multifile(user:term_expansion/1).
-
-user:term_expansion(Goal, problog:ProbFact) :-
-	compound(Goal),
-	Goal=..[Name|Args],
-	once( (nth(Pos,Args,GaussianArg),is_valid_gaussian(GaussianArg)) ),
-
-	%Goal contains a Gaussian, there is some work to do
-
-	( % check for a second Gaussian
-	 (nth(Pos2,Args,GaussianArg2),Pos2\=Pos,is_valid_gaussian(GaussianArg2))
-	->
-	  (
-	   format(user_error,'We only support continous atoms with at most one Gaussian inside.~n',[]),
-	   format(user_error,'Your program contains the atom ~w with more than one.~n',[]),
-	   throw(unsupported_multivariate_gaussian(Goal))
-	  );
-	  true
-	),
-
-	functor(Goal, Name, Arity),
-	atomic_concat([problogcontinuous_,Name],ProblogName),
-	probclause_id(ID),
-
-	GaussianArg=gaussian(Mu_Arg,Sigma_Arg),
-
-	% is it a tunable fact?
-	(
-	 (number(Mu_Arg),number(Sigma_Arg))
-	->
-	 NewArgs=Args;
-	 (
-	  Mu_Random is 0.1, % random*4-2,
-	  Sigma_Random is 0.4, % random*2+0.5,
-	  nth(Pos,Args,_,KeepArgs),
-	  nth(Pos,NewArgs,gaussian(Mu_Random,Sigma_Random),KeepArgs),
-	  assertz(tunable_fact(ID,gaussian(Mu_Arg,Sigma_Arg)))
-	 )
-	),
-	ProbFact =.. [ProblogName,ID|NewArgs],
-
-	(
-	 ground(Goal)
-	->
-	 true;
-	 assertz(non_ground_fact(ID))
-	),
-	assertz(continuous_fact(ID)),
-	problog_continuous_predicate(Name, Arity, Pos,ProblogName).
+%
 
 
 % introduce wrapper clause if predicate seen first time
-problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition,_) :-
+problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition,_,_) :-
 	problog_continuous_predicate(Name, Arity,OldContinuousArgumentPosition),
 	!,
 	(
@@ -784,7 +778,7 @@ problog_continuous_predicate(Name, Arity,ContinuousArgumentPosition,_) :-
 	  throw(continuous_argument(not_unique_position))
 	 )
 	).
-problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogName) :-
+problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogName,Module) :-
 
 	LBefore is ContinuousArgumentPosition-1,
 	LAfter is Arity-ContinuousArgumentPosition,
@@ -798,9 +792,8 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 
 
 	ProbFact =.. [ProblogName,ID|ProbArgs],
-	prolog_load_context(module,Mod),
 
-	assertz( (Mod:OriginalGoal :- ProbFact,
+	assertz( (Module:OriginalGoal :- ProbFact,
 		                   % continuous facts always get a grounding ID, even when they are actually ground
 		                   % this simplifies the BDD script generation
 		                     non_ground_fact_grounding_id(ProbFact,Ground_ID),
@@ -812,6 +805,9 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 	ArityPlus1 is Arity+1,
 	dynamic(problog:ProblogName/ArityPlus1).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% predicates for the user to manipulate continuous facts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 in_interval(ID,Low,High) :-
 	number(Low),
@@ -834,7 +830,9 @@ interval_merge((_ID,GroundID,_Type),Interval) :-
 	b_setval(Key,NewInterval).
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% assert/retract for probabilistic facts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 problog_assert(P::Goal) :-
 	problog_assert(user,P::Goal).
@@ -848,6 +846,10 @@ problog_retractall(Goal) :-
 	atomic_concat(['problog_',F],F2),
 	ProbLogGoal=..[F2|Args2],
 	retractall(problog:ProbLogGoal).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 % introduce wrapper clause if predicate seen first time
@@ -874,6 +876,39 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 	ArityPlus2 is Arity+2,
 	dynamic(problog:ProblogName/ArityPlus2).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Generating and storing the grounding IDs for
+% non-ground probabilistic facts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+non_ground_fact_grounding_id(Goal,ID) :-
+	ground(Goal),
+	!,
+	(
+	 grounding_is_known(Goal,ID)
+	->
+	 true;
+	 (
+	  nb_getval(non_ground_fact_grounding_id_counter,ID),
+	  ID2 is ID+1,
+	  nb_setval(non_ground_fact_grounding_id_counter,ID2),
+	  assertz(grounding_is_known(Goal,ID))
+	 )
+	).
+non_ground_fact_grounding_id(Goal,_) :-	
+	format(user_error,'The current program uses non-ground facts.~n', []),
+	format(user_error,'If you query those, you may only query fully-grounded versions of the fact.~n',[]),
+	format(user_error,'Within the current proof, you queried for ~q which is not ground.~2n', [Goal]),
+	throw(error(non_ground_fact(Goal))).
+
+reset_non_ground_facts :-
+	required(keep_ground_ids),
+	!.
+reset_non_ground_facts :-
+	nb_setval(non_ground_fact_grounding_id_counter,0),
+	retractall(grounding_is_known(_,_)).
+
+:- initialization(reset_non_ground_facts).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Getting the ID for any kind of ground fact
@@ -947,77 +982,39 @@ probclause_id(ID) :-
 	C1 is ID+1,
 	nb_setval(probclause_counter,C1), !.
 
-non_ground_fact_grounding_id(Goal,ID) :-
-	(
-	    ground(Goal)
-	->
-	    true;
-	    (
-		format(user_error,'The current program uses non-ground facts.~n', []),
-		format(user_error,'If you query those, you may only query fully-grounded versions of the fact.~n',[]),
-		format(user_error,'Within the current proof, you queried for ~q which is not ground.~n~n', [Goal]),
-		throw(error(non_ground_fact(Goal)))
-	    )
-	),
-	(
-	    grounding_is_known(Goal,ID)
-	->
-	    true;
-	    (
-		nb_getval(non_ground_fact_grounding_id_counter,ID),
-		ID2 is ID+1,
-		nb_setval(non_ground_fact_grounding_id_counter,ID2),
-		assertz(grounding_is_known(Goal,ID))
-	    )
-	).
 
-reset_non_ground_facts :-
-  (required(keep_ground_ids) ->
-      true
-  ;
-      nb_setval(non_ground_fact_grounding_id_counter,0),
-      retractall(grounding_is_known(_,_))
-  ).
-
-:- initialization(reset_non_ground_facts).
 
 % backtrack over all probabilistic facts
 % must come before term_expansion
-P::Goal :-
-    probabilistic_fact(P,Goal,_).
+Prob::Goal :-
+    probabilistic_fact(Prob,Goal,_).
 
 % backtrack over all probabilistic facts
-probabilistic_fact(P2,Goal,ID) :-
+probabilistic_fact(Prob,Goal,ID) :-
+	ground(Goal),
+	!,
+	Goal =.. [F|Args],
+	atomic_concat('problog_',F,F2),
+	append([ID|Args],[LProb],Args2),
+	Goal2 =..[F2|Args2],
+	length(Args2,N),
+	current_predicate(F2/N),
+	Goal2,
+	number(LProb),
+	Prob is exp(LProb).
+probabilistic_fact(Prob,Goal,ID) :-
+	get_internal_fact(ID,ProblogTerm,_ProblogName,_ProblogArity),
+	ProblogTerm =.. [F,_ID|Args],
+	append(Args2,[LProb],Args),
+	name(F,[_p,_r,_o,_b,_l,_o,_g,_|F2Chars]),
+	name(F2,F2Chars),
+	Goal =.. [F2|Args2],
 	(
-	 ground(Goal)
+	 dynamic_probability_fact(ID)
 	->
-	 (
-	  Goal =.. [F|Args],
-	  atomic_concat('problog_',F,F2),
-	  append([ID|Args],[P],Args2),
-	  Goal2 =..[F2|Args2],
-	  length(Args2,N),
-	  current_predicate(F2/N),
-	  call(Goal2),
-	  number(P),
-	  P2 is exp(P)
-	 );
-	 (
-	  get_internal_fact(ID,ProblogTerm,_ProblogName,_ProblogArity),
-	  ProblogTerm =.. [F,_ID|Args],
-	  append(Args2,[P],Args),
-	  name(F,[_p,_r,_o,_b,_l,_o,_g,_|F2Chars]),
-	  name(F2,F2Chars),
-	  Goal =.. [F2|Args2],
-	  (
-	   dynamic_probability_fact(ID)
-	  ->
-	   P2=p;
-	   P2 is exp(P)
-	  )
-	 )
+	 Prob=p;
+	 Prob is exp(LProb)
 	).
-
 
 % generates unique IDs for proofs
 proof_id(ID) :-
@@ -1044,17 +1041,17 @@ get_fact_probability(A, Prob) :-
   once(append(Part1, [95|Part2], A_Codes)), % 95 = '_'
   number_codes(ID, Part1), !,
   % let's check whether Part2 contains an 'l' (l=low)
-  (member(108, Part2) ->
-    fail
+  \+ memberchk(108,Part2),
+  number_codes(Grounding_ID, Part2),
+  (
+   dynamic_probability_fact(ID)
+  ->
+   grounding_is_known(Goal, Grounding_ID),
+   dynamic_probability_fact_extract(Goal, Prob)
   ;
-    number_codes(Grounding_ID, Part2),
-    (dynamic_probability_fact(ID) ->
-      grounding_is_known(Goal, Grounding_ID),
-      dynamic_probability_fact_extract(Goal, Prob)
-    ;
-      get_fact_probability(ID, Prob)
-    )
-  ).
+   get_fact_probability(ID, Prob)
+  ),
+  !.
 get_fact_probability(ID,Prob) :-
   ground(ID),
   prob_for_id(ID,Prob,_),
@@ -1093,9 +1090,9 @@ set_fact_probability(ID,Prob) :-
 	get_internal_fact(ID,ProblogTerm,ProblogName,ProblogArity),
 	retract(ProblogTerm),
 	ProblogTerm =.. [ProblogName|ProblogTermArgs],
-	nth(ProblogArity,ProblogTermArgs,_,KeepArgs),
+	nth1(ProblogArity,ProblogTermArgs,_,KeepArgs),
 	NewLogProb is log(Prob),
-	nth(ProblogArity,NewProblogTermArgs,NewLogProb,KeepArgs),
+	nth1(ProblogArity,NewProblogTermArgs,NewLogProb,KeepArgs),
 	NewProblogTerm =.. [ProblogName|NewProblogTermArgs],
 	assertz(NewProblogTerm).
 
@@ -1176,7 +1173,7 @@ get_fact(ID,OutsideTerm) :-
 	ProblogTerm =.. [_Functor,ID|Args],
 	atomic_concat('problog_',OutsideFunctor,ProblogName),
 	Last is ProblogArity-1,
-	nth(Last,Args,_LogProb,OutsideArgs),
+	nth1(Last,Args,_LogProb,OutsideArgs),
 	OutsideTerm =.. [OutsideFunctor|OutsideArgs].
 % ID of instance of non-ground fact: get fact from grounding table
 get_fact(ID,OutsideTerm) :-
@@ -1216,73 +1213,82 @@ get_fact_list([ID|IDs],[Fact|Facts]) :-
 %       else update state and succeed
 %
 % do not maintain gloabl variables in montecarlo mode
-add_to_proof(ID, Prob) :-
-  (problog_control(check, mc) ->
-    montecarlo_check(ID)
-  ;
-    b_getval(problog_steps,MaxSteps),
-    b_getval(problog_probability, CurrentP),
-    nb_getval(problog_threshold, CurrentThreshold),
-    b_getval(problog_current_proof, IDs),
-    %%%% Bernd, changes for negated ground facts
-    \+ open_end_memberchk(not(ID),IDs),
-    %%%% Bernd, changes for negated ground facts
-    (MaxSteps =< 0 ->
-      fail
-    ;
-      (open_end_memberchk(ID, IDs) -> %Theo
-        true
-      ;
-        open_end_add(ID, IDs, NIDs), %Theo
-        % \+ prune_check(NIDs, Trie_Completed_Proofs),
-        multiply_probabilities(CurrentP, Prob, NProb),
-        (NProb < CurrentThreshold ->
-          upper_bound(NIDs),
-          fail
-        ;
-          b_setval(problog_probability, NProb),
-          b_setval(problog_current_proof, NIDs)
-        )
-      ),
-      Steps is MaxSteps - 1,
-      b_setval(problog_steps, Steps)
-    )
-  ).
+add_to_proof(ID, _LogProb) :-
+	problog_control(check, mc),
+	!,
+	montecarlo_check(ID).
+add_to_proof(ID, LogProb) :-
+	b_getval(problog_steps,MaxSteps),
+	MaxSteps>0,
+	b_getval(problog_probability, CurrentLogProb),
+	nb_getval(problog_threshold, CurrentThreshold),
+	b_getval(problog_current_proof, IDs),
+	
+	% check whether negation of this fact is already used in proof
+	\+ open_end_memberchk(not(ID),IDs),
+	
+	(  % check whether this fact is already used in proof  
+	   open_end_memberchk(ID, IDs)
+	->	
+	   true;
+	   (
+	    open_end_add(ID, IDs, NIDs),
+	    NewLogProb is CurrentLogProb+LogProb,
+	    (
+	     NewLogProb < CurrentThreshold
+	    ->
+	     (
+	      upper_bound(NIDs),
+	      fail
+	     );
+	     (
+	      b_setval(problog_probability, NewLogProb),
+	      b_setval(problog_current_proof, NIDs)
+	     )
+	    )
+	   )
+	),
+	Steps is MaxSteps - 1,
+	b_setval(problog_steps, Steps).
 
-%%%% Bernd, changes for negated ground facts
-add_to_proof_negated(ID, Prob) :-
-  (problog_control(check, mc) ->
-    % the sample has to fail if the fact is negated
-    \+ montecarlo_check(ID)
-  ;
-    b_getval(problog_steps, MaxSteps),
-    b_getval(problog_probability, CurrentP),
-    nb_getval(problog_threshold, CurrentThreshold),
-    b_getval(problog_current_proof, IDs),
-    \+ open_end_memberchk(ID, IDs),
-    (MaxSteps =< 0 ->
-      fail
-    ;
-      (open_end_memberchk(not(ID), IDs) ->
-        true
-      ;
-        open_end_add(not(ID), IDs, NIDs), %Theo
-        % \+ prune_check(NIDs, Trie_Completed_Proofs),
-        InverseProb is log(1 - exp(Prob)),
-        multiply_probabilities(CurrentP, InverseProb, NProb),
-        (NProb < CurrentThreshold ->
-          upper_bound(NIDs),  %% checkme
-          fail
-        ;
-          b_setval(problog_probability, NProb),
-          b_setval(problog_current_proof, NIDs)
-        )
-      ),
-      Steps is MaxSteps - 1,
-      b_setval(problog_steps, Steps)
-    )
-  ).
-%%%% Bernd, changes for negated ground facts
+add_to_proof_negated(ID, _) :-
+	problog_control(check, mc),
+	!,
+	% the sample has to fail if the fact is negated
+	\+ montecarlo_check(ID).
+add_to_proof_negated(ID, LogProb) :-
+	b_getval(problog_steps, MaxSteps),
+	MaxSteps>0,
+	b_getval(problog_probability, CurrentLogProb),
+	nb_getval(problog_threshold, CurrentThreshold),
+	b_getval(problog_current_proof, IDs),
+
+	% check whether unnegated fact is already used in proof
+	\+ open_end_memberchk(ID, IDs),
+	
+	( % check wether negation of this fact is already used in proof
+	 open_end_memberchk(not(ID), IDs)
+	->
+	 true;
+	 (
+	  open_end_add(not(ID), IDs, NIDs),
+	  NewLogProb is CurrentLogProb + log(1-exp(LogProb)),
+	  (
+	   NewLogProb < CurrentThreshold
+	  ->
+	   (
+	    upper_bound(NIDs),
+	    fail
+	   );
+	   (
+	    b_setval(problog_probability, NewLogProb),
+	    b_setval(problog_current_proof, NIDs)
+	   )
+	  )
+	 )
+	),
+	Steps is MaxSteps - 1,
+	b_setval(problog_steps, Steps).
 
 %Hybrid
 add_continuous_to_proof(ID,GroundID) :-
@@ -1376,15 +1382,12 @@ split_g_id([A|B],[A|FactID],GroundingID) :-
 %
 % List always length>=1 -> don't need []=true-case for tries
 upper_bound(List) :-
-  problog_control(on, limit),
-  problog_control(check, up),
-  nb_getval(problog_stopped_proofs, Trie_Stopped_Proofs),
-  open_end_close_end(List, R),
-% (prune_check(R, Trie_Stopped_Proofs) -> true; insert_ptree(R, Trie_Stopped_Proofs)).
-  insert_ptree(R, Trie_Stopped_Proofs).
-
-multiply_probabilities(CurrentLogP, LogProb, NLogProb) :-
-  NLogProb is CurrentLogP + LogProb.
+	problog_control(on, limit),
+	problog_control(check, up),
+	nb_getval(problog_stopped_proofs, Trie_Stopped_Proofs),
+	open_end_close_end(List, R),
+	% (prune_check(R, Trie_Stopped_Proofs) -> true; insert_ptree(R, Trie_Stopped_Proofs)).
+	insert_ptree(R, Trie_Stopped_Proofs).
 
 % this is called by all inference methods before the actual ProbLog goal
 % to set up environment for proving
@@ -1404,7 +1407,20 @@ init_problog(Threshold) :-
 	b_setval(problog_continuous_facts_used,[]),
 	retractall(hybrid_proof(_,_,_)),
 	retractall(hybrid_proof(_,_,_,_)),
-	retractall(hybrid_proof_disjoint(_,_,_,_)).
+	retractall(hybrid_proof_disjoint(_,_,_,_)),
+
+	% reset all timers in case a query failed before
+	timer_reset(variable_elimination_time),
+	timer_reset(bdd_script_time),
+	timer_reset(bdd_generation_time),
+	timer_reset(script_gen_time_naive),
+	timer_reset(bdd_gen_time_naive),
+	timer_reset(script_gen_time_builtin),
+	timer_reset(bdd_gen_time_builtin),
+	timer_reset(script_gen_time_dec),
+	timer_reset(bdd_gen_time_dec),
+	timer_reset(sld_time),
+	timer_reset(build_tree_low).
 
 % idea: proofs that are refinements of known proof can be pruned as they don't add probability mass
 % note that current ptree implementation doesn't provide the check as there's no efficient method known so far...
@@ -1471,14 +1487,12 @@ problog_statistics(Stat, Result):-
 	problog_var_get(Stat, Result).
 
 generate_order_by_prob_fact_appearance(Order, FileName):-
-  open(FileName, 'write', Stream),
-  forall(member(PF, Order), (
-    ptree:get_var_name(PF, Name),
-    format(Stream, "@~w~n", [Name]))),
-/*  findall(_, (recorded(variable_elimination, prob_fact(PF, _), _),
-    ptree:get_var_name(PF, Name),
-    format(Stream, "@~w~n", [Name])), _),*/
-  close(Stream).
+	open(FileName, 'write', Stream),
+	forall(member(PF, Order), (
+				   ptree:get_var_name(PF, Name),
+				   format(Stream, "@~w~n", [Name])
+				  )),
+	close(Stream).
 
 get_order(Trie, Order):-
 	findall(List, ptree:traverse_ptree(Trie, List), Proofs),
@@ -1528,11 +1542,11 @@ eval_dnf(OriTrie1, Prob, Status) :-
 
 
   ((problog_flag(variable_elimination, true), nb_getval(problog_nested_tries, false)) ->
-    statistics(walltime, _),
+    timer_start(variable_elimination_time),
     trie_check_for_and_cluster(OriTrie),
-    statistics(walltime, [_, VariableEliminationTime]),
+    timer_stop(variable_elimination_time,Variable_Elimination_Time),
+    problog_var_set(variable_elimination_time, Variable_Elimination_Time),
     trie_replace_and_cluster(OriTrie, Trie),
-    problog_var_set(variable_elimination_time, VariableEliminationTime),
     variable_elimination_stats(Clusters, OrigPF, CompPF),
     problog_var_set(variable_elimination_stats, compress(Clusters, OrigPF, CompPF)),
     clean_up
@@ -1576,7 +1590,7 @@ eval_dnf(OriTrie1, Prob, Status) :-
   convert_filename_to_working_path(BDDParFileFlag, BDDParFile),
   % old reduction method doesn't support nested tries
   ((problog_flag(use_old_trie, true), nb_getval(problog_nested_tries, false)) ->
-    statistics(walltime, _),
+    timer_start(bdd_script_time),
     (problog_control(check, remember) ->
       bdd_ptree_map(Trie, BDDFile, BDDParFile, Mapping),
       convert_filename_to_working_path(save_map, MapFile),
@@ -1587,14 +1601,14 @@ eval_dnf(OriTrie1, Prob, Status) :-
     ;
       bdd_ptree(Trie, BDDFile, BDDParFile)
     ),
-    statistics(walltime, [_, ScriptGenerationTime]),
-    problog_var_set(bdd_script_time, ScriptGenerationTime),
+    timer_stop(bdd_script_time,BDD_Script_Time),
+    problog_var_set(bdd_script_time, BDD_Script_Time),
 
-    statistics(walltime, _),
+    timer_start(bdd_generation_time),
     execute_bdd_tool(BDDFile, BDDParFile, Prob_old, Status_old),
-    statistics(walltime,[_, BDDGenerationTime]),
-    (Status_old = ok ->
-      problog_var_set(bdd_generation_time, BDDGenerationTime),
+    timer_stop(bdd_generation_time,BDD_Generation_Time),
+    (Status_old == ok ->
+      problog_var_set(bdd_generation_time, BDD_Generation_Time),
       problog_var_set(probability, Prob_old)
     ;
       problog_var_set(bdd_generation_time, fail),
@@ -1605,18 +1619,17 @@ eval_dnf(OriTrie1, Prob, Status) :-
   ),
   % naive method with nested trie support but not loops
   ((problog_flag(use_naive_trie, true); (problog_flag(use_old_trie, true), nb_getval(problog_nested_tries, true))) ->
-    statistics(walltime, _),
-%     atomic_concat([BDDFile, '_naive'], BDDFile_naive),
+   timer_start(script_gen_time_naive),
     BDDFile = BDDFile_naive,
     nested_ptree_to_BDD_script(Trie, BDDFile_naive, BDDParFile),
-    statistics(walltime, [_, ScriptGenerationTime_naive]),
-    problog_var_set(bdd_script_time(naive), ScriptGenerationTime_naive),
+    timer_stop(script_gen_time_naive,Script_Gen_Time_Naive),
+    problog_var_set(bdd_script_time(naive), Script_Gen_Time_Naive),
 
-    statistics(walltime, _),
+     timer_start(bdd_gen_time_naive),
     execute_bdd_tool(BDDFile_naive, BDDParFile, Prob_naive, Status_naive),
-    statistics(walltime,[_, BDDGenerationTime_naive]),
-    (Status_naive = ok ->
-      problog_var_set(bdd_generation_time(naive), BDDGenerationTime_naive),
+     timer_stop(bdd_gen_time_naive,BDD_Gen_Time_Naive),
+    (Status_naive == ok ->
+      problog_var_set(bdd_generation_time(naive),BDD_Gen_Time_Naive),
       problog_var_set(probability(naive), Prob_naive)
     ;
       problog_var_set(bdd_generation_time(naive), fail),
@@ -1625,9 +1638,6 @@ eval_dnf(OriTrie1, Prob, Status) :-
   ;
     true
   ),
-%   problog_statistics,
-%   print_nested_ptree(Trie),
-%   findall(_,(problog_chktabled(_ID, _T), writeln(problog_chktabled(_ID, _T))),_),
   % reduction method with depth_breadth trie support
   problog_flag(db_trie_opt_lvl, ROptLevel),
   problog_flag(db_min_prefix, MinPrefix),
@@ -1640,8 +1650,7 @@ eval_dnf(OriTrie1, Prob, Status) :-
   forall(member(OptLevel, Levels), (
     (problog_flag(use_db_trie, true) ->
       tries:trie_db_opt_min_prefix(MinPrefix),
-      statistics(walltime, _),
-%       atomic_concat([BDDFile, '_builtin_', OptLevel], BDDFile_builtin),
+      timer_start(script_gen_time_builtin),
       BDDFile = BDDFile_builtin,
       (nb_getval(problog_nested_tries, false) ->
         trie_to_bdd_trie(Trie, DBTrie, BDDFile_builtin, OptLevel, BDDParFile)
@@ -1657,16 +1666,17 @@ eval_dnf(OriTrie1, Prob, Status) :-
       problog_var_set(dbtrie_statistics(Builtin), tries(memory(FM), tries(FT), entries(FE), nodes(FN))),
 
       delete_ptree(DBTrie),
-      statistics(walltime, [_, ScriptGenerationTime_builtin]),
-      problog_var_set(bdd_script_time(Builtin), ScriptGenerationTime_builtin),
+      timer_stop(script_gen_time_builtin,Script_Gen_Time_Builtin),
+  
+      problog_var_set(bdd_script_time(Builtin), Script_Gen_Time_Builtin),
 
-      statistics(walltime, _),
+      timer_start(bdd_gen_time_builtin),
       execute_bdd_tool(BDDFile_builtin, BDDParFile, Prob_builtin, Status_builtin),
-      statistics(walltime,[_, BDDGenerationTime_builtin]),
+      timer_stop(bdd_gen_time_builtin,BDD_Gen_Time_Builtin),
       ptree_db_trie_opt_performed(LVL1, LVL2, LV3),
       problog_var_set(db_trie_opts_performed(Builtin), opt_perform(LVL1, LVL2, LV3)),
-      (Status_builtin = ok ->
-        problog_var_set(bdd_generation_time(Builtin), BDDGenerationTime_builtin),
+      (Status_builtin == ok ->
+        problog_var_set(bdd_generation_time(Builtin), BDD_Gen_Time_Builtin),
         problog_var_set(probability(Builtin), Prob_builtin)
       ;
         problog_var_set(bdd_generation_time(Builtin), fail),
@@ -1679,18 +1689,17 @@ eval_dnf(OriTrie1, Prob, Status) :-
 
   % decomposition method
   (problog_flag(use_dec_trie, true) ->
-    statistics(walltime, _),
-%     atomic_concat([BDDFile, '_dec'], BDDFile_dec),
     BDDFile = BDDFile_dec,
+    timer_start(script_gen_time_dec),
     ptree_decomposition(Trie, BDDFile_dec, BDDParFile),
-    statistics(walltime, [_, ScriptGenerationTime_dec]),
-    problog_var_set(bdd_script_time(dec), ScriptGenerationTime_dec),
+    timer_stop(script_gen_time_dec,Script_Gen_Time_Dec),
+    problog_var_set(bdd_script_time(dec), Script_Gen_Time_Dec),
 
-    statistics(walltime, _),
+    timer_start(bdd_gen_time_dec),
     execute_bdd_tool(BDDFile_dec, BDDParFile, Prob_dec, Status_dec),
-    statistics(walltime,[_, BDDGenerationTime_dec]),
-    (Status_dec = ok ->
-      problog_var_set(bdd_generation_time(dec), BDDGenerationTime_dec),
+    timer_stop(bdd_gen_time_dec,BDD_Gen_Time_Dec),
+    (Status_dec == ok ->
+      problog_var_set(bdd_generation_time(dec), BDD_Gen_Time_Dec),
       problog_var_set(probability(dec), Prob_dec)
     ;
       problog_var_set(bdd_generation_time(dec), fail),
@@ -1948,13 +1957,13 @@ compute_bounds(LP, UP, Status) :-
 problog_low(Goal, Threshold, _, _) :-
 	init_problog_low(Threshold),
 	problog_control(off, up),
-	statistics(walltime, _),
+	timer_start(sld_time),
 	problog_call(Goal),
 	add_solution,
 	fail.
 problog_low(_, _, LP, Status) :-
-	statistics(walltime, [_,E]), %theo
-	problog_var_set(sld_time, E),
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	eval_dnf(Trie_Completed_Proofs, LP, Status),
 	(problog_flag(verbose, true)->
@@ -2046,13 +2055,7 @@ evalStep(Ans,Status) :-
 	nb_getval(problog_stopped_proofs, Trie_Stopped_Proofs),
 	count_ptree(Trie_Completed_Proofs, NProofs),
 	count_ptree(Trie_Stopped_Proofs, NCands),
-	(
-	 problog_flag(verbose,true)
-	->
-	 format(user,'~w proofs, ~w stopped derivations~n',[NProofs,NCands]);
-	 true
-	),
-	flush_output(user),
+	format_if_verbose(user,'~w proofs, ~w stopped derivations~n',[NProofs,NCands]),
 	eval_lower(NProofs,Low,StatusLow),
 	(
 	 StatusLow \== ok
@@ -2073,8 +2076,7 @@ evalStep(Ans,Status) :-
       Status = StatusUp
     ;
       Diff is Up-Low,
-      (problog_flag(verbose,true) -> format(user,'difference:  ~6f~n',[Diff]);true),
-      flush_output(user),
+      format_if_verbose(user,'difference:  ~6f~n',[Diff]),
       ((Diff < Delta; Diff =:= 0) -> Ans = 1; Ans = 0),
       Status = ok
     )
@@ -2088,13 +2090,12 @@ eval_lower(N,P,Status) :-
 	N > 0,
 	low(OldN,_),
 	N \= OldN,
-  nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	eval_dnf(Trie_Completed_Proofs,P,Status),
-	(Status = ok ->
+	(Status == ok ->
 	    retract(low(_,_)),
 	    assertz(low(N,P)),
-	    (problog_flag(verbose,true) -> format(user,'lower bound: ~6f~n',[P]);true),
-	    flush_output(user)
+	    format_if_verbose(user,'lower bound: ~6f~n',[P])
 	;
 	true).
 
@@ -2113,12 +2114,11 @@ eval_upper(N,UpP,ok) :-
   nb_setval(problog_all_proofs, Trie_All_Proofs),
   eval_dnf(Trie_All_Proofs,UpP,StatusUp),
   delete_ptree(Trie_All_Proofs),
-  (StatusUp = ok ->
+  (StatusUp == ok ->
     retract(up(_,_)),
     assertz(up(N,UpP))
   ;
-    (problog_flag(verbose,true) -> format(user,'~w - continue using old up~n',[StatusUp]);true),
-    flush_output(user),
+     format_if_verbose(user,'~w - continue using old up~n',[StatusUp]),
     up(_,UpP)
   ).
 
@@ -2150,17 +2150,14 @@ init_problog_max(Threshold) :-
 update_max :-
   b_getval(problog_probability, CurrP),
   max_probability(MaxP),
-  (CurrP =< MaxP ->
-    fail
-  ;
-    b_getval(problog_current_proof, IDs),
-    open_end_close_end(IDs, R),
-    retractall(max_proof(_)),
-    assertz(max_proof(R)),
-    nb_setval(problog_threshold, CurrP),
-    retractall(max_probability(_)),
-    assertz(max_probability(CurrP))
-  ).
+  CurrP>MaxP,
+  b_getval(problog_current_proof, IDs),
+  open_end_close_end(IDs, R),
+  retractall(max_proof(_)),
+  assertz(max_proof(R)),
+  nb_setval(problog_threshold, CurrP),
+  retractall(max_probability(_)),
+  assertz(max_probability(CurrP)).
 
 problog_max_id(Goal, _Prob, _Clauses) :-
 	problog_call(Goal),
@@ -2276,12 +2273,10 @@ problog_kbest_id(Goal, K) :-
 update_kbest(K) :-
 	b_getval(problog_probability,NewLogProb),
 	current_kbest(LogThreshold,_,_),
-	(NewLogProb>=LogThreshold ->
-	    b_getval(problog_current_proof,RevProof),
-	    open_end_close_end(RevProof,Proof),
-	    update_current_kbest(K,NewLogProb,Proof)
-	;
-	    fail).
+	NewLogProb>=LogThreshold,
+	b_getval(problog_current_proof,RevProof),
+	open_end_close_end(RevProof,Proof),
+	update_current_kbest(K,NewLogProb,Proof).
 
 update_current_kbest(_,NewLogProb,Cl) :-
 	current_kbest(_,List,_),
@@ -2312,7 +2307,7 @@ sorted_insert(A-LA,[B1-LB1|B], [B1-LB1|C] ) :-
 % keeps all entries with lowest probability, even if implying a total of more than k
 cutoff(List,Len,1,List,Len) :- !.
 cutoff([P-L|List],Length,First,[P-L|List],Length) :-
-	nth(First,[P-L|List],PF-_),
+	nth1(First,[P-L|List],PF-_),
 	PF=:=P,
 	!.
 cutoff([_|List],Length,First,NewList,NewLength) :-
@@ -2442,69 +2437,48 @@ problog_montecarlo(Goal,Delta,Prob) :-
 	close_static_array(mc_sample).
 
 montecarlo(Goal,Delta,K,File) :-
-%        reset_static_array(mc_sample),
 	clean_sample,
 	problog_control(on,mc),
 	open(File,write,Log),
 	format(Log,'# goal: ~q~n#delta: ~w~n',[Goal,Delta]),
 	format(Log,'# num_programs  prob   low   high  diff  time~2n',[]),
 	close(Log),
-	statistics(walltime,[T1,_]),
-	(problog_flag(verbose,true) -> format('search for ~q~n',[Goal]);true),
-	montecarlo(Goal,Delta,K,0,File,0,T1),
+	timer_start(monte_carlo),
+	format_if_verbose(user,'search for ~q~n',[Goal]),
+	montecarlo(Goal,Delta,K,0,File,0),
+	timer_stop(monte_carlo,_Monte_Carlo_Time),
 	problog_control(off,mc).
 
 % calculate values after K samples
-montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
-  SamplesNew is SamplesSoFar+1,
-  SamplesNew mod K =:= 0,
-  !,
-  copy_term(Goal,GoalC),
-  (mc_prove(GoalC) -> Next is PositiveSoFar+1; Next=PositiveSoFar),
-  Prob is Next/SamplesNew,
-  statistics(walltime,[T2,_]),
-  Time is (T2-InitialTime),%/1000,
+montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar) :-
+	SamplesNew is SamplesSoFar+1,
+	SamplesNew mod K =:= 0,
+	!,
+	copy_term(Goal,GoalC),
+	(
+	 mc_prove(GoalC)
+	->
+	 Next is PositiveSoFar+1;
+	 Next=PositiveSoFar
+	),
+	Prob is Next/SamplesNew,
+	timer_elapsed(monte_carlo,Time),
 
-  problog_convergence_check(Time, Prob, SamplesNew, Delta, _Epsilon, Converged),
-  ((Converged = true; Converged = terminate) ->
-    (problog_flag(verbose,true) ->
-      format('Runtime ~w ms~2n',[Time])
-    ;
-      true
-    ),
-    assertz(mc_prob(Prob))
-  ;
-    montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
-  ).
-
-
-%   Epsilon is 2*sqrt(Prob*(1-Prob)/SamplesNew),
-%   Low is Prob-Epsilon,
-%   High is Prob+Epsilon,
-%   Diff is 2*Epsilon,
-%   (problog_flag(verbose,true) -> format('~n~w samples~nestimated probability ~w~n95 percent confidence interval [~w,~w]~n',[SamplesNew,Prob,Low,High]);true),
-%   open(File,append,Log),
-%   format(Log,'~w  ~8f  ~8f  ~8f  ~8f  ~3f~n',[SamplesNew,Prob,Low,High,Diff,Time]),
-%   close(Log),
-
-
-%   ((Diff<Delta; Diff =:= 0) ->
-%     (problog_flag(verbose,true) ->
-%       format('Runtime ~w sec~2n',[Time])
-%     ;
-%       true
-%     ),
-%     assertz(mc_prob(Prob))
-%   ;
-%     montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime)
-%   ).
-
+	problog_convergence_check(Time, Prob, SamplesNew, Delta, _Epsilon, Converged),
+	(
+	 (Converged == true; Converged == terminate)
+	->
+	 format_if_verbose(user,'Runtime ~w ms~2n',[Time]),
+	 assertz(mc_prob(Prob))
+	;
+	 montecarlo(Goal,Delta,K,SamplesNew,File,Next)
+	).
 % continue until next K samples done
-montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar,InitialTime) :-
+montecarlo(Goal,Delta,K,SamplesSoFar,File,PositiveSoFar) :-
 	SamplesNew is SamplesSoFar+1,
 	copy_term(Goal,GoalC),
 	(mc_prove(GoalC) -> Next is PositiveSoFar+1; Next=PositiveSoFar),
-	montecarlo(Goal,Delta,K,SamplesNew,File,Next,InitialTime).
+	montecarlo(Goal,Delta,K,SamplesNew,File,Next).
 
 mc_prove(A) :- !,
 	(get_some_proof(A) ->
@@ -2586,10 +2560,8 @@ problog_kbest_answers_id(Goal, K) :-
 update_kbest_answers(Goal,K) :-
 	b_getval(problog_probability,NewLogProb),
 	current_kbest(LogThreshold,_,_),
-	(NewLogProb>=LogThreshold ->
-	    update_current_kbest_answers(K,NewLogProb,Goal)
-	;
-	    fail).
+	NewLogProb>=LogThreshold,
+	update_current_kbest_answers(K,NewLogProb,Goal).
 
 update_current_kbest_answers(_,NewLogProb,Goal) :-
 	current_kbest(_,List,_),
@@ -2700,7 +2672,7 @@ eval_bdd_forest(N,Probs,Status) :-
 	    Status = timeout
 	;
 	    statistics(walltime,[_,E3]),
-		(problog_flag(verbose,true) -> format(user,'~w ms BDD processing~n',[E3]);true),
+	        format_if_verbose(user,'~w ms BDD processing~n',[E3]),
 		see(ResultFile),
 		read_probs(N,Probs),
 		seen,
@@ -2763,14 +2735,14 @@ build_trie(low(Threshold), Goal, _) :-
   number(Threshold),
   init_problog_low(Threshold),
   problog_control(off, up),
-  statistics(walltime, _),
+  timer_start(build_tree_low),
   problog_call(Goal),
   add_solution,
   fail.
 build_trie(low(Threshold), _, Trie) :-
   number(Threshold),
-  statistics(walltime, [_,E]),
-  problog_var_set(sld_time, E),
+  timer_stop(build_tree_low,Build_Tree_Low),
+  problog_var_set(sld_time, Build_Tree_Low),
   nb_getval(problog_completed_proofs, Trie).
   % don't clear tabling; tables can be reused by other query
 
@@ -2957,11 +2929,11 @@ write_bdd_struct_script(Trie,BDDFile,Variables) :-
 
   % decomposition method
   (problog_flag(use_dec_trie, true) ->
-    statistics(walltime, _),
     atomic_concat([BDDFile, '_dec'], BDDFile_dec),
+    timer_start(script_gen_time_dec),
     ptree_decomposition_struct(Trie, BDDFile_dec, Variables),
-    statistics(walltime, [_, ScriptGenerationTime_dec]),
-    problog_var_set(bdd_script_time(dec), ScriptGenerationTime_dec)
+    timer_stop(script_gen_time_dec,Script_Gen_Time_Dec),
+    problog_var_set(bdd_script_time(dec), Script_Gen_Time_Dec)
     % omitted call to execute_bdd_tool
   ;
     true
@@ -3018,37 +2990,33 @@ write_bdd_forest([Goal|Rest],VarsAcc,VarsTot,N):-
 
 % Write files
 write_nth_bdd_struct_script(N,Trie,Vars) :-
-  bdd_forest_file(N,BDDFile),
-  write_bdd_struct_script(Trie,BDDFile,Vars).
+	bdd_forest_file(N,BDDFile),
+	write_bdd_struct_script(Trie,BDDFile,Vars).
 
 write_global_bdd_file(NbVars,L) :-
-  bdd_file(BDDFile),
-  open(BDDFile,'write',BDDFileStream),
-  tell(BDDFileStream),
-  format('@BDD2~n~w~n~w~n~w~n',[NbVars,0,L]),
-  write_global_bdd_file_line(1,L),
-  write_global_bdd_file_query(1,L),
-  flush_output,
-  told.
+	bdd_file(BDDFile),
+	open(BDDFile,'write',BDDFileStream),
+	format(BDDFileStream,'@BDD2~n~w~n~w~n~w~n',[NbVars,0,L]),
+	write_global_bdd_file_line(1,L,BDDFileStream),
+	write_global_bdd_file_query(1,L,BDDFileStream),
+	close(BDDFileStream).
 
-write_global_bdd_file_line(I,Max) :-
-  (I>Max ->
-      true
-  ;
-      bdd_forest_file(I,BDDFile),
-      format("L~q = <~w>~n",[I,BDDFile]),
-      I2 is I+1,
-      write_global_bdd_file_line(I2,Max)
-  ).
+write_global_bdd_file_line(I,Max,_Handle) :-
+	I>Max,
+	!.
+write_global_bdd_file_line(I,Max,Handle) :-
+	bdd_forest_file(I,BDDFile),
+	format(Handle,'L~q = <~w>~n',[I,BDDFile]),
+	I2 is I+1,
+	write_global_bdd_file_line(I2,Max,Handle).
 
-write_global_bdd_file_query(I,Max) :-
-  (I=Max ->
-      format("L~q~n",[I])
-  ;
-      format("L~q,",[I]),
-      I2 is I+1,
-      write_global_bdd_file_query(I2,Max)
-  ).
+write_global_bdd_file_query(Max,Max,Handle) :-
+	!,
+	format(Handle,'L~q~n',[Max]).
+write_global_bdd_file_query(I,Max,Handle) :-
+	format(Handle,'L~q,',[I]),
+	I2 is I+1,
+	write_global_bdd_file_query(I2,Max,Handle).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Filename specifications
@@ -3057,19 +3025,19 @@ write_global_bdd_file_query(I,Max) :-
 bdd_forest_file(N,BDDFile) :-
 	problog_flag(bdd_file,BDDFileFlag),
 	atomic_concat([BDDFileFlag,'_',N],BDDFileFlagWithN),
-    convert_filename_to_working_path(BDDFileFlagWithN, BDDFile).
+	convert_filename_to_working_path(BDDFileFlagWithN, BDDFile).
 
 bdd_files(BDDFile,BDDParFile) :-
 	bdd_file(BDDFile),
 	bdd_par_file(BDDParFile).
 
 bdd_file(BDDFile) :-
-    problog_flag(bdd_file, BDDFileFlag),
-    convert_filename_to_working_path(BDDFileFlag, BDDFile).
+	problog_flag(bdd_file, BDDFileFlag),
+	convert_filename_to_working_path(BDDFileFlag, BDDFile).
 
 bdd_par_file(BDDParFile) :-
-    problog_flag(bdd_par_file, BDDParFileFlag),
-    convert_filename_to_working_path(BDDParFileFlag, BDDParFile).
+	problog_flag(bdd_par_file, BDDParFileFlag),
+	convert_filename_to_working_path(BDDParFileFlag, BDDParFile).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Persistent Ground IDs
@@ -3108,6 +3076,16 @@ required(Feature) :-
 	atomic_concat(['problog_required_',Feature],Feature_Required),
 	catch(b_getval(Feature_Required,Val),error(existence_error(variable,Feature_Required),_),fail),
 	Val == required.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+format_if_verbose(H,T,L) :-
+	problog_flag(verbose,true),
+	!,
+	format(H,T,L).
+format_if_verbose(_,_,_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Should go to dtproblog.yap
