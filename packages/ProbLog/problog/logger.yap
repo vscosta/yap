@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-30 13:50:45 +0200 (Thu, 30 Sep 2010) $
-%  $Revision: 4857 $
+%  $Date: 2010-10-11 14:14:11 +0200 (Mon, 11 Oct 2010) $
+%  $Revision: 4892 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -206,7 +206,6 @@
 
 
 :- module(logger,[logger_define_variable/2,
-	          logger_define_variables/2,
 	          logger_set_filename/1,
 		  logger_set_delimiter/1,
 		  logger_set_variable/2,
@@ -238,25 +237,35 @@
 %= +Name, +Type
 %========================================================================
 
-logger_define_variable(Name,int) :-
+logger_define_variable(Name,Type) :-
+	bb_get(logger_variables,Variables),
+	member((Name,_),Variables),
 	!,
-	is_variable_already_defined(Name),
+	throw(error(variable_redefined(logger_define_variable(Name,Type)))).
+logger_define_variable(Name,Type) :-
+	ground(Name),
+	atomic(Name),
+	!,
+	logger_define_variable_intern(Type,Name).
+logger_define_variable(Name,Type) :-
+	throw(error(illegal_variable_name(logger_define_variable(Name,Type)))).
+
+logger_define_variable_intern(int,Name) :-
+	!,
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,int)],NewVariables),
 	bb_put(logger_variables,NewVariables),
 	atom_concat(logger_data_,Name,Key),
 	bb_put(Key,null).
-logger_define_variable(Name,float) :-
+logger_define_variable_intern(float,Name) :-
 	!,
-	is_variable_already_defined(Name),
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,float)],NewVariables),
 	bb_put(logger_variables,NewVariables),
 	atom_concat(logger_data_,Name,Key),
 	bb_put(Key,null).
-logger_define_variable(Name,time) :-
+logger_define_variable_intern(time,Name) :-
 	!,
-	is_variable_already_defined(Name),
 	bb_delete(logger_variables,OldVariables),
 	append(OldVariables,[(Name,time)],NewVariables),
 	bb_put(logger_variables,NewVariables),
@@ -264,34 +273,9 @@ logger_define_variable(Name,time) :-
 	atom_concat(logger_start_time_,Name,Key2),
 	bb_put(Key,null),
 	bb_put(Key2,null).
-logger_define_variable(Name,Unknown) :-
-	is_variable_already_defined(Name),
-	write('logger_define_variable, unknown type '),
-	write(Unknown),
-	write(' for variable '),
-	write(Name),
-	nl,
-	fail.
+logger_define_variable_intern(Type,Name) :-
+	throw(error(unknown_variable_type(logger_define_variable(Name,Type)))).
 
-is_variable_already_defined(Name) :-
-	bb_get(logger_variables,Variables),
-	member((Name,_),Variables),!,
-	write('logger_define_variable, Variable '),
-	write(Name),
-	write(' is already defined!\n'),
-	fail;
-	true.
-
-%========================================================================
-%= 
-%=
-%= +ListOfNames, +Type
-%========================================================================
-
-logger_define_variables([],_).
-logger_define_variables([H|T],Type) :-
-	logger_define_variable(H,Type),
-	logger_define_variables(T,Type).
 
 %========================================================================
 %= Set the filename, to which the output should be appended

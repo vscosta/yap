@@ -51,6 +51,8 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/print_learning.yap \
 	$(srcdir)/problog/utils_learning.yap \
 	$(srcdir)/problog/version_control.yap \
+	$(srcdir)/problog/nestedtries.yap \
+	$(srcdir)/problog/utils.yap \
 	$(srcdir)/problog/variables.yap
 
 PROBLOG_EXAMPLES = \
