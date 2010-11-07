@@ -293,7 +293,7 @@ InitPageSize(void)
   GetSystemInfo(&si);
   Yap_page_size = si.dwPageSize;
 #elif HAVE_UNISTD_H
-#ifdef __FreeBSD__
+#if defined(__FreeBSD__) || defined(__DragonFly__)
   Yap_page_size = getpagesize();
 #elif defined(_AIX)
   Yap_page_size = sysconf(_SC_PAGE_SIZE);
@@ -575,7 +575,7 @@ void Yap_systime_interval(Int *now,Int *interval)
 #define TicksPerSec	CLK_TCK
 #endif
 
-#if defined(__alpha) || defined(__FreeBSD__) || defined(__linux__)
+#if defined(__alpha) || defined(__FreeBSD__) || defined(__linux__) || defined(__DragonFly__)
 
 #if HAVE_TIME_H
 #include <time.h>

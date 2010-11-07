@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-09-28 21:04:43 +0200 (Tue, 28 Sep 2010) $
-%  $Revision: 4838 $
+%  $Date: 2010-11-03 19:08:13 +0100 (Wed, 03 Nov 2010) $
+%  $Revision: 4984 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -247,11 +247,15 @@
 % load library modules
 :- use_module(library(tries)).
 :- use_module(library(lists), [append/3, member/2, memberchk/2, delete/3]).
-:- use_module(library(system), [delete_file/1, shell/1]).
+:- use_module(library(system), [tmpnam/1]).
 :- use_module(library(ordsets), [ord_intersection/3, ord_union/3]).
+
+
 
 % load our own modules
 :- use_module(flags).
+:- use_module(utils).
+:- use_module(nestedtries, [nested_trie_to_depth_breadth_trie/4]).
 
 % switch on all tests to reduce bug searching time
 :- style_check(all).
@@ -463,30 +467,31 @@ name_vars([A|B]) :-
 
 nested_ptree_to_BDD_struct_script(Trie, BDDFileName, Variables):-
   tmpnam(TmpFile1),
-  tmpnam(TmpFile2),
   open(TmpFile1, 'write', BDDS),
-  (generate_BDD_from_trie(Trie, Inter, BDDS) ->
-    next_intermediate_step(TMP), InterCNT is TMP - 1,
-    write(BDDS, Inter), nl(BDDS),
+
+  (
+   generate_BDD_from_trie(Trie, Inter, BDDS)
+  ->
+   (
+    next_intermediate_step(TMP),
+    InterCNT is TMP - 1,
+    format(BDDS,'~q~n',[Inter]),
     close(BDDS),
-    (get_used_vars(Variables, VarCNT);VarCNT = 0),
-    open(TmpFile2, 'write', HEADERS),
-    write(HEADERS, '@BDD1'), nl(HEADERS),
-    write(HEADERS, VarCNT), nl(HEADERS),
-    write(HEADERS, 0), nl(HEADERS),
-    write(HEADERS, InterCNT), nl(HEADERS),
-    close(HEADERS),
-    atomic_concat(['cat ', TmpFile2, ' ', TmpFile1, ' > ', BDDFileName], CMD),
-    shell(CMD),
-    delete_file(TmpFile1),
-    delete_file(TmpFile2),
+    (
+     get_used_vars(Variables, VarCNT)
+    ->
+     true;
+     VarCNT = 0
+    ),
+    create_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
+    delete_file_silent(TmpFile1),
     cleanup_BDD_generation
-  ;
+   );(
     close(BDDS),
-    (delete_file(TmpFile1);true),
-    (delete_file(TmpFile2);true),
+    delete_file_silent(TmpFile1),
     cleanup_BDD_generation,
     fail
+   )
   ).
 
 trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables) :-
@@ -528,7 +533,8 @@ trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables) :-
   ).
 
 nested_trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables):-
-  trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
+  %trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
+  nested_trie_to_depth_breadth_trie(A, B, LL, OptimizationLevel),
   (is_label(LL) ->
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
@@ -571,15 +577,20 @@ nested_trie_to_bdd_struct_trie(A, B, OutputFile, OptimizationLevel, Variables):-
     write(1), nl,
     write(0), nl,
     write(1), nl,
-    get_var_name(LL, NLL),
-    write('L1 = '),write(NLL),nl,
+    simplify(LL, FLL),
+    (FLL = not(_) ->
+      write('L1 = ~')
+    ;
+      write('L1 = ')
+    ),
+    get_var_name(FLL, NLL),
+    write(NLL),nl,
     write('L1'), nl,
     told
   ).
 
 ptree_decomposition_struct(Trie, BDDFileName, Variables) :-
   tmpnam(TmpFile1),
-  tmpnam(TmpFile2),
   nb_setval(next_inter_step, 1),
   variables_in_dbtrie(Trie, Variables),
   length(Variables, VarCnt),
@@ -599,16 +610,8 @@ ptree_decomposition_struct(Trie, BDDFileName, Variables) :-
     write('L1'), nl
   ),
   told,
-  tell(TmpFile2),
-  write('@BDD1'),nl,
-  write(VarCnt),nl,
-  write('0'),nl,
-  write(LCnt),nl,
-  told,
-  atomic_concat(['cat ', TmpFile2, ' ', TmpFile1, ' > ', BDDFileName], CMD),
-  shell(CMD),
-  delete_file(TmpFile1),
-  delete_file(TmpFile2).
+  create_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1),
+  delete_file_silent(TmpFile1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % write BDD info for given ptree to file
@@ -696,10 +699,10 @@ bdd_vars_script_intern(A) :-
 	).
 bdd_vars_script_intern2(A) :-
 	get_var_name(A,NameA),
-	atom_chars(A,A_Chars),
+	atom_codes(A,A_Codes),
 
-	once(append(Part1,[95|Part2],A_Chars)),	% 95 = '_'
-	number_chars(ID,Part1),
+	once(append(Part1,[95|Part2],A_Codes)),	% 95 = '_'
+	number_codes(ID,Part1),
 
 	(	     % let's check whether Part2 contains an 'l' (l=low)
          member(108,Part2)
@@ -709,7 +712,7 @@ bdd_vars_script_intern2(A) :-
 	   format('@~w~n0~n0~n~12f;~12f~n',[NameA,Mu,Sigma])
 	 );
          (
-	  number_chars(Grounding_ID,Part2),
+	  number_codes(Grounding_ID,Part2),
       (problog:decision_fact(ID,_) ->
           % it's a non-ground decision
           (problog:problog_control(check,internal_strategy) ->
@@ -987,8 +990,44 @@ get_next_name(Name) :-
 % create BDD-var as fact id prefixed by x
 % learning.yap relies on this format!
 % when changing, also adapt test_var_name/1 below
+
+
+simplify_list(List, SList):-
+  findall(NEL, (member(El, List), simplify(El, NEL)), SList).
+
+simplify(not(false), true):- !.
+simplify(not(true), false):- !.
+simplify(not(not(A)), B):-
+  !, simplify(A, B).
+simplify(A, A).
+
+
+
+simplify(not(false), true):- !.
+simplify(not(true), false):- !.
+simplify(not(not(A)), B):-
+  !, simplify(A, B).
+simplify(A, A).
+
+get_var_name(true, 'TRUE'):- !.
+get_var_name(false, 'FALSE'):- !.
+get_var_name(Variable, Name):-
+  atomic(Variable), !,
+  atomic_concat([x, Variable], Name),
+  (recorded(map, m(Variable, Name), _) ->
+    true
+  ;
+    recorda(map, m(Variable, Name), _)
+  ).
+get_var_name(not(A), NameA):-
+  get_var_name(A, NameA).
+
+
+/*
 get_var_name(true, 'TRUE') :-!.
 get_var_name(false, 'FALSE') :-!.
+get_var_name(not(A), NameA):-
+  !, get_var_name(A, NameA).
 get_var_name(A, NameA) :-
 	atomic_concat([x, A], NameA),
 	(
@@ -997,7 +1036,7 @@ get_var_name(A, NameA) :-
 	    true
 	;
 	    recorda(map, m(A, NameA), _)
-	).
+	).*/
 
 % test used by base case of compression mapping to detect single-variable tree
 % has to match above naming scheme
@@ -1060,39 +1099,29 @@ spacy_print(Msg, Level, Space):-
 :- dynamic(generated_trie/2).
 :- dynamic(next_intermediate_step/1).
 
-%
-% This needs to be modified
-% Include nasty code of temporary file usage
-% also it is OS depended (requires the cat utility)
-%
 
 nested_ptree_to_BDD_script(Trie, BDDFileName, VarFileName):-
   tmpnam(TmpFile1),
-  tmpnam(TmpFile2),
   open(TmpFile1, 'write', BDDS),
   (generate_BDD_from_trie(Trie, Inter, BDDS) ->
     next_intermediate_step(TMP), InterCNT is TMP - 1,
     write(BDDS, Inter), nl(BDDS),
     close(BDDS),
-    (get_used_vars(Vars, VarCNT);VarCNT = 0),
-    open(TmpFile2, 'write', HEADERS),
-    write(HEADERS, '@BDD1'), nl(HEADERS),
-    write(HEADERS, VarCNT), nl(HEADERS),
-    write(HEADERS, 0), nl(HEADERS),
-    write(HEADERS, InterCNT), nl(HEADERS),
-    close(HEADERS),
-    atomic_concat(['cat ', TmpFile2, ' ', TmpFile1, ' > ', BDDFileName], CMD),
-    shell(CMD),
-    delete_file(TmpFile1),
-    delete_file(TmpFile2),
+    (
+     get_used_vars(Vars, VarCNT)
+    ->
+     true;
+     VarCNT = 0
+    ),
+    create_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
+    delete_file_silent(TmpFile1),
     open(VarFileName, 'write', VarStream),
     bddvars_to_script(Vars, VarStream),
     close(VarStream),
     cleanup_BDD_generation
   ;
     close(BDDS),
-    (delete_file(TmpFile1);true),
-    (delete_file(TmpFile2);true),
+    delete_file_silent(TmpFile1),
     cleanup_BDD_generation,
     fail
   ).
@@ -1136,7 +1165,7 @@ write_bdd_lineterm([LineTerm|LineTerms], Operator, Stream):-
 
 generate_line([], [], Inter, _Stream):-
   !, get_next_intermediate_step(Inter).
-generate_line([neg(t(Hash))|L], [TrieInter|T] , Inter, Stream):-
+generate_line([not(t(Hash))|L], [TrieInter|T] , Inter, Stream):-
   !, problog:problog_chktabled(Hash, Trie),
   generate_BDD_from_trie(Trie, TrieInterTmp, Stream),
   atomic_concat(['~', TrieInterTmp], TrieInter),
@@ -1159,11 +1188,11 @@ bddvars_to_script([H|T], Stream):-
   (number(H) ->
     CurVar = H
   ;
-    atom_chars(H, H_Chars),
+    atom_codes(H, H_Codes),
     % 95 = '_'
-    append(Part1, [95|Part2], H_Chars),
-    number_chars(CurVar, Part1),
-    number_chars(Grounding_ID, Part2)
+    append(Part1, [95|Part2], H_Codes),
+    number_codes(CurVar, Part1),
+    number_codes(Grounding_ID, Part2)
   ),
   (problog:dynamic_probability_fact(CurVar) ->
     problog:grounding_is_known(Goal, Grounding_ID),
@@ -1198,16 +1227,17 @@ make_bdd_var(V, VName):-
   get_var_name(V, VName),
   add_to_vars(V).
 
+
 add_to_vars(V):-
-  clause(get_used_vars(Vars, _Cnt), true),
-  memberchk(V, Vars),!.
+	clause(get_used_vars(Vars, _Cnt), true),
+	memberchk(V, Vars),!.
 add_to_vars(V):-
-  clause(get_used_vars(Vars, Cnt), true), !,
-  retract(get_used_vars(Vars, Cnt)),
-  NewCnt is Cnt + 1,
-  assertz(get_used_vars([V|Vars], NewCnt)).
+	clause(get_used_vars(Vars, Cnt), true), !,
+	retract(get_used_vars(Vars, Cnt)),
+	NewCnt is Cnt + 1,
+	assertz(get_used_vars([V|Vars], NewCnt)).
 add_to_vars(V):-
-  assertz(get_used_vars([V], 1)).
+	assertz(get_used_vars([V], 1)).
 
 
 %%%%%%%%%%%%%%% depth breadth builtin support %%%%%%%%%%%%%%%%%
@@ -1310,7 +1340,8 @@ is_state(true).
 is_state(false).
 
 nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
-  trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
+%   trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
+  nested_trie_to_depth_breadth_trie(A, B, LL, OptimizationLevel),
   (is_label(LL) ->
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
@@ -1352,16 +1383,24 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     ;
       Edges = [LL]
     ),
+    writeln(Edges),
     tell(FileParam),
-    bdd_vars_script(Edges),
+    simplify_list(Edges, SEdges),
+    bdd_vars_script(SEdges),
     told,
     tell(OutputFile),
     write('@BDD1'), nl,
     write(1), nl,
     write(0), nl,
     write(1), nl,
-    get_var_name(LL, NLL),
-    write('L1 = '),write(NLL),nl,
+    (LL = not(_) ->
+      write('L1 = ~')
+    ;
+      write('L1 = ')
+    ),
+    simplify(LL, FLL),
+    get_var_name(FLL, NLL),
+    write(NLL),nl,
     write('L1'), nl,
     told
   ).
@@ -1792,7 +1831,6 @@ seperate([H|T], Labels, [H|Vars]):-
 
 ptree_decomposition(Trie, BDDFileName, VarFileName) :-
   tmpnam(TmpFile1),
-  tmpnam(TmpFile2),
   nb_setval(next_inter_step, 1),
   variables_in_dbtrie(Trie, T),
   length(T, VarCnt),
@@ -1815,16 +1853,8 @@ ptree_decomposition(Trie, BDDFileName, VarFileName) :-
     write('L1'), nl
   ),
   told,
-  tell(TmpFile2),
-  write('@BDD1'),nl,
-  write(VarCnt),nl,
-  write('0'),nl,
-  write(LCnt),nl,
-  told,
-  atomic_concat(['cat ', TmpFile2, ' ', TmpFile1, ' > ', BDDFileName], CMD),
-  shell(CMD),
-  delete_file(TmpFile1),
-  delete_file(TmpFile2).
+  create_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1),
+  delete_file_silent(TmpFile1).
 
 get_next_inter_step(I):-
   nb_getval(next_inter_step, I),
@@ -2012,3 +2042,22 @@ mark_deref(DB_Trie):-
 mark_deref(_).
 
 % end of Theo
+
+create_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
+	open(BDD_File_Name,write,H),
+	% this is the header of the BDD script for problogbdd
+	format(H, '@BDD1~n~q~n0~n~q~n',[VarCount,IntermediateSteps]),
+
+	% append the content of the file TmpFile
+	open(TmpFile,read,H2),
+
+	(
+	 repeat,
+	 get_byte(H2,C),
+	 put_byte(H,C),
+	 at_end_of_stream(H2),
+	 !
+	),
+	close(H2),
+	
+	close(H).

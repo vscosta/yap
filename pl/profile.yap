@@ -15,6 +15,12 @@
 *									 *
 *************************************************************************/
 
+
+% hook predicate, taken from SWI-Prolog, for converting possibly explicitly-
+% qualified callable terms into an atom that can be used as a label for
+% describing a predicate; used e.g. on the tick profiler defined below
+:- multifile(user:prolog_predicate_name/2).
+
 :- meta_predicate profile_data(:,+,-).
 
 profile_data(M:D, Parm, Data) :-!,
@@ -59,15 +65,10 @@ profile_reset :-
 profile_reset.
 
 showprofres :-
-	'$proftype'(offline), !,
-	'$offline_showprofres'.
-showprofres :-
 	showprofres(-1).
 
 showprofres(A) :-
-	'$proftype'(offline), !,
-	'$offline_showprofres'(A).
-showprofres(A) :-
+	('$proftype'(offline) -> '$offline_showprofres' ; true),
 	('$profison' -> profoff, Stop = true ; Stop = false),
 	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
 	% root node has no useful info.
@@ -125,9 +126,19 @@ showprofres(A) :-
 '$display_preds'([NSum-P|Ps], Tot, SoFar, I, N) :-
 	Sum is -NSum,
 	Perc is (100*Sum)/Tot,
-        Next is SoFar+Sum,
+    Next is SoFar+Sum,
 	NextP is (100*Next)/Tot,
-	format(user_error,'~|~t~d.~7+ ~|~w:~t~d~50+ (~|~t~2f~6+%)  |~|~t~2f~6+%|~n',[I,P,Sum,Perc,NextP]),
+	(	(	P = M:F/A ->
+			G = M:H
+		;	P = F/A,
+			G = H
+		),
+		functor(H, F, A),
+		user:prolog_predicate_name(G, PL) ->
+		true
+	;	PL = P
+	),
+	format(user_error,'~|~t~d.~7+ ~|~w:~t~d~50+ (~|~t~2f~6+%)  |~|~t~2f~6+%|~n',[I,PL,Sum,Perc,NextP]),
 	I1 is I+1,
 	'$display_preds'(Ps,Tot,Next,I1, N).
 

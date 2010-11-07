@@ -167,6 +167,7 @@
 #undef  RETSIGTYPE
 
 #undef  HAVE__NSGETENVIRON
+#undef  HAVE__SETJMP
 #undef  HAVE_ACCESS
 #undef  HAVE_ACOSH
 #undef  HAVE_ALARM

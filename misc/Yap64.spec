@@ -9,7 +9,7 @@ Release: 1
 Source: http://www.dcc.fc.up.pt/~vsc/Yap/%{name}-%{version}.tar.gz
 License: Perl Artistic License, LGPL
 Provides: yap
-Requires: readline, odbc, gmp, cudd
+Requires: readline, unixODBC, gmp, cudd
 Group: Development/Languages
 URL: http://www.dcc.fc.up.pt/~vsc/Yap
 Prefix: /usr
@@ -28,7 +28,7 @@ Prolog.
 %setup -q
 
 %build
-./configure --prefix=/usr --enable-max-performance --enable-depth-limit
+./configure --prefix=/usr --prefix=/usr --libdir=/usr/lib64 --enable-max-performance --enable-depth-limit
 make
 
 %install
@@ -62,8 +62,8 @@ rm -rf $RPM_BUILD_ROOT $RPM_BUILD_DIR/file.list.%{name}
 %doc changes4.3.html
 %doc docs/yap.tex
 /usr/bin/yap
-/usr/lib/Yap/
-/usr/lib/libYap.a
+/usr/lib64/Yap/
+/usr/lib64/libYap.a
 /usr/include/Yap/
 /usr/share/Yap/
 /usr/share/info/yap.info*

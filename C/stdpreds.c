@@ -1937,7 +1937,7 @@ p_number_chars(void)
       return FALSE;
     }
   }
-  if (IsNonVarTerm(t1) && IsVarTerm(t)) {
+  if (IsNonVarTerm(t1) && !Yap_IsGroundTerm(t)) {
     Term            NewT;
     if (!IsNumTerm(t1)) {
       Yap_Error(TYPE_ERROR_NUMBER, t1, "number_chars/2");
@@ -1973,7 +1973,7 @@ p_number_chars(void)
     return(FALSE);		
   }
   if (!IsPairTerm(t) && t != TermNil) {
-    Yap_Error(TYPE_ERROR_LIST, t, "number_chars/2");
+    Yap_Error(TYPE_ERROR_LIST, ARG2, "number_chars/2");
     return(FALSE);		
   }
   s = String;
@@ -2031,6 +2031,8 @@ p_number_chars(void)
       } else if (IsAtomTerm(Head) && !has_ints) {
 	has_atoms = TRUE;
 	is = RepAtom(AtomOfTerm(Head))->StrOfAE;
+	if (is[0] == '\0')
+	  goto next_in_loop;
 	if (is[1] != '\0') {
 	  Yap_Error(TYPE_ERROR_CHARACTER,Head,"number_chars/2");
 	  return FALSE;	     
@@ -2057,12 +2059,13 @@ p_number_chars(void)
 	String = nString;
       }
       *s++ = ch;
+    next_in_loop:
       t = TailOfTerm(t);
       if (IsVarTerm(t)) {
 	Yap_Error(INSTANTIATION_ERROR,t,"number_chars/2");
 	return(FALSE);
       } else if (!IsPairTerm(t) && t != TermNil) {
-	Yap_Error(TYPE_ERROR_LIST,t,"number_chars/2");
+	Yap_Error(TYPE_ERROR_LIST,ARG2,"number_chars/2");
 	return(FALSE);
       }
     }
@@ -2131,7 +2134,7 @@ p_number_atom(void)
       return(FALSE);		
   }
   if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_LIST, t, "number_atom/2");
+    Yap_Error(TYPE_ERROR_ATOM, t, "number_atom/2");
     return(FALSE);		
   }
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -2159,7 +2162,7 @@ p_number_codes(void)
       return FALSE;
     }
   }
-  if (IsNonVarTerm(t1) && IsVarTerm(t)) {
+  if (IsNonVarTerm(t1) && !Yap_IsGroundTerm(t)) {
     if (IsIntTerm(t1)) {
       sprintf(String, Int_FORMAT, IntOfTerm(t1));
     } else if (IsFloatTerm(t1)) {
@@ -2187,7 +2190,7 @@ p_number_codes(void)
     Yap_Error(INSTANTIATION_ERROR, t, "number_codes/2");
   }
   if (!IsPairTerm(t) && t != TermNil) {
-    Yap_Error(TYPE_ERROR_LIST, t, "number_codes/2");
+    Yap_Error(TYPE_ERROR_LIST, ARG2, "number_codes/2");
     return(FALSE);		
   }
   s = String; /* alloc temp space on Trail */
@@ -2223,7 +2226,7 @@ p_number_codes(void)
       Yap_Error(INSTANTIATION_ERROR,t,"number_codes/2");
       return(FALSE);
     } else if (!IsPairTerm(t) && t != TermNil) {
-      Yap_Error(TYPE_ERROR_LIST, t, "number_codes/2");
+      Yap_Error(TYPE_ERROR_LIST, ARG2, "number_codes/2");
       return(FALSE);
     }
   }

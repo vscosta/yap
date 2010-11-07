@@ -30,7 +30,7 @@ INFODIR=$(SHAREDIR)/info
 #
 # where to store documentaion files
 #
-DOCSDIR=$(SHAREDIR)/docs/Yap
+DOCSDIR=$(SHAREDIR)/doc/Yap
 
 #
 # Add this flag to YAP_EXTRAS if you need the extension:
@@ -730,6 +730,13 @@ install_docs:
 	$(INSTALL_DATA) yap.html* $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) yap.pdf $(DESTDIR)$(DOCSDIR)
 	$(INSTALL_DATA) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/Artistic $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/changes4.3.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/changes-5.0.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/changes-5.1.html $(DESTDIR)$(DOCSDIR)
+	$(INSTALL_DATA) $(srcdir)/changes-6.0.html $(DESTDIR)$(DOCSDIR)
+
 
 info: yap.info
 

@@ -30,8 +30,9 @@ PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 LN_S=@LN_S@
 #
 #
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -DHAVE_CONFIG_H=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822  @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822  @CPPFLAGS@
 MKINDEX=true
 NETLIBS=@CLIB_NETLIBS@
 CRYPTLIBS=@CLIB_CRYPTLIBS@

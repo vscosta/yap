@@ -166,6 +166,8 @@
 #define AtomEQ Yap_heap_regs->AtomEQ_
   Atom AtomEmptyAtom_;
 #define AtomEmptyAtom Yap_heap_regs->AtomEmptyAtom_
+  Atom AtomEncoding_;
+#define AtomEncoding Yap_heap_regs->AtomEncoding_
   Atom AtomEndOfStream_;
 #define AtomEndOfStream Yap_heap_regs->AtomEndOfStream_
   Atom AtomEof_;

@@ -354,6 +354,8 @@ domain_error(stream, Opt) --> !,
 	[ '~w is not a stream' - [Opt] ].
 domain_error(stream_or_alias, Opt) --> !,
 	[ '~w is not a stream (or alias)' - [Opt] ].
+domain_error(stream_encoding, Opt) --> !,
+	[ '~w is not a supported stream encoding' - [Opt] ].
 domain_error(stream_position, Opt) --> !,
 	[ '~w is not a stream position' - [Opt] ].
 domain_error(stream_property, Opt) --> !,

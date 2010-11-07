@@ -28,8 +28,9 @@ EXDIR=$(CHRDIR)/examples/chr
 LN_S=@LN_S@
 #
 #
+DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
 MKINDEX=true
 
 LD=$(CC)

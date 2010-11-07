@@ -533,7 +533,7 @@ optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cgl
   if (H >= (CELL *)cglobs->cint.freep0) {
     /* oops, too many new variables */
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
   }
   p->NextCE = cglobs->common_exps;
   cglobs->common_exps = p;
@@ -568,7 +568,7 @@ compile_sf_term(Term t, int argno, int level)
 	Yap_Error_Term = TermNil;
 	Yap_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+	_longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       }
       else
 	c_var(t, -argno, arity, level, cglobs);
@@ -595,7 +595,7 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
     if (Arity > cglobs->max_args)
       cglobs->max_args = Arity;
@@ -615,7 +615,7 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
     /* oops, too deep a term */
     save_machine_regs();
     Yap_Error_Size = 0;
-    longjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
   if (g < 16)
     return FALSE;
@@ -626,18 +626,18 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
     switch(Yap_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
       Yap_Error_TYPE = YAP_NO_ERROR;
-      longjmp(cglobs->cint.CompilerBotch,OUT_OF_STACK_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_STACK_BOTCH);
     case OUT_OF_TRAIL_ERROR:
       Yap_Error_TYPE = YAP_NO_ERROR;
-      longjmp(cglobs->cint.CompilerBotch,OUT_OF_TRAIL_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TRAIL_BOTCH);
     case OUT_OF_HEAP_ERROR:
       Yap_Error_TYPE = YAP_NO_ERROR;
-      longjmp(cglobs->cint.CompilerBotch,OUT_OF_HEAP_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_HEAP_BOTCH);
     case OUT_OF_AUXSPACE_ERROR:
       Yap_Error_TYPE = YAP_NO_ERROR;
-      longjmp(cglobs->cint.CompilerBotch,OUT_OF_AUX_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_AUX_BOTCH);
     default:
-      longjmp(cglobs->cint.CompilerBotch,COMPILER_ERR_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch,COMPILER_ERR_BOTCH);
     }
   }
   H = h0;
@@ -1004,7 +1004,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	Yap_bip_name(Op, s);
 	sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound", s);
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,1);
+	_longjmp(cglobs->cint.CompilerBotch,1);
       }
     }
   } else { /* t1 is bound */
@@ -1019,7 +1019,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	Yap_bip_name(Op, s);
 	sprintf(Yap_ErrorMessage, "compiling %s/3",s);
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,1);
+	_longjmp(cglobs->cint.CompilerBotch,1);
       }
     } else {
       if (Op == _functor) {
@@ -1035,7 +1035,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  Yap_bip_name(Op, s);
 	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,1);
+	  _longjmp(cglobs->cint.CompilerBotch,1);
 	}
 	i2 = IntegerOfTerm(t2);
 	if (i2 < 0) {
@@ -1047,7 +1047,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  Yap_bip_name(Op, s);
 	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,1);
+	  _longjmp(cglobs->cint.CompilerBotch,1);
 	}
 	if (IsNumTerm(t1)) {
 	  /* we will always fail */
@@ -1062,7 +1062,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  Yap_bip_name(Op, s);
 	  sprintf(Yap_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,1);
+	  _longjmp(cglobs->cint.CompilerBotch,1);
 	}
 	if (i2 == 0)
 	  c_eq(t1, t3, cglobs);
@@ -1074,7 +1074,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	    if (H+2 >= (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	    }
 	    RESET_VARIABLE(H);
 	    RESET_VARIABLE(H+1);
@@ -1086,7 +1086,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	      if (H >= (CELL *)cglobs->cint.freep0) {
 		/* oops, too many new variables */
 		save_machine_regs();
-		longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+		_longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	      }
 	      RESET_VARIABLE(H);
 	      H++;	    
@@ -1098,7 +1098,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	    Prop p0 = PredPropByFunc(f, mod);
 	    if (EndOfPAEntr(p0)) {
 	      save_machine_regs();
-	      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+	      _longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
 	    }
 	    c_args(Goal, 0, cglobs);
 	    Yap_emit(safe_call_op, (CELL)p0 , Zero, &cglobs->cint);
@@ -1120,7 +1120,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  Yap_bip_name(Op, s);
 	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,1);
+	  _longjmp(cglobs->cint.CompilerBotch,1);
 	}
 	if (IsAtomicTerm(t2) ||
 	    (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
@@ -1132,7 +1132,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  Yap_bip_name(Op, s);
 	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,1);
+	  _longjmp(cglobs->cint.CompilerBotch,1);
 	} else if (IsApplTerm(t2)) {
 	  Functor f = FunctorOfTerm(t2);
 	  if (i1 < 1 || i1 > ArityOfFunctor(f)) {
@@ -1163,7 +1163,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	Yap_bip_name(Op, s);
 	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,1);
+	_longjmp(cglobs->cint.CompilerBotch,1);
       }
     }
     if (Op == _functor) {
@@ -1176,7 +1176,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	Yap_bip_name(Op, s);
 	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,1);
+	_longjmp(cglobs->cint.CompilerBotch,1);
       } else {
 	if (!IsVarTerm(t2)) {
 	  Int arity;
@@ -1191,7 +1191,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	    Yap_bip_name(Op, s);
 	    sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	    save_machine_regs();
-	    longjmp(cglobs->cint.CompilerBotch,1);
+	    _longjmp(cglobs->cint.CompilerBotch,1);
 	  }
 	  arity = IntOfTerm(t2);
 	  if (arity < 0) {
@@ -1209,12 +1209,12 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	      Yap_bip_name(Op, s);
 	      sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
 	      save_machine_regs();
-	      longjmp(cglobs->cint.CompilerBotch,1);
+	      _longjmp(cglobs->cint.CompilerBotch,1);
 	    }
 	    if (H+1+arity >= (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	    }
 	    tnew = AbsAppl(H);
 	    *H++ = (CELL)Yap_MkFunctor(AtomOfTerm(t1),arity);
@@ -1253,7 +1253,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       Yap_bip_name(Op, s);
       sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound",  s);
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch,1);
+      _longjmp(cglobs->cint.CompilerBotch,1);
     }
   }      
   /* then we compile the opcode/result */
@@ -1263,7 +1263,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       if (H == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	_longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
       }
       c_var(tmpvar,f_flag,(unsigned int)Op, 0, cglobs);
       c_eq(tmpvar,t3, cglobs);
@@ -1276,7 +1276,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       Yap_bip_name(Op, s);
       sprintf(Yap_ErrorMessage, "compiling %s/2 with input unbound",  s);
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch,1);
+      _longjmp(cglobs->cint.CompilerBotch,1);
     }
   } else if (IsNewVar(t3) && cglobs->curbranch == 0 && cglobs->cint.CurrentPred->PredFlags & TabledPredFlag) {
     Term nv = MkVarTerm();
@@ -1342,7 +1342,7 @@ c_functor(Term Goal, Term mod, compiler_struct *cglobs)
 
     if (EndOfPAEntr(p0)) {
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
     if (profiling)
       Yap_emit(enter_profiling_op, (CELL)RepPredProp(p0), Zero, &cglobs->cint);
@@ -1443,7 +1443,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       Yap_Error_Term = M;
       Yap_ErrorMessage = "in module name";
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
     Goal = ArgOfTerm(2, Goal);
     mod = M;
@@ -1561,7 +1561,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     p = RepPredProp(p0 = Yap_PredPropByAtomNonThreadLocal(atom, mod));
     if (EndOfPAEntr(p0)) {
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
     /* if we are profiling, make sure we register we entered this predicate */
     if (profiling)
@@ -1574,7 +1574,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     p = RepPredProp(p0 = Yap_PredPropByFunctorNonThreadLocal(f, mod));
     if (EndOfPAEntr(p0)) {
       save_machine_regs();
-      longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+      _longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
     }
     if (f == FunctorOr || f == FunctorVBar) {
       Term arg;
@@ -1649,7 +1649,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	    if (H == (CELL *)cglobs->cint.freep0) {
 	      /* oops, too many new variables */
 	      save_machine_regs();
-	      longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	      _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	    }
 	    savecpc = cglobs->cint.cpc;
 	    savencpc = FirstP->nextInst;
@@ -1732,7 +1732,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (H == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	_longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
       }
       push_branch(cglobs->onbranch, commitvar, cglobs);
       ++cglobs->curbranch;
@@ -1767,7 +1767,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       if (H == (CELL *)cglobs->cint.freep0) {
 	/* oops, too many new variables */
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	_longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
       }
       cglobs->onlast = FALSE;
       c_var(commitvar, save_b_flag, 1, 0, cglobs);
@@ -1882,7 +1882,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	    Yap_ErrorMessage = Yap_ErrorSay;
 	    sprintf(Yap_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
 	    save_machine_regs();
-	    longjmp(cglobs->cint.CompilerBotch,1);
+	    _longjmp(cglobs->cint.CompilerBotch,1);
 	  }
 	  c_var(a1, bt1_flag, 2, 0, cglobs);
 	  cglobs->current_p0 = p0;
@@ -1893,7 +1893,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	  if (H == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
-	    longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	    _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	  }
 	  c_eq(t2, a2, cglobs);
 	  c_var(a1, bt1_flag, 2, 0, cglobs);
@@ -1906,7 +1906,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	if (H == (CELL *)cglobs->cint.freep0) {
 	  /* oops, too many new variables */
 	  save_machine_regs();
-	  longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	  _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	}
 	c_eq(t1, a1, cglobs);
 
@@ -1920,7 +1920,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	  if (H == (CELL *)cglobs->cint.freep0) {
 	    /* oops, too many new variables */
 	    save_machine_regs();
-	    longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
+	    _longjmp(cglobs->cint.CompilerBotch,OUT_OF_TEMPS_BOTCH);
 	  }
 	  c_eq(t2, a2, cglobs);
 	  c_var(t1, bt1_flag, 2, 0, cglobs);
@@ -2287,7 +2287,7 @@ clear_bvarray(int var, CELL *bvarray
     Yap_ErrorMessage = "compiler internal error: variable initialised twice";
  fprintf(stderr," vsc: compiling7\n");
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   cglobs->pbvars++;
 #endif
@@ -2328,7 +2328,7 @@ push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   /* the label instruction */
   bvstack[bvindex].lab = label;
@@ -2351,7 +2351,7 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   env_size = (bvstack[bvindex-1].pc)->rnd1;
   size = env_size/(8*sizeof(CELL));
@@ -2371,7 +2371,7 @@ pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too few embedded disjunctions";
     /*  save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH); */
+	_longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH); */
   }
   reset_bvmap(bvarray, nperm, cglobs);
   bvindex--;
@@ -2641,7 +2641,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "too many temporaries";
     save_machine_regs();
-    longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
+    _longjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
   v->NoOfVE = cglobs->vadr = vadr = TempVar | target1;
   v->KindOfVE = TempVar;
@@ -2774,7 +2774,7 @@ c_layout(compiler_struct *cglobs)
 	Yap_Error_Term = TermNil;
 	Yap_ErrorMessage = "wrong number of variables found in bitmap";
 	save_machine_regs();
-	longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
+	_longjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
       } 
 #endif
     }
@@ -3319,7 +3319,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 
   /* make sure we know there was no error yet */
   Yap_ErrorMessage = NULL;
-  if ((botch_why = setjmp(cglobs.cint.CompilerBotch))) {
+  if ((botch_why = _setjmp(cglobs.cint.CompilerBotch))) {
     restore_machine_regs();
     reset_vars(cglobs.vtable);
     Yap_ReleaseCMem(&cglobs.cint);
@@ -3420,7 +3420,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     cglobs.vtable = NULL;
     Yap_Error_Size = (256+maxvnum)*sizeof(CELL);
     save_machine_regs();
-    longjmp(cglobs.cint.CompilerBotch,3);
+    _longjmp(cglobs.cint.CompilerBotch,3);
   }
   cglobs.Uses = (Int *)(H+maxvnum);
   cglobs.Contents = (Term *)(H+maxvnum+(sizeof(Int)/sizeof(CELL))*MaxTemps);

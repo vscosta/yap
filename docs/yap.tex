@@ -2339,14 +2339,16 @@ with the current source module:
 @cnindex meta_predicate/1 (directive)
 Each @var{Gi} is a mode specification.
 
-If the argument is @code{:} or an integer, the argument is a call and
-must be expanded. Otherwise, the argument is not expanded. Note
-that the system already includes declarations for all built-ins.
+If the argument is @code{:}, it does not refer directly to a predicate
+but must be module expanded. If the argument is an integer, the argument
+is a goal or a closure and must be expanded. Otherwise, the argument is 
+not expanded. Note that the system already includes declarations for all 
+built-ins.
 
 For example, the declaration for @code{call/1} and @code{setof/3} are:
 
 @example
-:- meta_predicate call(:), setof(?,:,?).
+:- meta_predicate call(0), setof(?,0,?).
 @end example
 
 @end table
@@ -6125,6 +6127,22 @@ Number of clauses in the predicate definition. Always one if external
 or built-in.
 @end table
 
+@item predicate_statistics(@var{P},@var{NCls},@var{Sz},@var{IndexSz}) 
+@findex predicate_statistics/4
+
+Given predicate @var{P}, @var{NCls} is the number of clauses for
+@var{P}, @var{Sz} is the amount of space taken to store those clauses
+(in bytes), and @var{IndexSz} is the amount of space required to store
+indices to those clauses (in bytes).
+
+@item predicate_erased_statistics(@var{P},@var{NCls},@var{Sz},@var{IndexSz}) 
+@findex predicate_statistics/4
+
+Given predicate @var{P}, @var{NCls} is the number of erased clauses for
+@var{P} that could not be discarded yet, @var{Sz} is the amount of space
+taken to store those clauses (in bytes), and @var{IndexSz} is the amount
+of space required to store indices to those clauses (in bytes).
+
 @end table
 
 @node Database References, Internal Database, Looking at the Database, Database
@@ -7298,6 +7316,7 @@ Show profiling info for the top-most @var{N} predicates.
 
 @end table
 
+The @code{showprofres/0} and @code{showprofres/1} predicates call a user-defined multifile hook predicate, @code{user:prolog_predicate_name/2}, that can be used for converting a possibly explicitly-qualified callable term into an atom that will used when printing the profiling information.
 
 @node Call Counting, Arrays, Profiling, Top
 @section Counting Calls
@@ -11613,15 +11632,6 @@ is considered. Otherwise, the term is considered only up to depth
 @code{1}, where the constants and the principal functor have depth
 @code{1}, and an argument of a term with depth @var{I} has depth @var{I+1}. 
 
-@item term_variables(?@var{Term}, -@var{Variables})
-@findex  term_variables/2
-@syindex term_variables/2
-@cnindex term_variables/2
-
-Unify @var{Variables} with the list of all variables of term
-@var{Term}.  The variables occur in the order of their first
-appearance when traversing the term depth-first, left-to-right.
-
 @item variables_within_term(+@var{Variables},?@var{Term}, -@var{OutputVariables})
 @findex  variables_within_term/3
 @snindex variables_within_term/3 
@@ -13285,6 +13295,16 @@ defined.
 @cnindex copy_term_nat/2
 As @code{copy_term/2}.  Attributes however, are @emph{not} copied but replaced
 by fresh variables.
+
+@item term_variables(?@var{Term}, -@var{Variables})
+@findex  term_variables/2
+@syindex term_variables/2
+@cnindex term_variables/2
+
+Unify @var{Variables} with the list of all variables of term
+@var{Term}.  The variables occur in the order of their first
+appearance when traversing the term depth-first, left-to-right.
+
 @end table
 
 @node Old Style Attribute Declarations, , New Style Attribute Declarations, Attributed Variables
@@ -15711,12 +15731,11 @@ loop(Env) :-
 
 @section Profiling
 
-The indexation mechanism restricts the set of clauses to be tried in a 
-procedure by using information about the status of a selected argument of 
-the goal (in YAP, as in most compilers, the first argument). 
-This argument 
-is then used as a key, selecting a restricted set of a clauses from all the 
-clauses forming the procedure.
+The indexation mechanism restricts the set of clauses to be tried in a
+procedure by using information about the status of the instantiated
+arguments of the goal.  These arguments are then used as a key,
+selecting a restricted set of a clauses from all the clauses forming the
+procedure.
 
 As an example, the two clauses for concatenate:
 
