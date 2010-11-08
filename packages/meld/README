@@ -1,0 +1,24 @@
+This is a prototype of MELD in Prolog. For a full description,
+check:
+
+	A Language for Large Ensembles of Independently Executing
+Nodes, Michael P. Ashley-Rollman, Peter Lee, Seth Copen Goldstein,
+Padmanabhan Pillai, and Jason D. Campbell. In Proceedings of the
+International Conference on Logic Programming (ICLP '09), July, 2009.
+
+	Meld: A Declarative Approach to Programming Ensembles. Michael
+P. Ashley-Rollman, Seth Copen Goldstein, Peter Lee, Todd C. Mowry, and
+Padmanabhan Pillai. In Proceedings of the IEEE International
+Conference on Intelligent Robots and Systems (IROS '07), October,
+2007.
+
+
+Supported:
+	- basic semantics
+	- aggregates
+	- updates
+
+Unsupported:
+	- delete
+	- distributed execution :)
+
