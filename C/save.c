@@ -658,7 +658,7 @@ p_save_program(void)
 static int 
 check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
-  char            pp[80];
+  char pp[256];
   char msg[256];
   CELL hp_size, gb_size, lc_size, tr_size, mode;
   int n;
