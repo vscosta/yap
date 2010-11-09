@@ -215,6 +215,30 @@ current_op(X,Y,Z) :-
 
 %%% Operating System utilities
 
+cd :-
+	cd('~').
+
+ls :-
+	getcwd(X),
+	system:directory_files(X, L),
+	'$do_print_files'(L).
+
+'$do_print_files'([]) :-
+	nl.
+'$do_print_files'([F| Fs]) :-
+	'$do_print_file'(F),
+	'$do_print_files'(Fs).
+
+'$do_print_file'('.') :- !.
+'$do_print_file'('..') :- !.
+'$do_print_file'(F) :- atom_concat('.', _, F), !.
+'$do_print_file'(F) :-
+	write(F), write('  ').
+
+pwd :-
+	getcwd(X),
+	write(X), nl.
+
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
@@ -602,7 +626,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	'$subtract_lists_of_variables'(VL1,VL2,VL).
 '$subtract_lists_of_variables'([V1|VL1],[V2|VL2],[V2|VL]) :-
 	'$subtract_lists_of_variables'([V1|VL1],VL2,VL).
-	
+
 atom_to_term(Atom, Term, Bindings) :-
 	atom_codes(Atom, Chars),
 	charsio:open_mem_read_stream(Chars, Stream),

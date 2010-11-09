@@ -408,7 +408,7 @@ set_strategy(_) :-
 set_strategy([]) :- problog_control(on,internal_strategy).
 set_strategy([Term|R]) :-
   strategy_entry(Term,LogProb,Decision),
-  (ground(Decision)->
+  (user:problog_user_ground(Decision)->
       decision_fact(ID,Decision),
       grounding_id(ID,Decision,ID2),
       %format("Setting ~q/~q to ~q~n",[Decision,ID2,Prob]),
@@ -427,7 +427,7 @@ unset_strategy([]) :-
   problog_control(off,internal_strategy).
 unset_strategy([Term|R]) :-
   strategy_entry(Term,LogProb,Decision),
-  (ground(Decision)->
+  (user:problog_user_ground(Decision)->
       decision_fact(ID,Decision),
       grounding_id(ID,Decision,ID2),
       %format("Unsetting ~q/~q to ~q~n",[Decision,ID2,Prob]),
