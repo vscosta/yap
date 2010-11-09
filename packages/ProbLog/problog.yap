@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-21 10:47:36 +0200 (Thu, 21 Oct 2010) $
-%  $Revision: 4970 $
+%  $Date: 2010-11-09 02:47:35 +0100 (Tue, 09 Nov 2010) $
+%  $Revision: 4991 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -881,19 +881,21 @@ problog_predicate(Name, Arity, ProblogName,Mod) :-
 % non-ground probabilistic facts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:- multifile(user:problog_user_ground/1).
+user:problog_user_ground(Goal) :-
+  ground(Goal).
+
 non_ground_fact_grounding_id(Goal,ID) :-
-	ground(Goal),
-	!,
-	(
-	 grounding_is_known(Goal,ID)
-	->
-	 true;
-	 (
+  user:problog_user_ground(Goal), !,
+	(grounding_is_known(Goal,ID) ->
+	  true
+	;
+	  (
 	  nb_getval(non_ground_fact_grounding_id_counter,ID),
 	  ID2 is ID+1,
 	  nb_setval(non_ground_fact_grounding_id_counter,ID2),
 	  assertz(grounding_is_known(Goal,ID))
-	 )
+	  )
 	).
 non_ground_fact_grounding_id(Goal,_) :-	
 	format(user_error,'The current program uses non-ground facts.~n', []),
