@@ -1156,20 +1156,6 @@ static Int start_profilers(int msec)
 }
 
 
-static Int profon(void) { 
-  Term p;
-  p=Deref(ARG1);
-  return(start_profilers(IntOfTerm(p)));
-}
-
-static Int profon0(void) { 
-  return(start_profilers(TIMER_DEFAULT));
-}
-
-static Int profison(void) {
-  return (ProfilerOn > 0);
-}
-
 static Int profoff(void) {
   if (ProfilerOn>0) {
     setitimer(ITIMER_PROF,NULL,NULL);
@@ -1177,6 +1163,22 @@ static Int profoff(void) {
     return TRUE;
   }
   return FALSE;
+}
+
+static Int profon(void) { 
+  Term p;
+  profoff();
+  p=Deref(ARG1);
+  return(start_profilers(IntOfTerm(p)));
+}
+
+static Int profon0(void) { 
+  profoff();
+  return(start_profilers(TIMER_DEFAULT));
+}
+
+static Int profison(void) {
+  return (ProfilerOn > 0);
 }
 
 static Int profalt(void) { 
