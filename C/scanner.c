@@ -547,7 +547,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	ch = Nxtch(inp_stream);
       }
     }
-  } else if ((ch == 'x' || ch == 'X') && base == 0) {
+  } else if (ch == 'x' && base == 0) {
     might_be_float = FALSE;
     if (--max_size == 0) {
       Yap_ErrorMessage = "Number Too Long";
@@ -571,11 +571,11 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     }
     *chp = ch;
   }
-  else if ((ch == 'o' || ch == 'O') && base == 0) {
+  else if (ch == 'o' && base == 0) {
     might_be_float = FALSE;
     base = 8;
     ch = Nxtch(inp_stream);
-  } else if ((ch == 'b' || ch == 'B') && base == 0) {
+  } else if (ch == 'b' && base == 0) {
     might_be_float = FALSE;
     base = 2;
     ch = Nxtch(inp_stream);
@@ -602,8 +602,8 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       has_overflow = TRUE;
     ch = Nxtch(inp_stream);
   }
-  if (might_be_float && (ch == '.' || ch == 'e' || ch == 'E')) {
-    if (ch == '.') {
+  if (might_be_float && ch == '.') {
+    {
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
@@ -628,7 +628,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       }
       while (chtype(ch = Nxtch(inp_stream)) == NU);
     }
-    if (ch == 'e' || ch == 'E') {
+    if (ch == 'e') {
       char *sp0 = sp;
       char cbuff = ch;
 
@@ -654,15 +654,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	/* error */
 	char *sp;
 	*chp = ch;
-	if (*sp0 == 'E') {
-	  /* code the fact that we have E and not e */
-	  if (cbuff == '+')
-	    *chbuffp = '=';
-	  else
-	    *chbuffp = '_';
-	} else {
-	  *chbuffp = cbuff;
-	}
+	*chbuffp = cbuff;
 	*sp0 = '\0';
 	for (sp = s; sp < sp0; sp++) {
 	  if (*sp == '.')
@@ -685,11 +677,11 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     *sp = '\0';
     /* skip base */
     *chp = ch;
-    if (s[0] == '0' && (s[1] == 'x' || s[1] == 'X'))
+    if (s[0] == '0' && s[1] == 'x')
       return read_int_overflow(s+2,16,val,sign);
-    else if (s[0] == '0' && (s[1] == 'o' || s[1] == 'O'))
+    else if (s[0] == '0' && s[1] == 'o')
       return read_int_overflow(s+2,8,val,sign);
-    else if (s[0] == '0' && (s[1] == 'b' || s[1] == 'B'))
+    else if (s[0] == '0' && s[1] == 'b')
       return read_int_overflow(s+2,2,val,sign);
     if (s[1] == '\'')
       return read_int_overflow(s+2,base,val,sign);

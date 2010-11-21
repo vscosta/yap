@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-03 19:08:13 +0100 (Wed, 03 Nov 2010) $
-%  $Revision: 4984 $
+%  $Date: 2010-11-09 15:09:33 +0100 (Tue, 09 Nov 2010) $
+%  $Revision: 4992 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -355,7 +355,7 @@ problog_table(Name/Arity, Module) :-
   % Exact method tabling
   assert_static((
     Module:ExactPred :-
-      (ground(ExactPred) ->
+      (user:problog_user_ground(Head) ->
         nb_setval(problog_nested_tries, true),
         get_negated_synonym_state(OriginalPred, State),
         (State = false ->
