@@ -602,8 +602,8 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       has_overflow = TRUE;
     ch = Nxtch(inp_stream);
   }
-  if (might_be_float && (ch == '.' || ch == 'e' )) {
-    if (ch == '.') {
+  if (might_be_float && ch == '.') {
+    {
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
