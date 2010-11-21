@@ -303,16 +303,6 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
   return (TRUE);
 }
 
-static int LeftOpToProtect(Atom at, int p)
-{
-  return Yap_IsOpMaxPrio(at) > p;
-}
-
-static int RightOpToProtect(Atom at, int p)
-{
-  return Yap_IsOpMaxPrio(at) > p;
-}
-
 static wtype 
 AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 {
@@ -788,7 +778,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       Term  tright = ArgOfTerm(1, t);
       int            bracket_right =
 	!IsVarTerm(tright) && IsAtomTerm(tright) &&
-	RightOpToProtect(AtomOfTerm(tright), rp);
+	Yap_IsOp(AtomOfTerm(tright));
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
@@ -818,7 +808,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       Int sl = 0;
       int            bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
-	LeftOpToProtect(AtomOfTerm(tleft), lp); 
+	Yap_IsOp(AtomOfTerm(tleft)); 
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
@@ -858,10 +848,10 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       Int sl = 0;
       int   bracket_left =
 	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
-	LeftOpToProtect(AtomOfTerm(tleft), lp);
+	Yap_IsOp(AtomOfTerm(tleft));
       int   bracket_right =
 	!IsVarTerm(tright) && IsAtomTerm(tright) &&
-	RightOpToProtect(AtomOfTerm(tright), rp);
+	Yap_IsOp(AtomOfTerm(tright));
 
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
