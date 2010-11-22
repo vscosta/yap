@@ -237,6 +237,6 @@ all(T,G,S) :-
 
 '$partial_list_or_list'(V) :- var(V), !.
 '$partial_list_or_list'([]) :- !.
-'$partial_list_or_list'([_|B]) :- !
+'$partial_list_or_list'([_|B]) :- !,
 	'$partial_list_or_list'(B).
 
