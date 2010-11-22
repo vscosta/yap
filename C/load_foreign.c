@@ -135,7 +135,7 @@ p_open_shared_object(void) {
   }
   
   ofiles = (StringList) Yap_AllocCodeSpace(sizeof(StringListItem));
-  ofiles->next = ofiles;
+  ofiles->next = NULL;
   ofiles->s = RepAtom(AtomOfTerm(t))->StrOfAE;
   if ((ptr = Yap_LoadForeignFile(ofiles->s, IntOfTerm(tflags)))==NULL) {
       return FALSE;
@@ -179,7 +179,7 @@ p_close_shared_object(void) {
   if (f0) {
     f0->next = f->next;
   } else {
-    ForeignCodeLoaded->next = f->next;
+    ForeignCodeLoaded = f->next;
   }
   handle = f->objs->handle;
   Yap_FreeCodeSpace((ADDR)f->objs);
