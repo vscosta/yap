@@ -2339,14 +2339,16 @@ with the current source module:
 @cnindex meta_predicate/1 (directive)
 Each @var{Gi} is a mode specification.
 
-If the argument is @code{:} or an integer, the argument is a call and
-must be expanded. Otherwise, the argument is not expanded. Note
-that the system already includes declarations for all built-ins.
+If the argument is @code{:}, it does not refer directly to a predicate
+but must be module expanded. If the argument is an integer, the argument
+is a goal or a closure and must be expanded. Otherwise, the argument is 
+not expanded. Note that the system already includes declarations for all 
+built-ins.
 
 For example, the declaration for @code{call/1} and @code{setof/3} are:
 
 @example
-:- meta_predicate call(:), setof(?,:,?).
+:- meta_predicate call(0), setof(?,0,?).
 @end example
 
 @end table

@@ -261,14 +261,11 @@ void displaynode(TrNode node) {
     else if (TrNode_entry(node) == PairEndTag)
       printf("PairEndTag\n");
     else if (IS_FUNCTOR_NODE(node))
-      {printf("2\n");
-      printf("FUNCTOR %s\n", YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)( ~ApplTag & TrNode_entry(node)))));}
+      printf("functor(%s)\n", YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)( ~ApplTag & TrNode_entry(node)))));
     else if (YAP_IsIntTerm(TrNode_entry(node)))
-      {printf("3\n");
-      printf("%ld\n", YAP_IntOfTerm(TrNode_entry(node)));}
+      printf("int(%ld)\n", YAP_IntOfTerm(TrNode_entry(node)));
     else if (YAP_IsAtomTerm(TrNode_entry(node)))
-      {printf("4\n");
-      printf("%s\n", YAP_AtomName(YAP_AtomOfTerm(TrNode_entry(node))));}
+       printf("atom(%s)\n", YAP_AtomName(YAP_AtomOfTerm(TrNode_entry(node))));
     else
       printf("What?\n");
   } else
@@ -627,10 +624,14 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
           while(!(child = *--bucket));
         }
       }
-      TrNode temp = TrNode_child(child);
+      if (TrNode_child(child) == NULL) return NULL;
+      if (TrNode_entry(TrNode_child(child)) != PairEndTag) return NULL;
+      
+      
+   /*   TrNode temp = TrNode_child(child);
       if (temp == NULL)
         return NULL;
-// printf("Chosen start node child: "); displaynode(temp);
+ printf("Chosen start node child: "); displaynode(temp);
       if (IS_HASH_NODE(temp)) {
         TrNode *first_bucket, *bucket;
         TrHash hash = (TrHash) temp;
@@ -646,17 +647,19 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
       } else {
         while((temp != NULL) && (TrNode_entry(temp) != PairEndTag))
           temp = TrNode_next(temp);
-      }
+      }*/
 // printf("while end\n");
       //Nested Trie code
       if (IS_FUNCTOR_NODE(TrNode_parent(child)) && (strcmp(YAP_AtomName(YAP_NameOfFunctor((YAP_Functor)(~ApplTag & TrNode_entry(TrNode_parent(child))))), NESTED_TRIE_TERM) == 0)) {
         /* nested trie: stop procedure and return nested trie node */
         return child;
       }
+      
+
       PUSH_DOWN(stack_args, TrNode_entry(child), stack_top);
       count++;
       if (IS_FUNCTOR_NODE(TrNode_parent(child))) {
-        temp = TrNode_parent(child);
+        TrNode temp = TrNode_parent(child);
         while (IS_FUNCTOR_NODE(temp)) {
           PUSH_DOWN(stack_args, TrNode_entry(temp), stack_top);
           temp = TrNode_parent(temp);
@@ -665,6 +668,8 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
           child = TrNode_parent(child);
       }
       child = TrNode_next(child);
+         //   printf("Siblings: ");displaynode(child);
+
     } while (child);
 //      printf("pass through\n");
   }

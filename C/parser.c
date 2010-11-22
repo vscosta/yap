@@ -456,10 +456,6 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	    t = MkLongIntTerm(-LongIntOfTerm(t));
 	  NextToken;
 	  break;
-	} else if ((Atom)t == AtomPlus) {
-	  t = Yap_tokptr->TokInfo;
-	  NextToken;
-	  break;
 	}
       } else if (Yap_tokptr->Tok == Name_tok) {
 	Atom at = (Atom)Yap_tokptr->TokInfo;
