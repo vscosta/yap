@@ -78,8 +78,8 @@ STATIC_PROTO(void wrputs, (char *, wrf));
 STATIC_PROTO(void wrputf, (Float, wrf));
 STATIC_PROTO(void wrputref, (CODEADDR, int, wrf));
 STATIC_PROTO(int legalAtom, (unsigned char *));
-STATIC_PROTO(int LeftOpToProtect, (Atom, int));
-STATIC_PROTO(int RightOpToProtect, (Atom, int));
+/*STATIC_PROTO(int LeftOpToProtect, (Atom, int));
+  STATIC_PROTO(int RightOpToProtect, (Atom, int));*/
 STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
 STATIC_PROTO(void putAtom, (Atom, int, wrf));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
@@ -212,6 +212,7 @@ wrputf(Float f, wrf writewch)		/* writes a float	 */
 	                  
 {
   char            s[256], *pt = s, ch;
+  int found_dot = FALSE, found_exp = FALSE;
 
 #if HAVE_ISNAN || defined(__WIN32)
   if (isnan(f)) {
@@ -246,14 +247,31 @@ wrputf(Float f, wrf writewch)		/* writes a float	 */
   sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
   while (*pt == ' ')
     pt++;
-  wrputs(pt, writewch);
-  if (*pt == '-') pt++;
-  while ((ch = *pt) != '\0') {
-    if (ch < '0' || ch > '9')
-      return;
+  if (*pt == '-') {
+    wrputc('-', writewch);
     pt++;
   }
-  wrputs(".0", writewch);    
+  while ((ch = *pt) != '\0') {
+    switch (ch) {
+    case '.':
+      found_dot = TRUE;
+      wrputc('.', writewch);    
+      break;
+    case 'e':
+    case 'E':
+      if (!found_dot) {
+	found_dot = TRUE;
+	wrputs(".0", writewch);
+      }
+      found_exp = TRUE;
+    default:
+      wrputc(ch, writewch);
+    }
+    pt++;
+  }
+  if (!found_dot) {
+    wrputs(".0", writewch);    
+  }
 }
 
 static void 

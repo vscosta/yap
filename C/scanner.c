@@ -602,8 +602,12 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       has_overflow = TRUE;
     ch = Nxtch(inp_stream);
   }
-  if (might_be_float && ch == '.') {
-    {
+  if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
+    if (yap_flags[STRICT_ISO_FLAG] && (ch == 'e' || ch == 'E')) {
+	Yap_ErrorMessage = "Float format not allowed in ISO mode";
+	return TermNil;
+    }
+    if (ch == '.') {
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
@@ -628,10 +632,14 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       }
       while (chtype(ch = Nxtch(inp_stream)) == NU);
     }
-    if (ch == 'e') {
+    if (ch == 'e' || ch == 'E') {
       char *sp0 = sp;
       char cbuff = ch;
 
+      if (yap_flags[STRICT_ISO_FLAG] && ch == 'E') {
+	Yap_ErrorMessage = "Float format not allowed in ISO mode";
+	return TermNil;
+      }
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
