@@ -32,7 +32,11 @@ _^Goal :-
 
 
 findall(Template, Generator, Answers) :-
-	'$check_list_for_bags'(Answers, findall(Template, Generator, Answers)),
+	( '$partial_list_or_list'(Answers) ->
+		true
+	;
+		'$do_error'(type_error(list,Answers), findall(Template, Generator, Answers))
+	),
 	'$findall'(Template, Generator, [], Answers).
 
 
@@ -76,7 +80,11 @@ findall(Template, Generator, Answers, SoFar) :-
 % This is the setof predicate
 
 setof(Template, Generator, Set) :-
-	'$check_list_for_bags'(Set, setof(Template, Generator, Set)),
+	( '$partial_list_or_list'(Set) ->
+		true
+	;
+		'$do_error'(type_error(list,Set), setof(Template, Generator, Set))
+	),
 	'$bagof'(Template, Generator, Bag),
 	'$sort'(Bag, Set).
 
@@ -87,10 +95,14 @@ setof(Template, Generator, Set) :-
 % of these variables
 
 bagof(Template, Generator, Bag) :-
+	( '$partial_list_or_list'(Bag) ->
+		true
+	;
+		'$do_error'(type_error(list,Bag), bagof(Template, Generator, Bag))
+	),
 	'$bagof'(Template, Generator, Bag).
-	
+
 '$bagof'(Template, Generator, Bag) :-
-	'$check_list_for_bags'(Bag, bagof(Template, Generator, Bag)),
 	'$variables_in_term'(Template, [], TemplateV),
 	'$excess_vars'(Generator, StrippedGenerator, TemplateV, [], FreeVars),
 	( FreeVars \== [] ->
@@ -223,10 +235,8 @@ all(T,G,S) :-
 '$$split'([T1|Tn],T,X,S1,[T1|S2]) :- '$$split'(Tn,T,X,S1,S2).
 
 
-'$check_list_for_bags'(V, _) :- var(V), !.
-'$check_list_for_bags'([], _) :- !.
-'$check_list_for_bags'([_|B], T) :- !,
-	'$check_list_for_bags'(B,T).
-'$check_list_for_bags'(S, T) :-
-	'$do_error'(type_error(list,S),T).
+'$partial_list_or_list'(V) :- var(V), !.
+'$partial_list_or_list'([]) :- !.
+'$partial_list_or_list'([_|B]) :- !,
+	'$partial_list_or_list'(B).
 
