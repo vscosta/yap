@@ -6733,6 +6733,12 @@ Operating System functionality:
 @cnindex cd/1
 Changes the current directory (on UNIX environments).
 
+@item cd
+@findex cd/0
+@snindex cd/0
+@cnindex cd/0
+Changes the current directory (on UNIX environments) to the user's home directory.
+
 @item environ(+@var{E},-@var{S})
 @findex environ/2
 @syindex environ/2
@@ -6748,6 +6754,18 @@ Changes the current directory (on UNIX environments).
 @cnindex getcwd/1
 Unify the current directory, represented as an atom, with the argument
 @var{D}.
+
+@item pwd
+@findex pwd/0
+@snindex pwd/0
+@cnindex pwd/0
+Prints the current directory.
+
+@item ls
+@findex ls/0
+@snindex ls/0
+@cnindex ls/0
+Prints a list of all files in the current directory.
 
 @item putenv(+@var{E},+@var{S})
 @findex putenv/2
