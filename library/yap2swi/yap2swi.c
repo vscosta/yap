@@ -272,8 +272,8 @@ ensure_space(char **sp, size_t room, unsigned flags) {
     min += 512;
 
   if (flags & BUF_MALLOC) {
-    free(*sp);
-    *sp = malloc(room);
+    PL_free(*sp);
+    *sp = PL_malloc(room);
     return *sp; 
   } else if (flags & BUF_RING) {
     for (i=1; i<= SWI_BUF_RINGS; i++)
@@ -512,7 +512,7 @@ static int do_yap_putc(int sno, wchar_t ch) {
     UInt bufsize = putc_cur_lim-putc_cur_buf;
     UInt bufpos = putc_curp-putc_cur_buf;
 
-    if (!(putc_cur_buf = realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
+    if (!(putc_cur_buf = PL_realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
       /* we can+t go forever */
       return FALSE;
     }
@@ -564,7 +564,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   if ((flags & BUF_RING)) {
     tmp = alloc_ring_buf();
   } else if ((flags & BUF_MALLOC)) {
-    tmp = malloc(SWI_BUF_SIZE);
+    tmp = PL_malloc(SWI_BUF_SIZE);
   } else {
     tmp = SWI_buffers[0];
   }
@@ -641,7 +641,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   }
   if (flags & BUF_MALLOC) {
     size_t sz = strlen(tmp);
-    char *nbf = malloc(sz+1);
+    char *nbf = PL_malloc(sz+1);
     if (!nbf)
       return 0;
     strncpy(nbf,tmp,sz+1);
@@ -685,7 +685,7 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
   }
   room = (sz+1)*sizeof(wchar_t);
   if (flags & BUF_MALLOC) {
-    *wsp = buf = (wchar_t *)malloc(room);
+    *wsp = buf = (wchar_t *)PL_malloc(room);
   } else if (flags & BUF_RING) {
     *wsp = (wchar_t *)alloc_ring_buf();
     buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
@@ -3011,21 +3011,33 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 
 
 X_API void *
-PL_malloc(int sz)
+PL_malloc(size_t sz)
 {
-  return (void *)Yap_AllocCodeSpace((long unsigned int)sz);
+  if ( sz == 0 )
+    return NULL;
+  return (void *)malloc((long unsigned int)sz);
 }
 
 X_API void *
-PL_realloc(void *ptr, int sz)
+PL_realloc(void *ptr, size_t sz)
 {
-  return Yap_ReallocCodeSpace((char *)ptr,(long unsigned int)sz);
+  if (ptr) {
+    if (sz) {
+      return realloc((char *)ptr,(long unsigned int)sz);
+    } else {
+      free(ptr);
+      return NULL;
+    }
+  } else {
+    return PL_malloc(sz);
+  }
 }
 
 X_API void
 PL_free(void *obj)
 {
-  return Yap_FreeCodeSpace((char *)obj);
+  if (obj)
+    free(obj);
 }
 
 X_API int
