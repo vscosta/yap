@@ -261,7 +261,8 @@ Yap_ReOpenLoadForeign(void)
   while (f_code != NULL) {
     CurrentModule = f_code->module;
     if(Yap_ReLoadForeign(f_code->objs,f_code->libs,f_code->f,&InitProc)==LOAD_SUCCEEDED) {
-      (*InitProc)();
+      if (InitProc)
+	(*InitProc)();
     }
     f_code = f_code->next;
   }
