@@ -303,8 +303,8 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
       return (*++s == ']' && !(*++s));
     else if (ch == '{')
       return (*++s == '}' && !(*++s));
-    else if (ch == '/')
-      return (*++s != '*');
+//    else if (ch == '/')
+//      return (*++s != '*');
     else if (Yap_chtype[ch] == SL)
       return (!*++s);
     else if ((ch == ',' || ch == '.') && !s[1])

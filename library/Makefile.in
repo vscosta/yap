@@ -76,7 +76,8 @@ PROGRAMS= \
 	$(srcdir)/wgraphs.yap \
 	$(srcdir)/wundgraphs.yap \
 	$(srcdir)/lam_mpi.yap \
-	$(srcdir)/ypp.yap 
+	$(srcdir)/ypp.yap \
+	$(srcdir)/block_diagram.yap
 
 MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \
 	$(srcdir)/MYDDAS/myddas_assert_predicates.ypp \
