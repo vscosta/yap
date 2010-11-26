@@ -28,7 +28,8 @@
 	open_chars_stream/2,
 	with_output_to_chars/2,
 	with_output_to_chars/3,
-	with_output_to_chars/4
+	with_output_to_chars/4,
+ term_to_atom/2 
     ]).
 
 :- meta_predicate(with_output_to_chars(0,?)).
