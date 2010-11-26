@@ -608,6 +608,8 @@ do_save(int mode) {
 static Int 
 p_save(void)
 {
+  Int res;
+
 #if defined(YAPOR) && !defined(THREADS)
   if (number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
@@ -620,7 +622,10 @@ p_save(void)
   }
 #endif
   which_save = 1;
-  return(do_save(DO_EVERYTHING));
+  Yap_StartSlots();
+  res = do_save(DO_EVERYTHING);
+  Yap_CloseSlots();
+  return res;
 }
 
 /* Saves a complete prolog environment */

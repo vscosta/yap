@@ -219,7 +219,7 @@
 
 parameter(texts((+inf))).
 parameter(depth((+inf))).
-parameter(default_ext('.dot')).
+parameter(default_ext('.yap')).
 make_diagram(InputFile, OutputFile):-
   tell(OutputFile),
   write('digraph G {\nrankdir=BT'), nl,

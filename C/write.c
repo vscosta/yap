@@ -293,29 +293,30 @@ wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base 
 
 static int 
 legalAtom(unsigned char *s)			/* Is this a legal atom ? */
-	                  
 {
   wchar_t ch = *s;
 
   if (ch == '\0')
-    return(FALSE);
+    return FALSE;
   if (Yap_chtype[ch] != LC) {
-    if (ch == '[')
-      return (*++s == ']' && !(*++s));
-    else if (ch == '{')
-      return (*++s == '}' && !(*++s));
+    if (ch == '[') {
+      return (s[1] == ']' && !s[2]);
+    } else if (ch == '{') {
+	return (s[1] == '}' && !s[2]);
 //    else if (ch == '/')
 //      return (*++s != '*');
-    else if (Yap_chtype[ch] == SL)
-      return (!*++s);
-    else if ((ch == ',' || ch == '.') && !s[1])
+    } else if (Yap_chtype[ch] == SL) {
+      return (!s[1]);
+    } else if ((ch == ',' || ch == '.') && !s[1]) {
       return FALSE;
-    else
+    } else {
       while (ch) {
-	if (Yap_chtype[ch] != SY)
+	if (Yap_chtype[ch] != SY) {
 	  return FALSE;
+	}
 	ch = *++s;
       }
+    }
     return TRUE;
   } else
     while ((ch = *++s) != 0)
