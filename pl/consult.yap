@@ -1036,6 +1036,8 @@ file_name_extension(A1,A2,F) :-
 	atom_codes(A2, S2),
 	(
 	 S2 = [0'.|_] %'
+	;
+	 A2 = ''
 	->
 	 atom_concat(A1, A2, F)
 	;
