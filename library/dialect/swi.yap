@@ -6,7 +6,6 @@
 :- module(system, [concat_atom/2,
 		   concat_atom/3,
 		   setenv/2,
-		   prolog_to_os_filename/2,
 		   is_absolute_file_name/1,
 		   read_clause/1,
 		   string/1,
@@ -224,7 +223,6 @@ goal_expansion(rename_file(A,B),system:swi_rename_file(A,B)) :- swi_io.
 goal_expansion(is_absolute_file_name(A), is_absolute_file_name(A)) :- swi_io.
 goal_expansion(file_base_name(A,B),system:swi_file_base_name(A,B)) :- swi_io.
 goal_expansion(file_directory_name(A,B),system:swi_file_directory_name(A,B)) :- swi_io.
-goal_expansion(prolog_to_os_filename(A,B),system:swi_prolog_to_os_filename(A,B)) :- swi_io.
 goal_expansion('$mark_executable'(A), system:'swi_is_absolute_file_name'(A)) :- swi_io.
 goal_expansion('$absolute_file_name'(A,B),system:'swi_$absolute_file_name'(A,B)) :- swi_io.
 
@@ -280,8 +278,6 @@ concat_atom(List, New) :-
 
 
 setenv(X,Y) :- unix(putenv(X,Y)).
-
-prolog_to_os_filename(X,X).
 
 is_absolute_file_name(X) :-
 	absolute_file_name(X,X).
