@@ -127,6 +127,10 @@
 	    (rdf_meta)/1,		% +Heads
 	    op(1150, fx, (rdf_meta))
 	  ]).
+
+:- expects_dialect(swi).
+:- assert(system:swi_io).
+
 :- use_module(library(rdf)).
 :- use_module(library(lists)).
 :- use_module(library(shlib)).
@@ -152,6 +156,16 @@
 	rdf_source/5.
 :- discontiguous
 	term_expansion/2.
+
+:- meta_predicate
+	rdf_transaction(0),
+	rdf_transaction(0, +),
+	rdf_monitor(1, +),
+	rdf_save(+, :),
+	rdf_load(+, :).
+
+:- thread_local
+	named_anon/2.			% +Resource, -Id
 
 /** <module> Core RDF database
 
@@ -1369,16 +1383,6 @@ rdf_reset_db :-
 %			file-url (=|file://path|=) or a stream wrapped
 %			in a term stream(Out).
 
-:- meta_predicate
-	rdf_transaction(0),
-	rdf_transaction(0, +),
-	rdf_monitor(1, +),
-	rdf_save(+, :),
-	rdf_load(+, :).
-
-:- thread_local
-	named_anon/2.			% +Resource, -Id
-
 rdf_save(File) :-
 	rdf_save2(File, []).
 
@@ -2183,3 +2187,7 @@ into(_, _) --> [].			% TBD
 in_time(Triples, ParseTime) -->
 	[ ' in ~2f sec; ~D triples'-[ParseTime, Triples]
 	].
+
+:- retract(system:swi_io).
+
+

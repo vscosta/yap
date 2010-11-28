@@ -1129,7 +1129,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  Term *tmp = (Term *)SWI_buffers[0];
+  Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
@@ -1137,46 +1137,55 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (arity > SWI_TMP_BUF_SIZE/sizeof(YAP_CELL)) {
-    fprintf(stderr,"PL_cons_functor: arity too large (%d)\n", arity); 
-    return FALSE;
+  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
+  if (arity == 2 && ff == FunctorDot) {
+    t = Yap_MkNewPairTerm();
+    tmp = RepPair(t);
+  } else {
+    t = Yap_MkNewApplTerm(ff, arity);
+    tmp = RepAppl(t)+1;
   }
   va_start (ap, f);
   for (i = 0; i < arity; i++) {
-    tmp[i] =  Yap_GetFromSlot(va_arg(ap, term_t));
+    Yap_unify(tmp[i],Yap_GetFromSlot(va_arg(ap, term_t)));
   }
   va_end (ap);
-  if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,MkPairTerm(tmp[0],tmp[1]));
-  else
-    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,tmp));
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
-    }
-  }
+  Yap_PutInSlot(d,t);
   return TRUE;
 }
 
-X_API int PL_cons_functor_v(term_t d, functor_t f,term_t a0)
+X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 {
-  int arity;
+  int arity, i;
+  Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d,(Term)ff);
+    Yap_PutInSlot(d, (YAP_Term)f);
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(a0),Yap_GetFromSlot(a0+1)));    
-  else
-    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,Yap_AddressFromSlot(a0)));
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
     }
   }
+  if (arity == 2 && ff == FunctorDot) {
+    t = Yap_MkNewPairTerm();
+    tmp = RepPair(t);
+  } else {
+    t = Yap_MkNewApplTerm(ff, arity);
+    tmp = RepAppl(t)+1;
+  }
+  for (i = 0; i < arity; i++) {
+    Yap_unify(tmp[i],Yap_GetFromSlot(a0));
+    a0++;
+  }
+  Yap_PutInSlot(d,t);
   return TRUE;
 }
 
