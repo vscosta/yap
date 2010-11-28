@@ -612,8 +612,17 @@ TrNode core_breadth_reduction(TrEngine engine, TrNode node, TrNode breadth_node,
     } while (bucket != first_bucket);
   } else {
     do {
-      if (TrNode_entry(child) == PairEndTag)
-        return core_breadth_reduction(engine, child, breadth_node, opt_level, construct_function, destruct_function, copy_function, correct_order_function);
+      if (TrNode_entry(child) == PairEndTag) {
+        /* do breadth reduction simplification */
+        node = TrNode_parent(child);
+        DATA_DESTRUCT_FUNCTION = destruct_function;
+        remove_child_nodes(TrNode_child(node));
+        TrNode_child(node) = NULL;
+        node = trie_node_check_insert(node, PairEndTag);
+        INCREMENT_ENTRIES(CURRENT_TRIE_ENGINE);
+        return node;
+        //return core_breadth_reduction(engine, node, breadth_node, opt_level, construct_function, destruct_function, copy_function, correct_order_function);
+      }
       while (IS_FUNCTOR_NODE(child)) {
         child = TrNode_child(child);
         if (IS_HASH_NODE(child)) { // gets first child in the hash
