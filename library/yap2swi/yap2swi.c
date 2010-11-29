@@ -272,8 +272,8 @@ ensure_space(char **sp, size_t room, unsigned flags) {
     min += 512;
 
   if (flags & BUF_MALLOC) {
-    free(*sp);
-    *sp = malloc(room);
+    PL_free(*sp);
+    *sp = PL_malloc(room);
     return *sp; 
   } else if (flags & BUF_RING) {
     for (i=1; i<= SWI_BUF_RINGS; i++)
@@ -512,7 +512,7 @@ static int do_yap_putc(int sno, wchar_t ch) {
     UInt bufsize = putc_cur_lim-putc_cur_buf;
     UInt bufpos = putc_curp-putc_cur_buf;
 
-    if (!(putc_cur_buf = realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
+    if (!(putc_cur_buf = PL_realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
       /* we can+t go forever */
       return FALSE;
     }
@@ -564,7 +564,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   if ((flags & BUF_RING)) {
     tmp = alloc_ring_buf();
   } else if ((flags & BUF_MALLOC)) {
-    tmp = malloc(SWI_BUF_SIZE);
+    tmp = PL_malloc(SWI_BUF_SIZE);
   } else {
     tmp = SWI_buffers[0];
   }
@@ -641,7 +641,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
   }
   if (flags & BUF_MALLOC) {
     size_t sz = strlen(tmp);
-    char *nbf = malloc(sz+1);
+    char *nbf = PL_malloc(sz+1);
     if (!nbf)
       return 0;
     strncpy(nbf,tmp,sz+1);
@@ -685,7 +685,7 @@ X_API int PL_get_wchars(term_t l, size_t *len, wchar_t **wsp, unsigned flags)
   }
   room = (sz+1)*sizeof(wchar_t);
   if (flags & BUF_MALLOC) {
-    *wsp = buf = (wchar_t *)malloc(room);
+    *wsp = buf = (wchar_t *)PL_malloc(room);
   } else if (flags & BUF_RING) {
     *wsp = (wchar_t *)alloc_ring_buf();
     buf = (wchar_t *)ensure_space((char **)wsp, room, flags);
@@ -1129,7 +1129,7 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
   va_list ap;
   int arity, i;
-  Term *tmp = (Term *)SWI_buffers[0];
+  Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
@@ -1137,46 +1137,55 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (arity > SWI_TMP_BUF_SIZE/sizeof(YAP_CELL)) {
-    fprintf(stderr,"PL_cons_functor: arity too large (%d)\n", arity); 
-    return FALSE;
+  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
+    if (!Yap_gc(0, ENV, CP)) {
+      return FALSE;
+    }
+  }
+  if (arity == 2 && ff == FunctorDot) {
+    t = Yap_MkNewPairTerm();
+    tmp = RepPair(t);
+  } else {
+    t = Yap_MkNewApplTerm(ff, arity);
+    tmp = RepAppl(t)+1;
   }
   va_start (ap, f);
   for (i = 0; i < arity; i++) {
-    tmp[i] =  Yap_GetFromSlot(va_arg(ap, term_t));
+    Yap_unify(tmp[i],Yap_GetFromSlot(va_arg(ap, term_t)));
   }
   va_end (ap);
-  if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,MkPairTerm(tmp[0],tmp[1]));
-  else
-    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,tmp));
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
-    }
-  }
+  Yap_PutInSlot(d,t);
   return TRUE;
 }
 
-X_API int PL_cons_functor_v(term_t d, functor_t f,term_t a0)
+X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 {
-  int arity;
+  int arity, i;
+  Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d,(Term)ff);
+    Yap_PutInSlot(d, (YAP_Term)f);
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  if (arity == 2 && ff == FunctorDot)
-    Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(a0),Yap_GetFromSlot(a0+1)));    
-  else
-    Yap_PutInSlot(d,Yap_MkApplTerm(ff,arity,Yap_AddressFromSlot(a0)));
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
     }
   }
+  if (arity == 2 && ff == FunctorDot) {
+    t = Yap_MkNewPairTerm();
+    tmp = RepPair(t);
+  } else {
+    t = Yap_MkNewApplTerm(ff, arity);
+    tmp = RepAppl(t)+1;
+  }
+  for (i = 0; i < arity; i++) {
+    Yap_unify(tmp[i],Yap_GetFromSlot(a0));
+    a0++;
+  }
+  Yap_PutInSlot(d,t);
   return TRUE;
 }
 
@@ -3011,21 +3020,33 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 
 
 X_API void *
-PL_malloc(int sz)
+PL_malloc(size_t sz)
 {
-  return (void *)Yap_AllocCodeSpace((long unsigned int)sz);
+  if ( sz == 0 )
+    return NULL;
+  return (void *)malloc((long unsigned int)sz);
 }
 
 X_API void *
-PL_realloc(void *ptr, int sz)
+PL_realloc(void *ptr, size_t sz)
 {
-  return Yap_ReallocCodeSpace((char *)ptr,(long unsigned int)sz);
+  if (ptr) {
+    if (sz) {
+      return realloc((char *)ptr,(long unsigned int)sz);
+    } else {
+      free(ptr);
+      return NULL;
+    }
+  } else {
+    return PL_malloc(sz);
+  }
 }
 
 X_API void
 PL_free(void *obj)
 {
-  return Yap_FreeCodeSpace((char *)obj);
+  if (obj)
+    free(obj);
 }
 
 X_API int

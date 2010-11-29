@@ -45,6 +45,8 @@
 :- use_module(library(option)).
 :- use_module(library(error)).
 
+:- use_module(library(maplist)).
+
 :- use_foreign_library(foreign(process)).
 
 /** <module> Create processes and redirect I/O
