@@ -1361,6 +1361,79 @@ IsArrayProperty (int flags)
 
 
 
+/*	SWI Blob property 						*/
+typedef struct blob_atom_entry
+{
+  Prop NextOfPE;		/* used to chain properties             */
+  PropFlags KindOfPE;		/* kind of property                     */
+  struct PL_blob_t *blob_t;     /* type of blob */
+} BlobPropEntry;
+
+#if USE_OFFSETS_IN_PROPS
+
+inline EXTERN BlobAtomEntry *RepBlobProp (Prop p);
+
+inline EXTERN BlobPropEntry *
+RepBlobProp (Prop p)
+{
+  return (BlobPropEntry *) (AtomBase + Unsigned (p));
+}
+
+
+
+inline EXTERN AtomEntry *AbsBlobProp (BlobPropEntry * p);
+
+inline EXTERN Prop
+AbsBlobProp (BlobPropEntry * p)
+{
+  return (Prop) (Addr (p) - AtomBase);
+}
+
+
+#else
+
+inline EXTERN BlobPropEntry *RepBlobProp (Prop p);
+
+inline EXTERN BlobPropEntry *
+RepBlobProp (Prop p)
+{
+  return (BlobPropEntry *) (p);
+}
+
+
+
+inline EXTERN Prop AbsBlobProp (BlobPropEntry * p);
+
+inline EXTERN Prop
+AbsBlobProp (BlobPropEntry * p)
+{
+  return (Prop) (p);
+}
+
+
+#endif
+
+#define BlobProperty	((PropFlags)0xfff5)
+
+
+inline EXTERN PropFlags IsBlobProperty (int);
+
+inline EXTERN PropFlags
+IsBlobProperty (int flags)
+{
+  return (PropFlags) ((flags == BlobProperty));
+}
+
+inline EXTERN int IsBlob (Atom);
+
+inline EXTERN int
+IsBlob (Atom at)
+{
+  return RepAtom(at)->PropsOfAE &&
+    IsBlobProperty(RepBlobProp(RepAtom(at)->PropsOfAE)->KindOfPE);
+}
+
+
 /* Proto types */
 
 /* cdmgr.c */

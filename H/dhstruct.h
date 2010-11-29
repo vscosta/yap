@@ -300,3 +300,5 @@
 #define SWI_Atoms Yap_heap_regs->swi_atoms
 #define SWI_Functors Yap_heap_regs->swi_functors
 #define SWI_ReverseHash Yap_heap_regs->swi_reverse_hash
+
+#define SWI_Blobs Yap_heap_regs->swi_blobs
