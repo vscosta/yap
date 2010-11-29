@@ -159,6 +159,13 @@ true :- true.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
 	fail.
+% use if we come from a save_program and we have SWI's shlib
+'$enter_top_level' :-
+	recorded('$reload_foreign_libraries',G,R),
+	erase(R),
+	shlib:reload_foreign_libraries,
+	fail.
+% use if we come from a save_program and we have a goal to execute
 '$enter_top_level' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
