@@ -56,4 +56,4 @@ install: all
 
 clean:
 	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK
-
+	-(cd libtai && $(MAKE) clean)
