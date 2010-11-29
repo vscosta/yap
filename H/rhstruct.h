@@ -300,3 +300,5 @@
   RestoreSWIAtoms();
 
 
+
+  RestoreSWIBlobs();

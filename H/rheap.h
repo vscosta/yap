@@ -668,6 +668,11 @@ RestoreSWIAtoms(void)
   RestoreSWIHash();
 }
 
+static void 
+RestoreSWIBlobs(void)
+{
+}
+
 static void
 RestorePredHash(void)
 {

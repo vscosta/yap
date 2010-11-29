@@ -300,3 +300,5 @@
   InitSWIAtoms();
 
 
+
+  Yap_heap_regs->swi_blobs = NULL;
