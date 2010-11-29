@@ -263,8 +263,6 @@
 
   Yap_heap_regs->yap_streams = NULL;
 
-  Yap_heap_regs->yap_halt_hook = NULL;
-
   Yap_heap_regs->n_of_file_aliases = 0;
   Yap_heap_regs->sz_of_file_aliases = 0;
   Yap_heap_regs->file_aliases = NULL;

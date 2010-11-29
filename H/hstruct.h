@@ -263,8 +263,6 @@
 
   struct stream_desc  *yap_streams;
 
-  struct halt_hook  *yap_halt_hook;
-
   UInt  n_of_file_aliases;
   UInt  sz_of_file_aliases;
   struct AliasDescS  *file_aliases;

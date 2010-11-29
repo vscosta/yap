@@ -263,8 +263,6 @@
 
 #define Stream Yap_heap_regs->yap_streams
 
-#define Yap_HaltHooks Yap_heap_regs->yap_halt_hook
-
 #define NOfFileAliases Yap_heap_regs->n_of_file_aliases
 #define SzOfFileAliases Yap_heap_regs->sz_of_file_aliases
 #define FileAliases Yap_heap_regs->file_aliases

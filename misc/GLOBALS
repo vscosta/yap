@@ -245,5 +245,8 @@ int		initialised_from_pl	Yap_InitialisedFromPL	=FALSE
 int		pl_argc			Yap_PL_Argc		=0
 char	      **pl_argv			Yap_PL_Argv		=NULL
 
+// halt hooks
+struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL
+
 END_WORKER_SHARED
 
