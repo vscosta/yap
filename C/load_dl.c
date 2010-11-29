@@ -133,7 +133,7 @@ LoadForeign(StringList ofiles, StringList libs,
 
     ofiles->handle = handle;
 
-    if (!*init_proc)
+    if (proc_name && !*init_proc)
       *init_proc = (YapInitProc) dlsym(handle,proc_name);
 
     ofiles = ofiles->next;

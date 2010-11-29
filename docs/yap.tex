@@ -1,4 +1,4 @@
-´a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+ï¿½a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -6760,6 +6760,12 @@ Operating System functionality:
 @cnindex cd/1
 Changes the current directory (on UNIX environments).
 
+@item cd
+@findex cd/0
+@snindex cd/0
+@cnindex cd/0
+Changes the current directory (on UNIX environments) to the user's home directory.
+
 @item environ(+@var{E},-@var{S})
 @findex environ/2
 @syindex environ/2
@@ -6775,6 +6781,18 @@ Changes the current directory (on UNIX environments).
 @cnindex getcwd/1
 Unify the current directory, represented as an atom, with the argument
 @var{D}.
+
+@item pwd
+@findex pwd/0
+@snindex pwd/0
+@cnindex pwd/0
+Prints the current directory.
+
+@item ls
+@findex ls/0
+@snindex ls/0
+@cnindex ls/0
+Prints a list of all files in the current directory.
 
 @item putenv(+@var{E},+@var{S})
 @findex putenv/2
@@ -10488,14 +10506,14 @@ integers then @var{NUMBER} will also be an integer, otherwise
 @syindex randseq/3
 @cnindex randseq/3
 Unify @var{Numbers} with a list of @var{LENGTH} unique random integers
-in the range @code{[1 ...@var{MAX})}.
+in the range @code{[1ï¿½...@var{MAX})}.
 
 @item randset(+@var{LENGTH}, +@var{MAX}, -@var{Numbers})
 @findex randset/3
 @syindex randset/3
 @cnindex randset/3
 Unify @var{Numbers} with an ordered list of @var{LENGTH} unique random
-integers in the range @code{[1 ...@var{MAX})}.
+integers in the range @code{[1ï¿½...@var{MAX})}.
 
 @item setrand(+@var{Key})
 @findex setrand/1
@@ -12884,6 +12902,31 @@ Attempts to perform garbage collection with all the open handles
 associated with send and non-blocking broadcasts. For each handle it
 tests it and the message has been delivered the handle and the buffer
 are released.
+
+@end table
+
+@node Block Diagram, Library
+@section Block Diagram
+@cindex Block Diagram
+
+This library provides a way of visualizing a prolog program using modules with blocks.
+To use it use: @code{:-use_module(library(block_diagram))}.
+@table @code
+@item make_diagram(+inputfilename, +ouputfilename)
+@findex make_diagram/2
+@snindex make_diagram/2
+@cnindex make_diagram/2
+
+This will crawl the files following the use_module, ensure_loaded directives withing the inputfilename.
+The result will be a file in dot format.
+You can make a pdf at the shell by asking @code{dot -Tpdf filename > output.pdf}.
+
+@item make_diagram(+inputfilename, +ouputfilename, +predicate, +depth, +extension)
+@findex make_diagram/2
+@snindex make_diagram/2
+@cnindex make_diagram/2
+
+The same as @code{make_diagram/2} but you can define how many of the imported/exporeted predicates will be shown with predicate, and how deep the crawler is allowed to go with depth. The extension is used if the file use module directives do not include a file extension.
 
 @end table
 
