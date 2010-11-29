@@ -316,22 +316,55 @@ save(S,OUT) :- '$save'(S,OUT).
 
 save_program(A) :- var(A), !,
 	'$do_error'(instantiation_error,save_program(A)).
-save_program(A) :- atom(A), !, atom_codes(A,S), '$save_program'(S).
-save_program(S) :- '$save_program'(S).
+save_program(A) :- atom(A), !, 
+	atom_codes(A,S),
+	'$save_program2'(S, true).
+save_program(S) :- '$save_program2'(S, true).
 
 save_program(A, G) :- var(A), !,
-	'$do_error'(instantiation_error,save_program(A,G)).
+	'$do_error'(instantiation_error, save_program(A,G)).
 save_program(A, G) :- var(G), !,
-	'$do_error'(instantiation_error,save_program(A,G)).
+	'$do_error'(instantiation_error, save_program(A,G)).
 save_program(A, G) :- \+ callable(G), !,
-	'$do_error'(type_error(callable,G),save_program(A,G)).
+	'$do_error'(type_error(callable,G), save_program(A,G)).
 save_program(A, G) :-
-	( atom(A) -> name(A,S) ; A = S),
-	recorda('$restore_goal',G,R),
-	'$save_program'(S),
-	erase(R),
+	( atom(A) -> atom_codes(A,S) ; A = S),
+	'$save_program2'(S, G),
 	fail.
 save_program(_,_).
+
+'$save_program2'(S,G) :-
+	(
+	    G == true
+        ->
+	     true
+	 ;
+	     recorda('$restore_goal', G ,R)
+	),
+	(
+	    '$undefined'(reload_foreign_libraries, shlib)
+        ->
+	     true
+	 ;
+	     recorda('$reload_foreign_libraries', true, R1)
+	),
+	'$save_program'(S),
+	(
+	    var(R1)
+        ->
+	     true
+	 ;
+	     erase(R1)
+	),
+	(
+	    var(R)
+        ->
+	     true
+	 ;
+	     erase(R)
+	),
+	fail.
+'$save_program2'(_,_).
 
 restore(A) :- var(A), !,
 	'$do_error'(instantiation_error,restore(A)).

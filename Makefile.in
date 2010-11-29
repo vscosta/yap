@@ -260,7 +260,9 @@ PL_SOURCES= \
 	$(srcdir)/pl/load_foreign.yap \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
 	$(srcdir)/pl/profile.yap \
-	$(srcdir)/pl/protect.yap $(srcdir)/pl/setof.yap \
+	$(srcdir)/pl/protect.yap \
+	$(srcdir)/pl/save.yap \
+	$(srcdir)/pl/setof.yap \
 	$(srcdir)/pl/signals.yap \
 	$(srcdir)/pl/sockets.yap $(srcdir)/pl/sort.yap \
 	$(srcdir)/pl/statistics.yap \
