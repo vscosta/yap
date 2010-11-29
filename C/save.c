@@ -97,7 +97,7 @@ STATIC_PROTO(int   save_heap, (void));
 STATIC_PROTO(int   save_stacks, (int));
 STATIC_PROTO(int   save_crc, (void));
 STATIC_PROTO(Int   do_save, (int));
-STATIC_PROTO(Int   p_save, (void));
+STATIC_PROTO(Int   p_save2, (void));
 STATIC_PROTO(Int   p_save_program, (void));
 STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL *));
 STATIC_PROTO(int   get_heap_info, (void));
@@ -606,47 +606,34 @@ do_save(int mode) {
 
 /* Saves a complete prolog environment */
 static Int 
-p_save(void)
+p_save2(void)
 {
   Int res;
 
+  Term t;
 #if defined(YAPOR) && !defined(THREADS)
   if (number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    Yap_Error(SYSTEM_ERROR,TermNil,
+	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
   if (NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
+    Yap_Error(SYSTEM_ERROR,TermNil,
+	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #endif
-  which_save = 1;
+  /* avoid double saves */
+  if (IsNonVarTerm(t = Deref(ARG2)))
+    return TRUE;
+  if (!Yap_unify(ARG2,MkIntTerm(1)))
+    return FALSE;
+  which_save = 2;
   Yap_StartSlots();
   res = do_save(DO_EVERYTHING);
   Yap_CloseSlots();
   return res;
-}
-
-/* Saves a complete prolog environment */
-static Int 
-p_save2(void)
-{
-#if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,
-	       "cannot perform save: more than a worker/thread running");
-    return(FALSE);
-  }
-#elif defined(THREADS)
-  if (NOfThreads != 1) {
-    Yap_Error(SYSTEM_ERROR,TermNil,
-	       "cannot perform save: more than a worker/thread running");
-    return(FALSE);
-  }
-#endif
-  which_save = 2;
-  return(do_save(DO_EVERYTHING) && Yap_unify(ARG2,MkIntTerm(1)));
 }
 
 /* Just save the program, not the stacks */
@@ -1778,6 +1765,7 @@ static Int
 p_restore(void)
 {
   int mode;
+  char s[YAP_FILENAME_MAX+1];
 
   Term t1 = Deref(ARG1);
 #if defined(YAPOR) && !defined(THREADS)
@@ -1791,11 +1779,11 @@ p_restore(void)
     return(FALSE);
   }
 #endif
-  if (!Yap_GetName(Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+  if (!Yap_GetName(s, YAP_FILENAME_MAX, t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);
   }
-  if ((mode = Restore(Yap_FileNameBuf, NULL)) == DO_ONLY_CODE) {
+  if ((mode = Restore(s, NULL)) == DO_ONLY_CODE) {
 #if PUSH_REGS
     restore_absmi_regs(&Yap_standard_regs);
 #endif
@@ -1808,7 +1796,6 @@ p_restore(void)
 void 
 Yap_InitSavePreds(void)
 {
-  Yap_InitCPred("$save", 1, p_save, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$save", 2, p_save2, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$save_program", 1, p_save_program, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$restore", 1, p_restore, SyncPredFlag|HiddenPredFlag);

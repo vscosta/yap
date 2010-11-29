@@ -263,8 +263,6 @@
 
   RestoreStreams();
 
-  RestoreHaltHooks();
-
 
 
   RestoreAliases();

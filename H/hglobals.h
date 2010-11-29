@@ -218,4 +218,6 @@ typedef struct worker_shared {
   int  initialised_from_pl;
   int  pl_argc;
   char  **pl_argv;
+
+  struct halt_hook  *yap_halt_hook;
 } w_shared;
