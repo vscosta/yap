@@ -307,19 +307,16 @@ getenv(Na,Val) :-
 
 %%% Saving and restoring a computation
 
-save(A) :- var(A), !,
-	'$do_error'(instantiation_error,save(A)).
-save(A) :- atom(A), !, name(A,S), '$save'(S).
-save(S) :- '$save'(S).
+save(A) :- save(A,_).
 
 save(A,_) :- var(A), !,
 	'$do_error'(instantiation_error,save(A)).
-save(A,OUT) :- atom(A), !, name(A,S), '$save'(S,OUT).
+save(A,OUT) :- atom(A), !, atom_codes(A,S), '$save'(S,OUT).
 save(S,OUT) :- '$save'(S,OUT).
 
 save_program(A) :- var(A), !,
 	'$do_error'(instantiation_error,save_program(A)).
-save_program(A) :- atom(A), !, name(A,S), '$save_program'(S).
+save_program(A) :- atom(A), !, atom_codes(A,S), '$save_program'(S).
 save_program(S) :- '$save_program'(S).
 
 save_program(A, G) :- var(A), !,
