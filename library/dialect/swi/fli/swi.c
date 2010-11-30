@@ -1546,7 +1546,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 {
   Atom catom;
   YAP_Term cterm;
-  char *buf = (char *)YAP_AllocSpaceFromYap(len+1);
+  char *buf = (char *)malloc(len+1);
 
   if (!buf)
     return FALSE;

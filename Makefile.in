@@ -171,6 +171,7 @@ HEADERS = \
 	$(srcdir)/OPTYap/locks_pthread.h \
 	$(srcdir)/H/cut_c.h \
 	$(srcdir)/H/iatoms.h $(srcdir)/H/ratoms.h $(srcdir)/H/tatoms.h \
+	$(srcdir)/library/dialect/swi/fli/swi.h \
 	$(srcdir)/MYDDAS/myddas.h $(srcdir)/MYDDAS/myddas_structs.h \
 	$(srcdir)/MYDDAS/myddas_statistics.h \
 	$(srcdir)/MYDDAS/myddas_statistics_structs.h \
@@ -223,8 +224,8 @@ C_SOURCES= \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
 	$(srcdir)/library/lammpi/yap_mpi.c $(srcdir)/library/lammpi/hash.c $(srcdir)/library/lammpi/prologterms2c.c  \
 	$(srcdir)/C/cut_c.c \
-	$(srcdir)/library/yap2swi/yap2swi.c \
-	$(srcdir)/library/yap2swi/blobs.c \
+	$(srcdir)/library/dialect/swi/fli/swi.c \
+	$(srcdir)/library/dialect/swi/fli/blobs.c \
 	$(srcdir)/MYDDAS/myddas_mysql.c \
 	$(srcdir)/MYDDAS/myddas_odbc.c \
 	$(srcdir)/MYDDAS/myddas_util.c \
@@ -293,7 +294,7 @@ ENGINE_OBJECTS = \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
 	write.o \
-	blobs.o yap2swi.o ypsocks.o ypstdio.o @MPI_OBJS@
+	blobs.o swi.o ypsocks.o ypstdio.o @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
@@ -457,11 +458,11 @@ eamindex.o:  $(srcdir)/BEAM/eamindex.c config.h
 sys.o: $(srcdir)/library/system/sys.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/library/system/sys.c  -o $@
 
-yap2swi.o: $(srcdir)/library/yap2swi/yap2swi.c  $(srcdir)/library/yap2swi/swi.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/include/SWI-Stream.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/yap2swi  $(srcdir)/library/yap2swi/yap2swi.c  -o $@
+swi.o: $(srcdir)/library/dialect/swi/fli/swi.c  $(srcdir)/library/dialect/swi/fli/swi.h $(srcdir)/include/SWI-Prolog.h $(srcdir)/include/SWI-Stream.h config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/swi.c  -o $@
 
-blobs.o: $(srcdir)/library/yap2swi/blobs.c  $(srcdir)/library/yap2swi/swi.h  $(srcdir)/include/SWI-Prolog.h config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/yap2swi  $(srcdir)/library/yap2swi/blobs.c  -o $@
+blobs.o: $(srcdir)/library/dialect/swi/fli/blobs.c  $(srcdir)/library/dialect/swi/fli/swi.h  $(srcdir)/include/SWI-Prolog.h config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)/library/dialect/swi/fli  $(srcdir)/library/dialect/swi/fli/blobs.c  -o $@
 
 yap_random.o: $(srcdir)/library/random/yap_random.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  $(srcdir)/library/random/yap_random.c  -o $@

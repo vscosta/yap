@@ -1929,7 +1929,6 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  library/yap2swi
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
 mkdir -p  GPL
@@ -1976,7 +1975,6 @@ AC_CONFIG_FILES([library/regex/Makefile])
 AC_CONFIG_FILES([library/rltree/Makefile])
 AC_CONFIG_FILES([library/system/Makefile])
 AC_CONFIG_FILES([library/tries/Makefile])
-AC_CONFIG_FILES([library/yap2swi/Makefile])
 AC_CONFIG_FILES([LGPL/Makefile])
 AC_CONFIG_FILES([LGPL/clp/Makefile])
 AC_CONFIG_FILES([LGPL/swi_console/Makefile])
