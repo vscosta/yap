@@ -217,3 +217,5 @@
 #define Yap_PL_Argc Yap_global->pl_argc
 #define Yap_PL_Argv Yap_global->pl_argv
 
+#define Yap_HaltHooks Yap_global->yap_halt_hook
+

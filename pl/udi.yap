@@ -4,14 +4,14 @@
 *									 *
 *	Yap Prolog was developed at NCCUP - Universidade do Porto	 *
 *									 *
-* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-1997	 *
+* Copyright L.Damas, V.S.Costa and Universidade do Porto 1985-2010	 *
 *									 *
 **************************************************************************
 *									 *
-* File:		tabling.yap						 *
+* File:		udi.yap							 *
 * Last rev:	8/2/88							 *
 * mods:									 *
-* comments:	support tabling predicates				 *
+* comments:	support user defined indexing				 *
 *									 *
 *************************************************************************/
 

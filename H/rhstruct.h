@@ -263,8 +263,6 @@
 
   RestoreStreams();
 
-  RestoreHaltHooks();
-
 
 
   RestoreAliases();
@@ -302,3 +300,5 @@
   RestoreSWIAtoms();
 
 
+
+  RestoreSWIBlobs();

@@ -216,4 +216,6 @@ static void InitGlobal(void) {
   Yap_global->initialised_from_pl = FALSE;
   Yap_global->pl_argc = 0;
   Yap_global->pl_argv = NULL;
+
+  Yap_global->yap_halt_hook = NULL;
 }

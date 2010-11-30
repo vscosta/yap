@@ -55,6 +55,10 @@ typedef struct AtomEntryStruct
   union {
     char uStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
     wchar_t uWStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
+    struct {
+      size_t length;                   /* size of blob */
+      char data[MIN_ARRAY];	/* data           */
+    } blob;
   } rep;
 }
 AtomEntry;

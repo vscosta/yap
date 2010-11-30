@@ -263,8 +263,6 @@
 
   struct stream_desc  *yap_streams;
 
-  struct halt_hook  *yap_halt_hook;
-
   UInt  n_of_file_aliases;
   UInt  sz_of_file_aliases;
   struct AliasDescS  *file_aliases;
@@ -302,3 +300,5 @@
   Atom  swi_atoms[N_SWI_ATOMS];
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];
+
+  struct PL_blob_t  *swi_blobs;

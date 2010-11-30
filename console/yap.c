@@ -732,7 +732,7 @@ main (int argc, char **argv)
     exit(1);
   }
   /* Begin preprocessor code */
-  {
+  if (BootMode != YAP_BOOT_FROM_SAVED_STACKS) {
     // load the module
     YAP_Term mod_arg[1];
     mod_arg[0] = YAP_MkAtomTerm(YAP_LookupAtom("ypp"));
