@@ -1162,6 +1162,8 @@ typedef Int (*CPredicate5)(Int,Int,Int,Int,Int);
 typedef Int (*CPredicate6)(Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicate7)(Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int);
+typedef Int (*CPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int);
+typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
 static Int
@@ -1241,6 +1243,33 @@ execute_cargs(PredEntry *pe, CPredicate exec_code)
 		      Yap_InitSlot(Deref(ARG7)),
 		      Yap_InitSlot(Deref(ARG8))));
     }
+  case 9:
+    {
+      CPredicate9 code9 = (CPredicate9)exec_code;
+      return ((code9)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7)),
+		      Yap_InitSlot(Deref(ARG8)),
+		      Yap_InitSlot(Deref(ARG9))));
+    }
+  case 10:
+    {
+      CPredicate10 code10 = (CPredicate10)exec_code;
+      return ((code10)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7)),
+		      Yap_InitSlot(Deref(ARG8)),
+		      Yap_InitSlot(Deref(ARG9)),
+		      Yap_InitSlot(Deref(ARG10))));
+    }
   default:
     return(FALSE);
   }
@@ -1255,6 +1284,8 @@ typedef Int (*CBPredicate5)(Int,Int,Int,Int,Int,struct foreign_context *);
 typedef Int (*CBPredicate6)(Int,Int,Int,Int,Int,Int,struct foreign_context *);
 typedef Int (*CBPredicate7)(Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 typedef Int (*CBPredicate8)(Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
+typedef Int (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 
 static Int
 execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx)
@@ -1340,6 +1371,35 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
 		      Yap_InitSlot(Deref(ARG8)),
 		      ctx));
     }
+  case 9:
+    {
+      CBPredicate9 code9 = (CBPredicate9)exec_code;
+      return ((code9)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7)),
+		      Yap_InitSlot(Deref(ARG8)),
+		      Yap_InitSlot(Deref(ARG9)),
+		      ctx));
+    }
+  case 10:
+    {
+      CBPredicate10 code10 = (CBPredicate10)exec_code;
+      return ((code10)(Yap_InitSlot(Deref(ARG1)),
+		      Yap_InitSlot(Deref(ARG2)),
+		      Yap_InitSlot(Deref(ARG3)),
+		      Yap_InitSlot(Deref(ARG4)),
+		      Yap_InitSlot(Deref(ARG5)),
+		      Yap_InitSlot(Deref(ARG6)),
+		      Yap_InitSlot(Deref(ARG7)),
+		      Yap_InitSlot(Deref(ARG8)),
+		      Yap_InitSlot(Deref(ARG9)),
+		      Yap_InitSlot(Deref(ARG10)),
+		      ctx));
+    }
   default:
     return(FALSE);
   }
@@ -1375,7 +1435,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    
+
     ctx->control = FRG_FIRST_CALL;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     ctx->context = NULL;
