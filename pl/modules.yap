@@ -565,6 +565,7 @@ source_module(Mod) :-
 	call_cleanup(0,?,0),
 	call_residue(0,?),
 	call_residue_vars(0,?),
+	call_shared_object_function(:,+),
 	catch(0,?,0),
 	clause(:,?),
 	clause(:,?,?),
