@@ -117,10 +117,10 @@ FunctorToSWIFunctor(Functor at)
 static inline Functor
 SWIFunctorToFunctor(functor_t at)
 {
+  if ((CELL)(at) & 2 && ((CELL)at) < N_SWI_FUNCTORS*4+2)
+    return SWI_Functors[((CELL)at)/4];
   if (IsAtomTerm(at))
     return (Functor)at;
-  if ((CELL)(at) & 2)
-    return SWI_Functors[((CELL)at)/4];
   return (Functor)at;
 }
 
