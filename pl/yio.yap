@@ -1219,6 +1219,16 @@ prolog_to_os_filename(Prolog, OS) :-
 	system:swi_prolog_to_os_filename(Prolog, OS).
 
 
+expand_file_name(Exp, Matches) :-
+	'$undefined'(swi_expand_file_name(Exp, Matches), system),
+	'$current_module'(Old, system),
+	load_foreign_files([libplstream], [], initIO),
+	'$current_module'(system, Old),
+	fail.
+expand_file_name(Exp, Matches) :-
+	system:swi_expand_file_name(Exp, Matches).
+
+
 
 
 

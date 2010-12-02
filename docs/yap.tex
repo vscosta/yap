@@ -226,6 +226,7 @@ Subnodes of Library
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * UnDGraphs:: Undirected Graphs Using DGraphs
 * LAM:: LAM MPI
+* Block Diagram:: Block Diagrams of Prolog code
 
 
 Subnodes of Debugging
@@ -1980,6 +1981,46 @@ directories are the places where files specified in the form
 @cnindex prolog_file_name/2
 Unify @var{FullPath} with the absolute path YAP would use to consult
 file @var{Name}.
+
+@item prolog_to_os_filename(+@var{PrologPath},-@var{OsPath})
+@findex prolog_to_os_filename/2
+@snindex prolog_to_os_filename/2
+@cnindex prolog_to_os_filename/2
+
+This is an SWI-Prolog built-in. Converts between the internal Prolog
+pathname conventions and the operating-system pathname conventions. The
+internal conventions are Unix and this predicates is equivalent to =/2
+(unify) on Unix systems. On DOS systems it will change the
+directory-separator, limit the filename length map dots, except for the
+last one, onto underscores.
+
+@item expand_file_name(+@var{WildCard},-@var{List})
+@findex expand_file_name/2
+@snindex expand_file_name/2
+@cnindex expand_file_name/2
+
+This is an SWI-Prolog built-in. Unify @var{List} with a sorted list of
+files or directories matching @var{WildCard}. The normal Unix wildcard
+constructs @t{?}, @t{*}, @t{[ ... ]} and @t{@{...@}} are recognised. The
+interpretation of @t{@{...@}} is interpreted slightly different from the
+C shell (csh(1)). The comma separated argument can be arbitrary
+patterns, including @t{@{...@}} patterns. The empty pattern is legal as
+well: @t{@{.pl,@}} matches either @t{.pl} or the empty string.
+
+If the pattern contains wildcard characters, only existing files and
+directories are returned. Expanding a @emph{pattern'} without wildcard
+characters returns the argument, regardless on whether or not it exists.
+
+Before expanding wildcards, the construct $var is expanded to the value
+of the environment variable var and a possible leading ~ character is
+expanded to the user's home directory. In Windows, the home directory is
+determined as follows: if the environment variable @code{HOME} exists,
+this is used. If the variables @code{HOMEDRIVE} and @code{HOMEPATH}
+exist (Windows-NT), these are used. At initialisation, the system will
+set the environment variable @code{HOME} to point to the YAP home
+directory if neither @code{HOME} nor @code{HOMEPATH} and
+@code{HOMEDRIVE} are defined.
+
 
 @item public @var{P} [ISO extension]
 @findex public/1 (directive)
@@ -8494,6 +8535,7 @@ Library, Extensions, Built-ins, Top
 * Apply:: SWI-Compatible Apply library.
 * Association Lists:: Binary Tree Implementation of Association Lists.
 * AVL Trees:: Predicates to add and lookup balanced binary  trees.
+* Block Diagram:: Block Diagrams of Prolog code
 * Cleanup:: Call With registered Cleanup Calls
 * DGraphs:: Directed Graphs Implemented With Red-Black Trees
 * Heaps:: Labelled binary tree where the key of each node is less
@@ -12701,7 +12743,7 @@ Further discussions
 at @url{http://www.complang.tuwien.ac.at/ulrich/Prolog-inedit/ISO-Hiord}.
 
 
-@node LAM, , Lambda, Library
+@node LAM, Block Diagram, Lambda, Library
 @section LAM
 @cindex lam
 
@@ -12880,7 +12922,7 @@ are released.
 
 @end table
 
-@node Block Diagram, Library
+@node Block Diagram, , LAM, Library
 @section Block Diagram
 @cindex Block Diagram
 
