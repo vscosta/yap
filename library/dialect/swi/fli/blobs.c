@@ -85,11 +85,11 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
       return x->StrOfAE;
   }
   if ( len )
-    *len = x->rep.blob.length;
+    *len = x->rep.blob[0].length;
   if ( type )
     *type = RepBlobProp(x->PropsOfAE)->blob_t;
 
-  return x->rep.blob.data;
+  return x->rep.blob[0].data;
 }
 
 PL_EXPORT(void)
