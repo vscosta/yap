@@ -49,6 +49,7 @@
 
 extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 
+/* This is silly, but let's keep it like that for now */
 X_API Int
 YAP_PLArityOfSWIFunctor(functor_t f) {
   if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)

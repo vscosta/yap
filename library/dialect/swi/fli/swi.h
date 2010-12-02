@@ -114,6 +114,7 @@ FunctorToSWIFunctor(Functor at)
   return (functor_t)at;
 }
 
+/* This is silly, but let's keep it like that for now */
 static inline Functor
 SWIFunctorToFunctor(functor_t f)
 {
