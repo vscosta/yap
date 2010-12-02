@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-09 02:47:35 +0100 (Tue, 09 Nov 2010) $
-%  $Revision: 4991 $
+%  $Date: 2010-11-23 11:47:48 +0100 (Tue, 23 Nov 2010) $
+%  $Revision: 5027 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -314,7 +314,36 @@
 :- use_module('problog/flags').
 :- use_module('problog/print').
 :- use_module('problog/os').
-:- use_module('problog/tptree').
+:- use_module('problog/ptree', [init_ptree/1,
+                                        delete_ptree/1,
+                                        member_ptree/2,
+                                        enum_member_ptree/2,
+                                        insert_ptree/2,
+                                        delete_ptree/2,
+                                        edges_ptree/2,
+                                        count_ptree/2,
+                                        prune_check_ptree/2,
+                                        empty_ptree/1,
+                                        merge_ptree/2,
+                                        merge_ptree/3,
+                                        bdd_ptree/3,
+                                        bdd_struct_ptree/3,
+                                        bdd_ptree_map/4,
+                                        bdd_struct_ptree_map/4,
+                                        traverse_ptree/2,            %theo
+                                        print_ptree/1,               %theo
+                                        statistics_ptree/0,          %theo
+                                        print_nested_ptree/1,        %theo
+                                        trie_to_bdd_trie/5,          %theo
+                                        trie_to_bdd_struct_trie/5,
+                                        nested_trie_to_bdd_trie/5,   %theo
+                                        nested_trie_to_bdd_struct_trie/5,
+                                        ptree_decomposition/3,
+                                        ptree_decomposition_struct/3,
+                                        nested_ptree_to_BDD_script/3, %theo
+                                        nested_ptree_to_BDD_struct_script/3,
+                                        ptree_db_trie_opt_performed/3,
+                                        bdd_vars_script/1]).
 :- use_module('problog/tabling').
 :- use_module('problog/sampling').
 :- use_module('problog/intervals').
@@ -393,7 +422,7 @@
 
 :- initialization((
 	problog_define_flag(first_threshold, problog_flag_validate_indomain_0_1_open, 'starting threshold iterative deepening', 0.1, inference),
-	problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1e-30, inference, flags:last_threshold_handler),
+	problog_define_flag(last_threshold,  problog_flag_validate_indomain_0_1_open, 'stopping threshold iterative deepening', 1.0E-30, inference, flags:last_threshold_handler),
 	problog_define_flag(id_stepsize,     problog_flag_validate_indomain_0_1_close, 'threshold shrinking factor iterative deepening', 0.5, inference, flags:id_stepsize_handler)
 )).
 

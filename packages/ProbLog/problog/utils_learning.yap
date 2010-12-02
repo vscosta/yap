@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-20 18:06:47 +0200 (Wed, 20 Oct 2010) $
-%  $Revision: 4969 $
+%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
+%  $Revision: 5041 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -205,12 +205,13 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- module(utils_learning, [empty_bdd_directory/0,
-			   empty_output_directory/0]).
+			   empty_output_directory/0,
+			   create_known_values_file_name/2,
+			   create_bdd_file_name/3,
+			   create_bdd_input_file_name/2,
+			   create_bdd_output_file_name/4]).
 
 
-% load library modules
-:- use_module(library(lists), [append/3, member/2]).
-:- use_module(library(system), [delete_file/1, directory_files/2, file_exists/1]).
 
 % load our own modules
 :- use_module(os).
@@ -225,13 +226,10 @@
 empty_bdd_directory :-
 	problog_flag(bdd_directory,Path),
 	!,
-
-	atom_codes('query_', PF1),           % 'query_*'
-
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1]).
+	delete_file_pattern_silently(Path,'query*').
 empty_bdd_directory :-
 	throw(error(problog_flag_does_not_exist(bdd_directory))).
+
 
 %========================================================================
 %= 
@@ -245,41 +243,72 @@ empty_output_directory :-
 	concat_path_with_filename(Path,'log.dat',F1),
 	concat_path_with_filename(Path,'out.dat',F2),
 	
-	delete_file_silent(F1),
-	delete_file_silent(F2),
+	delete_file_silently(F1),
+	delete_file_silently(F2),
 
-	atom_codes('values_', PF1),           % 'values_*_q_*.dat'
-	atom_codes('factprobs_', PF2),        % 'factprobs_*.pl'
-	atom_codes('input_', PF3),            % 'input_*.pl'
-	atom_codes('trainpredictions_',PF4), % 'trainpredictions_*.pl'
-	atom_codes('testpredictions_',PF5),   % 'testpredictions_*.pl'
-	atom_codes('predictions_',PF6),       % 'predictions_*.pl'
-	directory_files(Path,List),
-	delete_files_with_matching_prefix(List,Path,[PF1,PF2,PF3,PF4,PF5,PF6]).
+	delete_file_pattern_silently(Path,'values_*'),
+	delete_file_pattern_silently(Path,'factprobs_*'),
+	delete_file_pattern_silently(Path,'input_*'),
+	delete_file_pattern_silently(Path,'trainpredictions_*'),
+	delete_file_pattern_silently(Path,'testpredictions_*'),
+	delete_file_pattern_silently(Path,'predictions_*').
 
 empty_output_directory :-
 	throw(error(problog_flag_does_not_exist(output_directory))).
 
 
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+create_known_values_file_name(QueryID,Absolute_File_Name) :-
+	problog_flag(bdd_directory,Path),
+	!,
+
+	atomic_concat(['query_',QueryID,'_known_values'],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_known_values_file_name(_,_) :-
+	throw(error(problog_flag_does_not_exist(bdd_directory))).
+
 
 %========================================================================
 %= 
 %= 
 %========================================================================
 
-delete_files_with_matching_prefix([],_,_).
-delete_files_with_matching_prefix([Name|T],Path,Prefixes) :-
-	atom_codes(Name,NameCode),
+create_bdd_file_name(QueryID,ClusterID,Absolute_File_Name) :-
+	problog_flag(bdd_directory,Path),
+	!,
 
-	(
-	 (member(Prefix,Prefixes), append(Prefix,_Suffix,NameCode))
-	->
-	 (
-	  concat_path_with_filename(Path,Name,F),
-	  delete_file_silent(F)
-	 );
-	 true
-	),
+	atomic_concat(['query_',QueryID,'_cluster_',ClusterID],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_bdd_file_name(_,_,_) :-
+	throw(error(problog_flag_does_not_exist(bdd_directory))).
 
-	delete_files_with_matching_prefix(T,Path,Prefixes).
+%========================================================================
+%= 
+%= 
+%========================================================================
 
+create_bdd_output_file_name(QueryID,ClusterID,Iteration,Absolute_File_Name) :-
+	problog_flag(output_directory,Path),
+	!,
+
+	atomic_concat(['values_',Iteration,'_query_',QueryID,'_cluster_',ClusterID],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_bdd_output_file_name(_,_,_,_) :-
+	throw(error(problog_flag_does_not_exist(output_directory))).
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+create_bdd_input_file_name(Iteration,Absolute_File_Name) :-
+	problog_flag(output_directory,Path),
+	!,
+
+	atomic_concat(['input_',Iteration,'.txt'],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_bdd_input_file_name(_,_) :-
+	throw(error(problog_flag_does_not_exist(output_directory))).

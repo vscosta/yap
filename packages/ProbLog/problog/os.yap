@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-06 12:56:13 +0200 (Wed, 06 Oct 2010) $
-%  $Revision: 4877 $
+%  $Date: 2010-11-29 10:58:04 +0100 (Mon, 29 Nov 2010) $
+%  $Revision: 5029 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -208,18 +208,18 @@
 % Collected OS depended instructions
 %%%%%%%%
 :- module(os, [set_problog_path/1,
-               problog_path/1,
-               convert_filename_to_working_path/2,
-               convert_filename_to_problog_path/2,
-               concat_path_with_filename/3,
-               concat_path_with_filename2/3,
-               split_path_file/3,
-               check_existance/1,
-               calc_md5/2]).
+	       problog_path/1,
+	       convert_filename_to_working_path/2,
+	       convert_filename_to_problog_path/2,
+	       concat_path_with_filename/3,
+	       concat_path_with_filename2/3,
+	       split_path_file/3,
+	       check_existance/1,
+	       calc_md5/2]).
 
 
 % load library modules
-:- use_module(library(system), [exec/3, file_exists/1]).
+:- use_module(library(system), [exec/3, file_exists/1,wait/2]).
 :- use_module(library(lists), [memberchk/2]).
 
 % load our own modules
@@ -228,9 +228,22 @@
 :- dynamic(problog_path/1).
 :- dynamic(problog_working_path/1).
 
+
+%========================================================================
+%=
+%=
+%=
+%========================================================================
+
 set_problog_path(Path):-
 	retractall(problog_path(_)),
 	assertz(problog_path(Path)).
+
+%========================================================================
+%=
+%=
+%=
+%========================================================================
 
 convert_filename_to_working_path(File_Name, Path):-
 	flag_get(dir, Dir),
@@ -240,22 +253,30 @@ convert_filename_to_problog_path(File_Name, Path):-
 	problog_path(Dir),
 	concat_path_with_filename(Dir, File_Name, Path).
 
+
+%========================================================================
+%=
+%=
+%=
+%========================================================================
+
 concat_path_with_filename(Path, File_Name, Result):-
-  nonvar(File_Name),
-  nonvar(Path),
+	nonvar(File_Name),
+	nonvar(Path),
+  
+				% make sure, that there is no path delimiter at the end
+	prolog_file_name(Path,Path_Absolute),
 
-  % make sure, that there is no path delimiter at the end
-  prolog_file_name(Path,Path_Absolute),
-
-  path_seperator(Path_Seperator),
-  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+	path_seperator(Path_Seperator),
+	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
 
 concat_path_with_filename2(Path, File_Name, Result):-
-  nonvar(File_Name),
-  nonvar(Path),
-  path_seperator(Path_Seperator),
-  (atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
-  atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+	nonvar(File_Name),
+	nonvar(Path),
+	path_seperator(Path_Seperator),
+	(atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
+	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+
 
 %========================================================================
 %= Calculate the MD5 checksum of +Filename by calling md5sum
@@ -275,10 +296,10 @@ calc_md5(Filename,MD5):-
 calc_md5_intern(Filename,Command,MD5) :-
 	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
 
-	atomic_concat([Command,' "',Filename,'"'],Call),  
+	atomic_concat([Command,' "',Filename,'"'],Call),
 
 	% execute the md5 command
-	exec(Call,[null,pipe(S),null],_PID),
+	exec(Call,[null,pipe(S),null],PID),
 	bb_put(calc_md5_temp,End-End),  % use difference list
 	bb_put(calc_md5_temp2,0),
 
@@ -308,28 +329,49 @@ calc_md5_intern(Filename,Command,MD5) :-
 	!,
 	
 	close(S),
+	wait(PID,_Status),
 	bb_delete(calc_md5_temp, FinalList-[]),
 	bb_delete(calc_md5_temp2,_),
 	atom_codes(MD5,FinalList).
-  
+
+
+%========================================================================
+%=
+%=
+%=
+%========================================================================
 
 path_seperator('\\'):-
    yap_flag(windows, true), !.
 path_seperator('/').
 
+
+%========================================================================
+%= 
+%= 
+%= 
+%========================================================================
+
 split_path_file(PathFile, Path, File):-
 	path_seperator(PathSeperator),
-	atomic_concat(Path, File, PathFile),
 	name(PathSeperator, [PathSeperatorName]),
+
+	atomic_concat(Path, File, PathFile),
 	name(File, FileName),
 	\+ memberchk(PathSeperatorName, FileName),
 	!.
-%	(Path = '' ; atomic_concat(_, PathSeperator, Path)).
+
+%========================================================================
+%= 
+%= 
+%= 
+%========================================================================
+
 
 check_existance(FileName):-
-  convert_filename_to_problog_path(FileName, Path),
-  catch(file_exists(Path), _, fail).
+	convert_filename_to_problog_path(FileName, Path),
+	catch(file_exists(Path), _, fail).
 check_existance(FileName):-
-  problog_path(PD),
-  write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
-  write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
+	problog_path(PD),
+	write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
+	write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
