@@ -53,6 +53,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/version_control.yap \
 	$(srcdir)/problog/nestedtries.yap \
 	$(srcdir)/problog/utils.yap \
+	$(srcdir)/problog/ad_converter.yap \
 	$(srcdir)/problog/variables.yap
 
 PROBLOG_EXAMPLES = \
