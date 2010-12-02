@@ -148,11 +148,11 @@ p_close_shared_object(void) {
   void *handle;
 
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    Yap_Error(INSTANTIATION_ERROR,t,"close_shared_object/1");
     return FALSE;
   } 
   if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t,"open_shared_object/3");
+    Yap_Error(TYPE_ERROR_INTEGER,t,"close_shared_object/1");
     return FALSE;
   }
   handle = (char *)IntegerOfTerm(t);
@@ -164,27 +164,48 @@ static Int
 p_call_shared_object_function(void) {
   Term t = Deref(ARG1);
   Term tfunc = Deref(ARG2);
+  Term tmod;
   void *handle;
+  Term OldCurrentModule = CurrentModule;
+  Int res;
 
+  tmod = CurrentModule;
+ restart:
   if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    Yap_Error(INSTANTIATION_ERROR,t,"call_shared_object_function/2");
     return FALSE;
-  } 
-  if (!IsIntegerTerm(t)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t,"open_shared_object/3");
+  } else if (IsApplTerm(t)) {
+    Functor    fun = FunctorOfTerm(t);
+    if (fun == FunctorModule) {
+      tmod = ArgOfTerm(1, t);
+      if (IsVarTerm(tmod) ) {
+	Yap_Error(INSTANTIATION_ERROR,t,"call_shared_object_function/2");
+	return FALSE;
+      }
+      if (!IsAtomTerm(tmod) ) {
+	Yap_Error(TYPE_ERROR_ATOM,ARG1,"call_shared_object_function/2");
+	return FALSE;
+      }
+      t = ArgOfTerm(2, t);
+      goto restart;
+    }
+  } else if (!IsIntegerTerm(t)) {
+    Yap_Error(TYPE_ERROR_INTEGER,t,"call_shared_object_function/2");
     return FALSE;
   }
   handle = (void *)IntegerOfTerm(t);
   if (IsVarTerm(tfunc)) {
-    Yap_Error(INSTANTIATION_ERROR,t,"open_shared_object/3");
+    Yap_Error(INSTANTIATION_ERROR,t,"call_shared_object_function/2");
     return FALSE;
   } 
   if (!IsAtomTerm(tfunc)) {
-    Yap_Error(TYPE_ERROR_ATOM,t,"open_shared_object/3");
+    Yap_Error(TYPE_ERROR_ATOM,t,"call_shared_object_function/2/3");
     return FALSE;
   }
- 
-  return Yap_CallForeignFile(handle, RepAtom(AtomOfTerm(tfunc))->StrOfAE);
+  CurrentModule = tmod;
+  res = Yap_CallForeignFile(handle, RepAtom(AtomOfTerm(tfunc))->StrOfAE);
+  CurrentModule = OldCurrentModule;
+  return res;
 }
 
 static Int

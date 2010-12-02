@@ -50,12 +50,12 @@
 extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 
 X_API Int
-YAP_PLArityOfSWIFunctor(functor_t at) {
-  if (IsAtomTerm(at))
+YAP_PLArityOfSWIFunctor(functor_t f) {
+  if (IsAtomTerm(f))
     return 0;
-  if ((CELL)(at) & 2)
-    return ArityOfFunctor(SWI_Functors[((CELL)at)/4]);
-  return ArityOfFunctor((Functor)at);
+  if ((CELL)f < N_SWI_FUNCTORS*(LowTagBits+1))
+    return ArityOfFunctor(SWI_Functors[(CELL)f/(LowTagBits+1)]);
+  return ArityOfFunctor((Functor)f);
 }
 
 void
@@ -64,10 +64,10 @@ Yap_InitSWIHash(void)
   int i, j;
   memset(SWI_ReverseHash, 0, N_SWI_HASH*sizeof(swi_rev_hash));
   for (i=0; i < N_SWI_ATOMS; i++) {
-    add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
+    add_to_hash(i, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash((((CELL)(j))*4+2), (ADDR)SWI_Functors[j]);
+    add_to_hash(j, (ADDR)SWI_Functors[j]);
   }
 }
 
@@ -1546,7 +1546,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 {
   Atom catom;
   YAP_Term cterm;
-  char *buf = (char *)YAP_AllocSpaceFromYap(len+1);
+  char *buf = (char *)malloc(len+1);
 
   if (!buf)
     return FALSE;

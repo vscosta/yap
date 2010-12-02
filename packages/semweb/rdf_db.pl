@@ -1215,8 +1215,8 @@ rdf_load_stream(triples, Stream, Options) :- !,
 %%	report_loaded(+Action, +Source, +DB, +Triples, +StartCPU, +Options)
 
 report_loaded(none, _, _, _, _, _) :- !.
-report_loaded(Action, Source, DB, Triples, T0, Options) :-
-	statistics(cputime, T1),
+report_loaded(Action, Source, DB, Triples, T0._, Options) :-
+	statistics(cputime, T1._),
 	Time is T1 - T0,
 	(   option(silent(true), Options)
 	->  Level = silent
@@ -1302,7 +1302,7 @@ modified_graph(SourceURL, Graph) :-
 %	Save triples belonging to DB in the file Cache.
 
 save_cache(DB, Cache) :-
-	catch(open(Cache, write, CacheStream, [type(binary)]), _, fail), !,
+	catch(system:swi_open(Cache, write, CacheStream, [type(binary)]), _, fail), !,
 	call_cleanup(rdf_save_db_(CacheStream, DB),
 		     close(CacheStream)).
 

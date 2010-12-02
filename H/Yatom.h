@@ -1604,3 +1604,4 @@ PredPropByAtom (Atom at, Term cur_mod)
 #endif
 
 #endif
+

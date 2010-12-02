@@ -9562,7 +9562,6 @@ mkdir -p  library/regex
 mkdir -p  library/system
 mkdir -p  library/tries
 mkdir -p  library/rltree
-mkdir -p  library/yap2swi
 mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
 mkdir -p  GPL
@@ -9619,8 +9618,6 @@ ac_config_files="$ac_config_files library/rltree/Makefile"
 ac_config_files="$ac_config_files library/system/Makefile"
 
 ac_config_files="$ac_config_files library/tries/Makefile"
-
-ac_config_files="$ac_config_files library/yap2swi/Makefile"
 
 ac_config_files="$ac_config_files LGPL/Makefile"
 
@@ -10404,7 +10401,6 @@ do
     "library/rltree/Makefile") CONFIG_FILES="$CONFIG_FILES library/rltree/Makefile" ;;
     "library/system/Makefile") CONFIG_FILES="$CONFIG_FILES library/system/Makefile" ;;
     "library/tries/Makefile") CONFIG_FILES="$CONFIG_FILES library/tries/Makefile" ;;
-    "library/yap2swi/Makefile") CONFIG_FILES="$CONFIG_FILES library/yap2swi/Makefile" ;;
     "LGPL/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/Makefile" ;;
     "LGPL/clp/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/clp/Makefile" ;;
     "LGPL/swi_console/Makefile") CONFIG_FILES="$CONFIG_FILES LGPL/swi_console/Makefile" ;;
