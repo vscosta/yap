@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-20 18:06:47 +0200 (Wed, 20 Oct 2010) $
-%  $Revision: 4969 $
+%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
+%  $Revision: -1 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -204,22 +204,54 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(utils, [delete_file_silent/1,
+:- module(utils, [delete_file_silently/1,
+		  delete_files_silently/1,
+		  delete_file_pattern_silently/2,
 		  variable_in_term_exactly_once/2,
-		  slice_n/4]).
+		  slice_n/4,
+		  sorted_overlap_test/2,
+		  prefix_bdd_file_with_header/4,
+		  split_list/3]).
 
-:- use_module(library(system), [delete_file/1, file_exists/1]).
+:- use_module(library(system), [delete_file/1]).
+
+% load swi library, at some point vitor will make swi_expand_file_name/2 a built-in
+:- load_foreign_files([libplstream], [], initIO).
+
+% load our own modules
+:- use_module(os).
+
 
 %========================================================================
 %= 
 %= 
 %========================================================================
 
-delete_file_silent(File) :-
-	file_exists(File),
+delete_file_silently(File) :-
 	delete_file(File),
 	!.
-delete_file_silent(_).
+delete_file_silently(_).
+
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+delete_files_silently([]).
+delete_files_silently([H|T]) :-
+	delete_file_silently(H),
+	delete_files_silently(T).
+
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+delete_file_pattern_silently(Path,Pattern) :-
+	concat_path_with_filename(Path,Pattern,AbsolutePattern),
+	swi_expand_file_name(AbsolutePattern,Files),
+
+	delete_files_silently(Files).
 
 %========================================================================
 %= Split a list into the first n elements and the tail
@@ -234,7 +266,7 @@ slice_n([H|T],N,[H|T2],T3) :-
 	!,
 	N2 is N-1,
 	slice_n(T,N2,T2,T3).
-slice_n(L,_,[],L).
+slice_n(L,0,[],L).
 
 %========================================================================
 %= succeeds if the variable V appears exactly once in the term T
@@ -255,3 +287,66 @@ var_memberchk_none([H|T],V) :-
 	var_memberchk_none(T,V).
 var_memberchk_none([],_).
 
+%========================================================================
+%= sorted_overlap_test(+L1,+L2)
+%= L1 and L2 are ground sorted lists
+%= the predicate is true if there is an element X both appearing in L1 and L2
+%========================================================================
+
+sorted_overlap_test([H|_],[H|_]) :-
+	!.
+sorted_overlap_test([H1|T1],[H2|T2]) :-
+	H1 @> H2,
+	!,
+	sorted_overlap_test([H1|T1],T2).
+sorted_overlap_test([_|T1],[H2|T2]) :-
+	sorted_overlap_test(T1,[H2|T2]).
+
+%========================================================================
+%= TmpFile is the file name that contains the "body" of a SimpleCUDD
+%= script file. This predicate creates a new file BDD_File_Name that
+%= starts with the right header and contains the body. The body file
+%= is deleted afterwards.
+%=
+%= prefix_bdd_file_with_header(+BDD_File_Name,+VarCount,+IntermediateSteps,+TmpFile)
+%========================================================================
+
+prefix_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
+	open(BDD_File_Name,write,H),
+	% this is the header of the BDD script for problogbdd
+	format(H, '@BDD1~n~q~n0~n~q~n',[VarCount,IntermediateSteps]),
+
+	% append the content of the file TmpFile
+	open(TmpFile,read,H2),
+
+	(
+	 repeat,
+	 get_byte(H2,C),
+	 put_byte(H,C),
+	 at_end_of_stream(H2),
+	 !
+	),
+	close(H2),
+	
+	close(H),
+	delete_file_silently(TmpFile).
+
+
+%========================================================================
+%=
+%=
+%=
+%========================================================================
+
+
+split_list([],[],[]).
+split_list([H|T],L1,L2) :-
+	length([H|T],Len),
+	Len1 is integer(Len/2+0.5),
+	split_list_intern(Len1,[H|T],L1,L2).
+
+split_list_intern(0,L,[],L).
+split_list_intern(N,[H|T],[H|T1],L) :-
+	N>0,
+	N2 is N-1,
+	split_list_intern(N2,T,T1,L).

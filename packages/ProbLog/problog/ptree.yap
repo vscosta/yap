@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-03 19:08:13 +0100 (Wed, 03 Nov 2010) $
-%  $Revision: 4984 $
+%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
+%  $Revision: 5041 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -483,12 +483,11 @@ nested_ptree_to_BDD_struct_script(Trie, BDDFileName, Variables):-
      true;
      VarCNT = 0
     ),
-    create_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
-    delete_file_silent(TmpFile1),
+    prefix_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
     cleanup_BDD_generation
    );(
     close(BDDS),
-    delete_file_silent(TmpFile1),
+    delete_file_silently(TmpFile1),
     cleanup_BDD_generation,
     fail
    )
@@ -610,8 +609,7 @@ ptree_decomposition_struct(Trie, BDDFileName, Variables) :-
     write('L1'), nl
   ),
   told,
-  create_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1),
-  delete_file_silent(TmpFile1).
+  prefix_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % write BDD info for given ptree to file
@@ -1113,15 +1111,14 @@ nested_ptree_to_BDD_script(Trie, BDDFileName, VarFileName):-
      true;
      VarCNT = 0
     ),
-    create_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
-    delete_file_silent(TmpFile1),
+    prefix_bdd_file_with_header(BDDFileName,VarCNT,InterCNT,TmpFile1),
     open(VarFileName, 'write', VarStream),
     bddvars_to_script(Vars, VarStream),
     close(VarStream),
     cleanup_BDD_generation
   ;
     close(BDDS),
-    delete_file_silent(TmpFile1),
+    delete_file_silently(TmpFile1),
     cleanup_BDD_generation,
     fail
   ).
@@ -1853,8 +1850,7 @@ ptree_decomposition(Trie, BDDFileName, VarFileName) :-
     write('L1'), nl
   ),
   told,
-  create_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1),
-  delete_file_silent(TmpFile1).
+  prefix_bdd_file_with_header(BDDFileName,VarCnt,LCnt,TmpFile1).
 
 get_next_inter_step(I):-
   nb_getval(next_inter_step, I),
@@ -2040,24 +2036,3 @@ mark_deref(DB_Trie):-
   ),
   fail.
 mark_deref(_).
-
-% end of Theo
-
-create_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
-	open(BDD_File_Name,write,H),
-	% this is the header of the BDD script for problogbdd
-	format(H, '@BDD1~n~q~n0~n~q~n',[VarCount,IntermediateSteps]),
-
-	% append the content of the file TmpFile
-	open(TmpFile,read,H2),
-
-	(
-	 repeat,
-	 get_byte(H2,C),
-	 put_byte(H,C),
-	 at_end_of_stream(H2),
-	 !
-	),
-	close(H2),
-	
-	close(H).

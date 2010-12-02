@@ -83,15 +83,15 @@ AtomToSWIAtom(Atom at)
 {
   atom_t ats;
   if ((ats = in_hash((ADDR)at)))
-    return ats;
+    return (atom_t)((CELL)ats*2+1);
   return (atom_t)at;
 }
 
 static inline Atom
 SWIAtomToAtom(atom_t at)
 {
-  if ((CELL)at & 1)
-    return SWI_Atoms[at>>1];
+  if ((CELL)at < N_SWI_ATOMS*(LowTagBits+1))
+    return SWI_Atoms[((CELL)at)/2];
   return (Atom)at;
 }
 
@@ -110,17 +110,15 @@ FunctorToSWIFunctor(Functor at)
 {
   atom_t ats;
   if ((ats = in_hash((ADDR)at)))
-    return (functor_t)ats;
+    return (functor_t)((CELL)ats*4+2);
   return (functor_t)at;
 }
 
 static inline Functor
-SWIFunctorToFunctor(functor_t at)
+SWIFunctorToFunctor(functor_t f)
 {
-  if ((CELL)(at) & 2 && ((CELL)at) < N_SWI_FUNCTORS*4+2)
-    return SWI_Functors[((CELL)at)/4];
-  if (IsAtomTerm(at))
-    return (Functor)at;
-  return (Functor)at;
+  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+    return SWI_Functors[((CELL)f)/4];
+  return (Functor)f;
 }
 

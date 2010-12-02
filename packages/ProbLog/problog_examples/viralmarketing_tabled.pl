@@ -8,7 +8,7 @@
 
 % The viral marketing example consists of a social network of friend relations. You have to decido which persons to market. Sending marketing has a cost of 2, but might cause people to buy your product, giving you a profit of 5. When someone buys the product, it becomes more likely that his friends also buy the product.
 
-:- use_module('../dtproblog').
+:- use_module(library(dtproblog)).
 
 % Decisions
 ? :: marketed(P) :- person(P).
