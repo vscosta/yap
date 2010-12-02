@@ -49,13 +49,14 @@
 
 extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 
+/* This is silly, but let's keep it like that for now */
 X_API Int
-YAP_PLArityOfSWIFunctor(functor_t at) {
-  if (IsAtomTerm(at))
+YAP_PLArityOfSWIFunctor(functor_t f) {
+  if ((CELL)(f) & 2 && ((CELL)f) < N_SWI_FUNCTORS*4+2)
+    return ArityOfFunctor(SWI_Functors[(CELL)f/4]);
+  if (IsAtomTerm(f))
     return 0;
-  if ((CELL)(at) & 2)
-    return ArityOfFunctor(SWI_Functors[((CELL)at)/4]);
-  return ArityOfFunctor((Functor)at);
+  return ArityOfFunctor((Functor)f);
 }
 
 void
@@ -64,10 +65,10 @@ Yap_InitSWIHash(void)
   int i, j;
   memset(SWI_ReverseHash, 0, N_SWI_HASH*sizeof(swi_rev_hash));
   for (i=0; i < N_SWI_ATOMS; i++) {
-    add_to_hash(i*2+1, (ADDR)SWI_Atoms[i]);
+    add_to_hash(i, (ADDR)SWI_Atoms[i]);
   }
   for (j=0; j < N_SWI_FUNCTORS; j++) {
-    add_to_hash((((CELL)(j))*4+2), (ADDR)SWI_Functors[j]);
+    add_to_hash(j, (ADDR)SWI_Functors[j]);
   }
 }
 

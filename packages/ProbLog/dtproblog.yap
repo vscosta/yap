@@ -304,7 +304,7 @@
 :- use_module('problog/os', [convert_filename_to_working_path/2,
                              convert_filename_to_problog_path/2]).
 
-:- use_module('problog/tptree', [delete_ptree/1]).
+:- use_module('problog/ptree', [delete_ptree/1]).
 
 :- use_module('problog/tabling', [clear_tabling/0]).
 

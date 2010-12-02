@@ -27,6 +27,11 @@
 
 #include <wchar.h>
 
+typedef    struct atom_blob {
+  size_t length;
+  char data[MIN_ARRAY];
+} atom_blob_t;
+
 /*********  operations for atoms ****************************************/
 
 /*    Atoms are assumed to be uniquely represented by an OFFSET and to have
@@ -55,10 +60,7 @@ typedef struct AtomEntryStruct
   union {
     char uStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
     wchar_t uWStrOfAE[MIN_ARRAY];	/* representation of atom as a string           */
-    struct {
-      size_t length;                   /* size of blob */
-      char data[MIN_ARRAY];	/* data           */
-    } blob;
+    struct atom_blob blob[MIN_ARRAY];
   } rep;
 }
 AtomEntry;

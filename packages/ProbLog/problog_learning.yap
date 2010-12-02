@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-10-20 18:06:47 +0200 (Wed, 20 Oct 2010) $
-%  $Revision: 4969 $
+%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
+%  $Revision: 5041 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -770,7 +770,7 @@ update_values :-
 	% start write current probabilities to file
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	bdd_input_file(Probabilities_File),
-	delete_file_silent(Probabilities_File),
+	delete_file_silently(Probabilities_File),
 
 	open(Probabilities_File,'write',Handle),
 
