@@ -6,7 +6,7 @@
 % $Id: office.pl 4970 2010-10-21 08:47:36Z bernd $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../problog').
+:- use_module(library(problog)).
 
 (W,gaussian(2,1)) :: width(W).
 (L,gaussian(9,3)) :: length(L).

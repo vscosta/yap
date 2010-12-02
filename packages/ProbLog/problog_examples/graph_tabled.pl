@@ -6,7 +6,7 @@
 % $Id: graph_tabled.pl 4875 2010-10-05 15:28:35Z theo $
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- use_module('../problog').
+:- use_module(library(problog)).
 
 % New trie method ensures Probibilistic Cycle Handling needed for tabling that handles loops
 :- set_problog_flag(use_db_trie, true).
