@@ -36,6 +36,7 @@ CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../
 MKINDEX=true
 NETLIBS=@CLIB_NETLIBS@
 CRYPTLIBS=@CLIB_CRYPTLIBS@
+PTHREADLIBS=@CLIB_PTHREADS@
 
 LD=@DO_SECOND_LD@	@SHLIB_LD@
 LDFLAGS=@EXTRA_LIBS_FOR_SWIDLLS@
@@ -127,17 +128,17 @@ random.@SO@:	$(RANDOMOBJ)
 unix.@SO@:	$(UNXOBJ)
 		$(LD) $(LDFLAGS) -o $@ $(UNXOBJ)
 socket.@SO@:	$(SOCKOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(SOCKOBJ) $(NETLIBS)
+		$(LD) $(LDFLAGS) -o $@ $(SOCKOBJ) $(NETLIBS) $(PTHREADLIBS)
 cgi.@SO@:	$(CGIOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(CGIOBJ)
+		$(LD) $(LDFLAGS) -o $@ $(CGIOBJ) $(PTHREADLIBS)
 crypt.@SO@:	$(CRYPTOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(CRYPTOBJ) $(CRYPTLIBS)
+		$(LD) $(LDFLAGS) -o $@ $(CRYPTOBJ) $(CRYPTLIBS) $(PTHREADLIBS)
 memfile.@SO@:	$(MEMOBJ)
 		$(LD) $(LDFLAGS) -o $@ $(MEMOBJ) $(LIBS)
 mime.@SO@:	$(MIMEOBJ) $(MIMELIBS)
 		$(LD) $(LDFLAGS) -o $@ $(MIMEOBJ) $(MIMELIBS)
 time.@SO@:	$(TIMEOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(TIMEOBJ) $(LIBS)
+		$(LD) $(LDFLAGS) -o $@ $(TIMEOBJ) $(LIBS) $(PTHREADLIBS)
 files.@SO@:	$(FILESOBJ)
 		$(LD) $(LDFLAGS) -o $@ $(FILESOBJ) $(LIBS)
 rlimit.@SO@:	$(RLIMITOBJ)
@@ -151,7 +152,7 @@ streaminfo.@SO@: $(STREAMINFOOBJ)
 sha4pl.@SO@:	$(SHAOBJ)
 		$(LD) $(LDFLAGS) -o $@ $(SHAOBJ)
 uri.@SO@:	$(URIOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(URIOBJ)
+		$(LD) $(LDFLAGS) -o $@ $(URIOBJ) $(PTHREADLIBS)
 
 socket.o:	$(srcdir)/socket.c $(srcdir)/sockcommon.c
 
