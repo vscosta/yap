@@ -700,6 +700,7 @@ abolish_module(_).
 	'$conj_has_cuts'(G,DCP,NG,OK), OK == ok, !.
 '$clean_cuts'(G,G).
 
+'$conj_has_cuts'(V,_,V, _) :- var(V), !.
 '$conj_has_cuts'(!,DCP,'$$cut_by'(DCP), ok) :- !. 
 '$conj_has_cuts'((G1,G2),DCP,(NG1,NG2), OK) :- !,
 	'$conj_has_cuts'(G1, DCP, NG1, OK),
