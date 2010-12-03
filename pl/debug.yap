@@ -504,16 +504,8 @@ debugging :-
 	( '$do_spy'(Cl, M, CP, CalledFromDebugger) ; InRedo = true ).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$undefined'(G, M), !,
-	(
-	 recorded('$import','$import'(NM,M,Goal,G,_,_),_)
-	->
-	 '$spycall'(Goal, NM, CalledFromDebugger, InRedo)
-	;
-	'$enter_undefp',
-	 '$find_undefp_handler'(G,M,Goal,NM)
-	->
-	 '$spycall'(Goal, NM, CalledFromDebugger, InRedo)
-	).
+	'$find_goal_definition'(M, G, NM, Goal),
+	'$spycall'(Goal, NM, CalledFromDebugger, InRedo).
 '$spycall'(G, M, _, InRedo) :-
 	% I lost control here.
 	CP is '$last_choice_pt',
