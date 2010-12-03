@@ -1835,6 +1835,8 @@ AC_CHECK_FUNC(gethostent, [], [
                       "Define if you have the nsl library (-lnsl)."))])
 fi
 
+AC_CHECK_LIB(pthread, pthread_create,
+                      [CLIB_PTHREADS="-lpthread"],[CLIB_PTHREADS=""])
 
 oldlibs="$LIBS"
 AC_CHECK_LIB(crypt, crypt)
@@ -1842,6 +1844,7 @@ CLIB_CRYPTLIBS="$LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$oldlibs"
 
+AC_SUBST(CLIB_PTHREADS)
 AC_SUBST(CLIB_TARGETS)
 AC_SUBST(CLIB_PLTARGETS)
 AC_SUBST(CLIB_NETLIBS)
