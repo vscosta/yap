@@ -957,6 +957,10 @@ not(G) :-    \+ '$execute'(G).
 
 % Called by the abstract machine, if no clauses exist for a predicate
 '$undefp'([M|G]) :-
+	'$find_goal_definition'(M, G, NM, NG),
+	'$execute0'(NG, NM).
+
+'$find_goal_definition'(M, G, NM, NG) :-
 	% make sure we do not loop on undefined predicates
         % for undefined_predicates.
 	'$enter_undefp',
@@ -965,20 +969,19 @@ not(G) :-    \+ '$execute'(G).
 	->
 	 '$exit_undefp'
 	;
-	 once('$find_undefp_handler'(G,M,Goal,NM))
+	 once('$find_undefp_handler'(G, M, Goal, NM))
 	),
 	!,
 	Goal \= fail,
-	'$complete_goal'(M, Goal, NM, G).
+	'$complete_goal'(M, Goal, NM, G, NG).
 
-'$complete_goal'(M, G, CurMod, G0) :-
+'$complete_goal'(M, G, CurMod, G0, NG) :-
 	  (
 	   '$is_metapredicate'(G,CurMod)
 	  ->
-	   '$meta_expansion'(G, CurMod, M, M, NG,[]) ->
-	   '$execute0'(NG, CurMod)
+	   '$meta_expansion'(G, CurMod, M, M, NG,[])
 	  ;
-	   '$execute0'(G, CurMod)
+	   NG = G
 	  ).
 
 '$find_undefp_handler'(G,M,NG,user) :-
