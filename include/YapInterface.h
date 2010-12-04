@@ -435,6 +435,9 @@ extern X_API void PROTO(YAP_SlotsToArgs,(int, YAP_Int));
 /*  void  YAP_Throw()  */
 extern X_API void PROTO(YAP_Throw,(YAP_Term));
 
+/*  void  YAP_AsyncThrow()  */
+extern X_API void PROTO(YAP_AsyncThrow,(YAP_Term));
+
 /*  int  YAP_LookupModule()  */
 #define YAP_LookupModule(T)  (T)
 

@@ -1511,7 +1511,10 @@ JumpToEnv(Term t) {
 	EX = BallTerm;
 	BallTerm = NULL;
 	P = (yamop *)FAILCODE;
-	Yap_signal(YAP_FAIL_SIGNAL);
+	/* make sure failure will be seen at next port */
+	if (Yap_PrologMode & AsyncIntMode) {
+	  Yap_signal(YAP_FAIL_SIGNAL);
+	}
 	HB = B->cp_h;
 	return TRUE;
       }
@@ -1553,7 +1556,9 @@ JumpToEnv(Term t) {
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  Yap_signal(YAP_FAIL_SIGNAL);
+  if (Yap_PrologMode & AsyncIntMode) {
+    Yap_signal(YAP_FAIL_SIGNAL);
+  }
   P = (yamop *)FAILCODE;
   HB = B->cp_h;
   /* try to recover space */

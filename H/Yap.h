@@ -1187,6 +1187,7 @@ typedef enum
   UserCCallMode = 0x4000,	/* In User C-call Code */
   MallocMode = 0x8000,		/* Doing malloc, realloc, free */
   SystemMode = 0x10000,		/* in system mode */
+  AsyncIntMode = 0x20000	/* YAP has just been interrupted from the outside */
 } prolog_exec_mode;
 
 extern Int Yap_PrologMode;

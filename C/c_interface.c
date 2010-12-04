@@ -480,6 +480,7 @@ X_API int     STD_PROTO(YAP_RecoverSlots,(int));
 X_API Int     STD_PROTO(YAP_ArgsToSlots,(int));
 X_API void    STD_PROTO(YAP_SlotsToArgs,(int, Int));
 X_API void    STD_PROTO(YAP_Throw,(Term));
+X_API void    STD_PROTO(YAP_AsyncThrow,(Term));
 X_API void    STD_PROTO(YAP_Halt,(int));
 X_API Term   *STD_PROTO(YAP_TopOfLocalStack,(void));
 X_API void   *STD_PROTO(YAP_Predicate,(Atom,UInt,Term));
@@ -2830,6 +2831,16 @@ YAP_Throw(Term t)
 {
   BACKUP_MACHINE_REGS();
   Yap_JumpToEnv(t);
+  RECOVER_MACHINE_REGS();
+}
+
+X_API void
+YAP_AsyncThrow(Term t)
+{
+  BACKUP_MACHINE_REGS();
+  Yap_PrologMode |= AsyncIntMode;
+  Yap_JumpToEnv(t);
+  Yap_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }
 

@@ -455,7 +455,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     where = TermNil;
     Yap_PrologMode &= ~AbortMode;
     Yap_PrologMode |= InErrorMode;
-    Yap_signal(YAP_FAIL_SIGNAL);
+    /* make sure failure will be seen at next port */
+    if (Yap_PrologMode & AsyncIntMode)
+      Yap_signal(YAP_FAIL_SIGNAL);
     P = FAILCODE;
   } else {
     if (IsVarTerm(where)) {
