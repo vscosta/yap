@@ -1545,6 +1545,7 @@ void (*handler)(int);
 
 static int
 InteractSIGINT(int ch) {
+  Yap_PrologMode |= AsyncIntMode;
   switch (ch) {
   case 'a':
     /* abort computation */
@@ -1554,40 +1555,49 @@ InteractSIGINT(int ch) {
       Yap_Error(PURE_ABORT, TermNil, "abort from console");
       /* in case someone mangles the P register */
     }
+    Yap_PrologMode &= ~AsyncIntMode;
     return -1;
   case 'b':
     /* continue */
     Yap_signal (YAP_BREAK_SIGNAL);
+    Yap_PrologMode &= ~AsyncIntMode;
     return 1;
   case 'c':
     /* continue */
     return 1;
   case 'd':
     Yap_signal (YAP_DEBUG_SIGNAL);
+    Yap_PrologMode &= ~AsyncIntMode;
     /* enter debug mode */
     return 1;
   case 'e':
     /* exit */
+    Yap_PrologMode &= ~AsyncIntMode;
     Yap_exit(0);
     return -1;
   case 'g':
     /* exit */
     Yap_signal (YAP_STACK_DUMP_SIGNAL);
+    Yap_PrologMode &= ~AsyncIntMode;
     return -1;
   case 't':
     /* start tracing */
     Yap_signal (YAP_TRACE_SIGNAL);
+    Yap_PrologMode &= ~AsyncIntMode;
     return 1;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
+    Yap_PrologMode &= ~AsyncIntMode;
     return 1;
 #endif
   case 's':
     /* show some statistics */
     Yap_signal (YAP_STATISTICS_SIGNAL);
+    Yap_PrologMode &= ~AsyncIntMode;
     return 1;
   case EOF:
+    Yap_PrologMode &= ~AsyncIntMode;
     return(0);
     break;
   case 'h':
@@ -1598,6 +1608,7 @@ InteractSIGINT(int ch) {
     fprintf(Yap_stderr, "  a for abort\n  c for continue\n  d for debug\n");
     fprintf(Yap_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
     fprintf(Yap_stderr, "  b for break\n");
+    Yap_PrologMode &= ~AsyncIntMode;
     return(0);
   }
 }
@@ -2987,8 +2998,16 @@ p_first_signal(void)
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStatistics));
   }
+  if (ActiveSignals & YAP_FAIL_SIGNAL) {
+    ActiveSignals &= ~YAP_FAIL_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
+#endif  
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(AtomFail));
+  }
+#ifdef THREADS
+  pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
   UNLOCK(SignalLock);
   return FALSE;
@@ -3039,6 +3058,9 @@ p_continue_signals(void)
   }
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     Yap_signal(YAP_STATISTICS_SIGNAL);
+  }
+  if (ActiveSignals & YAP_FAIL_SIGNAL) {
+    Yap_signal(YAP_FAIL_SIGNAL);
   }
 #ifdef THREADS
   pthread_mutex_unlock(&(MY_ThreadHandle.tlock));

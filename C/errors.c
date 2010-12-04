@@ -455,6 +455,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     where = TermNil;
     Yap_PrologMode &= ~AbortMode;
     Yap_PrologMode |= InErrorMode;
+    /* make sure failure will be seen at next port */
+    if (Yap_PrologMode & AsyncIntMode)
+      Yap_signal(YAP_FAIL_SIGNAL);
     P = FAILCODE;
   } else {
     if (IsVarTerm(where)) {
@@ -1874,7 +1877,6 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     } else {
       if (type == PURE_ABORT) {
 	Yap_JumpToEnv(MkAtomTerm(AtomDAbort));
-	CreepFlag = LCL0-ASP;
       } else
 	Yap_JumpToEnv(Yap_MkApplTerm(fun, 2, nt));
       P = (yamop *)FAILCODE;

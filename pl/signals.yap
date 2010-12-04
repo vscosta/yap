@@ -89,6 +89,9 @@
 	'$continue_signals',
 	statistics,
 	'$execute0'(G,M).
+% the next one should never be called...
+'$do_signal'(fail, [_|_]) :-
+	fail.
 '$do_signal'(sig_stack_dump, [M|G]) :-
 	'$continue_signals',
 	'$stack_dump',
