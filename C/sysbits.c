@@ -2987,8 +2987,16 @@ p_first_signal(void)
     UNLOCK(SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStatistics));
   }
+  if (ActiveSignals & YAP_FAIL_SIGNAL) {
+    ActiveSignals &= ~YAP_FAIL_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
+#endif  
+    UNLOCK(SignalLock);
+    return Yap_unify(ARG1, MkAtomTerm(AtomFail));
+  }
+#ifdef THREADS
+  pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
   UNLOCK(SignalLock);
   return FALSE;
@@ -3039,6 +3047,9 @@ p_continue_signals(void)
   }
   if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
     Yap_signal(YAP_STATISTICS_SIGNAL);
+  }
+  if (ActiveSignals & YAP_FAIL_SIGNAL) {
+    Yap_signal(YAP_FAIL_SIGNAL);
   }
 #ifdef THREADS
   pthread_mutex_unlock(&(MY_ThreadHandle.tlock));

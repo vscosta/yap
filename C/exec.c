@@ -971,6 +971,8 @@ exec_absmi(int top)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
 	Yap_StartSlots();
 	LOCK(SignalLock);
+	/* forget any signals active, we're reborne */
+	ActiveSignals = 0;
 	CreepFlag = CalculateStackGap();
 	Yap_PrologMode = UserMode;
 	UNLOCK(SignalLock);
@@ -1002,6 +1004,10 @@ exec_absmi(int top)
   Yap_CloseSlots();
   out = Yap_absmi(0);
   Yap_StartSlots();
+  /* make sure we don't leave a FAIL signal hanging around */ 
+  ActiveSignals &= ~YAP_FAIL_SIGNAL;
+  if (!ActiveSignals)
+    CreepFlag = CalculateStackGap();
   return out;
 }
 
@@ -1505,6 +1511,7 @@ JumpToEnv(Term t) {
 	EX = BallTerm;
 	BallTerm = NULL;
 	P = (yamop *)FAILCODE;
+	Yap_signal(YAP_FAIL_SIGNAL);
 	HB = B->cp_h;
 	return TRUE;
       }
@@ -1546,6 +1553,7 @@ JumpToEnv(Term t) {
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
+  Yap_signal(YAP_FAIL_SIGNAL);
   P = (yamop *)FAILCODE;
   HB = B->cp_h;
   /* try to recover space */

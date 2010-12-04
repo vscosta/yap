@@ -2652,6 +2652,12 @@ Yap_absmi(int inp)
     NoStackCall:
       PP = PREG->u.Osbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	goto fail;
+      }
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.Osbpp.p;
 	SREG = (CELL *) ap;
@@ -2687,6 +2693,12 @@ Yap_absmi(int inp)
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
+	if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!ActiveSignals)
+	    CreepFlag = CalculateStackGap();
+	  goto fail;
+	}
 	/* 
 	   don't do a creep here; also, if our instruction is followed by
 	   a execute_c, just wait a bit more */
@@ -2735,6 +2747,12 @@ Yap_absmi(int inp)
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
       }
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	FAIL();
+      }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
 	XREGS[0] = YREG[PREG->u.yp.y];
@@ -2750,6 +2768,12 @@ Yap_absmi(int inp)
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
+      }
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	FAIL();
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
@@ -2777,8 +2801,15 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackFail:
+      if (ActiveSignals && ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	/* we're happy */
+	goto fail;
+      }
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!ActiveSignals || ActiveSignals & (YAP_CDOVF_SIGNAL)) {
 	goto fail;
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
@@ -2793,6 +2824,12 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	goto fail;
+      }
       PP = PREG->u.Osblp.p0;
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	goto either_notest;
@@ -2870,6 +2907,12 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	goto fail;
+      }
       PP = PREG->u.pp.p0;
       if (ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.pp.p;
@@ -2942,6 +2985,12 @@ Yap_absmi(int inp)
 
       /* try performing garbage collection */
 
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	goto fail;
+      }
       ASP = YREG+E_CB;
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -2985,6 +3034,12 @@ Yap_absmi(int inp)
       /* and now CREEP */
 
     creep:
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	goto fail;
+      }
 #if  defined(_MSC_VER) || defined(__MINGW32__)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
@@ -13848,6 +13903,12 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute2:
+	if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!ActiveSignals)
+	    CreepFlag = CalculateStackGap();
+	  goto fail;
+	}
 	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
@@ -14047,6 +14108,12 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute:
+	if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!ActiveSignals)
+	    CreepFlag = CalculateStackGap();
+	  goto fail;
+	}
 	PP = PredMetaCall;
 	SREG = (CELL *) pen;
 	ASP = ENV_YREG;
@@ -14317,6 +14384,12 @@ Yap_absmi(int inp)
 	ENDD(d0);
 	ENDP(pt0);
       NoStackPTExecute:
+	if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!ActiveSignals)
+	    CreepFlag = CalculateStackGap();
+	  goto fail;
+	}
 	PP = NULL;
 	WRITEBACK_Y_AS_ENV();
 	SREG = (CELL *) pen;
