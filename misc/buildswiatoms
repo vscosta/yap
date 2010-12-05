@@ -34,17 +34,15 @@ gen_defs(Inp,Out) :-
 	nb_getval(atom_counter, Pos),
 	NPos is Pos+1,
 	nb_setval(atom_counter, NPos),
-	OffPos is Pos*2+1,
-	number_codes(OffPos, Val),
-	append(["#define ATOM_",Atom," ",Val], Out).
+	number_codes(Pos, Val),
+	append(["#define ATOM_",Atom," (",Val,"*2+1)"], Out).
 gen_defs(Inp,Out) :-
 	split(Inp,"	 ",["F",Functor,Arity]), !,
 	nb_getval(functor_counter, Pos),
 	NPos is Pos+1,
 	nb_setval(functor_counter, NPos),
-	OffPos is Pos*4+2,
-	number_codes(OffPos, Val),
-	append(["#define FUNCTOR_",Functor,Arity," ",Val], Out).
+	number_codes(Pos, Val),
+	append(["#define FUNCTOR_",Functor,Arity," (",Val,"*4+2)"], Out).
 
 
 gen_init(Inp,Out) :-

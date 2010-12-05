@@ -1861,6 +1861,7 @@ Yap_absmi(int inp)
 #else
       B = B->cp_b;
 #endif	/* YAPOR */
+      goto fail;
       ENDBOp();
 
 #ifdef YAPOR
