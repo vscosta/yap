@@ -159,19 +159,6 @@ true :- true.
 '$enter_top_level' :-
 	'$clean_up_dead_clauses',
 	fail.
-% use if we come from a save_program and we have SWI's shlib
-'$enter_top_level' :-
-	recorded('$reload_foreign_libraries',G,R),
-	erase(R),
-	shlib:reload_foreign_libraries,
-	fail.
-% use if we come from a save_program and we have a goal to execute
-'$enter_top_level' :-
-	recorded('$restore_goal',G,R),
-	erase(R),
-	prompt(_,'   | '),
-	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
-	fail.
 '$enter_top_level' :-
 	'$nb_getval'('$break',BreakLevel,fail),
 	 '$debug_on'(DBON),
@@ -201,6 +188,7 @@ true :- true.
 	'$read_vars'(user_input,Command,_,Pos,Varnames),
 	nb_setval('$spy_gn',1),
 		% stop at spy-points if debugging is on.
+
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	prompt(_,'   |: '),
@@ -212,6 +200,19 @@ true :- true.
 	get_value('$extend_file_search_path',P), P \= [],
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P),
+	fail.
+% use if we come from a save_program and we have SWI's shlib
+'$startup_goals' :-
+	recorded('$reload_foreign_libraries',G,R),
+	erase(R),
+	shlib:reload_foreign_libraries,
+	fail.
+% use if we come from a save_program and we have a goal to execute
+'$startup_goals' :-
+	recorded('$restore_goal',G,R),
+	erase(R),
+	prompt(_,'   | '),
+	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
