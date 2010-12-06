@@ -16779,6 +16779,16 @@ Notice that this function returns a term, and not an atom. You can
 @section Miscellaneous C Functions
 
 @table @code
+@item  @code{void} YAP_Throw(@code{YAP_Term exception})
+@item  @code{void} YAP_AsyncThrow(@code{YAP_Term exception})
+@findex YAP_Throw (C-Interface function)
+@findex YAP_AsyncThrow (C-Interface function)
+
+Throw an exception with term  @var{exception}, just like if you called
+@code{throw/2}. The function @t{YAP_AsyncThrow} is supposed to be used
+from interrupt handlers.
+@c See also @code{at_halt/1}.
+
 @item  @code{int} YAP_SetYAPFlag(@code{yap_flag_t flag, int value})
 @findex YAP_SetYAPFlag (C-Interface function)
 
@@ -16795,6 +16805,7 @@ function is called with two arguments: the exit code of the process (@code{0}
 if this cannot be determined on your operating system) and the closure
 argument @var{closure}. 
 @c See also @code{at_halt/1}.
+
 @end table
 
 
