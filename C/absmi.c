@@ -13818,7 +13818,7 @@ Yap_absmi(int inp)
 	      ENDP(pt1);
 	      ENDD(d1);
 	    } else if (mod != CurrentModule) {
-		goto execute2_metacall;
+	      goto execute2_metacall;
 	    }
 	  }
 	  if (PRED_GOAL_EXPANSION_ALL) {

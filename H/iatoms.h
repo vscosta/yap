@@ -266,6 +266,7 @@
   AtomSpy = Yap_FullLookupAtom("$spy");
   AtomStack = Yap_LookupAtom("stack");
   AtomStackFree = Yap_LookupAtom("stackfree");
+  AtomStartupSavedState = Yap_FullLookupAtom("$startup_saved_state");
   AtomStaticClause = Yap_FullLookupAtom("$static_clause");
   AtomStaticProcedure = Yap_LookupAtom("static_procedure");
   AtomStream = Yap_FullLookupAtom("$stream");

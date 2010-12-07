@@ -2647,6 +2647,9 @@ YAP_Init(YAP_init_args *yap_init)
     else
       Yap_AttsSize = 2048*sizeof(CELL);
     if (restore_result == DO_ONLY_CODE) {
+      /* first, initialise the saved state */
+      Term t_goal = MkAtomTerm(AtomStartupSavedState);
+      YAP_RunGoalOnce(t_goal);
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;

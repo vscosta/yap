@@ -530,6 +530,8 @@
 #define AtomStack Yap_heap_regs->AtomStack_
   Atom AtomStackFree_;
 #define AtomStackFree Yap_heap_regs->AtomStackFree_
+  Atom AtomStartupSavedState_;
+#define AtomStartupSavedState Yap_heap_regs->AtomStartupSavedState_
   Atom AtomStaticClause_;
 #define AtomStaticClause Yap_heap_regs->AtomStaticClause_
   Atom AtomStaticProcedure_;
