@@ -43,6 +43,8 @@
 	    utf8_position_memory_file/3 % +Handle, -Here, -Size
 	  ]).
 
+:- expects_dialect(swi).
+
 :- use_module(library(shlib)).
 
 :- use_foreign_library(foreign(memfile)).
