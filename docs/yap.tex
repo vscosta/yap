@@ -9553,10 +9553,9 @@ plus_if_pos(X,Y,Z) :- Y > 0, Z is X + Y.
 vars(X, Y, [X|Y]) :- var(X), !.
 vars(_, Y, Y).
 trans(TermIn, TermOut) :-
-  (compound(TermIn) ; atom(TermIn)),
+  nonvar(TermIn),
   TermIn =.. [p|Args],
-  TermOut =..[q|Args],
-  !.
+  TermOut =..[q|Args], !.
 trans(X,X).
 
 %success
@@ -9567,8 +9566,8 @@ selectlist(<(0), [-1,0,1], [1]).
 convlist(plus_if_pos(1), [-1,0,1], [2]).
 sumlist(plus, [1,2,3,4], 1, 11).
 mapargs(number_atom,s(1,2,3), s('1','2','3')).
-sumargs(vars, s(1,X,2,Y), [], [Y,X]).
-mapnodes(trans, p(a,p(b,a),c), q(a,q(b,a),c)).
+sumargs(vars, s(1,X,2,Y), [], [Y,X]).m
+apnodes(trans, p(a,p(b,a),c), q(a,q(b,a),c)).
 checknodes(\==(T), p(X,p(Y,X),Z)).
 sumnodes(vars, [c(X), p(X,Y), q(Y)], [], [Y,Y,X,X]).
 % another one

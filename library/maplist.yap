@@ -206,7 +206,7 @@ sumargs_args(Pred, Term, A1, A3, N) :-
     sumargs_args(Pred, Term, A2, A3, N1).
 
 mapnodes(Pred, TermIn, TermOut) :-
-    (atomic(TermIn); var(TermOut)), !,
+    (atomic(TermIn); var(TermIn)), !,
     call(Pred, TermIn, TermOut).
 mapnodes(Pred, TermIn, TermOut) :-
     call(Pred, TermIn, Temp),
