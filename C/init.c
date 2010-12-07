@@ -484,6 +484,24 @@ InitDebug(void)
   Yap_PutValue(At, MkIntTerm(15));
 }
 
+static UInt 
+update_flags_from_prolog(UInt flags, PredEntry *pe)
+{
+  if (pe->PredFlags & MetaPredFlag)
+    flags |= MetaPredFlag;
+  if (pe->PredFlags & SourcePredFlag)
+    flags |= SourcePredFlag;
+  if (pe->PredFlags & SequentialPredFlag)
+    flags |= SequentialPredFlag;
+  if (pe->PredFlags & MyddasPredFlag)
+    flags |= MyddasPredFlag;
+  if (pe->PredFlags & UDIPredFlag)
+    flags |= UDIPredFlag;
+  if (pe->PredFlags & ModuleTransparentPredFlag)
+    flags |= ModuleTransparentPredFlag;
+  return flags;
+}
+
 void 
 Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
 {
@@ -521,8 +539,9 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
   } 
   if (pe->PredFlags & CPredFlag) {
     /* already exists */
+    flags = update_flags_from_prolog(flags, pe);
     cl = ClauseCodeToStaticClause(pe->CodeOfPred);
-    if ((flags | StandardPredFlag | CPredFlag) != pe->PredFlags) {
+    if ((flags | StandardPredFlag | CPredFlag ) != pe->PredFlags) {
       Yap_ClauseSpace -= cl->ClSize;
       Yap_FreeCodeSpace((ADDR)cl);
       cl = NULL;
@@ -618,6 +637,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt
     }
   } 
   if (pe->PredFlags & CPredFlag) {
+    flags = update_flags_from_prolog(flags, pe);
     p_code = pe->CodeOfPred;
     /* already exists */
   } else {
@@ -691,7 +711,12 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       return;
     }
   } 
-  pe->PredFlags = flags | AsmPredFlag | StandardPredFlag | (code);
+  flags |= AsmPredFlag | StandardPredFlag | (code);
+  if (pe->PredFlags & AsmPredFlag) {
+    flags = update_flags_from_prolog(flags, pe);
+    /* already exists */
+  }
+  pe->PredFlags = flags;
   pe->cs.f_code =  def;
   pe->ModuleOfPred = CurrentModule;
   if (def != NULL) {
@@ -859,6 +884,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
   } 
   if (pe->cs.p_code.FirstClause != NIL)
     {
+      flags = update_flags_from_prolog(flags, pe);      
 #ifdef CUT_C
       CleanBack(pe, Start, Cont, Cut);
 #else

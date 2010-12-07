@@ -88,6 +88,8 @@ true :- true.
 	  )
 	),
 	'$db_clean_queues'(0),
+% this must be executed from C-code.
+%	'$startup_saved_state',
 	'$startup_reconsult',
 	'$startup_goals',
 	'$set_input'(user_input),'$set_output'(user),
@@ -196,24 +198,38 @@ true :- true.
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
 
-'$startup_goals' :-
+%
+% first, recover what we need from the saved state...
+%
+'$startup_saved_state' :-
 	get_value('$extend_file_search_path',P), P \= [],
 	set_value('$extend_file_search_path',[]),
 	'$extend_file_search_path'(P),
 	fail.
 % use if we come from a save_program and we have SWI's shlib
-'$startup_goals' :-
+'$startup_saved_state' :-
 	recorded('$reload_foreign_libraries',G,R),
 	erase(R),
 	shlib:reload_foreign_libraries,
 	fail.
 % use if we come from a save_program and we have a goal to execute
-'$startup_goals' :-
+'$startup_saved_state' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'   | '),
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
+'$startup_saved_state'.
+
+% then recover program.
+'$startup_reconsult' :-
+	get_value('$consult_on_boot',X), X \= [], !,
+	set_value('$consult_on_boot',[]),
+	'$do_startup_reconsult'(X).
+'$startup_reconsult'.
+
+
+% then we can execute the programs.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
 	'$current_module'(Module),
@@ -251,12 +267,6 @@ true :- true.
 	'$myddas_import_all',
 	fail.
 '$startup_goals'.
-
-'$startup_reconsult' :-
-	get_value('$consult_on_boot',X), X \= [], !,
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X).
-'$startup_reconsult'.
 
  %
  % MYDDAS: Import all the tables from one database

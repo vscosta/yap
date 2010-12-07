@@ -265,6 +265,7 @@
   AtomSpy = AtomAdjust(AtomSpy);
   AtomStack = AtomAdjust(AtomStack);
   AtomStackFree = AtomAdjust(AtomStackFree);
+  AtomStartupSavedState = AtomAdjust(AtomStartupSavedState);
   AtomStaticClause = AtomAdjust(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure);
   AtomStream = AtomAdjust(AtomStream);
