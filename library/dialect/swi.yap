@@ -225,6 +225,8 @@ goal_expansion(file_base_name(A,B),system:swi_file_base_name(A,B)) :- swi_io.
 goal_expansion(file_directory_name(A,B),system:swi_file_directory_name(A,B)) :- swi_io.
 goal_expansion('$mark_executable'(A), system:'swi_is_absolute_file_name'(A)) :- swi_io.
 goal_expansion('$absolute_file_name'(A,B),system:'swi_$absolute_file_name'(A,B)) :- swi_io.
+goal_expansion(nl(A),system:swi_nl(A)) :- swi_io.
+goal_expansion(nl,system:swi_nl) :- swi_io.
 
 
 % make sure we also use 
