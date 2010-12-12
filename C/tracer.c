@@ -391,7 +391,6 @@ static Int p_stop_low_level_trace(void)
 {
   Yap_do_low_level_trace = FALSE;
   do_trace_primitives = TRUE;
-  fprintf(stderr,"vsc_count = %I64d\n",vsc_count);
   return(TRUE);
 }
 
