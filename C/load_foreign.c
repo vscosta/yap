@@ -57,7 +57,7 @@ p_load_foreign(void)
     t = TailOfTerm(t);
     new = (StringList) Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = ofiles;
-    new->s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+    new->name = AtomOfTerm(t1);
     ofiles = new;
   }
 
@@ -69,7 +69,7 @@ p_load_foreign(void)
     t = TailOfTerm(t);
     new = (StringList) Yap_AllocCodeSpace(sizeof(StringListItem));
     new->next = libs;
-    new->s = RepAtom(AtomOfTerm(t1))->StrOfAE;
+    new->name = AtomOfTerm(t1);
     libs = new;
   }
 
