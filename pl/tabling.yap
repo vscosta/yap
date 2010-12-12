@@ -14,7 +14,7 @@
 :- meta_predicate 
    table(:), 
    is_tabled(:), 
-   tabling_mode(:), 
+   tabling_mode(:,?), 
    abolish_table(:), 
    show_table(:), 
    table_statistics(:),
