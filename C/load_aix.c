@@ -68,7 +68,7 @@ LoadForeign(StringList ofiles, StringList libs,
     strcpy(Yap_ErrorSay," Load Failed: in AIX you must load a single object file");
     return LOAD_FAILLED;
   }
-  if (!Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE)) {
+  if (!Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE)) {
     strcpy(Yap_ErrorSay, " Trying to open unexisting file in LoadForeign ");
     return LOAD_FAILLED;
   }

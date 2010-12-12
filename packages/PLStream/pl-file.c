@@ -4215,6 +4215,7 @@ PRED_IMPL("copy_stream_data", 2, copy_stream_data2, 0)
 }
 
 
+
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
@@ -4312,8 +4313,34 @@ static pl_Sgetc(IOSTREAM *s)
   return Sgetc(s);
 }
 
+/* copied by VSC */
+
+static word
+pl_nl1(term_t stream)
+{ IOSTREAM *s;
+
+  if ( getOutputStream(stream, &s) )
+  { Sputcode('\n', s);
+    return streamStatus(s);
+  }
+
+  fail;
+}
+
+static word
+pl_nl()
+{ return pl_nl1(0);
+}
+
+static const PL_extension foreigns[] = {
+  FRG("swi_nl",			0, pl_nl,		      ISO),
+  FRG("swi_nl",			1, pl_nl1,		      ISO),
+  /* DO NOT ADD ENTRIES BELOW THIS ONE */
+  FRG((char *)NULL,		0, NULL,			0)
+};
+
 static void
-init_yap_extras()
+init_yap_extras(void)
 {
   swi_io_struct swiio;
 
@@ -4329,6 +4356,7 @@ init_yap_extras()
   initFiles();
   initGlob();
   PL_register_extensions(PL_predicates_from_file);
+  PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();
 }

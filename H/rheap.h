@@ -960,8 +960,7 @@ RestoreForeignCode(void)
     while (objs != NULL) {
       if (objs->next != NULL)
 	objs->next = (StringList)AddrAdjust((ADDR)objs->next);
-      if (objs->s != NULL)
-	objs->s = (char *)AddrAdjust((ADDR)objs->s);
+	objs->name = AtomAdjust(objs->name);
       objs = objs->next;
     }
     if (f_code->libs != NULL)
@@ -970,8 +969,7 @@ RestoreForeignCode(void)
     while (libs != NULL) {
       if (libs->next != NULL)
 	libs->next = (StringList)AddrAdjust((ADDR)libs->next);
-      if (libs->s != NULL)
-	libs->s = (char *)AddrAdjust((ADDR)libs->s);
+      libs->name = AtomAdjust(libs->name);
       libs = libs->next;
     }
     if (f_code->f != NULL)

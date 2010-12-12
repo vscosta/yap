@@ -145,7 +145,7 @@ LoadForeign(StringList ofiles, StringList libs,
     void *handle;
 
     /* mydlopen wants to follow the LD_CONFIG_PATH */
-    if (!Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE)) {
+    if (!Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE)) {
       strcpy(Yap_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
@@ -163,13 +163,14 @@ LoadForeign(StringList ofiles, StringList libs,
   /* load libraries first so that their symbols are available to
      other routines */
   while (libs) {
-
-    if (libs->s[0] == '-') {
+    char *s = AtomName(lib->name);
+    
+    if (ls[0] == '-') {
       strcpy(Yap_FileNameBuf,"lib");
-      strcat(Yap_FileNameBuf,libs->s+2);
+      strcat(Yap_FileNameBuf,s+2);
       strcat(Yap_FileNameBuf,".so");
     } else {
-      strcpy(Yap_FileNameBuf,libs->s);
+      strcpy(Yap_FileNameBuf,s);
     }
 
     if((libs->handle=mydlopen(Yap_FileNameBuf)) == NULL)
