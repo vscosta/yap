@@ -246,11 +246,13 @@ ConstantTermAdjust (Term t)
     return AtomTermAdjust(t);
   else if (IsIntTerm(t))
     return t;
-  else if (IsApplTerm(t))
+  else if (IsApplTerm(t) && IsBlobFunctor(FunctorOfTerm(t))) {
     return BlobTermAdjust(t);
-  else if (IsPairTerm(t))
+  } else if (IsApplTerm(t) || IsPairTerm(t)) {
     return CodeComposedTermAdjust(t);
-  else return t;
+  } else {
+    return t;
+  }
 }
 
 /* Now, everything on its place so you must adjust the pointers */
