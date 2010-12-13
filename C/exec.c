@@ -1002,6 +1002,8 @@ exec_absmi(int top)
     Yap_PrologMode = UserMode;
   }
   Yap_CloseSlots();
+  YENV = ASP;
+  YENV[E_CB] = Unsigned (B);
   out = Yap_absmi(0);
   Yap_StartSlots();
   /* make sure we don't leave a FAIL signal hanging around */ 
@@ -1019,6 +1021,9 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
      collection is going up in the environment chain it doesn't get
      confused */
   EX = NULL;
+  /* always have an empty slots for people to use */
+  CurSlot = 0;
+  Yap_StartSlots();
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)P;
@@ -1054,9 +1059,9 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
 #if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
 #endif
-  YENV[E_CB] = Unsigned (B);
-  CP = YESCODE;
+  /* start with some slots so that we can use them */
   Yap_StartSlots();
+  CP = YESCODE;
 }
 
 static Term
