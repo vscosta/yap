@@ -2894,6 +2894,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   }
   return PL_ENGINE_SET;
 #else
+  if (old) *old = (PL_engine_t)&Yap_WLocal;
   return FALSE;
 #endif
 }
