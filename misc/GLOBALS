@@ -210,6 +210,7 @@ SWI_GetWideFunction	swi_wgetc		SWIWideGetc	=NULL
 SWI_PutWideFunction	swi_wputc		SWIWidePutc	=NULL
 SWI_CloseFunction	swi_close		SWIClose	=NULL
 SWI_FlushFunction	swi_flush		SWIFlush	=NULL
+SWI_PLGetStreamFunction	swi_get_stream_f	SWIGetStream	=NULL
 
 // stack overflow expansion/gc control
 int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE

@@ -509,14 +509,13 @@ noent:
 #define get_stream_handle(t, sp, flags) \
 	get_stream_handle__LD(t, sp, flags PASS_LD)
 
-int
+X_API int
 PL_get_stream_handle(term_t t, IOSTREAM **s)
 { GET_LD
   return get_stream_handle(t, s, SH_ERRORS|SH_ALIAS);
 }
 
-
-int
+X_API int
 PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
 { GET_LD
   int rval;
@@ -4308,7 +4307,8 @@ BeginPredDefs(file)
 EndPredDefs
 
 #if __YAP_PROLOG__
-static pl_Sgetc(IOSTREAM *s)
+static int
+pl_Sgetc(IOSTREAM *s)
 {
   return Sgetc(s);
 }
@@ -4328,7 +4328,7 @@ pl_nl1(term_t stream)
 }
 
 static word
-pl_nl()
+pl_nl(void)
 { return pl_nl1(0);
 }
 
@@ -4338,6 +4338,13 @@ static const PL_extension foreigns[] = {
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   FRG((char *)NULL,		0, NULL,			0)
 };
+
+static int
+get_stream_handle_no_errors(term_t t, IOSTREAM **s)
+{ GET_LD
+  return get_stream_handle(t, s, SH_ALIAS);
+}
+
 
 static void
 init_yap_extras(void)
@@ -4351,6 +4358,7 @@ init_yap_extras(void)
   swiio.put_w = Sputcode;
   swiio.flush_s = Sflush;
   swiio.close_s = Sclose;
+  swiio.get_stream_handle = get_stream_handle_no_errors;
   PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
   initFiles();
