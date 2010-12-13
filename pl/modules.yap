@@ -309,6 +309,8 @@ module(N) :-
 
 expand_goal(G, G) :-
 	var(G), !.
+expand_goal(G, M:NG) :-
+	'$do_expand'(G, M, NG), !.
 expand_goal(M:G, M:NG) :-
 	'$do_expand'(G, M, NG), !.
 expand_goal(G, NG) :- 
@@ -316,6 +318,25 @@ expand_goal(G, NG) :-
 	'$do_expand'(G, M, NG), !.
 expand_goal(G, G).
 	
+'$do_expand'((G1,G2), CurMod, (GI1,GI2)) :- !,
+	'$do_expand'(G1, CurMod, GI1),
+	'$do_expand'(G2, CurMod, GI2).
+'$do_expand'((G1;G2), CurMod, (GI1;GI2)) :- !,
+	'$do_expand'(G1, CurMod, GI1),
+	'$do_expand'(G2, CurMod, GI2).
+'$do_expand'((G1*->G2), CurMod, (GI1*->GI2)) :- !,
+	'$do_expand'(G1, CurMod, GI1),
+	'$do_expand'(G2, CurMod, GI2).
+'$do_expand'((G1|G2), CurMod, (GI1|GI2)) :- !,
+	'$do_expand'(G1, CurMod, GI1),
+	'$do_expand'(G2, CurMod, GI2).
+'$do_expand'((G1->G2), CurMod, (GI1->GI2)) :- !,
+	'$do_expand'(G1, CurMod, GI1),
+	'$do_expand'(G2, CurMod, GI2).
+'$do_expand'(\+G1, CurMod, \+GI1) :- !,
+	'$do_expand'(G1, CurMod, GI1).
+'$do_expand'(not(G1), CurMod, not(GI1)) :- !,
+	'$do_expand'(G1, CurMod, GI1).
 '$do_expand'(G, CurMod, GI) :-
 	(
 	 '$pred_exists'(goal_expansion(G,GI), CurMod),
