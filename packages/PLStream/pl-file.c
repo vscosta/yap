@@ -509,14 +509,13 @@ noent:
 #define get_stream_handle(t, sp, flags) \
 	get_stream_handle__LD(t, sp, flags PASS_LD)
 
-int
+X_API int
 PL_get_stream_handle(term_t t, IOSTREAM **s)
 { GET_LD
   return get_stream_handle(t, s, SH_ERRORS|SH_ALIAS);
 }
 
-
-int
+X_API int
 PL_unify_stream_or_alias(term_t t, IOSTREAM *s)
 { GET_LD
   int rval;
@@ -4215,6 +4214,7 @@ PRED_IMPL("copy_stream_data", 2, copy_stream_data2, 0)
 }
 
 
+
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
@@ -4307,13 +4307,47 @@ BeginPredDefs(file)
 EndPredDefs
 
 #if __YAP_PROLOG__
-static pl_Sgetc(IOSTREAM *s)
+static int
+pl_Sgetc(IOSTREAM *s)
 {
   return Sgetc(s);
 }
 
+/* copied by VSC */
+
+static word
+pl_nl1(term_t stream)
+{ IOSTREAM *s;
+
+  if ( getOutputStream(stream, &s) )
+  { Sputcode('\n', s);
+    return streamStatus(s);
+  }
+
+  fail;
+}
+
+static word
+pl_nl(void)
+{ return pl_nl1(0);
+}
+
+static const PL_extension foreigns[] = {
+  FRG("swi_nl",			0, pl_nl,		      ISO),
+  FRG("swi_nl",			1, pl_nl1,		      ISO),
+  /* DO NOT ADD ENTRIES BELOW THIS ONE */
+  FRG((char *)NULL,		0, NULL,			0)
+};
+
+static int
+get_stream_handle_no_errors(term_t t, IOSTREAM **s)
+{ GET_LD
+  return get_stream_handle(t, s, SH_ALIAS);
+}
+
+
 static void
-init_yap_extras()
+init_yap_extras(void)
 {
   swi_io_struct swiio;
 
@@ -4324,11 +4358,13 @@ init_yap_extras()
   swiio.put_w = Sputcode;
   swiio.flush_s = Sflush;
   swiio.close_s = Sclose;
+  swiio.get_stream_handle = get_stream_handle_no_errors;
   PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
   initFiles();
   initGlob();
   PL_register_extensions(PL_predicates_from_file);
+  PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();
 }

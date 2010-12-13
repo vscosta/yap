@@ -3103,6 +3103,16 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   SWIWidePutc = swio->put_w;
   SWIFlush = swio->flush_s;
   SWIClose = swio->close_s;
+  SWIGetStream = swio->get_stream_handle;
+}
+
+typedef int     (*GetStreamF)(term_t, IOSTREAM **s);
+
+int 
+Yap_get_stream_handle(Term t0, void *s){
+  term_t t = (term_t)YAP_InitSlot(t0);
+  GetStreamF f = (GetStreamF)SWIGetStream;
+  return (*f)(t,s);
 }
 
 

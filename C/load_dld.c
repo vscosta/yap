@@ -80,7 +80,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   while (ofiles) {
-    if((error=dld_link(ofiles->s)) !=0) {
+    if((error=dld_link(AtomName(ofiles->name))) !=0) {
       strcpy(Yap_ErrorSay,dld_strerror(error));
       return LOAD_FAILLED;
     }

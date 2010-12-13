@@ -61,7 +61,7 @@ LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = Yap_TrueFileName( ofiles->s, Yap_FileNameBuf, TRUE );
+    valid_fname = Yap_TrueFileName( AtomName(ofiles->name), Yap_FileNameBuf, TRUE );
 
     if( !valid_fname ) {
       strcpy( Yap_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );
@@ -89,14 +89,15 @@ LoadForeign( StringList ofiles, StringList libs,
   }
 
   while( libs ) {
-    
-    if( libs->s[0] == '-' ) {
+    char *s = AtomName(lib->s);
+
+    if( s[0] == '-' ) {
       strcpy( Yap_FileNameBuf, "lib" );
-      strcat( Yap_FileNameBuf, libs->s+2 );
+      strcat( Yap_FileNameBuf, s+2 );
       strcat( Yap_FileNameBuf, ".sl" );
     }
     else {
-      strcpy( Yap_FileNameBuf, libs->s );
+      strcpy( Yap_FileNameBuf, s );
     }
 
     *(shl_t *)libs->handle = shl_load( Yap_FileNameBuf, BIND_DEFERRED, 0 );

@@ -246,11 +246,13 @@ ConstantTermAdjust (Term t)
     return AtomTermAdjust(t);
   else if (IsIntTerm(t))
     return t;
-  else if (IsApplTerm(t))
+  else if (IsApplTerm(t) && IsBlobFunctor(FunctorOfTerm(t))) {
     return BlobTermAdjust(t);
-  else if (IsPairTerm(t))
+  } else if (IsApplTerm(t) || IsPairTerm(t)) {
     return CodeComposedTermAdjust(t);
-  else return t;
+  } else {
+    return t;
+  }
 }
 
 /* Now, everything on its place so you must adjust the pointers */
@@ -958,8 +960,7 @@ RestoreForeignCode(void)
     while (objs != NULL) {
       if (objs->next != NULL)
 	objs->next = (StringList)AddrAdjust((ADDR)objs->next);
-      if (objs->s != NULL)
-	objs->s = (char *)AddrAdjust((ADDR)objs->s);
+	objs->name = AtomAdjust(objs->name);
       objs = objs->next;
     }
     if (f_code->libs != NULL)
@@ -968,8 +969,7 @@ RestoreForeignCode(void)
     while (libs != NULL) {
       if (libs->next != NULL)
 	libs->next = (StringList)AddrAdjust((ADDR)libs->next);
-      if (libs->s != NULL)
-	libs->s = (char *)AddrAdjust((ADDR)libs->s);
+      libs->name = AtomAdjust(libs->name);
       libs = libs->next;
     }
     if (f_code->f != NULL)

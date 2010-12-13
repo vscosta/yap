@@ -84,7 +84,7 @@
 #define LOAD_FAILLED    -1
 
 typedef struct StringListItem {
-  char *s;
+  Atom name;
   void *handle;
   struct StringListItem *next;
 } StringListItem, *StringList;

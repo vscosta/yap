@@ -74,6 +74,7 @@ CleanAtomMarkedBit(Atom a)
   return (Atom)c;
 }
 
+
 static inline Functor
 FuncAdjust(Functor f)
 {
@@ -111,6 +112,22 @@ AtomAdjust(Atom a)
   return(a);
 }
 
+static Term AdjustDBTerm(Term, Term *);
+
+static Term
+CodeComposedTermAdjust(Term t)
+{
+  Term *base;
+
+  if (IsApplTerm(t)) {
+    base = RepAppl(t);
+  } else {
+    base = RepPair(t);
+  }
+  return AdjustDBTerm(t, base);
+}
+
+
 #define IsOldCode(P) FALSE
 #define IsOldCodeCellPtr(P) FALSE
 #define IsOldDelay(P) FALSE
@@ -145,7 +162,6 @@ AtomAdjust(Atom a)
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
 #define BlobTermAdjust(P) (P)
-#define CodeComposedTermAdjust(P) (P)
 #define CellPtoHeapAdjust(P) (P)
 #define PtoAtomHashEntryAdjust(P) (P)
 #define CellPtoHeapCellAdjust(P) (P)

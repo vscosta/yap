@@ -225,6 +225,20 @@ goal_expansion(file_base_name(A,B),system:swi_file_base_name(A,B)) :- swi_io.
 goal_expansion(file_directory_name(A,B),system:swi_file_directory_name(A,B)) :- swi_io.
 goal_expansion('$mark_executable'(A), system:'swi_is_absolute_file_name'(A)) :- swi_io.
 goal_expansion('$absolute_file_name'(A,B),system:'swi_$absolute_file_name'(A,B)) :- swi_io.
+goal_expansion(nl(A),system:swi_nl(A)) :- swi_io.
+goal_expansion(nl,system:swi_nl) :- swi_io.
+goal_expansion(write(A),write_term(user_output,A,[swi(true)])) :- swi_io.
+goal_expansion(write(S,A),write_term(S,A,[swi(true)])) :- swi_io.
+goal_expansion(writeq(A),write_term(user_output,A,[swi(true),quoted(true)])) :- swi_io.
+goal_expansion(writeq(S,A),write_term(S,A,[swi(true),quoted(true)])) :- swi_io.
+goal_expansion(display(A),write_term(user_output,A,[swi(true),ignore_ops(true)])) :- swi_io.
+goal_expansion(display(S,A),write_term(S,A,[swi(true),ignore_ops(true),quoted(true)])) :- swi_io.
+goal_expansion(write_canonical(A),write_term(user_output,A,[swi(true),ignore_ops(true),quoted(true)])) :- swi_io.
+goal_expansion(write_canonical(S,A),write_term(S,A,[swi(true),ignore_ops(true)])) :- swi_io.
+goal_expansion(print(A),write_term(user_output,A,[swi(true),portray(true),numbervars(true)])) :- swi_io.
+goal_expansion(print(S,A),write_term(S,A,[swi(true),portray(true),numbervars(true)])) :- swi_io.
+goal_expansion(write_term(A,Opts),write_term(user_output,A,Opts,[swi(true)|Opts])) :- swi_io.
+goal_expansion(write_term(S,A,Opts),write_term(S,A,[swi(true)|Opts])) :- swi_io, \+ member(swi(_), Opts).
 
 
 % make sure we also use 

@@ -66,7 +66,7 @@ LoadForeign(StringList ofiles, StringList libs,
   while (ofiles) {
     HINSTANCE handle;
 
-    if (Yap_TrueFileName(ofiles->s, Yap_FileNameBuf, TRUE) &&
+    if (Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE) &&
 	(handle=LoadLibrary(Yap_FileNameBuf)) != 0)
       {
 	Yap_ErrorSay[0]=~'\0';
@@ -84,12 +84,13 @@ LoadForeign(StringList ofiles, StringList libs,
      other routines */
   while (libs) {
     HINSTANCE handle;
+    char * s = AtomName(libs->name);
 
-    if (libs->s[0] == '-') {
-      strcat(Yap_FileNameBuf,libs->s+2);
+    if (s[0] == '-') {
+      strcat(Yap_FileNameBuf,s+2);
       strcat(Yap_FileNameBuf,".dll");
     } else {
-      strcpy(Yap_FileNameBuf,libs->s);
+      strcpy(Yap_FileNameBuf,s);
     }
 
     if((handle=LoadLibrary(Yap_FileNameBuf)) == 0)

@@ -154,7 +154,7 @@ LoadForeign(StringList ofiles,
 
     while(tmp != NULL) {
       strcat(o_files," ");
-      strcat(o_files,tmp->s);
+      strcat(o_files,AtomName(tmp->name));
       tmp = tmp->next;
     }
   }
@@ -165,7 +165,7 @@ LoadForeign(StringList ofiles,
 
     while(tmp != NULL) {
       strcat(l_files," ");
-      strcat(l_files,tmp->s);
+      strcat(l_files,AtomName(tmp->name));
       tmp = tmp->next;
     }
   }
