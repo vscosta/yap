@@ -29,13 +29,6 @@ open(File0,Mode,Stream) :-
 	'$expand_filename'(Expansion, File0, File),
 	'$open'(File, Mode, Stream, 16, Encoding, File0).
 
-/* meaning of flags for '$write' is
-	 1	quote illegal atoms
-	 2	ignore operator declarations
-	 4	output '$VAR'(N) terms as A, B, C, ...
-	 8	use portray(_)
-*/
-
 close(V) :- var(V), !,
 	'$do_error'(instantiation_error,close(V)).
 close(File) :-
@@ -229,21 +222,23 @@ open(F,T,S,Opts) :-
 '$check_opt_write'(attributes(T), G) :- !,
 	'$check_write_attributes'(T, G).
 '$check_opt_write'(cycles(T), G) :- !,
-	'$check_cycles_arg'(T, G).
+	'$check_boolean'(T, write_option, cycles(T), G).
 '$check_opt_write'(quoted(T), G) :- !,
-	'$check_write_quoted_arg'(T, G).
+	'$check_boolean'(T, write_option, quoted(T), G).
 '$check_opt_write'(ignore_ops(T), G) :- !,
-	'$check_write_ignore_ops_arg'(T, G).
-'$check_opt_write'(numbervars(T), G) :- !,
-	'$check_write_numbervars_arg'(T, G).
-'$check_opt_write'(portrayed(T), G) :- !,
-	'$check_write_portrayed'(T, G).
-'$check_opt_write'(portray(T), G) :- !,
-	'$check_write_portrayed'(T, G).
-'$check_opt_write'(priority(T), G) :- !,
-	'$check_priority_arg'(T, G).
+	'$check_boolean'(T, write_option, ignore_ops(T), G).
 '$check_opt_write'(max_depth(T), G) :- !,
 	'$check_write_max_depth'(T, G).
+'$check_opt_write'(numbervars(T), G) :- !,
+	'$check_boolean'(T, write_option, ignore_ops(T), G).
+'$check_opt_write'(portrayed(T), G) :- !,
+	'$check_boolean'(T, write_option, portrayed(T), G).
+'$check_opt_write'(portray(T), G) :- !,
+	'$check_boolean'(T, write_option, portray(T), G).
+'$check_opt_write'(priority(T), G) :- !,
+	'$check_priority_arg'(T, G).
+'$check_opt_write'(swi(T), G) :- !,
+	'$check_boolean'(T, write_option, swi(T), G).
 '$check_opt_write'(A, G) :-
 	'$do_error'(domain_error(write_option,A),G).
 
@@ -329,40 +324,12 @@ open(F,T,S,Opts) :-
 '$check_write_attributes'(X,G) :-
 	'$do_error'(domain_error(write_option,attributes(X)),G).
 
-'$check_write_quoted_arg'(X, G) :- var(X), !,
+'$check_boolean'(X, _, _, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
-'$check_write_quoted_arg'(true,_) :- !.
-'$check_write_quoted_arg'(false,_) :- !.
-'$check_write_quoted_arg'(X,G) :-
-	'$do_error'(domain_error(write_option,write_quoted(X)),G).
-
-'$check_cycles_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_cycles_arg'(true,_) :- !.
-'$check_cycles_arg'(false,_) :- !.
-'$check_cycles_arg'(X,G) :-
-	'$do_error'(domain_error(write_option,cycles(X)),G).
-
-'$check_write_ignore_ops_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_write_ignore_ops_arg'(true,_) :- !.
-'$check_write_ignore_ops_arg'(false,_) :- !.
-'$check_write_ignore_ops_arg'(X,G) :-
-	'$do_error'(domain_error(write_option,ignore_ops(X)),G).
-
-'$check_write_numbervars_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_write_numbervars_arg'(true,_) :- !.
-'$check_write_numbervars_arg'(false,_) :- !.
-'$check_write_numbervars_arg'(X,G) :-
-	'$do_error'(domain_error(write_option,numbervars(X)),G).
-
-'$check_write_portrayed'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_write_portrayed'(true,_) :- !.
-'$check_write_portrayed'(false,_) :- !.
-'$check_write_portrayed'(X,G) :-
-	'$do_error'(domain_error(write_option,portrayed(X)),G).
+'$check_boolean'(true,_,_,_) :- !.
+'$check_boolean'(false,_,_,_) :- !.
+'$check_boolean'(X,B,T,G) :-
+	'$do_error'(domain_error(B,T),G).
 
 '$check_write_max_depth'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -520,18 +487,19 @@ read_term(Stream, T, Options) :-
 '$add_singleton_if_no_underscore'(Na,V2,NSs,[(Name=V2)|NSs]) :-
 	atom_codes(Name, Na).
 
+nl(Stream) :- '$put'(Stream,10).
+
+nl :- current_output(Stream), '$put'(Stream,10), fail.
+nl.
+
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
 	 2	ignore operator declarations
 	 4	output '$VAR'(N) terms as A, B, C, ...
 	 8	use portray(_)
+
+   flags are defined in yapio.h
 */
-
-
-nl(Stream) :- '$put'(Stream,10).
-
-nl :- current_output(Stream), '$put'(Stream,10), fail.
-nl.
 
 write(T) :- '$write'(4, T).
 
@@ -563,6 +531,15 @@ write_canonical(Stream,T) :-
 	fail.
 write_canonical(_,_).
 
+print(T) :- '$write'(12,T), fail.
+print(_).
+
+print(Stream,T) :-
+	'$write'(Stream,12,T),
+	fail.
+print(_,_).
+
+
 write_term(T,Opts) :-
 	'$check_io_opts'(Opts, write_term(T,Opts)),
 	'$process_wt_opts'(Opts, 0, Flag, Priority, Callbacks),
@@ -579,42 +556,49 @@ write_term(S, T, Opts) :-
 	fail.
 write_term(_,_,_).
 
+
 '$process_wt_opts'([], Flag, Flag, 1200, []).
 '$process_wt_opts'([quoted(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 1,
+	FlagI is Flag0 \/ 0x01,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([quoted(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 30,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 16,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 15,
+	FlagI is Flag0 /\ \0x01,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([ignore_ops(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 2,
+	FlagI is Flag0 \/ 0x02,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([ignore_ops(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 39,
+	FlagI is Flag0 /\ \0x02,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([numbervars(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 4,
+	FlagI is Flag0 \/ 0x04,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([numbervars(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 27,
+	FlagI is Flag0 /\ \0x04,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([portrayed(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 8,
+	FlagI is Flag0 \/ 0x08,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 23,
+	FlagI is Flag0 /\ \0x08,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([portray(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 8,
+	FlagI is Flag0 \/ 0x08,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([portray(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ 23,
+	FlagI is Flag0 /\ \0x08,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 \/ 0x20,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ \0x20,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([swi(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 \/ 0x40,
+	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
+'$process_wt_opts'([swi(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
+	FlagI is Flag0 /\ \0x40,
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
 '$process_wt_opts'([attributes(_)|Opts], Flag0, Flag, Priority, CallBacks) :-
 	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
@@ -630,15 +614,6 @@ write_term(_,_,_).
 '$process_wt_callbacks'([max_depth(D1,D0,D2)|Cs]) :-
 	write_depth(D1,D0,D2),
 	'$process_wt_callbacks'(Cs).
-
-
-print(T) :- '$write'(12,T), fail.
-print(_).
-
-print(Stream,T) :-
-	'$write'(Stream,12,T),
-	fail.
-print(_,_).
 
 
 format(T) :-

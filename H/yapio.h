@@ -334,12 +334,13 @@ Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 #define YAP_SEEKABLE_STREAM	0x80
 
 
-#define	Quote_illegal_f		1
-#define	Ignore_ops_f		2
-#define	Handle_vars_f		4
-#define	Use_portray_f		8
-#define	To_heap_f	       16
-#define	Unfold_cyclics_f       32
+#define	Quote_illegal_f		0x01
+#define	Ignore_ops_f		0x02
+#define	Handle_vars_f		0x04
+#define	Use_portray_f		0x08
+#define	To_heap_f	        0x10
+#define	Unfold_cyclics_f        0x20
+#define	Use_SWI_Stream_f        0x40
 
 /* write.c */
 void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t), int, int));

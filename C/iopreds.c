@@ -3489,9 +3489,17 @@ CheckStream (Term arg, int kind, char *msg)
 	sname = AtomUserOut;
       }
     }
+    if (kind & SWI_Stream_f) {
+      struct io_stream *swi_stream;
+
+      if (Yap_get_stream_handle(arg, &swi_stream)) {
+	sno = LookupSWIStream(swi_stream);
+	return sno;
+      }       
+    }
     if ((sno = CheckAlias(sname)) == -1) {
       Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
-      return(-1);
+      return -1;
     }
   } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
     arg = ArgOfTerm (1, arg);
@@ -4089,7 +4097,15 @@ static Int
 p_write2_prio (void)
 {				/* '$write'(+Stream,+Flags,?Term) */
   int old_output_stream = Yap_c_output_stream;
-  Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
+  Int flags = IntegerOfTerm(Deref(ARG2));
+  int stream_f;
+
+  if (flags & Use_SWI_Stream_f) {
+    stream_f = Output_Stream_f|SWI_Stream_f;
+  } else {
+    stream_f = Output_Stream_f;
+  }
+  Yap_c_output_stream = CheckStream (ARG1, stream_f, "write/2");
   if (Yap_c_output_stream == -1) {
     Yap_c_output_stream = old_output_stream;
     return(FALSE);
@@ -4098,7 +4114,7 @@ p_write2_prio (void)
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   Yap_StartSlots();
-  Yap_plwrite (ARG4, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), (int) IntOfTerm (Deref (ARG3)));
+  Yap_plwrite (ARG4, Stream[Yap_c_output_stream].stream_wputc, (int) flags, (int) IntOfTerm (Deref (ARG3)));
   Yap_CloseSlots();
   Yap_c_output_stream = old_output_stream;
   if (EX != 0L) {
