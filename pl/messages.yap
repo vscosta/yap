@@ -129,10 +129,10 @@ system_message(leash([A|B])) -->
 	[ 'Leashing set to ~w.' - [[A|B]] ].
 system_message(existence_error(prolog_flag,F)) -->
 	[ 'Prolog Flag ~w: new Prolog flags must be created using create_prolog_flag/3.' - [F] ].
-system_message(singletons([SV],P,CLN)) -->
-	[ 'Singleton variable ~s in ~q, clause ~d.' - [SV,P,CLN] ].
-system_message(singletons(SVs,P,CLN)) -->
-	[  'Singleton variables ~s in ~q, clause ~d.' - [SVsL, P, CLN] ],
+system_message(singletons([SV],P)) -->
+	[ 'Singleton variable ~s in ~q.' - [SV,P] ].
+system_message(singletons(SVs,P)) -->
+	[  'Singleton variables ~s in ~q.' - [SVsL, P] ],
 	{ svs(SVs,SVsL,[]) }.
 system_message(trace_command(-1)) -->
 	[ 'EOF is not a valid debugger command.'  ].
