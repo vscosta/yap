@@ -177,7 +177,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	'$ground_vars'(V2L).
 
 '$sv_list'([],[]).
-'$sv_list'([[[95|_]|_]|T],L) :-
+'$sv_list'([[95|_]._|T],L) :- !,
 	'$sv_list'(T,L).
 '$sv_list'([_|V].T,L) :- nonvar(V), !,
 	'$sv_list'(T,L).
