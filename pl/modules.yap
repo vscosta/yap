@@ -316,6 +316,7 @@ expand_goal(G, NG) :-
 	'$do_expand'(G, M, NG), !.
 expand_goal(G, G).
 	
+'$do_expand'(G, _, G) :- var(G), !.
 '$do_expand'(M:G, CurMod, M:GI) :- !,
 	'$do_expand'(G, M, GI).
 '$do_expand'(G, CurMod, GI) :-
@@ -325,7 +326,8 @@ expand_goal(G, G).
 	->
 	 true
 	;
-	 recorded('$dialect',swi,_), system:goal_expansion(G, GI)
+	 recorded('$dialect',swi,_),
+	 system:goal_expansion(G, GI)
 	->
 	  true
 	;
@@ -335,25 +337,21 @@ expand_goal(G, G).
 	;
 	  user:goal_expansion(G, GI)
 	), !.
-'$do_expand'((G1,G2), CurMod, (GI1,GI2)) :-
-	'$do_expand'(G1, CurMod, GI1),
-	'$do_expand'(G2, CurMod, GI2).
-'$do_expand'((G1;G2), CurMod, (GI1;GI2)) :-
-	'$do_expand'(G1, CurMod, GI1),
-	'$do_expand'(G2, CurMod, GI2).
-'$do_expand'((G1*->G2), CurMod, (GI1*->GI2)) :-
-	'$do_expand'(G1, CurMod, GI1),
-	'$do_expand'(G2, CurMod, GI2).
-'$do_expand'((G1|G2), CurMod, (GI1|GI2)) :-
-	'$do_expand'(G1, CurMod, GI1),
-	'$do_expand'(G2, CurMod, GI2).
-'$do_expand'((G1->G2), CurMod, (GI1->GI2)) :-
-	'$do_expand'(G1, CurMod, GI1),
-	'$do_expand'(G2, CurMod, GI2).
-'$do_expand'(\+G1, CurMod, \+GI1) :-
-	'$do_expand'(G1, CurMod, GI1).
-'$do_expand'(not(G1), CurMod, not(GI1)) :-
-	'$do_expand'(G1, CurMod, GI1).
+'$do_expand'(G, CurMod, NG) :-
+	'$is_metapredicate'(G,CurMod), !,
+	functor(G, Name, Arity),
+	prolog:'$meta_predicate'(Name,CurMod,Arity,PredDef),
+	G =.. [Name|GArgs],
+	PredDef =.. [Name|GDefs],
+	'$expand_args'(GArgs, CurMod, GDefs, NGArgs),
+	NG =.. [Name|NGArgs].
+
+'$expand_args'([], _, [], []).
+'$expand_args'(A.GArgs, CurMod, 0.GDefs, NA.NGArgs) :-
+	'$do_expand'(A, CurMod, NA), !,
+	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
+'$expand_args'(A.GArgs, CurMod, _.GDefs, A.NGArgs) :-
+	'$expand_args'(GArgs, CurMod, GDefs, NGArgs).
 
 % args are:
 %       goal to expand
@@ -476,7 +474,7 @@ expand_goal(G, G).
 '$install_meta_predicate'(P, M1) :-
 	functor(P,F,N),
 	( M1 = prolog -> M = _ ; M1 = M),
-	( retractall('$meta_predicate'(F,M,N,_)), fail ; true),
+	( retractall(prolog:'$meta_predicate'(F,M,N,_)), fail ; true),
 	asserta(prolog:'$meta_predicate'(F,M,N,P)),
 	'$flags'(P, M1, Fl, Fl),
 	NFlags is Fl \/ 0x200000,
