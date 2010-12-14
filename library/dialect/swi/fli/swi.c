@@ -2578,12 +2578,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   Term t[2], m;
 
   /* ignore flags  and module for now */
-  if (execution == NULL)
-    PL_open_foreign_frame();
-  if (execution->open != 0) {
-    YAP_Error(0, 0L, "only one query at a time allowed\n");
-    return FALSE;
-  }
+  PL_open_foreign_frame();
   execution->open=1;
   execution->state=0;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
@@ -2617,13 +2612,13 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 X_API int PL_next_solution(qid_t qi)
 {
   int result;
-
   if (qi->open != 1) return 0;
   if (setjmp(execution->env))
     return 0;
   if (qi->state == 0) {
     result = YAP_RunGoal(qi->g);
   } else {
+    Yap_AllowRestart = qi->open;
     result = YAP_RestartGoal();
   }
   qi->state = 1;
