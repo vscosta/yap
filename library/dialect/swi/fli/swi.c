@@ -478,11 +478,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     } else {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
-#if _WIN64
-      snprintf(tmp,SWI_BUF_SIZE,"%I64d",IntegerOfTerm(t));
-#else
-      snprintf(tmp,SWI_BUF_SIZE,"%ld",IntegerOfTerm(t));
-#endif
+      snprintf(tmp,SWI_BUF_SIZE,Int_FORMAT,IntegerOfTerm(t));
     }
   } else if (IsPairTerm(t))  {
     if (!(flags & (CVT_LIST|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) { 
