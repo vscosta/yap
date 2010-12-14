@@ -1021,9 +1021,6 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
      collection is going up in the environment chain it doesn't get
      confused */
   EX = NULL;
-  /* always have an empty slots for people to use */
-  CurSlot = 0;
-  Yap_StartSlots();
   //  sl = Yap_InitSlot(t);
   YENV = ASP;
   YENV[E_CP] = (CELL)P;
@@ -1644,6 +1641,7 @@ Yap_InitYaamRegs(void)
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL);
   /* the first real choice-point will also have AP=FAIL */ 
+  /* always have an empty slots for people to use */
   CurSlot = 0;
   GlobalArena = TermNil;
   h0var = MkVarTerm();
