@@ -189,7 +189,9 @@ goal_expansion(open_null_stream(A), system:swi_open_null_stream(A)) :- swi_io.
 					/* SWI specific */
 goal_expansion(is_stream(A), system:swi_is_stream(A)) :- swi_io.
 goal_expansion(set_stream(A,B),system:swi_set_stream(A,B)) :- swi_io.
-goal_expansion(with_output_to(A,B),system:swi_with_output_to(A,B)) :- swi_io.
+% careful: with_output_to/2 requires setting user_output, and this
+% confuses emulation.
+%goal_expansion(with_output_to(A,B),system:swi_with_output_to(A,B)) :- swi_io.
 goal_expansion(set_prolog_IO(A,B,C), system:swi_set_prolog_IO(A,B,C)) :- swi_io.
 goal_expansion(protocol(A), system:swi_protocol(A)) :- swi_io.
 goal_expansion(protocola(A), system:swi_protocola(A)) :- swi_io.
