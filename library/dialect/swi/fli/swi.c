@@ -3098,13 +3098,20 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   SWIGetStream = swio->get_stream_handle;
 }
 
-typedef int     (*GetStreamF)(term_t, IOSTREAM **s);
+typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
 
 int 
-Yap_get_stream_handle(Term t0, void *s){
-  term_t t = (term_t)YAP_InitSlot(t0);
+Yap_get_stream_handle(Term t0, int read_mode, int write_mode, void *s){
+  term_t t;
   GetStreamF f = (GetStreamF)SWIGetStream;
-  return (*f)(t,s);
+  if (t0 == MkAtomTerm(AtomUserOut) && write_mode && !read_mode) {
+    t = 0;
+  } else if (t0 == MkAtomTerm(AtomUserIn) && !write_mode && read_mode) {
+    t = 0;
+  } else {
+    t = (term_t)YAP_InitSlot(t0);
+  }
+  return (*f)(t, read_mode, write_mode, s);
 }
 
 
