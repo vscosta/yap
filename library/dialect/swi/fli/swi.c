@@ -478,11 +478,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     } else {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
-#if _WIN64
-      snprintf(tmp,SWI_BUF_SIZE,"%I64d",IntegerOfTerm(t));
-#else
-      snprintf(tmp,SWI_BUF_SIZE,"%ld",IntegerOfTerm(t));
-#endif
+      snprintf(tmp,SWI_BUF_SIZE,Int_FORMAT,IntegerOfTerm(t));
     }
   } else if (IsPairTerm(t))  {
     if (!(flags & (CVT_LIST|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL))) { 
@@ -2578,12 +2574,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
   Term t[2], m;
 
   /* ignore flags  and module for now */
-  if (execution == NULL)
-    PL_open_foreign_frame();
-  if (execution->open != 0) {
-    YAP_Error(0, 0L, "only one query at a time allowed\n");
-    return FALSE;
-  }
+  PL_open_foreign_frame();
   execution->open=1;
   execution->state=0;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
@@ -2617,13 +2608,13 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 X_API int PL_next_solution(qid_t qi)
 {
   int result;
-
   if (qi->open != 1) return 0;
   if (setjmp(execution->env))
     return 0;
   if (qi->state == 0) {
     result = YAP_RunGoal(qi->g);
   } else {
+    Yap_AllowRestart = qi->open;
     result = YAP_RestartGoal();
   }
   qi->state = 1;
@@ -2894,6 +2885,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   }
   return PL_ENGINE_SET;
 #else
+  if (old) *old = (PL_engine_t)&Yap_WLocal;
   return FALSE;
 #endif
 }

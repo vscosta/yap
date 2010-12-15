@@ -106,7 +106,6 @@ no_style_check([]).
 no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 
 
-
 '$syntax_check_mode'(O,N) :- 
 	'$values'('$syntaxcheckflag',O,N).
 
@@ -119,55 +118,78 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$syntax_check_multiple'(O,N) :- 
 	'$values'('$syntaxcheckmultiple',O,N).
 
+% reset current state of style checker.
+'$init_style_check'(File) :-
+	recorded('$predicate_defs','$predicate_defs'(_,_,_,File),R),
+	erase(R),
+	fail.
+'$init_style_check'(_).
 
-'$check_term'(T,_,P,_Source,M) :-
+% style checker proper..
+'$check_term'(T,VL,P,_) :-
+	get_value('$syntaxchecksinglevar',on),
+	'$singletons_in_clause'(T, VL, Sv),
+	Sv = [_|_],
+	'$sv_warning'(Sv,T),
+         fail.
+'$check_term'(T,_,P,M) :-
 	get_value('$syntaxcheckdiscontiguous',on),
 	'$xtract_head'(T,M,NM,_,F,A),
-	'$handle_discontiguous'(F,A,NM), fail.
-'$check_term'(T,_,P,_Source,M) :-
+	% should always fail
+	'$handle_discontiguous'(F,A,NM),
+	fail.
+'$check_term'(T,_,P,M) :-
 	get_value('$syntaxcheckmultiple',on),
 	'$xtract_head'(T,M,NM,_,F,A),
-	'$handle_multiple'(F,A,NM), fail.
-'$check_term'(T,VL,P,_Source,_) :-
-	get_value('$syntaxchecksinglevar',on),
-	( '$chk_binding_vars'(T),
-	  '$sv_list'(VL,Sv)
-        ->
-	  '$sv_warning'(Sv,T)
-         ), fail.
-'$check_term'(_,_,_,_,_).
+	'$handle_multiple'(F,A,NM), 
+	fail.
+'$check_term'(T,_,_,M) :-
+	once(( 
+	    get_value('$syntaxcheckdiscontiguous',on)
+	;
+	    get_value('$syntaxcheckmultiple',on)
+	)),
+	recorded('$reconsulting',File,_),
+	'$xtract_head'(T,M,NM,_,F,A),
+	\+ (
+	    % allow duplicates if we are not the last predicate to have
+	    % been asserted.
+	    once(recorded('$predicate_defs','$predicate_defs'(F0,A0,M0,File),_)),
+	    F0 = F, A0 = A, M0 = NM
+	),
+	recorda('$predicate_defs','$predicate_defs'(F,A,NM,File),_),
+	fail.
+'$check_term'(_,_,_,_).
 
-'$chk_binding_vars'(V) :- var(V), !, V = '$V'(_).
-'$chk_binding_vars'('$V'(off)) :- !.
-'$chk_binding_vars'(A) :- primitive(A), !.
-'$chk_binding_vars'(S) :- S =.. [_|L],
-	'$chk_bind_in_struct'(L).
+%
+% output a list of singleton variables...
+%
+'$singletons_in_clause'(T, VL, Sv) :-
+        % first check which variables are not singleton
+	'$non_singletons_in_term'(T,[],V2L),
+        % bound them
+	'$ground_vars'(V2L),
+        % the remainder which do not start by _ are our target! 
+	'$sv_list'(VL, Sv).
 
-'$chk_bind_in_struct'([]).
-'$chk_bind_in_struct'([H|T]) :-
-	'$chk_binding_vars'(H),
-	'$chk_bind_in_struct'(T).
+'$ground_vars'([]).
+'$ground_vars'(ground.V2L) :-
+	'$ground_vars'(V2L).
 
 '$sv_list'([],[]).
-'$sv_list'([[[95|_]|_]|T],L) :-
+'$sv_list'([[95|_]._|T],L) :- !,
 	'$sv_list'(T,L).
-'$sv_list'([[Name|'$V'(V)]|T],[Name|L]) :- var(V), !,
+'$sv_list'([_|V].T,L) :- nonvar(V), !,
 	'$sv_list'(T,L).
-'$sv_list'([_|T],L) :-
+'$sv_list'([Name|_].T, Name.L) :-
 	'$sv_list'(T,L).
 	
 
-'$sv_warning'([],_) :- !.
-'$sv_warning'(SVs,T) :-
+'$sv_warning'([], _) :- !.
+'$sv_warning'(SVs, T) :-
 	'$current_module'(OM),
-	'$xtract_head'(T,OM,M,H,Name,Arity),
-	( nb_getval('$consulting',false),
-	   '$first_clause_in_file'(Name,Arity, OM) ->
-	    ClN = 1 ;
-		'$number_of_clauses'(H,M,ClN0),
-		ClN is ClN0+1
-	),
-	print_message(warning,singletons(SVs,(M:Name/Arity),ClN)).
+	'$xtract_head'(T, OM, M, H, Name, Arity),
+	print_message(warning,singletons(SVs,(M:Name/Arity))).
 
 '$xtract_head'(V,M,M,V,call,1) :- var(V), !.
 '$xtract_head'((H:-_),OM,M,NH,Name,Arity) :- !,
@@ -183,36 +205,54 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$xtract_head'(H,M,M,H,Name,Arity) :-
 	functor(H,Name,Arity).
 
+% check if a predicate is discontiguous.
 '$handle_discontiguous'(F,A,M) :-
-	recorded('$discontiguous_defs','$df'(F,A,M),_), !.
+	recorded('$discontiguous_defs','$df'(F,A,M),_), !,
+	fail.
 '$handle_discontiguous'(F,A,M) :-
 	functor(Head, F, A),
-	'$is_multifile'(Head, M), !.
+	'$is_multifile'(Head, M), !,
+	fail.
 '$handle_discontiguous'(F,A,M) :-
-	'$in_this_file_before'(F,A,M),
-	print_message(warning,clauses_not_together((M:F/A))).
+	nb_getval('$consulting_file', FileName),
+	% we have been there before
+	once(recorded('$predicate_defs','$predicate_defs'(F, A, M, FileName),_)),
+	% and we are not 
+	\+ (
+	    % the last predicate to have been asserted
+	    once(recorded('$predicate_defs','$predicate_defs'(F0,A0,M0,FileName),_)),
+	    F0 = F, A0 = A, M0 = M
+	),
+	print_message(warning,clauses_not_together((M:F/A))),
+        fail.
 
+% never complain the second time
 '$handle_multiple'(F,A,M) :-
-	\+ '$first_clause_in_file'(F,A,M), !.
-'$handle_multiple'(_,_,_) :-
-	nb_getval('$consulting',true), !.
+	nb_getval('$consulting_file', FileName),
+	recorded('$predicate_defs','$predicate_defs'(F,A,M,FileName),_), !.
+% first time we have a definition
 '$handle_multiple'(F,A,M) :-
-	recorded('$predicate_defs','$predicate_defs'(F,A,M,Fil),_), !,
-	'$multiple_has_been_defined'(Fil, F/A, M), !.
-'$handle_multiple'(F,A,M) :-
-	( recorded('$reconsulting',Fil,_) -> true ),
-	recorda('$predicate_defs','$predicate_defs'(F,A,M,Fil),_).
+	nb_getval('$consulting_file', FileName0),
+	recorded('$predicate_defs','$predicate_defs'(F,A,M,FileName),_),
+	FileName \= FileName0,
+	'$multiple_has_been_defined'(FileName, F/A, M), !.
 
+% be careful about these cases.
+% consult does not count
+'$multiple_has_been_defined'(_, _, _) :-
+	nb_getval('$consulting',true), !.	
+% multifile does not count
 '$multiple_has_been_defined'(_, F/A, M) :-
 	functor(S, F, A),
 	'$is_multifile'(S, M), !.
+'$multiple_has_been_defined'(Fil,F/A,M) :-
+	% first, clean up all definitions in other files
+	% don't forget, we just removed everything.
+	recorded('$predicate_defs','$predicate_defs'(F,A,M,FileName),R),
+	erase(R),
+	fail.
 '$multiple_has_been_defined'(Fil,P,M) :-
-	recorded('$reconsulting',F,_), !,
-	'$test_if_well_reconsulting'(F,Fil,M:P).
-
-'$test_if_well_reconsulting'(F,F,_) :- !.
-'$test_if_well_reconsulting'(_,Fil,P) :-
-	print_message(warning,defined_elsewhere(P,Fil)).
+	print_message(warning,defined_elsewhere(M:P,Fil)).
 
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).

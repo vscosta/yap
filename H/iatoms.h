@@ -162,7 +162,7 @@
   AtomMfClause = Yap_FullLookupAtom("$mf_clause");
   AtomMinus = Yap_LookupAtom("-");
   AtomModify = Yap_LookupAtom("modify");
-  AtomMultiFile = Yap_FullLookupAtom("$multi_file");
+  AtomMultiFile = Yap_FullLookupAtom("$mf");
   AtomMutable = Yap_LookupAtom("mutable");
   AtomMutableVariable = Yap_FullLookupAtom("$mutable_variable");
   AtomMyddasDB = Yap_FullLookupAtom("$myddas_db");

@@ -2054,7 +2054,6 @@ YAP_RestartGoal(void)
 {
   int out;
   BACKUP_MACHINE_REGS();
-
   if (Yap_AllowRestart) {
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
@@ -2650,6 +2649,8 @@ YAP_Init(YAP_init_args *yap_init)
       /* first, initialise the saved state */
       Term t_goal = MkAtomTerm(AtomStartupSavedState);
       YAP_RunGoalOnce(t_goal);
+      Yap_InitYaamRegs();
+      /* reset stacks */
       return YAP_BOOT_FROM_SAVED_CODE;
     } else {
       return YAP_BOOT_FROM_SAVED_STACKS;
@@ -2681,6 +2682,8 @@ YAP_Init(YAP_init_args *yap_init)
       fgoal = Yap_MkFunctor(Yap_LookupAtom("module"), 1);
       goal = Yap_MkApplTerm(fgoal, 1, as);
       YAP_RunGoalOnce(goal);
+      /* reset stacks */
+      Yap_InitYaamRegs();
     }
     Yap_PutValue(Yap_FullLookupAtom("$live"), MkAtomTerm (Yap_FullLookupAtom("$true")));
   }

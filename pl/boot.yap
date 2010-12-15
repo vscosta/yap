@@ -461,14 +461,14 @@ true :- true.
 	 '$$compile'(G1, G0, N, HeadMod).
 
  '$prepare_term'(G, V, Pos, G0, G1, BodyMod, SourceMod, Source) :-
-	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod),
 	 (
 	     get_value('$syntaxcheckflag',on)
           ->
-	     '$check_term'(G0, V, Pos, Source, BodyMod)
+	     '$check_term'(Source, V, Pos, BodyMod)
 	 ;
 	     true 
-	 ).
+	 ),
+	 '$precompile_term'(G, G0, G1, BodyMod, SourceMod).
 
  % process an input clause
  '$$compile'(G, G0, L, Mod) :-

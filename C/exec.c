@@ -1002,6 +1002,8 @@ exec_absmi(int top)
     Yap_PrologMode = UserMode;
   }
   Yap_CloseSlots();
+  YENV = ASP;
+  YENV[E_CB] = Unsigned (B);
   out = Yap_absmi(0);
   Yap_StartSlots();
   /* make sure we don't leave a FAIL signal hanging around */ 
@@ -1054,9 +1056,9 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b)
 #if defined(YAPOR) || defined(THREADS)
   WPP = NULL;
 #endif
-  YENV[E_CB] = Unsigned (B);
-  CP = YESCODE;
+  /* start with some slots so that we can use them */
   Yap_StartSlots();
+  CP = YESCODE;
 }
 
 static Term
@@ -1639,6 +1641,7 @@ Yap_InitYaamRegs(void)
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL);
   /* the first real choice-point will also have AP=FAIL */ 
+  /* always have an empty slots for people to use */
   CurSlot = 0;
   GlobalArena = TermNil;
   h0var = MkVarTerm();

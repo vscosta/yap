@@ -212,7 +212,8 @@ assertz_static(C) :-
 	'$head_and_body'(C,H,B),
 	'$assertat_d'(last,H,B,C0,Mod,_).
 '$assertz_dynamic'(X,C,C0,Mod) :- 
-	'$head_and_body'(C,H,B), functor(H,N,A),
+	'$head_and_body'(C,H,B), 
+	functor(H,N,A),
 	('$check_if_reconsulted'(N,A) ->
 		true
 		 ;

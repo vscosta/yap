@@ -252,6 +252,7 @@ use_module(M,F,Is) :-
 	'$access_yap_flags'(18,GenerateDebug),
 	'$consult_infolevel'(InfLevel),
 	'$comp_mode'(OldCompMode, CompMode),
+	( get_value('$syntaxcheckflag',on) -> '$init_style_check'(File) ; true ),
 	recorda('$initialisation','$',_),
 	( Reconsult = reconsult ->
 	    '$start_reconsulting'(File),
