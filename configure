@@ -8574,6 +8574,7 @@ main ()
 {
 jmp_buf         RestartEnv;
 
+	_setjmp (RestartEnv);
 	_longjmp (RestartEnv, 1);
 
   ;

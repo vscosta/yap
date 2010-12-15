@@ -1575,6 +1575,7 @@ AC_TRY_COMPILE(
 	,
 	jmp_buf         RestartEnv;
 
+	_setjmp (RestartEnv);
 	_longjmp (RestartEnv, 1);
 	,
 	yap_cv__setjmp=yes,yap_cv__setjmp=no)])
