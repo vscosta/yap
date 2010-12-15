@@ -4340,11 +4340,15 @@ static const PL_extension foreigns[] = {
 };
 
 static int
-get_stream_handle_no_errors(term_t t, IOSTREAM **s)
+get_stream_handle_no_errors(term_t t, int read, int write, IOSTREAM **s)
 { GET_LD
+  if ( t == 0 )
+    { if (write) *s = getStream(Scurout);
+      else *s = getStream(Scurout);
+      return TRUE;
+    }
   return get_stream_handle(t, s, SH_ALIAS);
 }
-
 
 static void
 init_yap_extras(void)
@@ -4357,7 +4361,7 @@ init_yap_extras(void)
   swiio.get_w = Sgetcode;
   swiio.put_w = Sputcode;
   swiio.flush_s = Sflush;
-  swiio.close_s = Sclose;
+  swiio.close_s = closeStream;
   swiio.get_stream_handle = get_stream_handle_no_errors;
   PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
