@@ -165,7 +165,7 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0)
 #endif
     /* could not find more trail */
     save_machine_regs();
-    _longjmp(Yap_gc_restore, 2);
+    siglongjmp(Yap_gc_restore, 2);
   }
 }
 
@@ -425,7 +425,7 @@ check_pr_trail(tr_fr_ptr trp)
     if (!Yap_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
-      _longjmp(Yap_gc_restore, 2);
+      siglongjmp(Yap_gc_restore, 2);
     }
   }
 }
@@ -3782,7 +3782,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop)
   }
 #endif
   time_start = Yap_cputime();
-  if (_setjmp(Yap_gc_restore) == 2) {
+  if (sigsetjmp(Yap_gc_restore, 0) == 2) {
     UInt sz;
 
     /* we cannot recover, fail system */

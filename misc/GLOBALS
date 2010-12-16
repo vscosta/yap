@@ -144,7 +144,7 @@ struct RB_red_blk_node*		DB_nil		db_nil		=NULL
 #endif /* defined(YAPOR) || defined(THREADS) */
 
 
-jmp_buf				gc_restore		Yap_gc_restore	void
+sigjmp_buf			gc_restore		Yap_gc_restore	void
 struct array_entry*		dynamic_arrays		DynamicArrays	=NULL PtoArrayEAdjust
 struct static_array_entry*	static_arrays		StaticArrays	=NULL PtoArraySAdjust
 struct global_entry*		global_variables	GlobalVariables	=NULL PtoGlobalEAdjust
