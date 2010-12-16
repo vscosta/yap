@@ -114,20 +114,6 @@ AtomAdjust(Atom a)
 
 static Term AdjustDBTerm(Term, Term *);
 
-static Term
-CodeComposedTermAdjust(Term t)
-{
-  Term *base;
-
-  if (IsApplTerm(t)) {
-    base = RepAppl(t);
-  } else {
-    base = RepPair(t);
-  }
-  return AdjustDBTerm(t, base);
-}
-
-
 #define IsOldCode(P) FALSE
 #define IsOldCodeCellPtr(P) FALSE
 #define IsOldDelay(P) FALSE

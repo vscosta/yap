@@ -291,17 +291,17 @@
     case _unify_void_write:
       cl = NEXTOP(cl,o);
       break;
-    case _unify_bigint:
-      cl = NEXTOP(cl,oB);
-      break;
-    case _unify_l_bigint:
-      cl = NEXTOP(cl,oB);
-      break;
     case _unify_dbterm:
       cl = NEXTOP(cl,oD);
       break;
     case _unify_l_dbterm:
       cl = NEXTOP(cl,oD);
+      break;
+    case _unify_bigint:
+      cl = NEXTOP(cl,oN);
+      break;
+    case _unify_l_bigint:
+      cl = NEXTOP(cl,oN);
       break;
     case _unify_atom:
       cl = NEXTOP(cl,oc);
@@ -553,12 +553,26 @@
       }
       cl = NEXTOP(cl,x);
       break;
-    case _get_bigint:
-      if (iarg == cl->u.xB.x) {
-	clause->Tag = cl->u.xB.b;
+    case _put_dbterm:
+      if (iarg == cl->u.xD.x) {
+	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xB);
+      cl = NEXTOP(cl,xD);
+      break;
+    case _get_bigint:
+      if (iarg == cl->u.xN.x) {
+	clause->Tag = cl->u.xN.b;
+	return;
+      }
+      cl = NEXTOP(cl,xN);
+      break;
+    case _put_bigint:
+      if (iarg == cl->u.xN.x) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xN);
       break;
     case _get_atom:
       if (iarg == cl->u.xc.x) {

@@ -241,7 +241,6 @@ typedef enum {
   The meaning and type of the symbols in a abstract machine instruction is:
 
   b: arity (Int)
-  B: bigint, Blob (Term)
   b: bitmap (CELL *)
   c: constant, is a Term
   d: double (functor + unaligned double)
@@ -253,6 +252,7 @@ typedef enum {
   L: logic upd clause, logic_upd_clause *
   m: module, Term
   n: number, Integer
+  N: bigint, Blob (Term)
   o: opcode, OPCODE
   O: OR-parallel information, used by YAPOR, unsigned int
   p: predicate, struct pred_entry *
@@ -277,6 +277,14 @@ typedef struct yami {
       Term                c;
       CELL next;
     } c;
+    struct {
+      Term                D;
+      CELL next;
+    } D;
+    struct {
+      Term                b;
+      CELL next;
+    } N;
     struct {
       Term                c1;
       Term                c2;
@@ -501,7 +509,7 @@ typedef struct yami {
       OPCODE              opcw;
       Term                b;
       CELL next;
-    } oB;
+    } oN;
     struct {
       OPCODE              opcw;
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
@@ -720,7 +728,7 @@ typedef struct yami {
       wamreg                x;
       Term                  b;
       CELL next;
-    } xB;
+    } xN;
     struct {
       wamreg                x;
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];

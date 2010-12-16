@@ -1083,15 +1083,15 @@ a_uc(CELL rnd1, op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_
 }
 
 inline static yamop *
-a_blob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
+a_wblob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.c.c =
+    code_p->u.N.b =
       AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(c);
+  GONEXT(N);
   return code_p;
 }
 
@@ -1117,11 +1117,11 @@ a_wdbt(CELL rnd1, op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.c.c = rnd1;
+    code_p->u.D.D = rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(c);
+  GONEXT(D);
   return code_p;
 }
 
@@ -1130,13 +1130,13 @@ a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobs
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
-    code_p->u.oc.c = 
+    code_p->u.oN.opcw = emit_op(opcode_w);
+    code_p->u.oN.b = 
       AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
       
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(oc);
+  GONEXT(oN);
   return code_p;
 }
 
@@ -1145,12 +1145,12 @@ a_udbt(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_dbterm
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
-    code_p->u.oc.c = cip->cpc->rnd1;
+    code_p->u.oD.opcw = emit_op(opcode_w);
+    code_p->u.oD.D = cip->cpc->rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(oc);
+  GONEXT(oD);
   return code_p;
 }
 
@@ -1372,11 +1372,11 @@ a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, stru
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+    code_p->u.xN.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xN.b = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(xc);
+  GONEXT(xN);
   return code_p;
 }
 
@@ -1385,12 +1385,12 @@ a_dbt(op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, st
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xc.c = cip->cpc->rnd1;
+    code_p->u.xD.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xD.D = cip->cpc->rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(xc);
+  GONEXT(xD);
   return code_p;
 }
 
@@ -3248,10 +3248,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ri(_put_longint, code_p, pass_no, cip->cpc);
       break;
     case put_bigint_op:
-      code_p = a_rb(_put_atom, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_rb(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case put_dbterm_op:
-      code_p = a_dbt(_put_atom, clause_has_dbtermp, code_p, pass_no, cip);
+      code_p = a_dbt(_put_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case get_list_op:
       code_p = a_glist(&do_not_optimise_uatom, code_p, pass_no, cip);
@@ -3344,10 +3344,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_wi(_write_longint, code_p, pass_no, cip->cpc);
       break;
     case write_bigint_op:
-      code_p = a_blob(cip->cpc->rnd1, _write_atom, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_wblob(cip->cpc->rnd1, _write_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case write_dbterm_op:
-      code_p = a_wdbt(cip->cpc->rnd1, _write_atom, clause_has_dbtermp, code_p, pass_no, cip);
+      code_p = a_wdbt(cip->cpc->rnd1, _write_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case unify_list_op:
       code_p = a_ue(_unify_list, _unify_list_write, code_p, pass_no);

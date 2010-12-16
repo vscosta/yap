@@ -250,10 +250,11 @@ ConstantTermAdjust (Term t)
 static Term
 DBGroundTermAdjust (Term t)
 {
+  /* The term itself is restored by dbtermlist */
   if (IsPairTerm(t)) {
-    return AdjustDBTerm(t, PtoHeapCellAdjust(RepPair(t)));
+    return AbsPair(PtoHeapCellAdjust(RepPair(t)));
   } else {
-    return AdjustDBTerm(t, PtoHeapCellAdjust(RepAppl(t)));
+    return AbsAppl(PtoHeapCellAdjust(RepAppl(t)));
   }
 }
 

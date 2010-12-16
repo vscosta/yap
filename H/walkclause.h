@@ -9,12 +9,20 @@
     op = Yap_op_from_opcode(pc->opc);
     /* C-code, maybe indexing */
     switch (op) {
+      /* instructions type D */
+    case _write_dbterm:
+      pc = NEXTOP(pc,D);
+      break;
       /* instructions type Ills */
     case _enter_lu_pred:
       return walk_got_lu_block(pc->u.Ills.I, startp, endp);
       /* instructions type L */
     case _alloc_for_logical_pred:
       return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);
+      /* instructions type N */
+    case _write_bigint:
+      pc = NEXTOP(pc,N);
+      break;
       /* instructions type Osblp */
     case _either:
     case _or_else:
@@ -225,15 +233,15 @@
     case _unify_void_write:
       pc = NEXTOP(pc,o);
       break;
-      /* instructions type oB */
-    case _unify_bigint:
-    case _unify_l_bigint:
-      pc = NEXTOP(pc,oB);
-      break;
       /* instructions type oD */
     case _unify_dbterm:
     case _unify_l_dbterm:
       pc = NEXTOP(pc,oD);
+      break;
+      /* instructions type oN */
+    case _unify_bigint:
+    case _unify_l_bigint:
+      pc = NEXTOP(pc,oN);
       break;
       /* instructions type oc */
     case _unify_atom:
@@ -406,13 +414,15 @@
     case _write_x_var:
       pc = NEXTOP(pc,x);
       break;
-      /* instructions type xB */
-    case _get_bigint:
-      pc = NEXTOP(pc,xB);
-      break;
       /* instructions type xD */
     case _get_dbterm:
+    case _put_dbterm:
       pc = NEXTOP(pc,xD);
+      break;
+      /* instructions type xN */
+    case _get_bigint:
+    case _put_bigint:
+      pc = NEXTOP(pc,xN);
       break;
       /* instructions type xc */
     case _get_atom:
