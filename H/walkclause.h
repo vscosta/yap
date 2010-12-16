@@ -225,15 +225,21 @@
     case _unify_void_write:
       pc = NEXTOP(pc,o);
       break;
+      /* instructions type oB */
+    case _unify_bigint:
+    case _unify_l_bigint:
+      pc = NEXTOP(pc,oB);
+      break;
+      /* instructions type oD */
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+      pc = NEXTOP(pc,oD);
+      break;
       /* instructions type oc */
     case _unify_atom:
     case _unify_atom_write:
-    case _unify_bigint:
-    case _unify_dbterm:
     case _unify_l_atom:
     case _unify_l_atom_write:
-    case _unify_l_bigint:
-    case _unify_l_dbterm:
       pc = NEXTOP(pc,oc);
       break;
       /* instructions type od */
@@ -400,10 +406,16 @@
     case _write_x_var:
       pc = NEXTOP(pc,x);
       break;
+      /* instructions type xB */
+    case _get_bigint:
+      pc = NEXTOP(pc,xB);
+      break;
+      /* instructions type xD */
+    case _get_dbterm:
+      pc = NEXTOP(pc,xD);
+      break;
       /* instructions type xc */
     case _get_atom:
-    case _get_bigint:
-    case _get_dbterm:
     case _put_atom:
       pc = NEXTOP(pc,xc);
       break;

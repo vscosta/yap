@@ -316,28 +316,28 @@
     case _unify_void_write:
       cl = NEXTOP(cl,o);
       break;
+    case _unify_bigint:
+      cl = NEXTOP(cl,oB);
+      break;
+    case _unify_l_bigint:
+      cl = NEXTOP(cl,oB);
+      break;
+    case _unify_dbterm:
+      cl = NEXTOP(cl,oD);
+      break;
+    case _unify_l_dbterm:
+      cl = NEXTOP(cl,oD);
+      break;
     case _unify_atom:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_atom_write:
       cl = NEXTOP(cl,oc);
       break;
-    case _unify_bigint:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_dbterm:
-      cl = NEXTOP(cl,oc);
-      break;
     case _unify_l_atom:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_l_atom_write:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_l_bigint:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_l_dbterm:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_float:
@@ -656,19 +656,14 @@
       }
       cl = NEXTOP(cl,x);
       break;
-    case _get_atom:
-      if (is_regcopy(myregs, nofregs, cl->u.xc.x)) {
-	if (IsApplTerm(cl->u.xc.c)) {
-          CELL *pt = RepAppl(cl->u.xc.c);
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.xc.c;
-	} else
-	  clause->Tag = cl->u.xc.c;
+    case _get_bigint:
+      if (is_regcopy(myregs, nofregs, cl->u.xB.x)) {
+	clause->Tag = cl->u.xB.b;
 	return;
       }
-      cl = NEXTOP(cl,xc);
+      cl = NEXTOP(cl,xB);
       break;
-    case _get_bigint:
+    case _get_atom:
       if (is_regcopy(myregs, nofregs, cl->u.xc.x)) {
 	if (IsApplTerm(cl->u.xc.c)) {
           CELL *pt = RepAppl(cl->u.xc.c);

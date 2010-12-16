@@ -244,14 +244,16 @@ ConstantTermAdjust (Term t)
 {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
-  else if (IsIntTerm(t))
-    return t;
-  else if (IsApplTerm(t) && IsBlobFunctor(FunctorOfTerm(t))) {
-    return BlobTermAdjust(t);
-  } else if (IsApplTerm(t) || IsPairTerm(t)) {
-    return CodeComposedTermAdjust(t);
+  return t;
+}
+
+static Term
+DBGroundTermAdjust (Term t)
+{
+  if (IsPairTerm(t)) {
+    return AdjustDBTerm(t, PtoHeapCellAdjust(RepPair(t)));
   } else {
-    return t;
+    return AdjustDBTerm(t, PtoHeapCellAdjust(RepAppl(t)));
   }
 }
 

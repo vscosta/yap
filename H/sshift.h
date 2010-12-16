@@ -449,10 +449,10 @@ CodeVarAdjust (Term var)
 
 #if TAGS_FAST_OPS
 
-inline EXTERN Term BlobTermAdjust (Term);
+inline EXTERN Term BlobTermInCodeAdjust (Term);
 
 inline EXTERN Term
-BlobTermAdjust (Term t)
+BlobTermInCodeAdjust (Term t)
 {
   return (Term) (CharP(t) - HDiff);
 }
@@ -469,10 +469,10 @@ CodeComposedTermAdjust (Term t)
 
 #else
 
-inline EXTERN Term BlobTermAdjust (Term);
+inline EXTERN Term BlobTermInCodeAdjust (Term);
 
 inline EXTERN Term
-BlobTermAdjust (Term t)
+BlobTermInCodeAdjust (Term t)
 {
   return (Term) (CharP(t) + HDiff);
 }
