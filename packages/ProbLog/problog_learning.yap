@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5041 $
+%  $Date: 2010-12-15 15:05:44 +0100 (Wed, 15 Dec 2010) $
+%  $Revision: 5142 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -216,7 +216,7 @@
 
 % load modules from the YAP library
 :- use_module(library(lists), [max_list/2, min_list/2, sum_list/2]).
-:- use_module(library(system), [delete_file/1, file_exists/1, shell/2]).
+:- use_module(library(system), [file_exists/1, shell/2]).
 
 % load our own modules
 :- use_module(problog).
@@ -226,6 +226,7 @@
 :- use_module('problog/print_learning').
 :- use_module('problog/utils_learning').
 :- use_module('problog/utils').
+:- use_module('problog/tabling').
 
 % used to indicate the state of the system
 :- dynamic(values_correct/0).
@@ -256,75 +257,13 @@ user:test_example(A,B,C,=) :-
 
 %========================================================================
 %= store the facts with the learned probabilities to a file
-%= if F is a variable, a filename based on the current iteration is used
-%=
 %========================================================================
 
 save_model:-
 	current_iteration(Iteration),
-	atomic_concat(['factprobs_',Iteration,'.pl'],Filename),
-	problog_flag(output_directory,Dir),
-	concat_path_with_filename(Dir,Filename,Filename2),
-	export_facts(Filename2).
+	create_factprobs_file_name(Iteration,Filename),
+	export_facts(Filename).
 
-
-%========================================================================
-%= store the current succes probabilities for training and test examples
-%= 
-%========================================================================
-
-save_predictions:-
-	current_iteration(Iteration),
-	atomic_concat(['predictions_',Iteration,'.pl'],Filename),
-	problog_flag(output_directory,Dir),
-	concat_path_with_filename(Dir,Filename,Filename2),
-
-	open(Filename2,'append',Handle),
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n",[]),
-	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %\n",[]),
-	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n",[]),
-	!,
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start save prediction test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all test examples
-	   current_predicate(user:test_example/4),
-	   user:test_example(Query_ID,Query,TrueQueryProb,_),
-	   query_probability(Query_ID,LearnedQueryProb),
-
-	   format(Handle,'ex(~q,test,~q,~q,~10f,~10f).\n',
-	   [Iteration,Query_ID,Query,TrueQueryProb,LearnedQueryProb]),
-
-	   fail; % go to next test example
-	   true
-        ),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop save prediction test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start save prediction training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all training examples
-	    current_predicate(user:example/4),
-	    user:example(Query_ID,Query,TrueQueryProb,_),
-	    query_probability(Query_ID,LearnedQueryProb),
-
-	    format(Handle,'ex(~q,train,~q,~q,~10f,~10f).\n',
-		   [Iteration,Query_ID,Query,TrueQueryProb,LearnedQueryProb]),
-
-	    fail; % go to next training example
-	    true
-	),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop save prediction training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	format(Handle,'~3n',[]),
-	close(Handle).
 
 
 
@@ -339,7 +278,7 @@ check_examples :-
 	% Check example IDs
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (current_predicate(user:example/4),user:example(ID,_,_,_), \+ atomic(ID))
+	 (user:example(ID,_,_,_), \+ atomic(ID))
 	->
 	 (
 	  format(user_error,'The example id of training example ~q ',[ID]),
@@ -349,7 +288,7 @@ check_examples :-
 	),
 
 	(
-	 (current_predicate(user:test_example/4),user:test_example(ID,_,_,_), \+ atomic(ID))
+	 (user:test_example(ID,_,_,_), \+ atomic(ID))
 	->
 	 (
 	  format(user_error,'The example id of test example ~q ',[ID]),
@@ -362,7 +301,7 @@ check_examples :-
 	% Check example probabilities
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	 (current_predicate(user:example/4),user:example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
+	 (user:example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
 	->
 	 (
 	  format(user_error,'The training example ~q does not have a valid probability value (~q).~n',[ID,P]),
@@ -371,7 +310,7 @@ check_examples :-
 	),
 
 	(
-	 (current_predicate(user:test_example/4),user:test_example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
+	 (user:test_example(ID,_,P,_), (\+ number(P); P>1 ; P<0))
 	->
 	 (
 	  format(user_error,'The test example ~q does not have a valid probability value (~q).~n',[ID,P]),
@@ -387,22 +326,18 @@ check_examples :-
 	(
 	 (
 	  (
-	   current_predicate(user:example/4),
 	   user:example(ID,QueryA,_,_),
 	   user:example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  ) ;
 	  
 	  (
-	   current_predicate(user:test_example/4),
 	   user:test_example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
 	  );
 
 	  (
-	   current_predicate(user:example/4),
-	   current_predicate(user:test_example/4),
 	   user:example(ID,QueryA,_,_),
 	   user:test_example(ID,QueryB,_,_),
 	   QueryA \= QueryB
@@ -419,9 +354,7 @@ check_examples :-
 %========================================================================
 
 reset_learning :-
-	retractall(current_iteration(_)),
 	retractall(learning_initialized),
-
 	retractall(values_correct),
 	retractall(current_iteration(_)),
 	retractall(example_count(_)),
@@ -474,7 +407,6 @@ do_learning_intern(Iterations,Epsilon) :-
 	logger_set_variable(iteration,CurrentIteration),
 
 	logger_start_timer(duration),
-
 	mse_testset,
 	ground_truth_difference,  
 	gradient_descent,
@@ -484,10 +416,7 @@ do_learning_intern(Iterations,Epsilon) :-
 	(
 	 ( Log_Frequency>0, 0 =:= CurrentIteration mod Log_Frequency)
 	->
-	 (
-	  once(save_predictions),
-	  once(save_model)
-	 );
+	 once(save_model);
 	 true
 	),
 
@@ -583,55 +512,29 @@ init_learning :-
 	 )
 	->
 	 (
-	  format('Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	  format_learning(2,'Theory uses continuous facts.~nWill use problog_exact/3 as initalization method.~2n',[]),
+	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
+	 );
+	 true
+	),
+
+	(
+	 problog_tabled(_)
+	->
+	 (
+	  format_learning(2,'Theory uses tabling.~nWill use problog_exact/3 as initalization method.~2n',[]),
 	  set_problog_flag(init_method,(Query,Probability,BDDFile,ProbFile,problog_exact_save(Query,Probability,_Status,BDDFile,ProbFile)))
 	 );
 	 true
 	),
 	
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start count test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bb_put(test_examples,0),
-	( % go over all test examples
-	  current_predicate(user:test_example/4),
-	  user:test_example(_,_,_,_),
-	  bb_get(test_examples, OldCounter),
-	  NewCounter is OldCounter+1,
-	  bb_put(test_examples,NewCounter),
-
-	  fail; % go to next text example
-	  true
-	),
-	bb_delete(test_examples,TestExampleCount),
+	succeeds_n_times(user:example(_,_,_,_),TestExampleCount),
 	format_learning(3,'~q test examples~n',[TestExampleCount]),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop count test examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% start count training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	bb_put(training_examples,0),
-	( % go over all training examples
-	  current_predicate(user:example/4),
-	  user:example(_,_,_,_),
-	  bb_get(training_examples, OldCounter),
-	  NewCounter is OldCounter+1,
-	  bb_put(training_examples,NewCounter),
-
-	  fail; %go to next training example
-	  true
-	),
-	bb_delete(training_examples,TrainingExampleCount),
+	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
 	assertz(example_count(TrainingExampleCount)),
 	format_learning(3,'~q training examples~n',[TrainingExampleCount]),
-	!,
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	% stop count training examples
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -647,8 +550,17 @@ init_learning :-
 	(
 	 problog_flag(alpha,auto)
 	->
-	 auto_alpha;
-	 true
+	 (
+	  (user:example(_,_,P,_),P<1,P>0)
+	 ->
+	  set_problog_flag(alpha,1.0);
+	  (
+	   succeed_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
+	   succeed_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
+	   Alpha is Pos_Count/Neg_Count,
+	   set_problog_flag(alpha,Alpha)
+	  )
+	 )
 	),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -675,33 +587,16 @@ init_learning :-
 
 init_queries :-
 	format_learning(2,'Build BDDs for examples~n',[]),
-	(			% go over all test examples
-	  current_predicate(user:test_example/4),
-	  user:test_example(ID,Query,Prob,_),
-	  format_learning(3,' test example ~q: ~q~n',[ID,Query]),
-	  flush_output(user),
-	  init_one_query(ID,Query,test),
-
-	  fail;			% go to next test example
-	  true
-	),
-	(			% go over all training examples
-	  current_predicate(user:example/4),
-	  user:example(ID,Query,Prob,_),
-	  format_learning(3,' training example ~q: ~q~n',[ID,Query]),
-	  flush_output(user),
-	  init_one_query(ID,Query,training),
-	  
-	  fail;			%go to next training example
-	  true
-	).
-
+	forall(user:test_example(ID,Query,_Prob,_),init_one_query(ID,Query,test)),
+	forall(user:example(ID,Query,_Prob,_),init_one_query(ID,Query,training)).
 
 bdd_input_file(Filename) :-
 	problog_flag(output_directory,Dir),
 	concat_path_with_filename(Dir,'input.txt',Filename).
 
 init_one_query(QueryID,Query,Type) :-
+	format_learning(3,' ~q example ~q: ~q~n',[Type,QueryID,Query]),
+
 	bdd_input_file(Probabilities_File),
 	problog_flag(bdd_directory,Query_Directory),
 
@@ -718,7 +613,7 @@ init_one_query(QueryID,Query,Type) :-
 	 (
 	  problog_flag(init_method,(Query,_Prob,Filename,Probabilities_File,Call)),
 	  once(Call),
-	  delete_file(Probabilities_File)
+	  delete_file_silently(Probabilities_File)
 	 )
 	),
     
@@ -774,27 +669,19 @@ update_values :-
 
 	open(Probabilities_File,'write',Handle),
 
-	(			% go over all probabilistic facts
-	  get_fact_probability(ID,Prob),
-	  inv_sigmoid(Prob,Value),
-	  (
-	   non_ground_fact(ID)
-	  ->
-	   format(Handle,'@x~q_*~n~10f~n',[ID,Value]);
-	   format(Handle,'@x~q~n~10f~n',[ID,Value])
-	  ),
+	forall(get_fact_probability(ID,Prob),
+	       (
+		inv_sigmoid(Prob,Value),
+		(
+		 non_ground_fact(ID)
+		->
+		 format(Handle,'@x~q_*~n~10f~n',[ID,Value]);
+		 format(Handle,'@x~q~n~10f~n',[ID,Value])
+		)
+	       )),
 
-	  fail;			% go to next probabilistic fact
-	  true
-	),
-
- 	(			% go over all continuous facts
- 	 get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
- 	 format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma]),
- 
- 	 fail;			% go to next continuous fact
- 	 true
- 	),
+	forall(get_continuous_fact_parameters(ID,gaussian(Mu,Sigma)),
+	       format(Handle,'@x~q_*~n0~n0~n~10f;~10f~n',[ID,Mu,Sigma])),
 
 	close(Handle),
 	!,
@@ -885,11 +772,10 @@ update_query(QueryID,Symbol,What_To_Update) :-
 	   )
 	  ),
 	  
-	  delete_file(Values_Filename),
+	  delete_file_silently(Values_Filename),
 	  format_learning(4,'~w',[Symbol])
 	 )
-	),
-	flush_output(user).
+	).
 
 
 %========================================================================
@@ -998,73 +884,86 @@ ground_truth_difference :-
 %========================================================================
 
 mse_trainingset_only_for_linesearch(MSE) :-
-	(
-	 current_predicate(user:example/4)
-	-> 
-	 (
-	  update_values,
-	  findall(SquaredError,
-		  (user:example(QueryID,_Query,QueryProb,Type),
-		   once(update_query(QueryID,'.',probability)),
-		   query_probability(QueryID,CurrentProb),
-		   once(update_query_cleanup(QueryID)),
-		   (
-		    (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
-		   ->
-		    SquaredError is (CurrentProb-QueryProb)**2;
-		    SquaredError = 0.0
-		   )
-		  ),
-		   
-		  AllSquaredErrors),
+	update_values,
 
-	  length(AllSquaredErrors,Length),
-	  sum_list(AllSquaredErrors,SumAllSquaredErrors),
-	  MSE is SumAllSquaredErrors/Length,
-	  format_learning(3,' (~8f)~n',[MSE])
-	 ); true
-	),
+	example_count(Example_Count),
+
+	bb_put(error_train_line_search,0.0),
+	forall(user:example(QueryID,_Query,QueryProb,Type),
+	       (
+		once(update_query(QueryID,'.',probability)),
+		query_probability(QueryID,CurrentProb),
+		once(update_query_cleanup(QueryID)),
+		(
+		 (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
+		->
+		 (
+		  bb_get(error_train_line_search,Old_Error),
+		  New_Error is Old_Error + (CurrentProb-QueryProb)**2,
+		  bb_put(error_train_line_search,New_Error)
+		 );true
+		)
+	       )
+	      ),
+	bb_delete(error_train_line_search,Error),
+	MSE is Error/Example_Count,
+	format_learning(3,' (~8f)~n',[MSE]),
 	retractall(values_correct).
 
 mse_testset :-
+	current_iteration(Iteration),
+	create_test_predictions_file_name(Iteration,File_Name),
+	open(File_Name,'write',Handle),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	
+	format_learning(2,'MSE_Test ',[]),
+	update_values,
+	bb_put(llh_test_queries,0.0),
+	findall(SquaredError,
+		(user:test_example(QueryID,Query,TrueQueryProb,Type),
+		 once(update_query(QueryID,'+',probability)),
+		 query_probability(QueryID,CurrentProb),
+		 format(Handle,'ex(~q,test,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,TrueQueryProb,CurrentProb]),
+		 once(update_query_cleanup(QueryID)),
+		 (
+		  (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
+		 ->
+		  SquaredError is (CurrentProb-TrueQueryProb)**2;
+		  SquaredError = 0.0
+		 ),
+		 bb_get(llh_test_queries,Old_LLH_Test_Queries),
+		 New_LLH_Test_Queries is Old_LLH_Test_Queries+log(CurrentProb),
+		 bb_put(llh_test_queries,New_LLH_Test_Queries)
+		),
+		AllSquaredErrors),
+
+        close(Handle),
+	bb_delete(llh_test_queries,LLH_Test_Queries),
+
+	length(AllSquaredErrors,Length),
+
 	(
-	 (current_predicate(user:test_example/4),user:test_example(_,_,_,_))
+	 Length>0
 	->
 	 (
-	  format_learning(2,'MSE_Test ',[]),
-	  update_values,
-	  bb_put(llh_test_queries,0.0),
-	  findall(SquaredError,
-		  (user:test_example(QueryID,_Query,QueryProb,Type),
-		   once(update_query(QueryID,'+',probability)),
-		   query_probability(QueryID,CurrentProb),
-		   once(update_query_cleanup(QueryID)),
-		   (
-		    (Type == '='; (Type == '<', CurrentProb>QueryProb); (Type=='>',CurrentProb<QueryProb))
-		   ->
-		    SquaredError is (CurrentProb-QueryProb)**2;
-		    SquaredError = 0.0
-		   ),
-		   bb_get(llh_test_queries,Old_LLH_Test_Queries),
-		   New_LLH_Test_Queries is Old_LLH_Test_Queries+log(CurrentProb),
-		   bb_put(llh_test_queries,New_LLH_Test_Queries)
-		  ),
-		  AllSquaredErrors),
-	  
-	  length(AllSquaredErrors,Length),
 	  sum_list(AllSquaredErrors,SumAllSquaredErrors),
 	  min_list(AllSquaredErrors,MinError),
 	  max_list(AllSquaredErrors,MaxError),
-	  MSE is SumAllSquaredErrors/Length,
-	  bb_delete(llh_test_queries,LLH_Test_Queries),
+	  MSE is SumAllSquaredErrors/Length
+	 );(
+	    MSE=0.0,
+	    MinError=0.0,
+	    MaxError=0.0
+	   )
+	),
 
-	  logger_set_variable(mse_testset,MSE),
-	  logger_set_variable(mse_min_testset,MinError),
-	  logger_set_variable(mse_max_testset,MaxError),
-	  logger_set_variable(llh_test_queries,LLH_Test_Queries),
-	  format_learning(2,' (~8f)~n',[MSE])
-	 ); true
-	).
+	logger_set_variable(mse_testset,MSE),
+	logger_set_variable(mse_min_testset,MinError),
+	logger_set_variable(mse_max_testset,MaxError),
+	logger_set_variable(llh_test_queries,LLH_Test_Queries),
+	format_learning(2,' (~8f)~n',[MSE]).
 
 %========================================================================
 %= Calculates the sigmoid function respectivly the inverse of it
@@ -1097,107 +996,100 @@ inv_sigmoid(T,InvSig) :-
 %========================================================================
 
 save_old_probabilities :-
-	(			% go over all tunable facts
-	  tunable_fact(FactID,_),
-
-	    (
-	     continuous_fact(FactID)
-	    ->
-
-	     (
-	      get_continuous_fact_parameters(FactID,gaussian(OldMu,OldSigma)),
-	      atomic_concat(['old_mu_',FactID],Key),
-	      atomic_concat(['old_sigma_',FactID],Key2),
-	      bb_put(Key,OldMu),
-	      bb_put(Key2,OldSigma)
-	     );
-	     (
-	      get_fact_probability(FactID,OldProbability),
-	      atomic_concat(['old_prob_',FactID],Key),
-	      bb_put(Key,OldProbability)
-	     )
-	    ),
-				
-	  fail;			% go to next tunable fact
-	  true
-	).
+	forall(tunable_fact(FactID,_),
+	       (
+		continuous_fact(FactID)
+	       ->
+		(
+		 get_continuous_fact_parameters(FactID,gaussian(OldMu,OldSigma)),
+		 atomic_concat(['old_mu_',FactID],Key),
+		 atomic_concat(['old_sigma_',FactID],Key2),
+		 bb_put(Key,OldMu),
+		 bb_put(Key2,OldSigma)
+		);
+		(
+		 get_fact_probability(FactID,OldProbability),
+		 atomic_concat(['old_prob_',FactID],Key),
+		 bb_put(Key,OldProbability)
+		)
+	       )
+	      ).
 
 
 
-forget_old_probabilities :-	
-	(			% go over all tunable facts
-	  tunable_fact(FactID,_),
-	  (
-	   continuous_fact(FactID)
-	  ->
-	   (
-	    atomic_concat(['old_mu_',FactID],Key),
-	    atomic_concat(['old_sigma_',FactID],Key2),
-	    atomic_concat(['grad_mu_',FactID],Key3),
-	    atomic_concat(['grad_sigma_',FactID],Key4),
-	    bb_delete(Key,_),
-	    bb_delete(Key2,_),
-	    bb_delete(Key3,_),
-	    bb_delete(Key4,_)
-	   );
-	   (
-	    atomic_concat(['old_prob_',FactID],Key),
-	    atomic_concat(['grad_',FactID],Key2),
-	    bb_delete(Key,_),
-	    bb_delete(Key2,_)
-	   )
-	  ),
-
-	  fail;			% go to next tunable fact
-	  true
-	).
+forget_old_probabilities :-
+	forall(tunable_fact(FactID,_),
+	       (
+		continuous_fact(FactID)
+	       ->
+		(
+		 atomic_concat(['old_mu_',FactID],Key),
+		 atomic_concat(['old_sigma_',FactID],Key2),
+		 atomic_concat(['grad_mu_',FactID],Key3),
+		 atomic_concat(['grad_sigma_',FactID],Key4),
+		 bb_delete(Key,_),
+		 bb_delete(Key2,_),
+		 bb_delete(Key3,_),
+		 bb_delete(Key4,_)
+		);
+		(
+		 atomic_concat(['old_prob_',FactID],Key),
+		 atomic_concat(['grad_',FactID],Key2),
+		 bb_delete(Key,_),
+		 bb_delete(Key2,_)
+		)
+	       )
+	      ).
 
 add_gradient(Learning_Rate) :-
-	(			% go over all tunable facts
-	  tunable_fact(FactID,_),
-	  (
-	   continuous_fact(FactID)
-	  ->
-	   (
-	    atomic_concat(['old_mu_',FactID],Key),
-	    atomic_concat(['old_sigma_',FactID],Key2),
-	    atomic_concat(['grad_mu_',FactID],Key3),
-	    atomic_concat(['grad_sigma_',FactID],Key4),
-	    
-	    bb_get(Key,Old_Mu),
-	    bb_get(Key2,Old_Sigma),
-	    bb_get(Key3,Grad_Mu),
-	    bb_get(Key4,Grad_Sigma),
+	forall(tunable_fact(FactID,_),
+	       (
+		continuous_fact(FactID)
+	       ->
+		(
+		 atomic_concat(['old_mu_',FactID],Key),
+		 atomic_concat(['old_sigma_',FactID],Key2),
+		 atomic_concat(['grad_mu_',FactID],Key3),
+		 atomic_concat(['grad_sigma_',FactID],Key4),
+		 
+		 bb_get(Key,Old_Mu),
+		 bb_get(Key2,Old_Sigma),
+		 bb_get(Key3,Grad_Mu),
+		 bb_get(Key4,Grad_Sigma),
 
-	    Mu is Old_Mu  -Learning_Rate* Grad_Mu,
-	    Sigma is exp(log(Old_Sigma)  -Learning_Rate* Grad_Sigma),
+		 Mu is Old_Mu  -Learning_Rate* Grad_Mu,
+		 Sigma is exp(log(Old_Sigma)  -Learning_Rate* Grad_Sigma),
 
-	    set_continuous_fact_parameters(FactID,gaussian(Mu,Sigma))
-	   );
-	   (
-	    atomic_concat(['old_prob_',FactID],Key),
-	    atomic_concat(['grad_',FactID],Key2),
+		 set_continuous_fact_parameters(FactID,gaussian(Mu,Sigma))
+		);
+		(
+		 atomic_concat(['old_prob_',FactID],Key),
+		 atomic_concat(['grad_',FactID],Key2),
+		 
+		 bb_get(Key,OldProbability),
+		 bb_get(Key2,GradValue),
 
-	    bb_get(Key,OldProbability),
-	    bb_get(Key2,GradValue),
+		 inv_sigmoid(OldProbability,OldValue),
+		 NewValue is OldValue -Learning_Rate*GradValue,
+		 sigmoid(NewValue,NewProbability),
 
-	    inv_sigmoid(OldProbability,OldValue),
-	    NewValue is OldValue -Learning_Rate*GradValue,
-	    sigmoid(NewValue,NewProbability),
-
-	  % Prevent "inf" by using values too close to 1.0
-	    Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
-	    set_fact_probability(FactID,Prob_Secure)
-	    )
-	  ),
-				
-	  fail;			% go to next tunable fact
-	  true
-	),
+				% Prevent "inf" by using values too close to 1.0
+		 Prob_Secure is min(0.999999999,max(0.000000001,NewProbability)),
+		 set_fact_probability(FactID,Prob_Secure)
+		)
+	       )
+	      ),
 	retractall(values_correct).
 
 
 gradient_descent :-
+	current_iteration(Iteration),
+	create_training_predictions_file_name(Iteration,File_Name),
+	open(File_Name,'write',Handle),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	
 	format_learning(2,'Gradient ',[]),
 	
 	save_old_probabilities,
@@ -1206,33 +1098,26 @@ gradient_descent :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start set gradient to zero
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(   % go over all tunable facts
+	forall(tunable_fact(FactID,_),
+	       (
+		continuous_fact(FactID)
+	       ->
 
-	    tunable_fact(FactID,_),
-	    (
-	     continuous_fact(FactID)
-	    ->
-
-	     (
-	      atomic_concat(['grad_mu_',FactID],Key),
-	      atomic_concat(['grad_sigma_',FactID],Key2),
-	      bb_put(Key,0.0),
-	      bb_put(Key2,0.0)
-	     );
-	     (
-	      atomic_concat(['grad_',FactID],Key),
-	      bb_put(Key,0.0)
-	     )
-	    ),
-	    
-	    fail; % go to next tunable fact
-
-	    true
-	),
+		(
+		 atomic_concat(['grad_mu_',FactID],Key),
+		 atomic_concat(['grad_sigma_',FactID],Key2),
+		 bb_put(Key,0.0),
+		 bb_put(Key2,0.0)
+		);
+		(
+		 atomic_concat(['grad_',FactID],Key),
+		 bb_put(Key,0.0)
+		)
+	       )
+	      ),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop gradient to zero
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	!,
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start calculate gradient
@@ -1246,103 +1131,102 @@ gradient_descent :-
 	logger_set_variable(alpha,Alpha),
 	example_count(Example_Count),
 
-	( % go over all training examples
-	  current_predicate(user:example/4),
-	  user:example(QueryID,_Query,QueryProb,Type),
-	  once(update_query(QueryID,'.',all)),
-	  query_probability(QueryID,BDDProb),
-	  (
-	   QueryProb=:=0.0
-	  ->
-	   Y2=Alpha;
-	   Y2=1.0
-	  ),
-	  (
-	   (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
-	  ->
-	   Y is Y2*2/Example_Count * (BDDProb-QueryProb);
-	   Y=0.0
-	  ),
+	forall(user:example(QueryID,Query,QueryProb,Type),
+	       (
+		once(update_query(QueryID,'.',all)),
+		query_probability(QueryID,BDDProb),
+		format(Handle,'ex(~q,train,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,QueryProb,BDDProb]),
+		(
+		 QueryProb=:=0.0
+		->
+		 Y2=Alpha;
+		 Y2=1.0
+		),
+		(
+		 (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
+		->
+		 Y is Y2*2/Example_Count * (BDDProb-QueryProb);
+		 Y=0.0
+		),
 	  
 	  
-	  % first do the calculations for the MSE on training set
-	  (
-	   (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
-	  ->
-	   Squared_Error is (BDDProb-QueryProb)**2;
-	   Squared_Error=0.0
-	  ),
+				% first do the calculations for the MSE on training set
+		(
+		 (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
+		->
+		 Squared_Error is (BDDProb-QueryProb)**2;
+		 Squared_Error=0.0
+		),
 	 
-	  bb_get(mse_train_sum,Old_MSE_Train_Sum),
-	  bb_get(mse_train_min,Old_MSE_Train_Min),
-	  bb_get(mse_train_max,Old_MSE_Train_Max),
-	  bb_get(llh_training_queries,Old_LLH_Training_Queries),
-	  New_MSE_Train_Sum is Old_MSE_Train_Sum+Squared_Error,
-	  New_MSE_Train_Min is min(Old_MSE_Train_Min,Squared_Error),
-	  New_MSE_Train_Max is max(Old_MSE_Train_Max,Squared_Error),
-	  New_LLH_Training_Queries is Old_LLH_Training_Queries+log(BDDProb),
-	  bb_put(mse_train_sum,New_MSE_Train_Sum),
-	  bb_put(mse_train_min,New_MSE_Train_Min),
-	  bb_put(mse_train_max,New_MSE_Train_Max),
-	  bb_put(llh_training_queries,New_LLH_Training_Queries),
+		bb_get(mse_train_sum,Old_MSE_Train_Sum),
+		bb_get(mse_train_min,Old_MSE_Train_Min),
+		bb_get(mse_train_max,Old_MSE_Train_Max),
+		bb_get(llh_training_queries,Old_LLH_Training_Queries),
+		New_MSE_Train_Sum is Old_MSE_Train_Sum+Squared_Error,
+		New_MSE_Train_Min is min(Old_MSE_Train_Min,Squared_Error),
+		New_MSE_Train_Max is max(Old_MSE_Train_Max,Squared_Error),
+		New_LLH_Training_Queries is Old_LLH_Training_Queries+log(BDDProb),
+		bb_put(mse_train_sum,New_MSE_Train_Sum),
+		bb_put(mse_train_min,New_MSE_Train_Min),
+		bb_put(mse_train_max,New_MSE_Train_Max),
+		bb_put(llh_training_queries,New_LLH_Training_Queries),
 	  
 
 
-	  ( % go over all tunable facts
-	    tunable_fact(FactID,_),
-	    (
-	     continuous_fact(FactID)
-	    ->
-
-	     (
-	      atomic_concat(['grad_mu_',FactID],Key),
-	      atomic_concat(['grad_sigma_',FactID],Key2),
+		(		% go over all tunable facts
+		  tunable_fact(FactID,_),
+		  (
+		   continuous_fact(FactID)
+		  ->
+		   (
+		    atomic_concat(['grad_mu_',FactID],Key),
+		    atomic_concat(['grad_sigma_',FactID],Key2),
 	    
 	      % if the following query fails,
 	      % it means, the fact is not used in the proof
 	      % of QueryID, and the gradient is 0.0 and will
 	      % not contribute to NewValue either way
 	      % DON'T FORGET THIS IF YOU CHANGE SOMETHING HERE!
-	      query_gradient(QueryID,FactID,mu,GradValueMu),
-	      query_gradient(QueryID,FactID,sigma,GradValueSigma),
+		    query_gradient(QueryID,FactID,mu,GradValueMu),
+		    query_gradient(QueryID,FactID,sigma,GradValueSigma),
 
-	      bb_get(Key,OldValueMu),
-	      bb_get(Key2,OldValueSigma),
+		    bb_get(Key,OldValueMu),
+		    bb_get(Key2,OldValueSigma),
 
-	      NewValueMu is OldValueMu + Y*GradValueMu,
-	      NewValueSigma is OldValueSigma + Y*GradValueSigma,
+		    NewValueMu is OldValueMu + Y*GradValueMu,
+		    NewValueSigma is OldValueSigma + Y*GradValueSigma,
 
-	      bb_put(Key,NewValueMu),
-	      bb_put(Key2,NewValueSigma)
-	     );
-	     (
-	      atomic_concat(['grad_',FactID],Key),
+		    bb_put(Key,NewValueMu),
+		    bb_put(Key2,NewValueSigma)
+		   );
+		   (
+		    atomic_concat(['grad_',FactID],Key),
 	    
 	      % if the following query fails,
 	      % it means, the fact is not used in the proof
 	      % of QueryID, and the gradient is 0.0 and will
 	      % not contribute to NewValue either way
 	      % DON'T FORGET THIS IF YOU CHANGE SOMETHING HERE!
-	      query_gradient(QueryID,FactID,p,GradValue),
+		    query_gradient(QueryID,FactID,p,GradValue),
 
-	      bb_get(Key,OldValue),
-	      NewValue is OldValue + Y*GradValue,
-	      bb_put(Key,NewValue)
-	     )
-	    ),
+		    bb_get(Key,OldValue),
+		    NewValue is OldValue + Y*GradValue,
+		    bb_put(Key,NewValue)
+		   )
+		  ),
 
-	    fail;		% go to next fact
-	    true
-	  ),
-	  
-	  once(update_query_cleanup(QueryID)),
-	  fail;			% go to next training example
-	  true
-	),
+				fail; % go to next fact
+				true
+		),
+		
+		once(update_query_cleanup(QueryID))
+	       )),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	!,
+
+	close(Handle),
 	
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start statistics on gradient
@@ -1431,85 +1315,67 @@ lineSearch(Final_X,Final_Value) :-
 	% init values
 	Acc is Tol * (B-A),
 	InitRight is A + Tau*(B-A),
-	InitLeft is A + B - InitRight,
+	InitLeft is B - Tau*(B-A),
 
 	line_search_evaluate_point(A,Value_A),
 	line_search_evaluate_point(B,Value_B),
 	line_search_evaluate_point(InitRight,Value_InitRight),
 	line_search_evaluate_point(InitLeft,Value_InitLeft),
 
-	bb_put(line_search_a,A),
-	bb_put(line_search_b,B),
-	bb_put(line_search_left,InitLeft),
-	bb_put(line_search_right,InitRight),
 
-	bb_put(line_search_value_a,Value_A),
-	bb_put(line_search_value_b,Value_B),
-	bb_put(line_search_value_left,Value_InitLeft),
-	bb_put(line_search_value_right,Value_InitRight),
-
-	bb_put(line_search_iteration,1),
+	Parameters=ls(A,B,InitLeft,InitRight,Value_A,Value_B,Value_InitLeft,Value_InitRight,1),
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%%%% BEGIN BACK TRACKING
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	(
-	    repeat, 
+	 repeat,
 
-	    bb_get(line_search_iteration,Iteration),
-	    bb_get(line_search_a,Ak),
-	    bb_get(line_search_b,Bk),
-	    bb_get(line_search_left,Left),
-	    bb_get(line_search_right,Right),
-
-	    bb_get(line_search_value_a,Fl),
-	    bb_get(line_search_value_b,Fr),
-	    bb_get(line_search_value_left,FLeft),
-	    bb_get(line_search_value_right,FRight),
+	 Parameters=ls(Ak,Bk,Left,Right,Fl,Fr,FLeft,FRight,Iteration),
 
 	 (
 		% check for infinity, if there is, go to the left
-		( FLeft >= FRight, \+ FLeft = (+inf), \+ FRight = (+inf) ) 
-	    ->
-	     (
-		 AkNew=Left,
-		 FlNew=FLeft,
-		 LeftNew=Right,
-		 FLeftNew=FRight,
-		 RightNew is AkNew + Bk - LeftNew,
-		 line_search_evaluate_point(RightNew,FRightNew),
-		 BkNew=Bk,
-		 FrNew=Fr
-		);
-		(
-		 BkNew=Right,
-		 FrNew=FRight,
-		 RightNew=Left,
-		 FRightNew=FLeft,
-		 LeftNew is Ak + BkNew - RightNew,
+	  ( FLeft >= FRight, \+ FLeft = (+inf), \+ FRight = (+inf) ) 
+	 ->
+	  (
+	   AkNew=Left,
+	   FlNew=FLeft,
+	   LeftNew=Right,
+	   FLeftNew=FRight,
+	   RightNew is Left + Bk - Right,
+	   line_search_evaluate_point(RightNew,FRightNew),
+	   BkNew=Bk,
+	   FrNew=Fr,
+	   Interval_Size is Bk-Left
+	  );
+	  (
+	   BkNew=Right,
+	   FrNew=FRight,
+	   RightNew=Left,
+	   FRightNew=FLeft,
+	   LeftNew is Ak + Right - Left,
 
-		 line_search_evaluate_point(LeftNew,FLeftNew),
-		 AkNew=Ak,
-		 FlNew=Fl
-		 )
+	   line_search_evaluate_point(LeftNew,FLeftNew),
+	   AkNew=Ak,
+	   FlNew=Fl,
+	   Interval_Size is Right-Ak
+	  )
 	 ),
 
 	 Next_Iteration is Iteration + 1,
-	 
-	 bb_put(line_search_iteration,Next_Iteration),
 
-	 bb_put(line_search_a,AkNew),
-	 bb_put(line_search_b,BkNew),
-	 bb_put(line_search_left,LeftNew),
-	 bb_put(line_search_right,RightNew),
+	 nb_setarg(9,Parameters,Next_Iteration),
+	 nb_setarg(1,Parameters,AkNew),
+	 nb_setarg(2,Parameters,BkNew),
+	 nb_setarg(3,Parameters,LeftNew),
+	 nb_setarg(4,Parameters,RightNew),
+	 nb_setarg(5,Parameters,FlNew),
+	 nb_setarg(6,Parameters,FrNew),
+	 nb_setarg(7,Parameters,FLeftNew),
+	 nb_setarg(8,Parameters,FRightNew),
 
-	 bb_put(line_search_value_a,FlNew),
-	 bb_put(line_search_value_b,FrNew),
-	 bb_put(line_search_value_left,FLeftNew),
-	 bb_put(line_search_value_right,FRightNew),
-
-	% is the search interval smaller than the tolerance level?
-	 BkNew-AkNew<Acc,
+				% is the search interval smaller than the tolerance level?
+	 Interval_Size<Acc,
 
 	% apperantly it is, so get me out of here and
 	% cut away the choice point from repeat
@@ -1519,16 +1385,7 @@ lineSearch(Final_X,Final_Value) :-
 	%%%% END BACK TRACKING
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        % clean up the blackboard mess
-	bb_delete(line_search_iteration,_),
-	bb_delete(line_search_a,_),
-	bb_delete(line_search_b,_),
-	bb_delete(line_search_left,_),
-	bb_delete(line_search_right,_),
-	bb_delete(line_search_value_a,_),
-	bb_delete(line_search_value_b,_),
-	bb_delete(line_search_value_left,_),
-	bb_delete(line_search_value_right,_),
+    
 
 	% it doesn't harm to check also the value in the middle
 	% of the current search interval
@@ -1609,36 +1466,6 @@ my_5_min(V1,V2,V3,V4,V5,F1,F2,F3,F4,F5,VMin,FMin) :-
 	 (VMin=VTemp3,FMin=FTemp3);
 	 (VMin=V5,FMin=F5)
 	).
-
-
-%========================================================================
-%= set the alpha parameter to the value
-%=  # positive training examples / # negative training examples
-%=
-%= training example is positive if P(e)=1
-%= training example is negative if P(e)=0
-%=
-%= if there are training example with 0<P<1, set alpha=1.0
-%========================================================================
-
-
-auto_alpha :-
-	\+ current_predicate(user:example/4),
-	!,
-	set_problog_flag(alpha,1.0).
-auto_alpha :-
-	user:example(_,_,P,_),
-	P<1,
-	P>0,
-	!,
-	set_problog_flag(alpha,1.0).
-auto_alpha :-
-	findall(1,(user:example(_,_,P,=),P=:=1.0),Pos),
-	findall(0,(user:example(_,_,P,=),P=:=0.0),Neg),
-	length(Pos,NP),
-	length(Neg,NN),
-	Alpha is NP/NN,
-	set_problog_flag(alpha,Alpha).
 
 
 

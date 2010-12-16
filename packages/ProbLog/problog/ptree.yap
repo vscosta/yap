@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5041 $
+%  $Date: 2010-12-16 13:33:43 +0100 (Thu, 16 Dec 2010) $
+%  $Revision: 5156 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -282,12 +282,7 @@
 	problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false),
 	problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true),
 	problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false),
-	problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true),
-	problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false),
-	
-	problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false),
-	problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false),
-	problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list)
+	problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false)
 )).
 
 
@@ -1252,6 +1247,8 @@ add_to_vars(V):-
 
 variables_in_dbtrie(Trie, []):-
   empty_ptree(Trie), !.
+variables_in_dbtrie(Trie, []):-
+  trie_check_entry(Trie, [true], _R), !.
 variables_in_dbtrie(Trie, L):-
   all(V, variable_in_dbtrie(Trie,V), L).
 
@@ -1339,10 +1336,11 @@ is_state(false).
 nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
 %   trie_nested_to_depth_breadth_trie(A, B, LL, OptimizationLevel, problog:problog_chktabled),
   nested_trie_to_depth_breadth_trie(A, B, LL, OptimizationLevel),
-  (is_label(LL) ->
+  simplify(LL, FLL),
+  (is_label(FLL) ->
     retractall(deref(_,_)),
     (problog_flag(deref_terms, true) ->
-      asserta(deref(LL,no)),
+      asserta(deref(FLL,no)),
       mark_for_deref(B),
       V = 3
     ;
@@ -1358,7 +1356,7 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     write('@BDD'), write(V), nl,
     write(VarCNT), nl,
     write(0), nl,
-    (LL = not(NegL)->
+    (FLL = not(NegL)->
       atomic_concat('L', NegStep, NegL),
       number_atom(NegStepN, NegStep),
       InterStep is NegStepN + 1,
@@ -1368,19 +1366,18 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
       write(FL), write(' = ~'), write(NegL), nl,
       write(FL), nl
     ;
-      atomic_concat('L', InterStep, LL),
+      atomic_concat('L', InterStep, FLL),
       write(InterStep), nl,
-      trie_write(B, LL),
-      write(LL), nl
+      trie_write(B, FLL),
+      write(FLL), nl
     ),
     told
   ;
-    (is_state(LL) ->
+    (is_state(FLL) ->
       Edges = []
     ;
-      Edges = [LL]
+      Edges = [FLL]
     ),
-    writeln(Edges),
     tell(FileParam),
     simplify_list(Edges, SEdges),
     bdd_vars_script(SEdges),
@@ -1390,12 +1387,11 @@ nested_trie_to_bdd_trie(A, B, OutputFile, OptimizationLevel, FileParam):-
     write(1), nl,
     write(0), nl,
     write(1), nl,
-    (LL = not(_) ->
+    (FLL = not(_) ->
       write('L1 = ~')
     ;
       write('L1 = ')
     ),
-    simplify(LL, FLL),
     get_var_name(FLL, NLL),
     write(NLL),nl,
     write('L1'), nl,
@@ -1830,6 +1826,7 @@ ptree_decomposition(Trie, BDDFileName, VarFileName) :-
   tmpnam(TmpFile1),
   nb_setval(next_inter_step, 1),
   variables_in_dbtrie(Trie, T),
+  
   length(T, VarCnt),
   tell(VarFileName),
   bdd_vars_script(T),
@@ -1860,6 +1857,9 @@ get_next_inter_step(I):-
 decompose_trie(Trie, _, false):-
   empty_ptree(Trie), !.
 
+decompose_trie(Trie, _, 'TRUE'):-
+  trie_check_entry(Trie, [true], _R),!.
+
 decompose_trie(Trie, [H|[]], Var):-
   trie_usage(Trie, 1, _, _),
   get_var_name(H, VarA),
@@ -1870,9 +1870,6 @@ decompose_trie(Trie, [H|[]], Var):-
     Var = VarA
   ),
   !.
-
-decompose_trie(Trie, _, 'TRUE'):-
-  trie_check_entry(Trie, [true], _R),!.
 
 decompose_trie(Trie, [H|_T], L3):-
   trie_open(TrieWith),

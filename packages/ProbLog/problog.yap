@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-23 11:47:48 +0100 (Tue, 23 Nov 2010) $
-%  $Revision: 5027 $
+%  $Date: 2010-12-15 11:12:48 +0100 (Wed, 15 Dec 2010) $
+%  $Revision: 5138 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -350,15 +350,12 @@
 :- use_module('problog/mc_DNF_sampling').
 :- use_module('problog/timer').
 :- use_module('problog/utils').
-:- catch(use_module('problog/ad_converter'),_,true).
+:- use_module('problog/ad_converter').
 :- catch(use_module('problog/variable_elimination'),_,true).
 
 % op attaching probabilities to facts
 :- op( 550, yfx, :: ).
 :- op( 550, fx, ?:: ).
-
-% for annotated disjunctions
-% :- op(1149, yfx, <-- ).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 % control predicates on various levels
@@ -509,7 +506,7 @@ problog_dir(PD):- problog_path(PD).
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 init_global_params :-
-  %grow_atom_table(1000000),
+  grow_atom_table(1000000), % this will reserve us some memory, there are cases where you might need more
 
   %%%%%%%%%%%%
   % working directory: all the temporary and output files will be located there
@@ -591,9 +588,9 @@ generate_atoms(N, A):-
 % dynamic predicate problog_predicate(Name,Arity) keeps track of predicates that already have wrapper clause
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% converts annotated disjunctions - if loaded
-term_expansion_intern(A, B, C):-
-  catch(term_expansion_intern_ad(A, B, C), _, false).
+% converts annotated disjunctions
+term_expansion_intern(A, Module, C):-
+	term_expansion_intern_ad(A, Module, C).
 
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
@@ -667,13 +664,12 @@ term_expansion_intern(Head :: Goal,Module,problog:ProbFact) :-
 	  )
 	 ),
 
-	copy_term(((X,Distribution) :: Goal), ((X2,Distribution2) :: Goal2)),
 	% bind_the_variable
-	X2=Distribution2,
+	X=Distribution,
 
 	% find position in term
-	Goal2=..[Name|Args],
-	once(nth1(Pos,Args,Distribution2)),
+	Goal=..[Name|Args],
+	once(nth1(Pos,Args,Distribution)),
 
 	length(Args,Arity),
 	atomic_concat([problogcontinuous_,Name],ProblogName),
@@ -1165,31 +1161,20 @@ set_continuous_fact_parameters(ID,Parameters) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% writing those facts with learnable parameters to File
+% writing all probabilistic and continuous facts to Filename
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 export_facts(Filename) :-
 	open(Filename,'write',Handle),
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all probabilistic facts
-	  P::Goal,
-	  format(Handle,'~w :: ~q.~n',[P,Goal]),
+	forall(P::Goal,
+	       format(Handle,'~10f :: ~q.~n',[P,Goal])),
 
-	  fail; % go to next prob. fact
-	  true
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all continuous facts
-	  continuous_fact(ID),
-	  get_continuous_fact_parameters(ID,Param),
-	  format(Handle,'~q.  % ~q~n',[Param,ID]),
-
-	  fail; % go to next cont. fact
-	  true
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	forall(continuous_fact(ID),
+	       (
+		get_continuous_fact_parameters(ID,Param),
+		format(Handle,'~q.  % ~q~n',[Param,ID])
+	       )
+	      ),
 
 	close(Handle).
 
@@ -1946,14 +1931,12 @@ disjoin_hybrid_proofs([GroundID|T]) :-
 	intervals_partition(Intervals,Partition),
 
 	% go over all proofs where this fact occurs
-	(
-	 hybrid_proof(ProofID,ID,GroundID,Interval),
-	 intervals_disjoin(Interval,Partition,PInterval),
-	 assertz(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval)),
-
-	 fail; % go to next proof
-	 true
-	),
+	forall(hybrid_proof(ProofID,ID,GroundID,Interval),
+	       (
+		intervals_disjoin(Interval,Partition,PInterval),
+		assertz(hybrid_proof_disjoint(ProofID,ID,GroundID,PInterval))
+	       )
+	      ),
 
 	disjoin_hybrid_proofs(T).
 
@@ -1996,6 +1979,7 @@ problog_low(_, _, LP, Status) :-
 	timer_stop(sld_time,SLD_Time),
 	problog_var_set(sld_time, SLD_Time),
 	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+%print_nested_ptree(Trie_Completed_Proofs),
 	eval_dnf(Trie_Completed_Proofs, LP, Status),
 	(problog_flag(verbose, true)->
 	 problog_statistics

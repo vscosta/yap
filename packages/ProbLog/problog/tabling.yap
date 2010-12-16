@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-09 15:09:33 +0100 (Tue, 09 Nov 2010) $
-%  $Revision: 4992 $
+%  $Date: 2010-12-13 16:29:18 +0100 (Mon, 13 Dec 2010) $
+%  $Revision: 5122 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -298,12 +298,6 @@ problog_table_next_index(Index):-
   NIndex is Index + 1,
   nb_setval(problog_tabling_next_index, NIndex).
 
-makeargs(0, []):-!.
-makeargs(N, [_Arg|L]):-
-  N > 0,
-  NN is N - 1,
-  makeargs(NN, L).
-
 problog_table(M:P) :- !,
   problog_table(P, M).
 problog_table(P) :-
@@ -311,21 +305,21 @@ problog_table(P) :-
   problog_table(P, M).
 
 problog_table(M:P, _) :-
-  problog_table(P, M).
+	problog_table(P, M).
 problog_table((P1, P2), M) :-
-  problog_table(P1, M),
-  problog_table(P2, M).
+	problog_table(P1, M),
+	problog_table(P2, M).
 problog_table(Name/Arity, Module) :-
-  makeargs(Arity, Args),
-  Head =.. [Name|Args],
-  \+ predicate_property(Module:Head, dynamic), !,
-  throw(error('problog_table: Problog tabling currently requires the predicate to be declared dynamic and compiles it to static.')).
+	length(Args,Arity),
+	Head =.. [Name|Args],
+	\+ predicate_property(Module:Head, dynamic), !,
+	throw(error('problog_table: Problog tabling currently requires the predicate to be declared dynamic and compiles it to static.')).
 problog_table(Name/Arity, Module) :-
-  makeargs(Arity, Args),
-  Head =.. [Name|Args],
-  atom_concat(['problog_', Name, '_original'], OriginalName),
-  atom_concat(['problog_', Name, '_mctabled'], MCName),
-  atom_concat(['problog_', Name, '_tabled'], ExactName),
+	length(Args,Arity),
+	Head =.. [Name|Args],
+	atom_concat(['problog_', Name, '_original'], OriginalName),
+	atom_concat(['problog_', Name, '_mctabled'], MCName),
+	atom_concat(['problog_', Name, '_tabled'], ExactName),
 
   % Monte carlo tabling
   catch((table(Module:MCName/Arity),
@@ -413,8 +407,8 @@ problog_table(Name/Arity, Module) :-
             erase(Ref),
             (empty_ptree(HashTrie) ->
               recordz(problog_table, store(OriginalPred, Hash, HashTrie, SuspTrie, fail), _NRef),
-              delete_ptree(SuspTrie),
-              fail            % no justification exists
+              delete_ptree(SuspTrie) %,
+              %fail            % no justification exists
             ;
               recordz(problog_table, store(OriginalPred, Hash, HashTrie, SuspTrie, true), _NRef),
               merge_ptree(HashTrie, SuspTrie),
