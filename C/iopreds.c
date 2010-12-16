@@ -3492,7 +3492,7 @@ CheckStream (Term arg, int kind, char *msg)
     if (kind & SWI_Stream_f) {
       struct io_stream *swi_stream;
 
-      if (Yap_get_stream_handle(arg, &swi_stream)) {
+      if (Yap_get_stream_handle(arg, kind & Input_Stream_f, kind & Output_Stream_f, &swi_stream)) {
 	sno = LookupSWIStream(swi_stream);
 	return sno;
       }       
@@ -3692,9 +3692,11 @@ Yap_CloseStreams (int loud)
       } else {
 	free(Stream[sno].u.mem_string.buf);
       }
-    } else if (!(Stream[sno].status & Null_Stream_f))
+    } else if (Stream[sno].status & (SWI_Stream_f)) {
+      SWIClose(Stream[sno].u.swi_stream.swi_ptr);
+    } else if (!(Stream[sno].status & Null_Stream_f)) {
       YP_fclose (Stream[sno].u.file.file);
-    else {
+    } else {
       if (loud)
 	fprintf (Yap_stderr, "%% YAP Error: while closing stream: %s\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
     }
