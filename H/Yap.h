@@ -245,11 +245,6 @@ typedef unsigned long int YAP_ULONG_LONG;
 #define LOW_PROF 1
 #endif
 
-#if !HAVE__SETJMP
-#define _longjmp(A,B) longjmp(A,B)
-#define _setjmp(A)    setjmp(A)
-#endif
-
 #ifdef DEBUG
 extern char Yap_Option[20];
 #endif

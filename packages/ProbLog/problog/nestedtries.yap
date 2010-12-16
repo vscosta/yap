@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-11-03 19:13:53 +0100 (Wed, 03 Nov 2010) $
-%  $Revision: 4986 $
+%  $Date: 2010-12-16 13:33:43 +0100 (Thu, 16 Dec 2010) $
+%  $Revision: 5156 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -211,9 +211,25 @@
 
 :- module(nestedtries, [nested_trie_to_depth_breadth_trie/4]).
 
-:- use_module(library(ordsets), [list_to_ord_set/2, ord_subset/2]). % this two might be better to do a custom fast implementation
-:- use_module(library(lists), [memberchk/2, delete/3]).
-:- use_module(library(tries), [trie_to_depth_breadth_trie/6, trie_get_depth_breadth_reduction_entry/1, trie_dup/2, trie_close/1, trie_open/1, trie_replace_nested_trie/3, trie_remove_entry/1, trie_get_entry/2, trie_put_entry/3, trie_traverse/2]).
+:- use_module(library(ordsets), [list_to_ord_set/2,
+                                 ord_subset/2,
+                                 ord_union/3,
+                                 ord_intersection/3]).
+:- use_module(library(lists), [append/3,
+                               memberchk/2,
+                               delete/3]).
+:- use_module(library(tries), [trie_to_depth_breadth_trie/6,
+                               trie_get_depth_breadth_reduction_entry/1,
+                               trie_dup/2,
+                               trie_close/1,
+                               trie_open/1,
+                               trie_replace_nested_trie/3,
+                               trie_remove_entry/1,
+                               trie_get_entry/2,
+                               trie_put_entry/3,
+                               trie_traverse/2,
+                               trie_traverse_mode/1,
+                               trie_usage/4]).
 
 :- use_module(flags, [problog_define_flag/5, problog_flag/2]).
 
@@ -221,18 +237,21 @@
 :- yap_flag(unknown,error).
 
 :- initialization((
-%   problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true, nested_tries),
-  problog_define_flag(loop_refine_ancs, problog_flag_validate_boolean, 'refine ancestors if no loop exists', true, nested_tries)
-%   problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false, nested_tries),
-%   problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false, nested_tries),
-%   problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list, nested_tries)
+  problog_define_flag(subset_check,    problog_flag_validate_boolean, 'perform subset check in nested tries', true, nested_tries),
+  problog_define_flag(loop_refine_ancs, problog_flag_validate_boolean, 'refine ancestors if no loop exists', true, nested_tries),
+  problog_define_flag(trie_preprocess, problog_flag_validate_boolean, 'perform a preprocess step to nested tries', false, nested_tries),
+  problog_define_flag(refine_anclst,   problog_flag_validate_boolean, 'refine the ancestor list with their childs', false, nested_tries),
+  problog_define_flag(anclst_represent,problog_flag_validate_in_list([list, integer]), 'represent the ancestor list', list, nested_tries)
 )).
 
 
-trie_replace_entry(_Trie, Entry, _E, false):-
-  !, trie_remove_entry(Entry).
+trie_replace_entry(_Trie, Entry, E, false):-
+  trie_get_entry(Entry, Proof),
+  memberchk(E, Proof), !,
+  trie_remove_entry(Entry).
 trie_replace_entry(Trie, Entry, E, true):-
-  !, trie_get_entry(Entry, Proof),
+  trie_get_entry(Entry, Proof),
+  memberchk(E, Proof), !,
   delete(Proof, E, NewProof),
   (NewProof == [] ->
     trie_delete(Trie),
@@ -275,6 +294,12 @@ is_label(Label, ID):-
   Label = not(NestedLabel),
   is_label(NestedLabel, ID).
 
+simplify(not(false), true):- !.
+simplify(not(true), false):- !.
+simplify(not(not(A)), B):-
+  !, simplify(A, B).
+simplify(A, A).
+
 % Ancestor related stuff
 
 initialise_ancestors(0):-
@@ -289,6 +314,13 @@ add_to_ancestors(ID, Ancestors, NewAncestors):-
   is_list(Ancestors),
   list_to_ord_set([ID|Ancestors], NewAncestors).
 
+ancestors_union(Ancestors1, Ancestors2, NewAncestors):-
+  integer(Ancestors1), !,
+  NewAncestors is Ancestors1 \/ Ancestors2.
+ancestors_union(Ancestors1, Ancestors2, NewAncestors):-
+  is_list(Ancestors1),
+  ord_union(Ancestors1, Ancestors2, NewAncestors).
+
 ancestor_subset_check(SubAncestors, Ancestors):-
   integer(SubAncestors), !,
   SubAncestors is Ancestors /\ SubAncestors.
@@ -302,16 +334,60 @@ ancestor_loop_refine(Loop, Ancestors, []):-
   var(Loop), is_list(Ancestors), !.
 ancestor_loop_refine(true, Ancestors, Ancestors).
 
+ancestor_child_refine(true, Ancestors, Childs, NewAncestors):-
+  integer(Ancestors), !,
+  NewAncestors is Ancestors /\ Childs.
+ancestor_child_refine(true, Ancestors, Childs, NewAncestors):-
+  is_list(Ancestors), !,
+  ord_intersection(Ancestors, Childs, NewAncestors).
+ancestor_child_refine(false, Ancestors, _, Ancestors).
+
 % Cycle check related stuff
 % missing synonym check
 
 cycle_check(ID, Ancestors):-
+  get_negated_synonym_id(ID, SynID),
+  cycle_check_intern(SynID, Ancestors).
+
+cycle_check_intern(ID, Ancestors):-
   integer(Ancestors), !,
   Bit is 1 << (ID - 1),
   Bit is Bit /\ Ancestors.
-cycle_check(ID, Ancestors):-
+cycle_check_intern(ID, Ancestors):-
   is_list(Ancestors),
   memberchk(ID, Ancestors).
+
+get_negated_synonym_id(ID, ID).
+get_negated_synonym_id(ID, NegID):-
+  tabling:has_synonyms,
+  recorded(problog_table, store(Pred, ID, _, _, _), _),
+  Pred =.. [Name0|Args],
+  atomic_concat(problog_, Name1, Name0),
+  atomic_concat(Name, '_original', Name1),
+  get_negated_name(Name, NotName1),
+  atomic_concat([problog_, NotName1, '_original'], NotName),
+  NegPred =.. [NotName|Args],
+  recorded(problog_table, store(NegPred, NegID, _, _, _), _).
+
+get_negated_name(Name, NotName1):-
+  recorded(problog_table_synonyms, negated(Name, NotName1), _), !.
+get_negated_name(Name, NotName1):-
+  recorded(problog_table_synonyms, negated(NotName1, Name), _).
+
+trie_dup_reverse(Trie, DupTrie):-
+  trie_open(DupTrie),
+  trie_traverse_mode(backward),
+  trie_dup_rev(Trie, DupTrie),
+  trie_traverse_mode(forward).
+
+trie_dup_rev(Trie, DupTrie):-
+  \+ trie_usage(Trie, 0, 0, 0),
+  trie_traverse(Trie, Entry),
+  trie_get_entry(Entry, Term),
+  trie_put_entry(DupTrie, Term, _),
+  fail.
+trie_dup_rev(_, _).
+
 
 preprocess(Index, DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount):-
   problog:problog_chktabled(Index, Trie), !,
@@ -332,7 +408,7 @@ make_nested_trie_base_cases(Trie, t(ID), DepthBreadthTrie, OptimizationLevel, St
     make_nested_trie_base_cases(Trie, t(ID), DepthBreadthTrie, OptimizationLevel, EndCount, FinalEndCount, NewAncestors)
   ;
     FinalEndCount = EndCount,
-    get_set_trie(ID, Label, Ancestors)
+    set_trie(ID, Label, Ancestors)
   ).
 
 nested_trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, OptimizationLevel):-
@@ -344,80 +420,69 @@ nested_trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, FinalLabel, Optimizati
     StartCount = 0
   ),
   initialise_ancestors(Ancestors),
-%   initialise_ancestors(Childs),
   (problog_flag(loop_refine_ancs, true) ->
-    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, _)
+    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, _, _Childs)
   ;
-    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, true)
+    trie_2_dbtrie_init(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, _, Ancestors, FinalLabel, true, _Childs)
   ),
   eraseall(problog_trie_table).
 
-trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop):-
+trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop, FinalChilds):-
+  initialise_ancestors(Childs),
   get_trie_pointer(ID, Trie),
-  trie_dup(Trie, CopyTrie),
-  trie_2_dbtrie_intern(CopyTrie, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop),
+  trie_dup_reverse(Trie, CopyTrie),
+  trie_2_dbtrie_intern(CopyTrie, DepthBreadthTrie, OptimizationLevel, StartCount, EndCount, Ancestors, Label, ContainLoop, Childs, FinalChilds),
   trie_close(CopyTrie).
 
-trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop):-
+trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, StartCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop, Childs, FinalChilds):-
   trie_to_depth_breadth_trie(Trie, DepthBreadthTrie, Label, OptimizationLevel, StartCount, EndCount),
-  (is_trie(Label, ID) ->             % Label might have issues with negation
+  (is_trie(Label, ID) ->
+    problog_flag(refine_anclst, ChildRefineAncestors),
     trie_get_depth_breadth_reduction_entry(NestedEntry),
-    % check if Trie introduces a loop
     (cycle_check(ID, Ancestors) ->
       ContainLoop = true,
       NewLabel = false,
+      NewEndCount = EndCount,
+      initialise_ancestors(GrandChilds)
+    ; get_trie(ID, NewLabel, Ancestors) ->
+      GrandChilds = Ancestors,
       NewEndCount = EndCount
     ;
-      % check if Trie is resolved and extract it
-      (get_set_trie(ID, NewLabel, Ancestors) ->
-        NewEndCount = EndCount
-      ;
-        % calculate the nested trie
-        add_to_ancestors(ID, Ancestors, NewAncestors), % to be able to support 2 representations
-        trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, EndCount, NewEndCount, NewAncestors, NewLabel, NewContainLoop),
-        ancestor_loop_refine(NewContainLoop, Ancestors, RefinedAncestors),
-        get_set_trie(ID, NewLabel, RefinedAncestors),
-        ContainLoop = NewContainLoop
-      )
+      add_to_ancestors(ID, Ancestors, NewAncestors),
+      trie_2_dbtrie_init(ID, DepthBreadthTrie, OptimizationLevel, EndCount, NewEndCount, NewAncestors, DerefLabel, NewContainLoop, GrandChilds),
+      ancestor_loop_refine(NewContainLoop, Ancestors, RefinedAncestors1),
+      ancestor_child_refine(ChildRefineAncestors, RefinedAncestors1, GrandChilds, RefinedAncestors),
+      simplify(DerefLabel, NewLabel),
+      set_trie(ID, NewLabel, RefinedAncestors),
+      ContainLoop = NewContainLoop
     ),
-    trie_replace_entry(Trie, NestedEntry, t(ID), NewLabel), % should be careful to verify that it works also with not(t(ID))
-    trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, NewEndCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop)
+    trie_replace_entry(Trie, NestedEntry, t(ID), NewLabel),
+    (ChildRefineAncestors ->
+      add_to_ancestors(ID, Childs, NewChilds1),
+      ancestors_union(NewChilds1, GrandChilds, NewChilds)
+    ;
+      NewChilds = Childs
+    ),
+    trie_2_dbtrie_intern(Trie, DepthBreadthTrie, OptimizationLevel, NewEndCount, FinalEndCount, Ancestors, TrieLabel, ContainLoop, NewChilds, FinalChilds)
   ;
-    % else we can terminate and return
     FinalEndCount = EndCount,
-    TrieLabel = Label
+    TrieLabel = Label,
+    FinalChilds = Childs
   ).
 
 % predicate to check/remember resolved tries
-% no refiment of ancestor list included
 
 get_trie_pointer(ID, Trie):-
   problog:problog_chktabled(ID, Trie), !.
 get_trie_pointer(Trie, Trie).
 
-get_set_trie(Trie, Label, Ancestors):-
+get_trie(Trie, Label, Ancestors):-
+  problog_flag(subset_check, true), !,
   recorded(problog_trie_table, store(Trie, StoredAncestors, Label), _),
-  (problog_flag(subset_check, true) ->
-    ancestor_subset_check(StoredAncestors, Ancestors)
-  ;
-    StoredAncestors == Ancestors
-  ), !.
-get_set_trie(Trie, Label, Ancestors):-
-  ground(Label),
+  ancestor_subset_check(StoredAncestors, Ancestors).
+get_trie(Trie, Label, Ancestors):-
+  recorded(problog_trie_table, store(Trie, StoredAncestors, Label), _),
+  StoredAncestors == Ancestors.
+
+set_trie(Trie, Label, Ancestors):-
   recordz(problog_trie_table, store(Trie, Ancestors, Label), _).
-
-
-% chk_negated([H|T], ID):-
-%   simplify(H, not(t(ID))), !.
-% chk_negated([_|T], ID):-
-%   chk_negated(T, ID).
-
-
-/*
-chk_negated([], ID, ID).
-chk_negated([H|T], ID, not(ID)):-
-  simplify(H, not(t(ID))), !.
-chk_negated([H|T], ID, ID):-
-  simplify(H, t(ID)), !.
-chk_negated([_|T], ID, FID):-
-  chk_negated(T, ID, FID).*/

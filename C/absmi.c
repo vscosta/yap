@@ -4261,17 +4261,17 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(get_bigint, xc);
+      Op(get_bigint, xN);
 #ifdef USE_GMP
       BEGD(d0);
-      d0 = XREG(PREG->u.xc.x);
+      d0 = XREG(PREG->u.xN.x);
       deref_head(d0, gbigint_unk);
 
     gbigint_nonvar:
       if (!IsApplTerm(d0))
 	FAIL();
       /* we have met a preexisting bigint */
-      START_PREFETCH(xc);
+      START_PREFETCH(xN);
       BEGP(pt0);
       pt0 = RepAppl(d0);
       /* check functor */
@@ -4279,9 +4279,9 @@ Yap_absmi(int inp)
 	{
 	  FAIL();
 	}
-      if (Yap_gmp_tcmp_big_big(d0,PREG->u.xc.c))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.xN.b))
 	FAIL();
-      PREG = NEXTOP(PREG, xc);      
+      PREG = NEXTOP(PREG, xN);      
       ENDP(pt0);
       /* enter read mode */
       GONext();
@@ -4291,10 +4291,10 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gbigint_unk, gbigint_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
-      START_PREFETCH(xc);
+      START_PREFETCH(xN);
       BEGD(d1);
-      d1 = PREG->u.xc.c;
-      PREG = NEXTOP(PREG, xc);
+      d1 = PREG->u.xN.b;
+      PREG = NEXTOP(PREG, xN);
       BIND(pt0, d1, bind_gbigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -4313,16 +4313,16 @@ Yap_absmi(int inp)
       ENDOp();
 
 
-      Op(get_dbterm, xc);
+      Op(get_dbterm, xD);
       BEGD(d0);
-      d0 = XREG(PREG->u.xc.x);
+      d0 = XREG(PREG->u.xD.x);
       deref_head(d0, gdbterm_unk);
 
     gdbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = PREG->u.xc.c;
-      PREG = NEXTOP(PREG, xc);      
+      d1 = PREG->u.xD.D;
+      PREG = NEXTOP(PREG, xD);      
       UnifyBound(d0,d1);
       ENDD(d1);
 
@@ -4330,10 +4330,10 @@ Yap_absmi(int inp)
       deref_body(d0, pt0, gdbterm_unk, gdbterm_nonvar);
       /* Enter Write mode */
       /* set d1 to be the new structure we are going to create */
-      START_PREFETCH(xc);
+      START_PREFETCH(xD);
       BEGD(d1);
-      d1 = PREG->u.xc.c;
-      PREG = NEXTOP(PREG, xc);
+      d1 = PREG->u.xD.D;
+      PREG = NEXTOP(PREG, xD);
       BIND(pt0, d1, bind_gdbterm);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -6347,7 +6347,7 @@ Yap_absmi(int inp)
       GONext();
       ENDOp();
 
-      Op(unify_bigint, oc);
+      Op(unify_bigint, oN);
 #ifdef USE_GMP
       BEGD(d0);
       BEGP(pt0);
@@ -6368,16 +6368,16 @@ Yap_absmi(int inp)
 	FAIL();
       }
       ENDD(d1);
-      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oc.c))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oN.b))
 	FAIL();
-      PREG = NEXTOP(PREG, oc);
+      PREG = NEXTOP(PREG, oN);
       ENDP(pt0);
       GONext();
 
       derefa_body(d0, pt0, ubigint_unk, ubigint_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oN.b;
+      PREG = NEXTOP(PREG, oN);
       BIND_GLOBAL(pt0, d1, bind_ubigint);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -6393,7 +6393,7 @@ Yap_absmi(int inp)
 #endif
       ENDOp();
 
-      Op(unify_l_bigint, oc);
+      Op(unify_l_bigint, oN);
 #ifdef USE_GMP
       BEGD(d0);
       CACHE_S();
@@ -6413,16 +6413,16 @@ Yap_absmi(int inp)
 	FAIL();
       }
       ENDD(d0);
-      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oc.c))
+      if (Yap_gmp_tcmp_big_big(d0,PREG->u.oN.b))
 	FAIL();
-      PREG = NEXTOP(PREG, oc);
+      PREG = NEXTOP(PREG, oN);
       ENDP(pt0);
       GONext();
 
       derefa_body(d0, S_SREG, ulbigint_unk, ulbigint_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oN.b;
+      PREG = NEXTOP(PREG, oN);
       BIND_GLOBAL(S_SREG, d1, bind_ulbigint);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
@@ -6438,7 +6438,7 @@ Yap_absmi(int inp)
 #endif
       ENDOp();
 
-      Op(unify_dbterm, oc);
+      Op(unify_dbterm, oD);
       BEGD(d0);
       BEGP(pt0);
       pt0 = SREG++;
@@ -6447,15 +6447,15 @@ Yap_absmi(int inp)
     udbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oD.D;
+      PREG = NEXTOP(PREG, oD);
       UnifyBound(d0,d1);
       ENDD(d1);
 
       derefa_body(d0, pt0, udbterm_unk, udbterm_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oD.D;
+      PREG = NEXTOP(PREG, oD);
       BIND_GLOBAL(pt0, d1, bind_udbterm);
 #ifdef COROUTINING
       DO_TRAIL(pt0, d1);
@@ -6468,7 +6468,7 @@ Yap_absmi(int inp)
       ENDD(d0);
       ENDOp();
 
-      Op(unify_l_dbterm, oc);
+      Op(unify_l_dbterm, oD);
       BEGD(d0);
       CACHE_S();
       READ_IN_S();
@@ -6477,15 +6477,15 @@ Yap_absmi(int inp)
     uldbterm_nonvar:
       BEGD(d1);
       /* we have met a preexisting dbterm */
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oD.D;
+      PREG = NEXTOP(PREG, oD);
       UnifyBound(d0,d1);
       ENDD(d1);
 
       derefa_body(d0, S_SREG, uldbterm_unk, uldbterm_nonvar);
       BEGD(d1);
-      d1 = PREG->u.oc.c;
-      PREG = NEXTOP(PREG, oc);
+      d1 = PREG->u.oD.D;
+      PREG = NEXTOP(PREG, oD);
       BIND_GLOBAL(S_SREG, d1, bind_uldbterm);
 #ifdef COROUTINING
       DO_TRAIL(S_SREG, d1);
@@ -6907,8 +6907,26 @@ Yap_absmi(int inp)
       GONext();
       ENDD(d0);
       ENDOp();
+ 
+      Op(put_dbterm, xD);
+      BEGD(d0);
+      d0 = PREG->u.xD.D;
+      XREG(PREG->u.xD.x) = d0;
+      PREG = NEXTOP(PREG, xD);
+      GONext();
+      ENDD(d0);
+      ENDOp();
 
-      Op(put_float, xd);
+      Op(put_bigint, xN);
+      BEGD(d0);
+      d0 = PREG->u.xN.b;
+      XREG(PREG->u.xN.x) = d0;
+      PREG = NEXTOP(PREG, xN);
+      GONext();
+      ENDD(d0);
+      ENDOp();
+
+     Op(put_float, xd);
       BEGD(d0);
       d0 = AbsAppl(PREG->u.xd.d);
       XREG(PREG->u.xd.x) = d0;
@@ -7098,6 +7116,24 @@ Yap_absmi(int inp)
       *SREG++ = d0;
       ENDD(d0);
       PREG = NEXTOP(PREG, c);
+      GONext();
+      ENDOp();
+
+      Op(write_bigint, N);
+      BEGD(d0);
+      d0 = PREG->u.N.b;
+      *SREG++ = d0;
+      ENDD(d0);
+      PREG = NEXTOP(PREG, N);
+      GONext();
+      ENDOp();
+
+      Op(write_dbterm, D);
+      BEGD(d0);
+      d0 = PREG->u.D.D;
+      *SREG++ = d0;
+      ENDD(d0);
+      PREG = NEXTOP(PREG, D);
       GONext();
       ENDOp();
 

@@ -771,8 +771,10 @@ get_pred(Term t,  Term tmod, char *pname)
 #define ModuleAdjust(X) (X)
 #define ExternalFunctionAdjust(X) (X)
 #define AdjustSwitchTable(X,Y,Z) 
+#define DBGroundTermAdjust(X)  (X)
 #define rehash(A,B,C)
-static Term BlobTermAdjust(Term t)
+
+static Term BlobTermInCodeAdjust(Term t)
 {
 #if TAGS_FAST_OPS
   return t-ClDiff;
@@ -781,22 +783,12 @@ static Term BlobTermAdjust(Term t)
 #endif
 }
 
-static Term ConstantTermAdjust (Term);
-
 static Term
 ConstantTermAdjust (Term t)
 {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
-  else if (IsIntTerm(t))
-    return t;
-  else if (IsApplTerm(t) && IsBlobFunctor(FunctorOfTerm(t))) {
-    return BlobTermAdjust(t);
-  } else if (IsApplTerm(t) || IsPairTerm(t)) {
-    return CodeComposedTermAdjust(t);
-  } else {
-    return t;
-  }
+  return t;
 }
 
 

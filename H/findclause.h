@@ -6,8 +6,14 @@
   while (TRUE) {
     op_numbers op = Yap_op_from_opcode(cl->opc);
     switch (op) {
+    case _write_dbterm:
+      cl = NEXTOP(cl,D);
+      break;
     case _alloc_for_logical_pred:
       cl = NEXTOP(cl,L);
+      break;
+    case _write_bigint:
+      cl = NEXTOP(cl,N);
       break;
     case _ensure_space:
       cl = NEXTOP(cl,Osbpi);
@@ -316,28 +322,28 @@
     case _unify_void_write:
       cl = NEXTOP(cl,o);
       break;
+    case _unify_dbterm:
+      cl = NEXTOP(cl,oD);
+      break;
+    case _unify_l_dbterm:
+      cl = NEXTOP(cl,oD);
+      break;
+    case _unify_bigint:
+      cl = NEXTOP(cl,oN);
+      break;
+    case _unify_l_bigint:
+      cl = NEXTOP(cl,oN);
+      break;
     case _unify_atom:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_atom_write:
       cl = NEXTOP(cl,oc);
       break;
-    case _unify_bigint:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_dbterm:
-      cl = NEXTOP(cl,oc);
-      break;
     case _unify_l_atom:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_l_atom_write:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_l_bigint:
-      cl = NEXTOP(cl,oc);
-      break;
-    case _unify_l_dbterm:
       cl = NEXTOP(cl,oc);
       break;
     case _unify_float:
@@ -656,19 +662,28 @@
       }
       cl = NEXTOP(cl,x);
       break;
-    case _get_atom:
-      if (is_regcopy(myregs, nofregs, cl->u.xc.x)) {
-	if (IsApplTerm(cl->u.xc.c)) {
-          CELL *pt = RepAppl(cl->u.xc.c);
-	  clause->Tag = AbsAppl((CELL *)pt[0]);
-	  clause->u.t_ptr = cl->u.xc.c;
-	} else
-	  clause->Tag = cl->u.xc.c;
+    case _put_dbterm:
+      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.xD.x))) {
+	clause->Tag = (CELL)NULL;
 	return;
       }
-      cl = NEXTOP(cl,xc);
+      cl = NEXTOP(cl,xD);
       break;
     case _get_bigint:
+      if (is_regcopy(myregs, nofregs, cl->u.xN.x)) {
+	clause->Tag = cl->u.xN.b;
+	return;
+      }
+      cl = NEXTOP(cl,xN);
+      break;
+    case _put_bigint:
+      if (!(nofregs = delete_regcopy(myregs, nofregs, cl->u.xN.x))) {
+	clause->Tag = (CELL)NULL;
+	return;
+      }
+      cl = NEXTOP(cl,xN);
+      break;
+    case _get_atom:
       if (is_regcopy(myregs, nofregs, cl->u.xc.x)) {
 	if (IsApplTerm(cl->u.xc.c)) {
           CELL *pt = RepAppl(cl->u.xc.c);

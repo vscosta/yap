@@ -1083,15 +1083,15 @@ a_uc(CELL rnd1, op_numbers opcode, op_numbers opcode_w, yamop *code_p, int pass_
 }
 
 inline static yamop *
-a_blob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
+a_wblob(CELL rnd1, op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, struct intermediates *cip)
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.c.c =
+    code_p->u.N.b =
       AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(c);
+  GONEXT(N);
   return code_p;
 }
 
@@ -1117,11 +1117,11 @@ a_wdbt(CELL rnd1, op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.c.c = rnd1;
+    code_p->u.D.D = rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(c);
+  GONEXT(D);
   return code_p;
 }
 
@@ -1130,13 +1130,13 @@ a_ublob(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_blobs
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
-    code_p->u.oc.c = 
+    code_p->u.oN.opcw = emit_op(opcode_w);
+    code_p->u.oN.b = 
       AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[rnd1]));
       
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(oc);
+  GONEXT(oN);
   return code_p;
 }
 
@@ -1145,12 +1145,12 @@ a_udbt(CELL rnd1, op_numbers opcode, op_numbers opcode_w, int *clause_has_dbterm
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.oc.opcw = emit_op(opcode_w);
-    code_p->u.oc.c = cip->cpc->rnd1;
+    code_p->u.oD.opcw = emit_op(opcode_w);
+    code_p->u.oD.D = cip->cpc->rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(oc);
+  GONEXT(oD);
   return code_p;
 }
 
@@ -1372,11 +1372,11 @@ a_rb(op_numbers opcode, int *clause_has_blobsp, yamop *code_p, int pass_no, stru
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xc.c = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
+    code_p->u.xN.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xN.b = AbsAppl((CELL *)(Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1]));
   }
   *clause_has_blobsp = TRUE;
-  GONEXT(xc);
+  GONEXT(xN);
   return code_p;
 }
 
@@ -1385,12 +1385,12 @@ a_dbt(op_numbers opcode, int *clause_has_dbtermp, yamop *code_p, int pass_no, st
 {
   if (pass_no) {
     code_p->opc = emit_op(opcode);
-    code_p->u.xc.x = emit_x(cip->cpc->rnd2);
-    code_p->u.xc.c = cip->cpc->rnd1;
+    code_p->u.xD.x = emit_x(cip->cpc->rnd2);
+    code_p->u.xD.D = cip->cpc->rnd1;
     add_to_dbtermsl(cip, cip->cpc->rnd1);
   }
   *clause_has_dbtermp = TRUE;
-  GONEXT(xc);
+  GONEXT(xD);
   return code_p;
 }
 
@@ -1480,7 +1480,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
       op = _p_equal;  /* just to make some compilers happy */
       Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error for built-in (%d)", (Flags & 0x7f));
       save_machine_regs();
-      _longjmp(cip->CompilerBotch, 1);
+      siglongjmp(cip->CompilerBotch, 1);
     }
     if (is_test) {
       UInt lab;
@@ -1503,7 +1503,7 @@ a_p(op_numbers opcode, clause_info *clinfo, yamop *code_p, int pass_no, struct i
 	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil,
 		"user defined predicate cannot be a test predicate");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	} else
 	  code_p->opc = emit_op(_call_c_wfail);
 	code_p->u.slp.s =
@@ -2053,7 +2053,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
       if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
 	/* OOOPS, got in trouble, must do a longjmp and recover space */
 	save_machine_regs();
-	_longjmp(cip->CompilerBotch,2);
+	siglongjmp(cip->CompilerBotch,2);
       }
       Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
@@ -2693,7 +2693,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _plus:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2 (should be XC)");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _minus:
 	  code_p->opc = emit_op(_p_minus_y_cv);
@@ -2701,7 +2701,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _times:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2 (should be XC)");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _div:
 	  code_p->opc = emit_op(_p_div_y_cv);
@@ -2709,12 +2709,12 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _and:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2 (should be XC)");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _or:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2 (should be XC)");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _sll:
 	  code_p->opc = emit_op(_p_sll_y_cv);
@@ -2744,7 +2744,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _minus:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _times:
 	  code_p->opc = emit_op(_p_times_y_vc);
@@ -2777,7 +2777,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _arg:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _functor:
 	  code_p->opc = emit_op(_p_func2s_y_vc);
@@ -2838,7 +2838,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _plus:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for +/2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _minus:
 	  code_p->opc = emit_op(_p_minus_cv);
@@ -2846,7 +2846,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _times:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for */2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _div:
 	  code_p->opc = emit_op(_p_div_cv);
@@ -2854,12 +2854,12 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _and:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for /\\/2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _or:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x1_arg, "internal assembler error CX for \\//2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _sll:
 	  code_p->opc = emit_op(_p_sll_cv);
@@ -2889,7 +2889,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _minus:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error XC for -/2");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _times:
 	  code_p->opc = emit_op(_p_times_vc);
@@ -2922,7 +2922,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	case _arg:
 	  Yap_Error(INTERNAL_COMPILER_ERROR, cmp_info->x2_arg, "internal assembler error for arg/3");
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 1);
+	  siglongjmp(cip->CompilerBotch, 1);
 	  break;
 	case _functor:
 	  code_p->opc = emit_op(_p_func2s_vc);
@@ -3248,10 +3248,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_ri(_put_longint, code_p, pass_no, cip->cpc);
       break;
     case put_bigint_op:
-      code_p = a_rb(_put_atom, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_rb(_put_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case put_dbterm_op:
-      code_p = a_dbt(_put_atom, clause_has_dbtermp, code_p, pass_no, cip);
+      code_p = a_dbt(_put_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case get_list_op:
       code_p = a_glist(&do_not_optimise_uatom, code_p, pass_no, cip);
@@ -3344,10 +3344,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_wi(_write_longint, code_p, pass_no, cip->cpc);
       break;
     case write_bigint_op:
-      code_p = a_blob(cip->cpc->rnd1, _write_atom, clause_has_blobsp, code_p, pass_no, cip);
+      code_p = a_wblob(cip->cpc->rnd1, _write_bigint, clause_has_blobsp, code_p, pass_no, cip);
       break;
     case write_dbterm_op:
-      code_p = a_wdbt(cip->cpc->rnd1, _write_atom, clause_has_dbtermp, code_p, pass_no, cip);
+      code_p = a_wdbt(cip->cpc->rnd1, _write_dbterm, clause_has_dbtermp, code_p, pass_no, cip);
       break;
     case unify_list_op:
       code_p = a_ue(_unify_list, _unify_list_write, code_p, pass_no);
@@ -3540,7 +3540,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
 	  Yap_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, 3);	  
+	  siglongjmp(cip->CompilerBotch, 3);	  
 	}
 	if ( (char *)(cip->label_offset+cip->cpc->rnd1) >= cip->freep)
 	  cip->freep = (char *)(cip->label_offset+(cip->cpc->rnd1+1));
@@ -3722,7 +3722,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (cip->cpc->nextInst->op != bccall_op) {
 	Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "compiling binary test", (int) cip->cpc->op);
 	save_machine_regs();
-	_longjmp(cip->CompilerBotch, 1);
+	siglongjmp(cip->CompilerBotch, 1);
       }
       code_p = a_bfunc(cip->cpc->nextInst->rnd2, &clinfo, code_p, pass_no, cip);
       break;
@@ -3762,7 +3762,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
     default:
       Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "instruction %d found while assembling", (int) cip->cpc->op);
       save_machine_regs();
-      _longjmp(cip->CompilerBotch, 1);
+      siglongjmp(cip->CompilerBotch, 1);
     }
     cip->cpc = cip->cpc->nextInst;
   }
@@ -3788,7 +3788,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
     case OUT_OF_STACK_ERROR:
       Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
       save_machine_regs();
-      _longjmp(cip->CompilerBotch,3);
+      siglongjmp(cip->CompilerBotch,3);
     case OUT_OF_TRAIL_ERROR:
       /* don't just return NULL */
       ARG1 = *tp;
@@ -3865,7 +3865,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       Yap_LabelFirstArraySz = DEFAULT_NLABELS;
       if (!Yap_LabelFirstArray) {
 	save_machine_regs();
-	_longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
     }
     if (Yap_LabelFirstArray && max_label <= Yap_LabelFirstArraySz) { 
@@ -3874,7 +3874,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       cip->label_offset = (Int *)Yap_AllocCodeSpace(sizeof(Int)*max_label);
       if (!cip->label_offset) {
 	save_machine_regs();
-	_longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
     }
   }

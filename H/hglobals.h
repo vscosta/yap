@@ -135,7 +135,7 @@ typedef struct worker_local {
   struct RB_red_blk_node*  DB_root;
   struct RB_red_blk_node*  DB_nil;
 #endif /* defined(YAPOR) || defined(THREADS) */
-  jmp_buf  gc_restore;
+  sigjmp_buf  gc_restore;
   struct array_entry*  dynamic_arrays;
   struct static_array_entry*  static_arrays;
   struct global_entry*  global_variables;

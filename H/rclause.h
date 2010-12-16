@@ -16,6 +16,11 @@ restore_opcodes(yamop *pc, yamop *max)
     fprintf(stderr, "%s ", Yap_op_names[op]);
 #endif
     switch (op) {
+      /* instructions type D */
+    case _write_dbterm:
+      pc->u.D.D = DBGroundTermAdjust(pc->u.D.D);
+      pc = NEXTOP(pc,D);
+      break;
       /* instructions type Ills */
     case _enter_lu_pred:
       pc->u.Ills.I = PtoLUIndexAdjust(pc->u.Ills.I);
@@ -29,6 +34,11 @@ restore_opcodes(yamop *pc, yamop *max)
     case _alloc_for_logical_pred:
       pc->u.L.ClBase = PtoLUClauseAdjust(pc->u.L.ClBase);
       pc = NEXTOP(pc,L);
+      break;
+      /* instructions type N */
+    case _write_bigint:
+      pc->u.N.b = BlobTermInCodeAdjust(pc->u.N.b);
+      pc = NEXTOP(pc,N);
       break;
       /* instructions type Osblp */
     case _either:
@@ -294,15 +304,25 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.o.opcw = OpcodeAdjust(pc->u.o.opcw);
       pc = NEXTOP(pc,o);
       break;
+      /* instructions type oD */
+    case _unify_dbterm:
+    case _unify_l_dbterm:
+      pc->u.oD.opcw = OpcodeAdjust(pc->u.oD.opcw);
+      pc->u.oD.D = DBGroundTermAdjust(pc->u.oD.D);
+      pc = NEXTOP(pc,oD);
+      break;
+      /* instructions type oN */
+    case _unify_bigint:
+    case _unify_l_bigint:
+      pc->u.oN.opcw = OpcodeAdjust(pc->u.oN.opcw);
+      pc->u.oN.b = BlobTermInCodeAdjust(pc->u.oN.b);
+      pc = NEXTOP(pc,oN);
+      break;
       /* instructions type oc */
     case _unify_atom:
     case _unify_atom_write:
-    case _unify_bigint:
-    case _unify_dbterm:
     case _unify_l_atom:
     case _unify_l_atom_write:
-    case _unify_l_bigint:
-    case _unify_l_dbterm:
       pc->u.oc.opcw = OpcodeAdjust(pc->u.oc.opcw);
       pc->u.oc.c = ConstantTermAdjust(pc->u.oc.c);
       pc = NEXTOP(pc,oc);
@@ -525,10 +545,22 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.x.x = XAdjust(pc->u.x.x);
       pc = NEXTOP(pc,x);
       break;
+      /* instructions type xD */
+    case _get_dbterm:
+    case _put_dbterm:
+      pc->u.xD.x = XAdjust(pc->u.xD.x);
+      pc->u.xD.D = DBGroundTermAdjust(pc->u.xD.D);
+      pc = NEXTOP(pc,xD);
+      break;
+      /* instructions type xN */
+    case _get_bigint:
+    case _put_bigint:
+      pc->u.xN.x = XAdjust(pc->u.xN.x);
+      pc->u.xN.b = BlobTermInCodeAdjust(pc->u.xN.b);
+      pc = NEXTOP(pc,xN);
+      break;
       /* instructions type xc */
     case _get_atom:
-    case _get_bigint:
-    case _get_dbterm:
     case _put_atom:
       pc->u.xc.x = XAdjust(pc->u.xc.x);
       pc->u.xc.c = ConstantTermAdjust(pc->u.xc.c);

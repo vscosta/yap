@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: -1 $
+%  $Date: 2010-12-15 15:52:58 +0100 (Wed, 15 Dec 2010) $
+%  $Revision: 5144 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -211,20 +211,21 @@
 		  slice_n/4,
 		  sorted_overlap_test/2,
 		  prefix_bdd_file_with_header/4,
-		  split_list/3]).
+		  split_list/3,
+		  succeeds_n_times/2,
+		  sum_forall/3]).
 
 :- use_module(library(system), [delete_file/1]).
-
-% load swi library, at some point vitor will make swi_expand_file_name/2 a built-in
-:- load_foreign_files([libplstream], [], initIO).
 
 % load our own modules
 :- use_module(os).
 
+:- meta_predicate succeeds_n_times(0,?), sum_forall(?,:,?).
+
 
 %========================================================================
-%= 
-%= 
+%= deletes File, if it doesn't exists, it will succeed silently
+%= delete_file_silently(+File)
 %========================================================================
 
 delete_file_silently(File) :-
@@ -232,9 +233,10 @@ delete_file_silently(File) :-
 	!.
 delete_file_silently(_).
 
+
 %========================================================================
-%= 
-%= 
+%= delete all the files in the list silently
+%= delete_files_silently(+List)
 %========================================================================
 
 delete_files_silently([]).
@@ -242,22 +244,24 @@ delete_files_silently([H|T]) :-
 	delete_file_silently(H),
 	delete_files_silently(T).
 
+
 %========================================================================
-%= 
-%= 
+%= delete all the files matching a certain pattern silently
+%=  i.e. delete_file_pattern_silently('~/a_path/b_path/','*.txt')
+%=
+%= delete_file_pattern_silently(+Path,+Pattern)
 %========================================================================
 
 delete_file_pattern_silently(Path,Pattern) :-
 	concat_path_with_filename(Path,Pattern,AbsolutePattern),
-	swi_expand_file_name(AbsolutePattern,Files),
-
+	expand_file_name(AbsolutePattern,Files),
 	delete_files_silently(Files).
+
 
 %========================================================================
 %= Split a list into the first n elements and the tail
-%= +List +Integer -Prefix -Residuum
+%= slice_n(+List, +Integer, -Prefix, -Residuum)
 %========================================================================
-
 
 slice_n([],_,[],[]) :-
 	!.
@@ -268,9 +272,11 @@ slice_n([H|T],N,[H|T2],T3) :-
 	slice_n(T,N2,T2,T3).
 slice_n(L,0,[],L).
 
+
 %========================================================================
 %= succeeds if the variable V appears exactly once in the term T
 %========================================================================
+
 variable_in_term_exactly_once(T,V) :-
 	term_variables(T,Vars),
 	var_memberchk_once(Vars,V).
@@ -286,6 +292,7 @@ var_memberchk_none([H|T],V) :-
 	H\==V,
 	var_memberchk_none(T,V).
 var_memberchk_none([],_).
+
 
 %========================================================================
 %= sorted_overlap_test(+L1,+L2)
@@ -314,7 +321,7 @@ sorted_overlap_test([_|T1],[H2|T2]) :-
 prefix_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
 	open(BDD_File_Name,write,H),
 	% this is the header of the BDD script for problogbdd
-	format(H, '@BDD1~n~q~n0~n~q~n',[VarCount,IntermediateSteps]),
+	format(H, '@BDD1~n~w~n0~n~w~n',[VarCount,IntermediateSteps]),
 
 	% append the content of the file TmpFile
 	open(TmpFile,read,H2),
@@ -333,11 +340,14 @@ prefix_bdd_file_with_header(BDD_File_Name,VarCount,IntermediateSteps,TmpFile) :-
 
 
 %========================================================================
+%= Split the list L in the two lists L1 and L2 such that
+%= append(L1,L2,L) holds.
 %=
+%= if length of L is even, then L1 and L2 will have the same length
+%= if length of L is odd, then L1 will be one element longer than L2
 %=
-%=
+%= split_list(+L,-L1,-L2)
 %========================================================================
-
 
 split_list([],[],[]).
 split_list([H|T],L1,L2) :-
@@ -350,3 +360,34 @@ split_list_intern(N,[H|T],[H|T1],L) :-
 	N>0,
 	N2 is N-1,
 	split_list_intern(N2,T,T1,L).
+
+%========================================================================
+%= Counts how often Goal succeeds
+%= (taken from the YAP manual)
+%========================================================================
+
+succeeds_n_times(Goal, Times) :- 
+	Counter = counter(0), 
+	( Goal, 
+	  arg(1, Counter, N0), 
+	  N is N0 + 1, 
+	  nb_setarg(1, Counter, N), 
+	  fail 
+	; arg(1, Counter, Times) 
+	).
+
+
+%========================================================================
+%=
+%=
+%========================================================================
+
+sum_forall(X,Goal, Sum) :- 
+	Temp = sum(0), 
+	( Goal, 
+	  arg(1, Temp, Sum0),
+	  Sum is Sum0+X,
+	  nb_setarg(1, Temp, Sum), 
+	  fail 
+	; arg(1, Temp, Sum) 
+	).
