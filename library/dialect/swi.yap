@@ -245,6 +245,7 @@ goal_expansion(write_term(S,A,Opts),write_term(S,A,[swi(true)|Opts])) :- swi_io,
 goal_expansion(format(A),system:swi_format(user_output,A,[])) :- swi_io.
 goal_expansion(format(A,Args),system:swi_format(user_output,A,Args)) :- swi_io.
 goal_expansion(format(S,A,Args),system:swi_format(S,A,Args)) :- swi_io.
+goal_expansion(writeln(A),system:swi_format(user_output,'~w~n',[A])) :- swi_io.
 
 
 % make sure we also use 
