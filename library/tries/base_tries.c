@@ -203,7 +203,7 @@ TrData trie_traverse_init(TrEntry trie, TrData init_data) {
     if (CURRENT_TRAVERSE_MODE == TRAVERSE_MODE_FORWARD)
       data = TrEntry_first_data(trie);
     else
-      data = TrEntry_last_data(trie);
+      data = trie_get_last_entry(trie);
   }
   TrEntry_traverse_data(trie) = data;
   return data;
