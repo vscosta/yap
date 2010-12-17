@@ -7,8 +7,8 @@
 *                                                                              *
 *  Author: Bernd Gutmann                                                       *
 *  File: problogmath.c                                                         *
-*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
-*  $Revision:: 4880                                                          $ *
+*  $Date:: 2010-12-17 12:21:58 +0100 (Fri, 17 Dec 2010)                      $ *
+*  $Revision:: 5159                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -187,7 +187,7 @@
 \******************************************************************************/
 
 #include "problogmath.h"
-
+#include "general.h"
 
 double sigmoid(double x, double slope) {
   return 1.0 / (1.0 + exp(-x * slope));
