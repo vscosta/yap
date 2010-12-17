@@ -5953,10 +5953,9 @@ p_format(void)
   return res;
 }
 
-
 static Int
-p_format2(void)
-{				/* 'format'(Stream,Control,Args)          */
+format2(UInt  stream_flag)
+{
   int old_c_stream = Yap_c_output_stream;
   int mem_stream = FALSE, codes_stream = FALSE;
   Int out;
@@ -5975,7 +5974,7 @@ p_format2(void)
     mem_stream = TRUE;
   } else {
     /* needs to change Yap_c_output_stream for write */
-    Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "format/3");
+    Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f|stream_flag, "format/3");
   }
   UNLOCK(Stream[Yap_c_output_stream].streamlock);
   if (Yap_c_output_stream == -1) {
@@ -6005,6 +6004,18 @@ p_format2(void)
     Yap_c_output_stream = old_c_stream;  
   }
   return out;
+}
+
+static Int
+p_format2(void)
+{				/* 'format'(Stream,Control,Args)          */
+  return format2(0);
+}
+
+static Int
+p_swi_format(void)
+{				/* 'format'(Stream,Control,Args)          */
+  return format2(SWI_Stream_f);
 }
 
 
@@ -6803,6 +6814,10 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$toupper", 2, p_toupper, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$tolower", 2, p_tolower, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("file_base_name", 2, p_file_base_name, SafePredFlag|HiddenPredFlag);
+
+  CurrentModule = SYSTEM_MODULE;
+  Yap_InitCPred ("swi_format", 3, p_swi_format, SyncPredFlag);
+  CurrentModule = cm;
 
   Yap_InitReadUtil ();
 #if USE_SOCKET

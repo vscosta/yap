@@ -242,6 +242,9 @@ goal_expansion(print(A),write_term(user_output,A,[swi(true),portray(true),number
 goal_expansion(print(S,A),write_term(S,A,[swi(true),portray(true),numbervars(true)])) :- swi_io.
 goal_expansion(write_term(A,Opts),write_term(user_output,A,Opts,[swi(true)|Opts])) :- swi_io.
 goal_expansion(write_term(S,A,Opts),write_term(S,A,[swi(true)|Opts])) :- swi_io, \+ member(swi(_), Opts).
+goal_expansion(format(A),system:swi_format(user_output,A,[])) :- swi_io.
+goal_expansion(format(A,Args),system:swi_format(user_output,A,Args)) :- swi_io.
+goal_expansion(format(S,A,Args),system:swi_format(S,A,Args)) :- swi_io.
 
 
 % make sure we also use 
