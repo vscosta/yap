@@ -7,8 +7,8 @@
 *                                                                              *
 *  Author:       Bernd Gutmann                                                 *
 *  File:         problogmath.h                                                 *
-*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
-*  $Revision:: 4880                                                          $ *
+*  $Date:: 2010-12-17 12:21:58 +0100 (Fri, 17 Dec 2010)                      $ *
+*  $Revision:: 5159                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -211,5 +211,7 @@ double cumulative_normal_dsigma(double low, double high,double mu,double sigma);
 double cumulative_normal_upper(double high, double mu, double sigma);
 double cumulative_normal_upper_dsigma(double high,double mu,double sigma);
 double cumulative_normal_upper_dmu(double high,double mu,double sigma);
+
+double normal(double x, double mu,double sigma);
 
 density_integral parse_density_integral_string(char *input, char *variablename);
