@@ -2212,7 +2212,7 @@ X_API int PL_is_float(term_t ts)
 X_API int PL_is_integer(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t);
+  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t);
 }
 
 X_API int PL_is_list(term_t ts)
@@ -2224,7 +2224,7 @@ X_API int PL_is_list(term_t ts)
 X_API int PL_is_number(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t) || YAP_IsFloatTerm(t);
+  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t) || YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
