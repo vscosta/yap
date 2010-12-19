@@ -477,6 +477,17 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
       snprintf(tmp,SWI_BUF_SIZE,"%f",FloatOfTerm(t));
+#if USE_GMP
+    } else if (YAP_IsBigNumTerm(t)) {
+      if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+	return cv_error(flags);
+      MP_INT g;
+      YAP_BigNumOfTerm(t, (void *)&g);
+      if (mpz_sizeinbase(&g,2) > SWI_BUF_SIZE-1) {
+	return 0;
+      }
+      mpz_get_str (tmp, 10, &g);
+#endif
     } else {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
