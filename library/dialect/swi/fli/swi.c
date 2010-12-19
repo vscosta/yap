@@ -3096,6 +3096,7 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   SWIFlush = swio->flush_s;
   SWIClose = swio->close_s;
   SWIGetStream = swio->get_stream_handle;
+  SWIGetStreamPosition = swio->get_stream_position;
 }
 
 typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
@@ -3112,6 +3113,23 @@ Yap_get_stream_handle(Term t0, int read_mode, int write_mode, void *s){
     t = (term_t)YAP_InitSlot(t0);
   }
   return (*f)(t, read_mode, write_mode, s);
+}
+
+
+typedef int     (*GetStreamPosF)(IOSTREAM *s, term_t);
+
+Term 
+Yap_get_stream_position(void *s){
+  term_t t;
+  Term t0;
+  GetStreamPosF f = (GetStreamPosF)SWIGetStreamPosition;
+
+  t = (term_t)Yap_NewSlots(1);
+  if (!(*f)(s, t))
+    return 0L;
+  t0 = Yap_GetFromSlot((Int)t);
+  Yap_RecoverSlots(1);
+  return t0;
 }
 
 

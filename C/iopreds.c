@@ -4765,6 +4765,9 @@ StreamPosition(int sno)
   Term sargs[5];
   Int cpos;
   cpos = Stream[sno].charcount;
+  if (Stream[sno].status & SWI_Stream_f) {
+    return Yap_get_stream_position(Stream[sno].u.swi_stream.swi_ptr);
+  }
   if (Stream[sno].stream_getc == PlUnGetc) {
     cpos--;
   }

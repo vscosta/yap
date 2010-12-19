@@ -190,6 +190,7 @@ typedef struct worker_shared {
   SWI_CloseFunction  swi_close;
   SWI_FlushFunction  swi_flush;
   SWI_PLGetStreamFunction  swi_get_stream_f;
+  SWI_PLGetStreamPositionFunction  swi_get_stream_position_f;
 
   int  allow_local_expansion;
   int  allow_global_expansion;

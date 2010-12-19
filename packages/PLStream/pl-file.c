@@ -4350,6 +4350,12 @@ get_stream_handle_no_errors(term_t t, int read, int write, IOSTREAM **s)
   return get_stream_handle(t, s, SH_ALIAS);
 }
 
+static int
+get_stream_position(IOSTREAM *s, term_t t)
+{ GET_LD
+    return stream_position_prop(s, t);
+}
+
 static void
 init_yap_extras(void)
 {
@@ -4363,6 +4369,7 @@ init_yap_extras(void)
   swiio.flush_s = Sflush;
   swiio.close_s = closeStream;
   swiio.get_stream_handle = get_stream_handle_no_errors;
+  swiio.get_stream_position = get_stream_position;
   PL_YAP_InitSWIIO(&swiio);
   initCharTypes();
   initFiles();

@@ -199,6 +199,7 @@ static void RestoreGlobal(void) {
 
 
 
+
 #if HAVE_LIBREADLINE
 
 

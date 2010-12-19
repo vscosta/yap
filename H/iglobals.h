@@ -188,6 +188,7 @@ static void InitGlobal(void) {
   Yap_global->swi_close = NULL;
   Yap_global->swi_flush = NULL;
   Yap_global->swi_get_stream_f = NULL;
+  Yap_global->swi_get_stream_position_f = NULL;
 
   Yap_global->allow_local_expansion = TRUE;
   Yap_global->allow_global_expansion = TRUE;
