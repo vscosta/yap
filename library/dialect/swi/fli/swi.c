@@ -463,7 +463,6 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
       size_t sz = wcslen(s)+1;
       if (!(tmp = ensure_space(sp, sz*sizeof(wchar_t), flags)))
 	return 0;
-      // FIXME: I don't think this is the right thing to do here!
       memcpy(*sp,s,sz*sizeof(wchar_t));
     } else {
       char *s = RepAtom(at)->StrOfAE;
