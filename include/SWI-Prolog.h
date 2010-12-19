@@ -699,6 +699,7 @@ typedef struct SWI_IO {
   void *flush_s;
   void *close_s;
   void *get_stream_handle;
+  void *get_stream_position;
 } swi_io_struct;
 
 /*  SWI stream info */

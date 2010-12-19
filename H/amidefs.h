@@ -252,6 +252,7 @@ typedef enum {
   L: logic upd clause, logic_upd_clause *
   m: module, Term
   n: number, Integer
+  N: bigint, Blob (Term)
   o: opcode, OPCODE
   O: OR-parallel information, used by YAPOR, unsigned int
   p: predicate, struct pred_entry *
@@ -276,6 +277,14 @@ typedef struct yami {
       Term                c;
       CELL next;
     } c;
+    struct {
+      Term                D;
+      CELL next;
+    } D;
+    struct {
+      Term                b;
+      CELL next;
+    } N;
     struct {
       Term                c1;
       Term                c2;
@@ -498,9 +507,19 @@ typedef struct yami {
     } oc;
     struct {
       OPCODE              opcw;
+      Term                b;
+      CELL next;
+    } oN;
+    struct {
+      OPCODE              opcw;
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } od;
+    struct {
+      OPCODE              opcw;
+      Term                  D;
+      CELL next;
+    } oD;
     struct {
       OPCODE              opcw;
       Functor             f;
@@ -707,9 +726,19 @@ typedef struct yami {
     } xc;
     struct {
       wamreg                x;
+      Term                  b;
+      CELL next;
+    } xN;
+    struct {
+      wamreg                x;
       CELL    d[1+SIZEOF_DOUBLE/SIZEOF_INT_P];
       CELL next;
     } xd;
+    struct {
+      wamreg                x;
+      Term                  D;
+      CELL next;
+    } xD;
     struct {
       wamreg                x;
       Functor             f;

@@ -459,22 +459,35 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
       return cv_error(flags);
     if (IsWideAtom(at)) {
-      size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
-      if (!(tmp = ensure_space(sp, (sz+1)*sizeof(wchar_t), flags)))
+      wchar_t* s = RepAtom(at)->WStrOfAE;
+      size_t sz = wcslen(s)+1;
+      if (!(tmp = ensure_space(sp, sz*sizeof(wchar_t), flags)))
 	return 0;
+      memcpy(*sp,s,sz*sizeof(wchar_t));
     } else {
       char *s = RepAtom(at)->StrOfAE;
-      size_t sz = strlen(RepAtom(at)->StrOfAE)+1;
+      size_t sz = strlen(s)+1;
 
       if (!(tmp = ensure_space(sp, sz, flags)))
 	return 0;
-      strncpy(*sp,s,sz);
+      memcpy(*sp,s,sz);
     }
   } else if (IsNumTerm(t)) {
     if (IsFloatTerm(t)) {
       if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
       snprintf(tmp,SWI_BUF_SIZE,"%f",FloatOfTerm(t));
+#if USE_GMP
+    } else if (YAP_IsBigNumTerm(t)) {
+      if (!(flags & (CVT_FLOAT|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
+	return cv_error(flags);
+      MP_INT g;
+      YAP_BigNumOfTerm(t, (void *)&g);
+      if (mpz_sizeinbase(&g,2) > SWI_BUF_SIZE-1) {
+	return 0;
+      }
+      mpz_get_str (tmp, 10, &g);
+#endif
     } else {
       if (!(flags & (CVT_INTEGER|CVT_NUMBER|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
 	return cv_error(flags);
@@ -520,7 +533,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     char *nbf = PL_malloc(sz+1);
     if (!nbf)
       return 0;
-    strncpy(nbf,tmp,sz+1);
+    memcpy(nbf,tmp,sz+1);
     free(tmp);
     *sp = nbf;
   }
@@ -890,7 +903,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
 	return 0L;
       }
     }
-    strncpy(pt, c, len);
+    memcpy(pt, c, len);
     pt[len] = '\0';
   } else {
     pt = (char *)c;
@@ -1102,7 +1115,8 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
 	return FALSE;
       }
     }
-    strncpy(buf, s, len);
+    memcpy(buf, s, len);
+    buf[len] = 0;
   } else {
     buf = (char *)s;
   }
@@ -1547,7 +1561,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 
   if (!buf)
     return FALSE;
-  strncpy(buf, s, len);
+  memcpy(buf, s, len);
   buf[len] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
@@ -1857,7 +1871,7 @@ LookupMaxAtom(size_t n, char *s)
   
   if (!buf)
     return FALSE;
-  strncpy(buf, s, n);
+  memcpy(buf, s, n);
   buf[n] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
@@ -2212,7 +2226,7 @@ X_API int PL_is_float(term_t ts)
 X_API int PL_is_integer(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t);
+  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t);
 }
 
 X_API int PL_is_list(term_t ts)
@@ -2224,7 +2238,7 @@ X_API int PL_is_list(term_t ts)
 X_API int PL_is_number(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t) || YAP_IsFloatTerm(t);
+  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t) || YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
@@ -3096,6 +3110,7 @@ PL_YAP_InitSWIIO(struct SWI_IO *swio)
   SWIFlush = swio->flush_s;
   SWIClose = swio->close_s;
   SWIGetStream = swio->get_stream_handle;
+  SWIGetStreamPosition = swio->get_stream_position;
 }
 
 typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
@@ -3112,6 +3127,23 @@ Yap_get_stream_handle(Term t0, int read_mode, int write_mode, void *s){
     t = (term_t)YAP_InitSlot(t0);
   }
   return (*f)(t, read_mode, write_mode, s);
+}
+
+
+typedef int     (*GetStreamPosF)(IOSTREAM *s, term_t);
+
+Term 
+Yap_get_stream_position(void *s){
+  term_t t;
+  Term t0;
+  GetStreamPosF f = (GetStreamPosF)SWIGetStreamPosition;
+
+  t = (term_t)Yap_NewSlots(1);
+  if (!(*f)(s, t))
+    return 0L;
+  t0 = Yap_GetFromSlot((Int)t);
+  Yap_RecoverSlots(1);
+  return t0;
 }
 
 

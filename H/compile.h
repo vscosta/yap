@@ -263,7 +263,7 @@ typedef struct intermediates {
   Int  *uses;
   Term *contents;
   struct pred_entry *CurrentPred;  
-  jmp_buf CompilerBotch;
+  sigjmp_buf CompilerBotch;
   yamop *code_addr;
   yamop *expand_block;
   UInt  i_labelno;

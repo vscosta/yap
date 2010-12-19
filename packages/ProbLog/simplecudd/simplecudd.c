@@ -7,8 +7,8 @@
 *                                                                              *
 *  Author: Theofrastos Mantadelis                                              *
 *  File: simplecudd.c                                                          *
-*  $Date:: 2010-10-06 13:20:59 +0200 (Wed, 06 Oct 2010)                      $ *
-*  $Revision:: 4880                                                          $ *
+*  $Date:: 2010-12-17 12:21:58 +0100 (Fri, 17 Dec 2010)                      $ *
+*  $Revision:: 5159                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -1688,7 +1688,7 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, iQsize, i, inQ, iRoot; //ivalue, 
+  int icur, maxlinesize, iline, index, iloop, iQsize, i, iRoot; //ivalue,inQ, 
 //  double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;

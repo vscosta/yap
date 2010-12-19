@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 14:35:05 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5041 $
+%  $Date: 2010-12-14 20:30:07 +0100 (Tue, 14 Dec 2010) $
+%  $Revision: 5134 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -209,7 +209,10 @@
 			   create_known_values_file_name/2,
 			   create_bdd_file_name/3,
 			   create_bdd_input_file_name/2,
-			   create_bdd_output_file_name/4]).
+			   create_bdd_output_file_name/4,
+			   create_factprobs_file_name/2,
+			   create_test_predictions_file_name/2,
+			   create_training_predictions_file_name/2]).
 
 
 
@@ -249,10 +252,7 @@ empty_output_directory :-
 	delete_file_pattern_silently(Path,'values_*'),
 	delete_file_pattern_silently(Path,'factprobs_*'),
 	delete_file_pattern_silently(Path,'input_*'),
-	delete_file_pattern_silently(Path,'trainpredictions_*'),
-	delete_file_pattern_silently(Path,'testpredictions_*'),
 	delete_file_pattern_silently(Path,'predictions_*').
-
 empty_output_directory :-
 	throw(error(problog_flag_does_not_exist(output_directory))).
 
@@ -311,4 +311,47 @@ create_bdd_input_file_name(Iteration,Absolute_File_Name) :-
 	atomic_concat(['input_',Iteration,'.txt'],File_Name),
 	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
 create_bdd_input_file_name(_,_) :-
+	throw(error(problog_flag_does_not_exist(output_directory))).
+
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+create_factprobs_file_name(Iteration,Absolute_File_Name) :-
+	problog_flag(output_directory,Path),
+	!,
+
+	atomic_concat(['factprobs_',Iteration,'.pl'],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_factprobs_file_name(_,_) :-
+	throw(error(problog_flag_does_not_exist(output_directory))).
+
+
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+create_test_predictions_file_name(Iteration,Absolute_File_Name) :-
+	problog_flag(output_directory,Path),
+	!,
+
+	atomic_concat(['predictions_test_',Iteration,'.pl'],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_test_predictions_file_name(_,_) :-
+	throw(error(problog_flag_does_not_exist(output_directory))).
+
+%========================================================================
+%= 
+%= 
+%========================================================================
+
+create_training_predictions_file_name(Iteration,Absolute_File_Name) :-
+	problog_flag(output_directory,Path),
+	!,
+
+	atomic_concat(['predictions_training_',Iteration,'.pl'],File_Name),
+	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
+create_training_predictions_file_name(_,_) :-
 	throw(error(problog_flag_does_not_exist(output_directory))).

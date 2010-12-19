@@ -122,7 +122,7 @@ AllocCMem (UInt size, struct intermediates *cip)
 	if (!p) {
 	  Yap_Error_Size = size;
 	  save_machine_regs();
-	  _longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+	  siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
 	}
 	Yap_CMemFirstBlock = p;
 	Yap_CMemFirstBlockSz = blksz;
@@ -132,7 +132,7 @@ AllocCMem (UInt size, struct intermediates *cip)
       if (!p) {
 	Yap_Error_Size = size;
 	save_machine_regs();
-	_longjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
+	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
     }
     p->u.next = cip->blks;
@@ -152,7 +152,7 @@ AllocCMem (UInt size, struct intermediates *cip)
   if (ASP <= CellPtr (cip->freep) + 256) {
     Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
-    _longjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
+    siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   }
   return (p);
 #endif

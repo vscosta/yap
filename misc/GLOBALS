@@ -144,7 +144,7 @@ struct RB_red_blk_node*		DB_nil		db_nil		=NULL
 #endif /* defined(YAPOR) || defined(THREADS) */
 
 
-jmp_buf				gc_restore		Yap_gc_restore	void
+sigjmp_buf			gc_restore		Yap_gc_restore	void
 struct array_entry*		dynamic_arrays		DynamicArrays	=NULL PtoArrayEAdjust
 struct static_array_entry*	static_arrays		StaticArrays	=NULL PtoArraySAdjust
 struct global_entry*		global_variables	GlobalVariables	=NULL PtoGlobalEAdjust
@@ -211,6 +211,7 @@ SWI_PutWideFunction	swi_wputc		SWIWidePutc	=NULL
 SWI_CloseFunction	swi_close		SWIClose	=NULL
 SWI_FlushFunction	swi_flush		SWIFlush	=NULL
 SWI_PLGetStreamFunction	swi_get_stream_f	SWIGetStream	=NULL
+SWI_PLGetStreamPositionFunction swi_get_stream_position_f	SWIGetStreamPosition	=NULL
 
 // stack overflow expansion/gc control
 int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE

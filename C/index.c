@@ -188,7 +188,7 @@
 * Revision 1.150  2005/12/23 00:20:13  vsc
 * updates to gprof
 * support for __POWER__
-* Try to saveregs before _longjmp.
+* Try to saveregs before siglongjmp.
 *
 * Revision 1.149  2005/12/17 03:25:39  vsc
 * major changes to support online event-based profiling
@@ -832,14 +832,14 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   if (!(base = (CELL *)Yap_AllocCodeSpace(2*max*sizeof(CELL)))) {
     save_machine_regs();
     Yap_Error_Size = 2*max*sizeof(CELL);
-    _longjmp(cint->CompilerBotch,2);
+    siglongjmp(cint->CompilerBotch,2);
   }
 #else
   base = top;
   while (top+2*max > (CELL *)Yap_TrailTop) {
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,4);
+      siglongjmp(cint->CompilerBotch,4);
       return;
     }
   }
@@ -2046,11 +2046,11 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *c
       Yap_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,4);
+      siglongjmp(cint->CompilerBotch,4);
 #else
       if (!Yap_growtrail(sz, TRUE)) {
 	save_machine_regs();
-	_longjmp(cint->CompilerBotch,4);
+	siglongjmp(cint->CompilerBotch,4);
 	return 0;
       }
 #endif
@@ -2179,7 +2179,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     if (cl == NULL) {
       /* grow stack */
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,2);
+      siglongjmp(cint->CompilerBotch,2);
     }
     Yap_LUIndexSpace_SW += sz;
     cl->ClFlags = SwitchTableMask|LogUpdMask|func_mask;
@@ -2199,7 +2199,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     if (cl == NULL) {
       /* grow stack */
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,2);
+      siglongjmp(cint->CompilerBotch,2);
     }
     Yap_IndexSpace_SW += sz;
     cl->ClFlags = SwitchTableMask;
@@ -2518,7 +2518,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     sz = (UInt)NEXTOP((yamop *)NULL,sssllp)+tels*sizeof(yamop *);
     if ((ncode = (yamop *)Yap_AllocCodeSpace(sz)) == NULL) {
       save_machine_regs();
-      _longjmp(cint->CompilerBotch, 2);
+      siglongjmp(cint->CompilerBotch, 2);
     }
 #if DEBUG
     Yap_ExpandClauses++;
@@ -3130,7 +3130,7 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
     Yap_Error_Size = sz;
     /* grow stack */
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,4);
+    siglongjmp(cint->CompilerBotch,4);
   }
   memcpy((void *)top, (void *)min0, sz);
   return (ClauseDef *)top;
@@ -3324,7 +3324,7 @@ compile_index(struct intermediates *cint)
       Yap_Error_Size += NClauses*sizeof(ClauseDef);
       /* grow stack */
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,2);
+      siglongjmp(cint->CompilerBotch,2);
     }
   }
   cint->freep = (char *)H;
@@ -3336,7 +3336,7 @@ compile_index(struct intermediates *cint)
     Yap_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,3);
+    siglongjmp(cint->CompilerBotch,3);
   }
   cint->freep = (char *)(cint->cls+NClauses);
 #endif
@@ -3381,7 +3381,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.cls = NULL;
   Yap_Error_Size = 0;
 
-  if ((setjres = _setjmp(cint.CompilerBotch)) == 3) {
+  if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
     if (!Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, next_pc)) {
@@ -3463,7 +3463,7 @@ push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates
 {
   if (sp+1 > (istack_entry *)Yap_TrailTop) {
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,4);    
+    siglongjmp(cint->CompilerBotch,4);    
   }
   sp->pos = arg;
   sp->val = Tag;
@@ -4349,7 +4349,7 @@ expand_index(struct intermediates *cint) {
 	Yap_Error_Size += NClauses*sizeof(ClauseDef);
 	/* grow stack */
 	save_machine_regs();
-	_longjmp(cint->CompilerBotch,2);
+	siglongjmp(cint->CompilerBotch,2);
       }
     }
 #else
@@ -4359,7 +4359,7 @@ expand_index(struct intermediates *cint) {
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,3);
+      siglongjmp(cint->CompilerBotch,3);
     }
 #endif
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4377,7 +4377,7 @@ expand_index(struct intermediates *cint) {
 	Yap_Error_Size += NClauses*sizeof(ClauseDef);
 	/* grow stack */
 	save_machine_regs();
-	_longjmp(cint->CompilerBotch,2);
+	siglongjmp(cint->CompilerBotch,2);
       }
     }
 #else
@@ -4386,7 +4386,7 @@ expand_index(struct intermediates *cint) {
       /* tell how much space we need (worst case) */
       Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
       save_machine_regs();
-      _longjmp(cint->CompilerBotch,3);
+      siglongjmp(cint->CompilerBotch,3);
     }
 #endif
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -4485,7 +4485,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   cint.cls = NULL;
   cint.code_addr = NULL;
   cint.label_offset = NULL;
-  if ((cb = _setjmp(cint.CompilerBotch)) == 3) {
+  if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
@@ -4695,7 +4695,7 @@ push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediat
 {
   if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,4);    
+    siglongjmp(cint->CompilerBotch,4);    
   }
   sp->flag = pc_entry;
   sp->u.pce.pi_pc = pipc;
@@ -4711,7 +4711,7 @@ fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct interm
 {
   if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,4);    
+    siglongjmp(cint->CompilerBotch,4);    
   }
   /* add current position */
   sp->flag = block_entry;
@@ -5484,9 +5484,9 @@ add_try(PredEntry *ap, ClauseDef *cls, yamop *next, struct intermediates *cint)
   LogUpdClause *lcl = ClauseCodeToLogUpdClause(cls->Code);
 
   if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
-    /* OOOPS, got in trouble, must do a _longjmp and recover space */
+    /* OOOPS, got in trouble, must do a siglongjmp and recover space */
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,2);
+    siglongjmp(cint->CompilerBotch,2);
   }
   Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
@@ -5510,9 +5510,9 @@ add_trust(LogUpdIndex *icl, ClauseDef *cls, struct intermediates *cint)
   PredEntry *ap =  lcl->ClPred;
 
   if ((newcp = (yamop *)Yap_AllocCodeSpace(size)) == NULL) {
-    /* OOOPS, got in trouble, must do a _longjmp and recover space */
+    /* OOOPS, got in trouble, must do a siglongjmp and recover space */
     save_machine_regs();
-    _longjmp(cint->CompilerBotch,2);
+    siglongjmp(cint->CompilerBotch,2);
   }
   Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
@@ -6000,7 +6000,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   cint.CurrentPred = ap;
   cint.expand_block = NULL;
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
-  if ((cb = _setjmp(cint.CompilerBotch)) == 3) {
+  if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
     save_machine_regs();
@@ -6476,7 +6476,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   }
   cint.expand_block = NULL;
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
-  if ((cb = _setjmp(cint.CompilerBotch)) == 3) {
+  if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
     save_machine_regs();

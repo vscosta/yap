@@ -707,6 +707,7 @@ bdd_optimization(N,EV,Decisions,Status) :-
 	%(problog_flag(verbose,true) -> Debug = ' -d';Debug = ''), % messes up result parsing
     atomic_concat([ProblogBDD, Param, ' -l ',BDDFile,' -i ',BDDParFile,' -u ',UtilFile,' -m s',LocalPar,Forest,' -t ', BDDTime,' > ', ResultFile],Command),
 	statistics(walltime,_),
+% 	format(user,'$ ~w~n',[Command]),
 	shell(Command,Return),
 	(Return =\= 0 ->
 	    Status = timeout

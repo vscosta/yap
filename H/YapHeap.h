@@ -29,6 +29,7 @@ typedef int (*SWI_GetWideFunction)(void *);
 typedef int (*SWI_CloseFunction)(void *);
 typedef int (*SWI_FlushFunction)(void *);
 typedef int (*SWI_PLGetStreamFunction)(void *);
+typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
 #include "../include/dswiatoms.h"
 

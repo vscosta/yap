@@ -135,7 +135,7 @@ typedef struct worker_local {
   struct RB_red_blk_node*  DB_root;
   struct RB_red_blk_node*  DB_nil;
 #endif /* defined(YAPOR) || defined(THREADS) */
-  jmp_buf  gc_restore;
+  sigjmp_buf  gc_restore;
   struct array_entry*  dynamic_arrays;
   struct static_array_entry*  static_arrays;
   struct global_entry*  global_variables;
@@ -190,6 +190,7 @@ typedef struct worker_shared {
   SWI_CloseFunction  swi_close;
   SWI_FlushFunction  swi_flush;
   SWI_PLGetStreamFunction  swi_get_stream_f;
+  SWI_PLGetStreamPositionFunction  swi_get_stream_position_f;
 
   int  allow_local_expansion;
   int  allow_global_expansion;

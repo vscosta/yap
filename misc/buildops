@@ -224,6 +224,7 @@ get_op(0'a,"Arity").
 get_op(0'b,"CellPtoHeap").
 get_op(0'c,"ConstantTerm").
 get_op(0'd,"DoubleInCode").
+get_op(0'D,"DBGroundTerm").
 get_op(0'f,"Func").
 get_op(0'F,"ExternalFunction").
 get_op(0'i,"IntegerInCode").
@@ -232,6 +233,7 @@ get_op(0'l,"PtoOp").
 get_op(0'L,"PtoLUClause").
 get_op(0'm,"Module").
 get_op(0'n,"Integer").
+get_op(0'N,"BlobTermInCode").
 get_op(0'o,"Opcode").
 get_op(0'O,"OrArg").
 get_op(0'p,"PtoPred").
@@ -850,10 +852,12 @@ opinfo("gl_void_vary",[bind("y","AbsPair(NULL)",workpc=currentop),new("y")]).
 opinfo("get_struct",[bind("x","AbsAppl((CELL *)cl->u.xfa.f)",workpc=nextop)]).
 opinfo("get_float",[bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr="d")]).
 opinfo("get_longint",[bind("x","AbsAppl((CELL *)FunctorLongInt)",t_ptr="i")]).
-opinfo("get_bigint",[bind("x","c",[])]).
+opinfo("get_bigint",[bind("x","b",[])]).
 opinfo("copy_idb_term",[logical]).
 opinfo("unify_idb_term",[logical]).
 opinfo("put_atom",[new("x")]).
+opinfo("put_dbterm",[new("x")]).
+opinfo("put_bigint",[new("x")]).
 opinfo("put_float",[new("x")]).
 opinfo("put_longint",[new("x")]).
 opinfo("put_list",[new("x")]).
