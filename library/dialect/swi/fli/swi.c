@@ -459,16 +459,19 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     if (!(flags & (CVT_ATOM|CVT_ATOMIC|CVT_WRITE|CVT_WRITE_CANONICAL|CVT_ALL)))
       return cv_error(flags);
     if (IsWideAtom(at)) {
-      size_t sz = wcslen(RepAtom(at)->WStrOfAE)*sizeof(wchar_t);
-      if (!(tmp = ensure_space(sp, (sz+1)*sizeof(wchar_t), flags)))
+      wchar_t* s = RepAtom(at)->WStrOfAE;
+      size_t sz = wcslen(s)+1;
+      if (!(tmp = ensure_space(sp, sz*sizeof(wchar_t), flags)))
 	return 0;
+      // FIXME: I don't think this is the right thing to do here!
+      memcpy(*sp,s,sz*sizeof(wchar_t));
     } else {
       char *s = RepAtom(at)->StrOfAE;
-      size_t sz = strlen(RepAtom(at)->StrOfAE)+1;
+      size_t sz = strlen(s)+1;
 
       if (!(tmp = ensure_space(sp, sz, flags)))
 	return 0;
-      strncpy(*sp,s,sz);
+      memcpy(*sp,s,sz);
     }
   } else if (IsNumTerm(t)) {
     if (IsFloatTerm(t)) {
@@ -520,7 +523,7 @@ X_API int PL_get_chars(term_t l, char **sp, unsigned flags)
     char *nbf = PL_malloc(sz+1);
     if (!nbf)
       return 0;
-    strncpy(nbf,tmp,sz+1);
+    memcpy(nbf,tmp,sz+1);
     free(tmp);
     *sp = nbf;
   }
@@ -890,7 +893,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
 	return 0L;
       }
     }
-    strncpy(pt, c, len);
+    memcpy(pt, c, len);
     pt[len] = '\0';
   } else {
     pt = (char *)c;
@@ -1102,7 +1105,8 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
 	return FALSE;
       }
     }
-    strncpy(buf, s, len);
+    memcpy(buf, s, len);
+    buf[len] = 0;
   } else {
     buf = (char *)s;
   }
@@ -1547,7 +1551,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 
   if (!buf)
     return FALSE;
-  strncpy(buf, s, len);
+  memcpy(buf, s, len);
   buf[len] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
@@ -1857,7 +1861,7 @@ LookupMaxAtom(size_t n, char *s)
   
   if (!buf)
     return FALSE;
-  strncpy(buf, s, n);
+  memcpy(buf, s, n);
   buf[n] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
