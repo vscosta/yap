@@ -827,12 +827,16 @@ IOSWIPutc(int sno, int ch)
 static int
 IOSWIGetc(int sno)
 {
-  int i;
+  int ch;
   Yap_StartSlots();
-  i = (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  ch = (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  if (ch == EOF) {
+    return post_process_eof(Stream+sno);    
+  }
+  return post_process_read_char(ch, Stream+sno);
   Yap_CloseSlots();
   YENV = ENV;
-  return i;
+  return ch;
 }
 
 /* static */
@@ -851,12 +855,16 @@ IOSWIWidePutc(int sno, int ch)
 static int
 IOSWIWideGetc(int sno)
 {
-  int i;
+  int ch;
   Yap_StartSlots();
-  i = (SWIWideGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  ch = (SWIWideGetc)(Stream[sno].u.swi_stream.swi_ptr);
+  if (ch == EOF) {
+    return post_process_eof(Stream+sno);    
+  }
+  return post_process_read_char(ch, Stream+sno);
   Yap_CloseSlots();
   YENV = ENV;
-  return i;
+  return ch;
 }
 
 #if USE_SOCKET
