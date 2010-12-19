@@ -2702,7 +2702,9 @@ Yap_absmi(int inp)
 	/* 
 	   don't do a creep here; also, if our instruction is followed by
 	   a execute_c, just wait a bit more */
-	if (ActiveSignals & YAP_CREEP_SIGNAL ||
+	if ( (ActiveSignals & YAP_CREEP_SIGNAL &&
+	      /* keep on going if there is something else */
+	      !(ActiveSignals & ~YAP_CREEP_SIGNAL))  ||
 	    (PREG->opc != Yap_opcode(_procceed) &&
 	     PREG->opc != Yap_opcode(_cut_e))) {
 	  GONext();
