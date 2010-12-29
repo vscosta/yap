@@ -96,6 +96,7 @@ TEXI2DVI=texi2dvi
 TEXI2HTML=texi2html
 TEXI2PDF=texi2pdf
 YAPLIB=@YAPLIB@
+SONAMEFLAG=@SONAMEFLAG@
 
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
@@ -539,7 +540,7 @@ libYap.a: $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS)
+	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 
 install: install_bin install_data
 

@@ -2214,7 +2214,13 @@ Yap_absmi(int inp)
 
       /* cut                              */
       Op(cut, e);
-      PREG = NEXTOP(PREG, e);
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCut, H);
+      ENDCACHE_Y_AS_ENV();
+    do_cut:
+#endif
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
       {
 	choiceptr d0;
 	/* assume cut is always in stack */
@@ -2254,7 +2260,13 @@ Yap_absmi(int inp)
       /* cut_t                            */
       /* cut_t does the same as cut */
       Op(cut_t, e);
-      PREG = NEXTOP(PREG, e);
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCutT, H);
+      ENDCACHE_Y_AS_ENV();
+    do_cut_t:
+#endif
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
       {
 	choiceptr d0;
 
@@ -2309,7 +2321,13 @@ Yap_absmi(int inp)
 
       /* cut_e                            */
       Op(cut_e, e);
-      PREG = NEXTOP(PREG, e);
+#ifdef COROUTINING
+      CACHE_Y_AS_ENV(YREG);
+      check_stack(NoStackCutE, H);
+      ENDCACHE_Y_AS_ENV();
+    do_cut_e:
+#endif
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
       {
 	choiceptr d0;
 	/* we assume dealloc leaves in S the previous env             */
@@ -2743,6 +2761,66 @@ Yap_absmi(int inp)
 #ifdef COROUTINING
 
      /* This is easier: I know there is an environment so I cannot do allocate */
+    NoStackCut:
+      /* find something to fool S */
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto do_cut;
+      }
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	FAIL();
+      }
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+	SREG = (CELL *)PredRestoreRegs;
+	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)YREG[E_CB]);
+	PREG = NEXTOP(PREG,e);
+	goto creep_either;
+      }
+      /* don't do debugging and friends here */
+      goto do_cut;
+
+    NoStackCutT:
+      /* find something to fool S */
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto do_cut_t;
+      }
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	FAIL();
+      }
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+	SREG = (CELL *)PredRestoreRegs;
+	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)YREG[E_CB]);
+	PREG = NEXTOP(PREG,e);
+	goto creep_either;
+      }
+      /* don't do debugging and friends here */
+      goto do_cut_t;
+
+    NoStackCutE:
+      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+	goto do_cut_t;
+      }
+      if (ActiveSignals & YAP_FAIL_SIGNAL) {
+	ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!ActiveSignals)
+	  CreepFlag = CalculateStackGap();
+	FAIL();
+      }
+      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+	SREG = (CELL *)PredRestoreRegs;
+	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
+	PREG = NEXTOP(PREG,e);
+	goto creep_either;
+      }
+      /* don't do debugging and friends here */
+      goto do_cut_e;
+
+     /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
       PP = PREG->u.yp.p0;
       /* find something to fool S */
@@ -2756,7 +2834,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
-	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
+	SREG = (CELL *)PredRestoreRegs;
 	XREGS[0] = YREG[PREG->u.yp.y];
 	PREG = NEXTOP(PREG,yp);
 	goto creep_either;
@@ -2778,7 +2856,7 @@ Yap_absmi(int inp)
 	FAIL();
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
-	SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs,0));
+	SREG = (CELL *)PredRestoreRegs;
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
 #else

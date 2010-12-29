@@ -133,6 +133,7 @@
   Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
   Yap_heap_regs->pred_is = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
   Yap_heap_regs->pred_safe_call_cleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
+  Yap_heap_regs->pred_restore_regs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
 #ifdef YAPOR
   Yap_heap_regs->pred_getwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
   Yap_heap_regs->pred_getwork_seq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));

@@ -1495,12 +1495,19 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	PELOCK(42,cglobs->cint.CurrentPred);
 	if (is_tabled(cglobs->cint.CurrentPred)) {
 	  Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
+	  /* needs to adjust previous commits */
+	  Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+	  Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
 	  Yap_emit(table_new_answer_op, Zero, cglobs->cint.CurrentPred->ArityOfPE, &cglobs->cint);
 	}
 	else
 #endif /* TABLING */
 	  {
 	    Yap_emit_3ops(cutexit_op, Zero, Zero, Zero, &cglobs->cint);
+	    /* needs to adjust previous commits */
+	    Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+	    Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
+	    Yap_emit(procceed_op, Zero, Zero, &cglobs->cint);
 	  }
 #ifdef TABLING
 	UNLOCK(cglobs->cint.CurrentPred->PELock);
@@ -1509,6 +1516,8 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       else {
 	Yap_emit_3ops(cut_op, Zero, Zero, Zero, &cglobs->cint);
 	/* needs to adjust previous commits */
+	Yap_emit(empty_call_op, Zero, Zero, &cglobs->cint);
+	Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);
 	adjust_current_commits(cglobs);
       }
       return;
