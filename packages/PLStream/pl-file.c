@@ -4344,7 +4344,7 @@ get_stream_handle_no_errors(term_t t, int read, int write, IOSTREAM **s)
 { GET_LD
   if ( t == 0 )
     { if (write) *s = getStream(Scurout);
-      else *s = getStream(Scurout);
+      else *s = getStream(Scurin);
       return TRUE;
     }
   return get_stream_handle(t, s, SH_ALIAS);
