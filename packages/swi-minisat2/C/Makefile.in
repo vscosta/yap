@@ -23,6 +23,7 @@ DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
 CXX=@CXX@
 CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include  @CPPFLAGS@
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -70,7 +71,7 @@ pl-minisat.o : $(srcdir)/pl-minisat.C
 	$(CXX) -c $(CXXFLAGS) $(srcdir)/pl-minisat.C -o pl-minisat.o
 
 @DO_SECOND_LD@pl-minisat.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o pl-minisat.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ $(LDFLAGS) -o pl-minisat.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

@@ -49,7 +49,7 @@ pl-tai.o: $(srcdir)/pl-tai.c
 	$(CC) -c $(CFLAGS) $(srcdir)/pl-tai.c -o pl-tai.o
 
 @DO_SECOND_LD@pl-tai.@SO@: pl-tai.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o pl-tai.@SO@ pl-tai.o libtai/libtai.a @EXTRA_LIBS_FOR_SWIDLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o pl-tai.@SO@ pl-tai.o libtai/libtai.a @EXTRA_LIBS_FOR_SWIDLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
