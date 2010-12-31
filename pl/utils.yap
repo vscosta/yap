@@ -668,9 +668,13 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 atom_to_term(Atom, Term, Bindings) :-
 	atom_codes(Atom, Chars),
 	charsio:open_mem_read_stream(Chars, Stream),
-	read_term(Stream, T, [variable_names(Bindings)]),
+	catch(read_term(Stream, T, [variable_names(Bindings)]),Error,'$handle_atom_to_term_error'(Stream, Error)),
 	close(Stream),
 	T = Term.
+
+'$handle_atom_to_term_error'(Stream, Error) :-
+	close(Stream),
+	throw(Error).
 
 term_to_atom(Term,Atom) :-
 	nonvar(Atom), !,
