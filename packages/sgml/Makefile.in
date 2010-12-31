@@ -31,6 +31,7 @@ LN_S=@LN_S@
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
+LDFLAGS=@LDFLAGS@
 MKINDEX=true
 
 LD=$(CC)
@@ -117,7 +118,7 @@ ifeq (@PROLOG_SYSTEM@,yap)
 	$(CC) $(CFLAGS)  -o $@ -c $<
 
 @DO_SECOND_LD@sgml2pl.@SO@: $(PLOBJ)
-@DO_SECOND_LD@	@SHLIB_LD@ -o sgml2pl.@SO@ $(PLOBJ) @EXTRA_LIBS_FOR_SWIDLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o sgml2pl.@SO@ $(PLOBJ) @EXTRA_LIBS_FOR_SWIDLLS@
 
 all:		$(TARGETS) $(PROGRAMS)
 

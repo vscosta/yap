@@ -636,7 +636,11 @@ install_library: @YAPLIB@
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	for h in $(HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
 
-install_data:
+install_data: install_copied_files install_bin
+	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
+	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)
+
+install_copied_files:
 	(cd library ; $(MAKE) install)
 	(cd packages/swi-minisat2; $(MAKE) install)
 	(cd LGPL ; $(MAKE) install)
@@ -646,9 +650,6 @@ install_data:
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
-	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
-	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)
-
 
 ##########
 TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)

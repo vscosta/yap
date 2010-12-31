@@ -25,6 +25,7 @@ YAPLIBDIR=@libdir@/Yap
 CC=@CC@
 MPI_CC=mpicc
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -52,10 +53,10 @@ yaprl.o: $(srcdir)/yap_rl.c
 	$(CC) -c $(CFLAGS) $(srcdir)/yap_rl.c -o yaprl.o
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@yap_rl.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@  -o yap_rl.@SO@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_rl.@SO@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi
