@@ -918,6 +918,7 @@ split_megaclause(PredEntry *ap)
 	}
 	return;
       }
+      break;
     }
     Yap_ClauseSpace += sizeof(StaticClause)+mcl->ClItemSize+(UInt)NEXTOP((yamop *)NULL,p);
     new->ClFlags = StaticMask|FactMask;
