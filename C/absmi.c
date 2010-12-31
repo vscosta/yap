@@ -2215,9 +2215,11 @@ Yap_absmi(int inp)
       /* cut                              */
       Op(cut, e);
 #ifdef COROUTINING
-      CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCut, H);
-      ENDCACHE_Y_AS_ENV();
+      if (FALSE) {
+	CACHE_Y_AS_ENV(YREG);
+	check_stack(NoStackCut, H);
+	ENDCACHE_Y_AS_ENV();
+      }
     do_cut:
 #endif
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
@@ -2261,9 +2263,11 @@ Yap_absmi(int inp)
       /* cut_t does the same as cut */
       Op(cut_t, e);
 #ifdef COROUTINING
-      CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCutT, H);
-      ENDCACHE_Y_AS_ENV();
+      if (FALSE) {
+	CACHE_Y_AS_ENV(YREG);
+	check_stack(NoStackCutT, H);
+	ENDCACHE_Y_AS_ENV();
+      }
     do_cut_t:
 #endif
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
@@ -2322,9 +2326,11 @@ Yap_absmi(int inp)
       /* cut_e                            */
       Op(cut_e, e);
 #ifdef COROUTINING
-      CACHE_Y_AS_ENV(YREG);
-      check_stack(NoStackCutE, H);
-      ENDCACHE_Y_AS_ENV();
+      if (FALSE) {
+	CACHE_Y_AS_ENV(YREG);
+	check_stack(NoStackCutE, H);
+	ENDCACHE_Y_AS_ENV();
+      }
     do_cut_e:
 #endif
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
@@ -2794,7 +2800,7 @@ Yap_absmi(int inp)
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
-	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)YREG[E_CB]);
+	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
 	PREG = NEXTOP(PREG,e);
 	goto creep_either;
       }
