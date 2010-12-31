@@ -636,10 +636,6 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       char *sp0 = sp;
       char cbuff = ch;
 
-      if (yap_flags[STRICT_ISO_FLAG] && ch == 'E') {
-	Yap_ErrorMessage = "Float format not allowed in ISO mode";
-	return TermNil;
-      }
       if (--max_size == 0) {
 	Yap_ErrorMessage = "Number Too Long";
 	return TermNil;
