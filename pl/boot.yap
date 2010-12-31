@@ -515,7 +515,7 @@ true :- true.
 	X == '$', !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
-'$prompt_alternatives_on'(groundness).
+'$prompt_alternatives_on'(determinism).
 
 /* Executing a query */
 
