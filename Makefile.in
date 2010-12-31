@@ -28,7 +28,7 @@ INCLUDEDIR=$(ROOTDIR)/include/Yap
 #
 INFODIR=$(SHAREDIR)/info
 #
-# where to store documentaion files
+# where to store documentation files
 #
 DOCSDIR=$(SHAREDIR)/doc/Yap
 
