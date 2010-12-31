@@ -1413,8 +1413,13 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
+    UInt i;
+    Int sl = 0;
     ctx.engine = NULL;
-    return ((codev)((&ARG1)-LCL0,0,&ctx));
+    for (i=pe->ArityOfPE; i > 0; i--) {
+      sl = Yap_InitSlot(XREGS[i]);
+    }
+    return ((codev)(sl,0,&ctx));
   }
   if (pe->PredFlags & CArgsPredFlag) {
     Int out =  execute_cargs(pe, exec_code);
