@@ -298,6 +298,8 @@
 #define ForeignCodeTop Yap_heap_regs->foreign_code_top
 #define ForeignCodeMax Yap_heap_regs->foreign_code_max
 
+#define Yap_Records Yap_heap_regs->yap_records
+
 #define SWI_Atoms Yap_heap_regs->swi_atoms
 #define SWI_Functors Yap_heap_regs->swi_functors
 #define SWI_ReverseHash Yap_heap_regs->swi_reverse_hash

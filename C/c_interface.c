@@ -3152,20 +3152,80 @@ YAP_FileDescriptorFromStream(Term t)
 X_API void *
 YAP_Record(Term t)
 {
- 
-  return (void *)Yap_StoreTermInDB(Deref(t), 0);
+  DBTerm *dbterm;
+  DBRecordList *dbt;
+
+  dbterm = Yap_StoreTermInDB(Deref(t), 0);
+  if (dbterm == NULL)
+    return NULL;
+  dbt = (struct record_list *)Yap_AllocCodeSpace(sizeof(struct record_list));
+  while (dbt == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(struct record_list), NULL)) {
+      /* be a good neighbor */
+      Yap_FreeCodeSpace((void *)dbterm);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "using YAP_Record");
+      return NULL;
+    }
+  }
+  if (Yap_Records) {
+    Yap_Records->prev_rec = dbt;
+  }
+  dbt->next_rec = Yap_Records;
+  dbt->prev_rec = NULL;
+  dbt->dbrecord = dbterm;
+  Yap_Records = dbt;
+  fprintf(stderr,"adding %p\n", dbt);
+  return dbt;
 }
 
 X_API Term
 YAP_Recorded(void *handle)
 {
-  return Yap_FetchTermFromDB((DBTerm *)handle);
+  Term t;
+  fprintf(stderr,"reading %p\n", handle);
+  DBTerm *dbterm = ((DBRecordList *)handle)->dbrecord;
+
+  BACKUP_MACHINE_REGS();
+  do {
+    Yap_Error_TYPE = YAP_NO_ERROR;
+    t = Yap_FetchTermFromDB(dbterm);
+    if (Yap_Error_TYPE == YAP_NO_ERROR) {
+      RECOVER_MACHINE_REGS();
+      return t;
+    } else if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growglobal(NULL)) {
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	RECOVER_MACHINE_REGS();
+	return FALSE;
+      }
+    } else {
+      Yap_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_growstack(dbterm->NOfCells*CellSize)) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	RECOVER_MACHINE_REGS();
+	return FALSE;
+      }
+    }
+  } while (t == (CELL)0);
+  RECOVER_MACHINE_REGS();
+  return t;
 }
 
 X_API int
 YAP_Erase(void *handle)
 {
-  Yap_ReleaseTermFromDB((DBTerm *)handle);
+  fprintf(stderr,"erasing %p\n", handle);
+  DBRecordList *dbr = (DBRecordList *)handle;
+  Yap_ReleaseTermFromDB(dbr->dbrecord);
+  if (dbr->next_rec) 
+    dbr->next_rec->prev_rec = dbr->prev_rec;
+  if (dbr->prev_rec) 
+    dbr->next_rec->prev_rec = dbr->next_rec;
+  else if (Yap_Records == dbr) {
+    Yap_Records = dbr->next_rec;
+  }
+  Yap_FreeCodeSpace(handle);
   return 1;
 }
 

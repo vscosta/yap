@@ -298,6 +298,8 @@
 
 
 
+  RestoreYapRecords();
+
   RestoreSWIAtoms();
 
 

@@ -298,6 +298,8 @@
   Yap_heap_regs->foreign_code_top = NULL;
   Yap_heap_regs->foreign_code_max = NULL;
 
+  Yap_heap_regs->yap_records = NULL;
+
   InitSWIAtoms();
 
 

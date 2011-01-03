@@ -95,6 +95,12 @@ typedef struct scratch_block_struct {
   UInt sz, msz;
 } scratch_block;
 
+typedef struct record_list {
+  /* a list of dbterms associated with a clause */
+  struct DB_TERM *dbrecord;
+  struct record_list *next_rec, *prev_rec;
+} DBRecordList;
+
 typedef struct restore_info {
   Int base_diff;
   Int cl_diff;

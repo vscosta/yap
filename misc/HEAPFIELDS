@@ -339,6 +339,9 @@ ADDR		foreign_code_base	ForeignCodeBase		=NULL void
 ADDR		foreign_code_top	ForeignCodeTop		=NULL void
 ADDR		foreign_code_max	ForeignCodeMax		=NULL void
 
+/* recorded terms */
+struct record_list *yap_records		Yap_Records		=NULL		RestoreYapRecords()
+
 /* SWI atoms and functors */
 Atom		swi_atoms[N_SWI_ATOMS]	SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()
 Functor		swi_functors[N_SWI_FUNCTORS] SWI_Functors	void void
