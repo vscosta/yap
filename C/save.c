@@ -1691,6 +1691,20 @@ UnmarkTrEntries(void)
 
 int in_limbo = FALSE;
 
+/* cleanup any records we had in the saved state. They are now inaccessible */
+static void
+FreeRecords(void) {
+  struct record_list *ptr;
+
+  ptr = Yap_Records;
+  Yap_Records = NULL;
+  while (ptr) {
+    struct record_list *optr = ptr;
+    Yap_ReleaseTermFromDB(ptr->dbrecord);
+    ptr = ptr->next_rec;
+    Yap_FreeCodeSpace((void *)optr);
+  }
+}
 
 /*
  * This function is called when wanting only to restore the heap and
@@ -1748,6 +1762,7 @@ Restore(char *s, char *lib_dir)
     Yap_InitPreAllocCodeSpace();
   }
 #endif
+  FreeRecords();
   CloseRestore();
   if (which_save == 2) {
     Yap_unify(ARG2, MkIntTerm(0));

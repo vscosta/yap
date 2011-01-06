@@ -298,6 +298,8 @@
   ADDR  foreign_code_top;
   ADDR  foreign_code_max;
 
+  struct record_list  *yap_records;
+
   Atom  swi_atoms[N_SWI_ATOMS];
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];

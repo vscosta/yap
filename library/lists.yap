@@ -8,9 +8,14 @@
 	   append/3,
 	   append/2,
 	   delete/3,
+	   intersection/3,
+	   flatten/2,
 	   last/2,
+	   list_concat/2,
+	   max_list/2,	 
 	   member/2,
 	   memberchk/2,
+	   min_list/2,
 	   nextto/3,
 	   nth/3,
 	   nth/4,
@@ -18,6 +23,7 @@
 	   nth0/4,
 	   nth1/3,
 	   nth1/4,
+	   numlist/3,
 	   permutation/2,
 	   prefix/2,
 	   remove_duplicates/2,
@@ -27,16 +33,11 @@
 	   selectchk/3,
 	   sublist/2,
 	   substitute/4,
+	   subtract/3,
+	   suffix/2,
 	   sum_list/2,
 	   sum_list/3,
-	   suffix/2,
-	   sumlist/2,
-	   list_concat/2,
-	   flatten/2,
-	   max_list/2,	 
-	   min_list/2,
-	   numlist/3,
-	   intersection/3
+	   sumlist/2
 	  ]).
 
 :- use_module(library(error),
@@ -400,3 +401,17 @@ intersection([X|T], L, Intersect) :-
 intersection([_|T], L, R) :-
 	intersection(T, L, R).
 
+%%	subtract(+Set, +Delete, -Result) is det.
+%
+%	Delete all elements from `Set' that   occur  in `Delete' (a set)
+%	and unify the  result  with  `Result'.   Deletion  is  based  on
+%	unification using memberchk/2. The complexity is |Delete|*|Set|.
+%
+%	@see ord_subtract/3.
+
+subtract([], _, []) :- !.
+subtract([E|T], D, R) :-
+	memberchk(E, D), !,
+	subtract(T, D, R).
+subtract([H|T], D, [H|R]) :-
+	subtract(T, D, R).

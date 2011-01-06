@@ -2326,23 +2326,25 @@ X_API record_t
 PL_record(term_t ts)
 {
   Term t = Yap_GetFromSlot(ts);
-  return (record_t)Yap_StoreTermInDB(t, 0);
+  return (record_t)YAP_Record(t);
 }
 
 X_API int
 PL_recorded(record_t db, term_t ts)
 {
-  Term t = Yap_FetchTermFromDB((DBTerm *)db);
-  if (t == 0L)
+  Term t = YAP_Recorded((void *)db);
+  fprintf(stderr,"PL_recorded %ld\n", t);
+  if (t == ((CELL)0))
     return FALSE;
   Yap_PutInSlot(ts,t);
+  fprintf(stderr,"PL_recorded\n");
   return TRUE;
 }
 
 X_API void
 PL_erase(record_t db)
 {
-  Yap_ReleaseTermFromDB((DBTerm *)db);
+  YAP_Erase((void *)db);
 }
 
 X_API void PL_halt(int e)
