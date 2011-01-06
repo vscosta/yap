@@ -536,7 +536,8 @@ true :- true.
  % end of YAPOR
 
 '$query'(G,[]) :-
-	 '$prompt_alternatives_on'(groundness), !,
+	 '$prompt_alternatives_on'(OPT),
+	 ( OPT = groundness ; OPT = determinism), !,
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
