@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-20 12:35:25 +0100 (Mon, 20 Dec 2010) $
-%  $Revision: 5161 $
+%  $Date: 2011-01-16 19:24:10 +0100 (Sun, 16 Jan 2011) $
+%  $Revision: 5260 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -283,8 +283,7 @@
 	problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true),
 	problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false),
   problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false),
-  problog_define_flag(export_map_file, problog_flag_validate_boolean, 'activates export of a variable map file', false, output),
-  problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output)
+  problog_define_flag(export_map_file, problog_flag_validate_boolean, 'activates export of a variable map file', false, output)
 )).
 
 
