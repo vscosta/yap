@@ -717,6 +717,9 @@ Yap_scan_num(int (*Nxtch) (int))
     return TermNil;
   }
   ch = Nxtch(-1);
+  while (chtype(ch) == BS) {
+    ch = Nxtch(-1);
+  }
   if (ch == '-') {
     sign = -1;
     ch = Nxtch(-1);
