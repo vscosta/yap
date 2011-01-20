@@ -2650,13 +2650,9 @@ do_consts(GroupDef *grp, Term t, struct intermediates *cint, int compound_term, 
   return lbl;
 }
 
-int vsc_n;
-
 static void
 do_blobs(GroupDef *grp, Term t, struct intermediates *cint, UInt argno, int first, UInt nxtlbl, int clleft, CELL *top)
 {
-  vsc_n++;
-  if (vsc_n == 112205) jmp_deb(1);
   COUNT n;
   ClauseDef *min = grp->FirstClause;
   COUNT i;
