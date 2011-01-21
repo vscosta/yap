@@ -792,7 +792,6 @@ Yap_absmi(int inp)
     noheapleft:
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
-
 #ifdef SHADOW_S
 	S = SREG;
 #endif
@@ -2535,6 +2534,7 @@ Yap_absmi(int inp)
       PP = PREG->u.pp.p0;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
+	SREG = YENV;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2690,6 +2690,7 @@ Yap_absmi(int inp)
       SREG = (CELL *) PREG->u.Osbpp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
+	SREG = YENV;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
@@ -2926,6 +2927,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
+	SREG = YENV;
 	goto noheapleft;
       }
       if (ActiveSignals) {
@@ -3049,6 +3051,7 @@ Yap_absmi(int inp)
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
+	SREG = YENV;
 	goto noheapleft;
       }
       if (ActiveSignals)
@@ -14558,6 +14561,7 @@ Yap_absmi(int inp)
 	if (ActiveSignals) {
 	  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
 	    UNLOCK(SignalLock);
+	    SREG = YENV;
 	    goto noheapleft;
 	  }
 	  UNLOCK(SignalLock);
