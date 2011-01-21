@@ -1924,15 +1924,16 @@ typedef struct {
 X_API int PL_unify_term(term_t l,...)
 {
   va_list ap;
-  int type;
+  int type, res;
   int nels = 1;
   int depth = 1;
   Term a[1], *pt;
   stack_el stack[MAX_DEPTH];
   
-
+  BACKUP_MACHINE_REGS();
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
+      RECOVER_MACHINE_REGS();
       return FALSE;
     }
   }
@@ -2137,7 +2138,9 @@ X_API int PL_unify_term(term_t l,...)
     }
   }
   va_end (ap);
-  return YAP_Unify(Yap_GetFromSlot(l),a[0]);
+  res = Yap_unify(Yap_GetFromSlot(l),a[0]);
+  RECOVER_MACHINE_REGS();
+  return res;
 }
 
 /* end PL_unify_* functions =============================*/

@@ -684,6 +684,23 @@ term_to_atom(Term,Atom) :-
 	charsio:write_to_chars(Term,S),
 	atom_codes(Atom,S).
 
+%
+% hack this here.
+%
+charsio:write_to_chars(Term, L0, OUT) :-
+	charsio:open_mem_write_stream(Stream),
+	prolog:write(Stream, Term),
+	charsio:peek_mem_write_stream(Stream, L0, O),
+	prolog:close(Stream),
+	O = OUT.
+
+charsio:read_from_chars(Chars, Term) :-
+	charsio:open_mem_read_stream(Chars, Stream),
+	prolog:read(Stream, T),
+	prolog:close(Stream),
+	T = Term.
+
+
 simple(V) :- var(V), !.
 simple(A) :- atom(A), !.
 simple(N) :- number(N).
