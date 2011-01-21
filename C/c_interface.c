@@ -3174,7 +3174,6 @@ YAP_Record(Term t)
   dbt->prev_rec = NULL;
   dbt->dbrecord = dbterm;
   Yap_Records = dbt;
-  fprintf(stderr,"adding %p\n", dbt);
   return dbt;
 }
 
@@ -3182,7 +3181,6 @@ X_API Term
 YAP_Recorded(void *handle)
 {
   Term t;
-  fprintf(stderr,"reading %p\n", handle);
   DBTerm *dbterm = ((DBRecordList *)handle)->dbrecord;
 
   BACKUP_MACHINE_REGS();
@@ -3215,7 +3213,6 @@ YAP_Recorded(void *handle)
 X_API int
 YAP_Erase(void *handle)
 {
-  fprintf(stderr,"erasing %p\n", handle);
   DBRecordList *dbr = (DBRecordList *)handle;
   Yap_ReleaseTermFromDB(dbr->dbrecord);
   if (dbr->next_rec) 
