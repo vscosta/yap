@@ -9,9 +9,9 @@
 %
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
-%  Version: 0.1
+%  Version: 1.0
 %  Date: 01/02/2011
-%  Comments: The timer implementation is inspired by Bernd Gutmann timers
+%  Contributions: The timer implementation is inspired by Bernd Gutmann's timers
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -203,7 +203,7 @@
 
 :- module(c_alarms, [set_alarm/3,
                      unset_alarm/1,
-                     time_out_call/3,
+                     time_out_call_once/3,
                      timer_start/1,
                      timer_restart/1,
                      timer_stop/2,
@@ -227,14 +227,18 @@
 :- use_module(library(lists), [member/2, memberchk/2, delete/3]).
 :- use_module(library(ordsets), [ord_add_element/3]).
 :- use_module(library(apply_macros), [maplist/3]).
+
+:- dynamic('$timer'/3).
+
+:- meta_predicate(set_alarm(+, 0, -)).
+:- meta_predicate(time_out_call_once(+, 0, -)).
+:- meta_predicate(prove_once(0)).
+
 :- initialization(local_init).
 
 local_init:-
   bb_put(alarms, []),
   bb_put(identity, 0).
-
-:- meta_predicate(set_alarm(+, 0, -)).
-:- meta_predicate(time_out_call(+, 0, -)).
 
 get_next_identity(ID):-
   bb_get(identity, ID),
@@ -312,13 +316,12 @@ execute([alarm(_, _, Execute)|R]):-
   call(Execute),
   execute(R).
 
-time_out_call(Seconds, Goal, Return):-
+time_out_call_once(Seconds, Goal, Return):-
   bb_get(identity, ID),
+  set_alarm(Seconds, throw(timeout(ID)), ID),
   catch((
-    (set_alarm(Seconds, throw(timeout(ID)), ID) ; unset_alarm(ID), fail),
-    Goal,
-    unset_alarm(ID),
-    Return = success)
+    prove_once(Goal, Return),
+    unset_alarm(ID))
   , Exception, (
     (Exception == timeout(ID) ->
       Return = timeout
@@ -327,7 +330,9 @@ time_out_call(Seconds, Goal, Return):-
       throw(Exception)
     ))).
 
-:- dynamic('$timer'/3).
+prove_once(Goal, success):-
+  once(Goal).
+prove_once(_Goal, failure).
 
 timer_start(Name):-
   \+ ground(Name),
