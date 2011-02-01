@@ -9,8 +9,8 @@
 %
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
-%  Version: 1.0
-%  Date: 01/02/2011
+%  $Date: 2011-02-01 17:48:23 +0100 (Tue, 01 Feb 2011) $
+%  $Revision: 6 $
 %  Contributions: The timer implementation is inspired by Bernd Gutmann's timers
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +270,7 @@ unset_alarm(ID):-
   throw(error(instantiation_error, 'Alarm ID needs to be instantiated.')).
 unset_alarm(ID):-
   bb_get(alarms, Alarms),
-  memberchk(alarm(_Seconds, ID, _Execute), Alarms),
+  \+ memberchk(alarm(_Seconds, ID, _Execute), Alarms),
   throw(error(existence_error(alarm, unset_alarm(ID)), 'Alarm does not exist.')).
 unset_alarm(ID):-
   alarm(0, true, Remaining),
@@ -331,7 +331,7 @@ time_out_call_once(Seconds, Goal, Return):-
     ))).
 
 prove_once(Goal, success):-
-  once(Goal).
+  once(Goal), !.
 prove_once(_Goal, failure).
 
 timer_start(Name):-
