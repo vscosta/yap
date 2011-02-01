@@ -275,10 +275,13 @@ unset_alarm(ID):-
 unset_alarm(ID):-
   alarm(0, true, Remaining),
   bb_get(alarms, Alarms),
+  [alarm(Seconds, _, _)|_] = Alarms,
+  Elapsed is Seconds - Remaining - 1,
   delete_alarm(Alarms, ID, NewAlarms),
   bb_put(alarms, NewAlarms),
-  (NewAlarms = [alarm(Seconds, _, _)|_] ->
-    alarm(Seconds, alarm_handler, _)
+  (NewAlarms = [alarm(NewSeconds, _, _)|_] ->
+    RemainingSeconds is NewSeconds - Elapsed,
+    alarm(RemainingSeconds, alarm_handler, _)
   ;
     true
   ).
