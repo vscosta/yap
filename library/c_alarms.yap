@@ -9,8 +9,8 @@
 %
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
-%  $Date: 2011-02-01 17:48:23 +0100 (Tue, 01 Feb 2011) $
-%  $Revision: 6 $
+%  $Date: 2011-02-01 18:36:41 +0100 (Tue, 01 Feb 2011) $
+%  $Revision: 7 $
 %  Contributions: The timer implementation is inspired by Bernd Gutmann's timers
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
