@@ -143,6 +143,7 @@ static Term AdjustDBTerm(Term, Term *);
 #define OpcodeAdjust(P) (P)
 #define ModuleAdjust(P) (P)
 #define ExternalFunctionAdjust(P) (P)
+#define DBRecordAdjust(P) (P)
 #define PredEntryAdjust(P) (P)
 #define ModEntryPtrAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
@@ -199,6 +200,8 @@ static Term AdjustDBTerm(Term, Term *);
 #define RestoreSWIHash()
 
 #include "rheap.h"
+
+
 
 static void
 RestoreHashPreds(void)

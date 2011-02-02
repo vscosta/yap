@@ -20,6 +20,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -47,10 +48,10 @@ yap_random.o: $(srcdir)/yap_random.c
 	$(CC) -c $(CFLAGS) $(srcdir)/yap_random.c -o yap_random.o
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@yap_random.@SO@: yap_random.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o yap_random.@SO@ yap_random.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o yap_random.@SO@ yap_random.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

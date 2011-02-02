@@ -1,4 +1,4 @@
-�a\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
+\input texinfo @c -*- mode: texinfo; coding: latin-1; -*-
 
 @c %**start of header
 @setfilename yap.info
@@ -9265,6 +9265,18 @@ also @code{between/3}.
 Succeeds if @var{Set3} unifies with the intersection of @var{Set1} and
 @var{Set2}. @var{Set1} and @var{Set2} are lists without duplicates. They
 need not be ordered.
+@end table
+
+@item subtract(+@var{Set}, +@var{Delete}, ?@var{Result})
+@findex subtract/3
+@syindex subtract/3
+@cnindex subtract/3
+Delete all elements from @var{Set} that   occur  in @var{Delete} (a set)
+and unify the  result  with  @var{Result}.   Deletion  is  based  on
+unification using @code{memberchk/2}. The complexity is
+@code{|Delete|*|Set|}.
+
+See @code{ord_subtract/3}.
 @end table
 
 @node LineUtilities, MapList, Lists, Library

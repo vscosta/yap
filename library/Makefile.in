@@ -77,6 +77,8 @@ PROGRAMS= \
 	$(srcdir)/wundgraphs.yap \
 	$(srcdir)/lam_mpi.yap \
 	$(srcdir)/ypp.yap \
+	$(srcdir)/c_alarms.yap \
+	$(srcdir)/flags.yap \
 	$(srcdir)/block_diagram.yap
 
 MYDDAS_PROGRAMS= $(srcdir)/MYDDAS/myddas.ypp \

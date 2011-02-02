@@ -22,6 +22,7 @@ YAPLIBDIR=@libdir@/Yap
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include  @CPPFLAGS@
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -78,10 +79,10 @@ uxnt.o: $(srcdir)/uxnt/uxnt.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@libplstream.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ -o libplstream.@SO@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o libplstream.@SO@ $(OBJS) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

@@ -1596,14 +1596,28 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
       return -1;
     }
 #endif
+#elif SIZEOF_INT_P==8
+  {
+    int n = 1024*1024;
+    while (n) {
+      /* progress 1 MB */
+      WorkSpaceTop += 512*1024;
+      if (ExtendWorkSpace(s, MAP_FIXED)) {
+	Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
+	Yap_ErrorMessage = NULL;
+	return WorkSpaceTop-WorkSpaceTop0;
+      }
+#if defined(_WIN32)
+      /* 487 happens when you step over someone else's memory */
+      if (GetLastError() != 487) {
+	WorkSpaceTop = WorkSpaceTop0;
+	return -1;
+      }
+#endif
+    }
+#endif
   }
   WorkSpaceTop = WorkSpaceTop0;
-#endif
-  if (ExtendWorkSpace(s, 0)) {
-    Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
-    Yap_ErrorMessage = NULL;
-    return WorkSpaceTop-WorkSpaceTop0;
-  }
 #endif
   return -1;
 }

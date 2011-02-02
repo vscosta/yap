@@ -191,10 +191,20 @@
 	Run \= off,
 	'$zip'(-1, G, Mod), !,
         '$signal_creep',
-	'$execute_nonstop'(G,Mod).
+	'$execute_goal'(G, Mod).
 '$start_creep'([Mod|G]) :-
 	CP is '$last_choice_pt',	
 	'$do_spy'(G, Mod, CP, no).
+
+'$execute_goal'(G, Mod) :-
+	(
+	 '$is_metapredicate'(G, Mod)
+	->
+	'$meta_call'(G,Mod)
+	;
+	'$execute_nonstop'(G,Mod)
+	).
+
 
 '$signal_do'(Sig, Goal) :-
 	recorded('$signal_handler', action(Sig,Goal), _), !.

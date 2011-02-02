@@ -29,6 +29,7 @@ typedef int (*SWI_GetWideFunction)(void *);
 typedef int (*SWI_CloseFunction)(void *);
 typedef int (*SWI_FlushFunction)(void *);
 typedef int (*SWI_PLGetStreamFunction)(void *);
+typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
 #include "../include/dswiatoms.h"
 
@@ -93,6 +94,12 @@ typedef struct scratch_block_struct {
   char *ptr;
   UInt sz, msz;
 } scratch_block;
+
+typedef struct record_list {
+  /* a list of dbterms associated with a clause */
+  struct DB_TERM *dbrecord;
+  struct record_list *next_rec, *prev_rec;
+} DBRecordList;
 
 typedef struct restore_info {
   Int base_diff;

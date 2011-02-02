@@ -141,6 +141,7 @@ struct pred_entry *pred_throw		PredThrow		MkPred FunctorThrow PROLOG_MODULE
 struct pred_entry *pred_handle_throw	PredHandleThrow		MkPred FunctorHandleThrow PROLOG_MODULE
 struct pred_entry *pred_is		PredIs			MkPred FunctorIs PROLOG_MODULE
 struct pred_entry *pred_safe_call_cleanup PredSafeCallCleanup	MkPred FunctorSafeCallCleanup PROLOG_MODULE
+struct pred_entry *pred_restore_regs	PredRestoreRegs		MkPred FunctorRestoreRegs PROLOG_MODULE
 #ifdef YAPOR
 struct pred_entry *pred_getwork		PredGetwork		MkPred AtomGetwork 0 PROLOG_MODULE
 struct pred_entry *pred_getwork_seq	PredGetworkSeq		MkPred AtomGetworkSeq 0 PROLOG_MODULE
@@ -337,6 +338,9 @@ struct ForeignLoadItem 	*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreFore
 ADDR		foreign_code_base	ForeignCodeBase		=NULL void
 ADDR		foreign_code_top	ForeignCodeTop		=NULL void
 ADDR		foreign_code_max	ForeignCodeMax		=NULL void
+
+/* recorded terms */
+struct record_list *yap_records		Yap_Records		=NULL		RestoreYapRecords()
 
 /* SWI atoms and functors */
 Atom		swi_atoms[N_SWI_ATOMS]	SWI_Atoms		InitSWIAtoms() RestoreSWIAtoms()

@@ -133,6 +133,7 @@
   Yap_heap_regs->pred_handle_throw = PtoPredAdjust(Yap_heap_regs->pred_handle_throw);
   Yap_heap_regs->pred_is = PtoPredAdjust(Yap_heap_regs->pred_is);
   Yap_heap_regs->pred_safe_call_cleanup = PtoPredAdjust(Yap_heap_regs->pred_safe_call_cleanup);
+  Yap_heap_regs->pred_restore_regs = PtoPredAdjust(Yap_heap_regs->pred_restore_regs);
 #ifdef YAPOR
   Yap_heap_regs->pred_getwork = PtoPredAdjust(Yap_heap_regs->pred_getwork);
   Yap_heap_regs->pred_getwork_seq = PtoPredAdjust(Yap_heap_regs->pred_getwork_seq);
@@ -296,6 +297,8 @@
 
 
 
+
+  RestoreYapRecords();
 
   RestoreSWIAtoms();
 

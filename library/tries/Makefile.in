@@ -20,6 +20,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -60,13 +61,13 @@ itries.o: $(srcdir)/core_tries.h $(srcdir)/base_itries.h $(srcdir)/itries.c
 	$(CC) -c $(CFLAGS) $(SHLIB_CFLAGS) $(srcdir)/itries.c -o itries.o
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $< @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $< @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@tries.@SO@: core_tries.o base_tries.o tries.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o tries.@SO@ core_tries.o base_tries.o tries.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o tries.@SO@ core_tries.o base_tries.o tries.o @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@itries.@SO@: core_tries.o base_itries.o itries.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o itries.@SO@ core_tries.o base_itries.o itries.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o itries.@SO@ core_tries.o base_itries.o itries.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

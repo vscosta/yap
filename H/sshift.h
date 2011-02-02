@@ -309,6 +309,16 @@ HoldEntryAdjust (HoldEntry * ptr)
   return (HoldEntry *) (((HoldEntry *) (CharP (ptr) + HDiff)));
 }
 
+inline EXTERN struct record_list *DBRecordAdjust (struct record_list *);
+
+inline EXTERN struct record_list *
+DBRecordAdjust (struct record_list * ptr)
+{
+  if (!ptr)
+    return ptr;
+  return (struct record_list *) (CharP (ptr) + HDiff);
+}
+
 
 #if	USE_OFFSETS
 

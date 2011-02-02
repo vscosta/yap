@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-15 11:12:48 +0100 (Wed, 15 Dec 2010) $
-%  $Revision: 5138 $
+%  $Date: 2011-01-16 19:24:10 +0100 (Sun, 16 Jan 2011) $
+%  $Revision: 5260 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -521,6 +521,7 @@ init_global_params :-
   problog_define_flag(bdd_result,      problog_flag_validate_file, 'file to store result calculated from BDD', example_bdd_res, bdd, flags:working_file_handler),
   problog_define_flag(bdd_file,        problog_flag_validate_file, 'file for BDD script', example_bdd, bdd, flags:bdd_file_handler),
   problog_define_flag(static_order_file,    problog_flag_validate_file, 'file for BDD static order', example_bdd_order, bdd, flags:working_file_handler),
+  problog_define_flag(map_file,        problog_flag_validate_file,    'the file to output the variable map', map_file, output, flags:working_file_handler),
 %%%%%%%%%%%%
 % montecarlo: recalculate current approximation after N samples
 % montecarlo: write log to this file
@@ -2458,6 +2459,7 @@ montecarlo(Goal,Delta,K,File) :-
 	format(Log,'# goal: ~q~n#delta: ~w~n',[Goal,Delta]),
 	format(Log,'# num_programs  prob   low   high  diff  time~2n',[]),
 	close(Log),
+	timer_reset(monte_carlo),
 	timer_start(monte_carlo),
 	format_if_verbose(user,'search for ~q~n',[Goal]),
 	montecarlo(Goal,Delta,K,0,File,0),

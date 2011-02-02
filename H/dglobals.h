@@ -188,6 +188,7 @@
 #define SWIClose Yap_global->swi_close
 #define SWIFlush Yap_global->swi_flush
 #define SWIGetStream Yap_global->swi_get_stream_f
+#define SWIGetStreamPosition Yap_global->swi_get_stream_position_f
 
 #define Yap_AllowLocalExpansion Yap_global->allow_local_expansion
 #define Yap_AllowGlobalExpansion Yap_global->allow_global_expansion

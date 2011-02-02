@@ -43,6 +43,7 @@
 	mktime/2,
 	tmpnam/1,
 	tmp_file/2,
+  tmpdir/1,
 	wait/2,
 	working_directory/2
           ]).
@@ -138,7 +139,7 @@ rm_directory(File, Ignore) :-
 
 delete_directory(on, File, Ignore) :-
 	directory_files(File, FileList, Ignore),
-	dir_separator(D),
+	path_separator(D),
 	atom_concat(File, D, FileP),
 	delete_dirfiles(FileList, FileP, Ignore),
 	rmdir(File, Ignore).
@@ -501,13 +502,13 @@ tmp_file(Base,X) :-
 	throw(error(instantiation_error,tmp_file(Base,X))).	
 tmp_file(Base,X) :-
 	atom(Base), !,
-	tmpdir(Dir, Error),
-	handle_system_error(Error, off, tmp_file(Base,Error)),
+	tmpdir(Dir),
+	handle_system_error(Error, off, tmp_file(Base,X)),
 	pid(PID, Error),
-	handle_system_error(Error, off, tmp_file(Base,Error)),
+	handle_system_error(Error, off, tmp_file(Base,X)),
 	tmp_file_sequence(I),
-	dir_separator(D),
-	atomic_concat([Dir,D,yap_,Base,'_',PID,'_',I],X).
+%	path_separator(D),
+	atomic_concat([Dir,yap_,Base,'_',PID,'_',I],X).
 tmp_file(Base,X) :-
 	throw(error(type_error(atom,Base),tmp_file(Base,X))).	
 
@@ -518,3 +519,18 @@ tmp_file_sequence(X) :-
 tmp_file_sequence(0) :-
 	assert(tmp_file_sequence_counter(1)).
 
+%%% Added from Theo, path_seperator is used to replace the c predicate dir_separator which is not OS aware
+
+tmpdir(TmpDir):-
+  tmpdir(Dir, Error),
+  handle_system_error(Error, off, tmpdir(Dir)),
+  path_separator(D),
+  (atom_concat(_, D, Dir) ->
+    TmpDir = Dir
+  ;
+    atom_concat(Dir, D, TmpDir)
+  ).
+
+path_separator('\\'):-
+  win, !.
+path_separator('/').

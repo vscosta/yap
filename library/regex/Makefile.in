@@ -20,6 +20,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 CC=@CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
+LDFLAGS=@LDFLAGS@
 #
 #
 # You shouldn't need to change what follows.
@@ -59,22 +60,22 @@ regexec.o: $(srcdir)/regexec.c
 	$(CC) -c $(CFLAGS) $(srcdir)/regexec.c -o regexec.o
 
 @DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@regexp.@SO@: regexp.o @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regexp.@SO@ regexp.o  @EXTRA_LIBS_FOR_DLLS@ @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o 
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regexp.@SO@ regexp.o  @EXTRA_LIBS_FOR_DLLS@ @MERGE_DLL_OBJS@ regcomp.o regerror.o regfree.o regexec.o 
 
 @DO_SECOND_LD@regcomp.@SO@: regcomp.o @MERGE_DLL_OBJS@ regfree.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regcomp.@SO@ regcomp.o @MERGE_DLL_OBJS@ regfree.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regcomp.@SO@ regcomp.o @MERGE_DLL_OBJS@ regfree.o @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@regerror.@SO@: regerror.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regerror.@SO@ regerror.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regerror.@SO@ regerror.o @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@regfree.@SO@: regfree.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regfree.@SO@ regfree.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regfree.@SO@ regfree.o @EXTRA_LIBS_FOR_DLLS@
 
 @DO_SECOND_LD@regexec.@SO@: regexec.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o regexec.@SO@ regexec.o @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o regexec.@SO@ regexec.o @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)

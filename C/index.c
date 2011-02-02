@@ -2430,17 +2430,14 @@ count_consts(GroupDef *grp)
 static UInt
 count_blobs(GroupDef *grp)
 {
-  Term current = MkAtomTerm(AtomFoundVar);
-  UInt i = 0;
-  ClauseDef *cl = grp->FirstClause;
+  UInt i = 1;
+  ClauseDef *cl = grp->FirstClause+1;
+  Term current = grp->FirstClause->Tag;
     
-  while (TRUE) {
+  while (cl <= grp->LastClause) {
     if (current != cl->Tag) {
       i++;
       current = cl->Tag;
-    }
-    if (cl == grp->LastClause) {
-      return i;
     }
     cl++;
   }
@@ -3224,7 +3221,7 @@ do_dbref_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cin
     Yap_emit(label_op, labl, Zero, cint);
     Yap_emit(index_dbref_op, Zero, Zero, cint);
     sort_group(group,(CELL *)(group+1),cint);
-    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
+    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)(group+1));
     return labl;
   }
 }
@@ -3261,7 +3258,7 @@ do_blob_index(ClauseDef *min, ClauseDef* max, Term t, struct intermediates *cint
     else
       Yap_emit(index_long_op, Zero, Zero, cint);
     sort_group(group,(CELL *)(group+1),cint);
-    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)group+1);
+    do_blobs(group, t, cint, argno, first, fail_l, clleft, (CELL *)(group+1));
     return labl;
   }
 }

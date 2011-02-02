@@ -149,7 +149,7 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	;
 	    get_value('$syntaxcheckmultiple',on)
 	)),
-	recorded('$reconsulting',File,_),
+	nb_getval('$consulting_file',File),
 	'$xtract_head'(T,M,NM,_,F,A),
 	\+ (
 	    % allow duplicates if we are not the last predicate to have

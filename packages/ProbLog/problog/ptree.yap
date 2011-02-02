@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-16 13:33:43 +0100 (Thu, 16 Dec 2010) $
-%  $Revision: 5156 $
+%  $Date: 2011-01-16 19:24:10 +0100 (Sun, 16 Jan 2011) $
+%  $Revision: 5260 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -282,7 +282,8 @@
 	problog_define_flag(use_naive_trie,  problog_flag_validate_boolean, 'use the naive algorithm to generate bdd scripts', false),
 	problog_define_flag(use_old_trie,    problog_flag_validate_boolean, 'use the old trie 2 trie transformation no nested', true),
 	problog_define_flag(use_dec_trie,    problog_flag_validate_boolean, 'use the decomposition method', false),
-	problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false)
+  problog_define_flag(deref_terms,     problog_flag_validate_boolean, 'deref BDD terms after last use', false),
+  problog_define_flag(export_map_file, problog_flag_validate_boolean, 'activates export of a variable map file', false, output)
 )).
 
 
@@ -657,40 +658,52 @@ bdd_ptree_script(Trie, FileBDD, FileParam) :-
 	retractall(compression(_, _)).
 
 % write parameter file by iterating over all var/not(var) occuring in the tree
-bdd_vars_script([]).
-bdd_vars_script([A|B]) :-
-	(
-	 A=not(ID)
-	->
-	 bdd_vars_script_intern(ID);
-	 bdd_vars_script_intern(A)
-	),
-	bdd_vars_script(B).
-bdd_vars_script_intern(A) :-
-	(
-	 number(A)
-	->
-	 (
-      % it's a ground fact
-      get_var_name(A,NameA),
-	  (problog:decision_fact(A,_) ->
-        % it's a ground decision
-        (problog:problog_control(check,internal_strategy) ->
-          problog:get_fact_probability(A,P),
-          format('@~w~n~12f~n~w~n',[NameA,P,1])
-        ;
-          format('@~w~n~12f~n~w~n',[NameA,0,1])
-        )
-      ;
-        % it's a normal ProbLog fact
+
+bdd_vars_script(Vars):-
+  bdd_vars_script(Vars, Names),
+  (problog_flag(export_map_file, true) ->
+    problog_flag(map_file, MapFile),
+    os:convert_filename_to_working_path(MapFile, MapFileName),
+    flush_output,
+    tell(MapFileName),
+    problog:get_fact_list(Vars, Facts),
+    writemap(Names, Facts),
+    flush_output,
+    told
+  ;
+    true
+  ).
+writemap([],[]).
+writemap([Name|Names],[Fact|Facts]):-
+  write(map(Name,Fact)),nl,
+  writemap(Names, Facts).
+
+bdd_vars_script([], []).
+bdd_vars_script([not(A)|B], Names) :-
+  !, bdd_vars_script([A|B], Names).
+bdd_vars_script([A|B], [NameA|Names]) :-
+  bdd_vars_script_intern(A, NameA),
+  bdd_vars_script(B, Names).
+
+bdd_vars_script_intern(A, NameA) :-
+  (number(A) ->     % it's a ground fact
+    get_var_name(A,NameA),
+    (problog:decision_fact(A,_) ->   % it's a ground decision
+      (problog:problog_control(check,internal_strategy) ->
         problog:get_fact_probability(A,P),
-        format('@~w~n~12f~n',[NameA,P])
+        format('@~w~n~12f~n~w~n',[NameA,P,1])
+      ;
+        format('@~w~n~12f~n~w~n',[NameA,0,1])
       )
-	 );     % it's somethin else, call the specialist
-     % it's a non-ground or continuous fact
-	 bdd_vars_script_intern2(A)
-	).
-bdd_vars_script_intern2(A) :-
+    ; % it's a normal ProbLog fact
+      problog:get_fact_probability(A,P),
+      format('@~w~n~12f~n',[NameA,P])
+    )
+  ; % it's somethin else, call the specialist - it's a non-ground or continuous fact
+    bdd_vars_script_intern2(A, NameA)
+  ).
+
+bdd_vars_script_intern2(A, NameA) :-
 	get_var_name(A,NameA),
 	atom_codes(A,A_Codes),
 

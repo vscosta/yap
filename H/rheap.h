@@ -984,6 +984,21 @@ RestoreForeignCode(void)
 }
 
 static void
+RestoreYapRecords(void)
+{
+  struct record_list *ptr;
+
+  Yap_Records = DBRecordAdjust(Yap_Records);
+  ptr = Yap_Records;
+  while (ptr) {
+    ptr->next_rec = DBRecordAdjust(ptr->next_rec);
+    ptr->prev_rec = DBRecordAdjust(ptr->prev_rec);
+    ptr->dbrecord = DBTermAdjust(ptr->dbrecord);
+    RestoreDBTerm(ptr->dbrecord, FALSE);
+  }
+}
+
+static void
 RestoreBallTerm(int wid)
 {
   if (BallTerm) {

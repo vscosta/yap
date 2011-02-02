@@ -3397,8 +3397,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_cnp(_native_me, code_p, pass_no, cip);
       break;
     case cutexit_op:
-      code_p = a_cut(&clinfo, code_p, pass_no, cip);
-     if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
+      if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	 (*clause_has_blobsp  || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
 	code_p = a_cle(_alloc_for_logical_pred, code_p, pass_no, cip);
@@ -3409,7 +3408,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	   !clinfo.alloc_found)
 	 code_p = a_e(_unlock_lu, code_p, pass_no);
 #endif
-      code_p = a_pl(_procceed, cip->CurrentPred, code_p, pass_no);
+      code_p = a_cut(&clinfo, code_p, pass_no, cip);
       break;
     case allocate_op:
       clinfo.alloc_found = 2;

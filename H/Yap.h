@@ -268,6 +268,8 @@ extern char Yap_Option[20];
 #define MMAP_ADDR 0x200000000
 #elif defined(__APPLE__) && !__LP64__
 #define MMAP_ADDR 0x20000000
+#elif defined(__powerpc__)
+#define MMAP_ADDR 0x20000000
 #else
 #define MMAP_ADDR 0x10000000
 #endif

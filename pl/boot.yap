@@ -515,7 +515,7 @@ true :- true.
 	X == '$', !,
 	( recorded('$reconsulting',_,R) -> erase(R) ).
 
-'$prompt_alternatives_on'(groundness).
+'$prompt_alternatives_on'(determinism).
 
 /* Executing a query */
 
@@ -536,7 +536,8 @@ true :- true.
  % end of YAPOR
 
 '$query'(G,[]) :-
-	 '$prompt_alternatives_on'(groundness), !,
+	 '$prompt_alternatives_on'(OPT),
+	 ( OPT = groundness ; OPT = determinism), !,
 	 '$yes_no'(G,(?-)).
 '$query'(G,V) :-
 	 (
