@@ -1299,13 +1299,19 @@ Yap_gmp_tcmp_big_big(Term t1, Term t2)
 
     if (pt1[1] == BIG_INT) {
       return 1;
-    } else {
+    } else if (pt1[1] == BIG_RATIONAL) {
       b1 = Yap_BigRatOfTerm(t1);
+    } else if (pt1[1] == BIG_RATIONAL) {
+      b1 = Yap_BigRatOfTerm(t1);
+    } else {
+      return pt1-pt2;
     }
     if (pt2[1] == BIG_INT) {
       return -1;
-    } else {
+    } else if (pt2[1] == BIG_RATIONAL) {
       b2 = Yap_BigRatOfTerm(t2);
+    } else {
+      return pt1-pt2;
     }
     return mpq_cmp(b1, b2);
   }
