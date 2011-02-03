@@ -10,8 +10,8 @@
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
 %  Sugestions: Bernd Gutmann, Paulo Moura
-%  Version: 0.1
-%  Date: 19/11/2010
+%  $Date: 2011-02-03 17:19:26 +0100 (Thu, 03 Feb 2011) $
+%  $Revision: 9 $
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -337,25 +337,29 @@ in_interval_conj(Type, [Interval|Rest]):-
   in_interval_conj(Type, Rest).
 
 in_interval_single(Type, ([Min], [Max])):-
- !, call(Type, Min),
+  !, call(Type, Min),
   call(Type, Max),
   Min =< Max.
 
 in_interval_single(Type, ([Min], Max)):-
- !, call(Type, Min),
-  call(Type, Max),
+  !, call(Type, Min),
+  type_or_inf(Type, Max),
   Min < Max.
 
 in_interval_single(Type, (Min, [Max])):-
- !, call(Type, Min),
+  !, type_or_inf(Type, Min),
   call(Type, Max),
   Min < Max.
 
 in_interval_single(Type, (Min, Max)):-
-  call(Type, Min),
-  call(Type, Max),
+  type_or_inf(Type, Min),
+  type_or_inf(Type, Max),
   Min < Max,
   Max - Min > 0.0.
+
+type_or_inf(_Type, (+inf)):- !.
+type_or_inf(_Type, (-inf)):- !.
+type_or_inf(Type, Value):- call(Type, Value).
 
 in_interval(Type, [Interval|_Rest], Value):-
   in_interval(Type, Interval, Value), !.
