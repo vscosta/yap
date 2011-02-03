@@ -236,6 +236,12 @@ C_SOURCES= \
 	$(srcdir)/MYDDAS/myddas_top_level.c \
 	$(srcdir)/MYDDAS/myddas_wkb2prolog.c
 
+PLCONS_SOURCES = \
+	$(srcdir)/console/LGPL/pl-nt.c \
+	$(srcdir)/console/LGPL/pl-ntcon.c \
+	$(srcdir)/console/LGPL/pl-ntconsole.c \
+	$(srcdir)/console/LGPL/pl-ntmain.c
+
 PL_SOURCES= \
 	$(srcdir)/pl/arith.yap \
 	$(srcdir)/pl/arrays.yap \
@@ -318,7 +324,11 @@ LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJE
 
 OBJECTS = yap.o $(LIB_OBJECTS)
 
-
+PLCONS_OBJECTS = \
+	pl-nt.o \
+	pl-ntcon.o \
+	pl-ntconsole.o \
+	pl-ntmain.o
 
 all: parms.h startup.yss
 
@@ -483,6 +493,18 @@ regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h co
 regexec.o: $(srcdir)/library/regex/regexec.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
 
+pl-nt.o: $(srcdir)/console/LGPL/pl-nt.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-nt.c -o $@
+
+pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
+
+pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
+	$(CC) -c $(CFLAGS)  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
+
+pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntmain.c -o $@
+
 # default rule
 %.o : $(srcdir)/C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -511,6 +533,7 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/random; $(MAKE))
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE))
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE))
+	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE))
 	@INSTALL_DLLS@ (cd library/system; $(MAKE))
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/clib; $(MAKE))
@@ -533,6 +556,10 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
+
+pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll packages/PLSTream/libplstream.dll
+	(cd LGPL/swi_console; $(MAKE))
+	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll packages/PLSTream/libplstream.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS)
 	-rm -f libYap.a
@@ -673,6 +700,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/regex; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) clean)
+	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) clean)

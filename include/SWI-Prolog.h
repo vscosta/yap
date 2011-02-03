@@ -314,6 +314,83 @@ typedef struct foreign_context *control_t;
 
 /* end from pl-itf.h */
 
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Output   representation   for   PL_get_chars()     and    friends.   The
+prepresentation type REP_FN is for   PL_get_file_name()  and friends. On
+Windows we use UTF-8 which is translated   by the `XOS' layer to Windows
+UNICODE file functions.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define REP_ISO_LATIN_1 0x0000		/* output representation */
+#define REP_UTF8 	0x1000
+#define REP_MB		0x2000
+#ifdef __WINDOWS__
+#define REP_FN		REP_UTF8
+#else
+#define REP_FN		REP_MB
+#endif
+
+#define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
+
+#ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
+
+		 /*******************************
+		 *	  STREAM SUPPORT	*
+		 *******************************/
+
+/* Make IOSTREAM known to Prolog */
+#define PL_open_stream  PL_unify_stream	/* compatibility */
+PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
+PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
+PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
+PL_EXPORT(IOSTREAM *)	PL_open_resource(module_t m,
+					 const char *name,
+					 const char *rc_class,
+					 const char *mode);
+
+PL_EXPORT(IOSTREAM *)*_PL_streams(void);	/* base of streams */
+#ifndef PL_KERNEL
+#define Suser_input  (_PL_streams()[0])
+#define Suser_output (_PL_streams()[1])
+#define Suser_error  (_PL_streams()[2])
+#endif
+
+#define PL_WRT_QUOTED		0x01	/* quote atoms */
+#define PL_WRT_IGNOREOPS	0x02	/* ignore list/operators */
+#define PL_WRT_NUMBERVARS	0x04	/* print $VAR(N) as a variable */
+#define PL_WRT_PORTRAY		0x08	/* call portray */
+#define PL_WRT_CHARESCAPES	0x10	/* Output ISO escape sequences */
+#define PL_WRT_BACKQUOTED_STRING 0x20	/* Write strings as `...` */
+					/* Write attributed variables */
+#define PL_WRT_ATTVAR_IGNORE	0x040	/* Default: just write the var */
+#define PL_WRT_ATTVAR_DOTS	0x080	/* Write as Var{...} */
+#define PL_WRT_ATTVAR_WRITE	0x100	/* Write as Var{Attributes} */
+#define PL_WRT_ATTVAR_PORTRAY	0x200	/* Use Module:portray_attrs/2 */
+#define PL_WRT_ATTVAR_MASK \
+	(PL_WRT_ATTVAR_IGNORE | \
+	 PL_WRT_ATTVAR_DOTS | \
+	 PL_WRT_ATTVAR_WRITE | \
+	 PL_WRT_ATTVAR_PORTRAY)
+#define PL_WRT_BLOB_PORTRAY	0x400	/* Use portray to emit non-text blobs */
+
+PL_EXPORT(int) PL_write_term(IOSTREAM *s,
+			     term_t term,
+			     int precedence,
+			     int flags);
+
+					/* PL_ttymode() results */
+#define PL_NOTTY	0		/* -tty in effect */
+#define PL_RAWTTY	1		/* get_single_char/1 */
+#define PL_COOKEDTTY	2		/* normal input */
+
+PL_EXPORT(int)		PL_ttymode(IOSTREAM *s);
+
+#endif /*SIO_MAGIC*/
+
+PL_EXPORT(int) PL_chars_to_term(const char *chars,
+				 term_t term);
+
+
 		 /*******************************
 		 *	     CALL-BACK		*
 		 *******************************/
@@ -465,6 +542,7 @@ extern X_API int PL_call(term_t, module_t);
 extern X_API void PL_register_foreign(const char *, int, pl_function_t, int);
 extern X_API void PL_register_foreign_in_module(const char *, const char *, int, pl_function_t, int);
 extern X_API void PL_register_extensions(const PL_extension *);
+extern X_API void PL_register_extensions_in_module(const char *module, const PL_extension *);
 extern X_API void PL_load_extensions(const PL_extension *);
 extern X_API int PL_handle_signals(void);
 extern X_API int  PL_thread_self(void);
@@ -521,8 +599,33 @@ readline overhead.
 #define PL_DISPATCH_INSTALLED 2		/* dispatch function installed? */
 
 extern X_API int PL_dispatch(int fd, int wait);
+PL_EXPORT(void)		PL_add_to_protocol(const char *buf, size_t count);
+PL_EXPORT(char *)	PL_prompt_string(int fd);
+PL_EXPORT(void)		PL_write_prompt(int dowrite);
+PL_EXPORT(void)		PL_prompt_next(int fd);
+PL_EXPORT(char *)	PL_atom_generator(const char *prefix, int state);
+PL_EXPORT(pl_wchar_t*)  PL_atom_generator_w(const pl_wchar_t *pref,
+					    pl_wchar_t *buffer,
+					    size_t buflen,
+					    int state);
 
 typedef int  (*PL_dispatch_hook_t)(int fd);
+
+		 /*******************************
+		 *	 WINDOWS MESSAGES	*
+		 *******************************/
+
+#ifdef _WINDOWS_			/* <windows.h> is included */
+#define PL_MSG_EXCEPTION_RAISED -1
+#define PL_MSG_IGNORED 0
+#define PL_MSG_HANDLED 1
+
+PL_EXPORT(LRESULT)	PL_win_message_proc(HWND hwnd,
+					    UINT message,
+					    WPARAM wParam,
+					    LPARAM lParam);
+#endif /*_WINDOWS_*/
+
 
 		/********************************
 		*         QUERY PROLOG          *
@@ -544,54 +647,6 @@ typedef int  (*PL_dispatch_hook_t)(int fd);
 #define PL_QUERY_HALTING	14	/* If TRUE, we are in PL_cleanup() */
 
 X_API intptr_t		PL_query(int);	/* get information from Prolog */
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Output   representation   for   PL_get_chars()     and    friends.   The
-prepresentation type REP_FN is for   PL_get_file_name()  and friends. On
-Windows we use UTF-8 which is translated   by the `XOS' layer to Windows
-UNICODE file functions.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-#define REP_ISO_LATIN_1 0x0000		/* output representation */
-#define REP_UTF8 	0x1000
-#define REP_MB		0x2000
-#ifdef __WINDOWS__
-#define REP_FN		REP_UTF8
-#else
-#define REP_FN		REP_MB
-#endif
-
-#define PL_DIFF_LIST	0x20000		/* PL_unify_chars() */
-
-#define PL_WRT_QUOTED		0x01	/* quote atoms */
-#define PL_WRT_IGNOREOPS	0x02	/* ignore list/operators */
-#define PL_WRT_NUMBERVARS	0x04	/* print $VAR(N) as a variable */
-#define PL_WRT_PORTRAY		0x08	/* call portray */
-#define PL_WRT_CHARESCAPES	0x10	/* Output ISO escape sequences */
-#define PL_WRT_BACKQUOTED_STRING 0x20	/* Write strings as `...` */
-					/* Write attributed variables */
-#define PL_WRT_ATTVAR_IGNORE	0x040	/* Default: just write the var */
-#define PL_WRT_ATTVAR_DOTS	0x080	/* Write as Var{...} */
-#define PL_WRT_ATTVAR_WRITE	0x100	/* Write as Var{Attributes} */
-#define PL_WRT_ATTVAR_PORTRAY	0x200	/* Use Module:portray_attrs/2 */
-#define PL_WRT_ATTVAR_MASK \
-	(PL_WRT_ATTVAR_IGNORE | \
-	 PL_WRT_ATTVAR_DOTS | \
-	 PL_WRT_ATTVAR_WRITE | \
-	 PL_WRT_ATTVAR_PORTRAY)
-
-#ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
-					/* Make IOSTREAM known to Prolog */
-PL_EXPORT(int)  	PL_open_stream(term_t t, IOSTREAM *s);
-PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
-#define PL_open_stream  PL_unify_stream
-PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
-PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
-
-PL_EXPORT(int)          PL_write_term(IOSTREAM *s,term_t term,int precedence,int flags);
-
-#endif
-
 
 		 /*******************************
 		 *	       BLOBS		*

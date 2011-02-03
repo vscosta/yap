@@ -2722,8 +2722,22 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
 
 X_API void PL_register_extensions(const PL_extension *ptr)
 {
+  // implemented as register foreign
+  // may cause problems during initialization?
   PL_load_extensions(ptr);
 }
+
+X_API void
+PL_register_extensions_in_module(const char *module, const PL_extension *e)
+{ 
+  // implemented as register foreign
+  /* ignore flags for now */
+  while(e->predicate_name != NULL) {
+    PL_register_foreign_in_module(module, e->predicate_name, e->arity, e->function, e->flags);
+    e++;
+  }
+}
+
 
 X_API void PL_register_foreign(const char *name, int arity, pl_function_t function, int flags)
 {
@@ -3162,6 +3176,17 @@ X_API void PL_on_halt(void (*f)(int, void *), void *closure)
 {
   Yap_HaltRegisterHook((HaltHookFunc)f,closure);
 }
+
+X_API char *PL_atom_generator(const char *prefix, int state)
+{
+  return NULL;
+}
+
+X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer, size_t buflen, int state)
+{
+  return NULL;
+}
+
 
 void
 Yap_swi_install(void)

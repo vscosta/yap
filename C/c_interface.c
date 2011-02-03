@@ -3253,7 +3253,6 @@ YAP_signal(int sig)
   Yap_signal(sig);
 }
 
-
 X_API int
 YAP_SetYAPFlag(yap_flag_t flag, int val)
 {
