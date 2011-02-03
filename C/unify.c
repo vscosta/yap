@@ -56,7 +56,7 @@ rtree_loop:
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)d0;
+	to_visit[2] = (CELL *)*pt0;
 	*pt0 = TermFoundVar;
 	pt0_end = (pt0 = RepPair(d0) - 1) + 2;
 	continue;
@@ -78,7 +78,7 @@ rtree_loop:
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)d0;
+	to_visit[2] = (CELL *)*pt0;
 	*pt0 = TermFoundVar;
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
@@ -102,14 +102,13 @@ rtree_loop:
 
 cufail:
   /* we found an infinite term */
-  while (to_visit < to_visit_max) {
+  while (to_visit < (CELL **)to_visit_base) {
     CELL *pt0;
     pt0 = to_visit[0];
     *pt0 = (CELL)to_visit[2];
     to_visit += 3;
   }
   return TRUE;
-  
 }
 
 static inline int
