@@ -521,6 +521,7 @@ X_API int      STD_PROTO(YAP_Erase,(void *));
 X_API int      STD_PROTO(YAP_Variant,(Term, Term));
 X_API int      STD_PROTO(YAP_ExactlyEqual,(Term, Term));
 X_API Int      STD_PROTO(YAP_TermHash,(Term, Int, Int, int));
+X_API void     STD_PROTO(YAP_signal,(int));
 X_API int      STD_PROTO(YAP_SetYAPFlag,(yap_flag_t, int));
 
 static int (*do_getf)(void);
@@ -3244,6 +3245,12 @@ YAP_SlotsToArgs(int n, Int slot)
   while (n--) {
     *ptr1++ = *ptr0++;
   }
+}
+
+X_API void 
+YAP_signal(int sig)
+{
+  Yap_signal(sig);
 }
 
 
