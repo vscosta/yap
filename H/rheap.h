@@ -284,6 +284,9 @@ static void
 AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
 {
   CELL *startcode = (CELL *)table;
+  /* in case the table is already gone */
+  if (!table)
+    return;
   switch (op) {
   case _switch_on_func:
     {
