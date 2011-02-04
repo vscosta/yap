@@ -9,8 +9,8 @@
 %
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
-%  $Date: 2011-02-01 18:36:41 +0100 (Tue, 01 Feb 2011) $
-%  $Revision: 7 $
+%  $Date: 2011-02-04 16:04:49 +0100 (Fri, 04 Feb 2011) $
+%  $Revision: 11 $
 %  Contributions: The timer implementation is inspired by Bernd Gutmann's timers
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -394,4 +394,4 @@ timer_pause(Name, Elapsed):-
   retract('$timer'(Name, _, StartTime)),
   statistics(walltime, [EndTime, _]),
   Elapsed is EndTime - StartTime,
-  assert('$timer'(Name, paused, Elapsed)).
+  assertz('$timer'(Name, paused, Elapsed)).

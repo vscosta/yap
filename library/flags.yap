@@ -10,8 +10,8 @@
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
 %  Sugestions: Bernd Gutmann, Paulo Moura
-%  $Date: 2011-02-03 17:19:26 +0100 (Thu, 03 Feb 2011) $
-%  $Revision: 9 $
+%  $Date: 2011-02-04 16:06:56 +0100 (Fri, 04 Feb 2011) $
+%  $Revision: 12 $
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -357,8 +357,12 @@ in_interval_single(Type, (Min, Max)):-
   Min < Max,
   Max - Min > 0.0.
 
-type_or_inf(_Type, (+inf)):- !.
-type_or_inf(_Type, (-inf)):- !.
+type_or_inf(Type, Value):-
+  nonvar(Type), nonvar(Value),
+  Value == (+inf), !.
+type_or_inf(Type, Value):-
+  nonvar(Type), nonvar(Value),
+  Value == (-inf), !.
 type_or_inf(Type, Value):- call(Type, Value).
 
 in_interval(Type, [Interval|_Rest], Value):-
