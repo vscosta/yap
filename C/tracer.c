@@ -372,6 +372,16 @@ static Int p_start_low_level_trace(void)
   return(TRUE);
 }
 
+static Int p_total_choicepoints(void)
+{
+  return Yap_unify(MkIntegerTerm(Yap_total_choicepoints),ARG1);
+}
+
+static Int p_reset_total_choicepoints(void)
+{
+  Yap_total_choicepoints = 0;
+}
+
 static Int p_show_low_level_trace(void)
 {
   fprintf(stderr,"Call counter=%lld\n",vsc_count);
@@ -414,6 +424,8 @@ Yap_InitLowLevelTrace(void)
 #endif
   Yap_InitCPred("stop_low_level_trace", 0, p_stop_low_level_trace, SafePredFlag);
   Yap_InitCPred("show_low_level_trace", 0, p_show_low_level_trace, SafePredFlag);
+  Yap_InitCPred("total_choicepoints", 1, p_total_choicepoints, SafePredFlag);
+  Yap_InitCPred("reset_total_choicepoints", 0, p_reset_total_choicepoints, SafePredFlag);
   Yap_InitCPred("vsc_wait", 0, p_vsc_wait, SafePredFlag);
 }
 

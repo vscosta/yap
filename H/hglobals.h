@@ -97,6 +97,9 @@ typedef struct worker_local {
   YAP_ULONG_LONG  tot_gc_recovered;
   Int  last_gc_time;
   Int  last_ss_time;
+#if LOW_LEVEL_TRACER
+  Int  total_cps;
+#endif
 
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;

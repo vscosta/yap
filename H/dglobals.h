@@ -95,6 +95,9 @@
 #define TotGcRecovered WL->tot_gc_recovered
 #define LastGcTime WL->last_gc_time
 #define LastSSTime WL->last_ss_time
+#if LOW_LEVEL_TRACER
+#define Yap_total_choicepoints WL->total_cps
+#endif
 
 #if defined(YAPOR) || defined(THREADS)
 #define SignalLock WL->signal_lock
