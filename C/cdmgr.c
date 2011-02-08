@@ -1258,6 +1258,8 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _switch_on_cons:
     case _if_cons:
     case _go_on_cons:
+      /* make sure we don't leave dangling references to memory that is going to be removed */
+      ipc->u.sssl.l = NULL;
       ipc = NEXTOP(ipc,sssl);
       break;
     case _op_fail:
@@ -1270,12 +1272,6 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     ipc = (yamop *)((CELL)ipc & ~1);
 #endif    
   }
-}
-
-void
-Yap_cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *sc)
-{
-  cleanup_dangling_indices(ipc, beg, end, sc);
 }
 
 static void
