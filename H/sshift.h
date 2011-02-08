@@ -659,7 +659,8 @@ inline EXTERN yamop *PtoOpAdjust (yamop *);
 inline EXTERN yamop *
 PtoOpAdjust (yamop * ptr)
 {
-  return (yamop *) (CharP (ptr) + HDiff);
+  if (ptr)
+    return (yamop *) (CharP (ptr) + HDiff);
 }
 
 inline EXTERN struct operator_entry *OpListAdjust (struct operator_entry *);

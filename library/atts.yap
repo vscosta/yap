@@ -49,8 +49,6 @@ new_attribute(Na/Ar) :-
 	store_new_module(Mod,Ar,Position),
 	assertz(existing_attribute(S,Mod,Ar,Position)).
 
-existing_attribute(delay(_),prolog,1,2).
-
 store_new_module(Mod,Ar,ArgPosition) :-
 	(
 	  retract(attributed_module(Mod,Position,_))
@@ -58,7 +56,7 @@ store_new_module(Mod,Ar,ArgPosition) :-
 	  true
 	;
 	  retract(modules_with_attributes(Mods)),
-	  assert(modules_with_attributes([Mod|Mods])), Position = 1
+	  assert(modules_with_attributes([Mod|Mods])), Position = 2
 	),
 	ArgPosition is Position+1,
 	( Ar == 0 -> NOfAtts is Position+1 ; NOfAtts is Position+Ar),

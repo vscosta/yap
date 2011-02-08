@@ -731,6 +731,12 @@ Macros to check the limits of stacks
 		 while ( pt0 > XREGS );                           \
                  ENDP(pt0)
 
+#if LOW_LEVEL_TRACER
+#define COUNT_CPS() Yap_total_choicepoints++
+#else
+#define COUNT_CPS()
+#endif
+
 /***************************************************************
 * Do the bulk of work in creating a choice-point               *
 * AP: alternative pointer                                      *
@@ -747,6 +753,7 @@ Macros to check the limits of stacks
 
 #define store_yaam_regs(AP,I) \
                  { /* Jump to CP_BASE */                         \
+		   COUNT_CPS();					       \
                    S_YREG = (CELL *)((choiceptr)((S_YREG)-(I))-1);     \
                    /* Save Information */                        \
 		   HBREG = H;                                    \
@@ -760,6 +767,7 @@ Macros to check the limits of stacks
                  }
 
 #define store_yaam_regs_for_either(AP,d0) \
+                COUNT_CPS();					 \
                  pt1 --; /* Jump to CP_BASE */		         \
                  /* Save Information */                          \
 		 HBREG = H;                                      \

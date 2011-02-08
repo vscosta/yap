@@ -293,7 +293,7 @@ between(I,M,J) :-
 	  (
 	   var(J)
 	  ->
-	   '$between'(I,M,J)
+	   I =< M, '$between'(I,M,J)
 	  ;
 	   integer(J)
 	  ->

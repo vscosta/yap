@@ -104,6 +104,10 @@ YAP_ULONG_LONG		tot_gc_recovered	TotGcRecovered	=0L
 Int			last_gc_time		LastGcTime	=0L
 Int			last_ss_time		LastSSTime	=0L
 
+#if LOW_LEVEL_TRACER
+Int			total_cps		Yap_total_choicepoints	=0
+#endif
+
 // global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
 lockvar				signal_lock	SignalLock	MkLock

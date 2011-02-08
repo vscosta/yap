@@ -569,6 +569,13 @@ p_put_atts(void) {
     }
     /* we may have a stack shift meanwhile!! */ 
     tatts = Deref(ARG2);
+    if (IsVarTerm(tatts)) {
+      Yap_Error(INSTANTIATION_ERROR,tatts,"second argument of put_att/2");
+      return FALSE;
+    } else if (!IsApplTerm(tatts)) {
+      Yap_Error(TYPE_ERROR_COMPOUND,tatts,"second argument of put_att/2");
+      return FALSE;
+    }
     if (IsVarTerm(otatts = SearchAttsForModule(attv->Atts,mfun))) {
       AddNewModule(attv,tatts,new,FALSE);
     } else {
