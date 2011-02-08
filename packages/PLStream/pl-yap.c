@@ -653,6 +653,28 @@ X_API int PL_handle_signals(void)
   return 0;
 }
 
+X_API int
+PL_ttymode(IOSTREAM *s)
+{ GET_LD
+
+  if ( s == Suser_input )
+  { if ( !truePrologFlag(PLFLAG_TTY_CONTROL) ) /* -tty in effect */
+      return PL_NOTTY;
+    if ( ttymode == TTY_RAW )		/* get_single_char/1 and friends */
+      return PL_RAWTTY;
+    return PL_COOKEDTTY;		/* cooked (readline) input */
+  } else
+    return PL_NOTTY;
+}
+
+X_API void
+PL_prompt_next(int fd)
+{ GET_LD
+
+  if ( fd == 0 )
+    LD->prompt.next = TRUE;
+}
+
 /* just a stub for now */
 int
 warning(const char *fm, ...)
@@ -709,6 +731,68 @@ PL_dispatch(int fd, int wait)
   }
 
   return TRUE;
+}
+
+#ifdef _WIN32
+
+#include <windows.h>
+
+#if O_PLMT
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PL_w32thread_raise(DWORD id, int sig)
+    Sets the signalled mask for a specific Win32 thread. This is a
+    partial work-around for the lack of proper asynchronous signal
+    handling in the Win32 platform.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+static int thread_highest_id = 1;
+
+X_API int
+PL_w32thread_raise(DWORD id, int sig)
+{ int i;
+
+  if ( sig < 0 || sig > MAXSIGNAL )
+    return FALSE;			/* illegal signal */
+
+  LOCK();
+  for(i = 1; i <= thread_highest_id; i++)
+  { PL_thread_info_t *info = GD->thread.threads[i];
+
+    if ( info && info->w32id == id && info->thread_data )
+    { raiseSignal(info->thread_data, sig);
+      if ( info->w32id )
+	PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
+      UNLOCK();
+      DEBUG(1, Sdprintf("Signalled %d to thread %d\n", sig, i));
+      return TRUE;
+    }
+  }
+  UNLOCK();
+
+  return FALSE;				/* can't find thread */
+}
+
+#else
+
+int
+PL_w32thread_raise(DWORD id, int sig)
+{ return PL_raise(sig);
+}
+
+#endif
+#endif /*__WINDOWS__*/
+
+
+int
+PL_raise(int sig)
+{ GET_LD
+
+    if (sig == SIG_PLABORT) {
+      YAP_signal(0x40); /* YAP_INT_SIGNAL */
+      return 1;
+    } else {
+      return 0;
+    }
 }
 
 extern size_t PL_utf8_strlen(const char *s, size_t len);

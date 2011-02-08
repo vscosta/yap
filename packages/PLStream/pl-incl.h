@@ -7,6 +7,11 @@
 #define O_XOS 1
 #endif
 
+#ifdef THREADS
+#define O_PLMT 1
+#endif
+
+#include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 typedef int bool;
 
@@ -46,7 +51,28 @@ typedef int bool;
 #endif
 #if __YAP_PROLOG__
 #include "pl-yap.h"
+#if _WIN32
+typedef int pthread_t;
+#define __WINDOWS__ 1
+#else
+#include <pthread.h>
 #endif
+#endif
+
+#define MAXSIGNAL	64
+
+#define SIG_PROLOG_OFFSET	32	/* Start of Prolog signals */
+
+#define SIG_EXCEPTION	  (SIG_PROLOG_OFFSET+0)
+#ifdef O_ATOMGC
+#define SIG_ATOM_GC	  (SIG_PROLOG_OFFSET+1)
+#endif
+#define SIG_GC		  (SIG_PROLOG_OFFSET+2)
+#ifdef O_PLMT
+#define SIG_THREAD_SIGNAL (SIG_PROLOG_OFFSET+3)
+#endif
+#define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
+#define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
 
 
 		/********************************
@@ -59,7 +85,6 @@ typedef int bool;
 		*********************************/
 
 #include "pl-table.h"
-#include "SWI-Stream.h"
 #include "pl-os.h"
 #include "pl-error.h"
 
@@ -80,6 +105,19 @@ typedef int bool;
 		 *******************************/
 
 #include "pl-privitf.h"
+
+typedef int simpleMutex;
+
+typedef struct counting_mutex
+{ simpleMutex mutex;			/* mutex itself */
+  const char *name;			/* name of the mutex */
+  long count;				/* # times locked */
+  long unlocked;			/* # times unlocked */
+#ifdef O_CONTENTION_STATISTICS
+  long collisions;			/* # contentions */
+#endif
+  struct counting_mutex *next;		/* next of allocated chain */
+} counting_mutex;
 
 // numbers
 
@@ -113,6 +151,54 @@ typedef enum
   CLN_DATA				/* Remaining data */
 } cleanup_status;
 
+typedef struct
+{ char *state;				/* system's boot file */
+  char *startup;			/* default user startup file */
+  int  local;				/* default local stack size (K) */
+  int  global;				/* default global stack size (K) */
+  int  trail;				/* default trail stack size (K) */
+  char *goal;				/* default initialisation goal */
+  char *toplevel;			/* default top level goal */
+  bool notty;				/* use tty? */
+  char *arch;				/* machine/OS we are using */
+  char *home;				/* systems home directory */
+} pl_defaults_t;
+
+typedef enum
+{ LDATA_IDLE = 0,
+  LDATA_SIGNALLED,
+  LDATA_ANSWERING,
+  LDATA_ANSWERED
+} ldata_status_t;
+
+typedef struct _PL_thread_info_t
+{ int		    pl_tid;		/* Prolog thread id */
+  size_t	    local_size;		/* Stack sizes */
+  size_t	    global_size;
+  size_t	    trail_size;
+  size_t	    stack_size;		/* system (C-) stack */
+  int		    (*cancel)(int id);	/* cancel function */
+  int		    open_count;		/* for PL_thread_detach_engine() */
+  bool		    detached;		/* detached thread */
+  int		    status;		/* PL_THREAD_* */
+  pthread_t	    tid;		/* Thread identifier */
+  int		    has_tid;		/* TRUE: tid = valid */
+#ifdef __linux__
+  pid_t		    pid;		/* for identifying */
+#endif
+#ifdef __WINDOWS__
+  unsigned long	    w32id;		/* Win32 thread HANDLE */
+#endif
+  struct PL_local_data  *thread_data;	/* The thread-local data  */
+  module_t	    module;		/* Module for starting goal */
+  record_t	    goal;		/* Goal to start thread */
+  record_t	    return_value;	/* Value (term) returned */
+  atom_t	    name;		/* Name of the thread */
+  ldata_status_t    ldata_status;	/* status of forThreadLocalData() */
+} PL_thread_info_t;
+
+
+
 typedef struct tempfile *	TempFile; 	/* pl-os.c */
 typedef struct canonical_dir *	CanonicalDir;	/* pl-os.c */
 typedef struct on_halt *	OnHalt;		/* pl-os.c */
@@ -123,6 +209,8 @@ typedef struct initialise_handle * InitialiseHandle;
 typedef struct {
   int io_initialised;
   cleanup_status cleaning;		/* Inside PL_cleanup() */
+
+  pl_defaults_t	defaults;		/* system default settings */
 
  struct
   { Table       table;                  /* global (read-only) features */
@@ -183,6 +271,24 @@ typedef struct {
 
     int		  _loaded;		/* system extensions are loaded */
   } foreign;
+
+#ifdef O_PLMT
+  FreeChunk	    left_over_pool;	/* Left-over from threads */
+
+  struct
+  { struct _at_exit_goal *exit_goals;	/* Global thread_at_exit/1 goals */
+    int		    	enabled;	/* threads are enabled */
+    Table		mutexTable;	/* Name --> mutex table */
+    int			mutex_next_id;	/* next id for anonymous mutexes */
+    struct pl_mutex*	MUTEX_load;	/* The $load mutex */
+#ifdef __WINDOWS__
+    HINSTANCE	    	instance;	/* Win32 process instance */
+#endif
+    counting_mutex     *mutexes;	/* Registered mutexes */
+    int			thread_max;	/* Maximum # threads */
+    PL_thread_info_t  **threads;	/* Pointers to thread-info */
+  } thread;
+#endif /*O_PLMT*/
 
 } gds_t;
 

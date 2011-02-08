@@ -95,6 +95,7 @@ max(Skel,Arg,Goal) :-
 	arg(Arg, Skel, A0),
 	arg(Arg, Goal, AN),
 	AN =< A0, !,
+	delete(Skel),
 	cache(Goal).
 max(Skel,_,Goal) :-
 	clean(Skel),
@@ -106,6 +107,7 @@ min(Skel,Arg,Goal) :-
 	arg(Arg, Skel, A0),
 	arg(Arg, Goal, AN),
 	AN >= A0, !,
+	delete(Skel),
 	cache(Goal).
 min(Skel,_,Goal) :-
 	clean(Skel),
