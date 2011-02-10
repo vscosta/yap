@@ -94,6 +94,16 @@ PL_rethrow(void)
   fail;
 }
 
+int
+saveWakeup(wakeup_state *state, int forceframe ARG_LD)
+{
+  return 0;
+}
+
+void
+restoreWakeup(wakeup_state *state ARG_LD)
+{
+}
 
 int
 callProlog(module_t module, term_t goal, int flags, term_t *ex)
@@ -131,33 +141,6 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex)
 
     return rval;
   }
-}
-
-extern X_API int PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags);
-
-X_API int 
-PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
-{
-  int nflags = 0;
-  if (flags & PL_WRT_QUOTED)
-    nflags |= Quote_illegal_f;
-  if (flags & PL_WRT_IGNOREOPS)
-    nflags |= Ignore_ops_f;
-  if (flags & PL_WRT_NUMBERVARS)
-    nflags |= Handle_vars_f;
-  if (flags & PL_WRT_PORTRAY)
-    nflags |= Use_portray_f;
-  /* ignore other flags for now */
-  YAP_Write(YAP_GetFromSlot(term), (void (*)(int))Sputc, flags);
-  return TRUE;
-}
-
-int
-writeAtomToStream(IOSTREAM *so, atom_t at)
-{
-
-  YAP_Write(YAP_MkAtomTerm((YAP_Atom)at), (void (*)(int))Sputc, 0);
-  return TRUE;
 }
 
 int
@@ -295,129 +278,6 @@ typedef union
 } optvalue;
 
 
-bool
-scan_options(term_t options, int flags, atom_t optype,
-	     const opt_spec *specs, ...)
-{ va_list args;
-  const opt_spec *s;
-  optvalue values[MAXOPTIONS];
-  term_t list = PL_copy_term_ref(options);
-  term_t head = PL_new_term_ref();
-  term_t tmp  = PL_new_term_ref();
-  term_t val  = PL_new_term_ref();
-  int n;
-
-  if ( truePrologFlag(PLFLAG_ISO) )
-    flags |= OPT_ALL;
-
-  va_start(args, specs);
-  for( n=0, s = specs; s->name; s++, n++ )
-    values[n].ptr = va_arg(args, void *);
-  va_end(args);
-
-  while ( PL_get_list(list, head, list) )
-  { atom_t name;
-    int arity;
-    
-    if ( PL_get_name_arity(head, &name, &arity) )
-    { if ( name == ATOM_equals && arity == 2 )
-      { PL_get_arg(1, head, tmp);
-
-	if ( !PL_get_atom(tmp, &name) )
-	  goto itemerror;
-	PL_get_arg(2, head, val);
-      } else if ( arity == 1 )
-      { PL_get_arg(1, head, val);
-      } else if ( arity == 0 )
-	PL_put_atom(val, ATOM_true);
-    } else if ( PL_is_variable(head) )
-    { return PL_error(NULL, 0, NULL, ERR_INSTANTIATION);
-    } else
-    { itemerror:
-      return PL_error(NULL, 0, NULL, ERR_DOMAIN, optype, head);
-    }
-
-    for( n=0, s = specs; s->name; n++, s++ )
-      { if ( s->name == name )
-      { switch((s->type & OPT_TYPE_MASK))
-	{ case OPT_BOOL:
-	  { atom_t aval;
-
-	    if ( !PL_get_atom(val, &aval) )
-	      fail;
-	    if ( aval == ATOM_true || aval == ATOM_on )
-	      *values[n].b = TRUE;
-	    else if ( aval == ATOM_false || aval == ATOM_off )
-	      *values[n].b = FALSE;
-	    else
-	      goto itemerror;
-	    break;
-	  }
-	  case OPT_INT:
-	  { if ( !PL_get_integer(val, values[n].i) )
-	      goto itemerror;
-
-	    break;
-	  }
-	  case OPT_LONG:
-	  { if ( !PL_get_long(val, values[n].l) )
-	    { if ( (s->type & OPT_INF) && PL_is_inf(val) )
-		*values[n].l = LONG_MAX;
-	      else
-		goto itemerror;
-	    }
-
-	    break;
-	  }
-	  case OPT_NATLONG:
-	  { if ( !PL_get_long(val, values[n].l) )
-	      goto itemerror;
-	    if ( *(values[n].l) <= 0 )
-	      return PL_error(NULL, 0, NULL, ERR_DOMAIN,
-			      ATOM_not_less_than_one, val);
-
-	    break;
-	  }
-	  case OPT_STRING:
-	  { char *str;
-
-	    if ( !PL_get_chars(val, &str, CVT_ALL) ) /* copy? */
-	      goto itemerror;
-	    *values[n].s = str;
-	    break;
-	  }
-	  case OPT_ATOM:
-	  { atom_t a;
-
-	    if ( !PL_get_atom(val, &a) )
-	      goto itemerror;
-	    *values[n].a = a;
-	    break;
-	  }
-	  case OPT_TERM:
-	  { *values[n].t = val;
-	    val = PL_new_term_ref();	/* can't reuse anymore */
-	    break;
-	  }
-	  default:
-	    assert(0);
-	    fail;
-	}
-	break;
-      }
-    }
-    
-    if ( !s->name && (flags & OPT_ALL) )
-      goto itemerror;
-  }
-
-  if ( !PL_get_nil(list) )
-    return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, list);
-  
-  succeed;
-}
-
-
 int
 get_atom_ptr_text(Atom a, PL_chars_t *text)
 { if (YAP_IsWideAtom(a))
@@ -484,125 +344,23 @@ that is not a digit nor [eE], as this must be the decimal point.
 
 #define isDigit(c)	((c) >= '0' && (c) <= '9')
 
-char *
-format_float(double f, char *buf, const char *format)
-{ char *q;
-
-  sprintf(buf, format, f);
-
-  q = buf;
-  if ( *q == '-' )			/* skip -?[0-9]* */
-    q++;
-  while(*q && (isDigit(*q) || *q <= ' '))
-    q++;
-
-  switch( *q )
-  { case '\0':
-      *q++ = '.';
-      *q++ = '0';
-      *q = EOS;
-      break;
-    case 'e':
-    case 'E':
-      break;
-    default:
-      *q = '.';
-  }
-
-  return buf;
-}
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-codes_or_chars_to_buffer(term_t l, unsigned flags, int wide)
-
-If l represents a list of codes   or characters, return a buffer holding
-the characters. If wide == TRUE  the   buffer  contains  objects of type
-pl_wchar_t. Otherwise it contains traditional characters.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-static int
-charCode(YAP_Term w)
-{ if ( YAP_IsAtomTerm(w) )
-    { 
-      Atom a = atomValue(w);
-
-      if ( YAP_AtomNameLength(a) == 1) {
-	if (YAP_IsWideAtom(a)) {
-	  return YAP_WideAtomName(a)[0];
-	}
-	return YAP_AtomName(a)[0];
-      }
-    }
-  return -1;
-}
-
-
-
-Buffer
-codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide)
+intptr_t
+lengthList(term_t list, int errors)
 { GET_LD
-  Buffer b;
-  YAP_Term list = YAP_GetFromSlot(l);
-  YAP_Term arg;
-  enum { CHARS, CODES } type;
+  intptr_t length = 0;
+  Word l = YAP_AddressFromSlot(list);
+  Word tail;
 
-  if ( YAP_IsPairTerm(list) )
-  { arg = YAP_HeadOfTerm(list);
-    if ( YAP_IsIntTerm(arg) )
-      { long int i = YAP_IntOfTerm(arg);
-	if ( i >= 0 && (wide || i < 256) )
-	  { type = CODES;
-	    goto ok;
-	  }
-      } else if ( charCode(arg) >= 0 )
-      { type = CHARS;
-	goto ok;
-      }
-  } else if ( list != YAP_TermNil() )
-  { return findBuffer(flags);
-  }
+  length = skip_list(l, &tail PASS_LD);
 
-  fail;
+  if ( isNil(*tail) )
+    return length;
 
-ok:
-  b = findBuffer(flags);
+  if ( errors )
+    PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, wordToTermRef(l));
 
-  while( YAP_IsPairTerm(list) )
-  { intptr_t c = -1;
-
-    arg = YAP_HeadOfTerm(list);
-
-    switch(type)
-    { case CODES:
-	if ( YAP_IsIntTerm(arg) )
-	  { c = YAP_IntOfTerm(arg);
-	}
-        break;
-      case CHARS:
-	c = charCode(arg);
-        break;
-    }
-
-    if ( c < 0 || (!wide && c > 0xff) )
-    { unfindBuffer(flags);		/* TBD: check unicode range */
-      return NULL;
-    }
-
-    if ( wide )
-      addBuffer(b, (pl_wchar_t)c, pl_wchar_t);
-    else
-      addBuffer(b, (unsigned char)c, unsigned char);
-
-    list = YAP_TailOfTerm(list);
-  }
-  if ( list != YAP_TermNil() )
-  { unfindBuffer(flags);
-    return NULL;
-  }
-
-  return b;
+  return isVar(*tail) ? -2 : -1;
 }
-
 
 void
 setPrologFlag(const char *name, int flags, ...)
@@ -652,6 +410,94 @@ X_API int PL_handle_signals(void)
   fprintf(stderr,"PL_handle_signals not implemented\n");
   return 0;
 }
+
+void
+outOfCore()
+{ fprintf(stderr,"Could not allocate memory: %s", OsError());
+  exit(1);
+}
+
+int
+priorityOperator(Module m, atom_t atom)
+{
+  return 0;
+}
+
+int
+currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
+{
+  return 0;
+}
+
+int
+numberVars(term_t t, nv_options *opts, int n ARG_LD) {
+  return 0;
+}
+
+		 /*******************************
+		 *	     PROMOTION		*
+		 *******************************/
+
+#ifdef O_GMP
+void
+clearGMPNumber(Number n)
+{ switch(n->type)
+  { case V_MPZ:
+      if ( n->value.mpz->_mp_alloc )
+	mpz_clear(n->value.mpz);
+      break;
+    case V_MPQ:
+      if ( mpq_numref(n->value.mpq)->_mp_alloc )
+	mpz_clear(mpq_numref(n->value.mpq));
+      if ( mpq_denref(n->value.mpq)->_mp_alloc )
+	mpz_clear(mpq_denref(n->value.mpq));
+      break;
+    default:
+      break;
+  }
+}
+#endif
+
+int
+promoteToFloatNumber(Number n)
+{ switch(n->type)
+  { case V_INTEGER:
+      n->value.f = (double)n->value.i;
+      n->type = V_FLOAT;
+      break;
+#ifdef O_GMP
+    case V_MPZ:
+    { double val = mpz_get_d(n->value.mpz);
+
+      if ( !check_float(val) )
+	return FALSE;
+
+      clearNumber(n);
+      n->value.f = val;
+      n->type = V_FLOAT;
+      break;
+    }
+    case V_MPQ:
+    { double val = mpq_get_d(n->value.mpq);
+
+      if ( !check_float(val) )
+	return FALSE;
+
+      clearNumber(n);
+      n->value.f = val;
+      n->type = V_FLOAT;
+      break;
+    }
+#endif
+    case V_FLOAT:
+      break;
+  }
+
+  return TRUE;
+}
+
+
+
 
 X_API int
 PL_ttymode(IOSTREAM *s)

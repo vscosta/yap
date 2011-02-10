@@ -26,9 +26,6 @@
 #define BUFFER_H_INCLUDED
 
 #define STATIC_BUFFER_SIZE (512)
-#define BUFFER_USES_MALLOC 1
-
-#define BUFFER_RING_SIZE 	16	/* foreign buffer ring (pl-fli.c) */
 
 typedef struct
 { char *	base;			/* allocated base */
@@ -46,14 +43,6 @@ typedef struct
 
 void	growBuffer(Buffer b, size_t minfree);
 
-Buffer findBuffer(int flags);
-
-char *buffer_string(const char *s, int flags);
-
-int unfindBuffer(int flags);
-
-Buffer codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide);
-
 #define addBuffer(b, obj, type) \
 	do \
 	{ if ( (b)->top + sizeof(type) > (b)->max ) \
@@ -61,7 +50,7 @@ Buffer codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide);
  	  *((type *)(b)->top) = obj; \
           (b)->top += sizeof(type); \
 	} while(0)
-  
+
 #define addMultipleBuffer(b, ptr, times, type) \
 	do \
 	{ size_t _tms = (times); \
@@ -74,7 +63,7 @@ Buffer codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide);
 	    *_d++ = *_s++; \
 	  (b)->top = (char *)_d; \
 	} while(0)
-  
+
 #define baseBuffer(b, type)	 ((type *) (b)->base)
 #define topBuffer(b, type)       ((type *) (b)->top)
 #define inBuffer(b, addr)        ((char *) (addr) >= (b)->base && \
@@ -91,7 +80,6 @@ Buffer codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide);
 #define emptyBuffer(b)           ((b)->top  = (b)->base)
 #define isEmptyBuffer(b)         ((b)->top == (b)->base)
 
-#ifdef BUFFER_USES_MALLOC
 #define discardBuffer(b) \
 	do \
 	{ if ( (b)->base && (b)->base != (b)->static_buffer ) \
@@ -99,14 +87,14 @@ Buffer codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide);
 	    (b)->base = (b)->static_buffer; \
 	  } \
 	} while(0)
-#else
-#define discardBuffer(b) \
-	do \
-	{ if ( (b)->base && (b)->base != (b)->static_buffer ) \
-	  { freeHeap((b)->base, (b)->max - (b)->base); \
-	    (b)->base = (b)->static_buffer; \
-	  } \
-	} while(0)
-#endif
+
+
+		 /*******************************
+		 *	    FUNCTIONS		*
+		 *******************************/
+
+COMMON(Buffer)		findBuffer(int flags);
+COMMON(int)		unfindBuffer(int flags);
+COMMON(char *) 		buffer_string(const char *s, int flags);
 
 #endif /*BUFFER_H_INCLUDED*/

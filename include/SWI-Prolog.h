@@ -443,6 +443,7 @@ extern X_API int PL_get_name_arity(term_t, atom_t *, int *);
 extern X_API int PL_get_nil(term_t);
 extern X_API int PL_get_pointer(term_t, void **);
 extern X_API int PL_get_intptr(term_t, intptr_t *);
+extern X_API int PL_get_uintptr(term_t, uintptr_t *);
 extern X_API int PL_get_tail(term_t, term_t);
 /* end PL_get_* functions  =============================*/
 /* begin PL_new_* functions =============================*/
@@ -702,7 +703,9 @@ PL_EXPORT(void*)	PL_blob_data(atom_t a,
 
 PL_EXPORT(void)		PL_register_blob_type(PL_blob_t *type);
 PL_EXPORT(PL_blob_t*)	PL_find_blob_type(const char* name);
+PL_EXPORT(PL_blob_t*)	YAP_find_blob_type(YAP_Atom at);
 PL_EXPORT(int)		PL_unregister_blob_type(PL_blob_t *type);
+PL_EXPORT(int)  PL_raise(int sig);
 
 
 #if USE_GMP
@@ -717,7 +720,6 @@ extern X_API  const char *PL_cwd(void);
 
 void swi_install(void);
 
-X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...);
 X_API int PL_warning(const char *msg, ...);
 
 

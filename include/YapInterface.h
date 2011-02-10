@@ -66,6 +66,7 @@ __BEGIN_DECLS
 /* Primitive Functions */
 
 #define YAP_Deref(t)  (t)
+
 extern X_API YAP_Term PROTO(YAP_A,(int));
 #define YAP_ARG1	YAP_A(1)
 #define YAP_ARG2	YAP_A(2)
@@ -151,7 +152,7 @@ extern X_API YAP_Atom PROTO(YAP_LookupWideAtom,(CONST wchar_t *));
 extern X_API YAP_Atom PROTO(YAP_FullLookupAtom,(CONST char *));
 
 /*    int  AtomNameLength(Atom) */
-extern X_API int PROTO(YAP_AtomNameLength,(YAP_Atom));
+extern X_API size_t PROTO(YAP_AtomNameLength,(YAP_Atom));
 
 /*    const char* IsWideAtom(YAP_Atom) */
 extern X_API int *PROTO(YAP_IsWideAtom,(YAP_Atom));
@@ -173,6 +174,9 @@ extern X_API YAP_Term PROTO(YAP_HeadOfTerm,(YAP_Term));
 
 /*    Term  TailOfTerm(Term)  */
 extern X_API YAP_Term PROTO(YAP_TailOfTerm,(YAP_Term));
+
+/*    Int  AddressOfTailOfTerm(Term *, Term **)  */
+extern X_API YAP_Int PROTO(YAP_SkipList,(YAP_Term *, YAP_Term **));
 
 /*    Term  TailOfTerm(Term)  */
 extern X_API YAP_Term PROTO(YAP_TermNil,(void));
@@ -417,8 +421,11 @@ extern X_API YAP_Int PROTO(YAP_InitSlot,(YAP_Term));
 /*  YAP_Term  YAP_GetFromSlots(t)  */
 extern X_API YAP_Term PROTO(YAP_GetFromSlot,(YAP_Int));
 
-/*  YAP_Term  YAP_AddressFromSlots(t)  */
+/*  YAP_Term  *YAP_AddressFromSlots(t)  */
 extern X_API YAP_Term *PROTO(YAP_AddressFromSlot,(YAP_Int));
+
+/*  YAP_Term  *YAP_AddressOfTermInSlot(t)  */
+extern X_API YAP_Term *PROTO(YAP_AddressOfTermInSlot,(YAP_Int));
 
 /*  YAP_Term  YAP_PutInSlots(t)  */
 extern X_API void PROTO(YAP_PutInSlot,(YAP_Int, YAP_Term));
@@ -520,6 +527,15 @@ extern X_API void       PROTO(YAP_signal,(int));
 
 /*  stack expansion control */
 extern X_API int        PROTO(YAP_SetYAPFlag,(yap_flag_t,int));
+
+/*    void  *YAP_GlobalBase(Term)  */
+extern X_API YAP_Int PROTO(YAP_VarSlotToNumber,(YAP_Int));
+
+/*    Term  YAP_ModuleUser()  */
+extern X_API YAP_Term PROTO(YAP_ModuleUser,(void));
+
+/*    Int  YAP_NumberOfClausesForPredicate()  */
+extern X_API YAP_Int PROTO(YAP_NumberOfClausesForPredicate,(YAP_PredEntryPtr));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

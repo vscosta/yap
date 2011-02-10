@@ -25,6 +25,7 @@
 #include "pl-incl.h"
 #include "pl-ctype.h"
 #include "pl-utf8.h"
+#include "pl-codelist.h"
 #include <errno.h>
 #include <stdio.h>
 #ifdef __WINDOWS__
@@ -36,19 +37,6 @@
 
 #undef LD
 #define LD LOCAL_LD
-
-#ifdef __SWI_PROLOG__
-static inline word
-valHandle__LD(term_t r ARG_LD)
-{ Word p = valTermRef(r);
-
-  deRef(p);
-  return *p;
-}
-
-#define valHandle(r) valHandle__LD(r PASS_LD)
-#define setHandle(h, w)		(*valTermRef(h) = (w))
-#endif
 
 
 		 /*******************************
@@ -92,6 +80,15 @@ PL_save_text(PL_chars_t *text, int flags)
     size_t bl = bufsize_text(text, text->length+1);
 
     addMultipleBuffer(b, text->text.t, bl, char);
+    text->text.t = baseBuffer(b, char);
+
+    text->storage = PL_CHARS_RING;
+  } else if ( text->storage == PL_CHARS_MALLOC )
+  { Buffer b = findBuffer(BUF_RING);
+    size_t bl = bufsize_text(text, text->length+1);
+
+    addMultipleBuffer(b, text->text.t, bl, char);
+    PL_free_text(text);
     text->text.t = baseBuffer(b, char);
 
     text->storage = PL_CHARS_RING;
@@ -167,28 +164,58 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
     text->encoding  = ENC_ISO_LATIN_1;
     text->canonical = TRUE;
   } else if ( (flags & CVT_FLOAT) && isFloat(w) )
-  { format_float(valFloat(w), text->buf, LD->float_format);
+  { format_float(valFloat(w), text->buf);
     text->text.t    = text->buf;
     text->length    = strlen(text->text.t);
     text->encoding  = ENC_ISO_LATIN_1;
     text->storage   = PL_CHARS_LOCAL;
     text->canonical = TRUE;
-  } else if ( (flags & CVT_LIST) &&
-	      (isList(w) || isNil(w)) )
+  } else if ( (flags & CVT_LIST) )
   { Buffer b;
+    CVT_result result;
 
-    if ( (b = codes_or_chars_to_buffer(l, BUF_RING, FALSE)) )
+    if ( (b = codes_or_chars_to_buffer(l, BUF_RING, FALSE, &result)) )
     { text->length = entriesBuffer(b, char);
       addBuffer(b, EOS, char);
       text->text.t = baseBuffer(b, char);
       text->encoding = ENC_ISO_LATIN_1;
-    } else if ( (b = codes_or_chars_to_buffer(l, BUF_RING, TRUE)) )
+    } else if ( result.status == CVT_wide &&
+		(b = codes_or_chars_to_buffer(l, BUF_RING, TRUE, &result)) )
     { text->length = entriesBuffer(b, pl_wchar_t);
       addBuffer(b, EOS, pl_wchar_t);
       text->text.w = baseBuffer(b, pl_wchar_t);
       text->encoding = ENC_WCHAR;
+    } else if ( (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) )
+    { goto case_write;
     } else
-      goto maybe_write;
+    { if ( (flags & CVT_VARNOFAIL) && result.status == CVT_partial )
+	return 2;
+
+      if ( (flags & CVT_EXCEPTION) )
+      { switch(result.status)
+	{ case CVT_partial:
+	    return PL_error(NULL, 0, NULL, ERR_INSTANTIATION);
+	  case CVT_nolist:
+	    return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_list, l);
+	  case CVT_nocode:
+	  case CVT_nochar:
+	  { term_t culprit = PL_new_term_ref();
+	    atom_t type;
+
+	    *valTermRef(culprit) = result.culprit;
+	    if ( result.status == CVT_nocode )
+	      type = ATOM_character_code;
+	    else
+	      type = ATOM_character;
+
+	    return PL_error(NULL, 0, NULL, ERR_TYPE, type, culprit);
+	  }
+	  default:
+	    break;
+	}
+      }
+      goto error;
+    }
 
     text->storage   = PL_CHARS_RING;
     text->canonical = TRUE;
@@ -198,15 +225,20 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
     text->encoding = ENC_ISO_LATIN_1;
     text->storage  = PL_CHARS_LOCAL;
     text->canonical = TRUE;
-  } else if ( (flags & CVT_WRITE) )
+  } else if ( (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) )
   { IOENC encodings[3];
     IOENC *enc;
     char *r;
+    int wflags;
 
   case_write:
     encodings[0] = ENC_ISO_LATIN_1;
     encodings[1] = ENC_WCHAR;
     encodings[2] = ENC_UNKNOWN;
+
+    wflags = ((flags&CVT_WRITE_CANONICAL)
+		? PL_WRT_QUOTED|PL_WRT_IGNOREOPS|PL_WRT_NUMBERVARS
+		: PL_WRT_NUMBERVARS);
 
     for(enc = encodings; *enc != ENC_UNKNOWN; enc++)
     { size_t size;
@@ -216,7 +248,7 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
       size = sizeof(text->buf);
       fd = Sopenmem(&r, &size, "w");
       fd->encoding = *enc;
-      if ( PL_write_term(fd, l, 1200, 0) &&
+      if ( PL_write_term(fd, l, 1200, wflags) &&
 	   Sputcode(EOS, fd) >= 0 &&
 	   Sflush(fd) >= 0 )
       { text->encoding = *enc;
@@ -249,7 +281,7 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
   succeed;
 
 maybe_write:
-  if ( (flags & CVT_WRITE) )
+  if ( (flags & (CVT_WRITE|CVT_WRITE_CANONICAL)) )
     goto case_write;
 
 error:
@@ -275,7 +307,8 @@ error:
 
 atom_t
 textToAtom(PL_chars_t *text)
-{ PL_canonise_text(text);
+{ if ( !PL_canonise_text(text) )
+    return 0;
 
   if ( text->encoding == ENC_ISO_LATIN_1 )
   { return lookupAtom(text->text.t, text->length);
@@ -287,7 +320,8 @@ textToAtom(PL_chars_t *text)
 
 word
 textToString(PL_chars_t *text)
-{ PL_canonise_text(text);
+{ if ( !PL_canonise_text(text) )
+    return 0;
 
   if ( text->encoding == ENC_ISO_LATIN_1 )
   { return globalString(text->length, text->text.t);
@@ -302,10 +336,14 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 { switch(type)
   { case PL_ATOM:
     { atom_t a = textToAtom(text);
-      int rval = _PL_unify_atomic(term, a);
 
-      PL_unregister_atom(a);
-      return rval;
+      if ( a )
+      { int rval = _PL_unify_atomic(term, a);
+
+	PL_unregister_atom(a);
+	return rval;
+      }
+      return FALSE;
     }
     case PL_STRING:
     { word w = textToString(text);
@@ -335,7 +373,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	  { const unsigned char *s = (const unsigned char *)text->text.t;
 	    const unsigned char *e = &s[text->length];
 
-            if ( !(p0 = p = INIT_SEQ_CODES(text->length)) )
+            if ( !(p0 = p = INIT_SEQ_STRING(text->length)) )
 	      return FALSE;
 
             if ( type == PL_CODE_LIST ) {
@@ -343,7 +381,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
                 p = EXTEND_SEQ_CODES(p, *s);
             } else {
               for( ; s < e; s++)
-                p = EXTEND_SEQ_ATOMS(p, *s);
+                p = EXTEND_SEQ_CHARS(p, *s);
             }
 	    break;
 	  }
@@ -351,7 +389,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	  { const pl_wchar_t *s = (const pl_wchar_t *)text->text.t;
 	    const pl_wchar_t *e = &s[text->length];
 
-            if ( !(p0 = p = INIT_SEQ_CODES(text->length)) )
+            if ( !(p0 = p = INIT_SEQ_STRING(text->length)) )
 	      return FALSE;
 
             if ( type == PL_CODE_LIST ) {
@@ -359,7 +397,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
                 p = EXTEND_SEQ_CODES(p, *s);
             } else {
               for( ; s < e; s++)
-                p = EXTEND_SEQ_ATOMS(p, *s);
+                p = EXTEND_SEQ_CHARS(p, *s);
             }
 	    break;
 	  }
@@ -368,22 +406,22 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	    const char *e = &s[text->length];
 	    size_t len = utf8_strlen(s, text->length);
 
-            if ( !(p0 = p = INIT_SEQ_CODES(len)) )
+            if ( !(p0 = p = INIT_SEQ_STRING(len)) )
 	      return FALSE;
 
             if ( type == PL_CODE_LIST ) {
               while (s < e) {
                 int chr;
-                 
+
                 s = utf8_get_char(s, &chr);
                 p = EXTEND_SEQ_CODES(p, chr);
               }
             } else {
               while (s < e) {
                 int chr;
-                 
+
                 s = utf8_get_char(s, &chr);
-                p = EXTEND_SEQ_ATOMS(p, chr);
+                p = EXTEND_SEQ_CHARS(p, chr);
               }
             }
 	    break;
@@ -396,25 +434,29 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	    wchar_t wc;
 
 	    memset(&mbs, 0, sizeof(mbs));
-	    while( n > 0 && (rc=mbrtowc(&wc, s, n, &mbs)) != (size_t)-1 )
-	    { len++;
+	    while( n > 0 )
+	    { if ( (rc=mbrtowc(&wc, s, n, &mbs)) == (size_t)-1 || rc == 0 )
+		return PL_error(NULL, 0, "cannot represent text in current locale",
+				ERR_REPRESENTATION, ATOM_encoding);
+
+	      len++;
 	      n -= rc;
 	      s += rc;
 	    }
 
-            if ( !(p0 = p = INIT_SEQ_CODES(len)) )
+            if ( !(p0 = p = INIT_SEQ_STRING(len)) )
 	      return FALSE;
 
-	    memset(&mbs, 0, sizeof(mbs));
 	    n = text->length;
-
+	    s = text->text.t;
+	    memset(&mbs, 0, sizeof(mbs));
 	    while(n > 0)
 	    { rc = mbrtowc(&wc, s, n, &mbs);
 
 	      if ( type == PL_CODE_LIST )
 		p = EXTEND_SEQ_CODES(p, wc);
 	      else
-		p = EXTEND_SEQ_ATOMS(p, wc);
+		p = EXTEND_SEQ_CHARS(p, wc);
 
 	      s += rc;
 	      n -= rc;
@@ -428,7 +470,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	  }
 	}
 
-	return CLOSE_SEQ_OF_CODES(p, p0, tail, term, l );
+	return CLOSE_SEQ_STRING(p, p0, tail, term, l );
       }
     }
     default:
@@ -751,7 +793,7 @@ PL_canonise_text(PL_chars_t *text)
 
 	for(; w<e; w++)
 	{ if ( *w > 0xff )
-	    return FALSE;
+	    return TRUE;
 	}
 
 	return PL_demote_text(text);
@@ -820,8 +862,11 @@ PL_canonise_text(PL_chars_t *text)
 	wchar_t wc;
 
 	memset(&mbs, 0, sizeof(mbs));
-	while( n > 0 && (rc=mbrtowc(&wc, s, n, &mbs)) != (size_t)-1 )
-	{ if ( wc > 0xff )
+	while( n > 0 )
+	{ if ( (rc=mbrtowc(&wc, s, n, &mbs)) == (size_t)-1 || rc == 0)
+	    return FALSE;		/* encoding error */
+
+	  if ( wc > 0xff )
 	    iso = FALSE;
 	  len++;
 	  n -= rc;
@@ -853,8 +898,10 @@ PL_canonise_text(PL_chars_t *text)
 	    }
 
 	    to = text->text.t;
-	    while( n > 0 && (rc=mbrtowc(&wc, from, n, &mbs)) != (size_t)-1 )
-	    { *to++ = (char)wc;
+	    while( n > 0 )
+	    { rc = mbrtowc(&wc, from, n, &mbs);
+
+	      *to++ = (char)wc;
 	      n -= rc;
 	      from += rc;
 	    }
@@ -876,8 +923,10 @@ PL_canonise_text(PL_chars_t *text)
 	    }
 
 	    to = text->text.w;
-	    while( n > 0 && (rc=mbrtowc(&wc, from, n, &mbs)) != (size_t)-1 )
-	    { *to++ = wc;
+	    while( n > 0 )
+	    { rc = mbrtowc(&wc, from, n, &mbs);
+
+	      *to++ = wc;
 	      n -= rc;
 	      from += rc;
 	    }
@@ -999,12 +1048,12 @@ PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
 
   if ( l > (ssize_t)(t1->length - o1) )
   { l = t1->length - o1;
-    ifeq = -1;				/* first is short */
+    ifeq = CMP_LESS;				/* first is short */
   }
   if ( l > (ssize_t)(t2->length - o2) )
   { l = t2->length - o2;
     if ( ifeq == 0 )
-      ifeq = 1;
+      ifeq = CMP_GREATER;
   }
 
   if ( l == 0 )				/* too long offsets */
@@ -1019,7 +1068,7 @@ PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
     if ( l < 0 )
       return ifeq;
     else
-      return *s > *q ? 1 : -1;
+      return *s > *q ? CMP_GREATER : CMP_LESS;
   } else if ( t1->encoding == ENC_WCHAR && t2->encoding == ENC_WCHAR )
   { const pl_wchar_t *s = t1->text.w+o1;
     const pl_wchar_t *q = t2->text.w+o2;
@@ -1029,7 +1078,7 @@ PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
     if ( l < 0 )
       return ifeq;
     else
-      return *s > *q ? 1 : -1;
+      return *s > *q ? CMP_GREATER : CMP_LESS;
   } else if ( t1->encoding == ENC_ISO_LATIN_1 && t2->encoding == ENC_WCHAR )
   { const unsigned char *s = (const unsigned char *)t1->text.t+o1;
     const pl_wchar_t *q = t2->text.w+o2;
@@ -1039,7 +1088,7 @@ PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
     if ( l < 0 )
       return ifeq;
     else
-      return *s > *q ? 1 : -1;
+      return *s > *q ? CMP_GREATER : CMP_LESS;
   } else
   { const pl_wchar_t *s = t1->text.w+o1;
     const unsigned char *q = (const unsigned char *)t2->text.t+o2;
@@ -1049,7 +1098,7 @@ PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
     if ( l < 0 )
       return ifeq;
     else
-      return *s > *q ? 1 : -1;
+      return *s > *q ? CMP_GREATER : CMP_LESS;
   }
 }
 

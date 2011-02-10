@@ -101,8 +101,19 @@ PL_register_blob_type(PL_blob_t *type)
 PL_EXPORT(PL_blob_t*)	
 PL_find_blob_type(const char* name)
 {
-  fprintf(stderr,"PL_find_blob_type not implemented yet\n");
-  return NULL;
+  Atom at = Yap_LookupAtom((char *)name);
+
+  return YAP_find_blob_type((YAP_Atom)at);
+}
+
+PL_EXPORT(PL_blob_t*)	
+YAP_find_blob_type(YAP_Atom at)
+{
+  AtomEntry *a = RepAtom((Atom)at);
+  if (!IsBlob(a)) {
+    return SWI_Blobs;
+  }
+  return RepBlobProp(a->PropsOfAE)->blob_t;
 }
 
 PL_EXPORT(int)		

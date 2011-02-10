@@ -39,8 +39,11 @@ CWD=$(PWD)
 #
 
 HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
+	$(srcdir)/pl-codelist.h \
+	$(srcdir)/pl-dtoa.h $(srcdir)/dtoa.c  \
 	$(srcdir)/pl-incl.h \
 	$(srcdir)/pl-mswchar.h \
+	$(srcdir)/pl-option.h  \
 	$(srcdir)/pl-opts.h  \
 	$(srcdir)/pl-os.h \
 	$(srcdir)/pl-privitf.h \
@@ -49,20 +52,29 @@ HEADERS=$(srcdir)/atoms.h $(srcdir)/pl-buffer.h $(srcdir)/pl-ctype.h  \
 	$(srcdir)/pl-text.h $(srcdir)/pl-utf8.h \
 	$(srcdir)/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/uxnt/dirent.h $(srcdir)/uxnt/utf8.h $(srcdir)/pl-utf8.c $(srcdir)/uxnt/uxnt.h
 C_SOURCES=$(srcdir)/pl-buffer.c $(srcdir)/pl-ctype.c \
+	$(srcdir)/pl-codelist.c \
+	$(srcdir)/pl-dtoa.c  \
 	$(srcdir)/pl-error.c  \
-	$(srcdir)/pl-file.c $(srcdir)/pl-files.c  \
+	$(srcdir)/pl-file.c \
+	$(srcdir)/pl-files.c  \
+	$(srcdir)/pl-fmt.c  \
 	$(srcdir)/pl-glob.c  \
+	$(srcdir)/pl-option.c  \
 	$(srcdir)/pl-os.c \
 	$(srcdir)/pl-privitf.c \
 	$(srcdir)/pl-stream.c $(srcdir)/pl-string.c \
 	$(srcdir)/pl-table.c \
 	$(srcdir)/pl-text.c \
 	$(srcdir)/pl-util.c \
+	$(srcdir)/pl-write.c \
 	$(srcdir)/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/popen.c $(srcdir)/uxnt/uxnt.c
-OBJS=pl-buffer.o pl-ctype.o pl-error.o  \
-	pl-file.o pl-files.o pl-glob.o pl-os.o pl-privitf.o \
+OBJS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
+	pl-file.o pl-files.o pl-fmt.o \
+	pl-glob.o pl-option.o \
+	pl-os.o pl-privitf.o \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-text.o pl-util.o pl-utf8.o \
+	pl-write.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 SOBJS=libplstream.@SO@
 

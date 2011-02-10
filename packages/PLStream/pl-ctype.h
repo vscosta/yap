@@ -46,6 +46,7 @@ extern const char _PL_char_types[];	/* array of character types */
 #define isSolo(c)	(_PL_char_types[(unsigned)(c) & 0xff] == SO)
 #define isAlpha(c)	(_PL_char_types[(unsigned)(c) & 0xff] >= UC)
 #define isLetter(c)	(isLower(c) || isUpper(c))
+#define isSign(c)	((c) == '-' || (c) == '+')
 
 #define toLower(c)	((c) + 'a' - 'A')
 #define makeLower(c)	((c) >= 'A' && (c) <= 'Z' ? toLower(c) : (c))
@@ -80,7 +81,3 @@ extern const char _PL_char_types[];	/* array of character types */
 
 #define toLowerW(c)	((unsigned)(c) <= 'Z' ? (c) + 'a' - 'A' : towlower(c))
 #define makeLowerW(c)	((c) >= 'A' && (c) <= 'Z' ? toLower(c) : towlower(c))
-
-#ifndef HAVE_STRICMP
-int stricmp(const char *s1, const char *s2);
-#endif

@@ -35,9 +35,6 @@ This module defines:
 See manual for details.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#define CHAR_MODE 0
-#define CODE_MODE 1
-
 #define CTX_CHAR 0			/* Class(Char) */
 #define CTX_CODE 1			/* Class(Int) */
 
@@ -61,29 +58,11 @@ typedef struct
 } generator;
 
 
-static  int unicode_separator(wint_t c);
-
 static int
 iswhite(wint_t chr)
 { return chr == ' ' || chr == '\t';
 }
 
-
-#ifdef __YAP_PROLOG__
-#include "pl-umap.c"			/* Unicode map */
-
-#define CharTypeW(c, t, w) \
-	((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned)(c)] t) \
-			       : (uflagsW(c) & w))
-
-#define PlBlankW(c)	CharTypeW(c, <= SP, U_SEPARATOR)
-
-
-inline int
-unicode_separator(wint_t c)
-{ return PlBlankW(c);
-}
-#endif
 
 static int
 fiscsym(wint_t chr)
@@ -255,6 +234,7 @@ static const char_type char_types[] =
   { NULL_ATOM,		NULL }
 };
 
+
 static const char_type *
 char_type_by_name(atom_t name, int arity)
 { const char_type *cc;
@@ -285,12 +265,14 @@ advanceGen(generator *gen)
 
 static int
 unify_char_type(term_t type, const char_type *ct, int context, int how)
-{ if ( ct->arity == 0 )
-    return PL_unify_atom(type, ct->name);
-  else /*if ( ct->arity == 1 )*/
+{ GET_LD
+
+  if ( ct->arity == 0 )
+  { return PL_unify_atom(type, ct->name);
+  } else /*if ( ct->arity == 1 )*/
   { if ( PL_unify_functor(type, PL_new_functor(ct->name, 1)) )
     { term_t a = PL_new_term_ref();
-      
+
       _PL_get_arg(1, type, a);
 
       if ( ct->ctx_type == CTX_CHAR )
@@ -788,11 +770,11 @@ PRED_IMPL("setlocale", 3, setlocale, 0)
 		 *******************************/
 
 BeginPredDefs(ctype)
-  PRED_DEF("swi_char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
-  PRED_DEF("swi_code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
   PRED_DEF("setlocale", 3, setlocale, 0)
-  PRED_DEF("swi_downcase_atom", 2, downcase_atom, 0)
-  PRED_DEF("swi_upcase_atom", 2, upcase_atom, 0)
+  PRED_DEF("downcase_atom", 2, downcase_atom, 0)
+  PRED_DEF("upcase_atom", 2, upcase_atom, 0)
   PRED_DEF("normalize_space", 2, normalize_space, 0)
 EndPredDefs
 
@@ -876,9 +858,6 @@ initEncoding(void)
       }
     }
 
-#if __YAP_PROLOG__
-    PL_register_extensions(PL_predicates_from_ctype);
-#endif
     return LD->encoding;
   }
 
@@ -888,22 +867,6 @@ initEncoding(void)
 
 void
 initCharTypes(void)
-{ 
-  initEncoding();
+{ initEncoding();
 }
 
-#if __SWI_PROLOG__
-bool
-systemMode(bool accept)
-{ GET_LD
-  bool old = SYSTEM_MODE ? TRUE : FALSE;
-
-  if ( accept )
-    debugstatus.styleCheck |= DOLLAR_STYLE;
-  else
-    debugstatus.styleCheck &= ~DOLLAR_STYLE;
-
-  return old;
-}
-
-#endif

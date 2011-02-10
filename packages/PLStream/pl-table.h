@@ -1,24 +1,33 @@
-/*****
-      Hash Tables pl-table.h
-****/
+/*  $Id$
 
-#define LMASK_BITS	7		/* total # mask bits */
+    Part of SWI-Prolog
 
-#define TABLE_MASK		0xf0000000UL
+    Author:        Jan Wielemaker
+    E-mail:        J.Wielemaker@uva.nl
+    WWW:           http://www.swi-prolog.org
+    Copyright (C): 1985-2008, University of Amsterdam
 
-#define pointerHashValue(p, size) ((((intptr_t)(p) >> LMASK_BITS) ^ \
-				    ((intptr_t)(p) >> (LMASK_BITS+5)) ^ \
-				    ((intptr_t)(p))) & \
-				   ((size)-1))
+    This library is free software; you can redistribute it and/or
+    modify it under the terms of the GNU Lesser General Public
+    License as published by the Free Software Foundation; either
+    version 2.1 of the License, or (at your option) any later version.
 
+    This library is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+    Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public
+    License along with this library; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#ifndef TABLE_H_INCLUDED
+#define TABLE_H_INCLUDED
+
+typedef struct table *		Table;		/* (numeric) hash table */
 typedef struct symbol *		Symbol;		/* symbol of hash table */
-
-/* hash Table + lock + scaling + enumerator */
-typedef struct table *Table;
-
-typedef struct table_enum* TableEnum;
-
-/* symbol table hash  package */
+typedef struct table_enum *	TableEnum; 	/* Enumerate table entries */
 
 struct table
 { int		buckets;	/* size of hash table */
@@ -45,14 +54,47 @@ struct table_enum
   TableEnum	next;		/* More choice points */
 };
 
-extern void 		initTables(void);
-extern Table 		newHTable(int size);
-extern void 		destroyHTable(Table ht);
-extern Symbol 		lookupHTable(Table ht, void *name);
-extern Symbol 		addHTable(Table ht, void *name, void *value);
-extern void 		deleteSymbolHTable(Table ht, Symbol s);
-extern void 		clearHTable(Table ht);
-extern Table 		copyHTable(Table org);
-extern TableEnum 	newTableEnum(Table ht);
-extern void 		freeTableEnum(TableEnum e);
-extern Symbol 		advanceTableEnum(TableEnum e);
+COMMON(void) 		initTables();
+COMMON(Table) 		newHTable(int size);
+COMMON(void) 		destroyHTable(Table ht);
+COMMON(Symbol) 		lookupHTable(Table ht, void *name);
+COMMON(Symbol) 		addHTable(Table ht, void *name, void *value);
+COMMON(void) 		deleteSymbolHTable(Table ht, Symbol s);
+COMMON(void) 		clearHTable(Table ht);
+COMMON(Table) 		copyHTable(Table org);
+COMMON(TableEnum) 	newTableEnum(Table ht);
+COMMON(void) 		freeTableEnum(TableEnum e);
+COMMON(Symbol) 		advanceTableEnum(TableEnum e);
+
+#define TABLE_UNLOCKED		0x10000000L /* do not create mutex for table */
+#define TABLE_MASK		0xf0000000UL
+
+#define pointerHashValue(p, size) ((((intptr_t)(p) >> LMASK_BITS) ^ \
+				    ((intptr_t)(p) >> (LMASK_BITS+5)) ^ \
+				    ((intptr_t)(p))) & \
+				   ((size)-1))
+
+#define for_table(ht, s, code) \
+	{ int _k; \
+	  PL_LOCK(L_TABLE); \
+	  for(_k = 0; _k < (ht)->buckets; _k++) \
+	  { Symbol _n, s; \
+	    for(s=(ht)->entries[_k]; s; s = _n) \
+	    { _n = s->next; \
+	      code; \
+	    } \
+	  } \
+          PL_UNLOCK(L_TABLE); \
+	}
+#define for_unlocked_table(ht, s, code) \
+	{ int _k; \
+	  for(_k = 0; _k < (ht)->buckets; _k++) \
+	  { Symbol _n, s; \
+	    for(s=(ht)->entries[_k]; s; s = _n) \
+	    { _n = s->next; \
+	      code; \
+	    } \
+	  } \
+	}
+
+#endif /*TABLE_H_INCLUDED*/

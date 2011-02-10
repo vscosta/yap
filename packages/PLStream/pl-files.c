@@ -23,19 +23,15 @@
 */
 
 #include "pl-incl.h"
+#include "pl-utf8.h"
 #include <stdio.h>
-
-/**** stuff from uxnt ****/
-#ifdef O_XOS
-#include "uxnt/uxnt.h"
-#endif
 
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
 
 #ifdef O_XOS
-#define statstruct struct _stat
+#define statstruct struct _stati64
 #else
 #define statstruct struct stat
 #define statfunc stat
@@ -351,7 +347,7 @@ MarkExecutable(const char *name)
 		*	FIND FILES FROM C       *
 		*********************************/
 
-static int
+int
 unifyTime(term_t t, time_t time)
 { return PL_unify_float(t, (double)time);
 }
@@ -374,12 +370,12 @@ add_option(term_t options, functor_t f, atom_t val)
 
 #define CVT_FILENAME (CVT_ATOM|CVT_STRING|CVT_LIST)
 
-int
-PL_get_file_name(term_t n, char **namep, int flags)
+static int
+get_file_name(term_t n, char **namep, char *tmp, int flags)
 { GET_LD
   char *name;
-  char tmp[MAXPATHLEN];
-  char ospath[MAXPATHLEN];
+  int chflags;
+  size_t len;
 
   if ( flags & PL_FILE_SEARCH )
   { fid_t fid;
@@ -405,7 +401,12 @@ PL_get_file_name(term_t n, char **namep, int flags)
 
       if ( rc ) rc = PL_unify_nil(options);
       if ( rc ) rc = PL_call_predicate(NULL, cflags, pred, av);
-      if ( rc ) rc = PL_get_chars_ex(av+1, namep, CVT_ATOMIC|BUF_RING|REP_FN);
+      if ( rc ) rc = PL_get_nchars(av+1, &len, namep,
+				   CVT_ATOMIC|BUF_RING|REP_FN);
+      if ( rc && strlen(*namep) != len )
+      { n = av+1;
+	goto code0;
+      }
 
       PL_discard_foreign_frame(fid);
       return rc;
@@ -414,12 +415,17 @@ PL_get_file_name(term_t n, char **namep, int flags)
     return FALSE;
   }
 
-  if ( flags & PL_FILE_NOERRORS )
-  { if ( !PL_get_chars(n, &name, CVT_FILENAME|REP_FN) )
-      return FALSE;
-  } else
-  { if ( !PL_get_chars_ex(n, &name, CVT_FILENAME|REP_FN) )
-      return FALSE;
+  chflags = CVT_FILENAME;
+  if ( !(flags&(REP_UTF8|REP_MB)) )
+    chflags |= REP_FN;
+  if ( !(flags & PL_FILE_NOERRORS) )
+    chflags |= CVT_EXCEPTION;
+  if ( !PL_get_nchars(n, &len, &name, chflags) )
+    return FALSE;
+  if ( strlen(name) != len )
+  { code0:
+    return PL_error(NULL, 0, "file name contains a 0-code",
+		    ERR_DOMAIN, ATOM_file_name, n);
   }
 
   if ( truePrologFlag(PLFLAG_FILEVARS) )
@@ -430,6 +436,10 @@ PL_get_file_name(term_t n, char **namep, int flags)
   if ( !(flags & PL_FILE_NOERRORS) )
   { atom_t op = 0;
 
+    if ( (flags&(PL_FILE_READ|PL_FILE_WRITE|PL_FILE_EXECUTE|PL_FILE_EXIST)) &&
+	 !AccessFile(name, ACCESS_EXIST) )
+      return PL_error(NULL, 0, NULL, ERR_EXISTENCE, ATOM_file, n);
+
     if ( (flags&PL_FILE_READ) && !AccessFile(name, ACCESS_READ) )
       op = ATOM_read;
     if ( !op && (flags&PL_FILE_WRITE) && !AccessFile(name, ACCESS_WRITE) )
@@ -438,10 +448,7 @@ PL_get_file_name(term_t n, char **namep, int flags)
       op = ATOM_execute;
 
     if ( op )
-      return PL_error(NULL, 0, NULL, ERR_PERMISSION, ATOM_file, op, n);
-
-    if ( (flags & PL_FILE_EXIST) && !AccessFile(name, ACCESS_EXIST) )
-      return PL_error(NULL, 0, NULL, ERR_EXISTENCE, ATOM_file, n);
+      return PL_error(NULL, 0, NULL, ERR_PERMISSION, op, ATOM_file, n);
   }
 
   if ( flags & PL_FILE_ABSOLUTE )
@@ -449,13 +456,61 @@ PL_get_file_name(term_t n, char **namep, int flags)
       return FALSE;
   }
 
-  if ( flags & PL_FILE_OSPATH )
-  { if ( !(name = OsPath(name, ospath)) )
-      return FALSE;
+  *namep = buffer_string(name, BUF_RING);
+
+  return TRUE;
+}
+
+
+int
+PL_get_file_name(term_t n, char **namep, int flags)
+{ char buf[MAXPATHLEN];
+  char ospath[MAXPATHLEN];
+  char *name;
+  int rc;
+
+  if ( (rc=get_file_name(n, &name, buf, flags)) )
+  { if ( (flags & PL_FILE_OSPATH) )
+    { if ( !(name = OsPath(name, ospath)) )
+	return FALSE;
+    }
+
+    *namep = buffer_string(name, BUF_RING);
   }
 
-  *namep = buffer_string(name, BUF_RING);
-  return TRUE;
+  return rc;
+}
+
+
+int
+PL_get_file_nameW(term_t n, wchar_t **namep, int flags)
+{ char buf[MAXPATHLEN];
+  char ospath[MAXPATHLEN];
+  char *name;
+  int rc;
+
+  if ( (rc=get_file_name(n, &name, buf, flags|REP_UTF8)) )
+  { Buffer b;
+    const char *s;
+
+    if ( (flags & PL_FILE_OSPATH) )
+    { if ( !(name = OsPath(name, ospath)) )
+	return FALSE;
+    }
+
+    b = findBuffer(BUF_RING);
+    for(s = name; *s; )
+    { int chr;
+
+      s = utf8_get_char(s, &chr);
+      addBuffer(b, (wchar_t)chr, wchar_t);
+    }
+    addBuffer(b, (wchar_t)0, wchar_t);
+
+    *namep = baseBuffer(b, wchar_t);
+  }
+
+  return rc;
 }
 
 
@@ -686,7 +741,7 @@ PRED_IMPL("tmp_file_stream", 3, tmp_file_stream, 0)
 
     if ( !PL_unify_atom(A2, fn) )
     { close(fd);
-      return PL_error(NULL, 0, NULL, ERR_MUST_BE_VAR, 2);
+      return PL_error(NULL, 0, NULL, ERR_UNINSTANTIATION, 2, A2);
     }
 
     s = Sfdopen(fd, mode);
@@ -823,8 +878,9 @@ PRED_IMPL("working_directory", 2, working_directory, 0)
 	if ( truePrologFlag(PLFLAG_FILEERRORS) )
 	  return PL_error(NULL, 0, NULL, ERR_FILE_OPERATION,
 			  ATOM_chdir, ATOM_directory, new);
-	return FALSE;
       }
+
+      return FALSE;
     }
 
     return TRUE;
@@ -858,7 +914,7 @@ has_extension(const char *name, const char *ext)
 
 
 static int
-name_too_long(void)
+name_too_long()
 { return PL_error(NULL, 0, NULL, ERR_REPRESENTATION, ATOM_max_path_length);
 }
 
@@ -891,12 +947,8 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 	} else
 	{ TRY(PL_unify_chars(ext, PL_ATOM|REP_FN, -1, &s[1]));
 	}
-	if ( s-f > MAXPATHLEN )
-	  return name_too_long();
-	strncpy(buf, f, s-f);
-	buf[s-f] = EOS;
 
-	return PL_unify_chars(base, PL_ATOM|REP_FN, -1, buf);
+	return PL_unify_chars(base, PL_ATOM|REP_FN, s-f, f);
       }
       if ( PL_unify_atom_chars(ext, "") &&
 	   PL_unify(full, base) )
@@ -977,35 +1029,6 @@ PRED_IMPL("mark_executable", 1, mark_executable, 0)
 }
 
 
-
-		 /*******************************
-		 *      PUBLISH PREDICATES	*
-		 *******************************/
-
-BeginPredDefs(files)
-  PRED_DEF("swi_working_directory", 2, working_directory, 0)
-  PRED_DEF("swi_access_file", 2, access_file, 0)
-  PRED_DEF("swi_time_file", 2, time_file, 0)
-  PRED_DEF("swi_size_file", 2, size_file, 0)
-  PRED_DEF("swi_read_link", 3, read_link, 0)
-  PRED_DEF("swi_exists_file", 1, exists_file, 0)
-  PRED_DEF("swi_exists_directory", 1, exists_directory, 0)
-  PRED_DEF("swi_tmp_file", 2, tmp_file, 0)
-  PRED_DEF("swi_tmp_file_stream", 3, tmp_file_stream, 0)
-  PRED_DEF("swi_delete_file", 1, delete_file, 0)
-  PRED_DEF("swi_delete_directory", 1, delete_directory, 0)
-  PRED_DEF("swi_make_directory", 1, make_directory, 0)
-  PRED_DEF("swi_same_file", 2, same_file, 0)
-  PRED_DEF("swi_rename_file", 2, rename_file, 0)
-  PRED_DEF("swi_is_absolute_file_name", 1, is_absolute_file_name, 0)
-  PRED_DEF("swi_file_base_name", 2, file_base_name, 0)
-  PRED_DEF("swi_file_directory_name", 2, file_directory_name, 0)
-  PRED_DEF("swi_file_name_extension", 3, file_name_extension, 0)
-  PRED_DEF("swi_prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-  PRED_DEF("swi_$mark_executable", 1, mark_executable, 0)
-  PRED_DEF("swi_$absolute_file_name", 2, absolute_file_name, 0)
-EndPredDefs
-
 		 /*******************************
 		 *	       INIT		*
 		 *******************************/
@@ -1013,6 +1036,33 @@ EndPredDefs
 void
 initFiles(void)
 {
-  PL_register_extensions(PL_predicates_from_files);
 }
 
+
+		 /*******************************
+		 *      PUBLISH PREDICATES	*
+		 *******************************/
+
+BeginPredDefs(files)
+  PRED_DEF("working_directory", 2, working_directory, 0)
+  PRED_DEF("access_file", 2, access_file, 0)
+  PRED_DEF("time_file", 2, time_file, 0)
+  PRED_DEF("size_file", 2, size_file, 0)
+  PRED_DEF("read_link", 3, read_link, 0)
+  PRED_DEF("exists_file", 1, exists_file, 0)
+  PRED_DEF("exists_directory", 1, exists_directory, 0)
+  PRED_DEF("tmp_file", 2, tmp_file, 0)
+  PRED_DEF("tmp_file_stream", 3, tmp_file_stream, 0)
+  PRED_DEF("delete_file", 1, delete_file, 0)
+  PRED_DEF("delete_directory", 1, delete_directory, 0)
+  PRED_DEF("make_directory", 1, make_directory, 0)
+  PRED_DEF("same_file", 2, same_file, 0)
+  PRED_DEF("rename_file", 2, rename_file, 0)
+  PRED_DEF("is_absolute_file_name", 1, is_absolute_file_name, 0)
+  PRED_DEF("file_base_name", 2, file_base_name, 0)
+  PRED_DEF("file_directory_name", 2, file_directory_name, 0)
+  PRED_DEF("file_name_extension", 3, file_name_extension, 0)
+  PRED_DEF("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
+  PRED_DEF("$mark_executable", 1, mark_executable, 0)
+  PRED_DEF("$absolute_file_name", 2, absolute_file_name, 0)
+EndPredDefs

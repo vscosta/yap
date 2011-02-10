@@ -304,6 +304,17 @@ X_API int PL_get_intptr(term_t ts, intptr_t *a)
   return 1;
 }
 
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
+X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
+{
+  Term t = Yap_GetFromSlot(ts);
+  if ( !IsIntegerTerm(t) )
+    return 0;
+  *a = (uintptr_t)(IntegerOfTerm(t));
+  return 1;
+}
+
 /* SWI: int PL_get_atom_chars(term_t t, char **s)
    YAP: char* AtomName(Atom) */
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
@@ -1269,34 +1280,6 @@ X_API void  PL_fatal_error(const char *msg)
   Yap_exit(1);
 }
 
-static char *
-OsError(void)
-{
-#ifdef HAVE_STRERROR
-#ifdef __WINDOWS__
-  return NULL;
-#else
-  return strerror(errno);
-#endif
-#else /*HAVE_STRERROR*/
-static char errmsg[64];
-
-#ifdef __unix__
-  extern int sys_nerr;
-#if !EMX
-  extern char *sys_errlist[];
-#endif
-  extern int errno;
-
-  if ( errno < sys_nerr )
-    return sys_errlist[errno];
-#endif
-
-  Ssprintf(errmsg, "Unknown Error (%d)", errno);
-  return errmsg;
-#endif /*HAVE_STRERROR*/
-}
-
 X_API int PL_warning(const char *msg, ...) {
   va_list args;
   va_start(args, msg);
@@ -1306,218 +1289,6 @@ X_API int PL_warning(const char *msg, ...) {
   fprintf(stderr,"]\n");
   va_end(args);
   PL_fail;
-}
-
-X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
-{
-  term_t formal, swi, predterm, msgterm, except;
-  va_list args;
-
-  formal    = PL_new_term_ref();
-  swi    = PL_new_term_ref();
-  predterm    = PL_new_term_ref();
-  msgterm    = PL_new_term_ref();
-  except    = PL_new_term_ref();
-
-  if ( msg == ((char *)(-1)) )
-    { if ( errno == EPLEXCEPTION )
-	return FALSE;
-      msg = OsError();
-    }
-
-  /* This would really require having pl-error.c, but we'll make do so as */
-  va_start(args, id);
-  switch(id) {
-  case ERR_INSTANTIATION:
-  err_instantiation:
-    PL_unify_atom(formal, ATOM_instantiation_error);
-    break;
-  case ERR_TYPE:			/* ERR_INSTANTIATION if var(actual) */
-    { atom_t expected = va_arg(args, atom_t);
-      term_t actual   = va_arg(args, term_t);
-      
-      if ( PL_is_variable(actual) && expected != ATOM_variable )
-	goto err_instantiation;
-
-      PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_type_error2,
-		      PL_ATOM, expected,
-		      PL_TERM, actual);
-      break;
-    }
-  case ERR_DOMAIN:			/*  ERR_INSTANTIATION if var(arg) */
-    { atom_t domain = va_arg(args, atom_t);
-      term_t arg    = va_arg(args, term_t);
-
-      if ( PL_is_variable(arg) )
-	goto err_instantiation;
-
-      PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_domain_error2,
-		      PL_ATOM, domain,
-		      PL_TERM, arg);
-      break;
-    }
-  case ERR_REPRESENTATION:
-    { atom_t what = va_arg(args, atom_t);
-
-      PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_representation_error1,
-		      PL_ATOM, what);
-      break;
-    }
-  case ERR_NOT_IMPLEMENTED_PROC:
-    { const char *name = va_arg(args, const char *);
-      int arity = va_arg(args, int);
-
-      PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_not_implemented2,
-		    PL_ATOM, ATOM_procedure,
-		    PL_FUNCTOR, FUNCTOR_divide2,
-		    PL_CHARS, name,
-		    PL_INT, arity);
-      break;
-    }
-  case ERR_EXISTENCE:
-    { atom_t type = va_arg(args, atom_t);
-      term_t obj  = va_arg(args, term_t);
-
-      PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_existence_error2,
-			  PL_ATOM, type,
-			  PL_TERM, obj);
-
-      break;
-    }
-  case ERR_PERMISSION:
-    { atom_t type = va_arg(args, atom_t);
-      atom_t op   = va_arg(args, atom_t);
-      term_t obj  = va_arg(args, term_t);
-
-      PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_permission_error3,
-			  PL_ATOM, type,
-			  PL_ATOM, op,
-			  PL_TERM, obj);
-
-      break;
-    }
-  case ERR_SYSCALL:
-    { const char *op = va_arg(args, const char *);
-
-      if ( !msg )
-	msg = op;
-
-      switch(errno)
-      { case ENOMEM:
-	  PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_resource_error1,
-			  PL_ATOM, ATOM_no_memory);
-	  break;
-	default:
-	  PL_unify_atom(formal, ATOM_system_error);
-	  break;
-      }
-
-      break;
-    }
-  case ERR_TIMEOUT:
-    { atom_t op   = va_arg(args, atom_t);
-      term_t obj  = va_arg(args, term_t);
-
-      PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_timeout_error2,
-			  PL_ATOM, op,
-			  PL_TERM, obj);
-
-      break;
-    }
-    case ERR_FILE_OPERATION:
-    { atom_t action = va_arg(args, atom_t);
-      atom_t type   = va_arg(args, atom_t);
-      term_t file   = va_arg(args, term_t);
-
-      switch(errno)
-      { case EACCES:
-	  PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_permission_error3,
-			  PL_ATOM, action,
-			  PL_ATOM, type,
-			  PL_TERM, file);
-	  break;
-	case EMFILE:
-	case ENFILE:
-	  PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_resource_error1,
-			  PL_ATOM, ATOM_max_files);
-	  break;
-#ifdef EPIPE
-	case EPIPE:
-	  if ( !msg )
-	    msg = "Broken pipe";
-	  /*FALLTHROUGH*/
-#endif
-	default:			/* what about the other cases? */
-	  PL_unify_term(formal,
-			PL_FUNCTOR, FUNCTOR_existence_error2,
-			  PL_ATOM, type,
-			  PL_TERM, file);
-	  break;
-      }
-
-      break;
-    }
-  case ERR_NOMEM:
-    { PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_resource_error1,
-		      PL_ATOM, ATOM_no_memory);
-
-      break;
-    }
-  case ERR_EVALUATION:
-    { atom_t what = va_arg(args, atom_t);
-
-      PL_unify_term(formal,
-		    PL_FUNCTOR, FUNCTOR_evaluation_error1,
-		      PL_ATOM, what);
-      break;
-    }
-    case ERR_STREAM_OP:
-    { atom_t action = va_arg(args, atom_t);
-      term_t stream = va_arg(args, term_t);
-      int rc;
-
-      rc = PL_unify_term(formal,
-			 PL_FUNCTOR, FUNCTOR_io_error2,
-			   PL_ATOM, action,
-			   PL_TERM, stream);
-      break;
-    }
-      
-  default:
-    fprintf(stderr, "unimplemented SWI error %d\n",id);
-    goto err_instantiation;
-  }
-  va_end(args);
-  if ( pred )
-    { PL_unify_term(predterm,
-		    PL_FUNCTOR, FUNCTOR_divide2,
-		    PL_CHARS, pred,
-		    PL_INT, arity);
-    }   
-  if ( msg )
-    {
-      PL_put_atom_chars(msgterm, msg);
-    }
-  PL_unify_term(swi,
-		PL_FUNCTOR, FUNCTOR_context2,
-		PL_TERM, predterm,
-		PL_TERM, msgterm);
-  PL_unify_term(except,
-		PL_FUNCTOR, FUNCTOR_error2,
-		PL_TERM, formal,
-		PL_TERM, swi);
-  return PL_raise_exception(except);
 }
 
 /* begin PL_unify_* functions =============================*/
@@ -2524,23 +2295,66 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
   return YAP_Predicate((YAP_Atom)at, arity, mod);
 }
 
+X_API int PL_unify_predicate(term_t head, predicate_t *pred, const char *m)
+{
+  Term mod;
+  Atom at;
+  Term t;
+  Int arity;
+  Functor fun;
+
+  if (m == NULL) {
+    mod = CurrentModule;
+    if (!mod) mod = USER_MODULE;
+  } else {
+    Atom at;
+    while (!(at = Yap_LookupAtom((char *)m))) {
+      if (!Yap_growheap(FALSE, 0L, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	return 0;
+      }
+    }
+    mod = MkAtomTerm(at);
+  }
+  t = Yap_GetFromSlot(head);
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    arity = 0;
+  } else if (IsApplTerm(t)) {
+    Functor f;
+    f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(fun)) {
+      return 0;
+    }
+    at = NameOfFunctor(f);
+    arity = ArityOfFunctor(f);
+  } else
+    return 0;
+     
+  *pred =  YAP_Predicate((YAP_Atom)at, arity, mod);
+  return pred != NULL;
+}
+
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)
 {
   PredEntry *pd = (PredEntry *)p;
   Atom aname;
 
   if (pd->ArityOfPE) {
-    *arity = pd->ArityOfPE;
+    if (arity)
+      *arity = pd->ArityOfPE;
     aname = NameOfFunctor(pd->FunctorOfPred);
   } else {
-    *arity = 0;
+    if (arity)
+      *arity = 0;
     aname = (Atom)(pd->FunctorOfPred);
   }
-  if (pd->ModuleOfPred)
+  if (pd->ModuleOfPred && m) 
     *m = (module_t)pd->ModuleOfPred;
-  else
+  else if (m)
     *m = (module_t)TermProlog;
-  *name = AtomToSWIAtom(aname);
+  if (name)
+    *name = AtomToSWIAtom(aname);
 }
 
 X_API fid_t
@@ -2952,6 +2766,13 @@ PL_free(void *obj)
 {
   if (obj)
     free(obj);
+}
+
+static int
+PL_error(const char *pred, int arity, const char *msg, int id, ...)
+{
+  fprintf(stderr,"Internal PL_error Not implemented\n");
+  return 0;
 }
 
 X_API int

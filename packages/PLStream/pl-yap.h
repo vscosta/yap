@@ -3,32 +3,53 @@
 
 #ifdef __YAP_PROLOG__
 
+/* depends on tag schema, but 4 should always do */
+#define LMASK_BITS	4		/* total # mask bits */
+
 #if HAVE_CTYPE_H
 #include <ctype.h>
 #endif
 
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+
 #define SIZE_VOIDP SIZEOF_INT_P
 
-#if SIZE_DOUBLE==SIZEOF_INT_P
-#define WORDS_PER_DOUBLE 1
-#else
-#define WORDS_PER_DOUBLE 2
-#endif
 
 #if SIZEOF_LONG_INT==4
 #define INT64_FORMAT "%lld"
-#define INTBITSIZE 32
 #else
 #define INT64_FORMAT "%ld"
-#define INTBITSIZE 64
 #endif
+#define INTBITSIZE (sizeof(int)*8)
 
-typedef uintptr_t		word;		/* Anonymous 4 byte object */
-typedef YAP_Term	        Word;		/* Anonymous 4 byte object */
+typedef YAP_Term	        Module;
+typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
 typedef YAP_Atom		Atom;
+typedef YAP_Term		(*Func)();	/* foreign functions */
+
+extern atom_t codeToAtom(int chrcode);
+
+#define valTermRef(t)    ((Word)YAP_AddressFromSlot(t))
+
+#include "pl-codelist.h"
+
 //move this to SWI
 
-typedef uintptr_t	PL_atomic_t;	/* same a word */
+#define GP_CREATE	2		/* create (in this module) */
+
+#ifndef HAVE_MBSCOLL
+COMMON(int) mbscoll(const char *s1, const char *s2);
+#endif
+
+
+#ifndef HAVE_MBSCASECOLL
+COMMON(int) mbscasecoll(const char *s1, const char *s2);
+#endif
+
+COMMON(atom_t) 		TemporaryFile(const char *id, int *fdp);
+COMMON(char *) 		Getenv(const char *, char *buf, size_t buflen);
 
 /*** memory allocation stuff: SWI wraps around malloc  */
 
@@ -36,51 +57,54 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 
 #define freeHeap(X,Size) YAP_FreeSpaceFromYap(X)
 
-
 #define stopItimer()
 
-/* TBD */
+COMMON(word) 		pl_print(term_t term);
+COMMON(word) 		pl_write(term_t term);
+COMMON(word) 		pl_write_canonical(term_t term);
+COMMON(word) 		pl_write_term(term_t term, term_t options);
+COMMON(word) 		pl_writeq(term_t term);
 
-extern atom_t codeToAtom(int chrcode);
+static inline int
+get_procedure(term_t descr, predicate_t *proc, term_t he, int f) {
+  YAP_Term t = YAP_GetFromSlot(descr);
+
+  if (YAP_IsVarTerm(t)) return 0;
+  if (YAP_IsAtomTerm(t)) 
+    *proc = YAP_Predicate(YAP_AtomOfTerm(t),0,YAP_CurrentModule());
+  else if (YAP_IsApplTerm(t)) {
+    YAP_Functor f = YAP_FunctorOfTerm(t);
+    *proc = YAP_Predicate(YAP_NameOfFunctor(f),YAP_ArityOfFunctor(f),YAP_CurrentModule());
+  }
+  return 1;
+}
+
+COMMON(intptr_t) 	lengthList(term_t list, int errors);
+COMMON(int)		promoteToFloatNumber(Number n);
+COMMON(char *) 		PrologPath(const char *ospath, char *plpath, size_t len);
+COMMON(char *) 		ExpandOneFile(const char *spec, char *file);
+COMMON(char *) 		AbsoluteFile(const char *spec, char *path);
+COMMON(char *) 		BaseName(const char *f);
+COMMON(bool) 		ChDir(const char *path);
+COMMON(char *) 		OsPath(const char *plpath, char *ospath);
+COMMON(bool) 		ChDir(const char *path);
+COMMON(int) 		DeleteTemporaryFile(atom_t name);
+COMMON(int) 		IsAbsolutePath(const char *spec);
+
+/* TBD */
 
 extern word globalString(size_t size, char *s);
 extern word globalWString(size_t size, wchar_t *s);
 
 static inline word
-INIT_SEQ_CODES(size_t n)
-{
-  return (word)YAP_OpenList(n);
-}
-
-static inline word
-EXTEND_SEQ_CODES(word gstore, int c) {
-  return (word)YAP_ExtendList((YAP_Term)gstore, YAP_MkIntTerm(c));
-}
-
-static inline word
-EXTEND_SEQ_ATOMS(word gstore, int c) {
-  return (word)YAP_ExtendList((YAP_Term)gstore, codeToAtom(c));
-}
-
-static inline int 
-CLOSE_SEQ_OF_CODES(word gstore, word lp, word arg2, word arg3, term_t l) {
-  if (arg2 == 0) {
-    if (!YAP_CloseList((YAP_Term)gstore, YAP_TermNil()))
-      return FALSE;
-  } else {
-    if (!YAP_CloseList((YAP_Term)gstore, YAP_GetFromSlot(arg2)))
-      return FALSE;
-  }
-  return YAP_Unify(YAP_GetFromSlot(arg3), lp);
-}
-
-static inline Word
 valHandle(term_t tt)
 {
   return (word)YAP_GetFromSlot(tt);
 }
 
 YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
+PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
+
 
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
@@ -93,16 +117,46 @@ YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
 #define isReal(A) YAP_IsFloatTerm((A))
 #define isFloat(A) YAP_IsFloatTerm((A))
 #define isVar(A) YAP_IsVarTerm((A))
-#define varName(l, buf) buf
 #define valReal(w) YAP_FloatOfTerm((w))
 #define valFloat(w) YAP_FloatOfTerm((w))
 #define AtomLength(w) YAP_AtomNameLength(w)
 #define atomValue(atom) YAP_AtomOfTerm(atom)
+#define atomName(atom) ((char *)YAP_AtomName(atom))
+#define nameOfAtom(atom) ((char *)YAP_AtomName(atom))
+#define atomLength(atom) YAP_AtomNameLength(atom)
+#define atomBlobType(at) YAP_find_blob_type(at)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
-#define deRef(t) (t = YAP_Deref(t))
-#define canBind(t) FALSE
+#define deRef(t)
+#define canBind(t) FALSE  // VSC: to implement
+#define MODULE_user YAP_ModuleUser()
+#define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
+#define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
+#define lookupModule(A) ((module_t)PL_new_module(A))
+#define charEscapeWriteOption(A) FALSE  // VSC: to implement
+#define skip_list(A,B) YAP_SkipList(A,B)
+#define wordToTermRef(A) YAP_InitSlot(*(A))
+#define isTaggedInt(A) YAP_IsIntTerm(A)
+#define valInt(A) YAP_IntOfTerm(A)
 
 #define clearNumber(n)
+
+inline static int
+charCode(YAP_Term w)
+{ if ( YAP_IsAtomTerm(w) )
+    { 
+      Atom a = atomValue(w);
+
+      if ( YAP_AtomNameLength(a) == 1) {
+	if (YAP_IsWideAtom(a)) {
+	  return YAP_WideAtomName(a)[0];
+	}
+	return YAP_AtomName(a)[0];
+      }
+    }
+  return -1;
+}
+
+
 
 #endif /* __YAP_PROLOG__ */
 
@@ -119,44 +173,5 @@ stripostfix(const char *s, const char *e)
 } 
 #endif
 
-#define ERR_NO_ERROR		0
-#define ERR_INSTANTIATION	1	/* void */
-#define ERR_TYPE		2	/* atom_t expected, term_t value */
-#define ERR_DOMAIN		3	/* atom_t domain, term_t value */
-#define ERR_REPRESENTATION	4	/* atom_t what */
-#define ERR_MODIFY_STATIC_PROC	5	/* predicate_t proc */
-#define ERR_EVALUATION		6	/* atom_t what */
-#define ERR_AR_TYPE		7	/* atom_t expected, Number value */
-#define ERR_NOT_EVALUABLE	8	/* functor_t func */
-#define ERR_DIV_BY_ZERO		9	/* void */
-#define ERR_FAILED	       10	/* predicate_t proc */
-#define ERR_FILE_OPERATION     11	/* atom_t action, atom_t type, term_t */
-#define ERR_PERMISSION	       12	/* atom_t type, atom_t op, term_t obj*/
-#define ERR_NOT_IMPLEMENTED 13	/* const char *what */
-#define ERR_EXISTENCE	       14	/* atom_t type, term_t obj */
-#define ERR_STREAM_OP	       15	/* atom_t action, term_t obj */
-#define ERR_RESOURCE	       16	/* atom_t resource */
-#define ERR_NOMEM	       17	/* void */
-#define ERR_SYSCALL	       18	/* void */
-#define ERR_SHELL_FAILED       19	/* term_t command */
-#define ERR_SHELL_SIGNALLED    20	/* term_t command, int signal */
-#define ERR_AR_UNDEF	       21	/* void */
-#define ERR_AR_OVERFLOW	       22	/* void */
-#define ERR_AR_UNDERFLOW       23	/* void */
-#define ERR_UNDEFINED_PROC     24	/* Definition def */
-#define ERR_SIGNALLED	       25	/* int sig, char *name */
-#define ERR_CLOSED_STREAM      26	/* IOSTREAM * */
-#define ERR_BUSY	       27	/* mutexes */
-#define ERR_PERMISSION_PROC    28	/* op, type, Definition */
-#define ERR_DDE_OP	       29	/* op, error */
-#define ERR_SYNTAX	       30	/* what */
-#define ERR_SHARED_OBJECT_OP   31	/* op, error */
-#define ERR_TIMEOUT	       32	/* op, object */
-#define ERR_NOT_IMPLEMENTED_PROC 33	/* name, arity */
-#define ERR_FORMAT	       34	/* message */
-#define ERR_FORMAT_ARG	       35	/* seq, term */
-#define ERR_OCCURS_CHECK       36	/* Word, Word */
-#define ERR_CHARS_TYPE	       37	/* char *, term */
-#define ERR_MUST_BE_VAR	       38	/* int argn, term_t term */
 
 #endif /* PL_YAP_H */

@@ -57,5 +57,4 @@ extern char *_PL__utf8_put_char(char *out, int chr);
 
 extern size_t utf8_strlen(const char *s, size_t len);
 
-
 #endif /*UTF8_H_INCLUDED*/

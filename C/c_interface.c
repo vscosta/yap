@@ -397,7 +397,7 @@ X_API Term    STD_PROTO(YAP_MkAtomTerm,(Atom));
 X_API Atom    STD_PROTO(YAP_AtomOfTerm,(Term));
 X_API Atom    STD_PROTO(YAP_LookupAtom,(char *));
 X_API Atom    STD_PROTO(YAP_LookupWideAtom,(wchar_t *));
-X_API int     STD_PROTO(YAP_AtomNameLength,(Atom));
+X_API size_t  STD_PROTO(YAP_AtomNameLength,(Atom));
 X_API Atom    STD_PROTO(YAP_FullLookupAtom,(char *));
 X_API int     STD_PROTO(YAP_IsWideAtom,(Atom));
 X_API char   *STD_PROTO(YAP_AtomName,(Atom));
@@ -406,6 +406,7 @@ X_API Term    STD_PROTO(YAP_MkPairTerm,(Term,Term));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_TailOfTerm,(Term));
+X_API Int     STD_PROTO(YAP_SkipList,(Term *, Term **));
 X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,UInt,Term *));
 X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,UInt));
 X_API Functor STD_PROTO(YAP_FunctorOfTerm,(Term));
@@ -475,6 +476,7 @@ X_API Int     STD_PROTO(YAP_NewSlots,(int));
 X_API Int     STD_PROTO(YAP_InitSlot,(Term));
 X_API Term    STD_PROTO(YAP_GetFromSlot,(Int));
 X_API Term   *STD_PROTO(YAP_AddressFromSlot,(Int));
+X_API Term   *STD_PROTO(YAP_AddressOfTermInSlot,(Int));
 X_API void    STD_PROTO(YAP_PutInSlot,(Int, Term));
 X_API int     STD_PROTO(YAP_RecoverSlots,(int));
 X_API Int     STD_PROTO(YAP_ArgsToSlots,(int));
@@ -523,6 +525,9 @@ X_API int      STD_PROTO(YAP_ExactlyEqual,(Term, Term));
 X_API Int      STD_PROTO(YAP_TermHash,(Term, Int, Int, int));
 X_API void     STD_PROTO(YAP_signal,(int));
 X_API int      STD_PROTO(YAP_SetYAPFlag,(yap_flag_t, int));
+X_API Int      STD_PROTO(YAP_VarSlotToNumber,(Int));
+X_API Term     STD_PROTO(YAP_ModuleUser,(void));
+X_API Int      STD_PROTO(YAP_NumberOfClausesForPredicate,(PredEntry *));
 
 static int (*do_getf)(void);
 
@@ -840,9 +845,12 @@ YAP_FullLookupAtom(char *c)
   }
 }
 
-X_API int
+X_API size_t
 YAP_AtomNameLength(Atom at)
 {
+  if (IsBlob(at)) {
+    return RepAtom(at)->rep.blob->length;
+  }
   if (IsWideAtom(at)) {
     wchar_t *c = RepAtom(at)->WStrOfAE;
 
@@ -913,6 +921,34 @@ X_API Term
 YAP_TailOfTerm(Term t)
 {
   return (TailOfTerm(t));
+}
+
+X_API Int
+YAP_SkipList(Term *l, Term **tailp)
+{
+  Int length = 0;
+  Term *s; /* slow */
+  Term v; /* temporary */
+
+  v = Derefa(l);
+  s = l;
+
+  if ( IsPairTerm(*l) )
+  { intptr_t power = 1, lam = 0;
+    do
+    { if ( power == lam )
+      { s = l;
+	power *= 2;
+	lam = 0;
+      }
+      lam++;
+      length++;
+      l = RepPair(*l)+1; v = Derefa(l);
+    } while ( *l != *s && IsPairTerm(*l) );
+  }
+  *tailp = l;
+
+  return length;
 }
 
 X_API Term
@@ -1135,6 +1171,23 @@ X_API Term *
 YAP_AddressFromSlot(Int slot)
 {
   return Yap_AddressFromSlot(slot);
+}
+
+X_API Term *
+YAP_AddressOfTermInSlot(Int slot)
+{
+  Term *b = Yap_AddressFromSlot(slot);
+  Term a = *b;
+ restart:
+  if (!IsVarTerm(a)) {
+    return(b);
+  } else if (a == (CELL)b) {
+    return(b);
+  } else {
+    b = (CELL *)a;
+    a = *b;
+    goto restart;
+  }
 }
 
 X_API void
@@ -3277,4 +3330,21 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 }
 
 
+/*    Int  YAP_VarSlotToNumber(Int)  */
+Int YAP_VarSlotToNumber(Int s) {
+  Term *t = (CELL *)Deref(Yap_GetFromSlot(s));
+  if (t < H)
+    return t-H0;
+  return t-LCL0;
+}
+
+/*    Term  YAP_ModuleUser()  */
+Term YAP_ModuleUser(void) {
+  return MkAtomTerm(AtomUser);
+}
+
+/*    int  YAP_PredicateHasClauses()  */
+Int YAP_NumberOfClausesForPredicate(PredEntry *pe) {
+  return pe->cs.p_code.NOfClauses;
+}
 

@@ -54,28 +54,31 @@ typedef struct
 	  (txt)->canonical = FALSE; \
 	}
 
-extern int	PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type);
-extern int	PL_unify_text_range(term_t term, PL_chars_t *text,
+int	PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type);
+int	PL_unify_text_range(term_t term, PL_chars_t *text,
 			    size_t from, size_t len, int type);
 
-extern int	PL_promote_text(PL_chars_t *text);
-extern int	PL_demote_text(PL_chars_t *text);
-extern int	PL_mb_text(PL_chars_t *text, int flags);
-extern int	PL_canonise_text(PL_chars_t *text);
+int	PL_promote_text(PL_chars_t *text);
+int	PL_demote_text(PL_chars_t *text);
+int	PL_mb_text(PL_chars_t *text, int flags);
+int	PL_canonise_text(PL_chars_t *text);
 
-extern int	PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
+int	PL_cmp_text(PL_chars_t *t1, size_t o1, PL_chars_t *t2, size_t o2,
 		    size_t len);
-extern int	PL_concat_text(int n, PL_chars_t **text, PL_chars_t *result);
+int	PL_concat_text(int n, PL_chars_t **text, PL_chars_t *result);
 
-extern void	PL_free_text(PL_chars_t *text);
-extern void	PL_save_text(PL_chars_t *text, int flags);
+void	PL_free_text(PL_chars_t *text);
+void	PL_save_text(PL_chars_t *text, int flags);
 
-extern int		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
-extern atom_t		textToAtom(PL_chars_t *text);
-extern word		textToString(PL_chars_t *text);
+COMMON(int)		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
+COMMON(atom_t)		textToAtom(PL_chars_t *text);
 
-extern IOSTREAM *	Sopen_text(PL_chars_t *text, const char *mode);
-extern void		PL_text_recode(PL_chars_t *text, IOENC encoding);
+COMMON(IOSTREAM *)	Sopen_text(PL_chars_t *text, const char *mode);
+COMMON(void)		PL_text_recode(PL_chars_t *text, IOENC encoding);
 
+					/* pl-fli.c */
+COMMON(int)		get_atom_ptr_text(Atom atom, PL_chars_t *text);
+COMMON(int)		get_atom_text(atom_t atom, PL_chars_t *text);
+COMMON(int)		get_string_text(atom_t atom, PL_chars_t *text ARG_LD);
 
 #endif /*PL_TEXT_H_INCLUDED*/

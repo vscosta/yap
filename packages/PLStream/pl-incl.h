@@ -14,6 +14,37 @@
 #include <SWI-Stream.h>
 #include <SWI-Prolog.h>
 typedef int bool;
+typedef int			Char;		/* char that can pass EOF */
+typedef uintptr_t		word;		/* Anonymous 4 byte object */
+
+#if SIZE_DOUBLE==SIZEOF_INT_P
+#define WORDS_PER_DOUBLE 1
+#else
+#define WORDS_PER_DOUBLE 2
+#endif
+
+// numbers
+
+typedef enum
+{ V_INTEGER,				/* integer (64-bit) value */
+#ifdef O_GMP    
+  V_MPZ,				/* mpz_t */
+  V_MPQ,				/* mpq_t */
+#endif
+  V_FLOAT				/* Floating point number (double) */
+} numtype;
+
+typedef struct
+{ numtype type;				/* type of number */
+  union { double f;			/* value as real */
+	  int64_t i;			/* value as integer */
+	  word  w[WORDS_PER_DOUBLE];	/* for packing/unpacking the double */
+#ifdef O_GMP
+	  mpz_t mpz;			/* GMP integer */
+	  mpq_t mpq;			/* GMP rational */
+#endif
+	} value;
+} number, *Number;
 
 #define Arg(N)  (PL__t0+((n)-1))
 #define A1      (PL__t0)
@@ -58,6 +89,7 @@ typedef int pthread_t;
 #include <pthread.h>
 #endif
 #endif
+typedef uintptr_t	PL_atomic_t;	/* same a word */
 
 #define MAXSIGNAL	64
 
@@ -85,12 +117,30 @@ typedef int pthread_t;
 		*********************************/
 
 #include "pl-table.h"
+
+		/********************************
+		*       OS		         *
+		*********************************/
+
 #include "pl-os.h"
+
+		/********************************
+		*       Error		         *
+		*********************************/
+
 #include "pl-error.h"
+
+		/********************************
+		*       Files		         *
+		*********************************/
+
+#include "pl-files.h"
 
 		/********************************
 		*       BUFFERS                 *
 		*********************************/
+
+#define BUFFER_RING_SIZE 	16	/* foreign buffer ring (pl-fli.c) */
 
 #include "pl-buffer.h"
 
@@ -98,7 +148,75 @@ typedef int pthread_t;
 		 *	   OPTION LISTS		*
 		 *******************************/
 
-#include "pl-opts.h"
+#include "pl-option.h"
+
+		 /*******************************
+		 *	  TEXT PROCESSING	*
+		 *******************************/
+
+typedef enum
+{ CVT_ok = 0,				/* Conversion ok */
+  CVT_wide,				/* Conversion needs wide characters */
+  CVT_partial,				/* Input list is partial */
+  CVT_nolist,				/* Input list is not a list */
+  CVT_nocode,				/* List contains a non-code */
+  CVT_nochar				/* List contains a non-char */
+} CVT_status;
+
+typedef struct
+{ CVT_status status;
+  word culprit;				/* for CVT_nocode/CVT_nochar */
+} CVT_result;
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Operator types.  NOTE: if you change OP_*, check operatorTypeToAtom()!
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define OP_MAXPRIORITY		1200	/* maximum operator priority */
+
+#define OP_PREFIX  0
+#define OP_INFIX   1
+#define OP_POSTFIX 2
+#define OP_MASK    0xf
+
+#define	OP_FX	(0x10|OP_PREFIX)
+#define OP_FY	(0x20|OP_PREFIX)
+#define OP_XF	(0x30|OP_POSTFIX)
+#define OP_YF	(0x40|OP_POSTFIX)
+#define OP_XFX	(0x50|OP_INFIX)
+#define OP_XFY	(0x60|OP_INFIX)
+#define OP_YFX	(0x70|OP_INFIX)
+
+#define CHARESCAPE		(0x0004) /* module */
+
+		 /*******************************
+		 *	       COMPARE		*
+		 *******************************/
+
+/* Results from comparison operations.  Mostly used by compareStandard() */
+
+#define CMP_ERROR  -2			/* Error (out of memory) */
+#define CMP_LESS   -1			/* < */
+#define CMP_EQUAL   0			/* == */
+#define CMP_GREATER 1			/* > */
+#define CMP_NOTEQ   2			/* \== */
+
+		 /*******************************
+		 *	     NUMBERVARS		*
+		 *******************************/
+
+typedef enum
+{ AV_BIND,
+  AV_SKIP,
+  AV_ERROR
+} av_action;
+
+typedef struct
+{ functor_t functor;			/* Functor to use ($VAR/1) */
+  av_action on_attvar;			/* How to handle attvars */
+  int	    singletons;			/* Write singletons as $VAR('_') */
+} nv_options;
+
 
 		 /*******************************
 		 *	   LIST BUILDING	*
@@ -118,29 +236,6 @@ typedef struct counting_mutex
 #endif
   struct counting_mutex *next;		/* next of allocated chain */
 } counting_mutex;
-
-// numbers
-
-typedef enum
-{ V_INTEGER,				/* integer (64-bit) value */
-#ifdef O_GMP    
-  V_MPZ,				/* mpz_t */
-  V_MPQ,				/* mpq_t */
-#endif
-  V_REAL				/* Floating point number (double) */
-} numtype;
-
-typedef struct
-{ numtype type;				/* type of number */
-  union { double f;			/* value as real */
-	  int64_t i;			/* value as integer */
-	  word  w[WORDS_PER_DOUBLE];	/* for packing/unpacking the double */
-#ifdef O_GMP
-	  mpz_t mpz;			/* GMP integer */
-	  mpq_t mpq;			/* GMP rational */
-#endif
-	} value;
-} number, *Number;
 
 typedef enum
 { CLN_NORMAL = 0,			/* Normal mode */
@@ -253,6 +348,7 @@ typedef struct {
     int		threads_finished;	/* # finished threads */
     double	thread_cputime;		/* Total CPU time of threads */
 #endif
+    double	start_time;		/* When Prolog was started */
   } statistics;
 
   struct
@@ -289,6 +385,46 @@ typedef struct {
     PL_thread_info_t  **threads;	/* Pointers to thread-info */
   } thread;
 #endif /*O_PLMT*/
+
+  struct				/* pl-format.c */
+  { Table	predicates;
+  } format;
+
+  struct
+  {/*  Procedure	dgarbage_collect1; */
+/*     Procedure	catch3; */
+/*     Procedure	true0; */
+/*     Procedure	fail0; */
+/*     Procedure	equals2;		/\* =/2 *\/ */
+/*     Procedure	is2;			/\* is/2 *\/ */
+/*     Procedure	strict_equal2;		/\* ==/2 *\/ */
+/*     Procedure	event_hook1; */
+/*     Procedure	exception_hook4; */
+/*     Procedure	print_message2; */
+/*     Procedure	foreign_registered2;	/\* $foreign_registered/2 *\/ */
+/*     Procedure	prolog_trace_interception4; */
+    predicate_t	portray;		/* portray/1 */
+/*     Procedure   dcall1;			/\* $call/1 *\/ */
+/*     Procedure	setup_call_catcher_cleanup4; /\* setup_call_catcher_cleanup/4 *\/ */
+/*     Procedure	undefinterc4;		/\* $undefined_procedure/4 *\/ */
+/*     Procedure   dthread_init0;		/\* $thread_init/0 *\/ */
+/*     Procedure   dc_call_prolog0;	/\* $c_call_prolog/0 *\/ */
+/* #ifdef O_ATTVAR */
+/*     Procedure	dwakeup1;		/\* system:$wakeup/1 *\/ */
+    predicate_t	portray_attvar1;	/* $attvar:portray_attvar/1 */ 
+/* #endif */
+/* #ifdef O_CALL_RESIDUE */
+/*     Procedure	call_residue_vars2;	/\* $attvar:call_residue_vars/2 *\/ */
+/* #endif */
+
+/*     SourceFile  reloading;		/\* source file we are re-loading *\/ */
+/*     int		active_marked;		/\* #prodedures marked active *\/ */
+/*     int		static_dirty;		/\* #static dirty procedures *\/ */
+
+/* #ifdef O_CLAUSEGC */
+/*     DefinitionChain dirty;		/\* List of dirty static procedures *\/ */
+/* #endif */
+  } procedures;
 
 } gds_t;
 
@@ -385,8 +521,8 @@ it mean anything?
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 /* vsc: needs defining */
-#define startCritical 
-#define endCritical   
+#define startCritical  TRUE
+#define endCritical    TRUE
 
 /* The LD macro layer */
 typedef struct PL_local_data {
@@ -461,9 +597,11 @@ typedef struct PL_local_data {
   } exception;
   const char   *float_format;		/* floating point format */
 
-  buffer	discardable_buffer;	/* PL_*() character buffers */
-  buffer	buffer_ring[BUFFER_RING_SIZE];
-  int		current_buffer_id;
+  struct {
+    buffer	_discardable_buffer;	/* PL_*() character buffers */
+    buffer	_buffer_ring[BUFFER_RING_SIZE];
+    int		_current_buffer_id;
+  } fli;
 
 }  PL_local_data_t;
 
@@ -604,6 +742,20 @@ int    defFeature(const char *c, int f, ...);
 int    trueFeature(int f);
 
 		 /*******************************
+		 *	      WAKEUP		*
+		 *******************************/
+
+#define WAKEUP_STATE_WAKEUP    0x1
+#define WAKEUP_STATE_EXCEPTION 0x2
+#define WAKEUP_STATE_SKIP_EXCEPTION 0x4
+
+typedef struct wakeup_state
+{ fid_t		fid;			/* foreign frame reference */
+  int		flags;
+} wakeup_state;
+
+
+		 /*******************************
 		 *	    STREAM I/O		*
 		 *******************************/
 
@@ -716,7 +868,7 @@ extern IOSTREAM **			/* provide access to Suser_input, */
 #define getInputStream__LD getInputStream
 extern int get_atom_text(atom_t atom, PL_chars_t *text);
 extern int get_string_text(word w, PL_chars_t *text);
-extern char *format_float(double f, char *buf, const char *format);
+extern char *format_float(double f, char *buf);
 
 /**** stuff from pl-ctype.c ****/
 extern IOENC initEncoding(void);
@@ -737,11 +889,11 @@ extern int PL_unify_list_ex(term_t l, term_t h, term_t t);
 extern int PL_unify_nil_ex(term_t l);
 extern int PL_get_list_ex(term_t l, term_t h, term_t t);
 extern int PL_get_nil_ex(term_t l);
-extern int PL_get_module_ex(term_t name, module_t *m);
 extern int PL_unify_bool_ex(term_t t, bool val);
 extern int PL_unify_bool_ex(term_t t, bool val);
 extern int PL_get_bool_ex(term_t t, int *i);
 extern int PL_get_integer_ex(term_t t, int *i);
+extern int PL_get_module_ex(term_t t, module_t *m);
 
 /**** stuff from pl-file.c ****/
 extern void initIO(void);
@@ -780,15 +932,37 @@ PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(void)  	PL_write_prompt(int);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
 
+COMMON(atom_t) 		fileNameStream(IOSTREAM *s);
+COMMON(int) 		streamStatus(IOSTREAM *s);
+
+COMMON(int) 		getOutputStream(term_t t, IOSTREAM **s);
+COMMON(int) 		getInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
+#define getInputStream(t, s)	getInputStream__LD(t, s PASS_LD)
+COMMON(void) 		pushOutputContext(void);
+COMMON(void) 		popOutputContext(void);
+COMMON(int) 		getSingleChar(IOSTREAM *s, int signals);
+
+COMMON(void) 		prompt1(atom_t prompt);
+COMMON(atom_t)		encoding_to_atom(IOENC enc);
+COMMON(int) 		pl_see(term_t f);
+COMMON(int) 		pl_seen(void);
+
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
 extern void		fatalError(const char *fm, ...);
-extern void		printMessage(int type, ...);
 extern int		callProlog(void * module, term_t goal, int flags, term_t *ex);
 extern word notImplemented(char *name, int arity);
 
 /**** stuff from pl-ctype.c ****/
 extern void  initCharTypes(void);
+
+/**** stuff from pl-fmt.c ****/
+COMMON(word) 		pl_current_format_predicate(term_t chr, term_t descr,
+					    control_t h);
+COMMON(intptr_t) 	lengthList(term_t list, int errors);
+COMMON(word) 		pl_format_predicate(term_t chr, term_t descr);
+COMMON(word) 		pl_format(term_t fmt, term_t args);
+COMMON(word) 		pl_format3(term_t s, term_t fmt, term_t args);
 
 /**** stuff from pl-glob.c ****/
 extern void  initGlob(void);
@@ -815,9 +989,6 @@ int Unsetenv(char *name);
 int System(char *cmd);
 bool expandVars(const char *pattern, char *expanded, int maxlen);
 
-/**** stuff from pl-utils.c ****/
-bool stripostfix(char *s, char *e);
-
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
 extern int valueExpression(term_t t, Number r ARG_LD);
@@ -831,13 +1002,45 @@ extern int warning(const char *fm, ...);
 void initFiles(void);
 int RemoveFile(const char *path);
 int PL_get_file_name(term_t n, char **namep, int flags);
+PL_EXPORT(int)		PL_get_file_nameW(term_t n, wchar_t **name, int flags);
+
+COMMON(int) 		unifyTime(term_t t, time_t time);
 
 /**** stuff from pl-utf8.c ****/
 size_t utf8_strlen(const char *s, size_t len);
 
+/**** stuff from pl-write.c ****/
+COMMON(char *) 		varName(term_t var, char *buf);
+COMMON(int)		writeUCSAtom(IOSTREAM *fd, atom_t atom, int flags);
+COMMON(word) 		pl_nl1(term_t stream);
+COMMON(word) 		pl_nl(void);
+COMMON(int) 		writeAttributeMask(atom_t name);
+COMMON(word) 		pl_write_term(term_t term, term_t options);
+COMMON(word) 		pl_write_term3(term_t stream,
+			       term_t term, term_t options);
+COMMON(word) 		pl_print(term_t term);
+COMMON(word) 		pl_write2(term_t stream, term_t term);
+COMMON(word) 		pl_writeq2(term_t stream, term_t term);
+COMMON(word) 		pl_print2(term_t stream, term_t term);
+COMMON(word) 		pl_writeln(term_t term);
+COMMON(word) 		pl_write_canonical2(term_t stream, term_t term);
+
+
 /* empty stub */
 void setPrologFlag(const char *name, int flags, ...);
 void PL_set_prolog_flag(const char *name, int flags, ...);
+
+COMMON(int)		saveWakeup(wakeup_state *state, int forceframe ARG_LD);
+COMMON(void)		restoreWakeup(wakeup_state *state ARG_LD);
+
+COMMON(intptr_t)	skip_list(Word l, Word *tailp ARG_LD);
+COMMON(int) 		priorityOperator(Module m, atom_t atom);
+COMMON(int) 		currentOperator(Module m, atom_t name, int kind,
+				int *type, int *priority);
+COMMON(int) 		numberVars(term_t t, nv_options *opts, int n ARG_LD);
+
+COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
+						 int wide, CVT_result *status);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
@@ -857,39 +1060,3 @@ setInteger(int *flag, term_t old, term_t new)
   succeed;
 }
 
-#if defined(__SWI_PROLOG__)
-
-static inline word
-INIT_SEQ_CODES(size_t n)
-{
-  return allocGlobal(1+(n)*3);  /* TBD: shift */
-}
-
-static inline word
-EXTEND_SEQ_CODES(word gstore, int c) {
-  *gstore = consPtr(&gstore[1], TAG_COMPOUND|STG_GLOBAL);
-  gstore++;
-  *gstore++ = FUNCTOR_dot2;
-  *gstore++ = consInt(c);
-  return gstore;
-}
-
-static inline int 
-CLOSE_SEQ_OF_CODES(word gstore, word lp, word A2, word A3)) {
-    setVar(*gstore);
-    gTop = gstore+1;
-
-    a = valTermRef(A2);
-    deRef(a);
-    if ( !unify_ptrs(a, lp PASS_LD) )
-      return FALSE;
-    a = valTermRef(A3);
-    deRef(a);
-    if ( !unify_ptrs(a, gstore PASS_LD) )
-      return FALSE;
-    return TRUE;
-}
-
-#else
-
-#endif

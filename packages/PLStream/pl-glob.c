@@ -653,14 +653,7 @@ PRED_IMPL("directory_files", 2, directory_files, 0)
 		 *******************************/
 
 BeginPredDefs(glob)
-  PRED_DEF("swi_expand_file_name", 2, expand_file_name, 0)
-  PRED_DEF("swi_wildcard_match",   2, wildcard_match,   0)
-  PRED_DEF("swi_directory_files",  2, directory_files,  0)
+  PRED_DEF("expand_file_name", 2, expand_file_name, 0)
+  PRED_DEF("wildcard_match",   2, wildcard_match,   0)
+  PRED_DEF("directory_files",  2, directory_files,  0)
 EndPredDefs
-
-void
-initGlob(void)
-{
-  PL_register_extensions(PL_predicates_from_glob);
-}
-

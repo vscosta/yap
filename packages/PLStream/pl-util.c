@@ -12,17 +12,6 @@ stricmp(const char *s1, const char *s2)
 }
 #endif
 
-bool
-stripostfix(char *s, char *e)
-{ int ls = strlen(s);
-  int le = strlen(e);
-
-  if ( ls >= le )
-    return stricmp(&s[ls-le], e) == 0;
-
-  return FALSE;
-} 
-
 #if !defined(HAVE_MBSCOLL) || !defined(HAVE_MBCASESCOLL)
 static void
 wstolower(wchar_t *w, size_t len)
@@ -80,17 +69,4 @@ out:
 #endif
 
 
-#ifndef HAVE_MBSCOLL
-int
-mbscoll(const char *s1, const char *s2)
-{ return int_mbscoll(s1, s2, FALSE);
-}
-#endif
 
-
-#ifndef HAVE_MBSCASECOLL
-int
-mbscasecoll(const char *s1, const char *s2)
-{ return int_mbscoll(s1, s2, TRUE);
-}
-#endif

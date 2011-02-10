@@ -32,6 +32,7 @@ A anonvar		"_"
 A append		"append"
 A ar_equals		"=:="
 A ar_not_equal		"=\\="
+A arity			"arity"
 A argument		"argument"
 A argumentlimit		"argumentlimit"
 A as			"as"
@@ -48,6 +49,7 @@ A at_not_equals		"\\=@="
 A at_smaller		"@<"
 A at_smaller_eq		"@=<"
 A atan			"atan"
+A atan2			"atan2"
 A atom			"atom"
 A atom_garbage_collection	"atom_garbage_collection"
 A atomic		"atomic"
@@ -64,6 +66,7 @@ A begin			"begin"
 A binary		"binary"
 A bind			"bind"
 A bitor			"\\/"
+A blobs			"blobs"
 A bof			"bof"
 A bom			"bom"
 A bool			"bool"
@@ -75,8 +78,8 @@ A buffer		"buffer"
 A buffer_size		"buffer_size"
 A built_in_procedure	"built_in_procedure"
 A busy			"busy"
-A bw_xor		"><"
 A byte			"byte"
+A c_stack		"c_stack"
 A call			"call"
 A callable		"callable"
 A callpred		"$callpred"
@@ -97,6 +100,7 @@ A clause		"clause"
 A clause_reference	"clause_reference"
 A close			"close"
 A close_on_abort	"close_on_abort"
+A close_on_exec       	"close_on_exec"
 A close_option		"close_option"
 A cm			"cm"
 A cntrl			"cntrl"
@@ -159,7 +163,8 @@ A dgarbage_collect	"$garbage_collect"
 A digit			"digit"
 A directory		"directory"
 A discontiguous		"discontiguous"
-A div			"//"
+A div			"div"
+A gdiv			"//"
 A divide		"/"
 A dload			"$load"
 A dmessage_queue	"$message_queue"
@@ -415,6 +420,7 @@ A past			"past"
 A past_end_of_stream	"past_end_of_stream"
 A pattern		"pattern"
 A pc			"pc"
+A peek			"peek"
 A period		"period"
 A permission_error	"permission_error"
 A pi			"pi"
@@ -447,6 +453,7 @@ A prompt		"|:"
 A property		"property"
 A protocol		"protocol"
 A prove			":-"
+A public		"public"
 A punct			"punct"
 A query			"?-"
 A question_mark		"?"
@@ -494,6 +501,7 @@ A select		"select"
 A semicolon		";"
 A separated		"separated"
 A set			"set"
+A set_end_of_stream	"set_end_of_stream"
 A setup_call_catcher_cleanup "setup_call_catcher_cleanup"
 A shared		"shared"
 A shared_object		"shared_object"
@@ -606,6 +614,7 @@ A unicode_be		"unicode_be"
 A unicode_le		"unicode_le"
 A unify			"unify"
 A unify_determined	"?="
+A uninstantiation_error	"uninstantiation_error"
 A unique		"unique"
 A univ			"=.."
 A unknown		"unknown"
@@ -630,6 +639,7 @@ A variables		"variables"
 A very_deep		"very_deep"
 A vmi			"vmi"
 A volatile		"volatile"
+A wait			"wait"
 A wakeup		"wakeup"
 A walltime		"walltime"
 A warning		"warning"
@@ -648,7 +658,6 @@ A xor			"xor"
 A xpceref		"@"
 A yf			"yf"
 A yfx			"yfx"
-A yfy			"yfy"
 A zero_divisor		"zero_divisor"
 
 F abs			1
@@ -663,6 +672,7 @@ F assert		1
 F asserta		1
 F atan			1
 F atan			2
+F atan2			2
 F atom			1
 F att			3
 F backslash		1
@@ -676,7 +686,6 @@ F break			3
 F buffer		1
 F buffer_size		1
 F busy			2
-F bw_xor		2
 F call			1
 F callpred		2
 F catch			3
@@ -686,6 +695,7 @@ F chars			1
 F chars			2
 F clause		1
 F close_on_abort	1
+F close_on_exec  	1
 F codes			1
 F codes			2
 F colon			2
@@ -709,6 +719,7 @@ F dexit			2
 F dforeign_registered   2
 F dgarbage_collect 	1
 F div			2
+F gdiv			2
 F divide		2
 F dmessage_queue	1
 F dmutex		1
@@ -858,6 +869,7 @@ F type			1
 F type_error		2
 F undefinterc		4
 F unify_determined	2
+F uninstantiation_error	1
 F var			1
 F wakeup		3
 F warning		3

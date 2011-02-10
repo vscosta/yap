@@ -26,6 +26,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("append");
   SWI_Atoms[i++] = Yap_LookupAtom("=:=");
   SWI_Atoms[i++] = Yap_LookupAtom("=\\=");
+  SWI_Atoms[i++] = Yap_LookupAtom("arity");
   SWI_Atoms[i++] = Yap_LookupAtom("argument");
   SWI_Atoms[i++] = Yap_LookupAtom("argumentlimit");
   SWI_Atoms[i++] = Yap_LookupAtom("as");
@@ -42,6 +43,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("@<");
   SWI_Atoms[i++] = Yap_LookupAtom("@=<");
   SWI_Atoms[i++] = Yap_LookupAtom("atan");
+  SWI_Atoms[i++] = Yap_LookupAtom("atan2");
   SWI_Atoms[i++] = Yap_LookupAtom("atom");
   SWI_Atoms[i++] = Yap_LookupAtom("atom_garbage_collection");
   SWI_Atoms[i++] = Yap_LookupAtom("atomic");
@@ -58,6 +60,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("binary");
   SWI_Atoms[i++] = Yap_LookupAtom("bind");
   SWI_Atoms[i++] = Yap_LookupAtom("\\/");
+  SWI_Atoms[i++] = Yap_LookupAtom("blobs");
   SWI_Atoms[i++] = Yap_LookupAtom("bof");
   SWI_Atoms[i++] = Yap_LookupAtom("bom");
   SWI_Atoms[i++] = Yap_LookupAtom("bool");
@@ -69,8 +72,8 @@
   SWI_Atoms[i++] = Yap_LookupAtom("buffer_size");
   SWI_Atoms[i++] = Yap_LookupAtom("built_in_procedure");
   SWI_Atoms[i++] = Yap_LookupAtom("busy");
-  SWI_Atoms[i++] = Yap_LookupAtom("><");
   SWI_Atoms[i++] = Yap_LookupAtom("byte");
+  SWI_Atoms[i++] = Yap_LookupAtom("c_stack");
   SWI_Atoms[i++] = Yap_LookupAtom("call");
   SWI_Atoms[i++] = Yap_LookupAtom("callable");
   SWI_Atoms[i++] = Yap_LookupAtom("$callpred");
@@ -91,6 +94,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("clause_reference");
   SWI_Atoms[i++] = Yap_LookupAtom("close");
   SWI_Atoms[i++] = Yap_LookupAtom("close_on_abort");
+  SWI_Atoms[i++] = Yap_LookupAtom("close_on_exec");
   SWI_Atoms[i++] = Yap_LookupAtom("close_option");
   SWI_Atoms[i++] = Yap_LookupAtom("cm");
   SWI_Atoms[i++] = Yap_LookupAtom("cntrl");
@@ -153,6 +157,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("digit");
   SWI_Atoms[i++] = Yap_LookupAtom("directory");
   SWI_Atoms[i++] = Yap_LookupAtom("discontiguous");
+  SWI_Atoms[i++] = Yap_LookupAtom("div");
   SWI_Atoms[i++] = Yap_LookupAtom("//");
   SWI_Atoms[i++] = Yap_LookupAtom("/");
   SWI_Atoms[i++] = Yap_LookupAtom("$load");
@@ -409,6 +414,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("past_end_of_stream");
   SWI_Atoms[i++] = Yap_LookupAtom("pattern");
   SWI_Atoms[i++] = Yap_LookupAtom("pc");
+  SWI_Atoms[i++] = Yap_LookupAtom("peek");
   SWI_Atoms[i++] = Yap_LookupAtom("period");
   SWI_Atoms[i++] = Yap_LookupAtom("permission_error");
   SWI_Atoms[i++] = Yap_LookupAtom("pi");
@@ -441,6 +447,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("property");
   SWI_Atoms[i++] = Yap_LookupAtom("protocol");
   SWI_Atoms[i++] = Yap_LookupAtom(":-");
+  SWI_Atoms[i++] = Yap_LookupAtom("public");
   SWI_Atoms[i++] = Yap_LookupAtom("punct");
   SWI_Atoms[i++] = Yap_LookupAtom("?-");
   SWI_Atoms[i++] = Yap_LookupAtom("?");
@@ -488,6 +495,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom(";");
   SWI_Atoms[i++] = Yap_LookupAtom("separated");
   SWI_Atoms[i++] = Yap_LookupAtom("set");
+  SWI_Atoms[i++] = Yap_LookupAtom("set_end_of_stream");
   SWI_Atoms[i++] = Yap_LookupAtom("setup_call_catcher_cleanup");
   SWI_Atoms[i++] = Yap_LookupAtom("shared");
   SWI_Atoms[i++] = Yap_LookupAtom("shared_object");
@@ -600,6 +608,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("unicode_le");
   SWI_Atoms[i++] = Yap_LookupAtom("unify");
   SWI_Atoms[i++] = Yap_LookupAtom("?=");
+  SWI_Atoms[i++] = Yap_LookupAtom("uninstantiation_error");
   SWI_Atoms[i++] = Yap_LookupAtom("unique");
   SWI_Atoms[i++] = Yap_LookupAtom("=..");
   SWI_Atoms[i++] = Yap_LookupAtom("unknown");
@@ -624,6 +633,7 @@
   SWI_Atoms[i++] = Yap_LookupAtom("very_deep");
   SWI_Atoms[i++] = Yap_LookupAtom("vmi");
   SWI_Atoms[i++] = Yap_LookupAtom("volatile");
+  SWI_Atoms[i++] = Yap_LookupAtom("wait");
   SWI_Atoms[i++] = Yap_LookupAtom("wakeup");
   SWI_Atoms[i++] = Yap_LookupAtom("walltime");
   SWI_Atoms[i++] = Yap_LookupAtom("warning");
@@ -642,7 +652,6 @@
   SWI_Atoms[i++] = Yap_LookupAtom("@");
   SWI_Atoms[i++] = Yap_LookupAtom("yf");
   SWI_Atoms[i++] = Yap_LookupAtom("yfx");
-  SWI_Atoms[i++] = Yap_LookupAtom("yfy");
   SWI_Atoms[i++] = Yap_LookupAtom("zero_divisor");
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_abs),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_access),1);
@@ -656,6 +665,7 @@
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_asserta),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_atan),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_atan),2);
+  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_atan2),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_atom),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_att),3);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_backslash),1);
@@ -669,7 +679,6 @@
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_buffer),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_buffer_size),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_busy),2);
-  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_bw_xor),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_call),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_callpred),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_catch),3);
@@ -679,6 +688,7 @@
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_chars),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_clause),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_close_on_abort),1);
+  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_close_on_exec),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_codes),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_codes),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_colon),2);
@@ -702,6 +712,7 @@
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_dforeign_registered),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_dgarbage_collect),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_div),2);
+  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_gdiv),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_divide),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_dmessage_queue),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_dmutex),1);
@@ -851,6 +862,7 @@
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_type_error),2);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_undefinterc),4);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_unify_determined),2);
+  SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_uninstantiation_error),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_var),1);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_wakeup),3);
   SWI_Functors[j++] = Yap_MkFunctor(SWIAtomToAtom(ATOM_warning),3);

@@ -24,10 +24,45 @@
 
 #include "pl-incl.h"
 
-// vsc: changed from SWI
-#define discardable_buffer 	(LD->discardable_buffer)
-#define buffer_ring		(LD->buffer_ring)
-#define current_buffer_id	(LD->current_buffer_id)
+void
+growBuffer(Buffer b, size_t minfree)
+{ size_t osz = b->max - b->base, sz = osz;
+  size_t top = b->top - b->base;
+
+  if ( b->max - b->top >= (int)minfree )
+    return;
+
+  if ( sz < 512 )
+    sz = 512;				/* minimum reasonable size */
+  while( top + minfree > sz )
+    sz *= 2;
+
+  if ( b->base != b->static_buffer )
+  { b->base = realloc(b->base, sz);
+    if ( !b->base )
+      outOfCore();
+  } else			/* from static buffer */
+  { char *new;
+
+    if ( !(new = malloc(sz)) )
+      outOfCore();
+
+    memcpy(new, b->static_buffer, osz);
+    b->base = new;
+  }
+
+  b->top = b->base + top;
+  b->max = b->base + sz;
+}
+
+
+		 /*******************************
+		 *	    BUFFER RING		*
+		 *******************************/
+
+#define discardable_buffer 	(LD->fli._discardable_buffer)
+#define buffer_ring		(LD->fli._buffer_ring)
+#define current_buffer_id	(LD->fli._current_buffer_id)
 
 Buffer
 findBuffer(int flags)
@@ -48,58 +83,6 @@ findBuffer(int flags)
   return b;
 }
 
-int
-unfindBuffer(int flags)
-{ GET_LD
-  if ( flags & BUF_RING )
-  { if ( --current_buffer_id <= 0 )
-      current_buffer_id = BUFFER_RING_SIZE-1;
-  }
-
-  fail;
-}
-
-
-
-void
-growBuffer(Buffer b, size_t minfree)
-{ size_t osz = b->max - b->base, sz = osz;
-  size_t top = b->top - b->base;
-
-  if ( b->max - b->top >= (int)minfree )
-    return;
-
-  if ( sz < 512 )
-    sz = 512;				/* minimum reasonable size */
-  while( top + minfree > sz )
-    sz *= 2;
-
-  if ( b->base != b->static_buffer )
-  {
-#ifdef BUFFER_USES_MALLOC
-    b->base = realloc(b->base, sz);
-    if ( !b->base )
-      outOfCore();
-#else
-    char *old = b->base;
-    b->base = allocHeap(sz);
-    memcpy(b->base, old, osz);
-#endif
-  } else			/* from static buffer */
-  { char *new;
-#ifdef BUFFER_USES_MALLOC
-    if ( !(new = malloc(sz)) )
-      outOfCore();
-#else
-    new = allocHeap(sz);
-#endif
-    memcpy(new, b->static_buffer, osz);
-    b->base = new;
-  }
-
-  b->top = b->base + top;
-  b->max = b->base + sz;
-}
 
 char *
 buffer_string(const char *s, int flags)
@@ -112,3 +95,13 @@ buffer_string(const char *s, int flags)
 }
 
 
+int
+unfindBuffer(int flags)
+{ GET_LD
+  if ( flags & BUF_RING )
+  { if ( --current_buffer_id <= 0 )
+      current_buffer_id = BUFFER_RING_SIZE-1;
+  }
+
+  fail;
+}

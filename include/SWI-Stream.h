@@ -164,6 +164,8 @@ typedef struct io_stream
   struct io_stream *	upstream;	/* stream providing our input */
   struct io_stream *	downstream;	/* stream providing our output */
   unsigned		newline : 2;	/* Newline mode */
+  unsigned		erased : 1;	/* Stream was erased */
+  unsigned		references : 4;	/* Reference-count */
   int			io_errno;	/* Save errno value */
   void *		exception;	/* pending exception (record_t) */
   intptr_t		reserved[2];	/* reserved for extension */
@@ -234,6 +236,8 @@ PL_EXPORT_DATA(IOSTREAM)    S__iob[3];		/* Libs standard streams */
 #define Snpgetc(s) ((s)->bufp < (s)->limitp ? (int)(*(s)->bufp++)&0xff \
 					    : S__fillbuf(s))
 #define Sgetc(s) S__updatefilepos_getc((s), Snpgetc(s))
+
+PL_EXPORT(int)		Speekcode(IOSTREAM *s);
 
 /* Control-operations */
 #define SIO_GETSIZE	(1)		/* get size of underlying object */
