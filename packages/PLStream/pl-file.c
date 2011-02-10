@@ -313,6 +313,9 @@ fileNameStream(IOSTREAM *s)
   return name;
 }
 
+#if __YAP_PROLOG__
+static void init_yap(void);
+#endif
 
 void
 initIO()
@@ -323,6 +326,7 @@ initIO()
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
+  init_yap();
 #ifdef __unix__
 { int fd;
 
@@ -4654,3 +4658,74 @@ BeginPredDefs(file)
   PRED_DEF("$pop_input_context", 0, pop_input_context, 0)
   PRED_DEF("$size_stream", 2, size_stream, 0)
 EndPredDefs
+
+#if __YAP_PROLOG__
+
+static const PL_extension foreigns[] = {
+  FRG("nl",			0, pl_nl,			ISO),
+  FRG("write_canonical",	1, pl_write_canonical,	      ISO),
+  FRG("write_term",		2, pl_write_term,	      ISO),
+  FRG("write_term",		3, pl_write_term3,	      ISO),
+  FRG("write",			1, pl_write,		      ISO),
+  FRG("writeq",			1, pl_writeq,		      ISO),
+  FRG("print",			1, pl_print,			0),
+  FRG("nl",			1, pl_nl1,		      ISO),
+
+  FRG("write",			2, pl_write2,		      ISO),
+  FRG("writeq",			2, pl_writeq2,		      ISO),
+  FRG("print",			2, pl_print2,			0),
+  FRG("write_canonical",	2, pl_write_canonical2,	      ISO),
+  FRG("format",			3, pl_format3,		     META),
+
+  FRG("format_predicate",	2, pl_format_predicate,	     META),
+  FRG("current_format_predicate", 2, pl_current_format_predicate,
+						        META|NDET),
+  /* DO NOT ADD ENTRIES BELOW THIS ONE */
+  LFRG((char *)NULL,		0, NULL,			0)
+};
+
+static int
+get_stream_handle_no_errors(term_t t, int read, int write, IOSTREAM **s)
+{ GET_LD
+  if ( t == 0 )
+    { if (write) *s = getStream(Scurout);
+      else *s = getStream(Scurin);
+      return TRUE;
+    }
+  return get_stream_handle(t, s, SH_ALIAS);
+}
+
+static int
+get_stream_position(IOSTREAM *s, term_t t)
+{ GET_LD
+    return stream_position_prop(s, t);
+}
+
+static void
+init_yap(void)
+{
+  swi_io_struct swiio;
+
+  swiio.f = FUNCTOR_dstream1;
+  swiio.get_c = Sfgetc;
+  swiio.put_c = Sputc;
+  swiio.get_w = Sgetcode;
+  swiio.put_w = Sputcode;
+  swiio.flush_s = Sflush;
+  swiio.close_s = closeStream;
+  swiio.get_stream_handle = get_stream_handle_no_errors;
+  swiio.get_stream_position = get_stream_position;
+  PL_YAP_InitSWIIO(&swiio);
+  initCharTypes();
+  initFiles();
+  PL_register_extensions(PL_predicates_from_ctype);
+  PL_register_extensions(PL_predicates_from_file);
+  PL_register_extensions(PL_predicates_from_files);
+  PL_register_extensions(PL_predicates_from_glob);
+  PL_register_extensions(PL_predicates_from_write);
+  PL_register_extensions(foreigns);
+  fileerrors = TRUE;
+  SinitStreams();
+}
+#endif
+

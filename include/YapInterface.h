@@ -537,6 +537,12 @@ extern X_API YAP_Term PROTO(YAP_ModuleUser,(void));
 /*    Int  YAP_NumberOfClausesForPredicate()  */
 extern X_API YAP_Int PROTO(YAP_NumberOfClausesForPredicate,(YAP_PredEntryPtr));
 
+/*    int  YAP_MaxOpPriority(Atom, Term)  */
+extern X_API int PROTO(YAP_MaxOpPriority,(YAP_Atom, YAP_Term));
+
+/*    int  YAP_OpInfo(Atom, Term, int, int *, int *)  */
+extern X_API int  PROTO(YAP_OpInfo,(YAP_Atom, YAP_Term, int, int *, int *));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

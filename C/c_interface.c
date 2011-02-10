@@ -528,6 +528,8 @@ X_API int      STD_PROTO(YAP_SetYAPFlag,(yap_flag_t, int));
 X_API Int      STD_PROTO(YAP_VarSlotToNumber,(Int));
 X_API Term     STD_PROTO(YAP_ModuleUser,(void));
 X_API Int      STD_PROTO(YAP_NumberOfClausesForPredicate,(PredEntry *));
+X_API int      STD_PROTO(YAP_MaxOpPriority,(Atom, Term));
+X_API int      STD_PROTO(YAP_OpInfo,(Atom, Term, int, int *, int *));
 
 static int (*do_getf)(void);
 
@@ -3347,4 +3349,83 @@ Term YAP_ModuleUser(void) {
 Int YAP_NumberOfClausesForPredicate(PredEntry *pe) {
   return pe->cs.p_code.NOfClauses;
 }
+
+int YAP_MaxOpPriority(Atom at, Term module)
+{
+  AtomEntry      *ae = RepAtom(at);
+  OpEntry        *info;
+  WRITE_LOCK(ae->ARWLock);
+  info = Yap_GetOpPropForAModuleHavingALock(ae, module);
+  if (!info) {
+    WRITE_UNLOCK(ae->ARWLock);
+    return 0;
+  }
+  int ret = info->Prefix;
+  if (info->Infix > ret)
+    ret = info->Infix;
+  if (info->Posfix > ret)
+    ret = info->Posfix;
+  WRITE_UNLOCK(ae->ARWLock);
+  return ret;
+}
+
+int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
+{
+  AtomEntry      *ae = RepAtom(at);
+  OpEntry        *info;
+  int n;
+
+  WRITE_LOCK(ae->ARWLock);
+  info = Yap_GetOpPropForAModuleHavingALock(ae, module);
+  if (!info) {
+    WRITE_UNLOCK(ae->ARWLock);
+    return 0;
+  }
+  if (opkind == PREFIX_OP) {
+    SMALLUNSGN p = info->Prefix;
+    if (!p) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return FALSE;
+    }
+    if (p & DcrrpFlag) {
+      n = 6;
+      *prio = (p ^ DcrrpFlag);
+    } else {
+      n = 7;
+      *prio = p;
+    }
+  } else if (opkind == INFIX_OP) {
+    SMALLUNSGN p = info->Infix;
+    if (!p) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return FALSE;
+    }
+    if ((p & DcrrpFlag) && (p & DcrlpFlag)) {
+      n = 1;
+      *prio = (p ^ (DcrrpFlag | DcrlpFlag));
+    } else if (p & DcrrpFlag) {
+      n = 3;
+      *prio = (p ^ DcrrpFlag);
+    } else if (p & DcrlpFlag) {
+      n = 2;
+      *prio = (p ^ DcrlpFlag);
+    } else {
+      n = 4;
+      *prio = p;
+    }
+  } else {
+    SMALLUNSGN p = info->Posfix;
+    if (p & DcrlpFlag) {
+      n = 4;
+      *prio = (p ^ DcrlpFlag);
+    } else {
+      n = 5;
+      *prio = p;
+    }
+  }
+  *yap_type = n;
+  return 1;
+}
+
+
 

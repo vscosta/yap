@@ -1,6 +1,10 @@
 
 #include "config.h"
 
+#if USE_GMP
+#define O_GMP 1
+#endif
+
 #define PL_KERNEL 1
 
 #ifdef __MINGW32__
@@ -216,6 +220,28 @@ typedef struct
   av_action on_attvar;			/* How to handle attvars */
   int	    singletons;			/* Write singletons as $VAR('_') */
 } nv_options;
+
+
+		 /*******************************
+		 *	   GET-PROCEDURE	*
+		 *******************************/
+
+#define GP_FIND		0		/* find anywhere */
+#define GP_FINDHERE	1		/* find in this module */
+#define GP_CREATE	2		/* create (in this module) */
+#define GP_DEFINE	4		/* define a procedure */
+#define GP_RESOLVE	5		/* find defenition */
+
+#define GP_HOW_MASK	0x0ff
+#define GP_NAMEARITY	0x100		/* or'ed mask */
+#define GP_HIDESYSTEM	0x200		/* hide system module */
+#define GP_TYPE_QUIET	0x400		/* don't throw errors on wrong types */
+#define GP_EXISTENCE_ERROR 0x800	/* throw error if proc is not found */
+#define GP_QUALIFY	0x1000		/* Always module-qualify */
+
+					/* get_functor() */
+#define GF_EXISTING	1
+#define GF_PROCEDURE	2		/* check for max arity */
 
 
 		 /*******************************
@@ -602,6 +628,13 @@ typedef struct PL_local_data {
     buffer	_buffer_ring[BUFFER_RING_SIZE];
     int		_current_buffer_id;
   } fli;
+
+#ifdef O_GMP
+  struct
+  { 
+    int		persistent;		/* do persistent operations */
+  } gmp;
+#endif
 
 }  PL_local_data_t;
 
@@ -1059,4 +1092,10 @@ setInteger(int *flag, term_t old, term_t new)
 
   succeed;
 }
+
+extern const PL_extension PL_predicates_from_ctype[];
+extern const PL_extension PL_predicates_from_file[];
+extern const PL_extension PL_predicates_from_files[];
+extern const PL_extension PL_predicates_from_glob[];
+extern const PL_extension PL_predicates_from_write[];
 

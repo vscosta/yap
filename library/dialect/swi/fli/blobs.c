@@ -95,7 +95,8 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
 PL_EXPORT(void)
 PL_register_blob_type(PL_blob_t *type)
 {
-  fprintf(stderr,"PL_register_blob_type not implemented yet\n");
+  type->next = SWI_Blobs;
+  SWI_Blobs = type;
 }
 
 PL_EXPORT(PL_blob_t*)	

@@ -106,6 +106,7 @@ MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
 INTERFACE_HEADERS = \
+	$(IOLIB_HEADERS) \
 	$(srcdir)/include/c_interface.h \
 	$(srcdir)/include/clause_list.h \
 	$(srcdir)/include/dswiatoms.h \
@@ -115,6 +116,21 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
 	$(srcdir)/include/SWI-Stream.h
+
+IOLIB_HEADERS=$(srcdir)/packages/PLStream/atoms.h $(srcdir)/packages/PLStream/pl-buffer.h \
+	$(srcdir)/packages/PLStream/pl-ctype.h  \
+	$(srcdir)/packages/PLStream/pl-codelist.h \
+	$(srcdir)/packages/PLStream/pl-dtoa.h $(srcdir)/dtoa.c  \
+	$(srcdir)/packages/PLStream/pl-incl.h \
+	$(srcdir)/packages/PLStream/pl-mswchar.h \
+	$(srcdir)/packages/PLStream/pl-option.h  \
+	$(srcdir)/packages/PLStream/pl-opts.h  \
+	$(srcdir)/packages/PLStream/pl-os.h \
+	$(srcdir)/packages/PLStream/pl-privitf.h \
+	$(srcdir)/packages/PLStream/pl-stream.h \
+	$(srcdir)/packages/PLStream/pl-table.h \
+	$(srcdir)/packages/PLStream/pl-text.h $(srcdir)/pl-utf8.h \
+	$(srcdir)/packages/PLStream/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/uxnt/dirent.h $(srcdir)/packages/PLStream/uxnt/utf8.h $(srcdir)/packages/PLStream/pl-utf8.c $(srcdir)/packages/PLStream/uxnt/uxnt.h
 
 HEADERS = \
 	$(srcdir)/H/TermExt.h \
@@ -178,7 +194,26 @@ HEADERS = \
 	$(srcdir)/MYDDAS/myddas_statistics_structs.h \
 	$(srcdir)/MYDDAS/myddas_wkb.h $(srcdir)/MYDDAS/myddas_wkb2prolog.h
 
+IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStream/pl-ctype.c \
+	$(srcdir)/packages/PLStream/pl-codelist.c \
+	$(srcdir)/packages/PLStream/pl-dtoa.c  \
+	$(srcdir)/packages/PLStream/pl-error.c  \
+	$(srcdir)/packages/PLStream/pl-file.c \
+	$(srcdir)/packages/PLStream/pl-files.c  \
+	$(srcdir)/packages/PLStream/pl-fmt.c  \
+	$(srcdir)/packages/PLStream/pl-glob.c  \
+	$(srcdir)/packages/PLStream/pl-option.c  \
+	$(srcdir)/packages/PLStream/pl-os.c \
+	$(srcdir)/packages/PLStream/pl-privitf.c \
+	$(srcdir)/packages/PLStream/pl-stream.c $(srcdir)/packages/PLStream/pl-string.c \
+	$(srcdir)/packages/PLStream/pl-table.c \
+	$(srcdir)/packages/PLStream/pl-text.c \
+	$(srcdir)/packages/PLStream/pl-util.c \
+	$(srcdir)/packages/PLStream/pl-write.c \
+	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/uxnt/uxnt.c
+
 C_SOURCES= \
+	$(IOLIB_SOURCES) \
 	$(srcdir)/C/absmi.c $(srcdir)/C/adtdefs.c \
 	$(srcdir)/C/agc.c $(srcdir)/C/alloc.c \
 	$(srcdir)/C/amasm.c $(srcdir)/C/analyst.c \
@@ -284,6 +319,15 @@ PL_SOURCES= \
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
 	$(srcdir)/docs/clpr.tex $(srcdir)/docs/swi.tex
 
+IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
+	pl-file.o pl-files.o pl-fmt.o \
+	pl-glob.o pl-option.o \
+	pl-os.o pl-privitf.o \
+	pl-stream.o pl-string.o pl-table.o \
+	pl-text.o pl-util.o pl-utf8.o \
+	pl-write.o \
+	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
+
 ENGINE_OBJECTS = \
 	agc.o absmi.o adtdefs.o alloc.o amasm.o analyst.o arrays.o \
 	arith0.o arith1.o arith2.o attvar.o \
@@ -301,7 +345,7 @@ ENGINE_OBJECTS = \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
 	write.o \
-	blobs.o swi.o ypsocks.o ypstdio.o @MPI_OBJS@
+	blobs.o swi.o ypsocks.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
@@ -505,6 +549,66 @@ pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
+pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-buffer.c -o $@
+
+pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-codelist.c -o $@
+
+pl-ctype.o: $(srcdir)/packages/PLStream/pl-ctype.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-ctype.c -o $@
+
+pl-dtoa.o: $(srcdir)/packages/PLStream/pl-dtoa.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
+
+pl-error.o: $(srcdir)/packages/PLStream/pl-error.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-error.c -o $@
+
+pl-file.o: $(srcdir)/packages/PLStream/pl-file.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-file.c -o $@
+
+pl-files.o: $(srcdir)/packages/PLStream/pl-files.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-files.c -o $@
+
+pl-fmt.o: $(srcdir)/packages/PLStream/pl-fmt.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-fmt.c -o $@
+
+pl-glob.o: $(srcdir)/packages/PLStream/pl-glob.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-glob.c -o $@
+
+pl-option.o: $(srcdir)/packages/PLStream/pl-option.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-option.c -o $@
+
+pl-os.o: $(srcdir)/packages/PLStream/pl-os.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-os.c -o $@
+
+pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-privitf.c -o $@
+
+pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-stream.c -o $@
+
+pl-string.o: $(srcdir)/packages/PLStream/pl-string.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-string.c -o $@
+
+pl-table.o: $(srcdir)/packages/PLStream/pl-table.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-table.c -o $@
+
+pl-text.o: $(srcdir)/packages/PLStream/pl-text.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-text.c -o $@
+
+pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-utf8.c -o $@
+
+pl-util.o: $(srcdir)/packages/PLStream/pl-util.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-util.c -o $@
+
+pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-write.c -o $@
+
+pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-yap.c -o $@
+
 # default rule
 %.o : $(srcdir)/C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@
@@ -526,7 +630,6 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup.yss
-	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE))
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
@@ -586,7 +689,6 @@ install_unix: startup.yss libYap.a
 	$(INSTALL) $(srcdir)/README $(DESTDIR)$(DOCSDIR)
 	$(INSTALL) $(srcdir)/COPYING $(DESTDIR)$(DOCSDIR)
 	for f in $(PL_SOURCES); do $(INSTALL) $$f $(DESTDIR)$(SHAREDIR)/Yap/pl; done
-	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/random; $(MAKE) install)
@@ -645,7 +747,6 @@ install_win32: startup.yss
 	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
-	(cd packages/PLStream; $(MAKE) install)
 	(cd packages/tai; $(MAKE) install)
 	(cd packages/clib; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
@@ -693,7 +794,6 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
-	@INSTALL_DLLS@ (cd packages/PLStream; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)

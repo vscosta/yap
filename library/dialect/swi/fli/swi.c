@@ -47,6 +47,14 @@
 
 #include "swi.h"
 
+extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
+
+X_API extern Atom
+YAP_AtomFromSWIAtom(atom_t at)
+{
+  return SWIAtomToAtom(at);
+}
+
 extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);
 
 /* This is silly, but let's keep it like that for now */
@@ -2295,44 +2303,33 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
   return YAP_Predicate((YAP_Atom)at, arity, mod);
 }
 
-X_API int PL_unify_predicate(term_t head, predicate_t *pred, const char *m)
+X_API int PL_unify_predicate(term_t head, predicate_t pred, int how)
 {
-  Term mod;
-  Atom at;
-  Term t;
-  Int arity;
-  Functor fun;
-
-  if (m == NULL) {
-    mod = CurrentModule;
-    if (!mod) mod = USER_MODULE;
+  PredEntry *pe = (PredEntry *)pred;
+  Term ts[2], nt;
+  if (!pe->ModuleOfPred) {
+    ts[0] = pe->ModuleOfPred;
   } else {
-    Atom at;
-    while (!(at = Yap_LookupAtom((char *)m))) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-	return 0;
-      }
-    }
-    mod = MkAtomTerm(at);
+    ts[0] = TermProlog;
   }
-  t = Yap_GetFromSlot(head);
-  if (IsAtomTerm(t)) {
-    at = AtomOfTerm(t);
-    arity = 0;
-  } else if (IsApplTerm(t)) {
-    Functor f;
-    f = FunctorOfTerm(t);
-    if (IsExtensionFunctor(fun)) {
-      return 0;
+  if (how == GP_NAMEARITY) {
+    Term nts[2];
+    nts[1] = MkIntegerTerm(pe->ArityOfPE);
+    if (pe->ArityOfPE) {
+      nts[0] = MkAtomTerm(NameOfFunctor(pe->FunctorOfPred));
+    } else {
+      nts[0] = MkAtomTerm((Atom)pe->FunctorOfPred);
     }
-    at = NameOfFunctor(f);
-    arity = ArityOfFunctor(f);
-  } else
-    return 0;
-     
-  *pred =  YAP_Predicate((YAP_Atom)at, arity, mod);
-  return pred != NULL;
+    ts[1] = Yap_MkApplTerm(FunctorSlash, 2, nts);
+  } else {
+    if (pe->ArityOfPE) {
+      ts[1] = Yap_MkNewApplTerm(pe->FunctorOfPred, pe->ArityOfPE);
+    } else {
+      ts[1] = MkAtomTerm((Atom)pe->FunctorOfPred);
+    }
+  }
+  nt = Yap_MkApplTerm(FunctorModule, 2, ts);
+  return Yap_unify(Yap_GetFromSlot(head),nt);
 }
 
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)

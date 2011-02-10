@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include "pl-incl.h"
+#if HAVE_MATH_H
+#include <math.h>
+#endif
 
 #define	Quote_illegal_f		1
 #define	Ignore_ops_f		2
@@ -319,7 +322,7 @@ PL_get_number(term_t l, number *n) {
 #ifdef O_GMP
   } else {
     n->type = V_MPZ;
-    n->value.mpz = YAP_BigNumOfTerm(t);
+    YAP_BigNumOfTerm(t, &n->value.mpz);
 #endif
   }
 }
@@ -420,13 +423,62 @@ outOfCore()
 int
 priorityOperator(Module m, atom_t atom)
 {
-  return 0;
+  YAP_Term mod = (YAP_Term)m;
+  if (!m) 
+    mod = YAP_CurrentModule();
+  return YAP_MaxOpPriority(YAP_AtomFromSWIAtom(atom), mod);
 }
 
 int
 currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
 {
-  return 0;
+  YAP_Term mod = (YAP_Term)m;
+  YAP_Atom at;
+  int opkind, yap_type;
+
+  if (!m) 
+    mod = YAP_CurrentModule();
+  at = YAP_AtomFromSWIAtom(name);
+  switch (kind) {
+  case OP_PREFIX:
+    opkind = 2;
+    break;
+  case OP_INFIX:
+    opkind = 0;
+    break;
+  case OP_POSTFIX:
+  default:
+    opkind = 1;
+  }
+  if (!YAP_OpInfo(YAP_AtomFromSWIAtom(name), mod, opkind, &yap_type, priority))
+    return FALSE;
+  switch(yap_type) {
+  case 1:
+    *type = OP_XFX;
+    break;
+  case 2:
+    *type = OP_XFY;
+    break;
+  case 3:
+    *type = OP_YFX;
+    break;
+  case 4:
+    *type = OP_XFX;
+    break;
+  case 5:
+    *type = OP_XF;
+    break;
+  case 6:
+    *type = OP_YF;
+    break;
+  case 7:
+    *type = OP_FX;
+    break;    
+  default:
+    *type = OP_FY;
+    break;
+  }
+  return 1;
 }
 
 int
@@ -438,25 +490,64 @@ numberVars(term_t t, nv_options *opts, int n ARG_LD) {
 		 *	     PROMOTION		*
 		 *******************************/
 
-#ifdef O_GMP
-void
-clearGMPNumber(Number n)
-{ switch(n->type)
-  { case V_MPZ:
-      if ( n->value.mpz->_mp_alloc )
-	mpz_clear(n->value.mpz);
+static int
+check_float(double f)
+{
+#ifdef HAVE_FPCLASSIFY
+  switch(fpclassify(f))
+  { case FP_NAN:
+      return PL_error(NULL, 0, NULL, ERR_AR_UNDEF);
       break;
-    case V_MPQ:
-      if ( mpq_numref(n->value.mpq)->_mp_alloc )
-	mpz_clear(mpq_numref(n->value.mpq));
-      if ( mpq_denref(n->value.mpq)->_mp_alloc )
-	mpz_clear(mpq_denref(n->value.mpq));
-      break;
-    default:
+    case FP_INFINITE:
+      return PL_error(NULL, 0, NULL, ERR_AR_OVERFLOW);
       break;
   }
-}
+#else
+#ifdef HAVE_FPCLASS
+  switch(fpclass(f))
+  { case FP_SNAN:
+    case FP_QNAN:
+      return PL_error(NULL, 0, NULL, ERR_AR_UNDEF);
+      break;
+    case FP_NINF:
+    case FP_PINF:
+      return PL_error(NULL, 0, NULL, ERR_AR_OVERFLOW);
+      break;
+    case FP_NDENORM:			/* pos/neg denormalized non-zero */
+    case FP_PDENORM:
+    case FP_NNORM:			/* pos/neg normalized non-zero */
+    case FP_PNORM:
+    case FP_NZERO:			/* pos/neg zero */
+    case FP_PZERO:
+      break;
+  }
+#else
+#ifdef HAVE__FPCLASS
+  switch(_fpclass(f))
+  { case _FPCLASS_SNAN:
+    case _FPCLASS_QNAN:
+      return PL_error(NULL, 0, NULL, ERR_AR_UNDEF);
+      break;
+    case _FPCLASS_NINF:
+    case _FPCLASS_PINF:
+      return PL_error(NULL, 0, NULL, ERR_AR_OVERFLOW);
+      break;
+  }
+#else
+#ifdef HAVE_ISNAN
+  if ( isnan(f) )
+    return PL_error(NULL, 0, NULL, ERR_AR_UNDEF);
 #endif
+#ifdef HAVE_ISINF
+  if ( isinf(f) )
+    return PL_error(NULL, 0, NULL, ERR_AR_OVERFLOW);
+#endif
+#endif /*HAVE__FPCLASS*/
+#endif /*HAVE_FPCLASS*/
+#endif /*HAVE_FPCLASSIFY*/
+  return TRUE;
+}
+
 
 int
 promoteToFloatNumber(Number n)
@@ -629,7 +720,7 @@ PL_w32thread_raise(DWORD id, int sig)
 #endif /*__WINDOWS__*/
 
 
-int
+X_API int
 PL_raise(int sig)
 { GET_LD
 

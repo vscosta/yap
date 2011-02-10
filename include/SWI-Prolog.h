@@ -287,9 +287,9 @@ typedef struct foreign_context *control_t;
 #define CTX_ARITY PL__ac
 
 #define BeginPredDefs(id) \
-        PL_extension PL_predicates_from_ ## id[] = {
+        const PL_extension PL_predicates_from_ ## id[] = {
 #define PRED_DEF(name, arity, fname, flags) \
-        { name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
+  { "swi_" name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
 #define EndPredDefs \
         { NULL, 0, NULL, 0 } \
         };
@@ -310,7 +310,8 @@ typedef struct foreign_context *control_t;
 #define ForeignContextPtr(h)	((void *)(h)->context)
 #define ForeignEngine(h)	((h)->engine)
 
-#define FRG(n, a, f, flags) { n, a, f, flags }
+#define FRG(n, a, f, flags) { "swi_" n, a, f, flags }
+#define LFRG(n, a, f, flags) { n, a, f, flags }
 
 /* end from pl-itf.h */
 
@@ -530,6 +531,8 @@ extern X_API void PL_register_atom(atom_t);
 extern X_API void PL_unregister_atom(atom_t);
 extern X_API predicate_t PL_pred(functor_t, module_t);
 extern X_API predicate_t PL_predicate(const char *, int, const char *);
+#define GP_NAMEARITY	0x100		/* or'ed mask */
+extern X_API int PL_unify_predicate(term_t head, predicate_t pred, int how);
 extern X_API void PL_predicate_info(predicate_t, atom_t *, int *, module_t *);
 extern X_API qid_t PL_open_query(module_t, int, predicate_t, term_t);
 extern X_API int PL_next_solution(qid_t);
@@ -705,7 +708,7 @@ PL_EXPORT(void)		PL_register_blob_type(PL_blob_t *type);
 PL_EXPORT(PL_blob_t*)	PL_find_blob_type(const char* name);
 PL_EXPORT(PL_blob_t*)	YAP_find_blob_type(YAP_Atom at);
 PL_EXPORT(int)		PL_unregister_blob_type(PL_blob_t *type);
-PL_EXPORT(int)  PL_raise(int sig);
+PL_EXPORT(int)		PL_raise(int sig);
 
 
 #if USE_GMP
@@ -714,6 +717,7 @@ PL_EXPORT(int)		PL_get_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_unify_mpz(term_t t, mpz_t mpz);
 PL_EXPORT(int)		PL_get_mpq(term_t t, mpq_t mpz);
 PL_EXPORT(int)		PL_unify_mpq(term_t t, mpq_t mpz);
+
 #endif
 
 extern X_API  const char *PL_cwd(void);

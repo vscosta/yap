@@ -103,6 +103,7 @@ valHandle(term_t tt)
 }
 
 YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
+YAP_Atom YAP_AtomFromSWIAtom(atom_t at);
 PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
 
 

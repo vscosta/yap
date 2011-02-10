@@ -1310,7 +1310,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
-
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
   Heap = AdjustPageSize(Heap * K);
