@@ -123,7 +123,7 @@ exitTables(int status, void *arg)
 
 
 void
-initTables()
+initTables(void)
 { static int done = FALSE;
 
   if ( !done )

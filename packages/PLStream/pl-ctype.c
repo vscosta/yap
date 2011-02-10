@@ -26,6 +26,36 @@
 #include <ctype.h>
 #include "pl-ctype.h"
 
+#if __YAP_PROLOG__
+
+/* support for blank space handling, stolen from pl-read.c */
+
+#include <pl-umap.c>
+
+		 /*******************************
+		 *     UNICODE CLASSIFIERS	*
+		 *******************************/
+
+#define CharTypeW(c, t, w) \
+	((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned)(c)] t) \
+			       : (uflagsW(c) & w))
+
+#define PlBlankW(c)	CharTypeW(c, <= SP, U_SEPARATOR)
+#define PlUpperW(c)	CharTypeW(c, == UC, U_UPPERCASE)
+#define PlIdStartW(c)	(c <= 0xff ? (isLower(c)||isUpper(c)||c=='_') \
+				   : uflagsW(c) & U_ID_START)
+#define PlIdContW(c)	CharTypeW(c, >= UC, U_ID_CONTINUE)
+#define PlSymbolW(c)	CharTypeW(c, == SY, 0)
+#define PlPunctW(c)	CharTypeW(c, == PU, 0)
+#define PlSoloW(c)	CharTypeW(c, == SO, 0)
+
+static int 
+unicode_separator(pl_wchar_t c)
+{ return PlBlankW(c);
+}
+
+#endif
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 This module defines:
 
@@ -770,12 +800,12 @@ PRED_IMPL("setlocale", 3, setlocale, 0)
 		 *******************************/
 
 BeginPredDefs(ctype)
-  PRED_DEF("char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
-  PRED_DEF("code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
-  PRED_DEF("setlocale", 3, setlocale, 0)
-  PRED_DEF("downcase_atom", 2, downcase_atom, 0)
-  PRED_DEF("upcase_atom", 2, upcase_atom, 0)
-  PRED_DEF("normalize_space", 2, normalize_space, 0)
+  PRED_DEF("swi_char_type", 2, char_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("swi_code_type", 2, code_type, PL_FA_NONDETERMINISTIC)
+  PRED_DEF("swi_setlocale", 3, setlocale, 0)
+  PRED_DEF("swi_downcase_atom", 2, downcase_atom, 0)
+  PRED_DEF("swi_upcase_atom", 2, upcase_atom, 0)
+  PRED_DEF("swi_normalize_space", 2, normalize_space, 0)
 EndPredDefs
 
 

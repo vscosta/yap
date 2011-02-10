@@ -390,7 +390,7 @@ add_path(const char *path, GlobInfo info)
 }
 
 
-const char *
+static const char *
 expand_str(GlobInfo info, int at)
 { char *s = &fetchBuffer(&info->strings, at, char);
 
@@ -398,7 +398,7 @@ expand_str(GlobInfo info, int at)
 }
 
 
-const char *
+static const char *
 expand_entry(GlobInfo info, int idx)
 { int at = fetchBuffer(&info->files, idx, int);
 

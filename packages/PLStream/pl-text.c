@@ -202,7 +202,11 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
 	  { term_t culprit = PL_new_term_ref();
 	    atom_t type;
 
+#if __YAP_PROLOG__
+	    YAP_PutInSlot(culprit, result.culprit);
+#else
 	    *valTermRef(culprit) = result.culprit;
+#endif
 	    if ( result.status == CVT_nocode )
 	      type = ATOM_character_code;
 	    else

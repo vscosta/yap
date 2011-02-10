@@ -772,7 +772,7 @@ OsPath(const char *plpath, char *path)
 }
 #endif /* O_HPFS */
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 char *
 PrologPath(const char *p, char *buf, size_t len)
 { strncpy(buf, p, len);
@@ -1759,7 +1759,7 @@ PopTty(IOSTREAM *s, ttybuf *buf)
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 static void
-ResetStdin()
+ResetStdin(void)
 { Sinput->limitp = Sinput->bufp = Sinput->buffer;
   if ( !GD->os.org_terminal.read )
     GD->os.org_terminal = *Sinput->functions;
@@ -2517,7 +2517,11 @@ findExecutable(const char *av0, char *buffer)
 #endif /*__WINDOWS__*/
 
 
-#ifdef __unix__
+#if defined(OS2) || defined(__DOS__) || defined(__WINDOWS__)
+#define EXEC_EXTENSIONS { ".exe", ".com", ".bat", ".cmd", NULL }
+#define PATHSEP ';'
+#else
+/* not Windows, must be a Linux-like thingy */
 static char *
 okToExec(const char *s)
 { statstruct stbuff;
@@ -2530,11 +2534,6 @@ okToExec(const char *s)
     return (char *) NULL;
 }
 #define PATHSEP	':'
-#endif /* __unix__ */
-
-#if defined(OS2) || defined(__DOS__) || defined(__WINDOWS__)
-#define EXEC_EXTENSIONS { ".exe", ".com", ".bat", ".cmd", NULL }
-#define PATHSEP ';'
 #endif
 
 #ifdef EXEC_EXTENSIONS

@@ -54,7 +54,7 @@ struct table_enum
   TableEnum	next;		/* More choice points */
 };
 
-COMMON(void) 		initTables();
+COMMON(void) 		initTables(void);
 COMMON(Table) 		newHTable(int size);
 COMMON(void) 		destroyHTable(Table ht);
 COMMON(Symbol) 		lookupHTable(Table ht, void *name);

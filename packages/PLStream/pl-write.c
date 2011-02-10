@@ -25,8 +25,8 @@
 
 #include <math.h>
 #include "pl-incl.h"
-#include "os/pl-dtoa.h"
-#include "os/pl-ctype.h"
+#include "pl-dtoa.h"
+#include "pl-ctype.h"
 #include <stdio.h>			/* sprintf() */
 #ifdef HAVE_LOCALE_H
 #include <locale.h>
@@ -64,6 +64,13 @@ static bool	writeTerm(term_t t, int prec,
 static bool	writeArgTerm(term_t t, int prec,
 			     write_options *options, bool arg) WUNUSED;
 
+#if __YAP_PROLOG__
+static Word
+address_of(term_t t)
+{ GET_LD
+    return YAP_AddressFromSlot(t);			/* non-recursive structure */
+}
+#else
 static Word
 address_of(term_t t)
 { GET_LD
@@ -79,6 +86,7 @@ address_of(term_t t)
       return NULL;			/* non-recursive structure */
   }
 }
+#endif
 
 
 static int
@@ -94,6 +102,18 @@ has_visited(visited *v, Word addr)
 
 char *
 varName(term_t t, char *name)
+#if __YAP_PROLOG__
+{ 
+  YAP_Int adr = YAP_VarSlotToNumber(t);
+
+  if (adr < 0)
+    Ssprintf(name, "_L%ld", -adr);
+  else
+    Ssprintf(name, "_G%ld", adr);
+
+  return name;
+}
+#else
 { GET_LD
   Word adr = valTermRef(t);
 
@@ -106,6 +126,7 @@ varName(term_t t, char *name)
 
   return name;
 }
+#endif
 
 
 #define AT_LOWER	0
@@ -122,8 +143,8 @@ varName(term_t t, char *name)
 static int
 atomType(atom_t a, IOSTREAM *fd)
 { Atom atom = atomValue(a);
-  char *s = atom->name;
-  size_t len = atom->length;
+  char *s = atomName(atom);
+  size_t len = atomLength(atom);
 
   if ( len == 0 )
     return AT_QUOTE;
@@ -442,8 +463,8 @@ writeBlob(atom_t a, write_options *options)
   unsigned char const *s, *e;
 
   TRY(PutString("<#", options->out));
-  s = (unsigned char const *)atom->name;
-  for (e = s + atom->length; s != e; s++)
+  s = (unsigned char const *)atomName(atom);
+  for (e = s + atomLength(atom); s != e; s++)
   { static char *digits = "0123456789abcdef";
 
     TRY(Putc(digits[(*s >> 4) & 0xf], options->out));
@@ -459,7 +480,7 @@ writeAtom(atom_t a, write_options *options)
 { Atom atom = atomValue(a);
 
   if ( (options->flags & PL_WRT_BLOB_PORTRAY) &&
-       false(atom->type, PL_BLOB_TEXT) &&
+       false(atomBlobType(atom), PL_BLOB_TEXT) &&
        GD->cleaning <= CLN_PROLOG )
   { GET_LD
     int rc;
@@ -486,9 +507,9 @@ writeAtom(atom_t a, write_options *options)
       return TRUE;
   }
 
-  if ( atom->type->write )
-    return (*atom->type->write)(options->out, a, options->flags);
-  if ( false(atom->type, PL_BLOB_TEXT) )
+  if ( atomBlobType(atom)->write )
+    return (*atomBlobType(atom)->write)(options->out, a, options->flags);
+  if ( false(atomBlobType(atom), PL_BLOB_TEXT) )
     return writeBlob(a, options);
 
   if ( true(options, PL_WRT_QUOTED) )
@@ -497,7 +518,7 @@ writeAtom(atom_t a, write_options *options)
       case AT_SYMBOL:
       case AT_SOLO:
       case AT_SPECIAL:
-	return PutToken(atom->name, options->out);
+	return PutToken(nameOfAtom(atom), options->out);
       case AT_QUOTE:
       case AT_FULLSTOP:
       default:
@@ -505,14 +526,14 @@ writeAtom(atom_t a, write_options *options)
 
 	TRY(rc=PutOpenToken('\'', options->out));
 	TRY(writeQuoted(options->out,
-			atom->name,
-			atom->length,
+			nameOfAtom(atom),
+			atomLength(atom),
 			'\'', options));
 	return rc;
       }
     }
   } else
-    return PutTokenN(atom->name, atom->length, options->out);
+    return PutTokenN(nameOfAtom(atom), atomLength(atom), options->out);
 }
 
 
@@ -531,8 +552,8 @@ writeAtomToStream(IOSTREAM *s, atom_t atom)
 int
 writeUCSAtom(IOSTREAM *fd, atom_t atom, int flags)
 { Atom a = atomValue(atom);
-  pl_wchar_t *s = (pl_wchar_t*)a->name;
-  size_t len = a->length/sizeof(pl_wchar_t);
+  pl_wchar_t *s = (pl_wchar_t*)atomName(a);
+  size_t len = atomLength(a)/sizeof(pl_wchar_t);
   pl_wchar_t *e = &s[len];
 
   if ( flags & PL_WRT_QUOTED )
@@ -881,7 +902,7 @@ pl_nl1(term_t stream)
 }
 
 word
-pl_nl()
+pl_nl(void)
 { return pl_nl1(0);
 }
 
@@ -898,7 +919,7 @@ callPortray(term_t arg, write_options *options)
 
   portray = _PL_predicate("portray", 1, "user", &GD->procedures.portray);
 
-  if ( portray->definition->definition.clauses )
+  if ( predicateHasClauses(portray) )
   { GET_LD
     wakeup_state wstate;
     IOSTREAM *old = Scurout;
@@ -1045,7 +1066,7 @@ writeTerm2(term_t t, int prec, write_options *options, bool arg)
   }
 
   if ( PL_get_atom(t, &a) )
-  { if ( !arg && prec < 1200 && priorityOperator(NULL, a) > 0 )
+    { if ( !arg && prec < 1200 && priorityOperator((Module)NULL, a) > 0 )
     { if ( PutOpenBrace(out) &&
 	   writeAtom(a, options) &&
 	   PutCloseBrace(out) )
@@ -1318,7 +1339,8 @@ pl_write_term3(term_t stream, term_t term, term_t opts)
 
   options.module = lookupModule(mname);
   if ( charescape == TRUE ||
-       (charescape == -1 && true(options.module, CHARESCAPE)) )
+       //       (charescape == -1 && true(options.module, CHARESCAPE)) )
+       charEscapeWriteOption(options))
     options.flags |= PL_WRT_CHARESCAPES;
   if ( numbervars == -1 )
     numbervars = (portray ? TRUE : FALSE);
@@ -1377,7 +1399,8 @@ do_write2(term_t stream, term_t term, int flags)
     options.flags     = flags;
     options.out	      = s;
     options.module    = MODULE_user;
-    if ( options.module && true(options.module, CHARESCAPE) )
+    //    if ( options.module && true(options.module, CHARESCAPE) )
+    if (charEscapeWriteOption(options))
       options.flags |= PL_WRT_CHARESCAPES;
     if ( truePrologFlag(PLFLAG_BACKQUOTED_STRING) )
       options.flags |= PL_WRT_BACKQUOTED_STRING;

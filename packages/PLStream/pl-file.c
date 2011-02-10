@@ -1058,7 +1058,7 @@ protocol(const char *str, size_t n)
 
 
 static int
-push_input_context()
+push_input_context(void)
 { GET_LD
   InputContext c = allocHeap(sizeof(struct input_context));
 
@@ -1073,7 +1073,7 @@ push_input_context()
 
 
 static int
-pop_input_context()
+pop_input_context(void)
 { GET_LD
   InputContext c = input_context_stack;
 
@@ -1105,7 +1105,7 @@ PRED_IMPL("$pop_input_context", 0, pop_input_context, 0)
 
 
 void
-pushOutputContext()
+pushOutputContext(void)
 { GET_LD
   OutputContext c = allocHeap(sizeof(struct output_context));
 
@@ -1116,7 +1116,7 @@ pushOutputContext()
 
 
 void
-popOutputContext()
+popOutputContext(void)
 { GET_LD
   OutputContext c = output_context_stack;
 
@@ -1341,7 +1341,7 @@ getSingleChar(IOSTREAM *stream, int signals)
   int c;
   ttybuf buf;
 
-  debugstatus.suspendTrace++;
+  //  debugstatus.suspendTrace++; VSC: to be replaced by macro
   Slock(stream);
   Sflush(stream);
   PushTty(stream, &buf, TTY_RAW);	/* just donot prompt */
@@ -1368,7 +1368,7 @@ getSingleChar(IOSTREAM *stream, int signals)
     c = -1;
 
   PopTty(stream, &buf, TRUE);
-  debugstatus.suspendTrace--;
+  // debugstatus.suspendTrace--; VSC: to be replaced by macro
   Sunlock(stream);
 
   return c;
@@ -3107,7 +3107,7 @@ ok:
 }
 
 int
-pl_seen()
+pl_seen(void)
 { GET_LD
   IOSTREAM *s = getStream(Scurin);
 
