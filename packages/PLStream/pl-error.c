@@ -1,5 +1,6 @@
 
 #include	<stdlib.h>
+#include	<stdio.h>
 #include "pl-incl.h"
 #if HAVE_ERRNO_H
 #include	<errno.h>

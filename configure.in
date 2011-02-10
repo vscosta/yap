@@ -1180,7 +1180,7 @@ dnl Linux has both elf and a.out, in this case we found elf
 	;;
 esac
 
-EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir)/packages/PLStream -lplstream"
+EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS"
 
 
 if test "$dynamic_loading" = "yes"
@@ -1354,7 +1354,7 @@ AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
 AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
 AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h mpi.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h)
-AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h string.h stropts.h)
+AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h stdint.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
 AC_CHECK_HEADERS(sys/mman.h sys/ndir.h sys/param.h)
 AC_CHECK_HEADERS(sys/resource.h sys/select.h)
@@ -1950,7 +1950,6 @@ mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/meld
 mkdir -p  packages/tai
 mkdir -p  packages/tai/libtai
-mkdir -p  packages/PLStream
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd

@@ -338,6 +338,9 @@
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
+#if HAVE_STDINT_H
+#include <stdint.h>
+#endif
 #if HAVE_STRING_H
 #include <string.h>
 #endif

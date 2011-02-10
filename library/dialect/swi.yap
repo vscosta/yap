@@ -99,8 +99,6 @@
 
 :- set_prolog_flag(user_flags,silent).
 
-:- load_foreign_files([libplstream], [], initIO).
-
 :- load_foreign_files(['pl-tai'], [], install).
 
 % Time is given as a float in SWI-Prolog.
