@@ -1480,7 +1480,9 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     for (i=pe->ArityOfPE; i > 0; i--) {
       sl = Yap_InitSlot(XREGS[i]);
     }
+    PP = pe;
     ret = ((codev)(sl,0,&ctx));
+    PP = NULL;
     if (!ret) {
       Term t;
 
@@ -1494,7 +1496,9 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     return ret;
   }
   if (pe->PredFlags & CArgsPredFlag) {
+    PP = pe;
     Int out =  execute_cargs(pe, exec_code);
+    PP = NULL;
     if (!out) {
       Term t;
 
@@ -1524,6 +1528,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
 
+    PP = pe;
     ctx->control = FRG_FIRST_CALL;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     ctx->context = NULL;
@@ -1532,6 +1537,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
+    PP = NULL;
     if (val == 0) {
       Term t;
 
@@ -1554,7 +1560,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     }
   } else {
-    return (exec_code)();
+    (exec_code)();
   }
 }
 
@@ -1567,12 +1573,14 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     
+    PP = pe;
     ctx->control = FRG_REDO;
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx);
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
+    PP = NULL;
     if (val == 0) {
       Term t;
 

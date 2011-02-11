@@ -48,6 +48,7 @@
 #include "swi.h"
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
+extern int	PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
 X_API extern Atom
 YAP_AtomFromSWIAtom(atom_t at)
@@ -2996,6 +2997,26 @@ X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer
   return NULL;
 }
 
+const char *Yap_GetCurrentPredName(void);
+Int Yap_GetCurrentPredArity(void);
+
+const char *
+Yap_GetCurrentPredName(void)
+{
+  if (!PP)
+    return NULL;
+  if (PP->ArityOfPE)
+    return NameOfFunctor(PP->FunctorOfPred)->StrOfAE;
+  return   RepAtom((Atom)(PP->FunctorOfPred))->StrOfAE;
+}
+
+Int
+Yap_GetCurrentPredArity(void)
+{
+  if (!PP)
+    return (Int)0;
+  return PP->ArityOfPE;
+}
 
 void
 Yap_swi_install(void)

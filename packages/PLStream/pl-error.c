@@ -379,6 +379,10 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
     goto err_instantiation;
   }
   va_end(args);
+  if (!pred) {
+    pred = Yap_GetCurrentPredName();
+    arity = Yap_GetCurrentPredArity();
+  }
   if ( pred )
     { PL_unify_term(predterm,
 		    PL_FUNCTOR, FUNCTOR_divide2,

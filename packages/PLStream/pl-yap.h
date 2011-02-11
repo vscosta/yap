@@ -29,6 +29,10 @@ typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
 typedef YAP_Atom		Atom;
 typedef YAP_Term		(*Func)();	/* foreign functions */
 
+const char *Yap_GetCurrentPredName(void);
+YAP_Int     Yap_GetCurrentPredArity(void);
+
+
 extern atom_t codeToAtom(int chrcode);
 
 #define valTermRef(t)    ((Word)YAP_AddressFromSlot(t))
