@@ -1474,14 +1474,37 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     struct foreign_context ctx;
     UInt i;
     Int sl = 0;
+    Int ret;
+
     ctx.engine = NULL;
     for (i=pe->ArityOfPE; i > 0; i--) {
       sl = Yap_InitSlot(XREGS[i]);
     }
-    return ((codev)(sl,0,&ctx));
+    ret = ((codev)(sl,0,&ctx));
+    if (!ret) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
+    return ret;
   }
   if (pe->PredFlags & CArgsPredFlag) {
     Int out =  execute_cargs(pe, exec_code);
+    if (!out) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
     return out;
   } else {
     return((exec_code)());
@@ -1510,6 +1533,14 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
     if (val == 0) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
       cut_fail();
     } else if (val == 1) { /* TRUE */
       cut_succeed();
@@ -1541,7 +1572,16 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
     if (val == 0) {
-      cut_fail();
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      } else {
+	cut_fail();
+      }
     } else if (val == 1) { /* TRUE */
       cut_succeed();
     } else {

@@ -1271,7 +1271,7 @@ X_API int PL_put_variable(term_t t)
 
 X_API int PL_raise_exception(term_t exception)
 {
-  YAP_Throw(Yap_GetFromSlot(exception));
+  EX = Yap_StoreTermInDB(Yap_GetFromSlot(exception),0);
   return 0;
 }
 
@@ -2761,13 +2761,6 @@ PL_free(void *obj)
 {
   if (obj)
     free(obj);
-}
-
-static int
-PL_error(const char *pred, int arity, const char *msg, int id, ...)
-{
-  fprintf(stderr,"Internal PL_error Not implemented\n");
-  return 0;
 }
 
 X_API int

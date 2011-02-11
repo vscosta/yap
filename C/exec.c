@@ -1710,8 +1710,8 @@ p_debug_on(void)
   return TRUE;
 }
 
-static Term 
-GetException(void)
+Term 
+Yap_GetException(void)
 {
   Term t = 0L;
   if (BallTerm) {
@@ -1743,7 +1743,7 @@ p_reset_exception(void)
 {
   Term t;
   EX = NULL;
-  t = GetException();
+  t = Yap_GetException();
   if (!t) 
     return FALSE;
   return Yap_unify(t, ARG1);
@@ -1759,7 +1759,7 @@ Yap_ResetExceptionTerm(void)
 static Int
 p_get_exception(void)
 {
-  Term t = GetException();
+  Term t = Yap_GetException();
   if (!t) 
     return FALSE;
   return Yap_unify(t, ARG1);
