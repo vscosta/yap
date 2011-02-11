@@ -27,9 +27,10 @@ gds_t gds;
 static atom_t
 uncachedCodeToAtom(int chrcode)
 { if ( chrcode < 256 )
-  { char tmp[1];
+  { char tmp[2];
 
     tmp[0] = chrcode;
+    tmp[1] = '\0';
     return lookupAtom(tmp, 1);
   } else
   { pl_wchar_t tmp[2];
