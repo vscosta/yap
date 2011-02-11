@@ -1538,8 +1538,10 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
+	cut_c_pop();
+	B = B->cp_b;
+	Yap_JumpToEnv(t);
+	return FALSE;
       }
       cut_fail();
     } else if (val == 1) { /* TRUE */
@@ -1577,8 +1579,10 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
+	cut_c_pop();
+	B = B->cp_b;
+	Yap_JumpToEnv(t);
+	return FALSE;
       } else {
 	cut_fail();
       }
