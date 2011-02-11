@@ -222,6 +222,9 @@ _PL_unify_atomic(term_t t, PL_atomic_t a)
 
 word lookupAtom(const char *s, size_t len)
 {
+  /* dirty trick to ensure s is null terminated */
+  char *st = (char *)s;
+  st[len] = '\0';
   if (len >= strlen(s)) {
     return (word)YAP_LookupAtom(s);
   } else {

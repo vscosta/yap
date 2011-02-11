@@ -24,6 +24,12 @@
 
 #include "swi.h"
 
+static PL_blob_t unregistered_blob_atom =
+{ PL_BLOB_MAGIC,
+  PL_BLOB_NOCOPY|PL_BLOB_TEXT,
+  "unregistered"
+};
+
 
 PL_EXPORT(int)
 PL_is_blob(term_t t, PL_blob_t **type)
@@ -75,13 +81,13 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
       if ( len )
 	*len = wcslen(x->WStrOfAE);
       if ( type )
-	*type = SWI_Blobs;
+	*type = &unregistered_blob_atom;
       return x->WStrOfAE;
     }
     if ( len )
       *len = strlen(x->StrOfAE);
       if ( type )
-	*type = SWI_Blobs;
+	*type = &unregistered_blob_atom;
       return x->StrOfAE;
   }
   if ( len )
@@ -112,7 +118,7 @@ YAP_find_blob_type(YAP_Atom at)
 {
   AtomEntry *a = RepAtom((Atom)at);
   if (!IsBlob(a)) {
-    return SWI_Blobs;
+    return &unregistered_blob_atom;
   }
   return RepBlobProp(a->PropsOfAE)->blob_t;
 }

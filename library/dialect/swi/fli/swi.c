@@ -2115,11 +2115,9 @@ X_API int
 PL_recorded(record_t db, term_t ts)
 {
   Term t = YAP_Recorded((void *)db);
-  fprintf(stderr,"PL_recorded %ld\n", t);
   if (t == ((CELL)0))
     return FALSE;
   Yap_PutInSlot(ts,t);
-  fprintf(stderr,"PL_recorded\n");
   return TRUE;
 }
 

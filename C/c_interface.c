@@ -1514,12 +1514,10 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else if (val == 1) { /* TRUE */
       cut_succeed();
     } else {
-      /*
-	if ((val & REDO_PTR) == REDO_PTR)
+      if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
-	else
+      else
 	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
-      */
       return TRUE;
     }
   } else {

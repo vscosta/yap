@@ -126,7 +126,7 @@ PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD)
 { word w = valHandle(l);
 
   if ( (flags & CVT_ATOM) && isAtom(w) )
-  { if ( !get_atom_text(w, text) )
+    { if ( !get_atom_text(atomFromTerm(w), text) )
       goto maybe_write;
   } else if ( (flags & CVT_STRING) && isString(w) )
   { if ( !get_string_text(w, text PASS_LD) )
