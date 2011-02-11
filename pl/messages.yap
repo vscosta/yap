@@ -69,6 +69,9 @@ generate_message(debug) --> !,
 	[ debug ].
 generate_message(trace) --> !,
 	[ trace ].
+generate_message(error(Error,context(Cause,Extra))) -->
+	system_message(error(Error,Cause)),
+	stack_dump(error(Error,context(Cause,Extra))).
 generate_message(M) -->
 	system_message(M),
 	stack_dump(M).
