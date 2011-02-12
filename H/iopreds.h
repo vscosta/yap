@@ -113,7 +113,6 @@ StreamDesc;
 #define Push_Eof_Stream_f	0x001000
 #define Seekable_Stream_f	0x002000
 #define Promptable_Stream_f	0x004000
-#define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
 #define User_Stream_f		0x100000
 #define HAS_BOM_f		0x200000

@@ -90,8 +90,6 @@ STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int post_process_eof, (StreamDesc *));
-STATIC_PROTO (int PipePutc, (int, int));
-STATIC_PROTO (int ConsolePipePutc, (int, int));
 STATIC_PROTO (int ConsolePutc, (int, int));
 STATIC_PROTO (Int p_setprompt, (void));
 STATIC_PROTO (Int p_prompt, (void));
@@ -100,8 +98,6 @@ STATIC_PROTO (int DefaultGets, (int,UInt,char*));
 STATIC_PROTO (int PlGets, (int,UInt,char*));
 STATIC_PROTO (int ISOWGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
-STATIC_PROTO (int PipeGetc, (int));
-STATIC_PROTO (int ConsolePipeGetc, (int));
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
 STATIC_PROTO (int ReadlineGetc, (int));
 STATIC_PROTO (int ReadlinePutc, (int,int));
@@ -251,7 +247,6 @@ yap_fflush(int sno)
   if ( (Stream[sno].status & Output_Stream_f) &&
        ! (Stream[sno].status & 
          (Null_Stream_f|
-	  Pipe_Stream_f|
 	  Free_Stream_f)) ) {
     if (Stream[sno].status & SWI_Stream_f) {
       return SWIFlush(Stream[sno].u.swi_stream.swi_ptr);
@@ -362,12 +357,7 @@ static void
 InitFileIO(StreamDesc *s)
 {
   s->stream_gets = PlGetsFunc();
-  if (s->status & Pipe_Stream_f) {
-    /* Console is a socket and socket will prompt */
-    s->stream_putc = ConsolePipePutc;
-    s->stream_wputc = put_wchar;
-    s->stream_getc = ConsolePipeGetc;
-  } else {
+  {
    /* check if our console is promptable: may be tty or pipe */
     if (s->status & (Promptable_Stream_f)) {
       /* the putc routine only has to check it is putting out a newline */
@@ -758,83 +748,6 @@ IOSWIWideGetc(int sno)
 
 /* static */
 static int
-ConsolePipePutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-  char c = ch;
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-#if _MSC_VER || defined(__MINGW32__) 
-  {
-    DWORD written;
-    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
-      return EOF;
-    }
-  }
-#else
-  {
-    int out = 0;
-    while (!out) {
-      out = write(s->u.pipe.fd,  &c, sizeof(c));
-      if (out <0) {
-#if HAVE_STRERROR
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe: %s", strerror(errno));
-#else
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe");
-#endif	
-      }
-    }
-  }
-#endif
-  count_output_char(ch,s);
-  return ((int) ch);
-}
-
-static int
-PipePutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-  char c = ch;
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-#if _MSC_VER || defined(__MINGW32__) 
-  {
-    DWORD written;
-    if (WriteFile(s->u.pipe.hdl, &c, sizeof(c), &written, NULL) == FALSE) {
-      PlIOError (SYSTEM_ERROR,TermNil, "write to pipe returned error");
-      return EOF;
-    }
-  }
-#else
-  {
-    int out = 0;
-    while (!out) {
-      out = write(s->u.pipe.fd,  &c, sizeof(c));
-      if (out <0) {
-#if HAVE_STRERROR
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe: %s", strerror(errno));
-#else
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream pipe");
-#endif	
-      }
-    }
-  }
-#endif
-  console_count_output_char(ch,s);
-  return ((int) ch);
-}
-
-/* static */
-static int
 ConsolePutc (int sno, int ch)
 {
   StreamDesc *s = &Stream[sno];
@@ -1087,13 +1000,7 @@ EOFGetc(int sno)
     if (YP_feof (s->u.file.file))
       YP_clearerr (s->u.file.file);
     /* reset our function for reading input */
-    if (s->status & Pipe_Stream_f) {
-      if (s->status & Promptable_Stream_f)
-	s->stream_putc = ConsolePipePutc;
-      else 
-	s->stream_putc = PipePutc;
-      s->stream_wputc = put_wchar;
-    } else if (s->status & Promptable_Stream_f) {
+    if (s->status & Promptable_Stream_f) {
       s->stream_putc = ConsolePutc;
       s->stream_wputc = put_wchar;
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
@@ -1193,89 +1100,6 @@ console_post_process_eof(StreamDesc *s)
   return EOFCHAR;
 }
 
-
-static int
-PipeGetc(int sno)
-{
-  StreamDesc *s = &Stream[sno];
-  Int ch;
-  char c;
-  
-  /* should be able to use a buffer */
-#if _MSC_VER || defined(__MINGW32__) 
-  DWORD count;
-  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    Yap_WinError("read from pipe returned error");
-    return EOF;
-  }
-#else
-  int count;
-  count = read(s->u.pipe.fd, &c, sizeof(char));
-#endif
-  if (count == 0) {
-    return post_process_eof(s);
-  } else if (count > 0) {
-    ch = c;
-  } else {
-#if HAVE_STRERROR
-    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc: %s", strerror(errno));
-#else
-    Yap_Error(SYSTEM_ERROR, TermNil, "at pipe getc");
-#endif
-    return post_process_eof(s);
-  }
-  return post_process_read_char(ch, s);
-}
-
-/*
-  Basically, the same as console but also sends a prompt and takes care of
-  finding out whether we are at the start of a newline.
-*/
-static int
-ConsolePipeGetc(int sno)
-{
-  StreamDesc *s = &Stream[sno];
-  int ch;
-  char c;
-#if _MSC_VER || defined(__MINGW32__) 
-  DWORD count;
-#else
-  int count;
-#endif
-
-  /* send the prompt away */
-  if (newline) {
-    char *cptr = Prompt, ch;
-    /* use the default routine */
-    while ((ch = *cptr++) != '\0') {
-      Stream[StdErrStream].stream_putc(StdErrStream, ch);
-    }
-    strncpy(Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
-    newline = FALSE;
-  }
-#if _MSC_VER || defined(__MINGW32__) 
-  if (ReadFile(s->u.pipe.hdl, &c, sizeof(c), &count, NULL) == FALSE) {
-    Yap_PrologMode |= ConsoleGetcMode;
-    Yap_WinError("read from console pipe returned error");
-    Yap_PrologMode &= ~ConsoleGetcMode;
-    return console_post_process_eof(s);
-  }
-#else
-  /* should be able to use a buffer */
-  Yap_PrologMode |= ConsoleGetcMode;
-  count = read(s->u.pipe.fd, &c, sizeof(char));
-  Yap_PrologMode &= ~ConsoleGetcMode;
-#endif
-  if (count == 0) {
-    return console_post_process_eof(s);
-  } else if (count > 0) {
-    ch = c;
-  } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, "read");
-    return console_post_process_eof(s);
-  }
-  return console_post_process_read_char(ch, s);
-}
 
 /* standard routine, it should read from anything pointed by a FILE *.
    It could be made more efficient by doing our own buffering and avoiding
@@ -1851,13 +1675,6 @@ p_stream_flags (void)
 static Int
 GetStreamFd(int sno)
 {
-  if (Stream[sno].status & Pipe_Stream_f) {
-#if _MSC_VER || defined(__MINGW32__) 
-    return((Int)(Stream[sno].u.pipe.hdl));
-#else
-    return(Stream[sno].u.pipe.fd);
-#endif
-  }
   return(YP_fileno(Stream[sno].u.file.file));
 }
 
@@ -2098,11 +1915,7 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   st->u.file.file = fd;
   st->linepos = 0;
   st->stream_gets = PlGetsFunc();
-  if (flags & YAP_PIPE_STREAM) {
-    st->stream_putc = PipePutc;
-    st->stream_wputc = put_wchar;
-    st->stream_getc = PipeGetc;
-  } else if (flags & YAP_TTY_STREAM) {
+  if (flags & YAP_TTY_STREAM) {
     st->stream_putc = ConsolePutc;
     st->stream_wputc = put_wchar;
     st->stream_getc = ConsoleGetc;
@@ -2489,8 +2302,6 @@ static Term
 StreamName(int i)
 {
   if (i < 3) return(MkAtomTerm(AtomUser));
-  if (Stream[i].status & Pipe_Stream_f)
-    return(MkAtomTerm(AtomPipe));
   return(Stream[i].u.file.user_name);
 }
 
@@ -2566,13 +2377,6 @@ Yap_CloseStreams (int loud)
       continue;
     if ((Stream[sno].status & Popen_Stream_f))
       pclose (Stream[sno].u.file.file);
-#if _MSC_VER || defined(__MINGW32__) 
-    if (Stream[sno].status & Pipe_Stream_f)
-      CloseHandle (Stream[sno].u.pipe.hdl);
-#else
-    if (Stream[sno].status & (Pipe_Stream_f))
-      close (Stream[sno].u.pipe.fd);
-#endif
     else if (Stream[sno].status & (SWI_Stream_f)) {
       SWIClose(Stream[sno].u.swi_stream.swi_ptr);
     } else if (!(Stream[sno].status & Null_Stream_f)) {
@@ -2594,14 +2398,8 @@ Yap_CloseStreams (int loud)
 static void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|SWI_Stream_f))) {
     YP_fclose (Stream[sno].u.file.file);
-  else if (Stream[sno].status & Pipe_Stream_f) {
-#if _MSC_VER || defined(__MINGW32__) 
-    CloseHandle (Stream[sno].u.pipe.hdl);
-#else
-    close(Stream[sno].u.pipe.fd);
-#endif
   } else if (Stream[sno].status & (SWI_Stream_f)) {
     SWIClose(Stream[sno].u.swi_stream.swi_ptr);
   }
@@ -3469,10 +3267,7 @@ p_user_file_name (void)
   int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"user_file_name/2");
   if (sno < 0)
     return (FALSE);
-  if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(AtomPipe);
-  else
-    tout = Stream[sno].u.file.user_name;
+  tout = Stream[sno].u.file.user_name;
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, tout));
 }
@@ -3491,13 +3286,10 @@ p_cur_line_no (void)
       Int no = 1;
       int i;
       Atom my_stream;
-      if (Stream[sno].status & Pipe_Stream_f)
-	my_stream = AtomPipe;
-      else
-	  my_stream = Stream[sno].u.file.name;
+      my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
 	{
-	  if (!(Stream[i].status & (Free_Stream_f|Pipe_Stream_f)) &&
+	  if (!(Stream[i].status & (Free_Stream_f)) &&
 	      Stream[i].u.file.name == my_stream)
 	    no += Stream[i].linecount - 1;
 	}
@@ -5221,14 +5013,7 @@ Yap_StreamToFileNo(Term t)
 {
   int sno  =
     CheckStream(t, (Input_Stream_f|Output_Stream_f), "StreamToFileNo");
-  if (Stream[sno].status & Pipe_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-#if _MSC_VER || defined(__MINGW32__) 
-    return((Int)(Stream[sno].u.pipe.hdl));
-#else
-    return(Stream[sno].u.pipe.fd);
-#endif
-  } else {
+  {
     UNLOCK(Stream[sno].streamlock);
     return(YP_fileno(Stream[sno].u.file.file));
   }
@@ -5389,7 +5174,6 @@ Yap_FileDescriptorFromStream(Term t)
   if (sno < 0)
     return NULL;
   if (Stream[sno].status & (Null_Stream_f|
-		Pipe_Stream_f|
 		Free_Stream_f))
     return NULL;
   return Stream[sno].u.file.file;
