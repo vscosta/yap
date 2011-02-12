@@ -1369,10 +1369,16 @@ file_directory_name(File, Dir) :-
 	swi_file_directory_name(File, Dir).
 file_name_extension(File, Name, Extension) :-
 	swi_file_name_extension(File, Name, Extension).
+is_absolute_file_name(File) :-
+	swi_is_absolute_file_name(File).
 prolog_to_os_filename(Prolog, OS) :-
 	swi_prolog_to_os_filename(Prolog, OS).
 time_file(File, Time) :-
 	swi_time_file(File, Time).
 working_directory(OLD, NEW) :-
 	swi_working_directory(OLD, NEW).
+
+cd(Dir) :- working_directory(_, NEW).
+
+getcwd(Dir) :- working_directory(OLD, OLD).
 
