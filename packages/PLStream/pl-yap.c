@@ -593,6 +593,89 @@ promoteToFloatNumber(Number n)
 
 
 
+int
+PL_get_list_nchars(term_t l, size_t *length, char **s, unsigned int flags)
+{ Buffer b;
+  CVT_result result;
+
+  if ( (b = codes_or_chars_to_buffer(l, flags, FALSE, &result)) )
+  { char *r;
+    size_t len = entriesBuffer(b, char);
+
+    if ( length )
+      *length = len;
+    addBuffer(b, EOS, char);
+    r = baseBuffer(b, char);
+
+    if ( flags & BUF_MALLOC )
+    { *s = PL_malloc(len+1);
+      memcpy(*s, r, len+1);
+      unfindBuffer(flags);
+    } else
+      *s = r;
+
+    succeed;
+  }
+
+  fail;
+}
+
+int
+PL_get_list_chars(term_t l, char **s, unsigned flags)
+{ return PL_get_list_nchars(l, NULL, s, flags);
+}
+
+
+int
+PL_get_wchars(term_t l, size_t *length, pl_wchar_t **s, unsigned flags)
+{ GET_LD
+  PL_chars_t text;
+
+  if ( !PL_get_text(l, &text, flags) )
+    return FALSE;
+
+  PL_promote_text(&text);
+  PL_save_text(&text, flags);
+
+  if ( length )
+    *length = text.length;
+  *s = text.text.w;
+
+  return TRUE;
+}
+
+
+int
+PL_get_nchars(term_t l, size_t *length, char **s, unsigned flags)
+{ GET_LD
+  PL_chars_t text;
+
+  if ( !PL_get_text(l, &text, flags) )
+    return FALSE;
+
+  if ( PL_mb_text(&text, flags) )
+  { PL_save_text(&text, flags);
+
+    if ( length )
+      *length = text.length;
+    *s = text.text.t;
+
+    return TRUE;
+  } else
+  { PL_free_text(&text);
+
+    return FALSE;
+  }
+}
+
+
+int
+PL_get_chars(term_t t, char **s, unsigned flags)
+{ return PL_get_nchars(t, NULL, s, flags);
+}
+
+
+
 
 X_API int
 PL_ttymode(IOSTREAM *s)

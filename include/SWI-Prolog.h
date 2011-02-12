@@ -435,6 +435,7 @@ extern X_API int PL_get_integer(term_t, int *);
 extern X_API int PL_get_list(term_t, term_t, term_t);
 extern X_API int PL_get_long(term_t, long *);
 extern X_API int PL_get_list_chars(term_t, char **, unsigned);
+extern X_API int PL_get_list_nchars(term_t, size_t *, char **, unsigned);
 extern X_API int PL_get_module(term_t, module_t *);
 extern X_API module_t PL_context(void);
 extern X_API int PL_strip_module(term_t, module_t *, term_t);
