@@ -677,6 +677,11 @@ RestoreSWIAtoms(void)
 }
 
 static void 
+RestoreSWIBlobTypes(void)
+{
+}
+
+static void 
 RestoreSWIBlobs(void)
 {
 }

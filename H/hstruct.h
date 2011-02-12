@@ -304,4 +304,5 @@
   Functor  swi_functors[N_SWI_FUNCTORS];
   struct swi_reverse_hash  swi_reverse_hash[N_SWI_HASH];
 
-  struct PL_blob_t  *swi_blobs;
+  struct PL_blob_t  *swi_blob_types;
+  struct AtomEntryStruct  *swi_blobs;

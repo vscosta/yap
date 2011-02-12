@@ -123,8 +123,6 @@ STATIC_PROTO (int ReadlinePutc, (int,int));
 STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (Int p_stream_flags, (void));
-STATIC_PROTO (int find_csult_file, (char *, char *, StreamDesc *, char *));
-STATIC_PROTO (Int p_open, (void));
 STATIC_PROTO (int AddAlias, (Atom, int));
 STATIC_PROTO (void SetAlias, (Atom, int));
 STATIC_PROTO (void PurgeAlias, (int));
@@ -159,7 +157,6 @@ STATIC_PROTO (Int p_skip, (void));
 STATIC_PROTO (Int p_flush, (void));
 STATIC_PROTO (Int p_flush_all_streams, (void));
 STATIC_PROTO (Int p_write_depth, (void));
-STATIC_PROTO (Int p_open_null_stream, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
 STATIC_PROTO (Int p_line_position, (void));
 STATIC_PROTO (Int p_character_count, (void));
@@ -2149,26 +2146,6 @@ p_stream_flags (void)
   return (Yap_unify_constant (ARG2, MkIntTerm (Stream[IntOfTerm (trm)].status)));
 }
 
-static int
-find_csult_file (char *source, char *buf, StreamDesc * st, char *io_mode)
-{
-
-  char *cp = source, ch;
-  while (*cp++);
-  while ((ch = *--cp) != '.' && !Yap_dir_separator((int)ch) && cp != source);
-  if (ch == '.')
-    return (FALSE);
-  strncpy (buf, source, YAP_FILENAME_MAX);
-  strncat (buf, ".yap", YAP_FILENAME_MAX);
-  if ((st->u.file.file = YP_fopen (buf, io_mode)) != YAP_ERROR)
-    return (TRUE);
-  strncpy (buf, source, YAP_FILENAME_MAX);
-  strncat (buf, ".pl", YAP_FILENAME_MAX);
-  if ((st->u.file.file = YP_fopen (buf, io_mode)) != YAP_ERROR)
-    return (TRUE);
-  return (FALSE);
-}
-
 /* given a stream index, get the corresponding fd */
 static Int
 GetStreamFd(int sno)
@@ -2286,204 +2263,6 @@ Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
 
 #endif /* USE_SOCKET */
 
-static int
-binary_file(char *file_name)
-{
-#if HAVE_STAT
-#if _MSC_VER || defined(__MINGW32__) 
-  struct _stat ss;
-  if (_stat(file_name, &ss) != 0) {
-#else
-  struct stat ss;
-  if (stat(file_name, &ss) != 0) {
-#endif
-    /* ignore errors while checking a file */
-    return(FALSE);
-  }
-  return (S_ISDIR(ss.st_mode));
-#else
-  return(FALSE);
-#endif
-}
-
-static int
-write_bom(int sno, StreamDesc *st)
-{
-  /* dump encoding */
-  switch (st->encoding) {
-  case ENC_ISO_UTF8:
-    if (st->stream_putc(sno,0xEF)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xBB)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xBF)<0)
-      return FALSE;
-    st->status  |= HAS_BOM_f;
-    return TRUE;
-  case ENC_UNICODE_BE:
-    if (st->stream_putc(sno,0xFE)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xFF)<0)
-      return FALSE;
-    st->status  |= HAS_BOM_f;
-    return TRUE;
-  case ENC_UNICODE_LE:
-    if (st->stream_putc(sno,0xFF)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xFE)<0)
-      return FALSE;
-  case ENC_ISO_UTF32_BE:
-    if (st->stream_putc(sno,0x00)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0x00)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xFE)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xFF)<0)
-      return FALSE;
-  case ENC_ISO_UTF32_LE:
-    if (st->stream_putc(sno,0xFF)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0xFE)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0x00)<0)
-      return FALSE;
-    if (st->stream_putc(sno,0x00)<0)
-      return FALSE;
-  default:
-    return TRUE;
-  }
-}
-
-
-static int
-check_bom(int sno, StreamDesc *st)
-{
-
-  int ch;
-
-  ch = st->stream_getc(sno);
-  if (ch == EOFCHAR) {
-    st->och = ch;
-    st->stream_getc = PlUnGetc;
-    st->stream_wgetc = get_wchar;
-    st->stream_gets = DefaultGets;
-    return TRUE;
-  }
-  switch(ch) {
-  case 0x00:
-    {
-      ch = st->stream_getc(sno);
-      if (ch == EOFCHAR || ch != 0x00) {
-	      st->och = ch;
-	      st->stream_getc = PlUnGetc00;
-	      st->stream_wgetc = get_wchar;
-	      st->stream_gets = DefaultGets;
-	      return TRUE;
-      } else {
-        ch = st->stream_getc(sno);
-        if (ch == EOFCHAR || ch != 0xFE) {
-    	    st->och = ch;
-    	    st->stream_getc = PlUnGetc0000;
-    	    st->stream_wgetc = get_wchar;
-    	    st->stream_gets = DefaultGets;
-	        return TRUE;
-	      } else {
-          ch = st->stream_getc(sno);
-          if (ch == EOFCHAR || ch != 0xFF) {
-    	      st->och = ch;
-    	      st->stream_getc = PlUnGetc0000fe;
-    	      st->stream_wgetc = get_wchar;
-    	      st->stream_gets = DefaultGets;
-	          return TRUE;
-	        } else {
-	          st->status  |= HAS_BOM_f;
-	          st->encoding = ENC_ISO_UTF32_BE;
-	          return TRUE;
-          }
-        }
-      }
-    }
-  case 0xFE:
-    {
-      ch = st->stream_getc(sno);
-      if (ch != 0xFF) {
-	      st->och = ch;
-	      st->stream_getc = PlUnGetc376;
-	      st->stream_wgetc = get_wchar;
-	      st->stream_gets = DefaultGets;
-	      return TRUE;
-      } else {
-	      st->status  |= HAS_BOM_f;
-	      st->encoding = ENC_UNICODE_BE;
-	      return TRUE;
-      }
-    }
-  case 0xFF:
-    {
-      ch = st->stream_getc(sno);
-      if (ch != 0xFE) {
-	      st->och = ch;
-	      st->stream_getc = PlUnGetc377;
-	      st->stream_wgetc = get_wchar;
-	      st->stream_gets = DefaultGets;
-	      return TRUE;
-      } else {
-        ch = st->stream_getc(sno);
-        if (ch == EOFCHAR || ch != 0x00) {
-    	    st->och = ch;
-    	    st->stream_getc = PlUnGetc377376;
-    	    st->stream_wgetc = get_wchar;
-    	    st->stream_gets = DefaultGets;
-	      } else {
-          ch = st->stream_getc(sno);
-          if (ch == EOFCHAR || ch != 0x00) {
-    	      st->och = ch;
-    	      st->stream_getc = PlUnGetc37737600;
-    	      st->stream_wgetc = get_wchar;
-    	      st->stream_gets = DefaultGets;
-	        } else {
-		        st->status  |= HAS_BOM_f;
-		        st->encoding = ENC_ISO_UTF32_LE;
-		        return TRUE;
-	        }
-	      }
-	    st->status  |= HAS_BOM_f;
-	    st->encoding  = ENC_UNICODE_LE;
-	    return TRUE;
-      }
-    }
-  case 0xEF:
-    ch = st->stream_getc(sno);
-    if (ch != 0xBB) {
-      st->och = ch;
-      st->stream_getc = PlUnGetc357;
-      st->stream_wgetc = get_wchar;
-      st->stream_gets = DefaultGets;
-      return TRUE;
-    } else {
-      ch = st->stream_getc(sno);
-      if (ch != 0xBF) {
-	      st->och = ch;
-	      st->stream_getc = PlUnGetc357273;
-	      st->stream_wgetc = get_wchar;
-	      st->stream_gets = DefaultGets;
-	      return TRUE;
-      } else {
-	      st->status  |= HAS_BOM_f;
-	      st->encoding  = ENC_ISO_UTF8;
-	      return TRUE;
-      }
-    }
-  default:
-    st->och = ch;
-    st->stream_getc = PlUnGetc;
-    st->stream_wgetc = get_wchar;
-    st->stream_gets = DefaultGets;
-    return TRUE;
-  }
-}
-
 #if _MSC_VER || defined(__MINGW32__) 
 #define SYSTEM_STAT _stat
 #else
@@ -2545,217 +2324,6 @@ p_exists_directory(void)
 #endif
   }
 }
-
-static Int
-p_open (void)
-{				/* '$open'(+File,+Mode,?Stream,-ReturnCode)      */
-  Term file_name, t, t2, topts, tenc;
-  Atom open_mode;
-  int sno;
-  SMALLUNSGN s;
-  char io_mode[8];
-  StreamDesc *st;
-  Int opts;
-  UInt encoding;
-  int needs_bom = FALSE, avoid_bom = FALSE;
-
-  file_name = Deref(ARG1);
-  /* we know file_name is bound */
-  if (!IsAtomTerm (file_name)) {
-    Yap_Error(DOMAIN_ERROR_SOURCE_SINK,file_name, "open/3");
-    return(FALSE);
-  }
-  t2 = Deref (ARG2);
-  if (!IsAtomTerm (t2)) {
-    Yap_Error(TYPE_ERROR_ATOM,t2, "open/3");
-    return(FALSE);
-  }
-  open_mode = AtomOfTerm (t2);
-  if (open_mode == AtomRead || open_mode == AtomCsult) {
-    if (open_mode == AtomCsult && AtomOfTerm(file_name) == AtomUserIn) {
-      return(Yap_unify(MkStream(FileAliases[0].alias_stream), ARG3));
-    }
-    strncpy(io_mode,"rb", 8);
-    s = Input_Stream_f;
-  } else if (open_mode == AtomWrite) {
-    strncpy(io_mode,"w",8);
-	s = Output_Stream_f;
-  } else if (open_mode == AtomAppend) {
-    strncpy(io_mode,"a",8);
-	s = Append_Stream_f | Output_Stream_f;
-  } else {
-    Yap_Error(DOMAIN_ERROR_IO_MODE, t2, "open/3");
-    return(FALSE);   
-  }
-  /* can never happen */
-  topts = Deref(ARG4);
-  if (IsVarTerm(topts) || !IsIntegerTerm(topts))
-    return(FALSE);
-  opts = IntegerOfTerm(topts);
-  if (!strncpy(Yap_FileNameBuf, RepAtom (AtomOfTerm (file_name))->StrOfAE, YAP_FILENAME_MAX))
-    return (PlIOError (SYSTEM_ERROR,file_name,"file name is too long in open/3"));
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "open/3"));
-  st = &Stream[sno];
-  /* can never happen */
-  tenc = Deref(ARG5);
-  if (IsVarTerm(tenc) || !IsIntegerTerm(tenc)) {
-    UNLOCK(st->streamlock);
-    return FALSE;
-  }
-  encoding = IntegerOfTerm(tenc);
-#ifdef _WIN32
-  if (opts & 2) {
-    strncat(io_mode, "b", 8);
-  } else {
-    strncat(io_mode, "t", 8);
-  }
-#endif
-  if ((st->u.file.file = YP_fopen (Yap_FileNameBuf, io_mode)) == YAP_ERROR ||
-      (!(opts & 2 /* binary */) && binary_file(Yap_FileNameBuf)))
-    {
-      UNLOCK(st->streamlock);
-      if (open_mode == AtomCsult)
-	{
-	  if (!find_csult_file (Yap_FileNameBuf, Yap_FileNameBuf2, st, io_mode))
-	    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK, ARG6, "open/3"));
-	  strncpy (Yap_FileNameBuf, Yap_FileNameBuf2, YAP_FILENAME_MAX);
-	}
-      else {
-	if (errno == ENOENT)
-	  return (PlIOError(EXISTENCE_ERROR_SOURCE_SINK,ARG6,"open/3"));
-	else
-	  return (PlIOError(PERMISSION_ERROR_OPEN_SOURCE_SINK,file_name,"open/3"));
-      }
-    }
-#if MAC
-  if (open_mode == AtomWrite)
-    {
-      Yap_SetTextFile (RepAtom (AtomOfTerm (file_name))->StrOfAE);
-    }
-#endif
-  st->status = s;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->linepos = 0;
-  st->u.file.name = Yap_LookupAtom (Yap_FileNameBuf);
-  if (IsAtomTerm(Deref(ARG6)))
-    st->u.file.user_name = Deref(ARG6);
-  else
-    st->u.file.user_name = file_name;
-  st->stream_putc = FilePutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = PlGetc;
-  st->stream_gets = PlGetsFunc();
-  if (st->status & Binary_Stream_f) {
-    st->encoding = ENC_OCTET;
-  } else {
-    st->encoding = encoding;
-  }
-  unix_upd_stream_info (st);
-  if (opts != 0) {
-    if (opts & 2) {
-      st->status |= Binary_Stream_f;
-      /* we should not search for a byter order mark on a binary file */
-      avoid_bom = TRUE;
-    }
-    if (opts & 4) {
-      if (st->status & (Tty_Stream_f|Socket_Stream_f|InMemory_Stream_f)) {
-	Term ta[1], t;
-	
-#if USE_SOCKET
-	if (st->status & Socket_Stream_f) {
-	  st->stream_putc = SocketPutc;
-	  st->stream_wputc = put_wchar;
-	  st->stream_getc = SocketGetc;
-	  st->stream_gets = DefaultGets;
-	} else
-#endif
-	if (st->status & Pipe_Stream_f) {
-	  st->stream_putc = PipePutc;
-	  st->stream_wputc = put_wchar;
-	  st->stream_getc = PipeGetc;
-	  st->stream_gets = DefaultGets;
-	} else if (st->status & InMemory_Stream_f) {
-	  st->stream_putc = MemPutc;
-	  st->stream_wputc = put_wchar;
-	  st->stream_getc = MemGetc;	  
-	  st->stream_gets = DefaultGets;	  
-	} else {
-	  st->stream_putc = ConsolePutc;
-	  st->stream_wputc = put_wchar;
-	  st->stream_getc = PlGetc;
-	  st->stream_gets = PlGetsFunc();
-	}
-	UNLOCK(st->streamlock);
-	ta[1] = MkAtomTerm(AtomTrue);
-	t = Yap_MkApplTerm(Yap_MkFunctor(AtomReposition,1),1,ta);
-	Yap_Error(PERMISSION_ERROR_OPEN_SOURCE_SINK,t,"open/4");
-	return FALSE;
-      }
-      /* useless crap */
-      st->status |= Seekable_Stream_f;
-    }
-    if (opts & 8) {
-      /* There may be one reason why one wouldn't want to seek in a
-	 file, maybe .... */
-      st->status &= ~Seekable_Stream_f;
-    }
-    if (opts & 16) {
-      st->status &= ~Reset_Eof_Stream_f;
-      st->status |= Eof_Error_Stream_f;
-    }
-    if (opts & 32) {
-      st->status &= ~Reset_Eof_Stream_f;
-      st->status &= ~Eof_Error_Stream_f;
-    }
-    if (opts & 64) {
-      st->status &= ~Eof_Error_Stream_f;
-      st->status |= Reset_Eof_Stream_f;
-    }
-    if (opts & 128) {
-      needs_bom = TRUE;
-    }
-    if (opts & 256) {
-      avoid_bom = TRUE;
-    }
-    if (opts & 512) {
-      st->status |= RepError_Prolog_f;
-    }
-    if (opts & 1024) {
-      st->status |= RepError_Xml_f;
-    }
-  }
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-  UNLOCK(st->streamlock);
-  t = MkStream (sno);
-  if (open_mode == AtomWrite ) {
-    if (needs_bom && !write_bom(sno,st))
-      return FALSE;
-  } else if ((open_mode == AtomRead || open_mode == AtomCsult) &&
-	     !avoid_bom &&
-	     (needs_bom || (st->status & Seekable_Stream_f))) {
-    if (!check_bom(sno, st))
-      return FALSE;
-    /*
-    if (st->encoding == ENC_ISO_UTF32_BE) {
-	    Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "UTF-32 (BE) stream encoding unsupported");
-	    return FALSE;
-    } else if (st->encoding == ENC_ISO_UTF32_LE) {
-	    Yap_Error(DOMAIN_ERROR_STREAM_ENCODING, ARG1, "UTF-32 (LE) stream encoding unsupported");
-	    return FALSE;
-    }
-    */
-  }
-  st->status &= ~(Free_Stream_f);
-  return (Yap_unify (ARG3, t));
-}
-
 
 static Int
 p_file_expansion (void)
@@ -2876,31 +2444,6 @@ p_fetch_stream_alias (void)
     Yap_Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
     return FALSE;
   }
-}
-
-static Int
-p_open_null_stream (void)
-{
-  Term t;
-  StreamDesc *st;
-  int sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_null_stream/1"));
-  st = &Stream[sno];
-  st->status = Append_Stream_f | Output_Stream_f | Null_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = NullPutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = PlGetc;
-  st->stream_gets = PlGetsFunc();
-  st->stream_wgetc = get_wchar;
-  st->stream_wgetc_for_read = get_wchar;
-  st->u.file.user_name = MkAtomTerm (st->u.file.name = AtomDevNull);
-  UNLOCK(st->streamlock);
-  t = MkStream (sno);
-  return (Yap_unify (ARG1, t));
 }
 
 Term
@@ -3405,6 +2948,13 @@ LookupSWIStream (struct io_stream *swi_s)
   return i;
 }
 
+typedef struct stream_ref
+{ struct io_stream *read;
+  struct io_stream *write;
+} stream_ref;
+
+extern stream_ref *PL_blob_data(Atom, void *, void *);
+
 static int
 CheckStream (Term arg, int kind, char *msg)
 {
@@ -3436,6 +2986,24 @@ CheckStream (Term arg, int kind, char *msg)
 	return sno;
       }       
     }
+    if (IsBlob (sname)) {
+      struct io_stream *s;
+      stream_ref *ref;
+	
+      ref = PL_blob_data(sname, NULL, NULL);
+      {
+	if ( ref->read )
+	  {
+	    if ( ref->write && (kind&Output_Stream_f) )
+	      s = ref->write;
+	    else
+	      s = ref->read;
+	  } else
+	  s = ref->write;
+      }
+      sno = LookupSWIStream(s);
+      return sno;
+    }
     if ((sno = CheckAlias(sname)) == -1) {
       Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
       return -1;
@@ -3450,10 +3018,6 @@ CheckStream (Term arg, int kind, char *msg)
 	sno = xsno;
       }
     }
-  } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FSWIStream) {
-    arg = ArgOfTerm (1, arg);
-    if (!IsVarTerm (arg) && IsIntegerTerm (arg))
-      sno = LookupSWIStream((struct io_stream *)IntegerOfTerm (arg));
   }
   if (sno < 0)
     {
@@ -4561,28 +4125,6 @@ p_user_file_name (void)
     tout = Stream[sno].u.file.user_name;
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, tout));
-}
-
-static Int
-p_file_name (void)
-{
-  Term tout;
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"file_name/2");
-  if (sno < 0)
-    return (FALSE);
-#if USE_SOCKET
-  if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(AtomSocket);
-  else
-#endif
-  if (Stream[sno].status & Pipe_Stream_f)
-    tout = MkAtomTerm(AtomPipe);
-  else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(AtomCharsio);
-  else
-    tout = MkAtomTerm(Stream[sno].u.file.name);
-  UNLOCK(Stream[sno].streamlock);
-  return Yap_unify_constant (ARG2, tout);
 }
 
 static Int
@@ -6659,9 +6201,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$open", 6, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$open_null_stream", 1, p_open_null_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   CurrentModule = CHARSIO_MODULE;
   Yap_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
@@ -6672,8 +6212,8 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -6691,7 +6231,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
-  Yap_InitCPred ("$file_name", 2, p_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),

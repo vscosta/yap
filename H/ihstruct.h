@@ -304,4 +304,5 @@
 
 
 
+  Yap_heap_regs->swi_blob_types = NULL;
   Yap_heap_regs->swi_blobs = NULL;

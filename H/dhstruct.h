@@ -304,4 +304,5 @@
 #define SWI_Functors Yap_heap_regs->swi_functors
 #define SWI_ReverseHash Yap_heap_regs->swi_reverse_hash
 
+#define SWI_BlobTypes Yap_heap_regs->swi_blob_types
 #define SWI_Blobs Yap_heap_regs->swi_blobs

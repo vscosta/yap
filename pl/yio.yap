@@ -17,18 +17,6 @@
 
 /* stream predicates							*/
 
-open(Source,M,T) :- var(Source), !,
-	'$do_error'(instantiation_error,open(Source,M,T)).
-open(Source,M,T) :- var(M), !,
-	'$do_error'(instantiation_error,open(Source,M,T)).
-open(Source,M,T) :- nonvar(T), !,
-	'$do_error'(uninstantiation_error(T),open(Source,M,T)).
-open(File0,Mode,Stream) :-
-	'$default_encoding'(Encoding),
-	'$default_expand'(Expansion),	
-	'$expand_filename'(Expansion, File0, File),
-	'$open'(File, Mode, Stream, 16, Encoding, File0).
-
 close(V) :- var(V), !,
 	'$do_error'(instantiation_error,close(V)).
 close(File) :-
@@ -52,101 +40,6 @@ close(S,Opts) :-
 	/* YAP ignores the force/1 flag */ 
 	close(S).
 	
-open(F,T,S,Opts) :-
-	'$check_io_opts'(Opts,open(F,T,S,Opts)),
-	'$process_open_opts'(Opts, 0, N,  Aliases, E, BOM, Expand),
-	'$expand_filename'(Expand, F, NF),
-	'$open2'(NF, T, S, N, E, F),
-	'$process_bom'(S, BOM),
-	'$process_open_aliases'(Aliases,S).
-
-'$expand_filename'(false, F, F) :- !.
-'$expand_filename'(true, F, NF) :-
-	operating_system_support:true_file_name(F, NF).
-
-'$open2'(Source,M,T,N,_,_) :- var(Source), !,
-	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N,_,_) :- var(M), !,
-	'$do_error'(instantiation_error,open(Source,M,T,N)).
-'$open2'(Source,M,T,N,_,_) :- nonvar(T), !,
-	'$do_error'(uninstantiation_error(T),open(Source,M,T,N)).
-'$open2'(File, Mode, Stream, N, Encoding, F0) :-
-	'$open'(File, Mode, Stream, N, Encoding, F0).
-
-'$process_bom'(S, BOM) :-
-	var(BOM), !,	( '$has_bom'(S) -> BOM = true ; BOM = false ).
-'$process_bom'(_, _).
-	
-
-'$process_open_aliases'([],_).
-'$process_open_aliases'([Alias|Aliases],S) :-
-	'$add_alias_to_stream'(Alias, S),
-	'$process_open_aliases'(Aliases,S).
-
-'$process_open_opts'([], N, N, [], DefaultEncoding, [], DefaultExpand) :-
-	'$default_encoding'(DefaultEncoding),
-	'$default_expand'(DefaultExpand).
-'$process_open_opts'([type(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
-	'$value_open_opt'(T,type,I1,I2),
-	N1 is I1\/N0,
-	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
-'$process_open_opts'([expand_filename(T)|L], N0, N, Aliases, Encoding, BOM, Expand) :-
-	'$valid_expand'(T, Expand),
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, _).
-'$process_open_opts'([reposition(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
-	'$value_open_opt'(T,reposition,I1,I2),
-	N1 is I1\/N0,
-	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
-'$process_open_opts'([encoding(Enc)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
-	'$valid_encoding'(Enc, EncCode),
-	'$process_open_opts'(L, N0, N, Aliases, _, BOM, DefaultExpand).
-'$process_open_opts'([representation_errors(Mode)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
-	'$valid_reperrorhandler'(Mode, Flag),
-	NI is N0 \/ Flag,
-	'$process_open_opts'(L, NI, N, Aliases, EncCode, BOM, DefaultExpand).
-'$process_open_opts'([bom(BOM)|L], N0, N, Aliases, EncCode, BOM, DefaultExpand) :-
-	(
-	 var(BOM)
-	->
-	 true
-	;
-	 '$valid_bom'(BOM, Flag),
-	 NI is N0 \/ Flag
-	),
-	'$process_open_opts'(L, NI, N, Aliases, EncCode, _, DefaultExpand).
-'$process_open_opts'([eof_action(T)|L], N0, N, Aliases, Encoding, BOM, DefaultExpand) :-
-	'$value_open_opt'(T,eof_action,I1,I2),
-	N1 is I1\/N0,
-	N2 is I2/\N1,
-	'$process_open_opts'(L,N2,N, Aliases, Encoding, BOM, DefaultExpand).
-'$process_open_opts'([alias(Alias)|L], N0, N, [Alias|Aliases], Encoding, BOM, DefaultExpand) :-
-	'$process_open_opts'(L,N0,N, Aliases, Encoding, BOM, DefaultExpand).
-
-
-'$value_open_opt'(text,_,1,X) :- X is 0xffff-2. % default
-'$value_open_opt'(binary,_,2, X) :- X is 0xffff-1.
-'$value_open_opt'(true,_,4, X) :- X is 0xffff-8.
-'$value_open_opt'(false,_,8, X) :- X is 0xffff-4.
-'$value_open_opt'(error,_,16, X) :- X is 0xffff-0x0060.
-'$value_open_opt'(eof_code,_,32, X) :- X is 0xffff-0x0050.
-'$value_open_opt'(reset, _, 64, X) :- X is 0xffff-0x0030.
-%128 -> use bom
-%256 -> do not use bom
-%512 -> do prolog on unrepresentable char
-%1024 -> do XML on unrepresentable char
-
-'$valid_bom'(true, 128).
-'$valid_bom'(false, 256).
-
-'$valid_reperrorhandler'(error, 0). % default.
-'$valid_reperrorhandler'(prolog, 512).
-'$valid_reperrorhandler'(xml, 1024).
-
-'$valid_expand'(true, true).
-'$valid_expand'(false, false).
-
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -164,8 +57,6 @@ open(F,T,S,Opts) :-
 	    '$check_force_opt_arg'(X,G) ;
 	    '$do_error'(domain_error(close_option,Opt),G)
 	).
-'$check_opt'(open(_,_,_,_),Opt,G) :-
-	'$check_opt_open'(Opt, G).
 '$check_opt'(read_term(_,_),Opt,G) :-
 	'$check_opt_read'(Opt, G).
 '$check_opt'(stream_property(_,_),Opt,G) :-
@@ -174,24 +65,6 @@ open(F,T,S,Opts) :-
 	'$check_opt_write'(Opt, G).
 '$check_opt'(yap_flag(_,_),Opt,G) :-
 	'$check_opt_write'(Opt, G).
-
-
-'$check_opt_open'(type(T), G) :- !,
-	'$check_open_type_arg'(T, G).
-'$check_opt_open'(reposition(T), G) :- !,
-	'$check_open_reposition_arg'(T, G).
-'$check_opt_open'(alias(T), G) :- !,
-	'$check_open_alias_arg'(T, G).
-'$check_opt_open'(eof_action(T), G) :- !,
-	'$check_open_eof_action_arg'(T, G).
-'$check_opt_open'(encoding(T), G) :- !,
-	'$check_open_encoding'(T, G).
-'$check_opt_open'(representation_errors(M), G) :- !,
-	'$check_open_representation_errors'(M, G).
-'$check_opt_open'(bom(T), G) :- !,
-	'$check_open_bom_arg'(T, G).
-'$check_opt_open'(A, G) :-
-	'$do_error'(domain_error(stream_option,A),G).
 
 '$check_opt_read'(variables(_), _) :- !.
 '$check_opt_read'(variable_names(_), _) :- !.
@@ -251,60 +124,6 @@ open(F,T,S,Opts) :-
 '$check_force_opt_arg'(false,_) :- !.
 '$check_force_opt_arg'(X,G) :-
 	'$do_error'(domain_error(close_option,force(X)),G).
-
-'$check_open_type_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_type_arg'(text,_) :- !.
-'$check_open_type_arg'(binary,_) :- !.
-'$check_open_opt_arg'(X,G) :-
-	'$do_error'(domain_error(io_mode,type(X)),G).
-
-'$check_open_reposition_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_reposition_arg'(true,_) :- !.
-'$check_open_reposition_arg'(false,_) :- !.
-'$check_open_reposition_arg'(X,G) :-
-	'$do_error'(domain_error(io_mode,reposition(X)),G).
-
-'$check_open_bom_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_bom_arg'(true,_) :- !.
-'$check_open_bom_arg'(false,_) :- !.
-'$check_open_bom_arg'(X,G) :-
-	'$do_error'(domain_error(io_mode,bom(X)),G).
-
-'$check_open_alias_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_alias_arg'(X,G) :- atom(X), !,
-	( '$check_if_valid_new_alias'(X), X \= user ->
-	    true ;
-	    '$do_error'(permission_error(open, source_sink, alias(X)),G)
-	).
-'$check_open_alias_arg'(X,G) :-
-	'$do_error'(domain_error(io_mode,alias(X)),G).
-
-
-'$check_open_eof_action_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_eof_action_arg'(error,_) :- !.
-'$check_open_eof_action_arg'(eof_code,_) :- !.
-'$check_open_eof_action_arg'(reset,_) :- !.
-'$check_open_eof_action_arg'(X,G) :-
-	'$do_error'(domain_error(io_mode,eof_action(X)),G).
-
-'$check_open_encoding'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_encoding'(Encoding,_) :-
-	'$valid_encoding'(Encoding,_), !.
-'$check_open_encoding'(Encoding,G) :-
-	'$do_error'(domain_error(io_mode,encoding(Encoding)),G).
-
-'$check_open_representation_errors'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_open_representation_errors'(RepErrorHandler,_) :-
-	'$valid_reperrorhandler'(RepErrorHandler,_), !.
-'$check_open_representation_errors'(Handler,G) :-
-	'$do_error'(domain_error(io_mode,representation_errors(Handler)),G).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -882,94 +701,6 @@ set_stream_position(A,N) :-
 	'$set_stream_position'(S,N).
 set_stream_position(S,N) :-
 	'$set_stream_position'(S,N).
-
-stream_property(Stream, Prop) :-  var(Prop), !,
-        (var(Stream) -> '$current_stream'(_,_,Stream) ; true),
-        '$generate_prop'(Prop),
-	'$stream_property'(Stream, Prop).
-stream_property(Stream, Props) :-  var(Stream), !,
-	'$current_stream'(_,_,Stream),
-	'$stream_property'(Stream, Props).
-stream_property(Stream, Props) :-
-	'$current_stream'(_,_,Stream), !,
-	'$stream_property'(Stream, Props).
-stream_property(Stream, Props) :-
-	'$do_error'(domain_error(stream,Stream),stream_property(Stream, Props)).
-
-'$generate_prop'(file_name(_F)).
-'$generate_prop'(mode(_M)).
-'$generate_prop'(input).
-'$generate_prop'(output).
-'$generate_prop'(position(_P)).
-%'$generate_prop'(end_of_stream(_E)).
-'$generate_prop'(eof_action(_E)).
-%'$generate_prop'(reposition(_R)).
-'$generate_prop'(type(_T)).
-'$generate_prop'(alias(_A)).
-'$generate_prop'(bom(_B)).
-'$generate_prop'(encoding(_E)).
-'$generate_prop'(representation_errors(_E)).
-
-'$stream_property'(Stream, Props) :-
-	var(Props), !,
-	'$do_error'(instantiation_error, stream_properties(Stream, Props)).
-'$stream_property'(Stream, Props0) :-
-	'$check_stream_props'(Props0, Props),
-	'$check_io_opts'(Props, stream_property(Stream, Props)),
-	'$current_stream'(F,Mode,Stream),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-
-'$check_stream_props'([], []) :- !.
-'$check_stream_props'([H|T], [H|T]) :- !.
-'$check_stream_props'(Prop, [Prop]).
-
-
-%
-
-'$process_stream_properties'([], _, _, _).
-'$process_stream_properties'([file_name(F)|Props], Stream, F, Mode) :-
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([mode(Mode)|Props], Stream, F, Mode) :-
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([input|Props], Stream, F, read) :-
-	'$process_stream_properties'(Props, Stream, F, read).
-'$process_stream_properties'([output|Props], Stream, F, append) :-
-	'$process_stream_properties'(Props, Stream, F, append).
-'$process_stream_properties'([output|Props], Stream, F, write) :-
-	'$process_stream_properties'(Props, Stream, F, write).
-'$process_stream_properties'([position(P)|Props], Stream, F, Mode) :-
-	'$show_stream_position'(Stream,P),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([encoding(Enc)|Props], Stream, F, Mode) :-
-	% make sure this runs first, with EncCode unbound.
-	'$encoding'(Stream, EncCode),
-	'$valid_encoding'(Enc, EncCode),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([bom(B)|Props], Stream, F, Mode) :-
-	'$show_stream_bom'(Stream, B),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([end_of_stream(P)|Props], Stream, F, Mode) :-
-	'$show_stream_eof'(Stream, P),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([eof_action(P)|Props], Stream, F, Mode) :-
-	'$show_stream_flags'(Stream, Fl),
-	'$show_stream_eof_action'(Fl, P),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([reposition(P)|Props], Stream, F, Mode) :-
-	'$show_stream_flags'(Stream, Fl),
-	'$show_stream_reposition'(Fl, P),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([representation_errors(B)|Props], Stream, F, Mode) :-
-	'$stream_representation_error'(Stream, ErrorHandler),
-	'$valid_reperrorhandler'(B, ErrorHandler),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([type(P)|Props], Stream, F, Mode) :-
-	'$show_stream_flags'(Stream, Fl),
-	'$show_stream_type'(Fl, P),
-	'$process_stream_properties'(Props, Stream, F, Mode).
-'$process_stream_properties'([alias(Alias)|Props], Stream, F, Mode) :-
-	'$fetch_stream_alias'(Stream, Alias),
-	'$process_stream_properties'(Props, Stream, F, Mode).
 
 '$show_stream_eof'(Stream, past) :-
 	'$past_eof'(Stream), !.

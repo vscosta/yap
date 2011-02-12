@@ -159,7 +159,8 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
-	'$open'(Y, '$csult', Stream, 0, Enc, X), !,
+	'$valid_encoding'(Encoding, Enc),
+	open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Enc, X)
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,CompMode,Reconsult,UseModule),
 	'$close'(Stream).
@@ -430,7 +431,7 @@ initialization(G,OPT) :-
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
 	'$default_encoding'(Encoding),
-	( '$open'(Y, '$csult', Stream, 0, Encoding, X), !,
+	( open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Encoding, X), !,
 		print_message(Verbosity, loading(including, Y)),
 		'$loop'(Stream,Status), '$close'(Stream)
 	;
@@ -1029,4 +1030,11 @@ make :-
 	'$load_files'(F1, [if(changed)],make),
 	fail.
 make.
+
+'$file_name'(Stream,F) :-
+	stream_property(Stream, file_name(F)), !.
+'$file_name'(user_input,user_output).
+'$file_name'(user_output,user_ouput).
+'$file_name'(user_error,user_error).
+
 

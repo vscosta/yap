@@ -50,11 +50,53 @@ PL_is_blob(term_t t, PL_blob_t **type)
   return TRUE;
 }
 
+static AtomEntry *
+lookupBlob(void *blob, size_t len, PL_blob_t *type)
+{
+  BlobPropEntry *b;
+  AtomEntry *ae;
+
+  if (type->flags & PL_BLOB_UNIQUE) {
+    /* just keep a linked chain for now */
+    ae = SWI_Blobs;
+    while (ae) {
+      if (RepBlobProp(ae->PropsOfAE)->blob_t == type &&
+	  ae->rep.blob->length == len &&
+	  !memcmp(ae->rep.blob->data, blob, len))
+	return ae;
+      ae = RepAtom(ae->NextOfAE);
+    }
+  }
+  b = (BlobPropEntry *)Yap_AllocCodeSpace(sizeof(BlobPropEntry));
+  if (!b)
+    return NULL;
+  b->NextOfPE = NIL;
+  b->KindOfPE = BlobProperty;
+  b->blob_t = type;
+  ae = (AtomEntry *)Yap_AllocCodeSpace(sizeof(AtomEntry)+len);
+  if (!ae)
+    return NULL;
+  INIT_RWLOCK(ae->ARWLock);
+  ae->PropsOfAE = AbsBlobProp(b);
+  ae->NextOfAE = AbsAtom(SWI_Blobs);
+  ae->rep.blob->length = len;
+  memcpy(ae->rep.blob->data, blob, len);
+  SWI_Blobs = ae;
+  return ae;
+}
+
 PL_EXPORT(int)		
 PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 {
-  fprintf(stderr,"PL_unify_blob not implemented yet\n");
-  return FALSE;
+  AtomEntry *ae;
+
+  if (!blob)
+    return FALSE;
+  ae = lookupBlob(blob, len, type);
+  if (!ae) {
+    return FALSE;
+  }
+  return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(AbsAtom(ae)));
 }
 
 PL_EXPORT(int)	
@@ -101,8 +143,8 @@ PL_blob_data(atom_t a, size_t *len, struct PL_blob_t **type)
 PL_EXPORT(void)
 PL_register_blob_type(PL_blob_t *type)
 {
-  type->next = SWI_Blobs;
-  SWI_Blobs = type;
+  type->next = SWI_BlobTypes;
+  SWI_BlobTypes = type;
 }
 
 PL_EXPORT(PL_blob_t*)	

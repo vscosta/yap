@@ -1077,8 +1077,10 @@ break :-
 	set_value('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
-	'$open'(F, '$csult', Stream, 0, 0, F),
-	'$file_name'(Stream,File),
+%	'$open'(F, '$csult', Stream, 0, 0, F),
+%	'$file_name'(Stream,File),
+	open(F, read, Stream),
+	stream_property(Stream, file_name(File)),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
 	getcwd(OldD),
@@ -1108,11 +1110,11 @@ bootstrap(F) :-
 
 
 '$loop'(Stream,Status) :-
-	'$change_alias_to_stream'('$loop_stream',Stream),
+%VSC	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
-		( '$current_stream'(_,_,Stream) -> true
-		 ; '$abort_loop'(Stream)
-		),
+%VSC		( '$current_stream'(_,_,Stream) -> true
+%VSC		 ; '$abort_loop'(Stream)
+%VSC		),
 		prompt('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
@@ -1378,7 +1380,16 @@ time_file(File, Time) :-
 working_directory(OLD, NEW) :-
 	swi_working_directory(OLD, NEW).
 
-cd(Dir) :- working_directory(_, NEW).
+cd(Dir) :- working_directory(_, Dir).
 
-getcwd(Dir) :- working_directory(OLD, OLD).
+getcwd(Dir) :- working_directory(Dir, Dir).
+
+open(File, Type, Stream) :-
+	swi_open(File, Type, Stream).
+open(File, Type, Opts, Stream) :-
+	swi_open(File, Type, Opts, Stream).
+open_null_stream(S) :-
+	swi_open_null_stream(S).
+stream_property(Stream, Property) :-
+	swi_stream_property(Stream, Property).
 

@@ -304,4 +304,5 @@
 
 
 
+  RestoreSWIBlobTypes();
   RestoreSWIBlobs();
