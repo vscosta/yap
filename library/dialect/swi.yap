@@ -9,7 +9,6 @@
 		   is_absolute_file_name/1,
 		   read_clause/1,
 		   string/1,
-		   working_directory/2,
 		   chdir/1,
 		   compile_aux_clauses/1,
 		   convert_time/2,
@@ -210,7 +209,6 @@ goal_expansion('$push_input_context', system:'swi_$push_input_context').
 goal_expansion('$pop_input_context', system:'swi_$pop_input_context').
 goal_expansion('$size_stream'(A,B),system:'swi_$size_stream'(A,B)) :- swi_io.
 
-goal_expansion(working_directory(A,B),system:swi_working_directory(A,B)) :- swi_io.
 goal_expansion(access_file(A,B),system:swi_access_file(A,B)) :- swi_io.
 goal_expansion(size_file(A,B),system:swi_size_file(A,B)) :- swi_io.
 goal_expansion(read_link(A,B,C), system:swi_read_link(A,B,C)) :- swi_io.
@@ -314,10 +312,6 @@ cvt_bindings([],[]).
 cvt_bindings([[Name|Value]|L],[AName=Value|Bindings]) :-
 	atom_codes(AName, Name),
 	cvt_bindings(L,Bindings).
-
-working_directory(OCWD,NCWD) :-
-	getcwd(OCWD),
-	(var(NCWD) -> true ; cd(NCWD)).
 
 chdir(X) :- cd(X).
 
