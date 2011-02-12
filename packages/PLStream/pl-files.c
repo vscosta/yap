@@ -349,7 +349,13 @@ MarkExecutable(const char *name)
 
 int
 unifyTime(term_t t, time_t time)
-{ return PL_unify_float(t, (double)time);
+{ 
+#if __YAP_PROLOG__
+  /* maintain compatibility with old Prolog systems, and avoid losing precision unnecessarily */
+  return PL_unify_int64(t, (int64_t)time);
+#else
+  return PL_unify_float(t, (double)time);
+#endif
 }
 
 
