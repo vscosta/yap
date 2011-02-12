@@ -6594,36 +6594,6 @@ Yap_StringToTerm(char *s,Term *tp)
   return t;
 }
 
-static Int
-p_file_base_name (void)
-{				/* file_base_name(Stream,N)                      */
-  Term t = Deref(ARG1);
-  Atom at;
-  if (IsVarTerm(t)) {
-    Yap_Error(INSTANTIATION_ERROR, t, "file_base_name/2");
-    return FALSE;    
-  }
-  if (!IsAtomTerm(t)) {
-    Yap_Error(TYPE_ERROR_ATOM, t, "file_base_name/2");
-    return FALSE;    
-  }
-  at = AtomOfTerm(t);
-  if (IsWideAtom(at)) {
-      wchar_t *c = RepAtom(at)->WStrOfAE;
-      Int i = wcslen(c);
-      while (i && !Yap_dir_separator((int)c[--i]));
-      return Yap_unify(ARG2, MkAtomTerm(Yap_LookupWideAtom(c+i)));
-  } else {
-      char *c = RepAtom(at)->StrOfAE;
-      Int i = strlen(c);
-      while (i && !Yap_dir_separator((int)c[--i]));
-      if (Yap_dir_separator((int)c[i])) {
-	i++;
-      }
-      return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(c+i)));
-  }
-}
-
 Term
 Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 {
@@ -6756,7 +6726,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$toupper", 2, p_toupper, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$tolower", 2, p_tolower, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("file_base_name", 2, p_file_base_name, SafePredFlag|HiddenPredFlag);
 
   CurrentModule = SYSTEM_MODULE;
   Yap_InitCPred ("swi_format", 3, p_swi_format, SyncPredFlag);

@@ -2325,31 +2325,6 @@ p_mv (void)
 }
 
 
-/* find the directory info from a file name */
-static Int
-p_file_directory_name (void)
-{
-  Term t1 = Deref(ARG1);
-  char *chp;
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR, t1, "first arg of file_directory_name/2");
-    return FALSE;
-  }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1,  "first arg of file_directory_name/2");
-    return FALSE;
-  }
-  TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE,  NULL, Yap_FileNameBuf, FALSE);
-  chp = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
-  while (!dir_separator(*--chp) && chp != Yap_FileNameBuf);
-  if (chp == Yap_FileNameBuf) {
-    return Yap_unify(MkAtomTerm(AtomDot),ARG2);
-  }
-  *chp = '\0';
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),ARG2);
-}
-
 /* Change the working directory */
 static Int
 p_cd (void)
@@ -3324,7 +3299,6 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$continue_signals", 0, p_continue_signals, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("file_directory_name", 2, p_file_directory_name, SafePredFlag);
   Yap_InitCPred ("$env_separator", 1, p_env_separator, SafePredFlag);
   Yap_InitCPred ("$unix", 0, p_unix, SafePredFlag);
   Yap_InitCPred ("$win32", 0, p_win32, SafePredFlag);

@@ -1359,6 +1359,20 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 		    
-access_file(File, Mode) :- swi_access_file(File, Mode).
-time_file(File, Time) :- swi_time_file(File, Time).
+access_file(File, Mode) :-
+	swi_access_file(File, Mode).
+expand_file_name(Exp, Matches) :-
+	swi_expand_file_name(Exp, Matches).
+file_base_name(File, Base) :-
+	swi_file_base_name(File, Base).
+file_directory_name(File, Dir) :-
+	swi_file_directory_name(File, Dir).
+file_name_extension(File, Name, Extension) :-
+	swi_file_name_extension(File, Name, Extension).
+prolog_to_os_filename(Prolog, OS) :-
+	swi_prolog_to_os_filename(Prolog, OS).
+time_file(File, Time) :-
+	swi_time_file(File, Time).
+working_directory(OLD, NEW) :-
+	swi_working_directory(OLD, NEW).
 
