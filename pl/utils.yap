@@ -247,20 +247,13 @@ pwd :-
 	getcwd(X),
 	write(X), nl.
 
-working_directory(OLD, NEW) :-
-	swi_working_directory(OLD, NEW).
-
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).
 unix(argv(V)) :-
 	'$do_error'(type_error(atomic,V),unix(argv(V))).
 unix(cd) :- cd('~').
-unix(cd(V)) :- var(V), !,
-	'$do_error'(instantiation_error,unix(cd(V))).
-unix(cd(A)) :- atomic(A), !, cd(A).
-unix(cd(V)) :-
-	'$do_error'(type_error(atomic,V),unix(cd(V))).
+unix(cd(A)) :- cd(A).
 unix(environ(X,Y)) :- '$do_environ'(X,Y).
 unix(getcwd(X)) :- getcwd(X).
 unix(shell(V)) :- var(V), !,

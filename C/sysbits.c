@@ -95,8 +95,6 @@ STATIC_PROTO (Int p_sh, (void));
 STATIC_PROTO (Int p_shell, (void));
 STATIC_PROTO (Int p_system, (void));
 STATIC_PROTO (Int p_mv, (void));
-STATIC_PROTO (Int p_cd, (void));
-STATIC_PROTO (Int p_getcwd, (void));
 STATIC_PROTO (Int p_dir_sp, (void));
 STATIC_PROTO (void InitRandom, (void));
 STATIC_PROTO (Int p_srandom, (void));
@@ -2137,14 +2135,6 @@ p_true_file_name3 (void)
   return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
 }
 
-static Int
-p_getcwd(void)
-{
-  if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
-    return FALSE;
-  return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
-}
-
 /* Executes $SHELL under Prolog */
 
 static Int
@@ -2324,50 +2314,6 @@ p_mv (void)
 #endif
 }
 
-
-/* Change the working directory */
-static Int
-p_cd (void)
-{				/* cd(+NewD)			 */
-  Term t1 = Deref (ARG1);
-
-  if (IsVarTerm(t1)) {
-    Yap_Error(INSTANTIATION_ERROR,t1,"argument to cd/1 is not valid");
-    return FALSE;
-  } else if (IsAtomTerm(t1)) {
-    TrueFileName (RepAtom(AtomOfTerm(t1))->StrOfAE, NULL, Yap_FileNameBuf2, FALSE);
-  } else {
-    if (t1 == TermNil)
-      return TRUE;
-    if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
-      Yap_Error(TYPE_ERROR_ATOM,t1,"argument to cd/1 is not valid");
-      return FALSE;
-    }
-    TrueFileName (Yap_FileNameBuf, NULL, Yap_FileNameBuf2, FALSE);
-  }
-#if HAVE_CHDIR
-#if  __simplescalar__
-  strncpy(yap_pwd,Yap_FileNameBuf2,YAP_FILENAME_MAX);
-#endif
-  if (chdir (Yap_FileNameBuf2) < 0) {
-#if HAVE_STRERROR
-    Yap_Error(OPERATING_SYSTEM_ERROR, t1, 
-	"%s in cd(%s)", strerror(errno), Yap_FileNameBuf2);
-#else
-    Yap_Error(OPERATING_SYSTEM_ERROR,t1," in cd(%s)", Yap_FileNameBuf2);
-#endif
-    return FALSE;
-  }
-  return TRUE;
-#else
-#ifdef MACYAP
-  return (!chdir (Yap_FileNameBuf2));
-#else
-  Yap_Error(SYSTEM_ERROR,TermNil,"cd/1 not available in this machine");
-  return FALSE;
-#endif
-#endif
-}
 
 #ifdef MAC
 
@@ -3288,9 +3234,7 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$shell", 1, p_shell, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("system", 1, p_system, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("rename", 2, p_mv, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("cd", 1, p_cd, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$yap_home", 1, p_yap_home, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("getcwd", 1, p_getcwd, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$dir_separator", 1, p_dir_sp, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);
