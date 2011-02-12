@@ -1359,3 +1359,6 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 		    
+access_file(File, Mode) :- swi_access_file(File, Mode).
+time_file(File, Time) :- swi_time_file(File, Time).
+

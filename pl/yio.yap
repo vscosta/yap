@@ -356,7 +356,7 @@ open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
 fileerrors :- set_value(fileerrors,1).
 nofileerrors :- set_value(fileerrors,0).
 
-exists(F) :- access_file(F,'$csult').
+exists(F) :- access_file(F,exist).
 
 see(user) :- !, set_input(user_input).
 see(F) :- var(F), !,
@@ -1098,9 +1098,6 @@ write_depth(T,L) :- write_depth(T,L,_).
 
 is_stream(S) :-
 	catch('$check_stream'(S), _, fail), !.
-
-time_file(File, Time) :-
-	'$file_age'(File, Time).
 
 stream_position_data(line_count, '$stream_position'(_,Data,_,_,_), Data).
 stream_position_data(line_position, '$stream_position'(_,_,Data,_,_), Data).

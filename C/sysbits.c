@@ -2501,38 +2501,6 @@ static Int p_putenv(void)
 #endif
 }
 
-/* set a variable in YAP's environment */
-static Int p_file_age(void)
-{
-  char *file_name = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  if (strcmp(file_name,"user_input") == 0) {
-    return(Yap_unify(ARG2,MkIntTerm(-1)));
-  }
-#if HAVE_LSTAT 
- {
-   struct stat buf;
-
-   if (lstat(file_name, &buf) == -1) {
-     /* file does not exist, but was opened? Return -1 */
-     return(Yap_unify(ARG2, MkIntTerm(-1)));
-   }
-   return(Yap_unify(ARG2, MkIntegerTerm(buf.st_mtime)));
- }
-#elif defined(__MINGW32__) || _MSC_VER
-  {
-    struct _stat buf;
-
-    if (_stat(file_name, &buf) != 0) {
-      /* return an error number */
-      return(Yap_unify(ARG2, MkIntTerm(-1)));
-    }
-    return(Yap_unify(ARG2, MkIntegerTerm(buf.st_mtime)));
-  }
-#else
-  return(Yap_unify(ARG2, MkIntTerm(-1)));
-#endif
-}
-
 /* wrapper for alarm system call */
 #if _MSC_VER || defined(__MINGW32__)
 
@@ -3352,7 +3320,6 @@ Yap_InitSysPreds(void)
   Yap_InitCPred ("$alarm", 4, p_alarm, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$getenv", 2, p_getenv, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$putenv", 2, p_putenv, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$file_age", 2, p_file_age, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_fpu_exceptions", 0, p_set_fpu_exceptions, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$first_signal", 1, p_first_signal, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$host_type", 1, p_host_type, SafePredFlag|SyncPredFlag|HiddenPredFlag);

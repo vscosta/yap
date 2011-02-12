@@ -2519,75 +2519,6 @@ p_access(void)
 }
 
 static Int
-p_access2(void)
-{
-  Term tname = Deref(ARG1);
-  Term tmode = Deref(ARG2);
-  char ares[YAP_FILENAME_MAX];
-  Atom atmode;
-
-  if (IsVarTerm(tmode)) {
-    Yap_Error(INSTANTIATION_ERROR, tmode, "access");
-    return FALSE;
-  } else if (!IsAtomTerm (tmode)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-    return FALSE;
-  }
-  atmode = AtomOfTerm(tmode);
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "access");
-    return FALSE;
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-    return FALSE;
-  } else {
-    if (atmode == AtomNone)
-      return TRUE;
-    if (!Yap_TrueFileName (RepAtom(AtomOfTerm(tname))->StrOfAE, ares, (atmode == AtomCsult)))
-      return FALSE;
-  }
-#if HAVE_ACCESS
-  {
-    int mode;
-
-    if (atmode == AtomExist)
-      mode = F_OK;
-    else if (atmode == AtomWrite)
-      mode = W_OK;
-    else if (atmode == AtomRead)
-      mode = R_OK;
-    else if (atmode == AtomAppend)
-      mode = W_OK;
-    else if (atmode == AtomCsult)
-      mode = R_OK;
-    else if (atmode == AtomExecute)
-      mode = X_OK;
-    else {
-      Yap_Error(DOMAIN_ERROR_IO_MODE, tmode, "access_file/2");
-      return FALSE;   
-    }
-    if (access(ares, mode) != 0) {
-      /* ignore errors while checking a file */
-      return FALSE;
-    }
-    return TRUE;
-  }
-#elif HAVE_STAT
-  {
-    struct SYSTEM_STAT ss;
-
-    if (SYSTEM_STAT(ares, &ss) != 0) {
-    /* ignore errors while checking a file */
-      return FALSE;
-    }
-    return TRUE;
-  }
-#else
-  return FALSE;
-#endif
-}
-
-static Int
 p_exists_directory(void)
 {
   Term tname = Deref(ARG1);
@@ -6756,7 +6687,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("access_file", 2, p_access2, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$open", 6, p_open, SafePredFlag|SyncPredFlag|HiddenPredFlag);
