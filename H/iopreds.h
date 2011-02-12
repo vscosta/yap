@@ -104,7 +104,6 @@ StreamDesc;
 #define Input_Stream_f		0x000004
 #define Append_Stream_f		0x000008
 #define Eof_Stream_f		0x000010
-#define Null_Stream_f		0x000020
 #define Tty_Stream_f		0x000040
 #define Binary_Stream_f		0x000100
 #define Eof_Error_Stream_f	0x000200

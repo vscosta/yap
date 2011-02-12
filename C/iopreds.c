@@ -246,8 +246,7 @@ yap_fflush(int sno)
 #endif
   if ( (Stream[sno].status & Output_Stream_f) &&
        ! (Stream[sno].status & 
-         (Null_Stream_f|
-	  Free_Stream_f)) ) {
+         (Free_Stream_f)) ) {
     if (Stream[sno].status & SWI_Stream_f) {
       return SWIFlush(Stream[sno].u.swi_stream.swi_ptr);
     }
@@ -510,12 +509,10 @@ count_output_char(int ch, StreamDesc *s)
     {
 #if MPWSHELL
       if (mpwshell && (sno == StdOutStream || sno ==
-		       StdErrStream) &&
-	  !(s->status & Null_Stream_f))
+		       StdErrStream))
 	{
 	  putc (MPWSEP, s->u.file.file);
-	  if (!(Stream[Yap_c_output_stream].status & Null_Stream_f))
-	    fflush (stdout);
+	  fflush (stdout);
 	}
 #endif
       /* Inform that we have written a newline */
@@ -541,12 +538,10 @@ console_count_output_char(int ch, StreamDesc *s)
     {
 #if MPWSHELL
       if (mpwshell && (sno == StdOutStream || sno ==
-		       StdErrStream) &&
-	  !(s->status & Null_Stream_f))
+		       StdErrStream))
 	{
 	  putc (MPWSEP, s->u.file.file);
-	  if (!(Stream[Yap_c_output_stream].status & Null_Stream_f))
-	    fflush (stdout);
+	  fflush (stdout);
 	}
 #endif
       ++s->charcount;
@@ -1984,8 +1979,7 @@ SetAlias (Atom arg, int sno)
     if (aliasp->name == arg) {
       Int alno = aliasp-FileAliases;
       aliasp->alias_stream = sno;
-      if (!(Stream[sno].status &
-	    (Null_Stream_f))) {
+      {
 	switch(alno) {
 	case 0:
 	  Yap_stdin = Stream[sno].u.file.file;
@@ -2379,11 +2373,8 @@ Yap_CloseStreams (int loud)
       pclose (Stream[sno].u.file.file);
     else if (Stream[sno].status & (SWI_Stream_f)) {
       SWIClose(Stream[sno].u.swi_stream.swi_ptr);
-    } else if (!(Stream[sno].status & Null_Stream_f)) {
-      YP_fclose (Stream[sno].u.file.file);
     } else {
-      if (loud)
-	fprintf (Yap_stderr, "%% YAP Error: while closing stream: %s\n", RepAtom (Stream[sno].u.file.name)->StrOfAE);
+      YP_fclose (Stream[sno].u.file.file);
     }
     if (Yap_c_input_stream == sno) {
       Yap_c_input_stream = StdInStream;
@@ -2398,7 +2389,7 @@ Yap_CloseStreams (int loud)
 static void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|SWI_Stream_f))) {
+  if (!(Stream[sno].status & (SWI_Stream_f))) {
     YP_fclose (Stream[sno].u.file.file);
   } else if (Stream[sno].status & (SWI_Stream_f)) {
     SWIClose(Stream[sno].u.swi_stream.swi_ptr);
@@ -3347,8 +3338,6 @@ p_character_count (void)
 	}
       tout = MkIntTerm (no);
     }
-  else if (Stream[sno].status & Null_Stream_f)
-    tout = MkIntTerm (Stream[sno].charcount);
   else
     tout = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
   UNLOCK(Stream[sno].streamlock);
@@ -3620,10 +3609,6 @@ p_put (void)
     return(FALSE);
   }
   Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
-  /*
-   * if (!(Stream[sno].status & Null_Stream_f))
-   * yap_fflush(Stream[sno].u.file.file); 
-   */
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
 }
@@ -3641,10 +3626,6 @@ p_put_byte (void)
     return(FALSE);
   }
   Stream[sno].stream_putc(sno, (int) IntegerOfTerm (Deref (ARG2)));
-  /*
-   * if (!(Stream[sno].status & Null_Stream_f))
-   * yap_fflush(Stream[sno].u.file.file); 
-   */
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
 }
@@ -5173,8 +5154,7 @@ Yap_FileDescriptorFromStream(Term t)
   int sno = CheckStream (t, Input_Stream_f|Output_Stream_f, "FileDescriptorFromStream");
   if (sno < 0)
     return NULL;
-  if (Stream[sno].status & (Null_Stream_f|
-		Free_Stream_f))
+  if (Stream[sno].status & (Free_Stream_f))
     return NULL;
   return Stream[sno].u.file.file;
 }
