@@ -75,13 +75,6 @@ typedef struct stream_desc
 	int fd;
 #endif
       } pipe;
-#if USE_SOCKET
-      struct {
-	socket_domain domain;
-	socket_info flags;
-	int fd;
-      } socket;
-#endif
     } u;
     Int charcount, linecount, linepos;
     Int status;
@@ -113,7 +106,6 @@ StreamDesc;
 #define Eof_Stream_f		0x000010
 #define Null_Stream_f		0x000020
 #define Tty_Stream_f		0x000040
-#define Socket_Stream_f		0x000080
 #define Binary_Stream_f		0x000100
 #define Eof_Error_Stream_f	0x000200
 #define Reset_Eof_Stream_f	0x000400
@@ -121,10 +113,6 @@ StreamDesc;
 #define Push_Eof_Stream_f	0x001000
 #define Seekable_Stream_f	0x002000
 #define Promptable_Stream_f	0x004000
-#if USE_SOCKET
-#define Client_Socket_Stream_f	0x008000
-#define Server_Socket_Stream_f	0x010000
-#endif
 #define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
 #define User_Stream_f		0x100000

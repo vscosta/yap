@@ -2746,7 +2746,7 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
   if (!Yap_unify(out, Yap_GetFromSlot(t))) {
     return FALSE;
   }
-  if (!Yap_unify(vs, Yap_GetFromSlot(varnames))) {
+  if (!Yap_unify(varnames, Yap_GetFromSlot(vs))) {
     return FALSE;
   }
   return TRUE;

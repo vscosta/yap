@@ -73,7 +73,6 @@ otherwise.
 	 'callcount.yap',
 	 'load_foreign.yap',
 	 'save.yap',
-	 'sockets.yap',
 	 'sort.yap',
 	 'setof.yap',
 	 'statistics.yap',

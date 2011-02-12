@@ -1560,7 +1560,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     }
   } else {
-    (exec_code)();
+    return (exec_code)();
   }
 }
 
@@ -2894,9 +2894,6 @@ YAP_Exit(int retval)
 X_API void
 YAP_InitSocks(char *host, long port)
 {
-#if USE_SOCKET
-  Yap_init_socks(host, port);
-#endif
 }
 
 X_API void

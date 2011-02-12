@@ -77,9 +77,6 @@ static char SccsId[] = "%W% %G%";
 #define strncpy(X,Y,Z) strcpy(X,Y)
 #endif
 #if _MSC_VER || defined(__MINGW32__) 
-#if USE_SOCKET
-#include <winsock2.h>
-#endif
 #include <windows.h>
 #ifndef S_ISDIR
 #define S_ISDIR(x) (((x)&_S_IFDIR)==_S_IFDIR)
@@ -93,10 +90,6 @@ STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int post_process_eof, (StreamDesc *));
-#if USE_SOCKET
-STATIC_PROTO (int SocketPutc, (int, int));
-STATIC_PROTO (int ConsoleSocketPutc, (int, int));
-#endif
 STATIC_PROTO (int PipePutc, (int, int));
 STATIC_PROTO (int ConsolePipePutc, (int, int));
 STATIC_PROTO (int ConsolePutc, (int, int));
@@ -109,10 +102,6 @@ STATIC_PROTO (int ISOWGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
 STATIC_PROTO (int PipeGetc, (int));
 STATIC_PROTO (int ConsolePipeGetc, (int));
-#if USE_SOCKET
-STATIC_PROTO (int SocketGetc, (int));
-STATIC_PROTO (int ConsoleSocketGetc, (int));
-#endif
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
 STATIC_PROTO (int ReadlineGetc, (int));
 STATIC_PROTO (int ReadlinePutc, (int,int));
@@ -262,7 +251,6 @@ yap_fflush(int sno)
   if ( (Stream[sno].status & Output_Stream_f) &&
        ! (Stream[sno].status & 
          (Null_Stream_f|
-	  Socket_Stream_f|
 	  Pipe_Stream_f|
 	  Free_Stream_f)) ) {
     if (Stream[sno].status & SWI_Stream_f) {
@@ -276,17 +264,6 @@ yap_fflush(int sno)
 static void
 unix_upd_stream_info (StreamDesc * s)
 {
-#if USE_SOCKET
-  if (Yap_sockets_io &&
-      s->u.file.file == NULL)
-    {
-      s->status |= Socket_Stream_f;
-      s->u.socket.domain = af_inet;
-      s->u.socket.flags = client_socket;
-      s->u.socket.fd = 0;
-      return;
-    }
-#endif /* USE_SOCKET */
 #if _MSC_VER  || defined(__MINGW32__)
   {
     if (
@@ -346,11 +323,6 @@ p_always_prompt_user(void)
 
   s->status |= Promptable_Stream_f;
   s->stream_gets = DefaultGets;
-#if USE_SOCKET
-  if (s->status & Socket_Stream_f) {
-    s->stream_getc = ConsoleSocketGetc;
-  } else
-#endif
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
      if (s->status & Tty_Stream_f) {
        s->stream_getc = ReadlineGetc;
@@ -390,14 +362,6 @@ static void
 InitFileIO(StreamDesc *s)
 {
   s->stream_gets = PlGetsFunc();
-#if USE_SOCKET
-  if (s->status & Socket_Stream_f) {
-    /* Console is a socket and socket will prompt */
-    s->stream_putc = ConsoleSocketPutc;
-    s->stream_wputc = put_wchar;
-    s->stream_getc = ConsoleSocketGetc;
-  } else
-#endif
   if (s->status & Pipe_Stream_f) {
     /* Console is a socket and socket will prompt */
     s->stream_putc = ConsolePipePutc;
@@ -486,15 +450,9 @@ InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
 static void
 InitStdStreams (void)
 {
-  if (Yap_sockets_io) {
-    InitStdStream (StdInStream, Input_Stream_f, NULL);
-    InitStdStream (StdOutStream, Output_Stream_f, NULL);
-    InitStdStream (StdErrStream, Output_Stream_f, NULL);
-  } else {
-    InitStdStream (StdInStream, Input_Stream_f, stdin);
-    InitStdStream (StdOutStream, Output_Stream_f, stdout);
-    InitStdStream (StdErrStream, Output_Stream_f, stderr);
-  }
+  InitStdStream (StdInStream, Input_Stream_f, stdin);
+  InitStdStream (StdOutStream, Output_Stream_f, stdout);
+  InitStdStream (StdErrStream, Output_Stream_f, stderr);
   Yap_c_input_stream = StdInStream;
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
@@ -797,66 +755,6 @@ IOSWIWideGetc(int sno)
   return ch;
 }
 
-#if USE_SOCKET
-/* static */
-static int
-ConsoleSocketPutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-  char c = ch;
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-  send(s->u.socket.fd,  &c, sizeof(c), 0);
-#else
-  if (write(s->u.socket.fd,  &c, sizeof(c)) < 0) {
-#if HAVE_STRERROR
-    Yap_Error(FATAL_ERROR, TermNil, "no access to console: %s", strerror(errno));
-#else
-    Yap_Error(FATAL_ERROR, TermNil, "no access to console");
-#endif
-  }
-#endif
-  count_output_char(ch,s);
-  return ((int) ch);
-}
-
-static int
-SocketPutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-  char c = ch;
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-#if _MSC_VER || defined(__MINGW32__)
-  send(s->u.socket.fd,  &c, sizeof(c), 0);
-#else
-  {
-    int out = 0;
-    while (!out) {
-      out = write(s->u.socket.fd,  &c, sizeof(c));
-      if (out <0) {
-#if HAVE_STRERROR
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket: %s", strerror(errno));
-#else
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, TermNil, "error writing stream socket");
-#endif	
-      }
-    }
-  }
-#endif
-  return (int) ch;
-}
-
-#endif
 
 /* static */
 static int
@@ -1189,15 +1087,6 @@ EOFGetc(int sno)
     if (YP_feof (s->u.file.file))
       YP_clearerr (s->u.file.file);
     /* reset our function for reading input */
-#if USE_SOCKET
-    if (s->status & Socket_Stream_f) {
-      if (s->status & Promptable_Stream_f)
-	s->stream_putc = ConsoleSocketPutc;
-      else 
-	s->stream_putc = SocketPutc;
-      s->stream_wputc = put_wchar;
-    } else 
-#endif
     if (s->status & Pipe_Stream_f) {
       if (s->status & Promptable_Stream_f)
 	s->stream_putc = ConsolePipePutc;
@@ -1304,83 +1193,6 @@ console_post_process_eof(StreamDesc *s)
   return EOFCHAR;
 }
 
-#if USE_SOCKET
-/* 
-   sockets cannot use standard FILE *, we have to go through fds, and in the
-   case of VC++, we have to use the receive routines...
-*/
-static int
-SocketGetc(int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  register Int ch;
-  char c;
-  int count;
-  /* should be able to use a buffer */
-#if _MSC_VER || defined(__MINGW32__)
-  count = recv(s->u.socket.fd, &c, sizeof(char), 0);
-#else
-  count = read(s->u.socket.fd, &c, sizeof(char));
-#endif
-  if (count == 0) {
-    s->u.socket.flags = closed_socket;
-    return post_process_eof(s);
-  } else if (count > 0) {
-    ch = c;
-  } else {
-#if HAVE_STRERROR
-      Yap_Error(SYSTEM_ERROR, TermNil, 
-	    "( socket_getc: %s)", strerror(errno));
-#else
-      Yap_Error(SYSTEM_ERROR, TermNil,
-	    "(socket_getc)");
-#endif
-    return post_process_eof(s);
-  }
-  return post_process_read_char(ch, s);
-}
-
-/*
-  Basically, the same as console but also sends a prompt and takes care of
-  finding out whether we are at the start of a newline.
-*/
-static int
-ConsoleSocketGetc(int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  int ch;
-  Int c;
-  int count;
-
-  /* send the prompt away */
-  if (newline) {
-    char *cptr = Prompt, ch;
-    /* use the default routine */
-    while ((ch = *cptr++) != '\0') {
-      Stream[StdErrStream].stream_putc(StdErrStream, ch);
-    }
-    strncpy(Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
-    newline = FALSE;
-  }
-  /* should be able to use a buffer */
-  Yap_PrologMode |= ConsoleGetcMode;
-#if _MSC_VER || defined(__MINGW32__)
-  count = recv(s->u.socket.fd, (void *)&c, sizeof(char), 0);
-#else
-  count = read(s->u.socket.fd, &c, sizeof(char));
-#endif
-  Yap_PrologMode &= ~ConsoleGetcMode;
-  if (count == 0) {
-    return console_post_process_eof(s);
-  } else if (count > 0) {
-    ch = c;
-  } else {
-    Yap_Error(SYSTEM_ERROR, TermNil, "read");
-    return console_post_process_eof(s);
-  }
-  return console_post_process_read_char(ch, s);
-}
-#endif
 
 static int
 PipeGetc(int sno)
@@ -1593,11 +1405,7 @@ PlUnGetc (int sno)
   if (s->stream_getc != PlUnGetc)
     return(s->stream_getc(sno));
   ch = s->och;
- if (s->status & Socket_Stream_f) {
-    s->stream_getc = SocketGetc;
-    s->stream_putc = SocketPutc;
-    s->stream_wputc = put_wchar;
-  } else if (s->status & Promptable_Stream_f) {
+  if (s->status & Promptable_Stream_f) {
     s->stream_putc = ConsolePutc;
     s->stream_wputc = put_wchar;
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
@@ -2043,11 +1851,6 @@ p_stream_flags (void)
 static Int
 GetStreamFd(int sno)
 {
-#if USE_SOCKET
-  if (Stream[sno].status & Socket_Stream_f) {
-    return(Stream[sno].u.socket.fd);
-  } else
-#endif
   if (Stream[sno].status & Pipe_Stream_f) {
 #if _MSC_VER || defined(__MINGW32__) 
     return((Int)(Stream[sno].u.pipe.hdl));
@@ -2068,91 +1871,11 @@ Yap_GetStreamFd(int sno)
 int
 Yap_CheckIOStream(Term stream, char * error)
 {
-  int sno = CheckStream(stream, Input_Stream_f|Output_Stream_f|Socket_Stream_f, error);
+  int sno = CheckStream(stream, Input_Stream_f|Output_Stream_f, error);
   UNLOCK(Stream[sno].streamlock);
   return(sno);
 }
 
-#if USE_SOCKET
-
-Term
-Yap_InitSocketStream(int fd, socket_info flags, socket_domain domain) {
-  StreamDesc *st;
-  int sno;
-
-  sno = GetFreeStreamD();
-  if (sno < 0) {
-    PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for socket/4");
-    return(TermNil);
-  }
-  st = &Stream[sno];
-  st->u.socket.domain = domain;
-  st->u.socket.flags = flags;
-  if (flags & (client_socket|server_session_socket)) {
-    /* I can read and write from these sockets */
-    st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
-  } else {
-    /* oops, I cannot */
-    st->status = Socket_Stream_f;
-  }
-  st->u.socket.fd = fd;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->linepos = 0;
-  st->stream_putc = SocketPutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = SocketGetc;
-  st->stream_gets = DefaultGets;
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-  UNLOCK(st->streamlock);
-  return(MkStream(sno));
-}
-
-/* given a socket file descriptor, get the corresponding stream descripor */
-int
-Yap_CheckSocketStream(Term stream, char * error)
-{
-  int sno = CheckStream(stream, Socket_Stream_f, error);
-  UNLOCK(Stream[sno].streamlock);
-  return sno;
-}
-
-/* given a stream index, get the corresponding domain */
-socket_domain
-Yap_GetSocketDomain(int sno)
-{
-  return(Stream[sno].u.socket.domain);
-}
-
-/* given a stream index, get the corresponding status */
-socket_info
-Yap_GetSocketStatus(int sno)
-{
-  return(Stream[sno].u.socket.flags);
-}
-
-/* update info on a socket, eg, new->server or new->client */
-void
-Yap_UpdateSocketStream(int sno, socket_info flags, socket_domain domain) {
-  StreamDesc *st;
-
-  st = &Stream[sno];
-  st->u.socket.domain = domain;
-  st->u.socket.flags = flags;
-  if (flags & (client_socket|server_session_socket)) {
-    /* I can read and write from these sockets */
-    st->status = (Socket_Stream_f|Input_Stream_f|Output_Stream_f);
-  } else {
-    /* oops, I cannot */
-    st->status = Socket_Stream_f;
-  }
-}
-
-#endif /* USE_SOCKET */
 
 #if _MSC_VER || defined(__MINGW32__) 
 #define SYSTEM_STAT _stat
@@ -2279,7 +2002,7 @@ static Int p_change_alias_to_stream (void)
     return (FALSE);
   }
   at = AtomOfTerm(tname);
-  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "change_stream_alias/2")) == -1) {
+  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f,  "change_stream_alias/2")) == -1) {
     UNLOCK(Stream[sno].streamlock);
     return(FALSE);
   }
@@ -2449,7 +2172,7 @@ SetAlias (Atom arg, int sno)
       Int alno = aliasp-FileAliases;
       aliasp->alias_stream = sno;
       if (!(Stream[sno].status &
-	    (Null_Stream_f|Socket_Stream_f))) {
+	    (Null_Stream_f))) {
 	switch(alno) {
 	case 0:
 	  Yap_stdin = Stream[sno].u.file.file;
@@ -2756,7 +2479,7 @@ p_check_stream (void)
 static Int
 p_check_if_stream (void)
 {				/* '$check_stream'(Stream)                  */
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f | Socket_Stream_f,  "check_stream/1");
+  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f ,  "check_stream/1");
   if (sno != -1)
     UNLOCK(Stream[sno].streamlock);
   return sno != -1;
@@ -2766,13 +2489,8 @@ static Term
 StreamName(int i)
 {
   if (i < 3) return(MkAtomTerm(AtomUser));
-#if USE_SOCKET
-  if (Stream[i].status & Socket_Stream_f)
-    return(MkAtomTerm(AtomSocket));
-  else
-#endif
-    if (Stream[i].status & Pipe_Stream_f)
-      return(MkAtomTerm(AtomPipe));
+  if (Stream[i].status & Pipe_Stream_f)
+    return(MkAtomTerm(AtomPipe));
   return(Stream[i].u.file.user_name);
 }
 
@@ -2852,15 +2570,8 @@ Yap_CloseStreams (int loud)
     if (Stream[sno].status & Pipe_Stream_f)
       CloseHandle (Stream[sno].u.pipe.hdl);
 #else
-    if (Stream[sno].status & (Pipe_Stream_f|Socket_Stream_f))
+    if (Stream[sno].status & (Pipe_Stream_f))
       close (Stream[sno].u.pipe.fd);
-#endif
-#if USE_SOCKET
-    else if (Stream[sno].status & (Socket_Stream_f)) {
-      Yap_CloseSocket(Stream[sno].u.socket.fd,
-		  Stream[sno].u.socket.flags,
-		  Stream[sno].u.socket.domain);
-    } 
 #endif
     else if (Stream[sno].status & (SWI_Stream_f)) {
       SWIClose(Stream[sno].u.swi_stream.swi_ptr);
@@ -2883,15 +2594,8 @@ Yap_CloseStreams (int loud)
 static void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
     YP_fclose (Stream[sno].u.file.file);
-#if USE_SOCKET
-  else if (Stream[sno].status & (Socket_Stream_f)) {
-    Yap_CloseSocket(Stream[sno].u.socket.fd,
-		Stream[sno].u.socket.flags,
-		Stream[sno].u.socket.domain);
-  }
-#endif
   else if (Stream[sno].status & Pipe_Stream_f) {
 #if _MSC_VER || defined(__MINGW32__) 
     CloseHandle (Stream[sno].u.pipe.hdl);
@@ -2911,10 +2615,6 @@ CloseStream(int sno)
     {
       Yap_c_output_stream = StdOutStream;
     }
-  /*  if (st->status == Socket_Stream_f|Input_Stream_f|Output_Stream_f) {
-    Yap_CloseSocket();
-  }
-  */
 }
 
 void
@@ -2926,7 +2626,7 @@ Yap_CloseStream(int sno)
 static Int
 p_close (void)
 {				/* '$close'(+Stream) */
-  Int sno = CheckStream (ARG1, (Input_Stream_f | Output_Stream_f | Socket_Stream_f), "close/2");
+  Int sno = CheckStream (ARG1, (Input_Stream_f | Output_Stream_f), "close/2");
   if (sno < 0)
     return (FALSE);
   if (sno <= StdErrStream) {
@@ -3769,11 +3469,6 @@ p_user_file_name (void)
   int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"user_file_name/2");
   if (sno < 0)
     return (FALSE);
-#if USE_SOCKET
-  if (Stream[sno].status & Socket_Stream_f)
-    tout = MkAtomTerm(AtomSocket);
-  else
-#endif
   if (Stream[sno].status & Pipe_Stream_f)
     tout = MkAtomTerm(AtomPipe);
   else
@@ -3796,18 +3491,13 @@ p_cur_line_no (void)
       Int no = 1;
       int i;
       Atom my_stream;
-#if USE_SOCKET
-      if (Stream[sno].status & Socket_Stream_f)
-	my_stream = AtomSocket;
-      else
-#endif
       if (Stream[sno].status & Pipe_Stream_f)
 	my_stream = AtomPipe;
       else
 	  my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
 	{
-	  if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|Pipe_Stream_f)) &&
+	  if (!(Stream[i].status & (Free_Stream_f|Pipe_Stream_f)) &&
 	      Stream[i].u.file.name == my_stream)
 	    no += Stream[i].linecount - 1;
 	}
@@ -5538,11 +5228,6 @@ Yap_StreamToFileNo(Term t)
 #else
     return(Stream[sno].u.pipe.fd);
 #endif
-#if USE_SOCKET
-  } else if (Stream[sno].status & Socket_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    return(Stream[sno].u.socket.fd);
-#endif
   } else {
     UNLOCK(Stream[sno].streamlock);
     return(YP_fileno(Stream[sno].u.file.file));
@@ -5704,7 +5389,6 @@ Yap_FileDescriptorFromStream(Term t)
   if (sno < 0)
     return NULL;
   if (Stream[sno].status & (Null_Stream_f|
-		Socket_Stream_f|
 		Pipe_Stream_f|
 		Free_Stream_f))
     return NULL;
@@ -5805,9 +5489,6 @@ Yap_InitIOPreds(void)
   CurrentModule = cm;
 
   Yap_InitReadUtil ();
-#if USE_SOCKET
-  Yap_InitSockets ();
-#endif
   InitPlIO ();
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   InitReadline();

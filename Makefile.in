@@ -248,7 +248,7 @@ C_SOURCES= \
 	$(srcdir)/packages/udi/rtree.c \
 	$(srcdir)/packages/udi/rtree_udi.c \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
-	$(srcdir)/C/ypsocks.c $(srcdir)/C/ypstdio.c \
+	$(srcdir)/C/ypstdio.c \
 	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
 	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
 	$(srcdir)/BEAM/eam_gc.c $(srcdir)/BEAM/eam_split.c \
@@ -309,7 +309,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/save.yap \
 	$(srcdir)/pl/setof.yap \
 	$(srcdir)/pl/signals.yap \
-	$(srcdir)/pl/sockets.yap $(srcdir)/pl/sort.yap \
+	$(srcdir)/pl/sort.yap \
 	$(srcdir)/pl/statistics.yap \
 	$(srcdir)/pl/strict_iso.yap \
 	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
@@ -347,7 +347,7 @@ ENGINE_OBJECTS = \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
 	write.o \
-	blobs.o swi.o ypsocks.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
+	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \

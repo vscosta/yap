@@ -467,12 +467,6 @@ void    STD_PROTO(Yap_InitSWIHash,(void));
 int     STD_PROTO(Yap_get_stream_handle,(Term, int, int, void *));
 Term    STD_PROTO(Yap_get_stream_position,(void *));
 
-/* ypsocks.c */
-void	STD_PROTO(Yap_InitSockets,(void));
-#ifdef USE_SOCKET
-void	STD_PROTO(Yap_init_socks,(char *, long));
-#endif
-
 /* opt.preds.c */
 void    STD_PROTO(Yap_init_optyap_preds,(void));
 
