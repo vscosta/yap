@@ -125,7 +125,6 @@ StreamDesc;
 #define Client_Socket_Stream_f	0x008000
 #define Server_Socket_Stream_f	0x010000
 #endif
-#define InMemory_Stream_f	0x020000
 #define Pipe_Stream_f		0x040000
 #define Popen_Stream_f		0x080000
 #define User_Stream_f		0x100000

@@ -89,7 +89,6 @@ static char SccsId[] = "%W% %G%";
 
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (int FilePutc, (int, int));
-STATIC_PROTO (int MemPutc, (int, int));
 STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
@@ -100,14 +99,12 @@ STATIC_PROTO (int ConsoleSocketPutc, (int, int));
 #endif
 STATIC_PROTO (int PipePutc, (int, int));
 STATIC_PROTO (int ConsolePipePutc, (int, int));
-STATIC_PROTO (int NullPutc, (int, int));
 STATIC_PROTO (int ConsolePutc, (int, int));
 STATIC_PROTO (Int p_setprompt, (void));
 STATIC_PROTO (Int p_prompt, (void));
 STATIC_PROTO (int PlGetc, (int));
 STATIC_PROTO (int DefaultGets, (int,UInt,char*));
 STATIC_PROTO (int PlGets, (int,UInt,char*));
-STATIC_PROTO (int MemGetc, (int));
 STATIC_PROTO (int ISOWGetc, (int));
 STATIC_PROTO (int ConsoleGetc, (int));
 STATIC_PROTO (int PipeGetc, (int));
@@ -265,7 +262,6 @@ yap_fflush(int sno)
   if ( (Stream[sno].status & Output_Stream_f) &&
        ! (Stream[sno].status & 
          (Null_Stream_f|
-	  InMemory_Stream_f|
 	  Socket_Stream_f|
 	  Pipe_Stream_f|
 	  Free_Stream_f)) ) {
@@ -280,10 +276,6 @@ yap_fflush(int sno)
 static void
 unix_upd_stream_info (StreamDesc * s)
 {
-  if (s->status & InMemory_Stream_f) {
-    s->status |= Seekable_Stream_f;
-    return;
-  }
 #if USE_SOCKET
   if (Yap_sockets_io &&
       s->u.file.file == NULL)
@@ -411,10 +403,6 @@ InitFileIO(StreamDesc *s)
     s->stream_putc = ConsolePipePutc;
     s->stream_wputc = put_wchar;
     s->stream_getc = ConsolePipeGetc;
-  } else if (s->status & InMemory_Stream_f) {
-    s->stream_putc = MemPutc;
-    s->stream_wputc = put_wchar;
-    s->stream_getc = MemGetc;    
   } else {
    /* check if our console is promptable: may be tty or pipe */
     if (s->status & (Promptable_Stream_f)) {
@@ -717,6 +705,12 @@ Yap_DebugPlWrite(Term t)
   Yap_plwrite(t, Yap_DebugPutc, 0, 1200);
 }
 
+void
+Yap_PlWriteToStream(Term t, int sno, int flags)
+{
+  Yap_plwrite(t, Stream[sno].stream_wputc, flags, 1200);
+}
+
 void 
 Yap_DebugErrorPutc(int c)
 {
@@ -743,67 +737,6 @@ FilePutc(int sno, int ch)
       fflush(s->u.file.file);
     }
 #endif
-  count_output_char(ch,s);
-  return ((int) ch);
-}
-
-/* static */
-static int
-MemPutc(int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-  s->u.mem_string.buf[s->u.mem_string.pos++] = ch;
-  if (s->u.mem_string.pos >= s->u.mem_string.max_size -256) {
-    extern int Yap_page_size;
-    int old_src = s->u.mem_string.src, new_src;
-
-    /* oops, we have reached an overflow */
-    Int new_max_size = s->u.mem_string.max_size + Yap_page_size;
-    char *newbuf;
-
-    if ((newbuf = Yap_AllocAtomSpace(new_max_size*sizeof(char))) != NULL) {
-      new_src = MEM_BUF_CODE;
-#if !USE_SYSTEM_MALLOC
-    } else if ((newbuf = (ADDR)malloc(new_max_size*sizeof(char))) != NULL)  {
-      new_src = MEM_BUF_MALLOC;
-#endif
-    } else {
-      if (Stream[sno].u.mem_string.error_handler) {
-	Yap_Error_Size = new_max_size*sizeof(char);
-	save_machine_regs();
-	longjmp(*(jmp_buf *)Stream[sno].u.mem_string.error_handler,1);
-      } else {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP could not grow heap for writing to string");
-      }
-      return -1;
-    }
-#if HAVE_MEMMOVE
-    memmove((void *)newbuf, (void *)s->u.mem_string.buf, (size_t)((s->u.mem_string.pos)*sizeof(char)));
-#else
-    {
-      Int n = s->u.mem_string.pos;
-      char *to = newbuf;
-      char *from = s->u.mem_string.buf;
-      while (n-- >= 0) {
-	*to++ = *from++;
-      }
-    }
-#endif
-    if (old_src == MEM_BUF_CODE) {
-      Yap_FreeAtomSpace(s->u.mem_string.buf);
-    } else {
-      free(s->u.mem_string.buf);
-    }
-    s->u.mem_string.buf = newbuf;
-    s->u.mem_string.max_size = new_max_size;
-    s->u.mem_string.src = new_src;
-  }
   count_output_char(ch,s);
   return ((int) ch);
 }
@@ -999,20 +932,6 @@ PipePutc (int sno, int ch)
   }
 #endif
   console_count_output_char(ch,s);
-  return ((int) ch);
-}
-
-static int
-NullPutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-  count_output_char(ch,s);
   return ((int) ch);
 }
 
@@ -1284,10 +1203,6 @@ EOFGetc(int sno)
 	s->stream_putc = ConsolePipePutc;
       else 
 	s->stream_putc = PipePutc;
-      s->stream_wputc = put_wchar;
-    } else if (s->status & InMemory_Stream_f) {
-      s->stream_getc = MemGetc;
-      s->stream_putc = MemPutc;
       s->stream_wputc = put_wchar;
     } else if (s->status & Promptable_Stream_f) {
       s->stream_putc = ConsolePutc;
@@ -1603,24 +1518,6 @@ DefaultGets (int sno, UInt size, char *buf)
   return (buf-pt)-1;
 }
 
-/* read from memory */
-static int
-MemGetc (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-  int spos;
-
-  spos = s->u.mem_string.pos;
-  if (spos == s->u.mem_string.max_size) {
-    return post_process_eof(s);
-  } else {
-    ch = s->u.mem_string.buf[spos];
-    s->u.mem_string.pos = ++spos;
-  }
-  return post_process_read_char(ch, s);
-}
-
 /* I dispise this code!!!!! */
 static int
 ISOWGetc (int sno)
@@ -1696,11 +1593,7 @@ PlUnGetc (int sno)
   if (s->stream_getc != PlUnGetc)
     return(s->stream_getc(sno));
   ch = s->och;
-  if (s->status & InMemory_Stream_f) {
-    s->stream_getc = MemGetc;
-    s->stream_putc = MemPutc;
-    s->stream_wputc = put_wchar;
-  } else if (s->status & Socket_Stream_f) {
+ if (s->status & Socket_Stream_f) {
     s->stream_getc = SocketGetc;
     s->stream_putc = SocketPutc;
     s->stream_wputc = put_wchar;
@@ -2161,8 +2054,6 @@ GetStreamFd(int sno)
 #else
     return(Stream[sno].u.pipe.fd);
 #endif
-  } else if (Stream[sno].status & InMemory_Stream_f) {
-    return(-1);
   }
   return(YP_fileno(Stream[sno].u.file.file));
 }
@@ -2508,226 +2399,6 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   return t;
 }
 
-static Int
-p_open_pipe_stream (void)
-{
-  Term t1, t2;
-  StreamDesc *st;
-  int sno;
-#if  _MSC_VER || defined(__MINGW32__) 
-  HANDLE ReadPipe, WritePipe;
-  SECURITY_ATTRIBUTES satt;
-
-  satt.nLength = sizeof(satt);
-  satt.lpSecurityDescriptor = NULL;
-  satt.bInheritHandle = TRUE;
-  if (!CreatePipe(&ReadPipe, &WritePipe, &satt, 0))
-    {
-      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
-    }
-#else
-  int filedes[2];
-
-  if (pipe(filedes) != 0)
-    {
-      return (PlIOError (SYSTEM_ERROR,TermNil, "open_pipe_stream/2 could not create pipe"));
-    }
-#endif
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
-  t1 = MkStream (sno);
-  st = &Stream[sno];
-  st->status = Input_Stream_f | Pipe_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = PipePutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = PipeGetc;
-  st->stream_gets = DefaultGets;
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-#if  _MSC_VER || defined(__MINGW32__) 
-  st->u.pipe.hdl = ReadPipe;
-#else
-  st->u.pipe.fd = filedes[0];
-#endif
-  UNLOCK(st->streamlock);
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_pipe_stream/2"));
-  st = &Stream[sno];
-  st->status = Output_Stream_f | Pipe_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = PipePutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = PipeGetc;
-  st->stream_gets = DefaultGets;
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc; 
-#if  _MSC_VER || defined(__MINGW32__) 
-  st->u.pipe.hdl = WritePipe;
-#else
-  st->u.pipe.fd = filedes[1];
-#endif
-  UNLOCK(st->streamlock);
-  t2 = MkStream (sno);
-  return
-    Yap_unify (ARG1, t1) &&
-    Yap_unify (ARG2, t2);
-}
-
-static int
-open_buf_read_stream(char *nbuf, Int nchars)
-{
-  int sno;
-  StreamDesc *st;
- 
-
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_mem_read_stream/1"));
-  st = &Stream[sno];
-  /* currently these streams are not seekable */
-  st->status = Input_Stream_f | InMemory_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = MemPutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = MemGetc;
-  st->stream_gets = DefaultGets;
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-  st->u.mem_string.pos = 0;
-  st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = nchars;
-  st->u.mem_string.error_handler = NULL;
-  st->u.mem_string.src = MEM_BUF_CODE;
-  UNLOCK(st->streamlock);
-  return sno;
-}
-
-static Int
-p_open_mem_read_stream (void)   /* $open_mem_read_stream(+List,-Stream) */
-{
-  Term t, ti;
-  int sno;
-  Int sl = 0, nchars = 0;
-  char *nbuf;
-
-  ti = Deref(ARG1);
-  while (ti != TermNil) {
-    if (IsVarTerm(ti)) {
-      Yap_Error(INSTANTIATION_ERROR, ti, "open_mem_read_stream");
-      return (FALSE);
-    } else if (!IsPairTerm(ti)) {
-      Yap_Error(TYPE_ERROR_LIST, ti, "open_mem_read_stream");
-      return (FALSE);
-    } else {
-      sl++;
-      ti = TailOfTerm(ti);
-    }
-  }
-  while ((nbuf = (char *)Yap_AllocAtomSpace((sl+1)*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE, (sl+1)*sizeof(char), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return(FALSE);
-    }
-  }
-  ti = Deref(ARG1);
-  while (ti != TermNil) {
-    Term ts = HeadOfTerm(ti);
-
-    if (IsVarTerm(ts)) {
-      Yap_Error(INSTANTIATION_ERROR, ARG1, "open_mem_read_stream");
-      return (FALSE);
-    } else if (!IsIntTerm(ts)) {
-      Yap_Error(TYPE_ERROR_INTEGER, ARG1, "open_mem_read_stream");
-      return (FALSE);
-    }
-    nbuf[nchars++] = IntOfTerm(ts);
-    ti = TailOfTerm(ti);
-  }
-  nbuf[nchars] = '\0';
-  sno = open_buf_read_stream(nbuf, nchars);
-  t = MkStream (sno);
-  return (Yap_unify (ARG2, t));
-}
-
-static int
-open_buf_write_stream(char *nbuf, UInt  sz)
-{
-  int sno;
-  StreamDesc *st;
-
-  sno = GetFreeStreamD();
-  if (sno < 0)
-    return -1;
-  st = &Stream[sno];
-  /* currently these streams are not seekable */
-  st->status = Output_Stream_f | InMemory_Stream_f;
-  st->linepos = 0;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->stream_putc = MemPutc;
-  st->stream_wputc = put_wchar;
-  st->stream_getc = MemGetc;
-  st->stream_gets = DefaultGets;
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc;
-  st->u.mem_string.pos = 0;
-  st->u.mem_string.buf = nbuf;
-  st->u.mem_string.max_size = sz;
-  st->u.mem_string.src = MEM_BUF_CODE;
-  UNLOCK(st->streamlock);
-  return sno;
-}
-
-static int
-OpenBufWriteStream(void)
-{
-  char *nbuf;
-  extern int Yap_page_size;
-
-
-  while ((nbuf = (char *)Yap_AllocAtomSpace(Yap_page_size*sizeof(char))) == NULL) {
-    if (!Yap_growheap(FALSE, Yap_page_size*sizeof(char), NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
-      return -1;
-    }
-  }
-  return open_buf_write_stream(nbuf, Yap_page_size);
-}
-
-static Int
-p_open_mem_write_stream (void)   /* $open_mem_write_stream(-Stream) */
-{
-  Term t;
-  int sno;
-
-  sno = OpenBufWriteStream();
-  if (sno == -1)
-    return (PlIOError (SYSTEM_ERROR,TermNil, "new stream not available for open_mem_read_stream/1"));
-  t = MkStream (sno);
-  return (Yap_unify (ARG1, t));
-}
-
 static void
 ExtendAliasArray(void)
 {
@@ -2778,7 +2449,7 @@ SetAlias (Atom arg, int sno)
       Int alno = aliasp-FileAliases;
       aliasp->alias_stream = sno;
       if (!(Stream[sno].status &
-	    (Null_Stream_f|InMemory_Stream_f|Socket_Stream_f))) {
+	    (Null_Stream_f|Socket_Stream_f))) {
 	switch(alno) {
 	case 0:
 	  Yap_stdin = Stream[sno].u.file.file;
@@ -2948,6 +2619,12 @@ LookupSWIStream (struct io_stream *swi_s)
   return i;
 }
 
+int
+Yap_LookupSWIStream (void *swi_s)
+{
+  return LookupSWIStream (swi_s);
+}
+
 typedef struct stream_ref
 { struct io_stream *read;
   struct io_stream *write;
@@ -3096,11 +2773,7 @@ StreamName(int i)
 #endif
     if (Stream[i].status & Pipe_Stream_f)
       return(MkAtomTerm(AtomPipe));
-    if (Stream[i].status & InMemory_Stream_f)
-      return(MkAtomTerm(AtomCharsio));
-    else {
-      return(Stream[i].u.file.user_name);
-    }
+  return(Stream[i].u.file.user_name);
 }
 
 static Int
@@ -3189,13 +2862,7 @@ Yap_CloseStreams (int loud)
 		  Stream[sno].u.socket.domain);
     } 
 #endif
-    else if (Stream[sno].status & InMemory_Stream_f) {
-      if (Stream[sno].u.mem_string.src == MEM_BUF_CODE) {
-	Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
-      } else {
-	free(Stream[sno].u.mem_string.buf);
-      }
-    } else if (Stream[sno].status & (SWI_Stream_f)) {
+    else if (Stream[sno].status & (SWI_Stream_f)) {
       SWIClose(Stream[sno].u.swi_stream.swi_ptr);
     } else if (!(Stream[sno].status & Null_Stream_f)) {
       YP_fclose (Stream[sno].u.file.file);
@@ -3216,7 +2883,7 @@ Yap_CloseStreams (int loud)
 static void
 CloseStream(int sno)
 {
-  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|InMemory_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
+  if (!(Stream[sno].status & (Null_Stream_f|Socket_Stream_f|Pipe_Stream_f|SWI_Stream_f)))
     YP_fclose (Stream[sno].u.file.file);
 #if USE_SOCKET
   else if (Stream[sno].status & (Socket_Stream_f)) {
@@ -3231,14 +2898,7 @@ CloseStream(int sno)
 #else
     close(Stream[sno].u.pipe.fd);
 #endif
-  }
-  else if (Stream[sno].status & (InMemory_Stream_f)) {
-    if (Stream[sno].u.mem_string.src == MEM_BUF_CODE)
-      Yap_FreeAtomSpace(Stream[sno].u.mem_string.buf);
-    else
-      free(Stream[sno].u.mem_string.buf);
-  }
-  else if (Stream[sno].status & (SWI_Stream_f)) {
+  } else if (Stream[sno].status & (SWI_Stream_f)) {
     SWIClose(Stream[sno].u.swi_stream.swi_ptr);
   }
   Stream[sno].status = Free_Stream_f;
@@ -3276,39 +2936,6 @@ p_close (void)
   CloseStream(sno);
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
-}
-
-static Int
-p_peek_mem_write_stream (void)
-{				/* '$peek_mem_write_stream'(+Stream,?S0,?S) */
-  Int sno = CheckStream (ARG1, (Output_Stream_f | InMemory_Stream_f), "close/2");
-  Int i = Stream[sno].u.mem_string.pos;
-  Term tf = ARG2;
-  CELL *HI;
-
-  if (sno < 0)
-    return (FALSE);
- restart:
-  HI = H;
-  while (i > 0) {
-    --i;
-    tf = MkPairTerm(MkIntTerm(Stream[sno].u.mem_string.buf[i]),tf);
-    if (H + 1024 >= ASP) {
-      UNLOCK(Stream[sno].streamlock);
-      H = HI;
-      if (!Yap_gcl((ASP-HI)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
-	UNLOCK(Stream[sno].streamlock);
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return(FALSE);
-      }
-      i = Stream[sno].u.mem_string.pos;
-      tf = ARG2;
-      LOCK(Stream[sno].streamlock);
-      goto restart;
-    }
-  }
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify(ARG3,tf));
 }
 
 static Int
@@ -3850,6 +3477,42 @@ p_get_read_error_handler(void)
   return (Yap_unify_constant (ARG1, t));
 }
 
+int
+Yap_readTerm(int sno, Term *tp, Term *varnames, Term *terror, Term *tpos)
+{
+  TokEntry *tokstart;
+  Term pt;
+
+  if (sno < 0) {
+    return FALSE;
+  }
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, tpos);
+  if (Yap_ErrorMessage)
+    {
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      if (terror)
+	*terror = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      return FALSE;
+    }
+  pt = Yap_Parse();
+  if (Yap_ErrorMessage) {
+    Term t0 = MkVarTerm();
+    *terror = syntax_error(tokstart, sno, &t0);
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      return FALSE;
+  }
+  if (varnames) {
+    *varnames = Yap_VarNames(Yap_VarTable, TermNil);
+    if (!*varnames) {
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      return FALSE;
+    }
+  }
+  *tp = pt;
+  return TRUE;
+}
+
 /*
   Assumes
   Flag: ARG1
@@ -3901,11 +3564,7 @@ static Int
 	had_ungetc = TRUE;
 	ungetc_oldc = Stream[inp_stream].och;
       }
-      if (Stream[inp_stream].status & InMemory_Stream_f) {
-	cpos = Stream[inp_stream].u.mem_string.pos;
-      } else {
-	cpos = Stream[inp_stream].charcount;
-      }
+      cpos = Stream[inp_stream].charcount;
     }
     /* Scans the term using stack space */
     while (TRUE) {
@@ -3921,9 +3580,7 @@ static Int
 	  Stream[inp_stream].och = ungetc_oldc;
 	}
 	if (seekable) {
-	  if (Stream[inp_stream].status & InMemory_Stream_f) {
-	    Stream[inp_stream].u.mem_string.pos = cpos;
-	  } else if (Stream[inp_stream].status) {
+	  if (Stream[inp_stream].status) {
 #if HAVE_FGETPOS
 	      fsetpos(Stream[inp_stream].u.file.file, &rpos);
 #else
@@ -3962,7 +3619,7 @@ static Int
        and floats */
     old_H = H;
     if (Stream[inp_stream].status & Eof_Stream_f) {
-      if (Yap_eot_before_eof || (Stream[inp_stream].status & InMemory_Stream_f)) {
+      if (Yap_eot_before_eof) {
 	/* next read should give out an end of file */
 	Stream[inp_stream].status |= Push_Eof_Stream_f;
       } else {
@@ -4119,8 +3776,6 @@ p_user_file_name (void)
 #endif
   if (Stream[sno].status & Pipe_Stream_f)
     tout = MkAtomTerm(AtomPipe);
-  else if (Stream[sno].status & InMemory_Stream_f)
-    tout = MkAtomTerm(AtomCharsio);
   else
     tout = Stream[sno].u.file.user_name;
   UNLOCK(Stream[sno].streamlock);
@@ -4149,13 +3804,10 @@ p_cur_line_no (void)
       if (Stream[sno].status & Pipe_Stream_f)
 	my_stream = AtomPipe;
       else
-	if (Stream[sno].status & InMemory_Stream_f)
-	  my_stream = AtomCharsio;
-	else
 	  my_stream = Stream[sno].u.file.name;
       for (i = 0; i < MaxStreams; i++)
 	{
-	  if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) &&
+	  if (!(Stream[i].status & (Free_Stream_f|Socket_Stream_f|Pipe_Stream_f)) &&
 	      Stream[i].u.file.name == my_stream)
 	    no += Stream[i].linecount - 1;
 	}
@@ -4816,9 +4468,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   Term tail;
   int (* f_putc)(int, wchar_t);
   int has_tabs;
-  jmp_buf format_botch;
   volatile void *old_handler;
-  volatile int old_pos;
   format_info finfo;
   Term fmod = CurrentModule;
 
@@ -4826,27 +4476,7 @@ format(volatile Term otail, volatile Term oargs, int sno)
   FormatInfo = &finfo;
   finfo.pad_max = finfo.pad_entries;
   finfo.format_error = FALSE;
-  if (Stream[sno].status & InMemory_Stream_f) {
-    old_handler = Stream[sno].u.mem_string.error_handler;
-    Stream[sno].u.mem_string.error_handler = (void *)&format_botch;
-    old_pos = Stream[sno].u.mem_string.pos;
-    /* set up an error handler */
-    if (setjmp(format_botch)) {
-      restore_machine_regs();
-      *H++ = oargs;
-      *H++ = otail;
-      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR,otail,"format/2");
-	return FALSE;
-      }
-      oargs = H[-2];
-      otail = H[-1];
-      Stream[sno].u.mem_string.pos = old_pos;
-      H -= 2;
-    }
-  } else {
-    old_handler = NULL;
-  }
+  old_handler = NULL;
   args = oargs;
   tail = otail;
   targ = 0;
@@ -5281,9 +4911,6 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      if (IsAtomTerm(tail)) {
 		fstr = NULL;
 	      }
-	      if (Stream[sno].status & InMemory_Stream_f) {
-		Stream[sno].u.mem_string.error_handler = old_handler;
-	      }
 	      format_clean_up(finfo.format_base, fstr, targs);
 	      Yap_JumpToEnv(ball);
 	      return FALSE;
@@ -5400,9 +5027,6 @@ format(volatile Term otail, volatile Term oargs, int sno)
 	      ta[1] = oargs;
 	      Yap_Error(Yap_Error_TYPE, Yap_MkApplTerm(Yap_MkFunctor(AtomFormat,2),2,ta), "format/2");
 	    }
-	    if (Stream[sno].status & InMemory_Stream_f) {
-	      Stream[sno].u.mem_string.error_handler = old_handler;
-	    }
 	    format_clean_up(finfo.format_base, fstr, targs);
 	    Yap_Error_TYPE = YAP_NO_ERROR;
 	    return FALSE;
@@ -5424,9 +5048,6 @@ format(volatile Term otail, volatile Term oargs, int sno)
   }
   if (tnum <= 8)
     targs = NULL;
-  if (Stream[sno].status & InMemory_Stream_f) {
-    Stream[sno].u.mem_string.error_handler = old_handler;
-  }
   format_clean_up(finfo.format_base, fstr, targs);
   return (TRUE);
 }
@@ -5451,17 +5072,8 @@ format2(UInt  stream_flag)
     Yap_Error(INSTANTIATION_ERROR,tin,"format/3");
     return FALSE;
   }
-  if (IsApplTerm(tin) && FunctorOfTerm(tin) == FunctorAtom) {
-    Yap_c_output_stream = OpenBufWriteStream();
-    mem_stream = TRUE;
-  } else if (IsApplTerm(tin) && FunctorOfTerm(tin) == FunctorCodes) {
-    Yap_c_output_stream = OpenBufWriteStream();
-    codes_stream = TRUE;
-    mem_stream = TRUE;
-  } else {
-    /* needs to change Yap_c_output_stream for write */
-    Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f|stream_flag, "format/3");
-  }
+  /* needs to change Yap_c_output_stream for write */
+  Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f|stream_flag, "format/3");
   UNLOCK(Stream[Yap_c_output_stream].streamlock);
   if (Yap_c_output_stream == -1) {
     Yap_c_output_stream = old_c_stream;  
@@ -5931,9 +5543,6 @@ Yap_StreamToFileNo(Term t)
     UNLOCK(Stream[sno].streamlock);
     return(Stream[sno].u.socket.fd);
 #endif
-  } else if (Stream[sno].status & (Null_Stream_f|InMemory_Stream_f)) {
-    UNLOCK(Stream[sno].streamlock);
-    return(-1);
   } else {
     UNLOCK(Stream[sno].streamlock);
     return(YP_fileno(Stream[sno].u.file.file));
@@ -6087,74 +5696,6 @@ p_encoding (void)
   return TRUE;
 }
 
-Term
-Yap_StringToTerm(char *s,Term *tp)
-{
-  int sno = open_buf_read_stream(s, strlen(s)+1);
-  Term t;
-  TokEntry *tokstart;
-  tr_fr_ptr TR_before_parse;
-  Term tpos = TermNil;
-
-  if (sno < 0)
-    return FALSE;
-  UNLOCK(Stream[sno].streamlock);
-  TR_before_parse = TR;
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
-  if (tokstart == NIL && tokstart->Tok == Ord (eot_tok)) {
-    if (tp) {
-      *tp = MkAtomTerm(AtomEOFBeforeEOT);
-    }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
-    Stream[sno].status = Free_Stream_f;
-    return FALSE;
-  } else if (Yap_ErrorMessage) {
-    if (tp) {
-      *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-    }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
-    Stream[sno].status = Free_Stream_f;
-    return FALSE;
-  }
-  t = Yap_Parse();
-  TR = TR_before_parse;
-  if (!t && !Yap_ErrorMessage) {
-    if (tp) {
-      t = MkVarTerm();
-      *tp = syntax_error(tokstart, sno, &t);
-    }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-    /* cannot actually use CloseStream, because we didn't allocate the buffer */  
-    Stream[sno].status = Free_Stream_f;
-    return FALSE;
-  }
-  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-  /* cannot actually use CloseStream, because we didn't allocate the buffer */  
-  Stream[sno].status = Free_Stream_f;
-  return t;
-}
-
-Term
-Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
-{
-  int sno = open_buf_write_stream(s, sz);
-  int old_output_stream = Yap_c_output_stream;
-
-  if (sno < 0)
-    return FALSE;
-  Yap_c_output_stream = sno;
-  Yap_StartSlots();
-  Yap_plwrite (t, Stream[sno].stream_wputc, flags, 1200);
-  Yap_CloseSlots();
-  s[Stream[sno].u.mem_string.pos] = '\0';
-  LOCK(Stream[sno].streamlock);
-  Stream[sno].status = Free_Stream_f;
-  UNLOCK(Stream[sno].streamlock);
-  Yap_c_output_stream = old_output_stream;
-  return EX != NULL;
-}
 
 FILE *
 Yap_FileDescriptorFromStream(Term t)
@@ -6163,7 +5704,6 @@ Yap_FileDescriptorFromStream(Term t)
   if (sno < 0)
     return NULL;
   if (Stream[sno].status & (Null_Stream_f|
-		InMemory_Stream_f|
 		Socket_Stream_f|
 		Pipe_Stream_f|
 		Free_Stream_f))
@@ -6202,12 +5742,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$open_pipe_stream", 2, p_open_pipe_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  CurrentModule = CHARSIO_MODULE;
-  Yap_InitCPred ("open_mem_read_stream", 2, p_open_mem_read_stream, SyncPredFlag);
-  Yap_InitCPred ("open_mem_write_stream", 1, p_open_mem_write_stream, SyncPredFlag);
-  Yap_InitCPred ("peek_mem_write_stream", 3, p_peek_mem_write_stream, SyncPredFlag);
-  CurrentModule = cm;
   Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);

@@ -156,18 +156,6 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
   return s;
 }
 
-X_API int
-PL_chars_to_term(const char *s, term_t term) { 
-  YAP_Term t,error;
-  if ( (t=YAP_ReadBuffer(s,&error))==0L ) {
-    Yap_PutInSlot(term, error); 
-    return 0L;
-  }
-  Yap_PutInSlot(term,t);
-  return 1L;
-}
-
-
 /* SWI: term_t PL_copy_term_ref(term_t from)
    YAP: NO EQUIVALENT */
 /* SAM TO DO */
@@ -1512,7 +1500,7 @@ X_API int PL_unify_term(term_t l,...)
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, void *));
 	break;
       case PL_INT64:
-#if SIZE_OF_LONG_INT==8
+#if SIZEOF_LONG_INT==8
 	*pt++ = MkIntegerTerm((Int)va_arg(ap, long int));
 #elif USE_GMP
 	{
@@ -2743,6 +2731,67 @@ Yap_swi_install(void)
 {
   Yap_install_blobs();
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
+}
+
+int Yap_read_term(term_t t, IOSTREAM *st, term_t vs);
+
+int
+Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
+{
+  int sno = Yap_LookupSWIStream(st);
+  Term varnames, out, tpos;
+
+  if (!Yap_readTerm(sno, &out, &varnames, NULL, &tpos))
+    return FALSE;
+  if (!Yap_unify(out, Yap_GetFromSlot(t))) {
+    return FALSE;
+  }
+  if (!Yap_unify(vs, Yap_GetFromSlot(varnames))) {
+    return FALSE;
+  }
+  return TRUE;
+}
+
+Term
+Yap_StringToTerm(char *s, Term *tp)
+{
+  IOSTREAM *stream = Sopen_string(NULL, s, -1, "r");
+  int sno;
+  Term out, tpos;
+
+  if (!stream)
+    return FALSE;
+  sno = Yap_LookupSWIStream(stream);
+  if (sno < 0)
+    return FALSE;
+  if (!Yap_readTerm(sno, &out, NULL, tp, &tpos)) {
+    out = 0L;
+  }
+  Yap_CloseStream(sno);
+  Sclose(stream);
+  return out;
+}
+
+Term
+Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
+{
+  int old_output_stream = Yap_c_output_stream;
+  IOSTREAM *stream = Sopen_string(NULL, s, sz, "w");
+  int sno;
+
+  if (!stream)
+    return FALSE;
+  sno = Yap_LookupSWIStream(stream);
+
+  if (sno < 0)
+    return 0L;
+  Yap_c_output_stream = sno;
+  Yap_StartSlots();
+  Yap_PlWriteToStream (t, sno, flags);
+  stream->bufp = '\0';
+  Yap_CloseSlots();
+  Yap_c_output_stream = old_output_stream;
+  return EX != NULL;
 }
 
 #ifdef _WIN32

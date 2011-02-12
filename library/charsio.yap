@@ -32,86 +32,69 @@
  term_to_atom/2 
     ]).
 
+:- use_module(library(memfile)).
+
 :- meta_predicate(with_output_to_chars(0,?)).
 :- meta_predicate(with_output_to_chars(0,-,?)).
 :- meta_predicate(with_output_to_chars(0,-,?,?)).
 
-format_to_chars(Form, Args, OUT) :-
-	format_to_chars(Form, Args, OUT, []).
+format_to_chars(Format, Args, Codes) :-
+	format(codes(Codes), Format, Args).
 
-format_to_chars(Form, Args, OUT, L0) :-
-	open_mem_write_stream(Stream),
-	format(Stream,Form,Args),
-	peek_mem_write_stream(Stream, L0, O),
-	close(Stream),
-	O = OUT.
+format_to_chars(Format, Args, OUT, L0) :-
+	format(codes(OUT, L0), Format, Args).
 
-write_to_chars(Term, OUT) :-
-	write_to_chars(Term, [], OUT).
+write_to_chars(Term, Codes) :-
+	format(codes(Codes), '~w', [Term]).
+
+write_to_chars(Term, Out, Tail) :-
+	format(codes(Out,Tail),'~w',[Term]).
+
 
 atom_to_chars(Atom, OUT) :-
-	atom_to_chars(Atom, [], OUT).
+	atom_codes(Atom, OUT).
 
 atom_to_chars(Atom, L0, OUT) :-
-	var(Atom), !,
-	throw(error(instantiation_error,atom_to_chars(Atom, L0, OUT))).
-atom_to_chars(Atom, L0, OUT) :-
-	atom(Atom), !,
-	open_mem_write_stream(Stream),
-	write(Stream, Atom),
-	peek_mem_write_stream(Stream, L0, O),
-	close(Stream),
-	O = OUT.
-atom_to_chars(Atom, L0, OUT) :-
-	throw(error(type_error(atom,Atom),atom_to_chars(Atom, L0, OUT))).
+	format(codes(L0, OUT), '~a', [Atom]).
 
 number_to_chars(Number, OUT) :-
-	number_to_chars(Number, [], OUT).
+	number_codes(Number, OUT).
 
 number_to_chars(Number, L0, OUT) :-
 	var(Number), !,
 	throw(error(instantiation_error,number_to_chars(Number, L0, OUT))).
 number_to_chars(Number, L0, OUT) :-
 	number(Number), !,
-	open_mem_write_stream(Stream),
-	write(Stream, Number),
-	peek_mem_write_stream(Stream, L0, O),
-	close(Stream),
-	O = OUT.
+	format(codes(L0, OUT), '~w', [Number]).
 number_to_chars(Number, L0, OUT) :-
 	throw(error(type_error(number,Number),number_to_chars(Number, L0, OUT))).
 
-open_chars_stream(Chars, Stream) :-
-	open_mem_read_stream(Chars, Stream).
+open_chars_stream(Codes, Stream) :-
+	open_chars_stream(Codes, Stream, '').
 
-with_output_to_chars(Goal, Chars) :-
-	with_output_to_chars(Goal, [], Chars).
+open_chars_stream(Codes, Stream, Postfix) :-
+	new_memory_file(MF),
+	open_memory_file(MF, write, Out),
+	format(Out, '~s~w', [Codes, Postfix]),
+	close(Out),
+	open_memory_file(MF, read, Stream,
+			 [ free_on_close(true)
+			 ]).
 
-with_output_to_chars(Goal, L0, Chars) :-
-	with_output_to_chars(Goal, Stream, L0, Chars),
-	close(Stream).
+with_output_to_chars(Goal, Codes) :-
+	with_output_to(codes(Codes), Goal).
 
-with_output_to_chars(Goal, Stream, L0, Chars) :-
-	open_mem_write_stream(Stream),
-	current_output(SO),
-	set_output(Stream),
-	do_output_to_chars(Goal, Stream, L0, Chars, SO).
+with_output_to_chars(Goal, Codes, L0) :-
+	with_output_to(codes(Codes, L0), Goal).
+%%	with_output_to_chars(:Goal, -Stream, -Codes, ?Tail) is det.
+%
+%	As  with_output_to_chars/2,  but  Stream  is  unified  with  the
+%	temporary stream.
 
-do_output_to_chars(Goal, Stream, L0, Chars, SO) :-
-	catch(Goal, Exception, handle_exception(Exception,Stream,SO)),
-	!,
-	set_output(SO),
-	peek_mem_write_stream(Stream, L0, Chars).
-do_output_to_chars(_Goal, Stream, _L0, _Chars, SO) :-
-	set_output(SO),
-	close(Stream),
-	fail.
+with_output_to_chars(Goal, Stream, Codes, Tail) :-
+	with_output_to(codes(Codes, Tail), with_stream(Stream, Goal)).
 
-handle_exception(Exception, Stream, SO) :-
-	close(Stream),
-	current_output(SO),
-	throw(Exception).
-
-
-
+with_stream(Stream, Goal) :-
+	current_output(Stream),
+	call(Goal).
 

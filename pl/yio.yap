@@ -168,9 +168,15 @@ set_input(Stream) :-
 set_output(Stream) :-
 	'$set_output'(Stream).
 
-open_null_stream(S) :- '$open_null_stream'(S).
-
-open_pipe_streams(P1,P2) :- '$open_pipe_stream'(P1, P2).
+open_pipe_streams(Read, Write) :-
+	(
+	 '$undefined'(pipe(_,_),unix)
+	->
+	 load_files(library(unix), [silent(true),if(not_loaded)])
+	;
+	 true
+	),
+	unix:pipe(Read, Write).
 
 fileerrors :- set_value(fileerrors,1).
 nofileerrors :- set_value(fileerrors,0).
@@ -794,36 +800,10 @@ current_stream(File, Opts, Stream) :-
 
 
 '$format@'(Goal,Out) :-
-	'$with_output_to_chars'(Goal, _, [], Out).
-
-'$with_output_to_chars'(Goal, Stream, L0, Chars) :-
-	charsio:open_mem_write_stream(Stream),
-	current_output(SO),
-	set_output(Stream),
-	'$do_output_to_chars'(Goal, Stream, L0, Chars, SO).
-
-'$do_output_to_chars'(Goal, Stream, L0, Chars, SO) :-
-	catch(Goal, Exception, '$handle_exception'(Exception,Stream,SO)),
-	!,
-	set_output(SO),
-	charsio:peek_mem_write_stream(Stream, L0, Chars),
-	close(Stream).
-'$do_output_to_chars'(_Goal, Stream, _L0, _Chars, SO) :-
-	set_output(SO),
-	close(Stream),
-	fail.
+	with_output_to(codes(Out), Goal).
 
 sformat(String, Form, Args) :-
-	charsio:open_mem_write_stream(Stream),
-	format(Stream, Form, Args),
-	charsio:peek_mem_write_stream(Stream, [], String),
-	close(Stream).
-
-
-'$handle_exception'(Exception, Stream, SO) :-
-	set_output(SO),
-	close(Stream),
-	throw(Exception).
+	format(codes(String, []), Form, Args).
 
 write_depth(T,L) :- write_depth(T,L,_).
 
@@ -855,57 +835,6 @@ prolog_file_name(File, PrologFileName) :-
 prolog_file_name(File, PrologFileName) :-
 	'$do_error'(type_error(atom,T), prolog_file_name(File, PrologFileName)).
 
-with_output_to(Output, Command) :-
-	setup_call_cleanup( '$setup_wot'(Output, Stream, OldStream, with_output_to(Output, Command)),
-			    once(Command),
-			    '$cleanup_wot'(Output, Stream, OldStream) ).
-
-'$setup_wot'(Output, Stream, OldStream, Goal) :-
-	'$setup_wot'(Output, Stream, Goal),
-	current_output(OldStream),
-	set_output(Stream).
-
-'$setup_wot'(Output, Stream, Goal) :-
-	var(Output), !,
-	'$do_error'(instantiation_error,Goal).
-'$setup_wot'(atom(_Atom), Stream, _) :- !,
-	charsio:open_mem_write_stream(Stream).
-'$setup_wot'(codes(_Codes), Stream, _) :- !,
-	charsio:open_mem_write_stream(Stream).
-'$setup_wot'(codes(_Codes, _Tail), Stream, _) :- !,
-	charsio:open_mem_write_stream(Stream).
-'$setup_wot'(chars(_Chars), Stream, _) :- !,
-	charsio:open_mem_write_stream(Stream).
-'$setup_wot'(chars(_Chars, _Tail), Stream, _) :- !,
-	charsio:open_mem_write_stream(Stream).
-'$setup_wot'(Stream, Stream, _) :-
-	'$stream'(Stream), !.
-'$setup_wot'(Output, _, Goal) :-
-	'$do_error'(type_error(output,Output),Goal).
-
-'$cleanup_wot'(Output, Stream, OldStream) :- !,
-	'$cleanup_wot'(Output, Stream),
-	set_output(OldStream).
-
-'$cleanup_wot'(atom(Atom), Stream) :- !,
-	charsio:peek_mem_write_stream(Stream, [], String),
-	atom_codes(Atom, String),
-	close(Stream).
-'$cleanup_wot'(codes(Codes), Stream) :- !,
-	charsio:peek_mem_write_stream(Stream, [], Codes),
-	close(Stream).
-'$cleanup_wot'(codes(Codes, Tail), Stream) :- !,
-	charsio:peek_mem_write_stream(Stream, Tail, Codes),
-	close(Stream).
-'$cleanup_wot'(chars(Chars), Stream) :- !,
-	charsio:peek_mem_write_stream(Stream, [], String),
-	'$codes_to_chars'([], String, Chars),
-	close(Stream).
-'$cleanup_wot'(chars(Chars, Tail), Stream) :- !,
-	charsio:peek_mem_write_stream(Stream, Tail, String),
-	'$codes_to_chars'(Tail, String, Chars),
-	close(Stream).
-'$cleanup_wot'(_, _).
 
 '$codes_to_chars'(String0, String, String0) :- String0 == String, !.
 '$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-

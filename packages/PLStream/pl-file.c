@@ -4723,6 +4723,7 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_files);
   PL_register_extensions(PL_predicates_from_glob);
   PL_register_extensions(PL_predicates_from_write);
+  PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();

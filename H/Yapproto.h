@@ -259,7 +259,9 @@ void	STD_PROTO(Yap_InitIOPreds,(void));
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
 #endif
-
+int	STD_PROTO(Yap_LookupSWIStream,(void *));
+int     STD_PROTO(Yap_readTerm, (int, Term *, Term *, Term *, Term *));
+void    STD_PROTO(Yap_PlWriteToStream, (Term, int, int));
 /* depth_lim.c */
 void	STD_PROTO(Yap_InitItDeepenPreds,(void));
 

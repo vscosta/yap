@@ -301,15 +301,7 @@ prolog_current_frame(Env) :-
 
 '$run_atom_goal'(GA) :-
 	'$current_module'(Module),
-	atom_codes(GA,Gs0),
-	'$add_dot_to_atom_goal'(Gs0,Gs),
-	charsio:open_mem_read_stream(Gs, Stream),
-	( '$system_catch'(read(Stream, G),Module,_,fail) ->
-	    close(Stream)
-	;
-	    close(Stream),
-	    fail
-	),
+	atom_to_term(GA, G, _),
 	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)).
 
 '$add_dot_to_atom_goal'([],[0'.]) :- !. %'

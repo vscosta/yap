@@ -712,11 +712,8 @@ true :- true.
 	'$write_goal_output'(G1, First, NG, Next, IG),
 	'$write_vars_and_goals'(LG, Next, IG).
 
-'$goal_to_string'(Format, G, String) :-			  
-	charsio:open_mem_write_stream(W),
-        format(W,Format,G),
-	charsio:peek_mem_write_stream(W, [], String),
-	close(W).
+'$goal_to_string'(Format, G, String) :-
+	format(codes(String),Format,G).
 
 '$write_goal_output'(var([V|VL]), First, [var([V|VL])|L], next, L) :- !,
         ( First = first -> true ; format(user_error,',~n',[]) ),
@@ -1393,3 +1390,10 @@ open_null_stream(S) :-
 stream_property(Stream, Property) :-
 	swi_stream_property(Stream, Property).
 
+atom_to_term(Atom, Term, Bindings) :-
+	swi_atom_to_term(Atom, Term, Bindings).
+term_to_atom(Term, Atom) :-
+	swi_term_to_atom(Term, Atom).
+
+with_output_to(Output, G) :-
+	swi_with_output_to(Output, G).

@@ -430,7 +430,8 @@ initialization(G,OPT) :-
 	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
-	'$default_encoding'(Encoding),
+	'$default_encoding'(Enc),
+	'$valid_encoding'(Encoding, Enc),
 	( open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Encoding, X), !,
 		print_message(Verbosity, loading(including, Y)),
 		'$loop'(Stream,Status), '$close'(Stream)
@@ -826,11 +827,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	File = File0.
 '$cat_file_name'(File0,File) :-
 	ground(File0),
-	charsio:open_mem_write_stream(Stream),
-	write(Stream, File0),
-	charsio:peek_mem_write_stream(Stream, [], L),
-	close(Stream),
-	atom_codes(File, L).
+	format(atom(File), '~w', [File0]).
 
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
 	operating_system_support:true_file_name(File,D0,AbsFile).

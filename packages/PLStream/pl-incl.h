@@ -1104,4 +1104,5 @@ extern const PL_extension PL_predicates_from_file[];
 extern const PL_extension PL_predicates_from_files[];
 extern const PL_extension PL_predicates_from_glob[];
 extern const PL_extension PL_predicates_from_write[];
+extern const PL_extension PL_predicates_from_read[];
 

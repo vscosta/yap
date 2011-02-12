@@ -29,8 +29,9 @@ typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
 typedef YAP_Atom		Atom;
 typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 
-const char *Yap_GetCurrentPredName(void);
-YAP_Int     Yap_GetCurrentPredArity(void);
+extern const char *Yap_GetCurrentPredName(void);
+extern YAP_Int     Yap_GetCurrentPredArity(void);
+extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *vs);
 
 
 extern atom_t codeToAtom(int chrcode);
