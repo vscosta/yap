@@ -862,7 +862,13 @@ typedef double			real;
 #define false(s, a)		(!true((s), (a)))
 #define set(s, a)		((s)->flags |= (a))
 #define clear(s, a)		((s)->flags &= ~(a))
+#ifdef  DEBUG
+/* should have messages here */
+#undef DEBUG
 #define DEBUG(LEVEL, COMMAND)
+#else
+#define DEBUG(LEVEL, COMMAND)
+#endif
 
 #define forwards static		/* forwards function declarations */
 

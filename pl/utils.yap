@@ -247,6 +247,9 @@ pwd :-
 	getcwd(X),
 	write(X), nl.
 
+working_directory(OLD, NEW) :-
+	swi_working_directory(OLD, NEW).
+
 unix(V) :- var(V), !,
 	'$do_error'(instantiation_error,unix(V)).
 unix(argv(L)) :- '$is_list_of_atoms'(L,L), !, '$argv'(L).

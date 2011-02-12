@@ -6895,6 +6895,13 @@ atoms.
 Execute a new shell.
 @end table
 
+@item working_directory(-@var{CurDir},?@var{NextDir})
+@findex  working_directory/2
+@syindex working_directory/2
+@cnindex working_directory/2    @c 
+Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
+to an atom, make its value the current working directory.
+
 @item alarm(+@var{Seconds},+@var{Callable},+@var{OldAlarm})
 @findex alarm/3
 @snindex alarm/3
@@ -11593,13 +11600,6 @@ exec(ls,[std,pipe(S),null],P),repeat, get0(S,C), (C = -1, close(S) ! ; put(C)).
 The streams may be one of standard stream, @code{std}, null stream,
 @code{null}, or @code{pipe(S)}, where @var{S} is a pipe stream. Note
 that it is up to the user to close the pipe.
-
-@item working_directory(-@var{CurDir},?@var{NextDir})
-@findex  working_directory/2
-@syindex working_directory/2
-@cnindex working_directory/2    @c 
-Fetch the current directory at @var{CurDir}. If @var{NextDir} is bound
-to an atom, make its value the current working directory.
 
 @item popen(+@var{Command}, +@var{TYPE}, -@var{Stream})
 @findex  popen/3

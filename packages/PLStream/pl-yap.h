@@ -27,7 +27,7 @@
 typedef YAP_Term	        Module;
 typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
 typedef YAP_Atom		Atom;
-typedef YAP_Term		(*Func)();	/* foreign functions */
+typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 
 const char *Yap_GetCurrentPredName(void);
 YAP_Int     Yap_GetCurrentPredArity(void);

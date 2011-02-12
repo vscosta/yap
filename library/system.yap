@@ -43,7 +43,7 @@
 	mktime/2,
 	tmpnam/1,
 	tmp_file/2,
-  tmpdir/1,
+        tmpdir/1,
 	wait/2,
 	working_directory/2
           ]).
@@ -268,10 +268,6 @@ environ_enum(X,X1) :-
 environ_split([61|SVal], [], SVal) :- !.
 environ_split([C|S],[C|SNa],SVal) :-
 	environ_split(S,SNa,SVal).
-
-working_directory(OLD, NEW) :-
-	getcwd(OLD),
-	cd(NEW).
 
 %
 % process execution
