@@ -212,34 +212,6 @@ typedef	struct VARSTRUCT {
 #define EOFCHAR EOF
 
 
-#if USE_SOCKET
-/****************** defines for sockets *********************************/
-
-typedef enum{        /* in YAP, sockets may be in one of 4 possible status */
-  new_socket,
-    server_socket,
-    client_socket,
-    server_session_socket,
-    closed_socket
-} socket_info;
-
-typedef enum{       /* we accept two domains for the moment, IPV6 may follow */
-      af_inet,      /* IPV4 */
-      af_unix       /* or AF_FILE */
-} socket_domain;
-
-Term  STD_PROTO(Yap_InitSocketStream,(int, socket_info, socket_domain));
-int   STD_PROTO(Yap_CheckStream,(Term, int, char *));
-int   STD_PROTO(Yap_CheckSocketStream,(Term, char *));
-socket_domain   STD_PROTO(Yap_GetSocketDomain,(int));
-socket_info   STD_PROTO(Yap_GetSocketStatus,(int));
-void  STD_PROTO(Yap_UpdateSocketStream,(int, socket_info, socket_domain));
-
-/* routines in ypsocks.c */
-Int STD_PROTO(Yap_CloseSocket,(int, socket_info, socket_domain));
-
-#endif /* USE_SOCKET */
-
 /* info on aliases */
 typedef struct AliasDescS {
     Atom name;

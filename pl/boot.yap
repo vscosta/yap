@@ -1107,7 +1107,7 @@ bootstrap(F) :-
 
 
 '$loop'(Stream,Status) :-
-%VSC	'$change_alias_to_stream'('$loop_stream',Stream),
+	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
 %VSC		( '$current_stream'(_,_,Stream) -> true
 %VSC		 ; '$abort_loop'(Stream)
@@ -1381,10 +1381,14 @@ cd(Dir) :- working_directory(_, Dir).
 
 getcwd(Dir) :- working_directory(Dir, Dir).
 
+close(Stream) :-
+	swi_close(Stream).
+close(Stream, Options) :-
+	swi_close(Stream, Options).
 open(File, Type, Stream) :-
 	swi_open(File, Type, Stream).
-open(File, Type, Opts, Stream) :-
-	swi_open(File, Type, Opts, Stream).
+open(File, Type, Stream, Opts) :-
+	swi_open(File, Type, Stream, Opts).
 open_null_stream(S) :-
 	swi_open_null_stream(S).
 stream_property(Stream, Property) :-
@@ -1397,3 +1401,4 @@ term_to_atom(Term, Atom) :-
 
 with_output_to(Output, G) :-
 	swi_with_output_to(Output, G).
+

@@ -52,6 +52,7 @@ otherwise.
 
 :- compile_expressions.
 
+
 :- [
     % lists is often used.
    	 'lists.yap',

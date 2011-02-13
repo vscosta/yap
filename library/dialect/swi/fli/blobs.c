@@ -73,7 +73,7 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
   b->NextOfPE = NIL;
   b->KindOfPE = BlobProperty;
   b->blob_t = type;
-  ae = (AtomEntry *)Yap_AllocCodeSpace(sizeof(AtomEntry)+len);
+  ae = (AtomEntry *)Yap_AllocCodeSpace(sizeof(AtomEntry)+len+sizeof(size_t));
   if (!ae)
     return NULL;
   INIT_RWLOCK(ae->ARWLock);

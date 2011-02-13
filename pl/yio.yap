@@ -17,29 +17,6 @@
 
 /* stream predicates							*/
 
-close(V) :- var(V), !,
-	'$do_error'(instantiation_error,close(V)).
-close(File) :-
-	atom(File), !,
-	(
-	    '$access_yap_flags'(8, 0),
-	    current_stream(_,_,Stream),
-	    '$user_file_name'(Stream,File)
-        ->
-	    '$close'(Stream)
-	;
-	    '$close'(File)
-	).
-close(Stream) :-
-	'$close'(Stream).
-
-close(V,Opts) :- var(V), !,
-	'$do_error'(instantiation_error,close(V,Opts)).
-close(S,Opts) :-
-	'$check_io_opts'(Opts,close(S,Opts)),
-	/* YAP ignores the force/1 flag */ 
-	close(S).
-	
 /* check whether a list of options is valid */
 '$check_io_opts'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error,G).
@@ -52,11 +29,6 @@ close(S,Opts) :-
 '$check_io_opts'(T,G) :-
 	'$do_error'(type_error(list,T),G).
 
-'$check_opt'(close(_,_),Opt,G) :- !,
-	(Opt = force(X) ->
-	    '$check_force_opt_arg'(X,G) ;
-	    '$do_error'(domain_error(close_option,Opt),G)
-	).
 '$check_opt'(read_term(_,_),Opt,G) :-
 	'$check_opt_read'(Opt, G).
 '$check_opt'(stream_property(_,_),Opt,G) :-
@@ -114,16 +86,6 @@ close(S,Opts) :-
 	'$check_boolean'(T, write_option, swi(T), G).
 '$check_opt_write'(A, G) :-
 	'$do_error'(domain_error(write_option,A),G).
-
-%
-% check force arg
-%
-'$check_force_opt_arg'(X,G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_force_opt_arg'(true,_) :- !.
-'$check_force_opt_arg'(false,_) :- !.
-'$check_force_opt_arg'(X,G) :-
-	'$do_error'(domain_error(close_option,force(X)),G).
 
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
@@ -198,7 +160,7 @@ seeing(File) :- current_input(Stream),
 	'$user_file_name'(Stream,NFile),
 	( '$user_file_name'(user_input,NFile) -> File = user ; NFile = File).
 
-seen :- current_input(Stream), '$close'(Stream), set_input(user).
+seen :- current_input(Stream), close(Stream), set_input(user).
 
 tell(user) :- !, set_output(user_output).
 tell(F) :- var(F), !,
@@ -215,7 +177,7 @@ telling(File) :- current_output(Stream),
 	'$user_file_name'(Stream,NFile),
 	( '$user_file_name'(user_output,NFile) -> File = user ; File = NFile ).
 
-told :- current_output(Stream), '$close'(Stream), set_output(user).
+told :- current_output(Stream), close(Stream), set_output(user).
 
 
 /* Term IO	*/

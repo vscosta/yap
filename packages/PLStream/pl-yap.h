@@ -32,7 +32,7 @@ typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 extern const char *Yap_GetCurrentPredName(void);
 extern YAP_Int     Yap_GetCurrentPredArity(void);
 extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *vs);
-
+extern int Yap_LookupSWIStream(void *swi_s);
 
 extern atom_t codeToAtom(int chrcode);
 

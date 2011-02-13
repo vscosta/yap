@@ -61,20 +61,6 @@ typedef struct stream_desc
 #endif
 	YP_File file;
       } file;
-      struct {
-	char *buf;         /* where the file is being read from/written to */
-	int src;           /* where the space comes from, 0 code space, 1 malloc */
-	Int max_size;	   /* maximum buffer size (may be changed dynamically) */
-	UInt pos;
-	volatile void *error_handler;
-      } mem_string;
-      struct {
-#if defined(__MINGW32__) || defined(_MSC_VER)
-	HANDLE hdl;
-#else
-	int fd;
-#endif
-      } pipe;
     } u;
     Int charcount, linecount, linepos;
     Int status;

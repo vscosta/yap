@@ -353,95 +353,8 @@ PlGetsFunc(void)
 }
 
 static void
-InitFileIO(StreamDesc *s)
-{
-  s->stream_gets = PlGetsFunc();
-  {
-   /* check if our console is promptable: may be tty or pipe */
-    if (s->status & (Promptable_Stream_f)) {
-      /* the putc routine only has to check it is putting out a newline */
-      s->stream_putc = ConsolePutc;
-      s->stream_wputc = put_wchar;
-      /* if a tty have a special routine to call readline */
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-      if (s->status & Tty_Stream_f) {
-	if (Stream[0].status & Tty_Stream_f &&
-	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
-	  s->stream_putc = ReadlinePutc;
-	s->stream_wputc = put_wchar;
-	s->stream_getc = ReadlineGetc;
-      } else
-#endif
-	{
-	  /* else just PlGet plus checking for prompt */
-	  s->stream_getc = ConsoleGetc;
-	}
-    } else {
-      /* we are reading from a file, no need to check for prompts */
-      s->stream_putc = FilePutc;
-      s->stream_wputc = put_wchar;
-      s->stream_getc = PlGetc;
-      s->stream_gets = PlGetsFunc();
-    } 
-  }
-  s->stream_wgetc = get_wchar;
-}
-
-
-static void
-InitStdStream (int sno, SMALLUNSGN flags, YP_File file)
-{
-  StreamDesc *s = &Stream[sno];
-  s->u.file.file = file; 
-  s->status = flags;
-  s->linepos = 0;
-  s->linecount = 1;
-  s->charcount = 0;
-  s->encoding = DefaultEncoding();
-  INIT_LOCK(s->streamlock);
-  unix_upd_stream_info(s);
-  /* Getting streams to prompt is a mess because we need for cooperation
-     between readers and writers to the stream :-(
-  */
-  InitFileIO(s);
-  switch(sno) {
-  case 0:
-    s->u.file.name=AtomUserIn;
-    break;
-  case 1:
-    s->u.file.name=AtomUserOut;
-    break;
-  default:
-    s->u.file.name=AtomUserErr;
-    break;
-  }
-  s->u.file.user_name = MkAtomTerm (s->u.file.name);
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-#if LIGHT
-  s->status |= Tty_Stream_f|Promptable_Stream_f;
-#endif
-#if HAVE_SETBUF
-  if (s->status & Tty_Stream_f &&
-      sno == 0) {
-    /* make sure input is unbuffered if it comes from stdin, this
-       makes life simpler for interrupt handling */
-    YP_setbuf (stdin, NULL); 
-   //    fprintf(stderr,"here I am\n");
-  }
-#endif /* HAVE_SETBUF */
-
-}
-
-
-static void
 InitStdStreams (void)
 {
-  InitStdStream (StdInStream, Input_Stream_f, stdin);
-  InitStdStream (StdOutStream, Output_Stream_f, stdout);
-  InitStdStream (StdErrStream, Output_Stream_f, stderr);
   Yap_c_input_stream = StdInStream;
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
@@ -4527,7 +4440,7 @@ static Int
 format2(UInt  stream_flag)
 {
   int old_c_stream = Yap_c_output_stream;
-  int mem_stream = FALSE, codes_stream = FALSE;
+  int codes_stream = FALSE;
   Int out;
   Term tin = Deref(ARG1);
 
@@ -4543,25 +4456,7 @@ format2(UInt  stream_flag)
     return FALSE;
   }
   out = format(Deref(ARG2),Deref(ARG3),Yap_c_output_stream);
-  if (mem_stream) {
-    Term tat;
-    Term inp = Deref(ARG1);
-    int stream = Yap_c_output_stream;
-    Yap_c_output_stream = old_c_stream;  
-    if (out) {
-      Stream[stream].u.mem_string.buf[Stream[stream].u.mem_string.pos] = '\0';
-      if (codes_stream) {
-	tat = Yap_StringToDiffList(Stream[stream].u.mem_string.buf, ArgOfTerm(2,inp));
-      } else {
-	tat = MkAtomTerm(Yap_LookupAtom(Stream[stream].u.mem_string.buf));
-      }
-      CloseStream(stream);
-      if (!Yap_unify(tat,ArgOfTerm(1,inp)))
-	return FALSE;
-    } else {
-      CloseStream(stream);
-    }
-  } else {
+ {
     Yap_c_output_stream = old_c_stream;  
   }
   return out;

@@ -932,8 +932,6 @@ RestoreStreams(void)
     for (sno = 0; sno < MaxStreams; ++sno) {
       if (Stream[sno].status & Free_Stream_f)
 	continue;
-      if (Stream[sno].status & (Socket_Stream_f|Pipe_Stream_f|InMemory_Stream_f)) 
-	continue;
       Stream[sno].u.file.user_name = AtomTermAdjust(Stream[sno].u.file.user_name);
       Stream[sno].u.file.name = AtomAdjust(Stream[sno].u.file.name);
     }    
