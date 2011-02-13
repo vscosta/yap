@@ -1382,9 +1382,11 @@ cd(Dir) :- working_directory(_, Dir).
 getcwd(Dir) :- working_directory(Dir, Dir).
 
 close(Stream) :-
-	swi_close(Stream).
+	'$close'(Stream).
+%	swi_close(Stream). must be last
 close(Stream, Options) :-
-	swi_close(Stream, Options).
+	'$close'(Stream).
+%	swi_close(Stream, Options). must be last
 open(File, Type, Stream) :-
 	swi_open(File, Type, Stream).
 open(File, Type, Stream, Opts) :-

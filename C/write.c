@@ -421,6 +421,10 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
     return;
   }
 #endif
+  if (IsBlob(atom)) {
+    wrputref(RepAtom(atom),1,writewch);
+    return;
+  }
   if (IsWideAtom(atom)) {
     wchar_t *ws = (wchar_t *)s;
 

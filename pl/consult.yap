@@ -159,8 +159,8 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
+	(X = 'arith.yap' -> start_low_level_trace ; true),
 	'$valid_encoding'(Encoding, Enc),
-	open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Enc, X)
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,CompMode,Reconsult,UseModule),
 	'$close'(Stream).
@@ -434,7 +434,7 @@ initialization(G,OPT) :-
 	'$valid_encoding'(Encoding, Enc),
 	( open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Encoding, X), !,
 		print_message(Verbosity, loading(including, Y)),
-		'$loop'(Stream,Status), '$close'(Stream)
+		'$loop'(Stream,Status), close(Stream)
 	;
 		'$do_error'(permission_error(input,stream,Y),include(X))
 	),
