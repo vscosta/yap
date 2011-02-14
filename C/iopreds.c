@@ -113,8 +113,6 @@ STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_skip, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
-STATIC_PROTO (Int p_show_stream_position, (void));
-STATIC_PROTO (Int p_set_stream_position, (void));
 STATIC_PROTO (Int p_format, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
@@ -2359,25 +2357,12 @@ p_user_file_name (void)
   return (Yap_unify_constant (ARG2, tout));
 }
 
+
 static Term
 StreamPosition(int sno)
 {
-  Term sargs[5];
-  Int cpos;
-  cpos = Stream[sno].charcount;
-  if (Stream[sno].status & SWI_Stream_f) {
-    return Yap_get_stream_position(Stream[sno].u.swi_stream.swi_ptr);
-  }
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    cpos--;
-  }
-  sargs[0] = MkIntegerTerm (cpos);
-  sargs[1] = MkIntegerTerm (StartLine = Stream[sno].linecount);
-  sargs[2] = MkIntegerTerm (Stream[sno].linepos);
-  sargs[3] = sargs[4] = MkIntTerm (0);
-  return Yap_MkApplTerm (FunctorStreamPos, 5, sargs);
+  return TermNil;
 }
-
 
 Term
 Yap_StreamPosition(int sno)
@@ -2385,114 +2370,6 @@ Yap_StreamPosition(int sno)
   return StreamPosition(sno);
 }
 
-static Int
-p_show_stream_position (void)
-{				/* '$show_stream_position'(+Stream,Pos) */
-  Term tout;
-  int sno =
-    CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_position/2");
-  if (sno < 0)
-    return (FALSE);
-  tout = StreamPosition(sno);
-  UNLOCK(Stream[sno].streamlock);
-  return Yap_unify (ARG2, tout);
-}
-
-static Int
-p_set_stream_position (void)
-{				/* '$set_stream_position'(+Stream,Pos) */
-  Term tin, tp;
-  Int char_pos;
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "set_stream_position/2");
-  if (sno < 0) {
-    return (FALSE);
-  }
-  tin = Deref (ARG2);
-  if (IsVarTerm (tin)) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(INSTANTIATION_ERROR, tin, "set_stream_position/2");
-    return (FALSE);
-  } else if (!(IsApplTerm (tin))) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
-    return (FALSE);
-  }
-  if (FunctorOfTerm (tin) == FunctorStreamPos) {
-    if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
-      return (FALSE);    
-    } else if (!IsIntTerm (tp)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
-      return (FALSE);
-    }
-    if (!(Stream[sno].status & Seekable_Stream_f) ) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
-      return(FALSE);
-    }
-    char_pos = IntOfTerm (tp);
-    if (IsVarTerm (tp = ArgOfTerm (2, tin))) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
-      return (FALSE);    
-    } else if (!IsIntTerm (tp)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
-      return (FALSE);
-    }
-    Stream[sno].charcount = char_pos;
-    Stream[sno].linecount = IntOfTerm (tp);
-    if (IsVarTerm (tp = ArgOfTerm (3, tin))) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
-      return (FALSE);    
-    } else if (!IsIntTerm (tp)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
-      return (FALSE);
-    }
-    Stream[sno].linepos = IntOfTerm (tp);
-    if (YP_fseek (Stream[sno].u.file.file, (long) (char_pos), 0) == -1) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(SYSTEM_ERROR, tp, 
-	    "fseek failed for set_stream_position/2");
-      return(FALSE);
-    }
-    Stream[sno].stream_getc = PlGetc;
-    Stream[sno].stream_gets = PlGetsFunc();
-  } else if (FunctorOfTerm (tin) == FunctorStreamEOS) {
-    if (IsVarTerm (tp = ArgOfTerm (1, tin))) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(INSTANTIATION_ERROR, tp, "set_stream_position/2");
-      return (FALSE);    
-    } else if (tp != MkAtomTerm(AtomAt)) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(DOMAIN_ERROR_STREAM_POSITION, tin, "set_stream_position/2");
-      return (FALSE);
-    }
-    if (!(Stream[sno].status & Seekable_Stream_f) ) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(PERMISSION_ERROR_REPOSITION_STREAM, ARG1,"set_stream_position/2");
-      return(FALSE);
-    }
-    if (YP_fseek (Stream[sno].u.file.file, 0L, SEEK_END) == -1) {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(SYSTEM_ERROR, tp, 
-	    "fseek failed for set_stream_position/2");
-      return(FALSE);
-    }
-    Stream[sno].stream_getc = PlGetc;
-    Stream[sno].stream_gets = PlGetsFunc();
-    /* reset the counters */
-    Stream[sno].linepos = 0;
-    Stream[sno].linecount = 1;
-    Stream[sno].charcount = 0;
-  }
-  UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
-}
 
 static Term
 read_line(int sno) 
@@ -4051,8 +3928,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$has_bom", 1, p_has_bom, SafePredFlag);

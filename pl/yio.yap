@@ -268,11 +268,6 @@ read_term(Stream, T, Options) :-
 '$add_singleton_if_no_underscore'(Na,V2,NSs,[(Name=V2)|NSs]) :-
 	atom_codes(Name, Na).
 
-nl(Stream) :- put(Stream,10).
-
-nl :- current_output(Stream), put(Stream,10), fail.
-nl.
-
 /* meaning of flags for '$write' is
 	 1	quote illegal atoms
 	 2	ignore operator declarations
@@ -444,77 +439,11 @@ current_line_number(N) :-
 current_line_number(Stream,N) :-
 	line_count(Stream, N).
 
-stream_position(user,N) :- !,
-	'$show_stream_position'(user_input,N).
-stream_position(A,N) :- 
-	atom(A),
-	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
-	'$show_stream_position'(S,N).
-stream_position(S,N) :-
-	'$show_stream_position'(S,N).
-
-stream_position(user,N,M) :- !,
-	'$stream_position'(user_input,N,M).
-stream_position(A,N,M) :- 
-	atom(A),
-	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
-	'$stream_position'(S,N,M).
-stream_position(S,N,M) :-
-	'$stream_position'(S,N,M).
-
-'$stream_position'(S,N,M) :-
-	var(M), !,
-	'$show_stream_position'(S,N),
-	M = N.
-'$stream_position'(S,N,M) :-
-	'$show_stream_position'(S,N),
-	'$set_stream_position'(S,M).
-
-
-set_stream_position(S,N) :- var(S), !,
-	'$do_error'(instantiation_error, set_stream_position(S, N)).
-set_stream_position(user,N) :- !,
-	'$set_stream_position'(user_input,N).
-set_stream_position(A,N) :- 
-	atom(A),
-	'$current_stream'(_,_,S), '$user_file_name'(S,A), !,
-	'$set_stream_position'(S,N).
-set_stream_position(S,N) :-
-	'$set_stream_position'(S,N).
-
-'$show_stream_eof'(Stream, past) :-
-	'$past_eof'(Stream), !.
-'$show_stream_eof'(Stream, at) :-
-	'$peek'(Stream,N), N = -1, !.
-'$show_stream_eof'(_, not).
-	
-'$show_stream_eof_action'(Fl, error) :-
-	Fl /\ 0x0200 =:= 0x0200, !.
-'$show_stream_eof_action'(Fl, reset) :-
-	Fl /\ 0x0400 =:= 0x0400, !.
-'$show_stream_eof_action'(_, eof_code).
-
-'$show_stream_reposition'(Fl, true) :-
-	Fl /\ 0x2000 =:= 0x2000, !.
-'$show_stream_reposition'(_, false).
-
-'$show_stream_bom'(Fl, true) :-
-	'$has_bom'(Fl), !.
-'$show_stream_bom'(_, false).
-
-'$show_stream_type'(Fl, binary) :-
-	Fl /\ 0x0100 =:= 0x0100, !.
-'$show_stream_type'(_, text).
-
-at_end_of_stream :-
-	current_input(S),
-	at_end_of_stream(S).
-
-at_end_of_stream(S) :-
-	'$past_eof'(S), !.
-at_end_of_stream(S) :-
-	'$peek'(S,N), N = -1.
-
+stream_position(Stream, Position) :-
+	stream_property(Stream, position(Position)).
+stream_position(Stream, Position, NewPosition) :-
+	stream_property(Stream, position(Position)),
+	set_stream_position(Stream, NewPosition).
 
 at_end_of_line :-
 	current_input(S),
@@ -523,7 +452,7 @@ at_end_of_line :-
 at_end_of_line(S) :-
 	'$past_eof'(S), !.
 at_end_of_line(S) :-
-	'$peek'(S,N), ( N = 10 -> true ; N = -1).
+	peek(S,N), ( N = 10 -> true ; N = -1).
 
 
 consult_depth(LV) :- '$show_consult_level'(LV).

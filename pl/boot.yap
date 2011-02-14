@@ -1403,6 +1403,10 @@ term_to_atom(Term, Atom) :-
 with_output_to(Output, G) :-
 	swi_with_output_to(Output, G).
 
+at_end_of_stream :-
+	swi_at_end_of_stream.
+at_end_of_stream(Stream) :-
+	swi_at_end_of_stream(Stream).
 byte_count(Stream, Count) :-
 %	format('~w~n',byte_count(Stream, Count)),
 	swi_byte_count(Stream, Count).
@@ -1426,6 +1430,9 @@ set_stream(Stream, Property) :-
 stream_property(Stream, Property) :-
 %	format('~w~n',stream_property(Stream,Property)),
 	swi_stream_property(Stream, Property).
+set_stream_position(Stream, Position) :-
+%	format('~w~n',stream_property(Stream,Property)),
+	swi_set_stream_position(Stream, Position).
 
 prompt1(X) :-
 	swi_prompt1(X).
@@ -1499,3 +1506,7 @@ put_code(C) :-
 put_code(Stream, C) :-
 	swi_put_code(Stream, C).
 
+nl :-
+	swi_nl.
+nl(Stream) :-
+	swi_nl(Stream).
