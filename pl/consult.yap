@@ -290,7 +290,6 @@ use_module(M,F,Is) :-
 	nb_setval('$consulting',Old),
 	nb_setval('$consulting_file',OldF),
 	cd(OldD),
-	nb_setval('$if_level',OldIncludeLevel),
 	% surely, we were in run mode or we would not have included the file!
 	nb_setval('$if_skip_mode',run),
 	% back to include mode!

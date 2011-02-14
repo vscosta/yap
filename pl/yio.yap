@@ -594,12 +594,6 @@ ttyput(N) :-  N1 is N, '$put'(user_output,N1).
 
 ttynl :- nl(user_output).
 
-ttyflush :- flush_output(user_output).
-
-flush_output :-
-	current_output(Stream),
-	flush_output(Stream).
-
 current_line_number(N) :-
 	current_input(Stream),
 	line_count(Stream, N).

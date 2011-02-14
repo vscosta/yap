@@ -610,7 +610,7 @@ true :- true.
 % the arguments.
 %
 '$present_answer'(_,_):-
-        '$flush_all_streams',
+        flush_output,
 	fail.
 '$present_answer'((?-), Answ) :-
 	nb_getval('$break',BL),
@@ -648,8 +648,8 @@ true :- true.
 	    '$skip'(user_input,10), '$ask_again_for_another'
 	).
 
-'$add_nl_outside_console' :-
-	'$is_same_tty'(user_input, user_error), !.
+%'$add_nl_outside_console' :-
+%	'$is_same_tty'(user_input, user_error), !.
 '$add_nl_outside_console' :-
 	format(user_error,'~n',[]).
 
@@ -658,7 +658,7 @@ true :- true.
 	'$another'.
 
 '$write_answer'(_,_,_) :-
-        '$flush_all_streams',
+        flush_output,
 	fail.
 '$write_answer'(Vs, LBlk, FLAnsw) :-
 	'$purge_dontcares'(Vs,IVs),
@@ -1430,3 +1430,12 @@ prompt1(X) :-
 	swi_prompt1(X).
 prompt(Old, New) :-
 	swi_prompt(Old, New).
+
+flush_output :-
+	swi_flush_output.
+flush_output(Stream) :-
+	swi_flush_output(Stream).
+ttyflush :-
+	swi_ttyflush.
+
+
