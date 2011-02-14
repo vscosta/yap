@@ -2212,7 +2212,7 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       /* cut                              */
-      Op(cut, e);
+      Op(cut, s);
 #ifdef COROUTINING
       if (FALSE) {
 	CACHE_Y_AS_ENV(YREG);
@@ -2221,7 +2221,7 @@ Yap_absmi(int inp)
       }
     do_cut:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       {
 	choiceptr d0;
 	/* assume cut is always in stack */
@@ -2230,6 +2230,9 @@ Yap_absmi(int inp)
 	{
 	  if (SHOULD_CUT_UP_TO(B,d0))
 	  {
+	    ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
+	    if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	      ASP = (CELL *)PROTECT_FROZEN_B(B);
 	    while (POP_CHOICE_POINT(d0))
 	      {
 		POP_EXECUTE();
@@ -2260,7 +2263,7 @@ Yap_absmi(int inp)
 
       /* cut_t                            */
       /* cut_t does the same as cut */
-      Op(cut_t, e);
+      Op(cut_t, s);
 #ifdef COROUTINING
       if (FALSE) {
 	CACHE_Y_AS_ENV(YREG);
@@ -2269,7 +2272,7 @@ Yap_absmi(int inp)
       }
     do_cut_t:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       {
 	choiceptr d0;
 
@@ -2277,6 +2280,9 @@ Yap_absmi(int inp)
 	d0 = (choiceptr)YREG[E_CB];
 #ifdef CUT_C
 	{
+	  ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
+	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	    ASP = (CELL *)PROTECT_FROZEN_B(B);
 	  if (SHOULD_CUT_UP_TO(B,d0))
 	    {
 	      while (POP_CHOICE_POINT(d0))
@@ -2323,7 +2329,7 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* cut_e                            */
-      Op(cut_e, e);
+      Op(cut_e, s);
 #ifdef COROUTINING
       if (FALSE) {
 	CACHE_Y_AS_ENV(YREG);
@@ -2332,7 +2338,7 @@ Yap_absmi(int inp)
       }
     do_cut_e:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, e),Osbpp),l);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       {
 	choiceptr d0;
 	/* we assume dealloc leaves in S the previous env             */
@@ -2341,6 +2347,9 @@ Yap_absmi(int inp)
 	{
 	  if (SHOULD_CUT_UP_TO(B,d0))
 	    {
+	      ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
+	      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+		ASP = (CELL *)PROTECT_FROZEN_B(B);
 	      while (POP_CHOICE_POINT(d0))
 		{
 		  POP_EXECUTE();

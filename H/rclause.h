@@ -217,9 +217,6 @@ restore_opcodes(yamop *pc, yamop *max)
     case _Nstop:
     case _allocate:
     case _copy_idb_term:
-    case _cut:
-    case _cut_e:
-    case _cut_t:
     case _expand_index:
     case _index_blob:
     case _index_dbref:
@@ -484,6 +481,9 @@ restore_opcodes(yamop *pc, yamop *max)
       pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
+    case _cut:
+    case _cut_e:
+    case _cut_t:
     case _pop_n:
     case _write_n_voids:
       pc->u.s.s = ConstantAdjust(pc->u.s.s);

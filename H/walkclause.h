@@ -166,9 +166,6 @@
     case _unify_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _allocate:
-    case _cut:
-    case _cut_e:
-    case _cut_t:
     case _index_blob:
     case _index_dbref:
     case _index_long:
@@ -375,6 +372,9 @@
       pc = NEXTOP(pc,pp);
       break;
       /* instructions type s */
+    case _cut:
+    case _cut_e:
+    case _cut_t:
     case _pop_n:
     case _write_n_voids:
       pc = NEXTOP(pc,s);

@@ -1296,7 +1296,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
   } else {
     /* generate code for a temp and then unify temp with previous variable */ 
     Yap_emit(f_0_op, 0, (unsigned int)Op, &cglobs->cint);
-    /* I have to dit here, before I do the unification */
+    /* I have to do it here, before I do the unification */
     if (Op == _functor) {
       Yap_emit(empty_call_op, Zero, (unsigned int)Op, &cglobs->cint);
       Yap_emit(restore_tmps_and_skip_op, Zero, Zero, &cglobs->cint);

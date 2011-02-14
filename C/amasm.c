@@ -2027,11 +2027,11 @@ a_cut(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip
 {
   code_p = check_alloc(clinfo, code_p, pass_no, cip);
   if (clinfo->dealloc_found) {
-    return a_e(_cut_e, code_p, pass_no);
+    return a_n(_cut_e, -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2, code_p, pass_no);
   } else if (clinfo->alloc_found == 1) {
-    return a_e(_cut, code_p, pass_no);
+    return a_n(_cut, -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2, code_p, pass_no);
   } else {
-    return a_e(_cut_t, code_p, pass_no);
+    return a_n(_cut_t, -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2, code_p, pass_no);
   }
 }
 
