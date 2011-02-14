@@ -1510,3 +1510,22 @@ nl :-
 	swi_nl.
 nl(Stream) :-
 	swi_nl(Stream).
+tab(C) :-
+	swi_tab(C).
+tab(Stream, C) :-
+	swi_tab(Stream, C).
+
+append(File) :-
+	swi_append(File).
+see(File) :-
+	swi_see(File).
+seeing(File) :-
+	swi_seeing(File).
+seen :-
+	swi_seen.
+tell(File) :-
+	swi_tell(File).
+telling(File) :-
+	swi_telling(File).
+told :-
+	swi_told.
