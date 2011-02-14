@@ -2061,6 +2061,9 @@ X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m
     *name = AtomToSWIAtom(aname);
 }
 
+#undef S_YREG
+
+
 X_API fid_t
 PL_open_foreign_frame(void)
 {
@@ -2072,36 +2075,67 @@ PL_open_foreign_frame(void)
   new->cp = CP;
   new->p = P;
   new->slots = CurSlot;
-  Yap_StartSlots();
   execution = new;
+  { 
+    /* initialise a new marker choicepoint */
+    choiceptr cp_b = ((choiceptr)ASP)-1;
+    cp_b->cp_tr = TR;
+    cp_b->cp_h = H;
+    cp_b->cp_b = B;
+    cp_b->cp_cp = CP;
+    cp_b->cp_env = ENV;
+    cp_b->cp_ap = NOCODE;
+    HB = H;
+    B = cp_b;
+    ASP = (CELL *)B;
+    Yap_StartSlots();
+  }
   return (fid_t)new;
 }
 
 X_API void
 PL_close_foreign_frame(fid_t f)
 {
-  execution = (open_query *)f;
-  CP = execution->cp;
-  P = execution->p;
-  CurSlot = execution->slots;
-  execution = execution->old;
+  open_query *env = (open_query *)f;
+  CP = env->cp;
+  P = env->p;
+  CurSlot = env->slots;
+  ASP = (CELL *)(B+1);
+  B = B->cp_b;
+  execution = env->old;
+  free(env);
+}
+
+static void
+backtrack(void)
+{
+  P = FAILCODE;
+  Yap_absmi(0);
+  H = HB = B->cp_h;
+  TR = B->cp_tr;
+  TR = B->cp_tr;
 }
 
 X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
-  execution = (open_query *)f;
-  CurSlot = execution->slots;
+  open_query *env = (open_query *)f;
+  CurSlot = env->slots;
+  backtrack();
 }
 
 X_API void
 PL_discard_foreign_frame(fid_t f)
 {
-  execution = (open_query *)f;
-  CP = execution->cp;
-  P = execution->p;
-  CurSlot = execution->slots;
+  open_query *env = (open_query *)f;
+  CurSlot = env->slots;
+  backtrack();
+  CP = env->cp;
+  P = env->p;
   execution = execution->old;
+  ASP = (CELL *)(B+1);
+  B = B->cp_b;
+  free(env);
 }
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
@@ -2654,14 +2688,15 @@ typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
 
 int 
 Yap_get_stream_handle(Term t0, int read_mode, int write_mode, void *s){
-  term_t t;
+  atom_t t;
   GetStreamF f = (GetStreamF)SWIGetStream;
-  if (t0 == MkAtomTerm(AtomUserOut) && write_mode && !read_mode) {
+  Atom at = AtomOfTerm(t0);
+  if (at == AtomUserOut && write_mode && !read_mode) {
     t = 0;
-  } else if (t0 == MkAtomTerm(AtomUserIn) && !write_mode && read_mode) {
+  } else if (at == AtomUserIn && !write_mode && read_mode) {
     t = 0;
   } else {
-    t = (term_t)YAP_InitSlot(t0);
+    t = AtomToSWIAtom(at);
   }
   return (*f)(t, read_mode, write_mode, s);
 }
