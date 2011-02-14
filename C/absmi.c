@@ -826,11 +826,7 @@ Yap_absmi(int inp)
 	/* YREG was pointing to where we were going to build the
 	 * next choice-point. The stack shifter will need to know this
 	 * to move the local stack */
-	if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	} else {
-	  ASP = YREG+E_CB;
-	}
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
 	if(!Yap_growtrail (0, FALSE)) {
@@ -851,12 +847,7 @@ Yap_absmi(int inp)
 #endif /* OS_HANDLES_TR_OVERFLOW */
 
       BOp(Ystop, l);
-      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	ASP = (CELL *) PROTECT_FROZEN_B(B);
-      }
-      else {
-	ASP = YREG+E_CB;
-      }
+      SET_ASP(YREG, E_CB*sizeof(CELL));
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -868,12 +859,7 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(Nstop, e);
-      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	ASP = (CELL *) PROTECT_FROZEN_B(B);
-      }
-      else {
-	ASP = YREG+E_CB;
-      }
+      SET_ASP(YREG, E_CB*sizeof(CELL));
       saveregs();
 #if PUSH_REGS
       restore_absmi_regs(old_regs);
@@ -1544,11 +1530,7 @@ Yap_absmi(int inp)
 	LogUpdClause *cl = ClauseCodeToLogUpdClause(PREG);
 	Term t;
 
-	if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	} else {
-	  ASP = YREG+E_CB;
-	}
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
 	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
@@ -1685,9 +1667,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
 	  YENV[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	    ASP = (CELL *)PROTECT_FROZEN_B(B);
+	  SET_ASP(YREG, E_CB*sizeof(CELL));
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2221,43 +2201,10 @@ Yap_absmi(int inp)
       }
     do_cut:
 #endif
+      SET_ASP(YREG, PREG->u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      {
-	choiceptr d0;
-	/* assume cut is always in stack */
-	d0 = (choiceptr)YREG[E_CB];
-#ifdef CUT_C
-	{
-	  if (SHOULD_CUT_UP_TO(B,d0))
-	  {
-	    ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
-	    if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	      ASP = (CELL *)PROTECT_FROZEN_B(B);
-	    while (POP_CHOICE_POINT(d0))
-	      {
-		POP_EXECUTE();
-	      }
-	  }
-	}
-#endif /* CUT_C */
-#ifdef YAPOR
-	CUT_prune_to(d0);
-#endif /* YAPOR */
-	if (SHOULD_CUT_UP_TO(B,d0)) {
-	  /* cut ! */
-	  while (B->cp_b < d0) {
-	    B = B->cp_b;
-	  }
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	trim_trail:
-	  HBREG = PROTECT_FROZEN_H(B->cp_b);
-#include "trim_trail.h"
-	  B = B->cp_b;
-	  SET_BB(PROTECT_FROZEN_B(B));
-	}
-      }
+      /* assume cut is always in stack */
+      prune((choiceptr)YREG[E_CB]);
       GONext();
       ENDOp();
 
@@ -2272,59 +2219,27 @@ Yap_absmi(int inp)
       }
     do_cut_t:
 #endif
+      SET_ASP(YREG, PREG->u.s.s);
+      /* assume cut is always in stack */
+      prune((choiceptr)YREG[E_CB]);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      {
-	choiceptr d0;
-
-	/* assume cut is always in stack */
-	d0 = (choiceptr)YREG[E_CB];
-#ifdef CUT_C
-	{
-	  ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
-	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	    ASP = (CELL *)PROTECT_FROZEN_B(B);
-	  if (SHOULD_CUT_UP_TO(B,d0))
-	    {
-	      while (POP_CHOICE_POINT(d0))
-		{
-		  POP_EXECUTE();
-		}
-	    }
-	}
-#endif /* CUT_C */
-#ifdef YAPOR
-	CUT_prune_to(d0);
-#endif	/* YAPOR */
-	if (SHOULD_CUT_UP_TO(B,d0)) {
-	  /* cut ! */
-	  while (B->cp_b < d0) {
-	    B = B->cp_b;
-	  }
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
 #ifdef FROZEN_STACKS
-	  { 
-	    choiceptr top_b = PROTECT_FROZEN_B(B->cp_b);
+      { 
+	choiceptr top_b = PROTECT_FROZEN_B(B);
 #ifdef SBA
-	    if (ENV > (CELL *) top_b || ENV < H) YREG = (CELL *) top_b;
+	if (ENV > (CELL *) top_b || ENV < H) YREG = (CELL *) top_b;
 #else
-	    if (ENV > (CELL *) top_b) YREG = (CELL *) top_b;
+	if (ENV > (CELL *) top_b) YREG = (CELL *) top_b;
 #endif /* SBA */
-	    else YREG = (CELL *)((CELL)ENV + ENV_Size(CPREG));
-	  }
-#else
-	  if (ENV > (CELL *)B->cp_b) {
-	    YREG = (CELL *)B->cp_b;
-	  }
-	  else {
-	    YREG = (CELL *) ((CELL) ENV + ENV_Size(CPREG));
-	  }
-#endif /* FROZEN_STACKS */
-	  YREG[E_CB] = (CELL)d0;
-	  goto trim_trail;
-	}
+	else YREG = (CELL *)((CELL)ENV + ENV_Size(CPREG));
       }
+#else
+      if (ENV > (CELL *)B) {
+	YREG = (CELL *)B;
+      } else {
+	YREG = (CELL *) ((CELL) ENV + ENV_Size(CPREG));
+      }
+#endif
       GONext();
       ENDOp();
 
@@ -2338,39 +2253,9 @@ Yap_absmi(int inp)
       }
     do_cut_e:
 #endif
+      SET_ASP(YREG, PREG->u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-      {
-	choiceptr d0;
-	/* we assume dealloc leaves in S the previous env             */
-	d0 = (choiceptr)SREG[E_CB];
-#ifdef CUT_C
-	{
-	  if (SHOULD_CUT_UP_TO(B,d0))
-	    {
-	      ASP = (CELL *) (((char *) YREG) + PREG->u.s.s);
-	      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-		ASP = (CELL *)PROTECT_FROZEN_B(B);
-	      while (POP_CHOICE_POINT(d0))
-		{
-		  POP_EXECUTE();
-		}
-	    }
-	}
-#endif /* CUT_C */
-#ifdef YAPOR
-	CUT_prune_to(d0);
-#endif	/* YAPOR */
-	if (SHOULD_CUT_UP_TO(B,d0)) {
-	/* cut ! */
-	  while (B->cp_b < d0) {
-	    B = B->cp_b;
-	  }
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  goto trim_trail;
-	}
-      }
+      prune((choiceptr)SREG[E_CB]);
       GONext();
       ENDOp();
 
@@ -2400,17 +2285,20 @@ Yap_absmi(int inp)
       ENDOp();
 
       /* commit_b_x    Xi                 */
-      Op(commit_b_x, xp);
-      BEGD(d0);
-      d0 = XREG(PREG->u.xp.x);
+      Op(commit_b_x, xps);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitX, H);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_x:
 #endif
+      BEGD(d0);
+      d0 = XREG(PREG->u.xps.x);
+      deref_head(d0, commit_b_x_unk);
+    commit_b_x_nvar:
       /* skip a void call and a label */
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xp),Osbpp),l);
+      SET_ASP(YREG, PREG->u.xps.s);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, xps),Osbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
@@ -2418,78 +2306,51 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
-#ifdef CUT_C
-      {
-	if (SHOULD_CUT_UP_TO(B,(choiceptr) pt0))
-	  {
-	    while (POP_CHOICE_POINT(pt0))
-	      {
-		POP_EXECUTE();
-	      }
-	  }
+	prune(pt0);
       }
-#endif /* CUT_C */
-#ifdef YAPOR
-	CUT_prune_to(pt0);
-#endif	/* YAPOR */
-	if (SHOULD_CUT_UP_TO(B,pt0)) {
-	  while (B->cp_b < pt0) {
-	    B = B->cp_b;
-	  }
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  goto trim_trail;
-	}
-      }
-      ENDD(d0);
       GONext();
+
+      BEGP(pt1);
+      deref_body(d0, pt1, commit_b_x_unk, commit_b_x_nvar);
+      ENDP(pt1);
+      /* never cut to a variable */
+      /* Abort */
+      FAIL();
+      ENDD(d0);
       ENDOp();
 
       /* commit_b_y    Yi                 */
-      Op(commit_b_y, yp);
-      BEGD(d0);
-      d0 = YREG[PREG->u.yp.y];
+      Op(commit_b_y, yps);
 #ifdef COROUTINING
       CACHE_Y_AS_ENV(YREG);
       check_stack(NoStackCommitY, H);
       ENDCACHE_Y_AS_ENV();
     do_commit_b_y:
 #endif
-      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yp),Osbpp),l);
+      BEGD(d0);
+      d0 = YREG[PREG->u.yps.y];
+      deref_head(d0, commit_b_y_unk);
+    commit_b_y_nvar:
+      SET_ASP(YREG, PREG->u.yps.s);
+      PREG = NEXTOP(NEXTOP(NEXTOP(PREG, yps),Osbpp),l);
       {
 	choiceptr pt0;
 #if defined(SBA) && defined(FROZEN_STACKS)
 	pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
-#endif /* SBA && FROZEN_STACKS */
-#ifdef CUT_C
-	{
-	  if (SHOULD_CUT_UP_TO(B,(choiceptr) pt0))
-	    {
-	      while (POP_CHOICE_POINT(pt0))
-		{
-		  POP_EXECUTE();
-		}
-	    }
-	}
-#endif /* CUT_C */
-#ifdef YAPOR
-	CUT_prune_to(pt0);
-#endif	/* YAPOR */
-	if (SHOULD_CUT_UP_TO(B,pt0)) {
-	  while (B->cp_b < pt0) {
-	    B = B->cp_b;
-	  }
-#ifdef TABLING
-	  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	  goto trim_trail;
-	}
+#endif
+	prune(pt0);
       }
-      ENDD(d0);
       GONext();
+
+      BEGP(pt1);
+      deref_body(d0, pt1, commit_b_y_unk, commit_b_y_nvar);
+      ENDP(pt1);
+      /* never cut to a variable */
+      /* Abort */
+      FAIL();
+      ENDD(d0);
       ENDOp();
 
 /*************************************************************************
@@ -2542,10 +2403,8 @@ Yap_absmi(int inp)
       SREG = (CELL *) PREG->u.pp.p;
       PP = PREG->u.pp.p0;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = YREG+E_CB;
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 	SREG = YENV;
-	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals)
@@ -2698,18 +2557,14 @@ Yap_absmi(int inp)
       }
       SREG = (CELL *) PREG->u.Osbpp.p;
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
+	SET_ASP(YREG, PREG->u.Osbpp.s);
 	SREG = YENV;
-	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	goto noheapleft;
       }
       if (ActiveSignals) {
 	goto creepc;
       }
-      ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
-      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	ASP = (CELL *)PROTECT_FROZEN_B(B);
+      SET_ASP(YREG, PREG->u.Osbpp.s);
       saveregs();
       if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, Osbpp))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -2838,7 +2693,7 @@ Yap_absmi(int inp)
 
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
-      PP = PREG->u.yp.p0;
+      PP = PREG->u.yps.p0;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
@@ -2851,8 +2706,8 @@ Yap_absmi(int inp)
       }
       if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
-	XREGS[0] = YREG[PREG->u.yp.y];
-	PREG = NEXTOP(PREG,yp);
+	XREGS[0] = YREG[PREG->u.yps.y];
+	PREG = NEXTOP(PREG,yps);
 	goto creep_either;
       }
       /* don't do debugging and friends here */
@@ -2860,7 +2715,7 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
-      PP = PREG->u.xp.p0;
+      PP = PREG->u.xps.p0;
       /* find something to fool S */
       if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
@@ -2888,8 +2743,8 @@ Yap_absmi(int inp)
 #endif	/* DEPTH_LIMIT */
 	      ENDCACHE_Y_AS_ENV();
 	    }
-	XREGS[0] = XREG(PREG->u.xp.x);
-	PREG = NEXTOP(PREG,xp);
+	XREGS[0] = XREG(PREG->u.xps.x);
+	PREG = NEXTOP(PREG,xps);
 	goto creep_either;
       }
       /* don't do debugging and friends here */
@@ -2933,9 +2788,7 @@ Yap_absmi(int inp)
       /* find something to fool S */
       SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0));
       if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
-	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	  ASP = (CELL *)PROTECT_FROZEN_B(B);
+	SET_ASP(YREG, PREG->u.Osbpp.s);
 	SREG = YENV;
 	goto noheapleft;
       }
@@ -3148,9 +3001,7 @@ Yap_absmi(int inp)
 	/* same instruction */
 	if (Yap_PrologMode & InterruptMode) {
 	  Yap_PrologMode &= ~InterruptMode;
-	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
-	    ASP = (CELL *)PROTECT_FROZEN_B(B);
+	  SET_ASP(YREG, E_CB*sizeof(CELL));
 	  saveregs();
 	  Yap_ProcessSIGINT();
 	  setregs();
@@ -7608,11 +7459,7 @@ Yap_absmi(int inp)
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
-      if (YREG > (CELL *) B) {
-	ASP = (CELL *) B;
-      } else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
-      }
+      SET_ASP(YREG, 0);
       /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
@@ -7656,11 +7503,7 @@ Yap_absmi(int inp)
 	  else ASP = YREG+E_CB;
 	}
 #else
-	if (YREG > (CELL *) B) {
-	  ASP = (CELL *) B;
-	} else {
-	  ASP = YREG+E_CB;
-	}
+	SET_ASP(YREG, 0);
 	/* for slots to work */
 #endif /* FROZEN_STACKS */
 	pt0 = PREG->u.pp.p;
@@ -7747,11 +7590,7 @@ Yap_absmi(int inp)
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
-      if (YREG > (CELL *) B)
-	ASP = (CELL *) B;
-      else {
-	ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
-      }
+      SET_ASP(YREG, 0);
       /* for slots to work */
 #endif /* FROZEN_STACKS */
       {
@@ -7984,11 +7823,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
 
       Yap_PrologMode = UserCCallMode;
-      if (YREG > (CELL *) PROTECT_FROZEN_B(B)) {
-	ASP = (CELL *) PROTECT_FROZEN_B(B);
-      } else {
-	ASP = YREG;
-      }
+      SET_ASP(YREG, 0);
       /* for slots to work */
       Yap_StartSlots();
       saveregs();
@@ -8054,10 +7889,7 @@ Yap_absmi(int inp)
 	if (ap->cs.p_code.NOfClauses > 1 &&
 	    !(ap->PredFlags & IndexedPredFlag)) {
 	  /* update ASP before calling IPred */
-	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	    ASP = (CELL *) PROTECT_FROZEN_B(B);
-	  }
+	  SET_ASP(YREG, E_CB*sizeof(CELL));
 	  saveregs();
 	  Yap_IPred(ap, 0, CP);
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -8095,10 +7927,7 @@ Yap_absmi(int inp)
 	}
 #endif
       /* update ASP before calling IPred */
-	ASP = YREG+E_CB;
-	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	}
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
 	Yap_IPred(ap, 0, CP);
       /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -8135,10 +7964,7 @@ Yap_absmi(int inp)
 	yamop *pt0;
 
 	/* update ASP before calling IPred */
-	ASP = YREG+E_CB;
-	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	}
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 #if defined(YAPOR) || defined(THREADS)
 	if (!PP) {
 	  PELOCK(12,pe);
@@ -8177,10 +8003,7 @@ Yap_absmi(int inp)
 	yamop *pt0;
 
 	/* update ASP before calling IPred */
-	ASP = YREG+E_CB;
-	if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	  ASP = (CELL *) PROTECT_FROZEN_B(B);
-	}
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 #if defined(YAPOR) || defined(THREADS)
 	if (PP == NULL) {
 	  PELOCK(13,pe);
@@ -8286,10 +8109,7 @@ Yap_absmi(int inp)
 	if (!(pe->PredFlags & IndexedPredFlag) &&
 	      pe->cs.p_code.NOfClauses > 1) {
 	  /* update ASP before calling IPred */
-	  ASP = YREG+E_CB;
-	  if (ASP > (CELL *) PROTECT_FROZEN_B(B)) {
-	    ASP = (CELL *) PROTECT_FROZEN_B(B);
-	  }
+	  SET_ASP(YREG, E_CB*sizeof(CELL));
 	  saveregs();
 	  Yap_IPred(pe, 0, CP);
 	  /* IPred can generate errors, it thus must get rid of the lock itself */
@@ -9809,124 +9629,6 @@ Yap_absmi(int inp)
       derefa_body(d0, pt0, float_y_unk, float_y_nvar);
       PREG = PREG->u.yl.F;
       GONext();
-      ENDP(pt0);
-      ENDD(d0);
-      ENDOp();
-
-      Op(p_cut_by_x, xl);
-      BEGD(d0);
-      d0 = XREG(PREG->u.xl.x);
-      deref_head(d0, cutby_x_unk);
-    cutby_x_nvar:
-#if defined(SBA) && defined(FROZEN_STACKS)
-      if (!IsIntegerTerm(d0))
-#else
-      if (!IsIntTerm(d0))
-#endif /* SBA && FROZEN_STACKS */
-	{
-	  PREG = NEXTOP(PREG, xl);
-	  GONext();
-	}
-      BEGCHO(pt0);
-#if defined(SBA) && defined(FROZEN_STACKS)
-      pt0 = (choiceptr)IntegerOfTerm(d0);
-#else
-      pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif /* SBA && FROZEN_STACKS */
-#ifdef CUT_C
-      {
-	if (SHOULD_CUT_UP_TO(B, pt0))
-	  {
-	    while (POP_CHOICE_POINT(pt0))
-	      {
-		POP_EXECUTE();
-	      }
-	  }
-      }
-#endif /* CUT_C */
-#ifdef YAPOR
-      CUT_prune_to(pt0);
-#endif /* YAPOR */
-      /* find where to cut to */
-      if (SHOULD_CUT_UP_TO(B,pt0)) {
-	/* Wow, we're gonna cut!!! */
-	while (B->cp_b < pt0) {
-	  B = B->cp_b;
-	}
-#ifdef TABLING
-	abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	PREG = NEXTOP(PREG, xl);
-	goto trim_trail;
-      }
-      PREG = NEXTOP(PREG, xl);
-      ENDCHO(pt0);
-      GONext();
-
-      BEGP(pt1);
-      deref_body(d0, pt1, cutby_x_unk, cutby_x_nvar);
-      ENDP(pt1);
-      /* never cut to a variable */
-      /* Abort */
-      FAIL();
-      ENDD(d0);
-      ENDOp();
-
-      Op(p_cut_by_y, yl);
-      BEGD(d0);
-      BEGP(pt0);
-      pt0 = YREG + PREG->u.yl.y;
-      d0 = *pt0;
-      deref_head(d0, cutby_y_unk);
-    cutby_y_nvar:
-#if defined(SBA) && defined(FROZEN_STACKS)
-      if (!IsIntegerTerm(d0))
-#else
-      if (!IsIntTerm(d0))
-#endif
-	{
-	  FAIL();
-	}
-      /* find where to cut to */
-      BEGCHO(pt1);
-#if defined(SBA) && defined(FROZEN_STACKS)
-      pt1 = (choiceptr)IntegerOfTerm(d0);
-#else
-      pt1 = (choiceptr)(LCL0-IntOfTerm(d0));
-#endif /* SBA && FROZEN_STACKS */
-#ifdef CUT_C
-      {
-	if (SHOULD_CUT_UP_TO(B,(choiceptr) pt1))
-	  {
-	    while (POP_CHOICE_POINT(pt1))
-	      {
-		POP_EXECUTE();
-	      }
-	  }
-      }
-#endif /* CUT_C */
-#ifdef YAPOR
-      CUT_prune_to(pt1);
-#endif /* YAPOR */
-      if (SHOULD_CUT_UP_TO(B,pt1)) {
-	/* Wow, we're gonna cut!!! */
-	while (B->cp_b < pt1) {
-	  B = B->cp_b;
-	}
-#ifdef TABLING
-	abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	PREG = NEXTOP(PREG, xl);
-	goto trim_trail;
-      }
-      PREG = NEXTOP(PREG, yl);
-      GONext();
-      ENDCHO(pt1);
-
-      derefa_body(d0, pt0, cutby_y_unk, cutby_y_nvar);
-      /* never cut to a variable */
-      /* Abort */
-      FAIL();
       ENDP(pt0);
       ENDD(d0);
       ENDOp();
@@ -14356,32 +14058,8 @@ Yap_absmi(int inp)
 	      arity = 0;
 	      if (at == AtomCut) {
 		choiceptr cut_pt = (choiceptr)pt0[E_CB];
-#ifdef CUT_C
-		{
-		  if (SHOULD_CUT_UP_TO(B,(choiceptr) cut_pt))
-		    {
-		      while (POP_CHOICE_POINT(cut_pt))
-			{
-			  POP_EXECUTE();
-			}
-		    }
-		}
-#endif /* CUT_C */
-#ifdef YAPOR
-		CUT_prune_to(cut_pt);
-#endif /* YAPOR */
-		/* find where to cut to */
-		if (SHOULD_CUT_UP_TO(B,cut_pt)) {
-		  /* Wow, we're gonna cut!!! */
-#ifdef TABLING
-		  while (B->cp_b < cut_pt) {
-		    B = B->cp_b;
-		  }
-		  abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-		  B = cut_pt;
-		  HB = PROTECT_FROZEN_H(B);
-		}
+		SET_ASP(YREG, E_CB*sizeof(CELL));
+		prune(cut_pt);
 	      }
 	      pen = RepPredProp(PredPropByAtom(at, mod));
 	      goto execute_comma;
@@ -14458,32 +14136,8 @@ Yap_absmi(int inp)
 	  CACHE_A1();
 	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
 	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
-#ifdef CUT_C
-	  {
-	    if (SHOULD_CUT_UP_TO(B,(choiceptr) cut_pt))
-	      {
-		while (POP_CHOICE_POINT(cut_pt))
-		  {
-		    POP_EXECUTE();
-		  }
-	      }
-	  }
-#endif /* CUT_C */
-#ifdef YAPOR
-	  CUT_prune_to(cut_pt);
-#endif /* YAPOR */
-	  /* find where to cut to */
-	  if (SHOULD_CUT_UP_TO(B,cut_pt)) {
-	    /* Wow, we're gonna cut!!! */
-#ifdef TABLING
-	    while (B->cp_b < cut_pt) {
-	      B = B->cp_b;
-	    }
-	    abolish_incomplete_subgoals(B);
-#endif /* TABLING */
-	    B = cut_pt;
-	    HB = PROTECT_FROZEN_H(B);
-	  }
+	  SET_ASP(YREG, E_CB*sizeof(CELL));
+	  prune(cut_pt);
 	}
 
       execute_after_comma:

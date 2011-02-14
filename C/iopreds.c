@@ -102,7 +102,6 @@ STATIC_PROTO (int ReadlinePutc, (int,int));
 #endif
 STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
-STATIC_PROTO (Int p_stream_flags, (void));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_close, (void));
 STATIC_PROTO (Int p_set_input, (void));
@@ -122,11 +121,8 @@ STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_put, (void));
 STATIC_PROTO (Int p_put_byte, (void));
 STATIC_PROTO (Int p_skip, (void));
-STATIC_PROTO (Int p_flush, (void));
-STATIC_PROTO (Int p_flush_all_streams, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
-STATIC_PROTO (Int p_show_stream_flags, (void));
 STATIC_PROTO (Int p_show_stream_position, (void));
 STATIC_PROTO (Int p_set_stream_position, (void));
 STATIC_PROTO (Int p_format, (void));
@@ -210,30 +206,6 @@ Yap_GetFreeStreamDForReading(void)
   return sno;
 }
 
-
-static int
-yap_fflush(int sno)
-{
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-  if (Stream[sno].status & Tty_Stream_f &&
-      Stream[sno].status & Output_Stream_f) {
-    if (ReadlinePos != ReadlineBuf) {
-      ReadlinePos[0] = '\0';
-      fputs( ReadlineBuf, Stream[sno].u.file.file);
-    }
-    ReadlinePos = ReadlineBuf;
-  }
-#endif
-  if ( (Stream[sno].status & Output_Stream_f) &&
-       ! (Stream[sno].status & 
-         (Free_Stream_f)) ) {
-    if (Stream[sno].status & SWI_Stream_f) {
-      return SWIFlush(Stream[sno].u.swi_stream.swi_ptr);
-    }
-    return(fflush(Stream[sno].u.file.file));
-  } else
-    return(0);
-}
 
 static void
 unix_upd_stream_info (StreamDesc * s)
@@ -1359,16 +1331,6 @@ MkStream (int n)
   Term t[1];
   t[0] = MkIntTerm (n);
   return (Yap_MkApplTerm (FunctorStream, 1, t));
-}
-
-static Int
-p_stream_flags (void)
-{				/* '$stream_flags'(+N,-Flags)            */
-  Term trm;
-  trm = Deref (ARG1);
-  if (IsVarTerm (trm) || !IsIntTerm (trm))
-    return (FALSE);
-  return (Yap_unify_constant (ARG2, MkIntTerm (Stream[IntOfTerm (trm)].status)));
 }
 
 /* given a stream index, get the corresponding fd */
@@ -2573,19 +2535,6 @@ p_user_file_name (void)
   tout = Stream[sno].u.file.user_name;
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, tout));
-}
-
-static Int
-p_show_stream_flags(void)
-{				/* '$show_stream_flags'(+Stream,Pos) */
-  Term tout;
-  int sno =
-    CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "stream_property/2");
-  if (sno < 0)
-    return (FALSE);
-  tout = MkIntTerm(Stream[sno].status);
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify (ARG2, tout));
 }
 
 static Term
@@ -3810,37 +3759,8 @@ p_skip (void)
   return (TRUE);
 }
 
-static Int
-p_flush (void)
-{				/* flush_output(Stream)          */
-  int sno = CheckStream (ARG1, Output_Stream_f, "flush_output/1");
-  if (sno < 0)
-    return (FALSE);
-  yap_fflush (sno);
-  UNLOCK(Stream[sno].streamlock);
- return (TRUE);
-}
-
-static Int
-p_flush_all_streams (void)
-{				/* $flush_all_streams          */
-#if BROKEN_FFLUSH_NULL
-  int i;
-  for (i = 0; i < MaxStreams; ++i) {
-    LOCK(Stream[i].streamlock);
-    yap_fflush (i);
-    UNLOCK(Stream[i].streamlock);
-  }
-#else
-  fflush (NULL);
-#endif
-  
-  return TRUE;
-}
-
 void Yap_FlushStreams(void)
 {
-  (void)p_flush_all_streams();
 }
 
 #if HAVE_SELECT
@@ -4386,10 +4306,7 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$flush_all_streams", 0, p_flush_all_streams, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("get", 2, p_get, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -4413,7 +4330,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),

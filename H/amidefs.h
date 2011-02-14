@@ -717,8 +717,9 @@ typedef struct yami {
     struct {
       wamreg                x;
       struct pred_entry    *p0;
+      COUNT               s;
       CELL next;
-    } xp;
+    } xps;
     struct {
       wamreg                x;
       CELL                  c;
@@ -804,8 +805,9 @@ typedef struct yami {
     struct {
       yslot                y;
       struct pred_entry   *p0;
+      COUNT               s;
       CELL next;
-    } yp;
+    } yps;
     struct {
       yslot                y;
       struct yami         *F;

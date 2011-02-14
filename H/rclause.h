@@ -592,7 +592,6 @@ restore_opcodes(yamop *pc, yamop *max)
     case _p_atom_x:
     case _p_atomic_x:
     case _p_compound_x:
-    case _p_cut_by_x:
     case _p_db_ref_x:
     case _p_float_x:
     case _p_integer_x:
@@ -620,11 +619,12 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.xllll.l4 = PtoOpAdjust(pc->u.xllll.l4);
       pc = NEXTOP(pc,xllll);
       break;
-      /* instructions type xp */
+      /* instructions type xps */
     case _commit_b_x:
-      pc->u.xp.x = XAdjust(pc->u.xp.x);
-      pc->u.xp.p0 = PtoPredAdjust(pc->u.xp.p0);
-      pc = NEXTOP(pc,xp);
+      pc->u.xps.x = XAdjust(pc->u.xps.x);
+      pc->u.xps.p0 = PtoPredAdjust(pc->u.xps.p0);
+      pc->u.xps.s = ConstantAdjust(pc->u.xps.s);
+      pc = NEXTOP(pc,xps);
       break;
       /* instructions type xx */
     case _get_x_val:
@@ -708,7 +708,6 @@ restore_opcodes(yamop *pc, yamop *max)
     case _p_atom_y:
     case _p_atomic_y:
     case _p_compound_y:
-    case _p_cut_by_y:
     case _p_db_ref_y:
     case _p_float_y:
     case _p_integer_y:
@@ -720,11 +719,12 @@ restore_opcodes(yamop *pc, yamop *max)
       pc->u.yl.F = PtoOpAdjust(pc->u.yl.F);
       pc = NEXTOP(pc,yl);
       break;
-      /* instructions type yp */
+      /* instructions type yps */
     case _commit_b_y:
-      pc->u.yp.y = YAdjust(pc->u.yp.y);
-      pc->u.yp.p0 = PtoPredAdjust(pc->u.yp.p0);
-      pc = NEXTOP(pc,yp);
+      pc->u.yps.y = YAdjust(pc->u.yps.y);
+      pc->u.yps.p0 = PtoPredAdjust(pc->u.yps.p0);
+      pc->u.yps.s = ConstantAdjust(pc->u.yps.s);
+      pc = NEXTOP(pc,yps);
       break;
       /* instructions type yx */
     case _get_y_val:

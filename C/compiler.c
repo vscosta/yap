@@ -441,8 +441,9 @@ c_var(Term t, Int argno, unsigned int arity, unsigned int level, compiler_struct
     if (new) {
       ++cglobs->nvars;
       Yap_emit(f_var_op, t, (CELL)arity, &cglobs->cint);
-    } else
+    } else {
       Yap_emit(f_val_op, t, (CELL)arity, &cglobs->cint);
+    }
     break;
   case bt1_flag:
     Yap_emit(fetch_args_for_bccall, t, 0, &cglobs->cint);
@@ -920,7 +921,10 @@ c_test(Int Op, Term t1, compiler_struct *cglobs) {
     c_eq(t, tn, cglobs);
     t = tn;
   }
-  c_var(t,f_flag,(unsigned int)Op, 0, cglobs);
+  if (Op == _cut_by)
+    c_var(t, commit_b_flag, 1, 0, cglobs);
+  else
+    c_var(t, f_flag,(unsigned int)Op, 0, cglobs);
 }
 
 /* Arithmetic builtins will be compiled in the form:
@@ -2253,7 +2257,9 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
       }
 #endif
       pc->rnd2 = nperm;
-    } else if (pc->op == cut_op || pc->op == cutexit_op) {
+    } else if (pc->op == cut_op ||
+	       pc->op == cutexit_op ||
+	       pc->op == commit_b_op) {
       pc->rnd2 = nperm;
     }
     opc = pc;

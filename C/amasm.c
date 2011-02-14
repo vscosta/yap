@@ -672,18 +672,20 @@ a_vp(op_numbers opcodex, op_numbers opcodey, yamop *code_p, int pass_no, struct 
   if (is_y_var) {
     if (pass_no) {
       code_p->opc = emit_op(opcodey);
-      code_p->u.yp.y = emit_yreg(var_offset);
-      code_p->u.yp.p0 = clinfo->CurrentPred;
+      code_p->u.yps.y = emit_yreg(var_offset);
+      code_p->u.yps.p0 = clinfo->CurrentPred;
+      code_p->u.yps.s = -Signed(RealEnvSize) - CELLSIZE * cpc->rnd2;
     }
-    GONEXT(yp);
+    GONEXT(yps);
   }
   else {
     if (pass_no) {
       code_p->opc = emit_op(opcodex);
-      code_p->u.xp.x = emit_xreg(var_offset);
-      code_p->u.xp.p0 = clinfo->CurrentPred;
+      code_p->u.xps.x = emit_xreg(var_offset);
+      code_p->u.xps.p0 = clinfo->CurrentPred;
+      code_p->u.xps.s = -Signed(RealEnvSize) - CELLSIZE * cpc->rnd2;
     }
-    GONEXT(xp);
+    GONEXT(xps);
   }
   return code_p;
 }
@@ -2536,7 +2538,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	  code_p->opc = opcode(_p_db_ref_y);
 	  break;
 	case _cut_by:
-	  code_p->opc = opcode(_p_cut_by_y);
+	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error: cut_by should be handled as ->");
 	  break;
 	case _primitive:
 	  code_p->opc = opcode(_p_primitive_y);
@@ -2578,7 +2580,7 @@ a_f2(cmp_op_info *cmp_info, yamop *code_p, int pass_no, struct intermediates *ci
 	  code_p->opc = opcode(_p_db_ref_x);
 	  break;
 	case _cut_by:
-	  code_p->opc = opcode(_p_cut_by_x);
+	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "internal assembler error: cut_by should be handled as ->");
 	  break;
 	case _primitive:
 	  code_p->opc = opcode(_p_primitive_x);

@@ -955,11 +955,10 @@ has_cut(yamop *pc)
     case _Ystop:
     case _Nstop:
       return FALSE;
-      /* instructions type ld */
-    case _p_cut_by_y:
-    case _p_cut_by_x:
     case _commit_b_y:
     case _commit_b_x:
+      return TRUE;      
+      /* instructions type ld */
 #if CUT_C
     case _cut_c:
     case _cut_userc:

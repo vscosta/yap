@@ -448,7 +448,6 @@
     case _p_atom_x:
     case _p_atomic_x:
     case _p_compound_x:
-    case _p_cut_by_x:
     case _p_db_ref_x:
     case _p_float_x:
     case _p_integer_x:
@@ -466,9 +465,9 @@
     case _switch_on_arg_type:
       pc = NEXTOP(pc,xllll);
       break;
-      /* instructions type xp */
+      /* instructions type xps */
     case _commit_b_x:
-      pc = NEXTOP(pc,xp);
+      pc = NEXTOP(pc,xps);
       break;
       /* instructions type xx */
     case _get_x_val:
@@ -533,7 +532,6 @@
     case _p_atom_y:
     case _p_atomic_y:
     case _p_compound_y:
-    case _p_cut_by_y:
     case _p_db_ref_y:
     case _p_float_y:
     case _p_integer_y:
@@ -543,9 +541,9 @@
     case _p_var_y:
       pc = NEXTOP(pc,yl);
       break;
-      /* instructions type yp */
+      /* instructions type yps */
     case _commit_b_y:
-      pc = NEXTOP(pc,yp);
+      pc = NEXTOP(pc,yps);
       break;
       /* instructions type yx */
     case _get_y_val:

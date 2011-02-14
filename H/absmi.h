@@ -1548,3 +1548,39 @@ Yap_regtoregno(wamreg reg)
 #define copy_jmp_addressa(X) 
 #endif
 
+static inline void
+prune(choiceptr cp)
+{
+  if (SHOULD_CUT_UP_TO(B,cp))
+    {
+      if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+	ASP = (CELL *)PROTECT_FROZEN_B(B);
+      while (B->cp_b < cp) {
+	if (POP_CHOICE_POINT(cp))
+	  {
+	    POP_EXECUTE();
+	  }
+	B = B->cp_b;
+      }
+    }
+#ifdef YAPOR
+  CUT_prune_to(cp);
+#endif /* YAPOR */
+  if (SHOULD_CUT_UP_TO(B,cp)) {
+    /* cut ! */
+#ifdef TABLING
+    abolish_incomplete_subgoals(B);
+#endif /* TABLING */
+    HB = PROTECT_FROZEN_H(B->cp_b);
+#include "trim_trail.h"
+    B = B->cp_b;
+    SET_BB(PROTECT_FROZEN_B(B));
+  }
+}
+
+static inline
+void SET_ASP(CELL *yreg, Int sz) {
+  ASP = (CELL *) (((char *) yreg) + sz);
+  if (ASP > (CELL *)PROTECT_FROZEN_B(B))
+    ASP = (CELL *)PROTECT_FROZEN_B(B);
+}
