@@ -109,7 +109,6 @@ STATIC_PROTO (Int p_write2, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_peek, (void));
 STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_put, (void));
 STATIC_PROTO (Int p_put_byte, (void));
@@ -1710,105 +1709,6 @@ p_past_eof (void)
   out = Stream[sno].status & Eof_Stream_f;
   UNLOCK(Stream[sno].streamlock);
   return out;
-}
-
-static Int
-p_peek_byte (void)
-{				/* at_end_of_stream */
-  /* the next character is a EOF */ 
-  int sno = CheckStream (ARG1, Input_Stream_f, "peek/2");
-  StreamDesc *s;
-  Int ocharcount, olinecount, olinepos;
-  Int status;
-  Int ch;
-
-  if (sno < 0)
-    return(FALSE);
-  status = Stream[sno].status;
-  if (!(status & Binary_Stream_f)) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "peek/2");
-    return(FALSE);
-  }
-  UNLOCK(Stream[sno].streamlock);
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    ch = MkIntTerm(Stream[sno].och);
-    /* sequence of peeks */
-    return Yap_unify_constant(ARG2,ch);
-  }
-  if (status & Eof_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM, ARG1, "peek/2");
-    return(FALSE);
-  }
-  s = Stream+sno;
-  ocharcount = s->charcount;
-  olinecount = s->linecount;
-  olinepos = s->linepos;
-  ch = Stream[sno].stream_getc(sno);
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
-  /* buffer the character */
-  s->och = ch;
-  /* mark a special function to recover this character */
-  s->stream_getc = PlUnGetc;
-  s->stream_wgetc = get_wchar;
-  s->stream_gets = DefaultGets;
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  UNLOCK(s->streamlock);
-  return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
-}
-
-static Int
-p_peek (void)
-{				/* at_end_of_stream */
-  /* the next character is a EOF */ 
-  int sno = CheckStream (ARG1, Input_Stream_f, "peek/2");
-  StreamDesc *s;
-  Int ocharcount, olinecount, olinepos;
-  Int status;
-  Int ch;
-
-  if (sno < 0)
-    return(FALSE);
-  status = Stream[sno].status;
-  if (status & Binary_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "peek/2");
-    return FALSE;
-  }
-  UNLOCK(Stream[sno].streamlock);
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    ch = MkIntTerm(Stream[sno].och);
-    /* sequence of peeks */
-    return Yap_unify_constant(ARG2,ch);
-  }
-  LOCK(Stream[sno].streamlock);
-  s = Stream+sno;
-  ocharcount = s->charcount;
-  olinecount = s->linecount;
-  olinepos = s->linepos;
-  UNLOCK(Stream[sno].streamlock);
-  ch = get_wchar(sno);
-  LOCK(Stream[sno].streamlock);
-  s->charcount = ocharcount;
-  s->linecount = olinecount;
-  s->linepos = olinepos;
-  /* buffer the character */
-  s->och = ch;
-  /* mark a special function to recover this character */
-  s->stream_getc = PlUnGetc;
-  s->stream_wgetc = get_wchar;
-  s->stream_gets = DefaultGets;
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  UNLOCK(Stream[sno].streamlock);
-  return(Yap_unify_constant(ARG2,MkIntTerm(ch)));
 }
 
 static Int
@@ -4192,8 +4092,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$set_stream_position", 2, p_set_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
-  Yap_InitCPred ("$peek", 2, p_peek, SafePredFlag|SyncPredFlag),
-  Yap_InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$has_bom", 1, p_has_bom, SafePredFlag);
   Yap_InitCPred ("$stream_representation_error", 2, p_representation_error, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);

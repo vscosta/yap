@@ -124,12 +124,6 @@
 '$check_priority_arg'(X,G) :-
 	'$do_error'(domain_error(write_option,priority(X)),G).
 
-set_input(Stream) :-
-	'$set_input'(Stream).
-	
-set_output(Stream) :-
-	'$set_output'(Stream).
-
 open_pipe_streams(Read, Write) :-
 	(
 	 '$undefined'(pipe(_,_),unix)
@@ -415,49 +409,6 @@ format(T) :-
 '$portray'(_) :- set_value('$portray',false), fail.
 
 /* character I/O	*/
-
-peek_byte(V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	'$do_error'(type_error(in_byte,V),get_byte(V)).
-peek_byte(V) :-
-	current_input(S), 
-	'$peek_byte'(S,V).
-
-peek_byte(S,V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	'$do_error'(type_error(in_byte,V),get_byte(S,V)).
-peek_byte(S,V) :-
-	'$peek_byte'(S,V).
-
-peek_char(V) :-
-	\+ var(V),
-	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	'$do_error'(type_error(in_character,V),get_char(V)).
-peek_char(V) :-
-	current_input(S),
-	'$peek'(S,I),
-	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
-
-peek_char(S,V) :-
-	\+ var(V),
-	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	'$do_error'(type_error(in_character,V),get_char(S,V)).
-peek_char(S,V) :-
-	'$peek'(S,I),
-	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
-
-peek_code(S,V) :-
-	\+ var(V), (\+ integer(V)), !,
-	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
-peek_code(S,V) :-
-	'$peek'(S,V).
-
-peek_code(V) :-
-	\+ var(V), (\+ integer(V)), !,
-	'$do_error'(type_error(in_character_code,V),get_code(V)).
-peek_code(V) :-
-	current_input(S),
-	'$peek'(S,V).
 
 put_byte(V) :- var(V), !,
 	'$do_error'(instantiation_error,put_byte(V)).

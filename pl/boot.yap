@@ -1468,3 +1468,16 @@ get_code(C) :-
 	swi_get_code(C).
 get_code(Stream, C) :-
 	swi_get_code(Stream, C).
+
+peek_byte(C) :-
+	swi_peek_byte(C).
+peek_byte(Stream, C) :-
+	swi_peek_byte(Stream, C).
+peek_char(C) :-
+	swi_peek_char(C).
+peek_char(Stream, C) :-
+	swi_peek_char(Stream, C).
+peek_code(C) :-
+	swi_peek_code(C).
+peek_code(Stream, C) :-
+	swi_peek_code(Stream, C).
