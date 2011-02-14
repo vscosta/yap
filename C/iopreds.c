@@ -91,8 +91,6 @@ STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
 STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
 STATIC_PROTO (int post_process_eof, (StreamDesc *));
 STATIC_PROTO (int ConsolePutc, (int, int));
-STATIC_PROTO (Int p_setprompt, (void));
-STATIC_PROTO (Int p_prompt, (void));
 STATIC_PROTO (int PlGetc, (int));
 STATIC_PROTO (int DefaultGets, (int,UInt,char*));
 STATIC_PROTO (int PlGets, (int,UInt,char*));
@@ -105,9 +103,6 @@ STATIC_PROTO (int ReadlinePutc, (int,int));
 STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (Int p_stream_flags, (void));
-STATIC_PROTO (int AddAlias, (Atom, int));
-STATIC_PROTO (void PurgeAlias, (int));
-STATIC_PROTO (int CheckAlias, (Atom));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_close, (void));
 STATIC_PROTO (Int p_set_input, (void));
@@ -134,8 +129,6 @@ STATIC_PROTO (Int p_user_file_name, (void));
 STATIC_PROTO (Int p_show_stream_flags, (void));
 STATIC_PROTO (Int p_show_stream_position, (void));
 STATIC_PROTO (Int p_set_stream_position, (void));
-STATIC_PROTO (Int p_add_alias_to_stream, (void));
-STATIC_PROTO (Int p_check_if_valid_new_alias, (void));
 STATIC_PROTO (Int p_format, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
@@ -345,15 +338,6 @@ InitStdStreams (void)
   Yap_c_input_stream = StdInStream;
   Yap_c_output_stream = StdOutStream;
   Yap_c_error_stream = StdErrStream;
-  /* init standard aliases */
-  FileAliases[0].name = AtomUserIn;
-  FileAliases[0].alias_stream = 0;
-  FileAliases[1].name = AtomUserOut;
-  FileAliases[1].alias_stream = 1;
-  FileAliases[2].name = AtomUserErr;
-  FileAliases[2].alias_stream = 2;
-  NOfFileAliases = 3;
-  SzOfFileAliases = ALIASES_BLOCK_SIZE;
 }
 
 void
@@ -371,9 +355,6 @@ InitPlIO (void)
     INIT_LOCK(Stream[i].streamlock);    
     Stream[i].status = Free_Stream_f;
   }
-  /* alloca alias array */
-  if (!FileAliases)
-    FileAliases = (AliasDesc)Yap_AllocCodeSpace(sizeof(struct AliasDescS)*ALIASES_BLOCK_SIZE);
   InitStdStreams();
 }
 
@@ -659,16 +640,6 @@ ConsolePutc (int sno, int ch)
 }
 
 static Int
-p_setprompt (void)
-{				/* 'prompt(Atom)                 */
-  Term t = Deref(ARG1);
-  if (IsVarTerm (t) || !IsAtomTerm (t))
-    return (FALSE);
-  AtPrompt = AtomOfTerm (t);
-  return (TRUE);
-}
-
-static Int
 p_is_same_tty (void)
 {				/* 'prompt(Atom)                 */
   int sni = CheckStream (ARG1, Input_Stream_f, "put/2");
@@ -679,25 +650,6 @@ p_is_same_tty (void)
   UNLOCK(Stream[sno].streamlock);
   UNLOCK(Stream[sni].streamlock);
   return out;
-}
-
-static Int
-p_prompt (void)
-{				/* prompt(Old,New)       */
-  Term t = Deref (ARG2);
-  Atom a;
-  if (!Yap_unify_constant (ARG1, MkAtomTerm (AtPrompt)))
-    return (FALSE);
-  if (IsVarTerm (t) || !IsAtomTerm (t))
-    return (FALSE);
-  a = AtomOfTerm (t);
-  if (strlen (RepAtom (a)->StrOfAE) > MAX_PROMPT) {
-    Yap_Error(SYSTEM_ERROR,t,"prompt %s is too long", RepAtom (a)->StrOfAE);
-    return(FALSE);
-  }
-  strncpy(Prompt, RepAtom (a)->StrOfAE, MAX_PROMPT);
-  AtPrompt = a;
-  return (TRUE);
 }
 
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
@@ -775,20 +727,8 @@ ReadlineGetc(int sno)
     rl_outstream = Stream[cur_out_sno].u.file.file;
     /* window of vulnerability opened */
     if (newline) {
-      char *cptr = Prompt, ch;
-
-      if ((Stream[FileAliases[2].alias_stream].status & Tty_Stream_f) &&
-	  Stream[FileAliases[0].alias_stream].u.file.name == Stream[sno].u.file.name) {
-	/* don't just output the prompt */
-	while ((ch = *cptr++) != '\0') {
-	  console_count_output_char(ch,Stream+StdErrStream);
-	}
-	Yap_PrologMode |= ConsoleGetcMode;
-	myrl_line = readline (Prompt);
-      } else {
-	Yap_PrologMode |= ConsoleGetcMode;
-	myrl_line = readline (NULL);
-      }
+      Yap_PrologMode |= ConsoleGetcMode;
+      myrl_line = readline (NULL);
     } else {
       if (ReadlinePos != ReadlineBuf) {
 	ReadlinePos[0] = '\0';
@@ -1532,55 +1472,6 @@ p_file_expansion (void)
 }
 
 
-static Int p_add_alias_to_stream (void)
-{
-  Term tname = Deref(ARG1);
-  Term tstream = Deref(ARG2);
-  Atom at;
-  Int sno;
-
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
-    return (FALSE);
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
-    return (FALSE);
-  }
-  if (IsVarTerm(tstream)) {
-    Yap_Error(INSTANTIATION_ERROR, tstream, "$add_alias_to_stream");
-    return (FALSE);
-  } else if (!IsApplTerm (tstream) || FunctorOfTerm (tstream) != FunctorStream ||
-	     !IsIntTerm(ArgOfTerm(1,tstream))) {
-    Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, tstream, "$add_alias_to_stream");
-    return (FALSE);
-  }
-  at = AtomOfTerm(tname);
-  sno = (int)IntOfTerm(ArgOfTerm(1,tstream));
-  if (AddAlias(at, sno))
-    return(TRUE);
-  /* we could not create the alias, time to close the stream */
-  CloseStream(sno);
-  Yap_Error(PERMISSION_ERROR_NEW_ALIAS_FOR_STREAM, tname, "open/3");
-  return (FALSE);
-}
-
-static Int p_check_if_valid_new_alias (void)
-{
-  Term tname = Deref(ARG1);
-  Atom at;
-
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "$add_alias_to_stream");
-    return (FALSE);
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "$add_alias_to_stream");
-    return (FALSE);
-  }
-  at = AtomOfTerm(tname);
-  return(CheckAlias(at) == -1);
-}
-
-
 Term
 Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
 {
@@ -1637,101 +1528,6 @@ Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
   UNLOCK(st->streamlock);
   t = MkStream (sno);
   return t;
-}
-
-static void
-ExtendAliasArray(void)
-{
-  AliasDesc new;
-  UInt new_size = SzOfFileAliases+ALIASES_BLOCK_SIZE;
-
-  new = (AliasDesc)Yap_AllocCodeSpace(sizeof(AliasDesc *)*new_size);
-  memcpy((void *)new, (void *)FileAliases, sizeof(AliasDesc *)*SzOfFileAliases);
-  Yap_FreeCodeSpace((ADDR)FileAliases);
-  FileAliases = new;
-  SzOfFileAliases = new_size;
-}
-
-/* create a new alias arg for stream sno */
-static int
-AddAlias (Atom arg, int sno)
-{
-  
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->name == arg) {
-      if (aliasp->alias_stream != sno) {
-	return(FALSE);
-      }
-      return(TRUE);
-    }
-    aliasp++;
-  }
-  /* we have not found an alias neither a hole */
-  if (aliasp == FileAliases+SzOfFileAliases)
-    ExtendAliasArray();
-  NOfFileAliases++;
-  aliasp->name = arg;
-  aliasp->alias_stream = sno;
-  return(TRUE);
-}
-
-/* purge all aliases for stream sno */
-static void
-PurgeAlias (int sno)
-{
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases, new_aliasp = aliasp;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->alias_stream == sno) {
-      if (aliasp - FileAliases < 3) {
-	/* get back to std streams, but keep alias around */
-	Int alno = aliasp-FileAliases;
-	new_aliasp->alias_stream = alno;
-	switch(alno) {
-	case 0:
-	  Yap_stdin = stdin;
-	  break;
-	case 1:
-	  Yap_stdout = stdout;
-	  break;
-	case 2:
-	  Yap_stderr = stderr;
-	  break;
-	default:
-	  break; /* just put something here */
-	}
-	new_aliasp++;
-      } else {
-	NOfFileAliases--;
-      }
-    } else {
-      /* avoid holes in alias array */
-      if (new_aliasp != aliasp) {
-	new_aliasp->alias_stream = aliasp->alias_stream;
-	new_aliasp->name = aliasp->name;
-      }
-      new_aliasp++;
-    }
-    aliasp++;
-  }
-}
-
-/* check if name is an alias */
-static int
-CheckAlias (Atom arg)
-{
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  
-  while (aliasp < aliasp_max) {
-    if (aliasp->name == arg) {
-      return(aliasp->alias_stream);
-    }
-    aliasp++;
-  }
-  return(-1);
 }
 
 
@@ -1912,7 +1708,6 @@ CloseStream(int sno)
     SWIClose(Stream[sno].u.swi_stream.swi_ptr);
   }
   Stream[sno].status = Free_Stream_f;
-  PurgeAlias(sno);
   if (Yap_c_input_stream == sno)
     {
       Yap_c_input_stream = StdInStream;
@@ -4423,8 +4218,6 @@ p_stream(void)
   Term in = Deref(ARG1);
   if (IsVarTerm(in))
     return(FALSE);
-  if (IsAtomTerm(in))
-    return(CheckAlias(AtomOfTerm(in)) >= 0);
   if (IsApplTerm(in))
     return(FunctorOfTerm(in) == FunctorStream);
   return(FALSE);
@@ -4631,9 +4424,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$stream_representation_error", 2, p_representation_error, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("prompt", 1, p_setprompt, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("prompt", 2, p_prompt, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -4643,8 +4434,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),

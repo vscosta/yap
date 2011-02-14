@@ -69,7 +69,7 @@ true :- true.
 	set_value(fileerrors,1),
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),
-	prompt('  ?- '),
+	prompt1('  ?- '),
 	'$debug_on'(false),
 	% simple trick to find out if this is we are booting from Prolog.
 	get_value('$user_module',V),
@@ -185,8 +185,8 @@ true :- true.
 	set_value('$live','$false').
 '$enter_top_level' :-
 	'$disable_docreep',
-	prompt(_,'   ?- '),
-	prompt('   | '),
+	prompt(_,'   | '),
+	prompt1('   ?- '),
 	'$run_toplevel_hooks',
 	'$read_vars'(user_input,Command,_,Pos,Varnames),
 	nb_setval('$spy_gn',1),
@@ -1112,7 +1112,7 @@ bootstrap(F) :-
 %VSC		( '$current_stream'(_,_,Stream) -> true
 %VSC		 ; '$abort_loop'(Stream)
 %VSC		),
-		prompt('|     '), prompt(_,'| '),
+		prompt1('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
@@ -1426,4 +1426,7 @@ stream_property(Stream, Property) :-
 %	format('~w~n',stream_property(Stream,Property)),
 	swi_stream_property(Stream, Property).
 
-
+prompt1(X) :-
+	swi_prompt1(X).
+prompt(Old, New) :-
+	swi_prompt(Old, New).
