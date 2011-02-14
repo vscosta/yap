@@ -192,7 +192,7 @@ OsError(void)
 #else /*HAVE_STRERROR*/
 static char errmsg[64];
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
   extern int sys_nerr;
 #if !EMX
   extern char *sys_errlist[];
@@ -630,7 +630,7 @@ TemporaryFile(const char *id, int *fdp)
   }
 
 retry:
-#ifdef __unix__
+#if defined(_unix__) || defined(__APPLE__)
 { static int MTOK_temp_counter = 0;
   const char *sep = id[0] ? "_" : "";
 
@@ -2274,7 +2274,7 @@ Unsetenv(char *name)
     an alternative.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-#ifdef __unix__
+#if defined(__unix__) || defined(__APPLE__)
 #define SPECIFIC_SYSTEM 1
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -2482,7 +2482,7 @@ findExecutable(const char *av0, char *buffer)
     return NULL;
   file = Which(buf, tmp);
 
-#if __unix__				/* argv[0] can be an #! script! */
+#if __unix__ || __APPLE__		/* argv[0] can be an #! script! */
   if ( file )
   { int n, fd;
     char buf[MAXPATHLEN];
