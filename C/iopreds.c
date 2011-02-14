@@ -113,9 +113,6 @@ STATIC_PROTO (Int p_write2, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_get, (void));
-STATIC_PROTO (Int p_get0, (void));
-STATIC_PROTO (Int p_get_byte, (void));
 STATIC_PROTO (Int p_peek, (void));
 STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_put, (void));
@@ -2692,26 +2689,6 @@ p_get (void)
   return (Yap_unify_constant (ARG2, MkIntegerTerm (ch)));
 }
 
-static Int
-p_get0 (void)
-{				/* get0(Stream,-N)                    */
-  int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
-  Int status;
-  Int out;
-
-  if (sno < 0)
-    return(FALSE);
-  status = Stream[sno].status;
-  if (status & Binary_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-    return FALSE;
-  }
-  UNLOCK(Stream[sno].streamlock);
-  out = Stream[sno].stream_wgetc(sno);
-  return (Yap_unify_constant (ARG2, MkIntegerTerm (out)) );
-}
-
 static Term
 read_line(int sno) 
 {
@@ -2754,27 +2731,6 @@ p_get0_line_codes (void)
     return Yap_unify(MkPairTerm(MkIntegerTerm(ch),out), ARG2);
   else
     return Yap_unify(out,ARG2);
-}
-
-static Int
-p_get_byte (void)
-{				/* '$get_byte'(Stream,-N)                    */
-  int sno = CheckStream (ARG1, Input_Stream_f, "get_byte/2");
-  Int status;
-  Term out;
-
-  if (sno < 0)
-    return(FALSE);
-  status = Stream[sno].status;
-  if (!(status & Binary_Stream_f) &&
-      yap_flags[STRICT_ISO_FLAG]) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_TEXT_STREAM, ARG1, "get_byte/2");
-    return(FALSE);
-  }
-  out = MkIntTerm(Stream[sno].stream_getc(sno));
-  UNLOCK(Stream[sno].streamlock);
-  return Yap_unify_constant (ARG2, out);
 }
 
 static Int
@@ -4307,10 +4263,7 @@ Yap_InitIOPreds(void)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
   Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("get", 2, p_get, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("get0", 2, p_get0, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get_byte", 2, p_get_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);

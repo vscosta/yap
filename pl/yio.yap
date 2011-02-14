@@ -416,21 +416,6 @@ format(T) :-
 
 /* character I/O	*/
 
-get(N) :- current_input(S), get(S,N).
-
-get_byte(V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	'$do_error'(type_error(in_byte,V),get_byte(V)).
-get_byte(V) :-
-	current_input(S), 
-	'$get_byte'(S,V).
-
-get_byte(S,V) :-
-	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
-	'$do_error'(type_error(in_byte,V),get_byte(S,V)).
-get_byte(S,V) :-
-	'$get_byte'(S,V).
-
 peek_byte(V) :-
 	\+ var(V), (\+ integer(V) ; V < -1 ; V > 256), !,
 	'$do_error'(type_error(in_byte,V),get_byte(V)).
@@ -443,23 +428,6 @@ peek_byte(S,V) :-
 	'$do_error'(type_error(in_byte,V),get_byte(S,V)).
 peek_byte(S,V) :-
 	'$peek_byte'(S,V).
-
-get_char(V) :-
-	\+ var(V),
-	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	'$do_error'(type_error(in_character,V),get_char(V)).
-get_char(V) :-
-	current_input(S),
-	get0(S,I),
-	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
-
-get_char(S,V) :-
-	\+ var(V),
-	( atom(V)  -> atom_codes(V,[_,_|_]), V \= end_of_file ; true ), !,
-	'$do_error'(type_error(in_character,V),get_char(S,V)).
-get_char(S,V) :-
-	get0(S,I),
-	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
 
 peek_char(V) :-
 	\+ var(V),
@@ -477,19 +445,6 @@ peek_char(S,V) :-
 peek_char(S,V) :-
 	'$peek'(S,I),
 	( I = -1 -> V = end_of_file ; atom_codes(V,[I])).
-
-get_code(S,V) :-
-	\+ var(V), (\+ integer(V)), !,
-	'$do_error'(type_error(in_character_code,V),get_code(S,V)).
-get_code(S,V) :-
-	get0(S,V).
-
-get_code(V) :-
-	\+ var(V), (\+ integer(V)), !,
-	'$do_error'(type_error(in_character_code,V),get_code(V)).
-get_code(V) :-
-	current_input(S),
-	get0(S,V).
 
 peek_code(S,V) :-
 	\+ var(V), (\+ integer(V)), !,
@@ -560,8 +515,6 @@ put_code(S,V) :-
 	'$put'(S,V).
 
 
-
-get0(N) :- current_input(S), get0(S,N).
 
 put(N) :- current_output(S),  N1 is N, '$put'(S,N1).
 

@@ -1439,3 +1439,23 @@ ttyflush :-
 	swi_ttyflush.
 
 
+get(C) :-
+	swi_get(C).
+get(Stream, C) :-
+	swi_get(Stream, C).
+get0(C) :-
+	swi_get0(C).
+get0(Stream, C) :-
+	swi_get0(Stream, C).
+get_byte(C) :-
+	swi_get_byte(C).
+get_byte(Stream, C) :-
+	swi_get_byte(Stream, C).
+get_char(C) :-
+	swi_get_char(C).
+get_char(Stream, C) :-
+	swi_get_char(Stream, C).
+get_code(C) :-
+	swi_get_code(C).
+get_code(Stream, C) :-
+	swi_get_code(Stream, C).
