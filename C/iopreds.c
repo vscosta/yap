@@ -104,8 +104,6 @@ STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_close, (void));
-STATIC_PROTO (Int p_current_input, (void));
-STATIC_PROTO (Int p_current_output, (void));
 STATIC_PROTO (Int p_write, (void));
 STATIC_PROTO (Int p_write2, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
@@ -1859,53 +1857,6 @@ p_representation_error (void)
   UNLOCK(Stream[sno].streamlock);
   return TRUE;
 }
-
-static Int
-p_current_input (void)
-{				/* current_input(?Stream)                */
-  Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) {
-    Term t = MkStream (Yap_c_input_stream);
-    BIND(VarOfTerm(t1), t, bind_in_current_input);
-#ifdef COROUTINING
-    DO_TRAIL(CellPtr(t1), t);
-    if (CellPtr(t1) < H0) Yap_WakeUp(VarOfTerm(t1));
-  bind_in_current_input:
-#endif
-    return TRUE;
-  } else if (!IsApplTerm(t1) ||
-	     FunctorOfTerm(t1) != FunctorStream ||
-	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM,t1,"current_input/1");
-    return FALSE;
-  } else {
-    return Yap_c_input_stream == IntOfTerm(t1);
-  }
-}
-
-static Int
-p_current_output (void)
-{				/* current_output(?Stream)               */
-  Term t1 = Deref(ARG1);
-  if (IsVarTerm(t1)) {
-    Term t = MkStream (Yap_c_output_stream);
-    BIND((CELL *)t1, t, bind_in_current_output);
-#ifdef COROUTINING
-    DO_TRAIL(CellPtr(t1), t);
-    if (CellPtr(t1) < H0) Yap_WakeUp(VarOfTerm(t1));
-  bind_in_current_output:
-#endif
-    return TRUE;
-  } else if (!IsApplTerm(t1) ||
-	     FunctorOfTerm(t1) != FunctorStream ||
-	     !IsIntTerm((t1=ArgOfTerm(1,t1)))) {
-    Yap_Error(DOMAIN_ERROR_STREAM,t1,"current_output/1");
-    return FALSE;
-  } else {
-    return(Yap_c_output_stream == IntOfTerm(t1));
-  }
-}
-
 
 #ifdef BEAM
 int beam_write (void)
@@ -4245,8 +4196,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$peek_byte", 2, p_peek_byte, SafePredFlag|SyncPredFlag),
   Yap_InitCPred ("$has_bom", 1, p_has_bom, SafePredFlag);
   Yap_InitCPred ("$stream_representation_error", 2, p_representation_error, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("current_input", 1, p_current_input, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("current_output", 1, p_current_output, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
