@@ -1559,3 +1559,7 @@ format(Command, Args) :-
 	swi_format(Command, Args).
 format(Stream, Command, Args) :-
 	swi_format(Stream, Command, Args).
+
+is_stream(Stream) :-
+	swi_is_stream(Stream).
+

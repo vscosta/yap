@@ -128,7 +128,7 @@ load_files(Files,Opts) :-
 '$process_lf_opt'(consult(reconsult),_,_,_,_,_,_,_,_,_,_,reconsult,_,_).
 '$process_lf_opt'(consult(consult),_,_,_,_,_,_,_,_,_,_,consult,_,_).
 '$process_lf_opt'(stream(Stream),_,_,_,_,_,_,Stream,_,_,_,_,Files,Call) :-
-/*	( '$stream'(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
+/*	( is_stream(Stream) -> true ;  '$do_error'(domain_error(stream,Stream),Call) ), */
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ).
 
 '$check_use_module'(use_module(_),use_module(_)) :- !.

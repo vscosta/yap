@@ -2689,17 +2689,6 @@ Yap_StreamToFileNo(Term t)
 }
 
 static Int
-p_stream(void)
-{
-  Term in = Deref(ARG1);
-  if (IsVarTerm(in))
-    return(FALSE);
-  if (IsApplTerm(in))
-    return(FunctorOfTerm(in) == FunctorStream);
-  return(FALSE);
-}
-
-static Int
 p_same_file(void) {
   char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
   char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
@@ -2788,36 +2777,6 @@ p_get_default_encoding(void)
 }
 
 static Int
-p_toupper(void)
-{
-  Int out = IntegerOfTerm(Deref(ARG1)), uout;
-  if (out < 0) {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, ARG1, "toupper");
-    return FALSE;
-  }
-  if (out < 128)
-    uout = toupper(out);
-  else
-    uout = towupper(out);
-  return Yap_unify(ARG2, MkIntegerTerm(uout));
-}
-
-static Int
-p_tolower(void)
-{
-  Int out = IntegerOfTerm(Deref(ARG1)), uout;
-  if (out < 0) {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE, ARG1, "tolower");
-    return FALSE;
-  }
-  if (out < 128)
-    uout = tolower(out);
-  else
-    uout = towlower(out);
-  return Yap_unify(ARG2, MkIntegerTerm(uout));
-}
-
-static Int
 p_encoding (void)
 {				/* '$encoding'(Stream,N)                      */
   int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
@@ -2886,7 +2845,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),
 #if HAVE_SELECT
@@ -2895,8 +2853,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$toupper", 2, p_toupper, SafePredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$tolower", 2, p_tolower, SafePredFlag|HiddenPredFlag);
 
   Yap_InitReadUtil ();
   InitPlIO ();
