@@ -4732,6 +4732,7 @@ init_yap(void)
   PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();
+  initOs();
 }
 #endif
 
