@@ -314,27 +314,6 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check typ
 #define snprintf(X,Y,Z,A) sprintf(X,Z,A)
 #endif
 
-/* This does not understand UNICODE yet */
-static int do_yap_putc(int sno, wchar_t ch) {
-  if (putc_curp < putc_cur_lim) {
-    *putc_curp++ = ch;
-    return TRUE;
-  } else if (putc_cur_flags & BUF_MALLOC) {
-    /* handle overflow by using realloc(); */
-    UInt bufsize = putc_cur_lim-putc_cur_buf;
-    UInt bufpos = putc_curp-putc_cur_buf;
-
-    if (!(putc_cur_buf = PL_realloc(putc_cur_buf, bufsize+SWI_BUF_SIZE))) {
-      /* we can+t go forever */
-      return FALSE;
-    }
-    putc_curp = putc_cur_buf+bufpos;
-    putc_cur_lim = putc_cur_buf+(bufsize+SWI_BUF_SIZE);
-    return do_yap_putc(sno, ch);
-  }
-  return FALSE;
-}
-
 /* SWI: int PL_get_functor(term_t t, functor_t *f)
    YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
 X_API int PL_get_functor(term_t ts, functor_t *f)
@@ -1082,18 +1061,19 @@ X_API int PL_unify_integer(term_t t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_functor(term_t t, functor_t f)
 {	
-  YAP_Term tt = Yap_GetFromSlot(t);
+  Term tt = Yap_GetFromSlot(t);
   Functor ff = SWIFunctorToFunctor(f);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
+  if (IsVarTerm(tt)) {
+    while (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
+      if (!Yap_gc(ArityOfFunctor(ff)*sizeof(CELL), ENV, CP)) {
+	return FALSE;
+      }
     }
+    return Yap_unify(tt, Yap_MkNewApplTerm(ff,ArityOfFunctor(ff)));
   }
-  if (YAP_IsVarTerm(tt))
-    return YAP_Unify(tt, YAP_MkNewApplTerm((YAP_Functor)ff,YAP_ArityOfFunctor((YAP_Functor)f)));
-  if (YAP_IsPairTerm(tt))
+  if (IsPairTerm(tt))
     return ff == FunctorDot;
-  if (!YAP_IsApplTerm(tt))
+  if (!IsApplTerm(tt))
     return FALSE;
   return ff == FunctorOfTerm(tt);
 }
