@@ -1439,6 +1439,10 @@ flush_output(Stream) :-
 ttyflush :-
 	swi_ttyflush.
 
+current_input(Stream) :-
+	swi_current_input(Stream).
+current_output(Stream) :-
+	swi_current_output(Stream).
 set_input(Stream) :-
 	swi_set_input(Stream).
 set_output(Stream) :-
