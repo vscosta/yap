@@ -601,36 +601,11 @@ flush_output :-
 	flush_output(Stream).
 
 current_line_number(N) :-
-	current_input(Stream), '$current_line_number'(Stream,N).
+	current_input(Stream),
+	line_count(Stream, N).
 
-current_line_number(user,N) :- !,
-	'$current_line_number'(user_input,N).
-current_line_number(A,N) :- 
-	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
-	'$current_line_number'(S,N).
-current_line_number(S,N) :-
-	'$current_line_number'(S,N).
-
-line_count(Stream,N) :- current_line_number(Stream,N).
-
-character_count(user,N) :- !,
-	'$character_count'(user_input,N).
-character_count(A,N) :- 
-	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
-	'$character_count'(S,N).
-character_count(S,N) :-
-	'$character_count'(S,N).
-
-line_position(user,N) :- !,
-	'$line_position'(user_input,N).
-line_position(A,N) :- 
-	atom(A),
-	current_stream(_,_,S), '$user_file_name'(S,A), !,
-	'$line_position'(S,N).
-line_position(S,N) :-
-	'$line_position'(S,N).
+current_line_number(Stream,N) :-
+	line_count(Stream, N).
 
 stream_position(user,N) :- !,
 	'$show_stream_position'(user_input,N).
@@ -769,13 +744,26 @@ sformat(String, Form, Args) :-
 
 write_depth(T,L) :- write_depth(T,L,_).
 
-is_stream(S) :-
-	catch('$check_stream'(S), _, fail), !.
+%%      stream_position_data(?Field, +Pos, ?Date)
+%
+%       Extract values from stream position objects. '$stream_position' is
+%       of the format '$stream_position'(Byte, Char, Line, LinePos)
 
-stream_position_data(line_count, '$stream_position'(_,Data,_,_,_), Data).
-stream_position_data(line_position, '$stream_position'(_,_,Data,_,_), Data).
-%stream_position_data(char_count, '$stream_position'(Data,_,_,_,_), Data).
-stream_position_data(byte_count, '$stream_position'(Data,_,_,_,_), Data).
+stream_position_data(Prop, Term, Value) :-
+        nonvar(Prop), !,
+        (   stream_position_field(Prop, Pos)
+        ->  arg(Pos, Term, Value)
+        ;   throw(error(domain_error(stream_position_data, Prop)))
+        ).
+stream_position_data(Prop, Term, Value) :-
+        stream_position_field(Prop, Pos),
+        arg(Pos, Term, Value).
+
+stream_position_field(char_count,    1).
+stream_position_field(line_count,    2).
+stream_position_field(line_position, 3).
+stream_position_field(byte_count,    4).
+
 
 '$default_expand'(Expand) :-
 	nb_getval('$open_expands_filename',Expand).
@@ -802,10 +790,6 @@ prolog_file_name(File, PrologFileName) :-
 '$codes_to_chars'(String0, [Code|String], [Char|Chars]) :-
 	atom_codes(Char, [Code]),
 	'$codes_to_chars'(String0, String, Chars).
-
-
-
-
 
 
 

@@ -159,8 +159,8 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
-	(X = 'arith.yap' -> start_low_level_trace ; true),
 	'$valid_encoding'(Encoding, Enc),
+	open(Y, read, Stream, [encoding(Encoding)]), !,
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,CompMode,Reconsult,UseModule),
 	'$close'(Stream).
@@ -247,7 +247,8 @@ use_module(M,F,Is) :-
 	H0 is heapused, '$cputime'(T0,_),
 	'$file_name'(Stream,File),
 	'$fetch_stream_alias'(OldStream,'$loop_stream'),
-	'$change_alias_to_stream'('$loop_stream',Stream),
+	set_stream(Stream,alias('$loop_stream')),
+	format('this~n',[]),
 	nb_getval('$consulting',Old),
 	nb_setval('$consulting',false),
 	'$access_yap_flags'(18,GenerateDebug),
@@ -283,7 +284,7 @@ use_module(M,F,Is) :-
 	;
 	    true
 	),
-	'$change_alias_to_stream'('$loop_stream',OldStream),
+	set_stream(OldStream,alias('$loop_stream')),
 	'$set_yap_flags'(18,GenerateDebug),
 	'$comp_mode'(CompMode, OldCompMode),
 	nb_setval('$consulting',Old),
@@ -1033,5 +1034,9 @@ make.
 '$file_name'(user_input,user_output).
 '$file_name'(user_output,user_ouput).
 '$file_name'(user_error,user_error).
+
+
+'$fetch_stream_alias'(OldStream,Alias) :-
+	stream_property(OldStream, alias(Alias)), !.
 
 

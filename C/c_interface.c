@@ -409,7 +409,7 @@ X_API Term    STD_PROTO(YAP_MkPairTerm,(Term,Term));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_TailOfTerm,(Term));
-X_API Int     STD_PROTO(YAP_SkipList,(Term *, Term **));
+X_API int     STD_PROTO(YAP_SkipList,(Term *, Term **));
 X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,UInt,Term *));
 X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,UInt));
 X_API Functor STD_PROTO(YAP_FunctorOfTerm,(Term));
@@ -928,7 +928,7 @@ YAP_TailOfTerm(Term t)
   return (TailOfTerm(t));
 }
 
-X_API Int
+X_API int
 YAP_SkipList(Term *l, Term **tailp)
 {
   Int length = 0;
@@ -1527,6 +1527,8 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    struct open_query_struct *oexec = execution;
+    extern PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
     ctx->control = FRG_FIRST_CALL;
@@ -1537,6 +1539,9 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
+    /* make sure we clean up the frames left by the user */
+    while (execution != oexec)
+      PL_close_foreign_frame(execution);
     PP = NULL;
     if (val == 0) {
       Term t;
@@ -1564,6 +1569,49 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
   }
 }
 
+Int
+YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
+{
+  if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
+    Int val;
+    CPredicateV codev = (CPredicateV)exec_code;
+    struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    struct open_query_struct *oexec = execution;
+    extern PL_close_foreign_frame(struct open_query_struct *);
+
+    PP = pe;
+    ctx->control = FRG_CUTTED;
+    ctx->engine = NULL; //(PL_local_data *)Yap_regp;
+    ctx->context = NULL;
+    if (pe->PredFlags & CArgsPredFlag) {
+      val = execute_cargs_back(pe, exec_code, ctx);
+    } else {
+      val = ((codev)((&ARG1)-LCL0,0,ctx));
+    }
+    /* make sure we clean up the frames left by the user */
+    while (execution != oexec)
+      PL_close_foreign_frame(execution);
+
+    PP = NULL;
+    if (val == 0) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	cut_c_pop();
+	Yap_JumpToEnv(t);
+	return FALSE;
+      }
+      return FALSE;
+    } else { /* TRUE */
+      return TRUE;
+    } 
+  } else {
+    return (exec_code)();
+  }
+}
+
 
 Int
 YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
@@ -1572,6 +1620,8 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
+    struct open_query_struct *oexec = execution;
+    extern PL_close_foreign_frame(struct open_query_struct *);
     
     PP = pe;
     ctx->control = FRG_REDO;
@@ -1580,6 +1630,9 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
+    /* make sure we clean up the frames left by the user */
+    while (execution != oexec)
+      PL_close_foreign_frame(execution);
     PP = NULL;
     if (val == 0) {
       Term t;

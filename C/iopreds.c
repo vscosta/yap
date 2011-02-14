@@ -106,17 +106,9 @@ STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (Int p_stream_flags, (void));
 STATIC_PROTO (int AddAlias, (Atom, int));
-STATIC_PROTO (void SetAlias, (Atom, int));
 STATIC_PROTO (void PurgeAlias, (int));
 STATIC_PROTO (int CheckAlias, (Atom));
-STATIC_PROTO (Atom FetchAlias, (int));
-STATIC_PROTO (int FindAliasForStream, (int, Atom));
-STATIC_PROTO (int FindStreamForAlias, (Atom));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
-STATIC_PROTO (Int p_check_stream, (void));
-STATIC_PROTO (Int p_check_if_stream, (void));
-STATIC_PROTO (Int init_cur_s, (void));
-STATIC_PROTO (Int cont_cur_s, (void));
 STATIC_PROTO (Int p_close, (void));
 STATIC_PROTO (Int p_set_input, (void));
 STATIC_PROTO (Int p_set_output, (void));
@@ -127,7 +119,6 @@ STATIC_PROTO (Int p_write2, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_cur_line_no, (void));
 STATIC_PROTO (Int p_get, (void));
 STATIC_PROTO (Int p_get0, (void));
 STATIC_PROTO (Int p_get_byte, (void));
@@ -140,15 +131,11 @@ STATIC_PROTO (Int p_flush, (void));
 STATIC_PROTO (Int p_flush_all_streams, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
-STATIC_PROTO (Int p_line_position, (void));
-STATIC_PROTO (Int p_character_count, (void));
 STATIC_PROTO (Int p_show_stream_flags, (void));
 STATIC_PROTO (Int p_show_stream_position, (void));
 STATIC_PROTO (Int p_set_stream_position, (void));
 STATIC_PROTO (Int p_add_alias_to_stream, (void));
-STATIC_PROTO (Int p_change_alias_to_stream, (void));
 STATIC_PROTO (Int p_check_if_valid_new_alias, (void));
-STATIC_PROTO (Int p_fetch_stream_alias, (void));
 STATIC_PROTO (Int p_format, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
@@ -1159,141 +1146,6 @@ PlUnGetc (int sno)
   return(ch);
 }
 
-/* give back 0376+ch  */
-static int
-PlUnGetc376 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc376)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xFE;
-  return ch;
-}
-
-/* give back 0376+ch  */
-static int
-PlUnGetc00 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc00)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
-/* give back 0377+ch  */
-static int
-PlUnGetc377 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc377)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xFF;
-  return ch;
-}
-
-/* give back 0357+ch  */
-static int
-PlUnGetc357 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc357)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc;
-  ch = s->och;
-  s->och = 0xEF;
-  return ch;
-}
-
-/* give back 0357+0273+ch  */
-static int
-PlUnGetc357273 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc357273)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc357;
-  ch = s->och;
-  s->och = 0xBB;
-  return ch;
-}
-
-/* give back 000+000+ch  */
-static int
-PlUnGetc0000 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc0000)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc00;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
-/* give back 000+000+ch  */
-static int
-PlUnGetc0000fe (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc0000fe)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc0000;
-  ch = s->och;
-  s->och = 0xfe;
-  return ch;
-}
-
-/* give back 0377+0376+ch  */
-static int
-PlUnGetc377376 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc377376)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc377;
-  ch = s->och;
-  s->och = 0xFE;
-  return ch;
-}
-
-/* give back 0377+0376+000+ch  */
-static int
-PlUnGetc37737600 (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc37737600)
-    return(s->stream_getc(sno));
-  s->stream_getc = PlUnGetc377376;
-  ch = s->och;
-  s->och = 0x00;
-  return ch;
-}
-
 static int
 utf8_nof(char ch)
 {
@@ -1712,30 +1564,6 @@ static Int p_add_alias_to_stream (void)
   return (FALSE);
 }
 
-static Int p_change_alias_to_stream (void)
-{
-  Term tname = Deref(ARG1);
-  Term tstream = Deref(ARG2);
-  Atom at;
-  Int sno;
-
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "$change_alias_to_stream/2");
-    return (FALSE);
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "$change_alias_to_stream/2");
-    return (FALSE);
-  }
-  at = AtomOfTerm(tname);
-  if ((sno = CheckStream (tstream, Input_Stream_f | Output_Stream_f | Append_Stream_f,  "change_stream_alias/2")) == -1) {
-    UNLOCK(Stream[sno].streamlock);
-    return(FALSE);
-  }
-  SetAlias(at, sno);
-  UNLOCK(Stream[sno].streamlock);
-  return(TRUE);
-}
-
 static Int p_check_if_valid_new_alias (void)
 {
   Term tname = Deref(ARG1);
@@ -1752,38 +1580,6 @@ static Int p_check_if_valid_new_alias (void)
   return(CheckAlias(at) == -1);
 }
 
-
-static Int
-p_fetch_stream_alias (void)
-{				/* '$fetch_stream_alias'(Stream,Alias)                  */
-  int sno;
-  Term t2 = Deref(ARG2);
-  Term t1 = Deref(ARG1);
-
-  if (IsVarTerm(t1)) {
-    return Yap_unify(ARG1,MkStream(FindStreamForAlias(AtomOfTerm(t2))));
-  }
-  if ((sno = CheckStream (t1, Input_Stream_f | Output_Stream_f,
-			  "fetch_stream_alias/2"))  == -1)
-    return FALSE;
-  if (IsVarTerm(t2)) {
-    Atom at = FetchAlias(sno);
-    UNLOCK(Stream[sno].streamlock);
-    if (at == AtomFoundVar)
-      return FALSE;
-    else 
-      return Yap_unify_constant(t2, MkAtomTerm(at));
-  } else if (IsAtomTerm(t2)) {
-    Atom at = AtomOfTerm(t2);
-    Int out = (Int)FindAliasForStream(sno,at);
-    UNLOCK(Stream[sno].streamlock);
-    return out;
-  } else {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(TYPE_ERROR_ATOM, t2, "fetch_stream_alias/2");
-    return FALSE;
-  }
-}
 
 Term
 Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
@@ -1881,47 +1677,6 @@ AddAlias (Atom arg, int sno)
   return(TRUE);
 }
 
-/* create a new alias arg for stream sno */
-static void
-SetAlias (Atom arg, int sno)
-{
-  
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->name == arg) {
-      Int alno = aliasp-FileAliases;
-      aliasp->alias_stream = sno;
-      {
-	switch(alno) {
-	case 0:
-	  Yap_stdin = Stream[sno].u.file.file;
-	  break;
-	case 1:
-	  Yap_stdout = Stream[sno].u.file.file;
-	  break;
-	case 2:
-	  Yap_stderr = Stream[sno].u.file.file;
-	  break;
-	default:
-	  break;
-	}
-#if HAVE_SETBUF_COMMENTED_OUT
-	YP_setbuf (Stream[sno].u.file.file, NULL); 
-#endif /* HAVE_SETBUF */
-      }
-      return;
-    }
-    aliasp++;
-  }
-  /* we have not found an alias, create one */
-  if (aliasp == FileAliases+SzOfFileAliases) 
-    ExtendAliasArray();
-  NOfFileAliases++;
-  aliasp->name = arg;
-  aliasp->alias_stream = sno;
-}
-
 /* purge all aliases for stream sno */
 static void
 PurgeAlias (int sno)
@@ -1979,50 +1734,6 @@ CheckAlias (Atom arg)
   return(-1);
 }
 
-/* check if stream has an alias */
-static Atom
-FetchAlias (int sno)
-{
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->alias_stream == sno) {
-      return(aliasp->name);
-    }
-    aliasp++;
-  }
-  return(AtomFoundVar);
-}
-
-/* check if arg is an alias */
-static int
-FindAliasForStream (int sno, Atom al)
-{
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->alias_stream == sno && aliasp->name == al) {
-      return(TRUE);
-    }
-    aliasp++;
-  }
-  return(FALSE);
-}
-
-/* check if arg is an alias */
-static int
-FindStreamForAlias (Atom al)
-{
-  AliasDesc aliasp = FileAliases, aliasp_max = FileAliases+NOfFileAliases;
-
-  while (aliasp < aliasp_max) {
-    if (aliasp->name == al) {
-      return(aliasp->alias_stream);
-    }
-    aliasp++;
-  }
-  return(FALSE);
-}
 
 static int
 LookupSWIStream (struct io_stream *swi_s)
@@ -2084,29 +1795,10 @@ CheckStream (Term arg, int kind, char *msg)
     Yap_Error(INSTANTIATION_ERROR, arg, msg);
     return -1;
   } else if (IsAtomTerm (arg)) {
-    Atom sname = AtomOfTerm (arg);
+    struct io_stream *swi_stream;
+    Atom sname = AtomOfTerm(arg);
 
-    if (sname == AtomUser) {
-      if (kind & Input_Stream_f) {
-	if (kind & (Output_Stream_f|Append_Stream_f)) {
-	  Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg,
-		"ambiguous use of 'user' as a stream");
-	  return (-1);	    
-	}
-	sname = AtomUserIn;
-      } else {
-	sname = AtomUserOut;
-      }
-    }
-    if (kind & SWI_Stream_f) {
-      struct io_stream *swi_stream;
-
-      if (Yap_get_stream_handle(arg, kind & Input_Stream_f, kind & Output_Stream_f, &swi_stream)) {
-	sno = LookupSWIStream(swi_stream);
-	return sno;
-      }       
-    }
-    if (IsBlob (sname)) {
+    if (IsBlob(sname)) {
       struct io_stream *s;
       stream_ref *ref;
 	
@@ -2124,20 +1816,11 @@ CheckStream (Term arg, int kind, char *msg)
       sno = LookupSWIStream(s);
       return sno;
     }
-    if ((sno = CheckAlias(sname)) == -1) {
-      Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
-      return -1;
-    }
-  } else if (IsApplTerm (arg) && FunctorOfTerm (arg) == FunctorStream) {
-    arg = ArgOfTerm (1, arg);
-    if (!IsVarTerm (arg) && IsIntegerTerm (arg)) {
-      Int xsno = IntegerOfTerm(arg);
-      if (xsno > MaxStreams) {
-	sno = LookupSWIStream((struct io_stream *)xsno);
-      } else {
-	sno = xsno;
-      }
-    }
+
+    if (Yap_get_stream_handle(arg, kind & Input_Stream_f, kind & Output_Stream_f, &swi_stream)) {
+      sno = LookupSWIStream(swi_stream);
+      return sno;
+    }       
   }
   if (sno < 0)
     {
@@ -2184,90 +1867,11 @@ Yap_UnLockStream (int sno)
 }
 #endif
 
-static Int
-p_check_stream (void)
-{				/* '$check_stream'(Stream,Mode)                  */
-  Term mode = Deref (ARG2);
-  int sno = CheckStream (ARG1,
-   AtomOfTerm (mode) == AtomRead ? Input_Stream_f : Output_Stream_f,
-   "check_stream/2");
-  if (sno != -1)
-    UNLOCK(Stream[sno].streamlock);
-  return sno != -1;
-}
-
-static Int
-p_check_if_stream (void)
-{				/* '$check_stream'(Stream)                  */
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f ,  "check_stream/1");
-  if (sno != -1)
-    UNLOCK(Stream[sno].streamlock);
-  return sno != -1;
-}
-
 static Term
 StreamName(int i)
 {
   if (i < 3) return(MkAtomTerm(AtomUser));
   return(Stream[i].u.file.user_name);
-}
-
-static Int
-init_cur_s (void)
-{				/* Init current_stream */
-  Term t3 = Deref(ARG3);
-  /* make valgrind happy by always filling in memory */
-  EXTRA_CBACK_ARG (3, 1) = MkIntTerm (0);
-  if (!IsVarTerm(t3)) {
-    
-    Int i;
-    Term t1, t2;
-
-    i = CheckStream (t3, Input_Stream_f|Output_Stream_f, "current_stream/3");
-    if (i < 0) {
-      return FALSE;
-    }
-    t1 = StreamName(i);
-    t2 = (Stream[i].status & Input_Stream_f ?
-	  MkAtomTerm (AtomRead) :
-	  MkAtomTerm (AtomWrite));
-    UNLOCK(Stream[i].streamlock);
-    if (Yap_unify(ARG1,t1) && Yap_unify(ARG2,t2)) {
-      cut_succeed();
-    } else {
-      cut_fail();
-    }
-  } else {
-    return (cont_cur_s ());
-  }
-}
-
-static Int
-cont_cur_s (void)
-{				/* current_stream */
-  Term t1, t2, t3;
-  int i = IntOfTerm (EXTRA_CBACK_ARG (3, 1));
-  while (i < MaxStreams) {
-    LOCK(Stream[i].streamlock);
-    if (Stream[i].status & Free_Stream_f) {
-      ++i;
-      UNLOCK(Stream[i-1].streamlock);
-      continue;
-    }
-    t1 = StreamName(i);
-    t2 = (Stream[i].status & Input_Stream_f ?
-	  MkAtomTerm (AtomRead) :
-	  MkAtomTerm (AtomWrite));
-    t3 = MkStream (i++);
-    UNLOCK(Stream[i-1].streamlock);
-    EXTRA_CBACK_ARG (3, 1) = Unsigned (MkIntTerm (i));
-    if (Yap_unify (ARG3, t3) && Yap_unify_constant (ARG1, t1) && Yap_unify_constant (ARG2, t2)) {
-      return TRUE;
-    } else {
-      return FALSE;
-    }
-  }
-  cut_fail();
 }
 
 
@@ -3172,87 +2776,6 @@ p_user_file_name (void)
   if (sno < 0)
     return (FALSE);
   tout = Stream[sno].u.file.user_name;
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, tout));
-}
-
-static Int
-p_cur_line_no (void)
-{				/* '$current_line_number'(+Stream,-N) */
-  Term tout;
-  int sno =
-  CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"current_line_number/2");
-  if (sno < 0)
-    return (FALSE);
-  /* one has to be somewhat more careful because of terminals */
-  if (Stream[sno].status & Tty_Stream_f)
-    {
-      Int no = 1;
-      int i;
-      Atom my_stream;
-      my_stream = Stream[sno].u.file.name;
-      for (i = 0; i < MaxStreams; i++)
-	{
-	  if (!(Stream[i].status & (Free_Stream_f)) &&
-	      Stream[i].u.file.name == my_stream)
-	    no += Stream[i].linecount - 1;
-	}
-      tout = MkIntTerm (no);
-    }
-  else
-    tout = MkIntTerm (Stream[sno].linecount);
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, tout));
-}
-
-static Int
-p_line_position (void)
-{				/* '$line_position'(+Stream,-N) */
-  Term tout;
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "line_position/2");
-  if (sno < 0)
-    return (FALSE);
-  if (Stream[sno].status & Tty_Stream_f)
-    {
-      Int no = 0;
-      int i;
-      Atom my_stream = Stream[sno].u.file.name;
-      for (i = 0; i < MaxStreams; i++)
-	{
-	  if (!(Stream[i].status & Free_Stream_f) &&
-	      Stream[i].u.file.name == my_stream)
-	    no += Stream[i].linepos;
-	}
-      tout = MkIntTerm (no);
-    }
-  else
-    tout = MkIntTerm (Stream[sno].linepos);
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, tout));
-}
-
-static Int
-p_character_count (void)
-{				/* '$character_count'(+Stream,-N) */
-  Term tout;
-  int sno =  CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f, "character_count/2");
-  if (sno < 0)
-    return (FALSE);
-  if (Stream[sno].status & Tty_Stream_f)
-    {
-      Int no = 0;
-      int i;
-      Atom my_stream = Stream[sno].u.file.name;
-      for (i = 0; i < MaxStreams; i++)
-	{
-	  if (!(Stream[i].status & Free_Stream_f) &&
-	      Stream[i].u.file.name == my_stream)
-	    no += Stream[i].charcount;
-	}
-      tout = MkIntTerm (no);
-    }
-  else
-    tout = MkIntTerm (YP_ftell (Stream[sno].u.file.file));
   UNLOCK(Stream[sno].streamlock);
   return (Yap_unify_constant (ARG2, tout));
 }
@@ -4440,7 +3963,6 @@ static Int
 format2(UInt  stream_flag)
 {
   int old_c_stream = Yap_c_output_stream;
-  int codes_stream = FALSE;
   Int out;
   Term tin = Deref(ARG1);
 
@@ -5057,7 +4579,6 @@ Yap_FileDescriptorFromStream(Term t)
 void
 Yap_InitBackIO (void)
 {
-  Yap_InitCPredBack ("$current_stream", 3, 1, init_cur_s, cont_cur_s, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
 
 
@@ -5072,8 +4593,6 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$check_stream", 2, p_check_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$check_stream", 1, p_check_if_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$stream_flags", 2, p_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("flush_output", 1, p_flush, SafePredFlag|SyncPredFlag);
@@ -5100,9 +4619,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$write_with_prio", 4, p_write2_prio, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
-  Yap_InitCPred ("$current_line_number", 2, p_cur_line_no, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$line_position", 2, p_line_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$character_count", 2, p_character_count, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$show_stream_flags", 2, p_show_stream_flags, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$show_stream_position", 2, p_show_stream_position, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -5128,9 +4644,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$add_alias_to_stream", 2, p_add_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$change_alias_to_stream", 2, p_change_alias_to_stream, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$check_if_valid_new_alias", 1, p_check_if_valid_new_alias, TestPredFlag|SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$fetch_stream_alias", 2, p_fetch_stream_alias, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$stream", 1, p_stream, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),

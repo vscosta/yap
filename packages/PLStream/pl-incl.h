@@ -1072,7 +1072,7 @@ void PL_set_prolog_flag(const char *name, int flags, ...);
 COMMON(int)		saveWakeup(wakeup_state *state, int forceframe ARG_LD);
 COMMON(void)		restoreWakeup(wakeup_state *state ARG_LD);
 
-COMMON(intptr_t)	skip_list(Word l, Word *tailp ARG_LD);
+COMMON(int)		skip_list(Word l, Word *tailp ARG_LD);
 COMMON(int) 		priorityOperator(Module m, atom_t atom);
 COMMON(int) 		currentOperator(Module m, atom_t name, int kind,
 				int *type, int *priority);

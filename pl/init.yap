@@ -207,4 +207,3 @@ file_search_path(system, Dir) :-
 file_search_path(foreign, yap('lib/Yap')).
 
 :- yap_flag(unknown,error). 
-

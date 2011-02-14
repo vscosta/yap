@@ -36,7 +36,7 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
-	'$change_alias_to_stream'('$loop_stream','$stream'(0)),
+	set_stream(user_input,alias('$loop_stream')),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0),
@@ -92,7 +92,8 @@ true :- true.
 %	'$startup_saved_state',
 	'$startup_reconsult',
 	'$startup_goals',
-	'$set_input'(user_input),'$set_output'(user),
+	'$set_input'(user_input),
+	'$set_output'(user_output),
 	'$init_or_threads',
 	'$run_at_thread_start'.
 
@@ -1107,7 +1108,6 @@ bootstrap(F) :-
 
 
 '$loop'(Stream,Status) :-
-	'$change_alias_to_stream'('$loop_stream',Stream),
 	repeat,
 %VSC		( '$current_stream'(_,_,Stream) -> true
 %VSC		 ; '$abort_loop'(Stream)
@@ -1374,8 +1374,8 @@ prolog_to_os_filename(Prolog, OS) :-
 	swi_prolog_to_os_filename(Prolog, OS).
 time_file(File, Time) :-
 	swi_time_file(File, Time).
-working_directory(OLD, NEW) :-
-	swi_working_directory(OLD, NEW).
+working_directory(Old, New) :-
+	swi_working_directory(Old, New).
 
 cd(Dir) :- working_directory(_, Dir).
 
@@ -1393,8 +1393,6 @@ open(File, Type, Stream, Opts) :-
 	swi_open(File, Type, Stream, Opts).
 open_null_stream(S) :-
 	swi_open_null_stream(S).
-stream_property(Stream, Property) :-
-	swi_stream_property(Stream, Property).
 
 atom_to_term(Atom, Term, Bindings) :-
 	swi_atom_to_term(Atom, Term, Bindings).
@@ -1403,4 +1401,29 @@ term_to_atom(Term, Atom) :-
 
 with_output_to(Output, G) :-
 	swi_with_output_to(Output, G).
+
+byte_count(Stream, Count) :-
+%	format('~w~n',byte_count(Stream, Count)),
+	swi_byte_count(Stream, Count).
+character_count(Stream, Count) :-
+%	format('~w~n',character_count(Stream, Count)),
+	swi_character_count(Stream, Count).
+current_stream(File,Mode,Stream) :-
+	swi_current_stream(File,Mode,Stream).
+is_stream(Stream) :-
+%	format('~w~n',is_stream(Stream)),
+	swi_is_stream(Stream).
+line_count(Stream, Lines) :-
+%	format('~w~n',line_count(Stream)),
+	swi_line_count(Stream, Lines).
+line_position(Stream, Position) :-
+%	format('~w~n',line_position(Stream)),
+	swi_line_position(Stream, Position).
+set_stream(Stream, Property) :-
+%	format('~w~n',set_stream(Stream,Property)),
+	swi_set_stream(Stream, Property).
+stream_property(Stream, Property) :-
+%	format('~w~n',stream_property(Stream,Property)),
+	swi_stream_property(Stream, Property).
+
 
