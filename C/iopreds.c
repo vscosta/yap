@@ -3921,8 +3921,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$write", 2, p_write, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write_with_prio", 3, p_write_prio, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write_with_prio", 4, p_write2_prio, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);

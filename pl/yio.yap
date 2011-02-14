@@ -242,120 +242,12 @@ read_term(Stream, T, Options) :-
    flags are defined in yapio.h
 */
 
-write(T) :- '$write'(4, T).
+display(T) :-
+	   current_output(Out),
+	   write_term(Out, T, [ignore_ops(true)]).
 
-writeln(T) :-
-	'$write'(4, T),
-	nl.	
-
-write(Stream,T) :- 
-	'$write'(Stream,4,T).
-
-writeq(T) :- '$write'(5,T).
-
-writeq(Stream,T) :-
-	'$write'(Stream,5,T),
-	fail.
-writeq(_,_).
-
-display(T) :- '$write'(2,T).
-
-display(Stream,T) :-
-	'$write'(Stream,2,T),
-	fail.
-display(_,_).
-
-write_canonical(T) :- '$write'(3,T).
-
-write_canonical(Stream,T) :-
-	'$write'(Stream,3,T),
-	fail.
-write_canonical(_,_).
-
-print(T) :- '$write'(12,T), fail.
-print(_).
-
-print(Stream,T) :-
-	'$write'(Stream,12,T),
-	fail.
-print(_,_).
-
-
-write_term(T,Opts) :-
-	'$check_io_opts'(Opts, write_term(T,Opts)),
-	'$process_wt_opts'(Opts, 0, Flag, Priority, Callbacks),
-	'$write_with_prio'(Flag, Priority, T),
-	'$process_wt_callbacks'(Callbacks),
-	fail.
-write_term(_,_).
-
-write_term(S, T, Opts) :-
-	'$check_io_opts'(Opts, write_term(T,Opts)),
-	'$process_wt_opts'(Opts, 0, Flag, Priority, Callbacks),
-	'$write_with_prio'(S, Flag, Priority, T),
-	'$process_wt_callbacks'(Callbacks),
-	fail.
-write_term(_,_,_).
-
-
-'$process_wt_opts'([], Flag, Flag, 1200, []).
-'$process_wt_opts'([quoted(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x01,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([quoted(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x01,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([ignore_ops(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x02,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([ignore_ops(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x02,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([numbervars(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x04,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([numbervars(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x04,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([portrayed(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x08,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([portrayed(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x08,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([portray(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x08,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([portray(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x08,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x20,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([cycles(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x20,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([swi(true)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 \/ 0x40,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([swi(false)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	FlagI is Flag0 /\ \0x40,
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([attributes(_)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	'$process_wt_opts'(Opts, FlagI, Flag, Priority, CallBacks).
-'$process_wt_opts'([priority(Priority)|Opts], Flag0, Flag, Priority, CallBacks) :-
-	'$process_wt_opts'(Opts, Flag0, Flag, _, CallBacks).
-'$process_wt_opts'([max_depth(D)|Opts], Flag0, Flag, Priority, [max_depth(D1,D0,D2)|CallBacks]) :-
-	write_depth(D1,D0,D2),
-	D10 is D*10,
-	write_depth(D,D,D10),
-	'$process_wt_opts'(Opts, Flag0, Flag, Priority, CallBacks).
-
-'$process_wt_callbacks'([]).
-'$process_wt_callbacks'([max_depth(D1,D0,D2)|Cs]) :-
-	write_depth(D1,D0,D2),
-	'$process_wt_callbacks'(Cs).
-
+display(Stream, T) :-
+	   write_term(Term, T, [ignore_ops(true)]).
 
 format(T) :-
 	format(T, []).
@@ -373,10 +265,6 @@ format(T) :-
 skip(N) :- current_input(S),  N1 is N, '$skip'(S,N1).
 
 skip(Stream,N) :- N1 is N, '$skip'(Stream,N1).
-
-'$tab'(N) :- N<1, !.
-
-'$tab'(N) :- put(32), N1 is N-1, '$tab'(N1).
 
 ttyget(N) :- get(user_input,N).
 

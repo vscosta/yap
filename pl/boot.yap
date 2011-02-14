@@ -1510,6 +1510,26 @@ nl :-
 	swi_nl.
 nl(Stream) :-
 	swi_nl(Stream).
+print(T) :-
+	swi_print(T).
+print(Stream, T) :-
+	swi_print(Stream, T).
+write(T) :-
+	swi_write(T).
+write(Stream, T) :-
+	swi_write(Stream, T).
+writeq(T) :-
+	swi_writeq(T).
+writeq(Stream, T) :-
+	swi_writeq(Stream, T).
+write_canonical(T) :-
+	swi_write_canonical(T).
+write_canonical(Stream, T) :-
+	swi_write_canonical(Stream, T).
+write_term(Stream, T) :-
+	swi_write_term(Stream, T).
+write_term(Stream, T, Options) :-
+	swi_write_term(Stream, T, Options).
 tab(C) :-
 	swi_tab(C).
 tab(Stream, C) :-
