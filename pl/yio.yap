@@ -268,9 +268,9 @@ read_term(Stream, T, Options) :-
 '$add_singleton_if_no_underscore'(Na,V2,NSs,[(Name=V2)|NSs]) :-
 	atom_codes(Name, Na).
 
-nl(Stream) :- '$put'(Stream,10).
+nl(Stream) :- put(Stream,10).
 
-nl :- current_output(Stream), '$put'(Stream,10), fail.
+nl :- current_output(Stream), put(Stream,10), fail.
 nl.
 
 /* meaning of flags for '$write' is
@@ -410,67 +410,6 @@ format(T) :-
 
 /* character I/O	*/
 
-put_byte(V) :- var(V), !,
-	'$do_error'(instantiation_error,put_byte(V)).
-put_byte(V) :-
-	(\+ integer(V) ; V < 0 ; V > 256), !,
-	'$do_error'(type_error(byte,V),put_byte(V)).
-put_byte(V) :-
-	current_output(S), 
-	'$put_byte'(S,V).
-
-
-put_byte(S,V) :- var(V), !,
-	'$do_error'(instantiation_error,put_byte(S,V)).
-put_byte(S,V) :-
-	(\+ integer(V) ; V < 0 ; V > 256), !,
-	'$do_error'(type_error(byte,V),put_byte(S,V)).
-put_byte(S,V) :-
-	'$put_byte'(S,V).
-
-put_char(V) :- var(V), !,
-	'$do_error'(instantiation_error,put_char(V)).
-put_char(V) :-
-	( atom(V)  -> atom_codes(V,[_,_|_]) ; true ), !,
-	'$do_error'(type_error(character,V),put_char(V)).
-put_char(V) :-
-	current_output(S),
-	atom_codes(V,[I]),
-	'$put'(S,I).
-
-put_char(S,V) :- var(V), !,
-	'$do_error'(instantiation_error,put_char(S,V)).
-put_char(S,V) :-
-	( atom(V)  -> atom_codes(V,[_,_|_]) ; true ), !,
-	'$do_error'(type_error(character,V),put_char(S,V)).
-put_char(S,V) :-
-	atom_codes(V,[I]),
-	'$put'(S,I).
-
-put_code(V) :- var(V), !,
-	'$do_error'(instantiation_error,put_code(V)).
-put_code(V) :-
-	(\+ integer(V)), !,
-	'$do_error'(type_error(character_code,V),put_code(V)).
-put_code(V) :-
-	current_output(S), 
-	'$put'(S,V).
-
-
-put_code(S,V) :- var(V), !,
-	'$do_error'(instantiation_error,put_code(S,V)).
-put_code(S,V) :-
-	(\+ integer(V)), !,
-	'$do_error'(type_error(character_code,V),put_code(S,V)).
-put_code(S,V) :-
-	'$put'(S,V).
-
-
-
-put(N) :- current_output(S),  N1 is N, '$put'(S,N1).
-
-put(Stream,N) :-  N1 is N, '$put'(Stream,N1).
-
 skip(N) :- current_input(S),  N1 is N, '$skip'(S,N1).
 
 skip(Stream,N) :- N1 is N, '$skip'(Stream,N1).
@@ -494,7 +433,7 @@ ttyget0(N) :- get0(user_input,N).
 
 ttyskip(N) :-  N1 is N, '$skip'(user_input,N1).
 
-ttyput(N) :-  N1 is N, '$put'(user_output,N1).
+ttyput(N) :-  N1 is N, put(user_output,N1).
 
 ttynl :- nl(user_output).
 

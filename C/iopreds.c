@@ -110,8 +110,6 @@ STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
 STATIC_PROTO (Int p_past_eof, (void));
-STATIC_PROTO (Int p_put, (void));
-STATIC_PROTO (Int p_put_byte, (void));
 STATIC_PROTO (Int p_skip, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_user_file_name, (void));
@@ -2540,39 +2538,6 @@ p_get0_line_codes (void)
     return Yap_unify(out,ARG2);
 }
 
-static Int
-p_put (void)
-{				/* '$put'(Stream,N)                      */
-  int sno = CheckStream (ARG1, Output_Stream_f, "put/2");
-  if (sno < 0)
-    return (FALSE);
-  if (Stream[sno].status & Binary_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_BINARY_STREAM, ARG1, "put/2");
-    return(FALSE);
-  }
-  Stream[sno].stream_wputc (sno, (int) IntegerOfTerm (Deref (ARG2)));
-  UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
-}
-
-static Int
-p_put_byte (void)
-{				/* '$put_byte'(Stream,N)                 */
-  int sno = CheckStream (ARG1, Output_Stream_f, "put/2");
-  if (sno < 0)
-    return (FALSE);
-  if (!(Stream[sno].status & Binary_Stream_f) &&
-      yap_flags[STRICT_ISO_FLAG]) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_OUTPUT_TEXT_STREAM, ARG1, "get0/2");
-    return(FALSE);
-  }
-  Stream[sno].stream_putc(sno, (int) IntegerOfTerm (Deref (ARG2)));
-  UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
-}
-
 #define FORMAT_MAX_SIZE 256
 
 typedef struct {
@@ -4074,8 +4039,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$put", 2, p_put, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$put_byte", 2, p_put_byte, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);

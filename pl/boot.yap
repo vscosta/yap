@@ -1481,3 +1481,21 @@ peek_code(C) :-
 	swi_peek_code(C).
 peek_code(Stream, C) :-
 	swi_peek_code(Stream, C).
+
+put(C) :-
+	swi_put(C).
+put(Stream, C) :-
+	swi_put(Stream, C).
+put_byte(C) :-
+	swi_put_byte(C).
+put_byte(Stream, C) :-
+	swi_put_byte(Stream, C).
+put_char(C) :-
+	swi_put_char(C).
+put_char(Stream, C) :-
+	swi_put_char(Stream, C).
+put_code(C) :-
+	swi_put_code(C).
+put_code(Stream, C) :-
+	swi_put_code(Stream, C).
+
