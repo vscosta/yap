@@ -628,7 +628,7 @@ true :- true.
 	'$do_another'(C).
 
 '$do_another'(C) :-
-	(   C== 0'; ->  '$skip'(user_input,10), %'
+	(   C== 0'; ->  skip(user_input,10), %'
 	    '$add_nl_outside_console',
 	    fail
 	;
@@ -645,7 +645,7 @@ true :- true.
 	;
 	    C== -1 -> halt
 	;
-	    '$skip'(user_input,10), '$ask_again_for_another'
+	    skip(user_input,10), '$ask_again_for_another'
 	).
 
 %'$add_nl_outside_console' :-
@@ -1505,6 +1505,11 @@ put_code(C) :-
 	swi_put_code(C).
 put_code(Stream, C) :-
 	swi_put_code(Stream, C).
+
+skip(C) :-
+	swi_skip(C).
+skip(Stream, C) :-
+	swi_skip(Stream, C).
 
 nl :-
 	swi_nl.

@@ -104,8 +104,6 @@ STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_close, (void));
-STATIC_PROTO (Int p_write, (void));
-STATIC_PROTO (Int p_write2, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
@@ -1769,102 +1767,6 @@ int beam_write (void)
   return (TRUE);
 }
 #endif
-
-static Int
-p_write (void)
-{
-    /* '$write'(+Flags,?Term) */
-  int flags = (int) IntOfTerm (Deref (ARG1));
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  Yap_StartSlots();
-  Yap_plwrite (ARG2, Stream[Yap_c_output_stream].stream_wputc, flags, 1200);
-  Yap_CloseSlots();
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
-}
-
-static Int
-p_write_prio (void)
-{
-    /* '$write'(+Flags,?Term) */
-  int flags = (int) IntOfTerm (Deref (ARG1));
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  Yap_StartSlots();
-  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, flags, (int)IntOfTerm(Deref(ARG2)));
-  Yap_CloseSlots();
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
-}
-
-static Int
-p_write2_prio (void)
-{				/* '$write'(+Stream,+Flags,?Term) */
-  int old_output_stream = Yap_c_output_stream;
-  Int flags = IntegerOfTerm(Deref(ARG2));
-  int stream_f;
-
-  if (flags & Use_SWI_Stream_f) {
-    stream_f = Output_Stream_f|SWI_Stream_f;
-  } else {
-    stream_f = Output_Stream_f;
-  }
-  Yap_c_output_stream = CheckStream (ARG1, stream_f, "write/2");
-  if (Yap_c_output_stream == -1) {
-    Yap_c_output_stream = old_output_stream;
-    return(FALSE);
-  }
-  UNLOCK(Stream[Yap_c_output_stream].streamlock);
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  Yap_StartSlots();
-  Yap_plwrite (ARG4, Stream[Yap_c_output_stream].stream_wputc, (int) flags, (int) IntOfTerm (Deref (ARG3)));
-  Yap_CloseSlots();
-  Yap_c_output_stream = old_output_stream;
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
-}
-
-static Int
-p_write2 (void)
-{				/* '$write'(+Stream,+Flags,?Term) */
-  int old_output_stream = Yap_c_output_stream;
-  Yap_c_output_stream = CheckStream (ARG1, Output_Stream_f, "write/2");
-  if (Yap_c_output_stream == -1) {
-    Yap_c_output_stream = old_output_stream;
-    return(FALSE);
-  }
-  UNLOCK(Stream[Yap_c_output_stream].streamlock);
-  /* notice: we must have ASP well set when using portray, otherwise
-     we cannot make recursive Prolog calls */
-  Yap_StartSlots();
-  Yap_plwrite (ARG3, Stream[Yap_c_output_stream].stream_wputc, (int) IntOfTerm (Deref (ARG2)), 1200);
-  Yap_CloseSlots();
-  Yap_c_output_stream = old_output_stream;
-  if (EX != 0L) {
-    Term ball = Yap_PopTermFromDB(EX);
-    EX = NULL;
-    Yap_JumpToEnv(ball);
-    return(FALSE);
-  }
-  return (TRUE);
-}
 
 static void
 clean_vars(VarEntry *p)
@@ -3921,8 +3823,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$write_with_prio", 3, p_write_prio, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$write_with_prio", 4, p_write2_prio, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("format", 2, p_format, SyncPredFlag);
   Yap_InitCPred ("format", 3, p_format2, SyncPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);

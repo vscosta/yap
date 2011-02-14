@@ -252,6 +252,9 @@ display(Stream, T) :-
 format(T) :-
 	format(T, []).
 
+writeln(T) :-
+	write(T),
+	nl.
 
 /* interface to user portray	*/
 '$portray'(T) :-
@@ -261,10 +264,6 @@ format(T) :-
 '$portray'(_) :- set_value('$portray',false), fail.
 
 /* character I/O	*/
-
-skip(N) :- current_input(S),  N1 is N, '$skip'(S,N1).
-
-skip(Stream,N) :- N1 is N, '$skip'(Stream,N1).
 
 ttyget(N) :- get(user_input,N).
 
