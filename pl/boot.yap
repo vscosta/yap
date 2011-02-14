@@ -61,9 +61,6 @@ true :- true.
 	;
 	 true
 	),
-	'$stream_representation_error'(user_input, 512),
-	'$stream_representation_error'(user_output, 512),
-	'$stream_representation_error'(user_error, 512),
 	'$enter_system_mode',
 	'$init_globals',
 	set_value(fileerrors,1),
@@ -1104,7 +1101,7 @@ bootstrap(F) :-
 	  format(user_error, '~*|% ~w consulted ~w bytes in ~d msecs~n', [LC,F,H,T])
 	),
 	!,
-	'$close'(Stream).
+	close(Stream).
 
 
 
@@ -1373,6 +1370,8 @@ is_absolute_file_name(File) :-
 	swi_is_absolute_file_name(File).
 prolog_to_os_filename(Prolog, OS) :-
 	swi_prolog_to_os_filename(Prolog, OS).
+same_file(File1, File2) :-
+	swi_same_file(File1, File2).
 time_file(File, Time) :-
 	swi_time_file(File, Time).
 working_directory(Old, New) :-
@@ -1384,10 +1383,9 @@ getcwd(Dir) :- working_directory(Dir, Dir).
 
 close(Stream) :-
 	'$close'(Stream).
-%	swi_close(Stream). must be last
+%	swi_close(Stream).
 close(Stream, Options) :-
-	'$close'(Stream).
-%	swi_close(Stream, Options). must be last
+	swi_close(Stream, Options).
 open(File, Type, Stream) :-
 	swi_open(File, Type, Stream).
 open(File, Type, Stream, Opts) :-

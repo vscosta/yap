@@ -163,7 +163,7 @@ load_files(Files,Opts) :-
 	open(Y, read, Stream, [encoding(Encoding)]), !,
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,CompMode,Reconsult,UseModule),
-	'$close'(Stream).
+	close(Stream).
 '$lf'(X, _, Call, _, _, _, _, _, _, _, _, _, _, _) :-
 	'$do_error'(permission_error(input,stream,X),Call).
 
@@ -513,11 +513,11 @@ prolog_load_context(term_position, Position) :-
 '$ensure_file_loaded'(F, M, Imports) :-
 	recorded('$module','$module'(F1,NM,P),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,_,_,_),_),
-	'$same_file'(F1,F), !,
+	same_file(F1,F), !,
 	'$use_preds'(Imports,P, NM, M).
 '$ensure_file_loaded'(F, M, _) :-
 	recorded('$lf_loaded','$lf_loaded'(F1,M,_,_),_),
-	'$same_file'(F1,F), !.
+	same_file(F1,F), !.
 	
 
 % if the file exports a module, then we can
@@ -529,12 +529,12 @@ prolog_load_context(term_position, Position) :-
 '$ensure_file_unchanged'(F, M, Imports) :-
 	recorded('$module','$module'(F1,NM,P),_),
 	recorded('$lf_loaded','$lf_loaded'(F1,_,Age,_),R),
-	'$same_file'(F1,F), !,
+	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age),
 	'$use_preds'(Imports, P, NM, M).
 '$ensure_file_unchanged'(F, M, _) :-
 	recorded('$lf_loaded','$lf_loaded'(F1,M,Age,_),R),
-	'$same_file'(F1,F), !,
+	same_file(F1,F), !,
 	'$file_is_unchanged'(F, R, Age).
 
 '$file_is_unchanged'(F, R, Age) :-
@@ -1036,5 +1036,4 @@ make.
 
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.
-
 

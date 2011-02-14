@@ -103,13 +103,11 @@ STATIC_PROTO (int ReadlinePutc, (int,int));
 STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
-STATIC_PROTO (Int p_close, (void));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
 STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_write_depth, (void));
-STATIC_PROTO (Int p_user_file_name, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
@@ -1685,71 +1683,6 @@ p_close (void)
   return (TRUE);
 }
 
-static Int
-p_past_eof (void)
-{				/* at_end_of_stream */
-  /* the next character is a EOF */ 
-  int sno = CheckStream (ARG1, Input_Stream_f, "past_eof/1");
-  Int out;
-
-  if (sno < 0)
-    return (FALSE);
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    UNLOCK(Stream[sno].streamlock);
-    return FALSE;
-  }
-  out = Stream[sno].status & Eof_Stream_f;
-  UNLOCK(Stream[sno].streamlock);
-  return out;
-}
-
-static Int
-p_has_bom (void)
-{				/* '$set_output'(+Stream,-ErrorMessage)  */
-  Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "has_bom/1");
-  if (sno < 0)
-    return (FALSE);
-  UNLOCK(Stream[sno].streamlock);
-  return ((Stream[sno].status & HAS_BOM_f));
-}
-
-static Int
-p_representation_error (void)
-{
-  /* '$representation_error'(+Stream,-ErrorMessage)  */
-  Term t;
-  Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "representation_errors/1");
-  if (sno < 0)
-    return (FALSE);
-  t = Deref(ARG2);
-
-  if (IsVarTerm(t)) {
-    UNLOCK(Stream[sno].streamlock);
-    if (Stream[sno].status & RepError_Prolog_f) {
-      return Yap_unify(ARG2, MkIntegerTerm(512));
-    }
-    if (Stream[sno].status & RepError_Xml_f) {
-      return Yap_unify(ARG2, MkIntegerTerm(1024));
-    }
-    return Yap_unify(ARG2, MkIntegerTerm(0));    
-  } else {
-    Int i = IntegerOfTerm(t);
-    switch (i) {
-    case 512:
-      Stream[sno].status &= ~RepError_Xml_f;
-      Stream[sno].status |= RepError_Prolog_f;
-      break;
-    case 1024:
-      Stream[sno].status &= ~RepError_Prolog_f;
-      Stream[sno].status |= RepError_Xml_f;
-    default:
-      Stream[sno].status &= ~(RepError_Prolog_f|RepError_Xml_f);
-    }
-  }
-  UNLOCK(Stream[sno].streamlock);
-  return TRUE;
-}
-
 #ifdef BEAM
 int beam_write (void)
 {
@@ -2245,18 +2178,6 @@ p_read2 (void)
   return out;
 }
 
-static Int
-p_user_file_name (void)
-{
-  Term tout;
-  int sno = CheckStream (ARG1, Input_Stream_f | Output_Stream_f | Append_Stream_f,"user_file_name/2");
-  if (sno < 0)
-    return (FALSE);
-  tout = Stream[sno].u.file.user_name;
-  UNLOCK(Stream[sno].streamlock);
-  return (Yap_unify_constant (ARG2, tout));
-}
-
 
 static Term
 StreamPosition(int sno)
@@ -2689,77 +2610,6 @@ Yap_StreamToFileNo(Term t)
 }
 
 static Int
-p_same_file(void) {
-  char *f1 = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
-  char *f2 = RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE;
-
-  if (strcmp(f1,f2) == 0)
-    return TRUE;
-#if HAVE_LSTAT 
-  {
-    int out;
-    struct stat *b1, *b2;
-    while ((char *)H+sizeof(struct stat)*2 > (char *)(ASP-1024)) {
-      if (!Yap_gcl(2*sizeof(struct stat), 2, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
-	return FALSE;
-      }
-    }
-    b1 = (struct stat *)H;
-    b2 = b1+1;
-    if (strcmp(f1,"user_input") == 0) {
-      if (fstat(fileno(Stream[0].u.file.file), b1) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;
-      }
-    } else   if (strcmp(f1,"user_output") == 0) {
-      if (fstat(fileno(Stream[1].u.file.file), b1) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;    
-      }
-    } else   if (strcmp(f1,"user_error") == 0) {
-      if (fstat(fileno(Stream[2].u.file.file), b1) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;    
-      }
-    } else if (stat(f1, b1) == -1) {
-      /* file does not exist, but was opened? Return -1 */
-      return FALSE;
-    }
-    if (strcmp(f2,"user_input") == 0) {
-      if (fstat(fileno(Stream[0].u.file.file), b2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;
-      }
-    } else   if (strcmp(f2,"user_output") == 0) {
-      if (fstat(fileno(Stream[1].u.file.file), b2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;    
-      }
-    } else   if (strcmp(f2,"user_error") == 0) {
-      if (fstat(fileno(Stream[2].u.file.file), b2) == -1) {
-	/* file does not exist, but was opened? Return -1 */
-	return FALSE;    
-      }
-    } else if (stat(f2, b2) == -1) {
-      /* file does not exist, but was opened? Return -1 */
-      return FALSE;
-    }
-    out = (b1->st_ino == b2->st_ino
-#ifdef __LCC__
-	   && memcmp((const void *)&(b1->st_dev),(const void *)&(b2->st_dev),sizeof(buf1.st_dev)) == 0
-#else
-	   && b1->st_dev == b2->st_dev
-#endif
-		  );
-    return out;
-  }
-#else
-  return(FALSE);
-#endif
-}
-
-static Int
 p_float_format(void)
 {
   Term in = Deref(ARG1);
@@ -2831,10 +2681,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$user_file_name", 2, p_user_file_name, SafePredFlag|SyncPredFlag),
-  Yap_InitCPred ("$past_eof", 1, p_past_eof, SafePredFlag|SyncPredFlag),
-  Yap_InitCPred ("$has_bom", 1, p_has_bom, SafePredFlag);
-  Yap_InitCPred ("$stream_representation_error", 2, p_representation_error, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
@@ -2850,7 +2696,6 @@ Yap_InitIOPreds(void)
 #if HAVE_SELECT
   Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
-  Yap_InitCPred ("$same_file", 2, p_same_file, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 

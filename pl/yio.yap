@@ -247,7 +247,7 @@ at_end_of_line :-
 	at_end_of_line(S).
 
 at_end_of_line(S) :-
-	'$past_eof'(S), !.
+	current_stream(S, end_of_stream(past)), !.
 at_end_of_line(S) :-
 	peek(S,N), ( N = 10 -> true ; N = -1).
 
