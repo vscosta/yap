@@ -373,7 +373,27 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 			   PL_TERM, stream);
       break;
     }
-      
+    case ERR_FORMAT:
+    { const char *s = va_arg(args, const char*);
+      int rc;
+
+      rc = PL_unify_term(formal,
+			 PL_FUNCTOR_CHARS, "format", 1,
+			   PL_CHARS, s);
+      break;
+    }
+    case ERR_FORMAT_ARG:
+    { const char *s = va_arg(args, const char*);
+      term_t arg = va_arg(args, term_t);
+      int rc;
+
+      rc = PL_unify_term(formal,
+			 PL_FUNCTOR_CHARS, "format_argument_type", 2,
+			   PL_CHARS, s,
+			   PL_TERM, arg);
+      break;
+    }
+
   default:
     fprintf(stderr, "unimplemented SWI error %d\n",id);
     goto err_instantiation;

@@ -497,6 +497,7 @@ X_API void    STD_PROTO(YAP_UserCPredicateWithArgs,(char *,CPredicate,UInt,Term)
 X_API void    STD_PROTO(YAP_UserBackCutCPredicate,(char *,CPredicate,CPredicate,CPredicate,UInt,unsigned int));
 X_API void   *STD_PROTO(YAP_ExtraSpaceCut,(void));
 #endif
+X_API Term     STD_PROTO(YAP_SetCurrentModule,(Term));
 X_API Term     STD_PROTO(YAP_CurrentModule,(void));
 X_API Term     STD_PROTO(YAP_CreateModule,(Atom));
 X_API Term     STD_PROTO(YAP_StripModule,(Term, Term *));
@@ -3103,6 +3104,14 @@ X_API Term
 YAP_CurrentModule(void)
 {
   return(CurrentModule);
+} 
+
+X_API Term
+YAP_SetCurrentModule(Term new)
+{
+  Term omod = CurrentModule;
+  CurrentModule = new;
+  return omod;
 } 
 
 X_API Term

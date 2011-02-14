@@ -33,8 +33,6 @@
 	'$check_opt_read'(Opt, G).
 '$check_opt'(stream_property(_,_),Opt,G) :-
 	'$check_opt_sp'(Opt, G).
-'$check_opt'(write_term(_,_),Opt,G) :-
-	'$check_opt_write'(Opt, G).
 '$check_opt'(yap_flag(_,_),Opt,G) :-
 	'$check_opt_write'(Opt, G).
 
@@ -64,29 +62,6 @@
 '$check_opt_sp'(A, G) :-
 	'$do_error'(domain_error(stream_property,A),G).
 
-'$check_opt_write'(attributes(T), G) :- !,
-	'$check_write_attributes'(T, G).
-'$check_opt_write'(cycles(T), G) :- !,
-	'$check_boolean'(T, write_option, cycles(T), G).
-'$check_opt_write'(quoted(T), G) :- !,
-	'$check_boolean'(T, write_option, quoted(T), G).
-'$check_opt_write'(ignore_ops(T), G) :- !,
-	'$check_boolean'(T, write_option, ignore_ops(T), G).
-'$check_opt_write'(max_depth(T), G) :- !,
-	'$check_write_max_depth'(T, G).
-'$check_opt_write'(numbervars(T), G) :- !,
-	'$check_boolean'(T, write_option, ignore_ops(T), G).
-'$check_opt_write'(portrayed(T), G) :- !,
-	'$check_boolean'(T, write_option, portrayed(T), G).
-'$check_opt_write'(portray(T), G) :- !,
-	'$check_boolean'(T, write_option, portray(T), G).
-'$check_opt_write'(priority(T), G) :- !,
-	'$check_priority_arg'(T, G).
-'$check_opt_write'(swi(T), G) :- !,
-	'$check_boolean'(T, write_option, swi(T), G).
-'$check_opt_write'(A, G) :-
-	'$do_error'(domain_error(write_option,A),G).
-
 '$check_read_syntax_errors_arg'(X, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
 '$check_read_syntax_errors_arg'(dec10,_) :- !.
@@ -96,33 +71,12 @@
 '$check_read_syntax_errors_arg'(X,G) :-
 	'$do_error'(domain_error(read_option,syntax_errors(X)),G).
 
-'$check_write_attributes'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_write_attributes'(ignore,_) :- !.
-'$check_write_attributes'(dots,_) :- !.
-'$check_write_attributes'(write,_) :- !.
-'$check_write_attributes'(portray,_) :- !.
-'$check_write_attributes'(X,G) :-
-	'$do_error'(domain_error(write_option,attributes(X)),G).
-
 '$check_boolean'(X, _, _, G) :- var(X), !,
 	'$do_error'(instantiation_error,G).
 '$check_boolean'(true,_,_,_) :- !.
 '$check_boolean'(false,_,_,_) :- !.
 '$check_boolean'(X,B,T,G) :-
 	'$do_error'(domain_error(B,T),G).
-
-'$check_write_max_depth'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_write_max_depth'(I,_) :- integer(I), I >= 0, !.
-'$check_write_max_depth'(X,G) :-
-	'$do_error'(domain_error(write_option,max_depth(X)),G).
-
-'$check_priority_arg'(X, G) :- var(X), !,
-	'$do_error'(instantiation_error,G).
-'$check_priority_arg'(I,_) :- integer(I), I >= 0, I =< 1200, !.
-'$check_priority_arg'(X,G) :-
-	'$do_error'(domain_error(write_option,priority(X)),G).
 
 open_pipe_streams(Read, Write) :-
 	(
@@ -360,18 +314,18 @@ write_depth(T,L) :- write_depth(T,L,_).
 
 stream_position_data(Prop, Term, Value) :-
         nonvar(Prop), !,
-        (   stream_position_field(Prop, Pos)
+        (   '$stream_position_field'(Prop, Pos)
         ->  arg(Pos, Term, Value)
         ;   throw(error(domain_error(stream_position_data, Prop)))
         ).
 stream_position_data(Prop, Term, Value) :-
-        stream_position_field(Prop, Pos),
+        '$stream_position_field'(Prop, Pos),
         arg(Pos, Term, Value).
 
-stream_position_field(char_count,    1).
-stream_position_field(line_count,    2).
-stream_position_field(line_position, 3).
-stream_position_field(byte_count,    4).
+'$stream_position_field'(char_count,    1).
+'$stream_position_field'(line_count,    2).
+'$stream_position_field'(line_position, 3).
+'$stream_position_field'(byte_count,    4).
 
 
 '$default_expand'(Expand) :-

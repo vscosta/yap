@@ -320,12 +320,29 @@ word
 pl_format3(term_t out, term_t format, term_t args)
 { redir_context ctx;
   word rc;
+#if __YAP_PROLOG__
+  /*
+    YAP allows the last argument to format to be of the form
+    module:[]
+  */
+  YAP_Term mod;
+#endif    
 
-  if ( (rc=setupOutputRedirect(out, &ctx, FALSE)) )
-  { if ( (rc = format_impl(ctx.stream, format, args)) )
-      rc = closeOutputRedirect(&ctx);
-    else
+  if ( (rc=setupOutputRedirect(out, &ctx, FALSE)) ) {
+#if __YAP_PROLOG__
+    /* module processing */
+    {
+      args = Yap_fetch_module_for_format(args, &mod);
+    }
+#endif    
+    { if ( (rc = format_impl(ctx.stream, format, args)) )
+	rc = closeOutputRedirect(&ctx);
+      else
       discardOutputRedirect(&ctx);
+    }
+#if __YAP_PROLOG__
+    YAP_SetCurrentModule(mod);
+#endif    
   }
 
   return rc;

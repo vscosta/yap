@@ -50,6 +50,25 @@ typedef struct
 	} value;
 } number, *Number;
 
+#define TOINT_CONVERT_FLOAT     0x1     /* toIntegerNumber() */
+#define TOINT_TRUNCATE          0x2
+
+#ifdef O_GMP
+#define intNumber(n)    ((n)->type <=  V_MPZ)
+#else
+#define intNumber(n)    ((n)->type <  V_FLOAT)
+#endif
+#define floatNumber(n)  ((n)->type >= V_FLOAT)
+
+typedef enum
+{ NUM_ERROR = FALSE,                    /* Syntax error */
+  NUM_OK    = TRUE,                     /* Ok */
+  NUM_FUNDERFLOW = -1,                  /* Float underflow */
+  NUM_FOVERFLOW = -2,                   /* Float overflow */
+  NUM_IOVERFLOW = -3                    /* Integer overflow */
+} strnumstat;
+
+
 #define Arg(N)  (PL__t0+((n)-1))
 #define A1      (PL__t0)
 #define A2      (PL__t0+1)

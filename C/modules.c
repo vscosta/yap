@@ -273,7 +273,7 @@ Yap_StripModule(Term t,  Term *modp)
  restart:
   if (IsVarTerm(t)) {
     return 0L;
-  } else if (IsAtomTerm(t)) {
+  } else if (IsAtomTerm(t) || IsPairTerm(t)) {
     *modp = tmod;
     return t;
   } else if (IsApplTerm(t)) {

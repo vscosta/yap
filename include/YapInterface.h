@@ -465,7 +465,10 @@ extern X_API void  PROTO(YAP_PredicateInfo,(void *,YAP_Atom *,YAP_Arity*,YAP_Mod
 /*  int  YAP_CurrentModule()  */
 extern X_API YAP_Module  PROTO(YAP_CurrentModule,(void));
 
-/*  int  YAP_CurrentModule()  */
+/*  int  YAP_SetCurrentModule()  */
+extern X_API YAP_Module  PROTO(YAP_SetCurrentModule,(YAP_Module));
+
+/*  int  YAP_CreateModule()  */
 extern X_API YAP_Module  PROTO(YAP_CreateModule,(YAP_Atom));
 
 /*  int  YAP_StripModule()  */

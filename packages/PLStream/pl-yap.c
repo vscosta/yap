@@ -147,9 +147,39 @@ callProlog(module_t module, term_t goal, int flags, term_t *ex)
   }
 }
 
+extern YAP_Term Yap_InnerEval(YAP_Term t);
+
+inline static YAP_Term
+Yap_Eval(YAP_Term t)
+{
+  if (t == 0L || ( !YAP_IsVarTerm(t) && (YAP_IsIntTerm(t) || YAP_IsFloatTerm(t)) ))
+    return t;
+  return Yap_InnerEval(t);
+}
+
+
 int
 valueExpression(term_t t, Number r ARG_LD)
-{ //return YAP__expression(t, r, 0 PASS_LD);
+{
+  YAP_Term t0 = Yap_Eval(YAP_GetFromSlot(t));
+  if (YAP_IsIntTerm(t0)) {
+    r->type = V_INTEGER;
+    r->value.i = YAP_IntOfTerm(t0);
+    return 1;
+  }
+  if (YAP_IsFloatTerm(t0)) {
+    r->type = V_FLOAT;
+    r->value.f = YAP_FloatOfTerm(t0);
+    return 1;
+  }
+#ifdef O_GMP
+  if (YAP_IsBigNumTerm(t0)) {
+    r->type = V_MPZ;
+    mpz_init(&r->value.mpz);
+    YAP_BigNumOfTerm(t0, &r->value.mpz);
+    return 1;
+  }
+#endif
   return 0;
 }
 
@@ -166,10 +196,21 @@ Note that if a double is  out  of   range  for  int64_t,  it never has a
 fractional part.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
+static int
+double_in_int64_range(double x)
+{ int k;
+  double y = frexp(x, &k);
+
+  if ( k < 8*(int)sizeof(int64_t) ||
+       (y == -0.5 && k == 8*(int)sizeof(int64_t)) )
+    return TRUE;
+
+  return FALSE;
+}
+
 int
 toIntegerNumber(Number n, int flags)
 { 
-#if SWI_PROLOG
 switch(n->type)
   { case V_INTEGER:
       succeed;
@@ -185,7 +226,7 @@ switch(n->type)
       }
       fail;
 #endif
-    case V_REAL:
+    case V_FLOAT:
       if ( (flags & TOINT_CONVERT_FLOAT) )
       { if ( double_in_int64_range(n->value.f) )
 	{ int64_t l = (int64_t)n->value.f;
@@ -209,7 +250,6 @@ switch(n->type)
       }
       return FALSE;
   }
-#endif
   assert(0);
   fail;
 } 
@@ -824,6 +864,17 @@ extern size_t PL_utf8_strlen(const char *s, size_t len);
 X_API size_t
 PL_utf8_strlen(const char *s, size_t len)
 { return utf8_strlen(s, len);
+}
+
+term_t
+Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
+  YAP_Term nmod;
+  YAP_Term nt = YAP_StripModule(YAP_GetFromSlot(args), &nmod);
+  *modp = YAP_SetCurrentModule(nmod);
+  if (!nt) {
+    return args;
+  }
+  return YAP_InitSlot(nt);
 }
 
 #define COUNT_MUTEX_INITIALIZER(name) \

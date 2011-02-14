@@ -1554,3 +1554,8 @@ telling(File) :-
 	swi_telling(File).
 told :-
 	swi_told.
+
+format(Command, Args) :-
+	swi_format(Command, Args).
+format(Stream, Command, Args) :-
+	swi_format(Stream, Command, Args).

@@ -248,7 +248,6 @@ use_module(M,F,Is) :-
 	'$file_name'(Stream,File),
 	'$fetch_stream_alias'(OldStream,'$loop_stream'),
 	set_stream(Stream,alias('$loop_stream')),
-	format('this~n',[]),
 	nb_getval('$consulting',Old),
 	nb_setval('$consulting',false),
 	'$access_yap_flags'(18,GenerateDebug),
