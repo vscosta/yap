@@ -956,9 +956,6 @@ has_cut(yamop *pc)
     case _Nstop:
       return FALSE;
       /* instructions type ld */
-    case _cut:
-    case _cut_t:
-    case _cut_e:
     case _p_cut_by_y:
     case _p_cut_by_x:
     case _commit_b_y:
@@ -1380,6 +1377,9 @@ has_cut(yamop *pc)
       pc = NEXTOP(pc,ofa);
       break;
       /* instructions type s */
+    case _cut:
+    case _cut_t:
+    case _cut_e:
     case _write_n_voids:
     case _pop_n:
 #ifdef TABLING
