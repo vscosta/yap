@@ -104,8 +104,6 @@ STATIC_PROTO (int PlUnGetc, (int));
 STATIC_PROTO (Term MkStream, (int));
 STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_close, (void));
-STATIC_PROTO (Int p_set_input, (void));
-STATIC_PROTO (Int p_set_output, (void));
 STATIC_PROTO (Int p_current_input, (void));
 STATIC_PROTO (Int p_current_output, (void));
 STATIC_PROTO (Int p_write, (void));
@@ -1816,28 +1814,6 @@ p_peek (void)
 }
 
 static Int
-p_set_input (void)
-{				/* '$set_input'(+Stream,-ErrorMessage)   */
-  Int sno = CheckStream (ARG1, Input_Stream_f, "set_input/1");
-  if (sno < 0)
-    return (FALSE);
-  Yap_c_input_stream = sno;
-  UNLOCK(Stream[sno].streamlock);
-  return TRUE;
-}
-
-static Int
-p_set_output (void)
-{				/* '$set_output'(+Stream,-ErrorMessage)  */
-  Int sno = CheckStream (ARG1, Output_Stream_f, "set_output/1");
-  if (sno < 0)
-    return FALSE;
-  Yap_c_output_stream = sno;
-  UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
-}
-
-static Int
 p_has_bom (void)
 {				/* '$set_output'(+Stream,-ErrorMessage)  */
   Int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "has_bom/1");
@@ -2667,26 +2643,6 @@ p_set_stream_position (void)
   }
   UNLOCK(Stream[sno].streamlock);
   return (TRUE);
-}
-
-static Int
-p_get (void)
-{				/* '$get'(Stream,-N)                     */
-  int sno = CheckStream (ARG1, Input_Stream_f, "get/2");
-  int ch;
-  Int status;
-
-  if (sno < 0)
-    return FALSE;
-  status = Stream[sno].status;
-  if (status & Binary_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get/2");
-    return FALSE;
-  }
-  UNLOCK(Stream[sno].streamlock);
-  while ((ch = Stream[sno].stream_wgetc(sno)) <= 32 && ch >= 0);
-  return (Yap_unify_constant (ARG2, MkIntegerTerm (ch)));
 }
 
 static Term
@@ -4273,8 +4229,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-  Yap_InitCPred ("$set_input", 1, p_set_input, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$set_output", 1, p_set_output, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$skip", 2, p_skip, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write", 2, p_write, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$write", 3, p_write2, SyncPredFlag|HiddenPredFlag);

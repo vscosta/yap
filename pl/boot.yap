@@ -92,8 +92,8 @@ true :- true.
 %	'$startup_saved_state',
 	'$startup_reconsult',
 	'$startup_goals',
-	'$set_input'(user_input),
-	'$set_output'(user_output),
+	set_input(user_input),
+	set_output(user_output),
 	'$init_or_threads',
 	'$run_at_thread_start'.
 
@@ -1058,7 +1058,8 @@ break :-
 	set_value('$live','$true'),
 	b_setval('$spy_glist',GList),
 	nb_setval('$spy_gn',SPY_GN),
-	'$set_input'(InpStream), '$set_output'(OutStream),
+	set_input(InpStream), 
+	set_output(OutStream),
 	'$debug_on'(Debug),
 	nb_setval('$debug_jump',Jump),
 	nb_setval('$debug_run',Run),
@@ -1438,6 +1439,10 @@ flush_output(Stream) :-
 ttyflush :-
 	swi_ttyflush.
 
+set_input(Stream) :-
+	swi_set_input(Stream).
+set_output(Stream) :-
+	swi_set_output(Stream).
 
 get(C) :-
 	swi_get(C).
