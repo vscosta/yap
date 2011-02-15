@@ -60,6 +60,8 @@ static char StartUpFile[] = "startup.yss";
 
 static char end_msg[256] ="*** End of YAP saved state *****";
 
+/* SWI IO, must be restarted after restore */
+void initIO(void);
 
 #ifdef DEBUG
 

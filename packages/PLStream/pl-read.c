@@ -15,6 +15,8 @@ init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 { 
   _PL_rd->varnames = 0;
   _PL_rd->stream = in;
+  _PL_rd->has_exception = 0;
+  _PL_rd->exception = 0;
 }
 
 static void

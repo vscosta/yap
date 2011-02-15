@@ -3687,7 +3687,7 @@ stream_close_on_exec_prop(IOSTREAM *s, term_t prop ARG_LD)
 
 typedef struct
 { functor_t functor;			/* functor of property */
-  int (*function)();			/* function to generate */
+  int (*function)();	/* function to generate */
 } sprop;
 
 

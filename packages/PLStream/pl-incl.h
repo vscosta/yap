@@ -1064,6 +1064,8 @@ PL_EXPORT(int)		PL_get_file_nameW(term_t n, wchar_t **name, int flags);
 
 COMMON(int) 		unifyTime(term_t t, time_t time);
 
+COMMON(char)		digitName(int n, int small);
+
 /**** stuff from pl-utf8.c ****/
 size_t utf8_strlen(const char *s, size_t len);
 
@@ -1099,6 +1101,8 @@ COMMON(int) 		numberVars(term_t t, nv_options *opts, int n ARG_LD);
 
 COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 						 int wide, CVT_result *status);
+
+COMMON(int)		uflagsW(int code);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)

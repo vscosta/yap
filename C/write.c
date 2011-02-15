@@ -422,7 +422,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
   }
 #endif
   if (IsBlob(atom)) {
-    wrputref(RepAtom(atom),1,writewch);
+    wrputref((CODEADDR)RepAtom(atom),1,writewch);
     return;
   }
   if (IsWideAtom(atom)) {
