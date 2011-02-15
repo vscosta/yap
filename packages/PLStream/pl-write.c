@@ -1087,20 +1087,22 @@ writeTerm2(term_t t, int prec, write_options *options, bool arg)
 
       _PL_get_arg(1, t, arg);
 #if __YAP_PROLOG__
-      if ( PL_get_integer(arg, &n) && n == -1 )
-      { char buf[16];
-
-	buf[0] = '_';
-	buf[1] = EOS;
-
-	return PutToken(buf, out);
-      }
+      /* YAP supports $VAR(-1) as a quick hack to write singleton variables */
+#define MIN_DOLLAR_VAR -1
+#else
+#define MIN_DOLLAR_VAR 0      
 #endif
-      if ( PL_get_integer(arg, &n) && n >= 0 )
+      if ( PL_get_integer(arg, &n) && n >= MIN_DOLLAR_VAR )
       { int i = n % 26;
 	int j = n / 26;
 	char buf[16];
 
+#if __YAP_PROLOG__
+	if ( n == -1 ) {
+	  buf[0] = '_';
+	  buf[1] = EOS;
+	} else
+#endif
 	if ( j == 0 )
 	{ buf[0] = i+'A';
 	  buf[1] = EOS;
