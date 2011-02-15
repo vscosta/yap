@@ -806,9 +806,9 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	assert(user:commons_directory(D)),
 	fail.
 '$find_in_path'(S, Opts, NewFile, Call) :-
-	S =.. [Name,File0], !,
+	S =.. [Name,File0],
+	'$cat_file_name'(File0,File), !,
 	'$dir_separator'(D),
-	'$cat_file_name'(File0,File),
 	atom_codes(A,[D]),
 	'$extend_path_directory'(Name, A, File, Opts, NewFile, Call).
 '$find_in_path'(File0,Opts,NewFile,_) :-
@@ -823,9 +823,18 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$cat_file_name'(File0,File) :-
 	atom(File0), !,
 	File = File0.
-'$cat_file_name'(File0,File) :-
-	ground(File0),
-	format(atom(File), '~w', [File0]).
+'$cat_file_name'(Atoms, File) :-
+	'$to_list_of_atoms'(Atoms, List, []),
+	atom_concat(List, File).
+
+'$to_list_of_atoms'(V, _, _) :- var(V), !, fail.
+'$to_list_of_atoms'(Atom, [Atom|L], L) :- atom(Atom), !.
+'$to_list_of_atoms'(Atoms, L1, LF) :-
+	Atoms =.. [A,As,Bs],
+	atom_codes(A,[D]),
+	'$dir_separator'(D),
+	'$to_list_of_atoms'(As, L1, [A|L2]),
+	'$to_list_of_atoms'(Bs, L2, LF).
 
 '$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
 	operating_system_support:true_file_name(File,D0,AbsFile).
@@ -897,14 +906,18 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 '$extend_pathd'(Dir, A, File, Opts, NewFile, Call) :-
 	atom(Dir), !,
-	atom_concat([Dir,A,File],NFile),
+	'$add_file_to_dir'(Dir,A,File,NFile),
 	'$find_in_path'(NFile, Opts, NewFile, Goal), !.
 '$extend_pathd'(Name, A, File, Opts, OFile, Goal) :-
 	nonvar(Name),
 	Name =.. [N,P0],
-	atom_concat([P0,A,File],NFile),
+	'$add_file_to_dir'(P0,A,File,NFile),
 	NewName =.. [N,NFile],
 	'$find_in_path'(NewName, Opts, OFile, Goal).
+
+'$add_file_to_dir'(P0,A,Atoms,NFile) :-
+	atom_concat([P0,A,Atoms],NFile).
+
 
 %
 % This is complicated because of embedded ifs.
