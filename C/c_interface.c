@@ -534,12 +534,6 @@ X_API Int      STD_PROTO(YAP_NumberOfClausesForPredicate,(PredEntry *));
 X_API int      STD_PROTO(YAP_MaxOpPriority,(Atom, Term));
 X_API int      STD_PROTO(YAP_OpInfo,(Atom, Term, int, int *, int *));
 
-static int (*do_getf)(void);
-
-static int do_yap_getc(int streamno) {
-  return(do_getf());
-}
-
 static int (*do_putcf)(wchar_t);
 
 static int do_yap_putc(int streamno,wchar_t ch) {
@@ -1539,7 +1533,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     struct open_query_struct *oexec = execution;
-    extern PL_close_foreign_frame(struct open_query_struct *);
+    extern void PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
     ctx->control = FRG_FIRST_CALL;
@@ -1599,7 +1593,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     struct open_query_struct *oexec = execution;
-    extern PL_close_foreign_frame(struct open_query_struct *);
+    extern void PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
     ctx->control = FRG_CUTTED;
@@ -1654,7 +1648,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     struct open_query_struct *oexec = execution;
-    extern PL_close_foreign_frame(struct open_query_struct *);
+    extern void PL_close_foreign_frame(struct open_query_struct *);
     
     PP = pe;
     ctx->control = FRG_REDO;
@@ -2429,7 +2423,6 @@ X_API Term
 YAP_Read(IOSTREAM *inp)
 {
   Term t, tpos = TermNil;
-  int sno;
   TokEntry *tokstart;
   
   BACKUP_MACHINE_REGS();
@@ -2523,28 +2516,10 @@ YAP_CompileClause(Term t)
 static int eof_found = FALSE;
 static int yap_lineno = 0;
 
-static FILE *bootfile;
+static IOSTREAM *bootfile;
 
 static char InitFile[] = "init.yap";
 static char BootFile[] = "boot.yap";
-
-static int
-mygetc (void)
-{
-  int ch;
-  if (eof_found)
-    return EOF;
-  ch = getc (bootfile);
-  if (ch == EOF)
-    eof_found = TRUE;
-  if (ch == '\n') {
-#ifdef MPW
-    ch = 10;
-#endif
-    yap_lineno++;
-  }
-  return ch;
-}
 
 /* do initial boot by consulting the file boot.yap */
 static void
@@ -2593,7 +2568,7 @@ do_bootfile (char *bootfilename)
       else if (YAP_IsPairTerm (t))
         {
 	  fprintf(stderr, "[ SYSTEM ERROR: consult not allowed in boot file ]\n");
-	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, fseek(bootfile,0L,SEEK_CUR));
+	  fprintf(stderr, "error found at line %d and pos %d", yap_lineno, Sseek(bootfile,0L,SEEK_CUR));
 	}
       else if (YAP_IsApplTerm (t) && FunctorOfTerm (t) == functor_query) 
 	{ 
@@ -3020,7 +2995,7 @@ YAP_FlushAllStreams(void)
 {
   BACKUP_H();
 
-  Yap_FlushStreams();
+  // VSC??  Yap_FlushStreams();
 
   RECOVER_H();
 }
@@ -3333,6 +3308,7 @@ YAP_FileNoFromStream(Term t)
  if (IsVarTerm(t))
    return -1;
  return Yap_StreamToFileNo(t);
+ return -1;
 }
 
 X_API void *
@@ -3343,6 +3319,7 @@ YAP_FileDescriptorFromStream(Term t)
   if (IsVarTerm(t))
     return NULL;
   return Yap_FileDescriptorFromStream(t);
+  return NULL;
 }
 
 X_API void *

@@ -2781,11 +2781,44 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
   return out;
 }
 
+extern atom_t 		fileNameStream(IOSTREAM *s);
+extern Atom 		Yap_FileName(IOSTREAM *s);
+
 Atom 
 Yap_FileName(IOSTREAM *s)
 {
   atom_t a = fileNameStream(s);
   return SWIAtomToAtom(a);
+}
+
+extern void closeFiles(int);
+
+void
+Yap_CloseStreams(int loud)
+{
+  closeFiles(FALSE);
+}
+
+int Yap_StreamToFileNo(Term t) {
+  IOSTREAM *s;
+  int rc;
+
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
+    return Sfileno(s);
+  }
+  return -1;
+}
+
+FILE *Yap_FileDescriptorFromStream(Term t)
+{
+  IOSTREAM *s;
+  int rc;
+
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
+    fprintf(stderr,"Unimplemented\n");
+    //    return Sfileno(s);
+  }
+  return -1;
 }
 
 #ifdef _WIN32

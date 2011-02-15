@@ -85,24 +85,6 @@ static char SccsId[] = "%W% %G%";
 #include "iopreds.h"
 
 STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
-STATIC_PROTO (int FilePutc, (int, int));
-STATIC_PROTO (int console_post_process_read_char, (int, StreamDesc *));
-STATIC_PROTO (int console_post_process_eof, (StreamDesc *));
-STATIC_PROTO (int post_process_read_char, (int, StreamDesc *));
-STATIC_PROTO (int post_process_eof, (StreamDesc *));
-STATIC_PROTO (int ConsolePutc, (int, int));
-STATIC_PROTO (int PlGetc, (int));
-STATIC_PROTO (int DefaultGets, (int,UInt,char*));
-STATIC_PROTO (int PlGets, (int,UInt,char*));
-STATIC_PROTO (int ISOWGetc, (int));
-STATIC_PROTO (int ConsoleGetc, (int));
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-STATIC_PROTO (int ReadlineGetc, (int));
-STATIC_PROTO (int ReadlinePutc, (int,int));
-#endif
-STATIC_PROTO (int PlUnGetc, (int));
-STATIC_PROTO (Term MkStream, (int));
-STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
@@ -110,163 +92,20 @@ STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
-STATIC_PROTO (void CloseStream, (int));
-STATIC_PROTO (int get_wchar, (int));
-STATIC_PROTO (int put_wchar, (int,wchar_t));
 STATIC_PROTO (Term StreamPosition, (IOSTREAM *));
 
-static encoding_t
-DefaultEncoding(void)
-{
-  char *s = getenv("LANG");
-  size_t sz;
+extern Atom Yap_FileName(IOSTREAM *s);
 
-  /* if we don't have a LANG then just use ISO_LATIN1 */
-  if (s == NULL)
-    s = getenv("LC_CTYPE");
-  if (s == NULL)
-    return ENC_ISO_LATIN1;
-  sz = strlen(s);
-  if (sz >= 5) {
-    if (s[sz-5] == 'U' &&
-	s[sz-4] == 'T' &&
-	s[sz-3] == 'F' &&
-	s[sz-2] == '-' &&
-	s[sz-1] == '8') {
-      return ENC_ISO_UTF8;
-    }
-  }
-  return ENC_ISO_ANSI;
+static Term
+StreamName(IOSTREAM *s)
+{
+  return MkAtomTerm(Yap_FileName(s));
 }
 
-static void
-unix_upd_stream_info (StreamDesc * s)
-{
-#if _MSC_VER  || defined(__MINGW32__)
-  {
-    if (
-	_isatty(_fileno(s->u.file.file))
-	) {
-      s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
-      /* make all console descriptors unbuffered */
-      setvbuf(s->u.file.file, NULL, _IONBF, 0);
-      return;
-    }
-#if _MSC_VER
-    /* standard error stream should never be buffered */
-    else if (StdErrStream == s-Stream) {
-      setvbuf(s->u.file.file, NULL, _IONBF, 0);      
-    }
-#endif
-    s->status |= Seekable_Stream_f;
-    return;
-  }
-#else
-#if HAVE_ISATTY
-#if __simplescalar__
-  /* isatty does not seem to work with simplescar. I'll assume the first
-     three streams will probably be ttys (pipes are not thatg different) */
-  if (s-Stream < 3) {
-    s->u.file.name = AtomTty;
-    s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
-  }
-#else 
-  {
-    int filedes; /* visualc */
-    filedes = YP_fileno (s->u.file.file);
-    if (isatty (filedes)) {
-#if HAVE_TTYNAME      
-	char *ttys = ttyname(filedes);
-	if (ttys == NULL)
-	  s->u.file.name = AtomTty;
-	else
-	  s->u.file.name = AtomTtys;
-#else
-	s->u.file.name = AtomTty;
-#endif
-	s->status |= Tty_Stream_f|Reset_Eof_Stream_f|Promptable_Stream_f;
-	return;
-    }
-  }
-#endif
-#endif /* HAVE_ISATTY */
-#endif /* _MSC_VER */
-  s->status |= Seekable_Stream_f;
-}
-
-static Int
-p_always_prompt_user(void)
-{
-  StreamDesc *s = Stream+StdInStream;
-
-  s->status |= Promptable_Stream_f;
-  s->stream_gets = DefaultGets;
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-     if (s->status & Tty_Stream_f) {
-       s->stream_getc = ReadlineGetc;
-       if (Stream[0].status & Tty_Stream_f &&
-	   s->u.file.name == Stream[0].u.file.name)
-	 s->stream_putc = ReadlinePutc;
-	 s->stream_wputc = put_wchar;
-     } else
-#endif
-       {
-	 /* else just PlGet plus checking for prompt */
-	 s->stream_getc = ConsoleGetc;
-       }
-  return(TRUE);
-}
-
-static int
-GetFreeStreamD(void)
-{
-  int sno;
-
-  for (sno = 0; sno < MaxStreams; ++sno) {
-    LOCK(Stream[sno].streamlock);
-    if (Stream[sno].status & Free_Stream_f) {
-      break;
-    }
-    UNLOCK(Stream[sno].streamlock);
-  }
-  if (sno == MaxStreams) {
-    return -1;
-  }
-  Stream[sno].encoding = DefaultEncoding();
-  return sno;
-}
-
-static int
-is_same_tty(YP_File f1, YP_File f2)
-{
-#if HAVE_TTYNAME
-  return(ttyname(YP_fileno(f1)) == ttyname(YP_fileno(f2)));
-#else
-  return(TRUE);
-#endif  
-}
-
-static GetsFunc
-PlGetsFunc(void)
-{
-  if (CharConversionTable)
-      return DefaultGets;
-    else
-      return PlGets;
-}
-
-static void
-InitStdStreams (void)
-{
-  Yap_c_input_stream = StdInStream;
-  Yap_c_output_stream = StdOutStream;
-  Yap_c_error_stream = StdErrStream;
-}
 
 void
 Yap_InitStdStreams (void)
 {
-  InitStdStreams();
 }
 
 static void
@@ -278,7 +117,6 @@ InitPlIO (void)
     INIT_LOCK(Stream[i].streamlock);    
     Stream[i].status = Free_Stream_f;
   }
-  InitStdStreams();
 }
 
 void
@@ -305,66 +143,6 @@ PlIOError (yap_error_number type, Term culprit, char *who)
  * prompt should be output, or if we are in the middle of a line.
  */
 static int newline = TRUE;
-
-static void
-count_output_char(int ch, StreamDesc *s)
-{
-  if (ch == '\n')
-    {
-#if MPWSHELL
-      if (mpwshell && (sno == StdOutStream || sno ==
-		       StdErrStream))
-	{
-	  putc (MPWSEP, s->u.file.file);
-	  fflush (stdout);
-	}
-#endif
-      /* Inform that we have written a newline */
-      ++s->charcount;
-      ++s->linecount;
-      s->linepos = 0;
-    }
-  else {
-#if MAC
-    if ((sno == StdOutStream || sno == StdErrStream)
-	&& s->linepos > 200)
-      sno->stream_putc(sno, '\n');
-#endif
-    ++s->charcount;
-    ++s->linepos;
-  }
-}
-
-static void
-console_count_output_char(int ch, StreamDesc *s)
-{
-  if (ch == '\n')
-    {
-#if MPWSHELL
-      if (mpwshell && (sno == StdOutStream || sno ==
-		       StdErrStream))
-	{
-	  putc (MPWSEP, s->u.file.file);
-	  fflush (stdout);
-	}
-#endif
-      ++s->charcount;
-      ++s->linecount;
-      s->linepos = 0;
-      newline = TRUE;
-      /* Inform we are not at the start of a newline */
-    }
-  else {
-    newline = FALSE;
-#if MAC
-    if ((sno == StdOutStream || sno == StdErrStream)
-	&& s->linepos > 200)
-      sno->stream_putc(sno, '\n');
-#endif
-    ++s->charcount;
-    ++s->linepos;
-  }
-}
 
 #ifdef DEBUG
 
@@ -452,251 +230,16 @@ Yap_DebugPlWrite(Term t)
   Yap_plwrite(t, Yap_DebugPutc, 0, 1200);
 }
 
-void
-Yap_PlWriteToStream(Term t, int sno, int flags)
-{
-  Yap_plwrite(t, Stream[sno].stream_wputc, flags, 1200);
-}
-
 void 
 Yap_DebugErrorPutc(int c)
 {
-  Yap_DebugPutc (Yap_c_error_stream, c);
+   Yap_DebugPutc (Yap_c_error_stream, c);
 }
 
 #endif
 
-/* static */
-static int
-FilePutc(int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      ch = '\n';
-    }
-#endif
-  putc(ch, s->u.file.file);
-#if MAC || _MSC_VER
-  if (ch == 10)
-    {
-      fflush(s->u.file.file);
-    }
-#endif
-  count_output_char(ch,s);
-  return ((int) ch);
-}
-
-/* static */
-static int
-IOSWIPutc(int sno, int ch)
-{
-  int i;
-  Yap_StartSlots();
-  i = (SWIPutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
-  Yap_CloseSlots();
-  YENV = ENV;
-  return i;
-}
-
-/* static */
-static int
-IOSWIGetc(int sno)
-{
-  int ch;
-  Yap_StartSlots();
-  ch = (SWIGetc)(Stream[sno].u.swi_stream.swi_ptr);
-  if (ch == EOF) {
-    return post_process_eof(Stream+sno);    
-  }
-  return post_process_read_char(ch, Stream+sno);
-  Yap_CloseSlots();
-  YENV = ENV;
-  return ch;
-}
-
-/* static */
-static int
-IOSWIWidePutc(int sno, int ch)
-{
-  int i;
-  Yap_StartSlots();
-  i = (SWIWidePutc)(ch, Stream[sno].u.swi_stream.swi_ptr);
-  Yap_CloseSlots();
-  YENV = ENV;
-  return i;
-}
-
-/* static */
-static int
-IOSWIWideGetc(int sno)
-{
-  int ch;
-  Yap_StartSlots();
-  ch = (SWIWideGetc)(Stream[sno].u.swi_stream.swi_ptr);
-  if (ch == EOF) {
-    return post_process_eof(Stream+sno);    
-  }
-  return post_process_read_char(ch, Stream+sno);
-  Yap_CloseSlots();
-  YENV = ENV;
-  return ch;
-}
 
 
-/* static */
-static int
-ConsolePutc (int sno, int ch)
-{
-  StreamDesc *s = &Stream[sno];
-#if MAC || _MSC_VER || defined(__MINGW32__)
-  if (ch == 10)
-    {
-      putc ('\n', s->u.file.file);
-    }
-  else
-#endif
-    putc (ch, s->u.file.file);
-  console_count_output_char(ch,s);
-  return ((int) ch);
-}
-
-static Int
-p_is_same_tty (void)
-{				/* 'prompt(Atom)                 */
-  int sni = CheckStream (ARG1, Input_Stream_f, "put/2");
-  int sno = CheckStream (ARG2, Output_Stream_f, "put/2");
-  int out = (Stream[sni].status & Tty_Stream_f) &&
-    (Stream[sno].status & Tty_Stream_f) &&
-    is_same_tty(Stream[sno].u.file.file,Stream[sni].u.file.file);
-  UNLOCK(Stream[sno].streamlock);
-  UNLOCK(Stream[sni].streamlock);
-  return out;
-}
-
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-
-#include <readline/readline.h>
-#include <readline/history.h>
-
-static char *ttyptr = NULL;
-
-static char *myrl_line = (char *) NULL;
-
-static int cur_out_sno = 2;
-
-#define READLINE_OUT_BUF_MAX 256
-
-static void
-InitReadline(void) {
-  ReadlineBuf = (char *)Yap_AllocAtomSpace(READLINE_OUT_BUF_MAX+1);
-  ReadlinePos = ReadlineBuf;
-#if _MSC_VER || defined(__MINGW32__)
-  rl_instream = stdin;
-  rl_outstream = stdout;
-#endif
-}
-
-static int
-ReadlinePutc (int sno, int ch)
-{
-  if (ReadlinePos != ReadlineBuf &&
-      (ReadlinePos - ReadlineBuf == READLINE_OUT_BUF_MAX-1 /* overflow */ ||
-#if MAC || _MSC_VER
-       ch == 10 ||
-#endif
-       ch == '\n')) {
-#if MAC || _MSC_VER
-    if (ch == 10)
-      {
-	ch = '\n';
-      }
-#endif
-    if (ch == '\n') {
-      ReadlinePos[0] = '\n';
-      ReadlinePos++;
-    }
-    ReadlinePos[0] = '\0';
-    fputs( ReadlineBuf, Stream[sno].u.file.file);
-    ReadlinePos = ReadlineBuf;
-    if (ch == '\n') {
-      console_count_output_char(ch,Stream+sno);
-      return((int) '\n');
-    }
-  }
-  *ReadlinePos++ = ch;
-  console_count_output_char(ch,Stream+sno);
-  return ((int) ch);
-}
-
-/*
-  reading from the console is complicated because we need to
-  know whether to prompt and so on... 
-*/
-static int
-ReadlineGetc(int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  register wchar_t ch;
-
-  while (ttyptr == NULL) {
-    /* Only sends a newline if we are at the start of a line */
-    if (myrl_line) {
-      free (myrl_line);
-      myrl_line = NULL;
-    }
-    rl_instream = Stream[sno].u.file.file;
-    rl_outstream = Stream[cur_out_sno].u.file.file;
-    /* window of vulnerability opened */
-    if (newline) {
-      Yap_PrologMode |= ConsoleGetcMode;
-      myrl_line = readline (NULL);
-    } else {
-      if (ReadlinePos != ReadlineBuf) {
-	ReadlinePos[0] = '\0';
-	ReadlinePos = ReadlineBuf;
-	Yap_PrologMode |= ConsoleGetcMode;
-	myrl_line = readline (ReadlineBuf);
-      } else {
-	Yap_PrologMode |= ConsoleGetcMode;
-	myrl_line = readline (NULL);
-      }
-    }
-    /* Do it the gnu way */
-    if (Yap_PrologMode & InterruptMode) {
-      Yap_PrologMode &= ~InterruptMode;
-      Yap_ProcessSIGINT();
-      Yap_PrologMode &= ~ConsoleGetcMode;
-      if (Yap_PrologMode & AbortMode) {
-	Yap_Error(PURE_ABORT, TermNil, "");
-	Yap_ErrorMessage = "Abort";
-	return console_post_process_eof(s);
-      }
-      continue;
-    } else {
-      Yap_PrologMode &= ~ConsoleGetcMode;
-    }
-    newline=FALSE;
-    strncpy (Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
-    /* window of vulnerability closed */
-    if (myrl_line == NULL)
-      return console_post_process_eof(s);
-    if (myrl_line[0] != '\0' && myrl_line[1] != '\0')
-      add_history (myrl_line);
-    ttyptr = myrl_line;
-  }
-  if (*ttyptr == '\0') {
-    ttyptr = NIL;
-    ch = '\n';
-  } else {
-    ch = *((unsigned char *)ttyptr);
-    ttyptr++;
-  }
-  return console_post_process_read_char(ch, s);
-}
-
-#endif /* HAVE_LIBREADLINE */
 
 static Int
 p_has_readline(void)
@@ -713,598 +256,15 @@ int
 Yap_GetCharForSIGINT(void)
 {
   int ch;
-#if  HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-  if ((Yap_PrologMode & ConsoleGetcMode) && myrl_line != (char *) NULL) {
-    ch = myrl_line[0];
-    free(myrl_line);
-    myrl_line = NULL;
-  } else {
-    myrl_line = readline ("Action (h for help): ");
-    if (!myrl_line) {
-      ch = EOF;
-    } else {
-      ch = myrl_line[0];
-      free(myrl_line);
-      myrl_line = NULL;
-    }
-  }
-#else
   /* ask for a new line */
   fprintf(stderr, "Action (h for help): ");
   ch = getc(stdin);
   /* first process up to end of line */
   while ((fgetc(stdin)) != '\n');
-#endif
   newline = TRUE;
   return ch;
 }
 
-/* handle reading from a stream after having found an EOF */
-static int
-EOFGetc(int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-
-  if (s->status & Push_Eof_Stream_f) {
-    /* ok, we have pushed an EOF, send it away */
-    s->status &= ~Push_Eof_Stream_f;
-    return EOF;
-  }	  
-  if (s->status & Eof_Error_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_PAST_END_OF_STREAM,MkAtomTerm(s->u.file.name),
-	  "GetC");
-  } else if (s->status & Reset_Eof_Stream_f) {
-    /* reset the eof indicator on file */
-    if (YP_feof (s->u.file.file))
-      YP_clearerr (s->u.file.file);
-    /* reset our function for reading input */
-    if (s->status & Promptable_Stream_f) {
-      s->stream_putc = ConsolePutc;
-      s->stream_wputc = put_wchar;
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-      if (s->status & Tty_Stream_f) {
-	s->stream_getc = ReadlineGetc;
-	if (Stream[0].status & Tty_Stream_f &&
-	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
-	 s->stream_putc = ReadlinePutc;
-      } else
-#endif
-	{
-	  s->stream_getc = ConsoleGetc;
-	}
-    } else {
-      s->stream_getc = PlGetc;
-      s->stream_gets = PlGetsFunc();
-    }
-    if (s->status & SWI_Stream_f)
-      s->stream_wgetc = IOSWIWideGetc;
-    else
-      s->stream_wgetc = get_wchar;
-    if (CharConversionTable != NULL)
-      s->stream_wgetc_for_read = ISOWGetc;
-    else
-      s->stream_wgetc_for_read = s->stream_wgetc;
-    /* next, reset our own error indicator */
-    s->status &= ~Eof_Stream_f;
-    /* try reading again */
-    return(s->stream_getc(sno));
-  } else {
-    s->status |= Past_Eof_Stream_f;
-  }
-  return EOF;
-}
-
-/* check if we read a newline or an EOF */
-static int
-post_process_read_char(int ch, StreamDesc *s)
-{
-  ++s->charcount;
-  ++s->linepos;
-  if (ch == '\n') {
-    ++s->linecount;
-    s->linepos = 0;
-    /* don't convert if the stream is binary */
-    if (!(s->status & Binary_Stream_f))
-      ch = 10;
-  }
-  return ch;
-}
-
-/* check if we read a newline or an EOF */
-static int
-post_process_eof(StreamDesc *s)
-{
-  s->status |= Eof_Stream_f;
-  s->stream_getc = EOFGetc;
-  s->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  return EOFCHAR;
-}
-
-/* check if we read a newline or an EOF */
-static int
-console_post_process_read_char(int ch, StreamDesc *s)
-{
-  /* the character is also going to be output by the console handler */
-  console_count_output_char(ch,Stream+StdErrStream);
-  if (ch == '\n') {
-    ++s->linecount;
-    ++s->charcount;
-    s->linepos = 0;
-    newline = TRUE;
-  } else {
-    ++s->charcount;
-    ++s->linepos;
-    newline = FALSE;
-  }
-  return ch;
-}
-
-/* check if we read a newline or an EOF */
-static int
-console_post_process_eof(StreamDesc *s)
-{
-  s->status |= Eof_Stream_f;
-  s->stream_getc = EOFGetc;
-  s->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  newline = FALSE;
-  return EOFCHAR;
-}
-
-
-/* standard routine, it should read from anything pointed by a FILE *.
-   It could be made more efficient by doing our own buffering and avoiding
-   post_process_read_char, something to think about */
-static int
-PlGetc (int sno)
-{
-  StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  ch = YP_getc (s->u.file.file);
-  if (ch == EOF) {
-    return post_process_eof(s);    
-  }
-  return post_process_read_char(ch, s);
-}
-
-/* standard routine, it should read from anything pointed by a FILE *.
-   It could be made more efficient by doing our own buffering and avoiding
-   post_process_read_char, something to think about */
-static int
-PlGets (int sno, UInt size, char *buf)
-{
-  register StreamDesc *s = &Stream[sno];
-  UInt len;
-
-  if (fgets (buf, size, s->u.file.file) == NULL) {
-    return post_process_eof(s);    
-  }
-  len = strlen(buf);
-  s->charcount += len-1;
-  post_process_read_char(buf[len-2], s);
-  return strlen(buf);
-}
-
-/* standard routine, it should read from anything pointed by a FILE *.
-   It could be made more efficient by doing our own buffering and avoiding
-   post_process_read_char, something to think about */
-static int
-DefaultGets (int sno, UInt size, char *buf)
-{
-  StreamDesc *s = &Stream[sno];
-  char ch;
-  char *pt = buf;
-
-
-  if (!size)
-    return 0;
-  while((ch = *buf++ = s->stream_getc(sno)) != 
-	-1 && ch != 10 && --size); 
-  *buf++ = '\0';
-  return (buf-pt)-1;
-}
-
-/* I dispise this code!!!!! */
-static int
-ISOWGetc (int sno)
-{
-  int ch = Stream[sno].stream_wgetc(sno);
-  if (ch != EOF && CharConversionTable != NULL) {
-
-    if (ch < NUMBER_OF_CHARS) {
-      /* only do this in ASCII */
-      return CharConversionTable[ch];
-    }
-  }
-  return ch; 
-}
-
-/* send a prompt, and use the system for internal buffering. Speed is
-   not of the essence here !!! */
-static int
-ConsoleGetc(int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  int ch;
-
- restart:
-  /* keep the prompt around, just in case, but don't actually
-     show it in silent mode */
-  if (newline) {
-    if (!yap_flags[QUIET_MODE_FLAG]) {
-      char *cptr = Prompt, ch;
-
-      /* use the default routine */
-      while ((ch = *cptr++) != '\0') {
-	Stream[StdErrStream].stream_putc(StdErrStream, ch);
-      }
-    }
-    strncpy (Prompt, RepAtom (AtPrompt)->StrOfAE, MAX_PROMPT);
-    newline = FALSE;
-  }
-#if HAVE_SIGINTERRUPT
-  siginterrupt(SIGINT, TRUE);
-#endif
-  Yap_PrologMode |= ConsoleGetcMode;
-  ch = YP_fgetc(s->u.file.file);
-#if HAVE_SIGINTERRUPT
-  siginterrupt(SIGINT, FALSE);
-#endif
-  if (Yap_PrologMode & InterruptMode) {
-    Yap_PrologMode &= ~InterruptMode;
-    Yap_ProcessSIGINT();
-    Yap_PrologMode &= ~ConsoleGetcMode;
-    newline = TRUE;
-    if (Yap_PrologMode & AbortMode) {
-      Yap_Error(PURE_ABORT, TermNil, "");
-      Yap_ErrorMessage = "Abort";
-      return console_post_process_eof(s);
-    }
-    goto restart;
-  } else {
-    Yap_PrologMode &= ~ConsoleGetcMode;
-  }
-  if (ch == EOF)
-    return console_post_process_eof(s);    
-  return console_post_process_read_char(ch, s);
-}
-
-/* reads a character from a buffer and does the rest  */
-static int
-PlUnGetc (int sno)
-{
-  register StreamDesc *s = &Stream[sno];
-  Int ch;
-
-  if (s->stream_getc != PlUnGetc)
-    return(s->stream_getc(sno));
-  ch = s->och;
-  if (s->status & Promptable_Stream_f) {
-    s->stream_putc = ConsolePutc;
-    s->stream_wputc = put_wchar;
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-    if (s->status & Tty_Stream_f) {
-      s->stream_getc = ReadlineGetc;
-      if (Stream[0].status & Tty_Stream_f &&
-	    is_same_tty(s->u.file.file,Stream[0].u.file.file))
-	s->stream_putc = ReadlinePutc;
-      s->stream_wputc = put_wchar;
-    } else
-#endif
-      {
-	s->stream_getc = ConsoleGetc;
-      }
-  } else {
-    s->stream_getc = PlGetc;
-    s->stream_gets = PlGetsFunc();
-  }
-  return(ch);
-}
-
-static int
-utf8_nof(char ch)
-{
-  if (!(ch & 0x20))
-    return 1;
-  if (!(ch & 0x10))
-    return 2;
-  if (!(ch & 0x08))
-    return 3;
-  if (!(ch & 0x04))
-    return 4;
-  return 5;
-}
-
-static int
-get_wchar(int sno)
-{
-  int ch;
-  wchar_t wch;
-  int how_many = 0;
-
-  while (TRUE) {
-    ch = Stream[sno].stream_getc(sno);
-    if (ch == -1) {
-      if (how_many) {
-	/* error */
-      }
-      return EOF;
-    }
-    switch (Stream[sno].encoding) {
-    case ENC_OCTET:
-      return ch;
-    case ENC_ISO_LATIN1:
-      return ch;
-    case ENC_ISO_ASCII:
-      if (ch & 0x80) {
-	/* error */
-      }
-      return ch;
-    case ENC_ISO_ANSI:
-      {
-	char buf[1];
-	int out;
-
-	if (!how_many) {
-	  memset((void *)&(Stream[sno].mbstate), 0, sizeof(mbstate_t));
-	}
-	buf[0] = ch;
-	if ((out = mbrtowc(&wch, buf, 1, &(Stream[sno].mbstate))) == 1)
-	  return wch;
-	if (out == -1) {
-	  /* error */
-	}
-	how_many++;
-	break;
-      }
-    case ENC_ISO_UTF8:
-      {
-	if (!how_many) {
-	  if (ch & 0x80) {
-	    how_many = utf8_nof(ch);
-	    /* 
-	       keep a backup of the start character in case we meet an error,
-	       useful if we are scanning ISO files.
-	     */
-	    Stream[sno].och = ch;
-	    wch = (ch & ((1<<(6-how_many))-1))<<(6*how_many);
-	  } else {
-	    return ch;
-	  }
-	} else {
-	  how_many--;
-	  if ((ch & 0xc0) == 0x80) {
-	    wch += (ch & ~0xc0) << (how_many*6);
-	  } else {
-	    /* error */
-	    /* try to recover character, assume this is our first character */
-	    wchar_t och = Stream[sno].och;
- 
-	    Stream[sno].och = ch;
-	    Stream[sno].stream_getc = PlUnGetc;
-	    Stream[sno].stream_wgetc = get_wchar;
-	    Stream[sno].stream_gets = DefaultGets;
-	    return och;
-	  }
-	  if (!how_many) {
-	    return wch;
-	  }
-	}
-      }
-      break;
-    case ENC_UNICODE_BE:
-      if (how_many) {
-	return wch+ch;
-      }
-      how_many=1;
-      wch = ch << 8;
-      break;
-    case ENC_UNICODE_LE:
-      if (how_many) {
-	return wch+(ch<<8);
-      }
-      how_many=1;
-      wch = ch;
-      break;
-    case ENC_ISO_UTF32_LE:
-      if (!how_many) {
-	how_many = 4;
-	wch = 0;
-      }
-      how_many--;
-      wch += ((unsigned char) (ch & 0xff)) << ((3-how_many)*8);
-      if (how_many == 0)
-	return wch;
-      break;
-    case ENC_ISO_UTF32_BE:
-      if (!how_many) {
-	how_many = 4;
-	wch = 0;
-      }
-      how_many--;
-      wch += ((unsigned char) (ch & 0xff)) << (how_many*8);
-      if (how_many == 0)
-	return wch;
-      break;
-    }
-  }
-  return EOF;
-}
-
-#ifndef MB_LEN_MAX
-#define MB_LEN_MAX 6
-#endif
-
-static int
-handle_write_encoding_error(int sno, wchar_t ch)
-{
-  if (Stream[sno].status & RepError_Xml_f) {
-    /* use HTML/XML encoding in ASCII */
-    int i = ch, digits = 1;
-    Stream[sno].stream_putc(sno, '&');
-    Stream[sno].stream_putc(sno, '#');
-    while (digits < i)
-      digits *= 10;
-    if (digits > i)
-      digits /= 10;
-    while (i) {
-      Stream[sno].stream_putc(sno, i/digits);
-      i %= 10;
-      digits /= 10;
-    }
-    Stream[sno].stream_putc(sno, ';');
-    return ch;
-  } else if (Stream[sno].status & RepError_Prolog_f) {
-    /* write quoted */
-    Stream[sno].stream_putc(sno, '\\');
-    Stream[sno].stream_putc(sno, 'u');
-    Stream[sno].stream_putc(sno, ch>>24);
-    Stream[sno].stream_putc(sno, 256&(ch>>16));
-    Stream[sno].stream_putc(sno, 256&(ch>>8));
-    Stream[sno].stream_putc(sno, 256&ch);
-    return ch;
-  } else {
-    Yap_Error(REPRESENTATION_ERROR_CHARACTER, MkIntegerTerm(ch),"charater %ld cannot be encoded in stream %d",(unsigned long int)ch,sno);
-    return -1;
-  }
-}
-
-static int
-put_wchar(int sno, wchar_t ch)
-{
-
-  /* pass the bug if we can */
-  switch (Stream[sno].encoding) {
-  case ENC_OCTET:
-    return Stream[sno].stream_putc(sno, ch);
-  case ENC_ISO_LATIN1:
-    if (ch >= 0xff) {
-      return handle_write_encoding_error(sno,ch);
-    }
-    return Stream[sno].stream_putc(sno, ch);
-  case ENC_ISO_ASCII:
-    if (ch >= 0x80) {
-      return handle_write_encoding_error(sno,ch);
-    }
-    return Stream[sno].stream_putc(sno, ch);
-  case ENC_ISO_ANSI:
-    {
-      char buf[MB_LEN_MAX];
-      int n;
-
-      memset((void *)&(Stream[sno].mbstate), 0, sizeof(mbstate_t));
-      if ( (n = wcrtomb(buf, ch, &(Stream[sno].mbstate))) < 0 ) {
-	/* error */
-	Stream[sno].stream_putc(sno, ch);
-	return -1;
-      } else {
-	int i;
-
-	for (i =0; i< n; i++) {
-	  Stream[sno].stream_putc(sno, buf[i]);
-	}
-	return ch;
-      }
-    case ENC_ISO_UTF8:
-      if (ch < 0x80) {
-	return Stream[sno].stream_putc(sno, ch);
-      } else if (ch < 0x800) {
-	Stream[sno].stream_putc(sno, 0xC0 | ch>>6);
-	return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-      } 
-      else if (ch < 0x10000) {
-	Stream[sno].stream_putc(sno, 0xE0 | ch>>12);
-	Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
-	return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-      } else if (ch < 0x200000) {
-	Stream[sno].stream_putc(sno, 0xF0 | ch>>18);
-	Stream[sno].stream_putc(sno, 0x80 | (ch>>12 & 0x3F));
-	Stream[sno].stream_putc(sno, 0x80 | (ch>>6 & 0x3F));
-	return Stream[sno].stream_putc(sno, 0x80 | (ch & 0x3F));
-      } else {
-	/* should never happen */
-	return -1;
-      }
-      break;
-    case ENC_UNICODE_BE:
-      Stream[sno].stream_putc(sno, (ch>>8));
-      return Stream[sno].stream_putc(sno, (ch&0xff));
-    case ENC_UNICODE_LE:
-      Stream[sno].stream_putc(sno, (ch&0xff));
-      return Stream[sno].stream_putc(sno, (ch>>8));
-    case ENC_ISO_UTF32_BE:
-      Stream[sno].stream_putc(sno, (ch>>24) & 0xff);
-      Stream[sno].stream_putc(sno, (ch>>16) &0xff);
-      Stream[sno].stream_putc(sno, (ch>>8) & 0xff);
-      return Stream[sno].stream_putc(sno, ch&0xff);
-    case ENC_ISO_UTF32_LE:
-      Stream[sno].stream_putc(sno, ch&0xff);
-      Stream[sno].stream_putc(sno, (ch>>8) & 0xff);
-      Stream[sno].stream_putc(sno, (ch>>16) &0xff);
-      return Stream[sno].stream_putc(sno, (ch>>24) & 0xff);
-    }
-  }
-  return -1;
-}
-
-/* used by user-code to read characters from the current input stream */
-int
-Yap_PlGetchar (void)
-{
-  return(Stream[Yap_c_input_stream].stream_getc(Yap_c_input_stream));
-}
-
-int
-Yap_PlGetWchar (void)
-{
-  return get_wchar(Yap_c_input_stream);
-}
-
-/* avoid using a variable to call a function */
-int
-Yap_PlFGetchar (void)
-{
-  return(PlGetc(Yap_c_input_stream));
-}
-
-
-static Term
-MkStream (int n)
-{
-  Term t[1];
-  t[0] = MkIntTerm (n);
-  return (Yap_MkApplTerm (FunctorStream, 1, t));
-}
-
-/* given a stream index, get the corresponding fd */
-static Int
-GetStreamFd(int sno)
-{
-  return(YP_fileno(Stream[sno].u.file.file));
-}
-
-Int
-Yap_GetStreamFd(int sno)
-{
-  return GetStreamFd(sno);
-}
-
-/* given a socket file descriptor, get the corresponding stream descripor */
-int
-Yap_CheckIOStream(Term stream, char * error)
-{
-  int sno = CheckStream(stream, Input_Stream_f|Output_Stream_f, error);
-  UNLOCK(Stream[sno].streamlock);
-  return(sno);
-}
 
 
 #if _MSC_VER || defined(__MINGW32__) 
@@ -1385,273 +345,12 @@ p_file_expansion (void)
 }
 
 
-Term
-Yap_OpenStream(FILE *fd, char *name, Term file_name, int flags)
-{
-  Term t;
-  StreamDesc *st;
-  int sno;
-
-  sno = GetFreeStreamD();
-  if (sno  < 0)
-    return (PlIOError (RESOURCE_ERROR_MAX_STREAMS,TermNil, "new stream not available for open_null_stream/1"));
-  st = &Stream[sno];
-  st->status = 0;
-  if (flags & YAP_INPUT_STREAM)
-    st->status |= Input_Stream_f;
-  if (flags & YAP_OUTPUT_STREAM)
-    st->status |= Output_Stream_f;
-  if (flags & YAP_APPEND_STREAM)
-    st->status |= Append_Stream_f;
-  /*
-    pipes assume an integer file descriptor, not a FILE *:
-    if (flags & YAP_PIPE_STREAM)
-    st->status |= Pipe_Stream_f;
-  */
-  if (flags & YAP_TTY_STREAM)
-    st->status |= Tty_Stream_f;
-  if (flags & YAP_POPEN_STREAM)
-    st->status |= Popen_Stream_f;
-  if (flags & YAP_BINARY_STREAM)
-    st->status |= Binary_Stream_f;
-  if (flags & YAP_SEEKABLE_STREAM)
-    st->status |= Seekable_Stream_f;
-  st->charcount = 0;
-  st->linecount = 1;
-  st->u.file.name = Yap_LookupAtom(name);
-  st->u.file.user_name = file_name;
-  st->u.file.file = fd;
-  st->linepos = 0;
-  st->stream_gets = PlGetsFunc();
-  if (flags & YAP_TTY_STREAM) {
-    st->stream_putc = ConsolePutc;
-    st->stream_wputc = put_wchar;
-    st->stream_getc = ConsoleGetc;
-  } else {
-    st->stream_putc = FilePutc;
-    st->stream_wputc = put_wchar;
-    st->stream_getc = PlGetc;
-    unix_upd_stream_info (st);
-  }
-  st->stream_wgetc = get_wchar;
-  if (CharConversionTable != NULL)
-    st->stream_wgetc_for_read = ISOWGetc;
-  else
-    st->stream_wgetc_for_read = st->stream_wgetc; 
-  UNLOCK(st->streamlock);
-  t = MkStream (sno);
-  return t;
-}
-
-
-static int
-LookupSWIStream (struct io_stream *swi_s)
-{
-  int i = 0;
-
-  while (i < MaxStreams) {
-    LOCK(Stream[i].streamlock);
-    if (Stream[i].status & SWI_Stream_f &&
-	Stream[i].u.swi_stream.swi_ptr == swi_s
-	) {
-      UNLOCK(Stream[i].streamlock);
-      return i;
-    }
-    UNLOCK(Stream[i].streamlock);
-    i++;
-  }
-  i = GetFreeStreamD();
-  if (i < 0)
-    return i;
-  Stream[i].u.swi_stream.swi_ptr = swi_s;
-  Stream[i].status = SWI_Stream_f|Output_Stream_f|Input_Stream_f|Append_Stream_f|Tty_Stream_f|Promptable_Stream_f;
-  Stream[i].linepos = 0;
-  Stream[i].linecount = 1;
-  Stream[i].charcount = 0;
-  Stream[i].encoding = DefaultEncoding();
-  Stream[i].stream_getc = IOSWIGetc;
-  Stream[i].stream_putc = IOSWIPutc;
-  Stream[i].stream_wputc = IOSWIWidePutc;
-  Stream[i].stream_wgetc = IOSWIWideGetc;
-  Stream[i].stream_gets = DefaultGets;
-  if (CharConversionTable != NULL)
-    Stream[i].stream_wgetc_for_read = ISOWGetc;
-  else
-    Stream[i].stream_wgetc_for_read = IOSWIWideGetc;
-  UNLOCK(Stream[i].streamlock);
-  return i;
-}
-
-int
-Yap_LookupSWIStream (void *swi_s)
-{
-  return LookupSWIStream (swi_s);
-}
-
 typedef struct stream_ref
 { struct io_stream *read;
   struct io_stream *write;
 } stream_ref;
 
 extern stream_ref *PL_blob_data(Atom, void *, void *);
-
-static int
-CheckStream (Term arg, int kind, char *msg)
-{
-  int sno = -1;
-  arg = Deref (arg);
-  if (IsVarTerm (arg)) {
-    Yap_Error(INSTANTIATION_ERROR, arg, msg);
-    return -1;
-  } else if (IsAtomTerm (arg)) {
-    struct io_stream *swi_stream;
-    Atom sname = AtomOfTerm(arg);
-
-    if (IsBlob(sname)) {
-      struct io_stream *s;
-      stream_ref *ref;
-	
-      ref = PL_blob_data(sname, NULL, NULL);
-      {
-	if ( ref->read )
-	  {
-	    if ( ref->write && (kind&Output_Stream_f) )
-	      s = ref->write;
-	    else
-	      s = ref->read;
-	  } else
-	  s = ref->write;
-      }
-      sno = LookupSWIStream(s);
-      return sno;
-    }
-
-    if (Yap_get_stream_handle(arg, kind & Input_Stream_f, kind & Output_Stream_f, &swi_stream)) {
-      sno = LookupSWIStream(swi_stream);
-      return sno;
-    }       
-  }
-  if (sno < 0)
-    {
-      Yap_Error(DOMAIN_ERROR_STREAM_OR_ALIAS, arg, msg);
-      return (-1);
-    }
-  LOCK(Stream[sno].streamlock);
-  if (Stream[sno].status & Free_Stream_f)
-    {
-      UNLOCK(Stream[sno].streamlock);
-      Yap_Error(EXISTENCE_ERROR_STREAM, arg, msg);
-      return (-1);
-    }
-  if ((Stream[sno].status & kind) == 0)
-    {
-      UNLOCK(Stream[sno].streamlock);
-      if (kind & Input_Stream_f)
-	Yap_Error(PERMISSION_ERROR_INPUT_STREAM, arg, msg);
-      else
-	Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, arg, msg);
-      return (-1);
-    }
-  return (sno);
-}
-
-int
-Yap_CheckStream (Term arg, int kind, char *msg)
-{
-  return CheckStream(arg, kind, msg);
-}
-
-
-#if  defined(YAPOR) || defined(THREADS)
-void
-Yap_LockStream (int sno)
-{
-  LOCK(Stream[sno].streamlock);
-}
-
-void
-Yap_UnLockStream (int sno)
-{
-  UNLOCK(Stream[sno].streamlock);
-}
-#endif
-
-extern Atom Yap_FileName(IOSTREAM *s);
-
-static Term
-StreamName(IOSTREAM *s)
-{
-  return MkAtomTerm(Yap_FileName(s));
-}
-
-
-/*
- * Called when you want to close all open streams, except for stdin, stdout
- * and stderr 
- */
-void
-Yap_CloseStreams (int loud)
-{
-  int sno;
-  for (sno = 3; sno < MaxStreams; ++sno) {
-    if (Stream[sno].status & Free_Stream_f)
-      continue;
-    if ((Stream[sno].status & Popen_Stream_f))
-      pclose (Stream[sno].u.file.file);
-    else if (Stream[sno].status & (SWI_Stream_f)) {
-      SWIClose(Stream[sno].u.swi_stream.swi_ptr);
-    } else {
-      YP_fclose (Stream[sno].u.file.file);
-    }
-    if (Yap_c_input_stream == sno) {
-      Yap_c_input_stream = StdInStream;
-    } else if (Yap_c_output_stream == sno) {
-      Yap_c_output_stream = StdOutStream;
-    }
-    Stream[sno].status = Free_Stream_f;
-  }
-}
-
-
-static void
-CloseStream(int sno)
-{
-  if (!(Stream[sno].status & (SWI_Stream_f))) {
-    YP_fclose (Stream[sno].u.file.file);
-  } else if (Stream[sno].status & (SWI_Stream_f)) {
-    SWIClose(Stream[sno].u.swi_stream.swi_ptr);
-  }
-  Stream[sno].status = Free_Stream_f;
-  if (Yap_c_input_stream == sno)
-    {
-      Yap_c_input_stream = StdInStream;
-    }
-  else if (Yap_c_output_stream == sno)
-    {
-      Yap_c_output_stream = StdOutStream;
-    }
-}
-
-void
-Yap_CloseStream(int sno)
-{
-  CloseStream(sno);
-}
-
-static Int
-p_close (void)
-{				/* '$close'(+Stream) */
-  Int sno = CheckStream (ARG1, (Input_Stream_f | Output_Stream_f), "close/2");
-  if (sno < 0)
-    return (FALSE);
-  if (sno <= StdErrStream) {
-    UNLOCK(Stream[sno].streamlock);
-    return TRUE;
-  }
-  CloseStream(sno);
-  UNLOCK(Stream[sno].streamlock);
-  return (TRUE);
-}
 
 #ifdef BEAM
 int beam_write (void)
@@ -2182,56 +881,7 @@ Yap_StreamPosition(IOSTREAM *st)
   return StreamPosition(st);
 }
 
-
-static Term
-read_line(int sno) 
-{
-  Term tail;
-  Int ch;
-
-  if ((ch = Stream[sno].stream_wgetc(sno)) == 10) {
-    return(TermNil);
-  }
-  tail = read_line(sno);
-  return(MkPairTerm(MkIntTerm(ch),tail));
-}
-
-static Int
-p_get0_line_codes (void)
-{				/* '$get0'(Stream,-N)                    */
-  int sno = CheckStream (ARG1, Input_Stream_f, "get0/2");
-  Int status;
-  Term out;
-  Int ch = '\0';
-  int rewind;
-
-  if (sno < 0)
-    return(FALSE);
-  if (Stream[sno].stream_getc == PlUnGetc) {
-    ch = PlUnGetc(sno);
-    rewind = TRUE;
-  } else {
-    rewind = FALSE;
-  }
-  status = Stream[sno].status;
-  if (status & Binary_Stream_f) {
-    UNLOCK(Stream[sno].streamlock);
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, ARG1, "get0/2");
-    return FALSE;
-  }
-  UNLOCK(Stream[sno].streamlock);
-  out = read_line(sno);
-  if (rewind) 
-    return Yap_unify(MkPairTerm(MkIntegerTerm(ch),out), ARG2);
-  else
-    return Yap_unify(out,ARG2);
-}
-
-void Yap_FlushStreams(void)
-{
-}
-
-#if HAVE_SELECT
+#if HAVE_SELECT && FALSE
 /* stream_select(+Streams,+TimeOut,-Result)      */
 static Int
 p_stream_select(void)
@@ -2433,15 +1083,9 @@ p_type_of_char (void)
 static Int 
 p_force_char_conversion(void)
 {
-  int i;
-
   /* don't actually enable it until someone tries to add a conversion */
   if (CharConversionTable2 == NULL)
     return(TRUE);
-  for (i = 0; i < MaxStreams; i++) {
-    if (!(Stream[i].status & Free_Stream_f))
-	Stream[i].stream_wgetc_for_read = ISOWGetc;
-  }
   CharConversionTable = CharConversionTable2;
   return(TRUE);
 }
@@ -2589,17 +1233,6 @@ p_all_char_conversions(void)
   return(Yap_unify(ARG1,out));
 }
 
-Int
-Yap_StreamToFileNo(Term t)
-{
-  int sno  =
-    CheckStream(t, (Input_Stream_f|Output_Stream_f), "StreamToFileNo");
-  {
-    UNLOCK(Stream[sno].streamlock);
-    return(YP_fileno(Stream[sno].u.file.file));
-  }
-}
-
 static Int
 p_float_format(void)
 {
@@ -2613,14 +1246,15 @@ p_float_format(void)
 static Int
 p_get_default_encoding(void)
 {
-  Term out = MkIntegerTerm(DefaultEncoding());
+  Term out = TermNil; // VSC MkIntegerTerm(DefaultEncoding());
   return Yap_unify(ARG1, out);
 }
 
 static Int
 p_encoding (void)
 {				/* '$encoding'(Stream,N)                      */
-  int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
+  int sno = 0;
+  // int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
   Term t = Deref(ARG2);
   if (sno < 0)
     return FALSE;
@@ -2633,17 +1267,6 @@ p_encoding (void)
   return TRUE;
 }
 
-
-FILE *
-Yap_FileDescriptorFromStream(Term t)
-{
-  int sno = CheckStream (t, Input_Stream_f|Output_Stream_f, "FileDescriptorFromStream");
-  if (sno < 0)
-    return NULL;
-  if (Stream[sno].status & (Free_Stream_f))
-    return NULL;
-  return Stream[sno].u.file.file;
-}
 
 void
 Yap_InitBackIO (void)
@@ -2660,8 +1283,6 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$close", 1, p_close, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get0_line_codes", 2, p_get0_line_codes, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -2670,8 +1291,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$is_same_tty", 2, p_is_same_tty, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("always_prompt_user", 0, p_always_prompt_user, SafePredFlag|SyncPredFlag);
+
   Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
@@ -2683,13 +1303,10 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
   Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),
 #if HAVE_SELECT
-  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
+    //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 
   InitPlIO ();
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-  InitReadline();
-#endif
 }

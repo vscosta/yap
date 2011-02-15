@@ -804,6 +804,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
+  StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
     int quote, isvar;

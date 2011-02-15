@@ -1382,8 +1382,7 @@ cd(Dir) :- working_directory(_, Dir).
 getcwd(Dir) :- working_directory(Dir, Dir).
 
 close(Stream) :-
-	'$close'(Stream).
-%	swi_close(Stream).
+	swi_close(Stream).
 close(Stream, Options) :-
 	swi_close(Stream, Options).
 open(File, Type, Stream) :-
