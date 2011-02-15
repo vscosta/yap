@@ -848,7 +848,7 @@ p_read (void)
   return do_read(NULL, 6);
 }
 
-extern int getInputStream(int, IOSTREAM **);
+extern int getInputStream(Int, IOSTREAM **);
 
 static Int
 p_read2 (void)

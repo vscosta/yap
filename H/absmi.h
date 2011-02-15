@@ -1569,7 +1569,7 @@ prune(choiceptr cp)
 #ifdef YAPOR
       CUT_prune_to(cp);
 #endif /* YAPOR */
-    /* cut ! */
+      /* cut ! */
 #ifdef TABLING
       abolish_incomplete_subgoals(B);
 #endif /* TABLING */

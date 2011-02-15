@@ -2204,7 +2204,9 @@ Yap_absmi(int inp)
       SET_ASP(YREG, PREG->u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
       /* assume cut is always in stack */
+      saveregs();
       prune((choiceptr)YREG[E_CB]);
+      setregs();
       GONext();
       ENDOp();
 
@@ -2221,7 +2223,9 @@ Yap_absmi(int inp)
 #endif
       SET_ASP(YREG, PREG->u.s.s);
       /* assume cut is always in stack */
+      saveregs();
       prune((choiceptr)YREG[E_CB]);
+      setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
 #ifdef FROZEN_STACKS
       { 
@@ -2255,7 +2259,9 @@ Yap_absmi(int inp)
 #endif
       SET_ASP(YREG, PREG->u.s.s);
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
+      saveregs();
       prune((choiceptr)SREG[E_CB]);
+      setregs();
       GONext();
       ENDOp();
 
@@ -2306,7 +2312,9 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif /* SBA && FROZEN_STACKS */
+	saveregs();
 	prune(pt0);
+	setregs();
       }
       GONext();
 
@@ -2340,7 +2348,9 @@ Yap_absmi(int inp)
 #else
 	pt0 = (choiceptr)(LCL0-IntegerOfTerm(d0));
 #endif
+	saveregs();
 	prune(pt0);
+	setregs();
       }
       GONext();
 
@@ -14059,7 +14069,9 @@ Yap_absmi(int inp)
 	      if (at == AtomCut) {
 		choiceptr cut_pt = (choiceptr)pt0[E_CB];
 		SET_ASP(YREG, E_CB*sizeof(CELL));
+		saveregs();
 		prune(cut_pt);
+		setregs();
 	      }
 	      pen = RepPredProp(PredPropByAtom(at, mod));
 	      goto execute_comma;
@@ -14137,7 +14149,9 @@ Yap_absmi(int inp)
 	} else if ((Atom)(pen->FunctorOfPred) == AtomCut) {
 	  choiceptr cut_pt = (choiceptr)pt0[E_CB];
 	  SET_ASP(YREG, E_CB*sizeof(CELL));
+	  saveregs();
 	  prune(cut_pt);
+	  setregs();
 	}
 
       execute_after_comma:

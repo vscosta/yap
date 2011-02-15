@@ -2799,7 +2799,7 @@ Yap_CloseStreams(int loud)
   closeFiles(FALSE);
 }
 
-int Yap_StreamToFileNo(Term t) {
+Int Yap_StreamToFileNo(Term t) {
   IOSTREAM *s;
   int rc;
 
@@ -2818,7 +2818,7 @@ FILE *Yap_FileDescriptorFromStream(Term t)
     fprintf(stderr,"Unimplemented\n");
     //    return Sfileno(s);
   }
-  return -1;
+  return NULL;
 }
 
 #ifdef _WIN32
