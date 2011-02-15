@@ -138,7 +138,7 @@ PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
 #define MODULE_user YAP_ModuleUser()
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
-#define lookupModule(A) ((module_t)PL_new_module(A))
+#define lookupModule(A) ((Module)PL_new_module(A))
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define skip_list(A,B) YAP_SkipList(A,B)
 #define wordToTermRef(A) YAP_InitSlot(*(A))
