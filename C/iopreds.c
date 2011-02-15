@@ -107,21 +107,9 @@ Yap_InitStdStreams (void)
 {
 }
 
-static void
-InitPlIO (void)
-{
-  Int i;
-
-  for (i = 0; i < MaxStreams; ++i) {
-    INIT_LOCK(Stream[i].streamlock);    
-    Stream[i].status = Free_Stream_f;
-  }
-}
-
 void
 Yap_InitPlIO (void)
 {
-  InitPlIO ();
 }
 
 /*
@@ -319,8 +307,6 @@ typedef struct stream_ref
 { struct io_stream *read;
   struct io_stream *write;
 } stream_ref;
-
-extern stream_ref *PL_blob_data(Atom, void *, void *);
 
 #ifdef BEAM
 int beam_write (void)
@@ -1277,5 +1263,4 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 
-  InitPlIO ();
 }

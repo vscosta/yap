@@ -924,18 +924,6 @@ RestoreDBErasedIList(void)
 static void
 RestoreStreams(void)
 {
-  if (Yap_heap_regs->yap_streams != NULL) {
-    int sno;
-
-    Yap_heap_regs->yap_streams =
-      (struct stream_desc *)AddrAdjust((ADDR)Yap_heap_regs->yap_streams);
-    for (sno = 0; sno < MaxStreams; ++sno) {
-      if (Stream[sno].status & Free_Stream_f)
-	continue;
-      Stream[sno].u.file.user_name = AtomTermAdjust(Stream[sno].u.file.user_name);
-      Stream[sno].u.file.name = AtomAdjust(Stream[sno].u.file.name);
-    }    
-  }
 }
 
 static void
