@@ -241,68 +241,6 @@ Yap_GetCharForSIGINT(void)
 
 
 
-#if _MSC_VER || defined(__MINGW32__) 
-#define SYSTEM_STAT _stat
-#else
-#define SYSTEM_STAT stat
-#endif
-
-static Int
-p_access(void)
-{
-  Term tname = Deref(ARG1);
-  char *file_name;
-
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "access");
-    return FALSE;
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "access");
-    return FALSE;
-  } else {
-#if HAVE_STAT
-    struct SYSTEM_STAT ss;
-
-    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
-    if (SYSTEM_STAT(file_name, &ss) != 0) {
-    /* ignore errors while checking a file */
-      return FALSE;
-    }
-    return TRUE;
-#else
-    return FALSE;
-#endif
-  }
-}
-
-static Int
-p_exists_directory(void)
-{
-  Term tname = Deref(ARG1);
-  char *file_name;
-
-  if (IsVarTerm(tname)) {
-    Yap_Error(INSTANTIATION_ERROR, tname, "exists_directory/1");
-    return FALSE;
-  } else if (!IsAtomTerm (tname)) {
-    Yap_Error(TYPE_ERROR_ATOM, tname, "exists_directory/1");
-    return FALSE;
-  } else {
-#if HAVE_STAT
-    struct SYSTEM_STAT ss;
-
-    file_name = RepAtom(AtomOfTerm(tname))->StrOfAE;
-    if (SYSTEM_STAT(file_name, &ss) != 0) {
-    /* ignore errors while checking a file */
-      return FALSE;
-    }
-    return (S_ISDIR(ss.st_mode));
-#else
-    return FALSE;
-#endif
-  }
-}
-
 typedef struct stream_ref
 { struct io_stream *read;
   struct io_stream *write;
@@ -1241,8 +1179,6 @@ Yap_InitIOPreds(void)
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */
-  Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);

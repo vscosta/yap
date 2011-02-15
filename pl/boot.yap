@@ -1362,6 +1362,8 @@ expand_file_name(Exp, Matches) :-
 	swi_expand_file_name(Exp, Matches).
 file_base_name(File, Base) :-
 	swi_file_base_name(File, Base).
+exists_directory(Directory) :-
+	swi_exists_directory(Directory).
 file_directory_name(File, Dir) :-
 	swi_file_directory_name(File, Dir).
 file_name_extension(File, Name, Extension) :-
