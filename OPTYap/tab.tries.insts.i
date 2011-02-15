@@ -1082,22 +1082,24 @@
     int heap_arity = aux_stack[HEAP_ARITY_ENTRY];
     int vars_arity = aux_stack[VARS_ARITY_ENTRY];
     int subs_arity = aux_stack[SUBS_ARITY_ENTRY];
-    volatile Float dbl;
-    volatile Term *t_dbl = (Term *)((void *) &dbl);
+    volatile union {
+      Float dbl;
+      Term ts[SIZEOF_DOUBLE/SIZEOF_INT_P];
+    } td;
     Term t;
 
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-    t_dbl[0] = aux_stack[HEAP_ENTRY(1)];
-    t_dbl[1] = aux_stack[HEAP_ENTRY(3)];  /* jump the first extension mark */
+    td.ts[0] = aux_stack[HEAP_ENTRY(1)];
+    td.ts[1] = aux_stack[HEAP_ENTRY(3)];  /* jump the first extension mark */
     heap_arity -= 4;
     TOP_STACK = aux_stack = &aux_stack[4];  /* jump until the second extension mark */
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
-    t_dbl[0] = aux_stack[HEAP_ENTRY(1)];
+    td.ts[0] = aux_stack[HEAP_ENTRY(1)];
     heap_arity -= 2;
     TOP_STACK = aux_stack = &aux_stack[2];  /* jump until the extension mark */
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
     TOP_STACK[HEAP_ARITY_ENTRY] = heap_arity;
-    t = MkFloatTerm(dbl);
+    t = MkFloatTerm(td.dbl);
     aux_stack_term_instr();
   ENDPBOp();
 
