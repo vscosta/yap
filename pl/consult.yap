@@ -635,14 +635,14 @@ remove_from_path(New) :- '$check_path'(New,Path),
 % 7-bit ASCII as America originally intended
 '$valid_encoding'(ascii, 2).
 % Ye europeaners made it 8 bits
-'$valid_encoding'(iso_latin_1, 1).
+'$valid_encoding'(iso_latin_1, 3).
 % UTF-8: default 8 bits but 80 extends to 16bits
-'$valid_encoding'(utf8, 8).
+'$valid_encoding'(utf8, 5).
 % UNICODE: 16 bits throughout, the way it was supposed to be!
-'$valid_encoding'(unicode_be, 16).
-'$valid_encoding'(unicode_le, 32).
+'$valid_encoding'(unicode_be, 6).
+'$valid_encoding'(unicode_le, 7).
 % whatever the system tell us to do.
-'$valid_encoding'(text, 4).
+'$valid_encoding'(text, 8).
 
 '$default_encoding'(DefCode) :- nonvar(DefCode), !,
 	'$encoding'('$stream'(0),DefCode),
