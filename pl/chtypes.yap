@@ -106,7 +106,7 @@ char_type(A, Spec) :-
 	swi_char_type(A, Spec).
 
 code_type(Code, Spec) :-
-	swi_code_type(A, Spec).
+	swi_code_type(Code, Spec).
 	  
 
 downcase_atom(U, D) :-
