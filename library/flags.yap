@@ -10,8 +10,8 @@
 %  Contributions to this file:
 %  Author: Theofrastos Mantadelis
 %  Sugestions: Bernd Gutmann, Paulo Moura
-%  $Date: 2011-02-04 16:06:56 +0100 (Fri, 04 Feb 2011) $
-%  $Revision: 12 $
+%  $Date: 2011-02-15 13:33:01 +0100 (Tue, 15 Feb 2011) $
+%  $Revision: 15 $
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -435,10 +435,10 @@ flag_unsafe_set(FlagName, FlagValue):-
   assertz('$store_flag_value$'(FlagName, FlagValue)).
 
 flag_get(FlagName, FlagValue):-
-  '$store_flag_value$'(FlagName, FlagValue).
-flag_get(FlagName, FlagValue):-
   \+ '$store_flag_value$'(FlagName, _),
   throw(error(existence_error(flag, FlagName), message('The flag is not defined.', flag_get(FlagName, FlagValue)))).
+flag_get(FlagName, FlagValue):-
+  '$store_flag_value$'(FlagName, FlagValue).
 
 flags_reset:-
   retractall('$store_flag_value$'(_, _)),
