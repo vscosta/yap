@@ -3495,8 +3495,12 @@ int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
   WRITE_LOCK(ae->ARWLock);
   info = Yap_GetOpPropForAModuleHavingALock(ae, module);
   if (!info) {
-    WRITE_UNLOCK(ae->ARWLock);
-    return 0;
+    /* try system operators */
+    info = Yap_GetOpPropForAModuleHavingALock(ae, PROLOG_MODULE);
+    if (!info) {
+      WRITE_UNLOCK(ae->ARWLock);
+      return 0;
+    }
   }
   if (opkind == PREFIX_OP) {
     SMALLUNSGN p = info->Prefix;
