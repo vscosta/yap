@@ -36,6 +36,9 @@ extern "C" {
 #include	"YapInterface.h"
 #else
 #include	<Yap/config.h>
+#if USE_GMP
+#include <gmp.h>
+#endif
 #include	<Yap/YapInterface.h>
 #endif
 #include	<stdarg.h>
