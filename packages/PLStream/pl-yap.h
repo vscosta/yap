@@ -183,5 +183,26 @@ stripostfix(const char *s, const char *e)
 } 
 #endif
 
+#if HAVE_SIGPROCMASK
+#if HAVE_SIGNAL_H
+#include <signal.h>
+#endif
+
+static inline void
+unblockSignal(int sig)
+{ sigset_t set;
+
+  sigemptyset(&set);
+  sigaddset(&set, sig);
+
+  sigprocmask(SIG_UNBLOCK, &set, NULL);
+  //  DEBUG(1, Sdprintf("Unblocked signal %d\n", sig));
+}
+#else
+static inline void
+unblockSignal(int sig)
+{
+}
+#endif
 
 #endif /* PL_YAP_H */

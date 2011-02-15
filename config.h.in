@@ -85,6 +85,7 @@
 #undef  HAVE_PTHREAD_H
 #undef  HAVE_PWD_H
 #undef  HAVE_READLINE_READLINE_H
+#undef  HAVE_READLINE_HISTORY_H
 #undef  HAVE_REGEX_H
 #undef  HAVE_SIGINFO_H
 #undef  HAVE_SIGNAL_H
@@ -279,6 +280,8 @@
 
 #define  TYPE_SELECT_
 #define  MYTYPE(X) MYTYPE1#X
+
+#undef  HAVE_DECL_RL_CATCH_SIGNALS
 
 /* define how to pass the address of a function */
 #define FunAdr(Fn)  Fn

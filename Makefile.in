@@ -206,6 +206,7 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-os.c \
 	$(srcdir)/packages/PLStream/pl-privitf.c \
 	$(srcdir)/packages/PLStream/pl-read.c \
+	$(srcdir)/packages/PLStream/pl-rl.c  \
 	$(srcdir)/packages/PLStream/pl-stream.c $(srcdir)/packages/PLStream/pl-string.c \
 	$(srcdir)/packages/PLStream/pl-table.c \
 	$(srcdir)/packages/PLStream/pl-text.c \
@@ -322,8 +323,9 @@ YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
 IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-file.o pl-files.o pl-fmt.o \
 	pl-glob.o pl-option.o \
-	pl-read.o \
 	pl-os.o pl-privitf.o \
+	pl-read.o \
+	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
 	pl-text.o pl-util.o pl-utf8.o \
 	pl-write.o \
@@ -585,6 +587,9 @@ pl-os.o: $(srcdir)/packages/PLStream/pl-os.c
 
 pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-privitf.c -o $@
+
+pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-rl.c -o $@
 
 pl-read.o: $(srcdir)/packages/PLStream/pl-read.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-read.c -o $@

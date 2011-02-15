@@ -235,7 +235,7 @@ AC_ARG_WITH(readline,
 	else
 		yap_cv_readline=$with_readline
 		LDFLAGS="$LDFLAGS -L${yap_cv_readline}/lib"
-		CPPFLAGS="$CPPFLAGS -I${yap_cv_readline}/include"
+		CPPFLAGS="-I${yap_cv_readline}/include $CPPFLAGS"
 	fi,
 	[yap_cv_readline=yes])
 
@@ -1379,6 +1379,8 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
+  AC_CHECK_HEADERS( readline/readline/history.h)
+  AC_CHECK_DECL( rl_catch_signals )
 fi
 AC_CHECK_HEADERS(mpi.h)
 AC_CHECK_HEADERS(mpe.h)
