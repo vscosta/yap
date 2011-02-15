@@ -1868,11 +1868,9 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
        it's up to her to decide */
 
     if (Yap_PrologMode & UserCCallMode) {
-      if (EX) {
-	if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
-	  /* fat chance */
-	  siglongjmp(Yap_RestartEnv,1);
-	}
+      if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
+	/* fat chance */
+	siglongjmp(Yap_RestartEnv,1);
       }
     } else {
       if (type == PURE_ABORT) {

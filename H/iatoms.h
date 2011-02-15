@@ -412,7 +412,7 @@
   FunctorStaticClause = Yap_MkFunctor(AtomStaticClause,1);
   FunctorStream = Yap_MkFunctor(AtomStream,1);
   FunctorStreamEOS = Yap_MkFunctor(AtomEndOfStream,1);
-  FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,5);
+  FunctorStreamPos = Yap_MkFunctor(AtomStreamPos,4);
   FunctorSyntaxError = Yap_MkFunctor(AtomSyntaxError,7);
   FunctorShortSyntaxError = Yap_MkFunctor(AtomSyntaxError,1);
   FunctorThreadRun = Yap_MkFunctor(AtomTopThreadGoal,2);

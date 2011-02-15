@@ -2809,6 +2809,13 @@ Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
   return EX != NULL;
 }
 
+Atom 
+Yap_FileName(IOSTREAM *s)
+{
+  atom_t a = fileNameStream(s);
+  return SWIAtomToAtom(a);
+}
+
 #ifdef _WIN32
 
 #include <windows.h>

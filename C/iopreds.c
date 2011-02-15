@@ -27,6 +27,7 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "SWI-Stream.h"
 #include "yapio.h"
 #include "eval.h"
 #include <stdlib.h>
@@ -106,7 +107,6 @@ STATIC_PROTO (int CheckStream, (Term, int, char *));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_past_eof, (void));
 STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
@@ -114,7 +114,7 @@ STATIC_PROTO (Int p_type_of_char, (void));
 STATIC_PROTO (void CloseStream, (int));
 STATIC_PROTO (int get_wchar, (int));
 STATIC_PROTO (int put_wchar, (int,wchar_t));
-STATIC_PROTO (Term StreamPosition, (int));
+STATIC_PROTO (Term StreamPosition, (IOSTREAM *));
 
 static encoding_t
 DefaultEncoding(void)
@@ -1607,11 +1607,12 @@ Yap_UnLockStream (int sno)
 }
 #endif
 
+extern Atom Yap_FileName(IOSTREAM *s);
+
 static Term
-StreamName(int i)
+StreamName(IOSTREAM *s)
 {
-  if (i < 3) return(MkAtomTerm(AtomUser));
-  return(Stream[i].u.file.user_name);
+  return MkAtomTerm(Yap_FileName(s));
 }
 
 
@@ -1709,7 +1710,7 @@ clean_vars(VarEntry *p)
 }
 
 static Term
-syntax_error (TokEntry * tokptr, int sno, Term *outp)
+syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 {
   Term info;
   int count = 0, out = 0;
@@ -1821,7 +1822,7 @@ syntax_error (TokEntry * tokptr, int sno, Term *outp)
   tf[2] = MkAtomTerm(AtomHERE);
   tf[4] = MkIntegerTerm(out);
   tf[5] = MkIntegerTerm(err);
-  tf[6] = StreamName(sno);
+  tf[6] = StreamName(st);
   return(Yap_MkApplTerm(FunctorSyntaxError,7,tf));
 }
 
@@ -1894,15 +1895,16 @@ p_get_read_error_handler(void)
 }
 
 int
-Yap_readTerm(int sno, Term *tp, Term *varnames, Term *terror, Term *tpos)
+Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
 {
   TokEntry *tokstart;
   Term pt;
+  IOSTREAM *st = (IOSTREAM *)st0;
 
-  if (sno < 0) {
+  if (st == NULL) {
     return FALSE;
   }
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, tpos);
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(st, tpos);
   if (Yap_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
@@ -1914,7 +1916,7 @@ Yap_readTerm(int sno, Term *tp, Term *varnames, Term *terror, Term *tpos)
   pt = Yap_Parse();
   if (Yap_ErrorMessage) {
     Term t0 = MkVarTerm();
-    *terror = syntax_error(tokstart, sno, &t0);
+    *terror = syntax_error(tokstart, st, &t0);
       Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
       return FALSE;
   }
@@ -1939,7 +1941,7 @@ Yap_readTerm(int sno, Term *tp, Term *varnames, Term *terror, Term *tpos)
   Err: ARG6
  */
 static Int
-  do_read(int inp_stream, int nargs)
+  do_read(IOSTREAM *inp_stream, int nargs)
 {
   Term t, v;
   TokEntry *tokstart;
@@ -1954,8 +1956,8 @@ static Int
     Yap_Error(TYPE_ERROR_ATOM, tmod, "read_term/2");
     return FALSE;
   }
-  if (Stream[inp_stream].status & Binary_Stream_f) {
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, MkAtomTerm(Stream[inp_stream].u.file.name), "read_term/2");
+  if (!(inp_stream->flags & SIO_TEXT)) {
+    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, StreamName(inp_stream), "read_term/2");
     return FALSE;
   }
   Yap_Error_TYPE = YAP_NO_ERROR;
@@ -1966,21 +1968,12 @@ static Int
   }
   while (TRUE) {
     CELL *old_H;
-    UInt cpos = 0;
-    int seekable = Stream[inp_stream].status & Seekable_Stream_f;
-#if HAVE_FGETPOS
-    fpos_t rpos;
-#endif
-    int ungetc_oldc = 0;
-    int had_ungetc = FALSE;
+    int64_t cpos = 0;
+    int seekable = inp_stream->functions->seek != NULL;
 
     /* two cases where we can seek: memory and console */
     if (seekable) {
-      if (Stream[inp_stream].stream_getc == PlUnGetc) {
-	had_ungetc = TRUE;
-	ungetc_oldc = Stream[inp_stream].och;
-      }
-      cpos = Stream[inp_stream].charcount;
+      cpos = inp_stream->posbuf.byteno;
     }
     /* Scans the term using stack space */
     while (TRUE) {
@@ -1991,18 +1984,8 @@ static Int
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
 	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	if (had_ungetc) {
-	  Stream[inp_stream].stream_getc = PlUnGetc;
-	  Stream[inp_stream].och = ungetc_oldc;
-	}
 	if (seekable) {
-	  if (Stream[inp_stream].status) {
-#if HAVE_FGETPOS
-	      fsetpos(Stream[inp_stream].u.file.file, &rpos);
-#else
-	      fseek(Stream[inp_stream].u.file.file, cpos, 0L);
-#endif
-	  }
+	  Sseek64(inp_stream, cpos, SIO_SEEK_SET);
 	}
 	if (Yap_Error_TYPE == OUT_OF_TRAIL_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
@@ -2034,27 +2017,17 @@ static Int
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
-    if (Stream[inp_stream].status & Eof_Stream_f) {
-      if (Yap_eot_before_eof) {
-	/* next read should give out an end of file */
-	Stream[inp_stream].status |= Push_Eof_Stream_f;
+    if (tokstart != NULL && tokstart->Tok == Ord (eot_tok)) {
+      /* did we get the end of file from an abort? */
+      if (Yap_ErrorMessage &&
+	  !strcmp(Yap_ErrorMessage,"Abort")) {
+	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	return FALSE;
       } else {
-	if (tokstart != NULL && tokstart->Tok != Ord (eot_tok)) {
-	  /* we got the end of file from an abort */
-	  if (Yap_ErrorMessage &&
-	      !strcmp(Yap_ErrorMessage,"Abort")) {
-	    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	    return FALSE;
-	  }
-	  /* we need to force the next reading to also give end of file.*/
-	  Stream[inp_stream].status |= Push_Eof_Stream_f;
-	  Yap_ErrorMessage = "end of file found before end of term";
-	} else {
-	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 	
-	  return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
-	    && Yap_unify_constant(ARG4, TermNil);
-	}
+	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
+	  && Yap_unify_constant(ARG4, TermNil);
       }
     }
   repeat_cycle:
@@ -2159,36 +2132,40 @@ static Int
 static Int
 p_read (void)
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return do_read(Yap_c_input_stream, 6);
+  return do_read(NULL, 6);
 }
+
+extern int getInputStream(int, IOSTREAM **);
 
 static Int
 p_read2 (void)
 {				/* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
-  int inp_stream;
+  IOSTREAM *inp_stream;
   Int out;
 
-  /* needs to change Yap_c_output_stream for write */
-  inp_stream = CheckStream (ARG7, Input_Stream_f, "read/3");
-  if (inp_stream == -1) {
+  if (!getInputStream(Yap_InitSlot(Deref(ARG7)), &inp_stream)) {
     return(FALSE);
   }
-  UNLOCK(Stream[inp_stream].streamlock);
   out = do_read(inp_stream, 7);
   return out;
 }
 
 
 static Term
-StreamPosition(int sno)
+StreamPosition(IOSTREAM *st)
 {
-  return TermNil;
+  Term t[4];
+  t[0] = MkIntegerTerm(st->posbuf.charno);
+  t[1] = MkIntegerTerm(st->posbuf.lineno);
+  t[2] = MkIntegerTerm(st->posbuf.linepos);
+  t[3] = MkIntegerTerm(st->posbuf.byteno);
+  return Yap_MkApplTerm(FunctorStreamPos,4,t);
 }
 
 Term
-Yap_StreamPosition(int sno)
+Yap_StreamPosition(IOSTREAM *st)
 {
-  return StreamPosition(sno);
+  return StreamPosition(st);
 }
 
 
@@ -2663,8 +2640,6 @@ Yap_InitBackIO (void)
 void
 Yap_InitIOPreds(void)
 {
-  Term cm = CurrentModule;
-
   Yap_stdin = stdin;
   Yap_stdout = stdout;
   Yap_stderr = stderr;

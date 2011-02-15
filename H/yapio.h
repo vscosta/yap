@@ -220,7 +220,8 @@ typedef struct AliasDescS {
 
 /************ SWI compatible support for different encodings ************/
 
-#ifndef SIO_NL_POSIX
+
+#ifndef _PL_STREAM_H
 typedef enum {
   ENC_OCTET      = 0,
   ENC_ISO_LATIN1 = 1,
@@ -232,6 +233,14 @@ typedef enum {
   ENC_ISO_UTF32_BE = 64,
   ENC_ISO_UTF32_LE = 128
 } encoding_t;
+#else
+#define ENC_ISO_LATIN1 ENC_ISO_LATIN_1
+#define ENC_ISO_UTF32_BE ENC_UNKNOWN //bogus
+#define ENC_ISO_UTF32_LE ENC_WCHAR // bogus
+#define ENC_ISO_UTF8    ENC_UTF8
+#define ENC_ISO_ASCII    ENC_ASCII
+#define ENC_ISO_ANSI    ENC_ANSI
+typedef IOENC encoding_t;
 #endif
 
 #define MAX_ISO_LATIN1 255
@@ -261,9 +270,9 @@ VarEntry STD_PROTO(*Yap_LookupVar,(char *));
 Term STD_PROTO(Yap_VarNames,(VarEntry *,Term));
 
 /* routines in scanner.c */
-TokEntry STD_PROTO(*Yap_tokenizer,(int, Term *));
+TokEntry STD_PROTO(*Yap_tokenizer,(struct io_stream *, Term *));
 void     STD_PROTO(Yap_clean_tokenizer,(TokEntry *, VarEntry *, VarEntry *));
-Term     STD_PROTO(Yap_scan_num,(int (*)(int)));
+Term     STD_PROTO(Yap_scan_num,(struct io_stream *));
 char	 STD_PROTO(*Yap_AllocScannerMemory,(unsigned int));
 
 /* routines in iopreds.c */

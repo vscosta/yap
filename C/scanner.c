@@ -35,6 +35,7 @@
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
+#include "SWI-Stream.h"
 #include "yapio.h"
 #include "alloc.h"
 #include "eval.h"
@@ -58,9 +59,8 @@
 #define my_isupper(C)	( C >= 'A' && C <= 'Z' )
 #define my_islower(C)	( C >= 'a' && C <= 'z' )
 
-STATIC_PROTO(int my_getch, (int (*) (int)));
 STATIC_PROTO(Term float_send, (char *, int));
-STATIC_PROTO(Term get_num, (int *, int *, int, int (*) (int), int (*) (int),char *,UInt,int));
+STATIC_PROTO(Term get_num, (int *, int *, IOSTREAM *,char *,UInt,int));
 
 /* token table with some help from Richard O'Keefe's PD scanner */
 static char chtype0[NUMBER_OF_CHARS+1] =
@@ -139,6 +139,27 @@ Yap_wide_chtype(Int ch) {
 }
 
 
+static inline int
+getchr__(IOSTREAM *inp)
+{ int c = Sgetcode(inp);
+
+  if ( !CharConversionTable || c < 0 || c >= 256 )
+    return c;
+
+  return CharConversionTable[c];
+}
+
+
+#define getchr(inp)  getchr__(inp)
+#define getchrq(inp) Sgetcode(inp)
+
+EXTERN inline int
+GetCurInpPos (IOSTREAM *inp_stream)
+{
+  return inp_stream->posbuf.lineno;
+}
+
+
 
 /* in case there is an overflow */
 typedef struct scanner_extra_alloc {
@@ -202,17 +223,6 @@ Yap_AllocScannerMemory(unsigned int size)
   return AllocScannerMemory(size);
 }
 
-inline static int
-my_getch(int (*Nextch) (int))
-{
-  int ch = (*Nextch) (Yap_c_input_stream); 
-#ifdef DEBUG
-  if (Yap_Option[1])
-    fprintf(Yap_stderr, "[getch %c]", ch);
-#endif
-  return(ch);
-}
-
 extern double atof(const char *);
 
 static Term
@@ -251,18 +261,19 @@ read_int_overflow(const char *s, Int base, Int val, int sign)
 #endif    
 }
 
+
 static wchar_t
-read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
+read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 {
   int ch;
 
   /* escape sequence */
  restart:
-  ch = QuotedNxtch(inp_stream);
+  ch = getchrq(inp_stream);
   switch (ch) {
   case 10:
     do {
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (ch == '\\') goto restart;
       if (chtype(ch) != BS || ch == 10) {
 	return ch;
@@ -278,7 +289,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       return 0;
     } else {
       /* sicstus */
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (chtype(ch) == SL) {
 	goto restart;
       } else {
@@ -303,7 +314,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       wchar_t wc='\0';
 
       for (i=0; i< 4; i++) {
-	ch = QuotedNxtch(inp_stream);
+	ch = getchrq(inp_stream);
 	if (ch>='0' && ch <= '9') {
 	  wc += (ch-'0')<<((3-i)*4);
 	} else if (ch>='a' && ch <= 'f') {
@@ -323,7 +334,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       wchar_t wc='\0';
 
       for (i=0; i< 8; i++) {
-	ch = QuotedNxtch(inp_stream);
+	ch = getchrq(inp_stream);
 	if (ch>='0' && ch <= '9') {
 	  wc += (ch-'0')<<((7-i)*4);
 	} else if (ch>='a' && ch <= 'f') {
@@ -352,7 +363,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
       Yap_ErrorMessage = "invalid escape sequence";
       return 0;
     } else {
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (ch ==  '?') {/* delete character */
 	return 127;
       } else if (ch >= 'a' && ch < 'z') {/* octal */
@@ -374,13 +385,13 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     /* character in octal: maximum of 3 digits, terminates with \ */
     if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
       unsigned char so_far = ch-'0';
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (ch >= '0' && ch < '8') {/* octal */
 	so_far = so_far*8+(ch-'0');
-	ch = QuotedNxtch(inp_stream);
+	ch = getchrq(inp_stream);
 	if (ch >= '0' && ch < '8') { /* octal */
 	  so_far = so_far*8+(ch-'0');
-	  ch = QuotedNxtch(inp_stream);
+	  ch = getchrq(inp_stream);
 	  if (ch != '\\') {
 	    Yap_ErrorMessage = "invalid octal escape sequence";
 	    return 0;
@@ -400,10 +411,10 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     } else {
       /* sicstus */
       unsigned char so_far = ch-'0';
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (ch >= '0' && ch < '8') {/* octal */
 	so_far = so_far*8+(ch-'0');
-	ch = QuotedNxtch(inp_stream);
+	ch = getchrq(inp_stream);
 	if (ch >= '0' && ch < '8') { /* octal */
 	  return so_far*8+(ch-'0');
 	} else {
@@ -419,15 +430,15 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     /* hexadecimal character (YAP allows empty hexadecimal  */
     if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
       unsigned char so_far = 0; 
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       if (my_isxdigit(ch,'f','F')) {/* hexa */
 	so_far = so_far * 16 + (chtype(ch) == NU ? ch - '0' :
 				(my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-	ch = QuotedNxtch(inp_stream);
+	ch = getchrq(inp_stream);
 	if (my_isxdigit(ch,'f','F')) { /* hexa */
 	  so_far = so_far * 16 + (chtype(ch) == NU ? ch - '0' :
 				  (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
-	  ch = QuotedNxtch(inp_stream);
+	  ch = getchrq(inp_stream);
 	  if (ch == '\\') {
 	    return so_far;
 	  } else {
@@ -449,11 +460,11 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
     } else {
       /* sicstus mode */
       unsigned char so_far = 0;
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       so_far = (chtype(ch) == NU ? ch - '0' :
 		my_isupper(ch) ? ch - 'A' + 10 : 
 		my_islower(ch) ? ch - 'a' +10 : 0);
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       return so_far*16 + (chtype(ch) == NU ? ch - '0' :
 		       my_isupper(ch) ? ch - 'A' +10 :
 		       my_islower(ch) ? ch - 'a' + 10 : 0);
@@ -479,7 +490,7 @@ read_quoted_char(int *scan_nextp, int inp_stream, int (*QuotedNxtch)(int))
 /* reads a number, either integer or float */
 
 static Term
-get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*QuotedNxtch) (int), char *s, UInt max_size, int sign)
+get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, int sign)
 {
   char *sp = s;
   int ch = *chp;
@@ -487,7 +498,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   int might_be_float = TRUE, has_overflow = FALSE;
 
   *sp++ = ch;
-  ch = Nxtch(inp_stream);
+  ch = getchr(inp_stream);
   /*
    * because of things like 00'2, 03'2 and even better 12'2, I need to
    * do this (have mercy) 
@@ -499,7 +510,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       return TermNil;
     }
     base = 10 * base + ch - '0';
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
   }
   if (ch == '\'') {
     if (base > 36) {
@@ -512,18 +523,18 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       return TermNil;
     }
     *sp++ = ch;
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
     if (base == 0) {
       wchar_t ascii = ch;
       int scan_extra = TRUE;
 
       if (ch == '\\' &&
 	  yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
-	ascii = read_quoted_char(&scan_extra, inp_stream, QuotedNxtch);
+	ascii = read_quoted_char(&scan_extra, inp_stream);
       }
       /* a quick way to represent ASCII */
       if (scan_extra)
-	*chp = Nxtch(inp_stream);
+	*chp = getchr(inp_stream);
       if (sign == -1) {
 	return MkIntegerTerm(-ascii);
       }
@@ -544,7 +555,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	val = oval * base + chval;
 	if (oval != (val-chval)/base) /* overflow */
 	  has_overflow = (has_overflow || TRUE);
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
       }
     }
   } else if (ch == 'x' && base == 0) {
@@ -554,7 +565,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       return TermNil;
     }
     *sp++ = ch;
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
     while (my_isxdigit(ch, 'F', 'f')) {
       Int oval = val;
       int chval = (chtype(ch) == NU ? ch - '0' :
@@ -567,18 +578,18 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
       val = val * 16 + chval;
       if (oval != (val-chval)/16) /* overflow */
 	has_overflow = TRUE;
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
     }
     *chp = ch;
   }
   else if (ch == 'o' && base == 0) {
     might_be_float = FALSE;
     base = 8;
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
   } else if (ch == 'b' && base == 0) {
     might_be_float = FALSE;
     base = 2;
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
   } else {
     val = base;
     base = 10;
@@ -600,7 +611,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
     val = val * base + ch - '0';
     if (val/base != oval || val -oval*base != ch-'0') /* overflow */
       has_overflow = TRUE;
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
   }
   if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
     if (yap_flags[STRICT_ISO_FLAG] && (ch == 'e' || ch == 'E')) {
@@ -613,7 +624,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	return TermNil;
       }
       *sp++ = '.';
-      if (chtype(ch = Nxtch(inp_stream)) != NU) {
+      if (chtype(ch = getchr(inp_stream)) != NU) {
 	*chbuffp = '.';
 	*chp = ch;
 	*--sp = '\0';
@@ -630,7 +641,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	}
 	*sp++ = ch;
       }
-      while (chtype(ch = Nxtch(inp_stream)) == NU);
+      while (chtype(ch = getchr(inp_stream)) == NU);
     }
     if (ch == 'e' || ch == 'E') {
       char *sp0 = sp;
@@ -641,7 +652,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	return TermNil;
       }
       *sp++ = ch;
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
       if (ch == '-') {
 	cbuff = '-';
 	if (--max_size == 0) {
@@ -649,10 +660,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	  return TermNil;
 	}
 	*sp++ = '-';
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
       } else if (ch == '+') {
 	cbuff = '+';
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
       }
       if (chtype(ch) != NU) {
 	/* error */
@@ -672,7 +683,7 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
 	  return TermNil;
 	}
 	*sp++ = ch;
-      } while (chtype(ch = Nxtch(inp_stream)) == NU);
+      } while (chtype(ch = getchr(inp_stream)) == NU);
     }
     *sp = '\0';
     *chp = ch;
@@ -698,10 +709,10 @@ get_num(int *chp, int *chbuffp, int inp_stream, int (*Nxtch) (int), int (*Quoted
   }
 }
 
-/* given a function Nxtch scan until we  either find the number
+/* given a function getchr scan until we  either find the number
    or end of file */
 Term
-Yap_scan_num(int (*Nxtch) (int))
+Yap_scan_num(IOSTREAM *inp)
 {
   Term out;
   int sign = 1;
@@ -716,15 +727,15 @@ Yap_scan_num(int (*Nxtch) (int))
     Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
     return TermNil;
   }
-  ch = Nxtch(-1);
+  ch = getchr(inp);
   while (chtype(ch) == BS) {
-    ch = Nxtch(-1);
+    ch = getchr(inp);
   }
   if (ch == '-') {
     sign = -1;
-    ch = Nxtch(-1);
+    ch = getchr(inp);
   } else if (ch == '+') {
-    ch = Nxtch(-1);
+    ch = getchr(inp);
   }
   if (chtype(ch) != NU) {
     Yap_clean_tokenizer(NULL, NULL, NULL);
@@ -733,7 +744,7 @@ Yap_scan_num(int (*Nxtch) (int))
   cherr = '\0';
   if (ASP-H < 1024)
     return TermNil;
-  out = get_num(&ch, &cherr, -1, Nxtch, Nxtch, ptr, 4096, sign); /*  */
+  out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
   Yap_clean_tokenizer(NULL, NULL, NULL);
   if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
@@ -771,15 +782,13 @@ ch_to_wide(char *base, char *charp)
   }
 
 TokEntry *
-Yap_tokenizer(int inp_stream, Term *tposp)
+Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 {
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
   int ch;
   wchar_t *wcharp;
-  int (*Nxtch) (int) = Stream[inp_stream].stream_wgetc_for_read;
-  int (*QuotedNxtch) (int) = Stream[inp_stream].stream_wgetc;
 
   Yap_ErrorMessage = NULL;
   Yap_Error_Size = 0;
@@ -790,9 +799,9 @@ Yap_tokenizer(int inp_stream, Term *tposp)
   ScannerExtraBlocks = NULL;
   l = NULL;
   p = NULL;			/* Just to make lint happy */
-  ch = Nxtch(inp_stream);
+  ch = getchr(inp_stream);
   while (chtype(ch) == BS) {
-    ch = Nxtch(inp_stream);
+    ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
   do {
@@ -820,20 +829,20 @@ Yap_tokenizer(int inp_stream, Term *tposp)
     p = t;
   restart:
     while (chtype(ch) == BS) {
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
     }
     t->TokPos = GetCurInpPos(inp_stream);
 
     switch (chtype(ch)) {
 
     case CC:
-      while ((ch = Nxtch(inp_stream)) != 10 && chtype(ch) != EF);
+      while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
       if (chtype(ch) != EF) {
 	/* blank space */
 	if (t == l) {
 	  /* we found a comment before reading characters */
 	  while (chtype(ch) == BS) {
-	    ch = Nxtch(inp_stream);
+	    ch = getchr(inp_stream);
 	  }
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
@@ -847,14 +856,14 @@ Yap_tokenizer(int inp_stream, Term *tposp)
     case UL:
     case LC:
       och = ch;
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
     scan_name:
       TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
       charp = TokImage;
       wcharp = NULL;
       isvar = (chtype(och) != LC);
       add_ch_to_buff(och);
-      for (; chtype(ch) <= NU; ch = Nxtch(inp_stream)) {
+      for (; chtype(ch) <= NU; ch = getchr(inp_stream)) {
 	if (charp == (char *)AuxSp-1024) {
 	huge_var_error:
 	  /* huge atom or variable, we are in trouble */
@@ -873,7 +882,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  goto huge_var_error;
 	}
 	add_ch_to_buff(ch);
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
       }
       add_ch_to_buff('\0');
       if (!isvar) {
@@ -928,7 +937,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  /* serious error now */
 	  return l;
 	}
-	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,Nxtch,QuotedNxtch,ptr,4096,1)) == 0L) {
+	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,ptr,4096,1)) == 0L) {
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -1030,7 +1039,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
       charp = TokImage;
       quote = ch;
       len = 0;
-      ch = QuotedNxtch(inp_stream);
+      ch = getchrq(inp_stream);
       wcharp = NULL;
 
       while (TRUE) {
@@ -1045,17 +1054,17 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  break;
 	}
 	if (ch == quote) {
-	  ch = QuotedNxtch(inp_stream);
+	  ch = getchrq(inp_stream);
 	  if (ch != quote)
 	    break;
 	  add_ch_to_buff(ch);
-	  ch = QuotedNxtch(inp_stream);
+	  ch = getchrq(inp_stream);
 	} else if (ch == '\\' && yap_flags[CHARACTER_ESCAPE_FLAG] != CPROLOG_CHARACTER_ESCAPES) {
 	  int scan_next = TRUE;
-	  ch = read_quoted_char(&scan_next, inp_stream, QuotedNxtch);
+	  ch = read_quoted_char(&scan_next, inp_stream);
 	  add_ch_to_buff(ch);
 	  if (scan_next) {
-	    ch = QuotedNxtch(inp_stream);
+	    ch = getchrq(inp_stream);
 	  }
 	} else if (chtype(ch) == EF && ch <= MAX_ISO_LATIN1) {
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
@@ -1063,7 +1072,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	  break;
 	} else {
 	  add_ch_to_buff(ch);
-	  ch = QuotedNxtch(inp_stream);
+	  ch = getchrq(inp_stream);
 	}
 	++len;
 	if (charp > (char *)AuxSp - 1024) {
@@ -1127,20 +1136,20 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 
     case SY:
       och = ch;
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
       if (och == '/' && ch == '*') {
 	while ((och != '*' || ch != '/') && chtype(ch) != EF) {
 	  och = ch;
-	  ch = Nxtch(inp_stream);
+	  ch = getchr(inp_stream);
 	}
 	if (chtype(ch) == EF) {
 	  t->Tok = Ord(kind = eot_tok);
 	}
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
 	if (t == l) {
 	  /* we found a comment before reading characters */
 	  while (chtype(ch) == BS) {
-	    ch = Nxtch(inp_stream);
+	    ch = getchr(inp_stream);
 	  }
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
@@ -1151,14 +1160,14 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 			 || chtype(ch) == CC)) {
 	Yap_eot_before_eof = TRUE;
 	if (chtype(ch) == CC)
-	  while ((ch = Nxtch(inp_stream)) != 10 && chtype(ch) != EF);
+	  while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
 	t->Tok = Ord(kind = eot_tok);
       }
       else {
 	TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
 	charp = TokImage;
 	*charp++ = och;
-	for (; chtype(ch) == SY; ch = Nxtch(inp_stream))
+	for (; chtype(ch) == SY; ch = getchr(inp_stream))
 	  *charp++ = ch;
 	*charp = '\0';
 	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
@@ -1184,7 +1193,7 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 	char chs[2];
 	chs[0] = ch;
 	chs[1] = '\0';
-	ch = Nxtch(inp_stream);
+	ch = getchr(inp_stream);
 	t->TokInfo = Unsigned(Yap_LookupAtom(chs));
 	t->Tok = Ord(kind = Name_tok);
 	if (ch == '(')
@@ -1194,26 +1203,26 @@ Yap_tokenizer(int inp_stream, Term *tposp)
 
     case BK:
       och = ch;
-      ch = Nxtch(inp_stream);
+      ch = getchr(inp_stream);
       t->TokInfo = och;
       if (t->TokInfo == '(' && !solo_flag) {
 	t->TokInfo = 'l';
 	solo_flag = TRUE;
       } else if (och == '[')  {
-	while (chtype(ch) == BS) {  ch = Nxtch(inp_stream); };
+	while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
 	if (ch == ']') {
 	  t->TokInfo = Unsigned(AtomNil);
 	  t->Tok = Ord(kind = Name_tok);
-	  ch = Nxtch(inp_stream);
+	  ch = getchr(inp_stream);
 	  solo_flag = FALSE;
 	  break;
 	}
       } else if (och == '{')  {
-	while (chtype(ch) == BS) {  ch = Nxtch(inp_stream); };
+	while (chtype(ch) == BS) {  ch = getchr(inp_stream); };
 	if (ch == '}') {
 	  t->TokInfo = Unsigned(AtomBraces);
 	  t->Tok = Ord(kind = Name_tok);
-	  ch = Nxtch(inp_stream);
+	  ch = getchr(inp_stream);
 	  solo_flag = FALSE;
 	  break;
 	}

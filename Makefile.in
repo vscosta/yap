@@ -614,6 +614,12 @@ pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
 pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-yap.c -o $@
 
+iopreds.o : $(srcdir)/C/iopreds.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $< -o $@
+
+scanner.o : $(srcdir)/C/scanner.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include $< -o $@
+
 # default rule
 %.o : $(srcdir)/C/%.c config.h
 	$(CC) -c $(CFLAGS) $< -o $@

@@ -66,12 +66,7 @@ load_files(Files,Opts) :-
 '$process_lf_opts'(V,_,_,_,_,_,_,_,_,_,_,_,_,Call) :-
 	var(V), !,
 	'$do_error'(instantiation_error,Call).
-'$process_lf_opts'([],_,InfLevel,_,_,_,_,_,Encoding,_,_,_,_,_) :-
-	(var(Encoding) ->
-	    '$default_encoding'(Encoding)
-	    ;
-	    true
-	).
+'$process_lf_opts'([],_,InfLevel,_,_,_,_,_,_,_,_,_,_,_).
 '$process_lf_opts'([Opt|Opts],Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,Files,Call) :-
 	'$process_lf_opt'(Opt,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,Files,Call), !, 
 	'$process_lf_opts'(Opts,Silent,InfLevel,Expand,Changed,CompilationMode,Imports,Stream,Encoding,SkipUnixComments,CompMode,Reconsult,Files,Call).
@@ -159,8 +154,15 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
 	'$find_in_path'(X, Y, Call),
-	'$valid_encoding'(Encoding, Enc),
-	open(Y, read, Stream, [encoding(Encoding)]), !,
+	(
+	  var(Encoding)
+	 ->
+	  Opts = []
+        ;
+	 '$valid_encoding'(Encoding, Enc),
+	  Opts = [encoding(Encoding)]
+        ),
+	open(Y, read, Stream, Opts), !,
 	'$set_changed_lfmode'(Changed),
 	'$start_lf'(X, Mod, Stream, InfLevel, CompilationMode, Imports, Changed,SkipUnixComments,CompMode,Reconsult,UseModule),
 	close(Stream).
@@ -429,13 +431,11 @@ initialization(G,OPT) :-
 	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
-	'$default_encoding'(Enc),
-	'$valid_encoding'(Encoding, Enc),
-	( open(Y, read, Stream, [encoding(Encoding)]), !,  % '$open'(Y, '$csult', Stream, 0, Encoding, X), !,
-		print_message(Verbosity, loading(including, Y)),
-		'$loop'(Stream,Status), close(Stream)
+	( open(Y, read, Stream), !,
+	  print_message(Verbosity, loading(including, Y)),
+	  '$loop'(Stream,Status), close(Stream)
 	;
-		'$do_error'(permission_error(input,stream,Y),include(X))
+	  '$do_error'(permission_error(input,stream,Y),include(X))
 	),
 	H is heapused-H0, '$cputime'(TF,_), T is TF-T0,
 	print_message(Verbosity, loaded(included, Y, Mod, T, H)),
@@ -669,7 +669,6 @@ remove_from_path(New) :- '$check_path'(New,Path),
         '$do_error'(domain_error(encoding,EncAtom),encoding(EncAtom)).
 '$set_encoding'(EncAtom) :-
 	'$do_error'(type_error(atom,V),encoding(EncAtom)).
-
 
 absolute_file_name(V,Out) :- var(V), !,
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).

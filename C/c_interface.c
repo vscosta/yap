@@ -333,6 +333,7 @@
 #include <stdlib.h>
 #include "Yap.h"
 #include "clause.h"
+#include "SWI-Stream.h"
 #include "yapio.h"
 #include "attvar.h"
 #if HAVE_STDARG_H
@@ -457,9 +458,9 @@ X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
 X_API void    STD_PROTO(YAP_PruneGoal,(void));
-X_API void    STD_PROTO(YAP_InitConsult,(int, char *));
-X_API void    STD_PROTO(YAP_EndConsult,(void));
-X_API Term    STD_PROTO(YAP_Read, (int (*)(void)));
+X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
+X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
+X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
 X_API void    STD_PROTO(YAP_Write, (Term, int (*)(wchar_t), int));
 X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
@@ -1512,7 +1513,18 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     }
     return out;
   } else {
-    return((exec_code)());
+    Int ret = (exec_code)();
+    if (!ret) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
+    return ret;
   }
 }
 
@@ -1566,7 +1578,18 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     }
   } else {
-    return (exec_code)();
+    Int ret = (exec_code)();
+    if (!ret) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
+    return ret;
   }
 }
 
@@ -1609,7 +1632,18 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     } 
   } else {
-    return (exec_code)();
+    Int ret = (exec_code)();
+    if (!ret) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
+    return ret;
   }
 }
 
@@ -1659,8 +1693,20 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       */
     }
     return TRUE;
+  } else {
+    Int ret = (exec_code)();
+    if (!ret) {
+      Term t;
+
+      BallTerm = EX;
+      EX = NULL;
+      if ((t = Yap_GetException())) {
+	  Yap_JumpToEnv(t);
+	  return FALSE;
+      }
+    }
+    return ret;
   }
-  return (exec_code)();
 }
 
 X_API Int
@@ -2355,31 +2401,34 @@ YAP_ClearExceptions(void)
   UncaughtThrow = FALSE;
 }
 
-X_API void
+X_API IOSTREAM *
 YAP_InitConsult(int mode, char *filename)
 {
+  IOSTREAM *st;
   BACKUP_MACHINE_REGS();
 
   if (mode == YAP_CONSULT_MODE)
     Yap_init_consult(FALSE, filename);
   else
     Yap_init_consult(TRUE, filename);
-
+  st = Sopen_file(filename, "r");
   RECOVER_MACHINE_REGS();
+  return st;
 }
 
 X_API void
-YAP_EndConsult(void)
+YAP_EndConsult(IOSTREAM *s)
 {
   BACKUP_MACHINE_REGS();
 
   Yap_end_consult();
+  Sclose(s);
 
   RECOVER_MACHINE_REGS();
 }
 
 X_API Term
-YAP_Read(int (*mygetc)(void))
+YAP_Read(IOSTREAM *inp)
 {
   Term t, tpos = TermNil;
   int sno;
@@ -2387,23 +2436,19 @@ YAP_Read(int (*mygetc)(void))
   
   BACKUP_MACHINE_REGS();
 
-  do_getf = mygetc;
-  sno =  Yap_GetFreeStreamDForReading();
-  if (sno < 0) {
-    Yap_Error(SYSTEM_ERROR,TermNil, "new stream not available for YAP_Read");
-    return TermNil;
-  }
-  Stream[sno].stream_getc = do_yap_getc;
-  Stream[sno].status |= Tty_Stream_f;
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
-  Stream[sno].status = Free_Stream_f;
-  UNLOCK(Stream[sno].streamlock);
+
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp, &tpos);
   if (Yap_ErrorMessage)
     {
       Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
       RECOVER_MACHINE_REGS();
       return 0;
     }
+  if (inp->flags & (SIO_FEOF|SIO_FEOF2)) {
+      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      RECOVER_MACHINE_REGS();
+      return MkAtomTerm (AtomEof);
+  }
   t = Yap_Parse();
   Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
 
@@ -2513,21 +2558,20 @@ do_bootfile (char *bootfilename)
   Functor functor_query = Yap_MkFunctor(Yap_LookupAtom("?-"),1);
 
   /* consult boot.pl */
-  bootfile = fopen (bootfilename, "r");
-  if (bootfile == NULL)
-    {
-      fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
-      exit(1);
-    }
   /* the consult mode does not matter here, really */
   /*
     To be honest, YAP_InitConsult does not really do much,
     it's here for the future. It also makes what we want to do clearer.
   */
-  YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
+  bootfile = YAP_InitConsult(YAP_CONSULT_MODE,bootfilename);
+  if (bootfile == NULL)
+    {
+      fprintf(stderr, "[ FATAL ERROR: could not open bootfile %s ]\n", bootfilename);
+      exit(1);
+    }
   while (!eof_found)
     {
-      t = YAP_Read(mygetc);
+      t = YAP_Read(bootfile);
       if (eof_found) {
 	break;
       }
@@ -2566,8 +2610,7 @@ do_bootfile (char *bootfilename)
       /* do backtrack */
       YAP_Reset();
     }
-  YAP_EndConsult();
-  fclose (bootfile);
+  YAP_EndConsult(bootfile);
 #ifdef DEBUG
   if (output_msg)
     fprintf(stderr,"Boot loaded\n");

@@ -295,8 +295,8 @@ extern X_API void PROTO(YAP_Reset,(void));
 /*  void YAP_Error(int, YAP_Term, const char *,...) */
 extern X_API void PROTO(YAP_Error,(int, YAP_Term, CONST char *, ...));
 
-/*  YAP_Term YAP_Read(int (*)(void)) */
-extern X_API YAP_Term PROTO(YAP_Read,(int (*)(void)));
+/*  YAP_Term YAP_Read(void *) */
+extern X_API YAP_Term PROTO(YAP_Read,(void *));
 
 /*  void YAP_Write(YAP_Term,void (*)(int),int) */
 extern X_API void PROTO(YAP_Write,(YAP_Term,void (*)(int),int));
@@ -316,11 +316,11 @@ extern X_API int PROTO(YAP_Init,(YAP_init_args *));
 /*  int YAP_FastInit(const char *) */
 extern X_API int PROTO(YAP_FastInit,(CONST char *));
 
-/*  int YAP_InitConsult(int, const char *) */
-extern X_API int PROTO(YAP_InitConsult,(int, CONST char *));
+/*  void * YAP_InitConsult(int, const char *) */
+extern X_API void * PROTO(YAP_InitConsult,(int, CONST char *));
 
 /*  int YAP_EndConsult(void) */
-extern X_API int PROTO(YAP_EndConsult,(void));
+extern X_API int PROTO(YAP_EndConsult,(void *));
 
 /*  void YAP_Exit(int) */
 extern X_API void PROTO(YAP_Exit,(int));

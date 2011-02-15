@@ -417,7 +417,7 @@ F	Slash			Slash		2
 F	StaticClause		StaticClause	1
 F	Stream			Stream		1
 F	StreamEOS		EndOfStream	1
-F	StreamPos		StreamPos	5
+F	StreamPos		StreamPos	4
 F	SyntaxError		SyntaxError	7
 F	ShortSyntaxError	SyntaxError	1
 F	ThreadRun		TopThreadGoal	2
