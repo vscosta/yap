@@ -157,6 +157,17 @@ Yap_Eval(YAP_Term t)
   return Yap_InnerEval(t);
 }
 
+IOENC
+Yap_DefaultEncoding(void)
+{
+  return LD->encoding;
+}
+
+void
+Yap_SetDefaultEncoding(IOENC new_encoding)
+{
+  LD->encoding = new_encoding;
+}
 
 int
 valueExpression(term_t t, Number r ARG_LD)

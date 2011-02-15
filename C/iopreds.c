@@ -1199,27 +1199,29 @@ p_float_format(void)
   return TRUE;
 }
 
+extern IOENC Yap_DefaultEncoding(void);
+extern void  Yap_SetDefaultEncoding(IOENC);
+extern int   PL_get_stream_handle(Int, IOSTREAM **);
+
 static Int
 p_get_default_encoding(void)
 {
-  Term out = TermNil; // VSC MkIntegerTerm(DefaultEncoding());
+  Term out = MkIntegerTerm(Yap_DefaultEncoding());
   return Yap_unify(ARG1, out);
 }
 
 static Int
 p_encoding (void)
 {				/* '$encoding'(Stream,N)                      */
-  int sno = 0;
-  // int sno = CheckStream (ARG1, Input_Stream_f|Output_Stream_f, "encoding/2");
+  IOSTREAM *st;
   Term t = Deref(ARG2);
-  if (sno < 0)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1)), &st)) {
     return FALSE;
-  if (IsVarTerm(t)) {
-    UNLOCK(Stream[sno].streamlock);
-    return Yap_unify(ARG2, MkIntegerTerm(Stream[sno].encoding));
   }
-  Stream[sno].encoding = IntegerOfTerm(Deref(ARG2));
-  UNLOCK(Stream[sno].streamlock);
+  if (IsVarTerm(t)) {
+    return Yap_unify(ARG2, MkIntegerTerm(st->encoding));
+  }
+  st->encoding = IntegerOfTerm(Deref(ARG2));
   return TRUE;
 }
 
