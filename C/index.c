@@ -5316,8 +5316,11 @@ kill_unsafe_block(path_stack_entry *sp, op_numbers op, PredEntry *ap, int first,
 {
   yamop *ipc;
   while ((--sp)->flag != block_entry);
-  if (sp->u.cle.entry_code == NULL)
+  if (sp->u.cle.entry_code == NULL) {
+    /* we have reached the top */
+    Yap_RemoveIndexation(ap);
     return sp;
+  }
   ipc = *sp->u.cle.entry_code;
   if (Yap_op_from_opcode(ipc->opc) == op) {
     /* the new block was the current clause */
@@ -5869,7 +5872,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  current_arity = ArityOfFunctor(f);
 	}
 	newpc = fe->u.labp;
-
 	if (newpc == (yamop *)&(ap->cs.p_code.ExpandCode)) {
 	  /* we found it */
 	  ipc = pop_path(&sp, cls, ap, cint);
