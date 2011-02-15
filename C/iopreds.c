@@ -84,7 +84,6 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-STATIC_PROTO (Int PlIOError, (yap_error_number, Term, char *));
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
@@ -123,19 +122,6 @@ void
 Yap_InitPlIO (void)
 {
   InitPlIO ();
-}
-
-static Int
-PlIOError (yap_error_number type, Term culprit, char *who)
-{
-  if (Yap_GetValue(AtomFileerrors) == MkIntTerm(1) ||
-      type == RESOURCE_ERROR_MAX_STREAMS /* do not catch resource errors */) {
-    Yap_Error(type, culprit, who);
-    /* and fail */
-    return FALSE;
-  } else {
-    return FALSE;
-  }
 }
 
 /*
@@ -328,22 +314,6 @@ p_exists_directory(void)
 #endif
   }
 }
-
-static Int
-p_file_expansion (void)
-{				/* '$file_expansion'(+File,-Name)      */
-  Term file_name = Deref(ARG1);
-
-  /* we know file_name is bound */
-  if (!IsAtomTerm (file_name)) {
-    PlIOError(TYPE_ERROR_ATOM, file_name, "absolute_file_name/3");
-    return(FALSE);
-  }
-  if (!Yap_TrueFileName (RepAtom (AtomOfTerm (file_name))->StrOfAE, Yap_FileNameBuf, FALSE))
-    return (PlIOError (EXISTENCE_ERROR_SOURCE_SINK,file_name,"absolute_file_name/3"));
-  return(Yap_unify(ARG2,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf))));
-}
-
 
 typedef struct stream_ref
 { struct io_stream *read;
@@ -1285,7 +1255,6 @@ Yap_InitIOPreds(void)
   /* here the Input/Output predicates */
   Yap_InitCPred ("$access", 1, p_access, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("exists_directory", 1, p_exists_directory, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred ("$file_expansion", 2, p_file_expansion, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
