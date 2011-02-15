@@ -1086,6 +1086,16 @@ writeTerm2(term_t t, int prec, write_options *options, bool arg)
       term_t arg = PL_new_term_ref();
 
       _PL_get_arg(1, t, arg);
+#if __YAP_PROLOG__
+      if ( PL_get_integer(arg, &n) && n == -1 )
+      { char buf[16];
+
+	buf[0] = '_';
+	buf[1] = EOS;
+
+	return PutToken(buf, out);
+      }
+#endif
       if ( PL_get_integer(arg, &n) && n >= 0 )
       { int i = n % 26;
 	int j = n / 26;
