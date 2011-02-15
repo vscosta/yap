@@ -333,7 +333,6 @@
 #include <stdlib.h>
 #include "Yap.h"
 #include "clause.h"
-#include "SWI-Stream.h"
 #include "yapio.h"
 #include "attvar.h"
 #if HAVE_STDARG_H
@@ -474,7 +473,6 @@ X_API void    STD_PROTO(YAP_SetOutputMessage, (void));
 X_API int     STD_PROTO(YAP_StreamToFileNo, (Term));
 X_API void    STD_PROTO(YAP_CloseAllOpenStreams,(void));
 X_API void    STD_PROTO(YAP_FlushAllStreams,(void));
-X_API Term    STD_PROTO(YAP_OpenStream,(void *, char *, Term, int));
 X_API Int     STD_PROTO(YAP_CurrentSlot,(void));
 X_API Int     STD_PROTO(YAP_NewSlots,(int));
 X_API Int     STD_PROTO(YAP_InitSlot,(Term));
@@ -3025,19 +3023,6 @@ YAP_FlushAllStreams(void)
   Yap_FlushStreams();
 
   RECOVER_H();
-}
-
-X_API Term
-YAP_OpenStream(void *fh, char *name, Term nm, int flags)
-{
-  Term retv;
-
-  BACKUP_H();
-
-  retv = Yap_OpenStream((FILE *)fh, name, nm, flags);
-
-  RECOVER_H();
-  return retv;
 }
 
 X_API void

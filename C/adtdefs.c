@@ -1177,6 +1177,8 @@ Yap_StringToDiffList(char *s, Term t)
 
  t = Yap_Globalise(t);
   while (cp > (unsigned char *)s) {
+    if (ASP < H+1024)
+      return (CELL)0;
     t = MkPairTerm(MkIntTerm(*--cp), t);
   }
   return t;

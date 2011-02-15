@@ -548,7 +548,7 @@ Yap_unify_constant(register Term a, register Term cons)
 static inline int
 do_cut(int i) {
 #ifdef CUT_C
-  while (POP_CHOICE_POINT(B->cp_b)) {
+  if (POP_CHOICE_POINT(B->cp_b)) {
     cut_c_pop();
   }
 #endif

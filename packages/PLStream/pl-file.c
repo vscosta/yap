@@ -362,11 +362,6 @@ initIO()
     addHTable(streamAliases, (void *)*np, (void *)(intptr_t)i);
 
   GD->io_initialised = TRUE;
-#if __YAP_PROLOG__
-  Yap_LookupSWIStream(Suser_input);
-  Yap_LookupSWIStream(Suser_output);
-  Yap_LookupSWIStream(Suser_error);
-#endif
 }
 
 

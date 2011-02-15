@@ -727,18 +727,6 @@ strtod(s, pe)
 
 #endif
 
-static char *cur_char_ptr;
-
-static int
-get_char_from_string(int s)
-{
-  if (cur_char_ptr[0] == '\0')
-    return -1;
-  cur_char_ptr++;
-  return cur_char_ptr[-1];
-}
-
-    
 #ifndef INFINITY
 #define INFINITY (1.0/0.0)
 #endif
@@ -751,9 +739,9 @@ static Term
 get_num(char *t)
 {
   Term out;
-
-  cur_char_ptr = t;
-  out = Yap_scan_num(get_char_from_string);
+  IOSTREAM *smem = Sopenmem(&t, NULL, "r");
+  out = Yap_scan_num(smem);
+  Sclose(smem);
   /* not ever iso */
   if (out == TermNil && yap_flags[LANGUAGE_MODE_FLAG] != 1) {
     int sign = 1;
@@ -779,10 +767,12 @@ get_num(char *t)
       }
     }
   }
+  /*
   if (cur_char_ptr[0] == '\0')
-    return(out);
   else
     return(TermNil);
+  */
+  return(out);
 }
 
 static UInt 

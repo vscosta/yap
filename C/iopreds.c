@@ -27,7 +27,6 @@ static char SccsId[] = "%W% %G%";
 #include "Yap.h"
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "SWI-Stream.h"
 #include "yapio.h"
 #include "eval.h"
 #include <stdlib.h>
@@ -140,55 +139,6 @@ DefaultEncoding(void)
   return ENC_ISO_ANSI;
 }
 
-static int
-GetFreeStreamD(void)
-{
-  int sno;
-
-  for (sno = 0; sno < MaxStreams; ++sno) {
-    LOCK(Stream[sno].streamlock);
-    if (Stream[sno].status & Free_Stream_f) {
-      break;
-    }
-    UNLOCK(Stream[sno].streamlock);
-  }
-  if (sno == MaxStreams) {
-    return -1;
-  }
-  Stream[sno].encoding = DefaultEncoding();
-  return sno;
-}
-
-int
-Yap_GetFreeStreamD(void)
-{
-  return GetFreeStreamD();
-}
-
-/* used from C-interface */
-int
-Yap_GetFreeStreamDForReading(void)
-{
-  int sno = GetFreeStreamD();
-  StreamDesc *s;
-
-  if (sno < 0) return sno;
-  s = Stream+sno;
-  s->status |= User_Stream_f|Input_Stream_f;
-  s->charcount = 0;
-  s->linecount = 1;
-  s->linepos = 0;
-  s->stream_wgetc = get_wchar;
-  s->encoding = DefaultEncoding();
-  if (CharConversionTable != NULL)
-    s->stream_wgetc_for_read = ISOWGetc;
-  else
-    s->stream_wgetc_for_read = s->stream_wgetc;
-  UNLOCK(s->streamlock);
-  return sno;
-}
-
-
 static void
 unix_upd_stream_info (StreamDesc * s)
 {
@@ -265,6 +215,25 @@ p_always_prompt_user(void)
 	 s->stream_getc = ConsoleGetc;
        }
   return(TRUE);
+}
+
+static int
+GetFreeStreamD(void)
+{
+  int sno;
+
+  for (sno = 0; sno < MaxStreams; ++sno) {
+    LOCK(Stream[sno].streamlock);
+    if (Stream[sno].status & Free_Stream_f) {
+      break;
+    }
+    UNLOCK(Stream[sno].streamlock);
+  }
+  if (sno == MaxStreams) {
+    return -1;
+  }
+  Stream[sno].encoding = DefaultEncoding();
+  return sno;
 }
 
 static int
@@ -1826,6 +1795,51 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   return(Yap_MkApplTerm(FunctorSyntaxError,7,tf));
 }
 
+Term
+Yap_StringToTerm(char *s,Term *tp)
+{
+  IOSTREAM *sno = Sopenmem(&s, NULL, "r");
+  Term t;
+  TokEntry *tokstart;
+  tr_fr_ptr TR_before_parse;
+  Term tpos = TermNil;
+
+  if (sno == NULL)
+    return FALSE;
+  TR_before_parse = TR;
+  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
+  if (tokstart == NIL || tokstart->Tok == Ord (eot_tok)) {
+    if (tp) {
+      *tp = MkAtomTerm(AtomEOFBeforeEOT);
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Sclose(sno);
+    return FALSE;
+  } else if (Yap_ErrorMessage) {
+    if (tp) {
+      *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Sclose(sno);
+    return FALSE;
+  }
+  t = Yap_Parse();
+  TR = TR_before_parse;
+  if (!t && !Yap_ErrorMessage) {
+    if (tp) {
+      t = MkVarTerm();
+      *tp = syntax_error(tokstart, sno, &t);
+    }
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Sclose(sno);
+    return FALSE;
+  }
+  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+  Sclose(sno);
+  return t;
+}
+
+
 Int
 Yap_FirstLineInParse (void)
 {
@@ -2674,7 +2688,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 
-  Yap_InitReadUtil ();
   InitPlIO ();
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   InitReadline();

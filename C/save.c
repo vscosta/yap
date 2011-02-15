@@ -1753,6 +1753,8 @@ Restore(char *s, char *lib_dir)
   }
 
   Yap_ReOpenLoadForeign();
+  /* restore SWI IO */
+  initIO ();
   Yap_InitPlIO();
   /* reset time */
   Yap_ReInitWallTime();

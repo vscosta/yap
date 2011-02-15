@@ -1683,7 +1683,7 @@ X_API int PL_is_functor(term_t ts, functor_t f)
   if (YAP_IsApplTerm(t)) {
     return FunctorOfTerm(t) == (Functor)ff;
   } else if (YAP_IsPairTerm(t)) {
-    return FunctorOfTerm(t) == FunctorDot;
+    return ff == FunctorDot;
   } else
     return 0;
 }
@@ -2753,10 +2753,9 @@ int Yap_read_term(term_t t, IOSTREAM *st, term_t vs);
 int
 Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
 {
-  int sno = Yap_LookupSWIStream(st);
   Term varnames, out, tpos;
 
-  if (!Yap_readTerm(sno, &out, &varnames, NULL, &tpos))
+  if (!Yap_readTerm(st, &out, &varnames, NULL, &tpos))
     return FALSE;
   if (!Yap_unify(out, Yap_GetFromSlot(t))) {
     return FALSE;
@@ -2768,45 +2767,18 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
 }
 
 Term
-Yap_StringToTerm(char *s, Term *tp)
-{
-  IOSTREAM *stream = Sopen_string(NULL, s, -1, "r");
-  int sno;
-  Term out, tpos;
-
-  if (!stream)
-    return FALSE;
-  sno = Yap_LookupSWIStream(stream);
-  if (sno < 0)
-    return FALSE;
-  if (!Yap_readTerm(sno, &out, NULL, tp, &tpos)) {
-    out = 0L;
-  }
-  Yap_CloseStream(sno);
-  Sclose(stream);
-  return out;
-}
-
-Term
 Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 {
-  int old_output_stream = Yap_c_output_stream;
   IOSTREAM *stream = Sopen_string(NULL, s, sz, "w");
-  int sno;
+  int out;
 
   if (!stream)
     return FALSE;
-  sno = Yap_LookupSWIStream(stream);
-
-  if (sno < 0)
-    return 0L;
-  Yap_c_output_stream = sno;
   Yap_StartSlots();
-  Yap_PlWriteToStream (t, sno, flags);
-  stream->bufp = '\0';
+  out = PL_write_term(stream, Yap_InitSlot(t), 1200, 0);
   Yap_CloseSlots();
-  Yap_c_output_stream = old_output_stream;
-  return EX != NULL;
+  Sclose(stream);
+  return out;
 }
 
 Atom 

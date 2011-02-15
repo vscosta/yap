@@ -406,9 +406,6 @@ extern X_API void PROTO(YAP_FlushAllStreams,(void));
 #define YAP_BINARY_STREAM	0x40
 #define YAP_SEEKABLE_STREAM	0x80
 
-/*  YAP_Term  YAP_OpenStream()  */
-extern X_API YAP_Term PROTO(YAP_OpenStream,(void *, CONST char *, YAP_Term, int));
-
 /*  YAP_Term  *YAP_NewSlots()  */
 extern X_API YAP_Int PROTO(YAP_NewSlots,(int));
 

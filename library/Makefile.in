@@ -58,7 +58,6 @@ PROGRAMS= \
 	$(srcdir)/random.yap \
 	$(srcdir)/r_session.yap \
 	$(srcdir)/rbtrees.yap \
-	$(srcdir)/readutil.yap \
 	$(srcdir)/regexp.yap \
 	$(srcdir)/rltree.yap \
 	$(srcdir)/splay.yap \

@@ -1556,26 +1556,28 @@ prune(choiceptr cp)
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       while (B->cp_b < cp) {
-	if (POP_CHOICE_POINT(cp))
+	if (POP_CHOICE_POINT(B->cp_b))
 	  {
 	    POP_EXECUTE();
 	  }
 	B = B->cp_b;
       }
-    }
+      if (POP_CHOICE_POINT(B->cp_b))
+	{
+	  POP_EXECUTE();
+	}
 #ifdef YAPOR
-  CUT_prune_to(cp);
+      CUT_prune_to(cp);
 #endif /* YAPOR */
-  if (SHOULD_CUT_UP_TO(B,cp)) {
     /* cut ! */
 #ifdef TABLING
-    abolish_incomplete_subgoals(B);
+      abolish_incomplete_subgoals(B);
 #endif /* TABLING */
-    HB = PROTECT_FROZEN_H(B->cp_b);
+      HB = PROTECT_FROZEN_H(B->cp_b);
 #include "trim_trail.h"
-    B = B->cp_b;
-    SET_BB(PROTECT_FROZEN_B(B));
-  }
+      B = B->cp_b;
+      SET_BB(PROTECT_FROZEN_B(B));
+    }
 }
 
 static inline

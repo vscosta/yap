@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <wchar.h>
 
+#include "SWI-Stream.h"
+
 #ifndef YAP_STDIO
 
 #define YP_printf	printf
