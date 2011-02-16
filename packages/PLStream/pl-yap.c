@@ -884,31 +884,8 @@ PL_add_to_protocol(const char *buf, size_t n)
 
 void
 PL_license(const char *license, const char *module)
-{ GET_LD
-
-    /* if ( GD->initialised ) */
-  { fid_t fid = PL_open_foreign_frame();
-    predicate_t pred = PL_predicate("license", 2, "system");
-    term_t av = PL_new_term_refs(2);
-
-    PL_put_atom_chars(av+0, license);
-    PL_put_atom_chars(av+1, module);
-
-    PL_call_predicate(NULL, PL_Q_NORMAL, pred, av);
-
-    PL_discard_foreign_frame(fid);
-    /*
-  } else
-  { 
-      VSC: too much work.
-      struct license *l = allocHeap(sizeof(*l));
-
-      l->license_id = store_string(license);
-      l->module_id  = store_string(module);
-      l->next = pre_registered;
-      pre_registered = l;
-    */
-  }
+{
+  /* unimplemented */
 }
 
 

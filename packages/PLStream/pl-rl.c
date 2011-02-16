@@ -384,7 +384,7 @@ event_hook()
 
 
 static void
-reset_readline()
+reset_readline(void)
 { if ( in_readline )
   { restore_signals();
   }
@@ -567,7 +567,7 @@ prolog_completion(const char *text, int start, int end)
 #undef read				/* UXNT redefinition */
 
 install_t
-PL_install_readline()
+PL_install_readline(void)
 { GET_LD
   bool old;
 

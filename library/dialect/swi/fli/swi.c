@@ -2649,21 +2649,6 @@ PL_query(int query)
 }  
 
 
-/* glue function to connect back PLStream to YAP IO */
-X_API void
-PL_YAP_InitSWIIO(struct SWI_IO *swio)
-{
-  FSWIStream = SWIFunctorToFunctor(swio->f);
-  SWIGetc = swio->get_c;
-  SWIPutc = swio->put_c;
-  SWIWideGetc = swio->get_w;
-  SWIWidePutc = swio->put_w;
-  SWIFlush = swio->flush_s;
-  SWIClose = swio->close_s;
-  SWIGetStream = swio->get_stream_handle;
-  SWIGetStreamPosition = swio->get_stream_position;
-}
-
 typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
 
 int 
@@ -2719,6 +2704,8 @@ X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer
 {
   return NULL;
 }
+
+extern atom_t PrologPrompt(void);
 
 char *
 PL_prompt_string(int fd)

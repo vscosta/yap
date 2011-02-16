@@ -4705,18 +4705,7 @@ get_stream_position(IOSTREAM *s, term_t t)
 static void
 init_yap(void)
 {
-  swi_io_struct swiio;
-
-  swiio.f = FUNCTOR_dstream1;
-  swiio.get_c = Sfgetc;
-  swiio.put_c = Sputc;
-  swiio.get_w = Sgetcode;
-  swiio.put_w = Sputcode;
-  swiio.flush_s = Sflush;
-  swiio.close_s = closeStream;
-  swiio.get_stream_handle = get_stream_handle_no_errors;
-  swiio.get_stream_position = get_stream_position;
-  PL_YAP_InitSWIIO(&swiio);
+  setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initCharTypes();
   initFiles();
   PL_register_extensions(PL_predicates_from_ctype);
