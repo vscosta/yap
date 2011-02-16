@@ -4729,6 +4729,7 @@ init_yap(void)
   fileerrors = TRUE;
   SinitStreams();
   initOs();
+  PL_install_readline();
 }
 #endif
 

@@ -2720,6 +2720,25 @@ X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer
   return NULL;
 }
 
+char *
+PL_prompt_string(int fd)
+{ if ( fd == 0 )
+  { atom_t a = PrologPrompt();          /* TBD: deal with UTF-8 */
+    
+    
+    if ( a )
+    {     
+      Atom at = SWIAtomToAtom(a);
+      if (!IsWideAtom(at)  && !IsBlob(at)) {
+	return RepAtom(at)->StrOfAE;
+      }
+    }
+  }
+
+  return NULL;
+}
+
+
 const char *Yap_GetCurrentPredName(void);
 Int Yap_GetCurrentPredArity(void);
 

@@ -114,6 +114,7 @@ YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
 YAP_Atom YAP_AtomFromSWIAtom(atom_t at);
 PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
 
+void PL_license(const char *license, const char *module);
 
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
@@ -204,5 +205,6 @@ unblockSignal(int sig)
 {
 }
 #endif
+
 
 #endif /* PL_YAP_H */

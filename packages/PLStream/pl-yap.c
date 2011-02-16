@@ -877,6 +877,48 @@ PL_utf8_strlen(const char *s, size_t len)
 { return utf8_strlen(s, len);
 }
 
+void
+PL_add_to_protocol(const char *buf, size_t n)
+{ protocol(buf, n);
+}
+
+void
+PL_license(const char *license, const char *module)
+{ GET_LD
+
+    /* if ( GD->initialised ) */
+  { fid_t fid = PL_open_foreign_frame();
+    predicate_t pred = PL_predicate("license", 2, "system");
+    term_t av = PL_new_term_refs(2);
+
+    PL_put_atom_chars(av+0, license);
+    PL_put_atom_chars(av+1, module);
+
+    PL_call_predicate(NULL, PL_Q_NORMAL, pred, av);
+
+    PL_discard_foreign_frame(fid);
+    /*
+  } else
+  { 
+      VSC: too much work.
+      struct license *l = allocHeap(sizeof(*l));
+
+      l->license_id = store_string(license);
+      l->module_id  = store_string(module);
+      l->next = pre_registered;
+      pre_registered = l;
+    */
+  }
+}
+
+
+bool
+systemMode(bool accept)
+{ GET_LD
+
+  return FALSE;
+}
+
 term_t
 Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
   YAP_Term nmod;

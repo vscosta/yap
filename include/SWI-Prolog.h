@@ -583,6 +583,8 @@ extern X_API size_t PL_utf8_strlen(const char *s, size_t len);
 
 extern X_API int PL_unify_list_codes(term_t l, const char *chars);
 
+PL_EXPORT(void)		PL_add_to_protocol(const char *buf, size_t count);
+
 #define PL_SIGSYNC	0x00010000	/* call handler synchronously */
 #define PL_SIGNOFRAME	0x00020000	/* Do not create a Prolog frame */
 
@@ -593,6 +595,8 @@ extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);
 
 extern X_API int PL_get_file_name(term_t n, char **name, int flags);
+
+extern char *PL_prompt_string(int fd);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NOTE: the functions in this section are   not  documented, as as yet not
