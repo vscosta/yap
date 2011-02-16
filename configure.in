@@ -1379,7 +1379,7 @@ fi
 if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
-  AC_CHECK_HEADERS( readline/readline/history.h)
+  AC_CHECK_HEADERS( readline/history.h)
   AC_CHECK_DECL( rl_catch_signals )
 fi
 AC_CHECK_HEADERS(mpi.h)

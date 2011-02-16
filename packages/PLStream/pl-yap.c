@@ -428,6 +428,7 @@ setPrologFlag(const char *name, int flags, ...)
 void
 PL_set_prolog_flag(const char *name, int flags, ...)
 {
+  
 }
 
 int
