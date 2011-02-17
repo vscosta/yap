@@ -1380,7 +1380,11 @@ if test "$yap_cv_readline" != "no"
 then
   AC_CHECK_HEADERS( readline/readline.h)
   AC_CHECK_HEADERS( readline/history.h)
-  AC_CHECK_DECL( rl_catch_signals )
+  AC_CHECK_FUNC( rl_completion_matches )
+  AC_CHECK_FUNC( rl_insert_close )
+  AC_CHECK_FUNC( rl_filename_completion_function )
+  AC_CHECK_FUNC( rl_set_prompt )
+  AC_CHECK_FUNC( rl_clear_pending_input )
 fi
 AC_CHECK_HEADERS(mpi.h)
 AC_CHECK_HEADERS(mpe.h)

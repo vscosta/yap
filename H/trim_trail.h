@@ -148,12 +148,10 @@
 	  if (erase) {
 	    /* at this point, we are the only ones accessing the clause,
 	       hence we don't need to have a lock it */
-	    saveregs();
 	    if (cl->ClFlags & ErasedMask) 
 	      Yap_ErLogUpdIndex(cl);
 	    else
 	      Yap_CleanUpIndex(cl);
-	    setregs();
 	  }
 	  UNLOCK(ap->PELock);
 	} else {

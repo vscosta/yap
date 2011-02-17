@@ -78,6 +78,9 @@ SWI-Prolog.h and SWI-Stream.h
 #endif
 
 #undef ESC				/* will be redefined ... */
+#ifdef META
+#undef META /* conflict with macports readline */
+#endif
 #include <stdio.h>			/* readline needs it */
 #include <errno.h>
 #define savestring(x)			/* avoid definition there */
@@ -86,7 +89,7 @@ extern int rl_done;			/* should be in readline.h, but */
 					/* isn't in some versions ... */
 #ifdef HAVE_READLINE_HISTORY_H
 #include <readline/history.h>
-#elif !defined(__APPLE__)
+#else
 extern void add_history(char *);	/* should be in readline.h */
 #endif
 					/* missing prototypes in older */
@@ -94,6 +97,7 @@ extern void add_history(char *);	/* should be in readline.h */
 extern int rl_begin_undo_group(void);	/* delete when conflict arrises! */
 extern int rl_end_undo_group(void);
 extern Function *rl_event_hook;
+
 #ifndef HAVE_RL_FILENAME_COMPLETION_FUNCTION
 #define rl_filename_completion_function filename_completion_function
 extern char *filename_completion_function(const char *, int);
@@ -335,7 +339,7 @@ rl_sighandler(int sig)
 
   DEBUG(3, Sdprintf("Resetting after signal\n"));
   prepare_signals();
-#ifndef __APPLE__
+#ifdef HAVE_RL_RESET_AFTER_SIGNAL
   rl_reset_after_signal ();
 #endif
 }
@@ -361,7 +365,7 @@ reentrant access is tried.
 
 #ifdef HAVE_RL_EVENT_HOOK
 static int
-event_hook()
+event_hook(void)
 { if ( Sinput->position )
   { int64_t c0 = Sinput->position->charno;
 
@@ -469,7 +473,7 @@ Sread_readline(void *handle, char *buf, size_t size)
 	{ int state = rl_readline_state;
 
 	  rl_clear_pending_input();
-#ifndef __APPLE__
+#ifdef HAVE_RL_DISCARD_ARGUMENT
 	  rl_discard_argument();
 #endif
 	  rl_deprep_terminal();
@@ -516,7 +520,6 @@ Sread_readline(void *handle, char *buf, size_t size)
 static int
 prolog_complete(int ignore, int key)
 { 
-#ifndef __APPLE__
   if ( rl_point > 0 && rl_line_buffer[rl_point-1] != ' ' )
     { rl_begin_undo_group();
       rl_complete(ignore, key);
@@ -532,7 +535,6 @@ prolog_complete(int ignore, int key)
       rl_end_undo_group();
     } else
     rl_complete(ignore, key);
-#endif
 
   return 0;
 }

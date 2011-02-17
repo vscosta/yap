@@ -1622,7 +1622,7 @@ static const char* const uflags_map[UNICODE_MAP_SIZE] =
      F(0),    F(3), ucp0xfa, ucp0xfb,    F(3), ucp0xfd, ucp0xfe, ucp0xff
 };
 
-int
+static int
 uflagsW(int code)
 { int cp = (unsigned)code / 256;
 

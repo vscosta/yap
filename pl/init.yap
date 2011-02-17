@@ -52,7 +52,6 @@ otherwise.
 
 :- compile_expressions.
 
-
 :- [
     % lists is often used.
    	 'lists.yap',
@@ -207,3 +206,4 @@ file_search_path(system, Dir) :-
 file_search_path(foreign, yap('lib/Yap')).
 
 :- yap_flag(unknown,error). 
+

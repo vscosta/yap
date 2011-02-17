@@ -229,6 +229,10 @@
 #undef  HAVE_REGEXEC
 #undef  HAVE_RENAME
 #undef  HAVE_RINT
+#undef  HAVE_RL_CLEAR_PENDING_INPUT
+#undef  HAVE_RL_COMPLETION_MATCHES
+#undef  HAVE_RL_FILENAME_COMPLETION_FUNCTION
+#undef  HAVE_RL_INSERT_CLOSE
 #undef  HAVE_RL_SET_PROMPT
 #undef  HAVE_SBRK
 #undef  HAVE_SELECT
@@ -280,8 +284,6 @@
 
 #define  TYPE_SELECT_
 #define  MYTYPE(X) MYTYPE1#X
-
-#undef  HAVE_DECL_RL_CATCH_SIGNALS
 
 /* define how to pass the address of a function */
 #define FunAdr(Fn)  Fn

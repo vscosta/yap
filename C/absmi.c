@@ -1667,7 +1667,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
 	  YENV[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
-	  SET_ASP(YREG, E_CB*sizeof(CELL));
+	  SET_ASP(YREG, PREG->u.Osbpi.s);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
@@ -7469,7 +7469,7 @@ Yap_absmi(int inp)
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
-      SET_ASP(YREG, 0);
+      SET_ASP(YREG, PREG->u.Osbpp.s);
       /* for slots to work */
 #endif /* FROZEN_STACKS */
 #ifdef LOW_LEVEL_TRACER
@@ -7513,7 +7513,7 @@ Yap_absmi(int inp)
 	  else ASP = YREG+E_CB;
 	}
 #else
-	SET_ASP(YREG, 0);
+	SET_ASP(YREG, E_CB*sizeof(CELL));
 	/* for slots to work */
 #endif /* FROZEN_STACKS */
 	pt0 = PREG->u.pp.p;
@@ -7600,7 +7600,7 @@ Yap_absmi(int inp)
 	else ASP = (CELL *)(((char *)YREG) +  PREG->u.Osbpp.s);
       }
 #else
-      SET_ASP(YREG, 0);
+      SET_ASP(YREG, PREG->u.Osbpp.s);
       /* for slots to work */
 #endif /* FROZEN_STACKS */
       {
@@ -7833,7 +7833,7 @@ Yap_absmi(int inp)
       ENDCACHE_Y();
 
       Yap_PrologMode = UserCCallMode;
-      SET_ASP(YREG, 0);
+      SET_ASP(YREG, E_CB*sizeof(CELL));
       /* for slots to work */
       Yap_StartSlots();
       saveregs();

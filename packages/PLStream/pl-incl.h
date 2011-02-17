@@ -191,6 +191,10 @@ typedef struct
   word culprit;				/* for CVT_nocode/CVT_nochar */
 } CVT_result;
 
+#define MAXNEWLINES	    5		/* maximum # of newlines in atom */
+
+#define LONGATOM_CHECK	    0x01	/* read/1: error on intptr_t atoms */
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Operator types.  NOTE: if you change OP_*, check operatorTypeToAtom()!
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -686,7 +690,8 @@ extern PL_local_data_t lds;
 
 #define source_line_no		(LD->read_source.line)
 #define source_file_name	(LD->read_source.file)
-
+#define source_line_pos		(LD->read_source.linepos)
+#define source_char_no		(LD->read_source.character)
 
 /* Support PL_LOCK in the interface */
 #if THREADS
@@ -982,13 +987,16 @@ word pl_noprotocol(void);
 IOSTREAM *PL_current_input(void);
 IOSTREAM *PL_current_output(void);
 
-int reportStreamError(IOSTREAM *s);
+extern int reportStreamError(IOSTREAM *s);
+
+extern int digitValue(int b, int c);
 
 PL_EXPORT(int)  	PL_unify_stream(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_unify_stream_or_alias(term_t t, IOSTREAM *s);
 PL_EXPORT(int)  	PL_get_stream_handle(term_t t, IOSTREAM **s);
 PL_EXPORT(void)  	PL_write_prompt(int);
 PL_EXPORT(int) 		PL_release_stream(IOSTREAM *s);
+
 
 COMMON(atom_t) 		fileNameStream(IOSTREAM *s);
 COMMON(int) 		streamStatus(IOSTREAM *s);
@@ -1004,6 +1012,11 @@ COMMON(void) 		prompt1(atom_t prompt);
 COMMON(atom_t)		encoding_to_atom(IOENC enc);
 COMMON(int) 		pl_see(term_t f);
 COMMON(int) 		pl_seen(void);
+
+COMMON(int)		unicode_separator(pl_wchar_t c);
+COMMON(word) 		pl_raw_read(term_t term);
+COMMON(word) 		pl_raw_read2(term_t stream, term_t term);
+
 
 /**** stuff from pl-error.c ****/
 extern void		outOfCore(void);
@@ -1101,8 +1114,6 @@ COMMON(int) 		numberVars(term_t t, nv_options *opts, int n ARG_LD);
 
 COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 						 int wide, CVT_result *status);
-
-COMMON(int)		uflagsW(int code);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
