@@ -4681,6 +4681,8 @@ static const PL_extension foreigns[] = {
   FRG("format_predicate",	2, pl_format_predicate,	     META),
   FRG("current_format_predicate", 2, pl_current_format_predicate,
 						        META|NDET),
+  FRG("$raw_read",		1, pl_raw_read,			0),
+  FRG("$raw_read",		2, pl_raw_read2,		0),
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };

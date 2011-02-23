@@ -172,10 +172,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  if (vsc_count == 471321)
-    jmp_deb(1);
-  if (vsc_count < 471300)
-    return;
 #ifdef THREADS
   MY_ThreadHandle.thread_inst_count++;
 #endif  

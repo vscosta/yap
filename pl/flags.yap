@@ -205,6 +205,16 @@ yap_flag(home,X) :-
 '$transl_to_index_mode'(3, on). % default is multi argument indexing
 '$transl_to_index_mode'(4, max).
 
+yap_flag(readline,X) :-
+	var(X), !,
+	get_value('$readline',X1).
+	'$transl_to_true_false'(X1,X).
+yap_flag(readline,X) :-
+	'$transl_to_true_false'(X1,X), !,
+	set_value('$readline',X1).
+yap_flag(bounded,X) :-
+	'$do_error'(domain_error(flag_value,readline+X),yap_flag(bounded,X)).
+
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
    var(Options), !,

@@ -144,6 +144,15 @@ true :- true.
 */
 
 /* main execution loop							*/
+'$read_vars'(user_input, Goal, Mod, Pos, Binding) :-
+	read_history(h, '!h',
+                         [trace, end_of_file],
+                         Prompt, Goal, Bindings),
+	(nonvar(Err) ->
+	 print_message(error,Err), fail
+	;
+	 true
+	).
 '$read_vars'(Stream,T,Mod,Pos,V) :-
 	'$read'(true,T,Mod,V,Pos,Err,Stream),
 	(nonvar(Err) ->
@@ -1561,4 +1570,7 @@ format(Stream, Command, Args) :-
 
 is_stream(Stream) :-
 	swi_is_stream(Stream).
+
+'$raw_read'(Stream, String) :-
+	'swi_$raw_read'(Stream, String).
 

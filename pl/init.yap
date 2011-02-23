@@ -113,11 +113,15 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('attributes.yap').
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
+%:- use_module('../LGPL/history.pl').
+
+%:- set_prolog_flag(readline, true).
 
 '$system_module'('$messages').
 '$system_module'('$hacks').
 '$system_module'('$attributes').
 '$system_module'('$coroutining').
+'$system_module'('$history').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 

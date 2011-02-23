@@ -28,7 +28,6 @@ typedef struct
   unsigned char *base;			/* base of clause */
   unsigned char *end;			/* end of the clause */
   unsigned char *token_start;		/* start of most recent read token */
-  IOSTREAM *stream;
   int		has_exception;		/* exception is raised */
 
   unsigned char *posp;			/* position pointer */
@@ -37,6 +36,7 @@ typedef struct
   unsigned int	flags;			/* Module syntax flags */
   int		styleCheck;		/* style-checking mask */
   bool		backquoted_string;	/* Read `hello` as string */
+
   int	       *char_conversion_table;	/* active conversion table */
 
   term_t	exception;		/* raised exception */
@@ -70,7 +70,7 @@ init_read_data(ReadData _PL_rd, IOSTREAM *in ARG_LD)
 {  memset(_PL_rd, 0, sizeof(*_PL_rd));	/* optimise! */
 
   _PL_rd->varnames = 0;
-  _PL_rd->stream = in;
+  rb.stream = in;
   _PL_rd->has_exception = 0;
   _PL_rd->exception = 0;
 }
@@ -81,9 +81,9 @@ free_read_data(ReadData _PL_rd)
 }
 
 static int 
-read_term(term_t t, ReadData rd ARG_LD)
+read_term(term_t t, ReadData _PL_rd ARG_LD)
 {
-  return Yap_read_term(t, rd->stream, rd->varnames);
+  return Yap_read_term(t, rb.stream, _PL_rd->varnames);
 }
 
 
