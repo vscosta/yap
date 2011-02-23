@@ -35,6 +35,7 @@ CLPBN_EXDIR = $(srcdir)/clpbn/examples
 CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/aggregates.yap \
 	$(CLPBN_SRCDIR)/bnt.yap \
+	$(CLPBN_SRCDIR)/bp.yap \
 	$(CLPBN_SRCDIR)/connected.yap \
 	$(CLPBN_SRCDIR)/discrete_utils.yap \
 	$(CLPBN_SRCDIR)/display.yap \

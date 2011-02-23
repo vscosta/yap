@@ -1,0 +1,115 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+GCC = @GCC@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+#
+CC=@CC@
+CXX=@CXX@
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include  @CPPFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+
+
+HEADERS = \
+	$(srcdir)/BayesianNetwork.h \
+	$(srcdir)/BayesianNode.h \
+	$(srcdir)/BpNetwork.h \
+	$(srcdir)/BpNode.h \
+	$(srcdir)/Distribution.h \
+	$(srcdir)/CptEntry.h \
+	$(srcdir)/BifInterface.h \
+	$(srcdir)/xmlParser/xmlParser.h
+	
+CPP_SOURCES = \
+	$(srcdir)/BayesianNetwork.cpp \
+	$(srcdir)/BayesianNode.cpp \
+	$(srcdir)/BpNetwork.cpp \
+	$(srcdir)/BpNode.cpp \
+ 	$(srcdir)/Distribution.cpp \
+	$(srcdir)/CptEntry.cpp \
+	$(srcdir)/Horus.cpp \
+	$(srcdir)/BifInterface.cpp \
+	$(srcdir)/BifTest.cpp \
+	$(srcdir)/xmlParser/xmlParser.cpp
+
+OBJS = \
+	BayesianNetwork.o \
+	BayesianNode.o \
+	BpNetwork.o \
+	BpNode.o \
+    Distribution.o \
+	CptEntry.o \
+	Horus.o
+
+BIF_OBJS = \
+	BayesianNetwork.o \
+	BayesianNode.o \
+    BpNetwork.o \
+    BpNode.o \
+    Distribution.o \
+	CptEntry.o \
+    BifInterface.o \
+    BifTest.o \
+    xmlParser/xmlParser.o
+
+SOBJS=horus.@SO@
+
+
+all: $(SOBJS) biftest
+
+# default rule
+%.o : $(srcdir)/%.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+@DO_SECOND_LD@horus.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS)
+
+biftest: $(BIF_OBJS)
+	$(CXX) -o biftest $(BIF_OBJS)
+
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR) $(YAPLIBDIR)
+
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK biftest xmlParser/*.o
+
+
+depend: $(HEADERS) $(CPP_SOURCES)
+	-@if test "$(GCC)" = yes; then\
+	  $(CC) -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H $(CPP_SOURCES) >> Makefile;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include -- $(CPP_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	fi
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
