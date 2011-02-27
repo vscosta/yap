@@ -2855,6 +2855,18 @@ FILE *Yap_FileDescriptorFromStream(Term t)
   return NULL;
 }
 
+#if THREADS
+void Yap_LockStream(IOSTREAM *s)
+{
+  if ( s->mutex ) recursiveMutexLock(s->mutex);
+}
+
+void Yap_UnLockStream(IOSTREAM *s)
+{
+  if ( s->mutex ) recursiveMutexUnlock(s->mutex);
+}
+#endif
+
 extern term_t Yap_CvtTerm(term_t ts);
 
 term_t Yap_CvtTerm(term_t ts)

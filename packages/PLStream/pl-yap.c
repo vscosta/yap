@@ -926,6 +926,63 @@ Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
  }
 
 #if THREADS
+
+static int
+recursive_attr(pthread_mutexattr_t **ap)
+{ static int done;
+  static pthread_mutexattr_t attr;
+  int rc;
+
+  if ( done )
+  { *ap = &attr;
+    return 0;
+  }
+
+  PL_LOCK(L_THREAD);
+  if ( done )
+  { PL_UNLOCK(L_THREAD);
+
+    *ap = &attr;
+    return 0;
+  }
+  if ( (rc=pthread_mutexattr_init(&attr)) )
+    goto error;
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
+  if ( (rc=pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) )
+    goto error;
+#else
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+  if ( (rc=pthread_mutexattr_setkind_np(&attr, PTHREAD_MUTEX_RECURSIVE_NP)) )
+    goto error;
+#endif
+#endif
+
+  done = TRUE;
+  PL_UNLOCK(L_THREAD);
+  *ap = &attr;
+
+  return 0;
+
+error:
+  PL_UNLOCK(L_THREAD);
+  return rc;
+}
+
+int
+recursiveMutexInit(recursiveMutex *m)
+{
+  int rc;
+  pthread_mutexattr_t *attr;
+
+  if ( (rc=recursive_attr(&attr)) )
+    return rc;
+
+  return pthread_mutex_init(m, attr);
+
+}
+
+
+
 counting_mutex _PL_mutexes[] =
 { COUNT_MUTEX_INITIALIZER("L_MISC"),
   COUNT_MUTEX_INITIALIZER("L_ALLOC"),

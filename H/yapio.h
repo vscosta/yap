@@ -282,8 +282,8 @@ FILE  *STD_PROTO(Yap_FileDescriptorFromStream,(Term));
 Int   STD_PROTO(Yap_FirstLineInParse,(void));
 int   STD_PROTO(Yap_CheckIOStream,(Term, char *));
 #if  defined(YAPOR) || defined(THREADS)
-void  STD_PROTO(Yap_LockStream,(int));
-void  STD_PROTO(Yap_UnLockStream,(int));
+void  STD_PROTO(Yap_LockStream,(struct io_stream *));
+void  STD_PROTO(Yap_UnLockStream,(struct io_stream *));
 #else
 #define Yap_LockStream(X)
 #define Yap_UnLockStream(X)
