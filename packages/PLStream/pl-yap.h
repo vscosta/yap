@@ -149,6 +149,8 @@ void PL_license(const char *license, const char *module);
 #define isTaggedInt(A) YAP_IsIntTerm(A)
 #define valInt(A) YAP_IntOfTerm(A)
 
+extern term_t Yap_CvtTerm(term_t ts);
+
 #define clearNumber(n)
 
 inline static int

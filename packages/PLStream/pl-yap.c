@@ -381,9 +381,14 @@ PL_get_number(term_t l, number *n) {
     n->type = V_INTEGER;
     n->value.i = YAP_IntOfTerm(t);
 #ifdef O_GMP
-  } else {
+  } else if (YAP_IsBigNumTerm(t)) {
     n->type = V_MPZ;
+    mpz_init(&n->value.mpq);
     YAP_BigNumOfTerm(t, &n->value.mpz);
+  } else {
+    n->type = V_MPQ;
+    mpq_init(&n->value.mpq);
+    YAP_RationalOfTerm(t, &n->value.mpq);
 #endif
   }
 }

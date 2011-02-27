@@ -535,6 +535,9 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
   }
   if (YAP_IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      return 0;
+    }
     *name = AtomToSWIAtom(NameOfFunctor(f));
     *arity = ArityOfFunctor(f);
     return 1;
@@ -1697,7 +1700,18 @@ X_API int PL_is_float(term_t ts)
 X_API int PL_is_integer(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t);
+  if (IsVarTerm(t)) return FALSE;
+  if (IsIntTerm(t)) return TRUE;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorLongInt)
+      return TRUE;
+    if (f == FunctorBigInt) {
+      CELL mask = RepAppl(t)[1];
+      return ( mask == BIG_INT );
+    }
+  }
+  return FALSE;
 }
 
 X_API int PL_is_list(term_t ts)
@@ -2839,6 +2853,52 @@ FILE *Yap_FileDescriptorFromStream(Term t)
     //    return Sfileno(s);
   }
   return NULL;
+}
+
+extern term_t Yap_CvtTerm(term_t ts);
+
+term_t Yap_CvtTerm(term_t ts)
+{
+  Term t = Yap_GetFromSlot(ts);
+  if (IsVarTerm(t)) return ts;
+  if (IsPairTerm(t)) return ts;
+  if (IsAtomTerm(t)) return ts;
+  if (IsIntTerm(t)) return ts;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      if (f == FunctorBigInt) {
+	big_blob_type flag = RepAppl(t)[1];
+	switch (flag) {
+	case BIG_INT:
+	  return ts;
+	case BIG_RATIONAL:
+#if USE_GMP
+	  {
+	    MP_RAT *b = Yap_BigRatOfTerm(t);
+	    Term ta[2];
+	    ta[0] = Yap_MkBigIntTerm(mpq_numref(b));
+	    if (ta[0] == TermNil)
+	      return ts;
+	    ta[1] = Yap_MkBigIntTerm(mpq_denref(b));
+	    if (ta[1] == TermNil)
+	      return ts;
+	    return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
+	  }
+#endif	  
+	case EMPTY_ARENA:
+	case ARRAY_INT:
+	case ARRAY_FLOAT:
+	case CLAUSE_LIST:
+	case EXTERNAL_BLOB:
+	  return Yap_InitSlot(MkIntTerm(0));
+	default:
+	  return ts;
+	}
+      }
+    }
+  }
+  return ts;
 }
 
 #ifdef _WIN32

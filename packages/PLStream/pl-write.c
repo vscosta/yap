@@ -1065,6 +1065,9 @@ writeTerm2(term_t t, int prec, write_options *options, bool arg)
     }
   }
 
+#if __YAP_PROLOG__
+  t = Yap_CvtTerm(t);
+#endif
   if ( PL_get_atom(t, &a) )
     { if ( !arg && prec < 1200 && priorityOperator((Module)NULL, a) > 0 )
     { if ( PutOpenBrace(out) &&
