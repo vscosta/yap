@@ -2754,15 +2754,26 @@ Yap_swi_install(void)
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 
-int Yap_read_term(term_t t, IOSTREAM *st, term_t vs);
+int Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs);
 
 int
-Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
+Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 {
   Term varnames, out, tpos;
+  Term error;
 
-  if (!Yap_readTerm(st, &out, &varnames, NULL, &tpos))
+  if (!Yap_readTerm(st, &out, &varnames, &error, &tpos)) {
+    if (excep) {
+      *excep = Yap_InitSlot(error);
+    }
     return FALSE;
+  }
+  if (!out) {
+    if (excep) {
+      *excep = Yap_InitSlot(error);
+    }
+    return FALSE;
+  }
   if (!Yap_unify(out, Yap_GetFromSlot(t))) {
     return FALSE;
   }
@@ -2794,6 +2805,9 @@ Atom
 Yap_FileName(IOSTREAM *s)
 {
   atom_t a = fileNameStream(s);
+  if (!a) {
+    return AtomEmptyAtom;
+  }
   return SWIAtomToAtom(a);
 }
 

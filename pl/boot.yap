@@ -66,7 +66,7 @@ true :- true.
 	set_value(fileerrors,1),
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),
-	prompt1('  ?- '),
+	prompt1(' ?- '),
 	'$debug_on'(false),
 	% simple trick to find out if this is we are booting from Prolog.
 	get_value('$user_module',V),
@@ -144,10 +144,11 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(user_input, Goal, Mod, Pos, Binding) :-
+'$read_vars'(user_input, Goal, Mod, Pos, Bindings) :-
+	get_value('$readline',true), !,
 	read_history(h, '!h',
                          [trace, end_of_file],
-                         Prompt, Goal, Bindings),
+                         ' ?- ', Goal, Bindings),
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
@@ -191,8 +192,8 @@ true :- true.
 	set_value('$live','$false').
 '$enter_top_level' :-
 	'$disable_docreep',
-	prompt(_,'   | '),
-	prompt1('   ?- '),
+	prompt(_,'| '),
+	prompt1(' ?- '),
 	'$run_toplevel_hooks',
 	'$read_vars'(user_input,Command,_,Pos,Varnames),
 	nb_setval('$spy_gn',1),
@@ -200,7 +201,7 @@ true :- true.
 
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	prompt(_,'   |: '),
+	prompt(_,'|: '),
 	'$command'(Command,Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
@@ -223,7 +224,7 @@ true :- true.
 '$startup_saved_state' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
-	prompt(_,'   | '),
+	prompt(_,'| '),
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
 '$startup_saved_state'.

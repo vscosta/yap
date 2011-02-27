@@ -207,12 +207,11 @@ yap_flag(home,X) :-
 
 yap_flag(readline,X) :-
 	var(X), !,
-	get_value('$readline',X1).
-	'$transl_to_true_false'(X1,X).
+	get_value('$readline',X).
 yap_flag(readline,X) :-
-	'$transl_to_true_false'(X1,X), !,
-	set_value('$readline',X1).
-yap_flag(bounded,X) :-
+	( X = true ; X = false ), !,
+	set_value('$readline',X).
+yap_flag(readline,X) :-
 	'$do_error'(domain_error(flag_value,readline+X),yap_flag(bounded,X)).
 
 % tabling mode
@@ -848,6 +847,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(open_shared_object).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
+'$yap_system_flag'(readline).
 '$yap_system_flag'(redefine_warnings).
 '$yap_system_flag'(shared_object_search_path).
 '$yap_system_flag'(single_var_warnings).

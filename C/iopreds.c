@@ -388,6 +388,18 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   return(Yap_MkApplTerm(FunctorSyntaxError,7,tf));
 }
 
+static void
+GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno)
+{
+  if (tp) {
+    Term et[2];
+    Term t = MkVarTerm();
+    et[0] = syntax_error(tokstart, sno, &t);
+    et[1] = MkAtomTerm(Yap_LookupAtom("Syntax error"));
+    *tp = Yap_MkApplTerm(FunctorError, 2, et);
+  }
+}
+
 Term
 Yap_StringToTerm(char *s,Term *tp)
 {
@@ -418,11 +430,8 @@ Yap_StringToTerm(char *s,Term *tp)
   }
   t = Yap_Parse();
   TR = TR_before_parse;
-  if (!t && !Yap_ErrorMessage) {
-    if (tp) {
-      t = MkVarTerm();
-      *tp = syntax_error(tokstart, sno, &t);
-    }
+  if (!t || Yap_ErrorMessage) {
+    GenerateSyntaxError(tp, tokstart, sno);
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     Sclose(sno);
     return FALSE;
@@ -521,11 +530,10 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
       return FALSE;
     }
   pt = Yap_Parse();
-  if (Yap_ErrorMessage) {
-    Term t0 = MkVarTerm();
-    *terror = syntax_error(tokstart, st, &t0);
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-      return FALSE;
+  if (Yap_ErrorMessage || pt == (CELL)0) {
+    GenerateSyntaxError(terror, tokstart, st);
+    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    return FALSE;
   }
   if (varnames) {
     *varnames = Yap_VarNames(Yap_VarTable, TermNil);
@@ -535,6 +543,8 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
     }
   }
   *tp = pt;
+  if (!pt)
+    return FALSE;
   return TRUE;
 }
 

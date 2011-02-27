@@ -83,7 +83,16 @@ free_read_data(ReadData _PL_rd)
 static int 
 read_term(term_t t, ReadData _PL_rd ARG_LD)
 {
-  return Yap_read_term(t, rb.stream, _PL_rd->varnames);
+  int rval;
+  term_t except;
+
+  if (!(rval = Yap_read_term(t, rb.stream, &except, _PL_rd->varnames))) {
+    if (except) {
+      _PL_rd->has_exception = TRUE;
+      _PL_rd->exception = except;
+    }
+  }
+  return rval;
 }
 
 
