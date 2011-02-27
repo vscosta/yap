@@ -190,6 +190,12 @@ valueExpression(term_t t, Number r ARG_LD)
     YAP_BigNumOfTerm(t0, &r->value.mpz);
     return 1;
   }
+  if (YAP_IsRationalTerm(t0)) {
+    r->type = V_MPQ;
+    mpq_init(&r->value.mpq);
+    YAP_RationalOfTerm(t0, &r->value.mpq);
+    return 1;
+  }
 #endif
   return 0;
 }
