@@ -190,6 +190,12 @@ valueExpression(term_t t, Number r ARG_LD)
     YAP_BigNumOfTerm(t0, &r->value.mpz);
     return 1;
   }
+  if (YAP_IsRationalTerm(t0)) {
+    r->type = V_MPQ;
+    mpq_init(&r->value.mpq);
+    YAP_RationalOfTerm(t0, &r->value.mpq);
+    return 1;
+  }
 #endif
   return 0;
 }
@@ -375,9 +381,14 @@ PL_get_number(term_t l, number *n) {
     n->type = V_INTEGER;
     n->value.i = YAP_IntOfTerm(t);
 #ifdef O_GMP
-  } else {
+  } else if (YAP_IsBigNumTerm(t)) {
     n->type = V_MPZ;
+    mpz_init(&n->value.mpq);
     YAP_BigNumOfTerm(t, &n->value.mpz);
+  } else {
+    n->type = V_MPQ;
+    mpq_init(&n->value.mpq);
+    YAP_RationalOfTerm(t, &n->value.mpq);
 #endif
   }
 }
@@ -915,6 +926,63 @@ Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
  }
 
 #if THREADS
+
+static int
+recursive_attr(pthread_mutexattr_t **ap)
+{ static int done;
+  static pthread_mutexattr_t attr;
+  int rc;
+
+  if ( done )
+  { *ap = &attr;
+    return 0;
+  }
+
+  PL_LOCK(L_THREAD);
+  if ( done )
+  { PL_UNLOCK(L_THREAD);
+
+    *ap = &attr;
+    return 0;
+  }
+  if ( (rc=pthread_mutexattr_init(&attr)) )
+    goto error;
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETTYPE
+  if ( (rc=pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE)) )
+    goto error;
+#else
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+  if ( (rc=pthread_mutexattr_setkind_np(&attr, PTHREAD_MUTEX_RECURSIVE_NP)) )
+    goto error;
+#endif
+#endif
+
+  done = TRUE;
+  PL_UNLOCK(L_THREAD);
+  *ap = &attr;
+
+  return 0;
+
+error:
+  PL_UNLOCK(L_THREAD);
+  return rc;
+}
+
+int
+recursiveMutexInit(recursiveMutex *m)
+{
+  int rc;
+  pthread_mutexattr_t *attr;
+
+  if ( (rc=recursive_attr(&attr)) )
+    return rc;
+
+  return pthread_mutex_init(m, attr);
+
+}
+
+
+
 counting_mutex _PL_mutexes[] =
 { COUNT_MUTEX_INITIALIZER("L_MISC"),
   COUNT_MUTEX_INITIALIZER("L_ALLOC"),

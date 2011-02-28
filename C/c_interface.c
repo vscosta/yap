@@ -385,6 +385,7 @@ X_API Bool    STD_PROTO(YAP_IsNonVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsIntTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsLongIntTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsBigNumTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsRationalTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsFloatTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
@@ -392,8 +393,10 @@ X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
 X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
+X_API Term    STD_PROTO(YAP_MkRationalTerm,(void *));
 X_API Int     STD_PROTO(YAP_IntOfTerm,(Term));
 X_API void    STD_PROTO(YAP_BigNumOfTerm,(Term, void *));
+X_API void    STD_PROTO(YAP_RationalOfTerm,(Term, void *));
 X_API Term    STD_PROTO(YAP_MkFloatTerm,(flt));
 X_API flt     STD_PROTO(YAP_FloatOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkAtomTerm,(Atom));
@@ -601,7 +604,29 @@ X_API Bool
 YAP_IsBigNumTerm(Term t)
 {
 #if USE_GMP
-  return IsBigIntTerm(t);
+  CELL *pt;
+  if (IsVarTerm(t))
+    return FALSE;
+  if (!IsBigIntTerm(t))
+    return FALSE;
+  pt = RepAppl(t);
+  return pt[1] == BIG_INT;
+#else
+  return FALSE;
+#endif
+}
+
+X_API Bool 
+YAP_IsRationalTerm(Term t)
+{
+#if USE_GMP
+  CELL *pt;
+  if (IsVarTerm(t))
+    return FALSE;
+  if (!IsBigIntTerm(t))
+    return FALSE;
+  pt = RepAppl(t);
+  return pt[1] == BIG_RATIONAL;
 #else
   return FALSE;
 #endif
@@ -695,6 +720,33 @@ YAP_BigNumOfTerm(Term t, void *b)
   if (!IsBigIntTerm(t))
     return;
   mpz_set(bz,Yap_BigIntOfTerm(t));
+#endif /* USE_GMP */
+}
+
+X_API Term 
+YAP_MkRationalTerm(void *big)
+{
+#if USE_GMP
+  Term I;
+  BACKUP_H();
+  I = Yap_MkBigRatTerm((MP_RAT *)big);
+  RECOVER_H();
+  return I;
+#else
+  return TermNil;
+#endif /* USE_GMP */
+}
+
+X_API void
+YAP_RationalOfTerm(Term t, void *b)
+{
+#if USE_GMP
+  MP_RAT *br = (MP_RAT *)b;
+  if (IsVarTerm(t))
+    return;
+  if (!IsBigIntTerm(t))
+    return;
+  mpq_set(br,Yap_BigRatOfTerm(t));
 #endif /* USE_GMP */
 }
 

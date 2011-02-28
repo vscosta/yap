@@ -273,9 +273,10 @@ system_message(error(resource_error(trail), Where)) -->
 	[ 'RESOURCE ERROR- not enough trail space' - [Where] ].
 system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
-system_message(error(syntax_error(syntax_error(G,0,Msg,[],0,0,File)), _)) -->
+system_message(error(syntax_error(G,_,Msg,[],_,0,File), _)) -->
 	[ 'SYNTAX ERROR at "~a", goal ~q: ~a' - [File,G,Msg] ].
-system_message(error(syntax_error(syntax_error(read(Term),_,_,Term,Pos,Start,File)), Where)) -->
+system_message(error(syntax_error(read(_),_,_,Term,Pos,Start,File), Where)) -->
+	{ Term = [_|_] },
 	['~w' - [Where]],
 	syntax_error_line(File, Start, Pos),
 	syntax_error_term(10, Pos, Term),
@@ -421,6 +422,8 @@ list_of_preds([P|L]) -->
 	list_of_preds(L).
 
 
+syntax_error_line('', _,_) --> !,
+	[':~n' ].
 syntax_error_line(File, Position,_) -->
 	[' at ~a, near line ~d:~n' - [File,Position]].
 

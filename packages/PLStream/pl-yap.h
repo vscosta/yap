@@ -31,7 +31,7 @@ typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 
 extern const char *Yap_GetCurrentPredName(void);
 extern YAP_Int     Yap_GetCurrentPredArity(void);
-extern int Yap_read_term(term_t t, IOSTREAM *st, term_t vs);
+extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *exc, term_t vs);
 extern int Yap_LookupSWIStream(void *swi_s);
 extern term_t Yap_fetch_module_for_format(term_t args, YAP_Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
@@ -148,6 +148,8 @@ void PL_license(const char *license, const char *module);
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) YAP_IsIntTerm(A)
 #define valInt(A) YAP_IntOfTerm(A)
+
+extern term_t Yap_CvtTerm(term_t ts);
 
 #define clearNumber(n)
 

@@ -535,6 +535,9 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
   }
   if (YAP_IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      return 0;
+    }
     *name = AtomToSWIAtom(NameOfFunctor(f));
     *arity = ArityOfFunctor(f);
     return 1;
@@ -1697,7 +1700,18 @@ X_API int PL_is_float(term_t ts)
 X_API int PL_is_integer(term_t ts)
 {
   YAP_Term t = Yap_GetFromSlot(ts);
-  return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t);
+  if (IsVarTerm(t)) return FALSE;
+  if (IsIntTerm(t)) return TRUE;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorLongInt)
+      return TRUE;
+    if (f == FunctorBigInt) {
+      CELL mask = RepAppl(t)[1];
+      return ( mask == BIG_INT );
+    }
+  }
+  return FALSE;
 }
 
 X_API int PL_is_list(term_t ts)
@@ -2754,15 +2768,26 @@ Yap_swi_install(void)
   YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 
-int Yap_read_term(term_t t, IOSTREAM *st, term_t vs);
+int Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs);
 
 int
-Yap_read_term(term_t t, IOSTREAM *st, term_t vs)
+Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 {
   Term varnames, out, tpos;
+  Term error;
 
-  if (!Yap_readTerm(st, &out, &varnames, NULL, &tpos))
+  if (!Yap_readTerm(st, &out, &varnames, &error, &tpos)) {
+    if (excep) {
+      *excep = Yap_InitSlot(error);
+    }
     return FALSE;
+  }
+  if (!out) {
+    if (excep) {
+      *excep = Yap_InitSlot(error);
+    }
+    return FALSE;
+  }
   if (!Yap_unify(out, Yap_GetFromSlot(t))) {
     return FALSE;
   }
@@ -2794,6 +2819,9 @@ Atom
 Yap_FileName(IOSTREAM *s)
 {
   atom_t a = fileNameStream(s);
+  if (!a) {
+    return AtomEmptyAtom;
+  }
   return SWIAtomToAtom(a);
 }
 
@@ -2825,6 +2853,64 @@ FILE *Yap_FileDescriptorFromStream(Term t)
     //    return Sfileno(s);
   }
   return NULL;
+}
+
+#if THREADS
+void Yap_LockStream(IOSTREAM *s)
+{
+  if ( s->mutex ) recursiveMutexLock(s->mutex);
+}
+
+void Yap_UnLockStream(IOSTREAM *s)
+{
+  if ( s->mutex ) recursiveMutexUnlock(s->mutex);
+}
+#endif
+
+extern term_t Yap_CvtTerm(term_t ts);
+
+term_t Yap_CvtTerm(term_t ts)
+{
+  Term t = Yap_GetFromSlot(ts);
+  if (IsVarTerm(t)) return ts;
+  if (IsPairTerm(t)) return ts;
+  if (IsAtomTerm(t)) return ts;
+  if (IsIntTerm(t)) return ts;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      if (f == FunctorBigInt) {
+	big_blob_type flag = RepAppl(t)[1];
+	switch (flag) {
+	case BIG_INT:
+	  return ts;
+	case BIG_RATIONAL:
+#if USE_GMP
+	  {
+	    MP_RAT *b = Yap_BigRatOfTerm(t);
+	    Term ta[2];
+	    ta[0] = Yap_MkBigIntTerm(mpq_numref(b));
+	    if (ta[0] == TermNil)
+	      return ts;
+	    ta[1] = Yap_MkBigIntTerm(mpq_denref(b));
+	    if (ta[1] == TermNil)
+	      return ts;
+	    return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
+	  }
+#endif	  
+	case EMPTY_ARENA:
+	case ARRAY_INT:
+	case ARRAY_FLOAT:
+	case CLAUSE_LIST:
+	case EXTERNAL_BLOB:
+	  return Yap_InitSlot(MkIntTerm(0));
+	default:
+	  return ts;
+	}
+      }
+    }
+  }
+  return ts;
 }
 
 #ifdef _WIN32

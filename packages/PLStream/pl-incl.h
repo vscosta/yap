@@ -267,24 +267,22 @@ typedef struct
 #define GF_PROCEDURE	2		/* check for max arity */
 
 
+#ifdef O_PLMT
+
+typedef struct free_chunk *FreeChunk;   /* left-over chunk */
+
+struct free_chunk
+{ FreeChunk     next;                   /* next of chain */
+  size_t        size;                   /* size of free bit */
+};
+
+#endif
+
 		 /*******************************
 		 *	   LIST BUILDING	*
 		 *******************************/
 
 #include "pl-privitf.h"
-
-typedef int simpleMutex;
-
-typedef struct counting_mutex
-{ simpleMutex mutex;			/* mutex itself */
-  const char *name;			/* name of the mutex */
-  long count;				/* # times locked */
-  long unlocked;			/* # times unlocked */
-#ifdef O_CONTENTION_STATISTICS
-  long collisions;			/* # contentions */
-#endif
-  struct counting_mutex *next;		/* next of allocated chain */
-} counting_mutex;
 
 typedef enum
 { CLN_NORMAL = 0,			/* Normal mode */
@@ -359,12 +357,6 @@ typedef struct {
  struct
   { Table       table;                  /* global (read-only) features */
   } prolog_flag;
-
-#if THREADS
-  struct
-  { int		    	enabled;	/* threads are enabled */
-  } thread;
-#endif
 
   struct
   { Table		tmp_files;	/* Known temporary files */
@@ -692,73 +684,6 @@ extern PL_local_data_t lds;
 #define source_file_name	(LD->read_source.file)
 #define source_line_pos		(LD->read_source.linepos)
 #define source_char_no		(LD->read_source.character)
-
-/* Support PL_LOCK in the interface */
-#if THREADS
-
-typedef pthread_mutex_t simpleMutex;
-
-#define simpleMutexInit(p)	pthread_mutex_init(p, NULL)
-#define simpleMutexDelete(p)	pthread_mutex_destroy(p)
-#define simpleMutexLock(p)	pthread_mutex_lock(p)
-#define simpleMutexUnlock(p)	pthread_mutex_unlock(p)
-
-extern counting_mutex _PL_mutexes[];	/* Prolog mutexes */
-
-#define L_MISC		0
-#define L_ALLOC		1
-#define L_ATOM		2
-#define L_FLAG	        3
-#define L_FUNCTOR	4
-#define L_RECORD	5
-#define L_THREAD	6
-#define L_PREDICATE	7
-#define L_MODULE	8
-#define L_TABLE		9
-#define L_BREAK	       10
-#define L_FILE	       11
-#define L_PLFLAG      12
-#define L_OP	       13
-#define L_INIT	       14
-#define L_TERM	       15
-#define L_GC	       16
-#define L_AGC	       17
-#define L_FOREIGN      18
-#define L_OS	       19
-
-#define IF_MT(id, g) if ( id == L_THREAD || GD->thread.enabled ) g
-
-#ifdef O_CONTENTION_STATISTICS
-#define countingMutexLock(cm) \
-	do \
-	{ if ( pthread_mutex_trylock(&(cm)->mutex) == EBUSY ) \
-	  { (cm)->collisions++; \
-	    pthread_mutex_lock(&(cm)->mutex); \
-	  } \
-	  (cm)->count++; \
-	} while(0)
-#else
-#define countingMutexLock(cm) \
-	do \
-	{ simpleMutexLock(&(cm)->mutex); \
-	  (cm)->count++; \
-	} while(0)
-#endif
-#define countingMutexUnlock(cm) \
-	do \
-	{ (cm)->unlocked++; \
-	  assert((cm)->unlocked <= (cm)->count); \
-	  simpleMutexUnlock(&(cm)->mutex); \
-	} while(0)
-
-#define PL_LOCK(id)   IF_MT(id, countingMutexLock(&_PL_mutexes[id]))
-#define PL_UNLOCK(id) IF_MT(id, countingMutexUnlock(&_PL_mutexes[id]))
-
-#else
-#define PL_LOCK(X)		
-#define PL_UNLOCK(X)		
-#endif
-
 
 #ifndef TRUE
 #define TRUE			1
