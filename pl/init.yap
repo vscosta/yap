@@ -113,7 +113,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('attributes.yap').
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
-:- use_module('../LGPL/history.pl').
+:- use_module('history.pl').
 
 '$system_module'('$messages').
 '$system_module'('$hacks').
@@ -209,5 +209,5 @@ file_search_path(foreign, yap('lib/Yap')).
 
 :- yap_flag(unknown,error). 
 
-:- set_prolog_flag(readline, true).
+:- stream_property(user_input, tty(true)) -> set_prolog_flag(readline, true) ; true.
 

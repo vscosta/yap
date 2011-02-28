@@ -1079,6 +1079,7 @@ break :-
 	nb_setval('$if_level',0),
 	get_value('$lf_verbose',OldSilent),
 	set_value('$lf_verbose',silent),
+	set_stream(user_input,alias('$loop_stream')),
 	bootstrap(F),
 	set_value('$lf_verbose', OldSilent).
 
