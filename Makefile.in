@@ -315,7 +315,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/tabling.yap $(srcdir)/pl/threads.yap \
 	$(srcdir)/pl/udi.yap \
 	$(srcdir)/pl/utils.yap \
-	$(srcdir)/LGPL/history.pl \
+	$(srcdir)/pl/history.pl \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
