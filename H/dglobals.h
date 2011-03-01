@@ -155,6 +155,7 @@
 #define SWI_buffers WL->SWI_buffers_
 #define SWI_buffers_sz WL->SWI_buffers_sz_
 #define SWI_buf_index WL->SWI_buf_index_
+#define LD WL->Yap_ld_
 #define execution WL->_execution
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)

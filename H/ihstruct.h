@@ -274,10 +274,6 @@
   Yap_heap_regs->char_conversion_table = NULL;
   Yap_heap_regs->char_conversion_table2 = NULL;
 
-  Yap_heap_regs->maxdepth = 0L;
-  Yap_heap_regs->axlist = 0L;
-  Yap_heap_regs->maxwriteargs = 0L;
-
   Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
 
   Yap_heap_regs->yap_lib_dir = NULL;

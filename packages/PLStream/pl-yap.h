@@ -26,7 +26,6 @@
 
 typedef YAP_Term	        Module;
 typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
-typedef YAP_Atom		Atom;
 typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 
 extern const char *Yap_GetCurrentPredName(void);
@@ -154,10 +153,10 @@ extern term_t Yap_CvtTerm(term_t ts);
 #define clearNumber(n)
 
 inline static int
-charCode(YAP_Term w)
-{ if ( YAP_IsAtomTerm(w) )
+charCode(Term w)
+{ if ( IsAtomTerm(w) )
     { 
-      Atom a = atomValue(w);
+      YAP_Atom a = atomValue(w);
 
       if ( YAP_AtomNameLength(a) == 1) {
 	if (YAP_IsWideAtom(a)) {

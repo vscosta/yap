@@ -122,6 +122,7 @@ IOLIB_HEADERS=$(srcdir)/packages/PLStream/atoms.h $(srcdir)/packages/PLStream/pl
 	$(srcdir)/packages/PLStream/pl-codelist.h \
 	$(srcdir)/packages/PLStream/pl-dtoa.h $(srcdir)/dtoa.c  \
 	$(srcdir)/packages/PLStream/pl-incl.h \
+	$(srcdir)/packages/PLStream/pl-global.h \
 	$(srcdir)/packages/PLStream/pl-mswchar.h \
 	$(srcdir)/packages/PLStream/pl-option.h  \
 	$(srcdir)/packages/PLStream/pl-opts.h  \

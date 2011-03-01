@@ -309,11 +309,6 @@ char		prompt[MAX_PROMPT]	Prompt			void void
 char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust
 char		*char_conversion_table2	CharConversionTable2	=NULL CodeCharPAdjust
 
-/* write depth */
-UInt		maxdepth		max_depth		=0L void
-UInt		axlist			max_list		=0L void
-UInt		maxwriteargs		max_write_args		=0L void
-
 /* what to do when the parser gives an error: should be thread bound?  */
 int		parser_error_style	ParserErrorStyle	=EXCEPTION_ON_PARSER_ERROR void
 

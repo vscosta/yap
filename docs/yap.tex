@@ -5675,50 +5675,6 @@ opened or closed.
 Switches on the file_errors flag so that in certain error conditions
 I/O predicates will produce an appropriated message and abort.
 
-@item write_depth(@var{T},@var{L},@var{A})
-@findex write_depth/3
-@snindex write_depth/3
-@cnindex write_depth/3
-Unifies @var{T} with the value of the maximum depth of a term to be
-written, @var{L} with the maximum length of a list to write, and @var{A}
-with the maximum number of arguments of a compound term to write. The
-setting will be used by @code{write/1} or @code{write/2}. The default
-value for all arguments is 0, meaning unlimited depth and length.
-
-@example
-?- write_depth(3,5,5).
-yes
-?- write(a(b(c(d(e(f(g))))))).
-a(b(c(....)))
-yes
-?- write([1,2,3,4,5,6,7,8]).
-[1,2,3,4,5,...]
-yes
-?- write(a(1,2,3,4,5,6,7,8)).
-a(1,2,3,4,5,...)
-yes
-@end example
-
-@item write_depth(@var{T},@var{L})
-@findex write_depth/2
-@snindex write_depth/2
-Same as @code{write_depth(@var{T},@var{L},_)}. Unifies @var{T} with the
-value of the maximum depth of a term to be
-written, and @var{L} with the maximum length of a list to write. The
-setting will be used by @code{write/1} or @code{write/2}. The default
-value for all arguments is 0, meaning unlimited depth and length.
-
-@example
-?- write_depth(3,5,5).
-yes
-?- write(a(b(c(d(e(f(g))))))).
-a(b(c(....)))
-yes
-?- write([1,2,3,4,5,6,7,8]).
-[1,2,3,4,5,...]
-yes
-@end example
-
 @item always_prompt_user
 @findex always_prompt_user/0
 @snindex always_prompt_user/0

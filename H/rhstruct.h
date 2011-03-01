@@ -276,10 +276,6 @@
 
 
 
-
-
-
-
   Yap_heap_regs->yap_lib_dir = CodeCharPAdjust(Yap_heap_regs->yap_lib_dir);
 
   Yap_heap_regs->last_wtime = CodeVoidPAdjust(Yap_heap_regs->last_wtime);

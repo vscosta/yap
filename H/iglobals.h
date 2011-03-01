@@ -155,6 +155,7 @@ static void InitWorker(int wid) {
   InitSWIBuffers(wid);
 
   FOREIGN_WL(wid)->SWI_buf_index_ = 0;
+  FOREIGN_WL(wid)->Yap_ld_ = NULL;
   FOREIGN_WL(wid)->_execution = NULL;
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)

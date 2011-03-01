@@ -274,10 +274,6 @@
   char  *char_conversion_table;
   char  *char_conversion_table2;
 
-  UInt  maxdepth;
-  UInt  axlist;
-  UInt  maxwriteargs;
-
   int  parser_error_style;
 
   char  *yap_lib_dir;

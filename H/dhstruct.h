@@ -274,10 +274,6 @@
 #define CharConversionTable Yap_heap_regs->char_conversion_table
 #define CharConversionTable2 Yap_heap_regs->char_conversion_table2
 
-#define max_depth Yap_heap_regs->maxdepth
-#define max_list Yap_heap_regs->axlist
-#define max_write_args Yap_heap_regs->maxwriteargs
-
 #define ParserErrorStyle Yap_heap_regs->parser_error_style
 
 #define Yap_LibDir Yap_heap_regs->yap_lib_dir

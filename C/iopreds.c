@@ -87,7 +87,6 @@ static char SccsId[] = "%W% %G%";
 STATIC_PROTO (Int p_set_read_error_handler, (void));
 STATIC_PROTO (Int p_get_read_error_handler, (void));
 STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_write_depth, (void));
 STATIC_PROTO (Int p_startline, (void));
 STATIC_PROTO (Int p_change_type_of_char, (void));
 STATIC_PROTO (Int p_type_of_char, (void));
@@ -913,52 +912,6 @@ p_stream_select(void)
 #endif
 
 static Int
-p_write_depth (void)
-{				/* write_depth(Old,New)          */
-  Term t1 = Deref (ARG1);
-  Term t2 = Deref (ARG2);
-  Term t3 = Deref (ARG3);
-
-  if (!IsVarTerm (t1) && !IsIntegerTerm (t1)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t1,"write_depth/3");
-    return FALSE;
-  }
-  if (!IsVarTerm (t2) && !IsIntegerTerm (t2)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t2,"write_depth/3");
-    return FALSE;
-  }
-  if (!IsVarTerm (t3) && !IsIntegerTerm (t3)) {
-    Yap_Error(TYPE_ERROR_INTEGER,t3,"write_depth/3");
-    return FALSE;
-  }
-  if (IsVarTerm (t1))
-    {
-      Term t = MkIntegerTerm (max_depth);
-      if (!Yap_unify_constant(t1, t))
-	return FALSE;
-    }
-  else
-    max_depth = IntegerOfTerm (t1);
-  if (IsVarTerm (t2))
-    {
-      Term t = MkIntegerTerm (max_list);
-      if (!Yap_unify_constant (t2, t))
-	return FALSE;
-    }
-  else
-    max_list = IntegerOfTerm (t2);
-  if (IsVarTerm (t3))
-    {
-      Term t = MkIntegerTerm (max_write_args);
-      if (!Yap_unify_constant (t3, t))
-	return FALSE;
-    }
-  else
-    max_write_args = IntegerOfTerm (t3);
-  return TRUE;
-}
-
-static Int
 p_change_type_of_char (void)
 {				/* change_type_of_char(+char,+type)      */
   Term t1 = Deref (ARG1);
@@ -1194,8 +1147,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-
-  Yap_InitCPred ("write_depth", 3, p_write_depth, SafePredFlag|SyncPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("char_conversion", 2, p_char_conversion, SyncPredFlag);

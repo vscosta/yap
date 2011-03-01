@@ -4707,6 +4707,7 @@ get_stream_position(IOSTREAM *s, term_t t)
 static void
 init_yap(void)
 {
+  LD = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
   setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initCharTypes();
   initFiles();

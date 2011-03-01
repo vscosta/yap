@@ -39,7 +39,6 @@ TracePutchar(int sno, int ch)
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
-  UInt omax_depth, omax_list, omax_write_args;
 
   if (name == NULL) {
 #ifdef  YAPOR
@@ -66,16 +65,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 	Yap_Portray_delays = TRUE;
 #endif
 #endif
-	omax_depth = max_depth;
-	omax_list = max_list;
-	omax_write_args = max_write_args;
-	max_depth = 5;
-	max_list = 5;
-	max_write_args = 10;
 	Yap_plwrite(args[i], TracePutchar, Handle_vars_f, 1200);
-	max_depth = omax_depth;
-	max_list = omax_list;
-	max_write_args = omax_write_args;
 #if DEBUG
 #if COROUTINING
 	Yap_Portray_delays = FALSE;
