@@ -1178,20 +1178,6 @@ InitThreadHandle(int wid)
 }
 #endif
 
-static void
-InitSWIBuffers(int wid)
-{
-  int i;
-
-  FOREIGN_WL(wid)->SWI_buffers_[0] = malloc(SWI_BUF_SIZE);
-  FOREIGN_WL(wid)->SWI_buffers_sz_[0] = SWI_BUF_SIZE;
-  for (i=1; i <= SWI_BUF_RINGS; i++) {
-    FOREIGN_WL(wid)->SWI_buffers_[i] = NULL;
-    FOREIGN_WL(wid)->SWI_buffers_sz_[i] = 0;
-  }
-}
-
-
 static void 
 InitFirstWorkerThreadHandle(void)
 {

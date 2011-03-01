@@ -148,13 +148,6 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->label_first_array = NULL;
   FOREIGN_WL(wid)->label_first_array_sz = 0L;
 
-  FOREIGN_WL(wid)->putc_curp_ = NULL;
-  FOREIGN_WL(wid)->putc_cur_buf_ = NULL;
-  FOREIGN_WL(wid)->putc_cur_lim_ = NULL;
-  FOREIGN_WL(wid)->putc_cur_flags_ = 0L;
-  InitSWIBuffers(wid);
-
-  FOREIGN_WL(wid)->SWI_buf_index_ = 0;
   FOREIGN_WL(wid)->Yap_ld_ = NULL;
   FOREIGN_WL(wid)->_execution = NULL;
 
@@ -184,15 +177,6 @@ static void InitGlobal(void) {
 
   INIT_LOCK(Yap_global->bgl);
 #endif
-  Yap_global->f_swi_stream = NULL;
-  Yap_global->swi_getc = NULL;
-  Yap_global->swi_putc = NULL;
-  Yap_global->swi_wgetc = NULL;
-  Yap_global->swi_wputc = NULL;
-  Yap_global->swi_close = NULL;
-  Yap_global->swi_flush = NULL;
-  Yap_global->swi_get_stream_f = NULL;
-  Yap_global->swi_get_stream_position_f = NULL;
 
   Yap_global->allow_local_expansion = TRUE;
   Yap_global->allow_global_expansion = TRUE;

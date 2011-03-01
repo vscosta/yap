@@ -150,13 +150,6 @@ typedef struct worker_local {
   Int*  label_first_array;
   UInt  label_first_array_sz;
 
-  char*  putc_curp_;
-  char*  putc_cur_buf_;
-  char*  putc_cur_lim_;
-  UInt  putc_cur_flags_;
-  char*  SWI_buffers_[1+SWI_BUF_RINGS];
-  size_t  SWI_buffers_sz_[1+SWI_BUF_RINGS];
-  int  SWI_buf_index_;
   struct PL_local_data  *Yap_ld_;
   struct open_query_struct*  _execution;
 
@@ -186,15 +179,6 @@ typedef struct worker_shared {
 
   lockvar  bgl;
 #endif
-  Functor  f_swi_stream;
-  SWI_GetFunction  swi_getc;
-  SWI_PutFunction  swi_putc;
-  SWI_GetWideFunction  swi_wgetc;
-  SWI_PutWideFunction  swi_wputc;
-  SWI_CloseFunction  swi_close;
-  SWI_FlushFunction  swi_flush;
-  SWI_PLGetStreamFunction  swi_get_stream_f;
-  SWI_PLGetStreamPositionFunction  swi_get_stream_position_f;
 
   int  allow_local_expansion;
   int  allow_global_expansion;

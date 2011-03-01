@@ -163,14 +163,6 @@ Int*				label_first_array	Yap_LabelFirstArray	=NULL
 UInt				label_first_array_sz	Yap_LabelFirstArraySz	=0L
 
 // Thread Local Area for SWI-Prolog emulation routines.
-char*				putc_curp_		putc_curp		=NULL
-char*				putc_cur_buf_		putc_cur_buf		=NULL
-char*				putc_cur_lim_		putc_cur_lim		=NULL
-UInt				putc_cur_flags_		putc_cur_flags		=0L
-char*				SWI_buffers_[1+SWI_BUF_RINGS] SWI_buffers	InitSWIBuffers(wid)
-size_t				SWI_buffers_sz_[1+SWI_BUF_RINGS] SWI_buffers_sz	void
-int				SWI_buf_index_		SWI_buf_index		=0
-
 struct PL_local_data	       *Yap_ld_			LD			=NULL
 
 struct open_query_struct*	_execution		execution		=NULL
@@ -207,16 +199,6 @@ UInt  threads_total_time		ThreadsTotalTime =0L
 // protect long critical regions
 lockvar		bgl			BGL		MkLock
 #endif
-
-Functor			f_swi_stream		FSWIStream	=NULL
-SWI_GetFunction		swi_getc		SWIGetc		=NULL
-SWI_PutFunction		swi_putc		SWIPutc		=NULL
-SWI_GetWideFunction	swi_wgetc		SWIWideGetc	=NULL
-SWI_PutWideFunction	swi_wputc		SWIWidePutc	=NULL
-SWI_CloseFunction	swi_close		SWIClose	=NULL
-SWI_FlushFunction	swi_flush		SWIFlush	=NULL
-SWI_PLGetStreamFunction	swi_get_stream_f	SWIGetStream	=NULL
-SWI_PLGetStreamPositionFunction swi_get_stream_position_f	SWIGetStreamPosition	=NULL
 
 // stack overflow expansion/gc control
 int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE

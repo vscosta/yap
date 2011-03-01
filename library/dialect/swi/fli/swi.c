@@ -2663,41 +2663,6 @@ PL_query(int query)
 }  
 
 
-typedef int     (*GetStreamF)(term_t, int, int, IOSTREAM **s);
-
-int 
-Yap_get_stream_handle(Term t0, int read_mode, int write_mode, void *s){
-  atom_t t;
-  GetStreamF f = (GetStreamF)SWIGetStream;
-  Atom at = AtomOfTerm(t0);
-  if (at == AtomUserOut && write_mode && !read_mode) {
-    t = 0;
-  } else if (at == AtomUserIn && !write_mode && read_mode) {
-    t = 0;
-  } else {
-    t = AtomToSWIAtom(at);
-  }
-  return (*f)(t, read_mode, write_mode, s);
-}
-
-
-typedef int     (*GetStreamPosF)(IOSTREAM *s, term_t);
-
-Term 
-Yap_get_stream_position(void *s){
-  term_t t;
-  Term t0;
-  GetStreamPosF f = (GetStreamPosF)SWIGetStreamPosition;
-
-  t = (term_t)Yap_NewSlots(1);
-  if (!(*f)(s, t))
-    return 0L;
-  t0 = Yap_GetFromSlot((Int)t);
-  Yap_RecoverSlots(1);
-  return t0;
-}
-
-
 X_API void (*PL_signal(int sig, void (*func)(int)))(int)
 {
   //  return Yap_signal2(sig,func);

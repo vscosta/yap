@@ -148,13 +148,6 @@
 #define Yap_LabelFirstArray WL->label_first_array
 #define Yap_LabelFirstArraySz WL->label_first_array_sz
 
-#define putc_curp WL->putc_curp_
-#define putc_cur_buf WL->putc_cur_buf_
-#define putc_cur_lim WL->putc_cur_lim_
-#define putc_cur_flags WL->putc_cur_flags_
-#define SWI_buffers WL->SWI_buffers_
-#define SWI_buffers_sz WL->SWI_buffers_sz_
-#define SWI_buf_index WL->SWI_buf_index_
 #define LD WL->Yap_ld_
 #define execution WL->_execution
 
@@ -184,15 +177,6 @@
 
 #define BGL Yap_global->bgl
 #endif
-#define FSWIStream Yap_global->f_swi_stream
-#define SWIGetc Yap_global->swi_getc
-#define SWIPutc Yap_global->swi_putc
-#define SWIWideGetc Yap_global->swi_wgetc
-#define SWIWidePutc Yap_global->swi_wputc
-#define SWIClose Yap_global->swi_close
-#define SWIFlush Yap_global->swi_flush
-#define SWIGetStream Yap_global->swi_get_stream_f
-#define SWIGetStreamPosition Yap_global->swi_get_stream_position_f
 
 #define Yap_AllowLocalExpansion Yap_global->allow_local_expansion
 #define Yap_AllowGlobalExpansion Yap_global->allow_global_expansion
