@@ -77,7 +77,7 @@ BIF_OBJS = \
 	CptEntry.o \
     BifInterface.o \
     BifTest.o \
-    xmlParser/xmlParser.o
+    xmlParser.o
 
 SOBJS=horus.@SO@
 
@@ -85,6 +85,9 @@ SOBJS=horus.@SO@
 all: $(SOBJS) biftest
 
 # default rule
+xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
 %.o : $(srcdir)/%.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
