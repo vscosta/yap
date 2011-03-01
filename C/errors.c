@@ -517,6 +517,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       error_exit_yap (1);
     }
   case PURE_ABORT:
+    nt[0] = MkAtomTerm(AtomDAbort);
     fun = FunctorVar;
     serious = TRUE;
     break;

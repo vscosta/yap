@@ -1547,6 +1547,8 @@ InteractSIGINT(int ch) {
   switch (ch) {
   case 'a':
     /* abort computation */
+    if (Yap_PrologMode &= InReadlineMode) {
+    }
     if (Yap_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
       Yap_PrologMode |= AbortMode;
     } else {
@@ -1650,33 +1652,19 @@ HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
 HandleSIGINT (int sig)
 #endif
 {
-  LOCK(SignalLock);
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
   if (!isatty(0)  && !Yap_sockets_io) {
-    UNLOCK(SignalLock);
     Yap_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
     return;
   }
 #endif
   if (Yap_InterruptsDisabled) {
-    UNLOCK(SignalLock);
     return;
   }
   if (Yap_PrologMode & (CritMode|ConsoleGetcMode)) {
     Yap_PrologMode |= InterruptMode;
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-    if (Yap_PrologMode & ConsoleGetcMode) {
-      fprintf(stderr, "Action (h for help): ");
-      rl_point = rl_end = 0;
-#if HAVE_RL_SET_PROMPT
-      rl_set_prompt("Action (h for help): ");
-#endif
-    }
-#endif
-    UNLOCK(SignalLock);
-    return;
   }
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
@@ -1684,11 +1672,9 @@ HandleSIGINT (int sig)
 #endif
   if (snoozing) {
     snoozing = FALSE;
-    UNLOCK(SignalLock);
     return;
   }
   ProcessSIGINT();
-  UNLOCK(SignalLock);
 }
 #endif
 

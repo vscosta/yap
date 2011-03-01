@@ -482,8 +482,9 @@ Sread_readline(void *handle, char *buf, size_t size)
 	  rl_prep_terminal(FALSE);
 	  rl_readline_state = state;
 	  rl_done = 0;
-	} else
+	} else {
 	  line = pl_readline(prompt);
+	}
 	in_readline--;
 
 	if ( my_prompt )
@@ -513,6 +514,12 @@ Sread_readline(void *handle, char *buf, size_t size)
   PL_clock_wait_ticks(clock() - oldclock);
 #endif
 
+#if __YAP_PROLOG__
+  /* handle abort */
+  if (Yap_REGS.P_ == FAILCODE) {
+    return 0;
+  }
+#endif
   return rval;
 }
 

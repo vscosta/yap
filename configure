@@ -7990,6 +7990,11 @@ if test "x$ac_cv_func_rl_filename_completion_function_" = x""yes; then :
 
 fi
 
+  ac_fn_c_check_func "$LINENO" "rl_free_line_state " "ac_cv_func_rl_free_line_state_"
+if test "x$ac_cv_func_rl_free_line_state_" = x""yes; then :
+
+fi
+
   ac_fn_c_check_func "$LINENO" "rl_set_prompt " "ac_cv_func_rl_set_prompt_"
 if test "x$ac_cv_func_rl_set_prompt_" = x""yes; then :
 
