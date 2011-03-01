@@ -517,8 +517,9 @@ currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
   default:
     opkind = 1;
   }
-  if (!YAP_OpInfo(YAP_AtomFromSWIAtom(name), mod, opkind, &yap_type, priority))
+  if (!YAP_OpInfo(YAP_AtomFromSWIAtom(name), mod, opkind, &yap_type, priority)) {
     return FALSE;
+  }
   switch(yap_type) {
   case 1:
     *type = OP_XFX;

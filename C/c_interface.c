@@ -3597,6 +3597,7 @@ int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
     }
   }
   *yap_type = n;
+  WRITE_UNLOCK(ae->ARWLock);
   return 1;
 }
 
