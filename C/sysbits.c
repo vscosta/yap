@@ -1263,8 +1263,10 @@ my_signal(int sig, void (*handler)(int, siginfo_t *, ucontext_t *))
 #elif defined(__linux__)
 
 STATIC_PROTO (RETSIGTYPE HandleMatherr, (int));
+#if HAVE_SIGSEGV && !defined(THREADS) 
 STATIC_PROTO (RETSIGTYPE HandleSIGSEGV, (int,siginfo_t *,void *));
 STATIC_PROTO (void my_signal_info, (int, void (*)(int,siginfo_t *,void *)));
+#endif
 STATIC_PROTO (void my_signal, (int, void (*)(int)));
 
 /******** Handling floating point errors *******************/
@@ -1321,6 +1323,23 @@ HandleMatherr(int sig)
   Yap_Error(Yap_matherror, TermNil, "");
 }
 
+#if HAVE_SIGSEGV && !defined(THREADS) 
+static void
+my_signal_info(int sig, void (*handler)(int,siginfo_t *,void *))
+{
+  struct sigaction sigact;
+
+  sigact.sa_sigaction = handler;
+  sigemptyset(&sigact.sa_mask);
+#if HAVE_SIGINFO
+  sigact.sa_flags = SA_SIGINFO;
+#else
+  sigact.sa_flags = 0;
+#endif
+
+  sigaction(sig,&sigact,NULL);
+}
+
 static void
 SearchForTrailFault(siginfo_t *siginfo)
 {
@@ -1347,7 +1366,6 @@ SearchForTrailFault(siginfo_t *siginfo)
   }
 }
 
-#if HAVE_SIGSEGV && !defined(THREADS) 
 static RETSIGTYPE
 HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
 {
@@ -1357,22 +1375,6 @@ HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
   SearchForTrailFault(siginfo);
 }
 #endif
-
-static void
-my_signal_info(int sig, void (*handler)(int,siginfo_t *,void *))
-{
-  struct sigaction sigact;
-
-  sigact.sa_sigaction = handler;
-  sigemptyset(&sigact.sa_mask);
-#if HAVE_SIGINFO
-  sigact.sa_flags = SA_SIGINFO;
-#else
-  sigact.sa_flags = 0;
-#endif
-
-  sigaction(sig,&sigact,NULL);
-}
 
 static void
 my_signal(int sig, void (*handler)(int))
