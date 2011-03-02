@@ -30,6 +30,19 @@
 #ifdef H
 #undef H
 #endif
+/* vsc: needs defining before getting rid of YAP locks */
+static inline int
+do_startCritical(void) {
+  YAPEnterCriticalSection();
+  return 1;
+}
+static inline int
+do_endCritical(void) {
+  YAPLeaveCriticalSection();
+  return 1;
+}
+#define startCritical  do_startCritical()
+#define endCritical do_endCritical()
 #ifdef LOCK
 #undef LOCK
 #endif
@@ -428,10 +441,6 @@ MT/TBD: how to handle this gracefully in the multi-threading case.  Does
 it mean anything?
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-/* vsc: needs defining */
-#define startCritical  TRUE
-#define endCritical    TRUE
-
 #ifndef TRUE
 #define TRUE			1
 #define FALSE			0
@@ -772,8 +781,10 @@ COMMON(word) 		pl_write_canonical2(term_t stream, term_t term);
 
 
 /* empty stub */
-void setPrologFlag(const char *name, int flags, ...);
-void PL_set_prolog_flag(const char *name, int flags, ...);
+extern void setPrologFlag(const char *name, int flags, ...);
+extern void PL_set_prolog_flag(const char *name, int flags, ...);
+
+extern install_t PL_install_readline(void);
 
 COMMON(int)		saveWakeup(wakeup_state *state, int forceframe ARG_LD);
 COMMON(void)		restoreWakeup(wakeup_state *state ARG_LD);
@@ -786,6 +797,8 @@ COMMON(int) 		numberVars(term_t t, nv_options *opts, int n ARG_LD);
 
 COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 						 int wide, CVT_result *status);
+
+COMMON(bool)		systemMode(bool accept);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
