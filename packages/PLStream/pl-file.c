@@ -4687,23 +4687,6 @@ static const PL_extension foreigns[] = {
   LFRG((char *)NULL,		0, NULL,			0)
 };
 
-static int
-get_stream_handle_no_errors(term_t t, int read, int write, IOSTREAM **s)
-{ GET_LD
-  if ( t == 0 )
-    { if (write) *s = getStream(Scurout);
-      else *s = getStream(Scurin);
-      return TRUE;
-    }
-  return get_stream_handle(t, s, SH_ALIAS);
-}
-
-static int
-get_stream_position(IOSTREAM *s, term_t t)
-{ GET_LD
-    return stream_position_prop(s, t);
-}
-
 static void
 init_yap(void)
 {
