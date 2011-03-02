@@ -371,6 +371,7 @@ static Int p_total_choicepoints(void)
 static Int p_reset_total_choicepoints(void)
 {
   Yap_total_choicepoints = 0;
+  return TRUE;
 }
 
 static Int p_show_low_level_trace(void)
