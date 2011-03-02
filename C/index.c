@@ -1148,6 +1148,22 @@ has_cut(yamop *pc)
     case _write_x_loc:
       pc = NEXTOP(pc,x);
       break;
+      /* instructions type xD */
+    case _put_dbterm:
+      pc = NEXTOP(pc,xD);
+      break;
+      /* instructions type D */
+    case _write_dbterm:
+      pc = NEXTOP(pc,D);
+      break;
+      /* instructions type xN */
+    case _put_bigint:
+      pc = NEXTOP(pc,xN);
+      break;
+      /* instructions type N */
+    case _write_bigint:
+      pc = NEXTOP(pc,N);
+      break;
       /* instructions type xl */
     case _p_atom_x:
     case _p_atomic_x:
@@ -3423,9 +3439,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Yap_LockStream(Yap_c_error_stream);
     Yap_ShowCode(&cint);
-    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   /* globals for assembler */
@@ -4545,7 +4559,6 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
-    Yap_LockStream(Yap_c_error_stream);
     if (!tmod) tmod = TermProlog;
 #if THREADS
     Yap_DebugPlWrite(MkIntegerTerm(worker_id));
@@ -4579,14 +4592,12 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
 	Yap_DebugPutc(Yap_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
-      Yap_UnLockStream(Yap_c_error_stream);
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
 #if THREADS
     Yap_DebugPlWrite(MkIntegerTerm(worker_id));
     Yap_DebugPutc(Yap_c_error_stream,' ');
 #endif
-    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   if ((labp = expand_index(&cint)) == NULL) {
@@ -4609,9 +4620,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
-    Yap_LockStream(Yap_c_error_stream);
     Yap_ShowCode(&cint);
-    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   /* globals for assembler */
@@ -6020,7 +6029,6 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
-    Yap_LockStream(Yap_c_error_stream);
     if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(Yap_c_error_stream,'+');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
@@ -6052,7 +6060,6 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
-    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   stack = (path_stack_entry *)TR;
@@ -6506,7 +6513,6 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     Term tmod = ap->ModuleOfPred;
 
     if (!tmod) tmod = TermProlog;
-    Yap_LockStream(Yap_c_error_stream);
     Yap_DebugPutc(Yap_c_error_stream,'-');
     Yap_DebugPutc(Yap_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
@@ -6538,7 +6544,6 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
       }
     }
     Yap_DebugPutc(Yap_c_error_stream,'\n');
-    Yap_UnLockStream(Yap_c_error_stream);
   }
 #endif
   stack = (path_stack_entry *)TR;
