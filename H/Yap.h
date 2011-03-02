@@ -13,6 +13,9 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
+#ifndef YAP_H
+#define YAP_H 1
+
 #include "config.h"
 #if defined(ENV_COPY) || defined(TABLING) || defined(THREADS)
 #include "opt.config.h"
@@ -1338,3 +1341,4 @@ Yap_CurrentSlot(void) {
   return IntOfTerm(ASP[0]);
 }
 
+#endif /* YAP_H */

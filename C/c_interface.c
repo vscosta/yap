@@ -327,7 +327,6 @@
 
 #define Bool int
 #define flt double
-#define YAP_Term Term
 #define C_INTERFACE
 
 #include <stdlib.h>
@@ -348,7 +347,6 @@
 #include <windows.h>
 #endif
 #include "iopreds.h"
-#define HAS_YAP_H 1
 #include "yap_structs.h"
 #ifdef TABLING
 #include "tab.macros.h"

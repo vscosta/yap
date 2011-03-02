@@ -48,12 +48,19 @@
 #include "swi.h"
 
 extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
+extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 extern int	PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
 X_API extern Atom
 YAP_AtomFromSWIAtom(atom_t at)
 {
   return SWIAtomToAtom(at);
+}
+
+X_API extern atom_t
+YAP_SWIAtomFromAtom(Atom at)
+{
+  return AtomToSWIAtom(at);
 }
 
 extern X_API Int YAP_PLArityOfSWIFunctor(functor_t at);

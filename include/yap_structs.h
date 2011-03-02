@@ -25,7 +25,31 @@
 #define CONST /* empty */
 #endif
 
-#ifndef HAS_YAP_H
+#ifdef YAP_H
+
+/* if Yap.h is available, just reexport */
+
+typedef CELL YAP_CELL;
+
+typedef Term YAP_Term;
+
+typedef CELL YAP_Arity;
+
+typedef Term YAP_Module;
+
+typedef Functor YAP_Functor;
+
+typedef Atom YAP_Atom;
+
+typedef Int YAP_Int;
+
+typedef UInt YAP_UInt;
+
+typedef Float YAP_Float;
+
+typedef int YAP_Bool;
+
+#else
 
 /* Type definitions */
 

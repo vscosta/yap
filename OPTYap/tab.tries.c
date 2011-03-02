@@ -317,18 +317,20 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
     } else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble) {
-	volatile Float dbl;
-	volatile Term *t_dbl = (Term *)((void *) &dbl);
+	union {
+	  Term t_dbl[sizeof(Float)/sizeof(Term)];
+	  Float dbl;
+	} u;
 	t = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
-	t_dbl[0] = t;
+	u.t_dbl[0] = t;
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	t = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
-	t_dbl[1] = t;
+	u.t_dbl[1] = t;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	current_node = TrNode_parent(current_node);
-	t = MkFloatTerm(dbl);
+	t = MkFloatTerm(u.dbl);
       } else if (f == FunctorLongInt) {
 	Int li = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
@@ -819,17 +821,22 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
     arity[arity[0]] = (int) t;
     mode = TRAVERSE_MODE_DOUBLE2;
   } else if (mode == TRAVERSE_MODE_DOUBLE2) {
-    volatile Float dbl = 0;
-    volatile Term *t_dbl = (Term *)((void *) &dbl);
-    t_dbl[0] = t;
-    t_dbl[1] = (Term) arity[arity[0]];
+    union {
+      Term t_dbl[sizeof(Float)/sizeof(Term)];
+      Float dbl;
+    } u;
+    u.dbl = 0.0;
+    u.t_dbl[0] = t;
+    u.t_dbl[1] = (Term) arity[arity[0]];
     arity[0]--;
 #else /* SIZEOF_DOUBLE == SIZEOF_INT_P */
-    volatile Float dbl;
-    volatile Term *t_dbl = (Term *)((void *) &dbl);
-    t_dbl[0] = t;
+    union {
+      Term t_dbl[sizeof(Float)/sizeof(Term)];
+      Float dbl;
+    } u;
+    u.t_dbl[0] = t;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-    str_index += sprintf(& str[str_index], "%.15g", dbl);
+    str_index += sprintf(& str[str_index], "%.15g", u.dbl);
     traverse_update_arity(str, &str_index, arity);
     if (type == TRAVERSE_TYPE_SUBGOAL)
       mode = TRAVERSE_MODE_NORMAL;

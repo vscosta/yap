@@ -211,7 +211,6 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-stream.c $(srcdir)/packages/PLStream/pl-string.c \
 	$(srcdir)/packages/PLStream/pl-table.c \
 	$(srcdir)/packages/PLStream/pl-text.c \
-	$(srcdir)/packages/PLStream/pl-util.c \
 	$(srcdir)/packages/PLStream/pl-write.c \
 	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/uxnt/uxnt.c
 
@@ -329,7 +328,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-read.o \
 	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
-	pl-text.o pl-util.o pl-utf8.o \
+	pl-text.o pl-utf8.o \
 	pl-write.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 
@@ -610,9 +609,6 @@ pl-text.o: $(srcdir)/packages/PLStream/pl-text.c
 
 pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-utf8.c -o $@
-
-pl-util.o: $(srcdir)/packages/PLStream/pl-util.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-util.c -o $@
 
 pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-write.c -o $@

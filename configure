@@ -7975,35 +7975,17 @@ fi
 
 done
 
-  ac_fn_c_check_func "$LINENO" "rl_completion_matches " "ac_cv_func_rl_completion_matches_"
-if test "x$ac_cv_func_rl_completion_matches_" = x""yes; then :
+  for ac_func in rl_completion_matches  rl_clear_pending_input  rl_cleanup_after_signal rl_event_hook rl_filename_completion_function rl_free_line_state rl_insert_close rl_set_prompt rl_state_initialized
+do :
+  as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
+if eval test \"x\$"$as_ac_var"\" = x"yes"; then :
+  cat >>confdefs.h <<_ACEOF
+#define `$as_echo "HAVE_$ac_func" | $as_tr_cpp` 1
+_ACEOF
 
 fi
-
-  ac_fn_c_check_func "$LINENO" "rl_insert_close " "ac_cv_func_rl_insert_close_"
-if test "x$ac_cv_func_rl_insert_close_" = x""yes; then :
-
-fi
-
-  ac_fn_c_check_func "$LINENO" "rl_filename_completion_function " "ac_cv_func_rl_filename_completion_function_"
-if test "x$ac_cv_func_rl_filename_completion_function_" = x""yes; then :
-
-fi
-
-  ac_fn_c_check_func "$LINENO" "rl_free_line_state " "ac_cv_func_rl_free_line_state_"
-if test "x$ac_cv_func_rl_free_line_state_" = x""yes; then :
-
-fi
-
-  ac_fn_c_check_func "$LINENO" "rl_set_prompt " "ac_cv_func_rl_set_prompt_"
-if test "x$ac_cv_func_rl_set_prompt_" = x""yes; then :
-
-fi
-
-  ac_fn_c_check_func "$LINENO" "rl_clear_pending_input " "ac_cv_func_rl_clear_pending_input_"
-if test "x$ac_cv_func_rl_clear_pending_input_" = x""yes; then :
-
-fi
+done
 
 fi
 for ac_header in mpi.h
@@ -8934,6 +8916,28 @@ _ACEOF
 fi
 done
 
+for ac_func in mbscoll
+do :
+  ac_fn_c_check_func "$LINENO" "mbscoll" "ac_cv_func_mbscoll"
+if test "x$ac_cv_func_mbscoll" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MBSCOLL 1
+_ACEOF
+
+fi
+done
+
+for ac_func in mbscasecoll
+do :
+  ac_fn_c_check_func "$LINENO" "mbscasecoll" "ac_cv_func_mbscasecoll"
+if test "x$ac_cv_func_mbscasecoll" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_MBSCASECOLL 1
+_ACEOF
+
+fi
+done
+
 for ac_func in mbsnrtowcs
 do :
   ac_fn_c_check_func "$LINENO" "mbsnrtowcs" "ac_cv_func_mbsnrtowcs"
@@ -8981,7 +8985,7 @@ _ACEOF
 fi
 done
 
-for ac_func in rename rint rl_set_prompt sbrk select
+for ac_func in rename rint sbrk select setbuf
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"
@@ -8993,7 +8997,7 @@ _ACEOF
 fi
 done
 
-for ac_func in setbuf setitimer setsid setlinebuf sigaction
+for ac_func in setitimer setlocale setsid setlinebuf sigaction
 do :
   as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 ac_fn_c_check_func "$LINENO" "$ac_func" "$as_ac_var"

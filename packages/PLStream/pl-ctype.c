@@ -681,7 +681,7 @@ so we ignore possible problems.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 static int
-initLocale()
+initLocale(void)
 { int rc = TRUE;
 
   if ( !setlocale(LC_CTYPE, "") )

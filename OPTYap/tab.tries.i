@@ -938,13 +938,16 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
     } else if (IsApplTerm(t)) {
       Functor f = FunctorOfTerm(t);
       if (f == FunctorDouble) {
-	volatile Float dbl = FloatOfTerm(t);
-	volatile Term *t_dbl = (Term *)((void *) &dbl);
+	union {
+	  Term t_dbl[sizeof(Float)/sizeof(Term)];
+	  Float dbl;
+	} u;
+	u.dbl = FloatOfTerm(t);
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t_dbl[1]);
+	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[1]);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t_dbl[0]);
+	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, u.t_dbl[0]);
 #ifdef MODE_GLOBAL_TRIE_LOOP
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, AbsAppl((Term *)f));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
@@ -1153,13 +1156,16 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
     } else if (IsApplTerm(t)) {
       Functor f = FunctorOfTerm(t);
       if (f == FunctorDouble) {
-	volatile Float dbl = FloatOfTerm(t);
-	volatile Term *t_dbl = (Term *)((void *) &dbl);
+	union {
+	  Term t_dbl[sizeof(Float)/sizeof(Term)];
+	  Float dbl;
+	} u;
+	u.dbl = FloatOfTerm(t);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t_dbl[1], _trie_retry_extension);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t_dbl[0], _trie_retry_extension);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
       } else if (f == FunctorLongInt) {
 	Int li = LongIntOfTerm (t);
@@ -1307,18 +1313,20 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
     } else if (IsApplTerm(t)) {
       Functor f = (Functor) RepAppl(t);
       if (f == FunctorDouble) {
-	volatile Float dbl;
-	volatile Term *t_dbl = (Term *)((void *) &dbl);
+	union {
+	  Term t_dbl[sizeof(Float)/sizeof(Term)];
+	  Float dbl;
+	} u;
 	t = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
-	t_dbl[0] = t;
+	u.t_dbl[0] = t;
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
 	t = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);
-	t_dbl[1] = t;
+	u.t_dbl[1] = t;
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
 	current_node = TrNode_parent(current_node);
-	t = MkFloatTerm(dbl);
+	t = MkFloatTerm(u.dbl);
       } else if (f == FunctorLongInt) {
 	Int li = TrNode_entry(current_node);
 	current_node = TrNode_parent(current_node);

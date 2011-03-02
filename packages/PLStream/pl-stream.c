@@ -125,7 +125,7 @@ static int	S__seterror(IOSTREAM *s);
 #ifdef O_PLMT
 #define SLOCK(s)    if ( s->mutex ) recursiveMutexLock(s->mutex)
 #define SUNLOCK(s)  if ( s->mutex ) recursiveMutexUnlock(s->mutex)
-inline int
+static inline int
 STRYLOCK(IOSTREAM *s)
 { if ( s->mutex &&
        recursiveMutexTryLock(s->mutex) == EBUSY )
@@ -146,7 +146,7 @@ typedef intptr_t atom_t;
 #include "pl-error.h"
 
 extern int 			fatalError(const char *fm, ...);
-extern int			PL_handle_signals();
+extern int			PL_handle_signals(void);
 extern IOENC			initEncoding(void);
 extern int			reportStreamError(IOSTREAM *s);
 extern record_t			PL_record(term_t t);

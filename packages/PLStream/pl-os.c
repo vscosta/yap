@@ -445,10 +445,11 @@ UsedMemory(void)
 
 uintptr_t
 FreeMemory(void)
-{ uintptr_t used = UsedMemory();
-
+{
 #if defined(HAVE_GETRLIMIT) && defined(RLIMIT_DATA)
-  struct rlimit limit;
+  uintptr_t used = UsedMemory();
+
+ struct rlimit limit;
 
   if ( getrlimit(RLIMIT_DATA, &limit) == 0 )
     return limit.rlim_cur - used;

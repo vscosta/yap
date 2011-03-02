@@ -668,7 +668,11 @@ word pl_noprotocol(void);
 IOSTREAM *PL_current_input(void);
 IOSTREAM *PL_current_output(void);
 
-extern int reportStreamError(IOSTREAM *s);
+COMMON(int) stricmp(const char *s1, const char *s2);
+
+COMMON(word) textToString(PL_chars_t *text);
+
+COMMON(int) reportStreamError(IOSTREAM *s);
 
 extern int digitValue(int b, int c);
 

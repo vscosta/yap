@@ -111,6 +111,7 @@ valHandle(term_t tt)
 
 YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
 YAP_Atom YAP_AtomFromSWIAtom(atom_t at);
+atom_t YAP_SWIAtomFromAtom(YAP_Atom at);
 PL_blob_t*	YAP_find_blob_type(YAP_Atom at);
 
 void PL_license(const char *license, const char *module);
@@ -130,7 +131,7 @@ void PL_license(const char *license, const char *module);
 #define valFloat(w) YAP_FloatOfTerm((w))
 #define AtomLength(w) YAP_AtomNameLength(w)
 #define atomValue(atom) YAP_AtomFromSWIAtom(atom)
-#define atomFromTerm(term) YAP_AtomOfTerm(term)
+#define atomFromTerm(term) YAP_SWIAtomFromAtom(YAP_AtomOfTerm(term))
 #define atomName(atom) ((char *)YAP_AtomName(atom))
 #define nameOfAtom(atom) ((char *)YAP_AtomName(atom))
 #define atomLength(atom) YAP_AtomNameLength(atom)
