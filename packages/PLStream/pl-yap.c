@@ -186,14 +186,14 @@ valueExpression(term_t t, Number r ARG_LD)
 #ifdef O_GMP
   if (YAP_IsBigNumTerm(t0)) {
     r->type = V_MPZ;
-    mpz_init(&r->value.mpz);
-    YAP_BigNumOfTerm(t0, &r->value.mpz);
+    mpz_init(r->value.mpz);
+    YAP_BigNumOfTerm(t0, r->value.mpz);
     return 1;
   }
   if (YAP_IsRationalTerm(t0)) {
     r->type = V_MPQ;
-    mpq_init(&r->value.mpq);
-    YAP_RationalOfTerm(t0, &r->value.mpq);
+    mpq_init(r->value.mpq);
+    YAP_RationalOfTerm(t0, r->value.mpq);
     return 1;
   }
 #endif
@@ -344,13 +344,15 @@ typedef union
 
 int
 get_atom_ptr_text(Atom a, PL_chars_t *text)
-{ if (YAP_IsWideAtom(a))
-    { pl_wchar_t *name = (pl_wchar_t *)YAP_WideAtomName(a);
-      text->text.w   = name;
-      text->length   = wcslen(name);
-      text->encoding = ENC_WCHAR;
+{ 
+  YAP_Atom ya = (YAP_Atom)a;
+  if (YAP_IsWideAtom(ya)) {
+    pl_wchar_t *name = (pl_wchar_t *)YAP_WideAtomName(ya);
+    text->text.w   = name;
+    text->length   = wcslen(name);
+    text->encoding = ENC_WCHAR;
   } else
-    { char *name = (char *)YAP_AtomName(a);
+    { char *name = (char *)YAP_AtomName(ya);
     text->text.t   = name;
     text->length   = strlen(name);
     text->encoding = ENC_ISO_LATIN_1;
@@ -364,7 +366,7 @@ get_atom_ptr_text(Atom a, PL_chars_t *text)
 
 int
 get_atom_text(atom_t atom, PL_chars_t *text)
-{ Atom a = atomValue(atom);
+{ Atom a = (Atom)atomValue(atom);
 
   return get_atom_ptr_text(a, text);
 }
@@ -383,11 +385,11 @@ PL_get_number(term_t l, number *n) {
 #ifdef O_GMP
   } else if (YAP_IsBigNumTerm(t)) {
     n->type = V_MPZ;
-    mpz_init(&n->value.mpq);
-    YAP_BigNumOfTerm(t, &n->value.mpz);
+    mpz_init(n->value.mpz);
+    YAP_BigNumOfTerm(t, n->value.mpz);
   } else {
     n->type = V_MPQ;
-    mpq_init(&n->value.mpq);
+    mpq_init(n->value.mpq);
     YAP_RationalOfTerm(t, &n->value.mpq);
 #endif
   }
