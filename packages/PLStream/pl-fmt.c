@@ -201,7 +201,7 @@ static int	emit_rubber(format_state *state);
 word
 pl_format_predicate(term_t chr, term_t descr)
 { int c;
-  predicate_t proc;
+  predicate_t proc = NULL;
   Symbol s;
   int arity;
 
@@ -507,7 +507,10 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 	      case 'g':			/* shortest of 'f' and 'e' */
 	      case 'G':			/* shortest of 'f' and 'E' */
 		{ number n;
-		  tmp_buffer b;
+		  union {
+		    tmp_buffer b;
+		    buffer b1;
+		  } u;
 
 		  NEED_ARG;
 		  if ( !valueExpression(argv, &n PASS_LD) )
@@ -519,11 +522,11 @@ do_format(IOSTREAM *fd, PL_chars_t *fmt, int argc, term_t argv)
 		  }
 		  SHIFT;
 
-		  initBuffer(&b);
-		  formatFloat(c, arg, &n, (Buffer)&b);
+		  initBuffer(&u.b);
+		  formatFloat(c, arg, &n, &u.b1);
 		  clearNumber(&n);
-		  outstring0(&state, baseBuffer(&b, char));
-		  discardBuffer(&b);
+		  outstring0(&state, baseBuffer(&u.b, char));
+		  discardBuffer(&u.b);
 		  here++;
 		  break;
 		}
