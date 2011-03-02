@@ -238,6 +238,7 @@ IncrementalCopyStacksFromWorker(void)
 	 (size_t) (LOCAL_end_trail_copy - LOCAL_start_trail_copy));
 }
 
+#ifndef TABLING
 static CELL
 worker_p_binding(int worker_p, CELL *aux_ptr)
 {
@@ -251,6 +252,7 @@ worker_p_binding(int worker_p, CELL *aux_ptr)
     return reg;
   }
 }
+#endif
 
 static void
 RestoreTrail(int worker_p)
