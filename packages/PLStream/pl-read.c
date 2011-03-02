@@ -549,12 +549,15 @@ raw_read2(ReadData _PL_rd ARG_LD)
 		if ( c == '*' )
 		{ int last;
 		  int level = 1;
-		  tmp_buffer ctmpbuf;
+		  union {
+		    tmp_buffer ctmpbuf;
+		    buffer tmpbuf;
+		  } u;
 		  Buffer cbuf;
 
 		  if ( _PL_rd->comments )
-		  { initBuffer(&ctmpbuf);
-		    cbuf = (Buffer)&ctmpbuf;
+		  { initBuffer(&u.ctmpbuf);
+		    cbuf = &u.tmpbuf;
 		    addUTF8Buffer(cbuf, '/');
 		    addUTF8Buffer(cbuf, '*');
 		  } else
@@ -628,7 +631,10 @@ raw_read2(ReadData _PL_rd ARG_LD)
       case '%': if ( something_read )
 		  addToBuffer(' ', _PL_rd);
       		if ( _PL_rd->comments )
-		{ tmp_buffer ctmpbuf;
+		  { union {
+		    tmp_buffer ctmpbuf;
+		    buffer uctmpbuf;
+		  } u;
 		  Buffer cbuf;
 
 		  if ( rb.stream->position )
@@ -639,8 +645,8 @@ raw_read2(ReadData _PL_rd ARG_LD)
 		  } else
 		    pos = NULL;
 
-		  initBuffer(&ctmpbuf);
-		  cbuf = (Buffer)&ctmpbuf;
+		  initBuffer(&u.ctmpbuf);
+		  cbuf = (Buffer)&u.uctmpbuf;
 		  addUTF8Buffer(cbuf, '%');
 
 		  for(;;)
