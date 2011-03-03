@@ -986,12 +986,13 @@ PRED_IMPL("file_name_extension", 3, file_name_extension, 0)
 
 static
 PRED_IMPL("prolog_to_os_filename", 2, prolog_to_os_filename, 0)
-{ PRED_LD
+{
 
   term_t pl = A1;
   term_t os = A2;
 
 #ifdef O_XOS
+  PRED_LD
   wchar_t *wn;
 
   if ( !PL_is_variable(pl) )

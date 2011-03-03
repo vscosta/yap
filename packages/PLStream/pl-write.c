@@ -67,8 +67,8 @@ static bool	writeArgTerm(term_t t, int prec,
 #if __YAP_PROLOG__
 static Word
 address_of(term_t t)
-{ GET_LD
-    return YAP_AddressFromSlot(t);			/* non-recursive structure */
+{
+   return YAP_AddressFromSlot(t);			/* non-recursive structure */
 }
 #else
 static Word

@@ -60,10 +60,6 @@ COMMON(char *) 		Getenv(const char *, char *buf, size_t buflen);
 
 /*** memory allocation stuff: SWI wraps around malloc  */
 
-#define allocHeap(X) YAP_AllocSpaceFromYap(X)
-
-#define freeHeap(X,Size) YAP_FreeSpaceFromYap(X)
-
 #define stopItimer()
 
 COMMON(word) 		pl_print(term_t term);
@@ -103,11 +99,10 @@ COMMON(int) 		IsAbsolutePath(const char *spec);
 extern word globalString(size_t size, char *s);
 extern word globalWString(size_t size, wchar_t *s);
 
-static inline word
-valHandle(term_t tt)
-{
-  return (word)YAP_GetFromSlot(tt);
-}
+#define allocHeap(n)		allocHeap__LD(n PASS_LD)
+#define freeHeap(p, n)		freeHeap__LD(p, n PASS_LD)
+
+#define valHandle(r) valHandle__LD(r PASS_LD)
 
 YAP_Int YAP_PLArityOfSWIFunctor(functor_t f);
 YAP_Atom YAP_AtomFromSWIAtom(atom_t at);
@@ -144,7 +139,6 @@ void PL_license(const char *license, const char *module);
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
 #define lookupModule(A) ((Module)PL_new_module(A))
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
-#define skip_list(A,B) YAP_SkipList(A,B)
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) YAP_IsIntTerm(A)
 #define valInt(A) YAP_IntOfTerm(A)
@@ -169,7 +163,16 @@ charCode(Term w)
   return -1;
 }
 
+#define getInputStream(t, s)	getInputStream__LD(t, s PASS_LD)
 
+#define PL_get_atom(t, a)	PL_get_atom__LD(t, a PASS_LD)
+#define PL_get_atom_ex(t, a)	PL_get_atom_ex__LD(t, a PASS_LD)
+#define PL_get_text(l, t, f)	PL_get_text__LD(l, t, f PASS_LD)
+#define PL_is_variable(t)	PL_is_variable__LD(t PASS_LD)
+#define PL_new_term_ref()	PL_new_term_ref__LD(PASS_LD1)
+#define PL_put_term(t1, t2)	PL_put_term__LD(t1, t2 PASS_LD)
+#define PL_unify_atom(t, a)	PL_unify_atom__LD(t, a PASS_LD)
+#define PL_unify_integer(t, i)	PL_unify_integer__LD(t, i PASS_LD)
 
 #endif /* __YAP_PROLOG__ */
 

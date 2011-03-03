@@ -148,7 +148,7 @@
 #define Yap_LabelFirstArray WL->label_first_array
 #define Yap_LabelFirstArraySz WL->label_first_array_sz
 
-#define LD WL->Yap_ld_
+#define PL_local_data_p WL->Yap_ld_
 #define execution WL->_execution
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)

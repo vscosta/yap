@@ -148,7 +148,7 @@ static void InitWorker(int wid) {
   FOREIGN_WL(wid)->label_first_array = NULL;
   FOREIGN_WL(wid)->label_first_array_sz = 0L;
 
-  FOREIGN_WL(wid)->Yap_ld_ = NULL;
+  FOREIGN_WL(wid)->Yap_ld_ = Yap_InitThreadIO(wid);
   FOREIGN_WL(wid)->_execution = NULL;
 
 #if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)

@@ -171,7 +171,16 @@ extern Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 extern pthread_key_t Yap_yaamregs_key;
 
+#if CACHE_REGS
+
+#define ENTER_FUNC REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
+#define Yap_regp ->((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
+
+#else
+
 #define Yap_regp ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
+
+#endif
 
 #endif
 

@@ -751,7 +751,7 @@ p_read (void)
   return do_read(NULL, 6);
 }
 
-extern int getInputStream(Int, IOSTREAM **);
+extern int Yap_getInputStream(Int, IOSTREAM **);
 
 static Int
 p_read2 (void)
@@ -759,7 +759,7 @@ p_read2 (void)
   IOSTREAM *inp_stream;
   Int out;
 
-  if (!getInputStream(Yap_InitSlot(Deref(ARG7)), &inp_stream)) {
+  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG7)), &inp_stream)) {
     return(FALSE);
   }
   out = do_read(inp_stream, 7);

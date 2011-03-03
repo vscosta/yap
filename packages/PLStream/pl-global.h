@@ -150,8 +150,6 @@ typedef struct {
 extern gds_t gds;
 
 #define GD (&gds)
-#define GLOBAL_LD (&gds)
-
 
 /* The LD macro layer */
 typedef struct PL_local_data {
@@ -251,12 +249,32 @@ extern PL_local_data_t lds;
 
 // THIS HAS TO BE ABSTRACTED
 
-#define LOCAL_LD (WL->Yap_ld_)
+#define GLOBAL_LD (PL_local_data_p)
 
+#undef LD
+
+#if !defined(O_PLMT) && !defined(YAPOR)
+#define LOCAL_LD (PL_local_data_p)
+#define ARG1_LD   void
 #define ARG_LD
 #define GET_LD
 #define PRED_LD
 #define PASS_LD
+
+#else
+
+#define LOCAL_LD (__PL_ld)
+#define LD	  LOCAL_LD
+
+#define GET_LD	  PL_local_data_t *__PL_ld = GLOBAL_LD;
+#define ARG1_LD   PL_local_data_t *__PL_ld
+
+#define ARG_LD    , ARG1_LD
+#define PASS_LD1  LD
+#define PASS_LD   , LD
+#define PRED_LD   GET_LD
+
+#endif
 
 #define Suser_input             (LD->IO.streams[0])
 #define Suser_output            (LD->IO.streams[1])

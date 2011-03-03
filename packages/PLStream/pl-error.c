@@ -31,7 +31,7 @@ PL_get_chars_ex(term_t t, char **s, unsigned int flags)
 
 
 int
-PL_get_atom_ex(term_t t, atom_t *a)
+PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD)
 { if ( PL_get_atom(t, a) )
     succeed;
 
@@ -170,7 +170,8 @@ PL_get_module_ex(term_t name, module_t *m)
 
 int
 PL_unify_bool_ex(term_t t, bool val)
-{ bool v;
+{ GET_LD
+  bool v;
 
   if ( PL_is_variable(t) )
     return PL_unify_atom(t, val ? ATOM_true : ATOM_false);
@@ -190,6 +191,7 @@ notImplemented(char *name, int arity)
 
 X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 {
+  GET_LD
   term_t formal, swi, predterm, msgterm, except;
   va_list args;
 

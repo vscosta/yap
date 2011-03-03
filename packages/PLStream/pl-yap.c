@@ -110,8 +110,9 @@ restoreWakeup(wakeup_state *state ARG_LD)
 }
 
 int
-callProlog(module_t module, term_t goal, int flags, term_t *ex)
-{ term_t g = PL_new_term_ref();
+callProlog(module_t module, term_t goal, int flags, term_t *ex )
+{ GET_LD
+  term_t g = PL_new_term_ref();
   functor_t fd;
   predicate_t proc;
 
@@ -160,12 +161,14 @@ Yap_Eval(YAP_Term t)
 IOENC
 Yap_DefaultEncoding(void)
 {
+  GET_LD
   return LD->encoding;
 }
 
 void
 Yap_SetDefaultEncoding(IOENC new_encoding)
 {
+  GET_LD
   LD->encoding = new_encoding;
 }
 
@@ -275,6 +278,7 @@ switch(n->type)
 int
 _PL_unify_atomic(term_t t, PL_atomic_t a)
 {
+  GET_LD
   return PL_unify_atom(t, a);
 }
 
@@ -378,6 +382,7 @@ get_string_text(word w, PL_chars_t *text ARG_LD)
 
 void
 PL_get_number(term_t l, number *n) {
+  GET_LD
   YAP_Term t = valHandle(l);
   if (YAP_IsIntTerm(t)) {
     n->type = V_INTEGER;
@@ -477,6 +482,7 @@ PL_unify_chars(term_t t, int flags, size_t len, const char *s)
 
 X_API int PL_handle_signals(void)
 {
+  GET_LD
   if ( !LD || LD->critical || !LD->signal.pending )
     return 0;
   fprintf(stderr,"PL_handle_signals not implemented\n");
@@ -823,9 +829,61 @@ PL_dispatch(int fd, int wait)
   return TRUE;
 }
 
+/* SWI: int PL_get_atom(term_t t, YAP_Atom *a)
+   YAP: YAP_Atom YAP_AtomOfTerm(Term) */
+int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
+{
+  YAP_Term t = Yap_GetFromSlot(ts);
+  if ( !IsAtomTerm(t))
+    return 0;
+  *a = YAP_SWIAtomFromAtom(AtomOfTerm(t));
+  return 1;
+}
+
+void PL_put_term__LD(term_t d, term_t s ARG_LD)
+{
+  Yap_PutInSlot(d,Yap_GetFromSlot(s));
+}
+
+term_t PL_new_term_ref__LD(ARG1_LD)
+{
+  term_t to = Yap_NewSlots(1);
+  return to;
+}
+
+int PL_is_variable__LD(term_t ts ARG_LD)
+{
+  YAP_Term t = Yap_GetFromSlot(ts);
+  return YAP_IsVarTerm(t);
+}
+
+int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
+{
+  YAP_Term cterm = MkAtomTerm(YAP_AtomFromSWIAtom(at));
+  return YAP_Unify(Yap_GetFromSlot(t),cterm);
+}
+
+/* SWI: int PL_unify_integer(term_t ?t, long n)
+   YAP long int  unify(YAP_Term* a, Term* b) */
+int PL_unify_integer__LD(term_t t, long n ARG_LD)
+{	
+  Term iterm = MkIntegerTerm(n);
+  return Yap_unify(Yap_GetFromSlot(t),iterm);
+}
+
+extern int Yap_getInputStream(term_t t, IOSTREAM **s);
+
+int Yap_getInputStream(term_t t, IOSTREAM **s)
+{
+  GET_LD
+  return getInputStream(t, s);
+}
+
 #ifdef _WIN32
 
 #include <windows.h>
+
+
 
 #if O_PLMT
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -875,14 +933,13 @@ PL_w32thread_raise(DWORD id, int sig)
 
 X_API int
 PL_raise(int sig)
-{ GET_LD
-
-    if (sig == SIG_PLABORT) {
-      YAP_signal(0x40); /* YAP_INT_SIGNAL */
-      return 1;
-    } else {
-      return 0;
-    }
+{
+  if (sig == SIG_PLABORT) {
+    YAP_signal(0x40); /* YAP_INT_SIGNAL */
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 extern size_t PL_utf8_strlen(const char *s, size_t len);
@@ -906,9 +963,8 @@ PL_license(const char *license, const char *module)
 
 bool
 systemMode(bool accept)
-{ GET_LD
-
-  return FALSE;
+{
+ return FALSE;
 }
 
 term_t

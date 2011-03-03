@@ -470,6 +470,8 @@ Term    STD_PROTO(Yap_get_stream_position,(void *));
 /* opt.preds.c */
 void    STD_PROTO(Yap_init_optyap_preds,(void));
 
+/* pl-file.c */
+struct PL_local_data *Yap_InitThreadIO(int wid); 
 
 static inline
 yamop *

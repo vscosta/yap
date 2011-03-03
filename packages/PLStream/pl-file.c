@@ -331,7 +331,9 @@ initIO()
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
+#if __YAP_PROLOG__
   init_yap();
+#endif
 #ifdef __unix__
 { int fd;
 
@@ -4692,10 +4694,19 @@ static const PL_extension foreigns[] = {
   LFRG((char *)NULL,		0, NULL,			0)
 };
 
+struct PL_local_data *Yap_InitThreadIO(int wid)
+{
+  struct PL_local_data *p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
+  if (!p) {
+    Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
+  }
+  return p;
+}
+
 static void
 init_yap(void)
 {
-  LD = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
+  GET_LD
   setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initCharTypes();
   initFiles();

@@ -597,7 +597,6 @@ typedef double			real;
 
 extern int PL_unify_char(term_t chr, int c, int how);
 extern int PL_get_char(term_t chr, int *c, int eof);
-extern int PL_get_text(term_t l, PL_chars_t *text, int flags);
 extern void PL_cleanup_fork(void);
 extern int PL_rethrow(void);
 extern void PL_get_number(term_t l, number *n);
@@ -608,10 +607,8 @@ extern int PL_unify_atomic(term_t t, PL_atomic_t a);
 extern IOSTREAM **			/* provide access to Suser_input, */
   _PL_streams(void);			/* Suser_output and Suser_error */
 
-#define PL_get_text__LD PL_get_text
-#define getInputStream__LD getInputStream
 extern int get_atom_text(atom_t atom, PL_chars_t *text);
-extern int get_string_text(word w, PL_chars_t *text);
+COMMON(int)		get_string_text(atom_t atom, PL_chars_t *text ARG_LD);
 extern char *format_float(double f, char *buf);
 
 /**** stuff from pl-ctype.c ****/
@@ -621,7 +618,6 @@ extern IOENC initEncoding(void);
 extern int PL_get_bool_ex(term_t t, int *i);
 extern int PL_get_nchars_ex(term_t t, size_t *len, char **s, unsigned int flags);
 extern int PL_get_chars_ex(term_t t, char **s, unsigned int flags);
-extern int PL_get_atom_ex(term_t t, atom_t *a);
 extern int PL_get_integer_ex(term_t t, int *i);
 extern int PL_get_long_ex(term_t t, long *i);
 extern int PL_get_int64_ex(term_t t, int64_t *i);
@@ -687,8 +683,6 @@ COMMON(atom_t) 		fileNameStream(IOSTREAM *s);
 COMMON(int) 		streamStatus(IOSTREAM *s);
 
 COMMON(int) 		getOutputStream(term_t t, IOSTREAM **s);
-COMMON(int) 		getInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
-#define getInputStream(t, s)	getInputStream__LD(t, s PASS_LD)
 COMMON(void) 		pushOutputContext(void);
 COMMON(void) 		popOutputContext(void);
 COMMON(int) 		getSingleChar(IOSTREAM *s, int signals);
@@ -793,7 +787,6 @@ extern install_t PL_install_readline(void);
 COMMON(int)		saveWakeup(wakeup_state *state, int forceframe ARG_LD);
 COMMON(void)		restoreWakeup(wakeup_state *state ARG_LD);
 
-COMMON(int)		skip_list(Word l, Word *tailp ARG_LD);
 COMMON(int) 		priorityOperator(Module m, atom_t atom);
 COMMON(int) 		currentOperator(Module m, atom_t name, int kind,
 				int *type, int *priority);
@@ -813,14 +806,39 @@ setBoolean(int *flag, term_t old, term_t new)
   succeed;
 }
 
-static inline word
-setInteger(int *flag, term_t old, term_t new)
-{ if ( !PL_unify_integer(old, *flag) ||
-       !PL_get_integer_ex(new, flag) )
-    fail;
+COMMON(int) 		getInputStream__LD(term_t t, IOSTREAM **s ARG_LD);
 
-  succeed;
+COMMON(int) 		PL_get_atom__LD(term_t t1, atom_t *a ARG_LD);
+COMMON(int) 		PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD);
+COMMON(int)		PL_get_text__LD(term_t l, PL_chars_t *text, int flags ARG_LD);
+COMMON(int) 		PL_is_variable__LD(term_t t ARG_LD);
+COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
+COMMON(void) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
+COMMON(int) 		PL_unify_atom__LD(term_t t, atom_t a ARG_LD);
+COMMON(int) 		PL_unify_integer__LD(term_t t1, intptr_t i ARG_LD);
+
+/* inlines that need ARG_LD */
+static inline intptr_t
+skip_list(Word l, Word *tailp ARG_LD) {
+  return (intptr_t)YAP_SkipList(l, tailp);
 }
+
+static inline word
+valHandle__LD(term_t r ARG_LD)
+{
+  return (word)YAP_GetFromSlot(r);
+}
+
+static inline void *allocHeap__LD(size_t n ARG_LD)
+{
+  return YAP_AllocSpaceFromYap(n);
+}
+
+static inline void freeHeap__LD(void *mem, size_t n ARG_LD)
+{
+  YAP_FreeSpaceFromYap(mem);
+}
+
 
 extern const PL_extension PL_predicates_from_ctype[];
 extern const PL_extension PL_predicates_from_file[];
@@ -828,6 +846,4 @@ extern const PL_extension PL_predicates_from_files[];
 extern const PL_extension PL_predicates_from_glob[];
 extern const PL_extension PL_predicates_from_write[];
 extern const PL_extension PL_predicates_from_read[];
-
-
 
