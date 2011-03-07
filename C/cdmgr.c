@@ -957,10 +957,10 @@ split_megaclause(PredEntry *ap)
 static void 
 IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 {
-  CACHE_REGS
   yamop          *BaseAddr;
 
 #ifdef DEBUG
+  CACHE_REGS
   if (Yap_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod)

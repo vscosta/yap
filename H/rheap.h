@@ -247,6 +247,22 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
 #define RestoreLogDBErasedMarker()  RestoreLogDBErasedMarker__( PASS_REGS1 )
 #define RestoreForeignCode()	RestoreForeignCode__( PASS_REGS1 )
+#define RestoreAtoms() RestoreAtoms__( PASS_REGS1 )
+#define RestoreWideAtoms() RestoreWideAtoms__( PASS_REGS1 )
+#define RestoreInvisibleAtoms() RestoreInvisibleAtoms__( PASS_REGS1 )
+#define RestorePredHash() RestorePredHash__( PASS_REGS1 )
+#define RestoreDBTermsList() RestoreDBTermsList__( PASS_REGS1 )
+#define RestoreExpandList() RestoreExpandList__( PASS_REGS1 )
+#define RestoreIntKeys() RestoreIntKeys__( PASS_REGS1 )
+#define RestoreIntLUKeys() RestoreIntLUKeys__( PASS_REGS1 )
+#define RestoreIntBBKeys() RestoreIntBBKeys__( PASS_REGS1 )
+#define RestoreDeadStaticClauses() RestoreDeadStaticClauses__( PASS_REGS1 )
+#define RestoreDeadMegaClauses() RestoreDeadMegaClauses__( PASS_REGS1 )
+#define RestoreDeadStaticIndices() RestoreDeadStaticIndices__( PASS_REGS1 )
+#define RestoreDBErasedList() RestoreDBErasedList__( PASS_REGS1 )
+#define RestoreDBErasedIList() RestoreDBErasedIList__( PASS_REGS1 )
+#define RestoreYapRecords() RestoreYapRecords__( PASS_REGS1 )
+#define RestoreSWIAtoms() RestoreSWIAtoms__( PASS_REGS1 )
 static Term
 ConstantTermAdjust__ (Term t USES_REGS)
 {
@@ -398,7 +414,7 @@ STATIC_PROTO(void  RestoreAtom, (AtomEntry * CACHE_TYPE));
 STATIC_PROTO(void  RestoreHashPreds, ( CACHE_TYPE1 ));
 
 static void
-RestoreAtoms( USES_REGS1 )
+RestoreAtoms__( USES_REGS1 )
 {
   AtomHashEntry *HashPtr;
   register int    i;
@@ -414,7 +430,7 @@ RestoreAtoms( USES_REGS1 )
 }
 
 static void
-RestoreWideAtoms( USES_REGS1 )
+RestoreWideAtoms__( USES_REGS1 )
 {
   AtomHashEntry *HashPtr;
   register int    i;
@@ -430,7 +446,7 @@ RestoreWideAtoms( USES_REGS1 )
 }
 
 static void
-RestoreInvisibleAtoms( USES_REGS1 )
+RestoreInvisibleAtoms__( USES_REGS1 )
 {
   INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
   RestoreAtomList(INVISIBLECHAIN.Entry PASS_REGS);
@@ -672,7 +688,7 @@ CleanSIndex(StaticIndex *idx, int recurse USES_REGS)
 }
 
 static void 
-RestoreSWIAtoms( USES_REGS1 )
+RestoreSWIAtoms__( USES_REGS1 )
 {
   int i, j;
   for (i=0; i < N_SWI_ATOMS; i++) {
@@ -695,7 +711,7 @@ RestoreSWIBlobs(void)
 }
 
 static void
-RestorePredHash( USES_REGS1 )
+RestorePredHash__( USES_REGS1 )
 {
   PredHash = PtoPtoPredAdjust(PredHash);
   if (PredHash == NULL) {
@@ -738,7 +754,7 @@ RestoreOtaplInst__(yamop start[1], OPCODE opc, PredEntry *pe USES_REGS)
 }
 
 static void
-RestoreDBTermsList( USES_REGS1 )
+RestoreDBTermsList__( USES_REGS1 )
 {
   if (Yap_heap_regs->dbterms_list) {
     struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
@@ -751,7 +767,7 @@ RestoreDBTermsList( USES_REGS1 )
 }
 
 static void
-RestoreExpandList( USES_REGS1 )
+RestoreExpandList__( USES_REGS1 )
 {
   if (Yap_heap_regs->expand_clauses_first)
     Yap_heap_regs->expand_clauses_first = PtoOpAdjust(Yap_heap_regs->expand_clauses_first);
@@ -776,7 +792,7 @@ RestoreUdiControlBlocks(void)
 }
 
 static void
-RestoreIntKeys( USES_REGS1 )
+RestoreIntKeys__( USES_REGS1 )
 {
   if (Yap_heap_regs->IntKeys != NULL) {
     Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
@@ -793,7 +809,7 @@ RestoreIntKeys( USES_REGS1 )
 }
 
 static void
-RestoreIntLUKeys( USES_REGS1 )
+RestoreIntLUKeys__( USES_REGS1 )
 {
   if (Yap_heap_regs->IntLUKeys != NULL) {
     Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
@@ -818,7 +834,7 @@ RestoreIntLUKeys( USES_REGS1 )
 }
 
 static void
-RestoreIntBBKeys( USES_REGS1 )
+RestoreIntBBKeys__( USES_REGS1 )
 {
   if (Yap_heap_regs->IntBBKeys != NULL) {
     Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
@@ -865,7 +881,7 @@ RestoreLogDBErasedMarker__( USES_REGS1 )
 }
 
 static void 
-RestoreDeadStaticClauses( USES_REGS1 )
+RestoreDeadStaticClauses__( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_static_clauses) {
     StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
@@ -878,7 +894,7 @@ RestoreDeadStaticClauses( USES_REGS1 )
 }
 
 static void 
-RestoreDeadMegaClauses( USES_REGS1 )
+RestoreDeadMegaClauses__( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_mega_clauses) {
     MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
@@ -891,7 +907,7 @@ RestoreDeadMegaClauses( USES_REGS1 )
 }
 
 static void 
-RestoreDeadStaticIndices( USES_REGS1 )
+RestoreDeadStaticIndices__( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_static_indices) {
     StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
@@ -904,7 +920,7 @@ RestoreDeadStaticIndices( USES_REGS1 )
 }
 
 static void 
-RestoreDBErasedList( USES_REGS1 )
+RestoreDBErasedList__( USES_REGS1 )
 {
   if (Yap_heap_regs->db_erased_list) {
     LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
@@ -917,7 +933,7 @@ RestoreDBErasedList( USES_REGS1 )
 }
 
 static void 
-RestoreDBErasedIList( USES_REGS1 )
+RestoreDBErasedIList__( USES_REGS1 )
 {
   if (Yap_heap_regs->db_erased_ilist) {
     LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
@@ -978,7 +994,7 @@ RestoreForeignCode__( USES_REGS1 )
 }
 
 static void
-RestoreYapRecords( USES_REGS1 )
+RestoreYapRecords__( USES_REGS1 )
 {
   struct record_list *ptr;
 

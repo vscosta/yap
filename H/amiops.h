@@ -117,7 +117,7 @@ A contains the address of the variable that is to be trailed
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
 EXTERN inline void
-AlignGlobalForDouble(void)
+AlignGlobalForDouble( USES_REGS1 )
 {
   /* Force Alignment for floats. Note that garbage collector may
      break the alignment; */

@@ -196,7 +196,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-inline EXTERN void STD_PROTO (AlignGlobalForDouble, (void));
+inline EXTERN void STD_PROTO (AlignGlobalForDouble, ( USES_REGS1 ));
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
@@ -229,7 +229,8 @@ inline EXTERN Term MkFloatTerm (Float);
 inline EXTERN Term
 MkFloatTerm (Float dbl)
 {
-  return (Term) ((AlignGlobalForDouble (), H[0] =
+  CACHE_REGS
+  return (Term) ((AlignGlobalForDouble ( PASS_REGS1 ), H[0] =
 		  (CELL) FunctorDouble, *(Float *) (H + 1) = dbl, H[3] =
 		  EndSpecials, H +=
 		  4, AbsAppl (H - 4)));

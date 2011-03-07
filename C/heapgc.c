@@ -51,7 +51,7 @@ STATIC_PROTO(int  is_gc_verbose, (void));
 STATIC_PROTO(int  is_gc_very_verbose, (void));
 STATIC_PROTO(void  LeaveGCMode, ( CACHE_TYPE1 ));
 #ifdef EASY_SHUNTING
-STATIC_PROTO(void  set_conditionals, (tr_fr_ptr));
+STATIC_PROTO(void  set_conditionals, (tr_fr_ptr CACHE_TYPE));
 #endif /* EASY_SHUNTING */
 
 #include "heapgc.h"
@@ -159,7 +159,7 @@ gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0 USES_REGS)
 	sTR += 2;
       } 
     }
-    set_conditionals(sTR);
+    set_conditionals(sTR PASS_REGS);
 #endif
     /* could not find more trail */
     save_machine_regs();
@@ -3582,7 +3582,7 @@ icompact_heap( USES_REGS1 )
 
 #ifdef EASY_SHUNTING
 static void
-set_conditionals(tr_fr_ptr str) {
+set_conditionals(tr_fr_ptr str USES_REGS) {
   while (str != sTR0) {
     CELL *cptr;
     str -= 2;
@@ -3624,7 +3624,7 @@ marking_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
   mark_environments(current_env, EnvSize(curp), EnvBMap(curp) PASS_REGS);
   mark_choicepoints(B, old_TR, is_gc_very_verbose() PASS_REGS);	/* choicepoints, and environs  */
 #ifdef EASY_SHUNTING
-  set_conditionals(sTR);
+  set_conditionals(sTR PASS_REGS);
 #endif
 }
 

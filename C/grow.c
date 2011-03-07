@@ -243,6 +243,7 @@ IncrementalCopyStacksFromWorker( USES_REGS1 )
 static CELL
 worker_p_binding(int worker_p, CELL *aux_ptr)
 {
+  CACHE_REGS
   if (aux_ptr > H) {
     CELL reg = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->LCL0_[aux_ptr-LCL0];
     reg = AdjustGlobTerm(reg PASS_REGS);

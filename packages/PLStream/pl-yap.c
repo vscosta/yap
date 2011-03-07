@@ -870,11 +870,11 @@ int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
-int PL_unify_integer__LD(term_t t, long n ARG_LD)
+int PL_unify_integer__LD(term_t t, intptr_t i ARG_LD)
 {	
   CACHE_REGS
-  Term iterm = MkIntegerTerm(n);
-  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+  Term iterm = MkIntegerTerm(i);
+  return Yap_unify(Yap_GetFromSlot(i PASS_REGS),iterm);
 }
 
 extern int Yap_getInputStream(term_t t, IOSTREAM **s);
