@@ -762,7 +762,7 @@ ch_to_wide(char *base, char *charp)
     return NULL;
   }
   for (i=n; i > 0; i--) {
-    nb[i-1] = base[i-1];
+    nb[i-1] = (unsigned char)base[i-1];
   }
   return nb+n;
 }
