@@ -251,22 +251,22 @@ extern PL_local_data_t lds;
 
 #define GLOBAL_LD (PL_local_data_p)
 
-#undef LD
-
 #if !defined(O_PLMT) && !defined(YAPOR)
-#define LOCAL_LD (PL_local_data_p)
+#define LOCAL_LD (GLOBAL_LD)
+#define LD (GLOBAL_LD)
 #define ARG1_LD   void
 #define ARG_LD
 #define GET_LD
 #define PRED_LD
 #define PASS_LD
+#define PASS_LD1 
 
 #else
 
 #define LOCAL_LD (__PL_ld)
 #define LD	  LOCAL_LD
 
-#define GET_LD	  PL_local_data_t *__PL_ld = GLOBAL_LD;
+#define GET_LD	  CACHE_REGS PL_local_data_t *__PL_ld = GLOBAL_LD;
 #define ARG1_LD   PL_local_data_t *__PL_ld
 
 #define ARG_LD    , ARG1_LD

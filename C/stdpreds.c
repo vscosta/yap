@@ -257,7 +257,7 @@
 static char     SccsId[] = "%W% %G%";
 #endif
 
-
+#define HAS_CACHE_REGS 1
 /*
  * This file includes the definition of a miscellania of standard predicates
  * for yap refering to: Consulting, Executing a C predicate from call,
@@ -285,97 +285,97 @@ static char     SccsId[] = "%W% %G%";
 #endif
 #include <wchar.h>
 
-STD_PROTO(static Int p_setval, (void));
-STD_PROTO(static Int p_value, (void));
-STD_PROTO(static Int p_values, (void));
+STD_PROTO(static Int p_setval, ( USES_REGS1 ));
+STD_PROTO(static Int p_value, ( USES_REGS1 ));
+STD_PROTO(static Int p_values, ( USES_REGS1 ));
 #ifdef undefined
 STD_PROTO(static CODEADDR *FindAtom, (CODEADDR, int *));
 #endif /* undefined */
-STD_PROTO(static Int p_opdec, (void));
+STD_PROTO(static Int p_opdec, ( USES_REGS1 ));
 STD_PROTO(static Term get_num, (char *));
-STD_PROTO(static Int p_name, (void));
-STD_PROTO(static Int p_atom_chars, (void));
-STD_PROTO(static Int p_atom_codes, (void));
-STD_PROTO(static Int p_atom_length, (void));
-STD_PROTO(static Int p_atom_split, (void));
-STD_PROTO(static Int p_number_chars, (void));
-STD_PROTO(static Int p_number_codes, (void));
-STD_PROTO(static Int p_univ, (void));
-STD_PROTO(static Int p_abort, (void));
+STD_PROTO(static Int p_name, ( USES_REGS1 ));
+STD_PROTO(static Int p_atom_chars, ( USES_REGS1 ));
+STD_PROTO(static Int p_atom_codes, ( USES_REGS1 ));
+STD_PROTO(static Int p_atom_length, ( USES_REGS1 ));
+STD_PROTO(static Int p_atom_split, ( USES_REGS1 ));
+STD_PROTO(static Int p_number_chars, ( USES_REGS1 ));
+STD_PROTO(static Int p_number_codes, ( USES_REGS1 ));
+STD_PROTO(static Int p_univ, ( USES_REGS1 ));
+STD_PROTO(static Int p_abort, ( USES_REGS1 ));
 #ifdef BEAM
-STD_PROTO(Int p_halt, (void));
+STD_PROTO(Int p_halt, ( USES_REGS1 ));
 #else
-STD_PROTO(static Int p_halt, (void));
+STD_PROTO(static Int p_halt, ( USES_REGS1 ));
 #endif
-STD_PROTO(static Int init_current_atom, (void));
-STD_PROTO(static Int cont_current_atom, (void));
-STD_PROTO(static Int init_current_predicate, (void));
-STD_PROTO(static Int cont_current_predicate, (void));
-STD_PROTO(static Int init_current_predicate_for_atom, (void));
-STD_PROTO(static Int cont_current_predicate_for_atom, (void));
-STD_PROTO(static OpEntry *NextOp, (OpEntry *));
-STD_PROTO(static Int init_current_op, (void));
-STD_PROTO(static Int cont_current_op, (void));
-STD_PROTO(static Int init_current_atom_op, (void));
-STD_PROTO(static Int cont_current_atom_op, (void));
+STD_PROTO(static Int init_current_atom, ( USES_REGS1 ));
+STD_PROTO(static Int cont_current_atom, ( USES_REGS1 ));
+STD_PROTO(static Int init_current_predicate, ( USES_REGS1 ));
+STD_PROTO(static Int cont_current_predicate, ( USES_REGS1 ));
+STD_PROTO(static Int init_current_predicate_for_atom, ( USES_REGS1 ));
+STD_PROTO(static Int cont_current_predicate_for_atom, ( USES_REGS1 ));
+STD_PROTO(static OpEntry *NextOp, (OpEntry * CACHE_TYPE));
+STD_PROTO(static Int init_current_op, ( USES_REGS1 ));
+STD_PROTO(static Int cont_current_op, ( USES_REGS1 ));
+STD_PROTO(static Int init_current_atom_op, ( USES_REGS1 ));
+STD_PROTO(static Int cont_current_atom_op, ( USES_REGS1 ));
 #ifdef DEBUG
-STD_PROTO(static Int p_debug, (void));
+STD_PROTO(static Int p_debug, ( USES_REGS1 ));
 #endif
-STD_PROTO(static Int p_flags, (void));
+STD_PROTO(static Int p_flags, ( USES_REGS1 ));
 STD_PROTO(static int AlreadyHidden, (char *));
-STD_PROTO(static Int p_hide, (void));
-STD_PROTO(static Int p_hidden, (void));
-STD_PROTO(static Int p_unhide, (void));
+STD_PROTO(static Int p_hide, ( USES_REGS1 ));
+STD_PROTO(static Int p_hidden, ( USES_REGS1 ));
+STD_PROTO(static Int p_unhide, ( USES_REGS1 ));
 STD_PROTO(static Int TrailMax, (void));
 STD_PROTO(static Int GlobalMax, (void));
 STD_PROTO(static Int LocalMax, (void));
-STD_PROTO(static Int p_statistics_heap_max, (void));
-STD_PROTO(static Int p_statistics_global_max, (void));
-STD_PROTO(static Int p_statistics_local_max, (void));
-STD_PROTO(static Int p_statistics_heap_info, (void));
-STD_PROTO(static Int p_statistics_stacks_info, (void));
-STD_PROTO(static Int p_statistics_trail_info, (void));
-STD_PROTO(static Term mk_argc_list, (void));
-STD_PROTO(static Int p_argv, (void));
-STD_PROTO(static Int p_cputime, (void));
-STD_PROTO(static Int p_systime, (void));
-STD_PROTO(static Int p_runtime, (void));
-STD_PROTO(static Int p_walltime, (void));
-STD_PROTO(static Int p_access_yap_flags, (void));
-STD_PROTO(static Int p_set_yap_flags, (void));
+STD_PROTO(static Int p_statistics_heap_max, ( USES_REGS1 ));
+STD_PROTO(static Int p_statistics_global_max, ( USES_REGS1 ));
+STD_PROTO(static Int p_statistics_local_max, ( USES_REGS1 ));
+STD_PROTO(static Int p_statistics_heap_info, ( USES_REGS1 ));
+STD_PROTO(static Int p_statistics_stacks_info, ( USES_REGS1 ));
+STD_PROTO(static Int p_statistics_trail_info, ( USES_REGS1 ));
+STD_PROTO(static Term mk_argc_list, ( USES_REGS1 ));
+STD_PROTO(static Int p_argv, ( USES_REGS1 ));
+STD_PROTO(static Int p_cputime, ( USES_REGS1 ));
+STD_PROTO(static Int p_systime, ( USES_REGS1 ));
+STD_PROTO(static Int p_runtime, ( USES_REGS1 ));
+STD_PROTO(static Int p_walltime, ( USES_REGS1 ));
+STD_PROTO(static Int p_access_yap_flags, ( USES_REGS1 ));
+STD_PROTO(static Int p_set_yap_flags, ( USES_REGS1 ));
 
 #ifdef BEAM
-STD_PROTO(Int use_eam, (void));
-STD_PROTO(Int eager_split, (void));
-STD_PROTO(Int force_wait, (void));
-STD_PROTO(Int commit, (void));
-STD_PROTO(Int skip_while_var, (void));
-STD_PROTO(Int wait_while_var, (void));
-STD_PROTO(Int show_time, (void));
-STD_PROTO(Int start_eam, (void));
-STD_PROTO(Int cont_eam, (void));
+STD_PROTO(Int use_eam, ( USES_REGS1 ));
+STD_PROTO(Int eager_split, ( USES_REGS1 ));
+STD_PROTO(Int force_wait, ( USES_REGS1 ));
+STD_PROTO(Int commit, ( USES_REGS1 ));
+STD_PROTO(Int skip_while_var, ( USES_REGS1 ));
+STD_PROTO(Int wait_while_var, ( USES_REGS1 ));
+STD_PROTO(Int show_time, ( USES_REGS1 ));
+STD_PROTO(Int start_eam, ( USES_REGS1 ));
+STD_PROTO(Int cont_eam, ( USES_REGS1 ));
 
 extern int EAM;
 extern int eam_am(PredEntry*);
 extern int showTime(void); 
 
-Int start_eam(void) {
+Int start_eam( USES_REGS1 ) {
   if (eam_am((PredEntry *) 0x1)) return (TRUE); 
   else { cut_fail(); return (FALSE); }
 }
 
-Int cont_eam(void) {
+Int cont_eam( USES_REGS1 ) {
   if (eam_am((PredEntry *) 0x2)) return (TRUE); 
   else { cut_fail(); return (FALSE); }
 }
 
-Int use_eam(void) { 
+Int use_eam( USES_REGS1 ) { 
   if (EAM)  EAM=0;
     else { Yap_PutValue(AtomCArith,0); EAM=1; }
   return(TRUE);
 }
 
-Int commit(void) { 
+Int commit( USES_REGS1 ) { 
   if (EAM) {
   printf("Nao deveria ter sido chamado commit do stdpreds\n");
   exit(1);
@@ -383,7 +383,7 @@ Int commit(void) {
   return(TRUE);
 }
 
-Int skip_while_var(void) { 
+Int skip_while_var( USES_REGS1 ) { 
   if (EAM) {
   printf("Nao deveria ter sido chamado skip_while_var do stdpreds\n");
   exit(1);
@@ -391,7 +391,7 @@ Int skip_while_var(void) {
   return(TRUE);
 }
 
-Int wait_while_var(void) { 
+Int wait_while_var( USES_REGS1 ) { 
   if (EAM) {
   printf("Nao deveria ter sido chamado wait_while_var do stdpreds\n");
   exit(1);
@@ -399,7 +399,7 @@ Int wait_while_var(void) {
   return(TRUE);
 }
 
-Int force_wait(void) {
+Int force_wait( USES_REGS1 ) {
   if (EAM) {
   printf("Nao deveria ter sido chamado force_wait do stdpreds\n");
   exit(1);
@@ -407,7 +407,7 @@ Int force_wait(void) {
   return(TRUE);
 }
 
-Int eager_split(void) {
+Int eager_split( USES_REGS1 ) {
   if (EAM) {
   printf("Nao deveria ter sido chamado eager_split do stdpreds\n");
   exit(1);
@@ -415,7 +415,7 @@ Int eager_split(void) {
   return(TRUE);
 }
 
-Int show_time(void)  /* MORE PRECISION */
+Int show_time( USES_REGS1 )  /* MORE PRECISION */
 {
   return (showTime());
 }
@@ -423,7 +423,7 @@ Int show_time(void)  /* MORE PRECISION */
 #endif /* BEAM */ 
 
 static Int 
-p_setval(void)
+p_setval( USES_REGS1 )
 {				/* '$set_value'(+Atom,+Atomic) */
 	Term            t1 = Deref(ARG1), t2 = Deref(ARG2);
 	if (!IsVarTerm(t1) && IsAtomTerm(t1) &&
@@ -435,7 +435,7 @@ p_setval(void)
 }
 
 static Int 
-p_value(void)
+p_value( USES_REGS1 )
 {				/* '$get_value'(+Atom,?Val) */
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -451,7 +451,7 @@ p_value(void)
 
 
 static Int 
-p_values(void)
+p_values( USES_REGS1 )
 {				/* '$values'(Atom,Old,New) */
   Term            t1 = Deref(ARG1), t3 = Deref(ARG3);
 
@@ -475,7 +475,7 @@ p_values(void)
 }
 
 inline static void
-do_signal(yap_signals sig)
+do_signal(yap_signals sig USES_REGS)
 {
   LOCK(SignalLock);
   if (!Yap_InterruptsDisabled)
@@ -485,7 +485,7 @@ do_signal(yap_signals sig)
 }
 
 inline static void
-undo_signal(yap_signals sig)
+undo_signal(yap_signals sig USES_REGS)
 {
   LOCK(SignalLock);
   if (ActiveSignals == sig) {
@@ -497,7 +497,7 @@ undo_signal(yap_signals sig)
 
 
 static Int 
-p_creep(void)
+p_creep( USES_REGS1 )
 {
   Atom            at;
   PredEntry      *pred;
@@ -505,12 +505,12 @@ p_creep(void)
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  do_signal(YAP_CREEP_SIGNAL);
+  do_signal(YAP_CREEP_SIGNAL PASS_REGS);
   return TRUE;
 }
 
 static Int 
-p_signal_creep(void)
+p_signal_creep( USES_REGS1 )
 {
   Atom            at;
   PredEntry      *pred;
@@ -525,7 +525,7 @@ p_signal_creep(void)
 }
 
 static Int 
-p_disable_creep(void)
+p_disable_creep( USES_REGS1 )
 {
   LOCK(SignalLock);
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
@@ -541,7 +541,7 @@ p_disable_creep(void)
 
 /* never fails */
 static Int 
-p_disable_docreep(void)
+p_disable_docreep( USES_REGS1 )
 {
   LOCK(SignalLock);
   if (ActiveSignals & YAP_CREEP_SIGNAL) {
@@ -556,7 +556,7 @@ p_disable_docreep(void)
 }
 
 static Int 
-p_stop_creep(void)
+p_stop_creep( USES_REGS1 )
 {
   LOCK(SignalLock);
   ActiveSignals &= ~YAP_CREEP_SIGNAL;
@@ -570,13 +570,15 @@ p_stop_creep(void)
 void 
 Yap_signal(yap_signals sig)
 {
-  do_signal(sig);
+  CACHE_REGS
+  do_signal(sig PASS_REGS);
 }
 
 void 
 Yap_undo_signal(yap_signals sig)
 {
-  undo_signal(sig);
+  CACHE_REGS
+  undo_signal(sig PASS_REGS);
 }
 
 #ifdef undefined
@@ -674,7 +676,7 @@ FindWhatCreep(toCreep)
 #endif				/* undefined */
 
 static Int 
-p_opdec(void)
+p_opdec( USES_REGS1 )
 {				/* '$opdec'(p,type,atom)		 */
   /* we know the arguments are integer, atom, atom */
   Term            p = Deref(ARG1), t = Deref(ARG2), at = Deref(ARG3);
@@ -776,14 +778,14 @@ get_num(char *t)
 }
 
 static UInt 
-runtime(void)
+runtime( USES_REGS1 )
 {
   return(Yap_cputime()-Yap_total_gc_time()-Yap_total_stack_shift_time());
 }
 
 /* $runtime(-SinceInterval,-SinceStart)	 */
 static Int 
-p_runtime(void)
+p_runtime( USES_REGS1 )
 {
   Int now, interval,
     gc_time,
@@ -806,7 +808,7 @@ p_runtime(void)
 
 /* $cputime(-SinceInterval,-SinceStart)	 */
 static Int 
-p_cputime(void)
+p_cputime( USES_REGS1 )
 {
   Int now, interval;
   Yap_cputime_interval(&now, &interval);
@@ -815,7 +817,7 @@ p_cputime(void)
 }
 
 static Int 
-p_systime(void)
+p_systime( USES_REGS1 )
 {
   Int now, interval;
   Yap_systime_interval(&now, &interval);
@@ -824,7 +826,7 @@ p_systime(void)
 }
 
 static Int 
-p_walltime(void)
+p_walltime( USES_REGS1 )
 {
   Int now, interval;
   Yap_walltime_interval(&now, &interval);
@@ -833,7 +835,7 @@ p_walltime(void)
 }
 
 static Int 
-p_char_code(void)
+p_char_code( USES_REGS1 )
 {
   Int t0 = Deref(ARG1);
   if (IsVarTerm(t0)) {
@@ -896,7 +898,7 @@ p_char_code(void)
 }
 
 static wchar_t *
-ch_to_wide(char *base, char *charp)
+ch_to_wide(char *base, char *charp USES_REGS)
 {
   int n = charp-base, i;
   wchar_t *nb = (wchar_t *)base;
@@ -913,7 +915,7 @@ ch_to_wide(char *base, char *charp)
 }
 
 static Int 
-p_name(void)
+p_name( USES_REGS1 )
 {				/* name(?Atomic,?String)		 */
   char            *String, *s; /* alloc temp space on trail */
   Term            t = Deref(ARG2), NewT, AtomNameT = Deref(ARG1);
@@ -995,7 +997,7 @@ p_name(void)
       *ws++ = i;      
     } else {
       if (i > MAX_ISO_LATIN1) {
-	ws = ch_to_wide(String, s);
+	ws = ch_to_wide(String, s PASS_REGS);
 	*ws++ = i;
       } else {
 	if (s > (char *)AuxSp-1024) {
@@ -1064,7 +1066,7 @@ p_name(void)
 }
 
 static Int 
-p_atom_chars(void)
+p_atom_chars( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   char           *String;
@@ -1133,7 +1135,7 @@ p_atom_chars(void)
 	  return(FALSE);		
 	}
 	if (i > MAX_ISO_LATIN1 && !ws) {
-	  ws = ch_to_wide(String, s);
+	  ws = ch_to_wide(String, s PASS_REGS);
 	}
 	if (ws) {
 	  if (ws > (wchar_t *)AuxSp-1024) {
@@ -1177,7 +1179,7 @@ p_atom_chars(void)
 	      return(FALSE);		
 	    }
 	    if (!ws) {
-	      ws = ch_to_wide(String, s);	    
+	      ws = ch_to_wide(String, s PASS_REGS);	    
 	    }
 	    if (ws+1024 == (wchar_t *)AuxSp) {
 	      goto expand_auxsp;
@@ -1208,7 +1210,7 @@ p_atom_chars(void)
 	    return(FALSE);		
 	  }
 	  if (i > MAX_ISO_LATIN1 && !ws) {
-	    ws = ch_to_wide(String, s);
+	    ws = ch_to_wide(String, s PASS_REGS);
 	  }
 	  if (ws) {
 	    if (ws+1024 > (wchar_t *)AuxSp) {
@@ -1267,7 +1269,7 @@ p_atom_chars(void)
 }
 
 static Int 
-p_atom_concat(void)
+p_atom_concat( USES_REGS1 )
 {
   Term t1;
   int wide_mode = FALSE;
@@ -1408,7 +1410,7 @@ p_atom_concat(void)
 }
 
 static Int 
-p_atomic_concat(void)
+p_atomic_concat( USES_REGS1 )
 {
   Term t1;
   int wide_mode = FALSE;
@@ -1640,7 +1642,7 @@ p_atomic_concat(void)
 }
 
 static Int 
-p_atom_codes(void)
+p_atom_codes( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   char *String;
@@ -1700,7 +1702,7 @@ p_atom_codes(void)
 	return(FALSE);		
       }
       if (i > MAX_ISO_LATIN1 && !ws) {
-	ws = ch_to_wide(String, s);
+	ws = ch_to_wide(String, s PASS_REGS);
       }
       if (ws) {
 	if (ws+1024 > (wchar_t *)AuxSp) {
@@ -1746,7 +1748,7 @@ p_atom_codes(void)
 }
 
 static Int 
-p_atom_length(void)
+p_atom_length( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1805,7 +1807,7 @@ is_wide(wchar_t *s)
 
 /* split an atom into two sub-atoms */
 static Int 
-p_atom_split(void)
+p_atom_split( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -1898,6 +1900,7 @@ p_atom_split(void)
 static Term
 gen_syntax_error(Atom InpAtom, char *s)
 {
+  CACHE_REGS
   Term ts[7], ti[2];
   ti[0] = ARG1;
   ti[1] = ARG2;
@@ -1910,7 +1913,7 @@ gen_syntax_error(Atom InpAtom, char *s)
 }
 
 static Int 
-p_number_chars(void)
+p_number_chars( USES_REGS1 )
 {
   char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
@@ -2069,7 +2072,7 @@ p_number_chars(void)
 }
 
 static Int 
-p_number_atom(void)
+p_number_atom( USES_REGS1 )
 {
   char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
@@ -2136,7 +2139,7 @@ p_number_atom(void)
 }
 
 static Int 
-p_number_codes(void)
+p_number_codes( USES_REGS1 )
 {
   char   *String; /* alloc temp space on Trail */
   register Term   t = Deref(ARG2), t1 = Deref(ARG1);
@@ -2229,7 +2232,7 @@ p_number_codes(void)
 }
 
 static Int 
-p_atom_number(void)
+p_atom_number( USES_REGS1 )
 {
   Term   t = Deref(ARG1), t2 = Deref(ARG2);
   Term NewT;
@@ -2295,7 +2298,7 @@ p_atom_number(void)
 }
 
 static Int 
-p_univ(void)
+p_univ( USES_REGS1 )
 {				/* A =.. L			 */
   unsigned int    arity;
   register Term   tin;
@@ -2451,7 +2454,7 @@ p_univ(void)
 
 /* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
 static Int
-p_sub_atom_extract(void)
+p_sub_atom_extract( USES_REGS1 )
 {
   Atom at = AtomOfTerm(Deref(ARG1)), nat;
   Int start = IntegerOfTerm(Deref(ARG2));
@@ -2522,7 +2525,7 @@ p_sub_atom_extract(void)
 
 /* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
 static Int
-cont_sub_atom_fetch(void)
+cont_sub_atom_fetch( USES_REGS1 )
 {
   Atom at = AtomOfTerm(EXTRA_CBACK_ARG(5,1));
   Atom subatom = AtomOfTerm(EXTRA_CBACK_ARG(5,2));
@@ -2619,7 +2622,7 @@ cont_sub_atom_fetch(void)
 
 /* $sub_atom_extract(A,Bef,Size,After,SubAt).*/
 static Int
-init_sub_atom_fetch(void)
+init_sub_atom_fetch( USES_REGS1 )
 {
   Term tat1, tat2;
   Atom at1, at2;
@@ -2644,12 +2647,12 @@ init_sub_atom_fetch(void)
       EXTRA_CBACK_ARG(5,5) = MkIntegerTerm(strlen(at2->StrOfAE));
     }
   }
-  return cont_sub_atom_fetch();
+  return cont_sub_atom_fetch( PASS_REGS1 );
 }
 
 
 static Int 
-p_abort(void)
+p_abort( USES_REGS1 )
 {				/* abort			 */
   /* make sure we won't go creeping around */
   Yap_Error(PURE_ABORT, TermNil, "");
@@ -2663,7 +2666,7 @@ Int
 #else
 static Int 
 #endif
-p_halt(void)
+p_halt( USES_REGS1 )
 {				/* halt				 */
   Term t = Deref(ARG1);
   Int out;
@@ -2687,7 +2690,7 @@ p_halt(void)
 
 
 static Int 
-cont_current_atom(void)
+cont_current_atom( USES_REGS1 )
 {
   Atom            catom;
   Int             i = IntOfTerm(EXTRA_CBACK_ARG(1,2));
@@ -2746,7 +2749,7 @@ cont_current_atom(void)
 }
 
 static Int 
-init_current_atom(void)
+init_current_atom( USES_REGS1 )
 {				/* current_atom(?Atom)		 */
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
@@ -2763,12 +2766,12 @@ init_current_atom(void)
   }
   READ_UNLOCK(HashChain[0].AERWLock);
   EXTRA_CBACK_ARG(1,2) = MkIntTerm(0);
-  return (cont_current_atom());
+  return (cont_current_atom( PASS_REGS1 ));
 }
 
 
 static Int 
-cont_current_wide_atom(void)
+cont_current_wide_atom( USES_REGS1 )
 {
   Atom            catom;
   Int             i = IntOfTerm(EXTRA_CBACK_ARG(1,2));
@@ -2827,7 +2830,7 @@ cont_current_wide_atom(void)
 }
 
 static Int 
-init_current_wide_atom(void)
+init_current_wide_atom( USES_REGS1 )
 {				/* current_atom(?Atom)		 */
   Term t1 = Deref(ARG1);
   if (!IsVarTerm(t1)) {
@@ -2844,11 +2847,11 @@ init_current_wide_atom(void)
   }
   READ_UNLOCK(WideHashChain[0].AERWLock);
   EXTRA_CBACK_ARG(1,2) = MkIntTerm(0);
-  return (cont_current_wide_atom());
+  return (cont_current_wide_atom( PASS_REGS1 ));
 }
 
 static Int 
-cont_current_predicate(void)
+cont_current_predicate( USES_REGS1 )
 {
   PredEntry      *pp = (PredEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
   UInt Arity;
@@ -2890,17 +2893,17 @@ cont_current_predicate(void)
 }
 
 static Int 
-init_current_predicate(void)
+init_current_predicate( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
   EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)Yap_ModulePred(t1));
-  return cont_current_predicate();
+  return cont_current_predicate( PASS_REGS1 );
 }
 
 static Int 
-cont_current_predicate_for_atom(void)
+cont_current_predicate_for_atom( USES_REGS1 )
 {
   Prop pf = (Prop)IntegerOfTerm(EXTRA_CBACK_ARG(3,1));
   Term mod = Deref(ARG2);
@@ -2935,17 +2938,17 @@ cont_current_predicate_for_atom(void)
 }
 
 static Int 
-init_current_predicate_for_atom(void)
+init_current_predicate_for_atom( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
 
   if (IsVarTerm(t1) || !IsAtomTerm(t1)) cut_fail();
   EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)RepAtom(AtomOfTerm(t1))->PropsOfAE);
-  return (cont_current_predicate_for_atom());
+  return (cont_current_predicate_for_atom( PASS_REGS1 ));
 }
 
 static OpEntry *
-NextOp(OpEntry *pp)
+NextOp(OpEntry *pp USES_REGS)
 {
   while (!EndOfPAEntr(pp) && pp->KindOfPE != OpProperty &&
 	 (pp->OpModule != PROLOG_MODULE || pp->OpModule != CurrentModule))
@@ -2956,14 +2959,16 @@ NextOp(OpEntry *pp)
 int
 Yap_IsOp(Atom at)
 {
-  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)));
+  CACHE_REGS
+  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   return (!EndOfPAEntr(op));
 }
 
 int
 Yap_IsOpMaxPrio(Atom at)
 {
-  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)));
+  CACHE_REGS
+  OpEntry *op = NextOp(RepOpProp((Prop)(RepAtom(at)->PropsOfAE)) PASS_REGS);
   int max;
 
   if (EndOfPAEntr(op))
@@ -2977,7 +2982,7 @@ Yap_IsOpMaxPrio(Atom at)
 }
 
 static Int
-unify_op(OpEntry         *op)
+unify_op(OpEntry         *op USES_REGS)
 {
   Term tmod = op->OpModule;
 
@@ -2991,14 +2996,14 @@ unify_op(OpEntry         *op)
 }
 
 static Int 
-cont_current_op(void)
+cont_current_op( USES_REGS1 )
 {
   OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
   
   READ_LOCK(op->OpRWLock);
   next = op->OpNext;
   if (Yap_unify_constant(ARG1,MkAtomTerm(op->OpName)) &&
-      unify_op(op)) {
+      unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
@@ -3018,20 +3023,20 @@ cont_current_op(void)
 }
 
 static Int 
-init_current_op(void)
+init_current_op( USES_REGS1 )
 {				/* current_op(-Precedence,-Type,-Atom)		 */
   EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)OpList);
-  return cont_current_op();
+  return cont_current_op( PASS_REGS1 );
 }
 
 static Int 
-cont_current_atom_op(void)
+cont_current_atom_op( USES_REGS1 )
 {
   OpEntry         *op = (OpEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(5,1)), *next;
   
   READ_LOCK(op->OpRWLock);
-  next = NextOp(RepOpProp(op->NextOfPE));
-  if (unify_op(op)) {
+  next = NextOp(RepOpProp(op->NextOfPE) PASS_REGS);
+  if (unify_op(op PASS_REGS)) {
     READ_UNLOCK(op->OpRWLock);
     if (next) {
       EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((CELL)next);
@@ -3051,7 +3056,7 @@ cont_current_atom_op(void)
 }
 
 static Int 
-init_current_atom_op(void)
+init_current_atom_op( USES_REGS1 )
 {				/* current_op(-Precedence,-Type,-Atom)		 */
   Term t = Deref(ARG1);
   AtomEntry *ae;
@@ -3062,16 +3067,16 @@ init_current_atom_op(void)
     cut_fail();
   }
   ae = RepAtom(AtomOfTerm(t));
-  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE))))) {
+  if (EndOfPAEntr((ope = NextOp(RepOpProp(ae->PropsOfAE) PASS_REGS)))) {
     cut_fail();
   }
   EXTRA_CBACK_ARG(5,1) = (CELL) MkIntegerTerm((Int)ope);
-  return cont_current_atom_op();
+  return cont_current_atom_op( PASS_REGS1 );
 }
 
 #ifdef DEBUG
 static Int 
-p_debug()
+p_debug( USES_REGS1 )
 {				/* $debug(+Flag) */
   int             i = IntOfTerm(Deref(ARG1));
 
@@ -3082,7 +3087,7 @@ p_debug()
 #endif
 
 static Int 
-p_flags(void)
+p_flags( USES_REGS1 )
 {				/* $flags(+Functor,+Mod,?OldFlags,?NewFlags) */
   PredEntry      *pe;
   Int             newFl;
@@ -3159,7 +3164,7 @@ AlreadyHidden(char *name)
 }
 
 static Int 
-p_hide(void)
+p_hide( USES_REGS1 )
 {				/* hide(+Atom)		 */
   Atom            atomToInclude;
   Term t1 = Deref(ARG1);
@@ -3189,7 +3194,7 @@ p_hide(void)
 }
 
 static Int 
-p_hidden(void)
+p_hidden( USES_REGS1 )
 {				/* '$hidden'(+F)		 */
   Atom            at;
   AtomEntry      *chain;
@@ -3215,7 +3220,7 @@ p_hidden(void)
 
 
 static Int 
-p_unhide(void)
+p_unhide( USES_REGS1 )
 {				/* unhide(+Atom)		 */
   AtomEntry      *atom, *old, *chain;
   Term t1 = Deref(ARG1);
@@ -3256,6 +3261,7 @@ p_unhide(void)
 void
 Yap_show_statistics(void)
 {
+  CACHE_REGS
   unsigned long int heap_space_taken;
   double frag;
 
@@ -3281,13 +3287,13 @@ Yap_show_statistics(void)
   fprintf(Yap_stderr, "Trail Space: %ld (%ld used).\n", 
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase))),
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(Yap_TrailBase))));
-  fprintf(Yap_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ()));
+  fprintf(Yap_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
   fprintf(Yap_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
   fprintf(Yap_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
 }
 
 static Int
-p_statistics_heap_max(void)
+p_statistics_heap_max( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(HeapMax);
 
@@ -3304,6 +3310,7 @@ static Int    TrailTide = -1, LocalTide = -1, GlobalTide = -1;
 static Int
 TrailMax(void)
 {
+  CACHE_REGS
   Int i;
   Int TrWidth = Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase);
   CELL *pt;
@@ -3332,7 +3339,7 @@ TrailMax(void)
 }
 
 static Int
-p_statistics_trail_max(void)
+p_statistics_trail_max( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(TrailMax());
 
@@ -3344,6 +3351,7 @@ p_statistics_trail_max(void)
 static Int
 GlobalMax(void)
 {
+  CACHE_REGS
   Int i;
   Int StkWidth = Unsigned(LCL0) - Unsigned(H0);
   CELL *pt;
@@ -3373,7 +3381,7 @@ GlobalMax(void)
 }
 
 static Int 
-p_statistics_global_max(void)
+p_statistics_global_max( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(GlobalMax());
 
@@ -3385,6 +3393,7 @@ p_statistics_global_max(void)
 static Int
 LocalMax(void)
 {
+  CACHE_REGS
   Int i;
   Int StkWidth = Unsigned(LCL0) - Unsigned(H0);
   CELL *pt;
@@ -3414,7 +3423,7 @@ LocalMax(void)
 }
 
 static Int 
-p_statistics_local_max(void)
+p_statistics_local_max( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(LocalMax());
 
@@ -3425,7 +3434,7 @@ p_statistics_local_max(void)
 
 
 static Int 
-p_statistics_heap_info(void)
+p_statistics_heap_info( USES_REGS1 )
 {
   Term tusage = MkIntegerTerm(HeapUsed);
 
@@ -3446,7 +3455,7 @@ p_statistics_heap_info(void)
 
 
 static Int 
-p_statistics_stacks_info(void)
+p_statistics_stacks_info( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(Unsigned(LCL0) - Unsigned(H0));
   Term tgusage = MkIntegerTerm(Unsigned(H) - Unsigned(H0));
@@ -3459,7 +3468,7 @@ p_statistics_stacks_info(void)
 
 
 static Int 
-p_statistics_trail_info(void)
+p_statistics_trail_info( USES_REGS1 )
 {
   Term tmax = MkIntegerTerm(Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase));
   Term tusage = MkIntegerTerm(Unsigned(TR) - Unsigned(Yap_TrailBase));
@@ -3469,7 +3478,7 @@ p_statistics_trail_info(void)
 }
 
 static Int 
-p_statistics_atom_info(void)
+p_statistics_atom_info( USES_REGS1 )
 {
   UInt count = 0, spaceused = 0, i;
 
@@ -3521,7 +3530,7 @@ p_statistics_atom_info(void)
 
 
 static Int 
-p_statistics_db_size(void)
+p_statistics_db_size( USES_REGS1 )
 {
   Term t = MkIntegerTerm(Yap_ClauseSpace);
   Term tit = MkIntegerTerm(Yap_IndexSpace_Tree);
@@ -3537,7 +3546,7 @@ p_statistics_db_size(void)
 }
 
 static Int 
-p_statistics_lu_db_size(void)
+p_statistics_lu_db_size( USES_REGS1 )
 {
   Term t = MkIntegerTerm(Yap_LUClauseSpace);
   Term tit = MkIntegerTerm(Yap_LUIndexSpace_Tree);
@@ -3556,7 +3565,7 @@ p_statistics_lu_db_size(void)
 
 
 static Term
-mk_argc_list(void)
+mk_argc_list( USES_REGS1 )
 {
   int i =0;
   Term t = TermNil;
@@ -3597,14 +3606,14 @@ mk_argc_list(void)
 }
 
 static Int 
-p_argv(void)
+p_argv( USES_REGS1 )
 {
-  Term t = mk_argc_list();
+  Term t = mk_argc_list( PASS_REGS1 );
   return Yap_unify(t, ARG1);
 }
 
 static Int 
-p_executable(void)
+p_executable( USES_REGS1 )
 {
   
   Yap_TrueFileName (Yap_argv[0], Yap_FileNameBuf, FALSE);
@@ -3612,7 +3621,7 @@ p_executable(void)
 }
 
 static Int
-p_access_yap_flags(void)
+p_access_yap_flags( USES_REGS1 )
 {
   Term tflag = Deref(ARG1);
   Int flag;
@@ -3652,7 +3661,7 @@ p_access_yap_flags(void)
 }
 
 static Int 
-p_has_yap_or(void)
+p_has_yap_or( USES_REGS1 )
 {
 #ifdef YAPOR
   return(TRUE);
@@ -3662,7 +3671,7 @@ p_has_yap_or(void)
 }
 
 static Int 
-p_has_eam(void)
+p_has_eam( USES_REGS1 )
 {
 #ifdef BEAM
   return(TRUE);
@@ -3673,7 +3682,7 @@ p_has_eam(void)
 
 
 static Int
-p_set_yap_flags(void)
+p_set_yap_flags( USES_REGS1 )
 {
   Term tflag = Deref(ARG1);
   Term tvalue = Deref(ARG2);
@@ -3837,7 +3846,7 @@ p_set_yap_flags(void)
 }
 
 static Int
-p_system_mode(void)
+p_system_mode( USES_REGS1 )
 {
   Int i = IntegerOfTerm(Deref(ARG1));
   if (i == 0) 
@@ -3848,21 +3857,21 @@ p_system_mode(void)
 }
 
 static Int
-p_lock_system(void)
+p_lock_system( USES_REGS1 )
 {
   LOCK(BGL);
   return TRUE;
 }
 
 static Int
-p_unlock_system(void)
+p_unlock_system( USES_REGS1 )
 {
   UNLOCK(BGL);
   return TRUE;
 }
 
 static Int
-p_enterundefp(void)
+p_enterundefp( USES_REGS1 )
 {
   if (DoingUndefp) {
     return FALSE;
@@ -3872,7 +3881,7 @@ p_enterundefp(void)
 }
 
 static Int
-p_exitundefp(void)
+p_exitundefp( USES_REGS1 )
 {
   if (DoingUndefp) {
     DoingUndefp = FALSE;
@@ -3883,7 +3892,7 @@ p_exitundefp(void)
 
 #ifndef YAPOR
 static Int
-p_default_sequential(void) {
+p_default_sequential( USES_REGS1 ) {
   return(TRUE);
 }
 #endif
@@ -3892,7 +3901,7 @@ p_default_sequential(void) {
 extern void DumpActiveGoals(void);
 
 static Int
-p_dump_active_goals(void) {
+p_dump_active_goals( USES_REGS1 ) {
   DumpActiveGoals();
   return(TRUE);
 }
@@ -3900,7 +3909,7 @@ p_dump_active_goals(void) {
 
 #ifdef INES
 static Int
-p_euc_dist(void) {
+p_euc_dist( USES_REGS1 ) {
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   double d1 = (double)(IntegerOfTerm(ArgOfTerm(1,t1))-IntegerOfTerm(ArgOfTerm(1,t2)));
@@ -3913,7 +3922,7 @@ p_euc_dist(void) {
 volatile int loop_counter = 0;
 
 static Int
-p_loop(void) {
+p_loop( USES_REGS1 ) {
   while (loop_counter == 0);
   return(TRUE);
 }
@@ -3921,7 +3930,7 @@ p_loop(void) {
 
 #if QSAR
 static Int
-p_in_range(void) {
+p_in_range( USES_REGS1 ) {
   Term t;
   double i,j;
   double d1;
@@ -3953,7 +3962,7 @@ p_in_range(void) {
 }
 
 static Int
-p_in_range2(void) {
+p_in_range2( USES_REGS1 ) {
   CELL *p1, *p2;
   Term t;
   double i,j;
@@ -3992,12 +4001,12 @@ p_in_range2(void) {
 #endif
 
 static Int
-p_max_tagged_integer(void) {
+p_max_tagged_integer( USES_REGS1 ) {
   return Yap_unify(ARG1, MkIntTerm(MAX_ABS_INT-((CELL)1)));
 }
 
 static Int
-p_min_tagged_integer(void) {
+p_min_tagged_integer( USES_REGS1 ) {
   return Yap_unify(ARG1, MkIntTerm(-MAX_ABS_INT));
 }
 
@@ -4224,6 +4233,7 @@ Yap_InitCPreds(void)
   init_regexp();
 #endif
   {
+    CACHE_REGS
     Term cm = CurrentModule;
     CurrentModule = SWI_MODULE;
     Yap_swi_install();

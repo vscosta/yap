@@ -52,6 +52,7 @@ STD_PROTO(static inline void move_up_to_prune_request, (void));
 
 static inline
 void PUT_NO_WORK_IN_UPPER_NODES(void) {
+  CACHE_REGS
   or_fr_ptr current_node, nearest_livenode;
   current_node = LOCAL_top_or_fr;
   while ((nearest_livenode = OrFr_nearest_livenode(current_node))) {
@@ -100,6 +101,7 @@ void PUT_OUT_ROOT_NODE(int worker_num) {
 
 static inline
 void move_up_to_prune_request(void) {
+  CACHE_REGS
   YAPOR_ERROR_CHECKING(move_up_to_prune_request, EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
 
   do {
@@ -140,6 +142,7 @@ void move_up_to_prune_request(void) {
 ** -------------------------- */
 
 int get_work(void) {
+  CACHE_REGS
   int counter;
   bitmap stable_busy;
   yamop *alt_with_work;
@@ -265,6 +268,7 @@ int get_work(void) {
 
 static
 int move_up_one_node(or_fr_ptr nearest_livenode) {
+  CACHE_REGS
   YAPOR_ERROR_CHECKING(move_up_one_node, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
 
   LOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -519,6 +523,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
 
 static
 int get_work_below(void){
+  CACHE_REGS
   int i, worker_p, big_load;
   bitmap busy_below, idle_below;
 
@@ -548,6 +553,7 @@ int get_work_below(void){
 
 static
 int get_work_above(void){
+  CACHE_REGS
   int i, worker_p, big_load;
   bitmap visible_busy_above, visible_idle_above;
 
@@ -601,6 +607,7 @@ int get_work_above(void){
 
 static
 int find_a_better_position(void){
+  CACHE_REGS
   int i;
   bitmap busy_above, idle_above;
   BITMAP_difference(busy_above, GLOBAL_bm_present_workers, OrFr_members(LOCAL_top_or_fr));
@@ -630,6 +637,7 @@ int find_a_better_position(void){
 
 static
 int search_for_hidden_shared_work(bitmap stable_busy){
+  CACHE_REGS
   int i;
   bitmap invisible_work, idle_below;
   BITMAP_intersection(invisible_work, stable_busy, GLOBAL_bm_requestable_workers);

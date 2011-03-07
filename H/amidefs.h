@@ -103,8 +103,21 @@
 
 #endif
 
+#if THREADS
 
-typedef Int (*CPredicate)(void);
+typedef struct regstore_t *regstruct_ptr;
+
+#define CACHE_TYPE1 regstruct_ptr
+#define CACHE_TYPE  , regstruct_ptr
+
+#else
+
+#define CACHE_TYPE
+#define CACHE_TYPE1 void
+
+#endif
+
+typedef Int (*CPredicate)(CACHE_TYPE1);
 
 typedef Int (*CmpPredicate)(Term, Term);
 

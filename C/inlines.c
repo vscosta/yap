@@ -23,25 +23,25 @@
 #include "cut_c.h"
 #endif
 
-STATIC_PROTO(Int    p_atom, (void));
-STATIC_PROTO(Int    p_atomic, (void));
-STATIC_PROTO(Int    p_integer, (void));
-STATIC_PROTO(Int    p_nonvar, (void));
-STATIC_PROTO(Int    p_number, (void));
-STATIC_PROTO(Int    p_var, (void));
-STATIC_PROTO(Int    p_db_ref, (void));
-STATIC_PROTO(Int    p_primitive, (void));
-STATIC_PROTO(Int    p_compound, (void));
-STATIC_PROTO(Int    p_float, (void));
-STATIC_PROTO(Int    p_equal, (void));
-STATIC_PROTO(Int    p_dif, (void));
-STATIC_PROTO(Int    p_eq, (void));
-STATIC_PROTO(Int    p_arg, (void));
-STATIC_PROTO(Int    p_functor, (void));
+STATIC_PROTO(Int    p_atom, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_atomic, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_integer, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_nonvar, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_number, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_var, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_db_ref, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_primitive, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_compound, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_float, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_equal, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_dif, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_eq, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_arg, ( USES_REGS1 ));
+STATIC_PROTO(Int    p_functor, ( USES_REGS1 ));
 
 
 static Int 
-p_atom(void)
+p_atom( USES_REGS1 )
 {				/* atom(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -62,7 +62,7 @@ p_atom(void)
 }
 
 static Int 
-p_atomic(void)
+p_atomic( USES_REGS1 )
 {				/* atomic(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -83,7 +83,7 @@ p_atomic(void)
 }
 
 static Int 
-p_integer(void)
+p_integer( USES_REGS1 )
 {				/* integer(?,?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -118,7 +118,7 @@ p_integer(void)
 }
 
 static Int 
-p_number(void)
+p_number( USES_REGS1 )
 {				/* number(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -154,7 +154,7 @@ p_number(void)
 }
 
 static Int 
-p_db_ref(void)
+p_db_ref( USES_REGS1 )
 {				/* db_reference(?,?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -175,7 +175,7 @@ p_db_ref(void)
 }
 
 static Int 
-p_primitive(void)
+p_primitive( USES_REGS1 )
 {				/* primitive(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -196,7 +196,7 @@ p_primitive(void)
 }
 
 static Int 
-p_float(void)
+p_float( USES_REGS1 )
 {				/* float(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -217,7 +217,7 @@ p_float(void)
 }
 
 static Int 
-p_compound(void)
+p_compound( USES_REGS1 )
 {				/* compound(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -244,7 +244,7 @@ p_compound(void)
 }
 
 static Int 
-p_nonvar(void)
+p_nonvar( USES_REGS1 )
 {				/* nonvar(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -260,7 +260,7 @@ p_nonvar(void)
 }
 
 static Int 
-p_var(void)
+p_var( USES_REGS1 )
 {				/* var(?)	 */
       BEGD(d0);
       d0 = ARG1;
@@ -276,13 +276,13 @@ p_var(void)
 }
 
 static Int 
-p_equal(void)
+p_equal( USES_REGS1 )
 {				/* ?=? */
   return(Yap_IUnify(ARG1, ARG2));
 }
 
 static Int 
-eq(Term t1, Term t2)
+eq(Term t1, Term t2 USES_REGS)
 {				/* ? == ? */
       BEGD(d0);
       d0 = t1;
@@ -366,19 +366,20 @@ eq(Term t1, Term t2)
 }
 
 static Int 
-p_eq(void)
+p_eq( USES_REGS1 )
 {				/* ? == ? */
-  return eq(ARG1,ARG2);
+  return eq(ARG1,ARG2 PASS_REGS);
 }
 
 int 
 Yap_eq(Term t1, Term t2)
 {				/* ? == ? */
-  return eq(t1,t2);
+  CACHE_REGS
+  return eq(t1,t2 PASS_REGS);
 }
 
 static Int 
-p_dif(void)
+p_dif( USES_REGS1 )
 {				/* ? \= ?  */
 #if SHADOW_HB
   register CELL *HBREG = HB;
@@ -486,7 +487,7 @@ p_dif(void)
 }
 
 static Int 
-p_arg(void)
+p_arg( USES_REGS1 )
 {				/* arg(?,?,?)	 */
 #if SHADOW_HB
       register CELL *HBREG = HB;
@@ -581,7 +582,7 @@ p_arg(void)
 }
 
 static Int
-p_functor(void)			/* functor(?,?,?) */
+p_functor( USES_REGS1 )			/* functor(?,?,?) */
 {
 #if SHADOW_HB
   register CELL *HBREG;
@@ -776,7 +777,7 @@ p_functor(void)			/* functor(?,?,?) */
 }
 
 static Int
-p_cut_by( void)
+p_cut_by( USES_REGS1 )
 {
   BEGD(d0);
   d0 = ARG1;
@@ -832,14 +833,14 @@ p_cut_by( void)
 }
 
 static Int
-p_erroneous_call(void)
+p_erroneous_call( USES_REGS1 )
 {
   Yap_Error(SYSTEM_ERROR, TermNil, "bad call to internal built-in");
   return(FALSE);
 }
 
 static Int 
-init_genarg(void)
+init_genarg( USES_REGS1 )
 {				/* getarg(?Atom)		 */
   Term t0 = Deref(ARG1);
   Term t1 = Deref(ARG2);
@@ -848,7 +849,7 @@ init_genarg(void)
   UInt arity;
 
   if (!IsVarTerm(t0)) {
-    res = p_arg();
+    res = p_arg( PASS_REGS1 );
     if (res) {
       cut_succeed();
     } else {
@@ -889,7 +890,7 @@ init_genarg(void)
 }
 
 static Int
-cont_genarg(void)
+cont_genarg( USES_REGS1 )
 {				/* genarg(?Atom)		 */
   CELL *pt, *end;
   int res;
@@ -916,6 +917,7 @@ cont_genarg(void)
 void 
 Yap_InitInlines(void)
 {
+  CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitAsmPred("$$cut_by", 1, _cut_by, p_cut_by, SafePredFlag);
   Yap_InitAsmPred("atom", 1, _atom, p_atom, SafePredFlag);

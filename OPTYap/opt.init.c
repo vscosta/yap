@@ -180,6 +180,7 @@ void Yap_init_global(int max_table_size, int n_workers, int sch_loop, int delay_
 
 void Yap_init_local(void) {
 #ifdef YAPOR
+  CACHE_REGS
   /* local data related to or-parallelism */
   LOCAL = REMOTE + worker_id;
   Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
@@ -209,6 +210,7 @@ void Yap_init_local(void) {
 
 void make_root_frames(void) {
 #ifdef YAPOR
+  CACHE_REGS
   /* root or frame */
   or_fr_ptr or_fr;
 
@@ -248,6 +250,7 @@ void make_root_frames(void) {
 
 #ifdef YAPOR
 void init_workers(void) {
+  CACHE_REGS
   int proc;
 #ifdef THREADS
   return;

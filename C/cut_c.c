@@ -5,11 +5,13 @@
 #include <stdio.h>
 
 void cut_c_initialize(void){
+  CACHE_REGS
   Yap_REGS.CUT_C_TOP=(cut_c_str_ptr)Yap_LocalBase;
 }
 
 /*Removes a choice_point from the stack*/
 void cut_c_pop(void){
+  CACHE_REGS
   cut_c_str_ptr to_delete = NULL;
   if (((CELL *)Yap_REGS.CUT_C_TOP) == ((CELL *)Yap_LocalBase))
     {
@@ -26,6 +28,7 @@ void cut_c_pop(void){
 
 /*Insert a choice_point in the stack*/
 void cut_c_push(cut_c_str_ptr new_top){
+  CACHE_REGS
   new_top->before = Yap_REGS.CUT_C_TOP;
   Yap_REGS.CUT_C_TOP=new_top;
   return;

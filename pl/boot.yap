@@ -238,6 +238,7 @@ true :- true.
 % then we can execute the programs.
 '$startup_goals' :-
 	recorded('$startup_goal',G,_),
+writeln(G),
 	'$current_module'(Module),
 	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
 	fail.

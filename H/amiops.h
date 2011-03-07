@@ -409,6 +409,7 @@ inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr));
 
 inline EXTERN void
 reset_trail(tr_fr_ptr TR0) {
+  CACHE_REGS
   while(TR != TR0) {
     CELL d1;
     --TR;
@@ -458,6 +459,7 @@ inline EXTERN void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax);
 
 inline EXTERN void
 close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
+  CACHE_REGS
   if (dvarsmin) {
     dvarsmin += 1;
     do {
@@ -475,6 +477,7 @@ close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
 EXTERN inline
 Int Yap_unify(Term t0, Term t1)
 {
+  CACHE_REGS
   tr_fr_ptr TR0 = TR;
 
   if (Yap_IUnify(t0,t1)) {
@@ -490,6 +493,7 @@ EXTERN Int STD_PROTO(Yap_unify_constant,(Term,Term));
 EXTERN inline Int
 Yap_unify_constant(register Term a, register Term cons)
 {
+  CACHE_REGS
   CELL *pt;
   deref_head(a,unify_cons_unk);
  unify_cons_nonvar:
@@ -547,6 +551,7 @@ Yap_unify_constant(register Term a, register Term cons)
 
 static inline int
 do_cut(int i) {
+  CACHE_REGS
 #ifdef CUT_C
   if (POP_CHOICE_POINT(B->cp_b)) {
     cut_c_pop();

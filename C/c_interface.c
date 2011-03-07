@@ -545,6 +545,7 @@ static int do_yap_putc(int streamno,wchar_t ch) {
 static int
 dogc(void)
 {
+  CACHE_REGS
   UInt arity;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
@@ -561,6 +562,7 @@ dogc(void)
 static int
 doexpand(UInt sz)
 {
+  CACHE_REGS
   UInt arity;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
@@ -577,6 +579,7 @@ doexpand(UInt sz)
 X_API Term
 YAP_A(int i)
 {
+  CACHE_REGS
   return(Deref(XREGS[i]));
 }
 
@@ -751,6 +754,7 @@ YAP_RationalOfTerm(Term t, void *b)
 X_API Term 
 YAP_MkBlobTerm(unsigned int sz)
 {
+  CACHE_REGS
   Term I;
   MP_INT *dst;
   BACKUP_H();
@@ -846,6 +850,7 @@ YAP_WideAtomName(Atom a)
 X_API Atom
 YAP_LookupAtom(char *c)
 {
+  CACHE_REGS
   Atom a;
 
   while (TRUE) {
@@ -863,6 +868,7 @@ YAP_LookupAtom(char *c)
 X_API Atom
 YAP_LookupWideAtom(wchar_t *c)
 {
+  CACHE_REGS
   Atom a;
 
   while (TRUE) {
@@ -880,6 +886,7 @@ YAP_LookupWideAtom(wchar_t *c)
 X_API Atom
 YAP_FullLookupAtom(char *c)
 {
+  CACHE_REGS
   Atom at;
 
   while (TRUE) {
@@ -914,6 +921,7 @@ YAP_AtomNameLength(Atom at)
 X_API Term
 YAP_MkVarTerm(void)
 {
+  CACHE_REGS
   CELL t; 
   BACKUP_H();
 
@@ -926,19 +934,20 @@ YAP_MkVarTerm(void)
 X_API Term
 YAP_MkPairTerm(Term t1, Term t2)
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
   if (H > ASP-1024) {
-    Int sl1 = Yap_InitSlot(t1);
-    Int sl2 = Yap_InitSlot(t2);
+    Int sl1 = Yap_InitSlot(t1 PASS_REGS);
+    Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     if (!dogc()) {
       RECOVER_H();
       return TermNil;
     }
-    t1 =  Yap_GetFromSlot(sl1);
-    t2 =  Yap_GetFromSlot(sl2);
-    Yap_RecoverSlots(2);
+    t1 =  Yap_GetFromSlot(sl1 PASS_REGS);
+    t2 =  Yap_GetFromSlot(sl2 PASS_REGS);
+    Yap_RecoverSlots(2 PASS_REGS);
   }
   t = MkPairTerm(t1, t2);
   RECOVER_H();
@@ -948,6 +957,7 @@ YAP_MkPairTerm(Term t1, Term t2)
 X_API Term
 YAP_MkNewPairTerm()
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
@@ -1003,6 +1013,7 @@ YAP_SkipList(Term *l, Term **tailp)
 X_API Term
 YAP_MkApplTerm(Functor f,UInt arity, Term args[])
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
@@ -1018,6 +1029,7 @@ YAP_MkApplTerm(Functor f,UInt arity, Term args[])
 X_API Term
 YAP_MkNewApplTerm(Functor f,UInt arity)
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
@@ -1075,6 +1087,7 @@ YAP_ArityOfFunctor(Functor f)
 X_API void *
 YAP_ExtraSpaceCut(void)
 {
+  CACHE_REGS
   void *ptr;
   BACKUP_B();
 
@@ -1088,6 +1101,7 @@ YAP_ExtraSpaceCut(void)
 X_API void *
 YAP_ExtraSpace(void)
 {
+  CACHE_REGS
   void *ptr;
   BACKUP_B();
   BACKUP_H();
@@ -1104,6 +1118,7 @@ YAP_ExtraSpace(void)
 X_API void
 YAP_cut_up(void)
 {
+  CACHE_REGS
   BACKUP_B();
 #ifdef CUT_C
       {
@@ -1189,43 +1204,50 @@ YAP_TermHash(Term t, Int sz, Int depth, int variant)
 X_API Int
 YAP_CurrentSlot(void)
 {
-  return Yap_CurrentSlot();
+  CACHE_REGS
+  return Yap_CurrentSlot( PASS_REGS1 );
 }
 
 X_API Int
 YAP_NewSlots(int n)
 {
-  return Yap_NewSlots(n);
+  CACHE_REGS
+  return Yap_NewSlots(n PASS_REGS);
 }
 
 X_API Int
 YAP_InitSlot(Term t)
 {
-  return Yap_InitSlot(t);
+  CACHE_REGS
+  return Yap_InitSlot(t PASS_REGS);
 }
 
 X_API int
 YAP_RecoverSlots(int n)
 {
- return Yap_RecoverSlots(n);
+  CACHE_REGS
+  return Yap_RecoverSlots(n PASS_REGS);
 }
 
 X_API Term
 YAP_GetFromSlot(Int slot)
 {
-  return Yap_GetFromSlot(slot);
+  CACHE_REGS
+  return Yap_GetFromSlot(slot PASS_REGS);
 }
 
 X_API Term *
 YAP_AddressFromSlot(Int slot)
 {
-  return Yap_AddressFromSlot(slot);
+  CACHE_REGS
+  return Yap_AddressFromSlot(slot PASS_REGS);
 }
 
 X_API Term *
 YAP_AddressOfTermInSlot(Int slot)
 {
-  Term *b = Yap_AddressFromSlot(slot);
+  CACHE_REGS
+  Term *b = Yap_AddressFromSlot(slot PASS_REGS);
   Term a = *b;
  restart:
   if (!IsVarTerm(a)) {
@@ -1242,7 +1264,8 @@ YAP_AddressOfTermInSlot(Int slot)
 X_API void
 YAP_PutInSlot(Int slot, Term t)
 {
-  Yap_PutInSlot(slot, t);
+  CACHE_REGS
+  Yap_PutInSlot(slot, t PASS_REGS);
 }
 
 
@@ -1258,6 +1281,7 @@ typedef  struct foreign_context
       struct PL_local_data *engine;		/* invoking engine */
 } scontext ;
 
+typedef Int (*CPredicate0)(void);
 typedef Int (*CPredicate1)(Int);
 typedef Int (*CPredicate2)(Int,Int);
 typedef Int (*CPredicate3)(Int,Int,Int);
@@ -1271,108 +1295,108 @@ typedef Int (*CPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int);
 typedef Int (*CPredicateV)(Int,Int,struct foreign_context *);
 
 static Int
-execute_cargs(PredEntry *pe, CPredicate exec_code)
+execute_cargs(PredEntry *pe, CPredicate exec_code USES_REGS)
 {
   switch (pe->ArityOfPE) {
   case 0:
     {
-      CPredicate code0 = exec_code;
+      CPredicate0 code0 = (CPredicate0)exec_code;
       return ((code0)());
     }
   case 1:
     {
       CPredicate1 code1 = (CPredicate1)exec_code;
-      return ((code1)(Yap_InitSlot(Deref(ARG1))));
+      return ((code1)(Yap_InitSlot(Deref(ARG1) PASS_REGS)));
     }
   case 2:
     {
       CPredicate2 code2 = (CPredicate2)exec_code;
-      return ((code2)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2))));
+      return ((code2)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS)));
     }
   case 3:
     {
       CPredicate3 code3 = (CPredicate3)exec_code;
-      return ((code3)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3))));
+      return ((code3)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS)));
     }
   case 4:
     {
       CPredicate4 code4 = (CPredicate4)exec_code;
-      return ((code4)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4))));
+      return ((code4)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS)));
     }
   case 5:
     {
       CPredicate5 code5 = (CPredicate5)exec_code;
-      return ((code5)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5))));
+      return ((code5)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS)));
     }
   case 6:
     {
       CPredicate6 code6 = (CPredicate6)exec_code;
-      return ((code6)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6))));
+      return ((code6)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS)));
     }
   case 7:
     {
       CPredicate7 code7 = (CPredicate7)exec_code;
-      return ((code7)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7))));
+      return ((code7)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS)));
     }
   case 8:
     {
       CPredicate8 code8 = (CPredicate8)exec_code;
-      return ((code8)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8))));
+      return ((code8)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS)));
     }
   case 9:
     {
       CPredicate9 code9 = (CPredicate9)exec_code;
-      return ((code9)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8)),
-		      Yap_InitSlot(Deref(ARG9))));
+      return ((code9)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG9) PASS_REGS)));
     }
   case 10:
     {
       CPredicate10 code10 = (CPredicate10)exec_code;
-      return ((code10)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8)),
-		      Yap_InitSlot(Deref(ARG9)),
-		      Yap_InitSlot(Deref(ARG10))));
+      return ((code10)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG10) PASS_REGS)));
     }
   default:
     return(FALSE);
@@ -1392,7 +1416,7 @@ typedef Int (*CBPredicate9)(Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_c
 typedef Int (*CBPredicate10)(Int,Int,Int,Int,Int,Int,Int,Int,Int,Int,struct foreign_context *);
 
 static Int
-execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx)
+execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *ctx USES_REGS)
 {
   switch (pe->ArityOfPE) {
   case 0:
@@ -1403,105 +1427,105 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   case 1:
     {
       CBPredicate1 code1 = (CBPredicate1)exec_code;
-      return ((code1)(Yap_InitSlot(Deref(ARG1)),
+      return ((code1)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
 		      ctx));
     }
   case 2:
     {
       CBPredicate2 code2 = (CBPredicate2)exec_code;
-      return ((code2)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
+      return ((code2)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
 		      ctx));
     }
   case 3:
     {
       CBPredicate3 code3 = (CBPredicate3)exec_code;
-      return ((code3)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
+      return ((code3)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
 		      ctx));
     }
   case 4:
     {
       CBPredicate4 code4 = (CBPredicate4)exec_code;
-      return ((code4)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
+      return ((code4)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
 		      ctx));
     }
   case 5:
     {
       CBPredicate5 code5 = (CBPredicate5)exec_code;
-      return ((code5)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)), ctx));
+      return ((code5)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS), ctx));
     }
   case 6:
     {
       CBPredicate6 code6 = (CBPredicate6)exec_code;
-      return ((code6)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
+      return ((code6)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
 		      ctx));
     }
   case 7:
     {
       CBPredicate7 code7 = (CBPredicate7)exec_code;
-      return ((code7)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
+      return ((code7)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
 		      ctx));
     }
   case 8:
     {
       CBPredicate8 code8 = (CBPredicate8)exec_code;
-      return ((code8)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8)),
+      return ((code8)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
 		      ctx));
     }
   case 9:
     {
       CBPredicate9 code9 = (CBPredicate9)exec_code;
-      return ((code9)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8)),
-		      Yap_InitSlot(Deref(ARG9)),
+      return ((code9)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
 		      ctx));
     }
   case 10:
     {
       CBPredicate10 code10 = (CBPredicate10)exec_code;
-      return ((code10)(Yap_InitSlot(Deref(ARG1)),
-		      Yap_InitSlot(Deref(ARG2)),
-		      Yap_InitSlot(Deref(ARG3)),
-		      Yap_InitSlot(Deref(ARG4)),
-		      Yap_InitSlot(Deref(ARG5)),
-		      Yap_InitSlot(Deref(ARG6)),
-		      Yap_InitSlot(Deref(ARG7)),
-		      Yap_InitSlot(Deref(ARG8)),
-		      Yap_InitSlot(Deref(ARG9)),
-		      Yap_InitSlot(Deref(ARG10)),
+      return ((code10)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
+		      Yap_InitSlot(Deref(ARG10) PASS_REGS),
 		      ctx));
     }
   default:
@@ -1513,6 +1537,7 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
 Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
+  CACHE_REGS
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
@@ -1522,7 +1547,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
 
     ctx.engine = NULL;
     for (i=pe->ArityOfPE; i > 0; i--) {
-      sl = Yap_InitSlot(XREGS[i]);
+      sl = Yap_InitSlot(XREGS[i] PASS_REGS);
     }
     PP = pe;
     ret = ((codev)(sl,0,&ctx));
@@ -1541,7 +1566,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   }
   if (pe->PredFlags & CArgsPredFlag) {
     PP = pe;
-    Int out =  execute_cargs(pe, exec_code);
+    Int out =  execute_cargs(pe, exec_code PASS_REGS);
     PP = NULL;
     if (!out) {
       Term t;
@@ -1555,7 +1580,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     }
     return out;
   } else {
-    Int ret = (exec_code)();
+    Int ret = (exec_code)( PASS_REGS1 );
     if (!ret) {
       Term t;
 
@@ -1578,6 +1603,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
 Int
 YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 {
+  CACHE_REGS
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1590,7 +1616,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     ctx->context = NULL;
     if (pe->PredFlags & CArgsPredFlag) {
-      val = execute_cargs_back(pe, exec_code, ctx);
+      val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
@@ -1620,7 +1646,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     }
   } else {
-    Int ret = (exec_code)();
+    Int ret = (exec_code)( PASS_REGS1 );
     if (!ret) {
       Term t;
 
@@ -1638,6 +1664,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 Int
 YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
 {
+  CACHE_REGS
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1650,7 +1677,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
     ctx->context = NULL;
     if (pe->PredFlags & CArgsPredFlag) {
-      val = execute_cargs_back(pe, exec_code, ctx);
+      val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
@@ -1674,7 +1701,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     } 
   } else {
-    Int ret = (exec_code)();
+    Int ret = (exec_code)( PASS_REGS1 );
     if (!ret) {
       Term t;
 
@@ -1693,6 +1720,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
 Int
 YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 {
+  CACHE_REGS
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
@@ -1703,7 +1731,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     PP = pe;
     ctx->control = FRG_REDO;
     if (pe->PredFlags & CArgsPredFlag) {
-      val = execute_cargs_back(pe, exec_code, ctx);
+      val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
       val = ((codev)((&ARG1)-LCL0,0,ctx));
     }
@@ -1736,7 +1764,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     }
     return TRUE;
   } else {
-    Int ret = (exec_code)();
+    Int ret = (exec_code)( PASS_REGS1 );
     if (!ret) {
       Term t;
 
@@ -1754,6 +1782,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
 X_API Int
 YAP_CallProlog(Term t)
 {
+  CACHE_REGS
   Int out;
   Term mod = CurrentModule;
   BACKUP_MACHINE_REGS();
@@ -1774,6 +1803,7 @@ YAP_CallProlog(Term t)
 
 X_API void *
 YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
+  CACHE_REGS
   void *new_ptr;
   BACKUP_MACHINE_REGS();
   while ((new_ptr = Yap_ReallocCodeSpace(ptr,size)) == NULL) {
@@ -1788,7 +1818,8 @@ YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
 X_API void *
 YAP_AllocSpaceFromYap(unsigned int size)
 {
-  void *ptr;
+  CACHE_REGS 
+    void *ptr;
   BACKUP_MACHINE_REGS();
 
   while ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
@@ -1905,6 +1936,7 @@ YAP_NWideBufferToString(wchar_t *s, size_t len)
 X_API Term
 YAP_ReadBuffer(char *s, Term *tp)
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
@@ -2016,10 +2048,11 @@ YAP_NWideBufferToAtomDiffList(wchar_t *s, Term t0, size_t len)
 X_API Term
 YAP_BufferToDiffList(char *s, Term t0)
 {
+  CACHE_REGS
   Term t; 
   BACKUP_H();
 
-  t = Yap_StringToDiffList(s, t0);
+  t = Yap_StringToDiffList(s, t0 PASS_REGS);
 
   RECOVER_H();
   return t;
@@ -2099,12 +2132,14 @@ static int myputc (wchar_t ch)
 X_API PredEntry *
 YAP_FunctorToPred(Functor func)
 {
+  CACHE_REGS
   return RepPredProp(PredPropByFunc(func, CurrentModule));
 }
 
 X_API PredEntry *
 YAP_AtomToPred(Atom at)
 {
+  CACHE_REGS
   return RepPredProp(PredPropByAtom(at, CurrentModule));  
 }
 
@@ -2112,6 +2147,7 @@ YAP_AtomToPred(Atom at)
 static int
 run_emulator(YAP_dogoalinfo *dgi)
 {
+  CACHE_REGS
   choiceptr myB;
   int out;
   BACKUP_MACHINE_REGS();
@@ -2134,7 +2170,7 @@ run_emulator(YAP_dogoalinfo *dgi)
     B = B->cp_b;
     HB = B->cp_h;
   } else {
-    Yap_StartSlots();
+    Yap_StartSlots( PASS_REGS1 );
   }
   P = dgi->p;
   RECOVER_MACHINE_REGS();
@@ -2144,6 +2180,7 @@ run_emulator(YAP_dogoalinfo *dgi)
 X_API int
 YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 {
+  CACHE_REGS
   UInt i;
   choiceptr myB;
   int out;
@@ -2186,6 +2223,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
 X_API int
 YAP_RetryGoal(YAP_dogoalinfo *dgi)
 {
+  CACHE_REGS
   choiceptr myB;
   int out;
 
@@ -2205,6 +2243,7 @@ YAP_RetryGoal(YAP_dogoalinfo *dgi)
 X_API int
 YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 {
+  CACHE_REGS
   choiceptr myB;
 
   BACKUP_MACHINE_REGS();
@@ -2246,6 +2285,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
 X_API Term
 YAP_RunGoal(Term t)
 {
+  CACHE_REGS
   Term out;
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
@@ -2272,6 +2312,7 @@ YAP_RunGoal(Term t)
 X_API Term
 YAP_RunGoalOnce(Term t)
 {
+  CACHE_REGS
   Term out;
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
@@ -2308,6 +2349,7 @@ YAP_RunGoalOnce(Term t)
 X_API int
 YAP_RestartGoal(void)
 {
+  CACHE_REGS
   int out;
   BACKUP_MACHINE_REGS();
   if (Yap_AllowRestart) {
@@ -2318,7 +2360,7 @@ YAP_RestartGoal(void)
     Yap_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
-      Yap_CloseSlots();
+      Yap_CloseSlots( PASS_REGS1 );
       Yap_trust_last();
       Yap_AllowRestart = FALSE;
     }
@@ -2332,6 +2374,7 @@ YAP_RestartGoal(void)
 X_API int
 YAP_ShutdownGoal(int backtrack)
 {
+  CACHE_REGS
   BACKUP_MACHINE_REGS();
   
   if (Yap_AllowRestart) {
@@ -2384,7 +2427,8 @@ YAP_ContinueGoal(void)
 X_API void
 YAP_PruneGoal(void)
 {
-  BACKUP_B();
+  CACHE_REGS 
+ BACKUP_B();
 
   while (B->cp_ap != NOCODE) {
     B = B->cp_b;
@@ -2400,6 +2444,7 @@ YAP_PruneGoal(void)
 X_API int
 YAP_GoalHasException(Term *t)
 {
+  CACHE_REGS
   int out = FALSE;
   BACKUP_MACHINE_REGS();
   if (EX) {
@@ -2434,6 +2479,7 @@ YAP_GoalHasException(Term *t)
 X_API void
 YAP_ClearExceptions(void)
 {
+  CACHE_REGS
   Yap_ResetExceptionTerm();
   if (EX) {
     BallTerm = EX;
@@ -2472,6 +2518,7 @@ YAP_EndConsult(IOSTREAM *s)
 X_API Term
 YAP_Read(IOSTREAM *inp)
 {
+  CACHE_REGS
   Term t, tpos = TermNil;
   TokEntry *tokstart;
   
@@ -2534,6 +2581,7 @@ YAP_WriteBuffer(Term t, char *buf, unsigned int sze, int flags)
 X_API char *
 YAP_CompileClause(Term t)
 {
+  CACHE_REGS
   yamop *codeaddr;
   int mod = CurrentModule;
   Term tn = TermNil;
@@ -2671,6 +2719,7 @@ construct_init_file(char *boot_file, char *BootFile)
 X_API Int
 YAP_Init(YAP_init_args *yap_init)
 {
+  CACHE_REGS
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
@@ -2729,6 +2778,10 @@ YAP_Init(YAP_init_args *yap_init)
 	      yap_init->SchedulerLoop,
 	      yap_init->DelayedReleaseLoad
 	      );
+#if THREADS
+  /* make sure we use the correct value of regcache */
+  regcache =  ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+#endif
 #if USE_SYSTEM_MALLOC
   if (Trail < MinTrailSpace)
     Trail = MinTrailSpace;
@@ -2987,6 +3040,7 @@ YAP_CompareTerms(Term t1, Term t2)
 X_API int
 YAP_Reset(void)
 {
+  CACHE_REGS
   BACKUP_MACHINE_REGS();
 
   /* first, backtrack to the root */
@@ -3077,6 +3131,7 @@ YAP_Halt(int i)
 X_API CELL *
 YAP_TopOfLocalStack(void)
 {
+  CACHE_REGS
   return(ASP);
 }
 
@@ -3139,6 +3194,7 @@ YAP_UserBackCutCPredicate(char *name, CPredicate init, CPredicate cont, CPredica
 X_API void
 YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)
 {
+  CACHE_REGS
   PredEntry *pe;
   Term cm = CurrentModule;
   CurrentModule = mod;
@@ -3156,12 +3212,14 @@ YAP_UserCPredicateWithArgs(char *a, CPredicate f, UInt arity, Term mod)
 X_API Term
 YAP_CurrentModule(void)
 {
+  CACHE_REGS
   return(CurrentModule);
 } 
 
 X_API Term
 YAP_SetCurrentModule(Term new)
 {
+  CACHE_REGS
   Term omod = CurrentModule;
   CurrentModule = new;
   return omod;
@@ -3270,6 +3328,7 @@ YAP_HaltRegisterHook(HaltHookFunc hook, void * closure)
 X_API char *
 YAP_cwd(void)
 {
+  CACHE_REGS
   char *buf;
   int len;
   if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
@@ -3285,6 +3344,7 @@ YAP_cwd(void)
 X_API Term
 YAP_OpenList(int n)
 {
+  CACHE_REGS
   Term t;
   BACKUP_H();
 
@@ -3403,6 +3463,7 @@ YAP_Record(Term t)
 X_API Term
 YAP_Recorded(void *handle)
 {
+  CACHE_REGS
   Term t;
   DBTerm *dbterm = ((DBRecordList *)handle)->dbrecord;
 
@@ -3452,7 +3513,8 @@ YAP_Erase(void *handle)
 X_API Int
 YAP_ArgsToSlots(int n)
 {
-  Int slot = Yap_NewSlots(n);
+  CACHE_REGS
+  Int slot = Yap_NewSlots(n PASS_REGS);
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr0++ = *ptr1++;
@@ -3463,6 +3525,7 @@ YAP_ArgsToSlots(int n)
 X_API void
 YAP_SlotsToArgs(int n, Int slot)
 {
+  CACHE_REGS
   CELL *ptr0 = LCL0+slot, *ptr1=&ARG1;
   while (n--) {
     *ptr1++ = *ptr0++;
@@ -3501,7 +3564,8 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
 
 /*    Int  YAP_VarSlotToNumber(Int)  */
 Int YAP_VarSlotToNumber(Int s) {
-  Term *t = (CELL *)Deref(Yap_GetFromSlot(s));
+  CACHE_REGS
+  Term *t = (CELL *)Deref(Yap_GetFromSlot(s PASS_REGS));
   if (t < H)
     return t-H0;
   return t-LCL0;

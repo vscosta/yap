@@ -56,6 +56,7 @@ static char     SccsId[] = "%W% %G%";
 
 static Term
 eval0(Int fi) {
+  CACHE_REGS
   arith0_op fop = fi;
   switch (fop) {
   case op_pi:

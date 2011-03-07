@@ -492,6 +492,7 @@
 
 
 #define IN_ABSMI_C 1
+#define HAS_CACHE_REGS 1
 
 #include "absmi.h"
 #include "heapgc.h"
@@ -542,6 +543,7 @@ creep_allowed(PredEntry *p, PredEntry *p0)
 static Term
 push_live_regs(yamop *pco)
 {
+  CACHE_REGS
   CELL *lab = (CELL *)(pco->u.l.l);
   CELL max = lab[0];
   CELL curr = lab[1];
@@ -610,6 +612,7 @@ char *Yap_op_names[_std_top + 1] =
 Int 
 Yap_absmi(int inp)
 {
+  CACHE_REGS
 #if BP_FREE
   /* some function might be using bp for an internal variable, it is the
      callee's responsability to save it */
@@ -688,7 +691,11 @@ Yap_absmi(int inp)
 #if PUSH_REGS
     old_regs = &Yap_REGS;
     init_absmi_regs(&absmi_regs);
+#if THREADS
+    regcache = Yap_regp
+#else
     Yap_regp = &absmi_regs;
+#endif
 #endif
     CACHE_A1();
     PREG=bpEntry->CodeOfPred;
@@ -719,6 +726,7 @@ Yap_absmi(int inp)
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);  
   MY_ThreadHandle.current_yaam_regs = &absmi_regs;
+  regcache = &absmi_regs;
 #else
   Yap_regp = &absmi_regs;
 #endif
@@ -7480,7 +7488,7 @@ Yap_absmi(int inp)
       CPredicate f = PREG->u.Osbpp.p->cs.f_code;
       PREG = NEXTOP(PREG, Osbpp);
       saveregs();
-      d0 = (f)();
+      d0 = (f)(PASS_REGS1);
       setregs();
 #ifdef SHADOW_S
       SREG = Yap_REGS.S_;
@@ -7548,7 +7556,7 @@ Yap_absmi(int inp)
 	  CPredicate f = PREG->u.pp.p->cs.f_code;
 	  yamop *oldPREG = PREG;
 	  saveregs();
-	  d0 = (f)();
+	  d0 = (f)(PASS_REGS1);
 	  setregs();
 #ifdef SHADOW_S
 	  SREG = Yap_REGS.S_;
@@ -7607,7 +7615,7 @@ Yap_absmi(int inp)
 	/* make sure that we can still have access to our old PREG after calling user defined goals and backtracking or failing */
 	yamop *savedP;
 
-	Yap_StartSlots();
+	Yap_StartSlots( PASS_REGS1 );
 	Yap_PrologMode = UserCCallMode;
 	{
 	  PredEntry *p = PREG->u.Osbpp.p;
@@ -7619,7 +7627,7 @@ Yap_absmi(int inp)
 
 	  SREG = (CELL *) YAP_Execute(p, p->cs.f_code);
 	}
-	Yap_CloseSlots();
+	Yap_CloseSlots( PASS_REGS1 );
 	setregs();
 	Yap_PrologMode = UserMode;
 	restore_machine_regs();
@@ -7673,7 +7681,7 @@ Yap_absmi(int inp)
       {
 	CPredicate f = PREG->u.slp.p->cs.f_code;
 	saveregs();
-	SREG = (CELL *)((f)());
+	SREG = (CELL *)((f)(PASS_REGS1));
 	setregs();
       }
       if (!SREG) {
@@ -7711,7 +7719,7 @@ Yap_absmi(int inp)
       {
 	CPredicate f = (CPredicate)(PREG->u.OtapFs.f);
 	saveregs();
-	SREG = (CELL *) ((f) ());
+	SREG = (CELL *) ((f) (PASS_REGS1));
       	/* This last instruction changes B B*/
 #ifdef CUT_C
 	while (POP_CHOICE_POINT(B)){ 
@@ -7792,7 +7800,7 @@ Yap_absmi(int inp)
       Yap_PrologMode = UserCCallMode;
       ASP = YREG;
       /* for slots to work */
-      Yap_StartSlots();
+      Yap_StartSlots( PASS_REGS1 );
       saveregs();
       save_machine_regs();
       SREG = (CELL *) YAP_ExecuteFirst(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
@@ -7800,7 +7808,7 @@ Yap_absmi(int inp)
       restore_machine_regs();
       setregs();
       Yap_PrologMode = UserMode;
-      Yap_CloseSlots();
+      Yap_CloseSlots( PASS_REGS1 );
       if (!SREG) {
 	FAIL();
       }
@@ -7835,7 +7843,7 @@ Yap_absmi(int inp)
       Yap_PrologMode = UserCCallMode;
       SET_ASP(YREG, E_CB*sizeof(CELL));
       /* for slots to work */
-      Yap_StartSlots();
+      Yap_StartSlots( PASS_REGS1 );
       saveregs();
       save_machine_regs();
       SREG = (CELL *) YAP_ExecuteNext(PREG->u.OtapFs.p, (CPredicate)(PREG->u.OtapFs.f));
@@ -7843,7 +7851,7 @@ Yap_absmi(int inp)
       restore_machine_regs();
       setregs();
       Yap_PrologMode = UserMode;
-      Yap_CloseSlots();
+      Yap_CloseSlots( PASS_REGS1 );
       if (!SREG) {
 #ifdef CUT_C
 	/* Removes the cut functions from the stack
@@ -7959,7 +7967,7 @@ Yap_absmi(int inp)
       BOp(thread_local, e);
       {
 	PredEntry *ap = PredFromDefCode(PREG);
-	ap = Yap_GetThreadPred(ap);
+	ap = Yap_GetThreadPred(ap PASS_REGS);
 	PREG = ap->CodeOfPred;
 	/* for profiler */
 	save_pc();

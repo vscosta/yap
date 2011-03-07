@@ -23,14 +23,14 @@
 #include "YapHeap.h"
 #include "eval.h"
 
-STD_PROTO(static Int p_setarg, (void));
-STD_PROTO(static Int p_create_mutable, (void));
-STD_PROTO(static Int p_get_mutable, (void));
-STD_PROTO(static Int p_update_mutable, (void));
-STD_PROTO(static Int p_is_mutable, (void));
+STD_PROTO(static Int p_setarg, ( USES_REGS1 ));
+STD_PROTO(static Int p_create_mutable, ( USES_REGS1 ));
+STD_PROTO(static Int p_get_mutable, ( USES_REGS1 ));
+STD_PROTO(static Int p_update_mutable, ( USES_REGS1 ));
+STD_PROTO(static Int p_is_mutable, ( USES_REGS1 ));
 
 static Int
-p_setarg(void)
+p_setarg( USES_REGS1 )
 {
   CELL ti = Deref(ARG1), ts = Deref(ARG2), t3 = Deref(ARG3);
   Int i;
@@ -119,7 +119,7 @@ p_setarg(void)
  */
 
 static Term
-NewTimedVar(CELL val)
+NewTimedVar(CELL val USES_REGS)
 {
   Term out;
   timed_var *tv;
@@ -141,12 +141,14 @@ NewTimedVar(CELL val)
 Term
 Yap_NewTimedVar(CELL val)
 {
-  return NewTimedVar(val);
+  CACHE_REGS
+  return NewTimedVar(val PASS_REGS);
 }
 
 Term
-Yap_NewEmptyTimedVar(void)
+Yap_NewEmptyTimedVar( void )
 {
+  CACHE_REGS
   Term out = AbsAppl(H);
   timed_var *tv;
   *H++ = (CELL)FunctorMutable;
@@ -173,7 +175,7 @@ Yap_ReadTimedVar(Term inv)
 
 /* update a timed var with a new value */
 static Term
-UpdateTimedVar(Term inv, Term new)
+UpdateTimedVar(Term inv, Term new USES_REGS)
 {
   timed_var *tv = (timed_var *)(RepAppl(inv)+1);
   CELL t = tv->value;
@@ -210,18 +212,19 @@ UpdateTimedVar(Term inv, Term new)
 Term
 Yap_UpdateTimedVar(Term inv, Term new)
 {
-  return UpdateTimedVar(inv, new);
+  CACHE_REGS
+  return UpdateTimedVar(inv, new PASS_REGS);
 }
 
 static Int
-p_create_mutable(void)
+p_create_mutable( USES_REGS1 )
 {
-  Term t = NewTimedVar(Deref(ARG1));
+  Term t = NewTimedVar(Deref(ARG1) PASS_REGS);
   return(Yap_unify(ARG2,t));
 }
 
 static Int
-p_get_mutable(void)
+p_get_mutable( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
@@ -241,7 +244,7 @@ p_get_mutable(void)
 }
 
 static Int
-p_update_mutable(void)
+p_update_mutable( USES_REGS1 )
 {
   Term t = Deref(ARG2);
   if (IsVarTerm(t)) {
@@ -256,12 +259,12 @@ p_update_mutable(void)
     Yap_Error(DOMAIN_ERROR_MUTABLE,t,"update_mutable/3");
     return(FALSE);
   }
-  UpdateTimedVar(t, Deref(ARG1));
+  UpdateTimedVar(t, Deref(ARG1) PASS_REGS);
   return(TRUE);
 }
 
 static Int
-p_is_mutable(void)
+p_is_mutable( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {

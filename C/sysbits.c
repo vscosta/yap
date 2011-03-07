@@ -91,16 +91,16 @@ static char SccsId[] = "%W% %G%";
 STATIC_PROTO (void InitPageSize, (void));
 STATIC_PROTO (void InitTime, (void));
 STATIC_PROTO (void InitWTime, (void));
-STATIC_PROTO (Int p_sh, (void));
-STATIC_PROTO (Int p_shell, (void));
-STATIC_PROTO (Int p_system, (void));
-STATIC_PROTO (Int p_mv, (void));
-STATIC_PROTO (Int p_dir_sp, (void));
+STATIC_PROTO (Int p_sh, ( USES_REGS1 ));
+STATIC_PROTO (Int p_shell, ( USES_REGS1 ));
+STATIC_PROTO (Int p_system, ( USES_REGS1 ));
+STATIC_PROTO (Int p_mv, ( USES_REGS1 ));
+STATIC_PROTO (Int p_dir_sp, ( USES_REGS1 ));
 STATIC_PROTO (void InitRandom, (void));
-STATIC_PROTO (Int p_srandom, (void));
-STATIC_PROTO (Int p_alarm, (void));
-STATIC_PROTO (Int p_getenv, (void));
-STATIC_PROTO (Int p_putenv, (void));
+STATIC_PROTO (Int p_srandom, ( USES_REGS1 ));
+STATIC_PROTO (Int p_alarm, ( USES_REGS1 ));
+STATIC_PROTO (Int p_getenv, ( USES_REGS1 ));
+STATIC_PROTO (Int p_putenv, ( USES_REGS1 ));
 STATIC_PROTO (void  set_fpu_exceptions, (int));
 #ifdef MACYAP
 STATIC_PROTO (int chdir, (char *));
@@ -181,6 +181,7 @@ char *libdir = NULL;
 
 void
 Yap_InitSysPath(void) {
+  CACHE_REGS
   int len;
 #if _MSC_VER || defined(__MINGW32__)
   int dir_done = FALSE;
@@ -269,7 +270,7 @@ Yap_InitSysPath(void) {
 }
 
 static Int
-p_dir_sp (void)
+p_dir_sp ( USES_REGS1 )
 {
 #ifdef MAC
   Term t = MkIntTerm(':');
@@ -347,6 +348,7 @@ static struct timeval StartOfTimes_sys;
 static void
 InitTime (void)
 {
+  CACHE_REGS
   struct rusage   rusage;
 
 #if THREADS
@@ -362,8 +364,9 @@ InitTime (void)
 
 
 UInt
-Yap_cputime (void)
+Yap_cputime ( void )
 {
+  CACHE_REGS
  struct rusage   rusage;
 
  getrusage(RUSAGE_SELF, &rusage);
@@ -373,6 +376,7 @@ Yap_cputime (void)
 
 void Yap_cputime_interval(Int *now,Int *interval)
 {
+  CACHE_REGS
   struct rusage   rusage;
 
   getrusage(RUSAGE_SELF, &rusage);
@@ -466,7 +470,7 @@ sub_utime(FILETIME t1, FILETIME t2)
 #endif
 
 UInt
-Yap_cputime (void)
+Yap_cputime ( USES_REGS1 )
 {
   HANDLE hProcess = GetCurrentProcess();
   FILETIME CreationTime, ExitTime, KernelTime, UserTime;
@@ -991,7 +995,7 @@ Yap_random (void)
 }
 
 static Int
-p_srandom (void)
+p_srandom ( USES_REGS1 )
 {
   register Term t0 = Deref (ARG1);
   if (IsVarTerm (t0)) {
@@ -1654,6 +1658,7 @@ HandleSIGINT (int sig, siginfo_t   *x, ucontext_t *y)
 HandleSIGINT (int sig)
 #endif
 {
+  CACHE_REGS
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
@@ -1866,6 +1871,7 @@ Yap_volume_header(char *file)
 
 int Yap_getcwd(const char *buf, int len)
 {
+  CACHE_REGS
 #if __simplescalar__
   /* does not implement getcwd */
   strncpy(Yap_buf,yap_pwd,len);
@@ -1897,6 +1903,7 @@ int Yap_getcwd(const char *buf, int len)
 static int
 TrueFileName (char *source, char *root, char *result, int in_lib)
 {
+  CACHE_REGS
   char *work;
   char ares1[YAP_FILENAME_MAX];
 
@@ -2082,7 +2089,7 @@ Yap_TrueFileName (char *source, char *result, int in_lib)
 }
 
 static Int
-p_true_file_name (void)
+p_true_file_name ( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   
@@ -2099,7 +2106,7 @@ p_true_file_name (void)
 }
 
 static Int
-p_true_file_name3 (void)
+p_true_file_name3 ( USES_REGS1 )
 {
   Term t = Deref(ARG1), t2 = Deref(ARG2);
   char *root = NULL;
@@ -2126,7 +2133,7 @@ p_true_file_name3 (void)
 /* Executes $SHELL under Prolog */
 
 static Int
-p_sh (void)
+p_sh ( USES_REGS1 )
 {				/* sh				 */
 #ifdef HAVE_SYSTEM
   char *shell;
@@ -2156,7 +2163,7 @@ p_sh (void)
 }
 
 static Int
-p_shell (void)
+p_shell ( USES_REGS1 )
 {				/* '$shell'(+SystCommand)			 */
 #if _MSC_VER || defined(__MINGW32__)
   Yap_Error(SYSTEM_ERROR,TermNil,"shell not available in this configuration");
@@ -2216,7 +2223,7 @@ p_shell (void)
 }
 
 static Int
-p_system (void)
+p_system ( USES_REGS1 )
 {				/* '$system'(+SystCommand)	       */
 #ifdef HAVE_SYSTEM
   Term t1 = Deref (ARG1);
@@ -2266,7 +2273,7 @@ p_system (void)
 
 /* Rename a file */
 static Int
-p_mv (void)
+p_mv ( USES_REGS1 )
 {				/* rename(+OldName,+NewName)   */
 #if HAVE_LINK
   int r;
@@ -2333,7 +2340,7 @@ Yap_SetTextFile (name)
 
 
 /* return YAP's environment */
-static Int p_getenv(void)
+static Int p_getenv( USES_REGS1 )
 {
 #if HAVE_GETENV
   Term t1 = Deref(ARG1), to;
@@ -2360,7 +2367,7 @@ static Int p_getenv(void)
 }
 
 /* set a variable in YAP's environment */
-static Int p_putenv(void)
+static Int p_putenv( USES_REGS1 )
 {
 #if HAVE_PUTENV
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
@@ -2443,7 +2450,7 @@ DoTimerThread(LPVOID targ)
 #endif
 
 static Int
-p_alarm(void)
+p_alarm( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -2543,7 +2550,7 @@ p_alarm(void)
 }
 
 static Int
-p_virtual_alarm(void)
+p_virtual_alarm( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Term t2 = Deref(ARG2);
@@ -2679,7 +2686,7 @@ Yap_set_fpu_exceptions(int flag)
   set_fpu_exceptions(flag);
 }
 static Int
-p_set_fpu_exceptions(void) {
+p_set_fpu_exceptions( USES_REGS1 ) {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
     set_fpu_exceptions(FALSE); /* can't make it work right */
   } else {
@@ -2689,19 +2696,19 @@ p_set_fpu_exceptions(void) {
 }
 
 static Int
-p_host_type(void) {
+p_host_type( USES_REGS1 ) {
   Term out = MkAtomTerm(Yap_LookupAtom(HOST_ALIAS));
   return(Yap_unify(out,ARG1));
 }
 
 static Int
-p_yap_home(void) {
+p_yap_home( USES_REGS1 ) {
   Term out = MkAtomTerm(Yap_LookupAtom(YAP_ROOTDIR));
   return(Yap_unify(out,ARG1));
 }
 
 static Int
-p_env_separator(void) {
+p_env_separator( USES_REGS1 ) {
 #if defined(_WIN32)
   return Yap_unify(MkIntegerTerm(';'),ARG1);
 #else
@@ -2745,7 +2752,7 @@ Yap_ReInitWallTime (void)
 }
 
 static Int
-p_first_signal(void)
+p_first_signal( USES_REGS1 )
 {
   LOCK(SignalLock);
 #ifdef THREADS
@@ -2891,7 +2898,7 @@ p_first_signal(void)
 }
 
 static Int
-p_continue_signals(void)
+p_continue_signals( USES_REGS1 )
 {
   /* hack to force the signal anew */
   if (ActiveSignals & YAP_ITI_SIGNAL) {
@@ -2946,7 +2953,7 @@ p_continue_signals(void)
 }
 
 static Int
-p_unix(void)
+p_unix( USES_REGS1 )
 {
 #ifdef unix
   return TRUE;
@@ -2964,7 +2971,7 @@ p_unix(void)
 }
 
 static Int
-p_win32(void)
+p_win32( USES_REGS1 )
 {
 #ifdef _WIN32
   return TRUE;
@@ -2979,7 +2986,7 @@ p_win32(void)
 
 
 static Int
-p_enable_interrupts(void)
+p_enable_interrupts( USES_REGS1 )
 {
   LOCK(SignalLock);
   Yap_InterruptsDisabled--;
@@ -2991,7 +2998,7 @@ p_enable_interrupts(void)
 }
 
 static Int
-p_disable_interrupts(void)
+p_disable_interrupts( USES_REGS1 )
 {
   LOCK(SignalLock);
   Yap_InterruptsDisabled++;
@@ -3003,13 +3010,13 @@ p_disable_interrupts(void)
 }
 
 static Int
-p_ld_path(void)
+p_ld_path( USES_REGS1 )
 {
   return Yap_unify(ARG1,MkAtomTerm(Yap_LookupAtom(YAP_LIBDIR)));
 }
 
 static Int
-p_address_bits(void)
+p_address_bits( USES_REGS1 )
 {
 #if SIZEOF_INT_P==4
   return Yap_unify(ARG1,MkIntTerm(32));
@@ -3112,7 +3119,7 @@ WideStringFromAtom(Atom KeyAt)
 }
 
 static Int
-p_win_registry_get_value(void)
+p_win_registry_get_value( USES_REGS1 )
 {
   DWORD type;
   BYTE  data[MAXREGSTRLEN];
@@ -3213,6 +3220,7 @@ Yap_RegistryGetString(char *name)
 void
 Yap_InitSysPreds(void)
 {
+  CACHE_REGS
   Term cm = CurrentModule;
 
   /* can only do after heap is initialised */

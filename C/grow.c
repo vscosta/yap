@@ -57,47 +57,48 @@ static Int total_trail_overflow_time = 0;
 static int atom_table_overflows = 0;
 static Int total_atom_table_overflow_time = 0;
 
-STATIC_PROTO(Int p_growheap, (void));
-STATIC_PROTO(Int p_growstack, (void));
-STATIC_PROTO(Int p_inform_trail_overflows, (void));
-STATIC_PROTO(Int p_inform_heap_overflows, (void));
-STATIC_PROTO(Int p_inform_stack_overflows, (void));
+STATIC_PROTO(Int p_growheap, ( USES_REGS1 ));
+STATIC_PROTO(Int p_growstack, ( USES_REGS1 ));
+STATIC_PROTO(Int p_inform_trail_overflows, ( USES_REGS1 ));
+STATIC_PROTO(Int p_inform_heap_overflows, ( USES_REGS1 ));
+STATIC_PROTO(Int p_inform_stack_overflows, ( USES_REGS1 ));
 
 /* #define undf7  */
 /* #define undf5 */
 
-STATIC_PROTO(int growstack, (long));
-STATIC_PROTO(void MoveGlobal, (void));
-STATIC_PROTO(void MoveLocalAndTrail, (void));
-STATIC_PROTO(void SetHeapRegs, (int));
-STATIC_PROTO(void AdjustTrail, (int, int));
-STATIC_PROTO(void AdjustLocal, (int));
-STATIC_PROTO(void AdjustGlobal, (long, int));
-STATIC_PROTO(void AdjustGrowStack, (void));
-STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry **));
+STATIC_PROTO(int growstack, (long CACHE_TYPE));
+STATIC_PROTO(void MoveGlobal, ( CACHE_TYPE1 ));
+STATIC_PROTO(void MoveLocalAndTrail, ( CACHE_TYPE1 ));
+STATIC_PROTO(void SetHeapRegs, (int CACHE_TYPE));
+STATIC_PROTO(void AdjustTrail, (int, int CACHE_TYPE));
+STATIC_PROTO(void AdjustLocal, (int CACHE_TYPE));
+STATIC_PROTO(void AdjustGlobal, (long, int CACHE_TYPE));
+STATIC_PROTO(void AdjustGrowStack, ( CACHE_TYPE1 ));
+STATIC_PROTO(int  static_growheap, (long,int,struct intermediates *,tr_fr_ptr *, TokEntry **, VarEntry ** CACHE_TYPE));
 STATIC_PROTO(void cpcellsd, (CELL *, CELL *, CELL));
-STATIC_PROTO(CELL AdjustAppl, (CELL));
-STATIC_PROTO(CELL AdjustPair, (CELL));
-STATIC_PROTO(void AdjustStacksAndTrail, (long, int));
-STATIC_PROTO(void AdjustRegs, (int));
-STATIC_PROTO(Term AdjustGlobTerm, (Term));
+STATIC_PROTO(CELL AdjustAppl, (CELL CACHE_TYPE));
+STATIC_PROTO(CELL AdjustPair, (CELL CACHE_TYPE));
+STATIC_PROTO(void AdjustStacksAndTrail, (long, int CACHE_TYPE));
+STATIC_PROTO(void AdjustRegs, (int CACHE_TYPE));
+STATIC_PROTO(Term AdjustGlobTerm, (Term CACHE_TYPE));
 
 static void
 LeaveGrowMode(prolog_exec_mode grow_mode)
 {
   Yap_PrologMode &= ~grow_mode;
   if (Yap_PrologMode & AbortMode) {
+    CACHE_REGS
     Yap_PrologMode &= ~AbortMode;
-      Yap_Error(PURE_ABORT, TermNil, "");
-      /* in case someone mangles the P register */
-      save_machine_regs();
+    Yap_Error(PURE_ABORT, TermNil, "");
+    /* in case someone mangles the P register */
+    save_machine_regs();
 #if  _MSC_VER || defined(__MINGW32__)
-      /* don't even think about trying this */
+    /* don't even think about trying this */
 #else
 #if PUSH_REGS
-      restore_absmi_regs(&Yap_standard_regs);
+    restore_absmi_regs(&Yap_standard_regs);
 #endif
-      siglongjmp (Yap_RestartEnv, 1);
+    siglongjmp (Yap_RestartEnv, 1);
 #endif
   }
 }
@@ -117,7 +118,7 @@ cpcellsd(register CELL *Dest, register CELL *Org, CELL NOf)
 
 
 static void
-SetHeapRegs(int copying_threads)
+SetHeapRegs(int copying_threads USES_REGS)
 {
 #ifdef undf7
   fprintf(Yap_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, Yap_GlobalBase, H, LCL0, ASP);
@@ -203,7 +204,7 @@ SetHeapRegs(int copying_threads)
 }
 
 static void
-MoveLocalAndTrail(void)
+MoveLocalAndTrail( USES_REGS1 )
 {
 	/* cpcellsd(To,From,NOfCells) - copy the cells downwards  */
 #if USE_SYSTEM_MALLOC
@@ -216,7 +217,7 @@ MoveLocalAndTrail(void)
 #ifdef THREADS
 
 static void
-CopyLocalAndTrail(void)
+CopyLocalAndTrail( USES_REGS1 )
 {
 	/* cpcellsd(To,From,NOfCells) - copy the cells downwards  */
 #if USE_SYSTEM_MALLOC
@@ -225,7 +226,7 @@ CopyLocalAndTrail(void)
 }
 
 static void
-IncrementalCopyStacksFromWorker(void)
+IncrementalCopyStacksFromWorker( USES_REGS1 )
 {
   memcpy((void *) PtoGloAdjust((CELL *)LOCAL_start_global_copy),
 	 (void *) (LOCAL_start_global_copy),
@@ -244,18 +245,18 @@ worker_p_binding(int worker_p, CELL *aux_ptr)
 {
   if (aux_ptr > H) {
     CELL reg = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->LCL0_[aux_ptr-LCL0];
-    reg = AdjustGlobTerm(reg);
+    reg = AdjustGlobTerm(reg PASS_REGS);
     return reg;
   } else {
     CELL reg = FOREIGN_ThreadHandle(worker_p).current_yaam_regs-> H0_[aux_ptr-H0];
-    reg = AdjustGlobTerm(reg);
+    reg = AdjustGlobTerm(reg PASS_REGS);
     return reg;
   }
 }
 #endif
 
 static void
-RestoreTrail(int worker_p)
+RestoreTrail(int worker_p USES_REGS)
 {
   tr_fr_ptr aux_tr;
 
@@ -311,17 +312,17 @@ RestoreTrail(int worker_p)
 #endif /* YAPOR && THREADS */
 
 static void
-MoveGlobal(void)
+MoveGlobal( USES_REGS1 )
 {
   /*
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-  cpcellsd((CELL *)Yap_GlobalBase, (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
+   cpcellsd((CELL *)Yap_GlobalBase, (CELL *)OldGlobalBase, OldH - (CELL *)OldGlobalBase);  
 }
 
 static void
-MoveExpandedGlobal(void)
+MoveExpandedGlobal( USES_REGS1 )
 {
   /*
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
@@ -331,7 +332,7 @@ MoveExpandedGlobal(void)
 }
 
 static void
-MoveGlobalWithHole(void)
+MoveGlobalWithHole( USES_REGS1 )
 {
   /*
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
@@ -345,7 +346,7 @@ MoveGlobalWithHole(void)
 }
 
 static void
-MoveHalfGlobal(CELL *OldPt)
+MoveHalfGlobal(CELL *OldPt USES_REGS)
 {
 	/*
 	 * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
@@ -358,7 +359,7 @@ MoveHalfGlobal(CELL *OldPt)
 }
 
 static inline CELL
-AdjustAppl(register CELL t0)
+AdjustAppl(register CELL t0 USES_REGS)
 {
   register CELL   *t = RepAppl(t0);
 
@@ -378,7 +379,7 @@ AdjustAppl(register CELL t0)
 }
 
 static inline CELL
-AdjustPair(register CELL t0)
+AdjustPair(register CELL t0 USES_REGS)
 {
   register CELL  *t = RepPair(t0);
 
@@ -395,7 +396,7 @@ AdjustPair(register CELL t0)
 }
 
 static void
-AdjustTrail(int adjusting_heap, int thread_copying)
+AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
 {
   volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)Yap_TrailBase;
 
@@ -428,12 +429,12 @@ AdjustTrail(int adjusting_heap, int thread_copying)
 	RESET_VARIABLE(&TrailTerm(ptt));
       }
     } else if (IsPairTerm(reg)) {
-      TrailTerm(ptt) = AdjustPair(reg);
+      TrailTerm(ptt) = AdjustPair(reg PASS_REGS);
 #ifdef MULTI_ASSIGNMENT_VARIABLES /* does not work with new structures */
     /* check it whether we are protecting a
        multi-assignment */
     } else if (IsApplTerm(reg)) {
-      TrailTerm(ptt) = AdjustAppl(reg);
+      TrailTerm(ptt) = AdjustAppl(reg PASS_REGS);
 #endif
     }
 #ifdef FROZEN_STACKS
@@ -445,9 +446,9 @@ AdjustTrail(int adjusting_heap, int thread_copying)
       else if (IsOldTrail(reg2))
 	TrailVal(ptt) = TrailAdjust(reg2);
     } else if (IsApplTerm(reg2)) {
-      TrailVal(ptt) = AdjustAppl(reg2);
+      TrailVal(ptt) = AdjustAppl(reg2 PASS_REGS);
     } else if (IsPairTerm(reg2)) {
-      TrailVal(ptt) = AdjustPair(reg2);
+      TrailVal(ptt) = AdjustPair(reg2 PASS_REGS);
     }
 #endif
   }
@@ -455,7 +456,7 @@ AdjustTrail(int adjusting_heap, int thread_copying)
 }
 
 static void
-AdjustLocal(int thread_copying)
+AdjustLocal(int thread_copying USES_REGS)
 {
   register CELL   reg, *pt, *pt_bot;
 
@@ -483,16 +484,16 @@ AdjustLocal(int thread_copying)
       else if (IsOldCode(reg))
 	*pt = CodeAdjust(reg);
     } else if (IsApplTerm(reg)) {
-      *pt = AdjustAppl(reg);
+      *pt = AdjustAppl(reg PASS_REGS);
     } else if (IsPairTerm(reg)) {
-      *pt = AdjustPair(reg);
+      *pt = AdjustPair(reg PASS_REGS);
     }
   }
 
 }
 
 static Term
-AdjustGlobTerm(Term reg)
+AdjustGlobTerm(Term reg USES_REGS)
 {
   if (IsVarTerm(reg)) {
     if (IsOldGlobal(reg))
@@ -504,16 +505,16 @@ AdjustGlobTerm(Term reg)
       return TrailAdjust(reg);
 #endif
   } else if (IsApplTerm(reg))
-    return AdjustAppl(reg);
+    return AdjustAppl(reg PASS_REGS);
   else if (IsPairTerm(reg))
-    return AdjustPair(reg);
+    return AdjustPair(reg PASS_REGS);
   return AtomTermAdjust(reg);
 }
 
 static volatile CELL *cpt=NULL;
 
 static void
-AdjustGlobal(long sz, int thread_copying)
+AdjustGlobal(long sz, int thread_copying USES_REGS)
 {
   CELL *pt, *pt_max;
   ArrayEntry *al = DynamicArrays;
@@ -521,13 +522,13 @@ AdjustGlobal(long sz, int thread_copying)
   GlobalEntry *gl = GlobalVariables;
 
   while (al) {
-    al->ValueOfVE = AdjustGlobTerm(al->ValueOfVE);
+    al->ValueOfVE = AdjustGlobTerm(al->ValueOfVE PASS_REGS);
     al = al->NextAE;
   }
   while (gl) {
     if (IsVarTerm(gl->global) ||
 	!IsAtomOrIntTerm(gl->global)) {
-      gl->global = AdjustGlobTerm(gl->global);
+      gl->global = AdjustGlobTerm(gl->global PASS_REGS);
     }
     gl = gl->NextGE;
   }
@@ -538,7 +539,7 @@ AdjustGlobal(long sz, int thread_copying)
 	/*	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive); */
 	Term tlive  = sal->ValueOfVE.lterms[i].tlive;
 	if (!IsVarTerm(tlive) || !IsUnboundVar(&sal->ValueOfVE.lterms[i].tlive)) {
-	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive);
+	    sal->ValueOfVE.lterms[i].tlive = AdjustGlobTerm(sal->ValueOfVE.lterms[i].tlive PASS_REGS);
 	}
       }
     }
@@ -607,9 +608,9 @@ AdjustGlobal(long sz, int thread_copying)
 	*pt = TrailAdjust(reg);
 #endif
     } else if (IsApplTerm(reg))
-      *pt = AdjustAppl(reg);
+      *pt = AdjustAppl(reg PASS_REGS);
     else if (IsPairTerm(reg))
-      *pt = AdjustPair(reg);
+      *pt = AdjustPair(reg PASS_REGS);
     else if (IsAtomTerm(reg))
       *pt = AtomTermAdjust(reg);
     pt++;
@@ -622,17 +623,18 @@ AdjustGlobal(long sz, int thread_copying)
  * (just once) the trail cells pointing both to the global and to the local
  */
 static void
-AdjustStacksAndTrail(long sz, int copying_threads)
+AdjustStacksAndTrail(long sz, int copying_threads USES_REGS)
 {
-  AdjustTrail(TRUE, copying_threads);
-  AdjustLocal(copying_threads);
-  AdjustGlobal(sz, copying_threads);
+  AdjustTrail(TRUE, copying_threads PASS_REGS);
+  AdjustLocal(copying_threads PASS_REGS);
+  AdjustGlobal(sz, copying_threads PASS_REGS);
 }
 
 void
 Yap_AdjustStacksAndTrail(void)
 {
-  AdjustStacksAndTrail(0, FALSE);
+  CACHE_REGS
+  AdjustStacksAndTrail(0, FALSE PASS_REGS);
 }
 
 /*
@@ -640,14 +642,14 @@ Yap_AdjustStacksAndTrail(void)
  * local; the trail cells pointing to the local
  */
 static void
-AdjustGrowStack(void)
+AdjustGrowStack( USES_REGS1 )
 {
-  AdjustTrail(FALSE, STACK_SHIFTING);
-  AdjustLocal(STACK_SHIFTING);
+  AdjustTrail(FALSE, STACK_SHIFTING PASS_REGS);
+  AdjustLocal(STACK_SHIFTING PASS_REGS);
 }
 
 static void
-AdjustRegs(int n)
+AdjustRegs(int n USES_REGS)
 {
   int            i;
   CELL	       reg;
@@ -664,28 +666,28 @@ AdjustRegs(int n)
       else if (IsOldCode(reg))
 	reg = CodeAdjust(reg);
     } else if (IsApplTerm(reg))
-      reg = AdjustAppl(reg);
+      reg = AdjustAppl(reg PASS_REGS);
     else if (IsPairTerm(reg))
-      reg = AdjustPair(reg);
+      reg = AdjustPair(reg PASS_REGS);
     XREGS[i] = (Term) reg;
   }
 }
 
 static void
-AdjustVarTable(VarEntry *ves)
+AdjustVarTable(VarEntry *ves USES_REGS)
 {
   ves->VarAdr = TermNil;
   if (ves->VarRight != NULL) {
     if (IsOldVarTableTrailPtr(ves->VarRight)) {
       ves->VarRight = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarRight));
     }
-    AdjustVarTable(ves->VarRight);
+    AdjustVarTable(ves->VarRight PASS_REGS);
   }
   if (ves->VarLeft != NULL) {
     if (IsOldVarTableTrailPtr(ves->VarLeft)) {
       ves->VarLeft = (VarEntry *)TrailAddrAdjust((ADDR)(ves->VarLeft));
     }
-    AdjustVarTable(ves->VarLeft);
+    AdjustVarTable(ves->VarLeft PASS_REGS);
   }
 }
 
@@ -694,7 +696,7 @@ AdjustVarTable(VarEntry *ves)
   pointers created by the scanner (Tokens and Variables)
 */
 static void
-AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
+AdjustScannerStacks(TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   TokEntry *tks = *tksp;
   VarEntry *ves = *vep;
@@ -731,7 +733,7 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
   if (ves != NULL) {
     if (IsOldVarTableTrailPtr(ves))
       ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
-    AdjustVarTable(ves);
+    AdjustVarTable(ves PASS_REGS);
   }
   ves = Yap_AnonVarTable;
   if (ves != NULL) {
@@ -754,12 +756,13 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep)
 void
 Yap_AdjustRegs(int n)
 {
-  AdjustRegs(n);
+  CACHE_REGS
+  AdjustRegs(n PASS_REGS);
 }
 
 /* Used by do_goal() when we're short of heap space */
 static int
-static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
@@ -803,29 +806,29 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   TrDiff = LDiff = GDiff = GDiff0 = DelayDiff = BaseDiff = size;
   XDiff = HDiff = 0;
   GSplit = NULL;
-  SetHeapRegs(FALSE);
-  MoveLocalAndTrail();
+  SetHeapRegs(FALSE PASS_REGS);
+  MoveLocalAndTrail( PASS_REGS1 );
   if (fix_code) {
     CELL *SaveOldH = OldH;
     OldH = (CELL *)cip->freep;
-    MoveGlobal();
+    MoveGlobal( PASS_REGS1 );
     OldH = SaveOldH;
   } else {
-    MoveGlobal();
+    MoveGlobal( PASS_REGS1 );
   }
   if (old_trp) {
     tr_fr_ptr nTR;
 
-    AdjustScannerStacks(tksp, vep);
+    AdjustScannerStacks(tksp, vep PASS_REGS);
     nTR = TR;
     *old_trp = PtoTRAdjust(*old_trp);
     TR = *old_trp;
-    AdjustStacksAndTrail(0, FALSE);
+    AdjustStacksAndTrail(0, FALSE PASS_REGS);
     TR = nTR;
   } else {
-    AdjustStacksAndTrail(0, FALSE);
+    AdjustStacksAndTrail(0, FALSE PASS_REGS);
   }
-  AdjustRegs(MaxTemps);
+  AdjustRegs(MaxTemps PASS_REGS);
   YAPLeaveCriticalSection();
   ASP += 256;
   if (minimal_request) 
@@ -842,7 +845,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
 /* Used when we're short of heap, usually because of an overflow in
    the attributed stack, but also because we allocated a zone  */
 static int
-static_growglobal(long request, CELL **ptr, CELL *hsplit)
+static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
@@ -980,24 +983,24 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
   GSplit = hsplit;
   XDiff = HDiff = 0;
   Yap_GlobalBase = old_GlobalBase;
-  SetHeapRegs(FALSE);
+  SetHeapRegs(FALSE PASS_REGS);
   if (do_grow) {
-    MoveLocalAndTrail();
+    MoveLocalAndTrail( PASS_REGS1 );
     if (hsplit) {
-      MoveGlobalWithHole();
+      MoveGlobalWithHole( PASS_REGS1 );
     } else {
-      MoveExpandedGlobal();
+      MoveExpandedGlobal( PASS_REGS1 );
     }
   } else if (!hsplit) {
-    MoveExpandedGlobal();
+    MoveExpandedGlobal( PASS_REGS1 );
   }
   /* don't run through garbage */
   if (hsplit && (OldH != hsplit)) {
-    AdjustStacksAndTrail(request, FALSE);
+    AdjustStacksAndTrail(request, FALSE PASS_REGS);
   } else {
-    AdjustStacksAndTrail(0, FALSE);
+    AdjustStacksAndTrail(0, FALSE PASS_REGS);
   }
-  AdjustRegs(MaxTemps);
+  AdjustRegs(MaxTemps PASS_REGS);
   if (ptr) {
     *ptr = PtoLocAdjust(*ptr);
   }
@@ -1006,7 +1009,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
       /* we have things not quite where we want to have them */
       cpcellsd((CELL *)(omax+DelayDiff), (CELL *)(omax+GDiff0), (ADDR)hsplit-omax);
     } else {
-      MoveHalfGlobal(hsplit);
+      MoveHalfGlobal(hsplit PASS_REGS);
     }
   }
   YAPLeaveCriticalSection();
@@ -1028,7 +1031,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit)
 }
 
 static void
-fix_compiler_instructions(PInstr *pcpc)
+fix_compiler_instructions(PInstr *pcpc USES_REGS)
 {
   while (pcpc != NULL) {
     PInstr *ncpc = pcpc->nextInst;
@@ -1071,7 +1074,7 @@ fix_compiler_instructions(PInstr *pcpc)
     case unify_last_float_op:
     case write_float_op:
       /* floats might be in the global */
-      pcpc->rnd1 = AdjustAppl(pcpc->rnd1);
+      pcpc->rnd1 = AdjustAppl(pcpc->rnd1 PASS_REGS);
       break;
       /* hopefully nothing to do */
     case nop_op:
@@ -1215,7 +1218,7 @@ fix_compiler_instructions(PInstr *pcpc)
 
 #ifdef TABLING
 static void
-fix_tabling_info(void) 
+fix_tabling_info( USES_REGS1 ) 
 {
   /* we must fix the dependency frames and the subgoal frames, as they are
      pointing back to the global stack. */
@@ -1239,7 +1242,7 @@ fix_tabling_info(void)
 #endif /* TABLING */
 
 static int
-do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   unsigned long size = sizeof(CELL) * K16;
   int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
@@ -1257,7 +1260,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
       size = YAP_ALLOC_SIZE;
     sz = AdjustPageSize(SizeOfOverflow);
   }
-  while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep)) {
+  while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep PASS_REGS)) {
     size = size/2;
     sz =  size << shift_factor;
     if (sz < in_size) {
@@ -1270,17 +1273,17 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
     if (pcpc != NULL) {
       cip->CodeStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
-    fix_compiler_instructions(pcpc);
+    fix_compiler_instructions(pcpc PASS_REGS);
     pcpc = cip->BlobsStart;
     if (pcpc != NULL) {
       cip->BlobsStart = pcpc = (PInstr *)GlobalAddrAdjust((ADDR)pcpc);
     }
-    fix_compiler_instructions(pcpc);
+    fix_compiler_instructions(pcpc PASS_REGS);
     cip->freep = (char *)GlobalAddrAdjust((ADDR)cip->freep);
     cip->label_offset = (Int *)GlobalAddrAdjust((ADDR)cip->label_offset);
   }
 #ifdef TABLING
-  fix_tabling_info();
+  fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   if (sz >= sizeof(CELL) * K16) {
     LOCK(SignalLock);
@@ -1331,7 +1334,7 @@ cp_atom_table(AtomHashEntry *ntb, UInt nsize)
 }
 
 static int
-growatomtable(void)
+growatomtable( USES_REGS1 )
 {
   AtomHashEntry *ntb;
   UInt nsize = 4*AtomHashTableSize-1;
@@ -1379,7 +1382,7 @@ growatomtable(void)
     /* make sure there is no heap overflow */
     int res;
     YAPEnterCriticalSection();
-    res = do_growheap(FALSE, 0, NULL, NULL, NULL, NULL);
+    res = do_growheap(FALSE, 0, NULL, NULL, NULL, NULL PASS_REGS);
     YAPLeaveCriticalSection();
     return res;
   } else {
@@ -1392,16 +1395,17 @@ growatomtable(void)
 int
 Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
+  CACHE_REGS
   int res;
 
   if (NOfAtoms > 2*AtomHashTableSize) {
     UInt n = NOfAtoms;
     if (AGcThreshold)
-      Yap_atom_gc();
+      Yap_atom_gc( PASS_REGS1 );
     /* check if we have a significant improvement from agc */
     if (n > NOfAtoms+ NOfAtoms/10 ||
 	NOfAtoms > 2*AtomHashTableSize) {
-      res  = growatomtable();
+      res  = growatomtable( PASS_REGS1 );
     } else {
       LOCK(SignalLock);
       if (ActiveSignals == YAP_CDOVF_SIGNAL) {
@@ -1414,7 +1418,7 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
     LeaveGrowMode(GrowHeapMode);
     return res;
   }
-  res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL);
+  res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
   LeaveGrowMode(GrowHeapMode);
   return res;
 }
@@ -1422,9 +1426,10 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
 int
 Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
+  CACHE_REGS
   int res;
 
-  res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep);
+  res=do_growheap(FALSE, 0L, NULL, old_trp, tksp, vep PASS_REGS);
   LeaveGrowMode(GrowHeapMode);
   return res;
 }
@@ -1432,6 +1437,7 @@ Yap_growheap_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 int
 Yap_growglobal(CELL **ptr)
 {
+  CACHE_REGS
   unsigned long sz = sizeof(CELL) * K16;
 
 #if defined(YAPOR) && !defined(THREADS)
@@ -1445,10 +1451,10 @@ Yap_growglobal(CELL **ptr)
     return(FALSE);
   }
 #endif
-  if ( static_growglobal(sz, ptr, NULL) == 0)
+  if ( static_growglobal(sz, ptr, NULL PASS_REGS) == 0)
     return FALSE;
 #ifdef TABLING
-  fix_tabling_info();
+  fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   return TRUE;
 }
@@ -1457,10 +1463,11 @@ Yap_growglobal(CELL **ptr)
 UInt
 Yap_InsertInGlobal(CELL *where, UInt howmuch)
 {
-  if ((howmuch = static_growglobal(howmuch, NULL, where)) == 0)
+  CACHE_REGS
+  if ((howmuch = static_growglobal(howmuch, NULL, where PASS_REGS)) == 0)
     return 0;
 #ifdef TABLING
-  fix_tabling_info();
+  fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   return howmuch;
 }
@@ -1469,16 +1476,17 @@ Yap_InsertInGlobal(CELL *where, UInt howmuch)
 int
 Yap_growstack(long size)
 {
+  CACHE_REGS
   int res;
 
   Yap_PrologMode |= GrowStackMode;
-  res=growstack(size);
+  res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
   return res;
 }
 
 static int
-execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt minimal_request = 0L;
   long size = size0;
@@ -1526,50 +1534,50 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   }
 #endif
   ASP -= 256;
-  SetHeapRegs(FALSE);
+  SetHeapRegs(FALSE PASS_REGS);
   if (from_trail) {
     Yap_TrailTop += size0;
   }
   if (LDiff) {
-    MoveLocalAndTrail();
+    MoveLocalAndTrail( PASS_REGS1 );
   }
   if (GDiff) {
 #if !USE_SYSTEM_MALLOC
     /* That is done by realloc */
-    MoveGlobal();
+    MoveGlobal( PASS_REGS1 );
 #endif
     if (in_parser) {
       tr_fr_ptr nTR;
 
-      AdjustScannerStacks(tksp, vep);
+      AdjustScannerStacks(tksp, vep PASS_REGS);
       nTR = TR;
       *old_trp = PtoTRAdjust(*old_trp);
       TR = *old_trp;
-      AdjustStacksAndTrail(0, FALSE);
+      AdjustStacksAndTrail(0, FALSE PASS_REGS);
       TR = nTR;
     } else {
-      AdjustStacksAndTrail(0, FALSE);
+      AdjustStacksAndTrail(0, FALSE PASS_REGS);
     }
-    AdjustRegs(MaxTemps);
+    AdjustRegs(MaxTemps PASS_REGS);
 #ifdef TABLING
-    fix_tabling_info();
+    fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   } else if (LDiff) {
     if (in_parser) {
       tr_fr_ptr nTR;
 
-      AdjustScannerStacks(tksp, vep);
+      AdjustScannerStacks(tksp, vep PASS_REGS);
       nTR = TR;
       *old_trp = PtoTRAdjust(*old_trp);
       TR = *old_trp;
-      AdjustGrowStack();
+      AdjustGrowStack( PASS_REGS1 );
       TR = nTR;
     } else {
-      AdjustGrowStack();
+      AdjustGrowStack( PASS_REGS1 );
     }
-    AdjustRegs(MaxTemps);
+    AdjustRegs(MaxTemps PASS_REGS);
 #ifdef TABLING
-    fix_tabling_info();
+    fix_tabling_info( PASS_REGS1 );
 #endif /* TABLING */
   }
   YAPLeaveCriticalSection();
@@ -1581,7 +1589,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
 
 /* Used by do_goal() when we're short of stack space */
 static int
-growstack(long size)
+growstack(long size USES_REGS)
 {
   UInt start_growth_time, growth_time;
   int gc_verbose;
@@ -1605,7 +1613,7 @@ growstack(long size)
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", size);
   }
-  if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL))
+  if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
     return FALSE;
   growth_time = Yap_cputime()-start_growth_time;
   total_stack_overflow_time += growth_time;
@@ -1620,6 +1628,7 @@ growstack(long size)
 int
 Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
+  CACHE_REGS
   UInt size;
   UInt start_growth_time, growth_time;
   int gc_verbose;
@@ -1642,7 +1651,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
-  if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep)) {
+  if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep PASS_REGS)) {
     LeaveGrowMode(GrowStackMode);
     return FALSE;
   }
@@ -1656,7 +1665,7 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   return TRUE;
 }
 
-static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
+static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
@@ -1698,7 +1707,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     return FALSE;
   }
 #if USE_SYSTEM_MALLOC
-  execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
+  execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
 #else
   if (!Yap_ExtendWorkSpace(size)) {
     Yap_ErrorMessage = NULL;
@@ -1707,12 +1716,12 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
       trail_overflows--;
       return FALSE;
     }
-    execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep);
+    execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
   } else {
     YAPEnterCriticalSection();
     if (in_parser) {
       TrDiff = LDiff = GDiff = BaseDiff = DelayDiff = XDiff = HDiff = GDiff0 = 0;
-      AdjustScannerStacks(tksp, vep);
+      AdjustScannerStacks(tksp, vep PASS_REGS);
     }
     Yap_TrailTop += size;
     YAPLeaveCriticalSection();
@@ -1738,18 +1747,21 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 int
 Yap_growtrail(long size, int contiguous_only)
 { 
- return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL);
+  CACHE_REGS
+    return do_growtrail(size, contiguous_only, FALSE, NULL, NULL, NULL PASS_REGS);
 }
 
 int
 Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 {
-  return do_growtrail(0, FALSE, TRUE, old_trp, tksp, vep);
+  CACHE_REGS
+  return do_growtrail(0, FALSE, TRUE, old_trp, tksp, vep PASS_REGS);
 }
 
 CELL **
 Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 {
+  CACHE_REGS
   CELL **to_visit_max = *to_visit_maxp;
   /* relative position of top of stack */
   Int off = (ADDR)to_visit-AuxBase;
@@ -1786,7 +1798,7 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 }
 
 static Int
-p_inform_trail_overflows(void)
+p_inform_trail_overflows( USES_REGS1 )
 {
   Term tn = MkIntTerm(trail_overflows);
   Term tt = MkIntegerTerm(total_trail_overflow_time);
@@ -1796,7 +1808,7 @@ p_inform_trail_overflows(void)
 
 /* :- grow_heap(Size) */
 static Int
-p_growheap(void)
+p_growheap( USES_REGS1 )
 {
   Int             diff;
   Term t1 = Deref(ARG1);
@@ -1812,11 +1824,11 @@ p_growheap(void)
   if (diff < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_heap/1");
   }
-  return(static_growheap(diff, FALSE, NULL, NULL, NULL, NULL));
+  return(static_growheap(diff, FALSE, NULL, NULL, NULL, NULL PASS_REGS));
 }
 
 static Int
-p_inform_heap_overflows(void)
+p_inform_heap_overflows( USES_REGS1 )
 {
   Term tn = MkIntTerm(heap_overflows);
   Term tt = MkIntegerTerm(total_heap_overflow_time);
@@ -1828,6 +1840,7 @@ p_inform_heap_overflows(void)
 void
 Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
 {
+  CACHE_REGS
   Int size;
 
   /* make sure both stacks have same size */
@@ -1865,9 +1878,9 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   DynamicArrays = NULL;
   StaticArrays = NULL;
   GlobalVariables = NULL;
-  SetHeapRegs(TRUE);
+  SetHeapRegs(TRUE PASS_REGS);
   if (incremental) {
-    IncrementalCopyStacksFromWorker();
+    IncrementalCopyStacksFromWorker( PASS_REGS1 );
     LOCAL_start_global_copy = 
       (CELL)PtoGloAdjust((CELL *)LOCAL_start_global_copy);
     LOCAL_end_global_copy = 
@@ -1880,20 +1893,20 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
       (CELL)PtoTRAdjust((tr_fr_ptr)LOCAL_start_trail_copy);
     LOCAL_end_trail_copy = 
       (CELL)PtoTRAdjust((tr_fr_ptr)LOCAL_end_trail_copy);
-    AdjustStacksAndTrail(0, STACK_INCREMENTAL_COPYING);
-    RestoreTrail(worker_p);
+    AdjustStacksAndTrail(0, STACK_INCREMENTAL_COPYING PASS_REGS);
+    RestoreTrail(worker_p PASS_REGS);
     TR = (tr_fr_ptr) LOCAL_end_trail_copy;
   } else {
-    CopyLocalAndTrail();
-    MoveGlobal();
-    AdjustStacksAndTrail(0, STACK_COPYING);
+    CopyLocalAndTrail( PASS_REGS1 );
+    MoveGlobal( PASS_REGS1 );
+    AdjustStacksAndTrail(0, STACK_COPYING PASS_REGS);
   }
 }
 #endif
 
 /* :- grow_stack(Size) */
 static Int
-p_growstack(void)
+p_growstack( USES_REGS1 )
 {
   Int             diff;
   Term t1 = Deref(ARG1);
@@ -1909,11 +1922,11 @@ p_growstack(void)
   if (diff < 0) {
     Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO, t1, "grow_stack/1");
   }
-  return(growstack(diff));
+  return(growstack(diff PASS_REGS));
 }
 
 static Int
-p_inform_stack_overflows(void)
+p_inform_stack_overflows( USES_REGS1 )
 {				/*  */
   Term tn = MkIntTerm(stack_overflows);
   Term tt = MkIntegerTerm(total_stack_overflow_time);

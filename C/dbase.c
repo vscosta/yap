@@ -186,55 +186,55 @@ STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, CELL *,in
 STATIC_PROTO(CELL  *MkDBTerm, (CELL *, CELL *, CELL *, CELL *, CELL *, int *, struct db_globs *));
 #endif
 STATIC_PROTO(DBRef  CreateDBStruct, (Term, DBProp, int, int *, UInt, struct db_globs *));
-STATIC_PROTO(DBRef  record, (int, Term, Term, Term));
+STATIC_PROTO(DBRef  record, (int, Term, Term, Term CACHE_TYPE));
 STATIC_PROTO(DBRef  check_if_cons, (DBRef, Term));
 STATIC_PROTO(DBRef  check_if_var, (DBRef));
 STATIC_PROTO(DBRef  check_if_wvars, (DBRef, unsigned int, CELL *));
 STATIC_PROTO(int  scheckcells, (int, CELL *, CELL *, link_entry *, CELL));
 STATIC_PROTO(DBRef  check_if_nvars, (DBRef, unsigned int, CELL *, struct db_globs *));
-STATIC_PROTO(Int  p_rcda, (void));
-STATIC_PROTO(Int  p_rcdap, (void));
-STATIC_PROTO(Int  p_rcdz, (void));
-STATIC_PROTO(Int  p_rcdzp, (void));
-STATIC_PROTO(Int  p_drcdap, (void));
-STATIC_PROTO(Int  p_drcdzp, (void));
-STATIC_PROTO(Term  GetDBTerm, (DBTerm *));
+STATIC_PROTO(Int  p_rcda, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_rcdap, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_rcdz, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_rcdzp, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_drcdap, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_drcdzp, ( USES_REGS1 ));
+STATIC_PROTO(Term  GetDBTerm, (DBTerm * CACHE_TYPE));
 STATIC_PROTO(DBProp  FetchDBPropFromKey, (Term, int, int, char *));
-STATIC_PROTO(Int  i_recorded, (DBProp,Term));
-STATIC_PROTO(Int  c_recorded, (int));
-STATIC_PROTO(Int  co_rded, (void));
-STATIC_PROTO(Int  in_rdedp, (void));
-STATIC_PROTO(Int  co_rdedp, (void));
-STATIC_PROTO(Int  p_first_instance, (void));
-STATIC_PROTO(void  ErasePendingRefs, (DBTerm *));
-STATIC_PROTO(void  RemoveDBEntry, (DBRef));
+STATIC_PROTO(Int  i_recorded, (DBProp,Term CACHE_TYPE));
+STATIC_PROTO(Int  c_recorded, (int CACHE_TYPE));
+STATIC_PROTO(Int  co_rded, ( USES_REGS1 ));
+STATIC_PROTO(Int  in_rdedp, ( USES_REGS1 ));
+STATIC_PROTO(Int  co_rdedp, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_first_instance, ( USES_REGS1 ));
+STATIC_PROTO(void  ErasePendingRefs, (DBTerm * CACHE_TYPE));
+STATIC_PROTO(void  RemoveDBEntry, (DBRef CACHE_TYPE));
 STATIC_PROTO(void  EraseLogUpdCl, (LogUpdClause *));
-STATIC_PROTO(void  MyEraseClause, (DynamicClause *));
+STATIC_PROTO(void  MyEraseClause, (DynamicClause * CACHE_TYPE));
 STATIC_PROTO(void  PrepareToEraseClause, (DynamicClause *, DBRef));
 STATIC_PROTO(void  EraseEntry, (DBRef));
-STATIC_PROTO(Int  p_erase, (void));
-STATIC_PROTO(Int  p_eraseall, (void));
-STATIC_PROTO(Int  p_erased, (void));
-STATIC_PROTO(Int  p_instance, (void));
+STATIC_PROTO(Int  p_erase, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_eraseall, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_erased, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_instance, ( USES_REGS1 ));
 STATIC_PROTO(int  NotActiveDB, (DBRef));
 STATIC_PROTO(DBEntry  *NextDBProp, (PropEntry *));
-STATIC_PROTO(Int  init_current_key, (void));
-STATIC_PROTO(Int  cont_current_key, (void));
-STATIC_PROTO(Int  cont_current_key_integer, (void));
-STATIC_PROTO(Int  p_rcdstatp, (void));
-STATIC_PROTO(Int  p_somercdedp, (void));
-STATIC_PROTO(yamop * find_next_clause, (DBRef));
-STATIC_PROTO(Int  p_jump_to_next_dynamic_clause, (void));
+STATIC_PROTO(Int  init_current_key, ( USES_REGS1 ));
+STATIC_PROTO(Int  cont_current_key, ( USES_REGS1 ));
+STATIC_PROTO(Int  cont_current_key_integer, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_rcdstatp, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_somercdedp, ( USES_REGS1 ));
+STATIC_PROTO(yamop * find_next_clause, (DBRef USES_REGS));
+STATIC_PROTO(Int  p_jump_to_next_dynamic_clause, ( USES_REGS1 ));
 #ifdef SFUNC
 STATIC_PROTO(void  SFVarIn, (Term));
 STATIC_PROTO(void  sf_include, (SFKeep *));
 #endif
-STATIC_PROTO(Int  p_init_queue, (void));
-STATIC_PROTO(Int  p_enqueue, (void));
-STATIC_PROTO(void keepdbrefs, (DBTerm *));
-STATIC_PROTO(Int  p_dequeue, (void));
-STATIC_PROTO(void ErDBE, (DBRef));
-STATIC_PROTO(void ReleaseTermFromDB, (DBTerm *));
+STATIC_PROTO(Int  p_init_queue, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_enqueue, ( USES_REGS1 ));
+STATIC_PROTO(void keepdbrefs, (DBTerm * CACHE_TYPE));
+STATIC_PROTO(Int  p_dequeue, ( USES_REGS1 ));
+STATIC_PROTO(void ErDBE, (DBRef CACHE_TYPE));
+STATIC_PROTO(void ReleaseTermFromDB, (DBTerm * CACHE_TYPE));
 STATIC_PROTO(PredEntry *new_lu_entry, (Term));
 STATIC_PROTO(PredEntry *new_lu_int_key, (Int));
 STATIC_PROTO(PredEntry *find_lu_entry, (Term));
@@ -248,6 +248,7 @@ STATIC_PROTO(DBProp find_int_key, (Int));
 
 static UInt new_trail_size(void)
 {
+  CACHE_REGS
   UInt sz = (Yap_TrailTop-(ADDR)TR)/2;
   if (sz < K64)
     return K64;
@@ -259,6 +260,7 @@ static UInt new_trail_size(void)
 static int
 recover_from_record_error(int nargs)
 {
+  CACHE_REGS
   switch(Yap_Error_TYPE) {
   case OUT_OF_STACK_ERROR:
     if (!Yap_gcl(Yap_Error_Size, nargs, ENV, gc_P(P,CP))) {
@@ -628,7 +630,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 		     int *vars_foundp,
 		     struct db_globs *dbg)
 {
-
+  CACHE_REGS
 #if THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -1205,6 +1207,7 @@ check_if_nvars(DBRef p, unsigned int NOfCells, CELL *BTptr, struct db_globs *dbg
 static DBRef
 generate_dberror_msg(int errnumb, UInt sz, char *msg)
 {
+  CACHE_REGS
   Yap_Error_Size = sz;
   Yap_Error_TYPE = errnumb;
   Yap_Error_Term = TermNil;
@@ -1357,6 +1360,7 @@ CreateDBRefForVar(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
 static DBRef 
 CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struct db_globs *dbg)
 {
+  CACHE_REGS
   Register Term   tt, *nar = NIL;
   SMALLUNSGN      flag;
   int NOfLinks = 0;
@@ -1635,7 +1639,7 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
 }
 
 static DBRef 
-record(int Flag, Term key, Term t_data, Term t_code)
+record(int Flag, Term key, Term t_data, Term t_code USES_REGS)
 {
   Register Term   twork = key;
   Register DBProp p;
@@ -1713,7 +1717,7 @@ record(int Flag, Term key, Term t_data, Term t_code)
 
 /* add a new entry next to an old one */
 static DBRef 
-record_at(int Flag, DBRef r0, Term t_data, Term t_code)
+record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS)
 {
   Register DBProp p;
   Register DBRef  x;
@@ -1852,6 +1856,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
 LogUpdClause *
 Yap_new_ludbe(Term t, PredEntry *pe, UInt nargs)
 {
+  CACHE_REGS
   LogUpdClause *x;
 
   Yap_Error_Size = 0;
@@ -1937,7 +1942,7 @@ record_lu_at(int position, LogUpdClause *ocl, Term t)
 
 /* recorda(+Functor,+Term,-Ref) */
 static Int 
-p_rcda(void)
+p_rcda( USES_REGS1 )
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1);
@@ -1966,7 +1971,7 @@ p_rcda(void)
     }
     UNLOCK(pe->PELock);
   } else {
-    TRef = MkDBRefTerm(record(MkFirst, t1, Deref(ARG2), Unsigned(0)));
+    TRef = MkDBRefTerm(record(MkFirst, t1, Deref(ARG2), Unsigned(0) PASS_REGS));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -1982,7 +1987,7 @@ p_rcda(void)
 
 /* '$recordap'(+Functor,+Term,-Ref) */
 static Int 
-p_rcdap(void)
+p_rcdap( USES_REGS1 )
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
@@ -1990,7 +1995,7 @@ p_rcdap(void)
     return FALSE;
   Yap_Error_Size = 0;
  restart_record:
-  TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0)));
+  TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, Unsigned(0) PASS_REGS));
 
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2006,7 +2011,7 @@ p_rcdap(void)
 
 /* recorda_at(+DBRef,+Term,-Ref) */
 static Int 
-p_rcda_at(void)
+p_rcda_at( USES_REGS1 )
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
@@ -2032,7 +2037,7 @@ p_rcda_at(void)
   if (dbr->Flags & LogUpdMask) {
     TRef = MkDBRefTerm((DBRef)record_lu_at(MkFirst, (LogUpdClause *)dbr, t2));
   } else { 
-    TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0)));
+    TRef = MkDBRefTerm(record_at(MkFirst, DBRefOfTerm(t1), t2, Unsigned(0) PASS_REGS));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2048,7 +2053,7 @@ p_rcda_at(void)
 
 /* recordz(+Functor,+Term,-Ref) */
 static Int 
-p_rcdz(void)
+p_rcdz( USES_REGS1 )
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
   PredEntry *pe;
@@ -2076,7 +2081,7 @@ p_rcdz(void)
     }
     UNLOCK(pe->PELock);
   } else {
-    TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0)));
+    TRef = MkDBRefTerm(record(MkLast, t1, t2, Unsigned(0) PASS_REGS));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2096,6 +2101,7 @@ p_rcdz(void)
 Int 
 Yap_Recordz(Atom at, Term t2)
 {
+  CACHE_REGS
   PredEntry *pe;
 
   pe = find_lu_entry(MkAtomTerm(at));
@@ -2104,7 +2110,7 @@ Yap_Recordz(Atom at, Term t2)
   if (pe) {
     record_lu(pe, t2, MkLast);
   } else { 
-    record(MkLast, MkAtomTerm(at), t2, Unsigned(0));
+    record(MkLast, MkAtomTerm(at), t2, Unsigned(0) PASS_REGS);
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     ARG1 = t2;
@@ -2120,7 +2126,7 @@ Yap_Recordz(Atom at, Term t2)
 
 /* '$recordzp'(+Functor,+Term,-Ref) */
 static Int 
-p_rcdzp(void)
+p_rcdzp( USES_REGS1 )
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
 
@@ -2128,7 +2134,7 @@ p_rcdzp(void)
     return (FALSE);
   Yap_Error_Size = 0;
  restart_record:
-  TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0)));
+  TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, Unsigned(0) PASS_REGS));
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
       t1 = Deref(ARG1);
@@ -2143,7 +2149,7 @@ p_rcdzp(void)
 
 /* recordz_at(+Functor,+Term,-Ref) */
 static Int 
-p_rcdz_at(void)
+p_rcdz_at( USES_REGS1 )
 {
   /* Idiotic xlc's cpp does not work with ARG1 within MkDBRefTerm */
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2);
@@ -2169,7 +2175,7 @@ p_rcdz_at(void)
   if (dbr->Flags & LogUpdMask) {
     TRef = MkDBRefTerm((DBRef)record_lu_at(MkLast, (LogUpdClause *)dbr, t2));
   } else {
-    TRef = MkDBRefTerm(record_at(MkLast, dbr, t2, Unsigned(0)));
+    TRef = MkDBRefTerm(record_at(MkLast, dbr, t2, Unsigned(0) PASS_REGS));
   }
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(3)) {
@@ -2185,7 +2191,7 @@ p_rcdz_at(void)
 
 /* '$record_stat_source'(+Functor,+Term) */
 static Int 
-p_rcdstatp(void)
+p_rcdstatp( USES_REGS1 )
 {
   Term t1 = Deref(ARG1), t2 = Deref(ARG2), t3 = Deref(ARG3);
   int mk_first;
@@ -2199,9 +2205,9 @@ p_rcdstatp(void)
   Yap_Error_Size = 0;
  restart_record:
   if (mk_first)
-    TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, MkIntTerm(0)));
+    TRef = MkDBRefTerm(record(MkFirst | MkCode, t1, t2, MkIntTerm(0) PASS_REGS));
   else
-    TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0)));
+    TRef = MkDBRefTerm(record(MkLast | MkCode, t1, t2, MkIntTerm(0) PASS_REGS));
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(4)) {
       t1 = Deref(ARG1);
@@ -2217,7 +2223,7 @@ p_rcdstatp(void)
 
 /* '$recordap'(+Functor,+Term,-Ref,+CRef) */
 static Int 
-p_drcdap(void)
+p_drcdap( USES_REGS1 )
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2), t4 = Deref(ARG4);
 
@@ -2228,7 +2234,7 @@ p_drcdap(void)
   Yap_Error_Size = 0;
  restart_record:
   TRef = MkDBRefTerm(record(MkFirst | MkCode | WithRef,
-			    t1, t2, t4));
+			    t1, t2, t4 PASS_REGS));
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(4)) {
       t1 = Deref(ARG1);
@@ -2244,7 +2250,7 @@ p_drcdap(void)
 
 /* '$recordzp'(+Functor,+Term,-Ref,+CRef) */
 static Int 
-p_drcdzp(void)
+p_drcdzp( USES_REGS1 )
 {
   Term            TRef, t1 = Deref(ARG1), t2 = Deref(ARG2), t4 =  Deref(ARG4);
 
@@ -2255,7 +2261,7 @@ p_drcdzp(void)
  restart_record:
   Yap_Error_Size = 0;
   TRef = MkDBRefTerm(record(MkLast | MkCode | WithRef,
-			    t1, t2, t4));
+			    t1, t2, t4 PASS_REGS));
   if (Yap_Error_TYPE != YAP_NO_ERROR) {
     if (recover_from_record_error(4)) {
       t1 = Deref(ARG1);
@@ -2270,7 +2276,7 @@ p_drcdzp(void)
 }
 
 static Int
-p_still_variant(void)
+p_still_variant( USES_REGS1 )
 {
   CELL *old_h = B->cp_h;
   tr_fr_ptr   old_tr = B->cp_tr;
@@ -2344,7 +2350,7 @@ p_still_variant(void)
 
 #ifdef COROUTINING
 static int
-copy_attachments(CELL *ts)
+copy_attachments(CELL *ts USES_REGS)
 {
   /* we will change delayed vars, and that also means the trail */
   tr_fr_ptr tr0 = TR;
@@ -2352,7 +2358,7 @@ copy_attachments(CELL *ts)
   while (TRUE) {
     /* store away in case there is an overflow */
 
-    if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0])  == FALSE) {
+    if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0] PASS_REGS)  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
       /* reset queue of woken up goals */
       TR = tr0;
@@ -2437,7 +2443,7 @@ UnifyDBNumber(DBRef DBSP, Term t)
 
 
 static Term 
-GetDBTerm(DBTerm *DBSP)
+GetDBTerm(DBTerm *DBSP USES_REGS)
 {
   Term t = DBSP->Entry;
 
@@ -2479,7 +2485,7 @@ GetDBTerm(DBTerm *DBSP)
     }
 #ifdef COROUTINING
     if (DBSP->ag.attachments != 0L)  {
-      if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)))) {
+      if (!copy_attachments((CELL *)AdjustIDBPtr(DBSP->ag.attachments,(CELL)HOld-(CELL)(DBSP->Contents)) PASS_REGS)) {
 	H = HOld;
 	Yap_Error_TYPE = OUT_OF_ATTVARS_ERROR;
 	Yap_Error_Size = 0;
@@ -2492,15 +2498,15 @@ GetDBTerm(DBTerm *DBSP)
 }
 
 static Term 
-GetDBTermFromDBEntry(DBRef DBSP)
+GetDBTermFromDBEntry(DBRef DBSP USES_REGS)
 {
   if (DBSP->Flags & (DBNoVars | DBAtomic))
     return DBSP->DBT.Entry;
-  return GetDBTerm(&(DBSP->DBT));
+  return GetDBTerm(&(DBSP->DBT) PASS_REGS);
 }
 
 static void
-init_int_keys(void) {
+init_int_keys( void ) {
   INT_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*INT_KEYS_SIZE);
   if (INT_KEYS != NULL) {
     UInt i = 0;
@@ -2514,7 +2520,7 @@ init_int_keys(void) {
 }
 
 static void
-init_int_lu_keys(void) {
+init_int_lu_keys( void ) {
   INT_LU_KEYS = (Prop *)Yap_AllocCodeSpace(sizeof(Prop)*INT_KEYS_SIZE);
   if (INT_LU_KEYS != NULL) {
     UInt i = 0;
@@ -2529,6 +2535,7 @@ init_int_lu_keys(void) {
 
 static int
 resize_int_keys(UInt new_size) {
+  CACHE_REGS
   Prop *new;
   UInt i;
   UInt old_size = INT_KEYS_SIZE;
@@ -2634,6 +2641,7 @@ new_lu_int_key(Int key)
   if (INT_LU_KEYS == NULL) {
     init_int_lu_keys();
     if (INT_LU_KEYS == NULL) {
+      CACHE_REGS
       Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "could not allocate space";
@@ -2756,6 +2764,7 @@ FetchIntDBPropFromKey(Int key, int flag, int new, char *error_mssg)
   if (INT_KEYS == NULL) {
     init_int_keys();
     if (INT_KEYS == NULL) {
+      CACHE_REGS
       Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
       Yap_Error_Term = TermNil;
       Yap_ErrorMessage = "could not allocate space";
@@ -2900,7 +2909,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 
 
 static Int 
-lu_nth_recorded(PredEntry *pe, Int Count)
+lu_nth_recorded(PredEntry *pe, Int Count USES_REGS)
 {
   LogUpdClause *cl;
 
@@ -2925,7 +2934,7 @@ lu_nth_recorded(PredEntry *pe, Int Count)
 
 /* Finds a term recorded under the key ARG1			 */
 static Int 
-nth_recorded(DBProp AtProp, Int Count)
+nth_recorded(DBProp AtProp, Int Count USES_REGS)
 {
   Register DBRef  ref;
 
@@ -2967,7 +2976,7 @@ nth_recorded(DBProp AtProp, Int Count)
 }
 
 static Int
-p_nth_instance(void)
+p_nth_instance( USES_REGS1 )
 {
   DBProp          AtProp;
   Term            TCount;
@@ -3073,16 +3082,16 @@ p_nth_instance(void)
     return FALSE;
   }
   if ((pe = find_lu_entry(Deref(ARG1))) != NULL) {
-    return lu_nth_recorded(pe,Count);
+    return lu_nth_recorded(pe,Count PASS_REGS);
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(Deref(ARG1), 0, FALSE, "nth_instance/3"))) {
     return FALSE;
   }
-  return nth_recorded(AtProp,Count);
+  return nth_recorded(AtProp,Count PASS_REGS);
 }
 
 static Int
-p_nth_instancep(void)
+p_nth_instancep( USES_REGS1 )
 {
   DBProp          AtProp;
   Term            TCount;
@@ -3131,11 +3140,11 @@ p_nth_instancep(void)
       Yap_Error(DOMAIN_ERROR_NOT_ZERO, TCount, "recorded_at/4");
     return (FALSE);
   }
-  return nth_recorded(AtProp,Count);
+  return nth_recorded(AtProp,Count PASS_REGS);
 }
 
 static Int
-p_db_key(void)
+p_db_key( USES_REGS1 )
 {
   Register Term   twork = Deref(ARG1);	/* fetch the key */
   DBProp          AtProp;
@@ -3149,7 +3158,7 @@ p_db_key(void)
 
 /* Finds a term recorded under the key ARG1			 */
 static Int 
-i_recorded(DBProp AtProp, Term t3)
+i_recorded(DBProp AtProp, Term t3 USES_REGS)
 {
   Term            TermDB, TRef;
   Register DBRef  ref;
@@ -3169,7 +3178,7 @@ i_recorded(DBProp AtProp, Term t3)
     EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(0);
     EXTRA_CBACK_ARG(3,3) = MkIntegerTerm(0);
     B->cp_h = H;
-    while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+    while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
@@ -3223,7 +3232,7 @@ i_recorded(DBProp AtProp, Term t3)
 	  cut_fail();
 	}
       }
-      if ((TermDB = GetDBTermFromDBEntry(ref)) != (CELL)0) {
+      if ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) != (CELL)0) {
 	if (Yap_unify(TermDB, ARG2)) {
 	  /* success */
 	  EXTRA_CBACK_ARG(3,2) = MkIntegerTerm(((Int)mask));
@@ -3282,7 +3291,7 @@ i_recorded(DBProp AtProp, Term t3)
 }
 
 static Int 
-c_recorded(int flags)
+c_recorded(int flags USES_REGS)
 {
   Term            TermDB, TRef;
   Register DBRef  ref, ref0;
@@ -3337,7 +3346,7 @@ c_recorded(int flags)
     cut_fail();
   }
   if (mask == 0 && key == 0) {	/* ARG2 is a variable */
-    while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+    while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
       /* make sure the garbage collector sees what we want it to see! */
       EXTRA_CBACK_ARG(3,1) = (CELL)ref;
       /* oops, we are in trouble, not enough stack space */
@@ -3380,7 +3389,7 @@ c_recorded(int flags)
 	  cut_fail();
 	}
       }
-      while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+      while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
 	/* make sure the garbage collector sees what we want it to see! */
 	EXTRA_CBACK_ARG(3,1) = (CELL)ref;
 	/* oops, we are in trouble, not enough stack space */
@@ -3432,7 +3441,7 @@ c_recorded(int flags)
  */
 
 static Int
-lu_recorded(PredEntry *pe) {
+lu_recorded(PredEntry *pe USES_REGS) {
   op_numbers opc = Yap_op_from_opcode(P->opc);
 
 #if defined(YAPOR) || defined(THREADS)
@@ -3467,16 +3476,16 @@ lu_recorded(PredEntry *pe) {
 
 /* recorded(+Functor,+Term,-Ref) */
 static Int 
-in_rded_with_key(void)
+in_rded_with_key( USES_REGS1 )
 {
   DBProp AtProp = (DBProp)IntegerOfTerm(Deref(ARG1));
 
-  return (i_recorded(AtProp,Deref(ARG3)));
+  return (i_recorded(AtProp,Deref(ARG3) PASS_REGS));
 }
 
 /* recorded(+Functor,+Term,-Ref) */
 static Int 
-p_recorded(void)
+p_recorded( USES_REGS1 )
 {
   DBProp          AtProp;
   Register Term   twork = Deref(ARG1);	/* initially working with
@@ -3519,7 +3528,7 @@ p_recorded(void)
       return TRUE;
     } else {
       Term TermDB;
-      while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+      while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
 	/* oops, we are in trouble, not enough stack space */
 	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
@@ -3544,25 +3553,25 @@ p_recorded(void)
     }
   }
   if ((pe = find_lu_entry(twork)) != NULL) {
-    return lu_recorded(pe);
+    return lu_recorded(pe PASS_REGS);
   }
   if (EndOfPAEntr(AtProp = FetchDBPropFromKey(twork, 0, FALSE, "recorded/3"))) {
     return FALSE;
   }
   ARG1 = MkIntegerTerm((Int)AtProp);
   P = PredRecordedWithKey->CodeOfPred;
-  return (i_recorded(AtProp, t3));
+  return (i_recorded(AtProp, t3 PASS_REGS));
 }
 
 static Int 
-co_rded(void)
+co_rded( USES_REGS1 )
 {
-  return (c_recorded(0));
+  return (c_recorded(0 PASS_REGS));
 }
 
 /* '$recordedp'(+Functor,+Term,-Ref) */
 static Int 
-in_rdedp(void)
+in_rdedp( USES_REGS1 )
 {
   DBProp          AtProp;
   register choiceptr b0=B;
@@ -3578,7 +3587,7 @@ in_rdedp(void)
       LOCK(ref->lock);
       if (ref == NULL
 	  || DEAD_REF(ref)
-	  || !Yap_unify(ARG2,GetDBTermFromDBEntry(ref))
+	  || !Yap_unify(ARG2,GetDBTermFromDBEntry(ref PASS_REGS))
 	  || !UnifyDBKey(ref,CodeDBBit,ARG1)) {
 	UNLOCK(ref->lock);
 	cut_fail();
@@ -3594,19 +3603,19 @@ in_rdedp(void)
     else
       return FALSE;
   }
-  return (i_recorded(AtProp,t3));
+  return (i_recorded(AtProp,t3 PASS_REGS));
 }
 
 
 static Int 
-co_rdedp(void)
+co_rdedp( USES_REGS1 )
 {
-  return (c_recorded(MkCode));
+  return (c_recorded(MkCode PASS_REGS));
 }
 
 /* '$some_recordedp'(Functor)				 */
 static Int 
-p_somercdedp(void)
+p_somercdedp( USES_REGS1 )
 {
   Register DBRef  ref;
   DBProp            AtProp;
@@ -3628,7 +3637,7 @@ p_somercdedp(void)
 
 /* Finds the first instance recorded under key ARG1			 */
 static Int 
-p_first_instance(void)
+p_first_instance( USES_REGS1 )
 {
   Term            TRef;
   Register DBRef  ref;
@@ -3666,7 +3675,7 @@ p_first_instance(void)
     TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
-  while ((TermDB = GetDBTermFromDBEntry(ref)) == (CELL)0) {
+  while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
     if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
       Yap_Error_TYPE = YAP_NO_ERROR;
@@ -3732,7 +3741,7 @@ index_sz(LogUpdIndex *x)
 }
 
 static Int
-lu_statistics(PredEntry *pe)
+lu_statistics(PredEntry *pe USES_REGS)
 {
   UInt sz = 0, cls = 0, isz = 0;
   
@@ -3763,7 +3772,7 @@ lu_statistics(PredEntry *pe)
 
 
 static Int
-p_key_statistics(void)
+p_key_statistics( USES_REGS1 )
 {
   Register DBProp p;
   Register DBRef  x;
@@ -3772,7 +3781,7 @@ p_key_statistics(void)
   PredEntry *pe;
 
   if ((pe = find_lu_entry(twork)) != NULL) {
-    return lu_statistics(pe);
+    return lu_statistics(pe PASS_REGS);
   }
   if (EndOfPAEntr(p = FetchDBPropFromKey(twork, 0, TRUE, "key_statistics/4"))) {
     /* This is not a key property */
@@ -3796,7 +3805,7 @@ p_key_statistics(void)
 }
 
 static Int
-p_lu_statistics(void)
+p_lu_statistics( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Term mod = Deref(ARG5);
@@ -3819,12 +3828,12 @@ p_lu_statistics(void)
     /* should use '$recordedp' in this case */
     return FALSE;
   }
-  return lu_statistics(pe);
+  return lu_statistics(pe PASS_REGS);
 }
 
 
 static Int
-p_total_erased(void)
+p_total_erased( USES_REGS1 )
 {
   UInt sz = 0, cls = 0;
   UInt isz = 0, icls = 0;
@@ -3850,7 +3859,7 @@ p_total_erased(void)
 }
 
 static Int
-lu_erased_statistics(PredEntry *pe)
+lu_erased_statistics(PredEntry *pe USES_REGS)
 {
   UInt sz = 0, cls = 0;
   UInt isz = 0, icls = 0;
@@ -3879,7 +3888,7 @@ lu_erased_statistics(PredEntry *pe)
 }
 
 static Int
-p_key_erased_statistics(void)
+p_key_erased_statistics( USES_REGS1 )
 {
   Term twork = Deref(ARG1);
   PredEntry *pe;
@@ -3887,11 +3896,11 @@ p_key_erased_statistics(void)
   /* only for log upds */
   if ((pe = find_lu_entry(twork)) == NULL) 
     return FALSE;
-  return lu_erased_statistics(pe);
+  return lu_erased_statistics(pe PASS_REGS);
 }
 
 static Int
-p_heap_space_info(void)
+p_heap_space_info( USES_REGS1 )
 {
   return
     Yap_unify(ARG1,MkIntegerTerm(HeapUsed)) &&
@@ -3906,7 +3915,7 @@ p_heap_space_info(void)
  * pending references 
  */
 static void 
-ErasePendingRefs(DBTerm *entryref)
+ErasePendingRefs(DBTerm *entryref USES_REGS)
 {
   DBRef          *cp;
   DBRef           ref;
@@ -3917,16 +3926,16 @@ ErasePendingRefs(DBTerm *entryref)
   while ((ref = *--cp) != NULL) {
     if ((ref->Flags & DBClMask) && (--(ref->NOfRefsTo) == 0)
 	&& (ref->Flags & ErasedMask))
-      ErDBE(ref);
+      ErDBE(ref PASS_REGS);
   }
 }
 
 
 inline static void 
-RemoveDBEntry(DBRef entryref)
+RemoveDBEntry(DBRef entryref USES_REGS)
 {
 
-  ErasePendingRefs(&(entryref->DBT));
+  ErasePendingRefs(&(entryref->DBT) PASS_REGS);
   /* We may be backtracking back to a deleted entry. If we just remove
      the space then the info on the entry may be corrupt.  */
   if ((B->cp_ap == RETRY_C_RECORDED_K_CODE 
@@ -3956,7 +3965,7 @@ RemoveDBEntry(DBRef entryref)
 }
 
 static yamop *
-find_next_clause(DBRef ref0)
+find_next_clause(DBRef ref0 USES_REGS)
 {
   Register DBRef  ref;
   yamop *newp;
@@ -4006,10 +4015,10 @@ find_next_clause(DBRef ref0)
 /* This procedure is called when a clause is officialy deleted. Its job
    is to find out where the code can go next, if it can go anywhere */
 static Int
-p_jump_to_next_dynamic_clause(void)
+p_jump_to_next_dynamic_clause( USES_REGS1 )
 {
   DBRef ref = (DBRef)(((yamop *)((CODEADDR)P-(CELL)NEXTOP((yamop *)NULL,Osbpp)))->u.Osbpp.bmap);
-  yamop *newp = find_next_clause(ref);
+  yamop *newp = find_next_clause(ref PASS_REGS);
   
   if (newp == NULL) {
     cut_fail();
@@ -4060,8 +4069,9 @@ complete_lu_erase(LogUpdClause *clau)
 	if (ref->Flags & ErasedMask &&
 	    !(ref->Flags & InUseMask) &&
 	    ref->NOfRefsTo) {
+	  CACHE_REGS
 	  UNLOCK(ref->lock);
-	  ErDBE(ref);
+	  ErDBE(ref PASS_REGS);
 	} else {
 	  UNLOCK(ref->lock);
 	}
@@ -4152,7 +4162,7 @@ EraseLogUpdCl(LogUpdClause *clau)
 }
 
 static void
-MyEraseClause(DynamicClause *clau)
+MyEraseClause(DynamicClause *clau USES_REGS)
 {
   DBRef           ref;
   SMALLUNSGN      clmask;
@@ -4171,7 +4181,7 @@ MyEraseClause(DynamicClause *clau)
   if ( P == clau->ClCode ) {
     yamop *np = RTRYCODE;
     /* make it the next alternative */
-    np->u.Otapl.d = find_next_clause((DBRef)(NEXTOP(P,Otapl)->u.Osbpp.bmap));
+    np->u.Otapl.d = find_next_clause((DBRef)(NEXTOP(P,Otapl)->u.Osbpp.bmap) PASS_REGS);
     if (np->u.Otapl.d == NULL)
       P = (yamop *)FAILCODE;
     else {
@@ -4189,7 +4199,7 @@ MyEraseClause(DynamicClause *clau)
     if (ref->NOfRefsTo)
       fprintf(Yap_stderr, "Error: references to dynamic clause\n");
 #endif
-    RemoveDBEntry(ref);
+    RemoveDBEntry(ref PASS_REGS);
   }
 }
 
@@ -4210,7 +4220,8 @@ Yap_ErLogUpdCl(LogUpdClause *clau)
 void 
 Yap_ErCl(DynamicClause *clau)
 {
-  MyEraseClause(clau);
+  CACHE_REGS
+  MyEraseClause(clau PASS_REGS);
 }
 
 static void 
@@ -4296,7 +4307,7 @@ PrepareToEraseClause(DynamicClause *clau, DBRef dbr)
 }
 
 static void 
-ErDBE(DBRef entryref)
+ErDBE(DBRef entryref USES_REGS)
 {
 
   if ((entryref->Flags & DBCode) && entryref->Code) {
@@ -4318,12 +4329,12 @@ ErDBE(DBRef entryref)
 	if (!(clau->ClFlags & ErasedMask))
 	  PrepareToEraseClause(clau, entryref);
 	/* the clause must have left the chain */
-	MyEraseClause(clau);
+	MyEraseClause(clau PASS_REGS);
       }
     }
   } else if (!(DBREF_IN_USE(entryref))) {
     if (entryref->NOfRefsTo == 0) 
-      RemoveDBEntry(entryref);
+      RemoveDBEntry(entryref PASS_REGS);
     else if (!(entryref->Flags & ErasedMask)) {
       /* oops, I cannot remove it, but I at least have to tell
 	 the world what's going on */
@@ -4336,7 +4347,8 @@ ErDBE(DBRef entryref)
 void 
 Yap_ErDBE(DBRef entryref)
 {
-  ErDBE(entryref);
+  CACHE_REGS
+  ErDBE(entryref PASS_REGS);
 }
 
 static void
@@ -4370,7 +4382,8 @@ EraseEntry(DBRef entryref)
   /* make sure we know the entry has been removed from the list */
   entryref->Next = NIL;
   if (!DBREF_IN_USE(entryref)) {
-    ErDBE(entryref);
+    CACHE_REGS
+    ErDBE(entryref PASS_REGS);
   } else if ((entryref->Flags & DBCode) && entryref->Code) {
     PrepareToEraseClause(ClauseCodeToDynamicClause(entryref->Code), entryref);
   }
@@ -4378,7 +4391,7 @@ EraseEntry(DBRef entryref)
 
 /* erase(+Ref)	 */
 static Int 
-p_erase(void)
+p_erase( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
 
@@ -4396,7 +4409,7 @@ p_erase(void)
 
 /* increase_reference_counter(+Ref)	 */
 static Int 
-p_increase_reference_counter(void)
+p_increase_reference_counter( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   LogUpdClause *cl;
@@ -4418,7 +4431,7 @@ p_increase_reference_counter(void)
 
 /* increase_reference_counter(+Ref)	 */
 static Int 
-p_decrease_reference_counter(void)
+p_decrease_reference_counter( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   LogUpdClause *cl;
@@ -4444,7 +4457,7 @@ p_decrease_reference_counter(void)
 
 /* erase(+Ref)	 */
 static Int 
-p_current_reference_counter(void)
+p_current_reference_counter( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   LogUpdClause *cl;
@@ -4462,7 +4475,7 @@ p_current_reference_counter(void)
 }
 
 static Int
-p_erase_clause(void)
+p_erase_clause( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   DBRef entryref;
@@ -4493,7 +4506,7 @@ p_erase_clause(void)
  
 /* eraseall(+Key)	 */
 static Int 
-p_eraseall(void)
+p_eraseall( USES_REGS1 )
 {
   Register Term   twork = Deref(ARG1);
   Register DBRef  entryref;
@@ -4542,7 +4555,7 @@ p_eraseall(void)
     /* make sure we know the entry has been removed from the list */
     entryref->Next = entryref->Prev = NIL;
     if (!DBREF_IN_USE(entryref))
-      ErDBE(entryref);
+      ErDBE(entryref PASS_REGS);
     else {
       entryref->Flags |= ErasedMask;
     }
@@ -4555,7 +4568,7 @@ p_eraseall(void)
 
 /* erased(+Ref) */
 static Int 
-p_erased(void)
+p_erased( USES_REGS1 )
 {
   Term            t = Deref(ARG1);
 
@@ -4571,7 +4584,7 @@ p_erased(void)
 }
 
 static Int
-static_instance(StaticClause *cl)
+static_instance(StaticClause *cl USES_REGS)
 {
   if (cl->ClFlags & ErasedMask) {
     return FALSE;
@@ -4604,7 +4617,7 @@ static_instance(StaticClause *cl)
   } else {
     Term TermDB;
 
-    while ((TermDB = GetDBTerm(cl->usc.ClSource)) == 0L) {
+    while ((TermDB = GetDBTerm(cl->usc.ClSource PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -4625,7 +4638,7 @@ static_instance(StaticClause *cl)
 }
 
 static Int
-mega_instance(yamop *code, PredEntry *ap)
+mega_instance(yamop *code, PredEntry *ap USES_REGS)
 {
   if (ap->ArityOfPE == 0) {
     return Yap_unify(ARG2,MkAtomTerm((Atom)ap->FunctorOfPred));
@@ -4655,7 +4668,7 @@ mega_instance(yamop *code, PredEntry *ap)
 
 /* instance(+Ref,?Term) */
 static Int 
-p_instance(void)
+p_instance( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   DBRef dbr;
@@ -4663,10 +4676,10 @@ p_instance(void)
   if (IsVarTerm(t1) || !IsDBRefTerm(t1)) {
     if (IsApplTerm(t1)) {
       if (FunctorOfTerm(t1) == FunctorStaticClause) {
-	return static_instance(Yap_ClauseFromTerm(t1));
+	return static_instance(Yap_ClauseFromTerm(t1) PASS_REGS);
       }
       if (FunctorOfTerm(t1) == FunctorMegaClause) {
-	return mega_instance(Yap_MegaClauseFromTerm(t1),Yap_MegaClausePredicateFromTerm(t1));
+	return mega_instance(Yap_MegaClauseFromTerm(t1), Yap_MegaClausePredicateFromTerm(t1) PASS_REGS);
       }
     }
     return FALSE;
@@ -4717,7 +4730,7 @@ p_instance(void)
       return Yap_unify(ARG2, cl->ClSource->Entry);
     } else  {
       Term            TermDB;
-      while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
+      while ((TermDB = GetDBTerm(cl->ClSource PASS_REGS)) == 0L) {
 	/* oops, we are in trouble, not enough stack space */
 	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	  Yap_Error_TYPE = YAP_NO_ERROR;
@@ -4740,7 +4753,7 @@ p_instance(void)
     }
   } else {
     Term            TermDB;
-    while ((TermDB = GetDBTermFromDBEntry(dbr)) == 0L) {
+    while ((TermDB = GetDBTermFromDBEntry(dbr PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -4764,13 +4777,15 @@ p_instance(void)
 Term
 Yap_LUInstance(LogUpdClause *cl, UInt arity)
 {
+  CACHE_REGS
   Term  TermDB;
   op_numbers opc = Yap_op_from_opcode(cl->ClCode->opc);
 
   if (opc == _unify_idb_term) {
     TermDB = cl->ClSource->Entry;
   } else  {
-    while ((TermDB = GetDBTerm(cl->ClSource)) == 0L) {
+    CACHE_REGS
+    while ((TermDB = GetDBTerm(cl->ClSource PASS_REGS)) == 0L) {
       /* oops, we are in trouble, not enough stack space */
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -4802,7 +4817,7 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
 
 /* instance(+Ref,?Term) */
 static Int 
-p_instance_module(void)
+p_instance_module( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   DBRef dbr;
@@ -4848,7 +4863,7 @@ NextDBProp(PropEntry *pp)
 }
 
 static Int 
-init_current_key(void)
+init_current_key( USES_REGS1 )
 {				/* current_key(+Atom,?key)	 */
   Int             i = 0;
   DBEntry        *pp;
@@ -4881,11 +4896,11 @@ init_current_key(void)
   EXTRA_CBACK_ARG(2,3) = MkAtomTerm(a);
   EXTRA_CBACK_ARG(2,2) = MkIntTerm(i);
   EXTRA_CBACK_ARG(2,1) = MkIntegerTerm((Int)pp);
-  return cont_current_key();
+  return cont_current_key( PASS_REGS1 );
 }
 
 static Int 
-cont_current_key(void)
+cont_current_key( USES_REGS1 )
 {
   unsigned int    arity;
   Functor         functor;
@@ -4896,7 +4911,7 @@ cont_current_key(void)
   DBEntry        *pp = (DBEntry *) IntegerOfTerm(EXTRA_CBACK_ARG(2,1));
 
   if (IsIntTerm(term = EXTRA_CBACK_ARG(2,3)))
-    return cont_current_key_integer();
+    return cont_current_key_integer( PASS_REGS1 );
   a = AtomOfTerm(term);
   if (EndOfPAEntr(pp) && IsAtomTerm(first)) {
     cut_fail();
@@ -4944,7 +4959,7 @@ cont_current_key(void)
 	if (j == INT_KEYS_SIZE) {
 	  cut_fail();
 	}	  
-	return cont_current_key_integer();
+	return cont_current_key_integer( PASS_REGS1 );
       } else {
 	/* release our lock over the hash table */
 	READ_UNLOCK(HashChain[i].AERWLock);
@@ -4977,7 +4992,7 @@ cont_current_key(void)
 }
 
 static Int 
-cont_current_key_integer(void)
+cont_current_key_integer( USES_REGS1 )
 {
   Term            term;
   UInt             i = IntOfTerm(EXTRA_CBACK_ARG(2,2));
@@ -5009,20 +5024,22 @@ cont_current_key_integer(void)
 Term 
 Yap_FetchTermFromDB(DBTerm *ref)
 {
-  return GetDBTerm(ref);
+  CACHE_REGS
+  return GetDBTerm(ref PASS_REGS);
 }
 
 Term 
 Yap_PopTermFromDB(DBTerm *ref)
 {
-  Term t = GetDBTerm(ref);
+  CACHE_REGS
+  Term t = GetDBTerm(ref PASS_REGS);
   if (t != 0L)
-    ReleaseTermFromDB(ref);
+    ReleaseTermFromDB(ref PASS_REGS);
   return t;
 }
 
 static DBTerm *
-StoreTermInDB(Term t, int nargs)
+StoreTermInDB(Term t, int nargs USES_REGS)
 {
   DBTerm *x;
   int needs_vars;
@@ -5050,7 +5067,8 @@ StoreTermInDB(Term t, int nargs)
 
 DBTerm *
 Yap_StoreTermInDB(Term t, int nargs) {
-  return StoreTermInDB(t, nargs);
+  CACHE_REGS
+  return StoreTermInDB(t, nargs PASS_REGS);
 }
 
 DBTerm *
@@ -5068,7 +5086,7 @@ Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
 
 
 static Int 
-p_init_queue(void)
+p_init_queue( USES_REGS1 )
 {
   db_queue *dbq;
   Term t;
@@ -5090,7 +5108,7 @@ p_init_queue(void)
 
 
 static Int 
-p_enqueue(void)
+p_enqueue( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
   Term t;
@@ -5113,7 +5131,7 @@ p_enqueue(void)
   }
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
   t = Deref(ARG1);
-  x->DBT = StoreTermInDB(Deref(ARG2), 2);
+  x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
   if (x->DBT == NULL) {
     return FALSE;
   }
@@ -5130,7 +5148,7 @@ p_enqueue(void)
 }
 
 static Int 
-p_enqueue_unlocked(void)
+p_enqueue_unlocked( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
   Term t;
@@ -5153,7 +5171,7 @@ p_enqueue_unlocked(void)
   }
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
   t = Deref(ARG1);
-  x->DBT = StoreTermInDB(Deref(ARG2), 2);
+  x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
   if (x->DBT == NULL) {
     return FALSE;
   }
@@ -5177,7 +5195,7 @@ p_enqueue_unlocked(void)
    the target entry,
  */
 static void
-keepdbrefs(DBTerm *entryref)
+keepdbrefs(DBTerm *entryref USES_REGS)
 {
   DBRef           *cp;
   DBRef           ref;
@@ -5200,7 +5218,7 @@ keepdbrefs(DBTerm *entryref)
 }
 
 static Int 
-p_dequeue(void)
+p_dequeue( USES_REGS1 )
 {
   db_queue *father_key;
   QueueEntry *cur_instance;
@@ -5227,7 +5245,7 @@ p_dequeue(void)
     else
       father_key->FirstInQueue = cur_instance->next;
     WRITE_UNLOCK(father_key->QRWLock);
-    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
@@ -5243,8 +5261,8 @@ p_dequeue(void)
       }
     }
     /* release space for cur_instance */
-    keepdbrefs(cur_instance->DBT);
-    ErasePendingRefs(cur_instance->DBT);
+    keepdbrefs(cur_instance->DBT PASS_REGS);
+    ErasePendingRefs(cur_instance->DBT PASS_REGS);
     FreeDBSpace((char *) cur_instance->DBT);
     FreeDBSpace((char *) cur_instance);
     return Yap_unify(ARG2, TDB);
@@ -5253,7 +5271,7 @@ p_dequeue(void)
 
 
 static Int 
-p_dequeue_unlocked(void)
+p_dequeue_unlocked( USES_REGS1 )
 {
   db_queue *father_key;
   QueueEntry *cur_instance, *prev_instance;
@@ -5271,7 +5289,7 @@ p_dequeue_unlocked(void)
   cur_instance = father_key->FirstInQueue;
   while (cur_instance) {
     Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
@@ -5296,8 +5314,8 @@ p_dequeue_unlocked(void)
       else
 	father_key->FirstInQueue = cur_instance->next;
       /* release space for cur_instance */
-      keepdbrefs(cur_instance->DBT);
-      ErasePendingRefs(cur_instance->DBT);
+      keepdbrefs(cur_instance->DBT PASS_REGS);
+      ErasePendingRefs(cur_instance->DBT PASS_REGS);
       FreeDBSpace((char *) cur_instance->DBT);
       FreeDBSpace((char *) cur_instance);
       return TRUE;
@@ -5311,7 +5329,7 @@ p_dequeue_unlocked(void)
 }
 
 static Int 
-p_peek_queue(void)
+p_peek_queue( USES_REGS1 )
 {
   db_queue *father_key;
   QueueEntry *cur_instance;
@@ -5328,7 +5346,7 @@ p_peek_queue(void)
   cur_instance = father_key->FirstInQueue;
   while (cur_instance) {
     Term TDB;
-    while ((TDB = GetDBTerm(cur_instance->DBT)) == 0L) {
+    while ((TDB = GetDBTerm(cur_instance->DBT PASS_REGS)) == 0L) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
@@ -5354,14 +5372,14 @@ p_peek_queue(void)
 
 
 static Int
-p_clean_queues(void)
+p_clean_queues( USES_REGS1 )
 {
   return TRUE;
 }
 
 /* set the logical updates flag */
 static Int
-p_slu(void)
+p_slu( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) { 
@@ -5378,21 +5396,21 @@ p_slu(void)
 
 /* check current status for logical updates */
 static Int
-p_lu(void)
+p_lu( USES_REGS1 )
 {
   return Yap_unify(ARG1,MkIntTerm(UPDATE_MODE));
 }
 
 /* get a hold over the index table for logical update predicates */ 
 static Int
-p_hold_index(void)
+p_hold_index( USES_REGS1 )
 {
   Yap_Error(SYSTEM_ERROR, TermNil, "hold_index in debugger");
   return FALSE;
 }
 
 static Int
-p_fetch_reference_from_index(void)
+p_fetch_reference_from_index( USES_REGS1 )
 {
   Term t1 = Deref(ARG1), t2 = Deref(ARG2);
   DBRef table, el;
@@ -5421,7 +5439,7 @@ p_fetch_reference_from_index(void)
 }
 
 static Int
-p_resize_int_keys(void)
+p_resize_int_keys( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {
@@ -5435,23 +5453,24 @@ p_resize_int_keys(void)
 }
 
 static void 
-ReleaseTermFromDB(DBTerm *ref)
+ReleaseTermFromDB(DBTerm *ref USES_REGS)
 {
   if (!ref)
     return;
-  keepdbrefs(ref);
-  ErasePendingRefs(ref);
+  keepdbrefs(ref PASS_REGS);
+  ErasePendingRefs(ref PASS_REGS);
   FreeDBSpace((char *) ref);
 }
 
 void 
 Yap_ReleaseTermFromDB(DBTerm *ref)
 {
-  ReleaseTermFromDB(ref);
+  CACHE_REGS
+  ReleaseTermFromDB(ref PASS_REGS);
 }
 
 static Int 
-p_install_thread_local(void)
+p_install_thread_local( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);

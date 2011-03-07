@@ -4,7 +4,7 @@
 
 
 static void 
-restore_opcodes(yamop *pc, yamop *max)
+restore_opcodes(yamop *pc, yamop *max USES_REGS)
 {
   yamop *opc = NULL;
   do {

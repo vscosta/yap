@@ -145,7 +145,7 @@ gen_hstruct(Inp,Out) :-
 	Out = "#include \"ratoms.h\"".
 gen_hstruct(Inp,Out) :-
 	Inp = "START_WORKER_LOCAL", !,
-	Out = "static void RestoreWorker(int wid) {",
+	Out = "static void RestoreWorker(int wid USES_REGS) {",
 	assert(globals(worker_init)).
 gen_hstruct(Inp,Out) :-
 	Inp = "END_WORKER_LOCAL", !,

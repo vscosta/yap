@@ -34,6 +34,7 @@ static char     SccsId[] = "%W% %G%";
 Term
 Yap_MkBigIntTerm(MP_INT *big)
 {
+  CACHE_REGS
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(H+2);
   CELL *ret = H;
@@ -70,6 +71,7 @@ Yap_BigIntOfTerm(Term t)
 Term
 Yap_MkBigRatTerm(MP_RAT *big)
 {
+  CACHE_REGS
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(H+2);
   MP_INT *num = mpq_numref(big);
@@ -157,7 +159,7 @@ Yap_MkULLIntTerm(YAP_ULONG_LONG n)
 }
 
 static Int 
-p_is_bignum(void)
+p_is_bignum( USES_REGS1 )
 {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
@@ -173,7 +175,7 @@ p_is_bignum(void)
 }
 
 static Int 
-p_has_bignums(void)
+p_has_bignums( USES_REGS1 )
 {
 #ifdef USE_GMP
   return TRUE;
@@ -183,7 +185,7 @@ p_has_bignums(void)
 }
 
 static Int 
-p_is_rational(void)
+p_is_rational( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
@@ -205,7 +207,7 @@ p_is_rational(void)
 }
 
 static Int 
-p_rational(void)
+p_rational( USES_REGS1 )
 {
 #ifdef USE_GMP
   Term t = Deref(ARG1);
@@ -246,6 +248,7 @@ p_rational(void)
 Term
 Yap_MkBlobStringTerm(const char *s, size_t len)
 {
+  CACHE_REGS
   CELL *ret = H;
   size_t sz;
   MP_INT *dst = (MP_INT *)(H+2);
@@ -275,6 +278,7 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
 Term
 Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
 {
+  CACHE_REGS
   CELL *ret = H;
   size_t sz;
   MP_INT *dst = (MP_INT *)(H+2);

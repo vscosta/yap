@@ -34,10 +34,10 @@ static char     SccsId[] = "%W% %G%.2";
 #endif
 #endif
 
-STD_PROTO(Int p_load_foreign, (void));
+STD_PROTO(Int p_load_foreign, ( USES_REGS1 ));
 
 Int
-p_load_foreign(void)
+p_load_foreign( USES_REGS1 )
 {
   StringList ofiles = NULL;
   StringList libs = NULL;
@@ -110,7 +110,7 @@ p_load_foreign(void)
 }
 
 static Int
-p_open_shared_object(void) {
+p_open_shared_object( USES_REGS1 ) {
   Term t = Deref(ARG1);
   Term tflags = Deref(ARG2);
   char *s;
@@ -143,7 +143,7 @@ p_open_shared_object(void) {
 }
 
 static Int
-p_close_shared_object(void) {
+p_close_shared_object( USES_REGS1 ) {
   Term t = Deref(ARG1);
   void *handle;
 
@@ -161,7 +161,7 @@ p_close_shared_object(void) {
 }
 
 static Int
-p_call_shared_object_function(void) {
+p_call_shared_object_function( USES_REGS1 ) {
   Term t = Deref(ARG1);
   Term tfunc = Deref(ARG2);
   Term tmod;
@@ -209,12 +209,12 @@ p_call_shared_object_function(void) {
 }
 
 static Int
-p_obj_suffix(void) {
+p_obj_suffix( USES_REGS1 ) {
   return Yap_unify(Yap_StringToList(YAP_SHLIB_SUFFIX),ARG1);
 }
 
 static Int
-p_open_shared_objects(void) {
+p_open_shared_objects( USES_REGS1 ) {
 #ifdef YAP_SHLIB_SUFFIX
   return TRUE;
 #else
@@ -223,7 +223,7 @@ p_open_shared_objects(void) {
 }
 
 void
-Yap_InitLoadForeign(void)
+Yap_InitLoadForeign( void )
 {
   if (Yap_argv == NULL)
     Yap_FindExecutable("yap");
@@ -240,6 +240,7 @@ Yap_InitLoadForeign(void)
 void 
 Yap_ReOpenLoadForeign(void)
 {
+  CACHE_REGS
   ForeignObj *f_code = ForeignCodeLoaded;
   Term OldModule = CurrentModule;
 

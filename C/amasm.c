@@ -257,7 +257,7 @@ STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, int, yamop *, int, s
 STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct intermediates *));
 #endif	/* YAPOR */
-STATIC_PROTO(yamop *a_gl, (op_numbers, yamop *, int, struct PSEUDO *, struct intermediates *));
+STATIC_PROTO(yamop *a_gl, (op_numbers, yamop *, int, struct PSEUDO *, struct intermediates * CACHE_TYPE));
 STATIC_PROTO(yamop *a_bfunc, (CELL, clause_info *, yamop *, int, struct intermediates *));
 STATIC_PROTO(
 COUNT compile_cmp_flags, (char *));
@@ -266,7 +266,7 @@ STATIC_PROTO(yamop *a_xigl, (op_numbers, yamop *, int, struct PSEUDO *));
 STATIC_PROTO(yamop *a_ucons, (int *, compiler_vm_op, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_uvar, (yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_wvar, (yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, int *,struct intermediates *, UInt));
+STATIC_PROTO(yamop *do_pass, (int, yamop **, int, int *, int *,struct intermediates *, UInt CACHE_TYPE));
 #ifdef DEBUG_OPCODES
 STATIC_PROTO(void DumpOpCodes, (void));
 #endif
@@ -2193,7 +2193,7 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
 }
 
 static yamop *
-a_gl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, struct intermediates *cip)
+a_gl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, struct intermediates *cip USES_REGS)
 {
 #ifdef YAPOR
   return a_try(opcode, cpc->rnd1, IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1, code_p, pass_no, cip);
@@ -2989,7 +2989,7 @@ a_special_label(yamop *code_p, int pass_no, struct intermediates *cip)
 #endif /* YAPOR */
 
 static yamop *
-do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, int *clause_has_dbtermp, struct intermediates *cip, UInt size)
+do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp, int *clause_has_dbtermp, struct intermediates *cip, UInt size USES_REGS)
 {
 #ifdef YAPOR
 #define MAX_DISJ_BRANCHES 256
@@ -3152,7 +3152,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_n(_table_new_answer, (int) cip->cpc->rnd2, code_p, pass_no);
       break;
     case table_try_single_op:
-      code_p = a_gl(_table_try_single, code_p, pass_no, cip->cpc, cip);
+      code_p = a_gl(_table_try_single, code_p, pass_no, cip->cpc, cip PASS_REGS);
       break;
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
@@ -3451,10 +3451,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_try, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_table_try, code_p, pass_no, cip->cpc, cip PASS_REGS);
       else
 #endif
-	code_p = a_gl(_try_clause, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_try_clause, code_p, pass_no, cip->cpc, cip PASS_REGS);
       break;
     case retry_op:
       if (log_update) {
@@ -3462,10 +3462,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_retry, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_table_retry, code_p, pass_no, cip->cpc, cip PASS_REGS);
       else
 #endif
-	code_p = a_gl(_retry, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_retry, code_p, pass_no, cip->cpc, cip PASS_REGS);
       break;
     case trust_op:
       if (log_update) {
@@ -3473,10 +3473,10 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
 #ifdef TABLING
       if (tabled)
-	code_p = a_gl(_table_trust, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_table_trust, code_p, pass_no, cip->cpc, cip PASS_REGS);
       else
 #endif
-	code_p = a_gl(_trust, code_p, pass_no, cip->cpc, cip);
+	code_p = a_gl(_trust, code_p, pass_no, cip->cpc, cip PASS_REGS);
       break;
     case try_in_op:
       code_p = a_il(cip->cpc->rnd1, _try_in, code_p, pass_no, cip);
@@ -3774,7 +3774,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 
 
 static DBTerm *
-fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep)
+fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep USES_REGS)
 {
   CELL *h0 = H;
   DBTerm *x;
@@ -3848,6 +3848,7 @@ init_dbterms_list(yamop *code_p, PredEntry *ap)
 yamop *
 Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates *cip, UInt max_label)
 {
+  CACHE_REGS
   /*
    * the assembly proccess is done in two passes: 1 - a first pass
    * computes labels offsets and total code size 2 - the second pass
@@ -3883,7 +3884,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
   cip->label_offset = (Int *)cip->freep;
 #endif
   cip->code_addr = NULL;
-  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
+  code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
   if (clause_has_dbterm) {
     cip->dbterml = init_dbterms_list(code_p, ap);
   }
@@ -3900,7 +3901,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     LogUpdClause *cl;
     UInt osize;
 
-    if(!(x = fetch_clause_space(&t,size,cip,&osize))){
+    if(!(x = fetch_clause_space(&t, size, cip, &osize PASS_REGS))){
       return NULL;
     }
     cl = (LogUpdClause *)((CODEADDR)x-(UInt)size);
@@ -3914,12 +3915,12 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     DBTerm *x;
     StaticClause *cl;
     UInt osize;
-    if(!(x = fetch_clause_space(&t,size,cip,&osize))) {
+    if(!(x = fetch_clause_space(&t, size, cip, &osize PASS_REGS))) {
       return NULL;
     }
     cl = (StaticClause *)((CODEADDR)x-(UInt)size);
     cip->code_addr = (yamop *)cl;
-    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
+    code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
     cl->ClSize = osize;
@@ -3946,7 +3947,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	Yap_IndexSpace_Tree += size;
     }
   }
-  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size);
+  code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
   ProfEnd=code_p;
 #ifdef LOW_PROF
   if (ProfilerOn &&

@@ -181,12 +181,14 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 inline EXTERN void
 init_absmi_regs(REGSTORE * absmi_regs)
 {
+  CACHE_REGS
   memcpy(absmi_regs, Yap_regp, sizeof(REGSTORE));
 }
 
 inline EXTERN void
 restore_absmi_regs(REGSTORE * old_regs)
 {
+  CACHE_REGS
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (void *)old_regs);
@@ -1113,6 +1115,7 @@ typedef struct v_record {
 static int 
 IUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
+  CACHE_REGS
 #ifdef THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -1310,6 +1313,7 @@ iequ_complex(register CELL *pt0, register CELL *pt0_end,
 	       register CELL *pt1
 )
 {
+CACHE_REGS
 #ifdef THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -1551,6 +1555,7 @@ Yap_regtoregno(wamreg reg)
 static inline void
 prune(choiceptr cp)
 {
+  CACHE_REGS
   if (SHOULD_CUT_UP_TO(B,cp))
     {
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
@@ -1582,6 +1587,7 @@ prune(choiceptr cp)
 
 static inline
 void SET_ASP(CELL *yreg, Int sz) {
+  CACHE_REGS
   ASP = (CELL *) (((char *) yreg) + sz);
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);

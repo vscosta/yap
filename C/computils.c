@@ -111,6 +111,7 @@ AllocCMem (UInt size, struct intermediates *cip)
     else
       blksz = CMEM_BLK_SIZE;
     if (!cip->blks) {
+      CACHE_REGS
       if (Yap_CMemFirstBlock) {
 	p = Yap_CMemFirstBlock;
 	blksz = Yap_CMemFirstBlockSz;
@@ -130,6 +131,7 @@ AllocCMem (UInt size, struct intermediates *cip)
     } else {
       p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
       if (!p) {
+	CACHE_REGS
 	Yap_Error_Size = size;
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
@@ -150,6 +152,7 @@ AllocCMem (UInt size, struct intermediates *cip)
   p = cip->freep;
   cip->freep += size;
   if (ASP <= CellPtr (cip->freep) + 256) {
+    CACHE_REGS
     Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
@@ -162,6 +165,7 @@ void
 Yap_ReleaseCMem (struct intermediates *cip)
 {
 #if USE_SYSTEM_MALLOC
+  CACHE_REGS
   struct mem_blk *p = cip->blks;
   while (p) {
     struct mem_blk *nextp = p->u.next;
@@ -843,6 +847,7 @@ static char *opformat[] =
 void
 Yap_ShowCode (struct intermediates *cint)
 {
+  CACHE_REGS
   CELL *oldH = H;
   struct PSEUDO *cpc;
 

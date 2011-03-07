@@ -37,7 +37,7 @@ static char     SccsId[] = "%W% %G%";
 yap_error_number Yap_matherror = YAP_NO_ERROR;
 
 static Term
-Eval(Term t)
+Eval(Term t USES_REGS)
 {
   if (IsVarTerm(t)) {
     ArithError = TRUE;
@@ -78,7 +78,7 @@ Eval(Term t)
 			      RepAtom(name)->StrOfAE,n);
       }
       *RepAppl(t) = (CELL)AtomFoundVar;
-      t1 = Eval(ArgOfTerm(1,t));
+      t1 = Eval(ArgOfTerm(1,t) PASS_REGS);
       if (t1 == 0L) {
 	*RepAppl(t) = (CELL)fun;
 	return FALSE;
@@ -87,7 +87,7 @@ Eval(Term t)
 	*RepAppl(t) = (CELL)fun;
 	return Yap_eval_unary(p->FOfEE, t1);
       }
-      t2 = Eval(ArgOfTerm(2,t));
+      t2 = Eval(ArgOfTerm(2,t) PASS_REGS);
       *RepAppl(t) = (CELL)fun;
       if (t2 == 0L)
 	return FALSE;
@@ -98,14 +98,15 @@ Eval(Term t)
       return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
 			    "string must contain a single character to be evaluated as an arithmetic expression");
     }
-    return Eval(HeadOfTerm(t));
+    return Eval(HeadOfTerm(t) PASS_REGS);
   }
 }
 
 Term
 Yap_InnerEval(Term t)
 {
-  return Eval(t);
+  CACHE_REGS
+  return Eval(t PASS_REGS);
 }
 
 #ifdef BEAM
@@ -125,11 +126,11 @@ BEAM_is(void)
 #endif
 
 static Int
-p_is(void)
+p_is( USES_REGS1 )
 {				/* X is Y	 */
   Term out = 0L;
   
-  while (!(out = Eval(Deref(ARG2)))) {
+  while (!(out = Eval(Deref(ARG2) PASS_REGS))) {
     if (Yap_Error_TYPE == RESOURCE_ERROR_STACK) {
       Yap_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_gcl(Yap_Error_Size, 2, ENV, CP)) {
@@ -147,6 +148,7 @@ p_is(void)
 Int
 Yap_ArithError(yap_error_number type, Term where, char *format,...)
 {
+  CACHE_REGS
   va_list ap;
 
   ArithError = TRUE;

@@ -22,8 +22,8 @@ static char     SccsId[] = "%W% %G%";
 #include "Yatom.h"
 #include "YapHeap.h"
 
-STATIC_PROTO(Int p_current_module, (void));
-STATIC_PROTO(Int p_current_module1, (void));
+STATIC_PROTO(Int p_current_module, ( USES_REGS1 ));
+STATIC_PROTO(Int p_current_module1, ( USES_REGS1 ));
 
 
 inline static ModEntry *
@@ -82,6 +82,7 @@ GetModuleEntry(Atom at)
 Term 
 Yap_Module_Name(PredEntry *ap)
 {
+  CACHE_REGS
   Term mod;
   if (!ap->ModuleOfPred)
     /* If the system predicate is a metacall I should return the
@@ -143,7 +144,7 @@ Yap_NewModulePred(Term mod, struct pred_entry *ap)
 }
 
 static Int 
-p_current_module(void)
+p_current_module( USES_REGS1 )
 {				/* $current_module(Old,New)		 */
   Term            t;
 	
@@ -167,7 +168,7 @@ p_current_module(void)
 }
 
 static Int
-p_current_module1(void)
+p_current_module1( USES_REGS1 )
 {				/* $current_module(Old)		 */
   if (CurrentModule)
     return Yap_unify_constant(ARG1, CurrentModule);
@@ -175,7 +176,7 @@ p_current_module1(void)
 }
 
 static Int
-p_change_module(void)
+p_change_module( USES_REGS1 )
 {				/* $change_module(New)		 */
   Term mod = Deref(ARG1);
   LookupModule(mod);
@@ -184,7 +185,7 @@ p_change_module(void)
 }
 
 static Int 
-cont_current_module(void)
+cont_current_module( USES_REGS1 )
 {
   ModEntry  *imod = (ModEntry *)IntegerOfTerm(EXTRA_CBACK_ARG(1,1)), *next;
   Term t = MkAtomTerm(imod->AtomOfME);
@@ -199,7 +200,7 @@ cont_current_module(void)
 }
 
 static Int 
-init_current_module(void)
+init_current_module( USES_REGS1 )
 {				/* current_module(?ModuleName)		 */
   Term t = Deref(ARG1);
   if (!IsVarTerm(t)) {
@@ -212,11 +213,11 @@ init_current_module(void)
     cut_fail();
   }
   EXTRA_CBACK_ARG(1,1) = MkIntegerTerm((Int)CurrentModules);
-  return cont_current_module();
+  return cont_current_module( PASS_REGS1 );
 }
 
 static Int
-p_strip_module(void)
+p_strip_module( USES_REGS1 )
 {
   Term t1 = Deref(ARG1), t2, tmod = CurrentModule;
   if (tmod == PROLOG_MODULE) {
@@ -243,7 +244,7 @@ p_strip_module(void)
 }
 
 static Int
-p_context_module(void)
+p_context_module( USES_REGS1 )
 {
   yamop *parentcp = P;
   CELL *yenv;
@@ -267,6 +268,7 @@ p_context_module(void)
 Term
 Yap_StripModule(Term t,  Term *modp)
 {
+  CACHE_REGS
   Term tmod;
 
   tmod = CurrentModule;
@@ -313,6 +315,7 @@ Yap_InitModulesC(void)
 void 
 Yap_InitModules(void)
 {
+  CACHE_REGS
   LookupModule(MkAtomTerm(AtomProlog));
   LookupModule(USER_MODULE);
   LookupModule(IDB_MODULE);

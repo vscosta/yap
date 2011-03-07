@@ -35,39 +35,39 @@
 #endif /* TABLING */
 
 #ifdef TABLING
-static Int p_freeze_choice_point(void);
-static Int p_wake_choice_point(void);
-static Int p_reset_frozen_choice_points(void);
-static Int p_abolish_frozen_choice_points_until(void);
-static Int p_abolish_frozen_choice_points_all(void);
-static Int p_table(void);
-static Int p_tabling_mode(void);
-static Int p_abolish_table(void);
-static Int p_abolish_all_tables(void);
-static Int p_show_tabled_predicates(void);
-static Int p_show_table(void);
-static Int p_show_all_tables(void);
-static Int p_show_global_trie(void);
-static Int p_show_statistics_table(void);
-static Int p_show_statistics_tabling(void);
-static Int p_show_statistics_global_trie(void);
+static Int p_freeze_choice_point( USES_REGS1 );
+static Int p_wake_choice_point( USES_REGS1 );
+static Int p_reset_frozen_choice_points( USES_REGS1 );
+static Int p_abolish_frozen_choice_points_until( USES_REGS1 );
+static Int p_abolish_frozen_choice_points_all( USES_REGS1 );
+static Int p_table( USES_REGS1 );
+static Int p_tabling_mode( USES_REGS1 );
+static Int p_abolish_table( USES_REGS1 );
+static Int p_abolish_all_tables( USES_REGS1 );
+static Int p_show_tabled_predicates( USES_REGS1 );
+static Int p_show_table( USES_REGS1 );
+static Int p_show_all_tables( USES_REGS1 );
+static Int p_show_global_trie( USES_REGS1 );
+static Int p_show_statistics_table( USES_REGS1 );
+static Int p_show_statistics_tabling( USES_REGS1 );
+static Int p_show_statistics_global_trie( USES_REGS1 );
 #endif /* TABLING */
-static Int p_yapor_threads(void);
+static Int p_yapor_threads( USES_REGS1 );
 #ifdef YAPOR
-static Int p_worker(void);
-static Int p_yapor_on(void);
-static Int p_start_yapor(void);
-static Int p_default_sequential(void);
-static Int p_execution_mode(void);
-static Int p_performance(void);
-static Int p_parallel_new_answer(void);
-static Int p_parallel_yes_answer(void);
-static Int p_show_statistics_or(void);
+static Int p_worker( USES_REGS1 );
+static Int p_yapor_on( USES_REGS1 );
+static Int p_start_yapor( USES_REGS1 );
+static Int p_default_sequential( USES_REGS1 );
+static Int p_execution_mode( USES_REGS1 );
+static Int p_performance( USES_REGS1 );
+static Int p_parallel_new_answer( USES_REGS1 );
+static Int p_parallel_yes_answer( USES_REGS1 );
+static Int p_show_statistics_or( USES_REGS1 );
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-static Int p_show_statistics_opt(void);
+static Int p_show_statistics_opt( USES_REGS1 );
 #endif /* YAPOR && TABLING */
-static Int p_get_optyap_statistics(void);
+static Int p_get_optyap_statistics( USES_REGS1 );
 
 #ifdef YAPOR
 static inline realtime current_time(void);
@@ -172,7 +172,7 @@ void finish_yapor(void) {
 ***********************************/
 
 #ifdef TABLING
-static Int p_freeze_choice_point(void) {
+static Int p_freeze_choice_point( USES_REGS1 ) {
   if (IsVarTerm(Deref(ARG1))) {
     Int offset = freeze_current_cp();
     return Yap_unify(ARG1, MkIntegerTerm(offset));
@@ -181,7 +181,7 @@ static Int p_freeze_choice_point(void) {
 }
 
 
-static Int p_wake_choice_point(void) {
+static Int p_wake_choice_point( USES_REGS1 ) {
   Term term_offset = Deref(ARG1);
   if (IsIntegerTerm(term_offset))
     wake_frozen_cp(IntegerOfTerm(term_offset));
@@ -189,7 +189,7 @@ static Int p_wake_choice_point(void) {
 }
 
 
-static Int p_abolish_frozen_choice_points_until(void) {
+static Int p_abolish_frozen_choice_points_until( USES_REGS1 ) {
   Term term_offset = Deref(ARG1);
   if (IsIntegerTerm(term_offset))
     abolish_frozen_cps_until(IntegerOfTerm(term_offset));
@@ -197,13 +197,13 @@ static Int p_abolish_frozen_choice_points_until(void) {
 }
 
 
-static Int p_abolish_frozen_choice_points_all(void) {
+static Int p_abolish_frozen_choice_points_all( USES_REGS1 ) {
   abolish_frozen_cps_all();
   return (TRUE);
 }
 
 
-static Int p_table(void) {
+static Int p_table( USES_REGS1 ) {
   Term mod, t;
   PredEntry *pe;
   Atom at;
@@ -233,7 +233,7 @@ static Int p_table(void) {
 }
 
 
-static Int p_tabling_mode(void) {
+static Int p_tabling_mode( USES_REGS1 ) {
   Term mod, t, tvalue;
   tab_ent_ptr tab_ent;
 
@@ -320,7 +320,7 @@ static Int p_tabling_mode(void) {
 }
 
 
-static Int p_abolish_table(void) {
+static Int p_abolish_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
@@ -355,7 +355,7 @@ static Int p_abolish_table(void) {
 }
 
 
-static Int p_abolish_all_tables(void) {
+static Int p_abolish_all_tables( USES_REGS1 ) {
   tab_ent_ptr tab_ent;
   sg_hash_ptr hash;
   sg_node_ptr sg_node;
@@ -385,7 +385,7 @@ static Int p_abolish_all_tables(void) {
 }
 
 
-static Int p_show_tabled_predicates(void) {
+static Int p_show_tabled_predicates( USES_REGS1 ) {
   tab_ent_ptr tab_ent;
 
   tab_ent = GLOBAL_root_tab_ent;
@@ -401,7 +401,7 @@ static Int p_show_tabled_predicates(void) {
 }
 
 
-static Int p_show_table(void) {
+static Int p_show_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
 
@@ -418,7 +418,7 @@ static Int p_show_table(void) {
 }
 
 
-static Int p_show_all_tables(void) {
+static Int p_show_all_tables( USES_REGS1 ) {
   tab_ent_ptr tab_ent;
 
   tab_ent = GLOBAL_root_tab_ent;
@@ -430,13 +430,13 @@ static Int p_show_all_tables(void) {
 }
 
 
-static Int p_show_global_trie(void) {
+static Int p_show_global_trie( USES_REGS1 ) {
   show_global_trie(SHOW_MODE_STRUCTURE);
   return (TRUE);
 }
 
 
-static Int p_show_statistics_table(void) {
+static Int p_show_statistics_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
 
@@ -453,7 +453,7 @@ static Int p_show_statistics_table(void) {
 }
 
 
-static Int p_show_statistics_tabling(void) {
+static Int p_show_statistics_tabling( USES_REGS1 ) {
   long total_bytes = 0, aux_bytes;
 
   aux_bytes = 0;
@@ -489,7 +489,7 @@ static Int p_show_statistics_tabling(void) {
   return (TRUE);
 }
 
-static Int p_show_statistics_global_trie(void) {
+static Int p_show_statistics_global_trie( USES_REGS1 ) {
   show_global_trie(SHOW_MODE_STATISTICS);
   return (TRUE);
 }
@@ -500,7 +500,7 @@ static Int p_show_statistics_global_trie(void) {
 **      YapOr C Predicates      **
 *********************************/
 
-static Int p_yapor_threads(void) {
+static Int p_yapor_threads( USES_REGS1 ) {
 #if defined(YAPOR) && defined(THREADS)
   return Yap_unify(MkIntegerTerm(number_workers),ARG1);
 #else
@@ -510,19 +510,19 @@ static Int p_yapor_threads(void) {
 
 
 #ifdef YAPOR
-static Int p_worker(void) {
+static Int p_worker( USES_REGS1 ) {
   CurrentModule = USER_MODULE;
   P = GETWORK_FIRST_TIME;
   return TRUE;
 }
 
 
-static Int p_yapor_on(void) {
+static Int p_yapor_on( USES_REGS1 ) {
   return (PARALLEL_EXECUTION_MODE);
 }
 
 
-static Int p_start_yapor(void) {
+static Int p_start_yapor( USES_REGS1 ) {
 #ifdef TIMESTAMP_CHECK
   GLOBAL_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
@@ -542,7 +542,7 @@ static Int p_start_yapor(void) {
 }
 
 
-static Int p_default_sequential(void) {
+static Int p_default_sequential( USES_REGS1 ) {
   Term t;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -570,7 +570,7 @@ static Int p_default_sequential(void) {
 }
 
 
-static Int p_execution_mode(void) {
+static Int p_execution_mode( USES_REGS1 ) {
   Term t;
   t = Deref(ARG1);
   if (IsVarTerm(t)) {
@@ -598,7 +598,7 @@ static Int p_execution_mode(void) {
 }
 
 
-static Int p_performance(void) {
+static Int p_performance( USES_REGS1 ) {
   Term t;
   realtime one_worker_execution_time = 0;
   int i;
@@ -672,7 +672,7 @@ static Int p_performance(void) {
 }
 
 
-static Int p_parallel_new_answer(void) {
+static Int p_parallel_new_answer( USES_REGS1 ) {
   or_fr_ptr leftmost_or_fr;
 
   length_answer = 0;
@@ -693,13 +693,13 @@ static Int p_parallel_new_answer(void) {
 }
 
 
-static Int p_parallel_yes_answer(void) {
+static Int p_parallel_yes_answer( USES_REGS1 ) {
   GLOBAL_answers = YES_ANSWER;
   return (TRUE);
 }
 
 
-static Int p_show_statistics_or(void) {
+static Int p_show_statistics_or( USES_REGS1 ) {
   long total_bytes = 0, aux_bytes;
 
   aux_bytes = 0;
@@ -733,7 +733,7 @@ static Int p_show_statistics_or(void) {
 **********************************/
 
 #if defined(YAPOR) && defined(TABLING)
-static Int p_show_statistics_opt(void) {
+static Int p_show_statistics_opt( USES_REGS1 ) {
   long total_bytes = 0, aux_bytes;
 
   aux_bytes = 0;
@@ -783,7 +783,7 @@ static Int p_show_statistics_opt(void) {
 #endif /* YAPOR && TABLING */
 
 
-static Int p_get_optyap_statistics(void) {
+static Int p_get_optyap_statistics( USES_REGS1 ) {
   Term tbytes, tstructs;
   Int value, bytes = -1, structs = -1;
 
@@ -928,6 +928,7 @@ static inline int parallel_new_answer_putchar(int sno, int ch) {
 
 
 static inline void show_answers(void) {
+  CACHE_REGS
   int i;
   if (OrFr_qg_solutions(LOCAL_top_or_fr)) {
     qg_ans_fr_ptr aux_answer1, aux_answer2;

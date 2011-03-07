@@ -24,15 +24,15 @@ static char     SccsId[] = "%W% %G%";
 
 #include "Yatom.h"
 
-STD_PROTO(static Int p_get_depth_limit, (void));
-STD_PROTO(static Int p_set_depth_limit, (void));
+STD_PROTO(static Int p_get_depth_limit, ( USES_REGS1 ));
+STD_PROTO(static Int p_set_depth_limit, ( USES_REGS1 ));
 
-static Int p_get_depth_limit(void)
+static Int p_get_depth_limit( USES_REGS1 )
 {
   return(Yap_unify_constant(ARG1, MkIntTerm(IntOfTerm(DEPTH/2))));
 }
 
-static Int p_set_depth_limit(void)
+static Int p_set_depth_limit( USES_REGS1 )
 {
   Term d = Deref(ARG1);
 
@@ -51,7 +51,7 @@ static Int p_set_depth_limit(void)
   return(TRUE);
 }
 
-static Int p_set_depth_limit_for_next_call(void)
+static Int p_set_depth_limit_for_next_call( USES_REGS1 )
 {
   Term d = Deref(ARG1);
 

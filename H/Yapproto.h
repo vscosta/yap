@@ -47,7 +47,7 @@ Term	STD_PROTO(Yap_StringToList,(char *));
 Term	STD_PROTO(Yap_NStringToList,(char *, size_t));
 Term	STD_PROTO(Yap_WideStringToList,(wchar_t *));
 Term	STD_PROTO(Yap_NWideStringToList,(wchar_t *, size_t));
-Term	STD_PROTO(Yap_StringToDiffList,(char *,Term));
+Term	STD_PROTO(Yap_StringToDiffList,(char *,Term CACHE_TYPE));
 Term	STD_PROTO(Yap_NStringToDiffList,(char *,Term, size_t));
 Term	STD_PROTO(Yap_WideStringToDiffList,(wchar_t *,Term));
 Term	STD_PROTO(Yap_NWideStringToDiffList,(wchar_t *,Term, size_t));
@@ -59,13 +59,13 @@ Term	STD_PROTO(Yap_NWideStringToDiffListOfAtoms,(wchar_t *, Term, size_t));
 int     STD_PROTO(Yap_AtomIncreaseHold,(Atom));
 int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
 
-Int	STD_PROTO(Yap_InitSlot,(Term));
-Int     STD_PROTO(Yap_NewSlots,(int));
-Term    STD_PROTO(Yap_GetFromSlot,(Int));
-int     STD_PROTO(Yap_RecoverSlots,(int));
-Term    STD_PROTO(Yap_GetPtrFromSlot,(Int));
-Term   *STD_PROTO(Yap_AddressFromSlot,(Int));
-void    STD_PROTO(Yap_PutInSlot,(Int, Term));
+Int	STD_PROTO(Yap_InitSlot,(Term CACHE_TYPE));
+Int     STD_PROTO(Yap_NewSlots,(int CACHE_TYPE));
+Term    STD_PROTO(Yap_GetFromSlot,(Int CACHE_TYPE));
+int     STD_PROTO(Yap_RecoverSlots,(int CACHE_TYPE));
+Term    STD_PROTO(Yap_GetPtrFromSlot,(Int CACHE_TYPE));
+Term   *STD_PROTO(Yap_AddressFromSlot,(Int CACHE_TYPE));
+void    STD_PROTO(Yap_PutInSlot,(Int, Term CACHE_TYPE));
 
 
 #ifdef SFUNC
@@ -82,7 +82,7 @@ Prop	STD_PROTO(Yap_GetExpProp,(Atom,unsigned int));
 Prop	STD_PROTO(Yap_GetExpPropHavingLock,(AtomEntry *,unsigned int));
 
 /* agc.c */
-void    STD_PROTO(Yap_atom_gc, (void));
+void    STD_PROTO(Yap_atom_gc, (CACHE_TYPE1));
 void    STD_PROTO(Yap_init_agc, (void));
 
 /* alloc.c */

@@ -480,7 +480,7 @@ STATIC_PROTO(void asserta_stat_clause, (PredEntry *, yamop *, int));
 STATIC_PROTO(void asserta_dynam_clause, (PredEntry *, yamop *));
 STATIC_PROTO(void assertz_stat_clause, (PredEntry *, yamop *, int));
 STATIC_PROTO(void assertz_dynam_clause, (PredEntry *, yamop *));
-STATIC_PROTO(void expand_consult, (void));
+STATIC_PROTO(void expand_consult, ( void ));
 STATIC_PROTO(int  not_was_reconsulted, (PredEntry *, Term, int));
 STATIC_PROTO(int  RemoveIndexation, (PredEntry *));
 #if EMACS
@@ -492,33 +492,33 @@ STATIC_PROTO(Int  search_for_static_predicate_in_use, (PredEntry *, int));
 STATIC_PROTO(void mark_pred, (int, PredEntry *));
 STATIC_PROTO(void do_toggle_static_predicates_in_use, (int));
 #endif
-STATIC_PROTO(Int  p_number_of_clauses, (void));
-STATIC_PROTO(Int  p_compile, (void));
-STATIC_PROTO(Int  p_compile_dynamic, (void));
-STATIC_PROTO(Int  p_purge_clauses, (void));
-STATIC_PROTO(Int  p_setspy, (void));
-STATIC_PROTO(Int  p_rmspy, (void));
-STATIC_PROTO(Int  p_startconsult, (void));
-STATIC_PROTO(Int  p_showconslultlev, (void));
-STATIC_PROTO(Int  p_endconsult, (void));
-STATIC_PROTO(Int  p_undefined, (void));
-STATIC_PROTO(Int  p_in_use, (void));
-STATIC_PROTO(Int  p_new_multifile, (void));
-STATIC_PROTO(Int  p_is_multifile, (void));
-STATIC_PROTO(Int  p_optimizer_on, (void));
-STATIC_PROTO(Int  p_optimizer_off, (void));
-STATIC_PROTO(Int  p_is_dynamic, (void));
-STATIC_PROTO(Int  p_kill_dynamic, (void));
-STATIC_PROTO(Int  p_compile_mode, (void));
-STATIC_PROTO(Int  p_is_profiled, (void));
-STATIC_PROTO(Int  p_profile_info, (void));
-STATIC_PROTO(Int  p_profile_reset, (void));
-STATIC_PROTO(Int  p_is_call_counted, (void));
-STATIC_PROTO(Int  p_call_count_info, (void));
-STATIC_PROTO(Int  p_call_count_set, (void));
-STATIC_PROTO(Int  p_call_count_reset, (void));
-STATIC_PROTO(Int  p_toggle_static_predicates_in_use, (void));
-STATIC_PROTO(Atom  YapConsultingFile, (void));
+STATIC_PROTO(Int  p_number_of_clauses, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_compile, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_compile_dynamic, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_purge_clauses, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_setspy, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_rmspy, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_startconsult, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_showconslultlev, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_endconsult, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_undefined, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_in_use, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_new_multifile, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_is_multifile, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_optimizer_on, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_optimizer_off, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_is_dynamic, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_kill_dynamic, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_compile_mode, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_is_profiled, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_profile_info, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_profile_reset, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_is_call_counted, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_call_count_info, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_call_count_set, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_call_count_reset, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_toggle_static_predicates_in_use, ( USES_REGS1 ));
+STATIC_PROTO(Atom  YapConsultingFile, ( USES_REGS1 ));
 STATIC_PROTO(Int  PredForCode,(yamop *, Atom *, UInt *, Term *));
 STATIC_PROTO(void  kill_first_log_iblock,(LogUpdIndex *, LogUpdIndex *, PredEntry *));
 STATIC_PROTO(LogUpdIndex *find_owner_log_index,(LogUpdIndex *, yamop *));
@@ -632,8 +632,9 @@ Yap_PredForChoicePt(choiceptr cp) {
 }
 
 static void
-InitConsultStack(void)
+InitConsultStack( void )
 {
+  CACHE_REGS
   ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
   if (ConsultLow == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
@@ -645,8 +646,9 @@ InitConsultStack(void)
 }
 
 void
-Yap_ResetConsultStack(void)
+Yap_ResetConsultStack( void )
 {
+  CACHE_REGS
   Yap_FreeCodeSpace((char *)ConsultLow);
   ConsultBase =
     ConsultSp =
@@ -776,6 +778,7 @@ get_pred(Term t,  Term tmod, char *pname)
 
 static Term BlobTermInCodeAdjust(Term t)
 {
+  CACHE_REGS
 #if TAGS_FAST_OPS
   return t-ClDiff;
 #else
@@ -801,6 +804,7 @@ static UInt  total_megaclause, total_released, nof_megaclauses;
 void
 Yap_BuildMegaClause(PredEntry *ap)
 {
+  CACHE_REGS
   StaticClause *cl;
   UInt sz;
   MegaClause *mcl;
@@ -860,7 +864,7 @@ Yap_BuildMegaClause(PredEntry *ap)
     memcpy((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
       ClDiff = (char *)(ptr)-(char *)cl->ClCode;
-      restore_opcodes(ptr, NULL);
+      restore_opcodes(ptr, NULL PASS_REGS);
     }
     ptr = (yamop *)((char *)ptr + sz);
     if (cl->ClCode == ap->cs.p_code.LastClause)
@@ -953,6 +957,7 @@ split_megaclause(PredEntry *ap)
 static void 
 IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 {
+  CACHE_REGS
   yamop          *BaseAddr;
 
 #ifdef DEBUG
@@ -1938,8 +1943,9 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
   p->cs.p_code.NOfClauses++;
 }
 
-static void  expand_consult(void)
+static void  expand_consult( void )
 {
+  CACHE_REGS
   consult_obj *new_cl, *new_cs;
   UInt OldConsultCapacity = ConsultCapacity;
 
@@ -1971,6 +1977,7 @@ static void  expand_consult(void)
 static int 
 not_was_reconsulted(PredEntry *p, Term t, int mode)
 {
+  CACHE_REGS
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
 
@@ -1999,7 +2006,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 	!(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, static_in_use(p,TRUE));
     }
-    p->src.OwnerFile = YapConsultingFile();
+    p->src.OwnerFile = YapConsultingFile( PASS_REGS1 );
   }
   return TRUE;		/* careful */
 }
@@ -2007,6 +2014,7 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
 static void
 addcl_permission_error(AtomEntry *ap, Int Arity, int in_use) 
 {
+  CACHE_REGS
   Term t, ti[2];
 
   ti[0] = MkAtomTerm(AbsAtom(ap));
@@ -2078,6 +2086,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
    2  asserta
 */
 {
+  CACHE_REGS
   PredEntry      *p;
   int             spy_flag = FALSE;
   Atom           at;
@@ -2276,7 +2285,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & MultiFileFlag) {
     /* add Info on new clause for multifile predicates to the DB */
     Term t[5], tn;
-    t[0] = MkAtomTerm(YapConsultingFile());
+    t[0] = MkAtomTerm(YapConsultingFile( PASS_REGS1 ));
     t[1] = MkAtomTerm(at);
     t[2] = MkIntegerTerm(Arity);
     t[3] = mod;
@@ -2438,7 +2447,7 @@ where_new_clause(pred_prop, mode)
 #endif
 
 static Int 
-p_compile(void)
+p_compile( USES_REGS1 )
 {				/* '$compile'(+C,+Flags, Mod) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
@@ -2471,7 +2480,7 @@ p_compile(void)
 }
 
 static Int 
-p_compile_dynamic(void)
+p_compile_dynamic( USES_REGS1 )
 {				/* '$compile_dynamic'(+C,+Flags,Mod,-Ref) */
   Term            t = Deref(ARG1);
   Term            t1 = Deref(ARG2);
@@ -2513,7 +2522,7 @@ p_compile_dynamic(void)
 static int      consult_level = 0;
 
 static Atom
-YapConsultingFile (void)
+YapConsultingFile ( USES_REGS1 )
 {
   if (consult_level == 0) {
     return(AtomUser);
@@ -2523,15 +2532,17 @@ YapConsultingFile (void)
 }
 
 Atom
-Yap_ConsultingFile (void)
+Yap_ConsultingFile ( void )
 {
-  return YapConsultingFile();
+  CACHE_REGS
+  return YapConsultingFile( PASS_REGS1 );
 }
 
 /* consult file *file*, *mode* may be one of either consult or reconsult */
 static void
 init_consult(int mode, char *file)
 {
+  CACHE_REGS
   if (!ConsultSp) {
     InitConsultStack();
   }
@@ -2557,7 +2568,7 @@ Yap_init_consult(int mode, char *file)
 }
 
 static Int 
-p_startconsult(void)
+p_startconsult( USES_REGS1 )
 {				/* '$start_consult'(+Mode)	 */
   Term            t;
   char           *smode = RepAtom(AtomOfTerm(Deref(ARG1)))->StrOfAE;
@@ -2570,7 +2581,7 @@ p_startconsult(void)
 }
 
 static Int 
-p_showconslultlev(void)
+p_showconslultlev( USES_REGS1 )
 {
   Term            t;
 
@@ -2579,7 +2590,7 @@ p_showconslultlev(void)
 }
 
 static void
-end_consult(void)
+end_consult( USES_REGS1 )
 {
   ConsultSp = ConsultBase;
   ConsultBase = ConsultSp+ConsultSp->c;
@@ -2593,15 +2604,16 @@ end_consult(void)
 }
 
 void
-Yap_end_consult(void) {
-  end_consult();
+Yap_end_consult( void ) {
+  CACHE_REGS
+  end_consult( PASS_REGS1 );
 }
 
 
 static Int 
-p_endconsult(void)
+p_endconsult( USES_REGS1 )
 {				/* '$end_consult'		 */
-  end_consult();
+  end_consult( PASS_REGS1 );
   return (TRUE);
 }
 
@@ -2626,7 +2638,7 @@ Yap_Abolish(PredEntry *pred)
 }
 
 static Int 
-p_purge_clauses(void)
+p_purge_clauses( USES_REGS1 )
 {				/* '$purge_clauses'(+Func) */
   PredEntry      *pred;
   Term            t = Deref(ARG1);
@@ -2664,7 +2676,7 @@ p_purge_clauses(void)
 ******************************************************************/
 
 static Int 
-p_setspy(void)
+p_setspy( USES_REGS1 )
 {				/* '$set_spy'(+Fun,+M)	 */
   Atom            at;
   PredEntry      *pred;
@@ -2723,7 +2735,7 @@ p_setspy(void)
 }
 
 static Int 
-p_rmspy(void)
+p_rmspy( USES_REGS1 )
 {				/* '$rm_spy'(+T,+Mod)	 */
   Atom            at;
   PredEntry      *pred;
@@ -2791,7 +2803,7 @@ p_rmspy(void)
 ******************************************************************/
 
 static Int 
-p_number_of_clauses(void)
+p_number_of_clauses( USES_REGS1 )
 {				/* '$number_of_clauses'(Predicate,M,N) */
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
@@ -2819,7 +2831,7 @@ p_number_of_clauses(void)
 }
 
 static Int 
-p_in_use(void)
+p_in_use( USES_REGS1 )
 {				/* '$in_use'(+P,+Mod)	 */
   PredEntry      *pe;
   Int            out;
@@ -2834,7 +2846,7 @@ p_in_use(void)
 }
 
 static Int 
-p_new_multifile(void)
+p_new_multifile( USES_REGS1 )
 {				/* '$new_multifile'(+N,+Ar,+Mod)  */
   Atom            at;
   int             arity;
@@ -2873,7 +2885,7 @@ p_new_multifile(void)
 
 
 static Int 
-p_is_multifile(void)
+p_is_multifile( USES_REGS1 )
 {				/* '$is_multifile'(+S,+Mod)	 */
   PredEntry      *pe;
   Int		  out;
@@ -2888,7 +2900,7 @@ p_is_multifile(void)
 }
 
 static Int 
-p_is_log_updatable(void)
+p_is_log_updatable( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Int             out;
@@ -2903,7 +2915,7 @@ p_is_log_updatable(void)
 }
 
 static Int 
-p_is_source(void)
+p_is_source( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Int             out;
@@ -2918,7 +2930,7 @@ p_is_source(void)
 }
 
 static Int 
-p_owner_file(void)
+p_owner_file( USES_REGS1 )
 {				/* '$owner_file'(+P,M,F)	 */
   PredEntry      *pe;
   Atom            owner;
@@ -2941,7 +2953,7 @@ p_owner_file(void)
 }
 
 static Int 
-p_mk_d(void)
+p_mk_d( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
 
@@ -2957,7 +2969,7 @@ p_mk_d(void)
 }
 
 static Int 
-p_is_dynamic(void)
+p_is_dynamic( USES_REGS1 )
 {				/* '$is_dynamic'(+P)	 */
   PredEntry      *pe;
   Int             out;
@@ -2972,7 +2984,7 @@ p_is_dynamic(void)
 }
 
 static Int 
-p_is_metapredicate(void)
+p_is_metapredicate( USES_REGS1 )
 {				/* '$is_metapredicate'(+P)	 */
   PredEntry      *pe;
   Int             out;
@@ -2987,7 +2999,7 @@ p_is_metapredicate(void)
 }
 
 static Int 
-p_is_expandgoalormetapredicate(void)
+p_is_expandgoalormetapredicate( USES_REGS1 )
 {				/* '$is_expand_goal_predicate'(+P)	 */
   PredEntry      *pe;
   Term            t = Deref(ARG1);
@@ -3050,7 +3062,7 @@ p_is_expandgoalormetapredicate(void)
 }
 
 static Int 
-p_pred_exists(void)
+p_pred_exists( USES_REGS1 )
 {				/* '$pred_exists'(+P,+M)	 */
   PredEntry      *pe;
   Int             out;
@@ -3069,7 +3081,7 @@ p_pred_exists(void)
 }
 
 static Int 
-p_set_pred_module(void)
+p_set_pred_module( USES_REGS1 )
 {				/* '$set_pred_module'(+P,+Mod)	 */
   PredEntry      *pe;
 
@@ -3083,7 +3095,7 @@ p_set_pred_module(void)
 }
 
 static Int 
-p_undefined(void)
+p_undefined( USES_REGS1 )
 {				/* '$undefined'(P,Mod)	 */
   PredEntry      *pe;
 
@@ -3109,7 +3121,7 @@ p_undefined(void)
  */
 
 static Int 
-p_kill_dynamic(void)
+p_kill_dynamic( USES_REGS1 )
 {				/* '$kill_dynamic'(P,M)       */
   PredEntry      *pe;
 
@@ -3134,21 +3146,21 @@ p_kill_dynamic(void)
 }
 
 static Int 
-p_optimizer_on(void)
+p_optimizer_on( USES_REGS1 )
 {				/* '$optimizer_on'		 */
   optimizer_on = TRUE;
   return (TRUE);
 }
 
 static Int 
-p_optimizer_off(void)
+p_optimizer_off( USES_REGS1 )
 {				/* '$optimizer_off'		 */
   optimizer_on = FALSE;
   return (TRUE);
 }
 
 static Int 
-p_compile_mode(void)
+p_compile_mode( USES_REGS1 )
 {				/* $compile_mode(Old,New)	 */
   Term            t2, t3 = MkIntTerm(compile_mode);
   if (!Yap_unify_constant(ARG1, t3))
@@ -3368,7 +3380,7 @@ Yap_find_owner_index(yamop *ipc, PredEntry *ap)
 }
 
 static Term
-all_envs(CELL *env_ptr)
+all_envs(CELL *env_ptr USES_REGS)
 {
   Term tf = AbsPair(H);
   CELL *start = H;
@@ -3398,7 +3410,7 @@ all_envs(CELL *env_ptr)
 }
 
 static Term
-all_cps(choiceptr b_ptr)
+all_cps(choiceptr b_ptr USES_REGS)
 {
   CELL *bp = NULL;
   CELL *start = H;
@@ -3428,7 +3440,7 @@ all_cps(choiceptr b_ptr)
 
 
 static Term
-all_calls(void)
+all_calls( USES_REGS1 )
 {
   Term ts[4];
   Functor f = Yap_MkFunctor(AtomLocalSp,4);
@@ -3436,8 +3448,8 @@ all_calls(void)
   ts[0] = MkIntegerTerm((Int)P);
   ts[1] = MkIntegerTerm((Int)CP);
   if (yap_flags[STACK_DUMP_ON_ERROR_FLAG]) {
-    ts[2] = all_envs(ENV);
-    ts[3] = all_cps(B);
+    ts[2] = all_envs(ENV PASS_REGS);
+    ts[3] = all_cps(B PASS_REGS);
     if (ts[2] == 0L ||
 	ts[3] == 0L)
       return 0L;
@@ -3448,16 +3460,17 @@ all_calls(void)
 }
 
 Term
-Yap_all_calls(void)
+Yap_all_calls( void )
 {
-  return all_calls();
+  CACHE_REGS
+  return all_calls( PASS_REGS1 );
 }
 
 static Int
-p_all_choicepoints(void)
+p_all_choicepoints( USES_REGS1 )
 {
   Term t;
-  while ((t = all_cps(B)) == 0L) {
+  while ((t = all_cps(B PASS_REGS)) == 0L) {
     if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping choicepoints");
       return FALSE;
@@ -3467,10 +3480,10 @@ p_all_choicepoints(void)
 }
 
 static Int
-p_all_envs(void)
+p_all_envs( USES_REGS1 )
 {
   Term t;
-  while ((t = all_envs(ENV)) == 0L) {
+  while ((t = all_envs(ENV PASS_REGS)) == 0L) {
     if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping environments");
       return FALSE;
@@ -3480,10 +3493,10 @@ p_all_envs(void)
 }
 
 static Int
-p_current_stack(void)
+p_current_stack( USES_REGS1 )
 {
   Term t;
-  while ((t = all_calls()) == 0L) {
+  while ((t = all_calls( PASS_REGS1 )) == 0L) {
     if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping stack");
       return FALSE;
@@ -3499,7 +3512,7 @@ p_current_stack(void)
 
  */
 static Int
-p_toggle_static_predicates_in_use(void)
+p_toggle_static_predicates_in_use( USES_REGS1 )
 {
 #if !defined(YAPOR) && !defined(THREADS)
   Term t = Deref(ARG1);
@@ -3837,7 +3850,7 @@ found_idb_clause(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr)
+found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr USES_REGS)
 {
   PredEntry *pp = codeptr->u.sssllp.p;
   if (pc == codeptr) {
@@ -3849,7 +3862,7 @@ found_expand_index(yamop *pc, CODEADDR *startp, CODEADDR *endp, yamop *codeptr)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_fail(yamop *pc, CODEADDR *startp, CODEADDR *endp)
+found_fail(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 {
   PredEntry *pp = RepPredProp(Yap_GetPredPropByAtom(AtomFail,CurrentModule));
   *startp = *endp = (CODEADDR)FAILCODE;
@@ -3858,7 +3871,7 @@ found_fail(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp)
+found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 {
   PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->OpcodeOfPred))));
   *startp = (CODEADDR)&(pp->OpcodeOfPred);
@@ -3868,7 +3881,7 @@ found_owner_op(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 
 /* we hit a expand_index, no point in going on */
 static PredEntry *
-found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp)
+found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp USES_REGS)
 {
   PredEntry *pp = ((PredEntry *)(Unsigned(pc)-(CELL)(&(((PredEntry *)NULL)->cs.p_code.ExpandCode))));
   *startp = (CODEADDR)&(pp->cs.p_code.ExpandCode);
@@ -3877,7 +3890,7 @@ found_expand(yamop *pc, CODEADDR *startp, CODEADDR *endp)
 }
 
 static PredEntry *
-found_ystop(yamop *pc, int clause_code, CODEADDR *startp, CODEADDR *endp, PredEntry *pp)
+found_ystop(yamop *pc, int clause_code, CODEADDR *startp, CODEADDR *endp, PredEntry *pp USES_REGS)
 {
   if (pc == YESCODE) {
     pp = RepPredProp(Yap_GetPredPropByAtom(AtomTrue,CurrentModule));
@@ -3919,7 +3932,7 @@ found_ystop(yamop *pc, int clause_code, CODEADDR *startp, CODEADDR *endp, PredEn
 }
 
 static PredEntry *
-ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
+ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp USES_REGS) {
   yamop *pc;
   PredEntry *pp = NULL;
   int clause_code = FALSE;
@@ -3938,7 +3951,7 @@ ClauseInfoForCode(yamop *codeptr, CODEADDR *startp, CODEADDR *endp) {
 
 PredEntry *
 Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, CODEADDR *startp, CODEADDR *endp) {
-
+  CACHE_REGS
   if (where_from == FIND_PRED_FROM_CP) {
     PredEntry *pp = PredForChoicePt(codeptr);
     if (cl_code_in_pred(pp, codeptr, startp, endp)) {
@@ -3950,14 +3963,14 @@ Yap_PredEntryForCode(yamop *codeptr, find_pred_type where_from, CODEADDR *startp
       return pp;
     }
   } else {
-    return ClauseInfoForCode(codeptr, startp, endp);
+    return ClauseInfoForCode(codeptr, startp, endp PASS_REGS);
   }
   return NULL;
 }
 
 
 static Int
-p_pred_for_code(void) {
+p_pred_for_code( USES_REGS1 ) {
   yamop *codeptr;
   Atom at;
   UInt arity;
@@ -3989,7 +4002,7 @@ p_pred_for_code(void) {
 }
 
 static Int
-p_is_profiled(void)
+p_is_profiled( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   char *s;
@@ -4021,7 +4034,7 @@ p_is_profiled(void)
 }
 
 static Int
-p_profile_info(void)
+p_profile_info( USES_REGS1 )
 {
   Term mod = Deref(ARG1);
   Term tfun = Deref(ARG2);
@@ -4060,7 +4073,7 @@ p_profile_info(void)
 }
 
 static Int
-p_profile_reset(void)
+p_profile_reset( USES_REGS1 )
 {
   Term mod = Deref(ARG1);
   Term tfun = Deref(ARG2);
@@ -4092,7 +4105,7 @@ p_profile_reset(void)
 }
 
 static Int
-p_is_call_counted(void)
+p_is_call_counted( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   char *s;
@@ -4124,7 +4137,7 @@ p_is_call_counted(void)
 }
 
 static Int
-p_call_count_info(void)
+p_call_count_info( USES_REGS1 )
 {
   return(Yap_unify(MkIntegerTerm(ReductionsCounter),ARG1) &&
 	 Yap_unify(MkIntegerTerm(PredEntriesCounter),ARG2) &&
@@ -4132,7 +4145,7 @@ p_call_count_info(void)
 }
 
 static Int
-p_call_count_reset(void)
+p_call_count_reset( USES_REGS1 )
 {
   ReductionsCounter = 0;
   ReductionsCounterOn = FALSE;
@@ -4144,7 +4157,7 @@ p_call_count_reset(void)
 }
 
 static Int
-p_call_count_set(void)
+p_call_count_set( USES_REGS1 )
 {
   int do_calls = IntOfTerm(ARG2);
   int do_retries = IntOfTerm(ARG4);
@@ -4163,7 +4176,7 @@ p_call_count_set(void)
 }
 
 static Int
-p_clean_up_dead_clauses(void)
+p_clean_up_dead_clauses( USES_REGS1 )
 {
   while (DeadStaticClauses != NULL) {
     char *pt = (char *)DeadStaticClauses;
@@ -4193,7 +4206,7 @@ p_clean_up_dead_clauses(void)
 }
 
 static Int			/* $parent_pred(Module, Name, Arity) */
-p_parent_pred(void)
+p_parent_pred( USES_REGS1 )
 {
   /* This predicate is called from the debugger.
      We assume a sequence of the form a -> b */
@@ -4211,7 +4224,7 @@ p_parent_pred(void)
 }
 
 static Int			/* $system_predicate(P) */
-p_system_pred(void)
+p_system_pred( USES_REGS1 )
 {
   PredEntry      *pe;
 
@@ -4256,7 +4269,7 @@ p_system_pred(void)
 }
 
 static Int			/* $system_predicate(P) */
-p_all_system_pred(void)
+p_all_system_pred( USES_REGS1 )
 {
   PredEntry      *pe;
 
@@ -4308,7 +4321,7 @@ p_all_system_pred(void)
 }
 
 static Int			/* $system_predicate(P) */
-p_hide_predicate(void)
+p_hide_predicate( USES_REGS1 )
 {
   PredEntry      *pe;
 
@@ -4350,7 +4363,7 @@ p_hide_predicate(void)
 }
 
 static Int			/* $hidden_predicate(P) */
-p_hidden_predicate(void)
+p_hidden_predicate( USES_REGS1 )
 {
   PredEntry      *pe;
 
@@ -4393,6 +4406,7 @@ p_hidden_predicate(void)
 static Int
 fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
+  CACHE_REGS
   LogUpdClause *cl;
   Term rtn;
   Term Terms[3];
@@ -4506,7 +4520,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 }
 
 static Int			/* $hidden_predicate(P) */
-p_log_update_clause(void)
+p_log_update_clause( USES_REGS1 )
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
@@ -4527,7 +4541,7 @@ p_log_update_clause(void)
 }
 
 static Int			/* $hidden_predicate(P) */
-p_continue_log_update_clause(void)
+p_continue_log_update_clause( USES_REGS1 )
 {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
@@ -4539,6 +4553,7 @@ p_continue_log_update_clause(void)
 static Int
 fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
+  CACHE_REGS
   LogUpdClause *cl;
   Term rtn;
   Term Terms[3];
@@ -4656,7 +4671,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 }
 
 static Int			/* $hidden_predicate(P) */
-p_log_update_clause_erase(void)
+p_log_update_clause_erase( USES_REGS1 )
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
@@ -4677,7 +4692,7 @@ p_log_update_clause_erase(void)
 }
 
 static Int			/* $hidden_predicate(P) */
-p_continue_log_update_clause_erase(void)
+p_continue_log_update_clause_erase( USES_REGS1 )
 {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
@@ -4733,6 +4748,7 @@ replace_integer(Term orig, UInt new)
 void			/* $hidden_predicate(P) */
 Yap_UpdateTimestamps(PredEntry *ap)
 {
+  CACHE_REGS
   choiceptr bptr = B;
   yamop *cl0 = NEXTOP(PredLogUpdClause0->CodeOfPred,Otapl);
   yamop *cl = NEXTOP(PredLogUpdClause->CodeOfPred,Otapl);
@@ -4859,6 +4875,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
 static Int
 fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, yamop *cp_ptr, int first_time)
 {
+  CACHE_REGS
   StaticClause *cl;
   Term rtn;
   Term Terms[3];
@@ -4996,7 +5013,7 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 }
 
 static Int			/* $hidden_predicate(P) */
-p_static_clause(void)
+p_static_clause( USES_REGS1 )
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
@@ -5015,7 +5032,7 @@ p_static_clause(void)
 }
 
 static Int			/* $hidden_predicate(P) */
-p_nth_clause(void)
+p_nth_clause( USES_REGS1 )
 {
   PredEntry      *pe;
   Term t1 = Deref(ARG1);
@@ -5073,7 +5090,7 @@ p_nth_clause(void)
 }
 
 static Int			/* $hidden_predicate(P) */
-p_continue_static_clause(void)
+p_continue_static_clause( USES_REGS1 )
 {
   PredEntry *pe = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   yamop *ipc = (yamop *)IntegerOfTerm(ARG2);
@@ -5224,6 +5241,7 @@ index_ssz(StaticIndex *x)
 static Int
 static_statistics(PredEntry *pe)
 {
+  CACHE_REGS
   UInt sz = 0, cls = 0, isz = 0;
   StaticClause *cl = ClauseCodeToStaticClause(pe->cs.p_code.FirstClause);
 
@@ -5252,7 +5270,7 @@ static_statistics(PredEntry *pe)
 }
 
 static Int
-p_static_pred_statistics(void)
+p_static_pred_statistics( USES_REGS1 )
 {
   Int out;
   PredEntry      *pe;
@@ -5272,7 +5290,7 @@ p_static_pred_statistics(void)
 }
 
 static Int
-p_predicate_erased_statistics(void)
+p_predicate_erased_statistics( USES_REGS1 )
 {
   UInt sz = 0, cls = 0;
   UInt isz = 0, icls = 0;
@@ -5307,7 +5325,7 @@ p_predicate_erased_statistics(void)
 
 #ifdef DEBUG
 static Int
-p_predicate_lu_cps(void)
+p_predicate_lu_cps( USES_REGS1 )
 {
   return Yap_unify(ARG1, MkIntegerTerm(Yap_LiveCps)) &&
     Yap_unify(ARG2, MkIntegerTerm(Yap_FreedCps)) &&
@@ -5317,7 +5335,7 @@ p_predicate_lu_cps(void)
 #endif
 
 static Int
-p_program_continuation(void)
+p_program_continuation( USES_REGS1 )
 {
   PredEntry *pe = EnvPreg((yamop *)((ENV_Parent(ENV))[E_CP]));
   if (pe->ModuleOfPred) {
@@ -5344,6 +5362,7 @@ p_program_continuation(void)
 static Term
 BuildActivePred(PredEntry *ap, CELL *vect)
 {
+  CACHE_REGS
   UInt i;
 
   if (!ap->ArityOfPE) {
@@ -5364,7 +5383,7 @@ BuildActivePred(PredEntry *ap, CELL *vect)
 }
 
 static int
-UnifyPredInfo(PredEntry *pe, int start_arg) {
+UnifyPredInfo(PredEntry *pe, int start_arg USES_REGS) {
   UInt arity = pe->ArityOfPE;
   Term tmod, tname;
 
@@ -5407,7 +5426,7 @@ ClauseId(yamop *ipc, PredEntry *pe)
 }
 
 static Int
-p_env_info(void)
+p_env_info( USES_REGS1 )
 {
   PredEntry *pe;
   CELL *env = LCL0-IntegerOfTerm(Deref(ARG1));
@@ -5427,18 +5446,18 @@ p_env_info(void)
 }
 
 static Int
-p_cpc_info(void)
+p_cpc_info( USES_REGS1 )
 {
   PredEntry *pe;
   yamop *ipc = (yamop *)IntegerOfTerm(Deref(ARG1));
 
   pe = PREVOP(ipc,Osbpp)->u.Osbpp.p0;
-  return UnifyPredInfo(pe, 2) &&
+  return UnifyPredInfo(pe, 2 PASS_REGS) &&
     Yap_unify(ARG5,MkIntegerTerm(ClauseId(ipc,pe)));
 }
 
 static Int
-p_choicepoint_info(void)
+p_choicepoint_info( USES_REGS1 )
 {
   choiceptr cptr = (choiceptr)(LCL0-IntegerOfTerm(Deref(ARG1)));
   PredEntry *pe = NULL;
@@ -5608,7 +5627,7 @@ p_choicepoint_info(void)
       return FALSE;
     }
   }
-  return UnifyPredInfo(pe, 3) &&
+  return UnifyPredInfo(pe, 3 PASS_REGS) &&
     Yap_unify(ARG2, taddr) &&
     Yap_unify(ARG6,t) &&
     Yap_unify(ARG7,MkIntegerTerm(ClauseId(ncl,pe)));
@@ -5617,6 +5636,7 @@ p_choicepoint_info(void)
 void 
 Yap_InitCdMgr(void)
 {
+  CACHE_REGS
   Term cm = CurrentModule;
 
   Yap_InitCPred("$compile_mode", 2, p_compile_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);

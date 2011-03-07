@@ -84,12 +84,12 @@ static char SccsId[] = "%W% %G%";
 #endif
 #include "iopreds.h"
 
-STATIC_PROTO (Int p_set_read_error_handler, (void));
-STATIC_PROTO (Int p_get_read_error_handler, (void));
-STATIC_PROTO (Int p_read, (void));
-STATIC_PROTO (Int p_startline, (void));
-STATIC_PROTO (Int p_change_type_of_char, (void));
-STATIC_PROTO (Int p_type_of_char, (void));
+STATIC_PROTO (Int p_set_read_error_handler, ( USES_REGS1 ));
+STATIC_PROTO (Int p_get_read_error_handler, ( USES_REGS1 ));
+STATIC_PROTO (Int p_read, ( USES_REGS1 ));
+STATIC_PROTO (Int p_startline, ( USES_REGS1 ));
+STATIC_PROTO (Int p_change_type_of_char, ( USES_REGS1 ));
+STATIC_PROTO (Int p_type_of_char, ( USES_REGS1 ));
 STATIC_PROTO (Term StreamPosition, (IOSTREAM *));
 
 extern Atom Yap_FileName(IOSTREAM *s);
@@ -206,6 +206,7 @@ Yap_DebugPlWrite(Term t)
 void 
 Yap_DebugErrorPutc(int c)
 {
+  CACHE_REGS
    Yap_DebugPutc (Yap_c_error_stream, c);
 }
 
@@ -215,7 +216,7 @@ Yap_DebugErrorPutc(int c)
 
 
 static Int
-p_has_readline(void)
+p_has_readline( USES_REGS1 )
 {
 #if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
   return TRUE;
@@ -273,6 +274,7 @@ clean_vars(VarEntry *p)
 static Term
 syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 {
+  CACHE_REGS
   Term info;
   int count = 0, out = 0;
   Int start, err = 0, end;
@@ -388,7 +390,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
 }
 
 static void
-GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno)
+GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno USES_REGS)
 {
   if (tp) {
     Term et[2];
@@ -402,6 +404,7 @@ GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno)
 Term
 Yap_StringToTerm(char *s,Term *tp)
 {
+  CACHE_REGS
   IOSTREAM *sno = Sopenmem(&s, NULL, "r");
   Term t;
   TokEntry *tokstart;
@@ -430,7 +433,7 @@ Yap_StringToTerm(char *s,Term *tp)
   t = Yap_Parse();
   TR = TR_before_parse;
   if (!t || Yap_ErrorMessage) {
-    GenerateSyntaxError(tp, tokstart, sno);
+    GenerateSyntaxError(tp, tokstart, sno PASS_REGS);
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     Sclose(sno);
     return FALSE;
@@ -444,18 +447,19 @@ Yap_StringToTerm(char *s,Term *tp)
 Int
 Yap_FirstLineInParse (void)
 {
+  CACHE_REGS
   return StartLine;
 }
 
 static Int
-p_startline (void)
+p_startline ( USES_REGS1 )
 {
   return (Yap_unify_constant (ARG1, MkIntegerTerm (StartLine)));
 }
 
 /* control the parser error handler */
 static Int
-p_set_read_error_handler(void)
+p_set_read_error_handler( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   char *s;
@@ -485,7 +489,7 @@ p_set_read_error_handler(void)
 
 /* return the status for the parser error handler */
 static Int
-p_get_read_error_handler(void)
+p_get_read_error_handler( USES_REGS1 )
 {
   Term t;
 
@@ -512,6 +516,7 @@ p_get_read_error_handler(void)
 int
 Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
 {
+  CACHE_REGS
   TokEntry *tokstart;
   Term pt;
   IOSTREAM *st = (IOSTREAM *)st0;
@@ -530,7 +535,7 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
     }
   pt = Yap_Parse();
   if (Yap_ErrorMessage || pt == (CELL)0) {
-    GenerateSyntaxError(terror, tokstart, st);
+    GenerateSyntaxError(terror, tokstart, st PASS_REGS);
     Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
     return FALSE;
   }
@@ -557,7 +562,7 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
   Err: ARG6
  */
 static Int
-  do_read(IOSTREAM *inp_stream, int nargs)
+  do_read(IOSTREAM *inp_stream, int nargs USES_REGS)
 {
   Term t, v;
   TokEntry *tokstart;
@@ -746,23 +751,23 @@ static Int
 }
 
 static Int
-p_read (void)
+p_read ( USES_REGS1 )
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return do_read(NULL, 6);
+  return do_read(NULL, 6 PASS_REGS);
 }
 
 extern int Yap_getInputStream(Int, IOSTREAM **);
 
 static Int
-p_read2 (void)
+p_read2 ( USES_REGS1 )
 {				/* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   IOSTREAM *inp_stream;
   Int out;
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG7)), &inp_stream)) {
+  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG7) PASS_REGS), &inp_stream)) {
     return(FALSE);
   }
-  out = do_read(inp_stream, 7);
+  out = do_read(inp_stream, 7 PASS_REGS);
   return out;
 }
 
@@ -787,7 +792,7 @@ Yap_StreamPosition(IOSTREAM *st)
 #if HAVE_SELECT && FALSE
 /* stream_select(+Streams,+TimeOut,-Result)      */
 static Int
-p_stream_select(void)
+p_stream_select( USES_REGS1 )
 {
   Term t1 = Deref(ARG1), t2;
   fd_set readfds, writefds, exceptfds;
@@ -912,7 +917,7 @@ p_stream_select(void)
 #endif
 
 static Int
-p_change_type_of_char (void)
+p_change_type_of_char ( USES_REGS1 )
 {				/* change_type_of_char(+char,+type)      */
   Term t1 = Deref (ARG1);
   Term t2 = Deref (ARG2);
@@ -925,7 +930,7 @@ p_change_type_of_char (void)
 }
 
 static Int
-p_type_of_char (void)
+p_type_of_char ( USES_REGS1 )
 {				/* type_of_char(+char,-type)      */
   Term t;
 
@@ -938,7 +943,7 @@ p_type_of_char (void)
 
 
 static Int 
-p_force_char_conversion(void)
+p_force_char_conversion( USES_REGS1 )
 {
   /* don't actually enable it until someone tries to add a conversion */
   if (CharConversionTable2 == NULL)
@@ -948,7 +953,7 @@ p_force_char_conversion(void)
 }
 
 static Int 
-p_disable_char_conversion(void)
+p_disable_char_conversion( USES_REGS1 )
 {
   int i;
 
@@ -961,7 +966,7 @@ p_disable_char_conversion(void)
 }
 
 static Int 
-p_char_conversion(void)
+p_char_conversion( USES_REGS1 )
 {
   Term t0 = Deref(ARG1), t1 = Deref(ARG2);
   char *s0, *s1;
@@ -1007,7 +1012,7 @@ p_char_conversion(void)
       }
     }
     if (yap_flags[CHAR_CONVERSION_FLAG] != 0) {
-      if (p_force_char_conversion() == FALSE)
+      if (p_force_char_conversion( PASS_REGS1 ) == FALSE)
 	return(FALSE);
     }
     for (i = 0; i < NUMBER_OF_CHARS; i++) 
@@ -1020,7 +1025,7 @@ p_char_conversion(void)
 }
 
 static Int 
-p_current_char_conversion(void)
+p_current_char_conversion( USES_REGS1 )
 {
   Term t0, t1;
   char *s0, *s1;
@@ -1065,7 +1070,7 @@ p_current_char_conversion(void)
 }
 
 static Int 
-p_all_char_conversions(void)
+p_all_char_conversions( USES_REGS1 )
 {
   Term out = TermNil;
   int i;
@@ -1091,7 +1096,7 @@ p_all_char_conversions(void)
 }
 
 static Int
-p_float_format(void)
+p_float_format( USES_REGS1 )
 {
   Term in = Deref(ARG1);
   if (IsVarTerm(in))
@@ -1105,18 +1110,18 @@ extern void  Yap_SetDefaultEncoding(IOENC);
 extern int   PL_get_stream_handle(Int, IOSTREAM **);
 
 static Int
-p_get_default_encoding(void)
+p_get_default_encoding( USES_REGS1 )
 {
   Term out = MkIntegerTerm(Yap_DefaultEncoding());
   return Yap_unify(ARG1, out);
 }
 
 static Int
-p_encoding (void)
+p_encoding ( USES_REGS1 )
 {				/* '$encoding'(Stream,N)                      */
   IOSTREAM *st;
   Term t = Deref(ARG2);
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1)), &st)) {
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &st)) {
     return FALSE;
   }
   if (IsVarTerm(t)) {

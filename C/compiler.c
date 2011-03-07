@@ -322,6 +322,7 @@ adjust_current_commits(compiler_struct *cglobs) {
 
 static int
 check_var(Term t, unsigned int level, Int argno, compiler_struct *cglobs) {
+  CACHE_REGS
   int flags, new = FALSE;
   Ventry *v = (Ventry *)t;
 
@@ -498,6 +499,7 @@ reset_vars(Ventry *vtable)
 static Term
 optimize_ce(Term t, unsigned int arity, unsigned int level, compiler_struct *cglobs)
 {
+  CACHE_REGS
   CExpEntry *p = cglobs->common_exps;
   int cmp = 0;
 
@@ -586,6 +588,7 @@ compile_sf_term(Term t, int argno, int level)
 inline static void
 c_args(Term app, unsigned int level, compiler_struct *cglobs)
 {
+  CACHE_REGS
   Functor f = FunctorOfTerm(app);
   unsigned int Arity = ArityOfFunctor(f);
   unsigned int i;
@@ -608,6 +611,7 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
 static int
 try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_struct *cglobs)
 {
+  CACHE_REGS
   DBTerm *dbt;
   int g;
   CELL *h0 = H;
@@ -765,6 +769,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
   } else if (IsRefTerm(t)) {
     PELOCK(40,cglobs->cint.CurrentPred);
     if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
+      CACHE_REGS
       UNLOCK(cglobs->cint.CurrentPred->PELock);
       FAIL("can not compile data base reference",TYPE_ERROR_CALLABLE,t);
     } else {
@@ -819,6 +824,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 static void
 c_eq(Term t1, Term t2, compiler_struct *cglobs)
 {
+  CACHE_REGS
   if (t1 == t2) {
     Yap_emit(nop_op, Zero, Zero, &cglobs->cint);
     return;
@@ -914,6 +920,7 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
 
 static void
 c_test(Int Op, Term t1, compiler_struct *cglobs) {
+  CACHE_REGS
   Term t = Deref(t1);
 
   if (!IsVarTerm(t) || IsNewVar(t)) {
@@ -958,7 +965,8 @@ bip_cons	   Op,Xk,Ri,C
 static void
 c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler_struct *cglobs)
 {
-  /* compile Z = X Op Y  arithmetic function */
+  CACHE_REGS
+   /* compile Z = X Op Y  arithmetic function */
   /* first we fetch the arguments */
 
   if (IsVarTerm(t1)) {
@@ -1314,6 +1322,7 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 static void
 c_functor(Term Goal, Term mod, compiler_struct *cglobs)
 {
+  CACHE_REGS
   Term t1 = ArgOfTerm(1, Goal);
   Term t2 = ArgOfTerm(2, Goal);
   Term t3 = ArgOfTerm(3, Goal);
@@ -1439,6 +1448,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     Term M = ArgOfTerm(1, Goal);
 
     if (IsVarTerm(M) || !IsAtomTerm(M)) {
+      CACHE_REGS
       if (IsVarTerm(M)) {	
 	Yap_Error_TYPE = INSTANTIATION_ERROR;
       } else {
@@ -1455,8 +1465,10 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
   if (IsVarTerm(Goal)) {
     Goal = Yap_MkApplTerm(FunctorCall, 1, &Goal);
   } else if (IsNumTerm(Goal)) {
+    CACHE_REGS
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsRefTerm(Goal)) {
+    CACHE_REGS
     Yap_Error_TYPE = TYPE_ERROR_DBREF;
     Yap_Error_Term = Goal;
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
@@ -1647,6 +1659,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	 */
 	if (looking_at_commit) {
 	  if (!optimizing_commit && !commitflag) {
+	    CACHE_REGS
 	    /* This instruction is placed before
 	     * the disjunction. This means that
 	     * the program counter must point
@@ -1734,6 +1747,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       return;
     }
     else if (f == FunctorNot || f == FunctorAltNot) {
+      CACHE_REGS
       CELL label = (cglobs->labelno += 2);
       CELL end_label = (cglobs->labelno += 2);
       int save = cglobs->onlast;
@@ -1773,6 +1787,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
       return;
     }
     else if (f == FunctorArrow) {
+      CACHE_REGS
       Term commitvar;
       int save = cglobs->onlast;
 
@@ -1884,6 +1899,7 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 #else
     else if (p->PredFlags & BinaryPredFlag) {
 #endif
+      CACHE_REGS
       Term a1 = ArgOfTerm(1,Goal);
 
       if (IsVarTerm(a1) && !IsNewVar(a1)) {
@@ -2296,6 +2312,7 @@ clear_bvarray(int var, CELL *bvarray
   nbit = ((CELL)1 << var);
 #ifdef DEBUG
   if (*bvarray & nbit) {
+    CACHE_REGS
     /* someone had already marked this variable: complain */
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
@@ -2339,6 +2356,7 @@ static void
 push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
 {
   if (bvindex == MAX_DISJUNCTIONS) {
+    CACHE_REGS
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too many embedded disjunctions";
@@ -2362,6 +2380,7 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
   if (bvarray == NULL)
 
   if (bvindex == 0) {
+    CACHE_REGS
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "No embedding in disjunctions";
@@ -2382,6 +2401,7 @@ static void
 pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 {
   if (bvindex == 0) {
+    CACHE_REGS
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "Too few embedded disjunctions";
@@ -2652,6 +2672,7 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
       ++target1;
     }
   if (target1 == cglobs->MaxCTemps) {
+    CACHE_REGS
     Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
     Yap_Error_Term = TermNil;
     Yap_ErrorMessage = "too many temporaries";
@@ -2785,6 +2806,7 @@ c_layout(compiler_struct *cglobs)
       CheckUnsafe(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
       if (cglobs->pbvars != nperm) {
+	CACHE_REGS
 	Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
 	Yap_Error_Term = TermNil;
 	Yap_ErrorMessage = "wrong number of variables found in bitmap";
@@ -3321,6 +3343,7 @@ c_optimize(PInstr *pc)
 yamop *
 Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 {				/* compile a prolog clause, copy of clause myst be in ARG1 */
+  CACHE_REGS
   /* returns address of code for clause */
   Term head, body;
   yamop *acode;

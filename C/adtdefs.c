@@ -489,7 +489,7 @@ Yap_HasOp(Atom a)
 }
 
 OpEntry *
-Yap_GetOpProp(Atom a, op_type type)
+Yap_GetOpProp(Atom a, op_type type USES_REGS)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
@@ -546,7 +546,7 @@ GetPredPropByAtomHavingLock(AtomEntry* ae, Term cur_mod)
 #if THREADS
       /* Thread Local Predicates */
       if (pe->PredFlags & ThreadLocalPredFlag) {
-	return AbsPredProp(Yap_GetThreadPred(pe));
+	return AbsPredProp(Yap_GetThreadPred(pe INIT_REGS));
       }
 #endif
     }
@@ -582,7 +582,7 @@ GetPredPropByAtomHavingLockInThisModule(AtomEntry* ae, Term cur_mod)
 #if THREADS
       /* Thread Local Predicates */
       if (pe->PredFlags & ThreadLocalPredFlag) {
-	return AbsPredProp(Yap_GetThreadPred(pe));
+	return AbsPredProp(Yap_GetThreadPred(pe INIT_REGS));
       }
 #endif
       return(p0);
@@ -808,7 +808,7 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
 
 #if THREADS
 Prop
-Yap_NewThreadPred(PredEntry *ap)
+Yap_NewThreadPred(PredEntry *ap USES_REGS)
 {
   PredEntry *p = (PredEntry *) Yap_AllocAtomSpace(sizeof(*p));
 
@@ -1121,6 +1121,7 @@ Yap_PutValue(Atom a, Term v)
 Term
 Yap_StringToList(char *s)
 {
+  CACHE_REGS
   register Term t;
   register unsigned char *cp = (unsigned char *)s + strlen(s);
 
@@ -1134,6 +1135,7 @@ Yap_StringToList(char *s)
 Term
 Yap_NStringToList(char *s, size_t len)
 {
+  CACHE_REGS
   Term t;
   unsigned char *cp = (unsigned char *)s + len;
 
@@ -1147,6 +1149,7 @@ Yap_NStringToList(char *s, size_t len)
 Term
 Yap_WideStringToList(wchar_t *s)
 {
+  CACHE_REGS
   Term t;
   wchar_t *cp = s + wcslen(s);
 
@@ -1160,6 +1163,7 @@ Yap_WideStringToList(wchar_t *s)
 Term
 Yap_NWideStringToList(wchar_t *s, size_t len)
 {
+  CACHE_REGS
   Term t;
   wchar_t *cp = s + len;
 
@@ -1171,7 +1175,7 @@ Yap_NWideStringToList(wchar_t *s, size_t len)
 }
 
 Term
-Yap_StringToDiffList(char *s, Term t)
+Yap_StringToDiffList(char *s, Term t USES_REGS)
 {
   register unsigned char *cp = (unsigned char *)s + strlen(s);
 
@@ -1187,6 +1191,7 @@ Yap_StringToDiffList(char *s, Term t)
 Term
 Yap_NStringToDiffList(char *s, Term t, size_t len)
 {
+  CACHE_REGS
   register unsigned char *cp = (unsigned char *)s + len;
 
   t = Yap_Globalise(t);
@@ -1199,6 +1204,7 @@ Yap_NStringToDiffList(char *s, Term t, size_t len)
 Term
 Yap_WideStringToDiffList(wchar_t *s, Term t)
 {
+  CACHE_REGS
  wchar_t *cp = s + wcslen(s);
 
   t = Yap_Globalise(t);
@@ -1211,6 +1217,7 @@ Yap_WideStringToDiffList(wchar_t *s, Term t)
 Term
 Yap_NWideStringToDiffList(wchar_t *s, Term t, size_t len)
 {
+  CACHE_REGS
  wchar_t *cp = s + len;
 
  t = Yap_Globalise(t);
@@ -1223,6 +1230,7 @@ Yap_NWideStringToDiffList(wchar_t *s, Term t, size_t len)
 Term
 Yap_StringToListOfAtoms(char *s)
 {
+  CACHE_REGS
   register Term t;
   char so[2];
   register unsigned char *cp = (unsigned char *)s + strlen(s);
@@ -1239,6 +1247,7 @@ Yap_StringToListOfAtoms(char *s)
 Term
 Yap_NStringToListOfAtoms(char *s, size_t len)
 {
+  CACHE_REGS
   register Term t;
   char so[2];
   register unsigned char *cp = (unsigned char *)s + len;
@@ -1255,6 +1264,7 @@ Yap_NStringToListOfAtoms(char *s, size_t len)
 Term
 Yap_WideStringToListOfAtoms(wchar_t *s)
 {
+  CACHE_REGS
   register Term t;
   wchar_t so[2];
   wchar_t *cp = s + wcslen(s);
@@ -1271,6 +1281,7 @@ Yap_WideStringToListOfAtoms(wchar_t *s)
 Term
 Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
 {
+  CACHE_REGS
   register Term t;
   wchar_t so[2];
   wchar_t *cp = s + len;
@@ -1287,6 +1298,7 @@ Yap_NWideStringToListOfAtoms(wchar_t *s, size_t len)
 Term
 Yap_NWideStringToDiffListOfAtoms(wchar_t *s, Term t0, size_t len)
 {
+  CACHE_REGS
   register Term t;
   wchar_t so[2];
   wchar_t *cp = s + len;
@@ -1303,6 +1315,7 @@ Yap_NWideStringToDiffListOfAtoms(wchar_t *s, Term t0, size_t len)
 Term
 Yap_ArrayToList(register Term *tp, int nof)
 {
+  CACHE_REGS
   register Term *pt = tp + nof;
   register Term t;
 
@@ -1379,7 +1392,7 @@ ArgsOfSFTerm(Term t)
 #endif
 
 Int
-Yap_NewSlots(int n)
+Yap_NewSlots(int n USES_REGS)
 {
   Int old_slots = IntOfTerm(ASP[0]), oldn = n;
   while (n > 0) {
@@ -1393,7 +1406,7 @@ Yap_NewSlots(int n)
 }
 
 Int
-Yap_InitSlot(Term t)
+Yap_InitSlot(Term t USES_REGS)
 {
   Int old_slots = IntOfTerm(ASP[0]);
   *ASP = t;
@@ -1404,7 +1417,7 @@ Yap_InitSlot(Term t)
 }
 
 int
-Yap_RecoverSlots(int n)
+Yap_RecoverSlots(int n USES_REGS)
 {
   Int old_slots = IntOfTerm(ASP[0]);
   if (old_slots - n < 0) {
@@ -1417,25 +1430,25 @@ Yap_RecoverSlots(int n)
 }
 
 Term
-Yap_GetFromSlot(Int slot)
+Yap_GetFromSlot(Int slot USES_REGS)
 {
   return(Deref(LCL0[slot]));
 }
 
 Term
-Yap_GetPtrFromSlot(Int slot)
+Yap_GetPtrFromSlot(Int slot USES_REGS)
 {
   return(LCL0[slot]);
 }
 
 Term *
-Yap_AddressFromSlot(Int slot)
+Yap_AddressFromSlot(Int slot USES_REGS)
 {
   return(LCL0+slot);
 }
 
 void
-Yap_PutInSlot(Int slot, Term t)
+Yap_PutInSlot(Int slot, Term t USES_REGS)
 {
   LCL0[slot] = t;
 }

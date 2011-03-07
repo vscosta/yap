@@ -56,6 +56,7 @@ static void share_private_nodes(int worker_q);
 ** -------------------------- */
 
 void make_root_choice_point(void) {
+  CACHE_REGS
   if (worker_id == 0) {
     SetOrFr_node(GLOBAL_root_or_fr, B);
     Set_LOCAL_top_cp(B);
@@ -96,6 +97,7 @@ void make_root_choice_point(void) {
 
 
 void free_root_choice_point(void) {
+  CACHE_REGS
   B = Get_LOCAL_top_cp()->cp_b;
 #ifdef TABLING
   Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase);
@@ -107,7 +109,8 @@ void free_root_choice_point(void) {
 }
 
 
-int p_share_work(void) {
+int p_share_work() {
+  CACHE_REGS
   int worker_q = LOCAL_share_request;
 
   if (! BITMAP_member(OrFr_members(REMOTE_top_or_fr(worker_q)), worker_id) ||
@@ -140,6 +143,7 @@ int p_share_work(void) {
 }
 
 int q_share_work(int worker_p) {
+  CACHE_REGS
   LOCK_OR_FRAME(LOCAL_top_or_fr);
   if (Get_REMOTE_prune_request(worker_p)) {
     /* worker p with prune request */
@@ -200,6 +204,7 @@ int q_share_work(int worker_p) {
 
 static
 void share_private_nodes(int worker_q) {
+  CACHE_REGS
   choiceptr sharing_node = B;
 
 

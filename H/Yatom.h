@@ -487,7 +487,7 @@ typedef enum
 } op_type;
 
 
-OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom, op_type));
+OpEntry   *STD_PROTO(Yap_GetOpProp,(Atom, op_type CACHE_TYPE));
 
 int	STD_PROTO(Yap_IsPrefixOp,(Atom,int *,int *));
 int	STD_PROTO(Yap_IsOp,(Atom));
@@ -1482,12 +1482,12 @@ EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term)
 
 #ifdef THREADS
 
-Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry *));
+Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry * CACHE_TYPE));
 Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
-EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry *));
+EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry * CACHE_TYPE));
 
 EXTERN inline struct pred_entry *
-Yap_GetThreadPred(struct pred_entry *ap)
+Yap_GetThreadPred(struct pred_entry *ap USES_REGS)
 {
   Functor f = ap->FunctorOfPred;
   Term  mod = ap->ModuleOfPred;
@@ -1499,7 +1499,7 @@ Yap_GetThreadPred(struct pred_entry *ap)
 	ap->ModuleOfPred == mod) return ap;
     p0 = ap->NextOfPE;
   }
-  return RepPredProp(Yap_NewThreadPred(ap));
+  return RepPredProp(Yap_NewThreadPred(ap PASS_REGS));
 }
 #endif
 
@@ -1516,7 +1516,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
 #ifdef THREADS
     /* Thread Local Predicates */
     if (p->PredFlags & ThreadLocalPredFlag) {
-      return AbsPredProp (Yap_GetThreadPred (p));
+      return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
     }
 #endif
     return AbsPredProp(p);
@@ -1534,7 +1534,7 @@ GetPredPropByFuncHavingLock (FunctorEntry *fe, Term cur_mod)
 	  /* Thread Local Predicates */
 	  if (p->PredFlags & ThreadLocalPredFlag) {
 	    READ_UNLOCK(PredHashRWLock);
-	    return AbsPredProp (Yap_GetThreadPred (p));
+	    return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
 	  }
 #endif
 	  READ_UNLOCK(PredHashRWLock);
@@ -1582,7 +1582,7 @@ PredPropByAtom (Atom at, Term cur_mod)
 	  if (pe->PredFlags & ThreadLocalPredFlag)
 	    {
 	      WRITE_UNLOCK (ae->ARWLock);
-	      return AbsPredProp (Yap_GetThreadPred (pe));
+	      return AbsPredProp (Yap_GetThreadPred (pe INIT_REGS));
 	    }
 #endif
 	  WRITE_UNLOCK (ae->ARWLock);

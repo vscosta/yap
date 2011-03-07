@@ -505,6 +505,7 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
 void 
 Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
 {
+  CACHE_REGS
   Atom              atom = NIL;
   PredEntry        *pe = NULL;
   yamop            *p_code;
@@ -604,6 +605,7 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
 void 
 Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt flags)
 {
+  CACHE_REGS
   Atom              atom = NIL;
   PredEntry        *pe = NULL;
   yamop            *p_code = NULL;
@@ -681,6 +683,7 @@ Yap_InitCmpPred(char *Name, unsigned long int Arity, CmpPredicate cmp_code, UInt
 void 
 Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, UInt flags)
 {
+  CACHE_REGS
   Atom            atom = NIL;
   PredEntry      *pe = NULL;
   Functor           f = NULL;
@@ -852,6 +855,7 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
 		  CPredicate Cont, UInt flags)
 #endif 
 {
+  CACHE_REGS
   PredEntry      *pe = NULL;
   Atom            atom = NIL;
   Functor           f = NULL;
@@ -1181,6 +1185,7 @@ InitThreadHandle(int wid)
 static void 
 InitFirstWorkerThreadHandle(void)
 {
+  CACHE_REGS
 #ifdef  THREADS
   ThreadHandle.id = 0;
   ThreadHandle.in_use = TRUE;
@@ -1204,6 +1209,7 @@ InitScratchPad(int wid)
 void
 Yap_CloseScratchPad(void)
 {
+  CACHE_REGS
   Yap_FreeCodeSpace(ScratchPad.ptr);
   ScratchPad.sz = SCRATCH_START_SIZE;
   ScratchPad.msz = SCRATCH_START_SIZE;
@@ -1234,6 +1240,7 @@ struct worker_local	Yap_WLocal;
 static void 
 InitCodes(void)
 {
+  CACHE_REGS
   int wid;
 #include "ihstruct.h"
   InitGlobal();
@@ -1274,6 +1281,7 @@ void
 Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_size, 
                   int n_workers, int sch_loop, int delay_load)
 {
+  CACHE_REGS
   int             i;
 
   /* initialise system stuff */
@@ -1291,6 +1299,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #endif /* PUSH_REGS */
 
 #ifdef THREADS
+  Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
   Yap_regp->worker_id_ = 0;
 #endif
   /* Init signal handling and time */

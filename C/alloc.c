@@ -240,6 +240,7 @@ Yap_FreeAtomSpace(char *p)
 ADDR
 Yap_InitPreAllocCodeSpace(void)
 {
+  CACHE_REGS
   char *ptr;
   UInt sz = ScratchPad.msz;
   if (ScratchPad.ptr == NULL) {
@@ -287,6 +288,7 @@ Yap_InitPreAllocCodeSpace(void)
 ADDR
 Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
 {
+  CACHE_REGS
   char *ptr;
   UInt sz = ScratchPad.msz;
   if (sz0 < SCRATCH_INC_SIZE)
@@ -331,6 +333,7 @@ struct various_codes *Yap_heap_regs;
 static void
 InitHeap(void)
 {
+  CACHE_REGS
   Yap_heap_regs = (struct various_codes *)calloc(1, sizeof(struct various_codes));
 #if defined(YAPOR) || defined(TABLING)
   LOCAL = REMOTE; /* point to the first area */
@@ -348,6 +351,7 @@ Yap_InitHeap(void *heap_addr)
 static void
 InitExStacks(int Trail, int Stack)
 {
+  CACHE_REGS
   UInt pm, sa;
 
   /* sanity checking for data areas */
@@ -421,6 +425,7 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 int
 Yap_ExtendWorkSpace(Int s)
 {
+  CACHE_REGS
   void *basebp = (void *)Yap_GlobalBase, *nbp;
   UInt s0 = (char *)Yap_TrailTop-(char *)Yap_GlobalBase;
   nbp = realloc(basebp, s+s0);

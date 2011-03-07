@@ -188,7 +188,8 @@ Yap_Eval(Term t)
 
 inline static Term
 Yap_FoundArithError(Term t, Term inp)
-{
+{ 
+  CACHE_REGS
   if (Yap_Error_TYPE) {
     Yap_Error(Yap_Error_TYPE, (inp ? inp : Yap_Error_Term), Yap_ErrorMessage);
     P = FAILCODE;

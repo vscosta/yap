@@ -34,7 +34,8 @@ static PL_blob_t unregistered_blob_atom =
 PL_EXPORT(int)
 PL_is_blob(term_t t, PL_blob_t **type)
 {
-  Term yt = Yap_GetFromSlot(t);
+  CACHE_REGS
+  Term yt = Yap_GetFromSlot(t PASS_REGS);
   Atom a;
   BlobPropEntry *b;
 
@@ -88,6 +89,7 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
 PL_EXPORT(int)		
 PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
 {
+  CACHE_REGS
   AtomEntry *ae;
 
   if (!blob)
@@ -96,7 +98,7 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
   if (!ae) {
     return FALSE;
   }
-  return Yap_unify(Yap_GetFromSlot(t), MkAtomTerm(AbsAtom(ae)));
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), MkAtomTerm(AbsAtom(ae)));
 }
 
 PL_EXPORT(int)	

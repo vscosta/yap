@@ -16,13 +16,15 @@
 *************************************************************************/
 #define IN_UNIFY_C 1
 
+#define HAS_CACHE_REGS 1
+
 #include "absmi.h"
 
 STD_PROTO(int   Yap_rational_tree_loop, (CELL *, CELL *, CELL **, CELL **));
 
 STATIC_PROTO(int    OCUnify_complex, (CELL *, CELL *, CELL *));
 STATIC_PROTO(int    OCUnify, (register CELL, register CELL));
-STATIC_PROTO(Int   p_ocunify, (void));
+STATIC_PROTO(Int   p_ocunify, ( USES_REGS1 ));
 #ifdef THREADED_CODE
 STATIC_PROTO(int    rtable_hash_op, (OPCODE));
 STATIC_PROTO(void   InitReverseLookupOpcode, (void));
@@ -35,7 +37,6 @@ STATIC_PROTO(void   InitReverseLookupOpcode, (void));
 int
 Yap_rational_tree_loop(CELL *pt0, CELL *pt0_end, CELL **to_visit, CELL **to_visit_max)
 {
-
   CELL ** base = to_visit;
 rtree_loop:
   while (pt0 < pt0_end) {
@@ -114,6 +115,7 @@ cufail:
 
 static inline int
 rational_tree(Term d0) {
+CACHE_REGS
   CELL  **to_visit_max = (CELL **)AuxBase, **to_visit  = (CELL **)AuxSp;
 
   if (IsPairTerm(d0)) {
@@ -134,6 +136,7 @@ rational_tree(Term d0) {
 static int 
 OCUnify_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
+CACHE_REGS
 #ifdef THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -339,7 +342,7 @@ cufail:
 static int 
 OCUnify(register CELL d0, register CELL d1)
 {
-
+CACHE_REGS
   register CELL *pt0, *pt1;
 
 #if SHADOW_HB
@@ -451,13 +454,13 @@ oc_unify_var_nvar:
 }
 
 static Int
-p_ocunify(void)
+p_ocunify( USES_REGS1 )
 {
   return(OCUnify(ARG1,ARG2));
 }
 
 static Int
-p_cyclic(void)
+p_cyclic( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
@@ -466,7 +469,7 @@ p_cyclic(void)
 }
 
 static Int
-p_acyclic(void)
+p_acyclic( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t))
@@ -477,6 +480,7 @@ p_acyclic(void)
 int 
 Yap_IUnify(register CELL d0, register CELL d1)
 {
+CACHE_REGS
 #if THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -665,6 +669,7 @@ InitReverseLookupOpcode(void)
 static int 
 unifiable_complex(CELL *pt0, CELL *pt0_end, CELL *pt1)
 {
+CACHE_REGS
 #ifdef THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -865,6 +870,7 @@ cufail:
 static int 
 unifiable(CELL d0, CELL d1)
 {
+CACHE_REGS
 #if THREADS
 #undef Yap_REGS
   register REGSTORE *regp = Yap_regp;
@@ -985,7 +991,7 @@ unifiable_var_nvar_trail:
 
 
 static Int
-p_unifiable(void)
+p_unifiable( USES_REGS1 )
 {
   tr_fr_ptr trp;
   Term tf = TermNil;
@@ -1007,6 +1013,7 @@ p_unifiable(void)
 void 
 Yap_InitUnify(void)
 {
+  CACHE_REGS
   Term cm = CurrentModule;
   Yap_InitCPred("unify_with_occurs_check", 2, p_ocunify, SafePredFlag);
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
@@ -1030,6 +1037,7 @@ Yap_InitAbsmi(void)
 void
 Yap_TrimTrail(void)
 {
+  CACHE_REGS
 #ifdef saveregs
 #undef saveregs
 #define saveregs()

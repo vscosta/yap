@@ -221,6 +221,7 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
  Yap_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
                    -----------
 ************************************************************************/
+  CACHE_REGS
   CELL *stack_vars = *stack_vars_ptr;
   CELL *stack_terms_limit = (CELL *) TR;
 #ifdef TRIE_COMPACT_PAIRS
@@ -973,6 +974,7 @@ static inline void traverse_update_arity(char *str, int *str_index_ptr, int *ari
 *******************************/
 
 sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
+  CACHE_REGS
   CELL *stack_vars;
   int i, subs_arity, pred_arity;
   tab_ent_ptr tab_ent;
@@ -1035,6 +1037,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 
 ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 #define subs_arity *subs_ptr
+  CACHE_REGS
   CELL *stack_vars;
   int i, vars_arity;
   ans_node_ptr current_ans_node;
@@ -1067,6 +1070,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 
 
 void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
+  CACHE_REGS
 #define subs_arity *subs_ptr
   CELL *stack_terms;
   int i;
@@ -1089,6 +1093,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
 
 
 CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
+  CACHE_REGS
 #define subs_arity *subs_ptr
   CELL *stack_terms, *subs_ptr;
   Term t;

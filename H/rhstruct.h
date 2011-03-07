@@ -74,9 +74,9 @@
 
 
 
-  RestoreInvisibleAtoms();
-  RestoreWideAtoms();
-  RestoreAtoms();
+  RestoreInvisibleAtoms( PASS_REGS1 );
+  RestoreWideAtoms( PASS_REGS1 );
+  RestoreAtoms( PASS_REGS1 );
 
 #include "ratoms.h"
 #ifdef EUROTRA
@@ -106,7 +106,7 @@
 
 
 
-  RestorePredHash();
+  RestorePredHash( PASS_REGS1 );
 #if defined(YAPOR) || defined(THREADS)
 
 #endif
@@ -204,10 +204,10 @@
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(Yap_heap_regs->dbterms_list_lock);
 #endif
-  RestoreDBTermsList();
+  RestoreDBTermsList( PASS_REGS1 );
 
 
-  RestoreExpandList();
+  RestoreExpandList( PASS_REGS1 );
 
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
@@ -227,9 +227,9 @@
 
 
 
-  RestoreIntKeys();
-  RestoreIntLUKeys();
-  RestoreIntBBKeys();
+  RestoreIntKeys( PASS_REGS1 );
+  RestoreIntLUKeys( PASS_REGS1 );
+  RestoreIntBBKeys( PASS_REGS1 );
 
 
 
@@ -240,11 +240,11 @@
   RestoreDBErasedMarker();
   RestoreLogDBErasedMarker();
 
-  RestoreDeadStaticClauses();
-  RestoreDeadMegaClauses();
-  RestoreDeadStaticIndices();
-  RestoreDBErasedList();
-  RestoreDBErasedIList();
+  RestoreDeadStaticClauses( PASS_REGS1 );
+  RestoreDeadMegaClauses( PASS_REGS1 );
+  RestoreDeadStaticIndices( PASS_REGS1 );
+  RestoreDBErasedList( PASS_REGS1 );
+  RestoreDBErasedIList( PASS_REGS1 );
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
   REINIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
@@ -294,9 +294,9 @@
 
 
 
-  RestoreYapRecords();
+  RestoreYapRecords( PASS_REGS1 );
 
-  RestoreSWIAtoms();
+  RestoreSWIAtoms( PASS_REGS1 );
 
 
 

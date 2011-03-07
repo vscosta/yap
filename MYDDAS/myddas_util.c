@@ -56,6 +56,7 @@ myddas_util_connection_type(void *con){
 MYDDAS_UTIL_PREDICATE
 myddas_util_search_predicate(char *pred_name, Int pred_arity, 
 			     char *pred_module){
+  CACHE_REGS
   MYDDAS_UTIL_PREDICATE pred=NULL;
   MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 
@@ -91,7 +92,7 @@ myddas_util_add_predicate(char *pred_name, Int pred_arity,
 
 void
 myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE to_delete){
-  
+  CACHE_REGS
   if (to_delete->next != NULL)
     to_delete->next->previous = to_delete->previous;
   if (to_delete->previous != NULL)
@@ -109,7 +110,7 @@ myddas_util_delete_predicate(MYDDAS_UTIL_PREDICATE to_delete){
 
 void 
 myddas_util_delete_connection(void *conn){
-  
+  CACHE_REGS
   MYDDAS_UTIL_CONNECTION to_delete = myddas_util_search_connection(conn);
     
   if (to_delete == NULL) 
@@ -141,6 +142,7 @@ myddas_util_delete_connection(void *conn){
 
 MYDDAS_UTIL_CONNECTION 
 myddas_util_search_connection(void *conn){
+  CACHE_REGS
   MYDDAS_UTIL_CONNECTION list = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
   
 #ifdef MYDDAS_STATS
@@ -157,7 +159,7 @@ myddas_util_search_connection(void *conn){
  
 MYDDAS_UTIL_CONNECTION 
 myddas_util_add_connection(void *conn, void *enviromment){
-  
+  CACHE_REGS
   MYDDAS_UTIL_CONNECTION node=NULL;
   MYDDAS_UTIL_CONNECTION temp=NULL;
 
@@ -184,6 +186,7 @@ myddas_util_add_connection(void *conn, void *enviromment){
  if there is any odbc connections left on the list*/
 SQLHENV
 myddas_util_get_odbc_enviromment(SQLHDBC connection){
+  CACHE_REGS
   MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
   
   for (;top != NULL;top=top->next)
@@ -238,6 +241,7 @@ myddas_util_find_predicate(char *pred_name, Int pred_arity,
 
 static void 
 myddas_util_delete_predicate_list(MYDDAS_UTIL_PREDICATE preds_list){
+  CACHE_REGS
   MYDDAS_UTIL_PREDICATE to_delete = NULL;
   
   for (;preds_list != NULL;)
@@ -321,7 +325,8 @@ myddas_util_table_write(MYSQL_RES *res_set){
 
 //DELETE THIS WHEN DB_STATS  IS COMPLETED
 MyddasInt
-get_myddas_top(){
+get_myddas_top( void ){
+  CACHE_REGS
   if (Yap_REGS.MYDDAS_GLOBAL_POINTER == NULL)
     return 0;
   return (Int)Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
@@ -357,7 +362,8 @@ myddas_util_get_list_pred(MYDDAS_UTIL_CONNECTION node){
 }
 
 #ifdef DEBUG
-void check_int(){
+void check_int( void ){
+  CACHE_REGS
   Int i;
   MYDDAS_UTIL_PREDICATE pred = NULL;
   MYDDAS_UTIL_CONNECTION top = Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;

@@ -170,6 +170,7 @@ typedef struct scanner_extra_alloc {
 static char *
 AllocScannerMemory(unsigned int size)
 {
+  CACHE_REGS
   char *AuxSpScan;
 
   AuxSpScan = ScannerStack;
@@ -206,6 +207,7 @@ AllocScannerMemory(unsigned int size)
 static void
 PopScannerMemory(char *block, unsigned int size)
 {
+  CACHE_REGS
   if (block == ScannerStack-size) {
     ScannerStack -= size;
   } else if (block == (char *)(ScannerExtraBlocks+1)) {
@@ -232,6 +234,7 @@ float_send(char *s, int sign)
 #if HAVE_FINITE
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
     if (!finite(f)) {
+      CACHE_REGS
       Yap_ErrorMessage = "Float overflow while scanning";
       return(MkEvalFl(0.0));
     }
@@ -261,6 +264,13 @@ read_int_overflow(const char *s, Int base, Int val, int sign)
 #endif    
 }
 
+static int
+send_error_message(char s[])
+{
+  CACHE_REGS
+  Yap_ErrorMessage = s;
+  return 0;
+}
 
 static wchar_t
 read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
@@ -285,8 +295,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     return '\b';
   case 'c':
     if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      Yap_ErrorMessage = "invalid escape sequence \\c";
-      return 0;
+      return send_error_message("invalid escape sequence \\c");
     } else {
       /* sicstus */
       ch = getchrq(inp_stream);
@@ -322,8 +331,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 	} else if (ch>='A' && ch <= 'F') {
 	  wc += ((ch-'A')+10)<<((3-i)*4);
 	} else {
-	  Yap_ErrorMessage = "invalid escape sequence";
-	  return 0;
+	  return send_error_message("invalid escape sequence");
 	}
       }
       return wc;
@@ -342,8 +350,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 	} else if (ch>='A' && ch <= 'F') {
 	  wc += ((ch-'A')+10)<<((7-i)*4);
 	} else {
-	  Yap_ErrorMessage = "invalid escape sequence";
-	  return 0;
+	  return send_error_message("invalid escape sequence");
 	}
       }
       return wc;
@@ -360,8 +367,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     return '`';
   case '^':
     if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      Yap_ErrorMessage = "invalid escape sequence";
-      return 0;
+      return send_error_message("invalid escape sequence");
     } else {
       ch = getchrq(inp_stream);
       if (ch ==  '?') {/* delete character */
@@ -393,20 +399,17 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 	  so_far = so_far*8+(ch-'0');
 	  ch = getchrq(inp_stream);
 	  if (ch != '\\') {
-	    Yap_ErrorMessage = "invalid octal escape sequence";
-	    return 0;
+	    return send_error_message("invalid octal escape sequence");
 	  }
 	} else if (ch == '\\') {
 	  return so_far;
 	} else {
-	  Yap_ErrorMessage = "invalid octal escape sequence";
-	  return 0;
+	  return send_error_message("invalid octal escape sequence");
 	}
       } else if (ch == '\\') {
 	return so_far;
       } else {
-	Yap_ErrorMessage = "invalid octal escape sequence";
-	return 0;
+	return send_error_message("invalid octal escape sequence");
       }
     } else {
       /* sicstus */
@@ -442,20 +445,17 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 	  if (ch == '\\') {
 	    return so_far;
 	  } else {
-	    Yap_ErrorMessage = "invalid hexadecimal escape sequence";
-	    return 0;
+	    return send_error_message("invalid hexadecimal escape sequence");
 	  }
 	} else if (ch == '\\') {
 	  return so_far;
 	} else {
-	  Yap_ErrorMessage = "invalid hexadecimal escape sequence";
-	  return 0;
+	  return send_error_message("invalid hexadecimal escape sequence");
 	} 
       } else if (ch == '\\') {
 	return so_far;
       } else {
-	Yap_ErrorMessage = "invalid hexadecimal escape sequence";
-	return 0;
+	return send_error_message("invalid hexadecimal escape sequence");
       }
     } else {
       /* sicstus mode */
@@ -474,8 +474,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
        consider this sequence legal, whereas SICStus would
        eat up the escape sequence. */
     if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
-      Yap_ErrorMessage = "invalid escape sequence";
-      return 0;
+      return send_error_message("invalid escape sequence");
     } else {
       /* sicstus */
       if (chtype(ch) == SL) {
@@ -487,7 +486,16 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   }
 }
 	    
+static int
+num_send_error_message(char s[])
+{
+  CACHE_REGS
+  Yap_ErrorMessage = s;
+  return TermNil;
+}
+
 /* reads a number, either integer or float */
+
 
 static Term
 get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, int sign)
@@ -506,21 +514,18 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
   if (chtype(ch) == NU) {
     *sp++ = ch;
     if (--max_size == 0) {
-      Yap_ErrorMessage = "Number Too Long";
-      return TermNil;
+      return num_send_error_message("Number Too Long");
     }
     base = 10 * base + ch - '0';
     ch = getchr(inp_stream);
   }
   if (ch == '\'') {
     if (base > 36) {
-      Yap_ErrorMessage = "Admissible bases are 0..36";
-      return TermNil;
+      return num_send_error_message("Admissible bases are 0..36");
     }
     might_be_float = FALSE;
     if (--max_size == 0) {
-      Yap_ErrorMessage = "Number Too Long";
-      return TermNil;
+      return num_send_error_message("Number Too Long");
     }
     *sp++ = ch;
     ch = getchr(inp_stream);
@@ -548,8 +553,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
 	int chval = (chtype(ch) == NU ? ch - '0' :
 		     (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
 	if (--max_size == 0) {
-	  Yap_ErrorMessage = "Number Too Long";
-	  return TermNil;
+	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = ch;
 	val = oval * base + chval;
@@ -561,8 +565,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
   } else if (ch == 'x' && base == 0) {
     might_be_float = FALSE;
     if (--max_size == 0) {
-      Yap_ErrorMessage = "Number Too Long";
-      return TermNil;
+      return num_send_error_message("Number Too Long");
     }
     *sp++ = ch;
     ch = getchr(inp_stream);
@@ -571,8 +574,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       int chval = (chtype(ch) == NU ? ch - '0' :
 		   (my_isupper(ch) ? ch - 'A' : ch - 'a') + 10);
       if (--max_size == 0) {
-	Yap_ErrorMessage = "Number Too Long";
-	return TermNil;
+	return num_send_error_message("Number Too Long");
       }
       *sp++ = ch;
       val = val * 16 + chval;
@@ -598,8 +600,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
     Int oval = val;
     if (!(val == 0 && ch == '0') || has_overflow) {
       if (--max_size == 0) {
-	Yap_ErrorMessage = "Number Too Long";
-	return (TermNil);
+	return num_send_error_message("Number Too Long");
       }
       *sp++ = ch;
     }
@@ -615,13 +616,11 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
   }
   if (might_be_float && ( ch == '.'  || ch == 'e' || ch == 'E')) {
     if (yap_flags[STRICT_ISO_FLAG] && (ch == 'e' || ch == 'E')) {
-	Yap_ErrorMessage = "Float format not allowed in ISO mode";
-	return TermNil;
+      return num_send_error_message("Float format not allowed in ISO mode");
     }
     if (ch == '.') {
       if (--max_size == 0) {
-	Yap_ErrorMessage = "Number Too Long";
-	return TermNil;
+	return num_send_error_message("Number Too Long");
       }
       *sp++ = '.';
       if (chtype(ch = getchr(inp_stream)) != NU) {
@@ -636,8 +635,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       }
       do {
 	if (--max_size == 0) {
-	  Yap_ErrorMessage = "Number Too Long";
-	  return TermNil;
+	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = ch;
       }
@@ -648,16 +646,14 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       char cbuff = ch;
 
       if (--max_size == 0) {
-	Yap_ErrorMessage = "Number Too Long";
-	return TermNil;
+	return num_send_error_message("Number Too Long");
       }
       *sp++ = ch;
       ch = getchr(inp_stream);
       if (ch == '-') {
 	cbuff = '-';
 	if (--max_size == 0) {
-	  Yap_ErrorMessage = "Number Too Long";
-	  return TermNil;
+	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = '-';
 	ch = getchr(inp_stream);
@@ -679,8 +675,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
       }
       do {
 	if (--max_size == 0) {
-	  Yap_ErrorMessage = "Number Too Long";
-	  return TermNil;
+	  return num_send_error_message("Number Too Long");
 	}
 	*sp++ = ch;
       } while (chtype(ch = getchr(inp_stream)) == NU);
@@ -714,6 +709,7 @@ get_num(int *chp, int *chbuffp, IOSTREAM *inp_stream, char *s, UInt max_size, in
 Term
 Yap_scan_num(IOSTREAM *inp)
 {
+  CACHE_REGS
   Term out;
   int sign = 1;
   int ch, cherr;
@@ -756,6 +752,7 @@ Yap_scan_num(IOSTREAM *inp)
 static wchar_t *
 ch_to_wide(char *base, char *charp)
 {
+  CACHE_REGS
   int n = charp-base, i;
   wchar_t *nb = (wchar_t *)base;
 
@@ -784,6 +781,7 @@ ch_to_wide(char *base, char *charp)
 TokEntry *
 Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 {
+  CACHE_REGS
   TokEntry *t, *l, *p;
   enum TokenKinds kind;
   int solo_flag = TRUE;
@@ -1269,6 +1267,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
+  CACHE_REGS
   struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
   while (ptr) {
     struct scanner_extra_alloc *next = ptr->next;

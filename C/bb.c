@@ -25,7 +25,7 @@ static char     SccsId[] = "%W% %G%";
 #endif
 
 static BBProp 
-PutBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
+PutBBProp(AtomEntry *ae, Term mod USES_REGS)		/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -56,7 +56,7 @@ PutBBProp(AtomEntry *ae, Term mod)		/* get BBentry for at; */
 }
 
 static BBProp 
-PutIntBBProp(Int key, Term mod)	/* get BBentry for at; */
+PutIntBBProp(Int key, Term mod USES_REGS)	/* get BBentry for at; */
 {
   Prop          p0;
   BBProp        p;
@@ -147,6 +147,7 @@ GetIntBBProp(Int key, Term mod)		/* get BBentry for at; */
 
 static int
 resize_bb_int_keys(UInt new_size) {
+  CACHE_REGS
   Prop *new;
   UInt i;
 
@@ -186,7 +187,7 @@ resize_bb_int_keys(UInt new_size) {
 }
 
 static BBProp
-AddBBProp(Term t1, char *msg, Term mod)
+AddBBProp(Term t1, char *msg, Term mod USES_REGS)
 {
   BBProp p;
 
@@ -195,9 +196,9 @@ AddBBProp(Term t1, char *msg, Term mod)
     Yap_Error(INSTANTIATION_ERROR, t1, msg);
     return(NULL);
   } if (IsAtomTerm(t1)) {
-    p = PutBBProp(RepAtom(AtomOfTerm(t1)), mod);
+    p = PutBBProp(RepAtom(AtomOfTerm(t1)), mod PASS_REGS);
   } else if (IsIntegerTerm(t1)) {
-    p = PutIntBBProp(IntegerOfTerm(t1), mod);
+    p = PutIntBBProp(IntegerOfTerm(t1), mod PASS_REGS);
   } else if (IsApplTerm(t1) && FunctorOfTerm(t1) == FunctorModule) {
     Term tmod = ArgOfTerm(1, t1);
     if (!IsVarTerm(tmod) ) {
@@ -264,10 +265,10 @@ BBPut(Term t0, Term t2)
 }
 
 static Int
-p_bb_put(void)
+p_bb_put( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
-  BBProp p = AddBBProp(t1, "bb_put/2", CurrentModule);
+  BBProp p = AddBBProp(t1, "bb_put/2", CurrentModule PASS_REGS);
 
   if (p == NULL) {
     return(FALSE);
@@ -283,7 +284,7 @@ p_bb_put(void)
 }
 
 static Term
-BBGet(Term t, UInt arity)
+BBGet(Term t, UInt arity USES_REGS)
 {
   if (IsVarTerm(t)) {
     return MkVarTerm();
@@ -295,7 +296,7 @@ BBGet(Term t, UInt arity)
 }
 
 static Int
-p_bb_get(void)
+p_bb_get( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p = FetchBBProp(t1, "bb_get/2", CurrentModule);
@@ -309,12 +310,12 @@ p_bb_get(void)
   */
   t0 = p->Element;
   READ_UNLOCK(p->BBRWLock);  
-  out = BBGet(t0, 2);
+  out = BBGet(t0, 2 PASS_REGS);
   return Yap_unify(ARG2,out);
 }
 
 static Int
-p_bb_delete(void)
+p_bb_delete( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p;
@@ -324,7 +325,7 @@ p_bb_delete(void)
   if (p == NULL || p->Element == 0L)
     return(FALSE);
   WRITE_LOCK(p->BBRWLock);  
-  out = BBGet(p->Element,2);
+  out = BBGet(p->Element, 2 PASS_REGS);
   if (!IsVarTerm(p->Element) && IsApplTerm(p->Element)) {
     Yap_ErLogUpdCl((LogUpdClause *)DBRefOfTerm(p->Element));
   }
@@ -334,7 +335,7 @@ p_bb_delete(void)
 }
 
 static Int
-p_bb_update(void)
+p_bb_update( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   BBProp p;
@@ -344,7 +345,7 @@ p_bb_update(void)
   if (p == NULL || p->Element == 0L)
     return FALSE;
   WRITE_LOCK(p->BBRWLock);  
-  out = BBGet(p->Element, 3);
+  out = BBGet(p->Element, 3 PASS_REGS);
   if (!Yap_unify(out,ARG2)) {
     WRITE_UNLOCK(p->BBRWLock);
     return FALSE;
@@ -355,7 +356,7 @@ p_bb_update(void)
 }
 
 static Int
-p_resize_bb_int_keys(void)
+p_resize_bb_int_keys( USES_REGS1 )
 {
   Term t1 = Deref(ARG1);
   if (IsVarTerm(t1)) {

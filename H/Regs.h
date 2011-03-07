@@ -78,7 +78,14 @@ EXTERN void save_H(void);
 EXTERN void restore_B(void);
 EXTERN void save_B(void);
 
-typedef struct
+#define CACHE_REGS
+#define INIT_REGS
+#define PASS_REGS1 
+#define PASS_REGS
+#define USES_REGS1 void
+#define USES_REGS
+
+typedef struct regstore_t
   {
     Int     CurSlot_;
     CELL    CreepFlag_;		/* 13                                         */
@@ -171,16 +178,19 @@ extern Term Yap_XREGS[MaxTemps];	/* 29                                     */
 
 extern pthread_key_t Yap_yaamregs_key;
 
-#if CACHE_REGS
-
-#define ENTER_FUNC REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
-#define Yap_regp ->((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
-
-#else
-
-#define Yap_regp ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
-
-#endif
+#undef CACHE_REGS
+#undef INIT_REGS
+#undef PASS_REGS
+#undef PASS_REGS1
+#undef USES_REGS
+#undef USES_REGS1
+#define CACHE_REGS REGSTORE *regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+#define INIT_REGS , ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key))
+#define PASS_REGS1 regcache
+#define PASS_REGS , regcache
+#define USES_REGS1 struct regstore_t *regcache
+#define USES_REGS , struct regstore_t *regcache
+#define Yap_regp regcache
 
 #endif
 
@@ -701,6 +711,7 @@ extern REGSTORE Yap_standard_regs;
 static inline UInt
 CalculateStackGap(void)
 {
+  CACHE_REGS
   UInt gmin = (LCL0-H0)>>2;
 
   if (gmin < MinStackGap) gmin = MinStackGap; 

@@ -28,18 +28,18 @@
 #define M_EVEN  0
 #define M_ODD   1
 
-STATIC_PROTO(Int build_new_list, (CELL *, Term));
+STATIC_PROTO(Int build_new_list, (CELL *, Term CACHE_TYPE));
 STATIC_PROTO(void simple_mergesort, (CELL *, Int, int));
 STATIC_PROTO(Int compact_mergesort, (CELL *, Int, int));
 STATIC_PROTO(int key_mergesort, (CELL *, Int, int, Functor));
 STATIC_PROTO(void adjust_vector, (CELL *, Int));
-STATIC_PROTO(Int p_sort, (void));
-STATIC_PROTO(Int p_msort, (void));
-STATIC_PROTO(Int p_ksort, (void));
+STATIC_PROTO(Int p_sort, ( USES_REGS1 ));
+STATIC_PROTO(Int p_msort, ( USES_REGS1 ));
+STATIC_PROTO(Int p_ksort, ( USES_REGS1 ));
 
 /* copy to a new list of terms */
 static Int
-build_new_list(CELL *pt, Term t)
+build_new_list(CELL *pt, Term t USES_REGS)
 {
   Int out = 0;
   if (IsVarTerm(t))
@@ -343,14 +343,14 @@ adjust_vector(CELL *pt, Int size)
 }
 
 static Int
-p_sort(void)
+p_sort( USES_REGS1 )
 {
   /* use the heap to build a new list */
   CELL *pt = H;
   Term out;
   /* list size */
   Int size;
-  size = build_new_list(pt, Deref(ARG1));
+  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
   if (size < 0)
     return(FALSE);
   if (size < 2)
@@ -368,14 +368,14 @@ p_sort(void)
 }
 
 static Int
-p_msort(void)
+p_msort( USES_REGS1 )
 {
   /* use the heap to build a new list */
   CELL *pt = H;
   Term out;
   /* list size */
   Int size;
-  size = build_new_list(pt, Deref(ARG1));
+  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
   if (size < 0)
     return(FALSE);
   if (size < 2)
@@ -390,14 +390,14 @@ p_msort(void)
 }
 
 static Int
-p_ksort(void)
+p_ksort( USES_REGS1 )
 {
   /* use the heap to build a new list */
   CELL *pt = H;
   Term out;
   /* list size */
   Int size;
-  size = build_new_list(pt, Deref(ARG1));
+  size = build_new_list(pt, Deref(ARG1) PASS_REGS);
   if (size < 0)
     return(FALSE);
   if (size < 2)

@@ -830,6 +830,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
 
 #if USE_SYSTEM_MALLOC
   if (!(base = (CELL *)Yap_AllocCodeSpace(2*max*sizeof(CELL)))) {
+    CACHE_REGS
     save_machine_regs();
     Yap_Error_Size = 2*max*sizeof(CELL);
     siglongjmp(cint->CompilerBotch,2);
@@ -2003,6 +2004,7 @@ skip_to_arg(ClauseDef *clause, PredEntry *ap, UInt argno, int at_point)
 static UInt
 groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *cint)
 {
+  CACHE_REGS
   UInt groups = 0;
 
   while(min <= max) {
@@ -3000,6 +3002,7 @@ cls_head_info(ClauseDef *min, ClauseDef *max, UInt argno, int in_idb)
 static UInt
 do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno, UInt fail_l, int first, int clleft, CELL *top)
 {
+  CACHE_REGS
   UInt ngroups, found_pvar = FALSE;
   UInt i = 0;
   GroupDef *group = (GroupDef *)top;
@@ -3137,6 +3140,7 @@ do_index(ClauseDef *min, ClauseDef* max, struct intermediates *cint, UInt argno,
 static ClauseDef *
 copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *cint)
 {
+  CACHE_REGS
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
   if ((char *)top + sz >= Yap_TrailTop-4096) {
     Yap_Error_Size = sz;
@@ -3319,6 +3323,7 @@ init_log_upd_clauses(ClauseDef *cl, PredEntry *ap)
 static UInt
 compile_index(struct intermediates *cint)
 {
+  CACHE_REGS
   PredEntry *ap = cint->CurrentPred;
   int NClauses = ap->cs.p_code.NOfClauses;
   CELL *top = (CELL *) TR;
@@ -3382,6 +3387,7 @@ CleanCls(struct intermediates *cint)
 yamop *
 Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
 {
+  CACHE_REGS
   yamop *indx_out;
   int setjres;
   struct intermediates cint;
@@ -3471,6 +3477,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
 static istack_entry *
 push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates *cint)
 {
+  CACHE_REGS
   if (sp+1 > (istack_entry *)Yap_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
@@ -3917,6 +3924,7 @@ code_to_indexcl(yamop *ipc, int is_lu)
 
 static yamop **
 expand_index(struct intermediates *cint) {
+  CACHE_REGS
   /* first clause */
   PredEntry *ap = cint->CurrentPred;
   yamop *first, *last = NULL, *alt = NULL;
@@ -4485,7 +4493,7 @@ expand_index(struct intermediates *cint) {
 
 
 static yamop *
-ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
+ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
   yamop *indx_out, *expand_clauses;
   yamop **labp;
   int cb;
@@ -4496,6 +4504,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
   cint.code_addr = NULL;
   cint.label_offset = NULL;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
+    CACHE_REGS
     restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
@@ -4692,12 +4701,14 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop) {
 
 yamop *
 Yap_ExpandIndex(PredEntry *ap, UInt nargs) {
-  return ExpandIndex(ap, nargs, CP);
+  CACHE_REGS
+  return ExpandIndex(ap, nargs, CP PASS_REGS);
 }
 
 static path_stack_entry *
 push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediates *cint)
 {
+  CACHE_REGS
   if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
@@ -4714,6 +4725,7 @@ push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediat
 static path_stack_entry *
 fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermediates *cint)
 {
+  CACHE_REGS
   if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
@@ -5993,6 +6005,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 
 void
 Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
+  CACHE_REGS
   ClauseDef cl;
   /* first clause */
   path_stack_entry *stack, *sp;
@@ -6469,6 +6482,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 /* clause is locked */
 void
 Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
+  CACHE_REGS
   ClauseDef cl;
   /* first clause */
   path_stack_entry *stack, *sp;
@@ -6578,7 +6592,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	     
 
 static void
-store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc, PredEntry *pe, yamop *ap_pc, yamop *cp_pc)
+store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc, PredEntry *pe, yamop *ap_pc, yamop *cp_pc USES_REGS)
 {
   Term tpc = MkIntegerTerm((Int)ipc);
   Term tpe = MkIntegerTerm((Int)pe);
@@ -6610,7 +6624,7 @@ store_clause_choice_point(Term t1, Term tb, Term tr, yamop *ipc, PredEntry *pe, 
 }
 
 static void
-update_clause_choice_point(yamop *ipc, yamop *ap_pc)
+update_clause_choice_point(yamop *ipc, yamop *ap_pc USES_REGS)
 {
   Term tpc = MkIntegerTerm((Int)ipc);
   B->cp_args[1] = tpc;
@@ -6632,6 +6646,7 @@ to_clause(yamop *ipc, PredEntry *ap)
 LogUpdClause *
 Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, yamop *cp_pc)
 {
+  CACHE_REGS
   CELL *s_reg = NULL;
   Term t = TermNil;
   yamop *start_pc = ipc;
@@ -6655,7 +6670,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     op_numbers op = Yap_op_from_opcode(ipc->opc);
     switch(op) {
     case _try_in:
-      update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
+      update_clause_choice_point(NEXTOP(ipc,l), ap_pc PASS_REGS);
       if (lu_pred)
 	return lu_clause(ipc->u.l.l, ap);
       else
@@ -6666,11 +6681,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _table_try:
 #endif
       if (b0 == NULL)
-	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,Otapl), ap, ap_pc, cp_pc);
+	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,Otapl), ap, ap_pc, cp_pc PASS_REGS);
       else {
 	B = b0;
 	b0 = NULL;
-	update_clause_choice_point(NEXTOP(ipc,Otapl), ap_pc);
+	update_clause_choice_point(NEXTOP(ipc,Otapl), ap_pc PASS_REGS);
       }
       if (lu_pred)
 	return lu_clause(ipc->u.Otapl.d, ap);
@@ -6680,11 +6695,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _try_clause3:
     case _try_clause4:
       if (b0 == NULL)
-	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,l), ap, ap_pc, cp_pc);
+	store_clause_choice_point(Terms[0], Terms[1], Terms[2], NEXTOP(ipc,l), ap, ap_pc, cp_pc PASS_REGS);
       else {
 	B = b0;
 	b0 = NULL;
-	update_clause_choice_point(NEXTOP(ipc,l), ap_pc);
+	update_clause_choice_point(NEXTOP(ipc,l), ap_pc PASS_REGS);
       }
       if (lu_pred)
 	return lu_clause(ipc->u.l.l, ap);
@@ -6695,11 +6710,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _table_try_me:
 #endif
       if (b0 == NULL)
-	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.Otapl.d, ap, ap_pc, cp_pc);
+	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.Otapl.d, ap, ap_pc, cp_pc PASS_REGS);
       else {
 	B = b0;
 	b0 = NULL;
-	update_clause_choice_point(ipc->u.Otapl.d, ap_pc);
+	update_clause_choice_point(ipc->u.Otapl.d, ap_pc PASS_REGS);
       }
       ipc = NEXTOP(ipc,Otapl);
       break;
@@ -6711,7 +6726,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 #if TABLING
     case _table_retry:
 #endif
-      update_clause_choice_point(NEXTOP(ipc,Otapl),ap_pc);
+      update_clause_choice_point(NEXTOP(ipc,Otapl),ap_pc PASS_REGS);
       if (lu_pred)
 	return lu_clause(ipc->u.Otapl.d, ap);
       else
@@ -6719,13 +6734,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _retry2:
     case _retry3:
     case _retry4:
-      update_clause_choice_point(NEXTOP(ipc,l),ap_pc);
+      update_clause_choice_point(NEXTOP(ipc,l),ap_pc PASS_REGS);
       if (lu_pred)
 	return lu_clause(ipc->u.l.l, ap);
       else
 	return (LogUpdClause *)static_clause(ipc->u.l.l, ap, TRUE);
     case _retry_me:
-      update_clause_choice_point(ipc->u.Otapl.d,ap_pc);
+      update_clause_choice_point(ipc->u.Otapl.d,ap_pc PASS_REGS);
       ipc = NEXTOP(ipc,Otapl);
       break;
     case _trust:
@@ -6815,11 +6830,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _try_logical:
       if (b0 == NULL)
-	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.OtaLl.n, ap, ap_pc, cp_pc);
+	store_clause_choice_point(Terms[0], Terms[1], Terms[2], ipc->u.OtaLl.n, ap, ap_pc, cp_pc PASS_REGS);
       else {
 	B = b0;
 	b0 = NULL;
-	update_clause_choice_point(ipc->u.OtaLl.n, ap_pc);
+	update_clause_choice_point(ipc->u.OtaLl.n, ap_pc PASS_REGS);
       }
       {
 	UInt timestamp = IntegerOfTerm(((CELL *)(B+1))[5]);
@@ -6842,7 +6857,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  break;
 	}
       }
-      update_clause_choice_point(ipc->u.OtILl.n,ap_pc);
+      update_clause_choice_point(ipc->u.OtILl.n,ap_pc PASS_REGS);
       return ipc->u.OtILl.d;
 #if TABLING
     case _table_try_single:
@@ -7103,7 +7118,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	break;
       }
 #endif
-      ipc = ExpandIndex(ap, 5, cp_pc);
+      ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
       s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
       t = XREGS[ap->ArityOfPE+2];
       Terms[0] = XREGS[ap->ArityOfPE+3];
@@ -7117,7 +7132,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
 #if THREADS
     case _thread_local:
-      ap = Yap_GetThreadPred(ap);
+      ap = Yap_GetThreadPred(ap PASS_REGS);
       ipc = ap->CodeOfPred;
       break;
 #endif
@@ -7202,6 +7217,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 LogUpdClause *
 Yap_NthClause(PredEntry *ap, Int ncls)
 {
+  CACHE_REGS
   yamop
     *ipc = ap->cs.p_code.TrueCodeOfPred,
     *alt = NULL;
@@ -7378,7 +7394,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
 	break;
       }
 #endif
-      ipc = ExpandIndex(ap, 0, CP);
+      ipc = ExpandIndex(ap, 0, CP PASS_REGS);
 
       break;
     case _op_fail:

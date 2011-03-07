@@ -29,15 +29,15 @@
 
 static Int null_id = 0;
 
-STATIC_PROTO(Int c_db_odbc_connect,(void));
-STATIC_PROTO(Int c_db_odbc_disconnect,(void));
-STATIC_PROTO(Int c_db_odbc_number_of_fields,(void));
-STATIC_PROTO(Int c_db_odbc_get_attributes_types,(void));
-STATIC_PROTO(Int c_db_odbc_query,(void));
-STATIC_PROTO(Int c_db_odbc_row,(void));
-STATIC_PROTO(Int c_db_odbc_row_cut,(void));
-STATIC_PROTO(Int c_db_odbc_get_fields_properties,(void));
-STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,(void));
+STATIC_PROTO(Int c_db_odbc_connect,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_disconnect,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_number_of_fields,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_get_attributes_types,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_query,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_row,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_row_cut,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_get_fields_properties,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_odbc_number_of_fields_in_query,( USES_REGS1 ));
 
 static int
 odbc_error(SQLSMALLINT type, SQLHANDLE hdbc, char *msg, char *print)
@@ -321,7 +321,7 @@ static int SQLCOLATTRIBUTE( SQLHSTMT        StatementHandle,
 
 
 static Int
-c_db_odbc_connect(void) {
+c_db_odbc_connect( USES_REGS1 ) {
   Term arg_driver = Deref(ARG1); 
   Term arg_user = Deref(ARG2);
   Term arg_passwd = Deref(ARG3);
@@ -371,7 +371,7 @@ c_db_odbc_connect(void) {
 
 /* db_query: SQLQuery x ResultSet x Arity x BindList x Connection */
 static Int
-c_db_odbc_query(void) {
+c_db_odbc_query( USES_REGS1 ) {
   Term arg_sql_query = Deref(ARG1);
   Term arg_result_set = Deref(ARG2);
   Term arg_arity = Deref(ARG3);
@@ -452,7 +452,7 @@ c_db_odbc_query(void) {
 }
 
 static Int
-c_db_odbc_number_of_fields(void) {
+c_db_odbc_number_of_fields( USES_REGS1 ) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_fields = Deref(ARG3);
@@ -493,7 +493,7 @@ c_db_odbc_number_of_fields(void) {
 
 /* db_get_attributes_types: RelName x Connection -> TypesList */
 static Int
-c_db_odbc_get_attributes_types(void) {
+c_db_odbc_get_attributes_types( USES_REGS1 ) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_types_list = Deref(ARG3);
@@ -554,7 +554,7 @@ c_db_odbc_get_attributes_types(void) {
 
 /* db_disconnect */
 static Int
-c_db_odbc_disconnect(void) {
+c_db_odbc_disconnect( USES_REGS1 ) {
   Term arg_conn = Deref(ARG1);
 
   SQLHDBC conn = (SQLHDBC) (IntegerOfTerm(arg_conn));
@@ -579,7 +579,7 @@ c_db_odbc_disconnect(void) {
 }
 
 static Int
-c_db_odbc_row_cut(void) {
+c_db_odbc_row_cut( USES_REGS1 ) {
     
   SQLHSTMT hstmt = (SQLHSTMT) IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,1)); 
   
@@ -593,7 +593,7 @@ c_db_odbc_row_cut(void) {
 
 /* db_row: ResultSet x BindList x ListOfArgs -> */
 static Int
-c_db_odbc_row(void) {
+c_db_odbc_row( USES_REGS1 ) {
   Term arg_result_set = Deref(ARG1);
   Term arg_bind_list = Deref(ARG2);
   Term arg_list_args = Deref(ARG3);
@@ -674,7 +674,7 @@ c_db_odbc_row(void) {
 /* Mudar esta funcao de forma a nao fazer a consulta, pois 
  no predicate db_sql_selet vai fazer duas vezes a mesma consutla*/ 
 static Int
-c_db_odbc_number_of_fields_in_query(void) {
+c_db_odbc_number_of_fields_in_query( USES_REGS1 ) {
   Term arg_query = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_fields = Deref(ARG3);
@@ -714,7 +714,7 @@ c_db_odbc_number_of_fields_in_query(void) {
 }
 
 static Int
-c_db_odbc_get_fields_properties(void) {
+c_db_odbc_get_fields_properties( USES_REGS1 ) {
   Term nome_relacao = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term fields_properties_list = Deref(ARG3);

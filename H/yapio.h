@@ -187,7 +187,7 @@ typedef	 struct	TOKEN {
 
 #define	Ord(X) ((enum TokenKinds) (X))
 
-#define	NextToken GNextToken()
+#define	NextToken GNextToken( PASS_REGS1 )
 
 typedef	struct VARSTRUCT {
   Term VarAdr;

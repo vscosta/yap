@@ -236,6 +236,7 @@ ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void) 
 {
+  CACHE_REGS
   return AuxBase;
 }
 

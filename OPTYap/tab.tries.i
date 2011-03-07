@@ -829,6 +829,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
  Yap_TrailTop -->  |         |
                    -----------
 ************************************************************************/
+  CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
   gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
@@ -1032,6 +1033,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
  Yap_TrailTop -->  |         |
                    -----------
 ************************************************************************/
+  CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
   gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
@@ -1243,6 +1245,7 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
  Yap_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
                    -----------
 ************************************************************************/
+  CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
   int vars_arity = *vars_arity_ptr;
 #else

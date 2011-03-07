@@ -39,7 +39,7 @@ TracePutchar(int sno, int ch)
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 {
-
+  CACHE_REGS
   if (name == NULL) {
 #ifdef  YAPOR
     fprintf(Yap_stderr, "(%d)%s", worker_id, start);
@@ -154,6 +154,7 @@ Term old_x1[10000], old_x2[10000], old_x3[10000];
 void
 low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
 {
+  CACHE_REGS
   char *s;
   char *mname;
   Int arity;
@@ -357,31 +358,31 @@ toggle_low_level_trace(void)
   Yap_do_low_level_trace = !Yap_do_low_level_trace;
 }
 
-static Int p_start_low_level_trace(void)
+static Int p_start_low_level_trace( USES_REGS1 )
 {
   Yap_do_low_level_trace = TRUE;
   return(TRUE);
 }
 
-static Int p_total_choicepoints(void)
+static Int p_total_choicepoints( USES_REGS1 )
 {
   return Yap_unify(MkIntegerTerm(Yap_total_choicepoints),ARG1);
 }
 
-static Int p_reset_total_choicepoints(void)
+static Int p_reset_total_choicepoints( USES_REGS1 )
 {
   Yap_total_choicepoints = 0;
   return TRUE;
 }
 
-static Int p_show_low_level_trace(void)
+static Int p_show_low_level_trace( USES_REGS1 )
 {
   fprintf(stderr,"Call counter=%lld\n",vsc_count);
   return(TRUE);
 }
 
 #ifdef THREADS
-static Int p_start_low_level_trace2(void)
+static Int p_start_low_level_trace2( USES_REGS1 )
 {
   thread_trace = IntegerOfTerm(Deref(ARG1))+1;
   Yap_do_low_level_trace = TRUE;
@@ -391,7 +392,7 @@ static Int p_start_low_level_trace2(void)
 
 #include <stdio.h>
 
-static Int p_stop_low_level_trace(void)
+static Int p_stop_low_level_trace( USES_REGS1 )
 {
   Yap_do_low_level_trace = FALSE;
   do_trace_primitives = TRUE;
@@ -400,7 +401,7 @@ static Int p_stop_low_level_trace(void)
 
 volatile int vsc_wait;
 
-static Int p_vsc_wait(void)
+static Int p_vsc_wait( USES_REGS1 )
 {
   while (!vsc_wait);
   vsc_wait=1;

@@ -51,6 +51,7 @@ REGSTORE Yap_REGS;
 Term 
 Yap_MkNewPairTerm(void)
 {
+  CACHE_REGS
   register CELL  *p = H;
 
   RESET_VARIABLE(H);
@@ -64,12 +65,13 @@ Yap_MkApplTerm(Functor f, unsigned int n, register Term *a)
      /* build compound term with functor f and n
       * args a */
 {
+  CACHE_REGS
   CELL           *t = H;
 
   if (n == 0)
     return (MkAtomTerm(NameOfFunctor(f)));
   if (f == FunctorList)
-    return (MkPairTerm(a[0], a[1]));
+    return MkPairTerm(a[0], a[1]);
   *H++ = (CELL) f;
   while (n--)
     *H++ = (CELL) * a++;
@@ -81,6 +83,7 @@ Yap_MkNewApplTerm(Functor f, unsigned int n)
      /* build compound term with functor f and n
       * args a */
 {
+  CACHE_REGS
   CELL           *t = H;
 
   if (n == 0)
@@ -103,6 +106,7 @@ Yap_MkNewApplTerm(Functor f, unsigned int n)
 Term
 Yap_Globalise(Term t)
 {
+  CACHE_REGS
   CELL *vt;
   Term tn;
 

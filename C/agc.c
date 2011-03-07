@@ -33,8 +33,8 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #define errout Yap_stderr
 #endif
 
-STATIC_PROTO(void  RestoreEntries, (PropEntry *, int));
-STATIC_PROTO(void  CleanCode, (PredEntry *));
+STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
+STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
 
 static int agc_calls;
 
@@ -111,8 +111,6 @@ AtomAdjust(Atom a)
   MarkAtomEntry(ae);
   return(a);
 }
-
-static Term AdjustDBTerm(Term, Term *);
 
 #define IsOldCode(P) FALSE
 #define IsOldCodeCellPtr(P) FALSE
@@ -201,10 +199,8 @@ static Term AdjustDBTerm(Term, Term *);
 
 #include "rheap.h"
 
-
-
 static void
-RestoreHashPreds(void)
+RestoreHashPreds( USES_REGS1 )
 {
   UInt i;
 
@@ -219,14 +215,14 @@ RestoreHashPreds(void)
       if (p->NextOfPE)
 	p->NextOfPE = PropAdjust(p->NextOfPE);
       nextp = p->NextOfPE;
-      CleanCode(p);
+      CleanCode(p PASS_REGS);
       p = RepPredProp(nextp);
     }
   }
 }
 
 
-static void init_reg_copies(void)
+static void init_reg_copies(USES_REGS1)
 {
   OldASP = ASP;
   OldLCL0 = LCL0;
@@ -242,7 +238,7 @@ static void init_reg_copies(void)
 
 
 static void
-RestoreAtomList(Atom atm)
+RestoreAtomList(Atom atm USES_REGS)
 {
   AtomEntry      *at;
 
@@ -250,7 +246,7 @@ RestoreAtomList(Atom atm)
   if (EndOfPAEntr(at))
     return;
   do {
-    RestoreAtom(atm);
+    RestoreAtom(atm PASS_REGS);
     atm = CleanAtomMarkedBit(at->NextOfAE);
     at = RepAtom(atm);
   } while (!EndOfPAEntr(at));
@@ -259,7 +255,7 @@ RestoreAtomList(Atom atm)
 
 
 static void
-mark_trail(void)
+mark_trail(USES_REGS1)
 {
   register tr_fr_ptr pt;
 
@@ -279,7 +275,7 @@ mark_trail(void)
 }
 
 static void
-mark_registers(void)
+mark_registers(USES_REGS1)
 {
   CELL *pt;
 
@@ -297,7 +293,7 @@ mark_registers(void)
 }
 
 static void
-mark_local(void)
+mark_local(USES_REGS1)
 {
   CELL   *pt;
 
@@ -355,7 +351,7 @@ mark_global_cell(CELL *pt)
 }
 
 static void
-mark_global(void)
+mark_global(USES_REGS1)
 {
   CELL *pt;
 
@@ -370,12 +366,12 @@ mark_global(void)
 }
 
 static void
-mark_stacks(void)
+mark_stacks(USES_REGS1)
 {
-  mark_registers();
-  mark_trail();
-  mark_local();
-  mark_global();
+  mark_registers(PASS_REGS1);
+  mark_trail(PASS_REGS1);
+  mark_local(PASS_REGS1);
+  mark_global(PASS_REGS1);
 }
 
 static void
@@ -433,7 +429,7 @@ clean_atoms(void)
 }
 
 static void
-atom_gc(void)
+atom_gc(USES_REGS1)
 {
   int		gc_verbose = Yap_is_gc_verbose();
   int           gc_trace = 0;
@@ -457,8 +453,8 @@ atom_gc(void)
   time_start = Yap_cputime();
   /* get the number of active registers */
   YAPEnterCriticalSection();
-  init_reg_copies();
-  mark_stacks();
+  init_reg_copies(PASS_REGS1);
+  mark_stacks(PASS_REGS1);
   restore_codes();
   clean_atoms();
   AGcLastCall = NOfAtoms;
@@ -477,22 +473,22 @@ atom_gc(void)
 }
 
 void
-Yap_atom_gc(void)
+Yap_atom_gc(USES_REGS1)
 {
-  atom_gc();
+  atom_gc(PASS_REGS1);
 }
 
 static Int
-p_atom_gc(void)
+p_atom_gc(USES_REGS1)
 {
 #ifndef FIXED_STACKS
-  atom_gc();
+  atom_gc(PASS_REGS1);
 #endif  /* FIXED_STACKS */
   return TRUE;
 }
 
 static Int
-p_inform_agc(void)
+p_inform_agc(USES_REGS1)
 {
   Term tn = MkIntegerTerm(tot_agc_time);
   Term tt = MkIntegerTerm(agc_calls);
@@ -505,7 +501,7 @@ p_inform_agc(void)
 }
 
 static Int
-p_agc_threshold(void)
+p_agc_threshold(USES_REGS1)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {

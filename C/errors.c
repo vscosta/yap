@@ -32,8 +32,8 @@
 
 #ifdef DEBUG
 STATIC_PROTO (int hidden, (Atom));
-STATIC_PROTO (int legal_env, (CELL *));
-void STD_PROTO (DumpActiveGoals, (void));
+STATIC_PROTO (int legal_env, (CELL * CACHE_TYPE));
+void STD_PROTO (DumpActiveGoals, ( CACHE_TYPE1 ));
 STATIC_PROTO (void detect_bug_location, (yamop *,find_pred_type,char *, int));
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
@@ -56,7 +56,7 @@ hidden (Atom at)
 }
 
 static int
-legal_env (CELL *ep)
+legal_env (CELL *ep USES_REGS)
 {
   CELL cp, ps;
   PredEntry *pe;
@@ -77,7 +77,7 @@ legal_env (CELL *ep)
 }
 
 void
-DumpActiveGoals (void)
+DumpActiveGoals ( USES_REGS1 )
 {
   /* try to dump active goals */
   CELL *ep = YENV;		/* and current environment		  */
@@ -86,9 +86,9 @@ DumpActiveGoals (void)
   PredEntry *pe;
   int first = 1;
 
-  if (legal_env (YENV) && YENV < ENV)
+  if (legal_env (YENV PASS_REGS) && YENV < ENV)
     ep = YENV;
-  else if (legal_env (ENV))
+  else if (legal_env (ENV PASS_REGS))
     ep = ENV;
   while (TRUE)
     {
@@ -226,7 +226,7 @@ detect_bug_location(yamop *yap_pc, find_pred_type where_from, char *tp, int psiz
 }
 
 static int
-handled_exception(void)
+handled_exception( USES_REGS1 )
 {
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l);
   int found_handler = FALSE;
@@ -251,7 +251,7 @@ handled_exception(void)
 
 
 static void
-dump_stack(void)
+dump_stack( USES_REGS1 )
 {
   choiceptr b_ptr = B;
   CELL *env_ptr = ENV;
@@ -260,7 +260,7 @@ dump_stack(void)
   int max_count = 200;
   
   /* check if handled */
-  if (handled_exception())
+  if (handled_exception( PASS_REGS1 ))
     return;
 #if DEBUG
   fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
@@ -347,8 +347,9 @@ dump_stack(void)
 static void
 error_exit_yap (int value)
 {
+  CACHE_REGS
   if (!(Yap_PrologMode & BootMode)) {
-    dump_stack();
+    dump_stack( PASS_REGS1 );
 #if DEBUG
 #endif
   }
@@ -362,6 +363,7 @@ error_exit_yap (int value)
 void
 Yap_bug_location(yamop *pc)
 {
+  CACHE_REGS
   detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
   fprintf(stderr,"%s\n",(char *)H);
 }
@@ -377,6 +379,7 @@ static char tmpbuf[YAP_BUF_SIZE];
 yamop *
 Yap_Error(yap_error_number type, Term where, char *format,...)
 {
+  CACHE_REGS
   va_list ap;
   CELL nt[3];
   Functor fun;
@@ -492,7 +495,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     error_exit_yap (1);
   }
 #ifdef DEBUGX
-  DumpActiveGoals();
+  DumpActiveGoals( USES_REGS1 );
 #endif /* DEBUG */
   switch (type) {
   case INTERNAL_ERROR:
@@ -1050,7 +1053,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack();
+      dump_stack( PASS_REGS1 );
       ti[0] = MkAtomTerm(AtomCodeSpace);
       i = strlen(tmpbuf);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1065,7 +1068,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack();
+      dump_stack( PASS_REGS1 );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomStack);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1080,7 +1083,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack();
+      dump_stack( PASS_REGS1 );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomAttributes);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);
@@ -1095,7 +1098,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack();
+      dump_stack( PASS_REGS1 );
       i = strlen(tmpbuf);
       tp = tmpbuf+i;
       ti[0] = MkAtomTerm(AtomUnificationStack);
@@ -1110,7 +1113,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       int i;
       Term ti[1];
 
-      dump_stack();
+      dump_stack( PASS_REGS1 );
       i = strlen(tmpbuf);
       ti[0] = MkAtomTerm(AtomTrail);
       nt[0] = Yap_MkApplTerm(FunctorResourceError, 1, ti);

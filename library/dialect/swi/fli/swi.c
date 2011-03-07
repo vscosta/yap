@@ -108,6 +108,7 @@ PredicateInfo(void *p, Atom* a, unsigned long int* arity, Term* m)
 static void
 UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
+  CACHE_REGS
   PredEntry *pe;
   Term cm = CurrentModule;
   /* fprintf(stderr,"doing %s:%s/%d\n", RepAtom(AtomOfTerm(mod))->StrOfAE, a,arity); */
@@ -168,26 +169,29 @@ X_API char* PL_atom_nchars(atom_t a, size_t *len)	 /* SAM check type */
 /* SAM TO DO */
 X_API term_t PL_copy_term_ref(term_t from)
 {
-  return YAP_InitSlot(Yap_GetFromSlot(from));
+  CACHE_REGS
+  return YAP_InitSlot(Yap_GetFromSlot(from PASS_REGS));
 }
 
 X_API term_t PL_new_term_ref(void)
 {
   
-  term_t to = Yap_NewSlots(1);
+  CACHE_REGS
+  term_t to = Yap_NewSlots(1 PASS_REGS);
   return to;
 }
 
 X_API term_t PL_new_term_refs(int n)
 {
-  
-  term_t to = Yap_NewSlots(n);
+  CACHE_REGS
+  term_t to = Yap_NewSlots(n PASS_REGS);
   return to;
 }
 
 X_API void PL_reset_term_refs(term_t after)
 {
-  term_t new = Yap_NewSlots(1);
+  CACHE_REGS
+  term_t new = Yap_NewSlots(1 PASS_REGS);
   YAP_RecoverSlots(after-new);
 }
 
@@ -197,20 +201,21 @@ X_API void PL_reset_term_refs(term_t after)
    YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
 X_API int PL_get_arg(int index, term_t ts, term_t a)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,YAP_HeadOfTerm(t));
+	Yap_PutInSlot(a,YAP_HeadOfTerm(t) PASS_REGS);
 	return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,YAP_TailOfTerm(t));
+	Yap_PutInSlot(a,YAP_TailOfTerm(t) PASS_REGS);
 	return 1;
       }
     }
     return 0;
   }
-  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t));
+  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
    
@@ -218,20 +223,21 @@ X_API int PL_get_arg(int index, term_t ts, term_t a)
    YAP: YAP_Term YAP_ArgOfTerm(int argno, YAP_Term t)*/
 X_API int _PL_get_arg(int index, term_t ts, term_t a)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,YAP_HeadOfTerm(t));
+	Yap_PutInSlot(a,YAP_HeadOfTerm(t) PASS_REGS);
 	return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,YAP_TailOfTerm(t));
+	Yap_PutInSlot(a,YAP_TailOfTerm(t) PASS_REGS);
 	return 1;
       }
     }
     return 0;
   }
-  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t));
+  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
    
@@ -239,7 +245,8 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_atom(term_t ts, atom_t *a)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !IsAtomTerm(t))
     return 0;
   *a = AtomToSWIAtom(AtomOfTerm(t));
@@ -250,7 +257,8 @@ X_API int PL_get_atom(term_t ts, atom_t *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_intptr(term_t ts, intptr_t *a)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !IsIntegerTerm(t) )
     return 0;
   *a = (intptr_t)(IntegerOfTerm(t));
@@ -261,7 +269,8 @@ X_API int PL_get_intptr(term_t ts, intptr_t *a)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !IsIntegerTerm(t) )
     return 0;
   *a = (uintptr_t)(IntegerOfTerm(t));
@@ -272,7 +281,8 @@ X_API int PL_get_uintptr(term_t ts, uintptr_t *a)
    YAP: char* AtomName(Atom) */
 X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!IsAtomTerm(t))
     return 0;
   *a = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -283,7 +293,8 @@ X_API int PL_get_atom_chars(term_t ts, char **a)  /* SAM check type */
    YAP: char* AtomName(Atom) */
 X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check type */
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!IsAtomTerm(t))
     return 0;
   *s = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -325,7 +336,8 @@ X_API int PL_get_atom_nchars(term_t ts, size_t *len, char **s)  /* SAM check typ
    YAP: YAP_Functor YAP_FunctorOfTerm(Term) */
 X_API int PL_get_functor(term_t ts, functor_t *f)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( IsAtomTerm(t)) {
     *f = t;
   } else {
@@ -338,7 +350,8 @@ X_API int PL_get_functor(term_t ts, functor_t *f)
    YAP: double YAP_FloatOfTerm(Term) */
 X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 {	
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( YAP_IsFloatTerm(t)) {
     *f = YAP_FloatOfTerm(t);
   } else if ( YAP_IsIntTerm(t)) {
@@ -351,11 +364,12 @@ X_API int PL_get_float(term_t ts, double *f) /* SAM type check*/
 
 X_API int PL_get_head(term_t ts, term_t h)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(h,YAP_HeadOfTerm(t));
+  Yap_PutInSlot(h,YAP_HeadOfTerm(t) PASS_REGS);
   return 1;
 }
 
@@ -366,7 +380,8 @@ X_API int PL_get_string(term_t t, char **s, size_t *len)
 
 X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
 {
-  Term tt = Yap_GetFromSlot(t);
+  CACHE_REGS
+  Term tt = Yap_GetFromSlot(t PASS_REGS);
   if (!IsBlobStringTerm(tt)) {
     return 0;
   }
@@ -379,7 +394,8 @@ X_API int PL_get_string_chars(term_t t, char **s, size_t *len)
    YAP: long int  YAP_IntOfTerm(Term) */
 X_API int PL_get_integer(term_t ts, int *i)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsIntTerm(t) )
     return 0;
   *i = YAP_IntOfTerm(t);
@@ -390,7 +406,8 @@ X_API int PL_get_integer(term_t ts, int *i)
    YAP: long int  YAP_AtomOfTerm(Term) */
 X_API int PL_get_bool(term_t ts, int *i)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   Atom at;
 
   if (!IsAtomTerm(t) )
@@ -409,7 +426,8 @@ X_API int PL_get_bool(term_t ts, int *i)
 
 X_API int PL_get_long(term_t ts, long *i)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsIntTerm(t) ) {
     if (YAP_IsFloatTerm(t)) {
       double dbl = YAP_FloatOfTerm(t);
@@ -430,7 +448,8 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 #if SIZE_OF_LONG_INT==8
   return PL_get_long(ts, (long *)i);
 #else
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsIntTerm(t) ) {
     if (YAP_IsFloatTerm(t)) {
       double dbl = YAP_FloatOfTerm(t);
@@ -471,47 +490,53 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 
 X_API int PL_get_mpz(term_t t, mpz_t mpz)
 {
-  Term t0 = Yap_GetFromSlot(t);
+  CACHE_REGS
+  Term t0 = Yap_GetFromSlot(t PASS_REGS);
 
   return Yap_term_to_existing_big(t0, mpz);
 }
 
 X_API int PL_unify_mpz(term_t t, mpz_t mpz)
 {
+  CACHE_REGS
   Term iterm = Yap_MkBigIntTerm(mpz);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 X_API int PL_get_mpq(term_t t, mpq_t mpz)
 {
-  Term t0 = Yap_GetFromSlot(t);
+  CACHE_REGS
+  Term t0 = Yap_GetFromSlot(t PASS_REGS);
 
   return Yap_term_to_existing_rat(t0, mpz);
 }
 
 X_API int PL_unify_mpq(term_t t, mpq_t mpq)
 {
+  CACHE_REGS
   Term iterm = Yap_MkBigRatTerm(mpq);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 #endif
 
 X_API int PL_get_list(term_t ts, term_t h, term_t tl)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (IsVarTerm(t) || !IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(h,HeadOfTerm(t));
-  Yap_PutInSlot(tl,TailOfTerm(t));
+  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(tl,TailOfTerm(t) PASS_REGS);
   return 1;
 }
 
 /* SWI: int PL_get_module(term_t t, module_t *m) */
 X_API int PL_get_module(term_t ts, module_t *m)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!IsAtomTerm(t) )
     return FALSE;
   *m = (module_t)t;
@@ -534,7 +559,8 @@ X_API module_t PL_new_module(atom_t swiat)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (IsAtomTerm(t)) {
     *name = AtomToSWIAtom(AtomOfTerm(t));
     *arity = 0;
@@ -561,7 +587,8 @@ X_API int PL_get_name_arity(term_t ts, atom_t *name, int *arity)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 X_API int PL_get_nil(term_t ts)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   return ( t == TermNil );
 }
 
@@ -570,7 +597,8 @@ X_API int PL_get_nil(term_t ts)
 /* SAM TO DO */
 X_API int PL_get_pointer(term_t ts, void **i)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsIntTerm(t) )
     return 0;
   *i = (void *)YAP_IntOfTerm(t);
@@ -579,11 +607,12 @@ X_API int PL_get_pointer(term_t ts, void **i)
 
 X_API int PL_get_tail(term_t ts, term_t tl)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (!YAP_IsPairTerm(t) ) {
     return 0;
   }
-  Yap_PutInSlot(tl,YAP_TailOfTerm(t));
+  Yap_PutInSlot(tl,YAP_TailOfTerm(t) PASS_REGS);
   return 1;
 }
 
@@ -601,6 +630,7 @@ X_API atom_t PL_new_atom(const char *c)
   Atom at;
   while ((at = Yap_LookupAtom((char *)c)) == NULL) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
+      CACHE_REGS
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return 0L;
     }
@@ -616,6 +646,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
   if (strlen(c) > len) {
     while ((pt = (char *)Yap_AllocCodeSpace(len+1)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
+	CACHE_REGS
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
@@ -627,6 +658,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
   }
   while ((at = Yap_LookupAtom(pt)) == NULL) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
+      CACHE_REGS
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return 0L;
     }
@@ -648,6 +680,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     wchar_t *nbf;
     while (!(nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t)))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
+	CACHE_REGS
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return 0;
       }
@@ -657,6 +690,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     nbf[len]='\0';
     while ((at0 = Yap_LookupWideAtom(nbf)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
+	CACHE_REGS
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
       }
@@ -669,6 +703,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
 
     while (!(nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char)))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
+	CACHE_REGS
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return 0;
       }
@@ -678,6 +713,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     nbf[len]='\0';
     while (!(at0 = Yap_LookupAtom(nbf))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
+	CACHE_REGS
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
 	return 0;
       }
@@ -733,13 +769,14 @@ X_API int PL_functor_arity(functor_t f)
 
 X_API int PL_cons_functor(term_t d, functor_t f,...)
 {
+  CACHE_REGS
   va_list ap;
   int arity, i;
   Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d, (YAP_Term)f);
+    Yap_PutInSlot(d, (YAP_Term)f PASS_REGS);
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
@@ -757,21 +794,22 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
   }
   va_start (ap, f);
   for (i = 0; i < arity; i++) {
-    Yap_unify(tmp[i],Yap_GetFromSlot(va_arg(ap, term_t)));
+    Yap_unify(tmp[i],Yap_GetFromSlot(va_arg(ap, term_t) PASS_REGS));
   }
   va_end (ap);
-  Yap_PutInSlot(d,t);
+  Yap_PutInSlot(d,t PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
 {
+  CACHE_REGS
   int arity, i;
   Term *tmp, t;
   Functor ff = SWIFunctorToFunctor(f);
 
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(d, (YAP_Term)f);
+    Yap_PutInSlot(d, (YAP_Term)f PASS_REGS);
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
@@ -788,40 +826,45 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     tmp = RepAppl(t)+1;
   }
   for (i = 0; i < arity; i++) {
-    Yap_unify(tmp[i],Yap_GetFromSlot(a0));
+    Yap_unify(tmp[i],Yap_GetFromSlot(a0 PASS_REGS));
     a0++;
   }
-  Yap_PutInSlot(d,t);
+  Yap_PutInSlot(d,t PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_cons_list(term_t d, term_t h, term_t t)
 {
-  Yap_PutInSlot(d,YAP_MkPairTerm(Yap_GetFromSlot(h),Yap_GetFromSlot(t)));
+  CACHE_REGS
+  Yap_PutInSlot(d,MkPairTerm(Yap_GetFromSlot(h PASS_REGS),Yap_GetFromSlot(t PASS_REGS)) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_atom(term_t t, atom_t a)
 {
-  Yap_PutInSlot(t,MkAtomTerm(SWIAtomToAtom(a)));
+  CACHE_REGS
+  Yap_PutInSlot(t,MkAtomTerm(SWIAtomToAtom(a)) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_atom_chars(term_t t, const char *s)
 {
+  CACHE_REGS
   Atom at;
   while (!(at = Yap_LookupAtom((char *)s))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
+      CACHE_REGS
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return FALSE;
     }
   }
-  Yap_PutInSlot(t,MkAtomTerm(at));
+  Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
 {
+  CACHE_REGS
   Atom at;
   char *buf;
 
@@ -843,13 +886,14 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
       return FALSE;
     }
   }
-  Yap_PutInSlot(t,MkAtomTerm(at));
+  Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_float(term_t t, double fl)
 {
-  Yap_PutInSlot(t,YAP_MkFloatTerm(fl));
+  CACHE_REGS
+  Yap_PutInSlot(t,YAP_MkFloatTerm(fl) PASS_REGS);
   return TRUE;
 }
 
@@ -858,14 +902,15 @@ X_API int PL_put_functor(term_t t, functor_t f)
   long int  arity;
   Functor ff = SWIFunctorToFunctor(f);
 
+  CACHE_REGS
   if (IsAtomTerm((Term)ff)) {
-    Yap_PutInSlot(t,(Term)ff);
+    Yap_PutInSlot(t,(Term)ff PASS_REGS);
   } else {
     arity = ArityOfFunctor(ff);
     if (arity == 2 && ff == FunctorDot)
-      Yap_PutInSlot(t,YAP_MkNewPairTerm());    
+      Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);    
     else
-      Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity));
+      Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
     if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
       if (!Yap_gc(0, ENV, CP)) {
 	return FALSE;
@@ -877,12 +922,14 @@ X_API int PL_put_functor(term_t t, functor_t f)
 
 X_API int PL_put_integer(term_t t, long n)
 {
-  Yap_PutInSlot(t,YAP_MkIntTerm(n));
+  CACHE_REGS
+  Yap_PutInSlot(t,YAP_MkIntTerm(n) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_int64(term_t t, int64_t n)
 {
+  CACHE_REGS
 #if USE_GMP
   char s[64];
   MP_INT rop;
@@ -895,7 +942,7 @@ X_API int PL_put_int64(term_t t, int64_t n)
   sprintf(s, "%lld", (long long int)n);
 #endif
   mpz_init_set_str (&rop, s, 10);
-  Yap_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop));
+  Yap_PutInSlot(t,YAP_MkBigNumTerm((void *)&rop) PASS_REGS);
   return TRUE;
 #else
   return FALSE;
@@ -904,7 +951,8 @@ X_API int PL_put_int64(term_t t, int64_t n)
 
 X_API int PL_put_list(term_t t)
 {
-  Yap_PutInSlot(t,YAP_MkNewPairTerm());
+  CACHE_REGS
+  Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
@@ -915,7 +963,8 @@ X_API int PL_put_list(term_t t)
 
 X_API int PL_put_list_chars(term_t t, const char *s)
 {
-  Yap_PutInSlot(t,YAP_BufferToString((char *)s));
+  CACHE_REGS
+  Yap_PutInSlot(t,YAP_BufferToString((char *)s) PASS_REGS);
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
@@ -926,7 +975,8 @@ X_API int PL_put_list_chars(term_t t, const char *s)
 
 X_API void PL_put_nil(term_t t)
 {
-  Yap_PutInSlot(t,TermNil);
+  CACHE_REGS
+  Yap_PutInSlot(t,TermNil PASS_REGS);
 }
 
 /* SWI: void PL_put_pointer(term_t -t, void *ptr)
@@ -934,30 +984,34 @@ X_API void PL_put_nil(term_t t)
 /* SAM TO DO */
 X_API int PL_put_pointer(term_t t, void *ptr)
 {
+  CACHE_REGS
   YAP_Term tptr = YAP_MkIntTerm((YAP_Int)ptr);
-  Yap_PutInSlot(t,tptr);
+  Yap_PutInSlot(t,tptr PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_string_nchars(term_t t, size_t len, const char *chars)
 {
+  CACHE_REGS
   Term tt;
 
   if ((tt = Yap_MkBlobStringTerm(chars, len)) == TermNil)
     return FALSE;
-  Yap_PutInSlot(t,tt);
+  Yap_PutInSlot(t,tt PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_term(term_t d, term_t s)
 {
-  Yap_PutInSlot(d,Yap_GetFromSlot(s));
+  CACHE_REGS
+  Yap_PutInSlot(d,Yap_GetFromSlot(s PASS_REGS) PASS_REGS);
   return TRUE;
 }
 
 X_API int PL_put_variable(term_t t)
 {
-  Yap_PutInSlot(t,MkVarTerm());
+  CACHE_REGS
+  Yap_PutInSlot(t,MkVarTerm() PASS_REGS);
   return TRUE;
 }
 
@@ -969,13 +1023,15 @@ X_API int PL_put_variable(term_t t)
 
 X_API int PL_raise_exception(term_t exception)
 {
-  EX = Yap_StoreTermInDB(Yap_GetFromSlot(exception),0);
+  CACHE_REGS
+  EX = Yap_StoreTermInDB(Yap_GetFromSlot(exception PASS_REGS),0);
   return 0;
 }
 
 X_API int PL_throw(term_t exception)
 {
-  YAP_Throw(Yap_GetFromSlot(exception));
+  CACHE_REGS
+  YAP_Throw(Yap_GetFromSlot(exception PASS_REGS));
   longjmp(execution->env, 0);
   return 0;
 }
@@ -1001,21 +1057,24 @@ X_API int PL_warning(const char *msg, ...) {
 
 X_API int PL_unify(term_t t1, term_t t2)
 {
-  return YAP_Unify(Yap_GetFromSlot(t1),Yap_GetFromSlot(t2));
+  CACHE_REGS
+  return YAP_Unify(Yap_GetFromSlot(t1 PASS_REGS),Yap_GetFromSlot(t2 PASS_REGS));
 }
 
 /* SWI: int PL_unify_atom(term_t ?t, atom  *at)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom(term_t t, atom_t at)
 {
+  CACHE_REGS
   YAP_Term cterm = MkAtomTerm(SWIAtomToAtom(at));
-  return YAP_Unify(Yap_GetFromSlot(t),cterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
 
 /* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_chars(term_t t, const char *s)
 {
+  CACHE_REGS
   Atom catom;
   Term cterm;
   while (!(catom = Yap_LookupAtom((char *)s))) {
@@ -1025,13 +1084,14 @@ X_API int PL_unify_atom_chars(term_t t, const char *s)
     }
   }
   cterm = MkAtomTerm(catom);
-  return Yap_unify(Yap_GetFromSlot(t),cterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
 
 /* SWI: int PL_unify_atom_chars(term_t ?t, const char *chars)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
 {
+  CACHE_REGS
   Atom catom;
   YAP_Term cterm;
   char *buf = (char *)malloc(len+1);
@@ -1048,30 +1108,33 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
   }
   free(buf);
   cterm = MkAtomTerm(catom);
-  return YAP_Unify(Yap_GetFromSlot(t),cterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
 
 /* SWI: int PL_unify_float(term_t ?t, double f)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_float(term_t t, double f)
 {
+  CACHE_REGS
   YAP_Term fterm = YAP_MkFloatTerm(f);
-  return YAP_Unify(Yap_GetFromSlot(t),fterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),fterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_integer(term_t t, long n)
 {	
+  CACHE_REGS
   Term iterm = MkIntegerTerm(n);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_functor(term_t t, functor_t f)
 {	
-  Term tt = Yap_GetFromSlot(t);
+  CACHE_REGS
+  Term tt = Yap_GetFromSlot(t PASS_REGS);
   Functor ff = SWIFunctorToFunctor(f);
   if (IsVarTerm(tt)) {
     while (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
@@ -1092,9 +1155,10 @@ X_API int PL_unify_functor(term_t t, functor_t f)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_int64(term_t t, int64_t n)
 {	
+  CACHE_REGS
 #if SIZEOF_INT_P==8
   Term iterm = MkIntegerTerm(n);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 #elif USE_GMP
   YAP_Term iterm;
   char s[64];
@@ -1109,7 +1173,7 @@ X_API int PL_unify_int64(term_t t, int64_t n)
 #endif
   mpz_init_set_str (&rop, s, 10);
   iterm = YAP_MkBigNumTerm((void *)&rop);
-  return YAP_Unify(Yap_GetFromSlot(t),iterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 #else
   fprintf(stderr,"Error: please install GM\n");
   return FALSE;
@@ -1121,13 +1185,14 @@ X_API int PL_unify_int64(term_t t, int64_t n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
+  CACHE_REGS
   Term t;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
       return FALSE;
     }
   }
-  t = Deref(Yap_GetFromSlot(tt));
+  t = Deref(Yap_GetFromSlot(tt PASS_REGS));
   if (IsVarTerm(t)) {
     Term pairterm = Yap_MkNewPairTerm();
     Yap_unify(t, pairterm);
@@ -1136,8 +1201,8 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   } else if (!IsPairTerm(t)) {
     return FALSE;
   }
-  Yap_PutInSlot(h,HeadOfTerm(t));
-  Yap_PutInSlot(tail,TailOfTerm(t));
+  Yap_PutInSlot(h,HeadOfTerm(t) PASS_REGS);
+  Yap_PutInSlot(tail,TailOfTerm(t) PASS_REGS);
   return TRUE;
 }
 
@@ -1145,7 +1210,8 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_arg(int index, term_t tt, term_t arg)
 {
-  Term t = Deref(Yap_GetFromSlot(tt)), to;
+  CACHE_REGS
+  Term t = Deref(Yap_GetFromSlot(tt PASS_REGS)), to;
   if (index < 0)
     return FALSE;
   if (IsVarTerm(t) || IsAtomOrIntTerm(t)) {
@@ -1165,13 +1231,14 @@ X_API int PL_unify_arg(int index, term_t tt, term_t arg)
       return FALSE;
     to = ArgOfTerm(index, t);
   }
-  return Yap_unify(Yap_GetFromSlot(t),to);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),to);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
+  CACHE_REGS
   YAP_Term chterm;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
@@ -1179,13 +1246,14 @@ X_API int PL_unify_list_chars(term_t t, const char *chars)
     }
   }
   chterm = YAP_BufferToString((char *)chars);
-  return YAP_Unify(Yap_GetFromSlot(t), chterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
 {
+  CACHE_REGS
   Term chterm;
   if (Unsigned(H) > Unsigned(ASP+len*2)-CreepFlag) {
     if (!Yap_gc(len*2*sizeof(CELL), ENV, CP)) {
@@ -1193,7 +1261,7 @@ X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
     }
   }
   chterm = Yap_NStringToList((char *)chars, len);
-  return Yap_unify(Yap_GetFromSlot(t), chterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 X_API int
@@ -1205,8 +1273,9 @@ PL_unify_list_codes(term_t l, const char *chars)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_nil(term_t l)
 {
+  CACHE_REGS
   YAP_Term nilterm = TermNil;
-  return YAP_Unify(Yap_GetFromSlot(l), nilterm);
+  return YAP_Unify(Yap_GetFromSlot(l PASS_REGS), nilterm);
 }
 
 /* SWI: int PL_unify_pointer(term_t ?t, void *ptr)
@@ -1214,14 +1283,16 @@ X_API int PL_unify_nil(term_t l)
 /* SAM TO DO */
 X_API int PL_unify_pointer(term_t t, void *ptr)
 {
+  CACHE_REGS
   YAP_Term ptrterm = YAP_MkIntTerm((YAP_Int)ptr);
-  return YAP_Unify(Yap_GetFromSlot(t), ptrterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), ptrterm);
 }
 
 /* SWI: int PL_unify_list(term_t ?t, term_t +h, term_t -t)
    YAP long int  unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
+  CACHE_REGS
   YAP_Term chterm;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
@@ -1229,11 +1300,12 @@ X_API int PL_unify_string_chars(term_t t, const char *chars)
     }
   }
   chterm = YAP_BufferToString((char *)chars);
-  return YAP_Unify(Yap_GetFromSlot(t), chterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
 {
+  CACHE_REGS
   YAP_Term chterm;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
     if (!Yap_gc(0, ENV, CP)) {
@@ -1241,13 +1313,14 @@ X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
     }
   }
   chterm = YAP_NBufferToString((char *)chars, len);
-  return YAP_Unify(Yap_GetFromSlot(t), chterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
  */
 X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *chars)
 {
+  CACHE_REGS
   YAP_Term chterm;
 
   if (len == (size_t)-1)
@@ -1284,13 +1357,14 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
     /* should give error?? */
     return FALSE;
   }
-  return YAP_Unify(Yap_GetFromSlot(t), chterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 /* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
  */
 X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, const pl_wchar_t *chars)
 {
+  CACHE_REGS
   YAP_Term chterm;
 
   if (tail == 0)
@@ -1305,17 +1379,17 @@ X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, cons
 
   switch (type) {
   case PL_CODE_LIST:
-    chterm = YAP_NWideBufferToDiffList(chars, Yap_GetFromSlot(tail), len);
+    chterm = YAP_NWideBufferToDiffList(chars, Yap_GetFromSlot(tail PASS_REGS), len);
     break;
   case PL_CHAR_LIST:
-    chterm = YAP_NWideBufferToAtomDiffList(chars, Yap_GetFromSlot(tail), len);
+    chterm = YAP_NWideBufferToAtomDiffList(chars, Yap_GetFromSlot(tail PASS_REGS), len);
     break;
   default:
     fprintf(stderr,"NOT GOOD option %d PL_unify_chars_wdiff\n",type);
     /* should give error?? */
     return FALSE;
   }
-  return YAP_Unify(Yap_GetFromSlot(t), chterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
 typedef struct {
@@ -1344,6 +1418,7 @@ typedef struct {
 static Atom
 LookupMaxAtom(size_t n, char *s)
 {
+  CACHE_REGS
   Atom catom;
   char *buf = (char *)Yap_AllocCodeSpace(n+1);
   
@@ -1373,6 +1448,7 @@ LookupMaxWideAtom(size_t n, wchar_t *s)
   buf[n] = '\0';
   while (!(catom = Yap_LookupMaybeWideAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
+      CACHE_REGS
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
       return NULL;
     }
@@ -1401,6 +1477,7 @@ typedef struct {
    YAP long int  YAP_Unify(YAP_Term* a, Term* b) */
 X_API int PL_unify_term(term_t l,...)
 {
+  CACHE_REGS
   va_list ap;
   int type, res;
   int nels = 1;
@@ -1477,7 +1554,7 @@ X_API int PL_unify_term(term_t l,...)
 	break;
       case PL_TERM:
 	{
-	  Term t = Yap_GetFromSlot(va_arg(ap, size_t));
+	  Term t = Yap_GetFromSlot(va_arg(ap, size_t) PASS_REGS);
 	  if (IsVarTerm(t) && VarOfTerm(t) >= ASP && VarOfTerm(t) < LCL0) {
 	    Yap_unify(*pt++, t);
 	  }
@@ -1616,7 +1693,7 @@ X_API int PL_unify_term(term_t l,...)
     }
   }
   va_end (ap);
-  res = Yap_unify(Yap_GetFromSlot(l),a[0]);
+  res = Yap_unify(Yap_GetFromSlot(l PASS_REGS),a[0]);
   RECOVER_MACHINE_REGS();
   return res;
 }
@@ -1637,8 +1714,9 @@ X_API void PL_unregister_atom(atom_t atom)
 
 X_API int PL_term_type(term_t t)
 {
+  CACHE_REGS
   /* YAP_ does not support strings as different objects */
-  YAP_Term v = Yap_GetFromSlot(t);
+  YAP_Term v = Yap_GetFromSlot(t PASS_REGS);
   if (YAP_IsVarTerm(v)) {
     return PL_VARIABLE;
   } else if (IsAtomTerm(v)) {
@@ -1654,17 +1732,20 @@ X_API int PL_term_type(term_t t)
 
 X_API int PL_is_atom(term_t t)
 {
-  return IsAtomTerm(Yap_GetFromSlot(t));
+  CACHE_REGS
+  return IsAtomTerm(Yap_GetFromSlot(t PASS_REGS));
 }
 
 X_API int PL_is_ground(term_t t)
 {
-  return Yap_IsGroundTerm(Yap_GetFromSlot(t));
+  CACHE_REGS
+  return Yap_IsGroundTerm(Yap_GetFromSlot(t PASS_REGS));
 }
 
 X_API int PL_is_callable(term_t t)
 {
-  YAP_Term t1 = Yap_GetFromSlot(t);
+  CACHE_REGS
+  YAP_Term t1 = Yap_GetFromSlot(t PASS_REGS);
   if (IsVarTerm(t1))
     return FALSE;
   if (IsAtomTerm(t1) || IsPairTerm(t1)) 
@@ -1676,19 +1757,22 @@ X_API int PL_is_callable(term_t t)
 
 X_API int PL_is_atomic(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return !YAP_IsVarTerm(t) || !YAP_IsApplTerm(t) || !YAP_IsPairTerm(t);
 }
 
 X_API int PL_is_compound(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return (YAP_IsApplTerm(t) || YAP_IsPairTerm(t));
 }
 
 X_API int PL_is_functor(term_t ts, functor_t f)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   Functor ff = SWIFunctorToFunctor(f);
   if (YAP_IsApplTerm(t)) {
     return FunctorOfTerm(t) == (Functor)ff;
@@ -1700,13 +1784,15 @@ X_API int PL_is_functor(term_t ts, functor_t f)
 
 X_API int PL_is_float(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_integer(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (IsVarTerm(t)) return FALSE;
   if (IsIntTerm(t)) return TRUE;
   if (IsApplTerm(t)) {
@@ -1723,19 +1809,22 @@ X_API int PL_is_integer(term_t ts)
 
 X_API int PL_is_list(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return Yap_IsListTerm(t);
 }
 
 X_API int PL_is_number(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return YAP_IsIntTerm(t) || YAP_IsBigNumTerm(t) || YAP_IsFloatTerm(t);
 }
 
 X_API int PL_is_string(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   while (YAP_IsPairTerm(t)) {
     YAP_Term hd = YAP_HeadOfTerm(t);
     long int  i;
@@ -1755,14 +1844,16 @@ X_API int PL_is_string(term_t ts)
 
 X_API int PL_is_variable(term_t ts)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return YAP_IsVarTerm(t);
 }
 
 X_API int PL_compare(term_t ts1, term_t ts2)
 {
-  YAP_Term t1 = Yap_GetFromSlot(ts1);
-  YAP_Term t2 = Yap_GetFromSlot(ts2);
+  CACHE_REGS
+  YAP_Term t1 = Yap_GetFromSlot(ts1 PASS_REGS);
+  YAP_Term t2 = Yap_GetFromSlot(ts2 PASS_REGS);
   return YAP_CompareTerms(t1, t2);
 }
 
@@ -1770,7 +1861,8 @@ X_API char *
 PL_record_external
 (term_t ts, size_t *sz)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   size_t len = 512, nsz;
   char *s;
 
@@ -1799,10 +1891,11 @@ X_API int
 PL_recorded_external
 (char *tp, term_t ts)
 {
+  CACHE_REGS
   Term t = Yap_ImportTerm(tp);
   if (t == 0)
     return FALSE;
-  Yap_PutInSlot(ts,t);
+  Yap_PutInSlot(ts,t PASS_REGS);
   return TRUE;
 }
 
@@ -1817,17 +1910,19 @@ PL_erase_external
 X_API record_t
 PL_record(term_t ts)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   return (record_t)YAP_Record(t);
 }
 
 X_API int
 PL_recorded(record_t db, term_t ts)
 {
+  CACHE_REGS
   Term t = YAP_Recorded((void *)db);
   if (t == ((CELL)0))
     return FALSE;
-  Yap_PutInSlot(ts,t);
+  Yap_PutInSlot(ts,t PASS_REGS);
   return TRUE;
 }
 
@@ -1893,8 +1988,9 @@ PL_exception(qid_t q)
 {
   YAP_Term t;
   if (YAP_GoalHasException(&t)) {
-    term_t to = Yap_NewSlots(1);
-    Yap_PutInSlot(to,t);
+    CACHE_REGS
+    term_t to = Yap_NewSlots(1 PASS_REGS);
+    Yap_PutInSlot(to,t PASS_REGS);
     return to;
   } else {
     return 0L;
@@ -1904,6 +2000,7 @@ PL_exception(qid_t q)
 X_API void
 PL_clear_exception(void)
 {
+  CACHE_REGS
   EX = NULL;
 }
 
@@ -1956,10 +2053,11 @@ PL_context(void)
 X_API int
 PL_strip_module(term_t raw, module_t *m, term_t plain)
 {
-  YAP_Term t =  YAP_StripModule(Yap_GetFromSlot(raw),(YAP_Term *)m);
+  CACHE_REGS
+  YAP_Term t =  YAP_StripModule(Yap_GetFromSlot(raw PASS_REGS),(YAP_Term *)m);
   if (!t)
     return FALSE;
-  Yap_PutInSlot(plain, t);
+  Yap_PutInSlot(plain, t PASS_REGS);
   return TRUE;
 }
 
@@ -1987,6 +2085,7 @@ X_API predicate_t PL_pred(functor_t f, module_t m)
 
 X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
 {
+  CACHE_REGS
   Term mod;
   Atom at;
   if (m == NULL) {
@@ -2013,6 +2112,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
 
 X_API int PL_unify_predicate(term_t head, predicate_t pred, int how)
 {
+  CACHE_REGS
   PredEntry *pe = (PredEntry *)pred;
   Term ts[2], nt;
   if (!pe->ModuleOfPred) {
@@ -2037,7 +2137,7 @@ X_API int PL_unify_predicate(term_t head, predicate_t pred, int how)
     }
   }
   nt = Yap_MkApplTerm(FunctorModule, 2, ts);
-  return Yap_unify(Yap_GetFromSlot(head),nt);
+  return Yap_unify(Yap_GetFromSlot(head PASS_REGS),nt);
 }
 
 X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m)
@@ -2068,6 +2168,7 @@ X_API void PL_predicate_info(predicate_t p,atom_t *name, int *arity, module_t *m
 X_API fid_t
 PL_open_foreign_frame(void)
 {
+  CACHE_REGS
   open_query *new = (open_query *)malloc(sizeof(open_query));
   if (!new) return 0;
   new->old = execution;
@@ -2089,7 +2190,7 @@ PL_open_foreign_frame(void)
     HB = H;
     B = cp_b;
     ASP = (CELL *)B;
-    Yap_StartSlots();
+    Yap_StartSlots( PASS_REGS1 );
   }
   return (fid_t)new;
 }
@@ -2097,6 +2198,7 @@ PL_open_foreign_frame(void)
 X_API void
 PL_close_foreign_frame(fid_t f)
 {
+  CACHE_REGS
   open_query *env = (open_query *)f;
   CP = env->cp;
   P = env->p;
@@ -2110,6 +2212,7 @@ PL_close_foreign_frame(fid_t f)
 static void
 backtrack(void)
 {
+  CACHE_REGS
   P = FAILCODE;
   Yap_absmi(0);
   H = HB = B->cp_h;
@@ -2120,6 +2223,7 @@ backtrack(void)
 X_API void
 PL_rewind_foreign_frame(fid_t f)
 {
+  CACHE_REGS
   open_query *env = (open_query *)f;
   CurSlot = env->slots;
   backtrack();
@@ -2128,6 +2232,7 @@ PL_rewind_foreign_frame(fid_t f)
 X_API void
 PL_discard_foreign_frame(fid_t f)
 {
+  CACHE_REGS
   open_query *env = (open_query *)f;
   CurSlot = env->slots;
   backtrack();
@@ -2141,6 +2246,7 @@ PL_discard_foreign_frame(fid_t f)
 
 X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 {
+  CACHE_REGS
   Atom yname;
   unsigned long int  arity;
   Term t[2], m;
@@ -2155,7 +2261,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t[1] = MkAtomTerm(yname);
   } else {
     Functor f = Yap_MkFunctor(yname, arity);
-    t[1] = Yap_MkApplTerm(f,arity,Yap_AddressFromSlot(t0));
+    t[1] = Yap_MkApplTerm(f,arity,Yap_AddressFromSlot(t0 PASS_REGS));
   }
   if (ctx) {
     Term ti;
@@ -2179,6 +2285,7 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 
 X_API int PL_next_solution(qid_t qi)
 {
+  CACHE_REGS
   int result;
   if (qi->open != 1) return 0;
   if (setjmp(execution->env))
@@ -2229,6 +2336,7 @@ X_API int PL_toplevel(void)
 
 X_API int PL_call(term_t tp, module_t m)
 {
+  CACHE_REGS
   int out;
 
   BACKUP_B();
@@ -2236,7 +2344,7 @@ X_API int PL_call(term_t tp, module_t m)
 
   Term t[2], g;
   t[0] = SWIModuleToModule(m);
-  t[1] = Yap_GetFromSlot(tp);
+  t[1] = Yap_GetFromSlot(tp PASS_REGS);
   g = Yap_MkApplTerm(FunctorModule,2,t);
   out =  YAP_RunGoal(g);
 
@@ -2247,6 +2355,7 @@ X_API int PL_call(term_t tp, module_t m)
 
 X_API void PL_register_foreign_in_module(const char *module, const char *name, int arity, pl_function_t function, int flags)
 {
+  CACHE_REGS
   Term tmod;
   Int nflags = 0;
 
@@ -2308,7 +2417,8 @@ X_API void PL_load_extensions(const PL_extension *ptr)
 
 X_API  int PL_is_inf(term_t st)
 {
-  Term t = Deref(Yap_GetFromSlot(st));
+  CACHE_REGS
+  Term t = Deref(Yap_GetFromSlot(st PASS_REGS));
   Float fl;
   if (IsVarTerm(t)) return FALSE;
   if (!IsFloatTerm(t)) return FALSE;
@@ -2324,6 +2434,7 @@ X_API  int PL_is_inf(term_t st)
 
 X_API int PL_thread_self(void)
 {
+  CACHE_REGS
 #if THREADS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return -1;
@@ -2335,8 +2446,9 @@ X_API int PL_thread_self(void)
 
 X_API int PL_unify_thread_id(term_t t, int i)
 {
+  CACHE_REGS
   Term iterm = MkIntegerTerm(i);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 
@@ -2425,6 +2537,7 @@ PL_destroy_engine(PL_engine_t e)
 X_API int
 PL_set_engine(PL_engine_t engine, PL_engine_t *old)
 {
+  CACHE_REGS
 #if THREADS
   int cwid = PL_thread_self(), nwid;
 
@@ -2510,7 +2623,8 @@ PL_free(void *obj)
 X_API int
 PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
 {
-  Term res = Yap_Eval(Yap_GetFromSlot(t));
+  CACHE_REGS
+  Term res = Yap_Eval(Yap_GetFromSlot(t PASS_REGS));
   if (!res) {
     return FALSE;
   }
@@ -2542,6 +2656,7 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
 foreign_t
 _PL_retry(intptr_t n)
 {
+  CACHE_REGS
   /* first we need to get the pointer to the predicate */
   PredEntry *pe = B->cp_ap->u.OtapFs.p;
   struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
@@ -2552,6 +2667,7 @@ _PL_retry(intptr_t n)
 foreign_t
 _PL_retry_address(void *addr)
 {
+  CACHE_REGS
   /* first we need to get the pointer to the predicate */
   PredEntry *pe = B->cp_ap->u.OtapFs.p;
   struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
@@ -2718,6 +2834,7 @@ Int Yap_GetCurrentPredArity(void);
 const char *
 Yap_GetCurrentPredName(void)
 {
+  CACHE_REGS
   if (!PP)
     return NULL;
   if (PP->ArityOfPE)
@@ -2728,6 +2845,7 @@ Yap_GetCurrentPredName(void)
 Int
 Yap_GetCurrentPredArity(void)
 {
+  CACHE_REGS
   if (!PP)
     return (Int)0;
   return PP->ArityOfPE;
@@ -2745,25 +2863,26 @@ int Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs);
 int
 Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 {
+  CACHE_REGS
   Term varnames, out, tpos;
   Term error;
 
   if (!Yap_readTerm(st, &out, &varnames, &error, &tpos)) {
     if (excep) {
-      *excep = Yap_InitSlot(error);
+      *excep = Yap_InitSlot(error PASS_REGS);
     }
     return FALSE;
   }
   if (!out) {
     if (excep) {
-      *excep = Yap_InitSlot(error);
+      *excep = Yap_InitSlot(error PASS_REGS);
     }
     return FALSE;
   }
-  if (!Yap_unify(out, Yap_GetFromSlot(t))) {
+  if (!Yap_unify(out, Yap_GetFromSlot(t PASS_REGS))) {
     return FALSE;
   }
-  if (!Yap_unify(varnames, Yap_GetFromSlot(vs))) {
+  if (!Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
     return FALSE;
   }
   return TRUE;
@@ -2772,14 +2891,15 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 Term
 Yap_TermToString(Term t, char *s, unsigned int sz, int flags)
 {
+  CACHE_REGS
   IOSTREAM *stream = Sopen_string(NULL, s, sz, "w");
   int out;
 
   if (!stream)
     return FALSE;
-  Yap_StartSlots();
-  out = PL_write_term(stream, Yap_InitSlot(t), 1200, 0);
-  Yap_CloseSlots();
+  Yap_StartSlots( PASS_REGS1 );
+  out = PL_write_term(stream, Yap_InitSlot(t PASS_REGS), 1200, 0);
+  Yap_CloseSlots( PASS_REGS1 );
   Sclose(stream);
   return out;
 }
@@ -2806,10 +2926,11 @@ Yap_CloseStreams(int loud)
 }
 
 Int Yap_StreamToFileNo(Term t) {
+  CACHE_REGS
   IOSTREAM *s;
   int rc;
 
-  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
     return Sfileno(s);
   }
   return -1;
@@ -2817,10 +2938,11 @@ Int Yap_StreamToFileNo(Term t) {
 
 FILE *Yap_FileDescriptorFromStream(Term t)
 {
+  CACHE_REGS
   IOSTREAM *s;
   int rc;
 
-  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t), &s)) ) {
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
     fprintf(stderr,"Unimplemented\n");
     //    return Sfileno(s);
   }
@@ -2843,7 +2965,8 @@ extern term_t Yap_CvtTerm(term_t ts);
 
 term_t Yap_CvtTerm(term_t ts)
 {
-  Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
   if (IsVarTerm(t)) return ts;
   if (IsPairTerm(t)) return ts;
   if (IsAtomTerm(t)) return ts;
@@ -2867,7 +2990,7 @@ term_t Yap_CvtTerm(term_t ts)
 	    ta[1] = Yap_MkBigIntTerm(mpq_denref(b));
 	    if (ta[1] == TermNil)
 	      return ts;
-	    return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta));
+	    return Yap_InitSlot(Yap_MkApplTerm(FunctorRDiv, 2, ta) PASS_REGS);
 	  }
 #endif	  
 	case EMPTY_ARENA:
@@ -2875,7 +2998,7 @@ term_t Yap_CvtTerm(term_t ts)
 	case ARRAY_FLOAT:
 	case CLAUSE_LIST:
 	case EXTERNAL_BLOB:
-	  return Yap_InitSlot(MkIntTerm(0));
+	  return Yap_InitSlot(MkIntTerm(0) PASS_REGS);
 	default:
 	  return ts;
 	}

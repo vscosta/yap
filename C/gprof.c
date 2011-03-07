@@ -727,7 +727,7 @@ typedef struct clause_entry {
   int ts;    /* start end timestamp towards retracts, eventually */
 } clauseentry;
 
-static Int profend(void); 
+static Int profend( USES_REGS1 ); 
 
 static void
 clean_tree(rb_red_blk_node* node) {
@@ -773,6 +773,7 @@ static void LookupNode(yamop *current_p) {
     pp = Yap_PredEntryForCode(current_p, FIND_PRED_FROM_ANYWHERE, &start, &end);
     if (!pp) {
 #if DEBUG
+      CACHE_REGS
       fprintf(stderr,"lost %p, %d\n", P, Yap_op_from_opcode(P->opc));
 #endif
       /* lost profiler event !! */
@@ -832,14 +833,14 @@ static void RemoveCode(CODEADDR clau)
 #define MAX_LINE_SIZE 1024
 
 static int
-showprofres(void) { 
+showprofres( USES_REGS1 ) { 
   char line[MAX_LINE_SIZE];
   yamop *pr_beg, *pr_end;
   PredEntry *pr_pp;
   long int pr_count;
   
 
-  profend(); /* Make sure profiler has ended */
+  profend( PASS_REGS1 ); /* Make sure profiler has ended */
 
   /* First part: Read information about predicates and store it on yap trail */
 
@@ -877,14 +878,14 @@ showprofres(void) {
 }
 
 static Int
-p_test(void) { 
+p_test( USES_REGS1 ) { 
   char line[MAX_LINE_SIZE];
   yamop *pr_beg, *pr_end;
   PredEntry *pr_pp;
   long int pr_count;
 
 
-  profend(); /* Make sure profiler has ended */
+  profend( PASS_REGS1 ); /* Make sure profiler has ended */
 
   /* First part: Read information about predicates and store it on yap trail */
 
@@ -959,6 +960,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
   
   
   if (oldpc>(void *) &Yap_absmi && oldpc <= (void *) &Yap_absmiEND) { 
+    CACHE_REGS
     /* we are running emulator code */
 #if BP_FREE
     current_p =(yamop *) CONTEXT_BP(scv);
@@ -966,6 +968,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
     current_p = P;
 #endif
   } else {
+    CACHE_REGS
     op_numbers oop = Yap_op_from_opcode(PREVOP(P,Osbpp)->opc);
     
     if (oop == _call_cpred || oop == _call_usercpred) {
@@ -1014,10 +1017,10 @@ Yap_InformOfRemoval(CODEADDR clau)
   ProfOn = FALSE;
 }
 
-static Int profend(void); 
+static Int profend( USES_REGS1 ); 
 
 static Int
-profnode(void) {
+profnode( USES_REGS1 ) {
   Term t1 = Deref(ARG1), tleft, tright;
   rb_red_blk_node *node;
 
@@ -1053,7 +1056,7 @@ profnode(void) {
 }
 
 static Int
-profglobs(void) {
+profglobs( USES_REGS1 ) {
   return 
     Yap_unify(ARG1,MkIntegerTerm(ProfCalls)) &&
     Yap_unify(ARG2,MkIntegerTerm(ProfGCs)) &&
@@ -1064,7 +1067,7 @@ profglobs(void) {
 }
 
 static Int
-do_profinit(void)
+do_profinit( USES_REGS1 )
 {
   if (Yap_OffLineProfiler) {
     //    FPreds=fopen(profile_names(PROFPREDS_FILE),"w+"); 
@@ -1080,18 +1083,18 @@ do_profinit(void)
   return TRUE;
 }
 
-static Int profinit(void)
+static Int profinit( USES_REGS1 )
 {
   if (ProfilerOn!=0) return (FALSE);
   
-  if (!do_profinit())
+  if (!do_profinit( PASS_REGS1 ))
     return FALSE;
 
   ProfilerOn = -1; /* Inited but not yet started */
   return(TRUE);
 }
 
-static Int profinit1(void)
+static Int profinit1( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -1114,11 +1117,11 @@ static Int profinit1(void)
       Yap_Error(TYPE_ERROR_ATOM,t,"profinit only allows offline,online");
       return FALSE;
   }
-  return profinit();
+  return profinit( PASS_REGS1 );
 }
 
 
-static Int proftype(void)
+static Int proftype( USES_REGS1 )
 {
   if (Yap_OffLineProfiler) 
     return Yap_unify(ARG1,MkAtomTerm(AtomOffline));
@@ -1135,7 +1138,8 @@ static Int start_profilers(int msec)
     if (Yap_OffLineProfiler) {
       return FALSE; /* have to go through profinit */
     } else {
-      if (!do_profinit())
+      CACHE_REGS
+      if (!do_profinit( PASS_REGS1 ))
 	return FALSE;
     }
   }
@@ -1156,7 +1160,7 @@ static Int start_profilers(int msec)
 }
 
 
-static Int profoff(void) {
+static Int profoff( USES_REGS1 ) {
   if (ProfilerOn>0) {
     setitimer(ITIMER_PROF,NULL,NULL);
     ProfilerOn = -1;
@@ -1165,32 +1169,32 @@ static Int profoff(void) {
   return FALSE;
 }
 
-static Int profon(void) { 
+static Int profon( USES_REGS1 ) { 
   Term p;
-  profoff();
+  profoff( PASS_REGS1 );
   p=Deref(ARG1);
   return(start_profilers(IntOfTerm(p)));
 }
 
-static Int profon0(void) { 
-  profoff();
+static Int profon0( USES_REGS1 ) { 
+  profoff( PASS_REGS1 );
   return(start_profilers(TIMER_DEFAULT));
 }
 
-static Int profison(void) {
+static Int profison( USES_REGS1 ) {
   return (ProfilerOn > 0);
 }
 
-static Int profalt(void) { 
+static Int profalt( USES_REGS1 ) { 
   if (ProfilerOn==0) return(FALSE);
-  if (ProfilerOn==-1) return profon();
-  return profoff();
+  if (ProfilerOn==-1) return profon( PASS_REGS1 );
+  return profoff( PASS_REGS1 );
 }
 
-static Int profend(void) 
+static Int profend( USES_REGS1 ) 
 {
   if (ProfilerOn==0) return(FALSE);
-  profoff();         /* Make sure profiler is off */
+  profoff( PASS_REGS1 );         /* Make sure profiler is off */
   ProfilerOn=0;
   if (Yap_OffLineProfiler) {
     fclose(FProf);
@@ -1198,7 +1202,7 @@ static Int profend(void)
   return TRUE;
 }
 
-static Int getpredinfo(void) 
+static Int getpredinfo( USES_REGS1 ) 
 {
   PredEntry *pp = (PredEntry *)IntegerOfTerm(Deref(ARG1));
   Term mod, name;
@@ -1234,8 +1238,8 @@ static Int getpredinfo(void)
     Yap_unify(ARG4, MkIntegerTerm(arity));
 }
 
-static Int profres0(void) { 
-  return(showprofres());
+static Int profres0( USES_REGS1 ) { 
+  return(showprofres( PASS_REGS1 ));
 }
 
 #endif /* LOW_PROF */

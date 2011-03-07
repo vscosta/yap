@@ -9,7 +9,7 @@
 /* need to fix overflow handling */
 
 static void
-mk_blob(int sz)
+mk_blob(int sz USES_REGS)
 {
   MP_INT *dst;
  
@@ -24,7 +24,7 @@ mk_blob(int sz)
 }
 
 static CELL *
-extend_blob(CELL *start, int sz)
+extend_blob(CELL *start, int sz USES_REGS)
 {
   UInt osize;
   MP_INT *dst;
@@ -44,9 +44,10 @@ extend_blob(CELL *start, int sz)
 X_API clause_list_t
 Yap_ClauseListInit(clause_list_t in)
 {
+  CACHE_REGS
   in->n = 0;
   in->start = H;
-  mk_blob(0);
+  mk_blob(0 PASS_REGS);
   in->end = H;
   return in;
 }
@@ -56,6 +57,7 @@ Yap_ClauseListInit(clause_list_t in)
 X_API int
 Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
 {
+  CACHE_REGS
   PredEntry *ap = (PredEntry *)pred;
 
   /*  fprintf(stderr,"cl=%p\n",clause); */
@@ -63,13 +65,13 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
     return FALSE;
   if (cl->n == 0) {
     void **ptr;
-    if (!(ptr = (void **)extend_blob(cl->start,1))) return FALSE;
+    if (!(ptr = (void **)extend_blob(cl->start,1 PASS_REGS))) return FALSE;
     ptr[0] = clause;
   } else if (cl->n == 1)  {
     yamop **ptr;
     yamop *code_p, *fclause;
     
-    if (!(ptr = (yamop **)extend_blob(cl->start,2*(CELL)NEXTOP((yamop *)NULL,Otapl)/sizeof(CELL)-1))) return FALSE;
+    if (!(ptr = (yamop **)extend_blob(cl->start,2*(CELL)NEXTOP((yamop *)NULL,Otapl)/sizeof(CELL)-1 PASS_REGS))) return FALSE;
     fclause = ptr[-1];
     code_p = (yamop *)(ptr-1);
     code_p->opc = Yap_opcode(_try_clause);
@@ -96,7 +98,7 @@ Yap_ClauseListExtend(clause_list_t cl, void * clause, void *pred)
   } else {
     yamop *code_p;
 
-    if (!(code_p = (yamop *)extend_blob(cl->start,((CELL)NEXTOP((yamop *)NULL,Otapl))/sizeof(CELL)))) return FALSE;
+    if (!(code_p = (yamop *)extend_blob(cl->start,((CELL)NEXTOP((yamop *)NULL,Otapl))/sizeof(CELL) PASS_REGS))) return FALSE;
     code_p->opc = Yap_opcode(_trust);
     code_p->u.Otapl.d = clause;
     code_p->u.Otapl.s = ap->ArityOfPE;
@@ -126,6 +128,7 @@ Yap_ClauseListClose(clause_list_t cl)
 X_API int
 Yap_ClauseListDestroy(clause_list_t cl)
 {
+  CACHE_REGS
   if (cl->end != H)
     return FALSE;
   H = cl->start;
@@ -136,12 +139,13 @@ Yap_ClauseListDestroy(clause_list_t cl)
 X_API void *
 Yap_ClauseListToClause(clause_list_t cl)
 {
+  CACHE_REGS
   void **ptr;
   if (cl->end != H)
     return NULL;
   if (cl->n != 1)
     return NULL;
-  if (!(ptr = (void **)extend_blob(cl->start,0))) return NULL;
+  if (!(ptr = (void **)extend_blob(cl->start,0 PASS_REGS))) return NULL;
   return ptr[-1];
 }
 

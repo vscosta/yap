@@ -77,7 +77,7 @@ header(W) :-
 header_rclause(W) :-
 	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n
 static void 
-restore_opcodes(yamop *pc, yamop *max)
+restore_opcodes(yamop *pc, yamop *max USES_REGS)
 {
   yamop *opc = NULL;
   do {
@@ -369,11 +369,11 @@ output_walk(C,"e",[Op|Ops]) :-
 	special_walk_op(Op), !, % Nstop and friends
 	output_ewalks(C,[Op|Ops]).
 output_walk(C,"sssllp",[Op|Ops]) :-
-	format(C,'      return found_expand_index(pc, startp, endp, codeptr);~n',[]),
+	format(C,'      return found_expand_index(pc, startp, endp, codeptr PASS_REGS);~n',[]),
 	output_ewalks(C,[Op|Ops]).
 output_walk(C,"l",[Op|_]) :-
 	special_walk_op(Op), !, % IDB
-	format(C,'      return found_ystop(pc, clause_code, startp, endp, pp);~n',[]).
+	format(C,'      return found_ystop(pc, clause_code, startp, endp, pp PASS_REGS);~n',[]).
 output_walk(C,T,_) :-
 	format(C,'      pc = NEXTOP(pc,~s);
       break;~n',[T]).
@@ -391,29 +391,29 @@ output_ewalks(C,["copy_idb_term"|Ops]) :-
 	format(C,'      return found_idb_clause(pc, startp, endp);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["undef_p"|Ops]) :-
-	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
+	format(C,'      return found_owner_op(pc, startp, endp PASS_REGS);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["spy_pred"|Ops]) :-
-	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
+	format(C,'      return found_owner_op(pc, startp, endp PASS_REGS);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["expand_index"|Ops]) :-
-	format(C,'      return found_expand(pc, startp, endp);~n',[]),
+	format(C,'      return found_expand(pc, startp, endp PASS_REGS);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["index_pred"|Ops]) :-
-	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
+	format(C,'      return found_owner_op(pc, startp, endp PASS_REGS);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["lock_pred"|Ops]) :-
-	format(C,'      return found_owner_op(pc, startp, endp);~n',[]),
+	format(C,'      return found_owner_op(pc, startp, endp PASS_REGS);~n',[]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["op_fail"|Ops]) :-
 	format(C,'      if (codeptr == FAILCODE)
-        return found_fail(pc, startp, endp);~n',[]),
+        return found_fail(pc, startp, endp PASS_REGS);~n',[]),
 	format(C,'      pc = NEXTOP(pc,~s);
       break;~n',["e"]),
 	output_ewalks(C,Ops).
 output_ewalks(C,["trust_fail"|Ops]) :-
 	format(C,'      if (codeptr == TRUSTFAILCODE)
-        return found_fail(pc, startp, endp);~n',[]),
+        return found_fail(pc, startp, endp PASS_REGS);~n',[]),
 	format(C,'      pc = NEXTOP(pc,~s);
       break;~n',["e"]),
 	output_ewalks(C,Ops).

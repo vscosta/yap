@@ -27,24 +27,24 @@
 #include "myddas_statistics.h"
 #endif
 
-STATIC_PROTO(Int c_db_initialize_myddas,(void));
-STATIC_PROTO(Int c_db_connection_type,(void));
-STATIC_PROTO(Int c_db_add_preds,(void));
-STATIC_PROTO(Int c_db_preds_conn_start ,(void));
-STATIC_PROTO(Int c_db_preds_conn_continue ,(void));
-STATIC_PROTO(Int c_db_connection_start ,(void));
-STATIC_PROTO(Int c_db_connection_continue ,(void));
-STATIC_PROTO(Int c_db_check_if_exists_pred,(void));
-STATIC_PROTO(Int c_db_delete_predicate,(void));
-STATIC_PROTO(Int c_db_multi_queries_number,(void));
+STATIC_PROTO(Int c_db_initialize_myddas,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_connection_type,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_add_preds,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_preds_conn_start ,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_preds_conn_continue ,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_connection_start ,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_connection_continue ,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_check_if_exists_pred,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_delete_predicate,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_multi_queries_number,( USES_REGS1 ));
 #ifdef MYDDAS_STATS
-STATIC_PROTO(Int c_db_stats,(void));
-STATIC_PROTO(Int c_db_stats_walltime,(void));
-STATIC_PROTO(Int c_db_stats_translate,(void));
-STATIC_PROTO(Int c_db_stats_time,(void));
+STATIC_PROTO(Int c_db_stats,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_stats_walltime,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_stats_translate,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_stats_time,( USES_REGS1 ));
 #endif 
 #ifdef DEBUG
-STATIC_PROTO(Int c_db_check,(void));
+STATIC_PROTO(Int c_db_check,( USES_REGS1 ));
 #endif
 
 void Yap_InitMYDDAS_SharedPreds(void)
@@ -102,7 +102,7 @@ void Yap_InitBackMYDDAS_SharedPreds(void)
 
 /* Initialize all of the MYDDAS global structures */
 static Int 
-c_db_initialize_myddas(void){
+c_db_initialize_myddas( USES_REGS1 ){
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_init_initialize_myddas(); 
 #ifdef MYDDAS_STATS
   Yap_REGS.MYDDAS_GLOBAL_POINTER = myddas_stats_initialize_global_stats(Yap_REGS.MYDDAS_GLOBAL_POINTER);
@@ -117,7 +117,7 @@ c_db_initialize_myddas(void){
    NOTE: In order to use this predicate, the connection*/
 /* c_db_connection_type: +Connection * ?Type */
 static Int 
-c_db_connection_type (void){
+c_db_connection_type ( USES_REGS1 ){
   Term arg_con = Deref(ARG1);
   Term arg_type = Deref(ARG2);
   
@@ -136,7 +136,7 @@ c_db_connection_type (void){
 
 /* db_add_preds: PredName * Arity * Module * Connection*/
 static Int 
-c_db_add_preds (void){
+c_db_add_preds ( USES_REGS1 ){
   Term arg_nome = Deref(ARG1);
   Term arg_aridade = Deref(ARG2);
   Term arg_module = Deref(ARG3);
@@ -164,7 +164,7 @@ c_db_add_preds (void){
 
 
 static Int 
-c_db_check_if_exists_pred (void){
+c_db_check_if_exists_pred ( USES_REGS1 ){
   Term arg_nome = Deref(ARG1);
   Term arg_aridade = Deref(ARG2);
   Term arg_module = Deref(ARG3);
@@ -182,7 +182,7 @@ c_db_check_if_exists_pred (void){
 
 
 static Int 
-c_db_delete_predicate(void){
+c_db_delete_predicate( USES_REGS1 ){
   Term arg_module = Deref(ARG1);
   Term arg_name = Deref(ARG2);
   Term arg_arity = Deref(ARG3);
@@ -203,7 +203,7 @@ c_db_delete_predicate(void){
 
 
 static Int 
-c_db_multi_queries_number(void){
+c_db_multi_queries_number( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
   Term arg_number = Deref(ARG2);
 
@@ -228,18 +228,18 @@ c_db_multi_queries_number(void){
 }
 
 static Int
-c_db_connection_start(void){
+c_db_connection_start( USES_REGS1 ){
 
   MYDDAS_UTIL_CONNECTION node =
     Yap_REGS.MYDDAS_GLOBAL_POINTER->myddas_top_connections;
 
   EXTRA_CBACK_ARG(1,1)=(CELL) MkIntegerTerm((Int)node);
   
-  return (c_db_connection_continue());
+  return (c_db_connection_continue( PASS_REGS1 ));
 }
 
 static Int
-c_db_connection_continue(void){
+c_db_connection_continue( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
   
   MYDDAS_UTIL_CONNECTION node;
@@ -261,7 +261,7 @@ c_db_connection_continue(void){
 
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity */
 static Int
-c_db_preds_conn_start (void){
+c_db_preds_conn_start ( USES_REGS1 ){
   Term arg_conn = Deref(ARG1);
    
   Int *conn = (Int *) IntegerOfTerm(arg_conn);
@@ -278,12 +278,12 @@ c_db_preds_conn_start (void){
   void *pointer = myddas_util_get_list_pred(node);
   EXTRA_CBACK_ARG(4,1)=(CELL) MkIntegerTerm((Int)pointer);
   
-  return (c_db_preds_conn_continue());
+  return (c_db_preds_conn_continue( PASS_REGS1 ));
 }
 
 /* db_preds_conn : Connection(+) * Pred_name(-) * Pred_arity*/
 static Int 
-c_db_preds_conn_continue (void){
+c_db_preds_conn_continue ( USES_REGS1 ){
   Term module = Deref(ARG2);
   Term name = Deref(ARG3);
   Term arity = Deref(ARG4);
@@ -317,7 +317,7 @@ c_db_preds_conn_continue (void){
 
 #ifdef DEBUG
 static Int 
-c_db_check(void){
+c_db_check( USES_REGS1 ){
   check_int();
   return TRUE;
 }
@@ -326,7 +326,7 @@ c_db_check(void){
 #ifdef MYDDAS_STATS
 
 static Int
-c_db_stats_walltime(void){
+c_db_stats_walltime( USES_REGS1 ){
   Term arg_time = Deref(ARG1);
 
 #ifdef DEBUG
@@ -344,7 +344,7 @@ c_db_stats_walltime(void){
 }
 
 static Int
-c_db_stats_translate(void){
+c_db_stats_translate( USES_REGS1 ){
   Term arg_start = Deref(ARG1);
   Term arg_end = Deref(ARG2);
 
@@ -386,7 +386,7 @@ c_db_stats_translate(void){
 }
 
 static Int
-c_db_stats_time(void){
+c_db_stats_time( USES_REGS1 ){
   Term arg_reference = Deref(ARG1);
   Term arg_time = Deref(ARG2);
   
@@ -473,7 +473,7 @@ c_db_stats_time(void){
 
 //Returns the stats of this module in a list
 static Int 
-c_db_stats(void) {
+c_db_stats( USES_REGS1 ) {
   Term arg_conn = Deref(ARG1);
   Term arg_list = Deref(ARG2);
   
@@ -655,6 +655,7 @@ c_db_stats(void) {
 /* from the mysql server */
 void Yap_MYDDAS_delete_all_myddas_structs(void)
 {
+  CACHE_REGS
 
   /* NAO ESQUECER DE FAZER ISTO TB PARA O DB_CLOSE*/
   MYDDAS_GLOBAL global = 

@@ -48,7 +48,7 @@ add_udi_block(void *info, PredEntry *p, UdiControlBlock cmd)
       the second argument is the term.
 ******/
 static Int
-p_new_udi(void)
+p_new_udi( USES_REGS1 )
 {
   Term spec = Deref(ARG2), udi_type = Deref(ARG1);
   PredEntry *p;

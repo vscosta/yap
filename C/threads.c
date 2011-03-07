@@ -70,6 +70,7 @@ allocate_new_tid(void)
 static int
 store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal, Term *tpdetach, Term *tpexit)
 {
+  CACHE_REGS
   UInt pm;	/* memory to be requested         */
   Term tmod;
   Term tdetach, tgoal;
@@ -111,6 +112,7 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
 static void
 kill_thread_engine (int wid, int always_die)
 {
+  CACHE_REGS
   Prop p0 = AbsPredProp(FOREIGN_ThreadHandle(wid).local_preds);
   GlobalEntry *gl = GlobalVariables;
 
@@ -159,6 +161,7 @@ thread_die(int wid, int always_die)
 static void
 setup_engine(int myworker_id, int init_thread)
 {
+  CACHE_REGS
   REGSTORE *standard_regs;
   
   standard_regs = (REGSTORE *)calloc(1,sizeof(REGSTORE));
@@ -191,6 +194,7 @@ start_thread(int myworker_id)
 static void *
 thread_run(void *widp)
 {
+  CACHE_REGS
   Term tgoal, t;
   Term tgs[2];
   int myworker_id = *((int *)widp); 
@@ -225,7 +229,7 @@ thread_run(void *widp)
 }
 
 static Int
-p_thread_new_tid(void)
+p_thread_new_tid( USES_REGS1 )
 {
   int new_worker = allocate_new_tid();
   if (new_worker == -1) {
@@ -242,7 +246,7 @@ init_thread_engine(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term 
 }
 
 static Int
-p_create_thread(void)
+p_create_thread( USES_REGS1 )
 {
   UInt ssize;
   UInt tsize;
@@ -279,7 +283,7 @@ p_create_thread(void)
 }
 
 static Int
-p_thread_sleep(void)
+p_thread_sleep( USES_REGS1 )
 {
   UInt time = IntegerOfTerm(Deref(ARG1));
 #if HAVE_NANOSLEEP
@@ -314,7 +318,7 @@ p_thread_sleep(void)
 }
 
 static Int
-p_thread_self(void)
+p_thread_self( USES_REGS1 )
 {
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
@@ -323,7 +327,7 @@ p_thread_self(void)
 
 
 static Int
-p_thread_zombie_self(void)
+p_thread_zombie_self( USES_REGS1 )
 {
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
@@ -342,7 +346,7 @@ p_thread_zombie_self(void)
 }
 
 static Int
-p_thread_status_lock(void)
+p_thread_status_lock( USES_REGS1 )
 {
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
@@ -352,7 +356,7 @@ p_thread_status_lock(void)
 }
 
 static Int
-p_thread_status_unlock(void)
+p_thread_status_unlock( USES_REGS1 )
 {
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
@@ -364,6 +368,7 @@ p_thread_status_unlock(void)
 Int
 Yap_thread_self(void)
 {
+  CACHE_REGS
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return -1;
   return worker_id;
@@ -412,6 +417,7 @@ Yap_thread_create_engine(thread_attr *ops)
 Int
 Yap_thread_attach_engine(int wid)
 {
+  CACHE_REGS
   /* 
      already locked
      pthread_mutex_lock(&(FOREIGN_ThreadHandle(wid).tlock));
@@ -462,7 +468,7 @@ Yap_thread_destroy_engine(int wid)
 
 
 static Int
-p_thread_join(void)
+p_thread_join( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
@@ -487,7 +493,7 @@ p_thread_join(void)
 }
 
 static Int
-p_thread_destroy(void)
+p_thread_destroy( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
@@ -501,7 +507,7 @@ p_thread_destroy(void)
 }
 
 static Int
-p_thread_detach(void)
+p_thread_detach( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
   pthread_mutex_lock(&(FOREIGN_ThreadHandle(tid).tlock));
@@ -520,7 +526,7 @@ p_thread_detach(void)
 }
 
 static Int
-p_thread_detached(void)
+p_thread_detached( USES_REGS1 )
 {
   if (MY_ThreadHandle.tdetach)
     return Yap_unify(ARG1,MY_ThreadHandle.tdetach);
@@ -529,7 +535,7 @@ p_thread_detached(void)
 }
 
 static Int
-p_thread_detached2(void)
+p_thread_detached2( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
   if (FOREIGN_ThreadHandle(tid).tdetach)
@@ -539,7 +545,7 @@ p_thread_detached2(void)
 }
 
 static Int
-p_thread_exit(void)
+p_thread_exit( USES_REGS1 )
 {
   thread_die(worker_id, FALSE); 
   pthread_exit(NULL);
@@ -548,7 +554,7 @@ p_thread_exit(void)
 }
 
 static Int
-p_thread_set_concurrency(void)
+p_thread_set_concurrency( USES_REGS1 )
 {
   Term tnew = Deref(ARG2);
   int newc, cur;
@@ -569,7 +575,7 @@ p_thread_set_concurrency(void)
 }
 
 static Int
-p_thread_yield(void)
+p_thread_yield( USES_REGS1 )
 {
   if (sched_yield() != 0) {
     return FALSE;
@@ -578,7 +584,7 @@ p_thread_yield(void)
 }
 
 static Int
-p_valid_thread(void)
+p_valid_thread( USES_REGS1 )
 {
   Int i = IntegerOfTerm(Deref(ARG1)); 
   return FOREIGN_ThreadHandle(i).in_use || FOREIGN_ThreadHandle(i).zombie;
@@ -593,7 +599,7 @@ typedef struct swi_mutex {
 } SWIMutex;
 
 static Int
-p_new_mutex(void)
+p_new_mutex( USES_REGS1 )
 {
   SWIMutex* mutp;
   pthread_mutexattr_t mat;
@@ -617,7 +623,7 @@ p_new_mutex(void)
 }
 
 static Int
-p_destroy_mutex(void)
+p_destroy_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
@@ -628,7 +634,7 @@ p_destroy_mutex(void)
 }
 
 static Int
-p_lock_mutex(void)
+p_lock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
@@ -640,7 +646,7 @@ p_lock_mutex(void)
 }
 
 static Int
-p_trylock_mutex(void)
+p_trylock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
@@ -652,7 +658,7 @@ p_trylock_mutex(void)
 }
 
 static Int
-p_unlock_mutex(void)
+p_unlock_mutex( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
@@ -663,7 +669,7 @@ p_unlock_mutex(void)
 }
 
 static Int
-p_mutex_info(void)
+p_mutex_info( USES_REGS1 )
 {
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG1));
 
@@ -673,7 +679,7 @@ p_mutex_info(void)
 }
 
 static Int
-p_cond_create(void)
+p_cond_create( USES_REGS1 )
 {
   pthread_cond_t* condp;
 
@@ -686,7 +692,7 @@ p_cond_create(void)
 }
 
 static Int
-p_cond_destroy(void)
+p_cond_destroy( USES_REGS1 )
 {
   pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
@@ -697,7 +703,7 @@ p_cond_destroy(void)
 }
 
 static Int
-p_cond_signal(void)
+p_cond_signal( USES_REGS1 )
 {
   pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
@@ -707,7 +713,7 @@ p_cond_signal(void)
 }
 
 static Int
-p_cond_broadcast(void)
+p_cond_broadcast( USES_REGS1 )
 {
   pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
 
@@ -717,7 +723,7 @@ p_cond_broadcast(void)
 }
 
 static Int
-p_cond_wait(void)
+p_cond_wait( USES_REGS1 )
 {
   pthread_cond_t *condp = (pthread_cond_t *)IntegerOfTerm(Deref(ARG1));
   SWIMutex *mut = (SWIMutex*)IntegerOfTerm(Deref(ARG2));
@@ -727,7 +733,7 @@ p_cond_wait(void)
 }
 
 static Int 
-p_thread_stacks(void)
+p_thread_stacks( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Int tid = IntegerOfTerm(Deref(ARG1));
   Int status= TRUE;
@@ -746,7 +752,7 @@ p_thread_stacks(void)
 }
 
 static Int 
-p_thread_atexit(void)
+p_thread_atexit( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Term t;
 
@@ -781,7 +787,7 @@ p_thread_atexit(void)
 
 
 static Int 
-p_thread_signal(void)
+p_thread_signal( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
   /* make sure the lock is available */
@@ -804,13 +810,13 @@ p_thread_signal(void)
 }
 
 static Int 
-p_no_threads(void)
+p_no_threads( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   return FALSE;
 }
 
 static Int 
-p_nof_threads(void)
+p_nof_threads( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
   int i = 0, wid;
   LOCK(ThreadHandlesLock);
@@ -823,38 +829,38 @@ p_nof_threads(void)
 }
 
 static Int 
-p_max_workers(void)
+p_max_workers( USES_REGS1 )
 {				/* '$max_workers'(+P)	 */
   return Yap_unify(ARG1,MkIntegerTerm(MAX_WORKERS));
 }
 
 static Int 
-p_max_threads(void)
+p_max_threads( USES_REGS1 )
 {				/* '$max_threads'(+P)	 */
   return Yap_unify(ARG1,MkIntegerTerm(MAX_THREADS));
 }
 
 static Int 
-p_nof_threads_created(void)
+p_nof_threads_created( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
   return Yap_unify(ARG1,MkIntTerm(NOfThreadsCreated));
 }
 
 static Int 
-p_thread_runtime(void)
+p_thread_runtime( USES_REGS1 )
 {				/* '$thread_runtime'(+P)	 */
   return Yap_unify(ARG1,MkIntegerTerm(ThreadsTotalTime));
 }
 
 static Int 
-p_thread_self_lock(void)
+p_thread_self_lock( USES_REGS1 )
 {				/* '$thread_unlock'	 */
   pthread_mutex_lock(&(MY_ThreadHandle.tlock));
   return Yap_unify(ARG1,MkIntegerTerm(worker_id));
 }
 
 static Int 
-p_thread_unlock(void)
+p_thread_unlock( USES_REGS1 )
 {				/* '$thread_unlock'	 */
   Int wid = IntegerOfTerm(Deref(ARG1));
   DEBUG_TLOCK_ACCESS(19, wid);

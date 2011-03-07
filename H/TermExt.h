@@ -63,6 +63,7 @@ inline EXTERN int IsAttVar (CELL *pt);
 inline EXTERN int
 IsAttVar (CELL *pt)
 {
+  CACHE_REGS
   return (pt)[-1] == (CELL)attvar_e && pt < H;
 }
 
@@ -106,12 +107,12 @@ typedef struct
 {
   /* what to do when someone tries to bind our term to someone else
      in some  predefined context */
-  void (*bind_op) (Term *, Term);
+  void (*bind_op) (Term *, Term CACHE_TYPE);
   /* what to do if someone wants to copy our constraint */
-  int (*copy_term_op) (CELL *, struct cp_frame **, CELL *);
+  int (*copy_term_op) (CELL *, struct cp_frame **, CELL * CACHE_TYPE);
   /* copy the constraint into a term and back */
   Term (*to_term_op) (CELL *);
-  int (*term_to_op) (Term, Term);
+  int (*term_to_op) (Term, Term CACHE_TYPE);
   /* op called to do marking in GC */
   void (*mark_op) (CELL *);
 } ext_op;
@@ -166,6 +167,7 @@ inline EXTERN Term MkFloatTerm (Float);
 inline EXTERN Term
 MkFloatTerm (Float dbl)
 {
+  CACHE_REGS
   return (Term) ((H[0] = (CELL) FunctorDouble, *(Float *) (H + 1) =
 		  dbl, H[2] = EndSpecials, H +=
 		  3, AbsAppl (H - 3)));
@@ -271,6 +273,7 @@ inline EXTERN Term MkLongIntTerm (Int);
 inline EXTERN Term
 MkLongIntTerm (Int i)
 {
+  CACHE_REGS
   H[0] = (CELL) FunctorLongInt;
   H[1] = (CELL) (i);
   H[2] =  EndSpecials;

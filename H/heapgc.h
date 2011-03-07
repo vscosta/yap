@@ -86,14 +86,22 @@ extern char *Yap_bp;
 
 #define mcell(X)  Yap_bp[(X)-(CELL *)Yap_GlobalBase]
 
+#define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
+#define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
+#define MARK(P) MARK__(P PASS_REGS) 
+#define UNMARK(P) UNMARK__(P PASS_REGS) 
+#define RMARK(P) RMARK__(P PASS_REGS) 
+#define RMARKED(P) RMARKED__(P PASS_REGS) 
+#define UNRMARK(P) UNRMARK__(P PASS_REGS) 
+
 static inline Int
-MARKED_PTR(CELL* ptr)
+MARKED_PTR__(CELL* ptr USES_REGS)
 {
   return mcell(ptr) & MARK_BIT;
 }
 
 static inline Int
-UNMARKED_MARK(CELL* ptr, char *bp)
+UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
   Int pos = ptr - (CELL *)Yap_GlobalBase;
   char t = bp[pos];
@@ -105,13 +113,13 @@ UNMARKED_MARK(CELL* ptr, char *bp)
 }
 
 static inline void
-MARK(CELL* ptr)
+MARK__(CELL* ptr USES_REGS)
 {
   mcell(ptr) = mcell(ptr) | MARK_BIT;
 }
 
 static inline void
-UNMARK(CELL* ptr)
+UNMARK__(CELL* ptr USES_REGS)
 {
   mcell(ptr) = mcell(ptr) & ~MARK_BIT;
 }
@@ -122,19 +130,19 @@ UNMARK(CELL* ptr)
 #define UNMARK_CELL(X) (X)
 
 static inline void
-RMARK(CELL* ptr)
+RMARK__(CELL* ptr USES_REGS)
 {
    mcell(ptr) = mcell(ptr) | RMARK_BIT;
 }
 
 static inline void
-UNRMARK(CELL* ptr)
+UNRMARK__(CELL* ptr USES_REGS)
 {
    mcell(ptr) = mcell(ptr) & ~RMARK_BIT;
 }
 
 static inline int
-RMARKED(CELL* ptr)
+RMARKED__(CELL* ptr USES_REGS)
 {
   return mcell(ptr) & RMARK_BIT;
 }

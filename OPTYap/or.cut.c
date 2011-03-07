@@ -31,6 +31,7 @@
 ** -------------------------- */
 
 void prune_shared_branch(choiceptr prune_cp) {
+  CACHE_REGS
   int i, ltt, depth;
   bitmap members;
   choiceptr leftmost_cp;

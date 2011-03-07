@@ -833,7 +833,8 @@ PL_dispatch(int fd, int wait)
    YAP: YAP_Atom YAP_AtomOfTerm(Term) */
 int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   if ( !IsAtomTerm(t))
     return 0;
   *a = YAP_SWIAtomFromAtom(AtomOfTerm(t));
@@ -842,33 +843,38 @@ int PL_get_atom__LD(term_t ts, atom_t *a ARG_LD)
 
 void PL_put_term__LD(term_t d, term_t s ARG_LD)
 {
-  Yap_PutInSlot(d,Yap_GetFromSlot(s));
+  CACHE_REGS
+  Yap_PutInSlot(d,Yap_GetFromSlot(s PASS_REGS) PASS_REGS);
 }
 
 term_t PL_new_term_ref__LD(ARG1_LD)
 {
-  term_t to = Yap_NewSlots(1);
+  CACHE_REGS
+  term_t to = Yap_NewSlots(1 PASS_REGS);
   return to;
 }
 
 int PL_is_variable__LD(term_t ts ARG_LD)
 {
-  YAP_Term t = Yap_GetFromSlot(ts);
+  CACHE_REGS
+  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return YAP_IsVarTerm(t);
 }
 
 int PL_unify_atom__LD(term_t t, atom_t at ARG_LD)
 {
+  CACHE_REGS
   YAP_Term cterm = MkAtomTerm(YAP_AtomFromSWIAtom(at));
-  return YAP_Unify(Yap_GetFromSlot(t),cterm);
+  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
 
 /* SWI: int PL_unify_integer(term_t ?t, long n)
    YAP long int  unify(YAP_Term* a, Term* b) */
 int PL_unify_integer__LD(term_t t, long n ARG_LD)
 {	
+  CACHE_REGS
   Term iterm = MkIntegerTerm(n);
-  return Yap_unify(Yap_GetFromSlot(t),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 extern int Yap_getInputStream(term_t t, IOSTREAM **s);

@@ -30,7 +30,7 @@ static char SccsId[]="%W% %G%";
 #ifdef COROUTINING
 
 /* check if variable was there */
-static Term AddVarIfNotThere(Term var , Term dest)
+static Term AddVarIfNotThere(Term var , Term dest USES_REGS)
 {
   Term test = dest;
   while (test != TermNil) {
@@ -45,7 +45,7 @@ static Term AddVarIfNotThere(Term var , Term dest)
 static int can_unify_complex(register CELL *pt0,
 		register CELL *pt0_end,
 		register CELL *pt1,
-		Term  *Vars)
+		Term  *Vars USES_REGS)
 {
 
   /* This is really just unification, folks */
@@ -73,7 +73,7 @@ static int can_unify_complex(register CELL *pt0,
       if (IsVarTerm(d1)) {
 	if (d0 != d1) {
 	  /* we need to suspend on both variables ! */
-	  *Vars = AddVarIfNotThere(d0, AddVarIfNotThere(d1,*Vars));
+	  *Vars = AddVarIfNotThere(d0, AddVarIfNotThere(d1,*Vars PASS_REGS) PASS_REGS);
 	  /* bind the two variables, we would have to do that to unify
 	     them */
 	  if (d1 > d0) { /* youngest */
@@ -88,13 +88,13 @@ static int can_unify_complex(register CELL *pt0,
       }
       else {
 	/* oh no, some more variables! */
-	*Vars = AddVarIfNotThere(d0, *Vars);
+	*Vars = AddVarIfNotThere(d0, *Vars PASS_REGS);
       }
       /* now bind it */
       Bind_Global((CELL *)d0, d1);
       /* continue the loop */
     } else if (IsVarTerm(d1))  {
-      *Vars = AddVarIfNotThere(d1, *Vars);
+      *Vars = AddVarIfNotThere(d1, *Vars PASS_REGS);
       /* and bind it */
       Bind_Global((CELL *)d1, d0);
       /* continue the loop */
@@ -236,7 +236,7 @@ static int can_unify_complex(register CELL *pt0,
 }
 
 static int
-can_unify(Term t1, Term t2, Term *Vars)
+can_unify(Term t1, Term t2, Term *Vars USES_REGS)
 {
   t1 = Deref(t1);
   t2 = Deref(t2);
@@ -274,7 +274,7 @@ can_unify(Term t1, Term t2, Term *Vars)
   } else if (IsPairTerm(t1)) {
     if (IsPairTerm(t2)) {
       return(can_unify_complex(RepPair(t1)-1, RepPair(t1)+1,
-			       RepPair(t2)-1, Vars));
+			       RepPair(t2)-1, Vars PASS_REGS));
     } else return FALSE;
   } else {
     Functor f = FunctorOfTerm(t1);
@@ -303,14 +303,14 @@ can_unify(Term t1, Term t2, Term *Vars)
     /* Two complex terms with the same functor */
     return can_unify_complex(RepAppl(t1),
 			     RepAppl(t1)+ArityOfFunctor(f),
-			     RepAppl(t2), Vars);
+			     RepAppl(t2), Vars PASS_REGS);
   }
 }
 
 /* This routine verifies whether a complex has variables. */
 static int non_ground_complex(register CELL *pt0,
 		register CELL *pt0_end,
-		Term  *Var)
+		Term  *Var USES_REGS)
 {
 
   register CELL **to_visit = (CELL **)Yap_PreAllocCodeSpace();
@@ -428,7 +428,7 @@ static int non_ground_complex(register CELL *pt0,
 }
 
 static int
-non_ground(Term t, Term *Var)
+non_ground(Term t, Term *Var USES_REGS)
 {
   int out = -1;
   while (out < 0) {
@@ -441,7 +441,7 @@ non_ground(Term t, Term *Var)
     if (IsPrimitiveTerm(t)) {
       return FALSE;
     } else if (IsPairTerm(t)) {
-      out = non_ground_complex(RepPair(t)-1, RepPair(t)+1, Var);
+      out = non_ground_complex(RepPair(t)-1, RepPair(t)+1, Var PASS_REGS);
       if (out >= 0)
 	return out;
     } else {
@@ -451,7 +451,7 @@ non_ground(Term t, Term *Var)
       }
       out = non_ground_complex(RepAppl(t),
 			       RepAppl(t)+ArityOfFunctor(FunctorOfTerm(t)),
-			       Var);
+			       Var PASS_REGS);
       if (out >= 0)
 	return out;
     }
@@ -467,11 +467,11 @@ non_ground(Term t, Term *Var)
 
 /* check whether the two terms unify and return what variables should
    be bound before the terms are exactly equal */
-static Int p_can_unify(void)
+static Int p_can_unify( USES_REGS1 )
 {
 #ifdef COROUTINING
   Term r = TermNil;
-  if (!can_unify(ARG1, ARG2, &r))
+  if (!can_unify(ARG1, ARG2, &r PASS_REGS))
     return FALSE;
   return Yap_unify(ARG3, r);
 #else
@@ -480,11 +480,11 @@ static Int p_can_unify(void)
 }
 
 /* if the term is not ground return a variable in the term */
-static Int p_non_ground(void)
+static Int p_non_ground( USES_REGS1 )
 {
 #ifdef COROUTINING
   Term r = TermNil;
-  if (!non_ground(ARG1, &r))
+  if (!non_ground(ARG1, &r PASS_REGS))
     return(FALSE);
   return (Yap_unify(ARG2, r));
 #else
@@ -493,7 +493,7 @@ static Int p_non_ground(void)
 }
 
 /* if the term is not ground return a variable in the term */
-static Int p_coroutining(void)
+static Int p_coroutining( USES_REGS1 )
 {
 #ifdef COROUTINING
   return(TRUE);
@@ -504,25 +504,26 @@ static Int p_coroutining(void)
 
 #if COROUTINING
 static Term
-ListOfWokenGoals(void) {
+ListOfWokenGoals( USES_REGS1 ) {
   return Yap_ReadTimedVar(WokenGoals);
 }
 
 Term
 Yap_ListOfWokenGoals(void) {
-  return ListOfWokenGoals();
+  CACHE_REGS
+  return ListOfWokenGoals( PASS_REGS1 );
 }
 #endif
 
 /* return a list of awoken goals */
-static Int p_awoken_goals(void)
+static Int p_awoken_goals( USES_REGS1 )
 {
 #ifdef COROUTINING
   Term WGs = Yap_ReadTimedVar(WokenGoals);
   if (WGs == TermNil) {
     return(FALSE);
   }
-  WGs = ListOfWokenGoals();
+  WGs = ListOfWokenGoals( PASS_REGS1 );
   Yap_UpdateTimedVar(WokenGoals, TermNil);
   return(Yap_unify(ARG1,WGs));
 #else
@@ -531,7 +532,7 @@ static Int p_awoken_goals(void)
 }
 
 static Int
-p_yap_has_rational_trees(void)
+p_yap_has_rational_trees( USES_REGS1 )
 {
 #if RATIONAL_TREES
   return TRUE;
@@ -541,7 +542,7 @@ p_yap_has_rational_trees(void)
 }
 
 static Int
-p_yap_has_coroutining(void)
+p_yap_has_coroutining( USES_REGS1 )
 {
 #if COROUTINING
   return TRUE;
@@ -551,7 +552,7 @@ p_yap_has_coroutining(void)
 }
 
 void
-Yap_InitCoroutPreds(void)
+Yap_InitCoroutPreds( void )
 {
 #ifdef COROUTINING
   Atom            at;

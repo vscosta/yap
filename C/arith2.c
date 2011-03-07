@@ -1050,7 +1050,7 @@ static InitBinEntry InitBinTab[] = {
 };
 
 static Int 
-p_binary_is(void)
+p_binary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term t1, t2;
@@ -1099,7 +1099,7 @@ p_binary_is(void)
 }
 
 static Int 
-do_arith23(arith2_op op)
+do_arith23(arith2_op op USES_REGS)
 {				/* X is Y	 */
   Term t = Deref(ARG1);
   Int out;
@@ -1121,55 +1121,55 @@ do_arith23(arith2_op op)
 }
 
 static Int 
-export_p_plus(void)
+export_p_plus( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_plus);
+  return do_arith23(op_plus PASS_REGS);
 }
 
 static Int 
-export_p_minus(void)
+export_p_minus( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_minus);
+  return do_arith23(op_minus PASS_REGS);
 }
 
 static Int 
-export_p_times(void)
+export_p_times( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_times);
+  return do_arith23(op_times PASS_REGS);
 }
 
 static Int 
-export_p_div(void)
+export_p_div( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_div);
+  return do_arith23(op_div PASS_REGS);
 }
 
 static Int 
-export_p_and(void)
+export_p_and( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_and);
+  return do_arith23(op_and PASS_REGS);
 }
 
 static Int 
-export_p_or(void)
+export_p_or( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_or);
+  return do_arith23(op_or PASS_REGS);
 }
 
 static Int 
-export_p_slr(void)
+export_p_slr( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_slr);
+  return do_arith23(op_slr PASS_REGS);
 }
 
 static Int 
-export_p_sll(void)
+export_p_sll( USES_REGS1 )
 {				/* X is Y	 */
-  return do_arith23(op_sll);
+  return do_arith23(op_sll PASS_REGS);
 }
 
 static Int 
-p_binary_op_as_integer(void)
+p_binary_op_as_integer( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG1);
 

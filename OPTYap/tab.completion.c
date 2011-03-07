@@ -104,6 +104,7 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
 *******************************/
 
 void private_completion(sg_fr_ptr sg_fr) {
+  CACHE_REGS
   /* complete subgoals */
 #ifdef LIMIT_TABLING
   sg_fr_ptr aux_sg_fr;
@@ -142,6 +143,7 @@ void private_completion(sg_fr_ptr sg_fr) {
 
 #ifdef YAPOR
 void public_completion(void) {
+  CACHE_REGS
   dep_fr_ptr chain_dep_fr, next_dep_fr;
   or_fr_ptr chain_or_fr, top_or_fr, next_or_fr;
   susp_fr_ptr susp_fr, next_susp_fr;
@@ -265,6 +267,7 @@ void public_completion(void) {
 
 
 void complete_suspension_frames(or_fr_ptr or_fr) {
+  CACHE_REGS
   dep_fr_ptr chain_dep_fr;
   or_fr_ptr chain_or_fr;
   susp_fr_ptr susp_fr;
@@ -318,6 +321,7 @@ void complete_suspension_frames(or_fr_ptr or_fr) {
 
 
 void suspend_branch(void) {
+  CACHE_REGS
   or_fr_ptr or_frame;
 
   /* suspension only occurs in shared nodes that **
@@ -394,6 +398,7 @@ void suspend_branch(void) {
 
 
 void resume_suspension_frame(susp_fr_ptr resume_fr, or_fr_ptr top_or_fr) {
+  CACHE_REGS
   or_fr_ptr or_frame;
   sg_fr_ptr sg_frame;
 

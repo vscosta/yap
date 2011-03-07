@@ -239,8 +239,16 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 #define Atomics		0
 #define Funcs		1
 
+#define ConstantTermAdjust(P) ConstantTermAdjust__(P PASS_REGS)
+#define DBGroundTermAdjust(P) DBGroundTermAdjust__(P PASS_REGS)
+#define AdjustDBTerm(P,A) AdjustDBTerm__(P,A PASS_REGS)
+#define AdjustSwitchTable(op, table, i) AdjustSwitchTable__(op, table, i PASS_REGS)
+#define RestoreOtaplInst(start, opc, pe)  RestoreOtaplInst__(start, opc, pe PASS_REGS)
+#define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
+#define RestoreLogDBErasedMarker()  RestoreLogDBErasedMarker__( PASS_REGS1 )
+#define RestoreForeignCode()	RestoreForeignCode__( PASS_REGS1 )
 static Term
-ConstantTermAdjust (Term t)
+ConstantTermAdjust__ (Term t USES_REGS)
 {
   if (IsAtomTerm(t))
     return AtomTermAdjust(t);
@@ -248,7 +256,7 @@ ConstantTermAdjust (Term t)
 }
 
 static Term
-DBGroundTermAdjust (Term t)
+DBGroundTermAdjust__ (Term t USES_REGS)
 {
   /* The term itself is restored by dbtermlist */
   if (IsPairTerm(t)) {
@@ -261,7 +269,7 @@ DBGroundTermAdjust (Term t)
 /* Now, everything on its place so you must adjust the pointers */
 
 static void 
-do_clean_susp_clauses(yamop *ipc) {
+do_clean_susp_clauses(yamop *ipc USES_REGS) {
   COUNT i;
   yamop **st = (yamop **)NEXTOP(ipc,sssllp);
 
@@ -281,7 +289,7 @@ do_clean_susp_clauses(yamop *ipc) {
 }
 
 static void
-AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
+AdjustSwitchTable__(op_numbers op, yamop *table, COUNT i USES_REGS)
 {
   CELL *startcode = (CELL *)table;
   /* in case the table is already gone */
@@ -303,7 +311,7 @@ AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
 	oldcode[1] = (CELL)CodeAddrAdjust(oldjmp);
 	oldcode += 2;
       }
-      rehash(startcode, i, Funcs);
+      rehash(startcode, i, Funcs PASS_REGS);
     }
     break;
   case _switch_on_cons:
@@ -324,7 +332,7 @@ AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
 	oldcode += 2;
       }
 #if !USE_OFFSETS
-      rehash(startcode, i, Atomics);
+      rehash(startcode, i, Atomics PASS_REGS);
 #endif
     }
     break;
@@ -385,12 +393,12 @@ AdjustSwitchTable(op_numbers op, yamop *table, COUNT i)
   }
 }
 
-STATIC_PROTO(void  RestoreAtomList, (Atom));
-STATIC_PROTO(void  RestoreAtom, (AtomEntry *));
-STATIC_PROTO(void  RestoreHashPreds, (void));
+STATIC_PROTO(void  RestoreAtomList, (Atom CACHE_TYPE));
+STATIC_PROTO(void  RestoreAtom, (AtomEntry * CACHE_TYPE));
+STATIC_PROTO(void  RestoreHashPreds, ( CACHE_TYPE1 ));
 
 static void
-RestoreAtoms(void)
+RestoreAtoms( USES_REGS1 )
 {
   AtomHashEntry *HashPtr;
   register int    i;
@@ -400,13 +408,13 @@ RestoreAtoms(void)
   HashPtr = HashChain;
   for (i = 0; i < AtomHashTableSize; ++i) {
     HashPtr->Entry = NoAGCAtomAdjust(HashPtr->Entry);
-    RestoreAtomList(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry PASS_REGS);
     HashPtr++;
   }  
 }
 
 static void
-RestoreWideAtoms(void)
+RestoreWideAtoms( USES_REGS1 )
 {
   AtomHashEntry *HashPtr;
   register int    i;
@@ -416,25 +424,25 @@ RestoreWideAtoms(void)
   HashPtr = WideHashChain;
   for (i = 0; i < WideAtomHashTableSize; ++i) {
     HashPtr->Entry = AtomAdjust(HashPtr->Entry);
-    RestoreAtomList(HashPtr->Entry);
+    RestoreAtomList(HashPtr->Entry PASS_REGS);
     HashPtr++;
   }  
 }
 
 static void
-RestoreInvisibleAtoms(void)
+RestoreInvisibleAtoms( USES_REGS1 )
 {
   INVISIBLECHAIN.Entry = AtomAdjust(INVISIBLECHAIN.Entry);
-  RestoreAtomList(INVISIBLECHAIN.Entry);
-  RestoreAtom(RepAtom(AtomFoundVar));
-  RestoreAtom(RepAtom(AtomFreeTerm));
+  RestoreAtomList(INVISIBLECHAIN.Entry PASS_REGS);
+  RestoreAtom(RepAtom(AtomFoundVar) PASS_REGS);
+  RestoreAtom(RepAtom(AtomFreeTerm) PASS_REGS);
 }
 
 #include "rclause.h"
 
 /* adjusts terms stored in the data base, when they have no variables */
 static Term 
-AdjustDBTerm(Term trm, Term *p_base)
+AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
 {
   if (IsVarTerm(trm))
     return CodeVarAdjust(trm);
@@ -488,7 +496,7 @@ AdjustDBTerm(Term trm, Term *p_base)
 }
 
 static void
-RestoreDBTerm(DBTerm *dbr, int attachments)
+RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
 {
   if (attachments) {
 #ifdef COROUTINING
@@ -515,7 +523,7 @@ RestoreDBTerm(DBTerm *dbr, int attachments)
 
 /* Restores a prolog clause, in its compiled form */
 static void 
-RestoreStaticClause(StaticClause *cl)
+RestoreStaticClause(StaticClause *cl USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
  * clause for this predicate or not 
@@ -529,12 +537,12 @@ RestoreStaticClause(StaticClause *cl)
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
   }
-  restore_opcodes(cl->ClCode, NULL);
+  restore_opcodes(cl->ClCode, NULL PASS_REGS);
 }
 
 /* Restores a prolog clause, in its compiled form */
 static void 
-RestoreMegaClause(MegaClause *cl)
+RestoreMegaClause(MegaClause *cl USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
  * clause for this predicate or not 
@@ -551,14 +559,14 @@ RestoreMegaClause(MegaClause *cl)
 
   for (i = 0, ptr = cl->ClCode; i < ncls; i++) {
     yamop *nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
-    restore_opcodes(ptr, nextptr);
+    restore_opcodes(ptr, nextptr PASS_REGS);
     ptr = nextptr;
   }
 }
 
 /* Restores a prolog clause, in its compiled form */
 static void 
-RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
+RestoreDynamicClause(DynamicClause *cl, PredEntry *pp USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
  * clause for this predicate or not 
@@ -568,12 +576,12 @@ RestoreDynamicClause(DynamicClause *cl, PredEntry *pp)
     cl->ClPrevious = PtoOpAdjust(cl->ClPrevious);
   }
   INIT_LOCK(cl->ClLock);
-  restore_opcodes(cl->ClCode, NULL);
+  restore_opcodes(cl->ClCode, NULL PASS_REGS);
 }
 
 /* Restores a prolog clause, in its compiled form */
 static void 
-RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
+RestoreLUClause(LogUpdClause *cl, PredEntry *pp USES_REGS)
 /*
  * Cl points to the start of the code, IsolFlag tells if we have a single
  * clause for this predicate or not 
@@ -585,7 +593,7 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
   }
   if (cl->ClSource) {
     cl->ClSource = DBTermAdjust(cl->ClSource);
-    RestoreDBTerm(cl->ClSource, TRUE);
+    RestoreDBTerm(cl->ClSource, TRUE PASS_REGS);
   }
   if (cl->ClPrev) {
     cl->ClPrev = PtoLUCAdjust(cl->ClPrev);
@@ -594,11 +602,11 @@ RestoreLUClause(LogUpdClause *cl, PredEntry *pp)
     cl->ClNext = PtoLUCAdjust(cl->ClNext);
   }
   cl->ClPred = PtoPredAdjust(cl->ClPred);
-  restore_opcodes(cl->ClCode, NULL);
+  restore_opcodes(cl->ClCode, NULL PASS_REGS);
 }
 
 static void
-RestoreDBTermEntry(struct dbterm_list *dbl) {
+RestoreDBTermEntry(struct dbterm_list *dbl USES_REGS) {
   DBTerm *dbt;
 
   if (dbl->dbterms)
@@ -610,13 +618,13 @@ RestoreDBTermEntry(struct dbterm_list *dbl) {
     dbl->next_dbl = PtoDBTLAdjust(dbl->next_dbl);
   dbl->p = PredEntryAdjust(dbl->p);
   while (dbt) {
-    RestoreDBTerm(dbt, FALSE);
+    RestoreDBTerm(dbt, FALSE PASS_REGS);
     dbt = dbt->ag.NextDBT;
   }
 }
 
 static void 
-CleanLUIndex(LogUpdIndex *idx, int recurse)
+CleanLUIndex(LogUpdIndex *idx, int recurse USES_REGS)
 {
   //  INIT_LOCK(idx->ClLock);
   idx->ClPred = PtoPredAdjust(idx->ClPred);
@@ -628,30 +636,30 @@ CleanLUIndex(LogUpdIndex *idx, int recurse)
   if (idx->SiblingIndex) {
     idx->SiblingIndex = LUIndexAdjust(idx->SiblingIndex);
     if (recurse)
-      CleanLUIndex(idx->SiblingIndex, TRUE);
+      CleanLUIndex(idx->SiblingIndex, TRUE PASS_REGS);
   }
   if (idx->ChildIndex) {
     idx->ChildIndex = LUIndexAdjust(idx->ChildIndex);
     if (recurse)
-      CleanLUIndex(idx->ChildIndex, TRUE);
+      CleanLUIndex(idx->ChildIndex, TRUE PASS_REGS);
   }
   if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode, NULL);
+    restore_opcodes(idx->ClCode, NULL PASS_REGS);
   }
 }
 
 static void 
-CleanSIndex(StaticIndex *idx, int recurse)
+CleanSIndex(StaticIndex *idx, int recurse USES_REGS)
 {
  beginning:
   if (!(idx->ClFlags & SwitchTableMask)) {
-    restore_opcodes(idx->ClCode, NULL);
+    restore_opcodes(idx->ClCode, NULL PASS_REGS);
   }
   idx->ClPred = PtoPredAdjust(idx->ClPred);
   if (idx->ChildIndex) {
     idx->ChildIndex = SIndexAdjust(idx->ChildIndex);
     if (recurse)
-      CleanSIndex(idx->ChildIndex, TRUE);
+      CleanSIndex(idx->ChildIndex, TRUE PASS_REGS);
   }
   if (idx->SiblingIndex) {
     idx->SiblingIndex = SIndexAdjust(idx->SiblingIndex);
@@ -664,7 +672,7 @@ CleanSIndex(StaticIndex *idx, int recurse)
 }
 
 static void 
-RestoreSWIAtoms(void)
+RestoreSWIAtoms( USES_REGS1 )
 {
   int i, j;
   for (i=0; i < N_SWI_ATOMS; i++) {
@@ -687,14 +695,14 @@ RestoreSWIBlobs(void)
 }
 
 static void
-RestorePredHash(void)
+RestorePredHash( USES_REGS1 )
 {
   PredHash = PtoPtoPredAdjust(PredHash);
   if (PredHash == NULL) {
     Yap_Error(FATAL_ERROR,MkIntTerm(0),"restore should find predicate hash table");
   }
   REINIT_RWLOCK(PredHashRWLock);
-  RestoreHashPreds(); /* does most of the work */
+  RestoreHashPreds( PASS_REGS1 ); /* does most of the work */
 }
 
 static void
@@ -711,7 +719,7 @@ RestoreEnvInst(yamop start[2], yamop **instp, op_numbers opc, PredEntry *pred)
 }
 
 static void
-RestoreOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
+RestoreOtaplInst__(yamop start[1], OPCODE opc, PredEntry *pe USES_REGS)
 {
   yamop *ipc = start;
 
@@ -730,20 +738,20 @@ RestoreOtaplInst(yamop start[1], OPCODE opc, PredEntry *pe)
 }
 
 static void
-RestoreDBTermsList(void)
+RestoreDBTermsList( USES_REGS1 )
 {
   if (Yap_heap_regs->dbterms_list) {
     struct dbterm_list *dbl = PtoDBTLAdjust(Yap_heap_regs->dbterms_list);
     Yap_heap_regs->dbterms_list = dbl;
     while (dbl) {
-      RestoreDBTermEntry(dbl);
+      RestoreDBTermEntry(dbl PASS_REGS);
       dbl = dbl->next_dbl;
     }
   }
 }
 
 static void
-RestoreExpandList(void)
+RestoreExpandList( USES_REGS1 )
 {
   if (Yap_heap_regs->expand_clauses_first)
     Yap_heap_regs->expand_clauses_first = PtoOpAdjust(Yap_heap_regs->expand_clauses_first);
@@ -752,7 +760,7 @@ RestoreExpandList(void)
   {
     yamop *ptr = Yap_heap_regs->expand_clauses_first;
     while (ptr) {
-      do_clean_susp_clauses(ptr);
+      do_clean_susp_clauses(ptr PASS_REGS);
       ptr = ptr->u.sssllp.snext;
     }
   }
@@ -768,7 +776,7 @@ RestoreUdiControlBlocks(void)
 }
 
 static void
-RestoreIntKeys(void)
+RestoreIntKeys( USES_REGS1 )
 {
   if (Yap_heap_regs->IntKeys != NULL) {
     Yap_heap_regs->IntKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntKeys));
@@ -777,7 +785,7 @@ RestoreIntKeys(void)
       for (i = 0; i < Yap_heap_regs->int_keys_size; i++) {
 	if (Yap_heap_regs->IntKeys[i] != NIL) {
 	  Prop p0 = Yap_heap_regs->IntKeys[i] = PropAdjust(Yap_heap_regs->IntKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE);
+	  RestoreEntries(RepProp(p0), TRUE PASS_REGS);
 	}
       }
     }
@@ -785,7 +793,7 @@ RestoreIntKeys(void)
 }
 
 static void
-RestoreIntLUKeys(void)
+RestoreIntLUKeys( USES_REGS1 )
 {
   if (Yap_heap_regs->IntLUKeys != NULL) {
     Yap_heap_regs->IntLUKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntLUKeys));
@@ -800,7 +808,7 @@ RestoreIntLUKeys(void)
 	    PredEntry *pe = RepPredProp(p0);
 	    pe->NextOfPE =
 	      PropAdjust(pe->NextOfPE);
-	    CleanCode(pe);
+	    CleanCode(pe PASS_REGS);
 	    p0 = RepProp(pe->NextOfPE);
 	  }
 	}
@@ -810,7 +818,7 @@ RestoreIntLUKeys(void)
 }
 
 static void
-RestoreIntBBKeys(void)
+RestoreIntBBKeys( USES_REGS1 )
 {
   if (Yap_heap_regs->IntBBKeys != NULL) {
     Yap_heap_regs->IntBBKeys = (Prop *)AddrAdjust((ADDR)(Yap_heap_regs->IntBBKeys));
@@ -819,7 +827,7 @@ RestoreIntBBKeys(void)
       for (i = 0; i < Yap_heap_regs->int_bb_keys_size; i++) {
 	if (Yap_heap_regs->IntBBKeys[i] != NIL) {
 	  Prop p0 = Yap_heap_regs->IntBBKeys[i] = PropAdjust(Yap_heap_regs->IntBBKeys[i]);
-	  RestoreEntries(RepProp(p0), TRUE);
+	  RestoreEntries(RepProp(p0), TRUE PASS_REGS);
 	}
       }
     }
@@ -827,7 +835,7 @@ RestoreIntBBKeys(void)
 }
 
 static void 
-RestoreDBErasedMarker(void)
+RestoreDBErasedMarker__( USES_REGS1 )
 {
   Yap_heap_regs->db_erased_marker =
     DBRefAdjust(Yap_heap_regs->db_erased_marker);
@@ -839,7 +847,7 @@ RestoreDBErasedMarker(void)
 }
 
 static void 
-RestoreLogDBErasedMarker(void)
+RestoreLogDBErasedMarker__( USES_REGS1 )
 {
   Yap_heap_regs->logdb_erased_marker =
     PtoLUCAdjust(Yap_heap_regs->logdb_erased_marker);
@@ -857,65 +865,65 @@ RestoreLogDBErasedMarker(void)
 }
 
 static void 
-RestoreDeadStaticClauses(void)
+RestoreDeadStaticClauses( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_static_clauses) {
     StaticClause *sc = PtoStCAdjust(Yap_heap_regs->dead_static_clauses);
     Yap_heap_regs->dead_static_clauses = sc;
     while (sc) {
-      RestoreStaticClause(sc);
+      RestoreStaticClause(sc PASS_REGS);
       sc = sc->ClNext;
     }
   }
 }
 
 static void 
-RestoreDeadMegaClauses(void)
+RestoreDeadMegaClauses( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_mega_clauses) {
     MegaClause *mc = (MegaClause *)AddrAdjust((ADDR)(Yap_heap_regs->dead_mega_clauses));
     Yap_heap_regs->dead_mega_clauses = mc;
     while (mc) {
-      RestoreMegaClause(mc);
+      RestoreMegaClause(mc PASS_REGS);
       mc = mc->ClNext;
     }
   }
 }
 
 static void 
-RestoreDeadStaticIndices(void)
+RestoreDeadStaticIndices( USES_REGS1 )
 {
   if (Yap_heap_regs->dead_static_indices) {
     StaticIndex *si = (StaticIndex *)AddrAdjust((ADDR)(Yap_heap_regs->dead_static_indices));
     Yap_heap_regs->dead_static_indices = si;
     while (si) {
-      CleanSIndex(si, FALSE);
+      CleanSIndex(si, FALSE PASS_REGS);
       si = si->SiblingIndex;
     }
   }
 }
 
 static void 
-RestoreDBErasedList(void)
+RestoreDBErasedList( USES_REGS1 )
 {
   if (Yap_heap_regs->db_erased_list) {
     LogUpdClause *lcl = Yap_heap_regs->db_erased_list = 
       PtoLUCAdjust(Yap_heap_regs->db_erased_list);
     while (lcl) {
-      RestoreLUClause(lcl, FALSE);
+      RestoreLUClause(lcl, FALSE PASS_REGS);
       lcl = lcl->ClNext;
     }
   }
 }
 
 static void 
-RestoreDBErasedIList(void)
+RestoreDBErasedIList( USES_REGS1 )
 {
   if (Yap_heap_regs->db_erased_ilist) {
     LogUpdIndex *icl = Yap_heap_regs->db_erased_ilist = 
       LUIndexAdjust(Yap_heap_regs->db_erased_ilist);
     while (icl) {
-      CleanLUIndex(icl, FALSE);
+      CleanLUIndex(icl, FALSE PASS_REGS);
       icl = icl->SiblingIndex;
     }
   }
@@ -929,18 +937,10 @@ RestoreStreams(void)
 static void
 RestoreAliases(void)
 {
-  if (Yap_heap_regs->file_aliases != NULL) {
-    int i;
-
-    Yap_heap_regs->file_aliases =
-      (struct AliasDescS *)AddrAdjust((ADDR)Yap_heap_regs->file_aliases);
-    for (i = 0; i < NOfFileAliases; i++)
-      FileAliases[i].name = AtomAdjust(FileAliases[i].name);
-  }
 }
 
 static void
-RestoreForeignCode(void)
+RestoreForeignCode__( USES_REGS1 )
 {
   ForeignObj *f_code;
 
@@ -978,7 +978,7 @@ RestoreForeignCode(void)
 }
 
 static void
-RestoreYapRecords(void)
+RestoreYapRecords( USES_REGS1 )
 {
   struct record_list *ptr;
 
@@ -988,16 +988,17 @@ RestoreYapRecords(void)
     ptr->next_rec = DBRecordAdjust(ptr->next_rec);
     ptr->prev_rec = DBRecordAdjust(ptr->prev_rec);
     ptr->dbrecord = DBTermAdjust(ptr->dbrecord);
-    RestoreDBTerm(ptr->dbrecord, FALSE);
+    RestoreDBTerm(ptr->dbrecord, FALSE PASS_REGS);
   }
 }
 
 static void
 RestoreBallTerm(int wid)
 {
+  CACHE_REGS
   if (BallTerm) {
     BallTerm  = DBTermAdjust(BallTerm);
-    RestoreDBTerm(BallTerm, TRUE);
+    RestoreDBTerm(BallTerm, TRUE PASS_REGS);
   }
 }
 
@@ -1007,18 +1008,19 @@ RestoreBallTerm(int wid)
 static void 
 restore_codes(void)
 {
+  CACHE_REGS
   Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
 #include "rhstruct.h"
   RestoreGlobal();
 #ifndef worker_id
 #define worker_id 0
 #endif
-  RestoreWorker(worker_id);
+  RestoreWorker(worker_id  PASS_REGS);
  }
 
 
 static void
-RestoreDBEntry(DBRef dbr)
+RestoreDBEntry(DBRef dbr USES_REGS)
 {
 #ifdef DEBUG_RESTORE
   fprintf(stderr, "Restoring at %x", dbr);
@@ -1033,7 +1035,7 @@ RestoreDBEntry(DBRef dbr)
   else
     fprintf(stderr, " a var\n");
 #endif
-  RestoreDBTerm(&(dbr->DBT), TRUE);
+  RestoreDBTerm(&(dbr->DBT), TRUE PASS_REGS);
   if (dbr->Parent) {
     dbr->Parent = (DBProp)AddrAdjust((ADDR)(dbr->Parent));
   }
@@ -1051,7 +1053,7 @@ RestoreDBEntry(DBRef dbr)
 
 /* Restores a DB structure, as it was saved in the heap */
 static void 
-RestoreDB(DBEntry *pp)
+RestoreDB(DBEntry *pp USES_REGS)
 {
   register DBRef  dbr;
 
@@ -1071,7 +1073,7 @@ RestoreDB(DBEntry *pp)
   dbr = pp->F0;
   /* While we have something in the data base, even if erased, restore it */
   while (dbr) {
-    RestoreDBEntry(dbr);
+    RestoreDBEntry(dbr PASS_REGS);
     if (dbr->n != NULL)
       dbr->n = DBRefAdjust(dbr->n);
     if (dbr->p != NULL)
@@ -1085,24 +1087,24 @@ RestoreDB(DBEntry *pp)
  * and ending with Last, First may be equal to Last 
  */
 static void 
-CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
+CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
 {
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
 
     while (cl != NULL) {
-      RestoreLUClause(cl, pp);
+      RestoreLUClause(cl, pp PASS_REGS);
       cl = cl->ClNext;
     }
   } else if (pp->PredFlags & MegaClausePredFlag) {
     MegaClause *cl = ClauseCodeToMegaClause(First);
 
-    RestoreMegaClause(cl);
+    RestoreMegaClause(cl PASS_REGS);
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = First;
 
     do {
-      RestoreDynamicClause(ClauseCodeToDynamicClause(cl), pp);
+      RestoreDynamicClause(ClauseCodeToDynamicClause(cl), pp PASS_REGS);
       if (cl == Last) return;
       cl = NextDynamicClause(cl);
     } while (TRUE);
@@ -1110,7 +1112,7 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
     StaticClause *cl = ClauseCodeToStaticClause(First);
 
     do {
-      RestoreStaticClause(cl);
+      RestoreStaticClause(cl PASS_REGS);
       if (cl->ClCode == Last) return;
       cl = cl->ClNext;
     } while (TRUE);
@@ -1121,7 +1123,7 @@ CleanClauses(yamop *First, yamop *Last, PredEntry *pp)
 
 /* Restores a DB structure, as it was saved in the heap */
 static void 
-RestoreBB(BlackBoardEntry *pp, int int_key)
+RestoreBB(BlackBoardEntry *pp, int int_key USES_REGS)
 {
   Term t = pp->Element;
   if (t) {
@@ -1131,7 +1133,7 @@ RestoreBB(BlackBoardEntry *pp, int int_key)
 	  pp->Element = AtomTermAdjust(t);
 	}
       } else {
-	RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL);
+	RestoreLUClause((LogUpdClause *)DBRefOfTerm(t),NULL PASS_REGS);
       }
     }
   }
@@ -1144,7 +1146,7 @@ RestoreBB(BlackBoardEntry *pp, int int_key)
 }
 
 static void
-restore_static_array(StaticArrayEntry *ae)
+restore_static_array(StaticArrayEntry *ae USES_REGS)
 {
   Int sz = -ae->ArrayEArity;
   switch (ae->ArrayType) {
@@ -1251,7 +1253,7 @@ restore_static_array(StaticArrayEntry *ae)
 	  } else {
 	    DBTerm *db = (DBTerm *)RepAppl(reg);
 	    db = DBTermAdjust(db);
-	    RestoreDBTerm(db, TRUE);
+	    RestoreDBTerm(db, TRUE PASS_REGS);
 	    base->tstore = AbsAppl((CELL *)db);
 	  }
 	}
@@ -1270,7 +1272,7 @@ restore_static_array(StaticArrayEntry *ae)
 	    base++;
 	  } else {
 	    *base++ = reg = DBTermAdjust(reg);
-	    RestoreDBTerm(reg, TRUE);
+	    RestoreDBTerm(reg, TRUE PASS_REGS);
 	  }
 	}
       }
@@ -1284,7 +1286,7 @@ restore_static_array(StaticArrayEntry *ae)
  * because of the indexing code 
  */
 static void 
-CleanCode(PredEntry *pp)
+CleanCode(PredEntry *pp USES_REGS)
 {
   CELL            flag;
 
@@ -1325,7 +1327,7 @@ CleanCode(PredEntry *pp)
     /* assembly */
     if (pp->CodeOfPred) {
       pp->CodeOfPred = PtoOpAdjust(pp->CodeOfPred);
-      CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp);
+      CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp PASS_REGS);
     }
   } else {
     yamop        *FirstC, *LastC;
@@ -1347,21 +1349,21 @@ CleanCode(PredEntry *pp)
 #ifdef	DEBUG_RESTORE2
     fprintf(stderr, "at %ux Correcting clauses from %p to %p\n", *(OPCODE *) FirstC, FirstC, LastC);
 #endif
-    CleanClauses(FirstC, LastC, pp);
+    CleanClauses(FirstC, LastC, pp PASS_REGS);
     if (flag & IndexedPredFlag) {
 #ifdef	DEBUG_RESTORE2
       fprintf(stderr, "Correcting indexed code\n");
 #endif
       if (flag & LogUpdatePredFlag) {
-	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), TRUE);
+	CleanLUIndex(ClauseCodeToLogUpdIndex(pp->cs.p_code.TrueCodeOfPred), TRUE PASS_REGS);
       } else {
-	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), TRUE);
+	CleanSIndex(ClauseCodeToStaticIndex(pp->cs.p_code.TrueCodeOfPred), TRUE PASS_REGS);
       } 
     } else if (flag & DynamicPredFlag) {
 #ifdef	DEBUG_RESTORE2
       fprintf(stderr, "Correcting dynamic code\n");
 #endif
-      RestoreDynamicClause(ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),pp);
+      RestoreDynamicClause(ClauseCodeToDynamicClause(pp->cs.p_code.TrueCodeOfPred),pp PASS_REGS);
     }
   }
   /* we are pointing at ourselves */
@@ -1372,7 +1374,7 @@ CleanCode(PredEntry *pp)
  * if we find code or data bases 
  */
 static void 
-RestoreEntries(PropEntry *pp, int int_key)
+RestoreEntries(PropEntry *pp, int int_key USES_REGS)
 {
   while (!EndOfPAEntr(pp)) {
     switch(pp->KindOfPE) {
@@ -1388,7 +1390,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  PropAdjust(fe->PropsOfFE);
 	if (!EndOfPAEntr(p0)) {
 	  /* at most one property */
-	  CleanCode(RepPredProp(p0));
+	  CleanCode(RepPredProp(p0) PASS_REGS);
 	  RepPredProp(p0)->NextOfPE =
 	    PropAdjust(RepPredProp(p0)->NextOfPE);
 	  p0 = RepPredProp(p0)->NextOfPE;
@@ -1422,7 +1424,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	  StaticArrayEntry *sae = (StaticArrayEntry *)ae;
 	  if (sae->NextAE)
 	    sae->NextAE = PtoArraySAdjust(sae->NextAE);
-	  restore_static_array(sae);
+	  restore_static_array(sae PASS_REGS);
 	} else {
 	  if (ae->NextAE)
 	    ae->NextAE = PtoArrayEAdjust(ae->NextAE);
@@ -1452,7 +1454,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	PredEntry *pe = (PredEntry *) pp;
 	pe->NextOfPE =
 	  PropAdjust(pe->NextOfPE);
-	CleanCode(pe);
+	CleanCode(pe PASS_REGS);
       }
       break;
     case DBProperty:
@@ -1464,7 +1466,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	DBEntry *de = (DBEntry *) pp;
 	de->NextOfPE =
 	  PropAdjust(de->NextOfPE);
-	RestoreDB(de);
+	RestoreDB(de PASS_REGS);
       }
       break;
     case BBProperty:
@@ -1472,7 +1474,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 	BlackBoardEntry *bb = (BlackBoardEntry *) pp;
 	bb->NextOfPE =
 	  PropAdjust(bb->NextOfPE);
-	RestoreBB(bb, int_key);
+	RestoreBB(bb, int_key PASS_REGS);
       }
       break;
     case GlobalProperty:
@@ -1563,7 +1565,7 @@ RestoreEntries(PropEntry *pp, int int_key)
 }
 
 static void
-RestoreAtom(AtomEntry *at)
+RestoreAtom(AtomEntry *at USES_REGS)
 {
   AtomEntry *nat;
 
@@ -1575,7 +1577,7 @@ RestoreAtom(AtomEntry *at)
   else
     fprintf(errout, "Restoring %s\n", at->StrOfAE);
 #endif
-  RestoreEntries(RepProp(at->PropsOfAE), FALSE);
+  RestoreEntries(RepProp(at->PropsOfAE), FALSE PASS_REGS);
   /* cannot use AtomAdjust without breaking agc */
   nat = RepAtom(at->NextOfAE);
   if (nat)

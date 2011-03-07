@@ -53,6 +53,7 @@ Yap_LoadForeignFile(char *file, int flags)
   
   out = (void *)dlopen(file,dlflag);
   if (!out) {
+    CACHE_REGS
     Yap_Error(SYSTEM_ERROR, ARG1, "dlopen error %s\n", dlerror());
   }
   return out;
@@ -74,6 +75,7 @@ int
 Yap_CloseForeignFile(void *handle)
 {
   if ( dlclose(handle) < 0) {
+    CACHE_REGS
     Yap_Error(SYSTEM_ERROR, ARG1, "dlclose error %s\n", dlerror());
     return -1;
   }
@@ -89,9 +91,9 @@ static Int
 LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
+  CACHE_REGS
 
   while (libs) {
-
     if (!Yap_TrueFileName(AtomName(libs->name), Yap_FileNameBuf, TRUE)) {
       /* use LD_LIBRARY_PATH */
       strncpy(Yap_FileNameBuf, AtomName(libs->name), YAP_FILENAME_MAX);

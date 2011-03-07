@@ -34,9 +34,9 @@ extern int errno;
 #endif
 #endif
 
-STATIC_PROTO(Int  p_compile_array_refs, (void));
-STATIC_PROTO(Int  p_array_refs_compiled, (void));
-STATIC_PROTO(Int  p_sync_mmapped_arrays, (void));
+STATIC_PROTO(Int  p_compile_array_refs, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_array_refs_compiled, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_sync_mmapped_arrays, ( USES_REGS1 ));
 
 /*
  * 
@@ -122,28 +122,117 @@ STATIC_PROTO(Int  p_sync_mmapped_arrays, (void));
  * 
  */
 
-STATIC_PROTO(Term AccessNamedArray, (Atom, Int));
-STATIC_PROTO(void InitNamedArray, (ArrayEntry *, Int));
-STATIC_PROTO(void CreateNamedArray, (PropEntry *, Int, AtomEntry *));
-STATIC_PROTO(void ResizeStaticArray, (StaticArrayEntry *, Int));
+STATIC_PROTO(Int  p_create_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_create_mmapped_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_array_references, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_create_static_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_resize_static_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_close_static_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_access_array, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_assign_static, ( USES_REGS1 ));
+STATIC_PROTO(Int  p_assign_dynamic, ( USES_REGS1 ));
+
 #if HAVE_MMAP
-STATIC_PROTO(Int  CloseMmappedArray, (StaticArrayEntry *, void *));
-STATIC_PROTO(void ResizeMmappedArray, (StaticArrayEntry *, Int, void *));
+
+#if HAVE_UNISTD_H
+#include <unistd.h>
 #endif
-STATIC_PROTO(Int  p_create_array, (void));
-STATIC_PROTO(Int  p_create_mmapped_array, (void));
-STATIC_PROTO(void replace_array_references_complex, (CELL *, CELL *, CELL *, Term));
-STATIC_PROTO(Term replace_array_references, (Term));
-STATIC_PROTO(Int  p_array_references, (void));
-STATIC_PROTO(Int  p_create_static_array, (void));
-STATIC_PROTO(Int  p_resize_static_array, (void));
-STATIC_PROTO(Int  p_close_static_array, (void));
-STATIC_PROTO(Int  p_access_array, (void));
-STATIC_PROTO(Int  p_assign_static, (void));
-STATIC_PROTO(Int  p_assign_dynamic, (void));
+#if HAVE_SYS_MMAN_H
+#include <sys/mman.h>
+#endif
+#if HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
+#if HAVE_FCNTL_H
+#include <fcntl.h>
+#endif
+
+/* keep a list of mmaped blocks to synch on exit */
+
+typedef struct MMAP_ARRAY_BLOCK {
+  Atom name;
+  void *start;
+  size_t  size;
+  Int items;
+  int  fd;
+  struct MMAP_ARRAY_BLOCK *next;
+} mmap_array_block;
+
+static mmap_array_block *mmap_arrays = NULL;
+
+static Int
+CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS)
+{
+  mmap_array_block *ptr = mmap_arrays, *optr = mmap_arrays;
+
+  while (ptr != NULL && ptr->start != area) {
+    ptr = ptr->next;
+    optr = ptr;
+  }
+  if (ptr == NULL) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
+    return(FALSE);
+  }
+  if (munmap(ptr->start, ptr->size) == -1) {
+      Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
+      return(FALSE);
+  }
+  optr->next = ptr->next;
+  pp->ValueOfVE.ints = NULL;
+  pp->ArrayEArity = 0;
+  if (close(ptr->fd) < 0) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
+    return(FALSE);
+  }
+  Yap_FreeAtomSpace((char *)ptr);
+  return(TRUE);
+}
+
+static void
+ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area USES_REGS)
+{
+  mmap_array_block *ptr = mmap_arrays;
+  size_t total_size; 
+  while (ptr != NULL && ptr->start != area) {
+    ptr = ptr->next;
+  }
+  if (ptr == NULL)
+    return;
+  /* This is a very stupid algorithm to change size for an array.
+
+     First, we unmap it, then we actually change the size for the file,
+     and last we initialise again
+  */
+  if (munmap(ptr->start, ptr->size) == -1) {
+      Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
+      return;
+  }
+  total_size = (ptr->size / ptr->items)*dim;
+  if (ftruncate(ptr->fd, total_size) < 0) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
+    return;
+  }
+  if (lseek(ptr->fd, total_size-1, SEEK_SET) < 0) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
+    return;
+  }
+  if (write(ptr->fd, "", 1) < 0) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
+    return;
+  }
+  if ((ptr->start = (void *)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, ptr->fd, 0)) == (void *) - 1) {
+    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
+    return;
+  }
+  ptr->size = total_size;
+  ptr->items = dim;
+  pp->ValueOfVE.chars = ptr->start;
+}
+
+#endif
 
 static Term
-GetTermFromArray(DBTerm *ref)
+GetTermFromArray(DBTerm *ref USES_REGS)
 {
   if (ref != NULL) {
     Term TRef;
@@ -171,7 +260,7 @@ GetTermFromArray(DBTerm *ref)
 }
 
 static Term
-GetNBTerm(live_term *ar, Int indx)
+GetNBTerm(live_term *ar, Int indx USES_REGS)
 {
   /* The object is now in use */
   Term livet = ar[indx].tlive;
@@ -196,7 +285,7 @@ GetNBTerm(live_term *ar, Int indx)
       livet = termt;
     } else {
       DBTerm *ref = (DBTerm *)RepAppl(termt);
-      if ((livet = GetTermFromArray(ref)) == TermNil) {
+      if ((livet = GetTermFromArray(ref PASS_REGS)) == TermNil) {
 	return TermNil;
       }
     }
@@ -206,7 +295,7 @@ GetNBTerm(live_term *ar, Int indx)
 }
 
 static Term
-AccessNamedArray(Atom a, Int indx)
+AccessNamedArray(Atom a, Int indx USES_REGS)
 {
   AtomEntry *ae = RepAtom(a);
   ArrayEntry *pp; 
@@ -332,7 +421,7 @@ AccessNamedArray(Atom a, Int indx)
       case array_of_nb_terms:
 	{
 	  /* The object is now in use */
-	  Term out = GetNBTerm(ptr->ValueOfVE.lterms, indx);
+	  Term out = GetNBTerm(ptr->ValueOfVE.lterms, indx PASS_REGS);
 
 	  READ_UNLOCK(ptr->ArRWLock);
 	  return out;
@@ -343,7 +432,7 @@ AccessNamedArray(Atom a, Int indx)
 	  DBTerm *ref = ptr->ValueOfVE.terms[indx];
 
 	  READ_UNLOCK(ptr->ArRWLock);
-	  return GetTermFromArray(ref);
+	  return GetTermFromArray(ref PASS_REGS);
 	}
       default:
 	READ_UNLOCK(ptr->ArRWLock);
@@ -359,7 +448,7 @@ AccessNamedArray(Atom a, Int indx)
 }
 
 static Int 
-p_access_array(void)
+p_access_array( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Term ti = Deref(ARG2);
@@ -389,7 +478,7 @@ p_access_array(void)
       }
       tf = (RepAppl(t))[indx + 1];
     } else if (IsAtomTerm(t)) {
-      tf = AccessNamedArray(AtomOfTerm(t), indx);
+      tf = AccessNamedArray(AtomOfTerm(t), indx PASS_REGS);
       if (tf == MkAtomTerm(AtomFoundVar)) {
 	return(FALSE);
       }
@@ -405,7 +494,7 @@ p_access_array(void)
 }
 
 static Int 
-p_array_arg(void)
+p_array_arg( USES_REGS1 )
 {
   register Term ti = Deref(ARG3), t;
   register Int indx;
@@ -430,7 +519,7 @@ p_array_arg(void)
       return (Yap_unify(((RepAppl(t))[indx + 1]), ARG1));
     }
     else if (IsAtomTerm(t)) {
-      Term tf = AccessNamedArray(AtomOfTerm(t), indx);
+      Term tf = AccessNamedArray(AtomOfTerm(t), indx PASS_REGS);
       if (tf == MkAtomTerm(AtomFoundVar)) {
 	return(FALSE);
       }
@@ -447,7 +536,7 @@ p_array_arg(void)
 }
 
 static void
-InitNamedArray(ArrayEntry * p, Int dim)
+InitNamedArray(ArrayEntry * p, Int dim USES_REGS)
 {
   Term *tp;
 
@@ -470,7 +559,7 @@ InitNamedArray(ArrayEntry * p, Int dim)
 
 /* we assume the atom ae is already locked */
 static void
-CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
+CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae USES_REGS)
 {
   ArrayEntry *p;
 
@@ -484,12 +573,12 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae)
 #endif
   p->NextAE = DynamicArrays;
   DynamicArrays = p;
-  InitNamedArray(p, dim);
+  InitNamedArray(p, dim PASS_REGS);
 
 }
 
 static void
-AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int array_size)
+AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int array_size USES_REGS)
 {
   Int asize = 0;
   switch (atype) {
@@ -529,7 +618,7 @@ AllocateStaticArraySpace(StaticArrayEntry *p, static_array_types atype, Int arra
 
 /* ae and p are assumed to be locked, if they exist */
 static StaticArrayEntry *
-CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p)
+CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR start_addr, StaticArrayEntry *p USES_REGS)
 {
   if (EndOfPAEntr(p)) {
     while ((p = (StaticArrayEntry *) Yap_AllocAtomSpace(sizeof(*p))) == NULL) {
@@ -551,7 +640,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
   if (start_addr == NULL) {
     int i;
 
-    AllocateStaticArraySpace(p, type, dim);
+    AllocateStaticArraySpace(p, type, dim PASS_REGS);
     if (p->ValueOfVE.ints == NULL) {
       WRITE_UNLOCK(p->ArRWLock);
       return p;
@@ -602,7 +691,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
 }
 
 static void
-ResizeStaticArray(StaticArrayEntry *pp, Int dim)
+ResizeStaticArray(StaticArrayEntry *pp, Int dim USES_REGS)
 {
   statarray_elements old_v = pp->ValueOfVE;
   static_array_types type = pp->ArrayType;
@@ -618,12 +707,12 @@ ResizeStaticArray(StaticArrayEntry *pp, Int dim)
 #if HAVE_MMAP
   if (pp->ValueOfVE.chars < (char *)Yap_HeapBase || 
       pp->ValueOfVE.chars > (char *)HeapTop) {
-    ResizeMmappedArray(pp, dim, (void *)(pp->ValueOfVE.chars));
+    ResizeMmappedArray(pp, dim, (void *)(pp->ValueOfVE.chars) PASS_REGS);
     WRITE_UNLOCK(pp->ArRWLock);
     return;
   }
 #endif
-  AllocateStaticArraySpace(pp, type, dim);
+  AllocateStaticArraySpace(pp, type, dim PASS_REGS);
   switch(type) {
   case array_of_ints:
     for (i = 0; i <mindim; i++)
@@ -779,7 +868,7 @@ ClearStaticArray(StaticArrayEntry *pp)
 
 /* create an array (?Name, + Size) */
 static Int 
-p_create_array(void)
+p_create_array( USES_REGS1 )
 {
   Term ti;
   Term t;
@@ -852,7 +941,7 @@ p_create_array(void)
 	} else
 	  goto restart;
       }
-      CreateNamedArray(pp, size, ae);
+      CreateNamedArray(pp, size, ae PASS_REGS);
       WRITE_UNLOCK(ae->ARWLock);
       return (TRUE);
     } else {
@@ -874,7 +963,7 @@ p_create_array(void)
 	  } else
 	    goto restart;
 	}
-	InitNamedArray(app, size);
+	InitNamedArray(app, size PASS_REGS);
 	return (TRUE);
       }
     }
@@ -884,7 +973,7 @@ p_create_array(void)
 
 /* create an array (+Name, + Size, +Props) */
 static Int 
-p_create_static_array(void)
+p_create_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG2);
   Term t = Deref(ARG1);
@@ -955,7 +1044,7 @@ p_create_static_array(void)
 
     app = (ArrayEntry *) pp;
     if (EndOfPAEntr(pp) || pp->ValueOfVE.ints == NULL) {
-      pp = CreateStaticArray(ae, size, props, NULL, pp);
+      pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
       if (pp == NULL || pp->ValueOfVE.ints == NULL) {
 	WRITE_UNLOCK(ae->ARWLock);
 	return FALSE;
@@ -964,7 +1053,7 @@ p_create_static_array(void)
       return TRUE;
     } else if (ArrayIsDynamic(app)) {
       if (IsVarTerm(app->ValueOfVE) && IsUnboundVar(&app->ValueOfVE)) {
-	pp = CreateStaticArray(ae, size, props, NULL, pp);
+	pp = CreateStaticArray(ae, size, props, NULL, pp PASS_REGS);
 	WRITE_UNLOCK(ae->ARWLock);
 	if (pp == NULL) {
 	  return FALSE;
@@ -992,7 +1081,7 @@ p_create_static_array(void)
 
 /* has a static array associated (+Name) */
 static Int 
-p_static_array_properties(void)
+p_static_array_properties( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -1046,7 +1135,7 @@ p_static_array_properties(void)
 /* resize a static array (+Name, + Size, +Props) */
 /* does not work for mmap arrays yet */
 static Int 
-p_resize_static_array(void)
+p_resize_static_array( USES_REGS1 )
 {
   Term ti = Deref(ARG3);
   Term t = Deref(ARG1);
@@ -1082,7 +1171,7 @@ p_resize_static_array(void)
       return(FALSE);
     } else {
       Int osize =  - pp->ArrayEArity;
-      ResizeStaticArray(pp, size);
+      ResizeStaticArray(pp, size PASS_REGS);
       return(Yap_unify(ARG2,MkIntegerTerm(osize)));
     }
   } else {
@@ -1094,7 +1183,7 @@ p_resize_static_array(void)
 /* resize a static array (+Name, + Size, +Props) */
 /* does not work for mmap arrays yet */
 static Int 
-p_clear_static_array(void)
+p_clear_static_array( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -1124,7 +1213,7 @@ p_clear_static_array(void)
 
 /* Close a named array (+Name) */
 static Int 
-p_close_static_array(void)
+p_close_static_array( USES_REGS1 )
 {
 /* does not work for mmap arrays yet */
   Term t = Deref(ARG1);
@@ -1151,7 +1240,7 @@ p_close_static_array(void)
 #if HAVE_MMAP
 	if (ptr->ValueOfVE.chars < (char *)Yap_HeapBase || 
 	    ptr->ValueOfVE.chars > (char *)HeapTop) {
-	  return(CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars));
+	  return(CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars PASS_REGS));
 	}
 #endif
 	Yap_FreeAtomSpace((char *)(ptr->ValueOfVE.ints));
@@ -1168,110 +1257,9 @@ p_close_static_array(void)
   }
 }
 
-#if HAVE_MMAP
-
-#if HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#if HAVE_SYS_MMAN_H
-#include <sys/mman.h>
-#endif
-#if HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-#if HAVE_FCNTL_H
-#include <fcntl.h>
-#endif
-
-STATIC_PROTO(void  ResizeMmappedArray, (StaticArrayEntry *,Int ,void *));
-
-/* keep a list of mmaped blocks to synch on exit */
-
-typedef struct MMAP_ARRAY_BLOCK {
-  Atom name;
-  void *start;
-  size_t  size;
-  Int items;
-  int  fd;
-  struct MMAP_ARRAY_BLOCK *next;
-} mmap_array_block;
-
-static mmap_array_block *mmap_arrays = NULL;
-
-static Int
-CloseMmappedArray(StaticArrayEntry *pp, void *area)
-{
-  mmap_array_block *ptr = mmap_arrays, *optr = mmap_arrays;
-
-  while (ptr != NULL && ptr->start != area) {
-    ptr = ptr->next;
-    optr = ptr;
-  }
-  if (ptr == NULL) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
-    return(FALSE);
-  }
-  if (munmap(ptr->start, ptr->size) == -1) {
-      Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
-      return(FALSE);
-  }
-  optr->next = ptr->next;
-  pp->ValueOfVE.ints = NULL;
-  pp->ArrayEArity = 0;
-  if (close(ptr->fd) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (close: %s)", strerror(errno));
-    return(FALSE);
-  }
-  Yap_FreeAtomSpace((char *)ptr);
-  return(TRUE);
-}
-
-static void
-ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area)
-{
-  mmap_array_block *ptr = mmap_arrays;
-  size_t total_size; 
-  while (ptr != NULL && ptr->start != area) {
-    ptr = ptr->next;
-  }
-  if (ptr == NULL)
-    return;
-  /* This is a very stupid algorithm to change size for an array.
-
-     First, we unmap it, then we actually change the size for the file,
-     and last we initialise again
-  */
-  if (munmap(ptr->start, ptr->size) == -1) {
-      Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (munmap: %s)", strerror(errno));
-      return;
-  }
-  total_size = (ptr->size / ptr->items)*dim;
-  if (ftruncate(ptr->fd, total_size) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (ftruncate: %s)", strerror(errno));
-    return;
-  }
-  if (lseek(ptr->fd, total_size-1, SEEK_SET) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (lseek: %s)", strerror(errno));
-    return;
-  }
-  if (write(ptr->fd, "", 1) < 0) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (write: %s)", strerror(errno));
-    return;
-  }
-  if ((ptr->start = (void *)mmap(0, (size_t) total_size, PROT_READ | PROT_WRITE, MAP_SHARED, ptr->fd, 0)) == (void *) - 1) {
-    Yap_Error(SYSTEM_ERROR,ARG1,"resize_mmapped_array (mmap: %s)", strerror(errno));
-    return;
-  }
-  ptr->size = total_size;
-  ptr->items = dim;
-  pp->ValueOfVE.chars = ptr->start;
-}
-
-#endif
-
 /* create an array (+Name, + Size, +Props) */
 static Int 
-p_create_mmapped_array(void)
+p_create_mmapped_array( USES_REGS1 )
 {
 #ifdef HAVE_MMAP
   Term ti = Deref(ARG2);
@@ -1382,7 +1370,7 @@ p_create_mmapped_array(void)
       } else {
 	WRITE_LOCK(pp->ArRWLock);
       }
-      CreateStaticArray(ae, size, props, array_addr, pp);
+      CreateStaticArray(ae, size, props, array_addr, pp PASS_REGS);
       ptr = (mmap_array_block *)Yap_AllocAtomSpace(sizeof(mmap_array_block));
       ptr->name = AbsAtom(ae);
       ptr->size = total_size;
@@ -1414,7 +1402,7 @@ static void
 replace_array_references_complex(register CELL *pt0,
 				 register CELL *pt0_end,
 				 register CELL *ptn,
-				 Term Var)
+				 Term Var USES_REGS)
 {
 
   register CELL **to_visit = (CELL **) Yap_PreAllocCodeSpace();
@@ -1524,7 +1512,7 @@ loop:
  * variables.
  */
 static Term 
-replace_array_references(Term t0)
+replace_array_references(Term t0 USES_REGS)
 {
   Term t;
 
@@ -1540,8 +1528,8 @@ replace_array_references(Term t0)
 
     H += 2;
     replace_array_references_complex(RepPair(t) - 1, RepPair(t) + 1, h0,
-				     VList);
-    return (MkPairTerm(AbsPair(h0), VList));
+				     VList PASS_REGS);
+    return MkPairTerm(AbsPair(h0), VList);
   } else {
     Term VList = MkVarTerm();
     CELL *h0 = H;
@@ -1551,15 +1539,15 @@ replace_array_references(Term t0)
     H += ArityOfFunctor(f);
     replace_array_references_complex(RepAppl(t),
 				     RepAppl(t) + ArityOfFunctor(FunctorOfTerm(t)), h0 + 1,
-				     VList);
+				     VList PASS_REGS);
     return (MkPairTerm(AbsAppl(h0), VList));
   }
 }
 
 static Int 
-p_array_references(void)
+p_array_references( USES_REGS1 )
 {
-  Term t = replace_array_references(ARG1);
+  Term t = replace_array_references(ARG1 PASS_REGS);
   Term t1 = HeadOfTerm(t);
   Term t2 = TailOfTerm(t);
 
@@ -1567,7 +1555,7 @@ p_array_references(void)
 }
 
 static Int 
-p_assign_static(void)
+p_assign_static( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -1899,7 +1887,7 @@ p_assign_static(void)
 }
 
 static Int 
-p_assign_dynamic(void)
+p_assign_dynamic( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -2039,7 +2027,7 @@ p_assign_dynamic(void)
 }
 
 static Int 
-p_add_to_array_element(void)
+p_add_to_array_element( USES_REGS1 )
 {
   Term t1, t2, t3;
   StaticArrayEntry *ptr;
@@ -2234,20 +2222,20 @@ p_add_to_array_element(void)
 }
 
 static Int 
-p_compile_array_refs(void)
+p_compile_array_refs( USES_REGS1 )
 {
   compile_arrays = TRUE;
   return (TRUE);
 }
 
 static Int 
-p_array_refs_compiled(void)
+p_array_refs_compiled( USES_REGS1 )
 {
   return compile_arrays;
 }
 
 static Int
-p_sync_mmapped_arrays(void)
+p_sync_mmapped_arrays( USES_REGS1 )
 {
 #ifdef HAVE_MMAP
   mmap_array_block *ptr = mmap_arrays;
@@ -2260,7 +2248,7 @@ p_sync_mmapped_arrays(void)
 }
 
 static Int
-p_static_array_to_term(void)
+p_static_array_to_term( USES_REGS1 )
 {
   Term t = Deref(ARG1);
 
@@ -2378,7 +2366,7 @@ p_static_array_to_term(void)
 	    /* The object is now in use */
 	    DBTerm *ref = pp->ValueOfVE.terms[indx];
 
-	    Term TRef = GetTermFromArray(ref);
+	    Term TRef = GetTermFromArray(ref PASS_REGS);
 
 	    if (P == FAILCODE) {
 	      return FALSE;
@@ -2394,7 +2382,7 @@ p_static_array_to_term(void)
 	  H += dim;
 	  for (indx=0; indx < dim; indx++) {
 	    /* The object is now in use */
-	    Term To = GetNBTerm(pp->ValueOfVE.lterms, indx);
+	    Term To = GetNBTerm(pp->ValueOfVE.lterms, indx PASS_REGS);
 
 	    if (P == FAILCODE) {
 	      return FALSE;
@@ -2423,7 +2411,7 @@ p_static_array_to_term(void)
 }
 
 static Int
-p_static_array_location(void)
+p_static_array_location( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   Int *ptr;
@@ -2452,7 +2440,7 @@ p_static_array_location(void)
 }
 
 void 
-Yap_InitArrayPreds(void)
+Yap_InitArrayPreds( void )
 {
   Yap_InitCPred("$create_array", 2, p_create_array, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$array_references", 3, p_array_references, SafePredFlag|HiddenPredFlag);

@@ -28,8 +28,8 @@ static char     SccsId[] = "%W% %G%";
 #include <wchar.h>
 
 STATIC_PROTO(Int compare, (Term, Term));
-STATIC_PROTO(Int p_compare, (void));
-STATIC_PROTO(Int p_acomp, (void));
+STATIC_PROTO(Int p_compare, ( USES_REGS1 ));
+STATIC_PROTO(Int p_acomp, ( USES_REGS1 ));
 STATIC_PROTO(Int a_eq, (Term,Term));
 STATIC_PROTO(Int a_dif, (Term,Term));
 STATIC_PROTO(Int a_gt, (Term, Term));
@@ -77,7 +77,7 @@ cmp_atoms(Atom a1, Atom a2)
 static int compare_complex(register CELL *pt0, register CELL *pt0_end, register
 		   CELL *pt1)
 {
-
+  CACHE_REGS
   register CELL **to_visit = (CELL **)H;
   register int out = 0;
 
@@ -447,7 +447,7 @@ int Yap_compare_terms(CELL d0, CELL d1)
 }
 
 static Int 
-p_compare(void)
+p_compare( USES_REGS1 )
 {				/* compare(?Op,?T1,?T2)	 */
   Int             r = compare(Deref(ARG2), Deref(ARG3));
   Atom            p;
@@ -479,7 +479,7 @@ flt_cmp(Float dif)
 
 
 static inline Int
-a_cmp(Term t1, Term t2)
+a_cmp(Term t1, Term t2 USES_REGS)
 {
   ArithError = FALSE;
   if (IsVarTerm(t1)) {
@@ -596,20 +596,22 @@ a_cmp(Term t1, Term t2)
 
 
 static Int 
-p_acomp(void)
+p_acomp( USES_REGS1 )
 {				/* $a_compare(?R,+X,+Y) */
   Term t1 = Deref(ARG1);
   Term t2 = Deref(ARG2);
   Int out;
 
-  out = a_cmp(t1, t2);
+  out = a_cmp(t1, t2 PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out;
 }
 
 static Int 
 a_eq(Term t1, Term t2)
-{				/* A =:= B		 */
+{
+  CACHE_REGS
+  /* A =:= B		 */
   int out;
 
   if (IsVarTerm(t1)) {
@@ -634,7 +636,7 @@ a_eq(Term t1, Term t2)
       return (FloatOfTerm(t2) == IntegerOfTerm(t1));
     }
   }
-  out = a_cmp(t1,t2);
+  out = a_cmp(t1,t2 PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out == 0;
 }
@@ -642,7 +644,8 @@ a_eq(Term t1, Term t2)
 static Int 
 a_dif(Term t1, Term t2)
 {
-  Int out = a_cmp(Deref(t1),Deref(t2));
+  CACHE_REGS
+  Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out != 0;
 }
@@ -650,7 +653,8 @@ a_dif(Term t1, Term t2)
 static Int 
 a_gt(Term t1, Term t2)
 {				/* A > B		 */
-  Int out = a_cmp(Deref(t1),Deref(t2));
+  CACHE_REGS
+  Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out > 0;
 }
@@ -658,7 +662,8 @@ a_gt(Term t1, Term t2)
 static Int 
 a_ge(Term t1, Term t2)
 {				/* A >= B		 */
-  Int out = a_cmp(Deref(t1),Deref(t2));
+  CACHE_REGS
+  Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out >= 0;
 }
@@ -666,7 +671,8 @@ a_ge(Term t1, Term t2)
 static Int 
 a_lt(Term t1, Term t2)
 {				/* A < B       */
-  Int out = a_cmp(Deref(t1),Deref(t2));
+  CACHE_REGS
+  Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out < 0;
 }
@@ -674,7 +680,8 @@ a_lt(Term t1, Term t2)
 static Int 
 a_le(Term t1, Term t2)
 {				/* A <= B */
-  Int out = a_cmp(Deref(t1),Deref(t2));
+  CACHE_REGS
+  Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
   if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out <= 0;
 }
@@ -701,13 +708,13 @@ a_gen_le(Term t1, Term t2)
 static Int 
 a_gen_gt(Term t1, Term t2)
 {
-  return (compare(t1, t2) > 0);
+  return compare(t1, t2) > 0;
 }
 
 static Int 
 a_gen_ge(Term t1, Term t2)
 {
-  return (compare(t1, t2) >= 0);
+  return compare(t1, t2) >= 0;
 }
 
 

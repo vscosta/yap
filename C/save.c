@@ -92,32 +92,31 @@ STATIC_PROTO(Int   putout, (CELL));
 STATIC_PROTO(Int   putcellptr, (CELL *));
 STATIC_PROTO(CELL  get_cell, (void));
 STATIC_PROTO(CELL  *get_cellptr, ( /* CELL * */ void));
-STATIC_PROTO(int   put_info, (int, int));
-STATIC_PROTO(int   save_regs, (int));
+STATIC_PROTO(int   put_info, (int, int CACHE_TYPE));
+STATIC_PROTO(int   save_regs, (int CACHE_TYPE));
 STATIC_PROTO(int   save_code_info, (void));
 STATIC_PROTO(int   save_heap, (void));
-STATIC_PROTO(int   save_stacks, (int));
+STATIC_PROTO(int   save_stacks, (int CACHE_TYPE));
 STATIC_PROTO(int   save_crc, (void));
-STATIC_PROTO(Int   do_save, (int));
-STATIC_PROTO(Int   p_save2, (void));
-STATIC_PROTO(Int   p_save_program, (void));
-STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL *));
-STATIC_PROTO(int   get_heap_info, (void));
-STATIC_PROTO(int   get_regs, (int));
+STATIC_PROTO(Int   do_save, (int CACHE_TYPE));
+STATIC_PROTO(Int   p_save2, ( CACHE_TYPE1 ));
+STATIC_PROTO(Int   p_save_program, ( CACHE_TYPE1 ));
+STATIC_PROTO(int   check_header, (CELL *, CELL *, CELL *, CELL * CACHE_TYPE));
+STATIC_PROTO(int   get_heap_info, (CACHE_TYPE1));
+STATIC_PROTO(int   get_regs, (int CACHE_TYPE));
 STATIC_PROTO(int   get_insts, (OPCODE []));
 STATIC_PROTO(int   get_hash, (void));
-STATIC_PROTO(int   CopyCode, (void));
-STATIC_PROTO(int   CopyStacks, (void));
-STATIC_PROTO(int   get_coded, (int, OPCODE []));
+STATIC_PROTO(int   CopyCode, ( CACHE_TYPE1 ));
+STATIC_PROTO(int   CopyStacks, ( CACHE_TYPE1 ));
+STATIC_PROTO(int   get_coded, (int, OPCODE [] CACHE_TYPE));
 STATIC_PROTO(void  restore_codes, (void));
-STATIC_PROTO(Term  AdjustDBTerm, (Term, Term *));
-STATIC_PROTO(void  RestoreDB, (DBEntry *));
-STATIC_PROTO(void  RestoreDBTerm, (DBTerm *, int));
-STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry *));
-STATIC_PROTO(void  rehash, (CELL *, int, int));
-STATIC_PROTO(void  CleanCode, (PredEntry *));
-STATIC_PROTO(void  RestoreEntries, (PropEntry *, int));
-STATIC_PROTO(void  RestoreFreeSpace, (void));
+STATIC_PROTO(void  RestoreDB, (DBEntry * CACHE_TYPE));
+STATIC_PROTO(void  RestoreDBTerm, (DBTerm *, int CACHE_TYPE));
+STATIC_PROTO(void  CleanClauses, (yamop *, yamop *,PredEntry * CACHE_TYPE));
+STATIC_PROTO(void  rehash, (CELL *, int, int CACHE_TYPE));
+STATIC_PROTO(void  CleanCode, (PredEntry * CACHE_TYPE));
+STATIC_PROTO(void  RestoreEntries, (PropEntry *, int CACHE_TYPE));
+STATIC_PROTO(void  RestoreFreeSpace, ( CACHE_TYPE1 ));
 STATIC_PROTO(void  restore_heap, (void));
 #ifdef DEBUG_RESTORE3
 STATIC_PROTO(void  ShowAtoms, (void));
@@ -128,10 +127,10 @@ STATIC_PROTO(void  CloseRestore, (void));
 #ifndef _WIN32
 STATIC_PROTO(int  check_opcodes, (OPCODE []));
 #endif
-STATIC_PROTO(void  RestoreHeap, (OPCODE []));
-STATIC_PROTO(Int  p_restore, (void));
-STATIC_PROTO(void  restore_heap_regs, (void));
-STATIC_PROTO(void  restore_regs, (int));
+STATIC_PROTO(void  RestoreHeap, (OPCODE [] CACHE_TYPE));
+STATIC_PROTO(Int  p_restore, ( CACHE_TYPE1 ));
+STATIC_PROTO(void  restore_heap_regs, ( CACHE_TYPE1 ));
+STATIC_PROTO(void  restore_regs, (int CACHE_TYPE));
 #ifdef MACYAP
 STATIC_PROTO(void NewFileInfo, (long, long));
 extern int      DefVol;
@@ -162,6 +161,7 @@ LightBug(s)
 static Int
 do_system_error(yap_error_number etype, const char *msg)
 {
+  CACHE_REGS
 #if HAVE_SNPRINTF
 #if HAVE_STRERROR
   snprintf(Yap_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), Yap_FileNameBuf);
@@ -335,7 +335,7 @@ get_cellptr(void)
  * set, the work size, and the space ocuppied 
  */
 static int 
-put_info(int info, int mode)
+put_info(int info, int mode USES_REGS)
 {
   char     msg[256];
 
@@ -373,7 +373,7 @@ put_info(int info, int mode)
 }
 
 static int
-save_regs(int mode)
+save_regs(int mode USES_REGS)
 {
   /* save all registers */
   if (putout((CELL)compile_arrays) < 0)
@@ -516,7 +516,7 @@ save_heap(void)
 }
 
 static int
-save_stacks(int mode)
+save_stacks(int mode USES_REGS)
 {
   int j;
   
@@ -572,7 +572,7 @@ save_crc(void)
 }
 
 static Int
-do_save(int mode) {
+do_save(int mode USES_REGS) {
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
@@ -590,15 +590,15 @@ do_save(int mode) {
 	  "restore/1, open(%s)", strerror(errno));
     return(FALSE);
   }
-  if (put_info(FullSaved, mode) < 0)
+  if (put_info(FullSaved, mode PASS_REGS) < 0)
     return -1;
-  if (save_regs(mode) < 0)
+  if (save_regs(mode PASS_REGS) < 0)
     return -1;
   if (save_code_info() < 0)
     return -1;
   if (save_heap() < 0)
     return -1;
-  if (save_stacks(mode) < 0)
+  if (save_stacks(mode PASS_REGS) < 0)
     return -1;
   if (save_crc() < 0)
     return -1;
@@ -608,7 +608,7 @@ do_save(int mode) {
 
 /* Saves a complete prolog environment */
 static Int 
-p_save2(void)
+p_save2( USES_REGS1 )
 {
   Int res;
 
@@ -632,25 +632,25 @@ p_save2(void)
   if (!Yap_unify(ARG2,MkIntTerm(1)))
     return FALSE;
   which_save = 2;
-  Yap_StartSlots();
-  res = do_save(DO_EVERYTHING);
-  Yap_CloseSlots();
+  Yap_StartSlots( PASS_REGS1 );
+  res = do_save(DO_EVERYTHING PASS_REGS);
+  Yap_CloseSlots( PASS_REGS1 );
   return res;
 }
 
 /* Just save the program, not the stacks */
 static Int 
-p_save_program(void)
+p_save_program( USES_REGS1 )
 {
   which_save = 0;
-  return do_save(DO_ONLY_CODE);
+  return do_save(DO_ONLY_CODE PASS_REGS);
 }
 
 /* Now, to restore the saved code */
 
 /* First check out if we are dealing with a valid file */
 static int 
-check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
+check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
 {
   char pp[256];
   char msg[256];
@@ -756,7 +756,7 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap)
 
 /* Gets the state of the heap, and evaluates the related variables */
 static int 
-get_heap_info(void)
+get_heap_info(USES_REGS1)
 {
   OldHeapBase = (ADDR) get_cellptr();
   if (Yap_ErrorMessage)
@@ -797,7 +797,7 @@ get_heap_info(void)
 /* Saves the old bases for the work areas */
 /* and evaluates the difference from the old areas to the new ones */
 static int 
-get_regs(int flag)
+get_regs(int flag USES_REGS)
 {
   CELL           *NewGlobalBase = (CELL *)Yap_GlobalBase;
   CELL           *NewLCL0 = LCL0;
@@ -897,7 +897,7 @@ get_regs(int flag)
   XDiff =  (CELL)XREGS - (CELL)OldXREGS;
   if (Yap_ErrorMessage)
     return -1;
-  if (get_heap_info() < 0)
+  if (get_heap_info( PASS_REGS1 ) < 0)
     return -1;
   if (flag == DO_EVERYTHING) {
     ARG1 = get_cell();
@@ -944,7 +944,7 @@ get_hash(void)
 
 /* Copy all of the old code to the new Heap */
 static int 
-CopyCode(void)
+CopyCode( USES_REGS1 )
 {
   if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0) {
     return -1;
@@ -955,7 +955,7 @@ CopyCode(void)
 /* Copy the local and global stack and also the trail to their new home */
 /* In REGS we still have nonadjusted values !! */
 static int 
-CopyStacks(void)
+CopyStacks( USES_REGS1 )
 {
   Int             j;
   char           *NewASP;
@@ -976,7 +976,7 @@ CopyStacks(void)
 /* Copy the local and global stack and also the trail to their new home */
 /* In REGS we still have nonadjusted values !! */
 static int
-CopyTrailEntries(void)
+CopyTrailEntries( USES_REGS1 )
 {
   CELL           entry, *Entries;
 
@@ -991,25 +991,25 @@ CopyTrailEntries(void)
 
 /* get things which are saved in the file */
 static int 
-get_coded(int flag, OPCODE old_ops[])
+get_coded(int flag, OPCODE old_ops[] USES_REGS)
 {
   char my_end_msg[256];
   
-  if (get_regs(flag) < 0)
+  if (get_regs(flag PASS_REGS) < 0)
     return -1;
   if (get_insts(old_ops) < 0)
     return -1;
   if (get_hash() < 0)
     return -1;
-  if (CopyCode() < 0)
+  if (CopyCode( PASS_REGS1 ) < 0)
     return -1;
   switch (flag) {
   case DO_EVERYTHING:
-    if (CopyStacks() < 0)
+    if (CopyStacks( PASS_REGS1 ) < 0)
       return -1;
     break;
   case DO_ONLY_CODE:
-    if (CopyTrailEntries() < 0)
+    if (CopyTrailEntries( PASS_REGS1 ) < 0)
       return -1;
     break;
   }
@@ -1025,7 +1025,7 @@ get_coded(int flag, OPCODE old_ops[])
 
 /* restore some heap registers */
 static void 
-restore_heap_regs(void)
+restore_heap_regs( USES_REGS1 )
 {
   if (HeapTop) {
     HeapTop = AddrAdjust(HeapTop);
@@ -1037,9 +1037,9 @@ restore_heap_regs(void)
 
 /* adjust abstract machine registers */
 static void 
-restore_regs(int flag)
+restore_regs(int flag USES_REGS)
 {
-  restore_heap_regs();
+  restore_heap_regs( PASS_REGS1 );
   if (CurrentModule) {
     CurrentModule = AtomTermAdjust(CurrentModule);;
   }
@@ -1056,7 +1056,7 @@ restore_regs(int flag)
     S = PtoGloAdjust(S);
     if (EX) {
       EX = DBTermAdjust(EX);
-      RestoreDBTerm(EX, TRUE);
+      RestoreDBTerm(EX, TRUE PASS_REGS);
     }
     WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
   }
@@ -1124,7 +1124,7 @@ recompute_mask(DBRef dbr)
  * previous "hit" order 
  */
 static void 
-rehash(CELL *oldcode, int NOfE, int KindOfEntries)
+rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
 {
   register CELL  *savep, *basep;
   CELL           *oldp = oldcode;
@@ -1207,7 +1207,7 @@ RestoreIOStructures(void)
 }
 
 static void 
-RestoreFreeSpace(void)
+RestoreFreeSpace( USES_REGS1 )
 {
 #if USE_DL_MALLOC
   Yap_av = (struct malloc_state *)AddrAdjust((ADDR)Yap_av);
@@ -1255,7 +1255,7 @@ RestoreFreeSpace(void)
 }
 
 static void
-RestoreAtomList(Atom atm)
+RestoreAtomList(Atom atm USES_REGS)
 {
   AtomEntry      *at;
 
@@ -1263,14 +1263,14 @@ RestoreAtomList(Atom atm)
   if (EndOfPAEntr(at))
     return;
   do {
-    RestoreAtom(at);
+    RestoreAtom(at PASS_REGS);
     at = RepAtom(at->NextOfAE);
   } while (!EndOfPAEntr(at));
 }
 
 
 static void
-RestoreHashPreds(void)
+RestoreHashPreds( USES_REGS1 )
 {
   UInt size = PredHashTableSize;
   int malloced = FALSE;
@@ -1301,7 +1301,7 @@ RestoreHashPreds(void)
       if (p->NextOfPE)
 	p->NextOfPE = PropAdjust(p->NextOfPE);
       nextp = p->NextOfPE;
-      CleanCode(p);
+      CleanCode(p PASS_REGS);
       hsh = PRED_HASH(p->FunctorOfPred, p->ModuleOfPred, size);
       p->NextOfPE = AbsPredProp(np[hsh]);
       np[hsh] = p;
@@ -1375,9 +1375,10 @@ ShowAtoms()
 
 static int
 commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap) {
+  CACHE_REGS
   int mode;
 
-  if ((mode = check_header(Astate,ATrail,AStack,AHeap)) == FAIL_RESTORE)
+  if ((mode = check_header(Astate,ATrail,AStack,AHeap PASS_REGS)) == FAIL_RESTORE)
     return(FAIL_RESTORE);
   Yap_PrologMode = BootMode;
   if (Yap_HeapBase) {
@@ -1418,6 +1419,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
   if (buf[0] == '\0')
     strncpy(buf, inpf, YAP_FILENAME_MAX);
   if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
+    CACHE_REGS
     Yap_ErrorMessage = NULL;
     return mode;
   }
@@ -1427,6 +1429,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
 static int 
 OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
+  CACHE_REGS
   int mode = FAIL_RESTORE;
   char save_buffer[YAP_FILENAME_MAX+1];
 
@@ -1580,7 +1583,7 @@ check_opcodes(OPCODE old_ops[])
 #endif
 
 static void 
-RestoreHeap(OPCODE old_ops[])
+RestoreHeap(OPCODE old_ops[] USES_REGS)
 {
   int heap_moved = (OldHeapBase != Yap_HeapBase ||
 		    XDiff), opcodes_moved;
@@ -1597,7 +1600,7 @@ RestoreHeap(OPCODE old_ops[])
   /* opcodes_moved has side-effects and should be tried first */
   if (heap_moved) {
     opcodes_moved = TRUE;
-    RestoreFreeSpace();
+    RestoreFreeSpace( PASS_REGS1 );
   }
   if (heap_moved || opcodes_moved) {
     restore_heap();
@@ -1644,7 +1647,7 @@ Yap_SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL 
 }
 
 static void
-UnmarkTrEntries(void)
+UnmarkTrEntries( USES_REGS1 )
 {
   CELL           entry, *Entries;
 
@@ -1713,7 +1716,7 @@ FreeRecords(void) {
  * associated registers 
  */
 static int 
-Restore(char *s, char *lib_dir)
+Restore(char *s, char *lib_dir USES_REGS)
 {
   int restore_mode;
 
@@ -1724,12 +1727,12 @@ Restore(char *s, char *lib_dir)
     return(FALSE);
   Yap_ShutdownLoadForeign();
   in_limbo = TRUE;
-  if (get_coded(restore_mode, old_ops) < 0)
+  if (get_coded(restore_mode, old_ops PASS_REGS) < 0)
      return FAIL_RESTORE;  
-  restore_regs(restore_mode);
+  restore_regs(restore_mode PASS_REGS);
   in_limbo = FALSE;
   /*#endif*/
-  RestoreHeap(old_ops);
+  RestoreHeap(old_ops PASS_REGS);
   switch(restore_mode) {
   case DO_EVERYTHING:
     if (OldHeapBase != Yap_HeapBase ||
@@ -1749,7 +1752,7 @@ Restore(char *s, char *lib_dir)
     }
     break;
   case DO_ONLY_CODE:
-    UnmarkTrEntries();
+    UnmarkTrEntries( PASS_REGS1 );
     Yap_InitYaamRegs();
     break;
   }
@@ -1777,11 +1780,12 @@ Restore(char *s, char *lib_dir)
 int 
 Yap_Restore(char *s, char *lib_dir)
 {
-  return Restore(s, lib_dir);
+  CACHE_REGS
+  return Restore(s, lib_dir PASS_REGS);
 }
 
 static Int 
-p_restore(void)
+p_restore( USES_REGS1 )
 {
   int mode;
   char s[YAP_FILENAME_MAX+1];
@@ -1802,7 +1806,7 @@ p_restore(void)
     Yap_Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);
   }
-  if ((mode = Restore(s, NULL)) == DO_ONLY_CODE) {
+  if ((mode = Restore(s, NULL PASS_REGS)) == DO_ONLY_CODE) {
 #if PUSH_REGS
     restore_absmi_regs(&Yap_standard_regs);
 #endif

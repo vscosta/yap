@@ -745,7 +745,7 @@ static InitUnEntry InitUnTab[] = {
 };
 
 static Int 
-p_unary_is(void)
+p_unary_is( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG2);
   Term top;
@@ -790,7 +790,7 @@ p_unary_is(void)
 }
 
 static Int 
-p_unary_op_as_integer(void)
+p_unary_op_as_integer( USES_REGS1 )
 {				/* X is Y	 */
   Term t = Deref(ARG1);
 

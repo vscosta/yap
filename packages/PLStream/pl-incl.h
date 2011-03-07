@@ -33,6 +33,7 @@
 /* vsc: needs defining before getting rid of YAP locks */
 static inline int
 do_startCritical(void) {
+  CACHE_REGS
   YAPEnterCriticalSection();
   return 1;
 }

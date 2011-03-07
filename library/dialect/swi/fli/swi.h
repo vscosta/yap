@@ -98,6 +98,7 @@ SWIAtomToAtom(atom_t at)
 static inline Term
 SWIModuleToModule(module_t m)
 {
+  CACHE_REGS
   if (m)
     return (CELL)m;
   if (CurrentModule)

@@ -144,25 +144,25 @@
     case _copy_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _expand_index:
-      return found_expand(pc, startp, endp);
+      return found_expand(pc, startp, endp PASS_REGS);
     case _index_pred:
-      return found_owner_op(pc, startp, endp);
+      return found_owner_op(pc, startp, endp PASS_REGS);
     case _lock_pred:
-      return found_owner_op(pc, startp, endp);
+      return found_owner_op(pc, startp, endp PASS_REGS);
     case _op_fail:
       if (codeptr == FAILCODE)
-        return found_fail(pc, startp, endp);
+        return found_fail(pc, startp, endp PASS_REGS);
       pc = NEXTOP(pc,e);
       break;
     case _spy_pred:
-      return found_owner_op(pc, startp, endp);
+      return found_owner_op(pc, startp, endp PASS_REGS);
     case _trust_fail:
       if (codeptr == TRUSTFAILCODE)
-        return found_fail(pc, startp, endp);
+        return found_fail(pc, startp, endp PASS_REGS);
       pc = NEXTOP(pc,e);
       break;
     case _undef_p:
-      return found_owner_op(pc, startp, endp);
+      return found_owner_op(pc, startp, endp PASS_REGS);
     case _unify_idb_term:
       return found_idb_clause(pc, startp, endp);
     case _allocate:
@@ -195,7 +195,7 @@
       break;
       /* instructions type l */
     case _Ystop:
-      return found_ystop(pc, clause_code, startp, endp, pp);
+      return found_ystop(pc, clause_code, startp, endp, pp PASS_REGS);
     case _jump:
     case _jump_if_var:
     case _move_back:
@@ -402,7 +402,7 @@
       break;
       /* instructions type sssllp */
     case _expand_clauses:
-      return found_expand_index(pc, startp, endp, codeptr);
+      return found_expand_index(pc, startp, endp, codeptr PASS_REGS);
       pc = NEXTOP(pc,sssllp);
       break;
       /* instructions type x */

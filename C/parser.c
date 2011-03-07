@@ -68,11 +68,11 @@ typedef struct jmp_buff_struct {
 	sigjmp_buf JmpBuff;
 } JMPBUFF;
 
-STATIC_PROTO(void GNextToken, (void));
-STATIC_PROTO(void checkfor, (Term, JMPBUFF *));
-STATIC_PROTO(Term ParseArgs, (Atom, JMPBUFF *));
-STATIC_PROTO(Term ParseList, (JMPBUFF *));
-STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
+STATIC_PROTO(void GNextToken, ( CACHE_TYPE1 ));
+STATIC_PROTO(void checkfor, (Term, JMPBUFF * CACHE_TYPE));
+STATIC_PROTO(Term ParseArgs, (Atom, JMPBUFF * CACHE_TYPE));
+STATIC_PROTO(Term ParseList, (JMPBUFF * CACHE_TYPE));
+STATIC_PROTO(Term ParseTerm, (int, JMPBUFF * CACHE_TYPE));
 
 
 #define TRY(S,P)                               \
@@ -118,6 +118,7 @@ STATIC_PROTO(Term ParseTerm, (int, JMPBUFF *));
 VarEntry *
 Yap_LookupVar(char *var)	/* lookup variable in variables table   */
 {
+  CACHE_REGS
   VarEntry *p;
 
 #ifdef DEBUG
@@ -172,20 +173,20 @@ Yap_LookupVar(char *var)	/* lookup variable in variables table   */
 }
 
 static Term
-VarNames(VarEntry *p,Term l)
+VarNames(VarEntry *p,Term l USES_REGS)
 {
   if (p != NULL) {
     if (strcmp(p->VarRep, "_") != 0) {
       Term o = MkPairTerm(MkPairTerm(Yap_StringToList(p->VarRep), p->VarAdr),
 			  VarNames(p->VarRight,
-				   VarNames(p->VarLeft,l)));
+				   VarNames(p->VarLeft,l PASS_REGS) PASS_REGS));
       if (H > ASP-4096) {
 	save_machine_regs();
 	siglongjmp(Yap_IOBotch,1);
       }  
       return(o);
     } else {
-      return(VarNames(p->VarRight,VarNames(p->VarLeft,l)));
+      return VarNames(p->VarRight,VarNames(p->VarLeft,l PASS_REGS) PASS_REGS);
     }
   } else {
     return (l);
@@ -195,15 +196,16 @@ VarNames(VarEntry *p,Term l)
 Term
 Yap_VarNames(VarEntry *p,Term l)
 {
-  return VarNames(p,l);
+  CACHE_REGS
+  return VarNames(p,l PASS_REGS);
 }
 
 static int
-IsPrefixOp(Atom op,int  *pptr, int *rpptr)
+IsPrefixOp(Atom op,int  *pptr, int *rpptr USES_REGS)
 {
   int p;
 
-  OpEntry *opp = Yap_GetOpProp(op, PREFIX_OP);
+  OpEntry *opp = Yap_GetOpProp(op, PREFIX_OP PASS_REGS);
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
@@ -224,15 +226,16 @@ IsPrefixOp(Atom op,int  *pptr, int *rpptr)
 int
 Yap_IsPrefixOp(Atom op,int  *pptr, int *rpptr)
 {
-  return IsPrefixOp(op,pptr,rpptr);
+  CACHE_REGS
+  return IsPrefixOp(op,pptr,rpptr PASS_REGS);
 }
 
 static int
-IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr)
+IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr USES_REGS)
 {
   int p;
 
-  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP);
+  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP PASS_REGS);
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
@@ -255,15 +258,16 @@ IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr)
 int
 Yap_IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr)
 {
-  return IsInfixOp(op, pptr, lpptr, rpptr);
+  CACHE_REGS
+  return IsInfixOp(op, pptr, lpptr, rpptr PASS_REGS);
 }
 
 static int
-IsPosfixOp(Atom op, int *pptr, int *lpptr)
+IsPosfixOp(Atom op, int *pptr, int *lpptr USES_REGS)
 {
   int p;
 
-  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP);
+  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP PASS_REGS);
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
@@ -284,11 +288,12 @@ IsPosfixOp(Atom op, int *pptr, int *lpptr)
 int
 Yap_IsPosfixOp(Atom op, int *pptr, int *lpptr)
 {
-  return IsPosfixOp(op, pptr, lpptr);
+  CACHE_REGS
+  return IsPosfixOp(op, pptr, lpptr PASS_REGS);
 }
 
 inline static void
-GNextToken(void)
+GNextToken( USES_REGS1 )
 {
 	if (Yap_tokptr->Tok == Ord(eot_tok))
 		return;
@@ -304,7 +309,7 @@ GNextToken(void)
 }
 
 inline static void
-checkfor(Term c, JMPBUFF *FailBuff)
+checkfor(Term c, JMPBUFF *FailBuff USES_REGS)
 {
   if (Yap_tokptr->Tok != Ord(Ponctuation_tok)
       || Yap_tokptr->TokInfo != c)
@@ -313,7 +318,7 @@ checkfor(Term c, JMPBUFF *FailBuff)
 }
 
 static Term
-ParseArgs(Atom a, JMPBUFF *FailBuff)
+ParseArgs(Atom a, JMPBUFF *FailBuff USES_REGS)
 {
   int nargs = 0;
   Term *p, t;
@@ -330,7 +335,7 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
       Yap_ErrorMessage = "Trail Overflow";
       FAIL;
     }
-    *tp++ = Unsigned(ParseTerm(999, FailBuff));
+    *tp++ = Unsigned(ParseTerm(999, FailBuff PASS_REGS));
     ParserAuxSp = (char *)tp;
     ++nargs;
     if (Yap_tokptr->Tok != Ord(Ponctuation_tok))
@@ -369,13 +374,13 @@ ParseArgs(Atom a, JMPBUFF *FailBuff)
     return TermNil;
   }  
   /* check for possible overflow against local stack */
-  checkfor((Term) ')', FailBuff);
+  checkfor((Term) ')', FailBuff PASS_REGS);
   return t;
 }
 
 
 static Term
-ParseList(JMPBUFF *FailBuff)
+ParseList(JMPBUFF *FailBuff USES_REGS)
 {
   Term o;
   CELL *to_store;
@@ -383,14 +388,14 @@ ParseList(JMPBUFF *FailBuff)
  loop:
   to_store = H;
   H+=2;
-  to_store[0] = ParseTerm(999, FailBuff);
+  to_store[0] = ParseTerm(999, FailBuff PASS_REGS);
   if (Yap_tokptr->Tok == Ord(Ponctuation_tok)) {
     if (((int) Yap_tokptr->TokInfo) == ',') {
       NextToken;
       if (Yap_tokptr->Tok == Ord(Name_tok)
 	  && strcmp(RepAtom((Atom)(Yap_tokptr->TokInfo))->StrOfAE, "..") == 0) {
 	NextToken;
-	to_store[1] = ParseTerm(999, FailBuff);
+	to_store[1] = ParseTerm(999, FailBuff PASS_REGS);
       } else {
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -404,7 +409,7 @@ ParseList(JMPBUFF *FailBuff)
       }
     } else if (((int) Yap_tokptr->TokInfo) == '|') {
       NextToken;
-      to_store[1] = ParseTerm(999, FailBuff);
+      to_store[1] = ParseTerm(999, FailBuff PASS_REGS);
     } else {
       to_store[1] = MkAtomTerm(AtomNil);
     }
@@ -422,7 +427,7 @@ ParseList(JMPBUFF *FailBuff)
 #endif
 
 static Term
-ParseTerm(int prio, JMPBUFF *FailBuff)
+ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
 {
   /* parse term with priority prio */
   Volatile Term t;
@@ -437,7 +442,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     NextToken;
     if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
 	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
-	&& IsPrefixOp((Atom)t, &opprio, &oprprio)
+	&& IsPrefixOp((Atom)t, &opprio, &oprprio PASS_REGS)
 	) {
       /* special rules apply for +1, -2.3, etc... */
       if (Yap_tokptr->Tok == Number_tok) {
@@ -492,7 +497,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	    Yap_ErrorMessage = "Heap Overflow";
 	    FAIL;
 	  }
-	  t = ParseTerm(oprprio, FailBuff);
+	  t = ParseTerm(oprprio, FailBuff PASS_REGS);
 	  t = Yap_MkApplTerm(func, 1, &t);
 	  /* check for possible overflow against local stack */
 	  if (H > ASP-4096) {
@@ -507,7 +512,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     }
     if (Yap_tokptr->Tok == Ord(Ponctuation_tok)
 	&& Unsigned(Yap_tokptr->TokInfo) == 'l')
-      t = ParseArgs((Atom) t, FailBuff);
+      t = ParseArgs((Atom) t, FailBuff PASS_REGS);
     else
       t = MkAtomTerm((Atom)t);
     break;
@@ -568,24 +573,24 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     case '(':
     case 'l':	/* non solo ( */
       NextToken;
-      t = ParseTerm(1200, FailBuff);
-      checkfor((Term) ')', FailBuff);
+      t = ParseTerm(1200, FailBuff PASS_REGS);
+      checkfor((Term) ')', FailBuff PASS_REGS);
       break;
     case '[':
       NextToken;
-      t = ParseList(FailBuff);
-      checkfor((Term) ']', FailBuff);
+      t = ParseList(FailBuff PASS_REGS);
+      checkfor((Term) ']', FailBuff PASS_REGS);
       break;
     case '{':
       NextToken;
-      t = ParseTerm(1200, FailBuff);
+      t = ParseTerm(1200, FailBuff PASS_REGS);
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */
       if (H > ASP-4096) {
 	Yap_ErrorMessage = "Stack Overflow";
 	FAIL;
       }  
-      checkfor((Term) '}', FailBuff);
+      checkfor((Term) '}', FailBuff PASS_REGS);
       break;
     default:
       FAIL;
@@ -602,7 +607,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
     if (Yap_tokptr->Tok == Ord(Name_tok)
 	&& Yap_HasOp((Atom)(Yap_tokptr->TokInfo))) {
       Atom save_opinfo = opinfo = (Atom)(Yap_tokptr->TokInfo);
-      if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio) 
+      if (IsInfixOp(save_opinfo, &opprio, &oplprio, &oprprio PASS_REGS) 
 	  && opprio <= prio && oplprio >= curprio) {
 	/* try parsing as infix operator */
 	Volatile int oldprio = curprio;
@@ -616,7 +621,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	     {
 	       Term args[2];
 	       args[0] = t;
-	       args[1] = ParseTerm(oprprio, FailBuff);
+	       args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
 	       t = Yap_MkApplTerm(func, 2, args);
 	       /* check for possible overflow against local stack */
 	       if (H > ASP-4096) {
@@ -632,7 +637,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	       curprio = oldprio;
 	     )
       }
-      if (IsPosfixOp(opinfo, &opprio, &oplprio)
+      if (IsPosfixOp(opinfo, &opprio, &oplprio PASS_REGS)
 	  && opprio <= prio && oplprio >= curprio) {
 	/* parse as posfix operator */
 	Functor func = Yap_MkFunctor((Atom) Yap_tokptr->TokInfo, 1);
@@ -658,7 +663,7 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(1000, FailBuff);
+	args[1] = ParseTerm(1000, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorComma, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -668,12 +673,12 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 	curprio = 1000;
 	continue;
       } else if (Unsigned(Yap_tokptr->TokInfo) == '|' &&
-                IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio)
+                IsInfixOp(AtomVBar, &opprio, &oplprio, &oprprio PASS_REGS)
                 && opprio <= prio && oplprio >= curprio) {
 	Volatile Term args[2];
 	NextToken;
 	args[0] = t;
-	args[1] = ParseTerm(oprprio, FailBuff);
+	args[1] = ParseTerm(oprprio, FailBuff PASS_REGS);
 	t = Yap_MkApplTerm(FunctorVBar, 2, args);
 	/* check for possible overflow against local stack */
 	if (H > ASP-4096) {
@@ -703,11 +708,12 @@ ParseTerm(int prio, JMPBUFF *FailBuff)
 Term
 Yap_Parse(void)
 {
+  CACHE_REGS
   Volatile Term t;
   JMPBUFF FailBuff;
 
   if (!sigsetjmp(FailBuff.JmpBuff, 0)) {
-    t = ParseTerm(1200, &FailBuff);
+    t = ParseTerm(1200, &FailBuff PASS_REGS);
     if (Yap_tokptr->Tok != Ord(eot_tok))
       return (0L);
     return (t);

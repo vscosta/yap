@@ -284,6 +284,7 @@ void PUT_OUT_REQUESTABLE(int p) {
 
 static inline 
 void SCH_update_local_or_tops(void) {
+  CACHE_REGS
   Set_LOCAL_top_cp(Get_LOCAL_top_cp()->cp_b);
   LOCAL_top_or_fr = Get_LOCAL_top_cp()->cp_or_fr;
   return;
@@ -292,6 +293,7 @@ void SCH_update_local_or_tops(void) {
 
 static inline
 void SCH_refuse_share_request_if_any(void)  {
+  CACHE_REGS
   if (SCH_any_share_request) {
     REMOTE_reply_signal(LOCAL_share_request) = no_sharing;
     LOCAL_share_request = MAX_WORKERS;
@@ -303,6 +305,7 @@ void SCH_refuse_share_request_if_any(void)  {
 
 static inline 
 void SCH_set_load(choiceptr current_cp) {
+  CACHE_REGS
   Int lub;  /* local untried branches */
   choiceptr previous_cp = current_cp->cp_b;
 
@@ -326,6 +329,7 @@ void SCH_set_load(choiceptr current_cp) {
 
 static inline
 void SCH_new_alternative(yamop *curpc, yamop *new) {
+  CACHE_REGS
   OrFr_alternative(LOCAL_top_or_fr) = new;
   BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = YAMOP_OR_ARG(curpc);
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
@@ -351,6 +355,7 @@ void CUT_send_prune_request(int worker, choiceptr prune_cp) {
 
 static inline
 void CUT_reset_prune_request(void) {
+  CACHE_REGS
   LOCK_WORKER(worker_id); 
   if (Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()))
     Set_LOCAL_prune_request(NULL);
@@ -366,6 +371,7 @@ void CUT_reset_prune_request(void) {
 
 static inline
 int CUT_last_worker_left_pending_prune(or_fr_ptr or_frame) {
+  CACHE_REGS
   int i, depth, ltt;
   bitmap members;
 
@@ -383,6 +389,7 @@ int CUT_last_worker_left_pending_prune(or_fr_ptr or_frame) {
 
 static inline
 or_fr_ptr CUT_leftmost_or_frame(void) {
+  CACHE_REGS
   int i, depth, ltt;
   bitmap members;
   or_fr_ptr leftmost_or_fr, or_fr, nearest_or_fr;
@@ -496,6 +503,7 @@ or_fr_ptr CUT_leftmost_until(or_fr_ptr start_or_fr, int until_depth) {
 
 static inline 
 void CUT_store_answer(or_fr_ptr or_frame, qg_ans_fr_ptr new_answer) {
+  CACHE_REGS
   int ltt;
   qg_sol_fr_ptr *solution_ptr;
 
@@ -522,6 +530,7 @@ void CUT_store_answer(or_fr_ptr or_frame, qg_ans_fr_ptr new_answer) {
 
 static inline 
 void CUT_store_answers(or_fr_ptr or_frame, qg_sol_fr_ptr new_solution) {
+  CACHE_REGS
   int ltt;
   qg_sol_fr_ptr *solution_ptr;
 

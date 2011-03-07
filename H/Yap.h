@@ -815,6 +815,8 @@ extern char Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
 extern int Yap_output_msg;
 #endif
 
+#define MkVarTerm() MkVarTerm__( PASS_REGS1 )
+#define MkPairTerm(A,B) MkPairTerm__( A, B PASS_REGS )
 
 /* applies to unbound variables */
 
@@ -829,10 +831,10 @@ VarOfTerm (Term t)
 
 #ifdef SBA
 
-inline EXTERN Term MkVarTerm (void);
+inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
 inline EXTERN Term
-MkVarTerm ()
+MkVarTerm__ ( USES_REGS1 )
 {
   return (Term) ((*H = 0, H++));
 }
@@ -850,10 +852,10 @@ IsUnboundVar (Term * t)
 
 #else
 
-inline EXTERN Term MkVarTerm (void);
+inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
 inline EXTERN Term
-MkVarTerm ()
+MkVarTerm__ ( USES_REGS1 )
 {
   return (Term) ((*H = (CELL) H, H++));
 }
@@ -980,10 +982,10 @@ IsIntTerm (Term t)
 
 
 
-EXTERN inline Term STD_PROTO (MkPairTerm, (Term, Term));
+EXTERN inline Term STD_PROTO (MkPairTerm__, (Term, Term CACHE_TYPE) );
 
 EXTERN inline Term
-MkPairTerm (Term head, Term tail)
+MkPairTerm__ (Term head, Term tail USES_REGS)
 {
   register CELL *p = H;
 
@@ -1321,14 +1323,14 @@ typedef enum
 
 
 static inline void
-Yap_StartSlots(void) {
+Yap_StartSlots( USES_REGS1 ) {
   *--ASP = MkIntegerTerm(CurSlot);
   *--ASP = MkIntTerm(0);
   CurSlot = LCL0-ASP;
 }
 
 static inline void
-Yap_CloseSlots(void) {
+Yap_CloseSlots( USES_REGS1 ) {
   Int old_slots;
   old_slots = IntOfTerm(ASP[0]);
   ASP += (old_slots+1);
@@ -1337,7 +1339,7 @@ Yap_CloseSlots(void) {
 }
 
 static inline Int
-Yap_CurrentSlot(void) {
+Yap_CurrentSlot( USES_REGS1 ) {
   return IntOfTerm(ASP[0]);
 }
 

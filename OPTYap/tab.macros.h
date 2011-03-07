@@ -427,6 +427,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 ******************************/
 
 static inline Int freeze_current_cp(void) {
+  CACHE_REGS
   choiceptr freeze_cp = B;
 
   B_FZ  = freeze_cp;
@@ -439,6 +440,7 @@ static inline Int freeze_current_cp(void) {
 
 
 static inline void wake_frozen_cp(Int frozen_offset) {
+  CACHE_REGS
   choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
 
   restore_bindings(TR, frozen_cp->cp_tr);
@@ -450,6 +452,7 @@ static inline void wake_frozen_cp(Int frozen_offset) {
 
 
 static inline void abolish_frozen_cps_until(Int frozen_offset) {
+  CACHE_REGS
   choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
 
   B_FZ  = frozen_cp;
@@ -460,6 +463,7 @@ static inline void abolish_frozen_cps_until(Int frozen_offset) {
 
 
 static inline void abolish_frozen_cps_all(void) {
+  CACHE_REGS
   B_FZ  = (choiceptr) Yap_LocalBase;
   H_FZ  = (CELL *) Yap_GlobalBase;
   TR_FZ = (tr_fr_ptr) Yap_TrailBase;
@@ -468,6 +472,7 @@ static inline void abolish_frozen_cps_all(void) {
 
 
 static inline void adjust_freeze_registers(void) {
+  CACHE_REGS
   B_FZ  = DepFr_cons_cp(LOCAL_top_dep_fr);
   H_FZ  = B_FZ->cp_h;
   TR_FZ = B_FZ->cp_tr;
@@ -484,6 +489,7 @@ static inline void mark_as_completed(sg_fr_ptr sg_fr) {
 
 
 static inline void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
+  CACHE_REGS
   TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
   /* unbind loop */
   while (unbind_tr != end_tr) {
@@ -514,6 +520,7 @@ static inline void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
 
 
 static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
+  CACHE_REGS
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
   Yap_NEW_MAHASH((ma_h_inner_struct *)H);
@@ -547,6 +554,7 @@ static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 
 
 static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
+  CACHE_REGS
   CELL ref;
   tr_fr_ptr end_tr;
 
@@ -620,6 +628,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
 
 static inline CELL *expand_auxiliary_stack(CELL *stack) {
+  CACHE_REGS
   void *old_top = Yap_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
@@ -635,6 +644,7 @@ static inline CELL *expand_auxiliary_stack(CELL *stack) {
 
 
 static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
+  CACHE_REGS
 #ifdef YAPOR
   if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();
@@ -708,6 +718,7 @@ static inline void pruning_over_tabling_data_structures(void) {
 
 
 static inline void collect_suspension_frames(or_fr_ptr or_fr) {  
+  CACHE_REGS
   int depth;
   or_fr_ptr *susp_ptr;
 
