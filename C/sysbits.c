@@ -1491,6 +1491,7 @@ static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
   if (Yap_PrologMode & ExtendStackMode) {
+    CACHE_REGS
     Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",Yap_TrailTop);
   }
   SearchForTrailFault();
