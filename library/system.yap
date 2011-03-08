@@ -323,28 +323,9 @@ close_temp_streams([]).
 close_temp_streams([S|Ss]) :- close(S),
 	close_temp_streams(Ss).
 
-
 popen(Command, Mode, Stream) :-
-	G = popen(Command, Mode, Stream),
-	check_command_with_default_shell(Command, TrueCommand, G),
-	check_mode(Mode, M, G),
-	do_popen(TrueCommand, M, Stream, Result),
-	handle_system_error(Result, off, G).
+	open(pipe(Command), Mode, Stream).
 
-do_popen(Command, M, Stream, Result) :- win, !,
-	win_popen(M, Command, Stream, Result).
-do_popen(Command, M, Stream, Result) :-
-	popen(Command, M, Stream, Result).
-
-win_popen(0, Command, ForReading, Result) :-
-	open_pipe_streams(ForReading, ForWriting),
-	exec_command(Command, 0, ForWriting, 2, _, Result),
-	close(ForWriting).
-win_popen(1, Command, ForWriting, Result) :-
-	open_pipe_streams(ForReading, ForWriting),
-	exec_command(Command, ForReading, 1, 2, _, Result),
-	close(ForReading).
-	
 check_command_with_default_shell(Com, ComF, G) :-
 	check_command(Com, G),
 	os_command_postprocess(Com, ComF).
