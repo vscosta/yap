@@ -414,7 +414,7 @@ write_address(CELL address)
 #if HAVE_SNPRINTF
     snprintf(buf,32,"%p",(void *)address);
 #else
-    snprintf(buf,"%p",(void *)address);
+    sprintf(buf,"%p",(void *)address);
 #endif
     p[31] = '\0'; /* so that I don't have to worry */
     Yap_DebugErrorPutc('0');
