@@ -15,7 +15,9 @@
 *************************************************************************/
 
 #if  defined(__STDC__) || defined(_MSC_VER)
-
+#ifdef PROTO
+#undef PROTO
+#endif
 #define PROTO(X,ARGS) X ARGS
 #define CONST const
 
