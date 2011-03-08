@@ -1796,7 +1796,7 @@ error:
   return FALSE;
 }
 
-#ifdef __WINDOWS__			/* defined in pl-nt.c */
+#if defined(__WINDOWS__) && !defined(__MINGW32__)	/* defined in pl-nt.c */
 extern int ftruncate(int fileno, int64_t length);
 #define HAVE_FTRUNCATE
 #endif
@@ -4696,7 +4696,7 @@ static const PL_extension foreigns[] = {
 
 struct PL_local_data *Yap_InitThreadIO(int wid)
 {
-  struct PL_local_data *p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
+  struct PL_local_data *p = (struct PL_local_data *)calloc(sizeof(struct PL_local_data), 1);
   if (!p) {
     Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
   }

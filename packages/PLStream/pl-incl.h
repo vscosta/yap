@@ -138,6 +138,9 @@ typedef enum
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h> //MAXPATHLEN
 #endif
+#ifdef __WINDOWS__
+#include <windows.h>
+#endif
 #if __YAP_PROLOG__
 #include "pl-yap.h"
 #if _WIN32
@@ -590,6 +593,8 @@ typedef double			real;
 
 #define XOS_DOWNCASE	0x01		/* _xos_canonical_filename() */
 
+#define statfunc	stat
+
 #ifndef __WINDOWS__
 #define __WINDOWS__ 1
 #endif
@@ -728,17 +733,17 @@ extern void RemoveTemporaryFiles(void);
 extern int Pause(real t);
 char *findExecutable(const char *av0, char *buffer);
 
-void setOSPrologFlags(void);
-void setRandom(unsigned int *seedp);
-char *canoniseFileName(char *path);
-char *canonisePath(char *path);
-void PL_changed_cwd(void);
-struct tm *LocalTime(long *t, struct tm *r);
-size_t getenv3(const char *name, char *buf, size_t len);
-int Setenv(char *name, char *value);
-int Unsetenv(char *name);
-int System(char *cmd);
-bool expandVars(const char *pattern, char *expanded, int maxlen);
+extern void setOSPrologFlags(void);
+extern void setRandom(unsigned int *seedp);
+extern char *canoniseFileName(char *path);
+extern char *canonisePath(char *path);
+extern void PL_changed_cwd(void);
+extern struct tm *LocalTime(long *t, struct tm *r);
+extern size_t getenv3(const char *name, char *buf, size_t len);
+extern int Setenv(char *name, char *value);
+extern int Unsetenv(char *name);
+extern int System(char *cmd);
+extern bool expandVars(const char *pattern, char *expanded, int maxlen);
 
 /**** SWI stuff (emulated in pl-yap.c) ****/
 extern int writeAtomToStream(IOSTREAM *so, atom_t at);
@@ -757,7 +762,7 @@ PL_EXPORT(int)		PL_get_file_nameW(term_t n, wchar_t **name, int flags);
 
 COMMON(int) 		unifyTime(term_t t, time_t time);
 
-COMMON(char)		digitName(int n, int small);
+COMMON(char)		digitName(int n, int sm);
 
 /**** stuff from pl-utf8.c ****/
 size_t utf8_strlen(const char *s, size_t len);

@@ -131,7 +131,7 @@ IOLIB_HEADERS=$(srcdir)/packages/PLStream/atoms.h $(srcdir)/packages/PLStream/pl
 	$(srcdir)/packages/PLStream/pl-stream.h \
 	$(srcdir)/packages/PLStream/pl-table.h \
 	$(srcdir)/packages/PLStream/pl-text.h $(srcdir)/pl-utf8.h \
-	$(srcdir)/packages/PLStream/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/uxnt/dirent.h $(srcdir)/packages/PLStream/uxnt/utf8.h $(srcdir)/packages/PLStream/pl-utf8.c $(srcdir)/packages/PLStream/uxnt/uxnt.h
+	$(srcdir)/packages/PLStream/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/windows/dirent.h $(srcdir)/packages/PLStream/windows/utf8.h $(srcdir)/packages/PLStream/pl-utf8.c $(srcdir)/packages/PLStream/windows/windows.h
 
 HEADERS = \
 	$(srcdir)/H/TermExt.h \
@@ -212,7 +212,7 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-table.c \
 	$(srcdir)/packages/PLStream/pl-text.c \
 	$(srcdir)/packages/PLStream/pl-write.c \
-	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/uxnt/uxnt.c
+	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/windows/windows.c
 
 C_SOURCES= \
 	$(IOLIB_SOURCES) \
@@ -596,7 +596,7 @@ pl-read.o: $(srcdir)/packages/PLStream/pl-read.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-read.c -o $@
 
 pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-stream.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-stream.c -o $@
 
 pl-string.o: $(srcdir)/packages/PLStream/pl-string.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-string.c -o $@
@@ -615,6 +615,9 @@ pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
 
 pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-yap.c -o $@
+
+uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
 
 # default rule
 %.o : $(srcdir)/C/%.c config.h

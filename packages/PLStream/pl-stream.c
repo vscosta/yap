@@ -22,12 +22,14 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__)||defined(__WIN32)
 #include <uxnt.h>
+#ifndef _YAP_NOT_INSTALLED_
 #ifdef WIN64
 #define MD "config/win64.h"
 #else
 #define MD "config/win32.h"
+#endif
 #endif
 #include <winsock2.h>
 #include "windows/mswchar.h"

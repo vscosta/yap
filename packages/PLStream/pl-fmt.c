@@ -33,7 +33,7 @@ source should also use format() to produce error messages, etc.
 #include <ctype.h>
 
 static char *	formatNumber(bool split, int div, int radix,
-			     bool small, Number n, Buffer out);
+			     bool smll, Number n, Buffer out);
 static char *	formatFloat(int how, int arg, Number f, Buffer out);
 
 #define MAXRUBBER 100
@@ -877,7 +877,7 @@ emit_rubber(format_state *state)
  ** Fri Aug 19 22:26:41 1988  jan@swivax.UUCP (Jan Wielemaker)  */
 
 static char *
-formatNumber(bool split, int div, int radix, bool small, Number i,
+formatNumber(bool split, int div, int radix, bool smll, Number i,
 	     Buffer out)
 { switch(i->type)
   { case V_INTEGER:
@@ -912,7 +912,7 @@ formatNumber(bool split, int div, int radix, bool small, Number i,
 	  }
 	  if ( split && before && (digits++ % 3) == 0 && digits != 1 )
 	    *--s = ',';
-	  *--s = digitName((int)(n % radix), small);
+	  *--s = digitName((int)(n % radix), smll);
 	  n /= radix;
 	}
 	if ( negative )
@@ -937,7 +937,7 @@ formatNumber(bool split, int div, int radix, bool small, Number i,
 	buf = tmp;
 
       mpz_get_str(buf, radix, i->value.mpz);
-      if ( !small && radix > 10 )
+      if ( !smll && radix > 10 )
       { char *s;
 
 	for(s=buf; *s; s++)

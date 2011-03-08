@@ -867,44 +867,6 @@ p_wait(void)
 #endif
 }
 
-/* execute a command as a detached process */
-static int
-p_popen(void)
-{
-  char *command = (char *)YAP_AtomName(YAP_AtomOfTerm(YAP_ARG1));
-  long int mode = YAP_IntOfTerm(YAP_ARG2);
-  FILE *pfd;
-  YAP_Term tsno;
-  int flags;
-  
-#if HAVE_POPEN
-#if defined(__MINGW32__) || _MSC_VER
-  /* This will only work for console applications. FIX */
-  if (mode == 0)
-    pfd = _popen(command, "r");
-  else
-    pfd = _popen(command, "w");
-#else
-  if (mode == 0)
-    pfd = popen(command, "r");
-  else
-    pfd = popen(command, "w");
-#endif
-  if (pfd == NULL) {
-    return(YAP_Unify(YAP_ARG4, YAP_MkIntTerm(errno)));    
-  }
-  if (mode == 0)
-    flags = YAP_INPUT_STREAM | YAP_POPEN_STREAM;
-  else
-    flags = YAP_OUTPUT_STREAM | YAP_POPEN_STREAM;
-  tsno = YAP_OpenStream((void *)pfd,
-		       "pipe",
-		       YAP_MkAtomTerm(YAP_LookupAtom("pipe")),
-		       flags);
-#endif
-  return(YAP_Unify(YAP_ARG3, tsno));
-}
-
 static int
 p_sleep(void)
 {
@@ -1058,7 +1020,6 @@ init_sys(void)
   YAP_UserCPredicate("exec_command", execute_command, 6);
   YAP_UserCPredicate("do_shell", do_shell, 5);
   YAP_UserCPredicate("do_system", do_system, 3);
-  YAP_UserCPredicate("popen", p_popen, 4);
   YAP_UserCPredicate("wait", p_wait, 3);
   YAP_UserCPredicate("host_name", host_name, 2);
   YAP_UserCPredicate("host_id", host_id, 2);

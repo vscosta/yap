@@ -808,6 +808,9 @@ PRED_IMPL("make_directory", 1, make_directory, 0)
   if ( !PL_get_file_name(A1, &n, 0) )
     return FALSE;
 
+#if __MINGW32__
+#define mkdir(A, B) mkdir(A)
+#endif
   if ( mkdir(n, 0777) == 0 )
     return TRUE;
   else

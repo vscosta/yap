@@ -299,7 +299,11 @@ dump_stack( USES_REGS1 )
       extern long long vsc_count;
 
       if (vsc_count) {
+#if _WIN32
+	fprintf(stderr,"Trace Counter at %I64d\n",vsc_count);
+#else
 	fprintf(stderr,"Trace Counter at %lld\n",vsc_count);
+#endif
       }
     }
 #endif

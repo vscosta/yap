@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include <Yap/YapInterface.h>
+#include <YapInterface.h>
 
 #include <BayesianNetwork.h>
 #include <BayesianNode.h>
