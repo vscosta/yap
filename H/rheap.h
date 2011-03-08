@@ -1574,6 +1574,15 @@ RestoreEntries(PropEntry *pp, int int_key USES_REGS)
       pp->NextOfPE =
 	PropAdjust(pp->NextOfPE);
       break;
+    case BlobProperty:
+      pp->NextOfPE =
+	PropAdjust(pp->NextOfPE);
+      {
+	BlobPropEntry *bpe = (BlobPropEntry *)pp;
+	bpe->blob_t =
+	  BlobTypeAdjust(bpe->blob_t);
+      }
+      break;
     default:
       /* OOPS */
       Yap_Error(SYSTEM_ERROR, TermNil,

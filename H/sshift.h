@@ -100,6 +100,7 @@
 #define OpRTableAdjust(P) OpRTableAdjust__(P PASS_REGS)
 #define OpEntryAdjust(P) OpEntryAdjust__(P PASS_REGS)
 #define PropAdjust(P) PropAdjust__(P PASS_REGS)
+#define BlobTypeAdjust(P) BlobTypeAdjust__(P PASS_REGS)
 #define TrailAddrAdjust(P) TrailAddrAdjust__(P PASS_REGS)
 #define XAdjust(P) XAdjust__(P PASS_REGS)
 #define YAdjust(P) YAdjust__(P PASS_REGS)
@@ -441,7 +442,6 @@ PropAdjust__ (Prop p USES_REGS)
   return (Prop) ((p));
 }
 
-
 #else
 
 inline EXTERN Atom AtomAdjust__ (Atom CACHE_TYPE);
@@ -472,6 +472,14 @@ PropAdjust__ (Prop p USES_REGS)
 
 
 #endif
+
+inline EXTERN struct PL_blob_t *BlobTypeAdjust__ (struct PL_blob_t *CACHE_TYPE);
+
+inline EXTERN struct PL_blob_t *
+BlobTypeAdjust__ (struct PL_blob_t *at USES_REGS)
+{
+  return (struct PL_blob_t *) ((at == NULL ? (at) : (struct PL_blob_t *) (CharP (at) + HDiff)));
+}
 
 inline EXTERN PredEntry *PredEntryAdjust__ (PredEntry * CACHE_TYPE);
 

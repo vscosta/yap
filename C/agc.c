@@ -127,6 +127,7 @@ AtomAdjust(Atom a)
 
 #define REINIT_LOCK(P) 
 #define REINIT_RWLOCK(P) 
+#define BlobTypeAdjust(P) (P)
 #define NoAGCAtomAdjust(P) (P)
 #define OrArgAdjust(P) 
 #define TabEntryAdjust(P) 
