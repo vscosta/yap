@@ -554,70 +554,70 @@ pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
 pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-buffer.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
 
 pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-codelist.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-codelist.c -o $@
 
 pl-ctype.o: $(srcdir)/packages/PLStream/pl-ctype.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-ctype.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-ctype.c -o $@
 
 pl-dtoa.o: $(srcdir)/packages/PLStream/pl-dtoa.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
 
 pl-error.o: $(srcdir)/packages/PLStream/pl-error.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-error.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-error.c -o $@
 
 pl-file.o: $(srcdir)/packages/PLStream/pl-file.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-file.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-file.c -o $@
 
 pl-files.o: $(srcdir)/packages/PLStream/pl-files.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-files.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-files.c -o $@
 
 pl-fmt.o: $(srcdir)/packages/PLStream/pl-fmt.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-fmt.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-fmt.c -o $@
 
 pl-glob.o: $(srcdir)/packages/PLStream/pl-glob.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-glob.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-glob.c -o $@
 
 pl-option.o: $(srcdir)/packages/PLStream/pl-option.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-option.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-option.c -o $@
 
 pl-os.o: $(srcdir)/packages/PLStream/pl-os.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-os.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-os.c -o $@
 
 pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-privitf.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-privitf.c -o $@
 
 pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-rl.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-rl.c -o $@
 
 pl-read.o: $(srcdir)/packages/PLStream/pl-read.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-read.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-read.c -o $@
 
 pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-stream.c -o $@
 
 pl-string.o: $(srcdir)/packages/PLStream/pl-string.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-string.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-string.c -o $@
 
 pl-table.o: $(srcdir)/packages/PLStream/pl-table.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-table.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-table.c -o $@
 
 pl-text.o: $(srcdir)/packages/PLStream/pl-text.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-text.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-text.c -o $@
 
 pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-utf8.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-utf8.c -o $@
 
 pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-write.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-write.c -o $@
 
 pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/pl-yap.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-yap.c -o $@
 
 uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
 
 # default rule
 %.o : $(srcdir)/C/%.c config.h

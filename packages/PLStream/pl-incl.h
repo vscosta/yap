@@ -16,6 +16,10 @@
 #endif
 
 #include "Yap.h"
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <uxnt.h>
+#endif
 #include "YapHeap.h"
 /* try not to pollute the SWI space */
 #ifdef P
@@ -137,9 +141,6 @@ typedef enum
 #include <assert.h>
 #if HAVE_SYS_PARAM_H
 #include <sys/param.h> //MAXPATHLEN
-#endif
-#ifdef __WINDOWS__
-#include <windows.h>
 #endif
 #if __YAP_PROLOG__
 #include "pl-yap.h"
@@ -583,17 +584,6 @@ typedef double			real;
 
 /* uxnt package interface */
 #if defined(__YAP_PROLOG__) && defined(__MINGW32__)
-#define O_XOS 1
-
-#define _XOS_ISFILE	0x01
-#define _XOS_ISDIR	0x02
-
-#define _XOS_FILE	0x0001		/* is a file */
-#define _XOS_DIR	0x0002		/* is a directory */
-
-#define XOS_DOWNCASE	0x01		/* _xos_canonical_filename() */
-
-#define statfunc	stat
 
 #ifndef __WINDOWS__
 #define __WINDOWS__ 1

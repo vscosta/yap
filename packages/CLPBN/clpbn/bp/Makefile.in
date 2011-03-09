@@ -92,7 +92,7 @@ xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 @DO_SECOND_LD@horus.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 biftest: $(BIF_OBJS)
 	$(CXX) -o biftest $(BIF_OBJS)

@@ -33,6 +33,7 @@
 #endif
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include <io.h>
 #include <direct.h>
@@ -45,7 +46,6 @@ typedef intptr_t ssize_t;		/* signed version of size_t */
 #endif
 
 #ifndef _UXNT_KERNEL
-#include <sys/stat.h>
 
 #undef remove
 #undef rename
@@ -133,7 +133,7 @@ _export int	_xos_access(const char *path, int mode);
 _export int	_xos_chmod(const char *path, int mode);
 _export int	_xos_remove(const char *path);
 _export int	_xos_rename(const char *old, const char *newname);
-_export int	_xos_stat(const char *path, struct _stat *sbuf);
+_export int	_xos_stat(const char *path, struct _stati64 *sbuf);
 _export int	_xos_chdir(const char *path);
 _export int	_xos_mkdir(const char *path, int mode);
 _export int	_xos_rmdir(const char *path);
