@@ -4644,12 +4644,15 @@ BeginPredDefs(file)
   PRED_DEF("is_stream", 1, is_stream, 0)
   PRED_DEF("set_stream", 2, set_stream, 0)
   PRED_DEF("with_output_to", 2, with_output_to, PL_FA_TRANSPARENT)
+//vsc
   PRED_DEF("set_prolog_IO", 3, set_prolog_IO, 0)
   PRED_DEF("protocol", 1, protocol, 0)
   PRED_DEF("protocola", 1, protocola, 0)
   PRED_DEF("noprotocol", 0, noprotocol, 0)
   PRED_DEF("protocolling", 1, protocolling, 0)
+//vsc
   PRED_DEF("prompt1", 1, prompt1, 0)
+//vsc
   PRED_DEF("seek", 4, seek, 0)
   PRED_DEF("wait_for_input", 3, wait_for_input, 0)
   PRED_DEF("get_single_char", 1, get_single_char, 0)
@@ -4664,6 +4667,7 @@ BeginPredDefs(file)
   PRED_DEF("$push_input_context", 0, push_input_context, 0)
   PRED_DEF("$pop_input_context", 0, pop_input_context, 0)
   PRED_DEF("$size_stream", 2, size_stream, 0)
+//vsc
 EndPredDefs
 
 #if __YAP_PROLOG__
@@ -4685,6 +4689,7 @@ static const PL_extension foreigns[] = {
   FRG("write_canonical",	2, pl_write_canonical2,	      ISO),
   FRG("format",			3, pl_format3,		     META),
 
+  // vsc
   FRG("format_predicate",	2, pl_format_predicate,	     META),
   FRG("current_format_predicate", 2, pl_current_format_predicate,
 						        META|NDET),

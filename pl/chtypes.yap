@@ -102,15 +102,3 @@ code_type(?Code, ?Type)
 
 */
 				  
-char_type(A, Spec) :-
-	swi_char_type(A, Spec).
-
-code_type(Code, Spec) :-
-	swi_code_type(Code, Spec).
-	  
-
-downcase_atom(U, D) :-
-	swi_downcase_atom(U, D).
-
-upcase_atom(U, D) :-
-	swi_upcase_atom(U, D).

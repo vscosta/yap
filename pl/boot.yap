@@ -1372,7 +1372,150 @@ b_getval(GlobalVariable, Val) :-
 	;
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
-		    
+
+char_type(A, Spec) :-
+	swi_char_type(A, Spec).
+code_type(Code, Spec) :-
+	swi_code_type(Code, Spec).
+downcase_atom(U, D) :-
+	swi_downcase_atom(U, D).
+upcase_atom(U, D) :-
+	swi_upcase_atom(U, D).
+
+open(File, Type, Stream) :-
+	swi_open(File, Type, Stream).
+open(File, Type, Stream, Opts) :-
+	swi_open(File, Type, Stream, Opts).
+close(Stream) :-
+	swi_close(Stream).
+close(Stream, Options) :-
+	swi_close(Stream, Options).
+set_input(Stream) :-
+	swi_set_input(Stream).
+set_output(Stream) :-
+	swi_set_output(Stream).
+current_input(Stream) :-
+	swi_current_input(Stream).
+current_output(Stream) :-
+	swi_current_output(Stream).
+get_code(C) :-
+	swi_get_code(C).
+get_code(Stream, C) :-
+	swi_get_code(Stream, C).
+get_char(C) :-
+	swi_get_char(C).
+get_char(Stream, C) :-
+	swi_get_char(Stream, C).
+get_byte(C) :-
+	swi_get_byte(C).
+get_byte(Stream, C) :-
+	swi_get_byte(Stream, C).
+peek_code(C) :-
+	swi_peek_code(C).
+peek_code(Stream, C) :-
+	swi_peek_code(Stream, C).
+peek_char(C) :-
+	swi_peek_char(C).
+peek_char(Stream, C) :-
+	swi_peek_char(Stream, C).
+peek_byte(C) :-
+	swi_peek_byte(C).
+peek_byte(Stream, C) :-
+	swi_peek_byte(Stream, C).
+put_byte(C) :-
+	swi_put_byte(C).
+put_byte(Stream, C) :-
+	swi_put_byte(Stream, C).
+put_code(C) :-
+	swi_put_code(C).
+put_code(Stream, C) :-
+	swi_put_code(Stream, C).
+put_char(C) :-
+	swi_put_char(C).
+put_char(Stream, C) :-
+	swi_put_char(Stream, C).
+flush_output :-
+	swi_flush_output.
+flush_output(Stream) :-
+	swi_flush_output(Stream).
+at_end_of_stream :-
+	swi_at_end_of_stream.
+at_end_of_stream(Stream) :-
+	swi_at_end_of_stream(Stream).
+stream_property(Stream, Property) :-
+%	format('~w~n',stream_property(Stream,Property)),
+	swi_stream_property(Stream, Property).
+set_stream_position(Stream, Position) :-
+%	format('~w~n',stream_property(Stream,Property)),
+	swi_set_stream_position(Stream, Position).
+see(File) :-
+	swi_see(File).
+seen :-
+	swi_seen.
+seeing(File) :-
+	swi_seeing(File).
+tell(File) :-
+	swi_tell(File).
+append(File) :-
+	swi_append(File).
+told :-
+	swi_told.
+telling(File) :-
+	swi_telling(File).
+put(C) :-
+	swi_put(C).
+put(Stream, C) :-
+	swi_put(Stream, C).
+skip(C) :-
+	swi_skip(C).
+skip(Stream, C) :-
+	swi_skip(Stream, C).
+get(C) :-
+	swi_get(C).
+get(Stream, C) :-
+	swi_get(Stream, C).
+get0(C) :-
+	swi_get0(C).
+get0(Stream, C) :-
+	swi_get0(Stream, C).
+ttyflush :-
+	swi_ttyflush.
+prompt(Old, New) :-
+	swi_prompt(Old, New).
+tab(C) :-
+	swi_tab(C).
+tab(Stream, C) :-
+	swi_tab(Stream, C).
+byte_count(Stream, Count) :-
+%	format('~w~n',byte_count(Stream, Count)),
+	swi_byte_count(Stream, Count).
+character_count(Stream, Count) :-
+%	format('~w~n',character_count(Stream, Count)),
+	swi_character_count(Stream, Count).
+line_count(Stream, Lines) :-
+%	format('~w~n',line_count(Stream)),
+	swi_line_count(Stream, Lines).
+line_position(Stream, Position) :-
+%	format('~w~n',line_position(Stream)),
+	swi_line_position(Stream, Position).
+open_null_stream(S) :-
+	swi_open_null_stream(S).
+is_stream(Stream) :-
+%	format('~w~n',is_stream(Stream)),
+	swi_is_stream(Stream).
+set_stream(Stream, Property) :-
+%	format('~w~n',set_stream(Stream,Property)),
+	swi_set_stream(Stream, Property).
+with_output_to(Output, G) :-
+	swi_with_output_to(Output, G).
+prompt1(X) :-
+	swi_prompt1(X).
+nl :-
+	swi_nl.
+write_canonical(T) :-
+	swi_write_canonical(T).
+
+
 access_file(File, Mode) :-
 	swi_access_file(File, Mode).
 expand_file_name(Exp, Matches) :-
@@ -1395,190 +1538,60 @@ time_file(File, Time) :-
 	swi_time_file(File, Time).
 working_directory(Old, New) :-
 	swi_working_directory(Old, New).
+write(T) :-
+	swi_write(T).
+writeq(T) :-
+	swi_writeq(T).
+print(T) :-
+	swi_print(T).
+nl(Stream) :-
+	swi_nl(Stream).
+format(Command, Args) :-
+	swi_format(Command, Args).
+write(Stream, T) :-
+	swi_write(Stream, T).
+writeq(Stream, T) :-
+	swi_writeq(Stream, T).
+print(Stream, T) :-
+	swi_print(Stream, T).
+write_canonical(Stream, T) :-
+	swi_write_canonical(Stream, T).
+format(Stream, Command, Args) :-
+	swi_format(Stream, Command, Args).
+'$raw_read'(Stream, String) :-
+	'swi_$raw_read'(Stream, String).
+
+
+
+
 
 cd(Dir) :- working_directory(_, Dir).
 
 getcwd(Dir) :- working_directory(Dir, Dir).
 
-close(Stream) :-
-	swi_close(Stream).
-close(Stream, Options) :-
-	swi_close(Stream, Options).
-open(File, Type, Stream) :-
-	swi_open(File, Type, Stream).
-open(File, Type, Stream, Opts) :-
-	swi_open(File, Type, Stream, Opts).
-open_null_stream(S) :-
-	swi_open_null_stream(S).
 
 atom_to_term(Atom, Term, Bindings) :-
 	swi_atom_to_term(Atom, Term, Bindings).
 term_to_atom(Term, Atom) :-
 	swi_term_to_atom(Term, Atom).
 
-with_output_to(Output, G) :-
-	swi_with_output_to(Output, G).
 
-at_end_of_stream :-
-	swi_at_end_of_stream.
-at_end_of_stream(Stream) :-
-	swi_at_end_of_stream(Stream).
-byte_count(Stream, Count) :-
-%	format('~w~n',byte_count(Stream, Count)),
-	swi_byte_count(Stream, Count).
-character_count(Stream, Count) :-
-%	format('~w~n',character_count(Stream, Count)),
-	swi_character_count(Stream, Count).
 current_stream(File,Mode,Stream) :-
 	swi_current_stream(File,Mode,Stream).
-is_stream(Stream) :-
-%	format('~w~n',is_stream(Stream)),
-	swi_is_stream(Stream).
-line_count(Stream, Lines) :-
-%	format('~w~n',line_count(Stream)),
-	swi_line_count(Stream, Lines).
-line_position(Stream, Position) :-
-%	format('~w~n',line_position(Stream)),
-	swi_line_position(Stream, Position).
-set_stream(Stream, Property) :-
-%	format('~w~n',set_stream(Stream,Property)),
-	swi_set_stream(Stream, Property).
-stream_property(Stream, Property) :-
-%	format('~w~n',stream_property(Stream,Property)),
-	swi_stream_property(Stream, Property).
-set_stream_position(Stream, Position) :-
-%	format('~w~n',stream_property(Stream,Property)),
-	swi_set_stream_position(Stream, Position).
 
-prompt1(X) :-
-	swi_prompt1(X).
-prompt(Old, New) :-
-	swi_prompt(Old, New).
 
-flush_output :-
-	swi_flush_output.
-flush_output(Stream) :-
-	swi_flush_output(Stream).
-ttyflush :-
-	swi_ttyflush.
 
-current_input(Stream) :-
-	swi_current_input(Stream).
-current_output(Stream) :-
-	swi_current_output(Stream).
-set_input(Stream) :-
-	swi_set_input(Stream).
-set_output(Stream) :-
-	swi_set_output(Stream).
 
-get(C) :-
-	swi_get(C).
-get(Stream, C) :-
-	swi_get(Stream, C).
-get0(C) :-
-	swi_get0(C).
-get0(Stream, C) :-
-	swi_get0(Stream, C).
-get_byte(C) :-
-	swi_get_byte(C).
-get_byte(Stream, C) :-
-	swi_get_byte(Stream, C).
-get_char(C) :-
-	swi_get_char(C).
-get_char(Stream, C) :-
-	swi_get_char(Stream, C).
-get_code(C) :-
-	swi_get_code(C).
-get_code(Stream, C) :-
-	swi_get_code(Stream, C).
 
-peek_byte(C) :-
-	swi_peek_byte(C).
-peek_byte(Stream, C) :-
-	swi_peek_byte(Stream, C).
-peek_char(C) :-
-	swi_peek_char(C).
-peek_char(Stream, C) :-
-	swi_peek_char(Stream, C).
-peek_code(C) :-
-	swi_peek_code(C).
-peek_code(Stream, C) :-
-	swi_peek_code(Stream, C).
 
-put(C) :-
-	swi_put(C).
-put(Stream, C) :-
-	swi_put(Stream, C).
-put_byte(C) :-
-	swi_put_byte(C).
-put_byte(Stream, C) :-
-	swi_put_byte(Stream, C).
-put_char(C) :-
-	swi_put_char(C).
-put_char(Stream, C) :-
-	swi_put_char(Stream, C).
-put_code(C) :-
-	swi_put_code(C).
-put_code(Stream, C) :-
-	swi_put_code(Stream, C).
-
-skip(C) :-
-	swi_skip(C).
-skip(Stream, C) :-
-	swi_skip(Stream, C).
-
-nl :-
-	swi_nl.
-nl(Stream) :-
-	swi_nl(Stream).
-print(T) :-
-	swi_print(T).
-print(Stream, T) :-
-	swi_print(Stream, T).
-write(T) :-
-	swi_write(T).
-write(Stream, T) :-
-	swi_write(Stream, T).
-writeq(T) :-
-	swi_writeq(T).
-writeq(Stream, T) :-
-	swi_writeq(Stream, T).
-write_canonical(T) :-
-	swi_write_canonical(T).
-write_canonical(Stream, T) :-
-	swi_write_canonical(Stream, T).
 write_term(Stream, T) :-
 	swi_write_term(Stream, T).
 write_term(Stream, T, Options) :-
 	swi_write_term(Stream, T, Options).
-tab(C) :-
-	swi_tab(C).
-tab(Stream, C) :-
-	swi_tab(Stream, C).
 
-append(File) :-
-	swi_append(File).
-see(File) :-
-	swi_see(File).
-seeing(File) :-
-	swi_seeing(File).
-seen :-
-	swi_seen.
-tell(File) :-
-	swi_tell(File).
-telling(File) :-
-	swi_telling(File).
-told :-
-	swi_told.
 
-format(Command, Args) :-
-	swi_format(Command, Args).
-format(Stream, Command, Args) :-
-	swi_format(Stream, Command, Args).
 
 is_stream(Stream) :-
 	swi_is_stream(Stream).
 
-'$raw_read'(Stream, String) :-
-	'swi_$raw_read'(Stream, String).
 
