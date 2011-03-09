@@ -292,7 +292,7 @@ typedef struct foreign_context *control_t;
 #define BeginPredDefs(id) \
         const PL_extension PL_predicates_from_ ## id[] = {
 #define PRED_DEF(name, arity, fname, flags) \
-  { "swi_" name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
+  { name, arity, pl_ ## fname ## _va, (flags)|PL_FA_VARARGS },
 #define EndPredDefs \
         { NULL, 0, NULL, 0 } \
         };
@@ -313,7 +313,7 @@ typedef struct foreign_context *control_t;
 #define ForeignContextPtr(h)	((void *)(h)->context)
 #define ForeignEngine(h)	((h)->engine)
 
-#define FRG(n, a, f, flags) { "swi_" n, a, f, flags }
+#define FRG(n, a, f, flags) { n, a, f, flags }
 #define LFRG(n, a, f, flags) { n, a, f, flags }
 
 /* end from pl-itf.h */
