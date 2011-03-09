@@ -63,7 +63,6 @@ LastModifiedFile(const char *file)
   if ( statfunc(OsPath(file, tmp), &buf) < 0 )
     return (time_t)-1;
 
-  fprintf(stderr,"buf.st_mtime=%ld\n",buf.st_mtime);
   return buf.st_mtime;
 }
 
