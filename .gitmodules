@@ -10,3 +10,6 @@
 [submodule "packages/zlib"]
 	path = packages/zlib
 	url = git://yap.git.sourceforge.net/gitroot/yap/zlib
+[submodule "packages/http"]
+	path = packages/http
+	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/http
