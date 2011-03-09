@@ -1373,3 +1373,10 @@ b_getval(GlobalVariable, Val) :-
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
 
+cd(Dir) :- working_directory(_, Dir).
+
+getcwd(Dir) :- working_directory(Dir, Dir).
+
+
+
+
