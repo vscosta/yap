@@ -565,12 +565,14 @@ then
     then
       AC_CHECK_LIB(ws2_32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll"
+      EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(wsock32,main)
       EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
+      EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
     else
       AC_CHECK_LIB(wsock32,main)
       EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
@@ -597,6 +599,7 @@ then
     ENABLE_WINCONSOLE="#"   
     LIBS="-lcygwin"
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
+    EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   fi
 else
   INSTALL_COMMAND="install_unix"
@@ -1510,6 +1513,7 @@ AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
+AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
 
 AC_SUBST(USE_CUDD)
 AC_SUBST(CUDD_LDFLAGS)
@@ -1952,8 +1956,8 @@ mkdir -p  packages/jpl/src/java/jpl/test
 mkdir -p  packages/jpl/examples
 mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/meld
-mkdir -p  packages/tai
-mkdir -p  packages/tai/libtai
+mkdir -p  packages/PLStream
+mkdir -p  packages/PLStream/libtai
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
@@ -1988,8 +1992,7 @@ AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
 AC_CONFIG_FILES([packages/http/Makefile])
 AC_CONFIG_FILES([packages/meld/Makefile])
-AC_CONFIG_FILES([packages/tai/Makefile])
-AC_CONFIG_FILES([packages/tai/libtai/Makefile])
+AC_CONFIG_FILES([packages/PLStream/libtai/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 AC_CONFIG_FILES([packages/RDF/Makefile])

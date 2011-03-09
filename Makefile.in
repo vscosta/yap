@@ -210,6 +210,7 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-rl.c  \
 	$(srcdir)/packages/PLStream/pl-stream.c $(srcdir)/packages/PLStream/pl-string.c \
 	$(srcdir)/packages/PLStream/pl-table.c \
+	$(srcdir)/packages/PLStream/pl-tai.c  \
 	$(srcdir)/packages/PLStream/pl-text.c \
 	$(srcdir)/packages/PLStream/pl-write.c \
 	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/windows/windows.c
@@ -328,7 +329,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-read.o \
 	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
-	pl-text.o pl-utf8.o \
+	pl-tai.o pl-text.o pl-utf8.o \
 	pl-write.o \
 	pl-yap.o @ENABLE_WINCONSOLE@ uxnt.o
 
@@ -350,6 +351,16 @@ ENGINE_OBJECTS = \
 	unify.o userpreds.o utilpreds.o \
 	write.o \
 	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
+
+LIBTAI_OBJECTS = \
+	tai_add.o tai_now.o tai_pack.o \
+        tai_sub.o tai_unpack.o taia_add.o taia_approx.o \
+        taia_fmtfrac.o taia_frac.o taia_half.o taia_less.o \
+        taia_now.o taia_pack.o taia_sub.o taia_tai.o taia_unpack.o \
+        caldate_fmt.o caldate_scan.o caldate_fmjd.o caldate_mjd.o \
+        caldate_norm.o caldate_ster.o leapsecs_read.o \
+        leapsecs_init.o leapsecs_add.o leapsecs_sub.o caltime_fmt.o \
+        caltime_scan.o caltime_tai.o caltime_utc.o
 
 C_INTERFACE_OBJECTS = \
 	load_foreign.o load_dl.o load_dld.o load_dyld.o \
@@ -548,76 +559,80 @@ pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
 
 pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
-	$(CC) -c $(CFLAGS)  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
+	$(CC) -c $(CFLAGS)  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
 
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-ntmain.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ < $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
 pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
 
 pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-codelist.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-codelist.c -o $@
 
 pl-ctype.o: $(srcdir)/packages/PLStream/pl-ctype.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-ctype.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-ctype.c -o $@
 
 pl-dtoa.o: $(srcdir)/packages/PLStream/pl-dtoa.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
 
 pl-error.o: $(srcdir)/packages/PLStream/pl-error.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-error.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-error.c -o $@
 
 pl-file.o: $(srcdir)/packages/PLStream/pl-file.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-file.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-file.c -o $@
 
 pl-files.o: $(srcdir)/packages/PLStream/pl-files.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-files.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-files.c -o $@
 
 pl-fmt.o: $(srcdir)/packages/PLStream/pl-fmt.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-fmt.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-fmt.c -o $@
 
 pl-glob.o: $(srcdir)/packages/PLStream/pl-glob.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-glob.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-glob.c -o $@
 
 pl-option.o: $(srcdir)/packages/PLStream/pl-option.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-option.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-option.c -o $@
 
 pl-os.o: $(srcdir)/packages/PLStream/pl-os.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-os.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-os.c -o $@
 
 pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-privitf.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-privitf.c -o $@
 
 pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-rl.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-rl.c -o $@
 
 pl-read.o: $(srcdir)/packages/PLStream/pl-read.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-read.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-read.c -o $@
 
 pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-stream.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-stream.c -o $@
 
 pl-string.o: $(srcdir)/packages/PLStream/pl-string.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-string.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-string.c -o $@
 
 pl-table.o: $(srcdir)/packages/PLStream/pl-table.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-table.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-table.c -o $@
 
 pl-text.o: $(srcdir)/packages/PLStream/pl-text.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-text.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-text.c -o $@
 
 pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-utf8.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-utf8.c -o $@
 
 pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-write.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-write.c -o $@
 
 pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/pl-yap.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-yap.c -o $@
+
+pl-tai.o: $(srcdir)/packages/PLStream/pl-tai.c
+	( cd packages/PLStream/libtai ; make )
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-tai.c -o $@
 
 uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream -I$(srcdir)/packages/PLStream/windows $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
 
 # default rule
 %.o : $(srcdir)/C/%.c config.h
@@ -657,7 +672,6 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@USE_MINISAT@ (cd packages/CLPBN/clpbn/bp ; $(MAKE))
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
-	@INSTALL_DLLS@ (cd packages/tai; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
@@ -675,13 +689,13 @@ pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll packages/PLST
 	(cd LGPL/swi_console; $(MAKE))
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll packages/PLSTream/libplstream.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
-libYap.a: $(LIB_OBJECTS)
+libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
-	$(AR) rc libYap.a $(LIB_OBJECTS)
+	$(AR) rc libYap.a $(addprefix packages/PLStream/libtai/,$(LIBTAI_OBJECTS)) $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+	@YAPLIB_LD@ -o @YAPLIB@ packages/PLStream/libtai/libtai.a $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 
 install: install_bin install_data
 
@@ -713,7 +727,6 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/RDF; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/semweb; $(MAKE) install)
-	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
 	@INSTALL_DLLS@ (cd packages/CLPBN/clpbn/bp ; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
@@ -759,7 +772,6 @@ install_win32: startup.yss
 	@ENABLE_WINCONSOLE@ (cd LGPL/swi_console; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
-	(cd packages/tai; $(MAKE) install)
 	(cd packages/clib; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
 	(cd packages/http; $(MAKE) install)
@@ -825,7 +837,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) clean)
 	@USE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) clean)
 	@USE_MINISAT@ (cd packages/CLPBN/clpbn/bp; $(MAKE) clean)
-	@INSTALL_DLLS@ (cd packages/tai; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd packages/tai/libtai; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)

@@ -3,9 +3,10 @@
     Part of SWI-Prolog
 
     Author:        Jan Wielemaker
-    E-mail:        wielemak@science.uva.nl
+    E-mail:        J.Wielemaker@cs.vu.nl
     WWW:           http://www.swi-prolog.org
-    Copyright (C): 1985-2007, University of Amsterdam
+    Copyright (C): 1985-2010, University of Amsterdam
+			      VU University Amsterdam
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -38,23 +39,22 @@ is supposed to give the POSIX standard one.
 #include <stdio.h>
 #include <ctype.h>
 
-#if defined(__WINDOWS__) || defined (__CYGWIN__)  || defined (__MINGW32__)
-#define timezone _timezone
-#ifndef _POSIX
+#if TIME_WITH_SYS_TIME
+# include <sys/time.h>
+# include <time.h>
+#else
+# if HAVE_SYS_TIME_H
+#  include <sys/time.h>
+# else
+#  include <time.h>
+# endif
 #endif
-#define localtime_r(_Time, _Tm)	({ struct tm *___tmp_tm =		\
-						localtime((_Time));	\
-						if (___tmp_tm) {	\
-						  *(_Tm) = *___tmp_tm;	\
-						  ___tmp_tm = (_Tm);	\
-						}			\
-						___tmp_tm;	})
-#define asctime_r(_Tm, _Buf)	({ char *___tmp_tm = asctime((_Tm));	\
-						if (___tmp_tm)		\
-						 ___tmp_tm =		\
-						   strcpy((_Buf),___tmp_tm);\
-						___tmp_tm;	})
-#include <time.h>
+
+#if defined(__WINDOWS__) || defined (__CYGWIN__)
+#define timezone _timezone
+#ifndef HAVE_VAR_TIMEZONE
+#define HAVE_VAR_TIMEZONE
+#endif
 #else
 extern char *tzname[2];
 #ifdef HAVE_VAR_TIMEZONE
@@ -107,7 +107,7 @@ value is EAST and includes the DST offset.
 static int
 tz_offset()
 {
-#if defined(HAVE_VAR_TIMEZONE) || _WIN64 || _WIN32
+#ifdef HAVE_VAR_TIMEZONE
   do_tzset();
   return timezone;
 #else
@@ -490,9 +490,14 @@ fmt_domain_error(const char *key, int value)
 }
 
 static int
-fmt_not_implemented(const char *key)
+fmt_not_implemented(int c)
 { GET_LD
   term_t t = PL_new_term_ref();
+  char key[3];
+
+  key[0] = '%';
+  key[1] = c;
+  key[2] = 0;
 
   PL_put_atom_chars(t, key);
 
@@ -575,6 +580,7 @@ format_time(IOSTREAM *fd, const wchar_t *format, ftm *ftm, int posix)
 
   while((c = *format++))
   { int arg = NOARG;
+    int altO = FALSE;
 
     switch(c)
     { case '%':
@@ -651,7 +657,7 @@ format_time(IOSTREAM *fd, const wchar_t *format, ftm *ftm, int posix)
 	    OUT2DIGITS_SPC(fd, ftm->tm.tm_mday);
 	    break;
 	  case 'E':			/* alternative format */
-	    return fmt_not_implemented("%E");
+	    return fmt_not_implemented(c);
 	  case 'F':			/* ISO 8601 date format */
 	    SUBFORMAT(L"%Y-%m-%d");
 	    break;
@@ -720,7 +726,13 @@ format_time(IOSTREAM *fd, const wchar_t *format, ftm *ftm, int posix)
 	    OUTCHR(fd, '\n');
 	    break;
 	  case 'O':
-	    return fmt_not_implemented("%O");
+	  case ':':
+	    if ( format[0] == 'z' )
+	    { altO = TRUE;
+	      goto fmt_next;
+	    }
+
+	    return fmt_not_implemented(c);
 	  case 'r':			/* The  time in a.m./p.m. notation */
 	    SUBFORMAT(L"%I:%M:%S %p");	/* TBD: :-separator locale handling */
 	    break;
@@ -798,6 +810,8 @@ format_time(IOSTREAM *fd, const wchar_t *format, ftm *ftm, int posix)
 	      OUTCHR(fd, '-');
 	    }
 	    OUT2DIGITS(fd, min/60);
+	    if ( altO )
+	      OUTCHR(fd, ':');
 	    OUT2DIGITS(fd, min%60);
 	    break;
 	  }
@@ -827,6 +841,8 @@ format_time(IOSTREAM *fd, const wchar_t *format, ftm *ftm, int posix)
 	      else
 		arg = arg*10+(c-'0');
 	      goto fmt_next;
+	    } else
+	    { return fmt_not_implemented(c);
 	    }
 	}
         break;
@@ -939,17 +955,4 @@ BeginPredDefs(tai)
   PRED_DEF("date_time_stamp", 2, date_time_stamp, 0)
   PRED_DEF("format_time",     3, format_time3,    0)
   PRED_DEF("format_time",     4, format_time4,    0)
-  PRED_DEF("swi_stamp_date_time", 3, stamp_date_time, 0)
-  PRED_DEF("swi_date_time_stamp", 2, date_time_stamp, 0)
-  PRED_DEF("swi_format_time",     3, format_time3,    0)
-  PRED_DEF("swi_format_time",     4, format_time4,    0)
 EndPredDefs
-
-#if _YAP_NOT_INSTALLED_
-install_t
- install(void)
-	{
-	  PL_register_extensions(PL_predicates_from_tai);
-	}
-#endif
-
