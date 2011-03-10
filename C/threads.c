@@ -165,6 +165,7 @@ setup_engine(int myworker_id, int init_thread)
   REGSTORE *standard_regs;
   
   standard_regs = (REGSTORE *)calloc(1,sizeof(REGSTORE));
+  regcache = standard_regs;
   /* create the YAAM descriptor */
   FOREIGN_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
   if (init_thread) {
@@ -200,6 +201,7 @@ thread_run(void *widp)
   int myworker_id = *((int *)widp); 
 
   start_thread(myworker_id);
+  regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
   do {
     t = tgs[0] = Yap_PopTermFromDB(MY_ThreadHandle.tgoal);
     if (t == 0) {

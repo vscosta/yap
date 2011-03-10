@@ -1244,9 +1244,6 @@ InitCodes(void)
   int wid;
 #include "ihstruct.h"
   InitGlobal();
-  for (wid = 0; wid < MAX_INITS; wid++) {
-    InitWorker(wid);
-  }
   InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
