@@ -86,8 +86,8 @@ static functor_t FUNCTOR_filename1;
 
 struct dbuf
 { char *buf;
-  int size;
-  int allocated;
+  size_t size;
+  size_t allocated;
 };
 
 static int

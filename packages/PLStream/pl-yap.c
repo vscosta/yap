@@ -874,7 +874,7 @@ int PL_unify_integer__LD(term_t t, intptr_t i ARG_LD)
 {	
   CACHE_REGS
   Term iterm = MkIntegerTerm(i);
-  return Yap_unify(Yap_GetFromSlot(i PASS_REGS),iterm);
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
 extern int Yap_getInputStream(term_t t, IOSTREAM **s);

@@ -35,10 +35,10 @@
 	    client/1			% +Address
 	  ]).
 
-%:- asserta(user:file_search_path(foreign, '.')).
+:- asserta(user:file_search_path(foreign, '.')).
 
-:- use_module(library(socket)).
-%:- use_module(user:socket).		% debugging
+:- use_module(socket).
+:- use_module(user:socket).		% debugging
 :- use_module(streampool).
 :- use_module(library(debug)).
 
@@ -182,6 +182,7 @@ reply(T, _, T).
 
 receive_loop(Socket, Queue) :-
 	repeat,
+writeln(hellorec),
 	    udp_receive(Socket, Data, From, [as(atom)]),
 	    thread_send_message(Queue, got(Data, From)),
 	    Data == quit, !,
@@ -210,7 +211,9 @@ run_udp :-
 	thread_get_message(got(X, _)),
 	udp_send(S, 'quit', localhost:Port, []),
 	thread_get_message(got(Q, _)),
+writeln(hello2),
 	thread_join(ThreadId, Exit),
+writeln(hello2),
 	tcp_close_socket(S),
 	assertion(X=='hello world'),
 	assertion(Q=='quit'),

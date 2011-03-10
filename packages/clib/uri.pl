@@ -46,9 +46,6 @@
 	    uri_file_name/2,		% ?URI, ?Path
 	    uri_iri/2			% ?URI, ?IRI
 	  ]).
-
-:- use_module(library(shlib)).
-
 :- use_foreign_library(foreign(uri)).
 
 /** <module> Process URIs

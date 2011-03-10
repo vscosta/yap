@@ -23,7 +23,7 @@
 
 /* $Id$ */
 
-#if	HAS_GETHOSTNAME||HAVE_GETHOSTNAME
+#if	HAS_GETHOSTNAME
 
 #else
 

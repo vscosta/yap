@@ -5,20 +5,11 @@
 ################################################################
 
 CC=@CC@
-CFLAGS=@CFLAGS@ @DEFS@
+CFLAGS=@MAILDROP_CFLAGS@ @DEFS@
 LIBS=@LIBS@
 AR=@AR@
 RANLIB=@RANLIB@
-
-ifeq (@PROLOG_SYSTEM@,yap)
-
 srcdir=@srcdir@
-
-SHLIB_CFLAGS=@SHLIB_CFLAGS@
-
-%.o: $(srcdir)/%.c
-		$(CC) -c $(CFLAGS) -I$(srcdir) -I$(srcdir)/.. -I../../../.. $(SHLIB_CFLAGS) $< -o $@
-endif
 
 OBJ=	rfc2045.o rfc2045acchk.o rfc2045acprep.o \
 	rfc2045appendurl.o rfc2045cdecode.o rfc2045decode.o \
@@ -34,13 +25,18 @@ librfc2045.a: $(OBJ)
 	$(AR) r librfc2045.a $(OBJ)
 	$(RANLIB) librfc2045.a
 
+#
+# find out how to generate .o files from $(scrdir)
+#
+%.o: $(srcdir)/%.c
+		$(CC) -c $(CFLAGS) $< -o $@
 
 ################################################################
 # Clean
 ################################################################
 
 clean:
-		rm -f $(OBJ) *~ *.o *% a.out core config.log librfc2045.a
+		rm -f $(OBJ) *~ *.o *% a.out core config.log
 
 distclean:	clean
 		rm -f Makefile config.status config.h librfc2045.a

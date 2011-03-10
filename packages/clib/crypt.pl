@@ -33,8 +33,6 @@
 	  [ crypt/2
 	  ]).
 
-:- use_module(library(shlib)).
-
 :- use_foreign_library(foreign(crypt), install_crypt).
 
 %	crypt(+Passwd, ?Encripted).

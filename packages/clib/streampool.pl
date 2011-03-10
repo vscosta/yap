@@ -36,7 +36,7 @@
 	    dispatch_stream_pool/1,	% +TimeOut
 	    stream_pool_main_loop/0
 	  ]).
-%:- use_module(library(quintus)).
+:- use_module(library(quintus)).
 
 :- meta_predicate
 	add_stream_to_pool(+, :).

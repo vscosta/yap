@@ -43,9 +43,6 @@
 :- use_module(library(shlib)).
 :- use_module(library(lists)).
 :- use_module(library(option)).
-:- use_module(library(error)).
-
-:- use_module(library(maplist)).
 
 :- use_foreign_library(foreign(process)).
 
@@ -154,8 +151,15 @@ user:file_search_path(path, Dir) :-
 %	    * process(-PID)
 %	    Unify PID with the process id of the created process.
 %	    * detached(+Bool)
-%	    If =true=, detach the process from the terminal (Unix only)
+%	    In Unix: If =true=, detach the process from the terminal
 %	    Currently mapped to setsid();
+%	    In Windows: If =true=, detach the process from the current
+%	    job via the CREATE_BREAKAWAY_FROM_JOB flag. In Vista and beyond,
+%           processes launched from the shell directly have the 'compatibility
+%           assistant' attached to them automatically unless they have a UAC
+%           manifest embedded in them. This means that you will get a
+%           permission denied error if you try and assign the newly-created
+%           PID to a job you create yourself. 
 %	    * window(+Bool)
 %	    If =true=, create a window for the process (Windows only)
 %

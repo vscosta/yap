@@ -35,3 +35,48 @@
 :- use_module(library(shlib)).
 
 :- use_foreign_library(foreign(cgi), install_cgi).
+
+/** <module> Read CGI parameters
+
+Below is a very simple CGI script  that prints the passed parameters. To
+test it, compile this program using the   command below, copy it to your
+cgi-bin directory (or make it otherwise known  as a CGI-script) and try
+the query =|http://myhost.mydomain/cgi-bin/cgidemo?hello=world|=
+
+    ==
+    % swipl -o cgidemo --goal=main --toplevel=halt -c cgidemo.pl
+    ==
+
+    ==
+    :- use_module(library(cgi)).
+
+    main :-
+        set_stream(current_output, encoding(utf8)),
+        cgi_get_form(Arguments),
+        format('Content-type: text/html; charset=UTF-8~n~n', []),
+        format('<html>~n', []),
+        format('<head>~n', []),
+        format('<title>Simple SWI-Prolog CGI script</title>~n', []),
+        format('</head>~n~n', []),
+        format('<body>~n', []),
+        format('<p>', []),
+        print_args(Arguments),
+        format('</body>~n</html>~n', []).
+
+    print_args([]).
+    print_args([A0|T]) :-
+        A0 =.. [Name, Value],
+        format('<b>~w</b>=<em>~w</em><br>~n', [Name, Value]),
+        print_args(T).
+    ==
+*/
+
+%%	cgi_get_form(-Form)
+%
+%	Decodes standard input and the environment variables to obtain a
+%	list of arguments passed to the  CGI script. This predicate both
+%	deals with the CGI *GET* method as well as the *POST* method. If
+%	the data cannot be  obtained,   an  existence_error exception is
+%	raised.
+%
+%	@param Form is a list of Name(Value) terms.

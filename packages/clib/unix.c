@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/types.h>u
+#include <sys/types.h>
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <assert.h>
@@ -247,11 +247,7 @@ pl_environ(term_t l)
   term_t vt = PL_new_term_ref();
   functor_t FUNCTOR_equal2 = PL_new_functor(PL_new_atom("="), 2);
 
-#if HAVE__NSGETENVIRON
-  for(e = _NSGetEnviron(); *e; e++)
-#else
   for(e = environ; *e; e++)
-#endif
   { char *s = strchr(*e, '=');
 
     if ( !s )

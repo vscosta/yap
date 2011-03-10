@@ -9,105 +9,24 @@
 # Author: Jan Wielemaker (wielemak@science.uva.nl)
 ################################################################
 
-.SUFFIXES: .tex .dvi .doc .pl
+PACKAGE=clib
+DOC=clib
+PKGCFLAGS=-I$(srcdir) -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822
+include ../Makefile.defs
 
-ifeq (@PROLOG_SYSTEM@,yap)
-prefix = @prefix@
-exec_prefix = @exec_prefix@
-ROOTDIR = $(prefix)
-EROOTDIR = @exec_prefix@
-abs_top_builddir = @abs_top_builddir@
-
-srcdir=@srcdir@
-
-BINDIR = $(EROOTDIR)/bin
-LIBDIR=@libdir@
-YAPLIBDIR=@libdir@/Yap
-SHAREDIR=$(ROOTDIR)/share/Yap
-
-SHELL=@SHELL@
-PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
-LN_S=@LN_S@
-#
-#
-DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
-CC=@CC@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include -I. -I$(srcdir)/maildrop/rfc2045 -I$(srcdir)/maildrop/rfc822  @CPPFLAGS@
-MKINDEX=true
 NETLIBS=@CLIB_NETLIBS@
 CRYPTLIBS=@CLIB_CRYPTLIBS@
-PTHREADLIBS=@CLIB_PTHREADS@
-
-LD=@DO_SECOND_LD@	@SHLIB_LD@
-LDFLAGS=@EXTRA_LIBS_FOR_SWIDLLS@ @LDFLAGS@
-
-BINTARGET=$(DESTDIR)$(YAPLIBDIR)
-PLTARGET=$(DESTDIR)$(SHAREDIR)
-
-FINAL_BINTARGET=$(YAPLIBDIR)
-FINAL_PLTARGET=$(SHAREDIR)
-
-%.o: $(srcdir)/%.c
-		$(CC) -c $(CFLAGS) $< -o $@
-
-sha1/%.o: $(srcdir)/sha1/%.c
-		$(CC) -c $(CFLAGS) $< -o $@
-
-else	# SWI
-
-PL=@PL@
-PLBASE=@PLBASE@
-PLARCH=@PLARCH@
-PLINCL=@PLINCL@
-PKGDOC=$(PLBASE)/doc/packages
-PCEHOME=../xpce
-
-CC=@CC@
-COFLAGS=@COFLAGS@
-CWFLAGS=@CWFLAGS@
-CMFLAGS=@CMFLAGS@
-CIFLAGS=-I. -Imaildrop/rfc2045 -Imaildrop/rfc822
-CFLAGS=$(COFLAGS) $(CWFLAGS) $(CMFLAGS) $(CIFLAGS) @DEFS@
-LIBS=@LIBS@
-NETLIBS=@NETLIBS@
-CRYPTLIBS=@CRYPTLIBS@
-
-PUBLICPL=swipl
-DOCTOTEX=$(PCEHOME)/bin/doc2tex
-PLTOTEX=$(PUBLICPL) -q -s pltotex.pl -g pltotex --
-DOC=clib
-TEX=$(DOC).tex process.tex uri.tex
-DVI=$(DOC).dvi
-PDF=$(DOC).pdf
-RUNTEX=../../man/runtex
-
-LD=@LD@
-LDFLAGS=@LDSOFLAGS@
-
-BINTARGET=$(DESTDIR)$(PLBASE)/lib/$(PLARCH)
-PLTARGET=$(DESTDIR)$(PLBASE)/library
-
-FINAL_BINTARGET=$(PLBASE)/lib/$(PLARCH)
-FINAL_PLTARGET=$(PLBASE)/library
-
-endif	#YAP/SWI
-
 MIMELIBS=maildrop/rfc2045/librfc2045.a maildrop/rfc822/librfc822.a
 
-INSTALL=@INSTALL@
-INSTALL_PROGRAM=@INSTALL_PROGRAM@
-INSTALL_DATA=@INSTALL_DATA@
-
-LIBPL=		@CLIB_PLTARGETS@ $(srcdir)/streaminfo.pl $(srcdir)/process.pl \
-		$(srcdir)/prolog_server.pl $(srcdir)/sha.pl \
-		$(srcdir)/socket.pl \
-		$(srcdir)/uri.pl
+LIBPL=		@CLIB_PLTARGETS@ streaminfo.pl process.pl prolog_server.pl sha.pl \
+		uri.pl
 TARGETS=	@CLIB_TARGETS@ readutil.@SO@ streaminfo.@SO@ process.@SO@ \
 		sha4pl.@SO@ uri.@SO@
+
 UNXOBJ=		error.o unix.o
 SOCKOBJ=	error.o socket.o nonblockio.o
 CGIOBJ=		error.o form.o cgi.o
-CRYPTOBJ=	error.o crypt.o md5.o md5passwd.o @ENABLE_WINCONSOLE@ bsd-crypt.o
+CRYPTOBJ=	error.o crypt.o md5.o md5passwd.o
 MEMOBJ=		error.o memfile.o
 MIMEOBJ=	error.o mime.o
 TIMEOBJ=	error.o time.o
@@ -124,38 +43,42 @@ SHAOBJ=		error.o sha4pl.o sha1/sha1.o sha1/sha2.o \
 all:		$(TARGETS)
 
 random.@SO@:	$(RANDOMOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(RANDOMOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(RANDOMOBJ)
 unix.@SO@:	$(UNXOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(UNXOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(UNXOBJ)
 socket.@SO@:	$(SOCKOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(SOCKOBJ) $(NETLIBS) $(PTHREADLIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(SOCKOBJ) $(NETLIBS)
 cgi.@SO@:	$(CGIOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(CGIOBJ) $(PTHREADLIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(CGIOBJ)
 crypt.@SO@:	$(CRYPTOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(CRYPTOBJ) $(CRYPTLIBS) $(PTHREADLIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(CRYPTOBJ) $(CRYPTLIBS)
 memfile.@SO@:	$(MEMOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(MEMOBJ) $(LIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(MEMOBJ) $(LIBS)
 mime.@SO@:	$(MIMEOBJ) $(MIMELIBS)
-		$(LD) $(LDFLAGS) -o $@ $(MIMEOBJ) $(MIMELIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(MIMEOBJ) $(MIMELIBS)
 time.@SO@:	$(TIMEOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(TIMEOBJ) $(LIBS) $(PTHREADLIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(TIMEOBJ) $(LIBS)
 files.@SO@:	$(FILESOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(FILESOBJ) $(LIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(FILESOBJ) $(LIBS)
 rlimit.@SO@:	$(RLIMITOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(RLIMITOBJ) $(LIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(RLIMITOBJ) $(LIBS)
 readutil.@SO@:	$(READUTILOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(READUTILOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(READUTILOBJ)
 process.@SO@:	$(PROCESSOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(PROCESSOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(PROCESSOBJ)
 streaminfo.@SO@: $(STREAMINFOOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(STREAMINFOOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(STREAMINFOOBJ)
 sha4pl.@SO@:	$(SHAOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(SHAOBJ)
+		$(LD) $(LDSOFLAGS) -o $@ $(SHAOBJ)
 uri.@SO@:	$(URIOBJ)
-		$(LD) $(LDFLAGS) -o $@ $(URIOBJ) $(PTHREADLIBS)
+		$(LD) $(LDSOFLAGS) -o $@ $(URIOBJ)
 
 socket.o:	$(srcdir)/socket.c $(srcdir)/sockcommon.c
 
+sha1/sha1.o:
+		$(CC) -c $(CFLAGS) -DUSE_SHA1 -o $@ $(srcdir)/sha1/sha1.c
+sha1/sha2.o:
+		$(CC) -c $(CFLAGS) -DUSE_SHA1 -o $@ $(srcdir)/sha1/sha2.c
 sha1/hmac_sha1.o:
 		$(CC) -c $(CFLAGS) -DUSE_SHA1 -o $@ $(srcdir)/sha1/hmac.c
 sha1/hmac_sha256.o:
@@ -167,16 +90,16 @@ maildrop/rfc2045/librfc2045.a:
 		(cd maildrop/rfc2045 && $(MAKE))
 
 
-install:	$(TARGETS) $(LIBPL)
-		mkdir -p $(BINTARGET)
+install:	$(TARGETS)
+		mkdir -p $(DESTDIR)$(SOLIBDIR)
 		for f in $(TARGETS); do \
-		  $(INSTALL_PROGRAM) $$f $(BINTARGET); \
+		  $(INSTALL_PROGRAM) $$f $(DESTDIR)$(SOLIBDIR); \
 		done
-		mkdir -p $(PLTARGET)
+		mkdir -p $(DESTDIR)$(PLLIBDIR)
 		for f in $(LIBPL); do \
-		  $(INSTALL_DATA) $$f $(PLTARGET); \
+		  $(INSTALL_DATA) $(srcdir)/$$f $(DESTDIR)$(PLLIBDIR); \
 		done
-		$(PL) -f none -g make -t halt
+		( cd $(srcdir) ; $(PL) -f none -g make -t halt )
 
 ln-install::
 		@$(MAKE) INSTALL_DATA='../ln-install' INSTALL_PROGRAM='../ln-install' install
@@ -192,8 +115,8 @@ pdf-install::
 		$(INSTALL) -m 644 clib.pdf $(DESTDIR)$(PKGDOC)
 
 uninstall::
-		(cd $(FINAL_BINTARGET) && rm -f $(TARGETS))
-		(cd $(FINAL_PLTARGET) && rm -f $(LIBPL))
+		(cd $(PLBASE)/lib/$(PLARCH) && rm -f $(TARGETS))
+		(cd $(PLBASE)/library && rm -f $(LIBPL))
 		$(PL) -f none -g make -t halt
 
 ################################################################
@@ -206,56 +129,42 @@ check:		check-socket check-memfile check-unit check-process \
 torture:	torture-socket
 
 check-socket::
-		$(PL) -q -f $(srcdir)/test_socket.pl -F none -g test_socket,halt -t 'halt(1)'
+		( cd $(srcdir) && $(PL) -q -f test_socket.pl -F none -g test_socket,halt -t 'halt(1)' )
 
 torture-socket::
-		$(PL) -q -f $(srcdir)/stresssocket.pl -F none -g test,halt -t 'halt(1)'
+		( cd $(srcdir) && $(PL) -q -f stresssocket.pl -F none -g test,halt -t 'halt(1)' )
 
 check-memfile::
-		$(PL) -q -f $(srcdir)/test_memfile.pl -F none -g test_memfile,halt -t 'halt(1)'
+		( cd $(srcdir) && $(PL) -q -f test_memfile.pl -F none -g test_memfile,halt -t 'halt(1)' )
 
 check-unit::
-		$(PL) -q -f $(srcdir)/test.pl -g run_tests,halt -t 'halt(1)'
+		( cd $(srcdir) && $(PL) -q -f test.pl -g run_tests,halt -t 'halt(1)' )
 
 check-uri::
-		$(PL) -q -f $(srcdir)/test_uri.pl -g true -t test_uri
+		( cd $(srcdir) && $(PL) -q -f test_uri.pl -g true -t test_uri )
 
 check-cgi::
-		$(PL) -q -f $(srcdir)/test_cgi.pl -g true -t test_cgi
+		( cd $(srcdir) && $(PL) -q -f test_cgi.pl -g true -t test_cgi )
 
 check-process::
-		$(PL) -q -f $(srcdir)/test_process.pl -g true -t test_process
+		( cd $(srcdir) && $(PL) -q -f test_process.pl -g true -t test_process )
 
 check-read::
-		$(PL) -q -f $(srcdir)/test_readutil.pl -g true -t test_readutil
+		( cd $(srcdir) && $(PL) -q -f test_readutil.pl -g true -t test_readutilw )
 
 ################################################################
 # Documentation
 ################################################################
 
-pdf:		$(PDF)
-
-$(DVI):		$(TEX)
-		$(RUNTEX) $(DOC)
-
-$(PDF):		$(TEX)
-		$(RUNTEX) --pdf $(DOC)
-
-html:		$(TEX)
-		latex2html $(DOC)
-		mv html/index.html clib.html
-		rm -r html
-
-$(TEX):		$(DOCTOTEX)
+TEXEXTRA=process.tex uri.tex filesex.tex
+$(TEX):	    	$(TEXEXTRA)
 
 uri.tex:	uri.pl
 		$(PLTOTEX) 'library(uri)'
 process.tex:	process.pl
 		$(PLTOTEX) 'library(process)'
-
-.doc.tex:
-		$(DOCTOTEX) $*.doc > $*.tex
-
+filesex.tex:	filesex.pl
+		$(PLTOTEX) 'library(filesex)'
 
 ################################################################
 # Clean

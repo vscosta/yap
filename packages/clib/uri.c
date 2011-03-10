@@ -487,6 +487,7 @@ add_decoded_range_charbuf(charbuf *cb, const range *r, int flags)
 static int
 add_normalized_range_charbuf(charbuf *cb, const range *r, int iri, int flags)
 { const pl_wchar_t *s = r->start;
+
   while(s<r->end)
   { int c;
 
@@ -797,11 +798,13 @@ uri_is_global(term_t URI)
     const pl_wchar_t *end = &s[len];
     range r;
 
+    fill_flags();
+
     e = skip_not(s, end, L":/?#");
     if ( e > s && e[0] == ':' )
     { r.start = s;
       r.end = e;
-      if ( range_is_unreserved(&r, TRUE, CH_SCHEME) )
+      if ( range_is_unreserved(&r, FALSE, CH_SCHEME) )
 	return TRUE;
     }
   }
@@ -1148,11 +1151,11 @@ normalize_in_charbuf(charbuf *cb, uri_component_ranges *ranges, int iri)
   }
   if ( ranges->query.start )
   { add_charbuf(cb, '?');
-    add_range_charbuf(cb, &ranges->query, iri, ESC_QUERY);
+    add_range_charbuf(cb, &ranges->query, iri, ESC_QVALUE);
   }
   if ( ranges->fragment.start )
   { add_charbuf(cb, '#');
-    add_range_charbuf(cb, &ranges->fragment, iri, ESC_FRAGMENT);
+    add_range_charbuf(cb, &ranges->fragment, iri, ESC_QVALUE);
   }
 
   return TRUE;

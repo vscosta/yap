@@ -29,8 +29,12 @@
 #include "clib.h"
 #include "form.h"
 
+#ifdef __WINDOWS__		/* strtoll is C99, but it is only 2011 ... */
+#define strtoll(s,e,b) _strtoi64(s,e,b)
+#endif
+
 static int
-isinteger(const char *s, long *val, size_t len)
+isinteger(const char *s, long long *val, size_t len)
 { char *e;
 
   if ( len == (size_t)-1 )
@@ -38,7 +42,7 @@ isinteger(const char *s, long *val, size_t len)
   if ( len == 0 )
     return FALSE;
 
-  *val = strtol(s, &e, 10);
+  *val = strtoll(s, &e, 10);
   if ( e == s+len )
     return TRUE;
 
@@ -70,13 +74,13 @@ add_to_form(const char *name, size_t nlen,
 { term_t head = PL_new_term_ref();
   term_t tail = (term_t) closure;
   term_t val  = PL_new_term_ref();
-  long vl;
+  long long vl;
   double vf;
   int rc;
   atom_t aname = 0;
 
   if ( isinteger(value, &vl, len) )
-    rc = PL_put_integer(val, vl);
+    rc = PL_put_int64(val, vl);
   else if ( isfloat(value, &vf, len) )
     rc = PL_put_float(val, vf);
   else
@@ -103,13 +107,13 @@ mp_add_to_form(const char *name, size_t nlen,
 { term_t head = PL_new_term_ref();
   term_t tail = (term_t) closure;
   term_t val  = PL_new_term_ref();
-  long vl;
+  long long vl;
   double vf;
   int rc;
   atom_t aname = 0;
 
   if ( isinteger(value, &vl, len) )
-    rc = PL_put_integer(val, vl);
+    rc = PL_put_int64(val, vl);
   else if ( isfloat(value, &vf, len) )
     rc = PL_put_float(val, vf);
   else

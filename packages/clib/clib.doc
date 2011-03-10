@@ -186,43 +186,7 @@ controlling terminal.
 
 
 \input{process.tex}
-
-
-\section{File manipulation library}
-
-The \pllib{files} library provides additional operations on files from
-SWI-Prolog.  It is currently very incomplete.
-
-\begin{description}
-    \predicate{set_time_file}{3}{+File, -OldTimes, +NewTimes}
-Query and set POSIX time attributes of a file.  Both \arg{OldTimes}
-and \arg{NewTimes} are lists of option-terms.  Times are represented
-in SWI-Prolog's standard floating point numbers.  New times may
-be specified as \const{now} to indicate the current time.  Defined
-options are:
-
-\begin{description}
-    \termitem{access}{Time}
-Describes the time of last access of the file.  This value can be
-read and written.
-
-    \termitem{modified}{Time}
-Describes the time the contents of the file was last modified.
-This value can be read and written.
-
-    \termitem{changed}{Time}
-Describes the time the file-structure itself was changed by adding
-(link()) or removing (unlink()) names.
-\end{description}
-
-Here are some example queries.  The first retrieves the access-time,
-while the second sets the last-modified time to the current time.
-
-\begin{code}
-?- set_time_file(foo, [acess(Access)], []).
-?- set_time_file(foo, [], [modified(now)]).
-\end{code}
-\end{description}
+\input{filesex.tex}
 
 \section{Socket library}
 
@@ -366,7 +330,7 @@ to deal switch stream to non-blocking mode using:
 
 \begin{code}
 	...
-	tcp_fcntl(Stream, setfl. nonblock),
+	tcp_fcntl(Stream, setfl, nonblock),
 	...
 \end{code}
 
@@ -378,17 +342,18 @@ end-of-input, at_end_of_stream/1 succeeds.
     \predicate{tcp_host_to_address}{2}{?HostName, ?Address}
 Translate between a machines host-name and it's (IP-)address. If
 \arg{HostName} is an atom, it is resolved using
-\funcref{gethostbyname}{} and the IP-number is unified to \arg{Address}
+\funcref{getaddrinfo}{} and the IP-number is unified to \arg{Address}
 using a term of the format \term{ip}{Byte1, Byte2, Byte3, Byte4}.
 Otherwise, if \arg{Address} is bound to a \functor{ip}{4} term, it
 is resolved by \funcref{gethostbyaddr}{} and the canonical hostname
-is unified with \arg{HostName}.
+is unified with \arg{HostName}.\footnote{This function should support
+more functionality provided by \funcref{gethostbyaddr}{}, probably
+by adding an option-list.}
 
     \predicate{gethostname}{1}{-Hostname}
-Return the official fully qualified name of this host.  This is achieved
-by calling gethostname() followed by gethostbyname() and return the
-official name of the host (\const{h_name}) of the structure returned
-by the latter function.
+Return the canonical fully qualified name of this host. This is achieved
+by calling \funcref{gethostname}{} and return the canonical name
+returned by \funcref{getaddrinfo}{}.
 \end{description}
 
 
@@ -930,9 +895,14 @@ is closed.  This is used to realise open_chars_stream/2 in
 library(charsio).
 \end{description}
 
-    \predicate{size_memory_file}{2}{+Handle, -Bytes}
-Return the content-length of the memory-file it \arg{Bytes}.  The
-file should be closed and contain data.
+    \predicate{size_memory_file}{2}{+Handle, -Size}
+Return the content-length of the memory-file it characters in the
+current encoding of the memory file. The file should be closed and
+contain data.
+
+    \predicate{size_memory_file}{2}{+Handle, -Size, +Encoding}
+Return the content-length of the memory-file it characters in the given
+\arg{Encoding}. The file should be closed and contain data.
 
     \predicate{atom_to_memory_file}{2}{+Atom, -Handle}
 Turn an atom into a read-only memory-file containing the (shared)
@@ -972,13 +942,12 @@ on the next pass through a call- or redo-port of the Prolog engine,
 or a call to the PL_handle_signals() routine from SWI-Prolog.  \arg{Id}
 is unified with a reference to the timer.
 
-The resolution of the alarm depends on the underlying implementation. On
-Unix systems it is based on setitimer(), on Windows on timeSetEvent()
-using a resolution specified at 50 milliseconds.\bug{The maximum time
-for timeSetEvent() used by the Windows application is 1000 seconds.
-Calling with a higher time value raises a \const{resource_error}
-exception.} Long-running foreign predicates that do not call
-PL_handle_signals() may further delay the alarm.
+The resolution of the alarm depends on the underlying implementation,
+which is based on pthread_cond_timedwait() (on Windows on the pthread
+emulation thereof). Long-running foreign predicates that do not call
+PL_handle_signals() may further delay the alarm.  The relation to
+blocking system calls (sleep, reading from slow devices, etc.) is
+undefined and varies between implementations.
 
 \arg{Options} is a list of \term{\arg{Name}}{Value} terms.  Defined
 options are:
@@ -1030,10 +999,9 @@ executed as in once/1. If \arg{Goal} doesn't complete within \arg{Time}
 seconds (wall time), exit using the exception
 \const{time_limit_exceeded}. See catch/3.
 
-Please note that this predicate uses alarm/4 and therefore is \emph{not}
-capable to break out of long running goals such as sleep/1, blocking I/O
-or other long-running (foreign) predicates.  Blocking I/O can be handled
-using the timeout option of read_term/3.
+Please note that this predicate uses alarm/4 and therefore its effect on
+long-running foreign code and system calls is undefined. Blocking I/O
+can be handled using the timeout option of read_term/3.
 \end{description}
 
 

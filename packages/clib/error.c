@@ -57,6 +57,7 @@ pl_error(const char *pred, int arity, const char *msg, int id, ...)
 
       switch(err)
       { case ENOMEM:
+	case EAGAIN:			/* fork(); might be other resource */
 	  rc = PL_unify_term(formal,
 			     CompoundArg("resource_error", 1),
 			       AtomArg("no_memory"));
@@ -85,7 +86,7 @@ pl_error(const char *pred, int arity, const char *msg, int id, ...)
       break;
     }
     case ERR_ARGTYPE:
-    { int argn	      = va_arg(args, int);
+    { int argn        = va_arg(args, int); 	/* argument position (unused) */
       term_t actual   = va_arg(args, term_t);
       atom_t expected = PL_new_atom(va_arg(args, const char*));
 

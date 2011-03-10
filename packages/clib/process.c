@@ -79,6 +79,22 @@ static functor_t FUNCTOR_eq2;		/* =/2 */
 #define DEBUG(g) (void)0
 #endif
 
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <io.h>
+typedef DWORD  pid_t;
+typedef wchar_t echar;			/* environment character */
+
+#ifndef CREATE_BREAKAWAY_FROM_JOB
+#define CREATE_BREAKAWAY_FROM_JOB 0x1000000
+#endif
+
+#else
+typedef char echar;
+#endif
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ISSUES:
 	- Deal with child errors (no cwd, cannot execute, etc.)
@@ -144,19 +160,6 @@ resource_error(const char *resource)
 		 /*******************************
 		 *	       ADMIN		*
 		 *******************************/
-
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <io.h>
-#ifndef __MINGW32__
-typedef DWORD  pid_t;
-#endif
-typedef wchar_t echar;			/* environment character */
-#else
-typedef char echar;
-#endif
 
 typedef enum std_type
 { std_std,
@@ -653,57 +656,7 @@ win_init()
 }
 
 
-static atom_t
-WinError()
-{ int id = GetLastError();
-  char *msg;
-  static WORD lang;
-  static lang_initialised = 0;
-
-  if ( !lang_initialised )
-    lang = MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_UK);
-
-again:
-  if ( FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|
-		     FORMAT_MESSAGE_IGNORE_INSERTS|
-		     FORMAT_MESSAGE_FROM_SYSTEM,
-		     NULL,			/* source */
-		     id,			/* identifier */
-		     lang,
-		     (LPTSTR) &msg,
-		     0,				/* size */
-		     NULL) )			/* arguments */
-  { atom_t a = PL_new_atom(msg);
-
-    LocalFree(msg);
-    lang_initialised = 1;
-
-    return a;
-  } else
-  { if ( lang_initialised == 0 )
-    { lang = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
-      lang_initialised = 1;
-      goto again;
-    }
-
-    return PL_new_atom("Unknown Windows error");
-  }
-}
-
-
-static int
-win_error(const char *op)
-{ atom_t msg = WinError();
-  term_t ex = PL_new_term_ref();
-
-  PL_unify_term(ex, PL_FUNCTOR, FUNCTOR_error2,
-		      PL_FUNCTOR, FUNCTOR_system_error2,
-		        PL_CHARS, op,
-		        PL_ATOM, msg,
-		      PL_VARIABLE);
-
-  return PL_raise_exception(ex);
-}
+#include "win_error.c"
 
 
 typedef struct arg_string
@@ -1073,6 +1026,9 @@ do_create_process(p_options *info)
       break;
   }
 
+  if ( info->detached )
+    flags |= CREATE_BREAKAWAY_FROM_JOB;
+
   memset(&si, 0, sizeof(si));
   si.cb = sizeof(si);
   si.dwFlags = STARTF_USESTDHANDLES;
@@ -1318,13 +1274,16 @@ wait_success(atom_t name, pid_t pid)
 }
 
 
+#ifndef HAVE_VFORK
+#define vfork fork
+#endif
+
 static int
 do_create_process(p_options *info)
 { int pid;
 
-  if ( !(pid=fork()) )			/* child */
+  if ( !(pid=vfork()) )			/* child */
   { int fd;
-    int rc;
 
     PL_cleanup_fork();
 
@@ -1379,21 +1338,18 @@ do_create_process(p_options *info)
     }
 
     if ( info->envp )
-      rc = execve(info->exe, info->argv, info->envp);
+      execve(info->exe, info->argv, info->envp);
     else
-      rc = execv(info->exe, info->argv);
+      execv(info->exe, info->argv);
 
-    if ( rc )
-    { perror(info->exe);
-      exit(1);
-    }
+    perror(info->exe);
+    exit(1);
+  } else if ( pid < 0 )			/* parent */
+  { term_t exe = PL_new_term_ref();
+    PL_put_atom_chars(exe, info->exe);
 
-    { term_t exe = PL_new_term_ref();
-      PL_put_atom_chars(exe, info->exe);
-
-      return pl_error(NULL, 0, "execv", ERR_ERRNO, errno, "exec", "process", exe);
-    }
-  } else				/* parent */
+    return pl_error(NULL, 0, "fork", ERR_ERRNO, errno, "fork", "process", exe);
+  } else
   { if ( info->pipes > 0 && info->pid == 0 )
     { IOSTREAM *s;
       process_context *pc = PL_malloc(sizeof(*pc));
@@ -1462,7 +1418,7 @@ Basic process creation interface takes
 	* List of arguments
 	* standard streams		% std, null, pipe(S)
 	* Working directory
-	* detached			% Unix
+	* detached
 	* window			% Windows
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
