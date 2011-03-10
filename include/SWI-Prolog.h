@@ -594,9 +594,25 @@ extern X_API void  PL_fatal_error(const char *msg);
 extern X_API int Sprintf(const char * fm,...);
 extern X_API int Sdprintf(const char *,...);
 
-extern X_API int PL_get_file_name(term_t n, char **name, int flags);
-
 extern char *PL_prompt_string(int fd);
+
+                 /*******************************
+                 *        FILENAME SUPPORT      *
+                 *******************************/
+
+#define PL_FILE_ABSOLUTE        0x01    /* return absolute path */
+#define PL_FILE_OSPATH          0x02    /* return path in OS notation */
+#define PL_FILE_SEARCH          0x04    /* use file_search_path */
+#define PL_FILE_EXIST           0x08    /* demand file to exist */
+#define PL_FILE_READ            0x10    /* demand read-access */
+#define PL_FILE_WRITE           0x20    /* demand write-access */
+#define PL_FILE_EXECUTE         0x40    /* demand execute-access */
+#define PL_FILE_NOERRORS        0x80    /* do not raise exceptions */
+
+PL_EXPORT(int)          PL_get_file_name(term_t n, char **name, int flags);
+PL_EXPORT(int)          PL_get_file_nameW(term_t n, wchar_t **name, int flags);
+PL_EXPORT(void)         PL_changed_cwd(void); /* foreign code changed CWD */
+PL_EXPORT(const char *) PL_cwd(void);
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 NOTE: the functions in this section are   not  documented, as as yet not

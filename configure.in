@@ -1810,18 +1810,18 @@ AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
 CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
-CLIB_PLTARGETS="\$(srcdir)/random.pl \$(srcdir)/socket.pl \$(srcdir)/cgi.pl \$(srcdir)/memfile.pl \$(srcdir)/filesex.pl \$(srcdir)/mime.pl \$(srcdir)/crypt.pl"
+CLIB_PLTARGETS="random.pl socket.pl cgi.pl memfile.pl filesex.pl mime.pl crypt.pl"
 
 if test "$ac_cv_func_setitimer" = "yes"; then
   CLIB_TARGETS="$CLIB_TARGETS time.$SO"
-  CLIB_PLTARGETS="$CLIB_PLTARGETS \$(srcdir)/time.pl"
+  CLIB_PLTARGETS="$CLIB_PLTARGETS time.pl"
 else
   echo "WARNING: no setitimer(); dropping time.pl from targets"
 fi
 
 if test "$IN_UNIX" = ""; then
 CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
-CLIB_PLTARGETS="\$(srcdir)/unix.pl $CLIB_PLTARGETS"
+CLIB_PLTARGETS="unix.pl $CLIB_PLTARGETS"
 CLIB_NETLIBS=
 else
 AC_CHECK_FUNC(socket, [], [
@@ -1922,7 +1922,14 @@ else
   echo "WARNING: no getrlimit(); dropping rlimit.pl from targets"
 fi
 
+AC_ARG_ENABLE(mimecharset,
+	[  --enable-mimecharset=charset   Default MIME charset to set on new messages],
+	RFC2045CHARSET="$enableval", RFC2045CHARSET="us-ascii")
 
+AC_SUBST(RFC2045CHARSET)
+
+MAILDROP_CFLAGS="$SHLIB_CFLAGS -I. -I\$(srcdir) -I\$(srcdir)/.. -I../../../.."
+AC_SUBST(MAILDROP_CFLAGS)
 
 mkdir -p  library/lammpi
 mkdir -p  library/matrix
@@ -1986,6 +1993,7 @@ AC_CONFIG_FILES([packages/Dialect.defs])
 AC_CONFIG_FILES([packages/clib/Makefile])
 AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
 AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
+AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/rfc2045charset.h])
 AC_CONFIG_FILES([packages/CLPBN/Makefile])
 AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
 AC_CONFIG_FILES([packages/cplint/Makefile])

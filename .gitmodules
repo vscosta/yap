@@ -13,3 +13,6 @@
 [submodule "packages/http"]
 	path = packages/http
 	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/http
+[submodule "packages/clib"]
+	path = packages/clib
+	url = git://yap.git.sourceforge.net/gitroot/yap/clib
