@@ -32,8 +32,6 @@
  term_to_atom/2 
     ]).
 
-:- use_module(library(memfile)).
-
 :- meta_predicate(with_output_to_chars(0,?)).
 :- meta_predicate(with_output_to_chars(0,-,?)).
 :- meta_predicate(with_output_to_chars(0,-,?,?)).
@@ -73,13 +71,17 @@ open_chars_stream(Codes, Stream) :-
 	open_chars_stream(Codes, Stream, '').
 
 open_chars_stream(Codes, Stream, Postfix) :-
-	new_memory_file(MF),
-	open_memory_file(MF, write, Out),
+	predicate_property(memory_file:open_memory_file(_,_,_),_), !,
+	memory_file:new_memory_file(MF),
+	memory_file:open_memory_file(MF, write, Out),
 	format(Out, '~s~w', [Codes, Postfix]),
 	close(Out),
-	open_memory_file(MF, read, Stream,
+	memory_file:open_memory_file(MF, read, Stream,
 			 [ free_on_close(true)
 			 ]).
+open_chars_stream(Codes, Stream, Postfix) :-
+	ensure_loaded(library(memfile)),
+	open_chars_stream(Codes, Stream, Postfix).
 
 with_output_to_chars(Goal, Codes) :-
 	with_output_to(codes(Codes), Goal).
