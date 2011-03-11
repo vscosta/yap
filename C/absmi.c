@@ -2616,7 +2616,7 @@ Yap_absmi(int inp)
 	     PREG->opc != Yap_opcode(_cut_e))) {
 	  GONext();
 	}  
-	PP = PREG->u.p.p;
+	PP = PREVOP(PREG,p)->u.p.p;
 	ASP = YREG+E_CB;
 	/* cut_e */
 	if (SREG <= ASP) {
