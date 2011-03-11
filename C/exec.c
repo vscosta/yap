@@ -1468,8 +1468,8 @@ static int is_cleanup_cp(choiceptr cp_b)
 
 static Int
 JumpToEnv(Term t USES_REGS) {
-  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l),
-    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,l);
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,Otapl),
+    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,Otapl);
   CELL *env, *env1;
   choiceptr handler, previous = NULL;
 
@@ -1559,7 +1559,7 @@ JumpToEnv(Term t USES_REGS) {
   }
   handler->cp_cp = (yamop *)env[E_CP];
   handler->cp_env = (CELL *)env[E_E];
-  handler->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,l);
+  handler->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,Otapl);
   /* can recover Heap thanks to copy term :-( */
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
