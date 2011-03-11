@@ -193,8 +193,9 @@ thread_create(Goal, Id, Options) :-
 	( Detached \== true, Detached \== false -> '$do_error'(domain_error(thread_option,Detached+[true,false]),G0) ; true ).
 '$thread_option'(at_exit(AtExit), _, _, _, _, _, AtExit, M, G0) :- !,
 	( \+ callable(AtExit) -> '$do_error'(type_error(callable,AtExit),G0) ; true ).
-'$thread_option'(Option, _, _, _, _, _, _, _, G0) :-
-	'$do_error'(domain_error(thread_option,Option),G0).
+% succeed silently, like SWI.
+'$thread_option'(Option, _, _, _, _, _, _, _, G0).
+%	'$do_error'(domain_error(thread_option,Option),G0).
 
 '$record_alias_info'(_, Alias) :-
 	var(Alias), !.
