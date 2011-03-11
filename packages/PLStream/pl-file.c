@@ -4672,6 +4672,9 @@ EndPredDefs
 
 #if __YAP_PROLOG__
 
+pl_get_time(term_t t)
+{ return PL_unify_float(t, WallTime());
+}
 
 static word
 pl_sleep(term_t time)
@@ -4701,6 +4704,7 @@ static const PL_extension foreigns[] = {
   FRG("write_canonical",	2, pl_write_canonical2,	      ISO),
   FRG("format",			3, pl_format3,		     META),
   FRG("sleep",			1, pl_sleep,			0),
+  FRG("get_time",		1, pl_get_time,			0),
 
   // vsc
   FRG("format_predicate",	2, pl_format_predicate,	     META),
