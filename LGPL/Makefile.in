@@ -39,6 +39,7 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/record.pl \
 	$(srcdir)/settings.pl \
 	$(srcdir)/shlib.pl \
+	$(srcdir)/thread_pool.pl \
 	$(srcdir)/url.pl \
 	$(srcdir)/utf8.pl
 
