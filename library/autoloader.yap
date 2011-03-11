@@ -37,7 +37,7 @@ scan_library_exports :-
 	scan_exports(queues, library(queues)),
 	scan_exports(random, library(random)),
 	scan_exports(rbtrees, library(rbtrees)),
-	scan_exports(readutil, library(readutil)),
+	scan_exports('../LGPL/readutil', library(readutil)),
 	scan_exports(regexp, library(regexp)),
 	scan_exports('../LGPL/shlib', library(shlib)),
 	scan_exports(system, library(system)),
@@ -51,8 +51,8 @@ scan_exports(Library, CallName) :-
 			     access(read),
 			     file_errors(fail)
 			   ]),
-	!,
 	open(Path, read, O),
+	!,
 	get_exports(O, Exports, Module),
 	close(O),
 	open('INDEX.pl', append, W),
