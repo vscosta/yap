@@ -116,6 +116,8 @@ void   STD_PROTO(Yap_InitBBPreds,(void));
 
 /* bignum.c */
 Term   STD_PROTO(Yap_MkULLIntTerm, (YAP_ULONG_LONG));
+int    STD_PROTO(Yap_IsStringTerm, (Term));
+int    STD_PROTO(Yap_IsWideStringTerm, (Term));
 Term   STD_PROTO(Yap_RatTermToApplTerm, (Term));
 void   STD_PROTO(Yap_InitBigNums, (void));
 

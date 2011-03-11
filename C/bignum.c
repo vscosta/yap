@@ -245,6 +245,36 @@ p_rational( USES_REGS1 )
 #endif
 }
 
+int
+Yap_IsStringTerm(Term t)
+{
+  CELL fl;
+  if (IsVarTerm(t))
+    return FALSE;
+  if (!IsApplTerm(t))
+    return FALSE;
+  if (FunctorOfTerm(t) != FunctorBigInt)
+    return FALSE;
+
+  fl = RepAppl(t)[1];
+  return fl == BLOB_STRING || fl == BLOB_WIDE_STRING;
+}
+
+int
+Yap_IsWideStringTerm(Term t)
+{
+  CELL fl;
+  if (IsVarTerm(t))
+    return FALSE;
+  if (!IsApplTerm(t))
+    return FALSE;
+  if (FunctorOfTerm(t) != FunctorBigInt)
+    return FALSE;
+
+  fl = RepAppl(t)[1];
+  return fl == BLOB_WIDE_STRING;
+}
+
 Term
 Yap_MkBlobStringTerm(const char *s, size_t len)
 {
@@ -267,8 +297,10 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
   dst->_mp_size = siz;
   dst->_mp_alloc = 0L;
   sp = (blob_string_t *)(dst+1);
+  H = (CELL *)sp;
   sp->len = sz;
-  strncpy((char *)(sp+1), s, sz);
+  strncpy((char *)(sp+1), s, sz+1);
+  fprintf(stderr,"%s\n", (char *)(sp+1));
   H += siz;
   H[0] = EndSpecials;
   H++;
@@ -297,6 +329,7 @@ Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
   dst->_mp_size = siz;
   dst->_mp_alloc = 0L;
   sp = (blob_string_t *)(dst+1);
+  H = (CELL *)sp;
   sp->len = sz;
   wcsncpy((wchar_t *)(sp+1), s, sz);
   H += siz;

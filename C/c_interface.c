@@ -3498,14 +3498,14 @@ X_API int
 YAP_Erase(void *handle)
 {
   DBRecordList *dbr = (DBRecordList *)handle;
-  Yap_ReleaseTermFromDB(dbr->dbrecord);
   if (dbr->next_rec) 
     dbr->next_rec->prev_rec = dbr->prev_rec;
   if (dbr->prev_rec) 
-    dbr->next_rec->prev_rec = dbr->next_rec;
+    dbr->prev_rec->next_rec = dbr->next_rec;
   else if (Yap_Records == dbr) {
     Yap_Records = dbr->next_rec;
   }
+  Yap_ReleaseTermFromDB(dbr->dbrecord);
   Yap_FreeCodeSpace(handle);
   return 1;
 }

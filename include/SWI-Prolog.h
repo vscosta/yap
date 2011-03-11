@@ -142,6 +142,8 @@ typedef wchar_t pl_wchar_t;             /* wide character support */
 typedef uintptr_t	PL_fid_t;	/* opaque foreign context handle */
 #endif
 
+#define O_STRING 1
+
 typedef void *pl_function_t;
 
 #define fid_t PL_fid_t			/* avoid AIX name-clash */

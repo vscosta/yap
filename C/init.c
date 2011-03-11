@@ -1257,16 +1257,20 @@ InitCodes(void)
 {
   CACHE_REGS
   int wid;
-  for (wid = 1; wid < MAX_INITS; wid++) {
 #if THREADS
+  for (wid = 1; wid < MAX_INITS; wid++) {
     Yap_WLocal[wid] = NULL;
   }
 #endif
 #include "ihstruct.h"
+#if THREADS
   Yap_InitThread(0);
+#endif
   InitGlobal();
   InitWorker(0);
+#if THREADS
   InitFirstWorkerThreadHandle();
+#endif
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
   Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));

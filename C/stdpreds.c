@@ -1652,15 +1652,22 @@ p_atom_codes( USES_REGS1 )
     Term            NewT;
     Atom at;
 
-    if (!IsAtomTerm(t1)) {
+    if (Yap_IsStringTerm(t1)) {
+      if (Yap_IsWideStringTerm(t1)) {
+	NewT = Yap_WideStringToList(Yap_BlobWideStringOfTerm(t1));
+      } else {
+	NewT = Yap_StringToList(Yap_BlobStringOfTerm(t1));
+      }
+    } else if (!IsAtomTerm(t1)) {
       Yap_Error(TYPE_ERROR_ATOM, t1, "atom_codes/2");
       return(FALSE);
-    }
-    at = AtomOfTerm(t1);
-    if (IsWideAtom(at)) {
-      NewT = Yap_WideStringToList((wchar_t *)RepAtom(at)->StrOfAE);
     } else {
-      NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
+      at = AtomOfTerm(t1);
+      if (IsWideAtom(at)) {
+	NewT = Yap_WideStringToList((wchar_t *)RepAtom(at)->StrOfAE);
+      } else {
+	NewT = Yap_StringToList(RepAtom(at)->StrOfAE);
+      }
     }
     return (Yap_unify(NewT, ARG2));
   } else {

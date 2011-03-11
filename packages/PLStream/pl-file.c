@@ -4672,6 +4672,7 @@ EndPredDefs
 
 #if __YAP_PROLOG__
 
+static int
 pl_get_time(term_t t)
 { return PL_unify_float(t, WallTime());
 }
@@ -4728,10 +4729,12 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
     Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
     return p;
   }
+#if THREADS
   if (wid) {
     /* copy from other worker */
     memcpy(p, Yap_WLocal[worker_id]->Yap_ld_, sizeof(struct PL_local_data));
   }
+#endif
   return p;
 }
 

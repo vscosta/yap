@@ -77,15 +77,13 @@ codeToAtom(int chrcode)
 word
 globalString(size_t size, char *s)
 {
-  // return YAP_MkBlobStringTerm(s, size);
-  return 0L;
+  return Yap_MkBlobStringTerm(s, size);
 }
 
 word
 globalWString(size_t size, wchar_t *s)
 {
-  // return YAP_MkBlobWideStringTerm(size, s);
-  return 0L;
+  return Yap_MkBlobWideStringTerm(s, size);
 }
 
 int
@@ -282,6 +280,13 @@ _PL_unify_atomic(term_t t, PL_atomic_t a)
   return PL_unify_atom(t, a);
 }
 
+int
+_PL_unify_string(term_t t, word w)
+{
+  GET_LD
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS), w);
+}
+
 word lookupAtom(const char *s, size_t len)
 {
   /* dirty trick to ensure s is null terminated */
@@ -377,7 +382,21 @@ get_atom_text(atom_t atom, PL_chars_t *text)
 
 int
 get_string_text(word w, PL_chars_t *text ARG_LD)
-{ fail;
+{
+  CELL fl = RepAppl(w)[1];
+  if (fl == BLOB_STRING) {
+    fprintf(stderr,"%s\n", Yap_BlobStringOfTerm(w));
+    text->text.t = Yap_BlobStringOfTerm(w);
+    text->encoding = ENC_ISO_LATIN_1;
+    text->length = strlen(text->text.t);
+  } else {
+    text->text.w = Yap_BlobWideStringOfTerm(w);
+    text->encoding = ENC_WCHAR;
+    text->length = wcslen(text->text.w);
+  }
+  text->storage = PL_CHARS_STACK;
+  text->canonical = TRUE;
+  return TRUE;
 }
 
 void
@@ -1066,18 +1085,6 @@ recursiveMutexInit(recursiveMutex *m)
   return pthread_mutex_init(m, attr);
 
 }
-
-word
-pl_sleep(term_t time)
-{ double t;
-
-  if ( PL_get_float_ex(time, &t) )
-    return Pause(t);
-
-  fail;
-}
-
-
 
 counting_mutex _PL_mutexes[] =
 { COUNT_MUTEX_INITIALIZER("L_MISC"),

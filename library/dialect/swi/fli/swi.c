@@ -1792,22 +1792,8 @@ X_API int PL_is_number(term_t ts)
 X_API int PL_is_string(term_t ts)
 {
   CACHE_REGS
-  YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  while (YAP_IsPairTerm(t)) {
-    YAP_Term hd = YAP_HeadOfTerm(t);
-    long int  i;
-    if (!YAP_IsIntTerm(hd))
-      return 0;
-    i = YAP_IntOfTerm(hd);
-    if (i <= 0 || i >= 255)
-      return 0;
-    if (!YAP_IsIntTerm(hd))
-      return 0;
-    t = YAP_TailOfTerm(t);
-  }
-  if (t != TermNil)
-    return 0;
-  return FALSE;
+  Term t = Yap_GetFromSlot(ts PASS_REGS);
+  return Yap_IsStringTerm(t);
 }
 
 X_API int PL_is_variable(term_t ts)

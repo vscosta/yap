@@ -353,7 +353,7 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
     { word w = textToString(text);
 
       if ( w )
-	return _PL_unify_atomic(term, w);
+	return _PL_unify_string(term, w);
       else
 	return FALSE;
     }

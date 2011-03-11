@@ -115,7 +115,7 @@ void PL_license(const char *license, const char *module);
 
 #define stringAtom(w)	YAP_AtomName((YAP_Atom)(w))
 #define isInteger(A) (YAP_IsIntTerm((A)) || YAP_IsBigNumTerm((A)))
-#define isString(A) FALSE
+#define isString(A) Yap_IsStringTerm(A)
 #define isAtom(A) YAP_IsAtomTerm((A))
 #define isList(A) YAP_IsPairTerm((A))
 #define isNil(A) ((A) == YAP_TermNil())
