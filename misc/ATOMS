@@ -346,6 +346,7 @@ F	Creep			Creep		1
 F	Csult			Csult		1
 F	CurrentModule		CurrentModule	1
 F	CutBy			CutBy		1
+F	DBREF			DBREF		1
 F	Diff			Diff		2
 F	DoLogUpdClause		DoLogUpdClause	6
 F	DoLogUpdClause0		DoLogUpdClause0	6

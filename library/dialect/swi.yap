@@ -64,8 +64,7 @@
 	      [datime/1,
 	       mktime/2,
 	       file_property/2,
-	       delete_file/1,
-	       sleep/1]).
+	       delete_file/1]).
 
 :- reexport(library(arg),
 	      [genarg/3]).
@@ -104,19 +103,6 @@ goal_expansion(atom_concat(A,B),atomic_concat(A,B)).
 goal_expansion(atom_concat(A,B,C),atomic_concat(A,B,C)).
 %goal_expansion(arg(A,_,_),_) :- nonvar(A), !, fail.
 goal_expansion(arg(A,B,C),genarg(A,B,C)).
-goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
-
-goal_expansion(stamp_date_time(A,B,C),system:swi_stamp_date_time(A,B,C)).
-goal_expansion(date_time_stamp(A,B),system:swi_date_time_stamp(A,B)).
-goal_expansion(format_time(A,B,C),system:swi_format_time(A,B,C)).
-goal_expansion(format_time(A,B,C,D),system:swi_format_time(A,B,C,D)).
-goal_expansion(get_time(A),system:swi_get_time(A)).
-goal_expansion(time_file(A,B),system:swi_time_file(A,B)).
-goal_expansion(expand_file_name(A,B),system:swi_expand_file_name(A,B)).
-goal_expansion(wildcard_match(A,B),system:swi_wilcard_match(A,B)).
-goal_expansion(directory_files(A,B),system:swi_directory_files(A,B)).
-goal_expansion(exists_file(A), system:swi_exists_file(A)).
-goal_expansion(exists_directory(A), system:swi_exists_directory(A)).
 
 % make sure we also use 
 :- user:library_directory(X),

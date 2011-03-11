@@ -53,10 +53,18 @@ allocate_new_tid(void)
   int new_worker_id = 0;
   LOCK(ThreadHandlesLock);
   while(new_worker_id < MAX_THREADS &&
+	Yap_WLocal[new_worker_id] &&
 	(FOREIGN_ThreadHandle(new_worker_id).in_use == TRUE ||
 	 FOREIGN_ThreadHandle(new_worker_id).zombie == TRUE) )
     new_worker_id++;
-  if (new_worker_id < MAX_THREADS) {
+  if (!Yap_WLocal[new_worker_id]) {
+    DEBUG_TLOCK_ACCESS(new_worker_id, 0);
+    if (!Yap_InitThread(new_worker_id)) {
+      return -1;
+    }
+    pthread_mutex_lock(&(FOREIGN_ThreadHandle(new_worker_id).tlock));
+    FOREIGN_ThreadHandle(new_worker_id).in_use = TRUE;
+  } else if (new_worker_id < MAX_THREADS) {
     DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     pthread_mutex_lock(&(FOREIGN_ThreadHandle(new_worker_id).tlock));
     FOREIGN_ThreadHandle(new_worker_id).in_use = TRUE;
@@ -823,6 +831,7 @@ p_nof_threads( USES_REGS1 )
   int i = 0, wid;
   LOCK(ThreadHandlesLock);
   for (wid = 0; wid < MAX_THREADS; wid++) {
+    if (!Yap_WLocal[wid]) break;
     if (FOREIGN_ThreadHandle(wid).in_use)
       i++;
   }

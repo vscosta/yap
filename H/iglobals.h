@@ -156,8 +156,8 @@ static void InitWorker(int wid) {
 #endif
 #ifdef THREADS
   InitThreadHandle(wid);
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)].thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id].thread_handle)
+#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 }

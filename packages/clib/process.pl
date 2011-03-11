@@ -41,6 +41,7 @@
 	    process_kill/2		% +PID, -Signal
 	  ]).
 :- use_module(library(shlib)).
+:- use_module(library(error)).
 :- use_module(library(lists)).
 :- use_module(library(option)).
 

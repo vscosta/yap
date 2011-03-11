@@ -5,29 +5,41 @@
 static inline Word
 INIT_SEQ_STRING(size_t n)
 {
-  return (Word)YAP_OpenList(n);
+  return RepPair(YAP_OpenList(n));
 }
 
 static inline Word
-EXTEND_SEQ_CODES(Word gstore, int c) {
-  return (Word)YAP_ExtendList((YAP_Term)gstore, YAP_MkIntTerm(c));
+EXTEND_SEQ_CODES(Word ptr, int c) {
+  ptr[0] = MkIntegerTerm(c);
+  ptr[1] = AbsPair(ptr+2);
+
+  return ptr+2;
 }
 
 static inline Word
-EXTEND_SEQ_CHARS(Word gstore, int c) {
-  return (Word)YAP_ExtendList((YAP_Term)gstore, codeToAtom(c));
+EXTEND_SEQ_CHARS(Word ptr, int c) {
+  ptr[0] = codeToAtom(c);
+  ptr[1] = AbsPair(ptr+2);
+
+  return ptr+2;
 }
 
 static inline int 
-CLOSE_SEQ_STRING(Word gstore, Word lp, word arg2, word arg3, term_t l) {
-  if (arg2 == 0) {
-    if (!YAP_CloseList((YAP_Term)gstore, YAP_TermNil()))
-      return FALSE;
+CLOSE_SEQ_STRING(Word p, Word p0, term_t tail, term_t term, term_t l) {
+  CACHE_REGS
+  Yap_PutInSlot(l, AbsPair(p0) PASS_REGS);
+  p--;
+  if (tail) {
+    RESET_VARIABLE(p);
+    if (Yap_unify(Yap_GetFromSlot(l PASS_REGS), Yap_GetFromSlot(term PASS_REGS)))  {
+      Yap_PutInSlot(tail, (CELL)(p) PASS_REGS);
+      return TRUE;
+    }
+    return FALSE;
   } else {
-    if (!YAP_CloseList((YAP_Term)gstore, YAP_GetFromSlot(arg2)))
-      return FALSE;
+    p[0] = YAP_TermNil();
+    return Yap_unify(Yap_GetFromSlot(l PASS_REGS), Yap_GetFromSlot(term PASS_REGS));
   }
-  return YAP_Unify(YAP_GetFromSlot(arg3), (YAP_Term)lp);
 }
 
 #endif

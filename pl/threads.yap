@@ -62,7 +62,7 @@ volatile(P) :-
 	% force backtracking and handling exceptions
 	fail.
 
-'$close_thread'(Status, Detached) :-
+'$close_thread'(Status, _Detached) :-
 	'$thread_zombie_self'(Id0), !,
 	'$record_thread_status'(Id0,Status),
 	'$run_at_thread_exit'(Id0),

@@ -473,7 +473,6 @@ PL_unify_text(term_t term, term_t tail, PL_chars_t *text, int type)
 	    return FALSE;
 	  }
 	}
-
 	return CLOSE_SEQ_STRING(p, p0, tail, term, l );
       }
     }

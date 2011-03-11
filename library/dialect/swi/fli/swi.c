@@ -1360,38 +1360,6 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
 }
 
-/* SWI: int PL_unify_wchars(term_t ?t, int type, size_t len,, const pl_wchar_t *s)
- */
-X_API int PL_unify_wchars_diff(term_t t, term_t tail, int type, size_t len, const pl_wchar_t *chars)
-{
-  CACHE_REGS
-  YAP_Term chterm;
-
-  if (tail == 0)
-    return PL_unify_wchars(t, type, len, chars);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
-    }
-  }
-  if (len == (size_t)-1)
-    len = wcslen(chars);
-
-  switch (type) {
-  case PL_CODE_LIST:
-    chterm = YAP_NWideBufferToDiffList(chars, Yap_GetFromSlot(tail PASS_REGS), len);
-    break;
-  case PL_CHAR_LIST:
-    chterm = YAP_NWideBufferToAtomDiffList(chars, Yap_GetFromSlot(tail PASS_REGS), len);
-    break;
-  default:
-    fprintf(stderr,"NOT GOOD option %d PL_unify_chars_wdiff\n",type);
-    /* should give error?? */
-    return FALSE;
-  }
-  return YAP_Unify(Yap_GetFromSlot(t PASS_REGS), chterm);
-}
-
 typedef struct {
   int type;
   union {
@@ -2528,7 +2496,7 @@ X_API int
 PL_destroy_engine(PL_engine_t e)
 {
 #if THREADS
-  return YAP_ThreadDestroyEngine((struct worker_local *)e-Yap_WLocal);
+  return YAP_ThreadDestroyEngine(((struct worker_local *)e)->thread_handle.current_yaam_regs->worker_id_);
 #else
   return FALSE;
 #endif
@@ -2542,7 +2510,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   int cwid = PL_thread_self(), nwid;
 
   if (cwid >= 0) {
-    if (old) *old = (PL_engine_t)(Yap_WLocal+cwid);
+    if (old) *old = (PL_engine_t)(Yap_WLocal[cwid]);
   }
   if (!engine) {
     if (cwid < 0)
@@ -2561,7 +2529,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     }
     return PL_ENGINE_SET;
   } else {
-    nwid = (struct worker_local *)engine-Yap_WLocal;
+    nwid = ((struct worker_local *)engine)->thread_handle.current_yaam_regs->worker_id_;
   }
 
   pthread_mutex_lock(&(FOREIGN_ThreadHandle(nwid).tlock));
@@ -2779,6 +2747,8 @@ PL_query(int query)
     return (intptr_t)Yap_argv;
   case PL_QUERY_USER_CPU:
     return (intptr_t)Yap_cputime();
+  case PL_QUERY_VERSION:
+    return (intptr_t)600301;
   default:
     fprintf(stderr,"Unimplemented PL_query %d\n",query);
     return (intptr_t)0;
@@ -3002,6 +2972,10 @@ term_t Yap_CvtTerm(term_t ts)
 	default:
 	  return ts;
 	}
+      } else if (f == FunctorDBRef) {
+	Term ta[0];
+	ta[0] = MkIntegerTerm(DBRefOfTerm(t));
+	return Yap_InitSlot(Yap_MkApplTerm(FunctorDBREF, 1, ta) PASS_REGS);	
       }
     }
   }

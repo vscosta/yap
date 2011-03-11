@@ -570,15 +570,13 @@ static Int
   int emacs_cares = FALSE;
 #endif
   Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
+  extern void Yap_setCurrentSourceLocation(IOSTREAM *s);
 
+  Yap_setCurrentSourceLocation(inp_stream);
   if (IsVarTerm(tmod)) {
     tmod = CurrentModule;
   } else if (!IsAtomTerm(tmod)) {
     Yap_Error(TYPE_ERROR_ATOM, tmod, "read_term/2");
-    return FALSE;
-  }
-  if (!(inp_stream->flags & SIO_TEXT)) {
-    Yap_Error(PERMISSION_ERROR_INPUT_BINARY_STREAM, StreamName(inp_stream), "read_term/2");
     return FALSE;
   }
   Yap_Error_TYPE = YAP_NO_ERROR;

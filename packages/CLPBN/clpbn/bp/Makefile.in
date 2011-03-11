@@ -46,13 +46,13 @@ HEADERS = \
 	$(srcdir)/CptEntry.h \
 	$(srcdir)/BifInterface.h \
 	$(srcdir)/xmlParser/xmlParser.h
-	
+
 CPP_SOURCES = \
 	$(srcdir)/BayesianNetwork.cpp \
 	$(srcdir)/BayesianNode.cpp \
 	$(srcdir)/BpNetwork.cpp \
 	$(srcdir)/BpNode.cpp \
- 	$(srcdir)/Distribution.cpp \
+	$(srcdir)/Distribution.cpp \
 	$(srcdir)/CptEntry.cpp \
 	$(srcdir)/Horus.cpp \
 	$(srcdir)/BifInterface.cpp \

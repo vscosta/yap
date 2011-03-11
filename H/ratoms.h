@@ -341,6 +341,7 @@
   FunctorCsult = FuncAdjust(FunctorCsult);
   FunctorCurrentModule = FuncAdjust(FunctorCurrentModule);
   FunctorCutBy = FuncAdjust(FunctorCutBy);
+  FunctorDBREF = FuncAdjust(FunctorDBREF);
   FunctorDiff = FuncAdjust(FunctorDiff);
   FunctorDoLogUpdClause = FuncAdjust(FunctorDoLogUpdClause);
   FunctorDoLogUpdClause0 = FuncAdjust(FunctorDoLogUpdClause0);

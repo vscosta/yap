@@ -88,79 +88,6 @@ check_int(I, Inp) :-
 
 % file operations
 
-delete_file(IFile) :-
-	true_file_name(IFile, File),
-	delete_file(File, off, on, off).
-
-delete_file(IFile, Opts) :-
-	true_file_name(IFile, File),
-	process_delete_file_opts(Opts, Dir, Recurse, Ignore, delete_file(File,Opts)),
-	delete_file(File, Dir, Recurse, Ignore).
-
-process_delete_file_opts(V, _, _, _, T) :- var(V), !,
-	throw(error(instantiation_error,T)).
-process_delete_file_opts([], off, off, off, _) :- !.
-process_delete_file_opts([V|_], _, _, _, T) :- var(V), !,
-	throw(error(instantiation_error,T)).
-process_delete_file_opts([directory|Opts], on, Recurse, Ignore, T) :- !,
-	process_delete_file_opts(Opts, _, Recurse, Ignore, T).
-process_delete_file_opts([recursive|Opts], Dir, on, Ignore, T) :- !,
-	process_delete_file_opts(Opts, Dir, _, Ignore, T).
-process_delete_file_opts([ignore|Opts], Dir, Recurse, on, T) :- !,
-	process_delete_file_opts(Opts, Dir, Recurse, _, T).
-process_delete_file_opts(Opts, _, _, _, T) :-
-	throw(error(domain_error(delete_file_option,Opts),T)).
-
-delete_file(IFile, Dir, Recurse, Ignore) :-
-	true_file_name(IFile, File),
-	file_property(File, Type, _, _, _Permissions, _, Ignore),
-	delete_file(Type, File, Dir, Recurse, Ignore).
-
-delete_file(N, File, _Dir, _Recurse, Ignore) :- number(N), !, % error.
-	handle_system_error(N, Ignore, delete_file(File)).
-delete_file(directory, File, Dir, Recurse, Ignore) :-
-	delete_directory(Dir, File, Recurse, Ignore).
-delete_file(_, File, _Dir, _Recurse, Ignore) :-
-	unlink_file(File, Ignore).
-
-unlink_file(IFile, Ignore) :-
-	true_file_name(IFile, File),
-	unlink(File, N),
-	handle_system_error(N, Ignore, delete_file(File)).
-
-delete_directory(on, File, _Recurse, Ignore) :-
-	rm_directory(File, Ignore).
-delete_directory(off, File, Recurse, Ignore) :-
-	delete_directory(Recurse, File, Ignore).
-
-rm_directory(File, Ignore) :-
-	rmdir(File, Error),
-	handle_system_error(Error, Ignore, delete_file(File)).
-
-delete_directory(on, File, Ignore) :-
-	directory_files(File, FileList, Ignore),
-	path_separator(D),
-	atom_concat(File, D, FileP),
-	delete_dirfiles(FileList, FileP, Ignore),
-	rmdir(File, Ignore).
-
-delete_dirfiles([], _, _).
-delete_dirfiles(['.'|Fs], File, Ignore) :- !,
-	delete_dirfiles(Fs, File, Ignore).
-delete_dirfiles(['..'|Fs], File, Ignore) :- !,
-	delete_dirfiles(Fs, File, Ignore).
-delete_dirfiles([F|Fs], File, Ignore) :-
-	atom_concat(File,F,TrueF),
-	delete_file(TrueF, off, on, Ignore),
-	delete_dirfiles(Fs, File, Ignore).
-
-directory_files(IFile, FileList) :-
-	true_file_name(IFile, File),
-	directory_files(File, FileList, off).
-
-directory_files(File, FileList, Ignore) :-
-       list_directory(File, FileList, Error),
-       handle_system_error(Error, Ignore, directory_files(File, FileList)).
 
 handle_system_error(Error, _Ignore, _G) :- var(Error), !.
 handle_system_error(Error, off, G) :- atom(Error), !,
@@ -215,29 +142,6 @@ file_exists(IFile, Permissions) :-
 	FPermissions /\ Perms =:= Perms.
 
 process_permissions(Number, Number) :- integer(Number).
-
-make_directory(Dir) :-
-	var(Dir), !,
-	throw(error(instantiation_error,mkdir(Dir))).
-make_directory(IDir) :-
-	atom(IDir), !,
-	true_file_name(IDir, Dir),
-	mkdir(Dir,Error),
-	handle_system_error(Error, off, mkdir(IDir)).
-make_directory(Dir) :-
-	throw(error(type_error(atom,Dir),make_directory(Dir))).
-
-rename_file(IOld, New) :-
-	atom(IOld), atom(New), !,
-	true_file_name(IOld,Old),
-	rename_file(Old, New, Error),
-	handle_system_error(Error, off, rename_file(Old, New)).
-rename_file(X,Y) :- (var(X) ; var(Y)), !,
-	throw(error(instantiation_error,rename_file(X,Y))).
-rename_file(X,Y) :- atom(X), !,
-	throw(error(type_error(atom,Y),rename_file(X,Y))).
-rename_file(X,Y) :-
-	throw(error(type_error(atom,X),rename_file(X,Y))).
 
 %
 % environment manipulation.
@@ -413,18 +317,6 @@ system(Command, Status) :-
 	Status = 0,
 	handle_system_error(Error, off, G).
 
-sleep(Interval) :- var(Interval), !,
-	throw(error(instantiation_error,sleep(Interval))).
-sleep(Interval) :- number(Interval), !,
-	( Interval =< 0 ->
-	    throw(error(domain_error(not_less_than_zero,Interval),
-			sleep(Interval)))
-	;
-	    sleep(Interval, _Remainder)
-	).
-sleep(Interval) :-
-	throw(error(type_error(number,Interval),sleep(Interval))).
-
 wait(PID,STATUS) :- var(PID), !,
 	throw(error(instantiation_error,wait(PID,STATUS))).
 wait(PID,STATUS) :- integer(PID), !,
@@ -473,28 +365,6 @@ mktemp(X,Y) :-
 tmpnam(X) :-
 	tmpnam(X, Error),
 	handle_system_error(Error, off, tmpnam(X)).
-
-tmp_file(Base,X) :-
-	var(Base), !,
-	throw(error(instantiation_error,tmp_file(Base,X))).	
-tmp_file(Base,X) :-
-	atom(Base), !,
-	tmpdir(Dir),
-	handle_system_error(Error, off, tmp_file(Base,X)),
-	pid(PID, Error),
-	handle_system_error(Error, off, tmp_file(Base,X)),
-	tmp_file_sequence(I),
-%	path_separator(D),
-	atomic_concat([Dir,yap_,Base,'_',PID,'_',I],X).
-tmp_file(Base,X) :-
-	throw(error(type_error(atom,Base),tmp_file(Base,X))).	
-
-tmp_file_sequence(X) :-
-	retract(tmp_file_sequence_counter(X)),
-	X1 is X+1,
-	assert(tmp_file_sequence_counter(X1)).
-tmp_file_sequence(0) :-
-	assert(tmp_file_sequence_counter(1)).
 
 %%% Added from Theo, path_seperator is used to replace the c predicate dir_separator which is not OS aware
 

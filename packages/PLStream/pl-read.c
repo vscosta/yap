@@ -342,6 +342,15 @@ setCurrentSourceLocation(IOSTREAM *s ARG_LD)
     source_file_name = NULL_ATOM;
 }
 
+#if __YAP_PROLOG__
+void
+Yap_setCurrentSourceLocation(IOSTREAM *s)
+{
+  GET_LD
+  setCurrentSourceLocation(s PASS_LD);
+}
+#endif
+
 
 static inline int
 getchr__(ReadData _PL_rd)

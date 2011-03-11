@@ -98,6 +98,9 @@ PL_unify_blob(term_t t, void *blob, size_t len, PL_blob_t *type)
   if (!ae) {
     return FALSE;
   }
+  if (type->acquire) {
+    type->acquire(AtomToSWIAtom(AbsAtom(ae)));
+  }
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS), MkAtomTerm(AbsAtom(ae)));
 }
 

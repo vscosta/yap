@@ -213,6 +213,8 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 	functor(Head, F, A),
 	'$is_multifile'(Head, M), !,
 	fail.
+'$handle_discontiguous'((:-),1,_) :- !,
+	fail.
 '$handle_discontiguous'(F,A,M) :-
 	nb_getval('$consulting_file', FileName),
 	% we have been there before

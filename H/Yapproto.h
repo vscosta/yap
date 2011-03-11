@@ -354,6 +354,9 @@ void	STD_PROTO(Yap_WinError,(char *));
 
 /* threads.c */
 void   STD_PROTO(Yap_InitThreadPreds,(void));
+#if THREADS
+int    STD_PROTO(Yap_InitThread,(int));
+#endif
 
 /* tracer.c */
 #ifdef LOW_LEVEL_TRACER

@@ -381,14 +381,19 @@ true :- true.
 	 '$nb_getval'('$if_skip_mode', skip, fail),
 	 \+ '$if_directive'(Command),
 	 !.
- '$execute_command'((:-G),_,_,Option,_) :-
-%          !,
+ '$execute_command'((:-G),VL,Pos,Option,_) :-
+%          !, 
 	 Option \= top, !,
 	 '$current_module'(M),
 	 % allow user expansion
 	 expand_term((:- G), O),
-         O = (:- G1),
-	 '$process_directive'(G1, Option, M).
+	 (
+	     O = (:- G1)
+	 ->
+	   '$process_directive'(G1, Option, M)
+          ;
+	    '$execute_commands'(O,VL,Pos,Option,O)
+	 ).
  '$execute_command'((?-G), V, Pos, Option, Source) :-
 	 Option \= top, !,
 	 '$execute_command'(G, V, Pos, top, Source).

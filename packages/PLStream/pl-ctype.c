@@ -774,7 +774,7 @@ BeginPredDefs(ctype)
   PRED_DEF("setlocale", 3, setlocale, 0)
   PRED_DEF("downcase_atom", 2, downcase_atom, 0)
   PRED_DEF("upcase_atom", 2, upcase_atom, 0)
-  PRED_DEF("swi_normalize_space", 2, normalize_space, 0)
+  PRED_DEF("normalize_space", 2, normalize_space, 0)
 EndPredDefs
 
 

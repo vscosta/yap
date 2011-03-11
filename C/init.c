@@ -74,6 +74,8 @@ STATIC_PROTO(void  InitFlags, (void));
 STATIC_PROTO(void  InitCodes, (void));
 STATIC_PROTO(void  InitVersion, (void));
 
+static void InitWorker(int wid);
+
 
 STD_PROTO(void  exit, (int));
 
@@ -1180,6 +1182,19 @@ InitThreadHandle(int wid)
     FOREIGN_ThreadHandle(wid).tdetach = (CELL)0;
     FOREIGN_ThreadHandle(wid).cmod = (CELL)0;
 }
+
+int
+Yap_InitThread(int new_id)
+{
+  struct worker_local *new_s;
+  if (new_id) {
+    if (!(new_s = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
+      return FALSE;
+    Yap_WLocal[new_id] = new_s;
+  }
+  InitWorker(new_id);
+  return TRUE;
+}
 #endif
 
 static void 
@@ -1232,7 +1247,7 @@ struct worker_shared Yap_Global;
 #if defined(YAPOR) &&  !defined(THREADS)
 struct worker_local	*Yap_WLocal;
 #elif defined(YAPOR) || defined(THREADS)
-struct worker_local	Yap_WLocal[MAX_AGENTS];
+struct worker_local	*Yap_WLocal[MAX_AGENTS];
 #else
 struct worker_local	Yap_WLocal;
 #endif
@@ -1242,8 +1257,15 @@ InitCodes(void)
 {
   CACHE_REGS
   int wid;
+  for (wid = 1; wid < MAX_INITS; wid++) {
+#if THREADS
+    Yap_WLocal[wid] = NULL;
+  }
+#endif
 #include "ihstruct.h"
+  Yap_InitThread(0);
   InitGlobal();
+  InitWorker(0);
   InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
@@ -1284,6 +1306,8 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   /* initialise system stuff */
 #if PUSH_REGS
 #ifdef THREADS
+  if (!(Yap_WLocal[0] = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
+    return;
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
   Yap_master_thread = pthread_self();

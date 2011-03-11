@@ -680,6 +680,8 @@
 #define FunctorCurrentModule Yap_heap_regs->FunctorCurrentModule_
   Functor FunctorCutBy_;
 #define FunctorCutBy Yap_heap_regs->FunctorCutBy_
+  Functor FunctorDBREF_;
+#define FunctorDBREF Yap_heap_regs->FunctorDBREF_
   Functor FunctorDiff_;
 #define FunctorDiff Yap_heap_regs->FunctorDiff_
   Functor FunctorDoLogUpdClause_;

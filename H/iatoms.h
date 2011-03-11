@@ -341,6 +341,7 @@
   FunctorCsult = Yap_MkFunctor(AtomCsult,1);
   FunctorCurrentModule = Yap_MkFunctor(AtomCurrentModule,1);
   FunctorCutBy = Yap_MkFunctor(AtomCutBy,1);
+  FunctorDBREF = Yap_MkFunctor(AtomDBREF,1);
   FunctorDiff = Yap_MkFunctor(AtomDiff,2);
   FunctorDoLogUpdClause = Yap_MkFunctor(AtomDoLogUpdClause,6);
   FunctorDoLogUpdClause0 = Yap_MkFunctor(AtomDoLogUpdClause0,6);

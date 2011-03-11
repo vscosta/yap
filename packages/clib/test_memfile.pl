@@ -34,6 +34,8 @@
 	  ]).
 :- asserta(user:file_search_path(foreign, '.')).
 
+:- use_module(library(shlib)).
+
 :- use_module(memfile).
 :- use_module(library(utf8)).
 
@@ -174,16 +176,16 @@ report_failed :-
 
 runtest(Name) :-
 	format('Running test set "~w" ', [Name]),
-	flush,
+	flush_output,
 	functor(Head, Name, 1),
 	nth_clause(Head, _N, R),
 	clause(Head, _, R),
 	(   catch(Head, Except, true)
 	->  (   var(Except)
-	    ->  put(.), flush
+	    ->  put(.), flush_output
 	    ;   Except = blocked(Reason)
 	    ->  assert(blocked(Head, Reason)),
-		put(!), flush
+		put(!), flush_output
 	    ;   test_failed(R, Except)
 	    )
 	;   test_failed(R, fail)

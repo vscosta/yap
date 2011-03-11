@@ -119,6 +119,8 @@ action(quit, _In, Out) :-
 		 *	    CLIENT SIDE		*
 		 *******************************/
 
+:- dynamic echo/1, slow/1, quit/1.
+
 :- dynamic
 	client/2.
 
@@ -182,7 +184,6 @@ reply(T, _, T).
 
 receive_loop(Socket, Queue) :-
 	repeat,
-writeln(hellorec),
 	    udp_receive(Socket, Data, From, [as(atom)]),
 	    thread_send_message(Queue, got(Data, From)),
 	    Data == quit, !,
@@ -211,9 +212,7 @@ run_udp :-
 	thread_get_message(got(X, _)),
 	udp_send(S, 'quit', localhost:Port, []),
 	thread_get_message(got(Q, _)),
-writeln(hello2),
 	thread_join(ThreadId, Exit),
-writeln(hello2),
 	tcp_close_socket(S),
 	assertion(X=='hello world'),
 	assertion(Q=='quit'),
@@ -261,16 +260,16 @@ report_failed :-
 
 runtest(Name) :-
 	format('Running test set "~w" ', [Name]),
-	flush,
+	flush_output,
 	functor(Head, Name, 1),
-	nth_clause(Head, _N, R),
+	clause(Head, _N, R),
 	clause(Head, _, R),
 	(   catch(Head, Except, true)
 	->  (   var(Except)
-	    ->  put(.), flush
+	    ->  put(.), flush_output
 	    ;   Except = blocked(Reason)
 	    ->  assert(blocked(Head, Reason)),
-		put(!), flush
+		put(!), flush_output
 	    ;   test_failed(R, Except)
 	    )
 	;   test_failed(R, fail)

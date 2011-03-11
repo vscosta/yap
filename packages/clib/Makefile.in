@@ -150,7 +150,7 @@ check-process::
 		( cd $(srcdir) && $(PL) -q -f test_process.pl -g true -t test_process )
 
 check-read::
-		( cd $(srcdir) && $(PL) -q -f test_readutil.pl -g true -t test_readutilw )
+		( cd $(srcdir) && $(PL) -q -f test_readutil.pl -g true -t test_readutil )
 
 ################################################################
 # Documentation

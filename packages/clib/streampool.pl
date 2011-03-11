@@ -37,6 +37,7 @@
 	    stream_pool_main_loop/0
 	  ]).
 :- use_module(library(quintus)).
+:- use_module(library(debug)).
 
 :- meta_predicate
 	add_stream_to_pool(+, :).

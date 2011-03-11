@@ -4672,6 +4672,18 @@ EndPredDefs
 
 #if __YAP_PROLOG__
 
+
+static word
+pl_sleep(term_t time)
+{ double t;
+
+  if ( PL_get_float_ex(time, &t) )
+    return Pause(t);
+
+  fail;
+}
+
+
 static const PL_extension foreigns[] = {
   FRG("nl",			0, pl_nl,			ISO),
   FRG("write_canonical",	1, pl_write_canonical,	      ISO),
@@ -4688,6 +4700,7 @@ static const PL_extension foreigns[] = {
   FRG("print",			2, pl_print2,			0),
   FRG("write_canonical",	2, pl_write_canonical2,	      ISO),
   FRG("format",			3, pl_format3,		     META),
+  FRG("sleep",			1, pl_sleep,			0),
 
   // vsc
   FRG("format_predicate",	2, pl_format_predicate,	     META),
@@ -4701,9 +4714,19 @@ static const PL_extension foreigns[] = {
 
 struct PL_local_data *Yap_InitThreadIO(int wid)
 {
-  struct PL_local_data *p = (struct PL_local_data *)calloc(sizeof(struct PL_local_data), 1);
+  CACHE_REGS
+  struct PL_local_data *p;
+  if (wid) 
+    p = (struct PL_local_data *)malloc(sizeof(struct PL_local_data));
+  else
+    p = (struct PL_local_data *)calloc(sizeof(struct PL_local_data), 1);
   if (!p) {
     Yap_Error(OUT_OF_HEAP_ERROR, 0L, "Creating thread %d\n", wid);
+    return p;
+  }
+  if (wid) {
+    /* copy from other worker */
+    memcpy(p, Yap_WLocal[worker_id]->Yap_ld_, sizeof(struct PL_local_data));
   }
   return p;
 }

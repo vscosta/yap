@@ -699,6 +699,27 @@ PL_get_list_chars(term_t l, char **s, unsigned flags)
 
 
 int
+PL_unify_wchars_diff(term_t t, term_t tail, int flags,
+		     size_t len, const pl_wchar_t *s)
+{ PL_chars_t text;
+  int rc;
+
+  if ( len == (size_t)-1 )
+    len = wcslen(s);
+
+  text.text.w    = (pl_wchar_t *)s;
+  text.encoding  = ENC_WCHAR;
+  text.storage   = PL_CHARS_HEAP;
+  text.length    = len;
+  text.canonical = FALSE;
+
+  rc = PL_unify_text(t, tail, &text, flags);
+  PL_free_text(&text);
+
+  return rc;
+}
+
+int
 PL_get_wchars(term_t l, size_t *length, pl_wchar_t **s, unsigned flags)
 { GET_LD
   PL_chars_t text;
@@ -1044,6 +1065,16 @@ recursiveMutexInit(recursiveMutex *m)
 
   return pthread_mutex_init(m, attr);
 
+}
+
+word
+pl_sleep(term_t time)
+{ double t;
+
+  if ( PL_get_float_ex(time, &t) )
+    return Pause(t);
+
+  fail;
 }
 
 
