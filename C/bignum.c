@@ -300,7 +300,6 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
   H = (CELL *)sp;
   sp->len = sz;
   strncpy((char *)(sp+1), s, sz+1);
-  fprintf(stderr,"%s\n", (char *)(sp+1));
   H += siz;
   H[0] = EndSpecials;
   H++;
