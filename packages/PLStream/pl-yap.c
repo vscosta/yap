@@ -385,7 +385,6 @@ get_string_text(word w, PL_chars_t *text ARG_LD)
 {
   CELL fl = RepAppl(w)[1];
   if (fl == BLOB_STRING) {
-    fprintf(stderr,"%s\n", Yap_BlobStringOfTerm(w));
     text->text.t = Yap_BlobStringOfTerm(w);
     text->encoding = ENC_ISO_LATIN_1;
     text->length = strlen(text->text.t);
