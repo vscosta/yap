@@ -1761,13 +1761,48 @@ p_atom_length( USES_REGS1 )
   Term t2 = Deref(ARG2);
   Atom at;
 
+ restart_aux:
   if (IsVarTerm(t1)) {
     Yap_Error(INSTANTIATION_ERROR, t1, "atom_length/2");
     return(FALSE);		
   }
-  if (!IsAtomTerm(t1)) {
-    Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
-    return(FALSE);
+  if (Yap_IsStringTerm(t1)) {
+    size_t len;
+    if (Yap_IsWideStringTerm(t1)) {
+      len = wcslen(Yap_BlobWideStringOfTerm(t1));
+    } else {
+      len = strlen(Yap_BlobStringOfTerm(t1));
+    }
+    return Yap_unify(ARG2, MkIntegerTerm(len));
+  } else if (!IsAtomTerm(t1)) {
+    if (!yap_flags[STRICT_ISO_FLAG]) {
+      char *String; 
+
+      if (IsIntegerTerm(t1)) {
+	String = Yap_PreAllocCodeSpace();
+	if (String + 1024 > (char *)AuxSp) 
+	  goto expand_auxsp;
+	sprintf(String, Int_FORMAT, IntegerOfTerm(t1));
+      } else if (IsFloatTerm(t1)) {
+	String = Yap_PreAllocCodeSpace();
+	if (String + 1024 > (char *)AuxSp) 
+	  goto expand_auxsp;
+	sprintf(String, "%f", FloatOfTerm(t1));
+#if USE_GMP
+      } else if (IsBigIntTerm(t1)) {
+	String = Yap_PreAllocCodeSpace();
+	if (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 ))
+	  goto expand_auxsp;
+#endif
+      } else {
+	Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
+	return FALSE;
+      }
+      return Yap_unify(ARG2, MkIntegerTerm(strlen(String)));
+    } else {
+      Yap_Error(TYPE_ERROR_ATOM, t1, "atom_length/2");
+      return FALSE;
+    }
   }
   at = AtomOfTerm(t1);
   if (!IsVarTerm(t2)) {
@@ -1796,6 +1831,18 @@ p_atom_length( USES_REGS1 )
     }
     tj = MkIntegerTerm(len);
     return Yap_unify_constant(t2,tj);
+  }
+ expand_auxsp:
+  {
+    char *String = Yap_ExpandPreAllocCodeSpace(0,NULL, TRUE);
+    if (String + 1024 > (char *)AuxSp) {
+      /* crash in flames */
+      Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in name/2");
+    return FALSE;
+    }
+    t1 = Deref(ARG1);
+    t2 = Deref(ARG2);
+    goto restart_aux;
   }
 }
 
