@@ -47,7 +47,7 @@ typedef struct open_query_struct {
   int state;
   YAP_Term g;
   yamop *p, *cp;
-  Int slots;
+  Int slots, b;
   jmp_buf env;
   struct open_query_struct *old;
 } open_query;

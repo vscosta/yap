@@ -2130,6 +2130,7 @@ PL_open_foreign_frame(void)
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
+  new->b = (CELL)(LCL0-(CELL*)B);
   new->slots = CurSlot;
   execution = new;
   { 
@@ -2157,8 +2158,8 @@ PL_close_foreign_frame(fid_t f)
   CP = env->cp;
   P = env->p;
   CurSlot = env->slots;
-  ASP = (CELL *)(B+1);
-  B = B->cp_b;
+  B = (choiceptr)(LCL0-env->b);
+  ASP = (CELL *)(LCL0-CurSlot);
   execution = env->old;
   free(env);
 }
@@ -2171,7 +2172,6 @@ backtrack(void)
   Yap_absmi(0);
   H = HB = B->cp_h;
   TR = B->cp_tr;
-  TR = B->cp_tr;
 }
 
 X_API void
@@ -2180,7 +2180,11 @@ PL_rewind_foreign_frame(fid_t f)
   CACHE_REGS
   open_query *env = (open_query *)f;
   CurSlot = env->slots;
+  while (B->cp_b != (choiceptr)(LCL0-env->b))
+    B = B->cp_b;
   backtrack();
+  ASP = (CELL *)B;
+  Yap_StartSlots( PASS_REGS1 );  
 }
 
 X_API void
@@ -2189,11 +2193,13 @@ PL_discard_foreign_frame(fid_t f)
   CACHE_REGS
   open_query *env = (open_query *)f;
   CurSlot = env->slots;
+  while (B->cp_b != (choiceptr)(LCL0-env->b))
+    B = B->cp_b;
   backtrack();
   CP = env->cp;
   P = env->p;
   execution = execution->old;
-  ASP = (CELL *)(B+1);
+  ASP = LCL0-CurSlot;
   B = B->cp_b;
   free(env);
 }
@@ -2960,7 +2966,7 @@ term_t Yap_CvtTerm(term_t ts)
 	}
       } else if (f == FunctorDBRef) {
 	Term ta[0];
-	ta[0] = MkIntegerTerm(DBRefOfTerm(t));
+	ta[0] = MkIntegerTerm((Int)DBRefOfTerm(t));
 	return Yap_InitSlot(Yap_MkApplTerm(FunctorDBREF, 1, ta) PASS_REGS);	
       }
     }
