@@ -494,8 +494,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	  Bind_and_Trail(ptd0, new);
 	  if (dvarsmin == NULL) {
 	    dvarsmin = CellPtr(new);
-	  } else {
-	    *dvarsmax = (CELL)(CellPtr(new)+1);
 	  }
 	  dvarsmax = CellPtr(new)+1;
 	  ptf++;
@@ -531,7 +529,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   HB = HB0;
   clean_dirty_tr(TR0 PASS_REGS);
   /* follow chain of multi-assigned variables */
-  close_attvar_chain(dvarsmin, dvarsmax);
   return 0;
 
  overflow:
@@ -550,7 +547,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
-  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
  heap_overflow:
@@ -569,7 +565,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
-  reset_attvars(dvarsmin, dvarsmax);
   return -2;
 
  trail_overflow:
@@ -588,7 +583,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   }
 #endif
   reset_trail(TR0);
-  reset_attvars(dvarsmin, dvarsmax);
   return -4;
 }
 
