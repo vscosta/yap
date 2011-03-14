@@ -132,7 +132,7 @@ void PL_license(const char *license, const char *module);
 #define atomLength(atom) YAP_AtomNameLength(atom)
 #define atomBlobType(at) YAP_find_blob_type(at)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
-#define deRef(t)
+#define deRef(t) while (IsVarTerm(*(t)) && !IsUnboundVar(t)) { t = (CELL *)(*(t)); }
 #define canBind(t) FALSE  // VSC: to implement
 #define MODULE_user YAP_ModuleUser()
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
@@ -140,8 +140,8 @@ void PL_license(const char *license, const char *module);
 #define lookupModule(A) ((Module)PL_new_module(A))
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
-#define isTaggedInt(A) YAP_IsIntTerm(A)
-#define valInt(A) YAP_IntOfTerm(A)
+#define isTaggedInt(A) IsIntegerTerm(A)
+#define valInt(A) IntegerOfTerm(A)
 
 extern term_t Yap_CvtTerm(term_t ts);
 
