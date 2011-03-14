@@ -1538,12 +1538,12 @@ Int
 YAP_Execute(PredEntry *pe, CPredicate exec_code)
 {
   CACHE_REGS
+  Int ret;
   if (pe->PredFlags & SWIEnvPredFlag) {
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context ctx;
     UInt i;
     Int sl = 0;
-    Int ret;
 
     ctx.engine = NULL;
     for (i=pe->ArityOfPE; i > 0; i--) {
@@ -1551,48 +1551,25 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
     }
     PP = pe;
     ret = ((codev)(sl,0,&ctx));
-    PP = NULL;
-    if (!ret) {
-      Term t;
-
-      BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
-      }
-    }
-    return ret;
-  }
-  if (pe->PredFlags & CArgsPredFlag) {
+  } else if (pe->PredFlags & CArgsPredFlag) {
     PP = pe;
-    Int out =  execute_cargs(pe, exec_code PASS_REGS);
-    PP = NULL;
-    if (!out) {
-      Term t;
-
-      BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
-      }
-    }
-    return out;
+    ret =  execute_cargs(pe, exec_code PASS_REGS);
   } else {
-    Int ret = (exec_code)( PASS_REGS1 );
-    if (!ret) {
-      Term t;
-
-      BallTerm = EX;
-      EX = NULL;
-      if ((t = Yap_GetException())) {
-	  Yap_JumpToEnv(t);
-	  return FALSE;
-      }
-    }
-    return ret;
+    PP = pe;
+    ret = (exec_code)( PASS_REGS1 );
   }
+  PP = NULL;
+  if (!ret) {
+    Term t;
+
+    BallTerm = EX;
+    EX = NULL;
+    if ((t = Yap_GetException())) {
+      Yap_JumpToEnv(t);
+      return FALSE;
+    }
+  }
+  return ret;
 }
 
 #define FRG_REDO_MASK	0x00000003L
