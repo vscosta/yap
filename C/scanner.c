@@ -372,9 +372,9 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
       ch = getchrq(inp_stream);
       if (ch ==  '?') {/* delete character */
 	return 127;
-      } else if (ch >= 'a' && ch < 'z') {/* octal */
+      } else if (ch >= 'a' && ch < 'z') {/* hexa */
 	return ch - 'a';
-      } else if (ch >= 'A' && ch < 'Z') {/* octal */
+      } else if (ch >= 'A' && ch < 'Z') {/* hexa */
 	return ch - 'A';
       } else {
 	 return '^';
@@ -389,7 +389,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case '6':
   case '7':
     /* character in octal: maximum of 3 digits, terminates with \ */
-    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+    /* follow ISO */
+    if (TRUE || yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
       unsigned char so_far = ch-'0';
       ch = getchrq(inp_stream);
       if (ch >= '0' && ch < '8') {/* octal */
@@ -401,6 +402,7 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
 	  if (ch != '\\') {
 	    return send_error_message("invalid octal escape sequence");
 	  }
+	  return so_far;
 	} else if (ch == '\\') {
 	  return so_far;
 	} else {
