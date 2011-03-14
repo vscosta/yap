@@ -655,12 +655,12 @@ message_queue_destroy(_).
 	'$do_error'(type_error(atom,Name),message_queue_destroy(Name)).
 
 '$clean_mqueue'(Queue) :-
-	'$db_dequeue'(Queue),
+	'$db_dequeue'(Queue, _),
 	fail.
 '$clean_mqueue'(_).
 
 '$empty_mqueue'(Queue) :-
-	'$db_dequeue_unlocked'(Queue),
+	'$db_dequeue_unlocked'(Queue, _),
 	fail.
 '$empty_mqueue'(_).
 
