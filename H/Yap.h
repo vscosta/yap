@@ -1334,7 +1334,7 @@ Yap_CloseSlots( USES_REGS1 ) {
   Int old_slots;
   old_slots = IntOfTerm(ASP[0]);
   ASP += (old_slots+1);
-  CurSlot = IntegerOfTerm(*ASP);
+  CurSlot = IntOfTerm(*ASP);
   ASP++;
 }
 
