@@ -2192,13 +2192,20 @@ PL_discard_foreign_frame(fid_t f)
 {
   CACHE_REGS
   open_query *env = (open_query *)f;
+  if (execution != env) {
+    /* handle the case where we do not want to kill the last open frame */ 
+    open_query *env0 = execution;
+    while (env0 && env0 != env) env0 = env0->old;
+    if (!env0)
+      return;
+  }
   CurSlot = env->slots;
   while (B->cp_b != (choiceptr)(LCL0-env->b))
     B = B->cp_b;
   backtrack();
   CP = env->cp;
   P = env->p;
-  execution = execution->old;
+  execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
   free(env);

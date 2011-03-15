@@ -631,7 +631,7 @@ TemporaryFile(const char *id, int *fdp)
   }
 
 retry:
-#if defined(_unix__) || defined(__APPLE__)
+#if defined(__unix__) || defined(__APPLE__)
 { static int MTOK_temp_counter = 0;
   const char *sep = id[0] ? "_" : "";
 
