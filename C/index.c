@@ -4524,6 +4524,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
       }
 #if defined(YAPOR) || defined(THREADS)
       if (ap->PredFlags & LogUpdatePredFlag &&
+	  !(ap->PredFlags & ThreadLocalPredFlag) &&
 	  ap->ModuleOfPred != IDB_MODULE) {
 	ap->OpcodeOfPred = LOCKPRED_OPCODE;
 	ap->cs.p_code.TrueCodeOfPred = ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
@@ -6127,6 +6128,7 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
     } else if (ap->PredFlags & LogUpdatePredFlag &&
+	       !(ap->PredFlags & ThreadLocalPredFlag) &&
 	       ap->ModuleOfPred != IDB_MODULE) {
       ap->cs.p_code.TrueCodeOfPred = FAILCODE;
       ap->OpcodeOfPred = LOCKPRED_OPCODE;

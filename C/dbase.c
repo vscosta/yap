@@ -4268,7 +4268,8 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
 	p->OpcodeOfPred = Yap_opcode(_spy_pred);
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
-      } else if (p->ModuleOfPred != IDB_MODULE) {
+      } else if (p->ModuleOfPred != IDB_MODULE &&
+		 !(p->PredFlags & ThreadLocalPredFlag)) {
 	p->OpcodeOfPred = LOCKPRED_OPCODE;
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
 #endif
@@ -4277,7 +4278,8 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
 	p->OpcodeOfPred = p->cs.p_code.TrueCodeOfPred->opc;
       }
 #if defined(YAPOR) || defined(THREADS)
-    } else if (p->ModuleOfPred != IDB_MODULE) {
+    } else if (p->ModuleOfPred != IDB_MODULE &&
+	       !(p->PredFlags & ThreadLocalPredFlag)) {
 	p->OpcodeOfPred = LOCKPRED_OPCODE;
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
 #endif
@@ -4290,7 +4292,8 @@ PrepareToEraseLogUpdClause(LogUpdClause *clau, DBRef dbr)
       p->OpcodeOfPred = Yap_opcode(_spy_pred);
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
-    } else if (p->ModuleOfPred != IDB_MODULE) {
+    } else if (p->ModuleOfPred != IDB_MODULE &&
+	       !(p->PredFlags & ThreadLocalPredFlag)) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
 #endif

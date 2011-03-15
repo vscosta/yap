@@ -7898,6 +7898,7 @@ Yap_absmi(int inp)
  	PELOCK(10,ap);
 	PP = ap;
 	if (!ap->cs.p_code.NOfClauses) {
+	  UNLOCKPE(11,ap);
 	  FAIL();
 	}
 	/*

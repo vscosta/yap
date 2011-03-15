@@ -1010,6 +1010,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
 #if defined(YAPOR) || defined(THREADS)
   } else if (ap->PredFlags & LogUpdatePredFlag &&
+	     !(ap->PredFlags & ThreadLocalPredFlag) &&
 	     ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
@@ -1060,6 +1061,7 @@ RemoveMainIndex(PredEntry *ap)
   }
 #if defined(YAPOR) || defined(THREADS)
   if (ap->PredFlags & LogUpdatePredFlag &&
+      !(ap->PredFlags & ThreadLocalPredFlag) &&
       ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
@@ -1611,7 +1613,8 @@ retract_all(PredEntry *p, int in_use)
   p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred));
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
-	     p->ModuleOfPred != IDB_MODULE) {
+      !(p->PredFlags & ThreadLocalPredFlag) &&
+      p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
@@ -1664,6 +1667,7 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
   p->OpcodeOfPred = pt->opc;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
+      !(p->PredFlags & ThreadLocalPredFlag) &&
       p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -1759,7 +1763,8 @@ add_first_dynamic(PredEntry *p, yamop *cp, int spy_flag)
   p->cs.p_code.NOfClauses = 1;
 #if defined(YAPOR) || defined(THREADS)
   if (p->PredFlags & LogUpdatePredFlag &&
-	     p->ModuleOfPred != IDB_MODULE) {
+      !(p->PredFlags & ThreadLocalPredFlag) &&
+      p->ModuleOfPred != IDB_MODULE) {
     p->OpcodeOfPred = LOCKPRED_OPCODE;
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
@@ -1817,7 +1822,8 @@ asserta_stat_clause(PredEntry *p, yamop *q, int spy_flag)
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
 #if defined(YAPOR) || defined(THREADS)
-    if (p->ModuleOfPred != IDB_MODULE) {
+    if (p->ModuleOfPred != IDB_MODULE &&
+	!(p->PredFlags & ThreadLocalPredFlag)) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
@@ -1891,7 +1897,8 @@ assertz_stat_clause(PredEntry *p, yamop *cp, int spy_flag)
       p->cs.p_code.TrueCodeOfPred = p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
 #if defined(YAPOR) || defined(THREADS)
-    if (p->ModuleOfPred != IDB_MODULE) {
+    if (p->ModuleOfPred != IDB_MODULE &&
+	!(p->PredFlags & ThreadLocalPredFlag)) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
@@ -2231,6 +2238,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
       }
 #if defined(YAPOR) || defined(THREADS)
       if (p->PredFlags & LogUpdatePredFlag &&
+	  !(p->PredFlags & ThreadLocalPredFlag) &&
 	     p->ModuleOfPred != IDB_MODULE) {
 	p->OpcodeOfPred = LOCKPRED_OPCODE;
 	p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
@@ -2255,7 +2263,8 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
     }
 #if defined(YAPOR) || defined(THREADS)
     if (p->PredFlags & LogUpdatePredFlag &&
-	     p->ModuleOfPred != IDB_MODULE) {
+	!(p->PredFlags & ThreadLocalPredFlag) &&
+	p->ModuleOfPred != IDB_MODULE) {
       p->OpcodeOfPred = LOCKPRED_OPCODE;
       p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
     }
@@ -2388,7 +2397,8 @@ Yap_EraseStaticClause(StaticClause *cl, Term mod) {
   }
 #if defined(YAPOR) || defined(THREADS)
   if (ap->PredFlags & LogUpdatePredFlag &&
-	     ap->ModuleOfPred != IDB_MODULE) {
+      !(ap->PredFlags & ThreadLocalPredFlag) &&
+      ap->ModuleOfPred != IDB_MODULE) {
     ap->OpcodeOfPred = LOCKPRED_OPCODE;
     ap->CodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
   }
@@ -2409,6 +2419,7 @@ Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
 	pe->OpcodeOfPred == FAIL_OPCODE) {  /* log updates */
 #if defined(YAPOR) || defined(THREADS)
       if (pe->PredFlags & LogUpdatePredFlag &&
+	  !(pe->PredFlags & ThreadLocalPredFlag) &&
 	  pe->ModuleOfPred != IDB_MODULE) {
 	pe->OpcodeOfPred = LOCKPRED_OPCODE;
 	pe->CodeOfPred = (yamop *)(&(pe->OpcodeOfPred)); 
@@ -2773,6 +2784,7 @@ p_rmspy( USES_REGS1 )
     if (!(pred->PredFlags & DynamicPredFlag)) {
 #if defined(YAPOR) || defined(THREADS)
       if (pred->PredFlags & LogUpdatePredFlag &&
+	  !(pred->PredFlags & ThreadLocalPredFlag) &&
 	  pred->ModuleOfPred != IDB_MODULE) {
 	pred->OpcodeOfPred = LOCKPRED_OPCODE;
 	pred->CodeOfPred = (yamop *)(&(pred->OpcodeOfPred)); 
