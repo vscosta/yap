@@ -1319,7 +1319,7 @@ AC_CHECK_LIB(z, zlibVersion,
 
 if test "$ZLIB" = yes; then
   ZLIB_TARGETS="zlib4pl.$SO"
-  ZLIB_PLTARGETS='$(srcdir)/zlib.pl'
+  ZLIB_PLTARGETS='zlib.pl'
   ZLIB_INSTALL=install
 else
   ZLIB_TARGETS=nolib
