@@ -1045,3 +1045,4 @@ make.
 '$fetch_stream_alias'(OldStream,Alias) :-
 	stream_property(OldStream, alias(Alias)), !.
 
+'$require'(_Ps, _M).

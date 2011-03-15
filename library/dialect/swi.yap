@@ -5,7 +5,6 @@
 
 :- module(system, [concat_atom/2,
 		   concat_atom/3,
-		   setenv/2,
 		   read_clause/1,
 		   string/1,
 		   chdir/1,
@@ -153,8 +152,6 @@ add_separator_to_list([H|T], Separator, [H,Separator|NT]) :-
 concat_atom(List, New) :-
 	atomic_concat(List, New).
 
-
-setenv(X,Y) :- unix(putenv(X,Y)).
 
 read_clause(X,Y) :-
 	read_term(X,Y,[singetons(warning)]).

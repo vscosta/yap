@@ -952,6 +952,8 @@ typedef struct choicept {
 #define cp_a6		cp_args[5]
 #define cp_a7		cp_args[6]
 #define cp_a8		cp_args[7]
+#define cp_a9		cp_args[8]
+#define cp_a10		cp_args[9]
 #define EXTRA_CBACK_ARG(Arity,Offset)  B->cp_args[(Arity)+(Offset)-1]
 #else
   /* Otherwise, we need a very dirty trick to access the arguments */

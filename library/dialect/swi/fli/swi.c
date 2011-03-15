@@ -2621,25 +2621,15 @@ PL_eval_expression_to_int64_ex(term_t t, int64_t *val)
 }
 
 foreign_t
-_PL_retry(intptr_t n)
+_PL_retry(intptr_t v)
 {
-  CACHE_REGS
-  /* first we need to get the pointer to the predicate */
-  PredEntry *pe = B->cp_ap->u.OtapFs.p;
-  struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
-  ctx->context = n;
-  return LCL0-(CELL *)ctx;
+  return (((uintptr_t)(v)<<FRG_REDO_BITS)|REDO_INT);
 }
 
 foreign_t
 _PL_retry_address(void *addr)
 {
-  CACHE_REGS
-  /* first we need to get the pointer to the predicate */
-  PredEntry *pe = B->cp_ap->u.OtapFs.p;
-  struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));  
-  ctx->context = (intptr_t)addr;
-  return LCL0-(CELL *)ctx;
+  return (((uintptr_t)(addr))|REDO_PTR);
 }
 
 

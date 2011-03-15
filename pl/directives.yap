@@ -48,6 +48,7 @@
 '$directive'(parallel).
 '$directive'(public(_)).
 '$directive'(op(_,_,_)).
+'$directive'(require(_)).
 '$directive'(set_prolog_flag(_,_)).
 '$directive'(reconsult(_)).
 '$directive'(reexport(_)).
@@ -104,6 +105,8 @@
 	'$module_transparent'(P, M).
 '$exec_directive'(noprofile(P), _, M) :-
 	'$noprofile'(P, M).
+'$exec_directive'(require(Ps), _, M) :-
+	'$require'(Ps, M).
 '$exec_directive'(dynamic(P), _, M) :-
 	'$dynamic'(P, M).
 '$exec_directive'(thread_local(P), _, M) :-

@@ -301,6 +301,9 @@ putenv(Na,Val) :-
 getenv(Na,Val) :-
 	'$getenv'(Na,Val).
 
+setenv(Na,Val) :-
+	'$putenv'(Na,Val).
+
 %%% Saving and restoring a computation
 
 save(A) :- save(A,_).

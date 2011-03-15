@@ -1427,105 +1427,106 @@ execute_cargs_back(PredEntry *pe, CPredicate exec_code, struct foreign_context *
   case 1:
     {
       CBPredicate1 code1 = (CBPredicate1)exec_code;
-      return ((code1)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
+      return ((code1)(&B->cp_a1-LCL0,
 		      ctx));
     }
   case 2:
     {
       CBPredicate2 code2 = (CBPredicate2)exec_code;
-      return ((code2)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
+      return ((code2)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
 		      ctx));
     }
   case 3:
     {
       CBPredicate3 code3 = (CBPredicate3)exec_code;
-      return ((code3)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
+      return ((code3)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
 		      ctx));
     }
   case 4:
     {
       CBPredicate4 code4 = (CBPredicate4)exec_code;
-      return ((code4)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
+      return ((code4)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
 		      ctx));
     }
   case 5:
     {
       CBPredicate5 code5 = (CBPredicate5)exec_code;
-      return ((code5)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS), ctx));
+      return ((code5)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      ctx));
     }
   case 6:
     {
       CBPredicate6 code6 = (CBPredicate6)exec_code;
-      return ((code6)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
+      return ((code6)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      &B->cp_a6-LCL0,
 		      ctx));
     }
   case 7:
     {
       CBPredicate7 code7 = (CBPredicate7)exec_code;
-      return ((code7)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
+      return ((code7)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      &B->cp_a6-LCL0,
+		      &B->cp_a7-LCL0,
 		      ctx));
     }
   case 8:
     {
       CBPredicate8 code8 = (CBPredicate8)exec_code;
-      return ((code8)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
+      return ((code8)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      &B->cp_a6-LCL0,
+		      &B->cp_a7-LCL0,
+		      &B->cp_a8-LCL0,
 		      ctx));
     }
   case 9:
     {
       CBPredicate9 code9 = (CBPredicate9)exec_code;
-      return ((code9)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
+      return ((code9)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      &B->cp_a6-LCL0,
+		      &B->cp_a7-LCL0,
+		      &B->cp_a8-LCL0,
+		      &B->cp_a9-LCL0,
 		      ctx));
     }
   case 10:
     {
       CBPredicate10 code10 = (CBPredicate10)exec_code;
-      return ((code10)(Yap_InitSlot(Deref(ARG1) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG2) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG3) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG4) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG5) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG6) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG7) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG8) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG9) PASS_REGS),
-		      Yap_InitSlot(Deref(ARG10) PASS_REGS),
+      return ((code10)(&B->cp_a1-LCL0,
+		      &B->cp_a2-LCL0,
+		      &B->cp_a3-LCL0,
+		      &B->cp_a4-LCL0,
+		      &B->cp_a5-LCL0,
+		      &B->cp_a6-LCL0,
+		      &B->cp_a7-LCL0,
+		      &B->cp_a8-LCL0,
+		      &B->cp_a9-LCL0,
+		      &B->cp_a10-LCL0,
 		      ctx));
     }
   default:
@@ -1595,7 +1596,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)((&ARG1)-LCL0,0,ctx));
+      val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
     while (execution != oexec)
@@ -1710,7 +1711,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)((&ARG1)-LCL0,0,ctx));
+      val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
     while (execution != oexec)
@@ -1732,12 +1733,10 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     } else if (val == 1) { /* TRUE */
       cut_succeed();
     } else {
-      /*
-	if ((val & REDO_PTR) == REDO_PTR)
+      if ((val & REDO_PTR) == REDO_PTR)
 	ctx->context = (int *)(val & ~REDO_PTR);
-	else
+      else
 	ctx->context = (int *)((val & ~REDO_PTR)>>FRG_REDO_BITS);
-      */
     }
     return TRUE;
   } else {
