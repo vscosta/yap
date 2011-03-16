@@ -61,7 +61,8 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
     /* just keep a linked chain for now */
     ae = SWI_Blobs;
     while (ae) {
-      if (RepBlobProp(ae->PropsOfAE)->blob_t == type &&
+      if (ae->PropsOfAE &&
+	  RepBlobProp(ae->PropsOfAE)->blob_t == type &&
 	  ae->rep.blob->length == len &&
 	  !memcmp(ae->rep.blob->data, blob, len))
 	return ae;
