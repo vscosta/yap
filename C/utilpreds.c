@@ -79,9 +79,6 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
-#ifdef COROUTINING
-  CELL *dvarsmin = NULL, *dvarsmax=NULL;
-#endif
 
   HB = HLow;
   to_visit0 = to_visit;
@@ -238,32 +235,22 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
     if (ptd0 >= HLow && ptd0 < H) { 
       /* we have already found this cell */
       *ptf++ = (CELL) ptd0;
-    } else {
+    } else 
 #if COROUTINING
       if (newattvs && IsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
+	
+	CELL new;
 
-	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
-	  *ptf++ = (CELL) ptd0;
-	} else {
-	  CELL new;
-
-	  bp = to_visit;
-	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
-	    goto overflow;
-	  }
-	  to_visit = bp;
-	  new = *ptf;
-	  Bind(ptd0, new);
-	  if (dvarsmin == NULL) {
-	    dvarsmin = CellPtr(new);
-	  } else {
-	    *dvarsmax = (CELL)(CellPtr(new)+1);
-	  }
-	  dvarsmax = CellPtr(new)+1;
-	  ptf++;
+	bp = to_visit;
+	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	  goto overflow;
 	}
+	to_visit = bp;
+	new = *ptf;
+	Bind_NonAtt(ptd0, new);
+	ptf++;
       } else {
 #endif
 	/* first time we met this term */
@@ -274,12 +261,11 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	    goto trail_overflow;
 	  }
 	}
-	Bind(ptd0, (CELL)ptf);
+	Bind_NonAtt(ptd0, (CELL)ptf);
 	ptf++;
 #ifdef COROUTINING
-      }
-#endif
     }
+#endif
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
@@ -307,7 +293,6 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 
   /* restore our nice, friendly, term to its original state */
   clean_dirty_tr(TR0 PASS_REGS);
-  close_attvar_chain(dvarsmin, dvarsmax);
   HB = HB0;
   return ground;
 
@@ -328,7 +313,6 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 #endif
   reset_trail(TR0);
   /* follow chain of multi-assigned variables */
-  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
 trail_overflow:
@@ -349,7 +333,6 @@ trail_overflow:
   {
     tr_fr_ptr oTR =  TR;
     reset_trail(TR0);
-    reset_attvars(dvarsmin, dvarsmax);
     if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
       return -4;
     }
@@ -372,7 +355,6 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
-  reset_attvars(dvarsmin, dvarsmax);
   Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
@@ -1265,9 +1247,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
-#ifdef COROUTINING
-  CELL *dvarsmin = NULL, *dvarsmax=NULL;
-#endif
   char *bptr = buf+ 3*sizeof(CELL);
   size_t len = len0;
 
@@ -1418,26 +1397,16 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	/* if unbound, call the standard export term routine */
 	struct cp_frame *bp;
 
-	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
-	  *ptf++ = (CELL) ptd0;
-	} else {
-	  CELL new;
+	CELL new;
 
-	  bp = to_visit;
-	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
-	    goto overflow;
-	  }
-	  to_visit = bp;
-	  new = *ptf;
-	  Bind(ptd0, new);
-	  if (dvarsmin == NULL) {
-	    dvarsmin = CellPtr(new);
-	  } else {
-	    *dvarsmax = (CELL)(CellPtr(new)+1);
-	  }
-	  dvarsmax = CellPtr(new)+1;
-	  ptf++;
+	bp = to_visit;
+	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	  goto overflow;
 	}
+	to_visit = bp;
+	new = *ptf;
+	Bind_NonAtt(ptd0, new);
+	ptf++;
       } else {
 #endif
 	/* first time we met this term */
@@ -1448,7 +1417,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	    goto trail_overflow;
 	  }
 	}
-	Bind(ptd0, (CELL)ptf);
+	Bind_NonAtt(ptd0, (CELL)ptf);
 	ptf++;
 #ifdef COROUTINING
       }
@@ -1470,7 +1439,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 
   /* restore our nice, friendly, term to its original state */
   clean_dirty_tr(TR0 PASS_REGS);
-  close_attvar_chain(dvarsmin, dvarsmax);
   HB = HB0;
   return export_term_to_buffer(tf, buf, bptr, HLow, H, len0);
 
@@ -1491,7 +1459,6 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 #endif
   reset_trail(TR0);
   /* follow chain of multi-assigned variables */
-  reset_attvars(dvarsmin, dvarsmax);
   return -1;
 
 trail_overflow:
@@ -1512,7 +1479,6 @@ trail_overflow:
   {
     tr_fr_ptr oTR =  TR;
     reset_trail(TR0);
-    reset_attvars(dvarsmin, dvarsmax);
     if (!Yap_growtrail((oTR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
       return -4;
     }
@@ -1535,7 +1501,6 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
-  reset_attvars(dvarsmin, dvarsmax);
   Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }

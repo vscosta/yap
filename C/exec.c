@@ -126,12 +126,7 @@ p_save_cp( USES_REGS1 )
 #endif
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer(B PASS_REGS);
-  BIND((CELL *)t,td,bind_save_cp);
-#ifdef COROUTINING
-  DO_TRAIL(VarOfTerm(t), td);
-  if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
- bind_save_cp:
-#endif
+  Bind((CELL *)t,td);
   return(TRUE);
 }
 
@@ -145,12 +140,7 @@ p_save_env_b( USES_REGS1 )
 #endif
   if (!IsVarTerm(t)) return(FALSE);
   td = cp_as_integer((choiceptr)YENV[E_CB] PASS_REGS);
-  BIND((CELL *)t,td,bind_save_cp);
-#ifdef COROUTINING
-  DO_TRAIL(VarOfTerm(t), td);
-  if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
- bind_save_cp:
-#endif
+  Bind((CELL *)t,td);
   return(TRUE);
 }
 
@@ -1468,8 +1458,13 @@ static int is_cleanup_cp(choiceptr cp_b)
 
 static Int
 JumpToEnv(Term t USES_REGS) {
+#ifndef YAPOR
+  yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,l),
+    *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,l);
+#else
   yamop *pos = NEXTOP(PredDollarCatch->cs.p_code.TrueCodeOfPred,Otapl),
     *catchpos = NEXTOP(PredHandleThrow->cs.p_code.TrueCodeOfPred,Otapl);
+#endif
   CELL *env, *env1;
   choiceptr handler, previous = NULL;
 
@@ -1559,7 +1554,8 @@ JumpToEnv(Term t USES_REGS) {
   }
   handler->cp_cp = (yamop *)env[E_CP];
   handler->cp_env = (CELL *)env[E_E];
-  handler->cp_ap = NEXTOP(PredHandleThrow->CodeOfPred,Otapl);
+  handler->cp_ap = catchpos;
+
   /* can recover Heap thanks to copy term :-( */
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding

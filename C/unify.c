@@ -259,12 +259,7 @@ loop:
 
       derefa_body(d1, ptd1, unify_comp_nvar_unk, unify_comp_nvar_nvar);
       /* d1 and pt2 have the unbound value, whereas d0 is bound */
-      BIND_GLOBAL(ptd1, d0, bind_ocunify1);
-#ifdef COROUTINING
-      DO_TRAIL(ptd1, d0);
-      if (IsAttVar(ptd1)) Yap_WakeUp(ptd1);
-    bind_ocunify1:
-#endif
+      Bind_Global(ptd1, d0);
       if (Yap_rational_tree_loop(ptd1-1, ptd1, (CELL **)to_visit, (CELL **)unif))
 	goto cufail;
       continue;
@@ -282,12 +277,7 @@ loop:
       deref_head(d1, unify_comp_var_unk);
     unify_comp_var_nvar:
       /* pt2 is unbound and d1 is bound */
-      BIND_GLOBAL(ptd0, d1, bind_ocunify2);
-#ifdef COROUTINING
-      DO_TRAIL(ptd0, d1);
-      if (IsAttVar(ptd0)) Yap_WakeUp(ptd0);
-    bind_ocunify2:
-#endif
+      Bind_Global(ptd0, d1);
       if (Yap_rational_tree_loop(ptd0-1, ptd0, (CELL **)to_visit, (CELL **)unif))
 	goto cufail;
       continue;
@@ -403,12 +393,7 @@ oc_unify_nvar_nvar:
 
   deref_body(d1, pt1, oc_unify_nvar_unk, oc_unify_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  BIND(pt1, d0, bind_ocunify4);
-#ifdef COROUTINING
-  DO_TRAIL(pt1, d0);
-  if (IsAttVar(pt1)) Yap_WakeUp(pt1);
- bind_ocunify4:
-#endif
+  Bind(pt1, d0);
   /* local variables cannot be in a term */
   if (pt1 > H && pt1 < LCL0)
     return TRUE;
@@ -421,12 +406,7 @@ oc_unify_nvar_nvar:
   deref_head(d1, oc_unify_var_unk);
 oc_unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  BIND(pt0, d1, bind_ocunify5);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, d1);
-  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
- bind_ocunify5:
-#endif
+  Bind(pt0, d1);
   /* local variables cannot be in a term */
   if (pt0 > H && pt0 < LCL0)
     return TRUE;
@@ -436,20 +416,8 @@ oc_unify_var_nvar:
 
   deref_body(d1, pt1, oc_unify_var_unk, oc_unify_var_nvar);
   /* d0 and pt1 are unbound */
-  UnifyCells(pt0, pt1, uc1, uc2);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, (CELL)pt1);
-  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
- uc1:
-#endif
+  UnifyCells(pt0, pt1);
   return (TRUE);
-#ifdef COROUTINING
- uc2:
-  DO_TRAIL(pt1, (CELL)pt0);
-  if (IsAttVar(pt1)) {
-    Yap_WakeUp(pt1);
-  }
-#endif
   return (TRUE);
 }
 
@@ -551,12 +519,7 @@ unify_nvar_nvar:
 
   deref_body(d1, pt1, unify_nvar_unk, unify_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  BIND(pt1, d0, bind_unify3);
-#ifdef COROUTINING
-  DO_TRAIL(pt1, d0);
-  if (IsAttVar(pt1)) Yap_WakeUp(pt1);
- bind_unify3:
-#endif
+  Bind(pt1, d0);
   return (TRUE);
 
   deref_body(d0, pt0, unify_unk, unify_nvar);
@@ -564,12 +527,7 @@ unify_nvar_nvar:
   deref_head(d1, unify_var_unk);
 unify_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  BIND(pt0, d1, bind_unify4);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, d1);
-  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
- bind_unify4:
-#endif
+  Bind(pt0, d1);
   return TRUE;
 
 #if TRAILING_REQUIRES_BRANCH
@@ -580,21 +538,9 @@ unify_var_nvar_trail:
 
   deref_body(d1, pt1, unify_var_unk, unify_var_nvar);
   /* d0 and pt1 are unbound */
-  UnifyCells(pt0, pt1, uc1, uc2);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, (CELL)pt1);
-  if (IsAttVar(pt0)) Yap_WakeUp(pt0);
- uc1:
-#endif
+  UnifyCells(pt0, pt1);
   return (TRUE);
-#ifdef COROUTINING
- uc2:
-  DO_TRAIL(pt1, (CELL)pt0);
-  if (IsAttVar(pt1)) {
-    Yap_WakeUp(pt1);
-  }
-  return (TRUE);
-#endif
+
 #if THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  
@@ -661,9 +607,9 @@ InitReverseLookupOpcode(void)
 
 #define UnifiableGlobalCells(a, b)                                    \
      if((a) > (b)) {                                              \
-	BIND_GLOBALCELL_NONATT((a),(CELL)(b));                           \
+	Bind_Global_NonAtt((a),(CELL)(b));                           \
      } else if((a) < (b)){                                        \
-	BIND_GLOBALCELL_NONATT((b),(CELL) (a));                          \
+	Bind_Global_NonAtt((b),(CELL) (a));                          \
      }
 
 static int 
@@ -790,11 +736,7 @@ loop:
 
       derefa_body(d1, ptd1, unifiable_comp_nvar_unk, unifiable_comp_nvar_nvar);
 	/* d1 and pt2 have the unbound value, whereas d0 is bound */
-      BIND(ptd1, d0, bind_unifiable3);
-#ifdef COROUTINING
-      DO_TRAIL(ptd1, d0);
-    bind_unifiable3:
-#endif
+      Bind(ptd1, d0);
       continue;
     }
 
@@ -810,11 +752,7 @@ loop:
       deref_head(d1, unifiable_comp_var_unk);
     unifiable_comp_var_nvar:
       /* pt2 is unbound and d1 is bound */
-      BIND(ptd0, d1, bind_unifiable4);
-#ifdef COROUTINING
-      DO_TRAIL(ptd0, d1);
-    bind_unifiable4:
-#endif
+      Bind(ptd0, d1);
       continue;
 
       derefa_body(d1, ptd1, unifiable_comp_var_unk, unifiable_comp_var_nvar);
@@ -941,11 +879,7 @@ unifiable_nvar_nvar:
 
   deref_body(d1, pt1, unifiable_nvar_unk, unifiable_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  BIND(pt1, d0, bind_unifiable3);
-#ifdef COROUTINING
-  DO_TRAIL(pt1, d0);
- bind_unifiable3:
-#endif
+  Bind(pt1, d0);
   return (TRUE);
 
   deref_body(d0, pt0, unifiable_unk, unifiable_nvar);
@@ -953,11 +887,7 @@ unifiable_nvar_nvar:
   deref_head(d1, unifiable_var_unk);
 unifiable_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  BIND(pt0, d1, bind_unifiable4);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, d1);
- bind_unifiable4:
-#endif
+  Bind(pt0, d1);
   return TRUE;
 
 #if TRAILING_REQUIRES_BRANCH
@@ -968,17 +898,8 @@ unifiable_var_nvar_trail:
 
   deref_body(d1, pt1, unifiable_var_unk, unifiable_var_nvar);
   /* d0 and pt1 are unbound */
-  UnifyCells(pt0, pt1, uc1, uc2);
-#ifdef COROUTINING
-  DO_TRAIL(pt0, (CELL)pt1);
- uc1:
-#endif
+  UnifyCells(pt0, pt1);
   return (TRUE);
-#ifdef COROUTINING
- uc2:
-  DO_TRAIL(pt1, (CELL)pt0);
-  return (TRUE);
-#endif
 #if THREADS
 #undef Yap_REGS
 #define Yap_REGS (*Yap_regp)  

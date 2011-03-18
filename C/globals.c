@@ -291,9 +291,6 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
-#ifdef COROUTINING
-  CELL *dvarsmin = NULL, *dvarsmax=NULL;
-#endif
 
   HB = HLow;
   to_visit0 = to_visit;
@@ -470,34 +467,25 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (copy_att_vars && IsAttachedTerm((CELL)ptd0)) {
+      if (copy_att_vars && FastIsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
+	CELL new;
 
-	if (IN_BETWEEN(dvarsmin, ptd0, dvarsmax)) {
-	  *ptf++ = (CELL) ptd0;
-	} else {
-	  CELL new;
-
-	  bp = to_visit;
-	  if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
-	    goto overflow;
-	  }
-	  to_visit = bp;
-	  new = *ptf;
-	  if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
-	    /* Trail overflow */
-	    if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
-	      goto trail_overflow;
-	    }
-	  }
-	  Bind_and_Trail(ptd0, new);
-	  if (dvarsmin == NULL) {
-	    dvarsmin = CellPtr(new);
-	  }
-	  dvarsmax = CellPtr(new)+1;
-	  ptf++;
+	bp = to_visit;
+	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	  goto overflow;
 	}
+	to_visit = bp;
+	new = *ptf;
+	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	  /* Trail overflow */
+	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
+	    goto trail_overflow;
+	  }
+	}
+	Bind_and_Trail(ptd0, new);
+	ptf++;
       } else {
 #endif
 	/* first time we met this term */
@@ -602,7 +590,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
     ASP = ArenaLimit(arena);
     H = HB = ArenaPt(arena);
 #if COROUTINING
-    if (IsAttachedTerm(t)) {
+    if (FastIsAttachedTerm(t)) {
       CELL *Hi;
 
       *H = t;
@@ -1106,7 +1094,7 @@ p_b_setval( USES_REGS1 )
   {
     /* but first make sure we are doing on a global object, or a constant! */
     Term t = Deref(ARG2);
-    if (IsVarTerm(t) && VarOfTerm(t) > H && VarOfTerm(t) < ASP) {
+    if (IsVarTerm(t) && VarOfTerm(t) > H && VarOfTerm(t) < LCL0) {
       Term tn = MkVarTerm();
       Bind_Local(VarOfTerm(t), tn);
       t = tn;

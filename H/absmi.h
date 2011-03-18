@@ -972,57 +972,39 @@ Macros to check the limits of stacks
  *                                                                    *
  **********************************************************************/
 
-#ifdef COROUTINING
-#define UnifyCells(a, b, l1, l2)                                  \
-     if((a) > (b)) {                                              \
-	if ((a)<=H) { BIND_GLOBAL((a),(CELL)(b),l1); }            \
-	else if ((b)<= H) { Bind_Local((a),(CELL)(b)); goto l1;}  \
-	else { Bind_Local((b),(CELL) (a));  goto l1;}             \
-     } else if((a) < (b)){                                        \
-	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
-	else if ((a) <= H) { Bind_Local((b),(CELL) (a));  goto l1;} \
-	else { Bind_Local((a),(CELL) (b));  goto l1;}             \
-     } else goto l1;
-
-/* I know (a) <= H */
-#define UnifyGlobalRegCells(a, b, l1, l2)                         \
-     if((a) > (b)) {                                              \
-	BIND_GLOBAL((a),(CELL)(b),l1);                            \
-     } else if((a) < (b)){                                        \
-	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
-	Bind_Local((b),(CELL) (a));                               \
-	goto l1;				                  \
-     } else goto l1;
-
-#else
-#define UnifyCells(a, b, l1, l2)                                  \
-     if((a) > (b)) {                                              \
-	if ((a)<=H) { BIND_GLOBAL((a),(CELL)(b),l1); }            \
-	else if ((b)<= H) { Bind_Local((a),(CELL)(b)); }          \
-	else { Bind_Local((b),(CELL) (a)); }                      \
-     } else if((a) < (b)){                                        \
-	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
-	else if ((a) <= H) { Bind_Local((b),(CELL) (a)); }        \
-	else { Bind_Local((a),(CELL) (b)); }                      \
-     }
-
-/* I know (a) <= H */
-#define UnifyGlobalRegCells(a, b, l1, l2)                         \
-     if((a) > (b)) {                                              \
-	BIND_GLOBAL((a),(CELL)(b),l1);                            \
-     } else if((a) < (b)){                                        \
-	if((b) <= H) { BIND_GLOBAL2((b),(CELL) (a),l2,l1); }      \
-	Bind_Local((b),(CELL) (a));                               \
-     }
-
-#endif
-
 #define UnifyGlobalCells(a, b)                                    \
-     if((a) > (b)) {                                              \
-	BIND_GLOBALCELL((a),(CELL)(b));                           \
-     } else if((a) < (b)){                                        \
-	BIND_GLOBALCELL((b),(CELL) (a));                          \
-     }
+  if ((b) > (a)) {                                                \
+    if (FastIsAttVar(b) && !FastIsAttVar(a)) {                    \
+      Bind_Global((a),(CELL)(b));                                 \
+    } else {                                                      \
+      Bind_Global((b),(CELL)(a));                                 \
+    }                                                             \
+  } else if ((b) < (a)) {                                         \
+    if (FastIsAttVar(a) && !FastIsAttVar(b)) {                    \
+      Bind_Global((b),(CELL)(a));                                 \
+    } else {                                                      \
+      Bind_Global((a),(CELL)(b));                                 \
+    }                                                             \
+  }                                                               
+
+#define UnifyGlobalCellToCell(b, a)	                          \
+if ((a) < H) { /* two globals */				  \
+  UnifyGlobalCells(a,b);					  \
+} else {                                                          \
+  Bind_Local((a),(CELL)(b));					  \
+}
+
+#define UnifyCells(a, b)		                          \
+if ((a) < H) { /* at least one global */			  \
+  if ((b) > H) { Bind_Local((b),(CELL)(a)); }			  \
+  else { UnifyGlobalCells(a,b); }				  \
+} else {                                                          \
+  if ((b) > (a)) { Bind_Local((a),(CELL)(b)); }			  \
+  else if ((a) > (b)) {						  \
+    if ((b) < H) { Bind_Local((a),(CELL)(b)); }                   \
+    else { Bind_Local((b),(CELL)(a)); }			          \
+  }								  \
+}
 
 /* unify two complex terms.
  * 
@@ -1236,7 +1218,8 @@ loop:
 
       derefa_body(d1, ptd1, unify_comp_nvar_unk, unify_comp_nvar_nvar);
 	/* d1 and pt2 have the unbound value, whereas d0 is bound */
-      BIND_GLOBALCELL(ptd1, d0);
+      Bind_Global(ptd1, d0);
+      continue;
     }
 
     derefa_body(d0, ptd0, unify_comp_unk, unify_comp_nvar);
@@ -1251,7 +1234,8 @@ loop:
       deref_head(d1, unify_comp_var_unk);
     unify_comp_var_nvar:
       /* pt2 is unbound and d1 is bound */
-      BIND_GLOBALCELL(ptd0, d1);
+      Bind_Global(ptd0, d1);
+      continue;
 
       derefa_body(d1, ptd1, unify_comp_var_unk, unify_comp_var_nvar);
       /* ptd0 and ptd1 are unbound */
@@ -1585,10 +1569,14 @@ prune(choiceptr cp)
     }
 }
 
+#define SET_ASP(Y,S) SET_ASP__(Y,S PASS_REGS)
+
 static inline
-void SET_ASP(CELL *yreg, Int sz) {
-  CACHE_REGS
+void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
   ASP = (CELL *) (((char *) yreg) + sz);
   if (ASP > (CELL *)PROTECT_FROZEN_B(B))
     ASP = (CELL *)PROTECT_FROZEN_B(B);
 }
+
+
+

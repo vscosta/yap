@@ -24,7 +24,7 @@ static char     SccsId[] = "%W% %G%";
 #include "attvar.h"
 
 #if !defined(TABLING)
-#define EASY_SHUNTING 1
+//#define EASY_SHUNTING 1
 #endif /* !TABLING */
 #define HYBRID_SCHEME 1
 
@@ -1172,7 +1172,7 @@ mark_variable(CELL_PTR current USES_REGS)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IN_BETWEEN(Yap_GlobalBase,current,H) && IsAttVar(current) && current==next) {
+    if (IN_BETWEEN(Yap_GlobalBase,current,H) && FastIsAttVar(current) && current==next) {
       if (next < H0) POP_CONTINUATION();
       if (!UNMARKED_MARK(next-1,local_bp)) {
 	total_marked++;
@@ -1656,7 +1656,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	     nondeterministically, I know that after backtracking it will be back to be an unbound variable.
 	     The ideal solution would be to unbind all variables. The current solution is to
 	     remark it as an attributed variable */
-	  if (IN_BETWEEN(Yap_GlobalBase,hp,H) && IsAttVar(hp) && !UNMARKED_MARK(hp-1,Yap_bp)) {
+	  if (IN_BETWEEN(Yap_GlobalBase,hp,H) && FastIsAttVar(hp) && !UNMARKED_MARK(hp-1,Yap_bp)) {
 	    total_marked++;
 	    PUSH_POINTER(hp-1 PASS_REGS);
 	    if (hp-1 < HGEN) {
@@ -1697,7 +1697,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
       /* can safely ignore this */
       CELL *cptr = RepPair(trail_cell);
       if (IN_BETWEEN(Yap_GlobalBase,cptr,H) &&
-	  IsAttVar(cptr)) {
+	  FastIsAttVar(cptr)) {
 	TrailTerm(trail_base) = (CELL)cptr;
 	mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
 	TrailTerm(trail_base) = trail_cell;
@@ -2486,7 +2486,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IN_BETWEEN(Yap_GlobalBase, pt0, H) && IsAttVar(pt0)) {
+	if (IN_BETWEEN(Yap_GlobalBase, pt0, H) && FastIsAttVar(pt0)) {
 	  TrailTerm(dest) = trail_cell;
 	  /* be careful with partial gc */
 	  if (HEAP_PTR(TrailTerm(dest))) {

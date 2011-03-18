@@ -67,6 +67,13 @@ IsAttVar (CELL *pt)
   return (pt)[-1] == (CELL)attvar_e && pt < H;
 }
 
+inline EXTERN int
+FastIsAttVar (CELL *pt)
+{
+  CACHE_REGS
+  return (pt)[-1] == (CELL)attvar_e;
+}
+
 typedef enum
   {
     BIG_INT =      0x01,
@@ -505,6 +512,14 @@ inline EXTERN Int
 IsAttachedTerm (Term t)
 {
   return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
+}
+
+inline EXTERN Int IsAttachedTerm (Term);
+
+inline EXTERN Int
+FastIsAttachedTerm (Term t)
+{
+  return (Int) ((IsVarTerm (t) && FastIsAttVar(VarOfTerm(t))));
 }
 
 

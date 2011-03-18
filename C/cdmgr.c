@@ -4024,12 +4024,7 @@ p_is_profiled( USES_REGS1 )
 
     if (PROFILING) ta = MkAtomTerm(AtomOn);
     else ta = MkAtomTerm(AtomOff);
-    BIND((CELL *)t,ta,bind_is_profiled);
-#ifdef COROUTINING
-    DO_TRAIL(VarOfTerm(t), ta);
-    if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
-  bind_is_profiled:
-#endif
+    Bind((CELL *)t,ta);
     return(TRUE);
   } else if (!IsAtomTerm(t)) return(FALSE);
   s = RepAtom(AtomOfTerm(t))->StrOfAE;
@@ -4127,12 +4122,7 @@ p_is_call_counted( USES_REGS1 )
 
     if (CALL_COUNTING) ta = MkAtomTerm(AtomOn);
     else ta = MkAtomTerm(AtomOff);
-    BIND((CELL *)t,ta,bind_is_call_counted);
-#ifdef COROUTINING
-    DO_TRAIL(VarOfTerm(t), ta);
-    if (IsAttVar(VarOfTerm(t))) Yap_WakeUp((CELL *)t);
-  bind_is_call_counted:
-#endif
+    Bind((CELL *)t,ta);
     return(TRUE);
   } else if (!IsAtomTerm(t)) return(FALSE);
   s = RepAtom(AtomOfTerm(t))->StrOfAE;

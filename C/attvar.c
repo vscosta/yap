@@ -73,8 +73,8 @@ BuildNewAttVar( USES_REGS1 )
   attvar_record *newv;
 
   /* add a new attributed variable */
-  if (!(newv = (attvar_record *)Yap_GetFromArena(&GlobalArena, sizeof(attvar_record)/sizeof(CELL),2)))
-    return NULL;
+  newv = (attvar_record *)H;
+  H = (CELL *)(newv+1);
   newv->AttFunc = FunctorAttVar;
   RESET_VARIABLE(&(newv->Value));
   RESET_VARIABLE(&(newv->Done));
@@ -90,13 +90,14 @@ CopyAttVar(CELL *orig, struct cp_frame **to_visit_ptr, CELL *res USES_REGS)
   struct cp_frame *to_visit = *to_visit_ptr;
   CELL *vt;
 
+  
   if (!(newv = BuildNewAttVar( PASS_REGS1 )))
     return FALSE;
   vt = &(attv->Atts);
   to_visit->start_cp = vt-1;
   to_visit->end_cp = vt;
   if (IsVarTerm(attv->Atts)) {
-    Bind(&newv->Atts, (CELL)H);
+    Bind_Global_NonAtt(&newv->Atts, (CELL)H);
     to_visit->to = H;
     H++;
   } else {
@@ -123,7 +124,7 @@ TermToAttVar(Term attvar, Term to USES_REGS)
   attvar_record *attv = BuildNewAttVar( PASS_REGS1 );
   if (!attv)
     return FALSE;
-  Bind(&attv->Atts, attvar);
+  Bind_Global_NonAtt(&attv->Atts, attvar);
   *VarOfTerm(to) = AbsAttVar(attv);
   return TRUE;
 }
@@ -155,12 +156,12 @@ WakeAttVar(CELL* pt1, CELL reg2 USES_REGS)
 	    AddFailToQueue( PASS_REGS1 );
 	  }
 	}
-	Bind_Global(&(susp2->Value), (CELL)pt1);
+	Bind_Global_NonAtt(&(susp2->Value), (CELL)pt1);
 	AddToQueue(susp2 PASS_REGS);
 	return;
       }
     } else {
-      Bind(VarOfTerm(reg2), (CELL)pt1);
+      Bind_NonAtt(VarOfTerm(reg2), (CELL)pt1);
       return;
     }
   }
@@ -179,7 +180,7 @@ WakeAttVar(CELL* pt1, CELL reg2 USES_REGS)
       reg2 = AbsAppl(H);
   }
   *bind_ptr = reg2;
-  Bind_Global(&(attv->Value), reg2);
+  Bind_Global_NonAtt(&(attv->Value), reg2);
 }
 
 void
@@ -187,7 +188,10 @@ Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
-  TR--;
+  /* did we trail */
+  if (pt0 < HB) {
+    TR--;
+  }
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 
@@ -258,14 +262,16 @@ AddNewModule(attvar_record *attv, Term t, int new, int do_it USES_REGS)
   }
   if (!do_it)
     return;
-  if (IsVarTerm(attv->Atts)) {
-    Bind(&(attv->Atts),t);
+  if (new) {
+    attv->Atts = t;
+  } else if (IsVarTerm(attv->Atts)) {
+    MaBind(&(attv->Atts),t);
   } else {
     Term *wherep = &attv->Atts;
 
     do {
       if (IsVarTerm(*wherep)) {
-	Bind_Global(wherep,t);      
+	Bind_Global_NonAtt(wherep,t);      
 	return;
       } else {
 	wherep = RepAppl(Deref(*wherep))+1;
@@ -365,7 +371,7 @@ PutAtt(Int pos, Term atts, Term att USES_REGS)
   if (IsVarTerm(att) && (CELL *)att > H && (CELL *)att < LCL0) {
     /* globalise locals */
     Term tnew = MkVarTerm();
-    Bind((CELL *)att, tnew);
+    Bind_NonAtt((CELL *)att, tnew);
     att = tnew;
   }
   MaBind(RepAppl(atts)+pos, att);
@@ -376,23 +382,23 @@ BindAttVar(attvar_record *attv USES_REGS) {
   if (IsVarTerm(attv->Done) && IsUnboundVar(&attv->Done)) {
     /* make sure we are not trying to bind a variable against itself */
     if (!IsVarTerm(attv->Value)) {
-      Bind_Global(&(attv->Done), attv->Value);
+      Bind_Global_NonAtt(&(attv->Done), attv->Value);
     } else if (IsVarTerm(attv->Value)) {
       Term t = Deref(attv->Value);
       if (IsVarTerm(t)) {
 	if (IsAttachedTerm(t)) {
 	  attvar_record *attv2 = RepAttVar(VarOfTerm(t));
 	  if (attv2 < attv) {
-	    Bind_Global(&(attv->Done), t);
+	    Bind_Global_NonAtt(&(attv->Done), t);
 	  } else {
-	    Bind_Global(&(attv2->Done), AbsAttVar(attv));
+	    Bind_Global_NonAtt(&(attv2->Done), AbsAttVar(attv));
 	  }
 	} else {
 	  Yap_Error(SYSTEM_ERROR,(CELL)&(attv->Done),"attvar was bound when unset");
 	  return(FALSE);
 	}
       } else {
-	Bind_Global(&(attv->Done), t);
+	Bind_Global_NonAtt(&(attv->Done), t);
       }
     }
     return(TRUE);
@@ -448,7 +454,7 @@ p_put_att( USES_REGS1 ) {
 	  return FALSE;
 	}    
       }
-      Yap_unify(ARG1, AbsAttVar(attv));
+      Bind_NonAtt(VarOfTerm(Deref(ARG1)), AbsAttVar(attv));
       AddNewModule(attv, tatts, new, TRUE PASS_REGS);
     }
     PutAtt(IntegerOfTerm(Deref(ARG4)), tatts, Deref(ARG5) PASS_REGS);
@@ -466,10 +472,10 @@ p_put_att_term( USES_REGS1 ) {
   /* if this is unbound, ok */
   if (IsVarTerm(inp)) {
     attvar_record *attv;
-    int new = FALSE;
 
     if (IsAttachedTerm(inp)) {
       attv = RepAttVar(VarOfTerm(inp));
+      MaBind(&(attv->Atts), Deref(ARG2));
     } else {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
 	Yap_Error_Size = sizeof(attvar_record);
@@ -479,13 +485,8 @@ p_put_att_term( USES_REGS1 ) {
 	}    
 	inp = Deref(ARG1);
       }
-      new = TRUE;
-    }
-    if (new) {
-      Bind(VarOfTerm(inp), AbsAttVar(attv));
-      Bind(&attv->Atts, Deref(ARG2));
-    } else {
-      MaBind(&(attv->Atts), Deref(ARG2));
+      Bind_NonAtt(VarOfTerm(inp), AbsAttVar(attv));
+      attv->Atts = Deref(ARG2);
     }
     return TRUE;
   } else {
@@ -1012,9 +1013,9 @@ p_fast_unify( USES_REGS1 )
   a = VarOfTerm(t1);
   b = VarOfTerm(t2);
   if(a > b) {						 
-    Bind_Global(a,t2);				 
+    Bind_Global_NonAtt(a,t2);				 
   } else if((a) < (b)){						 
-    Bind_Global(b,t1);				 
+    Bind_Global_NonAtt(b,t1);				 
   }
   return TRUE;
 }

@@ -151,49 +151,11 @@ AlignGlobalForDouble( USES_REGS1 )
  	if ((TERM) > (CELL *)B || (TERM) > (CELL *)B_FZ)  \
           DO_TRAIL(TERM, VAL)
 
-#ifdef TERM_EXTENSIONS
-
-#define Trail(TERM, VAL, LAB)                             \
-        if (IN_BETWEEN(HBREG,TERM,B) &&                   \
-            ((TERM) < (CELL *)B_FZ))                      \
-          goto LAB
-
-#define TrailAndJump(TERM, VAL)                             \
-        if (IN_BETWEEN(HBREG,TERM,B) &&                   \
-            ((TERM) < (CELL *)B_FZ))                      \
-          GONext();
-
-#else
-#define Trail(TERM, VAL, LAB)                             \
-          TRAIL(TERM, VAL)
-
-#define Trail(TERM, VAL, LAB)                             \
-          TRAIL_AND_JUMP(TERM, VAL)
-#endif
-
 #else /* BBREG_TRAIL_SCHEME */
 
 #define TRAIL(TERM, VAL)                                  \
         if (OUTSIDE(HBREG,TERM,BBREG))                    \
           DO_TRAIL(TERM, VAL)
-
-#ifdef TERM_EXTENSIONS
-#define Trail(TERM, VAL, LAB)                             \
-        if (IN_BETWEEN(HBREG,TERM,BBREG))                 \
-          goto LAB
-
-#define TrailAndJump(TERM, VAL)                             \
-        if (IN_BETWEEN(HBREG,TERM,BBREG))                 \
-          GONext();
-
-#else
-#define Trail(TERM, VAL, LAB)                             \
-          TRAIL(TERM, VAL)
-
-#define TrailAndJump(TERM, VAL)                             \
-          TRAIL_AND_JUMP(TERM, VAL)
-
-#endif
 
 #define TRAIL_LOCAL(TERM, VAL)                            \
  	if ((TERM) > (CELL *)BBREG) DO_TRAIL(TERM, VAL)
@@ -204,14 +166,6 @@ AlignGlobalForDouble( USES_REGS1 )
 
 #define TRAIL_GLOBAL(TERM, VAL)                  \
  	if ((TERM) < HBREG) DO_TRAIL(TERM, VAL)
-
-#ifdef TERM_EXTENSIONS
-#define Trail_Global(TERM, VAL, LAB)              \
- 	if ((TERM) >= HBREG) goto LAB
-#else
-#define Trail_Global(TERM, VAL, LAB)              \
-          TRAIL_GLOBAL(TERM, VAL)
-#endif
 
 #define DO_MATRAIL(TERM, OLDVAL, NEWVAL)                    \
 {                                                           \
@@ -241,14 +195,7 @@ AlignGlobalForDouble( USES_REGS1 )
 #define TRAIL(A,D)        if (OUTSIDE(HBREG,A,B))             \
 				DO_TRAIL(A,D);
 
-#define TRAIL_AND_JUMP(A,D)        if (!OUTSIDE(HBREG,A,B)) GONext();	\
-				DO_TRAIL(A,D);
-
-#define Trail(A, D, LAB)   TRAIL(A,D)
-
 #define TRAIL_GLOBAL(A,D)	if ((A) < HBREG) DO_TRAIL(A,D);
-
-#define Trail_Global(A,D,LAB)	if ((A) < HBREG) DO_TRAIL(A,D);
 
 #define TRAIL_LOCAL(A,D)	if ((A) > (CELL *)B) DO_TRAIL(A,D);
 
@@ -265,11 +212,7 @@ AlignGlobalForDouble( USES_REGS1 )
                         if (!OUTSIDE(HBREG,A,B))                            \
 			  GONext();
 
-#define Trail(A,D,LAB)    TRAIL(A,D)
-
 #define TRAIL_GLOBAL(A,D)	TR[0] = (CELL)(A); if ((A) < HBREG) TR++
-
-#define Trail_Global(A,D,LAB)   TRAIL_GLOBAL(A,D)
 
 #define TRAIL_LOCAL(A,D)	TR[0] = (CELL)(A); if ((A) > ((CELL *)(B)))  TR++
 
@@ -283,13 +226,7 @@ AlignGlobalForDouble( USES_REGS1 )
 #define TRAIL_AND_JUMP(A,D)        if (IN_BETWEEN(HBREG,A,B)) GONext();	\
                               DO_TRAIL(A,D)
 
-#define Trail(A,D,LAB)    TRAIL(A,D)
-
 #define TRAIL_GLOBAL(A,D)	if ((A) < HBREG) DO_TRAIL(A,D)
-
-#define Trail_Global(A,D,LAB)  TRAIL_GLOBAL(A,D)
-
-#define Trail_Global2(A,D,LAB)  TRAIL_GLOBAL(A,D)
 
 #define TRAIL_LOCAL(A,D)	if ((A) > ((CELL *)B))  DO_TRAIL(A,D)
 
@@ -300,17 +237,10 @@ AlignGlobalForDouble( USES_REGS1 )
 #define TRAIL(A,D)        if (OUTSIDE(HBREG,A,B))            \
                               DO_TRAIL(A,D)
 
-#define Trail(A,D,LAB)    if (IN_BETWEEN(HBREG,A,B))            \
-                              goto LAB
-
 #define TrailAndJump(A,D)    if (IN_BETWEEN(HBREG,A,B))            \
     GONext();
 
 #define TRAIL_GLOBAL(A,D)	if ((A) < HBREG) DO_TRAIL(A,D)
-
-#define Trail_Global(A,D,LAB) if ((A) >= HBREG) goto LAB
-
-#define Trail_Global2(A,D,LAB) if ((A) < HBREG) goto LAB
 
 #define TRAIL_LOCAL(A,D)	if ((A) > ((CELL *)B))  DO_TRAIL(A,D)
 
@@ -342,60 +272,18 @@ Binding Macros for Multiple Assignment Variables.
 #define TRAIL_LINK(REF)        TrailTerm(TR++) = AbsPair((CELL *)(REF))
 #define TRAIL_FRAME(FR)        DO_TRAIL(AbsPair((CELL *)(Yap_TrailBase)), FR)
 
-#define Bind(A,D)              TRAIL(A,D); *(A) = (D)
-#define Bind_Global(A,D)       TRAIL_GLOBAL(A,D); *(A) = (D)
-#define Bind_and_Trail(A,D)    DO_TRAIL(A,D); *(A) = (D)
-#define BIND(A,D,L)            *(A) = (D); Trail(A,D,L)
-#define BIND_AND_JUMP(A,D)     *(A) = (D); TrailAndJump(A,D)
-#define BIND_GLOBAL(A,D,L)     *(A) = (D); Trail_Global(A,D,L)
+extern void	Yap_WakeUp(CELL *v);
 
-#ifdef COROUTINING
-#define BIND_GLOBAL2(A,D,LAB,LAB1)   *(A) = (D); if ((A) < HBREG) goto LAB; goto LAB1
-
-#define BIND_GLOBALCELL(A,D)    *(A) = (D); \
-				if ((A) >= HBREG) continue; \
-                                TRAIL_GLOBAL(A,D); if (!IsAttVar(A)) continue; \
-                                Yap_WakeUp((A)); continue
-
-#define BIND_GLOBALCELL_NONATT(A,D)    *(A) = (D); \
-				if ((A) >= HBREG) continue; \
-                                TRAIL_GLOBAL(A,D);
-#else
-#define BIND_GLOBAL2(A,D,LAB,LAB1)   BIND_GLOBAL(A,D,LAB)
-
-#define BIND_GLOBALCELL(A,D)    BIND_GLOBAL(A,D,L); continue
-
-#define BIND_GLOBALCELL_NONATT(A,D)    BIND_GLOBALCELL; continue
-#endif
+#define Bind(A,D)              { *(A) = (D); TRAIL(A,D);  if (FastIsAttVar(A)) Yap_WakeUp(A);	 }
+#define Bind_NonAtt(A,D)       { *(A) = (D); TRAIL(A,D);	 }
+#define Bind_Global(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); if (FastIsAttVar(A)) Yap_WakeUp(A);	  }
+#define Bind_Global_NonAtt(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); }
+#define Bind_and_Trail(A,D)       { *(A) = (D); DO_TRAIL(A, D); }
 
 #define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
 
 
 #define MaBind(VP,D)    { MATRAIL((VP),*(VP),(D)); *(VP) = (D); }
-
-#if defined(__GNUC__) && defined(i386) && !defined(TERM_EXTENSIONS) && !defined(TABLING)
-/* destroy d0 and pt0 */
-#define DBIND(A,D,L)                                                    \
-{ register CELL *t1=HBREG;                                              \
-__asm__("movl %4,(%0)\n\t"                                              \
-        "movl %2,%4\n\t"                                                \
-	"subl %1,%2\n\t"                                                \
-	"subl %0,%4\n\t"                                                \
-	"cmpl %2,%4\n\t"                                                \
-	"jae  1f\n\t"                                                   \
-	"movl %3,%4\n\t"                                                \
-	"movl %0,(%4)\n\t"                                              \
-	"addl $4,%4\n\t"                                                \
-	"movl %4,%3\n\t"                                                \
-	"1:"                                                            \
-	: /* no outputs */                                              \
-	: "r" (A), "m" (B), "r" (t1), "m" (TR), "r" (D) );              \
-}
-
-#else
-#define DBIND(A,D,L)  BIND(A,D,L)
-#endif
-
 
 /************************************************************
 
@@ -535,12 +423,7 @@ Yap_unify_constant(register Term a, register Term cons)
   }
 
   deref_body(a,pt,unify_cons_unk,unify_cons_nonvar);
-  BIND(pt,cons,wake_for_cons);
-#ifdef COROUTINING
-  DO_TRAIL(pt, cons);
-  if (IsAttVar(pt)) Yap_WakeUp(pt);
- wake_for_cons:
-#endif
+  Bind(pt,cons);
   return(TRUE);
 }
 
