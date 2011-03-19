@@ -28,3 +28,6 @@
 [submodule "packages/plunit"]
 	path = packages/plunit
 	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/plunit
+[submodule "packages/R"]
+	path = packages/R
+	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/R

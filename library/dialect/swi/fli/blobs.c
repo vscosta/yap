@@ -56,7 +56,6 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
 {
   BlobPropEntry *b;
   AtomEntry *ae;
-
   if (type->flags & PL_BLOB_UNIQUE) {
     /* just keep a linked chain for now */
     ae = SWI_Blobs;
