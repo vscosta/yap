@@ -2802,9 +2802,6 @@ static Int ground_complex_term(register CELL *pt0, register CELL *pt0_end USES_R
 	*pt0 = TermNil;
 #else
 	if (pt0 < pt0_end) {
-	  if (to_visit+2 >= (struct cp_frame *)AuxSp) {
-	    goto heap_overflow;
-	  }
 	  to_visit[0] = pt0;
 	  to_visit[1] = pt0_end;
 	  to_visit += 2;
