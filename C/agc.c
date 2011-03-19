@@ -427,6 +427,11 @@ clean_atoms(void)
     HashPtr++;
   }
   clean_atom_list(&INVISIBLECHAIN);
+  {
+    AtomHashEntry list;
+    list.Entry = SWI_Blobs;
+    clean_atom_list(&list);
+  }
 }
 
 static void
