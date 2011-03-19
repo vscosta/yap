@@ -467,7 +467,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
       *ptf++ = (CELL) ptd0;
     } else {
 #if COROUTINING
-      if (copy_att_vars && FastIsAttachedTerm((CELL)ptd0)) {
+      if (copy_att_vars && GlobalIsAttachedTerm((CELL)ptd0)) {
 	/* if unbound, call the standard copy term routine */
 	struct cp_frame *bp;
 	CELL new;
@@ -590,7 +590,7 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
     ASP = ArenaLimit(arena);
     H = HB = ArenaPt(arena);
 #if COROUTINING
-    if (FastIsAttachedTerm(t)) {
+    if (GlobalIsAttachedTerm(t)) {
       CELL *Hi;
 
       *H = t;
