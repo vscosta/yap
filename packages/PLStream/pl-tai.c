@@ -67,8 +67,8 @@ extern long timezone;
 #include <time.h>
 #include <string.h>
 
+#ifndef localtime_r
 struct tm *localtime_r (const time_t *, struct tm *);
-struct tm *gmtime_r (const time_t *, struct tm *);
 
 struct tm *
 localtime_r (const time_t *timer, struct tm *result)
@@ -82,19 +82,15 @@ localtime_r (const time_t *timer, struct tm *result)
    memcpy (result, local_result, sizeof (result));
    return result;
 }
+#endif
 
-struct tm *
-gmtime_r (const time_t *timer, struct tm *result)
-{
-   struct tm *local_result;
-   local_result = gmtime (timer);
-
-   if (local_result == NULL || result == NULL)
-     return NULL;
-
-   memcpy (result, local_result, sizeof (result));
-   return result;
-} 
+#ifndef asctime_r
+#define asctime_r(_Tm, _Buf)	({ char *___tmp_tm = asctime((_Tm));	\
+						if (___tmp_tm)		\
+						 ___tmp_tm =		\
+						   strcpy((_Buf),___tmp_tm);\
+						___tmp_tm;	})
+#endif
 #endif
 
 #define TAI_UTC_OFFSET LL(4611686018427387914)
