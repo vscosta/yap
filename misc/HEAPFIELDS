@@ -303,7 +303,7 @@ struct AliasDescS *file_aliases		FileAliases		=NULL RestoreAliases()
 
 /* prompting */
 Atom		atprompt		AtPrompt		=AtomNil AtomAdjust
-char		prompt[MAX_PROMPT]	Prompt			void void
+char		_prompt[MAX_PROMPT]	YapPrompt		void void
 
 /* ISO char conversion: I will make no comments */
 char		*char_conversion_table	CharConversionTable	=NULL CodeCharPAdjust

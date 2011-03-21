@@ -269,7 +269,7 @@
 #define FileAliases Yap_heap_regs->file_aliases
 
 #define AtPrompt Yap_heap_regs->atprompt
-#define Prompt Yap_heap_regs->prompt
+#define YapPrompt Yap_heap_regs->_prompt
 
 #define CharConversionTable Yap_heap_regs->char_conversion_table
 #define CharConversionTable2 Yap_heap_regs->char_conversion_table2

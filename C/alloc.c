@@ -862,7 +862,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   brk = (LPVOID) ((Int) b + s);
 #if DEBUG_WIN32_ALLOC
-  fprintf(stderr,"OK: %p--%p %lx\n",b, brk, s);
+  fprintf(stderr,"OK: %p--%p " Int_FORMAT "\n",b, brk, s);
 #endif
   Yap_PrologMode = OldPrologMode;
   return TRUE;

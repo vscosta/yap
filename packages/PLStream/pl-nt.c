@@ -22,13 +22,13 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef __MINGW32__
 #define __WINDOWS__ 1
 #endif
 
 #ifdef __WINDOWS__
 #define _WIN32_WINNT 0x0400
-#if (_MSC_VER >= 1300)
+#if (_MSC_VER >= 1300) || defined(__MINGW32__)
 #include <winsock2.h>			/* Needed on VC8 */
 #include <windows.h>
 #else
@@ -244,7 +244,6 @@ ftruncate(int fileno, int64_t length)
 }
 
 
-#ifndef _YAP_NOT_INSTALLED_
 		 /*******************************
 		 *	 QUERY CPU TIME		*
 		 *******************************/
@@ -280,7 +279,6 @@ CpuTime(cputime_kind which)
   return t;
 }
 
-#endif
 
 static int
 CpuCount()
@@ -367,7 +365,7 @@ get_showCmd(term_t show, int *cmd)
     succeed;
   }
 
-  if ( !PL_get_chars_ex(show, &s, CVT_ATOM) )
+  if ( !PL_get_chars(show, &s, CVT_ATOM|CVT_EXCEPTION) )
     fail;
   for(st=types; st->name; st++)
   { if ( streq(st->name, s) )
@@ -574,7 +572,7 @@ pl_win_module_file(term_t module, term_t file)
   char *m;
   char *f;
 
-  if ( !PL_get_chars_ex(module, &m, CVT_ALL) )
+  if ( !PL_get_chars(module, &m, CVT_ALL|CVT_EXCEPTION) )
     fail;
   if ( (f = findExecutable(m, buf)) )
     return PL_unify_atom_chars(file, f);

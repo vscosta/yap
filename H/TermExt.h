@@ -515,16 +515,13 @@ IsAttachedTerm (Term t)
   return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
 
-inline EXTERN Int IsAttachedTerm (Term);
+inline EXTERN Int GlobalIsAttachedTerm (Term);
 
 inline EXTERN Int
 GlobalIsAttachedTerm (Term t)
 {
   return (Int) ((IsVarTerm (t) && GlobalIsAttVar(VarOfTerm(t))));
 }
-
-
-
 
 inline EXTERN Int SafeIsAttachedTerm (Term);
 

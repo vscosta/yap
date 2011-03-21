@@ -269,7 +269,7 @@
   struct AliasDescS  *file_aliases;
 
   Atom  atprompt;
-  char  prompt[MAX_PROMPT];
+  char  _prompt[MAX_PROMPT];
 
   char  *char_conversion_table;
   char  *char_conversion_table2;

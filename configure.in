@@ -559,24 +559,22 @@ dnl
 if test "$target_os" = "cygwin"  -o "$target_os" = "mingw32"
 then
   INSTALL_COMMAND=install_win32
+  EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
   if test "$cygwin" = "no" -o "$target_os" = "mingw32"
   then
     if test "$target_win64" = yes
     then
       AC_CHECK_LIB(ws2_32,main)
-      EXTRA_LIBS_FOR_DLLS="-lws2_32 \$(abs_top_builddir)/yap.dll"
-      EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
+      EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(wsock32,main)
-      EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
-      EXTRA_INCLUDES_FOR_WIN32="-I\$(srcdir)/packages/PLStream/windows"
     else
       AC_CHECK_LIB(wsock32,main)
-      EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll"
     fi
+    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/yap.dll"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
     if test "$target_win64" = yes
@@ -1639,6 +1637,38 @@ else
 AC_DEFINE(HAVE_SIGINFO,0)
 fi
 
+AC_MSG_CHECKING("variable timezone in tzset")
+AC_TRY_RUN(
+[ #include <time.h>
+  #include <stdlib.h>
+  #ifdef __CYGWIN__
+  #define timezone _timezone
+  #endif
+  extern long timezone;
+
+  main()
+  { tzset();
+
+    if ( timezone > -15*3600 &&
+         timezone < 15*3600 &&
+         timezone % 60 == 0 )
+      return 0;
+
+    exit(1);
+  }
+],
+AC_MSG_RESULT(yes)
+AC_DEFINE(HAVE_VAR_TIMEZONE, 1,
+          [Define if tzset sets timezone variable]),
+AC_MSG_RESULT(no),
+AC_MSG_RESULT(assuming no))
+
+AC_CHECK_MEMBER(struct tm.tm_gmtoff,
+                AC_DEFINE(HAVE_STRUCT_TIME_TM_GMTOFF, [],
+                          [Define is struct tm has tm_gmtoff]),
+                [],
+                [#include <time.h>])
+
 dnl this is copied from the Tcl code
 dnl this code checks whether the system defines an union wait
 AC_MSG_CHECKING([union wait])
@@ -1667,7 +1697,8 @@ fi
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
 AC_CHECK_FUNCS(_NSGetEnviron access acosh)
-AC_CHECK_FUNCS(alloca asinh atanh chdir ctime dlopen dup2)
+AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
+AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)
 AC_CHECK_FUNCS(fesettrapenable fgetpos finite fpclass ftime getcwd getenv)
 AC_CHECK_FUNCS(gethostbyname gethostent gethostid gethostname)

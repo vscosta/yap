@@ -1200,8 +1200,8 @@ Yap_InitThread(int new_id)
 static void 
 InitFirstWorkerThreadHandle(void)
 {
-  CACHE_REGS
 #ifdef  THREADS
+  CACHE_REGS
   ThreadHandle.id = 0;
   ThreadHandle.in_use = TRUE;
   ThreadHandle.default_yaam_regs = 
@@ -1256,8 +1256,8 @@ static void
 InitCodes(void)
 {
   CACHE_REGS
-  int wid;
 #if THREADS
+  int wid;
   for (wid = 1; wid < MAX_INITS; wid++) {
     Yap_WLocal[wid] = NULL;
   }
@@ -1268,9 +1268,7 @@ InitCodes(void)
 #endif
   InitGlobal();
   InitWorker(0);
-#if THREADS
   InitFirstWorkerThreadHandle();
-#endif
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
   Yap_ReleaseAtom(AtomOfTerm(TermReFoundVar));

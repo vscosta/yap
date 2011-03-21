@@ -325,6 +325,7 @@ YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
 IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-file.o pl-files.o pl-fmt.o \
 	pl-glob.o pl-option.o \
+	pl-nt.o \
 	pl-os.o pl-privitf.o \
 	pl-read.o \
 	pl-rl.o \
@@ -384,7 +385,6 @@ LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJE
 OBJECTS = yap.o $(LIB_OBJECTS)
 
 PLCONS_OBJECTS = \
-	pl-nt.o \
 	pl-ntcon.o \
 	pl-ntconsole.o \
 	pl-ntmain.o
@@ -552,8 +552,8 @@ regfree.o: $(srcdir)/library/regex/regfree.c $(srcdir)/library/regex/regex2.h co
 regexec.o: $(srcdir)/library/regex/regexec.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/library/regex $(srcdir)/library/regex/regexec.c -o regexec.o
 
-pl-nt.o: $(srcdir)/console/LGPL/pl-nt.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/packages/PLStream $(srcdir)/console/LGPL/pl-nt.c -o $@
+pl-nt.o: $(srcdir)/packages/PLStream/pl-nt.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-nt.c -o $@
 
 pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
@@ -565,7 +565,7 @@ pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ < $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
 pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream  @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
 
 pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-codelist.c -o $@
