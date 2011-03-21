@@ -274,13 +274,12 @@ Binding Macros for Multiple Assignment Variables.
 
 extern void	Yap_WakeUp(CELL *v);
 
-#define Bind(A,D)              { *(A) = (D); TRAIL(A,D);  if (FastIsAttVar(A)) Yap_WakeUp(A);	 }
+#define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
+#define Bind_Global(A,D)       { *(A) = (D); if (GlobalIsAttVar(A)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);   }
+#define Bind(A,D)              { *(A) = (D); if (A < H) {  if (GlobalIsAttVar(A)) Yap_WakeUp(A); else TRAIL_GLOBAL(A,D);  } else { TRAIL_LOCAL(A,D); }	 }
 #define Bind_NonAtt(A,D)       { *(A) = (D); TRAIL(A,D);	 }
-#define Bind_Global(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); if (FastIsAttVar(A)) Yap_WakeUp(A);	  }
 #define Bind_Global_NonAtt(A,D)       { *(A) = (D); TRAIL_GLOBAL(A,D); }
 #define Bind_and_Trail(A,D)       { *(A) = (D); DO_TRAIL(A, D); }
-
-#define Bind_Local(A,D)	   { TRAIL_LOCAL(A,D); *(A) = (D); }
 
 
 #define MaBind(VP,D)    { MATRAIL((VP),*(VP),(D)); *(VP) = (D); }

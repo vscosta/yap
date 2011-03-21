@@ -2910,10 +2910,12 @@ int Yap_IsGroundTerm(Term t)
       }
     }
     if (out < 0) {
+      *H++ = t;
       if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "overflow in ground");
 	return FALSE;
       }      
+      t = *--H;
     }
   }
 }

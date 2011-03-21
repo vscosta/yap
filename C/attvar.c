@@ -188,10 +188,6 @@ Yap_WakeUp(CELL *pt0) {
   CACHE_REGS
   CELL d0 = *pt0;
   RESET_VARIABLE(pt0);
-  /* did we trail */
-  if (pt0 < HB) {
-    TR--;
-  }
   WakeAttVar(pt0, d0 PASS_REGS);
 }
 

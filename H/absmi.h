@@ -974,13 +974,13 @@ Macros to check the limits of stacks
 
 #define UnifyGlobalCells(a, b)                                    \
   if ((b) > (a)) {                                                \
-    if (FastIsAttVar(b) && !FastIsAttVar(a)) {                    \
+    if (GlobalIsAttVar(b) && !GlobalIsAttVar(a)) {                    \
       Bind_Global((a),(CELL)(b));                                 \
     } else {                                                      \
       Bind_Global((b),(CELL)(a));                                 \
     }                                                             \
   } else if ((b) < (a)) {                                         \
-    if (FastIsAttVar(a) && !FastIsAttVar(b)) {                    \
+    if (GlobalIsAttVar(a) && !GlobalIsAttVar(b)) {                    \
       Bind_Global((b),(CELL)(a));                                 \
     } else {                                                      \
       Bind_Global((a),(CELL)(b));                                 \
@@ -990,8 +990,8 @@ Macros to check the limits of stacks
 #define UnifyGlobalCellToCell(b, a)	                          \
 if ((a) < H) { /* two globals */				  \
   UnifyGlobalCells(a,b);					  \
-} else {                                                          \
-  Bind_Local((a),(CELL)(b));					  \
+} else {							  \
+      Bind_Local((a),(CELL)(b));				  \
 }
 
 #define UnifyCells(a, b)		                          \

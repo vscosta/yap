@@ -27,8 +27,6 @@ INSTALL_SCRIPT=@INSTALL_SCRIPT@
 ################################################################
 
 LATEX=latex
-RUNTEX=../../man/runtex
-DOC2TEX=../../man/doc2tex
 TEX=$(DOC).tex $(SUBTEX)
 DVI=$(DOC).dvi
 PDF=$(DOC).pdf
