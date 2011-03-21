@@ -577,11 +577,7 @@ then
     EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/yap.dll"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
-    if test "$target_win64" = yes
-	CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
-    then
-	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
-    fi
+    CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"
     if test "$prefix" = "NONE"
     then
       if test "$target_win64" = yes
@@ -1840,8 +1836,8 @@ AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
-CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO crypt.$SO"
-CLIB_PLTARGETS="random.pl socket.pl cgi.pl memfile.pl filesex.pl mime.pl crypt.pl"
+CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO $CRYPT_TARGETS"
+CLIB_PLTARGETS="random.pl socket.pl cgi.pl memfile.pl filesex.pl mime.pl $CRYPT_TARGETS"
 
 if test "$ac_cv_func_setitimer" = "yes"; then
   CLIB_TARGETS="$CLIB_TARGETS time.$SO"
@@ -1871,7 +1867,7 @@ AC_CHECK_LIB(pthread, pthread_create,
                       [CLIB_PTHREADS="-lpthread"],[CLIB_PTHREADS=""])
 
 oldlibs="$LIBS"
-AC_CHECK_LIB(crypt, crypt)
+AC_CHECK_LIB(crypt, crypt, CRYPT_TARGET=crypt.\$SO, CRYPT_TARGET="")
 CLIB_CRYPTLIBS="$LIBS"
 AC_CHECK_FUNCS(crypt)
 LIBS="$oldlibs"
