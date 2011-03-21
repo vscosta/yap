@@ -809,7 +809,7 @@ Yap_AllocCodeSpace(unsigned long int size)
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
-#undef DEBUG_WIN32_ALLOC 
+#define DEBUG_WIN32_ALLOC 1
 
 #include "windows.h"
 
@@ -820,8 +820,6 @@ ExtendWorkSpace(Int s, int fixed_allocation)
 {
   LPVOID b = brk;
   prolog_exec_mode OldPrologMode = Yap_PrologMode;
-
-
 
   Yap_PrologMode = ExtendStackMode;
 
@@ -864,7 +862,7 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   brk = (LPVOID) ((Int) b + s);
 #if DEBUG_WIN32_ALLOC
-  fprintf(stderr,"OK: %p--%p\n",b,brk);
+  fprintf(stderr,"OK: %p--%p %lx\n",b, brk, s);
 #endif
   Yap_PrologMode = OldPrologMode;
   return TRUE;
@@ -878,7 +876,6 @@ InitWorkSpace(Int s)
 
   GetSystemInfo(&si);
   psz = Yap_page_size = si.dwPageSize;
-  s = ((s+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
   brk = (LPVOID)psz;
   if (!ExtendWorkSpace(s,0))
     return FALSE;
@@ -1497,6 +1494,11 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
   UInt pm, sa, ta;
   void *addr;
 
+#if defined(_WIN32) || defined(__CYGWIN__)
+  Stack = ((Stack+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
+  Heap = ((Heap+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
+  Trail = ((Trail+ (YAP_ALLOC_SIZE-1))/YAP_ALLOC_SIZE)*YAP_ALLOC_SIZE;
+#endif
   pm = (Trail + Heap + Stack);	/* memory to be
 				 * requested         */
   sa = Stack;			/* stack area size   */
