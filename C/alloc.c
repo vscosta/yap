@@ -809,7 +809,7 @@ Yap_AllocCodeSpace(unsigned long int size)
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 
-#define DEBUG_WIN32_ALLOC 1
+#undef DEBUG_WIN32_ALLO
 
 #include "windows.h"
 
