@@ -274,13 +274,16 @@ p_dir_sp ( USES_REGS1 )
 {
 #ifdef MAC
   Term t = MkIntTerm(':');
+  Term t2 = MkIntTerm('/');
 #elif ATARI || _MSC_VER || defined(__MINGW32__)
   Term t = MkIntTerm('\\');
+  Term t2 = MkIntTerm('/');
 #else
   Term t = MkIntTerm('/');
+  Term t2 = MkIntTerm('/');
 #endif
 
-  return(Yap_unify_constant(ARG1,t));
+  return Yap_unify_constant(ARG1,t) || Yap_unify_constant(ARG1,t2) ;
 }
 
 
