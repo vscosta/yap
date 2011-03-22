@@ -117,10 +117,11 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/SWI-Prolog.h \
 	$(srcdir)/include/SWI-Stream.h
 
-IOLIB_HEADERS=$(srcdir)/packages/PLStream/atoms.h $(srcdir)/packages/PLStream/pl-buffer.h \
+IOLIB_HEADERS=$(srcdir)/packages/PLStream/pl-buffer.h \
 	$(srcdir)/packages/PLStream/pl-ctype.h  \
 	$(srcdir)/packages/PLStream/pl-codelist.h \
-	$(srcdir)/packages/PLStream/pl-dtoa.h $(srcdir)/dtoa.c  \
+	$(srcdir)/packages/PLStream/pl-dtoa.h \
+	$(srcdir)/packages/PLStream/dtoa.c  \
 	$(srcdir)/packages/PLStream/pl-incl.h \
 	$(srcdir)/packages/PLStream/pl-global.h \
 	$(srcdir)/packages/PLStream/pl-mswchar.h \
@@ -130,8 +131,9 @@ IOLIB_HEADERS=$(srcdir)/packages/PLStream/atoms.h $(srcdir)/packages/PLStream/pl
 	$(srcdir)/packages/PLStream/pl-privitf.h \
 	$(srcdir)/packages/PLStream/pl-stream.h \
 	$(srcdir)/packages/PLStream/pl-table.h \
-	$(srcdir)/packages/PLStream/pl-text.h $(srcdir)/pl-utf8.h \
-	$(srcdir)/packages/PLStream/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/windows/dirent.h $(srcdir)/packages/PLStream/windows/utf8.h $(srcdir)/packages/PLStream/pl-utf8.c $(srcdir)/packages/PLStream/windows/windows.h
+	$(srcdir)/packages/PLStream/pl-text.h \
+	$(srcdir)/packages/PLStream/pl-utf8.h \
+	$(srcdir)/packages/PLStream/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/windows/dirent.h $(srcdir)/packages/PLStream/windows/utf8.h $(srcdir)/packages/PLStream/windows/utf8.c $(srcdir)/packages/PLStream/windows/uxnt.h  $(srcdir)/packages/PLStream/windows/mswchar.h  $(srcdir)/packages/PLStream/windows/popen.c 
 
 HEADERS = \
 	$(srcdir)/H/TermExt.h \
@@ -213,7 +215,7 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-tai.c  \
 	$(srcdir)/packages/PLStream/pl-text.c \
 	$(srcdir)/packages/PLStream/pl-write.c \
-	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@ $(srcdir)/packages/PLStream/popen.c $(srcdir)/packages/PLStream/windows/windows.c
+	$(srcdir)/packages/PLStream/pl-yap.c @ENABLE_WINCONSOLE@$(srcdir)/packages/PLStream/windows/uxnt.c
 
 C_SOURCES= \
 	$(IOLIB_SOURCES) \
