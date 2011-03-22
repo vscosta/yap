@@ -30,7 +30,7 @@
 #define MALLOC PL_malloc
 #define FREE PL_free
 
-#if defined(_REENTRANT)||( defined(__YAP_PROLOG__) && defined(THREADS))
+#if defined(_REENTRANT)||defined(__YAP_PROLOG__)
 #define Long int			/* 32-bits */
 #define MULTIPLE_THREADS
 
