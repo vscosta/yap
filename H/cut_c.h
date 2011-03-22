@@ -40,7 +40,7 @@ struct cut_c_str{
         CPredicate func = (CPredicate)((yamop *)TOP->try_userc_cut_yamop)->u.OtapFs.f;   \
         PredEntry *pred = (PredEntry *)((yamop *)TOP->try_userc_cut_yamop)->u.OtapFs.p;  \
 	Yap_StartSlots( PASS_REGS1 ); \
-        YAP_ExecuteOnCut(pred,func);                                                       \
+        YAP_ExecuteOnCut(pred, func, TOP); \
 	Yap_CloseSlots( PASS_REGS1 ); \
         cut_c_pop();
 

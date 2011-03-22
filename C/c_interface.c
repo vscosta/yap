@@ -1640,16 +1640,22 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
 }
 
 Int
-YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
+YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
 {
   CACHE_REGS
+  choiceptr  oB = B;
+  /* find out where we belong */
+  while (B->cp_b < (choiceptr)top)
+    B = B->cp_b;
   if (pe->PredFlags & (SWIEnvPredFlag|CArgsPredFlag)) {
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
     struct open_query_struct *oexec = execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
+    CELL *args = B->cp_args;
 
+    B = oB;
     PP = pe;
     ctx->control = FRG_CUTTED;
     ctx->engine = NULL; //(PL_local_data *)Yap_regp;
@@ -1657,13 +1663,15 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      val = ((codev)((&ARG1)-LCL0,0,ctx));
+      fprintf(stderr,"ctx=%p\n",ctx);
+      val = ((codev)(args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
     while (execution != oexec)
       PL_close_foreign_frame(execution);
 
     PP = NULL;
+    //    B = LCL0-(CELL*)oB;
     if (val == 0) {
       Term t;
 
@@ -1679,7 +1687,9 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code)
       return TRUE;
     } 
   } else {
-    Int ret = (exec_code)( PASS_REGS1 );
+    Int ret;
+    B = oB;
+    ret = (exec_code)( PASS_REGS1 );
     if (!ret) {
       Term t;
 

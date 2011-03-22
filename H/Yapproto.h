@@ -125,7 +125,7 @@ void   STD_PROTO(Yap_InitBigNums, (void));
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));
 Int    STD_PROTO(YAP_ExecuteFirst,(struct pred_entry *, CPredicate));
 Int    STD_PROTO(YAP_ExecuteNext,(struct pred_entry *, CPredicate));
-Int    STD_PROTO(YAP_ExecuteOnCut,(struct pred_entry *, CPredicate));
+Int    STD_PROTO(YAP_ExecuteOnCut,(struct pred_entry *, CPredicate, struct cut_c_str *));
 
 /* cdmgr.c */
 Term	STD_PROTO(Yap_all_calls,(void));

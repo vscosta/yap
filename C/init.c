@@ -794,6 +794,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
     return;
   }
   code = (yamop *)(pe->cs.p_code.FirstClause);
+  code->u.OtapFs.p = pe;
   if (pe->PredFlags & UserCPredFlag)
     code->opc = Yap_opcode(_try_userc);
   else
@@ -819,6 +820,7 @@ CleanBack(PredEntry *pe, CPredicate Start, CPredicate Cont)
     code->opc = Yap_opcode(_cut_c);
   else
     code->opc = Yap_opcode(_cut_userc);
+  code->u.OtapFs.p = pe;
   code->u.OtapFs.f = Cut;
 #endif
 }
