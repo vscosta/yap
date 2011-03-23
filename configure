@@ -609,6 +609,8 @@ PROLOG_SYSTEM
 M4GENABSMI
 MATLAB_INCLUDE
 INSTALL_MATLAB
+YAPR_INCLUDES
+INSTALL_YAPR
 USE_MINISAT
 CUDD_CPPFLAGS
 CUDD_LDFLAGS
@@ -776,6 +778,7 @@ enable_april
 enable_dlcompat
 enable_cplint
 with_gmp
+with_yapr
 with_minisat
 with_cudd
 enable_myddas
@@ -1454,6 +1457,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
+ --with-yapr=DIR           use GNU Multiple Precision in DIR
  --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
@@ -3877,6 +3881,23 @@ fi
 
 
 
+# Check whether --with-yapr was given.
+if test "${with_yapr+set}" = set; then :
+  withval=$with_yapr; if test "$withval" = yes; then
+		YAPR_INCLUDES="-I/usr/share/R/include"
+		yap_cv_yapr=yes
+	elif test "$withval" = no; then
+		yap_cv_yapr=no
+	else
+		yap_cv_yapr=$with_yapr
+		YAPR_INCLUDES="-I${yap_cv_yapr}/share/R/include"
+	fi
+else
+  yap_cv_yapr=no
+fi
+
+
+
 # Check whether --with-minisat was given.
 if test "${with_minisat+set}" = set; then :
   withval=$with_minisat; if test "$withval" = yes; then
@@ -4362,6 +4383,15 @@ else
   esac
   INSTALL_MATLAB=""
 fi
+
+if test "$yap_cv_yapr" = no
+then
+  INSTALL_YAPR="@# "
+else
+  INSTALL_YAPR=""
+fi
+
+
 
 if test "$yap_cv_cudd" = no
 then
@@ -5698,6 +5728,88 @@ if test "x$ac_cv_lib_gmp_main" = x""yes; then :
 _ACEOF
 
   LIBS="-lgmp $LIBS"
+
+fi
+
+fi
+
+if test "$yap_cv_yapr" != "no"
+then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lR" >&5
+$as_echo_n "checking for main in -lR... " >&6; }
+if test "${ac_cv_lib_R_main+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lR  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_R_main=yes
+else
+  ac_cv_lib_R_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_R_main" >&5
+$as_echo "$ac_cv_lib_R_main" >&6; }
+if test "x$ac_cv_lib_R_main" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBR 1
+_ACEOF
+
+  LIBS="-lR $LIBS"
+
+fi
+
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lRmath" >&5
+$as_echo_n "checking for main in -lRmath... " >&6; }
+if test "${ac_cv_lib_Rmath_main+set}" = set; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lRmath  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_Rmath_main=yes
+else
+  ac_cv_lib_Rmath_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Rmath_main" >&5
+$as_echo "$ac_cv_lib_Rmath_main" >&6; }
+if test "x$ac_cv_lib_Rmath_main" = x""yes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBRMATH 1
+_ACEOF
+
+  LIBS="-lRmath $LIBS"
 
 fi
 
@@ -8473,6 +8585,8 @@ fi
 
 
 
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if test "${yap_cv_threaded_code+set}" = set; then :
@@ -9720,6 +9834,7 @@ mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/YapR
 mkdir -p  packages/zlib
 
 ac_config_files="$ac_config_files Makefile"
@@ -9789,6 +9904,8 @@ ac_config_files="$ac_config_files packages/RDF/Makefile"
 ac_config_files="$ac_config_files packages/semweb/Makefile"
 
 ac_config_files="$ac_config_files packages/sgml/Makefile"
+
+ac_config_files="$ac_config_files packages/YapR/Makefile"
 
 ac_config_files="$ac_config_files packages/zlib/Makefile"
 
@@ -10546,6 +10663,7 @@ do
     "packages/RDF/Makefile") CONFIG_FILES="$CONFIG_FILES packages/RDF/Makefile" ;;
     "packages/semweb/Makefile") CONFIG_FILES="$CONFIG_FILES packages/semweb/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
+    "packages/YapR/Makefile") CONFIG_FILES="$CONFIG_FILES packages/YapR/Makefile" ;;
     "packages/zlib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/zlib/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clpqr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clpqr/Makefile" ;;

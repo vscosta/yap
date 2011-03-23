@@ -31,3 +31,6 @@
 [submodule "packages/R"]
 	path = packages/R
 	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/R
+[submodule "packages/YapR"]
+	path = packages/YapR
+	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/YapR
