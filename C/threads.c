@@ -57,7 +57,9 @@ allocate_new_tid(void)
 	(FOREIGN_ThreadHandle(new_worker_id).in_use == TRUE ||
 	 FOREIGN_ThreadHandle(new_worker_id).zombie == TRUE) )
     new_worker_id++;
-  if (!Yap_WLocal[new_worker_id]) {
+  if (new_worker_id >= MAX_THREADS) {
+    new_worker_id = -1;
+  } else if (!Yap_WLocal[new_worker_id]) {
     DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     if (!Yap_InitThread(new_worker_id)) {
       return -1;
@@ -186,6 +188,9 @@ setup_engine(int myworker_id, int init_thread)
   Yap_InitYaamRegs();
 #ifdef YAPOR
   Yap_init_local();
+#endif
+#ifdef TABLING
+  new_dependency_frame(REMOTE_top_dep_fr(myworker_id)), FALSE, NULL, NULL, NULL, NULL, NULL);
 #endif
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
