@@ -1233,6 +1233,7 @@ Yap_CloseScratchPad(void)
 }
 
 #include "iglobals.h"
+#include "ilocals.h"
 
 #if defined(YAPOR) || defined(THREADS)
 #define MAX_INITS MAX_AGENTS

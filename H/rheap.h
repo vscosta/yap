@@ -1023,6 +1023,7 @@ RestoreBallTerm(int wid)
 }
 
 #include "rglobals.h"
+#include "rlocals.h"
 
 /* restore the failcodes */
 static void 

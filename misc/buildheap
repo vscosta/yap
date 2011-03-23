@@ -25,7 +25,11 @@ main :-
 	file_filter_with_init('misc/GLOBALS','H/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
 	file_filter_with_init('misc/GLOBALS','H/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
 	file_filter_with_init('misc/GLOBALS','H/rglobals.h',gen_hstruct,Warning,['rglobals.h','GLOBALS']),
-	file_filter_with_init('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']).
+	file_filter_with_init('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
+	file_filter_with_init('misc/LOCALS','H/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
+	file_filter_with_init('misc/LOCALS','H/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
+	file_filter_with_init('misc/LOCALS','H/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
+	file_filter_with_init('misc/LOCALS','H/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
 	
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildheap\"~n     please do not update, update misc/~a instead */~n~n').
 

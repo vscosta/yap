@@ -161,18 +161,22 @@ HEADERS = \
 	$(srcdir)/H/corout.h \
 	$(srcdir)/H/dlmalloc.h \
 	$(srcdir)/H/dglobals.h \
+	$(srcdir)/H/dlocals.h \
 	$(srcdir)/H/dhstruct.h \
 	$(srcdir)/H/eval.h \
 	$(srcdir)/H/heapgc.h   \
 	$(srcdir)/H/hglobals.h \
+	$(srcdir)/H/hlocals.h \
 	$(srcdir)/H/hstruct.h \
 	$(srcdir)/H/iglobals.h \
+	$(srcdir)/H/ilocals.h \
 	$(srcdir)/H/ihstruct.h \
 	$(srcdir)/H/index.h \
 	$(srcdir)/H/iopreds.h \
 	$(srcdir)/H/iswiatoms.h \
 	$(srcdir)/H/rclause.h \
 	$(srcdir)/H/rglobals.h \
+	$(srcdir)/H/rlocals.h \
 	$(srcdir)/H/rheap.h \
 	$(srcdir)/H/rhstruct.h \
 	$(srcdir)/H/threads.h \

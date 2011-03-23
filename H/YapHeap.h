@@ -178,6 +178,7 @@ typedef struct various_codes {
 } all_heap_codes;
 
 #include "hglobals.h"
+#include "hlocals.h"
 
 #if defined(YAPOR) && !defined(THREADS)
 extern struct worker_shared *Yap_global;
@@ -211,6 +212,7 @@ extern struct various_codes *Yap_heap_regs;
 
 #include "dhstruct.h"
 #include "dglobals.h"
+#include "dlocals.h"
 
 /*******************
   these are the global variables: they need not be restored...
