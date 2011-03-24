@@ -1242,10 +1242,10 @@ struct worker_shared *Yap_global;
 struct worker_shared Yap_Global;
 #endif
 
-#if defined(YAPOR) &&  !defined(THREADS)
-struct worker_local	*Yap_WLocal;
-#elif defined(YAPOR) || defined(THREADS)
+#if defined(THREADS)
 struct worker_local	*Yap_WLocal[MAX_AGENTS];
+#elif defined(YAPOR)
+struct worker_local	*Yap_WLocal;
 #else
 struct worker_local	Yap_WLocal;
 #endif
