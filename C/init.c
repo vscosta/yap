@@ -1235,11 +1235,6 @@ Yap_CloseScratchPad(void)
 #include "iglobals.h"
 #include "ilocals.h"
 
-#if defined(YAPOR) || defined(THREADS)
-#define MAX_INITS MAX_AGENTS
-#else
-#define MAX_INITS 1
-#endif
 
 #if defined(YAPOR) &&  !defined(THREADS)
 struct worker_shared *Yap_global;
@@ -1261,7 +1256,7 @@ InitCodes(void)
   CACHE_REGS
 #if THREADS
   int wid;
-  for (wid = 1; wid < MAX_INITS; wid++) {
+  for (wid = 1; wid < MAX_THREADS; wid++) {
     Yap_WLocal[wid] = NULL;
   }
 #endif
