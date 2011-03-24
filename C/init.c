@@ -1243,7 +1243,7 @@ struct worker_shared Yap_Global;
 #endif
 
 #if defined(THREADS)
-struct worker_local	*Yap_WLocal[MAX_AGENTS];
+struct worker_local	*Yap_WLocal[MAX_THREADS];
 #elif defined(YAPOR)
 struct worker_local	*Yap_WLocal;
 #else

@@ -428,11 +428,6 @@ typedef pthread_rwlock_t rwlock_t;
 #ifdef __alpha
 #include <locks_alpha_funcs.h>
 #endif
-#if defined(THREADS)
-#define MAX_AGENTS MAX_THREADS
-#elif defined(YAPOR)
-#define MAX_AGENTS MAX_WORKERS
-#endif
 #endif
 
 /************ variables	concerned with Error Handling *************/
