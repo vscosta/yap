@@ -331,9 +331,6 @@ initIO()
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
-#if __YAP_PROLOG__
-  init_yap();
-#endif
 #ifdef __unix__
 { int fd;
 
@@ -343,6 +340,10 @@ initIO()
 }
 #endif
   ResetTty();
+#if __YAP_PROLOG__
+  /* needs to be done after tty hacking */
+  init_yap();
+#endif
 
   Sclosehook(freeStream);
 
