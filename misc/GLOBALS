@@ -19,7 +19,7 @@
 
 
 // Stuff that must be shared by all threads or workers
-START_WORKER_SHARED
+START_GLOBAL_DATA
 
 /* multi-thread support */
 #if THREADS
@@ -61,7 +61,7 @@ lockvar		thread_handles_lock	ThreadHandlesLock	MkLock
 
 // Ricardo's stuff
 #if defined(YAPOR) || defined(TABLING)
-struct global_data	global			GLOBAL		void	
+struct optyap_global_data	optyap_global			GLOBAL		void	
 struct local_data	remote[MAX_WORKERS]	REMOTE		void
 #endif
 
@@ -74,5 +74,5 @@ char	      **pl_argv			Yap_PL_Argv		=NULL
 // halt hooks
 struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL
 
-END_WORKER_SHARED
+END_GLOBAL_DATA
 

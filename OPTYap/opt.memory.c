@@ -100,9 +100,9 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 
   /* we'll need this later */
 #if defined(YAPOR) && !defined(THREADS)
-  Yap_global = (struct worker_shared *)( mmap_addr  - sizeof(struct worker_shared));
-  Yap_WLocal =  (struct worker_local *)( mmap_addr  - (sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local)));
-  extra_area = ADJUST_SIZE_TO_PAGE(sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local));
+  Yap_global = (struct global_data *)( mmap_addr  - sizeof(struct global_data));
+  Yap_WLocal =  (struct worker_local *)( mmap_addr  - (sizeof(struct global_data)+MAX_WORKERS*sizeof(struct worker_local)));
+  extra_area = ADJUST_SIZE_TO_PAGE(sizeof(struct global_data)+MAX_WORKERS*sizeof(struct worker_local));
 #endif
   Yap_HeapBase = (ADDR)mmap_addr;
   Yap_GlobalBase = mmap_addr + HeapArea;

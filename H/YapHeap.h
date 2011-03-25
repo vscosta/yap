@@ -181,9 +181,9 @@ typedef struct various_codes {
 #include "hlocals.h"
 
 #if defined(YAPOR) && !defined(THREADS)
-extern struct worker_shared *Yap_global;
+extern struct global_data *Yap_global;
 #else
-extern struct worker_shared Yap_Global;
+extern struct global_data Yap_Global;
 #define Yap_global (&Yap_Global)
 #endif
 

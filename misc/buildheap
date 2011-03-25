@@ -51,10 +51,10 @@ gen_struct(Inp,Out) :-
 	Inp = "END_WORKER_LOCAL", !,
 	Out = "} w_local;".
 gen_struct(Inp,Out) :-
-	Inp = "START_WORKER_SHARED", !,
-	Out = "typedef struct worker_shared {".
+	Inp = "START_GLOBAL_DATA", !,
+	Out = "typedef struct global_data {".
 gen_struct(Inp,Out) :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	Out = "} w_shared;".
 gen_struct(Inp,Out) :-
 	Inp = "ATOMS", !,
@@ -87,10 +87,10 @@ gen_dstruct(Inp,"") :-
 	Inp = "END_WORKER_LOCAL", !,
 	retract(globals(worker)).
 gen_dstruct(Inp,"") :-
-	Inp = "START_WORKER_SHARED", !,
+	Inp = "START_GLOBAL_DATA", !,
 	assert(globals(all)).
 gen_dstruct(Inp,"") :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	retract(globals(all)).
 gen_dstruct(Inp,Out) :-
 	Inp = "ATOMS", !,

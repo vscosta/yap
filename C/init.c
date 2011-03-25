@@ -1237,9 +1237,9 @@ Yap_CloseScratchPad(void)
 
 
 #if defined(YAPOR) &&  !defined(THREADS)
-struct worker_shared *Yap_global;
+struct global_data *Yap_global;
 #else
-struct worker_shared Yap_Global;
+struct global_data Yap_Global;
 #endif
 
 #if defined(THREADS)

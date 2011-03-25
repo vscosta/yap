@@ -20,7 +20,7 @@
 
 
 
-typedef struct worker_shared {
+typedef struct global_data {
 
 #if THREADS
 
@@ -56,7 +56,7 @@ typedef struct worker_shared {
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
-  struct global_data  global;
+  struct optyap_global_data  optyap_global;
   struct local_data  remote[MAX_WORKERS];
 #endif
 

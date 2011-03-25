@@ -56,7 +56,7 @@
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
-#define GLOBAL Yap_global->global
+#define GLOBAL Yap_global->optyap_global
 #define REMOTE Yap_global->remote
 #endif
 
