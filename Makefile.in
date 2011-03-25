@@ -570,74 +570,74 @@ pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ < $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
-pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c
+pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream  @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
 
-pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c
+pl-codelist.o: $(srcdir)/packages/PLStream/pl-codelist.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-codelist.c -o $@
 
-pl-ctype.o: $(srcdir)/packages/PLStream/pl-ctype.c
+pl-ctype.o: $(srcdir)/packages/PLStream/pl-ctype.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-ctype.c -o $@
 
-pl-dtoa.o: $(srcdir)/packages/PLStream/pl-dtoa.c
+pl-dtoa.o: $(srcdir)/packages/PLStream/pl-dtoa.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-dtoa.c -o $@
 
-pl-error.o: $(srcdir)/packages/PLStream/pl-error.c
+pl-error.o: $(srcdir)/packages/PLStream/pl-error.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-error.c -o $@
 
-pl-file.o: $(srcdir)/packages/PLStream/pl-file.c
+pl-file.o: $(srcdir)/packages/PLStream/pl-file.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-file.c -o $@
 
-pl-files.o: $(srcdir)/packages/PLStream/pl-files.c
+pl-files.o: $(srcdir)/packages/PLStream/pl-files.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-files.c -o $@
 
-pl-fmt.o: $(srcdir)/packages/PLStream/pl-fmt.c
+pl-fmt.o: $(srcdir)/packages/PLStream/pl-fmt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-fmt.c -o $@
 
-pl-glob.o: $(srcdir)/packages/PLStream/pl-glob.c
+pl-glob.o: $(srcdir)/packages/PLStream/pl-glob.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-glob.c -o $@
 
-pl-option.o: $(srcdir)/packages/PLStream/pl-option.c
+pl-option.o: $(srcdir)/packages/PLStream/pl-option.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-option.c -o $@
 
-pl-os.o: $(srcdir)/packages/PLStream/pl-os.c
+pl-os.o: $(srcdir)/packages/PLStream/pl-os.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-os.c -o $@
 
-pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c
+pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-privitf.c -o $@
 
-pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c
+pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-rl.c -o $@
 
-pl-read.o: $(srcdir)/packages/PLStream/pl-read.c
+pl-read.o: $(srcdir)/packages/PLStream/pl-read.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-read.c -o $@
 
-pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c
+pl-stream.o: $(srcdir)/packages/PLStream/pl-stream.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-stream.c -o $@
 
-pl-string.o: $(srcdir)/packages/PLStream/pl-string.c
+pl-string.o: $(srcdir)/packages/PLStream/pl-string.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-string.c -o $@
 
-pl-table.o: $(srcdir)/packages/PLStream/pl-table.c
+pl-table.o: $(srcdir)/packages/PLStream/pl-table.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-table.c -o $@
 
-pl-text.o: $(srcdir)/packages/PLStream/pl-text.c
+pl-text.o: $(srcdir)/packages/PLStream/pl-text.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-text.c -o $@
 
-pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c
+pl-utf8.o: $(srcdir)/packages/PLStream/pl-utf8.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-utf8.c -o $@
 
-pl-write.o: $(srcdir)/packages/PLStream/pl-write.c
+pl-write.o: $(srcdir)/packages/PLStream/pl-write.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-write.c -o $@
 
-pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c
+pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-yap.c -o $@
 
-pl-tai.o: $(srcdir)/packages/PLStream/pl-tai.c
+pl-tai.o: $(srcdir)/packages/PLStream/pl-tai.c config.h
 	( cd packages/PLStream/libtai ; make )
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-tai.c -o $@
 
-uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c
+uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
 
 # default rule
