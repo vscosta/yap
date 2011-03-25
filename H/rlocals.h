@@ -46,7 +46,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  FOREIGN_WL(wid)->global_arena = TermToGlobalOrAtomAdjust(FOREIGN_WL(wid)->global_arena);
+  FOREIGN(wid)->global_arena = TermToGlobalOrAtomAdjust(FOREIGN(wid)->global_arena);
 
 
 
@@ -66,12 +66,12 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 #ifdef  COROUTINING
-  FOREIGN_WL(wid)->woken_goals = TermToGlobalAdjust(FOREIGN_WL(wid)->woken_goals);
-  FOREIGN_WL(wid)->atts_mutable_list = TermToGlobalAdjust(FOREIGN_WL(wid)->atts_mutable_list);
+  FOREIGN(wid)->woken_goals = TermToGlobalAdjust(FOREIGN(wid)->woken_goals);
+  FOREIGN(wid)->atts_mutable_list = TermToGlobalAdjust(FOREIGN(wid)->atts_mutable_list);
 #endif
 
-  FOREIGN_WL(wid)->gc_generation = TermToGlobalAdjust(FOREIGN_WL(wid)->gc_generation);
-  FOREIGN_WL(wid)->gc_phase = TermToGlobalAdjust(FOREIGN_WL(wid)->gc_phase);
+  FOREIGN(wid)->gc_generation = TermToGlobalAdjust(FOREIGN(wid)->gc_generation);
+  FOREIGN(wid)->gc_phase = TermToGlobalAdjust(FOREIGN(wid)->gc_phase);
 
 
 
@@ -83,7 +83,7 @@ static void RestoreWorker(int wid USES_REGS) {
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(FOREIGN_WL(wid)->signal_lock);
+  REINIT_LOCK(FOREIGN(wid)->signal_lock);
 
 
 
@@ -120,9 +120,9 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif /* defined(YAPOR) || defined(THREADS) */
 
-  FOREIGN_WL(wid)->dynamic_arrays = PtoArrayEAdjust(FOREIGN_WL(wid)->dynamic_arrays);
-  FOREIGN_WL(wid)->static_arrays = PtoArraySAdjust(FOREIGN_WL(wid)->static_arrays);
-  FOREIGN_WL(wid)->global_variables = PtoGlobalEAdjust(FOREIGN_WL(wid)->global_variables);
+  FOREIGN(wid)->dynamic_arrays = PtoArrayEAdjust(FOREIGN(wid)->dynamic_arrays);
+  FOREIGN(wid)->static_arrays = PtoArraySAdjust(FOREIGN(wid)->static_arrays);
+  FOREIGN(wid)->global_variables = PtoGlobalEAdjust(FOREIGN(wid)->global_variables);
 
 
 

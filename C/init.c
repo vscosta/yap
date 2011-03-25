@@ -1218,9 +1218,9 @@ InitFirstWorkerThreadHandle(void)
 static void
 InitScratchPad(int wid)
 {
-  FOREIGN_WL(wid)->scratchpad.ptr = NULL;
-  FOREIGN_WL(wid)->scratchpad.sz = SCRATCH_START_SIZE;
-  FOREIGN_WL(wid)->scratchpad.msz = SCRATCH_START_SIZE;
+  FOREIGN(wid)->scratchpad.ptr = NULL;
+  FOREIGN(wid)->scratchpad.sz = SCRATCH_START_SIZE;
+  FOREIGN(wid)->scratchpad.msz = SCRATCH_START_SIZE;
 }
 
 void
