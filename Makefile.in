@@ -211,6 +211,7 @@ IOLIB_SOURCES=$(srcdir)/packages/PLStream/pl-buffer.c $(srcdir)/packages/PLStrea
 	$(srcdir)/packages/PLStream/pl-glob.c  \
 	$(srcdir)/packages/PLStream/pl-option.c  \
 	$(srcdir)/packages/PLStream/pl-os.c \
+	$(srcdir)/packages/PLStream/pl-prologflag.c \
 	$(srcdir)/packages/PLStream/pl-privitf.c \
 	$(srcdir)/packages/PLStream/pl-read.c \
 	$(srcdir)/packages/PLStream/pl-rl.c  \
@@ -333,6 +334,7 @@ IOLIB_OBJECTS=pl-buffer.o pl-codelist.o pl-ctype.o pl-dtoa.o pl-error.o  \
 	pl-glob.o pl-option.o \
 	pl-nt.o \
 	pl-os.o pl-privitf.o \
+	pl-prologflag.o \
 	pl-read.o \
 	pl-rl.o \
 	pl-stream.o pl-string.o pl-table.o \
@@ -605,6 +607,9 @@ pl-os.o: $(srcdir)/packages/PLStream/pl-os.c config.h
 
 pl-privitf.o: $(srcdir)/packages/PLStream/pl-privitf.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-privitf.c -o $@
+
+pl-prologflag.o: $(srcdir)/packages/PLStream/pl-prologflag.c config.h
+	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-prologflag.c -o $@
 
 pl-rl.o: $(srcdir)/packages/PLStream/pl-rl.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-rl.c -o $@

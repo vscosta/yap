@@ -53,15 +53,19 @@ yap_flag(executable,L) :- '$executable'(L).
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
 
-% hide/unhide atoms
-yap_flag(encoding,DefaultEncoding) :- var(DefaultEncoding), !,
-	'$default_encoding'(DefCode),
-	'$valid_encoding'(DefaultEncoding, DefCode).
-yap_flag(encoding,Encoding) :-
-	'$valid_encoding'(Encoding, EncCode), !,
-	'$default_encoding'(EncCode).
-yap_flag(encoding,Encoding) :-
-	'$do_error'(domain_error(io_mode,encoding(Encoding)),yap_flag(encoding,Encoding)).
+% character encoding...
+yap_flag(encoding,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(encoding, X).
+yap_flag(encoding,X) :-
+	'$swi_set_prolog_flag'(encoding, X).
+
+% character encoding...
+yap_flag(fileerrors,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(fileerrors, X).
+yap_flag(fileerrors,X) :-
+	'$swi_set_prolog_flag'(fileerrors, X).
 
 % control garbage collection
 yap_flag(gc,V) :-
@@ -207,12 +211,9 @@ yap_flag(home,X) :-
 
 yap_flag(readline,X) :-
 	var(X), !,
-	get_value('$readline',X).
+	'$swi_current_prolog_flag'(readline, X).
 yap_flag(readline,X) :-
-	( X = true ; X = false ), !,
-	set_value('$readline',X).
-yap_flag(readline,X) :-
-	'$do_error'(domain_error(flag_value,readline+X),yap_flag(bounded,X)).
+	'$swi_set_prolog_flag'(readline, X).
 
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
@@ -722,18 +723,6 @@ yap_flag(toplevel_print_options,Opts) :- !,
 	'$check_io_opts'(Opts, yap_flag(toplevel_print_options,Opts)),
 	recorda('$print_options','$toplevel'(Opts),_).
 
-yap_flag(fileerrors,OUT) :-
-	var(OUT), !,
-	get_value(fileerrors,X0),
-	(X0 = [] -> X= 0 ; X = X0),
-	'$transl_to_on_off'(X,OUT).
-yap_flag(fileerrors,on) :- !,
-	set_value(fileerrors,1).
-yap_flag(fileerrors,off) :- !,
-	set_value(fileerrors,0).
-yap_flag(fileerrors,X) :-
-	'$do_error'(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X)).
-
 :- recorda('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
 
 yap_flag(host_type,X) :-
@@ -907,7 +896,7 @@ yap_flag(dialect,yap).
 	% CHARACTER_ESCAPE
 	'$set_yap_flags'(12,1),
 	'$set_fpu_exceptions',
-	fileerrors,
+	'$swi_set_prolog_flag'(fileerrors, true),
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(1),

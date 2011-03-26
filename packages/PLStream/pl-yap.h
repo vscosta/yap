@@ -24,7 +24,7 @@
 #endif
 #define INTBITSIZE (sizeof(int)*8)
 
-typedef YAP_Term	        Module;
+typedef module_t	        Module;
 typedef YAP_Term	       *Word;		/* Anonymous 4 byte object */
 typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 
@@ -113,7 +113,7 @@ void PL_license(const char *license, const char *module);
 
 #define arityFunctor(f) YAP_PLArityOfSWIFunctor(f)
 
-#define stringAtom(w)	YAP_AtomName((YAP_Atom)(w))
+#define stringAtom(w)	YAP_AtomName(YAP_AtomFromSWIAtom(w))
 #define isInteger(A) (YAP_IsIntTerm((A)) || YAP_IsBigNumTerm((A)))
 #define isString(A) Yap_IsStringTerm(A)
 #define isAtom(A) YAP_IsAtomTerm((A))
@@ -142,6 +142,7 @@ void PL_license(const char *license, const char *module);
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)
 #define valInt(A) IntegerOfTerm(A)
+#define MODULE_parse ((Module)CurrentModule)
 
 extern term_t Yap_CvtTerm(term_t ts);
 
