@@ -509,9 +509,6 @@ raw_read2(ReadData _PL_rd ARG_LD)
   _PL_rd->strictness = truePrologFlag(PLFLAG_ISO);
   source_line_no = -1;
 
-  fprintf(stderr,"write_prompt\n");
-  jmp_deb(1);
-
   for(;;)
   { c = getchr();
 

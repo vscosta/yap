@@ -1882,7 +1882,6 @@ PL_recorded(record_t db, term_t ts)
 X_API record_t
 PL_duplicate_record(record_t db)
 {
-  CACHE_REGS
   Term t = YAP_Recorded((void *)db);
   if (t == ((CELL)0))
     return FALSE;
@@ -2335,9 +2334,11 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   Term tmod;
   Int nflags = 0;
 
+#ifdef DEBUG
   if (flags & (PL_FA_NOTRACE|PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }      
+#endif
   if (module == NULL) {
     tmod = CurrentModule;
   } else {

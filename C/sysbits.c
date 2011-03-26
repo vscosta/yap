@@ -1553,6 +1553,7 @@ void (*handler)(int);
 
 static int
 InteractSIGINT(int ch) {
+  CACHE_REGS
   Yap_PrologMode |= AsyncIntMode;
   switch (ch) {
   case 'a':

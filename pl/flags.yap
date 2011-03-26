@@ -563,7 +563,7 @@ yap_flag(system_options,X) :-
 '$system_options'(rational_trees) :-
 	'$yap_has_rational_trees'.
 '$system_options'(readline) :-
-	'$has_readline'.
+	'$swi_current_prolog_flag'(readline, true).
 '$system_options'(tabling) :-
 	\+ '$undefined'('$c_table'(_,_), prolog).
 '$system_options'(threads) :-
