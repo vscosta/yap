@@ -2,6 +2,8 @@
 /* YAP support for some low-level SWI stuff */
 
 #include <stdio.h>
+#include "Yap.h"
+#include "Yatom.h"
 #include "pl-incl.h"
 #if HAVE_MATH_H
 #include <math.h>
@@ -283,7 +285,7 @@ _PL_unify_atomic(term_t t, PL_atomic_t a)
 int
 _PL_unify_string(term_t t, word w)
 {
-  GET_LD
+  CACHE_REGS  
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS), w);
 }
 
@@ -456,16 +458,54 @@ lengthList(term_t list, int errors)
   return isVar(*tail) ? -2 : -1;
 }
 
-void
-setPrologFlag(const char *name, int flags, ...)
+int raiseStackOverflow(int overflow)
 {
+  return overflow;
 }
 
-void
-PL_set_prolog_flag(const char *name, int flags, ...)
-{
-  
+		 /*******************************
+		 *	    FEATURES		*
+		 *******************************/
+
+int
+PL_set_prolog_flag(const char *name, int type, ...)
+{ va_list args;
+  int rval = TRUE;
+  int flags = (type & FF_MASK);
+
+  initPrologFlagTable();
+
+  va_start(args, type);
+  switch(type & ~FF_MASK)
+  { case PL_BOOL:
+    { int val = va_arg(args, int);
+
+      setPrologFlag(name, FT_BOOL|flags, val, 0);
+      break;
+    }
+    case PL_ATOM:
+    { const char *v = va_arg(args, const char *);
+#ifndef __YAP_PROLOG__
+      if ( !GD->initialised )
+	initAtoms();
+#endif
+      setPrologFlag(name, FT_ATOM|flags, v);
+      break;
+    }
+    case PL_INTEGER:
+    { intptr_t v = va_arg(args, intptr_t);
+      setPrologFlag(name, FT_INTEGER|flags, v);
+      break;
+    }
+    default:
+      rval = FALSE;
+  }
+
+  va_end(args);
+  return rval;
 }
+
+
 
 int
 PL_unify_chars(term_t t, int flags, size_t len, const char *s)
@@ -802,6 +842,24 @@ PL_ttymode(IOSTREAM *s)
     return PL_NOTTY;
 }
 
+char *
+PL_prompt_string(int fd)
+{ if ( fd == 0 )
+  { atom_t a = PrologPrompt();          /* TBD: deal with UTF-8 */
+    
+    if ( a )
+    {     
+      Atom at = YAP_AtomFromSWIAtom(a);
+      if (!IsWideAtom(at)  && !IsBlob(at)) {
+	return RepAtom(at)->StrOfAE;
+      }
+    }
+  }
+
+  return NULL;
+}
+
+
 X_API void
 PL_prompt_next(int fd)
 { GET_LD
@@ -844,6 +902,15 @@ input_on_fd(int fd)
 #else
 #define input_on_fd(fd) 1
 #endif
+
+
+PL_dispatch_hook_t
+PL_dispatch_hook(PL_dispatch_hook_t hook)
+{ PL_dispatch_hook_t old = GD->foreign.dispatch_events;
+
+  GD->foreign.dispatch_events = hook;
+  return old;
+}
 
 
 X_API int

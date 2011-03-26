@@ -340,6 +340,9 @@ UNICODE file functions.
 
 #ifdef SIO_MAGIC			/* defined from <SWI-Stream.h> */
 
+#define FF_NOCREATE	 0x4000		/* Fail if flag is non-existent */
+#define FF_MASK		 0xf000
+
 		 /*******************************
 		 *	  STREAM SUPPORT	*
 		 *******************************/
@@ -567,6 +570,7 @@ extern X_API int PL_get_string(term_t, char **, size_t *);
 extern X_API int PL_get_string_chars(term_t, char **, size_t *);
 extern X_API record_t PL_record(term_t);
 extern X_API int PL_recorded(record_t, term_t);
+extern X_API record_t PL_duplicate_record(record_t);
 extern X_API void PL_erase(record_t);
 /* only partial implementation, does not guarantee export between different architectures and versions of YAP */
 extern X_API char *PL_record_external(term_t, size_t *);
@@ -628,7 +632,10 @@ readline overhead.
 #define PL_DISPATCH_WAIT      1		/* Dispatch till input available */
 #define PL_DISPATCH_INSTALLED 2		/* dispatch function installed? */
 
+typedef int  (*PL_dispatch_hook_t)(int fd);
+
 extern X_API int PL_dispatch(int fd, int wait);
+PL_EXPORT(PL_dispatch_hook_t) 	PL_dispatch_hook(PL_dispatch_hook_t);
 PL_EXPORT(void)		PL_add_to_protocol(const char *buf, size_t count);
 PL_EXPORT(char *)	PL_prompt_string(int fd);
 PL_EXPORT(void)		PL_write_prompt(int dowrite);
@@ -638,8 +645,6 @@ PL_EXPORT(pl_wchar_t*)  PL_atom_generator_w(const pl_wchar_t *pref,
 					    pl_wchar_t *buffer,
 					    size_t buflen,
 					    int state);
-
-typedef int  (*PL_dispatch_hook_t)(int fd);
 
 		 /*******************************
 		 *	 WINDOWS MESSAGES	*

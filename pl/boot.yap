@@ -63,6 +63,7 @@ true :- true.
 	),
 	'$enter_system_mode',
 	'$init_globals',
+	'$swi_set_prolog_flag'(fileerrors, true),
 	set_value(fileerrors,1),
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),

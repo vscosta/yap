@@ -4714,7 +4714,9 @@ static const PL_extension foreigns[] = {
 						        META|NDET),
   FRG("$raw_read",		1, pl_raw_read,			0),
   FRG("$raw_read",		2, pl_raw_read2,		0),
-  FRG("$has_readline",		1, pl_has_readline,		0),
+
+  FRG("$swi_current_prolog_flag",	5, pl_prolog_flag5,	     NDET),
+  FRG("$swi_current_prolog_flag",	2, pl_prolog_flag,	 NDET|ISO),
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };
@@ -4744,8 +4746,10 @@ static void
 init_yap(void)
 {
   GET_LD
-  setPrologFlagMask(PLFLAG_TTY_CONTROL);
+  /* we need encodings first */
   initCharTypes();
+  initPrologFlags();
+  setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initFiles();
   PL_register_extensions(PL_predicates_from_ctype);
   PL_register_extensions(PL_predicates_from_file);
@@ -4754,6 +4758,7 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_write);
   PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(PL_predicates_from_tai);
+  PL_register_extensions(PL_predicates_from_prologflag);
   PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();
