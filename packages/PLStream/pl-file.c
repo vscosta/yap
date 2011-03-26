@@ -4714,6 +4714,7 @@ static const PL_extension foreigns[] = {
 						        META|NDET),
   FRG("$raw_read",		1, pl_raw_read,			0),
   FRG("$raw_read",		2, pl_raw_read2,		0),
+  FRG("$has_readline",		1, pl_has_readline,		0),
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };

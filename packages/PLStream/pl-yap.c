@@ -1023,13 +1023,19 @@ Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
   return YAP_InitSlot(nt);
 }
 
+word
+pl_readline(term_t flag)
+{
+  
+}
+
+#if THREADS
+
 #define COUNT_MUTEX_INITIALIZER(name) \
  { PTHREAD_MUTEX_INITIALIZER, \
    name, \
    0L \
  }
-
-#if THREADS
 
 static int
 recursive_attr(pthread_mutexattr_t **ap)

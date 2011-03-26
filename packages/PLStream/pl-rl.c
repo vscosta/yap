@@ -514,12 +514,6 @@ Sread_readline(void *handle, char *buf, size_t size)
   PL_clock_wait_ticks(clock() - oldclock);
 #endif
 
-#if __YAP_PROLOG__
-  /* handle abort */
-  if (Yap_REGS.P_ == FAILCODE) {
-    return 0;
-  }
-#endif
   return rval;
 }
 

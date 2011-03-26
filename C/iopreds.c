@@ -215,17 +215,6 @@ Yap_DebugErrorPutc(int c)
 
 
 
-static Int
-p_has_readline( USES_REGS1 )
-{
-#if HAVE_LIBREADLINE && HAVE_READLINE_READLINE_H
-  return TRUE;
-#else
-  return FALSE;
-#endif
-}
-
-
 int
 Yap_GetCharForSIGINT(void)
 {
@@ -1163,6 +1152,5 @@ Yap_InitIOPreds(void)
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
   Yap_InitCPred ("$float_format", 1, p_float_format, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$has_readline", 0, p_has_readline, SafePredFlag|HiddenPredFlag);
 
 }

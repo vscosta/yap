@@ -207,12 +207,12 @@ yap_flag(home,X) :-
 
 yap_flag(readline,X) :-
 	var(X), !,
-	get_value('$readline',X).
+	( '$has_readline'(X) ).
 yap_flag(readline,X) :-
 	( X = true ; X = false ), !,
-	set_value('$readline',X).
+	'$has_readline'(X).
 yap_flag(readline,X) :-
-	'$do_error'(domain_error(flag_value,readline+X),yap_flag(bounded,X)).
+	'$do_error'(domain_error(flag_value,readline+X),yap_flag(readline,X)).
 
 % tabling mode
 yap_flag(tabling_mode,Options) :- 

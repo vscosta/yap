@@ -145,7 +145,9 @@ true :- true.
 
 /* main execution loop							*/
 '$read_vars'(user_input, Goal, Mod, Pos, Bindings) :-
+	writeln(c:Raw),
 	get_value('$readline',true), !,
+	writeln(d:Raw),
 	read_history(h, '!h',
                          [trace, end_of_file],
                          ' ?- ', Goal, Bindings),
