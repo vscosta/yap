@@ -388,7 +388,7 @@ BEAM_OBJECTS = \
 STATIC_OBJECTS = \
 	@STATIC_MODE@sys.o yap_random.o regexp.o  @NO_BUILTIN_REGEXP@ regcomp.o regerror.o regfree.o regexec.o
 
-LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS)
+LIB_OBJECTS = $(ENGINE_OBJECTS) $(C_INTERFACE_OBJECTS) $(OR_OBJECTS) $(BEAM_OBJECTS) $(STATIC_OBJECTS) $(LIBTAI_OBJECTS)
 
 OBJECTS = yap.o $(LIB_OBJECTS)
 
@@ -639,11 +639,15 @@ pl-yap.o: $(srcdir)/packages/PLStream/pl-yap.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-yap.c -o $@
 
 pl-tai.o: $(srcdir)/packages/PLStream/pl-tai.c config.h
-	( cd packages/PLStream/libtai ; make )
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-tai.c -o $@
 
 uxnt.o: $(srcdir)/packages/PLStream/windows/uxnt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/windows/uxnt.c -o $@
+
+# libtai rule
+%.o : $(srcdir)/packages/PLStream/libtai/%.c config.h
+	$(CC) -c $(CFLAGS) $< -o $@
+
 
 # default rule
 %.o : $(srcdir)/C/%.c config.h
@@ -704,11 +708,11 @@ pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll packages/PLST
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
-	$(AR) rc libYap.a $(addprefix packages/PLStream/libtai/,$(LIBTAI_OBJECTS)) $(LIB_OBJECTS)
+	$(AR) rc libYap.a $(LIB_OBJECTS)
 	$(RANLIB) libYap.a
 
 @DYNYAPLIB@: $(LIB_OBJECTS)
-	@YAPLIB_LD@ -o @YAPLIB@ packages/PLStream/libtai/libtai.a $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
+	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 
 install: install_bin install_data
 
