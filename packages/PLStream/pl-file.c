@@ -328,6 +328,10 @@ initIO()
   const atom_t *np;
   int i;
 
+#ifdef __YAP_PROLOG__
+  memset(GD, 0, sizeof(gds_t));
+  memset(LD, 0, sizeof(PL_local_data_t));
+#endif
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);

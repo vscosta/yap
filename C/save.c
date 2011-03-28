@@ -573,6 +573,7 @@ save_crc(void)
 
 static Int
 do_save(int mode USES_REGS) {
+  extern void Scleanup(void);
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
@@ -584,6 +585,7 @@ do_save(int mode USES_REGS) {
     Yap_Error(TYPE_ERROR_LIST,t1,"save/1");
     return FALSE;
   }
+  Scleanup();
   Yap_CloseStreams(TRUE);
   if ((splfild = open_file(Yap_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
     Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),
@@ -1382,10 +1384,12 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
     return(FAIL_RESTORE);
   Yap_PrologMode = BootMode;
   if (Yap_HeapBase) {
+    extern void Scleanup(void);
     if (!yap_flags[HALT_AFTER_CONSULT_FLAG] && !yap_flags[QUIET_MODE_FLAG]) {
       Yap_TrueFileName(s,Yap_FileNameBuf2, YAP_FILENAME_MAX);
       fprintf(stderr, "%% Restoring file %s\n", Yap_FileNameBuf2);
     }
+    Scleanup();
     Yap_CloseStreams(TRUE);
   }
 #ifdef DEBUG_RESTORE4
@@ -1758,8 +1762,6 @@ Restore(char *s, char *lib_dir USES_REGS)
   }
 
   Yap_ReOpenLoadForeign();
-  /* restore SWI IO */
-  initIO ();
   Yap_InitPlIO();
   /* reset time */
   Yap_ReInitWallTime();
