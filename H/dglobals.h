@@ -24,39 +24,34 @@
 
 #if THREADS
 
-#define NOfThreads Yap_global->n_of_threads
+#define Yap_NOfThreads Yap_global->n_of_threads
 
-#define NOfThreadsCreated Yap_global->n_of_threads_created
+#define Yap_NOfThreadsCreated Yap_global->n_of_threads_created
 
-#define ThreadsTotalTime Yap_global->threads_total_time
+#define Yap_ThreadsTotalTime Yap_global->threads_total_time
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
 
-#define BGL Yap_global->bgl
+#define Yap_BGL Yap_global->bgl
 #endif
 
 #define Yap_AllowLocalExpansion Yap_global->allow_local_expansion
 #define Yap_AllowGlobalExpansion Yap_global->allow_global_expansion
 #define Yap_AllowTrailExpansion Yap_global->allow_trail_expansion
-#define SizeOfOverflow Yap_global->size_of_overflow
+#define Yap_SizeOfOverflow Yap_global->size_of_overflow
 
-#define AGcLastCall Yap_global->agc_last_call
+#define Yap_AGcLastCall Yap_global->agc_last_call
 
-#define AGcThreshold Yap_global->agc_threshold
-#define AGCHook Yap_global->agc_hook
-
-#if HAVE_LIBREADLINE
-#define ReadlineBuf Yap_global->readline_buf
-#define ReadlinePos Yap_global->readline_pos
-#endif
+#define Yap_AGcThreshold Yap_global->agc_threshold
+#define Yap_AGCHook Yap_global->agc_hook
 
 #ifdef THREADS
-#define ThreadHandlesLock Yap_global->thread_handles_lock
+#define Yap_ThreadHandlesLock Yap_global->thread_handles_lock
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
-#define GLOBAL Yap_global->optyap_global
+#define Yap_optyap_data Yap_global->optyap_data
 #define REMOTE Yap_global->remote
 #endif
 

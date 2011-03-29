@@ -9,28 +9,28 @@
 	url = git://yap.dcc.fc.up.pt/jpl
 [submodule "packages/zlib"]
 	path = packages/zlib
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/zlib
+	url = git://yap.git.sourceforge.net/gitroot/yap/zlib
 [submodule "packages/http"]
 	path = packages/http
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/http
+	url = git://yap.git.sourceforge.net/gitroot/yap/http
 [submodule "packages/clib"]
 	path = packages/clib
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/clib
+	url = git://yap.git.sourceforge.net/gitroot/yap/clib
 [submodule "packages/sgml"]
 	path = packages/sgml
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/sgml
+	url = git://yap.git.sourceforge.net/gitroot/yap/sgml
 [submodule "packages/RDF"]
 	path = packages/RDF
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/RDF
+	url = git://yap.git.sourceforge.net/gitroot/yap/RDF
 [submodule "packages/semweb"]
 	path = packages/semweb
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/semweb
+	url = git://yap.git.sourceforge.net/gitroot/yap/semweb
 [submodule "packages/plunit"]
 	path = packages/plunit
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/plunit
+	url = git://yap.git.sourceforge.net/gitroot/yap/plunit
 [submodule "packages/R"]
 	path = packages/R
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/R
+	url = git://yap.git.sourceforge.net/gitroot/yap/R
 [submodule "packages/YapR"]
 	path = packages/YapR
-	url = ssh://vsc@yap.git.sourceforge.net/gitroot/yap/YapR
+	url = git://yap.git.sourceforge.net/gitroot/yap/YapR

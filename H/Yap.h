@@ -1207,9 +1207,9 @@ extern int Yap_PrologShouldHandleInterrupts;
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          if (worker_id != GLOBAL_LOCKS_who_locked_heap) {               \
-	    LOCK(GLOBAL_LOCKS_heap_access);                              \
-	    GLOBAL_LOCKS_who_locked_heap = worker_id;                    \
+          if (worker_id != Yap_locks_who_locked_heap) {               \
+	    LOCK(Yap_locks_heap_access);                              \
+	    Yap_locks_who_locked_heap = worker_id;                    \
 	  }                                                              \
           Yap_PrologMode |= CritMode;                                   \
           Yap_CritLocks++;                                              \
@@ -1227,8 +1227,8 @@ extern int Yap_PrologShouldHandleInterrupts;
 	      Yap_PrologMode &= ~AbortMode;                             \
 	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
-	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
-            UNLOCK(GLOBAL_LOCKS_heap_access);                            \
+	    Yap_locks_who_locked_heap = MAX_WORKERS;                  \
+            UNLOCK(Yap_locks_heap_access);                            \
           }                                                              \
         }
 #elif defined(THREADS)

@@ -88,7 +88,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 #define PUT_YAMOP_SEQ(INST)        (INST)->u.Otapl.or_arg |= YAMOP_SEQ_FLAG
 #define PUT_YAMOP_CUT(INST)        (INST)->u.Otapl.or_arg |= YAMOP_CUT_FLAG
 
-#define BRANCH(WORKER, DEPTH)      GLOBAL_branch(WORKER, DEPTH)
+#define BRANCH(WORKER, DEPTH)      Yap_branch(WORKER, DEPTH)
 #define BRANCH_LTT(WORKER, DEPTH)  (BRANCH(WORKER, DEPTH) & YAMOP_LTT_BITS)
 #define BRANCH_CUT(WORKER, DEPTH)  (BRANCH(WORKER, DEPTH) & YAMOP_CUT_FLAG)
 
@@ -175,7 +175,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 	}
 
 #define CUT_wait_leftmost()                                           \
-        if (PARALLEL_EXECUTION_MODE) {                                \
+        if (Yap_parallel_execution_mode) {                                \
            /* parallel execution mode --> wait until leftmost */      \
            int i, loop, depth, ltt;                                   \
            bitmap members;                                            \
@@ -189,13 +189,13 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
                SCH_check_requests();                                  \
                BITMAP_copy(members, OrFr_members(leftmost_or_fr));    \
                BITMAP_delete(members, worker_id);                     \
-               for (i = 0; i < number_workers; i++) {                 \
+               for (i = 0; i < Yap_number_workers; i++) {                 \
                  /*  not leftmost in current frame if there is a  */  \
 	         /* worker in a left branch and it is not idle or */  \
                  /*     if it is idle it is in a younger node     */  \
                  if (BITMAP_member(members, i) &&                     \
                      BRANCH_LTT(i, depth) > ltt &&                    \
-                     (! BITMAP_member(GLOBAL_bm_idle_workers, i) ||   \
+                     (! BITMAP_member(Yap_bm_idle_workers, i) ||   \
                       leftmost_or_fr != REMOTE_top_or_fr(i))) {       \
                    loop = TRUE;                                       \
                    break;                                             \
@@ -203,7 +203,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
                }                                                      \
              } while (loop);                                          \
              leftmost_or_fr = OrFr_nearest_leftnode(leftmost_or_fr);  \
-           } while (leftmost_or_fr != GLOBAL_root_or_fr);             \
+           } while (leftmost_or_fr != Yap_root_or_fr);             \
          }
 
 
@@ -214,27 +214,27 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 
 static inline 
 void PUT_IN_EXECUTING(int w) {
-  LOCK(GLOBAL_LOCKS_bm_executing_workers);
-  BITMAP_insert(GLOBAL_bm_executing_workers, w);
-  UNLOCK(GLOBAL_LOCKS_bm_executing_workers);
+  LOCK(Yap_locks_bm_executing_workers);
+  BITMAP_insert(Yap_bm_executing_workers, w);
+  UNLOCK(Yap_locks_bm_executing_workers);
   return;
 }
 
 
 static inline 
 void PUT_OUT_EXECUTING(int w) {
-  LOCK(GLOBAL_LOCKS_bm_executing_workers);
-  BITMAP_delete(GLOBAL_bm_executing_workers, w);
-  UNLOCK(GLOBAL_LOCKS_bm_executing_workers);
+  LOCK(Yap_locks_bm_executing_workers);
+  BITMAP_delete(Yap_bm_executing_workers, w);
+  UNLOCK(Yap_locks_bm_executing_workers);
   return;
 }
 
 
 static inline 
 void PUT_IN_FINISHED(int w) {
-  LOCK(GLOBAL_LOCKS_bm_finished_workers);
-  BITMAP_insert(GLOBAL_bm_finished_workers, w);
-  UNLOCK(GLOBAL_LOCKS_bm_finished_workers);
+  LOCK(Yap_locks_bm_finished_workers);
+  BITMAP_insert(Yap_bm_finished_workers, w);
+  UNLOCK(Yap_locks_bm_finished_workers);
   return;
 }
 
@@ -242,18 +242,18 @@ void PUT_IN_FINISHED(int w) {
 #ifdef TABLING_INNER_CUTS
 static inline 
 void PUT_IN_PRUNING(int w) {
-  LOCK(GLOBAL_LOCKS_bm_pruning_workers);
-  BITMAP_insert(GLOBAL_bm_pruning_workers, w);
-  UNLOCK(GLOBAL_LOCKS_bm_pruning_workers);
+  LOCK(Yap_locks_bm_pruning_workers);
+  BITMAP_insert(Yap_bm_pruning_workers, w);
+  UNLOCK(Yap_locks_bm_pruning_workers);
   return;
 }
 
 
 static inline 
 void PUT_OUT_PRUNING(int w) {
-  LOCK(GLOBAL_LOCKS_bm_pruning_workers);
-  BITMAP_delete(GLOBAL_bm_pruning_workers, w);
-  UNLOCK(GLOBAL_LOCKS_bm_pruning_workers);
+  LOCK(Yap_locks_bm_pruning_workers);
+  BITMAP_delete(Yap_bm_pruning_workers, w);
+  UNLOCK(Yap_locks_bm_pruning_workers);
   return;
 }
 #endif /* TABLING_INNER_CUTS */
@@ -266,18 +266,18 @@ void PUT_OUT_PRUNING(int w) {
 
 static inline 
 void PUT_IN_REQUESTABLE(int p) {
-  LOCK(GLOBAL_LOCKS_bm_requestable_workers);
-  BITMAP_insert(GLOBAL_bm_requestable_workers, p);
-  UNLOCK(GLOBAL_LOCKS_bm_requestable_workers);
+  LOCK(Yap_locks_bm_requestable_workers);
+  BITMAP_insert(Yap_bm_requestable_workers, p);
+  UNLOCK(Yap_locks_bm_requestable_workers);
   return;
 }
 
 
 static inline 
 void PUT_OUT_REQUESTABLE(int p) {
-  LOCK(GLOBAL_LOCKS_bm_requestable_workers);
-  BITMAP_delete(GLOBAL_bm_requestable_workers, p);
-  UNLOCK(GLOBAL_LOCKS_bm_requestable_workers);
+  LOCK(Yap_locks_bm_requestable_workers);
+  BITMAP_delete(Yap_bm_requestable_workers, p);
+  UNLOCK(Yap_locks_bm_requestable_workers);
   return;
 }
 
@@ -379,7 +379,7 @@ int CUT_last_worker_left_pending_prune(or_fr_ptr or_frame) {
   ltt = OrFr_pend_prune_ltt(or_frame);
   members = OrFr_members(or_frame);
   BITMAP_delete(members, worker_id);
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (BITMAP_member(members, i) && BRANCH_LTT(i, depth) > ltt)
       return FALSE;
   }
@@ -402,7 +402,7 @@ or_fr_ptr CUT_leftmost_or_frame(void) {
     ltt = BRANCH_LTT(worker_id, depth);
     BITMAP_difference(members, OrFr_members(leftmost_or_fr), members);
     if (members)
-      for (i = 0; i < number_workers; i++)
+      for (i = 0; i < Yap_number_workers; i++)
         if (BITMAP_member(members, i) && BRANCH_LTT(i, depth) > ltt)
           goto update_nearest_leftnode_data;
     BITMAP_copy(members, OrFr_members(leftmost_or_fr));
@@ -436,12 +436,12 @@ or_fr_ptr CUT_leftmost_until(or_fr_ptr start_or_fr, int until_depth) {
   leftmost_or_fr = OrFr_nearest_leftnode(start_or_fr);
   depth = OrFr_depth(leftmost_or_fr);
   if (depth > until_depth) {
-    BITMAP_copy(prune_members, GLOBAL_bm_pruning_workers);
+    BITMAP_copy(prune_members, Yap_bm_pruning_workers);
     BITMAP_delete(prune_members, worker_id);
     ltt = BRANCH_LTT(worker_id, depth);
     BITMAP_intersection(members, prune_members, OrFr_members(leftmost_or_fr));
     if (members) {
-      for (i = 0; i < number_workers; i++) {
+      for (i = 0; i < Yap_number_workers; i++) {
         if (BITMAP_member(members, i) && 
             BRANCH_LTT(i, depth) > ltt &&
             EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i)))
@@ -456,7 +456,7 @@ or_fr_ptr CUT_leftmost_until(or_fr_ptr start_or_fr, int until_depth) {
       ltt = BRANCH_LTT(worker_id, depth);
       BITMAP_intersection(members, prune_members, OrFr_members(leftmost_or_fr));
       if (members) {
-        for (i = 0; i < number_workers; i++) {
+        for (i = 0; i < Yap_number_workers; i++) {
           if (BITMAP_member(members, i) &&
               BRANCH_LTT(i, depth) > ltt &&
               EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i))) {

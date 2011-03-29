@@ -7687,14 +7687,14 @@ Yap_absmi(int inp)
       {
 	PredEntry *pt0;
 #ifdef THREADS
-	LOCK(ThreadHandlesLock);
+	LOCK(Yap_ThreadHandlesLock);
 #endif
 	pt0 = SpyCode;
 	P_before_spy = PREG;
 	PREG = pt0->CodeOfPred;
 	/* for profiler */
 #ifdef THREADS
-	UNLOCK(ThreadHandlesLock);
+	UNLOCK(Yap_ThreadHandlesLock);
 #endif
 	save_pc();
 	CACHE_A1();

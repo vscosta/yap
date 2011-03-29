@@ -193,20 +193,20 @@ void unmap_memory (void) {
   {
     int proc;
     INFORMATION_MESSAGE("Worker %d exiting...", worker_id);
-    for (proc = 0; proc < number_workers; proc++) {
-      if (proc != worker_id && worker_pid(proc) != 0) {
-        if (kill(worker_pid(proc), SIGKILL) != 0)
-          INFORMATION_MESSAGE("Can't kill process %d", worker_pid(proc));
+    for (proc = 0; proc < Yap_number_workers; proc++) {
+      if (proc != worker_id && Yap_worker_pid(proc) != 0) {
+        if (kill(Yap_worker_pid(proc), SIGKILL) != 0)
+          INFORMATION_MESSAGE("Can't kill process %d", Yap_worker_pid(proc));
         else 
-          INFORMATION_MESSAGE("Killing process %d", worker_pid(proc));
+          INFORMATION_MESSAGE("Killing process %d", Yap_worker_pid(proc));
       }
     }
 #ifdef ACOW
-    if (number_workers > 1) {
-      if (kill(GLOBAL_master_worker, SIGINT) != 0)
-	INFORMATION_MESSAGE("Can't kill process %d", GLOBAL_master_worker);
+    if (Yap_number_workers > 1) {
+      if (kill(Yap_master_worker, SIGINT) != 0)
+	INFORMATION_MESSAGE("Can't kill process %d", Yap_master_worker);
       else 
-	INFORMATION_MESSAGE("Killing process %d", GLOBAL_master_worker);
+	INFORMATION_MESSAGE("Killing process %d", Yap_master_worker);
     }
 #endif /* ACOW */
   }
@@ -215,7 +215,7 @@ void unmap_memory (void) {
 #ifdef ACOW
   i = 0;
 #else
-  for (i = 0; i < number_workers + 1; i++)
+  for (i = 0; i < Yap_number_workers + 1; i++)
 #endif /* ACOW */
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
@@ -225,9 +225,9 @@ void unmap_memory (void) {
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   strcpy(MapFile,"./mapfile");
 #ifdef ACOW
-  itos(GLOBAL_master_worker, &MapFile[9]);
+  itos(Yap_master_worker, &MapFile[9]);
 #else /* ENV_COPY || SBA */
-  itos(worker_pid(0), &MapFile[9]);
+  itos(Yap_worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
@@ -260,26 +260,26 @@ void remap_memory(void) {
   remap_offset = (char *)remap_addr - (char *)Yap_HeapBase;
   WorkerArea = worker_offset(1);
 #ifdef SHM_MEMORY_MAPPING_SCHEME
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (shmdt(worker_area(i)) == -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmdt error (remap_memory)");
   }
-  for (i = 0; i < number_workers; i++) {
-    worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
+  for (i = 0; i < Yap_number_workers; i++) {
+    worker_area(i) = remap_addr + ((Yap_number_workers + i - worker_id) % Yap_number_workers) * WorkerArea;
     if(shmat(shm_mapid[i], worker_area(i), 0) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmat error (remap_memory)");
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
-  if (munmap(remap_addr, (size_t)(WorkerArea * number_workers)) == -1)
+  if (munmap(remap_addr, (size_t)(WorkerArea * Yap_number_workers)) == -1)
     Yap_Error(FATAL_ERROR, TermNil, "munmap error (remap_memory)");
-  for (i = 0; i < number_workers; i++) {
-    worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
+  for (i = 0; i < Yap_number_workers; i++) {
+    worker_area(i) = remap_addr + ((Yap_number_workers + i - worker_id) % Yap_number_workers) * WorkerArea;
     if (mmap(worker_area(i), (size_t)WorkerArea, PROT_READ|PROT_WRITE, 
         MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * WorkerArea + extra_area) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (remap_memory)");
   }
 #endif /* MEMORY_MAPPING_SCHEME */
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     worker_offset(i) = worker_area(i) - worker_area(worker_id);
   }
 #endif /* ENV_COPY */

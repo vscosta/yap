@@ -614,13 +614,13 @@ p_save2( USES_REGS1 )
 
   Term t;
 #if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
+  if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (NOfThreads != 1) {
+  if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
@@ -1792,12 +1792,12 @@ p_restore( USES_REGS1 )
 
   Term t1 = Deref(ARG1);
 #if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
+  if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (NOfThreads != 1) {
+  if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }

@@ -384,7 +384,7 @@ clean_atom_list(AtomHashEntry *HashPtr)
     AtomEntry *at =  RepAtom(atm);
     if (AtomResetMark(at) ||
 	at->PropsOfAE != NIL ||
-	(AGCHook != NULL && !AGCHook(atm))) {
+	(Yap_AGCHook != NULL && !Yap_AGCHook(atm))) {
       patm = &(at->NextOfAE);
       atm = at->NextOfAE;
     } else {
@@ -463,7 +463,7 @@ atom_gc(USES_REGS1)
   mark_stacks(PASS_REGS1);
   restore_codes();
   clean_atoms();
-  AGcLastCall = NOfAtoms;
+  Yap_AGcLastCall = NOfAtoms;
   YAPLeaveCriticalSection();
   agc_time = Yap_cputime()-time_start;
   tot_agc_time += agc_time;
@@ -511,7 +511,7 @@ p_agc_threshold(USES_REGS1)
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    return Yap_unify(ARG1, MkIntegerTerm(AGcThreshold));
+    return Yap_unify(ARG1, MkIntegerTerm(Yap_AGcThreshold));
   } else if (!IsIntegerTerm(t)) {
     Yap_Error(TYPE_ERROR_INTEGER,t,"prolog_flag/2 agc_margin");
     return FALSE;
@@ -521,7 +521,7 @@ p_agc_threshold(USES_REGS1)
       Yap_Error(DOMAIN_ERROR_NOT_LESS_THAN_ZERO,t,"prolog_flag/2 agc_margin");
       return FALSE;
     } else {
-      AGcThreshold = i;
+      Yap_AGcThreshold = i;
       return TRUE;
     }
   }

@@ -1256,10 +1256,10 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
-  if (SizeOfOverflow > sz) {
+  if (Yap_SizeOfOverflow > sz) {
     if (size < YAP_ALLOC_SIZE)
       size = YAP_ALLOC_SIZE;
-    sz = AdjustPageSize(SizeOfOverflow);
+    sz = AdjustPageSize(Yap_SizeOfOverflow);
   }
   while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep PASS_REGS)) {
     size = size/2;
@@ -1401,7 +1401,7 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
 
   if (NOfAtoms > 2*AtomHashTableSize) {
     UInt n = NOfAtoms;
-    if (AGcThreshold)
+    if (Yap_AGcThreshold)
       Yap_atom_gc( PASS_REGS1 );
     /* check if we have a significant improvement from agc */
     if (n > NOfAtoms+ NOfAtoms/10 ||
@@ -1442,12 +1442,12 @@ Yap_growglobal(CELL **ptr)
   unsigned long sz = sizeof(CELL) * K16;
 
 #if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
+  if (Yap_number_workers != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (NOfThreads != 1) {
+  if (Yap_NOfThreads != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }

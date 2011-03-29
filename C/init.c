@@ -1392,10 +1392,10 @@ Yap_HaltRegisterHook (HaltHookFunc f, void * env)
     return FALSE;
   h->environment = env;
   h->hook = f;
-  LOCK(BGL);
+  LOCK(Yap_BGL);
   h->next = Yap_HaltHooks;
   Yap_HaltHooks = h;
-  UNLOCK(BGL);
+  UNLOCK(Yap_BGL);
   return TRUE;
 }
 
