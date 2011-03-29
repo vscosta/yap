@@ -354,7 +354,7 @@ sync_with_p:
 #endif /* TABLING */
   return TRUE;
 }
-
+}
 
 
 /* ------------------------- **
@@ -523,7 +523,7 @@ void share_private_nodes(int worker_q) {
           next_node_on_branch = sharing_node;
         STACK_PUSH_UP(or_frame, stack);
         STACK_CHECK_EXPAND(stack, stack_limit);
-        STACK_PUSH(sharing_node, stack);
+        STACK_PUSH_UP(sharing_node, stack);
         STACK_CHECK_EXPAND(stack, stack_limit);
         sharing_node = consumer_cp;
         dep_frame = DepFr_next(dep_frame);
