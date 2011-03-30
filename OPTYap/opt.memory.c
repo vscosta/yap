@@ -87,7 +87,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #if MMAP_MEMORY_MAPPING_SCHEME
   long TotalArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || SBA */
   int i;
   long WorkerArea;
   long TotalArea;
@@ -114,7 +114,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* I need this for MMAP to know what it must allocate */
   TotalArea = HeapArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || SBA */
   /* the others need n stacks */
   WorkerArea = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = HeapArea + WorkerArea * n_workers;
@@ -134,7 +134,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #ifdef ACOW
   /* single shared segment in ACOW */
   shm_map_memory(0, HeapArea, mmap_addr);
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || SBA */
   /* place as segment n otherwise (0..n-1 reserved for worker areas */
   shm_map_memory(n_workers, HeapArea, mmap_addr);
 #endif /* YAPOR_MODEL */
@@ -148,7 +148,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
   close(private_fd_mapfile);
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
     worker_area(i) = Yap_GlobalBase + i * WorkerArea;
@@ -226,7 +226,7 @@ void unmap_memory (void) {
   strcpy(MapFile,"./mapfile");
 #ifdef ACOW
   itos(Yap_master_worker, &MapFile[9]);
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || SBA */
   itos(Yap_worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
@@ -250,7 +250,7 @@ void remap_memory(void) {
   Yap_LocalBase += worker_id * WorkerArea;
   Yap_TrailTop += worker_id * WorkerArea;
 #endif /* SBA */
-#ifdef ENV_COPY
+#ifdef YAPOR_COPY
   void *remap_addr;
   long remap_offset;
   long WorkerArea;
@@ -282,6 +282,6 @@ void remap_memory(void) {
   for (i = 0; i < Yap_number_workers; i++) {
     worker_offset(i) = worker_area(i) - worker_area(worker_id);
   }
-#endif /* ENV_COPY */
+#endif /* YAPOR_COPY */
 }
 #endif /* YAPOR && !THREADS */

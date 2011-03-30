@@ -1344,13 +1344,13 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   worker_id = 0;
   if (n_workers > MAX_WORKERS)
     Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers (Yap_InitWorkspace)");
-#ifdef ENV_COPY
+#ifdef YAPOR_COPY
   INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #elif ACOW
   INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #else /* SBA */
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#endif /* ENV_COPY - ACOW - SBA */
+#endif /* YAPOR_COPY - ACOW - SBA */
   map_memory(Heap, Stack+Atts, Trail, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);

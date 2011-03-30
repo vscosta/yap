@@ -42,7 +42,7 @@ DOCSDIR=$(SHAREDIR)/doc/Yap
 #
 # very experimental stuff, you'll need to contact the developers
 # if you want to use this:
-#       -DENV_COPY: or-parallelism with environment copying, in Muse style.
+#       -DYAPOR_COPY: or-parallelism with environment copying, in Muse style.
 #       -DSBA: or-parallelism with sparse binding arrays.
 #       -DACOW: or-parallelism with copy-on-write.
 #       -DTABLING: support for tabling

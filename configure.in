@@ -1282,7 +1282,7 @@ case "$orparallelism" in
    YAP_EXTRAS="$YAP_EXTRAS -DACOW=1"
   ;;
   yes|env-copy)
-   YAP_EXTRAS="$YAP_EXTRAS -DENV_COPY=1"
+   YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
   ;;
 esac
 

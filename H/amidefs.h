@@ -998,7 +998,7 @@ typedef struct choicept {
 #define YOUNGER_H(H1, H2) FIXMEE!!!!
 
 
-#else /* ENV_COPY || ACOW */
+#else /* YAPOR_COPY || ACOW */
 #define YOUNGER_CP(CP1, CP2)           ((CP1) <  (CP2))
 #define EQUAL_OR_YOUNGER_CP(CP1, CP2)  ((CP1) <= (CP2))
 

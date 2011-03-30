@@ -544,4 +544,4 @@ void share_private_nodes(int worker_q) {
   REMOTE_load(worker_q) = LOCAL_load = 0;
   return;
 }
-#endif /* ENV_COPY */
+#endif /* YAPOR_COPY */

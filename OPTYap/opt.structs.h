@@ -345,7 +345,7 @@ struct optyap_global_data{
 
 #ifdef YAPOR
 struct local_signals{
-#if defined(ENV_COPY) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(THREADS)
   lockvar lock;
   volatile enum {
     Q_idle = 0,
@@ -354,7 +354,7 @@ struct local_signals{
     local  = 3,
     P_idle = 4
   } P_fase, Q_fase;
-#endif /* ENV_COPY || THREADS */
+#endif /* YAPOR_COPY || THREADS */
   volatile enum {
     no_sharing   = 0, 
     sharing      = 1,

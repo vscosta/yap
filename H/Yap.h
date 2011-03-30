@@ -17,7 +17,7 @@
 #define YAP_H 1
 
 #include "config.h"
-#if defined(ENV_COPY) || defined(TABLING) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(TABLING) || defined(THREADS)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
 
@@ -39,16 +39,16 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(ENV_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
 #error Do not define multiple or-parallel models
-#endif /* (ENV_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (ACOW || SBA)) || (ACOW && SBA) */
 
-#if defined(ENV_COPY) || defined(ACOW) || defined(SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA) || defined(THREADS)
 #define YAPOR 1
-#endif /* ENV_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || SBA */
 
 #if defined(TABLING) && (defined(ACOW) || defined(SBA))
-#error Currently TABLING only works with ENV_COPY
+#error Currently TABLING only works with YAPOR_COPY
 #endif /* TABLING && (ACOW || SBA) */
 
 #ifdef YAPOR
@@ -56,7 +56,7 @@
 #ifdef THREADS
 #undef ACOW
 #undef SBA
-#undef ENV_COPY
+#undef YAPOR_COPY
 #endif
 #endif /* YAPOR */
 

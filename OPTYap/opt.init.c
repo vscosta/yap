@@ -188,9 +188,9 @@ void Yap_init_local(void) {
   LOCAL_load = 0;
   LOCAL_share_request = MAX_WORKERS;
   LOCAL_reply_signal = worker_ready;
-#ifdef ENV_COPY
+#ifdef YAPOR_COPY
   INIT_LOCK(LOCAL_lock_signals);
-#endif /* ENV_COPY */
+#endif /* YAPOR_COPY */
   Set_LOCAL_prune_request(NULL);
 #endif /* YAPOR */
   INIT_LOCK(LOCAL_lock);
