@@ -62,7 +62,7 @@ quality:
 
   o -DYAPOR gives or-parallelism in Muse style. If you add -DSBA to it
 you will have the Sparse Binding Array instead of copying. If you add
--DACOW instead you will have the \alphaCOW model, that is, forking
+-DYAPOR_COW instead you will have the \alphaCOW model, that is, forking
 instead of copying.
 
 1.3 Porting Yap

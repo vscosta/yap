@@ -143,13 +143,13 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
           p_share_work();             \
 	  setregs();                  \
         }
-#else /* ACOW */
+#else /* YAPOR_COW */
 #define SCH_check_share_request()     \
         if (SCH_any_share_request) {  \
           if (! p_share_work())       \
             goto shared_fail;         \
         }
-#endif /* YAPOR_COPY || YAPOR_SBA || ACOW */
+#endif /* YAPOR_COPY || YAPOR_SBA || YAPOR_COW */
 
 #define SCH_check_requests()          \
         SCH_check_prune_request();    \

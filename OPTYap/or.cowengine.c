@@ -16,7 +16,7 @@
 ** ------------------ */
 
 #include "Yap.h"
-#ifdef ACOW
+#ifdef YAPOR_COW
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -230,4 +230,4 @@ void share_private_nodes(int worker_q) {
   REMOTE_load(worker_q) = LOCAL_load = 0;
   return;
 }
-#endif /* ACOW */
+#endif /* YAPOR_COW */

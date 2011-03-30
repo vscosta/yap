@@ -1830,7 +1830,7 @@ InitSignals (void)
 #if HAVE_SIGSEGV && !defined(THREADS) 
     my_signal_info (SIGSEGV, HandleSIGSEGV);
 #endif
-#ifdef ACOW
+#ifdef YAPOR_COW
     signal(SIGCHLD, SIG_IGN);  /* avoid ghosts */ 
 #endif
   } else {

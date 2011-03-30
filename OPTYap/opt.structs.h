@@ -170,9 +170,9 @@ struct optyap_global_data{
   int delayed_release_load;
   int number_workers;
   int worker_pid[MAX_WORKERS];
-#ifdef ACOW
+#ifdef YAPOR_COW
   int master_worker;
-#endif /* ACOW */
+#endif /* YAPOR_COW */
 
   /* global data related to or-performance */
   realtime execution_time;

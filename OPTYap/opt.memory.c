@@ -82,7 +82,7 @@ close_mapfile(void) {
 
 void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_workers) {
   void *mmap_addr = (void *)MMAP_ADDR;
-#ifdef ACOW
+#ifdef YAPOR_COW
   int private_fd_mapfile;
 #if MMAP_MEMORY_MAPPING_SCHEME
   long TotalArea;
@@ -108,7 +108,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   Yap_GlobalBase = mmap_addr + HeapArea;
 
   /* shared memory allocation - model dependent */
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* acow just needs one stack */
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* I need this for MMAP to know what it must allocate */
@@ -131,7 +131,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #endif
 #else /* SHM_MEMORY_MAPPING_SCHEME */
 /* Most systems are limited regarding what we can allocate */
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* single shared segment in ACOW */
   shm_map_memory(0, HeapArea, mmap_addr);
 #else /* YAPOR_COPY || YAPOR_SBA */
@@ -140,7 +140,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #endif /* YAPOR_MODEL */
 #endif /* MEMORY_MAPPING_SCHEME */
 
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
     Yap_Error(FATAL_ERROR, TermNil, "open error (map_memory)");
@@ -201,22 +201,22 @@ void unmap_memory (void) {
           INFORMATION_MESSAGE("Killing process %d", Yap_worker_pid(proc));
       }
     }
-#ifdef ACOW
+#ifdef YAPOR_COW
     if (Yap_number_workers > 1) {
       if (kill(Yap_master_worker, SIGINT) != 0)
 	INFORMATION_MESSAGE("Can't kill process %d", Yap_master_worker);
       else 
 	INFORMATION_MESSAGE("Killing process %d", Yap_master_worker);
     }
-#endif /* ACOW */
+#endif /* YAPOR_COW */
   }
 
 #ifdef SHM_MEMORY_MAPPING_SCHEME
-#ifdef ACOW
+#ifdef YAPOR_COW
   i = 0;
 #else
   for (i = 0; i < Yap_number_workers + 1; i++)
-#endif /* ACOW */
+#endif /* YAPOR_COW */
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
       INFORMATION_MESSAGE("Removing shared memory segment %d", shm_mapid[i]);
@@ -224,7 +224,7 @@ void unmap_memory (void) {
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   strcpy(MapFile,"./mapfile");
-#ifdef ACOW
+#ifdef YAPOR_COW
   itos(Yap_master_worker, &MapFile[9]);
 #else /* YAPOR_COPY || YAPOR_SBA */
   itos(Yap_worker_pid(0), &MapFile[9]);
@@ -238,9 +238,9 @@ void unmap_memory (void) {
 
 
 void remap_memory(void) {
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* do nothing */
-#endif /* ACOW */
+#endif /* YAPOR_COW */
 #ifdef YAPOR_SBA
   /* setup workers so that they have different areas */
   long WorkerArea = worker_offset(1);

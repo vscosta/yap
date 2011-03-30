@@ -54,17 +54,17 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(YAPOR_SBA))) || (defined(ACOW) && defined(YAPOR_SBA))
+#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
 #error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (ACOW || YAPOR_SBA)) || (ACOW && YAPOR_SBA) */
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
 
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #define YAPOR 1
-#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(ACOW) || defined(YAPOR_SBA))
+#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
 #error Currently TABLING only works with YAPOR_COPY
-#endif /* TABLING && (ACOW || YAPOR_SBA) */
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1

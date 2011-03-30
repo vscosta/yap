@@ -28,7 +28,7 @@
 #ifdef TABLING
 #include "tab.macros.h"
 #endif /* TABLING */
-#if defined(TABLING) || !defined(ACOW)
+#if defined(TABLING) || !defined(YAPOR_COW)
 #ifndef TABLING
 #include "opt.mavar.h"
 #endif /* !TABLING */
@@ -37,10 +37,10 @@ ma_hash_entry Yap_ma_hash_table[MAVARS_HASH_SIZE];
 UInt Yap_timestamp;    /* an unsigned int */
 ma_h_inner_struct *Yap_ma_h_top;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
-#endif /* TABLING || !ACOW */
-#ifdef ACOW
+#endif /* TABLING || !YAPOR_COW */
+#ifdef YAPOR_COW
 #include "sys/wait.h"
-#endif /* ACOW */
+#endif /* YAPOR_COW */
 
 
 
@@ -255,7 +255,7 @@ void init_workers(void) {
 #ifdef THREADS
   return;
 #endif
-#ifdef ACOW
+#ifdef YAPOR_COW
   if (Yap_number_workers> 1) {
     int son;
     son = fork();
@@ -274,7 +274,7 @@ void init_workers(void) {
       exit(0);
     } else Yap_worker_pid(0) = getpid();
   }
-#endif /* ACOW */
+#endif /* YAPOR_COW */
   for (proc = 1; proc < Yap_number_workers; proc++) {
     int son;
     son = fork();
