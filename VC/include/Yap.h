@@ -54,16 +54,16 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(ENV_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
 #error Do not define multiple or-parallel models
-#endif /* (ENV_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (ACOW || SBA)) || (ACOW && SBA) */
 
-#if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA)
 #define YAPOR 1
-#endif /* ENV_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || SBA */
 
 #if defined(TABLING) && (defined(ACOW) || defined(SBA))
-#error Currently TABLING only works with ENV_COPY
+#error Currently TABLING only works with YAPOR_COPY
 #endif /* TABLING && (ACOW || SBA) */
 
 #ifdef YAPOR
@@ -364,6 +364,7 @@ typedef CELL Term;
 #include "amidefs.h"
 
 #include "Regs.h"
+
 
 #if defined(YAPOR) ||defined(THREADS)
 #ifdef mips
