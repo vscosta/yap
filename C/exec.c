@@ -215,7 +215,7 @@ do_execute(Term t, Term mod USES_REGS)
        might skip a svar */
     pt = RepAppl(t)+1;
     for (i = 1; i <= arity; i++) {
-#if SBA
+#if YAPOR_SBA
       Term d0 = *pt++;
       if (d0 == 0)
 `	XREGS[i] = (CELL)(pt-1);
@@ -358,7 +358,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
      otherwise I would dereference the argument and
      might skip a svar */
   for (i = 1; i <= arity-n; i++) {
-#if SBA
+#if YAPOR_SBA
     Term d0 = *pt++;
     if (d0 == 0)
       XREGS[i] = (CELL)(pt-1);
@@ -610,7 +610,7 @@ p_execute_clause( USES_REGS1 )
        might skip a svar */
     pt = RepAppl(t)+1;
     for (i = 1; i <= arity; ++i) {
-#if SBA
+#if YAPOR_SBA
 	Term d0 = *pt++;
 	if (d0 == 0)
 	  XREGS[i] = (CELL)(pt-1);
@@ -693,7 +693,7 @@ p_execute0( USES_REGS1 )
        might skip a svar */
     pt = RepAppl(t)+1;
     for (i = 1; i <= arity; ++i) {
-#if SBA
+#if YAPOR_SBA
 	Term d0 = *pt++;
 	if (d0 == 0)
 	  XREGS[i] = (CELL)(pt-1);
@@ -764,7 +764,7 @@ p_execute_nonstop( USES_REGS1 )
        might skip a svar */
     pt = RepAppl(t)+1;
     for (i = 1; i <= arity; ++i) {
-#if SBA
+#if YAPOR_SBA
 	Term d0 = *pt++;
 	if (d0 == 0)
 	  XREGS[i] = (CELL)(pt-1);
@@ -1341,7 +1341,7 @@ p_restore_regs2( USES_REGS1 )
   if (!IsIntegerTerm(d0)) {
     return(FALSE);
   }
-#if SBA
+#if YAPOR_SBA
   pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
@@ -1386,7 +1386,7 @@ p_clean_ifcp( USES_REGS1 ) {
     Yap_Error(TYPE_ERROR_INTEGER, t, "cut_at/1");
     return FALSE;    
   }
-#if SBA
+#if YAPOR_SBA
   pt0 = (choiceptr)IntegerOfTerm(t);
 #else
   pt0 = cp_from_integer(t PASS_REGS);
@@ -1633,9 +1633,9 @@ Yap_InitYaamRegs(void)
   STATIC_PREDICATES_MARKED = FALSE;
 #ifdef FROZEN_STACKS
   H_FZ = H;
-#ifdef SBA
+#ifdef YAPOR_SBA
   BSEG =
-#endif /* SBA */
+#endif /* YAPOR_SBA */
   BBREG = B_FZ = (choiceptr) Yap_LocalBase;
   TR = TR_FZ = (tr_fr_ptr) Yap_TrailBase;
 #endif /* FROZEN_STACKS */

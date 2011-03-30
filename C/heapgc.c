@@ -929,7 +929,7 @@ init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
 #ifdef FROZEN_STACKS  /* TRAIL */
             /* avoid frozen segments */
       if (
-#ifdef SBA
+#ifdef YAPOR_SBA
 	  (ADDR) pt0 >= HeapTop
 #else
 	  (ADDR) pt0 >= Yap_TrailBase && (ADDR) pt0 < Yap_TrailTop
@@ -2499,7 +2499,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 #ifdef FROZEN_STACKS  /* TRAIL */
 	/* process all segments */
 	if (
-#ifdef SBA
+#ifdef YAPOR_SBA
 	    (ADDR) pt0 >= Yap_GlobalBase
 #else
 	    (ADDR) pt0 >= Yap_TrailBase

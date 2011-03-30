@@ -106,7 +106,7 @@ CELL**				ip_top		iptop		=NULL
 #if GC_NO_TAGS
 char*				b_p		Yap_bp		=NULL
 #endif
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
 struct trail_frame*		wl_sTR		sTR		=NULL
 struct trail_frame*		wl_sTR0		sTR0		=NULL
 struct trail_frame*		new_tr		new_TR		=NULL

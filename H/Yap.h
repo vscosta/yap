@@ -39,23 +39,23 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(YAPOR_SBA))) || (defined(ACOW) && defined(YAPOR_SBA))
 #error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (ACOW || YAPOR_SBA)) || (ACOW && YAPOR_SBA) */
 
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA) || defined(THREADS)
 #define YAPOR 1
-#endif /* YAPOR_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(ACOW) || defined(SBA))
+#if defined(TABLING) && (defined(ACOW) || defined(YAPOR_SBA))
 #error Currently TABLING only works with YAPOR_COPY
-#endif /* TABLING && (ACOW || SBA) */
+#endif /* TABLING && (ACOW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1
 #ifdef THREADS
 #undef ACOW
-#undef SBA
+#undef YAPOR_SBA
 #undef YAPOR_COPY
 #endif
 #endif /* YAPOR */
@@ -80,9 +80,9 @@
 #define USE_SYSTEM_MALLOC 1
 #endif
 
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_YAPOR_SBA)
 #define FROZEN_STACKS 1
-#endif /* TABLING || SBA */
+#endif /* TABLING || YAPOR_YAPOR_SBA */
 
 #ifdef _MSC_VER			/* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
@@ -727,7 +727,7 @@ typedef enum
 #else
 
 #if !GC_NO_TAGS
-#if defined(SBA) && defined(__linux__)
+#if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* relocation chain bit */
@@ -824,7 +824,7 @@ VarOfTerm (Term t)
 }
 
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 
 inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
@@ -1060,7 +1060,7 @@ IntegerOfTerm (Term t)
 
 /*************** unification routines ***********************************/
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 #include "or.sbaamiops.h"
 #else
 #include "amiops.h"
@@ -1299,7 +1299,7 @@ extern char emacs_tmp[], emacs_tmp2[];
 #include "opt.macros.h"
 #endif /* YAPOR || TABLING */
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 #include "or.sbaunify.h"
 #endif
 

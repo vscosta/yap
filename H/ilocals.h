@@ -98,7 +98,7 @@ static void InitWorker(int wid) {
 #if GC_NO_TAGS
   FOREIGN(wid)->b_p = NULL;
 #endif
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
   FOREIGN(wid)->wl_sTR = NULL;
   FOREIGN(wid)->wl_sTR0 = NULL;
   FOREIGN(wid)->new_tr = NULL;

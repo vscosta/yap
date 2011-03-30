@@ -87,7 +87,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #if MMAP_MEMORY_MAPPING_SCHEME
   long TotalArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* YAPOR_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   int i;
   long WorkerArea;
   long TotalArea;
@@ -114,7 +114,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   /* I need this for MMAP to know what it must allocate */
   TotalArea = HeapArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* YAPOR_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   /* the others need n stacks */
   WorkerArea = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = HeapArea + WorkerArea * n_workers;
@@ -134,7 +134,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #ifdef ACOW
   /* single shared segment in ACOW */
   shm_map_memory(0, HeapArea, mmap_addr);
-#else /* YAPOR_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   /* place as segment n otherwise (0..n-1 reserved for worker areas */
   shm_map_memory(n_workers, HeapArea, mmap_addr);
 #endif /* YAPOR_MODEL */
@@ -148,7 +148,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
   close(private_fd_mapfile);
-#else /* YAPOR_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
     worker_area(i) = Yap_GlobalBase + i * WorkerArea;
@@ -160,7 +160,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   }
 #endif /* YAPOR_MODEL */
 
-#ifdef SBA
+#ifdef YAPOR_SBA
   /* alloc space for the sparse binding array */
   sba_size = WorkerArea * n_workers;
   if ((binding_array = (char *)malloc(sba_size)) == NULL)
@@ -170,7 +170,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   }
   sba_offset = binding_array - Yap_GlobalBase;
   sba_end = (int)binding_array + sba_size;
-#endif /* SBA */
+#endif /* YAPOR_SBA */
   Yap_TrailBase = Yap_GlobalBase + GlobalLocalArea;
   Yap_LocalBase = Yap_TrailBase - CellSize;
 
@@ -226,7 +226,7 @@ void unmap_memory (void) {
   strcpy(MapFile,"./mapfile");
 #ifdef ACOW
   itos(Yap_master_worker, &MapFile[9]);
-#else /* YAPOR_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   itos(Yap_worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
@@ -241,7 +241,7 @@ void remap_memory(void) {
 #ifdef ACOW
   /* do nothing */
 #endif /* ACOW */
-#ifdef SBA
+#ifdef YAPOR_SBA
   /* setup workers so that they have different areas */
   long WorkerArea = worker_offset(1);
 
@@ -249,7 +249,7 @@ void remap_memory(void) {
   Yap_TrailBase += worker_id * WorkerArea;
   Yap_LocalBase += worker_id * WorkerArea;
   Yap_TrailTop += worker_id * WorkerArea;
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #ifdef YAPOR_COPY
   void *remap_addr;
   long remap_offset;

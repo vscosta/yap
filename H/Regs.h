@@ -90,9 +90,9 @@ typedef struct regstore_t
     Int     CurSlot_;
     CELL    CreepFlag_;		/* 13                                         */
     CELL   *HB_;		/* 4 heap (global) stack top at latest c.p.   */
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
     choiceptr BB_;		/* 4 local stack top at latest c.p.   */
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
     CELL  *H0_;			/* 2 base of heap (global) stack              */
     tr_fr_ptr TR_;		/* 24 top of trail                            */
     CELL   *H_;			/* 25 top of heap (global)  stack             */
@@ -119,24 +119,24 @@ typedef struct regstore_t
 /* visualc*/
     struct DB_TERM   * EX_;     /* 18                                         */
     Term  CurrentModule_;
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
     CELL *H_FZ_;
     choiceptr B_FZ_;
     tr_fr_ptr TR_FZ_;
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
     struct pred_entry *PP_;
 #if defined(YAPOR) || defined(THREADS)
     /* recursive write-locks for PredEntry */
     yamop **PREG_ADDR_;
     unsigned int worker_id_;
-#ifdef SBA
+#ifdef YAPOR_SBA
     choiceptr BSEG_;
     struct or_frame *frame_head_, *frame_tail_;
     char *binding_array_;
     int  sba_offset_;
     int  sba_end_;
     int  sba_size_;
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
 #if (defined(YAPOR) || defined(TABLING))
     struct local_data *LOCAL_;
@@ -635,16 +635,16 @@ EXTERN inline void restore_B(void) {
 #define	AuxTop        Yap_REGS.AuxTop_
 #define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
 #define H_FZ          Yap_REGS.H_FZ_
 #define B_FZ          Yap_REGS.B_FZ_
 #define TR_FZ         Yap_REGS.TR_FZ_
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
 #define PP	         (Yap_REGS.PP_)
 #if defined(YAPOR) || defined(THREADS)
 #define worker_id         (Yap_REGS.worker_id_)
 #define PREG_ADDR	         (Yap_REGS.PREG_ADDR_)
-#ifdef SBA
+#ifdef YAPOR_SBA
 #define BSEG	      Yap_REGS.BSEG_
 #define binding_array Yap_REGS.binding_array_
 #define sba_offset    Yap_REGS.sba_offset_
@@ -652,7 +652,7 @@ EXTERN inline void restore_B(void) {
 #define sba_size      Yap_REGS.sba_size_
 #define frame_head    Yap_REGS.frame_head_
 #define frame_tail    Yap_REGS.frame_tail_
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #endif /* YAPOR */
 #if defined(YAPOR) || defined(TABLING)
 #define LOCAL	      Yap_REGS.LOCAL_
@@ -686,10 +686,10 @@ EXTERN inline void restore_B(void) {
 
 #define HBREG HB
 
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
 #define BB            Yap_REGS.BB_
 #define BBREG         BB
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
 
 #if !defined(THREADS)
 /* use actual addresses for regs */

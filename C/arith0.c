@@ -114,25 +114,25 @@ eval0(Int fi) {
   case op_heapused:
     RINT(HeapUsed);
   case op_localsp:
-#if SBA
+#if YAPOR_SBA
     RINT((Int)ASP);
 #else
     RINT(LCL0 - ASP);
 #endif
   case op_b:
-#if SBA
+#if YAPOR_SBA
     RINT((Int)B);
 #else
     RINT(LCL0 - (CELL *)B);
 #endif
   case op_env:
-#if SBA
+#if YAPOR_SBA
     RINT((Int)YENV);
 #else
     RINT(LCL0 - YENV);
 #endif
   case op_tr:
-#if SBA
+#if YAPOR_SBA
     RINT(TR);
 #else
     RINT(((CELL *)TR)-LCL0);
@@ -140,7 +140,7 @@ eval0(Int fi) {
   case op_stackfree:
     RINT(Unsigned(ASP) - Unsigned(H));
   case op_globalsp:
-#if SBA
+#if YAPOR_SBA
     RINT((Int)H);
 #else
     RINT(H - H0);

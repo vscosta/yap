@@ -149,14 +149,14 @@ print_usage(void)
 #ifdef TABLING
   fprintf(stderr,"  -ts  Maximum table space area in Mbytes (default: unlimited)\n");
 #endif /* TABLING */
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA)
   fprintf(stderr,"  -w   Number of workers (default: %d)\n",
 	  DEFAULT_NUMBERWORKERS);
   fprintf(stderr,"  -sl  Loop scheduler executions before look for hiden shared work (default: %d)\n", 
           DEFAULT_SCHEDULERLOOP);
   fprintf(stderr,"  -d   Value of delayed release of load (default: %d)\n",
 	  DEFAULT_DELAYEDRELEASELOAD);
-#endif /* YAPOR_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
   /* nf: Preprocessor */		
   /* fprintf(stderr,"  -DVar=Name   Persistent definition\n"); */
   fprintf(stderr,"\n");
@@ -245,7 +245,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
           case 'q':
 	    iap->QuietMode = TRUE;
 	    break;
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA)
 	  case 'w':
 	    ssize = &(iap->NumberWorkers);
 	    goto GetSize;
@@ -258,7 +258,7 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
           case 'd':
 	    if (!strcmp("dump-runtime-variables",p))
 		return dump_runtime_variables();
-#endif /* YAPOR_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
 #ifdef USE_SOCKET
           case 'c':          /* running as client */
 	    {
@@ -386,12 +386,12 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	  case 's':
 	  case 'S':
 	    ssize = &(iap->StackSize);
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA)
 	    if (p[1] == 'l') {
 	      p++;
 	      ssize = &(iap->SchedulerLoop);
 	    }
-#endif /* YAPOR_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
 	    goto GetSize;
 	  case 'a':
 	  case 'A':

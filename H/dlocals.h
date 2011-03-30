@@ -98,7 +98,7 @@
 #if GC_NO_TAGS
 #define Yap_bp WL->b_p
 #endif
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
 #define sTR WL->wl_sTR
 #define sTR0 WL->wl_sTR0
 #define new_TR WL->new_tr

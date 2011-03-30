@@ -7492,7 +7492,7 @@ fi
 
 case "$orparallelism" in
   sba)
-   YAP_EXTRAS="$YAP_EXTRAS -DSBA=1"
+   YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_SBA=1"
   ;;
   a-cow)
    YAP_EXTRAS="$YAP_EXTRAS -DACOW=1"

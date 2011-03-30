@@ -2837,13 +2837,13 @@ YAP_Init(YAP_init_args *yap_init)
     Yap_init_local();
 #ifdef YAPOR
     if (worker_id != 0) {
-#if SBA||YAPOR_COPY
+#if YAPOR_SBA||YAPOR_COPY
       /*
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
       Yap_InitYaamRegs();
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #ifndef THREADS
       Yap_InitPreAllocCodeSpace();
 #endif

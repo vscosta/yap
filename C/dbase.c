@@ -858,7 +858,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
   deref_var:
     if (!DB_MARKED(d0)) {
       if ( 
-#if SBA
+#if YAPOR_SBA
 	  d0 != 0
 #else
 	  d0 != (CELL)ptd0
@@ -884,7 +884,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	CheckDBOverflow(1);
 	/* variables need to be offset at read time */
 	*ptd0 = (CELL)StoPoint;
-#if SBA
+#if YAPOR_SBA
 	/* the copy we keep will be an empty variable   */
 	*StoPoint++ = 0;
 #else

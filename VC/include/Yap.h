@@ -54,17 +54,17 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(ACOW) || defined(YAPOR_SBA))) || (defined(ACOW) && defined(YAPOR_SBA))
 #error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (ACOW || YAPOR_SBA)) || (ACOW && YAPOR_SBA) */
 
-#if defined(YAPOR_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(ACOW) || defined(YAPOR_SBA)
 #define YAPOR 1
-#endif /* YAPOR_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || ACOW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(ACOW) || defined(SBA))
+#if defined(TABLING) && (defined(ACOW) || defined(YAPOR_SBA))
 #error Currently TABLING only works with YAPOR_COPY
-#endif /* TABLING && (ACOW || SBA) */
+#endif /* TABLING && (ACOW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1
@@ -86,7 +86,7 @@
 #endif
 #endif
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 #ifdef YAPOR
 #ifndef FROZEN_STACKS
 #define FROZEN_STACKS 1
@@ -614,7 +614,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 #else
 
-#if defined(SBA) && defined(__linux__)
+#if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)  /* relocation chain bit */
@@ -643,7 +643,7 @@ inline EXTERN Term * VarOfTerm(Term t)
 }
 
 
-#if SBA
+#if YAPOR_SBA
 
 inline EXTERN Term MkVarTerm(void);
 
@@ -826,7 +826,7 @@ inline EXTERN Int IntegerOfTerm(Term t)
 
 /*************** unification routines ***********************************/
 
-#if SBA
+#if YAPOR_SBA
 #include "or.sbaamiops.h"
 #else
 #include "amiops.h"
@@ -1047,7 +1047,7 @@ extern int      snoozing;
 #include "opt.proto.h"
 #endif /* YAPOR || TABLING */
 
-#if SBA
+#if YAPOR_SBA
 #include "or.sbaunify.h"
 #endif
 

@@ -98,7 +98,7 @@ static void RestoreWorker(int wid USES_REGS) {
 #if GC_NO_TAGS
 
 #endif
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
 
 
 

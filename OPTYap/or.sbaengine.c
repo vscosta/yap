@@ -16,7 +16,7 @@
 ** ------------------ */
 
 #include "Yap.h"
-#ifdef SBA
+#ifdef YAPOR_SBA
 #include <stdio.h>
 #include "Yatom.h"
 #include "YapHeap.h"

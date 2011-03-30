@@ -1348,9 +1348,9 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #elif ACOW
   INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#else /* SBA */
+#else /* YAPOR_SBA */
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#endif /* YAPOR_COPY - ACOW - SBA */
+#endif /* YAPOR_COPY - ACOW - YAPOR_SBA */
   map_memory(Heap, Stack+Atts, Trail, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
