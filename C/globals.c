@@ -908,9 +908,42 @@ p_nb_setarg( USES_REGS1 )
   }
   if (pos < 1 || pos > arity)
     return FALSE;
+
+  to = Deref(ARG3);
+  if (!IsVarTerm(to)) {
+    Term torig;
+    if (IsIntTerm(to) || IsAtomTerm(to)) {
+      destp[pos] = to;
+      return TRUE;
+    }
+    torig = Deref(destp[pos]);
+    
+    if (IsFloatTerm(to) && !IsVarTerm(torig) && IsFloatTerm(torig) && RepAppl(torig) < RepAppl(GlobalArena)) {
+      CELL *c0 = RepAppl(to);
+      CELL *c1 = RepAppl(torig);
+#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+      c1[2] = c0[2];
+#endif
+      c1[1] = c0[1];
+      return TRUE;
+    }
+    if (IsLongIntTerm(to) && !IsVarTerm(torig) && IsLongIntTerm(torig) && RepAppl(torig) < RepAppl(GlobalArena)) {
+      CELL *c0 = RepAppl(to);
+      CELL *c1 = RepAppl(torig);
+      c1[1] = c0[1];
+      return TRUE;
+    }
+  }
   to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
+
+  dest = Deref(ARG2);
+  if (IsPairTerm(dest)) {
+    arity = 2;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(dest));
+  }
   destp[pos] = to;
   return TRUE;
 }
@@ -948,7 +981,7 @@ p_nb_set_shared_arg( USES_REGS1 )
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 3, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
