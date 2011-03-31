@@ -187,7 +187,7 @@ HEADERS = \
 	$(srcdir)/OPTYap/opt.config.h \
 	$(srcdir)/OPTYap/opt.proto.h $(srcdir)/OPTYap/opt.structs.h \
 	$(srcdir)/OPTYap/opt.macros.h $(srcdir)/OPTYap/or.macros.h \
-	$(srcdir)/OPTYap/or.sbaamiops.h $(srcdir)/OPTYap/or.sbaunify.h \
+	$(srcdir)/OPTYap/or.sba_amiops.h $(srcdir)/OPTYap/or.sba_unify.h \
 	$(srcdir)/OPTYap/tab.structs.h $(srcdir)/OPTYap/locks_x86.h \
 	$(srcdir)/OPTYap/locks_sparc.h $(srcdir)/OPTYap/locks_mips.h \
 	$(srcdir)/OPTYap/locks_mips_funcs.h $(srcdir)/OPTYap/locks_alpha.h \
@@ -260,9 +260,9 @@ C_SOURCES= \
 	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
 	$(srcdir)/BEAM/eam_gc.c $(srcdir)/BEAM/eam_split.c \
 	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.init.c \
-	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.engine.c \
-	$(srcdir)/OPTYap/or.cowengine.c $(srcdir)/OPTYap/or.sbaengine.c \
-	$(srcdir)/OPTYap/or.threadengine.c \
+	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.copy_engine.c \
+	$(srcdir)/OPTYap/or.cow_engine.c $(srcdir)/OPTYap/or.sba_engine.c \
+	$(srcdir)/OPTYap/or.thread_engine.c \
 	$(srcdir)/OPTYap/or.scheduler.c $(srcdir)/OPTYap/or.cut.c \
 	$(srcdir)/OPTYap/tab.tries.c $(srcdir)/OPTYap/tab.completion.c \
 	$(srcdir)/library/mpi/mpi.c $(srcdir)/library/mpi/mpe.c \
@@ -376,7 +376,7 @@ C_INTERFACE_OBJECTS = \
 
 OR_OBJECTS = \
 	opt.memory.o opt.init.o opt.preds.o   \
-	or.engine.o or.cowengine.o or.sbaengine.o or.threadengine.o \
+	or.copy_engine.o or.cow_engine.o or.sba_engine.o or.thread_engine.o \
 	or.scheduler.o or.cut.o      \
 	tab.tries.o tab.completion.o
 
@@ -498,17 +498,17 @@ opt.preds.o: $(srcdir)/OPTYap/opt.preds.c config.h
 or.cut.o: $(srcdir)/OPTYap/or.cut.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cut.c -o $@
 
-or.engine.o: $(srcdir)/OPTYap/or.engine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.engine.c -o $@
+or.copy_engine.o: $(srcdir)/OPTYap/or.copy_engine.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.copy_engine.c -o $@
 
-or.cowengine.o: $(srcdir)/OPTYap/or.cowengine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cowengine.c -o $@
+or.cow_engine.o: $(srcdir)/OPTYap/or.cow_engine.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.cow_engine.c -o $@
 
-or.sbaengine.o: $(srcdir)/OPTYap/or.sbaengine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sbaengine.c -o $@
+or.sba_engine.o: $(srcdir)/OPTYap/or.sba_engine.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.sba_engine.c -o $@
 
-or.threadengine.o: $(srcdir)/OPTYap/or.threadengine.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.threadengine.c -o $@
+or.thread_engine.o: $(srcdir)/OPTYap/or.thread_engine.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.thread_engine.c -o $@
 
 or.scheduler.o: $(srcdir)/OPTYap/or.scheduler.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.scheduler.c -o $@

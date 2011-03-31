@@ -1061,7 +1061,7 @@ IntegerOfTerm (Term t)
 /*************** unification routines ***********************************/
 
 #ifdef YAPOR_SBA
-#include "or.sbaamiops.h"
+#include "or.sba_amiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1300,7 +1300,7 @@ extern char emacs_tmp[], emacs_tmp2[];
 #endif /* YAPOR || TABLING */
 
 #ifdef YAPOR_SBA
-#include "or.sbaunify.h"
+#include "or.sba_unify.h"
 #endif
 
 /********* execution mode ***********************/

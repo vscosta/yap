@@ -90,7 +90,7 @@ void resume_suspension_frame(susp_fr_ptr, or_fr_ptr);
 
 
 /**************************
-**      or.engine.c      **
+**      or.copy_engine.c      **
 **************************/
 
 #ifdef YAPOR

@@ -827,7 +827,7 @@ inline EXTERN Int IntegerOfTerm(Term t)
 /*************** unification routines ***********************************/
 
 #if YAPOR_SBA
-#include "or.sbaamiops.h"
+#include "or.sba_amiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1048,6 +1048,6 @@ extern int      snoozing;
 #endif /* YAPOR || TABLING */
 
 #if YAPOR_SBA
-#include "or.sbaunify.h"
+#include "or.sba_unify.h"
 #endif
 
