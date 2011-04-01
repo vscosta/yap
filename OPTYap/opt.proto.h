@@ -33,7 +33,7 @@ void remap_memory(void);
 **      opt.init.c      **
 *************************/
 
-void Yap_init_global(int, int, int, int);
+void Yap_init_optyap_global(int, int, int, int);
 void Yap_init_local(void);
 void make_root_frames(void);
 #ifdef YAPOR
