@@ -994,7 +994,6 @@ initPrologFlags(void)
 #if defined(HAVE_GETPID) || defined(EMULATE_GETPID)
   setPrologFlag("pid", FT_INTEGER|FF_READONLY, getpid());
 #endif
-  setPrologFlag("optimise", FT_BOOL, GD->cmdline.optimise, PLFLAG_OPTIMISE);
   setPrologFlag("generate_debug_info", FT_BOOL,
 	     truePrologFlag(PLFLAG_DEBUGINFO), PLFLAG_DEBUGINFO);
   setPrologFlag("last_call_optimisation", FT_BOOL, TRUE, PLFLAG_LASTCALL);
@@ -1100,6 +1099,8 @@ initPrologFlags(void)
   }
 #endif
 #endif /* YAP_PROLOG */
+  /* Flags copied by YAP */
+  setPrologFlag("optimise", FT_BOOL, GD->cmdline.optimise, PLFLAG_OPTIMISE);
   /* FLAGS used by PLStream */
   setPrologFlag("tty_control", FT_BOOL|FF_READONLY,
 	     truePrologFlag(PLFLAG_TTY_CONTROL), PLFLAG_TTY_CONTROL);

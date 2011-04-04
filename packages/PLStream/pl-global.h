@@ -77,6 +77,11 @@ typedef struct {
   } atoms;
 
   struct
+  {
+    int		optimise;		/* -O: optimised compilation */
+  } cmdline;
+
+  struct
   { ExtensionCell _ext_head;		/* head of registered extensions */
     ExtensionCell _ext_tail;		/* tail of this chain */
 
@@ -166,6 +171,7 @@ typedef struct PL_local_data {
     int		  write_attributes;	/* how to write attvars? */
     occurs_check_t occurs_check;	/* Unify and occurs check */
   } feature;
+
 
   source_location read_source;		/* file, line, char of last term */
 

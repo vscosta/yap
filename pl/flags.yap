@@ -67,6 +67,13 @@ yap_flag(fileerrors,X) :-
 yap_flag(fileerrors,X) :-
 	'$swi_set_prolog_flag'(fileerrors, X).
 
+% -O optimisation
+yap_flag(optimise,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(optimise, X).
+yap_flag(optimise,X) :-
+	'$swi_set_prolog_flag'(optimise, X).
+
 % control garbage collection
 yap_flag(gc,V) :-
 	var(V), !,
@@ -834,6 +841,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
+'$yap_system_flag'(optimise).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(readline).
