@@ -396,6 +396,7 @@
   FunctorNot = Yap_MkFunctor(AtomNot,1);
   FunctorOr = Yap_MkFunctor(AtomSemic,2);
   FunctorPermissionError = Yap_MkFunctor(AtomPermissionError,3);
+  FunctorPlus = Yap_MkFunctor(AtomPlus,2);
   FunctorPortray = Yap_MkFunctor(AtomPortray,1);
   FunctorPrologConstraint = Yap_MkFunctor(AtomProlog,2);
   FunctorQuery = Yap_MkFunctor(AtomQuery,1);

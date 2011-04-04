@@ -396,6 +396,7 @@
   FunctorNot = FuncAdjust(FunctorNot);
   FunctorOr = FuncAdjust(FunctorOr);
   FunctorPermissionError = FuncAdjust(FunctorPermissionError);
+  FunctorPlus = FuncAdjust(FunctorPlus);
   FunctorPortray = FuncAdjust(FunctorPortray);
   FunctorPrologConstraint = FuncAdjust(FunctorPrologConstraint);
   FunctorQuery = FuncAdjust(FunctorQuery);

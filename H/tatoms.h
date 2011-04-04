@@ -790,6 +790,8 @@
 #define FunctorOr Yap_heap_regs->FunctorOr_
   Functor FunctorPermissionError_;
 #define FunctorPermissionError Yap_heap_regs->FunctorPermissionError_
+  Functor FunctorPlus_;
+#define FunctorPlus Yap_heap_regs->FunctorPlus_
   Functor FunctorPortray_;
 #define FunctorPortray Yap_heap_regs->FunctorPortray_
   Functor FunctorPrologConstraint_;
