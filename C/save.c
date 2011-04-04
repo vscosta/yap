@@ -1762,6 +1762,9 @@ Restore(char *s, char *lib_dir USES_REGS)
   }
 
   Yap_ReOpenLoadForeign();
+  FreeRecords();
+  /* restart IO */
+  initIO();
   /* reset time */
   Yap_ReInitWallTime();
   Yap_InitSysPath();
@@ -1770,7 +1773,6 @@ Restore(char *s, char *lib_dir USES_REGS)
     Yap_InitPreAllocCodeSpace();
   }
 #endif
-  FreeRecords();
   CloseRestore();
   if (which_save == 2) {
     Yap_unify(ARG2, MkIntTerm(0));
