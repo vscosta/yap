@@ -23,6 +23,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "yapio.h"
 #include "iopreds.h"
+#include "eval.h"
 #include "attvar.h"
 #include <math.h>
 
@@ -2576,6 +2577,9 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_beam_peek", 3, p_nb_beam_peek, SafePredFlag);
   Yap_InitCPred("nb_beam_empty", 1, p_nb_beam_empty, SafePredFlag);
   Yap_InitCPred("nb_beam_keys", 2, p_nb_beam_keys, 0L);
+  Yap_InitCPred("nb_create_accumulator", 2, p_nb_create_accumulator, 0L);
+  Yap_InitCPred("nb_add_to_accumulator", 2, p_nb_add_to_accumulator, 0L);
+  Yap_InitCPred("nb_accumulator_value", 2, p_nb_accumulator_value, 0L);
 #ifdef DEBUG
   Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
 #endif
