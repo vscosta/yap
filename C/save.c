@@ -1762,7 +1762,6 @@ Restore(char *s, char *lib_dir USES_REGS)
   }
 
   Yap_ReOpenLoadForeign();
-  Yap_InitPlIO();
   /* reset time */
   Yap_ReInitWallTime();
   Yap_InitSysPath();
