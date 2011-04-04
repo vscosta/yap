@@ -145,10 +145,10 @@ true :- true.
 
 /* main execution loop							*/
 '$read_vars'(user_input, Goal, Mod, Pos, Bindings) :-
-	'$swi_current_prolog_flag'(readline, true), !,
+	'$swi_current_prolog_flag'(readline, true),
 	read_history(h, '!h',
                          [trace, end_of_file],
-                         ' ?- ', Goal, Bindings),
+                         ' ?- ', Goal, Bindings), !,
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
