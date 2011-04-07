@@ -524,7 +524,7 @@ static Int p_yapor_on( USES_REGS1 ) {
 
 static Int p_start_yapor( USES_REGS1 ) {
 #ifdef TIMESTAMP_CHECK
-  Yap_time_stamp = 0;
+  Yap_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */
   Yap_answers = NO_ANSWER;
   BITMAP_delete(Yap_bm_idle_workers, 0);

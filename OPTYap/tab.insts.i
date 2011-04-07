@@ -1381,7 +1381,7 @@
 
     if (SCH_top_shared_cp(B)) {
 #ifdef TIMESTAMP_CHECK
-      timestamp = ++Yap_time_stamp;
+      timestamp = ++Yap_timestamp;
 #endif /* TIMESTAMP_CHECK */
       entry_owners = OrFr_owners(LOCAL_top_or_fr);
     }

@@ -347,7 +347,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   if (OrFr_suspensions(LOCAL_top_or_fr)) {
     susp_fr_ptr resume_fr;
 #ifdef TIMESTAMP_CHECK
-    resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr, ++Yap_time_stamp);
+    resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr, ++Yap_timestamp);
 #else
     resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr);
 #endif /* TIMESTAMP_CHECK */

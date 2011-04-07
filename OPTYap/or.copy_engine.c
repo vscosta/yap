@@ -321,6 +321,7 @@ sync_with_p:
       if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
         /* avoid frozen segments */
         aux_tr = (tr_fr_ptr) aux_cell;
+      }
 #endif /* TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else if (IsApplTerm(aux_cell)) {
@@ -353,7 +354,6 @@ sync_with_p:
   adjust_freeze_registers();
 #endif /* TABLING */
   return TRUE;
-}
 }
 
 

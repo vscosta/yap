@@ -288,55 +288,8 @@ struct optyap_global_data{
 #define Yap_table_var_enumerator(index)      (Yap_optyap_data.table_var_enumerator[index])
 #define Yap_table_var_enumerator_addr(index) (Yap_optyap_data.table_var_enumerator + (index))
 #define Yap_table_lock(index)                (Yap_optyap_data.table_lock[index])
-#define Yap_time_stamp                        (Yap_optyap_data.timestamp)
-
-/*
-#define Yap_master_worker                    (Yap_optyap_data.master_worker)
-#define Yap_execution_time                   (Yap_optyap_data.execution_time)
-#define Yap_best_times(time)                 (Yap_optyap_data.best_execution_times[time])
-#define Yap_number_goals                     (Yap_optyap_data.number_of_executed_goals)
-#define Yap_performance_mode                 (Yap_optyap_data.performance_mode)
-#if THREADS
-#define Get_Yap_root_cp()	             offset_to_cptr(Yap_optyap_data.root_choice_point_offset)
-#define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
-#else
-#define Yap_root_cp                          (Yap_optyap_data.root_choice_point)
-#define Get_Yap_root_cp()                    (Yap_optyap_data.root_choice_point)
-#define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point = (bptr))
-#endif
-#define Yap_root_or_fr                       (Yap_optyap_data.root_or_frame)
-#define Yap_bm_present_workers               (Yap_optyap_data.present_workers)
-#define Yap_bm_idle_workers                  (Yap_optyap_data.idle_workers)
-#define Yap_bm_root_cp_workers               (Yap_optyap_data.root_cp_workers)
-#define Yap_bm_invisible_workers             (Yap_optyap_data.invisible_workers)
-#define Yap_bm_requestable_workers           (Yap_optyap_data.requestable_workers)
-#define Yap_bm_executing_workers             (Yap_optyap_data.executing_workers)
-#define Yap_bm_finished_workers              (Yap_optyap_data.finished_workers)
-#define Yap_bm_pruning_workers               (Yap_optyap_data.pruning_workers)
-#define Yap_locks_bm_idle_workers            (Yap_optyap_data.locks.bitmap_idle_workers)
-#define Yap_locks_bm_root_cp_workers         (Yap_optyap_data.locks.bitmap_root_cp_workers)
-#define Yap_locks_bm_invisible_workers       (Yap_optyap_data.locks.bitmap_invisible_workers)
-#define Yap_locks_bm_requestable_workers     (Yap_optyap_data.locks.bitmap_requestable_workers)
-#define Yap_locks_bm_executing_workers       (Yap_optyap_data.locks.bitmap_executing_workers)
-#define Yap_locks_bm_finished_workers        (Yap_optyap_data.locks.bitmap_finished_workers)
-#define Yap_locks_bm_pruning_workers         (Yap_optyap_data.locks.bitmap_pruning_workers)
-#define Yap_locks_who_locked_heap            (Yap_optyap_data.locks.who_locked_heap)
-#define Yap_locks_heap_access                (Yap_optyap_data.locks.heap_access)
-#define Yap_locks_alloc_block                (Yap_optyap_data.locks.alloc_block)
-#define Yap_branch(worker, depth)            (Yap_optyap_data.branch[worker][depth])
-#define Yap_parallel_execution_mode          (Yap_optyap_data.parallel_execution_mode)
-#define Yap_answers                          (Yap_optyap_data.answers)
-#define Yap_root_gt                          (Yap_optyap_data.root_global_trie)
-#define Yap_root_tab_ent                     (Yap_optyap_data.root_table_entry)
-#define Yap_first_sg_fr                      (Yap_optyap_data.first_subgoal_frame)
-#define Yap_last_sg_fr                       (Yap_optyap_data.last_subgoal_frame)
-#define Yap_check_sg_fr                      (Yap_optyap_data.check_subgoal_frame)
-#define Yap_root_dep_fr                      (Yap_optyap_data.root_dependency_frame)
-#define Yap_table_var_enumerator(index)      (Yap_optyap_data.table_var_enumerator[index])
-#define Yap_table_var_enumerator_addr(index) (Yap_optyap_data.table_var_enumerator + (index))
-#define Yap_table_lock(index)                (Yap_optyap_data.table_lock[index])
 #define Yap_timestamp                        (Yap_optyap_data.timestamp)
-*/
+
 
 
 /***********************************

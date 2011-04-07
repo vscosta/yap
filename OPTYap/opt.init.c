@@ -34,7 +34,7 @@
 #endif /* !TABLING */
 #ifdef MULTI_ASSIGNMENT_VARIABLES
 ma_hash_entry Yap_ma_hash_table[MAVARS_HASH_SIZE];
-UInt Yap_timestamp;    /* an unsigned int */
+UInt Yap_ma_timestamp;    /* an unsigned int */
 ma_h_inner_struct *Yap_ma_h_top;
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
 #endif /* TABLING || !YAPOR_COW */
