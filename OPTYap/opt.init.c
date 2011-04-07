@@ -78,7 +78,7 @@ struct worker WORKER;
 **      Global functions      **
 *******************************/
 
-void Yap_init_optyap_global(int max_table_size, int n_workers, int sch_loop, int delay_load) {
+void Yap_init_optyap_data(int max_table_size, int n_workers, int sch_loop, int delay_load) {
   int i;
 
   /* global data related to memory management */

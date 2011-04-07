@@ -1356,7 +1356,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR && !THREADS */
 #if defined(YAPOR) || defined(TABLING)
-  Yap_init_optyap_global(max_table_size, n_workers, sch_loop, delay_load);
+  Yap_init_optyap_data(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
   Yap_AttsSize = Atts;
 
