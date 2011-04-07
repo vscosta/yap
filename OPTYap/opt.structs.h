@@ -157,10 +157,10 @@ struct global_locks {
 
 
 /*********************************
-*   Struct optyap_global_data   **
+*   Struct global_optyap_data   **
 *********************************/
 
-struct optyap_global_data{
+struct global_optyap_data{
   /* global data related to memory management */
   struct global_pages pages;
 
