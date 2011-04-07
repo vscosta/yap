@@ -254,7 +254,6 @@ void    STD_PROTO(Yap_InitInlines,(void));
 int      STD_PROTO(Yap_eq,(Term, Term));
 
 /* iopreds.c */
-void	STD_PROTO(Yap_InitPlIO,(void));
 void	STD_PROTO(Yap_InitBackIO,(void));
 void	STD_PROTO(Yap_InitIOPreds,(void));
 #ifdef DEBUG

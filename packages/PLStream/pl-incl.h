@@ -168,6 +168,10 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 #define SIG_FREECLAUSES	  (SIG_PROLOG_OFFSET+4)
 #define SIG_PLABORT	  (SIG_PROLOG_OFFSET+5)
 
+#define LOCAL_OVERFLOW    (-1)
+#define GLOBAL_OVERFLOW   (-2)
+#define TRAIL_OVERFLOW    (-3)
+#define ARGUMENT_OVERFLOW (-4)
 
 		/********************************
 		*       UTILITIES               *
@@ -370,12 +374,14 @@ typedef struct
 
 // LOCAL variables (heap will get this form LOCAL
 
-#define FT_ATOM		0		/* atom feature */
-#define FT_BOOL		1		/* boolean feature (true, false) */
-#define FT_INTEGER	2		/* integer feature */
-#define FT_TERM		3		/* term feature */
-#define FT_INT64	4		/* passed as int64_t */
-#define FT_MASK		0x0f		/* mask to get type */
+#define FT_ATOM         0               /* atom feature */
+#define FT_BOOL         1               /* boolean feature (true, false) */
+#define FT_INTEGER      2               /* integer feature */
+#define FT_FLOAT        3               /* float feature */
+#define FT_TERM         4               /* term feature */
+#define FT_INT64        5               /* passed as int64_t */
+#define FT_FROM_VALUE   0x0f            /* Determine type from value */
+#define FT_MASK         0x0f            /* mask to get type */
 
 #define FF_READONLY	0x10		/* feature is read-only */
 #define FF_KEEP		0x20		/* keep value it already set */
@@ -778,7 +784,7 @@ COMMON(word) 		pl_write_canonical2(term_t stream, term_t term);
 
 /* empty stub */
 extern void setPrologFlag(const char *name, int flags, ...);
-extern void PL_set_prolog_flag(const char *name, int flags, ...);
+extern int  PL_set_prolog_flag(const char *name, int flags, ...);
 
 extern install_t PL_install_readline(void);
 
@@ -794,6 +800,11 @@ COMMON(Buffer)		codes_or_chars_to_buffer(term_t l, unsigned int flags,
 						 int wide, CVT_result *status);
 
 COMMON(bool)		systemMode(bool accept);
+
+
+COMMON(void)		initPrologFlagTable(void);
+COMMON(void)		initPrologFlags(void);
+COMMON(int)		raiseStackOverflow(int overflow);
 
 static inline word
 setBoolean(int *flag, term_t old, term_t new)
@@ -814,6 +825,10 @@ COMMON(term_t) 		PL_new_term_ref__LD(ARG1_LD);
 COMMON(void) 		PL_put_term__LD(term_t t1, term_t t2 ARG_LD);
 COMMON(int) 		PL_unify_atom__LD(term_t t, atom_t a ARG_LD);
 COMMON(int) 		PL_unify_integer__LD(term_t t1, intptr_t i ARG_LD);
+
+COMMON(word)		pl_get_prolog_flag(term_t key, term_t value);
+COMMON(word)		pl_prolog_flag5(term_t key, term_t value, word scope, word access, word type, control_t h);
+COMMON(foreign_t)	pl_prolog_flag(term_t name, term_t value, control_t h);
 
 /* inlines that need ARG_LD */
 static inline intptr_t
@@ -845,4 +860,5 @@ extern const PL_extension PL_predicates_from_glob[];
 extern const PL_extension PL_predicates_from_read[];
 extern const PL_extension PL_predicates_from_tai[];
 extern const PL_extension PL_predicates_from_write[];
+extern const PL_extension PL_predicates_from_prologflag[];
 

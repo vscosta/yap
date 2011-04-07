@@ -1553,12 +1553,11 @@ void (*handler)(int);
 
 static int
 InteractSIGINT(int ch) {
+  CACHE_REGS
   Yap_PrologMode |= AsyncIntMode;
   switch (ch) {
   case 'a':
     /* abort computation */
-    if (Yap_PrologMode &= InReadlineMode) {
-    }
     if (Yap_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
       Yap_PrologMode |= AbortMode;
     } else {
@@ -1566,6 +1565,7 @@ InteractSIGINT(int ch) {
       /* in case someone mangles the P register */
     }
     Yap_PrologMode &= ~AsyncIntMode;
+    siglongjmp(Yap_RestartEnv,1);
     return -1;
   case 'b':
     /* continue */

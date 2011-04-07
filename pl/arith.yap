@@ -336,12 +336,12 @@ between(I,M,J) :-
 
 '$between'(I,M,I) :- (I == M -> ! ; true ).
 '$between'(I0,I,J) :- I0 < I, 
-	I1 is I0+1,
+	'$plus'(I0, 1, I1),
 	'$between'(I1,I,J).
 
 '$between_inf'(I,I).
 '$between_inf'(I,J) :-
-	I1 is I+1,
+	'$plus'(I, 1, I1),
 	'$between_inf'(I1,J).
 
 

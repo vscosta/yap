@@ -328,12 +328,13 @@ initIO()
   const atom_t *np;
   int i;
 
+#ifdef __YAP_PROLOG__
+  memset(GD, 0, sizeof(gds_t));
+  memset(LD, 0, sizeof(PL_local_data_t));
+#endif
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
-#if __YAP_PROLOG__
-  init_yap();
-#endif
 #ifdef __unix__
 { int fd;
 
@@ -343,6 +344,10 @@ initIO()
 }
 #endif
   ResetTty();
+#if __YAP_PROLOG__
+  /* needs to be done after tty hacking */
+  init_yap();
+#endif
 
   Sclosehook(freeStream);
 
@@ -4713,6 +4718,9 @@ static const PL_extension foreigns[] = {
 						        META|NDET),
   FRG("$raw_read",		1, pl_raw_read,			0),
   FRG("$raw_read",		2, pl_raw_read2,		0),
+
+  FRG("$swi_current_prolog_flag",	5, pl_prolog_flag5,	     NDET),
+  FRG("$swi_current_prolog_flag",	2, pl_prolog_flag,	 NDET|ISO),
   /* DO NOT ADD ENTRIES BELOW THIS ONE */
   LFRG((char *)NULL,		0, NULL,			0)
 };
@@ -4742,8 +4750,10 @@ static void
 init_yap(void)
 {
   GET_LD
-  setPrologFlagMask(PLFLAG_TTY_CONTROL);
+  /* we need encodings first */
   initCharTypes();
+  initPrologFlags();
+  setPrologFlagMask(PLFLAG_TTY_CONTROL);
   initFiles();
   PL_register_extensions(PL_predicates_from_ctype);
   PL_register_extensions(PL_predicates_from_file);
@@ -4752,6 +4762,7 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_write);
   PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(PL_predicates_from_tai);
+  PL_register_extensions(PL_predicates_from_prologflag);
   PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();

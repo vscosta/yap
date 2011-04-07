@@ -23,6 +23,7 @@ static char SccsId[] = "%W% %G%";
 #include "YapHeap.h"
 #include "yapio.h"
 #include "iopreds.h"
+#include "eval.h"
 #include "attvar.h"
 #include <math.h>
 
@@ -908,9 +909,18 @@ p_nb_setarg( USES_REGS1 )
   }
   if (pos < 1 || pos > arity)
     return FALSE;
+
+  to = Deref(ARG3);
   to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
+
+  dest = Deref(ARG2);
+  if (IsPairTerm(dest)) {
+    arity = 2;
+  } else {
+    arity = ArityOfFunctor(FunctorOfTerm(dest));
+  }
   destp[pos] = to;
   return TRUE;
 }
@@ -948,7 +958,7 @@ p_nb_set_shared_arg( USES_REGS1 )
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 3, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1010,6 +1020,136 @@ p_nb_linkval( USES_REGS1 )
   WRITE_UNLOCK(ge->GRWLock);
   return TRUE;
 }
+
+
+
+static Int
+p_nb_create_accumulator(void)
+{
+  Term t = Deref(ARG1), acct, to;
+  CELL *destp;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_create_accumulator");
+    return FALSE; 
+  }
+  if (!IsIntegerTerm(t) && !IsBigIntTerm(t) && !IsFloatTerm(t)) {
+    Yap_Error(TYPE_ERROR_NUMBER,t,"nb_create_accumulator");
+    return FALSE; 
+  }
+  acct = Yap_MkApplTerm(FunctorGNumber,1,&t);
+  if (!Yap_unify(ARG2, acct)) {
+    return FALSE;
+  }
+  to = CopyTermToArena(t, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  if (to == 0L)
+    return FALSE;
+  destp = RepAppl(Deref(ARG2));
+  destp[1] = to;
+  return TRUE;
+}
+
+static Int
+p_nb_add_to_accumulator(void)
+{
+  Term t = Deref(ARG1), t0, tadd;
+  Functor f;
+  CELL *destp;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_create_accumulator");
+    return FALSE; 
+  }
+  if (!IsApplTerm(t)) {
+    Yap_Error(TYPE_ERROR_NUMBER,t,"nb_accumulator_value");
+    return FALSE; 
+  }
+  f = FunctorOfTerm(t);
+  if (f != FunctorGNumber) {
+    return FALSE;
+  }
+  destp = RepAppl(t);
+  t0 = Deref(destp[1]);
+  tadd = Deref(ARG2);
+  if (IsVarTerm(tadd)) {
+    Yap_Error(INSTANTIATION_ERROR,tadd,"nb_create_accumulator");
+    return FALSE; 
+  }
+  if (IsIntegerTerm(t0) && IsIntegerTerm(tadd)) {
+    Int i0 = IntegerOfTerm(t0);
+    Int i1 = IntegerOfTerm(tadd);
+    Term new = MkIntegerTerm(i0+i1);
+
+    if (IsIntTerm(new)) {
+      /* forget it if it was something else */
+      destp[1] = new;
+    } else {
+      /* long, do we have spapce or not ?? */
+      if (IsLongIntTerm(t0)) {
+	CELL *target = RepAppl(t0);
+	CELL *source = RepAppl(new);
+	target[1] = source[1];
+      } else {
+	/* we need to create a new long int */
+	new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+	destp = RepAppl(Deref(ARG1));
+	destp[1] = new;
+      }
+    }
+    return TRUE;
+  }
+  if (IsFloatTerm(t0) && IsFloatTerm(tadd)) {
+    Float f0 = FloatOfTerm(t0);
+    Float f1 = FloatOfTerm(tadd);
+    Term new = MkFloatTerm(f0+f1);
+    CELL *target = RepAppl(t0);
+    CELL *source = RepAppl(new);
+
+#if  SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+    target[2] = source[2];
+#endif
+    target[1] = source[1];
+    return TRUE;
+  }
+  if (IsNumTerm(t0) && IsNumTerm(tadd)) {
+    Term t2[2], new;
+    t2[0] = t0;
+    t2[1] = tadd;
+    new = Yap_MkApplTerm(FunctorPlus, 2, t2);
+
+    new = Yap_Eval(new);
+    new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+    destp = RepAppl(Deref(ARG1));
+    destp[1] = new;    
+
+    return TRUE;
+  }
+  return FALSE;
+}
+
+
+static Int
+p_nb_accumulator_value(void)
+{
+  Term t = Deref(ARG1), to;
+  Functor f;
+
+  if (IsVarTerm(t)) {
+    Yap_Error(INSTANTIATION_ERROR,t,"nb_accumulator_value");
+    return FALSE; 
+  }
+  if (!IsApplTerm(t)) {
+    Yap_Error(TYPE_ERROR_NUMBER,t,"nb_accumulator_value");
+    return FALSE; 
+  }
+  f = FunctorOfTerm(t);
+  if (f != FunctorGNumber) {
+    return FALSE;
+  }
+  to = Yap_CopyTerm(RepAppl(t)[1]);
+  return Yap_unify(to, ARG2);
+}
+
 
 Term
 Yap_SetGlobalVal(Atom at, Term t0)
@@ -2437,6 +2577,9 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_beam_peek", 3, p_nb_beam_peek, SafePredFlag);
   Yap_InitCPred("nb_beam_empty", 1, p_nb_beam_empty, SafePredFlag);
   Yap_InitCPred("nb_beam_keys", 2, p_nb_beam_keys, 0L);
+  Yap_InitCPred("nb_create_accumulator", 2, p_nb_create_accumulator, 0L);
+  Yap_InitCPred("nb_add_to_accumulator", 2, p_nb_add_to_accumulator, 0L);
+  Yap_InitCPred("nb_accumulator_value", 2, p_nb_accumulator_value, 0L);
 #ifdef DEBUG
   Yap_InitCPred("nb_beam_check", 1, p_nb_beam_check, SafePredFlag);
 #endif

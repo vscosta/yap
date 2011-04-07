@@ -3330,7 +3330,7 @@ static const IOSTREAM S__iob0[] =
 
 
 void
-SinitStreams()
+SinitStreams(void)
 { static int done;
 
   if ( !done++ )

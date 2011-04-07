@@ -88,8 +88,9 @@ open_pipe_streams(Read, Write) :-
 	),
 	unix:pipe(Read, Write).
 
-fileerrors :- set_value(fileerrors,1).
-nofileerrors :- set_value(fileerrors,0).
+fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
+
+nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
 exists(F) :- access_file(F,exist).
 

@@ -55,8 +55,7 @@ cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-
 cpt_average([Ev|Vars], Key, Els0, Softness, p(Els0, CPT, NewParents), Vs, NewVs) :-
 	find_evidence(Vars, 0, TotEvidence, RVars),
 	build_avg_table(RVars, Vars, Els0, Key, TotEvidence, Softness, MAT0, NewParents0, Vs, IVs),
-	include_qevidence(Ev, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs),
-	matrix_to_list(MAT, CPT), writeln(NewParents: Vs: NewVs: CPT).
+	include_qevidence(Ev, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs).
 
 % find all fixed kids, this simplifies significantly the function.
 find_evidence([], TotEvidence, TotEvidence, []).
@@ -177,16 +176,13 @@ check_consistency(L1, Ev, MAT0, MAT1, L1, MAT, NewParents0, NewParents, Vs, IVs,
 	sumlist(L1, Tot),
 	nth0(Ev, L1, Val),
 	(Val == Tot ->
-writeln(Ev:L1:Val:1),
 	    MAT1 = MAT,
 	    NewParents = [],
 	    Vs = NewVs
 	;
 	 Val == 0.0 ->
-writeln(Ev:L1:Val:2),
 	    throw(error(domain_error(incompatible_evidence),evidence(Ev)))
 	;
-writeln(Ev:L1:Val:3),
 	    MAT0 = MAT,
 	    NewParents = NewParents0,
 	    IVs = NewVs

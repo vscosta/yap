@@ -63,7 +63,7 @@ true :- true.
 	),
 	'$enter_system_mode',
 	'$init_globals',
-	set_value(fileerrors,1),
+	'$swi_set_prolog_flag'(fileerrors, true),
 	set_value('$gc',on),
 	('$exit_undefp' -> true ; true),
 	prompt1(' ?- '),
@@ -145,10 +145,10 @@ true :- true.
 
 /* main execution loop							*/
 '$read_vars'(user_input, Goal, Mod, Pos, Bindings) :-
-	get_value('$readline',true), !,
+	'$swi_current_prolog_flag'(readline, true),
 	read_history(h, '!h',
                          [trace, end_of_file],
-                         ' ?- ', Goal, Bindings),
+                         ' ?- ', Goal, Bindings), !,
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;

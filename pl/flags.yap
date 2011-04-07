@@ -53,15 +53,26 @@ yap_flag(executable,L) :- '$executable'(L).
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
 
-% hide/unhide atoms
-yap_flag(encoding,DefaultEncoding) :- var(DefaultEncoding), !,
-	'$default_encoding'(DefCode),
-	'$valid_encoding'(DefaultEncoding, DefCode).
-yap_flag(encoding,Encoding) :-
-	'$valid_encoding'(Encoding, EncCode), !,
-	'$default_encoding'(EncCode).
-yap_flag(encoding,Encoding) :-
-	'$do_error'(domain_error(io_mode,encoding(Encoding)),yap_flag(encoding,Encoding)).
+% character encoding...
+yap_flag(encoding,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(encoding, X).
+yap_flag(encoding,X) :-
+	'$swi_set_prolog_flag'(encoding, X).
+
+% character encoding...
+yap_flag(fileerrors,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(fileerrors, X).
+yap_flag(fileerrors,X) :-
+	'$swi_set_prolog_flag'(fileerrors, X).
+
+% -O optimisation
+yap_flag(optimise,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(optimise, X).
+yap_flag(optimise,X) :-
+	'$swi_set_prolog_flag'(optimise, X).
 
 % control garbage collection
 yap_flag(gc,V) :-
@@ -207,12 +218,9 @@ yap_flag(home,X) :-
 
 yap_flag(readline,X) :-
 	var(X), !,
-	get_value('$readline',X).
+	'$swi_current_prolog_flag'(readline, X).
 yap_flag(readline,X) :-
-	( X = true ; X = false ), !,
-	set_value('$readline',X).
-yap_flag(readline,X) :-
-	'$do_error'(domain_error(flag_value,readline+X),yap_flag(bounded,X)).
+	'$swi_set_prolog_flag'(readline, X).
 
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
@@ -562,7 +570,7 @@ yap_flag(system_options,X) :-
 '$system_options'(rational_trees) :-
 	'$yap_has_rational_trees'.
 '$system_options'(readline) :-
-	'$has_readline'.
+	'$swi_current_prolog_flag'(readline, true).
 '$system_options'(tabling) :-
 	\+ '$undefined'('$c_table'(_,_), prolog).
 '$system_options'(threads) :-
@@ -722,18 +730,6 @@ yap_flag(toplevel_print_options,Opts) :- !,
 	'$check_io_opts'(Opts, yap_flag(toplevel_print_options,Opts)),
 	recorda('$print_options','$toplevel'(Opts),_).
 
-yap_flag(fileerrors,OUT) :-
-	var(OUT), !,
-	get_value(fileerrors,X0),
-	(X0 = [] -> X= 0 ; X = X0),
-	'$transl_to_on_off'(X,OUT).
-yap_flag(fileerrors,on) :- !,
-	set_value(fileerrors,1).
-yap_flag(fileerrors,off) :- !,
-	set_value(fileerrors,0).
-yap_flag(fileerrors,X) :-
-	'$do_error'(domain_error(flag_value,fileerrors+X),yap_flag(fileerrors,X)).
-
 :- recorda('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
 
 yap_flag(host_type,X) :-
@@ -845,6 +841,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(n_of_integer_keys_in_db).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
+'$yap_system_flag'(optimise).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
 '$yap_system_flag'(readline).
@@ -907,7 +904,7 @@ yap_flag(dialect,yap).
 	% CHARACTER_ESCAPE
 	'$set_yap_flags'(12,1),
 	'$set_fpu_exceptions',
-	fileerrors,
+	'$swi_set_prolog_flag'(fileerrors, true),
 	unknown(_,error).
 '$adjust_language'(iso) :-
 	'$switch_log_upd'(1),

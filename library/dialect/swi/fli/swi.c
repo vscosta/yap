@@ -113,7 +113,7 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
   Term cm = CurrentModule;
   /* fprintf(stderr,"doing %s:%s/%d\n", RepAtom(AtomOfTerm(mod))->StrOfAE, a,arity); */
   CurrentModule = mod;
-  Yap_InitCPred(a, arity, def, UserCPredFlag);
+  Yap_InitCPred(a, arity, def, (UserCPredFlag|CArgsPredFlag|flags));
   if (arity == 0) {
     Atom at;
     while ((at = Yap_LookupAtom(a)) == NULL) {
@@ -136,7 +136,6 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
     f = Yap_MkFunctor(at, arity);
     pe = RepPredProp(PredPropByFunc(f,mod));
   }
-  pe->PredFlags |= (CArgsPredFlag|flags);
   CurrentModule = cm;
 } 
 
@@ -1880,6 +1879,15 @@ PL_recorded(record_t db, term_t ts)
   return TRUE;
 }
 
+X_API record_t
+PL_duplicate_record(record_t db)
+{
+  Term t = YAP_Recorded((void *)db);
+  if (t == ((CELL)0))
+    return FALSE;
+  return (record_t)YAP_Record(t);
+}
+
 X_API void
 PL_erase(record_t db)
 {
@@ -2326,9 +2334,11 @@ X_API void PL_register_foreign_in_module(const char *module, const char *name, i
   Term tmod;
   Int nflags = 0;
 
+#ifdef DEBUG
   if (flags & (PL_FA_NOTRACE|PL_FA_CREF)) {
     fprintf(stderr,"PL_register_foreign_in_module called with non-implemented flag %x when creating predicate %s:%s/%d\n", flags, module, name, arity);
   }      
+#endif
   if (module == NULL) {
     tmod = CurrentModule;
   } else {
@@ -2765,27 +2775,6 @@ X_API pl_wchar_t *PL_atom_generator_w(const pl_wchar_t *pref, pl_wchar_t *buffer
 {
   return NULL;
 }
-
-extern atom_t PrologPrompt(void);
-
-char *
-PL_prompt_string(int fd)
-{ if ( fd == 0 )
-  { atom_t a = PrologPrompt();          /* TBD: deal with UTF-8 */
-    
-    
-    if ( a )
-    {     
-      Atom at = SWIAtomToAtom(a);
-      if (!IsWideAtom(at)  && !IsBlob(at)) {
-	return RepAtom(at)->StrOfAE;
-      }
-    }
-  }
-
-  return NULL;
-}
-
 
 const char *Yap_GetCurrentPredName(void);
 Int Yap_GetCurrentPredArity(void);
