@@ -2564,7 +2564,7 @@ init_consult(int mode, char *file)
   ConsultSp--;
   ConsultSp->c = (ConsultBase-ConsultSp);
   ConsultBase = ConsultSp;
-#if !defined(YAPOR) && !defined(SBA)
+#if !defined(YAPOR) && !defined(YAPOR_SBA)
   /*  if (consult_level == 0)
       do_toggle_static_predicates_in_use(TRUE); */
 #endif
@@ -2608,7 +2608,7 @@ end_consult( USES_REGS1 )
   ConsultSp += 3;
   consult_level--;
   LastAssertedPred = NULL;
-#if !defined(YAPOR) && !defined(SBA)
+#if !defined(YAPOR) && !defined(YAPOR_SBA)
   /*  if (consult_level == 0)
       do_toggle_static_predicates_in_use(FALSE);*/
 #endif

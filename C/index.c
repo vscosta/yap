@@ -839,6 +839,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   base = top;
   while (top+2*max > (CELL *)Yap_TrailTop) {
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
+      Yap_Error_Size = 2*max*CellSize;
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,4);
       return;
@@ -2066,6 +2067,7 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *c
       siglongjmp(cint->CompilerBotch,4);
 #else
       if (!Yap_growtrail(sz, TRUE)) {
+	Yap_Error_Size = sz;
 	save_machine_regs();
 	siglongjmp(cint->CompilerBotch,4);
 	return 0;
@@ -2194,6 +2196,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     UInt sz = sizeof(LogUpdIndex)+n*item_size;
     LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
+      Yap_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -2214,6 +2217,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     UInt sz = sizeof(StaticIndex)+n*item_size;
     StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
+      Yap_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);

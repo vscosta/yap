@@ -46,11 +46,6 @@ static void InitGlobal(void) {
   Yap_global->agc_threshold = 10000;
   Yap_global->agc_hook = NULL;
 
-#if HAVE_LIBREADLINE
-  Yap_global->readline_buf = NULL;
-  Yap_global->readline_pos = 0L;
-#endif
-
 #ifdef THREADS
   INIT_LOCK(Yap_global->thread_handles_lock);
 #endif 

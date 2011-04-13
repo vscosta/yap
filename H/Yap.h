@@ -17,7 +17,7 @@
 #define YAP_H 1
 
 #include "config.h"
-#if defined(ENV_COPY) || defined(TABLING) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(TABLING) || defined(THREADS)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
 
@@ -39,24 +39,24 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(ENV_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
 #error Do not define multiple or-parallel models
-#endif /* (ENV_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
 
-#if defined(ENV_COPY) || defined(ACOW) || defined(SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(THREADS)
 #define YAPOR 1
-#endif /* ENV_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(ACOW) || defined(SBA))
-#error Currently TABLING only works with ENV_COPY
-#endif /* TABLING && (ACOW || SBA) */
+#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
+#error Currently TABLING only works with YAPOR_COPY
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1
 #ifdef THREADS
-#undef ACOW
-#undef SBA
-#undef ENV_COPY
+#undef YAPOR_COW
+#undef YAPOR_SBA
+#undef YAPOR_COPY
 #endif
 #endif /* YAPOR */
 
@@ -80,9 +80,9 @@
 #define USE_SYSTEM_MALLOC 1
 #endif
 
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_YAPOR_SBA)
 #define FROZEN_STACKS 1
-#endif /* TABLING || SBA */
+#endif /* TABLING || YAPOR_YAPOR_SBA */
 
 #ifdef _MSC_VER			/* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
@@ -428,11 +428,6 @@ typedef pthread_rwlock_t rwlock_t;
 #ifdef __alpha
 #include <locks_alpha_funcs.h>
 #endif
-#if defined(THREADS)
-#define MAX_AGENTS MAX_THREADS
-#elif defined(YAPOR)
-#define MAX_AGENTS MAX_WORKERS
-#endif
 #endif
 
 /************ variables	concerned with Error Handling *************/
@@ -732,7 +727,7 @@ typedef enum
 #else
 
 #if !GC_NO_TAGS
-#if defined(SBA) && defined(__linux__)
+#if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* relocation chain bit */
@@ -829,7 +824,7 @@ VarOfTerm (Term t)
 }
 
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 
 inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
@@ -1065,8 +1060,8 @@ IntegerOfTerm (Term t)
 
 /*************** unification routines ***********************************/
 
-#ifdef SBA
-#include "or.sbaamiops.h"
+#ifdef YAPOR_SBA
+#include "or.sba_amiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1212,9 +1207,9 @@ extern int Yap_PrologShouldHandleInterrupts;
 #ifdef YAPOR
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          if (worker_id != GLOBAL_LOCKS_who_locked_heap) {               \
-	    LOCK(GLOBAL_LOCKS_heap_access);                              \
-	    GLOBAL_LOCKS_who_locked_heap = worker_id;                    \
+          if (worker_id != Yap_locks_who_locked_heap) {               \
+	    LOCK(Yap_locks_heap_access);                              \
+	    Yap_locks_who_locked_heap = worker_id;                    \
 	  }                                                              \
           Yap_PrologMode |= CritMode;                                   \
           Yap_CritLocks++;                                              \
@@ -1232,8 +1227,8 @@ extern int Yap_PrologShouldHandleInterrupts;
 	      Yap_PrologMode &= ~AbortMode;                             \
 	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
-	    GLOBAL_LOCKS_who_locked_heap = MAX_WORKERS;                  \
-            UNLOCK(GLOBAL_LOCKS_heap_access);                            \
+	    Yap_locks_who_locked_heap = MAX_WORKERS;                  \
+            UNLOCK(Yap_locks_heap_access);                            \
           }                                                              \
         }
 #elif defined(THREADS)
@@ -1304,8 +1299,8 @@ extern char emacs_tmp[], emacs_tmp2[];
 #include "opt.macros.h"
 #endif /* YAPOR || TABLING */
 
-#ifdef SBA
-#include "or.sbaunify.h"
+#ifdef YAPOR_SBA
+#include "or.sba_unify.h"
 #endif
 
 /********* execution mode ***********************/

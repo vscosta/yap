@@ -3832,49 +3832,49 @@ p_set_yap_flags( USES_REGS1 )
 #ifdef TABLING
   case TABLING_MODE_FLAG:
     if (value == 0) {  /* default */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	TabEnt_mode(tab_ent) = TabEnt_flags(tab_ent);
 	tab_ent = TabEnt_next(tab_ent);
       }
       yap_flags[TABLING_MODE_FLAG] = 0;
     } else if (value == 1) {  /* batched */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_Batched(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Batched(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 2) {  /* local */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_Local(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_Local(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 3) {  /* exec_answers */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_ExecAnswers(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_ExecAnswers(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 4) {  /* load_answers */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_LoadAnswers(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 5) {  /* local_trie */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_LocalTrie(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
       }
       SetMode_LocalTrie(yap_flags[TABLING_MODE_FLAG]);
     } else if (value == 6) {  /* global_trie */
-      tab_ent_ptr tab_ent = GLOBAL_root_tab_ent;
+      tab_ent_ptr tab_ent = Yap_root_tab_ent;
       while(tab_ent) {
 	SetMode_GlobalTrie(TabEnt_mode(tab_ent));
 	tab_ent = TabEnt_next(tab_ent);
@@ -3913,14 +3913,14 @@ p_system_mode( USES_REGS1 )
 static Int
 p_lock_system( USES_REGS1 )
 {
-  LOCK(BGL);
+  LOCK(Yap_BGL);
   return TRUE;
 }
 
 static Int
 p_unlock_system( USES_REGS1 )
 {
-  UNLOCK(BGL);
+  UNLOCK(Yap_BGL);
   return TRUE;
 }
 

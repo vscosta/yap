@@ -1322,7 +1322,7 @@ Yap_ArrayToList(register Term *tp, int nof)
   t = MkAtomTerm(AtomNil);
   while (pt > tp) {
     Term tm = *--pt;
-#if SBA
+#if YAPOR_SBA
     if (tm == 0)
       t = MkPairTerm((CELL)pt, t);
     else

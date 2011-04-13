@@ -20,7 +20,7 @@
 
 
 
-typedef struct worker_shared {
+typedef struct global_data {
 
 #if THREADS
 
@@ -46,17 +46,12 @@ typedef struct worker_shared {
   UInt  agc_threshold;
   Agc_hook  agc_hook;
 
-#if HAVE_LIBREADLINE
-  char  *readline_buf;
-  char  *readline_pos;
-#endif
-
 #ifdef THREADS
   lockvar  thread_handles_lock;
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
-  struct global_data  global;
+  struct optyap_global_data  optyap_data;
   struct local_data  remote[MAX_WORKERS];
 #endif
 

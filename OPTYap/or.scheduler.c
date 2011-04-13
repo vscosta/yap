@@ -65,36 +65,36 @@ void PUT_NO_WORK_IN_UPPER_NODES(void) {
 
 static inline
 void PUT_IDLE(int worker_num) {
-  LOCK(GLOBAL_LOCKS_bm_idle_workers);
-  BITMAP_insert(GLOBAL_bm_idle_workers, worker_num);
-  UNLOCK(GLOBAL_LOCKS_bm_idle_workers);
+  LOCK(Yap_locks_bm_idle_workers);
+  BITMAP_insert(Yap_bm_idle_workers, worker_num);
+  UNLOCK(Yap_locks_bm_idle_workers);
   return;
 }
 
 
 static inline
 void PUT_BUSY(int worker_num) {
-  LOCK(GLOBAL_LOCKS_bm_idle_workers);
-  BITMAP_delete(GLOBAL_bm_idle_workers, worker_num);
-  UNLOCK(GLOBAL_LOCKS_bm_idle_workers);
+  LOCK(Yap_locks_bm_idle_workers);
+  BITMAP_delete(Yap_bm_idle_workers, worker_num);
+  UNLOCK(Yap_locks_bm_idle_workers);
   return;
 }
 
 
 static inline
 void PUT_IN_ROOT_NODE(int worker_num) {
-  LOCK(GLOBAL_LOCKS_bm_root_cp_workers);
-  BITMAP_insert(GLOBAL_bm_root_cp_workers, worker_num);
-  UNLOCK(GLOBAL_LOCKS_bm_root_cp_workers);
+  LOCK(Yap_locks_bm_root_cp_workers);
+  BITMAP_insert(Yap_bm_root_cp_workers, worker_num);
+  UNLOCK(Yap_locks_bm_root_cp_workers);
   return;
 }
 
 
 static inline
 void PUT_OUT_ROOT_NODE(int worker_num) {
-  LOCK(GLOBAL_LOCKS_bm_root_cp_workers);
-  BITMAP_delete(GLOBAL_bm_root_cp_workers, worker_num);
-  UNLOCK(GLOBAL_LOCKS_bm_root_cp_workers);
+  LOCK(Yap_locks_bm_root_cp_workers);
+  BITMAP_delete(Yap_bm_root_cp_workers, worker_num);
+  UNLOCK(Yap_locks_bm_root_cp_workers);
   return;
 }
 
@@ -215,21 +215,21 @@ int get_work(void) {
   SCH_refuse_share_request_if_any();
   
   counter = 0;
-  BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
+  BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), Yap_bm_idle_workers);
   while (1) {
-    while (BITMAP_subset(GLOBAL_bm_idle_workers, OrFr_members(LOCAL_top_or_fr)) &&
-           Get_LOCAL_top_cp() != Get_GLOBAL_root_cp()) {
+    while (BITMAP_subset(Yap_bm_idle_workers, OrFr_members(LOCAL_top_or_fr)) &&
+           Get_LOCAL_top_cp() != Get_Yap_root_cp()) {
       /* no busy workers here and below */
       if (! move_up_one_node(NULL)) {
         PUT_BUSY(worker_id);
         return TRUE;
       }
     }
-    if (Get_LOCAL_top_cp() == Get_GLOBAL_root_cp()) {
-      if (! BITMAP_member(GLOBAL_bm_root_cp_workers, worker_id))
+    if (Get_LOCAL_top_cp() == Get_Yap_root_cp()) {
+      if (! BITMAP_member(Yap_bm_root_cp_workers, worker_id))
         PUT_IN_ROOT_NODE(worker_id);
-      if (BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_root_cp_workers) &&
-          BITMAP_same(GLOBAL_bm_idle_workers, GLOBAL_bm_present_workers)) {
+      if (BITMAP_same(Yap_bm_idle_workers, Yap_bm_root_cp_workers) &&
+          BITMAP_same(Yap_bm_idle_workers, Yap_bm_present_workers)) {
         /* All workers are idle in root choicepoint. Execution 
            must finish as there is no available computation. */
         return FALSE;
@@ -247,15 +247,15 @@ int get_work(void) {
       PUT_BUSY(worker_id);
       return TRUE;
     }
-    if (++counter == SCHEDULER_LOOP) {
+    if (++counter == Yap_scheduler_loop) {
       if (search_for_hidden_shared_work(stable_busy)) {
         PUT_BUSY(worker_id);
         return TRUE;
       }
       counter = 0;
-      BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
+      BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), Yap_bm_idle_workers);
     } else {
-      BITMAP_minus(stable_busy, GLOBAL_bm_idle_workers);
+      BITMAP_minus(stable_busy, Yap_bm_idle_workers);
     }
   }
 }
@@ -347,7 +347,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
   if (OrFr_suspensions(LOCAL_top_or_fr)) {
     susp_fr_ptr resume_fr;
 #ifdef TIMESTAMP_CHECK
-    resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr, ++GLOBAL_timestamp);
+    resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr, ++Yap_timestamp);
 #else
     resume_fr = suspension_frame_to_resume(LOCAL_top_or_fr);
 #endif /* TIMESTAMP_CHECK */
@@ -528,18 +528,18 @@ int get_work_below(void){
   bitmap busy_below, idle_below;
 
   worker_p = -1;
-  big_load = DELAYED_RELEASE_LOAD;
-  BITMAP_difference(busy_below, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
+  big_load = Yap_delayed_release_load ;
+  BITMAP_difference(busy_below, OrFr_members(LOCAL_top_or_fr), Yap_bm_idle_workers);
   BITMAP_difference(idle_below, OrFr_members(LOCAL_top_or_fr), busy_below);
   BITMAP_delete(idle_below, worker_id);
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), Get_LOCAL_top_cp()))
       BITMAP_minus(busy_below, OrFr_members(REMOTE_top_or_fr(i)));
   }
   if (BITMAP_empty(busy_below))
     return FALSE;
   /* choose the worker with highest load */
-  for (i = 0 ; i < number_workers; i++) {
+  for (i = 0 ; i < Yap_number_workers; i++) {
     if (BITMAP_member(busy_below ,i) && REMOTE_load(i) > big_load) {
       worker_p = i;
       big_load = REMOTE_load(i);
@@ -558,14 +558,14 @@ int get_work_above(void){
   bitmap visible_busy_above, visible_idle_above;
 
   worker_p = -1; 
-  big_load = DELAYED_RELEASE_LOAD;
-  BITMAP_difference(visible_busy_above, GLOBAL_bm_present_workers, OrFr_members(LOCAL_top_or_fr));
-  BITMAP_minus(visible_busy_above, GLOBAL_bm_invisible_workers);
+  big_load = Yap_delayed_release_load ;
+  BITMAP_difference(visible_busy_above, Yap_bm_present_workers, OrFr_members(LOCAL_top_or_fr));
+  BITMAP_minus(visible_busy_above, Yap_bm_invisible_workers);
   BITMAP_copy(visible_idle_above, visible_busy_above); 
-  BITMAP_minus(visible_busy_above, GLOBAL_bm_idle_workers);
-  BITMAP_and(visible_idle_above, GLOBAL_bm_idle_workers);
+  BITMAP_minus(visible_busy_above, Yap_bm_idle_workers);
+  BITMAP_and(visible_idle_above, Yap_bm_idle_workers);
   BITMAP_insert(visible_busy_above, worker_id);
-  for (i = 0 ; i < number_workers; i++) {
+  for (i = 0 ; i < Yap_number_workers; i++) {
     if (BITMAP_member(visible_idle_above, i))
       BITMAP_minus(visible_busy_above, OrFr_members(REMOTE_top_or_fr(i)));
   }
@@ -573,7 +573,7 @@ int get_work_above(void){
     return FALSE;
   BITMAP_delete(visible_busy_above, worker_id);
   /* choose the worker with higher load */
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (BITMAP_member(visible_busy_above ,i) && REMOTE_load(i) > big_load) {
       worker_p = i;
       big_load = REMOTE_load(i);
@@ -582,14 +582,14 @@ int get_work_above(void){
   if (worker_p == -1)
     return FALSE;
   /* put workers invisibles */
-  LOCK(GLOBAL_LOCKS_bm_invisible_workers);
-  if (BITMAP_member(GLOBAL_bm_invisible_workers, worker_p)) {
-    UNLOCK(GLOBAL_LOCKS_bm_invisible_workers);
+  LOCK(Yap_locks_bm_invisible_workers);
+  if (BITMAP_member(Yap_bm_invisible_workers, worker_p)) {
+    UNLOCK(Yap_locks_bm_invisible_workers);
     return FALSE;
   }
-  BITMAP_insert(GLOBAL_bm_invisible_workers, worker_id);
-  BITMAP_insert(GLOBAL_bm_invisible_workers, worker_p);
-  UNLOCK(GLOBAL_LOCKS_bm_invisible_workers);
+  BITMAP_insert(Yap_bm_invisible_workers, worker_id);
+  BITMAP_insert(Yap_bm_invisible_workers, worker_p);
+  UNLOCK(Yap_locks_bm_invisible_workers);
   /* move up to cp with worker_p */
   do {
     if (! move_up_one_node(NULL)) {
@@ -597,10 +597,10 @@ int get_work_above(void){
     }
   } while (! BITMAP_member(OrFr_members(LOCAL_top_or_fr), worker_p));
   /* put workers visibles */
-  LOCK(GLOBAL_LOCKS_bm_invisible_workers);
-  BITMAP_delete(GLOBAL_bm_invisible_workers, worker_id);
-  BITMAP_delete(GLOBAL_bm_invisible_workers, worker_p);
-  UNLOCK(GLOBAL_LOCKS_bm_invisible_workers);
+  LOCK(Yap_locks_bm_invisible_workers);
+  BITMAP_delete(Yap_bm_invisible_workers, worker_id);
+  BITMAP_delete(Yap_bm_invisible_workers, worker_p);
+  UNLOCK(Yap_locks_bm_invisible_workers);
   return (q_share_work(worker_p));
 }
 
@@ -610,11 +610,11 @@ int find_a_better_position(void){
   CACHE_REGS
   int i;
   bitmap busy_above, idle_above;
-  BITMAP_difference(busy_above, GLOBAL_bm_present_workers, OrFr_members(LOCAL_top_or_fr));
+  BITMAP_difference(busy_above, Yap_bm_present_workers, OrFr_members(LOCAL_top_or_fr));
   BITMAP_copy(idle_above, busy_above); 
-  BITMAP_minus(busy_above, GLOBAL_bm_idle_workers);
-  BITMAP_and(idle_above, GLOBAL_bm_idle_workers);
-  for (i = 0; i < number_workers; i++) {
+  BITMAP_minus(busy_above, Yap_bm_idle_workers);
+  BITMAP_and(idle_above, Yap_bm_idle_workers);
+  for (i = 0; i < Yap_number_workers; i++) {
     if (BITMAP_member(idle_above, i)) {
       if (BITMAP_empty(busy_above)) 
         break;
@@ -640,17 +640,17 @@ int search_for_hidden_shared_work(bitmap stable_busy){
   CACHE_REGS
   int i;
   bitmap invisible_work, idle_below;
-  BITMAP_intersection(invisible_work, stable_busy, GLOBAL_bm_requestable_workers);
-  BITMAP_intersection(idle_below, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
+  BITMAP_intersection(invisible_work, stable_busy, Yap_bm_requestable_workers);
+  BITMAP_intersection(idle_below, OrFr_members(LOCAL_top_or_fr), Yap_bm_idle_workers);
   BITMAP_delete(idle_below, worker_id);
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (BITMAP_member(idle_below ,i) && YOUNGER_CP(REMOTE_top_cp(i), Get_LOCAL_top_cp()))
       BITMAP_minus(invisible_work, OrFr_members(REMOTE_top_or_fr(i)));
   }
   if (BITMAP_empty(invisible_work))
     return FALSE;
   /* choose the first available worker */
-  for (i = 0; i < number_workers; i++ ) {
+  for (i = 0; i < Yap_number_workers; i++ ) {
     if (BITMAP_member(invisible_work ,i))
       break;
   }

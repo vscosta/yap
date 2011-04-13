@@ -51,7 +51,7 @@ static int
 allocate_new_tid(void)
 {
   int new_worker_id = 0;
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   while(new_worker_id < MAX_THREADS &&
 	Yap_WLocal[new_worker_id] &&
 	(FOREIGN_ThreadHandle(new_worker_id).in_use == TRUE ||
@@ -73,7 +73,7 @@ allocate_new_tid(void)
   } else {
     new_worker_id = -1;
   }
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
   return new_worker_id;  
 }
 
@@ -92,9 +92,9 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   FOREIGN_ThreadHandle(new_worker_id).ssize = ssize;
   FOREIGN_ThreadHandle(new_worker_id).tsize = tsize;
   FOREIGN_ThreadHandle(new_worker_id).sysize = sysize;
-  FOREIGN_WL(new_worker_id)->c_input_stream = Yap_c_input_stream;
-  FOREIGN_WL(new_worker_id)->c_output_stream = Yap_c_output_stream;
-  FOREIGN_WL(new_worker_id)->c_error_stream = Yap_c_error_stream;
+  FOREIGN(new_worker_id)->c_input_stream = Yap_c_input_stream;
+  FOREIGN(new_worker_id)->c_output_stream = Yap_c_output_stream;
+  FOREIGN(new_worker_id)->c_error_stream = Yap_c_error_stream;
   pm = (ssize + tsize)*1024;
   if (!(FOREIGN_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
@@ -140,14 +140,14 @@ kill_thread_engine (int wid, int always_die)
     gl = gl->NextGE;
   }
   Yap_KillStacks(wid);
-  FOREIGN_WL(wid)->active_signals = 0L;
-  free(FOREIGN_WL(wid)->scratchpad.ptr);
+  FOREIGN(wid)->active_signals = 0L;
+  free(FOREIGN(wid)->scratchpad.ptr);
   free(FOREIGN_ThreadHandle(wid).default_yaam_regs);
   FOREIGN_ThreadHandle(wid).current_yaam_regs = NULL;
   free(FOREIGN_ThreadHandle(wid).start_of_timesp);
   free(FOREIGN_ThreadHandle(wid).last_timep);
   Yap_FreeCodeSpace((ADDR)FOREIGN_ThreadHandle(wid).texit);
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   if (FOREIGN_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
     FOREIGN_ThreadHandle(wid).zombie = FALSE;
@@ -155,7 +155,7 @@ kill_thread_engine (int wid, int always_die)
     DEBUG_TLOCK_ACCESS(1, wid);
     pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
   }
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
 }
 
 static void
@@ -163,7 +163,7 @@ thread_die(int wid, int always_die)
 {
   if (!always_die) {
     /* called by thread itself */
-    ThreadsTotalTime += Yap_cputime();
+    Yap_ThreadsTotalTime += Yap_cputime();
   }
   kill_thread_engine(wid, always_die);
 }
@@ -194,7 +194,7 @@ setup_engine(int myworker_id, int init_thread)
 #endif
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
-  NOfThreadsCreated++;
+  Yap_NOfThreadsCreated++;
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(FOREIGN_ThreadHandle(myworker_id).tlock));  
 }
@@ -487,17 +487,17 @@ p_thread_join( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   if (!FOREIGN_ThreadHandle(tid).in_use &&
       !FOREIGN_ThreadHandle(tid).zombie) {
-    UNLOCK(ThreadHandlesLock);
+    UNLOCK(Yap_ThreadHandlesLock);
     return FALSE;
   }
   if (!FOREIGN_ThreadHandle(tid).tdetach == MkAtomTerm(AtomTrue)) {
-    UNLOCK(ThreadHandlesLock);
+    UNLOCK(Yap_ThreadHandlesLock);
     return FALSE;
   }
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
   /* make sure this lock is accessible */
   if (pthread_join(FOREIGN_ThreadHandle(tid).pthread_handle, NULL) < 0) {
     /* ERROR */
@@ -512,12 +512,12 @@ p_thread_destroy( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   FOREIGN_ThreadHandle(tid).zombie = FALSE;
   FOREIGN_ThreadHandle(tid).in_use = FALSE;
   DEBUG_TLOCK_ACCESS(32, tid);
   pthread_mutex_unlock(&(FOREIGN_ThreadHandle(tid).tlock));
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
   return TRUE;
 }
 
@@ -753,16 +753,16 @@ p_thread_stacks( USES_REGS1 )
   Int tid = IntegerOfTerm(Deref(ARG1));
   Int status= TRUE;
 
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   if (!FOREIGN_ThreadHandle(tid).in_use &&
       !FOREIGN_ThreadHandle(tid).zombie) {
-    UNLOCK(ThreadHandlesLock);
+    UNLOCK(Yap_ThreadHandlesLock);
     return FALSE;
   }
   status &= Yap_unify(ARG2,MkIntegerTerm(FOREIGN_ThreadHandle(tid).ssize));
   status &= Yap_unify(ARG3,MkIntegerTerm(FOREIGN_ThreadHandle(tid).tsize));
   status &= Yap_unify(ARG4,MkIntegerTerm(FOREIGN_ThreadHandle(tid).sysize));
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
   return status;
 }
 
@@ -814,11 +814,11 @@ p_thread_signal( USES_REGS1 )
     pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
    return TRUE;
   }
-  LOCK(FOREIGN_WL(wid)->signal_lock);
+  LOCK(FOREIGN(wid)->signal_lock);
   FOREIGN_ThreadHandle(wid).current_yaam_regs->CreepFlag_ = 
     Unsigned(FOREIGN_ThreadHandle(wid).current_yaam_regs->LCL0_);
-  FOREIGN_WL(wid)->active_signals |= YAP_ITI_SIGNAL;
-  UNLOCK(FOREIGN_WL(wid)->signal_lock);
+  FOREIGN(wid)->active_signals |= YAP_ITI_SIGNAL;
+  UNLOCK(FOREIGN(wid)->signal_lock);
   DEBUG_TLOCK_ACCESS(18, wid);
   pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
   return TRUE;
@@ -834,13 +834,13 @@ static Int
 p_nof_threads( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
   int i = 0, wid;
-  LOCK(ThreadHandlesLock);
+  LOCK(Yap_ThreadHandlesLock);
   for (wid = 0; wid < MAX_THREADS; wid++) {
     if (!Yap_WLocal[wid]) break;
     if (FOREIGN_ThreadHandle(wid).in_use)
       i++;
   }
-  UNLOCK(ThreadHandlesLock);
+  UNLOCK(Yap_ThreadHandlesLock);
   return Yap_unify(ARG1,MkIntegerTerm(i));
 }
 
@@ -859,13 +859,13 @@ p_max_threads( USES_REGS1 )
 static Int 
 p_nof_threads_created( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
-  return Yap_unify(ARG1,MkIntTerm(NOfThreadsCreated));
+  return Yap_unify(ARG1,MkIntTerm(Yap_NOfThreadsCreated));
 }
 
 static Int 
 p_thread_runtime( USES_REGS1 )
 {				/* '$thread_runtime'(+P)	 */
-  return Yap_unify(ARG1,MkIntegerTerm(ThreadsTotalTime));
+  return Yap_unify(ARG1,MkIntegerTerm(Yap_ThreadsTotalTime));
 }
 
 static Int 

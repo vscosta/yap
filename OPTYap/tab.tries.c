@@ -468,7 +468,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
       if (num_nodes == 0) {
 	FREE_HASH_BUCKETS(Hash_buckets(hash));
 	FREE_GLOBAL_TRIE_HASH(hash);
-	if (parent_node != GLOBAL_root_gt) {
+	if (parent_node != Yap_root_gt) {
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
 	  if (mode == TRAVERSE_MODE_NORMAL) {
 	    if (IsApplTerm(t)) {
@@ -506,7 +506,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
   } else if (TrNode_next(current_node) == NULL) {
     CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
     FREE_GLOBAL_TRIE_NODE(current_node);
-    if (parent_node != GLOBAL_root_gt) {
+    if (parent_node != Yap_root_gt) {
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
       if (mode == TRAVERSE_MODE_NORMAL) {
 	if (IsApplTerm(t)) {
@@ -804,7 +804,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
 
 
 static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type) {
-  if (TrNode_parent(current_node) != GLOBAL_root_gt)
+  if (TrNode_parent(current_node) != Yap_root_gt)
     traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type);
   traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type);
   return;
@@ -1377,11 +1377,11 @@ void show_global_trie(int show_mode) {
   } else {  /* SHOW_MODE_STRUCTURE */
     fprintf(Yap_stdout, "Global trie structure\n");
   }
-  if (TrNode_child(GLOBAL_root_gt)) {
+  if (TrNode_child(Yap_root_gt)) {
     char *str = (char *) malloc(sizeof(char) * SHOW_TABLE_STR_ARRAY_SIZE);
     int *arity = (int *) malloc(sizeof(int) * SHOW_TABLE_ARITY_ARRAY_SIZE);
     arity[0] = 0;
-    traverse_global_trie(TrNode_child(GLOBAL_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+    traverse_global_trie(TrNode_child(Yap_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
     free(str);
     free(arity);
   } else

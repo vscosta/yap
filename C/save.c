@@ -409,14 +409,14 @@ save_regs(int mode USES_REGS)
       return -1;
     if (putcellptr((CELL *)EX) < 0)
       return -1;
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
     if (putcellptr(H_FZ) < 0)
       return -1;
     if (putcellptr((CELL *)B_FZ) < 0)
       return -1;
     if (putcellptr((CELL *)TR_FZ) < 0)
       return -1;
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
   }
   if (putout(CurrentModule) < 0)
     return -1;
@@ -616,13 +616,13 @@ p_save2( USES_REGS1 )
 
   Term t;
 #if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
+  if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (NOfThreads != 1) {
+  if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
@@ -853,7 +853,7 @@ get_regs(int flag USES_REGS)
     EX = (struct DB_TERM *)get_cellptr();
     if (Yap_ErrorMessage)
       return -1;
-#if defined(SBA) || defined(TABLING)
+#if defined(YAPOR_SBA) || defined(TABLING)
     H_FZ = get_cellptr();
     if (Yap_ErrorMessage)
       return -1;
@@ -863,7 +863,7 @@ get_regs(int flag USES_REGS)
     TR_FZ = (tr_fr_ptr)get_cellptr();
     if (Yap_ErrorMessage)
       return -1;
-#endif /* SBA || TABLING */
+#endif /* YAPOR_SBA || TABLING */
   }
   CurrentModule = get_cell();
     if (Yap_ErrorMessage)
@@ -1795,12 +1795,12 @@ p_restore( USES_REGS1 )
 
   Term t1 = Deref(ARG1);
 #if defined(YAPOR) && !defined(THREADS)
-  if (number_workers != 1) {
+  if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (NOfThreads != 1) {
+  if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }

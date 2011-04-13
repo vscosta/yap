@@ -442,7 +442,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (PARALLEL_EXECUTION_MODE) {
+      if (Yap_parallel_execution_mode) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -553,7 +553,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (PARALLEL_EXECUTION_MODE) {
+      if (Yap_parallel_execution_mode) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -664,7 +664,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (PARALLEL_EXECUTION_MODE) {
+      if (Yap_parallel_execution_mode) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -878,7 +878,7 @@
       /* new answer */
 #ifdef TABLING_INNER_CUTS
       /* check for potencial prunings */
-      if (! BITMAP_empty(GLOBAL_bm_pruning_workers)) {
+      if (! BITMAP_empty(Yap_bm_pruning_workers)) {
         int until_depth, depth;
 
         until_depth = OrFr_depth(SgFr_gen_top_or_fr(sg_fr));
@@ -888,7 +888,7 @@
           bitmap prune_members, members;
           or_fr_ptr leftmost_or_fr, or_fr, nearest_or_fr;
 
-          BITMAP_copy(prune_members, GLOBAL_bm_pruning_workers);
+          BITMAP_copy(prune_members, Yap_bm_pruning_workers);
           BITMAP_delete(prune_members, worker_id);
           ltt = BRANCH_LTT(worker_id, depth);
           BITMAP_intersection(members, prune_members, OrFr_members(LOCAL_top_or_fr));
@@ -1213,7 +1213,7 @@
           }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-	  if (PARALLEL_EXECUTION_MODE) {
+	  if (Yap_parallel_execution_mode) {
 	    choiceptr aux_cp;
 	    OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	    aux_cp = chain_cp;
@@ -1284,7 +1284,7 @@
       }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-      if (PARALLEL_EXECUTION_MODE) {
+      if (Yap_parallel_execution_mode) {
 	choiceptr aux_cp;
 	OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	aux_cp = chain_cp;
@@ -1381,7 +1381,7 @@
 
     if (SCH_top_shared_cp(B)) {
 #ifdef TIMESTAMP_CHECK
-      timestamp = ++GLOBAL_timestamp;
+      timestamp = ++Yap_timestamp;
 #endif /* TIMESTAMP_CHECK */
       entry_owners = OrFr_owners(LOCAL_top_or_fr);
     }
@@ -1409,7 +1409,7 @@
         UNLOCK(DepFr_lock(dep_fr));
 
 #ifdef DEBUG_OPTYAP
-        if (PARALLEL_EXECUTION_MODE) {
+        if (Yap_parallel_execution_mode) {
 	  choiceptr aux_cp;
 	  OPTYAP_ERROR_CHECKING(completion, Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack());
 	  aux_cp = DepFr_cons_cp(dep_fr);
@@ -1434,7 +1434,7 @@
         }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-        if (PARALLEL_EXECUTION_MODE) {
+        if (Yap_parallel_execution_mode) {
 	  choiceptr aux_cp;
 	  OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	  aux_cp = DepFr_cons_cp(dep_fr);

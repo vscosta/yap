@@ -1218,9 +1218,9 @@ InitFirstWorkerThreadHandle(void)
 static void
 InitScratchPad(int wid)
 {
-  FOREIGN_WL(wid)->scratchpad.ptr = NULL;
-  FOREIGN_WL(wid)->scratchpad.sz = SCRATCH_START_SIZE;
-  FOREIGN_WL(wid)->scratchpad.msz = SCRATCH_START_SIZE;
+  FOREIGN(wid)->scratchpad.ptr = NULL;
+  FOREIGN(wid)->scratchpad.sz = SCRATCH_START_SIZE;
+  FOREIGN(wid)->scratchpad.msz = SCRATCH_START_SIZE;
 }
 
 void
@@ -1235,22 +1235,17 @@ Yap_CloseScratchPad(void)
 #include "iglobals.h"
 #include "ilocals.h"
 
-#if defined(YAPOR) || defined(THREADS)
-#define MAX_INITS MAX_AGENTS
-#else
-#define MAX_INITS 1
-#endif
 
 #if defined(YAPOR) &&  !defined(THREADS)
-struct worker_shared *Yap_global;
+struct global_data *Yap_global;
 #else
-struct worker_shared Yap_Global;
+struct global_data Yap_Global;
 #endif
 
-#if defined(YAPOR) &&  !defined(THREADS)
+#if defined(THREADS)
+struct worker_local	*Yap_WLocal[MAX_THREADS];
+#elif defined(YAPOR)
 struct worker_local	*Yap_WLocal;
-#elif defined(YAPOR) || defined(THREADS)
-struct worker_local	*Yap_WLocal[MAX_AGENTS];
 #else
 struct worker_local	Yap_WLocal;
 #endif
@@ -1261,7 +1256,7 @@ InitCodes(void)
   CACHE_REGS
 #if THREADS
   int wid;
-  for (wid = 1; wid < MAX_INITS; wid++) {
+  for (wid = 1; wid < MAX_THREADS; wid++) {
     Yap_WLocal[wid] = NULL;
   }
 #endif
@@ -1349,19 +1344,19 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   worker_id = 0;
   if (n_workers > MAX_WORKERS)
     Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers (Yap_InitWorkspace)");
-#ifdef ENV_COPY
+#ifdef YAPOR_COPY
   INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#elif ACOW
+#elif YAPOR_COW
   INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#else /* SBA */
+#else /* YAPOR_SBA */
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#endif /* ENV_COPY - ACOW - SBA */
+#endif /* YAPOR_COPY - YAPOR_COW - YAPOR_SBA */
   map_memory(Heap, Stack+Atts, Trail, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR && !THREADS */
 #if defined(YAPOR) || defined(TABLING)
-  Yap_init_global(max_table_size, n_workers, sch_loop, delay_load);
+  Yap_init_optyap_global(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
   Yap_AttsSize = Atts;
 
@@ -1397,10 +1392,10 @@ Yap_HaltRegisterHook (HaltHookFunc f, void * env)
     return FALSE;
   h->environment = env;
   h->hook = f;
-  LOCK(BGL);
+  LOCK(Yap_BGL);
   h->next = Yap_HaltHooks;
   Yap_HaltHooks = h;
-  UNLOCK(BGL);
+  UNLOCK(Yap_BGL);
   return TRUE;
 }
 

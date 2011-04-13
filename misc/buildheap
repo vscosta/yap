@@ -51,10 +51,10 @@ gen_struct(Inp,Out) :-
 	Inp = "END_WORKER_LOCAL", !,
 	Out = "} w_local;".
 gen_struct(Inp,Out) :-
-	Inp = "START_WORKER_SHARED", !,
-	Out = "typedef struct worker_shared {".
+	Inp = "START_GLOBAL_DATA", !,
+	Out = "typedef struct global_data {".
 gen_struct(Inp,Out) :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	Out = "} w_shared;".
 gen_struct(Inp,Out) :-
 	Inp = "ATOMS", !,
@@ -87,10 +87,10 @@ gen_dstruct(Inp,"") :-
 	Inp = "END_WORKER_LOCAL", !,
 	retract(globals(worker)).
 gen_dstruct(Inp,"") :-
-	Inp = "START_WORKER_SHARED", !,
+	Inp = "START_GLOBAL_DATA", !,
 	assert(globals(all)).
 gen_dstruct(Inp,"") :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	retract(globals(all)).
 gen_dstruct(Inp,Out) :-
 	Inp = "ATOMS", !,
@@ -122,7 +122,7 @@ fetch_name(Global) :-
 	Global = "WL->".
 fetch_name(Global) :-
 	globals(worker_init), !,
-	Global = "FOREIGN_WL(wid)->".
+	Global = "FOREIGN(wid)->".
 fetch_name(Global) :-
 	Global = "Yap_heap_regs->".
 
@@ -156,11 +156,11 @@ gen_hstruct(Inp,Out) :-
 	Out = "}",
 	retract(globals(worker_init)).
 gen_hstruct(Inp,Out) :-
-	Inp = "START_WORKER_SHARED", !,
+	Inp = "START_GLOBAL_DATA", !,
 	Out = "static void RestoreGlobal(void) {",
 	assert(globals(all)).
 gen_hstruct(Inp,Out) :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	Out = "}",
 	retract(globals(all)).
 gen_hstruct(Inp, Out) :-
@@ -235,11 +235,11 @@ gen_init(Inp,Out) :-
 	Out = "}",
 	retract(globals(worker_init)).
 gen_init(Inp,Out) :-
-	Inp = "START_WORKER_SHARED", !,
+	Inp = "START_GLOBAL_DATA", !,
 	Out = "static void InitGlobal(void) {",
 	assert(globals(all)).
 gen_init(Inp,Out) :-
-	Inp = "END_WORKER_SHARED", !,
+	Inp = "END_GLOBAL_DATA", !,
 	Out = "}",
 	retract(globals(all)).
 gen_init(Inp,Out) :-

@@ -212,8 +212,8 @@ yapsbrk(long size)
       UNLOCK(HeapTopLock);
       Yap_signal(YAP_CDOVF_SIGNAL);
     } else {
-     if (size > SizeOfOverflow)
-	SizeOfOverflow = size;
+     if (size > Yap_SizeOfOverflow)
+	Yap_SizeOfOverflow = size;
       /* big allocations, the caller must handle the problem */
       UNLOCK(HeapUsedLock);
       UNLOCK(HeapTopLock);

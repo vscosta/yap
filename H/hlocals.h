@@ -100,7 +100,7 @@ typedef struct worker_local {
 #if GC_NO_TAGS
   char*  b_p;
 #endif
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
   struct trail_frame*  wl_sTR;
   struct trail_frame*  wl_sTR0;
   struct trail_frame*  new_tr;

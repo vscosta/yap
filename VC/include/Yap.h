@@ -54,17 +54,17 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(ENV_COPY) && (defined(ACOW) || defined(SBA))) || (defined(ACOW) && defined(SBA))
+#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
 #error Do not define multiple or-parallel models
-#endif /* (ENV_COPY && (ACOW || SBA)) || (ACOW && SBA) */
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
 
-#if defined(ENV_COPY) || defined(ACOW) || defined(SBA)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #define YAPOR 1
-#endif /* ENV_COPY || ACOW || SBA */
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(ACOW) || defined(SBA))
-#error Currently TABLING only works with ENV_COPY
-#endif /* TABLING && (ACOW || SBA) */
+#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
+#error Currently TABLING only works with YAPOR_COPY
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1
@@ -86,7 +86,7 @@
 #endif
 #endif
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 #ifdef YAPOR
 #ifndef FROZEN_STACKS
 #define FROZEN_STACKS 1
@@ -365,6 +365,7 @@ typedef CELL Term;
 
 #include "Regs.h"
 
+
 #if defined(YAPOR) ||defined(THREADS)
 #ifdef mips
 #include <locks_mips_funcs.h>
@@ -613,7 +614,7 @@ and  RefOfTerm(t) : Term -> DBRef = ...
 
 #else
 
-#if defined(SBA) && defined(__linux__)
+#if defined(YAPOR_SBA) && defined(__linux__)
 #define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
 #else
 #define RBIT     /* 0x20000000 */ MKTAG(0x1,0)  /* relocation chain bit */
@@ -642,7 +643,7 @@ inline EXTERN Term * VarOfTerm(Term t)
 }
 
 
-#if SBA
+#if YAPOR_SBA
 
 inline EXTERN Term MkVarTerm(void);
 
@@ -825,8 +826,8 @@ inline EXTERN Int IntegerOfTerm(Term t)
 
 /*************** unification routines ***********************************/
 
-#if SBA
-#include "or.sbaamiops.h"
+#if YAPOR_SBA
+#include "or.sba_amiops.h"
 #else
 #include "amiops.h"
 #endif
@@ -1046,7 +1047,7 @@ extern int      snoozing;
 #include "opt.proto.h"
 #endif /* YAPOR || TABLING */
 
-#if SBA
-#include "or.sbaunify.h"
+#if YAPOR_SBA
+#include "or.sba_unify.h"
 #endif
 

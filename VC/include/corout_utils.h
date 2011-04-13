@@ -33,7 +33,7 @@ SDeref (Term a)
     {
       Term *b = (Term *) a;
       a = *b;
-#if SBA
+#if YAPOR_SBA
       if (a == (0))
 	return (CELL) b;
 #else
@@ -50,7 +50,7 @@ SDerefa (CELL * b)
   Term a = *b;
   while (IsVarTerm (a))
     {
-#if SBA
+#if YAPOR_SBA
       if (a == (0))
 	return (CELL) b;
 #else
@@ -69,7 +69,7 @@ SADerefa (CELL * b)
   Term a = *b;
   while (IsVarTerm (a))
     {
-#if SBA
+#if YAPOR_SBA
       if (a == (0))
 	return b;
 #else

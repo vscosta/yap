@@ -442,7 +442,7 @@ p_dif( USES_REGS1 )
       BEGD(d1);
       d1 = TrailTerm(--TR);
       if (IsVarTerm(d1)) {
-#if defined(SBA) && defined(YAPOR)
+#if defined(YAPOR_SBA) && defined(YAPOR)
 	/* clean up the trail when we backtrack */
 	if (Unsigned((Int)(d1)-(Int)(H_FZ)) >
 	    Unsigned((Int)(B_FZ)-(Int)(H_FZ))) {
@@ -767,7 +767,7 @@ p_cut_by( USES_REGS1 )
   d0 = ARG1;
   deref_head(d0, cutby_x_unk);
  cutby_x_nvar:
-#if SBA
+#if YAPOR_SBA
   if (!IsIntegerTerm(d0)) {
 #else
   if (!IsIntTerm(d0)) {
@@ -775,7 +775,7 @@ p_cut_by( USES_REGS1 )
     return(FALSE);
   }
   BEGCHO(pt0);
-#if SBA
+#if YAPOR_SBA
   pt0 = (choiceptr)IntegerOfTerm(d0);
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));

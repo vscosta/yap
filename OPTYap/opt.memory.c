@@ -82,12 +82,12 @@ close_mapfile(void) {
 
 void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_workers) {
   void *mmap_addr = (void *)MMAP_ADDR;
-#ifdef ACOW
+#ifdef YAPOR_COW
   int private_fd_mapfile;
 #if MMAP_MEMORY_MAPPING_SCHEME
   long TotalArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   int i;
   long WorkerArea;
   long TotalArea;
@@ -100,21 +100,21 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 
   /* we'll need this later */
 #if defined(YAPOR) && !defined(THREADS)
-  Yap_global = (struct worker_shared *)( mmap_addr  - sizeof(struct worker_shared));
-  Yap_WLocal =  (struct worker_local *)( mmap_addr  - (sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local)));
-  extra_area = ADJUST_SIZE_TO_PAGE(sizeof(struct worker_shared)+MAX_WORKERS*sizeof(struct worker_local));
+  Yap_global = (struct global_data *)( mmap_addr  - sizeof(struct global_data));
+  Yap_WLocal =  (struct worker_local *)( mmap_addr  - (sizeof(struct global_data)+MAX_WORKERS*sizeof(struct worker_local)));
+  extra_area = ADJUST_SIZE_TO_PAGE(sizeof(struct global_data)+MAX_WORKERS*sizeof(struct worker_local));
 #endif
   Yap_HeapBase = (ADDR)mmap_addr;
   Yap_GlobalBase = mmap_addr + HeapArea;
 
   /* shared memory allocation - model dependent */
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* acow just needs one stack */
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* I need this for MMAP to know what it must allocate */
   TotalArea = HeapArea;
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   /* the others need n stacks */
   WorkerArea = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = HeapArea + WorkerArea * n_workers;
@@ -131,16 +131,16 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
 #endif
 #else /* SHM_MEMORY_MAPPING_SCHEME */
 /* Most systems are limited regarding what we can allocate */
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* single shared segment in ACOW */
   shm_map_memory(0, HeapArea, mmap_addr);
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   /* place as segment n otherwise (0..n-1 reserved for worker areas */
   shm_map_memory(n_workers, HeapArea, mmap_addr);
 #endif /* YAPOR_MODEL */
 #endif /* MEMORY_MAPPING_SCHEME */
 
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* just allocate local space for stacks */
   if ((private_fd_mapfile = open("/dev/zero", O_RDWR)) < 0)
     Yap_Error(FATAL_ERROR, TermNil, "open error (map_memory)");
@@ -148,7 +148,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
            MAP_PRIVATE|MAP_FIXED, private_fd_mapfile, 0) == (void *) -1)
     Yap_Error(FATAL_ERROR, TermNil, "mmap error (map_memory)");
   close(private_fd_mapfile);
-#else /* ENV_COPY || SBA */
+#else /* YAPOR_COPY || YAPOR_SBA */
   for (i = 0; i < n_workers; i++) {
     /* initialize worker vars */
     worker_area(i) = Yap_GlobalBase + i * WorkerArea;
@@ -160,7 +160,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   }
 #endif /* YAPOR_MODEL */
 
-#ifdef SBA
+#ifdef YAPOR_SBA
   /* alloc space for the sparse binding array */
   sba_size = WorkerArea * n_workers;
   if ((binding_array = (char *)malloc(sba_size)) == NULL)
@@ -170,7 +170,7 @@ void map_memory(long HeapArea, long GlobalLocalArea, long TrailAuxArea, int n_wo
   }
   sba_offset = binding_array - Yap_GlobalBase;
   sba_end = (int)binding_array + sba_size;
-#endif /* SBA */
+#endif /* YAPOR_SBA */
   Yap_TrailBase = Yap_GlobalBase + GlobalLocalArea;
   Yap_LocalBase = Yap_TrailBase - CellSize;
 
@@ -193,30 +193,30 @@ void unmap_memory (void) {
   {
     int proc;
     INFORMATION_MESSAGE("Worker %d exiting...", worker_id);
-    for (proc = 0; proc < number_workers; proc++) {
-      if (proc != worker_id && worker_pid(proc) != 0) {
-        if (kill(worker_pid(proc), SIGKILL) != 0)
-          INFORMATION_MESSAGE("Can't kill process %d", worker_pid(proc));
+    for (proc = 0; proc < Yap_number_workers; proc++) {
+      if (proc != worker_id && Yap_worker_pid(proc) != 0) {
+        if (kill(Yap_worker_pid(proc), SIGKILL) != 0)
+          INFORMATION_MESSAGE("Can't kill process %d", Yap_worker_pid(proc));
         else 
-          INFORMATION_MESSAGE("Killing process %d", worker_pid(proc));
+          INFORMATION_MESSAGE("Killing process %d", Yap_worker_pid(proc));
       }
     }
-#ifdef ACOW
-    if (number_workers > 1) {
-      if (kill(GLOBAL_master_worker, SIGINT) != 0)
-	INFORMATION_MESSAGE("Can't kill process %d", GLOBAL_master_worker);
+#ifdef YAPOR_COW
+    if (Yap_number_workers > 1) {
+      if (kill(Yap_master_worker, SIGINT) != 0)
+	INFORMATION_MESSAGE("Can't kill process %d", Yap_master_worker);
       else 
-	INFORMATION_MESSAGE("Killing process %d", GLOBAL_master_worker);
+	INFORMATION_MESSAGE("Killing process %d", Yap_master_worker);
     }
-#endif /* ACOW */
+#endif /* YAPOR_COW */
   }
 
 #ifdef SHM_MEMORY_MAPPING_SCHEME
-#ifdef ACOW
+#ifdef YAPOR_COW
   i = 0;
 #else
-  for (i = 0; i < number_workers + 1; i++)
-#endif /* ACOW */
+  for (i = 0; i < Yap_number_workers + 1; i++)
+#endif /* YAPOR_COW */
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
       INFORMATION_MESSAGE("Removing shared memory segment %d", shm_mapid[i]);
@@ -224,10 +224,10 @@ void unmap_memory (void) {
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
   strcpy(MapFile,"./mapfile");
-#ifdef ACOW
-  itos(GLOBAL_master_worker, &MapFile[9]);
-#else /* ENV_COPY || SBA */
-  itos(worker_pid(0), &MapFile[9]);
+#ifdef YAPOR_COW
+  itos(Yap_master_worker, &MapFile[9]);
+#else /* YAPOR_COPY || YAPOR_SBA */
+  itos(Yap_worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
@@ -238,10 +238,10 @@ void unmap_memory (void) {
 
 
 void remap_memory(void) {
-#ifdef ACOW
+#ifdef YAPOR_COW
   /* do nothing */
-#endif /* ACOW */
-#ifdef SBA
+#endif /* YAPOR_COW */
+#ifdef YAPOR_SBA
   /* setup workers so that they have different areas */
   long WorkerArea = worker_offset(1);
 
@@ -249,8 +249,8 @@ void remap_memory(void) {
   Yap_TrailBase += worker_id * WorkerArea;
   Yap_LocalBase += worker_id * WorkerArea;
   Yap_TrailTop += worker_id * WorkerArea;
-#endif /* SBA */
-#ifdef ENV_COPY
+#endif /* YAPOR_SBA */
+#ifdef YAPOR_COPY
   void *remap_addr;
   long remap_offset;
   long WorkerArea;
@@ -260,28 +260,28 @@ void remap_memory(void) {
   remap_offset = (char *)remap_addr - (char *)Yap_HeapBase;
   WorkerArea = worker_offset(1);
 #ifdef SHM_MEMORY_MAPPING_SCHEME
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     if (shmdt(worker_area(i)) == -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmdt error (remap_memory)");
   }
-  for (i = 0; i < number_workers; i++) {
-    worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
+  for (i = 0; i < Yap_number_workers; i++) {
+    worker_area(i) = remap_addr + ((Yap_number_workers + i - worker_id) % Yap_number_workers) * WorkerArea;
     if(shmat(shm_mapid[i], worker_area(i), 0) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmat error (remap_memory)");
   }
 #else /* MMAP_MEMORY_MAPPING_SCHEME */
-  if (munmap(remap_addr, (size_t)(WorkerArea * number_workers)) == -1)
+  if (munmap(remap_addr, (size_t)(WorkerArea * Yap_number_workers)) == -1)
     Yap_Error(FATAL_ERROR, TermNil, "munmap error (remap_memory)");
-  for (i = 0; i < number_workers; i++) {
-    worker_area(i) = remap_addr + ((number_workers + i - worker_id) % number_workers) * WorkerArea;
+  for (i = 0; i < Yap_number_workers; i++) {
+    worker_area(i) = remap_addr + ((Yap_number_workers + i - worker_id) % Yap_number_workers) * WorkerArea;
     if (mmap(worker_area(i), (size_t)WorkerArea, PROT_READ|PROT_WRITE, 
         MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * WorkerArea + extra_area) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (remap_memory)");
   }
 #endif /* MEMORY_MAPPING_SCHEME */
-  for (i = 0; i < number_workers; i++) {
+  for (i = 0; i < Yap_number_workers; i++) {
     worker_offset(i) = worker_area(i) - worker_area(worker_id);
   }
-#endif /* ENV_COPY */
+#endif /* YAPOR_COPY */
 }
 #endif /* YAPOR && !THREADS */

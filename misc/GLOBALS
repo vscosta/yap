@@ -19,49 +19,44 @@
 
 
 // Stuff that must be shared by all threads or workers
-START_WORKER_SHARED
+START_GLOBAL_DATA
 
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
-UInt		n_of_threads		NOfThreads	=1
+UInt		n_of_threads		Yap_NOfThreads	=1
 /* number of threads created since start */
-UInt		n_of_threads_created	NOfThreadsCreated =1
+UInt		n_of_threads_created	Yap_NOfThreadsCreated =1
 /* total run time for dead threads */
-UInt  threads_total_time		ThreadsTotalTime =0L
+UInt  threads_total_time		Yap_ThreadsTotalTime =0L
 #endif
 
 // multi-thread/ORP support
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
-lockvar		bgl			BGL		MkLock
+lockvar		bgl			Yap_BGL		MkLock
 #endif
 
 // stack overflow expansion/gc control
 int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE
 int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE
 int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE
-UInt		size_of_overflow	SizeOfOverflow		=0
+UInt		size_of_overflow	Yap_SizeOfOverflow		=0
 // amount of space recovered in all garbage collections
-UInt		agc_last_call		AGcLastCall		=0
+UInt		agc_last_call		Yap_AGcLastCall		=0
 // amount of space recovered in all garbage collections
-UInt		agc_threshold		AGcThreshold		=10000
-Agc_hook	agc_hook		AGCHook			=NULL
+UInt		agc_threshold		Yap_AGcThreshold		=10000
+Agc_hook	agc_hook		Yap_AGCHook			=NULL
 
-// readline
-#if HAVE_LIBREADLINE
-char		*readline_buf		ReadlineBuf		=NULL
-char		*readline_pos		ReadlinePos		=0L
-#endif
 
 // Threads Array
 #ifdef THREADS
-lockvar		thread_handles_lock	ThreadHandlesLock	MkLock
+lockvar		thread_handles_lock	Yap_ThreadHandlesLock	MkLock
 #endif 
 
 // Ricardo's stuff
 #if defined(YAPOR) || defined(TABLING)
-struct global_data	global			GLOBAL		void	
+struct optyap_global_data	optyap_data	Yap_optyap_data	void	
 struct local_data	remote[MAX_WORKERS]	REMOTE		void
 #endif
 
@@ -74,5 +69,5 @@ char	      **pl_argv			Yap_PL_Argv		=NULL
 // halt hooks
 struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL
 
-END_WORKER_SHARED
+END_GLOBAL_DATA
 

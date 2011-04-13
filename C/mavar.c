@@ -192,7 +192,7 @@ UpdateTimedVar(Term inv, Term new USES_REGS)
 #endif
       ) {
     /* last assignment more recent than last B */
-#if SBA
+#if YAPOR_SBA
     if (Unsigned((Int)(tv)-(Int)(H_FZ)) >
 	Unsigned((Int)(B_FZ)-(Int)(H_FZ)))
       *STACK_TO_SBA(&(tv->value)) = new;

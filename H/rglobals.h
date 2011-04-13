@@ -46,11 +46,6 @@ static void RestoreGlobal(void) {
 
 
 
-#if HAVE_LIBREADLINE
-
-
-#endif
-
 #ifdef THREADS
   REINIT_LOCK(Yap_global->thread_handles_lock);
 #endif 

@@ -328,7 +328,7 @@ check_var(Term t, unsigned int level, Int argno, compiler_struct *cglobs) {
 
   if (IsNewVar(v)) {		/* new var */
     v = (Ventry *) Yap_AllocCMem(sizeof(*v), &cglobs->cint);
-#if SBA
+#if YAPOR_SBA
     v->SelfOfVE = 0;
 #else
     v->SelfOfVE = (CELL) v;

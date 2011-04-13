@@ -2828,7 +2828,7 @@ YAP_Init(YAP_init_args *yap_init)
 #if defined(YAPOR) || defined(TABLING)
 #ifdef TABLING
     /* make sure we initialise this field */
-    GLOBAL_root_dep_fr = NULL;
+    Yap_root_dep_fr = NULL;
 #endif
     make_root_frames();
 #ifdef YAPOR
@@ -2837,13 +2837,13 @@ YAP_Init(YAP_init_args *yap_init)
     Yap_init_local();
 #ifdef YAPOR
     if (worker_id != 0) {
-#if SBA||ENV_COPY
+#if YAPOR_SBA||YAPOR_COPY
       /*
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
       Yap_InitYaamRegs();
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #ifndef THREADS
       Yap_InitPreAllocCodeSpace();
 #endif
@@ -3300,8 +3300,8 @@ YAP_AtomReleaseHold(Atom at)
 X_API Agc_hook
 YAP_AGCRegisterHook(Agc_hook hook)
 {
-  Agc_hook old = AGCHook;
-  AGCHook = hook;
+  Agc_hook old = Yap_AGCHook;
+  Yap_AGCHook = hook;
   return old;
 } 
 
@@ -3537,9 +3537,9 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
     return TRUE;
   case YAPC_ENABLE_AGC:
     if (val) {
-      AGcThreshold = 10000;
+      Yap_AGcThreshold = 10000;
     } else {
-      AGcThreshold = 0;
+      Yap_AGcThreshold = 0;
     }
     return TRUE;
   default:

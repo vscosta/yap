@@ -690,13 +690,13 @@ Macros to check the limits of stacks
 
 #endif
 
-#if (defined(SBA) && defined(YAPOR)) || defined(TABLING)
+#if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
  if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CreepFlag  ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
  if ( (Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CreepFlag ) goto Label
-#endif /* SBA && YAPOR */
+#endif /* YAPOR_SBA && YAPOR */
 
 /***************************************************************
 * Macros for choice point manipulation                         *
@@ -813,7 +813,7 @@ Macros to check the limits of stacks
 
 
 #ifdef FROZEN_STACKS
-#ifdef SBA
+#ifdef YAPOR_SBA
 #define PROTECT_FROZEN_H(CPTR)                                  \
        ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
 	 Unsigned((Int)(B_FZ)-(Int)(H_FZ))) ?                   \
@@ -830,7 +830,7 @@ Macros to check the limits of stacks
 #else /* TABLING */
 #define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
 #define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #else
 #define PROTECT_FROZEN_B(CPTR)  (CPTR)
 #define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h

@@ -66,7 +66,7 @@
 #endif 
 
 #ifdef FROZEN_STACKS
-#ifdef SBA
+#ifdef YAPOR_SBA
 #define PROTECT_FROZEN_H(CPTR)                                  \
        ((Unsigned((Int)((CPTR)->cp_h)-(Int)(H_FZ)) <            \
 	 Unsigned((Int)(B_FZ)-(Int)(H_FZ))) ?                   \
@@ -83,7 +83,7 @@
 #else /* TABLING */
 #define PROTECT_FROZEN_B(CPTR)  (YOUNGER_CP(CPTR, B_FZ) ? CPTR        : B_FZ)
 #define PROTECT_FROZEN_H(CPTR)  (((CPTR)->cp_h > H_FZ) ? (CPTR)->cp_h : H_FZ)
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 #else
 #define PROTECT_FROZEN_B(CPTR)  (CPTR)
 #define PROTECT_FROZEN_H(CPTR)  (CPTR)->cp_h
@@ -875,7 +875,7 @@ typedef yamop yamopp;
 
 #define PREVOP(V,TYPE)    ((yamop *)((CODEADDR)(V)-(CELL)NEXTOP((yamop *)NULL,TYPE)))
 
-#if defined(TABLING) || defined(SBA)
+#if defined(TABLING) || defined(YAPOR_SBA)
 typedef struct trail_frame {
   Term term;
   CELL value;
@@ -888,7 +888,7 @@ typedef Term *tr_fr_ptr;
 
 #define TrailTerm(X)   (*(X))
 #define TrailVal(X)    OOOOOOPS: this program should not compile
-#endif /* TABLING || SBA  */
+#endif /* TABLING || YAPOR_SBA  */
 
 
 /*
@@ -978,7 +978,7 @@ typedef struct choicept {
 #define SHOULD_CUT_UP_TO(X,Y)  ((X) != (Y))
 /* #define SHOULD_CUT_UP_TO(X,Y)  ((X)  (Y)) */
 
-#ifdef SBA
+#ifdef YAPOR_SBA
 #define SHARED_CP(CP)  ((CP) >= B_FZ || (CP) < (choiceptr)H_FZ)
 
 #define YOUNGER_CP(CP1, CP2)						\
@@ -998,13 +998,13 @@ typedef struct choicept {
 #define YOUNGER_H(H1, H2) FIXMEE!!!!
 
 
-#else /* ENV_COPY || ACOW */
+#else /* YAPOR_COPY || YAPOR_COW */
 #define YOUNGER_CP(CP1, CP2)           ((CP1) <  (CP2))
 #define EQUAL_OR_YOUNGER_CP(CP1, CP2)  ((CP1) <= (CP2))
 
 #define YOUNGER_H(H1, H2)           ((CELL *)(H1) > (CELL *)(H2))
 
-#endif /* SBA */
+#endif /* YAPOR_SBA */
 
 #define YOUNGEST_CP(CP1, CP2)           (YOUNGER_CP(CP1,CP2) ? (CP1) : (CP2))
 
