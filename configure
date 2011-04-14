@@ -1425,7 +1425,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
  --enable-tabling           support tabling
- --enable-or-parallelism    support or-parallelism as: env-copy,sba,a-cow
+ --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads
  --enable-rational-trees    support infinite rational trees
  --enable-coroutining       support co-routining, attributed variables and constraints
  --enable-depth-limit       support depth-bound computation
@@ -5962,8 +5962,6 @@ fi
 
 if test "$threads" = yes
 then
-  $as_echo "#define SUPPORT_THREADS 1" >>confdefs.h
-
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for pthread_create in -lpthread" >&5
 $as_echo_n "checking for pthread_create in -lpthread... " >&6; }
 if test "${ac_cv_lib_pthread_pthread_create+set}" = set; then :
@@ -7488,19 +7486,46 @@ if test "$threads" = "yes"
   then
     YAP_EXTRAS="$YAP_EXTRAS -D_GNU_SOURCE"
   fi
+  case "$orparallelism" in
+    sba)
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--or-parallelism=sba incompatible with threads
+    ;;
+    a-cow
+See \`config.log' for more details" "$LINENO" 5 ; }
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--or-parallelism=a-cow incompatible with threads
+    ;;
+    copy
+See \`config.log' for more details" "$LINENO" 5 ; }
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--or-parallelism=copy incompatible with threads
+    ;;
+    yes|threads
+See \`config.log' for more details" "$LINENO" 5 ; }
+     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
+    ;;
+  esac
+else
+  case "$orparallelism" in
+    sba)
+      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_SBA=1"
+    ;;
+    a-cow)
+      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
+    ;;
+    threads)
+     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
+    ;;
+    yes|copy)
+     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
+    ;;
+  esac
 fi
 
-case "$orparallelism" in
-  sba)
-   YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_SBA=1"
-  ;;
-  a-cow)
-   YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
-  ;;
-  yes|env-copy)
-   YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
-  ;;
-esac
 
 if test "$cutc" = "yes"
   then
