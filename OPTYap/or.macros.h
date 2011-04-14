@@ -108,6 +108,8 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 **      Engine Macros      **
 ** ----------------------- */
 
+#define worker_offset(X)	  ((Yap_number_workers + X - worker_id) % Yap_number_workers * Yap_worker_area_size)
+
 #define LOCK_OR_FRAME(fr)      LOCK(OrFr_lock(fr))
 #define UNLOCK_OR_FRAME(fr)  UNLOCK(OrFr_lock(fr))
 

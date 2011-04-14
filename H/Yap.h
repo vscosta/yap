@@ -16,8 +16,24 @@
 #ifndef YAP_H
 #define YAP_H 1
 
+#if defined(YAPOR)
+#error Do not explicitly define YAPOR
+#endif /* YAPOR */
+
+#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
+#error Do not define multiple or-parallel models
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
+
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(THREADS)
+#define YAPOR 1
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+
+#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
+#error Currently TABLING only works with YAPOR_COPY
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
+
 #include "config.h"
-#if defined(YAPOR_COPY) || defined(TABLING) || defined(THREADS)
+#if defined(YAPOR) || defined(TABLING) || defined(THREADS)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
 
@@ -34,22 +50,6 @@
 */
 
 #define MULTI_ASSIGNMENT_VARIABLES 1
-
-#if defined(YAPOR)
-#error Do not explicitly define YAPOR
-#endif /* YAPOR */
-
-#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
-#error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
-
-#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(THREADS)
-#define YAPOR 1
-#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-
-#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
-#error Currently TABLING only works with YAPOR_COPY
-#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
 
 #ifdef YAPOR
 #define FIXED_STACKS 1

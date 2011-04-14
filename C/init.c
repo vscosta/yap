@@ -1236,8 +1236,9 @@ Yap_CloseScratchPad(void)
 #include "ilocals.h"
 
 
-#if defined(YAPOR) &&  !defined(THREADS)
+#if defined(YAPOR) && !defined(THREADS)
 struct global_data *Yap_global;
+long Yap_worker_area_size;
 #else
 struct global_data Yap_Global;
 #endif
@@ -1351,7 +1352,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #else /* YAPOR_SBA */
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #endif /* YAPOR_COPY - YAPOR_COW - YAPOR_SBA */
-  map_memory(Heap, Stack+Atts, Trail, n_workers);
+ Yap_init_optyap_memory(Trail, Heap, Stack+Atts, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
 #endif /* YAPOR && !THREADS */
@@ -1414,8 +1415,8 @@ void
 Yap_exit (int value)
 {
 #if defined(YAPOR) && !defined(THREADS)
-  unmap_memory();
-#endif /* YAPOR */
+  Yap_unmap_optyap_memory();
+#endif /* YAPOR && !THREADS */
 
   if (! (Yap_PrologMode & BootMode) ) {
 #ifdef LOW_PROF

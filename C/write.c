@@ -1110,8 +1110,8 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
-  wglb.MaxDepth = 10L;
-  wglb.MaxArgs = 10L;
+  wglb.MaxDepth = 15L;
+  wglb.MaxArgs = 15L;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 

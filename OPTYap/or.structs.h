@@ -11,20 +11,6 @@
 **                                                                     **
 ************************************************************************/
 
-/* ----------------------- **
-**      Struct worker      **
-** ----------------------- */
-
-extern struct worker{
-  void *worker_area[MAX_WORKERS];
-  long worker_offset[MAX_WORKERS];
-} WORKER;
-
-#define worker_area(W)    (WORKER.worker_area[W])
-#define worker_offset(W)  (WORKER.worker_offset[W])
-
-
-
 /* ------------------------- **
 **      Struct or_frame      **
 ** ------------------------- */

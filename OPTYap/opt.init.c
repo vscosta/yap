@@ -27,31 +27,12 @@
 #endif	/* YAPOR */
 #ifdef TABLING
 #include "tab.macros.h"
-#endif /* TABLING */
-#if defined(TABLING) || !defined(YAPOR_COW)
-#ifndef TABLING
+#elif !defined(YAPOR_COW)
 #include "opt.mavar.h"
-#endif /* !TABLING */
-#ifdef MULTI_ASSIGNMENT_VARIABLES
-ma_hash_entry Yap_ma_hash_table[MAVARS_HASH_SIZE];
-UInt Yap_ma_timestamp;    /* an unsigned int */
-ma_h_inner_struct *Yap_ma_h_top;
-#endif /* MULTI_ASSIGNMENT_VARIABLES */
-#endif /* TABLING || !YAPOR_COW */
+#endif /* TABLING */
 #ifdef YAPOR_COW
 #include "sys/wait.h"
 #endif /* YAPOR_COW */
-
-
-
-
-/************************************************
-**      Global variables are defined here      **
-************************************************/
-
-#if defined(YAPOR) && ! defined(THREADS)
-struct worker WORKER;
-#endif /* YAPOR && ! THREADS */
 
 
 
@@ -283,7 +264,7 @@ void init_workers(void) {
     if (son == 0) { 
       /* new worker */
       worker_id = proc;
-      remap_memory();
+      Yap_remap_optyap_memory();
       break;
     }
     else Yap_worker_pid(proc) = son;
