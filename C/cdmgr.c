@@ -1451,12 +1451,12 @@ Yap_kill_iblock(ClauseUnion *blk, ClauseUnion *parent_blk, PredEntry *ap)
     LogUpdIndex *c = (LogUpdIndex *)blk;
     if (parent_blk != NULL) {
       LogUpdIndex *cl = (LogUpdIndex *)parent_blk;
-#if defined(THREADS) || defined(YAPOR)
+#if MULTIPLE_STACKS
       /* protect against attempts at erasing */
       cl->ClRefCount++;
 #endif
       kill_first_log_iblock(c, cl, ap);
-#if defined(THREADS) || defined(YAPOR)
+#if MULTIPLE_STACKS
       cl->ClRefCount--;
 #endif
     } else {
@@ -1501,12 +1501,12 @@ Yap_ErLogUpdIndex(LogUpdIndex *clau)
   if (clau->ClFlags & SwitchRootMask) {
     kill_first_log_iblock(clau, NULL, clau->ClPred);
   } else {
-#if defined(THREADS) || defined(YAPOR)
+#if MULTIPLE_STACKS
     /* protect against attempts at erasing */
     clau->ClRefCount++;
 #endif
     kill_first_log_iblock(clau, clau->ParentIndex, clau->ClPred);
-#if defined(THREADS) || defined(YAPOR)
+#if MULTIPLE_STACKS
     /* protect against attempts at erasing */
     clau->ClRefCount--;
 #endif
@@ -2274,7 +2274,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (pflags & LogUpdatePredFlag) {
     LogUpdClause *cl = (LogUpdClause *)ClauseCodeToLogUpdClause(cp);
     tf = MkDBRefTerm((DBRef)cl);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
     TRAIL_CLREF(cl);		/* So that fail will erase it */
     INC_CLREF_COUNT(cl);
 #else
@@ -4428,7 +4428,7 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
 #else
@@ -4575,7 +4575,7 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
     return FALSE;
   }
   rtn = MkDBRefTerm((DBRef)cl);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
 #else
@@ -5071,7 +5071,7 @@ p_nth_clause( USES_REGS1 )
     return FALSE;
   }
   if (pe->PredFlags & LogUpdatePredFlag) {
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
     TRAIL_CLREF(cl);		/* So that fail will erase it */
     INC_CLREF_COUNT(cl);
 #else

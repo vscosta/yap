@@ -43,7 +43,7 @@
 #error Do not define multiple or-parallel models
 #endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
 
-#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS)
 #define YAPOR 1
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
@@ -59,6 +59,14 @@
 #undef YAPOR_COPY
 #endif
 #endif /* YAPOR */
+
+#if defined(YAPOR) || defined(THREADS) || defined(TABLING)
+#define MULTIPLE_STACKS 1
+#endif
+
+#if defined(YAPOR) || defined(THREADS)
+#define PARALLEL_YAP 1
+#endif
 
 #if defined(YAPOR) || defined(TABLING)
 #undef TRAILING_REQUIRES_BRANCH
@@ -76,7 +84,7 @@
 #endif
 #endif
 
-#if defined(SUPPORT_THREADS) || defined(SUPPORT_CONDOR)
+#if defined(THREADS) || defined(SUPPORT_CONDOR)
 #define USE_SYSTEM_MALLOC 1
 #endif
 

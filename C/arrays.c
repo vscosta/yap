@@ -392,7 +392,7 @@ AccessNamedArray(Atom a, Int indx USES_REGS)
 	  if (TRef != 0L) {
 	    DBRef ref = DBRefOfTerm(TRef);
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	    LOCK(ref->lock);
 	    INC_DBREF_COUNT(ref);
 	    TRAIL_REF(ref);	/* So that fail will erase it */
@@ -2305,17 +2305,17 @@ p_static_array_to_term( USES_REGS1 )
 
 	  if (TRef != 0L) {
 	    DBRef ref = DBRefOfTerm(TRef);
-#if defined(YAPOR) || defined(THREADS)
 	    LOCK(ref->lock);
+#if MULTIPLE_STACKS
 	    INC_DBREF_COUNT(ref);
 	    TRAIL_REF(ref);	/* So that fail will erase it */
-	    UNLOCK(ref->lock);
 #else
 	    if (!(ref->Flags & InUseMask)) {
 	      ref->Flags |= InUseMask;
 	      TRAIL_REF(ref);	/* So that fail will erase it */
 	    }
 #endif
+	    UNLOCK(ref->lock);
 	  } else {
 	    TRef = TermNil;
 	  }

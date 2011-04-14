@@ -182,7 +182,7 @@ typedef struct dbterm_list {
 
 #define DynamicLock(X)		(ClauseCodeToDynamicClause(X)->ClLock)
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 #define INIT_CLREF_COUNT(X) (X)->ClRefCount = 0
 #define  INC_CLREF_COUNT(X) (X)->ClRefCount++
 #define  DEC_CLREF_COUNT(X) (X)->ClRefCount--

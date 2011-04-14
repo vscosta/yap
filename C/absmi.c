@@ -1086,7 +1086,7 @@ Yap_absmi(int inp)
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	PELOCK(1, ap);
 	PP = ap;
 	DEC_CLREF_COUNT(cl);
@@ -1387,7 +1387,7 @@ Yap_absmi(int inp)
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	PELOCK(2, ap);
 	PP = ap;
 	DEC_CLREF_COUNT(cl);
@@ -1480,7 +1480,7 @@ Yap_absmi(int inp)
       /* only meaningful with THREADS on! */
       /* lock logical updates predicate.  */
       Op(lock_lu, p);
-#if defined(YAPOR) || defined(THREADS)
+#if PARALLEL_YAP
       if (PP) {
 	GONext();
       }
@@ -1508,10 +1508,12 @@ Yap_absmi(int inp)
       check_trail(TR); 
       /* say that an environment is using this clause */
       /* we have our own copy for the clause */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
       {
 	LogUpdClause *cl = PREG->u.L.ClBase;
+#if PARALLEL_YAP
 	PredEntry *ap = cl->ClPred;
+#endif
 
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
@@ -1581,7 +1583,7 @@ Yap_absmi(int inp)
 	}
 	setregs();
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
@@ -1633,7 +1635,7 @@ Yap_absmi(int inp)
 
 	/* say that an environment is using this clause */
 	/* we have our own copy for the clause */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	/* always add an extra reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
@@ -1746,7 +1748,7 @@ Yap_absmi(int inp)
 #endif	/* YAPOR */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
       INC_CLREF_COUNT(ClauseCodeToDynamicClause(PREG));
       UNLOCK(DynamicLock(PREG));
       TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
@@ -1808,7 +1810,7 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
       SET_BB(B_YREG);
       ENDCACHE_Y();
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
       INC_CLREF_COUNT(ClauseCodeToDynamicClause(PREG));
       TRAIL_CLREF(ClauseCodeToDynamicClause(PREG));
       UNLOCK(DynamicLock(PREG));
@@ -2067,7 +2069,7 @@ Yap_absmi(int inp)
 	      if (IN_BETWEEN(H0,pt1,H) && IsAttVar(pt1))
 		goto failloop;		       	    
 	    flags = *pt1;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	    if (FlagOn(DBClMask, flags)) {
 	      DBRef dbr = DBStructFlagsToDBStruct(pt1);
 	      int erase;
@@ -2086,7 +2088,9 @@ Yap_absmi(int inp)
 		if (flags & IndexMask) {
 		  LogUpdIndex *cl = ClauseFlagsToLogUpdIndex(pt1);
 		  int erase;
+#if PARALLEL_YAP
 		  PredEntry *ap = cl->ClPred;
+#endif
 
 		  PELOCK(8,ap);
 		  DEC_CLREF_COUNT(cl);
@@ -2110,7 +2114,9 @@ Yap_absmi(int inp)
 		} else {
 		  LogUpdClause *cl = ClauseFlagsToLogUpdClause(pt1);
 		  int erase;
+#if PARALLEL_YAP
 		  PredEntry *ap = cl->ClPred;
+#endif
 
 		  PELOCK(9,ap);
 		  DEC_CLREF_COUNT(cl);
@@ -7926,7 +7932,7 @@ Yap_absmi(int inp)
 	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ills.s);*/
 	PREG = PREG->u.Ills.l1;
 	/* indicate the indexing code is being used */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	/* just store a reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
@@ -8032,7 +8038,7 @@ Yap_absmi(int inp)
 	}
 	/* HEY, leave indexing block alone!! */
 	/* check if we are the ones using this code */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
 	B->cp_tr--;

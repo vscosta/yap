@@ -2190,6 +2190,7 @@ emit_type_switch(compiler_vm_op op, struct intermediates *cint)
 static yamop *
 emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_mask)
 {
+  CACHE_REGS
   PredEntry *ap = cint->CurrentPred;
 
   if (ap->PredFlags & LogUpdatePredFlag) {
@@ -5218,7 +5219,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
     return sp;
   } else {
     if (
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	blk->ClRefCount == 0
 #else
 	!(blk->ClFlags & InUseMask)
@@ -6821,7 +6822,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	}
 	*--ASP = MkIntegerTerm(ap->TimeStampOfPred);
 	/* indicate the indexing code is being used */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	/* just store a reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
@@ -6883,7 +6884,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  newpc = ipc->u.OtILl.d;
 	}
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	B->cp_tr--;
 	TR--;
 	DEC_CLREF_COUNT(cl);
