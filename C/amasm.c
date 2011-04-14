@@ -3052,7 +3052,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	}
 	cl_u->luc.ClExt = NULL;
 	cl_u->luc.ClPrev = cl_u->luc.ClNext = NULL;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	//INIT_LOCK(cl_u->luc.ClLock);
 	INIT_CLREF_COUNT(&(cl_u->luc));
 #endif
@@ -3071,6 +3071,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->ic.ClRefCount = 0;
 #if defined(YAPOR) || defined(THREADS)
 	INIT_LOCK(cl_u->ic.ClLock);
+#endif
+#ifdef MULTIPLE_STACKS
 	INIT_CLREF_COUNT(&(cl_u->ic));
 #endif
       }
@@ -3122,7 +3124,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	cl_u->lui.ClSize = size;
 	cl_u->lui.ClRefCount =  0;
 	//	INIT_LOCK(cl_u->lui.ClLock);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	INIT_CLREF_COUNT(&(cl_u->lui));
 #endif
       }

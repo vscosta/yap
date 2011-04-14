@@ -146,7 +146,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	f = (Functor)(*ap2);
 
 	if (IsExtensionFunctor(f)) {
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	  if (f == FunctorDBRef) {
 	    DBRef  entryref = DBRefOfTerm(d0);
 	    if (entryref->Flags & LogUpdMask) {

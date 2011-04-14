@@ -20,17 +20,17 @@
 #error Do not explicitly define YAPOR
 #endif /* YAPOR */
 
-#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA))) || (defined(YAPOR_COW) && defined(YAPOR_SBA))
+#if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_COW) && (defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_SBA) && defined(YAPOR_THREADS))
 #error Do not define multiple or-parallel models
 #endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
 
-#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS)
 #define YAPOR 1
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
-#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA))
+#if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))
 #error Currently TABLING only works with YAPOR_COPY
-#endif /* TABLING && (YAPOR_COW || YAPOR_SBA) */
+#endif /* TABLING && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS) */
 
 #include "config.h"
 #if defined(YAPOR) || defined(TABLING) || defined(THREADS)
@@ -60,6 +60,14 @@
 #endif
 #endif /* YAPOR */
 
+#if defined(YAPOR) || defined(THREADS) || defined(TABLING)
+#define MULTIPLE_STACKS 1
+#endif
+
+#if defined(YAPOR) || defined(THREADS)
+#define PARALLEL_YAP 1
+#endif
+
 #if defined(YAPOR) || defined(TABLING)
 #undef TRAILING_REQUIRES_BRANCH
 #endif /* YAPOR || TABLING */
@@ -76,7 +84,7 @@
 #endif
 #endif
 
-#if defined(SUPPORT_THREADS) || defined(SUPPORT_CONDOR)
+#if defined(THREADS) || defined(SUPPORT_CONDOR)
 #define USE_SYSTEM_MALLOC 1
 #endif
 

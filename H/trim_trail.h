@@ -83,7 +83,7 @@
       int size;
       pt0++;
       size = TR - pt0;
-      memcpy(pbase, pt0, size * sizeof(struct trail_frame));
+      memmove(pbase, pt0, size * sizeof(struct trail_frame));
       TR = pbase + size;
     }
   }

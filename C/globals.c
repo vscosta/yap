@@ -1024,7 +1024,7 @@ p_nb_linkval( USES_REGS1 )
 
 
 static Int
-p_nb_create_accumulator(void)
+p_nb_create_accumulator( USES_REGS1 )
 {
   Term t = Deref(ARG1), acct, to;
   CELL *destp;
@@ -1041,7 +1041,7 @@ p_nb_create_accumulator(void)
   if (!Yap_unify(ARG2, acct)) {
     return FALSE;
   }
-  to = CopyTermToArena(t, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+  to = CopyTermToArena(t, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   destp = RepAppl(Deref(ARG2));
@@ -1050,7 +1050,7 @@ p_nb_create_accumulator(void)
 }
 
 static Int
-p_nb_add_to_accumulator(void)
+p_nb_add_to_accumulator( USES_REGS1 )
 {
   Term t = Deref(ARG1), t0, tadd;
   Functor f;
@@ -1091,7 +1091,7 @@ p_nb_add_to_accumulator(void)
 	target[1] = source[1];
       } else {
 	/* we need to create a new long int */
-	new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+	new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
 	destp = RepAppl(Deref(ARG1));
 	destp[1] = new;
       }
@@ -1118,7 +1118,7 @@ p_nb_add_to_accumulator(void)
     new = Yap_MkApplTerm(FunctorPlus, 2, t2);
 
     new = Yap_Eval(new);
-    new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena)));
+    new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS)  PASS_REGS);
     destp = RepAppl(Deref(ARG1));
     destp[1] = new;    
 
@@ -1129,7 +1129,7 @@ p_nb_add_to_accumulator(void)
 
 
 static Int
-p_nb_accumulator_value(void)
+p_nb_accumulator_value( USES_REGS1 )
 {
   Term t = Deref(ARG1), to;
   Functor f;

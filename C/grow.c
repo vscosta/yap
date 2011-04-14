@@ -214,7 +214,7 @@ MoveLocalAndTrail( USES_REGS1 )
 #endif
 }
 
-#ifdef THREADS
+#ifdef YAPOR_THREADS
 
 static void
 CopyLocalAndTrail( USES_REGS1 )
@@ -401,14 +401,14 @@ AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
 {
   volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)Yap_TrailBase;
 
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     ptt =  (tr_fr_ptr)(LOCAL_end_trail_copy);
     tr_base =  (tr_fr_ptr)(LOCAL_start_trail_copy);
   } else {
 #endif
     ptt = TR;
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   }
 #endif
   /* moving the trail is simple */
@@ -462,7 +462,7 @@ AdjustLocal(int thread_copying USES_REGS)
   register CELL   reg, *pt, *pt_bot;
 
   /* Adjusting the local */
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     pt =  (CELL *) (LOCAL_end_local_copy);
     pt_bot =  (CELL *) (LOCAL_start_local_copy);
@@ -470,7 +470,7 @@ AdjustLocal(int thread_copying USES_REGS)
 #endif
     pt = LCL0;
     pt_bot = ASP;
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   }
 #endif
   while (pt > pt_bot) {
@@ -551,7 +551,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
    * to clean the global now that functors are just variables pointing to
    * the code 
    */
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
     pt =  (CELL *) (LOCAL_start_global_copy);
     pt_max =  (CELL *) (LOCAL_end_global_copy);
@@ -559,7 +559,7 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 #endif
     pt = H0;
     pt_max = (H-sz/CellSize);
-#if defined(YAPOR) && defined(THREADS)
+#if defined(YAPOR_THREADS)
   }
 #endif
   pt = H0;
@@ -790,7 +790,7 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   gc_verbose = Yap_is_gc_verbose();
   heap_overflows++;
   if (gc_verbose) {
-#if  defined(YAPOR) || defined(THREADS)
+#if  defined(YAPOR_THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Database Overflow %d\n", heap_overflows);
@@ -936,7 +936,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
       vb_msg1 = 'D';
       vb_msg2 = "Delay";
     }
-#if  defined(YAPOR) || defined(THREADS)
+#if  defined(YAPOR_THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, delay_overflows);
@@ -1357,7 +1357,7 @@ growatomtable( USES_REGS1 )
   }
   atom_table_overflows++;
   if (gc_verbose) {
-#if  defined(YAPOR) || defined(THREADS)
+#if  defined(YAPOR_THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Atom Table Overflow %d\n", atom_table_overflows);
@@ -1441,7 +1441,7 @@ Yap_growglobal(CELL **ptr)
   CACHE_REGS
   unsigned long sz = sizeof(CELL) * K16;
 
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_THREADS)
   if (Yap_number_workers != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
@@ -1837,7 +1837,7 @@ p_inform_heap_overflows( USES_REGS1 )
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 }
 
-#if defined(THREADS) && defined(YAPOR)
+#if defined(YAPOR_THREADS)
 void
 Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
 {

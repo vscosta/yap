@@ -267,9 +267,15 @@ Binding Macros for Multiple Assignment Variables.
 #define REF_TO_TRENTRY(REF)    AbsPair(((CELL *)&((REF)->Flags)))
 #define CLREF_TO_TRENTRY(REF)  AbsPair(((CELL *)&((REF)->ClFlags)))
 
+#if FROZEN_STACKS
+#define TRAIL_REF(REF)         RESET_VARIABLE(&TrailVal(TR)), TrailTerm(TR++) = REF_TO_TRENTRY(REF)
+#define TRAIL_CLREF(REF)       RESET_VARIABLE(&TrailVal(TR)), TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
+#define TRAIL_LINK(REF)        RESET_VARIABLE(&TrailVal(TR)), TrailTerm(TR++) = AbsPair((CELL *)(REF))
+#else
 #define TRAIL_REF(REF)         TrailTerm(TR++) = REF_TO_TRENTRY(REF)
 #define TRAIL_CLREF(REF)       TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
 #define TRAIL_LINK(REF)        TrailTerm(TR++) = AbsPair((CELL *)(REF))
+#endif
 #define TRAIL_FRAME(FR)        DO_TRAIL(AbsPair((CELL *)(Yap_TrailBase)), FR)
 
 extern void	Yap_WakeUp(CELL *v);

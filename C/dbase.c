@@ -113,7 +113,7 @@ typedef struct idb_queue
 {
   Functor id;		/* identify this as being pointed to by a DBRef */
   SMALLUNSGN    Flags;  /* always required */
-#if defined(YAPOR) || defined(THREADS)
+#if PARALLEL_YAP
   rwlock_t    QRWLock;         /* a simple lock to protect this entry */
 #endif
   QueueEntry *FirstInQueue, *LastInQueue;
@@ -1670,7 +1670,7 @@ record(int Flag, Term key, Term t_data, Term t_code USES_REGS)
   else
     x->Flags |= DBNoCode;
   x->Parent = p;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   x->Flags |= DBClMask;
   x->ref_count = 1;
 #else
@@ -1742,7 +1742,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS)
   else
     x->Flags |= DBNoCode;
   x->Parent = p;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   x->Flags |= DBClMask;
   x->ref_count = 1;
 #else
@@ -1806,7 +1806,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   struct db_globs dbg;
   int d_flag = 0;
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   /* we cannot allow sharing between threads (for now) */ 
   if (!(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
@@ -1838,7 +1838,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
     cl->ClTimeStart = 0L;
   }
   cl->ClTimeEnd = TIMESTAMP_EOT; 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   //  INIT_LOCK(cl->ClLock);
   INIT_CLREF_COUNT(cl);
   ipc->opc = Yap_opcode(_copy_idb_term);
@@ -1960,7 +1960,7 @@ p_rcda( USES_REGS1 )
     cl = record_lu(pe, Deref(ARG2), MkFirst);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
       INC_CLREF_COUNT(cl);
 #else
       cl->ClFlags |= InUseMask;
@@ -2070,7 +2070,7 @@ p_rcdz( USES_REGS1 )
     cl = record_lu(pe, t2, MkLast);
     if (cl != NULL) {
       TRAIL_CLREF(cl);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
       INC_CLREF_COUNT(cl);
 #else
       cl->ClFlags |= InUseMask;
@@ -2917,7 +2917,7 @@ lu_nth_recorded(PredEntry *pe, Int Count USES_REGS)
   cl = Yap_NthClause(pe, Count);
   if (cl == NULL)
     return FALSE;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   PELOCK(65,pe);
   TRAIL_CLREF(cl);		/* So that fail will erase it */
   INC_CLREF_COUNT(cl);
@@ -2959,7 +2959,7 @@ nth_recorded(DBProp AtProp, Int Count USES_REGS)
       return FALSE;
     }
   }
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   LOCK(ref->lock);
   READ_UNLOCK(AtProp->DBRWLock);
   TRAIL_REF(ref);		/* So that fail will erase it */
@@ -3276,7 +3276,7 @@ i_recorded(DBProp AtProp, Term t3 USES_REGS)
   /* This should be after any non-tagged terms, because the routines in grow.c
      go from upper to lower addresses */
   TRef = MkDBRefTerm(ref);
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   LOCK(ref->lock);
   TRAIL_REF(ref);		/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
@@ -3421,7 +3421,7 @@ c_recorded(int flags USES_REGS)
   READ_UNLOCK(ref0->Parent->DBRWLock);
   TRef = MkDBRefTerm(ref);
   EXTRA_CBACK_ARG(3,1) = (CELL)ref;
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   LOCK(ref->lock);
   TRAIL_REF(ref);	/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
@@ -3664,17 +3664,17 @@ p_first_instance( USES_REGS1 )
   }
   TRef = MkDBRefTerm(ref);
   /* we have a pointer to the term available */
-#if defined(YAPOR) || defined(THREADS)
   LOCK(ref->lock);
+#if MULTIPLE_STACKS
   TRAIL_REF(ref);	/* So that fail will erase it */
   INC_DBREF_COUNT(ref);
-  UNLOCK(ref->lock);
 #else 
   if (!(ref->Flags & InUseMask)) {
     ref->Flags |= InUseMask;
     TRAIL_REF(ref);	/* So that fail will erase it */
   }
 #endif
+  UNLOCK(ref->lock);
   while ((TermDB = GetDBTermFromDBEntry(ref PASS_REGS)) == (CELL)0) {
     /* oops, we are in trouble, not enough stack space */
     if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
@@ -3942,7 +3942,7 @@ RemoveDBEntry(DBRef entryref USES_REGS)
        || B->cp_ap == RETRY_C_RECORDEDP_CODE) &&
       EXTRA_CBACK_ARG(3,1) == (CELL)entryref) {
     /* make it clear the entry has been released */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
     DEC_DBREF_COUNT(entryref);
 #else 
     entryref->Flags &= ~InUseMask;
@@ -3993,7 +3993,7 @@ find_next_clause(DBRef ref0 USES_REGS)
     newp = ref->Code;
     /* and next let's tell the world this clause is being used, just
        like if we were executing a standard retry_and_mark */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
     {
       DynamicClause *cl = ClauseCodeToDynamicClause(newp);
 
@@ -4805,7 +4805,7 @@ Yap_LUInstance(LogUpdClause *cl, UInt arity)
       }
     }
   }
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
   cl->ClRefCount++;
   TRAIL_CLREF(cl);	/* So that fail will erase it */
 #else
@@ -5427,17 +5427,17 @@ p_fetch_reference_from_index( USES_REGS1 )
     return FALSE;
   pos = IntOfTerm(t2);
   el = (DBRef)(table->DBT.Contents[pos]);
-#if defined(YAPOR) || defined(THREADS)
   LOCK(el->lock);
+#if MULTIPLE_STACKS
   TRAIL_REF(el);	/* So that fail will erase it */
   INC_DBREF_COUNT(el);
-  UNLOCK(el->lock);
 #else
   if (!(el->Flags & InUseMask)) {
     el->Flags |= InUseMask;
     TRAIL_REF(el);
   }
 #endif
+  UNLOCK(el->lock);
   return Yap_unify(ARG3, MkDBRefTerm(el));
 }
 

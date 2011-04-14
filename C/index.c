@@ -839,6 +839,7 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   base = top;
   while (top+2*max > (CELL *)Yap_TrailTop) {
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
+      Yap_Error_Size = 2*max*CellSize;
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,4);
       return;
@@ -2066,6 +2067,7 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *c
       siglongjmp(cint->CompilerBotch,4);
 #else
       if (!Yap_growtrail(sz, TRUE)) {
+	Yap_Error_Size = sz;
 	save_machine_regs();
 	siglongjmp(cint->CompilerBotch,4);
 	return 0;
@@ -2188,12 +2190,14 @@ emit_type_switch(compiler_vm_op op, struct intermediates *cint)
 static yamop *
 emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_mask)
 {
+  CACHE_REGS
   PredEntry *ap = cint->CurrentPred;
 
   if (ap->PredFlags & LogUpdatePredFlag) {
     UInt sz = sizeof(LogUpdIndex)+n*item_size;
     LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
+      Yap_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -2214,6 +2218,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     UInt sz = sizeof(StaticIndex)+n*item_size;
     StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
+      Yap_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -5214,7 +5219,7 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
     return sp;
   } else {
     if (
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	blk->ClRefCount == 0
 #else
 	!(blk->ClFlags & InUseMask)
@@ -6817,7 +6822,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	}
 	*--ASP = MkIntegerTerm(ap->TimeStampOfPred);
 	/* indicate the indexing code is being used */
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	/* just store a reference */
 	INC_CLREF_COUNT(cl);
 	TRAIL_CLREF(cl);
@@ -6879,7 +6884,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  newpc = ipc->u.OtILl.d;
 	}
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STACKS
 	B->cp_tr--;
 	TR--;
 	DEC_CLREF_COUNT(cl);

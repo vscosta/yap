@@ -863,6 +863,8 @@ typedef struct DB_STRUCT
   CELL Flags;			/* Term Flags                           */
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;			/* a simple lock to protect this entry */
+#endif
+#if MULTIPLE_STACKS
   Int ref_count;		/* how many branches are using this entry */
 #endif
   CELL NOfRefsTo;		/* Number of references pointing here   */
@@ -880,7 +882,7 @@ typedef struct DB_STRUCT
 
 #define DBStructFlagsToDBStruct(X) ((DBRef)((char *)(X) - (CELL) &(((DBRef) NULL)->Flags)))
 
-#if defined(YAPOR) || defined(THREADS)
+#if MULTIPLE_STAACKS
 #define INIT_DBREF_COUNT(X) (X)->ref_count = 0
 #define  INC_DBREF_COUNT(X) (X)->ref_count++
 #define  DEC_DBREF_COUNT(X) (X)->ref_count--
