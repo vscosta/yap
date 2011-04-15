@@ -1624,6 +1624,7 @@ Yap_InitYaamRegs(void)
   if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
     Yap_AttsSize = (Yap_LocalBase-Yap_GlobalBase)/8;
   H = H0 = ((CELL *) Yap_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
+  RESET_VARIABLE(H0-1);
   LCL0 = ASP = (CELL *) Yap_LocalBase;
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
