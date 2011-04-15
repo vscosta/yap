@@ -2068,6 +2068,11 @@ Yap_absmi(int inp)
 #endif /* FROZEN_STACKS */
 	      if (IN_BETWEEN(H0,pt1,H) && IsAttVar(pt1))
 		goto failloop;		       	    
+#ifdef FROZEN_STACKS  /* TRAIL */
+	    /* don't reset frozen variables */
+	    if (pt0 < TR_FZ)
+		goto failloop;		       	    
+#endif
 	    flags = *pt1;
 #if MULTIPLE_STACKS
 	    if (FlagOn(DBClMask, flags)) {
