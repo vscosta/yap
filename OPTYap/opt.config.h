@@ -20,6 +20,7 @@
 /**********************************************************
 **      memory alloc scheme (mandatory, define one)      **
 **********************************************************/
+
 #ifdef USE_SYSTEM_MALLOC
 #define MALLOC_MEMORY_ALLOC_SCHEME 1
 #else
@@ -96,7 +97,7 @@
 **      memory mapping scheme (mandatory, define one)      **
 ************************************************************/
 #define MMAP_MEMORY_MAPPING_SCHEME 1
-/* #define SHM_MEMORY_MAPPING_SCHEME  1 */
+//#define SHM_MEMORY_MAPPING_SCHEME  1
 
 /*************************************************
 **      enable error checking ? (optional)      **

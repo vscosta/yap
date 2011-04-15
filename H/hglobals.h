@@ -51,7 +51,7 @@ typedef struct global_data {
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
-  struct optyap_global_data  optyap_data;
+  struct global_optyap_data  optyap_data;
   struct local_data  remote[MAX_WORKERS];
 #endif
 

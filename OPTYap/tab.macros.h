@@ -414,7 +414,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
             Yap_last_sg_fr = NULL;                                        \
 	}                                                                    \
         if (Yap_check_sg_fr == SG_FR)                                     \
-          GLOBAL_check_sg_fr = SgFr_previous(SG_FR)
+          Yap_check_sg_fr = SgFr_previous(SG_FR)
 #else
 #define insert_into_global_sg_fr_list(SG_FR)
 #define remove_from_global_sg_fr_list(SG_FR)

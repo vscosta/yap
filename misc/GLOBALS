@@ -56,7 +56,7 @@ lockvar		thread_handles_lock	Yap_ThreadHandlesLock	MkLock
 
 // Ricardo's stuff
 #if defined(YAPOR) || defined(TABLING)
-struct optyap_global_data	optyap_data	Yap_optyap_data	void	
+struct global_optyap_data	optyap_data	Yap_optyap_data	void	
 struct local_data	remote[MAX_WORKERS]	REMOTE		void
 #endif
 

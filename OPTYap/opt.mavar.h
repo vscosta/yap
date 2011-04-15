@@ -19,28 +19,12 @@
 
 #ifndef OPT_MAVAR_STATIC
 #define OPT_MAVAR_STATIC inline static
-#endif
+#endif /* !OPT_MAVAR_STATIC */
 
-#define MAVARS_HASH_SIZE 512
-
-typedef struct ma_h_entry {
-  CELL* addr;
-  struct ma_h_entry *next;
-} ma_h_inner_struct;
-
-typedef struct {
-  UInt timestmp;
-  struct ma_h_entry val;
-} ma_hash_entry;
-
-extern ma_hash_entry Yap_ma_hash_table[MAVARS_HASH_SIZE];
-
-extern UInt Yap_ma_timestamp;    /* an unsigned int */
-
-OPT_MAVAR_STATIC unsigned int Yap_MAVAR_HASH(CELL *);
-OPT_MAVAR_STATIC struct ma_h_entry *Yap_ALLOC_NEW_MASPACE(void);
-OPT_MAVAR_STATIC int Yap_lookup_ma_var(CELL *);
-OPT_MAVAR_STATIC UInt Yap_NEW_MAHASH(ma_h_inner_struct *);
+OPT_MAVAR_STATIC unsigned int Yap_MAVAR_HASH(CELL *addr);
+OPT_MAVAR_STATIC struct ma_h_entry * Yap_ALLOC_NEW_MASPACE(void);
+OPT_MAVAR_STATIC int Yap_lookup_ma_var(CELL *addr);
+OPT_MAVAR_STATIC UInt Yap_NEW_MAHASH(ma_h_inner_struct *top);
 
 OPT_MAVAR_STATIC unsigned int
 Yap_MAVAR_HASH(CELL *addr) {
@@ -51,13 +35,11 @@ Yap_MAVAR_HASH(CELL *addr) {
 #endif
 }
 
-extern ma_h_inner_struct *Yap_ma_h_top;
-
 OPT_MAVAR_STATIC struct ma_h_entry *
 Yap_ALLOC_NEW_MASPACE(void)
 {
-  ma_h_inner_struct *new = Yap_ma_h_top;
-  Yap_ma_h_top++;
+  ma_h_inner_struct *new = LOCAL_ma_h_top;
+  LOCAL_ma_h_top++;
   return new;
 }
 
@@ -66,16 +48,16 @@ Yap_lookup_ma_var(CELL *addr) {
   unsigned int i = Yap_MAVAR_HASH(addr);
   struct ma_h_entry *nptr, *optr;
 
-  if (Yap_ma_hash_table[i].timestmp != Yap_ma_timestamp) {
-    Yap_ma_hash_table[i].timestmp = Yap_ma_timestamp;
-    Yap_ma_hash_table[i].val.addr = addr;
-    Yap_ma_hash_table[i].val.next = NULL;
+  if (LOCAL_ma_hash_table[i].timestmp != LOCAL_ma_timestamp) {
+    LOCAL_ma_hash_table[i].timestmp = LOCAL_ma_timestamp;
+    LOCAL_ma_hash_table[i].val.addr = addr;
+    LOCAL_ma_hash_table[i].val.next = NULL;
     return FALSE;
   }
-  if (Yap_ma_hash_table[i].val.addr == addr) 
+  if (LOCAL_ma_hash_table[i].val.addr == addr) 
     return TRUE;
-  optr = &(Yap_ma_hash_table[i].val);
-  nptr = Yap_ma_hash_table[i].val.next;
+  optr = &(LOCAL_ma_hash_table[i].val);
+  nptr = LOCAL_ma_hash_table[i].val.next;
   while (nptr != NULL) {
     if (nptr->addr == addr) {
       return TRUE;
@@ -91,16 +73,15 @@ Yap_lookup_ma_var(CELL *addr) {
 
 OPT_MAVAR_STATIC UInt
 Yap_NEW_MAHASH(ma_h_inner_struct *top) {
-  UInt time = ++Yap_ma_timestamp;
+  UInt time = ++LOCAL_ma_timestamp;
   if (time == 0) {
     unsigned int i;
     /* damn, we overflowed */
     for (i = 0; i < MAVARS_HASH_SIZE; i++)
-      Yap_ma_hash_table[i].timestmp = 0;
-    time = ++Yap_ma_timestamp;
+      LOCAL_ma_hash_table[i].timestmp = 0;
+    time = ++LOCAL_ma_timestamp;
   }
-  Yap_ma_h_top = top;
+  LOCAL_ma_h_top = top;
   return time;
 }
-
 #endif /* MULTI_ASSIGNMENT_VARIABLES */

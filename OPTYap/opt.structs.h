@@ -157,10 +157,10 @@ struct global_locks {
 
 
 /*********************************
-*   Struct optyap_global_data   **
+*   Struct global_optyap_data   **
 *********************************/
 
-struct optyap_global_data{
+struct global_optyap_data{
   /* global data related to memory management */
   struct global_pages pages;
 
@@ -170,6 +170,7 @@ struct optyap_global_data{
   int delayed_release_load;
   int number_workers;
   int worker_pid[MAX_WORKERS];
+  
 #ifdef YAPOR_COW
   int master_worker;
 #endif /* YAPOR_COW */
@@ -225,9 +226,9 @@ struct optyap_global_data{
 
 #define Yap_max_pages                        (Yap_optyap_data.pages.max_pages)
 #define Yap_pages_void                       (Yap_optyap_data.pages.void_pages)
-#define Yap_pages_or_fr                       (Yap_optyap_data.pages.or_frame_pages)
-#define Yap_pages_qg_sol_fr                   (Yap_optyap_data.pages.query_goal_solution_frame_pages)
-#define Yap_pages_qg_ans_fr                 (Yap_optyap_data.pages.query_goal_answer_frame_pages)
+#define Yap_pages_or_fr                      (Yap_optyap_data.pages.or_frame_pages)
+#define Yap_pages_qg_sol_fr                  (Yap_optyap_data.pages.query_goal_solution_frame_pages)
+#define Yap_pages_qg_ans_fr                  (Yap_optyap_data.pages.query_goal_answer_frame_pages)
 #define Yap_pages_tg_sol_fr                  (Yap_optyap_data.pages.table_subgoal_solution_frame_pages)
 #define Yap_pages_tg_ans_fr                  (Yap_optyap_data.pages.table_subgoal_answer_frame_pages)
 #define Yap_pages_tab_ent                    (Yap_optyap_data.pages.table_entry_pages)
@@ -240,17 +241,17 @@ struct optyap_global_data{
 #define Yap_pages_ans_hash                   (Yap_optyap_data.pages.answer_trie_hash_pages)
 #define Yap_pages_gt_hash                    (Yap_optyap_data.pages.global_trie_hash_pages)
 #define Yap_pages_susp_fr                    (Yap_optyap_data.pages.suspension_frame_pages)
-#define Yap_scheduler_loop                          (Yap_optyap_data.scheduler_loop)
-#define Yap_delayed_release_load                    (Yap_optyap_data.delayed_release_load)
-#define Yap_number_workers                          (Yap_optyap_data.number_workers)
-#define Yap_worker_pid(worker)                      (Yap_optyap_data.worker_pid[worker])
+#define Yap_scheduler_loop                   (Yap_optyap_data.scheduler_loop)
+#define Yap_delayed_release_load             (Yap_optyap_data.delayed_release_load)
+#define Yap_number_workers                   (Yap_optyap_data.number_workers)
+#define Yap_worker_pid(worker)               (Yap_optyap_data.worker_pid[worker])
 #define Yap_master_worker                    (Yap_optyap_data.master_worker)
 #define Yap_execution_time                   (Yap_optyap_data.execution_time)
 #define Yap_best_times(time)                 (Yap_optyap_data.best_execution_times[time])
 #define Yap_number_goals                     (Yap_optyap_data.number_of_executed_goals)
 #define Yap_performance_mode                 (Yap_optyap_data.performance_mode)
 #if THREADS
-#define Get_Yap_root_cp()	                offset_to_cptr(Yap_optyap_data.root_choice_point_offset)
+#define Get_Yap_root_cp()	                 offset_to_cptr(Yap_optyap_data.root_choice_point_offset)
 #define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
 #else
 #define Yap_root_cp                          (Yap_optyap_data.root_choice_point)
@@ -277,7 +278,7 @@ struct optyap_global_data{
 #define Yap_locks_heap_access                (Yap_optyap_data.locks.heap_access)
 #define Yap_locks_alloc_block                (Yap_optyap_data.locks.alloc_block)
 #define Yap_branch(worker, depth)            (Yap_optyap_data.branch[worker][depth])
-#define Yap_parallel_execution_mode             (Yap_optyap_data.parallel_execution_mode)
+#define Yap_parallel_execution_mode          (Yap_optyap_data.parallel_execution_mode)
 #define Yap_answers                          (Yap_optyap_data.answers)
 #define Yap_root_gt                          (Yap_optyap_data.root_global_trie)
 #define Yap_root_tab_ent                     (Yap_optyap_data.root_table_entry)
@@ -314,9 +315,29 @@ struct local_signals{
     nodes_shared = 2,
     copy_done    = 3,
     worker_ready = 4
-  } reply;
+  } reply_signal;
 };
 #endif /* YAPOR */
+
+
+
+/**********************************************************
+**      Structs ma_h_inner_struct and ma_hash_entry      **
+**********************************************************/
+
+#if (defined(TABLING) || !defined(YAPOR_COW)) && defined(MULTI_ASSIGNMENT_VARIABLES)
+#define MAVARS_HASH_SIZE 512
+
+typedef struct ma_h_entry {
+  CELL* addr;
+  struct ma_h_entry *next;
+} ma_h_inner_struct;
+
+typedef struct {
+  UInt timestmp;
+  struct ma_h_entry val;
+} ma_hash_entry;
+#endif /* (TABLING || !YAPOR_COW) && MULTI_ASSIGNMENT_VARIABLES */
 
 
 
@@ -367,6 +388,12 @@ struct local_data{
   struct or_frame *top_or_frame_with_suspensions;
 #endif /* YAPOR */
 #endif /* TABLING */
+
+#if (defined(TABLING) || !defined(YAPOR_COW)) && defined(MULTI_ASSIGNMENT_VARIABLES)
+  UInt ma_timestamp;
+  ma_h_inner_struct *ma_h_top;
+  ma_hash_entry ma_hash_table[MAVARS_HASH_SIZE];
+#endif /* (TABLING || !YAPOR_COW) && MULTI_ASSIGNMENT_VARIABLES */
 };
 
 #define LOCAL_lock                         (LOCAL->lock)
@@ -389,7 +416,7 @@ struct local_data{
 #define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request = cpt)
 #endif
 #define LOCAL_share_request                (LOCAL->share_request)
-#define LOCAL_reply_signal                 (LOCAL->share_signals.reply)
+#define LOCAL_reply_signal                 (LOCAL->share_signals.reply_signal)
 #define LOCAL_p_fase_signal                (LOCAL->share_signals.P_fase)
 #define LOCAL_q_fase_signal                (LOCAL->share_signals.Q_fase)
 #define LOCAL_lock_signals                 (LOCAL->share_signals.lock)
@@ -412,8 +439,13 @@ struct local_data{
 #define Set_LOCAL_top_cp_on_stack(cpt)	   (LOCAL->top_choice_point_on_stack =  cpt)
 #endif
 #define LOCAL_top_susp_or_fr               (LOCAL->top_or_frame_with_suspensions)
+#define LOCAL_ma_timestamp                 (LOCAL->ma_timestamp)
+#define LOCAL_ma_h_top                     (LOCAL->ma_h_top)
+#define LOCAL_ma_hash_table                (LOCAL->ma_hash_table)
 
 #define REMOTE_lock(worker)                (REMOTE[worker].lock)
+
+
 #define REMOTE_load(worker)                (REMOTE[worker].load)
 #if THREADS
 #define REMOTE_top_cp(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_offset)
@@ -432,7 +464,7 @@ struct local_data{
 #define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request = cp)
 #endif
 #define REMOTE_share_request(worker)       (REMOTE[worker].share_request)
-#define REMOTE_reply_signal(worker)        (REMOTE[worker].share_signals.reply)
+#define REMOTE_reply_signal(worker)        (REMOTE[worker].share_signals.reply_signal)
 #define REMOTE_p_fase_signal(worker)       (REMOTE[worker].share_signals.P_fase)
 #define REMOTE_q_fase_signal(worker)       (REMOTE[worker].share_signals.Q_fase)
 #define REMOTE_lock_signals(worker)        (REMOTE[worker].share_signals.lock)

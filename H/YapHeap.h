@@ -182,6 +182,7 @@ typedef struct various_codes {
 
 #if defined(YAPOR) && !defined(THREADS)
 extern struct global_data *Yap_global;
+extern long Yap_worker_area_size;
 #else
 extern struct global_data Yap_Global;
 #define Yap_global (&Yap_Global)

@@ -238,7 +238,7 @@ int q_share_work(int worker_p) {
 
   OPTYAP_ERROR_CHECKING(q_share_work, LOCAL_top_cp != LOCAL_top_cp_on_stack);
   OPTYAP_ERROR_CHECKING(q_share_work, YOUNGER_CP(B_FZ, LOCAL_top_cp));
-  YAPOR_ERROR_CHECKING(q_share_work, LOCAL_reply_signal != ready);
+  YAPOR_ERROR_CHECKING(q_share_work, LOCAL_reply_signal != worker_ready);
 
   /* make sharing request */
   LOCK_WORKER(worker_p);
@@ -292,7 +292,7 @@ int q_share_work(int worker_p) {
 
 sync_with_p:
 #ifdef TABLING
-  REMOTE_reply_signal(worker_p) = ready;
+  REMOTE_reply_signal(worker_p) = worker_ready;
 #else
   REMOTE_reply_signal(worker_p) = copy_done;
 #endif /* TABLING */

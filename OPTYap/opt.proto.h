@@ -16,15 +16,9 @@
 ***************************/
 
 #ifdef YAPOR
-#ifdef SHM_MEMORY_MAPPING_SCHEME
-void shm_map_memory(int, int, void *);
-#else /* MMAP_MEMORY_MAPPING_SCHEME */
-void open_mapfile(long);
-void close_mapfile(void);
-#endif /* MEMORY_MAPPING_SCHEME */
-void map_memory(long, long, long, int);
-void unmap_memory(void);
-void remap_memory(void);
+void Yap_init_optyap_memory(long, long, long, int);
+void Yap_unmap_optyap_memory(void);
+void Yap_remap_optyap_memory(void);
 #endif /* YAPOR */
 
 
@@ -33,7 +27,7 @@ void remap_memory(void);
 **      opt.init.c      **
 *************************/
 
-void Yap_init_optyap_global(int, int, int, int);
+void Yap_init_optyap_data(int, int, int, int);
 void Yap_init_local(void);
 void make_root_frames(void);
 #ifdef YAPOR
