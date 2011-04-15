@@ -60,7 +60,7 @@
 #endif
 #endif /* YAPOR */
 
-#if defined(YAPOR) || defined(THREADS) || defined(TABLING)
+#if defined(YAPOR) || defined(THREADS)
 #define MULTIPLE_STACKS 1
 #endif
 
