@@ -1018,6 +1018,9 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
   YENV[E_CP] = (CELL)P;
   YENV[E_CB] = (CELL)B;
   YENV[E_E]  = (CELL)ENV;
+#ifdef  TABLING
+  YENV[E_B] = (CELL)B;
+#endif
 #ifdef  DEPTH_LIMIT
   YENV[E_DEPTH] = DEPTH;
 #endif
