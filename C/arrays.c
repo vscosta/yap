@@ -170,8 +170,10 @@ CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS)
     optr = ptr;
   }
   if (ptr == NULL) {
+#if !defined(USE_SYSTEM_MALLOC)
     Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (array chain incoherent)", strerror(errno));
-    return(FALSE);
+#endif
+    return FALSE;
   }
   if (munmap(ptr->start, ptr->size) == -1) {
       Yap_Error(SYSTEM_ERROR,ARG1,"close_mmapped_array (munmap: %s)", strerror(errno));
@@ -1240,7 +1242,11 @@ p_close_static_array( USES_REGS1 )
 #if HAVE_MMAP
 	if (ptr->ValueOfVE.chars < (char *)Yap_HeapBase || 
 	    ptr->ValueOfVE.chars > (char *)HeapTop) {
-	  return(CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars PASS_REGS));
+	  Int val = CloseMmappedArray(ptr, (void *)ptr->ValueOfVE.chars PASS_REGS);
+#if USE_SYSTEM_MALLOC
+	  if (val)
+#endif
+	    return(val);
 	}
 #endif
 	Yap_FreeAtomSpace((char *)(ptr->ValueOfVE.ints));
