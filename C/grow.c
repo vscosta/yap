@@ -28,7 +28,7 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#if THREADS && !defined(TABLING)
+#if YAPOR_THREADS
 #include <opt.mavar.h>
 #endif
 

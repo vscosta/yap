@@ -1425,7 +1425,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
  --enable-tabling           support tabling
- --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads
+ --enable-or-parallelism    support or-parallelism as: copy,sba,cow,threads
  --enable-rational-trees    support infinite rational trees
  --enable-coroutining       support co-routining, attributed variables and constraints
  --enable-depth-limit       support depth-bound computation
@@ -3699,6 +3699,16 @@ fi
 # Check whether --enable-or-parallelism was given.
 if test "${enable_or_parallelism+set}" = set; then :
   enableval=$enable_or_parallelism; orparallelism="$enableval"
+  case "$orparallelism" in
+    yes|copy|sba|cow|threads)
+    ;;
+    *)
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--enable-or-parallelism=$orparallelism invalid option"; }
+    ;;
+  esac
+
 else
   orparallelism=no
 fi
@@ -7487,41 +7497,38 @@ if test "$threads" = "yes"
     YAP_EXTRAS="$YAP_EXTRAS -D_GNU_SOURCE"
   fi
   case "$orparallelism" in
+    copy)
+      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+as_fn_error $? "--enable-or-parallelism=copy incompatible with threads"; }
+    ;;
     sba)
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=sba incompatible with threads
+as_fn_error $? "--enable-or-parallelism=sba incompatible with threads"; }
     ;;
-    a-cow
-See \`config.log' for more details" "$LINENO" 5 ; }
+    cow)
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=a-cow incompatible with threads
+as_fn_error $? "--enable-or-parallelism=cow incompatible with threads"; }
     ;;
-    copy
-See \`config.log' for more details" "$LINENO" 5 ; }
-      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--or-parallelism=copy incompatible with threads
-    ;;
-    yes|threads
-See \`config.log' for more details" "$LINENO" 5 ; }
+    yes|threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
   esac
 else
   case "$orparallelism" in
+    yes|copy)
+     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
+    ;;
     sba)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_SBA=1"
     ;;
-    a-cow)
+    cow)
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
     ;;
     threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
-    ;;
-    yes|copy)
-     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COPY=1"
     ;;
   esac
 fi

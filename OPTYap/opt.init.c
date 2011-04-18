@@ -40,7 +40,7 @@
 **      Macros      **
 *********************/
 
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
 
 #define INIT_PAGES(PG, STR_TYPE)                         \
@@ -51,7 +51,7 @@
         Pg_free_pg(PG) = NULL
 #else
 #define INIT_PAGES(PG, STR_TYPE)  Pg_str_in_use(PG) = 0
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
 
 

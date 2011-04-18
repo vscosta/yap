@@ -477,14 +477,14 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
   aux_bytes += show_statistics_global_trie_hashes();
   fprintf(Yap_stdout, "  Memory in use (III):             %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
   fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(Yap_pages_void));
   fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(Yap_pages_void) * Yap_page_size, Pg_pg_alloc(Yap_pages_void));
 #else 
   fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
   return (TRUE);
 }
@@ -713,14 +713,14 @@ static Int p_show_statistics_or( USES_REGS1 ) {
   aux_bytes += show_statistics_query_goal_answer_frames();
   fprintf(Yap_stdout, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
   fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(Yap_pages_void));
   fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(Yap_pages_void) * Yap_page_size, Pg_pg_alloc(Yap_pages_void));
 #else 
   fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
   return (TRUE);
 }
@@ -769,14 +769,14 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 #endif /* TABLING_INNER_CUTS */
   fprintf(Yap_stdout, "  Memory in use (IV):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
   fprintf(Yap_stdout, "Total memory in use (I+II+III+IV): %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(Yap_pages_void));
   fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(Yap_pages_void) * Yap_page_size, Pg_pg_alloc(Yap_pages_void));
 #else 
   fprintf(Yap_stdout, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
   return (TRUE);
 }
@@ -813,11 +813,11 @@ static Int p_get_optyap_statistics( USES_REGS1 ) {
     bytes += Pg_str_in_use(Yap_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
     structs = Pg_pg_alloc(Yap_pages_void) * Yap_page_size;
 #else
     structs = bytes;
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   }
 #ifdef TABLING
   if (value == 1) {  /* table_entries */
@@ -1025,7 +1025,7 @@ static inline void answer_to_stdout(char *answer) {
 
 #ifdef TABLING
 static inline long show_statistics_table_entries(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   tab_ent_ptr aux_ptr;
@@ -1047,13 +1047,13 @@ static inline long show_statistics_table_entries(void) {
 #else
   fprintf(Yap_stdout, "  Table entries:                   %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_tab_ent) * sizeof(struct table_entry), Pg_str_in_use(Yap_pages_tab_ent));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_tab_ent) * sizeof(struct table_entry);
 }
 
 
 static inline long show_statistics_subgoal_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   sg_fr_ptr aux_ptr;
@@ -1075,13 +1075,13 @@ static inline long show_statistics_subgoal_frames(void) {
 #else
   fprintf(Yap_stdout, "  Subgoal frames:                  %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_sg_fr) * sizeof(struct subgoal_frame), Pg_str_in_use(Yap_pages_sg_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_sg_fr) * sizeof(struct subgoal_frame);
 }
 
 
 static inline long show_statistics_dependency_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   dep_fr_ptr aux_ptr;
@@ -1103,13 +1103,13 @@ static inline long show_statistics_dependency_frames(void) {
 #else
   fprintf(Yap_stdout, "  Dependency frames:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_dep_fr) * sizeof(struct dependency_frame), Pg_str_in_use(Yap_pages_dep_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_dep_fr) * sizeof(struct dependency_frame);
 }
 
 
 static inline long show_statistics_subgoal_trie_nodes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   sg_node_ptr aux_ptr;
@@ -1131,13 +1131,13 @@ static inline long show_statistics_subgoal_trie_nodes(void) {
 #else
   fprintf(Yap_stdout, "  Subgoal trie nodes:              %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_sg_node) * sizeof(struct subgoal_trie_node), Pg_str_in_use(Yap_pages_sg_node));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_sg_node) * sizeof(struct subgoal_trie_node);
 }
 
 
 static inline long show_statistics_answer_trie_nodes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   ans_node_ptr aux_ptr;
@@ -1159,13 +1159,13 @@ static inline long show_statistics_answer_trie_nodes(void) {
 #else
   fprintf(Yap_stdout, "  Answer trie nodes:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_ans_node) * sizeof(struct answer_trie_node), Pg_str_in_use(Yap_pages_ans_node));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_ans_node) * sizeof(struct answer_trie_node);
 }
 
 
 static inline long show_statistics_subgoal_trie_hashes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   sg_hash_ptr aux_ptr;
@@ -1187,13 +1187,13 @@ static inline long show_statistics_subgoal_trie_hashes(void) {
 #else
   fprintf(Yap_stdout, "  Subgoal trie hashes:             %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_sg_hash) * sizeof(struct subgoal_trie_hash), Pg_str_in_use(Yap_pages_sg_hash));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_sg_hash) * sizeof(struct subgoal_trie_hash);
 }
 
 
 static inline long show_statistics_answer_trie_hashes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   ans_hash_ptr aux_ptr;
@@ -1215,13 +1215,13 @@ static inline long show_statistics_answer_trie_hashes(void) {
 #else
   fprintf(Yap_stdout, "  Answer trie hashes:              %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_ans_hash) * sizeof(struct answer_trie_hash), Pg_str_in_use(Yap_pages_ans_hash));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_ans_hash) * sizeof(struct answer_trie_hash);
 }
 
 
 static inline long show_statistics_global_trie_nodes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   gt_node_ptr aux_ptr;
@@ -1243,13 +1243,13 @@ static inline long show_statistics_global_trie_nodes(void) {
 #else
   fprintf(Yap_stdout, "  Global trie nodes:               %10ld bytes (%ld structs in use)\n", 
 	  Pg_str_in_use(Yap_pages_gt_node) * sizeof(struct global_trie_node), Pg_str_in_use(Yap_pages_gt_node));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_gt_node) * sizeof(struct global_trie_node);
 }
 
 
 static inline long show_statistics_global_trie_hashes(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
   gt_hash_ptr aux_ptr;
@@ -1271,7 +1271,7 @@ static inline long show_statistics_global_trie_hashes(void) {
 #else
   fprintf(Yap_stdout, "  Global trie hashes:              %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_str_in_use(Yap_pages_gt_hash));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_gt_hash) * sizeof(struct global_trie_hash);
 }
 #endif /* TABLING */
@@ -1279,7 +1279,7 @@ static inline long show_statistics_global_trie_hashes(void) {
 
 #ifdef YAPOR
 static inline long show_statistics_or_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
   or_fr_ptr aux_ptr;
@@ -1301,13 +1301,13 @@ static inline long show_statistics_or_frames(void) {
 #else
   fprintf(Yap_stdout, "  Or-frames:                       %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(Yap_pages_or_fr ) * sizeof(struct or_frame), Pg_str_in_use(Yap_pages_or_fr ));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_or_fr ) * sizeof(struct or_frame);
 }
 
 
 static inline long show_statistics_query_goal_solution_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
   qg_sol_fr_ptr aux_ptr;
@@ -1329,13 +1329,13 @@ static inline long show_statistics_query_goal_solution_frames(void) {
 #else
   fprintf(Yap_stdout, "  Query goal solution frames:      %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame), Pg_str_in_use(Yap_pages_qg_sol_fr ));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame);
 }
 
 
 static inline long show_statistics_query_goal_answer_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
   qg_ans_fr_ptr aux_ptr;
@@ -1357,7 +1357,7 @@ static inline long show_statistics_query_goal_answer_frames(void) {
 #else
   fprintf(Yap_stdout, "  Query goal answer frames:        %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame), Pg_str_in_use(Yap_pages_qg_ans_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
 }
 #endif /* YAPOR */
@@ -1365,7 +1365,7 @@ static inline long show_statistics_query_goal_answer_frames(void) {
 
 #if defined(YAPOR) && defined(TABLING)
 static inline long show_statistics_suspension_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
   susp_fr_ptr aux_ptr;
@@ -1387,14 +1387,14 @@ static inline long show_statistics_suspension_frames(void) {
 #else
   fprintf(Yap_stdout, "  Suspension frames:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_susp_fr) * sizeof(struct suspension_frame), Pg_str_in_use(Yap_pages_susp_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_susp_fr) * sizeof(struct suspension_frame);
 }
 
 
 #ifdef TABLING_INNER_CUTS
 static inline long show_statistics_table_subgoal_solution_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
   tg_sol_fr_ptr aux_ptr;
@@ -1416,13 +1416,13 @@ static inline long show_statistics_table_subgoal_solution_frames(void) {
 #else
   fprintf(Yap_stdout, "  Table subgoal solution frames:   %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame), Pg_str_in_use(Yap_pages_tg_sol_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
 }
 
 
 static inline long show_statistics_table_subgoal_answer_frames(void) {
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
   tg_ans_fr_ptr aux_ptr;
@@ -1444,7 +1444,7 @@ static inline long show_statistics_table_subgoal_answer_frames(void) {
 #else
   fprintf(Yap_stdout, "  Table subgoal answer frames:     %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(Yap_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame), Pg_str_in_use(Yap_pages_tg_ans_fr));
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
   return Pg_str_in_use(Yap_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
 }
 #endif /* TABLING_INNER_CUTS */

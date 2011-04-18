@@ -893,7 +893,7 @@
           ltt = BRANCH_LTT(worker_id, depth);
           BITMAP_intersection(members, prune_members, OrFr_members(LOCAL_top_or_fr));
           if (members) {
-            for (i = 0; i < number_workers; i++) {
+            for (i = 0; i < Yap_number_workers; i++) {
               if (BITMAP_member(members, i) && 
                   BRANCH_LTT(i, depth) > ltt && 
                   EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), REMOTE_pruning_scope(i))) {
@@ -939,7 +939,7 @@
             ltt = BRANCH_LTT(worker_id, depth);
             BITMAP_intersection(members, prune_members, OrFr_members(leftmost_or_fr));
             if (members) {
-              for (i = 0; i < number_workers; i++) {
+              for (i = 0; i < Yap_number_workers; i++) {
                 if (BITMAP_member(members, i) &&
                     BRANCH_LTT(i, depth) > ltt &&
                     EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i)))
@@ -954,7 +954,7 @@
               ltt = BRANCH_LTT(worker_id, depth);
               BITMAP_intersection(members, prune_members, OrFr_members(leftmost_or_fr));
               if (members) {
-                for (i = 0; i < number_workers; i++) {
+                for (i = 0; i < Yap_number_workers; i++) {
                   if (BITMAP_member(members, i) &&
                       BRANCH_LTT(i, depth) > ltt &&
                       EQUAL_OR_YOUNGER_CP(GetOrFr_node(leftmost_or_fr), REMOTE_pruning_scope(i))) {

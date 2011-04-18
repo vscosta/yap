@@ -22,18 +22,23 @@
 
 #if (defined(YAPOR_COPY) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_COW) && (defined(YAPOR_SBA) || defined(YAPOR_THREADS))) || (defined(YAPOR_SBA) && defined(YAPOR_THREADS))
 #error Do not define multiple or-parallel models
-#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA)) || (YAPOR_COW && YAPOR_SBA) */
+#endif /* (YAPOR_COPY && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS)) || (YAPOR_COW && (YAPOR_SBA || YAPOR_THREADS)) || (YAPOR_SBA || YAPOR_THREADS) */
 
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS)
 #define YAPOR 1
-#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+#define FIXED_STACKS 1
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA || YAPOR_THREADS */
 
 #if defined(TABLING) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_THREADS))
-#error Currently TABLING only works with YAPOR_COPY
+#error TABLING only works with YAPOR_COPY
 #endif /* TABLING && (YAPOR_COW || YAPOR_SBA || YAPOR_THREADS) */
 
+#if defined(THREADS) && (defined(YAPOR_COW) || defined(YAPOR_SBA) || defined(YAPOR_COPY))
+#error THREADS only works with YAPOR_THREADS
+#endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
+
 #include "config.h"
-#if defined(YAPOR) || defined(TABLING) || defined(THREADS)
+#if defined(YAPOR) || defined(TABLING)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */
 
@@ -51,26 +56,22 @@
 
 #define MULTI_ASSIGNMENT_VARIABLES 1
 
-#ifdef YAPOR
-#define FIXED_STACKS 1
-#ifdef THREADS
-#undef YAPOR_COW
-#undef YAPOR_SBA
-#undef YAPOR_COPY
-#endif
-#endif /* YAPOR */
-
 #if defined(YAPOR) || defined(THREADS)
 #define MULTIPLE_STACKS 1
-#endif
-
-#if defined(YAPOR) || defined(THREADS)
 #define PARALLEL_YAP 1
-#endif
+#endif /* YAPOR || THREADS */
 
 #if defined(YAPOR) || defined(TABLING)
 #undef TRAILING_REQUIRES_BRANCH
 #endif /* YAPOR || TABLING */
+
+#if defined(TABLING) || defined(YAPOR_SBA)
+#define FROZEN_STACKS 1
+#endif /* TABLING || YAPOR_SBA */
+
+#if defined(THREADS) || defined(SUPPORT_CONDOR)
+#define USE_SYSTEM_MALLOC 1
+#endif /* THREADS ||  SUPPORT_CONDOR */
 
 #ifdef ANALYST
 #ifdef USE_THREADED_CODE
@@ -83,14 +84,6 @@
 #define TERM_EXTENSIONS 1
 #endif
 #endif
-
-#if defined(THREADS) || defined(SUPPORT_CONDOR)
-#define USE_SYSTEM_MALLOC 1
-#endif
-
-#if defined(TABLING) || defined(YAPOR_YAPOR_SBA)
-#define FROZEN_STACKS 1
-#endif /* TABLING || YAPOR_YAPOR_SBA */
 
 #ifdef _MSC_VER			/* Microsoft's Visual C++ Compiler */
 /* adjust a config.h from mingw32 to work with vc++ */
