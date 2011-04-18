@@ -153,6 +153,7 @@ call_malloc(unsigned long int size)
 char *
 Yap_AllocCodeSpace(unsigned long int size)
 {
+  size = AdjustSize(size);
   return  call_malloc(size);
 }
 
@@ -186,6 +187,7 @@ call_realloc(char *p, unsigned long int size)
 char *
 Yap_ReallocCodeSpace(char *p, unsigned long int size)
 {
+  size = AdjustSize(size);
   return  call_realloc(p, size);
 }
 
@@ -211,6 +213,7 @@ Yap_FreeCodeSpace(char *p)
 char *
 Yap_AllocAtomSpace(unsigned long int size)
 {
+  size = AdjustSize(size);
   return call_malloc(size);
 }
 
