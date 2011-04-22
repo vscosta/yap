@@ -3159,7 +3159,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #endif /* TABLING */
 #ifdef TABLING_INNER_CUTS
     case clause_with_cut_op:
-      code_p = a_e(_clause_with_cut, code_p);
+      code_p = a_e(_clause_with_cut, code_p, pass_no);
       break;
 #endif /* TABLING_INNER_CUTS */
 #ifdef SFUNC

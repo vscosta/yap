@@ -17,9 +17,9 @@
 
 extern int Yap_page_size;
 
-#ifdef SHM_MEMORY_ALLOC_SCHEME
+#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #include <sys/shm.h>
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
+#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
@@ -91,10 +91,10 @@ extern int Yap_page_size;
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                    \
         UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                              \
         FREE_BLOCK(STR)
-#elif SHM_MEMORY_ALLOC_SCHEME
+#elif OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
 #ifdef LIMIT_TABLING
 /*************************************************************************************************
-**                          SHM_MEMORY_ALLOC_SCHEME && LIMIT_TABLING                            **
+**                      OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && LIMIT_TABLING                       **
 *************************************************************************************************/
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                                    \
         { int i;                                                                                 \
@@ -233,10 +233,10 @@ extern int Yap_page_size;
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #else
 /*************************************************************************************************
-**                          SHM_MEMORY_ALLOC_SCHEME && !LIMIT_TABLING                           **
+**                      OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && !LIMIT_TABLING                      **
 *************************************************************************************************/
 #define ALLOC_PAGE(PG_HD)                                                                        \
-        LOCK(Pg_lock(Yap_pages_void));                                                        \
+        LOCK(Pg_lock(Yap_pages_void));                                                           \
         if (Pg_free_pg(Yap_pages_void) == NULL) {                                             \
           int i, shmid;                                                                          \
           pg_hd_ptr pg_hd, aux_pg_hd;                                                            \
@@ -261,7 +261,7 @@ extern int Yap_page_size;
         UNLOCK(Pg_lock(Yap_pages_void))
 
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                   \
-        { pg_hd_ptr pg_hd;                                                                       \
+        { pg_hd_ptr pg_hd;                                                                      \
           LOCK(Pg_lock(STR_PAGES));                                                              \
           UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                             \
           if (Pg_free_pg(STR_PAGES)) {                                                           \
@@ -329,7 +329,7 @@ extern int Yap_page_size;
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #endif /* LIMIT_TABLING */
 /*************************************************************************************************
-**                                   SHM_MEMORY_ALLOC_SCHEME                                    **
+**                               OPTYAP_PAGES_MEMORY_ALLOC_SCHEME                               **
 *************************************************************************************************/
 #define FREE_PAGE(PG_HD)                                                                         \
         LOCK(Pg_lock(Yap_pages_void));                                                        \

@@ -84,4 +84,9 @@ Yap_NEW_MAHASH(ma_h_inner_struct *top) {
   LOCAL_ma_h_top = top;
   return time;
 }
+#else
+#define Yap_MAVAR_HASH(addr)
+#define Yap_ALLOC_NEW_MASPACE()
+#define Yap_lookup_ma_var(addr)
+#define Yap_NEW_MAHASH(top)
 #endif /* MULTI_ASSIGNMENT_VARIABLES */

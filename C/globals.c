@@ -1245,7 +1245,7 @@ p_b_setval( USES_REGS1 )
   return TRUE;
 #else
   WRITE_UNLOCK(ge->GRWLock);
-  Yap_Error(SYSTEM_ERROR,t2,"update_array");
+  Yap_Error(SYSTEM_ERROR,t,"update_array");
   return FALSE;
 #endif
 }

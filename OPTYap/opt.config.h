@@ -21,12 +21,9 @@
 **      memory alloc scheme (mandatory, define one)      **
 **********************************************************/
 
-#ifdef USE_SYSTEM_MALLOC
-#define MALLOC_MEMORY_ALLOC_SCHEME 1
-#else
 #define YAP_MEMORY_ALLOC_SCHEME 1
-#endif
-/* #define SHM_MEMORY_ALLOC_SCHEME 1 */
+/* #define MALLOC_MEMORY_ALLOC_SCHEME 1 */
+/* #define OPTYAP_PAGES_MEMORY_ALLOC_SCHEME 1 */
 
 
 
@@ -156,20 +153,23 @@
 **                           Parameter Checks                          **
 ************************************************************************/
 
-#if !defined(SHM_MEMORY_ALLOC_SCHEME) && !defined(MALLOC_MEMORY_ALLOC_SCHEME) && !defined(YAP_MEMORY_ALLOC_SCHEME)
+#if !defined(OPTYAP_PAGES_MEMORY_ALLOC_SCHEME) && !defined(MALLOC_MEMORY_ALLOC_SCHEME) && !defined(YAP_MEMORY_ALLOC_SCHEME)
 #error Define a memory alloc scheme
-#endif /* !SHM_MEMORY_ALLOC_SCHEME && !MALLOC_MEMORY_ALLOC_SCHEME && !YAP_MEMORY_ALLOC_SCHEME */
-#if defined(SHM_MEMORY_ALLOC_SCHEME)
-#if defined(MALLOC_MEMORY_ALLOC_SCHEME) || defined(YAP_MEMORY_ALLOC_SCHEME)
+#endif /* !OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && !MALLOC_MEMORY_ALLOC_SCHEME && !YAP_MEMORY_ALLOC_SCHEME */
+#if (defined(OPTYAP_PAGES_MEMORY_ALLOC_SCHEME) && (defined(MALLOC_MEMORY_ALLOC_SCHEME) || defined(YAP_MEMORY_ALLOC_SCHEME))) || (defined(MALLOC_MEMORY_ALLOC_SCHEME) && defined(YAP_MEMORY_ALLOC_SCHEME))
 #error Do not define multiple memory alloc schemes
-#endif /* MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME */
-#endif /* SHM_MEMORY_ALLOC_SCHEME */
-#if defined(MALLOC_MEMORY_ALLOC_SCHEME) && defined(YAP_MEMORY_ALLOC_SCHEME)
-#error Do not define multiple memory alloc schemes
-#endif /* MALLOC_MEMORY_ALLOC_SCHEME && YAP_MEMORY_ALLOC_SCHEME */
+#endif /* (OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && (MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME)) || (MALLOC_MEMORY_ALLOC_SCHEME && YAP_MEMORY_ALLOC_SCHEME) */
+#ifdef USE_SYSTEM_MALLOC
+#define MALLOC_MEMORY_ALLOC_SCHEME 1
+#undef YAP_MEMORY_ALLOC_SCHEME
+#undef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#endif /* USE_SYSTEM_MALLOC */
 #if defined(YAPOR) && defined(MALLOC_MEMORY_ALLOC_SCHEME)
 #error YAPOR is incompatible with MALLOC_MEMORY_ALLOC_SCHEME 
-#endif /* YAPOR && TABLING && (MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME) */
+#endif /* YAPOR && MALLOC_MEMORY_ALLOC_SCHEME */
+#ifndef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#undef LIMIT_TABLING
+#endif /* !OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
 
 #ifdef YAPOR
 #ifdef i386 /* For i386 machines we use shared memory segments */
@@ -236,10 +236,6 @@
 #undef INCOMPLETE_TABLING
 #undef DEBUG_TABLING
 #endif /* !TABLING */
-
-#ifndef SHM_MEMORY_ALLOC_SCHEME
-#undef LIMIT_TABLING
-#endif /* !SHM_MEMORY_ALLOC_SCHEME */
 
 #if defined(DEBUG_YAPOR) && defined(DEBUG_TABLING)
 #define DEBUG_OPTYAP
