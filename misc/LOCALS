@@ -89,6 +89,8 @@ Int			last_ss_time		LastSSTime	=0L
 Int			total_cps		Yap_total_choicepoints	=0
 #endif
 
+int			consult_level_		consult_level	=0
+
 // global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
 lockvar				signal_lock	SignalLock	MkLock

@@ -81,6 +81,7 @@ static void InitWorker(int wid) {
 #if LOW_LEVEL_TRACER
   FOREIGN(wid)->total_cps = 0;
 #endif
+  FOREIGN(wid)->consult_level_ = 0;
 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(FOREIGN(wid)->signal_lock);
@@ -134,7 +135,7 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->Yap_ld_ = Yap_InitThreadIO(wid);
   FOREIGN(wid)->_execution = NULL;
 
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#if MULTIPLE_STACKS
 
 #endif
 #ifdef THREADS

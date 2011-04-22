@@ -81,6 +81,7 @@
 #if LOW_LEVEL_TRACER
 #define Yap_total_choicepoints WL->total_cps
 #endif
+#define consult_level WL->consult_level_
 
 #if defined(YAPOR) || defined(THREADS)
 #define SignalLock WL->signal_lock
@@ -134,7 +135,7 @@
 #define PL_local_data_p WL->Yap_ld_
 #define execution WL->_execution
 
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#if MULTIPLE_STACKS
 #define WORKER WL->worker
 #endif
 #ifdef THREADS

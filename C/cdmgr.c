@@ -2507,6 +2507,8 @@ p_compile_dynamic( USES_REGS1 )
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
     else mode = assertz;						    
   } else mode = IntegerOfTerm(t1);
+  if (mode == assertz && consult_level)
+    mode = consult;    
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
@@ -2529,8 +2531,6 @@ p_compile_dynamic( USES_REGS1 )
   YAPLeaveCriticalSection();
   return TRUE;
 }
-
-static int      consult_level = 0;
 
 static Atom
 YapConsultingFile ( USES_REGS1 )

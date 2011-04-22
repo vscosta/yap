@@ -82,6 +82,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif
 
+
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(FOREIGN(wid)->signal_lock);
 
@@ -134,7 +135,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#if MULTIPLE_STACKS
 
 #endif
 #ifdef THREADS

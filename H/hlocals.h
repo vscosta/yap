@@ -83,6 +83,7 @@ typedef struct worker_local {
 #if LOW_LEVEL_TRACER
   Int  total_cps;
 #endif
+  int  consult_level_;
 
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;
@@ -136,7 +137,7 @@ typedef struct worker_local {
   struct PL_local_data  *Yap_ld_;
   struct open_query_struct*  _execution;
 
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
+#if MULTIPLE_STACKS
   struct worker  worker;
 #endif
 #ifdef THREADS
