@@ -6687,14 +6687,11 @@ Grammar related built-in predicates:
 
 @table @code
 
-@item @var{CurrentModule}:expand_term(@var{T},-@var{X})
-@item user:expand_term(@var{T},-@var{X})
+@item expand_term(@var{T},-@var{X})
 @findex expand_term/2
 @syindex expand_term/2
 @cyindex expand_term/2
-@findex term_expansion/2
-@syindex term_expansion/2
-@cyindex term_expansion/2
+
 This predicate is used by YAP for preprocessing each top level
 term read when consulting a file and before asserting or executing it.
 It rewrites a term @var{T} to a term @var{X} according to the following
@@ -6702,6 +6699,29 @@ rules: first try @code{term_expansion/2}  in the current module, and then try to
 @code{user:term_expansion/2}. If this call fails then the translating process
 for DCG rules is applied, together with the arithmetic optimizer
 whenever the compilation of arithmetic expressions is in progress.
+
+@item @var{CurrentModule}:term_expansion(@var{T},-@var{X})
+@item user:term_expansion(@var{T},-@var{X})
+@findex term_expansion/2
+@syindex term_expansion/2
+@cyindex term_expansion/2
+This user-defined predicate is called by @code{expand_term/3} to
+preprocess all terms read when consulting a file. If it succeeds:
+
+@itemize
+@item
+If @var{X} is of the form @code{:- G} or @code{?- G}, it is processed as
+a directive.
+@item
+If @var{X} is of the form @code{'$source_location'(<File>,
+<Line>):<Clause>} it is processed as if from @code{File} and line
+@code{Line}.
+
+@item
+If @var{X} is a list, all terms of the list are asserted or processed
+as directives.
+@item The term @var{X} is asserted instead of @var{T}.
+@end itemize
 
 @item @var{CurrentModule}:goal_expansion(+@var{G},+@var{M},-@var{NG})
 @item user:goal_expansion(+@var{G},+@var{M},-@var{NG})
@@ -9228,7 +9248,6 @@ also @code{between/3}.
 Succeeds if @var{Set3} unifies with the intersection of @var{Set1} and
 @var{Set2}. @var{Set1} and @var{Set2} are lists without duplicates. They
 need not be ordered.
-@end table
 
 @item subtract(+@var{Set}, +@var{Delete}, ?@var{Result})
 @findex subtract/3
