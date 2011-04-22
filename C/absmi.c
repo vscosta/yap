@@ -1121,7 +1121,13 @@ Yap_absmi(int inp)
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  TR = --B->cp_tr;
+	  --B->cp_tr;
+#if FROZEN_STACKS
+	  if (B->cp_tr > TR_FZ) 
+#endif
+	    {
+	      TR = B->cp_tr;
+	    }
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
@@ -1392,7 +1398,8 @@ Yap_absmi(int inp)
 	PP = ap;
 	DEC_CLREF_COUNT(cl);
 	/* clear the entry from the trail */
-	TR = --B->cp_tr;
+	--B->cp_tr;
+	TR = B->cp_tr;
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && (cl->ClFlags & (ErasedMask|DirtyMask))) {
 	  if (PREG != FAILCODE) {
@@ -1421,7 +1428,13 @@ Yap_absmi(int inp)
 	if (TrailTerm(B->cp_tr-1) == CLREF_TO_TRENTRY(cl) &&
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
-	  TR = --B->cp_tr;
+	  --B->cp_tr;
+#if FROZEN_STACKS
+	  if (B->cp_tr > TR_FZ) 
+#endif
+	    {
+	      TR = B->cp_tr;
+	    }
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
@@ -8075,7 +8088,12 @@ Yap_absmi(int inp)
 	    B->cp_tr != B->cp_b->cp_tr) {
 	  cl->ClFlags &= ~InUseMask;
 	  B->cp_tr--;
-	  TR = B->cp_tr;
+#if FROZEN_STACKS
+	  if (B->cp_tr > TR_FZ) 
+#endif
+	    {
+	      TR = B->cp_tr;
+	    }
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
