@@ -1096,6 +1096,26 @@ pl_readline(term_t flag)
   
 }
 
+static Term
+StreamPosition(IOSTREAM *st)
+{
+  Term t[4];
+  if (!st)
+    st = Suser_input;
+  t[0] = MkIntegerTerm(st->posbuf.charno);
+  t[1] = MkIntegerTerm(st->posbuf.lineno);
+  t[2] = MkIntegerTerm(st->posbuf.linepos);
+  t[3] = MkIntegerTerm(st->posbuf.byteno);
+  return Yap_MkApplTerm(FunctorStreamPos,4,t);
+}
+
+Term
+Yap_StreamPosition(IOSTREAM *st)
+{
+  return StreamPosition(st);
+}
+
+
 #if THREADS
 
 #define COUNT_MUTEX_INITIALIZER(name) \
