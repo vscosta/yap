@@ -29,8 +29,8 @@
 #include <string.h>
 #endif
 #if YAPOR_THREADS
-#include <opt.mavar.h>
-#endif
+#include "opt.mavar.h"
+#endif /* YAPOR_THREADS */
 
 #if !HAVE_STRNCAT
 #define strncat(s0,s1,sz)   strcat(s0,s1)
@@ -269,7 +269,7 @@ RestoreTrail(int worker_p USES_REGS)
   if (aux_tr < TR){
     Yap_Error(SYSTEM_ERROR, TermNil, "oops");
   }
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (TR != aux_tr) {
     CELL aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
@@ -295,7 +295,7 @@ RestoreTrail(int worker_p USES_REGS)
       CELL *cell_ptr = RepAppl(aux_cell);
       if (((CELL *)aux_cell < Get_LOCAL_top_cp()->cp_h || 
 	   EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), (choiceptr)aux_cell)) &&
-	  !Yap_lookup_ma_var(cell_ptr)) {
+	  !Yap_lookup_ma_var(cell_ptr PASS_REGS)) {
 	/* first time we found the variable, let's put the new value */
 #ifdef TABLING
         *cell_ptr = TrailVal(aux_tr);

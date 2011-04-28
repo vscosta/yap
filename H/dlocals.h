@@ -133,10 +133,6 @@
 
 #define PL_local_data_p WL->Yap_ld_
 #define execution WL->_execution
-
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
-#define WORKER WL->worker
-#endif
 #ifdef THREADS
 #define ThreadHandle WL->thread_handle
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						

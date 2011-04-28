@@ -133,10 +133,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
-
-#endif
 #ifdef THREADS
 
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						

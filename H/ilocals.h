@@ -133,10 +133,6 @@ static void InitWorker(int wid) {
 
   FOREIGN(wid)->Yap_ld_ = Yap_InitThreadIO(wid);
   FOREIGN(wid)->_execution = NULL;
-
-#if (defined(YAPOR) || defined(TABLING)) && defined(THREADS)
-
-#endif
 #ifdef THREADS
   InitThreadHandle(wid);
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						

@@ -3691,24 +3691,40 @@ done
 
 # Check whether --enable-tabling was given.
 if test "${enable_tabling+set}" = set; then :
-  enableval=$enable_tabling; tabling="$enableval"
+    enableval=$enable_tabling; tabling="$enableval"
+    {
+	if test "${enable_or_parallelism+set}" = set; then :
+	    enableval=$enable_or_parallelism; orparallelism="$enableval"
+	    case "$orparallelism" in
+		yes|copy)
+		    ;;
+		*)
+		    { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+			    $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+			as_fn_error $? "tabling only works with YapOr copy"; }
+		    ;;
+	    esac
+	fi
+    }
 else
-  tabling=no
+    tabling=no
 fi
 
 # Check whether --enable-or-parallelism was given.
 if test "${enable_or_parallelism+set}" = set; then :
-  enableval=$enable_or_parallelism; orparallelism="$enableval"
-  case "$orparallelism" in
-    yes|copy|sba|cow|threads)
-    ;;
-    *)
-      { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-as_fn_error $? "--enable-or-parallelism=$orparallelism invalid option"; }
-    ;;
-  esac
-
+    enableval=$enable_or_parallelism; orparallelism="$enableval"
+    case "$orparallelism" in
+	yes|copy|sba|cow)
+            ;;
+       threads)
+	    enable_threads=yes
+	    ;;
+	*)
+	    { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+		    $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+		as_fn_error $? "--enable-or-parallelism=$orparallelism invalid option"; }
+	    ;;
+    esac 
 else
   orparallelism=no
 fi
@@ -7528,7 +7544,7 @@ else
       YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_COW=1"
     ;;
     threads)
-     YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
+     YAP_EXTRAS="$YAP_EXTRAS -DTHREADS=1 -DYAPOR_THREADS=1"
     ;;
   esac
 fi

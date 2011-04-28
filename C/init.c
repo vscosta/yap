@@ -1247,7 +1247,7 @@ struct global_data Yap_Global;
 struct worker_local	*Yap_WLocal[MAX_THREADS];
 #elif defined(YAPOR)
 struct worker_local	*Yap_WLocal;
-#else
+#else /* !THREADS && !YAPOR */
 struct worker_local	Yap_WLocal;
 #endif
 

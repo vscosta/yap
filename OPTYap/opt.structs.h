@@ -76,14 +76,14 @@ typedef struct page_header {
 ***************************/
 
 struct pages {
-#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#ifdef USE_PAGES_MALLOC
 #ifdef YAPOR
   lockvar lock;
 #endif /* YAPOR */
   int structs_per_page;
   struct page_header *first_free_page;
   volatile long pages_allocated;
-#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
+#endif /* USE_PAGES_MALLOC */
   volatile long structs_in_use;
 };
 
