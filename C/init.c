@@ -1009,11 +1009,8 @@ InitFlags(void)
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = SICSTUS_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
-#if (defined(YAPOR) || defined(THREADS)) && PURE_YAPOR
-  yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = FALSE;
-#else
+  /* we do not garantee safe assert in parallel mode */
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
-#endif
   yap_flags[GENERATE_DEBUG_INFO_FLAG] = TRUE;
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
