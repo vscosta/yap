@@ -337,10 +337,8 @@ static Int p_abolish_table( USES_REGS1 ) {
   TabEnt_hash_chain(tab_ent) = NULL;
   free_subgoal_hash_chain(hash);
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
-  TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
   if (sg_node) {
     if (TabEnt_arity(tab_ent)) {
-      TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
       free_subgoal_trie(sg_node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
     } else {
       sg_fr_ptr sg_fr = UNTAG_SUBGOAL_LEAF_NODE(sg_node);
@@ -350,6 +348,7 @@ static Int p_abolish_table( USES_REGS1 ) {
 #endif /* LIMIT_TABLING */
       FREE_SUBGOAL_FRAME(sg_fr);
     }
+    TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
   }
   return (TRUE);
 }
@@ -366,10 +365,8 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
     TabEnt_hash_chain(tab_ent) = NULL;
     free_subgoal_hash_chain(hash);
     sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
-    TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-     if (sg_node) {
+    if (sg_node) {
       if (TabEnt_arity(tab_ent)) {
-	TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
 	free_subgoal_trie(sg_node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
       } else {
 	sg_fr_ptr sg_fr = UNTAG_SUBGOAL_LEAF_NODE(sg_node);
@@ -379,6 +376,7 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 #endif /* LIMIT_TABLING */
 	FREE_SUBGOAL_FRAME(sg_fr);
       }
+      TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
     }
     tab_ent = TabEnt_next(tab_ent);
   }
