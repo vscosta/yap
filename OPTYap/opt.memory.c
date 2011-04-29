@@ -16,7 +16,7 @@
 **************************************/
 
 #include "Yap.h"
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #include <signal.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -72,7 +72,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
 #else /* YAPOR_COPY || YAPOR_SBA */
   long TotalArea;
-#endif /* YAPOR_MODEL */
+#endif
   long ExtraArea;
   
   HeapArea = ADJUST_SIZE_TO_PAGE(HeapArea);
@@ -97,7 +97,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
   /* the others need n stacks */
   Yap_worker_area_size = ADJUST_SIZE_TO_PAGE(GlobalLocalArea + TrailAuxArea);
   TotalArea = ExtraArea + HeapArea + Yap_worker_area_size * n_workers;
-#endif /* YAPOR_MODEL */
+#endif
   
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* map total area in a single go */
@@ -116,7 +116,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
      for (i = 0; i < n_workers; i++)
        shm_map_memory(i, Yap_worker_area_size, Yap_GlobalBase + Yap_worker_area_size * i);
    }
-#endif /* YAPOR_MODEL */
+#endif
 #endif /* MEMORY_MAPPING_SCHEME */
 
 #ifdef YAPOR_COW
@@ -220,7 +220,7 @@ void Yap_unmap_optyap_memory (void) {
   itos(Yap_master_worker, &MapFile[9]);
 #else /* YAPOR_COPY || YAPOR_SBA */
   itos(Yap_worker_pid(0), &MapFile[9]);
-#endif /* YAPOR_MODEL */
+#endif
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
   else
@@ -230,7 +230,7 @@ void Yap_unmap_optyap_memory (void) {
   i = 0;
 #else /* YAPOR_COPY || YAPOR_SBA */
   for (i = 0; i < Yap_number_workers + 1; i++)
-#endif /* YAPOR_COW */
+#endif
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
       INFORMATION_MESSAGE("Removing shared memory segment %d", shm_mapid[i]);
@@ -271,5 +271,4 @@ void shm_map_memory(int id, int size, void *shmaddr) {
   return;
 }
 #endif /* MMAP_MEMORY_MAPPING_SCHEME */
-
-#endif /* YAPOR && !THREADS */
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */

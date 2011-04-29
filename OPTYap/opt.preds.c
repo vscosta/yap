@@ -501,7 +501,7 @@ static Int p_show_statistics_global_trie( USES_REGS1 ) {
 *********************************/
 
 static Int p_yapor_threads( USES_REGS1 ) {
-#if defined(YAPOR) && defined(THREADS)
+#ifdef YAPOR_THREADS
   return Yap_unify(MkIntegerTerm(Yap_number_workers),ARG1);
 #else
   return FALSE;

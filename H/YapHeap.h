@@ -180,7 +180,7 @@ typedef struct various_codes {
 #include "hglobals.h"
 #include "hlocals.h"
 
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 extern struct global_data *Yap_global;
 extern long Yap_worker_area_size;
 #else

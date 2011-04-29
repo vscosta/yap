@@ -18,7 +18,7 @@
 typedef double realtime;
 typedef unsigned long bitmap;
 
-#ifdef THREADS
+#ifdef YAPOR_THREADS
 /* Threads may not assume addresses are the same at different workers */
 static inline choiceptr
 offset_to_cptr(Int node)
@@ -49,7 +49,7 @@ cptr_to_offset_with_null(choiceptr node)
   if (node == NULL) return 0L;
   return (Int)((CELL *)node-LCL0);
 }
-#endif /* THREADS */
+#endif /* YAPOR_THREADS */
 
 
 
@@ -182,7 +182,7 @@ struct global_optyap_data{
   char performance_mode;  /* PERFORMANCE_OFF / PERFORMANCE_ON / PERFORMANCE_IN_EXECUTION */
 
   /* global data related to or-parallelism */
-#if THREADS
+#ifdef YAPOR_THREADS
   Int  root_choice_point_offset;
 #else
   choiceptr root_choice_point;
@@ -218,7 +218,7 @@ struct global_optyap_data{
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
   lockvar table_lock[TABLE_LOCK_BUCKETS];
 #endif /* TABLE_LOCK_AT_WRITE_LEVEL */
-#ifdef TIMESTAMP_CHECK
+#ifdef TIMESTAMP_CHECKThreads
   long timestamp;
 #endif /* TIMESTAMP_CHECK */
 #endif /* TABLING */
@@ -250,7 +250,7 @@ struct global_optyap_data{
 #define Yap_best_times(time)                 (Yap_optyap_data.best_execution_times[time])
 #define Yap_number_goals                     (Yap_optyap_data.number_of_executed_goals)
 #define Yap_performance_mode                 (Yap_optyap_data.performance_mode)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define Get_Yap_root_cp()	                 offset_to_cptr(Yap_optyap_data.root_choice_point_offset)
 #define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
 #else
@@ -299,7 +299,7 @@ struct global_optyap_data{
 
 #ifdef YAPOR
 struct local_signals{
-#if defined(YAPOR_COPY) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_THREADS)
   lockvar lock;
   volatile enum {
     Q_idle = 0,
@@ -308,7 +308,7 @@ struct local_signals{
     local  = 3,
     P_idle = 4
   } P_fase, Q_fase;
-#endif /* YAPOR_COPY || THREADS */
+#endif /* YAPOR_COPY || YAPOR_THREADS */
   volatile enum {
     no_sharing   = 0, 
     sharing      = 1,
@@ -346,19 +346,17 @@ typedef struct {
 ********************************/
 
 struct local_data{
-#if defined(YAPOR) || defined(THREADS)
-  lockvar lock;
-#endif
 #ifdef YAPOR
+  lockvar lock;
   /* local data related to or-parallelism */
   volatile int load;
-#if THREADS
+#ifdef YAPOR_THREADS
   Int top_choice_point_offset;
 #else
   choiceptr top_choice_point;
 #endif
   struct or_frame *top_or_frame;
-#if THREADS
+#ifdef YAPOR_THREADS
   Int prune_request_offset;
 #else
   choiceptr prune_request;
@@ -380,7 +378,7 @@ struct local_data{
   choiceptr bottom_pruning_scope;
 #endif /* TABLING_INNER_CUTS */
 #ifdef YAPOR
-#ifdef THREADS
+#ifdef YAPOR_THREADS
   Int top_choice_point_on_stack_offset;
 #else
   choiceptr top_choice_point_on_stack;
@@ -398,7 +396,7 @@ struct local_data{
 
 #define LOCAL_lock                         (LOCAL->lock)
 #define LOCAL_load                         (LOCAL->load)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define Get_LOCAL_top_cp() offset_to_cptr(LOCAL->top_choice_point_offset)
 #define Set_LOCAL_top_cp(cpt) (LOCAL->top_choice_point_offset =  cptr_to_offset(cpt))
 #else
@@ -407,7 +405,7 @@ struct local_data{
 #define Set_LOCAL_top_cp(cpt)	           (LOCAL->top_choice_point =  cpt)
 #endif
 #define LOCAL_top_or_fr                    (LOCAL->top_or_frame)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define Get_LOCAL_prune_request()	   offset_to_cptr_with_null(LOCAL->prune_request_offset)
 #define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request_offset =  cptr_to_offset_with_null(cpt))
 #else
@@ -430,7 +428,7 @@ struct local_data{
 #define LOCAL_top_sg_fr                    (LOCAL->top_subgoal_frame)
 #define LOCAL_top_dep_fr                   (LOCAL->top_dependency_frame)
 #define LOCAL_pruning_scope                (LOCAL->bottom_pruning_scope)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define Get_LOCAL_top_cp_on_stack() offset_to_cptr(LOCAL->top_choice_point_on_stack_offset)
 #define Set_LOCAL_top_cp_on_stack(cpt) (LOCAL->top_choice_point_on_stack_offset =  cptr_to_offset(cpt))
 #else
@@ -443,11 +441,10 @@ struct local_data{
 #define LOCAL_ma_h_top                     (LOCAL->ma_h_top)
 #define LOCAL_ma_hash_table                (LOCAL->ma_hash_table)
 
+
 #define REMOTE_lock(worker)                (REMOTE[worker].lock)
-
-
 #define REMOTE_load(worker)                (REMOTE[worker].load)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define REMOTE_top_cp(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_offset)
 #define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point_offset = cptr_to_offset(bptr))
 #else
@@ -455,7 +452,7 @@ struct local_data{
 #define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point = (bptr))
 #endif
 #define REMOTE_top_or_fr(worker)           (REMOTE[worker].top_or_frame)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define Get_REMOTE_prune_request(worker)   offset_to_cptr_with_null(REMOTE[worker].prune_request_offset)
 #define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request_offset = cptr_to_offset_with_null(cp))
 #else
@@ -478,7 +475,7 @@ struct local_data{
 #define REMOTE_top_sg_fr(worker)           (REMOTE[worker].top_subgoal_frame)
 #define REMOTE_top_dep_fr(worker)          (REMOTE[worker].top_dependency_frame)
 #define REMOTE_pruning_scope(worker)       (REMOTE[worker].bottom_pruning_scope)
-#if THREADS
+#ifdef YAPOR_THREADS
 #define REMOTE_top_cp_on_stack(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_on_stack_offset)
 #define Set_REMOTE_top_cp_on_stack(worker, bptr)    (REMOTE[worker].top_choice_point_on_stack_offset = cptr_to_offset(bptr))
 #else

@@ -233,9 +233,9 @@ void make_root_frames(void) {
 void init_workers(void) {
   CACHE_REGS
   int proc;
-#ifdef THREADS
+#ifdef YAPOR_THREADS
   return;
-#endif
+#endif /* YAPOR_THREADS */
 #ifdef YAPOR_COW
   if (Yap_number_workers> 1) {
     int son;

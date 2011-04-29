@@ -310,7 +310,7 @@ RestoreTrail(int worker_p USES_REGS)
   }
 }
 
-#endif /* YAPOR && THREADS */
+#endif /* YAPOR_THREADS */
 
 static void
 MoveGlobal( USES_REGS1 )
@@ -1252,7 +1252,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   if (sz < in_size) {
     sz = in_size;
   }
-#if YAPOR
+#ifdef YAPOR
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
@@ -1690,7 +1690,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   size = AdjustPageSize(size);
   trail_overflows++;
   if (gc_verbose) {
-#if  defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) || defined(THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Trail Overflow %d\n", trail_overflows);

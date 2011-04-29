@@ -91,8 +91,8 @@
 /************************************************************
 **      memory mapping scheme (mandatory, define one)      **
 ************************************************************/
-//#define MMAP_MEMORY_MAPPING_SCHEME 1
-#define SHM_MEMORY_MAPPING_SCHEME  1
+#define MMAP_MEMORY_MAPPING_SCHEME 1
+/*#define SHM_MEMORY_MAPPING_SCHEME  1*/
 
 /*************************************************
 **      enable error checking ? (optional)      **
