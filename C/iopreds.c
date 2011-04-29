@@ -90,7 +90,6 @@ STATIC_PROTO (Int p_read, ( USES_REGS1 ));
 STATIC_PROTO (Int p_startline, ( USES_REGS1 ));
 STATIC_PROTO (Int p_change_type_of_char, ( USES_REGS1 ));
 STATIC_PROTO (Int p_type_of_char, ( USES_REGS1 ));
-STATIC_PROTO (Term StreamPosition, (IOSTREAM *));
 
 extern Atom Yap_FileName(IOSTREAM *s);
 
@@ -559,9 +558,9 @@ static Int
   int emacs_cares = FALSE;
 #endif
   Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
-  extern void Yap_setCurrentSourceLocation(IOSTREAM *s);
+  extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
 
-  Yap_setCurrentSourceLocation(inp_stream);
+  Yap_setCurrentSourceLocation(&inp_stream);
   if (IsVarTerm(tmod)) {
     tmod = CurrentModule;
   } else if (!IsAtomTerm(tmod)) {
@@ -569,7 +568,7 @@ static Int
     return FALSE;
   }
   Yap_Error_TYPE = YAP_NO_ERROR;
-  tpos = StreamPosition(inp_stream);
+  tpos = Yap_StreamPosition(inp_stream);
   if (!Yap_unify(tpos,ARG5)) {
     /* do this early so that we do not have to protect it in case of stack expansion */  
     return FALSE;
@@ -587,7 +586,7 @@ static Int
     while (TRUE) {
       old_H = H;
       Yap_eot_before_eof = FALSE;
-      tpos = StreamPosition(inp_stream);
+      tpos = Yap_StreamPosition(inp_stream);
       tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream, &tpos);
       if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
@@ -758,23 +757,6 @@ p_read2 ( USES_REGS1 )
   return out;
 }
 
-
-static Term
-StreamPosition(IOSTREAM *st)
-{
-  Term t[4];
-  t[0] = MkIntegerTerm(st->posbuf.charno);
-  t[1] = MkIntegerTerm(st->posbuf.lineno);
-  t[2] = MkIntegerTerm(st->posbuf.linepos);
-  t[3] = MkIntegerTerm(st->posbuf.byteno);
-  return Yap_MkApplTerm(FunctorStreamPos,4,t);
-}
-
-Term
-Yap_StreamPosition(IOSTREAM *st)
-{
-  return StreamPosition(st);
-}
 
 #if HAVE_SELECT && FALSE
 /* stream_select(+Streams,+TimeOut,-Result)      */

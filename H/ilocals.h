@@ -81,6 +81,7 @@ static void InitWorker(int wid) {
 #if LOW_LEVEL_TRACER
   FOREIGN(wid)->total_cps = 0;
 #endif
+  FOREIGN(wid)->consult_level_ = 0;
 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(FOREIGN(wid)->signal_lock);

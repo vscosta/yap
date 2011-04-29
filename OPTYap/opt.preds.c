@@ -37,7 +37,6 @@
 #ifdef TABLING
 static Int p_freeze_choice_point( USES_REGS1 );
 static Int p_wake_choice_point( USES_REGS1 );
-static Int p_reset_frozen_choice_points( USES_REGS1 );
 static Int p_abolish_frozen_choice_points_until( USES_REGS1 );
 static Int p_abolish_frozen_choice_points_all( USES_REGS1 );
 static Int p_table( USES_REGS1 );
@@ -338,6 +337,7 @@ static Int p_abolish_table( USES_REGS1 ) {
   TabEnt_hash_chain(tab_ent) = NULL;
   free_subgoal_hash_chain(hash);
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
+  TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
   if (sg_node) {
     if (TabEnt_arity(tab_ent)) {
       TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
@@ -366,7 +366,8 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
     TabEnt_hash_chain(tab_ent) = NULL;
     free_subgoal_hash_chain(hash);
     sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
-    if (sg_node) {
+    TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
+     if (sg_node) {
       if (TabEnt_arity(tab_ent)) {
 	TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
 	free_subgoal_trie(sg_node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);

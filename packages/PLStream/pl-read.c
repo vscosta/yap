@@ -344,10 +344,12 @@ setCurrentSourceLocation(IOSTREAM *s ARG_LD)
 
 #if __YAP_PROLOG__
 void
-Yap_setCurrentSourceLocation(IOSTREAM *s)
+Yap_setCurrentSourceLocation(IOSTREAM **s)
 {
   GET_LD
-  setCurrentSourceLocation(s PASS_LD);
+  if (!*s)
+    *s = Suser_input;
+  setCurrentSourceLocation(*s PASS_LD);
 }
 #endif
 

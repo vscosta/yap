@@ -81,6 +81,7 @@
 #if LOW_LEVEL_TRACER
 #define Yap_total_choicepoints WL->total_cps
 #endif
+#define consult_level WL->consult_level_
 
 #if defined(YAPOR) || defined(THREADS)
 #define SignalLock WL->signal_lock

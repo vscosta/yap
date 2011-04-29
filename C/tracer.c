@@ -163,10 +163,6 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCK(Yap_heap_regs->low_level_trace_lock);
   sc = Yap_heap_regs;
   vsc_count++;
-  if (vsc_count < 45000LL)
-    return;
-  if (vsc_count == 47456LL)
-    jmp_deb(1);
 #ifdef THREADS
   MY_ThreadHandle.thread_inst_count++;
 #endif  
@@ -189,6 +185,11 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     }
    } else
   return;
+  {
+    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    if (pt[140].term == 0 && pt[140].value != 0)
+      jmp_deb(1);
+  }
   if (worker_id != 04 || worker_id != 03) return;
   //  if (vsc_count == 218280)
   //    vsc_xstop = 1;
@@ -231,6 +232,31 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
+  if (TR_FZ > TR)
+    jmp_deb(1);
+  {
+    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    if (pt[153].term == 0 && pt[153].value == 0 && 
+	pt[154].term != 0 && pt[154].value != 0 && ( TR > pt+154 || 
+						     TR_FZ > pt+154))
+      jmp_deb(2);
+    if (pt[635].term == 0 && pt[635].value == 0 && 
+	pt[636].term != 0 && pt[636].value != 0 && ( TR > pt+636 || 
+						     TR_FZ > pt+636))
+      jmp_deb(3);
+    if (pt[138].term == 0 && pt[138].value == 0 && 
+	pt[139].term != 0 && pt[139].value != 0 && ( TR > pt+138 || 
+						     TR_FZ > pt+138) )
+      jmp_deb(4);
+  }
+  if (vsc_count == 287939LL)
+    jmp_deb(1);
+  if (vsc_count == 173118LL)
+    jmp_deb(1);
+  if (!(vsc_count >= 287934LL && vsc_count <= 287939LL) &&
+      !(vsc_count >= 173100LL && vsc_count <= 173239LL) &&
+      vsc_count != -1)
+    return;
   if (vsc_count == 51021) {
     printf("Here I go\n");
   }

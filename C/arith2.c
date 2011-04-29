@@ -48,7 +48,8 @@ p_mod(Term t1, Term t2) {
 	Int i2 = IntegerOfTerm(t2);
 	Int mod;
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " mod 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
@@ -82,7 +83,8 @@ p_mod(Term t1, Term t2) {
       {
 	Int i2 = IntegerOfTerm(t2);
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... mod 0");
 	return Yap_gmp_mod_big_int(t1, i2);
       }
     case (CELL)big_int_e:
@@ -97,8 +99,6 @@ p_mod(Term t1, Term t2) {
   default:
     RERROR();
   }
-zero_divisor:
-  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
 }
 
 static Term
@@ -113,7 +113,8 @@ p_div2(Term t1, Term t2) {
 	Int i2 = IntegerOfTerm(t2);
 	Int res, mod;
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " div 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
@@ -148,7 +149,8 @@ p_div2(Term t1, Term t2) {
       {
 	Int i2 = IntegerOfTerm(t2);
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... div 0");
 	return Yap_gmp_div2_big_int(t1, i2);
       }
     case (CELL)big_int_e:
@@ -163,8 +165,6 @@ p_div2(Term t1, Term t2) {
   default:
     RERROR();
   }
-zero_divisor:
-  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is div 0");
 }
 
 static Term
@@ -179,7 +179,8 @@ p_rem(Term t1, Term t2) {
 	Int i2 = IntegerOfTerm(t2);
 	Int mod;
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rem 0", i1);
 	if (i1 == Int_MIN && i2 == -1) {
 #ifdef USE_GMP
 	  return Yap_gmp_add_ints(Int_MAX, 1);	  
@@ -207,6 +208,8 @@ p_rem(Term t1, Term t2) {
 #ifdef USE_GMP
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
+      if (IntegerOfTerm(t2) == 0)
+	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rem 0");
       return Yap_gmp_rem_big_int(t1, IntegerOfTerm(t2));
     case (CELL)big_int_e:
       /* two bignums */
@@ -220,8 +223,6 @@ p_rem(Term t1, Term t2) {
   default:
     RERROR();
   }
- zero_divisor:
-  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
 }
 
 
@@ -239,7 +240,8 @@ p_rdiv(Term t1, Term t2) {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
 
-	if (i2 == 0) goto zero_divisor;
+	if (i2 == 0)
+	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rdiv 0", i1);
 	return Yap_gmq_rdiv_int_int(i1, i2);
       }
     case (CELL)big_int_e:
@@ -252,6 +254,8 @@ p_rdiv(Term t1, Term t2) {
   case (CELL)big_int_e:
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
+      if (IntegerOfTerm(t2) == 0)
+	return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is ... rdiv  0");
       /* I know the term is much larger, so: */
       return Yap_gmq_rdiv_big_int(t1, IntegerOfTerm(t2));
     case (CELL)big_int_e:
@@ -264,8 +268,6 @@ p_rdiv(Term t1, Term t2) {
   default:
     RERROR();
   }
- zero_divisor:
-  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is mod 0");
 #else
   RERROR();
 #endif

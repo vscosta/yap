@@ -1831,9 +1831,13 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   if (type != PURE_ABORT) {
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
-      Yap_ErrorMessage = RepAtom(AtomOfTerm(nt[0]))->StrOfAE;
+      strncpy(Yap_ErrorSay, RepAtom(AtomOfTerm(nt[0]))->StrOfAE, MAX_ERROR_MSG_SIZ\
+E);
+      Yap_ErrorMessage = Yap_ErrorSay;
     } else {
-      Yap_ErrorMessage = RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE;
+      strncpy(Yap_ErrorSay, RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,\
+ MAX_ERROR_MSG_SIZE);
+      Yap_ErrorMessage = Yap_ErrorSay;
     }
   }
   switch (type) {

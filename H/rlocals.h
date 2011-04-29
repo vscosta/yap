@@ -82,6 +82,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif
 
+
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(FOREIGN(wid)->signal_lock);
 

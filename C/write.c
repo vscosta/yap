@@ -309,13 +309,14 @@ legalAtom(unsigned char *s)			/* Is this a legal atom ? */
       return (s[1] == ']' && !s[2]);
     } else if (ch == '{') {
 	return (s[1] == '}' && !s[2]);
-//    else if (ch == '/')
-//      return (*++s != '*');
     } else if (Yap_chtype[ch] == SL) {
       return (!s[1]);
     } else if ((ch == ',' || ch == '.') && !s[1]) {
       return FALSE;
     } else {
+      if (ch == '/') {
+	if (s[1] == '*') return FALSE;
+      }
       while (ch) {
 	if (Yap_chtype[ch] != SY) {
 	  return FALSE;
@@ -451,7 +452,7 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
     wrputc(' ', writewch);
   lastw = atom_or_symbol;
-  if (!legalAtom(s) && Quote_illegal) {
+  if (Quote_illegal && !legalAtom(s)) {
     wrputc('\'', writewch);
     while (*s) {
       wchar_t ch = *s++;
@@ -738,6 +739,38 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   } else if (IsAtomTerm(t)) {
     putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->writewch);
   } else if (IsPairTerm(t)) {
+    if (wglb->Ignore_ops) {
+      Int sl = 0;
+
+      wrputs("'.'(",wglb->writewch);
+      lastw = separator;
+      if (wglb->keep_terms) {
+	/* garbage collection may be called */
+	sl = Yap_InitSlot(t);      
+      }
+      writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
+      if (wglb->keep_terms) {
+	/* garbage collection may be called */
+	t = Yap_GetFromSlot(sl);
+	Yap_RecoverSlots(1);
+      }
+      wrputs(",",wglb->writewch);	
+      if (wglb->keep_terms) {
+	/* garbage collection may be called */
+	sl = Yap_InitSlot(t);      
+      }
+      writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
+      restore_from_write(&nrwt, wglb);
+      if (wglb->keep_terms) {
+	/* garbage collection may be called */
+	t = Yap_GetFromSlot(sl);
+	Yap_RecoverSlots(1);
+      }
+      wrputc(')', wglb->writewch);
+      lastw = separator;
+      return;
+    } 
     if (wglb->Use_portray) {
       Term targs[1];
       struct DB_TERM *old_EX = NULL;

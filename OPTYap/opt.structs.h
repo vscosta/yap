@@ -218,7 +218,7 @@ struct global_optyap_data{
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
   lockvar table_lock[TABLE_LOCK_BUCKETS];
 #endif /* TABLE_LOCK_AT_WRITE_LEVEL */
-#ifdef TIMESTAMP_CHECKThreads
+#ifdef TIMESTAMP_CHECK
   long timestamp;
 #endif /* TIMESTAMP_CHECK */
 #endif /* TABLING */
