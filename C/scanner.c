@@ -316,7 +316,10 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'r':
     return '\r';
   case 's':         /* space */
-    return ' ';
+    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+      return send_error_message("invalid escape sequence \\s");
+    } else
+      return ' ';
   case 't':
     return '\t';
   case 'u':
@@ -360,7 +363,10 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
   case 'v':
     return '\v';
   case 'z':         /* Prolog end-of-file */
-    return -1;
+    if (yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
+      return send_error_message("invalid escape sequence \\z");
+    } else
+      return -1;
   case '\\':
     return '\\';
   case '\'':
