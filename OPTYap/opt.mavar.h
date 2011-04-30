@@ -21,13 +21,13 @@
 #define OPT_MAVAR_STATIC inline static
 #endif /* !OPT_MAVAR_STATIC */
 
-OPT_MAVAR_STATIC unsigned int Yap_MAVAR_HASH(CELL *addr);
-OPT_MAVAR_STATIC struct ma_h_entry * Yap_ALLOC_NEW_MASPACE(void);
-OPT_MAVAR_STATIC int Yap_lookup_ma_var(CELL *addr);
-OPT_MAVAR_STATIC UInt Yap_NEW_MAHASH(ma_h_inner_struct *top);
+OPT_MAVAR_STATIC unsigned int Yap_MAVAR_HASH(CELL *addr USES_REGS);
+OPT_MAVAR_STATIC struct ma_h_entry * Yap_ALLOC_NEW_MASPACE(USES_REGS1);
+OPT_MAVAR_STATIC int Yap_lookup_ma_var(CELL *addr USES_REGS);
+OPT_MAVAR_STATIC UInt Yap_NEW_MAHASH(ma_h_inner_struct *top USES_REGS);
 
 OPT_MAVAR_STATIC unsigned int
-Yap_MAVAR_HASH(CELL *addr) {
+Yap_MAVAR_HASH(CELL *addr USES_REGS) {
 #if SIZEOF_INT_P==8
   return((((unsigned int)((CELL)(addr)))>>3)%MAVARS_HASH_SIZE);
 #else
@@ -36,7 +36,7 @@ Yap_MAVAR_HASH(CELL *addr) {
 }
 
 OPT_MAVAR_STATIC struct ma_h_entry *
-Yap_ALLOC_NEW_MASPACE(void)
+Yap_ALLOC_NEW_MASPACE(USES_REGS1)
 {
   ma_h_inner_struct *new = LOCAL_ma_h_top;
   LOCAL_ma_h_top++;
@@ -44,8 +44,8 @@ Yap_ALLOC_NEW_MASPACE(void)
 }
 
 OPT_MAVAR_STATIC int
-Yap_lookup_ma_var(CELL *addr) {
-  unsigned int i = Yap_MAVAR_HASH(addr);
+Yap_lookup_ma_var(CELL *addr USES_REGS) {
+  unsigned int i = Yap_MAVAR_HASH(addr PASS_REGS);
   struct ma_h_entry *nptr, *optr;
 
   if (LOCAL_ma_hash_table[i].timestmp != LOCAL_ma_timestamp) {
@@ -65,14 +65,14 @@ Yap_lookup_ma_var(CELL *addr) {
     optr = nptr;
     nptr = nptr->next;
   }
-  nptr = Yap_ALLOC_NEW_MASPACE();
+  nptr = Yap_ALLOC_NEW_MASPACE(PASS_REGS1);
   nptr->addr = addr;
   nptr->next = optr;
   return FALSE;
 }
 
 OPT_MAVAR_STATIC UInt
-Yap_NEW_MAHASH(ma_h_inner_struct *top) {
+Yap_NEW_MAHASH(ma_h_inner_struct *top USES_REGS) {
   UInt time = ++LOCAL_ma_timestamp;
   if (time == 0) {
     unsigned int i;

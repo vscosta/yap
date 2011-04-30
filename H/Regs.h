@@ -138,7 +138,7 @@ typedef struct regstore_t
     int  sba_size_;
 #endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
-#if (defined(YAPOR) || defined(TABLING))
+#if defined(YAPOR) || defined(TABLING)
     struct local_data *LOCAL_;
 #endif
 #if PUSH_REGS

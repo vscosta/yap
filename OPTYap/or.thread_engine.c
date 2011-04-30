@@ -16,7 +16,7 @@
 ** ------------------ */
 
 #include "Yap.h"
-#if defined(THREADS) && defined(YAPOR)
+#ifdef YAPOR_THREADS
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif /* HAVE_STRING_H */
@@ -539,4 +539,4 @@ void share_private_nodes(int worker_q) {
   REMOTE_load(worker_q) = LOCAL_load = 0;
   return;
 }
-#endif /* YAPOR_COPY */
+#endif /* YAPOR_THREADS */

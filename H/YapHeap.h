@@ -180,7 +180,7 @@ typedef struct various_codes {
 #include "hglobals.h"
 #include "hlocals.h"
 
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 extern struct global_data *Yap_global;
 extern long Yap_worker_area_size;
 #else
@@ -188,17 +188,15 @@ extern struct global_data Yap_Global;
 #define Yap_global (&Yap_Global)
 #endif
 
-#if defined(YAPOR) || defined(THREADS)
 #if defined(THREADS)
 extern struct worker_local	*Yap_WLocal[MAX_THREADS];
 #define WL (Yap_WLocal[worker_id])
 #define FOREIGN(wid) (Yap_WLocal[(wid)])
-#else
+#elif defined(YAPOR)
 extern struct worker_local	*Yap_WLocal;
 #define WL (Yap_WLocal+worker_id)
 #define FOREIGN(wid) (Yap_WLocal+wid)
-#endif
-#else
+#else /* !THREADS && !YAPOR */
 extern struct worker_local	Yap_WLocal;
 #define WL (&Yap_WLocal)
 #define FOREIGN(wid) (&Yap_WLocal)

@@ -615,19 +615,20 @@ p_save2( USES_REGS1 )
   Int res;
 
   Term t;
-#if defined(YAPOR) && !defined(THREADS)
+#ifdef YAPOR
   if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
-#elif defined(THREADS)
+#endif /* YAPOR */
+#ifdef THREADS
   if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
-#endif
+#endif /* THREADS */
   /* avoid double saves */
   if (IsNonVarTerm(t = Deref(ARG2)))
     return TRUE;
@@ -1794,17 +1795,18 @@ p_restore( USES_REGS1 )
   char s[YAP_FILENAME_MAX+1];
 
   Term t1 = Deref(ARG1);
-#if defined(YAPOR) && !defined(THREADS)
+#ifdef YAPOR
   if (Yap_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
-#elif defined(THREADS)
+#endif /* YAPOR */
+#ifdef THREADS
   if (Yap_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }
-#endif
+#endif /* THREADS */
   if (!Yap_GetName(s, YAP_FILENAME_MAX, t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"restore/1");
     return(FALSE);

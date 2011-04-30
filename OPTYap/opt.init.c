@@ -40,7 +40,7 @@
 **      Macros      **
 *********************/
 
-#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#ifdef USE_PAGES_MALLOC
 #define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
 
 #define INIT_PAGES(PG, STR_TYPE)                         \
@@ -51,7 +51,7 @@
         Pg_free_pg(PG) = NULL
 #else
 #define INIT_PAGES(PG, STR_TYPE)  Pg_str_in_use(PG) = 0
-#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
+#endif /* USE_PAGES_MALLOC */
 
 
 
@@ -233,9 +233,9 @@ void make_root_frames(void) {
 void init_workers(void) {
   CACHE_REGS
   int proc;
-#ifdef THREADS
+#ifdef YAPOR_THREADS
   return;
-#endif
+#endif /* YAPOR_THREADS */
 #ifdef YAPOR_COW
   if (Yap_number_workers> 1) {
     int son;

@@ -136,10 +136,6 @@ typedef struct worker_local {
 
   struct PL_local_data  *Yap_ld_;
   struct open_query_struct*  _execution;
-
-#if MULTIPLE_STACKS
-  struct worker  worker;
-#endif
 #ifdef THREADS
   struct thandle  thread_handle;
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						

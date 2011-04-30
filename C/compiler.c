@@ -2849,6 +2849,19 @@ c_layout(compiler_struct *cglobs)
     case cutexit_op:
       cglobs->cut_mark->op = clause_with_cut_op;
       break;
+#else
+    case cut_op:
+    case cutexit_op:
+      {
+	int i, max;
+
+	max = 0;
+	for (i = 1; i < cglobs->MaxCTemps; ++i) {
+	  if (cglobs->Contents[i]) max = i;
+	}
+	cglobs->cint.cpc->ops.opseqt[1] = max;
+      }
+      break;
 #endif /* TABLING_INNER_CUTS */
     case allocate_op:
     case deallocate_op:
@@ -3048,18 +3061,6 @@ c_layout(compiler_struct *cglobs)
 	    cop++;
 	  }
 	}
-      }
-      break;
-    case cut_op:
-    case cutexit_op:
-      {
-	int i, max;
-
-	max = 0;
-	for (i = 1; i < cglobs->MaxCTemps; ++i) {
-	  if (cglobs->Contents[i]) max = i;
-	}
-	cglobs->cint.cpc->ops.opseqt[1] = max;
       }
       break;
     case restore_tmps_and_skip_op:
@@ -3552,7 +3553,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   } else {
 #ifdef TABLING_INNER_CUTS
     Yap_emit(nop_op, Zero, Zero, &cglobs.cint);
-    cglobs->cut_mark = cpc;
+    cglobs.cut_mark->op = clause_with_cut_op;
 #endif /* TABLING_INNER_CUTS */
     Yap_emit(allocate_op, Zero, Zero, &cglobs.cint);
 

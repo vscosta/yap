@@ -29,8 +29,8 @@
 #include <string.h>
 #endif
 #if YAPOR_THREADS
-#include <opt.mavar.h>
-#endif
+#include "opt.mavar.h"
+#endif /* YAPOR_THREADS */
 
 #if !HAVE_STRNCAT
 #define strncat(s0,s1,sz)   strcat(s0,s1)
@@ -269,7 +269,7 @@ RestoreTrail(int worker_p USES_REGS)
   if (aux_tr < TR){
     Yap_Error(SYSTEM_ERROR, TermNil, "oops");
   }
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (TR != aux_tr) {
     CELL aux_cell = TrailTerm(--aux_tr);
     if (IsVarTerm(aux_cell)) {
@@ -295,7 +295,7 @@ RestoreTrail(int worker_p USES_REGS)
       CELL *cell_ptr = RepAppl(aux_cell);
       if (((CELL *)aux_cell < Get_LOCAL_top_cp()->cp_h || 
 	   EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), (choiceptr)aux_cell)) &&
-	  !Yap_lookup_ma_var(cell_ptr)) {
+	  !Yap_lookup_ma_var(cell_ptr PASS_REGS)) {
 	/* first time we found the variable, let's put the new value */
 #ifdef TABLING
         *cell_ptr = TrailVal(aux_tr);
@@ -310,7 +310,7 @@ RestoreTrail(int worker_p USES_REGS)
   }
 }
 
-#endif /* YAPOR && THREADS */
+#endif /* YAPOR_THREADS */
 
 static void
 MoveGlobal( USES_REGS1 )
@@ -1252,7 +1252,7 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   if (sz < in_size) {
     sz = in_size;
   }
-#if YAPOR
+#ifdef YAPOR
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
@@ -1690,7 +1690,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   size = AdjustPageSize(size);
   trail_overflows++;
   if (gc_verbose) {
-#if  defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) || defined(THREADS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Trail Overflow %d\n", trail_overflows);

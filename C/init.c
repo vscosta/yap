@@ -1009,11 +1009,8 @@ InitFlags(void)
   yap_flags[SOURCE_MODE_FLAG] = FALSE;
   yap_flags[CHARACTER_ESCAPE_FLAG] = SICSTUS_CHARACTER_ESCAPES;
   yap_flags[WRITE_QUOTED_STRING_FLAG] = FALSE;
-#if (defined(YAPOR) || defined(THREADS)) && PUREe_YAPOR
-  yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = FALSE;
-#else
+  /* we do not garantee safe assert in parallel mode */
   yap_flags[ALLOW_ASSERTING_STATIC_FLAG] = TRUE;
-#endif
   yap_flags[GENERATE_DEBUG_INFO_FLAG] = TRUE;
   /* current default */
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
@@ -1236,7 +1233,7 @@ Yap_CloseScratchPad(void)
 #include "ilocals.h"
 
 
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 struct global_data *Yap_global;
 long Yap_worker_area_size;
 #else
@@ -1247,7 +1244,7 @@ struct global_data Yap_Global;
 struct worker_local	*Yap_WLocal[MAX_THREADS];
 #elif defined(YAPOR)
 struct worker_local	*Yap_WLocal;
-#else
+#else /* !THREADS && !YAPOR */
 struct worker_local	Yap_WLocal;
 #endif
 
@@ -1341,21 +1338,25 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
     Atts = 2048*sizeof(CELL);
   else
     Atts = AdjustPageSize(Atts * K);
-#if defined(YAPOR) && !defined(THREADS)
+#ifdef YAPOR
   worker_id = 0;
   if (n_workers > MAX_WORKERS)
-    Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers (Yap_InitWorkspace)");
+    Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers");
 #ifdef YAPOR_COPY
   INFORMATION_MESSAGE("YapOr: copy model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
 #elif YAPOR_COW
   INFORMATION_MESSAGE("YapOr: acow model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#else /* YAPOR_SBA */
+#elif YAPOR_SBA
   INFORMATION_MESSAGE("YapOr: sba model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
-#endif /* YAPOR_COPY - YAPOR_COW - YAPOR_SBA */
- Yap_init_optyap_memory(Trail, Heap, Stack+Atts, n_workers);
+#elif YAPOR_THREADS
+  INFORMATION_MESSAGE("YapOr: threads model with %d worker%s", n_workers, n_workers == 1 ? "":"s");
+#endif /* YAPOR_COPY - YAPOR_COW - YAPOR_SBA - YAPOR_THREADS */
+#endif /* YAPOR */
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
+  Yap_init_optyap_memory(Trail, Heap, Stack+Atts, n_workers);
 #else
   Yap_InitMemory (Trail, Heap, Stack+Atts);
-#endif /* YAPOR && !THREADS */
+#endif
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_optyap_data(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
@@ -1414,9 +1415,9 @@ run_halt_hooks(int code)
 void
 Yap_exit (int value)
 {
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_unmap_optyap_memory();
-#endif /* YAPOR && !THREADS */
+#endif 
 
   if (! (Yap_PrologMode & BootMode) ) {
 #ifdef LOW_PROF

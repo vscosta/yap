@@ -150,10 +150,6 @@ struct PL_local_data	       *Yap_ld_			PL_local_data_p		=Yap_InitThreadIO(wid)
 
 struct open_query_struct*	_execution		execution		=NULL
 
-// Ricardo's stuff
-#if MULTIPLE_STACKS
-struct worker			worker			WORKER		void
-#endif
 
 #ifdef THREADS
 struct thandle			thread_handle		ThreadHandle	InitThreadHandle(wid)
