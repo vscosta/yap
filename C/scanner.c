@@ -315,6 +315,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     return '\n';
   case 'r':
     return '\r';
+  case 's':         /* space */
+    return ' ';
   case 't':
     return '\t';
   case 'u':
@@ -357,6 +359,8 @@ read_quoted_char(int *scan_nextp, IOSTREAM *inp_stream)
     }
   case 'v':
     return '\v';
+  case 'z':         /* Prolog end-of-file */
+    return -1;
   case '\\':
     return '\\';
   case '\'':
