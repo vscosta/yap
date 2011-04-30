@@ -96,6 +96,7 @@
 #define ARG_MODULE Yap_heap_regs->arg_module
 #define GLOBALS_MODULE Yap_heap_regs->globals_module
 #define SWI_MODULE Yap_heap_regs->swi_module
+#define DBLOAD_MODULE Yap_heap_regs->dbload_module
 
 
 

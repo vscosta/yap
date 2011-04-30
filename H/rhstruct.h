@@ -96,6 +96,7 @@
   Yap_heap_regs->arg_module = AtomTermAdjust(Yap_heap_regs->arg_module);
   Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
   Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
+  Yap_heap_regs->dbload_module = AtomTermAdjust(Yap_heap_regs->dbload_module);
 
 
 
