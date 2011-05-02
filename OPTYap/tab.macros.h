@@ -164,10 +164,10 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define STACK_NOT_EMPTY(STACK, STACK_BASE)          (STACK) != (STACK_BASE)
 #define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)) EXPAND_AUX_STACK(STACK)
 #define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)+4096) EXPAND_STACK(STACK)
-#if defined(YAPOR) && !defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #define EXPAND_AUX_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)");
 #define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
-#else
+#else /* YAPOR_THREADS */
 #define EXPAND_AUX_STACK(STACK)    STACK = expand_auxiliary_stack(STACK)
 #define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
 #endif /* YAPOR */

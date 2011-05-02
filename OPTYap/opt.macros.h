@@ -17,9 +17,9 @@
 
 extern int Yap_page_size;
 
-#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#ifdef USE_PAGES_MALLOC
 #include <sys/shm.h>
-#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
+#endif /* USE_PAGES_MALLOC */
 
 #define SHMMAX 0x2000000  /* 32 Mbytes: works fine with linux */
 /* #define SHMMAX  0x400000 - 4 Mbytes: shmget limit for Mac (?) */
@@ -45,9 +45,9 @@ extern int Yap_page_size;
 #define UPDATE_STATS(STAT, VALUE)  STAT += VALUE
 
 
-#ifdef MALLOC_MEMORY_ALLOC_SCHEME
+#ifdef USE_SYSTEM_MALLOC
 /*************************************************************************************************
-**                                  MALLOC_MEMORY_ALLOC_SCHEME                                  **
+**                                       USE_SYSTEM_MALLOC                                      **
 *************************************************************************************************/
 #define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                         \
         if ((STR = (STR_TYPE *) malloc(SIZE)) == NULL)                                           \
@@ -56,7 +56,7 @@ extern int Yap_page_size;
         free(STR)
 #else
 /*************************************************************************************************
-**                                 ! MALLOC_MEMORY_ALLOC_SCHEME                                 **
+**                                     ! USE_SYSTEM_MALLOC                                      **
 *************************************************************************************************/
 #define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                         \
         { char *block_ptr;                                                                       \
@@ -79,22 +79,49 @@ extern int Yap_page_size;
 #endif /*****************************************************************************************/
 
 
-#if defined(MALLOC_MEMORY_ALLOC_SCHEME) || defined(YAP_MEMORY_ALLOC_SCHEME)
+
+
+#ifdef USE_PAGES_MALLOC
 /*************************************************************************************************
-**                    MALLOC_MEMORY_ALLOC_SCHEME || YAP_MEMORY_ALLOC_SCHEME                     **
+**                               USE_PAGES_MALLOC                               **
 *************************************************************************************************/
-#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                   \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                               \
-        ALLOC_BLOCK(STR, sizeof(STR_TYPE), STR_TYPE)
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                         \
-        ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
+#define FREE_PAGE(PG_HD)                                                                         \
+        LOCK(Pg_lock(Yap_pages_void));                                                        \
+        UPDATE_STATS(Pg_str_in_use(Yap_pages_void), -1);                                      \
+        PgHd_next(PG_HD) = Pg_free_pg(Yap_pages_void);                                        \
+        Pg_free_pg(Yap_pages_void) = PG_HD;                                                   \
+        UNLOCK(Pg_lock(Yap_pages_void))
+
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                    \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                              \
-        FREE_BLOCK(STR)
-#elif OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+        { pg_hd_ptr pg_hd;                                                                       \
+          pg_hd = PAGE_HEADER(STR);                                                              \
+          LOCK(Pg_lock(STR_PAGES));                                                              \
+          UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                            \
+          if (--PgHd_str_in_use(pg_hd) == 0) {                                                   \
+            UPDATE_STATS(Pg_pg_alloc(STR_PAGES), -1);                                            \
+            if (PgHd_previous(pg_hd)) {                                                          \
+              if ((PgHd_next(PgHd_previous(pg_hd)) = PgHd_next(pg_hd)) != NULL)                  \
+                PgHd_previous(PgHd_next(pg_hd)) = PgHd_previous(pg_hd);                          \
+	    } else {                                                                             \
+              if ((Pg_free_pg(STR_PAGES) = PgHd_next(pg_hd)) != NULL)                            \
+                PgHd_previous(PgHd_next(pg_hd)) = NULL;                                          \
+	    }                                                                                    \
+            UNLOCK(Pg_lock(STR_PAGES));                                                          \
+            FREE_PAGE(pg_hd);                                                                    \
+	  } else {                                                                               \
+            if ((STRUCT_NEXT(STR) = (STR_TYPE *) PgHd_free_str(pg_hd)) == NULL) {                \
+              PgHd_previous(pg_hd) = NULL;                                                       \
+              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                            \
+                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                         \
+              Pg_free_pg(STR_PAGES) = pg_hd;                                                     \
+            }                                                                                    \
+            PgHd_free_str(pg_hd) = (void *) STR;                                                 \
+            UNLOCK(Pg_lock(STR_PAGES));                                                          \
+          }                                                                                      \
+        }
 #ifdef LIMIT_TABLING
 /*************************************************************************************************
-**                      OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && LIMIT_TABLING                       **
+**                      USE_PAGES_MALLOC && LIMIT_TABLING                       **
 *************************************************************************************************/
 #define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                                    \
         { int i;                                                                                 \
@@ -233,7 +260,7 @@ extern int Yap_page_size;
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #else
 /*************************************************************************************************
-**                      OPTYAP_PAGES_MEMORY_ALLOC_SCHEME && !LIMIT_TABLING                      **
+**                      USE_PAGES_MALLOC && ! LIMIT_TABLING                     **
 *************************************************************************************************/
 #define ALLOC_PAGE(PG_HD)                                                                        \
         LOCK(Pg_lock(Yap_pages_void));                                                           \
@@ -328,44 +355,21 @@ extern int Yap_page_size;
 	}                                                                                        \
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #endif /* LIMIT_TABLING */
+#else /* ! USE_PAGES_MALLOC */
 /*************************************************************************************************
-**                               OPTYAP_PAGES_MEMORY_ALLOC_SCHEME                               **
+**                                ! USE_PAGES_MALLOC                                            **
 *************************************************************************************************/
-#define FREE_PAGE(PG_HD)                                                                         \
-        LOCK(Pg_lock(Yap_pages_void));                                                        \
-        UPDATE_STATS(Pg_str_in_use(Yap_pages_void), -1);                                      \
-        PgHd_next(PG_HD) = Pg_free_pg(Yap_pages_void);                                        \
-        Pg_free_pg(Yap_pages_void) = PG_HD;                                                   \
-        UNLOCK(Pg_lock(Yap_pages_void))
-
+#define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                   \
+        UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                               \
+        ALLOC_BLOCK(STR, sizeof(STR_TYPE), STR_TYPE)
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                         \
+        ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)
 #define FREE_STRUCT(STR, STR_PAGES, STR_TYPE)                                                    \
-        { pg_hd_ptr pg_hd;                                                                       \
-          pg_hd = PAGE_HEADER(STR);                                                              \
-          LOCK(Pg_lock(STR_PAGES));                                                              \
-          UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                            \
-          if (--PgHd_str_in_use(pg_hd) == 0) {                                                   \
-            UPDATE_STATS(Pg_pg_alloc(STR_PAGES), -1);                                            \
-            if (PgHd_previous(pg_hd)) {                                                          \
-              if ((PgHd_next(PgHd_previous(pg_hd)) = PgHd_next(pg_hd)) != NULL)                  \
-                PgHd_previous(PgHd_next(pg_hd)) = PgHd_previous(pg_hd);                          \
-	    } else {                                                                             \
-              if ((Pg_free_pg(STR_PAGES) = PgHd_next(pg_hd)) != NULL)                            \
-                PgHd_previous(PgHd_next(pg_hd)) = NULL;                                          \
-	    }                                                                                    \
-            UNLOCK(Pg_lock(STR_PAGES));                                                          \
-            FREE_PAGE(pg_hd);                                                                    \
-	  } else {                                                                               \
-            if ((STRUCT_NEXT(STR) = (STR_TYPE *) PgHd_free_str(pg_hd)) == NULL) {                \
-              PgHd_previous(pg_hd) = NULL;                                                       \
-              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                            \
-                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                         \
-              Pg_free_pg(STR_PAGES) = pg_hd;                                                     \
-            }                                                                                    \
-            PgHd_free_str(pg_hd) = (void *) STR;                                                 \
-            UNLOCK(Pg_lock(STR_PAGES));                                                          \
-          }                                                                                      \
-        }
+        UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                              \
+        FREE_BLOCK(STR)
 #endif /*****************************************************************************************/
+
+
 
 #define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                              \
         { int i; void **bucket_ptr;                                                              \

@@ -296,6 +296,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/consult.yap \
 	$(srcdir)/pl/control.yap \
 	$(srcdir)/pl/corout.yap $(srcdir)/pl/debug.yap \
+	$(srcdir)/pl/dbload.yap \
 	$(srcdir)/pl/depth_bound.yap \
 	$(srcdir)/pl/dialect.yap \
 	$(srcdir)/pl/directives.yap \

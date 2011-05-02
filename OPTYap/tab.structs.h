@@ -125,9 +125,9 @@ typedef struct global_trie_hash {
   int number_of_buckets;
   struct global_trie_node **buckets;
   int number_of_nodes;
-#ifdef OPTYAP_PAGES_MEMORY_ALLOC_SCHEME
+#ifdef USE_PAGES_MALLOC
   struct global_trie_hash *next;
-#endif /* OPTYAP_PAGES_MEMORY_ALLOC_SCHEME */
+#endif /* USE_PAGES_MALLOC */
 } *gt_hash_ptr;
 
 #define Hash_mark(X)         ((X)->mark)

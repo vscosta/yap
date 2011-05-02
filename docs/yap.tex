@@ -8505,7 +8505,9 @@ Stream currently being read in.
 @item term_position
 @findex file (prolog_load_context/2 option)
 @*
-Stream position at the stream currently being read in.
+Stream position at the stream currently being read in. For SWI
+compatibility, it is a term of the form
+@code{'$stream_position'(0,Line,0,0,0)}.
 @end table
 
 @item source_location(?@var{FileName}, ?@var{Line})

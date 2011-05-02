@@ -134,10 +134,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
-#if MULTIPLE_STACKS
-
-#endif
 #ifdef THREADS
 
 #define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						

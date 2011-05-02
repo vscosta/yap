@@ -327,5 +327,6 @@ Yap_InitModules(void)
   LookupModule(HACKS_MODULE);
   LookupModule(ARG_MODULE);
   LookupModule(GLOBALS_MODULE);
+  LookupModule(DBLOAD_MODULE);
   CurrentModule = PROLOG_MODULE;
 }

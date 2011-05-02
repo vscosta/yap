@@ -440,54 +440,55 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
   case Name_tok:
     t = Yap_tokptr->TokInfo;
     NextToken;
+    /* special rules apply for +1, -2.3, etc... */
+    if (Yap_tokptr->Tok == Number_tok) {
+      if ((Atom)t == AtomMinus) {
+	t = Yap_tokptr->TokInfo;
+	if (IsIntTerm(t))
+	  t = MkIntTerm(-IntOfTerm(t));
+	else if (IsFloatTerm(t))
+	  t = MkFloatTerm(-FloatOfTerm(t));
+#ifdef USE_GMP
+	else if (IsBigIntTerm(t)) {
+	  t = Yap_gmp_neg_big(t);
+	}
+#endif
+	else
+	  t = MkLongIntTerm(-LongIntOfTerm(t));
+	NextToken;
+	break;
+      }
+    }
     if ((Yap_tokptr->Tok != Ord(Ponctuation_tok)
 	 || Unsigned(Yap_tokptr->TokInfo) != 'l')
 	&& IsPrefixOp((Atom)t, &opprio, &oprprio PASS_REGS)
 	) {
-      /* special rules apply for +1, -2.3, etc... */
-      if (Yap_tokptr->Tok == Number_tok) {
-	if ((Atom)t == AtomMinus) {
-	  t = Yap_tokptr->TokInfo;
-	  if (IsIntTerm(t))
-	    t = MkIntTerm(-IntOfTerm(t));
-	  else if (IsFloatTerm(t))
-	    t = MkFloatTerm(-FloatOfTerm(t));
-#ifdef USE_GMP
-	  else if (IsBigIntTerm(t)) {
-	    t = Yap_gmp_neg_big(t);
-	  }
-#endif
-	  else
-	    t = MkLongIntTerm(-LongIntOfTerm(t));
-	  NextToken;
-	  break;
-	}
-      } else if (Yap_tokptr->Tok == Name_tok) {
-	Atom at = (Atom)Yap_tokptr->TokInfo;
+	if (Yap_tokptr->Tok == Name_tok) {
+	  Atom at = (Atom)Yap_tokptr->TokInfo;
 #ifndef _MSC_VER
-	if ((Atom)t == AtomPlus) {
-	  if (at == AtomInf) {
-	    t = MkFloatTerm(INFINITY);
-	    NextToken;
+	  if ((Atom)t == AtomPlus) {
+	    if (at == AtomInf) {
+	      t = MkFloatTerm(INFINITY);
+	      NextToken;
 	    break;
-	  } else if (at == AtomNan) {
-	    t = MkFloatTerm(NAN);
-	    NextToken;
-	    break;
+	    } else if (at == AtomNan) {
+	      t = MkFloatTerm(NAN);
+	      NextToken;
+	      break;
+	    }
+	  } else if ((Atom)t == AtomMinus) {
+	    if (at == AtomInf) {
+	      t = MkFloatTerm(-INFINITY);
+	      NextToken;
+	      break;
+	    } else if (at == AtomNan) {
+	      t = MkFloatTerm(NAN);
+	      NextToken;
+	      break;
+	    }
 	  }
-	} else if ((Atom)t == AtomMinus) {
-	  if (at == AtomInf) {
-	    t = MkFloatTerm(-INFINITY);
-	    NextToken;
-	    break;
-	  } else if (at == AtomNan) {
-	    t = MkFloatTerm(NAN);
-	    NextToken;
-	    break;
-	  }
-	}
 #endif
-      }
+	}
       if (opprio <= prio) {
       /* try to parse as a prefix operator */
 	TRY(

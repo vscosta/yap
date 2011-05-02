@@ -96,6 +96,7 @@
   Term  arg_module;
   Term  globals_module;
   Term  swi_module;
+  Term  dbload_module;
 
 
 

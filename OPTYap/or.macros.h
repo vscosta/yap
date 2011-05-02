@@ -137,7 +137,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
           SCHEDULER_GET_WORK();       \
         }
 
-#if defined(YAPOR_COPY) || defined(YAPOR_SBA) || defined(THREADS)
+#if defined(YAPOR_COPY) || defined(YAPOR_SBA) || defined(YAPOR_THREADS)
 #define SCH_check_share_request()     \
         if (SCH_any_share_request) {  \
 	  ASP = YENV;                 \
@@ -151,7 +151,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
           if (! p_share_work())       \
             goto shared_fail;         \
         }
-#endif /* YAPOR_COPY || YAPOR_SBA || YAPOR_COW */
+#endif /* YAPOR_COPY || YAPOR_SBA || YAPOR_COW || YAPOR_THREADS */
 
 #define SCH_check_requests()          \
         SCH_check_prune_request();    \

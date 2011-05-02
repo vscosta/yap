@@ -124,6 +124,8 @@
 #define AtomCutBy Yap_heap_regs->AtomCutBy_
   Atom AtomDAbort_;
 #define AtomDAbort Yap_heap_regs->AtomDAbort_
+  Atom AtomDBLoad_;
+#define AtomDBLoad Yap_heap_regs->AtomDBLoad_
   Atom AtomDBREF_;
 #define AtomDBREF Yap_heap_regs->AtomDBREF_
   Atom AtomDBReference_;
