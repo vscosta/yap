@@ -2507,8 +2507,10 @@ p_compile_dynamic( USES_REGS1 )
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
     else mode = assertz;						    
   } else mode = IntegerOfTerm(t1);
-  if (mode == assertz && consult_level)
-    mode = consult;    
+  /* separate assert in current file from reconsult
+    if (mode == assertz && consult_level && mod == CurrentModule)
+      mode = consult;    
+  */
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
