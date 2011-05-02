@@ -30,7 +30,7 @@ CLPBN_SRCDIR = $(srcdir)/clpbn
 
 CLPBN_LEARNING_SRCDIR = $(srcdir)/learning
 
-CLPBN_EXDIR = $(srcdir)/clpbn/examples
+CLPBN_EXDIR = $(srcdir)/examples
 
 CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/aggregates.yap \
@@ -71,6 +71,15 @@ CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/school_64.yap \
 	$(CLPBN_EXDIR)/School/tables.yap
 
+CLPBN_HMMER_EXAMPLES= \
+	$(CLPBN_EXDIR)/HMMer/Artemia.fa \
+	$(CLPBN_EXDIR)/HMMer/fasta.yap \
+	$(CLPBN_EXDIR)/HMMer/globin.hmm \
+	$(CLPBN_EXDIR)/HMMer/globin.yap \
+	$(CLPBN_EXDIR)/HMMer/plan7.yap \
+	$(CLPBN_EXDIR)/HMMer/scan.yap \
+	$(CLPBN_EXDIR)/HMMer/score.yap
+
 CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/sprinkler.yap
@@ -80,9 +89,11 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/School
+	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/HMMer
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples; done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples/School; done
+	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples/HMMer; done
 
