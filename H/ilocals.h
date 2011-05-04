@@ -48,13 +48,11 @@ static void InitWorker(int wid) {
 
   FOREIGN(wid)->global_arena = 0L;
   FOREIGN(wid)->global_arena_overflows = 0L;
-  FOREIGN(wid)->delay_arena_overflows = 0L;
   FOREIGN(wid)->arena_overflows = 0L;
   FOREIGN(wid)->depth_arenas = 0;
   FOREIGN(wid)->arith_error = FALSE;
   FOREIGN(wid)->last_asserted_pred = NULL;
   FOREIGN(wid)->debug_on = FALSE;
-  FOREIGN(wid)->f_info = NULL;
   FOREIGN(wid)->scanner_stack = NULL;
   FOREIGN(wid)->scanner_extra_blocks = NULL;
   FOREIGN(wid)->ball_term = NULL;

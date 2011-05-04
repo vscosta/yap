@@ -50,13 +50,11 @@ typedef struct worker_local {
 
   Term  global_arena;
   UInt  global_arena_overflows;
-  Int  delay_arena_overflows;
   Int  arena_overflows;
   Int  depth_arenas;
   int  arith_error;
   struct pred_entry*  last_asserted_pred;
   int  debug_on;
-  struct format_status*  f_info;
   char*  scanner_stack;
   struct scanner_extra_alloc*  scanner_extra_blocks;
   struct DB_TERM  *ball_term;

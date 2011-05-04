@@ -48,13 +48,11 @@
 
 #define LOCAL_GlobalArena WL->global_arena
 #define LOCAL_GlobalArenaOverflows WL->global_arena_overflows
-#define LOCAL_DelayArenaOverflows WL->delay_arena_overflows
 #define LOCAL_ArenaOverflows WL->arena_overflows
 #define LOCAL_DepthArenas WL->depth_arenas
 #define LOCAL_ArithError WL->arith_error
 #define LOCAL_LastAssertedPred WL->last_asserted_pred
 #define LOCAL_DebugOn WL->debug_on
-#define LOCAL_FormatInfo WL->f_info
 #define LOCAL_ScannerStack WL->scanner_stack
 #define LOCAL_ScannerExtraBlocks WL->scanner_extra_blocks
 #define LOCAL_BallTerm WL->ball_term

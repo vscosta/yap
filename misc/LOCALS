@@ -52,14 +52,12 @@ union CONSULT_OBJ*	consultlow	LOCAL_ConsultLow	=NULL
 //global variables
 Term			global_arena		LOCAL_GlobalArena	=0L TermToGlobalOrAtomAdjust
 UInt			global_arena_overflows	LOCAL_GlobalArenaOverflows	=0L
-Int			delay_arena_overflows	LOCAL_DelayArenaOverflows	=0L
 Int			arena_overflows		LOCAL_ArenaOverflows	=0L
 Int			depth_arenas		LOCAL_DepthArenas	=0
 
 int			arith_error		LOCAL_ArithError	=FALSE
 struct pred_entry*	last_asserted_pred	LOCAL_LastAssertedPred	=NULL
 int			debug_on		LOCAL_DebugOn		=FALSE
-struct format_status*	f_info			LOCAL_FormatInfo	=NULL
 char*			scanner_stack		LOCAL_ScannerStack	=NULL
 struct scanner_extra_alloc*	scanner_extra_blocks	LOCAL_ScannerExtraBlocks	=NULL
 struct DB_TERM	       *ball_term		LOCAL_BallTerm	=NULL RestoreBallTerm(wid)
