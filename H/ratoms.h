@@ -63,6 +63,7 @@
   AtomCut = AtomAdjust(AtomCut);
   AtomCutBy = AtomAdjust(AtomCutBy);
   AtomDAbort = AtomAdjust(AtomDAbort);
+  AtomDBLoad = AtomAdjust(AtomDBLoad);
   AtomDBREF = AtomAdjust(AtomDBREF);
   AtomDBReference = AtomAdjust(AtomDBReference);
   AtomDBTerm = AtomAdjust(AtomDBTerm);

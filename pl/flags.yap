@@ -958,7 +958,7 @@ yap_flag(dialect,yap).
 '$yap_flag_show_gc_tracing'(_, _, _, off).
 
 '$flag_check_alias'(OUT, Alias) :-
-	stream_property(OUT,[alias(Alias)]), !.
+	stream_property(OUT,alias(Alias)), !.
 	
 current_prolog_flag(V,Out) :-
 	var(V), !,

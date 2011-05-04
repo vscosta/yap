@@ -2507,8 +2507,10 @@ p_compile_dynamic( USES_REGS1 )
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
     else mode = assertz;						    
   } else mode = IntegerOfTerm(t1);
-  if (mode == assertz && LOCAL_consult_level)
-    mode = consult;    
+  /* separate assert in current file from reconsult
+    if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
+      mode = consult;    
+  */
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
@@ -5635,6 +5637,233 @@ p_choicepoint_info( USES_REGS1 )
     Yap_unify(ARG7,MkIntegerTerm(ClauseId(ncl,pe)));
 }
 
+
+static UInt
+compute_dbcl_size(UInt arity)
+{
+  UInt sz;
+  switch(arity) {
+  case 2:
+    sz = (UInt)NEXTOP((yamop *)NULL,cc);
+    break;
+  case 3:
+    sz = (UInt)NEXTOP((yamop *)NULL,ccc);
+    break;
+  case 4:
+    sz = (UInt)NEXTOP((yamop *)NULL,cccc);
+    break;
+  case 5:
+    sz = (UInt)NEXTOP((yamop *)NULL,ccccc);
+    break;
+  case 6:
+    sz = (UInt)NEXTOP((yamop *)NULL,cccccc);
+    break;
+  default:
+    sz = arity*(UInt)NEXTOP((yamop *)NULL,xc);
+    break;    
+  }
+  return (UInt)NEXTOP((yamop *)sz,p);
+}
+
+#define DerefAndCheck(t, V)			\
+  t = Deref(V); if(IsVarTerm(t) || !(IsAtomOrIntTerm(t))) Yap_Error(TYPE_ERROR_ATOM, t0, "load_db");
+
+static int 
+store_dbcl_size(yamop *pc, UInt arity, Term t0, PredEntry *pe)
+{
+  Term t;
+  CELL *tp = RepAppl(t0)+1;
+  switch(arity) {
+  case 2:
+    pc->opc = Yap_opcode(_get_2atoms);
+    DerefAndCheck(t, tp[0]);
+    pc->u.cc.c1 = t;
+    DerefAndCheck(t, tp[1]);
+    pc->u.cc.c2 = t;
+    pc = NEXTOP(pc,cc);
+    break;
+  case 3:
+    pc->opc = Yap_opcode(_get_3atoms);
+    DerefAndCheck(t, tp[0]);
+    pc->u.ccc.c1 = t;
+    DerefAndCheck(t, tp[1]);
+    pc->u.ccc.c2 = t;
+    DerefAndCheck(t, tp[2]);
+    pc->u.ccc.c3 = t;
+    pc = NEXTOP(pc,ccc);
+    break;
+  case 4:
+    pc->opc = Yap_opcode(_get_4atoms);
+    DerefAndCheck(t, tp[0]);
+    pc->u.cccc.c1 = t;
+    DerefAndCheck(t, tp[1]);
+    pc->u.cccc.c2 = t;
+    DerefAndCheck(t, tp[2]);
+    pc->u.cccc.c3 = t;
+    DerefAndCheck(t, tp[3]);
+    pc->u.cccc.c4 = t;
+    pc = NEXTOP(pc,cccc);
+    break;
+  case 5:
+    pc->opc = Yap_opcode(_get_5atoms);
+    DerefAndCheck(t, tp[0]);
+    pc->u.ccccc.c1 = t;
+    DerefAndCheck(t, tp[1]);
+    pc->u.ccccc.c2 = t;
+    DerefAndCheck(t, tp[2]);
+    pc->u.ccccc.c3 = t;
+    DerefAndCheck(t, tp[3]);
+    pc->u.ccccc.c4 = t;
+    DerefAndCheck(t, tp[4]);
+    pc->u.ccccc.c5 = t;
+    pc = NEXTOP(pc,ccccc);
+    break;
+  case 6:
+    pc->opc = Yap_opcode(_get_6atoms);
+    DerefAndCheck(t, tp[0]);
+    pc->u.cccccc.c1 = t;
+    DerefAndCheck(t, tp[1]);
+    pc->u.cccccc.c2 = t;
+    DerefAndCheck(t, tp[2]);
+    pc->u.cccccc.c3 = t;
+    DerefAndCheck(t, tp[3]);
+    pc->u.cccccc.c4 = t;
+    DerefAndCheck(t, tp[4]);
+    pc->u.cccccc.c5 = t;
+    DerefAndCheck(t, tp[5]);
+    pc->u.cccccc.c6 = t;
+    pc = NEXTOP(pc,cccccc);
+    break;
+  default:
+    {
+      UInt i;
+      for (i = 0; i< arity; i++) {
+	pc->opc = Yap_opcode(_get_atom);
+#if PRECOMPUTE_REGADDRESS
+	pc->u.xc.x = (CELL) (XREGS + (i+1));
+#else
+	pc->u.xc.x = i+1;
+#endif
+	DerefAndCheck(t, tp[0]);
+	pc->u.xc.c = t;
+	tp++;
+	pc = NEXTOP(pc,xc);
+      }
+    }
+    break;    
+  }
+  pc->opc = Yap_opcode(_procceed);
+  pc->u.p.p = pe;
+  return TRUE;
+}
+
+static Int 
+p_dbload_get_space( USES_REGS1 )
+{				/* '$number_of_clauses'(Predicate,M,N) */
+  Term            t = Deref(ARG1);
+  Term            mod = Deref(ARG2);
+  Term            tn = Deref(ARG3);
+  UInt		  arity;
+  Prop            pe;
+  PredEntry      *ap;
+  UInt sz;
+  MegaClause *mcl;
+  yamop *ptr;
+  UInt ncls;
+  UInt required;
+
+
+  if (IsVarTerm(mod)  || !IsAtomTerm(mod)) {
+    return(FALSE);
+  }
+  if (IsAtomTerm(t)) {
+    Atom a = AtomOfTerm(t);
+    arity = 0;
+    pe = PredPropByAtom(a, mod);
+  } else if (IsApplTerm(t)) {
+    register Functor f = FunctorOfTerm(t);
+    arity = ArityOfFunctor(f);
+    pe = PredPropByFunc(f, mod);
+  } else {
+    return FALSE;
+  }
+  if (EndOfPAEntr(pe))
+    return FALSE;
+  ap = RepPredProp(pe);
+  if (ap->PredFlags & (DynamicPredFlag|LogUpdatePredFlag
+#ifdef TABLING
+		       |TabledPredFlag
+#endif /* TABLING */
+		       )) {
+    Yap_Error(PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE,t,"dbload_get_space/4");
+    return FALSE;
+  }
+  if (IsVarTerm(tn)  || !IsIntegerTerm(tn)) {
+    return FALSE;
+  }
+  ncls = IntegerOfTerm(tn);
+  if (ncls <= 1) {
+    return FALSE;
+  }
+
+  sz =   compute_dbcl_size(arity);
+  required = sz*ncls+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
+#ifdef DEBUG
+  total_megaclause += required;
+  nof_megaclauses++;
+#endif
+  while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
+    if (!Yap_growheap(FALSE, required, NULL)) {
+      /* just fail, the system will keep on going */
+      return FALSE;
+    }
+  }
+  Yap_ClauseSpace += required;
+  /* cool, it's our turn to do the conversion */
+  mcl->ClFlags = MegaMask;
+  mcl->ClSize = sz*ncls;
+  mcl->ClPred = ap;
+  mcl->ClItemSize = sz;
+  mcl->ClNext = NULL;
+  ap->cs.p_code.FirstClause =
+    ap->cs.p_code.LastClause =
+    mcl->ClCode;
+  ap->PredFlags |= MegaClausePredFlag;
+  ap->cs.p_code.NOfClauses = ncls;
+  if (ap->PredFlags & (SpiedPredFlag|CountPredFlag|ProfiledPredFlag)) {
+    ap->OpcodeOfPred = Yap_opcode(_spy_pred);
+  } else {
+    ap->OpcodeOfPred = INDEX_OPCODE;
+  }
+  ap->CodeOfPred = ap->cs.p_code.TrueCodeOfPred = (yamop *)(&(ap->OpcodeOfPred)); 
+  ptr = (yamop *)((ADDR)mcl->ClCode+ncls*sz);
+  ptr->opc = Yap_opcode(_Ystop);
+  return Yap_unify(ARG4, MkIntegerTerm((Int)mcl));
+}
+
+static Int 
+p_dbassert( USES_REGS1 )
+{				/* '$number_of_clauses'(Predicate,M,N) */
+  Term            thandle = Deref(ARG2);
+  Term            tn = Deref(ARG3);
+  PredEntry       *pe;
+  MegaClause      *mcl;
+  Int              n;
+
+
+  if (IsVarTerm(thandle)  || !IsIntegerTerm(thandle)) {
+    return FALSE;
+  }
+  mcl = (MegaClause *)IntegerOfTerm(thandle);
+  if (IsVarTerm(tn)  || !IsIntegerTerm(tn)) {
+    return FALSE;
+  }
+  n = IntegerOfTerm(tn);
+  pe = mcl->ClPred;
+  return store_dbcl_size((yamop *)((ADDR)mcl->ClCode+n*(mcl->ClItemSize)),pe->ArityOfPE,Deref(ARG1),pe);
+}
+
+
 void 
 Yap_InitCdMgr(void)
 {
@@ -5700,6 +5929,10 @@ Yap_InitCdMgr(void)
   Yap_InitCPred("choicepoint", 7, p_choicepoint_info, HiddenPredFlag);
   Yap_InitCPred("continuation", 4, p_env_info, HiddenPredFlag);
   Yap_InitCPred("cp_to_predicate", 5, p_cpc_info, HiddenPredFlag);
+  CurrentModule = cm;
+  CurrentModule = DBLOAD_MODULE;
+  Yap_InitCPred("dbload_get_space", 4, p_dbload_get_space, 0L);
+  Yap_InitCPred("dbassert", 3, p_dbassert, 0L);
   CurrentModule = cm;
   Yap_InitCPred("$predicate_erased_statistics", 5, p_predicate_erased_statistics, SyncPredFlag);
 #ifdef DEBUG

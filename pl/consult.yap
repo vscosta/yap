@@ -495,9 +495,11 @@ prolog_load_context(source, FileName) :-
 	nb_getval('$consulting_file',FileName).
 prolog_load_context(stream, Stream) :- 
 	'$fetch_stream_alias'(Stream,'$loop_stream').
-prolog_load_context(term_position, Position) :- 
-	'$fetch_stream_alias'(Stream,'$loop_stream'),
-	stream_position(Stream, Position).
+% return this term for SWI compatibility.
+prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :- 
+	'$fetch_stream_alias'(Stream,'$loop_stream'), !,
+	stream_property(Stream, position(Position)),
+	stream_position_data(line_count, Position, Line).
 
 
 % if the file exports a module, then we can

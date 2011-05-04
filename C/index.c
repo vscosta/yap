@@ -6864,8 +6864,8 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  break;
 	}
       }
-      update_clause_choice_point(ipc->u.OtILl.n,ap_pc PASS_REGS);
-      return ipc->u.OtILl.d;
+      update_clause_choice_point(ipc->u.OtaLl.n,ap_pc PASS_REGS);
+      return ipc->u.OtaLl.d;
 #if TABLING
     case _table_try_single:
       return (LogUpdClause *)ClauseCodeToStaticClause(ipc);
@@ -6874,7 +6874,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
     case _count_trust_logical:
     case _profiled_trust_logical:
       {
-	UInt timestamp = ((CELL *)(B+1))[5];
+	UInt timestamp = IntegerOfTerm(((CELL *)(B+1))[5]);
 	LogUpdIndex *cl = ipc->u.OtILl.block;
 	LogUpdClause *newpc;
 

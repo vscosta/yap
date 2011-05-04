@@ -144,18 +144,18 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(user_input, Goal, Mod, Pos, Bindings) :-
+'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt) :-
 	'$swi_current_prolog_flag'(readline, true),
 	read_history(h, '!h',
                          [trace, end_of_file],
-                         ' ?- ', Goal, Bindings), !,
+                         Prompt, Goal, Bindings), !,
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
 	 true
 	).
-'$read_vars'(Stream,T,Mod,Pos,V) :-
-	'$read'(true,T,Mod,V,Pos,Err,Stream),
+'$read_vars'(Stream, T, Mod, Pos, V, _Prompt) :-
+	'$read'(true, T, Mod, V, Pos, Err, Stream),
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
@@ -195,13 +195,12 @@ true :- true.
 	prompt(_,'| '),
 	prompt1(' ?- '),
 	'$run_toplevel_hooks',
-	'$read_vars'(user_input,Command,_,Pos,Varnames),
+	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- '),
 	nb_setval('$spy_gn',1),
-		% stop at spy-points if debugging is on.
-
+				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	prompt(_,'|: '),
+	prompt1('|: '),
 	'$command'(Command,Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
@@ -1141,7 +1140,7 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,_,Pos,Vars),
+	'$read_vars'(Stream,Command,_,Pos,Vars, '|: '),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

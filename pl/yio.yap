@@ -116,13 +116,13 @@ read_term(T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
 	current_input(S),
 	'$preprocess_read_terms_options'(Options,Module),
-	'$read_vars'(S,T,Module,Pos,VL),
+	'$read_vars'(S,T,Module,Pos,VL,'|: '),
 	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 read_term(Stream, T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
 	'$preprocess_read_terms_options'(Options,Module),
-	'$read_vars'(Stream,T,Module,Pos,VL),
+	'$read_vars'(Stream,T,Module,Pos,VL,'|: '),
 	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 %

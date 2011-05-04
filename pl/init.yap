@@ -114,6 +114,7 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('corout.yap').
 :- use_module('dialect.yap').
 :- use_module('history.pl').
+:- use_module('dbload.yap').
 
 '$system_module'('$messages').
 '$system_module'('$hacks').

@@ -96,6 +96,7 @@
   Yap_heap_regs->arg_module = MkAtomTerm(AtomArg);
   Yap_heap_regs->globals_module = MkAtomTerm(AtomNb);
   Yap_heap_regs->swi_module = MkAtomTerm(AtomSwi);
+  Yap_heap_regs->dbload_module = MkAtomTerm(AtomDBLoad);
 
 
 
