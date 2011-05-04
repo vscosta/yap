@@ -78,13 +78,13 @@
 				LCL0 && HEAP_PTR(val))))
 
 #if !defined(YAPOR) && !defined(THREADS)
-extern char *Yap_bp;
+extern char *LOCAL_bp;
 #endif
 
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
 
-#define mcell(X)  Yap_bp[(X)-(CELL *)Yap_GlobalBase]
+#define mcell(X)  LOCAL_bp[(X)-(CELL *)Yap_GlobalBase]
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 

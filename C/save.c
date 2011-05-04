@@ -422,18 +422,18 @@ save_regs(int mode USES_REGS)
     return -1;
   if (mode == DO_EVERYTHING) {
 #ifdef COROUTINING
-    if (putout(WokenGoals) < 0)
+    if (putout(LOCAL_WokenGoals) < 0)
       return -1;
 #endif
 #ifdef  DEPTH_LIMIT
     if (putout(DEPTH) < 0)
       return -1;
 #endif
-    if (putout(GcGeneration) < 0)
+    if (putout(LOCAL_GcGeneration) < 0)
       return -1;
-    if (putout(GcPhase) < 0)
+    if (putout(LOCAL_GcPhase) < 0)
       return -1;
-    if (putout(GcCurrentPhase) < 0)
+    if (putout(LOCAL_GcCurrentPhase) < 0)
       return -1;
   }
   /* The operand base */
@@ -459,11 +459,11 @@ save_regs(int mode USES_REGS)
     return -1;
   if (putcellptr(CellPtr(AuxTop)) < 0)
     return -1;
-  if (putcellptr(CellPtr(ScratchPad.ptr)) < 0)
+  if (putcellptr(CellPtr(LOCAL_ScratchPad.ptr)) < 0)
     return -1;
-  if (putout(ScratchPad.sz) < 0)
+  if (putout(LOCAL_ScratchPad.sz) < 0)
     return -1;
-  if (putout(ScratchPad.msz) < 0)
+  if (putout(LOCAL_ScratchPad.msz) < 0)
     return -1;
   if (mode == DO_EVERYTHING) {
     /* put the old trail base, just in case it moves again */
@@ -761,10 +761,10 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
 static int 
 get_heap_info(USES_REGS1)
 {
-  OldHeapBase = (ADDR) get_cellptr();
+  LOCAL_OldHeapBase = (ADDR) get_cellptr();
   if (Yap_ErrorMessage)
       return -1;
-  OldHeapTop = (ADDR) get_cellptr();
+  LOCAL_OldHeapTop = (ADDR) get_cellptr();
 
   if (Yap_ErrorMessage)
       return -1;
@@ -783,16 +783,16 @@ get_heap_info(USES_REGS1)
   AuxTop = (ADDR)get_cellptr();
   if (Yap_ErrorMessage)
       return -1;
-  ScratchPad.ptr = (ADDR)get_cellptr();
+  LOCAL_ScratchPad.ptr = (ADDR)get_cellptr();
   if (Yap_ErrorMessage)
       return -1;
-  ScratchPad.sz = get_cell();
+  LOCAL_ScratchPad.sz = get_cell();
   if (Yap_ErrorMessage)
       return -1;
-  ScratchPad.msz = get_cell();
+  LOCAL_ScratchPad.msz = get_cell();
   if (Yap_ErrorMessage)
       return -1;
-  HDiff = Unsigned(Yap_HeapBase) - Unsigned(OldHeapBase);
+  LOCAL_HDiff = Unsigned(Yap_HeapBase) - Unsigned(LOCAL_OldHeapBase);
   return 1;
 }
 
@@ -871,7 +871,7 @@ get_regs(int flag USES_REGS)
       return -1;
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
-    WokenGoals = get_cell();
+    LOCAL_WokenGoals = get_cell();
     if (Yap_ErrorMessage)
       return -1;
 #endif
@@ -880,13 +880,13 @@ get_regs(int flag USES_REGS)
     if (Yap_ErrorMessage)
       return -1;
 #endif
-    GcGeneration = get_cell();
+    LOCAL_GcGeneration = get_cell();
     if (Yap_ErrorMessage)
       return -1;
-    GcPhase = get_cell();
+    LOCAL_GcPhase = get_cell();
     if (Yap_ErrorMessage)
       return -1;
-    GcCurrentPhase = get_cell();
+    LOCAL_GcCurrentPhase = get_cell();
     if (Yap_ErrorMessage)
       return -1;
   }
@@ -897,7 +897,7 @@ get_regs(int flag USES_REGS)
   which_save = get_cell();
   if (Yap_ErrorMessage)
     return -1;
-  XDiff =  (CELL)XREGS - (CELL)OldXREGS;
+  LOCAL_XDiff =  (CELL)XREGS - (CELL)OldXREGS;
   if (Yap_ErrorMessage)
     return -1;
   if (get_heap_info( PASS_REGS1 ) < 0)
@@ -912,19 +912,19 @@ get_regs(int flag USES_REGS)
 	return -1;
     }
     /* get old trail base */
-    OldTrailBase = (ADDR)get_cellptr();
+    LOCAL_OldTrailBase = (ADDR)get_cellptr();
     if (Yap_ErrorMessage)
       return -1;
     /* Save the old register where we can easily access them */
-    OldASP = ASP;
-    OldLCL0 = LCL0;
-    OldGlobalBase = (CELL *)Yap_GlobalBase;
-    OldH = H;
-    OldTR = TR;
-    GDiff = Unsigned(NewGlobalBase) - Unsigned(Yap_GlobalBase);
-    GDiff0 = 0;
-    LDiff = Unsigned(NewLCL0) - Unsigned(LCL0);
-    TrDiff = LDiff;
+    LOCAL_OldASP = ASP;
+    LOCAL_OldLCL0 = LCL0;
+    LOCAL_OldGlobalBase = (CELL *)Yap_GlobalBase;
+    LOCAL_OldH = H;
+    LOCAL_OldTR = TR;
+    LOCAL_GDiff = Unsigned(NewGlobalBase) - Unsigned(Yap_GlobalBase);
+    LOCAL_GDiff0 = 0;
+    LOCAL_LDiff = Unsigned(NewLCL0) - Unsigned(LCL0);
+    LOCAL_TrDiff = LOCAL_LDiff;
     Yap_GlobalBase = (ADDR)NewGlobalBase;
     LCL0 = NewLCL0;
   }
@@ -949,7 +949,7 @@ get_hash(void)
 static int 
 CopyCode( USES_REGS1 )
 {
-  if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(OldHeapTop) - Unsigned(OldHeapBase))) < 0) {
+  if (myread(splfild, (char *) Yap_HeapBase, (Unsigned(LOCAL_OldHeapTop) - Unsigned(LOCAL_OldHeapBase))) < 0) {
     return -1;
   }
   return 1;
@@ -963,14 +963,14 @@ CopyStacks( USES_REGS1 )
   Int             j;
   char           *NewASP;
 
-  j = Unsigned(OldLCL0) - Unsigned(ASP);
-  NewASP = (char *) (Unsigned(ASP) + (Unsigned(LCL0) - Unsigned(OldLCL0)));
+  j = Unsigned(LOCAL_OldLCL0) - Unsigned(ASP);
+  NewASP = (char *) (Unsigned(ASP) + (Unsigned(LCL0) - Unsigned(LOCAL_OldLCL0)));
   if (myread(splfild, (char *) NewASP, j) < 0)
     return -1;
-  j = Unsigned(H) - Unsigned(OldGlobalBase);
+  j = Unsigned(H) - Unsigned(LOCAL_OldGlobalBase);
   if (myread(splfild, (char *) Yap_GlobalBase, j) < 0)
     return -1;
-  j = Unsigned(TR) - Unsigned(OldTrailBase);
+  j = Unsigned(TR) - Unsigned(LOCAL_OldTrailBase);
   if (myread(splfild, Yap_TrailBase, j))
     return -1;
   return 1;
@@ -1061,7 +1061,7 @@ restore_regs(int flag USES_REGS)
       EX = DBTermAdjust(EX);
       RestoreDBTerm(EX, TRUE PASS_REGS);
     }
-    WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(WokenGoals)));
+    LOCAL_WokenGoals = AbsAppl(PtoGloAdjust(RepAppl(LOCAL_WokenGoals)));
   }
 }
 
@@ -1137,7 +1137,7 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
   CELL            WorkTerm, failplace = 0;
   CELL           *Base = oldcode;
 
-  if (HDiff == 0)
+  if (LOCAL_HDiff == 0)
       return;
   basep = H;
   if (H + (NOfE*2) > ASP) {
@@ -1216,7 +1216,7 @@ RestoreFreeSpace( USES_REGS1 )
   Yap_av = (struct malloc_state *)AddrAdjust((ADDR)Yap_av);
   Yap_RestoreDLMalloc();
   if (AuxSp != NULL) {
-    if (AuxBase < OldHeapBase || AuxBase > OldHeapTop) {
+    if (AuxBase < LOCAL_OldHeapBase || AuxBase > LOCAL_OldHeapTop) {
       AuxSp = NULL;
       AuxBase = NULL;
       AuxTop = NULL;
@@ -1224,7 +1224,7 @@ RestoreFreeSpace( USES_REGS1 )
       AuxSp = PtoHeapCellAdjust(AuxSp);
       AuxBase = AddrAdjust(AuxBase);
       AuxTop = AddrAdjust(AuxTop);
-      ScratchPad.ptr = AddrAdjust(ScratchPad.ptr);
+      LOCAL_ScratchPad.ptr = AddrAdjust(LOCAL_ScratchPad.ptr);
     }
   }
 #else
@@ -1590,8 +1590,8 @@ check_opcodes(OPCODE old_ops[])
 static void 
 RestoreHeap(OPCODE old_ops[] USES_REGS)
 {
-  int heap_moved = (OldHeapBase != Yap_HeapBase ||
-		    XDiff), opcodes_moved;
+  int heap_moved = (LOCAL_OldHeapBase != Yap_HeapBase ||
+		    LOCAL_XDiff), opcodes_moved;
   Term mod = CurrentModule;
 
   CurrentModule = PROLOG_MODULE;
@@ -1740,10 +1740,10 @@ Restore(char *s, char *lib_dir USES_REGS)
   RestoreHeap(old_ops PASS_REGS);
   switch(restore_mode) {
   case DO_EVERYTHING:
-    if (OldHeapBase != Yap_HeapBase ||
-	OldLCL0 != LCL0 ||
-	OldGlobalBase != (CELL *)Yap_GlobalBase ||
-	OldTrailBase != Yap_TrailBase) {
+    if (LOCAL_OldHeapBase != Yap_HeapBase ||
+	LOCAL_OldLCL0 != LCL0 ||
+	LOCAL_OldGlobalBase != (CELL *)Yap_GlobalBase ||
+	LOCAL_OldTrailBase != Yap_TrailBase) {
       Yap_AdjustStacksAndTrail();
       if (which_save == 2) {
 	Yap_AdjustRegs(2);

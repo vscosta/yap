@@ -92,9 +92,9 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   FOREIGN_ThreadHandle(new_worker_id).ssize = ssize;
   FOREIGN_ThreadHandle(new_worker_id).tsize = tsize;
   FOREIGN_ThreadHandle(new_worker_id).sysize = sysize;
-  FOREIGN(new_worker_id)->c_input_stream = Yap_c_input_stream;
-  FOREIGN(new_worker_id)->c_output_stream = Yap_c_output_stream;
-  FOREIGN(new_worker_id)->c_error_stream = Yap_c_error_stream;
+  FOREIGN(new_worker_id)->c_input_stream = LOCAL_c_input_stream;
+  FOREIGN(new_worker_id)->c_output_stream = LOCAL_c_output_stream;
+  FOREIGN(new_worker_id)->c_error_stream = LOCAL_c_error_stream;
   pm = (ssize + tsize)*1024;
   if (!(FOREIGN_ThreadHandle(new_worker_id).stack_address = malloc(pm))) {
     return FALSE;
@@ -124,10 +124,10 @@ kill_thread_engine (int wid, int always_die)
 {
   CACHE_REGS
   Prop p0 = AbsPredProp(FOREIGN_ThreadHandle(wid).local_preds);
-  GlobalEntry *gl = GlobalVariables;
+  GlobalEntry *gl = LOCAL_GlobalVariables;
 
   FOREIGN_ThreadHandle(wid).local_preds = NIL;
-  GlobalVariables = NULL;
+  LOCAL_GlobalVariables = NULL;
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);
@@ -349,7 +349,7 @@ p_thread_zombie_self( USES_REGS1 )
     return Yap_unify(MkIntegerTerm(-1), ARG1);
   DEBUG_TLOCK_ACCESS(4, worker_id);
   pthread_mutex_lock(&(MY_ThreadHandle.tlock));
-  if (ActiveSignals &= YAP_ITI_SIGNAL) {
+  if (LOCAL_ActiveSignals &= YAP_ITI_SIGNAL) {
     DEBUG_TLOCK_ACCESS(5, worker_id);
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
     return FALSE;

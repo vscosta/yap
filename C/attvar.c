@@ -41,10 +41,10 @@ AddToQueue(attvar_record *attv USES_REGS)
   t[0] = (CELL)&(attv->Done);
   t[1] = attv->Value;
   /* follow the chain */
-  WGs = Yap_ReadTimedVar(WokenGoals);
+  WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   ng = Yap_MkApplTerm(FunctorAttGoal, 2, t);
 
-  Yap_UpdateTimedVar(WokenGoals, MkPairTerm(ng, WGs));
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(ng, WGs));
   if ((Term)WGs == TermNil) {
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);
@@ -58,9 +58,9 @@ AddFailToQueue( USES_REGS1 )
   Term WGs;
 
   /* follow the chain */
-  WGs = Yap_ReadTimedVar(WokenGoals);
+  WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
 
-  Yap_UpdateTimedVar(WokenGoals, MkPairTerm(MkAtomTerm(AtomFail), WGs));
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, MkPairTerm(MkAtomTerm(AtomFail), WGs));
   if ((Term)WGs == TermNil) {
     /* from now on, we have to start waking up goals */
     Yap_signal(YAP_WAKEUP_SIGNAL);

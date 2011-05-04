@@ -396,12 +396,12 @@ static Int p_start_low_level_trace( USES_REGS1 )
 
 static Int p_total_choicepoints( USES_REGS1 )
 {
-  return Yap_unify(MkIntegerTerm(Yap_total_choicepoints),ARG1);
+  return Yap_unify(MkIntegerTerm(LOCAL_total_choicepoints),ARG1);
 }
 
 static Int p_reset_total_choicepoints( USES_REGS1 )
 {
-  Yap_total_choicepoints = 0;
+  LOCAL_total_choicepoints = 0;
   return TRUE;
 }
 

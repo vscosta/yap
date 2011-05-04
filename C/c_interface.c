@@ -855,7 +855,7 @@ YAP_LookupAtom(char *c)
 
   while (TRUE) {
     a = Yap_LookupAtom(c);
-    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
       }
@@ -873,7 +873,7 @@ YAP_LookupWideAtom(wchar_t *c)
 
   while (TRUE) {
     a = Yap_LookupWideAtom(c);
-    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
       }
@@ -891,7 +891,7 @@ YAP_FullLookupAtom(char *c)
 
   while (TRUE) {
     at = Yap_FullLookupAtom(c);
-    if (at == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (at == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
 	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
       }
@@ -1563,7 +1563,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (!ret) {
     Term t;
 
-    BallTerm = EX;
+    LOCAL_BallTerm = EX;
     EX = NULL;
     if ((t = Yap_GetException())) {
       Yap_JumpToEnv(t);
@@ -1586,7 +1586,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
@@ -1599,13 +1599,13 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
     PP = NULL;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1628,7 +1628,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -1651,7 +1651,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
     CELL *args = B->cp_args;
 
@@ -1667,15 +1667,15 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
       val = ((codev)(args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1693,7 +1693,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -1713,7 +1713,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
     
     PP = pe;
@@ -1724,13 +1724,13 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
     PP = NULL;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1754,7 +1754,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -2197,7 +2197,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   B = myB;
   HB = H;
 #if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
+  LOCAL_WPP = NULL;
 #endif
   ASP = YENV = (CELL *)B;
   YENV[E_CB] = Unsigned (B);
@@ -2276,7 +2276,7 @@ YAP_RunGoal(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  Yap_AllowRestart = FALSE;
+  LOCAL_AllowRestart = FALSE;
   Yap_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   Yap_PrologMode = UserCCallMode;
@@ -2284,11 +2284,11 @@ YAP_RunGoal(Term t)
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
-    Yap_AllowRestart = TRUE;
+    LOCAL_AllowRestart = TRUE;
   } else {
     ENV = B->cp_env;
     B = B->cp_b;
-    Yap_AllowRestart = FALSE;
+    LOCAL_AllowRestart = FALSE;
   }
   
   RECOVER_MACHINE_REGS();
@@ -2327,7 +2327,7 @@ YAP_RunGoalOnce(Term t)
 #endif
   P = (yamop *)ASP[E_CP];
   CP = old_CP;
-  Yap_AllowRestart = FALSE;
+  LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -2338,7 +2338,7 @@ YAP_RestartGoal(void)
   CACHE_REGS
   int out;
   BACKUP_MACHINE_REGS();
-  if (Yap_AllowRestart) {
+  if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
     Yap_PrologMode = UserMode;
@@ -2348,7 +2348,7 @@ YAP_RestartGoal(void)
       /* cleanup */
       Yap_CloseSlots( PASS_REGS1 );
       Yap_trust_last();
-      Yap_AllowRestart = FALSE;
+      LOCAL_AllowRestart = FALSE;
     }
   } else { 
     out = FALSE;
@@ -2363,7 +2363,7 @@ YAP_ShutdownGoal(int backtrack)
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   
-  if (Yap_AllowRestart) {
+  if (LOCAL_AllowRestart) {
     choiceptr cut_pt;
 
     cut_pt = B;
@@ -2390,7 +2390,7 @@ YAP_ShutdownGoal(int backtrack)
 #ifdef  DEPTH_LIMIT
     DEPTH = ASP[E_DEPTH];
 #endif
-    Yap_AllowRestart = FALSE;
+    LOCAL_AllowRestart = FALSE;
   }
   RECOVER_MACHINE_REGS();
   return TRUE;
@@ -2468,11 +2468,11 @@ YAP_ClearExceptions(void)
   CACHE_REGS
   Yap_ResetExceptionTerm();
   if (EX) {
-    BallTerm = EX;
+    LOCAL_BallTerm = EX;
   }
   EX = NULL;
   Yap_ResetExceptionTerm();    
-  UncaughtThrow = FALSE;
+  LOCAL_UncaughtThrow = FALSE;
 }
 
 X_API IOSTREAM *
@@ -2588,7 +2588,7 @@ YAP_CompileClause(Term t)
   }
   YAPLeaveCriticalSection();
 
-  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
     }

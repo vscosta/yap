@@ -12,7 +12,7 @@
 static struct malloc_chunk *
 ChunkPtrAdjust (struct malloc_chunk *ptr)
 {
-  return (struct malloc_chunk *) ((char *) (ptr) + HDiff);
+  return (struct malloc_chunk *) ((char *) (ptr) + LOCAL_HDiff);
 }
 
 

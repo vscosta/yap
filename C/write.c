@@ -85,7 +85,7 @@ STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
 STATIC_PROTO(void putAtom, (Atom, int, wrf));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
 
-#define wrputc(X,WF)	((*WF)(Yap_c_output_stream,X))	/* writes a character */
+#define wrputc(X,WF)	((*WF)(LOCAL_c_output_stream,X))	/* writes a character */
 
 static void 
 wrputn(Int n, wrf writewch)	/* writes an integer	 */

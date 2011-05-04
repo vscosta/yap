@@ -635,26 +635,26 @@ static void
 InitConsultStack( void )
 {
   CACHE_REGS
-  ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-  if (ConsultLow == NULL) {
+  LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+  if (LOCAL_ConsultLow == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
     return;
   }
-  ConsultCapacity = InitialConsultCapacity;
-  ConsultBase = ConsultSp =
-    ConsultLow + ConsultCapacity;
+  LOCAL_ConsultCapacity = InitialConsultCapacity;
+  LOCAL_ConsultBase = LOCAL_ConsultSp =
+    LOCAL_ConsultLow + LOCAL_ConsultCapacity;
 }
 
 void
 Yap_ResetConsultStack( void )
 {
   CACHE_REGS
-  Yap_FreeCodeSpace((char *)ConsultLow);
-  ConsultBase =
-    ConsultSp =
-    ConsultLow =
+  Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
+  LOCAL_ConsultBase =
+    LOCAL_ConsultSp =
+    LOCAL_ConsultLow =
     NULL;
-  ConsultCapacity = InitialConsultCapacity;
+  LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
 
@@ -780,9 +780,9 @@ static Term BlobTermInCodeAdjust(Term t)
 {
   CACHE_REGS
 #if TAGS_FAST_OPS
-  return t-ClDiff;
+  return t-LOCAL_ClDiff;
 #else
-  return t+ClDiff;
+  return t+LOCAL_ClDiff;
 #endif
 }
 
@@ -863,7 +863,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   while (TRUE) {
     memcpy((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
-      ClDiff = (char *)(ptr)-(char *)cl->ClCode;
+      LOCAL_ClDiff = (char *)(ptr)-(char *)cl->ClCode;
       restore_opcodes(ptr, NULL PASS_REGS);
     }
     ptr = (yamop *)((char *)ptr + sz);
@@ -965,9 +965,9 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
     Term tmod = ap->ModuleOfPred;
     if (!tmod)
       tmod = TermProlog;
-    Yap_DebugPutc(Yap_c_error_stream,'\t');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(Yap_c_error_stream,':');
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -978,7 +978,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -989,11 +989,11 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
   }
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
@@ -1021,7 +1021,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
   }
 #ifdef DEBUG
   if (Yap_Option['i' - 'a' + 1])
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
 #endif
 }
 
@@ -1954,30 +1954,30 @@ static void  expand_consult( void )
 {
   CACHE_REGS
   consult_obj *new_cl, *new_cs;
-  UInt OldConsultCapacity = ConsultCapacity;
+  UInt OldConsultCapacity = LOCAL_ConsultCapacity;
 
   /* now double consult capacity */
-  ConsultCapacity += InitialConsultCapacity;
+  LOCAL_ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
-  while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity)) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
+  while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*LOCAL_ConsultCapacity)) == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(consult_obj)*LOCAL_ConsultCapacity, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,Yap_ErrorMessage);
       return;
     }
   }
   new_cs = new_cl + InitialConsultCapacity;
   /* start copying */
-  memcpy((void *)new_cs, (void *)ConsultLow, OldConsultCapacity*sizeof(consult_obj));
+  memcpy((void *)new_cs, (void *)LOCAL_ConsultLow, OldConsultCapacity*sizeof(consult_obj));
   /* copying done, release old space */
-  Yap_FreeCodeSpace((char *)ConsultLow);
+  Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
   /* next, set up pointers correctly */
-  new_cs += (ConsultSp-ConsultLow);
-  /* put ConsultBase at same offset as before move */
-  ConsultBase = ConsultBase+(new_cs-ConsultSp);
+  new_cs += (LOCAL_ConsultSp-LOCAL_ConsultLow);
+  /* put LOCAL_ConsultBase at same offset as before move */
+  LOCAL_ConsultBase = LOCAL_ConsultBase+(new_cs-LOCAL_ConsultSp);
   /* new consult pointer */
-  ConsultSp = new_cs;
+  LOCAL_ConsultSp = new_cs;
   /* new end of memory */
-  ConsultLow = new_cl;
+  LOCAL_ConsultLow = new_cl;
 }
 
 /* p was already locked */
@@ -1988,28 +1988,28 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
 
-  if (p == LastAssertedPred)
+  if (p == LOCAL_LastAssertedPred)
     return FALSE;
-  LastAssertedPred = p;
-  if (!ConsultSp) {
+  LOCAL_LastAssertedPred = p;
+  if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
   if (p->cs.p_code.NOfClauses) {
-    for (fp = ConsultSp; fp < ConsultBase; ++fp)
+    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == p0)
 	break;
   } else {
-    fp = ConsultBase;
+    fp = LOCAL_ConsultBase;
   }
-  if (fp != ConsultBase)
+  if (fp != LOCAL_ConsultBase)
     return FALSE;
   if (mode) {
-    if (ConsultSp == ConsultLow+1) {
+    if (LOCAL_ConsultSp == LOCAL_ConsultLow+1) {
       expand_consult();
     }
-    --ConsultSp;
-    ConsultSp->p = p0;
-    if (ConsultBase[1].mode && 
+    --LOCAL_ConsultSp;
+    LOCAL_ConsultSp->p = p0;
+    if (LOCAL_ConsultBase[1].mode && 
 	!(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, static_in_use(p,TRUE));
     }
@@ -2507,7 +2507,7 @@ p_compile_dynamic( USES_REGS1 )
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
     else mode = assertz;						    
   } else mode = IntegerOfTerm(t1);
-  if (mode == assertz && consult_level)
+  if (mode == assertz && LOCAL_consult_level)
     mode = consult;    
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
@@ -2535,10 +2535,10 @@ p_compile_dynamic( USES_REGS1 )
 static Atom
 YapConsultingFile ( USES_REGS1 )
 {
-  if (consult_level == 0) {
+  if (LOCAL_consult_level == 0) {
     return(AtomUser);
   } else {
-    return(Yap_LookupAtom(ConsultBase[2].filename));
+    return(Yap_LookupAtom(LOCAL_ConsultBase[2].filename));
   }
 }
 
@@ -2554,22 +2554,22 @@ static void
 init_consult(int mode, char *file)
 {
   CACHE_REGS
-  if (!ConsultSp) {
+  if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
-  ConsultSp--;
-  ConsultSp->filename = file;
-  ConsultSp--;
-  ConsultSp->mode = mode;
-  ConsultSp--;
-  ConsultSp->c = (ConsultBase-ConsultSp);
-  ConsultBase = ConsultSp;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->filename = file;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->mode = mode;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->c = (LOCAL_ConsultBase-LOCAL_ConsultSp);
+  LOCAL_ConsultBase = LOCAL_ConsultSp;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
-  /*  if (consult_level == 0)
+  /*  if (LOCAL_consult_level == 0)
       do_toggle_static_predicates_in_use(TRUE); */
 #endif
-  consult_level++;
-  LastAssertedPred = NULL;
+  LOCAL_consult_level++;
+  LOCAL_LastAssertedPred = NULL;
 }
 
 void
@@ -2587,7 +2587,7 @@ p_startconsult( USES_REGS1 )
   
   mode = strcmp("consult",smode);
   init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
-  t = MkIntTerm(consult_level);
+  t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG3, t));
 }
 
@@ -2596,20 +2596,20 @@ p_showconslultlev( USES_REGS1 )
 {
   Term            t;
 
-  t = MkIntTerm(consult_level);
+  t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG1, t));
 }
 
 static void
 end_consult( USES_REGS1 )
 {
-  ConsultSp = ConsultBase;
-  ConsultBase = ConsultSp+ConsultSp->c;
-  ConsultSp += 3;
-  consult_level--;
-  LastAssertedPred = NULL;
+  LOCAL_ConsultSp = LOCAL_ConsultBase;
+  LOCAL_ConsultBase = LOCAL_ConsultSp+LOCAL_ConsultSp->c;
+  LOCAL_ConsultSp += 3;
+  LOCAL_consult_level--;
+  LOCAL_LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
-  /*  if (consult_level == 0)
+  /*  if (LOCAL_consult_level == 0)
       do_toggle_static_predicates_in_use(FALSE);*/
 #endif
 }
@@ -4141,20 +4141,20 @@ p_is_call_counted( USES_REGS1 )
 static Int
 p_call_count_info( USES_REGS1 )
 {
-  return(Yap_unify(MkIntegerTerm(ReductionsCounter),ARG1) &&
-	 Yap_unify(MkIntegerTerm(PredEntriesCounter),ARG2) &&
-	 Yap_unify(MkIntegerTerm(PredEntriesCounter),ARG3));
+  return(Yap_unify(MkIntegerTerm(LOCAL_ReductionsCounter),ARG1) &&
+	 Yap_unify(MkIntegerTerm(LOCAL_PredEntriesCounter),ARG2) &&
+	 Yap_unify(MkIntegerTerm(LOCAL_PredEntriesCounter),ARG3));
 }
 
 static Int
 p_call_count_reset( USES_REGS1 )
 {
-  ReductionsCounter = 0;
-  ReductionsCounterOn = FALSE;
-  PredEntriesCounter = 0;
-  PredEntriesCounterOn = FALSE;
-  RetriesCounter = 0;
-  RetriesCounterOn = FALSE;
+  LOCAL_ReductionsCounter = 0;
+  LOCAL_ReductionsCounterOn = FALSE;
+  LOCAL_PredEntriesCounter = 0;
+  LOCAL_PredEntriesCounterOn = FALSE;
+  LOCAL_RetriesCounter = 0;
+  LOCAL_RetriesCounterOn = FALSE;
   return(TRUE);
 }
 
@@ -4166,14 +4166,14 @@ p_call_count_set( USES_REGS1 )
   int do_entries = IntOfTerm(ARG6);
 
   if (do_calls)
-    ReductionsCounter = IntegerOfTerm(Deref(ARG1));
-  ReductionsCounterOn = do_calls;
+    LOCAL_ReductionsCounter = IntegerOfTerm(Deref(ARG1));
+  LOCAL_ReductionsCounterOn = do_calls;
   if (do_retries)
-    RetriesCounter = IntegerOfTerm(Deref(ARG3));
-  RetriesCounterOn = do_retries;
+    LOCAL_RetriesCounter = IntegerOfTerm(Deref(ARG3));
+  LOCAL_RetriesCounterOn = do_retries;
   if (do_entries)
-    PredEntriesCounter = IntegerOfTerm(Deref(ARG5));
-  PredEntriesCounterOn = do_entries;
+    LOCAL_PredEntriesCounter = IntegerOfTerm(Deref(ARG5));
+  LOCAL_PredEntriesCounterOn = do_entries;
   return(TRUE);
 }
 

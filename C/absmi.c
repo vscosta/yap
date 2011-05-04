@@ -1186,15 +1186,15 @@ Yap_absmi(int inp)
       LOCK(PREG->u.p.p->StatisticsForPred.lock);
       PREG->u.p.p->StatisticsForPred.NOfEntries++;
       UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
-      ReductionsCounter--;
-      if (ReductionsCounter == 0 && ReductionsCounterOn) {
+      LOCAL_ReductionsCounter--;
+      if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	saveregs();
 	Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
-      PredEntriesCounter--;
-      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+      LOCAL_PredEntriesCounter--;
+      if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
@@ -1209,8 +1209,8 @@ Yap_absmi(int inp)
       LOCK(PREG->u.p.p->StatisticsForPred.lock);
       PREG->u.p.p->StatisticsForPred.NOfRetries++;
       UNLOCK(PREG->u.p.p->StatisticsForPred.lock);
-      RetriesCounter--;
-      if (RetriesCounter == 0 && RetriesCounterOn) {
+      LOCAL_RetriesCounter--;
+      if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	/* act as if we had backtracked */
 	ENV = B->cp_env;
 	saveregs();
@@ -1218,8 +1218,8 @@ Yap_absmi(int inp)
 	setregs();
 	JMPNext();
       } 
-      PredEntriesCounter--;
-      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+      LOCAL_PredEntriesCounter--;
+      if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	ENV = B->cp_env;
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
@@ -1248,15 +1248,15 @@ Yap_absmi(int inp)
       LOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
       ((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.NOfRetries++;
       UNLOCK(((PredEntry *)(PREG->u.Otapl.p))->StatisticsForPred.lock);
-      RetriesCounter--;
-      if (RetriesCounter == 0 && RetriesCounterOn) {
+      LOCAL_RetriesCounter--;
+      if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	saveregs();
 	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
-      PredEntriesCounter--;
-      if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+      LOCAL_PredEntriesCounter--;
+      if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
@@ -1292,15 +1292,15 @@ Yap_absmi(int inp)
       }
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      RetriesCounter--;
-      if (RetriesCounter == 0) {
+      LOCAL_RetriesCounter--;
+      if (LOCAL_RetriesCounter == 0) {
 	saveregs();
 	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
-      PredEntriesCounter--;
-      if (PredEntriesCounter == 0) {
+      LOCAL_PredEntriesCounter--;
+      if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
@@ -1327,15 +1327,15 @@ Yap_absmi(int inp)
 	}
 	restore_yaam_regs(PREG->u.OtaLl.n);
 	restore_args(PREG->u.OtaLl.s);
-	RetriesCounter--;
-	if (RetriesCounter == 0) {
+	LOCAL_RetriesCounter--;
+	if (LOCAL_RetriesCounter == 0) {
 	  saveregs();
 	  Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	  setregs();
 	  JMPNext();
 	} 
-	PredEntriesCounter--;
-	if (PredEntriesCounter == 0) {
+	LOCAL_PredEntriesCounter--;
+	if (LOCAL_PredEntriesCounter == 0) {
 	  saveregs();
 	  Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	  setregs();
@@ -1372,15 +1372,15 @@ Yap_absmi(int inp)
 	  /* jump to next alternative */
 	  PREG = FAILCODE;
 	} else {
-	  RetriesCounter--;
-	  if (RetriesCounter == 0) {
+	  LOCAL_RetriesCounter--;
+	  if (LOCAL_RetriesCounter == 0) {
 	    saveregs();
 	    Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
 	    JMPNext();
 	  } 
-	  PredEntriesCounter--;
-	  if (PredEntriesCounter == 0) {
+	  LOCAL_PredEntriesCounter--;
+	  if (LOCAL_PredEntriesCounter == 0) {
 	    saveregs();
 	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
@@ -1778,15 +1778,15 @@ Yap_absmi(int inp)
       ENDBOp();
 
       BOp(count_retry_and_mark, Otapl);
-      RetriesCounter--;
-      if (RetriesCounter == 0) {
+      LOCAL_RetriesCounter--;
+      if (LOCAL_RetriesCounter == 0) {
 	saveregs();
 	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
 	JMPNext();
       } 
-      PredEntriesCounter--;
-      if (PredEntriesCounter == 0) {
+      LOCAL_PredEntriesCounter--;
+      if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
 	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
 	setregs();
@@ -2444,12 +2444,12 @@ Yap_absmi(int inp)
     NoStackExecute:
       SREG = (CELL *) PREG->u.pp.p;
       PP = PREG->u.pp.p0;
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	SREG = YENV;
 	goto noheapleft;
       }
-      if (ActiveSignals)
+      if (LOCAL_ActiveSignals)
 	goto creep;
       else
 	goto NoStackExec;
@@ -2586,24 +2586,24 @@ Yap_absmi(int inp)
     NoStackCall:
       PP = PREG->u.Osbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
-      if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.Osbpp.p;
 	SREG = (CELL *) ap;
 	goto creepc;
       }
       SREG = (CELL *) PREG->u.Osbpp.p;
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	SET_ASP(YREG, PREG->u.Osbpp.s);
 	SREG = YENV;
 	goto noheapleft;
       }
-      if (ActiveSignals) {
+      if (LOCAL_ActiveSignals) {
 	goto creepc;
       }
       SET_ASP(YREG, PREG->u.Osbpp.s);
@@ -2624,18 +2624,18 @@ Yap_absmi(int inp)
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
-	if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	  if (!ActiveSignals)
+	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
 	}
 	/* 
 	   don't do a creep here; also, if our instruction is followed by
 	   a execute_c, just wait a bit more */
-	if ( (ActiveSignals & YAP_CREEP_SIGNAL &&
+	if ( (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL &&
 	      /* keep on going if there is something else */
-	      !(ActiveSignals & ~YAP_CREEP_SIGNAL))  ||
+	      !(LOCAL_ActiveSignals & ~YAP_CREEP_SIGNAL))  ||
 	    (PREG->opc != Yap_opcode(_procceed) &&
 	     PREG->opc != Yap_opcode(_cut_e))) {
 	  GONext();
@@ -2648,10 +2648,10 @@ Yap_absmi(int inp)
 	}
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
-	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+	if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	  goto noheapleft;
 	}
-	if (ActiveSignals) {
+	if (LOCAL_ActiveSignals) {
 	  if (Yap_op_from_opcode(PREG->opc) == _cut_e) {
 	    /* followed by a cut */
 	    ARG1 = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
@@ -2676,16 +2676,16 @@ Yap_absmi(int inp)
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCut:
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut;
       }
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
 	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)YREG[E_CB]);
 	PREG = NEXTOP(PREG,e);
@@ -2696,16 +2696,16 @@ Yap_absmi(int inp)
 
     NoStackCutT:
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut_t;
       }
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
 	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
 	PREG = NEXTOP(PREG,e);
@@ -2715,16 +2715,16 @@ Yap_absmi(int inp)
       goto do_cut_t;
 
     NoStackCutE:
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut_t;
       }
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
 	XREGS[0] = MkIntegerTerm(LCL0-(CELL *)SREG[E_CB]);
 	PREG = NEXTOP(PREG,e);
@@ -2737,16 +2737,16 @@ Yap_absmi(int inp)
     NoStackCommitY:
       PP = PREG->u.yps.p0;
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
       }
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
 	XREGS[0] = YREG[PREG->u.yps.y];
 	PREG = NEXTOP(PREG,yps);
@@ -2759,16 +2759,16 @@ Yap_absmi(int inp)
     NoStackCommitX:
       PP = PREG->u.xps.p0;
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
       }
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)PredRestoreRegs;
 #if USE_THREADED_CODE
 	if (PREG->opc == (OPCODE)OpAddress[_fcall])
@@ -2794,18 +2794,18 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackFail:
-      if (ActiveSignals && ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals && LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	/* we're happy */
 	goto fail;
       }
       /* find something to fool S */
-      if (!ActiveSignals || ActiveSignals & (YAP_CDOVF_SIGNAL)) {
+      if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & (YAP_CDOVF_SIGNAL)) {
 	goto fail;
       }
-      if (!(ActiveSignals & YAP_CREEP_SIGNAL)) {
+      if (!(LOCAL_ActiveSignals & YAP_CREEP_SIGNAL)) {
 	SREG = (CELL *)RepPredProp(Yap_GetPredPropByAtom(AtomFail,0));
 	/* make sure we have the correct environment for continuation */
 	ENV = B->cp_env;
@@ -2817,24 +2817,24 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
       PP = PREG->u.Osblp.p0;
-      if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
 	goto either_notest;
       }
       /* find something to fool S */
       SREG = (CELL *)RepPredProp(Yap_GetPredPropByFunc(FunctorRestoreRegs1,0));
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	SET_ASP(YREG, PREG->u.Osbpp.s);
 	SREG = YENV;
 	goto noheapleft;
       }
-      if (ActiveSignals) {
+      if (LOCAL_ActiveSignals) {
 	goto creep_either;
       }
       ASP = (CELL *) (((char *) YREG) + PREG->u.Osbpp.s);
@@ -2899,14 +2899,14 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
       PP = PREG->u.pp.p0;
-      if (ActiveSignals & YAP_CREEP_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
 	PredEntry *ap = PREG->u.pp.p;
 
 	if (ap->PredFlags & HiddenPredFlag) {
@@ -2951,14 +2951,14 @@ Yap_absmi(int inp)
       }
       /* set SREG for next instructions */
       SREG = (CELL *) PREG->u.p.p;
-      if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	ASP = YREG+E_CB;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
 	SREG = YENV;
 	goto noheapleft;
       }
-      if (ActiveSignals)
+      if (LOCAL_ActiveSignals)
 	goto creepde;
       /* try performing garbage collection */
 
@@ -2978,9 +2978,9 @@ Yap_absmi(int inp)
 
       /* try performing garbage collection */
 
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
@@ -3027,19 +3027,19 @@ Yap_absmi(int inp)
       /* and now CREEP */
 
     creep:
-      if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	if (!ActiveSignals)
+      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
       }
 #if  defined(_MSC_VER) || defined(__MINGW32__)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
-      LOCK(SignalLock);
+      LOCK(LOCAL_SignalLock);
       if (Yap_PrologMode & (AbortMode|InterruptMode)) {
 	CreepFlag = CalculateStackGap();
-	UNLOCK(SignalLock);
+	UNLOCK(LOCAL_SignalLock);
 	/* same instruction */
 	if (Yap_PrologMode & InterruptMode) {
 	  Yap_PrologMode &= ~InterruptMode;
@@ -3050,7 +3050,7 @@ Yap_absmi(int inp)
 	} 
 	JMPNext();
       }
-      UNLOCK(SignalLock);
+      UNLOCK(LOCAL_SignalLock);
 #endif
 #ifdef SHADOW_S
       S = SREG;
@@ -3105,22 +3105,22 @@ Yap_absmi(int inp)
       ARG1 = (Term) AbsPair(H);
 
       H += 2;
-      LOCK(SignalLock);
+      LOCK(LOCAL_SignalLock);
 #ifdef COROUTINING
-      if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
+      if (LOCAL_ActiveSignals & YAP_WAKEUP_SIGNAL) {
 	CreepFlag = CalculateStackGap();
-	ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
-	UNLOCK(SignalLock);
+	LOCAL_ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
+	UNLOCK(LOCAL_SignalLock);
 	ARG2 = Yap_ListOfWokenGoals();
 	SREG = (CELL *) (WakeUpCode);
 	/* no more goals to wake up */
-	Yap_UpdateTimedVar(WokenGoals, TermNil);
+	Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
       } else	
 #endif
 	{
 	  CreepFlag = CalculateStackGap();
 	  SREG = (CELL *) CreepCode;
-	  UNLOCK(SignalLock);
+	  UNLOCK(LOCAL_SignalLock);
 	}
       PREG = ((PredEntry *)SREG)->CodeOfPred;
 #ifdef LOW_LEVEL_TRACER
@@ -7625,16 +7625,16 @@ Yap_absmi(int inp)
 	  LOCK(pe->StatisticsForPred.lock);
 	  pe->StatisticsForPred.NOfEntries++;
 	  UNLOCK(pe->StatisticsForPred.lock);
-	  ReductionsCounter--;
-	  if (ReductionsCounter == 0 && ReductionsCounterOn) {
+	  LOCAL_ReductionsCounter--;
+	  if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	    UNLOCKPE(20,pe);
 	    saveregs();
 	    Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
 	    setregs();
 	    JMPNext();
 	  } 
-	  PredEntriesCounter--;
-	  if (PredEntriesCounter == 0 && PredEntriesCounterOn) {
+	  LOCAL_PredEntriesCounter--;
+	  if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	    UNLOCKPE(21,pe);
 	    saveregs();
 	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
@@ -7659,7 +7659,7 @@ Yap_absmi(int inp)
 	    JMPNext();
 	  }
 	}
-	if (!DebugOn) {
+	if (!LOCAL_DebugOn) {
 	  PREG = pe->cs.p_code.TrueCodeOfPred;
 	  UNLOCKPE(24,pe);
 	  JMPNext();
@@ -11285,9 +11285,9 @@ Yap_absmi(int inp)
 	 * We may wake up goals during our attempt to unify the
 	 * two terms. If we are adding to the tail of a list of
 	 * woken goals that should be ok, but otherwise we need
-	 * to restore WokenGoals to its previous value.
+	 * to restore LOCAL_WokenGoals to its previous value.
 	 */
-	CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
+	CELL OldWokenGoals = Yap_ReadTimedVar(LOCAL_WokenGoals);
 
 #endif
 	/* We will have to look inside compound terms */
@@ -11307,7 +11307,7 @@ Yap_absmi(int inp)
 	opresult = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
 	/* now restore Woken Goals to its old value */
-	Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+	Yap_UpdateTimedVar(LOCAL_WokenGoals, OldWokenGoals);
 	if (OldWokenGoals == TermNil) {
 	  Yap_undo_signal(YAP_WAKEUP_SIGNAL);
 	}
@@ -13234,9 +13234,9 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute2:
-	if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	  if (!ActiveSignals)
+	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
 	}
@@ -13248,7 +13248,7 @@ Yap_absmi(int inp)
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
-	if (ActiveSignals) {
+	if (LOCAL_ActiveSignals) {
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
@@ -13439,9 +13439,9 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute:
-	if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	  if (!ActiveSignals)
+	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
 	}
@@ -13453,7 +13453,7 @@ Yap_absmi(int inp)
 	/* setup GB */
 	WRITEBACK_Y_AS_ENV();
 	YREG[E_CB] = (CELL) B;
-	if (ActiveSignals) {
+	if (LOCAL_ActiveSignals) {
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
@@ -13671,9 +13671,9 @@ Yap_absmi(int inp)
 	ENDD(d0);
 	ENDP(pt0);
       NoStackPTExecute:
-	if (ActiveSignals & YAP_FAIL_SIGNAL) {
-	  ActiveSignals &= ~YAP_FAIL_SIGNAL;
-	  if (!ActiveSignals)
+	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
 	}
@@ -13683,9 +13683,9 @@ Yap_absmi(int inp)
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
-	LOCK(SignalLock);
-	if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	  UNLOCK(SignalLock);
+	LOCK(LOCAL_SignalLock);
+	if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
+	  UNLOCK(LOCAL_SignalLock);
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
@@ -13693,16 +13693,16 @@ Yap_absmi(int inp)
 	    FAIL();
 	  }
 	  setregs_and_ycache();
-	  LOCK(SignalLock);
-	  ActiveSignals &= ~YAP_CDOVF_SIGNAL;
+	  LOCK(LOCAL_SignalLock);
+	  LOCAL_ActiveSignals &= ~YAP_CDOVF_SIGNAL;
 	  CreepFlag = CalculateStackGap();
-	  if (!ActiveSignals) {
-	    UNLOCK(SignalLock);
+	  if (!LOCAL_ActiveSignals) {
+	    UNLOCK(LOCAL_SignalLock);
 	    goto execute_after_comma;
 	  }
 	}
-	if (ActiveSignals & YAP_TROVF_SIGNAL) {
-	  UNLOCK(SignalLock);
+	if (LOCAL_ActiveSignals & YAP_TROVF_SIGNAL) {
+	  UNLOCK(LOCAL_SignalLock);
 #ifdef SHADOW_S
 	  S = SREG;
 #endif
@@ -13713,23 +13713,23 @@ Yap_absmi(int inp)
 	    FAIL();
 	  }
 	  setregs_and_ycache();
-	  ActiveSignals &= ~YAP_TROVF_SIGNAL;
+	  LOCAL_ActiveSignals &= ~YAP_TROVF_SIGNAL;
 	  CreepFlag = CalculateStackGap();
-	  if (!ActiveSignals) {
-	    UNLOCK(SignalLock);
+	  if (!LOCAL_ActiveSignals) {
+	    UNLOCK(LOCAL_SignalLock);
 	    goto execute_after_comma;
 	  }
 	}
-	if (ActiveSignals) {
-	  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
-	    UNLOCK(SignalLock);
+	if (LOCAL_ActiveSignals) {
+	  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
+	    UNLOCK(LOCAL_SignalLock);
 	    SREG = YENV;
 	    goto noheapleft;
 	  }
-	  UNLOCK(SignalLock);
+	  UNLOCK(LOCAL_SignalLock);
 	  goto creep;
 	}
-	UNLOCK(SignalLock);
+	UNLOCK(LOCAL_SignalLock);
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
 	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);

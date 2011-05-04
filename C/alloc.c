@@ -245,8 +245,8 @@ Yap_InitPreAllocCodeSpace(void)
 {
   CACHE_REGS
   char *ptr;
-  UInt sz = ScratchPad.msz;
-  if (ScratchPad.ptr == NULL) {
+  UInt sz = LOCAL_ScratchPad.msz;
+  if (LOCAL_ScratchPad.ptr == NULL) {
 #if USE_DL_MALLOC
     LOCK(DLMallocLock);
 #endif
@@ -279,12 +279,12 @@ Yap_InitPreAllocCodeSpace(void)
 #if USE_DL_MALLOC
     UNLOCK(DLMallocLock);
 #endif
-    ScratchPad.ptr = ptr;
+    LOCAL_ScratchPad.ptr = ptr;
   } else {
-    ptr = ScratchPad.ptr;
+    ptr = LOCAL_ScratchPad.ptr;
   }
   AuxBase = (ADDR)(ptr);
-  AuxSp = (CELL *)(AuxTop = AuxBase+ScratchPad.sz);
+  AuxSp = (CELL *)(AuxTop = AuxBase+LOCAL_ScratchPad.sz);
   return ptr;
 }
 
@@ -293,11 +293,11 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
 {
   CACHE_REGS
   char *ptr;
-  UInt sz = ScratchPad.msz;
+  UInt sz = LOCAL_ScratchPad.msz;
   if (sz0 < SCRATCH_INC_SIZE)
     sz0 = SCRATCH_INC_SIZE;
-  if (sz0 < ScratchPad.sz)
-    sz = ScratchPad.sz+sz0;
+  if (sz0 < LOCAL_ScratchPad.sz)
+    sz = LOCAL_ScratchPad.sz+sz0;
   else 
     sz = sz0;
   sz = AdjustLargePageSize(sz+sz/4);
@@ -308,10 +308,10 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
   Yap_PrologMode |= MallocMode;
 #if INSTRUMENT_MALLOC
   reallocs++;
-  tmalloc -= ScratchPad.sz;
+  tmalloc -= LOCAL_ScratchPad.sz;
   tmalloc += sz;
 #endif
-  if (!(ptr = my_realloc(ScratchPad.ptr, sz, ScratchPad.sz, safe))) {
+  if (!(ptr = my_realloc(LOCAL_ScratchPad.ptr, sz, LOCAL_ScratchPad.sz, safe))) {
     Yap_PrologMode &= ~MallocMode;
 #if USE_DL_MALLOC
     UNLOCK(DLMallocLock);
@@ -322,8 +322,8 @@ Yap_ExpandPreAllocCodeSpace(UInt sz0, void *cip, int safe)
 #if USE_DL_MALLOC
   UNLOCK(DLMallocLock);
 #endif
-  ScratchPad.sz = ScratchPad.msz = sz;
-  ScratchPad.ptr = ptr;
+  LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = sz;
+  LOCAL_ScratchPad.ptr = ptr;
   AuxBase = ptr;
   AuxSp = (CELL *)(AuxTop = ptr+sz);
   return ptr;
@@ -374,8 +374,8 @@ InitExStacks(int Trail, int Stack)
   Yap_LocalBase = Yap_GlobalBase + sa;
   Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
 
-  ScratchPad.ptr = NULL;
-  ScratchPad.sz = ScratchPad.msz = SCRATCH_START_SIZE;
+  LOCAL_ScratchPad.ptr = NULL;
+  LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
  AuxSp = NULL;
 
 #ifdef DEBUG
@@ -1554,8 +1554,8 @@ void
 Yap_InitExStacks(int Trail, int Stack)
 {
 #if USE_DL_MALLOC
-  ScratchPad.ptr = NULL;
-  ScratchPad.sz = ScratchPad.msz = SCRATCH_START_SIZE;
+  LOCAL_ScratchPad.ptr = NULL;
+  LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
   AuxSp = NULL;
 #endif
 }

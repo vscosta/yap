@@ -146,7 +146,7 @@ p_allocate_arena( USES_REGS1 )
 static Int
 p_default_arena_size( USES_REGS1 )
 {
-  return Yap_unify(ARG1,MkIntegerTerm(ArenaSz(GlobalArena)));
+  return Yap_unify(ARG1,MkIntegerTerm(ArenaSz(LOCAL_GlobalArena)));
 }
 
 
@@ -154,7 +154,7 @@ void
 Yap_AllocateDefaultArena(Int gsize, Int attsize)
 {
   CACHE_REGS
-  GlobalArena = NewArena(gsize, 2, NULL PASS_REGS);
+  LOCAL_GlobalArena = NewArena(gsize, 2, NULL PASS_REGS);
 }
 
 static void
@@ -172,7 +172,7 @@ adjust_cps(UInt size USES_REGS)
 static int
 GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity USES_REGS)
 {
-  ArenaOverflows++;
+  LOCAL_ArenaOverflows++;
   if (size == 0) {
     if (old_size < 128*1024) {
       size = old_size;
@@ -201,7 +201,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity USES_REGS)
   } else {
     XREGS[arity+1] = arena;
     /* try to recover some room  */
-    if (arena == GlobalArena && 10*(pt-H0) > 8*(H-H0)) {
+    if (arena == LOCAL_GlobalArena && 10*(pt-H0) > 8*(H-H0)) {
       if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
 	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
 	return FALSE;
@@ -720,8 +720,8 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
     HB = oldHB;
     switch (res) {
     case -1:
-      if (arena == GlobalArena)
-	GlobalArenaOverflows++;
+      if (arena == LOCAL_GlobalArena)
+	LOCAL_GlobalArenaOverflows++;
       if (!GrowArena(arena, old_top, old_size, min_grow, arity+3 PASS_REGS)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	return 0L;
@@ -774,8 +774,8 @@ CreateTermInArena(Term arena, Atom Na, UInt Nar, UInt arity, Term *newarena, Ter
       ASP = oldASP;
       H = oldH;
       HB = oldHB;
-      if (arena == GlobalArena)
-	GlobalArenaOverflows++;
+      if (arena == LOCAL_GlobalArena)
+	LOCAL_GlobalArenaOverflows++;
       if (!GrowArena(arena, old_top, old_size, Nar*sizeof(CELL), arity+2 PASS_REGS)) {
 	Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while creating large global term");
 	return 0L;
@@ -855,8 +855,8 @@ GetGlobalEntry(Atom at USES_REGS)
 #if THREADS
   new->owner_id = worker_id;
 #endif
-  new->NextGE = GlobalVariables;
-  GlobalVariables = new;
+  new->NextGE = LOCAL_GlobalVariables;
+  LOCAL_GlobalVariables = new;
   new->AtomOfGE = ae;
   new->NextOfPE = ae->PropsOfAE;
   ae->PropsOfAE = AbsGlobalProp(new);
@@ -869,8 +869,8 @@ static UInt
 garena_overflow_size(CELL *arena USES_REGS)
 {
   UInt dup = (((CELL *)arena-H0)*sizeof(CELL))>>3;
-  if (dup < 64*1024*GlobalArenaOverflows)
-    dup = 64*1024*GlobalArenaOverflows;
+  if (dup < 64*1024*LOCAL_GlobalArenaOverflows)
+    dup = 64*1024*LOCAL_GlobalArenaOverflows;
   if (dup > 1024*1024)
     return 1024*1024;
   return dup;
@@ -911,7 +911,7 @@ p_nb_setarg( USES_REGS1 )
     return FALSE;
 
   to = Deref(ARG3);
-  to = CopyTermToArena(ARG3, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG3, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
 
@@ -958,7 +958,7 @@ p_nb_set_shared_arg( USES_REGS1 )
   }
   if (pos < 1 || pos > arity)
     return FALSE;
-  to = CopyTermToArena(ARG3, GlobalArena, TRUE, TRUE, 3, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG3, LOCAL_GlobalArena, TRUE, TRUE, 3, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   destp[pos] = to;
@@ -1041,7 +1041,7 @@ p_nb_create_accumulator( USES_REGS1 )
   if (!Yap_unify(ARG2, acct)) {
     return FALSE;
   }
-  to = CopyTermToArena(t, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(t, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   destp = RepAppl(Deref(ARG2));
@@ -1091,7 +1091,7 @@ p_nb_add_to_accumulator( USES_REGS1 )
 	target[1] = source[1];
       } else {
 	/* we need to create a new long int */
-	new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+	new = CopyTermToArena(new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
 	destp = RepAppl(Deref(ARG1));
 	destp[1] = new;
       }
@@ -1118,7 +1118,7 @@ p_nb_add_to_accumulator( USES_REGS1 )
     new = Yap_MkApplTerm(FunctorPlus, 2, t2);
 
     new = Yap_Eval(new);
-    new = CopyTermToArena(new, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS)  PASS_REGS);
+    new = CopyTermToArena(new, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS)  PASS_REGS);
     destp = RepAppl(Deref(ARG1));
     destp[1] = new;    
 
@@ -1158,7 +1158,7 @@ Yap_SetGlobalVal(Atom at, Term t0)
   Term to;
   GlobalEntry *ge;
   ge = GetGlobalEntry(at PASS_REGS);
-  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   WRITE_LOCK(ge->GRWLock);
@@ -1172,7 +1172,7 @@ Yap_SaveTerm(Term t0)
 {
   CACHE_REGS
   Term to;
-  to = CopyTermToArena(t0, GlobalArena, FALSE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(t0, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return to;
   return to;
@@ -1205,7 +1205,7 @@ p_nb_set_shared_val( USES_REGS1 )
       return (FALSE);
   }
   ge = GetGlobalEntry(AtomOfTerm(t) PASS_REGS);
-  to = CopyTermToArena(ARG2, GlobalArena, TRUE, TRUE, 2, &GlobalArena, garena_overflow_size(ArenaPt(GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG2, LOCAL_GlobalArena, TRUE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1295,10 +1295,10 @@ nbdelete(Atom at USES_REGS)
   }
   WRITE_LOCK(ge->GRWLock);
   ae = ge->AtomOfGE;
-  if (GlobalVariables == ge) {
-    GlobalVariables = ge->NextGE;
+  if (LOCAL_GlobalVariables == ge) {
+    LOCAL_GlobalVariables = ge->NextGE;
   } else {
-    g = GlobalVariables;
+    g = LOCAL_GlobalVariables;
     while (g->NextGE != ge) 
       g = g->NextGE;
     g->NextGE = ge->NextGE;
@@ -1376,7 +1376,7 @@ p_nb_create( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,tname,"nb_create");
     return FALSE;
   }
-  to = CreateTermInArena(GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity),  3, &GlobalArena, 0L PASS_REGS);
+  to = CreateTermInArena(LOCAL_GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity),  3, &LOCAL_GlobalArena, 0L PASS_REGS);
   if (!to)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1428,7 +1428,7 @@ p_nb_create2( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,tname,"nb_create");
     return FALSE;
   }
-  to = CreateTermInArena(GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity), 4, &GlobalArena, tinit PASS_REGS);
+  to = CreateTermInArena(LOCAL_GlobalArena, AtomOfTerm(tname), IntegerOfTerm(tarity), 4, &LOCAL_GlobalArena, tinit PASS_REGS);
   if (!to)
     return FALSE;
   WRITE_LOCK(ge->GRWLock);
@@ -1445,7 +1445,7 @@ nb_queue(UInt arena_sz USES_REGS)
   Term queue_arena, queue, ar[QUEUE_FUNCTOR_ARITY], *nar;
   Term t = Deref(ARG1);
 
-  DepthArenas++;
+  LOCAL_DepthArenas++;
   if (!IsVarTerm(t)) {
     if (!IsApplTerm(t)) {
       return FALSE;
@@ -1475,8 +1475,8 @@ static Int
 p_nb_queue( USES_REGS1 )
 {
   UInt arena_sz = (ASP-H)/16;
-  if (DepthArenas > 1)
-    arena_sz /= DepthArenas;
+  if (LOCAL_DepthArenas > 1)
+    arena_sz /= LOCAL_DepthArenas;
   if (arena_sz < MIN_ARENA_SIZE)
     arena_sz = MIN_ARENA_SIZE;
   if (arena_sz > MAX_ARENA_SIZE)
@@ -1556,7 +1556,7 @@ p_nb_queue_close( USES_REGS1 )
   Term t = Deref(ARG1);
   Int out;
 
-  DepthArenas--;
+  LOCAL_DepthArenas--;
   if (!IsVarTerm(t)) {
     CELL *qp;
 
@@ -2531,7 +2531,7 @@ init_current_nb( USES_REGS1 )
     }
   }
   READ_LOCK(HashChain[0].AERWLock);
-  EXTRA_CBACK_ARG(1,1) =  MkIntegerTerm((Int)GlobalVariables);
+  EXTRA_CBACK_ARG(1,1) =  MkIntegerTerm((Int)LOCAL_GlobalVariables);
   return cont_current_nb( PASS_REGS1 );
 }
 

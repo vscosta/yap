@@ -696,10 +696,10 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
   }
 #ifdef DEBUG
   if (Yap_Option['p' - 'a' + 1]) {
-    Yap_DebugPutc(Yap_c_error_stream,'[');
+    Yap_DebugPutc(LOCAL_c_error_stream,'[');
     Yap_DebugPlWrite(t);
-    Yap_DebugPutc(Yap_c_error_stream,']');
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,']');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
   }
 #endif
   return t;

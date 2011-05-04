@@ -1031,7 +1031,7 @@ X_API int PL_throw(term_t exception)
 {
   CACHE_REGS
   YAP_Throw(Yap_GetFromSlot(exception PASS_REGS));
-  longjmp(execution->env, 0);
+  longjmp(LOCAL_execution->env, 0);
   return 0;
 }
 
@@ -2133,14 +2133,14 @@ PL_open_foreign_frame(void)
   CACHE_REGS
   open_query *new = (open_query *)malloc(sizeof(open_query));
   if (!new) return 0;
-  new->old = execution;
+  new->old = LOCAL_execution;
   new->g = TermNil;
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
   new->b = (CELL)(LCL0-(CELL*)B);
   new->slots = CurSlot;
-  execution = new;
+  LOCAL_execution = new;
   { 
     /* initialise a new marker choicepoint */
     choiceptr cp_b = ((choiceptr)ASP)-1;
@@ -2168,7 +2168,7 @@ PL_close_foreign_frame(fid_t f)
   CurSlot = env->slots;
   B = (choiceptr)(LCL0-env->b);
   ASP = (CELL *)(LCL0-CurSlot);
-  execution = env->old;
+  LOCAL_execution = env->old;
   free(env);
 }
 
@@ -2200,9 +2200,9 @@ PL_discard_foreign_frame(fid_t f)
 {
   CACHE_REGS
   open_query *env = (open_query *)f;
-  if (execution != env) {
+  if (LOCAL_execution != env) {
     /* handle the case where we do not want to kill the last open frame */ 
-    open_query *env0 = execution;
+    open_query *env0 = LOCAL_execution;
     while (env0 && env0 != env) env0 = env0->old;
     if (!env0)
       return;
@@ -2213,7 +2213,7 @@ PL_discard_foreign_frame(fid_t f)
   backtrack();
   CP = env->cp;
   P = env->p;
-  execution = env->old;
+  LOCAL_execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
   free(env);
@@ -2228,8 +2228,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 
   /* ignore flags  and module for now */
   PL_open_foreign_frame();
-  execution->open=1;
-  execution->state=0;
+  LOCAL_execution->open=1;
+  LOCAL_execution->state=0;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
   t[0] = SWIModuleToModule(ctx);
   if (arity == 0) {
@@ -2243,19 +2243,19 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t[0] = MkAtomTerm((Atom)ctx);
     ti = Yap_MkApplTerm(FunctorModule,2,t);
     t[0] = ti;
-    execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+    LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
   } else {
     if (m && m != CurrentModule) {
       Term ti;
       t[0] = m;
       ti = Yap_MkApplTerm(FunctorModule,2,t);
       t[0] = ti;
-      execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+      LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
     } else {
-      execution->g = t[1];
+      LOCAL_execution->g = t[1];
     }
   }
-  return execution;
+  return LOCAL_execution;
 }
 
 X_API int PL_next_solution(qid_t qi)
@@ -2263,12 +2263,12 @@ X_API int PL_next_solution(qid_t qi)
   CACHE_REGS
   int result;
   if (qi->open != 1) return 0;
-  if (setjmp(execution->env))
+  if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
     result = YAP_RunGoal(qi->g);
   } else {
-    Yap_AllowRestart = qi->open;
+    LOCAL_AllowRestart = qi->open;
     result = YAP_RestartGoal();
   }
   qi->state = 1;

@@ -505,7 +505,7 @@ static Int p_coroutining( USES_REGS1 )
 #if COROUTINING
 static Term
 ListOfWokenGoals( USES_REGS1 ) {
-  return Yap_ReadTimedVar(WokenGoals);
+  return Yap_ReadTimedVar(LOCAL_WokenGoals);
 }
 
 Term
@@ -519,12 +519,12 @@ Yap_ListOfWokenGoals(void) {
 static Int p_awoken_goals( USES_REGS1 )
 {
 #ifdef COROUTINING
-  Term WGs = Yap_ReadTimedVar(WokenGoals);
+  Term WGs = Yap_ReadTimedVar(LOCAL_WokenGoals);
   if (WGs == TermNil) {
     return(FALSE);
   }
   WGs = ListOfWokenGoals( PASS_REGS1 );
-  Yap_UpdateTimedVar(WokenGoals, TermNil);
+  Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
   return(Yap_unify(ARG1,WGs));
 #else
   return(FALSE);

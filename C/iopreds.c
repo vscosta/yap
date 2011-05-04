@@ -206,7 +206,7 @@ void
 Yap_DebugErrorPutc(int c)
 {
   CACHE_REGS
-   Yap_DebugPutc (Yap_c_error_stream, c);
+   Yap_DebugPutc (LOCAL_c_error_stream, c);
 }
 
 #endif
@@ -238,7 +238,7 @@ typedef struct stream_ref
 int beam_write (void)
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, Stream[Yap_c_output_stream].stream_wputc, 0, 1200);
+  Yap_plwrite (ARG1, Stream[LOCAL_c_output_stream].stream_wputc, 0, 1200);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -436,13 +436,13 @@ Int
 Yap_FirstLineInParse (void)
 {
   CACHE_REGS
-  return StartLine;
+  return LOCAL_StartLine;
 }
 
 static Int
 p_startline ( USES_REGS1 )
 {
-  return (Yap_unify_constant (ARG1, MkIntegerTerm (StartLine)));
+  return (Yap_unify_constant (ARG1, MkIntegerTerm (LOCAL_StartLine)));
 }
 
 /* control the parser error handler */
@@ -652,7 +652,7 @@ static Int
 
 
 	  H = old_H;
-	  TR = (tr_fr_ptr)ScannerStack;
+	  TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	  
 	  if (!strcmp(Yap_ErrorMessage,"Stack Overflow"))
 	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
@@ -661,14 +661,14 @@ static Int
 	  else
 	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &Yap_VarTable);
 	  if (res) {
-	    ScannerStack = (char *)TR;
+	    LOCAL_ScannerStack = (char *)TR;
 	    TR = old_TR;
 	    old_H = H;
 	    Yap_tokptr = Yap_toktide = tokstart;
 	    Yap_ErrorMessage = NULL;
 	    goto repeat_cycle;
 	  }
-	  ScannerStack = (char *)TR;
+	  LOCAL_ScannerStack = (char *)TR;
 	  TR = old_TR;
 	}
       }
@@ -722,9 +722,9 @@ static Int
 	old_TR = TR;
 	/* restart global */
 	H = old_H;
-	TR = (tr_fr_ptr)ScannerStack;
+	TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
-	ScannerStack = (char *)TR;
+	LOCAL_ScannerStack = (char *)TR;
 	TR = old_TR;
       }
     }

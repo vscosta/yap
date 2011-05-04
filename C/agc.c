@@ -225,16 +225,16 @@ RestoreHashPreds( USES_REGS1 )
 
 static void init_reg_copies(USES_REGS1)
 {
-  OldASP = ASP;
-  OldLCL0 = LCL0;
-  OldTR = TR;
-  OldGlobalBase = (CELL *)Yap_GlobalBase;
-  OldH = H;
-  OldH0 = H0;
-  OldTrailBase = Yap_TrailBase;
-  OldTrailTop = Yap_TrailTop;
-  OldHeapBase = Yap_HeapBase;
-  OldHeapTop = HeapTop;
+  LOCAL_OldASP = ASP;
+  LOCAL_OldLCL0 = LCL0;
+  LOCAL_OldTR = TR;
+  LOCAL_OldGlobalBase = (CELL *)Yap_GlobalBase;
+  LOCAL_OldH = H;
+  LOCAL_OldH0 = H0;
+  LOCAL_OldTrailBase = Yap_TrailBase;
+  LOCAL_OldTrailTop = Yap_TrailTop;
+  LOCAL_OldHeapBase = Yap_HeapBase;
+  LOCAL_OldHeapTop = HeapTop;
 }
 
 
