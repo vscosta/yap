@@ -35,7 +35,7 @@
 
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->dlmalloc_lock);
+  REINIT_LOCK(DLMallocLock);
 #endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
@@ -51,24 +51,24 @@
 
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->free_blocks_lock);
-  REINIT_LOCK(Yap_heap_regs->heap_used_lock);
-  REINIT_LOCK(Yap_heap_regs->heap_top_lock);
+  REINIT_LOCK(FreeBlocksLock);
+  REINIT_LOCK(HeapUsedLock);
+  REINIT_LOCK(HeapTopLock);
 
 #endif
 
 
 #if USE_THREADED_CODE
-  Yap_heap_regs->op_rtable = OpRTableAdjust(Yap_heap_regs->op_rtable);
+  OP_RTABLE = OpRTableAdjust(OP_RTABLE);
 #endif
 
-  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
-  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
-  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
-  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
-  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
-  Yap_heap_regs->orlast_op = Yap_opcode(_or_last);
-  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
+  EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
+  EXPAND_OP_CODE = Yap_opcode(_expand_index);
+  FAIL_OPCODE = Yap_opcode(_op_fail);
+  INDEX_OPCODE = Yap_opcode(_index_pred);
+  LOCKPRED_OPCODE = Yap_opcode(_lock_pred);
+  ORLAST_OPCODE = Yap_opcode(_or_last);
+  UNDEF_OPCODE = Yap_opcode(_undef_p);
 
 
 
@@ -80,27 +80,27 @@
 
 #include "ratoms.h"
 #ifdef EUROTRA
-  Yap_heap_regs->term_dollar_u = AtomTermAdjust(Yap_heap_regs->term_dollar_u);
+  TermDollarU = AtomTermAdjust(TermDollarU);
 #endif
-  Yap_heap_regs->term_prolog = AtomTermAdjust(Yap_heap_regs->term_prolog);
-  Yap_heap_regs->term_refound_var = AtomTermAdjust(Yap_heap_regs->term_refound_var);
-  Yap_heap_regs->user_module = AtomTermAdjust(Yap_heap_regs->user_module);
-  Yap_heap_regs->idb_module = AtomTermAdjust(Yap_heap_regs->idb_module);
-  Yap_heap_regs->attributes_module = AtomTermAdjust(Yap_heap_regs->attributes_module);
-  Yap_heap_regs->charsio_module = AtomTermAdjust(Yap_heap_regs->charsio_module);
-  Yap_heap_regs->terms_module = AtomTermAdjust(Yap_heap_regs->terms_module);
-  Yap_heap_regs->system_module = AtomTermAdjust(Yap_heap_regs->system_module);
-  Yap_heap_regs->operating_system_module = AtomTermAdjust(Yap_heap_regs->operating_system_module);
-  Yap_heap_regs->readutil_module = AtomTermAdjust(Yap_heap_regs->readutil_module);
-  Yap_heap_regs->hacks_module = AtomTermAdjust(Yap_heap_regs->hacks_module);
-  Yap_heap_regs->arg_module = AtomTermAdjust(Yap_heap_regs->arg_module);
-  Yap_heap_regs->globals_module = AtomTermAdjust(Yap_heap_regs->globals_module);
-  Yap_heap_regs->swi_module = AtomTermAdjust(Yap_heap_regs->swi_module);
-  Yap_heap_regs->dbload_module = AtomTermAdjust(Yap_heap_regs->dbload_module);
+  TermProlog = AtomTermAdjust(TermProlog);
+  TermReFoundVar = AtomTermAdjust(TermReFoundVar);
+  USER_MODULE = AtomTermAdjust(USER_MODULE);
+  IDB_MODULE = AtomTermAdjust(IDB_MODULE);
+  ATTRIBUTES_MODULE = AtomTermAdjust(ATTRIBUTES_MODULE);
+  CHARSIO_MODULE = AtomTermAdjust(CHARSIO_MODULE);
+  TERMS_MODULE = AtomTermAdjust(TERMS_MODULE);
+  SYSTEM_MODULE = AtomTermAdjust(SYSTEM_MODULE);
+  OPERATING_SYSTEM_MODULE = AtomTermAdjust(OPERATING_SYSTEM_MODULE);
+  READUTIL_MODULE = AtomTermAdjust(READUTIL_MODULE);
+  HACKS_MODULE = AtomTermAdjust(HACKS_MODULE);
+  ARG_MODULE = AtomTermAdjust(ARG_MODULE);
+  GLOBALS_MODULE = AtomTermAdjust(GLOBALS_MODULE);
+  SWI_MODULE = AtomTermAdjust(SWI_MODULE);
+  DBLOAD_MODULE = AtomTermAdjust(DBLOAD_MODULE);
 
 
 
-  Yap_heap_regs->current_modules = ModEntryPtrAdjust(Yap_heap_regs->current_modules);
+  CurrentModules = ModEntryPtrAdjust(CurrentModules);
 
 
 
@@ -114,36 +114,36 @@
 
 
 
-  Yap_heap_regs->creep_code = PtoPredAdjust(Yap_heap_regs->creep_code);
-  Yap_heap_regs->undef_code = PtoPredAdjust(Yap_heap_regs->undef_code);
-  Yap_heap_regs->spy_code = PtoPredAdjust(Yap_heap_regs->spy_code);
-  Yap_heap_regs->pred_fail = PtoPredAdjust(Yap_heap_regs->pred_fail);
-  Yap_heap_regs->pred_true = PtoPredAdjust(Yap_heap_regs->pred_true);
+  CreepCode = PtoPredAdjust(CreepCode);
+  UndefCode = PtoPredAdjust(UndefCode);
+  SpyCode = PtoPredAdjust(SpyCode);
+  PredFail = PtoPredAdjust(PredFail);
+  PredTrue = PtoPredAdjust(PredTrue);
 #ifdef COROUTINING
-  Yap_heap_regs->wake_up_code = PtoPredAdjust(Yap_heap_regs->wake_up_code);
+  WakeUpCode = PtoPredAdjust(WakeUpCode);
 #endif
-  Yap_heap_regs->pred_goal_expansion = PtoPredAdjust(Yap_heap_regs->pred_goal_expansion);
-  Yap_heap_regs->pred_meta_call = PtoPredAdjust(Yap_heap_regs->pred_meta_call);
-  Yap_heap_regs->pred_dollar_catch = PtoPredAdjust(Yap_heap_regs->pred_dollar_catch);
-  Yap_heap_regs->pred_recorded_with_key = PtoPredAdjust(Yap_heap_regs->pred_recorded_with_key);
-  Yap_heap_regs->pred_log_upd_clause = PtoPredAdjust(Yap_heap_regs->pred_log_upd_clause);
-  Yap_heap_regs->pred_log_upd_clause_erase = PtoPredAdjust(Yap_heap_regs->pred_log_upd_clause_erase);
-  Yap_heap_regs->pred_log_upd_clause0 = PtoPredAdjust(Yap_heap_regs->pred_log_upd_clause0);
-  Yap_heap_regs->pred_static_clause = PtoPredAdjust(Yap_heap_regs->pred_static_clause);
-  Yap_heap_regs->pred_throw = PtoPredAdjust(Yap_heap_regs->pred_throw);
-  Yap_heap_regs->pred_handle_throw = PtoPredAdjust(Yap_heap_regs->pred_handle_throw);
-  Yap_heap_regs->pred_is = PtoPredAdjust(Yap_heap_regs->pred_is);
-  Yap_heap_regs->pred_safe_call_cleanup = PtoPredAdjust(Yap_heap_regs->pred_safe_call_cleanup);
-  Yap_heap_regs->pred_restore_regs = PtoPredAdjust(Yap_heap_regs->pred_restore_regs);
+  PredGoalExpansion = PtoPredAdjust(PredGoalExpansion);
+  PredMetaCall = PtoPredAdjust(PredMetaCall);
+  PredDollarCatch = PtoPredAdjust(PredDollarCatch);
+  PredRecordedWithKey = PtoPredAdjust(PredRecordedWithKey);
+  PredLogUpdClause = PtoPredAdjust(PredLogUpdClause);
+  PredLogUpdClauseErase = PtoPredAdjust(PredLogUpdClauseErase);
+  PredLogUpdClause0 = PtoPredAdjust(PredLogUpdClause0);
+  PredStaticClause = PtoPredAdjust(PredStaticClause);
+  PredThrow = PtoPredAdjust(PredThrow);
+  PredHandleThrow = PtoPredAdjust(PredHandleThrow);
+  PredIs = PtoPredAdjust(PredIs);
+  PredSafeCallCleanup = PtoPredAdjust(PredSafeCallCleanup);
+  PredRestoreRegs = PtoPredAdjust(PredRestoreRegs);
 #ifdef YAPOR
-  Yap_heap_regs->pred_getwork = PtoPredAdjust(Yap_heap_regs->pred_getwork);
-  Yap_heap_regs->pred_getwork_seq = PtoPredAdjust(Yap_heap_regs->pred_getwork_seq);
+  PredGetwork = PtoPredAdjust(PredGetwork);
+  PredGetworkSeq = PtoPredAdjust(PredGetworkSeq);
 #endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->low_level_trace_lock);
+  REINIT_LOCK(Yap_low_level_trace_lock);
 #endif
 #endif
 
@@ -158,22 +158,22 @@
 
 
 
-  Yap_heap_regs->dummycode->opc = Yap_opcode(_op_fail);
-  Yap_heap_regs->failcode->opc = Yap_opcode(_op_fail);
-  Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
+  DUMMYCODE->opc = Yap_opcode(_op_fail);
+  FAILCODE->opc = Yap_opcode(_op_fail);
+  NOCODE->opc = Yap_opcode(_Nstop);
   RestoreEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail);
 
   RestoreEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
 
   RestoreOtaplInst(RTRYCODE,_retry_and_mark,PredFail);
 #ifdef BEAM
-  Yap_heap_regs->beam_retry_code->opc = Yap_opcode(_beam_retry_code);
+  BEAM_RETRY_CODE->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
 
   RestoreOtaplInst(GETWORK,_getwork,PredGetwork);
   RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
-  Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
+  GETWORK_FIRST_TIME->opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
   RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail);
@@ -185,10 +185,10 @@
 
 
 
-  Yap_heap_regs->debugger_p_before_spy = PtoOpAdjust(Yap_heap_regs->debugger_p_before_spy);
+  P_before_spy = PtoOpAdjust(P_before_spy);
 
-  Yap_heap_regs->retry_recordedp_code = PtoOpAdjust(Yap_heap_regs->retry_recordedp_code);
-  Yap_heap_regs->retry_recorded_k_code = PtoOpAdjust(Yap_heap_regs->retry_recorded_k_code);
+  RETRY_C_RECORDEDP_CODE = PtoOpAdjust(RETRY_C_RECORDEDP_CODE);
+  RETRY_C_RECORDED_K_CODE = PtoOpAdjust(RETRY_C_RECORDED_K_CODE);
 
 
 
@@ -203,7 +203,7 @@
 
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->dbterms_list_lock);
+  REINIT_LOCK(DBTermsListLock);
 #endif
   RestoreDBTermsList();
 
@@ -211,8 +211,8 @@
   RestoreExpandList();
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
-  REINIT_LOCK(Yap_heap_regs->op_list_lock);
+  REINIT_LOCK(ExpandClausesListLock);
+  REINIT_LOCK(OpListLock);
 #endif
 
 #ifdef DEBUG
@@ -247,9 +247,9 @@
   RestoreDBErasedList();
   RestoreDBErasedIList();
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
-  REINIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
-  REINIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
+  REINIT_LOCK(DeadStaticClausesLock);
+  REINIT_LOCK(DeadMegaClausesLock);
+  REINIT_LOCK(DeadStaticIndicesLock);
 #endif
 #ifdef COROUTINING
 
@@ -260,7 +260,7 @@
 
 
 
-  Yap_heap_regs->op_list = OpListAdjust(Yap_heap_regs->op_list);
+  OpList = OpListAdjust(OpList);
 
 
   RestoreStreams();
@@ -269,17 +269,17 @@
 
   RestoreAliases();
 
-  Yap_heap_regs->atprompt = AtomAdjust(Yap_heap_regs->atprompt);
+  AtPrompt = AtomAdjust(AtPrompt);
 
 
-  Yap_heap_regs->char_conversion_table = CodeCharPAdjust(Yap_heap_regs->char_conversion_table);
-  Yap_heap_regs->char_conversion_table2 = CodeCharPAdjust(Yap_heap_regs->char_conversion_table2);
+  CharConversionTable = CodeCharPAdjust(CharConversionTable);
+  CharConversionTable2 = CodeCharPAdjust(CharConversionTable2);
 
 
 
-  Yap_heap_regs->yap_lib_dir = CodeCharPAdjust(Yap_heap_regs->yap_lib_dir);
+  Yap_LibDir = CodeCharPAdjust(Yap_LibDir);
 
-  Yap_heap_regs->last_wtime = CodeVoidPAdjust(Yap_heap_regs->last_wtime);
+  LastWtimePtr = CodeVoidPAdjust(LastWtimePtr);
 
 
 #if LOW_PROF
