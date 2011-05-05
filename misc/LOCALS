@@ -92,7 +92,6 @@ int			consult_level_		LOCAL_consult_level	=0
 // global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
 lockvar				signal_lock	LOCAL_SignalLock	MkLock
-struct pred_entry*		wpp		LOCAL_WPP		=NULL
 /* in a single gc */
 Int				tot_marked	LOCAL_total_marked	=0L
 Int				tot_oldies	LOCAL_total_oldies	=0L

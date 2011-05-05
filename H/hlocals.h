@@ -85,7 +85,6 @@ typedef struct worker_local {
 
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;
-  struct pred_entry*  wpp;
 
   Int  tot_marked;
   Int  tot_oldies;

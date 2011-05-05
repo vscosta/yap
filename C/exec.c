@@ -1048,9 +1048,6 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   HB = H;
-#if defined(YAPOR) || defined(THREADS)
-  LOCAL_WPP = NULL;
-#endif
   /* start with some slots so that we can use them */
   Yap_StartSlots( PASS_REGS1 );
   CP = YESCODE;
@@ -1662,7 +1659,6 @@ Yap_InitYaamRegs(void)
   LOCAL_GcPhase = Yap_NewTimedVar(MkIntTerm(LOCAL_GcCurrentPhase));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
-  LOCAL_WPP = NULL;
   PREG_ADDR = NULL;
 #endif
   Yap_AllocateDefaultArena(128*1024, 2);

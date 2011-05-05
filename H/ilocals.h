@@ -83,7 +83,6 @@ static void InitWorker(int wid) {
 
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(FOREIGN(wid)->signal_lock);
-  FOREIGN(wid)->wpp = NULL;
 
   FOREIGN(wid)->tot_marked = 0L;
   FOREIGN(wid)->tot_oldies = 0L;

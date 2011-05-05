@@ -83,7 +83,6 @@
 
 #if defined(YAPOR) || defined(THREADS)
 #define LOCAL_SignalLock WL->signal_lock
-#define LOCAL_WPP WL->wpp
 
 #define LOCAL_total_marked WL->tot_marked
 #define LOCAL_total_oldies WL->tot_oldies

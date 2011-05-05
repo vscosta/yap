@@ -86,7 +86,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-
 #if DEBUG && COROUTINING
 
 #endif

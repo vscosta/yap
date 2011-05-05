@@ -2196,9 +2196,6 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   CP = YESCODE;
   B = myB;
   HB = H;
-#if defined(YAPOR) || defined(THREADS)
-  LOCAL_WPP = NULL;
-#endif
   ASP = YENV = (CELL *)B;
   YENV[E_CB] = Unsigned (B);
   out = run_emulator(dgi);
