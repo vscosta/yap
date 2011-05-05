@@ -97,47 +97,6 @@ typedef struct RB_red_blk_node {
 #define LOCAL_cont_top0 (cont *)LOCAL_sTR
 #endif
 
-#if !defined(YAPOR) && !defined(THREADS)
-/* in a single gc */
-static unsigned long int   LOCAL_total_marked, LOCAL_total_oldies;	/* number of heap objects marked */
-
-#ifdef EASY_SHUNTING
-static choiceptr LOCAL_current_B;
-
-static tr_fr_ptr LOCAL_sTR, LOCAL_sTR0;
-
-static CELL *LOCAL_prev_HB;
-#endif
-
-static tr_fr_ptr LOCAL_new_TR;
-
-static CELL *LOCAL_HGEN;
-
-char *LOCAL_bp;
-
-static int LOCAL_discard_trail_entries = 0;
-
-#ifdef HYBRID_SCHEME
-static CELL_PTR *LOCAL_iptop;
-#endif
-
-#ifndef EASY_SHUNTING
-static cont *LOCAL_cont_top0;
-#endif
-static cont *LOCAL_cont_top;
-
-static gc_ma_hash_entry LOCAL_gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
-
-static gc_ma_hash_entry *LOCAL_gc_ma_h_top, *LOCAL_gc_ma_h_list;
-
-static UInt LOCAL_gc_timestamp;    /* an unsigned int */
-
-static ADDR  LOCAL_db_vec, LOCAL_db_vec0;
-
-static rb_red_blk_node *LOCAL_db_root, *LOCAL_db_nil;
-
-#endif /* !defined(YAPOR) && !defined(THREADS) */
-
 /* support for hybrid garbage collection scheme */
 
 static void

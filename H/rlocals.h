@@ -80,23 +80,21 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif
 
-
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(FOREIGN(wid)->signal_lock);
-
-
-
-#if DEBUG && COROUTINING
-
 #endif
 
 
 
 
-#if GC_NO_TAGS
+
+
+
+
+#if defined(GC_NO_TAGS)
 
 #endif
-#if defined(TABLING) || defined(YAPOR_SBA)
+#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
 
 
 
@@ -104,7 +102,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-#endif
+#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
 
 
 
@@ -116,7 +114,6 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-#endif /* defined(YAPOR) || defined(THREADS) */
 
   FOREIGN(wid)->dynamic_arrays = PtoArrayEAdjust(FOREIGN(wid)->dynamic_arrays);
   FOREIGN(wid)->static_arrays = PtoArraySAdjust(FOREIGN(wid)->static_arrays);
@@ -133,8 +130,8 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #ifdef THREADS
 
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 }

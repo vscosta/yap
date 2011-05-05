@@ -80,23 +80,21 @@
 #define LOCAL_total_choicepoints WL->total_cps
 #endif
 #define LOCAL_consult_level WL->consult_level_
-
 #if defined(YAPOR) || defined(THREADS)
 #define LOCAL_SignalLock WL->signal_lock
+#endif
 
 #define LOCAL_total_marked WL->tot_marked
 #define LOCAL_total_oldies WL->tot_oldies
-#if DEBUG && COROUTINING
-#define LOCAL_total_smarked WL->tot_smarked
-#endif
 #define LOCAL_current_B WL->wl_current_B
 #define LOCAL_prev_HB WL->wl_prev_HB
 #define LOCAL_HGEN WL->hgen
 #define LOCAL_iptop WL->ip_top
-#if GC_NO_TAGS
+
+#if defined(GC_NO_TAGS)
 #define LOCAL_bp WL->b_p
 #endif
-#if defined(TABLING) || defined(YAPOR_SBA)
+#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
 #define LOCAL_sTR WL->wl_sTR
 #define LOCAL_sTR0 WL->wl_sTR0
 #define LOCAL_new_TR WL->new_tr
@@ -104,7 +102,7 @@
 #define LOCAL_sTR WL->wl_sTR
 #define LOCAL_sTR0 WL->wl_sTR0
 #define LOCAL_new_TR WL->new_tr
-#endif
+#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
 #define LOCAL_cont_top0 WL->conttop0
 #define LOCAL_cont_top WL->conttop
 #define LOCAL_discard_trail_entries WL->disc_trail_entries
@@ -116,7 +114,6 @@
 #define LOCAL_db_vec0 WL->DB_vec0
 #define LOCAL_db_root WL->DB_root
 #define LOCAL_db_nil WL->DB_nil
-#endif /* defined(YAPOR) || defined(THREADS) */
 #define LOCAL_gc_restore WL->gc_restore
 #define LOCAL_DynamicArrays WL->dynamic_arrays
 #define LOCAL_StaticArrays WL->static_arrays
@@ -133,8 +130,8 @@
 #define LOCAL_execution WL->_execution
 #ifdef THREADS
 #define LOCAL_ThreadHandle WL->thread_handle
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 

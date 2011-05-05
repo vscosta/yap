@@ -57,7 +57,7 @@ typedef struct worker_local {
   int  debug_on;
   char*  scanner_stack;
   struct scanner_extra_alloc*  scanner_extra_blocks;
-  struct DB_TERM  *ball_term;
+  struct DB_TERM*  ball_term;
   UInt  active_signals;
   UInt  i_pred_arity;
   yamop*  prof_end;
@@ -82,31 +82,29 @@ typedef struct worker_local {
   Int  total_cps;
 #endif
   int  consult_level_;
-
 #if defined(YAPOR) || defined(THREADS)
   lockvar  signal_lock;
+#endif
 
   Int  tot_marked;
   Int  tot_oldies;
-#if DEBUG && COROUTINING
-  UInt  tot_smarked;
-#endif
-  struct choicept  *wl_current_B;
+  struct choicept*  wl_current_B;
   CELL*  wl_prev_HB;
   CELL*  hgen;
   CELL**  ip_top;
-#if GC_NO_TAGS
+
+#if defined(GC_NO_TAGS)
   char*  b_p;
 #endif
-#if defined(TABLING) || defined(YAPOR_SBA)
+#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
+  Term*  wl_sTR;
+  Term*  wl_sTR0;
+  Term*  new_tr;
+#else
   struct trail_frame*  wl_sTR;
   struct trail_frame*  wl_sTR0;
   struct trail_frame*  new_tr;
-#else
-  Term  *wl_sTR;
-  Term  *wl_sTR0;
-  Term  *new_tr;
-#endif
+#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
   struct gc_mark_continuation*  conttop0;
   struct gc_mark_continuation*  conttop;
   int  disc_trail_entries;
@@ -118,7 +116,6 @@ typedef struct worker_local {
   ADDR  DB_vec0;
   struct RB_red_blk_node*  DB_root;
   struct RB_red_blk_node*  DB_nil;
-#endif /* defined(YAPOR) || defined(THREADS) */
   sigjmp_buf  gc_restore;
   struct array_entry*  dynamic_arrays;
   struct static_array_entry*  static_arrays;
@@ -131,12 +128,12 @@ typedef struct worker_local {
   Int*  label_first_array;
   UInt  label_first_array_sz;
 
-  struct PL_local_data  *Yap_ld_;
+  struct PL_local_data*  Yap_ld_;
   struct open_query_struct*  _execution;
 #ifdef THREADS
   struct thandle  thread_handle;
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 } w_local;

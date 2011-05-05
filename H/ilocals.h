@@ -80,23 +80,21 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->total_cps = 0;
 #endif
   FOREIGN(wid)->consult_level_ = 0;
-
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(FOREIGN(wid)->signal_lock);
+#endif
 
   FOREIGN(wid)->tot_marked = 0L;
   FOREIGN(wid)->tot_oldies = 0L;
-#if DEBUG && COROUTINING
-  FOREIGN(wid)->tot_smarked = 0L;
-#endif
   FOREIGN(wid)->wl_current_B = NULL;
   FOREIGN(wid)->wl_prev_HB = NULL;
   FOREIGN(wid)->hgen = NULL;
   FOREIGN(wid)->ip_top = NULL;
-#if GC_NO_TAGS
+
+#if defined(GC_NO_TAGS)
   FOREIGN(wid)->b_p = NULL;
 #endif
-#if defined(TABLING) || defined(YAPOR_SBA)
+#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
   FOREIGN(wid)->wl_sTR = NULL;
   FOREIGN(wid)->wl_sTR0 = NULL;
   FOREIGN(wid)->new_tr = NULL;
@@ -104,7 +102,7 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->wl_sTR = NULL;
   FOREIGN(wid)->wl_sTR0 = NULL;
   FOREIGN(wid)->new_tr = NULL;
-#endif
+#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
   FOREIGN(wid)->conttop0 = NULL;
   FOREIGN(wid)->conttop = NULL;
   FOREIGN(wid)->disc_trail_entries = 0;
@@ -116,7 +114,6 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->DB_vec0 = NULL;
   FOREIGN(wid)->DB_root = NULL;
   FOREIGN(wid)->DB_nil = NULL;
-#endif /* defined(YAPOR) || defined(THREADS) */
 
   FOREIGN(wid)->dynamic_arrays = NULL;
   FOREIGN(wid)->static_arrays = NULL;
@@ -133,8 +130,8 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->_execution = NULL;
 #ifdef THREADS
   InitThreadHandle(wid);
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 }

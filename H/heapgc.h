@@ -77,10 +77,6 @@
 			       (CellPtr(B) < CellPtr(val) && CellPtr(val) <= \
 				LCL0 && HEAP_PTR(val))))
 
-#if !defined(YAPOR) && !defined(THREADS)
-extern char *LOCAL_bp;
-#endif
-
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
 

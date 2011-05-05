@@ -2,156 +2,152 @@
 START_WORKER_LOCAL
 
 // Streams
-int			c_input_stream		LOCAL_c_input_stream	=0
-int			c_output_stream		LOCAL_c_output_stream	=1
-int			c_error_stream		LOCAL_c_error_stream	=2
+int			c_input_stream			LOCAL_c_input_stream		=0
+int			c_output_stream			LOCAL_c_output_stream		=1
+int			c_error_stream			LOCAL_c_error_stream		=2
 
 /* shifts and restore: per local data-structure */
-restoreinfo	                rinfo
-.	rinfo.old_ASP	        LOCAL_OldASP			=NULL
-.	rinfo.old_LCL0	        LOCAL_OldLCL0			=NULL
-.	rinfo.old_TR		LOCAL_OldTR			=NULL
-.	rinfo.old_GlobalBase	LOCAL_OldGlobalBase		=NULL
-.	rinfo.old_H		LOCAL_OldH			=NULL
-.	rinfo.old_H0		LOCAL_OldH0			=NULL
-.	rinfo.old_TrailBase	LOCAL_OldTrailBase		=NULL
-.	rinfo.old_TrailTop	LOCAL_OldTrailTop		=NULL
-.	rinfo.old_HeapBase	LOCAL_OldHeapBase		=NULL
-.	rinfo.old_HeapTop	LOCAL_OldHeapTop		=NULL
-.	rinfo.cl_diff		LOCAL_ClDiff			=0L
-.	rinfo.g_diff		LOCAL_GDiff			=0L
-.	rinfo.h_diff		LOCAL_HDiff			=0L
-.	rinfo.g_diff0		LOCAL_GDiff0			=0L
-.	rinfo.g_split		LOCAL_GSplit			=NULL
-.	rinfo.l_diff		LOCAL_LDiff			=0L
-.	rinfo.tr_diff		LOCAL_TrDiff			=0L
-.	rinfo.x_diff		LOCAL_XDiff			=0L
-.	rinfo.delay_diff	LOCAL_DelayDiff		=0L
-.	rinfo.base_diff		LOCAL_BaseDiff		=0L
+restoreinfo rinfo
+.	rinfo.old_ASP	 			       	LOCAL_OldASP			=NULL
+.	rinfo.old_LCL0		        		LOCAL_OldLCL0			=NULL
+.	rinfo.old_TR					LOCAL_OldTR			=NULL
+.	rinfo.old_GlobalBase				LOCAL_OldGlobalBase		=NULL
+.	rinfo.old_H					LOCAL_OldH			=NULL
+.	rinfo.old_H0					LOCAL_OldH0			=NULL
+.	rinfo.old_TrailBase				LOCAL_OldTrailBase		=NULL
+.	rinfo.old_TrailTop				LOCAL_OldTrailTop		=NULL
+.	rinfo.old_HeapBase				LOCAL_OldHeapBase		=NULL
+.	rinfo.old_HeapTop				LOCAL_OldHeapTop		=NULL
+.	rinfo.cl_diff					LOCAL_ClDiff			=0L
+.	rinfo.g_diff					LOCAL_GDiff			=0L
+.	rinfo.h_diff					LOCAL_HDiff			=0L
+.	rinfo.g_diff0					LOCAL_GDiff0			=0L
+.	rinfo.g_split					LOCAL_GSplit			=NULL
+.	rinfo.l_diff					LOCAL_LDiff			=0L
+.	rinfo.tr_diff					LOCAL_TrDiff			=0L
+.	rinfo.x_diff					LOCAL_XDiff			=0L
+.	rinfo.delay_diff				LOCAL_DelayDiff			=0L
+.	rinfo.base_diff					LOCAL_BaseDiff			=0L
 
-struct reduction_counters		call_counters	
-.	call_counters.reductions	LOCAL_ReductionsCounter		=0L
-.	call_counters.reductions_retries	LOCAL_PredEntriesCounter	=0L
-.	call_counters.retries		LOCAL_RetriesCounter			=0L
-.	call_counters.reductions_on	LOCAL_ReductionsCounterOn		=0L
-.	call_counters.reductions_retries_on	LOCAL_PredEntriesCounterOn	=0L
-.	call_counters.retries_on	LOCAL_RetriesCounterOn		=0L
+struct reduction_counters call_counters	
+.	call_counters.reductions			LOCAL_ReductionsCounter		=0L
+.	call_counters.reductions_retries		LOCAL_PredEntriesCounter	=0L
+.	call_counters.retries				LOCAL_RetriesCounter		=0L
+.	call_counters.reductions_on			LOCAL_ReductionsCounterOn	=0L
+.	call_counters.reductions_retries_on		LOCAL_PredEntriesCounterOn	=0L
+.	call_counters.retries_on			LOCAL_RetriesCounterOn		=0L
 
-int	interrupts_disabled		LOCAL_InterruptsDisabled		=FALSE
+int			interrupts_disabled		LOCAL_InterruptsDisabled	=FALSE
 
 // support for consulting files
 /* current consult stack */
-union CONSULT_OBJ*	consultsp	LOCAL_ConsultSp	=NULL
+union CONSULT_OBJ*	consultsp			LOCAL_ConsultSp			=NULL
 /* current maximum number of cells in consult stack */
-UInt	consultcapacity			LOCAL_ConsultCapacity	void
+UInt			consultcapacity			LOCAL_ConsultCapacity		void
 /* top of consult stack  */
-union CONSULT_OBJ*	consultbase	LOCAL_ConsultBase	=NULL
+union CONSULT_OBJ*	consultbase			LOCAL_ConsultBase		=NULL
 /* low-water mark for consult  */
-union CONSULT_OBJ*	consultlow	LOCAL_ConsultLow	=NULL
+union CONSULT_OBJ*	consultlow			LOCAL_ConsultLow		=NULL
 
 //global variables
-Term			global_arena		LOCAL_GlobalArena	=0L TermToGlobalOrAtomAdjust
-UInt			global_arena_overflows	LOCAL_GlobalArenaOverflows	=0L
-Int			arena_overflows		LOCAL_ArenaOverflows	=0L
-Int			depth_arenas		LOCAL_DepthArenas	=0
+Term			global_arena			LOCAL_GlobalArena		=0L		TermToGlobalOrAtomAdjust
+UInt			global_arena_overflows		LOCAL_GlobalArenaOverflows	=0L
+Int			arena_overflows			LOCAL_ArenaOverflows		=0L
+Int			depth_arenas			LOCAL_DepthArenas		=0
 
-int			arith_error		LOCAL_ArithError	=FALSE
-struct pred_entry*	last_asserted_pred	LOCAL_LastAssertedPred	=NULL
-int			debug_on		LOCAL_DebugOn		=FALSE
-char*			scanner_stack		LOCAL_ScannerStack	=NULL
-struct scanner_extra_alloc*	scanner_extra_blocks	LOCAL_ScannerExtraBlocks	=NULL
-struct DB_TERM	       *ball_term		LOCAL_BallTerm	=NULL RestoreBallTerm(wid)
-UInt			active_signals		LOCAL_ActiveSignals	=0L
-UInt			i_pred_arity		LOCAL_IPredArity	=0L
-yamop*			prof_end		LOCAL_ProfEnd	=NULL
-int			uncaught_throw		LOCAL_UncaughtThrow	=FALSE
-int			doing_undefp		LOCAL_DoingUndefp	=FALSE
-Int			start_line		LOCAL_StartLine	=0L
-scratch_block		scratchpad		LOCAL_ScratchPad	InitScratchPad(wid)
+int			arith_error			LOCAL_ArithError		=FALSE
+struct pred_entry*	last_asserted_pred		LOCAL_LastAssertedPred		=NULL
+int			debug_on			LOCAL_DebugOn			=FALSE
+char*			scanner_stack			LOCAL_ScannerStack		=NULL
+struct scanner_extra_alloc* scanner_extra_blocks 	LOCAL_ScannerExtraBlocks	=NULL
+struct DB_TERM*		ball_term			LOCAL_BallTerm			=NULL 		RestoreBallTerm(wid)
+UInt			active_signals			LOCAL_ActiveSignals		=0L
+UInt			i_pred_arity			LOCAL_IPredArity		=0L
+yamop*			prof_end			LOCAL_ProfEnd			=NULL
+int			uncaught_throw			LOCAL_UncaughtThrow		=FALSE
+int			doing_undefp			LOCAL_DoingUndefp		=FALSE
+Int			start_line			LOCAL_StartLine			=0L
+scratch_block		scratchpad			LOCAL_ScratchPad		InitScratchPad(wid)
 #ifdef  COROUTINING
-Term			woken_goals		LOCAL_WokenGoals	=0L TermToGlobalAdjust
-Term			atts_mutable_list	LOCAL_AttsMutableList	=0L TermToGlobalAdjust
+Term			woken_goals			LOCAL_WokenGoals		=0L 		TermToGlobalAdjust
+Term			atts_mutable_list		LOCAL_AttsMutableList		=0L 		TermToGlobalAdjust
 #endif
 
 // gc_stuff
-Term			gc_generation		LOCAL_GcGeneration	=0L TermToGlobalAdjust
-Term			gc_phase		LOCAL_GcPhase		=0L TermToGlobalAdjust
-UInt			gc_current_phase	LOCAL_GcCurrentPhase	=0L
-UInt			gc_calls		LOCAL_GcCalls		=0L
-Int			tot_gc_time		LOCAL_TotGcTime	=0L
-YAP_ULONG_LONG		tot_gc_recovered	LOCAL_TotGcRecovered	=0L
-Int			last_gc_time		LOCAL_LastGcTime	=0L
-Int			last_ss_time		LOCAL_LastSSTime	=0L
+Term			gc_generation			LOCAL_GcGeneration		=0L 		TermToGlobalAdjust
+Term			gc_phase			LOCAL_GcPhase			=0L 		TermToGlobalAdjust
+UInt			gc_current_phase		LOCAL_GcCurrentPhase		=0L
+UInt			gc_calls			LOCAL_GcCalls			=0L
+Int			tot_gc_time			LOCAL_TotGcTime			=0L
+YAP_ULONG_LONG		tot_gc_recovered		LOCAL_TotGcRecovered		=0L
+Int			last_gc_time			LOCAL_LastGcTime		=0L
+Int			last_ss_time			LOCAL_LastSSTime		=0L
 
 #if LOW_LEVEL_TRACER
-Int			total_cps		LOCAL_total_choicepoints	=0
+Int			total_cps			LOCAL_total_choicepoints	=0
 #endif
 
-int			consult_level_		LOCAL_consult_level	=0
+int			consult_level_			LOCAL_consult_level		=0
 
-// global variables that cannot be global in a thread/or-p implementation
 #if defined(YAPOR) || defined(THREADS)
-lockvar				signal_lock	LOCAL_SignalLock	MkLock
+lockvar			signal_lock	LOCAL_SignalLock	MkLock
+#endif
 /* in a single gc */
-Int				tot_marked	LOCAL_total_marked	=0L
-Int				tot_oldies	LOCAL_total_oldies	=0L
-#if DEBUG && COROUTINING
-UInt			tot_smarked	LOCAL_total_smarked	=0L
+Int			tot_marked			LOCAL_total_marked		=0L
+Int			tot_oldies			LOCAL_total_oldies		=0L
+struct choicept*	wl_current_B			LOCAL_current_B			=NULL
+CELL*			wl_prev_HB			LOCAL_prev_HB			=NULL
+CELL*			hgen				LOCAL_HGEN			=NULL
+CELL**			ip_top				LOCAL_iptop			=NULL
+//#endif
+#if defined(GC_NO_TAGS)
+char*			b_p				LOCAL_bp			=NULL
 #endif
-struct choicept			*wl_current_B	LOCAL_current_B	=NULL
-CELL*				wl_prev_HB	LOCAL_prev_HB		=NULL
-CELL*				hgen		LOCAL_HGEN		=NULL
-CELL**				ip_top		LOCAL_iptop		=NULL
-#if GC_NO_TAGS
-char*				b_p		LOCAL_bp		=NULL
-#endif
-#if defined(TABLING) || defined(YAPOR_SBA)
-struct trail_frame*		wl_sTR		LOCAL_sTR		=NULL
-struct trail_frame*		wl_sTR0		LOCAL_sTR0		=NULL
-struct trail_frame*		new_tr		LOCAL_new_TR		=NULL
+
+#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
+Term*			wl_sTR				LOCAL_sTR			=NULL
+Term*			wl_sTR0				LOCAL_sTR0			=NULL
+Term*			new_tr				LOCAL_new_TR			=NULL
 #else
-Term				*wl_sTR		LOCAL_sTR		=NULL
-Term				*wl_sTR0	LOCAL_sTR0		=NULL
-Term				*new_tr		LOCAL_new_TR		=NULL
-#endif
-struct gc_mark_continuation*	conttop0	LOCAL_cont_top0	=NULL
-struct gc_mark_continuation*	conttop		LOCAL_cont_top	=NULL
-int				disc_trail_entries	LOCAL_discard_trail_entries		=0
-gc_ma_hash_entry		Gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	LOCAL_gc_ma_hash_table	void
-gc_ma_hash_entry*		Gc_ma_h_top	LOCAL_gc_ma_h_top	=NULL
-gc_ma_hash_entry*		Gc_ma_h_list	LOCAL_gc_ma_h_list	=NULL
-UInt				Gc_timestamp	LOCAL_gc_timestamp	=0L
-ADDR				DB_vec		LOCAL_db_vec		=NULL
-ADDR				DB_vec0		LOCAL_db_vec0		=NULL
-struct RB_red_blk_node*		DB_root		LOCAL_db_root		=NULL
-struct RB_red_blk_node*		DB_nil		LOCAL_db_nil		=NULL
-#endif /* defined(YAPOR) || defined(THREADS) */
+struct trail_frame*	wl_sTR				LOCAL_sTR			=NULL
+struct trail_frame*	wl_sTR0				LOCAL_sTR0			=NULL
+struct trail_frame*	new_tr				LOCAL_new_TR			=NULL
+#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
+struct gc_mark_continuation*	conttop0		LOCAL_cont_top0			=NULL
+struct gc_mark_continuation*	conttop			LOCAL_cont_top			=NULL
+int			disc_trail_entries		LOCAL_discard_trail_entries	=0
+gc_ma_hash_entry	Gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	LOCAL_gc_ma_hash_table	void
+gc_ma_hash_entry*	Gc_ma_h_top			LOCAL_gc_ma_h_top		=NULL
+gc_ma_hash_entry*	Gc_ma_h_list			LOCAL_gc_ma_h_list		=NULL
+UInt			Gc_timestamp			LOCAL_gc_timestamp		=0L
+ADDR			DB_vec				LOCAL_db_vec			=NULL
+ADDR			DB_vec0				LOCAL_db_vec0			=NULL
+struct RB_red_blk_node*	DB_root				LOCAL_db_root			=NULL
+struct RB_red_blk_node*	DB_nil				LOCAL_db_nil			=NULL
 
-
-sigjmp_buf			gc_restore		LOCAL_gc_restore	void
-struct array_entry*		dynamic_arrays		LOCAL_DynamicArrays	=NULL PtoArrayEAdjust
-struct static_array_entry*	static_arrays		LOCAL_StaticArrays	=NULL PtoArraySAdjust
-struct global_entry*		global_variables	LOCAL_GlobalVariables	=NULL PtoGlobalEAdjust
-int				allow_restart		LOCAL_AllowRestart	=FALSE
+sigjmp_buf		gc_restore			LOCAL_gc_restore		void
+struct array_entry*	dynamic_arrays			LOCAL_DynamicArrays		=NULL 		PtoArrayEAdjust
+struct static_array_entry* static_arrays		LOCAL_StaticArrays		=NULL 		PtoArraySAdjust
+struct global_entry*	global_variables		LOCAL_GlobalVariables		=NULL 		PtoGlobalEAdjust
+int			allow_restart			LOCAL_AllowRestart		=FALSE
 
 // Thread Local Area for Fast Storage of Intermediate Compiled Code.
-struct mem_blk*			cmem_first_block	LOCAL_CMemFirstBlock	=NULL
-UInt				cmem_first_block_sz	LOCAL_CMemFirstBlockSz	=0L
+struct mem_blk*		cmem_first_block		LOCAL_CMemFirstBlock		=NULL
+UInt			cmem_first_block_sz		LOCAL_CMemFirstBlockSz		=0L
 
 // Thread Local Area for Labels.
-Int*				label_first_array	LOCAL_LabelFirstArray	=NULL
-UInt				label_first_array_sz	LOCAL_LabelFirstArraySz	=0L
+Int*			label_first_array		LOCAL_LabelFirstArray		=NULL
+UInt			label_first_array_sz		LOCAL_LabelFirstArraySz		=0L
 
 // Thread Local Area for SWI-Prolog emulation routines.
-struct PL_local_data	       *Yap_ld_			LOCAL_PL_local_data_p		=Yap_InitThreadIO(wid)
+struct PL_local_data*	Yap_ld_				LOCAL_PL_local_data_p		=Yap_InitThreadIO(wid)
 
-struct open_query_struct*	_execution		LOCAL_execution		=NULL
-
+struct open_query_struct* _execution			LOCAL_execution			=NULL
 
 #ifdef THREADS
-struct thandle			thread_handle		LOCAL_ThreadHandle	InitThreadHandle(wid)
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+struct thandle		thread_handle			LOCAL_ThreadHandle		InitThreadHandle(wid)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
+#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
 #endif
 
 // END WORKER LOCAL STUFF
