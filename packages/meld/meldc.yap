@@ -116,7 +116,7 @@ rule(Head, Body) :-
 
 builtins([]) --> [].
 builtins(G.Gs) -->
-	builtin(G), !,
+	builtin(G),
         builtins(Gs).
 
 builtin(Res = Op) --> !,
@@ -198,8 +198,8 @@ compile_goal(Goal, Goals, Gs, Head) :-
 	reorder_builtins(DelGoal, DelBLF, DelBLF2),
 	listtobody(BLF2, Body),
 	listtobody(DelBLF2, DelBody),
-	once((assert(meld_program:(run(Goal) :- Body)),
-	assert(meld_program:(run(deleted(DelGoal)) :- DelBody)))).
+	assert(meld_program:(run(Goal) :- Body)),
+	assert(meld_program:(run(deleted(DelGoal)) :- DelBody)).
 
 % quantified variables should not leave the scope of the forall.
 quantified_vars(G,Extern,NG) :-
@@ -312,7 +312,8 @@ listtobody([G|GL], (G,Gs)) :-
 
 reorder_builtins(Head, BLF, BLF2) :-
 	term_variables(Head, Vs0),
-	reorder_term(BLF, Vs0, [], BLF2).
+	sort(Vs0, Vs),
+	reorder_term(BLF, Vs, [], BLF2).
 
 % 4 arguments
 % list of input goals

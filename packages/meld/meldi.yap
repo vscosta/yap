@@ -117,13 +117,17 @@ min(Skel,_,Goal) :-
 
 sum(Skel,Arg,Goal) :-
 	copy_term(Skel, NGoal),
-	meld_program:Skel,
+	meld_program:Skel, !,
 	arg(Arg, Skel, A0),
 	delete(Skel),
 	arg(Arg, Goal, A),
 	AN is A0+A,
 	arg(Arg, NGoal, AN),
 	push(NGoal).
+sum(_Skel,_Arg,Goal) :-
+	format('S~w~n',[Goal]),
+	assert(meld_program:Goal),
+	fail.
 
 clean(Skel) :-
 %	format('D~w~n',[Skel]),
