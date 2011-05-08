@@ -53,7 +53,7 @@ Cell *C, OldC;
 Cell move_structures(Cell c) 
 {
 Cell *NewC, *NewH;
-Cell OldC,OldH;
+Cell OldC,LOCAL_OldH;
  
   OldC=deref((Cell) c);
   /*
@@ -67,7 +67,7 @@ Cell OldC,OldH;
     return(OldC);
   }
 
-  OldH=(Cell) beam_H;
+  LOCAL_OldH=(Cell) beam_H;
   NewH=beam_H;
   if (isappl(OldC)) {
     int i,arity;
@@ -81,7 +81,7 @@ Cell OldC,OldH;
        NewH++;
        NewC++;
     }
-    return(absappl(OldH));
+    return(absappl(LOCAL_OldH));
   } 
   /* else if (ispair(c)) { */
      NewC=(Cell *) reppair(OldC);
@@ -90,7 +90,7 @@ Cell OldC,OldH;
      NewC++; 
      NewH++;
      *NewH=move_structures((Cell) NewC);
-     return(abspair(OldH));
+     return(abspair(LOCAL_OldH));
 }
 
 

@@ -265,7 +265,7 @@ chtype(Int ch)
 
 
 /* parser stack, used to be AuxSp, now is ASP */
-#define ParserAuxSp ScannerStack
+#define ParserAuxSp LOCAL_ScannerStack
 
 /* routines in parser.c */
 VarEntry STD_PROTO(*Yap_LookupVar,(char *));

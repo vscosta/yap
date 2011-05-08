@@ -33,7 +33,7 @@ static void RestoreGlobal(void) {
 
 #if defined(YAPOR) || defined(THREADS)
 
-  REINIT_LOCK(Yap_global->bgl);
+  REINIT_LOCK(Yap_BGL);
 #endif
 
 
@@ -47,7 +47,7 @@ static void RestoreGlobal(void) {
 
 
 #ifdef THREADS
-  REINIT_LOCK(Yap_global->thread_handles_lock);
+  REINIT_LOCK(Yap_ThreadHandlesLock);
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)

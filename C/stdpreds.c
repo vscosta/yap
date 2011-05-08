@@ -477,22 +477,22 @@ p_values( USES_REGS1 )
 inline static void
 do_signal(yap_signals sig USES_REGS)
 {
-  LOCK(SignalLock);
-  if (!Yap_InterruptsDisabled)
+  LOCK(LOCAL_SignalLock);
+  if (!LOCAL_InterruptsDisabled)
     CreepFlag = Unsigned(LCL0);
-  ActiveSignals |= sig;
-  UNLOCK(SignalLock);
+  LOCAL_ActiveSignals |= sig;
+  UNLOCK(LOCAL_SignalLock);
 }
 
 inline static void
 undo_signal(yap_signals sig USES_REGS)
 {
-  LOCK(SignalLock);
-  if (ActiveSignals == sig) {
+  LOCK(LOCAL_SignalLock);
+  if (LOCAL_ActiveSignals == sig) {
     CreepFlag = CalculateStackGap();
   }
-  ActiveSignals &= ~sig;
-  UNLOCK(SignalLock);
+  LOCAL_ActiveSignals &= ~sig;
+  UNLOCK(LOCAL_SignalLock);
 }
 
 
@@ -518,24 +518,24 @@ p_signal_creep( USES_REGS1 )
   at = AtomCreep;
   pred = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, 1),0));
   CreepCode = pred;
-  LOCK(SignalLock);
-  ActiveSignals |= YAP_CREEP_SIGNAL;
-  UNLOCK(SignalLock);
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals |= YAP_CREEP_SIGNAL;
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
 static Int 
 p_disable_creep( USES_REGS1 )
 {
-  LOCK(SignalLock);
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
-    ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!ActiveSignals)
+  LOCK(LOCAL_SignalLock);
+  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+    if (!LOCAL_ActiveSignals)
       CreepFlag = CalculateStackGap();
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return TRUE;
   }
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   return FALSE;
 }
 
@@ -543,14 +543,14 @@ p_disable_creep( USES_REGS1 )
 static Int 
 p_disable_docreep( USES_REGS1 )
 {
-  LOCK(SignalLock);
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
-    ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-    if (!ActiveSignals)
+  LOCK(LOCAL_SignalLock);
+  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+    if (!LOCAL_ActiveSignals)
       CreepFlag = CalculateStackGap();
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
   } else {
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
   }
   return TRUE;
 }
@@ -558,12 +558,12 @@ p_disable_docreep( USES_REGS1 )
 static Int 
 p_stop_creep( USES_REGS1 )
 {
-  LOCK(SignalLock);
-  ActiveSignals &= ~YAP_CREEP_SIGNAL;
-  if (!ActiveSignals) {
+  LOCK(LOCAL_SignalLock);
+  LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
+  if (!LOCAL_ActiveSignals) {
     CreepFlag = CalculateStackGap();
   }
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
@@ -797,9 +797,9 @@ p_runtime( USES_REGS1 )
   now -= gc_time;
   ss_time = Yap_total_stack_shift_time();
   now -= ss_time;
-  interval -= (gc_time-LastGcTime)+(ss_time-LastSSTime);
-  LastGcTime = gc_time;
-  LastSSTime = ss_time;
+  interval -= (gc_time-LOCAL_LastGcTime)+(ss_time-LOCAL_LastSSTime);
+  LOCAL_LastGcTime = gc_time;
+  LOCAL_LastSSTime = ss_time;
   tnow = MkIntegerTerm(now);
   tinterval = MkIntegerTerm(interval);
   return( Yap_unify_constant(ARG1, tnow) && 
@@ -3927,18 +3927,18 @@ p_unlock_system( USES_REGS1 )
 static Int
 p_enterundefp( USES_REGS1 )
 {
-  if (DoingUndefp) {
+  if (LOCAL_DoingUndefp) {
     return FALSE;
   }
-  DoingUndefp = TRUE;
+  LOCAL_DoingUndefp = TRUE;
   return TRUE;
 }
 
 static Int
 p_exitundefp( USES_REGS1 )
 {
-  if (DoingUndefp) {
-    DoingUndefp = FALSE;
+  if (LOCAL_DoingUndefp) {
+    LOCAL_DoingUndefp = FALSE;
     return TRUE;
   }
   return FALSE;

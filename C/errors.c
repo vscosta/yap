@@ -118,15 +118,15 @@ DumpActiveGoals ( USES_REGS1 )
 	    fprintf(stderr,"Active ancestors:\n");
 	  if (pe->ModuleOfPred) mod = pe->ModuleOfPred;
 	  Yap_DebugPlWrite (mod);
-	  Yap_DebugPutc (Yap_c_error_stream,':');
+	  Yap_DebugPutc (LOCAL_c_error_stream,':');
 	  if (pe->ArityOfPE == 0) {
 	    Yap_DebugPlWrite (MkAtomTerm ((Atom)f));
 	  } else {
 	    Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	    Yap_DebugPutc (Yap_c_error_stream,'/');
+	    Yap_DebugPutc (LOCAL_c_error_stream,'/');
 	    Yap_DebugPlWrite (MkIntTerm (ArityOfFunctor (f)));
 	  }
-	  Yap_DebugPutc (Yap_c_error_stream,'\n');
+	  Yap_DebugPutc (LOCAL_c_error_stream,'\n');
 	} else {
 	  UNLOCK(pe->PELock);
 	}
@@ -152,21 +152,21 @@ DumpActiveGoals ( USES_REGS1 )
 	  mod = pe->ModuleOfPred;
 	else mod = TermProlog;
 	Yap_DebugPlWrite (mod);
-	Yap_DebugPutc (Yap_c_error_stream,':');
+	Yap_DebugPutc (LOCAL_c_error_stream,':');
 	if (pe->ArityOfPE == 0) {
 	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor(f)));
 	} else {
 	  Int i = 0, arity = pe->ArityOfPE;
 	  Term *args = &(b_ptr->cp_a1);
 	  Yap_DebugPlWrite (MkAtomTerm (NameOfFunctor (f)));
-	  Yap_DebugPutc (Yap_c_error_stream,'(');
+	  Yap_DebugPutc (LOCAL_c_error_stream,'(');
 	  for (i= 0; i < arity; i++) {
-	    if (i > 0) Yap_DebugPutc (Yap_c_error_stream,',');
+	    if (i > 0) Yap_DebugPutc (LOCAL_c_error_stream,',');
 	    Yap_DebugPlWrite(args[i]);
 	  }
-	  Yap_DebugPutc (Yap_c_error_stream,')');
+	  Yap_DebugPutc (LOCAL_c_error_stream,')');
 	}
-	Yap_DebugPutc (Yap_c_error_stream,'\n');
+	Yap_DebugPutc (LOCAL_c_error_stream,'\n');
       }
       UNLOCK(pe->PELock);
       b_ptr = b_ptr->cp_b;
@@ -293,7 +293,7 @@ dump_stack( USES_REGS1 )
     fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
     fprintf (stderr,"%%    %luKB of Local Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
     fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
-    fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)GcCalls);
+    fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)LOCAL_GcCalls);
 #if LOW_LEVEL_TRACER
     {
       extern long long vsc_count;
@@ -396,7 +396,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     where = TermNil;
 #if DEBUG_STRICT
   if (Yap_heap_regs && !(Yap_PrologMode & BootMode)) 
-    fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)ActiveSignals,Yap_PrologMode,format);
+    fprintf(stderr,"***** Processing Error %d (%lx,%x) %s***\n", type, (unsigned long int)LOCAL_ActiveSignals,Yap_PrologMode,format);
   else
     fprintf(stderr,"***** Processing Error %d (%x) %s***\n", type,Yap_PrologMode,format);
 #endif
@@ -530,27 +530,27 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
     break;
   case CALL_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    ReductionsCounterOn = FALSE;
-    PredEntriesCounterOn = FALSE;
-    RetriesCounterOn = FALSE;
+    LOCAL_ReductionsCounterOn = FALSE;
+    LOCAL_PredEntriesCounterOn = FALSE;
+    LOCAL_RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
     return(P);
   case PRED_ENTRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    ReductionsCounterOn = FALSE;
-    PredEntriesCounterOn = FALSE;
-    RetriesCounterOn = FALSE;
+    LOCAL_ReductionsCounterOn = FALSE;
+    LOCAL_PredEntriesCounterOn = FALSE;
+    LOCAL_RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomCallAndRetryCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
     return(P);
   case RETRY_COUNTER_UNDERFLOW:
     /* Do a long jump */
-    ReductionsCounterOn = FALSE;
-    PredEntriesCounterOn = FALSE;
-    RetriesCounterOn = FALSE;
+    LOCAL_ReductionsCounterOn = FALSE;
+    LOCAL_PredEntriesCounterOn = FALSE;
+    LOCAL_RetriesCounterOn = FALSE;
     Yap_JumpToEnv(MkAtomTerm(AtomRetryCounter));
     P = (yamop *)FAILCODE;
     Yap_PrologMode &= ~InErrorMode;
@@ -1859,21 +1859,21 @@ E);
   }
   if (serious) {
     /* disable active signals at this point */
-    ActiveSignals = 0;
+    LOCAL_ActiveSignals = 0;
     CreepFlag = CalculateStackGap();
     Yap_PrologMode &= ~InErrorMode;
-    LOCK(SignalLock);
+    LOCK(LOCAL_SignalLock);
     /* we might be in the middle of a critical region */
-    if (Yap_InterruptsDisabled) {
-      Yap_InterruptsDisabled = 0;
-      UncaughtThrow = TRUE;
-      UNLOCK(SignalLock);
+    if (LOCAL_InterruptsDisabled) {
+      LOCAL_InterruptsDisabled = 0;
+      LOCAL_UncaughtThrow = TRUE;
+      UNLOCK(LOCAL_SignalLock);
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
 #endif
       siglongjmp(Yap_RestartEnv,1);      
     }
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     /* wait if we we are in user code,
        it's up to her to decide */
 

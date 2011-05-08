@@ -40,7 +40,7 @@ static Term
 Eval(Term t USES_REGS)
 {
   if (IsVarTerm(t)) {
-    ArithError = TRUE;
+    LOCAL_ArithError = TRUE;
     return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;
@@ -151,7 +151,7 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   CACHE_REGS
   va_list ap;
 
-  ArithError = TRUE;
+  LOCAL_ArithError = TRUE;
   Yap_Error_TYPE = type;
   Yap_Error_Term = where;
   if (!Yap_ErrorMessage)

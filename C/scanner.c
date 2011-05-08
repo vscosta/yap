@@ -173,16 +173,16 @@ AllocScannerMemory(unsigned int size)
   CACHE_REGS
   char *AuxSpScan;
 
-  AuxSpScan = ScannerStack;
+  AuxSpScan = LOCAL_ScannerStack;
   size = AdjustSize(size);
-  if (ScannerExtraBlocks) {
+  if (LOCAL_ScannerExtraBlocks) {
     struct scanner_extra_alloc *ptr;
 
     if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
       return NULL;
     }
-    ptr->next = ScannerExtraBlocks;
-    ScannerExtraBlocks = ptr;
+    ptr->next = LOCAL_ScannerExtraBlocks;
+    LOCAL_ScannerExtraBlocks = ptr;
     return (char *)(ptr+1);
   } else if (Yap_TrailTop <= AuxSpScan+size) {
     UInt alloc_size = sizeof(CELL) * K16;
@@ -195,12 +195,12 @@ AllocScannerMemory(unsigned int size)
       if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
 	return NULL;
       }
-      ptr->next = ScannerExtraBlocks;
-      ScannerExtraBlocks = ptr;
+      ptr->next = LOCAL_ScannerExtraBlocks;
+      LOCAL_ScannerExtraBlocks = ptr;
       return (char *)(ptr+1);
     }
   }
-  ScannerStack = AuxSpScan+size;
+  LOCAL_ScannerStack = AuxSpScan+size;
   return AuxSpScan;
 }
 
@@ -208,12 +208,12 @@ static void
 PopScannerMemory(char *block, unsigned int size)
 {
   CACHE_REGS
-  if (block == ScannerStack-size) {
-    ScannerStack -= size;
-  } else if (block == (char *)(ScannerExtraBlocks+1)) {
-    struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  if (block == LOCAL_ScannerStack-size) {
+    LOCAL_ScannerStack -= size;
+  } else if (block == (char *)(LOCAL_ScannerExtraBlocks+1)) {
+    struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
 
-    ScannerExtraBlocks = ptr->next;
+    LOCAL_ScannerExtraBlocks = ptr->next;
     free(ptr);
   }
 }
@@ -728,8 +728,8 @@ Yap_scan_num(IOSTREAM *inp)
   char *ptr;
 
   Yap_ErrorMessage = NULL;
-  ScannerStack = (char *)TR;
-  ScannerExtraBlocks = NULL;
+  LOCAL_ScannerStack = (char *)TR;
+  LOCAL_ScannerExtraBlocks = NULL;
   if (!(ptr = AllocScannerMemory(4096))) {
     Yap_ErrorMessage = "Trail Overflow";
     Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
@@ -805,8 +805,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
   Yap_VarTable = NULL;
   Yap_AnonVarTable = NULL;
   Yap_eot_before_eof = FALSE;
-  ScannerStack = (char *)TR;
-  ScannerExtraBlocks = NULL;
+  LOCAL_ScannerStack = (char *)TR;
+  LOCAL_ScannerExtraBlocks = NULL;
   l = NULL;
   p = NULL;			/* Just to make lint happy */
   ch = getchr(inp_stream);
@@ -814,7 +814,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
-  StartLine = inp_stream->posbuf.lineno;
+  LOCAL_StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
     int quote, isvar;
@@ -1280,7 +1280,7 @@ void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
   CACHE_REGS
-  struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
   while (ptr) {
     struct scanner_extra_alloc *next = ptr->next;
     free(ptr);

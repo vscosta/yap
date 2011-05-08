@@ -1201,14 +1201,14 @@ InitFirstWorkerThreadHandle(void)
 {
 #ifdef  THREADS
   CACHE_REGS
-  ThreadHandle.id = 0;
-  ThreadHandle.in_use = TRUE;
-  ThreadHandle.default_yaam_regs = 
+  LOCAL_ThreadHandle.id = 0;
+  LOCAL_ThreadHandle.in_use = TRUE;
+  LOCAL_ThreadHandle.default_yaam_regs = 
     &Yap_standard_regs;
-  ThreadHandle.pthread_handle = pthread_self();
+  LOCAL_ThreadHandle.pthread_handle = pthread_self();
   pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock, NULL);
   pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock_status, NULL);
-  ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
+  LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
 #endif
 }
 
@@ -1224,9 +1224,9 @@ void
 Yap_CloseScratchPad(void)
 {
   CACHE_REGS
-  Yap_FreeCodeSpace(ScratchPad.ptr);
-  ScratchPad.sz = SCRATCH_START_SIZE;
-  ScratchPad.msz = SCRATCH_START_SIZE;
+  Yap_FreeCodeSpace(LOCAL_ScratchPad.ptr);
+  LOCAL_ScratchPad.sz = SCRATCH_START_SIZE;
+  LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
 }
 
 #include "iglobals.h"

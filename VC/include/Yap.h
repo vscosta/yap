@@ -931,7 +931,7 @@ typedef struct opcode_tab_entry {
 extern int      optimizer_on;
 
 /******************* the line for the current parse **********************/
-extern int      StartLine;
+extern int      LOCAL_StartLine;
 extern int      StartCh;
 extern int      CurFileNo;
 

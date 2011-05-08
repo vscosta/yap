@@ -573,8 +573,8 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae USES_REGS)
 #if THREADS
   p->owner_id = worker_id;
 #endif
-  p->NextAE = DynamicArrays;
-  DynamicArrays = p;
+  p->NextAE = LOCAL_DynamicArrays;
+  LOCAL_DynamicArrays = p;
   InitNamedArray(p, dim PASS_REGS);
 
 }
@@ -632,8 +632,8 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
     p->KindOfPE = ArrayProperty;
     p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
-    p->NextAE = StaticArrays;
-    StaticArrays = p;
+    p->NextAE = LOCAL_StaticArrays;
+    LOCAL_StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
   p->ArrayEArity = -dim;

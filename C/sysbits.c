@@ -1671,7 +1671,7 @@ HandleSIGINT (int sig)
     return;
   }
 #endif
-  if (Yap_InterruptsDisabled) {
+  if (LOCAL_InterruptsDisabled) {
     return;
   }
   if (Yap_PrologMode & (CritMode|ConsoleGetcMode)) {
@@ -1786,7 +1786,7 @@ ReceiveSignal (int s)
 #if (_MSC_VER || defined(__MINGW32__))
 static BOOL WINAPI
 MSCHandleSignal(DWORD dwCtrlType) {
-  if (Yap_InterruptsDisabled) {
+  if (LOCAL_InterruptsDisabled) {
     return FALSE;
   }
   switch(dwCtrlType) {
@@ -2478,14 +2478,14 @@ p_alarm( USES_REGS1 )
   i1 = IntegerOfTerm(t);
   i2 = IntegerOfTerm(t2);
   if (i1 == 0 && i2 == 0) {
-    LOCK(SignalLock);
-    if (ActiveSignals & YAP_ALARM_SIGNAL) {
-      ActiveSignals &= ~YAP_ALARM_SIGNAL;
-      if (!ActiveSignals) {
+    LOCK(LOCAL_SignalLock);
+    if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
+      LOCAL_ActiveSignals &= ~YAP_ALARM_SIGNAL;
+      if (!LOCAL_ActiveSignals) {
 	CreepFlag = CalculateStackGap();
       }
     }
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
   }    
 #if _MSC_VER || defined(__MINGW32__)
   {
@@ -2758,146 +2758,146 @@ Yap_ReInitWallTime (void)
 static Int
 p_first_signal( USES_REGS1 )
 {
-  LOCK(SignalLock);
+  LOCK(LOCAL_SignalLock);
 #ifdef THREADS
   pthread_mutex_lock(&(MY_ThreadHandle.tlock));
 #endif  
   /* always do wakeups first, because you don't want to keep the
      non-backtrackable variable bad */
-  if (ActiveSignals & YAP_WAKEUP_SIGNAL) {
-    ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_WAKEUP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_WAKEUP_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigWakeUp));
   }
-  if (ActiveSignals & YAP_ITI_SIGNAL) {
-    ActiveSignals &= ~YAP_ITI_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_ITI_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_ITI_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigIti));
   }
-  if (ActiveSignals & YAP_INT_SIGNAL) {
-    ActiveSignals &= ~YAP_INT_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_INT_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigInt));
   }
-  if (ActiveSignals & YAP_USR2_SIGNAL) {
-    ActiveSignals &= ~YAP_USR2_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_USR2_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_USR2_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr2));
   }
-  if (ActiveSignals & YAP_USR1_SIGNAL) {
-    ActiveSignals &= ~YAP_USR1_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_USR1_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_USR1_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigUsr1));
   }
-  if (ActiveSignals & YAP_PIPE_SIGNAL) {
-    ActiveSignals &= ~YAP_PIPE_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_PIPE_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_PIPE_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigPipe));
   }
-  if (ActiveSignals & YAP_HUP_SIGNAL) {
-    ActiveSignals &= ~YAP_HUP_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_HUP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_HUP_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigHup));
   }
-  if (ActiveSignals & YAP_ALARM_SIGNAL) {
-    ActiveSignals &= ~YAP_ALARM_SIGNAL;
-    UNLOCK(SignalLock);
+  if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_ALARM_SIGNAL;
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigAlarm));
   }
-  if (ActiveSignals & YAP_VTALARM_SIGNAL) {
-    ActiveSignals &= ~YAP_VTALARM_SIGNAL;
-    UNLOCK(SignalLock);
+  if (LOCAL_ActiveSignals & YAP_VTALARM_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_VTALARM_SIGNAL;
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigVTAlarm));
   }
-  if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
-    ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
+  if (LOCAL_ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~(YAP_CREEP_SIGNAL|YAP_DELAY_CREEP_SIGNAL);
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigDelayCreep));
   }
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
-    ActiveSignals &= ~YAP_CREEP_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigCreep));
   }
-  if (ActiveSignals & YAP_TRACE_SIGNAL) {
-    ActiveSignals &= ~YAP_TRACE_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_TRACE_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_TRACE_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigTrace));
   }
-  if (ActiveSignals & YAP_DEBUG_SIGNAL) {
-    ActiveSignals &= ~YAP_DEBUG_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_DEBUG_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_DEBUG_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigDebug));
   }
-  if (ActiveSignals & YAP_BREAK_SIGNAL) {
-    ActiveSignals &= ~YAP_BREAK_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_BREAK_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_BREAK_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigBreak));
   }
-  if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
-    ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_STACK_DUMP_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStackDump));
   }
-  if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
-    ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_STATISTICS_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_STATISTICS_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomSigStatistics));
   }
-  if (ActiveSignals & YAP_FAIL_SIGNAL) {
-    ActiveSignals &= ~YAP_FAIL_SIGNAL;
+  if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
+    LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 #ifdef THREADS
     pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return Yap_unify(ARG1, MkAtomTerm(AtomFail));
   }
 #ifdef THREADS
   pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
 #endif  
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   return FALSE;
 }
 
@@ -2905,49 +2905,49 @@ static Int
 p_continue_signals( USES_REGS1 )
 {
   /* hack to force the signal anew */
-  if (ActiveSignals & YAP_ITI_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_ITI_SIGNAL) {
     Yap_signal(YAP_ITI_SIGNAL);
   }
-  if (ActiveSignals & YAP_INT_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
     Yap_signal(YAP_INT_SIGNAL);
   }
-  if (ActiveSignals & YAP_USR2_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_USR2_SIGNAL) {
     Yap_signal(YAP_USR2_SIGNAL);
   }
-  if (ActiveSignals & YAP_USR1_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_USR1_SIGNAL) {
     Yap_signal(YAP_USR1_SIGNAL);
   }
-  if (ActiveSignals & YAP_HUP_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_HUP_SIGNAL) {
     Yap_signal(YAP_HUP_SIGNAL);
   }
-  if (ActiveSignals & YAP_ALARM_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_ALARM_SIGNAL) {
     Yap_signal(YAP_ALARM_SIGNAL);
   }
-  if (ActiveSignals & YAP_VTALARM_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_VTALARM_SIGNAL) {
     Yap_signal(YAP_VTALARM_SIGNAL);
   }
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
-  if (ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_DELAY_CREEP_SIGNAL) {
     Yap_signal(YAP_DELAY_CREEP_SIGNAL|YAP_CREEP_SIGNAL);
   }
-  if (ActiveSignals & YAP_TRACE_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_TRACE_SIGNAL) {
     Yap_signal(YAP_TRACE_SIGNAL);
   }
-  if (ActiveSignals & YAP_DEBUG_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_DEBUG_SIGNAL) {
     Yap_signal(YAP_DEBUG_SIGNAL);
   }
-  if (ActiveSignals & YAP_BREAK_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_BREAK_SIGNAL) {
     Yap_signal(YAP_BREAK_SIGNAL);
   }
-  if (ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_STACK_DUMP_SIGNAL) {
     Yap_signal(YAP_STACK_DUMP_SIGNAL);
   }
-  if (ActiveSignals & YAP_STATISTICS_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_STATISTICS_SIGNAL) {
     Yap_signal(YAP_STATISTICS_SIGNAL);
   }
-  if (ActiveSignals & YAP_FAIL_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
 #ifdef THREADS
@@ -2992,24 +2992,24 @@ p_win32( USES_REGS1 )
 static Int
 p_enable_interrupts( USES_REGS1 )
 {
-  LOCK(SignalLock);
-  Yap_InterruptsDisabled--;
-  if (ActiveSignals && !Yap_InterruptsDisabled) {
+  LOCK(LOCAL_SignalLock);
+  LOCAL_InterruptsDisabled--;
+  if (LOCAL_ActiveSignals && !LOCAL_InterruptsDisabled) {
     CreepFlag = Unsigned(LCL0);
   }
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 
 static Int
 p_disable_interrupts( USES_REGS1 )
 {
-  LOCK(SignalLock);
-  Yap_InterruptsDisabled++;
-  if (ActiveSignals) {
+  LOCK(LOCAL_SignalLock);
+  LOCAL_InterruptsDisabled++;
+  if (LOCAL_ActiveSignals) {
     CreepFlag = CalculateStackGap();
   }
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   return TRUE;
 }
 

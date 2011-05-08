@@ -65,13 +65,13 @@ void make_root_choice_point(void) {
       this is tricky, we need to get the B from some other stack
       and convert back to our own stack;
      */
-    OldLCL0 = LCL0;
+    LOCAL_OldLCL0 = LCL0;
     LCL0 = FOREIGN_ThreadHandle(0).current_yaam_regs->LCL0_;
     imageB = Get_Yap_root_cp();
     /* we know B */
     B->cp_tr = TR = 
-      (tr_fr_ptr)((CELL)(imageB->cp_tr)+((CELL)OldLCL0-(CELL)LCL0));
-    LCL0 = OldLCL0;
+      (tr_fr_ptr)((CELL)(imageB->cp_tr)+((CELL)LOCAL_OldLCL0-(CELL)LCL0));
+    LCL0 = LOCAL_OldLCL0;
   }
   B->cp_h = H0;
   B->cp_ap = GETWORK;

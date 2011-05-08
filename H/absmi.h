@@ -734,7 +734,7 @@ Macros to check the limits of stacks
                  ENDP(pt0)
 
 #if LOW_LEVEL_TRACER
-#define COUNT_CPS() Yap_total_choicepoints++
+#define COUNT_CPS() LOCAL_total_choicepoints++
 #else
 #define COUNT_CPS()
 #endif

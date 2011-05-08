@@ -481,14 +481,14 @@ flt_cmp(Float dif)
 static inline Int
 a_cmp(Term t1, Term t2 USES_REGS)
 {
-  ArithError = FALSE;
+  LOCAL_ArithError = FALSE;
   if (IsVarTerm(t1)) {
-    ArithError = TRUE;
+    LOCAL_ArithError = TRUE;
     Yap_Error(INSTANTIATION_ERROR, t1, "=:=/2");
     return FALSE;
   }
   if (IsVarTerm(t2)) {
-    ArithError = TRUE;
+    LOCAL_ArithError = TRUE;
     Yap_Error(INSTANTIATION_ERROR, t2, "=:=/2");
     return FALSE;
   }
@@ -516,7 +516,7 @@ a_cmp(Term t1, Term t2 USES_REGS)
 	Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
 	Yap_Error_Term = t2;
 	Yap_ErrorMessage = "trying to evaluate nan";
-	ArithError = TRUE;
+	LOCAL_ArithError = TRUE;
       }
 #endif      
       return flt_cmp(i1-f2);
@@ -534,7 +534,7 @@ a_cmp(Term t1, Term t2 USES_REGS)
       Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
       Yap_Error_Term = t1;
       Yap_ErrorMessage = "trying to evaluate nan";
-      ArithError = TRUE;
+      LOCAL_ArithError = TRUE;
     }
 #endif      
     t2 = Yap_Eval(t2);
@@ -553,7 +553,7 @@ a_cmp(Term t1, Term t2 USES_REGS)
 	Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
 	Yap_Error_Term = t2;
 	Yap_ErrorMessage = "trying to evaluate nan";
-	ArithError = TRUE;
+	LOCAL_ArithError = TRUE;
       }
 #endif      
       return flt_cmp(f1-f2);
@@ -578,7 +578,7 @@ a_cmp(Term t1, Term t2 USES_REGS)
 	  Yap_Error_TYPE = EVALUATION_ERROR_UNDEFINED;
 	  Yap_Error_Term = t2;
 	  Yap_ErrorMessage = "trying to evaluate nan";
-	  ArithError = TRUE;
+	  LOCAL_ArithError = TRUE;
 	}
 #endif      
 	return Yap_gmp_cmp_big_float(t1, f2);
@@ -603,7 +603,7 @@ p_acomp( USES_REGS1 )
   Int out;
 
   out = a_cmp(t1, t2 PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out;
 }
 
@@ -637,7 +637,7 @@ a_eq(Term t1, Term t2)
     }
   }
   out = a_cmp(t1,t2 PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out == 0;
 }
 
@@ -646,7 +646,7 @@ a_dif(Term t1, Term t2)
 {
   CACHE_REGS
   Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out != 0;
 }
 
@@ -655,7 +655,7 @@ a_gt(Term t1, Term t2)
 {				/* A > B		 */
   CACHE_REGS
   Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out > 0;
 }
 
@@ -664,7 +664,7 @@ a_ge(Term t1, Term t2)
 {				/* A >= B		 */
   CACHE_REGS
   Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out >= 0;
 }
 
@@ -673,7 +673,7 @@ a_lt(Term t1, Term t2)
 {				/* A < B       */
   CACHE_REGS
   Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out < 0;
 }
 
@@ -682,7 +682,7 @@ a_le(Term t1, Term t2)
 {				/* A <= B */
   CACHE_REGS
   Int out = a_cmp(Deref(t1),Deref(t2) PASS_REGS);
-  if (ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
+  if (LOCAL_ArithError) { Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage); return FALSE; }
   return out <= 0;
 }
 
