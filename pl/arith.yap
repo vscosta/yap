@@ -92,7 +92,7 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	nonvar(Y),		% Don't rewrite variables
 	!,
 	(
-		number(Y),
+		number(Y) ->
 		P = ( X = Y); % This case reduces to an unification
 		'$expand_expr'(Y, P0, X0),
 		'$drop_is'(X0, X, P0, P)
