@@ -1,0 +1,34 @@
+
+type rank(node, int, float).
+type calcRank(node, int, sum float).
+type persistent numPages(node, int).
+type numLinks(node, sum int).
+
+const damping = 0.85.
+const num_iterations = 4.
+% extern float to_float(int).
+% extern float float_abs(float).
+
+rank(A, 0, 1.0 / to_float(T)) :- numPages(A, T).
+rank(A, I, V) :-
+	calcRank(A, I, T),
+	Before = I - 1,
+	rank(A, Before, VOld),
+	V = damping + (1.0 - damping) * T,
+	I =< num_iterations.
+
+% //float_abs((damping + (1.0 - damping) * T) - VOld) > 0.001.
+
+calcRank(A, I + 1, O / to_float(C)) :-
+	edge(B, A),
+	rank(B, I, O),
+	numLinks(B, C).
+
+numLinks(A, 1) :-
+	edge(A,B).
+
+numPages(A, 1) :-
+	edge(B,A).
+
+
+

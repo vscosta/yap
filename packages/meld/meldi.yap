@@ -7,6 +7,7 @@
 	 first/2,
 	 min/3,
 	 max/3,
+	 sum/3,
 	 minval/3,
 	 maxval/3
 	]).
@@ -113,6 +114,16 @@ min(Skel,_,Goal) :-
 	clean(Skel),
 	cache(Goal),
 	push(Goal).
+
+sum(Skel,Arg,Goal) :-
+	copy_term(Skel, NGoal),
+	meld_program:Skel,
+	arg(Arg, Skel, A0),
+	delete(Skel),
+	arg(Arg, Goal, A),
+	AN is A0+A,
+	arg(Arg, NGoal, AN),
+	push(NGoal).
 
 clean(Skel) :-
 %	format('D~w~n',[Skel]),
@@ -221,6 +232,16 @@ delete_from_max(Goal) :-
 delete_from_max(Goal) :-
 	retract(meld_cache:Goal),
 	push(deleted(Goal)).
+
+delete_from_sum(Skel,Arg,Goal) :-
+	copy_term(Skel, NGoal),
+	meld_program:Skel,
+	arg(Arg, Skel, A0),
+	delete(Skel),
+	arg(Arg, Goal, A),
+	AN is A0-A,
+	arg(Arg, NGoal, AN),
+	push(NGoal).
 
 new_max(VGoal,Arg) :-
 	arg(Arg, VGoal, A),

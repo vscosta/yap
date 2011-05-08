@@ -24,6 +24,8 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
+EXDIR=$(srcdir)/examples
+
 MELD_PROGRAMS= \
 	$(srcdir)/meldtd.yap \
 	$(srcdir)/meldc.yap \
@@ -31,11 +33,12 @@ MELD_PROGRAMS= \
 	$(srcdir)/meldp.yap
 
 MELD_EXAMPLES= \
-	$(srcdir)/maxtemp.meld \
-	$(srcdir)/graph0.meld \
-	$(srcdir)/graph1.meld \
-	$(srcdir)/graph2.meld \
-	$(srcdir)/graph3.meld
+	$(EXDIR)/temperature/maxtemp.meld \
+	$(EXDIR)/temperature/graph0.meld \
+	$(EXDIR)/temperature/graph1.meld \
+	$(EXDIR)/temperature/graph2.meld \
+	$(EXDIR)/temperature/graph3.meld \
+	$(EXDIR)/pagerank/pagerank.meld \
 
 PROGRAMS= \
 	$(srcdir)/meld.yap \
