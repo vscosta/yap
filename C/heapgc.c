@@ -3282,7 +3282,7 @@ compact_heap( USES_REGS1 )
     fprintf(Yap_stderr,"%% Bad Dest (%lu): %p should be %p\n",
 	    (unsigned long int)LOCAL_GcCalls,
 	    dest,
-	    start_from);
+	    start_from-1);
   if (LOCAL_total_marked != found_marked)
     fprintf(Yap_stderr,"%% Upward (%lu): %lu total against %lu found\n",
 	    (unsigned long int)LOCAL_GcCalls,

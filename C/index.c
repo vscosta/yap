@@ -6656,6 +6656,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   CACHE_REGS
   CELL *s_reg = NULL;
   Term t = TermNil;
+  int blob_term = FALSE;
   yamop *start_pc = ipc;
   choiceptr b0 = NULL;
   yamop **jlbl = NULL;
@@ -6974,6 +6975,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
@@ -6993,6 +6995,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_list_nl:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
@@ -7013,6 +7016,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_on_arg_type:
       t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
@@ -7032,6 +7036,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_on_sub_arg_type:
       t = Deref(s_reg[ipc->u.sllll.s]);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.sllll.l4);
 	ipc = ipc->u.sllll.l4;
@@ -7051,6 +7056,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _if_not_then:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.clll.l3);
 	ipc = ipc->u.clll.l3;
@@ -7086,14 +7092,17 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _index_dbref:
       t = AbsAppl(s_reg-1);
+      blob_term = FALSE;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
       t = Yap_DoubleP_key(s_reg);
+      blob_term = TRUE;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
       t = Yap_IntP_key(s_reg);
+      blob_term = TRUE;
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -7114,8 +7123,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _expand_index:
     case _expand_clauses:
-      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
-      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      if (blob_term) { /* protect garbage collector */
+	XREGS[ap->ArityOfPE+1] = (CELL)&XREGS[ap->ArityOfPE+1];
+	XREGS[ap->ArityOfPE+2] = TermNil;
+      } else {
+	XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+	XREGS[ap->ArityOfPE+2] = t;
+      }
       XREGS[ap->ArityOfPE+3] = Terms[0];
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
@@ -7126,8 +7140,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       }
 #endif
       ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
-      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
-      t = XREGS[ap->ArityOfPE+2];
+      if (!blob_term) { /* protect garbage collector */
+	s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+	t = XREGS[ap->ArityOfPE+2];
+      }
+      blob_term = FALSE;
       Terms[0] = XREGS[ap->ArityOfPE+3];
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];
@@ -7151,15 +7168,22 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	break;
       }
     case _index_pred:
-      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
-      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      if (blob_term) { /* protect garbage collector */
+	XREGS[ap->ArityOfPE+1] = (CELL)&XREGS[ap->ArityOfPE+1];
+	XREGS[ap->ArityOfPE+2] = TermNil;
+      } else {
+	XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+	XREGS[ap->ArityOfPE+2] = t;
+      }
       XREGS[ap->ArityOfPE+3] = Terms[0];
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
       Yap_IPred(ap, 5, cp_pc);
       start_pc = ipc = ap->cs.p_code.TrueCodeOfPred;
-      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
-      t = XREGS[ap->ArityOfPE+2];
+      if (!blob_term) { /* protect garbage collector */
+	s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+	t = XREGS[ap->ArityOfPE+2];
+      }
       Terms[0] = XREGS[ap->ArityOfPE+3];
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];
