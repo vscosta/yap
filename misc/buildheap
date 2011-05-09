@@ -122,13 +122,13 @@ fetch_name(Global) :-
 	Global = "LOCAL->".
 fetch_name(Global) :-
 	globals(worker_init), !,
-	Global = "FOREIGN(wid)->".
+	Global = "REMOTE(wid)->".
 fetch_name(Global) :-
 	Global = "Yap_heap_regs->".
 
 fetch_name(Global,RField,_) :-
 	globals(worker_init), !,
-	append("FOREIGN(wid)->",RField,Global).
+	append("REMOTE(wid)->",RField,Global).
 fetch_name(Global,_,Global).
 
 % handle *field[4]

@@ -364,7 +364,7 @@ InitExStacks(int Trail, int Stack)
 
 #ifdef THREADS
   if (worker_id)
-    Yap_GlobalBase = (ADDR)MY_ThreadHandle.stack_address;
+    Yap_GlobalBase = (ADDR)LOCAL_ThreadHandle.stack_address;
 #endif
   Yap_TrailTop = Yap_GlobalBase + pm;
   Yap_LocalBase = Yap_GlobalBase + sa;
@@ -431,7 +431,7 @@ Yap_ExtendWorkSpace(Int s)
   if (nbp == NULL) 
     return FALSE;
 #if defined(THREADS)
-  MY_ThreadHandle.stack_address = (char *)nbp;
+  LOCAL_ThreadHandle.stack_address = (char *)nbp;
 #endif
   Yap_GlobalBase = (char *)nbp;
   return TRUE;

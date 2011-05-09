@@ -725,7 +725,7 @@ Yap_absmi(int inp)
   /* the registers are all set up, let's swap */
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (const void *)&absmi_regs);  
-  MY_ThreadHandle.current_yaam_regs = &absmi_regs;
+  LOCAL_ThreadHandle.current_yaam_regs = &absmi_regs;
   regcache = &absmi_regs;
 #else
   Yap_regp = &absmi_regs;

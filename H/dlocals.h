@@ -125,8 +125,7 @@
 #ifdef THREADS
 #define LOCAL_ThreadHandle LOCAL->thread_handle
 #define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
-#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
-#endif
+#endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
 #define LOCAL_optyap_data LOCAL->optyap_data
 #endif /* YAPOR || TABLING */

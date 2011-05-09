@@ -127,8 +127,7 @@ typedef struct worker_local {
 #ifdef THREADS
   struct thandle  thread_handle;
 #define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
-#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
-#endif
+#endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
   struct local_optyap_data  optyap_data;
 #endif /* YAPOR || TABLING */

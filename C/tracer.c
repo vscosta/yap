@@ -164,7 +164,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef THREADS
-  MY_ThreadHandle.thread_inst_count++;
+  LOCAL_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
   { choiceptr myB = B;

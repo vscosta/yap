@@ -2777,8 +2777,8 @@ YAP_Init(YAP_init_args *yap_init)
   }
 #if THREADS
   /* don't forget this is a thread */
-  MY_ThreadHandle.stack_address =  Yap_GlobalBase;
-  MY_ThreadHandle.ssize =  Trail+Stack;
+  LOCAL_ThreadHandle.stack_address =  Yap_GlobalBase;
+  LOCAL_ThreadHandle.ssize =  Trail+Stack;
 #endif
 #endif
   Yap_AllowGlobalExpansion = TRUE;

@@ -140,8 +140,7 @@ struct open_query_struct* _execution			LOCAL_execution			=NULL
 #ifdef THREADS
 struct thandle		thread_handle			LOCAL_ThreadHandle		InitThreadHandle(wid)
 #define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
-#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
-#endif
+#endif /* THREADS */
 
 #if defined(YAPOR) || defined(TABLING)
 struct local_optyap_data	optyap_data	LOCAL_optyap_data   Yap_init_local_optyap_data(wid)

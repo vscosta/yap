@@ -211,7 +211,7 @@ thread_run(void *widp)
   start_thread(myworker_id);
   regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
   do {
-    t = tgs[0] = Yap_PopTermFromDB(MY_ThreadHandle.tgoal);
+    t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
     if (t == 0) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -222,7 +222,7 @@ thread_run(void *widp)
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growstack(MY_ThreadHandle.tgoal->NOfCells*CellSize)) {
+	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
@@ -231,7 +231,7 @@ thread_run(void *widp)
     }
   } while (t == 0);
   FOREIGN_ThreadHandle(myworker_id).tgoal = NULL;
-  tgs[1] = MY_ThreadHandle.tdetach;
+  tgs[1] = LOCAL_ThreadHandle.tdetach;
   tgoal = Yap_MkApplTerm(FunctorThreadRun, 2, tgs);
   Yap_RunTopGoal(tgoal);
   thread_die(worker_id, FALSE);
@@ -343,15 +343,15 @@ p_thread_zombie_self( USES_REGS1 )
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return Yap_unify(MkIntegerTerm(-1), ARG1);
   DEBUG_TLOCK_ACCESS(4, worker_id);
-  pthread_mutex_lock(&(MY_ThreadHandle.tlock));
+  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock));
   if (LOCAL_ActiveSignals &= YAP_ITI_SIGNAL) {
     DEBUG_TLOCK_ACCESS(5, worker_id);
-    pthread_mutex_unlock(&(MY_ThreadHandle.tlock));
+    pthread_mutex_unlock(&(LOCAL_ThreadHandle.tlock));
     return FALSE;
   }
   //  fprintf(stderr," -- %d\n", worker_id); 
-  MY_ThreadHandle.in_use = FALSE;
-  MY_ThreadHandle.zombie = TRUE;
+  LOCAL_ThreadHandle.in_use = FALSE;
+  LOCAL_ThreadHandle.zombie = TRUE;
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -361,7 +361,7 @@ p_thread_status_lock( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return FALSE;
-  pthread_mutex_lock(&(MY_ThreadHandle.tlock_status));
+  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock_status));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -371,7 +371,7 @@ p_thread_status_unlock( USES_REGS1 )
   /* make sure the lock is available */
   if (pthread_getspecific(Yap_yaamregs_key) == NULL)
     return FALSE;
-  pthread_mutex_unlock(&(MY_ThreadHandle.tlock_status));
+  pthread_mutex_unlock(&(LOCAL_ThreadHandle.tlock_status));
   return Yap_unify(MkIntegerTerm(worker_id), ARG1);
 }
 
@@ -538,8 +538,8 @@ p_thread_detach( USES_REGS1 )
 static Int
 p_thread_detached( USES_REGS1 )
 {
-  if (MY_ThreadHandle.tdetach)
-    return Yap_unify(ARG1,MY_ThreadHandle.tdetach);
+  if (LOCAL_ThreadHandle.tdetach)
+    return Yap_unify(ARG1,LOCAL_ThreadHandle.tdetach);
   else
     return FALSE;
 }
@@ -766,13 +766,13 @@ p_thread_atexit( USES_REGS1 )
 {				/* '$thread_signal'(+P)	 */
   Term t;
 
-  if (!MY_ThreadHandle.texit ||
-      MY_ThreadHandle.texit->Entry == MkAtomTerm(AtomTrue)) {
+  if (!LOCAL_ThreadHandle.texit ||
+      LOCAL_ThreadHandle.texit->Entry == MkAtomTerm(AtomTrue)) {
     return FALSE;
   }
   do {
-    t = Yap_PopTermFromDB(MY_ThreadHandle.texit);
-    MY_ThreadHandle.texit = NULL;
+    t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
+    LOCAL_ThreadHandle.texit = NULL;
     if (t == 0) {
       if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
 	Yap_Error_TYPE = YAP_NO_ERROR;
@@ -783,7 +783,7 @@ p_thread_atexit( USES_REGS1 )
 	}
       } else {
 	Yap_Error_TYPE = YAP_NO_ERROR;
-	if (!Yap_growstack(MY_ThreadHandle.tgoal->NOfCells*CellSize)) {
+	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
 	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
@@ -791,7 +791,7 @@ p_thread_atexit( USES_REGS1 )
       }
     }
   } while (t == 0);
-  return Yap_unify(ARG1, t) && Yap_unify(ARG2, MY_ThreadHandle.texit_mod);
+  return Yap_unify(ARG1, t) && Yap_unify(ARG2, LOCAL_ThreadHandle.texit_mod);
 }
 
 
@@ -866,7 +866,7 @@ p_thread_runtime( USES_REGS1 )
 static Int 
 p_thread_self_lock( USES_REGS1 )
 {				/* '$thread_unlock'	 */
-  pthread_mutex_lock(&(MY_ThreadHandle.tlock));
+  pthread_mutex_lock(&(LOCAL_ThreadHandle.tlock));
   return Yap_unify(ARG1,MkIntegerTerm(worker_id));
 }
 

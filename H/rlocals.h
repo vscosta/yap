@@ -46,7 +46,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  FOREIGN(wid)->global_arena = TermToGlobalOrAtomAdjust(FOREIGN(wid)->global_arena);
+  REMOTE(wid)->global_arena = TermToGlobalOrAtomAdjust(REMOTE(wid)->global_arena);
 
 
 
@@ -64,12 +64,12 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 #ifdef  COROUTINING
-  FOREIGN(wid)->woken_goals = TermToGlobalAdjust(FOREIGN(wid)->woken_goals);
-  FOREIGN(wid)->atts_mutable_list = TermToGlobalAdjust(FOREIGN(wid)->atts_mutable_list);
+  REMOTE(wid)->woken_goals = TermToGlobalAdjust(REMOTE(wid)->woken_goals);
+  REMOTE(wid)->atts_mutable_list = TermToGlobalAdjust(REMOTE(wid)->atts_mutable_list);
 #endif
 
-  FOREIGN(wid)->gc_generation = TermToGlobalAdjust(FOREIGN(wid)->gc_generation);
-  FOREIGN(wid)->gc_phase = TermToGlobalAdjust(FOREIGN(wid)->gc_phase);
+  REMOTE(wid)->gc_generation = TermToGlobalAdjust(REMOTE(wid)->gc_generation);
+  REMOTE(wid)->gc_phase = TermToGlobalAdjust(REMOTE(wid)->gc_phase);
 
 
 
@@ -81,7 +81,7 @@ static void RestoreWorker(int wid USES_REGS) {
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(FOREIGN(wid)->signal_lock);
+  REINIT_LOCK(REMOTE(wid)->signal_lock);
 #endif
 
 
@@ -109,9 +109,9 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  FOREIGN(wid)->dynamic_arrays = PtoArrayEAdjust(FOREIGN(wid)->dynamic_arrays);
-  FOREIGN(wid)->static_arrays = PtoArraySAdjust(FOREIGN(wid)->static_arrays);
-  FOREIGN(wid)->global_variables = PtoGlobalEAdjust(FOREIGN(wid)->global_variables);
+  REMOTE(wid)->dynamic_arrays = PtoArrayEAdjust(REMOTE(wid)->dynamic_arrays);
+  REMOTE(wid)->static_arrays = PtoArraySAdjust(REMOTE(wid)->static_arrays);
+  REMOTE(wid)->global_variables = PtoGlobalEAdjust(REMOTE(wid)->global_variables);
 
 
 
@@ -125,8 +125,7 @@ static void RestoreWorker(int wid USES_REGS) {
 #ifdef THREADS
 
 #define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
-#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
-#endif
+#endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
 
 #endif /* YAPOR || TABLING */
