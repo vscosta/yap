@@ -124,10 +124,17 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #ifdef THREADS
 
-#define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
 #endif /* THREADS */
 #if defined(YAPOR) || defined(TABLING)
 
 #endif /* YAPOR || TABLING */
+
+#define REMOTE_ThreadHandle(wid)     (REMOTE(wid)->thread_handle)
+#define REMOTE_c_input_stream(wid)   (REMOTE(wid)->c_input_stream)
+#define REMOTE_c_output_stream(wid)  (REMOTE(wid)->c_output_stream)
+#define REMOTE_c_error_stream(wid)   (REMOTE(wid)->c_error_stream)
+#define REMOTE_ActiveSignals(wid)    (REMOTE(wid)->active_signals)
+#define REMOTE_SignalLock(wid)       (REMOTE(wid)->signal_lock)
+#define REMOTE_ScratchPad(wid)       (REMOTE(wid)->scratchpad)
 
 }

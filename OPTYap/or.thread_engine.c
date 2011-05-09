@@ -66,7 +66,7 @@ void make_root_choice_point(void) {
       and convert back to our own stack;
      */
     LOCAL_OldLCL0 = LCL0;
-    LCL0 = FOREIGN_ThreadHandle(0).current_yaam_regs->LCL0_;
+    LCL0 = REMOTE_ThreadHandle(0).current_yaam_regs->LCL0_;
     imageB = Get_Yap_root_cp();
     /* we know B */
     B->cp_tr = TR = 

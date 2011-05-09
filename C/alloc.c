@@ -398,10 +398,10 @@ Yap_InitExStacks(int Trail, int Stack)
 void
 Yap_KillStacks(int wid)
 {
-  ADDR gb = FOREIGN_ThreadHandle(wid).stack_address;
+  ADDR gb = REMOTE_ThreadHandle(wid).stack_address;
   if (gb) {
     free(gb);
-    FOREIGN_ThreadHandle(wid).stack_address = NULL;
+    REMOTE_ThreadHandle(wid).stack_address = NULL;
   }
 }
 #else

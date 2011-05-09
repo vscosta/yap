@@ -190,15 +190,12 @@ extern struct global_data Yap_Global;
 
 #if defined(THREADS)
 extern struct worker_local *Yap_local[MAX_THREADS];
-#define FOREIGN(wid)       (Yap_local[wid])
 #define REMOTE(wid)        (Yap_local[wid])
 #elif defined(YAPOR)
 extern struct worker_local *Yap_local;
-#define FOREIGN(wid)       (Yap_local + wid)
 #define REMOTE(wid)        (Yap_local + wid)
 #else /* !THREADS && !YAPOR */
 extern struct worker_local Yap_local;
-#define FOREIGN(wid)       (&Yap_local)
 #define REMOTE(wid)        (&Yap_local)
 #endif
 

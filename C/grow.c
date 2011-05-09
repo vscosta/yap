@@ -245,11 +245,11 @@ worker_p_binding(int worker_p, CELL *aux_ptr)
 {
   CACHE_REGS
   if (aux_ptr > H) {
-    CELL reg = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->LCL0_[aux_ptr-LCL0];
+    CELL reg = REMOTE_ThreadHandle(worker_p).current_yaam_regs->LCL0_[aux_ptr-LCL0];
     reg = AdjustGlobTerm(reg PASS_REGS);
     return reg;
   } else {
-    CELL reg = FOREIGN_ThreadHandle(worker_p).current_yaam_regs-> H0_[aux_ptr-H0];
+    CELL reg = REMOTE_ThreadHandle(worker_p).current_yaam_regs-> H0_[aux_ptr-H0];
     reg = AdjustGlobTerm(reg PASS_REGS);
     return reg;
   }
@@ -1845,36 +1845,36 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   Int size;
 
   /* make sure both stacks have same size */
-  Int p_size = FOREIGN_ThreadHandle(worker_p).ssize+FOREIGN_ThreadHandle(worker_p).tsize;
-  Int q_size = FOREIGN_ThreadHandle(worker_q).ssize+FOREIGN_ThreadHandle(worker_q).tsize;
+  Int p_size = REMOTE_ThreadHandle(worker_p).ssize+REMOTE_ThreadHandle(worker_p).tsize;
+  Int q_size = REMOTE_ThreadHandle(worker_q).ssize+REMOTE_ThreadHandle(worker_q).tsize;
   if (p_size != q_size) {
-    if (!(FOREIGN_ThreadHandle(worker_q).stack_address = realloc(FOREIGN_ThreadHandle(worker_q).stack_address,p_size*K1))) {
+    if (!(REMOTE_ThreadHandle(worker_q).stack_address = realloc(REMOTE_ThreadHandle(worker_q).stack_address,p_size*K1))) {
       exit(1);
     }
   }
-  FOREIGN_ThreadHandle(worker_q).ssize = FOREIGN_ThreadHandle(worker_p).ssize;
-  FOREIGN_ThreadHandle(worker_q).tsize = FOREIGN_ThreadHandle(worker_p).tsize;
+  REMOTE_ThreadHandle(worker_q).ssize = REMOTE_ThreadHandle(worker_p).ssize;
+  REMOTE_ThreadHandle(worker_q).tsize = REMOTE_ThreadHandle(worker_p).tsize;
   /* compute offset indicators */
   Yap_GlobalBase = Yap_thread_gl[worker_p].global_base;
   Yap_LocalBase = Yap_thread_gl[worker_p].local_base;
   Yap_TrailBase = Yap_thread_gl[worker_p].trail_base;
   Yap_TrailTop = Yap_thread_gl[worker_p].trail_top;
-  size = FOREIGN_ThreadHandle(worker_q).stack_address-FOREIGN_ThreadHandle(worker_p).stack_address;
+  size = REMOTE_ThreadHandle(worker_q).stack_address-REMOTE_ThreadHandle(worker_p).stack_address;
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GSplit = NULL;
-  H = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->H_;
-  H0 = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->H0_;
-  B = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->B_;
-  ENV = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->ENV_;
-  YENV = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->YENV_;
-  ASP = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->ASP_;
-  TR = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->TR_;
+  H = REMOTE_ThreadHandle(worker_p).current_yaam_regs->H_;
+  H0 = REMOTE_ThreadHandle(worker_p).current_yaam_regs->H0_;
+  B = REMOTE_ThreadHandle(worker_p).current_yaam_regs->B_;
+  ENV = REMOTE_ThreadHandle(worker_p).current_yaam_regs->ENV_;
+  YENV = REMOTE_ThreadHandle(worker_p).current_yaam_regs->YENV_;
+  ASP = REMOTE_ThreadHandle(worker_p).current_yaam_regs->ASP_;
+  TR = REMOTE_ThreadHandle(worker_p).current_yaam_regs->TR_;
   if (ASP > CellPtr(B))
     ASP = CellPtr(B);
-  LCL0 = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->LCL0_;
+  LCL0 = REMOTE_ThreadHandle(worker_p).current_yaam_regs->LCL0_;
 #ifdef CUT_C
-  Yap_REGS.CUT_C_TOP = FOREIGN_ThreadHandle(worker_p).current_yaam_regs->CUT_C_TOP;
+  Yap_REGS.CUT_C_TOP = REMOTE_ThreadHandle(worker_p).current_yaam_regs->CUT_C_TOP;
 #endif
   LOCAL_DynamicArrays = NULL;
   LOCAL_StaticArrays = NULL;

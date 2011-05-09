@@ -1219,16 +1219,16 @@ void init_yapor_workers(void) {
 static void
 InitThreadHandle(int wid)
 {
-    FOREIGN_ThreadHandle(wid).in_use = FALSE;
-    FOREIGN_ThreadHandle(wid).zombie = FALSE;
-    FOREIGN_ThreadHandle(wid).local_preds = NULL;
+  REMOTE_ThreadHandle(wid).in_use = FALSE;
+  REMOTE_ThreadHandle(wid).zombie = FALSE;
+  REMOTE_ThreadHandle(wid).local_preds = NULL;
 #ifdef LOW_LEVEL_TRACER
-    FOREIGN_ThreadHandle(wid).thread_inst_count = 0LL;
+  REMOTE_ThreadHandle(wid).thread_inst_count = 0LL;
 #endif
-    pthread_mutex_init(&(FOREIGN_ThreadHandle(wid).tlock), NULL);  
-    pthread_mutex_init(&(FOREIGN_ThreadHandle(wid).tlock_status), NULL);  
-    FOREIGN_ThreadHandle(wid).tdetach = (CELL)0;
-    FOREIGN_ThreadHandle(wid).cmod = (CELL)0;
+  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock), NULL);  
+  pthread_mutex_init(&(REMOTE_ThreadHandle(wid).tlock_status), NULL);  
+  REMOTE_ThreadHandle(wid).tdetach = (CELL)0;
+  REMOTE_ThreadHandle(wid).cmod = (CELL)0;
 }
 
 int
@@ -1255,8 +1255,8 @@ InitFirstWorkerThreadHandle(void)
   LOCAL_ThreadHandle.default_yaam_regs = 
     &Yap_standard_regs;
   LOCAL_ThreadHandle.pthread_handle = pthread_self();
-  pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock, NULL);
-  pthread_mutex_init(&FOREIGN_ThreadHandle(0).tlock_status, NULL);
+  pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock, NULL);
+  pthread_mutex_init(&REMOTE_ThreadHandle(0).tlock_status, NULL);
   LOCAL_ThreadHandle.tdetach = MkAtomTerm(AtomFalse);
 #endif
 }
@@ -1264,9 +1264,9 @@ InitFirstWorkerThreadHandle(void)
 static void
 InitScratchPad(int wid)
 {
-  FOREIGN(wid)->scratchpad.ptr = NULL;
-  FOREIGN(wid)->scratchpad.sz = SCRATCH_START_SIZE;
-  FOREIGN(wid)->scratchpad.msz = SCRATCH_START_SIZE;
+  REMOTE_ScratchPad(wid).ptr = NULL;
+  REMOTE_ScratchPad(wid).sz = SCRATCH_START_SIZE;
+  REMOTE_ScratchPad(wid).msz = SCRATCH_START_SIZE;
 }
 
 void

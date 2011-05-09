@@ -2541,9 +2541,9 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     nwid = ((struct worker_local *)engine)->thread_handle.current_yaam_regs->worker_id_;
   }
 
-  pthread_mutex_lock(&(FOREIGN_ThreadHandle(nwid).tlock));
-  if (FOREIGN_ThreadHandle(nwid).pthread_handle) {
-    pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
+  pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));
+  if (REMOTE_ThreadHandle(nwid).pthread_handle) {
+    pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
     if (cwid != nwid) {
       return PL_ENGINE_INUSE;
     }
@@ -2552,7 +2552,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   if (cwid >= 0) {
     if (!YAP_ThreadDetachEngine(cwid)) {
       *old = NULL;
-      pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
+      pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
       return PL_ENGINE_INVAL;
     }
   }
