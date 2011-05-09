@@ -19,8 +19,24 @@
 
 
 
-
 static void InitGlobal(void) {
+
+  Yap_Initialised = FALSE;
+  Yap_InitialisedFromPL = FALSE;
+  Yap_PL_Argc = 0;
+  Yap_PL_Argv = NULL;
+
+  Yap_HaltHooks = NULL;
+
+  Yap_AllowLocalExpansion = TRUE;
+  Yap_AllowGlobalExpansion = TRUE;
+  Yap_AllowTrailExpansion = TRUE;
+  Yap_SizeOfOverflow = 0;
+
+  Yap_AGcLastCall = 0;
+
+  Yap_AGcThreshold = 10000;
+  Yap_AGCHook = NULL;
 
 #if THREADS
 
@@ -36,29 +52,10 @@ static void InitGlobal(void) {
   INIT_LOCK(Yap_BGL);
 #endif
 
-  Yap_AllowLocalExpansion = TRUE;
-  Yap_AllowGlobalExpansion = TRUE;
-  Yap_AllowTrailExpansion = TRUE;
-  Yap_SizeOfOverflow = 0;
-
-  Yap_AGcLastCall = 0;
-
-  Yap_AGcThreshold = 10000;
-  Yap_AGCHook = NULL;
-
 #ifdef THREADS
   INIT_LOCK(Yap_ThreadHandlesLock);
 #endif 
-
 #if defined(YAPOR) || defined(TABLING)
 
-
-#endif
-
-  Yap_Initialised = FALSE;
-  Yap_InitialisedFromPL = FALSE;
-  Yap_PL_Argc = 0;
-  Yap_PL_Argv = NULL;
-
-  Yap_HaltHooks = NULL;
+#endif /* YAPOR || TABLING */
 }

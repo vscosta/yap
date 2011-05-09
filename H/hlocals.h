@@ -96,15 +96,9 @@ typedef struct worker_local {
 #if defined(GC_NO_TAGS)
   char*  b_p;
 #endif
-#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
-  Term*  wl_sTR;
-  Term*  wl_sTR0;
-  Term*  new_tr;
-#else
-  struct trail_frame*  wl_sTR;
-  struct trail_frame*  wl_sTR0;
-  struct trail_frame*  new_tr;
-#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
+  tr_fr_ptr  wl_sTR;
+  tr_fr_ptr  wl_sTR0;
+  tr_fr_ptr  new_tr;
   struct gc_mark_continuation*  conttop0;
   struct gc_mark_continuation*  conttop;
   int  disc_trail_entries;
@@ -132,8 +126,11 @@ typedef struct worker_local {
   struct open_query_struct*  _execution;
 #ifdef THREADS
   struct thandle  thread_handle;
-#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
+#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
 #endif
+#if defined(YAPOR) || defined(TABLING)
+  struct local_optyap_data  optyap_data;
+#endif /* YAPOR || TABLING */
 
 } w_local;

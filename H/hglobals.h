@@ -19,8 +19,24 @@
 
 
 
-
 typedef struct global_data {
+
+  int  initialised;
+  int  initialised_from_pl;
+  int  pl_argc;
+  char  **pl_argv;
+
+  struct halt_hook  *yap_halt_hook;
+
+  int  allow_local_expansion;
+  int  allow_global_expansion;
+  int  allow_trail_expansion;
+  UInt  size_of_overflow;
+
+  UInt  agc_last_call;
+
+  UInt  agc_threshold;
+  Agc_hook  agc_hook;
 
 #if THREADS
 
@@ -36,29 +52,10 @@ typedef struct global_data {
   lockvar  bgl;
 #endif
 
-  int  allow_local_expansion;
-  int  allow_global_expansion;
-  int  allow_trail_expansion;
-  UInt  size_of_overflow;
-
-  UInt  agc_last_call;
-
-  UInt  agc_threshold;
-  Agc_hook  agc_hook;
-
 #ifdef THREADS
   lockvar  thread_handles_lock;
 #endif 
-
 #if defined(YAPOR) || defined(TABLING)
   struct global_optyap_data  optyap_data;
-  struct local_data  remote[MAX_WORKERS];
-#endif
-
-  int  initialised;
-  int  initialised_from_pl;
-  int  pl_argc;
-  char  **pl_argv;
-
-  struct halt_hook  *yap_halt_hook;
+#endif /* YAPOR || TABLING */
 } w_shared;

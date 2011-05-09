@@ -2823,27 +2823,21 @@ YAP_Init(YAP_init_args *yap_init)
     }
     yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
-#ifdef TABLING
-    /* make sure we initialise this field */
-    Yap_root_dep_fr = NULL;
-#endif
-    make_root_frames();
+  Yap_init_root_frames();
+#endif /* YAPOR || TABLING */
 #ifdef YAPOR
-    init_workers();
-#endif /* YAPOR */
-    Yap_init_local();
-#ifdef YAPOR
+    init_yapor_workers();
     if (worker_id != 0) {
-#if YAPOR_SBA||YAPOR_COPY
+#if defined(YAPOR_COPY) || defined(YAPOR_SBA)
       /*
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
       Yap_InitYaamRegs();
-#endif /* YAPOR_SBA */
-#ifndef THREADS
+#endif /* YAPOR_COPY || YAPOR_SBA */
+#ifndef YAPOR_THREADS
       Yap_InitPreAllocCodeSpace();
-#endif
+#endif /* YAPOR_THREADS */
       /* slaves, waiting for work */
       CurrentModule = USER_MODULE;
       P = GETWORK_FIRST_TIME;
@@ -2851,7 +2845,6 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
     }
 #endif /* YAPOR */
-#endif /* YAPOR || TABLING */
     RECOVER_MACHINE_REGS();
   }
   /* make sure we do this after restore */

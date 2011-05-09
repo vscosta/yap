@@ -746,26 +746,26 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       lastw = separator;
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	sl = Yap_InitSlot(t);      
+	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	t = Yap_GetFromSlot(sl);
-	Yap_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl PASS_REGS);
+	Yap_RecoverSlots(1 PASS_REGS);
       }
       wrputs(",",wglb->writewch);	
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	sl = Yap_InitSlot(t);      
+	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	t = Yap_GetFromSlot(sl);
-	Yap_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl PASS_REGS);
+	Yap_RecoverSlots(1 PASS_REGS);
       }
       wrputc(')', wglb->writewch);
       lastw = separator;

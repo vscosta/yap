@@ -2491,9 +2491,9 @@ PL_create_engine(const PL_thread_attr_t *attr)
     yapt.tsize = attr->global_size;
     yapt.alias = (YAP_Term)attr->alias;
     yapt.cancel =  attr->cancel;
-    return  Yap_WLocal+YAP_ThreadCreateEngine(&yapt);
+    return  Yap_local+YAP_ThreadCreateEngine(&yapt);
   } else {
-    return Yap_WLocal+YAP_ThreadCreateEngine(NULL);
+    return Yap_local+YAP_ThreadCreateEngine(NULL);
   }
 #else
   return NULL;
@@ -2519,7 +2519,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   int cwid = PL_thread_self(), nwid;
 
   if (cwid >= 0) {
-    if (old) *old = (PL_engine_t)(Yap_WLocal[cwid]);
+    if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }
   if (!engine) {
     if (cwid < 0)
@@ -2561,7 +2561,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   }
   return PL_ENGINE_SET;
 #else
-  if (old) *old = (PL_engine_t)&Yap_WLocal;
+  if (old) *old = (PL_engine_t)&Yap_local;
   return FALSE;
 #endif
 }

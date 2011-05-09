@@ -19,8 +19,24 @@
 
 
 
-
 static void RestoreGlobal(void) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #if THREADS
 
@@ -36,29 +52,10 @@ static void RestoreGlobal(void) {
   REINIT_LOCK(Yap_BGL);
 #endif
 
-
-
-
-
-
-
-
-
-
-
 #ifdef THREADS
   REINIT_LOCK(Yap_ThreadHandlesLock);
 #endif 
-
 #if defined(YAPOR) || defined(TABLING)
 
-
-#endif
-
-
-
-
-
-
-
+#endif /* YAPOR || TABLING */
 }

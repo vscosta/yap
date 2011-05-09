@@ -27,12 +27,9 @@ void Yap_remap_optyap_memory(void);
 **      opt.init.c      **
 *************************/
 
-void Yap_init_optyap_data(int, int, int, int);
-void Yap_init_local(void);
-void make_root_frames(void);
-#ifdef YAPOR
-void init_workers(void);
-#endif /* YAPOR */
+void Yap_init_global_optyap_data(int, int, int, int);
+void Yap_init_local_optyap_data(int);
+void Yap_init_root_frames(void);
 void itos(int, char *);
 
 

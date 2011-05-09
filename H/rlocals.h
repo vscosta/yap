@@ -94,15 +94,9 @@ static void RestoreWorker(int wid USES_REGS) {
 #if defined(GC_NO_TAGS)
 
 #endif
-#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
 
 
 
-#else
-
-
-
-#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
 
 
 
@@ -130,8 +124,11 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #ifdef THREADS
 
-#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
+#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
 #endif
+#if defined(YAPOR) || defined(TABLING)
+
+#endif /* YAPOR || TABLING */
 
 }

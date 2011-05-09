@@ -189,19 +189,18 @@ extern struct global_data Yap_Global;
 #endif
 
 #if defined(THREADS)
-extern struct worker_local	*Yap_WLocal[MAX_THREADS];
-#define WL (Yap_WLocal[worker_id])
-#define FOREIGN(wid) (Yap_WLocal[(wid)])
+extern struct worker_local *Yap_local[MAX_THREADS];
+#define FOREIGN(wid)       (Yap_local[wid])
+#define REMOTE(wid)        (Yap_local[wid])
 #elif defined(YAPOR)
-extern struct worker_local	*Yap_WLocal;
-#define WL (Yap_WLocal+worker_id)
-#define FOREIGN(wid) (Yap_WLocal+wid)
+extern struct worker_local *Yap_local;
+#define FOREIGN(wid)       (Yap_local + wid)
+#define REMOTE(wid)        (Yap_local + wid)
 #else /* !THREADS && !YAPOR */
-extern struct worker_local	Yap_WLocal;
-#define WL (&Yap_WLocal)
-#define FOREIGN(wid) (&Yap_WLocal)
+extern struct worker_local Yap_local;
+#define FOREIGN(wid)       (&Yap_local)
+#define REMOTE(wid)        (&Yap_local)
 #endif
-
 
 #ifdef USE_SYSTEM_MALLOC
 extern struct various_codes *Yap_heap_regs;

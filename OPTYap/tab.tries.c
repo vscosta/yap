@@ -1363,6 +1363,7 @@ void show_table(tab_ent_ptr tab_ent, int show_mode) {
     fprintf(Yap_stdout, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
     fprintf(Yap_stdout, "  Global trie references: %ld\n", TrStat_gt_refs);
   }
+  fflush(Yap_stdout);
   return;
 }
 

@@ -53,13 +53,13 @@ allocate_new_tid(void)
   int new_worker_id = 0;
   LOCK(Yap_ThreadHandlesLock);
   while(new_worker_id < MAX_THREADS &&
-	Yap_WLocal[new_worker_id] &&
+	Yap_local[new_worker_id] &&
 	(FOREIGN_ThreadHandle(new_worker_id).in_use == TRUE ||
 	 FOREIGN_ThreadHandle(new_worker_id).zombie == TRUE) )
     new_worker_id++;
   if (new_worker_id >= MAX_THREADS) {
     new_worker_id = -1;
-  } else if (!Yap_WLocal[new_worker_id]) {
+  } else if (!Yap_local[new_worker_id]) {
     DEBUG_TLOCK_ACCESS(new_worker_id, 0);
     if (!Yap_InitThread(new_worker_id)) {
       return -1;
@@ -182,16 +182,11 @@ setup_engine(int myworker_id, int init_thread)
     pthread_setspecific(Yap_yaamregs_key, (void *)FOREIGN_ThreadHandle(myworker_id).default_yaam_regs);
   }
   worker_id = myworker_id;
+  LOCAL = REMOTE(worker_id);
   Yap_InitExStacks(FOREIGN_ThreadHandle(myworker_id).tsize, FOREIGN_ThreadHandle(myworker_id).ssize);
   CurrentModule = FOREIGN_ThreadHandle(myworker_id).cmod;
   Yap_InitTime();
   Yap_InitYaamRegs();
-#ifdef YAPOR
-  Yap_init_local();
-#endif
-#ifdef TABLING
-  new_dependency_frame(REMOTE_top_dep_fr(myworker_id)), FALSE, NULL, NULL, NULL, NULL, NULL);
-#endif
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   Yap_NOfThreadsCreated++;
@@ -447,7 +442,7 @@ Yap_thread_attach_engine(int wid)
   FOREIGN_ThreadHandle(wid).pthread_handle = pthread_self();
   FOREIGN_ThreadHandle(wid).ref_count++;
   pthread_setspecific(Yap_yaamregs_key, (const void *)FOREIGN_ThreadHandle(wid).default_yaam_regs);
-  worker_id = wid;
+  worker_id = wid;  /* ricroc: for what I understand, this shouldn't be necessary */
   DEBUG_TLOCK_ACCESS(9, wid);
   pthread_mutex_unlock(&(FOREIGN_ThreadHandle(wid).tlock));
   return TRUE;
@@ -836,7 +831,7 @@ p_nof_threads( USES_REGS1 )
   int i = 0, wid;
   LOCK(Yap_ThreadHandlesLock);
   for (wid = 0; wid < MAX_THREADS; wid++) {
-    if (!Yap_WLocal[wid]) break;
+    if (!Yap_local[wid]) break;
     if (FOREIGN_ThreadHandle(wid).in_use)
       i++;
   }

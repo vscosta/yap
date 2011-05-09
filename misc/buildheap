@@ -119,7 +119,7 @@ fetch_name(Global) :-
 	Global = "Yap_global->".
 fetch_name(Global) :-
 	globals(worker), !,
-	Global = "WL->".
+	Global = "LOCAL->".
 fetch_name(Global) :-
 	globals(worker_init), !,
 	Global = "FOREIGN(wid)->".
@@ -263,6 +263,10 @@ gen_init(Inp,Init) :-
 gen_init(Inp,Init) :-
 	split(Inp,"	 ",[_, _, _, Init0| _]),
 	append("Yap_Init",_,Init0), !,
+	append(["  ",Init0,";"],Init).
+gen_init(Inp,Init) :-
+	split(Inp,"	 ",[_, _, _, Init0| _]),
+	append("Yap_init",_,Init0), !,
 	append(["  ",Init0,";"],Init).
 gen_init(Inp,Out) :-
 	split(Inp,"	 ",[_, Field, MacroName, "MkAT", AtomName]), !,

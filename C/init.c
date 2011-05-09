@@ -73,11 +73,12 @@ STATIC_PROTO(void  InitStdPreds,(void));
 STATIC_PROTO(void  InitFlags, (void));
 STATIC_PROTO(void  InitCodes, (void));
 STATIC_PROTO(void  InitVersion, (void));
-
-static void InitWorker(int wid);
-
-
 STD_PROTO(void  exit, (int));
+static void InitWorker(int wid);
+#ifdef YAPOR
+void init_yapor_workers(void);
+#endif /* YAPOR */
+
 
 /**************	YAP PROLOG GLOBAL VARIABLES *************************/
 
@@ -1166,6 +1167,54 @@ InitInvisibleAtoms(void)
   INIT_RWLOCK(Yap_heap_regs->invisiblechain.AERWLock);
 }
 
+
+#ifdef YAPOR
+void init_yapor_workers(void) {
+  CACHE_REGS
+  int proc;
+#ifdef YAPOR_THREADS
+  return;
+#endif /* YAPOR_THREADS */
+#ifdef YAPOR_COW
+  if (Yap_number_workers > 1) {
+    int son;
+    son = fork();
+    if (son == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_yapor_workers)");
+    if (son > 0) {
+      /* I am the father, I must stay here and wait for my children to all die */
+      struct sigaction sigact;
+
+      Yap_master_worker = getpid();
+      sigact.sa_handler = SIG_DFL;
+      sigemptyset(&sigact.sa_mask);
+      sigact.sa_flags = SA_RESTART;
+      sigaction(SIGINT, &sigact, NULL);
+      pause();
+      exit(0);
+    } else
+      Yap_worker_pid(0) = getpid();
+  }
+#endif /* YAPOR_COW */
+  for (proc = 1; proc < Yap_number_workers; proc++) {
+    int son;
+    son = fork();
+    if (son == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_yapor_workers)");
+    if (son == 0) { 
+      /* new worker */
+      worker_id = proc;
+      Yap_remap_optyap_memory();
+      LOCAL = REMOTE(worker_id);
+      InitWorker(worker_id);
+      break;
+    } else
+      Yap_worker_pid(proc) = son;
+  }
+}
+#endif /* YAPOR */
+
+
 #ifdef  THREADS
 static void
 InitThreadHandle(int wid)
@@ -1189,7 +1238,7 @@ Yap_InitThread(int new_id)
   if (new_id) {
     if (!(new_s = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
       return FALSE;
-    Yap_WLocal[new_id] = new_s;
+    Yap_local[new_id] = new_s;
   }
   InitWorker(new_id);
   return TRUE;
@@ -1241,11 +1290,11 @@ struct global_data Yap_Global;
 #endif
 
 #if defined(THREADS)
-struct worker_local	*Yap_WLocal[MAX_THREADS];
+struct worker_local	*Yap_local[MAX_THREADS];
 #elif defined(YAPOR)
-struct worker_local	*Yap_WLocal;
+struct worker_local	*Yap_local;
 #else /* !THREADS && !YAPOR */
-struct worker_local	Yap_WLocal;
+struct worker_local	Yap_local;
 #endif
 
 static void 
@@ -1255,7 +1304,7 @@ InitCodes(void)
 #if THREADS
   int wid;
   for (wid = 1; wid < MAX_THREADS; wid++) {
-    Yap_WLocal[wid] = NULL;
+    Yap_local[wid] = NULL;
   }
 #endif
 #include "ihstruct.h"
@@ -1304,7 +1353,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   /* initialise system stuff */
 #if PUSH_REGS
 #ifdef THREADS
-  if (!(Yap_WLocal[0] = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
+  if (!(Yap_local[0] = (struct worker_local *)calloc(sizeof(struct worker_local), 1)))
     return;
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
@@ -1319,8 +1368,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 
 #ifdef THREADS
   Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
-  Yap_regp->worker_id_ = 0;
-#endif
+#endif /* THREADS */
   /* Init signal handling and time */
   /* also init memory page size, required by later functions */
   Yap_InitSysbits ();
@@ -1338,8 +1386,10 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
     Atts = 2048*sizeof(CELL);
   else
     Atts = AdjustPageSize(Atts * K);
-#ifdef YAPOR
+#if defined(YAPOR) || defined(THREADS)
   worker_id = 0;
+#endif /* YAPOR || THREADS */
+#ifdef YAPOR
   if (n_workers > MAX_WORKERS)
     Yap_Error(INTERNAL_ERROR, TermNil, "excessive number of workers");
 #ifdef YAPOR_COPY
@@ -1355,13 +1405,16 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_optyap_memory(Trail, Heap, Stack+Atts, n_workers);
 #else
-  Yap_InitMemory (Trail, Heap, Stack+Atts);
+  Yap_InitMemory(Trail, Heap, Stack+Atts);
 #endif
 #if defined(YAPOR) || defined(TABLING)
-  Yap_init_optyap_data(max_table_size, n_workers, sch_loop, delay_load);
+  Yap_init_global_optyap_data(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
-  Yap_AttsSize = Atts;
+#if defined(YAPOR) || defined(THREADS)
+  LOCAL = REMOTE(0);  /* point to the first area */
+#endif /* YAPOR || THREADS */
 
+  Yap_AttsSize = Atts;
   Yap_InitTime ();
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */

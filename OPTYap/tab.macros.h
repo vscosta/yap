@@ -645,6 +645,7 @@ static inline CELL *expand_auxiliary_stack(CELL *stack) {
 
 static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
   CACHE_REGS
+
 #ifdef YAPOR
   if (EQUAL_OR_YOUNGER_CP(GetOrFr_node(LOCAL_top_susp_or_fr), prune_cp))
     pruning_over_tabling_data_structures();

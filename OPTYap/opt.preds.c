@@ -484,6 +484,7 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
 #else 
   fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
+  fflush(Yap_stdout);
 
   return (TRUE);
 }

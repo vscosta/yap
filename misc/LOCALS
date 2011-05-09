@@ -103,16 +103,9 @@ CELL**			ip_top				LOCAL_iptop			=NULL
 #if defined(GC_NO_TAGS)
 char*			b_p				LOCAL_bp			=NULL
 #endif
-
-#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
-Term*			wl_sTR				LOCAL_sTR			=NULL
-Term*			wl_sTR0				LOCAL_sTR0			=NULL
-Term*			new_tr				LOCAL_new_TR			=NULL
-#else
-struct trail_frame*	wl_sTR				LOCAL_sTR			=NULL
-struct trail_frame*	wl_sTR0				LOCAL_sTR0			=NULL
-struct trail_frame*	new_tr				LOCAL_new_TR			=NULL
-#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
+tr_fr_ptr		wl_sTR				LOCAL_sTR			=NULL
+tr_fr_ptr		wl_sTR0				LOCAL_sTR0			=NULL
+tr_fr_ptr		new_tr				LOCAL_new_TR			=NULL
 struct gc_mark_continuation*	conttop0		LOCAL_cont_top0			=NULL
 struct gc_mark_continuation*	conttop			LOCAL_cont_top			=NULL
 int			disc_trail_entries		LOCAL_discard_trail_entries	=0
@@ -146,9 +139,13 @@ struct open_query_struct* _execution			LOCAL_execution			=NULL
 
 #ifdef THREADS
 struct thandle		thread_handle			LOCAL_ThreadHandle		InitThreadHandle(wid)
-#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
+#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
 #endif
+
+#if defined(YAPOR) || defined(TABLING)
+struct local_optyap_data	optyap_data	LOCAL_optyap_data   Yap_init_local_optyap_data(wid)
+#endif /* YAPOR || TABLING */
 
 // END WORKER LOCAL STUFF
 END_WORKER_LOCAL

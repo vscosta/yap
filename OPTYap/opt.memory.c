@@ -81,7 +81,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
   
   /* initial allocation - model independent */  
   ExtraArea = ADJUST_SIZE_TO_PAGE(sizeof(struct global_data) + MAX_WORKERS * sizeof(struct worker_local));
-  Yap_WLocal = (struct worker_local *)(MMAP_ADDR - ExtraArea);
+  Yap_local = (struct worker_local *)(MMAP_ADDR - ExtraArea);
   Yap_global = (struct global_data *)(MMAP_ADDR - sizeof(struct global_data));
   Yap_HeapBase = (ADDR) MMAP_ADDR;
   Yap_GlobalBase = (ADDR) (MMAP_ADDR + HeapArea);
@@ -102,7 +102,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* map total area in a single go */
   open_mapfile(TotalArea);
-  if (mmap((void *) Yap_WLocal, (size_t) TotalArea, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, fd_mapfile, 0) == (void *) -1)
+  if (mmap((void *) Yap_local, (size_t) TotalArea, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, fd_mapfile, 0) == (void *) -1)
     Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_init_optyap_memory)");
 #else /* SHM_MEMORY_MAPPING_SCHEME */
   /* most systems are limited regarding what we can allocate */
@@ -111,7 +111,7 @@ void Yap_init_optyap_memory(long TrailAuxArea, long HeapArea, long GlobalLocalAr
   shm_map_memory(0, ExtraArea + HeapArea, (void *) MMAP_ADDR);
 #else /* YAPOR_COPY || YAPOR_SBA */
   /* place as segment n otherwise (0..n-1 reserved for worker areas */
-  shm_map_memory(n_workers, ExtraArea + HeapArea, (void *) Yap_WLocal);
+  shm_map_memory(n_workers, ExtraArea + HeapArea, (void *) Yap_local);
   { int i;
      for (i = 0; i < n_workers; i++)
        shm_map_memory(i, Yap_worker_area_size, Yap_GlobalBase + Yap_worker_area_size * i);
@@ -167,7 +167,7 @@ void Yap_remap_optyap_memory(void) {
   int i;
   void *remap_addr = Yap_GlobalBase;
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
-  long remap_offset = (ADDR) remap_addr - (ADDR) Yap_WLocal;
+  long remap_offset = (ADDR) remap_addr - (ADDR) Yap_local;
   if (munmap(remap_addr, (size_t)(Yap_worker_area_size * Yap_number_workers)) == -1)
     Yap_Error(FATAL_ERROR, TermNil, "munmap error (Yap_remap_optyap_memory)");
   for (i = 0; i < Yap_number_workers; i++)

@@ -98,7 +98,7 @@ int p_share_work(void) {
   share_private_nodes(worker_q);
   if ((son = fork()) == 0) {
     worker_id = worker_q;  /* child becomes requesting worker */
-    LOCAL = REMOTE + worker_id;
+    LOCAL = REMOTE(worker_id);
     LOCAL_reply_signal = worker_ready;
     PUT_IN_REQUESTABLE(worker_id);
     PUT_BUSY(worker_id);

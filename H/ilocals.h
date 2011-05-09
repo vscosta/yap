@@ -94,15 +94,9 @@ static void InitWorker(int wid) {
 #if defined(GC_NO_TAGS)
   FOREIGN(wid)->b_p = NULL;
 #endif
-#if !defined(TABLING) && !defined(YAPOR_SBA) && (defined(YAPOR) || defined(THREADS))
   FOREIGN(wid)->wl_sTR = NULL;
   FOREIGN(wid)->wl_sTR0 = NULL;
   FOREIGN(wid)->new_tr = NULL;
-#else
-  FOREIGN(wid)->wl_sTR = NULL;
-  FOREIGN(wid)->wl_sTR0 = NULL;
-  FOREIGN(wid)->new_tr = NULL;
-#endif /* !TABLING && !YAPOR_SBA && (YAPOR || THREADS) */
   FOREIGN(wid)->conttop0 = NULL;
   FOREIGN(wid)->conttop = NULL;
   FOREIGN(wid)->disc_trail_entries = 0;
@@ -130,8 +124,11 @@ static void InitWorker(int wid) {
   FOREIGN(wid)->_execution = NULL;
 #ifdef THREADS
   InitThreadHandle(wid);
-#define FOREIGN_ThreadHandle(wid)  			(Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       				(Yap_WLocal[worker_id]->thread_handle)
+#define FOREIGN_ThreadHandle(wid)  			(Yap_local[(wid)]->thread_handle)
+#define MY_ThreadHandle	       				(Yap_local[worker_id]->thread_handle)
 #endif
+#if defined(YAPOR) || defined(TABLING)
+  Yap_init_local_optyap_data(wid);
+#endif /* YAPOR || TABLING */
 
 }

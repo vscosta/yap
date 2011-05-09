@@ -336,11 +336,7 @@ struct various_codes *Yap_heap_regs;
 static void
 InitHeap(void)
 {
-  CACHE_REGS
   Yap_heap_regs = (struct various_codes *)calloc(1, sizeof(struct various_codes));
-#if defined(YAPOR) || defined(TABLING)
-  LOCAL = REMOTE; /* point to the first area */
-#endif /* YAPOR || TABLING */
 }
 
 void
@@ -1479,10 +1475,6 @@ InitHeap(void *heap_addr)
 #endif
 
   FreeBlocks = NIL;
-
-#if defined(YAPOR) || defined(TABLING)
-  LOCAL = REMOTE; /* point to the first area */
-#endif /* YAPOR || TABLING */
 }
 
 void

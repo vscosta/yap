@@ -59,7 +59,7 @@
 **      Global functions      **
 *******************************/
 
-void Yap_init_optyap_data(int max_table_size, int n_workers, int sch_loop, int delay_load) {
+void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop, int delay_load) {
   int i;
 
   /* global data related to memory management */
@@ -108,6 +108,7 @@ void Yap_init_optyap_data(int max_table_size, int n_workers, int sch_loop, int d
   Yap_performance_mode = PERFORMANCE_OFF;
 
   /* global data related to or-parallelism */
+  ALLOC_OR_FRAME(Yap_root_or_fr);
   BITMAP_clear(Yap_bm_present_workers);
   for (i = 0; i < Yap_number_workers; i++) 
     BITMAP_insert(Yap_bm_present_workers, i);
@@ -144,7 +145,7 @@ void Yap_init_optyap_data(int max_table_size, int n_workers, int sch_loop, int d
   Yap_last_sg_fr = NULL;
   Yap_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
-  Yap_root_dep_fr = NULL;
+  new_dependency_frame(Yap_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
   for (i = 0; i < MAX_TABLE_VARS; i++) {
     CELL *pt = Yap_table_var_enumerator_addr(i);
     RESET_VARIABLE(pt);
@@ -159,43 +160,41 @@ void Yap_init_optyap_data(int max_table_size, int n_workers, int sch_loop, int d
 }
 
 
-void Yap_init_local(void) {
+void Yap_init_local_optyap_data(int wid) {
 #ifdef YAPOR
   CACHE_REGS
   /* local data related to or-parallelism */
-  LOCAL = REMOTE + worker_id;
-  Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
-  LOCAL_top_or_fr = Yap_root_or_fr;
-  LOCAL_load = 0;
-  LOCAL_share_request = MAX_WORKERS;
-  LOCAL_reply_signal = worker_ready;
+  Set_REMOTE_top_cp(wid, (choiceptr) Yap_LocalBase);
+  REMOTE_top_or_fr(wid) = Yap_root_or_fr;
+  REMOTE_load(wid) = 0;
+  REMOTE_share_request(wid) = MAX_WORKERS;
+  REMOTE_reply_signal(wid) = worker_ready;
 #ifdef YAPOR_COPY
-  INIT_LOCK(LOCAL_lock_signals);
+  INIT_LOCK(REMOTE_lock_signals(wid));
 #endif /* YAPOR_COPY */
-  Set_LOCAL_prune_request(NULL);
+  Set_REMOTE_prune_request(wid, NULL);
 #endif /* YAPOR */
-  INIT_LOCK(LOCAL_lock);
+  INIT_LOCK(REMOTE_lock(wid));
 #ifdef TABLING
   /* local data related to tabling */
-  LOCAL_next_free_ans_node = NULL;
-  LOCAL_top_sg_fr = NULL; 
-  LOCAL_top_dep_fr = Yap_root_dep_fr; 
+  REMOTE_next_free_ans_node(wid) = NULL;
+  REMOTE_top_sg_fr(wid) = NULL; 
+  REMOTE_top_dep_fr(wid) = Yap_root_dep_fr; 
 #ifdef YAPOR
-  Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase); /* ??? */
-  LOCAL_top_susp_or_fr = Yap_root_or_fr;
+  Set_REMOTE_top_cp_on_stack(wid, (choiceptr) Yap_LocalBase); /* ??? */
+  REMOTE_top_susp_or_fr(wid) = Yap_root_or_fr;
 #endif /* YAPOR */
 #endif /* TABLING */
   return;
 }
 
 
-void make_root_frames(void) {
-#ifdef YAPOR
+void Yap_init_root_frames(void) {
   CACHE_REGS
-  /* root or frame */
-  or_fr_ptr or_fr;
 
-  ALLOC_OR_FRAME(or_fr);   
+#ifdef YAPOR
+  /* root or frame */
+  or_fr_ptr or_fr = Yap_root_or_fr;
   INIT_LOCK(OrFr_lock(or_fr));
   OrFr_alternative(or_fr) = NULL;
   BITMAP_copy(OrFr_members(or_fr), Yap_bm_present_workers);
@@ -215,62 +214,13 @@ void make_root_frames(void) {
   OrFr_nearest_suspnode(or_fr) = or_fr;
 #endif /* TABLING */
   OrFr_next(or_fr) = NULL;
-  Yap_root_or_fr = or_fr;
 #endif /* YAPOR */
 
 #ifdef TABLING
   /* root dependency frame */
-  if (!Yap_root_dep_fr) {
-    new_dependency_frame(Yap_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
-#ifdef TABLING
-    DepFr_cons_cp(Yap_root_dep_fr) = B;
-#endif /* TABLING */
-  }
+  DepFr_cons_cp(Yap_root_dep_fr) = B;
 #endif /* TABLING */
 }
-
-#ifdef YAPOR
-void init_workers(void) {
-  CACHE_REGS
-  int proc;
-#ifdef YAPOR_THREADS
-  return;
-#endif /* YAPOR_THREADS */
-#ifdef YAPOR_COW
-  if (Yap_number_workers> 1) {
-    int son;
-    son = fork();
-    if (son == -1)
-      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_workers)");
-    if (son > 0) {
-      /* I am the father, I must stay here and wait for my children to all die */
-      struct sigaction sigact;
-
-      Yap_master_worker = getpid();
-      sigact.sa_handler = SIG_DFL;
-      sigemptyset(&sigact.sa_mask);
-      sigact.sa_flags = SA_RESTART;
-      sigaction(SIGINT, &sigact, NULL);
-      pause();
-      exit(0);
-    } else Yap_worker_pid(0) = getpid();
-  }
-#endif /* YAPOR_COW */
-  for (proc = 1; proc < Yap_number_workers; proc++) {
-    int son;
-    son = fork();
-    if (son == -1)
-      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_workers)");
-    if (son == 0) { 
-      /* new worker */
-      worker_id = proc;
-      Yap_remap_optyap_memory();
-      break;
-    }
-    else Yap_worker_pid(proc) = son;
-  }
-}
-#endif /* YAPOR */
 
 
 void itos(int i, char *s) {
