@@ -60,8 +60,7 @@ done.
 delete(Fact) :-
 	nb_getval(meld_queue, Queue),
 	retract(meld_program:Fact),
-	nb_queue_enqueue(Queue, deleted(Fact)),
-	live.
+	nb_queue_enqueue(Queue, deleted(Fact)).
 
 pop(Goal) :-
 	nb_getval(meld_queue, Queue),
@@ -123,9 +122,10 @@ sum(Skel,Arg,Goal) :-
 	arg(Arg, Goal, A),
 	AN is A0+A,
 	arg(Arg, NGoal, AN),
+	format('S ~w~n',[Goal]),
 	push(NGoal).
 sum(_Skel,_Arg,Goal) :-
-	format('S~w~n',[Goal]),
+	format('S ~w~n',[Goal]),
 	assert(meld_program:Goal),
 	fail.
 
