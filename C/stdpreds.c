@@ -3913,14 +3913,14 @@ p_system_mode( USES_REGS1 )
 static Int
 p_lock_system( USES_REGS1 )
 {
-  LOCK(Yap_BGL);
+  LOCK(GLOBAL_BGL);
   return TRUE;
 }
 
 static Int
 p_unlock_system( USES_REGS1 )
 {
-  UNLOCK(Yap_BGL);
+  UNLOCK(GLOBAL_BGL);
   return TRUE;
 }
 

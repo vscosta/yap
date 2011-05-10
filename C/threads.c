@@ -50,7 +50,7 @@ static int
 allocate_new_tid(void)
 {
   int new_worker_id = 0;
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   while(new_worker_id < MAX_THREADS &&
 	Yap_local[new_worker_id] &&
 	(REMOTE_ThreadHandle(new_worker_id).in_use == TRUE ||
@@ -72,7 +72,7 @@ allocate_new_tid(void)
   } else {
     new_worker_id = -1;
   }
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   return new_worker_id;  
 }
 
@@ -146,7 +146,7 @@ kill_thread_engine (int wid, int always_die)
   free(REMOTE_ThreadHandle(wid).start_of_timesp);
   free(REMOTE_ThreadHandle(wid).last_timep);
   Yap_FreeCodeSpace((ADDR)REMOTE_ThreadHandle(wid).texit);
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   if (REMOTE_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
     REMOTE_ThreadHandle(wid).zombie = FALSE;
@@ -154,7 +154,7 @@ kill_thread_engine (int wid, int always_die)
     DEBUG_TLOCK_ACCESS(1, wid);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(wid).tlock));
   }
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
 }
 
 static void
@@ -162,7 +162,7 @@ thread_die(int wid, int always_die)
 {
   if (!always_die) {
     /* called by thread itself */
-    Yap_ThreadsTotalTime += Yap_cputime();
+    GLOBAL_ThreadsTotalTime += Yap_cputime();
   }
   kill_thread_engine(wid, always_die);
 }
@@ -188,7 +188,7 @@ setup_engine(int myworker_id, int init_thread)
   Yap_InitYaamRegs();
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
-  Yap_NOfThreadsCreated++;
+  GLOBAL_NOfThreadsCreated++;
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 }
@@ -481,17 +481,17 @@ p_thread_join( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   if (!REMOTE_ThreadHandle(tid).in_use &&
       !REMOTE_ThreadHandle(tid).zombie) {
-    UNLOCK(Yap_ThreadHandlesLock);
+    UNLOCK(GLOBAL_ThreadHandlesLock);
     return FALSE;
   }
   if (!REMOTE_ThreadHandle(tid).tdetach == MkAtomTerm(AtomTrue)) {
-    UNLOCK(Yap_ThreadHandlesLock);
+    UNLOCK(GLOBAL_ThreadHandlesLock);
     return FALSE;
   }
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   /* make sure this lock is accessible */
   if (pthread_join(REMOTE_ThreadHandle(tid).pthread_handle, NULL) < 0) {
     /* ERROR */
@@ -506,12 +506,12 @@ p_thread_destroy( USES_REGS1 )
 {
   Int tid = IntegerOfTerm(Deref(ARG1));
 
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   REMOTE_ThreadHandle(tid).zombie = FALSE;
   REMOTE_ThreadHandle(tid).in_use = FALSE;
   DEBUG_TLOCK_ACCESS(32, tid);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(tid).tlock));
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   return TRUE;
 }
 
@@ -747,16 +747,16 @@ p_thread_stacks( USES_REGS1 )
   Int tid = IntegerOfTerm(Deref(ARG1));
   Int status= TRUE;
 
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   if (!REMOTE_ThreadHandle(tid).in_use &&
       !REMOTE_ThreadHandle(tid).zombie) {
-    UNLOCK(Yap_ThreadHandlesLock);
+    UNLOCK(GLOBAL_ThreadHandlesLock);
     return FALSE;
   }
   status &= Yap_unify(ARG2,MkIntegerTerm(REMOTE_ThreadHandle(tid).ssize));
   status &= Yap_unify(ARG3,MkIntegerTerm(REMOTE_ThreadHandle(tid).tsize));
   status &= Yap_unify(ARG4,MkIntegerTerm(REMOTE_ThreadHandle(tid).sysize));
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   return status;
 }
 
@@ -828,13 +828,13 @@ static Int
 p_nof_threads( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
   int i = 0, wid;
-  LOCK(Yap_ThreadHandlesLock);
+  LOCK(GLOBAL_ThreadHandlesLock);
   for (wid = 0; wid < MAX_THREADS; wid++) {
     if (!Yap_local[wid]) break;
     if (REMOTE_ThreadHandle(wid).in_use)
       i++;
   }
-  UNLOCK(Yap_ThreadHandlesLock);
+  UNLOCK(GLOBAL_ThreadHandlesLock);
   return Yap_unify(ARG1,MkIntegerTerm(i));
 }
 
@@ -853,13 +853,13 @@ p_max_threads( USES_REGS1 )
 static Int 
 p_nof_threads_created( USES_REGS1 )
 {				/* '$nof_threads'(+P)	 */
-  return Yap_unify(ARG1,MkIntTerm(Yap_NOfThreadsCreated));
+  return Yap_unify(ARG1,MkIntTerm(GLOBAL_NOfThreadsCreated));
 }
 
 static Int 
 p_thread_runtime( USES_REGS1 )
 {				/* '$thread_runtime'(+P)	 */
-  return Yap_unify(ARG1,MkIntegerTerm(Yap_ThreadsTotalTime));
+  return Yap_unify(ARG1,MkIntegerTerm(GLOBAL_ThreadsTotalTime));
 }
 
 static Int 

@@ -21,39 +21,39 @@
 
 static void InitGlobal(void) {
 
-  Yap_Initialised = FALSE;
-  Yap_InitialisedFromPL = FALSE;
-  Yap_PL_Argc = 0;
-  Yap_PL_Argv = NULL;
+  GLOBAL_Initialised = FALSE;
+  GLOBAL_InitialisedFromPL = FALSE;
+  GLOBAL_PL_Argc = 0;
+  GLOBAL_PL_Argv = NULL;
 
-  Yap_HaltHooks = NULL;
+  GLOBAL_HaltHooks = NULL;
 
-  Yap_AllowLocalExpansion = TRUE;
-  Yap_AllowGlobalExpansion = TRUE;
-  Yap_AllowTrailExpansion = TRUE;
-  Yap_SizeOfOverflow = 0;
+  GLOBAL_AllowLocalExpansion = TRUE;
+  GLOBAL_AllowGlobalExpansion = TRUE;
+  GLOBAL_AllowTrailExpansion = TRUE;
+  GLOBAL_SizeOfOverflow = 0;
 
-  Yap_AGcLastCall = 0;
+  GLOBAL_AGcLastCall = 0;
 
-  Yap_AGcThreshold = 10000;
-  Yap_AGCHook = NULL;
+  GLOBAL_AGcThreshold = 10000;
+  GLOBAL_AGCHook = NULL;
 
 #if THREADS
 
-  Yap_NOfThreads = 1;
+  GLOBAL_NOfThreads = 1;
 
-  Yap_NOfThreadsCreated = 1;
+  GLOBAL_NOfThreadsCreated = 1;
 
-  Yap_ThreadsTotalTime = 0L;
+  GLOBAL_ThreadsTotalTime = 0L;
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
 
-  INIT_LOCK(Yap_BGL);
+  INIT_LOCK(GLOBAL_BGL);
 #endif
 
 #ifdef THREADS
-  INIT_LOCK(Yap_ThreadHandlesLock);
+  INIT_LOCK(GLOBAL_ThreadHandlesLock);
 #endif 
 #if defined(YAPOR) || defined(TABLING)
 

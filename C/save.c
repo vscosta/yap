@@ -623,7 +623,7 @@ p_save2( USES_REGS1 )
   }
 #endif /* YAPOR */
 #ifdef THREADS
-  if (Yap_NOfThreads != 1) {
+  if (GLOBAL_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
@@ -1802,7 +1802,7 @@ p_restore( USES_REGS1 )
   }
 #endif /* YAPOR */
 #ifdef THREADS
-  if (Yap_NOfThreads != 1) {
+  if (GLOBAL_NOfThreads != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }

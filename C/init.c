@@ -1447,17 +1447,17 @@ Yap_HaltRegisterHook (HaltHookFunc f, void * env)
     return FALSE;
   h->environment = env;
   h->hook = f;
-  LOCK(Yap_BGL);
-  h->next = Yap_HaltHooks;
-  Yap_HaltHooks = h;
-  UNLOCK(Yap_BGL);
+  LOCK(GLOBAL_BGL);
+  h->next = GLOBAL_HaltHooks;
+  GLOBAL_HaltHooks = h;
+  UNLOCK(GLOBAL_BGL);
   return TRUE;
 }
 
 static void
 run_halt_hooks(int code)
 {
-  struct halt_hook *hooke = Yap_HaltHooks;
+  struct halt_hook *hooke = GLOBAL_HaltHooks;
 
   while (hooke) {
     hooke->hook(code, hooke->environment);

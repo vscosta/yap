@@ -7711,14 +7711,14 @@ Yap_absmi(int inp)
       {
 	PredEntry *pt0;
 #ifdef THREADS
-	LOCK(Yap_ThreadHandlesLock);
+	LOCK(GLOBAL_ThreadHandlesLock);
 #endif
 	pt0 = SpyCode;
 	P_before_spy = PREG;
 	PREG = pt0->CodeOfPred;
 	/* for profiler */
 #ifdef THREADS
-	UNLOCK(Yap_ThreadHandlesLock);
+	UNLOCK(GLOBAL_ThreadHandlesLock);
 #endif
 	save_pc();
 	CACHE_A1();

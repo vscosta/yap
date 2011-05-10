@@ -19,44 +19,44 @@
 START_GLOBAL_DATA
 
 // initialization: tell whether the system has been initialised and by whom.
-int		initialised		Yap_Initialised		=FALSE
-int		initialised_from_pl	Yap_InitialisedFromPL	=FALSE
-int		pl_argc			Yap_PL_Argc		=0
-char	      **pl_argv			Yap_PL_Argv		=NULL
+int		initialised		GLOBAL_Initialised		=FALSE
+int		initialised_from_pl	GLOBAL_InitialisedFromPL	=FALSE
+int		pl_argc			GLOBAL_PL_Argc		=0
+char	      **pl_argv			GLOBAL_PL_Argv		=NULL
 
 // halt hooks
-struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL
+struct halt_hook *yap_halt_hook		GLOBAL_HaltHooks		=NULL
 
 // stack overflow expansion/gc control
-int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE
-int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE
-int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE
-UInt		size_of_overflow	Yap_SizeOfOverflow		=0
+int		allow_local_expansion	GLOBAL_AllowLocalExpansion =TRUE
+int		allow_global_expansion	GLOBAL_AllowGlobalExpansion =TRUE
+int		allow_trail_expansion	GLOBAL_AllowTrailExpansion =TRUE
+UInt		size_of_overflow	GLOBAL_SizeOfOverflow		=0
 // amount of space recovered in all garbage collections
-UInt		agc_last_call		Yap_AGcLastCall		=0
+UInt		agc_last_call		GLOBAL_AGcLastCall		=0
 // amount of space recovered in all garbage collections
-UInt		agc_threshold		Yap_AGcThreshold		=10000
-Agc_hook	agc_hook		Yap_AGCHook			=NULL
+UInt		agc_threshold		GLOBAL_AGcThreshold		=10000
+Agc_hook	agc_hook		GLOBAL_AGCHook			=NULL
 
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
-UInt		n_of_threads		Yap_NOfThreads	=1
+UInt		n_of_threads		GLOBAL_NOfThreads	=1
 /* number of threads created since start */
-UInt		n_of_threads_created	Yap_NOfThreadsCreated =1
+UInt		n_of_threads_created	GLOBAL_NOfThreadsCreated =1
 /* total run time for dead threads */
-UInt  threads_total_time		Yap_ThreadsTotalTime =0L
+UInt  threads_total_time		GLOBAL_ThreadsTotalTime =0L
 #endif
 
 // multi-thread/ORP support
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
-lockvar		bgl			Yap_BGL		MkLock
+lockvar		bgl			GLOBAL_BGL		MkLock
 #endif
 
 // Threads Array
 #ifdef THREADS
-lockvar		thread_handles_lock	Yap_ThreadHandlesLock	MkLock
+lockvar		thread_handles_lock	GLOBAL_ThreadHandlesLock	MkLock
 #endif 
 
 #if defined(YAPOR) || defined(TABLING)
