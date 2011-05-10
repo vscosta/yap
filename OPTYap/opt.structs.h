@@ -284,7 +284,7 @@ struct global_optyap_data {
 #define GLOBAL_root_tab_ent                     (Yap_optyap_data.root_table_entry)
 #define GLOBAL_first_sg_fr                      (Yap_optyap_data.first_subgoal_frame)
 #define GLOBAL_last_sg_fr                       (Yap_optyap_data.last_subgoal_frame)
-#define GLOBAL_last_sg_fr                      (Yap_optyap_data.check_subgoal_frame)
+#define GLOBAL_check_sg_fr                      (Yap_optyap_data.check_subgoal_frame)
 #define GLOBAL_root_dep_fr                      (Yap_optyap_data.root_dependency_frame)
 #define GLOBAL_table_var_enumerator(index)      (Yap_optyap_data.table_var_enumerator[index])
 #define GLOBAL_table_var_enumerator_addr(index) (Yap_optyap_data.table_var_enumerator + (index))

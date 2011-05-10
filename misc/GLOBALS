@@ -32,8 +32,7 @@ int		allow_local_expansion	GLOBAL_AllowLocalExpansion =TRUE
 int		allow_global_expansion	GLOBAL_AllowGlobalExpansion =TRUE
 int		allow_trail_expansion	GLOBAL_AllowTrailExpansion =TRUE
 UInt		size_of_overflow	GLOBAL_SizeOfOverflow		=0
-// amount of space recovered in all garbage collections
-UInt		agc_last_call		GLOBAL_AGcLastCall		=0
+
 // amount of space recovered in all garbage collections
 UInt		agc_threshold		GLOBAL_AGcThreshold		=10000
 Agc_hook	agc_hook		GLOBAL_AGCHook			=NULL

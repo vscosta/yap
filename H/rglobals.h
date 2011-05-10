@@ -36,8 +36,6 @@ static void RestoreGlobal(void) {
 
 
 
-
-
 #if THREADS
 
 

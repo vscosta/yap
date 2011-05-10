@@ -463,7 +463,6 @@ atom_gc(USES_REGS1)
   mark_stacks(PASS_REGS1);
   restore_codes();
   clean_atoms();
-  GLOBAL_AGcLastCall = NOfAtoms;
   YAPLeaveCriticalSection();
   agc_time = Yap_cputime()-time_start;
   tot_agc_time += agc_time;

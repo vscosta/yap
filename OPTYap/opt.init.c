@@ -143,7 +143,7 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 #ifdef LIMIT_TABLING
   GLOBAL_first_sg_fr = NULL;
   GLOBAL_last_sg_fr = NULL;
-  GLOBAL_last_sg_fr = NULL;
+  GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
   new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
   for (i = 0; i < MAX_TABLE_VARS; i++) {

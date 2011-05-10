@@ -33,8 +33,6 @@ static void InitGlobal(void) {
   GLOBAL_AllowTrailExpansion = TRUE;
   GLOBAL_SizeOfOverflow = 0;
 
-  GLOBAL_AGcLastCall = 0;
-
   GLOBAL_AGcThreshold = 10000;
   GLOBAL_AGCHook = NULL;
 

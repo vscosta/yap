@@ -33,8 +33,6 @@
 #define GLOBAL_AllowTrailExpansion Yap_global->allow_trail_expansion
 #define GLOBAL_SizeOfOverflow Yap_global->size_of_overflow
 
-#define GLOBAL_AGcLastCall Yap_global->agc_last_call
-
 #define GLOBAL_AGcThreshold Yap_global->agc_threshold
 #define GLOBAL_AGCHook Yap_global->agc_hook
 

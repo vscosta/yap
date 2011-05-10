@@ -162,7 +162,7 @@ extern int Yap_page_size;
         }
 
 #define RECOVER_UNUSED_SPACE(STR_PAGES)                                                          \
-        { sg_fr_ptr sg_fr = Yap_check_sg_fr;                                                  \
+        { sg_fr_ptr sg_fr = GLOBAL_check_sg_fr;                                                  \
           do {                                                                                   \
             if (sg_fr)                                                                           \
               sg_fr = SgFr_next(sg_fr);                                                          \
@@ -186,7 +186,7 @@ extern int Yap_page_size;
               TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;                                      \
 	    }                                                                                    \
           } while (Pg_free_pg(GLOBAL_pages_void) == Pg_free_pg(STR_PAGES));                      \
-          Yap_check_sg_fr = sg_fr;                                                            \
+          GLOBAL_check_sg_fr = sg_fr;                                                            \
         }
 
 #define ALLOC_STRUCT(STR, STR_PAGES, STR_TYPE)                                                   \
