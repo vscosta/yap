@@ -53,21 +53,21 @@ static void share_private_nodes(int worker_q);
 void make_root_choice_point(void) {
   CACHE_REGS
   if (worker_id == 0) {
-    SetOrFr_node(Yap_root_or_fr, B);
+    SetOrFr_node(GLOBAL_root_or_fr, B);
     Set_LOCAL_top_cp(B);
-    Set_Yap_root_cp(B);
+    Set_GLOBAL_root_cp(B);
   } else {
     choiceptr imageB;
 
-    Set_LOCAL_top_cp(Get_Yap_root_cp());
-    B = Get_Yap_root_cp();
+    Set_LOCAL_top_cp(Get_GLOBAL_root_cp());
+    B = Get_GLOBAL_root_cp();
     /*
       this is tricky, we need to get the B from some other stack
       and convert back to our own stack;
      */
     LOCAL_OldLCL0 = LCL0;
     LCL0 = REMOTE_ThreadHandle(0).current_yaam_regs->LCL0_;
-    imageB = Get_Yap_root_cp();
+    imageB = Get_GLOBAL_root_cp();
     /* we know B */
     B->cp_tr = TR = 
       (tr_fr_ptr)((CELL)(imageB->cp_tr)+((CELL)LOCAL_OldLCL0-(CELL)LCL0));
@@ -75,8 +75,8 @@ void make_root_choice_point(void) {
   }
   B->cp_h = H0;
   B->cp_ap = GETWORK;
-  B->cp_or_fr = Yap_root_or_fr;
-  LOCAL_top_or_fr = Yap_root_or_fr;
+  B->cp_or_fr = GLOBAL_root_or_fr;
+  LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
   Set_LOCAL_prune_request(NULL);
   BRANCH(worker_id, 0) = 0;
@@ -97,9 +97,9 @@ void free_root_choice_point(void) {
 #ifdef TABLING
   Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase);
 #endif /* TABLING */
-  Set_Yap_root_cp((choiceptr) Yap_LocalBase);
+  Set_GLOBAL_root_cp((choiceptr) Yap_LocalBase);
   Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
-  SetOrFr_node(Yap_root_or_fr, (choiceptr) Yap_LocalBase);
+  SetOrFr_node(GLOBAL_root_or_fr, (choiceptr) Yap_LocalBase);
   return;
 }
 
@@ -110,7 +110,7 @@ int p_share_work() {
 
   if (! BITMAP_member(OrFr_members(REMOTE_top_or_fr(worker_q)), worker_id) ||
       B == REMOTE_top_cp(worker_q) ||
-      (LOCAL_load <= Yap_delayed_release_load && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
+      (LOCAL_load <= GLOBAL_delayed_release_load && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
     /* refuse sharing request */
     REMOTE_reply_signal(LOCAL_share_request) = no_sharing;
     LOCAL_share_request = MAX_WORKERS;
@@ -157,7 +157,7 @@ int q_share_work(int worker_p) {
 
   /* make sharing request */
   LOCK_WORKER(worker_p);
-  if (BITMAP_member(Yap_bm_idle_workers, worker_p) || 
+  if (BITMAP_member(GLOBAL_bm_idle_workers, worker_p) || 
       REMOTE_share_request(worker_p) != MAX_WORKERS) {
     /* worker p is idle or has another request */
     UNLOCK_WORKER(worker_p);
@@ -497,7 +497,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef DEBUG_OPTYAP
     { dep_fr_ptr aux_dep_fr = LOCAL_top_dep_fr;
-      while(aux_dep_fr != Yap_root_dep_fr) {
+      while(aux_dep_fr != GLOBAL_root_dep_fr) {
         choiceptr top_cp_on_branch;
         top_cp_on_branch = DepFr_cons_cp(aux_dep_fr);
         while (YOUNGER_CP(top_cp_on_branch, B)) {

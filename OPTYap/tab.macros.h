@@ -111,10 +111,10 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define MakeTableVarTerm(INDEX)    ((INDEX) << NumberOfLowTagBits)
 #define VarIndexOfTableTerm(TERM)  (((unsigned int) (TERM)) >> NumberOfLowTagBits)
 #define VarIndexOfTerm(TERM)                                                     \
-        ((((CELL) (TERM)) - Yap_table_var_enumerator(0)) / sizeof(CELL))
+        ((((CELL) (TERM)) - GLOBAL_table_var_enumerator(0)) / sizeof(CELL))
 #define IsTableVarTerm(TERM)                                                     \
-        ((CELL) (TERM)) >= Yap_table_var_enumerator(0) &&		 	 \
-        ((CELL) (TERM)) <= Yap_table_var_enumerator(MAX_TABLE_VARS - 1)
+        ((CELL) (TERM)) >= GLOBAL_table_var_enumerator(0) &&		 	 \
+        ((CELL) (TERM)) <= GLOBAL_table_var_enumerator(MAX_TABLE_VARS - 1)
 #ifdef TRIE_COMPACT_PAIRS
 #define PairTermMark        NULL
 #define CompactPairInit     AbsPair((Term *) 0)
@@ -154,8 +154,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
 
 #define HASH_TABLE_LOCK(NODE)  ((((unsigned long int) (NODE)) >> 5) & (TABLE_LOCK_BUCKETS - 1))
-#define LOCK_TABLE(NODE)         LOCK(Yap_table_lock(HASH_TABLE_LOCK(NODE)))
-#define UNLOCK_TABLE(NODE)     UNLOCK(Yap_table_lock(HASH_TABLE_LOCK(NODE)))
+#define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
+#define UNLOCK_TABLE(NODE)     UNLOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
 
 #define STACK_PUSH_UP(ITEM, STACK)                  *--(STACK) = (CELL)(ITEM)
 #define STACK_POP_UP(STACK)                         *--(STACK)
@@ -290,8 +290,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
             SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
           TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
           TabEnt_hash_chain(TAB_ENT) = NULL;                     \
-          TabEnt_next(TAB_ENT) = Yap_root_tab_ent;            \
-          Yap_root_tab_ent = TAB_ENT;                         \
+          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
+          GLOBAL_root_tab_ent = TAB_ENT;                         \
         }
 
 #define new_subgoal_frame(SG_FR, CODE)                             \
@@ -394,27 +394,27 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 
 #ifdef LIMIT_TABLING
 #define insert_into_global_sg_fr_list(SG_FR)                                 \
-        SgFr_previous(SG_FR) = Yap_last_sg_fr;                            \
+        SgFr_previous(SG_FR) = GLOBAL_last_sg_fr;                            \
         SgFr_next(SG_FR) = NULL;                                             \
-        if (Yap_first_sg_fr == NULL)                                      \
-          Yap_first_sg_fr = SG_FR;                                        \
+        if (GLOBAL_first_sg_fr == NULL)                                      \
+          GLOBAL_first_sg_fr = SG_FR;                                        \
         else                                                                 \
-          SgFr_next(Yap_last_sg_fr) = SG_FR;                              \
-        Yap_last_sg_fr = SG_FR
+          SgFr_next(GLOBAL_last_sg_fr) = SG_FR;                              \
+        GLOBAL_last_sg_fr = SG_FR
 #define remove_from_global_sg_fr_list(SG_FR)                                 \
         if (SgFr_previous(SG_FR)) {                                          \
           if ((SgFr_next(SgFr_previous(SG_FR)) = SgFr_next(SG_FR)) != NULL)  \
             SgFr_previous(SgFr_next(SG_FR)) = SgFr_previous(SG_FR);          \
           else                                                               \
-            Yap_last_sg_fr = SgFr_previous(SG_FR);                        \
+            GLOBAL_last_sg_fr = SgFr_previous(SG_FR);                        \
         } else {                                                             \
-          if ((Yap_first_sg_fr = SgFr_next(SG_FR)) != NULL)               \
+          if ((GLOBAL_first_sg_fr = SgFr_next(SG_FR)) != NULL)               \
             SgFr_previous(SgFr_next(SG_FR)) = NULL;                          \
           else                                                               \
-            Yap_last_sg_fr = NULL;                                        \
+            GLOBAL_last_sg_fr = NULL;                                        \
 	}                                                                    \
-        if (Yap_check_sg_fr == SG_FR)                                     \
-          Yap_check_sg_fr = SgFr_previous(SG_FR)
+        if (GLOBAL_last_sg_fr == SG_FR)                                     \
+          GLOBAL_last_sg_fr = SgFr_previous(SG_FR)
 #else
 #define insert_into_global_sg_fr_list(SG_FR)
 #define remove_from_global_sg_fr_list(SG_FR)
@@ -653,7 +653,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 
   if (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp)) {
 #ifdef YAPOR
-    if (Yap_parallel_execution_mode)
+    if (GLOBAL_parallel_execution_mode)
       pruning_over_tabling_data_structures();
 #endif /* YAPOR */
     do {
@@ -667,7 +667,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
   while (LOCAL_top_sg_fr && EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
     sg_fr_ptr sg_fr;
 #ifdef YAPOR
-    if (Yap_parallel_execution_mode)
+    if (GLOBAL_parallel_execution_mode)
       pruning_over_tabling_data_structures();
 #endif /* YAPOR */
     sg_fr = LOCAL_top_sg_fr;

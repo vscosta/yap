@@ -616,7 +616,7 @@ p_save2( USES_REGS1 )
 
   Term t;
 #ifdef YAPOR
-  if (Yap_number_workers != 1) {
+  if (GLOBAL_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,
 	       "cannot perform save: more than a worker/thread running");
     return(FALSE);
@@ -1796,7 +1796,7 @@ p_restore( USES_REGS1 )
 
   Term t1 = Deref(ARG1);
 #ifdef YAPOR
-  if (Yap_number_workers != 1) {
+  if (GLOBAL_number_workers != 1) {
     Yap_Error(SYSTEM_ERROR,TermNil,"cannot perform save: more than a worker/thread running");
     return(FALSE);
   }

@@ -168,17 +168,17 @@ void Yap_remap_optyap_memory(void) {
   void *remap_addr = Yap_GlobalBase;
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   long remap_offset = (ADDR) remap_addr - (ADDR) Yap_local;
-  if (munmap(remap_addr, (size_t)(Yap_worker_area_size * Yap_number_workers)) == -1)
+  if (munmap(remap_addr, (size_t)(Yap_worker_area_size * GLOBAL_number_workers)) == -1)
     Yap_Error(FATAL_ERROR, TermNil, "munmap error (Yap_remap_optyap_memory)");
-  for (i = 0; i < Yap_number_workers; i++)
+  for (i = 0; i < GLOBAL_number_workers; i++)
     if (mmap(remap_addr + worker_offset(i), (size_t)Yap_worker_area_size, PROT_READ|PROT_WRITE, 
              MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * Yap_worker_area_size) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_remap_optyap_memory)");
 #else /* SHM_MEMORY_MAPPING_SCHEME */
-  for (i = 0; i < Yap_number_workers; i++)
+  for (i = 0; i < GLOBAL_number_workers; i++)
     if (shmdt(remap_addr + Yap_worker_area_size * i) == -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmdt error (Yap_remap_optyap_memory)");
-  for (i = 0; i < Yap_number_workers; i++)
+  for (i = 0; i < GLOBAL_number_workers; i++)
     if(shmat(shm_mapid[i], remap_addr + worker_offset(i), 0) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "shmat error (Yap_remap_optyap_memory)");
 #endif /* MEMORY_MAPPING_SCHEME */
@@ -195,21 +195,21 @@ void Yap_unmap_optyap_memory (void) {
   int proc;
 
   INFORMATION_MESSAGE("Worker %d exiting...", worker_id);
-  for (proc = 0; proc < Yap_number_workers; proc++) {
-    if (proc != worker_id && Yap_worker_pid(proc) != 0) {
-      if (kill(Yap_worker_pid(proc), SIGKILL) != 0)
-        INFORMATION_MESSAGE("Can't kill process %d", Yap_worker_pid(proc));
+  for (proc = 0; proc < GLOBAL_number_workers; proc++) {
+    if (proc != worker_id && GLOBAL_worker_pid(proc) != 0) {
+      if (kill(GLOBAL_worker_pid(proc), SIGKILL) != 0)
+        INFORMATION_MESSAGE("Can't kill process %d", GLOBAL_worker_pid(proc));
       else 
-        INFORMATION_MESSAGE("Killing process %d", Yap_worker_pid(proc));
+        INFORMATION_MESSAGE("Killing process %d", GLOBAL_worker_pid(proc));
     }
   }
       
 #ifdef YAPOR_COW
-  if (Yap_number_workers > 1) {
-    if (kill(Yap_master_worker, SIGINT) != 0)
-      INFORMATION_MESSAGE("Can't kill process %d", Yap_master_worker);
+  if (GLOBAL_number_workers > 1) {
+    if (kill(GLOBAL_master_worker, SIGINT) != 0)
+      INFORMATION_MESSAGE("Can't kill process %d", GLOBAL_master_worker);
     else 
-      INFORMATION_MESSAGE("Killing process %d", Yap_master_worker);
+      INFORMATION_MESSAGE("Killing process %d", GLOBAL_master_worker);
   }
 #endif /* YAPOR_COW */
 
@@ -217,9 +217,9 @@ void Yap_unmap_optyap_memory (void) {
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   strcpy(MapFile,"./mapfile");
 #ifdef YAPOR_COW
-  itos(Yap_master_worker, &MapFile[9]);
+  itos(GLOBAL_master_worker, &MapFile[9]);
 #else /* YAPOR_COPY || YAPOR_SBA */
-  itos(Yap_worker_pid(0), &MapFile[9]);
+  itos(GLOBAL_worker_pid(0), &MapFile[9]);
 #endif
   if (remove(MapFile) == 0)
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", MapFile);
@@ -229,7 +229,7 @@ void Yap_unmap_optyap_memory (void) {
 #ifdef YAPOR_COW
   i = 0;
 #else /* YAPOR_COPY || YAPOR_SBA */
-  for (i = 0; i < Yap_number_workers + 1; i++)
+  for (i = 0; i < GLOBAL_number_workers + 1; i++)
 #endif
   {
     if (shmctl(shm_mapid[i], IPC_RMID, 0) == 0)
