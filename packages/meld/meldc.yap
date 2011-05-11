@@ -186,8 +186,8 @@ compile_goal((forall G then Do), Goals, Gs, Head) :- !,
 	listtobody(BLF2, Body),
 	listtobody(DelBLF2, DelBody),
 	% done
-	assert(meld_program:(run(NG) :- Body)),
-	assert(meld_program:(run(delete(DelNG)) :- DelBody)).
+	assert_static(meld_program:(run(NG) :- Body)),
+	assert_static(meld_program:(run(delete(DelNG)) :- DelBody)).
 compile_goal(Goal, Goals, Gs, Head) :-
 	collect_body(Gs, Goals, BLF, BL1),
 	copy_term(h(Head,BLF,BL1,Goal), h(Head,DelBLF,DelBL1,DelGoal)),
@@ -198,8 +198,8 @@ compile_goal(Goal, Goals, Gs, Head) :-
 	reorder_builtins(DelGoal, DelBLF, DelBLF2),
 	listtobody(BLF2, Body),
 	listtobody(DelBLF2, DelBody),
-	assert(meld_program:(run(Goal) :- Body)),
-	assert(meld_program:(run(deleted(DelGoal)) :- DelBody)).
+	assert_static(meld_program:(run(Goal) :- Body)),
+	assert_static(meld_program:(run(deleted(DelGoal)) :- DelBody)).
 
 % quantified variables should not leave the scope of the forall.
 quantified_vars(G,Extern,NG) :-
