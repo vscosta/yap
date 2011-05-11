@@ -1677,6 +1677,31 @@ p_nb_queue_dequeue( USES_REGS1 )
   return Yap_unify(out, ARG2);
 }
 
+/* purge an entry from the queue, replacing it by [] */
+static Int
+p_nb_queue_replace( USES_REGS1 )
+{
+  CELL *qd = GetQueue(ARG1,"dequeue");
+  UInt qsz;
+  Term queue, t = Deref(ARG2);
+
+  if (!qd)
+    return FALSE;
+  qsz = IntegerOfTerm(qd[QUEUE_SIZE]);
+  if (qsz == 0)
+    return FALSE;
+  
+  queue = qd[QUEUE_HEAD];
+  for (; qsz > 0; qsz--) {
+    if (Yap_eq(HeadOfTerm(queue), t)) {
+      *RepPair(Deref(queue)) = Deref(ARG3);
+      return TRUE;
+    }
+    queue = TailOfTerm(queue);
+  }
+  return FALSE;
+}
+
 static Int
 p_nb_queue_peek( USES_REGS1 )
 {
@@ -1709,6 +1734,16 @@ p_nb_queue_size( USES_REGS1 )
   if (!qd)
     return FALSE;
   return Yap_unify(ARG2,qd[QUEUE_SIZE]);
+}
+
+static Int
+p_nb_queue_show( USES_REGS1 )
+{
+  CELL *qd = GetQueue(ARG1,"queue_size");
+
+  if (!qd)
+    return FALSE;
+  return Yap_unify(ARG2,qd[QUEUE_HEAD]);
 }
 
 
@@ -2562,7 +2597,9 @@ void Yap_InitGlobals(void)
   Yap_InitCPred("nb_queue_dequeue", 2, p_nb_queue_dequeue, SafePredFlag);
   Yap_InitCPred("nb_queue_peek", 2, p_nb_queue_peek, SafePredFlag);
   Yap_InitCPred("nb_queue_empty", 1, p_nb_queue_empty, SafePredFlag);
+  Yap_InitCPred("nb_queue_replace", 3, p_nb_queue_replace, SafePredFlag);
   Yap_InitCPred("nb_queue_size", 2, p_nb_queue_size, SafePredFlag);
+  Yap_InitCPred("nb_queue_show", 2, p_nb_queue_show, SafePredFlag);
   Yap_InitCPred("nb_heap", 2, p_nb_heap, 0L);
   Yap_InitCPred("nb_heap_close", 1, p_nb_heap_close, SafePredFlag);
   Yap_InitCPred("nb_heap_add", 3, p_nb_heap_add_to_heap, 0L);
