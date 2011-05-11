@@ -1,5 +1,5 @@
 
-  /* This file, rlocals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, rlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/LOCALS instead */
 
 
@@ -46,7 +46,7 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  REMOTE(wid)->global_arena = TermToGlobalOrAtomAdjust(REMOTE(wid)->global_arena);
+  REMOTE_GlobalArena(wid) = TermToGlobalOrAtomAdjust(REMOTE_GlobalArena(wid));
 
 
 
@@ -64,25 +64,17 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 #ifdef  COROUTINING
-  REMOTE(wid)->woken_goals = TermToGlobalAdjust(REMOTE(wid)->woken_goals);
-  REMOTE(wid)->atts_mutable_list = TermToGlobalAdjust(REMOTE(wid)->atts_mutable_list);
+  REMOTE_WokenGoals(wid) = TermToGlobalAdjust(REMOTE_WokenGoals(wid));
+  REMOTE_AttsMutableList(wid) = TermToGlobalAdjust(REMOTE_AttsMutableList(wid));
 #endif
 
-  REMOTE(wid)->gc_generation = TermToGlobalAdjust(REMOTE(wid)->gc_generation);
-  REMOTE(wid)->gc_phase = TermToGlobalAdjust(REMOTE(wid)->gc_phase);
+  REMOTE_GcGeneration(wid) = TermToGlobalAdjust(REMOTE_GcGeneration(wid));
+  REMOTE_GcPhase(wid) = TermToGlobalAdjust(REMOTE_GcPhase(wid));
 
 
 
 
 
-
-#if LOW_LEVEL_TRACER
-
-#endif
-
-#if defined(YAPOR) || defined(THREADS)
-  REINIT_LOCK(REMOTE(wid)->signal_lock);
-#endif
 
 
 
@@ -109,10 +101,9 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
-  REMOTE(wid)->dynamic_arrays = PtoArrayEAdjust(REMOTE(wid)->dynamic_arrays);
-  REMOTE(wid)->static_arrays = PtoArraySAdjust(REMOTE(wid)->static_arrays);
-  REMOTE(wid)->global_variables = PtoGlobalEAdjust(REMOTE(wid)->global_variables);
-
+  REMOTE_DynamicArrays(wid) = PtoArrayEAdjust(REMOTE_DynamicArrays(wid));
+  REMOTE_StaticArrays(wid) = PtoArraySAdjust(REMOTE_StaticArrays(wid));
+  REMOTE_GlobalVariables(wid) = PtoGlobalEAdjust(REMOTE_GlobalVariables(wid));
 
 
 
@@ -129,12 +120,12 @@ static void RestoreWorker(int wid USES_REGS) {
 
 #endif /* YAPOR || TABLING */
 
-#define REMOTE_ThreadHandle(wid)     (REMOTE(wid)->thread_handle)
-#define REMOTE_c_input_stream(wid)   (REMOTE(wid)->c_input_stream)
-#define REMOTE_c_output_stream(wid)  (REMOTE(wid)->c_output_stream)
-#define REMOTE_c_error_stream(wid)   (REMOTE(wid)->c_error_stream)
-#define REMOTE_ActiveSignals(wid)    (REMOTE(wid)->active_signals)
-#define REMOTE_SignalLock(wid)       (REMOTE(wid)->signal_lock)
-#define REMOTE_ScratchPad(wid)       (REMOTE(wid)->scratchpad)
 
+#if LOW_LEVEL_TRACER
+
+#endif
+
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(REMOTE_SignalLock(wid));
+#endif
 }

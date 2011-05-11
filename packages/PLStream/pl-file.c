@@ -4740,7 +4740,7 @@ struct PL_local_data *Yap_InitThreadIO(int wid)
 #if THREADS
   if (wid) {
     /* copy from other worker */
-    memcpy(p, Yap_local[worker_id]->Yap_ld_, sizeof(struct PL_local_data));
+    memcpy(p, Yap_local[worker_id]->PL_local_data_p_, sizeof(struct PL_local_data));
   }
 #endif
   return p;

@@ -88,15 +88,11 @@ void init_yapor_workers(void);
 
 ADDR Yap_HeapBase;
 
-struct restore_info rinfo[MAX_THREADS];
-
 struct thread_globs Yap_thread_gl[MAX_THREADS];
 
 pthread_t Yap_master_thread;
 
 #else
-
-struct restore_info rinfo;
 
 ADDR Yap_HeapBase,
   Yap_LocalBase,

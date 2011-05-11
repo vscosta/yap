@@ -1,7 +1,6 @@
 
-  /* This file, iglobals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, iglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/GLOBALS instead */
-
 
 
 
@@ -43,16 +42,13 @@ static void InitGlobal(void) {
   GLOBAL_NOfThreadsCreated = 1;
 
   GLOBAL_ThreadsTotalTime = 0L;
-#endif
 
+  INIT_LOCK(GLOBAL_ThreadHandlesLock);
+#endif
 #if defined(YAPOR) || defined(THREADS)
 
   INIT_LOCK(GLOBAL_BGL);
 #endif
-
-#ifdef THREADS
-  INIT_LOCK(GLOBAL_ThreadHandlesLock);
-#endif 
 #if defined(YAPOR) || defined(TABLING)
 
 #endif /* YAPOR || TABLING */

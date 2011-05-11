@@ -2505,7 +2505,7 @@ X_API int
 PL_destroy_engine(PL_engine_t e)
 {
 #if THREADS
-  return YAP_ThreadDestroyEngine(((struct worker_local *)e)->thread_handle.current_yaam_regs->worker_id_);
+  return YAP_ThreadDestroyEngine(((struct worker_local *)e)->ThreadHandle_.current_yaam_regs->worker_id_);
 #else
   return FALSE;
 #endif
@@ -2538,7 +2538,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     }
     return PL_ENGINE_SET;
   } else {
-    nwid = ((struct worker_local *)engine)->thread_handle.current_yaam_regs->worker_id_;
+    nwid = ((struct worker_local *)engine)->ThreadHandle_.current_yaam_regs->worker_id_;
   }
 
   pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));

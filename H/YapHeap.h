@@ -81,15 +81,6 @@ typedef struct atom_hash_entry {
   Atom Entry;
 } AtomHashEntry;
 
-typedef struct reduction_counters {
-  YAP_ULONG_LONG reductions;
-  YAP_ULONG_LONG reductions_retries;
-  YAP_ULONG_LONG retries;
-  int reductions_on;
-  int reductions_retries_on;
-  int retries_on;
-} red_counters;
-
 typedef struct scratch_block_struct {
   char *ptr;
   UInt sz, msz;
@@ -100,29 +91,6 @@ typedef struct record_list {
   struct DB_TERM *dbrecord;
   struct record_list *next_rec, *prev_rec;
 } DBRecordList;
-
-typedef struct restore_info {
-  Int base_diff;
-  Int cl_diff;
-  Int g_diff;
-  Int g_diff0;
-  Int h_diff;
-  Int l_diff;
-  Int tr_diff;
-  Int x_diff;
-  Int delay_diff;
-  CELL *old_ASP;
-  CELL *old_LCL0;
-  CELL *g_split;
-  tr_fr_ptr old_TR;  
-  CELL *old_GlobalBase;
-  CELL *old_H;
-  CELL *old_H0;
-  ADDR old_TrailBase;
-  ADDR old_TrailTop;
-  ADDR old_HeapBase;
-  ADDR old_HeapTop;
-} restoreinfo;
 
 /* SWI Emulation */
 #define SWI_BUF_SIZE 512
