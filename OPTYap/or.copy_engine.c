@@ -97,15 +97,15 @@ static void share_private_nodes(int worker_q);
 
 void make_root_choice_point(void) {
   if (worker_id == 0) {
-    LOCAL_top_cp = Yap_root_cp = OrFr_node(Yap_root_or_fr) = B;
+    LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = B;
   } else {
-    B = LOCAL_top_cp = Yap_root_cp;
+    B = LOCAL_top_cp = GLOBAL_root_cp;
     B->cp_tr = TR = ((choiceptr) (worker_offset(0) + (CELL)(B)))->cp_tr;
   }
   B->cp_h = H0;
   B->cp_ap = GETWORK;
-  B->cp_or_fr = Yap_root_or_fr;
-  LOCAL_top_or_fr = Yap_root_or_fr;
+  B->cp_or_fr = GLOBAL_root_or_fr;
+  LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
   Set_LOCAL_prune_request(NULL);
   BRANCH(worker_id, 0) = 0;
@@ -125,7 +125,7 @@ void free_root_choice_point(void) {
 #ifdef TABLING
   LOCAL_top_cp_on_stack =
 #endif /* TABLING */
-  LOCAL_top_cp = Yap_root_cp = OrFr_node(Yap_root_or_fr) = (choiceptr) Yap_LocalBase;
+  LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = (choiceptr) Yap_LocalBase;
   return;
 }
 
@@ -135,7 +135,7 @@ int p_share_work(void) {
 
   if (! BITMAP_member(OrFr_members(REMOTE_top_or_fr(worker_q)), worker_id) ||
       B == REMOTE_top_cp(worker_q) ||
-      (LOCAL_load <= Yap_delayed_release_load  && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
+      (LOCAL_load <= GLOBAL_delayed_release_load  && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
     /* refuse sharing request */
     REMOTE_reply_signal(LOCAL_share_request) = no_sharing;
     LOCAL_share_request = MAX_WORKERS;
@@ -242,7 +242,7 @@ int q_share_work(int worker_p) {
 
   /* make sharing request */
   LOCK_WORKER(worker_p);
-  if (BITMAP_member(Yap_bm_idle_workers, worker_p) || 
+  if (BITMAP_member(GLOBAL_bm_idle_workers, worker_p) || 
       REMOTE_share_request(worker_p) != MAX_WORKERS) {
     /* worker p is idle or has another request */
     UNLOCK_WORKER(worker_p);
@@ -658,7 +658,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef DEBUG_OPTYAP
     { dep_fr_ptr aux_dep_fr = LOCAL_top_dep_fr;
-      while(aux_dep_fr != Yap_root_dep_fr) {
+      while(aux_dep_fr != GLOBAL_root_dep_fr) {
         choiceptr top_cp_on_branch;
         top_cp_on_branch = DepFr_cons_cp(aux_dep_fr);
         while (YOUNGER_CP(top_cp_on_branch, B)) {

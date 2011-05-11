@@ -831,7 +831,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
-  gt_node_ptr current_node = Yap_root_gt;
+  gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
   int subs_arity = *subs_arity_ptr;
   CELL *stack_vars = *stack_vars_ptr;
@@ -856,7 +856,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	if (subs_arity == MAX_TABLE_VARS)
 	  Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
 	STACK_PUSH_UP(t, stack_vars);
-	*((CELL *)t) = Yap_table_var_enumerator(subs_arity);
+	*((CELL *)t) = GLOBAL_table_var_enumerator(subs_arity);
 	t = MakeTableVarTerm(subs_arity);
 	subs_arity = subs_arity + 1;
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
@@ -901,7 +901,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	  STACK_PUSH_UP(t, stack_terms);
 	}
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      } else if (current_node != Yap_root_gt) {
+      } else if (current_node != GLOBAL_root_gt) {
 	gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
 	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
@@ -918,13 +918,13 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    } else if (current_node != Yap_root_gt) {
+    } else if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
 #else /* ! TRIE_COMPACT_PAIRS */
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    if (current_node != Yap_root_gt) {
+    if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
     } else 
@@ -1035,7 +1035,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
-  gt_node_ptr current_node = Yap_root_gt;
+  gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
   int vars_arity = *vars_arity_ptr;
 #if ! defined(MODE_GLOBAL_TRIE_LOOP) || ! defined(GLOBAL_TRIE_FOR_SUBTERMS)
@@ -1066,7 +1066,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	if (vars_arity == MAX_TABLE_VARS)
 	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
 	stack_vars_base[vars_arity] = t;
-	*((CELL *)t) = Yap_table_var_enumerator(vars_arity);
+	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
 	t = MakeTableVarTerm(vars_arity);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
 	vars_arity = vars_arity + 1;
@@ -1118,7 +1118,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	  STACK_PUSH_UP(t, stack_terms);
 	}
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      } else if (current_node != Yap_root_gt) {
+      } else if (current_node != GLOBAL_root_gt) {
 	gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
 	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
@@ -1137,13 +1137,13 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    } else if (current_node != Yap_root_gt) {
+    } else if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
 #else /* ! TRIE_COMPACT_PAIRS */
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    if (current_node != Yap_root_gt) {
+    if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
     } else 

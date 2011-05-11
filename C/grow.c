@@ -903,12 +903,12 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
   Yap_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
   if (do_grow) {
-    if (!Yap_AllowGlobalExpansion) {
+    if (!GLOBAL_AllowGlobalExpansion) {
       Yap_ErrorMessage = "Global Stack crashed against Local Stack";
       LeaveGrowMode(GrowStackMode);
       return 0;
     }
-    if (!Yap_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
+    if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
       /* always fails when using malloc */
       Yap_ErrorMessage = NULL;
       size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   
@@ -1256,10 +1256,10 @@ do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *ol
   Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"cannot grow Heap: more than a worker/thread running");
   return FALSE;
 #endif
-  if (Yap_SizeOfOverflow > sz) {
+  if (GLOBAL_SizeOfOverflow > sz) {
     if (size < YAP_ALLOC_SIZE)
       size = YAP_ALLOC_SIZE;
-    sz = AdjustPageSize(Yap_SizeOfOverflow);
+    sz = AdjustPageSize(GLOBAL_SizeOfOverflow);
   }
   while(sz >= sizeof(CELL) * K16 && !static_growheap(sz, fix_code, cip, old_trp, tksp, vep PASS_REGS)) {
     size = size/2;
@@ -1401,7 +1401,7 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
 
   if (NOfAtoms > 2*AtomHashTableSize) {
     UInt n = NOfAtoms;
-    if (Yap_AGcThreshold)
+    if (GLOBAL_AGcThreshold)
       Yap_atom_gc( PASS_REGS1 );
     /* check if we have a significant improvement from agc */
     if (n > NOfAtoms+ NOfAtoms/10 ||
@@ -1442,12 +1442,12 @@ Yap_growglobal(CELL **ptr)
   unsigned long sz = sizeof(CELL) * K16;
 
 #if defined(YAPOR_THREADS)
-  if (Yap_number_workers != 1) {
+  if (GLOBAL_number_workers != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
 #elif defined(THREADS)
-  if (Yap_NOfThreads != 1) {
+  if (GLOBAL_NOfThreads != 1) {
     Yap_Error(OUT_OF_STACK_ERROR,TermNil,"cannot grow Global: more than a worker/thread running");
     return(FALSE);
   }
@@ -1493,7 +1493,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   long size = size0;
   ADDR old_Yap_GlobalBase = Yap_GlobalBase;
   
-  if (!Yap_AllowGlobalExpansion) {
+  if (!GLOBAL_AllowGlobalExpansion) {
     Yap_ErrorMessage = "Database crashed against stacks";
     return FALSE;
   }
@@ -1703,7 +1703,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     fprintf(Yap_stderr, "%% growing the trail %ld bytes\n", size);
   }
   Yap_ErrorMessage = NULL;
-  if (!Yap_AllowTrailExpansion) {
+  if (!GLOBAL_AllowTrailExpansion) {
     Yap_ErrorMessage = "Trail Overflow";
     return FALSE;
   }

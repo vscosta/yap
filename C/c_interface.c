@@ -2781,9 +2781,9 @@ YAP_Init(YAP_init_args *yap_init)
   LOCAL_ThreadHandle.ssize =  Trail+Stack;
 #endif
 #endif
-  Yap_AllowGlobalExpansion = TRUE;
-  Yap_AllowLocalExpansion = TRUE;
-  Yap_AllowTrailExpansion = TRUE;
+  GLOBAL_AllowGlobalExpansion = TRUE;
+  GLOBAL_AllowLocalExpansion = TRUE;
+  GLOBAL_AllowTrailExpansion = TRUE;
   Yap_InitExStacks (Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
@@ -2849,19 +2849,19 @@ YAP_Init(YAP_init_args *yap_init)
   }
   /* make sure we do this after restore */
   if (yap_init->MaxStackSize) {
-    Yap_AllowLocalExpansion = FALSE;
+    GLOBAL_AllowLocalExpansion = FALSE;
   } else {
-    Yap_AllowLocalExpansion = TRUE;
+    GLOBAL_AllowLocalExpansion = TRUE;
   }
   if (yap_init->MaxGlobalSize) {
-    Yap_AllowGlobalExpansion = FALSE;
+    GLOBAL_AllowGlobalExpansion = FALSE;
   } else {
-    Yap_AllowGlobalExpansion = TRUE;
+    GLOBAL_AllowGlobalExpansion = TRUE;
   }
   if (yap_init->MaxTrailSize) {
-    Yap_AllowTrailExpansion = FALSE;
+    GLOBAL_AllowTrailExpansion = FALSE;
   } else {
-    Yap_AllowTrailExpansion = TRUE;
+    GLOBAL_AllowTrailExpansion = TRUE;
   }
   if (yap_init->YapPrologRCFile) {
     Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
@@ -3029,7 +3029,7 @@ YAP_Reset(void)
   }
   /* reinitialise the engine */
   Yap_InitYaamRegs();
-  Yap_Initialised = TRUE;
+  GLOBAL_Initialised = TRUE;
 
   RECOVER_MACHINE_REGS();
   return(TRUE);
@@ -3290,8 +3290,8 @@ YAP_AtomReleaseHold(Atom at)
 X_API Agc_hook
 YAP_AGCRegisterHook(Agc_hook hook)
 {
-  Agc_hook old = Yap_AGCHook;
-  Yap_AGCHook = hook;
+  Agc_hook old = GLOBAL_AGCHook;
+  GLOBAL_AGCHook = hook;
   return old;
 } 
 
@@ -3527,9 +3527,9 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
     return TRUE;
   case YAPC_ENABLE_AGC:
     if (val) {
-      Yap_AGcThreshold = 10000;
+      GLOBAL_AGcThreshold = 10000;
     } else {
-      Yap_AGcThreshold = 0;
+      GLOBAL_AGcThreshold = 0;
     }
     return TRUE;
   default:

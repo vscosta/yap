@@ -1176,7 +1176,7 @@ void init_yapor_workers(void) {
   return;
 #endif /* YAPOR_THREADS */
 #ifdef YAPOR_COW
-  if (Yap_number_workers > 1) {
+  if (GLOBAL_number_workers > 1) {
     int son;
     son = fork();
     if (son == -1)
@@ -1185,7 +1185,7 @@ void init_yapor_workers(void) {
       /* I am the father, I must stay here and wait for my children to all die */
       struct sigaction sigact;
 
-      Yap_master_worker = getpid();
+      GLOBAL_master_worker = getpid();
       sigact.sa_handler = SIG_DFL;
       sigemptyset(&sigact.sa_mask);
       sigact.sa_flags = SA_RESTART;
@@ -1193,10 +1193,10 @@ void init_yapor_workers(void) {
       pause();
       exit(0);
     } else
-      Yap_worker_pid(0) = getpid();
+      GLOBAL_worker_pid(0) = getpid();
   }
 #endif /* YAPOR_COW */
-  for (proc = 1; proc < Yap_number_workers; proc++) {
+  for (proc = 1; proc < GLOBAL_number_workers; proc++) {
     int son;
     son = fork();
     if (son == -1)
@@ -1209,7 +1209,7 @@ void init_yapor_workers(void) {
       InitWorker(worker_id);
       break;
     } else
-      Yap_worker_pid(proc) = son;
+      GLOBAL_worker_pid(proc) = son;
   }
 }
 #endif /* YAPOR */
@@ -1447,17 +1447,17 @@ Yap_HaltRegisterHook (HaltHookFunc f, void * env)
     return FALSE;
   h->environment = env;
   h->hook = f;
-  LOCK(Yap_BGL);
-  h->next = Yap_HaltHooks;
-  Yap_HaltHooks = h;
-  UNLOCK(Yap_BGL);
+  LOCK(GLOBAL_BGL);
+  h->next = GLOBAL_HaltHooks;
+  GLOBAL_HaltHooks = h;
+  UNLOCK(GLOBAL_BGL);
   return TRUE;
 }
 
 static void
 run_halt_hooks(int code)
 {
-  struct halt_hook *hooke = Yap_HaltHooks;
+  struct halt_hook *hooke = GLOBAL_HaltHooks;
 
   while (hooke) {
     hooke->hook(code, hooke->environment);

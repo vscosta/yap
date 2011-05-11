@@ -43,9 +43,9 @@ STD_PROTO(static inline void PUT_BUSY, (int));
 
 static inline
 void PUT_BUSY(int worker_num) {
-  LOCK(Yap_locks_bm_idle_workers);
-  BITMAP_delete(Yap_bm_idle_workers, worker_num);
-  UNLOCK(Yap_locks_bm_idle_workers);
+  LOCK(GLOBAL_locks_bm_idle_workers);
+  BITMAP_delete(GLOBAL_bm_idle_workers, worker_num);
+  UNLOCK(GLOBAL_locks_bm_idle_workers);
   return;
 }
 
@@ -57,15 +57,15 @@ void PUT_BUSY(int worker_num) {
 
 void make_root_choice_point(void) {
   if (worker_id == 0) {
-    LOCAL_top_cp = Yap_root_cp = OrFr_node(Yap_root_or_fr) = B;
+    LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = B;
   } else {
-    B = LOCAL_top_cp = Yap_root_cp;
+    B = LOCAL_top_cp = GLOBAL_root_cp;
     B->cp_tr = TR = ((choiceptr) (worker_offset(0) + (CELL)(B)))->cp_tr;
   }
   B->cp_h = H0;
   B->cp_ap = GETWORK;
-  B->cp_or_fr = Yap_root_or_fr;
-  LOCAL_top_or_fr = Yap_root_or_fr;
+  B->cp_or_fr = GLOBAL_root_or_fr;
+  LOCAL_top_or_fr = GLOBAL_root_or_fr;
   LOCAL_load = 0;
   LOCAL_prune_request = NULL;
   BRANCH(worker_id, 0) = 0;
@@ -86,7 +86,7 @@ int p_share_work(void) {
 
   if (! BITMAP_member(OrFr_members(REMOTE_top_or_fr(worker_q)), worker_id) ||
       B == REMOTE_top_cp(worker_q) ||
-      (LOCAL_load <= Yap_delayed_release_load && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
+      (LOCAL_load <= GLOBAL_delayed_release_load && OrFr_nearest_livenode(LOCAL_top_or_fr) == NULL)) {
     /* refuse sharing request */
     REMOTE_reply_signal(LOCAL_share_request) = no_sharing;
     LOCAL_share_request = MAX_WORKERS;
@@ -105,7 +105,7 @@ int p_share_work(void) {
 
     return FALSE;
   } else {
-    Yap_worker_pid(worker_q) = son;
+    GLOBAL_worker_pid(worker_q) = son;
     LOCAL_share_request = MAX_WORKERS;
     PUT_IN_REQUESTABLE(worker_id);
 
@@ -129,7 +129,7 @@ int q_share_work(int worker_p) {
 
   /* make sharing request */
   LOCK_WORKER(worker_p);
-  if (BITMAP_member(Yap_bm_idle_workers, worker_p) || 
+  if (BITMAP_member(GLOBAL_bm_idle_workers, worker_p) || 
       REMOTE_share_request(worker_p) != MAX_WORKERS) {
     /* worker p is idle or has another request */
     UNLOCK_WORKER(worker_p);

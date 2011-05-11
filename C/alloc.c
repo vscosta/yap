@@ -703,8 +703,8 @@ AllocHeap(unsigned long int size)
 	UNLOCK(HeapTopLock);
 	Yap_signal(YAP_CDOVF_SIGNAL);
       } else {
-	if (size > Yap_SizeOfOverflow)
-	  Yap_SizeOfOverflow = size*sizeof(CELL) + sizeof(YAP_SEG_SIZE);
+	if (size > GLOBAL_SizeOfOverflow)
+	  GLOBAL_SizeOfOverflow = size*sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 	/* big allocations, the caller must handle the problem */
 	UNLOCK(HeapUsedLock);
 	UNLOCK(HeapTopLock);

@@ -1988,22 +1988,22 @@ PL_initialise(int myargc, char **myargv)
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
 
-  Yap_PL_Argc = myargc;
-  Yap_PL_Argv = myargv;
-  Yap_InitialisedFromPL = TRUE;
+  GLOBAL_PL_Argc = myargc;
+  GLOBAL_PL_Argv = myargv;
+  GLOBAL_InitialisedFromPL = TRUE;
   return YAP_Init(&init_args) != YAP_BOOT_ERROR;
 }
 
 X_API int
 PL_is_initialised(int *argcp, char ***argvp)
 {
-  if (Yap_InitialisedFromPL) {
+  if (GLOBAL_InitialisedFromPL) {
     if (argcp) 
-      *argcp = Yap_PL_Argc;
+      *argcp = GLOBAL_PL_Argc;
     if (argvp) 
-      *argvp = Yap_PL_Argv;
+      *argvp = GLOBAL_PL_Argv;
   }
-  return Yap_InitialisedFromPL;
+  return GLOBAL_InitialisedFromPL;
 }
 
 X_API module_t

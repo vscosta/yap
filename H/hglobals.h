@@ -33,8 +33,6 @@ typedef struct global_data {
   int  allow_trail_expansion;
   UInt  size_of_overflow;
 
-  UInt  agc_last_call;
-
   UInt  agc_threshold;
   Agc_hook  agc_hook;
 
