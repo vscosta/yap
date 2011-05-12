@@ -229,6 +229,7 @@ true :- true.
 % then recover program.
 '$startup_reconsult' :-
 	get_value('$consult_on_boot',X), X \= [], !,
+	writeln(consult:X),
 	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X).
 '$startup_reconsult'.
@@ -1096,8 +1097,7 @@ bootstrap(F) :-
 	stream_property(Stream, file_name(File)),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
-	getcwd(OldD),
-	cd(Dir),
+	working_directory(OldD, Dir),
 	(
 	  get_value('$lf_verbose',silent)
 	->
@@ -1107,7 +1107,7 @@ bootstrap(F) :-
 	  format(user_error, '~*|% consulting ~w...~n', [LC,F])
 	),
 	'$loop'(Stream,consult),
-	cd(OldD),
+	working_directory(_, OldD),
 	'$end_consult',
 	(
 	  get_value('$lf_verbose',silent)
@@ -1378,10 +1378,6 @@ b_getval(GlobalVariable, Val) :-
 	;
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
-
-cd(Dir) :- working_directory(_, Dir).
-
-getcwd(Dir) :- working_directory(Dir, Dir).
 
 
 
