@@ -193,14 +193,13 @@ true :- true.
 '$enter_top_level' :-
 	'$disable_docreep',
 	prompt(_,'| '),
-	prompt1(' ?- '),
 	'$run_toplevel_hooks',
+	prompt1('|: '),
 	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- '),
 	nb_setval('$spy_gn',1),
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	prompt1('|: '),
 	'$command'(Command,Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
