@@ -229,7 +229,6 @@ true :- true.
 % then recover program.
 '$startup_reconsult' :-
 	get_value('$consult_on_boot',X), X \= [], !,
-	writeln(consult:X),
 	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X).
 '$startup_reconsult'.

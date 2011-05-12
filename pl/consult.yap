@@ -454,7 +454,7 @@ initialization(G,OPT) :-
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
-	peek(Stream, 0'#), !, % 35 is ASCII for '#
+	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
 	skip(Stream, 10),
 	'$skip_unix_comments'(Stream).
 '$skip_unix_comments'(_).
