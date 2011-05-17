@@ -7,6 +7,7 @@
 		  clpbn_key/2,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
+		  clpbn_finalize_solver/1,
 		  clpbn_init_solver/5,
 		  clpbn_run_solver/4,
 		  clpbn_init_graph/1,
@@ -35,6 +36,15 @@
 	       run_vel_solver/3
 	      ]).
 
+:- use_module('clpbn/bp',
+	      [bp/3,
+               check_if_bp_done/1,
+	       init_bp_solver/4,
+	       run_bp_solver/3,
+	       finalize_bp_solver/1
+	      ]).
+
+
 :- use_module('clpbn/jt',
 	      [jt/3,
 	       init_jt_solver/4,
@@ -51,6 +61,14 @@
 	       check_if_gibbs_done/1,
 	       init_gibbs_solver/4,
 	       run_gibbs_solver/3
+	      ]).
+
+:- use_module('clpbn/bp',
+	      [bp/3,
+	       check_if_bp_done/1,
+	       init_bp_solver/4,
+	       run_bp_solver/3,
+	       finalize_bp_solver/1
 	      ]).
 
 :- use_module('clpbn/pgrammar',
@@ -229,6 +247,8 @@ write_out(vel, GVars, AVars, DiffVars) :-
 	vel(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
+write_out(bp, GVars, AVars, DiffVars) :-
+	bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
@@ -318,6 +338,9 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(vel),
 	check_if_vel_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
+	use(bp),
+	check_if_bp_done(Var), !.
+bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
 	check_if_vel_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _, []) :-
@@ -379,17 +402,20 @@ clpbn_key(Var,Key) :-
 % values at the end of the day.
 %
 clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
-       	solver(Solver),
+	solver(Solver),
 	clpbn_init_solver(Solver, LVs, Vs0, VarsWithUnboundKeys, State).
 
 clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(vel, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_vel_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+
 
 %
 % LVs is the list of lists of variables to marginalise
@@ -398,15 +424,21 @@ clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 % 
 %
 clpbn_run_solver(LVs, LPs, State) :-
-       	solver(Solver),
+	solver(Solver),
 	clpbn_run_solver(Solver, LVs, LPs, State).
 
 clpbn_run_solver(gibbs, LVs, LPs, State) :-
 	run_gibbs_solver(LVs, LPs, State).
+
 clpbn_run_solver(vel, LVs, LPs, State) :-
 	run_vel_solver(LVs, LPs, State).
+
+clpbn_run_solver(bp, LVs, LPs, State) :-
+	run_bp_solver(LVs, LPs, State).
+
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
+
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
 
@@ -415,3 +447,10 @@ add_keys(Key1+V1,_Key2,Key1+V1).
 clpbn_init_graph(pcg) :- !,
 	pcg_init_graph.
 clpbn_init_graph(_).
+
+clpbn_finalize_solver(State) :-
+	solver(bp), !,
+	functor(State, _, Last),
+	arg(Last, State, Info),
+	finalize_bp_solver(Info).
+clpbn_finalize_solver(_State).

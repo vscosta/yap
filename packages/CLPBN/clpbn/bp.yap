@@ -1,107 +1,94 @@
 
-/***********************************
+/************************************************
 
   Belief Propagation in CLP(BN)
-
-  This should connect to C-code.
  
-*********************************/
+**************************************************/
 
-:- module(clpbn_bp, [
-          bp/3,
-          check_if_bp_done/1,
-          init_bp_solver/4,
-          run_bp_solver/3]).
-
-
-:- use_module(library('clpbn/aggregates'),
-          [check_for_agg_vars/2]).
-
-:- use_module(library('clpbn/connected'),
-          [init_influences/3,
-           influences/5
+:- module(clpbn_bp,
+          [bp/3,
+           check_if_bp_done/1,
+           init_bp_solver/4,
+           run_bp_solver/3,
+           finalize_bp_solver/1
           ]).
+
 
 :- use_module(library('clpbn/dists'),
           [dist/4,
            get_dist_domain/2,
+           get_dist_domain_size/2,
            get_dist_params/2
           ]).
 
-:- use_module(library('clpbn/display'),
-          [clpbn_bind_vals/3]).
 
-:-use_module(library(lists),
-          [append/3,
-           memberchk/2
-          ]).
+:- use_module(library('clpbn/display'),
+         [clpbn_bind_vals/3]).
+
+
+:- use_module(library(atts)).
+
+:- use_module(library(charsio)).
 
 :- load_foreign_files(['horus'], [], init_predicates).
 
-:- attribute all_diffs/1.
+:- attribute id/1.
+
+:- dynamic num_bayes_nets/1.
 
 
 check_if_bp_done(_Var).
 
-%
-% implementation of belief propagation
-%
-% A1 = +QueryVars -> sets of independent marginalization variables
-% A2 = *AllVars   -> list of all variables
-% A3 = -Output    -> output probabilities
-%
-% Other important variables:
-%
-% State0 initialized graph, is used to pass data from initialization 
-% to query solving (eg, State might be the JT and be used to run
-% different queries). 
-%
+num_bayes_nets(0).
+
+
 bp([[]],_,_) :- !.
-bp([QueryVars],AllVars,Output) :-
-    writeln(queryVars:QueryVars),
-    writeln(allVars:AllVars),
-    % init_bp_solver([QueryVars], AllVars, Output, State),
-    run_bp_solver([QueryVars], [AllVars], _State),
-    % bind probs back to variables so that they can be output.
-    clpbn_bind_vals([QueryVars],[LPs],Output).
-
-% initialise necessary data for query solver
-init_bp_solver(Qs, AllVars, _, graph(LVis)) :-
-    % replace average, max, min and friends by binary nodes.
-    check_for_agg_vars(AllVars, UnFoldedVars),
-    % replace the variables reachable from G
-    init_influences(UnfoldedVars, G, RG),
-    init_bp_solver_for_questions(Qs, G, RG, _, LVis).
-
-init_bp_solver_for_questions([], _, _, [], []).
-init_bp_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
-    % find variables connectd to Vs
-    influences(Vs, _, NVs0, G, RG),
-    sort(NVs0, NVs),
-    init_bp_solver_for_questions(MVs, G, RG, MNVs0, LVis).
+bp([QueryVars], AllVars, Output) :-
+    init_bp_solver(_, AllVars, _, BayesNet),
+    run_bp_solver([QueryVars], LPs, BayesNet),
+    finalize_bp_solver(BayesNet),
+    clpbn_bind_vals([QueryVars], LPs, Output).
 
 
-% use a findall to recover space without needing for GC
-run_bp_solver(LVs, LPs, _) :-
-    findall(Ps, solve_bp(LVs, LPs, Ps), LPs).
+init_bp_solver(_, AllVars, _, (BayesNet, DistIds)) :-
+    %inc_num_bayes_nets,
+    %(showprofres(50) -> true ; true),
+    process_ids(AllVars, 0, DistIds0),
+    get_vars_info(AllVars, VarsInfo),
+    sort(DistIds0, DistIds),
+    %(num_bayes_nets(0) -> writeln(vars:VarsInfo) ; true),
+    %(num_bayes_nets(0) -> writeln(dists:DistsInfo) ; true),
+    create_network(VarsInfo, BayesNet).
+    %get_extra_vars_info(AllVars, ExtraVarsInfo),
+    %set_extra_vars_info(BayesNet, ExtraVarsInfo).
+    
 
-
-solve_bp([LVs|_], [NVs0|_], Ps) :-
-    get_vars_info(NVs0, LVi),
-    get_dists_info(NVs0, Dists),
-    process(LVi, Dists, LVs, Ps).
-solve_bp([_|MoreLVs], [_|MoreLVis], Ps) :-
-    solve_bp(MoreLVs, MoreLVis, Ps).
+process_ids([], _, []).
+process_ids([V|Vs], VarId0, [DistId|DistIds]) :-
+    clpbn:get_atts(V, [dist(DistId, _)]), !,
+    put_atts(V, [id(VarId0)]),
+    VarId is VarId0 + 1,
+    process_ids(Vs, VarId, DistIds).
+process_ids([_|Vs], VarId, DistIds) :-
+    process_ids(Vs, VarId, DistIds).
 
 
 get_vars_info([], []).
-get_vars_info([V|Vs], [var(V, Id, Parents, NParents, Ev)|LV]) :-
-    clpbn:get_atts(V, [dist(Id, Parents)]), !,
-    length(Parents, NParents),
+get_vars_info([V|Vs], [var(VarId, DSize, Ev, ParentIds, DistId)|VarsInfo]) :-
+    clpbn:get_atts(V, [dist(DistId, Parents)]), !,
+    get_atts(V, [id(VarId)]),
+    get_dist_domain_size(DistId, DSize),
     get_evidence(V, Ev),
-    get_vars_info(Vs, LV).
-get_vars_info([_|Vs], LV) :-
-    get_vars_info(Vs, LV).
+    vars2ids(Parents, ParentIds),
+    get_vars_info(Vs, VarsInfo).
+get_vars_info([_|Vs], VarsInfo) :-
+    get_vars_info(Vs, VarsInfo).
+
+
+vars2ids([], []).
+vars2ids([V|QueryVars], [VarId|Ids]) :-
+    get_atts(V, [id(VarId)]),
+    vars2ids(QueryVars, Ids).
 
 
 get_evidence(V, Ev) :-
@@ -109,49 +96,57 @@ get_evidence(V, Ev) :-
 get_evidence(V, -1). % no evidence !!!
 
 
-get_dists_info([],[]).
-get_dists_info([V|Vs], [dist(Id, Domain, DSize, Params, NParams) | Dists]) :-
-    clpbn:get_atts(V, [dist(Id, _)]), !,
-    get_dist_domain(Id, Domain),
-    length(Domain, DSize),
+get_extra_vars_info([], []).
+get_extra_vars_info([V|Vs], [v(VarId, Label, Domain)|VarsInfo]) :-
+    get_atts(V, [id(VarId)]), !,
+    clpbn:get_atts(V, [key(Key),dist(DistId, _)]),
+    term_to_atom(Key, Label),
+    get_dist_domain(DistId, Domain0),
+    numbers2atoms(Domain0, Domain),
+    get_extra_vars_info(Vs, VarsInfo).
+get_extra_vars_info([_|Vs], VarsInfo) :-
+    get_extra_vars_info(Vs, VarsInfo).
+
+
+numbers2atoms([], []).
+numbers2atoms([Atom|L0], [Atom|L]) :-
+     atom(Atom), !,
+     numbers2atoms(L0, L).
+numbers2atoms([Number|L0], [Atom|L]) :-
+     number_atom(Number, Atom),
+     numbers2atoms(L0, L).
+
+
+run_bp_solver(QVsL0, LPs, (BayesNet, DistIds)) :-
+    get_dists_parameters(DistIds, DistsParams),
+    set_parameters(BayesNet, DistsParams),
+    process_query_list(QVsL0, QVsL),
+    %writeln(' qvs':QVsL),
+    %(num_bayes_nets(1506) -> writeln(qvs:QVsL) ; true),
+    run_solver(BayesNet, QVsL, LPs).
+
+
+process_query_list([], []).
+process_query_list([[V]|QueryVars], [VarId|Ids]) :- !,
+    get_atts(V, [id(VarId)]),
+    process_query_list(QueryVars, Ids).
+process_query_list([Vs|QueryVars], [VarIds|Ids]) :-
+    vars2ids(Vs, VarIds),
+    process_query_list(QueryVars, Ids).
+
+
+get_dists_parameters([],[]).
+get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
     get_dist_params(Id, Params),
-    length(Params, NParams),
-    get_dists_info(Vs, Dists).
-get_dists_info([_|Vs], Dists) :-
-    get_dists_info(Vs, Dists).
+    get_dists_parameters(Ids, DistsInfo).
 
 
-% +Vars  is a list containing info about every clpbn variables
-% +Dists is a list containing info about distributions
-% +QVs   is a list containing the query variables
-% -Out   is some output term stating the probabilities
-process(Vars, Dists, QVs, Out) :-
-    write('vars  = '), writeln(Vars),
-    order_vars(Vars, [], OrderedVars),
-    write('ovars = '), writeln(OrderedVars),
-    write('dists = '), writeln(Dists),
-    write('qvs   = '), writeln(QVs),
-    length(OrderedVars, NVars),
-    length(Dists, NDists),
-    %create_network(OrderedVars, NVars, Dists, NDists, BNet),
-    length(QVs, NQVs),
-    run_solver(BNet, QVs, NQVs, Out),
-    free_memory(BNet).
+finalize_bp_solver((BayesNet, _)) :-
+    delete_bayes_net(BayesNet).
 
 
-order_vars([V], _, [V]) :- !.
-order_vars([var(V, Id, Parents, NParents, Ev)|Vs], ParsedVars, [var(V, Id, Parents, NParents, Ev)|OrderedVars]) :-
-    \+ memberchk(V, ParsedVars), 
-    parents_defined(Parents, ParsedVars), !,
-    order_vars(Vs, [V|ParsedVars], OrderedVars).
-order_vars([var(V, Id, Parents, NParents, Ev)|Vs], ParsedVars, OrderedVars) :- 
-    append(Vs, [var(V, Id, Parents, NParents, Ev)], NVs),
-    order_vars(NVs, ParsedVars, OrderedVars).
+inc_num_bayes_nets :-
+    retract(num_bayes_nets(Count0)),
+    Count is Count0 + 1,
+    assert(num_bayes_nets(Count)).
 
-
-parents_defined([], _) :- !.
-parents_defined([Parent|Parents], ParsedVars) :- 
-    memberchk(Parent, ParsedVars),
-    parents_defined(Parents, ParsedVars).
-
-% f(F), b(B). ----> FAIL

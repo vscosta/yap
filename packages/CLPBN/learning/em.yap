@@ -11,6 +11,7 @@
 	      [clpbn_init_graph/1,
 	       clpbn_init_solver/5,
 	       clpbn_run_solver/4,
+	       clpbn_finalize_solver/4,
 	       clpbn_flag/2]).
 
 :- use_module(library('clpbn/dists'),
@@ -53,6 +54,7 @@
 em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 	catch(init_em(Items, State),Error,handle_em(Error)),
 	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables),
+	clpbn_finalize_solver(State),
 	assert(em_found(Tables, Likelihood)),
 	fail.
 % get rid of new random variables the easy way :)
