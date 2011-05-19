@@ -95,7 +95,7 @@ HCLI_OBJS = \
 	BpNode.o \
 	SPSolver.o \
 	HorusCli.o \
-	xmlParser/xmlParser.o
+	xmlParser.o
 
 SOBJS=horus.@SO@
 
