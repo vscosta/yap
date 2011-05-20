@@ -156,9 +156,22 @@ clpbn_flag(parameter_softening,Before,After) :-
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Key, Parents),
+	store_var(El),
 	add_evidence(Var,Key,DistInfo,El)
 %	,writeln({Var = Key with Dist})
 .
+
+%
+% make sure a query variable is reachable by the garbage collector.
+%
+store_var(El) :- 
+	catch(b_getval(clpbn_qvars,Q.Tail), _, init_clpbn_vars(El, Q, Tail)),
+	Tail = [El|NewTail],
+	b_setval(clpbn_qvars, [Q|NewTail]).
+	
+init_clpbn_vars(El, Q, Tail) :-
+	Q = [El|Tail],
+	b_setval(clpbn_qvars, [Q|Tail]).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
