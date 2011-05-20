@@ -93,7 +93,7 @@ vars2ids([V|QueryVars], [VarId|Ids]) :-
 
 get_evidence(V, Ev) :-
     clpbn:get_atts(V, [evidence(Ev)]), !.
-get_evidence(V, -1). % no evidence !!!
+get_evidence(_V, -1). % no evidence !!!
 
 
 get_extra_vars_info([], []).

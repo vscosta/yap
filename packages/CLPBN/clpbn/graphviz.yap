@@ -22,7 +22,7 @@ output_var(Stream, V) :-
 	Parents = [_|_], !,
 	format(Stream, '	',[]),
 	output_parents(Stream, Parents),
-	format(' -> ',[]),
+	format(Stream,' -> ',[]),
 	output_key(Stream,Key),
 	nl(Stream).
 output_var(_, _).
