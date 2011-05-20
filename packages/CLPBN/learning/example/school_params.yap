@@ -10,7 +10,7 @@
 
 %:- clpbn:set_clpbn_flag(em_solver,gibbs).
 %:- clpbn:set_clpbn_flag(em_solver,jt).
-:- clpbn:set_clpbn_flag(em_solver,vel).
+:- clpbn:set_clpbn_flag(em_solver,ve).
 %:- clpbn:set_clpbn_flag(em_solver,bp).
 
 timed_main :-

@@ -14,10 +14,10 @@
   
 *********************************/
 
-:- module(clpbn_vel, [vel/3,
-		check_if_vel_done/1,
-		init_vel_solver/4,
-		run_vel_solver/3]).
+:- module(clpbn_ve, [ve/3,
+		check_if_ve_done/1,
+		init_ve_solver/4,
+		run_ve_solver/3]).
 
 :- attribute size/1, all_diffs/1.
 
@@ -64,39 +64,39 @@
 	      [check_for_agg_vars/2]).
 
 
-check_if_vel_done(Var) :-
+check_if_ve_done(Var) :-
 	get_atts(Var, [size(_)]), !.
 
 %
 % implementation of the well known variable elimination algorithm
 %
-vel([[]],_,_) :- !.
-vel([LVs],Vs0,AllDiffs) :-
-	init_vel_solver([LVs], Vs0, AllDiffs, State),
+ve([[]],_,_) :- !.
+ve([LVs],Vs0,AllDiffs) :-
+	init_ve_solver([LVs], Vs0, AllDiffs, State),
 	% variable elimination proper
-	run_vel_solver([LVs], [LPs], State),
+	run_ve_solver([LVs], [LPs], State),
 	% bind Probs back to variables so that they can be output.
 	clpbn_bind_vals([LVs],[LPs],AllDiffs).
 
-init_vel_solver(Qs, Vs0, _, LVis) :-
+init_ve_solver(Qs, Vs0, _, LVis) :-
 	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
 	% Tables0 will have the full data on each variable
 	init_influences(Vs1, G, RG),
-	init_vel_solver_for_questions(Qs, G, RG, _, LVis).
+	init_ve_solver_for_questions(Qs, G, RG, _, LVis).
 
-init_vel_solver_for_questions([], _, _, [], []).
-init_vel_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
+init_ve_solver_for_questions([], _, _, [], []).
+init_ve_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
 	influences(Vs, _, NVs0, G, RG),
 	sort(NVs0, NVs),
 %clpbn_gviz:clpbn2gviz(user_error, test, NVs, Vs),
-	init_vel_solver_for_questions(MVs, G, RG, MNVs0, LVis).
+	init_ve_solver_for_questions(MVs, G, RG, MNVs0, LVis).
 
 % use a findall to recover space without needing for GC
-run_vel_solver(LVs, LPs, LNVs) :-
-	findall(Ps, solve_vel(LVs, LNVs, Ps), LPs).
+run_ve_solver(LVs, LPs, LNVs) :-
+	findall(Ps, solve_ve(LVs, LNVs, Ps), LPs).
 
-solve_vel([LVs|_], [NVs0|_], Ps) :-
+solve_ve([LVs|_], [NVs0|_], Ps) :-
 %	length(NVs0, L), (L > 415 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
 %	length(NVs0, L), writeln(+LVs:L),
 	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
@@ -109,8 +109,8 @@ solve_vel([LVs|_], [NVs0|_], Ps) :-
 	% move from potentials back to probabilities
 	normalise_CPT(Dist,MPs),
 	list_from_CPT(MPs, Ps).
-solve_vel([_|MoreLVs], [_|MoreLVis], Ps) :-
-	solve_vel(MoreLVs, MoreLVis, Ps).
+solve_ve([_|MoreLVs], [_|MoreLVis], Ps) :-
+	solve_ve(MoreLVs, MoreLVis, Ps).
 
 exps([],[]).
 exps([L|LD],[O|LDE]) :-
@@ -134,7 +134,7 @@ find_all_clpbn_vars([V|Vs], NVs0, [Var|LV], ProcessedVars, [table(I,Table,Parent
 	% variables with evidence should not be processed.
 	(var(Ev) ->
 	    Var = var(V,I,Sz,Vals,Parents,Ev,_,_),
-	    vel_get_dist_size(V,Sz),
+	    ve_get_dist_size(V,Sz),
 	    ProcessedVars = [Var|ProcessedVars0]
 	;
 	    ProcessedVars = ProcessedVars0
@@ -192,7 +192,7 @@ compute_size([tab(_,Vs,_)|Tabs],Vs0,K) :-
 
 multiply_sizes([],K,K).
 multiply_sizes([V|Vs],K0,K) :-
-	vel_get_dist_size(V, Sz),
+	ve_get_dist_size(V, Sz),
 	KI is K0*Sz,
 	multiply_sizes(Vs,KI,K).
 
@@ -281,9 +281,9 @@ update_tables([tab(Tab0,Vs,Sz)|Tabs],[tab(Tab0,Vs,Sz)|NTabs],Table,V) :-
 update_tables([_|Tabs],NTabs,Table,V) :-
 	update_tables(Tabs,NTabs,Table,V).
 
-vel_get_dist_size(V,Sz) :-
+ve_get_dist_size(V,Sz) :-
 	get_atts(V, [size(Sz)]), !.
-vel_get_dist_size(V,Sz) :-
+ve_get_dist_size(V,Sz) :-
 	clpbn:get_atts(V,dist(Id,_)), !,
 	get_dist_domain_size(Id,Sz),
 	put_atts(V, [size(Sz)]).

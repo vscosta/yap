@@ -29,11 +29,11 @@
 :- attribute key/1, dist/2, evidence/1, starter/0.
 
 
-:- use_module('clpbn/vel',
-	      [vel/3,
-	       check_if_vel_done/1,
-	       init_vel_solver/4,
-	       run_vel_solver/3
+:- use_module('clpbn/ve',
+	      [ve/3,
+	       check_if_ve_done/1,
+	       init_ve_solver/4,
+	       run_ve_solver/3
 	      ]).
 
 :- use_module('clpbn/bp',
@@ -110,8 +110,8 @@
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
-solver(vel).
-em_solver(vel).
+solver(ve).
+em_solver(ve).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -215,7 +215,7 @@ project_attributes(GVars, AVars) :-
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
-	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,AllVars) ; true),
+	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,ve,AllVars) ; true),
 	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,sort,AllVars,GVars) ; true),
 	(
 	    Solver = graphs
@@ -257,8 +257,8 @@ get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 % do nothing if we don't have query variables to compute.
 write_out(graphs, _, AVars, _) :-
 	clpbn2graph(AVars).
-write_out(vel, GVars, AVars, DiffVars) :-
-	vel(GVars, AVars, DiffVars).
+write_out(ve, GVars, AVars, DiffVars) :-
+	ve(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
 write_out(bp, GVars, AVars, DiffVars) :-
@@ -349,14 +349,14 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
-	use(vel),
-	check_if_vel_done(Var), !.
+	use(ve),
+	check_if_ve_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bp),
 	check_if_bp_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
-	check_if_vel_done(Var), !.
+	check_if_ve_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	get_atts(Var, [key(Key)]), !,
 	(
@@ -421,8 +421,8 @@ clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
 
 clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-clpbn_init_solver(vel, LVs, Vs0, VarsWithUnboundKeys, State) :-
-	init_vel_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
@@ -444,8 +444,8 @@ clpbn_run_solver(LVs, LPs, State) :-
 clpbn_run_solver(gibbs, LVs, LPs, State) :-
 	run_gibbs_solver(LVs, LPs, State).
 
-clpbn_run_solver(vel, LVs, LPs, State) :-
-	run_vel_solver(LVs, LPs, State).
+clpbn_run_solver(ve, LVs, LPs, State) :-
+	run_ve_solver(LVs, LPs, State).
 
 clpbn_run_solver(bp, LVs, LPs, State) :-
 	run_bp_solver(LVs, LPs, State).
