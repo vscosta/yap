@@ -156,7 +156,6 @@ clpbn_flag(parameter_softening,Before,After) :-
 {Var = Key with Dist} :-
 	put_atts(El,[key(Key),dist(DistInfo,Parents)]),
 	dist(Dist, DistInfo, Key, Parents),
-	store_var(El),
 	add_evidence(Var,Key,DistInfo,El)
 %	,writeln({Var = Key with Dist})
 .
@@ -193,8 +192,10 @@ add_evidence(V,Key,Distinfo,NV) :-
 	nonvar(V), !,
 	get_evidence_position(V, Distinfo, Pos),
 	check_stored_evidence(Key, Pos),
+	store_var(NV),
 	clpbn:put_atts(NV,evidence(Pos)).
 add_evidence(V,K,_,V) :-
+	store_var(V),
 	add_evidence(K,V).
 
 clpbn_marginalise(V, Dist) :-
