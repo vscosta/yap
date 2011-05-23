@@ -164,19 +164,19 @@ do_system_error(yap_error_number etype, const char *msg)
   CACHE_REGS
 #if HAVE_SNPRINTF
 #if HAVE_STRERROR
-  snprintf(Yap_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), Yap_FileNameBuf);
+  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s (%s when reading %s)", msg, strerror(errno), LOCAL_FileNameBuf);
 #else
-  snprintf(Yap_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,Yap_FileNameBuf);  
+  snprintf(LOCAL_ErrorSay,MAX_ERROR_MSG_SIZE,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);  
 #endif
 #else
 #if HAVE_STRERROR
-  sprintf(Yap_ErrorSay,"%s, (%s when reading %s)",msg,strerror(errno),Yap_FileNameBuf);
+  sprintf(LOCAL_ErrorSay,"%s, (%s when reading %s)",msg,strerror(errno),LOCAL_FileNameBuf);
 #else
-  sprintf(Yap_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,Yap_FileNameBuf);  
+  sprintf(LOCAL_ErrorSay,"%s, (system error %d when reading %s)",msg,errno,LOCAL_FileNameBuf);  
 #endif
 #endif
-  Yap_ErrorMessage = Yap_ErrorSay;
-  Yap_Error_TYPE = etype;
+  LOCAL_ErrorMessage = LOCAL_ErrorSay;
+  LOCAL_Error_TYPE = etype;
   return -1;
 }
 
@@ -349,13 +349,13 @@ put_info(int info, int mode USES_REGS)
     return -1;
   /* current state of stacks, to be used by SavedInfo */
   /* space available in heap area */
-  if (putout(Unsigned(Yap_GlobalBase)-Unsigned(Yap_HeapBase)) < 0)
+  if (putout(Unsigned(LOCAL_GlobalBase)-Unsigned(Yap_HeapBase)) < 0)
     return -1;
   /* space available for stacks */
-  if (putout(Unsigned(Yap_LocalBase)-Unsigned(Yap_GlobalBase)) < 0)
+  if (putout(Unsigned(LOCAL_LocalBase)-Unsigned(LOCAL_GlobalBase)) < 0)
     return -1;
   /* space available for trail */
-  if (putout(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase)) < 0)
+  if (putout(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase)) < 0)
     return -1;
   /* Space used in heap area */
   if (putout(Unsigned(HeapTop)-Unsigned(Yap_HeapBase)) < 0)
@@ -364,10 +364,10 @@ put_info(int info, int mode USES_REGS)
   if (putout(Unsigned(LCL0)-Unsigned(ASP)) < 0)
     return -1;
   /* Space used for global stack */
-  if (putout(Unsigned(H) - Unsigned(Yap_GlobalBase)) < 0)
+  if (putout(Unsigned(H) - Unsigned(LOCAL_GlobalBase)) < 0)
     return -1;
   /* Space used for trail */
-  if (putout(Unsigned(TR) - Unsigned(Yap_TrailBase)) < 0)
+  if (putout(Unsigned(TR) - Unsigned(LOCAL_TrailBase)) < 0)
     return -1;
   return 0;
 }
@@ -473,7 +473,7 @@ save_regs(int mode USES_REGS)
       if (putout(ARG2) < 0)
 	return -1;
     }
-    if (putcellptr(CellPtr(Yap_TrailBase)) < 0)
+    if (putcellptr(CellPtr(LOCAL_TrailBase)) < 0)
       return -1;
   }
   return 0;
@@ -528,18 +528,18 @@ save_stacks(int mode USES_REGS)
     if (mywrite(splfild, (char *) ASP, j) < 0)
       return -1;
     /* Save the global stack */
-    j = Unsigned(H) - Unsigned(Yap_GlobalBase);
-    if (mywrite(splfild, (char *) Yap_GlobalBase, j) < 0)
+    j = Unsigned(H) - Unsigned(LOCAL_GlobalBase);
+    if (mywrite(splfild, (char *) LOCAL_GlobalBase, j) < 0)
       return -1;
     /* Save the trail */
-    j = Unsigned(TR) - Unsigned(Yap_TrailBase);
-    if (mywrite(splfild, (char *) Yap_TrailBase, j) < 0)
+    j = Unsigned(TR) - Unsigned(LOCAL_TrailBase);
+    if (mywrite(splfild, (char *) LOCAL_TrailBase, j) < 0)
       return -1;
     break;
   case DO_ONLY_CODE:
     {
       tr_fr_ptr tr_ptr = TR; 
-      while (tr_ptr != (tr_fr_ptr)Yap_TrailBase) {
+      while (tr_ptr != (tr_fr_ptr)LOCAL_TrailBase) {
 	CELL val = TrailTerm(tr_ptr-1);
 	if (IsVarTerm(val)) {
 	  CELL *d1 = VarOfTerm(val);
@@ -577,18 +577,18 @@ do_save(int mode USES_REGS) {
   Term t1 = Deref(ARG1);
 
   if (Yap_HoleSize) {
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),
+    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
 	      "restore/1: address space has holes of size %ld, cannot save", (long int)Yap_HoleSize);
     return FALSE;
   }
-  if (!Yap_GetName(Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+  if (!Yap_GetName(LOCAL_FileNameBuf, YAP_FILENAME_MAX, t1)) {
     Yap_Error(TYPE_ERROR_LIST,t1,"save/1");
     return FALSE;
   }
   Scleanup();
   Yap_CloseStreams(TRUE);
-  if ((splfild = open_file(Yap_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),
+  if ((splfild = open_file(LOCAL_FileNameBuf, O_WRONLY | O_CREAT)) < 0) {
+    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),
 	  "restore/1, open(%s)", strerror(errno));
     return(FALSE);
   }
@@ -682,42 +682,42 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
     }
   }
   if (strcmp(pp, msg) != 0) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    strncpy(Yap_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
-    strncat(Yap_ErrorMessage, Yap_FileNameBuf, MAX_ERROR_MSG_SIZE);
-    strncat(Yap_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE);
-    Yap_Error_TYPE = CONSISTENCY_ERROR;
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    strncpy(LOCAL_ErrorMessage, "saved state ", MAX_ERROR_MSG_SIZE);
+    strncat(LOCAL_ErrorMessage, LOCAL_FileNameBuf, MAX_ERROR_MSG_SIZE);
+    strncat(LOCAL_ErrorMessage, " failed to match version ID", MAX_ERROR_MSG_SIZE);
+    LOCAL_Error_TYPE = CONSISTENCY_ERROR;
     return FAIL_RESTORE;
   }
   /* check info on header */
   /* ignore info on saved state */
   *info = get_header_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
      return FAIL_RESTORE;
   /* check the restore mode */
   mode = get_header_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
      return FAIL_RESTORE;
   if (mode != DO_EVERYTHING && mode != DO_ONLY_CODE) {
     return FAIL_RESTORE;
   }
   /* ignore info on stacks size */
   *AHeap = get_header_cell();
-  if (Yap_ErrorMessage) {
+  if (LOCAL_ErrorMessage) {
      return FAIL_RESTORE;
   }
   *AStack = get_header_cell();
-  if (Yap_ErrorMessage) {
+  if (LOCAL_ErrorMessage) {
      return FAIL_RESTORE;
   }
   *ATrail = get_header_cell();
-  if (Yap_ErrorMessage) {
+  if (LOCAL_ErrorMessage) {
      return FAIL_RESTORE;
   }
   /* now, check whether we got enough enough space to load the
      saved space */
   hp_size = get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
      return FAIL_RESTORE;
   while (Yap_HeapBase != NULL &&
 	 hp_size > Unsigned(HeapLim) - Unsigned(Yap_HeapBase)) {
@@ -727,31 +727,31 @@ check_header(CELL *info, CELL *ATrail, CELL *AStack, CELL *AHeap USES_REGS)
   }
   if (mode == DO_EVERYTHING) {
     lc_size = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return FAIL_RESTORE;
     gb_size=get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return FAIL_RESTORE;
-    if (Yap_HeapBase != NULL && lc_size+gb_size > Unsigned(Yap_LocalBase) - Unsigned(Yap_GlobalBase)) {
-      if (Yap_ErrorMessage != NULL)
-	Yap_ErrorMessage = "could not allocate enough stack space";
+    if (Yap_HeapBase != NULL && lc_size+gb_size > Unsigned(LOCAL_LocalBase) - Unsigned(LOCAL_GlobalBase)) {
+      if (LOCAL_ErrorMessage != NULL)
+	LOCAL_ErrorMessage = "could not allocate enough stack space";
       return FAIL_RESTORE;
     }
-    if (Yap_HeapBase != NULL && (tr_size = get_cell()) > Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase)) {
-      if (Yap_ErrorMessage != NULL)
-	Yap_ErrorMessage = "could not allocate enough trail space";
+    if (Yap_HeapBase != NULL && (tr_size = get_cell()) > Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase)) {
+      if (LOCAL_ErrorMessage != NULL)
+	LOCAL_ErrorMessage = "could not allocate enough trail space";
       return FAIL_RESTORE;
     }
   } else {
     /* skip cell size */
     get_header_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return FAIL_RESTORE;
     get_header_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return FAIL_RESTORE;
     get_header_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return FAIL_RESTORE;
   }
   return(mode);
@@ -762,35 +762,35 @@ static int
 get_heap_info(USES_REGS1)
 {
   LOCAL_OldHeapBase = (ADDR) get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   LOCAL_OldHeapTop = (ADDR) get_cellptr();
 
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   OldHeapUsed = (Int) get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   FreeBlocks = (BlockHeader *) get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   AuxBase = (ADDR)get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   AuxSp = get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   AuxTop = (ADDR)get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   LOCAL_ScratchPad.ptr = (ADDR)get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   LOCAL_ScratchPad.sz = get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   LOCAL_ScratchPad.msz = get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   LOCAL_HDiff = Unsigned(Yap_HeapBase) - Unsigned(LOCAL_OldHeapBase);
   return 1;
@@ -802,130 +802,130 @@ get_heap_info(USES_REGS1)
 static int 
 get_regs(int flag USES_REGS)
 {
-  CELL           *NewGlobalBase = (CELL *)Yap_GlobalBase;
+  CELL           *NewGlobalBase = (CELL *)LOCAL_GlobalBase;
   CELL           *NewLCL0 = LCL0;
   CELL           *OldXREGS;
 
   /* Get regs */
   compile_arrays = (int)get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
       return -1;
   if (flag == DO_EVERYTHING) {
     CP = (yamop *)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     ENV = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     ASP = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     /* N = get_cell(); */
     H0 = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     LCL0 = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     H = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     HB = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     B = (choiceptr)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     TR = (tr_fr_ptr)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     YENV = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     S = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     P = (yamop *)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     CreepFlag = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     EX = (struct DB_TERM *)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
 #if defined(YAPOR_SBA) || defined(TABLING)
     H_FZ = get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     B_FZ = (choiceptr)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     TR_FZ = (tr_fr_ptr)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
 #endif /* YAPOR_SBA || TABLING */
   }
   CurrentModule = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
   if (flag == DO_EVERYTHING) {
 #ifdef COROUTINING
     LOCAL_WokenGoals = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
 #endif
 #ifdef  DEPTH_LIMIT
     DEPTH = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
 #endif
     LOCAL_GcGeneration = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     LOCAL_GcPhase = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     LOCAL_GcCurrentPhase = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
   }
   /* Get the old bases */
   OldXREGS = get_cellptr();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
     return -1;
   which_save = get_cell();
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
     return -1;
   LOCAL_XDiff =  (CELL)XREGS - (CELL)OldXREGS;
-  if (Yap_ErrorMessage)
+  if (LOCAL_ErrorMessage)
     return -1;
   if (get_heap_info( PASS_REGS1 ) < 0)
     return -1;
   if (flag == DO_EVERYTHING) {
     ARG1 = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     if (which_save == 2) {
       ARG2 = get_cell();
-      if (Yap_ErrorMessage)
+      if (LOCAL_ErrorMessage)
 	return -1;
     }
     /* get old trail base */
     LOCAL_OldTrailBase = (ADDR)get_cellptr();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
     /* Save the old register where we can easily access them */
     LOCAL_OldASP = ASP;
     LOCAL_OldLCL0 = LCL0;
-    LOCAL_OldGlobalBase = (CELL *)Yap_GlobalBase;
+    LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
     LOCAL_OldH = H;
     LOCAL_OldTR = TR;
-    LOCAL_GDiff = Unsigned(NewGlobalBase) - Unsigned(Yap_GlobalBase);
+    LOCAL_GDiff = Unsigned(NewGlobalBase) - Unsigned(LOCAL_GlobalBase);
     LOCAL_GDiff0 = 0;
     LOCAL_LDiff = Unsigned(NewLCL0) - Unsigned(LCL0);
     LOCAL_TrDiff = LOCAL_LDiff;
-    Yap_GlobalBase = (ADDR)NewGlobalBase;
+    LOCAL_GlobalBase = (ADDR)NewGlobalBase;
     LCL0 = NewLCL0;
   }
   return 1;
@@ -968,10 +968,10 @@ CopyStacks( USES_REGS1 )
   if (myread(splfild, (char *) NewASP, j) < 0)
     return -1;
   j = Unsigned(H) - Unsigned(LOCAL_OldGlobalBase);
-  if (myread(splfild, (char *) Yap_GlobalBase, j) < 0)
+  if (myread(splfild, (char *) LOCAL_GlobalBase, j) < 0)
     return -1;
   j = Unsigned(TR) - Unsigned(LOCAL_OldTrailBase);
-  if (myread(splfild, Yap_TrailBase, j))
+  if (myread(splfild, LOCAL_TrailBase, j))
     return -1;
   return 1;
 }
@@ -983,10 +983,10 @@ CopyTrailEntries( USES_REGS1 )
 {
   CELL           entry, *Entries;
 
-  Entries = (CELL *)Yap_TrailBase;
+  Entries = (CELL *)LOCAL_TrailBase;
   do {
     *Entries++ = entry = get_cell();
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return -1;
   } while ((CODEADDR)entry != NULL);
   return 1;
@@ -1020,7 +1020,7 @@ get_coded(int flag, OPCODE old_ops[] USES_REGS)
   if (myread(splfild, my_end_msg, 256) < 0)
     return -1;
   if (strcmp(end_msg,my_end_msg) != 0) {
-    Yap_ErrorMessage = "bad trailing CRC in saved state";
+    LOCAL_ErrorMessage = "bad trailing CRC in saved state";
     return -1;
   }
   return 1;
@@ -1035,7 +1035,7 @@ restore_heap_regs( USES_REGS1 )
     *((YAP_SEG_SIZE *) HeapTop) = InUseFlag;
   }
   HeapMax = Yap_heap_regs->heap_used = OldHeapUsed;
-  HeapLim = Yap_GlobalBase;
+  HeapLim = LOCAL_GlobalBase;
 }
 
 /* adjust abstract machine registers */
@@ -1142,8 +1142,8 @@ rehash(CELL *oldcode, int NOfE, int KindOfEntries USES_REGS)
   basep = H;
   if (H + (NOfE*2) > ASP) {
     basep = (CELL *)TR;
-    if (basep + (NOfE*2) > (CELL *)Yap_TrailTop) {
-      if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-Yap_TrailTop, TRUE)) {
+    if (basep + (NOfE*2) > (CELL *)LOCAL_TrailTop) {
+      if (!Yap_growtrail((ADDR)(basep + (NOfE*2))-LOCAL_TrailTop, TRUE)) {
 	Yap_Error(OUT_OF_TRAIL_ERROR, TermNil,
 	      "not enough space to restore hash tables for indexing");
 	Yap_exit(1);
@@ -1387,8 +1387,8 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
   if (Yap_HeapBase) {
     extern void Scleanup(void);
     if (!yap_flags[HALT_AFTER_CONSULT_FLAG] && !yap_flags[QUIET_MODE_FLAG]) {
-      Yap_TrueFileName(s,Yap_FileNameBuf2, YAP_FILENAME_MAX);
-      fprintf(stderr, "%% Restoring file %s\n", Yap_FileNameBuf2);
+      Yap_TrueFileName(s,LOCAL_FileNameBuf2, YAP_FILENAME_MAX);
+      fprintf(stderr, "%% Restoring file %s\n", LOCAL_FileNameBuf2);
     }
     Scleanup();
     Yap_CloseStreams(TRUE);
@@ -1425,7 +1425,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
     strncpy(buf, inpf, YAP_FILENAME_MAX);
   if ((mode = commit_to_saved_state(inpf,Astate,ATrail,AStack,AHeap)) != FAIL_RESTORE) {
     CACHE_REGS
-    Yap_ErrorMessage = NULL;
+    LOCAL_ErrorMessage = NULL;
     return mode;
   }
   return mode;
@@ -1437,8 +1437,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   CACHE_REGS
   int mode = FAIL_RESTORE;
   char save_buffer[YAP_FILENAME_MAX+1];
-
-  //  Yap_ErrorMessage = NULL;
+  //  LOCAL_ErrorMessage = NULL;
   if (inpf == NULL) {
 #if _MSC_VER || defined(__MINGW32__)
     if (!(inpf = Yap_RegistryGetString("startup")))
@@ -1449,18 +1448,18 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   if (inpf[0] != '/') {
 #if __simplescalar__
     /* does not implement getcwd */
-    strncpy(Yap_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+    strncpy(LOCAL_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
-    if (getcwd (Yap_FileNameBuf, YAP_FILENAME_MAX) == NULL)
-      Yap_FileNameBuf[0] = '\0';
+    if (getcwd (LOCAL_FileNameBuf, YAP_FILENAME_MAX) == NULL)
+      LOCAL_FileNameBuf[0] = '\0';
 #else
-    if (getwd (Yap_FileNameBuf) == NULL)
-      Yap_FileNameBuf[0] = '\0';
+    if (getwd (LOCAL_FileNameBuf) == NULL)
+      LOCAL_FileNameBuf[0] = '\0';
 #endif
-    strncat(Yap_FileNameBuf, "/", YAP_FILENAME_MAX-1);
-    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+    strncat(LOCAL_FileNameBuf, "/", YAP_FILENAME_MAX-1);
+    strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   } else {
-    strncat(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+    strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   }
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
     if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
@@ -1473,12 +1472,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       using YAPLIBDIR or friends.
     */
     if (YapLibDir != NULL) {
-      cat_file_name(Yap_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
-      if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      cat_file_name(LOCAL_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
+      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
 	return mode;
       }
     } else {
-      if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
 	return mode;
       }
     }
@@ -1486,17 +1485,17 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     {
       char *yap_env = getenv("YAPLIBDIR");
       if (yap_env != NULL) {
-	cat_file_name(Yap_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
-	if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	cat_file_name(LOCAL_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
+	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
 	  return mode;
 	}
       }
     }
 #endif
     if (YAP_LIBDIR != NULL) {
-      cat_file_name(Yap_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
-      if ((splfild = open_file(Yap_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      cat_file_name(LOCAL_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
+      if ((splfild = open_file(LOCAL_FileNameBuf, O_RDONLY)) > 0) {
+	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
 	  return mode;
 	}
       }
@@ -1509,34 +1508,34 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     char *pt;
 
     /* try to get it from current executable */
-    if ((fatts = GetFileAttributes(Yap_FileNameBuf)) == 0xFFFFFFFFL ||
+    if ((fatts = GetFileAttributes(LOCAL_FileNameBuf)) == 0xFFFFFFFFL ||
 	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, Yap_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	/* do nothing */
 	goto end;
       }
-      buflen = strlen(Yap_FileNameBuf);
-      pt = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
+      buflen = strlen(LOCAL_FileNameBuf);
+      pt = LOCAL_FileNameBuf+strlen(LOCAL_FileNameBuf);
       while (*--pt != '\\') {
 	/* skip executable */
-	if (pt == Yap_FileNameBuf) {
+	if (pt == LOCAL_FileNameBuf) {
 	  /* do nothing */
 	  goto end;
 	}
       }
       while (*--pt != '\\') {
 	/* skip parent directory "bin\\" */
-	if (pt == Yap_FileNameBuf) {
+	if (pt == LOCAL_FileNameBuf) {
 	  goto end;
 	}
       }
       /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
       pt[1] = '\0';
-      strncat(Yap_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
+      strncat(LOCAL_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
     }
-    if ((mode = try_open(Yap_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+    if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
       return mode;
     }
   }
@@ -1544,12 +1543,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 #endif
   /* try to open from current directory */
   /* could not open file */
-  if (Yap_ErrorMessage == NULL) {
+  if (LOCAL_ErrorMessage == NULL) {
     if (save_buffer[0]) {
-      strncpy(Yap_FileNameBuf, save_buffer, YAP_FILENAME_MAX-1);
+      strncpy(LOCAL_FileNameBuf, save_buffer, YAP_FILENAME_MAX-1);
       do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"incorrect saved state");
     } else {
-      strncpy(Yap_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
+      strncpy(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
       do_system_error(PERMISSION_ERROR_OPEN_SOURCE_SINK,"could not open saved state");
     }
   }
@@ -1660,7 +1659,7 @@ UnmarkTrEntries( USES_REGS1 )
   B = (choiceptr)LCL0;
   B--;
   B->cp_ap = NOCODE;
-  Entries = (CELL *)Yap_TrailBase;
+  Entries = (CELL *)LOCAL_TrailBase;
   while ((entry = *Entries++) != (CELL)NULL) {
     if (!IsVarTerm(entry)) {
       if(IsPairTerm(entry)) {
@@ -1742,8 +1741,8 @@ Restore(char *s, char *lib_dir USES_REGS)
   case DO_EVERYTHING:
     if (LOCAL_OldHeapBase != Yap_HeapBase ||
 	LOCAL_OldLCL0 != LCL0 ||
-	LOCAL_OldGlobalBase != (CELL *)Yap_GlobalBase ||
-	LOCAL_OldTrailBase != Yap_TrailBase) {
+	LOCAL_OldGlobalBase != (CELL *)LOCAL_GlobalBase ||
+	LOCAL_OldTrailBase != LOCAL_TrailBase) {
       Yap_AdjustStacksAndTrail();
       if (which_save == 2) {
 	Yap_AdjustRegs(2);
@@ -1816,7 +1815,7 @@ p_restore( USES_REGS1 )
     restore_absmi_regs(&Yap_standard_regs);
 #endif
     /* back to the top level we go */
-    siglongjmp(Yap_RestartEnv,3);
+    siglongjmp(LOCAL_RestartEnv,3);
   }
   return(mode != FAIL_RESTORE);
 }

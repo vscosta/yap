@@ -32,7 +32,7 @@ struct cut_c_str{
 
 
 #define POP_CHOICE_POINT(cp) \
-  (((CELL *)Yap_REGS.CUT_C_TOP != (CELL *)Yap_LocalBase) && ((CELL *)(cp) > (CELL *)Yap_REGS.CUT_C_TOP)) 
+  (((CELL *)Yap_REGS.CUT_C_TOP != (CELL *)LOCAL_LocalBase) && ((CELL *)(cp) > (CELL *)Yap_REGS.CUT_C_TOP)) 
 
 
 #define POP_EXECUTE()                                                                 \

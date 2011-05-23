@@ -124,7 +124,7 @@ inline EXTERN int
 IsHeapP__ (CELL * ptr USES_REGS)
 {
 #if USE_SYSTEM_MALLOC
-  return (int) ((ptr < (CELL *) Yap_GlobalBase || ptr > (CELL *) Yap_TrailTop));
+  return (int) ((ptr < (CELL *) LOCAL_GlobalBase || ptr > (CELL *) LOCAL_TrailTop));
 #else
   return (int) ((ptr >= (CELL *) Yap_HeapBase && ptr <= (CELL *) HeapTop));
 #endif
@@ -1123,7 +1123,7 @@ inline EXTERN int IsGlobal__ (CELL CACHE_TYPE);
 inline EXTERN int
 IsGlobal__ (CELL reg USES_REGS)
 {
-  return (int) (IN_BETWEEN (Yap_GlobalBase, reg, H));
+  return (int) (IN_BETWEEN (LOCAL_GlobalBase, reg, H));
 }
 
 

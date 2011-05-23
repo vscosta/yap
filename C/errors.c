@@ -38,7 +38,7 @@ STATIC_PROTO (void detect_bug_location, (yamop *,find_pred_type,char *, int));
 
 #define ONHEAP(ptr) (CellPtr(ptr) >= CellPtr(Yap_HeapBase)  && CellPtr(ptr) < CellPtr(HeapTop))
 
-#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(H)  && CellPtr(ptr) < CellPtr(Yap_LocalBase))
+#define ONLOCAL(ptr) (CellPtr(ptr) > CellPtr(H)  && CellPtr(ptr) < CellPtr(LOCAL_LocalBase))
 
 static int
 hidden (Atom at)
@@ -265,13 +265,13 @@ dump_stack( USES_REGS1 )
 #if DEBUG
   fprintf(stderr,"%% YAP regs: P=%p, CP=%p, ASP=%p, H=%p, TR=%p, HeapTop=%p\n",P,CP,ASP,H,TR,HeapTop);
   fprintf(stderr,"%% YAP mode: %ux\n",(unsigned int)Yap_PrologMode);
-  if (Yap_ErrorMessage)
-    fprintf(stderr,"%% YAP_ErrorMessage: %s\n",Yap_ErrorMessage);
+  if (LOCAL_ErrorMessage)
+    fprintf(stderr,"%% LOCAL_ErrorMessage: %s\n",LOCAL_ErrorMessage);
 #endif
   if (H > ASP || H > LCL0) {
     fprintf(stderr,"%% YAP ERROR: Global Collided against Local (%p--%p)\n",H,ASP);
-  } else   if (HeapTop > (ADDR)Yap_GlobalBase) {
-    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, Yap_GlobalBase);
+  } else   if (HeapTop > (ADDR)LOCAL_GlobalBase) {
+    fprintf(stderr,"%% YAP ERROR: Code Space Collided against Global (%p--%p)\n", HeapTop, LOCAL_GlobalBase);
   } else {
 #if !USE_SYSTEM_MALLOC
     fprintf (stderr,"%ldKB of Code Space (%p--%p)\n",(long int)((CELL)HeapTop-(CELL)Yap_HeapBase)/1024,Yap_HeapBase,HeapTop); 
@@ -292,7 +292,7 @@ dump_stack( USES_REGS1 )
     fprintf (stderr,"%%   Continuation: %s\n",(char *)H); 
     fprintf (stderr,"%%    %luKB of Global Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(H-H0))/1024,H0,H); 
     fprintf (stderr,"%%    %luKB of Local Stack (%p--%p)\n",(unsigned long int)(sizeof(CELL)*(LCL0-ASP))/1024,ASP,LCL0); 
-    fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-Yap_TrailBase)/1024,Yap_TrailBase,TR); 
+    fprintf (stderr,"%%    %luKB of Trail (%p--%p)\n",(unsigned long int)((ADDR)TR-LOCAL_TrailBase)/1024,LOCAL_TrailBase,TR); 
     fprintf (stderr,"%%    Performed %ld garbage collections\n", (unsigned long int)LOCAL_GcCalls);
 #if LOW_LEVEL_TRACER
     {
@@ -391,7 +391,7 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   char *tp = tmpbuf;
   int psize = YAP_BUF_SIZE;
 
-  Yap_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (where == 0L)
     where = TermNil;
 #if DEBUG_STRICT
@@ -1831,13 +1831,13 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   if (type != PURE_ABORT) {
     /* This is used by some complex procedures to detect there was an error */
     if (IsAtomTerm(nt[0])) {
-      strncpy(Yap_ErrorSay, RepAtom(AtomOfTerm(nt[0]))->StrOfAE, MAX_ERROR_MSG_SIZ\
+      strncpy(LOCAL_ErrorSay, RepAtom(AtomOfTerm(nt[0]))->StrOfAE, MAX_ERROR_MSG_SIZ\
 E);
-      Yap_ErrorMessage = Yap_ErrorSay;
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
     } else {
-      strncpy(Yap_ErrorSay, RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,\
+      strncpy(LOCAL_ErrorSay, RepAtom(NameOfFunctor(FunctorOfTerm(nt[0])))->StrOfAE,\
  MAX_ERROR_MSG_SIZE);
-      Yap_ErrorMessage = Yap_ErrorSay;
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
     }
   }
   switch (type) {
@@ -1852,7 +1852,7 @@ E);
 
       if ((stack_dump = Yap_all_calls()) == 0L) {
 	stack_dump = TermNil;
-	Yap_Error_Size = 0L;
+	LOCAL_Error_Size = 0L;
       }
       nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), stack_dump);
     }
@@ -1871,7 +1871,7 @@ E);
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
 #endif
-      siglongjmp(Yap_RestartEnv,1);      
+      siglongjmp(LOCAL_RestartEnv,1);      
     }
     UNLOCK(LOCAL_SignalLock);
     /* wait if we we are in user code,
@@ -1880,7 +1880,7 @@ E);
     if (Yap_PrologMode & UserCCallMode) {
       if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
 	/* fat chance */
-	siglongjmp(Yap_RestartEnv,1);
+	siglongjmp(LOCAL_RestartEnv,1);
       }
     } else {
       if (type == PURE_ABORT) {

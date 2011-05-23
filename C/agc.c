@@ -18,7 +18,6 @@
 static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 #endif
 
-
 #include "absmi.h"
 #include "Foreign.h"
 #include "alloc.h"
@@ -228,11 +227,11 @@ static void init_reg_copies(USES_REGS1)
   LOCAL_OldASP = ASP;
   LOCAL_OldLCL0 = LCL0;
   LOCAL_OldTR = TR;
-  LOCAL_OldGlobalBase = (CELL *)Yap_GlobalBase;
+  LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
   LOCAL_OldH = H;
   LOCAL_OldH0 = H0;
-  LOCAL_OldTrailBase = Yap_TrailBase;
-  LOCAL_OldTrailTop = Yap_TrailTop;
+  LOCAL_OldTrailBase = LOCAL_TrailBase;
+  LOCAL_OldTrailTop = LOCAL_TrailTop;
   LOCAL_OldHeapBase = Yap_HeapBase;
   LOCAL_OldHeapTop = HeapTop;
 }
@@ -262,7 +261,7 @@ mark_trail(USES_REGS1)
 
   pt = TR;
   /* moving the trail is simple */
-  while (pt != (tr_fr_ptr)Yap_TrailBase) {
+  while (pt != (tr_fr_ptr)LOCAL_TrailBase) {
     CELL reg = TrailTerm(pt-1);
 
     if (!IsVarTerm(reg)) {

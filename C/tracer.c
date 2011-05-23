@@ -94,7 +94,7 @@ static int thread_trace;
 static int
 check_trail_consistency(void) {
   tr_fr_ptr ptr = TR;
-  while (ptr > (CELL *)Yap_TrailBase) {
+  while (ptr > (CELL *)LOCAL_TrailBase) {
     ptr = --ptr;
     if (!IsVarTerm(TrailTerm(ptr))) {
       if (IsApplTerm(TrailTerm(ptr))) {
@@ -186,7 +186,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
    } else
   return;
   {
-    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;
     if (pt[140].term == 0 && pt[140].value != 0)
       jmp_deb(1);
   }
@@ -235,7 +235,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   if (TR_FZ > TR)
     jmp_deb(1);
   {
-    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;
     if (pt[153].term == 0 && pt[153].value == 0 && 
 	pt[154].term != 0 && pt[154].value != 0 && ( TR > pt+154 || 
 						     TR_FZ > pt+154))

@@ -227,3 +227,43 @@
 #define REMOTE_SignalLock(wid) REMOTE(wid)->SignalLock_
 #endif
 
+#define LOCAL_LocalBase LOCAL->LocalBase_
+#define REMOTE_LocalBase(wid) REMOTE(wid)->LocalBase_
+#define LOCAL_GlobalBase LOCAL->GlobalBase_
+#define REMOTE_GlobalBase(wid) REMOTE(wid)->GlobalBase_
+#define LOCAL_TrailBase LOCAL->TrailBase_
+#define REMOTE_TrailBase(wid) REMOTE(wid)->TrailBase_
+#define LOCAL_TrailTop LOCAL->TrailTop_
+#define REMOTE_TrailTop(wid) REMOTE(wid)->TrailTop_
+#define LOCAL_ErrorMessage LOCAL->ErrorMessage_
+#define REMOTE_ErrorMessage(wid) REMOTE(wid)->ErrorMessage_
+#define LOCAL_Error_Term LOCAL->Error_Term_
+#define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
+#ifdef THREADS
+#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
+#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
+#else
+#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
+#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
+#endif	
+#define LOCAL_Error_Size LOCAL->Error_Size_
+#define REMOTE_Error_Size(wid) REMOTE(wid)->Error_Size_
+#define LOCAL_ErrorSay LOCAL->ErrorSay_
+#define REMOTE_ErrorSay(wid) REMOTE(wid)->ErrorSay_
+#define LOCAL_IOBotch LOCAL->IOBotch_
+#define REMOTE_IOBotch(wid) REMOTE(wid)->IOBotch_
+#define LOCAL_tokptr LOCAL->tokptr_
+#define REMOTE_tokptr(wid) REMOTE(wid)->tokptr_
+#define LOCAL_toktide LOCAL->toktide_
+#define REMOTE_toktide(wid) REMOTE(wid)->toktide_
+#define LOCAL_VarTable LOCAL->VarTable_
+#define REMOTE_VarTable(wid) REMOTE(wid)->VarTable_
+#define LOCAL_AnonVarTable LOCAL->AnonVarTable_
+#define REMOTE_AnonVarTable(wid) REMOTE(wid)->AnonVarTable_
+#define LOCAL_RestartEnv LOCAL->RestartEnv_
+#define REMOTE_RestartEnv(wid) REMOTE(wid)->RestartEnv_
+#define LOCAL_FileNameBuf LOCAL->FileNameBuf_
+#define REMOTE_FileNameBuf(wid) REMOTE(wid)->FileNameBuf_
+#define LOCAL_FileNameBuf2 LOCAL->FileNameBuf2_
+#define REMOTE_FileNameBuf2(wid) REMOTE(wid)->FileNameBuf2_
+

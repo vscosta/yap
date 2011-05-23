@@ -806,7 +806,7 @@ Yap_absmi(int inp)
 	saveregs();
 	/* do a garbage collection first to check if we can recover memory */
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -1556,24 +1556,24 @@ Yap_absmi(int inp)
 	SET_ASP(YREG, E_CB*sizeof(CELL));
 	saveregs();
 	while ((t = Yap_FetchTermFromDB(cl->ClSource)) == 0L) {
-	  if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	    Yap_Error_TYPE = YAP_NO_ERROR;
+	  if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_growglobal(NULL)) {
 	      UNLOCKPE(3,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
-	    Yap_Error_TYPE = YAP_NO_ERROR;
+	    LOCAL_Error_TYPE = YAP_NO_ERROR;
 	    if (!Yap_gc(3, ENV, CP)) {
 	      UNLOCKPE(4,PP);
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  }
@@ -1606,7 +1606,7 @@ Yap_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
-	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)LOCAL_TrailBase;
 	  PREG->u.EC.ClENV = LCL0-YREG;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
@@ -1658,7 +1658,7 @@ Yap_absmi(int inp)
 	if (!(cl->ClFlags & InUseMask)) {
 	  /* Clause *cl = (Clause *)PREG->u.EC.ClBase;
 
-	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)Yap_TrailBase;
+	  PREG->u.EC.ClTrail = TR-(tr_fr_ptr)LOCAL_TrailBase;
 	  PREG->u.EC.ClENV = LCL0-YREG;*/
 	  cl->ClFlags |= InUseMask;
 	  TRAIL_CLREF(cl);
@@ -1693,7 +1693,7 @@ Yap_absmi(int inp)
 	  SET_ASP(YREG, PREG->u.Osbpi.s);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  } else {
@@ -2021,7 +2021,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
 #ifdef YAPOR_SBA
-	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)Yap_TrailTop)
+	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)LOCAL_TrailTop)
 #else
 	  if (pt0 < TR_FZ)
 #endif /* YAPOR_SBA */
@@ -2057,7 +2057,7 @@ Yap_absmi(int inp)
 	    register CELL flags;
 	    CELL *pt1 = RepPair(d1);
 #ifdef LIMIT_TABLING
-	    if ((ADDR) pt1 == Yap_TrailBase) {
+	    if ((ADDR) pt1 == LOCAL_TrailBase) {
 	      sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt0);
 	      TrailTerm(pt0) = AbsPair((CELL *)(pt0 - 1));
 	      SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
@@ -2071,7 +2071,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR_SBA
 		(ADDR) pt1 >= HeapTop
 #else
-		IN_BETWEEN(Yap_TrailBase, pt1, Yap_TrailTop)
+		IN_BETWEEN(LOCAL_TrailBase, pt1, LOCAL_TrailTop)
 #endif /* YAPOR_SBA */
 		)
             {
@@ -2609,7 +2609,7 @@ Yap_absmi(int inp)
       SET_ASP(YREG, PREG->u.Osbpp.s);
       saveregs();
       if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, Osbpp))) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
       }
       setregs();
 
@@ -2663,7 +2663,7 @@ Yap_absmi(int inp)
 	}
 	saveregs();
 	if (!Yap_gc(0, ENV, CPREG)) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	}
 	setregs();
 	SREG = ASP;
@@ -2842,7 +2842,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(0, YREG, NEXTOP(PREG, Osbpp))) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
       }
       setregs();
       JMPNext();
@@ -2967,7 +2967,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)YREG[E_E], (yamop *)YREG[E_CP])) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -2989,7 +2989,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -9164,7 +9164,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9209,7 +9209,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9250,7 +9250,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9302,7 +9302,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9350,7 +9350,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9395,7 +9395,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9436,7 +9436,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9488,7 +9488,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9536,7 +9536,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9581,7 +9581,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9622,7 +9622,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9674,7 +9674,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9729,7 +9729,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9774,7 +9774,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9817,7 +9817,7 @@ Yap_absmi(int inp)
 	  d0 = p_div(MkIntegerTerm(d1),Yap_Eval(d0));
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9865,7 +9865,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -9917,7 +9917,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -9968,7 +9968,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10017,7 +10017,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -10062,7 +10062,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10103,7 +10103,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -10155,7 +10155,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10204,7 +10204,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -10248,7 +10248,7 @@ Yap_absmi(int inp)
 	  d0 = p_or(Yap_Eval(d0), MkIntegerTerm(d1));
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10289,7 +10289,7 @@ Yap_absmi(int inp)
 	setregs();
 	if (d0 == 0L) {
 	  saveregs();
-	  Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	  Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -10341,7 +10341,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10394,7 +10394,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10440,7 +10440,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10481,7 +10481,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10525,7 +10525,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10578,7 +10578,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10627,7 +10627,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10678,7 +10678,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10722,7 +10722,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10765,7 +10765,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10810,7 +10810,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -10860,7 +10860,7 @@ Yap_absmi(int inp)
 	  setregs();
 	  if (d0 == 0L) {
 	    saveregs();
-	    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  }
@@ -10909,7 +10909,7 @@ Yap_absmi(int inp)
       }
       if (d0 == 0L) {
 	saveregs();
-	Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+	Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
 	setregs();
 	FAIL();
       }
@@ -12007,7 +12007,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12124,7 +12124,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12234,7 +12234,7 @@ Yap_absmi(int inp)
 	/* make sure we have something to show for our trouble */
 	saveregs();
 	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -12345,7 +12345,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12484,7 +12484,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12628,7 +12628,7 @@ Yap_absmi(int inp)
 	/* make sure we have something to show for our trouble */
 	saveregs();
 	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -13008,7 +13008,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -13253,7 +13253,7 @@ Yap_absmi(int inp)
 	}
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute2_end;
@@ -13458,7 +13458,7 @@ Yap_absmi(int inp)
 	}
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute_end;
@@ -13688,7 +13688,7 @@ Yap_absmi(int inp)
 	  UNLOCK(LOCAL_SignalLock);
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
 	    setregs_and_ycache();
 	    FAIL();
 	  }
@@ -13732,7 +13732,7 @@ Yap_absmi(int inp)
 	UNLOCK(LOCAL_SignalLock);
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute_after_comma;

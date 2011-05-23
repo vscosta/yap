@@ -904,8 +904,8 @@ ch_to_wide(char *base, char *charp USES_REGS)
   wchar_t *nb = (wchar_t *)base;
 
   if ((nb+n) + 1024 > (wchar_t *)AuxSp) {
-    Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
-    Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+    LOCAL_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
     return NULL;
   }
   for (i=n; i > 0; i--) {
@@ -1241,7 +1241,7 @@ p_atom_chars( USES_REGS1 )
       *ws++ = '\0';
       while ((at = Yap_LookupWideAtom((wchar_t *)String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1249,7 +1249,7 @@ p_atom_chars( USES_REGS1 )
       *s++ = '\0';
       while ((at = Yap_LookupAtom(String)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1313,7 +1313,7 @@ p_atom_concat( USES_REGS1 )
       if (cptr+sz >= top-1024) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	goto restart;
@@ -1340,7 +1340,7 @@ p_atom_concat( USES_REGS1 )
       cptr[0] = '\0';
       while ((at = Yap_LookupWideAtom(cpt0)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1376,7 +1376,7 @@ p_atom_concat( USES_REGS1 )
       if (cptr+sz >= top-1024) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	goto restart;
@@ -1396,7 +1396,7 @@ p_atom_concat( USES_REGS1 )
       cptr[0] = '\0';
       while ((at = Yap_LookupAtom(cpt0)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1460,7 +1460,7 @@ p_atomic_concat( USES_REGS1 )
 	  if (wcptr+sz >= wtop-1024) {
 	    Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	    if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	      return FALSE;
 	    }
 	    goto restart;
@@ -1474,7 +1474,7 @@ p_atomic_concat( USES_REGS1 )
 	  if (wcptr+sz >= wtop-1024) {
 	    Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	    if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	      return FALSE;
 	    }
 	    goto restart;
@@ -1517,7 +1517,7 @@ p_atomic_concat( USES_REGS1 )
 	if (!Yap_gmp_to_string(thead, tmp, (wtop-wcptr)-1024, 10 )) {
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return(FALSE);
 	  }
 	  goto restart;
@@ -1541,7 +1541,7 @@ p_atomic_concat( USES_REGS1 )
       wcptr[0] = '\0';
       while ((at = Yap_LookupWideAtom(wcpt0)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1580,7 +1580,7 @@ p_atomic_concat( USES_REGS1 )
 	if (cptr+sz >= top-1024) {
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return(FALSE);
 	  }
 	  goto restart;
@@ -1607,7 +1607,7 @@ p_atomic_concat( USES_REGS1 )
 	  size_t sz = Yap_gmp_to_size(thead, 10);
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return(FALSE);
 	  }
 	  goto restart;
@@ -1628,7 +1628,7 @@ p_atomic_concat( USES_REGS1 )
       cptr[0] = '\0';
       while ((at = Yap_LookupAtom(cpt0)) == NIL) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -2001,7 +2001,7 @@ p_number_chars( USES_REGS1 )
 	size_t sz = Yap_gmp_to_size(t1, 10);
 	Yap_ReleasePreAllocCodeSpace((ADDR)String);
 	if (!Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE)) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	goto restart_aux;
@@ -2159,7 +2159,7 @@ p_number_atom( USES_REGS1 )
       while (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 )) {
 	size_t sz = Yap_gmp_to_size(t1, 10);
 	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -2170,7 +2170,7 @@ p_number_atom( USES_REGS1 )
     }
     while ((at = Yap_LookupAtom(String)) == NIL) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
     }
@@ -2221,7 +2221,7 @@ p_number_codes( USES_REGS1 )
       while (!Yap_gmp_to_string(t1, String, ((char *)AuxSp-String)-1024, 10 )) {
 	size_t sz = Yap_gmp_to_size(t1, 10);
 	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t1, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -2318,7 +2318,7 @@ p_atom_number( USES_REGS1 )
       while (!Yap_gmp_to_string(t2, String, ((char *)AuxSp-String)-1024, 10 )) {
 	size_t sz = Yap_gmp_to_size(t2, 10);
 	if (!(String = Yap_ExpandPreAllocCodeSpace(sz, NULL, TRUE))) {
-	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t2, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, t2, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -2415,7 +2415,7 @@ p_univ( USES_REGS1 )
 	/* restore space */
 	H = Ar;
 	if (!Yap_gcl((ASP-H)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	twork = TailOfTerm(Deref(ARG2));
@@ -2480,7 +2480,7 @@ p_univ( USES_REGS1 )
       twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
       while (IsIntTerm(twork)) {
 	if (!Yap_gc(2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return(FALSE);
 	}    
 	twork = Yap_ArrayToList(CellPtr(TR), argno - 1);
@@ -2490,7 +2490,7 @@ p_univ( USES_REGS1 )
       {
 	while (H+arity*2 > ASP-1024) {
 	  if (!Yap_gcl((arity*2)*sizeof(CELL), 2, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return(FALSE);
 	  }
 	  tin = Deref(ARG1);
@@ -3339,8 +3339,8 @@ Yap_show_statistics(void)
 	     (unsigned long int)(sizeof(CELL)*(H-H0)),
 	     (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
   fprintf(Yap_stderr, "Trail Space: %ld (%ld used).\n", 
-	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(Yap_TrailTop)-Unsigned(Yap_TrailBase))),
-	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(Yap_TrailBase))));
+	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase))),
+	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(LOCAL_TrailBase))));
   fprintf(Yap_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
   fprintf(Yap_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
   fprintf(Yap_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
@@ -3366,12 +3366,12 @@ TrailMax(void)
 {
   CACHE_REGS
   Int i;
-  Int TrWidth = Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase);
+  Int TrWidth = Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase);
   CELL *pt;
 
   if (TrailTide != TrWidth) {
     pt = (CELL *)TR;
-    while (pt+2 < (CELL *)Yap_TrailTop) {
+    while (pt+2 < (CELL *)LOCAL_TrailTop) {
       if (pt[0] == 0 &&
 	  pt[1] == 0 &&
 	  pt[2] == 0)
@@ -3379,8 +3379,8 @@ TrailMax(void)
       else
 	pt++;
     }
-    if (pt+2 < (CELL *)Yap_TrailTop)
-      i = Unsigned(pt) - Unsigned(Yap_TrailBase);
+    if (pt+2 < (CELL *)LOCAL_TrailTop)
+      i = Unsigned(pt) - Unsigned(LOCAL_TrailBase);
     else
       i = TrWidth;
   } else
@@ -3495,12 +3495,12 @@ p_statistics_heap_info( USES_REGS1 )
 #if USE_SYSTEM_MALLOC && HAVE_MALLINFO
   struct mallinfo mi = mallinfo();
 
-  UInt sstack = Yap_HoleSize+(Yap_TrailTop-Yap_GlobalBase);
+  UInt sstack = Yap_HoleSize+(LOCAL_TrailTop-LOCAL_GlobalBase);
   UInt mmax = (mi.arena+mi.hblkhd);
   Term tmax = MkIntegerTerm(mmax-sstack);
   tusage = MkIntegerTerm(mmax-(mi.fordblks+sstack));
 #else
-  Term tmax = MkIntegerTerm((Yap_GlobalBase - Yap_HeapBase)-Yap_HoleSize);
+  Term tmax = MkIntegerTerm((LOCAL_GlobalBase - Yap_HeapBase)-Yap_HoleSize);
 #endif
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
@@ -3524,8 +3524,8 @@ p_statistics_stacks_info( USES_REGS1 )
 static Int 
 p_statistics_trail_info( USES_REGS1 )
 {
-  Term tmax = MkIntegerTerm(Unsigned(Yap_TrailTop) - Unsigned(Yap_TrailBase));
-  Term tusage = MkIntegerTerm(Unsigned(TR) - Unsigned(Yap_TrailBase));
+  Term tmax = MkIntegerTerm(Unsigned(LOCAL_TrailTop) - Unsigned(LOCAL_TrailBase));
+  Term tusage = MkIntegerTerm(Unsigned(TR) - Unsigned(LOCAL_TrailBase));
 
   return(Yap_unify(tmax, ARG1) && Yap_unify(tusage,ARG2));
   
@@ -3670,8 +3670,8 @@ static Int
 p_executable( USES_REGS1 )
 {
   
-  Yap_TrueFileName (Yap_argv[0], Yap_FileNameBuf, FALSE);
-  return Yap_unify(MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)),ARG1);
+  Yap_TrueFileName (Yap_argv[0], LOCAL_FileNameBuf, FALSE);
+  return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
 }
 
 static Int

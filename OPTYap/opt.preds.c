@@ -523,6 +523,8 @@ static Int p_yapor_on( USES_REGS1 ) {
 
 
 static Int p_start_yapor( USES_REGS1 ) {
+
+printf("------------ start yap or --------------------------\n");
 #ifdef TIMESTAMP_CHECK
   GLOBAL_timestamp = 0;
 #endif /* TIMESTAMP_CHECK */

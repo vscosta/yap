@@ -98,7 +98,7 @@ LeaveGrowMode(prolog_exec_mode grow_mode)
 #if PUSH_REGS
     restore_absmi_regs(&Yap_standard_regs);
 #endif
-    siglongjmp (Yap_RestartEnv, 1);
+    siglongjmp (LOCAL_RestartEnv, 1);
 #endif
   }
 }
@@ -121,27 +121,27 @@ static void
 SetHeapRegs(int copying_threads USES_REGS)
 {
 #ifdef undf7
-  fprintf(Yap_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, Yap_GlobalBase, H, LCL0, ASP);
+  fprintf(Yap_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, LOCAL_GlobalBase, H, LCL0, ASP);
 #endif
   /* The old stack pointers */
   LOCAL_OldLCL0 = LCL0;
   LOCAL_OldASP = ASP;
-  LOCAL_OldGlobalBase = (CELL *)Yap_GlobalBase;
+  LOCAL_OldGlobalBase = (CELL *)LOCAL_GlobalBase;
   LOCAL_OldH = H;
   LOCAL_OldH0 = H0;
-  LOCAL_OldTrailBase = Yap_TrailBase;
-  LOCAL_OldTrailTop = Yap_TrailTop;
+  LOCAL_OldTrailBase = LOCAL_TrailBase;
+  LOCAL_OldTrailTop = LOCAL_TrailTop;
   LOCAL_OldTR = TR;
   LOCAL_OldHeapBase = Yap_HeapBase;
   LOCAL_OldHeapTop = HeapTop;
   /* Adjust stack addresses */
-  Yap_TrailBase = TrailAddrAdjust(Yap_TrailBase);
-  Yap_TrailTop = TrailAddrAdjust(Yap_TrailTop);
+  LOCAL_TrailBase = TrailAddrAdjust(LOCAL_TrailBase);
+  LOCAL_TrailTop = TrailAddrAdjust(LOCAL_TrailTop);
   if (LOCAL_GDiff) {
     /* make sure we are not just expanding the delay stack */
-    Yap_GlobalBase = BaseAddrAdjust(Yap_GlobalBase);
+    LOCAL_GlobalBase = BaseAddrAdjust(LOCAL_GlobalBase);
   }
-  Yap_LocalBase = LocalAddrAdjust(Yap_LocalBase);
+  LOCAL_LocalBase = LocalAddrAdjust(LOCAL_LocalBase);
 #if !USE_SYSTEM_MALLOC && !USE_DL_MALLOC
   AuxSp = PtoBaseAdjust(AuxSp);
   AuxTop = (ADDR)PtoBaseAdjust((CELL *)AuxTop);
@@ -275,7 +275,7 @@ RestoreTrail(int worker_p USES_REGS)
     if (IsVarTerm(aux_cell)) {
       if (aux_cell < LOCAL_start_global_copy || EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
 	YAPOR_ERROR_CHECKING((CELL *)aux_cell < H0, "RestoreTrail: aux_cell < H0");
-	YAPOR_ERROR_CHECKING((ADDR)aux_cell > Yap_LocalBase, "RestoreTrail: aux_cell > LocalBase");
+	YAPOR_ERROR_CHECKING((ADDR)aux_cell > LOCAL_LocalBase, "RestoreTrail: aux_cell > LocalBase");
 #ifdef TABLING
         *((CELL *) aux_cell) = TrailVal(aux_tr);
 #else
@@ -286,7 +286,7 @@ RestoreTrail(int worker_p USES_REGS)
     } else if (IsPairTerm(aux_cell)) {
       /* avoid frozen segments */
       aux_cell = (CELL) RepPair(aux_cell);
-      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, aux_cell, LOCAL_TrailTop)) {
         aux_tr = (tr_fr_ptr) aux_cell;
       }
 #endif /* TABLING */
@@ -319,7 +319,7 @@ MoveGlobal( USES_REGS1 )
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-   cpcellsd((CELL *)Yap_GlobalBase, (CELL *)LOCAL_OldGlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
+   cpcellsd((CELL *)LOCAL_GlobalBase, (CELL *)LOCAL_OldGlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
 }
 
 static void
@@ -329,7 +329,7 @@ MoveExpandedGlobal( USES_REGS1 )
    * cpcellsd(To,From,NOfCells) - copy the cells downwards - in
    * absmi.asm 
    */
-  cpcellsd((CELL *)(Yap_GlobalBase+(LOCAL_GDiff-LOCAL_BaseDiff)), (CELL *)Yap_GlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
+  cpcellsd((CELL *)(LOCAL_GlobalBase+(LOCAL_GDiff-LOCAL_BaseDiff)), (CELL *)LOCAL_GlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
 }
 
 static void
@@ -340,7 +340,7 @@ MoveGlobalWithHole( USES_REGS1 )
    * absmi.asm 
    */
 #if USE_SYSTEM_MALLOC
-  cpcellsd((CELL *)((char *)Yap_GlobalBase+(LOCAL_GDiff0-LOCAL_BaseDiff)), (CELL *)Yap_GlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
+  cpcellsd((CELL *)((char *)LOCAL_GlobalBase+(LOCAL_GDiff0-LOCAL_BaseDiff)), (CELL *)LOCAL_GlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
 #else
   cpcellsd((CELL *)((char *)LOCAL_OldGlobalBase+LOCAL_GDiff0), (CELL *)LOCAL_OldGlobalBase, LOCAL_OldH - (CELL *)LOCAL_OldGlobalBase);  
 #endif
@@ -399,7 +399,7 @@ AdjustPair(register CELL t0 USES_REGS)
 static void
 AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
 {
-  volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)Yap_TrailBase;
+  volatile tr_fr_ptr ptt, tr_base = (tr_fr_ptr)LOCAL_TrailBase;
 
 #if defined(YAPOR_THREADS)
   if (thread_copying == STACK_INCREMENTAL_COPYING) {
@@ -736,10 +736,10 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep USES_REGS)
       ves = *vep = (VarEntry *)TrailAddrAdjust((ADDR)ves);
     AdjustVarTable(ves PASS_REGS);
   }
-  ves = Yap_AnonVarTable;
+  ves = LOCAL_AnonVarTable;
   if (ves != NULL) {
     if (IsOldVarTableTrailPtr(ves))
-      ves = Yap_AnonVarTable = VarEntryAdjust(ves);
+      ves = LOCAL_AnonVarTable = VarEntryAdjust(ves);
   }
   while (ves != NULL) {
     VarEntry *vetmp = ves->VarLeft;
@@ -773,16 +773,16 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   if (!Yap_ExtendWorkSpace(size)) {
-    Int min_size = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);
+    Int min_size = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);
 
-    Yap_ErrorMessage = NULL;
+    LOCAL_ErrorMessage = NULL;
     if (size < min_size) size = min_size;
     minimal_request = size;
     size = Yap_ExtendWorkSpaceThroughHole(size);
     if (size < 0) {
-      Yap_ErrorMessage = "Database crashed against Stacks";
+      LOCAL_ErrorMessage = "Database crashed against Stacks";
       return FALSE;
     }
   }
@@ -851,7 +851,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
   UInt start_growth_time, growth_time;
   int gc_verbose;
   char *omax = (char *)H0;
-  ADDR old_GlobalBase = Yap_GlobalBase;
+  ADDR old_GlobalBase = LOCAL_GlobalBase;
   UInt minimal_request = 0L;
   long size = request;
   char vb_msg1 = '\0', *vb_msg2;
@@ -867,10 +867,10 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
 
   if (hsplit) {
     /* just a little bit of sanity checking */
-    if (hsplit < H0 && hsplit > (CELL *)Yap_GlobalBase) {
+    if (hsplit < H0 && hsplit > (CELL *)LOCAL_GlobalBase) {
       insert_in_delays = TRUE;
       /* expanding attributed variables */
-      if (omax - size > Yap_GlobalBase+4096*sizeof(CELL)) {
+      if (omax - size > LOCAL_GlobalBase+4096*sizeof(CELL)) {
 	/* we can just ask for more room */
 	size = 0;
 	do_grow = FALSE;
@@ -899,23 +899,23 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
     size = AdjustPageSize(size);
   }
   /* adjust to a multiple of 256) */
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   Yap_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
   if (do_grow) {
     if (!GLOBAL_AllowGlobalExpansion) {
-      Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+      LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
       LeaveGrowMode(GrowStackMode);
       return 0;
     }
     if (!GLOBAL_AllowGlobalExpansion || !Yap_ExtendWorkSpace(size)) {
       /* always fails when using malloc */
-      Yap_ErrorMessage = NULL;
-      size += AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+MinHeapGap);   
+      LOCAL_ErrorMessage = NULL;
+      size += AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+MinHeapGap);   
       minimal_request = size;
       size = Yap_ExtendWorkSpaceThroughHole(size);
       if (size < 0) {
-	Yap_ErrorMessage = "Global Stack crashed against Local Stack";
+	LOCAL_ErrorMessage = "Global Stack crashed against Local Stack";
 	LeaveGrowMode(GrowStackMode);
 	return 0;
       }
@@ -949,11 +949,11 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
     /* we got over a hole */
     if (minimal_request) {
       /* we went over a hole */
-      LOCAL_BaseDiff = size+((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)-minimal_request;
+      LOCAL_BaseDiff = size+((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)-minimal_request;
       LOCAL_LDiff = LOCAL_TrDiff = size;
     } else {
       /* we may still have an overflow */
-      LOCAL_BaseDiff = Yap_GlobalBase - old_GlobalBase;
+      LOCAL_BaseDiff = LOCAL_GlobalBase - old_GlobalBase;
       /* if we grow, we need to move the stacks */
       LOCAL_LDiff = LOCAL_TrDiff = LOCAL_BaseDiff+size;
     }
@@ -983,7 +983,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
   }
   LOCAL_GSplit = hsplit;
   LOCAL_XDiff = LOCAL_HDiff = 0;
-  Yap_GlobalBase = old_GlobalBase;
+  LOCAL_GlobalBase = old_GlobalBase;
   SetHeapRegs(FALSE PASS_REGS);
   if (do_grow) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1491,30 +1491,30 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
 {
   UInt minimal_request = 0L;
   long size = size0;
-  ADDR old_Yap_GlobalBase = Yap_GlobalBase;
+  ADDR old_LOCAL_GlobalBase = LOCAL_GlobalBase;
   
   if (!GLOBAL_AllowGlobalExpansion) {
-    Yap_ErrorMessage = "Database crashed against stacks";
+    LOCAL_ErrorMessage = "Database crashed against stacks";
     return FALSE;
   }
   if (!Yap_ExtendWorkSpace(size)) {
     /* make sure stacks and trail are contiguous */
 
-    Yap_ErrorMessage = NULL;    
-    minimal_request = AdjustPageSize(((CELL)Yap_TrailTop-(CELL)Yap_GlobalBase)+4*MinHeapGap+size0);
+    LOCAL_ErrorMessage = NULL;    
+    minimal_request = AdjustPageSize(((CELL)LOCAL_TrailTop-(CELL)LOCAL_GlobalBase)+4*MinHeapGap+size0);
 
     size = Yap_ExtendWorkSpaceThroughHole(minimal_request);
     if (size < 0) {
-      Yap_ErrorMessage = "Database crashed against stacks";
+      LOCAL_ErrorMessage = "Database crashed against stacks";
       return FALSE;
     }
     YAPEnterCriticalSection();
     LOCAL_GDiff = LOCAL_DelayDiff = LOCAL_BaseDiff = size-size0;
   } else {
     YAPEnterCriticalSection();
-    if (Yap_GlobalBase != old_Yap_GlobalBase) {
-      LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = Yap_GlobalBase-old_Yap_GlobalBase;
-      Yap_GlobalBase=old_Yap_GlobalBase;
+    if (LOCAL_GlobalBase != old_LOCAL_GlobalBase) {
+      LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_GlobalBase-old_LOCAL_GlobalBase;
+      LOCAL_GlobalBase=old_LOCAL_GlobalBase;
     } else {
       LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = 0;
     }
@@ -1537,7 +1537,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   ASP -= 256;
   SetHeapRegs(FALSE PASS_REGS);
   if (from_trail) {
-    Yap_TrailTop += size0;
+    LOCAL_TrailTop += size0;
   }
   if (LOCAL_LDiff) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1599,7 +1599,7 @@ growstack(long size USES_REGS)
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
   size = AdjustPageSize(size);
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
@@ -1608,10 +1608,10 @@ growstack(long size USES_REGS)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
+	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", size);
   }
   if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
@@ -1636,8 +1636,8 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 
   Yap_PrologMode |= GrowStackMode;
   /* adjust to a multiple of 256) */
-  size = AdjustPageSize((ADDR)LCL0-Yap_GlobalBase);
-  Yap_ErrorMessage = NULL;
+  size = AdjustPageSize((ADDR)LCL0-LOCAL_GlobalBase);
+  LOCAL_ErrorMessage = NULL;
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
   stack_overflows++;
@@ -1646,10 +1646,10 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
     fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
     fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
     fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
+	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
     fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
   if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep PASS_REGS)) {
@@ -1678,7 +1678,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 #endif
   /* at least 64K for trail */
   if (!size) 
-    size = ((ADDR)TR-Yap_TrailBase);
+    size = ((ADDR)TR-LOCAL_TrailBase);
   size *= 2;
   if (size < YAP_ALLOC_SIZE)
     size = YAP_ALLOC_SIZE;
@@ -1695,23 +1695,23 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 #endif
     fprintf(Yap_stderr, "%% Trail Overflow %d\n", trail_overflows);
 #if USE_SYSTEM_MALLOC
-    fprintf(Yap_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)Yap_GlobalBase),(CELL *)Yap_GlobalBase,H);
+    fprintf(Yap_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,H);
     fprintf(Yap_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%  Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
+	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
 #endif
     fprintf(Yap_stderr, "%% growing the trail %ld bytes\n", size);
   }
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   if (!GLOBAL_AllowTrailExpansion) {
-    Yap_ErrorMessage = "Trail Overflow";
+    LOCAL_ErrorMessage = "Trail Overflow";
     return FALSE;
   }
 #if USE_SYSTEM_MALLOC
   execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
 #else
   if (!Yap_ExtendWorkSpace(size)) {
-    Yap_ErrorMessage = NULL;
+    LOCAL_ErrorMessage = NULL;
     if (contiguous_only) {
       /* I can't expand in this case */
       trail_overflows--;
@@ -1724,7 +1724,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
       LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_XDiff = LOCAL_HDiff = LOCAL_GDiff0 = 0;
       AdjustScannerStacks(tksp, vep PASS_REGS);
     }
-    Yap_TrailTop += size;
+    LOCAL_TrailTop += size;
     YAPLeaveCriticalSection();
   }
 #endif
@@ -1855,10 +1855,10 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   REMOTE_ThreadHandle(worker_q).ssize = REMOTE_ThreadHandle(worker_p).ssize;
   REMOTE_ThreadHandle(worker_q).tsize = REMOTE_ThreadHandle(worker_p).tsize;
   /* compute offset indicators */
-  Yap_GlobalBase = Yap_thread_gl[worker_p].global_base;
-  Yap_LocalBase = Yap_thread_gl[worker_p].local_base;
-  Yap_TrailBase = Yap_thread_gl[worker_p].trail_base;
-  Yap_TrailTop = Yap_thread_gl[worker_p].trail_top;
+  LOCAL_GlobalBase = REMOTE_GlobalBase(worker_p);
+  LOCAL_LocalBase = REMOTE_LocalBase(worker_p);
+  LOCAL_TrailBase = REMOTE_TrailBase(worker_p);
+  LOCAL_TrailTop = REMOTE_TrailTop(worker_p);
   size = REMOTE_ThreadHandle(worker_q).stack_address-REMOTE_ThreadHandle(worker_p).stack_address;
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;

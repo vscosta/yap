@@ -23,7 +23,7 @@ typedef struct worker_local {
   Int  GDiff_;
   Int  HDiff_;
   Int  GDiff0_;
-  Int  GSplit_;
+  CELL*  GSplit_;
   Int  LDiff_;
   Int  TrDiff_;
   Int  XDiff_;
@@ -128,4 +128,26 @@ typedef struct worker_local {
 #if defined(YAPOR) || defined(THREADS)
   lockvar  SignalLock_;
 #endif
+
+  ADDR  LocalBase_;
+  ADDR  GlobalBase_;
+  ADDR  TrailBase_;
+  ADDR  TrailTop_;
+  char*  ErrorMessage_;
+  Term  Error_Term_;
+#ifdef THREADS
+  Term  Error_TYPE_;
+#else
+  yap_error_number  Error_TYPE_;
+#endif	
+  UInt  Error_Size_;
+  char  ErrorSay_[MAX_ERROR_MSG_SIZE];
+  jmp_buf  IOBotch_;
+  TokEntry*  tokptr_;
+  TokEntry*  toktide_;
+  VarEntry*  VarTable_;
+  VarEntry*  AnonVarTable_;
+  sigjmp_buf  RestartEnv_;
+  char  FileNameBuf_[YAP_FILENAME_MAX];
+  char  FileNameBuf2_[YAP_FILENAME_MAX];
 } w_local;

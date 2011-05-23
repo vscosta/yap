@@ -218,14 +218,14 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
                    ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
                    |  TERM_1 |          \|/
                    ===========           *
- Yap_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
+ LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
                    -----------
 ************************************************************************/
   CACHE_REGS
   CELL *stack_vars = *stack_vars_ptr;
   CELL *stack_terms_limit = (CELL *) TR;
 #ifdef TRIE_COMPACT_PAIRS
-#define stack_terms_base ((CELL *) Yap_TrailTop)
+#define stack_terms_base ((CELL *) LOCAL_TrailTop)
   int stack_terms_pair_offset = 0;
 #endif /* TRIE_COMPACT_PAIRS */
   Term t = TrNode_entry(current_node);
@@ -1085,7 +1085,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
     Term t = STACK_POP_DOWN(stack_terms);
     Bind((CELL *) subs_ptr[i], t);
   }
-  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)Yap_TrailTop);
+  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)LOCAL_TrailTop);
 
   return;
 #undef subs_arity
@@ -1099,13 +1099,13 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
   Term t;
 
   ++aux_stack;  /* skip the heap_arity entry */
-  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) Yap_TrailTop);
+  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) LOCAL_TrailTop);
   *--aux_stack = 0;  /* restore the heap_arity entry */
 
   subs_ptr = aux_stack + aux_stack[1] + 2;
   t = STACK_POP_DOWN(stack_terms);
   Bind((CELL *) subs_ptr[subs_arity], t);
-  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)Yap_TrailTop);
+  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)LOCAL_TrailTop);
   *subs_ptr = subs_arity - 1;
 
   return aux_stack;

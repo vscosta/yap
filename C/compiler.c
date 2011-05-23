@@ -286,7 +286,7 @@ active_branch(int i, int onbranch)
   return(i==onbranch);*/
 }
 
-#define FAIL(M,T,E) { Yap_ErrorMessage=M; Yap_Error_TYPE = T; Yap_Error_Term = E; return; }
+#define FAIL(M,T,E) { LOCAL_ErrorMessage=M; LOCAL_Error_TYPE = T; LOCAL_Error_Term = E; return; }
 
 #if USE_SYSTEM_MALLOC
 #define IsNewVar(v) ((CELL *)(v) >= H0  && (CELL *)(v) < LCL0)
@@ -567,9 +567,9 @@ compile_sf_term(Term t, int argno, int level)
       if (IsAtomicTerm(t))
 	Yap_emit((cglobs->onhead ? unify_s_a_op : write_s_a_op), t, (CELL) argno, &cglobs->cint);
       else if (!IsVarTerm(t)) {
-	Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-	Yap_Error_Term = TermNil;
-	Yap_ErrorMessage = "illegal argument of soft functor";
+	LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	LOCAL_Error_Term = TermNil;
+	LOCAL_ErrorMessage = "illegal argument of soft functor";
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
       }
@@ -595,9 +595,9 @@ c_args(Term app, unsigned int level, compiler_struct *cglobs)
 
   if (level == 0) {
     if (Arity >= MaxTemps) {
-      Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-      Yap_Error_Term = TermNil;
-      Yap_ErrorMessage = "exceed maximum arity of compiled goal";
+      LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+      LOCAL_Error_Term = TermNil;
+      LOCAL_ErrorMessage = "exceed maximum arity of compiled goal";
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -619,7 +619,7 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
   while ((g=Yap_SizeGroundTerm(t,TRUE)) < 0) {
     /* oops, too deep a term */
     save_machine_regs();
-    Yap_Error_Size = 0;
+    LOCAL_Error_Size = 0;
     siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_AUX_BOTCH);
   }
   if (g < 16)
@@ -628,18 +628,18 @@ try_store_as_dbterm(Term t, Int argno, unsigned int arity, int level, compiler_s
   H = CellPtr(cglobs->cint.freep);
   if ((dbt = Yap_StoreTermInDB(t, -1)) == NULL) {
     H = h0;
-    switch(Yap_Error_TYPE) {
+    switch(LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_STACK_BOTCH);
     case OUT_OF_TRAIL_ERROR:
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_TRAIL_BOTCH);
     case OUT_OF_HEAP_ERROR:
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_HEAP_BOTCH);
     case OUT_OF_AUXSPACE_ERROR:
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       siglongjmp(cglobs->cint.CompilerBotch,OUT_OF_AUX_BOTCH);
     default:
       siglongjmp(cglobs->cint.CompilerBotch,COMPILER_ERR_BOTCH);
@@ -1010,11 +1010,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       } else {
 	char s[32];
 
-	Yap_Error_TYPE = TYPE_ERROR_NUMBER;
-	Yap_Error_Term = t2;
-	Yap_ErrorMessage = Yap_ErrorSay;
+	LOCAL_Error_TYPE = TYPE_ERROR_NUMBER;
+	LOCAL_Error_Term = t2;
+	LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound", s);
+	sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound", s);
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,1);
       }
@@ -1025,11 +1025,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       if (IsNewVar(t2)) {
 	char s[32];
 
-	Yap_Error_TYPE = INSTANTIATION_ERROR;
-	Yap_Error_Term = t2;
-	Yap_ErrorMessage = Yap_ErrorSay;
+	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	LOCAL_Error_Term = t2;
+	LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "compiling %s/3",s);
+	sprintf(LOCAL_ErrorMessage, "compiling %s/3",s);
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,1);
       }
@@ -1041,11 +1041,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	if (!IsIntegerTerm(t2)) {
 	  char s[32];
 
-	  Yap_Error_TYPE = TYPE_ERROR_INTEGER;
-	  Yap_Error_Term = t2;
-	  Yap_ErrorMessage = Yap_ErrorSay;
+	  LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+	  LOCAL_Error_Term = t2;
+	  LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	  Yap_bip_name(Op, s);
-	  sprintf(Yap_ErrorMessage, "compiling functor/3");
+	  sprintf(LOCAL_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,1);
 	}
@@ -1053,11 +1053,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	if (i2 < 0) {
 	  char s[32];
 
-	  Yap_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
-	  Yap_Error_Term = t2;
-	  Yap_ErrorMessage = Yap_ErrorSay;
+	  LOCAL_Error_TYPE = DOMAIN_ERROR_NOT_LESS_THAN_ZERO;
+	  LOCAL_Error_Term = t2;
+	  LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	  Yap_bip_name(Op, s);
-	  sprintf(Yap_ErrorMessage, "compiling functor/3");
+	  sprintf(LOCAL_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,1);
 	}
@@ -1068,11 +1068,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	} else if (!IsAtomTerm(t1)) {
 	  char s[32];
 
-	  Yap_Error_TYPE = TYPE_ERROR_ATOM;
-	  Yap_Error_Term = t2;
-	  Yap_ErrorMessage = Yap_ErrorSay;
+	  LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+	  LOCAL_Error_Term = t2;
+	  LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	  Yap_bip_name(Op, s);
-	  sprintf(Yap_ErrorMessage, "compiling functor/3");
+	  sprintf(LOCAL_ErrorMessage, "compiling functor/3");
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,1);
 	}
@@ -1126,11 +1126,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	else {
 	  char s[32];
 
-	  Yap_Error_TYPE = TYPE_ERROR_INTEGER;
-	  Yap_Error_Term = t2;
-	  Yap_ErrorMessage = Yap_ErrorSay;
+	  LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+	  LOCAL_Error_Term = t2;
+	  LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	  Yap_bip_name(Op, s);
-	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	  sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,1);
 	}
@@ -1138,11 +1138,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	    (IsApplTerm(t2) && IsExtensionFunctor(FunctorOfTerm(t2)))) {
 	  char s[32];
 
-	  Yap_Error_TYPE = TYPE_ERROR_COMPOUND;
-	  Yap_Error_Term = t2;
-	  Yap_ErrorMessage = Yap_ErrorSay;
+	  LOCAL_Error_TYPE = TYPE_ERROR_COMPOUND;
+	  LOCAL_Error_Term = t2;
+	  LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	  Yap_bip_name(Op, s);
-	  sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	  sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	  save_machine_regs();
 	  siglongjmp(cglobs->cint.CompilerBotch,1);
 	} else if (IsApplTerm(t2)) {
@@ -1169,11 +1169,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       } else {
 	char s[32];
 
-	Yap_Error_TYPE = TYPE_ERROR_INTEGER;
-	Yap_Error_Term = t2;
-	Yap_ErrorMessage = Yap_ErrorSay;
+	LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+	LOCAL_Error_Term = t2;
+	LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,1);
       }
@@ -1182,11 +1182,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
       if (!IsAtomicTerm(t1)) {
 	char s[32];
 
-	Yap_Error_TYPE = TYPE_ERROR_ATOM;
-	Yap_Error_Term = t1;
-	Yap_ErrorMessage = Yap_ErrorSay;
+	LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+	LOCAL_Error_Term = t1;
+	LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	Yap_bip_name(Op, s);
-	sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch,1);
       } else {
@@ -1197,11 +1197,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	  if (!IsIntegerTerm(t2)) {
 	    char s[32];
 
-	    Yap_Error_TYPE = TYPE_ERROR_INTEGER;
-	    Yap_Error_Term = t2;
-	    Yap_ErrorMessage = Yap_ErrorSay;
+	    LOCAL_Error_TYPE = TYPE_ERROR_INTEGER;
+	    LOCAL_Error_Term = t2;
+	    LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	    Yap_bip_name(Op, s);
-	    sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	    sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,1);
 	  }
@@ -1215,11 +1215,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
 	    if (!IsAtomTerm(t1)) {
 	      char s[32];
 
-	      Yap_Error_TYPE = TYPE_ERROR_ATOM;
-	      Yap_Error_Term = t1;
-	      Yap_ErrorMessage = Yap_ErrorSay;
+	      LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
+	      LOCAL_Error_Term = t1;
+	      LOCAL_ErrorMessage = LOCAL_ErrorSay;
 	      Yap_bip_name(Op, s);
-	      sprintf(Yap_ErrorMessage, "compiling %s/2",  s);
+	      sprintf(LOCAL_ErrorMessage, "compiling %s/2",  s);
 	      save_machine_regs();
 	      siglongjmp(cglobs->cint.CompilerBotch,1);
 	    }
@@ -1259,11 +1259,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
     } else {
       char s[32];
 
-      Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
-      Yap_Error_Term = t1;
-      Yap_ErrorMessage = Yap_ErrorSay;
+      LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+      LOCAL_Error_Term = t1;
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
       Yap_bip_name(Op, s);
-      sprintf(Yap_ErrorMessage, "compiling %s/2 with output bound",  s);
+      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with output bound",  s);
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch,1);
     }
@@ -1282,11 +1282,11 @@ c_bifun(basic_preds Op, Term t1, Term t2, Term t3, Term Goal, Term mod, compiler
     } else {
       char s[32];
 
-      Yap_Error_TYPE = TYPE_ERROR_VARIABLE;
-      Yap_Error_Term = t3;
-      Yap_ErrorMessage = Yap_ErrorSay;
+      LOCAL_Error_TYPE = TYPE_ERROR_VARIABLE;
+      LOCAL_Error_Term = t3;
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
       Yap_bip_name(Op, s);
-      sprintf(Yap_ErrorMessage, "compiling %s/2 with input unbound",  s);
+      sprintf(LOCAL_ErrorMessage, "compiling %s/2 with input unbound",  s);
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch,1);
     }
@@ -1450,12 +1450,12 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     if (IsVarTerm(M) || !IsAtomTerm(M)) {
       CACHE_REGS
       if (IsVarTerm(M)) {	
-	Yap_Error_TYPE = INSTANTIATION_ERROR;
+	LOCAL_Error_TYPE = INSTANTIATION_ERROR;
       } else {
-	Yap_Error_TYPE = TYPE_ERROR_ATOM;
+	LOCAL_Error_TYPE = TYPE_ERROR_ATOM;
       }
-      Yap_Error_Term = M;
-      Yap_ErrorMessage = "in module name";
+      LOCAL_Error_Term = M;
+      LOCAL_ErrorMessage = "in module name";
       save_machine_regs();
       siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
     }
@@ -1469,8 +1469,8 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
     FAIL("goal can not be a number", TYPE_ERROR_CALLABLE, Goal);
   } else if (IsRefTerm(Goal)) {
     CACHE_REGS
-    Yap_Error_TYPE = TYPE_ERROR_DBREF;
-    Yap_Error_Term = Goal;
+    LOCAL_Error_TYPE = TYPE_ERROR_DBREF;
+    LOCAL_Error_Term = Goal;
     FAIL("goal argument in static procedure can not be a data base reference", TYPE_ERROR_CALLABLE, Goal);
   }
   else if (IsPairTerm(Goal)) {
@@ -1906,10 +1906,10 @@ c_goal(Term Goal, Term mod, compiler_struct *cglobs)
 	Term a2 = ArgOfTerm(2,Goal);
 	if (IsVarTerm(a2) && !IsNewVar(a2)) {
 	  if (IsNewVar(a2))  {
-	    Yap_Error_TYPE = INSTANTIATION_ERROR;
-	    Yap_Error_Term = a2;
-	    Yap_ErrorMessage = Yap_ErrorSay;
-	    sprintf(Yap_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
+	    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+	    LOCAL_Error_Term = a2;
+	    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+	    sprintf(LOCAL_ErrorMessage, "compiling %s/2 with second arg unbound",  RepAtom(NameOfFunctor(p->FunctorOfPred))->StrOfAE);
 	    save_machine_regs();
 	    siglongjmp(cglobs->cint.CompilerBotch,1);
 	  }
@@ -2314,9 +2314,9 @@ clear_bvarray(int var, CELL *bvarray
   if (*bvarray & nbit) {
     CACHE_REGS
     /* someone had already marked this variable: complain */
-    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "compiler internal error: variable initialised twice";
+    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_Term = TermNil;
+    LOCAL_ErrorMessage = "compiler internal error: variable initialised twice";
  fprintf(stderr," vsc: compiling7\n");
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
@@ -2357,9 +2357,9 @@ push_bvmap(int label, PInstr *pcpc, compiler_struct *cglobs)
 {
   if (bvindex == MAX_DISJUNCTIONS) {
     CACHE_REGS
-    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "Too many embedded disjunctions";
+    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_Term = TermNil;
+    LOCAL_ErrorMessage = "Too many embedded disjunctions";
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2381,9 +2381,9 @@ reset_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 
   if (bvindex == 0) {
     CACHE_REGS
-    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "No embedding in disjunctions";
+    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_Term = TermNil;
+    LOCAL_ErrorMessage = "No embedding in disjunctions";
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2402,9 +2402,9 @@ pop_bvmap(CELL *bvarray, int nperm, compiler_struct *cglobs)
 {
   if (bvindex == 0) {
     CACHE_REGS
-    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "Too few embedded disjunctions";
+    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_Term = TermNil;
+    LOCAL_ErrorMessage = "Too few embedded disjunctions";
     /*  save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH); */
   }
@@ -2673,9 +2673,9 @@ checktemp(Int arg, Int rn, compiler_vm_op ic, compiler_struct *cglobs)
     }
   if (target1 == cglobs->MaxCTemps) {
     CACHE_REGS
-    Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-    Yap_Error_Term = TermNil;
-    Yap_ErrorMessage = "too many temporaries";
+    LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+    LOCAL_Error_Term = TermNil;
+    LOCAL_ErrorMessage = "too many temporaries";
     save_machine_regs();
     siglongjmp(cglobs->cint.CompilerBotch, COMPILER_ERR_BOTCH);
   }
@@ -2807,9 +2807,9 @@ c_layout(compiler_struct *cglobs)
 #ifdef DEBUG
       if (cglobs->pbvars != nperm) {
 	CACHE_REGS
-	Yap_Error_TYPE = INTERNAL_COMPILER_ERROR;
-	Yap_Error_Term = TermNil;
-	Yap_ErrorMessage = "wrong number of variables found in bitmap";
+	LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
+	LOCAL_Error_Term = TermNil;
+	LOCAL_ErrorMessage = "wrong number of variables found in bitmap";
 	save_machine_regs();
 	siglongjmp(cglobs->cint.CompilerBotch, OUT_OF_HEAP_BOTCH);
       } 
@@ -3357,7 +3357,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   compiler_struct cglobs;
 
   /* make sure we know there was no error yet */
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   if ((botch_why = sigsetjmp(cglobs.cint.CompilerBotch, 0))) {
     restore_machine_regs();
     reset_vars(cglobs.vtable);
@@ -3371,14 +3371,14 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
 	ARG3 = src;
 
 	YAPLeaveCriticalSection();
-	if (!Yap_gcl(Yap_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
-	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-	  Yap_Error_Term = inp_clause;
+	if (!Yap_gcl(LOCAL_Error_Size, NOfArgs, ENV, gc_P(P,CP))) {
+	  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+	  LOCAL_Error_Term = inp_clause;
 	}
 	if (osize > ASP-H) {
 	  if (!Yap_growstack(2*sizeof(CELL)*(ASP-H))) {
-	    Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-	    Yap_Error_Term = inp_clause;
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+	    LOCAL_Error_Term = inp_clause;
 	  }
 	}
 	YAPEnterCriticalSection();
@@ -3391,9 +3391,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       YAPLeaveCriticalSection();
       ARG1 = inp_clause;
       ARG3 = src;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, NULL, TRUE)) {
-	Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
-	Yap_Error_Term = inp_clause;
+      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, NULL, TRUE)) {
+	LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+	LOCAL_Error_Term = inp_clause;
       }
       YAPEnterCriticalSection();
       src = ARG3;
@@ -3412,9 +3412,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       ARG1 = inp_clause;
       ARG3 = src;
       YAPLeaveCriticalSection();
-      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
-	Yap_Error_Term = inp_clause;
+      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+	LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+	LOCAL_Error_Term = inp_clause;
 	return NULL;
       }
       YAPEnterCriticalSection();
@@ -3426,9 +3426,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       ARG1 = inp_clause;
       ARG3 = src;
       YAPLeaveCriticalSection();
-      if (!Yap_growtrail(Yap_TrailTop-(ADDR)TR, FALSE)) {
-	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
-	Yap_Error_Term = inp_clause;
+      if (!Yap_growtrail(LOCAL_TrailTop-(ADDR)TR, FALSE)) {
+	LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+	LOCAL_Error_Term = inp_clause;
 	return NULL;
       }
       YAPEnterCriticalSection();
@@ -3441,9 +3441,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   }
   my_clause = inp_clause;
   HB = H;
-  Yap_ErrorMessage = NULL;
-  Yap_Error_Size = 0;
-  Yap_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_Size = 0;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   /* initialize variables for code generation                              */
   
   cglobs.cint.CodeStart = cglobs.cint.cpc = NULL;
@@ -3457,7 +3457,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   cglobs.cint.success_handler = 0L;
   if (ASP <= CellPtr (cglobs.cint.freep) + 256) {
     cglobs.vtable = NULL;
-    Yap_Error_Size = (256+maxvnum)*sizeof(CELL);
+    LOCAL_Error_Size = (256+maxvnum)*sizeof(CELL);
     save_machine_regs();
     siglongjmp(cglobs.cint.CompilerBotch,3);
   }
@@ -3481,9 +3481,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   cglobs.is_a_fact = FALSE;
   cglobs.hasdbrefs = FALSE;
   if (IsVarTerm(my_clause)) {
-    Yap_Error_TYPE = INSTANTIATION_ERROR;
-    Yap_Error_Term = my_clause;
-    Yap_ErrorMessage = "in compiling clause";
+    LOCAL_Error_TYPE = INSTANTIATION_ERROR;
+    LOCAL_Error_Term = my_clause;
+    LOCAL_ErrorMessage = "in compiling clause";
     return 0;
   }
   if (IsApplTerm(my_clause) && FunctorOfTerm(my_clause) == FunctorAssert) {
@@ -3494,9 +3494,9 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     head = my_clause, body = MkAtomTerm(AtomTrue);
   }
   if (IsVarTerm(head) || IsPairTerm(head) || IsIntTerm(head) || IsFloatTerm(head) || IsRefTerm(head)) {
-    Yap_Error_TYPE = TYPE_ERROR_CALLABLE;
-    Yap_Error_Term = my_clause;
-    Yap_ErrorMessage = "clause should be atom or term";
+    LOCAL_Error_TYPE = TYPE_ERROR_CALLABLE;
+    LOCAL_Error_Term = my_clause;
+    LOCAL_ErrorMessage = "clause should be atom or term";
     return (0);
   } else {
     
@@ -3544,7 +3544,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
       cglobs.cint.cpc->nextInst = cglobs.cint.BlobsStart;
       cglobs.cint.BlobsStart = NULL;
     }
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return (0);
 #ifdef DEBUG
     if (Yap_Option['g' - 96])
@@ -3577,7 +3577,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     if (B != NULL) {
       HB = B->cp_h;
     }
-    if (Yap_ErrorMessage)
+    if (LOCAL_ErrorMessage)
       return (0);
 #ifdef DEBUG
     if (Yap_Option['g' - 96])

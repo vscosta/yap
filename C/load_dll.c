@@ -66,16 +66,16 @@ LoadForeign(StringList ofiles, StringList libs,
   while (ofiles) {
     HINSTANCE handle;
 
-    if (Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE) &&
-	(handle=LoadLibrary(Yap_FileNameBuf)) != 0)
+    if (Yap_TrueFileName(AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE) &&
+	(handle=LoadLibrary(LOCAL_FileNameBuf)) != 0)
       {
-	Yap_ErrorSay[0]=~'\0';
+	LOCAL_ErrorSay[0]=~'\0';
 	if (*init_proc == NULL)
 	  *init_proc = (YapInitProc)GetProcAddress((HMODULE)handle, proc_name);
       } else {
 	FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 		      NULL, GetLastError(), 
-		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), Yap_ErrorSay, 256,
+		      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), LOCAL_ErrorSay, 256,
 		      NULL);
       }
     ofiles = ofiles->next;
@@ -87,15 +87,15 @@ LoadForeign(StringList ofiles, StringList libs,
     char * s = AtomName(libs->name);
 
     if (s[0] == '-') {
-      strcat(Yap_FileNameBuf,s+2);
-      strcat(Yap_FileNameBuf,".dll");
+      strcat(LOCAL_FileNameBuf,s+2);
+      strcat(LOCAL_FileNameBuf,".dll");
     } else {
-      strcpy(Yap_FileNameBuf,s);
+      strcpy(LOCAL_FileNameBuf,s);
     }
 
-    if((handle=LoadLibrary(Yap_FileNameBuf)) == 0)
+    if((handle=LoadLibrary(LOCAL_FileNameBuf)) == 0)
     {
-/*      strcpy(Yap_ErrorSay,dlerror());*/
+/*      strcpy(LOCAL_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -106,7 +106,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(*init_proc == NULL) {
-    strcpy(Yap_ErrorSay,"Could not locate initialization routine");
+    strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 

@@ -36,6 +36,7 @@ UInt		SizeOfOverflow			=0
 UInt		AGcThreshold			=10000
 Agc_hook	AGCHook				=NULL
 
+
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */

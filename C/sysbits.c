@@ -202,27 +202,27 @@ Yap_InitSysPath(void) {
   if (dir_done && commons_done)
     return;
 #endif
-  strncpy(Yap_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
+  strncpy(LOCAL_FileNameBuf, YAP_SHAREDIR, YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   {
     DWORD fatts;
     int buflen;
     char *pt;
 
-    if ((fatts = GetFileAttributes(Yap_FileNameBuf)) == 0xFFFFFFFFL ||
+    if ((fatts = GetFileAttributes(LOCAL_FileNameBuf)) == 0xFFFFFFFFL ||
 	!(fatts & FILE_ATTRIBUTE_DIRECTORY)) {
       /* couldn't find it where it was supposed to be,
 	 let's try using the executable */
-      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, Yap_FileNameBuf, YAP_FILENAME_MAX)) {
+      if (!GetModuleFileNameEx( GetCurrentProcess(), NULL, LOCAL_FileNameBuf, YAP_FILENAME_MAX)) {
 	Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name"); 
 	/* do nothing */
 	return;
       }
-      buflen = strlen(Yap_FileNameBuf);
-      pt = Yap_FileNameBuf+strlen(Yap_FileNameBuf);
+      buflen = strlen(LOCAL_FileNameBuf);
+      pt = LOCAL_FileNameBuf+strlen(LOCAL_FileNameBuf);
       while (*--pt != '\\') {
 	/* skip executable */
-	if (pt == Yap_FileNameBuf) {
+	if (pt == LOCAL_FileNameBuf) {
 	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
 	  /* do nothing */
 	  return;
@@ -230,7 +230,7 @@ Yap_InitSysPath(void) {
       }
       while (*--pt != '\\') {
 	/* skip parent directory "bin\\" */
-	if (pt == Yap_FileNameBuf) {
+	if (pt == LOCAL_FileNameBuf) {
 	  Yap_Error(OPERATING_SYSTEM_ERROR, TermNil, "could not find executable name");
 	  /* do nothing */
 	}
@@ -238,34 +238,34 @@ Yap_InitSysPath(void) {
       /* now, this is a possible location for the ROOT_DIR, let's look for a share directory here */
       pt[1] = '\0';
       /* grosse */
-      strncat(Yap_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
-      libdir = Yap_AllocCodeSpace(strlen(Yap_FileNameBuf)+1);
-      strncpy(libdir, Yap_FileNameBuf, strlen(Yap_FileNameBuf)+1);
+      strncat(LOCAL_FileNameBuf,"lib\\Yap",YAP_FILENAME_MAX);
+      libdir = Yap_AllocCodeSpace(strlen(LOCAL_FileNameBuf)+1);
+      strncpy(libdir, LOCAL_FileNameBuf, strlen(LOCAL_FileNameBuf)+1);
       pt[1] = '\0';
-      strncat(Yap_FileNameBuf,"share",YAP_FILENAME_MAX);
+      strncat(LOCAL_FileNameBuf,"share",YAP_FILENAME_MAX);
     }
   }
-  strncat(Yap_FileNameBuf,"\\", YAP_FILENAME_MAX);
+  strncat(LOCAL_FileNameBuf,"\\", YAP_FILENAME_MAX);
 #else
-  strncat(Yap_FileNameBuf,"/", YAP_FILENAME_MAX);
+  strncat(LOCAL_FileNameBuf,"/", YAP_FILENAME_MAX);
 #endif
-  len = strlen(Yap_FileNameBuf);
-  strncat(Yap_FileNameBuf, "Yap", YAP_FILENAME_MAX);
+  len = strlen(LOCAL_FileNameBuf);
+  strncat(LOCAL_FileNameBuf, "Yap", YAP_FILENAME_MAX);
 #if _MSC_VER || defined(__MINGW32__)
   if (!dir_done) 
 #endif
     {
       Yap_PutValue(AtomSystemLibraryDir,
-		   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
     }
 #if _MSC_VER || defined(__MINGW32__)
   if (!commons_done) 
 #endif
     {
-      Yap_FileNameBuf[len] = '\0';
-      strncat(Yap_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
+      LOCAL_FileNameBuf[len] = '\0';
+      strncat(LOCAL_FileNameBuf, "PrologCommons", YAP_FILENAME_MAX);
       Yap_PutValue(AtomPrologCommonsDir,
-		   MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+		   MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
     }
 }
 
@@ -1197,7 +1197,7 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
       sip->si_code != SI_NOINFO &&
       sip->si_code == SEGV_MAPERR &&
       (void *)(sip->si_addr) > (void *)(Yap_HeapBase) &&
-      (void *)(sip->si_addr) < (void *)(Yap_TrailTop+K64)) {
+      (void *)(sip->si_addr) < (void *)(LOCAL_TrailTop+K64)) {
     Yap_growtrail(K64, TRUE);
   }  else
 #endif
@@ -1358,8 +1358,8 @@ SearchForTrailFault(siginfo_t *siginfo)
      crash again
      */
 #if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
-  if ((ptr > (void *)Yap_TrailTop-1024  && 
-       TR < (tr_fr_ptr) Yap_TrailTop+(64*1024))) {
+  if ((ptr > (void *)LOCAL_TrailTop-1024  && 
+       TR < (tr_fr_ptr) LOCAL_TrailTop+(64*1024))) {
     if (!Yap_growtrail(64*1024, TRUE)) {
       Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "YAP failed to reserve %ld bytes in growtrail", K64);
     }
@@ -1377,7 +1377,7 @@ static RETSIGTYPE
 HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
 {
   if (Yap_PrologMode & ExtendStackMode) {
-    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",Yap_TrailTop);
+    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
   SearchForTrailFault(siginfo);
 }
@@ -1472,11 +1472,11 @@ SearchForTrailFault(void)
   /*  fprintf(stderr,"Catching a sigsegv at %p with %p\n", TR, TrailTop); */
 #endif
 #if  OS_HANDLES_TR_OVERFLOW && !USE_SYSTEM_MALLOC
-  if ((TR > (tr_fr_ptr)Yap_TrailTop-1024  && 
-       TR < (tr_fr_ptr)Yap_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
+  if ((TR > (tr_fr_ptr)LOCAL_TrailTop-1024  && 
+       TR < (tr_fr_ptr)LOCAL_TrailTop+(64*1024))|| Yap_DBTrailOverflow()) {
     long trsize = K64;
 
-    while ((CELL)TR > (CELL)Yap_TrailTop+trsize) {
+    while ((CELL)TR > (CELL)LOCAL_TrailTop+trsize) {
       trsize += K64;
     }
     if (!Yap_growtrail(trsize, TRUE)) {
@@ -1495,7 +1495,7 @@ HandleSIGSEGV(int   sig)
 {
   if (Yap_PrologMode & ExtendStackMode) {
     CACHE_REGS
-    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",Yap_TrailTop);
+    Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
   SearchForTrailFault();
 }
@@ -1565,7 +1565,7 @@ InteractSIGINT(int ch) {
       /* in case someone mangles the P register */
     }
     Yap_PrologMode &= ~AsyncIntMode;
-    siglongjmp(Yap_RestartEnv,1);
+    siglongjmp(LOCAL_RestartEnv,1);
     return -1;
   case 'b':
     /* continue */
@@ -2007,7 +2007,7 @@ TrueFileName (char *source, char *root, char *result, int in_lib)
       if ((tmpf = open(ares1, O_RDONLY)) < 0) {
 	/* not in current directory, let us try the library */
 	if  (Yap_LibDir != NULL) {
-	  strncpy(Yap_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
+	  strncpy(LOCAL_FileNameBuf, Yap_LibDir, YAP_FILENAME_MAX);
 #if HAVE_GETENV
 	} else {
 	  char *yap_env = getenv("YAPLIBDIR");
@@ -2105,8 +2105,8 @@ p_true_file_name ( USES_REGS1 )
     Yap_Error(TYPE_ERROR_ATOM,t,"argument to true_file_name");
     return FALSE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, Yap_FileNameBuf, FALSE);
-  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, NULL, LOCAL_FileNameBuf, FALSE);
+  return Yap_unify(ARG2, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
 static Int
@@ -2130,8 +2130,8 @@ p_true_file_name3 ( USES_REGS1 )
     }
     root = RepAtom(AtomOfTerm(t2))->StrOfAE;
   }
-  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, Yap_FileNameBuf, FALSE);
-  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(Yap_FileNameBuf)));
+  TrueFileName (RepAtom(AtomOfTerm(t))->StrOfAE, root, LOCAL_FileNameBuf, FALSE);
+  return Yap_unify(ARG3, MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)));
 }
 
 /* Executes $SHELL under Prolog */
@@ -2239,11 +2239,11 @@ p_system ( USES_REGS1 )
   } else if (IsAtomTerm(t1)) {
     s = RepAtom(AtomOfTerm(t1))->StrOfAE;
   } else {
-    if (!Yap_GetName (Yap_FileNameBuf, YAP_FILENAME_MAX, t1)) {
+    if (!Yap_GetName (LOCAL_FileNameBuf, YAP_FILENAME_MAX, t1)) {
       Yap_Error(TYPE_ERROR_ATOM,t1,"argument to system/1");
       return FALSE;
     }
-    s = Yap_FileNameBuf;
+    s = LOCAL_FileNameBuf;
   }
   /* Yap_CloseStreams(TRUE); */
 #if _MSC_VER
@@ -2397,7 +2397,7 @@ static Int p_putenv( USES_REGS1 )
   } else s2 = RepAtom(AtomOfTerm(t2))->StrOfAE;
   while (!(p0 = p = Yap_AllocAtomSpace(strlen(s)+strlen(s2)+3))) {
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }

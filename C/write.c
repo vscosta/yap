@@ -149,7 +149,7 @@ ensure_space(size_t sz) {
   }
   if (!s) {
     s = (char *)TR;
-    while (s+sz >= Yap_TrailTop) {
+    while (s+sz >= LOCAL_TrailTop) {
       if (!Yap_growtrail(sz/sizeof(CELL), FALSE)) {
 	s = NULL;
 	break;

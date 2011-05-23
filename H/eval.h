@@ -190,8 +190,8 @@ inline static Term
 Yap_FoundArithError(Term t, Term inp)
 { 
   CACHE_REGS
-  if (Yap_Error_TYPE) {
-    Yap_Error(Yap_Error_TYPE, (inp ? inp : Yap_Error_Term), Yap_ErrorMessage);
+  if (LOCAL_Error_TYPE) {
+    Yap_Error(LOCAL_Error_TYPE, (inp ? inp : LOCAL_Error_Term), LOCAL_ErrorMessage);
     P = FAILCODE;
     return 0L;
   }

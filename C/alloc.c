@@ -261,8 +261,8 @@ Yap_InitPreAllocCodeSpace(void)
 #if USE_DL_MALLOC
       UNLOCK(DLMallocLock);
 #endif
-      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return(NULL);
       }
 #if INSTRUMENT_MALLOC
@@ -364,11 +364,11 @@ InitExStacks(int Trail, int Stack)
 
 #ifdef THREADS
   if (worker_id)
-    Yap_GlobalBase = (ADDR)LOCAL_ThreadHandle.stack_address;
+    LOCAL_GlobalBase = (ADDR)LOCAL_ThreadHandle.stack_address;
 #endif
-  Yap_TrailTop = Yap_GlobalBase + pm;
-  Yap_LocalBase = Yap_GlobalBase + sa;
-  Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
+  LOCAL_TrailTop = LOCAL_GlobalBase + pm;
+  LOCAL_LocalBase = LOCAL_GlobalBase + sa;
+  LOCAL_TrailBase = LOCAL_LocalBase + sizeof(CELL);
 
   LOCAL_ScratchPad.ptr = NULL;
   LOCAL_ScratchPad.sz = LOCAL_ScratchPad.msz = SCRATCH_START_SIZE;
@@ -379,7 +379,7 @@ InitExStacks(int Trail, int Stack)
     UInt ta;
 
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
-	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
+	       Yap_HeapBase, LOCAL_GlobalBase, LOCAL_LocalBase, LOCAL_TrailTop);
 
     ta = Trail*K;			/* trail area size   */
     fprintf(stderr, "Heap+Aux: %lu\tLocal+Global: %lu\tTrail: %lu\n",
@@ -408,9 +408,9 @@ Yap_KillStacks(int wid)
 void
 Yap_KillStacks(void)
 {
-  if (Yap_GlobalBase) {
-    free(Yap_GlobalBase);
-    Yap_GlobalBase = NULL;
+  if (LOCAL_GlobalBase) {
+    free(LOCAL_GlobalBase);
+    LOCAL_GlobalBase = NULL;
   }
 }
 #endif
@@ -425,15 +425,15 @@ int
 Yap_ExtendWorkSpace(Int s)
 {
   CACHE_REGS
-  void *basebp = (void *)Yap_GlobalBase, *nbp;
-  UInt s0 = (char *)Yap_TrailTop-(char *)Yap_GlobalBase;
+  void *basebp = (void *)LOCAL_GlobalBase, *nbp;
+  UInt s0 = (char *)LOCAL_TrailTop-(char *)LOCAL_GlobalBase;
   nbp = realloc(basebp, s+s0);
   if (nbp == NULL) 
     return FALSE;
 #if defined(THREADS)
   LOCAL_ThreadHandle.stack_address = (char *)nbp;
 #endif
-  Yap_GlobalBase = (char *)nbp;
+  LOCAL_GlobalBase = (char *)nbp;
   return TRUE;
 }
 
@@ -682,7 +682,7 @@ AllocHeap(unsigned long int size)
   HeapUsed += size * sizeof(CELL) + sizeof(YAP_SEG_SIZE);
 
 #ifdef YAPOR
-  if (HeapTop > Addr(Yap_GlobalBase) - MinHeapGap)
+  if (HeapTop > Addr(LOCAL_GlobalBase) - MinHeapGap)
     Yap_Error(INTERNAL_ERROR, TermNil, "no heap left (AllocHeap)");
 #else
   if (HeapTop > HeapLim - MinHeapGap) {
@@ -849,8 +849,8 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   }
   b = VirtualAlloc(b, s, MEM_COMMIT, PAGE_READWRITE);
   if (!b) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "VirtualAlloc could not commit %ld bytes",
 	      (long int)s);
     Yap_PrologMode = OldPrologMode;
@@ -1021,6 +1021,8 @@ InitWorkSpace(Int s)
   return (void *) a;
 }
 
+
+#ifndef YAPOR
 static MALLOC_T
 mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 {
@@ -1043,13 +1045,13 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
      char file[256];
      strncpy(file,"/tmp/YAP.TMPXXXXXX",256);
      if (mkstemp(file) == -1) {
-       Yap_ErrorMessage = Yap_ErrorSay;
+       LOCAL_ErrorMessage = LOCAL_ErrorSay;
 #if HAVE_STRERROR
-       snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+       snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		 "mkstemp could not create temporary file %s (%s)",
 		 file, strerror(errno));
 #else
-       snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+       snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		 "mkstemp could not create temporary file %s", file);
 #endif /* HAVE_STRERROR */
        return (MALLOC_T)-1;
@@ -1065,28 +1067,28 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd < 0) {
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not open %s", file);
       return (MALLOC_T)-1;
     }
     if (lseek(fd, s, SEEK_SET) < 0) {
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not lseek in mmapped file %s", file);
       close(fd);
       return (MALLOC_T)-1;
     }
     if (write(fd, "", 1) < 0) {
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not write in mmapped file %s", file);
       close(fd);
       return (MALLOC_T)-1;
     }
     if (unlink(file) < 0) {
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not unlink mmapped file %s", file);
       close(fd);
       return (MALLOC_T)-1;
@@ -1100,12 +1102,12 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 #endif
 	   , fd, 0);
   if (close(fd) == -1) {
-    Yap_ErrorMessage = Yap_ErrorSay;
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
 #if HAVE_STRERROR
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not close file (%s) ]\n", strerror(errno));
 #else
-    snprintf3(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf3(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "mmap could not close file ]\n");
 #endif
     return (MALLOC_T)-1;
@@ -1113,6 +1115,8 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 #endif
   return a;
 }
+#endif /* !YAPOR */
+
 
 static int
 ExtendWorkSpace(Int s, int fixed_allocation)
@@ -1133,12 +1137,12 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   a = mmap_extension(s, base, fixed_allocation);
   Yap_PrologMode = OldPrologMode;
   if (a == (MALLOC_T) - 1) {
-    Yap_ErrorMessage = Yap_ErrorSay;
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
 #if HAVE_STRERROR
-    snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes (%s)", (int)s, strerror(errno));
 #else
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", (int)s);
 #endif
     return FALSE;
@@ -1146,8 +1150,8 @@ ExtendWorkSpace(Int s, int fixed_allocation)
   if (fixed_allocation) {
     if (a != WorkSpaceTop) {
       munmap((void *)a, (size_t)s);
-      Yap_ErrorMessage = Yap_ErrorSay;
-      snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+      LOCAL_ErrorMessage = LOCAL_ErrorSay;
+      snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 		"mmap could not grow memory at %p, got %p", WorkSpaceTop, a );
       Yap_PrologMode = OldPrologMode;
       return FALSE;
@@ -1216,22 +1220,22 @@ ExtendWorkSpace(Int s)
   Yap_PrologMode = ExtendStackMode;
   /* mapping heap area */
   if((shm_id = shmget(IPC_PRIVATE, (size_t)s, SHM_R|SHM_W)) == -1) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmget %d bytes", s);
     Yap_PrologMode = OldPrologMode;
     return(FALSE);
    }
   if((ptr = (MALLOC_T)shmat(shm_id, WorkSpaceTop, 0)) == (MALLOC_T) -1) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not shmat at %p", MMAP_ADDR);
     Yap_PrologMode = OldPrologMode;
     return(FALSE);
   }
   if (shmctl(shm_id, IPC_RMID, 0) != 0) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not remove shm segment", shm_id);
     Yap_PrologMode = OldPrologMode;
     return(FALSE);
@@ -1290,8 +1294,8 @@ ExtendWorkSpace(Int s)
 
   Yap_PrologMode = ExtendStackMode;
   if (ptr == ((MALLOC_T) - 1)) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand stacks over %d bytes", s);
     Yap_PrologMode = OldPrologMode;
     return(FALSE);
@@ -1423,22 +1427,22 @@ ExtendWorkSpace(Int s)
   if (total_space < MAX_SPACE) return TRUE;
   ptr = (MALLOC_T)realloc((void *)Yap_HeapBase, total_space);
   if (ptr == NULL) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not allocate %d bytes", s);
     Yap_PrologMode = OldPrologMode;
     return FALSE;
   }
   if (ptr != (MALLOC_T)Yap_HeapBase) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf4(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf4(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "could not expand contiguous stacks  %d bytes", s);
     Yap_PrologMode = OldPrologMode;
     return FALSE;
   }
   if ((CELL)ptr & MBIT) {
-    Yap_ErrorMessage = Yap_ErrorSay;
-    snprintf5(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE,
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
+    snprintf5(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE,
 	      "memory at %p conflicts with MBIT %lx", ptr, (unsigned long)MBIT);
     Yap_PrologMode = OldPrologMode;
     return FALSE;
@@ -1513,27 +1517,27 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 
   InitHeap(addr);
 
-  Yap_TrailTop = Yap_HeapBase + pm;
-  Yap_LocalBase = Yap_TrailTop - ta;
-  Yap_TrailBase = Yap_LocalBase + sizeof(CELL);
+  LOCAL_TrailTop = Yap_HeapBase + pm;
+  LOCAL_LocalBase = LOCAL_TrailTop - ta;
+  LOCAL_TrailBase = LOCAL_LocalBase + sizeof(CELL);
 
-  Yap_GlobalBase = Yap_LocalBase - sa;
-  HeapLim = Yap_GlobalBase;	/* avoid confusions while
+  LOCAL_GlobalBase = LOCAL_LocalBase - sa;
+  HeapLim = LOCAL_GlobalBase;	/* avoid confusions while
 					 * * restoring */
 #if !USE_DL_MALLOC
-  AuxTop = (ADDR)(AuxSp = (CELL *)Yap_GlobalBase);
+  AuxTop = (ADDR)(AuxSp = (CELL *)LOCAL_GlobalBase);
 #endif
 
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
   if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
-	       Yap_HeapBase, Yap_GlobalBase, Yap_LocalBase, Yap_TrailTop);
+	       Yap_HeapBase, LOCAL_GlobalBase, LOCAL_LocalBase, LOCAL_TrailTop);
 #else
   if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
-	       (UInt) Yap_HeapBase, (UInt) Yap_GlobalBase,
-	       (UInt) Yap_LocalBase, (UInt) Yap_TrailTop);
+	       (UInt) Yap_HeapBase, (UInt) LOCAL_GlobalBase,
+	       (UInt) LOCAL_LocalBase, (UInt) LOCAL_TrailTop);
 #endif
 
     fprintf(stderr, "Heap+Aux: " UInt_FORMAT "\tLocal+Global: " UInt_FORMAT "\tTrail: " UInt_FORMAT "\n",
@@ -1588,7 +1592,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
     WorkSpaceTop += 512*1024;
     if (ExtendWorkSpace(s, MAP_FIXED)) {
       Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
-      Yap_ErrorMessage = NULL;
+      LOCAL_ErrorMessage = NULL;
       return WorkSpaceTop-WorkSpaceTop0;
     }
 #if defined(_WIN32)
@@ -1606,7 +1610,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
       WorkSpaceTop += 512*1024;
       if (ExtendWorkSpace(s, MAP_FIXED)) {
 	Yap_add_memory_hole((ADDR)WorkSpaceTop0, (ADDR)WorkSpaceTop-s);
-	Yap_ErrorMessage = NULL;
+	LOCAL_ErrorMessage = NULL;
 	return WorkSpaceTop-WorkSpaceTop0;
       }
 #if defined(_WIN32)

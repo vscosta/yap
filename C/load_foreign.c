@@ -47,7 +47,7 @@ p_load_foreign( USES_REGS1 )
   StringList new;
   Int returncode = FALSE;
 
-  strcpy(Yap_ErrorSay,"Invalid arguments");
+  strcpy(LOCAL_ErrorSay,"Invalid arguments");
 
   /* collect the list of object files */
   t = Deref(ARG1);

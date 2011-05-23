@@ -281,26 +281,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    }
 	    break;
 #endif
-#ifdef EMACS
-	  case 'e':
-	    emacs_mode = TRUE;
-	    {
-	      File fd;
-	      strcpy (emacs_tmp, ++p);
-	      if ((fd = fopen (emacs_tmp, "w")) == NIL)
-		fprintf(stderr, "[ Warning: unable to communicate with emacs: failed to open %s ]\n", emacs_tmp);
-	      fclose (fd);
-	      unlink (emacs_tmp);
-	      p = *++argv;
-	      --argc;
-	      strcpy (emacs_tmp2, p);
-	      if ((fd = fopen (emacs_tmp2, "w")) == NIL)
-		fprintf(stderr, "Unable to communicate with emacs: failed to open %s\n", emacs_tmp2);
-	      fclose (fd);
-	      unlink (emacs_tmp2);
-	    }
-	    break;
-#endif /* EMACS */
 	  case 'F':
 	    /* just ignore for now */
 	      argc--;
@@ -348,12 +328,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		  goto myddas_error_print;
 		break;
 	      }
-#endif
-#ifdef MPWSHELL
-	  case 'm':
-	    if (*++p == 'p' && *++p == 'w' && *++p == '\0')
-	      mpwshell = TRUE;
-	    break;
 #endif
          // execution mode
           case 'J':

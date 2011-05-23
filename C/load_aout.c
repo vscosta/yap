@@ -66,8 +66,8 @@ Yap_FindExecutable(char *name)
     cp = ".:/usr/ucb:/bin:/usr/bin:/usr/local/bin";
   if (*Yap_argv[0] == '/') {
     if (oktox(Yap_argv[0])) {
-      strcpy(Yap_FileNameBuf, Yap_argv[0]);
-      Yap_TrueFileName(Yap_FileNameBuf, YapExecutable, TRUE);
+      strcpy(LOCAL_FileNameBuf, Yap_argv[0]);
+      Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
       return;
     }
   }
@@ -79,20 +79,20 @@ Yap_FindExecutable(char *name)
      * argv[0] 
      */
       
-    for (cp2 = Yap_FileNameBuf; (*cp) != 0 && (*cp) != ':';)
+    for (cp2 = LOCAL_FileNameBuf; (*cp) != 0 && (*cp) != ':';)
       *cp2++ = *cp++;
     *cp2++ = '/';
     strcpy(cp2, Yap_argv[0]);
     if (*cp)
       cp++;
-    if (!oktox(Yap_FileNameBuf))
+    if (!oktox(LOCAL_FileNameBuf))
       continue;
-    Yap_TrueFileName(Yap_FileNameBuf, YapExecutable, TRUE);
+    Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
     return;
   }
   /* one last try for dual systems */
-  strcpy(Yap_FileNameBuf, Yap_argv[0]);
-  Yap_TrueFileName(Yap_FileNameBuf, YapExecutable, TRUE);
+  strcpy(LOCAL_FileNameBuf, Yap_argv[0]);
+  Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
   if (oktox(YapExecutable))
     return;
   else
@@ -175,7 +175,7 @@ LoadForeign(StringList ofiles,
   /* prepare the magic */
   if (strlen(o_files) + strlen(l_files) + strlen(proc_name) +
 	    strlen(YapExecutable) > 2*MAXPATHLEN) {
-    strcpy(Yap_ErrorSay, " too many parameters in load_foreign/3 ");
+    strcpy(LOCAL_ErrorSay, " too many parameters in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   sprintf(command, "/usr/bin/ld -N -A %s -o %s -u _%s %s %s -lc",
@@ -184,12 +184,12 @@ LoadForeign(StringList ofiles,
   /* now, do the magic */
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(Yap_ErrorSay," ld returned error status in load_foreign_files ");
+    strcpy(LOCAL_ErrorSay," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* now check the music has played */
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(Yap_ErrorSay," unable to open temp file in load_foreign_files ");
+    strcpy(LOCAL_ErrorSay," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   /* it did, get the mice */
@@ -204,7 +204,7 @@ LoadForeign(StringList ofiles,
   firstloadImSz = loadImageSize;
   /* now fetch the space we need */
   if (!(FCodeBase = Yap_AllocCodeSpace((int) loadImageSize))) {
-    strcpy(Yap_ErrorSay," unable to allocate space for external code ");
+    strcpy(LOCAL_ErrorSay," unable to allocate space for external code ");
     return LOAD_FAILLED;
   }
   /* now, a new incantation to load the new foreign code */
@@ -215,17 +215,17 @@ LoadForeign(StringList ofiles,
   /* and do it */ 
   if (system(command) != 0) {
     unlink(tfile);
-    strcpy(Yap_ErrorSay," ld returned error status in load_foreign_files ");
+    strcpy(LOCAL_ErrorSay," ld returned error status in load_foreign_files ");
     return LOAD_FAILLED;
   }
   if ((fildes = open(tfile, O_RDONLY)) < 0) {
-    strcpy(Yap_ErrorSay," unable to open temp file in load_foreign_files ");
+    strcpy(LOCAL_ErrorSay," unable to open temp file in load_foreign_files ");
     return LOAD_FAILLED;
   }
   read(fildes, (char *) &header, sizeof(header));
   loadImageSize = header.a_text + header.a_data + header.a_bss;
   if (firstloadImSz < loadImageSize) {
-    strcpy(Yap_ErrorSay," miscalculation in load_foreign/3 ");
+    strcpy(LOCAL_ErrorSay," miscalculation in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   /* now search for our init function */
@@ -236,11 +236,11 @@ LoadForeign(StringList ofiles,
     func_info[0].n_un.n_name = entry_fun;
     func_info[1].n_un.n_name = NULL;
     if (nlist(tfile, func_info) == -1) {
-      strcpy(Yap_ErrorSay," in nlist(3) ");
+      strcpy(LOCAL_ErrorSay," in nlist(3) ");
       return LOAD_FAILLED;
     }
     if (func_info[0].n_type == 0) {
-      strcpy(Yap_ErrorSay," in nlist(3) ");
+      strcpy(LOCAL_ErrorSay," in nlist(3) ");
       return LOAD_FAILLED;
     }
     *init_proc = (YapInitProc)(func_info[0].n_value);

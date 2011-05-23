@@ -102,7 +102,7 @@ typedef struct RB_red_blk_node {
 static void
 gc_growtrail(int committed, tr_fr_ptr begsTR, cont *old_cont_top0 USES_REGS)
 {
-  UInt sz = Yap_TrailTop-(ADDR)LOCAL_OldTR;
+  UInt sz = LOCAL_TrailTop-(ADDR)LOCAL_OldTR;
   /* ask for double the size */
   sz = 2*sz;
   
@@ -131,7 +131,7 @@ PUSH_CONTINUATION(CELL *v, int nof USES_REGS) {
   cont *x;
   x = LOCAL_cont_top;
   x++;
-  if ((ADDR)x > Yap_TrailTop-1024) {
+  if ((ADDR)x > LOCAL_TrailTop-1024) {
     gc_growtrail(TRUE, NULL, NULL PASS_REGS);
   }
   x->v = v;
@@ -294,7 +294,7 @@ static inline gc_ma_hash_entry *
 GC_ALLOC_NEW_MASPACE( USES_REGS1 )
 {
   gc_ma_hash_entry *new = LOCAL_gc_ma_h_top;
-  if ((char *)LOCAL_gc_ma_h_top > Yap_TrailTop-1024)
+  if ((char *)LOCAL_gc_ma_h_top > LOCAL_TrailTop-1024)
     gc_growtrail(FALSE, NULL, NULL PASS_REGS);
   LOCAL_gc_ma_h_top++;
   LOCAL_cont_top = (cont *)LOCAL_gc_ma_h_top;
@@ -378,7 +378,7 @@ GC_NEW_MAHASH(gc_ma_hash_entry *top USES_REGS) {
 static void
 check_pr_trail(tr_fr_ptr trp USES_REGS)
 {
-  if ((tr_fr_ptr)Yap_TrailTop-TR < 1024) {
+  if ((tr_fr_ptr)LOCAL_TrailTop-TR < 1024) {
     if (!Yap_growtrail(0, TRUE) || TRUE) {
       /* could not find more trail */
       save_machine_regs();
@@ -553,7 +553,7 @@ RBMalloc(UInt size USES_REGS)
   ADDR new = LOCAL_db_vec;
 
   LOCAL_db_vec += size; 
-  if ((ADDR)LOCAL_db_vec > Yap_TrailTop-1024) {
+  if ((ADDR)LOCAL_db_vec > LOCAL_TrailTop-1024) {
     gc_growtrail(FALSE, NULL, NULL PASS_REGS);
   }
   return (rb_red_blk_node *)new;
@@ -873,7 +873,7 @@ init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
 
   LOCAL_db_vec0 = LOCAL_db_vec = (ADDR)TR;
   LOCAL_db_root = RBTreeCreate();
-  while (trail_ptr > (tr_fr_ptr)Yap_TrailBase) {
+  while (trail_ptr > (tr_fr_ptr)LOCAL_TrailBase) {
     register CELL trail_cell;
     
     trail_ptr--;
@@ -891,7 +891,7 @@ init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
 #ifdef YAPOR_SBA
 	  (ADDR) pt0 >= HeapTop
 #else
-	  (ADDR) pt0 >= Yap_TrailBase && (ADDR) pt0 < Yap_TrailTop
+	  (ADDR) pt0 >= LOCAL_TrailBase && (ADDR) pt0 < LOCAL_TrailTop
 #endif
 	  ) {
 	continue;
@@ -1066,7 +1066,7 @@ check_global(void) {
 #if INSTRUMENT_GC
     if (IsVarTerm(ccurr)) {
       if (IsBlobFunctor((Functor)ccurr)) vars[gc_num]++;
-      else if (ccurr != 0 && (ccurr < (CELL)Yap_GlobalBase || ccurr > (CELL)Yap_TrailTop)) {
+      else if (ccurr != 0 && (ccurr < (CELL)LOCAL_GlobalBase || ccurr > (CELL)LOCAL_TrailTop)) {
 	/*	printf("%p: %s/%d\n", current,
 	       RepAtom(NameOfFunctor((Functor)ccurr))->StrOfAE,
 	       ArityOfFunctor((Functor)ccurr));*/
@@ -1131,7 +1131,7 @@ mark_variable(CELL_PTR current USES_REGS)
   next = GET_NEXT(ccur);
 
   if (IsVarTerm(ccur)) {
-    if (IN_BETWEEN(Yap_GlobalBase,current,H) && GlobalIsAttVar(current) && current==next) {
+    if (IN_BETWEEN(LOCAL_GlobalBase,current,H) && GlobalIsAttVar(current) && current==next) {
       if (next < H0) POP_CONTINUATION();
       if (!UNMARKED_MARK(next-1,local_bp)) {
 	LOCAL_total_marked++;
@@ -1213,7 +1213,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	}
       goto begin;
 #ifdef DEBUG
-    } else if (next < (CELL *)Yap_GlobalBase || next > (CELL *)Yap_TrailTop) {
+    } else if (next < (CELL *)LOCAL_GlobalBase || next > (CELL *)LOCAL_TrailTop) {
       fprintf(Yap_stderr, "OOPS in GC: marking, current=%p, *current=" UInt_FORMAT " next=%p\n", current, ccur, next);
 #endif
     } else {
@@ -1597,10 +1597,10 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #ifdef FROZEN_STACKS
 	RESET_VARIABLE(&TrailVal(trail_base));
 #endif
-      } else if (hp < (CELL *)Yap_GlobalBase || hp > (CELL *)Yap_TrailTop) {
+      } else if (hp < (CELL *)LOCAL_GlobalBase || hp > (CELL *)LOCAL_TrailTop) {
 	  /*  pointers from the Heap back into the trail are process in mark_regs.  */
 	/* do nothing !!! */
-      } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)Yap_TrailBase) {
+      } else if ((hp < (CELL *)gc_B && hp >= gc_H) || hp > (CELL *)LOCAL_TrailBase) {
 	/* clean the trail, avoid dangling pointers! */
 	RESET_VARIABLE(&TrailTerm(trail_base));
 #ifdef FROZEN_STACKS
@@ -1615,7 +1615,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	     nondeterministically, I know that after backtracking it will be back to be an unbound variable.
 	     The ideal solution would be to unbind all variables. The current solution is to
 	     remark it as an attributed variable */
-	  if (IN_BETWEEN(Yap_GlobalBase,hp,H) && GlobalIsAttVar(hp) && !UNMARKED_MARK(hp-1,LOCAL_bp)) {
+	  if (IN_BETWEEN(LOCAL_GlobalBase,hp,H) && GlobalIsAttVar(hp) && !UNMARKED_MARK(hp-1,LOCAL_bp)) {
 	    LOCAL_total_marked++;
 	    PUSH_POINTER(hp-1 PASS_REGS);
 	    if (hp-1 < LOCAL_HGEN) {
@@ -1633,7 +1633,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	  tr_fr_ptr nsTR = (tr_fr_ptr)LOCAL_cont_top0;
           CELL *cptr = (CELL *)trail_cell;
 
-	  if ((ADDR)nsTR > Yap_TrailTop-1024) {
+	  if ((ADDR)nsTR > LOCAL_TrailTop-1024) {
 	    gc_growtrail(TRUE, begsTR, old_cont_top0 PASS_REGS);
 	  }
 	  TrailTerm(nsTR) = (CELL)NULL;
@@ -1655,7 +1655,7 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
     } else if (IsPairTerm(trail_cell)) {
       /* can safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IN_BETWEEN(Yap_GlobalBase,cptr,H) &&
+      if (IN_BETWEEN(LOCAL_GlobalBase,cptr,H) &&
 	  GlobalIsAttVar(cptr)) {
 	TrailTerm(trail_base) = (CELL)cptr;
 	mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
@@ -2367,7 +2367,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
     next = current;
     current = NULL;
     /* next, clean trail */
-    source = dest = (tr_fr_ptr)Yap_TrailBase;
+    source = dest = (tr_fr_ptr)LOCAL_TrailBase;
     while (source < old_TR) {
       CELL trail_cell;
 
@@ -2397,7 +2397,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
   /* first, whatever we dumped on the trail. Easier just to do
      the registers separately?  */
   for (trail_ptr = old_TR; trail_ptr < TR; trail_ptr++) {
-    if (IN_BETWEEN(Yap_GlobalBase,TrailTerm(trail_ptr),Yap_TrailTop) &&
+    if (IN_BETWEEN(LOCAL_GlobalBase,TrailTerm(trail_ptr),LOCAL_TrailTop) &&
 	MARKED_PTR(&TrailTerm(trail_ptr))) {
       UNMARK(&TrailTerm(trail_ptr));
       if (HEAP_PTR(TrailTerm(trail_ptr))) {
@@ -2407,7 +2407,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
   }
  
   /* next, follows the real trail entries */
-  trail_ptr = (tr_fr_ptr)Yap_TrailBase;
+  trail_ptr = (tr_fr_ptr)LOCAL_TrailBase;
   dest = trail_ptr;
   while (trail_ptr < old_TR) {
     register CELL trail_cell;
@@ -2445,7 +2445,7 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IN_BETWEEN(Yap_GlobalBase, pt0, H) && GlobalIsAttVar(pt0)) {
+	if (IN_BETWEEN(LOCAL_GlobalBase, pt0, H) && GlobalIsAttVar(pt0)) {
 	  TrailTerm(dest) = trail_cell;
 	  /* be careful with partial gc */
 	  if (HEAP_PTR(TrailTerm(dest))) {
@@ -2459,9 +2459,9 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	/* process all segments */
 	if (
 #ifdef YAPOR_SBA
-	    (ADDR) pt0 >= Yap_GlobalBase
+	    (ADDR) pt0 >= LOCAL_GlobalBase
 #else
-	    (ADDR) pt0 >= Yap_TrailBase
+	    (ADDR) pt0 >= LOCAL_TrailBase
 #endif
 	    ) {
 	  trail_ptr++;
@@ -2643,12 +2643,12 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
   }
   LOCAL_new_TR = dest;
   if (is_gc_verbose()) {
-    if (old_TR != (tr_fr_ptr)Yap_TrailBase)
+    if (old_TR != (tr_fr_ptr)LOCAL_TrailBase)
       fprintf(Yap_stderr,
 		 "%%       Trail: discarded %d (%ld%%) cells out of %ld\n",
 		 LOCAL_discard_trail_entries,
-		 (unsigned long int)(LOCAL_discard_trail_entries*100/(old_TR-(tr_fr_ptr)Yap_TrailBase)),
-		 (unsigned long int)(old_TR-(tr_fr_ptr)Yap_TrailBase));
+		 (unsigned long int)(LOCAL_discard_trail_entries*100/(old_TR-(tr_fr_ptr)LOCAL_TrailBase)),
+		 (unsigned long int)(old_TR-(tr_fr_ptr)LOCAL_TrailBase));
 #ifdef DEBUG
     if (hp_entrs > 0)
       fprintf(Yap_stderr,
@@ -3591,7 +3591,7 @@ static void
 sweep_oldgen(CELL *max, CELL *base USES_REGS)
 {
   CELL *ptr = base;
-  char *bpb = LOCAL_bp+(base-(CELL*)Yap_GlobalBase);
+  char *bpb = LOCAL_bp+(base-(CELL*)LOCAL_GlobalBase);
 
   while (ptr < max) {
     if (*bpb) {
@@ -3728,13 +3728,13 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
     fprintf(Yap_stderr, "%%       Global: %8ld cells (%p-%p)\n", (long int)heap_cells,H0,H);
     fprintf(Yap_stderr, "%%       Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
     fprintf(Yap_stderr, "%%       Trail:%8ld cells (%p-%p)\n",
-	       (unsigned long int)(TR-(tr_fr_ptr)Yap_TrailBase),Yap_TrailBase,TR);
+	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
   }
 #if !USE_SYSTEM_MALLOC
-  if (HeapTop >= Yap_GlobalBase - MinHeapGap) {
+  if (HeapTop >= LOCAL_GlobalBase - MinHeapGap) {
     *--ASP = (CELL)current_env;
     if (!Yap_growheap(FALSE, MinHeapGap, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return -1;
     }
     current_env = (CELL *)*ASP;
@@ -3747,7 +3747,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
 
     /* we cannot recover, fail system */
     restore_machine_regs();    
-    sz = Yap_TrailTop-(ADDR)LOCAL_OldTR;
+    sz = LOCAL_TrailTop-(ADDR)LOCAL_OldTR;
     /* ask for double the size */
     sz = 2*sz;
     TR = LOCAL_OldTR;
@@ -3778,7 +3778,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   LOCAL_total_smarked = 0;
 #endif
   LOCAL_discard_trail_entries = 0;
-  alloc_sz = (CELL *)Yap_TrailTop-(CELL*)Yap_GlobalBase;
+  alloc_sz = (CELL *)LOCAL_TrailTop-(CELL*)LOCAL_GlobalBase;
   LOCAL_bp = Yap_PreAllocCodeSpace();
   while (LOCAL_bp+alloc_sz > (char *)AuxSp) {
     /* not enough space */

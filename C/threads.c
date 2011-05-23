@@ -212,17 +212,17 @@ thread_run(void *widp)
   do {
     t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
     if (t == 0) {
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
@@ -773,17 +773,17 @@ p_thread_atexit( USES_REGS1 )
     t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
     LOCAL_ThreadHandle.texit = NULL;
     if (t == 0) {
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}
