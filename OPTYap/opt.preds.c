@@ -39,9 +39,11 @@ static Int p_table( USES_REGS1 );
 static Int p_tabling_mode( USES_REGS1 );
 static Int p_abolish_table( USES_REGS1 );
 static Int p_abolish_all_tables( USES_REGS1 );
+static Int p_abolish_all_local_tables( USES_REGS1 );
 static Int p_show_tabled_predicates( USES_REGS1 );
 static Int p_show_table( USES_REGS1 );
 static Int p_show_all_tables( USES_REGS1 );
+static Int p_show_all_local_tables( USES_REGS1 );
 static Int p_show_global_trie( USES_REGS1 );
 static Int p_show_statistics_table( USES_REGS1 );
 static Int p_show_statistics_tabling( USES_REGS1 );
@@ -125,9 +127,11 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("abolish_all_local_tables", 0, p_abolish_all_local_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_tabled_predicates", 1, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("show_all_tables", 1, p_show_all_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_all_local_tables", 1, p_show_all_local_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_global_trie", 1, p_show_global_trie, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_table_statistics", 3, p_show_statistics_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("tabling_statistics", 1, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
@@ -380,6 +384,16 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 }
 
 
+static Int p_abolish_all_local_tables( USES_REGS1 ) {
+#ifdef THREADS
+
+#else
+  p_abolish_all_tables();
+#endif /* THREADS */
+  return (TRUE);
+}
+
+
 static Int p_show_tabled_predicates( USES_REGS1 ) {
   IOSTREAM *out;
   tab_ent_ptr tab_ent;
@@ -430,6 +444,16 @@ static Int p_show_all_tables( USES_REGS1 ) {
     show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
     tab_ent = TabEnt_next(tab_ent);
   }
+  return (TRUE);
+}
+
+
+static Int p_show_all_local_tables( USES_REGS1 ) {
+#ifdef THREADS
+
+#else
+  p_show_all_tables();
+#endif /* THREADS */
   return (TRUE);
 }
 

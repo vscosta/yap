@@ -27,6 +27,7 @@
 %%                      show_tabled_predicates/0                       %%
 %%                         show_global_trie/0                          %%
 %%                          show_all_tables/0                          %%
+%%                       show_all_local_tables/0                       %%
 %%                      global_trie_statistics/0                       %%
 %%                        tabling_statistics/0                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,6 +43,10 @@ show_global_trie :-
 show_all_tables :-
    current_output(Stream),
    show_all_tables(Stream).
+
+show_all_local_tables :-
+   current_output(Stream),
+   show_all_local_tables(Stream).
 
 global_trie_statistics :-
    current_output(Stream),
