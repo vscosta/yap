@@ -160,7 +160,6 @@ typedef struct db_globs {
   UInt     sz;		/* total size */
 } dbglobs;
 
-static dbglobs *s_dbg;
 
 #ifdef SUPPORT_HASH_TABLES
 typedef struct {
@@ -368,7 +367,7 @@ static Int cmpclls(CELL *a,CELL *b,Int n)
 #if !THREADS
 int Yap_DBTrailOverflow()
 {
-  return((CELL *)s_dbg->lr > (CELL *)s_dbg->tofref - 2048);
+  return((CELL *)LOCAL_s_dbg->lr > (CELL *)LOCAL_s_dbg->tofref - 2048);
 }
 #endif
 
@@ -906,7 +905,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	     the variable, the constraint in some cannonical form, what type
 	     of constraint, and a list pointer */
 	  t[0] = (CELL)ptd0;
-	  t[1] = attas[ExtFromCell(ptd0)].to_term_op(ptd0);
+	  t[1] = GLOBAL_attas[ExtFromCell(ptd0)].to_term_op(ptd0);
 	  t[2] = MkIntegerTerm(ExtFromCell(ptd0));
 	  t[3] = ConstraintsTerm;
 	  ConstraintsTerm = Yap_MkApplTerm(FunctorClist, 4, t);
@@ -1647,7 +1646,7 @@ record(int Flag, Term key, Term t_data, Term t_code USES_REGS)
   int needs_vars;
   struct db_globs dbg;
 
-  s_dbg = &dbg;
+  LOCAL_s_dbg = &dbg;
   dbg.found_one = NULL;
 #ifdef SFUNC
   FathersPlace = NIL;
@@ -1724,7 +1723,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS)
   int needs_vars;
   struct db_globs dbg;
 
-  s_dbg = &dbg;
+  LOCAL_s_dbg = &dbg;
 #ifdef SFUNC
   FathersPlace = NIL;
 #endif
@@ -1799,6 +1798,7 @@ record_at(int Flag, DBRef r0, Term t_data, Term t_code USES_REGS)
 static LogUpdClause *
 new_lu_db_entry(Term t, PredEntry *pe)
 {
+  CACHE_REGS
   DBTerm *x;
   LogUpdClause *cl;
   yamop *ipc;
@@ -1811,7 +1811,7 @@ new_lu_db_entry(Term t, PredEntry *pe)
   if (!(pe->PredFlags & ThreadLocalPredFlag))
     d_flag |= InQueue;
 #endif
-  s_dbg = &dbg;
+  LOCAL_s_dbg = &dbg;
   ipc = NEXTOP(((LogUpdClause *)NULL)->ClCode,e);
   if ((x = (DBTerm *)CreateDBStruct(t, NULL, d_flag, &needs_vars, (UInt)ipc, &dbg)) == NULL) {
     return NULL; /* crash */
@@ -2358,7 +2358,7 @@ copy_attachments(CELL *ts USES_REGS)
   while (TRUE) {
     /* store away in case there is an overflow */
 
-    if (attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0] PASS_REGS)  == FALSE) {
+    if (GLOBAL_attas[IntegerOfTerm(ts[2])].term_to_op(ts[1], ts[0] PASS_REGS)  == FALSE) {
       /* oops, we did not have enough space to copy the elements */
       /* reset queue of woken up goals */
       TR = tr0;
@@ -2466,9 +2466,9 @@ GetDBTerm(DBTerm *DBSP USES_REGS)
     }
     pt = CellPtr(DBSP->Contents);
     if (H+NOf > ASP-CalculateStackGap()/sizeof(CELL)) {
-      if (Yap_PrologMode & InErrorMode) {
+      if (LOCAL_PrologMode & InErrorMode) {
 	if (H+NOf > ASP)
-	  fprintf(Yap_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
+	  fprintf(GLOBAL_stderr, "\n\n [ FATAL ERROR: No Stack for Error Handling ]\n");
 	  Yap_exit( 1);
       } else {
 	LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
@@ -4197,7 +4197,7 @@ MyEraseClause(DynamicClause *clau USES_REGS)
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG
     if (ref->NOfRefsTo)
-      fprintf(Yap_stderr, "Error: references to dynamic clause\n");
+      fprintf(GLOBAL_stderr, "Error: references to dynamic clause\n");
 #endif
     RemoveDBEntry(ref PASS_REGS);
   }
@@ -5048,7 +5048,7 @@ StoreTermInDB(Term t, int nargs USES_REGS)
   int needs_vars;
   struct db_globs dbg;
 
-  s_dbg = &dbg;
+  LOCAL_s_dbg = &dbg;
   LOCAL_Error_Size = 0;
   while ((x = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
 			  InQueue, &needs_vars, 0, &dbg)) == NULL) {
@@ -5076,11 +5076,12 @@ Yap_StoreTermInDB(Term t, int nargs) {
 
 DBTerm *
 Yap_StoreTermInDBPlusExtraSpace(Term t, UInt extra_size, UInt *sz) {
+  CACHE_REGS
   int needs_vars;
   struct db_globs dbg;
   DBTerm *o;
 
-  s_dbg = &dbg;
+  LOCAL_s_dbg = &dbg;
   o = (DBTerm *)CreateDBStruct(t, (DBProp)NULL,
 			       InQueue, &needs_vars, extra_size, &dbg);
   *sz = dbg.sz;

@@ -75,12 +75,7 @@ STATIC_PROTO (void ShowOp, (char *, struct PSEUDO *));
  * afterwards 
  */
 
-#ifdef DEBUG
 
-char            Yap_Option[20];
-
-YP_FILE *Yap_logfile;
-#endif
 
 typedef struct mem_blk {
   union {

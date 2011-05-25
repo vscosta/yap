@@ -434,8 +434,8 @@ DumpOpCodes(void)
 
   while (i < 30) {
     for (j = i; j <= _std_top; j += 25)
-      fprintf(Yap_stderr, "%5d %6lx", j, absmadr(j));
-    fputc('\n',Yap_stderr);
+      fprintf(GLOBAL_stderr, "%5d %6lx", j, absmadr(j));
+    fputc('\n',GLOBAL_stderr);
     ++i;
   }
 }

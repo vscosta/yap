@@ -958,7 +958,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 
 #ifdef DEBUG
   CACHE_REGS
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod)
       tmod = TermProlog;
@@ -1017,7 +1017,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1])
+  if (GLOBAL_Option['i' - 'a' + 1])
     Yap_DebugPutc(LOCAL_c_error_stream,'\n');
 #endif
 }

@@ -951,7 +951,7 @@ exec_absmi(int top USES_REGS)
     case 1:
       { /* restart */
 	/* otherwise, SetDBForThrow will fail entering critical mode */
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
 	/* find out where to cut to */
 	/* siglongjmp resets the TR hardware register */
 	/* TR and B are crucial, they might have been changed, or not */
@@ -966,7 +966,7 @@ exec_absmi(int top USES_REGS)
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
 	CreepFlag = CalculateStackGap();
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
 	UNLOCK(LOCAL_SignalLock);
 	P = (yamop *)FAILCODE;
       }
@@ -975,11 +975,11 @@ exec_absmi(int top USES_REGS)
       {
 	/* arithmetic exception */
 	/* must be done here, otherwise siglongjmp will clobber all the registers */
-	Yap_Error(Yap_matherror,TermNil,NULL);
+	Yap_Error(LOCAL_matherror ,TermNil,NULL);
 	/* reset the registers so that we don't have trash in abstract machine */
 	Yap_set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
 	P = (yamop *)FAILCODE;
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
       }
       break;
     case 3:
@@ -988,10 +988,10 @@ exec_absmi(int top USES_REGS)
       }
     default:
       /* do nothing */
-      Yap_PrologMode = UserMode;
+      LOCAL_PrologMode = UserMode;
     }
   } else {
-    Yap_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
   }
   Yap_CloseSlots( PASS_REGS1 );
   YENV = ASP;
@@ -1280,7 +1280,7 @@ Yap_RunTopGoal(Term t)
   UNLOCK(ppe->PELock);
 #if !USE_SYSTEM_MALLOC
   if (LOCAL_TrailTop - HeapTop < 2048) {
-    Yap_PrologMode = BootMode;
+    LOCAL_PrologMode = BootMode;
     Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,
 	  "unable to boot because of too little Trail space");
   }
@@ -1515,7 +1515,7 @@ JumpToEnv(Term t USES_REGS) {
 	LOCAL_BallTerm = NULL;
 	P = (yamop *)FAILCODE;
 	/* make sure failure will be seen at next port */
-	if (Yap_PrologMode & AsyncIntMode) {
+	if (LOCAL_PrologMode & AsyncIntMode) {
 	  Yap_signal(YAP_FAIL_SIGNAL);
 	}
 	HB = B->cp_h;
@@ -1560,7 +1560,7 @@ JumpToEnv(Term t USES_REGS) {
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  if (Yap_PrologMode & AsyncIntMode) {
+  if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
   P = (yamop *)FAILCODE;
@@ -1575,7 +1575,7 @@ JumpToEnv(Term t USES_REGS) {
 Int
 Yap_JumpToEnv(Term t) {
   CACHE_REGS
-  if (Yap_PrologMode & BootMode) {
+  if (LOCAL_PrologMode & BootMode) {
     return FALSE;
   } 
   return JumpToEnv(t PASS_REGS);

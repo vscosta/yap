@@ -110,7 +110,7 @@ static struct trie_statistics{
 #define SHOW_TABLE_ARITY_ARRAY_SIZE 10000
 #define SHOW_TABLE_STRUCTURE(MESG, ARGS...)      \
         if (TrStat_show == SHOW_MODE_STRUCTURE)  \
-          fprintf(Yap_stdout, MESG, ##ARGS)
+          fprintf(GLOBAL_stdout, MESG, ##ARGS)
 
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)		                                            \
         if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) && REF > VarIndexOfTableTerm(MAX_TABLE_VARS)) {  \
@@ -1313,9 +1313,9 @@ void show_table(tab_ent_ptr tab_ent, int show_mode) {
 #endif /* TABLING_INNER_CUTS */
     TrStat_ans_nodes = 0;
     TrStat_gt_refs = 0;
-    fprintf(Yap_stdout, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    fprintf(GLOBAL_stdout, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
   } else {  /* SHOW_MODE_STRUCTURE */
-    fprintf(Yap_stdout, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    fprintf(GLOBAL_stdout, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
   }
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
@@ -1349,21 +1349,21 @@ void show_table(tab_ent_ptr tab_ent, int show_mode) {
   } else
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    fprintf(Yap_stdout, "  Subgoal trie structure\n");
-    fprintf(Yap_stdout, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
-    fprintf(Yap_stdout, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
-    fprintf(Yap_stdout, "  Answer trie structure(s)\n");
+    fprintf(GLOBAL_stdout, "  Subgoal trie structure\n");
+    fprintf(GLOBAL_stdout, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
+    fprintf(GLOBAL_stdout, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
+    fprintf(GLOBAL_stdout, "  Answer trie structure(s)\n");
 #ifdef TABLING_INNER_CUTS
-    fprintf(Yap_stdout, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
+    fprintf(GLOBAL_stdout, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
 #else
-    fprintf(Yap_stdout, "    Answers: %ld\n", TrStat_answers);
+    fprintf(GLOBAL_stdout, "    Answers: %ld\n", TrStat_answers);
 #endif /* TABLING_INNER_CUTS */
-    fprintf(Yap_stdout, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
-    fprintf(Yap_stdout, "    Answers 'NO': %ld\n", TrStat_answers_no);
-    fprintf(Yap_stdout, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
-    fprintf(Yap_stdout, "  Global trie references: %ld\n", TrStat_gt_refs);
+    fprintf(GLOBAL_stdout, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
+    fprintf(GLOBAL_stdout, "    Answers 'NO': %ld\n", TrStat_answers_no);
+    fprintf(GLOBAL_stdout, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
+    fprintf(GLOBAL_stdout, "  Global trie references: %ld\n", TrStat_gt_refs);
   }
-  fflush(Yap_stdout);
+  fflush(GLOBAL_stdout);
   return;
 }
 
@@ -1374,9 +1374,9 @@ void show_global_trie(int show_mode) {
     TrStat_gt_terms = 0;
     TrStat_gt_nodes = 1;
     TrStat_gt_refs = 0;
-    fprintf(Yap_stdout, "Global trie statistics\n");
+    fprintf(GLOBAL_stdout, "Global trie statistics\n");
   } else {  /* SHOW_MODE_STRUCTURE */
-    fprintf(Yap_stdout, "Global trie structure\n");
+    fprintf(GLOBAL_stdout, "Global trie structure\n");
   }
   if (TrNode_child(GLOBAL_root_gt)) {
     char *str = (char *) malloc(sizeof(char) * SHOW_TABLE_STR_ARRAY_SIZE);
@@ -1388,9 +1388,9 @@ void show_global_trie(int show_mode) {
   } else
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    fprintf(Yap_stdout, "  Terms: %ld\n", TrStat_gt_terms);
-    fprintf(Yap_stdout, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
-    fprintf(Yap_stdout, "  Global trie auto references: %ld\n", TrStat_gt_refs);
+    fprintf(GLOBAL_stdout, "  Terms: %ld\n", TrStat_gt_terms);
+    fprintf(GLOBAL_stdout, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
+    fprintf(GLOBAL_stdout, "  Global trie auto references: %ld\n", TrStat_gt_refs);
   }
   return;
 }

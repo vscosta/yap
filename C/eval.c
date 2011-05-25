@@ -34,7 +34,7 @@ static char     SccsId[] = "%W% %G%";
 #include <unistd.h>
 #endif
 
-yap_error_number Yap_matherror = YAP_NO_ERROR;
+
 
 static Term
 Eval(Term t USES_REGS)

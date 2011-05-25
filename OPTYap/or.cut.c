@@ -40,7 +40,6 @@ void prune_shared_branch(choiceptr prune_cp) {
 #ifdef TABLING_INNER_CUTS
   tg_sol_fr_ptr tg_solutions, aux_tg_solutions;
 #endif /* TABLING_INNER_CUTS */
-  printf(" ---- worker_id %d -----\n", worker_id);
   leftmost_or_fr = CUT_leftmost_or_frame();
   leftmost_cp = GetOrFr_node(leftmost_or_fr);
   qg_solutions = NULL;

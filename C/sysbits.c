@@ -88,7 +88,7 @@ static char SccsId[] = "%W% %G%";
 #include <readline/readline.h>
 #endif
 
-STATIC_PROTO (void InitPageSize, (void));
+
 STATIC_PROTO (void InitTime, (void));
 STATIC_PROTO (void InitWTime, (void));
 STATIC_PROTO (Int p_sh, ( USES_REGS1 ));
@@ -107,9 +107,6 @@ STATIC_PROTO (int chdir, (char *));
 /* #define signal	skel_signal */
 #endif /* MACYAP */
 
-#if  __simplescalar__
-char yap_pwd[YAP_FILENAME_MAX];
-#endif
 
 STD_PROTO (void exit, (int));
 
@@ -287,8 +284,8 @@ p_dir_sp ( USES_REGS1 )
 }
 
 
-static void
-InitPageSize(void)
+void
+Yap_InitPageSize(void)
 {
 #ifdef _WIN32
   SYSTEM_INFO si;
@@ -1211,6 +1208,7 @@ HandleSIGSEGV(int   sig,   siginfo_t   *sip, ucontext_t *uap)
 static void
 HandleMatherr(int  sig, siginfo_t *sip, ucontext_t *uap)
 {
+  CACHE_REGS
   yap_error_number error_no;
 
   /* reset the registers so that we don't have trash in abstract machine */
@@ -1308,6 +1306,7 @@ STATIC_PROTO (void my_signal, (int, void (*)(int)));
 static RETSIGTYPE
 HandleMatherr(int sig)
 {
+  CACHE_REGS
 #if HAVE_FETESTEXCEPT
 
   /* This should work in Linux, but it doesn't seem to. */
@@ -1315,19 +1314,19 @@ HandleMatherr(int sig)
   int raised = fetestexcept(FE_ALL_EXCEPT);
 
   if (raised & FE_OVERFLOW) {
-    Yap_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
   } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
   } else if (raised & FE_DIVBYZERO) {
-    Yap_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
   } else if (raised & FE_UNDERFLOW) {
-    Yap_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
   } else
 #endif
-    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
   /* something very bad happened on the way to the forum */
   set_fpu_exceptions(FALSE);
-  Yap_Error(Yap_matherror, TermNil, "");
+  Yap_Error(LOCAL_matherror , TermNil, "");
 }
 
 #if HAVE_SIGSEGV && !defined(THREADS) 
@@ -1376,7 +1375,7 @@ SearchForTrailFault(siginfo_t *siginfo)
 static RETSIGTYPE
 HandleSIGSEGV(int   sig, siginfo_t *siginfo, void *context)
 {
-  if (Yap_PrologMode & ExtendStackMode) {
+  if (LOCAL_PrologMode & ExtendStackMode) {
     Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
   SearchForTrailFault(siginfo);
@@ -1445,19 +1444,19 @@ HandleMatherr(int sig)
   int raised = fetestexcept(FE_ALL_EXCEPT);
 
   if (raised & FE_OVERFLOW) {
-    Yap_matherror = EVALUATION_ERROR_FLOAT_OVERFLOW;
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_OVERFLOW;
   } else if (raised & (FE_INVALID|FE_INEXACT)) {
-    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
   } else if (raised & FE_DIVBYZERO) {
-    Yap_matherror = EVALUATION_ERROR_ZERO_DIVISOR;
+    LOCAL_matherror  = EVALUATION_ERROR_ZERO_DIVISOR;
   } else if (raised & FE_UNDERFLOW) {
-    Yap_matherror = EVALUATION_ERROR_FLOAT_UNDERFLOW;
+    LOCAL_matherror  = EVALUATION_ERROR_FLOAT_UNDERFLOW;
   } else
 #endif
-    Yap_matherror = EVALUATION_ERROR_UNDEFINED;
+    LOCAL_matherror  = EVALUATION_ERROR_UNDEFINED;
   /* something very bad happened on the way to the forum */
   set_fpu_exceptions(FALSE);
-  Yap_Error(Yap_matherror, TermNil, "");
+  Yap_Error(LOCAL_matherror , TermNil, "");
 }
 
 static void
@@ -1493,7 +1492,7 @@ SearchForTrailFault(void)
 static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
-  if (Yap_PrologMode & ExtendStackMode) {
+  if (LOCAL_PrologMode & ExtendStackMode) {
     CACHE_REGS
     Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
@@ -1554,71 +1553,71 @@ void (*handler)(int);
 static int
 InteractSIGINT(int ch) {
   CACHE_REGS
-  Yap_PrologMode |= AsyncIntMode;
+  LOCAL_PrologMode |= AsyncIntMode;
   switch (ch) {
   case 'a':
     /* abort computation */
-    if (Yap_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
-      Yap_PrologMode |= AbortMode;
+    if (LOCAL_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
+      LOCAL_PrologMode |= AbortMode;
     } else {
       Yap_Error(PURE_ABORT, TermNil, "abort from console");
       /* in case someone mangles the P register */
     }
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     siglongjmp(LOCAL_RestartEnv,1);
     return -1;
   case 'b':
     /* continue */
     Yap_signal (YAP_BREAK_SIGNAL);
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
   case 'c':
     /* continue */
     return 1;
   case 'd':
     Yap_signal (YAP_DEBUG_SIGNAL);
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     /* enter debug mode */
     return 1;
   case 'e':
     /* exit */
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     Yap_exit(0);
     return -1;
   case 'g':
     /* exit */
     Yap_signal (YAP_STACK_DUMP_SIGNAL);
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return -1;
   case 't':
     /* start tracing */
     Yap_signal (YAP_TRACE_SIGNAL);
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
 #endif
   case 's':
     /* show some statistics */
     Yap_signal (YAP_STATISTICS_SIGNAL);
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
   case EOF:
-    Yap_PrologMode &= ~AsyncIntMode;
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return(0);
     break;
   case 'h':
   case '?':
   default:
     /* show an helpful message */
-    fprintf(Yap_stderr, "Please press one of:\n");
-    fprintf(Yap_stderr, "  a for abort\n  c for continue\n  d for debug\n");
-    fprintf(Yap_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
-    fprintf(Yap_stderr, "  b for break\n");
-    Yap_PrologMode &= ~AsyncIntMode;
+    fprintf(GLOBAL_stderr, "Please press one of:\n");
+    fprintf(GLOBAL_stderr, "  a for abort\n  c for continue\n  d for debug\n");
+    fprintf(GLOBAL_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
+    fprintf(GLOBAL_stderr, "  b for break\n");
+    LOCAL_PrologMode &= ~AsyncIntMode;
     return(0);
   }
 }
@@ -1666,7 +1665,7 @@ HandleSIGINT (int sig)
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
-  if (!isatty(0)  && !Yap_sockets_io) {
+  if (!isatty(0)) {
     Yap_Error(INTERRUPT_ERROR,MkIntTerm(SIGINT),NULL);
     return;
   }
@@ -1674,8 +1673,8 @@ HandleSIGINT (int sig)
   if (LOCAL_InterruptsDisabled) {
     return;
   }
-  if (Yap_PrologMode & (CritMode|ConsoleGetcMode)) {
-    Yap_PrologMode |= InterruptMode;
+  if (LOCAL_PrologMode & (CritMode|ConsoleGetcMode)) {
+    LOCAL_PrologMode |= InterruptMode;
   }
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */
@@ -1777,7 +1776,7 @@ ReceiveSignal (int s)
       break;
 #endif /* defined(SIGHUP) */
     default:
-      fprintf(Yap_stderr, "\n[ Unexpected signal ]\n");
+      fprintf(GLOBAL_stderr, "\n[ Unexpected signal ]\n");
       exit (EXIT_FAILURE);
     }
 }
@@ -1793,7 +1792,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
     Yap_signal(YAP_ALARM_SIGNAL);
-    Yap_PrologMode |= InterruptMode;
+    LOCAL_PrologMode |= InterruptMode;
     return(TRUE);
   default:
     return(FALSE);
@@ -1805,7 +1804,7 @@ MSCHandleSignal(DWORD dwCtrlType) {
 static void
 InitSignals (void)
 {
-  if (Yap_PrologShouldHandleInterrupts) {
+  if (GLOBAL_PrologShouldHandleInterrupts) {
 #if !defined(LIGHT) && !_MSC_VER && !defined(__MINGW32__) && !defined(LIGHT) 
     my_signal (SIGQUIT, ReceiveSignal);
     my_signal (SIGKILL, ReceiveSignal);
@@ -1878,7 +1877,7 @@ int Yap_getcwd(const char *buf, int len)
   CACHE_REGS
 #if __simplescalar__
   /* does not implement getcwd */
-  strncpy(Yap_buf,yap_pwd,len);
+  strncpy(Yap_buf,GLOBAL_pwd,len);
 #elif HAVE_GETCWD
   if (getcwd ((char *)buf, len) == NULL) {
 #if HAVE_STRERROR
@@ -2730,10 +2729,9 @@ Yap_InitSysbits (void)
 #if  __simplescalar__
   {
     char *pwd = getenv("PWD");
-    strncpy(yap_pwd,pwd,YAP_FILENAME_MAX);
+    strncpy(GLOBAL_pwd,pwd,YAP_FILENAME_MAX);
   }
 #endif
-  InitPageSize();
   InitWTime ();
   InitRandom ();
   /* let the caller control signals as it sees fit */

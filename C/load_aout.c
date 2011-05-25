@@ -18,7 +18,7 @@
 #include "Foreign.h"
 
 #ifdef A_OUT
-
+this code is no being maintained anymore
 #include <stdio.h>
 #if STDC_HEADERS
 #include <stdlib.h>
@@ -43,7 +43,7 @@
 #endif
 #include <a.out.h>
 
-static char YapExecutable[YAP_FILE_MAX];
+
 
 #define oktox(n) \
 	(0==stat(n,&stbuf)&&(stbuf.st_mode&S_IFMT)==S_IFREG&&0==access(n,X_OK))
@@ -64,10 +64,10 @@ Yap_FindExecutable(char *name)
   cp = (char *)getenv("PATH");
   if (cp == NULL)
     cp = ".:/usr/ucb:/bin:/usr/bin:/usr/local/bin";
-  if (*Yap_argv[0] == '/') {
-    if (oktox(Yap_argv[0])) {
-      strcpy(LOCAL_FileNameBuf, Yap_argv[0]);
-      Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
+  if (*GLOBAL_argv[0] == '/') {
+    if (oktox(GLOBAL_argv[0])) {
+      strcpy(LOCAL_FileNameBuf, GLOBAL_argv[0]);
+      Yap_TrueFileName(LOCAL_FileNameBuf, GLOBAL_Executable, TRUE);
       return;
     }
   }
@@ -82,21 +82,21 @@ Yap_FindExecutable(char *name)
     for (cp2 = LOCAL_FileNameBuf; (*cp) != 0 && (*cp) != ':';)
       *cp2++ = *cp++;
     *cp2++ = '/';
-    strcpy(cp2, Yap_argv[0]);
+    strcpy(cp2, GLOBAL_argv[0]);
     if (*cp)
       cp++;
     if (!oktox(LOCAL_FileNameBuf))
       continue;
-    Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
+    Yap_TrueFileName(LOCAL_FileNameBuf, GLOBAL_Executable, TRUE);
     return;
   }
   /* one last try for dual systems */
-  strcpy(LOCAL_FileNameBuf, Yap_argv[0]);
-  Yap_TrueFileName(LOCAL_FileNameBuf, YapExecutable, TRUE);
-  if (oktox(YapExecutable))
+  strcpy(LOCAL_FileNameBuf, GLOBAL_argv[0]);
+  Yap_TrueFileName(LOCAL_FileNameBuf, GLOBAL_Executable, TRUE);
+  if (oktox(GLOBAL_Executable))
     return;
   else
-    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(YapExecutable)),
+    Yap_Error(SYSTEM_ERROR,MkAtomTerm(Yap_LookupAtom(GLOBAL_Executable)),
 	  "cannot find file being executed");
 }
 
@@ -174,12 +174,12 @@ LoadForeign(StringList ofiles,
 
   /* prepare the magic */
   if (strlen(o_files) + strlen(l_files) + strlen(proc_name) +
-	    strlen(YapExecutable) > 2*MAXPATHLEN) {
+	    strlen(GLOBAL_Executable) > 2*MAXPATHLEN) {
     strcpy(LOCAL_ErrorSay, " too many parameters in load_foreign/3 ");
     return LOAD_FAILLED;
   }
   sprintf(command, "/usr/bin/ld -N -A %s -o %s -u _%s %s %s -lc",
-	  YapExecutable,
+	  GLOBAL_Executable,
 	  tfile, proc_name, o_files, l_files);
   /* now, do the magic */
   if (system(command) != 0) {
@@ -209,7 +209,7 @@ LoadForeign(StringList ofiles,
   }
   /* now, a new incantation to load the new foreign code */
   sprintf(command, "/usr/bin/ld -N -A %s -T %lx -o %s -u _%s %s %s -lc",
-	  YapExecutable,
+	  GLOBAL_Executable,
 	  (unsigned long) FCodeBase,
 	  tfile, proc_name, o_files, l_files);
   /* and do it */ 

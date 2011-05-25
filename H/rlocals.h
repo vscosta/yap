@@ -150,4 +150,36 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
+
+
+
+
+
+#ifdef ANALYST
+
+
+#endif /* ANALYST */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef LOAD_DYLD
+
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+
+#endif
 }

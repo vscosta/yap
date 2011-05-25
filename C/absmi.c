@@ -784,8 +784,8 @@ Yap_absmi(int inp)
   op_switch:
 
 #ifdef ANALYST
-    Yap_opcount[opcode]++;
-    Yap_2opcount[old_op][opcode]++;
+    GLOBAL_opcount[opcode]++;
+    GLOBAL_2opcount[old_op][opcode]++;
 #ifdef DEBUG_XX
     ops_done++;
     /*    if (B->cp_b > 0x103fff90)
@@ -3037,12 +3037,12 @@ Yap_absmi(int inp)
 	/* I need this for Windows and other systems where SIGINT
 	   is not proceesed by same thread as absmi */
       LOCK(LOCAL_SignalLock);
-      if (Yap_PrologMode & (AbortMode|InterruptMode)) {
+      if (LOCAL_PrologMode & (AbortMode|InterruptMode)) {
 	CreepFlag = CalculateStackGap();
 	UNLOCK(LOCAL_SignalLock);
 	/* same instruction */
-	if (Yap_PrologMode & InterruptMode) {
-	  Yap_PrologMode &= ~InterruptMode;
+	if (LOCAL_PrologMode & InterruptMode) {
+	  LOCAL_PrologMode &= ~InterruptMode;
 	  SET_ASP(YREG, E_CB*sizeof(CELL));
 	  saveregs();
 	  Yap_ProcessSIGINT();
@@ -7102,7 +7102,7 @@ Yap_absmi(int inp)
 	yamop *savedP;
 
 	Yap_StartSlots( PASS_REGS1 );
-	Yap_PrologMode = UserCCallMode;
+	LOCAL_PrologMode = UserCCallMode;
 	{
 	  PredEntry *p = PREG->u.Osbpp.p;
 
@@ -7115,7 +7115,7 @@ Yap_absmi(int inp)
 	}
 	Yap_CloseSlots( PASS_REGS1 );
 	setregs();
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
 	restore_machine_regs();
 	PREG = savedP;
       }
@@ -7283,7 +7283,7 @@ Yap_absmi(int inp)
 #endif
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      Yap_PrologMode = UserCCallMode;
+      LOCAL_PrologMode = UserCCallMode;
       ASP = YREG;
       /* for slots to work */
       Yap_StartSlots( PASS_REGS1 );
@@ -7293,7 +7293,7 @@ Yap_absmi(int inp)
       EX = 0L;
       restore_machine_regs();
       setregs();
-      Yap_PrologMode = UserMode;
+      LOCAL_PrologMode = UserMode;
       Yap_CloseSlots( PASS_REGS1 );
       if (!SREG) {
 	FAIL();
@@ -7326,7 +7326,7 @@ Yap_absmi(int inp)
       restore_args(PREG->u.OtapFs.s);
       ENDCACHE_Y();
 
-      Yap_PrologMode = UserCCallMode;
+      LOCAL_PrologMode = UserCCallMode;
       SET_ASP(YREG, E_CB*sizeof(CELL));
       /* for slots to work */
       Yap_StartSlots( PASS_REGS1 );
@@ -7336,7 +7336,7 @@ Yap_absmi(int inp)
       EX = 0L;
       restore_machine_regs();
       setregs();
-      Yap_PrologMode = UserMode;
+      LOCAL_PrologMode = UserMode;
       Yap_CloseSlots( PASS_REGS1 );
       if (!SREG) {
 #ifdef CUT_C

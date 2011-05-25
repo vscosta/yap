@@ -1245,12 +1245,12 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 
     default:
 #ifdef DEBUG
-      fprintf(Yap_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
+      fprintf(GLOBAL_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
 #endif
       t->Tok = Ord(kind = eot_tok);
     }
 #ifdef DEBUG
-    if(Yap_Option[2]) fprintf(Yap_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
+    if(GLOBAL_Option[2]) fprintf(GLOBAL_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
 #endif
     if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */

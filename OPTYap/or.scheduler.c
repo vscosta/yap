@@ -217,7 +217,6 @@ int get_work(void) {
   counter = 0;
   BITMAP_difference(stable_busy, OrFr_members(LOCAL_top_or_fr), GLOBAL_bm_idle_workers);
   while (1) {
-    //printf(" ******** worker_id %d **********\n", worker_id);
     while (BITMAP_subset(GLOBAL_bm_idle_workers, OrFr_members(LOCAL_top_or_fr)) &&
            Get_LOCAL_top_cp() != Get_GLOBAL_root_cp()) {
       /* no busy workers here and below */

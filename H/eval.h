@@ -161,8 +161,6 @@ Functor     STD_PROTO(EvalArg,(Term));
 #define FL(X)		((double)(X))
 #endif
 
-extern yap_error_number Yap_matherror;
-
 void	STD_PROTO(Yap_InitConstExps,(void));
 void	STD_PROTO(Yap_InitUnaryExps,(void));
 void	STD_PROTO(Yap_InitBinaryExps,(void));

@@ -259,28 +259,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    if (!strcmp("dump-runtime-variables",p))
 		return dump_runtime_variables();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA || YAPOR_THREADS */
-#ifdef USE_SOCKET
-          case 'c':          /* running as client */
-	    {
-	      char *host, *p1;
-	      long port;
-	      char *ptr;
-
-	      host = *++argv;
-	      argc--;
-	      if (host == NULL || host[0] == '-')
-		YAP_Error(0,0L,"sockets must receive host to connect to");
-	      p1 = *++argv;
-	      argc--;
-	      if (p1 == NULL || p1[0] == '-')
-		YAP_Error(0,0L,"sockets must receive port to connect to");
-	      port = strtol(p1, &ptr, 10);
-	      if (ptr == NULL || ptr[0] != '\0')
-		YAP_Error(0,0L,"port argument to socket must be a number");
-	      YAP_InitSocks(host,port);
-	    }
-	    break;
-#endif
 	  case 'F':
 	    /* just ignore for now */
 	      argc--;

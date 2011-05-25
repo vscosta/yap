@@ -3449,7 +3449,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
     return FAILCODE;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
 #endif
@@ -4572,7 +4572,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
     expand_clauses = NULL;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
 #if THREADS
@@ -4634,7 +4634,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
     return FAILCODE;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
 #endif
@@ -6046,7 +6046,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   LOCAL_Error_Size = 0;
   LOCAL_ErrorMessage = NULL;
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
     Yap_DebugPutc(LOCAL_c_error_stream,'+');
@@ -6530,7 +6530,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     return;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
 
     if (!tmod) tmod = TermProlog;

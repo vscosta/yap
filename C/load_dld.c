@@ -20,8 +20,7 @@
 #include <malloc.h>
 #include <stdio.h>
 
-static char YapExecutable[YAP_FILE_MAX];
-
+this code is no being maintained anymore
 
 /*
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
@@ -33,9 +32,9 @@ Yap_FindExecutable(char *name)
   /* use dld_find_executable */
   char *res;
   if(name != NULL && (res=dld_find_executable(name))) {
-    strcpy(YapExecutable,res);
+    strcpy(GLOBAL_Executable,res);
   } else {
-    strcpy(YapExecutable,"./yap");
+    strcpy(GLOBAL_Executable,"./yap");
   }
 }
 
@@ -71,7 +70,7 @@ LoadForeign(StringList ofiles, StringList libs,
   int error;
   
   if(firstTime) {
-    error = dld_init(YapExecutable);
+    error = dld_init(GLOBAL_Executable);
     if(error) {
       strcpy(LOCAL_ErrorSay,dld_strerror(error));
       return LOAD_FAILLED;

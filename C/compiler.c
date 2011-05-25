@@ -3547,7 +3547,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     if (LOCAL_ErrorMessage)
       return (0);
 #ifdef DEBUG
-    if (Yap_Option['g' - 96])
+    if (GLOBAL_Option['g' - 96])
       Yap_ShowCode(&cglobs.cint);
 #endif
   } else {
@@ -3580,7 +3580,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
     if (LOCAL_ErrorMessage)
       return (0);
 #ifdef DEBUG
-    if (Yap_Option['g' - 96])
+    if (GLOBAL_Option['g' - 96])
       Yap_ShowCode(&cglobs.cint);
 #endif
     /* phase 2: classify variables and optimize temporaries          */
@@ -3596,7 +3596,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   /* eliminate superfluous pop's and unify_var's                   */
   c_optimize(cglobs.cint.CodeStart);
 #ifdef DEBUG
-  if (Yap_Option['f' - 96])
+  if (GLOBAL_Option['f' - 96])
     Yap_ShowCode(&cglobs.cint);
 #endif
 

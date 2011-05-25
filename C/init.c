@@ -55,7 +55,6 @@ static char     SccsId[] = "%W% %G%";
 
 #define	LOGFILE	"logfile"
 
-int  Yap_output_msg = FALSE;
 
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
@@ -82,45 +81,6 @@ static void InitWorker(int wid);
 /************* variables related to memory allocation ***************/
 ADDR Yap_HeapBase;
 
-#if defined(THREADS)
-pthread_t Yap_master_thread;
-#endif /* THREADS */
-
-/******** whether Yap is responsible for signal handling******************/
-int             Yap_PrologShouldHandleInterrupts;
-
-/********* readline support	*****/
-#if HAVE_LIBREADLINE
-
-char *_line = (char *) NULL;
-
-#endif
-
-
-/********* Prolog State ********************************************/
-
-Int      Yap_PrologMode = BootMode;
-
-int      Yap_CritLocks = 0;
-
-/********* streams ********************************************/
-
-YP_FILE *Yap_stdout;
-YP_FILE *Yap_stderr;
-
-
-/************** Access to yap initial arguments ***************************/
-
-char          **Yap_argv;
-int             Yap_argc;
-
-/************** Extensions to Terms ***************************************/
-
-#ifdef COROUTINING
-/* array with the ops for your favourite extensions */
-ext_op attas[attvars_ext+1];
-#endif
-
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
 {"", "xfx", "xfy", "yfx", "xf", "yf", "fx", "fy"};
@@ -131,10 +91,6 @@ int Yap_page_size;
 #if USE_THREADED_CODE
 /* easy access to instruction opcodes */
 void **Yap_ABSMI_OPCODES;
-#endif
-
-#if   USE_SOCKET
-int Yap_sockets_io=0;
 #endif
 
 #if DEBUG
@@ -242,7 +198,7 @@ static void
 SetOp(int p, int type, char *at, Term m)
 {
 #ifdef DEBUG
-  if (Yap_Option[5])
+  if (GLOBAL_Option[5])
     fprintf(stderr,"[setop %d %s %s]\n", p, optypes[type], at);
 #endif
   OpDec(p, optypes[type], Yap_LookupAtom(at), m);
@@ -384,8 +340,8 @@ InitDebug(void)
   int i;
 
   for (i = 1; i < 20; ++i)
-    Yap_Option[i] = 0;
-  if (Yap_output_msg) {
+    GLOBAL_Option[i] = 0;
+  if (GLOBAL_output_msg) {
     char            ch;
 
 #if HAVE_ISATTY
@@ -400,10 +356,10 @@ InitDebug(void)
     fprintf(stderr,"m Machine\t p parser\n");
     while ((ch = YP_putchar(YP_getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
-	Yap_Option[ch - 'a' + 1] = 1;
-    if (Yap_Option['l' - 96]) {
-      Yap_logfile = fopen(LOGFILE, "w");
-      if (Yap_logfile == NULL) {
+	GLOBAL_Option[ch - 'a' + 1] = 1;
+    if (GLOBAL_Option['l' - 96]) {
+      GLOBAL_logfile = fopen(LOGFILE, "w");
+      if (GLOBAL_logfile == NULL) {
 	fprintf(stderr,"can not open %s\n", LOGFILE);
 	getchar();
 	exit(0);
@@ -1292,8 +1248,9 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
     return;
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
-  LOCAL = REMOTE(0);
-  Yap_master_thread = pthread_self();
+  //printf(" -> -> %p  \n", &Yap_REGS);
+  //LOCAL = REMOTE(0);
+  GLOBAL_master_thread = pthread_self();
 #else
   /* In this case we need to initialise the abstract registers */
   Yap_regp = &Yap_standard_regs;
@@ -1304,6 +1261,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 
 #ifdef THREADS
   Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+  LOCAL = REMOTE(0);
 #endif /* THREADS */
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
@@ -1345,7 +1303,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #endif /* YAPOR || TABLING */
 
   Yap_AttsSize = Atts;
-  Yap_InitTime ();
+  Yap_InitTime();
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
   for (i = 0; i <= LAST_FLAG; i++) {
@@ -1398,11 +1356,12 @@ run_halt_hooks(int code)
 void
 Yap_exit (int value)
 {
+  CACHE_REGS
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_unmap_optyap_memory();
 #endif 
 
-  if (! (Yap_PrologMode & BootMode) ) {
+  if (! (LOCAL_PrologMode & BootMode) ) {
 #ifdef LOW_PROF
     remove("PROFPREDS");
     remove("PROFILING");

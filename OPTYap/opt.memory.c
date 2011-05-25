@@ -73,7 +73,6 @@ void Yap_init_yapor_global_local_memory(void) {
   Yap_local = (struct worker_local *)(MMAP_ADDR - ExtraArea);
   Yap_global = (struct global_data *)(MMAP_ADDR - sizeof(struct global_data));
  
-
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   //open_mapfile(ExtraArea);
    char mapfile[20];

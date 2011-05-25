@@ -405,7 +405,7 @@ Yap_thread_create_engine(thread_attr *ops)
     ops->sysize = 0;
     ops->egoal = t;
   }
-  if (pthread_self() != Yap_master_thread) {
+  if (pthread_self() != GLOBAL_master_thread) {
     /* we are worker_id 0 for now, lock master thread so that no one messes with us */ 
     pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
     pthread_mutex_lock(&(REMOTE_ThreadHandle(0).tlock));
@@ -416,7 +416,7 @@ Yap_thread_create_engine(thread_attr *ops)
   REMOTE_ThreadHandle(new_id).id = new_id;
   REMOTE_ThreadHandle(new_id).ref_count = 0;
   setup_engine(new_id, FALSE);
-  if (pthread_self() != Yap_master_thread) {
+  if (pthread_self() != GLOBAL_master_thread) {
     pthread_setspecific(Yap_yaamregs_key, NULL);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(0).tlock));
   }

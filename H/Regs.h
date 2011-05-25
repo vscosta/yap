@@ -208,7 +208,6 @@ extern REGSTORE Yap_REGS;
 #define MinTrailGap (sizeof(CELL)*1024)
 #define MinHeapGap  (sizeof(CELL)*4096)
 #define MinStackGap (sizeof(CELL)*8*1024)
-extern int Yap_stack_overflows;
 
 
 #define ENV  Yap_REGS.ENV_	/* current environment                    */

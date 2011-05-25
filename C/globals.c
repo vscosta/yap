@@ -474,7 +474,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	CELL new;
 
 	bp = to_visit;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
 	  goto overflow;
 	}
 	to_visit = bp;

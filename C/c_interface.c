@@ -2138,9 +2138,9 @@ run_emulator(YAP_dogoalinfo *dgi)
   int out;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_absmi(0);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   myB = (choiceptr)(LCL0-dgi->b);
   CP = myB->cp_cp;
   if (!out ) {
@@ -2274,9 +2274,9 @@ YAP_RunGoal(Term t)
   BACKUP_MACHINE_REGS();
 
   LOCAL_AllowRestart = FALSE;
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
@@ -2300,9 +2300,9 @@ YAP_RunGoalOnce(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   if (out) {
     choiceptr cut_pt;
 
@@ -2338,9 +2338,9 @@ YAP_RestartGoal(void)
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
-    Yap_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
     out = Yap_exec_absmi(TRUE);
-    Yap_PrologMode = UserCCallMode;
+    LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
       Yap_CloseSlots( PASS_REGS1 );
@@ -2396,12 +2396,13 @@ YAP_ShutdownGoal(int backtrack)
 X_API int
 YAP_ContinueGoal(void)
 {
+  CACHE_REGS
   int out;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_exec_absmi(TRUE);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -2708,14 +2709,16 @@ YAP_Init(YAP_init_args *yap_init)
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   static char boot_file[256];
 
-  /* Init signal handling, time and memory page size, required by later functions */
-  Yap_InitSysbits ();
+  Yap_InitPageSize();
+  //Yap_InitSysbits();
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-  Yap_argv = yap_init->Argv;
-  Yap_argc = yap_init->Argc;
+/* Init signal handling, time and memory page size, required by later functions */
+  Yap_InitSysbits();
+  GLOBAL_argv = yap_init->Argv;
+  GLOBAL_argc = yap_init->Argc;
 #if !BOOT_FROM_SAVED_STATE
   if (yap_init->SavedState) {
     fprintf(stderr,"[ WARNING: threaded YAP will ignore saved state %s ]\n",yap_init->SavedState);
@@ -2760,7 +2763,7 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-  Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
+  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,
@@ -3056,7 +3059,7 @@ X_API void
 YAP_SetOutputMessage(void)
 {
 #if DEBUG
-  Yap_output_msg = TRUE;
+  GLOBAL_output_msg = TRUE;
 #endif
 }
 
@@ -3096,11 +3099,12 @@ YAP_Throw(Term t)
 
 X_API void
 YAP_AsyncThrow(Term t)
-{
+{ 
+  CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Yap_PrologMode |= AsyncIntMode;
+  LOCAL_PrologMode |= AsyncIntMode;
   Yap_JumpToEnv(t);
-  Yap_PrologMode &= ~AsyncIntMode;
+  LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }
 

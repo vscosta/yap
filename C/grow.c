@@ -42,20 +42,7 @@ typedef enum {
   STACK_INCREMENTAL_COPYING = 2
 } what_stack_copying;
 
-static int heap_overflows = 0;
-static Int total_heap_overflow_time = 0;
 
-int stack_overflows = 0;
-static Int total_stack_overflow_time = 0;
-
-int delay_overflows = 0;
-static Int total_delay_overflow_time = 0;
-
-static int trail_overflows = 0;
-static Int total_trail_overflow_time = 0;
-
-static int atom_table_overflows = 0;
-static Int total_atom_table_overflow_time = 0;
 
 STATIC_PROTO(Int p_growheap, ( USES_REGS1 ));
 STATIC_PROTO(Int p_growstack, ( USES_REGS1 ));
@@ -85,10 +72,11 @@ STATIC_PROTO(Term AdjustGlobTerm, (Term CACHE_TYPE));
 static void
 LeaveGrowMode(prolog_exec_mode grow_mode)
 {
-  Yap_PrologMode &= ~grow_mode;
-  if (Yap_PrologMode & AbortMode) {
+  CACHE_REGS
+  LOCAL_PrologMode &= ~grow_mode;
+  if (LOCAL_PrologMode & AbortMode) {
     CACHE_REGS
-    Yap_PrologMode &= ~AbortMode;
+    LOCAL_PrologMode &= ~AbortMode;
     Yap_Error(PURE_ABORT, TermNil, "");
     /* in case someone mangles the P register */
     save_machine_regs();
@@ -121,7 +109,7 @@ static void
 SetHeapRegs(int copying_threads USES_REGS)
 {
 #ifdef undf7
-  fprintf(Yap_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, LOCAL_GlobalBase, H, LCL0, ASP);
+  fprintf(GLOBAL_stderr,"HeapBase = %x\tHeapTop=%x\nGlobalBase=%x\tGlobalTop=%x\nLocalBase=%x\tLocatTop=%x\n", Yap_HeapBase, HeapTop, LOCAL_GlobalBase, H, LCL0, ASP);
 #endif
   /* The old stack pointers */
   LOCAL_OldLCL0 = LCL0;
@@ -373,7 +361,7 @@ AdjustAppl(register CELL t0 USES_REGS)
 #ifdef DEBUG
   else {
     /* strange cell */
-    /*    fprintf(Yap_stderr,"% garbage appl %lx found in stacks by stack shifter\n", t0);*/
+    /*    fprintf(GLOBAL_stderr,"% garbage appl %lx found in stacks by stack shifter\n", t0);*/
   }
 #endif
   return(t0);
@@ -391,7 +379,7 @@ AdjustPair(register CELL t0 USES_REGS)
   else if (IsHeapP(t))
     return (AbsPair(CellPtoHeapAdjust(t)));
 #ifdef DEBUG
-  /* fprintf(Yap_stderr,"% garbage pair %lx found in stacks by stack shifter\n", t0);*/
+  /* fprintf(GLOBAL_stderr,"% garbage pair %lx found in stacks by stack shifter\n", t0);*/
 #endif
   return(t0);
 }
@@ -788,13 +776,13 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   }
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
-  heap_overflows++;
+  LOCAL_heap_overflows++;
   if (gc_verbose) {
 #if  defined(YAPOR_THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Database Overflow %d\n", heap_overflows);
-    fprintf(Yap_stderr, "%%   growing the heap %ld bytes\n", size);
+    fprintf(GLOBAL_stderr, "%% Database Overflow %d\n", LOCAL_heap_overflows);
+    fprintf(GLOBAL_stderr, "%%   growing the heap %ld bytes\n", size);
   }
   /* CreepFlag is set to force heap expansion */
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
@@ -835,10 +823,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
   if (minimal_request) 
     Yap_AllocHole(minimal_request, size);
   growth_time = Yap_cputime()-start_growth_time;
-  total_heap_overflow_time += growth_time;
+  LOCAL_total_heap_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding Database\n", (double)total_heap_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% Total of %g sec expanding Database\n", (double)LOCAL_total_heap_overflow_time/1000);
   }
   return(TRUE);
 }
@@ -900,7 +888,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
   }
   /* adjust to a multiple of 256) */
   LOCAL_ErrorMessage = NULL;
-  Yap_PrologMode |= GrowStackMode;
+  LOCAL_PrologMode |= GrowStackMode;
   start_growth_time = Yap_cputime();
   if (do_grow) {
     if (!GLOBAL_AllowGlobalExpansion) {
@@ -922,7 +910,7 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
     }
   }
   gc_verbose = Yap_is_gc_verbose();
-  delay_overflows++;
+  LOCAL_delay_overflows++;
   if (gc_verbose) {
     if (hsplit) {
       if (hsplit > H0) {
@@ -937,10 +925,10 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
       vb_msg2 = "Delay";
     }
 #if  defined(YAPOR_THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, delay_overflows);
-    fprintf(Yap_stderr, "%% %cO   growing the stacks %ld bytes\n", vb_msg1, size);
+    fprintf(GLOBAL_stderr, "%% %cO %s Overflow %d\n", vb_msg1, vb_msg2, LOCAL_delay_overflows);
+    fprintf(GLOBAL_stderr, "%% %cO   growing the stacks %ld bytes\n", vb_msg1, size);
   }
   ASP -= 256;
   YAPEnterCriticalSection();
@@ -1019,10 +1007,10 @@ static_growglobal(long request, CELL **ptr, CELL *hsplit USES_REGS)
     Yap_AllocHole(minimal_request, size);
   }
   growth_time = Yap_cputime()-start_growth_time;
-  total_delay_overflow_time += growth_time;
+  LOCAL_total_delay_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%% %cO   took %g sec\n", vb_msg1, (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)total_delay_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%% %cO   took %g sec\n", vb_msg1, (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% %cO Total of %g sec expanding stacks \n", vb_msg1, (double)LOCAL_total_delay_overflow_time/1000);
   }
   LeaveGrowMode(GrowStackMode);
   if (hsplit) {
@@ -1246,7 +1234,7 @@ static int
 do_growheap(int fix_code, UInt in_size, struct intermediates *cip, tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep USES_REGS)
 {
   unsigned long size = sizeof(CELL) * K16;
-  int shift_factor = (heap_overflows > 8 ? 8 : heap_overflows);
+  int shift_factor = (LOCAL_heap_overflows > 8 ? 8 : LOCAL_heap_overflows);
   unsigned long sz =  size << shift_factor;
 
   if (sz < in_size) {
@@ -1355,13 +1343,13 @@ growatomtable( USES_REGS1 )
 #endif
       return FALSE;
   }
-  atom_table_overflows++;
+  LOCAL_atom_table_overflows ++;
   if (gc_verbose) {
 #if  defined(YAPOR_THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Atom Table Overflow %d\n", atom_table_overflows);
-    fprintf(Yap_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
+    fprintf(GLOBAL_stderr, "%% Atom Table Overflow %d\n", LOCAL_atom_table_overflows );
+    fprintf(GLOBAL_stderr, "%%    growing the atom table to %ld entries\n", (long int)(nsize));
   }
   YAPEnterCriticalSection();
   init_new_table(ntb, nsize);
@@ -1371,10 +1359,10 @@ growatomtable( USES_REGS1 )
   AtomHashTableSize = nsize;
   YAPLeaveCriticalSection();
   growth_time = Yap_cputime()-start_growth_time;
-  total_atom_table_overflow_time += growth_time;
+  LOCAL_total_atom_table_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding atom table \n", (double)total_atom_table_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% Total of %g sec expanding atom table \n", (double)LOCAL_total_atom_table_overflow_time/1000);
   }
 #if USE_SYSTEM_MALLOC
   return TRUE;
@@ -1480,7 +1468,7 @@ Yap_growstack(long size)
   CACHE_REGS
   int res;
 
-  Yap_PrologMode |= GrowStackMode;
+  LOCAL_PrologMode |= GrowStackMode;
   res=growstack(size PASS_REGS);
   LeaveGrowMode(GrowStackMode);
   return res;
@@ -1602,25 +1590,25 @@ growstack(long size USES_REGS)
   LOCAL_ErrorMessage = NULL;
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
-  stack_overflows++;
+  LOCAL_stack_overflows++;
   if (gc_verbose) {
 #if  defined(YAPOR) || defined(THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
-    fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
+    fprintf(GLOBAL_stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
+    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
-    fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", size);
+    fprintf(GLOBAL_stderr, "%% Growing the stacks %ld bytes\n", size);
   }
   if (!execute_growstack(size, FALSE, FALSE, NULL, NULL, NULL PASS_REGS))
     return FALSE;
   growth_time = Yap_cputime()-start_growth_time;
-  total_stack_overflow_time += growth_time;
+  LOCAL_total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% Total of %g sec expanding stacks \n", (double)LOCAL_total_stack_overflow_time/1000);
   }
   return TRUE;
 }
@@ -1634,33 +1622,33 @@ Yap_growstack_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
   UInt start_growth_time, growth_time;
   int gc_verbose;
 
-  Yap_PrologMode |= GrowStackMode;
+  LOCAL_PrologMode |= GrowStackMode;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize((ADDR)LCL0-LOCAL_GlobalBase);
   LOCAL_ErrorMessage = NULL;
   start_growth_time = Yap_cputime();
   gc_verbose = Yap_is_gc_verbose();
-  stack_overflows++;
+  LOCAL_stack_overflows++;
   if (gc_verbose) {
 #if  defined(YAPOR) || defined(THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Stack Overflow %d\n", stack_overflows);
-    fprintf(Yap_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
-    fprintf(Yap_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
+    fprintf(GLOBAL_stderr, "%% Stack Overflow %d\n", LOCAL_stack_overflows);
+    fprintf(GLOBAL_stderr, "%%   Global: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%   Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(GLOBAL_stderr, "%%   Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
-    fprintf(Yap_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
+    fprintf(GLOBAL_stderr, "%% Growing the stacks %ld bytes\n", (unsigned long int)size);
   }
   if (!execute_growstack(size, FALSE, TRUE, old_trp, tksp, vep PASS_REGS)) {
     LeaveGrowMode(GrowStackMode);
     return FALSE;
   }
   growth_time = Yap_cputime()-start_growth_time;
-  total_stack_overflow_time += growth_time;
+  LOCAL_total_stack_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding stacks \n", (double)total_stack_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%%   took %g sec\n", (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% Total of %g sec expanding stacks \n", (double)LOCAL_total_stack_overflow_time/1000);
   }
   LeaveGrowMode(GrowStackMode);
   return TRUE;
@@ -1688,19 +1676,19 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     size=size0;
   /* adjust to a multiple of 256) */
   size = AdjustPageSize(size);
-  trail_overflows++;
+  LOCAL_trail_overflows++;
   if (gc_verbose) {
 #if defined(YAPOR) || defined(THREADS)
-    fprintf(Yap_stderr, "%% Worker Id %d:\n", worker_id);
+    fprintf(GLOBAL_stderr, "%% Worker Id %d:\n", worker_id);
 #endif
-    fprintf(Yap_stderr, "%% Trail Overflow %d\n", trail_overflows);
+    fprintf(GLOBAL_stderr, "%% Trail Overflow %d\n", LOCAL_trail_overflows);
 #if USE_SYSTEM_MALLOC
-    fprintf(Yap_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,H);
-    fprintf(Yap_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
-    fprintf(Yap_stderr, "%%  Trail:%8ld cells (%p-%p)\n",
+    fprintf(GLOBAL_stderr, "%%  Heap: %8ld cells (%p-%p)\n", (unsigned long int)(H-(CELL *)LOCAL_GlobalBase),(CELL *)LOCAL_GlobalBase,H);
+    fprintf(GLOBAL_stderr, "%%  Local:%8ld cells (%p-%p)\n", (unsigned long int)(LCL0-ASP),LCL0,ASP);
+    fprintf(GLOBAL_stderr, "%%  Trail:%8ld cells (%p-%p)\n",
 	       (unsigned long int)(TR-(tr_fr_ptr)LOCAL_TrailBase),LOCAL_TrailBase,TR);
 #endif
-    fprintf(Yap_stderr, "%% growing the trail %ld bytes\n", size);
+    fprintf(GLOBAL_stderr, "%% growing the trail %ld bytes\n", size);
   }
   LOCAL_ErrorMessage = NULL;
   if (!GLOBAL_AllowTrailExpansion) {
@@ -1714,7 +1702,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     LOCAL_ErrorMessage = NULL;
     if (contiguous_only) {
       /* I can't expand in this case */
-      trail_overflows--;
+      LOCAL_trail_overflows--;
       return FALSE;
     }
     execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
@@ -1729,10 +1717,10 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
   }
 #endif
   growth_time = Yap_cputime()-start_growth_time;
-  total_trail_overflow_time += growth_time;
+  LOCAL_total_trail_overflow_time += growth_time;
   if (gc_verbose) {
-    fprintf(Yap_stderr, "%%  took %g sec\n", (double)growth_time/1000);
-    fprintf(Yap_stderr, "%% Total of %g sec expanding trail \n", (double)total_trail_overflow_time/1000);
+    fprintf(GLOBAL_stderr, "%%  took %g sec\n", (double)growth_time/1000);
+    fprintf(GLOBAL_stderr, "%% Total of %g sec expanding trail \n", (double)LOCAL_total_trail_overflow_time/1000);
   }
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_TROVF_SIGNAL) {
@@ -1801,8 +1789,8 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
 static Int
 p_inform_trail_overflows( USES_REGS1 )
 {
-  Term tn = MkIntTerm(trail_overflows);
-  Term tt = MkIntegerTerm(total_trail_overflow_time);
+  Term tn = MkIntTerm(LOCAL_trail_overflows);
+  Term tt = MkIntegerTerm(LOCAL_total_trail_overflow_time);
  
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 }
@@ -1831,8 +1819,8 @@ p_growheap( USES_REGS1 )
 static Int
 p_inform_heap_overflows( USES_REGS1 )
 {
-  Term tn = MkIntTerm(heap_overflows);
-  Term tt = MkIntegerTerm(total_heap_overflow_time);
+  Term tn = MkIntTerm(LOCAL_heap_overflows);
+  Term tt = MkIntegerTerm(LOCAL_total_heap_overflow_time);
  
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 }
@@ -1929,8 +1917,8 @@ p_growstack( USES_REGS1 )
 static Int
 p_inform_stack_overflows( USES_REGS1 )
 {				/*  */
-  Term tn = MkIntTerm(stack_overflows);
-  Term tt = MkIntegerTerm(total_stack_overflow_time);
+  Term tn = MkIntTerm(LOCAL_stack_overflows);
+  Term tt = MkIntegerTerm(LOCAL_total_stack_overflow_time);
  
   return(Yap_unify(tn, ARG1) && Yap_unify(tt, ARG2));
 
@@ -1939,9 +1927,10 @@ p_inform_stack_overflows( USES_REGS1 )
 Int
 Yap_total_stack_shift_time(void)
 {
-  return(total_heap_overflow_time+
-	 total_stack_overflow_time+
-	 total_trail_overflow_time);
+  CACHE_REGS
+  return(LOCAL_total_heap_overflow_time+
+	 LOCAL_total_stack_overflow_time+
+	 LOCAL_total_trail_overflow_time);
 }
 
 void

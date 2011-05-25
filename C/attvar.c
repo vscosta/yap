@@ -1044,11 +1044,11 @@ void Yap_InitAttVarPreds(void)
   Term OldCurrentModule = CurrentModule;
   CurrentModule = ATTRIBUTES_MODULE;
 #ifdef COROUTINING
-  attas[attvars_ext].bind_op = WakeAttVar;
-  attas[attvars_ext].copy_term_op = CopyAttVar;
-  attas[attvars_ext].to_term_op = AttVarToTerm;
-  attas[attvars_ext].term_to_op = TermToAttVar;
-  attas[attvars_ext].mark_op = mark_attvar;
+  GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
+  GLOBAL_attas[attvars_ext].copy_term_op = CopyAttVar;
+  GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
+  GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
+  GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
   Yap_InitCPred("get_att", 4, p_get_att, SafePredFlag);
   Yap_InitCPred("get_module_atts", 2, p_get_atts, SafePredFlag);
   Yap_InitCPred("has_module_atts", 2, p_has_atts, SafePredFlag);

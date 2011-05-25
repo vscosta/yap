@@ -227,7 +227,7 @@ static int      splfild = 0;
 #ifdef DEBUG_RESTORE4
 static FILE    *errout;
 #else
-#define errout Yap_stderr
+#define errout GLOBAL_stderr
 #endif
 
 #endif				/* DEBUG */
@@ -1337,7 +1337,7 @@ ShowEntries(pp)
 	PropEntry      *pp;
 {
   while (!EndOfPAEntr(pp)) {
-    fprintf(Yap_stderr,"Estou a ver a prop %x em %x\n", pp->KindOfPE, pp);
+    fprintf(GLOBAL_stderr,"Estou a ver a prop %x em %x\n", pp->KindOfPE, pp);
     pp = RepProp(pp->NextOfPE);
   }
 }
@@ -1352,7 +1352,7 @@ ShowAtoms()
       AtomEntry      *at;
       at = RepAtom(HashPtr->Entry);
       do {
-	fprintf(Yap_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
+	fprintf(GLOBAL_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
 	ShowEntries(RepProp(at->PropsOfAE));
       } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
     }
@@ -1364,7 +1364,7 @@ ShowAtoms()
       AtomEntry      *at;
       at = RepAtom(HashPtr->Entry);
       do {
-	fprintf(Yap_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
+	fprintf(GLOBAL_stderr,"Passei ao %s em %x\n", at->StrOfAE, at);
 	ShowEntries(RepProp(at->PropsOfAE));
       } while (!EndOfPAEntr(at = RepAtom(at->NextOfAE)));
     }
@@ -1383,7 +1383,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
 
   if ((mode = check_header(Astate,ATrail,AStack,AHeap PASS_REGS)) == FAIL_RESTORE)
     return(FAIL_RESTORE);
-  Yap_PrologMode = BootMode;
+  LOCAL_PrologMode = BootMode;
   if (Yap_HeapBase) {
     extern void Scleanup(void);
     if (!yap_flags[HALT_AFTER_CONSULT_FLAG] && !yap_flags[QUIET_MODE_FLAG]) {
@@ -1397,7 +1397,7 @@ commit_to_saved_state(char *s, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *A
   /*
    * This should be another file, like the log file 
    */
-  errout = Yap_stderr;
+  errout = GLOBAL_stderr;
 #endif
   return mode;
 }
@@ -1448,7 +1448,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   if (inpf[0] != '/') {
 #if __simplescalar__
     /* does not implement getcwd */
-    strncpy(LOCAL_FileNameBuf,yap_pwd,YAP_FILENAME_MAX);
+    strncpy(LOCAL_FileNameBuf,GLOBAL_pwd,YAP_FILENAME_MAX);
 #elif HAVE_GETCWD
     if (getcwd (LOCAL_FileNameBuf, YAP_FILENAME_MAX) == NULL)
       LOCAL_FileNameBuf[0] = '\0';
@@ -1558,11 +1558,12 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 static void 
 CloseRestore(void)
 {
+ CACHE_REGS
 #ifdef DEBUG_RESTORE3
   ShowAtoms();
 #endif
   close_file();
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
 }
 
 #if !defined(_WIN32)

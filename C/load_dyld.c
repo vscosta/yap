@@ -28,13 +28,13 @@
 */
 #import <mach-o/dyld.h>
 
-static int dl_errno;
+
 
 static char *
 mydlerror(void)
 {
   char *errString;
-  switch(dl_errno) {
+  switch(LOCAL_dl_errno) {
   default:
   case NSObjectFileImageFailure:
   case NSObjectFileImageFormat:
@@ -76,7 +76,7 @@ mydlopen(char *path)
     NSModule handle = NULL;
     dyld_result = NSCreateObjectFileImageFromFile(path, &ofile);
     if (dyld_result != NSObjectFileImageSuccess) {
-      dl_errno = dyld_result;
+      LOCAL_dl_errno = dyld_result;
     } else {
       /* NSLinkModule will cause the run to abort on any link error's */
       /* not very friendly but the error recovery functionality is limited */

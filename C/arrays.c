@@ -158,12 +158,11 @@ typedef struct MMAP_ARRAY_BLOCK {
   struct MMAP_ARRAY_BLOCK *next;
 } mmap_array_block;
 
-static mmap_array_block *mmap_arrays = NULL;
 
 static Int
 CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS)
 {
-  mmap_array_block *ptr = mmap_arrays, *optr = mmap_arrays;
+  mmap_array_block *ptr = GLOBAL_mmap_arrays, *optr = GLOBAL_mmap_arrays;
 
   while (ptr != NULL && ptr->start != area) {
     ptr = ptr->next;
@@ -193,7 +192,7 @@ CloseMmappedArray(StaticArrayEntry *pp, void *area USES_REGS)
 static void
 ResizeMmappedArray(StaticArrayEntry *pp, Int dim, void *area USES_REGS)
 {
-  mmap_array_block *ptr = mmap_arrays;
+  mmap_array_block *ptr = GLOBAL_mmap_arrays;
   size_t total_size; 
   while (ptr != NULL && ptr->start != area) {
     ptr = ptr->next;
@@ -1383,8 +1382,8 @@ p_create_mmapped_array( USES_REGS1 )
       ptr->items = size;
       ptr->start = (void *)array_addr;
       ptr->fd = fd;
-      ptr->next = mmap_arrays;
-      mmap_arrays = ptr;
+      ptr->next = GLOBAL_mmap_arrays;
+      GLOBAL_mmap_arrays = ptr;
       WRITE_UNLOCK(pp->ArRWLock);
       WRITE_UNLOCK(ae->ARWLock);
       return TRUE;
@@ -2244,7 +2243,7 @@ static Int
 p_sync_mmapped_arrays( USES_REGS1 )
 {
 #ifdef HAVE_MMAP
-  mmap_array_block *ptr = mmap_arrays;
+  mmap_array_block *ptr = GLOBAL_mmap_arrays;
   while (ptr != NULL) {
     msync(ptr->start, ptr->size, MS_SYNC);
     ptr = ptr->next;

@@ -183,17 +183,17 @@ Yap_DebugGetc()
   }
   if ((ch = *lp++) == 0)
     ch = '\n', eolflg = 1;
-  if (Yap_Option['l' - 96])
-    putc(ch, Yap_logfile);
+  if (GLOBAL_Option['l' - 96])
+    putc(ch, GLOBAL_logfile);
   return (ch);
 }
 
 int 
 Yap_DebugPutc(int sno, wchar_t ch)
 {
-  if (Yap_Option['l' - 96])
-    (void) putc(ch, Yap_logfile);
-  return (putc(ch, Yap_stderr));
+  if (GLOBAL_Option['l' - 96])
+    (void) putc(ch, GLOBAL_logfile);
+  return (putc(ch, GLOBAL_stderr));
 }
 
 void
@@ -1103,8 +1103,6 @@ Yap_InitBackIO (void)
 void
 Yap_InitIOPreds(void)
 {
-  Yap_stdout = stdout;
-  Yap_stderr = stderr;
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */

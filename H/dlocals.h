@@ -267,3 +267,53 @@
 #define LOCAL_FileNameBuf2 LOCAL->FileNameBuf2_
 #define REMOTE_FileNameBuf2(wid) REMOTE(wid)->FileNameBuf2_
 
+#define LOCAL_PrologMode LOCAL->PrologMode_
+#define REMOTE_PrologMode(wid) REMOTE(wid)->PrologMode_
+#define LOCAL_CritLocks LOCAL->CritLocks_
+#define REMOTE_CritLocks(wid) REMOTE(wid)->CritLocks_
+
+
+#ifdef ANALYST
+#define LOCAL_opcount LOCAL->opcount_
+#define REMOTE_opcount(wid) REMOTE(wid)->opcount_
+#define LOCAL_2opcount LOCAL->2opcount_
+#define REMOTE_2opcount(wid) REMOTE(wid)->2opcount_
+#endif /* ANALYST */
+
+#define LOCAL_s_dbg LOCAL->s_dbg_
+#define REMOTE_s_dbg(wid) REMOTE(wid)->s_dbg_
+
+#define LOCAL_matherror LOCAL->matherror_
+#define REMOTE_matherror(wid) REMOTE(wid)->matherror_
+
+#define LOCAL_heap_overflows LOCAL->heap_overflows_
+#define REMOTE_heap_overflows(wid) REMOTE(wid)->heap_overflows_
+#define LOCAL_total_heap_overflow_time LOCAL->total_heap_overflow_time_
+#define REMOTE_total_heap_overflow_time(wid) REMOTE(wid)->total_heap_overflow_time_
+#define LOCAL_stack_overflows LOCAL->stack_overflows_
+#define REMOTE_stack_overflows(wid) REMOTE(wid)->stack_overflows_
+#define LOCAL_total_stack_overflow_time LOCAL->total_stack_overflow_time_
+#define REMOTE_total_stack_overflow_time(wid) REMOTE(wid)->total_stack_overflow_time_
+#define LOCAL_delay_overflows LOCAL->delay_overflows_
+#define REMOTE_delay_overflows(wid) REMOTE(wid)->delay_overflows_
+#define LOCAL_total_delay_overflow_time LOCAL->total_delay_overflow_time_
+#define REMOTE_total_delay_overflow_time(wid) REMOTE(wid)->total_delay_overflow_time_
+#define LOCAL_trail_overflows LOCAL->trail_overflows_
+#define REMOTE_trail_overflows(wid) REMOTE(wid)->trail_overflows_
+#define LOCAL_total_trail_overflow_time LOCAL->total_trail_overflow_time_
+#define REMOTE_total_trail_overflow_time(wid) REMOTE(wid)->total_trail_overflow_time_
+#define LOCAL_atom_table_overflows LOCAL->atom_table_overflows_
+#define REMOTE_atom_table_overflows(wid) REMOTE(wid)->atom_table_overflows_
+#define LOCAL_total_atom_table_overflow_time LOCAL->total_atom_table_overflow_time_
+#define REMOTE_total_atom_table_overflow_time(wid) REMOTE(wid)->total_atom_table_overflow_time_
+
+#ifdef LOAD_DYLD
+#define LOCAL_dl_errno LOCAL->dl_errno_
+#define REMOTE_dl_errno(wid) REMOTE(wid)->dl_errno_
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+#define LOCAL_do_trace_primitives LOCAL->do_trace_primitives_
+#define REMOTE_do_trace_primitives(wid) REMOTE(wid)->do_trace_primitives_
+#endif
+

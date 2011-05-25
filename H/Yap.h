@@ -109,8 +109,8 @@
 #ifdef __MINGW32__
 #ifndef _WIN32
 #define _WIN32 1
-#endif
-#endif
+#endif /* _WIN32 */
+#endif /* __MINGW32__ */
 
 #if HAVE_GCC
 #define MIN_ARRAY 0
@@ -118,13 +118,13 @@
 #else
 #define MIN_ARRAY 1
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
-#endif
+#endif /* HAVE_GCC */
 
 #ifndef ADTDEFS_C
 #define EXTERN  static
 #else
 #define EXTERN
-#endif
+#endif /* ADTDEFS_C */
 
 /* truth-values */
 #define	 TRUE	1
@@ -144,10 +144,10 @@
 #if USE_PTHREAD_LOCKING
 #ifndef _XOPEN_SOURCE
 #define _XOPEN_SOURCE 600
-#endif
-#endif
+#endif  /* !_XOPEN_SOURCE */
+#endif /* USE_PTHREAD_LOCKING */
 #include <pthread.h>
-#endif
+#endif /* THREADS */
 
 #if SIZEOF_INT_P==4
 
@@ -242,16 +242,13 @@ typedef unsigned long int YAP_ULONG_LONG;
 #define LOW_PROF 1
 #endif
 
-#ifdef DEBUG
-extern char Yap_Option[20];
-#endif
 
 /* #define FORCE_SECOND_QUADRANT 1 */
 
 #if defined(FORCE_SECOND_QUADRANT)
 #define IN_SECOND_QUADRANT 1
 #define MMAP_ADDR 0x42000000
-#endif
+#endif /* FORCE_SECOND_QUADRANT */
 
 #if !defined(IN_SECOND_QUADRANT)
 #if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(mips) || defined(__APPLE__) || defined(__DragonFly__)
@@ -269,10 +266,10 @@ extern char Yap_Option[20];
 #define MMAP_ADDR 0x20000000
 #else
 #define MMAP_ADDR 0x10000000
-#endif
+#endif /* YAPOR && __alpha */
 #elif __svr4__ || defined(__SVR4)
 #define MMAP_ADDR 0x02000000
-#endif
+#endif /* __linux__ || __FreeBSD__ || __NetBSD__ || mips || __APPLE__ || __DragonFly__ */
 #endif /* !IN_SECOND_QUADRANT */
 
 /* #define RANDOMIZE_START_ADDRESS 1 */
@@ -280,15 +277,15 @@ extern char Yap_Option[20];
 #ifdef USE_SYSTEM_MALLOC
 #define HEAP_INIT_BASE  0L
 #define AtomBase        NULL
-#else
+#else /* !USE_SYSTEM_MALLOC */
 #if defined(MMAP_ADDR) && (defined(USE_MMAP) || USE_SHMAT) && !defined(__simplescalar__) && !defined(RANDOMIZE_START_ADDRESS)
 #define HEAP_INIT_BASE  (MMAP_ADDR)
 #define AtomBase        ((char *)MMAP_ADDR)
-#else
+#else /*! (MMAP_ADDR && (USE_MMAP || USE_SHMAT) && !__simplescalar__ && !RANDOMIZE_START_ADDRESS) */
 #define HEAP_INIT_BASE  ((CELL)Yap_HeapBase)
 #define AtomBase        (Yap_HeapBase)
-#endif
-#endif
+#endif /* MMAP_ADDR && (USE_MMAP || USE_SHMAT) && !__simplescalar__ && !RANDOMIZE_START_ADDRESS */
+#endif /* USE_SYSTEM_MALLOC */
 
 
 
@@ -308,7 +305,9 @@ extern char Yap_Option[20];
 #define M1   ((CELL)(1024*1024))
 #define M2   ((CELL)(2048*1024))
 
-/*  basic data types  */
+/*************************************************************************************************
+                                        basic data types
+*************************************************************************************************/
 
 typedef UInt CELL;
 typedef UShort BITS16;
@@ -329,7 +328,9 @@ typedef unsigned char *CODEADDR;
 #define CellSize     sizeof(CELL)
 #define SmallSize    sizeof(SMALLUNSGN)
 
-/* type	casting	macros		*/
+/*************************************************************************************************
+                                        type casting macros
+*************************************************************************************************/
 
 #define	Addr(V)		((ADDR) (V))
 #define	Unsigned(V)	((CELL) (V))
@@ -344,7 +345,9 @@ typedef unsigned char *CODEADDR;
 #define DisplPtr(V)	((DISPREG *)(V))
 #define TermPtr(V)	((Term *) (V))
 
-/*	Abstract Type Definitions for YAPProlog			       */
+/*************************************************************************************************
+                              Abstract Type Definitions for YAPProlog	
+*************************************************************************************************/
 
 typedef CELL Term;
 
@@ -383,7 +386,9 @@ typedef pthread_rwlock_t rwlock_t;
 #include <locks_pthread.h>
 #endif
 
-/********************** use an auxiliary function for ranges ************/
+/*************************************************************************************************
+                              use an auxiliary function for ranges	
+*************************************************************************************************/
 
 #ifdef __GNUC__
 #define IN_BETWEEN(MIN,X,MAX) (Unsigned((Int)(X)-(Int)(MIN)) <=  \
@@ -397,19 +402,25 @@ typedef pthread_rwlock_t rwlock_t;
 #define OUTSIDE(MIN,X,MAX) ((void *)(X) < (void *)(MIN) || (void *)(X) > (void *)(MAX))
 #endif
 
-/* ************************* Atoms  *************************************/
+/*************************************************************************************************
+                                             Atoms	
+*************************************************************************************************/
 
 #include "Atoms.h"
 
-/* ************************* Coroutining  **********************************/
+/*************************************************************************************************
+                                             Coroutining	
+*************************************************************************************************/
+
 
 #ifdef COROUTINING
 /* Support for co-routining */
 #include "corout.h"
 #endif
 
-/*********  abstract machine registers **********************************/
-
+/*************************************************************************************************
+                                      abstract machine registers	
+*************************************************************************************************/
 
 #include "amidefs.h"
 
@@ -424,7 +435,9 @@ typedef pthread_rwlock_t rwlock_t;
 #endif
 #endif
 
-/************ variables	concerned with Error Handling *************/
+/*************************************************************************************************
+                              variables concerned with Error Handling	
+*************************************************************************************************/
 
 #include <setjmp.h>
 
@@ -437,7 +450,6 @@ typedef pthread_rwlock_t rwlock_t;
 /* Support for arrays */
 #include "arrays.h"
 
-/************ variables	concerned with Error Handling	*************/
 
 /* Types of Errors */
 typedef enum
@@ -615,7 +627,9 @@ typedef enum
 
 #define NUMBER_OF_YAP_FLAGS  LAST_FLAG
 
-/************************  prototypes **********************************/
+/*************************************************************************************************
+                                           prototypes
+*************************************************************************************************/
 
 #include "Yapproto.h"
 
@@ -733,7 +747,9 @@ typedef enum
 
 #define	TermSize    sizeof(Term)
 
-/************* variables related to memory allocation *******************/
+/*************************************************************************************************
+                           variables related to memory allocation 
+*************************************************************************************************/
 /* must be before TermExt.h */
 
 extern ADDR Yap_HeapBase;
@@ -743,22 +759,17 @@ extern ADDR Yap_HeapBase;
 
 #define MAX_ERROR_MSG_SIZE YAP_FILENAME_MAX
 
-#ifdef THREADS
-/* This is the guy who actually started the system, and who has the correct registers */
-extern pthread_t Yap_master_thread;
-#endif /* THREADS */
 
-#ifdef DEBUG
-/************** Debugging Support ***************************/
-extern int Yap_output_msg;
-#endif
-
-/********** ??? ***********/
+/*************************************************************************************************
+                                              ???
+*************************************************************************************************/
 
 #define MkVarTerm() MkVarTerm__( PASS_REGS1 )
 #define MkPairTerm(A,B) MkPairTerm__( A, B PASS_REGS )
 
-/* applies to unbound variables */
+/*************************************************************************************************
+                                   applies to unbound variables
+*************************************************************************************************/
 
 inline EXTERN Term *VarOfTerm (Term t);
 
@@ -1002,8 +1013,10 @@ IntegerOfTerm (Term t)
 
 
 
+/*************************************************************************************************
+                                variables concerned with atoms table
+*************************************************************************************************/
 
-/*************** variables concerned with atoms	table *******************/
 #define	MaxHash	    3333
 #define	MaxWideHash (MaxHash/10+1)
 
@@ -1011,14 +1024,17 @@ IntegerOfTerm (Term t)
 #define DO_EVERYTHING 1
 #define DO_ONLY_CODE  2
 
-/********* common instructions codes*************************/
+/*************************************************************************************************
+                                   common instructions codes
+*************************************************************************************************/
 
 #define MAX_PROMPT  256
 
 #if USE_THREADED_CODE
 
-
-/************ reverse lookup of instructions *****************/
+/*************************************************************************************************
+                                   reverse lookup of instructions
+*************************************************************************************************/
 typedef struct opcode_tab_entry
 {
   OPCODE opc;
@@ -1027,9 +1043,9 @@ typedef struct opcode_tab_entry
 
 #endif
 
-
-
-/********* Prolog may be in several modes *******************************/
+/*************************************************************************************************
+                                   Prolog may be in several modes 
+*************************************************************************************************/
 
 typedef enum
 {
@@ -1054,28 +1070,12 @@ typedef enum
   InReadlineMode = 0x40000	/* YAP has just been interrupted from the outside */
 } prolog_exec_mode;
 
-extern Int Yap_PrologMode;
-extern int Yap_CritLocks;
-
 
 /*************************************************************************************************
-                                  Access to yap initial arguments
+                                     number of modules
 *************************************************************************************************/
-extern char **Yap_argv;
-extern int Yap_argc;
-
-
-/*************************************************************************************************
-                         whether Yap is responsible for signal handling
-*************************************************************************************************/
-extern int Yap_PrologShouldHandleInterrupts;
-
-
-/******************* number of modules ****************************/
 
 #define DefaultMaxModules	256
-
-
 
 /*************************************************************************************************
                                        Critical sections
@@ -1087,20 +1087,20 @@ extern int Yap_PrologShouldHandleInterrupts;
 	    LOCK(GLOBAL_locks_heap_access);                              \
 	    GLOBAL_locks_who_locked_heap = worker_id;                    \
 	  }                                                              \
-          Yap_PrologMode |= CritMode;                                   \
-          Yap_CritLocks++;                                              \
+          LOCAL_PrologMode |= CritMode;                                   \
+          LOCAL_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          Yap_CritLocks--;                                              \
-          if (!Yap_CritLocks) {                                         \
-            Yap_PrologMode &= ~CritMode;                                \
-            if (Yap_PrologMode & InterruptMode) {                       \
-	      Yap_PrologMode &= ~InterruptMode;                         \
+          LOCAL_CritLocks--;                                              \
+          if (!LOCAL_CritLocks) {                                         \
+            LOCAL_PrologMode &= ~CritMode;                                \
+            if (LOCAL_PrologMode & InterruptMode) {                       \
+	      LOCAL_PrologMode &= ~InterruptMode;                         \
 	      Yap_ProcessSIGINT();                                      \
             }                                                            \
-            if (Yap_PrologMode & AbortMode) {                           \
-	      Yap_PrologMode &= ~AbortMode;                             \
+            if (LOCAL_PrologMode & AbortMode) {                           \
+	      LOCAL_PrologMode &= ~AbortMode;                             \
 	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
 	    GLOBAL_locks_who_locked_heap = MAX_WORKERS;                  \
@@ -1111,17 +1111,17 @@ extern int Yap_PrologShouldHandleInterrupts;
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
           /* LOCK(BGL); */                                              \
-          Yap_PrologMode |= CritMode;                                   \
+          LOCAL_PrologMode |= CritMode;                                   \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          Yap_PrologMode &= ~CritMode;                                \
-          if (Yap_PrologMode & InterruptMode) {                       \
-	    Yap_PrologMode &= ~InterruptMode;                         \
+          LOCAL_PrologMode &= ~CritMode;                                \
+          if (LOCAL_PrologMode & InterruptMode) {                       \
+	    LOCAL_PrologMode &= ~InterruptMode;                         \
 	    Yap_ProcessSIGINT();                                      \
           }                                                            \
-          if (Yap_PrologMode & AbortMode) {                           \
-	    Yap_PrologMode &= ~AbortMode;                             \
+          if (LOCAL_PrologMode & AbortMode) {                           \
+	    LOCAL_PrologMode &= ~AbortMode;                             \
 	    Yap_Error(PURE_ABORT, 0, "");                             \
           }                                                            \
           /* UNLOCK(BGL); */                                           \
@@ -1129,20 +1129,20 @@ extern int Yap_PrologShouldHandleInterrupts;
 #else
 #define YAPEnterCriticalSection()                                        \
 	{                                                                \
-          Yap_PrologMode |= CritMode;                                   \
-          Yap_CritLocks++;                                              \
+          LOCAL_PrologMode |= CritMode;                                   \
+          LOCAL_CritLocks++;                                              \
         }
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
-          Yap_CritLocks--;                                              \
-          if (!Yap_CritLocks) {                                         \
-            Yap_PrologMode &= ~CritMode;                                \
-            if (Yap_PrologMode & InterruptMode) {                       \
-	      Yap_PrologMode &= ~InterruptMode;                         \
+          LOCAL_CritLocks--;                                              \
+          if (!LOCAL_CritLocks) {                                         \
+            LOCAL_PrologMode &= ~CritMode;                                \
+            if (LOCAL_PrologMode & InterruptMode) {                       \
+	      LOCAL_PrologMode &= ~InterruptMode;                         \
 	      Yap_ProcessSIGINT();                                      \
             }                                                            \
-            if (Yap_PrologMode & AbortMode) {                           \
-	      Yap_PrologMode &= ~AbortMode;                             \
+            if (LOCAL_PrologMode & AbortMode) {                           \
+	      LOCAL_PrologMode &= ~AbortMode;                             \
 	      Yap_Error(PURE_ABORT, 0, "");                             \
             }                                                            \
           }                                                              \
@@ -1153,7 +1153,10 @@ extern int Yap_PrologShouldHandleInterrupts;
 #define AT_BOOT      0
 #define AT_RESTORE   1
 
-/********* mutable variables ******************/
+
+/*************************************************************************************************
+                                       mutable variables
+*************************************************************************************************/
 
 /* I assume that the size of this structure is a multiple of the size
    of CELL!!! */
@@ -1164,7 +1167,9 @@ typedef struct TIMED_MAVAR
 } timed_var;
 
 
-/********* execution mode ***********************/
+/*************************************************************************************************
+                                       execution mode
+*************************************************************************************************/
 
 typedef enum
   {
@@ -1175,7 +1180,10 @@ typedef enum
     COMPILE_ALL          /* compile all predicates */
   } yap_exec_mode;
 
-/********* slots ***********************/
+
+/*************************************************************************************************
+                                           slots
+*************************************************************************************************/
 
 
 static inline void
@@ -1257,7 +1265,9 @@ typedef struct scratch_block_struct {
 /* scanner types */
 #include "ScannerTypes.h"
 
-/******************** OPTYAP includes ********************/
+/*************************************************************************************************
+                                       OPTYAP includes
+*************************************************************************************************/
 
 #if defined(YAPOR) || defined(TABLING)
 #include "opt.structs.h"
@@ -1269,7 +1279,10 @@ typedef struct scratch_block_struct {
 #include "or.sba_unify.h"
 #endif /* YAPOR_SBA */
 
-/******************** GLOBAL and LOCAL variables ********************/
+
+/*************************************************************************************************
+                                  GLOBAL and LOCAL variables
+*************************************************************************************************/
 
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 extern struct global_data *Yap_global;
@@ -1290,12 +1303,16 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
 
+#define YP_FILE		FILE
 #include "hglobals.h"
 #include "dglobals.h"
 #include "hlocals.h"
 #include "dlocals.h"
 
-/*************** unification routines ***********************************/
+
+/*************************************************************************************************
+                                       unification routines
+*************************************************************************************************/
 
 #ifdef YAPOR_SBA
 #include "or.sba_amiops.h"
@@ -1303,7 +1320,11 @@ extern struct worker_local Yap_local;
 #include "amiops.h"
 #endif /* YAPOR_SBA */
 
-/*************** High level macros to access arguments ******************/
+
+
+/*************************************************************************************************
+                           High level macros to access arguments
+*************************************************************************************************/
 
 inline EXTERN Term ArgOfTerm (int i, Term t);
 

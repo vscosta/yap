@@ -225,10 +225,10 @@ p_open_shared_objects( USES_REGS1 ) {
 void
 Yap_InitLoadForeign( void )
 {
-  if (Yap_argv == NULL)
+  if (GLOBAL_argv == NULL)
     Yap_FindExecutable("yap");
   else
-    Yap_FindExecutable(Yap_argv[0]);
+    Yap_FindExecutable(GLOBAL_argv[0]);
   Yap_InitCPred("$load_foreign_files", 3, p_load_foreign, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$open_shared_objects", 0, p_open_shared_objects, SafePredFlag|HiddenPredFlag);
   Yap_InitCPred("$open_shared_object", 3, p_open_shared_object, SyncPredFlag|HiddenPredFlag);

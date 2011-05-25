@@ -3135,7 +3135,7 @@ p_debug( USES_REGS1 )
   int             i = IntOfTerm(Deref(ARG1));
 
   if (i >= 'a' && i <= 'z')
-    Yap_Option[i - 96] = !Yap_Option[i - 96];
+    GLOBAL_Option[i - 96] = !GLOBAL_Option[i - 96];
   return (1);
 }
 #endif
@@ -3329,21 +3329,21 @@ Yap_show_statistics(void)
 #endif
   frag  = (100.0*(heap_space_taken-HeapUsed))/heap_space_taken;
 
-  fprintf(Yap_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
+  fprintf(GLOBAL_stderr, "Code Space:  %ld (%ld bytes needed, %ld bytes used, fragmentation %.3f%%).\n", 
 	     (unsigned long int)(Unsigned (H0) - Unsigned (Yap_HeapBase)),
 	     (unsigned long int)(Unsigned(HeapTop)-Unsigned(Yap_HeapBase)),
 	     (unsigned long int)(HeapUsed),
 	     frag);
-  fprintf(Yap_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
+  fprintf(GLOBAL_stderr, "Stack Space: %ld (%ld for Global, %ld for local).\n", 
 	     (unsigned long int)(sizeof(CELL)*(LCL0-H0)),
 	     (unsigned long int)(sizeof(CELL)*(H-H0)),
 	     (unsigned long int)(sizeof(CELL)*(LCL0-ASP)));
-  fprintf(Yap_stderr, "Trail Space: %ld (%ld used).\n", 
+  fprintf(GLOBAL_stderr, "Trail Space: %ld (%ld used).\n", 
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(LOCAL_TrailTop)-Unsigned(LOCAL_TrailBase))),
 	     (unsigned long int)(sizeof(tr_fr_ptr)*(Unsigned(TR)-Unsigned(LOCAL_TrailBase))));
-  fprintf(Yap_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
-  fprintf(Yap_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
-  fprintf(Yap_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
+  fprintf(GLOBAL_stderr, "Runtime: %lds.\n", (unsigned long int)(runtime ( PASS_REGS1 )));
+  fprintf(GLOBAL_stderr, "Cputime: %lds.\n", (unsigned long int)(Yap_cputime ()));
+  fprintf(GLOBAL_stderr, "Walltime: %lds.\n", (unsigned long int)(Yap_walltime ()));
 }
 
 static Int
@@ -3623,8 +3623,8 @@ mk_argc_list( USES_REGS1 )
 {
   int i =0;
   Term t = TermNil;
-  while (i < Yap_argc) {
-    char *arg = Yap_argv[i];
+  while (i < GLOBAL_argc) {
+    char *arg = GLOBAL_argv[i];
     /* check for -L -- */
     if (arg[0] == '-' && arg[1] == 'L') {
       arg += 2;
@@ -3633,15 +3633,15 @@ mk_argc_list( USES_REGS1 )
       if (*arg == '-' && arg[1] == '-' && arg[2] == '\0') {
 	/* we found the separator */
 	int j;
-	for (j = Yap_argc-1; j > i+1; --j) {
-	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(Yap_argv[j])),t);
+	for (j = GLOBAL_argc-1; j > i+1; --j) {
+	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
 	}
 	return t;
-      } else if (Yap_argv[i+1] && Yap_argv[i+1][0] == '-' && Yap_argv[i+1][1] == '-'  && Yap_argv[i+1][2] == '\0') {
+      } else if (GLOBAL_argv[i+1] && GLOBAL_argv[i+1][0] == '-' && GLOBAL_argv[i+1][1] == '-'  && GLOBAL_argv[i+1][2] == '\0') {
 	/* we found the separator */
 	int j;
-	for (j = Yap_argc-1; j > i+2; --j) {
-	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(Yap_argv[j])),t);
+	for (j = GLOBAL_argc-1; j > i+2; --j) {
+	  t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
 	}
 	return t;
       }
@@ -3649,8 +3649,8 @@ mk_argc_list( USES_REGS1 )
     if (arg[0] == '-' && arg[1] == '-' && arg[2] == '\0') {
       /* we found the separator */
       int j;
-      for (j = Yap_argc-1; j > i; --j) {
-	t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(Yap_argv[j])),t);
+      for (j = GLOBAL_argc-1; j > i; --j) {
+	t = MkPairTerm(MkAtomTerm(Yap_LookupAtom(GLOBAL_argv[j])),t);
       }
       return(t);
     }
@@ -3670,7 +3670,7 @@ static Int
 p_executable( USES_REGS1 )
 {
   
-  Yap_TrueFileName (Yap_argv[0], LOCAL_FileNameBuf, FALSE);
+  Yap_TrueFileName (GLOBAL_argv[0], LOCAL_FileNameBuf, FALSE);
   return Yap_unify(MkAtomTerm(Yap_LookupAtom(LOCAL_FileNameBuf)),ARG1);
 }
 
@@ -3904,9 +3904,9 @@ p_system_mode( USES_REGS1 )
 {
   Int i = IntegerOfTerm(Deref(ARG1));
   if (i == 0) 
-    Yap_PrologMode &= ~SystemMode;
+    LOCAL_PrologMode &= ~SystemMode;
   else
-    Yap_PrologMode |= SystemMode;
+    LOCAL_PrologMode |= SystemMode;
   return TRUE;
 }
 

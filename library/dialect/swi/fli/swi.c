@@ -2741,9 +2741,9 @@ PL_query(int query)
 {
   switch(query) {
   case PL_QUERY_ARGC:
-    return (intptr_t)Yap_argc;
+    return (intptr_t)GLOBAL_argc;
   case PL_QUERY_ARGV:
-    return (intptr_t)Yap_argv;
+    return (intptr_t)GLOBAL_argv;
   case PL_QUERY_USER_CPU:
     return (intptr_t)Yap_cputime();
   case PL_QUERY_VERSION:

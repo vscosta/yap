@@ -29,19 +29,11 @@ static char     SccsId[] = "@(#)agc.c	1.3 3/15/90";
 /* #define DEBUG_RESTORE1 1 */
 /* #define DEBUG_RESTORE2 1 */
 /* #define DEBUG_RESTORE3 1 */
-#define errout Yap_stderr
+#define errout GLOBAL_stderr
 #endif
 
 STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
 STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
-
-static int agc_calls;
-
-static YAP_ULONG_LONG agc_collected;
-
-static Int tot_agc_time = 0; /* total time spent in GC */
-
-static Int tot_agc_recovered = 0; /* number of heap objects in all garbage collections */
 
 #define AtomMarkedBit 1
 
@@ -392,12 +384,12 @@ clean_atom_list(AtomHashEntry *HashPtr)
 #ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %p:%S\n", at, at->WStrOfAE);
 #endif
-	agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
+	GLOBAL_agc_collected += sizeof(AtomEntry)+wcslen(at->WStrOfAE);
       } else {
 #ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %p:%s patm=%p %p\n", at, at->StrOfAE, patm, at->NextOfAE);
 #endif
-	agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
+	GLOBAL_agc_collected += sizeof(AtomEntry)+strlen(at->StrOfAE);
       }
       *patm = atm = at->NextOfAE;
       Yap_FreeCodeSpace((char *)at);
@@ -447,13 +439,13 @@ atom_gc(USES_REGS1)
   if (Yap_GetValue(AtomGcTrace) != TermNil)
     gc_trace = 1;
 
-  agc_calls++;
-  agc_collected = 0;
+  GLOBAL_agc_calls++;
+  GLOBAL_agc_collected = 0;
   
   if (gc_trace) {
-    fprintf(Yap_stderr, "%% agc:\n");
+    fprintf(GLOBAL_stderr, "%% agc:\n");
   } else if (gc_verbose) {
-    fprintf(Yap_stderr, "%%   Start of atom garbage collection %d:\n", agc_calls);
+    fprintf(GLOBAL_stderr, "%%   Start of atom garbage collection %d:\n", GLOBAL_agc_calls);
   }
   time_start = Yap_cputime();
   /* get the number of active registers */
@@ -464,15 +456,15 @@ atom_gc(USES_REGS1)
   clean_atoms();
   YAPLeaveCriticalSection();
   agc_time = Yap_cputime()-time_start;
-  tot_agc_time += agc_time;
-  tot_agc_recovered += agc_collected;
+  GLOBAL_tot_agc_time += agc_time;
+  GLOBAL_tot_agc_recovered += GLOBAL_agc_collected;
   if (gc_verbose) {
 #ifdef _WIN32
-    fprintf(Yap_stderr, "%%   Collected %I64d bytes.\n", agc_collected);
+    fprintf(GLOBAL_stderr, "%%   Collected %I64d bytes.\n", GLOBAL_agc_collected);
 #else
-    fprintf(Yap_stderr, "%%   Collected %lld bytes.\n", agc_collected);
+    fprintf(GLOBAL_stderr, "%%   Collected %lld bytes.\n", GLOBAL_agc_collected);
 #endif
-    fprintf(Yap_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", agc_calls, (double)agc_time/1000, (double)tot_agc_time/1000);
+    fprintf(GLOBAL_stderr, "%%   GC %d took %g sec, total of %g sec doing GC so far.\n", GLOBAL_agc_calls, (double)agc_time/1000, (double)GLOBAL_tot_agc_time/1000);
   }
 }
 
@@ -494,9 +486,9 @@ p_atom_gc(USES_REGS1)
 static Int
 p_inform_agc(USES_REGS1)
 {
-  Term tn = MkIntegerTerm(tot_agc_time);
-  Term tt = MkIntegerTerm(agc_calls);
-  Term ts = MkIntegerTerm(tot_agc_recovered);
+  Term tn = MkIntegerTerm(GLOBAL_tot_agc_time);
+  Term tt = MkIntegerTerm(GLOBAL_agc_calls);
+  Term ts = MkIntegerTerm(GLOBAL_tot_agc_recovered);
 
   return
     Yap_unify(tn, ARG2) &&

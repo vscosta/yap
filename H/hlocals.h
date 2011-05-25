@@ -150,4 +150,36 @@ typedef struct worker_local {
   sigjmp_buf  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX];
   char  FileNameBuf2_[YAP_FILENAME_MAX];
+
+  Int  PrologMode_;
+  int  CritLocks_;
+
+
+#ifdef ANALYST
+  YAP_ULONG_LONG  opcount_[_std_top+1];
+  YAP_ULONG_LONG  2opcount[_std_top+1][_std_top+1]_;
+#endif /* ANALYST */
+
+  struct db_globs*  s_dbg_;
+
+  yap_error_number  matherror_;
+
+  int  heap_overflows_;
+  Int  total_heap_overflow_time_;
+  int  stack_overflows_;
+  Int  total_stack_overflow_time_;
+  int  delay_overflows_;
+  Int  total_delay_overflow_time_;
+  int  trail_overflows_;
+  Int  total_trail_overflow_time_;
+  int  atom_table_overflows_;
+  Int  total_atom_table_overflow_time_;
+
+#ifdef LOAD_DYLD
+  static  dl_errno_;
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+  int  do_trace_primitives_;
+#endif
 } w_local;

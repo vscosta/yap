@@ -65,8 +65,6 @@
 #endif
 
 #define YP_FILE		FILE
-extern YP_FILE *Yap_stdout;
-extern YP_FILE *Yap_stderr;
 
 int     STD_PROTO(YP_putc,(int, int));
 
@@ -387,11 +385,4 @@ WideHashFunction(wchar_t *CHP)
 #define CONTINUE_ON_PARSER_ERROR  2
 #define EXCEPTION_ON_PARSER_ERROR 3
 
-#ifdef DEBUG
-extern YP_FILE *Yap_logfile;
-#endif
-
-#if USE_SOCKET
-extern int Yap_sockets_io;
-#endif
 
