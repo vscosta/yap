@@ -457,7 +457,7 @@ extern int Yap_page_size;
 ************************************************************************/
 
 #define INFORMATION_MESSAGE(MESSAGE,ARGS...)                            \
-        fprintf(stderr, "[ " MESSAGE " ]\n", ##ARGS)
+        Sfprintf(Serror, "[ " MESSAGE " ]\n", ##ARGS)
 
 #ifdef YAPOR
 #define ERROR_MESSAGE(MESSAGE)                                          \
