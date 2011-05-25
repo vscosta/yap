@@ -7,6 +7,7 @@
 		  clpbn_key/2,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
+		  clpbn_finalize_solver/1,
 		  clpbn_init_solver/5,
 		  clpbn_run_solver/4,
 		  clpbn_init_graph/1,
@@ -28,12 +29,21 @@
 :- attribute key/1, dist/2, evidence/1, starter/0.
 
 
-:- use_module('clpbn/vel',
-	      [vel/3,
-	       check_if_vel_done/1,
-	       init_vel_solver/4,
-	       run_vel_solver/3
+:- use_module('clpbn/ve',
+	      [ve/3,
+	       check_if_ve_done/1,
+	       init_ve_solver/4,
+	       run_ve_solver/3
 	      ]).
+
+:- use_module('clpbn/bp',
+	      [bp/3,
+               check_if_bp_done/1,
+	       init_bp_solver/4,
+	       run_bp_solver/3,
+	       finalize_bp_solver/1
+	      ]).
+
 
 :- use_module('clpbn/jt',
 	      [jt/3,
@@ -51,6 +61,14 @@
 	       check_if_gibbs_done/1,
 	       init_gibbs_solver/4,
 	       run_gibbs_solver/3
+	      ]).
+
+:- use_module('clpbn/bp',
+	      [bp/3,
+	       check_if_bp_done/1,
+	       init_bp_solver/4,
+	       run_bp_solver/3,
+	       finalize_bp_solver/1
 	      ]).
 
 :- use_module('clpbn/pgrammar',
@@ -92,8 +110,8 @@
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
 
-solver(vel).
-em_solver(vel).
+solver(ve).
+em_solver(ve).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -142,6 +160,18 @@ clpbn_flag(parameter_softening,Before,After) :-
 %	,writeln({Var = Key with Dist})
 .
 
+%
+% make sure a query variable is reachable by the garbage collector.
+%
+store_var(El) :- 
+	catch(b_getval(clpbn_qvars,Q.Tail), _, init_clpbn_vars(El, Q, Tail)),
+	Tail = [El|NewTail],
+	b_setval(clpbn_qvars, [Q|NewTail]).
+	
+init_clpbn_vars(El, Q, Tail) :-
+	Q = [El|Tail],
+	b_setval(clpbn_qvars, [Q|Tail]).
+
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
 check_constraint((([A|B].L)->D), Vars, NVars, (([A|B].NL)->D)) :- !,
@@ -162,8 +192,10 @@ add_evidence(V,Key,Distinfo,NV) :-
 	nonvar(V), !,
 	get_evidence_position(V, Distinfo, Pos),
 	check_stored_evidence(Key, Pos),
+	store_var(NV),
 	clpbn:put_atts(NV,evidence(Pos)).
 add_evidence(V,K,_,V) :-
+	store_var(V),
 	add_evidence(K,V).
 
 clpbn_marginalise(V, Dist) :-
@@ -183,7 +215,7 @@ project_attributes(GVars, AVars) :-
 	clpbn_vars(AVars, DiffVars, AllVars),
 	get_clpbn_vars(GVars,CLPBNGVars0),
 	simplify_query_vars(CLPBNGVars0, CLPBNGVars),
-	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,vel,AllVars) ; true),
+	(output(xbif(XBifStream)) -> clpbn2xbif(XBifStream,ve,AllVars) ; true),
 	(output(gviz(XBifStream)) -> clpbn2gviz(XBifStream,sort,AllVars,GVars) ; true),
 	(
 	    Solver = graphs
@@ -225,10 +257,12 @@ get_rid_of_ev_vars([V|LVs0],[V|LVs]) :-
 % do nothing if we don't have query variables to compute.
 write_out(graphs, _, AVars, _) :-
 	clpbn2graph(AVars).
-write_out(vel, GVars, AVars, DiffVars) :-
-	vel(GVars, AVars, DiffVars).
+write_out(ve, GVars, AVars, DiffVars) :-
+	ve(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
+write_out(bp, GVars, AVars, DiffVars) :-
+	bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
@@ -315,11 +349,14 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bnt),
 	check_if_bnt_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
-	use(vel),
-	check_if_vel_done(Var), !.
+	use(ve),
+	check_if_ve_done(Var), !.
+bind_clpbn(_, Var, _, _, _, _, []) :-
+	use(bp),
+	check_if_bp_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
-	check_if_vel_done(Var), !.
+	check_if_ve_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	get_atts(Var, [key(Key)]), !,
 	(
@@ -379,17 +416,20 @@ clpbn_key(Var,Key) :-
 % values at the end of the day.
 %
 clpbn_init_solver(LVs, Vs0, VarsWithUnboundKeys, State) :-
-       	solver(Solver),
+	solver(Solver),
 	clpbn_init_solver(Solver, LVs, Vs0, VarsWithUnboundKeys, State).
 
 clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_gibbs_solver(LVs, Vs0, VarsWithUnboundKeys, State).
-clpbn_init_solver(vel, LVs, Vs0, VarsWithUnboundKeys, State) :-
-	init_vel_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+
 
 %
 % LVs is the list of lists of variables to marginalise
@@ -398,15 +438,21 @@ clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 % 
 %
 clpbn_run_solver(LVs, LPs, State) :-
-       	solver(Solver),
+	solver(Solver),
 	clpbn_run_solver(Solver, LVs, LPs, State).
 
 clpbn_run_solver(gibbs, LVs, LPs, State) :-
 	run_gibbs_solver(LVs, LPs, State).
-clpbn_run_solver(vel, LVs, LPs, State) :-
-	run_vel_solver(LVs, LPs, State).
+
+clpbn_run_solver(ve, LVs, LPs, State) :-
+	run_ve_solver(LVs, LPs, State).
+
+clpbn_run_solver(bp, LVs, LPs, State) :-
+	run_bp_solver(LVs, LPs, State).
+
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
+
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
 
@@ -415,3 +461,10 @@ add_keys(Key1+V1,_Key2,Key1+V1).
 clpbn_init_graph(pcg) :- !,
 	pcg_init_graph.
 clpbn_init_graph(_).
+
+clpbn_finalize_solver(State) :-
+	solver(bp), !,
+	functor(State, _, Last),
+	arg(Last, State, Info),
+	finalize_bp_solver(Info).
+clpbn_finalize_solver(_State).

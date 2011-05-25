@@ -11,6 +11,7 @@
 	      [clpbn_init_graph/1,
 	       clpbn_init_solver/5,
 	       clpbn_run_solver/4,
+	       clpbn_finalize_solver/1,
 	       clpbn_flag/2]).
 
 :- use_module(library('clpbn/dists'),
@@ -53,6 +54,7 @@
 em(Items, MaxError, MaxIts, Tables, Likelihood) :-
 	catch(init_em(Items, State),Error,handle_em(Error)),
 	em_loop(0, 0.0, State, MaxError, MaxIts, Likelihood, Tables),
+	clpbn_finalize_solver(State),
 	assert(em_found(Tables, Likelihood)),
 	fail.
 % get rid of new random variables the easy way :)
@@ -90,7 +92,7 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-	writeln(Likelihood:Its:Likelihood0:Tables),
+%	writeln(Likelihood:Its:Likelihood0:Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
@@ -205,7 +207,7 @@ compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, 
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
 	soften_sample(Table0, SoftenedTable),
-	matrix:matrix_sum(Table0,TotM),
+%	matrix:matrix_sum(Table0,TotM),
 	normalise_counts(SoftenedTable, NewTable),
 	compute_likelihood(Table0, NewTable, DeltaLik),
 	dist_new_table(Id, NewTable),

@@ -334,6 +334,7 @@
 #include "clause.h"
 #include "yapio.h"
 #include "attvar.h"
+#include "SWI-Stream.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -458,6 +459,7 @@ X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
 X_API void    STD_PROTO(YAP_PruneGoal,(void));
+X_API IOSTREAM   *STD_PROTO(YAP_TermToStream,(Term));
 X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
@@ -2486,6 +2488,22 @@ YAP_InitConsult(int mode, char *filename)
   st = Sopen_file(filename, "r");
   RECOVER_MACHINE_REGS();
   return st;
+}
+
+X_API IOSTREAM *
+YAP_TermToStream(Term t)
+{
+  CACHE_REGS
+  IOSTREAM *s;
+  int rc;
+  BACKUP_MACHINE_REGS();
+
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
+    RECOVER_MACHINE_REGS();
+    return s;
+  }
+  RECOVER_MACHINE_REGS();
+  return NULL;
 }
 
 X_API void

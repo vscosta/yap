@@ -1,24 +1,40 @@
-#ifndef DISTRIBUTION_H
-#define DISTRIBUTION_H
+#ifndef BP_DISTRIBUTION_H
+#define BP_DISTRIBUTION_H
 
 #include <vector>
 #include <string>
 
+#include "Shared.h"
+
 using namespace std;
 
-class CptEntry;
-
-class Distribution
+struct Distribution
 {
   public:
-    Distribution (int, double*, int, vector<string>);
-    Distribution (double*, int, vector<string>);
-    int                      id;
-    double*                  params;
-    int                      nParams;
-    vector<string>           domain;
-    int*                     offsets;
+    Distribution (unsigned id)
+    {
+      this->id     = id;
+      this->params = params;
+    }
+
+    Distribution (const ParamSet& params)
+    {
+      this->id     = -1;
+      this->params = params;
+    }
+
+    void updateParameters (const ParamSet& params)
+    {
+      this->params = params;
+    }
+
+    unsigned          id;
+    ParamSet          params;
+    vector<CptEntry>  entries;
+
+  private:
+    DISALLOW_COPY_AND_ASSIGN (Distribution);
 };
 
-#endif // DISTRIBUTION
+#endif
 
