@@ -52,7 +52,6 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #endif
 
 struct buffer_ds buffer; 
-extern char *Yap_ErrorMessage;
 
 /*********************************************************************************************/
 // prototypes
@@ -229,10 +228,10 @@ string2term(char *const ptr,const size_t *size) {
     b.ptr=NULL;
   }
   BUFFER_POS=0;
-  Yap_ErrorMessage=NULL;
+  LOCAL_ErrorMessage=NULL;
   t = YAP_Read(p2c_getc);
   if ( t==FALSE ) {
-    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),Yap_ErrorMessage);
+    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),LOCAL_ErrorMessage);
     exit(1);
   }
 

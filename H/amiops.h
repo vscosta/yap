@@ -15,6 +15,7 @@
 *               dereferencing, binding, trailing, and unification.       *
 *									 *
 *************************************************************************/
+
 #ifdef SCCS
 static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
@@ -276,7 +277,7 @@ Binding Macros for Multiple Assignment Variables.
 #define TRAIL_CLREF(REF)       TrailTerm(TR++) = CLREF_TO_TRENTRY(REF)
 #define TRAIL_LINK(REF)        TrailTerm(TR++) = AbsPair((CELL *)(REF))
 #endif
-#define TRAIL_FRAME(FR)        DO_TRAIL(AbsPair((CELL *)(Yap_TrailBase)), FR)
+#define TRAIL_FRAME(FR)        DO_TRAIL(AbsPair((CELL *)(LOCAL_TrailBase)), FR)
 
 extern void	Yap_WakeUp(CELL *v);
 

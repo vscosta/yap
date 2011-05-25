@@ -212,17 +212,17 @@ thread_run(void *widp)
   do {
     t = tgs[0] = Yap_PopTermFromDB(LOCAL_ThreadHandle.tgoal);
     if (t == 0) {
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return NULL;
 	}
@@ -405,7 +405,7 @@ Yap_thread_create_engine(thread_attr *ops)
     ops->sysize = 0;
     ops->egoal = t;
   }
-  if (pthread_self() != Yap_master_thread) {
+  if (pthread_self() != GLOBAL_master_thread) {
     /* we are worker_id 0 for now, lock master thread so that no one messes with us */ 
     pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
     pthread_mutex_lock(&(REMOTE_ThreadHandle(0).tlock));
@@ -416,7 +416,7 @@ Yap_thread_create_engine(thread_attr *ops)
   REMOTE_ThreadHandle(new_id).id = new_id;
   REMOTE_ThreadHandle(new_id).ref_count = 0;
   setup_engine(new_id, FALSE);
-  if (pthread_self() != Yap_master_thread) {
+  if (pthread_self() != GLOBAL_master_thread) {
     pthread_setspecific(Yap_yaamregs_key, NULL);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(0).tlock));
   }
@@ -773,17 +773,17 @@ p_thread_atexit( USES_REGS1 )
     t = Yap_PopTermFromDB(LOCAL_ThreadHandle.texit);
     LOCAL_ThreadHandle.texit = NULL;
     if (t == 0) {
-      if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+      if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(LOCAL_ThreadHandle.tgoal->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  thread_die(worker_id, FALSE);
 	  return FALSE;
 	}

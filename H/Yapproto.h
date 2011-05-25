@@ -132,9 +132,6 @@ Term	STD_PROTO(Yap_all_calls,(void));
 Atom	STD_PROTO(Yap_ConsultingFile,(void));
 struct pred_entry *STD_PROTO(Yap_PredForChoicePt,(choiceptr));
 void	STD_PROTO(Yap_InitCdMgr,(void));
-#ifdef  EMACS
-int     STD_PROTO(where_new_clause, (Prop, int));
-#endif
 void	STD_PROTO(Yap_init_consult,(int, char *));
 void	STD_PROTO(Yap_end_consult,(void));
 void	STD_PROTO(Yap_Abolish,(struct pred_entry *));
@@ -239,6 +236,9 @@ void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, C
 #endif
 void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,UInt,int,int,int));
 
+#ifdef YAPOR
+void    STD_PROTO(init_yapor_workers, (void));
+#endif /* YAPOR */
 #if defined(YAPOR) || defined(THREADS)
 void	STD_PROTO(Yap_KillStacks,(int));
 #else
@@ -328,6 +328,7 @@ void	STD_PROTO(Yap_undo_signal,(yap_signals));
 int	STD_PROTO(Yap_IsOpMaxPrio,(Atom));
 
 /* sysbits.c */
+void    STD_PROTO(Yap_InitPageSize, (void));
 void	STD_PROTO(Yap_set_fpu_exceptions,(int));
 UInt	STD_PROTO(Yap_cputime,(void));
 Int	STD_PROTO(Yap_walltime,(void));

@@ -227,3 +227,93 @@
 #define REMOTE_SignalLock(wid) REMOTE(wid)->SignalLock_
 #endif
 
+#define LOCAL_LocalBase LOCAL->LocalBase_
+#define REMOTE_LocalBase(wid) REMOTE(wid)->LocalBase_
+#define LOCAL_GlobalBase LOCAL->GlobalBase_
+#define REMOTE_GlobalBase(wid) REMOTE(wid)->GlobalBase_
+#define LOCAL_TrailBase LOCAL->TrailBase_
+#define REMOTE_TrailBase(wid) REMOTE(wid)->TrailBase_
+#define LOCAL_TrailTop LOCAL->TrailTop_
+#define REMOTE_TrailTop(wid) REMOTE(wid)->TrailTop_
+#define LOCAL_ErrorMessage LOCAL->ErrorMessage_
+#define REMOTE_ErrorMessage(wid) REMOTE(wid)->ErrorMessage_
+#define LOCAL_Error_Term LOCAL->Error_Term_
+#define REMOTE_Error_Term(wid) REMOTE(wid)->Error_Term_
+#ifdef THREADS
+#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
+#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
+#else
+#define LOCAL_Error_TYPE LOCAL->Error_TYPE_
+#define REMOTE_Error_TYPE(wid) REMOTE(wid)->Error_TYPE_
+#endif	
+#define LOCAL_Error_Size LOCAL->Error_Size_
+#define REMOTE_Error_Size(wid) REMOTE(wid)->Error_Size_
+#define LOCAL_ErrorSay LOCAL->ErrorSay_
+#define REMOTE_ErrorSay(wid) REMOTE(wid)->ErrorSay_
+#define LOCAL_IOBotch LOCAL->IOBotch_
+#define REMOTE_IOBotch(wid) REMOTE(wid)->IOBotch_
+#define LOCAL_tokptr LOCAL->tokptr_
+#define REMOTE_tokptr(wid) REMOTE(wid)->tokptr_
+#define LOCAL_toktide LOCAL->toktide_
+#define REMOTE_toktide(wid) REMOTE(wid)->toktide_
+#define LOCAL_VarTable LOCAL->VarTable_
+#define REMOTE_VarTable(wid) REMOTE(wid)->VarTable_
+#define LOCAL_AnonVarTable LOCAL->AnonVarTable_
+#define REMOTE_AnonVarTable(wid) REMOTE(wid)->AnonVarTable_
+#define LOCAL_RestartEnv LOCAL->RestartEnv_
+#define REMOTE_RestartEnv(wid) REMOTE(wid)->RestartEnv_
+#define LOCAL_FileNameBuf LOCAL->FileNameBuf_
+#define REMOTE_FileNameBuf(wid) REMOTE(wid)->FileNameBuf_
+#define LOCAL_FileNameBuf2 LOCAL->FileNameBuf2_
+#define REMOTE_FileNameBuf2(wid) REMOTE(wid)->FileNameBuf2_
+
+#define LOCAL_PrologMode LOCAL->PrologMode_
+#define REMOTE_PrologMode(wid) REMOTE(wid)->PrologMode_
+#define LOCAL_CritLocks LOCAL->CritLocks_
+#define REMOTE_CritLocks(wid) REMOTE(wid)->CritLocks_
+
+
+#ifdef ANALYST
+#define LOCAL_opcount LOCAL->opcount_
+#define REMOTE_opcount(wid) REMOTE(wid)->opcount_
+#define LOCAL_2opcount LOCAL->2opcount_
+#define REMOTE_2opcount(wid) REMOTE(wid)->2opcount_
+#endif /* ANALYST */
+
+#define LOCAL_s_dbg LOCAL->s_dbg_
+#define REMOTE_s_dbg(wid) REMOTE(wid)->s_dbg_
+
+#define LOCAL_matherror LOCAL->matherror_
+#define REMOTE_matherror(wid) REMOTE(wid)->matherror_
+
+#define LOCAL_heap_overflows LOCAL->heap_overflows_
+#define REMOTE_heap_overflows(wid) REMOTE(wid)->heap_overflows_
+#define LOCAL_total_heap_overflow_time LOCAL->total_heap_overflow_time_
+#define REMOTE_total_heap_overflow_time(wid) REMOTE(wid)->total_heap_overflow_time_
+#define LOCAL_stack_overflows LOCAL->stack_overflows_
+#define REMOTE_stack_overflows(wid) REMOTE(wid)->stack_overflows_
+#define LOCAL_total_stack_overflow_time LOCAL->total_stack_overflow_time_
+#define REMOTE_total_stack_overflow_time(wid) REMOTE(wid)->total_stack_overflow_time_
+#define LOCAL_delay_overflows LOCAL->delay_overflows_
+#define REMOTE_delay_overflows(wid) REMOTE(wid)->delay_overflows_
+#define LOCAL_total_delay_overflow_time LOCAL->total_delay_overflow_time_
+#define REMOTE_total_delay_overflow_time(wid) REMOTE(wid)->total_delay_overflow_time_
+#define LOCAL_trail_overflows LOCAL->trail_overflows_
+#define REMOTE_trail_overflows(wid) REMOTE(wid)->trail_overflows_
+#define LOCAL_total_trail_overflow_time LOCAL->total_trail_overflow_time_
+#define REMOTE_total_trail_overflow_time(wid) REMOTE(wid)->total_trail_overflow_time_
+#define LOCAL_atom_table_overflows LOCAL->atom_table_overflows_
+#define REMOTE_atom_table_overflows(wid) REMOTE(wid)->atom_table_overflows_
+#define LOCAL_total_atom_table_overflow_time LOCAL->total_atom_table_overflow_time_
+#define REMOTE_total_atom_table_overflow_time(wid) REMOTE(wid)->total_atom_table_overflow_time_
+
+#ifdef LOAD_DYLD
+#define LOCAL_dl_errno LOCAL->dl_errno_
+#define REMOTE_dl_errno(wid) REMOTE(wid)->dl_errno_
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+#define LOCAL_do_trace_primitives LOCAL->do_trace_primitives_
+#define REMOTE_do_trace_primitives(wid) REMOTE(wid)->do_trace_primitives_
+#endif
+

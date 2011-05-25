@@ -128,4 +128,58 @@ static void RestoreWorker(int wid USES_REGS) {
 #if defined(YAPOR) || defined(THREADS)
   REINIT_LOCK(REMOTE_SignalLock(wid));
 #endif
+
+
+
+
+
+
+
+#ifdef THREADS
+
+#else
+
+#endif	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef ANALYST
+
+
+#endif /* ANALYST */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifdef LOAD_DYLD
+
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+
+#endif
 }

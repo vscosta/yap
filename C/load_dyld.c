@@ -28,13 +28,13 @@
 */
 #import <mach-o/dyld.h>
 
-static int dl_errno;
+
 
 static char *
 mydlerror(void)
 {
   char *errString;
-  switch(dl_errno) {
+  switch(LOCAL_dl_errno) {
   default:
   case NSObjectFileImageFailure:
   case NSObjectFileImageFormat:
@@ -76,7 +76,7 @@ mydlopen(char *path)
     NSModule handle = NULL;
     dyld_result = NSCreateObjectFileImageFromFile(path, &ofile);
     if (dyld_result != NSObjectFileImageSuccess) {
-      dl_errno = dyld_result;
+      LOCAL_dl_errno = dyld_result;
     } else {
       /* NSLinkModule will cause the run to abort on any link error's */
       /* not very friendly but the error recovery functionality is limited */
@@ -145,14 +145,14 @@ LoadForeign(StringList ofiles, StringList libs,
     void *handle;
 
     /* mydlopen wants to follow the LD_CONFIG_PATH */
-    if (!Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE)) {
-      strcpy(Yap_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
+    if (!Yap_TrueFileName(AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE)) {
+      strcpy(LOCAL_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
-    if((handle=mydlopen(Yap_FileNameBuf)) == 0)
+    if((handle=mydlopen(LOCAL_FileNameBuf)) == 0)
     {
       fprintf(stderr,"calling dlopen with error %s\n", mydlerror());
-/*      strcpy(Yap_ErrorSay,dlerror());*/
+/*      strcpy(LOCAL_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -166,16 +166,16 @@ LoadForeign(StringList ofiles, StringList libs,
     char *s = AtomName(lib->name);
     
     if (ls[0] == '-') {
-      strcpy(Yap_FileNameBuf,"lib");
-      strcat(Yap_FileNameBuf,s+2);
-      strcat(Yap_FileNameBuf,".so");
+      strcpy(LOCAL_FileNameBuf,"lib");
+      strcat(LOCAL_FileNameBuf,s+2);
+      strcat(LOCAL_FileNameBuf,".so");
     } else {
-      strcpy(Yap_FileNameBuf,s);
+      strcpy(LOCAL_FileNameBuf,s);
     }
 
-    if((libs->handle=mydlopen(Yap_FileNameBuf)) == NULL)
+    if((libs->handle=mydlopen(LOCAL_FileNameBuf)) == NULL)
     {
-      strcpy(Yap_ErrorSay,mydlerror());
+      strcpy(LOCAL_ErrorSay,mydlerror());
       return LOAD_FAILLED;
     }
     libs = libs->next;
@@ -184,7 +184,7 @@ LoadForeign(StringList ofiles, StringList libs,
   *init_proc = (YapInitProc) mydlsym(proc_name);
 
   if(! *init_proc) {
-    strcpy(Yap_ErrorSay,"Could not locate initialization routine");
+    strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 

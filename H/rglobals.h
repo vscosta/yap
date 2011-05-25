@@ -44,7 +44,7 @@ static void RestoreGlobal(void) {
 
 
   REINIT_LOCK(GLOBAL_ThreadHandlesLock);
-#endif
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
   REINIT_LOCK(GLOBAL_BGL);
@@ -52,4 +52,59 @@ static void RestoreGlobal(void) {
 #if defined(YAPOR) || defined(TABLING)
 
 #endif /* YAPOR || TABLING */
+
+
+
+#if defined(THREADS)
+
+#endif /* THREADS */
+
+
+
+
+
+
+
+#ifdef COROUTINING
+
+
+#endif
+
+
+
+
+
+
+
+
+#if HAVE_MMAP
+
+#endif
+#ifdef DEBUG
+
+
+
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+#if defined(COFF)  || defined(A_OUT)
+
+
+#endif
+#if  __simplescalar__
+
+#endif
+
+
 }

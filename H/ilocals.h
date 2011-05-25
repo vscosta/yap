@@ -128,4 +128,58 @@ static void InitWorker(int wid) {
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(REMOTE_SignalLock(wid));
 #endif
+
+  REMOTE_LocalBase(wid) = REMOTE_LocalBase(0);
+  REMOTE_GlobalBase(wid) = REMOTE_GlobalBase(0);
+  REMOTE_TrailBase(wid) = REMOTE_TrailBase(0);
+  REMOTE_TrailTop(wid) = REMOTE_TrailTop(0);
+  REMOTE_ErrorMessage(wid) = REMOTE_ErrorMessage(0);
+  REMOTE_Error_Term(wid) = REMOTE_Error_Term(0);
+#ifdef THREADS
+  REMOTE_Error_TYPE(wid) = REMOTE_Error_TYPE(0);
+#else
+  REMOTE_Error_TYPE(wid) = REMOTE_Error_TYPE(0);
+#endif	
+  REMOTE_Error_Size(wid) = REMOTE_Error_Size(0);
+
+
+  REMOTE_tokptr(wid) = REMOTE_tokptr(0);
+  REMOTE_toktide(wid) = REMOTE_toktide(0);
+  REMOTE_VarTable(wid) = REMOTE_VarTable(0);
+  REMOTE_AnonVarTable(wid) = REMOTE_AnonVarTable(0);
+
+
+
+
+  REMOTE_PrologMode(wid) = BootMode;
+  REMOTE_CritLocks(wid) = 0;
+
+
+#ifdef ANALYST
+
+
+#endif /* ANALYST */
+
+
+
+  REMOTE_matherror(wid) = YAP_NO_ERROR;
+
+  REMOTE_heap_overflows(wid) = 0;
+  REMOTE_total_heap_overflow_time(wid) = 0;
+  REMOTE_stack_overflows(wid) = 0;
+  REMOTE_total_stack_overflow_time(wid) = 0;
+  REMOTE_delay_overflows(wid) = 0;
+  REMOTE_total_delay_overflow_time(wid) = 0;
+  REMOTE_trail_overflows(wid) = 0;
+  REMOTE_total_trail_overflow_time(wid) = 0;
+  REMOTE_atom_table_overflows(wid) = 0;
+  REMOTE_total_atom_table_overflow_time(wid) = 0;
+
+#ifdef LOAD_DYLD
+  REMOTE_dl_errno(wid) = 0;
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+  REMOTE_do_trace_primitives(wid) = TRUE;
+#endif
 }

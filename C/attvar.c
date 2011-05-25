@@ -205,7 +205,7 @@ BuildAttTerm(Functor mfun, UInt ar USES_REGS)
   UInt i;
 
   if (H+(1024+ar) > ASP) {
-    Yap_Error_Size=ar*sizeof(CELL);
+    LOCAL_Error_Size=ar*sizeof(CELL);
     return 0L;
   }
   H[0] = (CELL)mfun;
@@ -433,9 +433,9 @@ p_put_att( USES_REGS1 ) {
       attv = RepAttVar(VarOfTerm(inp));
     } else {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
-	Yap_Error_Size = sizeof(attvar_record);
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	LOCAL_Error_Size = sizeof(attvar_record);
+	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -445,8 +445,8 @@ p_put_att( USES_REGS1 ) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun,ar PASS_REGS))) {
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
       }
@@ -474,9 +474,9 @@ p_put_att_term( USES_REGS1 ) {
       MaBind(&(attv->Atts), Deref(ARG2));
     } else {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
-	Yap_Error_Size = sizeof(attvar_record);
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	LOCAL_Error_Size = sizeof(attvar_record);
+	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -508,9 +508,9 @@ p_rm_att( USES_REGS1 ) {
       attv = RepAttVar(VarOfTerm(inp));
     } else {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
-	Yap_Error_Size = sizeof(attvar_record);
-	if (!Yap_gcl(Yap_Error_Size, 5, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	LOCAL_Error_Size = sizeof(attvar_record);
+	if (!Yap_gcl(LOCAL_Error_Size, 5, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	inp = Deref(ARG1);
@@ -521,8 +521,8 @@ p_rm_att( USES_REGS1 ) {
     mfun= Yap_MkFunctor(modname,ar);
     if (IsVarTerm(tatts = SearchAttsForModule(attv->Atts,mfun))) {
       while (!(tatts = BuildAttTerm(mfun, ar PASS_REGS))) {
-	if (!Yap_gcl(Yap_Error_Size, 4, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	if (!Yap_gcl(LOCAL_Error_Size, 4, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
       }
@@ -555,9 +555,9 @@ p_put_atts( USES_REGS1 ) {
       attv = RepAttVar(VarOfTerm(inp));
     } else {
       while (!(attv = BuildNewAttVar( PASS_REGS1 ))) {
-	Yap_Error_Size = sizeof(attvar_record);
-	if (!Yap_gcl(Yap_Error_Size, 2, ENV, gc_P(P,CP))) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	LOCAL_Error_Size = sizeof(attvar_record);
+	if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}    
 	tatts = Deref(ARG2);
@@ -902,7 +902,7 @@ AllAttVars( USES_REGS1 ) {
     case (CELL)FunctorAttVar:
       if (IsUnboundVar(pt+1)) {
 	if (ASP - myH < 1024) {
-	  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+	  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
 	  return 0L;
 	}
 	if (myH != H) {
@@ -952,8 +952,8 @@ p_all_attvars( USES_REGS1 )
     Term out;
 
     if (!(out = AllAttVars( PASS_REGS1 ))) {
-      if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }    
     } else {
@@ -1044,11 +1044,11 @@ void Yap_InitAttVarPreds(void)
   Term OldCurrentModule = CurrentModule;
   CurrentModule = ATTRIBUTES_MODULE;
 #ifdef COROUTINING
-  attas[attvars_ext].bind_op = WakeAttVar;
-  attas[attvars_ext].copy_term_op = CopyAttVar;
-  attas[attvars_ext].to_term_op = AttVarToTerm;
-  attas[attvars_ext].term_to_op = TermToAttVar;
-  attas[attvars_ext].mark_op = mark_attvar;
+  GLOBAL_attas[attvars_ext].bind_op = WakeAttVar;
+  GLOBAL_attas[attvars_ext].copy_term_op = CopyAttVar;
+  GLOBAL_attas[attvars_ext].to_term_op = AttVarToTerm;
+  GLOBAL_attas[attvars_ext].term_to_op = TermToAttVar;
+  GLOBAL_attas[attvars_ext].mark_op = mark_attvar;
   Yap_InitCPred("get_att", 4, p_get_att, SafePredFlag);
   Yap_InitCPred("get_module_atts", 2, p_get_atts, SafePredFlag);
   Yap_InitCPred("has_module_atts", 2, p_has_atts, SafePredFlag);

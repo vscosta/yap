@@ -75,12 +75,7 @@ STATIC_PROTO (void ShowOp, (char *, struct PSEUDO *));
  * afterwards 
  */
 
-#ifdef DEBUG
 
-char            Yap_Option[20];
-
-YP_FILE *Yap_logfile;
-#endif
 
 typedef struct mem_blk {
   union {
@@ -121,7 +116,7 @@ AllocCMem (UInt size, struct intermediates *cip)
 	  blksz = FIRST_CMEM_BLK_SIZE;
 	p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
 	if (!p) {
-	  Yap_Error_Size = size;
+	  LOCAL_Error_Size = size;
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
 	}
@@ -132,7 +127,7 @@ AllocCMem (UInt size, struct intermediates *cip)
       p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
       if (!p) {
 	CACHE_REGS
-	Yap_Error_Size = size;
+	LOCAL_Error_Size = size;
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
@@ -153,7 +148,7 @@ AllocCMem (UInt size, struct intermediates *cip)
   cip->freep += size;
   if (ASP <= CellPtr (cip->freep) + 256) {
     CACHE_REGS
-    Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
+    LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   }

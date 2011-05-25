@@ -161,8 +161,6 @@ Functor     STD_PROTO(EvalArg,(Term));
 #define FL(X)		((double)(X))
 #endif
 
-extern yap_error_number Yap_matherror;
-
 void	STD_PROTO(Yap_InitConstExps,(void));
 void	STD_PROTO(Yap_InitUnaryExps,(void));
 void	STD_PROTO(Yap_InitBinaryExps,(void));
@@ -190,8 +188,8 @@ inline static Term
 Yap_FoundArithError(Term t, Term inp)
 { 
   CACHE_REGS
-  if (Yap_Error_TYPE) {
-    Yap_Error(Yap_Error_TYPE, (inp ? inp : Yap_Error_Term), Yap_ErrorMessage);
+  if (LOCAL_Error_TYPE) {
+    Yap_Error(LOCAL_Error_TYPE, (inp ? inp : LOCAL_Error_Term), LOCAL_ErrorMessage);
     P = FAILCODE;
     return 0L;
   }

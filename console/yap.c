@@ -259,48 +259,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 	    if (!strcmp("dump-runtime-variables",p))
 		return dump_runtime_variables();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA || YAPOR_THREADS */
-#ifdef USE_SOCKET
-          case 'c':          /* running as client */
-	    {
-	      char *host, *p1;
-	      long port;
-	      char *ptr;
-
-	      host = *++argv;
-	      argc--;
-	      if (host == NULL || host[0] == '-')
-		YAP_Error(0,0L,"sockets must receive host to connect to");
-	      p1 = *++argv;
-	      argc--;
-	      if (p1 == NULL || p1[0] == '-')
-		YAP_Error(0,0L,"sockets must receive port to connect to");
-	      port = strtol(p1, &ptr, 10);
-	      if (ptr == NULL || ptr[0] != '\0')
-		YAP_Error(0,0L,"port argument to socket must be a number");
-	      YAP_InitSocks(host,port);
-	    }
-	    break;
-#endif
-#ifdef EMACS
-	  case 'e':
-	    emacs_mode = TRUE;
-	    {
-	      File fd;
-	      strcpy (emacs_tmp, ++p);
-	      if ((fd = fopen (emacs_tmp, "w")) == NIL)
-		fprintf(stderr, "[ Warning: unable to communicate with emacs: failed to open %s ]\n", emacs_tmp);
-	      fclose (fd);
-	      unlink (emacs_tmp);
-	      p = *++argv;
-	      --argc;
-	      strcpy (emacs_tmp2, p);
-	      if ((fd = fopen (emacs_tmp2, "w")) == NIL)
-		fprintf(stderr, "Unable to communicate with emacs: failed to open %s\n", emacs_tmp2);
-	      fclose (fd);
-	      unlink (emacs_tmp2);
-	    }
-	    break;
-#endif /* EMACS */
 	  case 'F':
 	    /* just ignore for now */
 	      argc--;
@@ -348,12 +306,6 @@ parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 		  goto myddas_error_print;
 		break;
 	      }
-#endif
-#ifdef MPWSHELL
-	  case 'm':
-	    if (*++p == 'p' && *++p == 'w' && *++p == '\0')
-	      mpwshell = TRUE;
-	    break;
 #endif
          // execution mode
           case 'J':
