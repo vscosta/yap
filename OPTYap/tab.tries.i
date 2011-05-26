@@ -791,43 +791,43 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 #endif /* MODE_TERMS_LOOP */
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-                   |  VAR_N  |  <-- stack_vars
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |  subs_arity (N+1)
-                   |  VAR_0  |          \|/
-                   -----------           *
-         YENV -->  |         |
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |
-                   |  TERM_1 |           |
-                   ----------|           |
-                   |   NULL  |          \|/
-                   ===========           *
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+                     |  VAR_N  |  <-- stack_vars
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |  subs_arity (N+1)
+                     |  VAR_0  |          \|/
+                     -----------           *
+           YENV -->  |         |
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |
+                     |  TERM_1 |           |
+                     ----------|           |
+                     |   NULL  |          \|/
+                     ===========           *
  LOCAL_TrailTop -->  |         |
-                   -----------
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
@@ -1005,33 +1005,33 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 #endif /* MODE_TERMS_LOOP */
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |  VAR_0  |  <-- stack_vars_base
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |   vars_arity (N+1)
-                   |  VAR_N  |          \|/
-                   -----------           *
-                   |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |
-                   |  TERM_1 |           |
-                   ----------|           |
-                   |   NULL  |          \|/
-                   ===========           *
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |  VAR_0  |  <-- stack_vars_base
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |   vars_arity (N+1)
+                     |  VAR_N  |          \|/
+                     -----------           *
+                     |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |
+                     |  TERM_1 |           |
+                     ----------|           |
+                     |   NULL  |          \|/
+                     ===========           *
  LOCAL_TrailTop -->  |         |
-                   -----------
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
@@ -1219,31 +1219,31 @@ static inline CELL *load_substitution_loop(gt_node_ptr current_node, int *vars_a
 static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |  VAR_0  |  <-- stack_vars_base
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |  vars_arity (N+1)
-                   |  VAR_N  |          \|/
-                   -----------           *
-                   |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
-                   |  TERM_1 |          \|/
-                   ===========           *
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |  VAR_0  |  <-- stack_vars_base
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |  vars_arity (N+1)
+                     |  VAR_N  |          \|/
+                     -----------           *
+                     |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
+                     |  TERM_1 |          \|/
+                     ===========           *
  LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
-                   -----------
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP

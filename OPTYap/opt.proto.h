@@ -11,6 +11,12 @@
 **                                                                     **
 ************************************************************************/
 
+#ifdef TABLING
+#include "SWI-Stream.h"
+#endif /* TABLING */
+
+
+
 /***************************
 **      opt.memory.c      **
 ***************************/
@@ -59,8 +65,8 @@ void free_subgoal_trie(sg_node_ptr, int, int);
 void free_answer_trie(ans_node_ptr, int, int);
 void free_subgoal_hash_chain(sg_hash_ptr);
 void free_answer_hash_chain(ans_hash_ptr);
-void show_table(tab_ent_ptr, int);
-void show_global_trie(int);
+void show_table(tab_ent_ptr, int, IOSTREAM *);
+void show_global_trie(int, IOSTREAM *);
 #endif /* TABLING */
 
 
