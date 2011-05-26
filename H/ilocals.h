@@ -129,24 +129,24 @@ static void InitWorker(int wid) {
   INIT_LOCK(REMOTE_SignalLock(wid));
 #endif
 
-  REMOTE_LocalBase(wid) = REMOTE_LocalBase(0);
-  REMOTE_GlobalBase(wid) = REMOTE_GlobalBase(0);
-  REMOTE_TrailBase(wid) = REMOTE_TrailBase(0);
-  REMOTE_TrailTop(wid) = REMOTE_TrailTop(0);
-  REMOTE_ErrorMessage(wid) = REMOTE_ErrorMessage(0);
-  REMOTE_Error_Term(wid) = REMOTE_Error_Term(0);
+
+
+
+
+
+
 #ifdef THREADS
-  REMOTE_Error_TYPE(wid) = REMOTE_Error_TYPE(0);
+
 #else
-  REMOTE_Error_TYPE(wid) = REMOTE_Error_TYPE(0);
+
 #endif	
-  REMOTE_Error_Size(wid) = REMOTE_Error_Size(0);
 
 
-  REMOTE_tokptr(wid) = REMOTE_tokptr(0);
-  REMOTE_toktide(wid) = REMOTE_toktide(0);
-  REMOTE_VarTable(wid) = REMOTE_VarTable(0);
-  REMOTE_AnonVarTable(wid) = REMOTE_AnonVarTable(0);
+
+
+
+
+
 
 
 

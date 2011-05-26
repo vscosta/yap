@@ -855,9 +855,9 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	    ch = getchr(inp_stream);
 	  }
 	  if (ASP-H < 1024) {
-	    Yap_ErrorMessage = "Stack Overflow";
-	    Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	    Yap_Error_Size = 0L;	            
+	    LOCAL_ErrorMessage = "Stack Overflow";
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	    LOCAL_Error_Size = 0L;	            
 	    if (p)
 	      p->Tok = Ord(kind = eot_tok);
 	    /* serious error now */
@@ -1171,9 +1171,9 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	    ch = getchr(inp_stream);
 	  }
 	  if (ASP-H < 1024) {
-	    Yap_ErrorMessage = "Stack Overflow";
-	    Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	    Yap_Error_Size = 0L;	            
+	    LOCAL_ErrorMessage = "Stack Overflow";
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	    LOCAL_Error_Size = 0L;	            
 	    if (p)
 	      p->Tok = Ord(kind = eot_tok);
 	    /* serious error now */

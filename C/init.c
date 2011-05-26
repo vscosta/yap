@@ -1097,6 +1097,7 @@ void init_yapor_workers(void) {
       worker_id = proc;
       Yap_remap_optyap_memory();
       LOCAL = REMOTE(worker_id);
+      memcpy(REMOTE(worker_id),REMOTE(0),sizeof(struct worker_local));
       InitWorker(worker_id);
       break;
     } else
