@@ -523,7 +523,7 @@ static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
   CACHE_REGS
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
     /* check for global or local variables */
@@ -541,7 +541,7 @@ static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *cell_ptr = RepAppl(ref);
-      if (!Yap_lookup_ma_var(cell_ptr)) {
+      if (!Yap_lookup_ma_var(cell_ptr PASS_REGS)) {
 	/* first time we found the variable, let's put the new value */
 	*cell_ptr = TrailVal(rebind_tr);
       }
@@ -560,7 +560,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
   TABLING_ERROR_CHECKING(restore_variables, unbind_tr < rebind_tr);
   end_tr = rebind_tr;
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (unbind_tr != end_tr) {
     /* unbind loop */
     while (unbind_tr > end_tr) {
@@ -582,7 +582,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 	/* multi-assignment variable */
 	/* so that the upper cell is the old value */ 
 	--unbind_tr;
-	if (!Yap_lookup_ma_var(pt)) {
+	if (!Yap_lookup_ma_var(pt PASS_REGS)) {
 	  pt[0] = TrailVal(unbind_tr);
 	}
 #endif /* MULTI_ASSIGNMENT_VARIABLES */

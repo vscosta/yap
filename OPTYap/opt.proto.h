@@ -11,9 +11,9 @@
 **                                                                     **
 ************************************************************************/
 
-#ifdef TABLING
+#if defined(TABLING) || defined(YAPOR) 
 #include "SWI-Stream.h"
-#endif /* TABLING */
+#endif /* TABLING || YAPOR */
 
 
 

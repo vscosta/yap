@@ -4110,7 +4110,7 @@ Proc E_Modules[]= {/* init_fc,*/ (Proc) 0 };
 
 #ifndef YAPOR
 static
-Int p_yapor_threads(void) {
+Int p_yapor_threads( USES_REGS1 ) {
   return FALSE;
 }
 #endif

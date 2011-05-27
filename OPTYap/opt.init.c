@@ -173,8 +173,9 @@ void Yap_init_local_optyap_data(int wid) {
   INIT_LOCK(REMOTE_lock_signals(wid));
 #endif /* YAPOR_COPY */
   Set_REMOTE_prune_request(wid, NULL);
-#endif /* YAPOR */
   INIT_LOCK(REMOTE_lock(wid));
+#endif /* YAPOR */
+
 #ifdef TABLING
   /* local data related to tabling */
   REMOTE_next_free_ans_node(wid) = NULL;
