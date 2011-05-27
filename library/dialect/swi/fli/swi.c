@@ -9,6 +9,8 @@
 
 */
 
+#define PL_KERNEL 1
+
 //=== includes ===============================================================
 #include	<stdlib.h>
 #include	<string.h>
