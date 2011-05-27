@@ -44,7 +44,7 @@
 :- use_module(library('clpbn/connected'),
 	      [
 	       init_influences/3,
-	       influences/5
+	       influences/4
 	      ]).
 
 :- use_module(library('clpbn/matrix_cpt_utils'),
@@ -87,7 +87,7 @@ init_ve_solver(Qs, Vs0, _, LVis) :-
 
 init_ve_solver_for_questions([], _, _, [], []).
 init_ve_solver_for_questions([Vs|MVs], G, RG, [NVs|MNVs0], [NVs|LVis]) :-
-	influences(Vs, _, NVs0, G, RG),
+	influences(Vs, G, RG, NVs0),
 	sort(NVs0, NVs),
 %clpbn_gviz:clpbn2gviz(user_error, test, NVs, Vs),
 	init_ve_solver_for_questions(MVs, G, RG, MNVs0, LVis).
