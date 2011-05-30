@@ -14,8 +14,10 @@
 #include "config.h"
 #if SIZEOF_INT_P==4
 #define TAG_LOW_BITS_32  /* 'Tags_32LowTag.h' tagging scheme */
+#define SIZE_FLOAT_AS_TERM 2
 #elif SIZEOF_INT_P==8
 #define TAG_64BITS       /* 'Tags_64bits.h' tagging scheme */
+#define SIZE_FLOAT_AS_TERM 1
 #else
 #error Unknown tagging scheme
 #endif /* YAP_SCHEME */
