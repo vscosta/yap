@@ -21,9 +21,13 @@
 #include "YapHeap.h"
 #include "SWI-Prolog.h"
 #ifdef YAPOR
+#if HAVE_STRING_H
+#include <string.h>
+#endif /* HAVE_STRING_H */
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif /* HAVE_SYS_TIME_H */
+#include "yapio.h"
 #include "or.macros.h"
 #endif /* YAPOR */
 #ifdef TABLING

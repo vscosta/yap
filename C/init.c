@@ -1060,7 +1060,7 @@ InitInvisibleAtoms(void)
 
 
 #ifdef YAPOR
-void init_yapor_workers(void) {
+void Yap_init_yapor_workers(void) {
   CACHE_REGS
   int proc;
 #ifdef YAPOR_THREADS
@@ -1071,7 +1071,7 @@ void init_yapor_workers(void) {
     int son;
     son = fork();
     if (son == -1)
-      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_yapor_workers)");
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (Yap_init_yapor_workers)");
     if (son > 0) {
       /* I am the father, I must stay here and wait for my children to all die */
       struct sigaction sigact;
@@ -1091,7 +1091,7 @@ void init_yapor_workers(void) {
     int son;
     son = fork();
     if (son == -1)
-      Yap_Error(FATAL_ERROR, TermNil, "fork error (init_yapor_workers)");
+      Yap_Error(FATAL_ERROR, TermNil, "fork error (Yap_init_yapor_workers)");
     if (son == 0) { 
       /* new worker */
       worker_id = proc;
@@ -1249,8 +1249,6 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
     return;
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
-  //printf(" -> -> %p  \n", &Yap_REGS);
-  //LOCAL = REMOTE(0);
   GLOBAL_master_thread = pthread_self();
 #else
   /* In this case we need to initialise the abstract registers */

@@ -237,7 +237,7 @@ void    STD_PROTO(Yap_InitCPredBack_,(char *, unsigned long int, unsigned int, C
 void	STD_PROTO(Yap_InitWorkspace,(UInt,UInt,UInt,UInt,UInt,int,int,int));
 
 #ifdef YAPOR
-void    STD_PROTO(init_yapor_workers, (void));
+void    STD_PROTO(Yap_init_yapor_workers, (void));
 #endif /* YAPOR */
 #if defined(YAPOR) || defined(THREADS)
 void	STD_PROTO(Yap_KillStacks,(int));

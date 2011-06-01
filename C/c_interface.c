@@ -2727,14 +2727,12 @@ YAP_Init(YAP_init_args *yap_init)
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   static char boot_file[256];
 
-  Yap_InitPageSize();
-  //Yap_InitSysbits();
+  Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
-/* Init signal handling, time and memory page size, required by later functions */
-  Yap_InitSysbits();
+  Yap_InitSysbits();  /* init signal handling and time, required by later functions */
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
 #if !BOOT_FROM_SAVED_STATE
@@ -2850,10 +2848,10 @@ YAP_Init(YAP_init_args *yap_init)
     }
     yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
-  Yap_init_root_frames();
+    Yap_init_root_frames();
 #endif /* YAPOR || TABLING */
 #ifdef YAPOR
-    init_yapor_workers();
+    Yap_init_yapor_workers();
     if (worker_id != 0) {
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
       /*

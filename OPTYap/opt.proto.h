@@ -87,9 +87,9 @@ void resume_suspension_frame(susp_fr_ptr, or_fr_ptr);
 
 
 
-/**************************
+/*******************************
 **      or.copy_engine.c      **
-**************************/
+*******************************/
 
 #ifdef YAPOR
 void make_root_choice_point(void);
