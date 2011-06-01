@@ -491,21 +491,21 @@ Yap_InitMPI(void)
 {
   int i,j;
 
-  mpi_argv = malloc( Yap_argc * sizeof(char *) );
-  mpi_argv[0] = strdup( Yap_argv[0] );
+  mpi_argv = malloc( GLOBAL_argc * sizeof(char *) );
+  mpi_argv[0] = strdup( GLOBAL_argv[0] );
 
   bufsize = RECV_BUF_SIZE;
   buf = malloc(bufsize * sizeof(char));
 
-  for( i=1; i<Yap_argc; ++i ) {
-    if( !strcmp(Yap_argv[i], "--") ) { ++i; break; }
+  for( i=1; i<GLOBAL_argc; ++i ) {
+    if( !strcmp(GLOBAL_argv[i], "--") ) { ++i; break; }
   }
-  for( j=1; i<Yap_argc; ++i, ++j ) {
-    mpi_argv[j] = strdup( Yap_argv[i] );
+  for( j=1; i<GLOBAL_argc; ++i, ++j ) {
+    mpi_argv[j] = strdup( GLOBAL_argv[i] );
   }
   mpi_argc = j;
 
-  mpi_argv[0] = strdup( Yap_argv[0] );
+  mpi_argv[0] = strdup( GLOBAL_argv[0] );
 
   Yap_InitCPred( "mpi_open", 3, p_mpi_open, SafePredFlag|SyncPredFlag );
   Yap_InitCPred( "mpi_close", 0, p_mpi_close, SafePredFlag|SyncPredFlag );

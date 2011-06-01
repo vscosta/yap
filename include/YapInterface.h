@@ -325,6 +325,9 @@ extern X_API int PROTO(YAP_Init,(YAP_init_args *));
 /*  int YAP_FastInit(const char *) */
 extern X_API int PROTO(YAP_FastInit,(CONST char *));
 
+/*  void * YAP_TermToStream(YAP_Term) */
+extern X_API void * PROTO(YAP_TermToStream,(YAP_Term));
+
 /*  void * YAP_InitConsult(int, const char *) */
 extern X_API void * PROTO(YAP_InitConsult,(int, CONST char *));
 

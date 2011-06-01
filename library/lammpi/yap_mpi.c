@@ -75,8 +75,7 @@ typedef struct broadcast_req BroadcastRequest;
  * Auxiliary data
  ********************************************************************/
 static int mpi_status;
-extern char **Yap_argv;
-extern int Yap_argc;
+extern int GLOBAL_argc;
 
 #define HASHSIZE 1777
 static hashtable requests=NULL;
@@ -261,8 +260,8 @@ static int mpi_error(int errcode){
 static int 
 mpi_init(void){
   int thread_level;
-  //  MPI_Init(&Yap_argc, &Yap_argv);
-  MPI_Init_thread(&Yap_argc, &Yap_argv,MPI_THREAD_SINGLE,&thread_level);
+  //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
+  MPI_Init_thread(&GLOBAL_argc, &GLOBAL_argv,MPI_THREAD_SINGLE,&thread_level);
 #ifdef DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
@@ -300,11 +299,11 @@ rcv_msg_thread(char *handle_pred) {
 static int 
 mpi_init_rcv_thread(void){
   int thread_level;
-  //  MPI_Init(&Yap_argc, &Yap_argv);
+  //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
   pthread_t  thread;
   char *arg="handle_msg";
 
-  MPI_Init_thread(&Yap_argc, &Yap_argv,MPI_THREAD_SINGLE,&thread_level);
+  MPI_Init_thread(&GLOBAL_argc, &GLOBAL_argv,MPI_THREAD_SINGLE,&thread_level);
   if(pthread_create(&thread,NULL,(void*)&rcv_msg_thread,arg)) {
     return (FALSE);
   }

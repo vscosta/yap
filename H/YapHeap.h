@@ -52,17 +52,17 @@ typedef struct swi_reverse_hash {
   Int pos;
 } swi_rev_hash;
 
-#define GC_MAVARS_HASH_SIZE 512
-
-typedef struct gc_ma_hash_entry_struct {
-  UInt timestmp;
-#ifdef TABLING
-  tr_fr_ptr loc;
-  struct gc_ma_hash_entry_struct *more;
-#endif
-  CELL* addr;
-  struct gc_ma_hash_entry_struct *next;
-} gc_ma_hash_entry;
+//#define GC_MAVARS_HASH_SIZE 512
+//
+//typedef struct gc_ma_hash_entry_struct {
+//  UInt timestmp;
+//#ifdef TABLING
+//  tr_fr_ptr loc;
+//  struct gc_ma_hash_entry_struct *more;
+//#endif
+//  CELL* addr;
+//  struct gc_ma_hash_entry_struct *next;
+//} gc_ma_hash_entry;
 
 typedef void (*HaltHookFunc)(int, void *);
 
@@ -81,10 +81,10 @@ typedef struct atom_hash_entry {
   Atom Entry;
 } AtomHashEntry;
 
-typedef struct scratch_block_struct {
-  char *ptr;
-  UInt sz, msz;
-} scratch_block;
+//typedef struct scratch_block_struct {
+//  char *ptr;
+//  UInt sz, msz;
+//} scratch_block;
 
 typedef struct record_list {
   /* a list of dbterms associated with a clause */
@@ -97,6 +97,7 @@ typedef struct record_list {
 #define SWI_TMP_BUF_SIZE 2*SWI_BUF_SIZE
 #define SWI_BUF_RINGS 16
 
+/* ricardo
 #ifdef THREADS
 typedef struct thandle {
   int in_use;
@@ -130,9 +131,9 @@ typedef struct thandle {
   struct timeval *last_timep;
 #endif
 } yap_thandle;
-#endif
+#endif */
 
-typedef int   (*Agc_hook)(Atom);
+//typedef int   (*Agc_hook)(Atom);
 
 /*******************
   this is the data base: everything here should be possible to restore 
@@ -145,9 +146,10 @@ typedef struct various_codes {
 
 } all_heap_codes;
 
-#include "hglobals.h"
-#include "hlocals.h"
+//#include "hglobals.h"
+//#include "hlocals.h"
 
+/* ricardo
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 extern struct global_data *Yap_global;
 extern long Yap_worker_area_size;
@@ -162,10 +164,11 @@ extern struct worker_local *Yap_local[MAX_THREADS];
 #elif defined(YAPOR)
 extern struct worker_local *Yap_local;
 #define REMOTE(wid)        (Yap_local + wid)
-#else /* !THREADS && !YAPOR */
+#else 
 extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
+*/
 
 #ifdef USE_SYSTEM_MALLOC
 extern struct various_codes *Yap_heap_regs;
@@ -174,8 +177,8 @@ extern struct various_codes *Yap_heap_regs;
 #endif
 
 #include "dhstruct.h"
-#include "dglobals.h"
-#include "dlocals.h"
+//#include "dglobals.h"
+//#include "dlocals.h"
 
 /*******************
   these are the global variables: they need not be restored...

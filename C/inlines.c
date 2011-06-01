@@ -719,7 +719,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
       if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
       goto restart;

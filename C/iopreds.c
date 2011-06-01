@@ -183,17 +183,17 @@ Yap_DebugGetc()
   }
   if ((ch = *lp++) == 0)
     ch = '\n', eolflg = 1;
-  if (Yap_Option['l' - 96])
-    putc(ch, Yap_logfile);
+  if (GLOBAL_Option['l' - 96])
+    putc(ch, GLOBAL_logfile);
   return (ch);
 }
 
 int 
 Yap_DebugPutc(int sno, wchar_t ch)
 {
-  if (Yap_Option['l' - 96])
-    (void) putc(ch, Yap_logfile);
-  return (putc(ch, Yap_stderr));
+  if (GLOBAL_Option['l' - 96])
+    (void) putc(ch, GLOBAL_logfile);
+  return (putc(ch, GLOBAL_stderr));
 }
 
 void
@@ -273,8 +273,8 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
   /* make sure to globalise variable */
   Yap_unify(*outp, MkVarTerm());
   start = tokptr->TokPos;
-  clean_vars(Yap_VarTable);
-  clean_vars(Yap_AnonVarTable);
+  clean_vars(LOCAL_VarTable);
+  clean_vars(LOCAL_AnonVarTable);
   while (1) {
     Term ts[2];
 
@@ -286,7 +286,7 @@ syntax_error (TokEntry * tokptr, IOSTREAM *st, Term *outp)
       H = Hi;
       break;
     }
-    if (tokptr == Yap_toktide) {
+    if (tokptr == LOCAL_toktide) {
       err = tokptr->TokPos;
       out = count;
     }
@@ -402,31 +402,31 @@ Yap_StringToTerm(char *s,Term *tp)
   if (sno == NULL)
     return FALSE;
   TR_before_parse = TR;
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(sno, &tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(sno, &tpos);
   if (tokstart == NIL || tokstart->Tok == Ord (eot_tok)) {
     if (tp) {
       *tp = MkAtomTerm(AtomEOFBeforeEOT);
     }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     Sclose(sno);
     return FALSE;
-  } else if (Yap_ErrorMessage) {
+  } else if (LOCAL_ErrorMessage) {
     if (tp) {
-      *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+      *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
     }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     Sclose(sno);
     return FALSE;
   }
   t = Yap_Parse();
   TR = TR_before_parse;
-  if (!t || Yap_ErrorMessage) {
+  if (!t || LOCAL_ErrorMessage) {
     GenerateSyntaxError(tp, tokstart, sno PASS_REGS);
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     Sclose(sno);
     return FALSE;
   }
-  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
   Sclose(sno);
   return t;
 }
@@ -512,25 +512,25 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
   if (st == NULL) {
     return FALSE;
   }
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(st, tpos);
-  if (Yap_ErrorMessage)
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(st, tpos);
+  if (LOCAL_ErrorMessage)
     {
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
       if (terror)
-	*terror = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	*terror = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
       return FALSE;
     }
   pt = Yap_Parse();
-  if (Yap_ErrorMessage || pt == (CELL)0) {
+  if (LOCAL_ErrorMessage || pt == (CELL)0) {
     GenerateSyntaxError(terror, tokstart, st PASS_REGS);
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     return FALSE;
   }
   if (varnames) {
-    *varnames = Yap_VarNames(Yap_VarTable, TermNil);
+    *varnames = Yap_VarNames(LOCAL_VarTable, TermNil);
     if (!*varnames) {
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
       return FALSE;
     }
   }
@@ -554,9 +554,6 @@ static Int
 {
   Term t, v;
   TokEntry *tokstart;
-#if EMACS
-  int emacs_cares = FALSE;
-#endif
   Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
   extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
 
@@ -567,7 +564,7 @@ static Int
     Yap_Error(TYPE_ERROR_ATOM, tmod, "read_term/2");
     return FALSE;
   }
-  Yap_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   tpos = Yap_StreamPosition(inp_stream);
   if (!Yap_unify(tpos,ARG5)) {
     /* do this early so that we do not have to protect it in case of stack expansion */  
@@ -585,33 +582,32 @@ static Int
     /* Scans the term using stack space */
     while (TRUE) {
       old_H = H;
-      Yap_eot_before_eof = FALSE;
       tpos = Yap_StreamPosition(inp_stream);
-      tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp_stream, &tpos);
-      if (Yap_Error_TYPE != YAP_NO_ERROR && seekable) {
+      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, &tpos);
+      if (LOCAL_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
-	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 	if (seekable) {
 	  Sseek64(inp_stream, cpos, SIO_SEEK_SET);
 	}
-	if (Yap_Error_TYPE == OUT_OF_TRAIL_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	if (LOCAL_Error_TYPE == OUT_OF_TRAIL_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growtrail (sizeof(CELL) * K16, FALSE)) {
 	    return FALSE;
 	  }
-	} else if (Yap_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	} else if (LOCAL_Error_TYPE == OUT_OF_AUXSPACE_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE)) {
 	    return FALSE;
 	  }
-	} else if (Yap_Error_TYPE == OUT_OF_HEAP_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	} else if (LOCAL_Error_TYPE == OUT_OF_HEAP_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    return FALSE;
 	  }
-	} else if (Yap_Error_TYPE == OUT_OF_STACK_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, nargs, ENV, CP)) {
+	} else if (LOCAL_Error_TYPE == OUT_OF_STACK_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(LOCAL_Error_Size, nargs, ENV, CP)) {
 	    return FALSE;
 	  }
 	}
@@ -620,18 +616,18 @@ static Int
 	break;
       }
     }
-    Yap_Error_TYPE = YAP_NO_ERROR;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
     old_H = H;
     if (tokstart != NULL && tokstart->Tok == Ord (eot_tok)) {
       /* did we get the end of file from an abort? */
-      if (Yap_ErrorMessage &&
-	  !strcmp(Yap_ErrorMessage,"Abort")) {
-	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      if (LOCAL_ErrorMessage &&
+	  !strcmp(LOCAL_ErrorMessage,"Abort")) {
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 	return FALSE;
       } else {
-	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 	
 	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
 	  && Yap_unify_constant(ARG4, TermNil);
@@ -639,14 +635,14 @@ static Int
     }
   repeat_cycle:
     CurrentModule = tmod;
-    if (Yap_ErrorMessage || (t = Yap_Parse()) == 0) {
+    if (LOCAL_ErrorMessage || (t = Yap_Parse()) == 0) {
       CurrentModule = OCurrentModule;
-      if (Yap_ErrorMessage) {
+      if (LOCAL_ErrorMessage) {
 	int res;
 
-	if (!strcmp(Yap_ErrorMessage,"Stack Overflow") ||
-	    !strcmp(Yap_ErrorMessage,"Trail Overflow") ||
-	    !strcmp(Yap_ErrorMessage,"Heap Overflow")) {
+	if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow") ||
+	    !strcmp(LOCAL_ErrorMessage,"Trail Overflow") ||
+	    !strcmp(LOCAL_ErrorMessage,"Heap Overflow")) {
 	  /* ignore term we just built */
 	  tr_fr_ptr old_TR = TR;
 
@@ -654,18 +650,18 @@ static Int
 	  H = old_H;
 	  TR = (tr_fr_ptr)LOCAL_ScannerStack;
 	  
-	  if (!strcmp(Yap_ErrorMessage,"Stack Overflow"))
-	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
-	  else if (!strcmp(Yap_ErrorMessage,"Heap Overflow"))
-	    res = Yap_growheap_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	  if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow"))
+	    res = Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
+	  else if (!strcmp(LOCAL_ErrorMessage,"Heap Overflow"))
+	    res = Yap_growheap_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	  else
-	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	    res = Yap_growtrail_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	  if (res) {
 	    LOCAL_ScannerStack = (char *)TR;
 	    TR = old_TR;
 	    old_H = H;
-	    Yap_tokptr = Yap_toktide = tokstart;
-	    Yap_ErrorMessage = NULL;
+	    LOCAL_tokptr = LOCAL_toktide = tokstart;
+	    LOCAL_ErrorMessage = NULL;
 	    goto repeat_cycle;
 	  }
 	  LOCAL_ScannerStack = (char *)TR;
@@ -674,26 +670,26 @@ static Int
       }
       if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
-	Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 	return FALSE;
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
-	Yap_ErrorMessage = NULL;
+	LOCAL_ErrorMessage = NULL;
 	/* try again */
 	goto repeat_cycle;
       } else {
 	Term terr = syntax_error(tokstart, inp_stream, &ARG2);
-	if (Yap_ErrorMessage == NULL)
-	  Yap_ErrorMessage = "SYNTAX ERROR";
+	if (LOCAL_ErrorMessage == NULL)
+	  LOCAL_ErrorMessage = "SYNTAX ERROR";
 	
 	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
-	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
-	  Yap_Error(SYNTAX_ERROR,terr,Yap_ErrorMessage);
+	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	  Yap_Error(SYNTAX_ERROR,terr,LOCAL_ErrorMessage);
 	  return FALSE;
 	} else /* FAIL ON PARSER ERROR */ {
 	  Term t[2];
 	  t[0] = terr;
-	  t[1] = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+	  t[1] = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 	  return Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(AtomError,2),2,t));
 	}
       }
@@ -703,17 +699,14 @@ static Int
       break;
     }
   }
-#if EMACS
-  first_char = tokstart->TokPos;
-#endif /* EMACS */
   if (!Yap_unify(t, ARG2))
     return FALSE;
   if (AtomOfTerm (Deref (ARG1)) == AtomTrue) {
     while (TRUE) {
       CELL *old_H = H;
 
-      if (setjmp(Yap_IOBotch) == 0) {
-	v = Yap_VarNames(Yap_VarTable, TermNil);
+      if (setjmp(LOCAL_IOBotch) == 0) {
+	v = Yap_VarNames(LOCAL_VarTable, TermNil);
 	break;
       } else {
 	tr_fr_ptr old_TR;
@@ -723,15 +716,15 @@ static Int
 	/* restart global */
 	H = old_H;
 	TR = (tr_fr_ptr)LOCAL_ScannerStack;
-	Yap_growstack_in_parser(&old_TR, &tokstart, &Yap_VarTable);
+	Yap_growstack_in_parser(&old_TR, &tokstart, &LOCAL_VarTable);
 	LOCAL_ScannerStack = (char *)TR;
 	TR = old_TR;
       }
     }
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     return Yap_unify (v, ARG4);
   } else {
-    Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
     return TRUE;
   }
 }
@@ -976,7 +969,7 @@ p_char_conversion( USES_REGS1 )
     CharConversionTable2 = Yap_AllocCodeSpace(NUMBER_OF_CHARS*sizeof(char));
     while (CharConversionTable2 == NULL) {
       if (!Yap_growheap(FALSE, NUMBER_OF_CHARS*sizeof(char), NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return(FALSE);
       }
     }
@@ -1110,9 +1103,6 @@ Yap_InitBackIO (void)
 void
 Yap_InitIOPreds(void)
 {
-  Yap_stdin = stdin;
-  Yap_stdout = stdout;
-  Yap_stderr = stderr;
   if (!Stream)
     Stream = (StreamDesc *)Yap_AllocCodeSpace(sizeof(StreamDesc)*MaxStreams);
   /* here the Input/Output predicates */

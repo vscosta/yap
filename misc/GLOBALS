@@ -18,44 +18,117 @@
 START_GLOBAL_DATA
 
 // initialization: tell whether the system has been initialised and by whom.
-int		Initialised			=FALSE
-int		InitialisedFromPL		=FALSE
-int		PL_Argc				=0
-char**		PL_Argv				=NULL
+int				Initialised				=FALSE
+int				InitialisedFromPL			=FALSE
+int				PL_Argc					=0
+char**				PL_Argv					=NULL
 
 // halt hooks
-struct halt_hook*	HaltHooks		=NULL
+struct halt_hook*		HaltHooks				=NULL
 
 // stack overflow expansion/gc control
-int		AllowLocalExpansion 		=TRUE
-int		AllowGlobalExpansion 		=TRUE
-int		AllowTrailExpansion 		=TRUE
-UInt		SizeOfOverflow			=0
+int				AllowLocalExpansion 			=TRUE
+int				AllowGlobalExpansion 			=TRUE
+int				AllowTrailExpansion 			=TRUE
+UInt				SizeOfOverflow				=0
 
 // amount of space recovered in all garbage collections
-UInt		AGcThreshold			=10000
-Agc_hook	AGCHook				=NULL
+UInt				AGcThreshold				=10000
+Agc_hook			AGCHook					=NULL
+
 
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
-UInt		NOfThreads			=1
+UInt				NOfThreads				=1
 /* number of threads created since start */
-UInt		NOfThreadsCreated 		=1
+UInt				NOfThreadsCreated 			=1
 /* total run time for dead threads */
-UInt  		ThreadsTotalTime 		=0L
+UInt  				ThreadsTotalTime 			=0L
 // Threads Array
-lockvar		ThreadHandlesLock		MkLock
-#endif
+lockvar				ThreadHandlesLock			MkLock
+#endif	
 
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
-lockvar		BGL				MkLock
+lockvar				BGL					MkLock
 #endif
 
 #if defined(YAPOR) || defined(TABLING)
-struct global_optyap_data	optyap_data	void	
+struct global_optyap_data	optyap_data				void	
 #endif /* YAPOR || TABLING */
+
+// whether Yap is responsible for signal handling
+
+int             		PrologShouldHandleInterrupts		void
+
+/* This is the guy who actually started the system, and who has the correct registers */
+#if defined(THREADS)
+pthread_t 			master_thread				void
+#endif /* THREADS */
+
+// streams 
+YP_FILE*			stdout					=stdout
+YP_FILE*			stderr					=stderr	
+
+// access to yap initial arguments 
+char**				argv					void
+int           		 	argc					void
+
+// extensions to Terms
+#ifdef COROUTINING
+/* array with the ops for your favourite extensions */
+ext_op 				attas[attvars_ext+1]			void
+#endif
+
+// agc.c
+int 				agc_calls				void
+YAP_ULONG_LONG 			agc_collected				void
+/* total time spent in GC */
+Int 				tot_agc_time 				=0
+/* number of heap objects in all garbage collections */
+Int 				tot_agc_recovered 			=0 
+
+//arrays.c
+#if HAVE_MMAP
+struct MMAP_ARRAY_BLOCK* 	mmap_arrays 				=NULL
+#endif
+
+
+#ifdef DEBUG
+//computils.c
+char            		Option[20]				void
+YP_FILE*			logfile					void
+//init.c
+int  				output_msg 				=FALSE
+#endif
+
+//gprof.c
+Int 				ProfCalls				void 
+Int				ProfGCs 				void
+Int				ProfHGrows 				void
+Int				ProfSGrows 				void
+Int				ProfMallocs 				void
+Int				ProfOn 					void
+Int				ProfOns					void
+struct RB_red_blk_node* 	ProfilerRoot				void
+struct RB_red_blk_node* 	ProfilerNil				void
+char*				DIRNAME					=NULL
+
+#if defined(COFF)  || defined(A_OUT)
+// loada_coff.c && load_aout.c
+char 				Executable[YAP_FILENAME_MAX]		void
+#endif
+
+
+#if  __simplescalar__
+char				pwd[YAP_FILENAME_MAX]			void
+#endif
+
+//udi.c
+//struct udi_control_block 	RtreeCmd				void	
+
+
 
 END_GLOBAL_DATA
 

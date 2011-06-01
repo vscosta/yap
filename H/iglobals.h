@@ -44,7 +44,7 @@ static void InitGlobal(void) {
   GLOBAL_ThreadsTotalTime = 0L;
 
   INIT_LOCK(GLOBAL_ThreadHandlesLock);
-#endif
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
   INIT_LOCK(GLOBAL_BGL);
@@ -52,4 +52,59 @@ static void InitGlobal(void) {
 #if defined(YAPOR) || defined(TABLING)
 
 #endif /* YAPOR || TABLING */
+
+
+
+#if defined(THREADS)
+
+#endif /* THREADS */
+
+  GLOBAL_stdout = stdout;
+  GLOBAL_stderr = stderr;
+
+
+
+
+#ifdef COROUTINING
+
+
+#endif
+
+
+
+
+  GLOBAL_tot_agc_time = 0;
+
+  GLOBAL_tot_agc_recovered = 0;
+
+#if HAVE_MMAP
+  GLOBAL_mmap_arrays = NULL;
+#endif
+#ifdef DEBUG
+
+
+
+
+  GLOBAL_output_msg = FALSE;
+#endif
+
+
+
+
+
+
+
+
+
+
+  GLOBAL_DIRNAME = NULL;
+#if defined(COFF)  || defined(A_OUT)
+
+
+#endif
+#if  __simplescalar__
+
+#endif
+
+
 }

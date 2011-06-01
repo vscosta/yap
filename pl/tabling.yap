@@ -17,8 +17,72 @@
    tabling_mode(:,?), 
    abolish_table(:), 
    show_table(:), 
+   show_table(?,:), 
    table_statistics(:),
-   table_statistics(:,:).
+   table_statistics(?,:).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                      show_tabled_predicates/0                       %%
+%%                         show_global_trie/0                          %%
+%%                          show_all_tables/0                          %%
+%%                       show_all_local_tables/0                       %%
+%%                      global_trie_statistics/0                       %%
+%%                        tabling_statistics/0                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+show_tabled_predicates :- 
+   current_output(Stream),
+   show_tabled_predicates(Stream).
+
+show_global_trie :-
+   current_output(Stream),
+   show_global_trie(Stream).
+
+show_all_tables :-
+   current_output(Stream),
+   show_all_tables(Stream).
+
+show_all_local_tables :-
+   current_output(Stream),
+   show_all_local_tables(Stream).
+
+global_trie_statistics :-
+   current_output(Stream),
+   global_trie_statistics(Stream).
+
+tabling_statistics :-
+   current_output(Stream),
+   tabling_statistics(Stream).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                        tabling_statistics/2                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% should match with code in OPTYap/opt.preds.c
+tabling_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
+   '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
+tabling_statistics(table_entries,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(1,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(2,BytesInUse,StructsInUse).
+tabling_statistics(dependency_frames,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(3,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(6,BytesInUse,StructsInUse).
+tabling_statistics(answer_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(7,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(8,BytesInUse,StructsInUse).
+tabling_statistics(answer_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(9,BytesInUse,StructsInUse).
+tabling_statistics(global_trie_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(10,BytesInUse,StructsInUse).
+tabling_statistics(global_trie_hashes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(11,BytesInUse,StructsInUse).
 
 
 
@@ -195,98 +259,80 @@ abolish_table(Pred) :-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                             show_table/1                            %%
+%%                             show_table/2                            %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 show_table(Pred) :-
-   '$current_module'(Mod),
-   '$do_show_table'(Mod,Pred).
+   current_output(Stream),
+   show_table(Stream,Pred).
 
-'$do_show_table'(Mod,Pred) :-
+show_table(Stream,Pred) :-
+   '$current_module'(Mod),
+   '$do_show_table'(Stream,Mod,Pred).
+
+'$do_show_table'(_,Mod,Pred) :-
    var(Pred), !,
    '$do_error'(instantiation_error,show_table(Mod:Pred)).
-'$do_show_table'(_,Mod:Pred) :- !,
-   '$do_show_table'(Mod,Pred).
-'$do_show_table'(_,[]) :- !.
-'$do_show_table'(Mod,[HPred|TPred]) :- !,
-   '$do_show_table'(Mod,HPred),
-   '$do_show_table'(Mod,TPred).
-'$do_show_table'(Mod,(Pred1,Pred2)) :- !,
-   '$do_show_table'(Mod,Pred1),
-   '$do_show_table'(Mod,Pred2).
-'$do_show_table'(Mod,PredName/PredArity) :- 
+'$do_show_table'(Stream,_,Mod:Pred) :- !,
+   '$do_show_table'(Stream,Mod,Pred).
+'$do_show_table'(_,_,[]) :- !.
+'$do_show_table'(Stream,Mod,[HPred|TPred]) :- !,
+   '$do_show_table'(Stream,Mod,HPred),
+   '$do_show_table'(Stream,Mod,TPred).
+'$do_show_table'(Stream,Mod,(Pred1,Pred2)) :- !,
+   '$do_show_table'(Stream,Mod,Pred1),
+   '$do_show_table'(Stream,Mod,Pred2).
+'$do_show_table'(Stream,Mod,PredName/PredArity) :- 
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
    (
-       Flags /\ 0x000040 =\= 0, !, '$c_show_table'(Mod,PredFunctor)
+       Flags /\ 0x000040 =\= 0, !, '$c_show_table'(Stream,Mod,PredFunctor)
    ;
        '$do_error'(domain_error(table,Mod:PredName/PredArity),show_table(Mod:PredName/PredArity))
    ).
-'$do_show_table'(Mod,Pred) :-
+'$do_show_table'(_,Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),show_table(Mod:Pred)).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                         table_statistics/1                          %%
+%%                         table_statistics/2                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 table_statistics(Pred) :-
-   '$current_module'(Mod),
-   '$do_table_statistics'(Mod,Pred).
+   current_output(Stream),
+   table_statistics(Stream,Pred).
 
-'$do_table_statistics'(Mod,Pred) :-
+table_statistics(Stream,Pred) :-
+   '$current_module'(Mod),
+   '$do_table_statistics'(Stream,Mod,Pred).
+
+'$do_table_statistics'(_,Mod,Pred) :-
    var(Pred), !,
    '$do_error'(instantiation_error,table_statistics(Mod:Pred)).
-'$do_table_statistics'(_,Mod:Pred) :- !,
-   '$do_table_statistics'(Mod,Pred).
-'$do_table_statistics'(_,[]) :- !.
-'$do_table_statistics'(Mod,[HPred|TPred]) :- !,
-   '$do_table_statistics'(Mod,HPred),
-   '$do_table_statistics'(Mod,TPred).
-'$do_table_statistics'(Mod,(Pred1,Pred2)) :- !,
-   '$do_table_statistics'(Mod,Pred1),
-   '$do_table_statistics'(Mod,Pred2).
-'$do_table_statistics'(Mod,PredName/PredArity) :- 
+'$do_table_statistics'(Stream,_,Mod:Pred) :- !,
+   '$do_table_statistics'(Stream,Mod,Pred).
+'$do_table_statistics'(_,_,[]) :- !.
+'$do_table_statistics'(Stream,Mod,[HPred|TPred]) :- !,
+   '$do_table_statistics'(Stream,Mod,HPred),
+   '$do_table_statistics'(Stream,Mod,TPred).
+'$do_table_statistics'(Stream,Mod,(Pred1,Pred2)) :- !,
+   '$do_table_statistics'(Stream,Mod,Pred1),
+   '$do_table_statistics'(Stream,Mod,Pred2).
+'$do_table_statistics'(Stream,Mod,PredName/PredArity) :- 
    atom(PredName), 
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity),
    '$flags'(PredFunctor,Mod,Flags,Flags), !,
    (
-       Flags /\ 0x000040 =\= 0, !, '$c_table_statistics'(Mod,PredFunctor)
+       Flags /\ 0x000040 =\= 0, !, '$c_table_statistics'(Stream,Mod,PredFunctor)
    ;
        '$do_error'(domain_error(table,Mod:PredName/PredArity),table_statistics(Mod:PredName/PredArity))
    ).
-'$do_table_statistics'(Mod,Pred) :-
+'$do_table_statistics'(_,Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table_statistics(Mod:Pred)).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                        tabling_statistics/2                         %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%% should match with code in OPTYap/opt.preds.c
-tabling_statistics(total_memory,[BytesInUse,BytesAllocated]) :-
-   '$c_get_optyap_statistics'(0,BytesInUse,BytesAllocated).
-tabling_statistics(table_entries,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(1,BytesInUse,StructsInUse).
-tabling_statistics(subgoal_frames,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(2,BytesInUse,StructsInUse).
-tabling_statistics(dependency_frames,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(3,BytesInUse,StructsInUse).
-tabling_statistics(subgoal_trie_nodes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(6,BytesInUse,StructsInUse).
-tabling_statistics(answer_trie_nodes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(7,BytesInUse,StructsInUse).
-tabling_statistics(subgoal_trie_hashes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(8,BytesInUse,StructsInUse).
-tabling_statistics(answer_trie_hashes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(9,BytesInUse,StructsInUse).
-tabling_statistics(global_trie_nodes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(10,BytesInUse,StructsInUse).
-tabling_statistics(global_trie_hashes,[BytesInUse,StructsInUse]) :-
-   '$c_get_optyap_statistics'(11,BytesInUse,StructsInUse).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

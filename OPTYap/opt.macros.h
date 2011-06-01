@@ -173,7 +173,7 @@ extern int Yap_page_size;
               /* see function 'InteractSIGINT' in file 'sysbits.c' */                            \
               /* Yap_Error(PURE_ABORT, TermNil, "");               */                            \
               /* restore_absmi_regs(&Yap_standard_regs);           */                            \
-              /* siglongjmp (Yap_RestartEnv, 1);                   */                            \
+              /* siglongjmp (LOCAL_RestartEnv, 1);                   */                            \
             if (SgFr_first_answer(sg_fr) &&                                                      \
                 SgFr_first_answer(sg_fr) != SgFr_answer_trie(sg_fr)) {                           \
               SgFr_state(sg_fr) = ready;                                                         \
@@ -457,7 +457,7 @@ extern int Yap_page_size;
 ************************************************************************/
 
 #define INFORMATION_MESSAGE(MESSAGE,ARGS...)                            \
-        fprintf(stderr, "[ " MESSAGE " ]\n", ##ARGS)
+        Sfprintf(Serror, "[ " MESSAGE " ]\n", ##ARGS)
 
 #ifdef YAPOR
 #define ERROR_MESSAGE(MESSAGE)                                          \

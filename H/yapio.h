@@ -65,9 +65,6 @@
 #endif
 
 #define YP_FILE		FILE
-extern YP_FILE *Yap_stdin;
-extern YP_FILE *Yap_stdout;
-extern YP_FILE *Yap_stderr;
 
 int     STD_PROTO(YP_putc,(int, int));
 
@@ -167,6 +164,7 @@ extern YP_FILE yp_iob[YP_MAX_FILES];
 
 typedef YP_FILE *YP_File;
 
+/* ricardo
 typedef enum TokenKinds {
   Name_tok,
   Number_tok,
@@ -195,6 +193,7 @@ typedef	struct VARSTRUCT {
   struct VARSTRUCT *VarLeft, *VarRight;
   char VarRep[1];
 } VarEntry;
+*/
 
 /* Character types for tokenizer and write.c */
 
@@ -386,32 +385,4 @@ WideHashFunction(wchar_t *CHP)
 #define CONTINUE_ON_PARSER_ERROR  2
 #define EXCEPTION_ON_PARSER_ERROR 3
 
-#ifdef THREADS
-#define    Yap_IOBotch    Yap_thread_gl[worker_id].io_botch
-#define    Yap_tokptr     Yap_thread_gl[worker_id].tokptr
-#define    Yap_toktide    Yap_thread_gl[worker_id].toktide
-#define    Yap_VarTable   Yap_thread_gl[worker_id].var_table
-#define    Yap_AnonVarTable   Yap_thread_gl[worker_id].anon_var_table
-#define    Yap_eot_before_eof   Yap_thread_gl[worker_id].eot_before_eof
-#define    Yap_FileNameBuf   Yap_thread_gl[worker_id].file_name_buf
-#define    Yap_FileNameBuf2   Yap_thread_gl[worker_id].file_name_buf2
-#else
-extern jmp_buf Yap_IOBotch;
-
-/*************** variables concerned with parsing   *********************/
-extern TokEntry	*Yap_tokptr, *Yap_toktide;
-extern VarEntry	*Yap_VarTable, *Yap_AnonVarTable;
-extern int Yap_eot_before_eof;
-
-extern char Yap_FileNameBuf[YAP_FILENAME_MAX], Yap_FileNameBuf2[YAP_FILENAME_MAX];
-
-#endif
-
-#ifdef DEBUG
-extern YP_FILE *Yap_logfile;
-#endif
-
-#if USE_SOCKET
-extern int Yap_sockets_io;
-#endif
 

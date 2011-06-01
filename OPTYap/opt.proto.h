@@ -11,12 +11,19 @@
 **                                                                     **
 ************************************************************************/
 
+#if defined(TABLING) || defined(YAPOR) 
+#include "SWI-Stream.h"
+#endif /* TABLING || YAPOR */
+
+
+
 /***************************
 **      opt.memory.c      **
 ***************************/
 
 #ifdef YAPOR
-void Yap_init_optyap_memory(long, long, long, int);
+void Yap_init_yapor_global_local_memory(void);
+void Yap_init_yapor_stacks_memory(long, long, long, int);
 void Yap_unmap_optyap_memory(void);
 void Yap_remap_optyap_memory(void);
 #endif /* YAPOR */
@@ -58,8 +65,8 @@ void free_subgoal_trie(sg_node_ptr, int, int);
 void free_answer_trie(ans_node_ptr, int, int);
 void free_subgoal_hash_chain(sg_hash_ptr);
 void free_answer_hash_chain(ans_hash_ptr);
-void show_table(tab_ent_ptr, int);
-void show_global_trie(int);
+void show_table(tab_ent_ptr, int, IOSTREAM *);
+void show_global_trie(int, IOSTREAM *);
 #endif /* TABLING */
 
 

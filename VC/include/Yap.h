@@ -900,16 +900,6 @@ extern int      splfild;
 #define DO_EVERYTHING 1
 #define DO_ONLY_CODE  2
 
-
-#ifdef EMACS
-
-/******************** using Emacs mode ********************************/
-
-extern int      emacs_mode;
-
-#endif
-
-
 /************ variable concerned with version number *****************/
 extern char    version_number[];
 
@@ -1031,10 +1021,6 @@ typedef struct TIMED_MAVAR{
 
 #if DEBUG
 extern int      output_msg;
-#endif
-
-#if EMACS
-extern char     emacs_tmp[], emacs_tmp2[];
 #endif
 
 #if HAVE_SIGNAL

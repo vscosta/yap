@@ -6,14 +6,14 @@
 
 void cut_c_initialize(void){
   CACHE_REGS
-  Yap_REGS.CUT_C_TOP=(cut_c_str_ptr)Yap_LocalBase;
+  Yap_REGS.CUT_C_TOP=(cut_c_str_ptr)LOCAL_LocalBase;
 }
 
 /*Removes a choice_point from the stack*/
 void cut_c_pop(void){
   CACHE_REGS
   cut_c_str_ptr to_delete = NULL;
-  if (((CELL *)Yap_REGS.CUT_C_TOP) == ((CELL *)Yap_LocalBase))
+  if (((CELL *)Yap_REGS.CUT_C_TOP) == ((CELL *)LOCAL_LocalBase))
     {
       return;
     }

@@ -95,11 +95,11 @@ void free_root_choice_point(void) {
   CACHE_REGS
   B = Get_LOCAL_top_cp()->cp_b;
 #ifdef TABLING
-  Set_LOCAL_top_cp_on_stack((choiceptr) Yap_LocalBase);
+  Set_LOCAL_top_cp_on_stack((choiceptr) LOCAL_LocalBase);
 #endif /* TABLING */
-  Set_GLOBAL_root_cp((choiceptr) Yap_LocalBase);
-  Set_LOCAL_top_cp((choiceptr) Yap_LocalBase);
-  SetOrFr_node(GLOBAL_root_or_fr, (choiceptr) Yap_LocalBase);
+  Set_GLOBAL_root_cp((choiceptr) LOCAL_LocalBase);
+  Set_LOCAL_top_cp((choiceptr) LOCAL_LocalBase);
+  SetOrFr_node(GLOBAL_root_or_fr, (choiceptr) LOCAL_LocalBase);
   return;
 }
 
@@ -282,7 +282,7 @@ void share_private_nodes(int worker_q) {
     consumer_cp = DepFr_cons_cp(dep_frame);
     next_node_on_branch = NULL;
     stack_limit = (CELL *)TR;
-    stack = (CELL *)Yap_TrailTop;
+    stack = (CELL *)LOCAL_TrailTop;
 #endif /* TABLING */
 
     /* initialize auxiliary variables */
@@ -388,7 +388,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef TABLING
     /* update or-frames stored in auxiliary stack */
-    while (STACK_NOT_EMPTY(stack, (CELL *)Yap_TrailTop)) {
+    while (STACK_NOT_EMPTY(stack, (CELL *)LOCAL_TrailTop)) {
       next_node_on_branch = (choiceptr) STACK_POP_DOWN(stack);
       or_frame = (or_fr_ptr) STACK_POP_DOWN(stack);
       OrFr_nearest_livenode(or_frame) = OrFr_next(or_frame) = next_node_on_branch->cp_or_fr;

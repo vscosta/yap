@@ -17,13 +17,9 @@
 
 #include "Yap.h"
 #if defined(YAPOR) || defined(TABLING)
-#include <stdio.h>
-#if HAVE_STRING_H
-#include <string.h>
-#endif /* HAVE_STRING_H */
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
+#include "SWI-Prolog.h"
 #ifdef YAPOR
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
@@ -43,9 +39,11 @@ static Int p_table( USES_REGS1 );
 static Int p_tabling_mode( USES_REGS1 );
 static Int p_abolish_table( USES_REGS1 );
 static Int p_abolish_all_tables( USES_REGS1 );
+static Int p_abolish_all_local_tables( USES_REGS1 );
 static Int p_show_tabled_predicates( USES_REGS1 );
 static Int p_show_table( USES_REGS1 );
 static Int p_show_all_tables( USES_REGS1 );
+static Int p_show_all_local_tables( USES_REGS1 );
 static Int p_show_global_trie( USES_REGS1 );
 static Int p_show_statistics_table( USES_REGS1 );
 static Int p_show_statistics_tabling( USES_REGS1 );
@@ -76,26 +74,26 @@ static inline void answer_to_stdout(char *answer);
 #endif /* YAPOR */
 
 #ifdef TABLING
-static inline long show_statistics_table_entries(void);
-static inline long show_statistics_subgoal_frames(void);
-static inline long show_statistics_dependency_frames(void);
-static inline long show_statistics_subgoal_trie_nodes(void);
-static inline long show_statistics_answer_trie_nodes(void);
-static inline long show_statistics_subgoal_trie_hashes(void);
-static inline long show_statistics_answer_trie_hashes(void);
-static inline long show_statistics_global_trie_nodes(void);
-static inline long show_statistics_global_trie_hashes(void);
+static inline long show_statistics_table_entries(IOSTREAM *out);
+static inline long show_statistics_subgoal_frames(IOSTREAM *out);
+static inline long show_statistics_dependency_frames(IOSTREAM *out);
+static inline long show_statistics_subgoal_trie_nodes(IOSTREAM *out);
+static inline long show_statistics_answer_trie_nodes(IOSTREAM *out);
+static inline long show_statistics_subgoal_trie_hashes(IOSTREAM *out);
+static inline long show_statistics_answer_trie_hashes(IOSTREAM *out);
+static inline long show_statistics_global_trie_nodes(IOSTREAM *out);
+static inline long show_statistics_global_trie_hashes(IOSTREAM *out);
 #endif /* TABLING */
 #ifdef YAPOR
-static inline long show_statistics_or_frames(void);
-static inline long show_statistics_query_goal_solution_frames(void);
-static inline long show_statistics_query_goal_answer_frames(void);
+static inline long show_statistics_or_frames(IOSTREAM *out);
+static inline long show_statistics_query_goal_solution_frames(IOSTREAM *out);
+static inline long show_statistics_query_goal_answer_frames(IOSTREAM *out);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-static inline long show_statistics_suspension_frames(void);
+static inline long show_statistics_suspension_frames(IOSTREAM *out);
 #ifdef TABLING_INNER_CUTS
-static inline long show_statistics_table_subgoal_solution_frames(void);
-static inline long show_statistics_table_subgoal_answer_frames(void);
+static inline long show_statistics_table_subgoal_solution_frames(IOSTREAM *out);
+static inline long show_statistics_table_subgoal_answer_frames(IOSTREAM *out);
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */
 
@@ -129,13 +127,15 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("show_tabled_predicates", 0, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_show_table", 2, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("show_all_tables", 0, p_show_all_tables, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("show_global_trie", 0, p_show_global_trie, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("$c_table_statistics", 2, p_show_statistics_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("tabling_statistics", 0, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("global_trie_statistics", 0, p_show_statistics_global_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("abolish_all_local_tables", 0, p_abolish_all_local_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_tabled_predicates", 1, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("show_all_tables", 1, p_show_all_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_all_local_tables", 1, p_show_all_local_tables, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("show_global_trie", 1, p_show_global_trie, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_table_statistics", 3, p_show_statistics_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("tabling_statistics", 1, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("global_trie_statistics", 1, p_show_statistics_global_trie, SafePredFlag|SyncPredFlag);
 #endif /* TABLING */
   Yap_InitCPred("$c_yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef YAPOR
@@ -147,10 +147,10 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("performance", 1, p_performance, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("or_statistics", 0, p_show_statistics_or, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("or_statistics", 1, p_show_statistics_or, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-  Yap_InitCPred("opt_statistics", 0, p_show_statistics_opt, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("opt_statistics", 1, p_show_statistics_opt, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR && TABLING */
   Yap_InitCPred("$c_get_optyap_statistics", 3, p_get_optyap_statistics, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 }
@@ -384,16 +384,29 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 }
 
 
+static Int p_abolish_all_local_tables( USES_REGS1 ) {
+#ifdef THREADS
+
+#else
+  p_abolish_all_tables();
+#endif /* THREADS */
+  return (TRUE);
+}
+
+
 static Int p_show_tabled_predicates( USES_REGS1 ) {
+  IOSTREAM *out;
   tab_ent_ptr tab_ent;
 
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
   tab_ent = GLOBAL_root_tab_ent;
-  fprintf(Yap_stdout, "Tabled predicates\n");
+  Sfprintf(out, "Tabled predicates\n");
   if (tab_ent == NULL)
-    fprintf(Yap_stdout, "  NONE\n");
+    Sfprintf(out, "  NONE\n");
   else
     while(tab_ent) {
-      fprintf(Yap_stdout, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+      Sfprintf(out, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
       tab_ent = TabEnt_next(tab_ent);
     }
   return (TRUE);
@@ -401,96 +414,124 @@ static Int p_show_tabled_predicates( USES_REGS1 ) {
 
 
 static Int p_show_table( USES_REGS1 ) {
+  IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
 
-  mod = Deref(ARG1);
-  t = Deref(ARG2);
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
+  mod = Deref(ARG2);
+  t = Deref(ARG3);
   if (IsAtomTerm(t))
     tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else
     return (FALSE);
-  show_table(tab_ent, SHOW_MODE_STRUCTURE);
+  show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
   return (TRUE);
 }
 
 
 static Int p_show_all_tables( USES_REGS1 ) {
+  IOSTREAM *out;
   tab_ent_ptr tab_ent;
 
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
   tab_ent = GLOBAL_root_tab_ent;
   while(tab_ent) {
-    show_table(tab_ent, SHOW_MODE_STRUCTURE);
+    show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
     tab_ent = TabEnt_next(tab_ent);
   }
   return (TRUE);
 }
 
 
+static Int p_show_all_local_tables( USES_REGS1 ) {
+#ifdef THREADS
+
+#else
+  p_show_all_tables();
+#endif /* THREADS */
+  return (TRUE);
+}
+
+
 static Int p_show_global_trie( USES_REGS1 ) {
-  show_global_trie(SHOW_MODE_STRUCTURE);
+  IOSTREAM *out;
+
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
+  show_global_trie(SHOW_MODE_STRUCTURE, out);
   return (TRUE);
 }
 
 
 static Int p_show_statistics_table( USES_REGS1 ) {
+  IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
 
-  mod = Deref(ARG1);
-  t = Deref(ARG2);
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
+  mod = Deref(ARG2);
+  t = Deref(ARG3);
   if (IsAtomTerm(t))
     tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else
     return (FALSE);
-  show_table(tab_ent, SHOW_MODE_STATISTICS);
+  show_table(tab_ent, SHOW_MODE_STATISTICS, out);
   return (TRUE);
 }
 
 
 static Int p_show_statistics_tabling( USES_REGS1 ) {
+  IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Execution data structures\n");
-  aux_bytes += show_statistics_table_entries();
-  aux_bytes += show_statistics_subgoal_frames();
-  aux_bytes += show_statistics_dependency_frames();
-  fprintf(Yap_stdout, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Execution data structures\n");
+  aux_bytes += show_statistics_table_entries(out);
+  aux_bytes += show_statistics_subgoal_frames(out);
+  aux_bytes += show_statistics_dependency_frames(out);
+  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Local trie data structures\n");
-  aux_bytes += show_statistics_subgoal_trie_nodes();
-  aux_bytes += show_statistics_answer_trie_nodes();
-  aux_bytes += show_statistics_subgoal_trie_hashes();
-  aux_bytes += show_statistics_answer_trie_hashes();
-  fprintf(Yap_stdout, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Local trie data structures\n");
+  aux_bytes += show_statistics_subgoal_trie_nodes(out);
+  aux_bytes += show_statistics_answer_trie_nodes(out);
+  aux_bytes += show_statistics_subgoal_trie_hashes(out);
+  aux_bytes += show_statistics_answer_trie_hashes(out);
+  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Global trie data structures\n");
-  aux_bytes += show_statistics_global_trie_nodes();
-  aux_bytes += show_statistics_global_trie_hashes();
-  fprintf(Yap_stdout, "  Memory in use (III):             %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Global trie data structures\n");
+  aux_bytes += show_statistics_global_trie_nodes(out);
+  aux_bytes += show_statistics_global_trie_hashes(out);
+  Sfprintf(out, "  Memory in use (III):             %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
 #ifdef USE_PAGES_MALLOC
-  fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
+  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(GLOBAL_pages_void));
-  fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(GLOBAL_pages_void) * Yap_page_size, Pg_pg_alloc(GLOBAL_pages_void));
 #else 
-  fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
+  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
-  fflush(Yap_stdout);
-
   return (TRUE);
 }
 
 static Int p_show_statistics_global_trie( USES_REGS1 ) {
-  show_global_trie(SHOW_MODE_STATISTICS);
+  IOSTREAM *out;
+
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
+  show_global_trie(SHOW_MODE_STATISTICS, out);
   return (TRUE);
 }
 #endif /* TABLING */
@@ -640,32 +681,33 @@ static Int p_performance( USES_REGS1 ) {
     return(FALSE);
 
   if (GLOBAL_number_goals) {
-    fprintf(Yap_stdout, "[\n  Best execution times:\n");
+    Sfprintf(Soutput, "[\n  Best execution times:\n");
     for (i = 1; i <= GLOBAL_number_goals; i++) {
-      fprintf(Yap_stdout, "    %d. time: %f seconds", i, GLOBAL_best_times(i));  
+      Sfprintf(Soutput, "    %d. time: %f seconds", i, GLOBAL_best_times(i));  
       if (one_worker_execution_time != 0)
-        fprintf(Yap_stdout, " --> speedup %f (%6.2f %% )\n",
+        Sfprintf(Soutput, " --> speedup %f (%6.2f %% )\n",
                 one_worker_execution_time / GLOBAL_best_times(i),
                 one_worker_execution_time / GLOBAL_best_times(i) / GLOBAL_number_workers* 100 );
-      else fprintf(Yap_stdout, "\n");
+      else Sfprintf(Soutput, "\n");
     }
 
-    fprintf(Yap_stdout, "  Average             : %f seconds",
+    Sfprintf(Soutput, "  Average             : %f seconds",
             GLOBAL_best_times(0) / GLOBAL_number_goals);
     if (one_worker_execution_time != 0)
-      fprintf(Yap_stdout, " --> speedup %f (%6.2f %% )",
+      Sfprintf(Soutput, " --> speedup %f (%6.2f %% )",
               one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0),
               one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0) / GLOBAL_number_workers* 100 );
 
     if (GLOBAL_number_goals >= 3) {
-      fprintf(Yap_stdout, "\n  Average (best three): %f seconds",
+      Sfprintf(Soutput, "\n  Average (best three): %f seconds",
               (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / 3);
       if (one_worker_execution_time != 0)
-        fprintf(Yap_stdout, " --> speedup %f (%6.2f %% ) ]\n\n",
+        Sfprintf(Soutput, " --> speedup %f (%6.2f %% ) ]\n\n",
                 one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)),
                 one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / GLOBAL_number_workers* 100 );
-      else fprintf(Yap_stdout, "\n]\n\n");
-    } else fprintf(Yap_stdout, "\n]\n\n");
+      else Sfprintf(Soutput, "\n]\n\n");
+    } else Sfprintf(Soutput, "\n]\n\n");
+    Sflush(Soutput);
     return (TRUE);
   }
   return (FALSE);
@@ -700,28 +742,30 @@ static Int p_parallel_yes_answer( USES_REGS1 ) {
 
 
 static Int p_show_statistics_or( USES_REGS1 ) {
+  IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Execution data structures\n");
-  aux_bytes += show_statistics_or_frames();
-  fprintf(Yap_stdout, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Execution data structures\n");
+  aux_bytes += show_statistics_or_frames(out);
+  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Cut support data structures\n");
-  aux_bytes += show_statistics_query_goal_solution_frames();
-  aux_bytes += show_statistics_query_goal_answer_frames();
-  fprintf(Yap_stdout, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Cut support data structures\n");
+  aux_bytes += show_statistics_query_goal_solution_frames(out);
+  aux_bytes += show_statistics_query_goal_answer_frames(out);
+  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
 #ifdef USE_PAGES_MALLOC
-  fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
+  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(GLOBAL_pages_void));
-  fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(GLOBAL_pages_void) * Yap_page_size, Pg_pg_alloc(GLOBAL_pages_void));
 #else 
-  fprintf(Yap_stdout, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
+  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
-
   return (TRUE);
 }
 #endif /* YAPOR */
@@ -734,50 +778,52 @@ static Int p_show_statistics_or( USES_REGS1 ) {
 
 #if defined(YAPOR) && defined(TABLING)
 static Int p_show_statistics_opt( USES_REGS1 ) {
+  IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
+  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+    return (FALSE);
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Execution data structures\n");
-  aux_bytes += show_statistics_table_entries();
-  aux_bytes += show_statistics_subgoal_frames();
-  aux_bytes += show_statistics_dependency_frames();
-  aux_bytes += show_statistics_or_frames();
-  aux_bytes += show_statistics_suspension_frames();
-  fprintf(Yap_stdout, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Execution data structures\n");
+  aux_bytes += show_statistics_table_entries(out);
+  aux_bytes += show_statistics_subgoal_frames(out);
+  aux_bytes += show_statistics_dependency_frames(out);
+  aux_bytes += show_statistics_or_frames(out);
+  aux_bytes += show_statistics_suspension_frames(out);
+  Sfprintf(out, "  Memory in use (I):               %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Local trie data structures\n");
-  aux_bytes += show_statistics_subgoal_trie_nodes();
-  aux_bytes += show_statistics_answer_trie_nodes();
-  aux_bytes += show_statistics_subgoal_trie_hashes();
-  aux_bytes += show_statistics_answer_trie_hashes();
-  fprintf(Yap_stdout, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Local trie data structures\n");
+  aux_bytes += show_statistics_subgoal_trie_nodes(out);
+  aux_bytes += show_statistics_answer_trie_nodes(out);
+  aux_bytes += show_statistics_subgoal_trie_hashes(out);
+  aux_bytes += show_statistics_answer_trie_hashes(out);
+  Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Global trie data structures\n");
-  aux_bytes += show_statistics_global_trie_nodes();
-  aux_bytes += show_statistics_global_trie_hashes();
-  fprintf(Yap_stdout, "  Memory in use (III):             %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "Global trie data structures\n");
+  aux_bytes += show_statistics_global_trie_nodes(out);
+  aux_bytes += show_statistics_global_trie_hashes(out);
+  Sfprintf(out, "  Memory in use (III):             %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
   aux_bytes = 0;
-  fprintf(Yap_stdout, "Cut support data structures\n");
-  aux_bytes += show_statistics_query_goal_solution_frames();
-  aux_bytes += show_statistics_query_goal_answer_frames();
+  Sfprintf(out, "Cut support data structures\n");
+  aux_bytes += show_statistics_query_goal_solution_frames(out);
+  aux_bytes += show_statistics_query_goal_answer_frames(out);
 #ifdef TABLING_INNER_CUTS
-  aux_bytes += show_statistics_table_subgoal_solution_frames();
-  aux_bytes += show_statistics_table_subgoal_answer_frames();
+  aux_bytes += show_statistics_table_subgoal_solution_frames(out);
+  aux_bytes += show_statistics_table_subgoal_answer_frames(out);
 #endif /* TABLING_INNER_CUTS */
-  fprintf(Yap_stdout, "  Memory in use (IV):              %10ld bytes\n\n", aux_bytes);
+  Sfprintf(out, "  Memory in use (IV):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
 #ifdef USE_PAGES_MALLOC
-  fprintf(Yap_stdout, "Total memory in use (I+II+III+IV): %10ld bytes (%ld pages in use)\n",
+  Sfprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(GLOBAL_pages_void));
-  fprintf(Yap_stdout, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
+  Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(GLOBAL_pages_void) * Yap_page_size, Pg_pg_alloc(GLOBAL_pages_void));
 #else 
-  fprintf(Yap_stdout, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
+  Sfprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
-
   return (TRUE);
 }
 #endif /* YAPOR && TABLING */
@@ -945,19 +991,20 @@ static inline void show_answers(void) {
   }
   switch(GLOBAL_answers) {
     case YES_ANSWER:
-      fprintf(Yap_stderr, "[ yes");
+      Sfprintf(Serror, "[ yes");
       break;
     case NO_ANSWER:  
-      fprintf(Yap_stderr, "[ no");
+      Sfprintf(Serror, "[ no");
       break;
     case 1:
-      fprintf(Yap_stderr, "[ 1 answer found");
+      Sfprintf(Serror, "[ 1 answer found");
       break;
     default:
-         fprintf(Yap_stderr, "[ %d answers found", GLOBAL_answers);
+         Sfprintf(Serror, "[ %d answers found", GLOBAL_answers);
       break;
   }
-  fprintf(Yap_stderr, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
+  Sfprintf(Serror, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
+  Sflush(Serror);
 
   if (GLOBAL_performance_mode == PERFORMANCE_ON) {
     for (i = GLOBAL_number_goals; i > 0; i--) {
@@ -1017,14 +1064,15 @@ static inline void answer_to_stdout(char *answer) {
     else break;
   }
   output[length_output] = 0;
-  fprintf(Yap_stderr, "  %s\n", output);
+  Sfprintf(Serror, "  %s\n", output);
+  Sflush(Serror);
   return;
 }
 #endif /* YAPOR */
 
 
 #ifdef TABLING
-static inline long show_statistics_table_entries(void) {
+static inline long show_statistics_table_entries(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1042,17 +1090,17 @@ static inline long show_statistics_table_entries(void) {
   }
   TABLING_ERROR_CHECKING(statistics_table_entries, Pg_str_free(GLOBAL_pages_tab_ent) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Table entries:                   %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Table entries:                   %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry), Pg_pg_alloc(GLOBAL_pages_tab_ent), Pg_str_in_use(GLOBAL_pages_tab_ent));
 #else
-  fprintf(Yap_stdout, "  Table entries:                   %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Table entries:                   %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry), Pg_str_in_use(GLOBAL_pages_tab_ent));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry);
 }
 
 
-static inline long show_statistics_subgoal_frames(void) {
+static inline long show_statistics_subgoal_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1070,17 +1118,17 @@ static inline long show_statistics_subgoal_frames(void) {
   }
   TABLING_ERROR_CHECKING(statistics_subgoal_frames, Pg_str_free(GLOBAL_pages_sg_fr) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Subgoal frames:                  %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal frames:                  %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame), Pg_pg_alloc(GLOBAL_pages_sg_fr), Pg_str_in_use(GLOBAL_pages_sg_fr));
 #else
-  fprintf(Yap_stdout, "  Subgoal frames:                  %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal frames:                  %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame), Pg_str_in_use(GLOBAL_pages_sg_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame);
 }
 
 
-static inline long show_statistics_dependency_frames(void) {
+static inline long show_statistics_dependency_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1098,17 +1146,17 @@ static inline long show_statistics_dependency_frames(void) {
   }
   TABLING_ERROR_CHECKING(statistics_dependency_frames, Pg_str_free(GLOBAL_pages_dep_fr) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Dependency frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Dependency frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame), Pg_pg_alloc(GLOBAL_pages_dep_fr), Pg_str_in_use(GLOBAL_pages_dep_fr));
 #else
-  fprintf(Yap_stdout, "  Dependency frames:               %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Dependency frames:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame), Pg_str_in_use(GLOBAL_pages_dep_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame);
 }
 
 
-static inline long show_statistics_subgoal_trie_nodes(void) {
+static inline long show_statistics_subgoal_trie_nodes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1126,17 +1174,17 @@ static inline long show_statistics_subgoal_trie_nodes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_subgoal_trie_nodes, Pg_str_free(GLOBAL_pages_sg_node) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Subgoal trie nodes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal trie nodes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node), Pg_pg_alloc(GLOBAL_pages_sg_node), Pg_str_in_use(GLOBAL_pages_sg_node));
 #else
-  fprintf(Yap_stdout, "  Subgoal trie nodes:              %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal trie nodes:              %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node), Pg_str_in_use(GLOBAL_pages_sg_node));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node);
 }
 
 
-static inline long show_statistics_answer_trie_nodes(void) {
+static inline long show_statistics_answer_trie_nodes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1154,17 +1202,17 @@ static inline long show_statistics_answer_trie_nodes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_answer_trie_nodes, Pg_str_free(GLOBAL_pages_ans_node) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Answer trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Answer trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node), Pg_pg_alloc(GLOBAL_pages_ans_node), Pg_str_in_use(GLOBAL_pages_ans_node));
 #else
-  fprintf(Yap_stdout, "  Answer trie nodes:               %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Answer trie nodes:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node), Pg_str_in_use(GLOBAL_pages_ans_node));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node);
 }
 
 
-static inline long show_statistics_subgoal_trie_hashes(void) {
+static inline long show_statistics_subgoal_trie_hashes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1182,17 +1230,17 @@ static inline long show_statistics_subgoal_trie_hashes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_subgoal_trie_hashes, Pg_str_free(GLOBAL_pages_sg_hash) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Subgoal trie hashes:             %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal trie hashes:             %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash), Pg_pg_alloc(GLOBAL_pages_sg_hash), Pg_str_in_use(GLOBAL_pages_sg_hash));
 #else
-  fprintf(Yap_stdout, "  Subgoal trie hashes:             %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Subgoal trie hashes:             %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash), Pg_str_in_use(GLOBAL_pages_sg_hash));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash);
 }
 
 
-static inline long show_statistics_answer_trie_hashes(void) {
+static inline long show_statistics_answer_trie_hashes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1210,17 +1258,17 @@ static inline long show_statistics_answer_trie_hashes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_answer_trie_hashes, Pg_str_free(GLOBAL_pages_ans_hash) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Answer trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Answer trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash), Pg_pg_alloc(GLOBAL_pages_ans_hash), Pg_str_in_use(GLOBAL_pages_ans_hash));
 #else
-  fprintf(Yap_stdout, "  Answer trie hashes:              %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Answer trie hashes:              %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash), Pg_str_in_use(GLOBAL_pages_ans_hash));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash);
 }
 
 
-static inline long show_statistics_global_trie_nodes(void) {
+static inline long show_statistics_global_trie_nodes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1238,17 +1286,17 @@ static inline long show_statistics_global_trie_nodes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_global_trie_nodes, Pg_str_free(GLOBAL_pages_gt_node) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Global trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Global trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n", 
 	  Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node), Pg_pg_alloc(GLOBAL_pages_gt_node), Pg_str_in_use(GLOBAL_pages_gt_node));
 #else
-  fprintf(Yap_stdout, "  Global trie nodes:               %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Global trie nodes:               %10ld bytes (%ld structs in use)\n", 
 	  Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node), Pg_str_in_use(GLOBAL_pages_gt_node));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node);
 }
 
 
-static inline long show_statistics_global_trie_hashes(void) {
+static inline long show_statistics_global_trie_hashes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
   pg_hd_ptr pg_hd;
@@ -1266,10 +1314,10 @@ static inline long show_statistics_global_trie_hashes(void) {
   }
   TABLING_ERROR_CHECKING(statistics_global_trie_hashes, Pg_str_free(GLOBAL_pages_gt_hash) != cont);
 #endif /* DEBUG_TABLING */
-  fprintf(Yap_stdout, "  Global trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Global trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_pg_alloc(GLOBAL_pages_gt_hash), Pg_str_in_use(GLOBAL_pages_gt_hash));
 #else
-  fprintf(Yap_stdout, "  Global trie hashes:              %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Global trie hashes:              %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_str_in_use(GLOBAL_pages_gt_hash));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash);
@@ -1278,7 +1326,7 @@ static inline long show_statistics_global_trie_hashes(void) {
 
 
 #ifdef YAPOR
-static inline long show_statistics_or_frames(void) {
+static inline long show_statistics_or_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
@@ -1296,17 +1344,17 @@ static inline long show_statistics_or_frames(void) {
   }
   YAPOR_ERROR_CHECKING(statistics_or_frames, Pg_str_free(GLOBAL_pages_or_fr ) != cont);
 #endif /* DEBUG_YAPOR */
-  fprintf(Yap_stdout, "  Or-frames:                       %10ld bytes (%ld pages and %ld structs in use)\n", 
+  Sfprintf(out, "  Or-frames:                       %10ld bytes (%ld pages and %ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame), Pg_pg_alloc(GLOBAL_pages_or_fr ), Pg_str_in_use(GLOBAL_pages_or_fr ));
 #else
-  fprintf(Yap_stdout, "  Or-frames:                       %10ld bytes (%ld structs in use)\n", 
+  Sfprintf(out, "  Or-frames:                       %10ld bytes (%ld structs in use)\n", 
           Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame), Pg_str_in_use(GLOBAL_pages_or_fr ));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame);
 }
 
 
-static inline long show_statistics_query_goal_solution_frames(void) {
+static inline long show_statistics_query_goal_solution_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
@@ -1324,17 +1372,17 @@ static inline long show_statistics_query_goal_solution_frames(void) {
   }
   YAPOR_ERROR_CHECKING(statistics_query_goal_solution_frames, Pg_str_free(GLOBAL_pages_qg_sol_fr ) != cont);
 #endif /* DEBUG_YAPOR */
-  fprintf(Yap_stdout, "  Query goal solution frames:      %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Query goal solution frames:      %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame), Pg_pg_alloc(GLOBAL_pages_qg_sol_fr ), Pg_str_in_use(GLOBAL_pages_qg_sol_fr ));
 #else
-  fprintf(Yap_stdout, "  Query goal solution frames:      %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Query goal solution frames:      %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame), Pg_str_in_use(GLOBAL_pages_qg_sol_fr ));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame);
 }
 
 
-static inline long show_statistics_query_goal_answer_frames(void) {
+static inline long show_statistics_query_goal_answer_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_YAPOR
   pg_hd_ptr pg_hd;
@@ -1352,10 +1400,10 @@ static inline long show_statistics_query_goal_answer_frames(void) {
   }
   YAPOR_ERROR_CHECKING(statistics_query_goal_answer_frames, Pg_str_free(GLOBAL_pages_qg_ans_fr) != cont);
 #endif /* DEBUG_YAPOR */
-  fprintf(Yap_stdout, "  Query goal answer frames:        %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Query goal answer frames:        %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame), Pg_pg_alloc(GLOBAL_pages_qg_ans_fr), Pg_str_in_use(GLOBAL_pages_qg_ans_fr));
 #else
-  fprintf(Yap_stdout, "  Query goal answer frames:        %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Query goal answer frames:        %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame), Pg_str_in_use(GLOBAL_pages_qg_ans_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
@@ -1364,7 +1412,7 @@ static inline long show_statistics_query_goal_answer_frames(void) {
 
 
 #if defined(YAPOR) && defined(TABLING)
-static inline long show_statistics_suspension_frames(void) {
+static inline long show_statistics_suspension_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
@@ -1382,10 +1430,10 @@ static inline long show_statistics_suspension_frames(void) {
   }
   OPTYAP_ERROR_CHECKING(statistics_suspension_frames, Pg_str_free(GLOBAL_pages_susp_fr) != cont);
 #endif /* DEBUG_OPTYAP */
-  fprintf(Yap_stdout, "  Suspension frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Suspension frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame), Pg_pg_alloc(GLOBAL_pages_susp_fr), Pg_str_in_use(GLOBAL_pages_susp_fr));
 #else
-  fprintf(Yap_stdout, "  Suspension frames:               %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Suspension frames:               %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame), Pg_str_in_use(GLOBAL_pages_susp_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame);
@@ -1393,7 +1441,7 @@ static inline long show_statistics_suspension_frames(void) {
 
 
 #ifdef TABLING_INNER_CUTS
-static inline long show_statistics_table_subgoal_solution_frames(void) {
+static inline long show_statistics_table_subgoal_solution_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
@@ -1411,17 +1459,17 @@ static inline long show_statistics_table_subgoal_solution_frames(void) {
   }
   OPTYAP_ERROR_CHECKING(statistics_table_subgoal_solution_frames, Pg_str_free(GLOBAL_pages_tg_sol_fr) != cont);
 #endif /* DEBUG_OPTYAP */
-  fprintf(Yap_stdout, "  Table subgoal solution frames:   %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Table subgoal solution frames:   %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame), Pg_pg_alloc(GLOBAL_pages_tg_sol_fr), Pg_str_in_use(GLOBAL_pages_tg_sol_fr));
 #else
-  fprintf(Yap_stdout, "  Table subgoal solution frames:   %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Table subgoal solution frames:   %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame), Pg_str_in_use(GLOBAL_pages_tg_sol_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
 }
 
 
-static inline long show_statistics_table_subgoal_answer_frames(void) {
+static inline long show_statistics_table_subgoal_answer_frames(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_OPTYAP
   pg_hd_ptr pg_hd;
@@ -1439,10 +1487,10 @@ static inline long show_statistics_table_subgoal_answer_frames(void) {
   }
   OPTYAP_ERROR_CHECKING(statistics_table_subgoal_answer_frames, Pg_str_free(GLOBAL_pages_tg_ans_fr) != cont);
 #endif /* DEBUG_OPTYAP */
-  fprintf(Yap_stdout, "  Table subgoal answer frames:     %10ld bytes (%ld pages and %ld structs in use)\n",
+  Sfprintf(out, "  Table subgoal answer frames:     %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame), Pg_pg_alloc(GLOBAL_pages_tg_ans_fr), Pg_str_in_use(GLOBAL_pages_tg_ans_fr));
 #else
-  fprintf(Yap_stdout, "  Table subgoal answer frames:     %10ld bytes (%ld structs in use)\n",
+  Sfprintf(out, "  Table subgoal answer frames:     %10ld bytes (%ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame), Pg_str_in_use(GLOBAL_pages_tg_ans_fr));
 #endif /* USE_PAGES_MALLOC */
   return Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);

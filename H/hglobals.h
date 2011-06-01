@@ -44,7 +44,7 @@ typedef struct global_data {
   UInt  ThreadsTotalTime_;
 
   lockvar  ThreadHandlesLock_;
-#endif
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
   lockvar  BGL_;
@@ -52,4 +52,59 @@ typedef struct global_data {
 #if defined(YAPOR) || defined(TABLING)
   struct global_optyap_data  optyap_data_;
 #endif /* YAPOR || TABLING */
+
+  int  PrologShouldHandleInterrupts_;
+
+#if defined(THREADS)
+  pthread_t  master_thread_;
+#endif /* THREADS */
+
+  YP_FILE*  stdout_;
+  YP_FILE*  stderr_;
+
+  char**  argv_;
+  int  argc_;
+
+#ifdef COROUTINING
+
+  ext_op  attas_[attvars_ext+1];
+#endif
+
+  int  agc_calls_;
+  YAP_ULONG_LONG  agc_collected_;
+
+  Int  tot_agc_time_;
+
+  Int  tot_agc_recovered_;
+
+#if HAVE_MMAP
+  struct MMAP_ARRAY_BLOCK*  mmap_arrays_;
+#endif
+#ifdef DEBUG
+
+  char  Option_[20];
+  YP_FILE*  logfile_;
+
+  int  output_msg_;
+#endif
+
+  Int  ProfCalls_;
+  Int  ProfGCs_;
+  Int  ProfHGrows_;
+  Int  ProfSGrows_;
+  Int  ProfMallocs_;
+  Int  ProfOn_;
+  Int  ProfOns_;
+  struct RB_red_blk_node*  ProfilerRoot_;
+  struct RB_red_blk_node*  ProfilerNil_;
+  char*  DIRNAME_;
+#if defined(COFF)  || defined(A_OUT)
+
+  char  Executable_[YAP_FILENAME_MAX];
+#endif
+#if  __simplescalar__
+  char  pwd_[YAP_FILENAME_MAX];
+#endif
+
+
 } w_shared;

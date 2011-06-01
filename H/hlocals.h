@@ -23,7 +23,7 @@ typedef struct worker_local {
   Int  GDiff_;
   Int  HDiff_;
   Int  GDiff0_;
-  Int  GSplit_;
+  CELL*  GSplit_;
   Int  LDiff_;
   Int  TrDiff_;
   Int  XDiff_;
@@ -127,5 +127,59 @@ typedef struct worker_local {
   int  consult_level_;
 #if defined(YAPOR) || defined(THREADS)
   lockvar  SignalLock_;
+#endif
+
+  ADDR  LocalBase_;
+  ADDR  GlobalBase_;
+  ADDR  TrailBase_;
+  ADDR  TrailTop_;
+  char*  ErrorMessage_;
+  Term  Error_Term_;
+#ifdef THREADS
+  Term  Error_TYPE_;
+#else
+  yap_error_number  Error_TYPE_;
+#endif	
+  UInt  Error_Size_;
+  char  ErrorSay_[MAX_ERROR_MSG_SIZE];
+  jmp_buf  IOBotch_;
+  TokEntry*  tokptr_;
+  TokEntry*  toktide_;
+  VarEntry*  VarTable_;
+  VarEntry*  AnonVarTable_;
+  sigjmp_buf  RestartEnv_;
+  char  FileNameBuf_[YAP_FILENAME_MAX];
+  char  FileNameBuf2_[YAP_FILENAME_MAX];
+
+  Int  PrologMode_;
+  int  CritLocks_;
+
+
+#ifdef ANALYST
+  YAP_ULONG_LONG  opcount_[_std_top+1];
+  YAP_ULONG_LONG  2opcount[_std_top+1][_std_top+1]_;
+#endif /* ANALYST */
+
+  struct db_globs*  s_dbg_;
+
+  yap_error_number  matherror_;
+
+  int  heap_overflows_;
+  Int  total_heap_overflow_time_;
+  int  stack_overflows_;
+  Int  total_stack_overflow_time_;
+  int  delay_overflows_;
+  Int  total_delay_overflow_time_;
+  int  trail_overflows_;
+  Int  total_trail_overflow_time_;
+  int  atom_table_overflows_;
+  Int  total_atom_table_overflow_time_;
+
+#ifdef LOAD_DYLD
+  static  dl_errno_;
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+  int  do_trace_primitives_;
 #endif
 } w_local;

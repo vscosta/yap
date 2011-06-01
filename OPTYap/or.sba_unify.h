@@ -69,7 +69,7 @@ EXTERN inline Int unify_constant(register Term a, register Term cons)
 	return(IsLongIntTerm(cons) && LongIntOfTerm(a) == LongIntOfTerm(cons));
 #ifdef TERM_EXTENSIONS
       } else if (IsAttachFunc(fun)) {
-	return(attas[ExtFromFunctor(fun)].bind_op(SBIND,a,cons));
+	return(GLOBAL_attas[ExtFromFunctor(fun)].bind_op(SBIND,a,cons));
 #endif /* TERM_EXTENSIONS */
       } else
 	return(FALSE);

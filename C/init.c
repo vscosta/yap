@@ -55,7 +55,6 @@ static char     SccsId[] = "%W% %G%";
 
 #define	LOGFILE	"logfile"
 
-int  Yap_output_msg = FALSE;
 
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
@@ -75,112 +74,12 @@ STATIC_PROTO(void  InitCodes, (void));
 STATIC_PROTO(void  InitVersion, (void));
 STD_PROTO(void  exit, (int));
 static void InitWorker(int wid);
-#ifdef YAPOR
-void init_yapor_workers(void);
-#endif /* YAPOR */
 
 
 /**************	YAP PROLOG GLOBAL VARIABLES *************************/
 
 /************* variables related to memory allocation ***************/
-
-#if defined(THREADS)
-
 ADDR Yap_HeapBase;
-
-struct thread_globs Yap_thread_gl[MAX_THREADS];
-
-pthread_t Yap_master_thread;
-
-#else
-
-ADDR Yap_HeapBase,
-  Yap_LocalBase,
-  Yap_GlobalBase,
-  Yap_TrailBase,
-  Yap_TrailTop;
-
-/************ variables	concerned with Error Handling *************/
-char           *Yap_ErrorMessage;	/* used to pass error messages */
-Term              Yap_Error_Term;	/* used to pass error terms */
-yap_error_number  Yap_Error_TYPE;	/* used to pass the error */
-UInt             Yap_Error_Size;	/* used to pass a size associated with an error */
-
-/******************* storing error messages ****************************/
-char      Yap_ErrorSay[MAX_ERROR_MSG_SIZE];
-
-/* if we botched in a LongIO operation */
-jmp_buf Yap_IOBotch;
-
-/* if we botched in the compiler */
-jmp_buf Yap_CompilerBotch;
-
-/************ variables	concerned with Error Handling *************/
-sigjmp_buf         Yap_RestartEnv;	/* used to restart after an abort execution */
-
-/********* IO support	*****/
-
-/********* parsing ********************************************/
-
-TokEntry *Yap_tokptr, *Yap_toktide;
-VarEntry *Yap_VarTable, *Yap_AnonVarTable;
-int Yap_eot_before_eof = FALSE;
-
-/******************* intermediate buffers **********************/
-
-char     Yap_FileNameBuf[YAP_FILENAME_MAX],
-         Yap_FileNameBuf2[YAP_FILENAME_MAX];
-
-#endif /* THREADS */
-
-/******** whether Yap is responsible for signal handling******************/
-int             Yap_PrologShouldHandleInterrupts;
-
-/********* readline support	*****/
-#if HAVE_LIBREADLINE
-
-char *_line = (char *) NULL;
-
-#endif
-
-#ifdef MPWSHELL
-/********** informing if we are in the MPW shell ********************/
-
-int             mpwshell = FALSE;
-
-#endif
-
-#ifdef EMACS
-
-int             emacs_mode = FALSE;
-char            emacs_tmp[256], emacs_tmp2[256];
-
-#endif
-
-/********* Prolog State ********************************************/
-
-Int      Yap_PrologMode = BootMode;
-
-int      Yap_CritLocks = 0;
-
-/********* streams ********************************************/
-
-YP_FILE *Yap_stdin;
-YP_FILE *Yap_stdout;
-YP_FILE *Yap_stderr;
-
-
-/************** Access to yap initial arguments ***************************/
-
-char          **Yap_argv;
-int             Yap_argc;
-
-/************** Extensions to Terms ***************************************/
-
-#ifdef COROUTINING
-/* array with the ops for your favourite extensions */
-ext_op attas[attvars_ext+1];
-#endif
 
 /**************	declarations local to init.c ************************/
 static char    *optypes[] =
@@ -192,10 +91,6 @@ int Yap_page_size;
 #if USE_THREADED_CODE
 /* easy access to instruction opcodes */
 void **Yap_ABSMI_OPCODES;
-#endif
-
-#if   USE_SOCKET
-int Yap_sockets_io=0;
 #endif
 
 #if DEBUG
@@ -303,7 +198,7 @@ static void
 SetOp(int p, int type, char *at, Term m)
 {
 #ifdef DEBUG
-  if (Yap_Option[5])
+  if (GLOBAL_Option[5])
     fprintf(stderr,"[setop %d %s %s]\n", p, optypes[type], at);
 #endif
   OpDec(p, optypes[type], Yap_LookupAtom(at), m);
@@ -445,8 +340,8 @@ InitDebug(void)
   int i;
 
   for (i = 1; i < 20; ++i)
-    Yap_Option[i] = 0;
-  if (Yap_output_msg) {
+    GLOBAL_Option[i] = 0;
+  if (GLOBAL_output_msg) {
     char            ch;
 
 #if HAVE_ISATTY
@@ -461,10 +356,10 @@ InitDebug(void)
     fprintf(stderr,"m Machine\t p parser\n");
     while ((ch = YP_putchar(YP_getchar())) != '\n')
       if (ch >= 'a' && ch <= 'z')
-	Yap_Option[ch - 'a' + 1] = 1;
-    if (Yap_Option['l' - 96]) {
-      Yap_logfile = fopen(LOGFILE, "w");
-      if (Yap_logfile == NULL) {
+	GLOBAL_Option[ch - 'a' + 1] = 1;
+    if (GLOBAL_Option['l' - 96]) {
+      GLOBAL_logfile = fopen(LOGFILE, "w");
+      if (GLOBAL_logfile == NULL) {
 	fprintf(stderr,"can not open %s\n", LOGFILE);
 	getchar();
 	exit(0);
@@ -1202,6 +1097,7 @@ void init_yapor_workers(void) {
       worker_id = proc;
       Yap_remap_optyap_memory();
       LOCAL = REMOTE(worker_id);
+      memcpy(REMOTE(worker_id),REMOTE(0),sizeof(struct worker_local));
       InitWorker(worker_id);
       break;
     } else
@@ -1353,7 +1249,9 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
     return;
   pthread_key_create(&Yap_yaamregs_key, NULL);
   pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
-  Yap_master_thread = pthread_self();
+  //printf(" -> -> %p  \n", &Yap_REGS);
+  //LOCAL = REMOTE(0);
+  GLOBAL_master_thread = pthread_self();
 #else
   /* In this case we need to initialise the abstract registers */
   Yap_regp = &Yap_standard_regs;
@@ -1364,10 +1262,8 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 
 #ifdef THREADS
   Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
+  LOCAL = REMOTE(0);
 #endif /* THREADS */
-  /* Init signal handling and time */
-  /* also init memory page size, required by later functions */
-  Yap_InitSysbits ();
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
   Heap = AdjustPageSize(Heap * K);
@@ -1399,19 +1295,16 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
 #endif /* YAPOR_COPY - YAPOR_COW - YAPOR_SBA - YAPOR_THREADS */
 #endif /* YAPOR */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
-  Yap_init_optyap_memory(Trail, Heap, Stack+Atts, n_workers);
+  Yap_init_yapor_stacks_memory(Trail, Heap, Stack+Atts, n_workers);
 #else
   Yap_InitMemory(Trail, Heap, Stack+Atts);
 #endif
 #if defined(YAPOR) || defined(TABLING)
   Yap_init_global_optyap_data(max_table_size, n_workers, sch_loop, delay_load);
 #endif /* YAPOR || TABLING */
-#if defined(YAPOR) || defined(THREADS)
-  LOCAL = REMOTE(0);  /* point to the first area */
-#endif /* YAPOR || THREADS */
 
   Yap_AttsSize = Atts;
-  Yap_InitTime ();
+  Yap_InitTime();
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
   for (i = 0; i <= LAST_FLAG; i++) {
@@ -1464,11 +1357,12 @@ run_halt_hooks(int code)
 void
 Yap_exit (int value)
 {
+  CACHE_REGS
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_unmap_optyap_memory();
 #endif 
 
-  if (! (Yap_PrologMode & BootMode) ) {
+  if (! (LOCAL_PrologMode & BootMode) ) {
 #ifdef LOW_PROF
     remove("PROFPREDS");
     remove("PROFILING");

@@ -463,6 +463,7 @@ void core_trie_save(TrNode node, FILE *file, void (*save_function)(TrNode, FILE 
     fprintf(file, "BEGIN_TRIE_v2 ");
     traverse_and_save(TrNode_child(node), file, 0);
     fprintf(file, "END_TRIE_v2");
+    fflush(file);
   }
   return;
 }
@@ -486,6 +487,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
       fprintf(stderr, "******************************************\n");
       fprintf(stderr, "  Tries core module: trie file corrupted\n");
       fprintf(stderr, "******************************************\n");  
+      fflush(stderr);
       return NULL;
     }
     if (fsetpos(file, &curpos))
@@ -498,6 +500,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
       fprintf(stderr, "******************************************\n");
       fprintf(stderr, "  Tries core module: trie file corrupted\n");
       fprintf(stderr, "******************************************\n");  
+      fflush(stderr);
       return NULL;
     }
     if (fsetpos(file, &curpos))
@@ -507,6 +510,7 @@ TrNode core_trie_load(TrEngine engine, FILE *file, void (*load_function)(TrNode,
     fprintf(stderr, "****************************************\n");
     fprintf(stderr, "  Tries core module: invalid trie file\n");
     fprintf(stderr, "****************************************\n");  
+    fflush(stderr);
     return NULL;
   }
   CURRENT_TRIE_ENGINE = engine;
@@ -563,6 +567,7 @@ void core_trie_print(TrNode node, void (*print_function)(TrNode)) {
     traverse_and_print(TrNode_child(node), arity, str, 0, TRIE_PRINT_NORMAL);
   } else
     fprintf(stdout, "(empty)\n");
+  fflush(stdout);
   return;
 }
 
@@ -611,14 +616,15 @@ TrNode put_entry(TrNode node, YAP_Term entry) {
   } else if (YAP_IsIntTerm(t)) {
     node = trie_node_check_insert(node, t);
   } else if (YAP_IsFloatTerm(t)) {
-    volatile double f;
-    volatile YAP_Term *p;
-    f = YAP_FloatOfTerm(t);
-    p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
+    volatile union {
+      double f;
+      YAP_Term p[SIZE_FLOAT_AS_TERM];
+    } tf;  /* to avoid gcc warning */
+    tf.f = YAP_FloatOfTerm(t);
     node = trie_node_check_insert(node, FloatInitTag);
-    node = trie_node_check_insert(node, *p);
+    node = trie_node_check_insert(node, tf.p[0]);
 #ifdef TAG_LOW_BITS_32
-    node = trie_node_check_insert(node, *(p + 1));
+    node = trie_node_check_insert(node, tf.p[1]);
 #endif /* TAG_LOW_BITS_32 */
     node = trie_node_check_insert(node, FloatEndTag);
   } else if (YAP_IsPairTerm(t)) {
@@ -671,6 +677,7 @@ TrNode put_entry(TrNode node, YAP_Term entry) {
     fprintf(stderr, "***************************************\n");
     fprintf(stderr, "  Tries core module: unknown type tag\n");
     fprintf(stderr, "***************************************\n");
+    fflush(stderr);
   }
   
   return node;
@@ -698,16 +705,17 @@ TrNode check_entry(TrNode node, YAP_Term entry) {
     if (!(node = trie_node_check(node, t)))
       return NULL;
   } else if (YAP_IsFloatTerm(t)) {
-    volatile double f;
-    volatile YAP_Term *p;
-    f = YAP_FloatOfTerm(t);
-    p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
+    volatile union {
+      double f;
+      YAP_Term p[SIZE_FLOAT_AS_TERM];
+    } tf;  /* to avoid gcc warning */
+    tf.f = YAP_FloatOfTerm(t);
     if (!(node = trie_node_check(node, FloatInitTag)))
       return NULL;
-    if (!(node = trie_node_check(node, *p)))
+    if (!(node = trie_node_check(node, tf.p[0])))
       return NULL;
 #ifdef TAG_LOW_BITS_32
-    if (!(node = trie_node_check(node, *(p + 1))))
+    if (!(node = trie_node_check(node, tf.p[1])))
       return NULL;
 #endif /* TAG_LOW_BITS_32 */
     if (!(node = trie_node_check(node, FloatEndTag)))
@@ -777,6 +785,7 @@ TrNode check_entry(TrNode node, YAP_Term entry) {
     fprintf(stderr, "***************************************\n");
     fprintf(stderr, "  Tries core module: unknown type tag\n");
     fprintf(stderr, "***************************************\n");
+    fflush(stderr);
   }
   
   return node;
@@ -797,6 +806,7 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
           fprintf(stderr, "**************************************\n");
           fprintf(stderr, "  Tries core module: term stack full\n");
           fprintf(stderr, "**************************************\n");
+	  fflush(stderr);
         }
         for (i = index; i > CURRENT_INDEX; i--)
           stack_vars_base[i] = 0;
@@ -864,17 +874,18 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
         *cur_node = node;
         return t;
       } else if (t == FloatEndTag) {
-        volatile double f;
-        volatile YAP_Term *p;
-        p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
+	volatile union {
+	  double f;
+	  YAP_Term p[SIZE_FLOAT_AS_TERM];
+	} tf;  /* to avoid gcc warning */
 #ifdef TAG_LOW_BITS_32
         node = TrNode_parent(node);
-        *(p + 1) = TrNode_entry(node);
+        tf.p[1] = TrNode_entry(node);
 #endif /* TAG_LOW_BITS_32 */
         node = TrNode_parent(node);
-        *p = TrNode_entry(node);
+        tf.p[0] = TrNode_entry(node);
         node = TrNode_parent(node); /* ignore FloatInitTag */
-        t = YAP_MkFloatTerm(f);
+        t = YAP_MkFloatTerm(tf.f);
         PUSH_UP(stack_args, t, stack_vars);
       } else if (t == FloatInitTag) {
       }
@@ -888,6 +899,7 @@ YAP_Term get_entry(TrNode node, YAP_Term *stack_mark, TrNode *cur_node) {
       fprintf(stderr, "***************************************\n");
       fprintf(stderr, "  Tries core module: unknown type tag\n");
       fprintf(stderr, "***************************************\n");
+      fflush(stderr);
     }
     node = TrNode_parent(node);
   }
@@ -1462,7 +1474,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 	if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
 	  /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
-	  if (str[str_index - 1] != '[')
+	  if (str_index > 0 && str[str_index - 1] != '[')
 	    str[str_index - 1] = ',';
 	  /* restore possible PairEndTermTag side-effect */
 	  if (str[last_pair_mark] == '|')
@@ -1481,7 +1493,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
     if (mode != TRIE_PRINT_FLOAT2 && arity[arity[0]] < 0) {
       /* restore possible PairEndEmptyTag/PairEndTermTag/CommaEndTag side-effect */
-      if (str[str_index - 1] != '[')
+      if (str_index > 0 && str[str_index - 1] != '[')
 	str[str_index - 1] = ',';
       /* restore possible PairEndTermTag side-effect */
       if (str[last_pair_mark] == '|')
@@ -1500,19 +1512,21 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     arity[arity[0]] = (YAP_Int) t;
     mode = TRIE_PRINT_FLOAT2;
   } else if (mode == TRIE_PRINT_FLOAT2) {
-    volatile double f;
-    volatile YAP_Term *p;
-    p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
-    *(p + 1) = t;
-    *p = (YAP_Term) arity[arity[0]];
+    volatile union {
+      double f;
+      YAP_Term p[SIZE_FLOAT_AS_TERM];
+    } tf;  /* to avoid gcc warning */
+    tf.p[1] = t;
+    tf.p[0] = (YAP_Term) arity[arity[0]];
     arity[arity[0]] = -1;
 #else /* TAG_64BITS */
-    volatile double f;
-    volatile YAP_Term *p;
-    p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
-    *p = t;
+    volatile union {
+      double f;
+      YAP_Term p[SIZE_FLOAT_AS_TERM];
+    } tf;  /* to avoid gcc warning */
+    tf.p[0] = t;
 #endif /* TAG_SCHEME */
-    str_index += sprintf(& str[str_index], "%.15g", f);
+    str_index += sprintf(& str[str_index], "%.15g", tf.f);
     mode = TRIE_PRINT_FLOAT_END;
   } else if (mode == TRIE_PRINT_FLOAT_END) {
     arity[0]--;
@@ -1609,6 +1623,7 @@ void traverse_and_print(TrNode node, int *arity, char *str, int str_index, int m
     fprintf(stderr, "***************************************\n");
     fprintf(stderr, "  Tries core module: unknown type tag\n");
     fprintf(stderr, "***************************************\n");
+    fflush(stderr);
   }
 
   if (arity[0]) {
@@ -1696,6 +1711,7 @@ YAP_Term trie_to_list_node(TrNode node) {
   fprintf(stderr, "***************************************\n");
   fprintf(stderr, "  Tries core module: unknown type tag\n");
   fprintf(stderr, "***************************************\n");
+  fflush(stderr);
   
   return YAP_MkAtomTerm(YAP_LookupAtom("fail"));
 }
@@ -1709,7 +1725,7 @@ YAP_Term trie_to_list_node(TrNode node) {
 
 #ifdef TAG_LOW_BITS_32
 static inline
-YAP_Term trie_to_list_floats_tag_low_32(YAP_Term result, TrNode node, volatile YAP_Term **p, volatile double *f) {
+YAP_Term trie_to_list_floats_tag_low_32(YAP_Term result, TrNode node, volatile YAP_Term *p, volatile double *f) {
   if(IS_HASH_NODE(node)) {
     TrNode *first_bucket, *bucket;
     TrHash hash = (TrHash) node;
@@ -1720,16 +1736,15 @@ YAP_Term trie_to_list_floats_tag_low_32(YAP_Term result, TrNode node, volatile Y
     do {
       if(*--bucket) {
         node = *bucket;
-        
         do {
-          *(*p + 1) = TrNode_entry(node);
+          p[1] = TrNode_entry(node);
           PUSH_NEW_FLOAT_TERM(*f);
         } while((node = TrNode_next(node)));
       }
     } while (bucket != first_bucket);
   } else {
     do {
-      *(*p + 1) = TrNode_entry(node);
+      p[1] = TrNode_entry(node);
       PUSH_NEW_FLOAT_TERM(*f);
     } while((node = TrNode_next(node)));
   }
@@ -1741,11 +1756,12 @@ YAP_Term trie_to_list_floats_tag_low_32(YAP_Term result, TrNode node, volatile Y
 
 static
 YAP_Term trie_to_list_floats(TrNode node) {
-  volatile double f;
-  volatile YAP_Term *p;
+  volatile union {
+    double f;
+    YAP_Term p[SIZE_FLOAT_AS_TERM];
+  } tf;  /* to avoid gcc warning */
   YAP_Term result = YAP_MkAtomTerm(YAP_LookupAtom("[]"));
 
-  p = (YAP_Term *)((void *) &f); /* to avoid gcc warning */
   if (IS_HASH_NODE(node)) {
     TrNode *first_bucket, *bucket;
     TrHash hash = (TrHash) node;    
@@ -1755,22 +1771,22 @@ YAP_Term trie_to_list_floats(TrNode node) {
       if (*--bucket) {
         node = *bucket;
         do {
-          *p = TrNode_entry(node);
+          tf.p[0] = TrNode_entry(node);
 #ifdef TAG_LOW_BITS_32
-          result = trie_to_list_floats_tag_low_32(result, TrNode_child(node), &p, &f);
+          result = trie_to_list_floats_tag_low_32(result, TrNode_child(node), &tf.p, &tf.f);
 #else
-          PUSH_NEW_FLOAT_TERM(f);
+          PUSH_NEW_FLOAT_TERM(tf.f);
 #endif /* TAG_LOW_BITS_32 */
         } while((node = TrNode_next(node)));
       }
     } while (bucket != first_bucket);
   } else {
     do {
-      *p = TrNode_entry(node);
+      tf.p[0] = TrNode_entry(node);
 #ifdef TAG_LOW_BITS_32
-      result = trie_to_list_floats_tag_low_32(result, TrNode_child(node), &p, &f);
+      result = trie_to_list_floats_tag_low_32(result, TrNode_child(node), &tf.p, &tf.f);
 #else
-      PUSH_NEW_FLOAT_TERM(f);
+      PUSH_NEW_FLOAT_TERM(tf.f);
 #endif /* TAG_LOW_BITS_32 */
     } while((node = TrNode_next(node)));
   }

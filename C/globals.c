@@ -111,7 +111,7 @@ NewArena(UInt size, UInt arity, CELL *where USES_REGS)
   if (where == NULL || where == H) {
     while (H+size > ASP-1024) {
       if (!Yap_gcl(size*sizeof(CELL), arity, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return TermNil;
       }
     }
@@ -188,7 +188,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity USES_REGS)
 
       XREGS[arity+1] = arena;
       if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
       arena = XREGS[arity+1];
@@ -203,7 +203,7 @@ GrowArena(Term arena, CELL *pt, UInt old_size, UInt size, UInt arity USES_REGS)
     /* try to recover some room  */
     if (arena == LOCAL_GlobalArena && 10*(pt-H0) > 8*(H-H0)) {
       if (!Yap_gcl(size*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
 	return FALSE;
       }
     }
@@ -474,12 +474,12 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 	CELL new;
 
 	bp = to_visit;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
 	  goto overflow;
 	}
 	to_visit = bp;
 	new = *ptf;
-	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	  /* Trail overflow */
 	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	    goto trail_overflow;
@@ -491,7 +491,7 @@ copy_complex_term(register CELL *pt0, register CELL *pt0_end, int share, int cop
 #endif
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	if ((ADDR)TR > Yap_TrailTop-MIN_ARENA_SIZE)
+	if ((ADDR)TR > LOCAL_TrailTop-MIN_ARENA_SIZE)
 	  goto trail_overflow;
 	Bind_and_Trail(ptd0, (CELL)ptf);
 	ptf++;
@@ -723,13 +723,13 @@ CopyTermToArena(Term t, Term arena, int share, int copy_att_vars, UInt arity, Te
       if (arena == LOCAL_GlobalArena)
 	LOCAL_GlobalArenaOverflows++;
       if (!GrowArena(arena, old_top, old_size, min_grow, arity+3 PASS_REGS)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
       break;
     default: /* temporary space overflow */
       if (!Yap_ExpandPreAllocCodeSpace(0,NULL,TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
@@ -1625,7 +1625,7 @@ p_nb_queue_enqueue( USES_REGS1 )
     ARG3 = to;
     /*    fprintf(stderr,"growing %ld cells\n",(unsigned long int)gsiz);*/
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
-      Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, arena, LOCAL_ErrorMessage);
       return 0L;
     }    
     to = ARG3;
@@ -1803,7 +1803,7 @@ p_nb_heap( USES_REGS1 )
 
   while ((heap = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,2*hsize+HEAP_START+1),2*hsize+HEAP_START+1 PASS_REGS)) == TermNil) {
     if (!Yap_gcl((2*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -1977,7 +1977,7 @@ p_nb_heap_add_to_heap( USES_REGS1 )
     }
     ARG3 = to;
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
-      Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, arena, LOCAL_ErrorMessage);
       return 0L;
     }    
     to = ARG3;
@@ -2085,7 +2085,7 @@ p_nb_beam( USES_REGS1 )
   }
   while ((beam = MkZeroApplTerm(Yap_MkFunctor(AtomHeap,5*hsize+HEAP_START+1),5*hsize+HEAP_START+1 PASS_REGS)) == TermNil) {
     if (!Yap_gcl((4*hsize+HEAP_START+1)*sizeof(CELL), 2, ENV, P)) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -2363,7 +2363,7 @@ p_nb_beam_add_to_beam( USES_REGS1 )
     }
     ARG3 = to;
     if (!GrowArena(arena, ArenaLimit(arena), old_sz, gsiz, 3 PASS_REGS)) {
-      Yap_Error(OUT_OF_STACK_ERROR, arena, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, arena, LOCAL_ErrorMessage);
       return 0L;
     }    
     to = ARG3;
@@ -2475,7 +2475,7 @@ p_nb_beam_keys( USES_REGS1 )
     if (H > ASP-1024) {
       H = ho;
       if (!Yap_gcl(((ASP-H)-1024)*sizeof(CELL), 2, ENV, P)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return TermNil;
       }
       goto restart;
