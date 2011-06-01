@@ -324,8 +324,7 @@ Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 #define	Unfold_cyclics_f        0x20
 #define	Use_SWI_Stream_f        0x40
 
-/* write.c */
-void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t), int, int));
+
 
 /* grow.c */
 int  STD_PROTO(Yap_growheap_in_parser,   (tr_fr_ptr *, TokEntry **, VarEntry **));
