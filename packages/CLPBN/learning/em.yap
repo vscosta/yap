@@ -22,9 +22,6 @@
 	       randomise_all_dists/0,
 	       uniformise_all_dists/0]).
 
-:- use_module(library('clpbn/connected'),
-	      [clpbn_subgraphs/2]).
-
 :- use_module(library('clpbn/learning/learn_utils'),
 	      [run_all/1,
 	       clpbn_vars/2,

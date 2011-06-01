@@ -51,7 +51,7 @@
 
 :- use_module(library('clpbn/connected'),
 	      [
-	       influences/4
+	       influences/3
 	      ]).
 
 :- dynamic gibbs_params/3.
@@ -73,7 +73,7 @@ init_gibbs_solver(GoalVs, Vs0, _, Vs) :-
 	clean_up,
 	term_variables(GoalVs, LVs),
 	check_for_hidden_vars(Vs0, Vs0, Vs1),
-	influences(Vs1, LVs, _, Vs2),
+	influences(Vs1, LVs, Vs2),
 	sort(Vs2,Vs).
 
 run_gibbs_solver(LVs, LPs, Vs) :-

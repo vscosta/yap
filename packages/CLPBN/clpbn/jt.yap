@@ -80,7 +80,7 @@
 :- use_module(library('clpbn/connected'),
 	      [
 	       init_influences/3,
-	       influences/5
+	       influences/4
 	      ]).
 
 
@@ -98,7 +98,7 @@ init_jt_solver(LLVs, Vs0, _, State) :-
 
 init_jt_solver_for_questions([], _, _, []).
 init_jt_solver_for_questions([LLVs|MoreLLVs], G, RG, [state(JTree, Evidence)|State]) :-
-	influences(LLVs, _, NVs0, G, RG),
+	influences(LLVs, G, RG, NVs0),
 	sort(NVs0, NVs),
 	get_graph(NVs, BayesNet, CPTs, Evidence),
 	build_jt(BayesNet, CPTs, JTree),
