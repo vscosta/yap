@@ -392,6 +392,11 @@ void	STD_PROTO(Yap_InitUtilCPreds,(void));
 Int     STD_PROTO(Yap_TermHash,(Term, Int, Int, int));
 /* yap.c */
 
+
+/* write.c */
+void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t), int, int));
+
+
 /* MYDDAS */
 
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
