@@ -57,6 +57,7 @@ cptr_to_offset_with_null(choiceptr node)
 **      Struct page_header      **
 *********************************/
 
+#ifdef USE_PAGES_MALLOC
 typedef struct page_header {
   volatile int structs_in_use;
   void *first_free_struct;
@@ -68,6 +69,7 @@ typedef struct page_header {
 #define PgHd_free_str(X)    ((X)->first_free_struct)
 #define PgHd_previous(X)    ((X)->previous)
 #define PgHd_next(X)        ((X)->next)
+#endif /* USE_PAGES_MALLOC */
 
 
 

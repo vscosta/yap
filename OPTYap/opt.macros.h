@@ -263,7 +263,7 @@ extern int Yap_page_size;
 **                      USE_PAGES_MALLOC && ! LIMIT_TABLING                     **
 *************************************************************************************************/
 #define ALLOC_PAGE(PG_HD)                                                                        \
-        LOCK(Pg_lock(GLOBAL_pages_void));                                                           \
+        LOCK(Pg_lock(GLOBAL_pages_void));                                                        \
         if (Pg_free_pg(GLOBAL_pages_void) == NULL) {                                             \
           int i, shmid;                                                                          \
           pg_hd_ptr pg_hd, aux_pg_hd;                                                            \

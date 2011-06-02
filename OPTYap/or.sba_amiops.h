@@ -66,7 +66,6 @@ Dereferencing macros
 		   if (0 == (D)) break;                      \
 		   if (IsPairTerm(D)) goto LabelList;        \
 		} while (TRUE);
-
 #endif /* UNIQUE_TAG_FOR_PAIRS */
 
 EXTERN inline Term Deref(Term a)
@@ -108,6 +107,7 @@ A contains the address of the variable that is to be trailed
 
 #define RESET_VARIABLE(V)       (*(CELL *)(V) = 0)
 
+#if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 inline EXTERN void
 AlignGlobalForDouble(void)
 {
@@ -118,6 +118,7 @@ AlignGlobalForDouble(void)
     H++;
   }
 }
+#endif /* SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT */
 
 #ifdef YAPOR
 

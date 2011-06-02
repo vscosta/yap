@@ -71,8 +71,8 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 #endif /* LIMIT_TABLING */
   INIT_PAGES(GLOBAL_pages_void, void *);      
 #ifdef YAPOR
-  INIT_PAGES(GLOBAL_pages_or_fr , struct or_frame);
-  INIT_PAGES(GLOBAL_pages_qg_sol_fr , struct query_goal_solution_frame);
+  INIT_PAGES(GLOBAL_pages_or_fr, struct or_frame);
+  INIT_PAGES(GLOBAL_pages_qg_sol_fr, struct query_goal_solution_frame);
   INIT_PAGES(GLOBAL_pages_qg_ans_fr, struct query_goal_answer_frame);
 #endif /* YAPOR */
 #ifdef TABLING_INNER_CUTS

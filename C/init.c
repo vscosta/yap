@@ -34,8 +34,11 @@ static char     SccsId[] = "%W% %G%";
 #include "tracer.h"
 #endif
 #ifdef YAPOR
+#ifdef YAPOR_COW
+#include <signal.h>
+#endif /* YAPOR_COW */
 #include "or.macros.h"
-#endif	/* YAPOR */
+#endif /* YAPOR */
 #if defined(YAPOR) || defined(TABLING)
 #if HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -1067,6 +1070,7 @@ void Yap_init_yapor_workers(void) {
   return;
 #endif /* YAPOR_THREADS */
 #ifdef YAPOR_COW
+  GLOBAL_master_worker = getpid();
   if (GLOBAL_number_workers > 1) {
     int son;
     son = fork();
@@ -1075,8 +1079,6 @@ void Yap_init_yapor_workers(void) {
     if (son > 0) {
       /* I am the father, I must stay here and wait for my children to all die */
       struct sigaction sigact;
-
-      GLOBAL_master_worker = getpid();
       sigact.sa_handler = SIG_DFL;
       sigemptyset(&sigact.sa_mask);
       sigact.sa_flags = SA_RESTART;
@@ -1095,9 +1097,9 @@ void Yap_init_yapor_workers(void) {
     if (son == 0) { 
       /* new worker */
       worker_id = proc;
-      Yap_remap_optyap_memory();
+      Yap_remap_yapor_memory();
       LOCAL = REMOTE(worker_id);
-      memcpy(REMOTE(worker_id),REMOTE(0),sizeof(struct worker_local));
+      memcpy(REMOTE(worker_id), REMOTE(0), sizeof(struct worker_local));
       InitWorker(worker_id);
       break;
     } else
@@ -1357,8 +1359,8 @@ Yap_exit (int value)
 {
   CACHE_REGS
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
-  Yap_unmap_optyap_memory();
-#endif 
+  Yap_unmap_yapor_memory();
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
 
   if (! (LOCAL_PrologMode & BootMode) ) {
 #ifdef LOW_PROF

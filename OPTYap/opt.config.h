@@ -17,9 +17,9 @@
 **                   General Configuration Parameters                  **
 ************************************************************************/
 
-/****************************************************************
-**      use shared pages memory alloc scheme ? (optional)      **
-****************************************************************/
+/******************************************************************************************
+**      use shared pages memory alloc scheme for OPTYap data structures? (optional)      **
+******************************************************************************************/
 
 /* #define USE_PAGES_MALLOC 1 */
 
@@ -92,7 +92,7 @@
 **      memory mapping scheme (mandatory, define one)      **
 ************************************************************/
 #define MMAP_MEMORY_MAPPING_SCHEME 1
-/* #define SHM_MEMORY_MAPPING_SCHEME  1 */
+/* #define SHM_MEMORY_MAPPING_SCHEME 1 */
 
 /*************************************************
 **      enable error checking ? (optional)      **

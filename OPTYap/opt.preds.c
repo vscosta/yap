@@ -27,7 +27,6 @@
 #if HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif /* HAVE_SYS_TIME_H */
-#include "yapio.h"
 #include "or.macros.h"
 #endif /* YAPOR */
 #ifdef TABLING
@@ -763,12 +762,12 @@ static Int p_show_statistics_or( USES_REGS1 ) {
   Sfprintf(out, "  Memory in use (II):              %10ld bytes\n\n", aux_bytes);
   total_bytes += aux_bytes;
 #ifdef USE_PAGES_MALLOC
-  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes (%ld pages in use)\n",
+  Sfprintf(out, "Total memory in use (I+II):        %10ld bytes (%ld pages in use)\n",
           total_bytes, Pg_str_in_use(GLOBAL_pages_void));
   Sfprintf(out, "Total memory allocated:            %10ld bytes (%ld pages in total)\n",
           Pg_pg_alloc(GLOBAL_pages_void) * Yap_page_size, Pg_pg_alloc(GLOBAL_pages_void));
 #else 
-  Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
+  Sfprintf(out, "Total memory in use (I+II):        %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
   return (TRUE);
 }
@@ -1303,6 +1302,7 @@ static inline long show_statistics_global_trie_nodes(IOSTREAM *out) {
 static inline long show_statistics_global_trie_hashes(IOSTREAM *out) {
 #ifdef USE_PAGES_MALLOC
 #ifdef DEBUG_TABLING
+  /* suport not yet implemented :(
   pg_hd_ptr pg_hd;
   gt_hash_ptr aux_ptr;
   long cont = 0;
@@ -1317,6 +1317,7 @@ static inline long show_statistics_global_trie_hashes(IOSTREAM *out) {
     pg_hd = PgHd_next(pg_hd);
   }
   TABLING_ERROR_CHECKING(statistics_global_trie_hashes, Pg_str_free(GLOBAL_pages_gt_hash) != cont);
+  */
 #endif /* DEBUG_TABLING */
   Sfprintf(out, "  Global trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n",
           Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_pg_alloc(GLOBAL_pages_gt_hash), Pg_str_in_use(GLOBAL_pages_gt_hash));

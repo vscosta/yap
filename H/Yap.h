@@ -1275,9 +1275,6 @@ typedef struct scratch_block_struct {
 #include "opt.macros.h"
 #endif /* YAPOR || TABLING */
 
-#ifdef YAPOR_SBA
-#include "or.sba_unify.h"
-#endif /* YAPOR_SBA */
 
 
 /*************************************************************************************************
@@ -1316,6 +1313,7 @@ extern struct worker_local Yap_local;
 
 #ifdef YAPOR_SBA
 #include "or.sba_amiops.h"
+#include "or.sba_unify.h"
 #else
 #include "amiops.h"
 #endif /* YAPOR_SBA */
