@@ -260,7 +260,7 @@ C_SOURCES= \
 	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
 	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
 	$(srcdir)/BEAM/eam_gc.c $(srcdir)/BEAM/eam_split.c \
-	$(srcdir)/OPTYap/opt.memory.c $(srcdir)/OPTYap/opt.init.c \
+	$(srcdir)/OPTYap/or.memory.c $(srcdir)/OPTYap/opt.init.c \
 	$(srcdir)/OPTYap/opt.preds.c $(srcdir)/OPTYap/or.copy_engine.c \
 	$(srcdir)/OPTYap/or.cow_engine.c $(srcdir)/OPTYap/or.sba_engine.c \
 	$(srcdir)/OPTYap/or.thread_engine.c \
@@ -378,7 +378,7 @@ C_INTERFACE_OBJECTS = \
 	c_interface.o clause_list.o
 
 OR_OBJECTS = \
-	opt.memory.o opt.init.o opt.preds.o   \
+	or.memory.o opt.init.o opt.preds.o   \
 	or.copy_engine.o or.cow_engine.o or.sba_engine.o or.thread_engine.o \
 	or.scheduler.o or.cut.o      \
 	tab.tries.o tab.completion.o
@@ -489,8 +489,8 @@ myddas_wkb2prolog.o: $(srcdir)/MYDDAS/myddas_wkb2prolog.c config.h
 myddas_statistics.o: $(srcdir)/MYDDAS/myddas_statistics.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/MYDDAS/myddas_statistics.c -o $@
 
-opt.memory.o: $(srcdir)/OPTYap/opt.memory.c config.h
-	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.memory.c -o $@
+or.memory.o: $(srcdir)/OPTYap/or.memory.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/or.memory.c -o $@
 
 opt.init.o: $(srcdir)/OPTYap/opt.init.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/OPTYap/opt.init.c -o $@
