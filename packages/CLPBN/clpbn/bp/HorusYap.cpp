@@ -195,8 +195,11 @@ runSolver (void)
     const ParamSet& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
     for (int j = beliefs.size() - 1; j >= 0; j--) {
+      YAP_Int sl1 = YAP_InitSlot(list);
       YAP_Term belief = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL = YAP_MkPairTerm (belief, queryBeliefsL);
+      list =  YAP_GetFromSlot(sl1);
+      YAP_RecoverSlots(1);
     }
     list = YAP_MkPairTerm (queryBeliefsL, list);
   }
