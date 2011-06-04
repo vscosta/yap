@@ -44,7 +44,7 @@
 #define GLOBAL_ThreadsTotalTime Yap_global->ThreadsTotalTime_
 
 #define GLOBAL_ThreadHandlesLock Yap_global->ThreadHandlesLock_
-#endif
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
 #define GLOBAL_BGL Yap_global->BGL_
@@ -52,4 +52,59 @@
 #if defined(YAPOR) || defined(TABLING)
 #define GLOBAL_optyap_data Yap_global->optyap_data_
 #endif /* YAPOR || TABLING */
+
+#define GLOBAL_PrologShouldHandleInterrupts Yap_global->PrologShouldHandleInterrupts_
+
+#if defined(THREADS)
+#define GLOBAL_master_thread Yap_global->master_thread_
+#endif /* THREADS */
+
+#define GLOBAL_stdout Yap_global->stdout_
+#define GLOBAL_stderr Yap_global->stderr_
+
+#define GLOBAL_argv Yap_global->argv_
+#define GLOBAL_argc Yap_global->argc_
+
+#ifdef COROUTINING
+
+#define GLOBAL_attas Yap_global->attas_
+#endif
+
+#define GLOBAL_agc_calls Yap_global->agc_calls_
+#define GLOBAL_agc_collected Yap_global->agc_collected_
+
+#define GLOBAL_tot_agc_time Yap_global->tot_agc_time_
+
+#define GLOBAL_tot_agc_recovered Yap_global->tot_agc_recovered_
+
+#if HAVE_MMAP
+#define GLOBAL_mmap_arrays Yap_global->mmap_arrays_
+#endif
+#ifdef DEBUG
+
+#define GLOBAL_Option Yap_global->Option_
+#define GLOBAL_logfile Yap_global->logfile_
+
+#define GLOBAL_output_msg Yap_global->output_msg_
+#endif
+
+#define GLOBAL_ProfCalls Yap_global->ProfCalls_
+#define GLOBAL_ProfGCs Yap_global->ProfGCs_
+#define GLOBAL_ProfHGrows Yap_global->ProfHGrows_
+#define GLOBAL_ProfSGrows Yap_global->ProfSGrows_
+#define GLOBAL_ProfMallocs Yap_global->ProfMallocs_
+#define GLOBAL_ProfOn Yap_global->ProfOn_
+#define GLOBAL_ProfOns Yap_global->ProfOns_
+#define GLOBAL_ProfilerRoot Yap_global->ProfilerRoot_
+#define GLOBAL_ProfilerNil Yap_global->ProfilerNil_
+#define GLOBAL_DIRNAME Yap_global->DIRNAME_
+#if defined(COFF)  || defined(A_OUT)
+
+#define GLOBAL_Executable Yap_global->Executable_
+#endif
+#if  __simplescalar__
+#define GLOBAL_pwd Yap_global->pwd_
+#endif
+
+
 

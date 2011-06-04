@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="US-ASCII"?>
 
+<!--
+ 
+ A   B   C
+  \  |  /
+   \ | /
+     D
+   / | \
+  /  |  \
+ E   F   G
+
+-->
+
 <BIF VERSION="0.3">
 <NETWORK>
-<NAME>Test</NAME>
+<NAME>Node with several parents and childs</NAME>
 
 <VARIABLE TYPE="nature">
 	<NAME>A</NAME>

@@ -434,8 +434,8 @@ DumpOpCodes(void)
 
   while (i < 30) {
     for (j = i; j <= _std_top; j += 25)
-      fprintf(Yap_stderr, "%5d %6lx", j, absmadr(j));
-    fputc('\n',Yap_stderr);
+      fprintf(GLOBAL_stderr, "%5d %6lx", j, absmadr(j));
+    fputc('\n',GLOBAL_stderr);
     ++i;
   }
 }
@@ -3541,7 +3541,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (!pass_no) {
 #if !USE_SYSTEM_MALLOC
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
-	  Yap_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
+	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, 3);	  
 	}
@@ -3787,9 +3787,9 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
     H = h0;
-    switch (Yap_Error_TYPE) {
+    switch (LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
-      Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
+      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch,3);
     case OUT_OF_TRAIL_ERROR:
@@ -3798,15 +3798,15 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
       if (!Yap_growtrail(K64, FALSE)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     case OUT_OF_AUXSPACE_ERROR:
       ARG1 = *tp;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip, TRUE)) {
+      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, (void *)cip, TRUE)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     case OUT_OF_HEAP_ERROR:
@@ -3815,7 +3815,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
       if (!Yap_growheap(TRUE, size, cip)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     default:
@@ -3932,8 +3932,8 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
 
       if (!Yap_growheap(TRUE, size, cip)) {
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
-	Yap_Error_Size = size;
+	LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+	LOCAL_Error_Size = size;
 	return NULL;
       }
     }

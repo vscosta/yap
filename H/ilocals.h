@@ -128,4 +128,58 @@ static void InitWorker(int wid) {
 #if defined(YAPOR) || defined(THREADS)
   INIT_LOCK(REMOTE_SignalLock(wid));
 #endif
+
+
+
+
+
+
+
+#ifdef THREADS
+
+#else
+
+#endif	
+
+
+
+
+
+
+
+
+
+
+
+  REMOTE_PrologMode(wid) = BootMode;
+  REMOTE_CritLocks(wid) = 0;
+
+
+#ifdef ANALYST
+
+
+#endif /* ANALYST */
+
+
+
+  REMOTE_matherror(wid) = YAP_NO_ERROR;
+
+  REMOTE_heap_overflows(wid) = 0;
+  REMOTE_total_heap_overflow_time(wid) = 0;
+  REMOTE_stack_overflows(wid) = 0;
+  REMOTE_total_stack_overflow_time(wid) = 0;
+  REMOTE_delay_overflows(wid) = 0;
+  REMOTE_total_delay_overflow_time(wid) = 0;
+  REMOTE_trail_overflows(wid) = 0;
+  REMOTE_total_trail_overflow_time(wid) = 0;
+  REMOTE_atom_table_overflows(wid) = 0;
+  REMOTE_total_atom_table_overflow_time(wid) = 0;
+
+#ifdef LOAD_DYLD
+  REMOTE_dl_errno(wid) = 0;
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+  REMOTE_do_trace_primitives(wid) = TRUE;
+#endif
 }

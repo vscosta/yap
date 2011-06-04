@@ -136,8 +136,7 @@ typedef enum
 exts;
 
 
-/* array with the ops for your favourite extensions */
-extern ext_op attas[attvars_ext + 1];
+
 
 #endif
 

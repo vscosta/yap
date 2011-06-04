@@ -96,7 +96,7 @@ clpbn_table(F/N,M) :-
 	Key =.. L1,
 	atom_concat(F, '___tabled', NF),
 	L2 = [_|Args],
-	S1 =.. [NF|Args],
+	_S1 =.. [NF|Args],
 	L0 = [_|OArgs],
 	S2 =.. [NF|OArgs],
 	asserta(clpbn_table(S, M, S2)),

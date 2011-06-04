@@ -3,19 +3,12 @@
 
 :- set_clpbn_flag(solver, bp).
 
-
+%
 %     B     F
 %      \   /
 %       \ / 
 %        A
-
-
-a(A) :-
-    b(B),
-    f(F),
-    a_table(ADist),
-    { A = a with p([a1, a2], ADist, [B, F]) }.
-
+%
 
 
 b(B) :-
@@ -25,6 +18,13 @@ b(B) :-
 f(F) :-
     f_table(FDist),
     { F = f with p([f1, f2], FDist) }.
+
+a(A) :-
+    b(B),
+    f(F),
+    a_table(ADist),
+    { A = a with p([a1, a2], ADist, [B, F]) }.
+
 
 b_table([0.005, 0.995]).
 

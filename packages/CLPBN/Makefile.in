@@ -51,7 +51,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/table.yap \
 	$(CLPBN_SRCDIR)/topsort.yap \
 	$(CLPBN_SRCDIR)/utils.yap \
-	$(CLPBN_SRCDIR)/vel.yap \
+	$(CLPBN_SRCDIR)/ve.yap \
 	$(CLPBN_SRCDIR)/viterbi.yap \
 	$(CLPBN_SRCDIR)/xbif.yap
 

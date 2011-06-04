@@ -1,6 +1,8 @@
 
 /* YAP support for some low-level SWI stuff */
 
+#define PL_KERNEL 1
+
 #include <stdio.h>
 #include "Yap.h"
 #include "Yatom.h"

@@ -58,7 +58,7 @@ static void share_private_nodes(int worker_q);
         REMOTE_end_global_copy(Q)   = (CELL) (H);                  \
         REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
         REMOTE_end_local_copy(Q)    = (CELL) (LCL0);         \
-        REMOTE_start_trail_copy(Q)  = (CELL) (Yap_TrailBase);  \
+        REMOTE_start_trail_copy(Q)  = (CELL) (LOCAL_TrailBase);  \
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 #endif
 
@@ -125,7 +125,7 @@ void free_root_choice_point(void) {
 #ifdef TABLING
   LOCAL_top_cp_on_stack =
 #endif /* TABLING */
-  LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = (choiceptr) Yap_LocalBase;
+  LOCAL_top_cp = GLOBAL_root_cp = OrFr_node(GLOBAL_root_or_fr) = (choiceptr) LOCAL_LocalBase;
   return;
 }
 
@@ -220,10 +220,10 @@ int q_share_work(int worker_p) {
 #ifdef TABLING
     } else if (IsPairTerm(aux_cell)) {
       aux_cell = (CELL) RepPair(aux_cell);
-      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, aux_cell, LOCAL_TrailTop)) {
 	/* avoid frozen segments */
         TR = (tr_fr_ptr) aux_cell;
-	TABLING_ERROR_CHECKING(q_share_work, TR > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(q_share_work, TR > (tr_fr_ptr) LOCAL_TrailTop);
 	TABLING_ERROR_CHECKING(q_share_work, TR < aux_tr);
       }
 #endif /* TABLING */
@@ -308,7 +308,7 @@ sync_with_p:
     if (IsVarTerm(aux_cell)) {
       if (aux_cell < LOCAL_start_global_copy || EQUAL_OR_YOUNGER_CP((choiceptr)LOCAL_end_local_copy, (choiceptr)aux_cell)) {
 	YAPOR_ERROR_CHECKING(q_share_work, (CELL *)aux_cell < H0);
-	YAPOR_ERROR_CHECKING(q_share_work, (ADDR)aux_cell > Yap_LocalBase);
+	YAPOR_ERROR_CHECKING(q_share_work, (ADDR)aux_cell > LOCAL_LocalBase);
 #ifdef TABLING
         *((CELL *) aux_cell) = TrailVal(aux_tr);
 #else
@@ -318,7 +318,7 @@ sync_with_p:
 #ifdef TABLING 
     } else if (IsPairTerm(aux_cell)) {
       aux_cell = (CELL) RepPair(aux_cell);
-      if (IN_BETWEEN(Yap_TrailBase, aux_cell, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, aux_cell, LOCAL_TrailTop)) {
         /* avoid frozen segments */
         aux_tr = (tr_fr_ptr) aux_cell;
       }
@@ -443,7 +443,7 @@ void share_private_nodes(int worker_q) {
     consumer_cp = DepFr_cons_cp(dep_frame);
     next_node_on_branch = NULL;
     stack_limit = (CELL *)TR;
-    stack = (CELL *)Yap_TrailTop;
+    stack = (CELL *)LOCAL_TrailTop;
 #endif /* TABLING */
 
     /* initialize auxiliary variables */
@@ -549,7 +549,7 @@ void share_private_nodes(int worker_q) {
 
 #ifdef TABLING
     /* update or-frames stored in auxiliary stack */
-    while (STACK_NOT_EMPTY(stack, (CELL *)Yap_TrailTop)) {
+    while (STACK_NOT_EMPTY(stack, (CELL *)LOCAL_TrailTop)) {
       next_node_on_branch = (choiceptr) STACK_POP_DOWN(stack);
       or_frame = (or_fr_ptr) STACK_POP_DOWN(stack);
       OrFr_nearest_livenode(or_frame) = OrFr_next(or_frame) = next_node_on_branch->cp_or_fr;

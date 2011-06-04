@@ -1,4 +1,6 @@
 
+:- style_check(all).
+
 :- ensure_loaded(library(clpbn)).
 
 wet_grass(W) :-

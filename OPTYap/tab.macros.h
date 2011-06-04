@@ -435,13 +435,13 @@ static inline Int freeze_current_cp(void) {
   TR_FZ = freeze_cp->cp_tr;
   B = B->cp_b;
   HB = B->cp_h;
-  return (Yap_LocalBase - (ADDR)freeze_cp);
+  return (LOCAL_LocalBase - (ADDR)freeze_cp);
 }
 
 
 static inline void wake_frozen_cp(Int frozen_offset) {
   CACHE_REGS
-  choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
+  choiceptr frozen_cp = (choiceptr)(LOCAL_LocalBase - frozen_offset);
 
   restore_bindings(TR, frozen_cp->cp_tr);
   B = frozen_cp;
@@ -453,7 +453,7 @@ static inline void wake_frozen_cp(Int frozen_offset) {
 
 static inline void abolish_frozen_cps_until(Int frozen_offset) {
   CACHE_REGS
-  choiceptr frozen_cp = (choiceptr)(Yap_LocalBase - frozen_offset);
+  choiceptr frozen_cp = (choiceptr)(LOCAL_LocalBase - frozen_offset);
 
   B_FZ  = frozen_cp;
   H_FZ  = frozen_cp->cp_h;
@@ -464,9 +464,9 @@ static inline void abolish_frozen_cps_until(Int frozen_offset) {
 
 static inline void abolish_frozen_cps_all(void) {
   CACHE_REGS
-  B_FZ  = (choiceptr) Yap_LocalBase;
-  H_FZ  = (CELL *) Yap_GlobalBase;
-  TR_FZ = (tr_fr_ptr) Yap_TrailBase;
+  B_FZ  = (choiceptr) LOCAL_LocalBase;
+  H_FZ  = (CELL *) LOCAL_GlobalBase;
+  TR_FZ = (tr_fr_ptr) LOCAL_TrailBase;
   return;
 }
 
@@ -500,10 +500,10 @@ static inline void unbind_variables(tr_fr_ptr unbind_tr, tr_fr_ptr end_tr) {
       RESET_VARIABLE(ref);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, ref, LOCAL_TrailTop)) {
         /* avoid frozen segments */
         unbind_tr = (tr_fr_ptr) ref;
-	TABLING_ERROR_CHECKING(unbind_variables, unbind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(unbind_variables, unbind_tr > (tr_fr_ptr) LOCAL_TrailTop);
 	TABLING_ERROR_CHECKING(unbind_variables, unbind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -523,7 +523,7 @@ static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
   CACHE_REGS
   TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
   /* rebind loop */
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (rebind_tr != end_tr) {
     CELL ref = (CELL) TrailTerm(--rebind_tr);
     /* check for global or local variables */
@@ -532,16 +532,16 @@ static inline void rebind_variables(tr_fr_ptr rebind_tr, tr_fr_ptr end_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, ref, LOCAL_TrailTop)) {
         /* avoid frozen segments */
   	rebind_tr = (tr_fr_ptr) ref;
-	TABLING_ERROR_CHECKING(rebind_variables, rebind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(rebind_variables, rebind_tr > (tr_fr_ptr) LOCAL_TrailTop);
 	TABLING_ERROR_CHECKING(rebind_variables, rebind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
     } else {
       CELL *cell_ptr = RepAppl(ref);
-      if (!Yap_lookup_ma_var(cell_ptr)) {
+      if (!Yap_lookup_ma_var(cell_ptr PASS_REGS)) {
 	/* first time we found the variable, let's put the new value */
 	*cell_ptr = TrailVal(rebind_tr);
       }
@@ -560,7 +560,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
   TABLING_ERROR_CHECKING(restore_variables, unbind_tr < rebind_tr);
   end_tr = rebind_tr;
-  Yap_NEW_MAHASH((ma_h_inner_struct *)H);
+  Yap_NEW_MAHASH((ma_h_inner_struct *)H PASS_REGS);
   while (unbind_tr != end_tr) {
     /* unbind loop */
     while (unbind_tr > end_tr) {
@@ -569,10 +569,10 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
         RESET_VARIABLE(ref);
       } else if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+	if (IN_BETWEEN(LOCAL_TrailBase, ref, LOCAL_TrailTop)) {
 	  /* avoid frozen segments */
           unbind_tr = (tr_fr_ptr) ref;
-	  TABLING_ERROR_CHECKING(restore_variables, unbind_tr > (tr_fr_ptr) Yap_TrailTop);
+	  TABLING_ERROR_CHECKING(restore_variables, unbind_tr > (tr_fr_ptr) LOCAL_TrailTop);
         }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
       }	else if (IsApplTerm(ref)) {
@@ -582,7 +582,7 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 	/* multi-assignment variable */
 	/* so that the upper cell is the old value */ 
 	--unbind_tr;
-	if (!Yap_lookup_ma_var(pt)) {
+	if (!Yap_lookup_ma_var(pt PASS_REGS)) {
 	  pt[0] = TrailVal(unbind_tr);
 	}
 #endif /* MULTI_ASSIGNMENT_VARIABLES */
@@ -593,10 +593,10 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       ref = (CELL) TrailTerm(--end_tr);
       if (IsPairTerm(ref)) {
         ref = (CELL) RepPair(ref);
-	if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+	if (IN_BETWEEN(LOCAL_TrailBase, ref, LOCAL_TrailTop)) {
 	  /* avoid frozen segments */
   	  end_tr = (tr_fr_ptr) ref;
-	  TABLING_ERROR_CHECKING(restore_variables, end_tr > (tr_fr_ptr) Yap_TrailTop);
+	  TABLING_ERROR_CHECKING(restore_variables, end_tr > (tr_fr_ptr) LOCAL_TrailTop);
         }
       }
     }
@@ -608,10 +608,10 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
       *((CELL *)ref) = TrailVal(rebind_tr);
     } else if (IsPairTerm(ref)) {
       ref = (CELL) RepPair(ref);
-      if (IN_BETWEEN(Yap_TrailBase, ref, Yap_TrailTop)) {
+      if (IN_BETWEEN(LOCAL_TrailBase, ref, LOCAL_TrailTop)) {
 	/* avoid frozen segments */
         rebind_tr = (tr_fr_ptr) ref;
-	TABLING_ERROR_CHECKING(restore_variables, rebind_tr > (tr_fr_ptr) Yap_TrailTop);
+	TABLING_ERROR_CHECKING(restore_variables, rebind_tr > (tr_fr_ptr) LOCAL_TrailTop);
 	TABLING_ERROR_CHECKING(restore_variables, rebind_tr < end_tr);
       }
 #ifdef MULTI_ASSIGNMENT_VARIABLES
@@ -629,13 +629,13 @@ static inline void restore_bindings(tr_fr_ptr unbind_tr, tr_fr_ptr rebind_tr) {
 
 static inline CELL *expand_auxiliary_stack(CELL *stack) {
   CACHE_REGS
-  void *old_top = Yap_TrailTop;
+  void *old_top = LOCAL_TrailTop;
   INFORMATION_MESSAGE("Expanding trail in 64 Kbytes");
   if (! Yap_growtrail(K64, TRUE)) {  /* TRUE means 'contiguous_only' */
     Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
     return NULL;
   } else {
-    UInt diff = (void *)Yap_TrailTop - old_top;
+    UInt diff = (void *)LOCAL_TrailTop - old_top;
     CELL *new_stack = (CELL *)((void *)stack + diff);
     memmove((void *)new_stack, (void *)stack, old_top - (void *)stack);
     return new_stack;

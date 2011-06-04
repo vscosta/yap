@@ -1,56 +1,99 @@
-#ifndef BP_BP_NODE_H
-#define BP_BP_NODE_H
+#ifndef BP_BPNODE_H
+#define BP_BPNODE_H
 
 #include <vector>
 #include <map>
-#include <deque>
 #include <string>
+#include <unordered_map>
 
-#include "BayesianNode.h"
+#include "BayesNode.h"
+#include "Shared.h"
 
 using namespace std;
 
-class BpNode : public BayesianNode 
+class BpNode
 {
   public:
-    // constructs
-    BpNode (string, vector<BayesianNode*>, Distribution* dist, int = -1);
-    // destruct
-    ~BpNode (void);
-    // methods
-    static void                enableParallelSchedule (void);
-    void                       allocateMemory (void);
-    double*                    getPiValues (void) const;
-    double                     getPiValue (int) const;
-    void                       setPiValue (int, double);
-    double*                    getLambdaValues (void) const;
-    double                     getLambdaValue (int) const;
-    void                       setLambdaValue (int, double);
-    double*                    getPiMessages (BpNode*) const;
-    double                     getPiMessage (BpNode*, int) const;
-    void                       setPiMessage (BpNode*, int, double);
-    double*                    getLambdaMessages (BpNode*) const;
-    double                     getLambdaMessage (BpNode*, int) const;
-    void                       setLambdaMessage (BpNode*, int, double);
-    double*                    getBeliefs (void);
-    double                     getBeliefChange (void);
-    void                       normalizeMessages (void);
-    void                       swapMessages (void);
+    BpNode (int);
+    BpNode (BayesNode*);
+
+    ParamSet               getBeliefs (void) const;
+    double                 getPiValue (int) const;
+    void                   setPiValue (int, double);
+    double                 getLambdaValue (int) const;
+    void                   setLambdaValue (int, double);
+    ParamSet&              getPiValues (void);
+    ParamSet&              getLambdaValues (void);
+    double                 getPiMessageValue (const BayesNode*, int) const;
+    double                 getLambdaMessageValue (const BayesNode*, int) const;
+    const ParamSet&        getPiMessage (const BayesNode*) const;
+    const ParamSet&        getLambdaMessage (const BayesNode*) const;
+    ParamSet&              piNextMessageReference (const BayesNode*);
+    ParamSet&              lambdaNextMessageReference (const BayesNode*);
+    void                   updatePiMessage (const BayesNode*);
+    void                   updateLambdaMessage (const BayesNode*);
+    double                 getBeliefChange (void);
+    void                   updatePiResidual (const BayesNode*);
+    void                   updateLambdaResidual (const BayesNode*);
+    void                   clearPiResidual (const BayesNode*);
+    void                   clearLambdaResidual (const BayesNode*);
+    bool                   hasReceivedChildInfluence (void) const;
+    // inlines
+    double                 getPiResidual (const BayesNode*);
+    double                 getLambdaResidual (const BayesNode*);
+    int                    getIndex (const BayesNode*) const;
  
   private:
-    BpNode (const BpNode&);          // disallow copy
-    void operator= (const BpNode&);  // disallow assign
-    // members
-    double*                    lambdaValues_;
-    double*                    piValues_;
-    map<BpNode*, double*>      piMessages_;
-    map<BpNode*, double*>      lambdaMessages_;
-    map<BpNode*, double*>*     newPiMessages_;
-    map<BpNode*, double*>*     newLambdaMessages_;
-    double*                    oldBeliefs_;
-    static bool                parallelSchedule_;
-    static const double        MAX_CHANGE_ = 1.0;
+    DISALLOW_COPY_AND_ASSIGN (BpNode);
+
+    IndexMap               indexMap_;
+    ParamSet               piVals_;     // pi values
+    ParamSet               ldVals_;     // lambda values
+    vector<ParamSet>       currPiMsgs_; // current pi messages
+    vector<ParamSet>       currLdMsgs_; // current lambda messages
+    vector<ParamSet>       nextPiMsgs_;
+    vector<ParamSet>       nextLdMsgs_;
+    ParamSet               oldBeliefs_;
+    ParamSet               piResiduals_;
+    ParamSet               ldResiduals_;
+    int                    ds_;
+    const NodeSet*         childs_;
+    static bool            calculateMessageResidual_;
+//    static const double    MAX_CHANGE_ = 10000000.0;
 };
 
-#endif // BP_BP_NODE_H
+
+
+inline double
+BpNode::getPiResidual (const BayesNode* destination)
+{
+  return piResiduals_[getIndex(destination)];
+}
+
+
+inline double
+BpNode::getLambdaResidual (const BayesNode* source)
+{
+  return ldResiduals_[getIndex(source)];
+}
+
+
+
+inline int
+BpNode::getIndex (const BayesNode* node) const
+{
+  assert (node);
+  //assert (indexMap_.find(node->getVarId()) != indexMap_.end());
+  //return indexMap_.find(node->getVarId())->second;
+  for (unsigned i = 0; childs_->size(); i++) {
+    if ((*childs_)[i]->getVarId() == node->getVarId()) {
+      return i;
+    }
+  }
+  assert (false);
+  return -1;
+}
+
+
+#endif
 

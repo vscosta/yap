@@ -304,7 +304,7 @@
                -> we need a shared data structure to avoid redundant computations!
       UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 #else
-      fprintf(stderr,"PROBLEM: cp_last_answer field is local to the cp!\n");
+      Sfprintf(Serror, "PROBLEM: cp_last_answer field is local to the cp!\n");
       exit(1);
 #endif
     }

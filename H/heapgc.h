@@ -49,7 +49,7 @@
 
 /* is ptr a pointer to code space? */
 #if USE_SYSTEM_MALLOC
-#define ONCODE(ptr) (Addr(ptr) < Yap_GlobalBase || Addr(ptr) > Yap_TrailTop)
+#define ONCODE(ptr) (Addr(ptr) < LOCAL_GlobalBase || Addr(ptr) > LOCAL_TrailTop)
 #else
 #define ONCODE(ptr) (Addr(ptr) < HeapTop && Addr(ptr) >= Yap_HeapBase)
 #endif
@@ -80,7 +80,7 @@
 #define  MARK_BIT ((char)1)
 #define RMARK_BIT ((char)2)
 
-#define mcell(X)  LOCAL_bp[(X)-(CELL *)Yap_GlobalBase]
+#define mcell(X)  LOCAL_bp[(X)-(CELL *)LOCAL_GlobalBase]
 
 #define MARKED_PTR(P) MARKED_PTR__(P PASS_REGS) 
 #define UNMARKED_MARK(P, BP) UNMARKED_MARK__(P, BP PASS_REGS) 
@@ -99,7 +99,7 @@ MARKED_PTR__(CELL* ptr USES_REGS)
 static inline Int
 UNMARKED_MARK__(CELL* ptr, char *bp USES_REGS)
 {
-  Int pos = ptr - (CELL *)Yap_GlobalBase;
+  Int pos = ptr - (CELL *)LOCAL_GlobalBase;
   char t = bp[pos];
   if (t & MARK_BIT) {
     return TRUE;

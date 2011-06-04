@@ -71,8 +71,8 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 #endif /* LIMIT_TABLING */
   INIT_PAGES(GLOBAL_pages_void, void *);      
 #ifdef YAPOR
-  INIT_PAGES(GLOBAL_pages_or_fr , struct or_frame);
-  INIT_PAGES(GLOBAL_pages_qg_sol_fr , struct query_goal_solution_frame);
+  INIT_PAGES(GLOBAL_pages_or_fr, struct or_frame);
+  INIT_PAGES(GLOBAL_pages_qg_sol_fr, struct query_goal_solution_frame);
   INIT_PAGES(GLOBAL_pages_qg_ans_fr, struct query_goal_answer_frame);
 #endif /* YAPOR */
 #ifdef TABLING_INNER_CUTS
@@ -164,7 +164,7 @@ void Yap_init_local_optyap_data(int wid) {
 #ifdef YAPOR
   CACHE_REGS
   /* local data related to or-parallelism */
-  Set_REMOTE_top_cp(wid, (choiceptr) Yap_LocalBase);
+  Set_REMOTE_top_cp(wid, (choiceptr) LOCAL_LocalBase);
   REMOTE_top_or_fr(wid) = GLOBAL_root_or_fr;
   REMOTE_load(wid) = 0;
   REMOTE_share_request(wid) = MAX_WORKERS;
@@ -173,15 +173,16 @@ void Yap_init_local_optyap_data(int wid) {
   INIT_LOCK(REMOTE_lock_signals(wid));
 #endif /* YAPOR_COPY */
   Set_REMOTE_prune_request(wid, NULL);
-#endif /* YAPOR */
   INIT_LOCK(REMOTE_lock(wid));
+#endif /* YAPOR */
+
 #ifdef TABLING
   /* local data related to tabling */
   REMOTE_next_free_ans_node(wid) = NULL;
   REMOTE_top_sg_fr(wid) = NULL; 
   REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
 #ifdef YAPOR
-  Set_REMOTE_top_cp_on_stack(wid, (choiceptr) Yap_LocalBase); /* ??? */
+  Set_REMOTE_top_cp_on_stack(wid, (choiceptr) LOCAL_LocalBase); /* ??? */
   REMOTE_top_susp_or_fr(wid) = GLOBAL_root_or_fr;
 #endif /* YAPOR */
 #endif /* TABLING */
@@ -198,7 +199,7 @@ void Yap_init_root_frames(void) {
   INIT_LOCK(OrFr_lock(or_fr));
   OrFr_alternative(or_fr) = NULL;
   BITMAP_copy(OrFr_members(or_fr), GLOBAL_bm_present_workers);
-  SetOrFr_node(or_fr, (choiceptr) Yap_LocalBase);
+  SetOrFr_node(or_fr, (choiceptr) LOCAL_LocalBase);
   OrFr_nearest_livenode(or_fr) = NULL;
   OrFr_depth(or_fr) = 0;
   Set_OrFr_pend_prune_cp(or_fr, NULL);
