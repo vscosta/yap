@@ -9222,7 +9222,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+ " Int_FORMAT, PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9322,7 +9322,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+ " Int_FORMAT, PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9408,7 +9408,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "-A", PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9508,7 +9508,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "-A", PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9594,7 +9594,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A* " Int_FORMAT, PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9694,7 +9694,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A* " Int_FORMAT, PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9830,7 +9830,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "// A", PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9988,7 +9988,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "// A", PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10075,7 +10075,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A /\\ " Int_FORMAT , PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10175,7 +10175,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A /\\ " Int_FORMAT , PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10261,7 +10261,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A \\/ " Int_FORMAT , PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10361,7 +10361,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A \\/ " Int_FORMAT , PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
