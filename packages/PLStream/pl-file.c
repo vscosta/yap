@@ -329,7 +329,10 @@ initIO()
   int i;
 
 #ifdef __YAP_PROLOG__
+  IOFUNCTIONS buf;
+  buf = GD->os.iofunctions;
   memset(GD, 0, sizeof(gds_t));
+  GD->os.iofunctions = buf;
   memset(LD, 0, sizeof(PL_local_data_t));
 #endif
   streamAliases = newHTable(16);
