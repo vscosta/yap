@@ -76,12 +76,12 @@ main(int argc, char **argv)
   SetConsoleCtrlHandler((PHANDLER_ROUTINE)consoleHandlerRoutine, TRUE);
 #endif
 
+  if ( !PL_initialise(argc, argv) )
+    PL_halt(1);
+
 #if O_ANSI_COLORS
   PL_w32_wrap_ansi_console();		/* decode ANSI color sequences (ESC[...m) */
 #endif
-
-  if ( !PL_initialise(argc, argv) )
-    PL_halt(1);
 
   PL_halt(PL_toplevel() ? 0 : 1);
 

@@ -565,13 +565,13 @@ pl-nt.o: $(srcdir)/packages/PLStream/pl-nt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-nt.c -o $@
 
 pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
 
 pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
-	$(CC) -c $(CFLAGS)  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
 
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
 pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream  @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
@@ -703,7 +703,9 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
 
-plyap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@ LGPL/swi_console/plterm.dll
+plyap: pl-yap@EXEC_SUFFIX@
+
+pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@ LGPL/swi_console/plterm.dll
 	(cd LGPL/swi_console; $(MAKE))
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 

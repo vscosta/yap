@@ -339,12 +339,12 @@ initIO()
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
 #ifdef __unix__
-{ int fd;
+  { int fd;
 
-  if ( (fd=Sfileno(Sinput))  < 0 || !isatty(fd) ||
-       (fd=Sfileno(Soutput)) < 0 || !isatty(fd) )
-    PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
-}
+    if ( (fd=Sfileno(Sinput))  < 0 || !isatty(fd) ||
+	 (fd=Sfileno(Soutput)) < 0 || !isatty(fd) )
+      PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
+  }
 #endif
   ResetTty();
 #if __YAP_PROLOG__
