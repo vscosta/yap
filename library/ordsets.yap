@@ -274,8 +274,8 @@ ord_symdiff(>, Head1, Tail1, Head2, Tail2, [Head2|Difference]) :-
 %   is true when Union is the union of Set1 and Set2.  Note that when
 %   something occurs in both sets, we want to retain only one copy.
 
-ord_union(Set1, [], Set1) :- !.
-ord_union([], Set2, Set2) :- !.
+ord_union([S|Set1], [], [S|Set1]).
+ord_union([], Set2, Set2).
 ord_union([Head1|Tail1], [Head2|Tail2], Union) :-
 	compare(Order, Head1, Head2),
 	ord_union(Order, Head1, Tail1, Head2, Tail2, Union).

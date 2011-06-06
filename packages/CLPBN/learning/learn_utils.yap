@@ -38,7 +38,7 @@ run_all(M:Gs) :-
 run_all([],_).
 run_all([G|Gs],M) :-
 %	(G = _:ge(ybr136w,t8,23,-1) -> nb_getval(clpbn_tables, Tab), writeln(Tab) ; true ),
-	( call(M:G) -> true ;  writeln(bad:M:G), start_low_level_trace, M:G ; halt ),
+	( call(M:G) -> true ;  throw(bad_call(M:G)) ),
 	run_all(Gs,M).
 
 clpbn_vars(Vs,BVars) :-

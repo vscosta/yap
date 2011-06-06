@@ -173,6 +173,8 @@ static Term get_point(char *func){
 }
 
 static Term get_linestring(char *func){
+  CACHE_REGS
+
   Term *c_list;
   Term list;
   Functor functor;
@@ -203,6 +205,8 @@ static Term get_linestring(char *func){
 }
 
 static Term get_polygon(char *func){
+  CACHE_REGS
+
   uint32 r;
   int i;
   Functor functor;
@@ -233,6 +237,8 @@ static Term get_polygon(char *func){
 }
 
 static Term get_geometry(uint32 type){
+  CACHE_REGS
+
   switch(type) {
   case WKBPOINT:
     return get_point("point");

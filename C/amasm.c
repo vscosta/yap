@@ -434,8 +434,8 @@ DumpOpCodes(void)
 
   while (i < 30) {
     for (j = i; j <= _std_top; j += 25)
-      fprintf(Yap_stderr, "%5d %6lx", j, absmadr(j));
-    fputc('\n',Yap_stderr);
+      fprintf(GLOBAL_stderr, "%5d %6lx", j, absmadr(j));
+    fputc('\n',GLOBAL_stderr);
     ++i;
   }
 }
@@ -2196,9 +2196,9 @@ static yamop *
 a_gl(op_numbers opcode, yamop *code_p, int pass_no, struct PSEUDO *cpc, struct intermediates *cip USES_REGS)
 {
 #ifdef YAPOR
-  return a_try(opcode, cpc->rnd1, IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1, code_p, pass_no, cip);
+  return a_try(opcode, cpc->rnd1, LOCAL_IPredArity, cpc->rnd2 >> 1, cpc->rnd2 & 1, code_p, pass_no, cip);
 #else
-  return a_try(opcode, cpc->rnd1, IPredArity, code_p, pass_no, cip);
+  return a_try(opcode, cpc->rnd1, LOCAL_IPredArity, code_p, pass_no, cip);
 #endif /* YAPOR */
 }
 
@@ -2429,13 +2429,13 @@ a_fetch_vv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
     p = p->nextInst;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
@@ -2458,7 +2458,7 @@ a_fetch_vc(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
@@ -2479,7 +2479,7 @@ a_fetch_cv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
@@ -2981,11 +2981,11 @@ a_special_label(yamop *code_p, int pass_no, struct intermediates *cip)
 
 
 #ifdef YAPOR
-#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
-#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], LOCAL_IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), LOCAL_IPredArity, cip->cpc->rnd2 >> 1, cip->cpc->rnd2 & 1, code_p, pass_no, cip)
 #else
-#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], IPredArity, code_p, pass_no, cip)
-#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), IPredArity, code_p, pass_no, cip)
+#define TRYCODE(G,P) a_try((G), Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], LOCAL_IPredArity, code_p, pass_no, cip)
+#define TABLE_TRYCODE(G) a_try((G), (CELL)emit_ilabel(cip->cpc->rnd1, cip), LOCAL_IPredArity, code_p, pass_no, cip)
 #endif /* YAPOR */
 
 static yamop *
@@ -3093,22 +3093,22 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       code_p = cl_u->sc.ClCode;
     }
-    IPredArity = cip->CurrentPred->ArityOfPE;	/* number of args */
+    LOCAL_IPredArity = cip->CurrentPred->ArityOfPE;	/* number of args */
     *entry_codep = code_p;
     if (tabled) {
 #if TABLING
 #ifdef YAPOR
-      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), IPredArity, 1, 0, code_p, pass_no, cip);
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), LOCAL_IPredArity, 1, 0, code_p, pass_no, cip);
 #else
-      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), IPredArity, code_p, pass_no, cip);
+      code_p = a_try(_table_try_single, (CELL)NEXTOP(code_p,Otapl), LOCAL_IPredArity, code_p, pass_no, cip);
 #endif
 #endif
     }
     if (dynamic) {
 #ifdef YAPOR
-      code_p = a_try(_try_me, 0, IPredArity, 1, 0, code_p, pass_no, cip);
+      code_p = a_try(_try_me, 0, LOCAL_IPredArity, 1, 0, code_p, pass_no, cip);
 #else
-      code_p = a_try(_try_me, 0, IPredArity, code_p, pass_no, cip);
+      code_p = a_try(_try_me, 0, LOCAL_IPredArity, code_p, pass_no, cip);
 #endif	/* YAPOR */
     }
   } else {
@@ -3541,7 +3541,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (!pass_no) {
 #if !USE_SYSTEM_MALLOC
 	if (CellPtr(cip->label_offset+cip->cpc->rnd1) > ASP-256) {
-	  Yap_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
+	  LOCAL_Error_Size = 256+((char *)(cip->label_offset+cip->cpc->rnd1) - (char *)H);
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, 3);	  
 	}
@@ -3787,9 +3787,9 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
   while ((x = Yap_StoreTermInDBPlusExtraSpace(*tp, size, osizep)) == NULL) {
 
     H = h0;
-    switch (Yap_Error_TYPE) {
+    switch (LOCAL_Error_TYPE) {
     case OUT_OF_STACK_ERROR:
-      Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
+      LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
       save_machine_regs();
       siglongjmp(cip->CompilerBotch,3);
     case OUT_OF_TRAIL_ERROR:
@@ -3798,15 +3798,15 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
       if (!Yap_growtrail(K64, FALSE)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     case OUT_OF_AUXSPACE_ERROR:
       ARG1 = *tp;
-      if (!Yap_ExpandPreAllocCodeSpace(Yap_Error_Size, (void *)cip, TRUE)) {
+      if (!Yap_ExpandPreAllocCodeSpace(LOCAL_Error_Size, (void *)cip, TRUE)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     case OUT_OF_HEAP_ERROR:
@@ -3815,7 +3815,7 @@ fetch_clause_space(Term* tp, UInt size, struct intermediates *cip, UInt *osizep 
       if (!Yap_growheap(TRUE, size, cip)) {
 	return NULL;
       }
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *tp = ARG1;
       break;
     default:
@@ -3864,16 +3864,16 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 
 #if USE_SYSTEM_MALLOC
   if (!cip->label_offset) {
-    if (!Yap_LabelFirstArray && max_label <= DEFAULT_NLABELS) { 
-      Yap_LabelFirstArray = (Int *)Yap_AllocCodeSpace(sizeof(Int)*DEFAULT_NLABELS);
-      Yap_LabelFirstArraySz = DEFAULT_NLABELS;
-      if (!Yap_LabelFirstArray) {
+    if (!LOCAL_LabelFirstArray && max_label <= DEFAULT_NLABELS) { 
+      LOCAL_LabelFirstArray = (Int *)Yap_AllocCodeSpace(sizeof(Int)*DEFAULT_NLABELS);
+      LOCAL_LabelFirstArraySz = DEFAULT_NLABELS;
+      if (!LOCAL_LabelFirstArray) {
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
     }
-    if (Yap_LabelFirstArray && max_label <= Yap_LabelFirstArraySz) { 
-      cip->label_offset = Yap_LabelFirstArray;
+    if (LOCAL_LabelFirstArray && max_label <= LOCAL_LabelFirstArraySz) { 
+      cip->label_offset = LOCAL_LabelFirstArray;
     } else {
       cip->label_offset = (Int *)Yap_AllocCodeSpace(sizeof(Int)*max_label);
       if (!cip->label_offset) {
@@ -3926,14 +3926,14 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     /* make sure we copy after second pass */
     cl->usc.ClSource = x;
     cl->ClSize = osize;
-    ProfEnd=code_p;
+    LOCAL_ProfEnd=code_p;
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
 
       if (!Yap_growheap(TRUE, size, cip)) {
-	Yap_Error_TYPE = OUT_OF_HEAP_ERROR;
-	Yap_Error_Size = size;
+	LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;
+	LOCAL_Error_Size = size;
 	return NULL;
       }
     }
@@ -3950,11 +3950,11 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
   }
   code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
-  ProfEnd=code_p;
+  LOCAL_ProfEnd=code_p;
 #ifdef LOW_PROF
   if (ProfilerOn &&
       Yap_OffLineProfiler) {
-    Yap_inform_profiler_of_clause(entry_code, ProfEnd, ap, mode == ASSEMBLING_INDEX); 
+    Yap_inform_profiler_of_clause(entry_code, LOCAL_ProfEnd, ap, mode == ASSEMBLING_INDEX); 
   }
 #endif /* LOW_PROF */
   return entry_code;

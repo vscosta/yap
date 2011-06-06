@@ -57,6 +57,7 @@ cptr_to_offset_with_null(choiceptr node)
 **      Struct page_header      **
 *********************************/
 
+#ifdef USE_PAGES_MALLOC
 typedef struct page_header {
   volatile int structs_in_use;
   void *first_free_struct;
@@ -68,6 +69,7 @@ typedef struct page_header {
 #define PgHd_free_str(X)    ((X)->first_free_struct)
 #define PgHd_previous(X)    ((X)->previous)
 #define PgHd_next(X)        ((X)->next)
+#endif /* USE_PAGES_MALLOC */
 
 
 
@@ -132,12 +134,12 @@ struct global_pages {
 
 
 
-/**********************************
-**      Struct global_locks      **
-**********************************/
+/*****************************************
+**      Struct global_optyap_locks      **
+*****************************************/
 
 #ifdef YAPOR
-struct global_locks {
+struct global_optyap_locks {
   lockvar bitmap_idle_workers;
   lockvar bitmap_root_cp_workers;
   lockvar bitmap_invisible_workers;
@@ -160,7 +162,7 @@ struct global_locks {
 *   Struct global_optyap_data   **
 *********************************/
 
-struct global_optyap_data{
+struct global_optyap_data {
   /* global data related to memory management */
   struct global_pages pages;
 
@@ -198,7 +200,7 @@ struct global_optyap_data{
 #ifdef TABLING_INNER_CUTS
   volatile bitmap pruning_workers;
 #endif /* TABLING_INNER_CUTS */
-  struct global_locks locks;
+  struct global_optyap_locks locks;
   volatile unsigned int branch[MAX_WORKERS][MAX_BRANCH_DEPTH];
   volatile char parallel_execution_mode;  /* TRUE / FALSE */
   volatile int answers;
@@ -224,81 +226,81 @@ struct global_optyap_data{
 #endif /* TABLING */
 };
 
-#define Yap_max_pages                        (Yap_optyap_data.pages.max_pages)
-#define Yap_pages_void                       (Yap_optyap_data.pages.void_pages)
-#define Yap_pages_or_fr                      (Yap_optyap_data.pages.or_frame_pages)
-#define Yap_pages_qg_sol_fr                  (Yap_optyap_data.pages.query_goal_solution_frame_pages)
-#define Yap_pages_qg_ans_fr                  (Yap_optyap_data.pages.query_goal_answer_frame_pages)
-#define Yap_pages_tg_sol_fr                  (Yap_optyap_data.pages.table_subgoal_solution_frame_pages)
-#define Yap_pages_tg_ans_fr                  (Yap_optyap_data.pages.table_subgoal_answer_frame_pages)
-#define Yap_pages_tab_ent                    (Yap_optyap_data.pages.table_entry_pages)
-#define Yap_pages_sg_fr                      (Yap_optyap_data.pages.subgoal_frame_pages)
-#define Yap_pages_dep_fr                     (Yap_optyap_data.pages.dependency_frame_pages)
-#define Yap_pages_sg_node                    (Yap_optyap_data.pages.subgoal_trie_node_pages)
-#define Yap_pages_ans_node                   (Yap_optyap_data.pages.answer_trie_node_pages)
-#define Yap_pages_gt_node                    (Yap_optyap_data.pages.global_trie_node_pages)
-#define Yap_pages_sg_hash                    (Yap_optyap_data.pages.subgoal_trie_hash_pages)
-#define Yap_pages_ans_hash                   (Yap_optyap_data.pages.answer_trie_hash_pages)
-#define Yap_pages_gt_hash                    (Yap_optyap_data.pages.global_trie_hash_pages)
-#define Yap_pages_susp_fr                    (Yap_optyap_data.pages.suspension_frame_pages)
-#define Yap_scheduler_loop                   (Yap_optyap_data.scheduler_loop)
-#define Yap_delayed_release_load             (Yap_optyap_data.delayed_release_load)
-#define Yap_number_workers                   (Yap_optyap_data.number_workers)
-#define Yap_worker_pid(worker)               (Yap_optyap_data.worker_pid[worker])
-#define Yap_master_worker                    (Yap_optyap_data.master_worker)
-#define Yap_execution_time                   (Yap_optyap_data.execution_time)
-#define Yap_best_times(time)                 (Yap_optyap_data.best_execution_times[time])
-#define Yap_number_goals                     (Yap_optyap_data.number_of_executed_goals)
-#define Yap_performance_mode                 (Yap_optyap_data.performance_mode)
+#define GLOBAL_max_pages                        (GLOBAL_optyap_data.pages.max_pages)
+#define GLOBAL_pages_void                       (GLOBAL_optyap_data.pages.void_pages)
+#define GLOBAL_pages_or_fr                      (GLOBAL_optyap_data.pages.or_frame_pages)
+#define GLOBAL_pages_qg_sol_fr                  (GLOBAL_optyap_data.pages.query_goal_solution_frame_pages)
+#define GLOBAL_pages_qg_ans_fr                  (GLOBAL_optyap_data.pages.query_goal_answer_frame_pages)
+#define GLOBAL_pages_tg_sol_fr                  (GLOBAL_optyap_data.pages.table_subgoal_solution_frame_pages)
+#define GLOBAL_pages_tg_ans_fr                  (GLOBAL_optyap_data.pages.table_subgoal_answer_frame_pages)
+#define GLOBAL_pages_tab_ent                    (GLOBAL_optyap_data.pages.table_entry_pages)
+#define GLOBAL_pages_sg_fr                      (GLOBAL_optyap_data.pages.subgoal_frame_pages)
+#define GLOBAL_pages_dep_fr                     (GLOBAL_optyap_data.pages.dependency_frame_pages)
+#define GLOBAL_pages_sg_node                    (GLOBAL_optyap_data.pages.subgoal_trie_node_pages)
+#define GLOBAL_pages_ans_node                   (GLOBAL_optyap_data.pages.answer_trie_node_pages)
+#define GLOBAL_pages_gt_node                    (GLOBAL_optyap_data.pages.global_trie_node_pages)
+#define GLOBAL_pages_sg_hash                    (GLOBAL_optyap_data.pages.subgoal_trie_hash_pages)
+#define GLOBAL_pages_ans_hash                   (GLOBAL_optyap_data.pages.answer_trie_hash_pages)
+#define GLOBAL_pages_gt_hash                    (GLOBAL_optyap_data.pages.global_trie_hash_pages)
+#define GLOBAL_pages_susp_fr                    (GLOBAL_optyap_data.pages.suspension_frame_pages)
+#define GLOBAL_scheduler_loop                   (GLOBAL_optyap_data.scheduler_loop)
+#define GLOBAL_delayed_release_load             (GLOBAL_optyap_data.delayed_release_load)
+#define GLOBAL_number_workers                   (GLOBAL_optyap_data.number_workers)
+#define GLOBAL_worker_pid(worker)               (GLOBAL_optyap_data.worker_pid[worker])
+#define GLOBAL_master_worker                    (GLOBAL_optyap_data.master_worker)
+#define GLOBAL_execution_time                   (GLOBAL_optyap_data.execution_time)
+#define GLOBAL_best_times(time)                 (GLOBAL_optyap_data.best_execution_times[time])
+#define GLOBAL_number_goals                     (GLOBAL_optyap_data.number_of_executed_goals)
+#define GLOBAL_performance_mode                 (GLOBAL_optyap_data.performance_mode)
 #ifdef YAPOR_THREADS
-#define Get_Yap_root_cp()	                 offset_to_cptr(Yap_optyap_data.root_choice_point_offset)
-#define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
+#define Get_GLOBAL_root_cp()	             offset_to_cptr(GLOBAL_optyap_data.root_choice_point_offset)
+#define Set_GLOBAL_root_cp(bptr)                (GLOBAL_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
 #else
-#define Yap_root_cp                          (Yap_optyap_data.root_choice_point)
-#define Get_Yap_root_cp()                    (Yap_optyap_data.root_choice_point)
-#define Set_Yap_root_cp(bptr)                (Yap_optyap_data.root_choice_point = (bptr))
+#define GLOBAL_root_cp                          (GLOBAL_optyap_data.root_choice_point)
+#define Get_GLOBAL_root_cp()                    (GLOBAL_optyap_data.root_choice_point)
+#define Set_GLOBAL_root_cp(bptr)                (GLOBAL_optyap_data.root_choice_point = (bptr))
 #endif
-#define Yap_root_or_fr                       (Yap_optyap_data.root_or_frame)
-#define Yap_bm_present_workers               (Yap_optyap_data.present_workers)
-#define Yap_bm_idle_workers                  (Yap_optyap_data.idle_workers)
-#define Yap_bm_root_cp_workers               (Yap_optyap_data.root_cp_workers)
-#define Yap_bm_invisible_workers             (Yap_optyap_data.invisible_workers)
-#define Yap_bm_requestable_workers           (Yap_optyap_data.requestable_workers)
-#define Yap_bm_executing_workers             (Yap_optyap_data.executing_workers)
-#define Yap_bm_finished_workers              (Yap_optyap_data.finished_workers)
-#define Yap_bm_pruning_workers               (Yap_optyap_data.pruning_workers)
-#define Yap_locks_bm_idle_workers            (Yap_optyap_data.locks.bitmap_idle_workers)
-#define Yap_locks_bm_root_cp_workers         (Yap_optyap_data.locks.bitmap_root_cp_workers)
-#define Yap_locks_bm_invisible_workers       (Yap_optyap_data.locks.bitmap_invisible_workers)
-#define Yap_locks_bm_requestable_workers     (Yap_optyap_data.locks.bitmap_requestable_workers)
-#define Yap_locks_bm_executing_workers       (Yap_optyap_data.locks.bitmap_executing_workers)
-#define Yap_locks_bm_finished_workers        (Yap_optyap_data.locks.bitmap_finished_workers)
-#define Yap_locks_bm_pruning_workers         (Yap_optyap_data.locks.bitmap_pruning_workers)
-#define Yap_locks_who_locked_heap            (Yap_optyap_data.locks.who_locked_heap)
-#define Yap_locks_heap_access                (Yap_optyap_data.locks.heap_access)
-#define Yap_locks_alloc_block                (Yap_optyap_data.locks.alloc_block)
-#define Yap_branch(worker, depth)            (Yap_optyap_data.branch[worker][depth])
-#define Yap_parallel_execution_mode          (Yap_optyap_data.parallel_execution_mode)
-#define Yap_answers                          (Yap_optyap_data.answers)
-#define Yap_root_gt                          (Yap_optyap_data.root_global_trie)
-#define Yap_root_tab_ent                     (Yap_optyap_data.root_table_entry)
-#define Yap_first_sg_fr                      (Yap_optyap_data.first_subgoal_frame)
-#define Yap_last_sg_fr                       (Yap_optyap_data.last_subgoal_frame)
-#define Yap_check_sg_fr                      (Yap_optyap_data.check_subgoal_frame)
-#define Yap_root_dep_fr                      (Yap_optyap_data.root_dependency_frame)
-#define Yap_table_var_enumerator(index)      (Yap_optyap_data.table_var_enumerator[index])
-#define Yap_table_var_enumerator_addr(index) (Yap_optyap_data.table_var_enumerator + (index))
-#define Yap_table_lock(index)                (Yap_optyap_data.table_lock[index])
-#define Yap_timestamp                        (Yap_optyap_data.timestamp)
+#define GLOBAL_root_or_fr                       (GLOBAL_optyap_data.root_or_frame)
+#define GLOBAL_bm_present_workers               (GLOBAL_optyap_data.present_workers)
+#define GLOBAL_bm_idle_workers                  (GLOBAL_optyap_data.idle_workers)
+#define GLOBAL_bm_root_cp_workers               (GLOBAL_optyap_data.root_cp_workers)
+#define GLOBAL_bm_invisible_workers             (GLOBAL_optyap_data.invisible_workers)
+#define GLOBAL_bm_requestable_workers           (GLOBAL_optyap_data.requestable_workers)
+#define GLOBAL_bm_executing_workers             (GLOBAL_optyap_data.executing_workers)
+#define GLOBAL_bm_finished_workers              (GLOBAL_optyap_data.finished_workers)
+#define GLOBAL_bm_pruning_workers               (GLOBAL_optyap_data.pruning_workers)
+#define GLOBAL_locks_bm_idle_workers            (GLOBAL_optyap_data.locks.bitmap_idle_workers)
+#define GLOBAL_locks_bm_root_cp_workers         (GLOBAL_optyap_data.locks.bitmap_root_cp_workers)
+#define GLOBAL_locks_bm_invisible_workers       (GLOBAL_optyap_data.locks.bitmap_invisible_workers)
+#define GLOBAL_locks_bm_requestable_workers     (GLOBAL_optyap_data.locks.bitmap_requestable_workers)
+#define GLOBAL_locks_bm_executing_workers       (GLOBAL_optyap_data.locks.bitmap_executing_workers)
+#define GLOBAL_locks_bm_finished_workers        (GLOBAL_optyap_data.locks.bitmap_finished_workers)
+#define GLOBAL_locks_bm_pruning_workers         (GLOBAL_optyap_data.locks.bitmap_pruning_workers)
+#define GLOBAL_locks_who_locked_heap            (GLOBAL_optyap_data.locks.who_locked_heap)
+#define GLOBAL_locks_heap_access                (GLOBAL_optyap_data.locks.heap_access)
+#define GLOBAL_locks_alloc_block                (GLOBAL_optyap_data.locks.alloc_block)
+#define GLOBAL_branch(worker, depth)            (GLOBAL_optyap_data.branch[worker][depth])
+#define GLOBAL_parallel_execution_mode          (GLOBAL_optyap_data.parallel_execution_mode)
+#define GLOBAL_answers                          (GLOBAL_optyap_data.answers)
+#define GLOBAL_root_gt                          (GLOBAL_optyap_data.root_global_trie)
+#define GLOBAL_root_tab_ent                     (GLOBAL_optyap_data.root_table_entry)
+#define GLOBAL_first_sg_fr                      (GLOBAL_optyap_data.first_subgoal_frame)
+#define GLOBAL_last_sg_fr                       (GLOBAL_optyap_data.last_subgoal_frame)
+#define GLOBAL_check_sg_fr                      (GLOBAL_optyap_data.check_subgoal_frame)
+#define GLOBAL_root_dep_fr                      (GLOBAL_optyap_data.root_dependency_frame)
+#define GLOBAL_table_var_enumerator(index)      (GLOBAL_optyap_data.table_var_enumerator[index])
+#define GLOBAL_table_var_enumerator_addr(index) (GLOBAL_optyap_data.table_var_enumerator + (index))
+#define GLOBAL_table_lock(index)                (GLOBAL_optyap_data.table_lock[index])
+#define GLOBAL_timestamp                        (GLOBAL_optyap_data.timestamp)
 
 
 
-/***********************************
-**      Struct local_signals      **
-***********************************/
+/******************************************
+**      Struct local_optyap_signals      **
+******************************************/
 
 #ifdef YAPOR
-struct local_signals{
+struct local_optyap_signals{
 #if defined(YAPOR_COPY) || defined(YAPOR_THREADS)
   lockvar lock;
   volatile enum {
@@ -341,11 +343,11 @@ typedef struct {
 
 
 
-/********************************
-**      Struct local_data      **
-********************************/
+/***************************************
+**      Struct local_optyap_data      **
+***************************************/
 
-struct local_data{
+struct local_optyap_data {
 #ifdef YAPOR
   lockvar lock;
   /* local data related to or-parallelism */
@@ -362,7 +364,7 @@ struct local_data{
   choiceptr prune_request;
 #endif
   volatile int share_request;
-  struct local_signals share_signals;
+  struct local_optyap_signals share_signals;
   volatile struct {
     CELL start;
     CELL end;
@@ -394,95 +396,95 @@ struct local_data{
 #endif /* (TABLING || !YAPOR_COW) && MULTI_ASSIGNMENT_VARIABLES */
 };
 
-#define LOCAL_lock                         (LOCAL->lock)
-#define LOCAL_load                         (LOCAL->load)
+#define LOCAL_lock                         (LOCAL_optyap_data.lock)
+#define LOCAL_load                         (LOCAL_optyap_data.load)
 #ifdef YAPOR_THREADS
-#define Get_LOCAL_top_cp() offset_to_cptr(LOCAL->top_choice_point_offset)
-#define Set_LOCAL_top_cp(cpt) (LOCAL->top_choice_point_offset =  cptr_to_offset(cpt))
+#define Get_LOCAL_top_cp()                 offset_to_cptr(LOCAL_optyap_data.top_choice_point_offset)
+#define Set_LOCAL_top_cp(cpt)              (LOCAL_optyap_data.top_choice_point_offset =  cptr_to_offset(cpt))
 #else
-#define LOCAL_top_cp                       (LOCAL->top_choice_point)
-#define Get_LOCAL_top_cp()		   (LOCAL->top_choice_point)
-#define Set_LOCAL_top_cp(cpt)	           (LOCAL->top_choice_point =  cpt)
-#endif
-#define LOCAL_top_or_fr                    (LOCAL->top_or_frame)
+#define LOCAL_top_cp                       (LOCAL_optyap_data.top_choice_point)
+#define Get_LOCAL_top_cp()		   (LOCAL_optyap_data.top_choice_point)
+#define Set_LOCAL_top_cp(cpt)	           (LOCAL_optyap_data.top_choice_point =  cpt)
+#endif /* YAPOR_THREADS */
+#define LOCAL_top_or_fr                    (LOCAL_optyap_data.top_or_frame)
 #ifdef YAPOR_THREADS
-#define Get_LOCAL_prune_request()	   offset_to_cptr_with_null(LOCAL->prune_request_offset)
-#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request_offset =  cptr_to_offset_with_null(cpt))
+#define Get_LOCAL_prune_request()	   offset_to_cptr_with_null(LOCAL_optyap_data.prune_request_offset)
+#define Set_LOCAL_prune_request(cpt)       (LOCAL_optyap_data.prune_request_offset =  cptr_to_offset_with_null(cpt))
 #else
-#define LOCAL_prune_request                (LOCAL->prune_request)
-#define Get_LOCAL_prune_request()          (LOCAL->prune_request)
-#define Set_LOCAL_prune_request(cpt)       (LOCAL->prune_request = cpt)
-#endif
-#define LOCAL_share_request                (LOCAL->share_request)
-#define LOCAL_reply_signal                 (LOCAL->share_signals.reply_signal)
-#define LOCAL_p_fase_signal                (LOCAL->share_signals.P_fase)
-#define LOCAL_q_fase_signal                (LOCAL->share_signals.Q_fase)
-#define LOCAL_lock_signals                 (LOCAL->share_signals.lock)
-#define LOCAL_start_global_copy            (LOCAL->global_copy.start)
-#define LOCAL_end_global_copy              (LOCAL->global_copy.end)
-#define LOCAL_start_local_copy             (LOCAL->local_copy.start)
-#define LOCAL_end_local_copy               (LOCAL->local_copy.end)
-#define LOCAL_start_trail_copy             (LOCAL->trail_copy.start)
-#define LOCAL_end_trail_copy               (LOCAL->trail_copy.end)
-#define LOCAL_next_free_ans_node           (LOCAL->next_free_answer_trie_node)
-#define LOCAL_top_sg_fr                    (LOCAL->top_subgoal_frame)
-#define LOCAL_top_dep_fr                   (LOCAL->top_dependency_frame)
-#define LOCAL_pruning_scope                (LOCAL->bottom_pruning_scope)
+#define LOCAL_prune_request                (LOCAL_optyap_data.prune_request)
+#define Get_LOCAL_prune_request()          (LOCAL_optyap_data.prune_request)
+#define Set_LOCAL_prune_request(cpt)       (LOCAL_optyap_data.prune_request = cpt)
+#endif /* YAPOR_THREADS */
+#define LOCAL_share_request                (LOCAL_optyap_data.share_request)
+#define LOCAL_reply_signal                 (LOCAL_optyap_data.share_signals.reply_signal)
+#define LOCAL_p_fase_signal                (LOCAL_optyap_data.share_signals.P_fase)
+#define LOCAL_q_fase_signal                (LOCAL_optyap_data.share_signals.Q_fase)
+#define LOCAL_lock_signals                 (LOCAL_optyap_data.share_signals.lock)
+#define LOCAL_start_global_copy            (LOCAL_optyap_data.global_copy.start)
+#define LOCAL_end_global_copy              (LOCAL_optyap_data.global_copy.end)
+#define LOCAL_start_local_copy             (LOCAL_optyap_data.local_copy.start)
+#define LOCAL_end_local_copy               (LOCAL_optyap_data.local_copy.end)
+#define LOCAL_start_trail_copy             (LOCAL_optyap_data.trail_copy.start)
+#define LOCAL_end_trail_copy               (LOCAL_optyap_data.trail_copy.end)
+#define LOCAL_next_free_ans_node           (LOCAL_optyap_data.next_free_answer_trie_node)
+#define LOCAL_top_sg_fr                    (LOCAL_optyap_data.top_subgoal_frame)
+#define LOCAL_top_dep_fr                   (LOCAL_optyap_data.top_dependency_frame)
+#define LOCAL_pruning_scope                (LOCAL_optyap_data.bottom_pruning_scope)
 #ifdef YAPOR_THREADS
-#define Get_LOCAL_top_cp_on_stack() offset_to_cptr(LOCAL->top_choice_point_on_stack_offset)
-#define Set_LOCAL_top_cp_on_stack(cpt) (LOCAL->top_choice_point_on_stack_offset =  cptr_to_offset(cpt))
+#define Get_LOCAL_top_cp_on_stack()        offset_to_cptr(LOCAL_optyap_data.top_choice_point_on_stack_offset)
+#define Set_LOCAL_top_cp_on_stack(cpt)     (LOCAL_optyap_data.top_choice_point_on_stack_offset =  cptr_to_offset(cpt))
 #else
-#define LOCAL_top_cp_on_stack              (LOCAL->top_choice_point_on_stack)
-#define Get_LOCAL_top_cp_on_stack()	   (LOCAL->top_choice_point_on_stack)
-#define Set_LOCAL_top_cp_on_stack(cpt)	   (LOCAL->top_choice_point_on_stack =  cpt)
-#endif
-#define LOCAL_top_susp_or_fr               (LOCAL->top_or_frame_with_suspensions)
-#define LOCAL_ma_timestamp                 (LOCAL->ma_timestamp)
-#define LOCAL_ma_h_top                     (LOCAL->ma_h_top)
-#define LOCAL_ma_hash_table                (LOCAL->ma_hash_table)
+#define LOCAL_top_cp_on_stack              (LOCAL_optyap_data.top_choice_point_on_stack)
+#define Get_LOCAL_top_cp_on_stack()	   (LOCAL_optyap_data.top_choice_point_on_stack)
+#define Set_LOCAL_top_cp_on_stack(cpt)	   (LOCAL_optyap_data.top_choice_point_on_stack =  cpt)
+#endif /* YAPOR_THREADS */
+#define LOCAL_top_susp_or_fr               (LOCAL_optyap_data.top_or_frame_with_suspensions)
+#define LOCAL_ma_timestamp                 (LOCAL_optyap_data.ma_timestamp)
+#define LOCAL_ma_h_top                     (LOCAL_optyap_data.ma_h_top)
+#define LOCAL_ma_hash_table                (LOCAL_optyap_data.ma_hash_table)
 
 
-#define REMOTE_lock(worker)                (REMOTE[worker].lock)
-#define REMOTE_load(worker)                (REMOTE[worker].load)
+#define REMOTE_lock(wid)                       (REMOTE(wid)->optyap_data_.lock)
+#define REMOTE_load(wid)                       (REMOTE(wid)->optyap_data_.load)
 #ifdef YAPOR_THREADS
-#define REMOTE_top_cp(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_offset)
-#define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point_offset = cptr_to_offset(bptr))
+#define REMOTE_top_cp(wid)                     offset_to_cptr(REMOTE(wid)->optyap_data_.top_choice_point_offset)
+#define Set_REMOTE_top_cp(wid, bptr)           (REMOTE(wid)->optyap_data_.top_choice_point_offset = cptr_to_offset(bptr))
 #else
-#define REMOTE_top_cp(worker)              (REMOTE[worker].top_choice_point)
-#define Set_REMOTE_top_cp(worker, bptr)    (REMOTE[worker].top_choice_point = (bptr))
-#endif
-#define REMOTE_top_or_fr(worker)           (REMOTE[worker].top_or_frame)
+#define REMOTE_top_cp(wid)                     (REMOTE(wid)->optyap_data_.top_choice_point)
+#define Set_REMOTE_top_cp(wid, bptr)           (REMOTE(wid)->optyap_data_.top_choice_point = (bptr))
+#endif /* YAPOR_THREADS */
+#define REMOTE_top_or_fr(wid)                  (REMOTE(wid)->optyap_data_.top_or_frame)
 #ifdef YAPOR_THREADS
-#define Get_REMOTE_prune_request(worker)   offset_to_cptr_with_null(REMOTE[worker].prune_request_offset)
-#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request_offset = cptr_to_offset_with_null(cp))
+#define Get_REMOTE_prune_request(wid)          offset_to_cptr_with_null(REMOTE(wid)->optyap_data_.prune_request_offset)
+#define Set_REMOTE_prune_request(wid,cp)       (REMOTE(wid)->optyap_data_.prune_request_offset = cptr_to_offset_with_null(cp))
 #else
-#define REMOTE_prune_request(worker)       (REMOTE[worker].prune_request)
-#define Get_REMOTE_prune_request(worker)   (REMOTE[worker].prune_request)
-#define Set_REMOTE_prune_request(worker,cp)   (REMOTE[worker].prune_request = cp)
-#endif
-#define REMOTE_share_request(worker)       (REMOTE[worker].share_request)
-#define REMOTE_reply_signal(worker)        (REMOTE[worker].share_signals.reply_signal)
-#define REMOTE_p_fase_signal(worker)       (REMOTE[worker].share_signals.P_fase)
-#define REMOTE_q_fase_signal(worker)       (REMOTE[worker].share_signals.Q_fase)
-#define REMOTE_lock_signals(worker)        (REMOTE[worker].share_signals.lock)
-#define REMOTE_start_global_copy(worker)   (REMOTE[worker].global_copy.start)
-#define REMOTE_end_global_copy(worker)     (REMOTE[worker].global_copy.end)
-#define REMOTE_start_local_copy(worker)    (REMOTE[worker].local_copy.start)
-#define REMOTE_end_local_copy(worker)      (REMOTE[worker].local_copy.end)
-#define REMOTE_start_trail_copy(worker)    (REMOTE[worker].trail_copy.start)
-#define REMOTE_end_trail_copy(worker)      (REMOTE[worker].trail_copy.end)
-#define REMOTE_next_free_ans_node(worker)  (REMOTE[worker].next_free_answer_trie_node)
-#define REMOTE_top_sg_fr(worker)           (REMOTE[worker].top_subgoal_frame)
-#define REMOTE_top_dep_fr(worker)          (REMOTE[worker].top_dependency_frame)
-#define REMOTE_pruning_scope(worker)       (REMOTE[worker].bottom_pruning_scope)
+#define REMOTE_prune_request(wid)              (REMOTE(wid)->optyap_data_.prune_request)
+#define Get_REMOTE_prune_request(wid)          (REMOTE(wid)->optyap_data_.prune_request)
+#define Set_REMOTE_prune_request(wid,cp)       (REMOTE(wid)->optyap_data_.prune_request = cp)
+#endif /* YAPOR_THREADS */
+#define REMOTE_share_request(wid)              (REMOTE(wid)->optyap_data_.share_request)
+#define REMOTE_reply_signal(wid)               (REMOTE(wid)->optyap_data_.share_signals.reply_signal)
+#define REMOTE_p_fase_signal(wid)              (REMOTE(wid)->optyap_data_.share_signals.P_fase)
+#define REMOTE_q_fase_signal(wid)              (REMOTE(wid)->optyap_data_.share_signals.Q_fase)
+#define REMOTE_lock_signals(wid)               (REMOTE(wid)->optyap_data_.share_signals.lock)
+#define REMOTE_start_global_copy(wid)          (REMOTE(wid)->optyap_data_.global_copy.start)
+#define REMOTE_end_global_copy(wid)            (REMOTE(wid)->optyap_data_.global_copy.end)
+#define REMOTE_start_local_copy(wid)           (REMOTE(wid)->optyap_data_.local_copy.start)
+#define REMOTE_end_local_copy(wid)             (REMOTE(wid)->optyap_data_.local_copy.end)
+#define REMOTE_start_trail_copy(wid)           (REMOTE(wid)->optyap_data_.trail_copy.start)
+#define REMOTE_end_trail_copy(wid)             (REMOTE(wid)->optyap_data_.trail_copy.end)
+#define REMOTE_next_free_ans_node(wid)         (REMOTE(wid)->optyap_data_.next_free_answer_trie_node)
+#define REMOTE_top_sg_fr(wid)                  (REMOTE(wid)->optyap_data_.top_subgoal_frame)
+#define REMOTE_top_dep_fr(wid)                 (REMOTE(wid)->optyap_data_.top_dependency_frame)
+#define REMOTE_pruning_scope(wid)              (REMOTE(wid)->optyap_data_.bottom_pruning_scope)
 #ifdef YAPOR_THREADS
-#define REMOTE_top_cp_on_stack(worker)              offset_to_cptr(REMOTE[worker].top_choice_point_on_stack_offset)
-#define Set_REMOTE_top_cp_on_stack(worker, bptr)    (REMOTE[worker].top_choice_point_on_stack_offset = cptr_to_offset(bptr))
+#define REMOTE_top_cp_on_stack(wid)            offset_to_cptr(REMOTE(wid)->optyap_data_.top_choice_point_on_stack_offset)
+#define Set_REMOTE_top_cp_on_stack(wid, bptr)  (REMOTE(wid)->optyap_data_.top_choice_point_on_stack_offset = cptr_to_offset(bptr))
 #else
-#define REMOTE_top_cp_on_stack(worker)              (REMOTE[worker].top_choice_point_on_stack)
-#define Set_REMOTE_top_cp_on_stack(worker, bptr)    (REMOTE[worker].top_choice_point_on_stack = (bptr))
-#endif
-#define REMOTE_top_susp_or_fr(worker)      (REMOTE[worker].top_or_frame_with_suspensions)
+#define REMOTE_top_cp_on_stack(wid)            (REMOTE(wid)->optyap_data_.top_choice_point_on_stack)
+#define Set_REMOTE_top_cp_on_stack(wid, bptr)  (REMOTE(wid)->optyap_data_.top_choice_point_on_stack = (bptr))
+#endif /* YAPOR_THREADS */
+#define REMOTE_top_susp_or_fr(wid)             (REMOTE(wid)->optyap_data_.top_or_frame_with_suspensions)
 
 
 #ifdef YAPOR

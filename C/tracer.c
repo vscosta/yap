@@ -28,12 +28,12 @@
 STATIC_PROTO(int  TracePutchar, (int, int));
 STATIC_PROTO(void  send_tracer_message, (char *, char *, Int, char *, CELL *));
 
-static int do_trace_primitives = TRUE;
+
 
 static int
 TracePutchar(int sno, int ch)
 {
-  return(putc(ch, Yap_stderr)); /* use standard error stream, which is supposed to be 2*/
+  return(putc(ch, GLOBAL_stderr)); /* use standard error stream, which is supposed to be 2*/
 }
 
 static void
@@ -42,24 +42,24 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
   CACHE_REGS
   if (name == NULL) {
 #ifdef  YAPOR
-    fprintf(Yap_stderr, "(%d)%s", worker_id, start);
+    fprintf(GLOBAL_stderr, "(%d)%s", worker_id, start);
 #else
-    fprintf(Yap_stderr, "%s", start);
+    fprintf(GLOBAL_stderr, "%s", start);
 #endif
   } else {
     int i;
 
     if (arity) {
       if (args)
-	fprintf(Yap_stderr, "%s %s:%s(", start, mname, name);
+	fprintf(GLOBAL_stderr, "%s %s:%s(", start, mname, name);
       else
-	fprintf(Yap_stderr, "%s %s:%s/%lu", start, mname, name, (unsigned long int)arity);
+	fprintf(GLOBAL_stderr, "%s %s:%s/%lu", start, mname, name, (unsigned long int)arity);
     } else {
-      fprintf(Yap_stderr, "%s %s:%s", start, mname, name);
+      fprintf(GLOBAL_stderr, "%s %s:%s", start, mname, name);
     }
     if (args) {
       for (i= 0; i < arity; i++) {
-	if (i > 0) fprintf(Yap_stderr, ",");
+	if (i > 0) fprintf(GLOBAL_stderr, ",");
 #if DEBUG
 #if COROUTINING
 	Yap_Portray_delays = TRUE;
@@ -73,11 +73,11 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 #endif
       }
       if (arity) {
-	fprintf(Yap_stderr, ")");
+	fprintf(GLOBAL_stderr, ")");
       }
     }
   }
-  fprintf(Yap_stderr, "\n");
+  fprintf(GLOBAL_stderr, "\n");
 }
 
 #if defined(__GNUC__)
@@ -94,7 +94,7 @@ static int thread_trace;
 static int
 check_trail_consistency(void) {
   tr_fr_ptr ptr = TR;
-  while (ptr > (CELL *)Yap_TrailBase) {
+  while (ptr > (CELL *)LOCAL_TrailBase) {
     ptr = --ptr;
     if (!IsVarTerm(TrailTerm(ptr))) {
       if (IsApplTerm(TrailTerm(ptr))) {
@@ -164,7 +164,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   sc = Yap_heap_regs;
   vsc_count++;
 #ifdef THREADS
-  MY_ThreadHandle.thread_inst_count++;
+  LOCAL_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
   { choiceptr myB = B;
@@ -186,7 +186,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
    } else
   return;
   {
-    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;
     if (pt[140].term == 0 && pt[140].value != 0)
       jmp_deb(1);
   }
@@ -235,7 +235,7 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   if (TR_FZ > TR)
     jmp_deb(1);
   {
-    tr_fr_ptr pt = (tr_fr_ptr)Yap_TrailBase;
+    tr_fr_ptr pt = (tr_fr_ptr)LOCAL_TrailBase;
     if (pt[153].term == 0 && pt[153].value == 0 && 
 	pt[154].term != 0 && pt[154].value != 0 && ( TR > pt+154 || 
 						     TR_FZ > pt+154))
@@ -293,16 +293,16 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
       printf("\n");
  }
 #endif
-  fprintf(Yap_stderr,"%lld ",vsc_count);
+  fprintf(GLOBAL_stderr,"%lld ",vsc_count);
 #if defined(THREADS) || defined(YAPOR)
-  fprintf(Yap_stderr,"(%d)", worker_id);
+  fprintf(GLOBAL_stderr,"(%d)", worker_id);
 #endif
   /* check_trail_consistency(); */
   if (pred == NULL) {
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
-  if (pred->ModuleOfPred == 0 && !do_trace_primitives) {
+  if (pred->ModuleOfPred == 0 && !LOCAL_do_trace_primitives) {
     UNLOCK(Yap_heap_regs->low_level_trace_lock);
     return;
   }
@@ -396,12 +396,12 @@ static Int p_start_low_level_trace( USES_REGS1 )
 
 static Int p_total_choicepoints( USES_REGS1 )
 {
-  return Yap_unify(MkIntegerTerm(Yap_total_choicepoints),ARG1);
+  return Yap_unify(MkIntegerTerm(LOCAL_total_choicepoints),ARG1);
 }
 
 static Int p_reset_total_choicepoints( USES_REGS1 )
 {
-  Yap_total_choicepoints = 0;
+  LOCAL_total_choicepoints = 0;
   return TRUE;
 }
 
@@ -425,7 +425,7 @@ static Int p_start_low_level_trace2( USES_REGS1 )
 static Int p_stop_low_level_trace( USES_REGS1 )
 {
   Yap_do_low_level_trace = FALSE;
-  do_trace_primitives = TRUE;
+  LOCAL_do_trace_primitives = TRUE;
   return(TRUE);
 }
 

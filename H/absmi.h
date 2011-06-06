@@ -192,7 +192,7 @@ restore_absmi_regs(REGSTORE * old_regs)
   memcpy(old_regs, Yap_regp, sizeof(REGSTORE));
 #ifdef THREADS
   pthread_setspecific(Yap_yaamregs_key, (void *)old_regs);
-  MY_ThreadHandle.current_yaam_regs = old_regs;
+  LOCAL_ThreadHandle.current_yaam_regs = old_regs;
 #else
   Yap_regp = old_regs;
 #endif
@@ -682,10 +682,10 @@ Macros to check the limits of stacks
 
 #else
 
-#define check_trail(x) if (Unsigned(Yap_TrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail(x) if (Unsigned(LOCAL_TrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft
 
-#define check_trail_in_indexing(x) if (Unsigned(Yap_TrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail_in_indexing(x) if (Unsigned(LOCAL_TrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft_from_index
 
 #endif
@@ -734,7 +734,7 @@ Macros to check the limits of stacks
                  ENDP(pt0)
 
 #if LOW_LEVEL_TRACER
-#define COUNT_CPS() Yap_total_choicepoints++
+#define COUNT_CPS() LOCAL_total_choicepoints++
 #else
 #define COUNT_CPS()
 #endif

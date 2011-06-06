@@ -17,8 +17,8 @@ Supported:
 	- basic semantics
 	- aggregates
 	- updates
+	- delete
 
 Unsupported:
-	- delete
 	- distributed execution :)
 

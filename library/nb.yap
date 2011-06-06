@@ -24,6 +24,7 @@
 	       nb_queue_peek/2,
 	       nb_queue_empty/1,
 	       nb_queue_size/2,
+	       nb_queue_replace/3,
 	       nb_heap/2,
 	       nb_heap_close/1,
 	       nb_heap_add/3,

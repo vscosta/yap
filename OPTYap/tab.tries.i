@@ -791,52 +791,52 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 #endif /* MODE_TERMS_LOOP */
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-                   |  VAR_N  |  <-- stack_vars
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |  subs_arity (N+1)
-                   |  VAR_0  |          \|/
-                   -----------           *
-         YENV -->  |         |
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |
-                   |  TERM_1 |           |
-                   ----------|           |
-                   |   NULL  |          \|/
-                   ===========           *
- Yap_TrailTop -->  |         |
-                   -----------
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+                     |  VAR_N  |  <-- stack_vars
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |  subs_arity (N+1)
+                     |  VAR_0  |          \|/
+                     -----------           *
+           YENV -->  |         |
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |
+                     |  TERM_1 |           |
+                     ----------|           |
+                     |   NULL  |          \|/
+                     ===========           *
+ LOCAL_TrailTop -->  |         |
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
-  gt_node_ptr current_node = Yap_root_gt;
+  gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
   int subs_arity = *subs_arity_ptr;
   CELL *stack_vars = *stack_vars_ptr;
 #if ! defined(MODE_GLOBAL_TRIE_LOOP) || ! defined(GLOBAL_TRIE_FOR_SUBTERMS)
-  CELL *stack_terms = (CELL *) Yap_TrailTop;
+  CELL *stack_terms = (CELL *) LOCAL_TrailTop;
 #endif /* ! MODE_GLOBAL_TRIE_LOOP || ! GLOBAL_TRIE_FOR_SUBTERMS */
   CELL *stack_terms_limit = (CELL *) TR;
   AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);  /* + 1 because initially we stiil haven't done any STACK_POP_DOWN */
@@ -856,7 +856,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	if (subs_arity == MAX_TABLE_VARS)
 	  Yap_Error(INTERNAL_ERROR, TermNil, "subgoal_search_loop: MAX_TABLE_VARS exceeded");
 	STACK_PUSH_UP(t, stack_vars);
-	*((CELL *)t) = Yap_table_var_enumerator(subs_arity);
+	*((CELL *)t) = GLOBAL_table_var_enumerator(subs_arity);
 	t = MakeTableVarTerm(subs_arity);
 	subs_arity = subs_arity + 1;
 	SUBGOAL_CHECK_INSERT_ENTRY(tab_ent, current_node, t);
@@ -901,7 +901,7 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	  STACK_PUSH_UP(t, stack_terms);
 	}
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      } else if (current_node != Yap_root_gt) {
+      } else if (current_node != GLOBAL_root_gt) {
 	gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
 	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
@@ -918,13 +918,13 @@ static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr tab_ent, sg_node_ptr c
 	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    } else if (current_node != Yap_root_gt) {
+    } else if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
 #else /* ! TRIE_COMPACT_PAIRS */
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    if (current_node != Yap_root_gt) {
+    if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = subgoal_search_global_trie_terms_loop(t, &subs_arity, &stack_vars, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
     } else 
@@ -1005,41 +1005,41 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 #endif /* MODE_TERMS_LOOP */
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |  VAR_0  |  <-- stack_vars_base
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |   vars_arity (N+1)
-                   |  VAR_N  |          \|/
-                   -----------           *
-                   |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |
-                   |  TERM_1 |           |
-                   ----------|           |
-                   |   NULL  |          \|/
-                   ===========           *
- Yap_TrailTop -->  |         |
-                   -----------
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |  VAR_0  |  <-- stack_vars_base
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |   vars_arity (N+1)
+                     |  VAR_N  |          \|/
+                     -----------           *
+                     |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |
+                     |  TERM_1 |           |
+                     ----------|           |
+                     |   NULL  |          \|/
+                     ===========           *
+ LOCAL_TrailTop -->  |         |
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
-  gt_node_ptr current_node = Yap_root_gt;
+  gt_node_ptr current_node = GLOBAL_root_gt;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
   int vars_arity = *vars_arity_ptr;
 #if ! defined(MODE_GLOBAL_TRIE_LOOP) || ! defined(GLOBAL_TRIE_FOR_SUBTERMS)
-  CELL *stack_terms = (CELL *) Yap_TrailTop;
+  CELL *stack_terms = (CELL *) LOCAL_TrailTop;
 #endif /* ! MODE_GLOBAL_TRIE_LOOP || ! GLOBAL_TRIE_FOR_SUBTERMS */
   CELL *stack_vars_base = (CELL *) TR;
 #define stack_terms_limit (stack_vars_base + vars_arity)
@@ -1066,7 +1066,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	if (vars_arity == MAX_TABLE_VARS)
 	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
 	stack_vars_base[vars_arity] = t;
-	*((CELL *)t) = Yap_table_var_enumerator(vars_arity);
+	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
 	t = MakeTableVarTerm(vars_arity);
 	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
 	vars_arity = vars_arity + 1;
@@ -1118,7 +1118,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	  STACK_PUSH_UP(t, stack_terms);
 	}
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      } else if (current_node != Yap_root_gt) {
+      } else if (current_node != GLOBAL_root_gt) {
 	gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
 	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
@@ -1137,13 +1137,13 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
       }
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    } else if (current_node != Yap_root_gt) {
+    } else if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
 #endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
 #else /* ! TRIE_COMPACT_PAIRS */
 #if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    if (current_node != Yap_root_gt) {
+    if (current_node != GLOBAL_root_gt) {
       gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
       current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
     } else 
@@ -1219,43 +1219,43 @@ static inline CELL *load_substitution_loop(gt_node_ptr current_node, int *vars_a
 static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |  VAR_0  |  <-- stack_vars_base
-                   -----------           *
-                   |   ...   |          /|\
-                   -----------           |  vars_arity (N+1)
-                   |  VAR_N  |          \|/
-                   -----------           *
-                   |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
-                   |  TERM_1 |          \|/
-                   ===========           *
- Yap_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
-                   -----------
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |  VAR_0  |  <-- stack_vars_base
+                     -----------           *
+                     |   ...   |          /|\
+                     -----------           |  vars_arity (N+1)
+                     |  VAR_N  |          \|/
+                     -----------           *
+                     |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
+                     |  TERM_1 |          \|/
+                     ===========           *
+ LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
+                     -----------
 ************************************************************************/
   CACHE_REGS
 #ifdef MODE_GLOBAL_TRIE_LOOP
   int vars_arity = *vars_arity_ptr;
 #else
   int vars_arity = 0;
-  CELL *stack_terms = (CELL *) Yap_TrailTop;
+  CELL *stack_terms = (CELL *) LOCAL_TrailTop;
 #endif /* MODE_GLOBAL_TRIE_LOOP */
   CELL *stack_vars_base = (CELL *) TR;
 #define stack_terms_limit (stack_vars_base + vars_arity)
 #ifdef TRIE_COMPACT_PAIRS
-#define stack_terms_base ((CELL *) Yap_TrailTop)
+#define stack_terms_base ((CELL *) LOCAL_TrailTop)
   int stack_terms_pair_offset = 0;
 #endif /* TRIE_COMPACT_PAIRS */
   Term t = TrNode_entry(current_node);

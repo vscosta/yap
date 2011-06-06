@@ -193,14 +193,13 @@ true :- true.
 '$enter_top_level' :-
 	'$disable_docreep',
 	prompt(_,'| '),
-	prompt1(' ?- '),
 	'$run_toplevel_hooks',
+	prompt1('|: '),
 	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- '),
 	nb_setval('$spy_gn',1),
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	prompt1('|: '),
 	'$command'(Command,Varnames,Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
@@ -1096,8 +1095,7 @@ bootstrap(F) :-
 	stream_property(Stream, file_name(File)),
 	'$start_consult'(consult, File, LC),
 	file_directory_name(File, Dir),
-	getcwd(OldD),
-	cd(Dir),
+	working_directory(OldD, Dir),
 	(
 	  get_value('$lf_verbose',silent)
 	->
@@ -1107,7 +1105,7 @@ bootstrap(F) :-
 	  format(user_error, '~*|% consulting ~w...~n', [LC,F])
 	),
 	'$loop'(Stream,consult),
-	cd(OldD),
+	working_directory(_, OldD),
 	'$end_consult',
 	(
 	  get_value('$lf_verbose',silent)
@@ -1378,10 +1376,6 @@ b_getval(GlobalVariable, Val) :-
 	;
 	 '$do_error'(existence_error(variable, GlobalVariable),b_getval(GlobalVariable, Val))
 	).
-
-cd(Dir) :- working_directory(_, Dir).
-
-getcwd(Dir) :- working_directory(Dir, Dir).
 
 
 

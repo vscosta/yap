@@ -11,15 +11,9 @@
 **                                                                     **
 ************************************************************************/
 
-/***************************
-**      opt.memory.c      **
-***************************/
-
-#ifdef YAPOR
-void Yap_init_optyap_memory(long, long, long, int);
-void Yap_unmap_optyap_memory(void);
-void Yap_remap_optyap_memory(void);
-#endif /* YAPOR */
+#if defined(TABLING) || defined(YAPOR) 
+#include "SWI-Stream.h"
+#endif /* TABLING || YAPOR */
 
 
 
@@ -27,12 +21,9 @@ void Yap_remap_optyap_memory(void);
 **      opt.init.c      **
 *************************/
 
-void Yap_init_optyap_data(int, int, int, int);
-void Yap_init_local(void);
-void make_root_frames(void);
-#ifdef YAPOR
-void init_workers(void);
-#endif /* YAPOR */
+void Yap_init_global_optyap_data(int, int, int, int);
+void Yap_init_local_optyap_data(int);
+void Yap_init_root_frames(void);
 void itos(int, char *);
 
 
@@ -61,8 +52,8 @@ void free_subgoal_trie(sg_node_ptr, int, int);
 void free_answer_trie(ans_node_ptr, int, int);
 void free_subgoal_hash_chain(sg_hash_ptr);
 void free_answer_hash_chain(ans_hash_ptr);
-void show_table(tab_ent_ptr, int);
-void show_global_trie(int);
+void show_table(tab_ent_ptr, int, IOSTREAM *);
+void show_global_trie(int, IOSTREAM *);
 #endif /* TABLING */
 
 
@@ -84,8 +75,21 @@ void resume_suspension_frame(susp_fr_ptr, or_fr_ptr);
 
 
 /**************************
-**      or.copy_engine.c      **
+**      or.memory.c      **
 **************************/
+
+#ifdef YAPOR
+void Yap_init_yapor_global_local_memory(void);
+void Yap_init_yapor_stacks_memory(long, long, long, int);
+void Yap_unmap_yapor_memory(void);
+void Yap_remap_yapor_memory(void);
+#endif /* YAPOR */
+
+
+
+/*******************************
+**      or.copy_engine.c      **
+*******************************/
 
 #ifdef YAPOR
 void make_root_choice_point(void);

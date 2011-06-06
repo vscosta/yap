@@ -12,7 +12,7 @@
 static struct malloc_chunk *
 ChunkPtrAdjust (struct malloc_chunk *ptr)
 {
-  return (struct malloc_chunk *) ((char *) (ptr) + HDiff);
+  return (struct malloc_chunk *) ((char *) (ptr) + LOCAL_HDiff);
 }
 
 
@@ -212,8 +212,8 @@ yapsbrk(long size)
       UNLOCK(HeapTopLock);
       Yap_signal(YAP_CDOVF_SIGNAL);
     } else {
-     if (size > Yap_SizeOfOverflow)
-	Yap_SizeOfOverflow = size;
+     if (size > GLOBAL_SizeOfOverflow)
+	GLOBAL_SizeOfOverflow = size;
       /* big allocations, the caller must handle the problem */
       UNLOCK(HeapUsedLock);
       UNLOCK(HeapTopLock);

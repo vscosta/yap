@@ -748,13 +748,13 @@ void ShowCode_new2(int op, int new1,CELL new4)
 	        Yap_plwrite(MkIntTerm(new4), Yap_DebugPutc, 0, 1200);
 		break;
 	  default:
-	    Yap_DebugPutc (Yap_c_error_stream,'%');
-	    Yap_DebugPutc (Yap_c_error_stream,ch);
+	    Yap_DebugPutc (LOCAL_c_error_stream,'%');
+	    Yap_DebugPutc (LOCAL_c_error_stream,ch);
 	  }
       else
-        Yap_DebugPutc (Yap_c_error_stream,ch);
+        Yap_DebugPutc (LOCAL_c_error_stream,ch);
     }
-    Yap_DebugPutc (Yap_c_error_stream,'\n');
+    Yap_DebugPutc (LOCAL_c_error_stream,'\n');
 }
 
 

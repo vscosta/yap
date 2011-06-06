@@ -9,6 +9,8 @@
 
 */
 
+#define PL_KERNEL 1
+
 //=== includes ===============================================================
 #include	<stdlib.h>
 #include	<string.h>
@@ -118,7 +120,7 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
     Atom at;
     while ((at = Yap_LookupAtom(a)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return;
       }
     }
@@ -129,7 +131,7 @@ UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int f
 
     while ((at = Yap_LookupAtom(a)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return;
       }
     }
@@ -630,7 +632,7 @@ X_API atom_t PL_new_atom(const char *c)
   while ((at = Yap_LookupAtom((char *)c)) == NULL) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
   }
@@ -646,7 +648,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
     while ((pt = (char *)Yap_AllocCodeSpace(len+1)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
 	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
@@ -658,7 +660,7 @@ X_API atom_t PL_new_atom_nchars(size_t len, const char *c)
   while ((at = Yap_LookupAtom(pt)) == NULL) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
   }
@@ -680,7 +682,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     while (!(nbf = (wchar_t *)YAP_AllocSpaceFromYap((len+1)*sizeof(wchar_t)))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
 	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0;
       }
     }
@@ -690,7 +692,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     while ((at0 = Yap_LookupWideAtom(nbf)) == NULL) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
 	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
@@ -703,7 +705,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     while (!(nbf = (char *)YAP_AllocSpaceFromYap((len+1)*sizeof(char)))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
 	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0;
       }
     }
@@ -713,7 +715,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
     while (!(at0 = Yap_LookupAtom(nbf))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
 	CACHE_REGS
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0;
       }
     }
@@ -853,7 +855,7 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
   while (!(at = Yap_LookupAtom((char *)s))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -870,7 +872,7 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
   if (strlen(s) > len) {
     while (!(buf = (char *)Yap_AllocCodeSpace(len+1))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
     }
@@ -881,7 +883,7 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
   }
   while (!(at = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -1031,7 +1033,7 @@ X_API int PL_throw(term_t exception)
 {
   CACHE_REGS
   YAP_Throw(Yap_GetFromSlot(exception PASS_REGS));
-  longjmp(execution->env, 0);
+  longjmp(LOCAL_execution->env, 0);
   return 0;
 }
 
@@ -1078,7 +1080,7 @@ X_API int PL_unify_atom_chars(term_t t, const char *s)
   Term cterm;
   while (!(catom = Yap_LookupAtom((char *)s))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -1101,7 +1103,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
   buf[len] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -1336,7 +1338,7 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
       Atom at;
       while ((at = Yap_LookupMaybeWideAtomWithLength((wchar_t *)chars, len)) == NULL) {
 	if (!Yap_growheap(FALSE, 0L, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
       }
@@ -1395,7 +1397,7 @@ LookupMaxAtom(size_t n, char *s)
   buf[n] = '\0';
   while (!(catom = Yap_LookupAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1416,7 +1418,7 @@ LookupMaxWideAtom(size_t n, wchar_t *s)
   while (!(catom = Yap_LookupMaybeWideAtom(buf))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       CACHE_REGS
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1499,7 +1501,7 @@ X_API int PL_unify_term(term_t l,...)
 	  char *s = va_arg(ap, char *);
 	  while (!(at = Yap_LookupAtom(s))) {
 	    if (!Yap_growheap(FALSE, 0L, NULL)) {
-	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	      return FALSE;
 	    }
 	  }
@@ -1594,7 +1596,7 @@ X_API int PL_unify_term(term_t l,...)
 
 	    while (!(at = Yap_LookupAtom(fname))) {
 	      if (!Yap_growheap(FALSE, 0L, NULL)) {
-		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 		return FALSE;
 	      }
 	    }
@@ -1606,7 +1608,7 @@ X_API int PL_unify_term(term_t l,...)
 
 	    while (!(at = Yap_LookupAtom(fname))) {
 	      if (!Yap_growheap(FALSE, 0L, NULL)) {
-		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+		Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 		return FALSE;
 	      }
 	    }
@@ -1988,22 +1990,22 @@ PL_initialise(int myargc, char **myargv)
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
 
-  Yap_PL_Argc = myargc;
-  Yap_PL_Argv = myargv;
-  Yap_InitialisedFromPL = TRUE;
+  GLOBAL_PL_Argc = myargc;
+  GLOBAL_PL_Argv = myargv;
+  GLOBAL_InitialisedFromPL = TRUE;
   return YAP_Init(&init_args) != YAP_BOOT_ERROR;
 }
 
 X_API int
 PL_is_initialised(int *argcp, char ***argvp)
 {
-  if (Yap_InitialisedFromPL) {
+  if (GLOBAL_InitialisedFromPL) {
     if (argcp) 
-      *argcp = Yap_PL_Argc;
+      *argcp = GLOBAL_PL_Argc;
     if (argvp) 
-      *argvp = Yap_PL_Argv;
+      *argvp = GLOBAL_PL_Argv;
   }
-  return Yap_InitialisedFromPL;
+  return GLOBAL_InitialisedFromPL;
 }
 
 X_API module_t
@@ -2057,7 +2059,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
     Atom at;
     while (!(at = Yap_LookupAtom((char *)m))) {
       if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return NULL;
       }
     }
@@ -2065,7 +2067,7 @@ X_API predicate_t PL_predicate(const char *name, int arity, const char *m)
   }
   while (!(at = Yap_LookupAtom((char *)name))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -2133,14 +2135,14 @@ PL_open_foreign_frame(void)
   CACHE_REGS
   open_query *new = (open_query *)malloc(sizeof(open_query));
   if (!new) return 0;
-  new->old = execution;
+  new->old = LOCAL_execution;
   new->g = TermNil;
   new->open = FALSE;
   new->cp = CP;
   new->p = P;
   new->b = (CELL)(LCL0-(CELL*)B);
   new->slots = CurSlot;
-  execution = new;
+  LOCAL_execution = new;
   { 
     /* initialise a new marker choicepoint */
     choiceptr cp_b = ((choiceptr)ASP)-1;
@@ -2168,7 +2170,7 @@ PL_close_foreign_frame(fid_t f)
   CurSlot = env->slots;
   B = (choiceptr)(LCL0-env->b);
   ASP = (CELL *)(LCL0-CurSlot);
-  execution = env->old;
+  LOCAL_execution = env->old;
   free(env);
 }
 
@@ -2200,9 +2202,9 @@ PL_discard_foreign_frame(fid_t f)
 {
   CACHE_REGS
   open_query *env = (open_query *)f;
-  if (execution != env) {
+  if (LOCAL_execution != env) {
     /* handle the case where we do not want to kill the last open frame */ 
-    open_query *env0 = execution;
+    open_query *env0 = LOCAL_execution;
     while (env0 && env0 != env) env0 = env0->old;
     if (!env0)
       return;
@@ -2213,7 +2215,7 @@ PL_discard_foreign_frame(fid_t f)
   backtrack();
   CP = env->cp;
   P = env->p;
-  execution = env->old;
+  LOCAL_execution = env->old;
   ASP = LCL0-CurSlot;
   B = B->cp_b;
   free(env);
@@ -2228,8 +2230,8 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
 
   /* ignore flags  and module for now */
   PL_open_foreign_frame();
-  execution->open=1;
-  execution->state=0;
+  LOCAL_execution->open=1;
+  LOCAL_execution->state=0;
   PredicateInfo((PredEntry *)p, &yname, &arity, &m);
   t[0] = SWIModuleToModule(ctx);
   if (arity == 0) {
@@ -2243,19 +2245,19 @@ X_API qid_t PL_open_query(module_t ctx, int flags, predicate_t p, term_t t0)
     t[0] = MkAtomTerm((Atom)ctx);
     ti = Yap_MkApplTerm(FunctorModule,2,t);
     t[0] = ti;
-    execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+    LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
   } else {
     if (m && m != CurrentModule) {
       Term ti;
       t[0] = m;
       ti = Yap_MkApplTerm(FunctorModule,2,t);
       t[0] = ti;
-      execution->g = Yap_MkApplTerm(FunctorCall,1,t);
+      LOCAL_execution->g = Yap_MkApplTerm(FunctorCall,1,t);
     } else {
-      execution->g = t[1];
+      LOCAL_execution->g = t[1];
     }
   }
-  return execution;
+  return LOCAL_execution;
 }
 
 X_API int PL_next_solution(qid_t qi)
@@ -2263,12 +2265,12 @@ X_API int PL_next_solution(qid_t qi)
   CACHE_REGS
   int result;
   if (qi->open != 1) return 0;
-  if (setjmp(execution->env))
+  if (setjmp(LOCAL_execution->env))
     return 0;
   if (qi->state == 0) {
     result = YAP_RunGoal(qi->g);
   } else {
-    Yap_AllowRestart = qi->open;
+    LOCAL_AllowRestart = qi->open;
     result = YAP_RestartGoal();
   }
   qi->state = 1;
@@ -2491,9 +2493,9 @@ PL_create_engine(const PL_thread_attr_t *attr)
     yapt.tsize = attr->global_size;
     yapt.alias = (YAP_Term)attr->alias;
     yapt.cancel =  attr->cancel;
-    return  Yap_WLocal+YAP_ThreadCreateEngine(&yapt);
+    return  Yap_local+YAP_ThreadCreateEngine(&yapt);
   } else {
-    return Yap_WLocal+YAP_ThreadCreateEngine(NULL);
+    return Yap_local+YAP_ThreadCreateEngine(NULL);
   }
 #else
   return NULL;
@@ -2505,7 +2507,7 @@ X_API int
 PL_destroy_engine(PL_engine_t e)
 {
 #if THREADS
-  return YAP_ThreadDestroyEngine(((struct worker_local *)e)->thread_handle.current_yaam_regs->worker_id_);
+  return YAP_ThreadDestroyEngine(((struct worker_local *)e)->ThreadHandle_.current_yaam_regs->worker_id_);
 #else
   return FALSE;
 #endif
@@ -2519,7 +2521,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   int cwid = PL_thread_self(), nwid;
 
   if (cwid >= 0) {
-    if (old) *old = (PL_engine_t)(Yap_WLocal[cwid]);
+    if (old) *old = (PL_engine_t)(Yap_local[cwid]);
   }
   if (!engine) {
     if (cwid < 0)
@@ -2538,12 +2540,12 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
     }
     return PL_ENGINE_SET;
   } else {
-    nwid = ((struct worker_local *)engine)->thread_handle.current_yaam_regs->worker_id_;
+    nwid = ((struct worker_local *)engine)->ThreadHandle_.current_yaam_regs->worker_id_;
   }
 
-  pthread_mutex_lock(&(FOREIGN_ThreadHandle(nwid).tlock));
-  if (FOREIGN_ThreadHandle(nwid).pthread_handle) {
-    pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
+  pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));
+  if (REMOTE_ThreadHandle(nwid).pthread_handle) {
+    pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
     if (cwid != nwid) {
       return PL_ENGINE_INUSE;
     }
@@ -2552,7 +2554,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   if (cwid >= 0) {
     if (!YAP_ThreadDetachEngine(cwid)) {
       *old = NULL;
-      pthread_mutex_unlock(&(FOREIGN_ThreadHandle(nwid).tlock));
+      pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
       return PL_ENGINE_INVAL;
     }
   }
@@ -2561,7 +2563,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   }
   return PL_ENGINE_SET;
 #else
-  if (old) *old = (PL_engine_t)&Yap_WLocal;
+  if (old) *old = (PL_engine_t)&Yap_local;
   return FALSE;
 #endif
 }
@@ -2741,9 +2743,9 @@ PL_query(int query)
 {
   switch(query) {
   case PL_QUERY_ARGC:
-    return (intptr_t)Yap_argc;
+    return (intptr_t)GLOBAL_argc;
   case PL_QUERY_ARGV:
-    return (intptr_t)Yap_argv;
+    return (intptr_t)GLOBAL_argv;
   case PL_QUERY_USER_CPU:
     return (intptr_t)Yap_cputime();
   case PL_QUERY_VERSION:

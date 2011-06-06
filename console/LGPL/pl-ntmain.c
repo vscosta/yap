@@ -1035,6 +1035,7 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   if ( !PL_initialise(argc, av) )
     PL_halt(1);
 
+  rlc_bind_terminal(c);
   PL_halt(PL_toplevel() ? 0 : 1);
 
   return 0;

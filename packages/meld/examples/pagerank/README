@@ -1,0 +1,13 @@
+Pagerank Algorithm in Meld
+	 Example of Iteration and Arithmetic Builtins
+
+Use as follows:
+
+bash> yap
+
+:- use_module(library(meld)).
+
+:- mcompile(pagerank).
+
+:- simulate(g10).
+

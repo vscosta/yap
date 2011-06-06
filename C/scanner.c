@@ -173,18 +173,18 @@ AllocScannerMemory(unsigned int size)
   CACHE_REGS
   char *AuxSpScan;
 
-  AuxSpScan = ScannerStack;
+  AuxSpScan = LOCAL_ScannerStack;
   size = AdjustSize(size);
-  if (ScannerExtraBlocks) {
+  if (LOCAL_ScannerExtraBlocks) {
     struct scanner_extra_alloc *ptr;
 
     if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
       return NULL;
     }
-    ptr->next = ScannerExtraBlocks;
-    ScannerExtraBlocks = ptr;
+    ptr->next = LOCAL_ScannerExtraBlocks;
+    LOCAL_ScannerExtraBlocks = ptr;
     return (char *)(ptr+1);
-  } else if (Yap_TrailTop <= AuxSpScan+size) {
+  } else if (LOCAL_TrailTop <= AuxSpScan+size) {
     UInt alloc_size = sizeof(CELL) * K16;
  
     if (size > alloc_size)
@@ -195,12 +195,12 @@ AllocScannerMemory(unsigned int size)
       if (!(ptr = (struct scanner_extra_alloc *)malloc(size+sizeof(ScannerExtraBlock)))) {
 	return NULL;
       }
-      ptr->next = ScannerExtraBlocks;
-      ScannerExtraBlocks = ptr;
+      ptr->next = LOCAL_ScannerExtraBlocks;
+      LOCAL_ScannerExtraBlocks = ptr;
       return (char *)(ptr+1);
     }
   }
-  ScannerStack = AuxSpScan+size;
+  LOCAL_ScannerStack = AuxSpScan+size;
   return AuxSpScan;
 }
 
@@ -208,12 +208,12 @@ static void
 PopScannerMemory(char *block, unsigned int size)
 {
   CACHE_REGS
-  if (block == ScannerStack-size) {
-    ScannerStack -= size;
-  } else if (block == (char *)(ScannerExtraBlocks+1)) {
-    struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  if (block == LOCAL_ScannerStack-size) {
+    LOCAL_ScannerStack -= size;
+  } else if (block == (char *)(LOCAL_ScannerExtraBlocks+1)) {
+    struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
 
-    ScannerExtraBlocks = ptr->next;
+    LOCAL_ScannerExtraBlocks = ptr->next;
     free(ptr);
   }
 }
@@ -235,7 +235,7 @@ float_send(char *s, int sign)
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) { /* iso */
     if (!finite(f)) {
       CACHE_REGS
-      Yap_ErrorMessage = "Float overflow while scanning";
+      LOCAL_ErrorMessage = "Float overflow while scanning";
       return(MkEvalFl(0.0));
     }
   }
@@ -268,7 +268,7 @@ static int
 send_error_message(char s[])
 {
   CACHE_REGS
-  Yap_ErrorMessage = s;
+  LOCAL_ErrorMessage = s;
   return 0;
 }
 
@@ -502,7 +502,7 @@ static int
 num_send_error_message(char s[])
 {
   CACHE_REGS
-  Yap_ErrorMessage = s;
+  LOCAL_ErrorMessage = s;
   return TermNil;
 }
 
@@ -727,12 +727,12 @@ Yap_scan_num(IOSTREAM *inp)
   int ch, cherr;
   char *ptr;
 
-  Yap_ErrorMessage = NULL;
-  ScannerStack = (char *)TR;
-  ScannerExtraBlocks = NULL;
+  LOCAL_ErrorMessage = NULL;
+  LOCAL_ScannerStack = (char *)TR;
+  LOCAL_ScannerExtraBlocks = NULL;
   if (!(ptr = AllocScannerMemory(4096))) {
-    Yap_ErrorMessage = "Trail Overflow";
-    Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+    LOCAL_ErrorMessage = "Trail Overflow";
+    LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
     return TermNil;
   }
   ch = getchr(inp);
@@ -755,7 +755,7 @@ Yap_scan_num(IOSTREAM *inp)
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
   Yap_clean_tokenizer(NULL, NULL, NULL);
-  if (Yap_ErrorMessage != NULL || ch != -1 || cherr)
+  if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
   return out;
 }
@@ -769,8 +769,8 @@ ch_to_wide(char *base, char *charp)
   wchar_t *nb = (wchar_t *)base;
 
   if ((nb+n) + 1024 > (wchar_t *)AuxSp) {
-    Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
-    Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+    LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+    LOCAL_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
     return NULL;
   }
   for (i=n; i > 0; i--) {
@@ -800,13 +800,12 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
   int ch;
   wchar_t *wcharp;
 
-  Yap_ErrorMessage = NULL;
-  Yap_Error_Size = 0;
-  Yap_VarTable = NULL;
-  Yap_AnonVarTable = NULL;
-  Yap_eot_before_eof = FALSE;
-  ScannerStack = (char *)TR;
-  ScannerExtraBlocks = NULL;
+  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_Size = 0;
+  LOCAL_VarTable = NULL;
+  LOCAL_AnonVarTable = NULL;
+  LOCAL_ScannerStack = (char *)TR;
+  LOCAL_ScannerExtraBlocks = NULL;
   l = NULL;
   p = NULL;			/* Just to make lint happy */
   ch = getchr(inp_stream);
@@ -814,7 +813,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     ch = getchr(inp_stream);
   }
   *tposp = Yap_StreamPosition(inp_stream);
-  StartLine = inp_stream->posbuf.lineno;
+  LOCAL_StartLine = inp_stream->posbuf.lineno;
   do {
     wchar_t och;
     int quote, isvar;
@@ -826,8 +825,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     t = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
     t->TokNext = NULL;
     if (t == NULL) {
-      Yap_ErrorMessage = "Trail Overflow";
-      Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+      LOCAL_ErrorMessage = "Trail Overflow";
+      LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
       if (p)
 	p->Tok = Ord(kind = eot_tok);
       /* serious error now */
@@ -855,6 +854,15 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  while (chtype(ch) == BS) {
 	    ch = getchr(inp_stream);
 	  }
+	  if (ASP-H < 1024) {
+	    LOCAL_ErrorMessage = "Stack Overflow";
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	    LOCAL_Error_Size = 0L;	            
+	    if (p)
+	      p->Tok = Ord(kind = eot_tok);
+	    /* serious error now */
+	    return l;
+	  }
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
 	goto restart;
@@ -878,8 +886,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	if (charp == (char *)AuxSp-1024) {
 	huge_var_error:
 	  /* huge atom or variable, we are in trouble */
-	  Yap_ErrorMessage = "Code Space Overflow due to huge atom";
-	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow due to huge atom";
+	  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
@@ -905,8 +913,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  ae = Yap_LookupAtom(TokImage);
 	}
 	if (ae == NIL) {
-	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
-	  Yap_ErrorMessage = "Code Space Overflow";
+	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow";
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -932,17 +940,17 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 
 	cherr = 0;
 	if (!(ptr = AllocScannerMemory(4096))) {
-	  Yap_ErrorMessage = "Trail Overflow";
-	  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+	  LOCAL_ErrorMessage = "Trail Overflow";
+	  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
 	  return l;
 	}
 	if (ASP-H < 1024) {
-	  Yap_ErrorMessage = "Stack Overflow";
-	  Yap_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	  Yap_Error_Size = 0L;	            
+	  LOCAL_ErrorMessage = "Stack Overflow";
+	  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	  LOCAL_Error_Size = 0L;	            
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -962,8 +970,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  t->TokPos = GetCurInpPos(inp_stream);
 	  e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	  if (e == NULL) {
-	    Yap_ErrorMessage = "Trail Overflow";
-	    Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+	    LOCAL_ErrorMessage = "Trail Overflow";
+	    LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	    if (p)
 	      p->Tok = Ord(kind = eot_tok);
 	    /* serious error now */
@@ -991,8 +999,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
-		Yap_ErrorMessage = "Trail Overflow";
-		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+		LOCAL_ErrorMessage = "Trail Overflow";
+		LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 		if (p)
 		  p->Tok = Ord(kind = eot_tok);
 		/* serious error now */
@@ -1022,8 +1030,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	      t->TokPos = GetCurInpPos(inp_stream);
 	      e2 = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
 	      if (e2 == NULL) {
-		Yap_ErrorMessage = "Trail Overflow";
-		Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+		LOCAL_ErrorMessage = "Trail Overflow";
+		LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 		t->Tok = Ord(kind = eot_tok);
 		/* serious error now */
 		return l;
@@ -1055,13 +1063,13 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 
       while (TRUE) {
 	if (charp + 1024 > (char *)AuxSp) {
-	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
-	  Yap_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
+	  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  LOCAL_ErrorMessage = "Heap Overflow While Scanning: please increase code space (-h)";
 	  break;
 	}
 	if (ch == 10  &&  yap_flags[CHARACTER_ESCAPE_FLAG] == ISO_CHARACTER_ESCAPES) {
 	  /* in ISO a new line terminates a string */
-	  Yap_ErrorMessage = "layout character \n inside quotes";
+	  LOCAL_ErrorMessage = "layout character \n inside quotes";
 	  break;
 	}
 	if (ch == quote) {
@@ -1088,8 +1096,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	++len;
 	if (charp > (char *)AuxSp - 1024) {
 	  /* Not enough space to read in the string. */
-	  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
-	  Yap_ErrorMessage = "not enough space to read in string or quoted atom";
+	  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;	  
+	  LOCAL_ErrorMessage = "not enough space to read in string or quoted atom";
 	  /* serious error now */
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
@@ -1108,7 +1116,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  mp = AllocScannerMemory(len + 1);
 	}
 	if (mp == NULL) {
-	  Yap_ErrorMessage = "not enough heap space to read in string or quoted atom";
+	  LOCAL_ErrorMessage = "not enough heap space to read in string or quoted atom";
 	  Yap_ReleasePreAllocCodeSpace((CODEADDR)TokImage);
 	  t->Tok = Ord(kind = eot_tok);
 	  return l;
@@ -1131,8 +1139,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
 	}
 	if (!(t->TokInfo)) {
-	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
-	  Yap_ErrorMessage = "Code Space Overflow";
+	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow";
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -1162,6 +1170,15 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  while (chtype(ch) == BS) {
 	    ch = getchr(inp_stream);
 	  }
+	  if (ASP-H < 1024) {
+	    LOCAL_ErrorMessage = "Stack Overflow";
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
+	    LOCAL_Error_Size = 0L;	            
+	    if (p)
+	      p->Tok = Ord(kind = eot_tok);
+	    /* serious error now */
+	    return l;
+	  }
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
 	goto restart;
@@ -1169,7 +1186,6 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     enter_symbol:
       if (och == '.' && (chtype(ch) == BS || chtype(ch) == EF
 			 || chtype(ch) == CC)) {
-	Yap_eot_before_eof = TRUE;
 	if (chtype(ch) == CC)
 	  while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
 	t->Tok = Ord(kind = eot_tok);
@@ -1183,8 +1199,8 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	*charp = '\0';
 	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
 	if (t->TokInfo == (CELL)NIL) {
-	  Yap_Error_TYPE = OUT_OF_HEAP_ERROR;	  
-	  Yap_ErrorMessage = "Code Space Overflow";
+	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow";
 	  if (p)
 	    t->Tok = Ord(kind = eot_tok);
 	  /* serious error now */
@@ -1247,29 +1263,29 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 
     default:
 #ifdef DEBUG
-      fprintf(Yap_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
+      fprintf(GLOBAL_stderr, "\n++++ token: wrong char type %c %d\n", ch, chtype(ch));
 #endif
       t->Tok = Ord(kind = eot_tok);
     }
 #ifdef DEBUG
-    if(Yap_Option[2]) fprintf(Yap_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
+    if(GLOBAL_Option[2]) fprintf(GLOBAL_stderr,"[Token %d %ld]",Ord(kind),(unsigned long int)t->TokInfo);
 #endif
-    if (Yap_ErrorMessage) {
+    if (LOCAL_ErrorMessage) {
       /* insert an error token to inform the system of what happened */
       TokEntry *e = (TokEntry *) AllocScannerMemory(sizeof(TokEntry));
       if (e == NULL) {
-	Yap_ErrorMessage = "Trail Overflow";
-	Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
+	LOCAL_ErrorMessage = "Trail Overflow";
+	LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;	            
 	p->Tok = Ord(kind = eot_tok);
 	/* serious error now */
 	return l;
       }
       p->TokNext = e;
       e->Tok = Error_tok;
-      e->TokInfo = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
+      e->TokInfo = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
       e->TokPos = GetCurInpPos(inp_stream);
       e->TokNext = NULL;
-      Yap_ErrorMessage = NULL;
+      LOCAL_ErrorMessage = NULL;
       p = e;
     }
   } while (kind != eot_tok);
@@ -1280,7 +1296,7 @@ void
 Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
 {
   CACHE_REGS
-  struct scanner_extra_alloc *ptr = ScannerExtraBlocks;
+  struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
   while (ptr) {
     struct scanner_extra_alloc *next = ptr->next;
     free(ptr);

@@ -210,27 +210,21 @@ delete_remaining_edges(SortedVs,Vs0,Vsf) :-
 
 dgraph_transpose(Graph, TGraph) :-
 	rb_visit(Graph, Edges),
-	rb_clone(Graph, TGraph, NewNodes),
-	tedges(Edges,UnsortedTEdges),
-	sort(UnsortedTEdges,TEdges),
-	fill_nodes(NewNodes,TEdges).
+	transpose(Edges, Nodes, TEdges, []),
+	dgraph_new(G0),
+	% make sure we have all vertices, even if they are unconnected.
+	dgraph_add_vertices(G0, Nodes, G1),
+	dgraph_add_edges(G1, TEdges, TGraph).
 
-tedges([],[]).
-tedges([V-Vs|Edges],TEdges) :-
-	fill_tedges(Vs, V, TEdges, TEdges0),
-	tedges(Edges,TEdges0).
+transpose([], []) --> [].
+transpose([V-Edges|MoreVs], [V|Vs]) -->
+	transpose_edges(Edges, V),
+	transpose(MoreVs, Vs).
 
-fill_tedges([], _, TEdges, TEdges).
-fill_tedges([V1|Vs], V, [V1-V|TEdges], TEdges0) :-
-	fill_tedges(Vs, V, TEdges, TEdges0).
-
-
-fill_nodes([],[]).
-fill_nodes([V-[Child|MoreChildren]|Nodes],[V-Child|Edges]) :- !,
-	get_extra_children(Edges,V,MoreChildren,REdges),
-	fill_nodes(Nodes,REdges).
-fill_nodes([_-[]|Edges],TEdges) :-
-	fill_nodes(Edges,TEdges).
+transpose_edges([], _V) --> [].
+transpose_edges(E.Edges, V) -->
+	[E-V],
+	transpose_edges(Edges, V).
 
 dgraph_compose(T1,T2,CT) :-
 	rb_visit(T1,Nodes),

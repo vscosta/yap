@@ -160,15 +160,15 @@ do_execute(Term t, Term mod USES_REGS)
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (PRED_GOAL_EXPANSION_ALL) {
-    LOCK(SignalLock);
+    LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (ActiveSignals & YAP_CREEP_SIGNAL && !Yap_InterruptsDisabled) {
-      ActiveSignals &= ~YAP_CREEP_SIGNAL;
+    if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
       CreepFlag = CalculateStackGap();
     }
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     return CallMetaCall(mod PASS_REGS);
-  } else if (ActiveSignals  && !Yap_InterruptsDisabled) {
+  } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
  restart_exec:
@@ -331,16 +331,16 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
     return CallError(TYPE_ERROR_CALLABLE, mod PASS_REGS);
   }
   if (PRED_GOAL_EXPANSION_ALL) {
-    LOCK(SignalLock);
+    LOCK(LOCAL_SignalLock);
     /* disable creeping when we do goal expansion */
-    if (ActiveSignals & YAP_CREEP_SIGNAL && !Yap_InterruptsDisabled) {
-      ActiveSignals &= ~YAP_CREEP_SIGNAL;
+    if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;
       CreepFlag = CalculateStackGap();
     }
-    UNLOCK(SignalLock);
+    UNLOCK(LOCAL_SignalLock);
     ARG1 = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
     return CallMetaCall(mod PASS_REGS);
-  } else if (ActiveSignals  && !Yap_InterruptsDisabled) {
+  } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS), mod PASS_REGS);
   }
   if (arity > MaxTemps) {
@@ -378,12 +378,12 @@ static Int
 EnterCreepMode(Term t, Term mod USES_REGS) {
   PredEntry *PredCreep;
 
-  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
     ARG1 = t;
     if (!Yap_growheap(FALSE, 0, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap at meta-call");
     }
-    if (!ActiveSignals) {
+    if (!LOCAL_ActiveSignals) {
       return do_execute(ARG1, mod PASS_REGS);
     }
   }
@@ -394,9 +394,9 @@ EnterCreepMode(Term t, Term mod USES_REGS) {
   } else {
     ARG1 = MkPairTerm(TermProlog,t);
   }
-  LOCK(SignalLock);
+  LOCK(LOCAL_SignalLock);
   CreepFlag = CalculateStackGap();
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   P_before_spy = P;
   return CallPredicate(PredCreep, B, PredCreep->CodeOfPred PASS_REGS);
 }
@@ -631,7 +631,7 @@ p_execute_clause( USES_REGS1 )
   } else {
     code = Yap_ClauseFromTerm(clt)->ClCode;
   }
-  if (ActiveSignals & YAP_CREEP_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL) {
     Yap_signal(YAP_CREEP_SIGNAL);
   }
   return CallPredicate(RepPredProp(pe), cut_cp, code PASS_REGS);
@@ -651,7 +651,7 @@ p_execute0( USES_REGS1 )
   unsigned int    arity;
   Prop            pe;
 
-  if (ActiveSignals  && !Yap_InterruptsDisabled) {
+  if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
  restart_exec:
@@ -781,7 +781,7 @@ p_execute_nonstop( USES_REGS1 )
   /*	N = arity; */
   /* call may not define new system predicates!! */
   if (RepPredProp(pe)->PredFlags & SpiedPredFlag) {
-    if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
+    if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL  && !LOCAL_InterruptsDisabled) {
       Yap_signal(YAP_CREEP_SIGNAL);
     }
 #if defined(YAPOR) || defined(THREADS)
@@ -791,8 +791,8 @@ p_execute_nonstop( USES_REGS1 )
     }
 #endif
     return CallPredicate(RepPredProp(pe), B, RepPredProp(pe)->cs.p_code.TrueCodeOfPred PASS_REGS);
-  }  else { if (ActiveSignals & YAP_CREEP_SIGNAL  && 
-		!Yap_InterruptsDisabled &&
+  }  else { if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL  && 
+		!LOCAL_InterruptsDisabled &&
 		(!(RepPredProp(pe)->PredFlags & (AsmPredFlag|CPredFlag)) ||
 		  RepPredProp(pe)->OpcodeOfPred == Yap_opcode(_call_bfunc_xx))) {
       Yap_signal(YAP_CREEP_SIGNAL);
@@ -946,12 +946,12 @@ exec_absmi(int top USES_REGS)
 {
   int lval, out;
 
-  if (top && (lval = sigsetjmp (Yap_RestartEnv, 1)) != 0) {
+  if (top && (lval = sigsetjmp (LOCAL_RestartEnv, 1)) != 0) {
     switch(lval) {
     case 1:
       { /* restart */
 	/* otherwise, SetDBForThrow will fail entering critical mode */
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
 	/* find out where to cut to */
 	/* siglongjmp resets the TR hardware register */
 	/* TR and B are crucial, they might have been changed, or not */
@@ -962,12 +962,12 @@ exec_absmi(int top USES_REGS)
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
 	Yap_StartSlots( PASS_REGS1 );
-	LOCK(SignalLock);
+	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
-	ActiveSignals = 0;
+	LOCAL_ActiveSignals = 0;
 	CreepFlag = CalculateStackGap();
-	Yap_PrologMode = UserMode;
-	UNLOCK(SignalLock);
+	LOCAL_PrologMode = UserMode;
+	UNLOCK(LOCAL_SignalLock);
 	P = (yamop *)FAILCODE;
       }
       break;
@@ -975,11 +975,11 @@ exec_absmi(int top USES_REGS)
       {
 	/* arithmetic exception */
 	/* must be done here, otherwise siglongjmp will clobber all the registers */
-	Yap_Error(Yap_matherror,TermNil,NULL);
+	Yap_Error(LOCAL_matherror ,TermNil,NULL);
 	/* reset the registers so that we don't have trash in abstract machine */
 	Yap_set_fpu_exceptions(yap_flags[LANGUAGE_MODE_FLAG] == 1);
 	P = (yamop *)FAILCODE;
-	Yap_PrologMode = UserMode;
+	LOCAL_PrologMode = UserMode;
       }
       break;
     case 3:
@@ -988,10 +988,10 @@ exec_absmi(int top USES_REGS)
       }
     default:
       /* do nothing */
-      Yap_PrologMode = UserMode;
+      LOCAL_PrologMode = UserMode;
     }
   } else {
-    Yap_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
   }
   Yap_CloseSlots( PASS_REGS1 );
   YENV = ASP;
@@ -999,8 +999,8 @@ exec_absmi(int top USES_REGS)
   out = Yap_absmi(0);
   Yap_StartSlots( PASS_REGS1 );
   /* make sure we don't leave a FAIL signal hanging around */ 
-  ActiveSignals &= ~YAP_FAIL_SIGNAL;
-  if (!ActiveSignals)
+  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+  if (!LOCAL_ActiveSignals)
     CreepFlag = CalculateStackGap();
   return out;
 }
@@ -1048,9 +1048,6 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
 #endif /* DEPTH_LIMIT */
   YENV = ASP = (CELL *)B;
   HB = H;
-#if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
-#endif
   /* start with some slots so that we can use them */
   Yap_StartSlots( PASS_REGS1 );
   CP = YESCODE;
@@ -1282,8 +1279,8 @@ Yap_RunTopGoal(Term t)
   CodeAdr = ppe->CodeOfPred;
   UNLOCK(ppe->PELock);
 #if !USE_SYSTEM_MALLOC
-  if (Yap_TrailTop - HeapTop < 2048) {
-    Yap_PrologMode = BootMode;
+  if (LOCAL_TrailTop - HeapTop < 2048) {
+    LOCAL_PrologMode = BootMode;
     Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,
 	  "unable to boot because of too little Trail space");
   }
@@ -1475,9 +1472,9 @@ JumpToEnv(Term t USES_REGS) {
   if (EX)
     return FALSE;
   /* just keep the throwed object away, we don't need to care about it */
-  if (!(BallTerm = Yap_StoreTermInDB(t, 0))) {
+  if (!(LOCAL_BallTerm = Yap_StoreTermInDB(t, 0))) {
     /* fat chance */
-    siglongjmp(Yap_RestartEnv,1);
+    siglongjmp(LOCAL_RestartEnv,1);
   }
   /* careful, previous step may have caused a stack shift, 
      so get pointers here */
@@ -1509,16 +1506,16 @@ JumpToEnv(Term t USES_REGS) {
       /* we reached C-Code */
       if (handler->cp_ap == NOCODE) {
 	/* up to the C-code to deal with this! */
-	UncaughtThrow = TRUE;
+	LOCAL_UncaughtThrow = TRUE;
 	if (previous == NULL)
 	  B = handler;
 	else 
 	  previous->cp_b = handler;
-	EX = BallTerm;
-	BallTerm = NULL;
+	EX = LOCAL_BallTerm;
+	LOCAL_BallTerm = NULL;
 	P = (yamop *)FAILCODE;
 	/* make sure failure will be seen at next port */
-	if (Yap_PrologMode & AsyncIntMode) {
+	if (LOCAL_PrologMode & AsyncIntMode) {
 	  Yap_signal(YAP_FAIL_SIGNAL);
 	}
 	HB = B->cp_h;
@@ -1528,11 +1525,11 @@ JumpToEnv(Term t USES_REGS) {
     }
     /* uncaught throw */
     if (handler == NULL) {
-      UncaughtThrow = TRUE;
+      LOCAL_UncaughtThrow = TRUE;
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
 #endif
-      siglongjmp(Yap_RestartEnv,1);
+      siglongjmp(LOCAL_RestartEnv,1);
     }
     /* is it a continuation? */
     env = handler->cp_env;
@@ -1563,7 +1560,7 @@ JumpToEnv(Term t USES_REGS) {
   /* B->cp_h = H; */
   /* I could backtrack here, but it is easier to leave the unwinding
      to the emulator */
-  if (Yap_PrologMode & AsyncIntMode) {
+  if (LOCAL_PrologMode & AsyncIntMode) {
     Yap_signal(YAP_FAIL_SIGNAL);
   }
   P = (yamop *)FAILCODE;
@@ -1578,7 +1575,7 @@ JumpToEnv(Term t USES_REGS) {
 Int
 Yap_JumpToEnv(Term t) {
   CACHE_REGS
-  if (Yap_PrologMode & BootMode) {
+  if (LOCAL_PrologMode & BootMode) {
     return FALSE;
   } 
   return JumpToEnv(t PASS_REGS);
@@ -1605,27 +1602,26 @@ Yap_InitYaamRegs(void)
 {
   CACHE_REGS
   Term h0var;
-
 #if PUSH_REGS
   /* Guarantee that after a longjmp we go back to the original abstract
      machine registers */
 #ifdef THREADS
   int myworker_id = worker_id;
-  pthread_setspecific(Yap_yaamregs_key, (const void *)FOREIGN_ThreadHandle(myworker_id).default_yaam_regs);
-  FOREIGN_ThreadHandle(myworker_id).current_yaam_regs = FOREIGN_ThreadHandle(myworker_id).default_yaam_regs;
-  worker_id = myworker_id;
+  pthread_setspecific(Yap_yaamregs_key, (const void *)REMOTE_ThreadHandle(myworker_id).default_yaam_regs);
+  REMOTE_ThreadHandle(myworker_id).current_yaam_regs = REMOTE_ThreadHandle(myworker_id).default_yaam_regs;
+  worker_id = myworker_id;  /* ricroc: for what I understand, this shouldn't be necessary */
 #else
   Yap_regp = &Yap_standard_regs;
 #endif
 #endif /* PUSH_REGS */
   Yap_ResetExceptionTerm ();
   Yap_PutValue (AtomBreak, MkIntTerm (0));
-  TR = (tr_fr_ptr)Yap_TrailBase;
-  if (Yap_AttsSize > (Yap_LocalBase-Yap_GlobalBase)/8)
-    Yap_AttsSize = (Yap_LocalBase-Yap_GlobalBase)/8;
-  H = H0 = ((CELL *) Yap_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
+  TR = (tr_fr_ptr)LOCAL_TrailBase;
+  if (Yap_AttsSize > (LOCAL_LocalBase-LOCAL_GlobalBase)/8)
+    Yap_AttsSize = (LOCAL_LocalBase-LOCAL_GlobalBase)/8;
+  H = H0 = ((CELL *) LOCAL_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
   RESET_VARIABLE(H0-1);
-  LCL0 = ASP = (CELL *) Yap_LocalBase;
+  LCL0 = ASP = (CELL *) LOCAL_LocalBase;
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;
@@ -1640,29 +1636,28 @@ Yap_InitYaamRegs(void)
 #ifdef YAPOR_SBA
   BSEG =
 #endif /* YAPOR_SBA */
-  BBREG = B_FZ = (choiceptr) Yap_LocalBase;
-  TR = TR_FZ = (tr_fr_ptr) Yap_TrailBase;
+  BBREG = B_FZ = (choiceptr) LOCAL_LocalBase;
+  TR = TR_FZ = (tr_fr_ptr) LOCAL_TrailBase;
 #endif /* FROZEN_STACKS */
-  LOCK(SignalLock);
+  LOCK(LOCAL_SignalLock);
   CreepFlag = CalculateStackGap();
-  UNLOCK(SignalLock);
+  UNLOCK(LOCAL_SignalLock);
   EX = NULL;
   init_stack(0, NULL, TRUE, NULL PASS_REGS);
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
-  GlobalArena = TermNil;
+  LOCAL_GlobalArena = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING
-  WokenGoals = Yap_NewTimedVar(TermNil);
-  AttsMutableList = Yap_NewTimedVar(h0var);
+  LOCAL_WokenGoals = Yap_NewTimedVar(TermNil);
+  LOCAL_AttsMutableList = Yap_NewTimedVar(h0var);
 #endif
-  GcGeneration = Yap_NewTimedVar(h0var);
-  GcCurrentPhase = 0L;
-  GcPhase = Yap_NewTimedVar(MkIntTerm(GcCurrentPhase));
+  LOCAL_GcGeneration = Yap_NewTimedVar(h0var);
+  LOCAL_GcCurrentPhase = 0L;
+  LOCAL_GcPhase = Yap_NewTimedVar(MkIntTerm(LOCAL_GcCurrentPhase));
 #if defined(YAPOR) || defined(THREADS)
   PP = NULL;
-  WPP = NULL;
   PREG_ADDR = NULL;
 #endif
   Yap_AllocateDefaultArena(128*1024, 2);
@@ -1678,8 +1673,8 @@ Yap_InitYaamRegs(void)
 static Int
 p_uncaught_throw( USES_REGS1 )
 {
-  Int out = UncaughtThrow;
-  UncaughtThrow = FALSE; /* just caught it */
+  Int out = LOCAL_UncaughtThrow;
+  LOCAL_UncaughtThrow = FALSE; /* just caught it */
   return out;
 }
 
@@ -1687,14 +1682,14 @@ static Int
 p_creep_allowed( USES_REGS1 )
 {
   if (PP != NULL) {
-    LOCK(SignalLock);
-    if (ActiveSignals & YAP_CREEP_SIGNAL  && !Yap_InterruptsDisabled) {
-      ActiveSignals &= ~YAP_CREEP_SIGNAL;    
-      if (!ActiveSignals)
+    LOCK(LOCAL_SignalLock);
+    if (LOCAL_ActiveSignals & YAP_CREEP_SIGNAL  && !LOCAL_InterruptsDisabled) {
+      LOCAL_ActiveSignals &= ~YAP_CREEP_SIGNAL;    
+      if (!LOCAL_ActiveSignals)
 	CreepFlag = CalculateStackGap();
-      UNLOCK(SignalLock);
+      UNLOCK(LOCAL_SignalLock);
     } else {
-      UNLOCK(SignalLock);
+      UNLOCK(LOCAL_SignalLock);
     }
     return TRUE;
   }
@@ -1706,15 +1701,15 @@ p_debug_on( USES_REGS1 )
 {
   Term t = Deref(ARG1);
   if (IsVarTerm(t)) {
-    if (DebugOn)
+    if (LOCAL_DebugOn)
       return Yap_unify(MkAtomTerm(AtomTrue),ARG1);
     else
       return Yap_unify(MkAtomTerm(AtomFalse),ARG1);
   }
   if (t == MkAtomTerm(AtomTrue))
-    DebugOn = TRUE;
+    LOCAL_DebugOn = TRUE;
   else
-    DebugOn = FALSE;
+    LOCAL_DebugOn = FALSE;
   return TRUE;
 }
 
@@ -1723,26 +1718,26 @@ Yap_GetException(void)
 {
   CACHE_REGS
   Term t = 0L;
-  if (BallTerm) {
+  if (LOCAL_BallTerm) {
     do {
-      t = Yap_PopTermFromDB(BallTerm);
+      t = Yap_PopTermFromDB(LOCAL_BallTerm);
       if (t == 0) {
-	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_growstack(BallTerm->NOfCells*CellSize)) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_growstack(LOCAL_BallTerm->NOfCells*CellSize)) {
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
       }
     } while (t == 0);
-    BallTerm = NULL;
+    LOCAL_BallTerm = NULL;
   }
   return t;
 }
@@ -1762,8 +1757,8 @@ void
 Yap_ResetExceptionTerm(void)
 {
   CACHE_REGS
-  Yap_ReleaseTermFromDB(BallTerm);
-  BallTerm = NULL;
+  Yap_ReleaseTermFromDB(LOCAL_BallTerm);
+  LOCAL_BallTerm = NULL;
 }
 
 static Int

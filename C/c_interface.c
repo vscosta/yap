@@ -334,6 +334,7 @@
 #include "clause.h"
 #include "yapio.h"
 #include "attvar.h"
+#include "SWI-Stream.h"
 #if HAVE_STDARG_H
 #include <stdarg.h>
 #endif
@@ -458,6 +459,7 @@ X_API int     STD_PROTO(YAP_GoalHasException,(Term *));
 X_API void    STD_PROTO(YAP_ClearExceptions,(void));
 X_API int     STD_PROTO(YAP_ContinueGoal,(void));
 X_API void    STD_PROTO(YAP_PruneGoal,(void));
+X_API IOSTREAM   *STD_PROTO(YAP_TermToStream,(Term));
 X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
@@ -761,7 +763,7 @@ YAP_MkBlobTerm(unsigned int sz)
 
   while (H+(sz+sizeof(MP_INT)/sizeof(CELL)+2) > ASP-1024) {
     if (!doexpand((sz+sizeof(MP_INT)/sizeof(CELL)+2)*sizeof(CELL))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, "YAP failed to grow the stack while constructing a blob: %s", LOCAL_ErrorMessage);
       return TermNil;
     }
   }
@@ -855,9 +857,9 @@ YAP_LookupAtom(char *c)
 
   while (TRUE) {
     a = Yap_LookupAtom(c);
-    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return a;
@@ -873,9 +875,9 @@ YAP_LookupWideAtom(wchar_t *c)
 
   while (TRUE) {
     a = Yap_LookupWideAtom(c);
-    if (a == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (a == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return a;
@@ -891,9 +893,9 @@ YAP_FullLookupAtom(char *c)
 
   while (TRUE) {
     at = Yap_FullLookupAtom(c);
-    if (at == NIL || (ActiveSignals & YAP_CDOVF_SIGNAL)) {
+    if (at == NIL || (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL)) {
       if (!Yap_growheap(FALSE, 0, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
       }
     } else {
       return at;
@@ -1563,7 +1565,7 @@ YAP_Execute(PredEntry *pe, CPredicate exec_code)
   if (!ret) {
     Term t;
 
-    BallTerm = EX;
+    LOCAL_BallTerm = EX;
     EX = NULL;
     if ((t = Yap_GetException())) {
       Yap_JumpToEnv(t);
@@ -1586,7 +1588,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
 
     PP = pe;
@@ -1599,13 +1601,13 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
     PP = NULL;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1628,7 +1630,7 @@ YAP_ExecuteFirst(PredEntry *pe, CPredicate exec_code)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -1651,7 +1653,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
     CELL *args = B->cp_args;
 
@@ -1667,15 +1669,15 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
       val = ((codev)(args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
 
     PP = NULL;
     //    B = LCL0-(CELL*)oB;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1693,7 +1695,7 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -1713,7 +1715,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     Int val;
     CPredicateV codev = (CPredicateV)exec_code;
     struct foreign_context *ctx = (struct foreign_context *)(&EXTRA_CBACK_ARG(pe->ArityOfPE,1));
-    struct open_query_struct *oexec = execution;
+    struct open_query_struct *oexec = LOCAL_execution;
     extern void PL_close_foreign_frame(struct open_query_struct *);
     
     PP = pe;
@@ -1724,13 +1726,13 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
       val = ((codev)(B->cp_args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
-    while (execution != oexec)
-      PL_close_foreign_frame(execution);
+    while (LOCAL_execution != oexec)
+      PL_close_foreign_frame(LOCAL_execution);
     PP = NULL;
     if (val == 0) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	cut_c_pop();
@@ -1754,7 +1756,7 @@ YAP_ExecuteNext(PredEntry *pe, CPredicate exec_code)
     if (!ret) {
       Term t;
 
-      BallTerm = EX;
+      LOCAL_BallTerm = EX;
       EX = NULL;
       if ((t = Yap_GetException())) {
 	  Yap_JumpToEnv(t);
@@ -1794,7 +1796,7 @@ YAP_ReallocSpaceFromYap(void *ptr,unsigned int size) {
   BACKUP_MACHINE_REGS();
   while ((new_ptr = Yap_ReallocCodeSpace(ptr,size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1810,7 +1812,7 @@ YAP_AllocSpaceFromYap(unsigned int size)
 
   while ((ptr = Yap_AllocCodeSpace(size)) == NULL) {
     if (!Yap_growheap(FALSE, size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return NULL;
     }
   }
@@ -1927,35 +1929,35 @@ YAP_ReadBuffer(char *s, Term *tp)
   BACKUP_H();
 
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
-    if (Yap_ErrorMessage) {
-      if (!strcmp(Yap_ErrorMessage,"Stack Overflow")) {
+    if (LOCAL_ErrorMessage) {
+      if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
 	if (!dogc()) {
-	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  Yap_ErrorMessage = NULL;
+	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
 	  return 0L;
 	} 
-      } else if (!strcmp(Yap_ErrorMessage,"Heap Overflow")) {
+      } else if (!strcmp(LOCAL_ErrorMessage,"Heap Overflow")) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  Yap_ErrorMessage = NULL;
+	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
 	  return 0L;
 	}
-      } else if (!strcmp(Yap_ErrorMessage,"Trail Overflow")) {
+      } else if (!strcmp(LOCAL_ErrorMessage,"Trail Overflow")) {
 	if (!Yap_growtrail (0, FALSE)) {
-	  *tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	  Yap_ErrorMessage = NULL;
+	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
 	  return 0L;
 	}
       } else {
-	*tp = MkAtomTerm(Yap_LookupAtom(Yap_ErrorMessage));
-	Yap_ErrorMessage = NULL;
+	*tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
+	LOCAL_ErrorMessage = NULL;
 	RECOVER_H();
 	return 0L;
       }
-      Yap_ErrorMessage = NULL;
+      LOCAL_ErrorMessage = NULL;
       continue;
     } else {
       break;
@@ -2138,9 +2140,9 @@ run_emulator(YAP_dogoalinfo *dgi)
   int out;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_absmi(0);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   myB = (choiceptr)(LCL0-dgi->b);
   CP = myB->cp_cp;
   if (!out ) {
@@ -2196,9 +2198,6 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   CP = YESCODE;
   B = myB;
   HB = H;
-#if defined(YAPOR) || defined(THREADS)
-  WPP = NULL;
-#endif
   ASP = YENV = (CELL *)B;
   YENV[E_CB] = Unsigned (B);
   out = run_emulator(dgi);
@@ -2276,19 +2275,19 @@ YAP_RunGoal(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  Yap_AllowRestart = FALSE;
-  Yap_PrologMode = UserMode;
+  LOCAL_AllowRestart = FALSE;
+  LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   if (out) {
     P = (yamop *)ENV[E_CP];
     ENV = (CELL *)ENV[E_E];
     CP = old_CP;
-    Yap_AllowRestart = TRUE;
+    LOCAL_AllowRestart = TRUE;
   } else {
     ENV = B->cp_env;
     B = B->cp_b;
-    Yap_AllowRestart = FALSE;
+    LOCAL_AllowRestart = FALSE;
   }
   
   RECOVER_MACHINE_REGS();
@@ -2303,9 +2302,9 @@ YAP_RunGoalOnce(Term t)
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
   if (out) {
     choiceptr cut_pt;
 
@@ -2327,7 +2326,7 @@ YAP_RunGoalOnce(Term t)
 #endif
   P = (yamop *)ASP[E_CP];
   CP = old_CP;
-  Yap_AllowRestart = FALSE;
+  LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
   return(out);
 }
@@ -2338,17 +2337,17 @@ YAP_RestartGoal(void)
   CACHE_REGS
   int out;
   BACKUP_MACHINE_REGS();
-  if (Yap_AllowRestart) {
+  if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
     do_putcf = myputc;
-    Yap_PrologMode = UserMode;
+    LOCAL_PrologMode = UserMode;
     out = Yap_exec_absmi(TRUE);
-    Yap_PrologMode = UserCCallMode;
+    LOCAL_PrologMode = UserCCallMode;
     if (out == FALSE) {
       /* cleanup */
       Yap_CloseSlots( PASS_REGS1 );
       Yap_trust_last();
-      Yap_AllowRestart = FALSE;
+      LOCAL_AllowRestart = FALSE;
     }
   } else { 
     out = FALSE;
@@ -2363,7 +2362,7 @@ YAP_ShutdownGoal(int backtrack)
   CACHE_REGS
   BACKUP_MACHINE_REGS();
   
-  if (Yap_AllowRestart) {
+  if (LOCAL_AllowRestart) {
     choiceptr cut_pt;
 
     cut_pt = B;
@@ -2390,7 +2389,7 @@ YAP_ShutdownGoal(int backtrack)
 #ifdef  DEPTH_LIMIT
     DEPTH = ASP[E_DEPTH];
 #endif
-    Yap_AllowRestart = FALSE;
+    LOCAL_AllowRestart = FALSE;
   }
   RECOVER_MACHINE_REGS();
   return TRUE;
@@ -2399,12 +2398,13 @@ YAP_ShutdownGoal(int backtrack)
 X_API int
 YAP_ContinueGoal(void)
 {
+  CACHE_REGS
   int out;
   BACKUP_MACHINE_REGS();
 
-  Yap_PrologMode = UserMode;
+  LOCAL_PrologMode = UserMode;
   out = Yap_exec_absmi(TRUE);
-  Yap_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = UserCCallMode;
 
   RECOVER_MACHINE_REGS();
   return(out);
@@ -2435,22 +2435,22 @@ YAP_GoalHasException(Term *t)
   BACKUP_MACHINE_REGS();
   if (EX) {
     do {
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       *t = Yap_FetchTermFromDB(EX);
-      if (Yap_Error_TYPE == YAP_NO_ERROR) {
+      if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
 	RECOVER_MACHINE_REGS();
 	return TRUE;
-      } else if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+      } else if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growglobal(NULL)) {
-	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	  RECOVER_MACHINE_REGS();
 	  return FALSE;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	if (!Yap_growstack(EX->NOfCells*CellSize)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  RECOVER_MACHINE_REGS();
 	  return FALSE;
 	}
@@ -2468,11 +2468,11 @@ YAP_ClearExceptions(void)
   CACHE_REGS
   Yap_ResetExceptionTerm();
   if (EX) {
-    BallTerm = EX;
+    LOCAL_BallTerm = EX;
   }
   EX = NULL;
   Yap_ResetExceptionTerm();    
-  UncaughtThrow = FALSE;
+  LOCAL_UncaughtThrow = FALSE;
 }
 
 X_API IOSTREAM *
@@ -2488,6 +2488,22 @@ YAP_InitConsult(int mode, char *filename)
   st = Sopen_file(filename, "r");
   RECOVER_MACHINE_REGS();
   return st;
+}
+
+X_API IOSTREAM *
+YAP_TermToStream(Term t)
+{
+  CACHE_REGS
+  IOSTREAM *s;
+  int rc;
+  BACKUP_MACHINE_REGS();
+
+  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
+    RECOVER_MACHINE_REGS();
+    return s;
+  }
+  RECOVER_MACHINE_REGS();
+  return NULL;
 }
 
 X_API void
@@ -2511,20 +2527,20 @@ YAP_Read(IOSTREAM *inp)
   BACKUP_MACHINE_REGS();
 
 
-  tokstart = Yap_tokptr = Yap_toktide = Yap_tokenizer(inp, &tpos);
-  if (Yap_ErrorMessage)
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, &tpos);
+  if (LOCAL_ErrorMessage)
     {
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
       RECOVER_MACHINE_REGS();
       return 0;
     }
   if (inp->flags & (SIO_FEOF|SIO_FEOF2)) {
-      Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
       RECOVER_MACHINE_REGS();
       return MkAtomTerm (AtomEof);
   }
   t = Yap_Parse();
-  Yap_clean_tokenizer(tokstart, Yap_VarTable, Yap_AnonVarTable);
+  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
 
   RECOVER_MACHINE_REGS();
   return t;
@@ -2575,7 +2591,7 @@ YAP_CompileClause(Term t)
   BACKUP_MACHINE_REGS();
 
   /* allow expansion during stack initialization */
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   ARG1 = t;
   YAPEnterCriticalSection();
   codeaddr = Yap_cclause (t,0, mod, t);
@@ -2583,18 +2599,18 @@ YAP_CompileClause(Term t)
     t = Deref(ARG1); /* just in case there was an heap overflow */
     if (!Yap_addclause (t, codeaddr, TRUE, mod, &tn)) {
       YAPLeaveCriticalSection();
-      return Yap_ErrorMessage;
+      return LOCAL_ErrorMessage;
     }
   }
   YAPLeaveCriticalSection();
 
-  if (ActiveSignals & YAP_CDOVF_SIGNAL) {
+  if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
     if (!Yap_growheap(FALSE, 0, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
     }
   }
   RECOVER_MACHINE_REGS();
-  return(Yap_ErrorMessage);
+  return(LOCAL_ErrorMessage);
 }
 
 static int eof_found = FALSE;
@@ -2711,8 +2727,14 @@ YAP_Init(YAP_init_args *yap_init)
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
   static char boot_file[256];
 
-  Yap_argv = yap_init->Argv;
-  Yap_argc = yap_init->Argc;
+  Yap_InitPageSize();  /* init memory page size, required by later functions */
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
+  Yap_init_yapor_global_local_memory();
+  LOCAL = REMOTE(0);
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+  Yap_InitSysbits();  /* init signal handling and time, required by later functions */
+  GLOBAL_argv = yap_init->Argv;
+  GLOBAL_argc = yap_init->Argc;
 #if !BOOT_FROM_SAVED_STATE
   if (yap_init->SavedState) {
     fprintf(stderr,"[ WARNING: threaded YAP will ignore saved state %s ]\n",yap_init->SavedState);
@@ -2721,8 +2743,8 @@ YAP_Init(YAP_init_args *yap_init)
 #endif
   if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
-      yap_init->ErrorNo = Yap_Error_TYPE;
-      yap_init->ErrorCause = Yap_ErrorMessage;
+      yap_init->ErrorNo = LOCAL_Error_TYPE;
+      yap_init->ErrorCause = LOCAL_ErrorMessage;
       return YAP_BOOT_ERROR;
     }
   }
@@ -2757,7 +2779,7 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-  Yap_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
+  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,
@@ -2773,20 +2795,20 @@ YAP_Init(YAP_init_args *yap_init)
     Trail = MinTrailSpace;
   if (Stack < MinStackSpace)
     Stack = MinStackSpace;
-  if (!(Yap_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
+  if (!(LOCAL_GlobalBase = (ADDR)malloc((Trail+Stack)*1024))) {
     yap_init->ErrorNo = RESOURCE_ERROR_MEMORY;
     yap_init->ErrorCause = "could not allocate stack space for main thread";
     return YAP_BOOT_ERROR;
   }
 #if THREADS
   /* don't forget this is a thread */
-  MY_ThreadHandle.stack_address =  Yap_GlobalBase;
-  MY_ThreadHandle.ssize =  Trail+Stack;
+  LOCAL_ThreadHandle.stack_address =  LOCAL_GlobalBase;
+  LOCAL_ThreadHandle.ssize =  Trail+Stack;
 #endif
 #endif
-  Yap_AllowGlobalExpansion = TRUE;
-  Yap_AllowLocalExpansion = TRUE;
-  Yap_AllowTrailExpansion = TRUE;
+  GLOBAL_AllowGlobalExpansion = TRUE;
+  GLOBAL_AllowLocalExpansion = TRUE;
+  GLOBAL_AllowTrailExpansion = TRUE;
   Yap_InitExStacks (Trail, Stack);
   if (yap_init->QuietMode) {
     yap_flags[QUIET_MODE_FLAG] = TRUE;
@@ -2816,8 +2838,8 @@ YAP_Init(YAP_init_args *yap_init)
     } else if (BOOT_FROM_SAVED_STATE) {
       restore_result = Yap_Restore(yap_init->SavedState, yap_init->YapLibDir);
       if (restore_result == FAIL_RESTORE) {
-	yap_init->ErrorNo = Yap_Error_TYPE;
-	yap_init->ErrorCause = Yap_ErrorMessage;
+	yap_init->ErrorNo = LOCAL_Error_TYPE;
+	yap_init->ErrorCause = LOCAL_ErrorMessage;
 	/* shouldn't RECOVER_MACHINE_REGS();  be here ??? */
 	return YAP_BOOT_ERROR;
       }
@@ -2826,27 +2848,21 @@ YAP_Init(YAP_init_args *yap_init)
     }
     yap_flags[FAST_BOOT_FLAG] = yap_init->FastBoot;
 #if defined(YAPOR) || defined(TABLING)
-#ifdef TABLING
-    /* make sure we initialise this field */
-    Yap_root_dep_fr = NULL;
-#endif
-    make_root_frames();
+    Yap_init_root_frames();
+#endif /* YAPOR || TABLING */
 #ifdef YAPOR
-    init_workers();
-#endif /* YAPOR */
-    Yap_init_local();
-#ifdef YAPOR
+    Yap_init_yapor_workers();
     if (worker_id != 0) {
-#if YAPOR_SBA||YAPOR_COPY
+#if defined(YAPOR_COPY) || defined(YAPOR_SBA)
       /*
 	In the SBA we cannot just happily inherit registers
 	from the other workers
       */
       Yap_InitYaamRegs();
-#endif /* YAPOR_SBA */
-#ifndef THREADS
+#endif /* YAPOR_COPY || YAPOR_SBA */
+#ifndef YAPOR_THREADS
       Yap_InitPreAllocCodeSpace();
-#endif
+#endif /* YAPOR_THREADS */
       /* slaves, waiting for work */
       CurrentModule = USER_MODULE;
       P = GETWORK_FIRST_TIME;
@@ -2854,24 +2870,23 @@ YAP_Init(YAP_init_args *yap_init)
       Yap_Error(INTERNAL_ERROR, TermNil, "abstract machine unexpected exit (YAP_Init)");
     }
 #endif /* YAPOR */
-#endif /* YAPOR || TABLING */
     RECOVER_MACHINE_REGS();
   }
   /* make sure we do this after restore */
   if (yap_init->MaxStackSize) {
-    Yap_AllowLocalExpansion = FALSE;
+    GLOBAL_AllowLocalExpansion = FALSE;
   } else {
-    Yap_AllowLocalExpansion = TRUE;
+    GLOBAL_AllowLocalExpansion = TRUE;
   }
   if (yap_init->MaxGlobalSize) {
-    Yap_AllowGlobalExpansion = FALSE;
+    GLOBAL_AllowGlobalExpansion = FALSE;
   } else {
-    Yap_AllowGlobalExpansion = TRUE;
+    GLOBAL_AllowGlobalExpansion = TRUE;
   }
   if (yap_init->MaxTrailSize) {
-    Yap_AllowTrailExpansion = FALSE;
+    GLOBAL_AllowTrailExpansion = FALSE;
   } else {
-    Yap_AllowTrailExpansion = TRUE;
+    GLOBAL_AllowTrailExpansion = TRUE;
   }
   if (yap_init->YapPrologRCFile) {
     Yap_PutValue(AtomConsultOnBoot, MkAtomTerm(Yap_LookupAtom(yap_init->YapPrologRCFile)));
@@ -2910,8 +2925,8 @@ YAP_Init(YAP_init_args *yap_init)
   }
   if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
     if (restore_result == FAIL_RESTORE) {
-      yap_init->ErrorNo = Yap_Error_TYPE;
-      yap_init->ErrorCause = Yap_ErrorMessage;
+      yap_init->ErrorNo = LOCAL_Error_TYPE;
+      yap_init->ErrorCause = LOCAL_ErrorMessage;
       return YAP_BOOT_ERROR;
     }
     if (Atts && Atts*1024 > 2048*sizeof(CELL))
@@ -3039,7 +3054,7 @@ YAP_Reset(void)
   }
   /* reinitialise the engine */
   Yap_InitYaamRegs();
-  Yap_Initialised = TRUE;
+  GLOBAL_Initialised = TRUE;
 
   RECOVER_MACHINE_REGS();
   return(TRUE);
@@ -3060,7 +3075,7 @@ X_API void
 YAP_SetOutputMessage(void)
 {
 #if DEBUG
-  Yap_output_msg = TRUE;
+  GLOBAL_output_msg = TRUE;
 #endif
 }
 
@@ -3100,11 +3115,12 @@ YAP_Throw(Term t)
 
 X_API void
 YAP_AsyncThrow(Term t)
-{
+{ 
+  CACHE_REGS
   BACKUP_MACHINE_REGS();
-  Yap_PrologMode |= AsyncIntMode;
+  LOCAL_PrologMode |= AsyncIntMode;
   Yap_JumpToEnv(t);
-  Yap_PrologMode &= ~AsyncIntMode;
+  LOCAL_PrologMode &= ~AsyncIntMode;
   RECOVER_MACHINE_REGS();
 }
 
@@ -3300,8 +3316,8 @@ YAP_AtomReleaseHold(Atom at)
 X_API Agc_hook
 YAP_AGCRegisterHook(Agc_hook hook)
 {
-  Agc_hook old = Yap_AGCHook;
-  Yap_AGCHook = hook;
+  Agc_hook old = GLOBAL_AGCHook;
+  GLOBAL_AGCHook = hook;
   return old;
 } 
 
@@ -3317,13 +3333,13 @@ YAP_cwd(void)
   CACHE_REGS
   char *buf;
   int len;
-  if (!Yap_getcwd(Yap_FileNameBuf, YAP_FILENAME_MAX))
+  if (!Yap_getcwd(LOCAL_FileNameBuf, YAP_FILENAME_MAX))
     return FALSE;
-  len = strlen(Yap_FileNameBuf);
+  len = strlen(LOCAL_FileNameBuf);
   buf = Yap_AllocCodeSpace(len+1);
   if (!buf)
     return NULL;
-  strncpy(buf, Yap_FileNameBuf, len);
+  strncpy(buf, LOCAL_FileNameBuf, len);
   return buf;
 }
 
@@ -3455,22 +3471,22 @@ YAP_Recorded(void *handle)
 
   BACKUP_MACHINE_REGS();
   do {
-    Yap_Error_TYPE = YAP_NO_ERROR;
+    LOCAL_Error_TYPE = YAP_NO_ERROR;
     t = Yap_FetchTermFromDB(dbterm);
-    if (Yap_Error_TYPE == YAP_NO_ERROR) {
+    if (LOCAL_Error_TYPE == YAP_NO_ERROR) {
       RECOVER_MACHINE_REGS();
       return t;
-    } else if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-      Yap_Error_TYPE = YAP_NO_ERROR;
+    } else if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growglobal(NULL)) {
-	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	RECOVER_MACHINE_REGS();
 	return FALSE;
       }
     } else {
-      Yap_Error_TYPE = YAP_NO_ERROR;
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
       if (!Yap_growstack(dbterm->NOfCells*CellSize)) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	RECOVER_MACHINE_REGS();
 	return FALSE;
       }
@@ -3537,9 +3553,9 @@ YAP_SetYAPFlag(yap_flag_t flag, int val)
     return TRUE;
   case YAPC_ENABLE_AGC:
     if (val) {
-      Yap_AGcThreshold = 10000;
+      GLOBAL_AGcThreshold = 10000;
     } else {
-      Yap_AGcThreshold = 0;
+      GLOBAL_AGcThreshold = 0;
     }
     return TRUE;
   default:

@@ -85,7 +85,7 @@ STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
 STATIC_PROTO(void putAtom, (Atom, int, wrf));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
 
-#define wrputc(X,WF)	((*WF)(Yap_c_output_stream,X))	/* writes a character */
+#define wrputc(X,WF)	((*WF)(LOCAL_c_output_stream,X))	/* writes a character */
 
 static void 
 wrputn(Int n, wrf writewch)	/* writes an integer	 */
@@ -149,7 +149,7 @@ ensure_space(size_t sz) {
   }
   if (!s) {
     s = (char *)TR;
-    while (s+sz >= Yap_TrailTop) {
+    while (s+sz >= LOCAL_TrailTop) {
       if (!Yap_growtrail(sz/sizeof(CELL), FALSE)) {
 	s = NULL;
 	break;
@@ -746,26 +746,26 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       lastw = separator;
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	sl = Yap_InitSlot(t);      
+	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	t = Yap_GetFromSlot(sl);
-	Yap_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl PASS_REGS);
+	Yap_RecoverSlots(1 PASS_REGS);
       }
       wrputs(",",wglb->writewch);	
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	sl = Yap_InitSlot(t);      
+	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
-	t = Yap_GetFromSlot(sl);
-	Yap_RecoverSlots(1);
+	t = Yap_GetFromSlot(sl PASS_REGS);
+	Yap_RecoverSlots(1 PASS_REGS);
       }
       wrputc(')', wglb->writewch);
       lastw = separator;

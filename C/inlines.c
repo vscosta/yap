@@ -405,9 +405,9 @@ p_dif( USES_REGS1 )
      * We may wake up goals during our attempt to unify the
      * two terms. If we are adding to the tail of a list of
      * woken goals that should be ok, but otherwise we need
-     * to restore WokenGoals to its previous value.
+     * to restore LOCAL_WokenGoals to its previous value.
      */
-    CELL OldWokenGoals = Yap_ReadTimedVar(WokenGoals);
+    CELL OldWokenGoals = Yap_ReadTimedVar(LOCAL_WokenGoals);
 #endif
     register tr_fr_ptr pt0;
     /* store the old value of TR for clearing bindings */
@@ -425,7 +425,7 @@ p_dif( USES_REGS1 )
     d0 = Yap_IUnify(d0, d1);
 #ifdef COROUTINING
     /* now restore Woken Goals to its old value */
-    Yap_UpdateTimedVar(WokenGoals, OldWokenGoals);
+    Yap_UpdateTimedVar(LOCAL_WokenGoals, OldWokenGoals);
     if (OldWokenGoals == TermNil) {
       Yap_undo_signal(YAP_WAKEUP_SIGNAL);
     }
@@ -719,7 +719,7 @@ p_functor( USES_REGS1 )			/* functor(?,?,?) */
     d0 = AbsAppl(H);
     if (pt1+d1 > ENV - CreepFlag) {
       if (!Yap_gcl((1+d1)*sizeof(CELL), 3, ENV, gc_P(P,CP))) {
-	Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	return FALSE;
       }
       goto restart;

@@ -115,4 +115,5 @@ StreamDesc;
 
 void STD_PROTO (Yap_InitStdStreams, (void));
 Term STD_PROTO (Yap_StreamPosition, (struct io_stream *));
+void STD_PROTO (Yap_InitPlIO, (void));
 

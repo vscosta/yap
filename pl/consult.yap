@@ -243,7 +243,7 @@ use_module(M,F,Is) :-
         ( OldMode == off -> '$enter_system_mode' ; true ),
 	'$record_loaded'(Stream, ContextModule, Reconsult),
 	'$current_module'(OldModule,ContextModule),
-	getcwd(OldD),
+	working_directory(OldD,OldD),
 	nb_getval('$consulting_file',OldF),
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
@@ -290,7 +290,7 @@ use_module(M,F,Is) :-
 	'$comp_mode'(CompMode, OldCompMode),
 	nb_setval('$consulting',Old),
 	nb_setval('$consulting_file',OldF),
-	cd(OldD),
+	working_directory(_,OldD),
 	% surely, we were in run mode or we would not have included the file!
 	nb_setval('$if_skip_mode',run),
 	% back to include mode!
@@ -454,7 +454,7 @@ initialization(G,OPT) :-
 	( '$access_yap_flags'(15, 0) -> true ; halt).
 
 '$skip_unix_comments'(Stream) :-
-	peek(Stream, 0'#), !, % 35 is ASCII for '#
+	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
 	skip(Stream, 10),
 	'$skip_unix_comments'(Stream).
 '$skip_unix_comments'(_).
@@ -613,7 +613,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 %
 '$set_consulting_dir'(F) :-
 	file_directory_name(F, Dir),
-	cd(Dir).
+	working_directory(_, Dir).
 
 '$record_loaded'(Stream, M, Reconsult) :-
 	Stream \= user,

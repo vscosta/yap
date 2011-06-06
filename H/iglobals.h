@@ -1,8 +1,6 @@
 
-  /* This file, iglobals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, iglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/GLOBALS instead */
-
-
 
 
 
@@ -22,43 +20,91 @@
 
 static void InitGlobal(void) {
 
+  GLOBAL_Initialised = FALSE;
+  GLOBAL_InitialisedFromPL = FALSE;
+  GLOBAL_PL_Argc = 0;
+  GLOBAL_PL_Argv = NULL;
+
+  GLOBAL_HaltHooks = NULL;
+
+  GLOBAL_AllowLocalExpansion = TRUE;
+  GLOBAL_AllowGlobalExpansion = TRUE;
+  GLOBAL_AllowTrailExpansion = TRUE;
+  GLOBAL_SizeOfOverflow = 0;
+
+  GLOBAL_AGcThreshold = 10000;
+  GLOBAL_AGCHook = NULL;
+
 #if THREADS
 
-  Yap_global->n_of_threads = 1;
+  GLOBAL_NOfThreads = 1;
 
-  Yap_global->n_of_threads_created = 1;
+  GLOBAL_NOfThreadsCreated = 1;
 
-  Yap_global->threads_total_time = 0L;
-#endif
+  GLOBAL_ThreadsTotalTime = 0L;
 
+  INIT_LOCK(GLOBAL_ThreadHandlesLock);
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
-  INIT_LOCK(Yap_global->bgl);
+  INIT_LOCK(GLOBAL_BGL);
 #endif
-
-  Yap_global->allow_local_expansion = TRUE;
-  Yap_global->allow_global_expansion = TRUE;
-  Yap_global->allow_trail_expansion = TRUE;
-  Yap_global->size_of_overflow = 0;
-
-  Yap_global->agc_last_call = 0;
-
-  Yap_global->agc_threshold = 10000;
-  Yap_global->agc_hook = NULL;
-
-#ifdef THREADS
-  INIT_LOCK(Yap_global->thread_handles_lock);
-#endif 
-
 #if defined(YAPOR) || defined(TABLING)
 
+#endif /* YAPOR || TABLING */
+
+
+
+#if defined(THREADS)
+
+#endif /* THREADS */
+
+  GLOBAL_stdout = stdout;
+  GLOBAL_stderr = stderr;
+
+
+
+
+#ifdef COROUTINING
+
 
 #endif
 
-  Yap_global->initialised = FALSE;
-  Yap_global->initialised_from_pl = FALSE;
-  Yap_global->pl_argc = 0;
-  Yap_global->pl_argv = NULL;
 
-  Yap_global->yap_halt_hook = NULL;
+
+
+  GLOBAL_tot_agc_time = 0;
+
+  GLOBAL_tot_agc_recovered = 0;
+
+#if HAVE_MMAP
+  GLOBAL_mmap_arrays = NULL;
+#endif
+#ifdef DEBUG
+
+
+
+
+  GLOBAL_output_msg = FALSE;
+#endif
+
+
+
+
+
+
+
+
+
+
+  GLOBAL_DIRNAME = NULL;
+#if defined(COFF)  || defined(A_OUT)
+
+
+#endif
+#if  __simplescalar__
+
+#endif
+
+
 }

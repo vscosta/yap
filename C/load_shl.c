@@ -61,17 +61,17 @@ LoadForeign( StringList ofiles, StringList libs,
     int valid_fname;
 
     /* shl_load wants to follow the LD_CONFIG_PATH */
-    valid_fname = Yap_TrueFileName( AtomName(ofiles->name), Yap_FileNameBuf, TRUE );
+    valid_fname = Yap_TrueFileName( AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE );
 
     if( !valid_fname ) {
-      strcpy( Yap_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );
+      strcpy( LOCAL_ErrorSay, "%% Trying to open non-existing file in LoadForeign" );
       return LOAD_FAILLED;
     }
 
     ofiles->handle = Yap_AllocCodeSpace( sizeof(shl_t) );
-    *(shl_t *)ofiles->handle = shl_load( Yap_FileNameBuf, BIND_DEFERRED, 0 );
+    *(shl_t *)ofiles->handle = shl_load( LOCAL_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)ofiles->handle == NULL ) {
-      strncpy( Yap_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
+      strncpy( LOCAL_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 
@@ -84,7 +84,7 @@ LoadForeign( StringList ofiles, StringList libs,
   }
 
   if( init_missing ) {
-    strcpy( Yap_ErrorSay, "Could not locate initialization routine" );
+    strcpy( LOCAL_ErrorSay, "Could not locate initialization routine" );
     return LOAD_FAILLED;
   }
 
@@ -92,17 +92,17 @@ LoadForeign( StringList ofiles, StringList libs,
     char *s = AtomName(lib->s);
 
     if( s[0] == '-' ) {
-      strcpy( Yap_FileNameBuf, "lib" );
-      strcat( Yap_FileNameBuf, s+2 );
-      strcat( Yap_FileNameBuf, ".sl" );
+      strcpy( LOCAL_FileNameBuf, "lib" );
+      strcat( LOCAL_FileNameBuf, s+2 );
+      strcat( LOCAL_FileNameBuf, ".sl" );
     }
     else {
-      strcpy( Yap_FileNameBuf, s );
+      strcpy( LOCAL_FileNameBuf, s );
     }
 
-    *(shl_t *)libs->handle = shl_load( Yap_FileNameBuf, BIND_DEFERRED, 0 );
+    *(shl_t *)libs->handle = shl_load( LOCAL_FileNameBuf, BIND_DEFERRED, 0 );
     if( *(shl_t *)libs->handle == NULL ) {
-      strncpy( Yap_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
+      strncpy( LOCAL_ErrorSay, strerror(errno), MAX_ERROR_MSG_SIZE );
       return LOAD_FAILLED;
     }
 

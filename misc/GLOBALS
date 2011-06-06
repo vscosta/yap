@@ -7,67 +7,128 @@
 //  - they must be initialised somewhere
 //  - they may be of interest to restore
 //
-// The defs include 4+ components:
+// The defs include 3+ components:
 //   Type
-//   name in structured
-//   global name
+//   name in structured / global name 
 //   init code (optional)
 //   restore code (optional)
 //
-//   
-
-
 
 // Stuff that must be shared by all threads or workers
 START_GLOBAL_DATA
 
+// initialization: tell whether the system has been initialised and by whom.
+int				Initialised				=FALSE
+int				InitialisedFromPL			=FALSE
+int				PL_Argc					=0
+char**				PL_Argv					=NULL
+
+// halt hooks
+struct halt_hook*		HaltHooks				=NULL
+
+// stack overflow expansion/gc control
+int				AllowLocalExpansion 			=TRUE
+int				AllowGlobalExpansion 			=TRUE
+int				AllowTrailExpansion 			=TRUE
+UInt				SizeOfOverflow				=0
+
+// amount of space recovered in all garbage collections
+UInt				AGcThreshold				=10000
+Agc_hook			AGCHook					=NULL
+
+
 /* multi-thread support */
 #if THREADS
 /* number of threads and processes in system */
-UInt		n_of_threads		Yap_NOfThreads	=1
+UInt				NOfThreads				=1
 /* number of threads created since start */
-UInt		n_of_threads_created	Yap_NOfThreadsCreated =1
+UInt				NOfThreadsCreated 			=1
 /* total run time for dead threads */
-UInt  threads_total_time		Yap_ThreadsTotalTime =0L
-#endif
+UInt  				ThreadsTotalTime 			=0L
+// Threads Array
+lockvar				ThreadHandlesLock			MkLock
+#endif	
 
-// multi-thread/ORP support
 #if defined(YAPOR) || defined(THREADS)
 // protect long critical regions
-lockvar		bgl			Yap_BGL		MkLock
+lockvar				BGL					MkLock
 #endif
 
-// stack overflow expansion/gc control
-int		allow_local_expansion	Yap_AllowLocalExpansion =TRUE
-int		allow_global_expansion	Yap_AllowGlobalExpansion =TRUE
-int		allow_trail_expansion	Yap_AllowTrailExpansion =TRUE
-UInt		size_of_overflow	Yap_SizeOfOverflow		=0
-// amount of space recovered in all garbage collections
-UInt		agc_last_call		Yap_AGcLastCall		=0
-// amount of space recovered in all garbage collections
-UInt		agc_threshold		Yap_AGcThreshold		=10000
-Agc_hook	agc_hook		Yap_AGCHook			=NULL
-
-
-// Threads Array
-#ifdef THREADS
-lockvar		thread_handles_lock	Yap_ThreadHandlesLock	MkLock
-#endif 
-
-// Ricardo's stuff
 #if defined(YAPOR) || defined(TABLING)
-struct global_optyap_data	optyap_data	Yap_optyap_data	void	
-struct local_data	remote[MAX_WORKERS]	REMOTE		void
+struct global_optyap_data	optyap_data				void	
+#endif /* YAPOR || TABLING */
+
+// whether Yap is responsible for signal handling
+
+int             		PrologShouldHandleInterrupts		void
+
+/* This is the guy who actually started the system, and who has the correct registers */
+#if defined(THREADS)
+pthread_t 			master_thread				void
+#endif /* THREADS */
+
+// streams 
+YP_FILE*			stdout					=stdout
+YP_FILE*			stderr					=stderr	
+
+// access to yap initial arguments 
+char**				argv					void
+int           		 	argc					void
+
+// extensions to Terms
+#ifdef COROUTINING
+/* array with the ops for your favourite extensions */
+ext_op 				attas[attvars_ext+1]			void
 #endif
 
-// initialization: tell whether the system has been initialised and by whom.
-int		initialised		Yap_Initialised		=FALSE
-int		initialised_from_pl	Yap_InitialisedFromPL	=FALSE
-int		pl_argc			Yap_PL_Argc		=0
-char	      **pl_argv			Yap_PL_Argv		=NULL
+// agc.c
+int 				agc_calls				void
+YAP_ULONG_LONG 			agc_collected				void
+/* total time spent in GC */
+Int 				tot_agc_time 				=0
+/* number of heap objects in all garbage collections */
+Int 				tot_agc_recovered 			=0 
 
-// halt hooks
-struct halt_hook *yap_halt_hook		Yap_HaltHooks		=NULL
+//arrays.c
+#if HAVE_MMAP
+struct MMAP_ARRAY_BLOCK* 	mmap_arrays 				=NULL
+#endif
+
+
+#ifdef DEBUG
+//computils.c
+char            		Option[20]				void
+YP_FILE*			logfile					void
+//init.c
+int  				output_msg 				=FALSE
+#endif
+
+//gprof.c
+Int 				ProfCalls				void 
+Int				ProfGCs 				void
+Int				ProfHGrows 				void
+Int				ProfSGrows 				void
+Int				ProfMallocs 				void
+Int				ProfOn 					void
+Int				ProfOns					void
+struct RB_red_blk_node* 	ProfilerRoot				void
+struct RB_red_blk_node* 	ProfilerNil				void
+char*				DIRNAME					=NULL
+
+#if defined(COFF)  || defined(A_OUT)
+// loada_coff.c && load_aout.c
+char 				Executable[YAP_FILENAME_MAX]		void
+#endif
+
+
+#if  __simplescalar__
+char				pwd[YAP_FILENAME_MAX]			void
+#endif
+
+//udi.c
+//struct udi_control_block 	RtreeCmd				void	
+
+
 
 END_GLOBAL_DATA
 

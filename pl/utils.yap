@@ -218,6 +218,10 @@ current_op(X,Y,Z) :-
 cd :-
 	cd('~').
 
+cd(F) :- absolute_file_name(F, Dir, [file_type(directory)]), working_directory(_, Dir).
+
+getcwd(Dir) :- working_directory(Dir, Dir).
+
 ls :-
 	getcwd(X),
 	'$load_system_ls'(X,L),

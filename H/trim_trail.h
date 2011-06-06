@@ -17,13 +17,13 @@
       } else if (IsPairTerm(d1)) {
 	CELL *pt = RepPair(d1);
 #ifdef LIMIT_TABLING
-	if ((ADDR) pt == Yap_TrailBase) {
+	if ((ADDR) pt == LOCAL_TrailBase) {
 	  sg_fr_ptr sg_fr = (sg_fr_ptr) TrailVal(pt1);
 	  SgFr_state(sg_fr)--;  /* complete_in_use --> complete : compiled_in_use --> compiled */
 	  insert_into_global_sg_fr_list(sg_fr);
 	} else 
 #endif /* LIMIT_TABLING */
-	  if (IN_BETWEEN(Yap_TrailBase, pt, Yap_TrailTop)) {
+	  if (IN_BETWEEN(LOCAL_TrailBase, pt, LOCAL_TrailTop)) {
 	    /* skip, this is a problem because we lose information,
 	       namely active references */
 	    pt1 = (tr_fr_ptr)pt;

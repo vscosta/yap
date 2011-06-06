@@ -1016,9 +1016,9 @@ static void
 RestoreBallTerm(int wid)
 {
   CACHE_REGS
-  if (BallTerm) {
-    BallTerm  = DBTermAdjust(BallTerm);
-    RestoreDBTerm(BallTerm, TRUE PASS_REGS);
+  if (LOCAL_BallTerm) {
+    LOCAL_BallTerm  = DBTermAdjust(LOCAL_BallTerm);
+    RestoreDBTerm(LOCAL_BallTerm, TRUE PASS_REGS);
   }
 }
 
@@ -1030,7 +1030,7 @@ static void
 restore_codes(void)
 {
   CACHE_REGS
-  Yap_heap_regs->heap_top = AddrAdjust(OldHeapTop);
+  Yap_heap_regs->heap_top = AddrAdjust(LOCAL_OldHeapTop);
 #include "rhstruct.h"
   RestoreGlobal();
 #ifndef worker_id

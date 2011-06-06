@@ -75,12 +75,7 @@ STATIC_PROTO (void ShowOp, (char *, struct PSEUDO *));
  * afterwards 
  */
 
-#ifdef DEBUG
 
-char            Yap_Option[20];
-
-YP_FILE *Yap_logfile;
-#endif
 
 typedef struct mem_blk {
   union {
@@ -112,27 +107,27 @@ AllocCMem (UInt size, struct intermediates *cip)
       blksz = CMEM_BLK_SIZE;
     if (!cip->blks) {
       CACHE_REGS
-      if (Yap_CMemFirstBlock) {
-	p = Yap_CMemFirstBlock;
-	blksz = Yap_CMemFirstBlockSz;
+      if (LOCAL_CMemFirstBlock) {
+	p = LOCAL_CMemFirstBlock;
+	blksz = LOCAL_CMemFirstBlockSz;
 	p->u.next = NULL;
       } else {
 	if (blksz < FIRST_CMEM_BLK_SIZE)
 	  blksz = FIRST_CMEM_BLK_SIZE;
 	p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
 	if (!p) {
-	  Yap_Error_Size = size;
+	  LOCAL_Error_Size = size;
 	  save_machine_regs();
 	  siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
 	}
-	Yap_CMemFirstBlock = p;
-	Yap_CMemFirstBlockSz = blksz;
+	LOCAL_CMemFirstBlock = p;
+	LOCAL_CMemFirstBlockSz = blksz;
       }
     } else {
       p = (struct mem_blk *)Yap_AllocCodeSpace(blksz);
       if (!p) {
 	CACHE_REGS
-	Yap_Error_Size = size;
+	LOCAL_Error_Size = size;
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch, OUT_OF_HEAP_BOTCH);
       }
@@ -153,7 +148,7 @@ AllocCMem (UInt size, struct intermediates *cip)
   cip->freep += size;
   if (ASP <= CellPtr (cip->freep) + 256) {
     CACHE_REGS
-    Yap_Error_Size = 256+((char *)cip->freep - (char *)H);
+    LOCAL_Error_Size = 256+((char *)cip->freep - (char *)H);
     save_machine_regs();
     siglongjmp(cip->CompilerBotch, OUT_OF_STACK_BOTCH);
   }
@@ -169,13 +164,13 @@ Yap_ReleaseCMem (struct intermediates *cip)
   struct mem_blk *p = cip->blks;
   while (p) {
     struct mem_blk *nextp = p->u.next;
-    if (p != Yap_CMemFirstBlock)
+    if (p != LOCAL_CMemFirstBlock)
       Yap_FreeCodeSpace((ADDR)p);
     p = nextp;
   }
   cip->blks = NULL;
   if (cip->label_offset &&
-      cip->label_offset != Yap_LabelFirstArray) {
+      cip->label_offset != LOCAL_LabelFirstArray) {
     Yap_FreeCodeSpace((ADDR)cip->label_offset);
   }
 #endif

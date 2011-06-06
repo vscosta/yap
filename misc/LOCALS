@@ -2,161 +2,213 @@
 START_WORKER_LOCAL
 
 // Streams
-int			c_input_stream		Yap_c_input_stream	=0
-int			c_output_stream		Yap_c_output_stream	=1
-int			c_error_stream		Yap_c_error_stream	=2
+int				c_input_stream				=0
+int				c_output_stream				=1
+int				c_error_stream				=2
 
-/* shifts and restore: per local data-structure */
-restoreinfo	rinfo
-.	rinfo.old_ASP	OldASP				=NULL
-.	rinfo.old_LCL0	OldLCL0				=NULL
-.	rinfo.old_TR		OldTR			=NULL
-.	rinfo.old_GlobalBase	OldGlobalBase		=NULL
-.	rinfo.old_H		OldH			=NULL
-.	rinfo.old_H0		OldH0			=NULL
-.	rinfo.old_TrailBase	OldTrailBase		=NULL
-.	rinfo.old_TrailTop	OldTrailTop		=NULL
-.	rinfo.old_HeapBase	OldHeapBase		=NULL
-.	rinfo.old_HeapTop	OldHeapTop		=NULL
-.	rinfo.cl_diff		ClDiff			=0L
-.	rinfo.g_diff		GDiff			=0L
-.	rinfo.h_diff		HDiff			=0L
-.	rinfo.g_diff0		GDiff0			=0L
-.	rinfo.g_split		GSplit			=NULL
-.	rinfo.l_diff		LDiff			=0L
-.	rinfo.tr_diff		TrDiff			=0L
-.	rinfo.x_diff		XDiff			=0L
-.	rinfo.delay_diff	DelayDiff		=0L
-.	rinfo.base_diff		BaseDiff		=0L
+// Restore info
+CELL*				OldASP					=NULL
+CELL*				OldLCL0					=NULL
+tr_fr_ptr			OldTR					=NULL
+CELL*				OldGlobalBase				=NULL
+CELL*				OldH					=NULL
+CELL*				OldH0					=NULL
+ADDR				OldTrailBase				=NULL
+ADDR				OldTrailTop				=NULL
+ADDR				OldHeapBase				=NULL
+ADDR				OldHeapTop				=NULL
+Int				ClDiff					=0L
+Int				GDiff					=0L
+Int				HDiff					=0L
+Int				GDiff0					=0L
+CELL*				GSplit					=NULL
+Int				LDiff					=0L
+Int				TrDiff					=0L
+Int				XDiff					=0L
+Int				DelayDiff				=0L
+Int				BaseDiff				=0L
 
-struct reduction_counters		call_counters	
-.	call_counters.reductions	ReductionsCounter		=0L
-.	call_counters.reductions_retries	PredEntriesCounter	=0L
-.	call_counters.retries		RetriesCounter			=0L
-.	call_counters.reductions_on	ReductionsCounterOn		=0L
-.	call_counters.reductions_retries_on	PredEntriesCounterOn	=0L
-.	call_counters.retries_on	RetriesCounterOn		=0L
-
-int	interrupts_disabled		Yap_InterruptsDisabled		=FALSE
+// Reduction counters
+YAP_ULONG_LONG			ReductionsCounter			=0L
+YAP_ULONG_LONG			PredEntriesCounter			=0L
+YAP_ULONG_LONG			RetriesCounter				=0L
+int				ReductionsCounterOn			=0L
+int				PredEntriesCounterOn			=0L
+int				RetriesCounterOn			=0L
 
 // support for consulting files
 /* current consult stack */
-union CONSULT_OBJ*	consultsp	ConsultSp	=NULL
+union CONSULT_OBJ*		ConsultSp				=NULL
 /* current maximum number of cells in consult stack */
-UInt	consultcapacity			ConsultCapacity	void
+UInt				ConsultCapacity				void
 /* top of consult stack  */
-union CONSULT_OBJ*	consultbase	ConsultBase	=NULL
+union CONSULT_OBJ*		ConsultBase				=NULL
 /* low-water mark for consult  */
-union CONSULT_OBJ*	consultlow	ConsultLow	=NULL
+union CONSULT_OBJ*		ConsultLow				=NULL
 
 //global variables
-Term			global_arena		GlobalArena	=0L TermToGlobalOrAtomAdjust
-UInt			global_arena_overflows	GlobalArenaOverflows	=0L
-Int			delay_arena_overflows	DelayArenaOverflows	=0L
-Int			arena_overflows		ArenaOverflows	=0L
-Int			depth_arenas		DepthArenas	=0
+Term				GlobalArena				=0L		TermToGlobalOrAtomAdjust
+UInt				GlobalArenaOverflows			=0L
+Int				ArenaOverflows				=0L
+Int				DepthArenas				=0
 
-int			arith_error		ArithError	=FALSE
-struct pred_entry*	last_asserted_pred	LastAssertedPred	=NULL
-int			debug_on		DebugOn		=FALSE
-struct format_status*	f_info			FormatInfo	=NULL
-char*			scanner_stack		ScannerStack	=NULL
-struct scanner_extra_alloc*	scanner_extra_blocks	ScannerExtraBlocks	=NULL
-struct DB_TERM	       *ball_term		BallTerm	=NULL RestoreBallTerm(wid)
-UInt			active_signals		ActiveSignals	=0L
-UInt			i_pred_arity		IPredArity	=0L
-yamop*			prof_end		ProfEnd	=NULL
-int			uncaught_throw		UncaughtThrow	=FALSE
-int			doing_undefp		DoingUndefp	=FALSE
-Int			start_line		StartLine	=0L
-scratch_block		scratchpad		ScratchPad	InitScratchPad(wid)
+int				ArithError				=FALSE
+struct pred_entry*		LastAssertedPred			=NULL
+int				DebugOn					=FALSE
+char*				ScannerStack				=NULL
+struct scanner_extra_alloc*	 ScannerExtraBlocks			=NULL
+struct DB_TERM*			BallTerm				=NULL 		RestoreBallTerm(wid)
+UInt				ActiveSignals				=0L
+UInt				IPredArity				=0L
+yamop*				ProfEnd					=NULL
+int				UncaughtThrow				=FALSE
+int				DoingUndefp				=FALSE
+Int				StartLine				=0L
+scratch_block			ScratchPad						InitScratchPad(wid)
 #ifdef  COROUTINING
-Term			woken_goals		WokenGoals	=0L TermToGlobalAdjust
-Term			atts_mutable_list	AttsMutableList	=0L TermToGlobalAdjust
+Term				WokenGoals				=0L 		TermToGlobalAdjust
+Term				AttsMutableList				=0L 		TermToGlobalAdjust
 #endif
 
 // gc_stuff
-Term			gc_generation		GcGeneration	=0L TermToGlobalAdjust
-Term			gc_phase		GcPhase		=0L TermToGlobalAdjust
-UInt			gc_current_phase	GcCurrentPhase	=0L
-UInt			gc_calls		GcCalls		=0L
-Int			tot_gc_time		TotGcTime	=0L
-YAP_ULONG_LONG		tot_gc_recovered	TotGcRecovered	=0L
-Int			last_gc_time		LastGcTime	=0L
-Int			last_ss_time		LastSSTime	=0L
+Term				GcGeneration				=0L 		TermToGlobalAdjust
+Term				GcPhase					=0L 		TermToGlobalAdjust
+UInt				GcCurrentPhase				=0L
+UInt				GcCalls					=0L
+Int				TotGcTime				=0L
+YAP_ULONG_LONG			TotGcRecovered				=0L
+Int				LastGcTime				=0L
+Int				LastSSTime				=0L
 
-#if LOW_LEVEL_TRACER
-Int			total_cps		Yap_total_choicepoints	=0
-#endif
-
-int			consult_level_		consult_level	=0
-
-// global variables that cannot be global in a thread/or-p implementation
-#if defined(YAPOR) || defined(THREADS)
-lockvar				signal_lock	SignalLock	MkLock
-struct pred_entry*		wpp		WPP		=NULL
 /* in a single gc */
-Int				tot_marked	total_marked	=0L
-Int				tot_oldies	total_oldies	=0L
-#if DEBUG && COROUTINING
-UInt			tot_smarked	total_smarked	=0L
+Int				total_marked				=0L
+Int				total_oldies				=0L
+struct choicept*		current_B				=NULL
+CELL*				prev_HB					=NULL
+CELL*				HGEN					=NULL
+CELL**				iptop					=NULL
+
+#if defined(GC_NO_TAGS)
+char*				bp					=NULL
 #endif
-struct choicept			*wl_current_B	current_B	=NULL
-CELL*				wl_prev_HB	prev_HB		=NULL
-CELL*				hgen		HGEN		=NULL
-CELL**				ip_top		iptop		=NULL
-#if GC_NO_TAGS
-char*				b_p		Yap_bp		=NULL
-#endif
-#if defined(TABLING) || defined(YAPOR_SBA)
-struct trail_frame*		wl_sTR		sTR		=NULL
-struct trail_frame*		wl_sTR0		sTR0		=NULL
-struct trail_frame*		new_tr		new_TR		=NULL
-#else
-Term				*wl_sTR		sTR		=NULL
-Term				*wl_sTR0	sTR0		=NULL
-Term				*new_tr		new_TR		=NULL
-#endif
-struct gc_mark_continuation*	conttop0	cont_top0	=NULL
-struct gc_mark_continuation*	conttop		cont_top	=NULL
-int				disc_trail_entries	discard_trail_entries		=0
-gc_ma_hash_entry		Gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	gc_ma_hash_table	void
-gc_ma_hash_entry*		Gc_ma_h_top	gc_ma_h_top	=NULL
-gc_ma_hash_entry*		Gc_ma_h_list	gc_ma_h_list	=NULL
-UInt				Gc_timestamp	gc_timestamp	=0L
-ADDR				DB_vec		db_vec		=NULL
-ADDR				DB_vec0		db_vec0		=NULL
-struct RB_red_blk_node*		DB_root		db_root		=NULL
-struct RB_red_blk_node*		DB_nil		db_nil		=NULL
-#endif /* defined(YAPOR) || defined(THREADS) */
+tr_fr_ptr			sTR					=NULL
+tr_fr_ptr			sTR0					=NULL
+tr_fr_ptr			new_TR					=NULL
+struct gc_mark_continuation*	cont_top0				=NULL
+struct gc_mark_continuation*	cont_top				=NULL
+int				discard_trail_entries			=0
+gc_ma_hash_entry		gc_ma_hash_table[GC_MAVARS_HASH_SIZE]	void
+gc_ma_hash_entry*		gc_ma_h_top				=NULL
+gc_ma_hash_entry*		gc_ma_h_list				=NULL
+UInt				gc_timestamp				=0L
+ADDR				db_vec					=NULL
+ADDR				db_vec0					=NULL
+struct RB_red_blk_node*		db_root					=NULL
+struct RB_red_blk_node*		db_nil					=NULL
 
+sigjmp_buf			gc_restore				void
+struct array_entry*		DynamicArrays				=NULL 		PtoArrayEAdjust
+struct static_array_entry*	StaticArrays				=NULL 		PtoArraySAdjust
+struct global_entry*		GlobalVariables				=NULL 		PtoGlobalEAdjust
+int				AllowRestart				=FALSE
+	
+// Thread Local Area for Fast Storage of Intermediate Compiled Code
+struct mem_blk*			CMemFirstBlock				=NULL
+UInt				CMemFirstBlockSz			=0L
 
-sigjmp_buf			gc_restore		Yap_gc_restore	void
-struct array_entry*		dynamic_arrays		DynamicArrays	=NULL PtoArrayEAdjust
-struct static_array_entry*	static_arrays		StaticArrays	=NULL PtoArraySAdjust
-struct global_entry*		global_variables	GlobalVariables	=NULL PtoGlobalEAdjust
-int				allow_restart		Yap_AllowRestart	=FALSE
-
-// Thread Local Area for Fast Storage of Intermediate Compiled Code.
-struct mem_blk*			cmem_first_block	Yap_CMemFirstBlock	=NULL
-UInt				cmem_first_block_sz	Yap_CMemFirstBlockSz	=0L
-
-// Thread Local Area for Labels.
-Int*				label_first_array	Yap_LabelFirstArray	=NULL
-UInt				label_first_array_sz	Yap_LabelFirstArraySz	=0L
+// Thread Local Area for Labels
+Int*				LabelFirstArray				=NULL
+UInt				LabelFirstArraySz			=0L
 
 // Thread Local Area for SWI-Prolog emulation routines.
-struct PL_local_data	       *Yap_ld_			PL_local_data_p		=Yap_InitThreadIO(wid)
-
-struct open_query_struct*	_execution		execution		=NULL
-
+struct PL_local_data*		PL_local_data_p				=Yap_InitThreadIO(wid)
 
 #ifdef THREADS
-struct thandle			thread_handle		ThreadHandle	InitThreadHandle(wid)
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+struct thandle			ThreadHandle				InitThreadHandle(wid)
+#endif /* THREADS */
+
+#if defined(YAPOR) || defined(TABLING)
+struct local_optyap_data	optyap_data   				Yap_init_local_optyap_data(wid)
+#endif /* YAPOR || TABLING */
+
+int				InterruptsDisabled			=FALSE
+
+struct open_query_struct* 	execution				=NULL
+
+#if LOW_LEVEL_TRACER
+Int				total_choicepoints			=0
 #endif
 
-// END WORKER LOCAL STUFF
+int				consult_level				=0
+
+#if defined(YAPOR) || defined(THREADS)
+lockvar				SignalLock				MkLock
+#endif
+
+// Variables related to memory allocation
+ADDR				LocalBase				void
+ADDR				GlobalBase				void
+ADDR				TrailBase				void
+ADDR				TrailTop				void
+char*				ErrorMessage				void
+Term				Error_Term				void
+#ifdef THREADS
+Term				Error_TYPE				void
+#else
+yap_error_number		Error_TYPE				void
+#endif	
+UInt             		Error_Size				void
+char				ErrorSay[MAX_ERROR_MSG_SIZE]		void
+jmp_buf 			IOBotch					void
+TokEntry*			tokptr					void
+TokEntry*			toktide					void
+VarEntry*			VarTable 				void
+VarEntry*			AnonVarTable				void
+sigjmp_buf         		RestartEnv				void
+char     			FileNameBuf[YAP_FILENAME_MAX]		void
+char        			FileNameBuf2[YAP_FILENAME_MAX]		void
+
+// Prolog State
+
+Int      			PrologMode 				=BootMode
+int      			CritLocks 				=0
+
+//analyst.c
+/* used to find out how many instructions of each kind are executed */
+#ifdef ANALYST
+YAP_ULONG_LONG 			opcount[_std_top+1]			void
+YAP_ULONG_LONG 			2opcount[_std_top+1][_std_top+1] 	void
+#endif /* ANALYST */
+		
+//dbase.c
+struct db_globs*		s_dbg					void
+
+//eval.c
+yap_error_number 		matherror 				=YAP_NO_ERROR
+
+//grow.c
+int 				heap_overflows 				=0
+Int 				total_heap_overflow_time		=0
+int 				stack_overflows 			=0
+Int 				total_stack_overflow_time 		=0
+int 				delay_overflows 			=0	
+Int 				total_delay_overflow_time 		=0
+int 				trail_overflows 			=0
+Int 				total_trail_overflow_time 		=0
+int 				atom_table_overflows 			=0
+Int 				total_atom_table_overflow_time 		=0
+
+//load_dyld
+#ifdef LOAD_DYLD
+static 				dl_errno				=0
+#endif
+
+//tracer.c
+#ifdef LOW_LEVEL_TRACER
+int 				do_trace_primitives 			=TRUE
+#endif
+
 END_WORKER_LOCAL
+
+
 

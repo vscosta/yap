@@ -483,9 +483,6 @@ STATIC_PROTO(void assertz_dynam_clause, (PredEntry *, yamop *));
 STATIC_PROTO(void expand_consult, ( void ));
 STATIC_PROTO(int  not_was_reconsulted, (PredEntry *, Term, int));
 STATIC_PROTO(int  RemoveIndexation, (PredEntry *));
-#if EMACS
-STATIC_PROTO(int  last_clause_number, (PredEntry *));
-#endif
 STATIC_PROTO(int  static_in_use, (PredEntry *, int));
 #if !defined(YAPOR) && !defined(THREADS)
 STATIC_PROTO(Int  search_for_static_predicate_in_use, (PredEntry *, int));
@@ -635,26 +632,26 @@ static void
 InitConsultStack( void )
 {
   CACHE_REGS
-  ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
-  if (ConsultLow == NULL) {
+  LOCAL_ConsultLow = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*InitialConsultCapacity);
+  if (LOCAL_ConsultLow == NULL) {
     Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"No Heap Space in InitCodes");
     return;
   }
-  ConsultCapacity = InitialConsultCapacity;
-  ConsultBase = ConsultSp =
-    ConsultLow + ConsultCapacity;
+  LOCAL_ConsultCapacity = InitialConsultCapacity;
+  LOCAL_ConsultBase = LOCAL_ConsultSp =
+    LOCAL_ConsultLow + LOCAL_ConsultCapacity;
 }
 
 void
 Yap_ResetConsultStack( void )
 {
   CACHE_REGS
-  Yap_FreeCodeSpace((char *)ConsultLow);
-  ConsultBase =
-    ConsultSp =
-    ConsultLow =
+  Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
+  LOCAL_ConsultBase =
+    LOCAL_ConsultSp =
+    LOCAL_ConsultLow =
     NULL;
-  ConsultCapacity = InitialConsultCapacity;
+  LOCAL_ConsultCapacity = InitialConsultCapacity;
 }
 
 
@@ -780,9 +777,9 @@ static Term BlobTermInCodeAdjust(Term t)
 {
   CACHE_REGS
 #if TAGS_FAST_OPS
-  return t-ClDiff;
+  return t-LOCAL_ClDiff;
 #else
-  return t+ClDiff;
+  return t+LOCAL_ClDiff;
 #endif
 }
 
@@ -863,7 +860,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   while (TRUE) {
     memcpy((void *)ptr, (void *)cl->ClCode, sz);
     if (has_blobs) {
-      ClDiff = (char *)(ptr)-(char *)cl->ClCode;
+      LOCAL_ClDiff = (char *)(ptr)-(char *)cl->ClCode;
       restore_opcodes(ptr, NULL PASS_REGS);
     }
     ptr = (yamop *)((char *)ptr + sz);
@@ -961,13 +958,13 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 
 #ifdef DEBUG
   CACHE_REGS
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod)
       tmod = TermProlog;
-    Yap_DebugPutc(Yap_c_error_stream,'\t');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(Yap_c_error_stream,':');
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -978,7 +975,7 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -989,11 +986,11 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
   }
 #endif
   /* Do not try to index a dynamic predicate  or one whithout args */
@@ -1020,8 +1017,8 @@ IPred(PredEntry *ap, UInt NSlots, yamop *next_pc)
     ap->OpcodeOfPred = ap->CodeOfPred->opc;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1])
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+  if (GLOBAL_Option['i' - 'a' + 1])
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
 #endif
 }
 
@@ -1954,30 +1951,30 @@ static void  expand_consult( void )
 {
   CACHE_REGS
   consult_obj *new_cl, *new_cs;
-  UInt OldConsultCapacity = ConsultCapacity;
+  UInt OldConsultCapacity = LOCAL_ConsultCapacity;
 
   /* now double consult capacity */
-  ConsultCapacity += InitialConsultCapacity;
+  LOCAL_ConsultCapacity += InitialConsultCapacity;
   /* I assume it always works ;-) */
-  while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*ConsultCapacity)) == NULL) {
-    if (!Yap_growheap(FALSE, sizeof(consult_obj)*ConsultCapacity, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,Yap_ErrorMessage);
+  while ((new_cl = (consult_obj *)Yap_AllocCodeSpace(sizeof(consult_obj)*LOCAL_ConsultCapacity)) == NULL) {
+    if (!Yap_growheap(FALSE, sizeof(consult_obj)*LOCAL_ConsultCapacity, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,LOCAL_ErrorMessage);
       return;
     }
   }
   new_cs = new_cl + InitialConsultCapacity;
   /* start copying */
-  memcpy((void *)new_cs, (void *)ConsultLow, OldConsultCapacity*sizeof(consult_obj));
+  memcpy((void *)new_cs, (void *)LOCAL_ConsultLow, OldConsultCapacity*sizeof(consult_obj));
   /* copying done, release old space */
-  Yap_FreeCodeSpace((char *)ConsultLow);
+  Yap_FreeCodeSpace((char *)LOCAL_ConsultLow);
   /* next, set up pointers correctly */
-  new_cs += (ConsultSp-ConsultLow);
-  /* put ConsultBase at same offset as before move */
-  ConsultBase = ConsultBase+(new_cs-ConsultSp);
+  new_cs += (LOCAL_ConsultSp-LOCAL_ConsultLow);
+  /* put LOCAL_ConsultBase at same offset as before move */
+  LOCAL_ConsultBase = LOCAL_ConsultBase+(new_cs-LOCAL_ConsultSp);
   /* new consult pointer */
-  ConsultSp = new_cs;
+  LOCAL_ConsultSp = new_cs;
   /* new end of memory */
-  ConsultLow = new_cl;
+  LOCAL_ConsultLow = new_cl;
 }
 
 /* p was already locked */
@@ -1988,28 +1985,28 @@ not_was_reconsulted(PredEntry *p, Term t, int mode)
   register consult_obj  *fp;
   Prop                   p0 = AbsProp((PropEntry *)p);
 
-  if (p == LastAssertedPred)
+  if (p == LOCAL_LastAssertedPred)
     return FALSE;
-  LastAssertedPred = p;
-  if (!ConsultSp) {
+  LOCAL_LastAssertedPred = p;
+  if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
   if (p->cs.p_code.NOfClauses) {
-    for (fp = ConsultSp; fp < ConsultBase; ++fp)
+    for (fp = LOCAL_ConsultSp; fp < LOCAL_ConsultBase; ++fp)
       if (fp->p == p0)
 	break;
   } else {
-    fp = ConsultBase;
+    fp = LOCAL_ConsultBase;
   }
-  if (fp != ConsultBase)
+  if (fp != LOCAL_ConsultBase)
     return FALSE;
   if (mode) {
-    if (ConsultSp == ConsultLow+1) {
+    if (LOCAL_ConsultSp == LOCAL_ConsultLow+1) {
       expand_consult();
     }
-    --ConsultSp;
-    ConsultSp->p = p0;
-    if (ConsultBase[1].mode && 
+    --LOCAL_ConsultSp;
+    LOCAL_ConsultSp->p = p0;
+    if (LOCAL_ConsultBase[1].mode && 
 	!(p->PredFlags & MultiFileFlag)) /* we are in reconsult mode */ {
       retract_all(p, static_in_use(p,TRUE));
     }
@@ -2027,21 +2024,21 @@ addcl_permission_error(AtomEntry *ap, Int Arity, int in_use)
   ti[0] = MkAtomTerm(AbsAtom(ap));
   ti[1] = MkIntegerTerm(Arity);
   t = Yap_MkApplTerm(FunctorSlash, 2, ti);
-  Yap_ErrorMessage = Yap_ErrorSay;
-  Yap_Error_Term = t;
-  Yap_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
+  LOCAL_ErrorMessage = LOCAL_ErrorSay;
+  LOCAL_Error_Term = t;
+  LOCAL_Error_TYPE = PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE;
   if (in_use) {
     if (Arity == 0)
-      sprintf(Yap_ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
+      sprintf(LOCAL_ErrorMessage, "static predicate %s is in use", ap->StrOfAE);
     else
-      sprintf(Yap_ErrorMessage,
+      sprintf(LOCAL_ErrorMessage,
 	      "static predicate %s/" Int_FORMAT " is in use",
 	      ap->StrOfAE, Arity);
   } else {
     if (Arity == 0)
-      sprintf(Yap_ErrorMessage, "system predicate %s", ap->StrOfAE);
+      sprintf(LOCAL_ErrorMessage, "system predicate %s", ap->StrOfAE);
     else
-      sprintf(Yap_ErrorMessage,
+      sprintf(LOCAL_ErrorMessage,
 	      "system predicate %s/" Int_FORMAT,
 	      ap->StrOfAE, Arity);
   }
@@ -2199,7 +2196,7 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   if (mode == consult)
     not_was_reconsulted(p, t, TRUE);
   /* always check if we have a valid error first */
-  if (Yap_ErrorMessage && Yap_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
+  if (LOCAL_ErrorMessage && LOCAL_Error_TYPE == PERMISSION_ERROR_MODIFY_STATIC_PROCEDURE) {
     UNLOCKPE(31,p);
     return TermNil;
   }
@@ -2438,25 +2435,6 @@ Yap_add_logupd_clause(PredEntry *pe, LogUpdClause *cl, int mode) {
   }
 }
 
-#if EMACS
-
-/*
- * the place where one would add a new clause for the propriety pred_prop 
- */
-int 
-where_new_clause(pred_prop, mode)
-     Prop            pred_prop;
-     int             mode;
-{
-  PredEntry      *p = RepPredProp(pred_prop);
-
-  if (mode == consult && not_was_reconsulted(p, TermNil, FALSE))
-    return (1);
-  else
-    return (p->cs.p_code.NOfClauses + 1);
-}
-#endif
-
 static Int 
 p_compile( USES_REGS1 )
 {				/* '$compile'(+C,+Flags, Mod) */
@@ -2475,15 +2453,15 @@ p_compile( USES_REGS1 )
   codeadr = Yap_cclause(t, 4, mod, Deref(ARG3)); /* vsc: give the number of arguments
 			      to cclause in case there is overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
-  if (!Yap_ErrorMessage)
+  if (!LOCAL_ErrorMessage)
     addclause(t, codeadr, (int) (IntOfTerm(t1) & 3), mod, &tn);
   YAPLeaveCriticalSection();
-  if (Yap_ErrorMessage) {
+  if (LOCAL_ErrorMessage) {
     if (IntOfTerm(t1) & 4) {
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term,
-	    "in line %d, %s", Yap_FirstLineInParse(), Yap_ErrorMessage);
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term,
+	    "in line %d, %s", Yap_FirstLineInParse(), LOCAL_ErrorMessage);
     } else {
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
     }
     return FALSE;
   }
@@ -2507,24 +2485,26 @@ p_compile_dynamic( USES_REGS1 )
     if (RepAtom(AtomOfTerm(t1))->StrOfAE[0] == 'f') mode = asserta;
     else mode = assertz;						    
   } else mode = IntegerOfTerm(t1);
-  if (mode == assertz && consult_level)
-    mode = consult;    
+  /* separate assert in current file from reconsult
+    if (mode == assertz && LOCAL_consult_level && mod == CurrentModule)
+      mode = consult;    
+  */
   old_optimize = optimizer_on;
   optimizer_on = FALSE;
   YAPEnterCriticalSection();
   code_adr = Yap_cclause(t, 5, mod, Deref(ARG3)); /* vsc: give the number of arguments to
 			       cclause() in case there is a overflow */
   t = Deref(ARG1);        /* just in case there was an heap overflow */
-  if (!Yap_ErrorMessage) {
+  if (!LOCAL_ErrorMessage) {
     
     
     optimizer_on = old_optimize;
     addclause(t, code_adr, mode , mod, &ARG5);
   } 
-  if (Yap_ErrorMessage) {
-    if (!Yap_Error_Term)
-      Yap_Error_Term = TermNil;
-    Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+  if (LOCAL_ErrorMessage) {
+    if (!LOCAL_Error_Term)
+      LOCAL_Error_Term = TermNil;
+    Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
     YAPLeaveCriticalSection();
     return FALSE;
   }
@@ -2535,10 +2515,10 @@ p_compile_dynamic( USES_REGS1 )
 static Atom
 YapConsultingFile ( USES_REGS1 )
 {
-  if (consult_level == 0) {
+  if (LOCAL_consult_level == 0) {
     return(AtomUser);
   } else {
-    return(Yap_LookupAtom(ConsultBase[2].filename));
+    return(Yap_LookupAtom(LOCAL_ConsultBase[2].filename));
   }
 }
 
@@ -2554,22 +2534,22 @@ static void
 init_consult(int mode, char *file)
 {
   CACHE_REGS
-  if (!ConsultSp) {
+  if (!LOCAL_ConsultSp) {
     InitConsultStack();
   }
-  ConsultSp--;
-  ConsultSp->filename = file;
-  ConsultSp--;
-  ConsultSp->mode = mode;
-  ConsultSp--;
-  ConsultSp->c = (ConsultBase-ConsultSp);
-  ConsultBase = ConsultSp;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->filename = file;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->mode = mode;
+  LOCAL_ConsultSp--;
+  LOCAL_ConsultSp->c = (LOCAL_ConsultBase-LOCAL_ConsultSp);
+  LOCAL_ConsultBase = LOCAL_ConsultSp;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
-  /*  if (consult_level == 0)
+  /*  if (LOCAL_consult_level == 0)
       do_toggle_static_predicates_in_use(TRUE); */
 #endif
-  consult_level++;
-  LastAssertedPred = NULL;
+  LOCAL_consult_level++;
+  LOCAL_LastAssertedPred = NULL;
 }
 
 void
@@ -2587,7 +2567,7 @@ p_startconsult( USES_REGS1 )
   
   mode = strcmp("consult",smode);
   init_consult(mode, RepAtom(AtomOfTerm(Deref(ARG2)))->StrOfAE);
-  t = MkIntTerm(consult_level);
+  t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG3, t));
 }
 
@@ -2596,20 +2576,20 @@ p_showconslultlev( USES_REGS1 )
 {
   Term            t;
 
-  t = MkIntTerm(consult_level);
+  t = MkIntTerm(LOCAL_consult_level);
   return (Yap_unify_constant(ARG1, t));
 }
 
 static void
 end_consult( USES_REGS1 )
 {
-  ConsultSp = ConsultBase;
-  ConsultBase = ConsultSp+ConsultSp->c;
-  ConsultSp += 3;
-  consult_level--;
-  LastAssertedPred = NULL;
+  LOCAL_ConsultSp = LOCAL_ConsultBase;
+  LOCAL_ConsultBase = LOCAL_ConsultSp+LOCAL_ConsultSp->c;
+  LOCAL_ConsultSp += 3;
+  LOCAL_consult_level--;
+  LOCAL_LastAssertedPred = NULL;
 #if !defined(YAPOR) && !defined(YAPOR_SBA)
-  /*  if (consult_level == 0)
+  /*  if (LOCAL_consult_level == 0)
       do_toggle_static_predicates_in_use(FALSE);*/
 #endif
 }
@@ -3406,9 +3386,9 @@ all_envs(CELL *env_ptr USES_REGS)
     bp[0] = MkIntegerTerm(LCL0-env_ptr);
     if (H >= ASP-1024) {
       H = start;
-      Yap_Error_Size = (ASP-1024)-H;
+      LOCAL_Error_Size = (ASP-1024)-H;
       while (env_ptr) {
-	Yap_Error_Size += 2;
+	LOCAL_Error_Size += 2;
 	env_ptr = (CELL *)(env_ptr[E_E]);      
       }
       return 0L;
@@ -3435,9 +3415,9 @@ all_cps(choiceptr b_ptr USES_REGS)
     bp[0] = MkIntegerTerm((Int)(LCL0-(CELL *)b_ptr));
     if (H >= ASP-1024) {
       H = start;
-      Yap_Error_Size = (ASP-1024)-H;
+      LOCAL_Error_Size = (ASP-1024)-H;
       while (b_ptr) {
-	Yap_Error_Size += 2;
+	LOCAL_Error_Size += 2;
 	b_ptr = b_ptr->cp_b;
       }
       return 0L;
@@ -3483,7 +3463,7 @@ p_all_choicepoints( USES_REGS1 )
 {
   Term t;
   while ((t = all_cps(B PASS_REGS)) == 0L) {
-    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+    if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping choicepoints");
       return FALSE;
     }
@@ -3496,7 +3476,7 @@ p_all_envs( USES_REGS1 )
 {
   Term t;
   while ((t = all_envs(ENV PASS_REGS)) == 0L) {
-    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+    if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping environments");
       return FALSE;
     }
@@ -3509,7 +3489,7 @@ p_current_stack( USES_REGS1 )
 {
   Term t;
   while ((t = all_calls( PASS_REGS1 )) == 0L) {
-    if (!Yap_gcl(Yap_Error_Size, 1, ENV, gc_P(P,CP))) {
+    if (!Yap_gcl(LOCAL_Error_Size, 1, ENV, gc_P(P,CP))) {
       Yap_Error(OUT_OF_STACK_ERROR, TermNil, "while dumping stack");
       return FALSE;
     }
@@ -4141,20 +4121,20 @@ p_is_call_counted( USES_REGS1 )
 static Int
 p_call_count_info( USES_REGS1 )
 {
-  return(Yap_unify(MkIntegerTerm(ReductionsCounter),ARG1) &&
-	 Yap_unify(MkIntegerTerm(PredEntriesCounter),ARG2) &&
-	 Yap_unify(MkIntegerTerm(PredEntriesCounter),ARG3));
+  return(Yap_unify(MkIntegerTerm(LOCAL_ReductionsCounter),ARG1) &&
+	 Yap_unify(MkIntegerTerm(LOCAL_PredEntriesCounter),ARG2) &&
+	 Yap_unify(MkIntegerTerm(LOCAL_PredEntriesCounter),ARG3));
 }
 
 static Int
 p_call_count_reset( USES_REGS1 )
 {
-  ReductionsCounter = 0;
-  ReductionsCounterOn = FALSE;
-  PredEntriesCounter = 0;
-  PredEntriesCounterOn = FALSE;
-  RetriesCounter = 0;
-  RetriesCounterOn = FALSE;
+  LOCAL_ReductionsCounter = 0;
+  LOCAL_ReductionsCounterOn = FALSE;
+  LOCAL_PredEntriesCounter = 0;
+  LOCAL_PredEntriesCounterOn = FALSE;
+  LOCAL_RetriesCounter = 0;
+  LOCAL_RetriesCounterOn = FALSE;
   return(TRUE);
 }
 
@@ -4166,14 +4146,14 @@ p_call_count_set( USES_REGS1 )
   int do_entries = IntOfTerm(ARG6);
 
   if (do_calls)
-    ReductionsCounter = IntegerOfTerm(Deref(ARG1));
-  ReductionsCounterOn = do_calls;
+    LOCAL_ReductionsCounter = IntegerOfTerm(Deref(ARG1));
+  LOCAL_ReductionsCounterOn = do_calls;
   if (do_retries)
-    RetriesCounter = IntegerOfTerm(Deref(ARG3));
-  RetriesCounterOn = do_retries;
+    LOCAL_RetriesCounter = IntegerOfTerm(Deref(ARG3));
+  LOCAL_RetriesCounterOn = do_retries;
   if (do_entries)
-    PredEntriesCounter = IntegerOfTerm(Deref(ARG5));
-  PredEntriesCounterOn = do_entries;
+    LOCAL_PredEntriesCounter = IntegerOfTerm(Deref(ARG5));
+  LOCAL_PredEntriesCounterOn = do_entries;
   return(TRUE);
 }
 
@@ -4482,18 +4462,18 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG5 = th;
 	ARG6 = tb;
 	ARG7 = tr;
-	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, ENV, gc_P(P,CP))) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -4504,9 +4484,9 @@ fetch_next_lu_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr, ya
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gcl(Yap_Error_Size, 8, ENV, gc_P(P,CP))) {
+	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, gc_P(P,CP))) {
 	  UNLOCK(pe->PELock);
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	th = ARG6;
@@ -4630,18 +4610,18 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	ARG5 = th;
 	ARG6 = tb;
 	ARG7 = tr;
-	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
-	  if (!Yap_gcl(Yap_Error_Size, 7, ENV, gc_P(P,CP))) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
+	  if (!Yap_gcl(LOCAL_Error_Size, 7, ENV, gc_P(P,CP))) {
 	    UNLOCK(pe->PELock);
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	}
@@ -4652,9 +4632,9 @@ fetch_next_lu_clause_erase(PredEntry *pe, yamop *i_code, Term th, Term tb, Term 
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
+	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
 	  UNLOCK(pe->PELock);
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	th = ARG6;
@@ -4868,7 +4848,7 @@ Yap_UpdateTimestamps(PredEntry *ap)
   return;
  overflow:
   if (!Yap_growstack(64*1024)) {
-    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
     return;
   }
   goto restart;
@@ -4967,19 +4947,19 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
     }
     while ((t = Yap_FetchTermFromDB(cl->usc.ClSource)) == 0L) {
       if (first_time) {
-	if (Yap_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	if (LOCAL_Error_TYPE == OUT_OF_ATTVARS_ERROR) {
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  if (!Yap_growglobal(NULL)) {
-	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	} else {
-	  Yap_Error_TYPE = YAP_NO_ERROR;
+	  LOCAL_Error_TYPE = YAP_NO_ERROR;
 	  ARG5 = th;
 	  ARG6 = tb;
 	  ARG7 = tr;
 	  if (!Yap_gc(7, ENV, gc_P(P,CP))) {
-	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	    Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	    return FALSE;
 	  }
 	  th = ARG5;
@@ -4987,12 +4967,12 @@ fetch_next_static_clause(PredEntry *pe, yamop *i_code, Term th, Term tb, Term tr
 	  tr = ARG7;
 	}
       } else {
-	Yap_Error_TYPE = YAP_NO_ERROR;
+	LOCAL_Error_TYPE = YAP_NO_ERROR;
 	ARG6 = th;
 	ARG7 = tb;
 	ARG8 = tr;
-	if (!Yap_gcl(Yap_Error_Size, 8, ENV, CP)) {
-	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+	if (!Yap_gcl(LOCAL_Error_Size, 8, ENV, CP)) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
 	  return FALSE;
 	}
 	th = ARG6;

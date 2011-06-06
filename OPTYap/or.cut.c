@@ -40,7 +40,6 @@ void prune_shared_branch(choiceptr prune_cp) {
 #ifdef TABLING_INNER_CUTS
   tg_sol_fr_ptr tg_solutions, aux_tg_solutions;
 #endif /* TABLING_INNER_CUTS */
-
   leftmost_or_fr = CUT_leftmost_or_frame();
   leftmost_cp = GetOrFr_node(leftmost_or_fr);
   qg_solutions = NULL;
@@ -58,7 +57,7 @@ void prune_shared_branch(choiceptr prune_cp) {
     LOCK_OR_FRAME(prune_or_fr);
     members = OrFr_members(prune_or_fr);
     BITMAP_delete(members, worker_id);
-    for (i = 0; i < Yap_number_workers; i++) {
+    for (i = 0; i < GLOBAL_number_workers; i++) {
       if (BITMAP_member(members, i) && ltt == BRANCH_LTT(i, depth)) {
         CUT_send_prune_request(i, prune_cp);
       }
@@ -139,7 +138,7 @@ void prune_shared_branch(choiceptr prune_cp) {
     LOCK_OR_FRAME(leftmost_or_fr);
     members = OrFr_members(leftmost_or_fr);
     BITMAP_delete(members, worker_id);
-    for (i = 0; i < Yap_number_workers; i++) {
+    for (i = 0; i < GLOBAL_number_workers; i++) {
       if (BITMAP_member(members, i)) {
         if (ltt >= BRANCH_LTT(i, depth)) {
           CUT_send_prune_request(i, leftmost_cp->cp_b);
@@ -231,7 +230,7 @@ void prune_shared_branch(choiceptr prune_cp) {
           ltt = BRANCH_LTT(worker_id, depth);
           LOCK_OR_FRAME(leftmost_or_fr);
           BITMAP_difference(members, OrFr_members(leftmost_or_fr), members);
-          for (i = 0; i < Yap_number_workers; i++) {
+          for (i = 0; i < GLOBAL_number_workers; i++) {
             if (BITMAP_member(members, i)) {
               if (ltt > BRANCH_LTT(i, depth)) {
                 CUT_send_prune_request(i, leftmost_cp->cp_b); 

@@ -40,7 +40,7 @@ static Int
 LoadForeign(StringList ofiles, StringList libs,
 	    char *proc_name, YapInitProc *init_proc)
 {
-  strcpy(Yap_ErrorSay,"load_foreign not supported in this version of Yap");
+  strcpy(LOCAL_ErrorSay,"load_foreign not supported in this version of Yap");
   return LOAD_FAILLED;
 }
 

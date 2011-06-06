@@ -21,3 +21,4 @@ trace(A,B) :- !,
 	trace.
 
 
+run([]) :- fail.

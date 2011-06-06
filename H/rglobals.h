@@ -1,8 +1,6 @@
 
-  /* This file, rglobals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, rglobals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/GLOBALS instead */
-
-
 
 
 
@@ -22,6 +20,21 @@
 
 static void RestoreGlobal(void) {
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #if THREADS
 
 
@@ -29,29 +42,31 @@ static void RestoreGlobal(void) {
 
 
 
-#endif
 
+  REINIT_LOCK(GLOBAL_ThreadHandlesLock);
+#endif	
 #if defined(YAPOR) || defined(THREADS)
 
-  REINIT_LOCK(Yap_global->bgl);
+  REINIT_LOCK(GLOBAL_BGL);
 #endif
-
-
-
-
-
-
-
-
-
-
-
-#ifdef THREADS
-  REINIT_LOCK(Yap_global->thread_handles_lock);
-#endif 
-
 #if defined(YAPOR) || defined(TABLING)
 
+#endif /* YAPOR || TABLING */
+
+
+
+#if defined(THREADS)
+
+#endif /* THREADS */
+
+
+
+
+
+
+
+#ifdef COROUTINING
+
 
 #endif
 
@@ -59,6 +74,37 @@ static void RestoreGlobal(void) {
 
 
 
+
+
+
+#if HAVE_MMAP
+
+#endif
+#ifdef DEBUG
+
+
+
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+#if defined(COFF)  || defined(A_OUT)
+
+
+#endif
+#if  __simplescalar__
+
+#endif
 
 
 }

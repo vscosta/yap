@@ -17,13 +17,8 @@
 
 #include "Yap.h"
 #ifdef TABLING
-#include <stdio.h>
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif /* HAVE_STRING_H */
 #include "Yatom.h"
 #include "YapHeap.h"
-#include "yapio.h"
 #include "tab.macros.h"
 
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term);
@@ -78,6 +73,7 @@ static inline void traverse_update_arity(char *, int *, int *);
 *******************************/
 
 static struct trie_statistics{
+  IOSTREAM *out;
   int show;
   long subgoals;
   long subgoals_incomplete;
@@ -94,6 +90,7 @@ static struct trie_statistics{
   long global_trie_references;
 } trie_stats;
 
+#define TrStat_out             trie_stats.out
 #define TrStat_show            trie_stats.show
 #define TrStat_subgoals        trie_stats.subgoals
 #define TrStat_sg_incomplete   trie_stats.subgoals_incomplete
@@ -110,7 +107,7 @@ static struct trie_statistics{
 #define SHOW_TABLE_ARITY_ARRAY_SIZE 10000
 #define SHOW_TABLE_STRUCTURE(MESG, ARGS...)      \
         if (TrStat_show == SHOW_MODE_STRUCTURE)  \
-          fprintf(Yap_stdout, MESG, ##ARGS)
+          Sfprintf(TrStat_out, MESG, ##ARGS)
 
 #define CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)		                                            \
         if (MODE == TRAVERSE_MODE_NORMAL && IsVarTerm(REF) && REF > VarIndexOfTableTerm(MAX_TABLE_VARS)) {  \
@@ -185,47 +182,47 @@ static struct trie_statistics{
 
 static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stack_vars_ptr, CELL *stack_terms) {
 /************************************************************************
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-         YENV -->  |   N+1   |  <-- stack_vars
-                   -----------
-                   |  VAR_N  |
-                   -----------
-                   |   ...   |
-                   -----------
-                   |  VAR_0  |
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ===========
-                   |         |
-                   |   ...   |
-                   |         |
-                   -----------
-           TR -->  |         |  <-- stack_terms_limit
-                   -----------
-                   |         |
-                   |   ...   |
-                   |         |
-                   ----------|
-                   |  TERM_N |  <-- stack_terms
-                   ----------|           *
-                   |   ...   |          /|\
-                   ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
-                   |  TERM_1 |          \|/
-                   ===========           *
- Yap_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
-                   -----------
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+           YENV -->  |   N+1   |  <-- stack_vars
+                     -----------
+                     |  VAR_N  |
+                     -----------
+                     |   ...   |
+                     -----------
+                     |  VAR_0  |
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ===========
+                     |         |
+                     |   ...   |
+                     |         |
+                     -----------
+             TR -->  |         |  <-- stack_terms_limit
+                     -----------
+                     |         |
+                     |   ...   |
+                     |         |
+                     ----------|
+                     |  TERM_N |  <-- stack_terms
+                     ----------|           *
+                     |   ...   |          /|\
+                     ----------|           |  stack_terms_pair_offset (TRIE_COMPACT_PAIRS)
+                     |  TERM_1 |          \|/
+                     ===========           *
+ LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
+                     -----------
 ************************************************************************/
   CACHE_REGS
   CELL *stack_vars = *stack_vars_ptr;
   CELL *stack_terms_limit = (CELL *) TR;
 #ifdef TRIE_COMPACT_PAIRS
-#define stack_terms_base ((CELL *) Yap_TrailTop)
+#define stack_terms_base ((CELL *) LOCAL_TrailTop)
   int stack_terms_pair_offset = 0;
 #endif /* TRIE_COMPACT_PAIRS */
   Term t = TrNode_entry(current_node);
@@ -468,7 +465,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
       if (num_nodes == 0) {
 	FREE_HASH_BUCKETS(Hash_buckets(hash));
 	FREE_GLOBAL_TRIE_HASH(hash);
-	if (parent_node != Yap_root_gt) {
+	if (parent_node != GLOBAL_root_gt) {
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
 	  if (mode == TRAVERSE_MODE_NORMAL) {
 	    if (IsApplTerm(t)) {
@@ -506,7 +503,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
   } else if (TrNode_next(current_node) == NULL) {
     CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(t, mode);
     FREE_GLOBAL_TRIE_NODE(current_node);
-    if (parent_node != Yap_root_gt) {
+    if (parent_node != GLOBAL_root_gt) {
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
       if (mode == TRAVERSE_MODE_NORMAL) {
 	if (IsApplTerm(t)) {
@@ -804,7 +801,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
 
 
 static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type) {
-  if (TrNode_parent(current_node) != Yap_root_gt)
+  if (TrNode_parent(current_node) != GLOBAL_root_gt)
     traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type);
   traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type);
   return;
@@ -1085,7 +1082,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
     Term t = STACK_POP_DOWN(stack_terms);
     Bind((CELL *) subs_ptr[i], t);
   }
-  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)Yap_TrailTop);
+  TABLING_ERROR_CHECKING(load_answer, stack_terms != (CELL *)LOCAL_TrailTop);
 
   return;
 #undef subs_arity
@@ -1099,13 +1096,13 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
   Term t;
 
   ++aux_stack;  /* skip the heap_arity entry */
-  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) Yap_TrailTop);
+  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) LOCAL_TrailTop);
   *--aux_stack = 0;  /* restore the heap_arity entry */
 
   subs_ptr = aux_stack + aux_stack[1] + 2;
   t = STACK_POP_DOWN(stack_terms);
   Bind((CELL *) subs_ptr[subs_arity], t);
-  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)Yap_TrailTop);
+  TABLING_ERROR_CHECKING(exec_substitution, stack_terms != (CELL *)LOCAL_TrailTop);
   *subs_ptr = subs_arity - 1;
 
   return aux_stack;
@@ -1297,9 +1294,10 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
 }
 
 
-void show_table(tab_ent_ptr tab_ent, int show_mode) {
+void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
   sg_node_ptr sg_node;
 
+  TrStat_out = out;
   TrStat_show = show_mode;
   if (show_mode == SHOW_MODE_STATISTICS) {
     TrStat_subgoals = 0;
@@ -1313,9 +1311,9 @@ void show_table(tab_ent_ptr tab_ent, int show_mode) {
 #endif /* TABLING_INNER_CUTS */
     TrStat_ans_nodes = 0;
     TrStat_gt_refs = 0;
-    fprintf(Yap_stdout, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
   } else {  /* SHOW_MODE_STRUCTURE */
-    fprintf(Yap_stdout, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
   }
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
@@ -1349,47 +1347,48 @@ void show_table(tab_ent_ptr tab_ent, int show_mode) {
   } else
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    fprintf(Yap_stdout, "  Subgoal trie structure\n");
-    fprintf(Yap_stdout, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
-    fprintf(Yap_stdout, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
-    fprintf(Yap_stdout, "  Answer trie structure(s)\n");
+    Sfprintf(TrStat_out, "  Subgoal trie structure\n");
+    Sfprintf(TrStat_out, "    Subgoals: %ld (%ld incomplete)\n", TrStat_subgoals, TrStat_sg_incomplete);
+    Sfprintf(TrStat_out, "    Subgoal trie nodes: %ld\n", TrStat_sg_nodes);
+    Sfprintf(TrStat_out, "  Answer trie structure(s)\n");
 #ifdef TABLING_INNER_CUTS
-    fprintf(Yap_stdout, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
+    Sfprintf(TrStat_out, "    Answers: %ld (%ld pruned)\n", TrStat_answers, TrStat_answers_pruned);
 #else
-    fprintf(Yap_stdout, "    Answers: %ld\n", TrStat_answers);
+    Sfprintf(TrStat_out, "    Answers: %ld\n", TrStat_answers);
 #endif /* TABLING_INNER_CUTS */
-    fprintf(Yap_stdout, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
-    fprintf(Yap_stdout, "    Answers 'NO': %ld\n", TrStat_answers_no);
-    fprintf(Yap_stdout, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
-    fprintf(Yap_stdout, "  Global trie references: %ld\n", TrStat_gt_refs);
+    Sfprintf(TrStat_out, "    Answers 'TRUE': %ld\n", TrStat_answers_true);
+    Sfprintf(TrStat_out, "    Answers 'NO': %ld\n", TrStat_answers_no);
+    Sfprintf(TrStat_out, "    Answer trie nodes: %ld\n", TrStat_ans_nodes);
+    Sfprintf(TrStat_out, "  Global trie references: %ld\n", TrStat_gt_refs);
   }
   return;
 }
 
 
-void show_global_trie(int show_mode) {
+void show_global_trie(int show_mode, IOSTREAM *out) {
+  TrStat_out = out;
   TrStat_show = show_mode;
   if (show_mode == SHOW_MODE_STATISTICS) {
     TrStat_gt_terms = 0;
     TrStat_gt_nodes = 1;
     TrStat_gt_refs = 0;
-    fprintf(Yap_stdout, "Global trie statistics\n");
+    Sfprintf(TrStat_out, "Global trie statistics\n");
   } else {  /* SHOW_MODE_STRUCTURE */
-    fprintf(Yap_stdout, "Global trie structure\n");
+    Sfprintf(TrStat_out, "Global trie structure\n");
   }
-  if (TrNode_child(Yap_root_gt)) {
+  if (TrNode_child(GLOBAL_root_gt)) {
     char *str = (char *) malloc(sizeof(char) * SHOW_TABLE_STR_ARRAY_SIZE);
     int *arity = (int *) malloc(sizeof(int) * SHOW_TABLE_ARITY_ARRAY_SIZE);
     arity[0] = 0;
-    traverse_global_trie(TrNode_child(Yap_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+    traverse_global_trie(TrNode_child(GLOBAL_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
     free(str);
     free(arity);
   } else
     SHOW_TABLE_STRUCTURE("  EMPTY\n");
   if (show_mode == SHOW_MODE_STATISTICS) {
-    fprintf(Yap_stdout, "  Terms: %ld\n", TrStat_gt_terms);
-    fprintf(Yap_stdout, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
-    fprintf(Yap_stdout, "  Global trie auto references: %ld\n", TrStat_gt_refs);
+    Sfprintf(TrStat_out, "  Terms: %ld\n", TrStat_gt_terms);
+    Sfprintf(TrStat_out, "  Global trie nodes: %ld\n", TrStat_gt_nodes);
+    Sfprintf(TrStat_out, "  Global trie auto references: %ld\n", TrStat_gt_refs);
   }
   return;
 }

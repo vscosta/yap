@@ -34,13 +34,13 @@ static char     SccsId[] = "%W% %G%";
 #include <unistd.h>
 #endif
 
-yap_error_number Yap_matherror = YAP_NO_ERROR;
+
 
 static Term
 Eval(Term t USES_REGS)
 {
   if (IsVarTerm(t)) {
-    ArithError = TRUE;
+    LOCAL_ArithError = TRUE;
     return Yap_ArithError(INSTANTIATION_ERROR,t,"in arithmetic");
   } else if (IsNumTerm(t)) {
     return t;
@@ -131,14 +131,14 @@ p_is( USES_REGS1 )
   Term out = 0L;
   
   while (!(out = Eval(Deref(ARG2) PASS_REGS))) {
-    if (Yap_Error_TYPE == RESOURCE_ERROR_STACK) {
-      Yap_Error_TYPE = YAP_NO_ERROR;
-      if (!Yap_gcl(Yap_Error_Size, 2, ENV, CP)) {
-	Yap_Error(RESOURCE_ERROR_STACK, ARG2, Yap_ErrorMessage);
+    if (LOCAL_Error_TYPE == RESOURCE_ERROR_STACK) {
+      LOCAL_Error_TYPE = YAP_NO_ERROR;
+      if (!Yap_gcl(LOCAL_Error_Size, 2, ENV, CP)) {
+	Yap_Error(RESOURCE_ERROR_STACK, ARG2, LOCAL_ErrorMessage);
 	return FALSE;
       }
     } else {
-      Yap_Error(Yap_Error_TYPE, Yap_Error_Term, Yap_ErrorMessage);
+      Yap_Error(LOCAL_Error_TYPE, LOCAL_Error_Term, LOCAL_ErrorMessage);
       return FALSE;
     }
   }
@@ -151,20 +151,20 @@ Yap_ArithError(yap_error_number type, Term where, char *format,...)
   CACHE_REGS
   va_list ap;
 
-  ArithError = TRUE;
-  Yap_Error_TYPE = type;
-  Yap_Error_Term = where;
-  if (!Yap_ErrorMessage)
-    Yap_ErrorMessage = Yap_ErrorSay;
+  LOCAL_ArithError = TRUE;
+  LOCAL_Error_TYPE = type;
+  LOCAL_Error_Term = where;
+  if (!LOCAL_ErrorMessage)
+    LOCAL_ErrorMessage = LOCAL_ErrorSay;
   va_start (ap, format);
   if (format != NULL) {
 #if   HAVE_VSNPRINTF
-    (void) vsnprintf(Yap_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
+    (void) vsnprintf(LOCAL_ErrorMessage, MAX_ERROR_MSG_SIZE, format, ap);
 #else
-    (void) vsprintf(Yap_ErrorMessage, format, ap);
+    (void) vsprintf(LOCAL_ErrorMessage, format, ap);
 #endif
   } else {
-    Yap_ErrorMessage[0] = '\0';
+    LOCAL_ErrorMessage[0] = '\0';
   }
   va_end (ap);
   return 0L;

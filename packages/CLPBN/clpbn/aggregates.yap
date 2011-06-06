@@ -52,7 +52,7 @@ cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-
 	cpt_average(AllVars, Key, Els0, 1.0, Tab, Vs, NewVs).
 
 % support variables with evidence from domain. This should make everyone's life easier.
-cpt_average([Ev|Vars], Key, Els0, Softness, p(Els0, CPT, NewParents), Vs, NewVs) :-
+cpt_average([Ev|Vars], Key, Els0, Softness, pf(Els0, MAT, NewParents), Vs, NewVs) :-
 	find_evidence(Vars, 0, TotEvidence, RVars),
 	build_avg_table(RVars, Vars, Els0, Key, TotEvidence, Softness, MAT0, NewParents0, Vs, IVs),
 	include_qevidence(Ev, MAT0, MAT, NewParents0, NewParents, Vs, IVs, NewVs).

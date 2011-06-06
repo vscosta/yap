@@ -244,7 +244,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 	CELL new;
 
 	bp = to_visit;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
 	  goto overflow;
 	}
 	to_visit = bp;
@@ -255,7 +255,7 @@ copy_complex_term(CELL *pt0, CELL *pt0_end, int share, int newattvs, CELL *ptf, 
 #endif
 	/* first time we met this term */
 	RESET_VARIABLE(ptf);
-	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	  /* Trail overflow */
 	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	    goto trail_overflow;
@@ -355,7 +355,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
-  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  LOCAL_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
 
@@ -368,7 +368,7 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
   switch(res) {
   case -1:
     if (!Yap_gcl((ASP-H)*sizeof(CELL), arity+1, ENV, gc_P(P,CP))) {
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -376,19 +376,19 @@ handle_cp_overflow(int res, tr_fr_ptr TR0, UInt arity, Term t)
     return Deref(XREGS[arity+1]);
   case -3:
     {
-      UInt size = Yap_Error_Size;
-      Yap_Error_Size = 0L;
+      UInt size = LOCAL_Error_Size;
+      LOCAL_Error_Size = 0L;
       if (size > 4*1024*1024)
 	size = 4*1024*1024;
       if (!Yap_ExpandPreAllocCodeSpace(size, NULL, TRUE)) {
-	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_AUXSPACE_ERROR, TermNil, LOCAL_ErrorMessage);
 	return 0L;
       }
     }
     return Deref(XREGS[arity+1]);
   case -4:
     if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), FALSE)) {
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, LOCAL_ErrorMessage);
       return 0L;
     }
     return Deref(XREGS[arity+1]);
@@ -751,7 +751,7 @@ break_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USE
   }
 #endif
   reset_trail(TR0);
-  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  LOCAL_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
 
@@ -1066,7 +1066,7 @@ restore_rationals_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, 
   }
 #endif
   reset_trail(TR0);
-  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  LOCAL_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
 
@@ -1400,7 +1400,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 	CELL new;
 
 	bp = to_visit;
-	if (!attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
+	if (!GLOBAL_attas[ExtFromCell(ptd0)].copy_term_op(ptd0, &bp, ptf PASS_REGS)) {
 	  goto overflow;
 	}
 	to_visit = bp;
@@ -1411,7 +1411,7 @@ export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, 
 #endif
 	/* first time we met this term */
 	*ptf = (CELL)CellDifH(ptf,HLow);
-	if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+	if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	  /* Trail overflow */
 	  if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	    goto trail_overflow;
@@ -1501,7 +1501,7 @@ trail_overflow:
   }
 #endif
   reset_trail(TR0);
-  Yap_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
+  LOCAL_Error_Size = (ADDR)AuxSp-(ADDR)to_visit0;
   return -3;
 }
 
@@ -1749,7 +1749,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     H += 2;
     H[-2] = (CELL)ptd0;
     /* next make sure noone will see this as a variable again */ 
-    if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
       /* Trail overflow */
       if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	goto trail_overflow;
@@ -1796,15 +1796,15 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
-  Yap_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
+  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
   return 0L;
   
  aux_overflow:
-  Yap_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
+  LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
     to_visit -= 3;
@@ -1812,7 +1812,7 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
@@ -1829,8 +1829,8 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
-  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
 }
@@ -1838,11 +1838,11 @@ static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Ter
 static int
 expand_vts( USES_REGS1 )
 {
-  UInt expand = Yap_Error_Size;
-  yap_error_number yap_errno = Yap_Error_TYPE;
+  UInt expand = LOCAL_Error_Size;
+  yap_error_number yap_errno = LOCAL_Error_TYPE;
   
-  Yap_Error_Size = 0;
-  Yap_Error_TYPE = YAP_NO_ERROR;
+  LOCAL_Error_Size = 0;
+  LOCAL_Error_TYPE = YAP_NO_ERROR;
   if (yap_errno == OUT_OF_TRAIL_ERROR) {
     /* Trail overflow */
     if (!Yap_growtrail(expand, FALSE)) {
@@ -1881,7 +1881,7 @@ p_variables_in_term( USES_REGS1 )	/* variables in term t		 */
       *ptr = TermFoundVar;
       TrailTerm(TR++) = t;
       count++;
-      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	clean_tr(TR-count PASS_REGS);
 	if (!Yap_growtrail(count*sizeof(tr_fr_ptr *), FALSE)) {
 	  return FALSE;
@@ -2032,7 +2032,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
       /* do or pt2 are unbound  */
       *ptd0 = TermNil;
       /* next make sure noone will see this as a variable again */ 
-      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	/* Trail overflow */
 	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	  goto trail_overflow;
@@ -2106,15 +2106,15 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
-  Yap_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
+  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
   return 0L;
   
  aux_overflow:
-  Yap_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
+  LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
     to_visit -= 3;
@@ -2122,7 +2122,7 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
@@ -2139,8 +2139,8 @@ static Term attvars_in_complex_term(register CELL *pt0, register CELL *pt0_end, 
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
-  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
 }
@@ -2225,7 +2225,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
       CELL *ptr = VarOfTerm(t);
       *ptr = TermFoundVar;
       TrailTerm(TR++) = t;
-      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	  goto trail_overflow;
 	}
@@ -2338,15 +2338,15 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
-  Yap_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
+  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
   return 0L;
   
  aux_overflow:
-  Yap_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
+  LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
     to_visit -= 3;
@@ -2354,7 +2354,7 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
@@ -2371,8 +2371,8 @@ static Term vars_within_complex_term(register CELL *pt0, register CELL *pt0_end,
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
-  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
 }
@@ -2422,7 +2422,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
       CELL *ptr = VarOfTerm(t);
       *ptr = TermFoundVar;
       TrailTerm(TR++) = t;
-      if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
 	if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	  goto trail_overflow;
 	}
@@ -2503,7 +2503,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     H += 2;
     H[-2] = (CELL)ptd0;
     /* next make sure noone will see this as a variable again */ 
-    if (TR > (tr_fr_ptr)Yap_TrailTop - 256) {
+    if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
       /* Trail overflow */
       if (!Yap_growtrail((TR-TR0)*sizeof(tr_fr_ptr *), TRUE)) {
 	goto trail_overflow;
@@ -2543,15 +2543,15 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_TRAIL_ERROR;
-  Yap_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
+  LOCAL_Error_TYPE = OUT_OF_TRAIL_ERROR;
+  LOCAL_Error_Size = (TR-TR0)*sizeof(tr_fr_ptr *);
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
   return 0L;
   
  aux_overflow:
-  Yap_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
+  LOCAL_Error_Size = (to_visit-to_visit0)*sizeof(CELL **);
 #ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
     to_visit -= 3;
@@ -2559,7 +2559,7 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
     *pt0 = (CELL)to_visit[2];
   }
 #endif
-  Yap_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
+  LOCAL_Error_TYPE = OUT_OF_AUXSPACE_ERROR;
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
@@ -2576,8 +2576,8 @@ static Term new_vars_in_complex_term(register CELL *pt0, register CELL *pt0_end,
   clean_tr(TR0 PASS_REGS);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   H = InitialH;
-  Yap_Error_TYPE = OUT_OF_STACK_ERROR;
-  Yap_Error_Size = (ASP-H)*sizeof(CELL);
+  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;
+  LOCAL_Error_Size = (ASP-H)*sizeof(CELL);
   return 0L;
   
 }

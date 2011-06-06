@@ -832,14 +832,14 @@ sort_group(GroupDef *grp, CELL *top, struct intermediates *cint)
   if (!(base = (CELL *)Yap_AllocCodeSpace(2*max*sizeof(CELL)))) {
     CACHE_REGS
     save_machine_regs();
-    Yap_Error_Size = 2*max*sizeof(CELL);
+    LOCAL_Error_Size = 2*max*sizeof(CELL);
     siglongjmp(cint->CompilerBotch,2);
   }
 #else
   base = top;
-  while (top+2*max > (CELL *)Yap_TrailTop) {
+  while (top+2*max > (CELL *)LOCAL_TrailTop) {
     if (!Yap_growtrail(2*max*CellSize, TRUE)) {
-      Yap_Error_Size = 2*max*CellSize;
+      LOCAL_Error_Size = 2*max*CellSize;
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,4);
       return;
@@ -2058,16 +2058,16 @@ groups_in(ClauseDef *min, ClauseDef *max, GroupDef *grp, struct intermediates *c
     }
     groups++;
     grp++;
-    while (grp+16 > (GroupDef *)Yap_TrailTop) {
+    while (grp+16 > (GroupDef *)LOCAL_TrailTop) {
       UInt sz = (groups+16)*sizeof(GroupDef);
 #if USE_SYSTEM_MALLOC
-      Yap_Error_Size = sz;
+      LOCAL_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,4);
 #else
       if (!Yap_growtrail(sz, TRUE)) {
-	Yap_Error_Size = sz;
+	LOCAL_Error_Size = sz;
 	save_machine_regs();
 	siglongjmp(cint->CompilerBotch,4);
 	return 0;
@@ -2197,7 +2197,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     UInt sz = sizeof(LogUpdIndex)+n*item_size;
     LogUpdIndex *cl = (LogUpdIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
-      Yap_Error_Size = sz;
+      LOCAL_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -2218,7 +2218,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     UInt sz = sizeof(StaticIndex)+n*item_size;
     StaticIndex *cl = (StaticIndex *)Yap_AllocCodeSpace(sz);
     if (cl == NULL) {
-      Yap_Error_Size = sz;
+      LOCAL_Error_Size = sz;
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -3147,8 +3147,8 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 {
   CACHE_REGS
   UInt sz = ((max0+1)-min0)*sizeof(ClauseDef);
-  if ((char *)top + sz >= Yap_TrailTop-4096) {
-    Yap_Error_Size = sz;
+  if ((char *)top + sz >= LOCAL_TrailTop-4096) {
+    LOCAL_Error_Size = sz;
     /* grow stack */
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);
@@ -3337,13 +3337,13 @@ compile_index(struct intermediates *cint)
   /* only global variable I use directly */
   cint->i_labelno = 1;
 
-  Yap_Error_Size = 0;
+  LOCAL_Error_Size = 0;
 #if USE_SYSTEM_MALLOC
   if (!cint->cls) {
     cint->cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
     if (!cint->cls) {
       /* tell how much space we need */
-      Yap_Error_Size += NClauses*sizeof(ClauseDef);
+      LOCAL_Error_Size += NClauses*sizeof(ClauseDef);
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,2);
@@ -3355,7 +3355,7 @@ compile_index(struct intermediates *cint)
   cint->cls = (ClauseDef *)H;
   if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
     /* tell how much space we need */
-    Yap_Error_Size += NClauses*sizeof(ClauseDef);
+    LOCAL_Error_Size += NClauses*sizeof(ClauseDef);
     /* grow stack */
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,3);
@@ -3402,37 +3402,37 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.code_addr = NULL;
   cint.blks = NULL;
   cint.cls = NULL;
-  Yap_Error_Size = 0;
+  LOCAL_Error_Size = 0;
 
   if ((setjres = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    if (!Yap_gcl(Yap_Error_Size, ap->ArityOfPE+NSlots, ENV, next_pc)) {
+    if (!Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE+NSlots, ENV, next_pc)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_STACK_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 2) {
     restore_machine_regs();
-    Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+    LOCAL_Error_Size = recover_from_failed_susp_on_cls(&cint, LOCAL_Error_Size);
+    if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres == 4) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
+    if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       CleanCls(&cint);
-      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, LOCAL_ErrorMessage);
       return FAILCODE;
     }
   } else if (setjres != 0) {
     restore_machine_regs();
     recover_from_failed_susp_on_cls(&cint, 0);
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+    if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return FAILCODE;
     }
@@ -3442,25 +3442,25 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   cint.expand_block = NULL;
   cint.label_offset = NULL;
-  Yap_ErrorMessage = NULL;
+  LOCAL_ErrorMessage = NULL;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
     return FAILCODE;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
 #endif
   /* globals for assembler */
-  IPredArity = ap->ArityOfPE;
+  LOCAL_IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_INDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
-      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
 	Yap_ReleaseCMem(&cint);
 	CleanCls(&cint);
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	return NULL;
       }
       goto restart_index;
@@ -3483,7 +3483,7 @@ static istack_entry *
 push_stack(istack_entry *sp, Int arg, Term Tag, Term extra, struct intermediates *cint)
 {
   CACHE_REGS
-  if (sp+1 > (istack_entry *)Yap_TrailTop) {
+  if (sp+1 > (istack_entry *)LOCAL_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
   }
@@ -4369,7 +4369,7 @@ expand_index(struct intermediates *cint) {
       cint->cls = (ClauseDef *)Yap_AllocCodeSpace(nclauses*sizeof(ClauseDef));
       if (!cint->cls) {
 	/* tell how much space we need */
-	Yap_Error_Size += NClauses*sizeof(ClauseDef);
+	LOCAL_Error_Size += NClauses*sizeof(ClauseDef);
 	/* grow stack */
 	save_machine_regs();
 	siglongjmp(cint->CompilerBotch,2);
@@ -4379,7 +4379,7 @@ expand_index(struct intermediates *cint) {
     cint->cls = (ClauseDef *)H;
     if (cint->cls+2*nclauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
-      Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
+      LOCAL_Error_Size += 2*NClauses*sizeof(ClauseDef);
       /* grow stack */
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,3);
@@ -4397,7 +4397,7 @@ expand_index(struct intermediates *cint) {
       cint->cls = (ClauseDef *)Yap_AllocCodeSpace(NClauses*sizeof(ClauseDef));
       if (!cint->cls) {
 	/* tell how much space we need */
-	Yap_Error_Size += NClauses*sizeof(ClauseDef);
+	LOCAL_Error_Size += NClauses*sizeof(ClauseDef);
 	/* grow stack */
 	save_machine_regs();
 	siglongjmp(cint->CompilerBotch,2);
@@ -4407,7 +4407,7 @@ expand_index(struct intermediates *cint) {
     cint->cls = (ClauseDef *)H;
     if (cint->cls+2*NClauses > (ClauseDef *)(ASP-4096)) {
       /* tell how much space we need (worst case) */
-      Yap_Error_Size += 2*NClauses*sizeof(ClauseDef);
+      LOCAL_Error_Size += 2*NClauses*sizeof(ClauseDef);
       save_machine_regs();
       siglongjmp(cint->CompilerBotch,3);
     }
@@ -4513,11 +4513,11 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
     restore_machine_regs();
     /* grow stack */
     recover_from_failed_susp_on_cls(&cint, 0);
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE+ExtraArgs, ENV, nextop);
+    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE+ExtraArgs, ENV, nextop);
   } else if (cb == 2) {
     restore_machine_regs();
-    Yap_Error_Size = recover_from_failed_susp_on_cls(&cint, Yap_Error_Size);
-    if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
+    LOCAL_Error_Size = recover_from_failed_susp_on_cls(&cint, LOCAL_Error_Size);
+    if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -4540,14 +4540,14 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
 #if defined(YAPOR) || defined(THREADS)
       }
 #endif
-      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
       CleanCls(&cint);
       return FAILCODE;
     }
   } else if (cb == 4) {
     restore_machine_regs();
     Yap_ReleaseCMem(&cint);
-    if (!Yap_growtrail(Yap_Error_Size, FALSE)) {
+    if (!Yap_growtrail(LOCAL_Error_Size, FALSE)) {
       save_machine_regs();
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_kill_iblock((ClauseUnion *)ClauseCodeToLogUpdIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
@@ -4564,25 +4564,25 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
  restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
-  Yap_ErrorMessage = NULL;
-  Yap_Error_Size = 0;
+  LOCAL_ErrorMessage = NULL;
+  LOCAL_Error_Size = 0;
   if (P->opc == Yap_opcode(_expand_clauses)) {
     expand_clauses = P;
   } else {
     expand_clauses = NULL;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
 #if THREADS
     Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-    Yap_DebugPutc(Yap_c_error_stream,' ');
+    Yap_DebugPutc(LOCAL_c_error_stream,' ');
 #endif
-    Yap_DebugPutc(Yap_c_error_stream,'>');
-    Yap_DebugPutc(Yap_c_error_stream,'\t');
+    Yap_DebugPutc(LOCAL_c_error_stream,'>');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(Yap_c_error_stream,':');
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -4593,7 +4593,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -4604,14 +4604,14 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
 #if THREADS
     Yap_DebugPlWrite(MkIntegerTerm(worker_id));
-    Yap_DebugPutc(Yap_c_error_stream,' ');
+    Yap_DebugPutc(LOCAL_c_error_stream,' ');
 #endif
   }
 #endif
@@ -4634,16 +4634,16 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
     return FAILCODE;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Yap_ShowCode(&cint);
   }
 #endif
   /* globals for assembler */
-  IPredArity = ap->ArityOfPE;
+  LOCAL_IPredArity = ap->ArityOfPE;
   if (cint.CodeStart) {
     if ((indx_out = Yap_assemble(ASSEMBLING_EINDEX, TermNil, ap, FALSE, &cint, cint.i_labelno+1)) == NULL) {
-      if (!Yap_growheap(FALSE, Yap_Error_Size, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, Yap_ErrorMessage);
+      if (!Yap_growheap(FALSE, LOCAL_Error_Size, NULL)) {
+	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
 	Yap_ReleaseCMem(&cint);
 	CleanCls(&cint);
 	return FAILCODE;
@@ -4715,7 +4715,7 @@ static path_stack_entry *
 push_path(path_stack_entry *sp, yamop **pipc, ClauseDef *clp, struct intermediates *cint)
 {
   CACHE_REGS
-  if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
+  if (sp+1 > (path_stack_entry *)LOCAL_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
   }
@@ -4732,7 +4732,7 @@ static path_stack_entry *
 fetch_new_block(path_stack_entry *sp, yamop **pipc, PredEntry *ap, struct intermediates *cint)
 {
   CACHE_REGS
-  if (sp+1 > (path_stack_entry *)Yap_TrailTop) {
+  if (sp+1 > (path_stack_entry *)LOCAL_TrailTop) {
     save_machine_regs();
     siglongjmp(cint->CompilerBotch,4);    
   }
@@ -6028,31 +6028,31 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
     save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();
-    Yap_growheap(FALSE, Yap_Error_Size, NULL);
+    Yap_growheap(FALSE, LOCAL_Error_Size, NULL);
     save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    Yap_growtrail(Yap_Error_Size, FALSE);
+    Yap_growtrail(LOCAL_Error_Size, FALSE);
     save_machine_regs();
   }
   if (cb) {
     Yap_RemoveIndexation(ap);
     return;
   }
-  Yap_Error_Size = 0;
-  Yap_ErrorMessage = NULL;
+  LOCAL_Error_Size = 0;
+  LOCAL_ErrorMessage = NULL;
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
     if (!tmod) tmod = TermProlog;
-    Yap_DebugPutc(Yap_c_error_stream,'+');
-    Yap_DebugPutc(Yap_c_error_stream,'\t');
+    Yap_DebugPutc(LOCAL_c_error_stream,'+');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(Yap_c_error_stream,':');
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
     if (ap->ModuleOfPred == IDB_MODULE) {
       Term t = Deref(ARG1);
       if (IsAtomTerm(t)) {
@@ -6063,7 +6063,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 	Functor f = FunctorOfTerm(t);
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -6074,11 +6074,11 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
   }
 #endif
   stack = (path_stack_entry *)TR;
@@ -6504,19 +6504,19 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NULL;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
-    Yap_gcl(Yap_Error_Size, ap->ArityOfPE, ENV, CP);
+    Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
     save_machine_regs();
   } else if (cb == 2) {
     restore_machine_regs();
-    Yap_growheap(FALSE, Yap_Error_Size, NULL);
+    Yap_growheap(FALSE, LOCAL_Error_Size, NULL);
     save_machine_regs();
   } else if (cb == 4) {
     restore_machine_regs();
-    Yap_growtrail(Yap_Error_Size, FALSE);
+    Yap_growtrail(LOCAL_Error_Size, FALSE);
     save_machine_regs();
   }
-  Yap_Error_Size = 0;
-  Yap_ErrorMessage = NULL;
+  LOCAL_Error_Size = 0;
+  LOCAL_ErrorMessage = NULL;
   if (cb) {
     /* cannot rely on the code */
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -6530,14 +6530,14 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     return;
   }
 #ifdef DEBUG
-  if (Yap_Option['i' - 'a' + 1]) {
+  if (GLOBAL_Option['i' - 'a' + 1]) {
     Term tmod = ap->ModuleOfPred;
 
     if (!tmod) tmod = TermProlog;
-    Yap_DebugPutc(Yap_c_error_stream,'-');
-    Yap_DebugPutc(Yap_c_error_stream,'\t');
+    Yap_DebugPutc(LOCAL_c_error_stream,'-');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\t');
     Yap_DebugPlWrite(tmod);
-    Yap_DebugPutc(Yap_c_error_stream,':');
+    Yap_DebugPutc(LOCAL_c_error_stream,':');
     if (ap->ModuleOfPred != IDB_MODULE) {
       if (ap->ArityOfPE == 0) {
 	Atom At = (Atom)ap->FunctorOfPred;
@@ -6546,7 +6546,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     } else {
@@ -6560,11 +6560,11 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
 	Functor f = ap->FunctorOfPred;
 	Atom At = NameOfFunctor(f);
 	Yap_DebugPlWrite(MkAtomTerm(At));
-	Yap_DebugPutc(Yap_c_error_stream,'/');
+	Yap_DebugPutc(LOCAL_c_error_stream,'/');
 	Yap_DebugPlWrite(MkIntegerTerm(ArityOfFunctor(f)));
       }
     }
-    Yap_DebugPutc(Yap_c_error_stream,'\n');
+    Yap_DebugPutc(LOCAL_c_error_stream,'\n');
   }
 #endif
   stack = (path_stack_entry *)TR;
@@ -6656,6 +6656,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   CACHE_REGS
   CELL *s_reg = NULL;
   Term t = TermNil;
+  int blob_term = FALSE;
   yamop *start_pc = ipc;
   choiceptr b0 = NULL;
   yamop **jlbl = NULL;
@@ -6974,6 +6975,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       /* instructions type e */
     case _switch_on_type:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.llll.l4);
 	ipc = ipc->u.llll.l4;
@@ -6993,6 +6995,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_list_nl:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.ollll.l4);
 	ipc = ipc->u.ollll.l4;
@@ -7013,6 +7016,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_on_arg_type:
       t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.xllll.l4);
 	ipc = ipc->u.xllll.l4;
@@ -7032,6 +7036,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _switch_on_sub_arg_type:
       t = Deref(s_reg[ipc->u.sllll.s]);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.sllll.l4);
 	ipc = ipc->u.sllll.l4;
@@ -7051,6 +7056,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _if_not_then:
       t = Deref(ARG1);
+      blob_term = FALSE;
       if (IsVarTerm(t)) {
 	jlbl = &(ipc->u.clll.l3);
 	ipc = ipc->u.clll.l3;
@@ -7086,14 +7092,17 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _index_dbref:
       t = AbsAppl(s_reg-1);
+      blob_term = FALSE;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_blob:
       t = Yap_DoubleP_key(s_reg);
+      blob_term = TRUE;
       ipc = NEXTOP(ipc,e);
       break;
     case _index_long:
       t = Yap_IntP_key(s_reg);
+      blob_term = TRUE;
       ipc = NEXTOP(ipc,e);
       break;
     case _switch_on_cons:
@@ -7114,8 +7123,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _expand_index:
     case _expand_clauses:
-      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
-      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      if (blob_term) { /* protect garbage collector */
+	XREGS[ap->ArityOfPE+1] = (CELL)&XREGS[ap->ArityOfPE+1];
+	XREGS[ap->ArityOfPE+2] = TermNil;
+      } else {
+	XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+	XREGS[ap->ArityOfPE+2] = t;
+      }
       XREGS[ap->ArityOfPE+3] = Terms[0];
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
@@ -7126,8 +7140,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       }
 #endif
       ipc = ExpandIndex(ap, 5, cp_pc PASS_REGS);
-      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
-      t = XREGS[ap->ArityOfPE+2];
+      if (!blob_term) { /* protect garbage collector */
+	s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+	t = XREGS[ap->ArityOfPE+2];
+      }
+      blob_term = FALSE;
       Terms[0] = XREGS[ap->ArityOfPE+3];
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];
@@ -7151,15 +7168,22 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	break;
       }
     case _index_pred:
-      XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
-      XREGS[ap->ArityOfPE+2] = (CELL)t;
+      if (blob_term) { /* protect garbage collector */
+	XREGS[ap->ArityOfPE+1] = (CELL)&XREGS[ap->ArityOfPE+1];
+	XREGS[ap->ArityOfPE+2] = TermNil;
+      } else {
+	XREGS[ap->ArityOfPE+1] = (CELL)s_reg;
+	XREGS[ap->ArityOfPE+2] = t;
+      }
       XREGS[ap->ArityOfPE+3] = Terms[0];
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
       Yap_IPred(ap, 5, cp_pc);
       start_pc = ipc = ap->cs.p_code.TrueCodeOfPred;
-      s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
-      t = XREGS[ap->ArityOfPE+2];
+      if (!blob_term) { /* protect garbage collector */
+	s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
+	t = XREGS[ap->ArityOfPE+2];
+      }
       Terms[0] = XREGS[ap->ArityOfPE+3];
       Terms[1] = XREGS[ap->ArityOfPE+4];
       Terms[2] = XREGS[ap->ArityOfPE+5];

@@ -45,18 +45,18 @@
 
 static Int null_id = 0;
 
-STATIC_PROTO(Int c_db_my_connect,(void));
-STATIC_PROTO(Int c_db_my_disconnect,(void));
-STATIC_PROTO(Int c_db_my_number_of_fields,(void));
-STATIC_PROTO(Int c_db_my_get_attributes_types,(void));
-STATIC_PROTO(Int c_db_my_query,(void));
-STATIC_PROTO(Int c_db_my_table_write,(void));
-STATIC_PROTO(Int c_db_my_row,(void));
-STATIC_PROTO(Int c_db_my_row_cut,(void));
-STATIC_PROTO(Int c_db_my_get_fields_properties,(void));
-STATIC_PROTO(Int c_db_my_get_next_result_set,(void));
-STATIC_PROTO(Int c_db_my_get_database,(void));
-STATIC_PROTO(Int c_db_my_change_database,(void));
+STATIC_PROTO(Int c_db_my_connect,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_disconnect,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_number_of_fields,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_get_attributes_types,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_query,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_table_write,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_row,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_row_cut,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_get_fields_properties,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_get_next_result_set,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_get_database,( USES_REGS1 ));
+STATIC_PROTO(Int c_db_my_change_database,( USES_REGS1 ));
 
 void Yap_InitMYDDAS_MySQLPreds(void)
 {
@@ -104,7 +104,7 @@ void Yap_InitBackMYDDAS_MySQLPreds(void)
 }
 
 static Int
-c_db_my_connect(void) {
+c_db_my_connect( USES_REGS1 ) {
   Term arg_host = Deref(ARG1); 
   Term arg_user = Deref(ARG2);
   Term arg_passwd = Deref(ARG3);
@@ -163,7 +163,7 @@ c_db_my_connect(void) {
 
 /* db_query: SQLQuery x ResultSet x Connection */
 static Int 
-c_db_my_query(void) {
+c_db_my_query( USES_REGS1 ) {
   Term arg_sql_query = Deref(ARG1);
   Term arg_result_set = Deref(ARG2);
   Term arg_conn = Deref(ARG3);
@@ -337,7 +337,7 @@ c_db_my_query(void) {
 }
 
 static Int 
-c_db_my_number_of_fields(void) {
+c_db_my_number_of_fields( USES_REGS1 ) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_fields = Deref(ARG3);
@@ -381,7 +381,7 @@ c_db_my_number_of_fields(void) {
 
 /* db_get_attributes_types: RelName x Connection -> TypesList */
 static Int 
-c_db_my_get_attributes_types(void) {
+c_db_my_get_attributes_types( USES_REGS1 ) {
   Term arg_relation = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term arg_types_list = Deref(ARG3);
@@ -442,7 +442,7 @@ c_db_my_get_attributes_types(void) {
 
 /* db_disconnect */
 static Int
-c_db_my_disconnect(void) {
+c_db_my_disconnect( USES_REGS1 ) {
   Term arg_conn = Deref(ARG1);  
 
   MYSQL *conn = (MYSQL *) IntegerOfTerm(arg_conn);
@@ -461,7 +461,7 @@ c_db_my_disconnect(void) {
 
 /* db_table_write: Result Set */
 static Int 
-c_db_my_table_write(void) {
+c_db_my_table_write( USES_REGS1 ) {
   Term arg_res_set = Deref(ARG1);
 
   MYSQL_RES *res_set = (MYSQL_RES *) IntegerOfTerm(arg_res_set);
@@ -473,7 +473,7 @@ c_db_my_table_write(void) {
 }
 
 static Int
-c_db_my_row_cut(void) {
+c_db_my_row_cut( USES_REGS1 ) {
   MYSQL_RES *mysql_res=NULL;
   
   mysql_res = (MYSQL_RES *) IntegerOfTerm(EXTRA_CBACK_CUT_ARG(Term,1));
@@ -483,7 +483,7 @@ c_db_my_row_cut(void) {
 
 /* db_row: ResultSet x Arity_ListOfArgs x ListOfArgs -> */
 static Int
-c_db_my_row(void) {
+c_db_my_row( USES_REGS1 ) {
 #ifdef MYDDAS_STATS
 /*   Measure time used by the  */
 /*      c_db_my_row function */
@@ -598,7 +598,7 @@ c_db_my_row(void) {
 }
 
 static Int 
-c_db_my_get_fields_properties(void) {
+c_db_my_get_fields_properties( USES_REGS1 ) {
   Term nome_relacao = Deref(ARG1);
   Term arg_conn = Deref(ARG2);
   Term fields_properties_list = Deref(ARG3);
@@ -680,7 +680,7 @@ c_db_my_get_fields_properties(void) {
 
 /* c_db_my_get_next_result_set: Connection * NextResSet */
 static Int 
-c_db_my_get_next_result_set(void) {
+c_db_my_get_next_result_set( USES_REGS1 ) {
   Term arg_conn = Deref(ARG1);
   Term arg_next_res_set = Deref(ARG2);
   
@@ -695,7 +695,7 @@ c_db_my_get_next_result_set(void) {
 }
 
 static Int 
-c_db_my_get_database(void) {
+c_db_my_get_database( USES_REGS1 ) {
   Term arg_con = Deref(ARG1);
   Term arg_database = Deref(ARG2);
   
@@ -709,7 +709,7 @@ c_db_my_get_database(void) {
 }
 
 static Int 
-c_db_my_change_database(void) {
+c_db_my_change_database( USES_REGS1 ) {
   Term arg_con = Deref(ARG1);
   Term arg_database = Deref(ARG2);
 

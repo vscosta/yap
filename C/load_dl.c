@@ -94,18 +94,18 @@ LoadForeign(StringList ofiles, StringList libs,
   CACHE_REGS
 
   while (libs) {
-    if (!Yap_TrueFileName(AtomName(libs->name), Yap_FileNameBuf, TRUE)) {
+    if (!Yap_TrueFileName(AtomName(libs->name), LOCAL_FileNameBuf, TRUE)) {
       /* use LD_LIBRARY_PATH */
-      strncpy(Yap_FileNameBuf, AtomName(libs->name), YAP_FILENAME_MAX);
+      strncpy(LOCAL_FileNameBuf, AtomName(libs->name), YAP_FILENAME_MAX);
     }
 
 #ifdef __osf__
-    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY)) == NULL)
+    if((libs->handle=dlopen(LOCAL_FileNameBuf,RTLD_LAZY)) == NULL)
 #else
-    if((libs->handle=dlopen(Yap_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == NULL)
+    if((libs->handle=dlopen(LOCAL_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == NULL)
 #endif
     {
-      strcpy(Yap_ErrorSay,dlerror());
+      strcpy(LOCAL_ErrorSay,dlerror());
       return LOAD_FAILLED;
     }
     libs = libs->next;
@@ -118,18 +118,18 @@ LoadForeign(StringList ofiles, StringList libs,
      other routines */
 
     /* dlopen wants to follow the LD_CONFIG_PATH */
-    if (!Yap_TrueFileName(AtomName(ofiles->name), Yap_FileNameBuf, TRUE)) {
-      strcpy(Yap_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
+    if (!Yap_TrueFileName(AtomName(ofiles->name), LOCAL_FileNameBuf, TRUE)) {
+      strcpy(LOCAL_ErrorSay, "%% Trying to open unexisting file in LoadForeign");
       return LOAD_FAILLED;
     }
 #ifdef __osf__
-    if((handle=dlopen(Yap_FileNameBuf,RTLD_LAZY)) == 0)
+    if((handle=dlopen(LOCAL_FileNameBuf,RTLD_LAZY)) == 0)
 #else
-    if((handle=dlopen(Yap_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == 0)
+    if((handle=dlopen(LOCAL_FileNameBuf,RTLD_LAZY|RTLD_GLOBAL)) == 0)
 #endif
     {
-      fprintf(stderr,"dlopen of %s failed with error %s\n", Yap_FileNameBuf, dlerror());
-/*      strcpy(Yap_ErrorSay,dlerror());*/
+      fprintf(stderr,"dlopen of %s failed with error %s\n", LOCAL_FileNameBuf, dlerror());
+/*      strcpy(LOCAL_ErrorSay,dlerror());*/
       return LOAD_FAILLED;
     }
 
@@ -142,7 +142,7 @@ LoadForeign(StringList ofiles, StringList libs,
   }
 
   if(! *init_proc) {
-    strcpy(Yap_ErrorSay,"Could not locate initialization routine");
+    strcpy(LOCAL_ErrorSay,"Could not locate initialization routine");
     return LOAD_FAILLED;
   }
 

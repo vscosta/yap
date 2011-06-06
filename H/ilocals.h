@@ -1,143 +1,185 @@
 
-  /* This file, ilocals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, ilocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/LOCALS instead */
 
 
 static void InitWorker(int wid) {
 
-  FOREIGN(wid)->c_input_stream = 0;
-  FOREIGN(wid)->c_output_stream = 1;
-  FOREIGN(wid)->c_error_stream = 2;
+  REMOTE_c_input_stream(wid) = 0;
+  REMOTE_c_output_stream(wid) = 1;
+  REMOTE_c_error_stream(wid) = 2;
 
-  FOREIGN(wid)->rinfo.old_ASP = NULL;
-  FOREIGN(wid)->rinfo.old_LCL0 = NULL;
-  FOREIGN(wid)->rinfo.old_TR = NULL;
-  FOREIGN(wid)->rinfo.old_GlobalBase = NULL;
-  FOREIGN(wid)->rinfo.old_H = NULL;
-  FOREIGN(wid)->rinfo.old_H0 = NULL;
-  FOREIGN(wid)->rinfo.old_TrailBase = NULL;
-  FOREIGN(wid)->rinfo.old_TrailTop = NULL;
-  FOREIGN(wid)->rinfo.old_HeapBase = NULL;
-  FOREIGN(wid)->rinfo.old_HeapTop = NULL;
-  FOREIGN(wid)->rinfo.cl_diff = 0L;
-  FOREIGN(wid)->rinfo.g_diff = 0L;
-  FOREIGN(wid)->rinfo.h_diff = 0L;
-  FOREIGN(wid)->rinfo.g_diff0 = 0L;
-  FOREIGN(wid)->rinfo.g_split = NULL;
-  FOREIGN(wid)->rinfo.l_diff = 0L;
-  FOREIGN(wid)->rinfo.tr_diff = 0L;
-  FOREIGN(wid)->rinfo.x_diff = 0L;
-  FOREIGN(wid)->rinfo.delay_diff = 0L;
-  FOREIGN(wid)->rinfo.base_diff = 0L;
-  FOREIGN(wid)->call_counters.reductions = 0L;
-  FOREIGN(wid)->call_counters.reductions_retries = 0L;
-  FOREIGN(wid)->call_counters.retries = 0L;
-  FOREIGN(wid)->call_counters.reductions_on = 0L;
-  FOREIGN(wid)->call_counters.reductions_retries_on = 0L;
-  FOREIGN(wid)->call_counters.retries_on = 0L;
-  FOREIGN(wid)->interrupts_disabled = FALSE;
+  REMOTE_OldASP(wid) = NULL;
+  REMOTE_OldLCL0(wid) = NULL;
+  REMOTE_OldTR(wid) = NULL;
+  REMOTE_OldGlobalBase(wid) = NULL;
+  REMOTE_OldH(wid) = NULL;
+  REMOTE_OldH0(wid) = NULL;
+  REMOTE_OldTrailBase(wid) = NULL;
+  REMOTE_OldTrailTop(wid) = NULL;
+  REMOTE_OldHeapBase(wid) = NULL;
+  REMOTE_OldHeapTop(wid) = NULL;
+  REMOTE_ClDiff(wid) = 0L;
+  REMOTE_GDiff(wid) = 0L;
+  REMOTE_HDiff(wid) = 0L;
+  REMOTE_GDiff0(wid) = 0L;
+  REMOTE_GSplit(wid) = NULL;
+  REMOTE_LDiff(wid) = 0L;
+  REMOTE_TrDiff(wid) = 0L;
+  REMOTE_XDiff(wid) = 0L;
+  REMOTE_DelayDiff(wid) = 0L;
+  REMOTE_BaseDiff(wid) = 0L;
 
-
-  FOREIGN(wid)->consultsp = NULL;
+  REMOTE_ReductionsCounter(wid) = 0L;
+  REMOTE_PredEntriesCounter(wid) = 0L;
+  REMOTE_RetriesCounter(wid) = 0L;
+  REMOTE_ReductionsCounterOn(wid) = 0L;
+  REMOTE_PredEntriesCounterOn(wid) = 0L;
+  REMOTE_RetriesCounterOn(wid) = 0L;
 
 
+  REMOTE_ConsultSp(wid) = NULL;
 
-  FOREIGN(wid)->consultbase = NULL;
 
-  FOREIGN(wid)->consultlow = NULL;
 
-  FOREIGN(wid)->global_arena = 0L;
-  FOREIGN(wid)->global_arena_overflows = 0L;
-  FOREIGN(wid)->delay_arena_overflows = 0L;
-  FOREIGN(wid)->arena_overflows = 0L;
-  FOREIGN(wid)->depth_arenas = 0;
-  FOREIGN(wid)->arith_error = FALSE;
-  FOREIGN(wid)->last_asserted_pred = NULL;
-  FOREIGN(wid)->debug_on = FALSE;
-  FOREIGN(wid)->f_info = NULL;
-  FOREIGN(wid)->scanner_stack = NULL;
-  FOREIGN(wid)->scanner_extra_blocks = NULL;
-  FOREIGN(wid)->ball_term = NULL;
-  FOREIGN(wid)->active_signals = 0L;
-  FOREIGN(wid)->i_pred_arity = 0L;
-  FOREIGN(wid)->prof_end = NULL;
-  FOREIGN(wid)->uncaught_throw = FALSE;
-  FOREIGN(wid)->doing_undefp = FALSE;
-  FOREIGN(wid)->start_line = 0L;
+  REMOTE_ConsultBase(wid) = NULL;
+
+  REMOTE_ConsultLow(wid) = NULL;
+
+  REMOTE_GlobalArena(wid) = 0L;
+  REMOTE_GlobalArenaOverflows(wid) = 0L;
+  REMOTE_ArenaOverflows(wid) = 0L;
+  REMOTE_DepthArenas(wid) = 0;
+  REMOTE_ArithError(wid) = FALSE;
+  REMOTE_LastAssertedPred(wid) = NULL;
+  REMOTE_DebugOn(wid) = FALSE;
+  REMOTE_ScannerStack(wid) = NULL;
+  REMOTE_ScannerExtraBlocks(wid) = NULL;
+  REMOTE_BallTerm(wid) = NULL;
+  REMOTE_ActiveSignals(wid) = 0L;
+  REMOTE_IPredArity(wid) = 0L;
+  REMOTE_ProfEnd(wid) = NULL;
+  REMOTE_UncaughtThrow(wid) = FALSE;
+  REMOTE_DoingUndefp(wid) = FALSE;
+  REMOTE_StartLine(wid) = 0L;
   InitScratchPad(wid);
 #ifdef  COROUTINING
-  FOREIGN(wid)->woken_goals = 0L;
-  FOREIGN(wid)->atts_mutable_list = 0L;
+  REMOTE_WokenGoals(wid) = 0L;
+  REMOTE_AttsMutableList(wid) = 0L;
 #endif
 
-  FOREIGN(wid)->gc_generation = 0L;
-  FOREIGN(wid)->gc_phase = 0L;
-  FOREIGN(wid)->gc_current_phase = 0L;
-  FOREIGN(wid)->gc_calls = 0L;
-  FOREIGN(wid)->tot_gc_time = 0L;
-  FOREIGN(wid)->tot_gc_recovered = 0L;
-  FOREIGN(wid)->last_gc_time = 0L;
-  FOREIGN(wid)->last_ss_time = 0L;
-#if LOW_LEVEL_TRACER
-  FOREIGN(wid)->total_cps = 0;
+  REMOTE_GcGeneration(wid) = 0L;
+  REMOTE_GcPhase(wid) = 0L;
+  REMOTE_GcCurrentPhase(wid) = 0L;
+  REMOTE_GcCalls(wid) = 0L;
+  REMOTE_TotGcTime(wid) = 0L;
+  REMOTE_TotGcRecovered(wid) = 0L;
+  REMOTE_LastGcTime(wid) = 0L;
+  REMOTE_LastSSTime(wid) = 0L;
+
+  REMOTE_total_marked(wid) = 0L;
+  REMOTE_total_oldies(wid) = 0L;
+  REMOTE_current_B(wid) = NULL;
+  REMOTE_prev_HB(wid) = NULL;
+  REMOTE_HGEN(wid) = NULL;
+  REMOTE_iptop(wid) = NULL;
+#if defined(GC_NO_TAGS)
+  REMOTE_bp(wid) = NULL;
 #endif
-  FOREIGN(wid)->consult_level_ = 0;
+  REMOTE_sTR(wid) = NULL;
+  REMOTE_sTR0(wid) = NULL;
+  REMOTE_new_TR(wid) = NULL;
+  REMOTE_cont_top0(wid) = NULL;
+  REMOTE_cont_top(wid) = NULL;
+  REMOTE_discard_trail_entries(wid) = 0;
 
-#if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(FOREIGN(wid)->signal_lock);
-  FOREIGN(wid)->wpp = NULL;
+  REMOTE_gc_ma_h_top(wid) = NULL;
+  REMOTE_gc_ma_h_list(wid) = NULL;
+  REMOTE_gc_timestamp(wid) = 0L;
+  REMOTE_db_vec(wid) = NULL;
+  REMOTE_db_vec0(wid) = NULL;
+  REMOTE_db_root(wid) = NULL;
+  REMOTE_db_nil(wid) = NULL;
 
-  FOREIGN(wid)->tot_marked = 0L;
-  FOREIGN(wid)->tot_oldies = 0L;
-#if DEBUG && COROUTINING
-  FOREIGN(wid)->tot_smarked = 0L;
-#endif
-  FOREIGN(wid)->wl_current_B = NULL;
-  FOREIGN(wid)->wl_prev_HB = NULL;
-  FOREIGN(wid)->hgen = NULL;
-  FOREIGN(wid)->ip_top = NULL;
-#if GC_NO_TAGS
-  FOREIGN(wid)->b_p = NULL;
-#endif
-#if defined(TABLING) || defined(YAPOR_SBA)
-  FOREIGN(wid)->wl_sTR = NULL;
-  FOREIGN(wid)->wl_sTR0 = NULL;
-  FOREIGN(wid)->new_tr = NULL;
-#else
-  FOREIGN(wid)->wl_sTR = NULL;
-  FOREIGN(wid)->wl_sTR0 = NULL;
-  FOREIGN(wid)->new_tr = NULL;
-#endif
-  FOREIGN(wid)->conttop0 = NULL;
-  FOREIGN(wid)->conttop = NULL;
-  FOREIGN(wid)->disc_trail_entries = 0;
+  REMOTE_DynamicArrays(wid) = NULL;
+  REMOTE_StaticArrays(wid) = NULL;
+  REMOTE_GlobalVariables(wid) = NULL;
+  REMOTE_AllowRestart(wid) = FALSE;
 
-  FOREIGN(wid)->Gc_ma_h_top = NULL;
-  FOREIGN(wid)->Gc_ma_h_list = NULL;
-  FOREIGN(wid)->Gc_timestamp = 0L;
-  FOREIGN(wid)->DB_vec = NULL;
-  FOREIGN(wid)->DB_vec0 = NULL;
-  FOREIGN(wid)->DB_root = NULL;
-  FOREIGN(wid)->DB_nil = NULL;
-#endif /* defined(YAPOR) || defined(THREADS) */
+  REMOTE_CMemFirstBlock(wid) = NULL;
+  REMOTE_CMemFirstBlockSz(wid) = 0L;
 
-  FOREIGN(wid)->dynamic_arrays = NULL;
-  FOREIGN(wid)->static_arrays = NULL;
-  FOREIGN(wid)->global_variables = NULL;
-  FOREIGN(wid)->allow_restart = FALSE;
+  REMOTE_LabelFirstArray(wid) = NULL;
+  REMOTE_LabelFirstArraySz(wid) = 0L;
 
-  FOREIGN(wid)->cmem_first_block = NULL;
-  FOREIGN(wid)->cmem_first_block_sz = 0L;
-
-  FOREIGN(wid)->label_first_array = NULL;
-  FOREIGN(wid)->label_first_array_sz = 0L;
-
-  FOREIGN(wid)->Yap_ld_ = Yap_InitThreadIO(wid);
-  FOREIGN(wid)->_execution = NULL;
+  REMOTE_PL_local_data_p(wid) = Yap_InitThreadIO(wid);
 #ifdef THREADS
   InitThreadHandle(wid);
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+#endif /* THREADS */
+#if defined(YAPOR) || defined(TABLING)
+  Yap_init_local_optyap_data(wid);
+#endif /* YAPOR || TABLING */
+  REMOTE_InterruptsDisabled(wid) = FALSE;
+  REMOTE_execution(wid) = NULL;
+#if LOW_LEVEL_TRACER
+  REMOTE_total_choicepoints(wid) = 0;
+#endif
+  REMOTE_consult_level(wid) = 0;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(REMOTE_SignalLock(wid));
 #endif
 
+
+
+
+
+
+
+#ifdef THREADS
+
+#else
+
+#endif	
+
+
+
+
+
+
+
+
+
+
+
+  REMOTE_PrologMode(wid) = BootMode;
+  REMOTE_CritLocks(wid) = 0;
+
+
+#ifdef ANALYST
+
+
+#endif /* ANALYST */
+
+
+
+  REMOTE_matherror(wid) = YAP_NO_ERROR;
+
+  REMOTE_heap_overflows(wid) = 0;
+  REMOTE_total_heap_overflow_time(wid) = 0;
+  REMOTE_stack_overflows(wid) = 0;
+  REMOTE_total_stack_overflow_time(wid) = 0;
+  REMOTE_delay_overflows(wid) = 0;
+  REMOTE_total_delay_overflow_time(wid) = 0;
+  REMOTE_trail_overflows(wid) = 0;
+  REMOTE_total_trail_overflow_time(wid) = 0;
+  REMOTE_atom_table_overflows(wid) = 0;
+  REMOTE_total_atom_table_overflow_time(wid) = 0;
+
+#ifdef LOAD_DYLD
+  REMOTE_dl_errno(wid) = 0;
+#endif
+
+#ifdef LOW_LEVEL_TRACER
+  REMOTE_do_trace_primitives(wid) = TRUE;
+#endif
 }

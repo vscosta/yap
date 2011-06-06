@@ -43,6 +43,7 @@ do_startCritical(void) {
 }
 static inline int
 do_endCritical(void) {
+  CACHE_REGS
   YAPLeaveCriticalSection();
   return 1;
 }

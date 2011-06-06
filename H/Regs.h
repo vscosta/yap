@@ -126,9 +126,10 @@ typedef struct regstore_t
 #endif /* YAPOR_SBA || TABLING */
     struct pred_entry *PP_;
 #if defined(YAPOR) || defined(THREADS)
+    unsigned int worker_id_;
+    struct worker_local *worker_local_;
     /* recursive write-locks for PredEntry */
     yamop **PREG_ADDR_;
-    unsigned int worker_id_;
 #ifdef YAPOR_SBA
     choiceptr BSEG_;
     struct or_frame *frame_head_, *frame_tail_;
@@ -138,9 +139,6 @@ typedef struct regstore_t
     int  sba_size_;
 #endif /* YAPOR_SBA */
 #endif /* YAPOR || THREADS */
-#if defined(YAPOR) || defined(TABLING)
-    struct local_data *LOCAL_;
-#endif
 #if PUSH_REGS
     /* On a X86 machine, the best solution is to keep the
        X registers on a global variable, whose address is known between
@@ -210,7 +208,6 @@ extern REGSTORE Yap_REGS;
 #define MinTrailGap (sizeof(CELL)*1024)
 #define MinHeapGap  (sizeof(CELL)*4096)
 #define MinStackGap (sizeof(CELL)*8*1024)
-extern int Yap_stack_overflows;
 
 
 #define ENV  Yap_REGS.ENV_	/* current environment                    */
@@ -642,8 +639,9 @@ EXTERN inline void restore_B(void) {
 #endif /* YAPOR_SBA || TABLING */
 #define PP	         (Yap_REGS.PP_)
 #if defined(YAPOR) || defined(THREADS)
-#define worker_id         (Yap_REGS.worker_id_)
-#define PREG_ADDR	         (Yap_REGS.PREG_ADDR_)
+#define worker_id     (Yap_REGS.worker_id_)
+#define LOCAL	      (Yap_REGS.worker_local_)
+#define PREG_ADDR     (Yap_REGS.PREG_ADDR_)
 #ifdef YAPOR_SBA
 #define BSEG	      Yap_REGS.BSEG_
 #define binding_array Yap_REGS.binding_array_
@@ -653,10 +651,9 @@ EXTERN inline void restore_B(void) {
 #define frame_head    Yap_REGS.frame_head_
 #define frame_tail    Yap_REGS.frame_tail_
 #endif /* YAPOR_SBA */
-#endif /* YAPOR */
-#if defined(YAPOR) || defined(TABLING)
-#define LOCAL	      Yap_REGS.LOCAL_
-#endif
+#else
+#define LOCAL	      (&Yap_local)
+#endif /* YAPOR || THREADS */
 #define CurrentModule Yap_REGS.CurrentModule_
 #define ARITH_EXCEPTION     Yap_REGS.ARITH_EXCEPTION_
 #define Yap_isint     Yap_REGS.isint_

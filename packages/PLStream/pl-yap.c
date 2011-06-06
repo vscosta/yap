@@ -1,6 +1,8 @@
 
 /* YAP support for some low-level SWI stuff */
 
+#define PL_KERNEL 1
+
 #include <stdio.h>
 #include "Yap.h"
 #include "Yatom.h"
@@ -1098,7 +1100,7 @@ pl_readline(term_t flag)
 
 static Term
 StreamPosition(IOSTREAM *st)
-{
+{ GET_LD
   Term t[4];
   if (!st)
     st = Suser_input;

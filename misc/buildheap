@@ -21,15 +21,15 @@ main :-
 	file_filter_with_init('misc/HEAPFIELDS','H/hstruct.h',gen_struct,Warning,['hstruct.h','HEAPFIELDS']),
 	file_filter_with_init('misc/HEAPFIELDS','H/dhstruct.h',gen_dstruct,Warning,['dhstruct.h','HEAPFIELDS']),
 	file_filter_with_init('misc/HEAPFIELDS','H/rhstruct.h',gen_hstruct,Warning,['rhstruct.h','HEAPFIELDS']),
-	file_filter_with_init('misc/HEAPFIELDS','H/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']),
-	file_filter_with_init('misc/GLOBALS','H/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
-	file_filter_with_init('misc/GLOBALS','H/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
-	file_filter_with_init('misc/GLOBALS','H/rglobals.h',gen_hstruct,Warning,['rglobals.h','GLOBALS']),
-	file_filter_with_init('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
-	file_filter_with_init('misc/LOCALS','H/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
-	file_filter_with_init('misc/LOCALS','H/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
-	file_filter_with_init('misc/LOCALS','H/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
-	file_filter_with_init('misc/LOCALS','H/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
+	file_filter_with_init('misc/HEAPFIELDS','H/ihstruct.h',gen_init,Warning,['ihstruct.h','HEAPFIELDS']).
+	%file_filter_with_init('misc/GLOBALS','H/hglobals.h',gen_struct,Warning,['hglobals.h','GLOBALS']),
+	%file_filter_with_init('misc/GLOBALS','H/dglobals.h',gen_dstruct,Warning,['dglobals.h','GLOBALS']),
+	%file_filter_with_init('misc/GLOBALS','H/rglobals.h',gen_hstruct,Warning,['rglobals.h','GLOBALS']),
+	%file_filter_with_init('misc/GLOBALS','H/iglobals.h',gen_init,Warning,['iglobals.h','GLOBALS']),
+	%file_filter_with_init('misc/LOCALS','H/hlocals.h',gen_struct,Warning,['hlocals.h','LOCALS']),
+	%file_filter_with_init('misc/LOCALS','H/dlocals.h',gen_dstruct,Warning,['dlocals.h','LOCALS']),
+	%file_filter_with_init('misc/LOCALS','H/rlocals.h',gen_hstruct,Warning,['rlocals.h','LOCALS']),
+	%file_filter_with_init('misc/LOCALS','H/ilocals.h',gen_init,Warning,['ilocals.h','LOCALS']).
 	
 warning('~n  /* This file, ~a, was generated automatically by \"yap -L misc/buildheap\"~n     please do not update, update misc/~a instead */~n~n').
 
@@ -119,13 +119,17 @@ fetch_name(Global) :-
 	Global = "Yap_global->".
 fetch_name(Global) :-
 	globals(worker), !,
-	Global = "WL->".
+	Global = "LOCAL->".
 fetch_name(Global) :-
 	globals(worker_init), !,
-	Global = "FOREIGN(wid)->".
+	Global = "REMOTE(wid)->".
 fetch_name(Global) :-
 	Global = "Yap_heap_regs->".
 
+fetch_name(Global,RField,_) :-
+	globals(worker_init), !,
+	append("REMOTE(wid)->",RField,Global).
+fetch_name(Global,_,Global).
 
 % handle *field[4]
 cut_c_stuff([0'*|Name], RName) :- !, % 'cut *
@@ -174,31 +178,31 @@ gen_hstruct(Inp,Out) :-
 	glue(Inp2, " ", Inp3),
 	gen_hstruct(Inp3,Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkAT", _]), !,
-	fetch_name(Global),
-	append(["  ",Global,Field," = AtomTermAdjust(Yap_heap_regs->",Field,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkAT", _]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  ",Global," = AtomTermAdjust(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkPred"| _]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkPred"| _]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = PtoPredAdjust(Yap_heap_regs->",RField,");"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = PtoPredAdjust(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkOp", Name]), !,
-	fetch_name(Global),
-	append(["  ",Global,Field," = Yap_opcode(",Name,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkOp", Name]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  ",Global," = Yap_opcode(",Name,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkLock"]), !,
-	fetch_name(Global),
-	append(["  REINIT_LOCK(",Global,Field,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkLock"]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  REINIT_LOCK(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkRWLock"]), !,
-	fetch_name(Global),
-	append(["  REINIT_RWLOCK(",Global,Field,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkRWLock"]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  REINIT_RWLOCK(",Global,");"], Out).
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkInstE",OP]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkInstE",OP]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField,"->opc = Yap_opcode(",OP,");"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global,"->opc = Yap_opcode(",OP,");"], Out).
 gen_hstruct(Inp,"") :-
 	split(Inp,"	 ",[_, _, _, _]), !.
 gen_hstruct(Inp,"") :-
@@ -208,11 +212,11 @@ gen_hstruct(Inp,Restore) :-
 	append("Restore",_,Restore0), !,
 	append(["  ",Restore0,";"],Restore). %'
 gen_hstruct(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, _, Adjust]),
+	split(Inp,"	 ",[_, Field, MacroName, _, Adjust]),
 	append(Adjust,"Adjust",_), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = ",Adjust,"(",Global,RField,");"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = ",Adjust,"(",Global,");"], Out).
 gen_hstruct(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_hstruct for ~s~n",[Inp]).
@@ -260,49 +264,53 @@ gen_init(Inp,Init) :-
 	split(Inp,"	 ",[_, _, _, Init0| _]),
 	append("Yap_Init",_,Init0), !,
 	append(["  ",Init0,";"],Init).
+gen_init(Inp,Init) :-
+	split(Inp,"	 ",[_, _, _, Init0| _]),
+	append("Yap_init",_,Init0), !,
+	append(["  ",Init0,";"],Init).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkAT", AtomName]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkAT", AtomName]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = MkAtomTerm(",AtomName,");"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = MkAtomTerm(",AtomName,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkOp", Name]), !,
-	fetch_name(Global),
-	append(["  ",Global,Field," = Yap_opcode(",Name,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkOp", Name]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  ",Global," = Yap_opcode(",Name,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkLock"]), !,
-	fetch_name(Global),
-	append(["  INIT_LOCK(",Global,Field,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkLock"]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  INIT_LOCK(",Global,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkRWLock"]), !,
-	fetch_name(Global),
-	append(["  INIT_RWLOCK(",Global,Field,");"], Out).
+	split(Inp,"	 ",[_, Field, MacroName, "MkRWLock"]), !,
+	fetch_name(Global,Field,MacroName),
+	append(["  INIT_RWLOCK(",Global,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkInstE",OP]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkInstE",OP]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField,"->opc = Yap_opcode(",OP,");"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global,"->opc = Yap_opcode(",OP,");"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkPred", Atom, "0", Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Atom, "0", Module]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = RepPredProp(PredPropByAtom(",Atom,",",Module,"));"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = RepPredProp(PredPropByAtom(",Atom,",",Module,"));"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkPred", Atom, Arity, Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Atom, Arity, Module]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,"));"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = RepPredProp(PredPropByFunc(Yap_MkFunctor(",Atom,",",Arity,"),",Module,"));"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, "MkPred", Fun, Module]), !,
+	split(Inp,"	 ",[_, Field, MacroName, "MkPred", Fun, Module]), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = RepPredProp(PredPropByFunc(",Fun,",",Module,"));"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = RepPredProp(PredPropByFunc(",Fun,",",Module,"));"], Out).
 gen_init(Inp,Out) :-
-	split(Inp,"	 ",[_, Field, _, F0|_]),
+	split(Inp,"	 ",[_, Field, MacroName, F0|_]),
 	append("=",F,F0), !,
 	cut_c_stuff(Field, RField),
-	fetch_name(Global),
-	append(["  ",Global,RField," = ",F,";"], Out).
+	fetch_name(Global,RField,MacroName),
+	append(["  ",Global," = ",F,";"], Out).
 gen_init(Inp,_) :-
 	split(Inp,"	 ",[_, _, _| _]),
 	format(user_error,"OOPS: could not gen_init for ~s~n",[Inp]).

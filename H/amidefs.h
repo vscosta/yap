@@ -1095,12 +1095,8 @@ extern void **Yap_ABSMI_OPCODES;
 #define absmadr(i) ((OPCODE)(i))
 #endif
 
-/* used to find out how many instructions of each kind are executed */
-#ifdef ANALYST
-extern YAP_ULONG_LONG Yap_opcount[_std_top + 1];
 
-extern YAP_ULONG_LONG Yap_2opcount[_std_top + 1][_std_top + 1];
-#endif /* ANALYST */
+
 
 #if DEPTH_LIMIT
 /*

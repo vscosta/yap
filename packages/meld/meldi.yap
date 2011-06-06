@@ -7,6 +7,7 @@
 	 first/2,
 	 min/3,
 	 max/3,
+	 sum/3,
 	 minval/3,
 	 maxval/3
 	]).
@@ -22,7 +23,8 @@
 	[
 	 nb_queue/1,
 	 nb_queue_enqueue/2,
-	 nb_queue_dequeue/2
+	 nb_queue_dequeue/2,
+	 nb_queue_replace/3
 	]).
 
 
@@ -34,7 +36,7 @@
 live :-
 	repeat,
 	( pop(Goal) ->
-	  format('-~w~n',[Goal]),
+%	  format('<- ~w~n',[Goal]),
 	  run(Goal),
 	  fail
 	;
@@ -49,6 +51,7 @@ done :-
 done :-
 	current_predicate(meld_program:P),
 	P \= run/1,
+	P \= trace/2,
 %	P \= neighbor/2,
 %	P \= root/1,
 	listing(meld_program:P),
@@ -57,10 +60,18 @@ done.
 
 
 delete(Fact) :-
+	once(retract(meld_program:Fact)),
 	nb_getval(meld_queue, Queue),
-	retract(meld_program:Fact),
-	nb_queue_enqueue(Queue, deleted(Fact)),
-	live.
+	(
+%	 nb:nb_queue_show(Queue, L ), writeln(show:Fact:L),
+	 nb_queue_replace(Queue, Fact, [] ),
+%	 format('R ~w~n', [Fact]),
+	 deleted(Fact)
+	->
+	 true
+	;
+	 nb_queue_enqueue(Queue, deleted(Fact))
+	).
 
 pop(Goal) :-
 	nb_getval(meld_queue, Queue),
@@ -72,10 +83,12 @@ push(Goal) :-
 	increase_reference_count(Ref),
 	fail.
 push(Goal) :-
-	format('+~w~n',[Goal]),
+%	format('-> ~w~n',[Goal]),
 	nb_getval(meld_queue, Queue), !,
 	assert(meld_program:Goal),
-	nb_queue_enqueue(Queue, Goal).
+	nb_queue_enqueue(Queue, Goal),
+%	 nb:nb_queue_show(Queue, L ), writeln(show:Goal:L),
+	fail.
 
 
 % create a queue
@@ -113,6 +126,22 @@ min(Skel,_,Goal) :-
 	clean(Skel),
 	cache(Goal),
 	push(Goal).
+
+sum(Skel,Arg,Goal) :-
+	copy_term(Skel, NGoal),
+	meld_program:Skel, !,
+	arg(Arg, Skel, A0),
+	arg(Arg, Goal, A),
+	AN is A0+A,
+	AN \= A0,
+	delete(Skel),
+	arg(Arg, NGoal, AN),
+%	format('S ~w~n',[NGoal-Skel]),
+	push(NGoal).
+sum(_Skel,_Arg,Goal) :-
+%	format('S ~w~n',[Goal]),
+	push(Goal).
+
 
 clean(Skel) :-
 %	format('D~w~n',[Skel]),
@@ -221,6 +250,17 @@ delete_from_max(Goal) :-
 delete_from_max(Goal) :-
 	retract(meld_cache:Goal),
 	push(deleted(Goal)).
+
+delete_from_sum(Skel,Arg,Goal) :-
+	copy_term(Skel, NGoal),
+	once(meld_program:Skel),
+	arg(Arg, Skel, A0),
+	arg(Arg, Goal, A),
+	AN is A0-A,
+	AN \= A0,
+	delete(Skel),
+	arg(Arg, NGoal, AN),
+	push(NGoal).
 
 new_max(VGoal,Arg) :-
 	arg(Arg, VGoal, A),

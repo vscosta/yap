@@ -255,7 +255,7 @@ extern PL_local_data_t lds;
 
 // THIS HAS TO BE ABSTRACTED
 
-#define GLOBAL_LD (PL_local_data_p)
+#define GLOBAL_LD (LOCAL_PL_local_data_p)
 
 #if !defined(O_PLMT) && !defined(YAPOR)
 #define LOCAL_LD (GLOBAL_LD)

@@ -35,7 +35,7 @@
 
 
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->dlmalloc_lock);
+  INIT_LOCK(DLMallocLock);
 #endif
 #endif
 #if USE_DL_MALLOC || (USE_SYSTEM_MALLOC && HAVE_MALLINFO)
@@ -51,10 +51,10 @@
 
 
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->free_blocks_lock);
-  INIT_LOCK(Yap_heap_regs->heap_used_lock);
-  INIT_LOCK(Yap_heap_regs->heap_top_lock);
-  Yap_heap_regs->heap_top_owner = -1;
+  INIT_LOCK(FreeBlocksLock);
+  INIT_LOCK(HeapUsedLock);
+  INIT_LOCK(HeapTopLock);
+  HeapTopOwner = -1;
 #endif
 
 
@@ -62,13 +62,13 @@
 
 #endif
 
-  Yap_heap_regs->execute_cpred_op_code = Yap_opcode(_execute_cpred);
-  Yap_heap_regs->expand_op_code = Yap_opcode(_expand_index);
-  Yap_heap_regs->fail_op = Yap_opcode(_op_fail);
-  Yap_heap_regs->index_op = Yap_opcode(_index_pred);
-  Yap_heap_regs->lockpred_op = Yap_opcode(_lock_pred);
-  Yap_heap_regs->orlast_op = Yap_opcode(_or_last);
-  Yap_heap_regs->undef_op = Yap_opcode(_undef_p);
+  EXECUTE_CPRED_OP_CODE = Yap_opcode(_execute_cpred);
+  EXPAND_OP_CODE = Yap_opcode(_expand_index);
+  FAIL_OPCODE = Yap_opcode(_op_fail);
+  INDEX_OPCODE = Yap_opcode(_index_pred);
+  LOCKPRED_OPCODE = Yap_opcode(_lock_pred);
+  ORLAST_OPCODE = Yap_opcode(_or_last);
+  UNDEF_OPCODE = Yap_opcode(_undef_p);
 
 
 
@@ -80,100 +80,100 @@
 
 #include "iatoms.h"
 #ifdef EUROTRA
-  Yap_heap_regs->term_dollar_u = MkAtomTerm(AtomDollarU);
+  TermDollarU = MkAtomTerm(AtomDollarU);
 #endif
-  Yap_heap_regs->term_prolog = MkAtomTerm(AtomProlog);
-  Yap_heap_regs->term_refound_var = MkAtomTerm(AtomRefoundVar);
-  Yap_heap_regs->user_module = MkAtomTerm(AtomUser);
-  Yap_heap_regs->idb_module = MkAtomTerm(AtomIDB);
-  Yap_heap_regs->attributes_module = MkAtomTerm(AtomAttributes);
-  Yap_heap_regs->charsio_module = MkAtomTerm(AtomCharsio);
-  Yap_heap_regs->terms_module = MkAtomTerm(AtomTerms);
-  Yap_heap_regs->system_module = MkAtomTerm(AtomSystem);
-  Yap_heap_regs->operating_system_module = MkAtomTerm(AtomOperatingSystemSupport);
-  Yap_heap_regs->readutil_module = MkAtomTerm(AtomReadutil);
-  Yap_heap_regs->hacks_module = MkAtomTerm(AtomYapHacks);
-  Yap_heap_regs->arg_module = MkAtomTerm(AtomArg);
-  Yap_heap_regs->globals_module = MkAtomTerm(AtomNb);
-  Yap_heap_regs->swi_module = MkAtomTerm(AtomSwi);
-  Yap_heap_regs->dbload_module = MkAtomTerm(AtomDBLoad);
+  TermProlog = MkAtomTerm(AtomProlog);
+  TermReFoundVar = MkAtomTerm(AtomRefoundVar);
+  USER_MODULE = MkAtomTerm(AtomUser);
+  IDB_MODULE = MkAtomTerm(AtomIDB);
+  ATTRIBUTES_MODULE = MkAtomTerm(AtomAttributes);
+  CHARSIO_MODULE = MkAtomTerm(AtomCharsio);
+  TERMS_MODULE = MkAtomTerm(AtomTerms);
+  SYSTEM_MODULE = MkAtomTerm(AtomSystem);
+  OPERATING_SYSTEM_MODULE = MkAtomTerm(AtomOperatingSystemSupport);
+  READUTIL_MODULE = MkAtomTerm(AtomReadutil);
+  HACKS_MODULE = MkAtomTerm(AtomYapHacks);
+  ARG_MODULE = MkAtomTerm(AtomArg);
+  GLOBALS_MODULE = MkAtomTerm(AtomNb);
+  SWI_MODULE = MkAtomTerm(AtomSwi);
+  DBLOAD_MODULE = MkAtomTerm(AtomDBLoad);
 
 
 
-  Yap_heap_regs->current_modules = NULL;
+  CurrentModules = NULL;
 
 
   Yap_InitModules();
 
-  Yap_heap_regs->execution_mode = INTERPRETED;
+  Yap_ExecutionMode = INTERPRETED;
 
   InitPredHash();
 #if defined(YAPOR) || defined(THREADS)
 
 #endif
-  Yap_heap_regs->preds_in_hash_table = 0;
+  PredsInHashTable = 0;
 
 
-  Yap_heap_regs->creep_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
-  Yap_heap_regs->undef_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp,1),PROLOG_MODULE));
-  Yap_heap_regs->spy_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomSpy,1),PROLOG_MODULE));
-  Yap_heap_regs->pred_fail = RepPredProp(PredPropByAtom(AtomFail,PROLOG_MODULE));
-  Yap_heap_regs->pred_true = RepPredProp(PredPropByAtom(AtomTrue,PROLOG_MODULE));
+  CreepCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomCreep,1),PROLOG_MODULE));
+  UndefCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomUndefp,1),PROLOG_MODULE));
+  SpyCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomSpy,1),PROLOG_MODULE));
+  PredFail = RepPredProp(PredPropByAtom(AtomFail,PROLOG_MODULE));
+  PredTrue = RepPredProp(PredPropByAtom(AtomTrue,PROLOG_MODULE));
 #ifdef COROUTINING
-  Yap_heap_regs->wake_up_code = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomWakeUpGoal,2),PROLOG_MODULE));
+  WakeUpCode = RepPredProp(PredPropByFunc(Yap_MkFunctor(AtomWakeUpGoal,2),PROLOG_MODULE));
 #endif
-  Yap_heap_regs->pred_goal_expansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
-  Yap_heap_regs->pred_meta_call = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
-  Yap_heap_regs->pred_dollar_catch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
-  Yap_heap_regs->pred_recorded_with_key = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause_erase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
-  Yap_heap_regs->pred_log_upd_clause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
-  Yap_heap_regs->pred_static_clause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
-  Yap_heap_regs->pred_throw = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
-  Yap_heap_regs->pred_handle_throw = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
-  Yap_heap_regs->pred_is = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
-  Yap_heap_regs->pred_safe_call_cleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
-  Yap_heap_regs->pred_restore_regs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
+  PredGoalExpansion = RepPredProp(PredPropByFunc(FunctorGoalExpansion,USER_MODULE));
+  PredMetaCall = RepPredProp(PredPropByFunc(FunctorMetaCall,PROLOG_MODULE));
+  PredDollarCatch = RepPredProp(PredPropByFunc(FunctorCatch,PROLOG_MODULE));
+  PredRecordedWithKey = RepPredProp(PredPropByFunc(FunctorRecordedWithKey,PROLOG_MODULE));
+  PredLogUpdClause = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  PredLogUpdClauseErase = RepPredProp(PredPropByFunc(FunctorDoLogUpdClauseErase,PROLOG_MODULE));
+  PredLogUpdClause0 = RepPredProp(PredPropByFunc(FunctorDoLogUpdClause,PROLOG_MODULE));
+  PredStaticClause = RepPredProp(PredPropByFunc(FunctorDoStaticClause,PROLOG_MODULE));
+  PredThrow = RepPredProp(PredPropByFunc(FunctorThrow,PROLOG_MODULE));
+  PredHandleThrow = RepPredProp(PredPropByFunc(FunctorHandleThrow,PROLOG_MODULE));
+  PredIs = RepPredProp(PredPropByFunc(FunctorIs,PROLOG_MODULE));
+  PredSafeCallCleanup = RepPredProp(PredPropByFunc(FunctorSafeCallCleanup,PROLOG_MODULE));
+  PredRestoreRegs = RepPredProp(PredPropByFunc(FunctorRestoreRegs,PROLOG_MODULE));
 #ifdef YAPOR
-  Yap_heap_regs->pred_getwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
-  Yap_heap_regs->pred_getwork_seq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));
+  PredGetwork = RepPredProp(PredPropByAtom(AtomGetwork,PROLOG_MODULE));
+  PredGetworkSeq = RepPredProp(PredPropByAtom(AtomGetworkSeq,PROLOG_MODULE));
 #endif /* YAPOR */
 
 #ifdef LOW_LEVEL_TRACER
-  Yap_heap_regs->yap_do_low_level_trace = FALSE;
+  Yap_do_low_level_trace = FALSE;
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->low_level_trace_lock);
+  INIT_LOCK(Yap_low_level_trace_lock);
 #endif
 #endif
 
-  Yap_heap_regs->clause_space = 0;
-  Yap_heap_regs->index_space_Tree = 0;
-  Yap_heap_regs->index_space_EXT = 0;
-  Yap_heap_regs->index_space_SW = 0;
-  Yap_heap_regs->lu_clause_space = 0;
-  Yap_heap_regs->lu_index_space_Tree = 0;
-  Yap_heap_regs->lu_index_space_CP = 0;
-  Yap_heap_regs->lu_index_space_EXT = 0;
-  Yap_heap_regs->lu_index_space_SW = 0;
+  Yap_ClauseSpace = 0;
+  Yap_IndexSpace_Tree = 0;
+  Yap_IndexSpace_EXT = 0;
+  Yap_IndexSpace_SW = 0;
+  Yap_LUClauseSpace = 0;
+  Yap_LUIndexSpace_Tree = 0;
+  Yap_LUIndexSpace_CP = 0;
+  Yap_LUIndexSpace_EXT = 0;
+  Yap_LUIndexSpace_SW = 0;
 
 
-  Yap_heap_regs->dummycode->opc = Yap_opcode(_op_fail);
-  Yap_heap_regs->failcode->opc = Yap_opcode(_op_fail);
-  Yap_heap_regs->nocode->opc = Yap_opcode(_Nstop);
+  DUMMYCODE->opc = Yap_opcode(_op_fail);
+  FAILCODE->opc = Yap_opcode(_op_fail);
+  NOCODE->opc = Yap_opcode(_Nstop);
   InitEnvInst(ENV_FOR_TRUSTFAIL,&TRUSTFAILCODE,_trust_fail,PredFail);
 
   InitEnvInst(ENV_FOR_YESCODE,&YESCODE,_Ystop,PredFail);
 
   InitOtaplInst(RTRYCODE,_retry_and_mark,PredFail);
 #ifdef BEAM
-  Yap_heap_regs->beam_retry_code->opc = Yap_opcode(_beam_retry_code);
+  BEAM_RETRY_CODE->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
-  Yap_heap_regs->seq_def = FALSE;
+  SEQUENTIAL_IS_DEFAULT = FALSE;
   InitOtaplInst(GETWORK,_getwork,PredGetwork);
   InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
-  Yap_heap_regs->getwork_first_time->opc = Yap_opcode(_getwork_first_time);
+  GETWORK_FIRST_TIME->opc = Yap_opcode(_getwork_first_time);
 #endif /* YAPOR */
 #ifdef TABLING
   InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail);
@@ -185,121 +185,121 @@
 
 
 
-  Yap_heap_regs->debugger_p_before_spy = NULL;
+  P_before_spy = NULL;
 
-  Yap_heap_regs->retry_recordedp_code = NULL;
-  Yap_heap_regs->retry_recorded_k_code = NULL;
+  RETRY_C_RECORDEDP_CODE = NULL;
+  RETRY_C_RECORDED_K_CODE = NULL;
 
-  Yap_heap_regs->system_profiling = FALSE;
-  Yap_heap_regs->system_call_counting = FALSE;
-  Yap_heap_regs->system_pred_goal_expansion_all = FALSE;
-  Yap_heap_regs->system_pred_goal_expansion_func = FALSE;
-  Yap_heap_regs->system_pred_goal_expansion_on = FALSE;
-  Yap_heap_regs->compiler_optimizer_on = TRUE;
-  Yap_heap_regs->compiler_compile_mode = 0;
-  Yap_heap_regs->compiler_profiling = FALSE;
-  Yap_heap_regs->compiler_call_counting = FALSE;
+  PROFILING = FALSE;
+  CALL_COUNTING = FALSE;
+  PRED_GOAL_EXPANSION_ALL = FALSE;
+  PRED_GOAL_EXPANSION_FUNC = FALSE;
+  PRED_GOAL_EXPANSION_ON = FALSE;
+  optimizer_on = TRUE;
+  compile_mode = 0;
+  profiling = FALSE;
+  call_counting = FALSE;
 
-  Yap_heap_regs->compiler_compile_arrays = FALSE;
+  compile_arrays = FALSE;
 
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->dbterms_list_lock);
+  INIT_LOCK(DBTermsListLock);
 #endif
-  Yap_heap_regs->dbterms_list = NULL;
+  DBTermsList = NULL;
 
-  Yap_heap_regs->expand_clauses_first = NULL;
-  Yap_heap_regs->expand_clauses_last = NULL;
-  Yap_heap_regs->expand_clauses = 0;
+  ExpandClausesFirst = NULL;
+  ExpandClausesLast = NULL;
+  Yap_ExpandClauses = 0;
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->expand_clauses_list_lock);
-  INIT_LOCK(Yap_heap_regs->op_list_lock);
+  INIT_LOCK(ExpandClausesListLock);
+  INIT_LOCK(OpListLock);
 #endif
 
 #ifdef DEBUG
-  Yap_heap_regs->new_cps = 0L;
-  Yap_heap_regs->live_cps = 0L;
-  Yap_heap_regs->dirty_cps = 0L;
-  Yap_heap_regs->freed_cps = 0L;
+  Yap_NewCps = 0L;
+  Yap_LiveCps = 0L;
+  Yap_DirtyCps = 0L;
+  Yap_FreedCps = 0L;
 #endif
-  Yap_heap_regs->expand_clauses_sz = 0L;
+  Yap_expand_clauses_sz = 0L;
 
-  Yap_heap_regs->udi_control_blocks = NULL;
+  UdiControlBlocks = NULL;
 
 
-  Yap_heap_regs->static_predicates_marked = FALSE;
+  STATIC_PREDICATES_MARKED = FALSE;
 
-  Yap_heap_regs->IntKeys = NULL;
-  Yap_heap_regs->IntLUKeys = NULL;
-  Yap_heap_regs->IntBBKeys = NULL;
+  INT_KEYS = NULL;
+  INT_LU_KEYS = NULL;
+  INT_BB_KEYS = NULL;
 
-  Yap_heap_regs->int_keys_size = INT_KEYS_DEFAULT_SIZE;
-  Yap_heap_regs->int_keys_timestamp = 0L;
-  Yap_heap_regs->int_bb_keys_size = INT_KEYS_DEFAULT_SIZE;
+  INT_KEYS_SIZE = INT_KEYS_DEFAULT_SIZE;
+  INT_KEYS_TIMESTAMP = 0L;
+  INT_BB_KEYS_SIZE = INT_KEYS_DEFAULT_SIZE;
 
-  Yap_heap_regs->update_mode = UPDATE_MODE_LOGICAL;
+  UPDATE_MODE = UPDATE_MODE_LOGICAL;
 
   InitDBErasedMarker();
   InitLogDBErasedMarker();
 
-  Yap_heap_regs->dead_static_clauses = NULL;
-  Yap_heap_regs->dead_mega_clauses = NULL;
-  Yap_heap_regs->dead_static_indices = NULL;
-  Yap_heap_regs->db_erased_list = NULL;
-  Yap_heap_regs->db_erased_ilist = NULL;
+  DeadStaticClauses = NULL;
+  DeadMegaClauses = NULL;
+  DeadStaticIndices = NULL;
+  DBErasedList = NULL;
+  DBErasedIList = NULL;
 #if defined(YAPOR) || defined(THREADS)
-  INIT_LOCK(Yap_heap_regs->dead_static_clauses_lock);
-  INIT_LOCK(Yap_heap_regs->dead_mega_clauses_lock);
-  INIT_LOCK(Yap_heap_regs->dead_static_indices_lock);
+  INIT_LOCK(DeadStaticClausesLock);
+  INIT_LOCK(DeadMegaClausesLock);
+  INIT_LOCK(DeadStaticIndicesLock);
 #endif
 #ifdef COROUTINING
 
-  Yap_heap_regs->num_of_atts = 1;
+  NUM_OF_ATTS = 1;
 
 
 #endif
 
   InitFlags();
 
-  Yap_heap_regs->op_list = NULL;
+  OpList = NULL;
 
 
-  Yap_heap_regs->yap_streams = NULL;
+  Stream = NULL;
 
-  Yap_heap_regs->n_of_file_aliases = 0;
-  Yap_heap_regs->sz_of_file_aliases = 0;
-  Yap_heap_regs->file_aliases = NULL;
+  NOfFileAliases = 0;
+  SzOfFileAliases = 0;
+  FileAliases = NULL;
 
-  Yap_heap_regs->atprompt = AtomNil;
+  AtPrompt = AtomNil;
 
 
-  Yap_heap_regs->char_conversion_table = NULL;
-  Yap_heap_regs->char_conversion_table2 = NULL;
+  CharConversionTable = NULL;
+  CharConversionTable2 = NULL;
 
-  Yap_heap_regs->parser_error_style = EXCEPTION_ON_PARSER_ERROR;
+  ParserErrorStyle = EXCEPTION_ON_PARSER_ERROR;
 
-  Yap_heap_regs->yap_lib_dir = NULL;
+  Yap_LibDir = NULL;
 
-  Yap_heap_regs->last_wtime = NULL;
+  LastWtimePtr = NULL;
 
-  Yap_heap_regs->debugger_output_msg = 0L;
+  output_msg = 0L;
 #if LOW_PROF
-  Yap_heap_regs->profiler_on = FALSE;
-  Yap_heap_regs->offline_profiler = FALSE;
-  Yap_heap_regs->f_prof = NULL;
-  Yap_heap_regs->f_preds = NULL;
-  Yap_heap_regs->prof_preds = 0L;
+  ProfilerOn = FALSE;
+  Yap_OffLineProfiler = FALSE;
+  FProf = NULL;
+  FPreds = NULL;
+  ProfPreds = 0L;
 #endif /* LOW_PROF */
 
-  Yap_heap_regs->foreign_code_loaded = NULL;
-  Yap_heap_regs->foreign_code_base = NULL;
-  Yap_heap_regs->foreign_code_top = NULL;
-  Yap_heap_regs->foreign_code_max = NULL;
+  ForeignCodeLoaded = NULL;
+  ForeignCodeBase = NULL;
+  ForeignCodeTop = NULL;
+  ForeignCodeMax = NULL;
 
-  Yap_heap_regs->yap_records = NULL;
+  Yap_Records = NULL;
 
   InitSWIAtoms();
 
 
 
-  Yap_heap_regs->swi_blob_types = NULL;
-  Yap_heap_regs->swi_blobs = NULL;
+  SWI_BlobTypes = NULL;
+  SWI_Blobs = NULL;

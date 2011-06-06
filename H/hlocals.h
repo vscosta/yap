@@ -1,145 +1,185 @@
 
-  /* This file, hlocals.h, was generated automatically by "yap -L misc/buildheap"
+  /* This file, hlocals.h, was generated automatically by "yap -L misc/buildlocalglobal"
      please do not update, update misc/LOCALS instead */
 
 
 typedef struct worker_local {
 
-  int  c_input_stream;
-  int  c_output_stream;
-  int  c_error_stream;
+  int  c_input_stream_;
+  int  c_output_stream_;
+  int  c_error_stream_;
 
-  restoreinfo  rinfo;
+  CELL*  OldASP_;
+  CELL*  OldLCL0_;
+  tr_fr_ptr  OldTR_;
+  CELL*  OldGlobalBase_;
+  CELL*  OldH_;
+  CELL*  OldH0_;
+  ADDR  OldTrailBase_;
+  ADDR  OldTrailTop_;
+  ADDR  OldHeapBase_;
+  ADDR  OldHeapTop_;
+  Int  ClDiff_;
+  Int  GDiff_;
+  Int  HDiff_;
+  Int  GDiff0_;
+  CELL*  GSplit_;
+  Int  LDiff_;
+  Int  TrDiff_;
+  Int  XDiff_;
+  Int  DelayDiff_;
+  Int  BaseDiff_;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  struct reduction_counters  call_counters;
-
-
-
-
-
-
-  int  interrupts_disabled;
+  YAP_ULONG_LONG  ReductionsCounter_;
+  YAP_ULONG_LONG  PredEntriesCounter_;
+  YAP_ULONG_LONG  RetriesCounter_;
+  int  ReductionsCounterOn_;
+  int  PredEntriesCounterOn_;
+  int  RetriesCounterOn_;
 
 
-  union CONSULT_OBJ*  consultsp;
+  union CONSULT_OBJ*  ConsultSp_;
 
-  UInt  consultcapacity;
+  UInt  ConsultCapacity_;
 
-  union CONSULT_OBJ*  consultbase;
+  union CONSULT_OBJ*  ConsultBase_;
 
-  union CONSULT_OBJ*  consultlow;
+  union CONSULT_OBJ*  ConsultLow_;
 
-  Term  global_arena;
-  UInt  global_arena_overflows;
-  Int  delay_arena_overflows;
-  Int  arena_overflows;
-  Int  depth_arenas;
-  int  arith_error;
-  struct pred_entry*  last_asserted_pred;
-  int  debug_on;
-  struct format_status*  f_info;
-  char*  scanner_stack;
-  struct scanner_extra_alloc*  scanner_extra_blocks;
-  struct DB_TERM  *ball_term;
-  UInt  active_signals;
-  UInt  i_pred_arity;
-  yamop*  prof_end;
-  int  uncaught_throw;
-  int  doing_undefp;
-  Int  start_line;
-  scratch_block  scratchpad;
+  Term  GlobalArena_;
+  UInt  GlobalArenaOverflows_;
+  Int  ArenaOverflows_;
+  Int  DepthArenas_;
+  int  ArithError_;
+  struct pred_entry*  LastAssertedPred_;
+  int  DebugOn_;
+  char*  ScannerStack_;
+  struct scanner_extra_alloc*  ScannerExtraBlocks_;
+  struct DB_TERM*  BallTerm_;
+  UInt  ActiveSignals_;
+  UInt  IPredArity_;
+  yamop*  ProfEnd_;
+  int  UncaughtThrow_;
+  int  DoingUndefp_;
+  Int  StartLine_;
+  scratch_block  ScratchPad_;
 #ifdef  COROUTINING
-  Term  woken_goals;
-  Term  atts_mutable_list;
+  Term  WokenGoals_;
+  Term  AttsMutableList_;
 #endif
 
-  Term  gc_generation;
-  Term  gc_phase;
-  UInt  gc_current_phase;
-  UInt  gc_calls;
-  Int  tot_gc_time;
-  YAP_ULONG_LONG  tot_gc_recovered;
-  Int  last_gc_time;
-  Int  last_ss_time;
+  Term  GcGeneration_;
+  Term  GcPhase_;
+  UInt  GcCurrentPhase_;
+  UInt  GcCalls_;
+  Int  TotGcTime_;
+  YAP_ULONG_LONG  TotGcRecovered_;
+  Int  LastGcTime_;
+  Int  LastSSTime_;
+
+  Int  total_marked_;
+  Int  total_oldies_;
+  struct choicept*  current_B_;
+  CELL*  prev_HB_;
+  CELL*  HGEN_;
+  CELL**  iptop_;
+#if defined(GC_NO_TAGS)
+  char*  bp_;
+#endif
+  tr_fr_ptr  sTR_;
+  tr_fr_ptr  sTR0_;
+  tr_fr_ptr  new_TR_;
+  struct gc_mark_continuation*  cont_top0_;
+  struct gc_mark_continuation*  cont_top_;
+  int  discard_trail_entries_;
+  gc_ma_hash_entry  gc_ma_hash_table_[GC_MAVARS_HASH_SIZE];
+  gc_ma_hash_entry*  gc_ma_h_top_;
+  gc_ma_hash_entry*  gc_ma_h_list_;
+  UInt  gc_timestamp_;
+  ADDR  db_vec_;
+  ADDR  db_vec0_;
+  struct RB_red_blk_node*  db_root_;
+  struct RB_red_blk_node*  db_nil_;
+  sigjmp_buf  gc_restore_;
+  struct array_entry*  DynamicArrays_;
+  struct static_array_entry*  StaticArrays_;
+  struct global_entry*  GlobalVariables_;
+  int  AllowRestart_;
+
+  struct mem_blk*  CMemFirstBlock_;
+  UInt  CMemFirstBlockSz_;
+
+  Int*  LabelFirstArray_;
+  UInt  LabelFirstArraySz_;
+
+  struct PL_local_data*  PL_local_data_p_;
+#ifdef THREADS
+  struct thandle  ThreadHandle_;
+#endif /* THREADS */
+#if defined(YAPOR) || defined(TABLING)
+  struct local_optyap_data  optyap_data_;
+#endif /* YAPOR || TABLING */
+  int  InterruptsDisabled_;
+  struct open_query_struct*  execution_;
 #if LOW_LEVEL_TRACER
-  Int  total_cps;
+  Int  total_choicepoints_;
 #endif
   int  consult_level_;
-
 #if defined(YAPOR) || defined(THREADS)
-  lockvar  signal_lock;
-  struct pred_entry*  wpp;
-
-  Int  tot_marked;
-  Int  tot_oldies;
-#if DEBUG && COROUTINING
-  UInt  tot_smarked;
+  lockvar  SignalLock_;
 #endif
-  struct choicept  *wl_current_B;
-  CELL*  wl_prev_HB;
-  CELL*  hgen;
-  CELL**  ip_top;
-#if GC_NO_TAGS
-  char*  b_p;
-#endif
-#if defined(TABLING) || defined(YAPOR_SBA)
-  struct trail_frame*  wl_sTR;
-  struct trail_frame*  wl_sTR0;
-  struct trail_frame*  new_tr;
-#else
-  Term  *wl_sTR;
-  Term  *wl_sTR0;
-  Term  *new_tr;
-#endif
-  struct gc_mark_continuation*  conttop0;
-  struct gc_mark_continuation*  conttop;
-  int  disc_trail_entries;
-  gc_ma_hash_entry  Gc_ma_hash_table[GC_MAVARS_HASH_SIZE];
-  gc_ma_hash_entry*  Gc_ma_h_top;
-  gc_ma_hash_entry*  Gc_ma_h_list;
-  UInt  Gc_timestamp;
-  ADDR  DB_vec;
-  ADDR  DB_vec0;
-  struct RB_red_blk_node*  DB_root;
-  struct RB_red_blk_node*  DB_nil;
-#endif /* defined(YAPOR) || defined(THREADS) */
-  sigjmp_buf  gc_restore;
-  struct array_entry*  dynamic_arrays;
-  struct static_array_entry*  static_arrays;
-  struct global_entry*  global_variables;
-  int  allow_restart;
 
-  struct mem_blk*  cmem_first_block;
-  UInt  cmem_first_block_sz;
-
-  Int*  label_first_array;
-  UInt  label_first_array_sz;
-
-  struct PL_local_data  *Yap_ld_;
-  struct open_query_struct*  _execution;
+  ADDR  LocalBase_;
+  ADDR  GlobalBase_;
+  ADDR  TrailBase_;
+  ADDR  TrailTop_;
+  char*  ErrorMessage_;
+  Term  Error_Term_;
 #ifdef THREADS
-  struct thandle  thread_handle;
-#define FOREIGN_ThreadHandle(wid)  (Yap_WLocal[(wid)]->thread_handle)		       						
-#define MY_ThreadHandle	       (Yap_WLocal[worker_id]->thread_handle)
+  Term  Error_TYPE_;
+#else
+  yap_error_number  Error_TYPE_;
+#endif	
+  UInt  Error_Size_;
+  char  ErrorSay_[MAX_ERROR_MSG_SIZE];
+  jmp_buf  IOBotch_;
+  TokEntry*  tokptr_;
+  TokEntry*  toktide_;
+  VarEntry*  VarTable_;
+  VarEntry*  AnonVarTable_;
+  sigjmp_buf  RestartEnv_;
+  char  FileNameBuf_[YAP_FILENAME_MAX];
+  char  FileNameBuf2_[YAP_FILENAME_MAX];
+
+  Int  PrologMode_;
+  int  CritLocks_;
+
+
+#ifdef ANALYST
+  YAP_ULONG_LONG  opcount_[_std_top+1];
+  YAP_ULONG_LONG  2opcount[_std_top+1][_std_top+1]_;
+#endif /* ANALYST */
+
+  struct db_globs*  s_dbg_;
+
+  yap_error_number  matherror_;
+
+  int  heap_overflows_;
+  Int  total_heap_overflow_time_;
+  int  stack_overflows_;
+  Int  total_stack_overflow_time_;
+  int  delay_overflows_;
+  Int  total_delay_overflow_time_;
+  int  trail_overflows_;
+  Int  total_trail_overflow_time_;
+  int  atom_table_overflows_;
+  Int  total_atom_table_overflow_time_;
+
+#ifdef LOAD_DYLD
+  static  dl_errno_;
 #endif
 
+#ifdef LOW_LEVEL_TRACER
+  int  do_trace_primitives_;
+#endif
 } w_local;

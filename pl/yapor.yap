@@ -12,9 +12,22 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- meta_predicate 
-   or_statistics(:,:),
-   opt_statistics(:,:),
    default_sequential(:).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           or_statistics/0                           %%
+%%                          opt_statistics/0                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+or_statistics :-
+   current_output(Stream),
+   or_statistics(Stream).
+
+opt_statistics :-
+   current_output(Stream),
+   opt_statistics(Stream).
 
 
 

@@ -81,7 +81,7 @@ CLEAN :
 	-@erase "$(INTDIR)\mavar.obj"
 	-@erase "$(INTDIR)\modules.obj"
 	-@erase "$(INTDIR)\opt.init.obj"
-	-@erase "$(INTDIR)\opt.memory.obj"
+	-@erase "$(INTDIR)\or.memory.obj"
 	-@erase "$(INTDIR)\opt.preds.obj"
 	-@erase "$(INTDIR)\or.cowengine.obj"
 	-@erase "$(INTDIR)\or.cut.obj"
@@ -161,7 +161,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\mavar.obj" \
 	"$(INTDIR)\modules.obj" \
 	"$(INTDIR)\opt.init.obj" \
-	"$(INTDIR)\opt.memory.obj" \
+	"$(INTDIR)\or.memory.obj" \
 	"$(INTDIR)\opt.preds.obj" \
 	"$(INTDIR)\or.cowengine.obj" \
 	"$(INTDIR)\or.cut.obj" \
@@ -242,7 +242,7 @@ CLEAN :
 	-@erase "$(INTDIR)\mavar.obj"
 	-@erase "$(INTDIR)\modules.obj"
 	-@erase "$(INTDIR)\opt.init.obj"
-	-@erase "$(INTDIR)\opt.memory.obj"
+	-@erase "$(INTDIR)\or.memory.obj"
 	-@erase "$(INTDIR)\opt.preds.obj"
 	-@erase "$(INTDIR)\or.cowengine.obj"
 	-@erase "$(INTDIR)\or.cut.obj"
@@ -325,7 +325,7 @@ LINK32_OBJS= \
 	"$(INTDIR)\mavar.obj" \
 	"$(INTDIR)\modules.obj" \
 	"$(INTDIR)\opt.init.obj" \
-	"$(INTDIR)\opt.memory.obj" \
+	"$(INTDIR)\or.memory.obj" \
 	"$(INTDIR)\opt.preds.obj" \
 	"$(INTDIR)\or.cowengine.obj" \
 	"$(INTDIR)\or.cut.obj" \
@@ -637,9 +637,9 @@ SOURCE="\Yap\Yap-4.3.17\OPTYap\opt.init.c"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
-SOURCE="\Yap\Yap-4.3.17\OPTYap\opt.memory.c"
+SOURCE="\Yap\Yap-4.3.17\OPTYap\or.memory.c"
 
-"$(INTDIR)\opt.memory.obj" : $(SOURCE) "$(INTDIR)"
+"$(INTDIR)\or.memory.obj" : $(SOURCE) "$(INTDIR)"
 	$(CPP) $(CPP_PROJ) $(SOURCE)
 
 
