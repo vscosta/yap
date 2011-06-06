@@ -1050,7 +1050,6 @@ int PASCAL
 WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPSTR lpszCmdLine, int nCmdShow)
 { LPTSTR cmdline;
-  fprintf(stderr,"Hello\n");
 
   InitializeCriticalSection(&mutex);
 
