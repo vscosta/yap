@@ -612,6 +612,9 @@ p_new_mutex( USES_REGS1 )
 {
   SWIMutex* mutp;
   pthread_mutexattr_t mat;
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+  extern int pthread_mutexattr_setkind_np(pthread_mutexattr_t *attr, int kind);
+#endif
 
   mutp = (SWIMutex *)Yap_AllocCodeSpace(sizeof(SWIMutex));
   if (mutp == NULL) {

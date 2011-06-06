@@ -2496,6 +2496,7 @@ YAP_TermToStream(Term t)
   CACHE_REGS
   IOSTREAM *s;
   int rc;
+  extern int PL_get_stream_handle(Int t, IOSTREAM **s);
   BACKUP_MACHINE_REGS();
 
   if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
