@@ -1307,7 +1307,6 @@ void
 PL_write_prompt(int dowrite)
 { GET_LD
   IOSTREAM *s = getStream(Suser_output);
-
   if ( s )
   { if ( dowrite )
     { atom_t a = PrologPrompt();

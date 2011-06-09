@@ -3239,7 +3239,7 @@ rlc_write(rlc_console c, TCHAR *buf, size_t count)
     return -1;
 
   for(s=buf, e=&buf[count]; s<e; s++)
-  { if ( *s == '\n' )
+    { if ( *s == '\n' )
       b->promptlen = 0;
     else if ( b->promptlen < MAXPROMPT-1 )
       b->promptbuf[b->promptlen++] = *s;

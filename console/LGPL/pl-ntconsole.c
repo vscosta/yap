@@ -433,8 +433,6 @@ PL_w32_wrap_ansi_console(void)
   HANDLE hError = GetStdHandle(STD_ERROR_HANDLE);
   CONSOLE_SCREEN_BUFFER_INFO info;
 
-  fprintf(stderr,"main=%p %p\n",Sinput, Sinput->functions);
-
   if ( hIn    == INVALID_HANDLE_VALUE ||
        hOut   == INVALID_HANDLE_VALUE ||
        hError == INVALID_HANDLE_VALUE ||
