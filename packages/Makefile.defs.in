@@ -27,6 +27,8 @@ INSTALL_SCRIPT=@INSTALL_SCRIPT@
 ################################################################
 
 LATEX=latex
+DOC2TEX=@abs_top_srcdir@/man/doc2tex
+RUNTEX=@abs_top_srcdir@/man/runtex
 TEX=$(DOC).tex $(SUBTEX)
 DVI=$(DOC).dvi
 PDF=$(DOC).pdf
@@ -50,12 +52,16 @@ $(HTML):	$(TEX)
 		mv html/index.html $@
 
 $(PDF):		$(TEX)
-		../../man/runtex --pdf $(DOC)
+		$(srcdir)/../../man/runtex --pdf $(DOC)
 
-$(TEX):		$(DOC2TEX)
+%.tex : $(srcdir)/%.doc 
+		$(DOC2TEX) $< > $@
 
-.doc.tex:
-		$(DOC2TEX) $*.doc > $*.tex
+%.tex : $(srcdir)/%.txt 
+		$(PUBLICPL) -f none -g "doc_latex('$<','$@',[stand_alone(false)]),halt" -t "halt(1)"
+
+%.tex : $(srcdir)/%.pl 
+		$(PLTOTEX) $< > $@ 
 
 # Get the Prolog dialect specific part of the Makefiles
 

@@ -47,12 +47,14 @@ CMFLAGS=@SHLIB_CFLAGS@
 CIFLAGS=
 CFLAGS=$(COFLAGS) $(CWFLAGS) $(CMFLAGS) $(CIFLAGS) $(PKGCFLAGS) @DEFS@
 
-RUNTEX = true
-
 LDSOFLAGS=@LDFLAGS@ @EXTRA_LIBS_FOR_SWIDLLS@
 LDFLAGS=$(PKGLDFLAGS)
 
 MKINDEX=$(PL) -f none -g make -t halt
+
+.txt.tex:
+	swipl -f script.pl -g "doc_latex('$*.txt','$*.tex',[stand_alone(false)]),halt" -t "halt(1)"
+
 
 PUBLICPL=swipl
 PLTOTEX=$(PUBLICPL) -q -s pltotex.pl -g pltotex --
