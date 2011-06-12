@@ -147,6 +147,12 @@ typedef struct worker_local {
   TokEntry*  toktide_;
   VarEntry*  VarTable_;
   VarEntry*  AnonVarTable_;
+  Term  Comments_;
+  CELL*  CommentsTail_;
+  CELL*  CommentsNextChar_;
+  wchar_t*  CommentsBuff_;
+  size_t  CommentsBuffPos_;
+  size_t  CommentsBuffLim_;
   sigjmp_buf  RestartEnv_;
   char  FileNameBuf_[YAP_FILENAME_MAX];
   char  FileNameBuf2_[YAP_FILENAME_MAX];

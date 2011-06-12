@@ -15,10 +15,6 @@
 *									 *
 *************************************************************************/
 
-% This one should come first so that disjunctions and long distance
-% cuts are compiled right with co-routining.
-%
-
 true :- true.
 
 '$live' :-
@@ -144,7 +140,7 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt) :-
+'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt, ReadComments) :-
 	'$swi_current_prolog_flag'(readline, true),
 	read_history(h, '!h',
                          [trace, end_of_file],
@@ -154,8 +150,8 @@ true :- true.
 	;
 	 true
 	).
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt) :-
-	'$read'(true, T, Mod, V, Pos, Err, Stream),
+'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
+	'$read'(true, T, Mod, V, Pos, Err, ReadComments, Stream),
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
@@ -195,7 +191,7 @@ true :- true.
 	prompt(_,'| '),
 	'$run_toplevel_hooks',
 	prompt1('|: '),
-	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- '),
+	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- ', no),
 	nb_setval('$spy_gn',1),
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
@@ -1138,7 +1134,7 @@ bootstrap(F) :-
 	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,_,Pos,Vars, '|: '),
+	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', no),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

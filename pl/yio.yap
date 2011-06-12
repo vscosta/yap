@@ -42,7 +42,8 @@
 '$check_opt_read'(syntax_errors(T), G) :- !,
 	'$check_read_syntax_errors_arg'(T, G).
 '$check_opt_read'(term_position(_), _) :- !.
-'$check_opt_read'(module(_), _) :- !.
+'$check_opt_read'(term_position(_), _) :- !.
+'$check_opt_read'(comments(_), _) :- !.
 '$check_opt_read'(A, G) :-
 	'$do_error'(domain_error(read_option,A),G).
 
@@ -97,7 +98,7 @@ exists(F) :- access_file(F,exist).
 /* Term IO	*/
 
 read(T) :-
-	'$read'(false,T,_,_,_,Err),
+	'$read'(false,T,_,_,_,Err,_),
 	(nonvar(Err) ->
 	    print_message(error,Err), fail
 	    ;
@@ -105,7 +106,7 @@ read(T) :-
 	).
 
 read(Stream,T) :-
-	'$read'(false,T,_,_,_,Err,Stream),
+	'$read'(false,T,_,_,_,Err,_,Stream),
 	(nonvar(Err) ->
 	    print_message(error,Err), fail
 	    ;
@@ -115,29 +116,31 @@ read(Stream,T) :-
 read_term(T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
 	current_input(S),
-	'$preprocess_read_terms_options'(Options,Module),
-	'$read_vars'(S,T,Module,Pos,VL,'|: '),
+	'$preprocess_read_terms_options'(Options,Module,DoComments),
+	'$read_vars'(S,T,Module,Pos,VL,'|: ',DoComments),
 	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 read_term(Stream, T, Options) :-
 	'$check_io_opts'(Options,read_term(T, Options)),
-	'$preprocess_read_terms_options'(Options,Module),
-	'$read_vars'(Stream,T,Module,Pos,VL,'|: '),
+	'$preprocess_read_terms_options'(Options,Module,DoComments),
+	'$read_vars'(Stream,T,Module,Pos,VL,'|: ',DoComments),
 	'$postprocess_read_terms_options'(Options, T, VL, Pos).
 
 %
 % support flags to read
 %
-'$preprocess_read_terms_options'([],_).
-'$preprocess_read_terms_options'([syntax_errors(NewVal)|L],Mod) :- !,
+'$preprocess_read_terms_options'([], _, no).
+'$preprocess_read_terms_options'([syntax_errors(NewVal)|L], Mod, DoComments) :- !,
 	'$get_read_error_handler'(OldVal),
 	set_value('$read_term_error_handler', OldVal),
 	'$set_read_error_handler'(NewVal),
-	'$preprocess_read_terms_options'(L,Mod).
-'$preprocess_read_terms_options'([module(Mod)|L],Mod) :- !,
-	'$preprocess_read_terms_options'(L,Mod).
-'$preprocess_read_terms_options'([_|L],Mod) :-
-	'$preprocess_read_terms_options'(L,Mod).
+	'$preprocess_read_terms_options'(L,Mod, DoComments).
+'$preprocess_read_terms_options'([module(Mod)|L], Mod, DoComments) :- !,
+	'$preprocess_read_terms_options'(L, Mod, DoComments).
+'$preprocess_read_terms_options'([comments(Val)|L], Mod, Val) :- !,
+	'$preprocess_read_terms_options'(L, Mod, _).
+'$preprocess_read_terms_options'([_|L],Mod, DoComments) :-
+	'$preprocess_read_terms_options'(L,Mod, DoComments).
 
 '$postprocess_read_terms_options'([], _, _, _).
 '$postprocess_read_terms_options'([H|Tail], T, VL, Pos) :- !,
@@ -159,6 +162,7 @@ read_term(Stream, T, Options) :-
 	'$fetch_singleton_names'(Val1,VL,Val).
 '$postprocess_read_terms_option'(variables(Val), T, _, _) :-
 	'$variables_in_term'(T, [], Val).
+'$postprocess_read_terms_option'(comments(_), _, _, _).
 '$postprocess_read_terms_option'(term_position(Pos), _, _, Pos).
 '$postprocess_read_terms_option'(module(_), _, _, _).
 %'$postprocess_read_terms_option'(cycles(Val), _, _).

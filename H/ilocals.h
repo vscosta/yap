@@ -151,6 +151,12 @@ static void InitWorker(int wid) {
 
 
 
+
+
+
+
+
+
   REMOTE_PrologMode(wid) = BootMode;
   REMOTE_CritLocks(wid) = 0;
 

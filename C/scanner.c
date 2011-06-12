@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		%W% %G%						 *
+* File:		%W% %G%						         *
 * Last rev:	22-1-03							 *
 * mods:									 *
 * comments:	Prolog's scanner					 *
@@ -746,7 +746,7 @@ Yap_scan_num(IOSTREAM *inp)
     ch = getchr(inp);
   }
   if (chtype(ch) != NU) {
-    Yap_clean_tokenizer(NULL, NULL, NULL);
+    Yap_clean_tokenizer(NULL, NULL, NULL, 0L);
     return TermNil;
   }
   cherr = '\0';
@@ -754,12 +754,65 @@ Yap_scan_num(IOSTREAM *inp)
     return TermNil;
   out = get_num(&ch, &cherr, inp, ptr, 4096, sign); /*  */
   PopScannerMemory(ptr, 4096);
-  Yap_clean_tokenizer(NULL, NULL, NULL);
+  Yap_clean_tokenizer(NULL, NULL, NULL, 0L);
   if (LOCAL_ErrorMessage != NULL || ch != -1 || cherr)
     return TermNil;
   return out;
 }
 
+
+#define CHECK_SPACE() \
+	  if (ASP-H < 1024) { \
+	    LOCAL_ErrorMessage = "Stack Overflow";     \
+	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	\
+	    LOCAL_Error_Size = 0L;	               \
+	    if (p) \
+	      p->Tok = Ord(kind = eot_tok);           \
+	    /* serious error now */                    \
+	    return l;                                  \
+	  } 
+
+
+static void
+open_comment(int ch, IOSTREAM *inp_stream) {
+  CELL *h0 = H;
+  H += 5;
+  h0[0] = AbsAppl(h0+2);
+  h0[1] = TermNil;
+  if (!LOCAL_CommentsTail) {
+    /* first comment */
+    LOCAL_Comments = AbsPair(h0);
+  } else {
+    /* extra comment */
+    *LOCAL_CommentsTail = AbsPair(h0);
+  }  
+  LOCAL_CommentsTail = h0+1;
+  h0 += 2;
+  h0[0] = (CELL)FunctorMinus;
+  h0[1] = Yap_StreamPosition(inp_stream);
+  h0[2] = TermNil;
+  LOCAL_CommentsNextChar = h0+2;
+  LOCAL_CommentsBuff = (wchar_t *)malloc(1024*sizeof(wchar_t));
+  LOCAL_CommentsBuffLim = 1024;
+  LOCAL_CommentsBuff[0] = ch;
+  LOCAL_CommentsBuffPos = 1;
+}
+
+static void
+extend_comment(int ch) {
+  LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = ch;
+  LOCAL_CommentsBuffPos++;
+  if (LOCAL_CommentsBuffPos == LOCAL_CommentsBuffLim-1) {
+    LOCAL_CommentsBuff = (wchar_t *)realloc(LOCAL_CommentsBuff,sizeof(wchar_t)*(LOCAL_CommentsBuffLim+4096));
+  }
+}
+
+static void
+close_comment(void) {
+  LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
+  *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
+  free(LOCAL_CommentsBuff);
+}
 
 static wchar_t *
 ch_to_wide(char *base, char *charp)
@@ -791,7 +844,7 @@ ch_to_wide(char *base, char *charp)
   }
 
 TokEntry *
-Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
+Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 {
   CACHE_REGS
   TokEntry *t, *l, *p;
@@ -846,7 +899,27 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
     switch (chtype(ch)) {
 
     case CC:
-      while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
+      if (store_comments) {
+	CHECK_SPACE();
+	open_comment(ch, inp_stream);
+      continue_comment:
+	while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF) {
+	  CHECK_SPACE();
+	  extend_comment(ch);
+	}
+	CHECK_SPACE();
+	extend_comment(ch);
+	if (chtype(ch) != EF) {
+	  ch = getchr(inp_stream);
+	  if (chtype(ch) == CC) {
+	    extend_comment(ch);
+	    goto continue_comment;
+	  }
+	}
+	close_comment();
+      } else {
+	while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
+      }
       if (chtype(ch) != EF) {
 	/* blank space */
 	if (t == l) {
@@ -854,15 +927,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  while (chtype(ch) == BS) {
 	    ch = getchr(inp_stream);
 	  }
-	  if (ASP-H < 1024) {
-	    LOCAL_ErrorMessage = "Stack Overflow";
-	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	    LOCAL_Error_Size = 0L;	            
-	    if (p)
-	      p->Tok = Ord(kind = eot_tok);
-	    /* serious error now */
-	    return l;
-	  }
+	  CHECK_SPACE();
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
 	goto restart;
@@ -947,15 +1012,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 	  /* serious error now */
 	  return l;
 	}
-	if (ASP-H < 1024) {
-	  LOCAL_ErrorMessage = "Stack Overflow";
-	  LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	  LOCAL_Error_Size = 0L;	            
-	  if (p)
-	    p->Tok = Ord(kind = eot_tok);
-	  /* serious error now */
-	  return l;
-	}
+	CHECK_SPACE();
 	if ((t->TokInfo = get_num(&cha,&cherr,inp_stream,ptr,4096,1)) == 0L) {
 	  if (p)
 	    p->Tok = Ord(kind = eot_tok);
@@ -1157,28 +1214,37 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
       och = ch;
       ch = getchr(inp_stream);
       if (och == '/' && ch == '*') {
-	while ((och != '*' || ch != '/') && chtype(ch) != EF) {
-	  och = ch;
-	  ch = getchr(inp_stream);
+	if (store_comments) {
+	  CHECK_SPACE();
+	  open_comment('/', inp_stream);
+	  while ((och != '*' || ch != '/') && chtype(ch) != EF) {
+	    och = ch;
+	    CHECK_SPACE();
+	    extend_comment(ch);
+	    ch = getchr(inp_stream);
+	  }
+	  if (chtype(ch) != EF) {
+	    CHECK_SPACE();
+	    extend_comment(ch);
+	  }
+	  close_comment();
+	} else {
+	  while ((och != '*' || ch != '/') && chtype(ch) != EF) {
+	    och = ch;
+	    ch = getchr(inp_stream);
+	  }
 	}
 	if (chtype(ch) == EF) {
 	  t->Tok = Ord(kind = eot_tok);
 	}
+	/* leave comments */
 	ch = getchr(inp_stream);
 	if (t == l) {
 	  /* we found a comment before reading characters */
 	  while (chtype(ch) == BS) {
 	    ch = getchr(inp_stream);
 	  }
-	  if (ASP-H < 1024) {
-	    LOCAL_ErrorMessage = "Stack Overflow";
-	    LOCAL_Error_TYPE = OUT_OF_STACK_ERROR;	            
-	    LOCAL_Error_Size = 0L;	            
-	    if (p)
-	      p->Tok = Ord(kind = eot_tok);
-	    /* serious error now */
-	    return l;
-	  }
+	  CHECK_SPACE();
 	  *tposp = Yap_StreamPosition(inp_stream);
 	}
 	goto restart;
@@ -1293,7 +1359,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, Term *tposp)
 }
 
 void
-Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable)
+Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartable, Term commentable)
 {
   CACHE_REGS
   struct scanner_extra_alloc *ptr = LOCAL_ScannerExtraBlocks;
@@ -1302,5 +1368,7 @@ Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartab
     free(ptr);
     ptr = next;
   }
+  LOCAL_Comments = TermNil;
+  LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
 }
 

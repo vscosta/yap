@@ -2527,20 +2527,20 @@ YAP_Read(IOSTREAM *inp)
   BACKUP_MACHINE_REGS();
 
 
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, &tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp, FALSE, &tpos);
   if (LOCAL_ErrorMessage)
     {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       RECOVER_MACHINE_REGS();
       return 0;
     }
   if (inp->flags & (SIO_FEOF|SIO_FEOF2)) {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       RECOVER_MACHINE_REGS();
       return MkAtomTerm (AtomEof);
   }
   t = Yap_Parse();
-  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 
   RECOVER_MACHINE_REGS();
   return t;
