@@ -141,6 +141,12 @@ module(N) :-
 	print_message(warning,import(N/K,Mod,M,private))
     ),
     '$do_import'(N, K, M, Mod).
+'$use_preds'(N//K0,Publics,M,Mod) :-
+	K is K0+2,
+	(  lists:memberchk(N/K,Publics) -> true ;
+	   print_message(warning,import(N/K,Mod,M,private))
+	),
+	'$do_import'(N, K, M, Mod).
  
 
 '$do_import'(N, K, M, T) :-
