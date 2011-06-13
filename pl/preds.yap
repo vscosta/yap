@@ -757,7 +757,7 @@ dynamic_predicate(P,Sem) :-
 '$public'([H|L], M) :- !, '$public'(H, M), '$public'(L, M).
 '$public'(A//N1, Mod) :- integer(N1), !,
 	N is N1+2,
-	'$public'(A//N, Mod).
+	'$public'(A/N, Mod).
 '$public'(A/N, Mod) :- integer(N), atom(A), !,
 	functor(T,A,N),
 	'$do_make_public'(T, Mod).
