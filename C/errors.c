@@ -1771,6 +1771,21 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
       serious = TRUE;
     }
     break;
+  case TYPE_ERROR_STRING:
+    {
+      int i;
+      Term ti[2];
+
+      i = strlen(tmpbuf);
+      ti[0] = MkAtomTerm(AtomString);
+      ti[1] = where;
+      nt[0] = Yap_MkApplTerm(FunctorTypeError, 2, ti);
+      tp = tmpbuf+i;
+      psize -= i;
+      fun = FunctorError;
+      serious = TRUE;
+    }
+    break;
   case TYPE_ERROR_UBYTE:
     {
       int i;
