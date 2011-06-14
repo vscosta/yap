@@ -15,8 +15,8 @@
 *									 *
 *************************************************************************/
 
-% This one should come first so that disjunctions and long distance
-% cuts are compiled right with co-routining.
+%
+%
 %
 
 true :- true.
@@ -144,7 +144,7 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt) :-
+'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt, ReadComments) :-
 	'$swi_current_prolog_flag'(readline, true),
 	read_history(h, '!h',
                          [trace, end_of_file],
@@ -154,8 +154,8 @@ true :- true.
 	;
 	 true
 	).
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt) :-
-	'$read'(true, T, Mod, V, Pos, Err, Stream),
+'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
+	'$read'(true, T, Mod, V, Pos, Err, ReadComments, Stream),
 	(nonvar(Err) ->
 	 print_message(error,Err), fail
 	;
@@ -195,7 +195,7 @@ true :- true.
 	prompt(_,'| '),
 	'$run_toplevel_hooks',
 	prompt1('|: '),
-	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- '),
+	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- ', no),
 	nb_setval('$spy_gn',1),
 				% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
@@ -1127,18 +1127,36 @@ bootstrap(F) :-
 '$init_path_extensions'.
 
 '$loop'(Stream,Status) :-
+	(
+	 Status = top
+	;
+	 '$undefined'(comment_hook(_,_,_),prolog)
+	;
+	 '$number_of_clauses'(comment_hook(_,_,_),prolog,0)
+	), !,
 	repeat,
-%VSC		( '$current_stream'(_,_,Stream) -> true
-%VSC		 ; '$abort_loop'(Stream)
-%VSC		),
 		prompt1('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
 	!.
+% support comment hook
+'$loop'(Stream,Status) :-
+	repeat,
+		prompt1('|     '), prompt(_,'| '),
+		'$current_module'(OldModule),
+		'$system_catch'('$enter_command_with_hook'(Stream,Status), OldModule, Error,
+			 user:'$LoopError'(Error, Status)),
+	!.
 
 '$enter_command'(Stream,Status) :-
-	'$read_vars'(Stream,Command,_,Pos,Vars, '|: '),
+	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', no),
+	'$command'(Command,Vars,Pos,Status).
+
+% support SWI hook in a separate predicate, to avoid slow down standard consult.
+'$enter_command_with_hook'(Stream,Status) :-
+	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
+	('$notrace'(prolog:comment_hook(Comments,Pos,Command)) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-

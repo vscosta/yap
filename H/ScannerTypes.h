@@ -26,3 +26,4 @@ typedef	struct VARSTRUCT {
   struct VARSTRUCT *VarLeft, *VarRight;
   char VarRep[1];
 } VarEntry;
+

@@ -2429,13 +2429,13 @@ a_fetch_vv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
     p = p->nextInst;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
@@ -2458,7 +2458,7 @@ a_fetch_vc(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }
@@ -2479,7 +2479,7 @@ a_fetch_cv(cmp_op_info *cmp_info, int pass_no, struct intermediates *cip)
     PInstr *p = cip->cpc->nextInst;
     Ventry *ve;
     ve = (Ventry *) p->rnd1;
-    if (ve->KindOfVE != PermVar && p->op != nop_op) {
+    if (ve->KindOfVE != PermVar && p->op != nop_op && p->op != put_var_op) {
       p->rnd2 = ve->NoOfVE & MaskVarAdrs;
       p->op = nop_op;
     }

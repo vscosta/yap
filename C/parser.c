@@ -267,7 +267,7 @@ IsPosfixOp(Atom op, int *pptr, int *lpptr USES_REGS)
 {
   int p;
 
-  OpEntry *opp = Yap_GetOpProp(op, INFIX_OP PASS_REGS);
+  OpEntry *opp = Yap_GetOpProp(op, POSFIX_OP PASS_REGS);
   if (!opp)
     return FALSE;
   if (opp->OpModule &&

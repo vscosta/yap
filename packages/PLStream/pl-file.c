@@ -329,19 +329,22 @@ initIO()
   int i;
 
 #ifdef __YAP_PROLOG__
+  IOFUNCTIONS buf;
+  buf = GD->os.iofunctions;
   memset(GD, 0, sizeof(gds_t));
+  GD->os.iofunctions = buf;
   memset(LD, 0, sizeof(PL_local_data_t));
 #endif
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
   PL_register_blob_type(&stream_blob);
 #ifdef __unix__
-{ int fd;
+  { int fd;
 
-  if ( (fd=Sfileno(Sinput))  < 0 || !isatty(fd) ||
-       (fd=Sfileno(Soutput)) < 0 || !isatty(fd) )
-    PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
-}
+    if ( (fd=Sfileno(Sinput))  < 0 || !isatty(fd) ||
+	 (fd=Sfileno(Soutput)) < 0 || !isatty(fd) )
+      PL_set_prolog_flag("tty_control", PL_BOOL, FALSE);
+  }
 #endif
   ResetTty();
 #if __YAP_PROLOG__
@@ -1304,7 +1307,6 @@ void
 PL_write_prompt(int dowrite)
 { GET_LD
   IOSTREAM *s = getStream(Suser_output);
-
   if ( s )
   { if ( dowrite )
     { atom_t a = PrologPrompt();

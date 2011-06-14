@@ -22,9 +22,6 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-#define _UNICODE 1
-#define UNICODE 1
-
 #include <windows.h>
 #include <tchar.h>
 #include <malloc.h>
@@ -997,6 +994,9 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   set_window_title(c);
   rlc_bind_terminal(c);
 
+  if ( !PL_initialise(argc, av) )
+    PL_halt(1);
+
   PL_register_extensions_in_module("system", extensions);
   install_readline(c);
   PL_action(PL_ACTION_GUIAPP, TRUE);
@@ -1032,9 +1032,6 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   }
   av[i] = NULL;
 
-  if ( !PL_initialise(argc, av) )
-    PL_halt(1);
-
   rlc_bind_terminal(c);
   PL_halt(PL_toplevel() ? 0 : 1);
 
@@ -1047,10 +1044,10 @@ And this is the  real  application's  main   as  Windows  sees  it.  See
 console.c for further details.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-int PASCAL
-WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
-	LPSTR lpszCmdLine, int nCmdShow)
-{ LPTSTR cmdline;
+int WINAPI
+wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+	LPWSTR lpszCmdLine, int nCmdShow)
+{ LPWSTR cmdline;
 
   InitializeCriticalSection(&mutex);
 

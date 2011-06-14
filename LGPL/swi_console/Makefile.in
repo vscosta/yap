@@ -12,7 +12,7 @@ EROOTDIR = @exec_prefix@
 LIBDIR=@libdir@/Yap
 #
 #
-CC=@CC@
+CC=@CC@ -municode -DUNICODE -D_UNICODE
 CPPFLAGS=@CPPFLAGS@ 
 CFLAGS= @CFLAGS@ $(DEFS) $(CPPFLAGS)  -I$(srcdir) -DRLC_VENDOR="\"YAP\""
 #

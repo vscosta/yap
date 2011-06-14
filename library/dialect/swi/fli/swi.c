@@ -1176,7 +1176,7 @@ X_API int PL_unify_int64(term_t t, int64_t n)
   iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 #else
-  fprintf(stderr,"Error: please install GM\n");
+  fprintf(stderr,"Error in PL_unify_int64: please install GMP\n");
   return FALSE;
 #endif
 

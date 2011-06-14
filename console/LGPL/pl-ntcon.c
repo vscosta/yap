@@ -69,7 +69,7 @@ consoleHandlerRoutine(DWORD id)
 		 *******************************/
 
 int
-main(int argc, char **argv)
+APP_main(int argc, char **argv)
 {
 #if O_CTRLC
   main_thread_id = GetCurrentThreadId();

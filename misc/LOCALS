@@ -164,6 +164,12 @@ TokEntry*			tokptr					void
 TokEntry*			toktide					void
 VarEntry*			VarTable 				void
 VarEntry*			AnonVarTable				void
+Term				Comments				void
+CELL*				CommentsTail				void
+CELL*				CommentsNextChar			void
+wchar_t*			CommentsBuff				void
+size_t				CommentsBuffPos				void
+size_t				CommentsBuffLim				void
 sigjmp_buf         		RestartEnv				void
 char     			FileNameBuf[YAP_FILENAME_MAX]		void
 char        			FileNameBuf2[YAP_FILENAME_MAX]		void

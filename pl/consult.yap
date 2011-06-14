@@ -834,8 +834,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$to_list_of_atoms'(As, L1, [A|L2]),
 	'$to_list_of_atoms'(Bs, L2, LF).
 
-'$get_abs_file'(File,opts(_,D0,_,_,_,_,_),AbsFile) :-
-	operating_system_support:true_file_name(File,D0,AbsFile).
+'$get_abs_file'(File,opts(_,_D0,_,_,_,_,_),AbsFile) :-
+	'$absolute_file_name'(File,AbsFile).
 
 '$search_in_path'(File,opts(Extensions,_,Type,Access,_,_,_),F) :-
 	'$add_extensions'(Extensions, File, F0),
@@ -870,6 +870,9 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$add_type_extensions'(Type,File,F) :-
 	'$type_extension'(Type,Ext),
 	atom_concat([File,Ext],F).
+'$add_type_extensions'(Type,File,F) :-
+	user:prolog_file_type(Ext, Type),
+	atom_concat([File,'.',Ext],F).
 
 '$type_extension'(txt,'').
 '$type_extension'(prolog,'.yap').
@@ -1048,3 +1051,8 @@ make.
 	stream_property(OldStream, alias(Alias)), !.
 
 '$require'(_Ps, _M).
+
+'$store_clause'('$source_location'(File, Line):Clause, File) :-
+	assert_static(Clause).
+
+

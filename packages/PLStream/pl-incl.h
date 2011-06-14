@@ -5,7 +5,9 @@
 #define O_GMP 1
 #endif
 
+#ifndef PL_CONSOLE
 #define PL_KERNEL 1
+#endif
 
 #ifdef __MINGW32__
 #define O_XOS 1

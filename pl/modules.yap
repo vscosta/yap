@@ -141,6 +141,12 @@ module(N) :-
 	print_message(warning,import(N/K,Mod,M,private))
     ),
     '$do_import'(N, K, M, Mod).
+'$use_preds'(N//K0,Publics,M,Mod) :-
+	K is K0+2,
+	(  lists:memberchk(N/K,Publics) -> true ;
+	   print_message(warning,import(N/K,Mod,M,private))
+	),
+	'$do_import'(N, K, M, Mod).
  
 
 '$do_import'(N, K, M, T) :-
@@ -795,3 +801,28 @@ delete_import_module(Mod, ImportModule) :-
 	'$do_error'(type_error(atom,Mod),delete_import_module(Mod, ImportModule)).
 delete_import_module(Mod, ImportModule) :-
 	'$do_error'(type_error(atom,ImportModule),delete_import_module(Mod, ImportModule)).
+
+'$set_source_module'(Source0, SourceF) :-
+	prolog_load_context(module, Source0), !,
+	module(SourceF).
+'$set_source_module'(Source0, SourceF) :-
+	current_module(Source0, SourceF).
+
+/** '$declare_module'(+Module, +Super, +File, +Line, +Redefine) is det.
+
+Start a new (source-)module
+
+@param	Module is the name of the module to declare
+@param	File is the canonical name of the file from which the module
+	is loaded
+@param  Line is the line-number of the :- module/2 directive.
+@param	Redefine If =true=, allow associating the module to a new file
+*/
+'$declare_module'(Name, Context, _, _, _) :-
+	add_import_module(Name, Context, start).
+
+module_property(Mod, file(F)) :-
+	recorded('$module','$module'(F,Mod,_),_).
+module_property(Mod, exports(Es)) :-
+	recorded('$module','$module'(_,Mod,Es),_).
+

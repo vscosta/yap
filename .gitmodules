@@ -34,3 +34,6 @@
 [submodule "packages/YapR"]
 	path = packages/YapR
 	url = git://yap.git.sourceforge.net/gitroot/yap/YapR
+[submodule "packages/pldoc"]
+	path = packages/pldoc
+	url = git://yap.git.sourceforge.net/gitroot/yap/pldoc

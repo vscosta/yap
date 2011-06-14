@@ -325,6 +325,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/udi.yap \
 	$(srcdir)/pl/utils.yap \
 	$(srcdir)/pl/history.pl \
+	$(srcdir)/pl/swi.yap \
 	$(srcdir)/pl/yapor.yap $(srcdir)/pl/yio.yap
 
 YAPDOCS=$(srcdir)/docs/yap.tex $(srcdir)/docs/chr.tex \
@@ -565,13 +566,13 @@ pl-nt.o: $(srcdir)/packages/PLStream/pl-nt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/packages/PLStream/pl-nt.c -o $@
 
 pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
+	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
 
 pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
-	$(CC) -c $(CFLAGS)  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
+	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
 
 pl-ntmain.o: $(srcdir)/console/LGPL/pl-ntmain.c config.h
-	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
+	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntmain.c -o $@
 
 pl-buffer.o: $(srcdir)/packages/PLStream/pl-buffer.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include  -I$(srcdir)  -I$(srcdir)/packages/PLStream  @EXTRA_INCLUDES_FOR_WIN32@  $(srcdir)/packages/PLStream/pl-buffer.c -o $@
@@ -682,13 +683,14 @@ all: startup.yss
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/clib; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/http; $(MAKE))
+	# @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/R; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/RDF; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/semweb; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE))
 	@INSTALL_YAPR@ (cd packages/YapR; $(MAKE))
-	@USE_MINISAT@ (cd packages/CLPBN/clpbn/bp ; $(MAKE))
+	# @USE_MINISAT@ (cd packages/CLPBN/clpbn/bp ; $(MAKE))
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE))
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
@@ -703,9 +705,11 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
 
-plyap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@ LGPL/swi_console/plterm.dll
+plyap: pl-yap@EXEC_SUFFIX@
+
+pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@ LGPL/swi_console/plterm.dll
 	(cd LGPL/swi_console; $(MAKE))
-	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
@@ -741,13 +745,14 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
+	@INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/R; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/RDF; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/semweb; $(MAKE) install)
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
-	@INSTALL_DLLS@ (cd packages/CLPBN/clpbn/bp ; $(MAKE) install)
+	# @INSTALL_DLLS@ (cd packages/CLPBN/clpbn/bp ; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) install)
 	@INSTALL_YAPR@ (cd packages/YapR; $(MAKE) install)
@@ -794,6 +799,7 @@ install_win32: startup.yss
 	@INSTALL_YAPR@ (cd packages/YapR; $(MAKE) install)
 	(cd library/tries; $(MAKE) install)
 	(cd packages/clib; $(MAKE) install)
+	(cd packages/pldoc; $(MAKE) install)
 	(cd packages/plunit; $(MAKE) install)
 	(cd packages/http; $(MAKE) install)
 	(cd packages/R; $(MAKE) install)
@@ -802,7 +808,7 @@ install_win32: startup.yss
 	(cd packages/semweb; $(MAKE) install)
 	(cd packages/zlib; $(MAKE) @ZLIB_INSTALL@)
 	(cd packages/CLPBN ; $(MAKE) install)
-	(cd packages/CLPBN/clpbn/bp ; $(MAKE) install)
+	# (cd packages/CLPBN/clpbn/bp ; $(MAKE) install)
 	@ENABLE_JPL@ (cd packages/jpl ; $(MAKE) install)
 	@USE_MINISAT@ (cd packages/swi-minisat2/C; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
@@ -853,6 +859,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/clib; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/http; $(MAKE) clean)
+	@INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/plunit; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/R; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/RDF; $(MAKE) clean)
@@ -860,7 +867,7 @@ clean: clean_docs
 	@INSTALL_DLLS@ (cd packages/sgml; $(MAKE) clean)
 	@INSTALL_YAPR@ (cd packages/YapR; $(MAKE) clean)
 	@USE_MINISAT@ (cd packages/swi-minisat2; $(MAKE) clean)
-	@USE_MINISAT@ (cd packages/CLPBN/clpbn/bp; $(MAKE) clean)
+	# @USE_MINISAT@ (cd packages/CLPBN/clpbn/bp; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd packages/zlib; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)

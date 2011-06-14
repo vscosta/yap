@@ -23,7 +23,7 @@ CC=@CC@
 CXX=@CXX@
 
 # normal
-CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -DNDEBUG
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
 #CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -g -O0
@@ -63,7 +63,7 @@ HEADERS = \
 	$(srcdir)/SPSolver.h \
 	$(srcdir)/Shared.h \
 	$(srcdir)/xmlParser/xmlParser.h
-	
+
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesNode.cpp \
@@ -84,23 +84,13 @@ OBJS = \
 	BPSolver.o \
 	BpNode.o \
 	SPSolver.o \
-	HorusYap.o
-
-HCLI_OBJS = \
-	BayesNet.o \
-	BayesNode.o \
-	FactorGraph.o \
-	Factor.o \
-	BPSolver.o \
-	BpNode.o \
-	SPSolver.o \
-	HorusCli.o \
+	HorusYap.o \
 	xmlParser.o
 
 SOBJS=horus.@SO@
 
 
-all: $(SOBJS) hcli
+all: $(SOBJS)
 
 # default rule
 %.o : $(srcdir)/%.cpp
@@ -115,7 +105,7 @@ xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 @DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 
-hcli: $(HCLI_OBJS)
+hcli: $(OBJS)
 	$(CXX) -o hcli $(HCLI_OBJS)
 
 

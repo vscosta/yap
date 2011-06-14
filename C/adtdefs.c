@@ -493,41 +493,43 @@ Yap_GetOpProp(Atom a, op_type type USES_REGS)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
-  OpEntry *info = NULL;
 
   READ_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
-  while (!EndOfPAEntr(pp) &&
-	 ( pp->KindOfPE != OpProperty ||
-	    ((OpEntry *)pp)->OpModule != CurrentModule))
-    pp = RepProp(pp->NextOfPE);
-  if ((info = (OpEntry *)pp)) {
-    if ((type == INFIX_OP && !info->Infix) ||
-        (type == POSFIX_OP && !info->Posfix) ||
-	(type == PREFIX_OP && !info->Prefix))
-      pp =  RepProp(NIL);
-  }
-  if (EndOfPAEntr(pp)) {
-    pp = RepProp(ae->PropsOfAE);
-    while (!EndOfPAEntr(pp) &&
-	   ( pp->KindOfPE != OpProperty ||
-	     ((OpEntry *)pp)->OpModule != PROLOG_MODULE))
+  while (!EndOfPAEntr(pp)) {
+    OpEntry *info = NULL;
+    if ( pp->KindOfPE != OpProperty) {
       pp = RepProp(pp->NextOfPE);
-    if ((info = (OpEntry *)pp)) {
-      if ((type == INFIX_OP && !info->Infix) ||
-	  (type == POSFIX_OP && !info->Posfix) ||
-	  (type == PREFIX_OP && !info->Prefix))
-	pp =  RepProp(NIL);
+      continue;
     }
-  }
-  if (!info) {
-    READ_UNLOCK(ae->ARWLock);
-    return NULL;
-  } else {
+    info = (OpEntry *)pp;
+    if (info->OpModule != CurrentModule &&
+	info->OpModule != PROLOG_MODULE) {
+      pp = RepProp(pp->NextOfPE);
+      continue;
+    }
+    if (type == INFIX_OP) {
+      if (!info->Infix) {
+	pp = RepProp(pp->NextOfPE);
+	continue;
+      }
+    } else if (type == POSFIX_OP) {
+      if (!info->Posfix) {
+	pp = RepProp(pp->NextOfPE);
+	continue;
+      }
+    } else {
+      if (!info->Prefix) {
+	pp = RepProp(pp->NextOfPE);
+	continue;
+      }
+    }
     READ_LOCK(info->OpRWLock);
     READ_UNLOCK(ae->ARWLock);
     return info;
   }
+  READ_UNLOCK(ae->ARWLock);
+  return NULL;
 }
 
 

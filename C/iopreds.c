@@ -402,19 +402,19 @@ Yap_StringToTerm(char *s,Term *tp)
   if (sno == NULL)
     return FALSE;
   TR_before_parse = TR;
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(sno, &tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(sno, FALSE, &tpos);
   if (tokstart == NIL || tokstart->Tok == Ord (eot_tok)) {
     if (tp) {
       *tp = MkAtomTerm(AtomEOFBeforeEOT);
     }
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     Sclose(sno);
     return FALSE;
   } else if (LOCAL_ErrorMessage) {
     if (tp) {
       *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
     }
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     Sclose(sno);
     return FALSE;
   }
@@ -422,11 +422,11 @@ Yap_StringToTerm(char *s,Term *tp)
   TR = TR_before_parse;
   if (!t || LOCAL_ErrorMessage) {
     GenerateSyntaxError(tp, tokstart, sno PASS_REGS);
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     Sclose(sno);
     return FALSE;
   }
-  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
   Sclose(sno);
   return t;
 }
@@ -512,25 +512,25 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
   if (st == NULL) {
     return FALSE;
   }
-  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(st, tpos);
+  tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(st, FALSE, tpos);
   if (LOCAL_ErrorMessage)
     {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       if (terror)
 	*terror = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       return FALSE;
     }
   pt = Yap_Parse();
   if (LOCAL_ErrorMessage || pt == (CELL)0) {
     GenerateSyntaxError(terror, tokstart, st PASS_REGS);
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     return FALSE;
   }
   if (varnames) {
     *varnames = Yap_VarNames(LOCAL_VarTable, TermNil);
     if (!*varnames) {
-      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+      Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
       return FALSE;
     }
   }
@@ -548,6 +548,7 @@ Yap_readTerm(void *st0, Term *tp, Term *varnames, Term *terror, Term *tpos)
   Vars: ARG4
   Pos: ARG5
   Err: ARG6
+  Comments: ARG7
  */
 static Int
   do_read(IOSTREAM *inp_stream, int nargs USES_REGS)
@@ -556,6 +557,8 @@ static Int
   TokEntry *tokstart;
   Term tmod = Deref(ARG3), OCurrentModule = CurrentModule, tpos;
   extern void Yap_setCurrentSourceLocation(IOSTREAM **s);
+  Term tcomms = Deref(ARG7);
+  int store_comments = IsVarTerm(tcomms);
 
   Yap_setCurrentSourceLocation(&inp_stream);
   if (IsVarTerm(tmod)) {
@@ -565,11 +568,6 @@ static Int
     return FALSE;
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  tpos = Yap_StreamPosition(inp_stream);
-  if (!Yap_unify(tpos,ARG5)) {
-    /* do this early so that we do not have to protect it in case of stack expansion */  
-    return FALSE;
-  }
   while (TRUE) {
     CELL *old_H;
     int64_t cpos = 0;
@@ -583,10 +581,12 @@ static Int
     while (TRUE) {
       old_H = H;
       tpos = Yap_StreamPosition(inp_stream);
-      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, &tpos);
+      LOCAL_Comments = TermNil;
+      LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
+      tokstart = LOCAL_tokptr = LOCAL_toktide = Yap_tokenizer(inp_stream, store_comments, &tpos);
       if (LOCAL_Error_TYPE != YAP_NO_ERROR && seekable) {
 	H = old_H;
-	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	if (seekable) {
 	  Sseek64(inp_stream, cpos, SIO_SEEK_SET);
 	}
@@ -616,6 +616,10 @@ static Int
 	break;
       }
     }
+    if (!Yap_unify(tpos,ARG5)) {
+      /* do this early so that we do not have to protect it in case of stack expansion */  
+      return FALSE;
+    }
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     /* preserve value of H after scanning: otherwise we may lose strings
        and floats */
@@ -624,10 +628,10 @@ static Int
       /* did we get the end of file from an abort? */
       if (LOCAL_ErrorMessage &&
 	  !strcmp(LOCAL_ErrorMessage,"Abort")) {
-	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	return FALSE;
       } else {
-	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	
 	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
 	  && Yap_unify_constant(ARG4, TermNil);
@@ -670,7 +674,7 @@ static Int
       }
       if (ParserErrorStyle == QUIET_ON_PARSER_ERROR) {
 	/* just fail */
-	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	return FALSE;
       } else if (ParserErrorStyle == CONTINUE_ON_PARSER_ERROR) {
 	LOCAL_ErrorMessage = NULL;
@@ -682,14 +686,14 @@ static Int
 	  LOCAL_ErrorMessage = "SYNTAX ERROR";
 	
 	if (ParserErrorStyle == EXCEPTION_ON_PARSER_ERROR) {
-	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	  Yap_Error(SYNTAX_ERROR,terr,LOCAL_ErrorMessage);
 	  return FALSE;
 	} else /* FAIL ON PARSER ERROR */ {
 	  Term t[2];
 	  t[0] = terr;
 	  t[1] = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
-	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+	  Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	  return Yap_unify(ARG6,Yap_MkApplTerm(Yap_MkFunctor(AtomError,2),2,t));
 	}
       }
@@ -700,6 +704,8 @@ static Int
     }
   }
   if (!Yap_unify(t, ARG2))
+    return FALSE;
+  if (store_comments && !Yap_unify(LOCAL_Comments, ARG7))
     return FALSE;
   if (AtomOfTerm (Deref (ARG1)) == AtomTrue) {
     while (TRUE) {
@@ -721,10 +727,10 @@ static Int
 	TR = old_TR;
       }
     }
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     return Yap_unify (v, ARG4);
   } else {
-    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable);
+    Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
     return TRUE;
   }
 }
@@ -732,7 +738,7 @@ static Int
 static Int
 p_read ( USES_REGS1 )
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return do_read(NULL, 6 PASS_REGS);
+  return do_read(NULL, 7 PASS_REGS);
 }
 
 extern int Yap_getInputStream(Int, IOSTREAM **);
@@ -743,10 +749,10 @@ p_read2 ( USES_REGS1 )
   IOSTREAM *inp_stream;
   Int out;
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG7) PASS_REGS), &inp_stream)) {
+  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG8) PASS_REGS), &inp_stream)) {
     return(FALSE);
   }
-  out = do_read(inp_stream, 7 PASS_REGS);
+  out = do_read(inp_stream, 8 PASS_REGS);
   return out;
 }
 
@@ -1108,8 +1114,8 @@ Yap_InitIOPreds(void)
   /* here the Input/Output predicates */
   Yap_InitCPred ("$set_read_error_handler", 1, p_set_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_read_error_handler", 1, p_get_read_error_handler, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$read", 6, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-  Yap_InitCPred ("$read", 7, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred ("$read", 7, p_read, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred ("$read", 8, p_read2, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred ("$start_line", 1, p_startline, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$change_type_of_char", 2, p_change_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$type_of_char", 2, p_type_of_char, SafePredFlag|SyncPredFlag|HiddenPredFlag);

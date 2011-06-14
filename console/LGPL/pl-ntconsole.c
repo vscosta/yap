@@ -1,4 +1,4 @@
-/*  $Id$
+ /*  $Id$
 
     Part of SWI-Prolog
 

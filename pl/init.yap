@@ -115,12 +115,14 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('dialect.yap').
 :- use_module('history.pl').
 :- use_module('dbload.yap').
+:- use_module('swi.yap').
 
 '$system_module'('$messages').
 '$system_module'('$hacks').
 '$system_module'('$attributes').
 '$system_module'('$coroutining').
 '$system_module'('$history').
+'$system_module'('$swi').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
@@ -162,11 +164,23 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic prolog:message/3.
 
+:- multifile
+	prolog:comment_hook/3.
+
 :- module(user).
 
 :- multifile goal_expansion/3.
 
 :- dynamic goal_expansion/3.
+
+:- multifile prolog_file_type/2.
+
+:- dynamic prolog_file_type/2.
+
+user:prolog_file_type(pl, prolog).
+% user:prolog_file_type(Ext,      prolog) :-
+%        current_prolog_flag(associate, Ext),
+%        Ext \== pl.
 
 :- multifile goal_expansion/2.
 
@@ -175,6 +189,10 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 :- multifile term_expansion/2.
 
 :- dynamic term_expansion/2.
+
+:- multifile system:term_expansion/2.
+
+:- dynamic system:term_expansion/2.
 
 :- multifile file_search_path/2.
 

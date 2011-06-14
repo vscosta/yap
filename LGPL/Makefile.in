@@ -28,6 +28,7 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/broadcast.pl \
 	$(srcdir)/date.pl \
 	$(srcdir)/debug.pl \
+	$(srcdir)/main.pl \
 	$(srcdir)/maplist.pl \
 	$(srcdir)/nb_set.pl \
 	$(srcdir)/operators.pl \
@@ -41,7 +42,8 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/shlib.pl \
 	$(srcdir)/thread_pool.pl \
 	$(srcdir)/url.pl \
-	$(srcdir)/utf8.pl
+	$(srcdir)/utf8.pl \
+	$(srcdir)/www_browser.pl
 
 
 install: $(PROGRAMS)

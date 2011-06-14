@@ -2042,6 +2042,7 @@ mkdir -p  packages/jpl/examples/java
 mkdir -p  packages/meld
 mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
+mkdir -p  packages/pldoc
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
@@ -2080,6 +2081,7 @@ AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
 AC_CONFIG_FILES([packages/http/Makefile])
 AC_CONFIG_FILES([packages/meld/Makefile])
 AC_CONFIG_FILES([packages/PLStream/libtai/Makefile])
+AC_CONFIG_FILES([packages/pldoc/Makefile])
 AC_CONFIG_FILES([packages/plunit/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 AC_CONFIG_FILES([packages/R/Makefile])
