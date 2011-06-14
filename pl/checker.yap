@@ -256,6 +256,10 @@ no_style_check([H|T]) :- no_style_check(H), no_style_check(T).
 '$multiple_has_been_defined'(Fil,P,M) :-
 	print_message(warning,defined_elsewhere(M:P,Fil)).
 
+multifile(P) :-
+	'$current_module'(OM),
+	'$multifile'(P, M).
+
 '$multifile'(V, _) :- var(V), !,
 	'$do_error'(instantiation_error,multifile(V)).
 '$multifile'((X,Y), M) :- !, '$multifile'(X, M), '$multifile'(Y, M).
