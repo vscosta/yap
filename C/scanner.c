@@ -804,6 +804,7 @@ extend_comment(int ch) {
   LOCAL_CommentsBuffPos++;
   if (LOCAL_CommentsBuffPos == LOCAL_CommentsBuffLim-1) {
     LOCAL_CommentsBuff = (wchar_t *)realloc(LOCAL_CommentsBuff,sizeof(wchar_t)*(LOCAL_CommentsBuffLim+4096));
+    LOCAL_CommentsBuffLim += 4096;
   }
 }
 
@@ -812,6 +813,7 @@ close_comment(void) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
   *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
   free(LOCAL_CommentsBuff);
+  LOCAL_CommentsBuffLim = 0;
 }
 
 static wchar_t *
@@ -1236,16 +1238,17 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	}
 	if (chtype(ch) == EF) {
 	  t->Tok = Ord(kind = eot_tok);
-	}
-	/* leave comments */
-	ch = getchr(inp_stream);
-	if (t == l) {
-	  /* we found a comment before reading characters */
-	  while (chtype(ch) == BS) {
-	    ch = getchr(inp_stream);
+	} else {
+	  /* leave comments */
+	  ch = getchr(inp_stream);
+	  if (t == l) {
+	    /* we found a comment before reading characters */
+	    while (chtype(ch) == BS) {
+	      ch = getchr(inp_stream);
+	    }
+	    CHECK_SPACE();
+	    *tposp = Yap_StreamPosition(inp_stream);
 	  }
-	  CHECK_SPACE();
-	  *tposp = Yap_StreamPosition(inp_stream);
 	}
 	goto restart;
       }
@@ -1255,8 +1258,7 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	if (chtype(ch) == CC)
 	  while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
 	t->Tok = Ord(kind = eot_tok);
-      }
-      else {
+      } else {
 	TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
 	charp = TokImage;
 	*charp++ = och;
