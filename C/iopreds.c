@@ -568,11 +568,6 @@ static Int
     return FALSE;
   }
   LOCAL_Error_TYPE = YAP_NO_ERROR;
-  tpos = Yap_StreamPosition(inp_stream);
-  if (!Yap_unify(tpos,ARG5)) {
-    /* do this early so that we do not have to protect it in case of stack expansion */  
-    return FALSE;
-  }
   while (TRUE) {
     CELL *old_H;
     int64_t cpos = 0;
@@ -620,6 +615,10 @@ static Int
 	/* done with this */
 	break;
       }
+    }
+    if (!Yap_unify(tpos,ARG5)) {
+      /* do this early so that we do not have to protect it in case of stack expansion */  
+      return FALSE;
     }
     LOCAL_Error_TYPE = YAP_NO_ERROR;
     /* preserve value of H after scanning: otherwise we may lose strings
