@@ -41,5 +41,10 @@
 '$hide'('$hacks') :- !, fail.			
 '$hide'('$source_location') :- !, fail.			
 '$hide'('$messages') :- !, fail.		
+'$hide'('$push_input_context') :- !, fail.		
+'$hide'('$pop_input_context') :- !, fail.		
+'$hide'('$set_source_module') :- !, fail.		
+'$hide'('$declare_module') :- !, fail.		
+'$hide'('$store_clause') :- !, fail.		
 '$hide'(Name) :- hide(Name), fail.
 
