@@ -44,6 +44,7 @@
 '$check_opt_read'(term_position(_), _) :- !.
 '$check_opt_read'(term_position(_), _) :- !.
 '$check_opt_read'(comments(_), _) :- !.
+'$check_opt_read'(module(_), _) :- !.
 '$check_opt_read'(A, G) :-
 	'$do_error'(domain_error(read_option,A),G).
 
