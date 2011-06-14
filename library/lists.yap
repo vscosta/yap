@@ -12,7 +12,8 @@
 	   flatten/2,
 	   last/2,
 	   list_concat/2,
-	   max_list/2,	 
+	   max_list/2,
+	   list_to_set/2,
 	   member/2,
 	   memberchk/2,
 	   min_list/2,
@@ -415,3 +416,27 @@ subtract([E|T], D, R) :-
 	subtract(T, D, R).
 subtract([H|T], D, [H|R]) :-
 	subtract(T, D, R).
+
+%%	list_to_set(+List, ?Set) is det.
+%
+%	True when Set has the same element   as  List in the same order.
+%	The left-most copy of the duplicate  is retained. The complexity
+%	of this operation is |List|^2.
+%
+%	@see sort/2.
+
+list_to_set(List, Set) :-
+	list_to_set_(List, Set0),
+	Set = Set0.
+
+list_to_set_([], R) :-
+	close_list(R).
+list_to_set_([H|T], R) :-
+	memberchk(H, R), !,
+	list_to_set_(T, R).
+
+close_list([]) :- !.
+close_list([_|T]) :-
+	close_list(T).
+
+
