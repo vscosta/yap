@@ -15,6 +15,10 @@
 *									 *
 *************************************************************************/
 
+%
+%
+%
+
 true :- true.
 
 '$live' :-
@@ -1123,18 +1127,36 @@ bootstrap(F) :-
 '$init_path_extensions'.
 
 '$loop'(Stream,Status) :-
+	(
+	 Status = top
+	;
+	 '$undefined'(comment_hook(_,_,_),prolog)
+	;
+	 '$number_of_clauses'(comment_hook(_,_,_),prolog,0)
+	), !,
 	repeat,
-%VSC		( '$current_stream'(_,_,Stream) -> true
-%VSC		 ; '$abort_loop'(Stream)
-%VSC		),
 		prompt1('|     '), prompt(_,'| '),
 		'$current_module'(OldModule),
 		'$system_catch'('$enter_command'(Stream,Status), OldModule, Error,
 			 user:'$LoopError'(Error, Status)),
 	!.
+% support comment hook
+'$loop'(Stream,Status) :-
+	repeat,
+		prompt1('|     '), prompt(_,'| '),
+		'$current_module'(OldModule),
+		'$system_catch'('$enter_command_with_hook'(Stream,Status), OldModule, Error,
+			 user:'$LoopError'(Error, Status)),
+	!.
 
 '$enter_command'(Stream,Status) :-
 	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', no),
+	'$command'(Command,Vars,Pos,Status).
+
+% support SWI hook in a separate predicate, to avoid slow down standard consult.
+'$enter_command_with_hook'(Stream,Status) :-
+	'$read_vars'(Stream,Command,_,Pos,Vars, '|: ', Comments),
+	('$notrace'(prolog:comment_hook(Comments,Pos,Command)) -> true ; true ),
 	'$command'(Command,Vars,Pos,Status).
 
 '$abort_loop'(Stream) :-
