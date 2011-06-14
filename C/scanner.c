@@ -774,7 +774,7 @@ Yap_scan_num(IOSTREAM *inp)
 
 
 static void
-open_comment(int ch, IOSTREAM *inp_stream) {
+open_comment(int ch, IOSTREAM *inp_stream USES_REGS) {
   CELL *h0 = H;
   H += 5;
   h0[0] = AbsAppl(h0+2);
@@ -799,7 +799,7 @@ open_comment(int ch, IOSTREAM *inp_stream) {
 }
 
 static void
-extend_comment(int ch) {
+extend_comment(int ch USES_REGS) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = ch;
   LOCAL_CommentsBuffPos++;
   if (LOCAL_CommentsBuffPos == LOCAL_CommentsBuffLim-1) {
@@ -809,7 +809,7 @@ extend_comment(int ch) {
 }
 
 static void
-close_comment(void) {
+close_comment( USES_REGS1 ) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
   *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
   free(LOCAL_CommentsBuff);
@@ -903,22 +903,22 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
     case CC:
       if (store_comments) {
 	CHECK_SPACE();
-	open_comment(ch, inp_stream);
+	open_comment(ch, inp_stream PASS_REGS);
       continue_comment:
 	while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF) {
 	  CHECK_SPACE();
-	  extend_comment(ch);
+	  extend_comment(ch PASS_REGS);
 	}
 	CHECK_SPACE();
-	extend_comment(ch);
+	extend_comment(ch PASS_REGS);
 	if (chtype(ch) != EF) {
 	  ch = getchr(inp_stream);
 	  if (chtype(ch) == CC) {
-	    extend_comment(ch);
+	    extend_comment(ch PASS_REGS);
 	    goto continue_comment;
 	  }
 	}
-	close_comment();
+	close_comment( PASS_REGS1 );
       } else {
 	while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
       }
@@ -1218,18 +1218,18 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
       if (och == '/' && ch == '*') {
 	if (store_comments) {
 	  CHECK_SPACE();
-	  open_comment('/', inp_stream);
+	  open_comment('/', inp_stream PASS_REGS);
 	  while ((och != '*' || ch != '/') && chtype(ch) != EF) {
 	    och = ch;
 	    CHECK_SPACE();
-	    extend_comment(ch);
+	    extend_comment(ch PASS_REGS);
 	    ch = getchr(inp_stream);
 	  }
 	  if (chtype(ch) != EF) {
 	    CHECK_SPACE();
-	    extend_comment(ch);
+	    extend_comment(ch PASS_REGS);
 	  }
-	  close_comment();
+	  close_comment( PASS_REGS1 );
 	} else {
 	  while ((och != '*' || ch != '/') && chtype(ch) != EF) {
 	    och = ch;

@@ -10,8 +10,8 @@
 
 %:- clpbn:set_clpbn_flag(em_solver,gibbs).
 %:- clpbn:set_clpbn_flag(em_solver,jt).
-:- clpbn:set_clpbn_flag(em_solver,ve).
-%:- clpbn:set_clpbn_flag(em_solver,bp).
+%:- clpbn:set_clpbn_flag(em_solver,ve).
+:- clpbn:set_clpbn_flag(em_solver,bp).
 
 timed_main :-
 	statistics(runtime, _),
@@ -40,8 +40,8 @@ graph([professor_ability(p0,_G131367),professor_ability(p1,h),professor_ability(
 
 %
 % change to 0.0, 0.1, 0.2 to make things simpler/harder
-%
-missing(0.5).
+%%
+missing(0.99).
 
 % miss 30% of the examples.
 goal(professor_ability(P,V)) :-

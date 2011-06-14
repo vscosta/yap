@@ -1,12 +1,12 @@
 [submodule "packages/chr"]
 	path = packages/chr
-	url = git://yap.dcc.fc.up.pt/chr
+	url = git://yap.git.sourceforge.net/gitroot/yap/chr
 [submodule "packages/clpqr"]
 	path = packages/clpqr
-	url = git://yap.dcc.fc.up.pt/clpqr
+	url = git://yap.git.sourceforge.net/gitroot/yap/clpqr
 [submodule "packages/jpl"]
 	path = packages/jpl
-	url = git://yap.dcc.fc.up.pt/jpl
+	url = git://yap.git.sourceforge.net/gitroot/yap/jpl
 [submodule "packages/zlib"]
 	path = packages/zlib
 	url = git://yap.git.sourceforge.net/gitroot/yap/zlib
