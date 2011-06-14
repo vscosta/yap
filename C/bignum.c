@@ -294,8 +294,8 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
   H[1] = BLOB_STRING;
 
   siz = (sizeof(size_t)+len+sizeof(CELL))/sizeof(CELL);
-  dst->_mp_size = siz;
-  dst->_mp_alloc = 0L;
+  dst->_mp_size = 0L;
+  dst->_mp_alloc = siz;
   sp = (blob_string_t *)(dst+1);
   H = (CELL *)sp;
   sp->len = sz;
@@ -332,8 +332,8 @@ Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
     H[1] = BLOB_STRING;
 
     siz = (sizeof(size_t)+len+sizeof(CELL))/sizeof(CELL);
-    dst->_mp_size = siz;
-    dst->_mp_alloc = 0L;
+    dst->_mp_size = 0L;
+    dst->_mp_alloc = siz;
     sp = (blob_string_t *)(dst+1);
     H = (CELL *)sp;
     sp->len = sz;
@@ -354,8 +354,8 @@ Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
   H[1] = BLOB_WIDE_STRING;
 
   siz = (sizeof(size_t)+(len+2)*sizeof(wchar_t))/sizeof(CELL);
-  dst->_mp_size = siz;
-  dst->_mp_alloc = 0L;
+  dst->_mp_size = 0L;
+  dst->_mp_alloc = siz;
   sp = (blob_string_t *)(dst+1);
   H = (CELL *)sp;
   sp->len = sz;
