@@ -10,7 +10,6 @@
 		   chdir/1,
 		   compile_aux_clauses/1,
 		   convert_time/2,
-		   '$set_source_module'/2,
 		   '$declare_module'/5,
 		   '$set_predicate_attribute'/3,
 		   stamp_date_time/3,
@@ -182,25 +181,6 @@ compile_aux_clauses([Cl|Cls]) :-
 	prolog_load_context(module, M),
 	assert_static(M:Cl),
 	compile_aux_clauses(Cls).
-
-'$set_source_module'(Source0, SourceF) :-
-	prolog_load_context(module, Source0), !,
-	module(SourceF).
-'$set_source_module'(Source0, SourceF) :-
-	current_module(Source0, SourceF).
-
-/** '$declare_module'(+Module, +Super, +File, +Line, +Redefine) is det.
-
-Start a new (source-)module
-
-@param	Module is the name of the module to declare
-@param	File is the canonical name of the file from which the module
-	is loaded
-@param  Line is the line-number of the :- module/2 directive.
-@param	Redefine If =true=, allow associating the module to a new file
-*/
-'$declare_module'(Name, Context, _, _, _) :-
-	add_import_module(Name, Context, start).
 
 '$set_predicate_attribute'(_, _, _).
 

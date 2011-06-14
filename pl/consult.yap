@@ -871,8 +871,8 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$type_extension'(Type,Ext),
 	atom_concat([File,Ext],F).
 '$add_type_extensions'(Type,File,F) :-
-	user:prolog_file_type(Type, File),
-	atom_concat([File,Ext],F).
+	user:prolog_file_type(Ext, Type),
+	atom_concat([File,'.',Ext],F).
 
 '$type_extension'(txt,'').
 '$type_extension'(prolog,'.yap').
@@ -1051,3 +1051,8 @@ make.
 	stream_property(OldStream, alias(Alias)), !.
 
 '$require'(_Ps, _M).
+
+'$store_clause'('$source_location'(File, Line):Clause, File) :-
+	assert_static(Clause).
+
+
