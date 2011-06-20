@@ -379,7 +379,7 @@ InitExStacks(int Trail, int Stack)
  AuxSp = NULL;
 
 #ifdef DEBUG
-  if (GLOBAL_output_msg) {
+  if (Yap_output_msg) {
     UInt ta;
 
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
@@ -1534,11 +1534,11 @@ Yap_InitMemory(UInt Trail, UInt Heap, UInt Stack)
 
 #ifdef DEBUG
 #if SIZEOF_INT_P!=SIZEOF_INT
-  if (GLOBAL_output_msg) {
+  if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %p  GlobalBase = %p\n  LocalBase = %p  TrailTop = %p\n",
 	       Yap_HeapBase, LOCAL_GlobalBase, LOCAL_LocalBase, LOCAL_TrailTop);
 #else
-  if (GLOBAL_output_msg) {
+  if (Yap_output_msg) {
     fprintf(stderr, "HeapBase = %x  GlobalBase = %x\n  LocalBase = %x  TrailTop = %x\n",
 	       (UInt) Yap_HeapBase, (UInt) LOCAL_GlobalBase,
 	       (UInt) LOCAL_LocalBase, (UInt) LOCAL_TrailTop);

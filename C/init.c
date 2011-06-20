@@ -58,6 +58,7 @@ static char     SccsId[] = "%W% %G%";
 
 #define	LOGFILE	"logfile"
 
+int  Yap_output_msg = FALSE;
 
 #ifdef MACC
 STATIC_PROTO(void  InTTYLine, (char *));
@@ -344,7 +345,7 @@ InitDebug(void)
 
   for (i = 1; i < 20; ++i)
     GLOBAL_Option[i] = 0;
-  if (GLOBAL_output_msg) {
+  if (Yap_output_msg) {
     char            ch;
 
 #if HAVE_ISATTY

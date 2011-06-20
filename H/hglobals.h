@@ -85,7 +85,7 @@ typedef struct global_data {
   char  Option_[20];
   YP_FILE*  logfile_;
 
-  int  output_msg_;
+
 #endif
 
   Int  ProfCalls_;

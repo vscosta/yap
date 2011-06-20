@@ -85,7 +85,7 @@
 #define GLOBAL_Option Yap_global->Option_
 #define GLOBAL_logfile Yap_global->logfile_
 
-#define GLOBAL_output_msg Yap_global->output_msg_
+
 #endif
 
 #define GLOBAL_ProfCalls Yap_global->ProfCalls_

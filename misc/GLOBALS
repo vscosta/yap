@@ -100,7 +100,7 @@ struct MMAP_ARRAY_BLOCK* 	mmap_arrays 				=NULL
 char            		Option[20]				void
 YP_FILE*			logfile					void
 //init.c
-int  				output_msg 				=FALSE
+//int  				output_msg 				=FALSE
 #endif
 
 //gprof.c
