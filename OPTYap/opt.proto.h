@@ -80,7 +80,7 @@ void resume_suspension_frame(susp_fr_ptr, or_fr_ptr);
 
 #ifdef YAPOR
 void Yap_init_yapor_global_local_memory(void);
-void Yap_init_yapor_stacks_memory(long, long, long, int);
+void Yap_init_yapor_stacks_memory(UInt, UInt, UInt, int);
 void Yap_unmap_yapor_memory(void);
 void Yap_remap_yapor_memory(void);
 #endif /* YAPOR */

@@ -83,7 +83,7 @@ void Yap_init_yapor_global_local_memory(void) {
 }
 
 
-void Yap_init_yapor_stacks_memory(long TrailStackArea, long HeapStackArea, long GlobalLocalStackArea, int n_workers) {
+void Yap_init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt GlobalLocalStackArea, int n_workers) {
   long StacksArea;
 
   TrailStackArea = ADJUST_SIZE_TO_PAGE(TrailStackArea);
