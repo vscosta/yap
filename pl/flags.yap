@@ -60,7 +60,14 @@ yap_flag(encoding,X) :-
 yap_flag(encoding,X) :-
 	'$swi_set_prolog_flag'(encoding, X).
 
-% character encoding...
+% file_name_variables...
+yap_flag(file_name_variables,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(file_name_variables, X).
+yap_flag(file_name_variables,X) :-
+	'$swi_set_prolog_flag'(file_name_variables, X).
+
+% fileerrors...
 yap_flag(fileerrors,X) :-
 	var(X), !,
 	'$swi_current_prolog_flag'(fileerrors, X).
@@ -813,6 +820,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(encoding).
 '$yap_system_flag'(executable).
 %		V = fast  ;
+'$yap_system_flag'(file_name_variables).
 '$yap_system_flag'(fileerrors ).
 '$yap_system_flag'(float_format).
 %		V = float_mantissa_digits ;

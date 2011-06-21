@@ -1079,7 +1079,6 @@ initPrologFlags(void)
 	     ALLOW_VARNAME_FUNCTOR);
   setPrologFlag("toplevel_var_size", FT_INTEGER, 1000);
   setPrologFlag("toplevel_print_anon", FT_BOOL, TRUE, 0);
-  setPrologFlag("file_name_variables", FT_BOOL, FALSE, PLFLAG_FILEVARS);
 #ifdef __unix__
   setPrologFlag("unix", FT_BOOL|FF_READONLY, TRUE, 0);
 #endif
@@ -1105,6 +1104,7 @@ initPrologFlags(void)
   setPrologFlag("tty_control", FT_BOOL|FF_READONLY,
 	     truePrologFlag(PLFLAG_TTY_CONTROL), PLFLAG_TTY_CONTROL);
   setPrologFlag("encoding", FT_ATOM, stringAtom(encoding_to_atom(LD->encoding)));
+  setPrologFlag("file_name_variables", FT_BOOL, FALSE, PLFLAG_FILEVARS);
   setPrologFlag("fileerrors", FT_BOOL, TRUE, PLFLAG_FILEERRORS);
   setPrologFlag("readline", FT_BOOL/*|FF_READONLY*/, FALSE, 0);
 
