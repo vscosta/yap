@@ -3076,7 +3076,7 @@ X_API void
 YAP_SetOutputMessage(void)
 {
 #if DEBUG
-  GLOBAL_output_msg = TRUE;
+  Yap_output_msg = TRUE;
 #endif
 }
 

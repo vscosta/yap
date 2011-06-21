@@ -85,7 +85,7 @@ static void InitGlobal(void) {
 
 
 
-  GLOBAL_output_msg = FALSE;
+
 #endif
 
 
