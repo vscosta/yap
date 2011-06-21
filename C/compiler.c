@@ -691,7 +691,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
 	CELL l1 = ++cglobs->labelno;
 	CELL *src = RepAppl(t);
 	PInstr *ocpc = cglobs->cint.cpc, *OCodeStart = cglobs->cint.CodeStart;
-	Int sz = 2*sizeof(CELL)+
+	Int sz = 2*sizeof(CELL)+sizeof(Functor)+
 	  sizeof(MP_INT)+
 	   ((((MP_INT *)(RepAppl(t)+2))->_mp_alloc)*sizeof(mp_limb_t));
 	CELL *dest;
