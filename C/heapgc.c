@@ -1323,6 +1323,11 @@ mark_variable(CELL_PTR current USES_REGS)
 	  LOCAL_total_marked += 2+sz;
 	  PUSH_POINTER(next PASS_REGS);
 	  sz++;
+#if DEBUG
+	  if (next[sz] != EndSpecials)  {
+	    fprintf(stderr,"[ Error: could not find EndSpecials at blob %p type %lx ]\n", next, next[1]);
+	}
+#endif
 	  MARK(next+sz);
 	  PUSH_POINTER(next+sz PASS_REGS);
 	}

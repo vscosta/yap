@@ -813,6 +813,7 @@ close_comment( USES_REGS1 ) {
   LOCAL_CommentsBuff[LOCAL_CommentsBuffPos] = '\0';
   *LOCAL_CommentsNextChar = Yap_MkBlobWideStringTerm(LOCAL_CommentsBuff, LOCAL_CommentsBuffPos);
   free(LOCAL_CommentsBuff);
+  LOCAL_CommentsBuff = NULL;
   LOCAL_CommentsBuffLim = 0;
 }
 
@@ -1372,5 +1373,8 @@ Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartab
   }
   LOCAL_Comments = TermNil;
   LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
+  free(LOCAL_CommentsBuff);
+  LOCAL_CommentsBuff = NULL;
+  LOCAL_CommentsBuffLim = 0;
 }
 

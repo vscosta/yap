@@ -633,6 +633,8 @@ static Int
       } else {
 	Yap_clean_tokenizer(tokstart, LOCAL_VarTable, LOCAL_AnonVarTable, LOCAL_Comments);
 	
+	if (store_comments && !Yap_unify(LOCAL_Comments, ARG7))
+	  return FALSE;
 	return Yap_unify_constant(ARG2, MkAtomTerm (AtomEof))
 	  && Yap_unify_constant(ARG4, TermNil);
       }
