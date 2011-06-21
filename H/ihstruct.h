@@ -170,7 +170,6 @@
   BEAM_RETRY_CODE->opc = Yap_opcode(_beam_retry_code);
 #endif /* BEAM */
 #ifdef YAPOR
-  SEQUENTIAL_IS_DEFAULT = FALSE;
   InitOtaplInst(GETWORK,_getwork,PredGetwork);
   InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq);
   GETWORK_FIRST_TIME->opc = Yap_opcode(_getwork_first_time);

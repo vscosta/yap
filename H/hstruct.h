@@ -170,7 +170,6 @@
   yamop  beam_retry_code[1];
 #endif /* BEAM */
 #ifdef YAPOR
-  int  seq_def;
   yamop  getwork_code[1];
   yamop  getwork_seq_code[1];
   yamop  getwork_first_time[1];

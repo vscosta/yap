@@ -184,9 +184,8 @@ yamop		*yescode		YESCODE			void
 yamop		beam_retry_code[1]	BEAM_RETRY_CODE		MkInstE _beam_retry_code
 #endif /* BEAM */
 #ifdef YAPOR
-int		seq_def			SEQUENTIAL_IS_DEFAULT	=FALSE void
-  yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork,PredGetwork) RestoreOtaplInst(GETWORK,_getwork,PredGetwork)
-  yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq)
+yamop		getwork_code[1]		GETWORK			InitOtaplInst(GETWORK,_getwork,PredGetwork) RestoreOtaplInst(GETWORK,_getwork,PredGetwork)
+yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq) RestoreOtaplInst(GETWORK_SEQ,_getwork_seq,PredGetworkSeq)
 yamop		getwork_first_time[1]	GETWORK_FIRST_TIME	MkInstE _getwork_first_time
 #endif /* YAPOR */
 #ifdef TABLING

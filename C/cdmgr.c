@@ -1627,11 +1627,6 @@ retract_all(PredEntry *p, int in_use)
     p->PredFlags |= CountPredFlag;
   } else
     p->PredFlags &= ~CountPredFlag;
-#ifdef YAPOR
-  if (SEQUENTIAL_IS_DEFAULT) {
-    p->PredFlags |= SequentialPredFlag;
-  }
-#endif /* YAPOR */
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
 }
 
@@ -1647,11 +1642,6 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
       Yap_InitComma();
     }
   } else {
-#ifdef YAPOR
-    if (SEQUENTIAL_IS_DEFAULT) {
-      p->PredFlags |= SequentialPredFlag;
-    }
-#endif /* YAPOR */
 #ifdef TABLING
     if (is_tabled(p)) {
       p->OpcodeOfPred = INDEX_OPCODE;

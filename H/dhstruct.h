@@ -170,7 +170,6 @@
 #define BEAM_RETRY_CODE Yap_heap_regs->beam_retry_code
 #endif /* BEAM */
 #ifdef YAPOR
-#define SEQUENTIAL_IS_DEFAULT Yap_heap_regs->seq_def
 #define GETWORK Yap_heap_regs->getwork_code
 #define GETWORK_SEQ Yap_heap_regs->getwork_seq_code
 #define GETWORK_FIRST_TIME Yap_heap_regs->getwork_first_time
