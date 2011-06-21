@@ -668,7 +668,7 @@ abolish_module(_).
 	;
 	 Goal =	reexport(ModuleSource,Spec)
 	),
-	absolute_file_name(ModuleSource, File, [access(read),file_type(source),file_errors(fail),solutions(first)]),
+	absolute_file_name(ModuleSource, File, [access(read),file_type(prolog),file_errors(fail),solutions(first),expand(true)]),
 	'$load_files'(File, [if(not_loaded),imports([])], Goal),
 	recorded('$module', '$module'(FullFile, Mod, Exports),_),
 	atom_concat(File, _, FullFile), !,

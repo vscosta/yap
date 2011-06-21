@@ -153,7 +153,7 @@ load_files(Files,Opts) :-
 '$lf'(user_input, Mod, _,InfLevel,_,_,CompilationMode,Imports,_,_,SkipUnixComments,CompMode,Reconsult,UseModule) :- !,
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
-	'$find_in_path'(X, Y, Call),
+	'$full_filename'(X, Y, Call),
 	(
 	  var(Encoding)
 	 ->
@@ -426,7 +426,7 @@ initialization(G,OPT) :-
 	'$include'(Fs, Status).
 '$include'(X, Status) :-
 	get_value('$lf_verbose',Verbosity),
-	'$find_in_path'(X,Y,include(X)),
+	'$full_filename'(X,Y,include(X)),
 	nb_getval('$included_file',OY),
 	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
@@ -674,8 +674,8 @@ absolute_file_name(user,user) :- !.
 absolute_file_name(File0,File) :-
 	'$absolute_file_name'(File0,[access(none),file_type(txt),file_errors(fail),solutions(first)],File,absolute_file_name(File0,File)).
 
-'$find_in_path'(F0,F,G) :-
-	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first)],F,G).
+'$full_filename'(F0,F,G) :-
+	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
 absolute_file_name(File,TrueFileName,Opts) :-
 	var(TrueFileName), !,
@@ -834,8 +834,26 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$to_list_of_atoms'(As, L1, [A|L2]),
 	'$to_list_of_atoms'(Bs, L2, LF).
 
-'$get_abs_file'(File,opts(_,_D0,_,_,_,_,_),AbsFile) :-
-	'$absolute_file_name'(File,AbsFile).
+'$get_abs_file'(File,opts(_,RelTo,_,_,_,Expand,_),AbsFile) :-
+	(
+	 nonvar(Relto)
+	->
+	 '$dir_separator'(D),
+	 atom_concat([RelTo, D, File], ActualFile)
+	;
+	  ActualFile = File
+	),
+	'$swi_current_prolog_flag'(file_name_variables, OldF),
+	'$swi_set_prolog_flag'(file_name_variables, Expand),
+	(
+	 '$absolute_file_name'(ActualFile,AbsFile)
+	-> 
+	'$swi_set_prolog_flag'(file_name_variables, OldF)
+	;
+	'$swi_set_prolog_flag'(file_name_variables, OldF),
+	 fail
+	).
+	 
 
 '$search_in_path'(File,opts(Extensions,_,Type,Access,_,_,_),F) :-
 	'$add_extensions'(Extensions, File, F0),
