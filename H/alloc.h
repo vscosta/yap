@@ -74,8 +74,6 @@ typedef	struct FREEB {
 
 #define AdjustSize(X)	((X+YAP_ALIGN) & YAP_ALIGNMASK)
 
-#define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
-
 /* SIZE should be a power of 2 */
 #define ALIGN_SIZE(X,SIZE) (((CELL)(X)+((SIZE)-1)) & ~((SIZE)-1))
 

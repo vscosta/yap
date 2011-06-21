@@ -328,6 +328,8 @@ typedef unsigned char *CODEADDR;
 #define CellSize     sizeof(CELL)
 #define SmallSize    sizeof(SMALLUNSGN)
 
+#define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
+
 /*************************************************************************************************
                                         type casting macros
 *************************************************************************************************/

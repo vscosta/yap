@@ -197,8 +197,8 @@ write_mpint(MP_INT *big, wrf writewch) {
 static void 
 writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 {
-#ifdef USE_GMP
   CELL *pt = RepAppl(t)+1;
+#ifdef USE_GMP
   if (pt[0] == BIG_INT) 
   {
     MP_INT *big = Yap_BigIntOfTerm(t);
