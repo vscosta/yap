@@ -653,7 +653,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 
   if (EQUAL_OR_YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), prune_cp)) {
 #ifdef YAPOR
-    if (GLOBAL_parallel_execution_mode)
+    if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING)
       pruning_over_tabling_data_structures();
 #endif /* YAPOR */
     do {
@@ -667,7 +667,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
   while (LOCAL_top_sg_fr && EQUAL_OR_YOUNGER_CP(SgFr_gen_cp(LOCAL_top_sg_fr), prune_cp)) {
     sg_fr_ptr sg_fr;
 #ifdef YAPOR
-    if (GLOBAL_parallel_execution_mode)
+    if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING)
       pruning_over_tabling_data_structures();
 #endif /* YAPOR */
     sg_fr = LOCAL_top_sg_fr;

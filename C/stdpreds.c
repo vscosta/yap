@@ -4201,13 +4201,6 @@ p_exitundefp( USES_REGS1 )
   return FALSE;
 }
 
-#ifndef YAPOR
-static Int
-p_default_sequential( USES_REGS1 ) {
-  return(TRUE);
-}
-#endif
-
 #ifdef DEBUG
 extern void DumpActiveGoals(void);
 
@@ -4366,11 +4359,14 @@ typedef void (*Proc)(void);
 Proc E_Modules[]= {/* init_fc,*/ (Proc) 0 };
 
 #ifndef YAPOR
-static
-Int p_yapor_threads( USES_REGS1 ) {
+static Int p_parallel_mode( USES_REGS1 ) {
   return FALSE;
 }
-#endif
+
+static Int p_yapor_workers( USES_REGS1 ) {
+  return FALSE;
+}
+#endif /* YAPOR */
 
 
 void 
@@ -4454,9 +4450,9 @@ Yap_InitCPreds(void)
   Yap_InitCPred("$has_yap_or", 0, p_has_yap_or, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$has_eam", 0, p_has_eam, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifndef YAPOR
-  Yap_InitCPred("$c_default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-#endif
+  Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+#endif /* YAPOR */
 #ifdef INES
   Yap_InitCPred("euc_dist", 3, p_euc_dist, SafePredFlag);
   Yap_InitCPred("loop", 0, p_loop, SafePredFlag);

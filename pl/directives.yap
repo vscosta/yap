@@ -45,7 +45,6 @@
 '$directive'(module_transparent(_)).
 '$directive'(multifile(_)).
 '$directive'(noprofile(_)).
-'$directive'(parallel).
 '$directive'(public(_)).
 '$directive'(op(_,_,_)).
 '$directive'(require(_)).
@@ -53,8 +52,6 @@
 '$directive'(reconsult(_)).
 '$directive'(reexport(_)).
 '$directive'(reexport(_,_)).
-'$directive'(sequential).
-'$directive'(sequential(_)).
 '$directive'(thread_initialization(_)).
 '$directive'(thread_local(_)).
 '$directive'(uncutable(_)).
@@ -85,14 +82,6 @@
 	'$expects_dialect'(D).
 '$exec_directive'(encoding(Enc), _, _) :-
         '$set_encoding'(Enc).
-'$exec_directive'(parallel, _, _) :-
-	'$parallel'.
-'$exec_directive'(sequential, _, _) :-
-	'$sequential'.
-'$exec_directive'(sequential(G), _, M) :-
-	'$sequential_directive'(G, M).
-'$exec_directive'(parallel(G), _, M) :-
-	'$parallel_directive'(G, M).
 '$exec_directive'(include(F), Status, _) :-
 	'$include'(F, Status).
 '$exec_directive'(module(N,P), Status, _) :-

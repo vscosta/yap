@@ -46,7 +46,10 @@ static void share_private_nodes(int worker_q);
 #define INCREMENTAL_COPY 1
 #if INCREMENTAL_COPY
 #define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
-        REMOTE_start_global_copy(Q) = (CELL) (REMOTE_top_cp(Q)->cp_h);   \
+	if (REMOTE_top_cp(Q) == GLOBAL_root_cp)	                         \
+          REMOTE_start_global_copy(Q) = (CELL) (H0);                     \ 
+	else                                                             \
+          REMOTE_start_global_copy(Q) = (CELL) (REMOTE_top_cp(Q)->cp_h); \
         REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
         REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
         REMOTE_end_local_copy(Q)    = (CELL) (REMOTE_top_cp(Q));         \
@@ -102,7 +105,7 @@ void make_root_choice_point(void) {
     B = LOCAL_top_cp = GLOBAL_root_cp;
     B->cp_tr = TR = ((choiceptr) (worker_offset(0) + (CELL)(B)))->cp_tr;
   }
-  B->cp_h = H0;
+  //  B->cp_h = H0;
   B->cp_ap = GETWORK;
   B->cp_or_fr = GLOBAL_root_or_fr;
   LOCAL_top_or_fr = GLOBAL_root_or_fr;

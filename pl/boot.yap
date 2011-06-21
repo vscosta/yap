@@ -121,7 +121,7 @@ true :- true.
 	nb_setval('$included_file',[]).
 	
 '$init_or_threads' :-
-	'$c_yapor_threads'(W), !,
+	'$c_yapor_workers'(W), !,
 	'$start_orp_threads'(W).
 '$init_or_threads'.
 
@@ -529,20 +529,6 @@ true :- true.
 /* Executing a query */
 
 '$query'(end_of_file,_).
-
- % ***************************
- % * -------- YAPOR -------- *
- % ***************************
-
-'$query'(G,V) :-
-	 \+ '$undefined'('$c_yapor_on', prolog),
-	 '$c_yapor_on',
-	 \+ '$undefined'('$c_start_yapor', prolog),
-	 '$parallelizable'(G), !,
-	 '$parallel_query'(G,V),
-	 fail.
-
- % end of YAPOR
 
 '$query'(G,[]) :-
 	 '$prompt_alternatives_on'(OPT),

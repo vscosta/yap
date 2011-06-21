@@ -52,16 +52,13 @@ static Int p_show_statistics_table( USES_REGS1 );
 static Int p_show_statistics_tabling( USES_REGS1 );
 static Int p_show_statistics_global_trie( USES_REGS1 );
 #endif /* TABLING */
-static Int p_yapor_threads( USES_REGS1 );
+
 #ifdef YAPOR
+static Int p_parallel_mode( USES_REGS1 );
+static Int p_yapor_start( USES_REGS1 );
+static Int p_yapor_workers( USES_REGS1 );
 static Int p_worker( USES_REGS1 );
-static Int p_yapor_on( USES_REGS1 );
-static Int p_start_yapor( USES_REGS1 );
-static Int p_default_sequential( USES_REGS1 );
-static Int p_execution_mode( USES_REGS1 );
-static Int p_performance( USES_REGS1 );
 static Int p_parallel_new_answer( USES_REGS1 );
-static Int p_parallel_yes_answer( USES_REGS1 );
 static Int p_show_statistics_or( USES_REGS1 );
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
@@ -108,8 +105,6 @@ static inline long show_statistics_table_subgoal_answer_frames(IOSTREAM *out);
 
 #ifdef YAPOR
 #define TIME_RESOLUTION 1000000
-#define NO_ANSWER   0
-#define YES_ANSWER -1
 static int length_answer;
 static qg_ans_fr_ptr actual_answer;
 #endif /* YAPOR */
@@ -140,16 +135,12 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("tabling_statistics", 1, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("global_trie_statistics", 1, p_show_statistics_global_trie, SafePredFlag|SyncPredFlag);
 #endif /* TABLING */
-  Yap_InitCPred("$c_yapor_threads", 1, p_yapor_threads, SafePredFlag|SyncPredFlag|HiddenPredFlag);
 #ifdef YAPOR
+  Yap_InitCPred("parallel_mode", 1, p_parallel_mode, SafePredFlag|SyncPredFlag);
+  Yap_InitCPred("$c_yapor_start", 0, p_yapor_start, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_worker", 0, p_worker, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_yapor_on", 0, p_yapor_on, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_start_yapor", 0, p_start_yapor, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_default_sequential", 1, p_default_sequential, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("execution_mode", 1, p_execution_mode, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("performance", 1, p_performance, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred("$c_parallel_yes_answer", 0, p_parallel_yes_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("or_statistics", 1, p_show_statistics_or, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
@@ -162,7 +153,8 @@ void Yap_init_optyap_preds(void) {
 #ifdef YAPOR
 void finish_yapor(void) {
   GLOBAL_execution_time = current_time() - GLOBAL_execution_time;
-  show_answers();
+  GLOBAL_parallel_mode = PARALLEL_MODE_ON;
+  /*  show_answers(); */
   return;
 }
 #endif /* YAPOR */
@@ -544,7 +536,58 @@ static Int p_show_statistics_global_trie( USES_REGS1 ) {
 **      YapOr C Predicates      **
 *********************************/
 
-static Int p_yapor_threads( USES_REGS1 ) {
+#ifdef YAPOR
+static Int p_parallel_mode( USES_REGS1 ) {
+  Term t;
+  t = Deref(ARG1);
+  if (IsVarTerm(t)) {
+    Term ta;
+    if (GLOBAL_parallel_mode == PARALLEL_MODE_OFF) 
+      ta = MkAtomTerm(Yap_LookupAtom("off"));
+    else if (GLOBAL_parallel_mode == PARALLEL_MODE_ON) 
+      ta = MkAtomTerm(Yap_LookupAtom("on"));
+    else /* PARALLEL_MODE_RUNNING */
+      ta = MkAtomTerm(Yap_LookupAtom("running"));
+    Bind((CELL *)t, ta);
+    return(TRUE);
+  }
+  if (IsAtomTerm(t) && GLOBAL_parallel_mode != PARALLEL_MODE_RUNNING) {
+    char *s;
+    s = RepAtom(AtomOfTerm(t))->StrOfAE;
+    if (strcmp(s,"on") == 0) {
+      GLOBAL_parallel_mode = PARALLEL_MODE_ON;
+      return(TRUE);
+    }
+    if (strcmp(s,"off") == 0) {
+      GLOBAL_parallel_mode = PARALLEL_MODE_OFF;
+      return(TRUE);
+    }
+    return(FALSE); /* PARALLEL_MODE_RUNNING */
+  }
+  return(FALSE);
+}
+
+
+static Int p_yapor_start( USES_REGS1 ) {
+#ifdef TIMESTAMP_CHECK
+  GLOBAL_timestamp = 0;
+#endif /* TIMESTAMP_CHECK */
+  BITMAP_delete(GLOBAL_bm_idle_workers, 0);
+  BITMAP_clear(GLOBAL_bm_invisible_workers);
+  BITMAP_clear(GLOBAL_bm_requestable_workers);
+#ifdef TABLING_INNER_CUTS
+  BITMAP_clear(GLOBAL_bm_pruning_workers);
+#endif /* TABLING_INNER_CUTS */
+  make_root_choice_point();
+  GLOBAL_parallel_mode = PARALLEL_MODE_RUNNING;
+  GLOBAL_execution_time = current_time();
+  BITMAP_clear(GLOBAL_bm_finished_workers);
+  PUT_IN_EXECUTING(worker_id);
+  return (TRUE);
+}
+
+
+static Int p_yapor_workers( USES_REGS1 ) {
 #ifdef YAPOR_THREADS
   return Yap_unify(MkIntegerTerm(GLOBAL_number_workers),ARG1);
 #else
@@ -553,167 +596,10 @@ static Int p_yapor_threads( USES_REGS1 ) {
 }
 
 
-#ifdef YAPOR
 static Int p_worker( USES_REGS1 ) {
   CurrentModule = USER_MODULE;
   P = GETWORK_FIRST_TIME;
   return TRUE;
-}
-
-
-static Int p_yapor_on( USES_REGS1 ) {
-  return (GLOBAL_parallel_execution_mode);
-}
-
-
-static Int p_start_yapor( USES_REGS1 ) {
-#ifdef TIMESTAMP_CHECK
-  GLOBAL_timestamp = 0;
-#endif /* TIMESTAMP_CHECK */
-  GLOBAL_answers = NO_ANSWER;
-  BITMAP_delete(GLOBAL_bm_idle_workers, 0);
-  BITMAP_clear(GLOBAL_bm_invisible_workers);
-  BITMAP_clear(GLOBAL_bm_requestable_workers);
-#ifdef TABLING_INNER_CUTS
-  BITMAP_clear(GLOBAL_bm_pruning_workers);
-#endif /* TABLING_INNER_CUTS */
-  make_root_choice_point();
-  GLOBAL_performance_mode &= ~PERFORMANCE_IN_EXECUTION;
-  GLOBAL_execution_time = current_time();
-  BITMAP_clear(GLOBAL_bm_finished_workers);
-  PUT_IN_EXECUTING(worker_id);
-  return (TRUE);
-}
-
-
-static Int p_default_sequential( USES_REGS1 ) {
-  Term t;
-  t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Term ta;
-    if (SEQUENTIAL_IS_DEFAULT)
-      ta = MkAtomTerm(Yap_LookupAtom("on"));
-    else
-      ta = MkAtomTerm(Yap_LookupAtom("off"));
-    Bind((CELL *)t, ta);
-    return(TRUE);
-  } 
-  if (IsAtomTerm(t)) {
-    char *s;
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (strcmp(s, "on") == 0) {
-      SEQUENTIAL_IS_DEFAULT = TRUE;
-      return(TRUE);
-    } 
-    if (strcmp(s,"off") == 0) {
-      SEQUENTIAL_IS_DEFAULT = FALSE;
-      return(TRUE);
-    }
-  }
-  return(FALSE);
-}
-
-
-static Int p_execution_mode( USES_REGS1 ) {
-  Term t;
-  t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Term ta;
-    if (GLOBAL_parallel_execution_mode) 
-      ta = MkAtomTerm(Yap_LookupAtom("parallel"));
-    else 
-      ta = MkAtomTerm(Yap_LookupAtom("sequential"));
-    Bind((CELL *)t, ta);
-    return(TRUE);
-  }
-  if (IsAtomTerm(t)) {
-    char *s;
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (strcmp(s,"parallel") == 0) {
-      GLOBAL_parallel_execution_mode = TRUE;
-      return(TRUE);
-    } 
-    if (strcmp(s,"sequential") == 0) {
-      GLOBAL_parallel_execution_mode = FALSE;
-      return(TRUE);
-    }
-  }
-  return(FALSE);
-}
-
-
-static Int p_performance( USES_REGS1 ) {
-  Term t;
-  realtime one_worker_execution_time = 0;
-  int i;
-
-  GLOBAL_performance_mode |= PERFORMANCE_IN_EXECUTION;
-  t = Deref(ARG1);
-  if (IsVarTerm(t)) {
-    Term ta;
-    if (GLOBAL_performance_mode & PERFORMANCE_ON) {
-      ta = MkAtomTerm(Yap_LookupAtom("on"));
-    } else { 
-      ta = MkAtomTerm(Yap_LookupAtom("off"));
-    }
-    Bind((CELL *)t, ta);
-    return(TRUE);
-  }
-  if (IsAtomTerm(t)) {
-    char *s;
-    s = RepAtom(AtomOfTerm(t))->StrOfAE;
-    if (strcmp(s, "on") == 0) {
-      GLOBAL_performance_mode |= PERFORMANCE_ON;
-      return(TRUE);
-    } 
-    if (strcmp(s,"off") == 0) {
-      GLOBAL_performance_mode &= ~PERFORMANCE_ON;
-      return(TRUE);
-    }
-    if (strcmp(s,"clear") == 0) {
-      GLOBAL_number_goals = 0;
-      GLOBAL_best_times(0) = 0;
-      return(TRUE);
-    }
-  }
-  if (IsIntTerm(t))
-    one_worker_execution_time = IntOfTerm(t);
-  else if (IsFloatTerm(t))
-    one_worker_execution_time = FloatOfTerm(t);
-  else 
-    return(FALSE);
-
-  if (GLOBAL_number_goals) {
-    Sfprintf(Soutput, "[\n  Best execution times:\n");
-    for (i = 1; i <= GLOBAL_number_goals; i++) {
-      Sfprintf(Soutput, "    %d. time: %f seconds", i, GLOBAL_best_times(i));  
-      if (one_worker_execution_time != 0)
-        Sfprintf(Soutput, " --> speedup %f (%6.2f %% )\n",
-                one_worker_execution_time / GLOBAL_best_times(i),
-                one_worker_execution_time / GLOBAL_best_times(i) / GLOBAL_number_workers* 100 );
-      else Sfprintf(Soutput, "\n");
-    }
-
-    Sfprintf(Soutput, "  Average             : %f seconds",
-            GLOBAL_best_times(0) / GLOBAL_number_goals);
-    if (one_worker_execution_time != 0)
-      Sfprintf(Soutput, " --> speedup %f (%6.2f %% )",
-              one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0),
-              one_worker_execution_time * GLOBAL_number_goals / GLOBAL_best_times(0) / GLOBAL_number_workers* 100 );
-
-    if (GLOBAL_number_goals >= 3) {
-      Sfprintf(Soutput, "\n  Average (best three): %f seconds",
-              (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / 3);
-      if (one_worker_execution_time != 0)
-        Sfprintf(Soutput, " --> speedup %f (%6.2f %% ) ]\n\n",
-                one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)),
-                one_worker_execution_time * 3 / (GLOBAL_best_times(1) + GLOBAL_best_times(2) + GLOBAL_best_times(3)) / GLOBAL_number_workers* 100 );
-      else Sfprintf(Soutput, "\n]\n\n");
-    } else Sfprintf(Soutput, "\n]\n\n");
-    Sflush(Soutput);
-    return (TRUE);
-  }
-  return (FALSE);
 }
 
 
@@ -734,12 +620,6 @@ static Int p_parallel_new_answer( USES_REGS1 ) {
     CUT_store_answer(leftmost_or_fr, actual_answer);
     UNLOCK_OR_FRAME(leftmost_or_fr);
   }
-  return (TRUE);
-}
-
-
-static Int p_parallel_yes_answer( USES_REGS1 ) {
-  GLOBAL_answers = YES_ANSWER;
   return (TRUE);
 }
 
@@ -978,7 +858,7 @@ static inline int parallel_new_answer_putchar(int sno, int ch) {
 
 static inline void show_answers(void) {
   CACHE_REGS
-  int i;
+  int i, answers = 0;
   if (OrFr_qg_solutions(LOCAL_top_or_fr)) {
     qg_ans_fr_ptr aux_answer1, aux_answer2;
     aux_answer1 = SolFr_first(OrFr_qg_solutions(LOCAL_top_or_fr));
@@ -987,46 +867,24 @@ static inline void show_answers(void) {
       aux_answer2 = aux_answer1;
       aux_answer1 = AnsFr_next(aux_answer1);
       FREE_QG_ANSWER_FRAME(aux_answer2);
-      GLOBAL_answers++;
+      answers++;
     }
     FREE_QG_SOLUTION_FRAME(OrFr_qg_solutions(LOCAL_top_or_fr));
     OrFr_qg_solutions(LOCAL_top_or_fr) = NULL;
   }
-  switch(GLOBAL_answers) {
-    case YES_ANSWER:
-      Sfprintf(Serror, "[ yes");
-      break;
-    case NO_ANSWER:  
-      Sfprintf(Serror, "[ no");
+  switch(answers) {
+    case 0:  
+      Sfprintf(Serror, "[ no answers found");
       break;
     case 1:
       Sfprintf(Serror, "[ 1 answer found");
       break;
     default:
-         Sfprintf(Serror, "[ %d answers found", GLOBAL_answers);
+         Sfprintf(Serror, "[ %d answers found", answers);
       break;
   }
   Sfprintf(Serror, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
   Sflush(Serror);
-
-  if (GLOBAL_performance_mode == PERFORMANCE_ON) {
-    for (i = GLOBAL_number_goals; i > 0; i--) {
-      if (GLOBAL_best_times(i) > GLOBAL_execution_time) {
-        if (i + 1 < MAX_BEST_TIMES)
-          GLOBAL_best_times(i + 1) = GLOBAL_best_times(i);
-        else {
-          GLOBAL_best_times(0) -= GLOBAL_best_times(i);
-        }
-      }
-      else break;
-    }
-    if (i + 1 < MAX_BEST_TIMES) {
-      GLOBAL_best_times(0) += GLOBAL_execution_time;
-      GLOBAL_best_times(i + 1) = GLOBAL_execution_time;
-      if (GLOBAL_number_goals + 1 < MAX_BEST_TIMES)
-        GLOBAL_number_goals++;
-    }
-  }
 
   return;
 }

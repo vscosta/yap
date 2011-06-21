@@ -12,7 +12,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- meta_predicate 
-   default_sequential(:).
+   parallel(:),
+   parallel_findall(?,:,?).
+   parallel_once(:).
 
 
 
@@ -88,156 +90,80 @@ opt_statistics(table_subgoal_answer_frames,[BytesInUse,StructsInUse]) :-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                        default_sequential/1                         %%
+%%                             parallel/1                              %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-default_sequential(X) :-
-   '$c_default_sequential'(X), !.
-default_sequential(_).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                          $parallel_query/2                          %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-'$parallel_query'(G,[]) :- !, 
-   '$c_start_yapor', 
-   '$execute'(G), !,
-   '$c_parallel_yes_answer'.
-'$parallel_query'(G,V) :- 
-   '$c_start_yapor', 
-   '$execute'(G), 
-   '$c_parallel_new_answer'(V).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                            $sequential/0                            %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-'$sequential' :-
-   '$c_default_sequential'(X),
-   '$initialization'('$c_default_sequential'(X)),
-   '$c_default_sequential'(on).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                             $parallel/0                             %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-'$parallel' :-
-   '$c_default_sequential'(X),
-   '$initialization'('$c_default_sequential'(X)),
-   '$c_default_sequential'(off).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                       $sequential_directive/2                       %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-'$sequential_directive'(Pred,Mod) :-
-    var(Pred), !,
-   '$do_error'(instantiation_error,sequential(Mod:Pred)).
-'$sequential_directive'(Mod:Pred,_) :- !,
-   '$sequential_directive'(Pred,Mod).
-'$sequential_directive'((Pred1,Pred2),Mod) :- !,
-   '$sequential_directive'(Pred1,Mod), 
-   '$sequential_directive'(Pred2,Mod).
-'$sequential_directive'(PredName/PredArity,Mod) :- 
-   atom(PredName), integer(PredArity),
-   functor(PredFunctor,PredName,PredArity), !,
-   '$flags'(PredFunctor,Mod,Flags,Flags),
+parallel(Goal) :-
+   parallel_mode(Mode), Mode = on, !,
    (
-       Flags /\ 0x1991F880 =:= 0, !, 
-       (
-          Flags /\ 0x00000020 =\= 0, !,
-          write(user_error, '[ Warning: '),
-          write(user_error, Mod:PredName/PredArity),
-          write(user_error, ' is already declared as sequential ]'),
-          nl(user_error)
-       ;  
-          NewFlags is Flags \/ 0x00000020,
-          '$flags'(PredFunctor,Mod,Flags,NewFlags)
-       )
+      '$parallel_query'(Goal)
    ;
-       write(user_error, '[ Error: '),
-       write(user_error, Mod:PredName/PredArity),
-       write(user_error, ' cannot be declared as sequential ]'),
-       nl(user_error),
-       fail
+      true
    ).
-'$sequential_directive'(Pred,Mod) :- 
-   '$do_error'(type_error(callable,Mod:Pred),sequential(Mod:Pred)).
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                        $parallel_directive/2                        %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-'$parallel_directive'(Pred,Mod) :-
-    var(Pred), !,
-   '$do_error'(instantiation_error,parallel(Mod:Pred)).
-'$parallel_directive'((Pred1,Pred2),Mod) :- !,
-   '$parallel_directive'(Pred1,Mod),
-   '$parallel_directive'(Pred2,Mod).
-'$parallel_directive'(Mod:Pred,_) :- !,
-   '$parallel_directive'(Pred,Mod).
-'$parallel_directive'(PredName/PredArity,Mod) :- 
-   atom(PredName), integer(PredArity),
-   functor(PredFunctor,PredName,PredArity), !,
-   '$flags'(PredFunctor,Mod,Flags,Flags),
+parallel(Goal) :-
    (
-       Flags /\ 0x1991F880 =:= 0, !, 
-       (
-          Flags /\ 0x00000020 =:= 0, !,
-          write(user_error, '[ Warning: '),
-          write(user_error, Mod:PredName/PredArity),
-          write(user_error, ' is already declared as parallel ]'),
-          nl(user_error)
-       ;
-          NewFlags is Flags /\ 0xffffffdf, 
-          '$flags'(PredFunctor,Mod,Flags,NewFlags)
-       )
+      '$execute'(Goal),
+      fail
    ;
-       write(user_error, '[ Error: '),
-       write(user_error, Mod:PredName/PredArity),
-       write(user_error, ' cannot be declared as parallel ]'),
-       nl(user_error),
-       fail
+      true
    ).
-'$parallel_directive'(Pred,Mod) :- 
-   '$do_error'(type_error(callable,Mod:Pred),parallel(Mod:Pred)).
+
+'$parallel_query'(Goal) :-
+   '$c_yapor_start', 
+   '$execute'(Goal),
+   fail.
+'$parallel_query'(_).
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                          $parallelizable/1                          %%
+%%                          parallel_findall/3                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-'$parallelizable'(_) :-
-   nb_getval('$consulting_file',S), S\=[], !, fail.
-'$parallelizable'((G1,G2)) :- !,
-   '$parallelizable'(G1),
-   '$parallelizable'(G2).
-'$parallelizable'((G1;G2)) :- !,
-   '$parallelizable'(G1),
-   '$parallelizable'(G2).
-'$parallelizable'((G1|G2)) :- !,
-   '$parallelizable'(G1),
-   '$parallelizable'(G2).
-'$parallelizable'((G1->G2)) :- !,
-   '$parallelizable'(G1),
-   '$parallelizable'(G2).
-'$parallelizable'([]) :- !, fail.
-'$parallelizable'([_|_]) :- !, fail.
-'$parallelizable'(consult(_)) :- !, fail.
-'$parallelizable'(reconsult(_)) :- !, fail.
-'$parallelizable'(compile(_)) :- !, fail.
-'$parallelizable'(use_module(_)) :- !, fail.
-'$parallelizable'(_).
+parallel_findall(Template,Goal,Answers) :- 
+   parallel_mode(Mode), Mode = on, !,
+   (
+      '$parallel_findall_query'(Template,Goal)
+   ;
+      findall(X,'$parallel_findall_recorded'(X), Answers)
+   ).
+parallel_findall(Template,Goal,Answers) :-
+   findall(Template,Goal,Answers).
+
+'$parallel_findall_query'(Template,Goal) :-
+   '$c_yapor_start', 
+   '$execute'(Goal),
+   recordz(parallel_findall,Template,_),
+%%   '$c_parallel_new_answer'(Ref),
+   fail.
+'$parallel_findall_query'(_,_).
+
+'$parallel_findall_recorded'(Template) :-
+   recorded(parallel_findall,Template,Ref),
+   erase(Ref).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                         parallel_once/1                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+parallel_once(Goal) :-
+   parallel_mode(Mode), Mode = on, !,
+   (
+      '$parallel_once_query'(Goal)
+   ;
+      recorded(parallel_once,Goal,Ref),
+      erase(Ref)
+   ).
+parallel_once(Goal) :-
+   once(Goal).
+
+'$parallel_once_query'(Goal) :-
+   '$c_yapor_start', 
+   '$execute'(Goal), !,
+    recordz(parallel_once,Goal,_),
+    fail.
+'$parallel_once_query'(_).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

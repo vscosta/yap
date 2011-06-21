@@ -102,11 +102,6 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_scheduler_loop = sch_loop;
   GLOBAL_delayed_release_load = delay_load;
 
-  /* global data related to or-performance */
-  GLOBAL_number_goals = 0;
-  GLOBAL_best_times(0) = 0;
-  GLOBAL_performance_mode = PERFORMANCE_OFF;
-
   /* global data related to or-parallelism */
   ALLOC_OR_FRAME(GLOBAL_root_or_fr);
   BITMAP_clear(GLOBAL_bm_present_workers);
@@ -130,10 +125,10 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_locks_who_locked_heap = MAX_WORKERS;
   INIT_LOCK(GLOBAL_locks_heap_access);
   INIT_LOCK(GLOBAL_locks_alloc_block);
-  if (GLOBAL_number_workers== 1)
-    GLOBAL_parallel_execution_mode = FALSE;
+  if (GLOBAL_number_workers == 1)
+    GLOBAL_parallel_mode = PARALLEL_MODE_OFF;
   else
-    GLOBAL_parallel_execution_mode = TRUE;
+    GLOBAL_parallel_mode = PARALLEL_MODE_ON;
 #endif /* YAPOR */
 
 #ifdef TABLING

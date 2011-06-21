@@ -177,13 +177,8 @@ struct global_optyap_data {
   int master_worker;
 #endif /* YAPOR_COW */
 
-  /* global data related to or-performance */
-  realtime execution_time;
-  realtime best_execution_times[MAX_BEST_TIMES];
-  int number_of_executed_goals;
-  char performance_mode;  /* PERFORMANCE_OFF / PERFORMANCE_ON / PERFORMANCE_IN_EXECUTION */
-
   /* global data related to or-parallelism */
+  realtime execution_time;
 #ifdef YAPOR_THREADS
   Int  root_choice_point_offset;
 #else
@@ -202,8 +197,7 @@ struct global_optyap_data {
 #endif /* TABLING_INNER_CUTS */
   struct global_optyap_locks locks;
   volatile unsigned int branch[MAX_WORKERS][MAX_BRANCH_DEPTH];
-  volatile char parallel_execution_mode;  /* TRUE / FALSE */
-  volatile int answers;
+  volatile char parallel_mode;  /* PARALLEL_MODE_OFF / PARALLEL_MODE_ON / PARALLEL_MODE_RUNNING */
 #endif /* YAPOR */
 
 #ifdef TABLING
@@ -249,9 +243,6 @@ struct global_optyap_data {
 #define GLOBAL_worker_pid(worker)               (GLOBAL_optyap_data.worker_pid[worker])
 #define GLOBAL_master_worker                    (GLOBAL_optyap_data.master_worker)
 #define GLOBAL_execution_time                   (GLOBAL_optyap_data.execution_time)
-#define GLOBAL_best_times(time)                 (GLOBAL_optyap_data.best_execution_times[time])
-#define GLOBAL_number_goals                     (GLOBAL_optyap_data.number_of_executed_goals)
-#define GLOBAL_performance_mode                 (GLOBAL_optyap_data.performance_mode)
 #ifdef YAPOR_THREADS
 #define Get_GLOBAL_root_cp()	             offset_to_cptr(GLOBAL_optyap_data.root_choice_point_offset)
 #define Set_GLOBAL_root_cp(bptr)                (GLOBAL_optyap_data.root_choice_point_offset = cptr_to_offset(bptr))
@@ -280,8 +271,7 @@ struct global_optyap_data {
 #define GLOBAL_locks_heap_access                (GLOBAL_optyap_data.locks.heap_access)
 #define GLOBAL_locks_alloc_block                (GLOBAL_optyap_data.locks.alloc_block)
 #define GLOBAL_branch(worker, depth)            (GLOBAL_optyap_data.branch[worker][depth])
-#define GLOBAL_parallel_execution_mode          (GLOBAL_optyap_data.parallel_execution_mode)
-#define GLOBAL_answers                          (GLOBAL_optyap_data.answers)
+#define GLOBAL_parallel_mode                    (GLOBAL_optyap_data.parallel_mode)
 #define GLOBAL_root_gt                          (GLOBAL_optyap_data.root_global_trie)
 #define GLOBAL_root_tab_ent                     (GLOBAL_optyap_data.root_table_entry)
 #define GLOBAL_first_sg_fr                      (GLOBAL_optyap_data.first_subgoal_frame)

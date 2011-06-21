@@ -442,7 +442,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (GLOBAL_parallel_execution_mode) {
+      if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -553,7 +553,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (GLOBAL_parallel_execution_mode) {
+      if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -664,7 +664,7 @@
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
-      if (GLOBAL_parallel_execution_mode) {
+      if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
 	aux_cp = B;
 	while (YOUNGER_CP(aux_cp, Get_LOCAL_top_cp_on_stack()))
@@ -1213,7 +1213,7 @@
           }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-	  if (GLOBAL_parallel_execution_mode) {
+	  if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	    choiceptr aux_cp;
 	    OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	    aux_cp = chain_cp;
@@ -1284,7 +1284,7 @@
       }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-      if (GLOBAL_parallel_execution_mode) {
+      if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	choiceptr aux_cp;
 	OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	aux_cp = chain_cp;
@@ -1409,7 +1409,7 @@
         UNLOCK(DepFr_lock(dep_fr));
 
 #ifdef DEBUG_OPTYAP
-        if (GLOBAL_parallel_execution_mode) {
+        if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	  choiceptr aux_cp;
 	  OPTYAP_ERROR_CHECKING(completion, Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack());
 	  aux_cp = DepFr_cons_cp(dep_fr);
@@ -1434,7 +1434,7 @@
         }
 #endif /* YAPOR */
 #ifdef DEBUG_OPTYAP
-        if (GLOBAL_parallel_execution_mode) {
+        if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
 	  choiceptr aux_cp;
 	  OPTYAP_ERROR_CHECKING(completion, YOUNGER_CP(Get_LOCAL_top_cp(), Get_LOCAL_top_cp_on_stack()));
 	  aux_cp = DepFr_cons_cp(dep_fr);

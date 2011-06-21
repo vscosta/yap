@@ -18,6 +18,7 @@
 #include "Yap.h"
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
 #include <signal.h>
+#include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/shm.h>
@@ -35,7 +36,8 @@
 #define GLOBAL_LOCAL_STRUCTS_AREA  ADJUST_SIZE_TO_PAGE(sizeof(struct global_data) + MAX_WORKERS * sizeof(struct worker_local))
 
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
-int fd_mapfile;
+#define PATH_MAX 1000
+char mapfile_path[PATH_MAX];
 #elif SHM_MEMORY_MAPPING_SCHEME
 int shm_mapid[MAX_WORKERS + 2];
 #endif /* MEMORY_MAPPING_SCHEME */
@@ -62,10 +64,17 @@ void Yap_init_yapor_global_local_memory(void) {
   Yap_global = (struct global_data *)(MMAP_ADDR - sizeof(struct global_data));
  
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
-  { char mapfile[20];
-    strcpy(mapfile,"./mapfile");
-    itos(getpid(), &mapfile[9]);
-    if ((fd_mapfile = open(mapfile, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
+  { int fd_mapfile;
+    if (getcwd(mapfile_path,PATH_MAX) == NULL)
+      Yap_Error(FATAL_ERROR, TermNil, "getcwd error (Yap_init_yapor_global_local_memory)");
+    strcat(mapfile_path,"/mapfile");
+    itos(getpid(), &mapfile_path[strlen(mapfile_path)]);
+    if (strlen(mapfile_path) >= PATH_MAX)
+      Yap_Error(FATAL_ERROR, TermNil, "PATH_MAX error (Yap_init_yapor_global_local_memory)");
+
+    printf("***************** %s\n", mapfile_path);
+
+    if ((fd_mapfile = open(mapfile_path, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
       Yap_Error(FATAL_ERROR, TermNil, "open error (Yap_init_yapor_global_local_memory)");
     if (lseek(fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA, SEEK_SET) < 0) 
       Yap_Error(FATAL_ERROR, TermNil, "lseek error (Yap_init_yapor_global_local_memory)");
@@ -73,6 +82,8 @@ void Yap_init_yapor_global_local_memory(void) {
       Yap_Error(FATAL_ERROR, TermNil, "write error (Yap_init_yapor_global_local_memory)");
     if (mmap((void *) Yap_local, (size_t) GLOBAL_LOCAL_STRUCTS_AREA, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, fd_mapfile, 0) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_init_global_local_memory)");
+    if (close(fd_mapfile) == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "close error (Yap_init_yapor_global_local_memory)");
   }
 #elif SHM_MEMORY_MAPPING_SCHEME
   /* place as segment MAX_WORKERS (0..MAX_WORKERS-1 reserved for worker areas) */
@@ -101,12 +112,18 @@ void Yap_init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt 
 
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
   /* map stacks in a single go */
-  if (lseek(fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA + StacksArea, SEEK_SET) < 0) 
-    Yap_Error(FATAL_ERROR, TermNil, "lseek error (Yap_init_yapor_stacks_memory)");
-  if (write(fd_mapfile, "", 1) < 0) 
-    Yap_Error(FATAL_ERROR, TermNil, "write error (Yap_init_yapor_stacks_memory)");
-  if (mmap((void *) Yap_HeapBase, (size_t) StacksArea, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA) == (void *) -1)
-    Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_init_yapor_stacks_memory)");
+  { int fd_mapfile; 
+    if ((fd_mapfile = open(mapfile_path, O_RDWR)) < 0)
+      Yap_Error(FATAL_ERROR, TermNil, "open error ( Yap_init_yapor_stacks_memory)");
+    if (lseek(fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA + StacksArea, SEEK_SET) < 0) 
+      Yap_Error(FATAL_ERROR, TermNil, "lseek error (Yap_init_yapor_stacks_memory)");
+    if (write(fd_mapfile, "", 1) < 0) 
+      Yap_Error(FATAL_ERROR, TermNil, "write error (Yap_init_yapor_stacks_memory)");
+    if (mmap((void *) Yap_HeapBase, (size_t) StacksArea, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA) == (void *) -1)
+      Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_init_yapor_stacks_memory)");
+    if (close(fd_mapfile) == -1)
+      Yap_Error(FATAL_ERROR, TermNil, "close error (Yap_init_yapor_stacks_memory)");
+  }
 #elif SHM_MEMORY_MAPPING_SCHEME
   /* place heap stack segment as MAX_WORKERS+1 */
   shm_map_memory(MAX_WORKERS + 1, HeapStackArea, (void *) Yap_HeapBase);
@@ -156,13 +173,18 @@ void Yap_remap_yapor_memory(void) {
   int i;
   void *remap_addr = LOCAL_GlobalBase;
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
+  int fd_mapfile;
   long remap_offset = (ADDR) remap_addr - (ADDR) Yap_local;
+  if ((fd_mapfile = open(mapfile_path, O_RDWR)) < 0)
+    Yap_Error(FATAL_ERROR, TermNil, "open error (Yap_remap_yapor_memory)");
   if (munmap(remap_addr, (size_t)(Yap_worker_area_size * GLOBAL_number_workers)) == -1)
     Yap_Error(FATAL_ERROR, TermNil, "munmap error (Yap_remap_yapor_memory)");
   for (i = 0; i < GLOBAL_number_workers; i++)
     if (mmap(remap_addr + worker_offset(i), (size_t)Yap_worker_area_size, PROT_READ|PROT_WRITE, 
              MAP_SHARED|MAP_FIXED, fd_mapfile, remap_offset + i * Yap_worker_area_size) == (void *) -1)
       Yap_Error(FATAL_ERROR, TermNil, "mmap error (Yap_remap_yapor_memory)");
+  if (close(fd_mapfile) == -1)
+    Yap_Error(FATAL_ERROR, TermNil, "close error (Yap_remap_yapor_memory)");
 #else /* SHM_MEMORY_MAPPING_SCHEME */
   for (i = 0; i < GLOBAL_number_workers; i++)
     if (shmdt(remap_addr + Yap_worker_area_size * i) == -1)
@@ -202,18 +224,10 @@ void Yap_unmap_yapor_memory (void) {
 #endif /* YAPOR_COW */
 
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
-  { char mapfile[20];
-    strcpy(mapfile,"./mapfile");
-#if defined(YAPOR_COPY) || defined(YAPOR_SBA)
-    itos(GLOBAL_worker_pid(0), &mapfile[9]);
-#elif defined(YAPOR_COW)
-    itos(GLOBAL_master_worker, &mapfile[9]);
-#endif /* YAPOR_COPY || YAPOR_SBA || YAPOR_COW */
-    if (remove(mapfile) == 0)
-      INFORMATION_MESSAGE("Removing mapfile \"%s\"", mapfile);
-    else
-      INFORMATION_MESSAGE("Can't remove mapfile \"%s\"", mapfile);
-  }
+  if (remove(mapfile_path) == 0)
+    INFORMATION_MESSAGE("Removing mapfile \"%s\"", mapfile_path);
+  else
+    INFORMATION_MESSAGE("Can't remove mapfile \"%s\"", mapfile_path);
 #elif SHM_MEMORY_MAPPING_SCHEME
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
   shm_unmap_memory(MAX_WORKERS);

@@ -94,13 +94,13 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 
 
 
-/* ---------------------------- **
-**      Performance Macros      **
-** ---------------------------- */
+/* ------------------------------ **
+**      Parallel Mode Macros      **
+** ------------------------------ */
 
-#define PERFORMANCE_OFF           0x0
-#define PERFORMANCE_ON            0x1
-#define PERFORMANCE_IN_EXECUTION  0x2
+#define PARALLEL_MODE_OFF     0
+#define PARALLEL_MODE_ON      1
+#define PARALLEL_MODE_RUNNING 2
 
 
 
@@ -177,7 +177,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 	}
 
 #define CUT_wait_leftmost()                                           \
-        if (GLOBAL_parallel_execution_mode) {                                \
+        if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {          \
            /* parallel execution mode --> wait until leftmost */      \
            int i, loop, depth, ltt;                                   \
            bitmap members;                                            \

@@ -566,7 +566,7 @@ yap_flag(system_options,X) :-
 '$system_options'(low_level_tracer) :-
 	\+ '$undefined'(start_low_level_trace, prolog).
 '$system_options'(or_parallelism) :-
-	\+ '$undefined'('$c_yapor_on', prolog).
+	\+ '$undefined'('$c_yapor_start', prolog).
 '$system_options'(rational_trees) :-
 	'$yap_has_rational_trees'.
 '$system_options'(readline) :-
