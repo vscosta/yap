@@ -210,6 +210,20 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     return;
   }
 #endif
+  if (pt[0] == BLOB_STRING) {
+    wrputc('"',wglb->writewch);
+    wrputs(Yap_BlobStringOfTerm(t),wglb->writewch);
+    wrputc('"',wglb->writewch);
+    return;
+  } else if  (pt[0] == BLOB_STRING) {
+    wchar_t *s = Yap_BlobWideStringOfTerm(t);
+    wrputc('"', wglb->writewch);
+    while (*s) {
+      wrputc(*s++, wglb->writewch);
+    }
+    wrputc('"',wglb->writewch);
+    return;
+  }
   wrputs("0",wglb->writewch);
 }	                  
 

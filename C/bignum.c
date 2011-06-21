@@ -284,6 +284,7 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
   MP_INT *dst = (MP_INT *)(H+2);
   blob_string_t *sp;
   size_t siz;
+  char *dest;
 
   sz = strlen(s);
   if (len > 0 && sz > len) sz = len;
@@ -292,17 +293,16 @@ Yap_MkBlobStringTerm(const char *s, size_t len)
   }
   H[0] = (CELL)FunctorBigInt;
   H[1] = BLOB_STRING;
-
-  siz = (sizeof(size_t)+len+sizeof(CELL))/sizeof(CELL);
+  siz = ALIGN_YAPTYPE((len+1+sizeof(blob_string_t)),CELL);
   dst->_mp_size = 0L;
-  dst->_mp_alloc = siz;
+  dst->_mp_alloc = siz/sizeof(mp_limb_t);
   sp = (blob_string_t *)(dst+1);
-  H = (CELL *)sp;
   sp->len = sz;
-  strncpy((char *)(sp+1), s, sz+1);
-  H += siz;
-  H[0] = EndSpecials;
-  H++;
+  dest = (char *)(sp+1);
+  strncpy(dest, s, sz);
+  dest[sz] = '\0';
+  H += (siz + 2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
+  H[-1] = EndSpecials;
   return AbsAppl(ret);
 }
 
@@ -313,56 +313,49 @@ Yap_MkBlobWideStringTerm(const wchar_t *s, size_t len)
   CELL *ret = H;
   size_t sz;
   MP_INT *dst = (MP_INT *)(H+2);
-  blob_string_t *sp;
+  blob_string_t *sp = (blob_string_t *)(dst+1);
   size_t siz, i = 0;
 
+  H[0] = (CELL)FunctorBigInt;
+  dst->_mp_size = 0L;
   sz = wcslen(s);
-  if (len > 0 && sz > len) sz = len;
+  if (len > 0 && sz > len) {
+    sz = len;
+  }
+  if ((len/sizeof(CELL)) > (ASP-ret)-1024) {
+    return TermNil;
+  }
   while (i < sz) {
     if (s[i++] >= 255) break;
   }
   if (i == sz) {
+    /* we have a standard ascii string */
     char *target;
     size_t i = 0;
 
-    if (len/sizeof(CELL) > (ASP-ret)-1024) {
-      return TermNil;
-    }
-    H[0] = (CELL)FunctorBigInt;
     H[1] = BLOB_STRING;
-
-    siz = (sizeof(size_t)+len+sizeof(CELL))/sizeof(CELL);
-    dst->_mp_size = 0L;
-    dst->_mp_alloc = siz;
-    sp = (blob_string_t *)(dst+1);
-    H = (CELL *)sp;
+    siz = ALIGN_YAPTYPE((sz+1+sizeof(blob_string_t)),CELL);
+    dst->_mp_alloc = siz/sizeof(mp_limb_t);
     sp->len = sz;
     target = (char *)(sp+1);
-    while (i < sz+1) {
+    for (i = 0 ; i < sz; i++) {
       target[i] = s[i];
-      i++;
     }
-    H += siz;
-    H[0] = EndSpecials;
-    H++;
-    return AbsAppl(ret);
-  }
-  if (len/sizeof(CELL) > (ASP-ret)-1024) {
-    return TermNil;
-  }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = BLOB_WIDE_STRING;
+    target[sz] = '\0';
+    H += (siz+2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
+  } else {
+    wchar_t * target;
 
-  siz = (sizeof(size_t)+(len+2)*sizeof(wchar_t))/sizeof(CELL);
-  dst->_mp_size = 0L;
-  dst->_mp_alloc = siz;
-  sp = (blob_string_t *)(dst+1);
-  H = (CELL *)sp;
-  sp->len = sz;
-  wcsncpy((wchar_t *)(sp+1), s, sz+1);
-  H += siz;
-  H[0] = EndSpecials;
-  H++;
+    H[1] = BLOB_WIDE_STRING;
+    siz = ALIGN_YAPTYPE((sz+1)*sizeof(wchar_t)+sizeof(blob_string_t),CELL);
+    dst->_mp_alloc = siz/sizeof(mp_limb_t);
+    sp->len = sz;
+    target = (wchar_t *)(sp+1); 
+    wcsncpy(target, s, sz);
+    target[sz] = '\0';
+    H += (siz + 2*sizeof(CELL)+sizeof(MP_INT)+sizeof(Functor))/sizeof(CELL);
+  }
+  H[-1] = EndSpecials;
   return AbsAppl(ret);
 }
 

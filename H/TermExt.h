@@ -397,7 +397,7 @@ IsLargeIntTerm (Term t)
 #endif
 
 typedef struct string_struct {
-  size_t len;
+  UInt len;
 }  blob_string_t;
 
 Term STD_PROTO (Yap_MkBlobStringTerm, (const char *, size_t len));
