@@ -71,9 +71,6 @@ void Yap_init_yapor_global_local_memory(void) {
     itos(getpid(), &mapfile_path[strlen(mapfile_path)]);
     if (strlen(mapfile_path) >= PATH_MAX)
       Yap_Error(FATAL_ERROR, TermNil, "PATH_MAX error (Yap_init_yapor_global_local_memory)");
-
-    printf("***************** %s\n", mapfile_path);
-
     if ((fd_mapfile = open(mapfile_path, O_RDWR|O_CREAT|O_TRUNC, 0666)) < 0)
       Yap_Error(FATAL_ERROR, TermNil, "open error (Yap_init_yapor_global_local_memory)");
     if (lseek(fd_mapfile, GLOBAL_LOCAL_STRUCTS_AREA, SEEK_SET) < 0) 
