@@ -192,6 +192,30 @@ yap_flag(open_shared_object,X) :-
 yap_flag(open_shared_object,X) :-
 	'$do_error'(domain_error(flag_value,open_shared_object+X),yap_flag(open_shared_object,X)).
 
+yap_flag(open_shared_object,X) :-
+	var(X), !,
+	('$open_shared_objects' -> X = true ; X = false).
+yap_flag(open_shared_object,X) :-
+	(X = true ; X = false), !,
+	'$do_error'(permission_error(modify,flag,open_shared_object),yap_flag(open_shared_object,X)).
+yap_flag(open_shared_object,X) :-
+	'$do_error'(domain_error(flag_value,open_shared_object+X),yap_flag(open_shared_object,X)).
+
+yap_flag(shared_object_extension,X) :-
+	'$obj_suffix'([_|String]),
+	atom_codes(X, String).
+
+:- set_value('$associate',yap).
+
+yap_flag(associate,X) :-
+	var(X), !,
+	get_value('$associate',X).
+yap_flag(associate,X) :-
+	atom(X), !,
+	set_value('$associate',X).
+yap_flag(bounded,X) :-
+	'$do_error'(type_error(atom,X),associate(X)).
+
 yap_flag(bounded,X) :-
 	var(X), !,
 	'$access_yap_flags'(0, X1),
@@ -855,6 +879,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(readline).
 '$yap_system_flag'(redefine_warnings).
 '$yap_system_flag'(shared_object_search_path).
+'$yap_system_flag'(shared_object_extension).
 '$yap_system_flag'(single_var_warnings).
 '$yap_system_flag'(stack_dump_on_error).
 '$yap_system_flag'(strict_iso).

@@ -7891,6 +7891,12 @@ atom-garbage collection, perform atom garbage collection at the first
 opportunity. Initial value is 10,000. May be changed. A value of 0
 (zero) disables atom garbage collection.
 
+@item associate
+@findex associate (yap_flag/2 option)
+@*
+Read-write flag telling a suffix for files associated to Prolog
+sources. It is @code{yap} by default.
+
 @item bounded [ISO]
 @findex bounded (yap_flag/2 option)
 @*
@@ -8140,6 +8146,10 @@ and if it is bound to @code{off} disable them. The default for YAP is
 @findex shared_object_search_path (yap_flag/2 option)
 Name of the environment variable used by the system to search for shared
 objects.
+
+@item shared_object_extension
+@findex shared_object_extension (yap_flag/2 option)
+Suffix associated with loadable code.
 
 @item single_var_warnings
 @findex single_var_warnings (yap_flag/2 option)
