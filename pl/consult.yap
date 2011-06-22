@@ -687,21 +687,27 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$do_error'(instantiation_error, G).
 '$absolute_file_name'(File,Opts,TrueFileName, G) :-
 	'$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G),
-	FoundOne = a(false),
+	/* our own local findall */
+	nb:nb_queue(Ref),
 	(
-	 '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,FErrors,Expand,Debug),TrueFileName,G),
-	  (Solutions = first -> ! ; true),
-	   nb_setarg(1, FoundOne, true)
-	;
+	    '$find_in_path'(File,opts(Extensions,RelTo,Type,Access,FErrors,Expand,Debug),TrueFileName,G),
+	    nb:nb_queue_enqueue(Ref, TrueFileName),
+	    fail
+	; 
+	    nb:nb_queue_close(Ref, FileNames, [])
+	 ),
+	'$absolute_file_names'(Solutions, FileNames, FError, TrueFileName, File, G).
 
-	    FErrors = error, FoundOne = a(false) ->
-	   '$do_error'(existence_error(file,File),G)
-	 ).
+'$absolute_file_names'(Solutions, [], error, _, File, G) :- !,
+	'$do_error'(existence_error(file,File),G).
+'$absolute_file_names'(Solutions, FileNames, _, TrueFileName, _, _) :-
+        lists:member(TrueFileName, FileNames),
+	(Solutions == first -> ! ; true).
 	 
 
 '$process_fn_opts'(V,_,_,_,_,_,_,_,_,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
-'$process_fn_opts'([],[],_,source,none,error,first,false,false,_) :- !.
+'$process_fn_opts'([],[],_,txt,none,error,first,false,false,_) :- !.
 '$process_fn_opts'([Opt|Opts],Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
@@ -727,7 +733,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$process_fn_opt'(verbose_file_search(Debug),Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,_,G) :- !,
 	'$check_true_false'(Debug,G).
 '$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
-	'$do_error'(domain_error(file_name_option,T),G).	
+	'$do_error'(domain_error(file_name_option,Opt),G).	
 
 '$check_fn_extensions'(V,G) :- var(V), !,
 	'$do_error'(instantiation_error, G).
@@ -886,23 +892,10 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$mk_sure_true_ext'(Ext,Ext).
 
 '$add_type_extensions'(Type,File,F) :-
-	'$type_extension'(Type,Ext),
-	atom_concat([File,Ext],F).
-'$add_type_extensions'(Type,File,F) :-
-	user:prolog_file_type(Ext, Type),
+	( Type == source -> NType = prolog ; NType = Type ),
+	user:prolog_file_type(Ext, NType),
 	atom_concat([File,'.',Ext],F).
-
-'$type_extension'(txt,'').
-'$type_extension'(prolog,'.yap').
-'$type_extension'(prolog,'.pl').
-'$type_extension'(prolog,'').
-'$type_extension'(source,'.yap').
-'$type_extension'(source,'.pl').
-'$type_extension'(source,'').
-'$type_extension'(executable,Suffix) :- '$obj_suffix'(String), atom_codes(Suffix, String).
-'$type_extension'(qlf,'.qlf').
-'$type_extension'(qlf,'').
-'$type_extension'(directory,'').
+'$add_type_extensions'(_,File,File).
 
 '$add_path'(File,File).
 '$add_path'(File,PFile) :-

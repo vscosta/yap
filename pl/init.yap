@@ -42,6 +42,7 @@ otherwise.
 :- '$handle_throw'(_,_,_), !.
 
 :- bootstrap('errors.yap').
+:- bootstrap('lists.yap').
 :- bootstrap('consult.yap').
 
 :- [	 'utils.yap',
@@ -54,7 +55,6 @@ otherwise.
 
 :- [
     % lists is often used.
-   	 'lists.yap',
    	 'yio.yap',
 	 'debug.yap',
 	 'checker.yap',
@@ -73,8 +73,8 @@ otherwise.
 	 'callcount.yap',
 	 'load_foreign.yap',
 	 'save.yap',
-	 'sort.yap',
 	 'setof.yap',
+	 'sort.yap',
 	 'statistics.yap',
 	 'strict_iso.yap',
 	 'tabling.yap',
@@ -171,14 +171,21 @@ yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 
 :- dynamic goal_expansion/3.
 
-:- multifile prolog_file_type/2.
+:- multifile user:prolog_file_type/2.
 
-:- dynamic prolog_file_type/2.
+:- dynamic user:prolog_file_type/2.
 
+user:prolog_file_type(yap, prolog).
 user:prolog_file_type(pl, prolog).
-% user:prolog_file_type(Ext,      prolog) :-
-%        current_prolog_flag(associate, Ext),
-%        Ext \== pl.
+user:prolog_file_type(A, prolog) :-
+	current_prolog_flag(associate, A), 
+	A\==pl,
+	A \== yap.
+%user:prolog_file_type(qlf, prolog).
+%user:prolog_file_type(qlf, qlf).
+user:prolog_file_type(A, executable) :-
+	current_prolog_flag(shared_object_extension, A).
+
 
 :- multifile goal_expansion/2.
 
