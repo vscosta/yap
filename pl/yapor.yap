@@ -13,7 +13,7 @@
 
 :- meta_predicate 
    parallel(:),
-   parallel_findall(?,:,?).
+   parallel_findall(?,:,?),
    parallel_once(:).
 
 
