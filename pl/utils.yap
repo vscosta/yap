@@ -719,21 +719,3 @@ subsumes_term(A,B) :-
 	\+ \+ terms:subsumes(A,B).
 
 
-%%	file_name_on_path(+File:atom, -OnPath) is det.
-%
-%	True if OnPath a description of File   based  on the file search
-%	path. This performs the inverse of absolute_file_name/3.
-
-file_name_on_path(Path, ShortId) :-
-	(   file_alias_path(Alias, Dir),
-	    atom_concat(Dir, Local, Path)
-	->  (   Alias == '.'
-	    ->  ShortId = Local
-	    ;   file_name_extension(Base, pl, Local)
-	    ->  ShortId =.. [Alias, Base]
-	    ;   ShortId =.. [Alias, Local]
-	    )
-	;   ShortId = Path
-	).
-
-
