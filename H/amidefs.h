@@ -362,8 +362,9 @@ typedef struct yami {
       struct yami             *l1;
       struct yami             *l2;
       COUNT                    s;
+      COUNT                    e;
       CELL next;
-    } Ills;
+    } Illss;
     struct {
       struct yami   *l;
       CELL next;

@@ -7928,11 +7928,11 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       /* enter logical pred               */
-      BOp(enter_lu_pred, Ills);
+      BOp(enter_lu_pred, Illss);
       check_trail(TR);
       /* mark the indexing code */
       {
-	LogUpdIndex *cl = PREG->u.Ills.I;
+	LogUpdIndex *cl = PREG->u.Illss.I;
 	PredEntry *ap = cl->ClPred;
 
 	if (ap->LastCallOfPred != LUCALL_EXEC) {
@@ -7947,8 +7947,8 @@ Yap_absmi(int inp)
 	  /*	  fprintf(stderr,"R %x--%d--%ul\n",ap,ap->TimeStampOfPred,ap->ArityOfPE);*/
 	}
 	*--YREG = MkIntegerTerm(ap->TimeStampOfPred);
-	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Ills.s);*/
-	PREG = PREG->u.Ills.l1;
+	/* fprintf(stderr,"> %p/%p %d %d\n",cl,ap,ap->TimeStampOfPred,PREG->u.Illss.s);*/
+	PREG = PREG->u.Illss.l1;
 	/* indicate the indexing code is being used */
 #if MULTIPLE_STACKS
 	/* just store a reference */

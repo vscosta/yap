@@ -3722,8 +3722,8 @@ index_sz(LogUpdIndex *x)
       endop = Yap_opcode(_profiled_trust_logical);
     else
       endop = Yap_opcode(_trust_logical);
-    start = start->u.Ills.l1;
-    if (start->u.Ills.s) do {
+    start = start->u.Illss.l1;
+    if (start->u.Illss.s) do {
       sz += (UInt)NEXTOP((yamop*)NULL,OtaLl);
       op1 = start->opc;
       count++;

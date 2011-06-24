@@ -180,9 +180,9 @@ special_formats(C,"l") :- !,
 	format(C,'      if (op == _Ystop) return;~n',[]).
 special_formats(C,"sssl") :- !,
 	format(C,'      AdjustSwitchTable(op, pc->u.sssl.l, pc->u.sssl.s);~n',[]).
-special_formats(C,"Ills") :- !,
-	format(C,'      opc = NEXTOP(pc,Ills);
-      pc = pc->u.Ills.l1;
+special_formats(C,"Illss") :- !,
+	format(C,'      opc = NEXTOP(pc,Illss);
+      pc = pc->u.Illss.l1;
       break;~n',[]),
 	% don't go to NEXTOP
 	fail.
@@ -325,8 +325,8 @@ c_call_op("execute_cpred").
 c_call_op("call_c_wfail").
 
 % I field gives direct access to LU index block and to all Pred information
-output_walk(C,"Ills",_) :- !,
-	format(C,'      return walk_got_lu_block(pc->u.Ills.I, startp, endp);~n',[]).
+output_walk(C,"Illss",_) :- !,
+	format(C,'      return walk_got_lu_block(pc->u.Illss.I, startp, endp);~n',[]).
 output_walk(C,"OtILl",_) :- !,
 	format(C,'      return walk_got_lu_block(pc->u.OtILl.block, startp, endp);~n',[]).
 % I field gives direct access to LU index clause and to all Pred information

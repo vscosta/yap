@@ -217,7 +217,7 @@
   OPCODE(retry4                     ,l),
   OPCODE(trust                      ,Otapl),
   OPCODE(try_in                     ,l),
-  OPCODE(enter_lu_pred              ,Ills),
+  OPCODE(enter_lu_pred              ,Illss),
   OPCODE(try_logical                ,OtaLl),
   OPCODE(retry_logical              ,OtaLl),
   OPCODE(trust_logical              ,OtILl),

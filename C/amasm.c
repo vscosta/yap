@@ -482,15 +482,16 @@ a_lucl(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip,
   if (pass_no) {
     LogUpdIndex *lcl = (LogUpdIndex *)cip->code_addr;
     code_p->opc = emit_op(opcode);
-    code_p->u.Ills.I = lcl;
+    code_p->u.Illss.I = lcl;
     cip->cpc->rnd4 = (CELL)code_p;
-    cip->current_try_lab = &code_p->u.Ills.l1;
-    cip->current_trust_lab = &code_p->u.Ills.l2;
-    code_p->u.Ills.l1  = NULL;
-    code_p->u.Ills.l2  = NULL;
-    code_p->u.Ills.s  = cip->cpc->rnd3;
+    cip->current_try_lab = &code_p->u.Illss.l1;
+    cip->current_trust_lab = &code_p->u.Illss.l2;
+    code_p->u.Illss.l1  = NULL;
+    code_p->u.Illss.l2  = NULL;
+    code_p->u.Illss.s  = cip->cpc->rnd3;
+    code_p->u.Illss.e  = 0;
   }
-  GONEXT(Ills);
+  GONEXT(Illss);
   return code_p;
 }
 
