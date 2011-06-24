@@ -213,7 +213,7 @@ yap_flag(associate,X) :-
 yap_flag(associate,X) :-
 	atom(X), !,
 	set_value('$associate',X).
-yap_flag(bounded,X) :-
+yap_flag(associate,X) :-
 	'$do_error'(type_error(atom,X),associate(X)).
 
 yap_flag(bounded,X) :-
