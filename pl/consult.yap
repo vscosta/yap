@@ -696,7 +696,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	; 
 	    nb:nb_queue_close(Ref, FileNames, [])
 	 ),
-	'$absolute_file_names'(Solutions, FileNames, FError, TrueFileName, File, G).
+	'$absolute_file_names'(Solutions, FileNames, FErrors, TrueFileName, File, G).
 
 '$absolute_file_names'(Solutions, [], error, _, File, G) :- !,
 	'$do_error'(existence_error(file,File),G).
