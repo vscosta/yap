@@ -13,7 +13,7 @@
 
 :- meta_predicate 
    parallel(:),
-   parallel_findall(?,:,?).
+   parallel_findall(?,:,?),
    parallel_once(:).
 
 
@@ -161,7 +161,7 @@ parallel_once(Goal) :-
 
 '$parallel_once_query'(Goal) :-
    '$c_yapor_start', 
-   '$execute'(Goal), !,
+   '$execute'(once(Goal)),
     recordz(parallel_once,Goal,_),
     fail.
 '$parallel_once_query'(_).
