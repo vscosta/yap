@@ -12,9 +12,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 :- meta_predicate 
-   parallel(:),
-   parallel_findall(?,:,?),
-   parallel_once(:).
+   parallel(0),
+   parallel_findall(?,0,?),
+   parallel_once(0).
 
 
 
