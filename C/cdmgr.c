@@ -1197,16 +1197,17 @@ cleanup_dangling_indices(yamop *ipc, yamop *beg, yamop *end, yamop *suspend_code
     case _enter_lu_pred:
       {
 	yamop *oipc = ipc;
-	if (ipc->u.Ills.I->ClFlags & InUseMask || ipc->u.Ills.I->ClRefCount)
+	if (ipc->u.Illss.I->ClFlags & InUseMask || ipc->u.Illss.I->ClRefCount)
 	  return;
 #ifdef DEBUG
-	Yap_DirtyCps+=ipc->u.Ills.s;
-	Yap_LiveCps-=ipc->u.Ills.s;
+	Yap_DirtyCps+=ipc->u.Illss.s;
+	Yap_LiveCps-=ipc->u.Illss.s;
 #endif
-	ipc = ipc->u.Ills.l1;
+	ipc = ipc->u.Illss.l1;
 	/* in case we visit again */
-	oipc->u.Ills.l1 = FAILCODE;
-	oipc->u.Ills.s = 0;
+	oipc->u.Illss.l1 = FAILCODE;
+	oipc->u.Illss.s = 0;
+	oipc->u.Illss.e = 0;
       }
       break;
     case _try_in:

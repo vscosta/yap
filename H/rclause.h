@@ -21,14 +21,15 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.D.D = DBGroundTermAdjust(pc->u.D.D);
       pc = NEXTOP(pc,D);
       break;
-      /* instructions type Ills */
+      /* instructions type Illss */
     case _enter_lu_pred:
-      pc->u.Ills.I = PtoLUIndexAdjust(pc->u.Ills.I);
-      pc->u.Ills.l1 = PtoOpAdjust(pc->u.Ills.l1);
-      pc->u.Ills.l2 = PtoOpAdjust(pc->u.Ills.l2);
-      pc->u.Ills.s = ConstantAdjust(pc->u.Ills.s);
-      opc = NEXTOP(pc,Ills);
-      pc = pc->u.Ills.l1;
+      pc->u.Illss.I = PtoLUIndexAdjust(pc->u.Illss.I);
+      pc->u.Illss.l1 = PtoOpAdjust(pc->u.Illss.l1);
+      pc->u.Illss.l2 = PtoOpAdjust(pc->u.Illss.l2);
+      pc->u.Illss.s = ConstantAdjust(pc->u.Illss.s);
+      pc->u.Illss.e = ConstantAdjust(pc->u.Illss.e);
+      opc = NEXTOP(pc,Illss);
+      pc = pc->u.Illss.l1;
       break;
       /* instructions type L */
     case _alloc_for_logical_pred:

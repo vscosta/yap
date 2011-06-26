@@ -135,7 +135,7 @@ key_statistics(Key, NOfEntries, TotalSize) :-
 %	Based on the SWI-Prolog definition minus reporting the number of inferences,
 %	which YAP does not currently supports
 
-:- meta_predicate time(:).
+:- meta_predicate time(0).
 
 time(Goal) :-
 	var(Goal),

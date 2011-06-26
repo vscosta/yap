@@ -13,9 +13,9 @@
     case _write_dbterm:
       pc = NEXTOP(pc,D);
       break;
-      /* instructions type Ills */
+      /* instructions type Illss */
     case _enter_lu_pred:
-      return walk_got_lu_block(pc->u.Ills.I, startp, endp);
+      return walk_got_lu_block(pc->u.Illss.I, startp, endp);
       /* instructions type L */
     case _alloc_for_logical_pred:
       return walk_got_lu_clause(pc->u.L.ClBase, startp, endp);

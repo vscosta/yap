@@ -558,8 +558,8 @@ recover_from_failed_susp_on_cls(struct intermediates *cint, UInt sz)
     case enter_lu_op:
       if (cpc->rnd4) {
 	yamop *code_p = (yamop *)cpc->rnd4;
-	yamop *first = code_p->u.Ills.l1;
-	yamop *last = code_p->u.Ills.l2;
+	yamop *first = code_p->u.Illss.l1;
+	yamop *last = code_p->u.Illss.l2;
 	while (first) {
 	  yamop *next = first->u.OtaLl.n;
 	  LogUpdClause *cl = first->u.OtaLl.d;
@@ -1001,9 +1001,9 @@ has_cut(yamop *pc)
 #endif /* TABLING */
       pc = NEXTOP(pc,Otapl);
       break;
-      /* instructions type Ills */
+      /* instructions type Illss */
     case _enter_lu_pred:
-      pc = pc->u.Ills.l1;
+      pc = pc->u.Illss.l1;
       break;
     case _execute:
     case _dexecute:
@@ -4059,7 +4059,7 @@ expand_index(struct intermediates *cint) {
       break;
     case _enter_lu_pred:
       /* no useful info */
-      ipc = ipc->u.Ills.l1;
+      ipc = ipc->u.Illss.l1;
       break;
     case _retry_profiled:
     case _count_retry:
@@ -4289,7 +4289,7 @@ expand_index(struct intermediates *cint) {
       if (alt != NULL && ap->PredFlags & LogUpdatePredFlag) {
 	op_numbers fop = Yap_op_from_opcode(alt->opc);
 	if (fop == _enter_lu_pred) 
-	  alt = alt->u.Ills.l1;
+	  alt = alt->u.Illss.l1;
       }
       ipc = NULL;
       break;
@@ -5080,8 +5080,8 @@ find_last_clause(yamop *start)
 static void
 remove_clause_from_index(yamop *header, LogUpdClause *cl)
 {
-  yamop **prevp = &(header->u.Ills.l1);
-  yamop *curp = header->u.Ills.l1;
+  yamop **prevp = &(header->u.Illss.l1);
+  yamop *curp = header->u.Illss.l1;
 
   if (curp->u.OtaLl.d == cl) {
     yamop *newp = curp->u.OtaLl.n;
@@ -5095,13 +5095,14 @@ remove_clause_from_index(yamop *header, LogUpdClause *cl)
       curp = curp->u.OtaLl.n;
     }
     /* in case we were the last */
-    if (curp == header->u.Ills.l2)
-      header->u.Ills.l2 = ocurp;
+    if (curp == header->u.Illss.l2)
+      header->u.Illss.l2 = ocurp;
     if (ocurp != ocurp0)
       ocurp->opc = curp->opc;
     ocurp->u.OtILl.n = curp->u.OtaLl.n;
     ocurp->u.OtILl.block = curp->u.OtILl.block;
   }
+  header->u.Illss.e--;
 #ifdef DEBUG
   Yap_DirtyCps--;
   Yap_FreedCps++;
@@ -5117,7 +5118,7 @@ remove_dirty_clauses_from_index(yamop *header)
   LogUpdClause *cl;
   yamop *previouscurp;
   OPCODE endop = Yap_opcode(_trust_logical);
-  yamop **prevp= &(header->u.Ills.l1), *curp = header->u.Ills.l1;
+  yamop **prevp= &(header->u.Illss.l1), *curp = header->u.Illss.l1;
   OPCODE startopc = curp->opc;
   PredEntry *ap = curp->u.OtaLl.d->ClPred;
 
@@ -5128,6 +5129,7 @@ remove_dirty_clauses_from_index(yamop *header)
   while ((cl = curp->u.OtaLl.d)->ClFlags & ErasedMask) {
     yamop *ocurp = curp;
 
+    header->u.Illss.e--;
 #ifdef DEBUG
     Yap_DirtyCps--;
     Yap_FreedCps++;
@@ -5141,12 +5143,15 @@ remove_dirty_clauses_from_index(yamop *header)
   curp->opc = startopc;
   if (curp->opc == endop)
     return;
+  if (!header->u.Illss.e)
+    return;
   previouscurp = curp;
   curp = curp->u.OtaLl.n;
   while (TRUE) {
     if ((cl = curp->u.OtaLl.d)->ClFlags & ErasedMask) {
       yamop *ocurp = curp;
 
+      header->u.Illss.e--;
 #ifdef DEBUG
       Yap_DirtyCps--;
       Yap_FreedCps++;
@@ -5156,7 +5161,7 @@ remove_dirty_clauses_from_index(yamop *header)
 	previouscurp->opc = endop;
 	previouscurp->u.OtILl.block = curp->u.OtILl.block;
 	previouscurp->u.OtILl.n = NULL;
-	header->u.Ills.l2 = previouscurp;
+	header->u.Illss.l2 = previouscurp;
 	Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,OtILl);
 	Yap_FreeCodeSpace((ADDR)curp);
 	return;
@@ -5165,6 +5170,8 @@ remove_dirty_clauses_from_index(yamop *header)
       curp = curp->u.OtaLl.n;
       Yap_LUIndexSpace_CP -= (UInt)NEXTOP((yamop*)NULL,OtaLl);
       Yap_FreeCodeSpace((ADDR)ocurp);
+      if (!header->u.Illss.e)
+	return;
     } else {
       previouscurp = curp;
       if (curp->opc == endop) {
@@ -5201,15 +5208,15 @@ kill_clause(yamop *ipc, yamop *bg, yamop *lt, path_stack_entry *sp0, PredEntry *
     return kill_block(sp+1, ap);
   }
   /* weird case ????? */
-  if (!start->u.Ills.s){
+  if (!start->u.Illss.s){
     /* ERROR */
-    Yap_Error(INTERNAL_ERROR, TermNil, "Ills.s == 0 %p", ipc);
+    Yap_Error(INTERNAL_ERROR, TermNil, "Illss.s == 0 %p", ipc);
     return sp;
   }
-  if (start->u.Ills.s == 1) {
+  if (start->u.Illss.s == 1) {
     /* we need to discover which clause is left and then die */
     path_stack_entry *nsp;
-    LogUpdClause *tgl = find_last_clause(start->u.Ills.l1);
+    LogUpdClause *tgl = find_last_clause(start->u.Illss.l1);
 
     nsp = sp;
     while ((--nsp)->flag != block_entry);
@@ -5585,20 +5592,20 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       /* ERROR */
       break;
     case _enter_lu_pred:
-      ipc->u.Ills.s++;
-      icl = ipc->u.Ills.I;
+      ipc->u.Illss.s++;
+      icl = ipc->u.Illss.I;
       if (first) {
 	if (ap->PredFlags & CountPredFlag)
-	  ipc->u.Ills.l1->opc = Yap_opcode(_count_retry_logical);
+	  ipc->u.Illss.l1->opc = Yap_opcode(_count_retry_logical);
 	else if (ap->PredFlags & ProfiledPredFlag)
-	  ipc->u.Ills.l1->opc = Yap_opcode(_profiled_retry_logical);
+	  ipc->u.Illss.l1->opc = Yap_opcode(_profiled_retry_logical);
 	else
-	  ipc->u.Ills.l1->opc = Yap_opcode(_retry_logical);
-	ipc->u.Ills.l1 = add_try(ap, cls, ipc->u.Ills.l1, cint);
+	  ipc->u.Illss.l1->opc = Yap_opcode(_retry_logical);
+	ipc->u.Illss.l1 = add_try(ap, cls, ipc->u.Illss.l1, cint);
       } else {
 	/* just go to next instruction */
 	yamop *end = add_trust(icl, cls, cint),
-	  *old = ipc->u.Ills.l2;
+	  *old = ipc->u.Illss.l2;
 	
 	/* we used to have two clauses */
 	if (ap->PredFlags & CountPredFlag)
@@ -5609,7 +5616,7 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	  old->opc = Yap_opcode(_retry_logical);
 	old->u.OtaLl.n = end;
 	old->u.OtaLl.s = ap->ArityOfPE;
-	ipc->u.Ills.l2 = end;
+	ipc->u.Illss.l2 = end;
       }
       ipc = pop_path(&sp, cls, ap, cint);
       break;
@@ -6204,7 +6211,8 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       ipc = pop_path(&sp, cls, ap, cint);
       break;
     case _enter_lu_pred:
-      ipc->u.Ills.s--;
+      ipc->u.Illss.s--;
+      ipc->u.Illss.e++;
 #ifdef DEBUG
       Yap_DirtyCps++;
       Yap_LiveCps--;
@@ -6807,7 +6815,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       break;
     case _enter_lu_pred:
       {
-	LogUpdIndex *cl = ipc->u.Ills.I;
+	LogUpdIndex *cl = ipc->u.Illss.I;
 	PredEntry *ap = cl->ClPred;
 
 	if (ap->LastCallOfPred != LUCALL_EXEC) {
@@ -6834,7 +6842,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	}	
 #endif
       }
-      ipc = ipc->u.Ills.l1;
+      ipc = ipc->u.Illss.l1;
       break;
     case _try_logical:
       if (b0 == NULL)
@@ -7377,7 +7385,7 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       }
       return NULL;
     case _enter_lu_pred:
-      ipc = ipc->u.Ills.l1;
+      ipc = ipc->u.Illss.l1;
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
@@ -7460,7 +7468,7 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     start = NEXTOP(start, xll);
     op = Yap_op_from_opcode(start->opc);
   }
-  codep = start->u.Ills.l1;
+  codep = start->u.Illss.l1;
   remove_dirty_clauses_from_index(start);
 }
 
