@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-13 16:29:18 +0100 (Mon, 13 Dec 2010) $
-%  $Revision: 5122 $
+%  $Date: 2011-04-11 17:23:11 +0200 (Mon, 11 Apr 2011) $
+%  $Revision: 5920 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -305,21 +305,21 @@ problog_table(P) :-
   problog_table(P, M).
 
 problog_table(M:P, _) :-
-	problog_table(P, M).
+  problog_table(P, M).
 problog_table((P1, P2), M) :-
-	problog_table(P1, M),
-	problog_table(P2, M).
+  problog_table(P1, M),
+  problog_table(P2, M).
 problog_table(Name/Arity, Module) :-
-	length(Args,Arity),
-	Head =.. [Name|Args],
-	\+ predicate_property(Module:Head, dynamic), !,
-	throw(error('problog_table: Problog tabling currently requires the predicate to be declared dynamic and compiles it to static.')).
+  length(Args,Arity),
+  Head =.. [Name|Args],
+  \+ predicate_property(Module:Head, dynamic), !,
+  throw(error('problog_table: Problog tabling currently requires the predicate to be declared dynamic and compiles it to static.')).
 problog_table(Name/Arity, Module) :-
-	length(Args,Arity),
-	Head =.. [Name|Args],
-	atom_concat(['problog_', Name, '_original'], OriginalName),
-	atom_concat(['problog_', Name, '_mctabled'], MCName),
-	atom_concat(['problog_', Name, '_tabled'], ExactName),
+  length(Args,Arity),
+  Head =.. [Name|Args],
+  atom_concat(['problog_', Name, '_original'], OriginalName),
+  atom_concat(['problog_', Name, '_mctabled'], MCName),
+  atom_concat(['problog_', Name, '_tabled'], ExactName),
 
   % Monte carlo tabling
   catch((table(Module:MCName/Arity),

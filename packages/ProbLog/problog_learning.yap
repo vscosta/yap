@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-15 15:05:44 +0100 (Wed, 15 Dec 2010) $
-%  $Revision: 5142 $
+%  $Date: 2011-04-21 14:18:59 +0200 (Thu, 21 Apr 2011) $
+%  $Revision: 6364 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -529,7 +529,7 @@ init_learning :-
 	),
 	
 
-	succeeds_n_times(user:example(_,_,_,_),TestExampleCount),
+	succeeds_n_times(user:test_example(_,_,_,_),TestExampleCount),
 	format_learning(3,'~q test examples~n',[TestExampleCount]),
 
 	succeeds_n_times(user:example(_,_,_,_),TrainingExampleCount),
@@ -555,8 +555,8 @@ init_learning :-
 	 ->
 	  set_problog_flag(alpha,1.0);
 	  (
-	   succeed_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
-	   succeed_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
+	   succeeds_n_times((user:example(_,_,P,=),P=:=1.0),Pos_Count),
+	   succeeds_n_times((user:example(_,_,P,=),P=:=0.0),Neg_Count),
 	   Alpha is Pos_Count/Neg_Count,
 	   set_problog_flag(alpha,Alpha)
 	  )
@@ -671,11 +671,17 @@ update_values :-
 
 	forall(get_fact_probability(ID,Prob),
 	       (
-		inv_sigmoid(Prob,Value),
-		(
-		 non_ground_fact(ID)
-		->
-		 format(Handle,'@x~q_*~n~10f~n',[ID,Value]);
+		(problog:dynamic_probability_fact(ID) ->
+      get_fact(ID, Term),
+      forall(grounding_is_known(Term, GID), (
+        problog:dynamic_probability_fact_extract(Term, Prob2),
+        inv_sigmoid(Prob2,Value),
+        format(Handle, '@x~q_~q~n~10f~n', [ID,GID, Value])))
+    ; non_ground_fact(ID) ->
+      inv_sigmoid(Prob,Value),
+		 format(Handle,'@x~q_*~n~10f~n',[ID,Value])
+    ;
+      inv_sigmoid(Prob,Value),
 		 format(Handle,'@x~q~n~10f~n',[ID,Value])
 		)
 	       )),

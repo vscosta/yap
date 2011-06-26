@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 15:20:15 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5043 $
+%  $Date: 2011-04-21 14:18:59 +0200 (Thu, 21 Apr 2011) $
+%  $Revision: 6364 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -207,11 +207,12 @@
 %%%%%%%%
 % Collected OS depended instructions
 %%%%%%%%
-:- module(print_learning, [format_learning/3]).
+:- module(print_learning, [format_learning/3,format_learning_rule/3]).
 
 
 % load our own modules
 :- use_module(flags).
+:- use_module(termhandling).
 
 :- initialization(problog_define_flag(verbosity_learning, problog_flag_validate_0to5,'How much output shall be given (0=nothing,5=all)',5, learning_general)).
 
@@ -230,3 +231,42 @@ format_learning(Level,String,Arguments) :-
 	flush_output(user).
 format_learning(_,_,_) :-
 	true.
+
+%========================================================================
+%= 
+%= 
+%=
+%========================================================================
+
+
+format_learning_rule(D,'$atom'(A)):-
+	format_learning(D,'~q',[A]).
+format_learning_rule(D,\+A):-
+	format_learning(D,'\+',[]),
+	format_learning_rule(D,A).
+
+format_learning_rule(D,'true'):-
+	format_learning(D,'true',[]).
+format_learning_rule(D,'false'):-
+	format_learning(D,'false',[]).
+
+format_learning_rule(D,(First<=>Second)):-
+	format_learning_rule(D,First),
+	format_learning(D,'<==>',[]),
+	format_learning_rule(D,Second)
+	.
+format_learning_rule(D,(First;Second)):-
+	format_learning(D,'(',[]),
+	format_learning_rule(D,First),
+	format_learning(D,';',[]),
+	format_learning_rule(D,Second),
+	format_learning(D,')',[])
+	.
+format_learning_rule(D,(First,Second)):-
+	format_learning_rule(D,First),
+	format_learning(D,',',[]),
+	format_learning_rule(D,Second)
+	.
+format_learning_rule(D,R,Key):-
+	(format_learning_rule(D,R) ; (format('~q ',[flr(D,R,Key)]),throw(ball))),
+	format_learning(D,'  (~q)~n',[Key]).

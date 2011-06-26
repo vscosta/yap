@@ -3,12 +3,10 @@
 *    SimpleCUDD library (www.cs.kuleuven.be/~theo/tools/simplecudd.html)       *
 *  SimpleCUDD was developed at Katholieke Universiteit Leuven(www.kuleuven.be) *
 *                                                                              *
-*  Copyright Katholieke Universiteit Leuven 2008, 2009, 2010                   *
+*  Copyright Katholieke Universiteit Leuven 2008                               *
 *                                                                              *
-*  Author: Theofrastos Mantadelis                                              *
+*  Author: Theofrastos Mantadelis, Bernd Gutmann                               *
 *  File: simplecudd.c                                                          *
-*  $Date:: 2011-04-11 17:23:11 +0200 (Mon, 11 Apr 2011)                      $ *
-*  $Revision:: 5920                                                          $ *
 *                                                                              *
 ********************************************************************************
 *                                                                              *
@@ -186,7 +184,8 @@
 *                                                                              *
 \******************************************************************************/
 
-
+#include <stdlib.h>
+#include <errno.h>
 #include "simplecudd.h"
 
 /* BDD manager initialization */
@@ -197,18 +196,11 @@ int _maxbufsize = 0;
 
 DdManager* simpleBDDinit(int varcnt) {
   DdManager *temp;
+  //  fprintf(stderr,"varcnt is %i \n",varcnt);
   temp = Cudd_Init(varcnt, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0);
   Cudd_AutodynEnable(temp, CUDD_REORDER_GROUP_SIFT);
-  Cudd_SetMaxCacheHard(temp, 1024*1024*1024);
-  Cudd_SetLooseUpTo(temp, 1024*1024*512);
-  if (_debug) Cudd_EnableReorderingReporting(temp);
-  return temp;
-}
-
-DdManager* simpleBDDinitNoReOrder(int varcnt) {
-  DdManager *temp;
-  temp = Cudd_Init(varcnt, 0, CUDD_UNIQUE_SLOTS, CUDD_CACHE_SLOTS, 0);
-  Cudd_AutodynDisable(temp);//  Cudd_AutodynEnable(temp, CUDD_REORDER_NONE);
+  //Cudd_AutodynEnable(temp, CUDD_REORDER_RANDOM);
+  //Cudd_AutodynDisable(temp);
   Cudd_SetMaxCacheHard(temp, 1024*1024*1024);
   Cudd_SetLooseUpTo(temp, 1024*1024*512);
   if (_debug) Cudd_EnableReorderingReporting(temp);
@@ -380,16 +372,16 @@ int simpleNamedBDDtoDot(DdManager *manager, namedvars varmap, DdNode *bdd, char 
   DdNode *f[1];
   int ret;
   FILE *fd;
-  // Reordering until getting the optimal bdd //
-/*  Cudd_AutodynDisable(manager);
-  Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT_CONVERGE, 1);*/
-  // better before making an ADD //
+  Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT_CONVERGE, 1);
   f[0] = Cudd_BddToAdd(manager, bdd);
   fd = fopen(filename, "w");
   if (fd == NULL) {
     perror(filename);
     return -1;
   }
+  //	Cudd_AutodynEnable(mana, CUDD_REORDER_EXACT);
+  //	Cudd_ReduceHeap(manager, CUDD_REORDER_SIFT, 1);
+
   ret = Cudd_DumpDot(manager, 1, f, varmap.vars, NULL, fd);
   fclose(fd);
   return ret;
@@ -647,9 +639,10 @@ char** GetVariableOrder(char *filename, int varcnt) {
 int LoadVariableData(namedvars varmap, char *filename) {
   FILE *data;
   char *dataread, buf, *varname, *dynvalue;
+  char * unparsed_string;
   double dvalue = 0.0;
   int icur = 0, maxbufsize = 10, hasvar = 0, index = -1, idat = 0, ivalue = 0;
-  dynvalue = NULL; varname = NULL;
+  dynvalue = NULL;
   if ((data = fopen(filename, "r")) == NULL) {
     perror(filename);
     return -1;
@@ -696,8 +689,14 @@ int LoadVariableData(namedvars varmap, char *filename) {
         if (hasvar >= 0) {
           switch(idat) {
             case 0:
-              if (!getRealNumber(dataread, &dvalue)) {
-                fprintf(stderr, "Error at file: %s. Variable: %s can't have non real value: %s.\n", filename, varname, dataread);
+	      // http://www.cplusplus.com/reference/clibrary/cstdlib/strtod/
+	     
+	      errno=0;  // reset global error indicator
+	      dvalue = strtod(dataread, &unparsed_string);
+	      
+	      // check for errors
+	      if (errno == ERANGE || unparsed_string == dataread) {
+                fprintf(stderr, "Error at file: %s. Variable: %s does not have a valid real value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
                 free(dataread);
@@ -706,7 +705,8 @@ int LoadVariableData(namedvars varmap, char *filename) {
               idat++;
               break;
             case 1:
-              if (!getIntNumber(dataread, &ivalue)) {
+              if (IsNumber(dataread)) ivalue = atoi(dataread);
+              else {
                 fprintf(stderr, "Error at file: %s. Variable: %s can't have non integer value: %s.\n", filename, varname, dataread);
                 fclose(data);
                 free(varname);
@@ -766,8 +766,9 @@ int LoadVariableData(namedvars varmap, char *filename) {
 hisqueue* InitHistory(int varcnt) {
   int i;
   hisqueue *HisQueue;
-  HisQueue = (hisqueue *) malloc(sizeof(hisqueue) * varcnt);
-  for (i = 0; i < varcnt; i++) {
+  //  fprintf(stderr,"init hisotry %i %i\n",__LINE__,varcnt+2);
+  HisQueue = (hisqueue *) malloc(sizeof(hisqueue) * (varcnt+2));
+  for (i = 0; i < varcnt+2; i++) {
     HisQueue[i].thenode = NULL;
     HisQueue[i].cnt = 0;
   }
@@ -776,8 +777,8 @@ hisqueue* InitHistory(int varcnt) {
 
 void ReInitHistory(hisqueue *HisQueue, int varcnt) {
   int i, j;
-  for (i = 0; i < varcnt; i++) {
-    if (HisQueue[i].thenode != NULL) {
+  for (i = 0; i < varcnt +2; i++) {
+    if (HisQueue[i].thenode != NULL && !Cudd_IsConstant(HisQueue[i].thenode)) {
       for (j = 0; j < HisQueue[i].cnt; j++)
         if (HisQueue[i].thenode[j].dynvalue != NULL) free(HisQueue[i].thenode[j].dynvalue);
       free(HisQueue[i].thenode);
@@ -787,28 +788,53 @@ void ReInitHistory(hisqueue *HisQueue, int varcnt) {
   }
 }
 
+int my_index_calc(int varstart, DdNode *node){
+  if(Cudd_IsConstant(node)){   
+    return Cudd_V(node);
+  }else{
+    int index = GetIndex(node) - varstart+2;
+    return index;
+  }
+}
 void AddNode(hisqueue *HisQueue, int varstart, DdNode *node, double dvalue, int ivalue, void *dynvalue) {
-  int index = GetIndex(node) - varstart;
-  HisQueue[index].thenode = (hisnode *) realloc(HisQueue[index].thenode, (HisQueue[index].cnt + 1) * sizeof(hisnode));
+  //  int index = GetIndex(node) - varstart;
+  //  fprintf(stderr,"----- node added: %p <-> %i <-> %e\n",node,GetIndex(node),dvalue);
+  int index= my_index_calc(varstart,node);
+  HisQueue[index].thenode = (hisnode *) realloc(HisQueue[index].thenode, (HisQueue[index].cnt + 1+2/*account for t+f*/) * sizeof(hisnode));
   HisQueue[index].thenode[HisQueue[index].cnt].key = node;
   HisQueue[index].thenode[HisQueue[index].cnt].dvalue = dvalue;
+  HisQueue[index].thenode[HisQueue[index].cnt].dvalue2 = -1; //keep backward compatibility
   HisQueue[index].thenode[HisQueue[index].cnt].ivalue = ivalue;
   HisQueue[index].thenode[HisQueue[index].cnt].dynvalue = dynvalue;
   HisQueue[index].cnt += 1;
 }
 
 hisnode* GetNode(hisqueue *HisQueue, int varstart, DdNode *node) {
-  int i;
-  int index = GetIndex(node) - varstart;
+  //  int index = GetIndex(node) - varstart;
+  int index= -1;
+  index=my_index_calc(varstart,node);
+  //  fprintf(stderr,"----- node retuned: %p <-> %i <-> %i \n",node,GetIndex(node),index);
+    //TODO: this must be check think not initialzied. Null check fails?
+  //  if (Cudd_IsConstant(node) ){ 
+    //    fprintf(stderr,"----- node retuned: %p <-> %i \n",node,GetIndex(node));
+    //    fprintf(stderr,"returning %p  ,,,,, %e\n", &(HisQueue[index].thenode[index]));
+    //    return  &(HisQueue[index].thenode[0]);}
+  int i;//to bug check
   for(i = 0; i < HisQueue[index].cnt; i++) {
-    if (HisQueue[index].thenode[i].key == node) return &(HisQueue[index].thenode[i]);
+    if (HisQueue[index].thenode[i].key == node){
+      //      fprintf(stderr,"returning %p ....%e \n", &(HisQueue[index].thenode[i]),&(HisQueue[index].thenode[i]).dvalue);
+      return &(HisQueue[index].thenode[i]);
+    }
   }
+  //  fprintf(stderr,"returning null\n");
   return NULL;
 }
 
 int GetNodeIndex(hisqueue *HisQueue, int varstart, DdNode *node) {
   int i;
-  int index = GetIndex(node) - varstart;
+  //  int index = GetIndex(node) - varstart;
+  int index= my_index_calc(varstart,node);
+  if (Cudd_IsConstant(node) ){ return  index;}
   for(i = 0; i < HisQueue[index].cnt; i++) {
     if (HisQueue[index].thenode[i].key == node) return i;
   }
@@ -924,9 +950,10 @@ char* GetNodeVarNameDisp(DdManager *manager, namedvars varmap, DdNode *node) {
 }
 
 int RepairVarcnt(namedvars *varmap) {
-    while (varmap->vars[varmap->varcnt - 1] == NULL)
-      varmap->varcnt--;
-    return varmap->varcnt;
+  while (varmap->vars[varmap->varcnt - 1] == NULL && varmap->varcnt>0){
+    varmap->varcnt--;
+  }
+  return varmap->varcnt;
 }
 
 int all_loaded(namedvars varmap, int disp) {
@@ -938,6 +965,23 @@ int all_loaded(namedvars varmap, int disp) {
     }
   }
   return res;
+}
+
+int all_loaded_for_deterministic_variables(namedvars varmap, int disp) {
+  int i;
+  char * dummy;
+  for (i = 0; i < varmap.varcnt; i++) {
+    if (varmap.loaded[i] == 0) {
+      // no value specified, make it a deterministic variable
+      varmap.loaded[i]=1;
+      varmap.dvalue[i]=1.0;
+      varmap.ivalue[i]=0;
+      dummy = malloc(0);
+      varmap.dynvalue[i]=dummy;
+	//      if (disp) fprintf(stderr, "The variable: %s was not loaded with values.\n", varmap.vars[i]); else return 0;
+    }
+  }
+  return 1;
 }
 
 int ImposeOrder(DdManager *manager, const namedvars varmap, char **map) {
@@ -978,13 +1022,6 @@ int get_var_pos_in_map(char **map, const char *var, int varcnt) {
 DdNode* FileGenerateBDD(DdManager *manager, namedvars varmap, bddfileheader fileheader) {
   return (FileGenerateBDDForest(manager, varmap, fileheader))[0];
 }
-
-// void unreference(DdManager *manager, DdNode ** intermediates, int count){
-// //	int i;
-// //	for(i = 0;i<count;i++){
-// //		if(intermediates[i] != NULL) Cudd_RecursiveDeref(manager,intermediates[i]);
-// //	}
-// }
 
 DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfileheader fileheader) {
   int icomment, maxlinesize, icur, iline, curinter, iequal;
@@ -1034,8 +1071,6 @@ DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfilehead
                 fclose(fileheader.inputfile);
                 result = (DdNode **) malloc(sizeof(DdNode *) * 1);
                 result[0] = inter[curinter];
-                Cudd_Ref(result[0]);
-                //unreference(manager, inter, fileheader.intercnt);
                 free(inter);
                 free(inputline);
                 return result;
@@ -1067,7 +1102,6 @@ DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfilehead
                     maxlinesize *= 2;
                     result = (DdNode **) realloc(result, sizeof(DdNode *) * maxlinesize);
                   }
-                  Cudd_Ref(inter[curinter]);
                   result[iline] = inter[curinter];
                 } else {
                   fprintf(stderr, "Error at line: %i. Return result asked(%s) doesn't exist.\n", iline, subl);
@@ -1088,7 +1122,6 @@ DdNode** FileGenerateBDDForest(DdManager *manager, namedvars varmap, bddfilehead
             }
             if (_debug) fprintf(stderr, "Returned: %s\n", inputline);
             fclose(fileheader.inputfile);
-            //unreference(manager, inter, fileheader.intercnt);
             free(inter);
             free(inputline);
             free(subl);
@@ -1202,7 +1235,7 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
   int istart, iend, ilength, i, symbol, ivar, inegvar, inegoper, iconst;
   long startAt, endAt;
   double secs;
-  DdNode *bdd;//, *temp;
+  DdNode *bdd;
   char *term, curoper;
   bdd = HIGH(manager);
   Cudd_Ref(bdd);
@@ -1240,14 +1273,10 @@ DdNode* LineParser(DdManager *manager, namedvars varmap, DdNode **inter, int max
           iconst = 1;
         } else if (strcmp(term + inegvar, "FALSE") == 0) {
           iconst = 1;
-          inegvar = !inegvar;
+          inegvar = 1;
         } else {
           iconst = 0;
           ivar = AddNamedVar(varmap, term + inegvar);
-/*          if (ivar == -1) {
-            EnlargeNamedVars(&varmap, varmap.varcnt + 1);
-            ivar = AddNamedVar(varmap, term + inegvar);
-          }*/
           if (ivar == -1) {
             fprintf(stderr, "Line Parser Error at line: %i. More BDD variables than the reserved term: %s.\n", iline, term);
             free(term);
@@ -1688,8 +1717,8 @@ int GetParam(char *inputline, int iParam) {
 
 void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, DdNode *bdd) {
   char buf, *inputline;
-  int icur, maxlinesize, iline, index, iloop, iQsize, i, iRoot; //ivalue,inQ, 
-//  double dvalue;
+  int icur, maxlinesize, iline, index, iloop, ivalue, iQsize, i, inQ, iRoot;
+  double dvalue;
   DdNode **Q, **Q2, *h_node, *l_node, *curnode;
   hisqueue *his;
   hisnode *hnode;
@@ -1710,55 +1739,34 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
       inputline[icur] = '\0';
       if ((icur > 0) && (inputline[0] == '@') && (inputline[2] == ',' || inputline[2] == '\0')) {
         switch(inputline[1]) {
-          case '?':
-            printf("Available instructions:\n\t@c : current node\n\t@n,[BFS, DFS] : expand and go to next node\n\t@t,[BFS, DFS] : throw and go to next node\n");
-            printf("\t@h : high node of current\n\t@l : low node of current\n\t@v,[variable] : variable values\n\t@r restart traverse from parent node\n\t@e terminates\n");
-            break;
-          case 'r':
-            curnode = bdd;
-            iQsize = 0;
-            iRoot = 1;
-            free(Q);
-            Q = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
-            Q2 = NULL;
-            ReInitHistory(his, varmap.varcnt);
-            break;
           case 'c':
             if (iRoot) {
               iRoot = 0;
-              printf("bdd_temp_value('%s', %i, %p).\n", GetNodeVarNameDisp(manager, varmap, curnode), 1, (void *) curnode);
+              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), 1);
             } else {
-              printf("bdd_temp_value('%s', %i, %p).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize, (void *) curnode);
+              printf("bdd_temp_value('%s', %i).\n", GetNodeVarNameDisp(manager, varmap, curnode), iQsize);
             }
             fflush(stdout);
             break;
           case 'n':
             if (curnode != HIGH(manager) && curnode != LOW(manager) && (hnode = GetNode(his, varmap.varstart, curnode)) == NULL) {
+              //AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
               l_node = LowNodeOf(manager, curnode);
               h_node = HighNodeOf(manager, curnode);
-              iQsize += 2;
-              Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
-              Q[iQsize - 2] = l_node;
-              Q[iQsize - 1] = h_node;
-              //AddNode(his, varmap.varstart, curnode, 0.0, 0, NULL);
-/*              inQ = 0;
+              inQ = 0;
               for(i = 0; (i < iQsize / 2) && (inQ < 3); i++)
-                inQ = (Q[i] == l_node) || (Q[iQsize - i - 1] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i - 1] == h_node);
-              if ((l_node == HIGH(manager) || l_node == LOW(manager))) {
-                inQ = (inQ & 2);
-              } else {
-                if ((inQ & 1) == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
-              }
-              if (h_node == HIGH(manager) || h_node == LOW(manager)) {
-                inQ = (inQ & 1);
-              } else {
-                if ((inQ & 2) == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
-              }*/
-/*              if ((inQ & 1) == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
-              if ((inQ & 2) == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));*/
-/*              inQ = 0;
+                inQ = (Q[i] == l_node) || (Q[iQsize - i] == l_node) + 2 * (Q[i] == h_node) || (Q[iQsize - i] == h_node);
+              if (inQ & 1 == 0) inQ = inQ + (GetNode(his, varmap.varstart, l_node) != NULL);
+              if (inQ & 2 == 0) inQ = inQ + 2 * (GetNode(his, varmap.varstart, h_node) != NULL);
+              if (inQ & 1 == 1) inQ = inQ - (l_node == HIGH(manager) || l_node == LOW(manager));
+              if (inQ & 2 == 2) inQ = inQ - 2 * (h_node == HIGH(manager) || h_node == LOW(manager));
+              inQ = 0;
               switch(inQ) {
                 case 0:
+                  iQsize += 2;
+                  Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
+                  Q[iQsize - 2] = l_node;
+                  Q[iQsize - 1] = h_node;
                   break;
                 case 1:
                   iQsize++;
@@ -1774,32 +1782,8 @@ void onlinetraverse(DdManager *manager, namedvars varmap, hisqueue *HisQueue, Dd
                   break;
                 default:
                   break;
-              }*/
-            }
-            if (inputline[2] == '\0' || strcmp(inputline + 3, "DFS") == 0) {
-              if (iQsize > 0) {
-                iQsize--;
-                curnode = Q[iQsize];
-                Q = (DdNode **) realloc(Q, sizeof(DdNode *) * iQsize);
               }
-            } else if (strcmp(inputline + 3, "BFS") == 0) {
-              if (iQsize > 0) {
-                iQsize--;
-                curnode = Q[0];
-                Q2 = (DdNode **) malloc(sizeof(DdNode *) * iQsize);
-                for(i = 0; i < iQsize; i++)
-                  Q2[i] = Q[i + 1];
-                free(Q);
-                Q = Q2;
-              }
-            } else {
-              fprintf(stderr, "Error: Could not find method: %s, Correct syntax @n,[DFS, BFS].\n", inputline + 3);
-              free(Q);
-              free(inputline);
-              exit(-1);
             }
-            break;
-          case 't':
             if (inputline[2] == '\0' || strcmp(inputline + 3, "DFS") == 0) {
               if (iQsize > 0) {
                 iQsize--;

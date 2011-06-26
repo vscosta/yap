@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-01-16 19:24:10 +0100 (Sun, 16 Jan 2011) $
-%  $Revision: 5260 $
+%  $Date: 2011-04-11 17:23:11 +0200 (Mon, 11 Apr 2011) $
+%  $Revision: 5920 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -679,6 +679,10 @@ writemap([Name|Names],[Fact|Facts]):-
   writemap(Names, Facts).
 
 bdd_vars_script([], []).
+bdd_vars_script([false|T], Names):-
+  bdd_vars_script(T, Names).
+bdd_vars_script([true|T], Names):-
+  bdd_vars_script(T, Names).
 bdd_vars_script([not(A)|B], Names) :-
   !, bdd_vars_script([A|B], Names).
 bdd_vars_script([A|B], [NameA|Names]) :-

@@ -1,0 +1,62 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+CC=@CC@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+
+DYNAMIC =
+CFLAGS = @CFLAGS@
+INCLUDE = @CUDD_CPPFLAGS@
+LINKFLAGS = -lm
+LINKLIBS =  @CUDD_LDFLAGS@
+
+default: problogbdd_lfi
+
+problogbdd_lfi: problogbdd_lfi.o simplecudd.o general.o problogmath.o pqueue.o allocate.o iqueue.o  adterror.o allocate.o
+	@echo Making problogbdd_lfi...
+	@echo Copyright Katholieke Universiteit Leuven 2008
+	@echo Authors: T. Mantadelis, A. Kimmig, B. Gutmann, I. Thon, G. Van den Broeck
+	$(CC) problogbdd_lfi.o simplecudd.o general.o problogmath.o  pqueue.o  iqueue.o  adterror.o allocate.o $(LINKLIBS) $(LINKFLAGS) -o problogbdd_lfi
+
+%.o : $(srcdir)/%.c
+	$(CC) $(CFLAGS) $(INCLUDE) $(DYNAMIC) -c $<
+
+clean:
+	rm -f *.o problogbdd_lfi
+
+install: default
+	$(INSTALL_PROGRAM) problogbdd_lfi $(DESTDIR)$(SHAREDIR)/Yap

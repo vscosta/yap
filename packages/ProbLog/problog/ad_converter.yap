@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-13 18:15:14 +0100 (Mon, 13 Dec 2010) $
-%  $Revision: 5125 $
+%  $Date: 2011-04-26 15:48:52 +0200 (Tue, 26 Apr 2011) $
+%  $Revision: 6371 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -204,24 +204,20 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:- module(ad_converter,[compile_annotated_disjunction/5,
-			compile_tunable_annotated_disjunction/5,
-			proper_annotated_disjunction/1,
-			proper_tunable_annotated_disjunction/1,
-			term_expansion_intern_ad/3,
+:- module(ad_converter,[term_expansion_intern_ad/4,
 			op(1149, yfx, <-- ),
 			op( 550, yfx, :: )
 		       ]).
 
 % general yap modules
-:- use_module(library(lists),[reverse/2,member/2,append/3]).
+:- use_module(library(lists),[reverse/2,member/2,memberchk/2,append/3]).
 
 :- use_module(flags).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
 
-:- discontiguous user:ad_intern/2.
+:- discontiguous user:(<--)/2, problog:(<--)/2.
 
 :- op( 550, yfx, :: ).
 
@@ -230,29 +226,43 @@
 
 :- initialization(problog_define_flag(show_ad_compilation,problog_flag_validate_boolean,'show compiled code for ADs',false,annotated_disjunctions)).
 :- initialization(problog_define_flag(ad_cpl_semantics,problog_flag_validate_boolean,'use CP-logics semantics for ADs',true,annotated_disjunctions)).
+:- initialization(problog_define_flag(ad_sumto1_learning,problog_flag_validate_boolean,'make p_i sum to 1 for learning',true,annotated_disjunctions)).
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-term_expansion_intern_ad( (Head<--Body),Module,ad_intern((Head<--Body),ID)) :-
+term_expansion_intern_ad( (Head<--Body),Module,Mode,Result) :-
 	problog_flag(ad_cpl_semantics,AD_CPL_Semantics),
 	(
 	 proper_tunable_annotated_disjunction(Head)
 	->
-	 compile_tunable_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics);
+	 compile_tunable_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics,Mode);
 	 (
-	  proper_annotated_disjunction(Head),
-	  compile_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics)
+	  proper_annotated_disjunction(Head,Sum_of_P_in_Head)
+	 ->
+	  compile_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics,Mode,Sum_of_P_in_Head);
+	  throw(error(invalid_annotated_disjunction,(Head<--Body)))
 	 )
 	),
 
-	forall(member(F,Facts),(once(problog:term_expansion_intern(F,Module,Atom)),
-				assertz(problog:Atom))),
-	forall(member(B,Bodies),assertz(Module:B)),
+	findall(problog:Atom,(
+			      member(F,Facts),
+			      once(problog:term_expansion_intern(F,Module,Atom))
+			     ),Result_Atoms),
 
+	(
+	 Mode==lfi_learning
+	->
+	 findall(Module:myclause(H,B),member((H:-B),Bodies),Result_Bodies);
+	 findall(Module:B,member(B,Bodies),Result_Bodies)
+	),
+
+	append(Result_Atoms,Result_Bodies,Result),
+
+	
 	problog_flag(show_ad_compilation,Show_AD_compilation),
-
 	(
 	 Show_AD_compilation==true
 	->
@@ -289,7 +299,7 @@ get_next_unique_id(ID) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-proper_annotated_disjunction(AD) :-
+proper_annotated_disjunction(AD,Sum) :-
 	proper_annotated_disjunction(AD,0.0,Sum),
 	Sum=<1.
 
@@ -316,7 +326,7 @@ proper_tunable_annotated_disjunction((X;Y)) :-
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-compile_tunable_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics) :-
+compile_tunable_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics,Mode) :-
 	get_next_unique_id(Extra_ID),
 
 	(
@@ -325,16 +335,28 @@ compile_tunable_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_S
 	 term_variables(Body,Body_Vars);
 	 Body_Vars=[]
 	),
-	
-	convert_a_tunable(Head,Extra_ID,[],Facts,Body_Vars),
-	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars),
 
-	reverse(Facts,Facts2),
+
+	
+	convert_a_tunable(Head,Extra_ID,[],Facts0,Body_Vars),
+	
+	problog_flag(ad_sumto1_learning,AD_SumTo1_Learning),
+	(
+	 AD_SumTo1_Learning==true
+	->
+	 Facts0=[_|Facts1];
+	 Facts1=Facts0
+	),
+
+	reverse(Facts1,Facts2),	 
+	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars,Mode,Facts2),
+
+
 	reverse(Bodies,Bodies2).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-compile_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics) :-
+compile_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics,Mode,ProbSum) :-
 	get_next_unique_id(Extra_ID),
 
 	(
@@ -344,10 +366,20 @@ compile_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics
 	 Body_Vars=[]
 	),
 	
-	convert_a(Head,0.0,_Acc,Extra_ID,[],Facts,Body_Vars),
-	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars),
+	convert_a(Head,0.0,_Acc,Extra_ID,[],Facts0,Body_Vars),
 
-	reverse(Facts,Facts2),
+	(
+	 abs(ProbSum-1.0) < 0.0000001
+	->
+	 Facts0=[_|Facts1];
+	 Facts1=Facts0
+	),
+
+ 
+	reverse(Facts1,Facts2),
+	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars,Mode,Facts2),
+
+
 	reverse(Bodies,Bodies2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -365,15 +397,10 @@ convert_a(P::Atom,OldAcc,NewAcc,Extra_ID,OldFacts,[P1::ProbFact|OldFacts],Body_V
 
 	ProbFact =.. [NewAtom|NewAllArguments],
 	(
-	 P=:=0
+	 (P=:=0; OldAcc=:=0)
 	->
-	 P1 is 0.0 ;
-	 (
-	  OldAcc=:=0
-	 ->
 	  P1 is P;
-	  P1 is  P/(1-OldAcc)
-	 )
+	  P1 is  min(P/(1-OldAcc),1.0)
 	),
 	NewAcc is OldAcc+P.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -382,7 +409,7 @@ convert_a(P::Atom,OldAcc,NewAcc,Extra_ID,OldFacts,[P1::ProbFact|OldFacts],Body_V
 convert_a_tunable((X;Y),Extra_ID,OldFacts,Facts,Body_Vars) :-
 	convert_a_tunable(X,Extra_ID,OldFacts,NewFacts,Body_Vars),
 	convert_a_tunable(Y,Extra_ID,NewFacts,Facts,Body_Vars).
-convert_a_tunable(P::Atom,Extra_ID,OldFacts,[P::ProbFact|OldFacts],Body_Vars) :-
+convert_a_tunable(t(_)::Atom,Extra_ID,OldFacts,[t(_)::ProbFact|OldFacts],Body_Vars) :-
 	Atom =.. [Functor|AllArguments],
 	append(AllArguments,Body_Vars,NewAllArguments),
 	length(AllArguments,Arity),
@@ -393,10 +420,10 @@ convert_a_tunable(P::Atom,Extra_ID,OldFacts,[P::ProbFact|OldFacts],Body_Vars) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-convert_b((X;Y),OldBody,Body,ExtraID,OldBodies,Bodies,Body_Vars) :-
-	convert_b(X,OldBody,NewBody,ExtraID,OldBodies,NewBodies,Body_Vars),
-	convert_b(Y,NewBody,Body,ExtraID,NewBodies,Bodies,Body_Vars).
-convert_b(_::Atom,OldBody,NewBody,Extra_ID,OldBodies,[(Atom:-ThisBody)|OldBodies],Body_Vars) :-
+convert_b((X;Y),OldBody,Body,ExtraID,OldBodies,Bodies,Body_Vars,Mode,Facts) :-
+	convert_b(X,OldBody,NewBody,ExtraID,OldBodies,NewBodies,Body_Vars,Mode,Facts),
+	convert_b(Y,NewBody,Body,ExtraID,NewBodies,Bodies,Body_Vars,Mode,Facts).
+convert_b(_::Atom,OldBody,NewBody,Extra_ID,OldBodies,[(Atom:-ThisBody)|OldBodies],Body_Vars,Mode,Facts) :-
 	Atom =.. [Functor|AllArguments],
 	append(AllArguments,Body_Vars,NewAllArguments),
 
@@ -404,8 +431,19 @@ convert_b(_::Atom,OldBody,NewBody,Extra_ID,OldBodies,[(Atom:-ThisBody)|OldBodies
 	atomic_concat([mvs_fact_,Functor,'_',Arity,'_',Extra_ID],NewFunctor),
 
 	ProbFact =.. [NewFunctor|NewAllArguments],
-	tuple_append(OldBody,ProbFact,ThisBody),
-	tuple_append(OldBody,problog_not(ProbFact),NewBody).
+	(
+	 memberchk(_::ProbFact,Facts)
+	->
+	 tuple_append(OldBody,ProbFact,ThisBody);
+	 ThisBody=OldBody
+	),
+	
+	(
+	 Mode==lfi_learning
+	->
+	 tuple_append(OldBody,\+ProbFact,NewBody);
+	 tuple_append(OldBody,problog_not(ProbFact),NewBody)
+	).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 

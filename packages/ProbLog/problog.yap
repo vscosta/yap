@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-01-16 19:24:10 +0100 (Sun, 16 Jan 2011) $
-%  $Revision: 5260 $
+%  $Date: 2011-04-08 19:30:08 +0200 (Fri, 08 Apr 2011) $
+%  $Revision: 5887 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -284,6 +284,7 @@
                     reset_non_ground_facts/0,
                     '::'/2,
                     probabilistic_fact/3,
+		    continuous_fact/3,
                     init_problog/1,
                     problog_call/1,
                     problog_infer_forest_supported/0,
@@ -302,7 +303,7 @@
 
 % general yap modules
 :- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4]).
-:- use_module(library(terms), [variable_in_term/2] ).
+:- use_module(library(terms), [variable_in_term/2,variant/2] ).
 :- use_module(library(random), [random/1]).
 :- use_module(library(system), [tmpnam/1,shell/2,delete_file/1,delete_file/2]).
 :- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
@@ -590,8 +591,8 @@ generate_atoms(N, A):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % converts annotated disjunctions
-term_expansion_intern(A, Module, C):-
-	term_expansion_intern_ad(A, Module, C).
+term_expansion_intern((Head<--Body), Module, C):-
+	term_expansion_intern_ad((Head<--Body), Module,inference, C).
 
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
@@ -836,16 +837,49 @@ problog_continuous_predicate(Name, Arity, ContinuousArgumentPosition, ProblogNam
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 in_interval(ID,Low,High) :-
-	number(Low),
-	number(High),
+	var(ID),
+	throw(error(instantiation_error,in_interval(ID,Low,High))).
+in_interval(ID,Low,High) :-
+	var(Low),
+	throw(error(instantiation_error,in_interval(ID,Low,High))).
+in_interval(ID,Low,High) :-
+	var(High),
+	throw(error(instantiation_error,in_interval(ID,Low,High))).
+in_interval(ID,Low,High) :-
+	\+ number(Low),
+	throw(error(type_error(number,Low),in_interval(ID,Low,High))).
+in_interval(ID,Low,High) :-
+	\+ number(High),
+	throw(error(type_error(number,High),in_interval(ID,Low,High))).
+in_interval(ID,Low,High) :-
 	Low<High,
 	interval_merge(ID,interval(Low,High)).
+
+
 below(ID,X) :-
-	number(X),
+	var(ID),
+	throw(error(instantiation_error,below(ID,X))).
+below(ID,X) :-
+	var(X),
+	throw(error(instantiation_error,below(ID,X))).
+below(ID,X) :-
+	\+ number(X),
+	throw(error(type_error(number,X),below(ID,X))).
+below(ID,X) :-
 	interval_merge(ID,below(X)).
+
 above(ID,X) :-
-	number(X),
+	var(ID),
+	throw(error(instantiation_error,above(ID,X))).
+above(ID,X) :-
+	var(X),
+	throw(error(instantiation_error,above(ID,X))).
+above(ID,X) :-
+	\+ number(X),
+	throw(error(type_error(number,X),above(ID,X))).
+above(ID,X) :-
 	interval_merge(ID,above(X)).
+
 
 interval_merge((_ID,GroundID,_Type),Interval) :-
 	atomic_concat([interval,'_',GroundID],Key),
@@ -1015,7 +1049,10 @@ probclause_id(ID) :-
 % backtrack over all probabilistic facts
 % must come before term_expansion
 Prob::Goal :-
-    probabilistic_fact(Prob,Goal,_).
+    probabilistic_fact(Prob,Goal,_ID).
+
+(V,Distribution)::Goal :-
+	continuous_fact((V,Distribution),Goal,_ID).
 
 % backtrack over all probabilistic facts
 probabilistic_fact(Prob,Goal,ID) :-
@@ -1044,14 +1081,35 @@ probabilistic_fact(Prob,Goal,ID) :-
 	 Prob is exp(LProb)
 	).
 
-% generates unique IDs for proofs
+continuous_fact((V,Distribution),Goal,ID) :-
+	get_internal_continuous_fact(ID,ProblogTerm,ProblogName,_ProblogArity,ContinuousPos),
+
+	% strip away problog_continuous
+	ProblogTerm=..[ProblogName,ID|Arguments],
+	nth1(ContinuousPos,Arguments,Distribution,Rest),
+	nth1(ContinuousPos,Arguments2,V,Rest),
+	atomic_concat(problogcontinuous_,Name,ProblogName),
+
+	% Build final term
+	Goal=..[Name|Arguments2].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% proof_id(-ID) generates a new ID for a proof
+% reset_proof_id resets the ID counter to 0
+%
+% this ID is used by Hybrid ProbLog to identify proofs
+% and later for disjoining them
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 proof_id(ID) :-
 	nb_getval(problog_proof_id,ID),
 	ID2 is ID+1,
 	nb_setval(problog_proof_id,ID2).
 
-reset_problog_proof_id :-
+reset_proof_id :-
 	nb_setval(problog_proof_id,0).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % access/update the probability of ID's fact
@@ -1094,8 +1152,10 @@ get_fact_probability(ID,Prob) :-
   arg(ProblogArity,ProblogTerm,Log),
   (Log = '?' ->
       throw(error('Why do you want to know the probability of a decision?')) %fail
-  ;
+  ; ground(Log) ->
       Prob is exp(Log)
+  ;
+    Prob = p
   ).
 
 get_fact_log_probability(ID,Prob) :-
@@ -1167,9 +1227,28 @@ set_continuous_fact_parameters(ID,Parameters) :-
 export_facts(Filename) :-
 	open(Filename,'write',Handle),
 
-	forall(P::Goal,
-	       format(Handle,'~10f :: ~q.~n',[P,Goal])),
+	%compiled ADs
+	forall((current_predicate(user:ad_intern/3),user:ad_intern(Original,ID,Facts)),
+	       print_ad_intern(Handle,Original,ID,Facts)
+	       ),
 
+	nl(Handle),
+
+	% probabilistic facts
+	% but comment out auxiliary facts stemmig from
+	% compiled ADs
+	forall(P::Goal,
+	       (
+		is_mvs_aux_fact(Goal)
+	       ->
+		format(Handle,'%  ~10f :: ~q.~n',[P,Goal]);
+		format(Handle,'~10f :: ~q.~n',[P,Goal])
+	       )
+	      ),
+
+	nl(Handle),
+
+	% continuous facts (Hybrid ProbLog)
 	forall(continuous_fact(ID),
 	       (
 		get_continuous_fact_parameters(ID,Param),
@@ -1178,6 +1257,30 @@ export_facts(Filename) :-
 	      ),
 
 	close(Handle).
+
+
+is_mvs_aux_fact(A) :-
+	functor(A,B,_),
+	atomic_concat(mvs_fact_,_,B).
+
+% code for printing the compiled ADs
+print_ad_intern(Handle,(Head<--Body),_ID,Facts) :-
+	print_ad_intern(Head,Facts,0.0,Handle),
+	format(Handle,' <-- ~q.~n',[Body]).
+print_ad_intern((A1;B1),[A2|B2],Mass,Handle) :-
+	once(print_ad_intern_one(A1,A2,Mass,NewMass,Handle)),
+	format(Handle,'; ',[]),
+	print_ad_intern(B1,B2,NewMass,Handle).
+print_ad_intern(_::Fact,[],Mass,Handle) :-
+	P2 is 1.0 - Mass,
+	format(Handle,'~10f :: ~q',[P2,Fact]).
+print_ad_intern_one(_::Fact,_::AuxFact,Mass,NewMass,Handle) :-
+	% ask problog to get the fact_id
+	once(probabilistic_fact(P,AuxFact,_FactID)),
+	P2 is P * (1-Mass),
+	NewMass is Mass+P2,
+	format(Handle,'~10f :: ~q',[P2,Fact]).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % recover fact for given id
@@ -1244,7 +1347,7 @@ add_to_proof(ID, LogProb) :-
 	% check whether negation of this fact is already used in proof
 	\+ open_end_memberchk(not(ID),IDs),
 	
-	(  % check whether this fact is already used in proof  
+	(  % check whether this fact is already used in proof
 	   open_end_memberchk(ID, IDs)
 	->	
 	   true;
@@ -1410,7 +1513,7 @@ upper_bound(List) :-
 % to set up environment for proving
 % it resets control flags, method specific values to be set afterwards!
 init_problog(Threshold) :-
-	reset_problog_proof_id,
+	reset_proof_id,
 	reset_non_ground_facts,
 	reset_control,
 	LT is log(Threshold),
@@ -2795,44 +2898,40 @@ build_trie(K-best, Goal, Trie) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 write_bdd_struct_script(Trie,BDDFile,Variables) :-
-   % Check whether we use Hybrid ProbLog
-   (
-    hybrid_proof(_,_,_)
-   ->
-    ( % Yes! run the disjoining stuff
-        retractall(hybrid_proof_disjoint(_,_,_,_)),
-    disjoin_hybrid_proofs,
+	(
+	 hybrid_proof(_,_,_)	% Check whether we use Hybrid ProbLog
+	->
+	 (
+				% Yes! run the disjoining stuff
+	  retractall(hybrid_proof_disjoint(_,_,_,_)),
+	  disjoin_hybrid_proofs,
 
-    init_ptree(OriTrie),  % use this as tmp ptree
-    %%%%%%%%%%%%%%%%%%%%%
-    ( % go over all stored proofs
-      enum_member_ptree(List,OriTrie1),
-      (
-       List=[_|_]
-      ->
-       Proof=List;
-       Proof=[List]
-      ),
-      (
-       select(continuous(ProofID),Proof,Rest)
-      ->
-       (
-                % this proof is using continuous facts
-        all_hybrid_subproofs(ProofID,List2),
-        append(Rest,List2,NewProof),
-        insert_ptree(NewProof,OriTrie)
-        );
-       insert_ptree(Proof,OriTrie)
-      ),
-
-      fail;
-      true
-    )
-        %%%%%%%%%%%%%%%%%%%%%
-    ) ;
-     % Nope, just pass on the Trie
-    OriTrie=OriTrie1
-   ),
+	  init_ptree(OriTrie),		       % use this as tmp ptree
+	  forall(enum_member_ptree(List,OriTrie1), % go over all stored proofs
+		 (
+		  (
+		   List=[_|_]
+		  ->
+		   Proof=List;
+		   Proof=[List]
+		  ),
+		  (
+		   select(continuous(ProofID),Proof,Rest)
+		  ->
+		   (
+				% this proof is using continuous facts
+		    all_hybrid_subproofs(ProofID,List2),
+		    append(Rest,List2,NewProof),
+		    insert_ptree(NewProof,OriTrie)
+		   );
+		   insert_ptree(Proof,OriTrie)
+		  )
+		 )
+		)
+	 );
+				% Nope, just pass on the Trie
+	 OriTrie=OriTrie1
+	),
 
   ((problog_flag(variable_elimination, true), nb_getval(problog_nested_tries, false)) ->
     statistics(walltime, _),
