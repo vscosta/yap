@@ -1393,7 +1393,8 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
       Yap_atom_gc( PASS_REGS1 );
     /* check if we have a significant improvement from agc */
     if (n > NOfAtoms+ NOfAtoms/10 ||
-	NOfAtoms > 2*AtomHashTableSize) {
+	/* +1 = make sure we didn't lose the current atom */
+	NOfAtoms+1 > 2*AtomHashTableSize) {
       res  = growatomtable( PASS_REGS1 );
     } else {
       LOCK(LOCAL_SignalLock);
@@ -1405,7 +1406,8 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
       return TRUE;
     }
     LeaveGrowMode(GrowHeapMode);
-    return res;
+    if (res)
+      return res;
   }
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
   LeaveGrowMode(GrowHeapMode);
