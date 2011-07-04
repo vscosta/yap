@@ -197,6 +197,7 @@ write_mpint(MP_INT *big, wrf writewch) {
 static void 
 writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 {
+  CACHE_REGS
   CELL *pt = RepAppl(t)+1;
 #ifdef USE_GMP
   if (pt[0] == BIG_INT) 
