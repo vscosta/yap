@@ -43,8 +43,7 @@ build_edges([P|Parents], V, [P-V|Edges]) :-
 influences(Vs, G, RG, Vars) :-
 	rb_new(Visited0),
 	influences(Vs, G, RG, Visited0, Visited),
-	all_top(Visited, Vars),
-length(Vars,Leng), writeln(done:Leng).
+	all_top(Visited, Vars).
 
 influences([], _,  _, Visited, Visited).
 influences([V|LV], G, RG, Vs, NVs) :-

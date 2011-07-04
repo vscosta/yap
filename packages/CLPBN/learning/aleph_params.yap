@@ -123,14 +123,13 @@ correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
 
 store_cl(Cl) :-
 	recordz(best_theory, Cl, _).
-	
 
 :- user:set(best_clause_hook, clpbn_aleph:add_new_clause).
 
 add_new_clause(_,(_ :- true),_,_) :- !.
 add_new_clause(_,(H :- B),_,_) :-
-	user:db_usage,
-	user:db_dynamic,
+%	user:db_usage,
+%	user:db_dynamic,
 	domain(H, K, V, D),
 	rewrite_body(B, IB, Vs, _, ( !, { V = K with p(D, CPTList, Vs) })),
 	% need to remember which CPT we want

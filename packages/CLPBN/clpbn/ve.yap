@@ -97,8 +97,8 @@ run_ve_solver(LVs, LPs, LNVs) :-
 	findall(Ps, solve_ve(LVs, LNVs, Ps), LPs).
 
 solve_ve([LVs|_], [NVs0|_], Ps) :-
-%	length(NVs0, L), (L > 415 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
-%	length(NVs0, L), writeln(+LVs:L),
+%	length(NVs0, L), (L > 10 -> clpbn_gviz:clpbn2gviz(user_error,sort,NVs0,LVs) ; true ),
+%	length(NVs0, L), writeln(+L),
 	find_all_clpbn_vars(NVs0, NVs0, LV0, LVi, Tables0),
 	sort(LV0, LV),
 	% construct the graph
