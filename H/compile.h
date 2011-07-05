@@ -272,6 +272,7 @@ typedef struct intermediates {
   yamop **current_try_lab, **current_trust_lab;
   yamop *try_instructions;
   struct StructClauseDef *cls;
+  int clause_has_cut;
   /* for expanding code */
   union { 
     struct static_index *si;

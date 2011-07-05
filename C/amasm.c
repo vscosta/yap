@@ -2028,6 +2028,7 @@ a_ifnot(op_numbers opcode, yamop *code_p, int pass_no, struct intermediates *cip
 static yamop *
 a_cut(clause_info *clinfo, yamop *code_p, int pass_no, struct intermediates *cip)
 {
+  cip->clause_has_cut = TRUE;
   code_p = check_alloc(clinfo, code_p, pass_no, cip);
   if (clinfo->dealloc_found) {
     return a_n(_cut_e, -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2, code_p, pass_no);
@@ -3032,6 +3033,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       if (pass_no) {
 	cl_u->luc.Id = FunctorDBRef;
 	cl_u->luc.ClFlags = LogUpdMask;
+	if (cip->clause_has_cut)
+	  cl_u->luc.ClFlags |= HasCutMask;	  
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
 	cl_u->luc.ClSize = size;
@@ -3082,6 +3085,8 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       /* static clause */
       if (pass_no) {
 	cl_u->sc.ClFlags = StaticMask;
+	if (cip->clause_has_cut)
+	  cl_u->sc.ClFlags |= HasCutMask;	  
 	cl_u->sc.ClNext = NULL;
 	cl_u->sc.ClSize = size;
 	cl_u->sc.usc.ClPred = cip->CurrentPred;
@@ -3383,6 +3388,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_v(_save_b_x, _save_b_y, code_p, pass_no, cip->cpc);
       break;
     case commit_b_op:
+      cip->clause_has_cut = TRUE;
       code_p = a_vp(_commit_b_x, _commit_b_y, code_p, pass_no, cip->cpc, &clinfo);
       break;
     case save_pair_op:
@@ -3402,6 +3408,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       code_p = a_cnp(_native_me, code_p, pass_no, cip);
       break;
     case cutexit_op:
+      cip->clause_has_cut = TRUE;
       if (cip->CurrentPred->PredFlags & LogUpdatePredFlag &&
 	 (*clause_has_blobsp  || *clause_has_dbtermp) &&
 	  !clinfo.alloc_found)
@@ -3886,6 +3893,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 #else
   cip->label_offset = (Int *)cip->freep;
 #endif
+  cip->clause_has_cut = FALSE;
   cip->code_addr = NULL;
   code_p = do_pass(0, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
   if (clause_has_dbterm) {

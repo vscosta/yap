@@ -823,7 +823,8 @@ typedef enum
   LogUpdRuleMask = 0x0400,	/* code is for a log upd rule with env */
   LogUpdMask = 0x0200,		/* logic update index. */
   StaticMask = 0x0100,		/* static predicates */
-  DirtyMask = 0x0080		/* LUIndices  */
+  DirtyMask = 0x0080,		/* LUIndices  */
+  HasCutMask = 0x0040		/* ! */
 /* other flags belong to DB */
 } dbentry_flags;
 
