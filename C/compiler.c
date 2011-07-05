@@ -888,21 +888,14 @@ c_eq(Term t1, Term t2, compiler_struct *cglobs)
     }
   }
   /* first argument is an unbound var */
-  if (IsNewVar(t1) && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
+  if (IsNewVar(t1) && !IsVarTerm(t2) && !(cglobs->cint.CurrentPred->PredFlags & TabledPredFlag)) {
     Int v;
-    if (IsVarTerm(t2)) {
-      v = 0;
-      c_var(t2, v, 0, 0, cglobs);
-      cglobs->onhead = TRUE;
-      c_var(t1, v, 0, 0, cglobs);
-      cglobs->onhead = FALSE;    
-    } else {
-      v = --cglobs->tmpreg;
-      c_arg(v, t2, 0, 0, cglobs);
-      cglobs->onhead = TRUE;
-      c_var(t1, v, 0, 0, cglobs);
-      cglobs->onhead = FALSE;    
-    }
+    
+    v = --cglobs->tmpreg;
+    c_arg(v, t2, 0, 0, cglobs);
+    cglobs->onhead = TRUE;
+    c_var(t1, v, 0, 0, cglobs);
+    cglobs->onhead = FALSE;    
   } else {
     if (IsVarTerm(t2)) {
       c_var(t1, 0, 0, 0, cglobs);
