@@ -1438,7 +1438,7 @@ static RETSIGTYPE
 HandleMatherr(int sig)
 {
 #if HAVE_FETESTEXCEPT
-
+  CACHE_REGS
   /* This should work in Linux, but it doesn't seem to. */
   
   int raised = fetestexcept(FE_ALL_EXCEPT);
@@ -1492,8 +1492,8 @@ SearchForTrailFault(void)
 static RETSIGTYPE
 HandleSIGSEGV(int   sig)
 {
+  CACHE_REGS
   if (LOCAL_PrologMode & ExtendStackMode) {
-    CACHE_REGS
     Yap_Error(FATAL_ERROR, TermNil, "OS memory allocation crashed at address %p, bailing out\n",LOCAL_TrailTop);
   }
   SearchForTrailFault();
