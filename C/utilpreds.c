@@ -3349,6 +3349,13 @@ AddAtomToHash(CELL *st, Atom at)
   return st+len;
 }
 
+typedef struct visited {
+  CELL *start;
+  CELL  *end;
+  CELL old;
+  UInt vdepth;
+} visited_t;
+
 static CELL *
 hash_complex_term(register CELL *pt0,
 		  register CELL *pt0_end,
@@ -3356,7 +3363,7 @@ hash_complex_term(register CELL *pt0,
 		  CELL *st,
 		  int variant USES_REGS)
 {
-  register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
+  register visited_t *to_visit0, *to_visit = (visited_t *)Yap_PreAllocCodeSpace();
 
   to_visit0 = to_visit;
  loop:
@@ -3385,24 +3392,16 @@ hash_complex_term(register CELL *pt0,
 	st = AddAtomToHash(st, AtomDot);
 	if (depth == 1)
 	  continue;
-	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	if (to_visit + 256 >= (visited_t *)AuxSp) {
 	  goto aux_overflow;
 	}
-#ifdef RATIONAL_TREES
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)*pt0;
-	to_visit[3] = (CELL *)(depth--);
-	to_visit += 4;
+	to_visit->start = pt0;
+	to_visit->end = pt0_end;
+	to_visit->old = *pt0;
+	to_visit->vdepth = depth;
+	to_visit++;
+	depth--;
 	*pt0 = TermFoundVar;
-#else
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = (CELL *)(depth--);
-	  to_visit += 3;
-	}
-#endif
 	pt0 = RepPair(d0) - 1;
 	pt0_end = RepPair(d0) + 1;
 	continue;
@@ -3456,25 +3455,16 @@ hash_complex_term(register CELL *pt0,
 	st = AddAtomToHash(st, NameOfFunctor(f));
 	if (depth == 1)
 	  continue;
-	if (to_visit + 1024 >= (CELL **)AuxSp) {
+	if (to_visit + 1024 >= (visited_t *)AuxSp) {
 	  goto aux_overflow;
 	}
-#ifdef RATIONAL_TREES
-	to_visit[0] = pt0;
-	to_visit[1] = pt0_end;
-	to_visit[2] = (CELL *)*pt0;
-	to_visit[3] = (CELL *)(depth--);
-	to_visit += 4;
+	to_visit->start = pt0;
+	to_visit->end = pt0_end;
+	to_visit->old = *pt0;
+	to_visit->vdepth = depth;
+	to_visit++;
+	depth--;
 	*pt0 = TermFoundVar;
-#else
-	/* store the terms to visit */
-	if (pt0 < pt0_end) {
-	  to_visit[0] = pt0;
-	  to_visit[1] = pt0_end;
-	  to_visit[2] = depth--;
-	  to_visit += 3;
-	}
-#endif
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
@@ -3484,6 +3474,7 @@ hash_complex_term(register CELL *pt0,
     
 
     deref_body(d0, ptd0, hash_complex_unk, hash_complex_nvar);
+    fprintf(stderr,"found variable\n");
     if (!variant)
       return NULL;
     else
@@ -3491,42 +3482,31 @@ hash_complex_term(register CELL *pt0,
   }
   /* Do we still have compound terms to visit */
   if (to_visit > to_visit0) {
-#ifdef RATIONAL_TREES
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    *pt0 = (CELL)to_visit[2];
-    depth = (CELL)to_visit[3];
-#else
-    to_visit -= 3;
-    pt0 = to_visit[0];
-    pt0_end = to_visit[1];
-    depth = (CELL)to_visit[2];
-#endif
+    to_visit--;
+    pt0 = to_visit->start;
+    pt0_end = to_visit->end;
+    *pt0 = to_visit->old;
+    depth = to_visit->vdepth;
     goto loop;
   }
   return st;
 
  aux_overflow:
   /* unwind stack */
-#ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->start;
+    *pt0 = to_visit->old;
   }
-#endif
   return (CELL *)-1;
 
  global_overflow:
   /* unwind stack */
-#ifdef RATIONAL_TREES
   while (to_visit > to_visit0) {
-    to_visit -= 4;
-    pt0 = to_visit[0];
-    *pt0 = (CELL)to_visit[2];
+    to_visit --;
+    pt0 = to_visit->start;
+    *pt0 = to_visit->old;
   }
-#endif
   return (CELL *) -2;
 }
  
@@ -4241,7 +4221,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("copy_term_nat", 2, p_copy_term_no_delays, 0);
   Yap_InitCPred("ground", 1, p_ground, SafePredFlag);
   Yap_InitCPred("$variables_in_term", 3, p_variables_in_term, HiddenPredFlag);
-  Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, SafePredFlag|HiddenPredFlag);
+  Yap_InitCPred("$non_singletons_in_term", 3, p_non_singletons_in_term, HiddenPredFlag);
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
@@ -4254,9 +4234,9 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("export_term", 1, p_export_term, 0);
 #endif
   CurrentModule = TERMS_MODULE;
-  Yap_InitCPred("variable_in_term", 2, p_var_in_term, SafePredFlag);
-  Yap_InitCPred("term_hash", 4, p_term_hash, SafePredFlag);
-  Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, SafePredFlag);
+  Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
+  Yap_InitCPred("term_hash", 4, p_term_hash, 0);
+  Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, 0);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
