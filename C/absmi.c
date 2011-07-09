@@ -1683,7 +1683,6 @@ Yap_absmi(int inp)
       {
 	Int sz =  PREG->u.Osbpi.i; 
 	UInt arity = PREG->u.Osbpi.p->ArityOfPE;
-	PREG = NEXTOP(PREG,Osbpi);
 	if (Unsigned(H) + sz > Unsigned(YREG)-CreepFlag) {
 	  YENV[E_CP] = (CELL) CPREG;
 	  YENV[E_E] = (CELL) ENV;
@@ -1691,6 +1690,7 @@ Yap_absmi(int inp)
 	  YENV[E_DEPTH] = DEPTH;
 #endif	/* DEPTH_LIMIT */
 	  SET_ASP(YREG, PREG->u.Osbpi.s);
+	  PREG = NEXTOP(PREG,Osbpi);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
 	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
@@ -1699,7 +1699,9 @@ Yap_absmi(int inp)
 	  } else {
 	    setregs();
 	  }
-	} 
+	} else {
+	  PREG = NEXTOP(PREG,Osbpi);
+	}
       }
       JMPNext();
       ENDBOp();
