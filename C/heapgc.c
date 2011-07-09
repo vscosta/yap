@@ -1912,11 +1912,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       }
 #else
       if (pe == NULL) {
-	fprintf(GLOBAL_stderr,"%%       marked %ld (%u)\n", LOCAL_total_marked, (unsigned int)opnum);
+	fprintf(GLOBAL_stderr,"%%       marked " Int_FORMAT " (%u)\n", LOCAL_total_marked, (unsigned int)opnum);
       } else if (pe->ArityOfPE) {
-	fprintf(GLOBAL_stderr,"%%       %s/%d marked %ld (%u)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, LOCAL_total_marked, (unsigned int)opnum);
+	fprintf(GLOBAL_stderr,"%%       %s/%d marked " Int_FORMAT " (%u)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, LOCAL_total_marked, (unsigned int)opnum);
       } else {
-	fprintf(GLOBAL_stderr,"%%       %s marked %ld (%u)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked, (unsigned int)opnum);
+	fprintf(GLOBAL_stderr,"%%       %s marked " Int_FORMAT " (%u)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked, (unsigned int)opnum);
       }
 #endif
     }
