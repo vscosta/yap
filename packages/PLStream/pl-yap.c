@@ -1092,10 +1092,12 @@ Yap_fetch_module_for_format(term_t args, YAP_Term *modp) {
   return YAP_InitSlot(nt);
 }
 
+extern word pl_readline(term_t flag);
+
 word
 pl_readline(term_t flag)
 {
-  
+  return 0;
 }
 
 static Term
@@ -1110,6 +1112,8 @@ StreamPosition(IOSTREAM *st)
   t[3] = MkIntegerTerm(st->posbuf.byteno);
   return Yap_MkApplTerm(FunctorStreamPos,4,t);
 }
+
+extern Term Yap_StreamPosition(IOSTREAM *st);
 
 Term
 Yap_StreamPosition(IOSTREAM *st)
