@@ -1139,11 +1139,21 @@ YAP_cut_up(void)
     choiceptr cut_pt;
 
     cut_pt = B->cp_b;
+    /* make sure we prune C-choicepoints */
+    if (POP_CHOICE_POINT(B->cp_b))
+      {
+	POP_EXECUTE();
+      }
     CUT_prune_to(cut_pt);
     Yap_TrimTrail();
     B = cut_pt;
   }
 #else
+  /* make sure we prune C-choicepoints */
+  if (POP_CHOICE_POINT(B->cp_b))
+    {
+      POP_EXECUTE();
+    }
   Yap_TrimTrail();
   B = B->cp_b;  /* cut_fail */
 #endif
@@ -2260,6 +2270,11 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   }
   /* recover local stack */
   ASP = (CELL *)(B+1);
+  /* make sure we prune C-choicepoints */
+  if (POP_CHOICE_POINT(B->cp_b))
+    {
+      POP_EXECUTE();
+    }
   B = B->cp_b;
   HB = B->cp_h;
   P = dgi->p;
@@ -2310,6 +2325,11 @@ YAP_RunGoalOnce(Term t)
 
     cut_pt = B;
     while (cut_pt-> cp_ap != NOCODE) {
+      /* make sure we prune C-choicepoints */
+      if (POP_CHOICE_POINT(cut_pt->cp_b))
+	{
+	  POP_EXECUTE();
+	}
       cut_pt = cut_pt->cp_b;
     }
 #ifdef YAPOR
@@ -2367,6 +2387,11 @@ YAP_ShutdownGoal(int backtrack)
 
     cut_pt = B;
     while (cut_pt-> cp_ap != NOCODE) {
+      /* make sure we prune C-choicepoints */
+      if (POP_CHOICE_POINT(cut_pt->cp_b))
+	{
+	  POP_EXECUTE();
+	}
       cut_pt = cut_pt->cp_b;
     }
 #ifdef YAPOR
@@ -2417,6 +2442,11 @@ YAP_PruneGoal(void)
  BACKUP_B();
 
   while (B->cp_ap != NOCODE) {
+    /* make sure we prune C-choicepoints */
+    if (POP_CHOICE_POINT(B->cp_b))
+      {
+	POP_EXECUTE();
+      }
     B = B->cp_b;
   }
   Yap_TrimTrail();

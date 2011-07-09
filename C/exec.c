@@ -1157,7 +1157,9 @@ Yap_execute_goal(Term t, int nargs, Term mod)
       while (B->cp_b < cut_B) {
 	B = B->cp_b;
       }
+#ifdef TABLING
       abolish_incomplete_subgoals(B);
+#endif
     }
 #endif /* TABLING */
     B = cut_B;
@@ -1346,29 +1348,25 @@ p_restore_regs2( USES_REGS1 )
 #else
   pt0 = (choiceptr)(LCL0-IntOfTerm(d0));
 #endif
-#ifdef CUT_C
-  {
-    while (POP_CHOICE_POINT(pt0))
-      {
-	POP_EXECUTE();
-      }
-  }
-#endif /* CUT_C */
-#ifdef YAPOR
-  CUT_prune_to(pt0);
-#endif /* YAPOR */
   /* find where to cut to */
   if (pt0 > B) {
     /* Wow, we're gonna cut!!! */
-#ifdef TABLING
     while (B->cp_b < pt0) {
+      while (POP_CHOICE_POINT(B->cp_b))
+      {
+	POP_EXECUTE();
+      }
+      HB = B->cp_h;
+      Yap_TrimTrail();
       B = B->cp_b;
     }
+#ifdef TABLING
     abolish_incomplete_subgoals(B);
-#endif /* TABLING */
+#endif
+#ifdef YAPOR
+    CUT_prune_to(pt0);
+#endif /* YAPOR */
     B = pt0;
-    HB = B->cp_h;
-    Yap_TrimTrail();
   }
   return(TRUE);
 }
@@ -1395,6 +1393,10 @@ p_clean_ifcp( USES_REGS1 ) {
     /* this should never happen */ 
     return TRUE;
   } else if (pt0 == B) {
+    while (POP_CHOICE_POINT(B->cp_b))
+      {
+	POP_EXECUTE();
+      }
     B = B->cp_b;
     HB = B->cp_h;
   } else {
@@ -1491,10 +1493,11 @@ JumpToEnv(Term t USES_REGS) {
       /* we have a cleanup handler in the middle */
       if (is_cleanup_cp(handler)) {
 	/* keep it around */
-	if (previous == NULL)
+	if (previous == NULL) {
 	  B = handler;
-	else 
+	} else {
 	  previous->cp_b = handler;
+	}
 	previous = handler;
 #ifdef TABLING
       } else {
@@ -1521,6 +1524,11 @@ JumpToEnv(Term t USES_REGS) {
 	HB = B->cp_h;
 	return TRUE;
       }
+      /* make sure we prune C-choicepoints */
+      while (POP_CHOICE_POINT(handler->cp_b))
+	{
+	  POP_EXECUTE();
+	}
       handler = handler->cp_b;
     }
     /* uncaught throw */
@@ -1552,6 +1560,7 @@ JumpToEnv(Term t USES_REGS) {
     //    EX = t;
     previous->cp_b = handler;
   }
+  /* make sure we get rid of trash in the trail */
   handler->cp_cp = (yamop *)env[E_CP];
   handler->cp_env = (CELL *)env[E_E];
   handler->cp_ap = catchpos;

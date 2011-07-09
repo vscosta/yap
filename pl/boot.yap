@@ -1276,23 +1276,23 @@ throw(Ball) :-
 '$handle_throw'(C, A, _Ball) :-
 	'$reset_exception'(Ball),
         % reset info
-	('catch_ball'(Ball, C) ->
+	(catch_ball(Ball, C) ->
 	    '$execute'(A)
 	    ;
 	    throw(Ball)
 	).
 
-'catch_ball'(Abort, _) :- Abort == '$abort', !, fail.
+catch_ball(Abort, _) :- Abort == '$abort', !, fail.
 % system defined throws should be ignored by used, unless the
 % user is hacking away.
-'catch_ball'(Ball, V) :-
+catch_ball(Ball, V) :-
 	var(V),
 	nonvar(Ball),
 	Ball = error(Type,_), % internal error ??
 	functor(Type, Name, _),
 	atom_codes(Name, [0'$|_]), %'0
 	!, fail.
-'catch_ball'(C, C).
+catch_ball(C, C).
 
 '$run_toplevel_hooks' :-
 	nb_getval('$break',0),
