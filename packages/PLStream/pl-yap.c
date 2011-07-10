@@ -1121,6 +1121,12 @@ Yap_StreamPosition(IOSTREAM *st)
   return StreamPosition(st);
 }
 
+IOSTREAM *
+Yap_Scurin(void)
+{
+  return Scurin;
+}
+
 
 #if THREADS
 

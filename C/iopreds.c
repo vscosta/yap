@@ -740,7 +740,9 @@ static Int
 static Int
 p_read ( USES_REGS1 )
 {				/* '$read'(+Flag,?Term,?Module,?Vars,-Pos,-Err)    */
-  return do_read(NULL, 7 PASS_REGS);
+  IOSTREAM *Yap_Scurin(void);
+
+  return do_read(Yap_Scurin(), 7 PASS_REGS);
 }
 
 extern int Yap_getInputStream(Int, IOSTREAM **);
