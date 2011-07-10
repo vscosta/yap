@@ -608,6 +608,8 @@ execute_command(void)
 {
   YAP_Term ti = YAP_ARG2, to = YAP_ARG3, te = YAP_ARG4;
   int res;
+  YAP_Term AtomNull = YAP_MkAtomTerm(YAP_LookupAtom("null"));
+
 #if defined(__MINGW32__) || _MSC_VER
   HANDLE inpf, outf, errf;
   DWORD CreationFlags = 0;
@@ -666,7 +668,7 @@ execute_command(void)
 #else /* UNIX CODE */
   int inpf, outf, errf;
   /* process input first */
-  if (YAP_IsAtomTerm(ti)) {
+  if (ti == AtomNull) {
     inpf = open("/dev/null", O_RDONLY);
   } else {
     int sd;
@@ -681,7 +683,7 @@ execute_command(void)
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   /* then output stream */
-  if (YAP_IsAtomTerm(to)) {
+  if (to == AtomNull) {
     outf = open("/dev/zero", O_WRONLY);
   } else {
     int sd;
@@ -697,7 +699,7 @@ execute_command(void)
     return(YAP_Unify(YAP_ARG6, YAP_MkIntTerm(errno)));
   }
   /* then error stream */
-  if (YAP_IsAtomTerm(te)) {
+  if (te == AtomNull) {
     errf = open("/dev/zero", O_WRONLY);
   } else {
     int sd;
@@ -729,13 +731,16 @@ execute_command(void)
     /* close current streams, but not std streams */
     YAP_CloseAllOpenStreams();
     close(0);
-    dup(inpf);
+    if (dup(inpf) != 0)
+      exit(1);
     close(inpf);
     close(1);
-    dup(outf);
+    if (dup(outf) != 1)
+      exit(1);
     close(outf);
     close(2);
-    dup(errf);
+    if (dup(errf) != 2)
+      exit(2);
     close(errf);
     argv[0] = "sh";
     argv[1] = "-c";
