@@ -31,8 +31,9 @@ volatile(P) :- var(P),
 volatile(M:P) :-
 	'$do_volatile'(P,M).
 volatile((G1,G2)) :-
-	'$do_volatile'(G1),
-	'$do_volatile'(G2).
+	'$current_module'(M),
+	'$do_volatile'(G1,M),
+	'$do_volatile'(G2,M).
 volatile(P) :-
 	'$current_module'(M),
 	'$do_volatile'(P,M).
