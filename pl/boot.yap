@@ -36,7 +36,6 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
-	set_stream(user_input,alias('$loop_stream')),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0),
@@ -1068,7 +1067,6 @@ break :-
 	nb_setval('$if_level',0),
 	get_value('$lf_verbose',OldSilent),
 	set_value('$lf_verbose',silent),
-	set_stream(user_input,alias('$loop_stream')),
 	bootstrap(F),
 	% -p option must be processed after initializing the system
 	'$init_path_extensions',

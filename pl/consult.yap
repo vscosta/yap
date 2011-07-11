@@ -248,8 +248,7 @@ use_module(M,F,Is) :-
 	'$set_consulting_file'(Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	'$file_name'(Stream,File),
-	'$fetch_stream_alias'(OldStream,'$loop_stream'),
-	set_stream(Stream,alias('$loop_stream')),
+	'$set_current_loop_stream'(OldStream, Stream),
 	nb_getval('$consulting',Old),
 	nb_setval('$consulting',false),
 	'$access_yap_flags'(18,GenerateDebug),
@@ -285,7 +284,7 @@ use_module(M,F,Is) :-
 	;
 	    true
 	),
-	set_stream(OldStream,alias('$loop_stream')),
+	'$set_current_loop_stream'(_, OldStream),
 	'$set_yap_flags'(18,GenerateDebug),
 	'$comp_mode'(CompMode, OldCompMode),
 	nb_setval('$consulting',Old),
@@ -494,10 +493,10 @@ prolog_load_context(module, X) :-
 prolog_load_context(source, FileName) :-
 	nb_getval('$consulting_file',FileName).
 prolog_load_context(stream, Stream) :- 
-	'$fetch_stream_alias'(Stream,'$loop_stream').
+	'$current_loop_stream'(Stream).
 % return this term for SWI compatibility.
 prolog_load_context(term_position, '$stream_position'(0,Line,0,0,0)) :- 
-	'$fetch_stream_alias'(Stream,'$loop_stream'), !,
+	'$current_loop_stream'(Stream),
 	stream_property(Stream, position(Position)),
 	stream_position_data(line_count, Position, Line).
 
@@ -660,7 +659,7 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	'$do_error'(instantiation_error, encoding(V)).
 '$set_encoding'(EncAtom) :-
 	'$valid_encoding'(EncAtom, Enc), !,
-	'$fetch_stream_alias'(Stream,'$loop_stream'),
+	'$current_loop_stream'(Stream),
 	'$encoding'(Stream, Enc).
 '$set_encoding'(EncAtom) :-
 	atom(EncAtom), !,
@@ -1066,4 +1065,20 @@ make.
 '$store_clause'('$source_location'(File, Line):Clause, File) :-
 	assert_static(Clause).
 
+
+'$set_current_loop_stream'(OldStream, Stream) :-
+	'$current_loop_stream'(OldStream), !,
+	'$new_loop_stream'(Stream).
+'$set_current_loop_stream'(OldStream, Stream) :-
+	'$new_loop_stream'(Stream).
+
+'$new_loop_stream'(Stream) :-
+	(var(Stream) ->
+	    nb_delete('$loop_stream')
+	;
+	    nb_setval('$loop_stream',Stream)
+	).
+	    
+'$current_loop_stream'(Stream) :-
+	catch(nb_getval('$loop_stream',Stream), _, fail).
 
