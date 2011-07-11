@@ -1124,6 +1124,7 @@ Yap_StreamPosition(IOSTREAM *st)
 IOSTREAM *
 Yap_Scurin(void)
 {
+  GET_LD
   return Scurin;
 }
 
