@@ -218,7 +218,9 @@ current_op(X,Y,Z) :-
 cd :-
 	cd('~').
 
-cd(F) :- absolute_file_name(F, Dir, [file_type(directory)]), working_directory(_, Dir).
+cd(F) :-
+      absolute_file_name(F, Dir, [file_type(directory),file_errors(fail),access(execute),expand(true)]),
+      working_directory(_, Dir).
 
 getcwd(Dir) :- working_directory(Dir, Dir).
 
