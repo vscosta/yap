@@ -329,11 +329,14 @@ initIO()
   int i;
 
 #ifdef __YAP_PROLOG__
-  IOFUNCTIONS buf;
-  buf = GD->os.iofunctions;
+  volatile IOFUNCTIONS buf;
+  buf = *Sinput->functions;
   memset(GD, 0, sizeof(gds_t));
-  GD->os.iofunctions = buf;
   memset(LD, 0, sizeof(PL_local_data_t));
+  GD->os.iofunctions = buf;
+  Sinput->functions       = &GD->os.iofunctions;
+  Soutput->functions       = &GD->os.iofunctions;
+  Serror->functions       = &GD->os.iofunctions;
 #endif
   streamAliases = newHTable(16);
   streamContext = newHTable(16);
