@@ -1132,8 +1132,9 @@ YAP_cut_up(void)
 #endif /* CUT_C */
       /* This is complicated: make sure we can restore the ASP
 	 pointer back to where cut_up called it. Slots depend on it. */
-  if (ENV > B->cp_env) 
+  if (ENV > B->cp_env) {
     ASP = B->cp_env;
+  }
 #ifdef YAPOR
   {
     choiceptr cut_pt;
@@ -2316,13 +2317,13 @@ YAP_RunGoalOnce(Term t)
   Term out;
   yamop *old_CP = CP;
   BACKUP_MACHINE_REGS();
-
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
   LOCAL_PrologMode = UserCCallMode;
   if (out) {
-    choiceptr cut_pt;
+    choiceptr cut_pt, ob;
 
+    ob = NULL;
     cut_pt = B;
     while (cut_pt-> cp_ap != NOCODE) {
       /* make sure we prune C-choicepoints */
@@ -2330,13 +2331,17 @@ YAP_RunGoalOnce(Term t)
 	{
 	  POP_EXECUTE();
 	}
+      ob = cut_pt;
       cut_pt = cut_pt->cp_b;
     }
 #ifdef YAPOR
     CUT_prune_to(cut_pt);
 #endif
+    if (ob) {
+      B = ob;
+      Yap_TrimTrail();
+    }
     B = cut_pt;
-    Yap_TrimTrail();
   }
   ASP = B->cp_env;
   ENV = (CELL *)ASP[E_E];
