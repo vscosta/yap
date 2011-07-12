@@ -997,7 +997,6 @@ exec_absmi(int top USES_REGS)
   YENV = ASP;
   YENV[E_CB] = Unsigned (B);
   out = Yap_absmi(0);
-  Yap_StartSlots( PASS_REGS1 );
   /* make sure we don't leave a FAIL signal hanging around */ 
   LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
   if (!LOCAL_ActiveSignals)
@@ -1656,6 +1655,7 @@ Yap_InitYaamRegs(void)
   /* the first real choice-point will also have AP=FAIL */ 
   /* always have an empty slots for people to use */
   CurSlot = 0;
+  Yap_StartSlots( PASS_REGS1 );
   LOCAL_GlobalArena = TermNil;
   h0var = MkVarTerm();
 #if COROUTINING

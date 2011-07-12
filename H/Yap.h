@@ -1217,6 +1217,18 @@ Yap_CurrentSlot( USES_REGS1 ) {
   return IntOfTerm(ASP[0]);
 }
 
+/* pop slots when pruning */
+static inline void
+Yap_PopSlots( USES_REGS1 ) {
+  while (LCL0-CurSlot < ASP) {
+    Int old_slots;
+    CELL *ptr = LCL0-CurSlot;
+    old_slots = IntOfTerm(ptr[0]);
+    ptr += (old_slots+1);
+    CurSlot = IntOfTerm(*ptr);    
+  }
+}
+
 /************************/
 #ifdef THREADS
 typedef struct thandle {

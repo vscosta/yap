@@ -1134,6 +1134,7 @@ YAP_cut_up(void)
 	 pointer back to where cut_up called it. Slots depend on it. */
   if (ENV > B->cp_env) {
     ASP = B->cp_env;
+    Yap_PopSlots( PASS_REGS1 );
   }
 #ifdef YAPOR
   {
@@ -2166,6 +2167,7 @@ run_emulator(YAP_dogoalinfo *dgi)
 #endif /* DEPTH_LIMIT */
     YENV = ENV = B->cp_env;
     ASP = (CELL *)(B+1);
+    Yap_PopSlots( PASS_REGS1 );
     B = B->cp_b;
     HB = B->cp_h;
   } else {
@@ -2210,6 +2212,7 @@ YAP_EnterGoal(PredEntry *pe, Term *ptr, YAP_dogoalinfo *dgi)
   B = myB;
   HB = H;
   ASP = YENV = (CELL *)B;
+  Yap_PopSlots( PASS_REGS1 );
   YENV[E_CB] = Unsigned (B);
   out = run_emulator(dgi);
   RECOVER_MACHINE_REGS();
@@ -2271,6 +2274,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   }
   /* recover local stack */
   ASP = (CELL *)(B+1);
+  Yap_PopSlots( PASS_REGS1 );
   /* make sure we prune C-choicepoints */
   if (POP_CHOICE_POINT(B->cp_b))
     {
@@ -2344,6 +2348,7 @@ YAP_RunGoalOnce(Term t)
     B = cut_pt;
   }
   ASP = B->cp_env;
+  Yap_PopSlots( PASS_REGS1 );
   ENV = (CELL *)ASP[E_E];
   B = (choiceptr)ASP[E_CB];
 #ifdef  DEPTH_LIMIT
@@ -2413,6 +2418,7 @@ YAP_ShutdownGoal(int backtrack)
     }
     /* we can always recover the stack */
     ASP = cut_pt->cp_env;
+    Yap_PopSlots( PASS_REGS1 );
     ENV = (CELL *)ASP[E_E];
     B = (choiceptr)ASP[E_CB];
     Yap_TrimTrail();
