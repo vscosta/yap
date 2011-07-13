@@ -1321,15 +1321,15 @@ if test "$threads" = "yes"
   case "$orparallelism" in
     sba)
       AC_MSG_FAILURE(
-                   [--or-parallelism=sba incompatible with threads]
+                   [--or-parallelism=sba incompatible with threads])
     ;;
     a-cow)
       AC_MSG_FAILURE(
-                   [--or-parallelism=a-cow incompatible with threads]
+                   [--or-parallelism=a-cow incompatible with threads])
     ;;
     copy)
       AC_MSG_FAILURE(
-                   [--or-parallelism=copy incompatible with threads]
+                   [--or-parallelism=copy incompatible with threads])
     ;;
     yes|threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"

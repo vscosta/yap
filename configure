@@ -7511,21 +7511,21 @@ if test "$threads" = "yes"
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error "--or-parallelism=sba incompatible with threads
-    ;;
-    a-cow
 See \`config.log' for more details." "$LINENO" 5; }
+    ;;
+    a-cow)
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error "--or-parallelism=a-cow incompatible with threads
-    ;;
-    copy
 See \`config.log' for more details." "$LINENO" 5; }
+    ;;
+    copy)
       { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
 as_fn_error "--or-parallelism=copy incompatible with threads
-    ;;
-    yes|threads
 See \`config.log' for more details." "$LINENO" 5; }
+    ;;
+    yes|threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
     ;;
   esac
@@ -10619,8 +10619,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="$ac_config_files"
-config_headers="$ac_config_headers"
+config_files="`echo $ac_config_files`"
+config_headers="`echo $ac_config_headers`"
 
 _ACEOF
 

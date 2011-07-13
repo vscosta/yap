@@ -169,12 +169,12 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 **      Cut Macros      **
 ** -------------------- */
 
-#define CUT_prune_to(PRUNE_CP)                     \
-  if (YOUNGER_CP(Get_LOCAL_top_cp(), PRUNE_CP)) {  \
-    if (! Get_LOCAL_prune_request())		   \
-	    prune_shared_branch(PRUNE_CP);         \
-	  PRUNE_CP = Get_LOCAL_top_cp();	   \
-	}
+#define CUT_prune_to(PRUNE_CP)                           \
+        if (YOUNGER_CP(Get_LOCAL_top_cp(), PRUNE_CP)) {  \
+          if (! Get_LOCAL_prune_request())               \
+	    prune_shared_branch(PRUNE_CP);               \
+	  PRUNE_CP = Get_LOCAL_top_cp();	         \
+        }
 
 #define CUT_wait_leftmost()                                           \
         if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {          \
