@@ -1453,7 +1453,7 @@ static Int has_cut(yamop *pc, PredEntry *ap)
 {
   if (ap->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *lcl = ClauseCodeToLogUpdClause(pc);
-    return lcl->ClFlags & HasCutMask ? 1 : 0;
+    return ( (lcl->ClFlags & HasCutMask) != 0);
   }  else if (ap->PredFlags & MegaClausePredFlag) {
     /* must be a fact */
     return FALSE;
@@ -1461,7 +1461,7 @@ static Int has_cut(yamop *pc, PredEntry *ap)
     StaticClause *scl;
 
     scl = ClauseCodeToStaticClause(pc);
-    return scl->ClFlags & HasCutMask ? 1 : 0;
+    return ( (scl->ClFlags & HasCutMask) != 0);
   }
 }
 
