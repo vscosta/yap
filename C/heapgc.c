@@ -1325,7 +1325,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	  sz++;
 #if DEBUG
 	  if (next[sz] != EndSpecials)  {
-	    fprintf(stderr,"[ Error: could not find EndSpecials at blob %p type %lx ]\n", next, next[1]);
+	    fprintf(stderr,"[ Error: could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
 	}
 #endif
 	  MARK(next+sz);
@@ -1904,11 +1904,11 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
       PredEntry *pe = Yap_PredForChoicePt(gc_B);
 #if defined(ANALYST) || defined(DEBUG)
       if (pe == NULL) {
-	fprintf(GLOBAL_stderr,"%%       marked %ld (%s)\n", LOCAL_total_marked, Yap_op_names[opnum]);
+	fprintf(GLOBAL_stderr,"%%       marked  " UInt_FORMAT " (%s)\n", LOCAL_total_marked, Yap_op_names[opnum]);
       } else if (pe->ArityOfPE) {
-	fprintf(GLOBAL_stderr,"%%       %s/%d marked %ld (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, LOCAL_total_marked, Yap_op_names[opnum]);
+	fprintf(GLOBAL_stderr,"%%       %s/%d marked  " UInt_FORMAT " (%s)\n", RepAtom(NameOfFunctor(pe->FunctorOfPred))->StrOfAE, pe->ArityOfPE, LOCAL_total_marked, Yap_op_names[opnum]);
       } else {
-	fprintf(GLOBAL_stderr,"%%       %s marked %ld (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked, Yap_op_names[opnum]);
+	fprintf(GLOBAL_stderr,"%%       %s marked  " UInt_FORMAT " (%s)\n", RepAtom((Atom)(pe->FunctorOfPred))->StrOfAE, LOCAL_total_marked, Yap_op_names[opnum]);
       }
 #else
       if (pe == NULL) {
