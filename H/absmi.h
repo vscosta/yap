@@ -1540,6 +1540,9 @@ static inline void
 prune(choiceptr cp)
 {
   CACHE_REGS
+#ifdef YAPOR
+  CUT_prune_to(cp);
+#endif /* YAPOR */
   if (SHOULD_CUT_UP_TO(B,cp))
     {
       if (ASP > (CELL *)PROTECT_FROZEN_B(B))
@@ -1555,9 +1558,6 @@ prune(choiceptr cp)
 	{
 	  POP_EXECUTE();
 	}
-#ifdef YAPOR
-      CUT_prune_to(cp);
-#endif /* YAPOR */
       /* cut ! */
 #ifdef TABLING
       abolish_incomplete_subgoals(B);

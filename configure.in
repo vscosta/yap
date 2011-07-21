@@ -132,6 +132,10 @@ AC_ARG_ENABLE(cplint,
 	[ --enable-cplint[=DIR]       enable the cplint library using the glu library in DIR/lib],
 		yap_cv_cplint=$enableval, yap_cv_cplint=no)
 
+AC_ARG_ENABLE(clpbn-bp,
+	[ --enable-clpbn-bp           enable belief propagation solver in CLPBN.  ],
+	yap_cv_clpbn_bp="$enableval", yap_cv_clpbn_bp=no)
+
 AC_ARG_WITH(gmp,
 	[ --with-gmp[=DIR]           use GNU Multiple Precision in DIR],
 	if test "$withval" = yes; then
@@ -424,18 +428,28 @@ fi
 
 if test "$yap_cv_yapr" = no 
 then
-  INSTALL_YAPR="@# "
+  ENABLE_YAPR="@# "
+elif test -e "$srcdir"/packages/YapR/Makefile.in
+then
+  ENABLE_YAPR="@# "
 else
-  INSTALL_YAPR=""
+  ENABLE_YAPR=""
+fi
+
+if test "$yap_cv_clpbn_bp" = no 
+then
+  ENABLE_CLPBN_BP="@# "
+else
+  ENABLE_CLPBN_BP=""
 fi
 
 
 
 if test "$yap_cv_cudd" = no 
 then
-  USE_CUDD="@# "
+  ENABLE_CUDD="@# "
 else
-  USE_CUDD=""
+  ENABLE_CUDD=""
 fi
 
 dnl condor universe does not like dynamic linking on Linux, DEC, and HP-UX platforms.
@@ -454,16 +468,6 @@ then
 else
   static_compilation="no"
   STATIC_MODE="# "
-fi
-
-if test "$yap_cv_minisat" = no 
-then
-  USE_MINISAT="@# "
-elif test "$INSTALL_DLLS" = "#" 
-then
-  USE_MINISAT="@# "
-else
-  USE_MINISAT=""
 fi
 
 dnl Compilation Flags
@@ -663,16 +667,6 @@ dnl then
 dnl   AC_CHECK_LIB(cudd,Cudd_Init)
 dnl fi
 
-dnl check if we have zlib
-AC_CHECK_LIB(z, zlibVersion,
-	     ZLIBS="-lz"
-	     ZLIB=yes,
-	     ZLIB=no)
-if test $ZLIB = yes
-then
-  LIBS="$LIBS -lz"
-fi
-
 if test "$yap_cv_myddas" != "no"
 then
 	dnl check for mysql
@@ -767,6 +761,60 @@ elif test -e "$srcdir"/packages/clpqr/Makefile.in; then
   ENABLE_CLPQR=""
 else
   ENABLE_CLPQR="@# "
+fi
+
+if test -e "$srcdir"/packages/clib/Makefile.in; then
+  ENABLE_CLIB=""
+else
+  ENABLE_CLIB="@# "
+fi
+
+if test -e "$srcdir"/packages/http/Makefile.in; then
+  ENABLE_HTTP=""
+else
+  ENABLE_HTTP="@# "
+fi
+
+if test -e "$srcdir"/packages/pldoc/Makefile.in; then
+  ENABLE_PLDOC=""
+else
+  ENABLE_PLDOC="@# "
+fi
+
+if test -e "$srcdir"/packages/plunit/Makefile.in; then
+  ENABLE_PLUNIT=""
+else
+  ENABLE_PLUNIT="@# "
+fi
+
+if test -e "$srcdir"/packages/R/Makefile.in; then
+  ENABLE_R=""
+else
+  ENABLE_R="@# "
+fi
+
+if test -e "$srcdir"/packages/RDF/Makefile.in; then
+  ENABLE_RDF=""
+else
+  ENABLE_RDF="@# "
+fi
+
+if test -e "$srcdir"/packages/semweb/Makefile.in; then
+  ENABLE_SEMWEB=""
+else
+  ENABLE_SEMWEB="@# "
+fi
+
+if test -e "$srcdir"/packages/sgml/Makefile.in; then
+  ENABLE_SGML=""
+else
+  ENABLE_SGML="@# "
+fi
+
+if test -e "$srcdir"/packages/zlib/Makefile.in; then
+  ENABLE_ZLIB=""
+else
+  ENABLE_ZLIB="@# "
 fi
 
 dnl
@@ -1206,7 +1254,6 @@ esac
 
 EXTRA_LIBS_FOR_SWIDLLS="$EXTRA_LIBS_FOR_DLLS"
 
-
 if test "$dynamic_loading" = "yes"
 then 
   YAPLIB_CFLAGS="$SHLIB_CFLAGS"
@@ -1274,15 +1321,15 @@ if test "$threads" = "yes"
   case "$orparallelism" in
     sba)
       AC_MSG_FAILURE(
-                   [--or-parallelism=sba incompatible with threads]
+                   [--or-parallelism=sba incompatible with threads])
     ;;
     a-cow)
       AC_MSG_FAILURE(
-                   [--or-parallelism=a-cow incompatible with threads]
+                   [--or-parallelism=a-cow incompatible with threads])
     ;;
     copy)
       AC_MSG_FAILURE(
-                   [--or-parallelism=copy incompatible with threads]
+                   [--or-parallelism=copy incompatible with threads])
     ;;
     yes|threads)
      YAP_EXTRAS="$YAP_EXTRAS -DYAPOR_THREADS=1"
@@ -1354,6 +1401,10 @@ AC_SUBST(ENABLE_CPLINT)
 AC_SUBST(INSTALL_ENV)
 AC_SUBST(PRE_INSTALL_ENV)
 
+dnl zlib
+if test "$ENABLE_ZLIB" = ""
+then
+
 AC_CHECK_LIB(z, zlibVersion,
 	     ZLIBS="-lz"
 	     ZLIB=yes,
@@ -1381,8 +1432,9 @@ AC_SUBST(ZLIB_TARGETS)
 AC_SUBST(ZLIB_PLTARGETS)
 AC_SUBST(ZLIB_INSTALL)
 
+fi
 
-# LAM
+dnl LAM
 OLD_CC=${CC}	
 CC=${LAM_MPI_CC}
 AC_CHECK_LIB([lam], [main],
@@ -1534,8 +1586,18 @@ dnl let YAP_EXTRAS fall through configure, from the env into Makefile
 AC_SUBST(YAP_EXTRAS)
 AC_SUBST(NO_BUILTIN_REGEXP)
 AC_SUBST(ENABLE_CHR)
+AC_SUBST(ENABLE_CLIB)
 AC_SUBST(ENABLE_CLPQR)
+AC_SUBST(ENABLE_HTTP)
 AC_SUBST(ENABLE_JPL)
+AC_SUBST(ENABLE_PLDOC)
+AC_SUBST(ENABLE_PLUNIT)
+AC_SUBST(ENABLE_R)
+AC_SUBST(ENABLE_RDF)
+AC_SUBST(ENABLE_SEMWEB)
+AC_SUBST(ENABLE_SGML)
+AC_SUBST(ENABLE_ZLIB)
+AC_SUBST(ENABLE_CLPBN_BP)
 AC_SUBST(JAVA)
 AC_SUBST(JAVA_HOME)
 AC_SUBST(JUNIT)
@@ -1557,11 +1619,11 @@ AC_SUBST(STATIC_MODE)
 AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
 
-AC_SUBST(USE_CUDD)
+AC_SUBST(ENABLE_CUDD)
 AC_SUBST(CUDD_LDFLAGS)
 AC_SUBST(CUDD_CPPFLAGS)
-AC_SUBST(USE_MINISAT)
-AC_SUBST(INSTALL_YAPR)
+AC_SUBST(ENABLE_MINISAT)
+AC_SUBST(ENABLE_YAPR)
 AC_SUBST(YAPR_INCLUDES)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
@@ -1886,6 +1948,8 @@ AC_SUBST(TARGETS)
 AC_SUBST(PLTARGETS)
 AC_SUBST(CHR_TARGETS)
 
+dnl clib
+if test "$ENABLE_CLIB" = ""; then
 CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO $CRYPT_TARGETS"
 CLIB_PLTARGETS="random.pl socket.pl cgi.pl memfile.pl filesex.pl mime.pl $CRYPT_TARGETS"
 
@@ -1927,6 +1991,8 @@ AC_SUBST(CLIB_TARGETS)
 AC_SUBST(CLIB_PLTARGETS)
 AC_SUBST(CLIB_NETLIBS)
 AC_SUBST(CLIB_CRYPTLIBS)
+
+fi
 
 AC_CHECK_TYPES(socklen_t, [], [],
 [
@@ -2008,6 +2074,16 @@ AC_SUBST(RFC2045CHARSET)
 MAILDROP_CFLAGS="$SHLIB_CFLAGS -I. -I\$(srcdir) -I\$(srcdir)/.. -I../../../.."
 AC_SUBST(MAILDROP_CFLAGS)
 
+if test "$yap_cv_minisat" = no 
+then
+  ENABLE_MINISAT="@# "
+elif test "$INSTALL_DLLS" = "#" 
+then
+  ENABLE_MINISAT="@# "
+else
+  ENABLE_MINISAT=""
+fi
+
 mkdir -p  library/lammpi
 mkdir -p  library/matrix
 mkdir -p  library/matlab
@@ -2046,6 +2122,7 @@ mkdir -p  packages/pldoc
 mkdir -p  packages/plunit
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
+mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
 mkdir -p  packages/semweb
@@ -2070,46 +2147,79 @@ AC_CONFIG_FILES([LGPL/clp/Makefile])
 AC_CONFIG_FILES([LGPL/swi_console/Makefile])
 AC_CONFIG_FILES([packages/Makefile.defs])
 AC_CONFIG_FILES([packages/Dialect.defs])
+AC_CONFIG_FILES([packages/CLPBN/Makefile])
+AC_CONFIG_FILES([packages/cplint/Makefile])
+AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
+AC_CONFIG_FILES([packages/meld/Makefile])
+AC_CONFIG_FILES([packages/ProbLog/Makefile ])
+
+if test "$ENABLE_CHR" = ""; then
+AC_CONFIG_FILES([packages/chr/Makefile])
+fi
+
+if test "$ENABLE_CLIB" = ""; then
 AC_CONFIG_FILES([packages/clib/Makefile])
 AC_CONFIG_FILES([packages/clib/maildrop/rfc822/Makefile])
 AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/Makefile])
 AC_CONFIG_FILES([packages/clib/maildrop/rfc2045/rfc2045charset.h])
-AC_CONFIG_FILES([packages/CLPBN/Makefile])
-AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
-AC_CONFIG_FILES([packages/cplint/Makefile])
-AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
-AC_CONFIG_FILES([packages/http/Makefile])
-AC_CONFIG_FILES([packages/meld/Makefile])
-AC_CONFIG_FILES([packages/PLStream/libtai/Makefile])
-AC_CONFIG_FILES([packages/pldoc/Makefile])
-AC_CONFIG_FILES([packages/plunit/Makefile])
-AC_CONFIG_FILES([packages/ProbLog/Makefile ])
-AC_CONFIG_FILES([packages/R/Makefile])
-AC_CONFIG_FILES([packages/RDF/Makefile])
-AC_CONFIG_FILES([packages/semweb/Makefile])
-AC_CONFIG_FILES([packages/sgml/Makefile])
-AC_CONFIG_FILES([packages/YapR/Makefile])
-AC_CONFIG_FILES([packages/zlib/Makefile])
-
-if test "$ENABLE_CHR" = ""; then
-AC_CONFIG_FILES([packages/chr/Makefile])
 fi
 
 if test "$ENABLE_CLPQR" = ""; then
 AC_CONFIG_FILES([packages/clpqr/Makefile])
 fi
 
+if test "$ENABLE_HTTP" = ""; then
+AC_CONFIG_FILES([packages/http/Makefile])
+fi
+
 if test "$ENABLE_JPL" = ""; then
 AC_CONFIG_FILES([packages/jpl/Makefile packages/jpl/jpl_paths.yap packages/jpl/src/java/Makefile packages/pyswip/Makefile ])
 fi
 
-if test "$USE_CUDD" = ""; then
-AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
+if test "$ENABLE_PLDOC" = ""; then
+AC_CONFIG_FILES([packages/pldoc/Makefile])
 fi
 
-if test "$USE_MINISAT" = ""; then
+if test "$ENABLE_PLUNIT" = ""; then
+AC_CONFIG_FILES([packages/plunit/Makefile])
+fi
+
+if test "$ENABLE_R" = ""; then
+AC_CONFIG_FILES([packages/R/Makefile])
+fi
+
+if test "$ENABLE_RDF" = ""; then
+AC_CONFIG_FILES([packages/RDF/Makefile])
+fi
+
+if test "$ENABLE_SEMWEB" = ""; then
+AC_CONFIG_FILES([packages/semweb/Makefile])
+fi
+
+if test "$ENABLE_SGML" = ""; then
+AC_CONFIG_FILES([packages/sgml/Makefile])
+fi
+
+if test "$ENABLE_ZLIB" = ""; then
+AC_CONFIG_FILES([packages/zlib/Makefile])
+fi
+
+if test "$ENABLE_CUDD" = ""; then
+AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
+AC_CONFIG_FILES([packages/ProbLog/simplecudd_lfi/Makefile])
+fi
+
+if test "$ENABLE_MINISAT" = ""; then
 AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
 AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
+fi
+
+if test "$ENABLE_YAPR" = ""; then
+AC_CONFIG_FILES([packages/YapR/Makefile])
+fi
+
+if test "$ENABLE_CLPBN_BP" = ""; then
+AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
 fi
 
 AC_OUTPUT()
