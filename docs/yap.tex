@@ -16811,13 +16811,29 @@ only two boolean flags are accepted: @code{YAPC_ENABLE_GC} and
 @code{YAPC_ENABLE_AGC}.  The first enables/disables the standard garbage
 collector, the second does the same for the atom garbage collector.`
 
+@item  @code{YAP_TERM} YAP_AllocExternalDataInStack(@code{size_t bytes})
+@item  @code{void *} YAP_ExternalDataInStackFromTerm(@code{YAP_Term t})
+@item  @code{YAP_Bool} YAP_IsExternalDataInStackTerm(@code{YAP_Term t})
+@findex YAP_AllocExternalDataInStack (C-Interface function)
+
+The next routines allow one to store external data in the Prolog
+execution stack. The first routine reserves space for @var{sz} bytes
+and returns an opaque handle. The second routines receives the handle
+and returns a pointer to the data.  The last routine checks if a term
+is an opaque handle.
+
+Data will be automatically reclaimed during
+backtracking. Also, this storage is opaque to the Prolog garbage compiler,
+so it should not be used to store Prolog terms. On the other hand, it
+may be useful to store arrays in a compact way, or pointers to external objects.
+
 @item  @code{int} YAP_HaltRegisterHook(@code{YAP_halt_hook f, void *closure})
 @findex YAP_HaltRegisterHook (C-Interface function)
 
 Register the function @var{f} to be called if YAP is halted. The
-function is called with two arguments: the exit code of the process (@code{0}
-if this cannot be determined on your operating system) and the closure
-argument @var{closure}. 
+function is called with two arguments: the exit code of the process
+(@code{0} if this cannot be determined on your operating system) and
+the closure argument @var{closure}.
 @c See also @code{at_halt/1}.
 
 @end table
@@ -16850,6 +16866,7 @@ implementing the predicate and @var{arity} is its arity.
 @findex YAP_UserBackCutCPredicate (C-Interface function)
 @findex YAP_PRESERVE_DATA (C-Interface function)
 @findex YAP_PRESERVED_DATA (C-Interface function)
+@findex YAP_PRESERVED_DATA_CUT (C-Interface function)
 @findex YAP_cutsucceed (C-Interface function)
 @findex YAP_cutfail (C-Interface function)
 For the second kind of predicates we need three C functions. The first one
@@ -16915,11 +16932,15 @@ static int start_n100(void)
 @end example
 
 The routine starts by getting the dereference value of the argument.
-The call to @code{YAP_PRESERVE_DATA} is used to initialize the memory which will
-hold the information to be preserved across backtracking. The first
-argument is the variable we shall use, and the second its type. Note
-that we can only use @code{YAP_PRESERVE_DATA} once, so often we will
-want the variable to be a structure.
+The call to @code{YAP_PRESERVE_DATA} is used to initialize the memory
+which will hold the information to be preserved across
+backtracking. The first argument is the variable we shall use, and the
+second its type. Note that we can only use @code{YAP_PRESERVE_DATA}
+once, so often we will want the variable to be a structure. This data
+is visible to the garbage collector, so it should consist of Prolog
+terms, as in the example. It is also correct to store pointers to
+objects external to YAP stacks, as the garbage collector will ignore
+such references.
 
 If the argument of the predicate is a variable, the routine initializes the 
 structure to be preserved across backtracking with the information
@@ -16992,11 +17013,38 @@ preserved in the stack. In this example, we would have something like
 void
 init_n100(void)
 @{
+  YAP_UserBackCutCPredicate("n100", start_n100, continue_n100, cut_n100, 1, 1);
+@}
+@end example
+The argument before last is the predicate's arity. Notice again the
+last argument to the call. function argument gives the extra space we
+want to use for @code{PRESERVED_DATA}. Space is given in cells, where
+a cell is the same size as a pointer. The garbage collector has access
+to this space, hence users should use it either to store terms or to
+store pointers to objects outside the stacks.
+
+The code for @code{cut_n100} could be:
+@example
+static int cut_n100(void)
+@{
+  YAP_PRESERVED_DATA_CUT(n100_data,n100_data_type*);
+
+  fprintf("n100 cut with counter %ld\n", YAP_IntOfTerm(n100_data->next_solution));
+  return TRUE;
+@}
+@end example
+Notice that we have to use @code{YAP_PRESERVED_DATA_CUT}: this is
+because the Prolog engine is at a different state during cut.
+
+If no work is required at cut, we can use:
+@example
+void
+init_n100(void)
+@{
   YAP_UserBackCutCPredicate("n100", start_n100, continue_n100, NULL, 1, 1);
 @}
 @end example
-Notice that we do not actually need to do anything on receiving a cut in
-this case.
+in this case no code is executed at cut time.
 
 @node Loading Objects, Save&Rest, Writing C, C-Interface
 @section Loading Object Files

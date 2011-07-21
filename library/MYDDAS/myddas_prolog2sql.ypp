@@ -241,6 +241,8 @@ tokenize_arguments([FirstArg|RestArgs],[TokFirstArg|TokRestArgs]):-
 %
 % --------------------------------------------------------------------------------------
 
+:- dynamic attribute/4.
+
 query_generation([],_,[]).
 
 query_generation([Conjunction|Conjunctions],ProjectionTerm,[Query|Queries]):-
@@ -1157,9 +1159,9 @@ column_atom(att(RangeVar,Attribute),QueryList,Diff):-
    column_atom(Attribute,X2,Diff).
 
 column_atom(rel(Relation,RangeVar),QueryList,Diff):-
-	column_atom('`',QueryList,X0),
+	column_atom('',QueryList,X0),
 	column_atom(Relation,X0,X1),
-	column_atom('` ',X1,X2),
+	column_atom(' ',X1,X2),
 	column_atom(RangeVar,X2,Diff).
 
 column_atom('$const$'(String),QueryList,Diff):-

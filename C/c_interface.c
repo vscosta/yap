@@ -390,6 +390,7 @@ X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsExternalDataInStackTerm,(Term));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
 X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
 X_API Term    STD_PROTO(YAP_MkRationalTerm,(void *));
@@ -536,6 +537,8 @@ X_API Term     STD_PROTO(YAP_ModuleUser,(void));
 X_API Int      STD_PROTO(YAP_NumberOfClausesForPredicate,(PredEntry *));
 X_API int      STD_PROTO(YAP_MaxOpPriority,(Atom, Term));
 X_API int      STD_PROTO(YAP_OpInfo,(Atom, Term, int, int *, int *));
+X_API Term     STD_PROTO(YAP_AllocExternalDataInStack,(size_t));
+X_API void    *STD_PROTO(YAP_ExternalDataInStackFromTerm,(Term));
 
 static int (*do_putcf)(wchar_t);
 
@@ -2312,6 +2315,27 @@ YAP_RunGoal(Term t)
   
   RECOVER_MACHINE_REGS();
   return(out);
+}
+
+X_API Term
+YAP_AllocExternalDataInStack(size_t bytes)
+{
+  Term t = Yap_AllocExternalDataInStack(bytes);
+  if (t == TermNil)
+    return 0L;
+  return t;
+}
+
+X_API Bool
+YAP_IsExternalDataInStackTerm(Term t)
+{
+  return IsExternalBlobTerm(t);
+}
+
+X_API void *
+YAP_ExternalDataInStackFromTerm(Term t)
+{
+  return ExternalBlobFromTerm (t);
 }
 
 X_API Term

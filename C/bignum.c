@@ -59,6 +59,28 @@ Yap_MkBigIntTerm(MP_INT *big)
   return AbsAppl(ret);
 }
 
+Term
+Yap_AllocExternalDataInStack(size_t bytes)
+{
+  CACHE_REGS
+  Int nlimbs;
+  MP_INT *dst = (MP_INT *)(H+2);
+  CELL *ret = H;
+
+  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
+  if (nlimbs > (ASP-ret)-1024) {
+    return TermNil;
+  }
+  H[0] = (CELL)FunctorBigInt;
+  H[1] = EXTERNAL_BLOB;
+  dst->_mp_size = 0;
+  dst->_mp_alloc = nlimbs;
+  H = (CELL *)(dst+1)+nlimbs;
+  H[0] = EndSpecials;
+  H++;
+  return AbsAppl(ret);
+}
+
 MP_INT *
 Yap_BigIntOfTerm(Term t)
 {
