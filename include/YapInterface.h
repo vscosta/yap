@@ -245,9 +245,9 @@ extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
 /*  void cut_fail(void) */
 extern X_API void PROTO(YAP_cut_up,(void));
 
-#define YAP_cut_succeed() { YAP_cut_up(); return TRUE; }
+#define YAP_cut_succeed() do { YAP_cut_up(); return TRUE; } while(0)
 
-#define YAP_cut_fail() { YAP_cut_up(); return FALSE; }
+#define YAP_cut_fail() do { YAP_cut_up(); return FALSE; } while(0)
 
 /*  void *AllocSpaceFromYAP_(int) */
 extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));
