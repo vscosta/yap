@@ -555,6 +555,15 @@ extern X_API int PROTO(YAP_MaxOpPriority,(YAP_Atom, YAP_Term));
 /*    int  YAP_OpInfo(Atom, Term, int, int *, int *)  */
 extern X_API int  PROTO(YAP_OpInfo,(YAP_Atom, YAP_Term, int, int *, int *));
 
+/*    YAP_Bool  YAP_IsExternalDataInStackTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsExternalDataInStackTerm,(YAP_Term));
+
+/*    Term  YAP_AllocExternalDataInStack(size_t)  */
+extern X_API YAP_Term PROTO(YAP_AllocExternalDataInStack,(size_t));
+
+/*    void  *YAP_ExternalDataInStackFromTerm(YAP_Term)  */
+extern X_API void *PROTO(YAP_ExternalDataInStackFromTerm,(YAP_Term));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

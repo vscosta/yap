@@ -60,7 +60,7 @@ Yap_MkBigIntTerm(MP_INT *big)
 }
 
 Term
-Yap_AllocDynamicData(size_t bytes)
+Yap_AllocExternalDataInStack(size_t bytes)
 {
   CACHE_REGS
   Int nlimbs;
