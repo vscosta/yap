@@ -30,7 +30,6 @@ static char *rcsid = "$Header: /Users/vitor/Yap/yap-cvsbackup/library/mpi/mpi.c,
 #include <string.h>
 #include <mpi.h>
 
-Term    STD_PROTO(YAP_Read, (int (*)(void)));
 void    STD_PROTO(YAP_Write, (Term, void (*)(int), int));
 
 STATIC_PROTO (Int p_mpi_open, (void));
@@ -104,15 +103,6 @@ mpi_putc(Int ch)
     buf[bufptr++] = ch;
   }
 }
-
-static Int
-mpi_getc(void)
-{
-  if( bufptr < bufsize ) return buf[bufptr++];
-  else return -1;
-}
-
-
 
 
 /*
@@ -301,7 +291,7 @@ p_mpi_receive()          /* mpi_receive(-data, ?orig, ?tag) */
   /* parse received string into a Prolog term */
 
   bufptr = 0;
-  t = YAP_Read( mpi_getc );
+  t = YAP_ReadBuffer( buf, NULL );
 
   if( t == TermNil ) {
     retv = FALSE;
@@ -384,7 +374,7 @@ p_mpi_bcast3()           /* mpi_bcast( ?data, +root, +max_size ) */
     bufptr = 0;
 
     /* parse received string into a Prolog term */
-    return Yap_unify( YAP_Read(mpi_getc), ARG1 );
+    return Yap_unify( YAP_ReadBuffer( buf, NULL ), ARG1 );
   }    
 }
 
@@ -464,7 +454,7 @@ p_mpi_bcast2()           /* mpi_bcast( ?data, +root ) */
     bufstrlen = strlen(buf);
     bufptr = 0;
 
-    return Yap_unify(YAP_Read( mpi_getc ), ARG1);
+    return Yap_unify(YAP_ReadBuffer( buf, NULL ), ARG1);
   }
 }
 

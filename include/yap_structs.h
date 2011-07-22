@@ -101,9 +101,10 @@ typedef double YAP_Float;
 #define YAP_FULL_BOOT_FROM_PROLOG  4
 #define YAP_BOOT_ERROR            -1
 
-#define YAP_WRITE_QUOTED		0
-#define YAP_WRITE_HANDLE_VARS		1
+#define YAP_WRITE_QUOTED		1
 #define YAP_WRITE_IGNORE_OPS		2
+#define YAP_WRITE_HANDLE_VARS		2
+#define YAP_WRITE_USE_PORTRAY		8
 
 #define YAP_CONSULT_MODE           0
 #define YAP_RECONSULT_MODE         1

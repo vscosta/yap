@@ -17320,9 +17320,9 @@ Associate the term @var{value} with the atom @var{at}. The term
 @var{value} must be a constant. This functionality is used by YAP as a
 simple way for controlling and communicating with the Prolog run-time.
 
-@item  @code{YAP_Term} YAP_Read(@code{int (*)(void)} @var{GetC})
+@item  @code{YAP_Term} YAP_Read(@code{IOSTREAM *Stream})
 @findex  YAP_Read/1
-Parse a Term  using the function @var{GetC} to input characters.
+Parse a @var{Term} from the stream @var{Stream}.
 
 @item  @code{YAP_Term} YAP_Write(@code{YAP_Term} @var{t})
 @findex  YAP_CopyTerm/1
@@ -17330,13 +17330,13 @@ Copy a Term @var{t} and all associated constraints. May call the garbage
 collector and returns @code{0L} on error (such as no space being
 available).
 
-@item  @code{void} YAP_Write(@code{YAP_Term} @var{t}, @code{void (*)(int)}
-@var{PutC}, @code{int} @var{flags})
+@item  @code{void} YAP_Write(@code{YAP_Term} @var{t}, @code{IOSTREAM}
+@var{stream}, @code{int} @var{flags})
 @findex  YAP_Write/3
-Write a Term @var{t} using the function @var{PutC} to output
+Write a Term @var{t} using the stream @var{stream} to output
 characters. The term is written according to a mask of the following
 flags in the @code{flag} argument: @code{YAP_WRITE_QUOTED},
-@code{YAP_WRITE_HANDLE_VARS},  and @code{YAP_WRITE_IGNORE_OPS}.
+@code{YAP_WRITE_HANDLE_VARS}, @code{YAP_WRITE_USE_PORTRAY},  and @code{YAP_WRITE_IGNORE_OPS}.
 
 @item  @code{void} YAP_WriteBuffer(@code{YAP_Term} @var{t}, @code{char *}
 @var{buff}, @code{unsigned int}

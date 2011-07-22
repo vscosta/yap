@@ -142,12 +142,6 @@ p2c_putc(const int c) {
 /*
  * Function used by YAP to read a char from a string
  */                                                                                               
-static int
-p2c_getc(void) {
-  if( BUFFER_POS < BUFFER_LEN ) 
-    return BUFFER_PTR[BUFFER_POS++];
-  return -1;
-}
 /*
  * Writes a term to a stream.
  */
@@ -177,7 +171,7 @@ read_term_from_stream(const int fd) {
   if ( size> BUFFER_SIZE)
     expand_buffer(size-BUFFER_SIZE);
   read(fd,BUFFER_PTR,size);            // read term from stream
-  return YAP_Read( p2c_getc );
+  return YAP_ReadBuffer( BUFFER_PTR , NULL);
 }
 /*********************************************************************************************
  * Conversion: Prolog Term->char[] and char[]->Prolog Term
@@ -229,7 +223,7 @@ string2term(char *const ptr,const size_t *size) {
   }
   BUFFER_POS=0;
   LOCAL_ErrorMessage=NULL;
-  t = YAP_Read(p2c_getc);
+  t = YAP_ReadBuffer( BUFFER_PTR , NULL );
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),LOCAL_ErrorMessage);
     exit(1);

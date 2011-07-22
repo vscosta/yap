@@ -465,7 +465,7 @@ X_API IOSTREAM   *STD_PROTO(YAP_TermToStream,(Term));
 X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
-X_API void    STD_PROTO(YAP_Write, (Term, int (*)(wchar_t), int));
+X_API void    STD_PROTO(YAP_Write, (Term, IOSTREAM *, int));
 X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
@@ -2655,12 +2655,12 @@ YAP_Read(IOSTREAM *inp)
 }
 
 X_API void
-YAP_Write(Term t, int (*myputc)(wchar_t), int flags)
+YAP_Write(Term t, IOSTREAM *stream, int flags)
 {
   BACKUP_MACHINE_REGS();
 
   do_putcf = myputc;		/*  */
-  Yap_plwrite (t, do_yap_putc, flags, 1200);
+  Yap_dowrite (t, stream, flags, 1200);
 
   RECOVER_MACHINE_REGS();
 }
