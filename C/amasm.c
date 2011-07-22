@@ -252,7 +252,7 @@ STATIC_PROTO(yamop *a_if, (op_numbers, union clause_obj *, int, yamop *, int, st
 STATIC_PROTO(yamop *a_cut, (clause_info *,yamop *, int, struct intermediates *));
 #ifdef YAPOR
 STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
+STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, yamop *, int, struct intermediates *));
 #else
 STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct intermediates *));
@@ -3583,7 +3583,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       code_p = a_either(_either,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
-	       Unsign`ed(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, code_p, pass_no, cip);
+	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, code_p, pass_no, cip);
 #else
       code_p = a_either(_either,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
