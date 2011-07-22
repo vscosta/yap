@@ -178,6 +178,8 @@ int Yap_CleanOpaqueVariable(CELL *pt)
   if (!GLOBAL_OpaqueHandlers)
     return FALSE;
   blobp = (MP_INT *)(pt+2);
+  if (!GLOBAL_OpaqueHandlers[blob_info].fail_handler)
+    return TRUE;
   return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)((void *)(blobp+1));
 }
 
