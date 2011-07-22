@@ -495,7 +495,7 @@ debugging :-
 	'$continue_debugging'(no, '$execute_nonstop'(G,M)).
 '$spycall'(G, M, CalledFromDebugger, InRedo) :-
 	'$flags'(G,M,F,F),
-	F /\ 0x18402000 =\= 0, !, % dynamic procedure, logical semantics, user-C, or source
+	F /\ 0x08402000 =\= 0, !, % dynamic procedure, logical semantics, or source
 	% use the interpreter
 	CP is '$last_choice_pt',
 	'$clause'(G, M, Cl, _),
