@@ -2103,6 +2103,9 @@ mkdir -p  packages/clib/maildrop
 mkdir -p  packages/clib/maildrop/rfc822
 mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
+mkdir -p  packages/CLPBN/clpbn
+mkdir -p  packages/CLPBN/clpbn/bp
+mkdir -p  packages/CLPBN/clpbn/bp/xmlParser
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx

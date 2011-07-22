@@ -544,13 +544,6 @@ X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
 X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 
-static int (*do_putcf)(wchar_t);
-
-static int do_yap_putc(int streamno,wchar_t ch) {
-  do_putcf(ch);
-  return(ch);
-}
-
 static int
 dogc(void)
 {
@@ -2435,7 +2428,6 @@ YAP_RestartGoal(void)
   BACKUP_MACHINE_REGS();
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
-    do_putcf = myputc;
     LOCAL_PrologMode = UserMode;
     out = Yap_exec_absmi(TRUE);
     LOCAL_PrologMode = UserCCallMode;
@@ -2659,7 +2651,6 @@ YAP_Write(Term t, IOSTREAM *stream, int flags)
 {
   BACKUP_MACHINE_REGS();
 
-  do_putcf = myputc;		/*  */
   Yap_dowrite (t, stream, flags, 1200);
 
   RECOVER_MACHINE_REGS();
