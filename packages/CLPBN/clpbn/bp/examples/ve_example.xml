@@ -2,17 +2,20 @@
 
 <!--
 
-  A     B
-   \   /
-    \ /
-     -
-     C
+    A     B
+     \   /
+      \ / 
+       C 
+       |
+       |
+       D
 
 -->
 
+
 <BIF VERSION="0.3">
 <NETWORK>
-<NAME>Simple Convergence</NAME>
+<NAME>Simple Loop</NAME>
 
 <VARIABLE TYPE="nature">
 	<NAME>A</NAME>
@@ -32,21 +35,33 @@
 	<OUTCOME>c2</OUTCOME>
 </VARIABLE>
 
+<VARIABLE TYPE="nature">
+	<NAME>D</NAME>
+	<OUTCOME>d1</OUTCOME>
+	<OUTCOME>d2</OUTCOME>
+</VARIABLE>
+
 <DEFINITION>
 	<FOR>A</FOR>
-	<TABLE>.695 .305</TABLE>
+	<TABLE> .001 .009 </TABLE>
 </DEFINITION>
 
 <DEFINITION>
 	<FOR>B</FOR>
-	<TABLE>0.25 0.75</TABLE>
+	<TABLE> .002 .008 </TABLE>
 </DEFINITION>
 
 <DEFINITION>
 	<FOR>C</FOR>
 	<GIVEN>A</GIVEN>
 	<GIVEN>B</GIVEN>
-	<TABLE>0.2 0.8 0.45 0.55 0.32 0.68 0.7 0.3</TABLE>
+	<TABLE> .95 .05 .94 .06 .29 .71 .001 .999 </TABLE>
+</DEFINITION>
+
+<DEFINITION>
+	<FOR>D</FOR>
+	<GIVEN>C</GIVEN>
+	<TABLE> .9 .1 .05 .95  </TABLE>
 </DEFINITION>
 
 </NETWORK>

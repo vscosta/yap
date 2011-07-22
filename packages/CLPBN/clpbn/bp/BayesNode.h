@@ -1,9 +1,7 @@
-#ifndef BP_BAYESNODE_H
-#define BP_BAYESNODE_H
+#ifndef BP_BAYES_NODE_H
+#define BP_BAYES_NODE_H
 
 #include <vector>
-#include <string>
-#include <sstream>
 
 #include "Variable.h"
 #include "CptEntry.h"
@@ -16,11 +14,12 @@ using namespace std;
 class BayesNode : public Variable
 {
   public:
-    BayesNode (unsigned);
-    BayesNode (unsigned, unsigned, int, const NodeSet&, Distribution*);
-    BayesNode (unsigned, string, const Domain&, const NodeSet&, Distribution*);
+    BayesNode (Vid vid) : Variable (vid) {}
+    BayesNode (Vid, unsigned, int, const BnNodeSet&, Distribution*);
+    BayesNode (Vid, string, const Domain&, const BnNodeSet&, Distribution*);
 
-    void                     setData (unsigned, int, const NodeSet&, Distribution*);
+    void                     setData (unsigned, int, const BnNodeSet&,
+                                      Distribution*);
     void                     addChild (BayesNode*);
     Distribution*            getDistribution (void);
     const ParamSet&          getParameters (void);
@@ -34,11 +33,21 @@ class BayesNode : public Variable
     int                      getIndexOfParent (const BayesNode*) const;
     string                   cptEntryToString (const CptEntry&) const;
     string                   cptEntryToString (int, const CptEntry&) const;
-    // inlines
-    const NodeSet&           getParents (void) const;
-    const NodeSet&           getChilds (void) const;
-    double                   getProbability (int, const CptEntry& entry);
-    unsigned                 getRowSize (void) const;
+
+    const BnNodeSet& getParents (void) const { return parents_; }
+    const BnNodeSet& getChilds (void) const  { return childs_; }
+
+    unsigned getRowSize (void) const
+    { 
+      return dist_->params.size() / getDomainSize();
+    }
+
+    double getProbability (int row, const CptEntry& entry)
+    {
+      int col = entry.getParameterIndex();
+      int idx = (row * getRowSize()) + col;
+      return dist_->params[idx];
+    }
 
   private:
     DISALLOW_COPY_AND_ASSIGN (BayesNode);
@@ -46,46 +55,12 @@ class BayesNode : public Variable
     Domain                   getDomainHeaders (void) const;
     friend ostream&          operator << (ostream&, const BayesNode&);
 
-    NodeSet                  parents_;
-    NodeSet                  childs_;
+    BnNodeSet                parents_;
+    BnNodeSet                childs_;
     Distribution*            dist_;
 };
 
 ostream& operator << (ostream&, const BayesNode&);
 
-
-
-inline const NodeSet&
-BayesNode::getParents (void) const
-{
-  return parents_;
-}
-
-
-
-inline const NodeSet&
-BayesNode::getChilds (void) const
-{
-  return childs_;
-}
-
-
-
-inline double
-BayesNode::getProbability (int row, const CptEntry& entry)
-{
-  int col = entry.getParameterIndex();
-  int idx = (row * getRowSize()) + col;
-  return dist_->params[idx];
-}
-
-
-
-inline unsigned 
-BayesNode::getRowSize (void) const
-{ 
-  return dist_->params.size() / getDomainSize();
-}
-
-#endif
+#endif //BP_BAYES_NODE_H
 

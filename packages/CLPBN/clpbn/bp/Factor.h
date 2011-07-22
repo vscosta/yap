@@ -3,43 +3,46 @@
 
 #include <vector>
 
+#include "Distribution.h"
 #include "CptEntry.h"
 
 using namespace std;
 
 class FgVarNode;
+class Distribution;
 
 class Factor
 {
   public:
+    Factor (void) { }
+    Factor (const Factor&);
     Factor (FgVarNode*);
-    Factor (const FgVarSet&);
+    Factor (CFgVarSet);
     Factor (FgVarNode*, const ParamSet&);
-    Factor (const FgVarSet&, const ParamSet&);
+    Factor (FgVarSet&, Distribution*);
+    Factor (CFgVarSet, CParamSet);
 
-    const FgVarSet&            getFgVarNodes (void) const;
-    FgVarSet&                  getFgVarNodes (void);
-    const ParamSet&            getParameters (void) const;
-    ParamSet&                  getParameters (void);
-    void                       setParameters (const ParamSet&);
-    Factor&                    operator= (const Factor& f);
-    Factor&                    operator*= (const Factor& f);
-    void                       insertVariable (FgVarNode* index);
-    void                       marginalizeVariable (const FgVarNode* var);
-    void                       marginalizeVariable (unsigned);
-    string                     getLabel (void) const;
-    string                     toString (void) const;
+    void      setParameters (CParamSet);
+    void      copyFactor (const Factor& f);
+    void      multiplyByFactor (const Factor& f, const vector<CptEntry>* = 0);
+    void      insertVariable (FgVarNode* index);
+    void      removeVariable (const FgVarNode* var);
+    const vector<CptEntry>& getCptEntries (void) const;
+    string    getLabel (void) const;
+    void      printFactor (void);
+
+    CFgVarSet getFgVarNodes (void) const        { return vars_; }
+    CParamSet getParameters (void) const        { return dist_->params; }
+    Distribution* getDistribution (void) const  { return dist_; }
+    unsigned getIndex (void) const              { return index_; }
+    void setIndex (unsigned index)              { index_ = index; }
+    void freeDistribution (void)                { delete dist_; dist_ = 0;}
+    int                       getIndexOf (const FgVarNode*) const;
 
   private:
-    vector<CptEntry>           getCptEntries() const;
-    int                        getIndexOf (const FgVarNode*) const;
-
-    FgVarSet                   vs_;
-    ParamSet                   ps_;
-    int                        id_;
-    static int                 indexCount_;
+    FgVarSet                  vars_;
+    Distribution*             dist_;
+    unsigned                  index_;
 };
 
-Factor operator* (const Factor&, const Factor&);
-
-#endif
+#endif //BP_FACTOR_H

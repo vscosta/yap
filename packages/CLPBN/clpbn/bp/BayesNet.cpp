@@ -1,20 +1,14 @@
+#include <cstdlib>
+#include <cassert>
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
-#include <cassert>
-#include <cstdlib>
-#include <map>
 
 #include "xmlParser/xmlParser.h"
 
 #include "BayesNet.h"
-
-
-BayesNet::BayesNet (void)
-{
-}
-
 
 
 BayesNet::BayesNet (const char* fileName)
@@ -23,8 +17,8 @@ BayesNet::BayesNet (const char* fileName)
   XMLNode xMainNode = XMLNode::openFileHelper (fileName, "BIF");
   // only the first network is parsed, others are ignored
   XMLNode xNode = xMainNode.getChildNode ("NETWORK");
-  int nVars = xNode.nChildNode ("VARIABLE");
-  for (int i = 0; i < nVars; i++) {
+  unsigned nVars = xNode.nChildNode ("VARIABLE");
+  for (unsigned i = 0; i < nVars; i++) {
     XMLNode var = xNode.getChildNode ("VARIABLE", i);
     string type = var.getAttribute ("TYPE");
     if (type != "nature") {
@@ -32,9 +26,9 @@ BayesNet::BayesNet (const char* fileName)
       abort();
     }
     Domain domain;
-    string label = var.getChildNode("NAME").getText();
-    int domainSize = var.nChildNode ("OUTCOME");
-    for (int j = 0; j < domainSize; j++) {
+    string varLabel = var.getChildNode("NAME").getText();
+    unsigned dsize = var.nChildNode ("OUTCOME");
+    for (unsigned j = 0; j < dsize; j++) {
       if (var.getChildNode("OUTCOME", j).getText() == 0) {
         stringstream ss;
         ss << j + 1;
@@ -43,37 +37,37 @@ BayesNet::BayesNet (const char* fileName)
         domain.push_back (var.getChildNode("OUTCOME", j).getText());
       }
     }
-    domains.insert (make_pair (label, domain));
+    domains.insert (make_pair (varLabel, domain));
   }
 
-  int nDefs = xNode.nChildNode ("DEFINITION");
+  unsigned nDefs = xNode.nChildNode ("DEFINITION");
   if (nVars != nDefs) {
-    cerr << "error: different number of variables and definitions";
-    cerr << endl;
+    cerr << "error: different number of variables and definitions" << endl;
+    abort();
   }
 
-  queue<int> indexes;
-  for (int i = 0; i < nDefs; i++) {
+  queue<unsigned> indexes;
+  for (unsigned i = 0; i < nDefs; i++) {
     indexes.push (i);
   }
 
   while (!indexes.empty()) {
-    int index = indexes.front();
+    unsigned index = indexes.front();
     indexes.pop();
     XMLNode def = xNode.getChildNode ("DEFINITION", index);
-    string label = def.getChildNode("FOR").getText();
+    string varLabel = def.getChildNode("FOR").getText();
     map<string, Domain>::const_iterator iter;
-    iter = domains.find (label);
+    iter = domains.find (varLabel);
     if (iter == domains.end()) {
-      cerr << "error: unknow variable `" << label << "'" << endl;
+      cerr << "error: unknow variable `" << varLabel << "'" << endl;
       abort();
     }
     bool processItLatter = false;
-    NodeSet parents;
-    int nParams = iter->second.size();
+    BnNodeSet parents;
+    unsigned nParams = iter->second.size();
     for (int j = 0; j < def.nChildNode ("GIVEN"); j++) {
       string parentLabel = def.getChildNode("GIVEN", j).getText();
-      BayesNode* parentNode = getNode (parentLabel);
+      BayesNode* parentNode = getBayesNode (parentLabel);
       if (parentNode) {
         nParams *= parentNode->getDomainSize();
         parents.push_back (parentNode);
@@ -95,7 +89,7 @@ BayesNet::BayesNet (const char* fileName)
     }
 
     if (!processItLatter) {
-      int count = 0;
+      unsigned count = 0;
       ParamSet params (nParams);
       stringstream s (def.getChildNode("TABLE").getText());
       while (!s.eof() && count < nParams) {
@@ -104,11 +98,11 @@ BayesNet::BayesNet (const char* fileName)
       }
        if (count != nParams) {
         cerr << "error: invalid number of parameters " ;
-        cerr << "for variable `" << label << "'" << endl;
+        cerr << "for variable `" << varLabel << "'" << endl;
         abort();
       } 
       params = reorderParameters (params, iter->second.size());
-      addNode (label, iter->second, parents, params);
+      addNode (varLabel, iter->second, parents, params);
     }
   }
   setIndexes();
@@ -118,7 +112,6 @@ BayesNet::BayesNet (const char* fileName)
 
 BayesNet::~BayesNet (void)
 {
-  Statistics::writeStats();
   for (unsigned i = 0; i < nodes_.size(); i++) {
     delete nodes_[i];
   }
@@ -127,25 +120,25 @@ BayesNet::~BayesNet (void)
 
 
 BayesNode*
-BayesNet::addNode (unsigned varId)
+BayesNet::addNode (Vid vid)
 {
-  indexMap_.insert (make_pair (varId, nodes_.size()));
-  nodes_.push_back (new BayesNode (varId));
+  indexMap_.insert (make_pair (vid, nodes_.size()));
+  nodes_.push_back (new BayesNode (vid));
   return nodes_.back();
 }
 
 
 
 BayesNode*
-BayesNet::addNode (unsigned varId,
+BayesNet::addNode (Vid vid,
                    unsigned dsize,
                    int evidence,
-                   NodeSet& parents,
+                   BnNodeSet& parents,
                    Distribution* dist)
 {
-  indexMap_.insert (make_pair (varId, nodes_.size()));
+  indexMap_.insert (make_pair (vid, nodes_.size()));
   nodes_.push_back (new BayesNode (
-      varId, dsize, evidence, parents, dist));
+      vid, dsize, evidence, parents, dist));
   return nodes_.back();
 }
 
@@ -154,7 +147,7 @@ BayesNet::addNode (unsigned varId,
 BayesNode*
 BayesNet::addNode (string label,
                    Domain domain,
-                   NodeSet& parents, 
+                   BnNodeSet& parents, 
                    ParamSet& params)
 {
   indexMap_.insert (make_pair (nodes_.size(), nodes_.size()));
@@ -169,9 +162,9 @@ BayesNet::addNode (string label,
 
 
 BayesNode*
-BayesNet::getNode (unsigned varId) const
+BayesNet::getBayesNode (Vid vid) const
 {
-  IndexMap::const_iterator it = indexMap_.find(varId);
+  IndexMap::const_iterator it = indexMap_.find (vid);
   if (it == indexMap_.end()) {
     return 0;
   } else {
@@ -182,7 +175,7 @@ BayesNet::getNode (unsigned varId) const
 
 
 BayesNode*
-BayesNet::getNode (string label) const
+BayesNet::getBayesNode (string label) const
 {
   BayesNode* node = 0;
   for (unsigned i = 0; i < nodes_.size(); i++) {
@@ -192,6 +185,15 @@ BayesNet::getNode (string label) const
     }
   }
   return node;
+}
+
+
+
+
+Variable*
+BayesNet::getVariable (Vid vid) const
+{
+  return getBayesNode (vid);
 }
 
 
@@ -219,15 +221,15 @@ BayesNet::getDistribution (unsigned distId) const
 
 
 
-const NodeSet&
-BayesNet::getNodes (void) const
+const BnNodeSet&
+BayesNet::getBayesNodes (void) const
 {
   return nodes_;
 }
 
 
 
-int
+unsigned
 BayesNet::getNumberOfNodes (void) const
 {
   return nodes_.size();
@@ -235,10 +237,10 @@ BayesNet::getNumberOfNodes (void) const
 
 
 
-NodeSet
+BnNodeSet
 BayesNet::getRootNodes (void) const
 {
-  NodeSet roots;
+  BnNodeSet roots;
   for (unsigned i = 0; i < nodes_.size(); i++) {
     if (nodes_[i]->isRoot()) {
       roots.push_back (nodes_[i]);
@@ -249,10 +251,10 @@ BayesNet::getRootNodes (void) const
 
 
 
-NodeSet
+BnNodeSet
 BayesNet::getLeafNodes (void) const
 {
-  NodeSet leafs;
+  BnNodeSet leafs;
   for (unsigned i = 0; i < nodes_.size(); i++) {
     if (nodes_[i]->isLeaf()) {
       leafs.push_back (nodes_[i]);
@@ -276,30 +278,32 @@ BayesNet::getVariables (void) const
 
 
 BayesNet*
-BayesNet::pruneNetwork (BayesNode* queryNode) const
+BayesNet::getMinimalRequesiteNetwork (Vid vid) const
 {
-  NodeSet queryNodes;
-  queryNodes.push_back (queryNode);
-  return pruneNetwork (queryNodes);
+  return getMinimalRequesiteNetwork (VidSet() = {vid});
 }
 
 
 
 BayesNet*
-BayesNet::pruneNetwork (const NodeSet& interestedVars) const
+BayesNet::getMinimalRequesiteNetwork (const VidSet& queryVids) const
 {
-  /*
-  cout << "interested vars: " ;
-  for (unsigned i = 0; i < interestedVars.size(); i++) {
-    cout << interestedVars[i]->getLabel() << " " ;
+  BnNodeSet queryVars;
+  for (unsigned i = 0; i < queryVids.size(); i++) {
+    assert (getBayesNode (queryVids[i]));
+    queryVars.push_back (getBayesNode (queryVids[i]));
   }
-  cout << endl;
-  */
+  // cout << "query vars: " ;
+  // for (unsigned i = 0; i < queryVars.size(); i++) {
+  //   cout << queryVars[i]->getLabel() << " " ;
+  // }
+  // cout << endl;
+
   vector<StateInfo*> states (nodes_.size(), 0);
 
   Scheduling scheduling;
-  for (NodeSet::const_iterator it = interestedVars.begin();
-      it != interestedVars.end(); it++) {
+  for (BnNodeSet::const_iterator it = queryVars.begin();
+      it != queryVars.end(); it++) {
     scheduling.push (ScheduleInfo (*it, false, true));
   }
 
@@ -378,18 +382,18 @@ BayesNet::constructGraph (BayesNet* bn,
                    states[i]->markedOnTop;
     }
     if (isRequired) {
-      NodeSet parents;
+      BnNodeSet parents;
       if (states[i]->markedOnTop) {
-        const NodeSet& ps = nodes_[i]->getParents();
+        const BnNodeSet& ps = nodes_[i]->getParents();
         for (unsigned j = 0; j < ps.size(); j++) {
-          BayesNode* parent = bn->getNode (ps[j]->getVarId());
+          BayesNode* parent = bn->getBayesNode (ps[j]->getVarId());
           if (!parent) {
             parent = bn->addNode (ps[j]->getVarId());
           }
           parents.push_back (parent);
         }
       }
-      BayesNode* node = bn->getNode (nodes_[i]->getVarId());
+      BayesNode* node = bn->getBayesNode (nodes_[i]->getVarId());
       if (node) {
         node->setData      (nodes_[i]->getDomainSize(),
                             nodes_[i]->getEvidence(), parents,
@@ -411,135 +415,12 @@ BayesNet::constructGraph (BayesNet* bn,
   bn->setIndexes();
 }
 
-/*
-void
-BayesNet::constructGraph (BayesNet* bn,
-                          const vector<StateInfo*>& states) const
-{
-  for (unsigned i = 0; i < nodes_.size(); i++) {
-    if (states[i]) {
-      if (nodes_[i]->hasEvidence() && states[i]->visited) {
-        NodeSet parents;
-        if (states[i]->markedOnTop) {
-          const NodeSet& ps = nodes_[i]->getParents();
-          for (unsigned j = 0; j < ps.size(); j++) {
-            BayesNode* parent = bn->getNode (ps[j]->getVarId());
-            if (parent == 0) {
-              parent = bn->addNode (ps[j]->getVarId());
-            }
-            parents.push_back (parent);
-          }
-        }
-
-        BayesNode* n = bn->getNode (nodes_[i]->getVarId());
-        if (n) {
-          n->setData  (nodes_[i]->getDomainSize(),
-                       nodes_[i]->getEvidence(), parents,
-                       nodes_[i]->getDistribution());
-        } else {
-          bn->addNode (nodes_[i]->getVarId(),
-                       nodes_[i]->getDomainSize(),
-                       nodes_[i]->getEvidence(), parents, 
-                       nodes_[i]->getDistribution());
-        }
-        
-      } else if (states[i]->markedOnTop) {
-        NodeSet parents;
-        const NodeSet& ps = nodes_[i]->getParents();
-        for (unsigned j = 0; j < ps.size(); j++) {
-          BayesNode* parent = bn->getNode (ps[j]->getVarId());
-          if (parent == 0) {
-            parent = bn->addNode (ps[j]->getVarId());
-          }
-          parents.push_back (parent);
-        }
-
-        BayesNode* n = bn->getNode (nodes_[i]->getVarId());
-        if (n) {
-          n->setData  (nodes_[i]->getDomainSize(),
-                       nodes_[i]->getEvidence(), parents,
-                       nodes_[i]->getDistribution());
-        } else {
-          bn->addNode (nodes_[i]->getVarId(),
-                       nodes_[i]->getDomainSize(),
-                       nodes_[i]->getEvidence(), parents,
-                       nodes_[i]->getDistribution());
-        }
-      }
-    }
-  }
-}*/
-
 
 
 bool
 BayesNet::isSingleConnected (void) const
 {
   return !containsUndirectedCycle();
-}
-
-
-
-vector<DomainConf>
-BayesNet::getDomainConfigurationsOf (const NodeSet& nodes)
-{
-  int nConfs = 1;
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    nConfs *= nodes[i]->getDomainSize();
-  }
-
-  vector<DomainConf> confs (nConfs);
-  for (int i = 0; i < nConfs; i++) {
-    confs[i].resize (nodes.size());
-  }
-
-  int nReps = 1;
-  for (int i = nodes.size() - 1; i >= 0; i--) {
-    int index = 0;
-    while (index < nConfs) {
-      for (int j = 0; j < nodes[i]->getDomainSize(); j++) {
-        for (int r = 0; r < nReps; r++) {
-          confs[index][i] = j; 
-          index++;
-        }
-      }
-    }
-    nReps *= nodes[i]->getDomainSize();
-  }
-
-  return confs;
-}
-
-
-
-vector<string>
-BayesNet::getInstantiations (const NodeSet& parents_)
-{
-  int nParents = parents_.size();
-  int rowSize = 1;
-  for (unsigned i = 0; i < parents_.size(); i++) {
-    rowSize *= parents_[i]->getDomainSize();
-  }
-  int nReps     = 1;
-  vector<string> headers (rowSize);
-  for (int i = nParents - 1; i >= 0; i--) {
-    Domain domain = parents_[i]->getDomain();
-    int index = 0;
-    while (index < rowSize) {
-      for (int j = 0; j < parents_[i]->getDomainSize(); j++) {
-        for (int r = 0; r < nReps; r++) {
-          if (headers[index] != "") {
-            headers[index] = domain[j] + "," + headers[index];
-          } else {
-            headers[index] = domain[j];
-          }
-          index++;
-        }
-      }
-    }
-    nReps *= parents_[i]->getDomainSize();
-  }
-  return headers;
 }
 
 
@@ -565,7 +446,7 @@ BayesNet::freeDistributions (void)
 
 
 void
-BayesNet::printNetwork (void) const
+BayesNet::printGraphicalModel (void) const
 {
   for (unsigned i = 0; i < nodes_.size(); i++) {
     cout << *nodes_[i];
@@ -575,32 +456,11 @@ BayesNet::printNetwork (void) const
 
 
 void
-BayesNet::printNetworkToFile (const char* fileName) const
+BayesNet::exportToDotFormat (const char* fileName,
+                             bool showNeighborless,
+                             CVidSet& highlightVids) const
 {
-  string s = "../../" ;
-  s += fileName;
-  ofstream out (s.c_str());
-  if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "BayesNet::printToFile()" << endl;
-    abort();
-  }
-  for (unsigned i = 0; i < nodes_.size(); i++) {
-    out << *nodes_[i];
-  }
-  out.close();
-}
- 
-
-
-void
-BayesNet::exportToDotFile (const char* fileName,
-                           bool showNeighborless,
-                           const NodeSet& highlightNodes) const
-{
-  string s = "../../" ;
-  s+= fileName;
-  ofstream out (s.c_str());
+  ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "BayesNet::exportToDotFile()" << endl;
@@ -608,13 +468,6 @@ BayesNet::exportToDotFile (const char* fileName,
   }
 
   out << "digraph \"" << fileName << "\" {" << endl;
-  for (unsigned i = 0; i < nodes_.size(); i++) {
-    const NodeSet& childs = nodes_[i]->getChilds();
-    for (unsigned j = 0; j < childs.size(); j++) {
-      out << '"' << nodes_[i]->getLabel() << '"' << " -> " ;
-      out << '"' << childs[j]->getLabel() << '"' << endl;
-    }
-  }
 
   for (unsigned i = 0; i < nodes_.size(); i++) {
     if (showNeighborless || nodes_[i]->hasNeighbors()) {
@@ -627,9 +480,24 @@ BayesNet::exportToDotFile (const char* fileName,
     }
   }
 
-  for (unsigned i = 0; i < highlightNodes.size(); i++) {
-    out << '"' << highlightNodes[i]->getLabel() << '"' ;
-    out << " [shape=box]" << endl;
+  for (unsigned i = 0; i < highlightVids.size(); i++) {
+    BayesNode* node = getBayesNode (highlightVids[i]);
+    if (node) {
+      out << '"' << node->getLabel() << '"' ;
+     // out << " [shape=polygon, sides=6]" << endl;
+      out << " [shape=box3d]" << endl;
+    } else {
+      cout << "error: invalid variable id: " << highlightVids[i] << endl;
+      abort();
+    }
+  }
+
+  for (unsigned i = 0; i < nodes_.size(); i++) {
+    const BnNodeSet& childs = nodes_[i]->getChilds();
+    for (unsigned j = 0; j < childs.size(); j++) {
+      out << '"' << nodes_[i]->getLabel() << '"' << " -> " ;
+      out << '"' << childs[j]->getLabel() << '"' << endl;
+    }
   }
 
   out << "}" << endl;
@@ -639,11 +507,9 @@ BayesNet::exportToDotFile (const char* fileName,
 
 
 void
-BayesNet::exportToBifFile (const char* fileName) const
+BayesNet::exportToBifFormat (const char* fileName) const
 {
-  string s = "../../" ;
-  s += fileName;
-  ofstream out (s.c_str());
+  ofstream out (fileName);
   if(!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
     cerr << "BayesNet::exportToBifFile()" << endl;
@@ -666,7 +532,7 @@ BayesNet::exportToBifFile (const char* fileName) const
   for (unsigned i = 0; i < nodes_.size(); i++) {
     out << "<DEFINITION>" << endl;
     out << "\t<FOR>" << nodes_[i]->getLabel() << "</FOR>" << endl;
-    const NodeSet& parents = nodes_[i]->getParents();
+    const BnNodeSet& parents = nodes_[i]->getParents();
     for (unsigned j = 0; j < parents.size(); j++) {
       out << "\t<GIVEN>" << parents[j]->getLabel();
       out << "</GIVEN>" << endl;
@@ -682,7 +548,7 @@ BayesNet::exportToBifFile (const char* fileName) const
   }
   out << "</NETWORK>" << endl;
   out << "</BIF>" << endl << endl;
-  out.close();  
+  out.close();
 }
 
 
@@ -731,8 +597,8 @@ vector<int>
 BayesNet::getAdjacentNodes (int v) const
 {
   vector<int> adjacencies;
-  const NodeSet& parents = nodes_[v]->getParents();
-  const NodeSet& childs  = nodes_[v]->getChilds();
+  const BnNodeSet& parents = nodes_[v]->getParents();
+  const BnNodeSet& childs  = nodes_[v]->getChilds();
   for (unsigned i = 0; i < parents.size(); i++) {
     adjacencies.push_back (parents[i]->getIndex());
   }
@@ -745,8 +611,8 @@ BayesNet::getAdjacentNodes (int v) const
 
 
 ParamSet
-BayesNet::reorderParameters (const ParamSet& params,
-                             int domainSize) const
+BayesNet::reorderParameters (CParamSet params,
+                             unsigned domainSize) const
 {
   // the interchange format for bayesian networks keeps the probabilities 
   // in the following order:
@@ -773,15 +639,15 @@ BayesNet::reorderParameters (const ParamSet& params,
 
 
 ParamSet
-BayesNet::revertParameterReorder (const ParamSet& params,
-                                  int domainSize) const
+BayesNet::revertParameterReorder (CParamSet params,
+                                  unsigned domainSize) const
 {
   unsigned count    = 0;
   unsigned rowSize  = params.size() / domainSize;
   ParamSet reordered;
   while (reordered.size() < params.size()) {
     unsigned idx = count;
-    for (int i = 0; i < domainSize; i++) {
+    for (unsigned i = 0; i < domainSize; i++) {
       reordered.push_back (params[idx]);
       idx += rowSize;
     }

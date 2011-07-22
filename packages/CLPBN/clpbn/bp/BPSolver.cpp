@@ -1,43 +1,30 @@
 #include <cstdlib>
+#include <limits>
 #include <time.h>
-#include <algorithm>
-#include <iomanip>
+
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 #include "BPSolver.h"
-#include "BpNode.h"
-
-
-BPSolver* Edge::klass = 0;
-StatisticMap Statistics::stats_;
-unsigned Statistics::numCreatedNets     = 0;
-unsigned Statistics::numSolvedPolyTrees = 0;
-unsigned Statistics::numSolvedLoopyNets = 0;
-unsigned Statistics::numUnconvergedRuns = 0;
-unsigned Statistics::maxIterations      = 0;
-unsigned Statistics::totalOfIterations  = 0;
-
 
 BPSolver::BPSolver (const BayesNet& bn) : Solver (&bn)
-{
+{ 
   bn_ = &bn;
-  forceGenericSolver_ = false;
-  //forceGenericSolver_ = true;
-  schedule_           = S_SEQ_FIXED;
-  //schedule_           = S_SEQ_RANDOM;
-  //schedule_           = S_PARALLEL;
-  //schedule_           = S_MAX_RESIDUAL;
-  maxIter_            = 205;
-  accuracy_           = 0.000001;
+  useAlwaysLoopySolver_ = false;
+  //jointCalcType_      = CHAIN_RULE;
+  jointCalcType_      = JUNCTION_NODE;
 }
 
 
 
 BPSolver::~BPSolver (void)
 {
-  for (unsigned i = 0; i < msgs_.size(); i++) {
-    delete msgs_[i];
+  for (unsigned i = 0; i < nodesI_.size(); i++) {
+    delete nodesI_[i];
+  }
+  for (unsigned i = 0; i < links_.size(); i++) {
+    delete links_[i];
   }
 }
 
@@ -46,25 +33,24 @@ BPSolver::~BPSolver (void)
 void
 BPSolver::runSolver (void)
 {
-  if (DL >= 1) {
-    //bn_->printNetwork();
-  }
-
   clock_t start_ = clock();
-  if (bn_->isSingleConnected() && !forceGenericSolver_) {
+  unsigned size = bn_->getNumberOfNodes();
+  unsigned nIters = 0;
+  initializeSolver();
+  if (bn_->isSingleConnected() && !useAlwaysLoopySolver_) {
     runPolyTreeSolver();
     Statistics::numSolvedPolyTrees ++;
   } else {
-    runGenericSolver();
+    runLoopySolver();
     Statistics::numSolvedLoopyNets ++;
-    if (nIter_ >= maxIter_) {
+    if (nIter_ >= SolverOptions::maxIter) {
       Statistics::numUnconvergedRuns ++;
     } else {
-      Statistics::updateIterations (nIter_);
+      nIters = nIter_;
     }
-    if (DL >= 1) {
+    if (DL >= 2) {
       cout << endl;
-      if (nIter_ < maxIter_) {
+      if (nIter_ < SolverOptions::maxIter) {
         cout << "Belief propagation converged in " ; 
         cout << nIter_ << " iterations" << endl;
       } else {
@@ -74,108 +60,44 @@ BPSolver::runSolver (void)
     }
   }
   double time = (double (clock() - start_)) / CLOCKS_PER_SEC;
-  unsigned size = bn_->getNumberOfNodes();
-  Statistics::updateStats (size, time);
-  //if (size > 30) {
-  //   stringstream ss;
-  //  ss << size << "." << Statistics::getCounting (size) << ".dot" ;
-  //  bn_->exportToDotFile (ss.str().c_str());
-  //}
+  Statistics::updateStats (size, nIters, time);
+  if (EXPORT_TO_DOT && size > EXPORT_MIN_SIZE) {
+    stringstream ss;
+    ss << size << "." ;
+    ss << Statistics::getCounting (size) << ".dot" ;
+    bn_->exportToDotFormat (ss.str().c_str());
+  }
 }
 
 
 
 ParamSet
-BPSolver::getPosterioriOf (const Variable* var) const
+BPSolver::getPosterioriOf (Vid vid) const
 {
-  assert (var);
-  assert (var == bn_->getNode (var->getVarId()));
-  assert (var->getIndex() < msgs_.size());
-  return msgs_[var->getIndex()]->getBeliefs();
+  BayesNode* node = bn_->getBayesNode (vid);
+  assert (node);
+  return nodesI_[node->getIndex()]->getBeliefs();
 }
 
 
 
-
 ParamSet
-BPSolver::getJointDistribution (const NodeSet& jointVars) const
+BPSolver::getJointDistributionOf (const VidSet& jointVids)
 {
-  if (DL >= 1) {
-    cout << "calculating joint distribuition on: " ;
-    for (unsigned i = 0; i < jointVars.size(); i++) {
-      cout << jointVars[i]->getLabel() << " " ;
+  if (DL >= 2) {
+    cout << "calculating joint distribution on: " ;
+    for (unsigned i = 0; i < jointVids.size(); i++) {
+      Variable* var = bn_->getBayesNode (jointVids[i]);
+      cout << var->getLabel() << " " ;
     }
     cout << endl;
   }
 
-  //BayesNet* workingNet = bn_->pruneNetwork (bn_->getNodes());
-  //FIXME see if this works:
-  BayesNet* workingNet = bn_->pruneNetwork (jointVars);
-  BayesNode* node      = workingNet->getNode (jointVars[0]->getVarId());
-
-  BayesNet* tempNet    = workingNet->pruneNetwork (node);
-  BPSolver solver (*tempNet);
-  solver.runSolver();
-
-  NodeSet observedVars = { jointVars[0] };
-
-  node = tempNet->getNode (jointVars[0]->getVarId());
-  ParamSet prevBeliefs = solver.getPosterioriOf (node);
-
-  delete tempNet;
-
-  for (unsigned i = 1; i < jointVars.size(); i++) {
-    node = workingNet->getNode (observedVars[i - 1]->getVarId());
-    if (!node->hasEvidence()) {
-      node->setEvidence (0);
-    }
-    node = workingNet->getNode (jointVars[i]->getVarId());
-    tempNet = workingNet->pruneNetwork (node);
-
-    ParamSet allBeliefs;
-    vector<DomainConf> confs = 
-        BayesNet::getDomainConfigurationsOf (observedVars);
-    for (unsigned j = 0; j < confs.size(); j++) {
-      for (unsigned k = 0; k < observedVars.size(); k++) {
-        node = tempNet->getNode (observedVars[k]->getVarId());
-        if (!observedVars[k]->hasEvidence()) {
-          if (node) {
-            node->setEvidence (confs[j][k]);
-          } else {
-            // FIXME try optimize
-            //assert (false);
-            cout << observedVars[k]->getLabel();
-            cout << " is not in temporary net!" ;
-            cout << endl;
-          }
-        } else {
-          cout << observedVars[k]->getLabel();
-          cout << " already has evidence in original net!" ;
-          cout << endl;
-        }
-      }
-      BPSolver solver (*tempNet);
-      node = tempNet->getNode (jointVars[i]->getVarId());
-      solver.runSolver();
-      ParamSet beliefs = solver.getPosterioriOf (node);
-      for (unsigned k = 0; k < beliefs.size(); k++) {
-        allBeliefs.push_back (beliefs[k]);
-      }
-    }
-
-    int count = -1;
-    for (unsigned j = 0; j < allBeliefs.size(); j++) {
-      if (j % jointVars[i]->getDomainSize() == 0) {
-        count ++;
-      }
-      allBeliefs[j] *= prevBeliefs[count];
-    }
-    prevBeliefs = allBeliefs;
-    observedVars.push_back (jointVars[i]);
-    delete tempNet;
+  if (jointCalcType_ == JUNCTION_NODE) {
+    return getJointByJunctionNode (jointVids);
+  } else {
+    return getJointByChainRule (jointVids);
   }
-  delete workingNet;
-  return prevBeliefs;
 }
 
 
@@ -183,62 +105,84 @@ BPSolver::getJointDistribution (const NodeSet& jointVars) const
 void 
 BPSolver::initializeSolver (void)
 {
-  if (DL >= 1) {
-    cout << "Initializing solver" << endl;
-    cout << "-> schedule        = ";
-    if (forceGenericSolver_) {
-      switch (schedule_) {
-        case S_SEQ_FIXED:    cout << "sequential fixed" ;  break;
-        case S_SEQ_RANDOM:   cout << "sequential random" ; break;
-        case S_PARALLEL:     cout << "parallel" ;          break;
-        case S_MAX_RESIDUAL: cout << "max residual" ;      break;
-      }
+  if (DL >= 2) {
+    if (!useAlwaysLoopySolver_) {
+      cout << "-> solver type     = polytree solver" << endl;
+      cout << "-> schedule        = n/a";
     } else {
-      cout << "polytree solver" ;
+      cout << "-> solver          = loopy solver" << endl;
+      cout << "-> schedule        = ";
+      switch (SolverOptions::schedule) {
+        case SolverOptions::S_SEQ_FIXED:    cout << "sequential fixed" ;  break;
+        case SolverOptions::S_SEQ_RANDOM:   cout << "sequential random" ; break;
+        case SolverOptions::S_PARALLEL:     cout << "parallel" ;          break;
+        case SolverOptions::S_MAX_RESIDUAL: cout << "max residual" ;      break;
+      }
     }
     cout << endl;
-    cout << "-> max iters       = " << maxIter_ << endl;
-    cout << "-> accuracy        = " << accuracy_ << endl;
+    cout << "-> joint method    = " ;
+    if (jointCalcType_ == JUNCTION_NODE) {
+      cout << "junction node" << endl;
+    } else {
+      cout << "chain rule " << endl;
+    }
+    cout << "-> max iters       = " << SolverOptions::maxIter << endl;
+    cout << "-> accuracy        = " << SolverOptions::accuracy << endl;
     cout << endl;
   }
 
-  const NodeSet& nodes = bn_->getNodes();
-  for (unsigned i = 0; i < msgs_.size(); i++) {
-    delete msgs_[i];
+  CBnNodeSet nodes = bn_->getBayesNodes();
+  for (unsigned i = 0; i < nodesI_.size(); i++) {
+    delete nodesI_[i];
   }
-  msgs_.clear();
-  msgs_.reserve (nodes.size());
-  updateOrder_.clear();
+  nodesI_.clear();
+  nodesI_.reserve (nodes.size());
+  links_.clear();
   sortedOrder_.clear();
   edgeMap_.clear();
 
   for (unsigned i = 0; i < nodes.size(); i++) {
-    msgs_.push_back (new BpNode (nodes[i]));
+    nodesI_.push_back (new BPNodeInfo (nodes[i]));
   }
 
-  NodeSet roots = bn_->getRootNodes();
+  BnNodeSet roots = bn_->getRootNodes();
   for (unsigned i = 0; i < roots.size(); i++) {
     const ParamSet& params = roots[i]->getParameters();
     ParamSet& piVals = M(roots[i])->getPiValues();
-    for (int ri = 0; ri < roots[i]->getDomainSize(); ri++) {
+    for (unsigned ri = 0; ri < roots[i]->getDomainSize(); ri++) {
       piVals[ri] = params[ri];
     }
   }
-}
 
-
-
-void 
-BPSolver::incorporateEvidence (BayesNode* x)
-{
-  ParamSet& piVals = M(x)->getPiValues();
-  ParamSet& ldVals = M(x)->getLambdaValues();
-  for (int xi = 0; xi < x->getDomainSize(); xi++) {
-    piVals[xi] = 0.0;
-    ldVals[xi] = 0.0;
+  for (unsigned i = 0; i < nodes.size(); i++) {
+    CBnNodeSet parents = nodes[i]->getParents();
+    for (unsigned j = 0; j < parents.size(); j++) {
+      Edge* newLink = new Edge (parents[j], nodes[i], PI_MSG);
+      links_.push_back (newLink);
+      M(nodes[i])->addIncomingParentLink (newLink);
+      M(parents[j])->addOutcomingChildLink (newLink);
+    }
+    CBnNodeSet childs = nodes[i]->getChilds();
+    for (unsigned j = 0; j < childs.size(); j++) {
+      Edge* newLink = new Edge (childs[j], nodes[i], LAMBDA_MSG);
+      links_.push_back (newLink);
+      M(nodes[i])->addIncomingChildLink (newLink);
+      M(childs[j])->addOutcomingParentLink (newLink);
+    }
   }
-  piVals[x->getEvidence()] = 1.0;
-  ldVals[x->getEvidence()] = 1.0;
+
+  for (unsigned i = 0; i < nodes.size(); i++) {
+    if (nodes[i]->hasEvidence()) {
+      ParamSet& piVals = M(nodes[i])->getPiValues();
+      ParamSet& ldVals = M(nodes[i])->getLambdaValues();
+      for (unsigned xi = 0; xi < nodes[i]->getDomainSize(); xi++) {
+        piVals[xi] = 0.0;
+        ldVals[xi] = 0.0;
+      }
+      piVals[nodes[i]->getEvidence()] = 1.0;
+      ldVals[nodes[i]->getEvidence()] = 1.0;
+    }
+  }
 }
 
 
@@ -246,50 +190,66 @@ BPSolver::incorporateEvidence (BayesNode* x)
 void
 BPSolver::runPolyTreeSolver (void)
 {
-  initializeSolver();
-  const NodeSet& nodes = bn_->getNodes();
-
-  // Hack: I need this else this can happen with bayes ball
-  // Variable: 174
-  // Id:       174
-  // Domain:   -1, 0, 1
-  // Evidence: 1
-  // Parents:  
-  // Childs:   176
-  // cpt
-  // ----------------------------------------------------
-  // -1             0           0           0           0 ...
-  // 0       0.857143    0.857143    0.857143    0.857143 ...
-  // 1       0.142857    0.142857    0.142857    0.142857 ...
-  // the cpt for this node would be 0,0,0
-
+  CBnNodeSet nodes = bn_->getBayesNodes();
   for (unsigned i = 0; i < nodes.size(); i++) {
-    if (nodes[i]->hasEvidence()) {
-      incorporateEvidence (nodes[i]);
+    if (nodes[i]->isRoot()) {
+      M(nodes[i])->markPiValuesAsCalculated();
     }
-  } 
-
-  // first compute all node marginals ...
-  NodeSet roots = bn_->getRootNodes();
-  for (unsigned i = 0; i < roots.size(); i++) {
-    const NodeSet& childs = roots[i]->getChilds();
-    for (unsigned j = 0; j < childs.size(); j++) {
-      polyTreePiMessage (roots[i], childs[j]);
+    if (nodes[i]->isLeaf()) {
+      M(nodes[i])->markLambdaValuesAsCalculated();
     }
   }
-  // then propagate the evidence
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    if (nodes[i]->hasEvidence()) {
-      incorporateEvidence (nodes[i]); 
-      const NodeSet& parents = nodes[i]->getParents();
-      for (unsigned j = 0; j < parents.size(); j++) {
-        if (!parents[j]->hasEvidence()) {
-          polyTreeLambdaMessage (nodes[i], parents[j]);
+
+  bool finish = false;
+  while (!finish) {
+    finish = true;
+    for (unsigned i = 0; i < nodes.size(); i++) {
+      if (M(nodes[i])->arePiValuesCalculated() == false
+          && M(nodes[i])->receivedAllPiMessages()) {
+        if (!nodes[i]->hasEvidence()) {
+          updatePiValues (nodes[i]);
+        }
+        M(nodes[i])->markPiValuesAsCalculated();
+        finish = false;
+      }
+
+      if (M(nodes[i])->areLambdaValuesCalculated() == false
+          && M(nodes[i])->receivedAllLambdaMessages()) {
+        if (!nodes[i]->hasEvidence()) {
+          updateLambdaValues (nodes[i]);
+        }
+        M(nodes[i])->markLambdaValuesAsCalculated();
+        finish = false;
+      }
+
+      if (M(nodes[i])->arePiValuesCalculated()) {
+        CEdgeSet outChildLinks = M(nodes[i])->getOutcomingChildLinks();
+        for (unsigned j = 0; j < outChildLinks.size(); j++) {
+          BayesNode* child = outChildLinks[j]->getDestination();
+          if (!outChildLinks[j]->messageWasSended()) {
+            if (M(nodes[i])->readyToSendPiMsgTo (child)) {
+              outChildLinks[j]->setNextMessage (getMessage (outChildLinks[j]));
+              outChildLinks[j]->updateMessage();
+              M(child)->incNumPiMsgsRcv();
+            }
+            finish = false;
+          }
         }
       }
-      const NodeSet& childs = nodes[i]->getChilds();
-      for (unsigned j = 0; j < childs.size(); j++) {
-        polyTreePiMessage (nodes[i], childs[j]);
+
+      if (M(nodes[i])->areLambdaValuesCalculated()) {
+        CEdgeSet outParentLinks = M(nodes[i])->getOutcomingParentLinks();
+        for (unsigned j = 0; j < outParentLinks.size(); j++) {
+          BayesNode* parent = outParentLinks[j]->getDestination();
+          if (!outParentLinks[j]->messageWasSended()) {
+            if (M(nodes[i])->readyToSendLambdaMsgTo (parent)) {
+              outParentLinks[j]->setNextMessage (getMessage (outParentLinks[j]));
+              outParentLinks[j]->updateMessage();
+              M(parent)->incNumLambdaMsgsRcv();
+            }
+            finish = false;
+          }
+        }
       }
     }
   }
@@ -298,96 +258,13 @@ BPSolver::runPolyTreeSolver (void)
 
 
 void
-BPSolver::polyTreePiMessage (BayesNode* z, BayesNode* x)
-{
-  if (DL >= 1) {
-    cout << PI << " (" << z->getLabel();
-    cout << " --> " << x->getLabel();
-    cout << ")" << endl;
-  }
-  calculateNextPiMessage (z, x);
-  updatePiMessage (z, x);
-
-  if (!x->hasEvidence()) {
-    updatePiValues (x);
-    const NodeSet& xChilds = x->getChilds();
-    for (unsigned i = 0; i < xChilds.size(); i++) {
-      polyTreePiMessage (x, xChilds[i]);
-    }
-  }
-
-  if (M(x)->hasReceivedChildInfluence()) {
-    const NodeSet& xParents = x->getParents();
-    for (unsigned i = 0; i < xParents.size(); i++) {
-      if (xParents[i] != z && !xParents[i]->hasEvidence()) {
-        polyTreeLambdaMessage (x, xParents[i]);
-      }
-    }
-  }
-}
-
-
-
-void 
-BPSolver::polyTreeLambdaMessage (BayesNode* y, BayesNode* x)
-{
-  if (DL >= 1) {
-    cout << LD << " (" << y->getLabel();
-    cout << " --> " << x->getLabel();
-    cout << ")" << endl;
-  }
-  calculateNextLambdaMessage (y, x);
-  updateLambdaMessage (y, x);
-  updateLambdaValues (x);
-
-  const NodeSet& xParents = x->getParents();
-  for (unsigned i = 0; i < xParents.size(); i++) {
-    if (!xParents[i]->hasEvidence()) {
-      polyTreeLambdaMessage (x, xParents[i]);
-    }
-  }
-
-  const NodeSet& xChilds = x->getChilds();
-  for (unsigned i = 0; i < xChilds.size(); i++) {
-    if (xChilds[i] != y) {
-      polyTreePiMessage (x, xChilds[i]);
-    }
-  }
-}
-
-
-
-void
-BPSolver::runGenericSolver()
+BPSolver::runLoopySolver()
 { 
-  initializeSolver();
-  const NodeSet& nodes = bn_->getNodes();
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    if (nodes[i]->hasEvidence()) {
-      incorporateEvidence (nodes[i]);
-    }
-  }
- 
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    // pi messages
-    const NodeSet& childs = nodes[i]->getChilds();
-    for (unsigned j = 0; j < childs.size(); j++) {
-      updateOrder_.push_back (Edge (nodes[i], childs[j], PI_MSG));
-    }
-    // lambda messages
-    const NodeSet& parents = nodes[i]->getParents();
-    for (unsigned j = 0; j < parents.size(); j++) {
-      if (!parents[j]->hasEvidence()) {
-        updateOrder_.push_back (Edge (nodes[i], parents[j], LAMBDA_MSG));
-      }
-    }
-  }
-
   nIter_ = 0;
-  while (!converged() && nIter_ < maxIter_) {
+  while (!converged() && nIter_ < SolverOptions::maxIter) {
 
     nIter_++;
-    if (DL >= 1) {
+    if (DL >= 2) {
       cout << endl;
       cout << "****************************************" ;
       cout << "****************************************" ;
@@ -398,31 +275,31 @@ BPSolver::runGenericSolver()
       cout << endl;
     }
  
-    switch (schedule_) {
+    switch (SolverOptions::schedule) {
 
-      case S_SEQ_RANDOM:
-        random_shuffle (updateOrder_.begin(), updateOrder_.end());
+      case SolverOptions::S_SEQ_RANDOM:
+        random_shuffle (links_.begin(), links_.end());
         // no break
   
-      case S_SEQ_FIXED:
-        for (unsigned i = 0; i < updateOrder_.size(); i++) {
-          calculateNextMessage (updateOrder_[i]);
-          updateMessage (updateOrder_[i]);
-          updateValues (updateOrder_[i]);
+      case SolverOptions::S_SEQ_FIXED:
+        for (unsigned i = 0; i < links_.size(); i++) {
+          links_[i]->setNextMessage (getMessage (links_[i]));
+          links_[i]->updateMessage();
+          updateValues (links_[i]);
         }
         break;
 
-      case S_PARALLEL:
-        for (unsigned i = 0; i < updateOrder_.size(); i++) {
-          calculateNextMessage (updateOrder_[i]);
+      case SolverOptions::S_PARALLEL:
+        for (unsigned i = 0; i < links_.size(); i++) {
+          //calculateNextMessage (links_[i]);
         }
-        for (unsigned i = 0; i < updateOrder_.size(); i++) {
-          updateMessage (updateOrder_[i]);
-          updateValues (updateOrder_[i]);
+        for (unsigned i = 0; i < links_.size(); i++) {
+          //updateMessage (links_[i]);
+          //updateValues (links_[i]);
         }
         break;
  
-      case S_MAX_RESIDUAL:
+      case SolverOptions::S_MAX_RESIDUAL:
         maxResidualSchedule();
         break;
 
@@ -432,108 +309,117 @@ BPSolver::runGenericSolver()
 
 
 
-void
-BPSolver::maxResidualSchedule (void)
-{
-  if (nIter_ == 1) {
-    Edge::klass = this;
-    for (unsigned i = 0; i < updateOrder_.size(); i++) {
-      calculateNextMessage (updateOrder_[i]);
-      updateResidual (updateOrder_[i]);
-      SortedOrder::iterator it = sortedOrder_.insert (updateOrder_[i]);
-      edgeMap_.insert (make_pair (updateOrder_[i].getId(), it));
-    }
-    return;
-  }
-
-  for (unsigned c = 0; c < sortedOrder_.size(); c++) {
-    if (DL >= 1) {
-      for (set<Edge, compare>::iterator it = sortedOrder_.begin();
-          it != sortedOrder_.end(); it ++) {
-        cout << it->toString() << " residual = " ;
-        cout << getResidual (*it) << endl;
-      }
-    }
- 
-    set<Edge, compare>::iterator it = sortedOrder_.begin();
-    Edge e = *it;
-    if (getResidual (e) < accuracy_) {
-      return;
-    }
-    updateMessage (e);
-    updateValues (e);
-    clearResidual (e);
-    sortedOrder_.erase (it);
-    assert (edgeMap_.find (e.getId()) != edgeMap_.end());
-    edgeMap_.find (e.getId())->second = sortedOrder_.insert (e);
-
-     // update the messages that depend on message source --> destination
-    const NodeSet& childs = e.destination->getChilds();
-    for (unsigned i = 0; i < childs.size(); i++) {
-      if (childs[i] != e.source) {
-        Edge neighbor (e.destination, childs[i], PI_MSG);
-        calculateNextMessage (neighbor);
-        updateResidual (neighbor);
-        assert (edgeMap_.find (neighbor.getId()) != edgeMap_.end());
-        EdgeMap::iterator iter = edgeMap_.find (neighbor.getId());
-        sortedOrder_.erase (iter->second);
-        iter->second = sortedOrder_.insert (neighbor);
-      }
-    }
-    const NodeSet& parents = e.destination->getParents();
-    for (unsigned i = 0; i < parents.size(); i++) {
-      if (parents[i] != e.source && !parents[i]->hasEvidence()) {
-        Edge neighbor (e.destination, parents[i], LAMBDA_MSG);
-        calculateNextMessage (neighbor);
-        updateResidual (neighbor);
-        assert (edgeMap_.find (neighbor.getId()) != edgeMap_.end());
-        EdgeMap::iterator iter = edgeMap_.find (neighbor.getId());
-        sortedOrder_.erase (iter->second);
-        iter->second = sortedOrder_.insert (neighbor);
-      }
-    }
-  }
-}
-
-
-
 bool
 BPSolver::converged (void) const
 {
+  // this can happen if the graph is fully disconnected
+  if (links_.size() == 0) {
+    return true;
+  }
+  if (nIter_ == 0 || nIter_ == 1) {
+    return false;
+  }
   bool converged = true;
-  if (schedule_ == S_MAX_RESIDUAL) {
-    if (nIter_ <= 2) {
-      return false;
-    }
-    // this can happen if every node does not have neighbors
-    if (sortedOrder_.size() == 0) {
-      return true;
-    }
-    Param maxResidual = getResidual (*(sortedOrder_.begin()));
-    if (maxResidual > accuracy_) {
-      return false;
+  if (SolverOptions::schedule == SolverOptions::S_MAX_RESIDUAL) {
+    Param maxResidual = (*(sortedOrder_.begin()))->getResidual();
+    if (maxResidual < SolverOptions::accuracy) {
+      converged = true;
+    } else {
+      converged = false;
     }
   } else {
-    if (nIter_ == 0) {
-      return false;
-    }
-    const NodeSet& nodes = bn_->getNodes();
+    CBnNodeSet nodes = bn_->getBayesNodes();
     for (unsigned i = 0; i < nodes.size(); i++) {
       if (!nodes[i]->hasEvidence()) {
         double change = M(nodes[i])->getBeliefChange();
-        if (DL >= 1) {
+        if (DL >= 2) {
           cout << nodes[i]->getLabel() + " belief change = " ;
           cout << change << endl;
         }
-        if (change > accuracy_) {
+        if (change > SolverOptions::accuracy) {
           converged = false;
           if (DL == 0) break;
         }
       }
     }
   }
-
   return converged;
+}
+
+
+
+void
+BPSolver::maxResidualSchedule (void)
+{
+  if (nIter_ == 1) {
+    for (unsigned i = 0; i < links_.size(); i++) {
+      links_[i]->setNextMessage (getMessage (links_[i]));
+      links_[i]->updateResidual();
+      SortedOrder::iterator it = sortedOrder_.insert (links_[i]);
+      edgeMap_.insert (make_pair (links_[i], it));
+      if (DL >= 2) {
+        cout << "calculating " << links_[i]->toString() << endl;
+      }
+    }
+    return;
+  }
+
+  for (unsigned c = 0; c < sortedOrder_.size(); c++) {
+    if (DL >= 2) {
+      cout << endl << "current residuals:" << endl;
+      for (SortedOrder::iterator it = sortedOrder_.begin();
+          it != sortedOrder_.end(); it ++) {
+        cout << "    " << setw (30) << left << (*it)->toString();
+        cout << "residual = " << (*it)->getResidual() << endl;
+      }
+    }
+ 
+    SortedOrder::iterator it = sortedOrder_.begin();
+    Edge* edge = *it;
+    if (DL >= 2) {
+      cout << "updating " << edge->toString() << endl;
+    }
+    if (edge->getResidual() < SolverOptions::accuracy) {
+      return;
+    }
+    edge->updateMessage();
+    updateValues (edge);
+    edge->clearResidual();
+    sortedOrder_.erase (it);
+    edgeMap_.find (edge)->second = sortedOrder_.insert (edge);
+
+     // update the messages that depend on message source --> destin
+    CEdgeSet outChildLinks = 
+        M(edge->getDestination())->getOutcomingChildLinks();
+    for (unsigned i = 0; i < outChildLinks.size(); i++) {
+      if (outChildLinks[i]->getDestination() != edge->getSource()) {
+        if (DL >= 2) {
+          cout << "    calculating " << outChildLinks[i]->toString() << endl;
+        }
+        outChildLinks[i]->setNextMessage (getMessage (outChildLinks[i]));
+        outChildLinks[i]->updateResidual();
+        EdgeMap::iterator iter = edgeMap_.find (outChildLinks[i]);
+        sortedOrder_.erase (iter->second);
+        iter->second = sortedOrder_.insert (outChildLinks[i]);
+      }
+    }
+    CEdgeSet outParentLinks =
+        M(edge->getDestination())->getOutcomingParentLinks();
+    for (unsigned i = 0; i < outParentLinks.size(); i++) {
+      if (outParentLinks[i]->getDestination() != edge->getSource()) {
+          //&& !outParentLinks[i]->getDestination()->hasEvidence()) FIXME{
+        if (DL >= 2) {
+          cout << "    calculating " << outParentLinks[i]->toString() << endl;
+        }
+        outParentLinks[i]->setNextMessage (getMessage (outParentLinks[i]));
+        outParentLinks[i]->updateResidual();
+        EdgeMap::iterator iter = edgeMap_.find (outParentLinks[i]);
+        sortedOrder_.erase (iter->second);
+        iter->second = sortedOrder_.insert (outParentLinks[i]);
+      }
+    }
+
+  }
 }
 
 
@@ -542,11 +428,14 @@ void
 BPSolver::updatePiValues (BayesNode* x)
 {
   // π(Xi)
-  const NodeSet& parents = x->getParents();
+  if (DL >= 3) {
+    cout << "updating " << PI << " values for " << x->getLabel() << endl;
+  }
+  CEdgeSet parentLinks = M(x)->getIncomingParentLinks();
+  assert (x->getParents() == parentLinks.size());
   const vector<CptEntry>& entries = x->getCptEntries();
-  assert (parents.size() != 0);
-  stringstream* calcs1;
-  stringstream* calcs2;
+  stringstream* calcs1 = 0;
+  stringstream* calcs2 = 0;
 
   ParamSet messageProducts (entries.size());
   for (unsigned k = 0; k < entries.size(); k++) {
@@ -555,22 +444,27 @@ BPSolver::updatePiValues (BayesNode* x)
       calcs2 = new stringstream;
     }
     double messageProduct = 1.0;
-    const DomainConf& conf = entries[k].getParentConfigurations();
-    for (unsigned i = 0; i < parents.size(); i++) {
-      messageProduct *= M(parents[i])->getPiMessageValue(x, conf[i]);
+    const DConf& conf = entries[k].getDomainConfiguration();
+    for (unsigned i = 0; i < parentLinks.size(); i++) {
+      assert (parentLinks[i]->getSource() == parents[i]);
+      assert (parentLinks[i]->getDestination() == x);
+      messageProduct *= parentLinks[i]->getMessage()[conf[i]];
       if (DL >= 5) {
         if (i != 0) *calcs1 << "." ;
         if (i != 0) *calcs2 << "*" ;
-        *calcs1 << PI << "(" << x->getLabel() << ")" ;
-        *calcs1 << "[" << parents[i]->getDomain()[conf[i]] << "]";
-        *calcs2 << M(parents[i])->getPiMessageValue(x, conf[i]);
+        *calcs1 << PI << "(" << parentLinks[i]->getSource()->getLabel();
+        *calcs1 << " --> " << x->getLabel() << ")" ;
+        *calcs1 << "[" ;
+        *calcs1 << parentLinks[i]->getSource()->getDomain()[conf[i]];
+        *calcs1 << "]";
+        *calcs2 << parentLinks[i]->getMessage()[conf[i]];
       }
     }
     messageProducts[k] = messageProduct;
     if (DL >= 5) {
       cout << "    mp" << k;
       cout << " = " << (*calcs1).str();
-      if (parents.size() == 1) {
+      if (parentLinks.size() == 1) {
         cout << " = " << messageProduct << endl;
       } else {
         cout << " = " << (*calcs2).str();
@@ -581,7 +475,7 @@ BPSolver::updatePiValues (BayesNode* x)
     }
   }
 
-  for (int xi = 0; xi < x->getDomainSize(); xi++) {
+  for (unsigned xi = 0; xi < x->getDomainSize(); xi++) {
     double sum = 0.0;
     if (DL >= 5) {
       calcs1 = new stringstream;
@@ -617,26 +511,29 @@ void
 BPSolver::updateLambdaValues (BayesNode* x)
 {
   // λ(Xi)
-  const NodeSet& childs = x->getChilds();
-  assert (childs.size() != 0);
-  stringstream* calcs1;
-  stringstream* calcs2;
+  if (DL >= 3) {
+    cout << "updating " << LD << " values for " << x->getLabel() << endl;
+  }
+  CEdgeSet childLinks = M(x)->getIncomingChildLinks();
+  stringstream* calcs1 = 0;
+  stringstream* calcs2 = 0;
 
-  for (int xi = 0; xi < x->getDomainSize(); xi++) {
+  for (unsigned xi = 0; xi < x->getDomainSize(); xi++) {
     double product = 1.0;
     if (DL >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    for (unsigned i = 0; i < childs.size(); i++) {
-      product *= M(x)->getLambdaMessageValue(childs[i], xi);
+    for (unsigned i = 0; i < childLinks.size(); i++) {
+      assert (childLinks[i]->getDestination() == x);
+      product *= childLinks[i]->getMessage()[xi];
       if (DL >= 5) {
         if (i != 0) *calcs1 << "." ;
         if (i != 0) *calcs2 << "*" ;
-        *calcs1 << LD << "(" << childs[i]->getLabel();
+        *calcs1 << LD << "(" << childLinks[i]->getSource()->getLabel();
         *calcs1 << "-->" << x->getLabel() << ")" ;
         *calcs1 << "[" << x->getDomain()[xi] << "]" ;
-        *calcs2 << M(x)->getLambdaMessageValue(childs[i], xi);
+        *calcs2 << childLinks[i]->getMessage()[xi];
       }
     }
     M(x)->setLambdaValue (xi, product);
@@ -644,7 +541,7 @@ BPSolver::updateLambdaValues (BayesNode* x)
       cout << "    " << LD << "(" << x->getLabel() << ")" ;
       cout << "[" << x->getDomain()[xi] << "]" ;
       cout << " = " << (*calcs1).str();
-      if (childs.size() == 1) {
+      if (childLinks.size() == 1) {
         cout << " = " << product << endl;
       } else {
         cout << " = " << (*calcs2).str();
@@ -658,16 +555,19 @@ BPSolver::updateLambdaValues (BayesNode* x)
 
 
 
-void
-BPSolver::calculateNextPiMessage (BayesNode* z, BayesNode* x)
+ParamSet
+BPSolver::calculateNextPiMessage (Edge* edge)
 {
   // πX(Zi)
-  ParamSet& zxPiNextMessage = M(z)->piNextMessageReference (x);
-  const NodeSet& zChilds = z->getChilds();
-  stringstream* calcs1;
-  stringstream* calcs2;
+  BayesNode* z = edge->getSource();
+  BayesNode* x = edge->getDestination();
+  ParamSet zxPiNextMessage (z->getDomainSize());
+  CEdgeSet zChildLinks = M(z)->getIncomingChildLinks();
+  stringstream* calcs1 = 0;
+  stringstream* calcs2 = 0;
 
-  for (int zi = 0; zi < z->getDomainSize(); zi++) {
+
+  for (unsigned zi = 0; zi < z->getDomainSize(); zi++) {
     double product = M(z)->getPiValue (zi);
     if (DL >= 5) {
       calcs1 = new stringstream;
@@ -676,14 +576,15 @@ BPSolver::calculateNextPiMessage (BayesNode* z, BayesNode* x)
       *calcs1 << "[" << z->getDomain()[zi] << "]" ;
       *calcs2 << product;
     }
-    for (unsigned i = 0; i < zChilds.size(); i++) {
-      if (zChilds[i] != x) {
-        product *= M(z)->getLambdaMessageValue(zChilds[i], zi);
+    for (unsigned i = 0; i < zChildLinks.size(); i++) {
+      assert (zChildLinks[i]->getDestination() == z);
+      if (zChildLinks[i]->getSource() != x) {
+        product *= zChildLinks[i]->getMessage()[zi];
         if (DL >= 5) {
-          *calcs1 << "." << LD << "(" << zChilds[i]->getLabel();
+          *calcs1 << "." << LD << "(" << zChildLinks[i]->getSource()->getLabel();
           *calcs1 << "-->" << z->getLabel() << ")";
           *calcs1 << "[" << z->getDomain()[zi] + "]" ;
-          *calcs2 << " * " << M(z)->getLambdaMessageValue(zChilds[i], zi);
+          *calcs2 << " * " << zChildLinks[i]->getMessage()[zi];
         }
       }
     }
@@ -693,7 +594,7 @@ BPSolver::calculateNextPiMessage (BayesNode* z, BayesNode* x)
       cout << "-->" << x->getLabel() << ")" ;
       cout << "["  << z->getDomain()[zi] << "]" ;
       cout << " = " << (*calcs1).str();
-      if (zChilds.size() == 1) {
+      if (zChildLinks.size() == 1) {
         cout << " = " << product << endl;
       } else {
         cout << " = " << (*calcs2).str();
@@ -703,29 +604,34 @@ BPSolver::calculateNextPiMessage (BayesNode* z, BayesNode* x)
       delete calcs2;
     }
   }
+  return zxPiNextMessage;
 }
 
 
 
-void
-BPSolver::calculateNextLambdaMessage (BayesNode* y, BayesNode* x)
+ParamSet
+BPSolver::calculateNextLambdaMessage (Edge* edge)
 {
   // λY(Xi)
-  //if (!y->hasEvidence() && !M(y)->hasReceivedChildInfluence()) {
-  //  if (DL >= 5) {
-  //    cout << "unnecessary calculation" << endl;
-  //  }
-  //  return;
-  //}
-  ParamSet& yxLambdaNextMessage       = M(x)->lambdaNextMessageReference (y);
-  const NodeSet& yParents             = y->getParents();
+  BayesNode* y = edge->getSource();
+  BayesNode* x = edge->getDestination();
+  if (!M(y)->receivedBottomInfluence()) {
+    //cout << "returning 1" << endl;
+    //return edge->getMessage();
+  }
+  if (x->hasEvidence()) {
+    //cout << "returning 2" << endl;
+    //return edge->getMessage();
+  }
+  ParamSet yxLambdaNextMessage (x->getDomainSize());
+  CEdgeSet yParentLinks               = M(y)->getIncomingParentLinks();
   const vector<CptEntry>& allEntries  = y->getCptEntries();
   int parentIndex                     = y->getIndexOfParent (x);
-  stringstream* calcs1;
-  stringstream* calcs2;
+  stringstream* calcs1 = 0;
+  stringstream* calcs2 = 0;
  
   vector<CptEntry> entries;
-  DomainConstr constr = make_pair (parentIndex, 0);
+  DConstraint constr = make_pair (parentIndex, 0);
   for (unsigned i = 0; i < allEntries.size(); i++) {
     if (allEntries[i].matchConstraints(constr)) {
       entries.push_back (allEntries[i]);
@@ -739,27 +645,30 @@ BPSolver::calculateNextLambdaMessage (BayesNode* y, BayesNode* x)
       calcs2 = new stringstream;
     }
     double messageProduct = 1.0;
-    const DomainConf& conf = entries[k].getParentConfigurations();
-    for (unsigned i = 0; i < yParents.size(); i++) {
-      if (yParents[i] != x) {
+    const DConf& conf = entries[k].getDomainConfiguration();
+    for (unsigned i = 0; i < yParentLinks.size(); i++) {
+      assert (yParentLinks[i]->getDestination() == y);
+      if (yParentLinks[i]->getSource() != x) {
         if (DL >= 5) {
           if (messageProduct != 1.0) *calcs1 << "*" ;
           if (messageProduct != 1.0) *calcs2 << "*" ;
-          *calcs1 << PI << "(" << yParents[i]->getLabel();
+          *calcs1 << PI << "(" << yParentLinks[i]->getSource()->getLabel();
           *calcs1 << "-->" << y->getLabel() << ")" ;
-          *calcs1 << "[" << yParents[i]->getDomain()[conf[i]] << "]" ;
-          *calcs2 << M(yParents[i])->getPiMessageValue(y, conf[i]);
+          *calcs1 << "[" ;
+          *calcs1 << yParentLinks[i]->getSource()->getDomain()[conf[i]];
+          *calcs1 << "]" ;
+          *calcs2 << yParentLinks[i]->getMessage()[conf[i]];
         }
-        messageProduct *= M(yParents[i])->getPiMessageValue(y, conf[i]);
+        messageProduct *= yParentLinks[i]->getMessage()[conf[i]];
       }
     }
     messageProducts[k] = messageProduct;
     if (DL >= 5) {
       cout << "    mp" << k;
       cout << " = " << (*calcs1).str();
-      if  (yParents.size() == 1) {
+      if  (yParentLinks.size() == 1) {
         cout << 1 << endl;
-      } else if (yParents.size() == 2) {
+      } else if (yParentLinks.size() == 2) {
         cout << " = " << messageProduct << endl;
       } else {
         cout << " = " << (*calcs2).str();
@@ -770,20 +679,20 @@ BPSolver::calculateNextLambdaMessage (BayesNode* y, BayesNode* x)
     }
   }
 
-  for (int xi = 0; xi < x->getDomainSize(); xi++) {
+  for (unsigned xi = 0; xi < x->getDomainSize(); xi++) {
     if (DL >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
     vector<CptEntry> entries;
-    DomainConstr constr = make_pair (parentIndex, xi);
+    DConstraint constr = make_pair (parentIndex, xi);
     for (unsigned i = 0; i < allEntries.size(); i++) {
       if (allEntries[i].matchConstraints(constr)) {
         entries.push_back (allEntries[i]);
       }
     }
     double outerSum = 0.0;
-    for (int yi = 0; yi < y->getDomainSize(); yi++) {
+    for (unsigned yi = 0; yi < y->getDomainSize(); yi++) {
       if (DL >= 5) {
         (yi != 0) ? *calcs1 << " + {" : *calcs1 << "{" ;
         (yi != 0) ? *calcs2 << " + {" : *calcs2 << "{" ;
@@ -819,6 +728,110 @@ BPSolver::calculateNextLambdaMessage (BayesNode* y, BayesNode* x)
       delete calcs2;
     }
   }
+  return yxLambdaNextMessage;
+}
+
+
+
+ParamSet
+BPSolver::getJointByJunctionNode (const VidSet& jointVids) const
+{
+  BnNodeSet jointVars;
+  for (unsigned i = 0; i < jointVids.size(); i++) {
+    jointVars.push_back (bn_->getBayesNode (jointVids[i]));
+  }
+
+  BayesNet* mrn = bn_->getMinimalRequesiteNetwork (jointVids);
+
+  BnNodeSet parents;
+  unsigned dsize = 1;
+  for (unsigned i = 0; i < jointVars.size(); i++) {
+    parents.push_back (mrn->getBayesNode (jointVids[i]));
+    dsize *= jointVars[i]->getDomainSize();
+  }
+
+  unsigned nParams = dsize * dsize;
+  ParamSet params (nParams);
+
+  for (unsigned i = 0; i < nParams; i++) {
+    unsigned row = i / dsize;
+    unsigned col = i % dsize;
+    if (row == col) {
+      params[i] = 1;
+    } else {
+      params[i] = 0;
+    }
+  }
+
+  unsigned maxVid = std::numeric_limits<unsigned>::max();
+  Distribution* dist = new Distribution (params);
+
+  mrn->addNode (maxVid, dsize, NO_EVIDENCE, parents, dist);
+  mrn->setIndexes();
+
+  BPSolver solver (*mrn);
+  solver.runSolver();
+
+  const ParamSet& results = solver.getPosterioriOf (maxVid);
+
+  delete mrn;
+  delete dist;
+
+  return results;
+}
+
+
+
+ParamSet
+BPSolver::getJointByChainRule (const VidSet& jointVids) const
+{
+  BnNodeSet jointVars;
+  for (unsigned i = 0; i < jointVids.size(); i++) {
+    jointVars.push_back (bn_->getBayesNode (jointVids[i]));
+  }
+
+  BayesNet* mrn = bn_->getMinimalRequesiteNetwork (jointVids[0]);
+  BPSolver solver (*mrn);
+  solver.runSolver();
+  ParamSet prevBeliefs = solver.getPosterioriOf (jointVids[0]);
+  delete mrn;
+
+  VarSet observedVars = {jointVars[0]};
+
+  for (unsigned i = 1; i < jointVids.size(); i++) {
+    mrn = bn_->getMinimalRequesiteNetwork (jointVids[i]);
+    ParamSet newBeliefs;
+    vector<DConf> confs = 
+        Util::getDomainConfigurations (observedVars);
+    for (unsigned j = 0; j < confs.size(); j++) {
+      for (unsigned k = 0; k < observedVars.size(); k++) {
+        if (!observedVars[k]->hasEvidence()) {
+          BayesNode* node = mrn->getBayesNode (observedVars[k]->getVarId());
+          if (node) {
+            node->setEvidence (confs[j][k]);
+          }
+        }
+      }
+      BPSolver solver (*mrn);
+      solver.runSolver();
+      ParamSet beliefs = solver.getPosterioriOf (jointVids[i]);
+      for (unsigned k = 0; k < beliefs.size(); k++) {
+        newBeliefs.push_back (beliefs[k]);
+      }
+    }
+
+    int count = -1;
+    for (unsigned j = 0; j < newBeliefs.size(); j++) {
+      if (j % jointVars[i]->getDomainSize() == 0) {
+        count ++;
+      }
+      newBeliefs[j] *= prevBeliefs[count];
+    }
+    prevBeliefs = newBeliefs;
+    observedVars.push_back (jointVars[i]);
+    delete mrn;
+  }
+  return prevBeliefs;
 }
 
 
@@ -836,14 +849,14 @@ BPSolver::printMessageStatusOf (const BayesNode* var) const
   cout << "--------------------------------" ;
   cout << endl;
 
-  BpNode*         x        = M(var);
+  BPNodeInfo*     x        = M(var);
   ParamSet&       piVals   = x->getPiValues();
   ParamSet&       ldVals   = x->getLambdaValues();
   ParamSet        beliefs  = x->getBeliefs();
   const Domain&   domain   = var->getDomain();
-  const NodeSet&  childs   = var->getChilds();
+  CBnNodeSet&     childs   = var->getChilds();
 
-  for (int xi = 0; xi < var->getDomainSize(); xi++) {
+  for (unsigned xi = 0; xi < var->getDomainSize(); xi++) {
     cout << setw (10) << domain[xi];
     cout << setw (19) << piVals[xi];
     cout << setw (19) << ldVals[xi];
@@ -862,9 +875,10 @@ BPSolver::printMessageStatusOf (const BayesNode* var) const
       cout << "--------------------------------" ;
       cout << "--------------------------------" ;
       cout << endl;
+      /* FIXME
       const ParamSet& piMessage     = x->getPiMessage (childs[j]);
       const ParamSet& lambdaMessage = x->getLambdaMessage (childs[j]);
-      for (int xi = 0; xi < var->getDomainSize(); xi++) {
+      for (unsigned xi = 0; xi < var->getDomainSize(); xi++) {
         cout << setw (10) << domain[xi];
         cout.precision (PRECISION);
         cout << setw (27) << piMessage[xi];
@@ -873,6 +887,7 @@ BPSolver::printMessageStatusOf (const BayesNode* var) const
         cout << endl;
       }
       cout << endl;
+      */
     }
   }
 }
@@ -882,10 +897,9 @@ BPSolver::printMessageStatusOf (const BayesNode* var) const
 void 
 BPSolver::printAllMessageStatus (void) const
 { 
-  const NodeSet& nodes = bn_->getNodes();
+  CBnNodeSet nodes = bn_->getBayesNodes();
   for (unsigned i = 0; i < nodes.size(); i++) {
     printMessageStatusOf (nodes[i]);
   }
 }
-
 

@@ -1,37 +1,37 @@
-#include <iostream>
-#include <sstream>
 #include <cstdlib>
 #include <cassert>
+
+#include <iostream>
+#include <sstream>
 
 #include "Factor.h"
 #include "FgVarNode.h"
 
 
-int Factor::indexCount_ = 0;
-
-Factor::Factor (FgVarNode* var) {
-  vs_.push_back (var);
-  int nParams = var->getDomainSize();
-  // create a uniform distribution
-  double val = 1.0 / nParams;
-  ps_ = ParamSet (nParams, val);
-  id_ = indexCount_;
-  indexCount_ ++;
+Factor::Factor (const Factor& g)
+{
+  copyFactor (g);
 }
 
 
 
-Factor::Factor (const FgVarSet& vars) {
-  vs_ = vars;
+Factor::Factor (FgVarNode* var)
+{
+  Factor (FgVarSet() = {var});
+}
+
+
+
+Factor::Factor (const FgVarSet& vars)
+{
+  vars_ = vars;
   int nParams = 1;
-  for (unsigned i = 0; i < vs_.size(); i++) {
-    nParams *= vs_[i]->getDomainSize();
+  for (unsigned i = 0; i < vars_.size(); i++) {
+    nParams *= vars_[i]->getDomainSize();
   }
   // create a uniform distribution
   double val = 1.0 / nParams;
-  ps_ = ParamSet (nParams, val);
-  id_ = indexCount_;
-  indexCount_ ++;
+  dist_ = new Distribution (ParamSet (nParams, val));
 }
 
 
@@ -39,10 +39,17 @@ Factor::Factor (const FgVarSet& vars) {
 Factor::Factor (FgVarNode* var,
                 const ParamSet& params)
 {
-  vs_.push_back (var);
-  ps_ = params;
-  id_ = indexCount_;
-  indexCount_ ++;
+  vars_.push_back (var);
+  dist_ = new Distribution (params);
+}
+
+
+
+Factor::Factor (FgVarSet& vars,
+                Distribution* dist)
+{
+  vars_ = vars;
+  dist_ = dist;
 }
 
 
@@ -50,42 +57,8 @@ Factor::Factor (FgVarNode* var,
 Factor::Factor (const FgVarSet& vars,
                 const ParamSet& params)
 {
-  vs_ = vars;
-  ps_ = params;
-  id_ = indexCount_;
-  indexCount_ ++;
-}
-
-
-
-const FgVarSet&
-Factor::getFgVarNodes (void) const
-{
-  return vs_;
-}
-
-
-
-FgVarSet&
-Factor::getFgVarNodes (void)
-{
-  return vs_;
-}
-
-
-
-const ParamSet&
-Factor::getParameters (void) const
-{
-  return ps_;
-}
-
-
-
-ParamSet&
-Factor::getParameters (void)
-{
-  return ps_;
+  vars_ = vars;
+  dist_ = new Distribution (params);
 }
 
 
@@ -93,75 +66,95 @@ Factor::getParameters (void)
 void
 Factor::setParameters (const ParamSet& params)
 {
-  //cout << "ps size:     " << ps_.size() << endl;
-  //cout << "params size: " << params.size() << endl;
-  assert (ps_.size() == params.size());
-  ps_ = params;
+  assert (dist_->params.size() == params.size());
+  dist_->updateParameters (params);
 }
 
 
 
-Factor&
-Factor::operator= (const Factor& g)
+void
+Factor::copyFactor (const Factor& g)
 {
-  FgVarSet vars = g.getFgVarNodes();
-  ParamSet params = g.getParameters();
-  return *this;
+  vars_ = g.getFgVarNodes();
+  dist_ = new Distribution (g.getDistribution()->params);
 }
 
 
 
-Factor&
-Factor::operator*= (const Factor& g)
+void
+Factor::multiplyByFactor (const Factor& g, const vector<CptEntry>* entries)
 {
-  FgVarSet gVs        = g.getFgVarNodes();
+  if (vars_.size() == 0) {
+    copyFactor (g);
+    return;
+  }
+
+  const FgVarSet& gVs = g.getFgVarNodes();
   const ParamSet& gPs = g.getParameters();
 
-  bool hasCommonVars = false;
-  vector<int> varIndexes;
-  for (unsigned i = 0; i < gVs.size(); i++) {
-    int idx = getIndexOf (gVs[i]);
-    if (idx == -1) {
-      insertVariable (gVs[i]);
-      varIndexes.push_back (vs_.size() - 1);
-    } else {
-      hasCommonVars = true;
-      varIndexes.push_back (idx);
-    }
-  }
- 
-  if (hasCommonVars) {
-   vector<int> offsets (gVs.size());
-    offsets[gVs.size() - 1] = 1;
-    for (int i = gVs.size() - 2; i >= 0; i--) {
-      offsets[i] = offsets[i + 1] * gVs[i + 1]->getDomainSize();
-    }
-    vector<CptEntry> entries = getCptEntries();
-    for (unsigned i = 0; i < entries.size(); i++) {
-      int idx = 0;
-      const DomainConf conf = entries[i].getParentConfigurations();
-      for (unsigned j = 0; j < varIndexes.size(); j++) {
-        idx += offsets[j] * conf[varIndexes[j]];
+  bool factorsAreEqual = true;
+  if (gVs.size() == vars_.size()) {
+    for (unsigned i = 0; i < vars_.size(); i++) {
+      if (gVs[i] != vars_[i]) {
+        factorsAreEqual = false;
+        break;
       }
-      //cout << "ps_[" << i << "] = " << ps_[i] << " * " ;
-      //cout << gPs[idx] << " , idx = " << idx << endl;
-      ps_[i] = ps_[i] * gPs[idx];
     }
   } else {
-    // if the originally factors doesn't have common factors.
-    // we don't have to make domain comparations
-    unsigned idx = 0;
-    for (unsigned i = 0; i < ps_.size(); i++) {
-      //cout << "ps_[" << i << "] = " << ps_[i] << " * " ;
-      //cout << gPs[idx] << " , idx = " << idx << endl;
-      ps_[i] = ps_[i] * gPs[idx];
-      idx ++;
-      if (idx >= gPs.size()) {
-        idx = 0;
+    factorsAreEqual = false;
+  }
+
+  if (factorsAreEqual) {
+    // optimization: if the factors contain the same set of variables,
+    // we can do 1 to 1 operations on the parameteres
+    for (unsigned i = 0; i < dist_->params.size(); i++) {
+      dist_->params[i] *= gPs[i];
+    }
+  } else {
+    bool hasCommonVars = false;
+    vector<unsigned> gVsIndexes;
+    for (unsigned i = 0; i < gVs.size(); i++) {
+      int idx = getIndexOf (gVs[i]);
+      if (idx == -1) {
+        insertVariable (gVs[i]);
+        gVsIndexes.push_back (vars_.size() - 1);
+      } else {
+        hasCommonVars = true;
+        gVsIndexes.push_back (idx);
+      }
+    }
+    if (hasCommonVars) {
+      vector<unsigned> gVsOffsets (gVs.size());
+      gVsOffsets[gVs.size() - 1] = 1;
+      for (int i = gVs.size() - 2; i >= 0; i--) {
+        gVsOffsets[i] = gVsOffsets[i + 1] * gVs[i + 1]->getDomainSize();
+      }
+
+      if (entries == 0) {
+        entries = &getCptEntries();
+      }
+
+      for (unsigned i = 0; i < entries->size(); i++) {
+        unsigned idx = 0;
+        const DConf& conf = (*entries)[i].getDomainConfiguration();
+        for (unsigned j = 0; j < gVsIndexes.size(); j++) {
+          idx += gVsOffsets[j] * conf[ gVsIndexes[j] ];
+        }
+        dist_->params[i] = dist_->params[i] * gPs[idx];
+      }
+    } else {
+      // optimization: if the original factors doesn't have common variables,
+      // we don't need to marry the states of the common variables
+      unsigned count = 0;
+      for (unsigned i = 0; i < dist_->params.size(); i++) {
+        dist_->params[i] *= gPs[count];
+        count ++;
+        if (count >= gPs.size()) {
+          count = 0;
+        }
       }
     }
   }
-  return *this;
 }
 
 
@@ -169,81 +162,109 @@ Factor::operator*= (const Factor& g)
 void
 Factor::insertVariable (FgVarNode* var)
 {
-  int c = 0;
-  ParamSet newPs (ps_.size() * var->getDomainSize());
-  for (unsigned i = 0; i < ps_.size(); i++) {
-    for (int j = 0; j < var->getDomainSize(); j++) {
-      newPs[c] = ps_[i];
-      c ++;
+  assert (getIndexOf (var) == -1);
+  ParamSet newPs;
+  newPs.reserve (dist_->params.size() * var->getDomainSize());
+  for (unsigned i = 0; i < dist_->params.size(); i++) {
+    for (unsigned j = 0; j < var->getDomainSize(); j++) {
+      newPs.push_back (dist_->params[i]);
     }
   }
-  vs_.push_back (var);
-  ps_ = newPs;
+  vars_.push_back (var);
+  dist_->updateParameters (newPs);
 }
 
 
 
 void
-Factor::marginalizeVariable (const FgVarNode* var) {
-  int varIndex = getIndexOf (var);
-  marginalizeVariable (varIndex);
-}
-
-
-
-void
-Factor::marginalizeVariable (unsigned varIndex)
+Factor::removeVariable (const FgVarNode* var)
 {
-  assert (varIndex >= 0 && varIndex < vs_.size());
-  int distOffset    = 1;
-  int leftVarOffset = 1;
-  for (unsigned i = vs_.size() - 1; i > varIndex; i--) {
-    distOffset    *= vs_[i]->getDomainSize();
-    leftVarOffset *= vs_[i]->getDomainSize();
-  }
-  leftVarOffset *= vs_[varIndex]->getDomainSize();
+  int varIndex = getIndexOf (var);
+  assert (varIndex >= 0 && varIndex < (int)vars_.size());
 
-  int ds             = vs_[varIndex]->getDomainSize();
-  int count          = 0;
-  int offset         = 0;
-  int startIndex     = 0;
-  int currDomainIdx  = 0;
-  unsigned newPsSize = ps_.size() / ds;
+  // number of parameters separating a different state of `var', 
+  // with the states of the remaining variables fixed
+  unsigned varOffset = 1;
+
+  // number of parameters separating a different state of the variable
+  // on the left of `var', with the states of the remaining vars fixed
+  unsigned leftVarOffset = 1;
+
+  for (int i = vars_.size() - 1; i > varIndex; i--) {
+    varOffset     *= vars_[i]->getDomainSize();
+    leftVarOffset *= vars_[i]->getDomainSize();
+  }
+  leftVarOffset *= vars_[varIndex]->getDomainSize();
+
+  unsigned offset    = 0;
+  unsigned count1    = 0;
+  unsigned count2    = 0;
+  unsigned newPsSize = dist_->params.size() / vars_[varIndex]->getDomainSize();
+
   ParamSet newPs;
   newPs.reserve (newPsSize);
 
-  stringstream ss;
-  ss << "marginalizing " << vs_[varIndex]->getLabel();
-  ss << " from factor " << getLabel() << endl;
+  // stringstream ss;
+  // ss << "marginalizing " << vars_[varIndex]->getLabel();
+  // ss << " from factor " << getLabel() << endl;
   while (newPs.size() < newPsSize) {
-    ss << "  sum = ";
+    // ss << "  sum = ";
     double sum = 0.0;
-    for (int j = 0; j < ds; j++) {
-      if (j != 0) ss << " + ";
-      ss << ps_[offset];
-      sum    = sum    + ps_[offset];
-      offset = offset + distOffset;
+    for (unsigned i = 0; i < vars_[varIndex]->getDomainSize(); i++) {
+      // if (i != 0) ss << " + ";
+      // ss << dist_->params[offset];
+      sum    += dist_->params[offset];
+      offset += varOffset;
     }
     newPs.push_back (sum);
-    count ++;
-    if (varIndex == vs_.size() - 1) {
-      offset = count * ds;
+    count1 ++;
+    if (varIndex == (int)vars_.size() - 1) {
+      offset = count1 * vars_[varIndex]->getDomainSize();
     } else {
-      offset = offset - distOffset + 1;
-      if ((offset % leftVarOffset) == 0) {
-        currDomainIdx ++;
-        startIndex = leftVarOffset * currDomainIdx;
-        offset = startIndex;
-        count = 0;
-      } else {
-        offset = startIndex + count;
+      if (((offset - varOffset + 1) % leftVarOffset) == 0) {
+        count1 = 0;
+        count2 ++;
       }
+      offset = (leftVarOffset * count2) + count1;
     }
-    ss << " = " << sum << endl;
+    // ss << " = " << sum << endl;
   }
-  //cout << ss.str() << endl;
-  ps_ = newPs;
-  vs_.erase (vs_.begin() + varIndex);
+  // cout << ss.str() << endl;
+  vars_.erase (vars_.begin() + varIndex);
+  dist_->updateParameters (newPs);
+}
+
+
+
+const vector<CptEntry>&
+Factor::getCptEntries (void) const
+{
+  if (dist_->entries.size() == 0) {
+    vector<DConf> confs (dist_->params.size());
+    for (unsigned i = 0; i < dist_->params.size(); i++) {
+      confs[i].resize (vars_.size());
+    }
+
+    unsigned nReps = 1;
+    for (int i = vars_.size() - 1; i >= 0; i--) {
+      unsigned index = 0;
+      while (index < dist_->params.size()) {
+        for (unsigned j = 0; j < vars_[i]->getDomainSize(); j++) {
+          for (unsigned r = 0; r < nReps; r++) {
+            confs[index][i] = j; 
+            index++;
+          }
+        }
+      }
+      nReps *= vars_[i]->getDomainSize();
+    }
+    dist_->entries.clear();
+    dist_->entries.reserve (dist_->params.size());
+    for (unsigned i = 0; i < dist_->params.size(); i++) {
+      dist_->entries.push_back (CptEntry (i, confs[i]));
+    }
+  }
+  return dist_->entries;
 }
 
 
@@ -252,11 +273,10 @@ string
 Factor::getLabel (void) const
 {
   stringstream ss;
-  ss << "f(" ;
-  // ss << "Φ(" ;
-  for (unsigned i = 0; i < vs_.size(); i++) {
-    if (i != 0) ss << ", " ;
-    ss << "v" << vs_[i]->getVarId();
+  ss << "Φ(" ;
+  for (unsigned i = 0; i < vars_.size(); i++) {
+    if (i != 0) ss << "," ;
+    ss << vars_[i]->getLabel();
   }
   ss << ")" ;
   return ss.str();
@@ -264,62 +284,24 @@ Factor::getLabel (void) const
 
 
 
-string
-Factor::toString (void) const
+void
+Factor::printFactor (void)
 {
   stringstream ss;
-  ss << "vars: " ;
-  for (unsigned i = 0; i < vs_.size(); i++) {
-    if (i != 0) ss << ", " ;
-    ss << "v" << vs_[i]->getVarId();
+  ss << getLabel() << endl;
+  ss << "--------------------" << endl;
+  VarSet vs;
+  for (unsigned i = 0; i < vars_.size(); i++) {
+    vs.push_back (vars_[i]);
   }
-  ss << endl;
-  vector<CptEntry> entries = getCptEntries();
+  vector<string> domainConfs = Util::getInstantiations (vs);
+  const vector<CptEntry>& entries = getCptEntries();
   for (unsigned i = 0; i < entries.size(); i++) {
-    ss << "Φ(" ;
-    char s = 'a' ;
-    const DomainConf& conf = entries[i].getParentConfigurations();
-    for (unsigned j = 0; j < conf.size(); j++) {
-      if (j != 0) ss << "," ;
-      ss << s << conf[j] + 1;
-      s++;
-    }
-    ss << ") = " << ps_[entries[i].getParameterIndex()] << endl;
+    ss << "Φ(" << domainConfs[i] << ")" ;
+    unsigned idx = entries[i].getParameterIndex();
+    ss << " = " << dist_->params[idx] << endl;
   }
-  return ss.str();
-}
-
-
-
-vector<CptEntry>
-Factor::getCptEntries (void) const
-{
-  vector<DomainConf> confs (ps_.size());
-  for (unsigned i = 0; i < ps_.size(); i++) {
-    confs[i].resize (vs_.size());
-  }
-
-  int nReps = 1;
-  for (int i = vs_.size() - 1; i >= 0; i--) {
-    unsigned index = 0;
-    while (index < ps_.size()) {
-      for (int j = 0; j < vs_[i]->getDomainSize(); j++) {
-        for (int r = 0; r < nReps; r++) {
-          confs[index][i] = j; 
-          index++;
-        }
-      }
-    }
-    nReps *= vs_[i]->getDomainSize();
-  }
-  
-  vector<CptEntry> entries;
-  for (unsigned i = 0; i < ps_.size(); i++) {
-    for (unsigned j = 0; j < vs_.size(); j++) {
-    }
-    entries.push_back (CptEntry (i, confs[i]));
-  }
-  return entries;
+  cout << ss.str();
 }
 
 
@@ -327,20 +309,11 @@ Factor::getCptEntries (void) const
 int
 Factor::getIndexOf (const FgVarNode* var) const
 {
-  for (unsigned i = 0; i < vs_.size(); i++) {
-    if (vs_[i] == var) {
+  for (unsigned i = 0; i < vars_.size(); i++) {
+    if (vars_[i] == var) {
       return i;
     }
   }
   return -1;
-}
-
-
-
-Factor operator* (const Factor& f, const Factor& g)
-{
-  Factor r = f;
-  r *= g;
-  return r;
 }
 
