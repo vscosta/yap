@@ -1677,7 +1677,6 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      fprintf(stderr,"ctx=%p\n",ctx);
       val = ((codev)(args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
@@ -2831,6 +2830,7 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_init_yapor_global_local_memory();
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits();  /* init signal handling and time, required by later functions */
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
@@ -2878,7 +2878,6 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,

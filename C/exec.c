@@ -961,7 +961,7 @@ exec_absmi(int top USES_REGS)
 	restore_H();
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
-	Yap_StartSlots( PASS_REGS1 );
+	Yap_PopSlots();
 	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
@@ -991,9 +991,9 @@ exec_absmi(int top USES_REGS)
       LOCAL_PrologMode = UserMode;
     }
   } else {
+    Yap_CloseSlots( PASS_REGS1 );
     LOCAL_PrologMode = UserMode;
   }
-  Yap_CloseSlots( PASS_REGS1 );
   YENV = ASP;
   YENV[E_CB] = Unsigned (B);
   out = Yap_absmi(0);
