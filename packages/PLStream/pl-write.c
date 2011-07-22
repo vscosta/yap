@@ -884,6 +884,15 @@ writePrimitive(term_t t, write_options *options)
     return writeString(t, options);
 #endif /* O_STRING */
 
+#if __YAP_PROLOG__
+  {
+    number n;
+    n.type = V_INTEGER;
+    n.value.i = 0;
+    return WriteNumber(&n, options);
+  }
+#endif
+
   assert(0);
   fail;
 }
