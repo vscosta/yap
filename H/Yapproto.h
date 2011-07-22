@@ -120,7 +120,8 @@ int    STD_PROTO(Yap_IsStringTerm, (Term));
 int    STD_PROTO(Yap_IsWideStringTerm, (Term));
 Term   STD_PROTO(Yap_RatTermToApplTerm, (Term));
 void   STD_PROTO(Yap_InitBigNums, (void));
-Term   STD_PROTO(Yap_AllocExternalDataInStack, (size_t));
+Term   STD_PROTO(Yap_AllocExternalDataInStack, (CELL, size_t));
+int    STD_PROTO(Yap_CleanOpaqueVariable, (CELL *));
 
 /* c_interface.c */
 Int    STD_PROTO(YAP_Execute,(struct pred_entry *, CPredicate));

@@ -399,7 +399,7 @@ AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
 #if defined(YAPOR_THREADS)
   }
 #endif
-  /* moving the trail is simple */
+  /* moving the trail is simple, yeaahhh! */
   while (ptt != tr_base) {
     register CELL reg = TrailTerm(ptt-1);
 #ifdef FROZEN_STACKS
@@ -420,8 +420,6 @@ AdjustTrail(int adjusting_heap, int thread_copying USES_REGS)
     } else if (IsPairTerm(reg)) {
       TrailTerm(ptt) = AdjustPair(reg PASS_REGS);
 #ifdef MULTI_ASSIGNMENT_VARIABLES /* does not work with new structures */
-    /* check it whether we are protecting a
-       multi-assignment */
     } else if (IsApplTerm(reg)) {
       TrailTerm(ptt) = AdjustAppl(reg PASS_REGS);
 #endif

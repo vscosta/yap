@@ -102,6 +102,8 @@
 
 #define GLOBAL_Executable Yap_global->Executable_
 #endif
+#define GLOBAL_OpaqueHandlersCount Yap_global->OpaqueHandlersCount_
+#define GLOBAL_OpaqueHandlers Yap_global->OpaqueHandlers_
 #if  __simplescalar__
 #define GLOBAL_pwd Yap_global->pwd_
 #endif

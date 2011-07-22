@@ -86,7 +86,9 @@ typedef enum
     CLAUSE_LIST =  0x40,
     BLOB_STRING =  0x80, /* SWI style strings */
     BLOB_WIDE_STRING =  0x81, /* SWI style strings */
-    EXTERNAL_BLOB =  0x100 /* generic data */
+    EXTERNAL_BLOB =  0x100, /* generic data */
+    USER_BLOB_START =  0x1000, /* user defined blob */
+    USER_BLOB_END =  0x1100 /* end of user defined blob */
   } 
 big_blob_type;
 
@@ -438,14 +440,14 @@ IsLargeNumTerm (Term t)
 		    && (FunctorOfTerm (t) >= FunctorLongInt)));
 }
 
-inline EXTERN int IsExternalBlobTerm (Term);
+inline EXTERN int IsExternalBlobTerm (Term, CELL);
 
 inline EXTERN int
-IsExternalBlobTerm (Term t)
+IsExternalBlobTerm (Term t, CELL tag)
 {
   return (int) (IsApplTerm (t) &&
 		FunctorOfTerm (t) == FunctorBigInt &&
-		RepAppl(t)[1] == EXTERNAL_BLOB);
+		RepAppl(t)[1] == tag);
 }
 
 inline EXTERN void *ExternalBlobFromTerm (Term);

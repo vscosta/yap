@@ -391,6 +391,7 @@ X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsExternalDataInStackTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsOpaqueObjectTerm,(Term, int));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
 X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
 X_API Term    STD_PROTO(YAP_MkRationalTerm,(void *));
@@ -539,6 +540,9 @@ X_API int      STD_PROTO(YAP_MaxOpPriority,(Atom, Term));
 X_API int      STD_PROTO(YAP_OpInfo,(Atom, Term, int, int *, int *));
 X_API Term     STD_PROTO(YAP_AllocExternalDataInStack,(size_t));
 X_API void    *STD_PROTO(YAP_ExternalDataInStackFromTerm,(Term));
+X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
+X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
+X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 
 static int (*do_putcf)(wchar_t);
 
@@ -2320,7 +2324,7 @@ YAP_RunGoal(Term t)
 X_API Term
 YAP_AllocExternalDataInStack(size_t bytes)
 {
-  Term t = Yap_AllocExternalDataInStack(bytes);
+  Term t = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes);
   if (t == TermNil)
     return 0L;
   return t;
@@ -2329,11 +2333,49 @@ YAP_AllocExternalDataInStack(size_t bytes)
 X_API Bool
 YAP_IsExternalDataInStackTerm(Term t)
 {
-  return IsExternalBlobTerm(t);
+  return IsExternalBlobTerm(t, EXTERNAL_BLOB);
 }
 
 X_API void *
 YAP_ExternalDataInStackFromTerm(Term t)
+{
+  return ExternalBlobFromTerm (t);
+}
+
+int YAP_NewOpaqueType(void *f)
+{
+  int i;
+  if (!GLOBAL_OpaqueHandlers) {
+    GLOBAL_OpaqueHandlers = malloc(sizeof(opaque_handler_t)*(USER_BLOB_END-USER_BLOB_START));
+    if (!GLOBAL_OpaqueHandlers) {
+      /* no room */
+      return -1;
+    }
+  } else if (GLOBAL_OpaqueHandlersCount == USER_BLOB_END-USER_BLOB_START) {
+    /* all types used */
+    return -1;
+  }
+  i = GLOBAL_OpaqueHandlersCount++;
+  memcpy(GLOBAL_OpaqueHandlers+i,f,sizeof(opaque_handler_t));
+  return i+USER_BLOB_START;
+}
+
+Term YAP_NewOpaqueObject(int tag, size_t bytes)
+{
+  Term t = Yap_AllocExternalDataInStack((CELL)tag, bytes);
+  if (t == TermNil)
+    return 0L;
+  return t;
+}
+
+X_API Bool
+YAP_IsOpaqueObjectTerm(Term t, int tag)
+{
+  return IsExternalBlobTerm(t, (CELL)tag);
+}
+
+X_API void *
+YAP_OpaqueObjectFromTerm(Term t)
 {
   return ExternalBlobFromTerm (t);
 }

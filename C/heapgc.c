@@ -1658,14 +1658,23 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 #endif
       }
     } else if (IsPairTerm(trail_cell)) {
-      /* can safely ignore this */
+      /* cannot safely ignore this */
       CELL *cptr = RepPair(trail_cell);
-      if (IN_BETWEEN(LOCAL_GlobalBase,cptr,H) &&
-	  GlobalIsAttVar(cptr)) {
-	TrailTerm(trail_base) = (CELL)cptr;
-	mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
-	TrailTerm(trail_base) = trail_cell;
-      } 
+      if (IN_BETWEEN(LOCAL_GlobalBase,cptr,H)) {
+	if (GlobalIsAttVar(cptr)) {
+	  TrailTerm(trail_base) = (CELL)cptr;
+	  mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
+	  TrailTerm(trail_base) = trail_cell;
+	} else if (*cptr == (CELL)FunctorBigInt) {
+	  TrailTerm(trail_base) = AbsAppl(cptr);
+	  mark_external_reference(&TrailTerm(trail_base) PASS_REGS);
+	  TrailTerm(trail_base) = trail_cell;	  
+	} 
+#ifdef DEBUG
+	else
+	  fprintf(GLOBAL_stderr,"OOPS in GC: weird trail entry at %p:" UInt_FORMAT "\n", &TrailTerm(trail_base), (CELL)cptr);
+#endif
+      }
     }
 #if  MULTI_ASSIGNMENT_VARIABLES
     else {
@@ -2450,11 +2459,19 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
 	CELL *pt0 = RepPair(trail_cell);
 	CELL flags;
 
-	if (IN_BETWEEN(LOCAL_GlobalBase, pt0, H) && GlobalIsAttVar(pt0)) {
-	  TrailTerm(dest) = trail_cell;
-	  /* be careful with partial gc */
-	  if (HEAP_PTR(TrailTerm(dest))) {
-	    into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell) PASS_REGS);
+	if (IN_BETWEEN(LOCAL_GlobalBase, pt0, H)) {
+	  if (GlobalIsAttVar(pt0)) {
+	    TrailTerm(dest) = trail_cell;
+	    /* be careful with partial gc */
+	    if (HEAP_PTR(TrailTerm(dest))) {
+	      into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell) PASS_REGS);
+	    }
+	  } else if (*pt0 == (CELL)FunctorBigInt) {
+	    TrailTerm(dest) = trail_cell;
+	    /* be careful with partial gc */
+	    if (HEAP_PTR(TrailTerm(dest))) {
+	      into_relocation_chain(&TrailTerm(dest), GET_NEXT(trail_cell) PASS_REGS);
+	    }
 	  }
 	  dest++;
 	  trail_ptr++;

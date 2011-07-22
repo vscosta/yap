@@ -102,6 +102,8 @@ static void RestoreGlobal(void) {
 
 
 #endif
+
+
 #if  __simplescalar__
 
 #endif

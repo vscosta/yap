@@ -25,9 +25,10 @@ static char     SccsId[] = "%W% %G%";
 #include <string.h>
 #endif
 
+#include "YapHeap.h"
+
 #ifdef USE_GMP
 
-#include "YapHeap.h"
 #include "eval.h"
 #include "alloc.h"
 
@@ -59,27 +60,6 @@ Yap_MkBigIntTerm(MP_INT *big)
   return AbsAppl(ret);
 }
 
-Term
-Yap_AllocExternalDataInStack(size_t bytes)
-{
-  CACHE_REGS
-  Int nlimbs;
-  MP_INT *dst = (MP_INT *)(H+2);
-  CELL *ret = H;
-
-  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
-  if (nlimbs > (ASP-ret)-1024) {
-    return TermNil;
-  }
-  H[0] = (CELL)FunctorBigInt;
-  H[1] = EXTERNAL_BLOB;
-  dst->_mp_size = 0;
-  dst->_mp_alloc = nlimbs;
-  H = (CELL *)(dst+1)+nlimbs;
-  H[0] = EndSpecials;
-  H++;
-  return AbsAppl(ret);
-}
 
 MP_INT *
 Yap_BigIntOfTerm(Term t)
@@ -149,8 +129,57 @@ Yap_RatTermToApplTerm(Term t)
   return Yap_MkApplTerm(FunctorRDiv,2,ts);
 }
 
-
 #endif
+
+Term
+Yap_AllocExternalDataInStack(CELL tag, size_t bytes)
+{
+  CACHE_REGS
+  Int nlimbs;
+  MP_INT *dst = (MP_INT *)(H+2);
+  CELL *ret = H;
+
+  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
+  if (nlimbs > (ASP-ret)-1024) {
+    return TermNil;
+  }
+  H[0] = (CELL)FunctorBigInt;
+  H[1] = tag;
+  dst->_mp_size = 0;
+  dst->_mp_alloc = nlimbs;
+  H = (CELL *)(dst+1)+nlimbs;
+  H[0] = EndSpecials;
+  H++;
+  if (tag != EXTERNAL_BLOB) {
+    TrailTerm(TR) = AbsPair(ret);
+    TR++;
+  }
+  return AbsAppl(ret);
+}
+
+int Yap_CleanOpaqueVariable(CELL *pt)
+{
+  CELL blob_info, blob_tag;
+  MP_INT *blobp;
+#ifdef DEBUG
+  /* sanity checking */
+  if (pt[0] != (CELL)FunctorBigInt) {
+    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    return FALSE;
+  }
+#endif
+  blob_tag = pt[1];
+  if (blob_tag < USER_BLOB_START ||
+      blob_tag >= USER_BLOB_END) {
+    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    return FALSE;
+  }
+  blob_info = blob_tag - USER_BLOB_START;
+  if (!GLOBAL_OpaqueHandlers)
+    return FALSE;
+  blobp = (MP_INT *)(pt+2);
+  return (GLOBAL_OpaqueHandlers[blob_info].fail_handler)((void *)(blobp+1));
+}
 
 Term
 Yap_MkULLIntTerm(YAP_ULONG_LONG n)

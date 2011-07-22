@@ -102,6 +102,8 @@ static void InitGlobal(void) {
 
 
 #endif
+  GLOBAL_OpaqueHandlersCount = 0;
+  GLOBAL_OpaqueHandlers = NULL;
 #if  __simplescalar__
 
 #endif
