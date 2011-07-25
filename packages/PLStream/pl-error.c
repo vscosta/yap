@@ -184,6 +184,76 @@ PL_unify_bool_ex(term_t t, bool val)
   return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_bool, t);
 }
 
+		 /*******************************
+		 *	  TYPICAL ERRORS	*
+		 *******************************/
+
+int
+PL_instantiation_error(term_t actual)
+{ return PL_error(NULL, 0, NULL, ERR_INSTANTIATION);
+}
+
+int
+PL_representation_error(const char *resource)
+{ atom_t r = PL_new_atom(resource);
+  int rc = PL_error(NULL, 0, NULL, ERR_RESOURCE, r);
+  PL_unregister_atom(r);
+
+  return rc;
+}
+
+
+int
+PL_type_error(const char *expected, term_t actual)
+{ return PL_error(NULL, 0, NULL, ERR_CHARS_TYPE, expected, actual);
+}
+
+
+int
+PL_domain_error(const char *expected, term_t actual)
+{ atom_t a = PL_new_atom(expected);
+  int rc = PL_error(NULL, 0, NULL, ERR_DOMAIN, a, actual);
+  PL_unregister_atom(a);
+
+  return rc;
+}
+
+
+int
+PL_existence_error(const char *type, term_t actual)
+{ atom_t a = PL_new_atom(type);
+  int rc = PL_error(NULL, 0, NULL, ERR_EXISTENCE, a, actual);
+  PL_unregister_atom(a);
+
+  return rc;
+}
+
+
+int
+PL_permission_error(const char *op, const char *type, term_t obj)
+{ atom_t t = PL_new_atom(type);
+  atom_t o = PL_new_atom(op);
+  int rc = PL_error(NULL, 0, NULL, ERR_PERMISSION, o, t, obj);
+
+  PL_unregister_atom(t);
+  PL_unregister_atom(o);
+
+  return rc;
+}
+
+
+int
+PL_resource_error(const char *resource)
+{ atom_t r = PL_new_atom(resource);
+  int rc = PL_error(NULL, 0, NULL, ERR_RESOURCE, r);
+
+  PL_unregister_atom(r);
+
+  return rc;
+}
+
+
+
 word
 notImplemented(char *name, int arity)
 { return (word)PL_error(NULL, 0, NULL, ERR_NOT_IMPLEMENTED_PROC, name, arity);
