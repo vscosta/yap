@@ -735,7 +735,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
   } else if (IsPairTerm(t)) {
     cglobs->space_used += 2;
     if (optimizer_on && level < 6) {
-#if !defined(THREADS)
+#if !defined(THREADS) && !defined(YAPOR)
       /* discard code sharing because we cannot write on shared stuff */
       if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
 	if (try_store_as_dbterm(t, argno, arity, level, cglobs))

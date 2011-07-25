@@ -237,7 +237,7 @@ extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void)
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
-extern X_API void PROTO(YAP_UserBackCutCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int));
+extern X_API void PROTO(YAP_UserBackCutCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int));
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
@@ -245,9 +245,9 @@ extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
 /*  void cut_fail(void) */
 extern X_API void PROTO(YAP_cut_up,(void));
 
-#define YAP_cut_succeed() { YAP_cut_up(); return TRUE; }
+#define YAP_cut_succeed() do { YAP_cut_up(); return TRUE; } while(0)
 
-#define YAP_cut_fail() { YAP_cut_up(); return FALSE; }
+#define YAP_cut_fail() do { YAP_cut_up(); return FALSE; } while(0)
 
 /*  void *AllocSpaceFromYAP_(int) */
 extern X_API void *PROTO(YAP_AllocSpaceFromYap,(unsigned int));
@@ -554,6 +554,17 @@ extern X_API int PROTO(YAP_MaxOpPriority,(YAP_Atom, YAP_Term));
 
 /*    int  YAP_OpInfo(Atom, Term, int, int *, int *)  */
 extern X_API int  PROTO(YAP_OpInfo,(YAP_Atom, YAP_Term, int, int *, int *));
+
+/*    YAP_Bool  YAP_IsExternalDataInStackTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsExternalDataInStackTerm,(YAP_Term));
+
+extern X_API YAP_opaque_tag_t PROTO(YAP_NewOpaqueType,(struct YAP_opaque_handler_struct *));
+
+extern X_API YAP_Bool PROTO(YAP_IsOpaqueObjectTerm,(YAP_Term, YAP_opaque_tag_t));
+
+extern X_API YAP_Term PROTO(YAP_NewOpaqueObject,(YAP_opaque_tag_t, size_t));
+
+extern X_API void *PROTO(YAP_OpaqueObjectFromTerm,(YAP_Term));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

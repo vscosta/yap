@@ -2081,8 +2081,13 @@ Yap_absmi(int inp)
 	      goto failloop;
 	    } else
 #endif /* FROZEN_STACKS */
-	      if (IN_BETWEEN(H0,pt1,H) && IsAttVar(pt1))
-		goto failloop;		       	    
+	      if (IN_BETWEEN(H0,pt1,H)) {
+		if (IsAttVar(pt1)) {
+		  goto failloop;	
+		} else if (*pt1 == (CELL)FunctorBigInt) {
+		  Yap_CleanOpaqueVariable(pt1);
+		}	       	  
+	      }  
 #ifdef FROZEN_STACKS  /* TRAIL */
 	    /* don't reset frozen variables */
 	    if (pt0 < TR_FZ)

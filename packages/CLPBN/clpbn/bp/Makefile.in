@@ -50,28 +50,33 @@ CWD=$(PWD)
 HEADERS = \
 	$(srcdir)/GraphicalModel.h \
 	$(srcdir)/Variable.h \
+	$(srcdir)/Distribution.h \
 	$(srcdir)/BayesNet.h \
 	$(srcdir)/BayesNode.h \
-	$(srcdir)/Distribution.h \
+	$(srcdir)/LiftedFG.h \
 	$(srcdir)/CptEntry.h \
 	$(srcdir)/FactorGraph.h \
 	$(srcdir)/FgVarNode.h \
 	$(srcdir)/Factor.h \
 	$(srcdir)/Solver.h \
 	$(srcdir)/BPSolver.h \
-	$(srcdir)/BpNode.h \
+	$(srcdir)/BPNodeInfo.h \
 	$(srcdir)/SPSolver.h \
+  	$(srcdir)/CountingBP.h \
 	$(srcdir)/Shared.h \
 	$(srcdir)/xmlParser/xmlParser.h
-
+	
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesNode.cpp \
 	$(srcdir)/FactorGraph.cpp \
 	$(srcdir)/Factor.cpp \
+	$(srcdir)/LiftedFG.cpp \
 	$(srcdir)/BPSolver.cpp \
-	$(srcdir)/BpNode.cpp \
+	$(srcdir)/BPNodeInfo.cpp \
 	$(srcdir)/SPSolver.cpp \
+	$(srcdir)/CountingBP.cpp \
+	$(srcdir)/Util.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/HorusCli.cpp \
 	$(srcdir)/xmlParser/xmlParser.cpp
@@ -82,22 +87,38 @@ OBJS = \
 	FactorGraph.o \
 	Factor.o \
 	BPSolver.o \
-	BpNode.o \
+	BPNodeInfo.o \
 	SPSolver.o \
-	HorusYap.o \
-	xmlParser.o
+	Util.o \
+	LiftedFG.o \
+	CountingBP.o \
+	HorusYap.o
+
+HCLI_OBJS = \
+	BayesNet.o \
+	BayesNode.o \
+	FactorGraph.o \
+	Factor.o \
+	BPSolver.o \
+  BPNodeInfo.o \
+	SPSolver.o \
+	Util.o \
+	LiftedFG.o \
+	CountingBP.o \
+	HorusCli.o \
+	xmlParser/xmlParser.o
 
 SOBJS=horus.@SO@
 
 
-all: $(SOBJS)
+all: $(SOBJS) hcli
 
 # default rule
 %.o : $(srcdir)/%.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
-xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
+xmlParser/xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
@@ -105,7 +126,7 @@ xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 @DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
 
 
-hcli: $(OBJS)
+hcli: $(HCLI_OBJS)
 	$(CXX) -o hcli $(HCLI_OBJS)
 
 

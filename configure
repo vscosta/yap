@@ -9927,6 +9927,9 @@ mkdir -p  packages/clib/maildrop
 mkdir -p  packages/clib/maildrop/rfc822
 mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
+mkdir -p  packages/CLPBN/clpbn
+mkdir -p  packages/CLPBN/clpbn/bp
+mkdir -p  packages/CLPBN/clpbn/bp/xmlParser
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
@@ -10619,8 +10622,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="`echo $ac_config_files`"
-config_headers="`echo $ac_config_headers`"
+config_files="$ac_config_files"
+config_headers="$ac_config_headers"
 
 _ACEOF
 

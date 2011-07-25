@@ -154,18 +154,6 @@ static int SQLBINDCOL(SQLHSTMT       sthandle,
   return TRUE;
 }
 
-static int SQLFREESTMT(SQLHSTMT       sthandle,
-		       SQLUSMALLINT   opt,
-		       char *         print)
-{                                                                 
-  SQLRETURN retcode;                                              
-  retcode = SQLFreeStmt(sthandle,opt);
-
-  if (retcode != SQL_SUCCESS && retcode != SQL_SUCCESS_WITH_INFO) 
-    return odbc_error(SQL_HANDLE_STMT, sthandle, "SQLFreeStmt", print);
-  return TRUE;
-}
-
 static int SQLNUMRESULTCOLS(SQLHSTMT        sthandle,
 			    SQLSMALLINT *   ncols,
 			    char *          print)
@@ -421,8 +409,9 @@ c_db_odbc_query( USES_REGS1 ) {
 	/* +1 because of '\0' */
 	bind_space = malloc(sizeof(char)*(ColumnSizePtr+1));
 	data_info = malloc(sizeof(SQLINTEGER));
-	if (!SQLBINDCOL(hstmt,i,SQL_C_CHAR,bind_space,(ColumnSizePtr+1),data_info,"db_query"))
+	if (!SQLBINDCOL(hstmt,i,SQL_C_CHAR,bind_space,(ColumnSizePtr+1),data_info,"db_query")) {
 	  return FALSE;
+	}
 	
 	properties[0] = MkIntegerTerm((Int)bind_space);
 	properties[2] = MkIntegerTerm((Int)data_info);
@@ -444,7 +433,7 @@ c_db_odbc_query( USES_REGS1 ) {
     {
       if (!SQLCLOSECURSOR(hstmt,"db_query"))
 	return FALSE;
-      if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_query"))
+      if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_query"))
 	return FALSE;
       return FALSE;
     }
@@ -466,7 +455,7 @@ c_db_odbc_number_of_fields( USES_REGS1 ) {
   char sql[256];
   SQLSMALLINT number_fields;
 
-  sprintf(sql,"DESCRIBE %s",relation);
+  sprintf(sql,"SELECT column_name from INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\'",relation);
   
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_number_of_fields"))
     return FALSE;
@@ -482,7 +471,7 @@ c_db_odbc_number_of_fields( USES_REGS1 ) {
   
   if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields"))
     return FALSE;
-  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_number_of_fields"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_number_of_fields"))
     return FALSE;
   
   if (!Yap_unify(arg_fields, MkIntegerTerm(number_fields)))
@@ -506,7 +495,7 @@ c_db_odbc_get_attributes_types( USES_REGS1 ) {
   Term head, list;
   list = arg_types_list;
 
-  sprintf(sql,"DESCRIBE %s",relation);
+  sprintf(sql,"SELECT column_name,data_type FROM INFORMATION_SCHEMA.COLUMNS where table_name = \'%s\'",relation);
 
   if (!SQLALLOCHANDLE(SQL_HANDLE_STMT, hdbc, &hstmt, "db_get_attributes_types"))
     return FALSE;
@@ -547,7 +536,7 @@ c_db_odbc_get_attributes_types( USES_REGS1 ) {
   
   if (!SQLCLOSECURSOR(hstmt,"db_get_attributes_types"))
     return FALSE;
-  if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_get_attributes_types"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_get_attributes_types"))
     return FALSE;
   return TRUE;
 }
@@ -585,9 +574,28 @@ c_db_odbc_row_cut( USES_REGS1 ) {
   
   if (!SQLCLOSECURSOR(hstmt,"db_row_cut"))
     return FALSE; 
-  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_row_cut"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_row_cut"))
     return FALSE; 
    
+  return TRUE;
+}
+
+static int
+release_list_args(Term arg_list_args, Term arg_bind_list, const char *error_msg)
+{
+  Term list = arg_list_args;
+  Term list_bind = arg_bind_list;
+  
+  while (IsPairTerm(list_bind))
+    {
+      Term head_bind = HeadOfTerm(list_bind);
+
+      list = TailOfTerm(list);
+      list_bind = TailOfTerm(list_bind);
+      
+      free((char *)IntegerOfTerm(ArgOfTerm(1,head_bind)));
+      free((SQLINTEGER *)IntegerOfTerm(ArgOfTerm(3,head_bind)));
+    }
   return TRUE;
 }
 
@@ -611,9 +619,12 @@ c_db_odbc_row( USES_REGS1 ) {
     {
       if (!SQLCLOSECURSOR(hstmt,"db_row"))
 	return FALSE; 
-      if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_row"))
+      if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_row"))
 	return FALSE; 
-  
+      if (!release_list_args(arg_list_args, arg_bind_list, "db_row")) {
+	return FALSE;
+      }
+ 
       cut_fail(); 
       return FALSE;
     }
@@ -699,7 +710,7 @@ c_db_odbc_number_of_fields_in_query( USES_REGS1 ) {
   if (!Yap_unify(arg_fields, MkIntegerTerm(number_cols))){
     if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields_in_query"))
       return FALSE;
-    if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_number_of_fields_in_query"))
+    if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_number_of_fields_in_query"))
       return FALSE;
  
     return FALSE;
@@ -707,7 +718,7 @@ c_db_odbc_number_of_fields_in_query( USES_REGS1 ) {
   
   if (!SQLCLOSECURSOR(hstmt,"db_number_of_fields_in_query"))
     return FALSE;
-  if (!SQLFREESTMT(hstmt,SQL_CLOSE, "db_number_of_fields_in_query"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt, "db_number_of_fields_in_query"))
     return FALSE;
  
   return TRUE;
@@ -775,7 +786,7 @@ c_db_odbc_get_fields_properties( USES_REGS1 ) {
 
   if (!SQLCLOSECURSOR(hstmt2,"db_get_fields_properties"))
     return FALSE;
-  if (!SQLFREESTMT(hstmt2,SQL_CLOSE,"db_get_fields_properties"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt2, "db_get_fields_properties"))
     return FALSE;
   
   for (i=1;i<=num_fields;i++)
@@ -816,9 +827,8 @@ c_db_odbc_get_fields_properties( USES_REGS1 ) {
   
   if (!SQLCLOSECURSOR(hstmt,"db_get_fields_properties"))
     return FALSE;
-  if (!SQLFREESTMT(hstmt,SQL_CLOSE,"db_get_fields_properties"))
+  if (!SQLFREEHANDLE(SQL_HANDLE_STMT, hstmt2, "db_get_fields_properties"))
     return FALSE;
-    
   return TRUE;
 }
 

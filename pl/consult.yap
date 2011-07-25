@@ -1050,6 +1050,8 @@ make :-
 	fail.
 make.
 
+make_library_index(_Directory).
+
 '$file_name'(Stream,F) :-
 	stream_property(Stream, file_name(F)), !.
 '$file_name'(user_input,user_output).

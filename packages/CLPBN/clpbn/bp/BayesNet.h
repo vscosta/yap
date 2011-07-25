@@ -4,8 +4,6 @@
 #include <vector>
 #include <queue>
 #include <list>
-#include <string>
-#include <unordered_map>
 #include <map>
 
 #include "GraphicalModel.h"
@@ -46,42 +44,42 @@ struct StateInfo
 
 typedef vector<Distribution*>  DistSet;
 typedef queue<ScheduleInfo, list<ScheduleInfo> > Scheduling;
-typedef unordered_map<unsigned, unsigned> Histogram;
-typedef unordered_map<unsigned, double>   Times;
+typedef map<unsigned, unsigned> Histogram;
+typedef map<unsigned, double>   Times;
 
 
 class BayesNet : public GraphicalModel
 {
   public:
-    BayesNet (void);
+    BayesNet (void) {};
     BayesNet (const char*);
    ~BayesNet (void);
 
     BayesNode*           addNode (unsigned);
-    BayesNode*           addNode (unsigned, unsigned, int, NodeSet&, Distribution*);
-    BayesNode*           addNode (string, Domain, NodeSet&, ParamSet&);
-    BayesNode*           getNode (unsigned) const;
-    BayesNode*           getNode (string) const;
+    BayesNode*           addNode (unsigned, unsigned, int, BnNodeSet&,
+                             Distribution*);
+    BayesNode*           addNode (string, Domain, BnNodeSet&, ParamSet&);
+    BayesNode*           getBayesNode (Vid) const;
+    BayesNode*           getBayesNode (string) const;
+    Variable*            getVariable (Vid) const;
     void                 addDistribution (Distribution*);
     Distribution*        getDistribution (unsigned) const;
-    const NodeSet&       getNodes (void) const;
-    int                  getNumberOfNodes (void) const;
-    NodeSet              getRootNodes (void) const;
-    NodeSet              getLeafNodes (void) const;
+    const BnNodeSet&     getBayesNodes (void) const;
+    unsigned             getNumberOfNodes (void) const;
+    BnNodeSet            getRootNodes (void) const;
+    BnNodeSet            getLeafNodes (void) const;
     VarSet               getVariables (void) const;
-    BayesNet*            pruneNetwork (BayesNode*) const;
-    BayesNet*            pruneNetwork (const NodeSet& queryNodes) const;
-    void                 constructGraph (BayesNet*, const vector<StateInfo*>&) const;
+    BayesNet*            getMinimalRequesiteNetwork (Vid) const;
+    BayesNet*            getMinimalRequesiteNetwork (const VidSet&) const;
+    void                 constructGraph (BayesNet*, 
+                             const vector<StateInfo*>&) const;
     bool                 isSingleConnected (void) const;
-    static vector<DomainConf> getDomainConfigurationsOf (const NodeSet&);
-    static vector<string>     getInstantiations (const NodeSet& nodes);
     void                 setIndexes (void);
     void                 freeDistributions (void);
-    void                 printNetwork (void) const;
-    void                 printNetworkToFile (const char*) const;
-    void                 exportToDotFile (const char*, bool = true,
-                                          const NodeSet& = NodeSet()) const;
-    void                 exportToBifFile (const char*) const;
+    void                 printGraphicalModel (void) const;
+    void                 exportToDotFormat (const char*, bool = true,
+                             CVidSet = VidSet()) const;
+    void                 exportToBifFormat (const char*) const;
 
     static Histogram     histogram_;
     static Times         times_;
@@ -93,12 +91,12 @@ class BayesNet : public GraphicalModel
     bool                 containsUndirectedCycle (int, int,
                                                   vector<bool>&)const;
     vector<int>          getAdjacentNodes (int) const ;
-    ParamSet             reorderParameters (const ParamSet&, int) const;
-    ParamSet             revertParameterReorder (const ParamSet&, int) const;
+    ParamSet             reorderParameters (CParamSet, unsigned) const;
+    ParamSet             revertParameterReorder (CParamSet, unsigned) const;
     void                 scheduleParents (const BayesNode*, Scheduling&) const;
     void                 scheduleChilds (const BayesNode*, Scheduling&) const;
 
-    NodeSet              nodes_;
+    BnNodeSet            nodes_;
     DistSet              dists_;
     IndexMap             indexMap_;
 };
@@ -108,8 +106,8 @@ class BayesNet : public GraphicalModel
 inline void
 BayesNet::scheduleParents (const BayesNode* n, Scheduling& sch) const
 {
-  const NodeSet& ps = n->getParents();
-  for (NodeSet::const_iterator it = ps.begin(); it != ps.end(); it++) {
+  const BnNodeSet& ps = n->getParents();
+  for (BnNodeSet::const_iterator it = ps.begin(); it != ps.end(); it++) {
     sch.push (ScheduleInfo (*it, false, true));
   }
 }
@@ -119,11 +117,11 @@ BayesNet::scheduleParents (const BayesNode* n, Scheduling& sch) const
 inline void
 BayesNet::scheduleChilds (const BayesNode* n, Scheduling& sch) const
 {
-  const NodeSet& cs = n->getChilds();
-  for (NodeSet::const_iterator it = cs.begin(); it != cs.end(); it++) {
+  const BnNodeSet& cs = n->getChilds();
+  for (BnNodeSet::const_iterator it = cs.begin(); it != cs.end(); it++) {
     sch.push (ScheduleInfo (*it, true, false));
   }
 }
 
-#endif
+#endif //BP_BAYES_NET_H
 

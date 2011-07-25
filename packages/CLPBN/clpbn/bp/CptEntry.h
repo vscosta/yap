@@ -1,5 +1,5 @@
-#ifndef BP_CPTENTRY_H
-#define BP_CPTENTRY_H
+#ifndef BP_CPT_ENTRY_H
+#define BP_CPT_ENTRY_H
 
 #include <vector>
 
@@ -10,62 +10,34 @@ using namespace std;
 class CptEntry
 {
   public:
-    CptEntry (unsigned, const vector<unsigned>&);
+    CptEntry (unsigned index, const DConf& conf)
+    {
+      index_ = index;
+      conf_  = conf;
+    }
 
-    unsigned                getParameterIndex (void) const;
-    const vector<unsigned>& getParentConfigurations (void) const;
-    bool                    matchConstraints (const DomainConstr&) const;
-    bool                    matchConstraints (const vector<DomainConstr>&) const;
+    unsigned getParameterIndex (void) const          { return index_; }
+    const DConf& getDomainConfiguration (void) const { return conf_;  }
+
+    bool matchConstraints (const DConstraint& constr) const
+    {
+      return conf_[constr.first] == constr.second;
+    }
+
+    bool matchConstraints (const vector<DConstraint>& constrs) const
+    {
+      for (unsigned j = 0; j < constrs.size(); j++) {
+        if (conf_[constrs[j].first] != constrs[j].second) {
+          return false;
+        }
+      }
+      return true;
+    }
 
   private:
-    unsigned                index_;
-    vector<unsigned>        confs_;
+    unsigned   index_;
+    DConf      conf_;
 };
 
+#endif //BP_CPT_ENTRY_H
 
-
-inline
-CptEntry::CptEntry (unsigned index, const vector<unsigned>& confs)
-{
-  index_ = index;
-  confs_ = confs;
-}
-
-
-
-inline unsigned
-CptEntry::getParameterIndex (void) const
-{
-  return index_;
-}
-
-
-
-inline const vector<unsigned>&
-CptEntry::getParentConfigurations (void) const
-{
-  return confs_;
-}
-
-
-
-inline bool
-CptEntry::matchConstraints (const DomainConstr& constr) const
-{
-  return confs_[constr.first] == constr.second;
-}
-
-
-
-inline bool
-CptEntry::matchConstraints (const vector<DomainConstr>& constrs) const
-{
-  for (unsigned j = 0; j < constrs.size(); j++) {
-    if (confs_[constrs[j].first] != constrs[j].second) {
-      return false;
-    }
-  }
-  return true;
-}
-
-#endif

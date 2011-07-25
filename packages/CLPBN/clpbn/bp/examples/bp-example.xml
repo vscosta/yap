@@ -2,17 +2,16 @@
 
 <!--
 
-  A     B
-   \   /
-    \ /
-     -
-     C
+     A     B
+      \   /
+       \ / 
+        C
 
 -->
 
 <BIF VERSION="0.3">
 <NETWORK>
-<NAME>Simple Convergence</NAME>
+<NAME>Neapolitan</NAME>
 
 <VARIABLE TYPE="nature">
 	<NAME>A</NAME>
@@ -34,19 +33,19 @@
 
 <DEFINITION>
 	<FOR>A</FOR>
-	<TABLE>.695 .305</TABLE>
+	<TABLE> .695 .305 </TABLE>
 </DEFINITION>
 
 <DEFINITION>
 	<FOR>B</FOR>
-	<TABLE>0.25 0.75</TABLE>
+	<TABLE> .25 .75 </TABLE>
 </DEFINITION>
 
 <DEFINITION>
 	<FOR>C</FOR>
 	<GIVEN>A</GIVEN>
 	<GIVEN>B</GIVEN>
-	<TABLE>0.2 0.8 0.45 0.55 0.32 0.68 0.7 0.3</TABLE>
+	<TABLE> .2 .8 .45 .55 .32 .68 .7 .3 </TABLE>
 </DEFINITION>
 
 </NETWORK>

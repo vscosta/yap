@@ -33,6 +33,12 @@ typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
 #include "../include/dswiatoms.h"
 
+typedef int (*Opaque_CallOnFail)(void *);
+
+typedef struct opaque_handler_struct {
+  Opaque_CallOnFail fail_handler;
+} opaque_handler_t;
+
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
 #endif

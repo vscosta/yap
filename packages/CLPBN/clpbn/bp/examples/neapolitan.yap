@@ -2,6 +2,7 @@
 :- use_module(library(clpbn)).
 
 :- set_clpbn_flag(solver, bp).
+%:- set_clpbn_flag(solver, jt).
 
 %
 %     B     F

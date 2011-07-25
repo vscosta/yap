@@ -245,22 +245,15 @@ print_message(Severity, Msg) :-
 	'$notrace'(user:portray_message(Severity, Msg)), !.
 % This predicate has more hooks than a pirate ship!
 print_message(Severity, Term) :-
-	(
-	 (
-	  '$oncenotrace'(user:generate_message_hook(Term, [], Lines)) ->
-	  true
-	 ;
-	  '$oncenotrace'(prolog:message(Term, Lines, [])) ->
-	  true
-	 ;
-	 '$messages':generate_message(Term, Lines, [])
-	 )
-	->  (   nonvar(Term),
-		'$oncenotrace'(user:message_hook(Term, Severity, Lines))
-	    ->  !
-	    ;   !, '$print_system_message'(Term, Severity, Lines)
-	    )
-	).
+	% first step at hook processing
+	'$message_to_lines'(Term, Lines),
+	(   nonvar(Term),
+	    '$oncenotrace'(user:message_hook(Term, Severity, Lines))
+	->
+           true
+	;
+	   '$print_system_message'(Term, Severity, Lines)
+	), !.
 print_message(silent, _) :-  !.
 print_message(_, error(syntax_error(syntax_error(_,between(_,L,_),_,_,_,_,StreamName)),_)) :-  !,
 	format(user_error,'SYNTAX ERROR at ~a, close to ~d~n',[StreamName,L]).
@@ -270,6 +263,14 @@ print_message(_, loaded(A, F, _, Time, Space)) :- !,
 	format(user_error,'  % ~a ~a ~d bytes in ~d msecs~n',[F,A,Space,Time]).
 print_message(_, Term) :-
 	format(user_error,'~q~n',[Term]).
+
+'$message_to_lines'(Term, Lines) :-
+	'$oncenotrace'(user:generate_message_hook(Term, [], Lines)), !.
+'$message_to_lines'(Term, Lines) :-
+	'$oncenotrace'(prolog:message(Term, Lines, [])), !.
+'$message_to_lines'(Term, Lines) :-
+	'$messages':generate_message(Term, Lines, []), !.
+	
 
 %	print_system_message(+Term, +Level, +Lines)
 %

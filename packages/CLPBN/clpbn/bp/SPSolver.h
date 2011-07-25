@@ -1,10 +1,8 @@
-#ifndef BP_SPSOLVER_H
-#define BP_SPSOLVER_H
+#ifndef BP_SP_SOLVER_H
+#define BP_SP_SOLVER_H
 
-#include <cmath>
-#include <map>
 #include <vector>
-#include <string>
+#include <set>
 
 #include "Solver.h"
 #include "FgVarNode.h"
@@ -15,157 +13,118 @@ using namespace std;
 class FactorGraph;
 class SPSolver;
 
-struct Link
-{
-  Link (Factor* s, FgVarNode* d)
-  { 
-    source      = s;
-    destination = d;
-  }
-  string toString (void) const
-  {
-    stringstream ss;
-    ss << source->getLabel() << " --> " ;
-    ss << destination->getLabel();
-    return ss.str();
-  }
-  Factor*           source;
-  FgVarNode*        destination;
-  static SPSolver*  klass;
-};
 
-
-
-class MessageBanket
+class Link
 {
   public:
-    MessageBanket (const FgVarNode* var)
+    Link (Factor* f, FgVarNode* v)
+    { 
+      factor_ = f;
+      var_    = v;
+      currMsg_.resize (v->getDomainSize(), 1);
+      nextMsg_.resize (v->getDomainSize(), 1);
+      msgSended_ = false;
+      residual_ = 0.0;
+    }
+  
+    void setMessage (ParamSet msg)
     {
-      vector<Factor*> sources = var->getFactors();
-      for (unsigned i = 0; i < sources.size(); i++) {
-        indexMap_.insert (make_pair (sources[i], i));
-        currMsgs_.push_back (Message(var->getDomainSize(), 1));
-        nextMsgs_.push_back (Message(var->getDomainSize(), -10));
-        residuals_.push_back (0.0);
-      }
+      Util::normalize (msg);
+      residual_ = Util::getMaxNorm (currMsg_, msg);
+      currMsg_ = msg;
     }
 
-    void updateMessage (const Factor* source)
+    void setNextMessage (CParamSet msg)
     {
-      unsigned idx = getIndex(source);
-      currMsgs_[idx] = nextMsgs_[idx];
+      nextMsg_ = msg;
+      Util::normalize (nextMsg_);
+      residual_ = Util::getMaxNorm (currMsg_, nextMsg_);
     }
 
-    void setNextMessage (const Factor* source, const Message& msg)
+    void updateMessage (void) 
     {
-      unsigned idx = getIndex(source);
-      nextMsgs_[idx] = msg;
-      residuals_[idx] = computeResidual (source);
+      currMsg_ = nextMsg_;
+      msgSended_ = true;
     }
 
-    const Message& getMessage (const Factor* source) const
+    string toString (void) const
     {
-      return currMsgs_[getIndex(source)];
+      stringstream ss;
+      ss << factor_->getLabel();
+      ss << " -- " ;
+      ss << var_->getLabel();
+      return ss.str();
     }
 
-    double getResidual (const Factor* source) const
-    {
-      return residuals_[getIndex(source)];
-    }
-    
-    void resetResidual (const Factor* source)
-    {
-      residuals_[getIndex(source)] = 0.0;
-    }
-
+    Factor*      getFactor (void) const        { return factor_; }
+    FgVarNode*   getVariable (void) const      { return var_; }
+    CParamSet    getMessage (void) const       { return currMsg_; }
+    bool         messageWasSended (void) const { return msgSended_; }
+    double       getResidual (void) const      { return residual_; }
+    void         clearResidual (void)          { residual_ = 0.0; }
+ 
   private:
-    double computeResidual (const Factor* source)
-    {
-      double change = 0.0;
-      unsigned idx  = getIndex (source);
-      const Message& currMessage = currMsgs_[idx];
-      const Message& nextMessage = nextMsgs_[idx];
-      for (unsigned i = 0; i < currMessage.size(); i++) {
-        change += abs (currMessage[i] - nextMessage[i]);
-      }
-      return change;
-    }
- 
-    unsigned getIndex (const Factor* factor) const
-    {
-      assert (factor);
-      assert (indexMap_.find(factor) != indexMap_.end());
-      return indexMap_.find(factor)->second;
-    }
- 
-    typedef map<const Factor*, unsigned> IndexMap;
-
-    IndexMap               indexMap_;
-    vector<Message>        currMsgs_;
-    vector<Message>        nextMsgs_;
-    vector<double>         residuals_;
+    Factor*      factor_;
+    FgVarNode*   var_;
+    ParamSet     currMsg_;
+    ParamSet     nextMsg_;
+    bool         msgSended_;
+    double       residual_;
 };
 
+
+class SPNodeInfo
+{
+  public:
+    void         addLink (Link* link)         { links_.push_back (link); }
+    CLinkSet     getLinks (void)              { return links_; }
+
+  private:
+    LinkSet      links_;
+};
 
 
 class SPSolver : public Solver
 {
   public:
-    SPSolver (const FactorGraph&);
-   ~SPSolver (void);
+    SPSolver (FactorGraph&);
+    virtual ~SPSolver (void);
 
-    void            runSolver (void);
-    ParamSet        getPosterioriOf (const Variable* var) const;
+    void              runSolver (void);
+    virtual ParamSet  getPosterioriOf (Vid) const;
+    ParamSet          getJointDistributionOf (CVidSet);
+ 
+  protected:
+    virtual void      initializeSolver (void);
+    void              runTreeSolver (void);
+    bool              readyToSendMessage (const Link*) const;
+    virtual void      createLinks (void);
+    virtual void      deleteJunction (Factor*, FgVarNode*);
+    bool              converged (void);
+    virtual void      maxResidualSchedule (void);
+    virtual ParamSet  getFactor2VarMsg (const Link*) const;
+    virtual ParamSet  getVar2FactorMsg (const Link*) const;
 
-  private:
-    bool            converged (void);
-    void            maxResidualSchedule (void);
-    void            updateMessage (const Link&);
-    void            updateMessage (const Factor*, const FgVarNode*);
-    void            calculateNextMessage (const Link&);
-    void            calculateNextMessage (const Factor*, const FgVarNode*);
-    void            calculateVarFactorMessage (
-                         const FgVarNode*, const Factor*, Message&) const;
-    double          getResidual (const Link&) const;
-    void            resetResidual (const Link&) const;
-    friend bool     compareResidual (const Link&, const Link&);
+    struct CompareResidual {
+      inline bool operator() (const Link* link1, const Link* link2)
+      {
+        return link1->getResidual() > link2->getResidual();
+      }
+    };
 
-    const FactorGraph*          fg_;
-    vector<MessageBanket*>      msgs_;
-    Schedule                    schedule_;
-    int                         nIter_;
-    double                      accuracy_;
-    int                         maxIter_;
-    vector<Link>                updateOrder_;
+    FactorGraph*         fg_;
+    LinkSet              links_;
+    vector<SPNodeInfo*>  varsI_;
+    vector<SPNodeInfo*>  factorsI_;
+    unsigned             nIter_;
+
+    typedef multiset<Link*, CompareResidual> SortedOrder;
+    SortedOrder sortedOrder_;
+
+    typedef map<Link*, SortedOrder::iterator> LinkMap;
+    LinkMap linkMap_;
+
 };
 
-
-
-inline double
-SPSolver::getResidual (const Link& link) const
-{
-  MessageBanket* mb = Link::klass->msgs_[link.destination->getIndex()];
-  return mb->getResidual (link.source);
-}
-
-
-
-inline void
-SPSolver::resetResidual (const Link& link) const
-{
-  MessageBanket* mb = Link::klass->msgs_[link.destination->getIndex()];
-  mb->resetResidual (link.source);
-}
-
-
-
-inline bool
-compareResidual (const Link& link1, const Link& link2)
-{
-  MessageBanket* mb1 = Link::klass->msgs_[link1.destination->getIndex()];
-  MessageBanket* mb2 = Link::klass->msgs_[link2.destination->getIndex()];
-  return mb1->getResidual(link1.source) > mb2->getResidual(link2.source);
-}
-
-#endif
+#endif // BP_SP_SOLVER_H
 

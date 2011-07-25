@@ -2,8 +2,8 @@
 #define BP_DISTRIBUTION_H
 
 #include <vector>
-#include <string>
 
+#include "CptEntry.h"
 #include "Shared.h"
 
 using namespace std;
@@ -11,16 +11,18 @@ using namespace std;
 struct Distribution
 {
   public:
-    Distribution (unsigned id)
+    Distribution (unsigned id, bool shared = false)
     {
       this->id     = id;
       this->params = params;
+      this->shared = shared;
     }
 
-    Distribution (const ParamSet& params)
+    Distribution (const ParamSet& params, bool shared = false)
     {
       this->id     = -1;
       this->params = params;
+      this->shared = shared;
     }
 
     void updateParameters (const ParamSet& params)
@@ -31,10 +33,11 @@ struct Distribution
     unsigned          id;
     ParamSet          params;
     vector<CptEntry>  entries;
+    bool              shared;
 
   private:
     DISALLOW_COPY_AND_ASSIGN (Distribution);
 };
 
-#endif
+#endif //BP_DISTRIBUTION_H
 

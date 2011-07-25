@@ -390,6 +390,8 @@ X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsExternalDataInStackTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsOpaqueObjectTerm,(Term, int));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
 X_API Term    STD_PROTO(YAP_MkBigNumTerm,(void *));
 X_API Term    STD_PROTO(YAP_MkRationalTerm,(void *));
@@ -463,7 +465,7 @@ X_API IOSTREAM   *STD_PROTO(YAP_TermToStream,(Term));
 X_API IOSTREAM   *STD_PROTO(YAP_InitConsult,(int, char *));
 X_API void    STD_PROTO(YAP_EndConsult,(IOSTREAM *));
 X_API Term    STD_PROTO(YAP_Read, (IOSTREAM *));
-X_API void    STD_PROTO(YAP_Write, (Term, int (*)(wchar_t), int));
+X_API void    STD_PROTO(YAP_Write, (Term, IOSTREAM *, int));
 X_API Term    STD_PROTO(YAP_CopyTerm, (Term));
 X_API Term    STD_PROTO(YAP_WriteBuffer, (Term, char *, unsigned int, int));
 X_API char   *STD_PROTO(YAP_CompileClause, (Term));
@@ -536,13 +538,11 @@ X_API Term     STD_PROTO(YAP_ModuleUser,(void));
 X_API Int      STD_PROTO(YAP_NumberOfClausesForPredicate,(PredEntry *));
 X_API int      STD_PROTO(YAP_MaxOpPriority,(Atom, Term));
 X_API int      STD_PROTO(YAP_OpInfo,(Atom, Term, int, int *, int *));
-
-static int (*do_putcf)(wchar_t);
-
-static int do_yap_putc(int streamno,wchar_t ch) {
-  do_putcf(ch);
-  return(ch);
-}
+X_API Term     STD_PROTO(YAP_AllocExternalDataInStack,(size_t));
+X_API void    *STD_PROTO(YAP_ExternalDataInStackFromTerm,(Term));
+X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
+X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
+X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 
 static int
 dogc(void)
@@ -1677,7 +1677,6 @@ YAP_ExecuteOnCut(PredEntry *pe, CPredicate exec_code, struct cut_c_str *top)
     if (pe->PredFlags & CArgsPredFlag) {
       val = execute_cargs_back(pe, exec_code, ctx PASS_REGS);
     } else {
-      fprintf(stderr,"ctx=%p\n",ctx);
       val = ((codev)(args-LCL0,0,ctx));
     }
     /* make sure we clean up the frames left by the user */
@@ -2315,6 +2314,65 @@ YAP_RunGoal(Term t)
 }
 
 X_API Term
+YAP_AllocExternalDataInStack(size_t bytes)
+{
+  Term t = Yap_AllocExternalDataInStack(EXTERNAL_BLOB, bytes);
+  if (t == TermNil)
+    return 0L;
+  return t;
+}
+
+X_API Bool
+YAP_IsExternalDataInStackTerm(Term t)
+{
+  return IsExternalBlobTerm(t, EXTERNAL_BLOB);
+}
+
+X_API void *
+YAP_ExternalDataInStackFromTerm(Term t)
+{
+  return ExternalBlobFromTerm (t);
+}
+
+int YAP_NewOpaqueType(void *f)
+{
+  int i;
+  if (!GLOBAL_OpaqueHandlers) {
+    GLOBAL_OpaqueHandlers = malloc(sizeof(opaque_handler_t)*(USER_BLOB_END-USER_BLOB_START));
+    if (!GLOBAL_OpaqueHandlers) {
+      /* no room */
+      return -1;
+    }
+  } else if (GLOBAL_OpaqueHandlersCount == USER_BLOB_END-USER_BLOB_START) {
+    /* all types used */
+    return -1;
+  }
+  i = GLOBAL_OpaqueHandlersCount++;
+  memcpy(GLOBAL_OpaqueHandlers+i,f,sizeof(opaque_handler_t));
+  return i+USER_BLOB_START;
+}
+
+Term YAP_NewOpaqueObject(int tag, size_t bytes)
+{
+  Term t = Yap_AllocExternalDataInStack((CELL)tag, bytes);
+  if (t == TermNil)
+    return 0L;
+  return t;
+}
+
+X_API Bool
+YAP_IsOpaqueObjectTerm(Term t, int tag)
+{
+  return IsExternalBlobTerm(t, (CELL)tag);
+}
+
+X_API void *
+YAP_OpaqueObjectFromTerm(Term t)
+{
+  return ExternalBlobFromTerm (t);
+}
+
+X_API Term
 YAP_RunGoalOnce(Term t)
 {
   CACHE_REGS
@@ -2369,7 +2427,6 @@ YAP_RestartGoal(void)
   BACKUP_MACHINE_REGS();
   if (LOCAL_AllowRestart) {
     P = (yamop *)FAILCODE;
-    do_putcf = myputc;
     LOCAL_PrologMode = UserMode;
     out = Yap_exec_absmi(TRUE);
     LOCAL_PrologMode = UserCCallMode;
@@ -2589,12 +2646,11 @@ YAP_Read(IOSTREAM *inp)
 }
 
 X_API void
-YAP_Write(Term t, int (*myputc)(wchar_t), int flags)
+YAP_Write(Term t, IOSTREAM *stream, int flags)
 {
   BACKUP_MACHINE_REGS();
 
-  do_putcf = myputc;		/*  */
-  Yap_plwrite (t, do_yap_putc, flags, 1200);
+  Yap_dowrite (t, stream, flags, 1200);
 
   RECOVER_MACHINE_REGS();
 }
@@ -2774,6 +2830,7 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_init_yapor_global_local_memory();
   LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
+  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits();  /* init signal handling and time, required by later functions */
   GLOBAL_argv = yap_init->Argv;
   GLOBAL_argc = yap_init->Argc;
@@ -2821,7 +2878,6 @@ YAP_Init(YAP_init_args *yap_init)
   } else {
     Heap = yap_init->HeapSize;
   }
-  GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitWorkspace(Heap, Stack, Trail, Atts,
 	      yap_init->MaxTableSpaceSize,
 	      yap_init->NumberWorkers,

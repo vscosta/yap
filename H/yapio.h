@@ -67,6 +67,7 @@
 #define YP_FILE		FILE
 
 int     STD_PROTO(YP_putc,(int, int));
+void    STD_PROTO(Yap_dowrite, (Term, IOSTREAM *, int, int));
 
 #else
 
@@ -95,8 +96,6 @@ int     STD_PROTO(YP_putc,(int, int));
 #define fopen	ERR_fopen
 #define fclose	ERR_fclose
 #define fflush	ERR_fflush
-
-
 
 /* flags for files in IOSTREAM struct */
 #define _YP_IO_WRITE	1

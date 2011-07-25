@@ -252,7 +252,7 @@ STATIC_PROTO(yamop *a_if, (op_numbers, union clause_obj *, int, yamop *, int, st
 STATIC_PROTO(yamop *a_cut, (clause_info *,yamop *, int, struct intermediates *));
 #ifdef YAPOR
 STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
-STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, int, yamop *, int, struct intermediates *));
+STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, int, yamop *, int, struct intermediates *));
 #else
 STATIC_PROTO(yamop *a_try, (op_numbers, CELL, CELL, yamop *, int, struct intermediates *));
 STATIC_PROTO(yamop *a_either, (op_numbers, CELL, CELL, yamop *,  int, struct intermediates *));
@@ -2155,7 +2155,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 #endif
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
-    if (hascut)
+    if (cip->clause_has_cut)
       PUT_YAMOP_CUT(code_p);
     if (ap->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
@@ -2167,7 +2167,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 
 static yamop *
 #ifdef YAPOR
-a_either(op_numbers opcode, CELL opr, CELL lab, int nofalts, int hascut, yamop *code_p, int pass_no, struct intermediates *cip)
+a_either(op_numbers opcode, CELL opr, CELL lab, int nofalts, yamop *code_p, int pass_no, struct intermediates *cip)
 #else
 a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, struct intermediates *cip)
 #endif /* YAPOR */
@@ -2179,7 +2179,7 @@ a_either(op_numbers opcode, CELL opr, CELL lab, yamop *code_p, int pass_no, stru
     code_p->u.Osblp.p0 =  cip->CurrentPred;
 #ifdef YAPOR
     INIT_YAMOP_LTT(code_p, nofalts);
-    if (hascut)
+    if (cip->clause_has_cut)
       PUT_YAMOP_CUT(code_p);
     if (cip->CurrentPred->PredFlags & SequentialPredFlag)
       PUT_YAMOP_SEQ(code_p);
@@ -3583,7 +3583,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
       }
       code_p = a_either(_either,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
-	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, 0, code_p, pass_no, cip);
+	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, code_p, pass_no, cip);
 #else
       code_p = a_either(_either,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
@@ -3596,7 +3596,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	either_inst[either_cont++] = code_p;
       code_p = a_either(_or_else,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
-	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, 0, code_p, pass_no, cip);
+	       Unsigned(cip->code_addr) + cip->label_offset[cip->cpc->rnd1], 0, code_p, pass_no, cip);
 #else
       code_p = a_either(_or_else,
 	       -Signed(RealEnvSize) - CELLSIZE * cip->cpc->rnd2,
@@ -3608,7 +3608,7 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 #ifdef YAPOR
       if (pass_no)
 	either_inst[either_cont++] = code_p;
-      code_p = a_either(_or_last, 0, 0, 0, 0, code_p, pass_no, cip);
+      code_p = a_either(_or_last, 0, 0, 0, code_p, pass_no, cip);
       if (pass_no) {
 	int cont = 1;
 	do {
