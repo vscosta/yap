@@ -237,7 +237,7 @@ extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void)
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
-extern X_API void PROTO(YAP_UserBackCutCPredicate,(char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int));
+extern X_API void PROTO(YAP_UserBackCutCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int));
 
 /*  void CallProlog(YAP_Term t) */
 extern X_API YAP_Bool PROTO(YAP_CallProlog,(YAP_Term t));
