@@ -251,17 +251,12 @@ typedef unsigned long int YAP_ULONG_LONG;
 #endif /* FORCE_SECOND_QUADRANT */
 
 #if !defined(IN_SECOND_QUADRANT)
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(mips) || defined(__APPLE__) || defined(__DragonFly__)
+#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(mips) || (__DragonFly__)
 #if defined(YAPOR) && defined(__alpha)
 
 #define MMAP_ADDR 0x40000000
 #elif defined(mips)
 #define MMAP_ADDR 0x02000000
-#elif defined(__APPLE__) && __LP64__
-// this address is high enough that it is likely not to confuse Apple's malloc debugger; lowest possible is 0x100200000
-#define MMAP_ADDR 0x200000000
-#elif defined(__APPLE__) && !__LP64__
-#define MMAP_ADDR 0x20000000
 #elif defined(__powerpc__)
 #define MMAP_ADDR 0x20000000
 #else
