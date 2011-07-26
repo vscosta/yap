@@ -1091,6 +1091,17 @@ canoniseFileName(char *path)
 
     out = start = in;
   }
+#ifdef __MINGW32__ /* /c/ in MINGW is the same as c: */
+  if ( in[0] == '/' && isLetter(in[1]) &&
+       in[2] == '/' )
+  {
+    out[0] = in[1];
+    out[1] = ':';
+    in += 3;
+    out = start = in;
+  }
+#endif
+
 #endif
 #ifdef O_HASSHARES			/* //host/ */
   if ( in[0] == '/' && in[1] == '/' && isAlpha(in[2]) )
@@ -1425,6 +1436,12 @@ IsAbsolutePath(const char *p)				/* /d:/ */
 { if ( p[0] == '/' && p[2] == ':' && isLetter(p[1]) &&
        (p[3] == '/' || p[3] == '\0') )
     succeed;
+
+#ifdef __MINGW32__ /* /c/ in MINGW is the same as c: */
+  if ( p[0] == '/' && isLetter(p[1]) &&
+       (p[2] == '/' || p[2] == '\0') )
+    succeed;
+#endif
 
   if ( p[1] == ':' && isLetter(p[0]) &&			/* d:/ or d:\ */
        (IS_DIR_SEPARATOR(p[2]) || p[2] == '\0') )
