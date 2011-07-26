@@ -1205,9 +1205,11 @@ InitCodes(void)
 #include "ihstruct.h"
 #if THREADS
   Yap_InitThread(0);
-#endif
+#endif /* THREADS */
   InitGlobal();
+#if !THREADS
   InitWorker(0);
+#endif /* THREADS */
   InitFirstWorkerThreadHandle();
   /* make sure no one else can use these two atoms */
   CurrentModule = 0;
