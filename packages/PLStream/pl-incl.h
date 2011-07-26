@@ -9,6 +9,7 @@
 #include <windows.h>
 #include <uxnt.h>
 #define O_HASDRIVES 1
+#define O_HASSHARES 1
 #endif
 
 #ifndef PL_CONSOLE
@@ -25,6 +26,7 @@
 
 #include "Yap.h"
 #include "YapHeap.h"
+
 /* try not to pollute the SWI space */
 #ifdef P
 #undef P
