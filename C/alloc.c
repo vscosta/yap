@@ -944,7 +944,6 @@ InitWorkSpace(Int s)
 #else
   a = mmap(NULL, (size_t) s, PROT_READ | PROT_WRITE | PROT_EXEC,
 	   MAP_PRIVATE | MAP_ANON, -1, 0);
-  fprintf(stderr,"a=%p\n",a);
 #endif
 #else
   fd = open("/dev/zero", O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
