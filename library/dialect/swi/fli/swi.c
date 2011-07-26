@@ -2749,7 +2749,7 @@ PL_query(int query)
   case PL_QUERY_USER_CPU:
     return (intptr_t)Yap_cputime();
   case PL_QUERY_VERSION:
-    return (intptr_t)600301;
+    return (intptr_t)60300;
   default:
     fprintf(stderr,"Unimplemented PL_query %d\n",query);
     return (intptr_t)0;
