@@ -340,6 +340,9 @@ PL_EXPORT(int)		Speekcode(IOSTREAM *s);
 #define SIO_SETENCODING	(3)		/* modify encoding of stream */
 #define SIO_FLUSHOUTPUT	(4)		/* flush output */
 #define SIO_LASTERROR	(5)		/* string holding last error */
+#ifdef __WINDOWS__
+#define SIO_GETWINSOCK  (6)             /* get underlying SOCKET object */
+#endif
 
 /* Sread_pending() */
 #define SIO_RP_BLOCK 0x1		/* wait for new input */
