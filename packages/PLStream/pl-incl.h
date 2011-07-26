@@ -5,6 +5,12 @@
 #define O_GMP 1
 #endif
 
+#ifdef __WINDOWS__
+#include <windows.h>
+#include <uxnt.h>
+#define O_HASDRIVES 1
+#endif
+
 #ifndef PL_CONSOLE
 #define PL_KERNEL 1
 #endif
@@ -18,10 +24,6 @@
 #endif
 
 #include "Yap.h"
-#ifdef __WINDOWS__
-#include <windows.h>
-#include <uxnt.h>
-#endif
 #include "YapHeap.h"
 /* try not to pollute the SWI space */
 #ifdef P
