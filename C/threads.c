@@ -191,6 +191,9 @@ setup_engine(int myworker_id, int init_thread)
   GLOBAL_NOfThreadsCreated++;
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
+#ifdef TABLING
+  DepFr_cons_cp(LOCAL_top_dep_fr) = B;  /* same as in Yap_init_root_frames() */
+#endif /* TABLING */
 }
 
 static void
