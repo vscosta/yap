@@ -61,11 +61,7 @@ int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
 
 Int	STD_PROTO(Yap_InitSlot,(Term CACHE_TYPE));
 Int     STD_PROTO(Yap_NewSlots,(int CACHE_TYPE));
-Term    STD_PROTO(Yap_GetFromSlot,(Int CACHE_TYPE));
 int     STD_PROTO(Yap_RecoverSlots,(int CACHE_TYPE));
-Term    STD_PROTO(Yap_GetPtrFromSlot,(Int CACHE_TYPE));
-Term   *STD_PROTO(Yap_AddressFromSlot,(Int CACHE_TYPE));
-void    STD_PROTO(Yap_PutInSlot,(Int, Term CACHE_TYPE));
 
 
 #ifdef SFUNC

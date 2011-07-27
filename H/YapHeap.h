@@ -34,10 +34,16 @@ typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 #include "../include/dswiatoms.h"
 
 typedef int (*Opaque_CallOnFail)(void *);
+typedef int (*Opaque_CallOnWrite)(void *, int, void *, int);
 
 typedef struct opaque_handler_struct {
   Opaque_CallOnFail fail_handler;
+  Opaque_CallOnWrite write_handler;
 } opaque_handler_t;
+
+extern Opaque_CallOnWrite Yap_blob_write_handler_from_slot(Int slot);
+extern Int Yap_blob_tag_from_slot(Int slot);
+extern void *Yap_blob_info_from_slot(Int slot);
 
 #ifndef INT_KEYS_DEFAULT_SIZE
 #define INT_KEYS_DEFAULT_SIZE 256
