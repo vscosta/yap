@@ -202,14 +202,16 @@ true :- true.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
+	format('hello1 ~w~n',[GA]),
 	'$run_atom_goal'(GA),
 	set_value('$live','$false').
 '$enter_top_level' :-
 	'$disable_docreep',
 	'$run_toplevel_hooks',
+	prompt1(' ?- '),
 	'$read_toplevel'(Command,Varnames),
 	nb_setval('$spy_gn',1),
-				% stop at spy-points if debugging is on.
+	% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
 	'$command'(Command,Varnames,_Pos,top),
