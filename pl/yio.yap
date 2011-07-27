@@ -94,7 +94,8 @@ fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
 nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
-exists(F) :- access_file(F,exist).
+exists(F) :-
+	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
 /* Term IO	*/
 
