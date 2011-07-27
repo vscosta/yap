@@ -3225,7 +3225,7 @@ compact_heap( USES_REGS1 )
    */
 
 #ifdef TABLING
-  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+  if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
     gc_B = DepFr_cons_cp(depfr);
     depfr = DepFr_next(depfr);
   }
@@ -3408,7 +3408,7 @@ icompact_heap( USES_REGS1 )
    */
 
 #ifdef TABLING
-  if (depfr != NULL && gc_B >= DepFr_cons_cp(depfr)) {
+  if (depfr && gc_B >= DepFr_cons_cp(depfr)) {
     gc_B = DepFr_cons_cp(depfr);
     depfr = DepFr_next(depfr);
   }
