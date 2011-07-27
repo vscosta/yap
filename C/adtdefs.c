@@ -1431,30 +1431,6 @@ Yap_RecoverSlots(int n USES_REGS)
   return TRUE;
 }
 
-Term
-Yap_GetFromSlot(Int slot USES_REGS)
-{
-  return(Deref(LCL0[slot]));
-}
-
-Term
-Yap_GetPtrFromSlot(Int slot USES_REGS)
-{
-  return(LCL0[slot]);
-}
-
-Term *
-Yap_AddressFromSlot(Int slot USES_REGS)
-{
-  return(LCL0+slot);
-}
-
-void
-Yap_PutInSlot(Int slot, Term t USES_REGS)
-{
-  LCL0[slot] = t;
-}
-
 static HoldEntry *
 InitAtomHold(void)
 {

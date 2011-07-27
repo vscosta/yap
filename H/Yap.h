@@ -1186,44 +1186,6 @@ typedef enum
   } yap_exec_mode;
 
 
-/*************************************************************************************************
-                                           slots
-*************************************************************************************************/
-
-
-static inline void
-Yap_StartSlots( USES_REGS1 ) {
-  *--ASP = MkIntegerTerm(CurSlot);
-  *--ASP = MkIntTerm(0);
-  CurSlot = LCL0-ASP;
-}
-
-static inline void
-Yap_CloseSlots( USES_REGS1 ) {
-  Int old_slots;
-  old_slots = IntOfTerm(ASP[0]);
-  ASP += (old_slots+1);
-  CurSlot = IntOfTerm(*ASP);
-  ASP++;
-}
-
-static inline Int
-Yap_CurrentSlot( USES_REGS1 ) {
-  return IntOfTerm(ASP[0]);
-}
-
-/* pop slots when pruning */
-static inline void
-Yap_PopSlots( USES_REGS1 ) {
-  while (LCL0-CurSlot < ASP) {
-    Int old_slots;
-    CELL *ptr = LCL0-CurSlot;
-    old_slots = IntOfTerm(ptr[0]);
-    ptr += (old_slots+1);
-    CurSlot = IntOfTerm(*ptr);    
-  }
-}
-
 /************************/
 #ifdef THREADS
 typedef struct thandle {
@@ -1400,4 +1362,68 @@ TailOfTermCell (Term t)
   return (Term) ((CELL) (RepPair (t) + 1));
 }
 
+/*************************************************************************************************
+                                           slots
+*************************************************************************************************/
+
+
+static inline void
+Yap_StartSlots( USES_REGS1 ) {
+  *--ASP = MkIntegerTerm(CurSlot);
+  *--ASP = MkIntTerm(0);
+  CurSlot = LCL0-ASP;
+}
+
+static inline void
+Yap_CloseSlots( USES_REGS1 ) {
+  Int old_slots;
+  old_slots = IntOfTerm(ASP[0]);
+  ASP += (old_slots+1);
+  CurSlot = IntOfTerm(*ASP);
+  ASP++;
+}
+
+static inline Int
+Yap_CurrentSlot( USES_REGS1 ) {
+  return IntOfTerm(ASP[0]);
+}
+
+/* pop slots when pruning */
+static inline void
+Yap_PopSlots( USES_REGS1 ) {
+  while (LCL0-CurSlot < ASP) {
+    Int old_slots;
+    CELL *ptr = LCL0-CurSlot;
+    old_slots = IntOfTerm(ptr[0]);
+    ptr += (old_slots+1);
+    CurSlot = IntOfTerm(*ptr);    
+  }
+}
+
+static inline Term
+Yap_GetFromSlot(Int slot USES_REGS)
+{
+  return(Deref(LCL0[slot]));
+}
+
+static inline Term
+Yap_GetPtrFromSlot(Int slot USES_REGS)
+{
+  return(LCL0[slot]);
+}
+
+static inline Term *
+Yap_AddressFromSlot(Int slot USES_REGS)
+{
+  return(LCL0+slot);
+}
+
+static inline void
+Yap_PutInSlot(Int slot, Term t USES_REGS)
+{
+  LCL0[slot] = t;
+}
+
+
 #endif /* YAP_H */
+
