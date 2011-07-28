@@ -241,6 +241,12 @@ Yap_blob_info_from_slot(Int slot)
     return FALSE;
   }
 #endif
+  blob_tag = pt[1];
+  if (blob_tag < USER_BLOB_START ||
+      blob_tag >= USER_BLOB_END) {
+    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    return FALSE;
+  }
   blob_info = blob_tag - USER_BLOB_START;
   if (!GLOBAL_OpaqueHandlers)
     return FALSE;
