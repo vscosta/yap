@@ -31,44 +31,51 @@ main :-
 	open('H/walkclause.h',write,L),
 	open('H/findclause.h',write,F),
 	open('H/headclause.h',write,H),
+	open('H/saveclause.h',write,S),
 	header(W),
 	header_rclause(C),
 	header_walk_clause(L),
 	header_find_clause(F),
 	header_find_clause(H),
-	file('C/absmi.c', W, C, L, F, H),
-	start_ifdef("YAPOR", W, C, L, F, H),
-	file('OPTYap/or.insts.i',W, C, L, F, H),
-	end_ifdef(W, C, L, F, H),
-	start_ifdef("TABLING", W, C, L, F, H),
-	file('OPTYap/tab.insts.i',W,C,L, F, H),
+	header_save_clause(S),
+	file('C/absmi.c', W, C, L, F, H, S),
+	start_ifdef("YAPOR", W, C, L, F, H, S),
+	file('OPTYap/or.insts.i',W, C, L, F, H, S),
+	end_ifdef(W, C, L, F, H, S),
+	start_ifdef("TABLING", W, C, L, F, H, S),
+	file('OPTYap/tab.insts.i',W,C,L, F, H, S),
 	retractall(op(_,_)),
-	file('OPTYap/tab.tries.insts.i', W, C, L, F, H),
-	end_ifdef(W, C, L, F, H),
+	file('OPTYap/tab.tries.insts.i', W, C, L, F, H, S),
+	end_ifdef(W, C, L, F, H, S),
 	footer(W),
 	footer_rclause(C),
 	footer_walk_clause(L),
 	footer_find_clause(F),
 	footer_find_clause(H),
+	footer_save_clause(S),
 	close(F),
 	close(L),
 	close(W),
-	close(C).
+	close(C),
+	close(H),
+	close(S).
 
-start_ifdef(D, W, C, L, F, H) :-
+start_ifdef(D, W, C, L, F, H, S) :-
 	retractall(op(_,_)),
 	format(W, '#ifdef ~s~n',[D]),
 	format(C, '#ifdef ~s~n',[D]),
 	format(L, '#ifdef ~s~n',[D]),
 	format(F, '#ifdef ~s~n',[D]),
-	format(H, '#ifdef ~s~n',[D]).
+	format(H, '#ifdef ~s~n',[D]),
+	format(S, '#ifdef ~s~n',[D]).
 	
-end_ifdef(W,C,L,F,H) :-
+end_ifdef(W,C,L,F,H, S) :-
 	format(W, '#endif~n',[]),
 	format(C, '#endif~n',[]),
 	format(L, '#endif~n',[]),
 	format(F, '#endif~n',[]),
-	format(H, '#endif~n',[]).
+	format(H, '#endif~n',[]),
+	format(S, '#endif~n',[]).
 
 header(W) :-
 	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n',[]).
@@ -101,6 +108,17 @@ header_walk_clause(W) :-
     switch (op) {
 ',[]).
 
+header_save_clause(W) :-
+	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n
+  while (TRUE) {
+    op_numbers op;
+    if (max && pc >= max) return 1;
+    op = Yap_op_from_opcode(pc->opc);
+    save_Opcode(stream, op);
+
+    /* C-code, maybe indexing */
+    switch (op) {
+',[]).
 
 header_find_clause(W) :-
 	format(W,'~n  /* This file was generated automatically by \"yap -L misc/buildops\"~n     please do not update */~n~n
@@ -110,14 +128,15 @@ header_find_clause(W) :-
 ',[]).
 
 
-file(I,W,C,L,F,H) :-
+file(I,W,C,L,F,H, S) :-
 	open(I,read,R),
 	process(R,grep_opcode(W)),
 	close(R),
 	output_rclause(C),
 	output_walk_clause(L),
 	output_find_clause(F),
-	output_head_clause(H).
+	output_head_clause(H),
+	output_save_clause(S).
 
 grep_opcode(W, Line) :-
 	split(Line," 	,();",[OP,Name,Type]),
@@ -728,6 +747,12 @@ footer_find_clause(W) :-
      }
   }~n',[]).
 
+footer_save_clause(S) :-
+	format(S,'default:
+	return -1;
+     }
+  }~n',[]).
+
 get_field_names(F) :-
 	open(F, read, A),
 	loop_for_fields(A),
@@ -1098,3 +1123,43 @@ opinfo("alloc_for_logical_pred",[body]).
 opinfo("deallocate",[body]).
 opinfo("table_try_single",[]).
 opinfo("native_me",[]).
+
+output_save_clause(S) :-
+	setof(T,O^op(T,O),Types),
+	member(T, Types),
+	output_save_type(S, T),
+	fail.
+output_save_clause(_).
+
+output_save_type(S, T) :-
+	format(S,'      /* instructions type ~s */~n',[T]),
+	setof(Op,op(T,Op),Ops),
+	dump_ops(S,Ops),
+	% then the code for every instruction with this header.
+	tinfo(T, Desc),
+	output_save(S, T, Desc, T),
+	format(S,'      pc = NEXTOP(pc,~s);~n',[T]),
+	format(S,'      break;~n',[]).
+
+output_save(S, "e", [], _) :-
+	format(S, "      if (op == _Nstop || op == _copy_idb_term || op == _unify_idb_term) return 1;~n", []).
+output_save(_, [], [], _).
+output_save(S, [Name|Names], [Type|Types], Desc) :-
+	output_save_type(S, Name, Type, Desc),
+	output_save(S, Names, Types, Desc).
+
+output_save_type(S, OpT, T-"none", Desc) :- !,
+	get_op(OpT, Name),
+	format(S, "      CHECK(save_~s(stream, pc->u.~s.~s));~n", [Name, Desc, T]).
+output_save_type(S, OpT, T-Def, Desc) :-
+	get_op(OpT, Name),
+	format(S, "#ifdef ~s~n      CHECK(save_~s(stream, pc->u.~s.~s));~n#endif~n", [Def,Name, Desc, T]).
+
+
+
+
+
+
+
+
+

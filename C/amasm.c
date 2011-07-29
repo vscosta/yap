@@ -1104,12 +1104,12 @@ a_ensure_space(op_numbers opcode, yamop *code_p, int pass_no, struct intermediat
   if (cip->cpc->rnd1 > 4096) {
     if (pass_no) {
       code_p->opc = emit_op(opcode);
-      code_p->u.Osbpi.i = sizeof(CELL) * cip->cpc->rnd1;
-      code_p->u.Osbpi.p = clinfo->CurrentPred;
-      code_p->u.Osbpi.bmap = NULL;
-      code_p->u.Osbpi.s = emit_count(-Signed(RealEnvSize));
+      code_p->u.Osbpa.i = sizeof(CELL) * cip->cpc->rnd1;
+      code_p->u.Osbpa.p = clinfo->CurrentPred;
+      code_p->u.Osbpa.bmap = NULL;
+      code_p->u.Osbpa.s = emit_count(-Signed(RealEnvSize));
     }
-    GONEXT(Osbpi);
+    GONEXT(Osbpa);
   }
   return code_p;
 }

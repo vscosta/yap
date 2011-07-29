@@ -248,6 +248,7 @@ C_SOURCES= \
 	$(srcdir)/C/load_shl.c $(srcdir)/C/load_dyld.c \
 	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
 	$(srcdir)/C/parser.c \
+	$(srcdir)/C/qly.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
@@ -356,7 +357,7 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
-	parser.o save.o scanner.o sort.o stdpreds.o \
+	parser.o qly.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -441,6 +442,9 @@ init.o: $(srcdir)/C/init.c config.h
 
 load_foreign.o: $(srcdir)/C/load_foreign.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
+
+qly.o: $(srcdir)/C/qly.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/C/qly.c -o $@
 
 save.o: $(srcdir)/C/save.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@

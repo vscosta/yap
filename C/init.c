@@ -391,8 +391,6 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
     flags |= SourcePredFlag;
   if (pe->PredFlags & SequentialPredFlag)
     flags |= SequentialPredFlag;
-  if (pe->PredFlags & MyddasPredFlag)
-    flags |= MyddasPredFlag;
   if (pe->PredFlags & UDIPredFlag)
     flags |= UDIPredFlag;
   if (pe->PredFlags & ModuleTransparentPredFlag)
