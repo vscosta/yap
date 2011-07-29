@@ -886,10 +886,16 @@ writePrimitive(term_t t, write_options *options)
 
 #if __YAP_PROLOG__
   {
-    number n;
-    n.type = V_INTEGER;
-    n.value.i = 0;
-    return WriteNumber(&n, options);
+    Opaque_CallOnWrite f;
+
+    if ( (f = Yap_blob_write_handler_from_slot(t)) ) {
+      return (f)(options->out, Yap_blob_tag_from_slot(t), Yap_blob_info_from_slot(t), options->flags);
+    } else {
+      number n;
+      n.type = V_INTEGER;
+      n.value.i = 0;
+      return WriteNumber(&n, options);
+    }
   }
 #endif
 
