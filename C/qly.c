@@ -252,7 +252,7 @@ static size_t
 save_static_clause(IOSTREAM *stream, StaticClause *cl) {
   CHECK(save_tag(stream, QLF_START_CLAUSE));
   if (!(cl->ClFlags & FactMask)) {
-    Yap_DebugPlWrite(cl->usc.ClSource->Entry);fprintf(stderr,"\n");
+    //    Yap_DebugPlWrite(cl->usc.ClSource->Entry);fprintf(stderr,"\n");
     CHECK(save_term(stream, cl->usc.ClSource->Entry));
     return save_code(stream, cl->ClCode, (yamop *)(cl->usc.ClSource));
   } else {
