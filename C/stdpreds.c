@@ -4481,6 +4481,7 @@ Yap_InitCPreds(void)
   Yap_InitSavePreds();
   Yap_InitSysPreds();
   Yap_InitUnify();
+  Yap_InitQLY();
 #if defined CUT_C && defined MYDDAS_MYSQL 
   Yap_InitMYDDAS_MySQLPreds();
 #endif

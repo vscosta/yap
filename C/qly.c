@@ -252,6 +252,7 @@ static size_t
 save_static_clause(IOSTREAM *stream, StaticClause *cl) {
   CHECK(save_tag(stream, QLF_START_CLAUSE));
   if (!(cl->ClFlags & FactMask)) {
+    Yap_DebugPlWrite(cl->usc.ClSource->Entry);fprintf(stderr,"\n");
     CHECK(save_term(stream, cl->usc.ClSource->Entry));
     return save_code(stream, cl->ClCode, (yamop *)(cl->usc.ClSource));
   } else {
@@ -323,12 +324,38 @@ save_pred(IOSTREAM *stream, PredEntry *ap) {
   return save_clauses(stream, ap);
 }
 
-size_t
+static size_t
 save_module(IOSTREAM *stream, Term mod) {
   PredEntry *ap = Yap_ModulePred(mod);
   while (ap) {
     CHECK(save_pred(stream, ap));
     ap = ap->NextPredOfModule;
   }
+  return 1;
+}
+
+static Int
+p_save_module_preds( USES_REGS1 )
+{
+  IOSTREAM *stream;
+  Term tmod = Deref(ARG2);
+
+  if (!Yap_getOutputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+    return FALSE;
+  }
+  if (IsVarTerm(tmod)) {
+    Yap_Error(INSTANTIATION_ERROR,tmod,"save_module/2");
+    return FALSE;
+  }
+  if (!IsAtomTerm(tmod)) {
+    Yap_Error(TYPE_ERROR_ATOM,tmod,"save_module/2");
+    return FALSE;
+  }
+  return save_module(stream, tmod) != 0;
+}
+
+void Yap_InitQLY(void)
+{
+  Yap_InitCPred("$save_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
 }
 

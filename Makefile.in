@@ -316,6 +316,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
 	$(srcdir)/pl/profile.yap \
 	$(srcdir)/pl/protect.yap \
+	$(srcdir)/pl/qly.yap \
 	$(srcdir)/pl/save.yap \
 	$(srcdir)/pl/setof.yap \
 	$(srcdir)/pl/signals.yap \
