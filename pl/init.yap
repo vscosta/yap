@@ -82,6 +82,7 @@ otherwise.
 	 'eam.yap',
 	 'chtypes.yap',
 	 'yapor.yap',
+         'qly.yap',
          'udi.yap'].
 
 :- dynamic prolog:'$user_defined_flag'/4.
