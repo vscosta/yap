@@ -198,7 +198,7 @@ AC_ARG_WITH(cudd,
 	[yap_cv_cudd=no])
 
 AC_ARG_ENABLE(myddas,
-v	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
+	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then
 		yap_cv_myddas=/usr
 	elif test "$enableval" = no; then
