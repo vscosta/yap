@@ -261,18 +261,34 @@ extern "C"
     return n;
   }
 
+#ifndef HAVE_DYNARRAY
+  struct SpecArray
+  {
+    int* _array;
+    SpecArray(int n): _array(new int[n][2]) {}
+    ~SpecArray() { delete[] _array; }
+    typedef int (*_specarray)[][2];
+    T& operator()(int i,int j) { return ((_specarray)_array)[i][j]; }
+  };
+#define SPECARRAY(A,N) SpecArray A(N)
+#define SPECARRAYELEM(A,I,J) A(I,J)
+#else
+#define SPECARRAY(A,N) int A[N][2]
+#define SPECARRAYELEM(A,I,J) A[I][J]
+#endif
+
   static IntSet
   gecode_IntSet_from_term(YAP_Term specs)
   {
     int n = gecode_list_length(specs);
-    int r[n][2];
+    SPECARRAY(r,n);
     int i = 0;
     while (YAP_IsPairTerm(specs))
       {
 	YAP_Term head = YAP_HeadOfTerm(specs);
 	specs = YAP_TailOfTerm(specs);
-	r[i][0] = YAP_IntOfTerm(YAP_ArgOfTerm(1, head));
-	r[i][1] = YAP_IntOfTerm(YAP_ArgOfTerm(2, head));
+	SPECARRAYELEM(r,i,0) = YAP_IntOfTerm(YAP_ArgOfTerm(1, head));
+	SPECARRAYELEM(r,i,1) = YAP_IntOfTerm(YAP_ArgOfTerm(2, head));
 	i += 1;
       }
     return IntSet(r, n);
@@ -828,6 +844,19 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.glbMax()));
   }
 
+#ifndef HAVE_DYNARRAY
+  template <typename T> struct DynArray
+  {
+    T* _array;
+    DynArray(int n): _array(new T[n]) {}
+    ~DynArray() { delete[] _array; }
+    T& operator[](int i) { return _array[i]; }
+  };
+#define DYNARRAY(T,A,N) DynArray<T> A(N)
+#else
+#define DYNARRAY(T,A,N) T A[N]
+#endif
+
   static YAP_Functor gecode_COMMA2;
 
   static int gecode_setvar_glb_ranges(void)
@@ -837,7 +866,8 @@ extern "C"
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
     int n = 0;
     { SetVarGlbRanges it(x); while (it()) { ++n; ++it; } }
-    int min[n], max[n];
+    DYNARRAY(int,min,n);
+    DYNARRAY(int,max,n);
     { SetVarGlbRanges it(x); int i=0;
       while (it()) { min[i]=it.min(); max[i]=it.max(); ++it; ++i; } }
     YAP_Term lst = YAP_TermNil();
@@ -859,7 +889,8 @@ extern "C"
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
     int n = 0;
     { SetVarLubRanges it(x); while (it()) { ++n; ++it; } }
-    int min[n], max[n];
+    DYNARRAY(int,min,n);
+    DYNARRAY(int,max,n);
     { SetVarLubRanges it(x); int i=0;
       while (it()) { min[i]=it.min(); max[i]=it.max(); ++it; ++i; } }
     YAP_Term lst = YAP_TermNil();
@@ -881,7 +912,8 @@ extern "C"
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
     int n = 0;
     { SetVarUnknownRanges it(x); while (it()) { ++n; ++it; } }
-    int min[n], max[n];
+    DYNARRAY(int,min,n);
+    DYNARRAY(int,max,n);
     { SetVarUnknownRanges it(x); int i=0;
       while (it()) { min[i]=it.min(); max[i]=it.max(); ++it; ++i; } }
     YAP_Term lst = YAP_TermNil();
@@ -901,7 +933,7 @@ extern "C"
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
-    YAP_Term elems[x.glbSize()];
+    DYNARRAY(YAP_Term,elems,x.glbSize());
     SetVarGlbValues it(x);
     int n = 0;
     while (it()) { elems[n] = YAP_MkIntTerm(it.val()); ++it; ++n; }
@@ -915,7 +947,7 @@ extern "C"
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
-    YAP_Term elems[x.glbSize()];
+    DYNARRAY(YAP_Term,elems,x.glbSize());
     SetVarLubValues it(x);
     int n = 0;
     while (it()) { elems[n] = YAP_MkIntTerm(it.val()); ++it; ++n; }
@@ -929,7 +961,7 @@ extern "C"
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
-    YAP_Term elems[x.glbSize()];
+    DYNARRAY(YAP_Term,elems,x.glbSize());
     SetVarUnknownValues it(x);
     int n = 0;
     while (it()) { elems[n] = YAP_MkIntTerm(it.val()); ++it; ++n; }

@@ -23,8 +23,7 @@ SHAREDIR=$(ROOTDIR)/share
 #
 #
 CXX=@CXX@
-CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include $(CPPFLAGS)
-CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include $(CPPFLAGS)
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I. -I$(srcdir) -I../.. -I$(srcdir)/../../include
 #
 #
 # You shouldn't need to change what follows.
