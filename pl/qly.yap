@@ -18,7 +18,7 @@
 
 save_module(Mod) :-
 	atom_concat(Mod,'.qly',F),
-	open(F,write,S),
+	open(F, write, S, [type(binary)]),
 	'$save_module_preds'(S, Mod),
 	close(S).
 
