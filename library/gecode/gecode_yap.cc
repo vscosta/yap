@@ -24,6 +24,45 @@ using namespace Gecode;
 
 extern "C"
 {
+#include "config.h"
+}
+
+namespace generic_gecode
+{
+#ifndef HAVE_DYNARRAY
+#error hello
+  template <typename T> struct DynArray
+  {
+    T* _array;
+    DynArray(int n): _array(new T[n]) {}
+    ~DynArray() { delete[] _array; }
+    T& operator[](int i) { return _array[i]; }
+  };
+#define DYNARRAY(T,A,N) DynArray<T> A(N)
+#else
+#define DYNARRAY(T,A,N) T A[N]
+#endif
+
+#ifndef HAVE_DYNARRAY
+  struct SpecArray
+  {
+    int (*_array)[2];
+    SpecArray(int n): _array((int (*)[2]) new int[n*2]) {}
+    ~SpecArray() { delete[] _array; }
+    int& operator()(int i,int j) { return _array[i][j]; }
+  };
+#define SPECARRAY(A,N) SpecArray A(N)
+#define SPECARRAYELEM(A,I,J) A(I,J)
+#define SPECARRAYDEREF(A) A._array
+#else
+#define SPECARRAY(A,N) int A[N][2]
+#define SPECARRAYELEM(A,I,J) A[I][J]
+#define SPECARRAYDEREF(A) A
+#endif
+}
+
+extern "C"
+{
 #include "SWI-Stream.h"
 #include "YapInterface.h"
 
@@ -261,22 +300,6 @@ extern "C"
     return n;
   }
 
-#ifndef HAVE_DYNARRAY
-  struct SpecArray
-  {
-    int* _array;
-    SpecArray(int n): _array(new int[n][2]) {}
-    ~SpecArray() { delete[] _array; }
-    typedef int (*_specarray)[][2];
-    T& operator()(int i,int j) { return ((_specarray)_array)[i][j]; }
-  };
-#define SPECARRAY(A,N) SpecArray A(N)
-#define SPECARRAYELEM(A,I,J) A(I,J)
-#else
-#define SPECARRAY(A,N) int A[N][2]
-#define SPECARRAYELEM(A,I,J) A[I][J]
-#endif
-
   static IntSet
   gecode_IntSet_from_term(YAP_Term specs)
   {
@@ -291,7 +314,7 @@ extern "C"
 	SPECARRAYELEM(r,i,1) = YAP_IntOfTerm(YAP_ArgOfTerm(2, head));
 	i += 1;
       }
-    return IntSet(r, n);
+    return IntSet(SPECARRAYDEREF(r), n);
   }
 
   static int gecode_new_intvar_from_intset(void)
@@ -843,19 +866,6 @@ extern "C"
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
     return YAP_Unify(result, YAP_MkIntTerm(x.glbMax()));
   }
-
-#ifndef HAVE_DYNARRAY
-  template <typename T> struct DynArray
-  {
-    T* _array;
-    DynArray(int n): _array(new T[n]) {}
-    ~DynArray() { delete[] _array; }
-    T& operator[](int i) { return _array[i]; }
-  };
-#define DYNARRAY(T,A,N) DynArray<T> A(N)
-#else
-#define DYNARRAY(T,A,N) T A[N]
-#endif
 
   static YAP_Functor gecode_COMMA2;
 
