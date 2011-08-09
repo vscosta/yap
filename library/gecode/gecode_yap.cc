@@ -30,7 +30,6 @@ extern "C"
 namespace generic_gecode
 {
 #ifndef HAVE_DYNARRAY
-#error hello
   template <typename T> struct DynArray
   {
     T* _array;
@@ -715,6 +714,48 @@ extern "C"
     return YAP_Unify(result, YAP_MkIntTerm(x.regret_max()));
   }
 
+  static YAP_Functor gecode_COMMA2;
+
+  static int gecode_intvar_ranges(void)
+  {
+    YAP_Term result = YAP_ARG1;
+    GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
+    IntVar x = gecode_IntVar_from_term(space, YAP_ARG3);
+    int n = 0;
+    { IntVarRanges it(x); while (it()) { ++n; ++it; } }
+    DYNARRAY(int,min,n);
+    DYNARRAY(int,max,n);
+    { IntVarRanges it(x); int i=0;
+      while (it()) { min[i]=it.min(); max[i]=it.max(); ++it; ++i; } }
+    YAP_Term lst = YAP_TermNil();
+    for (;n--;)
+      {
+	YAP_Term args[2];
+	args[0] = YAP_MkIntTerm(min[n]);
+	args[1] = YAP_MkIntTerm(max[n]);
+	YAP_Term range = YAP_MkApplTerm(gecode_COMMA2,2,args);
+	lst = YAP_MkPairTerm(range,lst);
+      }
+    return YAP_Unify(result,lst);
+  }
+
+  static int gecode_intvar_values(void)
+  {
+    YAP_Term result = YAP_ARG1;
+    GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
+    IntVar x = gecode_IntVar_from_term(space, YAP_ARG3);
+    int n = x.size();
+    DYNARRAY(int,a,n);
+    { IntVarValues it(x); int i=0;
+      while (it()) { a[i]=it.val(); ++it; ++i; } }
+    YAP_Term lst = YAP_TermNil();
+    for (;n--;)
+      {
+	lst = YAP_MkPairTerm(YAP_MkIntTerm(a[n]),lst);
+      }
+    return YAP_Unify(result,lst);
+  }
+
   // INFO ON BOOLVARS
   static int gecode_boolvar_assigned(void)
   {
@@ -866,8 +907,6 @@ extern "C"
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
     return YAP_Unify(result, YAP_MkIntTerm(x.glbMax()));
   }
-
-  static YAP_Functor gecode_COMMA2;
 
   static int gecode_setvar_glb_ranges(void)
   {
@@ -1056,6 +1095,8 @@ extern "C"
     YAP_UserCPredicate("gecode_intvar_width", gecode_intvar_width, 3);
     YAP_UserCPredicate("gecode_intvar_regret_min", gecode_intvar_regret_min, 3);
     YAP_UserCPredicate("gecode_intvar_regret_max", gecode_intvar_regret_max, 3);
+    YAP_UserCPredicate("gecode_intvar_ranges", gecode_intvar_ranges, 3);
+    YAP_UserCPredicate("gecode_intvar_values", gecode_intvar_values, 3);
     // INFO ON BOOLVARS
     YAP_UserCPredicate("gecode_boolvar_assigned", gecode_boolvar_assigned, 2);
     YAP_UserCPredicate("gecode_boolvar_min", gecode_boolvar_min, 3);

@@ -522,6 +522,18 @@ get_unknown_values(X, Space, Var) :-
 	-> gecode_setvar_unknown_values(X,Space_,Var_)
 	; get_for_vars(X,Space,Var,gecode:get_unknown_values).
 
+get_ranges(X, Space, Var) :-
+	assert_is_Space(Space,Space_),
+	is_IntVar(Var,Var_)
+	-> gecode_intvar_ranges(X,Space_,Var_)
+	; get_for_vars(X,Space,Var,gecode:get_ranges).
+
+get_values(X, Space, Var) :-
+	assert_is_Space(Space,Space_),
+	is_IntVar(Var,Var_)
+	-> gecode_intvar_values(X,Space_,Var_)
+	; get_for_vars(X,Space,Var,gecode:get_values).
+
 new_disjunctor(X, Space) :-
 	assert_is_Space(Space,Space_),
 	gecode_new_disjunctor(D,Space_),
@@ -612,6 +624,8 @@ new_setvars_(L,Space,N,X1,X2) :- length(L,N), new_setvars(L,Space,X1,X2).
 (X := width(Space,Var)) :- !, get_width(X,Space,Var).
 (X := regret_min(Space,Var)) :- !, get_regret_min(X,Space,Var).
 (X := regret_max(Space,Var)) :- !, get_regret_max(X,Space,Var).
+(X := ranges(Space,Var)) :- !, get_ranges(X,Space,Var).
+(X := values(Space,Var)) :- !, get_values(X,Space,Var).
 
 (X := glbSize(Space,Var)) :- !, get_glbSize(X,Space,Var).
 (X := lubSize(Space,Var)) :- !, get_lubSize(X,Space,Var).
