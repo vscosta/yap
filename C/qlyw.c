@@ -25,6 +25,8 @@
 #include <Yatom.h>
 #include <clause.h>
 
+#if DEBUG
+
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
 typedef enum {
@@ -43,22 +45,9 @@ static size_t save_bytes(IOSTREAM *stream, void *ptr, size_t sz)
   return Sfwrite(ptr, sz, 1, stream);
 }
 
-static size_t save_term(IOSTREAM *stream, Term t)
+static size_t restore_bytes(IOSTREAM *stream, void *ptr, size_t sz)
 {
-  size_t len = Yap_ExportTerm(t, (char *)H, sizeof(CELL)*(ASP-H));
-  if (len <= 0) return 0;
-  return save_bytes(stream, (char *)H, len);
-}
-
-static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
-{
-  return save_bytes(stream, &tag, sizeof(qlf_tag_t));
-}
-
-static size_t save_pointer(IOSTREAM *stream, void *ptr)
-{
-  void *p = ptr;
-  return save_bytes(stream, &p, sizeof(void *));
+  return Sfread(ptr, sz, 1, stream);
 }
 
 static size_t save_uint(IOSTREAM *stream, UInt val)
@@ -67,10 +56,67 @@ static size_t save_uint(IOSTREAM *stream, UInt val)
   return save_bytes(stream, &v, sizeof(UInt));
 }
 
+static UInt restore_uint(IOSTREAM *stream, context ctx)
+{
+  UInt v;
+
+  restore_bytes(stream, &v, sizeof(UInt));
+  return v; 
+}
+
 static size_t save_int(IOSTREAM *stream, Int val)
 {
   Int v = val;
   return save_bytes(stream, &v, sizeof(Int));
+}
+
+static Int restore_int(IOSTREAM *stream, context ctx)
+{
+  UInt v;
+
+  restore_bytes(stream, &v, sizeof(Int));
+  return v; 
+}
+
+static size_t save_term(IOSTREAM *stream, Term t)
+{
+  CELL *oldH = H;
+  H += 4096;
+  size_t len = Yap_ExportTerm(t, (char *)oldH, sizeof(CELL)*4096);
+  H = oldH;
+  if (len <= 0) return 0;
+  CHECK(save_uint(stream, len) );
+  return save_bytes(stream, (char *)H, len);
+}
+
+static Term
+restore_term(IOSTREAM *stream, context *ql)
+{
+  Term t;
+  CELL *horig = H;
+  CELL *start, *oldASP = ASP;
+  UInt len = read_uint(stream, ql);
+  start = ASP = H-(len/sizeof(CELL)+1);
+  restore_bytes(stream, start, len);
+  t = Yap_ImportTerm((char *)start);
+  return t;
+}
+
+static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
+{
+  return save_bytes(stream, &tag, sizeof(qlf_tag_t));
+}
+
+static qlf_tag_t
+restore_tag(IOSTREAM *stream, context *ql)
+{
+  return save_bytes(stream, &tag, sizeof(qlf_tag_t));
+}
+
+static size_t save_pointer(IOSTREAM *stream, void *ptr)
+{
+  void *p = ptr;
+  return save_bytes(stream, &p, sizeof(void *));
 }
 
 static size_t save_atom(IOSTREAM *stream, Atom at)
@@ -166,8 +212,9 @@ static size_t save_BlobTermInCode(IOSTREAM *stream, Term t)
   return save_pointer(stream, (void *)RepAppl(t));
 }
 
-static size_t save_Opcode(IOSTREAM *stream, OPCODE op)
+static size_t save_Opcode(IOSTREAM *stream, op_numbers op)
 {
+  fprintf(stderr,"%d\n",op);
   return save_int(stream, Yap_op_from_opcode(op));
 }
 
@@ -237,8 +284,12 @@ save_code(IOSTREAM *stream, yamop *pc, yamop *max) {
 
 static size_t
 save_lu_clause(IOSTREAM *stream, LogUpdClause *cl) {
+  CHECK(save_uint(stream, cl->ClSize));
+  CHECK(save_uint(stream, cl->ClFlags));
   CHECK(save_tag(stream, QLF_START_CLAUSE));
-  CHECK(save_term(stream, cl->ClSource->Entry));
+  if (!(cl->ClFlags & FactMask)) {
+    CHECK(save_term(stream, cl->ClSource->Entry));
+  }
   return save_code(stream, cl->ClCode, (yamop *)cl->ClSource);
 }
 
@@ -249,10 +300,12 @@ save_dynamic_clause(IOSTREAM *stream, DynamicClause *cl) {
 }
 
 static size_t
-save_static_clause(IOSTREAM *stream, StaticClause *cl) {
+save_static_clause(IOSTREAM *stream, StaticClause *cl, PredEntry *ap) {
+  CHECK(save_uint(stream, cl->ClSize));
+  CHECK(save_uint(stream, cl->ClFlags));
   CHECK(save_tag(stream, QLF_START_CLAUSE));
-  if (!(cl->ClFlags & FactMask)) {
-    //    Yap_DebugPlWrite(cl->usc.ClSource->Entry);fprintf(stderr,"\n");
+  if (!(cl->ClFlags & FactMask) &&
+      (ap->PredFlags & SourcePredFlag)) {
     CHECK(save_term(stream, cl->usc.ClSource->Entry));
     return save_code(stream, cl->ClCode, (yamop *)(cl->usc.ClSource));
   } else {
@@ -307,7 +360,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     StaticClause *cl = ClauseCodeToStaticClause(FirstC);
 
     do {
-      CHECK(save_static_clause(stream, cl));
+      CHECK(save_static_clause(stream, cl, pp));
       if (cl->ClCode == LastC) return 1;
       cl = cl->ClNext;
     } while (TRUE);
@@ -317,6 +370,7 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
+  return walk_clauses(stream, ap);
   CHECK(save_Func(stream, ap->FunctorOfPred));
   CHECK(save_uint(stream, ap->ArityOfPE));
   CHECK(save_uint(stream, ap->PredFlags));
@@ -354,8 +408,12 @@ p_save_module_preds( USES_REGS1 )
   return save_module(stream, tmod) != 0;
 }
 
+#endif
+
 void Yap_InitQLY(void)
 {
+#if DEBUG
   Yap_InitCPred("$save_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+#endif
 }
 

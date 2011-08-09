@@ -223,7 +223,7 @@ AC_ARG_WITH(cudd,
 	[yap_cv_cudd=no])
 
 AC_ARG_ENABLE(myddas,
-v	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
+	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then
 		yap_cv_myddas=/usr
 	elif test "$enableval" = no; then
@@ -500,11 +500,11 @@ if test "$GCC" = "yes"
 then
      if test "$debugyap" = "yes" 
      then
-       CXXFLAGS="-O -g -Wall $CFLAGS"
+       CXXFLAGS="-O -g -Wall $CXXFLAGS"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
      else
-       CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CFLAGS"
+       CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CXXFLAGS"
        C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
@@ -520,7 +520,7 @@ then
 	  case "$target_os" in
            *solaris[2-9]*)	dnl 
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
-             CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFPPLAGS"
+             CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CXXFLAGS"
             ;;
           esac
         ;;
@@ -569,7 +569,7 @@ else
           CFLAGS="-A -A $CFLAGS"
         elif test "$CC" = "cl"
         then
-          CXXFLAGS="-/nologo $CFLAGS"
+          CXXFLAGS="-/nologo $CXXFLAGS"
           CFLAGS="/nologo $CFLAGS"
           CPP="/nologo /E"
         fi
@@ -579,10 +579,10 @@ else
          then
            if test "$debugyap" = "yes"
            then
-             CXXFLAGS="-Ae -g -O $CFLAGS"
+             CXXFLAGS="-Ae -g -O $CXXFLAGS"
              CFLAGS="-Ae -g -O $CFLAGS"
            else
-             CXXFLAGS="-Ae +O3 +Onolimit  $CFLAGS"
+             CXXFLAGS="-Ae +O3 +Onolimit  $CXXFLAGS"
              CFLAGS="-Ae +O3 +Onolimit $CFLAGS"
            fi
         fi
