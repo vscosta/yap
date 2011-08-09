@@ -25,6 +25,8 @@
 #include <Yatom.h>
 #include <clause.h>
 
+#if DEBUG
+
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
 typedef enum {
@@ -406,8 +408,12 @@ p_save_module_preds( USES_REGS1 )
   return save_module(stream, tmod) != 0;
 }
 
+#endif
+
 void Yap_InitQLY(void)
 {
+#if DEBUG
   Yap_InitCPred("$save_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+#endif
 }
 
