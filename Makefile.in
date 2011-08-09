@@ -677,6 +677,7 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup.yss
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE))
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
@@ -749,6 +750,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) install)
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
 	@ENABLE_PLDOC@ @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) install)
@@ -856,6 +858,7 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)
