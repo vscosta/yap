@@ -648,8 +648,9 @@ def gecode_version():
     import os
     cxx = new_compiler()
     customize_compiler(cxx)
-    file_hh = "_gecode_version.hh"
-    file_txt = "_gecode_version.txt"
+    pid = os.getpid()
+    file_hh = "_gecode_version_%d.hh" % pid
+    file_txt = "_gecode_version_%d.txt" % pid
     f = file(file_hh,"w")
     f.write("""#include "gecode/support/config.hpp"
 @@GECODE_VERSION""")
