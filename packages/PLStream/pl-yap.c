@@ -1165,6 +1165,20 @@ Yap_dowrite(Term t, IOSTREAM *stream, int flags, int priority)
   return res;
 }
 
+int
+isWideAtom(atom_t atom)
+{
+  Atom a = (Atom)atomValue(atom);
+  return IsWideAtom(a);
+}
+
+wchar_t *
+nameOfWideAtom(atom_t atom)
+{
+  Atom a = (Atom)atomValue(atom);
+  return RepAtom(a)->WStrOfAE;
+}
+
 
 #if THREADS
 
@@ -1214,7 +1228,6 @@ error:
   PL_UNLOCK(L_THREAD);
   return rc;
 }
-
 
 int
 recursiveMutexInit(recursiveMutex *m)

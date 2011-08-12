@@ -276,7 +276,6 @@ PutToken(const char *s, IOSTREAM *stream)
   return TRUE;
 }
 
-
 static int
 PutTokenN(const char *s, size_t len, IOSTREAM *stream)
 { if ( len > 0 )
@@ -290,6 +289,63 @@ PutTokenN(const char *s, size_t len, IOSTREAM *stream)
 
   return TRUE;
 }
+
+#if __YAP_PROLOG__
+static bool
+PutWideStringN(const wchar_t *str, size_t length, IOSTREAM *s)
+{ size_t i;
+  const wchar_t *q = (const wchar_t *)str;
+
+  for(i=0; i<length; i++, q++)
+  { if ( Sputcode(*q, s) == EOF )
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+static bool
+PutWideString(const wchar_t *str, IOSTREAM *s)
+{ const wchar_t *q = (const wchar_t *)str;
+
+  for( ; *q != EOS; q++ )
+  { if ( Sputcode(*q, s) == EOF )
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+
+static int
+PutWideToken(const wchar_t *s, IOSTREAM *stream)
+{ if ( s[0] )
+  { int rc;
+
+    TRY(rc=PutOpenToken(s[0]&0xff, stream));
+    TRY(PutWideString(s, stream));
+
+    return rc;
+  }
+
+  return TRUE;
+}
+
+static int
+PutWideTokenN(const wchar_t *s, size_t len, IOSTREAM *stream)
+{ if ( len > 0 )
+  { int rc;
+
+    TRY(rc=PutOpenToken(s[0]&0xff, stream));
+    TRY(PutWideStringN(s, len, stream));
+
+    return rc;
+  }
+
+  return TRUE;
+}
+
+#endif
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -518,6 +574,11 @@ writeAtom(atom_t a, write_options *options)
       case AT_SYMBOL:
       case AT_SOLO:
       case AT_SPECIAL:
+#if __YAP_PROLOG__
+	if (isWideAtom(atom)) {
+	  return PutWideToken(nameOfWideAtom(atom), options->out);
+	}
+#endif
 	return PutToken(nameOfAtom(atom), options->out);
       case AT_QUOTE:
       case AT_FULLSTOP:
@@ -532,8 +593,14 @@ writeAtom(atom_t a, write_options *options)
 	return rc;
       }
     }
-  } else
+  } else {
+#if __YAP_PROLOG__
+    if (isWideAtom(atom)) {
+      return PutWideTokenN(nameOfWideAtom(atom), atomLength(atom), options->out);
+    }
+#endif
     return PutTokenN(nameOfAtom(atom), atomLength(atom), options->out);
+  }
 }
 
 

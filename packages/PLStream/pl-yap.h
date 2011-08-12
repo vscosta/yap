@@ -148,6 +148,9 @@ extern term_t Yap_CvtTerm(term_t ts);
 
 #define clearNumber(n)
 
+wchar_t *nameOfWideAtom(atom_t atom);
+int isWideAtom(atom_t atom);
+
 inline static int
 charCode(Term w)
 { if ( IsAtomTerm(w) )
