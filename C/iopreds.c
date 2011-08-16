@@ -754,8 +754,10 @@ p_read2 ( USES_REGS1 )
   Int out;
 
   if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG8) PASS_REGS), &inp_stream)) {
+    Yap_RecoverSlots(1 PASS_REGS);
     return(FALSE);
   }
+  Yap_RecoverSlots(1 PASS_REGS);
   out = do_read(inp_stream, 8 PASS_REGS);
   return out;
 }
@@ -1094,8 +1096,10 @@ p_encoding ( USES_REGS1 )
   IOSTREAM *st;
   Term t = Deref(ARG2);
   if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &st)) {
+    Yap_RecoverSlots(1 PASS_REGS);
     return FALSE;
   }
+  Yap_RecoverSlots(1 PASS_REGS);
   if (IsVarTerm(t)) {
     return Yap_unify(ARG2, MkIntegerTerm(st->encoding));
   }
