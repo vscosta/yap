@@ -288,6 +288,12 @@ yap_flag(informational_messages,off) :- !,
 yap_flag(informational_messages,X) :-
 	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
 
+yap_flag(timezone,X) :-
+	var(X), !,
+	'$swi_current_prolog_flag'(timezone, X).
+yap_flag(timezone,X) :-
+	'$swi_set_prolog_flag'(timezone, X).
+
 yap_flag(verbose,X) :- var(X), !,
 	 get_value('$verbose',X0),
 	 (X0 == on -> X = normal ; X = silent).
@@ -885,6 +891,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(strict_iso).
 '$yap_system_flag'(syntax_errors).
 '$yap_system_flag'(system_options).
+'$yap_system_flag'(timezone).
 '$yap_system_flag'(to_chars_mode).
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).
