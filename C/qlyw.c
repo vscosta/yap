@@ -16,26 +16,253 @@
 *									 *
 *************************************************************************/
 
-#include "config.h"
+#if DEBUG
+
+#include "absmi.h"
+#include "Foreign.h"
+#include "alloc.h"
+#include "yapio.h"
+#include "iopreds.h"
+#include "attvar.h"
 #if HAVE_STRING_H
 #include <string.h>
 #endif
 #include <SWI-Stream.h>
-#include <Yap.h>
-#include <Yatom.h>
-#include <clause.h>
 
-#if DEBUG
+STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
+STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
+
+#define EXPORT_ATOM_TABLE_SIZE (16*4096)
+#define EXPORT_FUNCTOR_TABLE_SIZE (16*4096)
+
+typedef struct export_atom_hash_entry_struct {
+  Atom val;
+  struct  export_atom_hash_entry_struct *next;
+} export_atom_hash_entry_t;
+
+static void
+LookupAtom(Atom at)
+{
+  char *p = RepAtom(at)->StrOfAE;
+  CELL hash = HashFunction((unsigned char *)p) % LOCAL_ExportAtomHashTableSize;
+  export_atom_hash_entry_t *a;
+
+  a = LOCAL_ExportAtomHashChain[hash];
+  while (a) {
+    if (a->val == at) {
+      return;
+    }
+    a = a->next;
+  }
+  a = (export_atom_hash_entry_t *)malloc(sizeof(export_atom_hash_entry_t));
+  if (!a) {
+    return;
+  }
+  a->val = at;
+  fprintf(stderr,"+%s\n",RepAtom(at)->StrOfAE);
+  a->next = LOCAL_ExportAtomHashChain[hash];
+  LOCAL_ExportAtomHashChain[hash] = a;
+  LOCAL_ExportAtomHashTableNum++;
+}
+
+typedef struct export_functor_hash_entry_struct {
+  Atom name;
+  UInt arity;
+  struct  export_functor_hash_entry_struct *next;
+} export_functor_hash_entry_t;
+
+static void
+LookupFunctor(Functor fun)
+{
+  CELL hash = (CELL)(fun) % LOCAL_ExportFunctorHashTableSize;
+  export_functor_hash_entry_t *f;
+  Atom name = NameOfFunctor(fun);
+  UInt arity  = ArityOfFunctor(fun);
+
+  f = LOCAL_ExportFunctorHashChain[hash];
+  while (f) {
+    if (f->name == name && f->arity == arity) {
+      return;
+    }
+    f = f->next;
+  }
+  f = (export_functor_hash_entry_t *)malloc(sizeof(export_functor_hash_entry_t));
+  if (!f) {
+    return;
+  }
+  LookupAtom(name);
+  f->name = name;
+  f->arity = arity;
+  f->next = LOCAL_ExportFunctorHashChain[hash];
+  LOCAL_ExportFunctorHashChain[hash] = f;
+  LOCAL_ExportFunctorHashTableNum++;
+}
+
+static void
+InitHash(void)
+{
+  LOCAL_ExportFunctorHashTableSize = EXPORT_FUNCTOR_TABLE_SIZE;
+  LOCAL_ExportFunctorHashChain = (export_functor_hash_entry_t **)calloc(1, sizeof(export_functor_hash_entry_t *)* LOCAL_ExportFunctorHashTableSize);
+  LOCAL_ExportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
+  LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t **)calloc(1, sizeof(export_atom_hash_entry_t *)* LOCAL_ExportAtomHashTableSize);
+}
+
+static inline Atom
+AtomAdjust(Atom a)
+{
+  LookupAtom(a);
+  return a;
+}
+
+static inline Functor
+FuncAdjust(Functor f)
+{
+  LookupFunctor(f);
+  return f;
+}
+
+
+static inline Term
+AtomTermAdjust(Term t)
+{
+  LookupAtom(AtomOfTerm(t));
+  return t;  
+}
+
+static inline Term
+TermToGlobalOrAtomAdjust(Term t)
+{
+  if (t && IsAtomTerm(t))
+    return AtomTermAdjust(t);
+  return t;
+}
+
+
+#define IsOldCode(P) FALSE
+#define IsOldCodeCellPtr(P) FALSE
+#define IsOldDelay(P) FALSE
+#define IsOldDelayPtr(P) FALSE
+#define IsOldLocalInTR(P) FALSE
+#define IsOldLocalInTRPtr(P) FALSE
+#define IsOldGlobal(P) FALSE
+#define IsOldGlobalPtr(P) FALSE
+#define IsOldTrail(P) FALSE
+#define IsOldTrailPtr(P) FALSE
+
+#define CharP(X) ((char *)(X))
+
+#define REINIT_LOCK(P) 
+#define REINIT_RWLOCK(P) 
+#define BlobTypeAdjust(P) (P)
+#define NoAGCAtomAdjust(P) (P)
+#define OrArgAdjust(P) 
+#define TabEntryAdjust(P) 
+#define IntegerAdjust(D)  (D)
+#define AddrAdjust(P) (P)
+#define MFileAdjust(P) (P)
+#define CodeVarAdjust(P) (P)
+#define ConstantAdjust(P) (P)
+#define ArityAdjust(P) (P)
+#define DoubleInCodeAdjust(P) 
+#define IntegerInCodeAdjust(P) 
+#define OpcodeAdjust(P) (P)
+#define ModuleAdjust(P) (P)
+#define ExternalFunctionAdjust(P) (P)
+#define DBRecordAdjust(P) (P)
+#define PredEntryAdjust(P) (P)
+#define ModEntryPtrAdjust(P) (P)
+#define AtomEntryAdjust(P) (P)
+#define GlobalEntryAdjust(P) (P)
+#define BlobTermInCodeAdjust(P) (P)
+#define CellPtoHeapAdjust(P) (P)
+#define PtoAtomHashEntryAdjust(P) (P)
+#define CellPtoHeapCellAdjust(P) (P)
+#define CellPtoTRAdjust(P) (P)
+#define CodeAddrAdjust(P) (P)
+#define ConsultObjAdjust(P) (P)
+#define DelayAddrAdjust(P) (P)
+#define DelayAdjust(P) (P)
+#define GlobalAdjust(P) (P)
+#define DBRefAdjust(P) (P)
+#define DBRefPAdjust(P) (P)
+#define DBTermAdjust(P) (P)
+#define LUIndexAdjust(P) (P)
+#define SIndexAdjust(P) (P)
+#define LocalAddrAdjust(P) (P)
+#define GlobalAddrAdjust(P) (P)
+#define OpListAdjust(P) (P)
+#define PtoLUCAdjust(P) (P)
+#define PtoStCAdjust(P) (P)
+#define PtoArrayEAdjust(P) (P)
+#define PtoArraySAdjust(P) (P)
+#define PtoGlobalEAdjust(P) (P)
+#define PtoDelayAdjust(P) (P)
+#define PtoGloAdjust(P) (P)
+#define PtoLocAdjust(P) (P)
+#define PtoHeapCellAdjust(P) (P)
+#define TermToGlobalAdjust(P) (P)
+#define PtoOpAdjust(P) (P)
+#define PtoLUClauseAdjust(P) (P)
+#define PtoLUIndexAdjust(P) (P)
+#define PtoDBTLAdjust(P) (P)
+#define PtoPredAdjust(P) (P)
+#define PtoPtoPredAdjust(P) (P)
+#define OpRTableAdjust(P) (P)
+#define OpEntryAdjust(P) (P)
+#define PropAdjust(P) (P)
+#define TrailAddrAdjust(P) (P)
+#define XAdjust(P) (P)
+#define YAdjust(P) (P)
+#define HoldEntryAdjust(P) (P)
+#define CodeCharPAdjust(P) (P)
+#define CodeVoidPAdjust(P) (P)
+#define HaltHookAdjust(P) (P)
+
+#define recompute_mask(dbr)
+
+#define rehash(oldcode, NOfE, KindOfEntries)
+
+#define RestoreSWIHash()
+
+#include "rheap.h"
+
+static void
+RestoreHashPreds( USES_REGS1 )
+{
+}
+
+
+static void init_reg_copies(USES_REGS1)
+{
+}
+
+
+static void
+RestoreAtomList(Atom atm USES_REGS)
+{
+}
+
+static void
+mark_trail(USES_REGS1)
+{
+}
+
+static void
+mark_registers(USES_REGS1)
+{
+}
 
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
 typedef enum {
-  QLF_START_CLAUSE,
-  QLF_END_CLAUSES,
-  QLF_CONSTANT_INT,
-  QLF_CONSTANT_ATOM,
-  QLF_ATOM,
-  QLF_WIDE_ATOM
+  QLY_START_PREDICATE,
+  QLY_END_PREDICATE,
+  QLY_START_CLAUSE,
+  QLY_END_CLAUSES,
+  QLY_FUNCTORS,
+  QLY_ATOMS,
+  QLY_ATOM_WIDE,
+  QLY_ATOM
 } qlf_tag_t;
 
 #define CHECK(F) { size_t r = (F); if (!r) return r; }
@@ -45,9 +272,9 @@ static size_t save_bytes(IOSTREAM *stream, void *ptr, size_t sz)
   return Sfwrite(ptr, sz, 1, stream);
 }
 
-static size_t restore_bytes(IOSTREAM *stream, void *ptr, size_t sz)
+static size_t save_byte(IOSTREAM *stream, int byte)
 {
-  return Sfread(ptr, sz, 1, stream);
+  return Sputc(byte, stream);
 }
 
 static size_t save_uint(IOSTREAM *stream, UInt val)
@@ -56,276 +283,48 @@ static size_t save_uint(IOSTREAM *stream, UInt val)
   return save_bytes(stream, &v, sizeof(UInt));
 }
 
-static UInt restore_uint(IOSTREAM *stream, context ctx)
-{
-  UInt v;
-
-  restore_bytes(stream, &v, sizeof(UInt));
-  return v; 
-}
-
-static size_t save_int(IOSTREAM *stream, Int val)
-{
-  Int v = val;
-  return save_bytes(stream, &v, sizeof(Int));
-}
-
-static Int restore_int(IOSTREAM *stream, context ctx)
-{
-  UInt v;
-
-  restore_bytes(stream, &v, sizeof(Int));
-  return v; 
-}
-
-static size_t save_term(IOSTREAM *stream, Term t)
-{
-  CELL *oldH = H;
-  H += 4096;
-  size_t len = Yap_ExportTerm(t, (char *)oldH, sizeof(CELL)*4096);
-  H = oldH;
-  if (len <= 0) return 0;
-  CHECK(save_uint(stream, len) );
-  return save_bytes(stream, (char *)H, len);
-}
-
-static Term
-restore_term(IOSTREAM *stream, context *ql)
-{
-  Term t;
-  CELL *horig = H;
-  CELL *start, *oldASP = ASP;
-  UInt len = read_uint(stream, ql);
-  start = ASP = H-(len/sizeof(CELL)+1);
-  restore_bytes(stream, start, len);
-  t = Yap_ImportTerm((char *)start);
-  return t;
-}
-
 static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
 {
-  return save_bytes(stream, &tag, sizeof(qlf_tag_t));
+  return save_byte(stream, tag);
 }
 
-static qlf_tag_t
-restore_tag(IOSTREAM *stream, context *ql)
+static int
+SaveHash(IOSTREAM *stream)
 {
-  return save_bytes(stream, &tag, sizeof(qlf_tag_t));
-}
-
-static size_t save_pointer(IOSTREAM *stream, void *ptr)
-{
-  void *p = ptr;
-  return save_bytes(stream, &p, sizeof(void *));
-}
-
-static size_t save_atom(IOSTREAM *stream, Atom at)
-{
-  if (IsWideAtom(at)) {
-    size_t sz = wcslen(RepAtom(at)->WStrOfAE);
-    CHECK(save_tag(stream, QLF_WIDE_ATOM));
-    CHECK(save_uint(stream, sz));
-    return save_bytes(stream, RepAtom(at)->WStrOfAE, (sz+1)*sizeof(wchar_t));
-  } else {
-    size_t sz = strlen(RepAtom(at)->StrOfAE);
-    CHECK(save_tag(stream, QLF_ATOM));
-    return save_bytes(stream, RepAtom(at)->StrOfAE, (sz+1)*sizeof(char));
-  }
-}
-
-static size_t save_Arity(IOSTREAM *stream, Int a)
-{
-  return save_uint(stream, a);
-}
-
-static size_t save_CellPtoHeap(IOSTREAM *stream, CELL *ptr)
-{
-  return save_pointer(stream, ptr);
-}
-
-static size_t save_ConstantTerm(IOSTREAM *stream, Term t)
-{
-  if (IsIntTerm(t)) {
-    CHECK(save_tag(stream, QLF_CONSTANT_INT));
-    return save_int(stream, IntOfTerm(t));
-  }
-  CHECK(save_tag(stream, QLF_CONSTANT_ATOM));
-  return save_atom(stream, AtomOfTerm(t));
-}
-
-static size_t save_DoubleInCode(IOSTREAM *stream, CELL *t)
-{
-  return save_bytes(stream, (void *)(t+1), sizeof(double));
-}
-
-static size_t save_Constant(IOSTREAM *stream, COUNT c)
-{
-  return save_bytes(stream, (void *)&c, sizeof(COUNT));
-}
-
-static size_t save_DBGroundTerm(IOSTREAM *stream, Term t)
-{
-  return save_term(stream, t);
-}
-
-static size_t save_Func(IOSTREAM *stream, Functor f)
-{
-  CHECK(save_atom(stream, NameOfFunctor(f)));
-  return save_Arity(stream, ArityOfFunctor(f));
-}
-
-static size_t save_ExternalFunction(IOSTREAM *stream, CPredicate f)
-{
-  Yap_Error(INTERNAL_ERROR, TermNil, "trying to save an ExternalFunction");
-  return 0;
-}
-
-static size_t save_IntegerInCode(IOSTREAM *stream, CELL *t)
-{
-  return save_int(stream, t[1]);
-}
-
-static size_t save_Integer(IOSTREAM *stream, Int i)
-{
-  return save_int(stream, i);
-}
-
-static size_t save_PtoLUIndex(IOSTREAM *stream, struct logic_upd_index *p)
-{
-  Yap_Error(INTERNAL_ERROR, TermNil, "trying to save PtoLUIndex");
-  return 0;
-}
-
-static size_t save_PtoOp(IOSTREAM *stream, yamop *l)
-{
-  return save_pointer(stream, (void *)l);
-}
-
-static size_t save_PtoLUClause(IOSTREAM *stream, struct logic_upd_clause *t)
-{
-  Yap_Error(INTERNAL_ERROR, TermNil, "trying to save PtoLUIndex");
-  return 0;
-}
-
-static size_t save_BlobTermInCode(IOSTREAM *stream, Term t)
-{
-  return save_pointer(stream, (void *)RepAppl(t));
-}
-
-static size_t save_Opcode(IOSTREAM *stream, op_numbers op)
-{
-  fprintf(stderr,"%d\n",op);
-  return save_int(stream, Yap_op_from_opcode(op));
-}
-
-#ifdef YAPOR
-static size_t save_OrArg(IOSTREAM *stream, unsigned int i)
-{
-  return save_uint(stream, i);
-}
-#endif /* YAPOR */
-
-static size_t save_PtoPred(IOSTREAM *stream, struct pred_entry *ap)
-{
-  if (ap->ModuleOfPred) {
-    CHECK(save_atom(stream, AtomOfTerm(ap->ModuleOfPred)));
-  } else {
-    CHECK(save_atom(stream, AtomProlog));
-  }
-  if (ap->ArityOfPE) {
-    CHECK(save_int(stream, ap->ArityOfPE));
-    return save_atom(stream, NameOfFunctor(ap->FunctorOfPred));
-  } else {
-    CHECK(save_int(stream, 0));
-    return save_atom(stream, (Atom)(ap->FunctorOfPred));
-  }
-}
-
-static size_t save_Module(IOSTREAM *stream, Term tmod)
-{
-  if (tmod == 0) {
-    return save_atom(stream, AtomProlog);
-  } else {
-    return save_atom(stream, AtomOfTerm(tmod));
-  }
-}
-
-#ifdef TABLING
-static size_t save_TabEntry(IOSTREAM *stream, struct table_entry *ap)
-{
-  return save_pointer(stream, NULL);
-}
-#endif
-
-#if PRECOMPUTE_REGADDRESS
-#define arg_from_x(I)		(((CELL *)(I))-XREGS)
-#else
-#define arg_from_x(I)		(I)
-#endif /* PRECOMPUTE_REGADDRESS */
-
-static size_t save_X(IOSTREAM *stream, wamreg reg)
-{
-  return save_int(stream, arg_from_x(reg));
-}
-
-static size_t save_Y(IOSTREAM *stream, yslot reg)
-{
-  return save_int(stream, reg);
-}
-
-static size_t
-save_code(IOSTREAM *stream, yamop *pc, yamop *max) {
-#include "saveclause.h"
-  if (max && max > pc) {
-    return save_bytes(stream, pc, (char *)max-(char *)pc);
-  }
-  return 1;
-}
-
-static size_t
-save_lu_clause(IOSTREAM *stream, LogUpdClause *cl) {
-  CHECK(save_uint(stream, cl->ClSize));
-  CHECK(save_uint(stream, cl->ClFlags));
-  CHECK(save_tag(stream, QLF_START_CLAUSE));
-  if (!(cl->ClFlags & FactMask)) {
-    CHECK(save_term(stream, cl->ClSource->Entry));
-  }
-  return save_code(stream, cl->ClCode, (yamop *)cl->ClSource);
-}
-
-static size_t
-save_dynamic_clause(IOSTREAM *stream, DynamicClause *cl) {
-  CHECK(save_tag(stream, QLF_START_CLAUSE));
-  return save_code(stream, cl->ClCode, NULL);
-}
-
-static size_t
-save_static_clause(IOSTREAM *stream, StaticClause *cl, PredEntry *ap) {
-  CHECK(save_uint(stream, cl->ClSize));
-  CHECK(save_uint(stream, cl->ClFlags));
-  CHECK(save_tag(stream, QLF_START_CLAUSE));
-  if (!(cl->ClFlags & FactMask) &&
-      (ap->PredFlags & SourcePredFlag)) {
-    CHECK(save_term(stream, cl->usc.ClSource->Entry));
-    return save_code(stream, cl->ClCode, (yamop *)(cl->usc.ClSource));
-  } else {
-    return save_code(stream, cl->ClCode, NULL);
-  }
-}
-
-static size_t
-save_mega_clause(IOSTREAM *stream, MegaClause *cl) {
   UInt i;
-  yamop *ptr;
-  UInt ncls = cl->ClPred->cs.p_code.NOfClauses;
-
-  for (i = 0, ptr = cl->ClCode; i < ncls; i++) {
-    yamop *nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
-    CHECK(save_tag(stream, QLF_START_CLAUSE));
-    CHECK(save_code(stream, ptr, nextptr));
-    ptr = nextptr;
+  CHECK(save_tag(stream, QLY_ATOMS));
+  CHECK(save_uint(stream, LOCAL_ExportAtomHashTableNum));
+  for (i = 0; i < LOCAL_ExportAtomHashTableSize; i++) {
+    export_atom_hash_entry_t *a = LOCAL_ExportAtomHashChain[i];
+    while (a) {
+      export_atom_hash_entry_t *a0 = a;
+      Atom at = a->val;
+      CHECK(save_uint(stream, (UInt)at));
+      if (IsWideAtom(at)) {
+	CHECK(save_tag(stream, QLY_ATOM_WIDE));
+	CHECK(save_uint(stream, wcslen(RepAtom(at)->WStrOfAE)));
+	CHECK(save_bytes(stream, at->WStrOfAE, wcslen(at->WStrOfAE)*sizeof(wchar_t)));
+      } else {
+	CHECK(save_tag(stream, QLY_ATOM));
+	CHECK(save_uint(stream, strlen(RepAtom(at)->StrOfAE)));
+	CHECK(save_bytes(stream, at->StrOfAE, (strlen(at->StrOfAE)+1)*sizeof(char)));
+      }
+      a = a->next;
+      free(a0);
+    }
   }
-  return 1;
+  save_tag(stream, QLY_FUNCTORS);
+  save_uint(stream, LOCAL_ExportFunctorHashTableNum);
+  for (i = 0; i < LOCAL_ExportFunctorHashTableSize; i++) {
+    export_functor_hash_entry_t *f = LOCAL_ExportFunctorHashChain[i];
+    while (f) {
+      export_functor_hash_entry_t *f0 = f;
+      CHECK(save_uint(stream, f->arity));
+      CHECK(save_uint(stream, (CELL)(f->name)));
+      f = f->next;
+      free(f0);
+    }
+  }
 }
 
 static size_t
@@ -335,24 +334,29 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
   FirstC = pp->cs.p_code.FirstClause;
   LastC = pp->cs.p_code.LastClause;
   if (FirstC == NULL && LastC == NULL) {
-    return save_tag(stream, QLF_END_CLAUSES);
+    return save_tag(stream, QLY_END_CLAUSES);
   }
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(FirstC);
 
     while (cl != NULL) {
-      CHECK(save_lu_clause(stream, cl));
+      UInt size = cl->ClSize;
+      CHECK(save_bytes(stream, cl, size));
       cl = cl->ClNext;
     }
   } else if (pp->PredFlags & MegaClausePredFlag) {
     MegaClause *cl = ClauseCodeToMegaClause(FirstC);
+    UInt size = cl->ClSize;
 
-    CHECK(save_mega_clause(stream, cl));
+    CHECK(save_bytes(stream, cl, size));
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = FirstC;
 
     do {
-      CHECK(save_dynamic_clause(stream, ClauseCodeToDynamicClause(cl)));
+      DynamicClause *dcl = ClauseCodeToDynamicClause(cl);
+      UInt size = dcl->ClSize;
+
+      CHECK(save_bytes(stream, dcl, size));
       if (cl == LastC) return 1;
       cl = NextDynamicClause(cl);
     } while (TRUE);
@@ -360,27 +364,55 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     StaticClause *cl = ClauseCodeToStaticClause(FirstC);
 
     do {
-      CHECK(save_static_clause(stream, cl, pp));
+      UInt size = cl->ClSize;
+
+      CHECK(save_bytes(stream, cl, size));
       if (cl->ClCode == LastC) return 1;
       cl = cl->ClNext;
     } while (TRUE);
   }
-  return save_tag(stream, QLF_END_CLAUSES);
+  return save_tag(stream, QLY_END_CLAUSES);
 }
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
-  return walk_clauses(stream, ap);
-  CHECK(save_Func(stream, ap->FunctorOfPred));
+  CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
   CHECK(save_uint(stream, ap->ArityOfPE));
   CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   return save_clauses(stream, ap);
 }
 
+static int
+clean_pred(PredEntry *pp USES_REGS) {
+  if (pp->PredFlags & (AsmPredFlag|CPredFlag)) {
+    /* assembly */
+    if (pp->CodeOfPred) {
+      CleanClauses(pp->CodeOfPred, pp->CodeOfPred, pp PASS_REGS);
+    }
+  } else {
+    CleanClauses(pp->cs.p_code.FirstClause, pp->cs.p_code.LastClause, pp PASS_REGS);
+  }
+  return TRUE;
+}
+
 static size_t
 save_module(IOSTREAM *stream, Term mod) {
+  CACHE_REGS
   PredEntry *ap = Yap_ModulePred(mod);
+  InitHash();
+  while (ap) {
+    fprintf(stderr,"P %s\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE);
+    if (ap->ArityOfPE) {
+      FuncAdjust(ap->FunctorOfPred);
+    } else {
+      AtomAdjust((Atom)(ap->FunctorOfPred));
+    }
+    CHECK(clean_pred(ap PASS_REGS));
+    ap = ap->NextPredOfModule;
+  }
+  SaveHash(stream);
+  ap = Yap_ModulePred(mod);
   while (ap) {
     CHECK(save_pred(stream, ap));
     ap = ap->NextPredOfModule;

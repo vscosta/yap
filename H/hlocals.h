@@ -182,10 +182,17 @@ typedef struct worker_local {
   Int  total_atom_table_overflow_time_;
 
 #ifdef LOAD_DYLD
-  static  dl_errno_;
+  int  dl_errno_;
 #endif
 
 #ifdef LOW_LEVEL_TRACER
   int  do_trace_primitives_;
 #endif
+
+  struct export_atom_hash_entry_struct  **ExportAtomHashChain_;
+  UInt  ExportAtomHashTableSize_;
+  UInt  ExportAtomHashTableNum_;
+  struct export_functor_hash_entry_struct  **ExportFunctorHashChain_;
+  UInt  ExportFunctorHashTableSize_;
+  UInt  ExportFunctorHashTableNum_;
 } w_local;

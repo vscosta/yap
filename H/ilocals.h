@@ -188,4 +188,11 @@ static void InitWorker(int wid) {
 #ifdef LOW_LEVEL_TRACER
   REMOTE_do_trace_primitives(wid) = TRUE;
 #endif
+
+  REMOTE_ExportAtomHashChain(wid) = NULL;
+  REMOTE_ExportAtomHashTableSize(wid) = 0;
+  REMOTE_ExportAtomHashTableNum(wid) = 0;
+  REMOTE_ExportFunctorHashChain(wid) = NULL;
+  REMOTE_ExportFunctorHashTableSize(wid) = 0;
+  REMOTE_ExportFunctorHashTableNum(wid) = 0;
 }
