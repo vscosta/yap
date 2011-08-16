@@ -1133,7 +1133,7 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
-  Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),
+  Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag|UserCPredFlag),
 #if HAVE_SELECT
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif
