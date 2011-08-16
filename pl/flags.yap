@@ -754,8 +754,7 @@ yap_flag(user_error,Stream) :-
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
 	recorded('$print_options','$debugger'(OUT),_), !.
-yap_flag(debugger_print_options,Opts) :- !,
-	'$check_io_opts'(Opts, yap_flag(debugger_print_options,Opts)),
+yap_flag(debugger_print_options,Opts) :-
 	recorda('$print_options','$debugger'(Opts),_).
 
 :- recorda('$print_options','$debugger'([quoted(true),numbervars(true),portrayed(true),max_depth(10)]),_).
@@ -763,8 +762,7 @@ yap_flag(debugger_print_options,Opts) :- !,
 yap_flag(toplevel_print_options,OUT) :-
 	var(OUT),
 	recorded('$print_options','$toplevel'(OUT),_), !.
-yap_flag(toplevel_print_options,Opts) :- !,
-	'$check_io_opts'(Opts, yap_flag(toplevel_print_options,Opts)),
+yap_flag(toplevel_print_options,Opts) :-
 	recorda('$print_options','$toplevel'(Opts),_).
 
 :- recorda('$print_options','$toplevel'([quoted(true),numbervars(true),portrayed(true)]),_).
