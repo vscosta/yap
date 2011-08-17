@@ -151,14 +151,13 @@ OpDec(int p, char *type, Atom a, Term m)
   if (EndOfPAEntr(info)) {
     info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
-    info->NextOfPE = RepAtom(a)->PropsOfAE;
     info->OpModule = m;
     info->OpName = a;
     LOCK(OpListLock);
     info->OpNext = OpList;
     OpList = info;
     UNLOCK(OpListLock);
-    RepAtom(a)->PropsOfAE = AbsOpProp(info);
+    AddPropToAtom(ae, (PropEntry *)info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
     WRITE_UNLOCK(ae->ARWLock);

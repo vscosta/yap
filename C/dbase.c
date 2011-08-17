@@ -2896,8 +2896,7 @@ FetchDBPropFromKey(Term twork, int flag, int new, char *error_mssg)
 	p->FunctorOfDB = (Functor) At;
       else
 	p->FunctorOfDB = Yap_UnlockedMkFunctor(ae,arity);
-      p->NextOfPE = ae->PropsOfAE;
-      ae->PropsOfAE = AbsDBProp(p);
+      AddPropToAtom(ae, (PropEntry *)p);
     }
     WRITE_UNLOCK(ae->ARWLock);
     return

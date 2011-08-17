@@ -566,9 +566,8 @@ CreateNamedArray(PropEntry * pp, Int dim, AtomEntry *ae USES_REGS)
 
   p = (ArrayEntry *) Yap_AllocAtomSpace(sizeof(*p));
   p->KindOfPE = ArrayProperty;
-  p->NextOfPE = ae->PropsOfAE;
+  AddPropToAtom(ae, (PropEntry *)p);
   INIT_RWLOCK(p->ArRWLock);
-  ae->PropsOfAE = AbsArrayProp(p);
 #if THREADS
   p->owner_id = worker_id;
 #endif
@@ -629,15 +628,14 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
       }
     }
     p->KindOfPE = ArrayProperty;
-    p->NextOfPE = ae->PropsOfAE;
     INIT_RWLOCK(p->ArRWLock);
+    AddPropToAtom(ae, (PropEntry *)p);
     p->NextAE = LOCAL_StaticArrays;
     LOCAL_StaticArrays = p;
   }
   WRITE_LOCK(p->ArRWLock);
   p->ArrayEArity = -dim;
   p->ArrayType = type;
-  ae->PropsOfAE = AbsArrayProp((ArrayEntry *)p);
   if (start_addr == NULL) {
     int i;
 

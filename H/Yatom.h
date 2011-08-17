@@ -1608,3 +1608,15 @@ PredPropByAtom (Atom at, Term cur_mod)
 
 #endif
 
+static inline void
+AddPropToAtom(AtomEntry *ae, PropEntry *p)
+{
+  if (ae->PropsOfAE != NIL) {
+    PropEntry *pp = RepProp(ae->PropsOfAE);    
+    p->NextOfPE = pp->NextOfPE;
+    pp->NextOfPE = AbsProp( p);
+  } else {
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsProp(p);
+  }
+}

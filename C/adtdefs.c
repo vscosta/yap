@@ -69,9 +69,9 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
   p->NameOfFE = AbsAtom(ae);
   p->ArityOfFE = arity;
   p->PropsOfFE = NIL;
-  p->NextOfPE = ae->PropsOfAE;
   INIT_RWLOCK(p->FRWLock);
-  ae->PropsOfAE = AbsProp((PropEntry *) p);
+  /* respect the first property, in case this is a wide atom */
+  AddPropToAtom(ae, (PropEntry *)p);
   return ((Functor) p);
 }
 
@@ -104,8 +104,7 @@ Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
   p->KindOfPE = FunctorProperty;
   p->NameOfFE = ap;
   p->ArityOfFE = arity;
-  p->NextOfPE = RepAtom(ap)->PropsOfAE;
-  ae->PropsOfAE = AbsProp((PropEntry *) p);
+  AddPropToAtom(ae, (PropEntry *)p);
   WRITE_UNLOCK(ae->ARWLock);
 }
 
@@ -898,7 +897,6 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->beamTable = NULL;
 #endif 
   /* careful that they don't cross MkFunctor */
-  p->NextOfPE = ae->PropsOfAE;
   if (PRED_GOAL_EXPANSION_FUNC) {
     Prop p1 = ae->PropsOfAE;
 
@@ -914,7 +912,8 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
       p1 = pe->NextOfPE;
     }
   }
-  ae->PropsOfAE = p0 = AbsPredProp(p);
+  AddPropToAtom(ae, (PropEntry *)p);
+  p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
 #ifdef LOW_PROF
