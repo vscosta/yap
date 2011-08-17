@@ -1606,17 +1606,22 @@ PredPropByAtom (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
 #endif
 
-#endif
+EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p));
 
-static inline void
+EXTERN inline void
 AddPropToAtom(AtomEntry *ae, PropEntry *p)
 {
-  if (ae->PropsOfAE != NIL) {
+  /* old properties should be always last, and wide atom properties 
+     should always be first */
+  if (ae->PropsOfAE != NIL &&
+      RepProp(ae->PropsOfAE)->KindOfPE != HoldProperty) {
     PropEntry *pp = RepProp(ae->PropsOfAE);    
     p->NextOfPE = pp->NextOfPE;
-    pp->NextOfPE = AbsProp( p);
+    pp->NextOfPE = AbsProp(p);
   } else {
     p->NextOfPE = ae->PropsOfAE;
     ae->PropsOfAE = AbsProp(p);
   }
 }
+#endif
+

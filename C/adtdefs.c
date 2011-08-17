@@ -1032,10 +1032,9 @@ Yap_PutValue(Atom a, Term v)
       WRITE_UNLOCK(ae->ARWLock);
       return;
     }
-    p->NextOfPE = RepAtom(a)->PropsOfAE;
-    RepAtom(a)->PropsOfAE = AbsValProp(p);
     p->KindOfPE = ValProperty;
     p->ValueOfVE = TermNil;
+    AddPropToAtom(RepAtom(a), (PropEntry *)p);
     /* take care that the lock for the property will be inited even
        if someone else searches for the property */
     INIT_RWLOCK(p->VRWLock);
