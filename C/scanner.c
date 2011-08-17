@@ -1260,13 +1260,32 @@ Yap_tokenizer(IOSTREAM *inp_stream, int store_comments, Term *tposp)
 	  while ((ch = getchr(inp_stream)) != 10 && chtype(ch) != EF);
 	t->Tok = Ord(kind = eot_tok);
       } else {
+	Atom ae;
 	TokImage = ((AtomEntry *) ( Yap_PreAllocCodeSpace()))->StrOfAE;
 	charp = TokImage;
-	*charp++ = och;
-	for (; chtype(ch) == SY; ch = getchr(inp_stream))
-	  *charp++ = ch;
-	*charp = '\0';
-	t->TokInfo = Unsigned(Yap_LookupAtom(TokImage));
+	wcharp = NULL;
+	add_ch_to_buff(och);
+	for (; chtype(ch) == SY; ch = getchr(inp_stream)) {
+	  if (charp == (char *)AuxSp-1024) {
+	    goto huge_var_error;
+	  }
+	  add_ch_to_buff(ch);
+	}
+	add_ch_to_buff('\0');
+	if (wcharp) {
+	  ae = Yap_LookupWideAtom((wchar_t *)TokImage);
+	} else {
+	  ae = Yap_LookupAtom(TokImage);
+	}
+	if (ae == NIL) {
+	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
+	  LOCAL_ErrorMessage = "Code Space Overflow";
+	  if (p)
+	    t->Tok = Ord(kind = eot_tok);
+	  /* serious error now */
+	  return l;
+	}
+	t->TokInfo = Unsigned(ae);
 	if (t->TokInfo == (CELL)NIL) {
 	  LOCAL_Error_TYPE = OUT_OF_HEAP_ERROR;	  
 	  LOCAL_ErrorMessage = "Code Space Overflow";
