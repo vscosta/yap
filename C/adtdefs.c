@@ -492,6 +492,7 @@ Yap_GetOpProp(Atom a, op_type type USES_REGS)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
+  OpEntry *oinfo = NULL;
 
   READ_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
@@ -523,9 +524,21 @@ Yap_GetOpProp(Atom a, op_type type USES_REGS)
 	continue;
       }
     }
-    READ_LOCK(info->OpRWLock);
+    /* if it is not the latest module */
+    if (info->OpModule == PROLOG_MODULE) {
+      /* cannot commit now */
+      oinfo = info;
+      pp = RepProp(pp->NextOfPE);
+    } else {
+      READ_LOCK(info->OpRWLock);
+      READ_UNLOCK(ae->ARWLock);
+      return info;
+    }
+  }
+  if (oinfo) {
+    READ_LOCK(oinfo->OpRWLock);
     READ_UNLOCK(ae->ARWLock);
-    return info;
+    return oinfo;
   }
   READ_UNLOCK(ae->ARWLock);
   return NULL;
