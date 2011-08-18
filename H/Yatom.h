@@ -1614,7 +1614,7 @@ AddPropToAtom(AtomEntry *ae, PropEntry *p)
   /* old properties should be always last, and wide atom properties 
      should always be first */
   if (ae->PropsOfAE != NIL &&
-      RepProp(ae->PropsOfAE)->KindOfPE != HoldProperty) {
+      RepProp(ae->PropsOfAE)->KindOfPE == WideAtomProperty) {
     PropEntry *pp = RepProp(ae->PropsOfAE);    
     p->NextOfPE = pp->NextOfPE;
     pp->NextOfPE = AbsProp(p);
