@@ -55,6 +55,41 @@ AC_PROG_AWK
 AC_SUBST(GCC)
 AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
+AC_LANG(C)
+
+dnl Gecode support
+AC_CHECK_HEADER(gecode/support/config.hpp,
+	have_gecode=yes, have_gecode=no)
+use_gecode_default=no
+AC_SUBST(PYTHON)
+if test "$have_gecode" = yes; then
+   AC_CHECK_PROGS(PYTHON, [python2.78 python], [none])
+   if test "$PYTHON" != none; then
+      use_gecode_default=yes
+   fi
+else
+   PYTHON=none
+fi
+AC_ARG_ENABLE(gecode,
+	[ --enable-gecode            install gecode library],
+        [use_gecode="$enableval"
+	 if test "$use_gecode" = yes; then
+	    if test "$have_gecode" = no; then
+	       AC_MSG_ERROR([cannot enable gecode: gecode library not found])
+	    fi
+	    if test "$PYTHON" = none; then
+	       AC_MSG_ERROR([cannot enable gecode: python not found])
+	    fi
+         fi], use_gecode=$use_gecode_default)
+AC_MSG_CHECKING([if dynamic arrays are supported])
+AC_COMPILE_IFELSE([
+  AC_LANG_PROGRAM([[void foo(int n) { int a[n]; a[1]=0; }]],[[foo(3);]])
+  ],[
+  AC_MSG_RESULT([yes])
+  AC_DEFINE([HAVE_DYNARRAY],[1],[Define if dynamic arrays are supported])
+  ],[
+  AC_MSG_RESULT([no])
+  ])
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
@@ -198,7 +233,7 @@ AC_ARG_WITH(cudd,
 	[yap_cv_cudd=no])
 
 AC_ARG_ENABLE(myddas,
-v	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
+	[ --enable-myddas[[=DIR]]      enable the MYDDAS library],
 	if test "$enableval" = yes; then
 		yap_cv_myddas=/usr
 	elif test "$enableval" = no; then
@@ -475,11 +510,11 @@ if test "$GCC" = "yes"
 then
      if test "$debugyap" = "yes" 
      then
-       CXXFLAGS="-O -g -Wall $CFLAGS"
+       CXXFLAGS="-O -g -Wall $CXXFLAGS"
        C_INTERF_FLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O -g -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
      else
-       CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CFLAGS"
+       CXXFLAGS="-O3 -fomit-frame-pointer -Wall $CXXFLAGS"
        C_INTERF_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        C_PARSER_FLAGS="-O3 -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
        CFLAGS="-O3 -fomit-frame-pointer -Wall -Wstrict-prototypes -Wmissing-prototypes $CFLAGS"
@@ -495,7 +530,7 @@ then
 	  case "$target_os" in
            *solaris[2-9]*)	dnl 
              CFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFLAGS"
-             CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CFPPLAGS"
+             CXXFLAGS="-mno-app-regs -DOPTIMISE_ALL_REGS_FOR_SPARC=1 $CXXFLAGS"
             ;;
           esac
         ;;
@@ -544,7 +579,7 @@ else
           CFLAGS="-A -A $CFLAGS"
         elif test "$CC" = "cl"
         then
-          CXXFLAGS="-/nologo $CFLAGS"
+          CXXFLAGS="-/nologo $CXXFLAGS"
           CFLAGS="/nologo $CFLAGS"
           CPP="/nologo /E"
         fi
@@ -554,10 +589,10 @@ else
          then
            if test "$debugyap" = "yes"
            then
-             CXXFLAGS="-Ae -g -O $CFLAGS"
+             CXXFLAGS="-Ae -g -O $CXXFLAGS"
              CFLAGS="-Ae -g -O $CFLAGS"
            else
-             CXXFLAGS="-Ae +O3 +Onolimit  $CFLAGS"
+             CXXFLAGS="-Ae +O3 +Onolimit  $CXXFLAGS"
              CFLAGS="-Ae +O3 +Onolimit $CFLAGS"
            fi
         fi
@@ -746,6 +781,13 @@ else
 fi
 CMFLAGS=-fpic
 CIFLAGS=-I.
+
+if test "$use_gecode" = no; then
+  ENABLE_GECODE="@# "
+else
+  ENABLE_GECODE=""
+fi
+AC_SUBST(ENABLE_GECODE)
 
 if test "$use_chr" = no; then
   ENABLE_CHR="@# "
@@ -2223,6 +2265,10 @@ fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
 AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
+fi
+
+if test "$ENABLE_GECODE" = ""; then
+AC_CONFIG_FILES([library/gecode/Makefile])
 fi
 
 AC_OUTPUT()

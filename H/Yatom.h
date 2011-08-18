@@ -674,7 +674,7 @@ typedef enum
   TabledPredFlag = 0x00000040L,	/* is tabled */
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
-  MyddasPredFlag = 0x00000008L,	/* Myddas Imported pred  */
+  /* MyddasPredFlag = 0x00000008L,	Myddas Imported pred  */
   ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
   SWIEnvPredFlag = 0x00000002L,	/* new SWI interface */
   UDIPredFlag = 0x00000001L	/* User Defined Indexing */
@@ -708,7 +708,7 @@ typedef struct pred_entry
   struct yami *CodeOfPred;
   OPCODE OpcodeOfPred;		/* undefcode, indexcode, spycode, ....  */
   CELL PredFlags;
-  unsigned int ArityOfPE;	/* arity of property                    */
+  UInt ArityOfPE;		/* arity of property                    */
   union
   {
     struct
@@ -1606,5 +1606,22 @@ PredPropByAtom (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
 #endif
 
+EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p));
+
+EXTERN inline void
+AddPropToAtom(AtomEntry *ae, PropEntry *p)
+{
+  /* old properties should be always last, and wide atom properties 
+     should always be first */
+  if (ae->PropsOfAE != NIL &&
+      RepProp(ae->PropsOfAE)->KindOfPE == WideAtomProperty) {
+    PropEntry *pp = RepProp(ae->PropsOfAE);    
+    p->NextOfPE = pp->NextOfPE;
+    pp->NextOfPE = AbsProp(p);
+  } else {
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsProp(p);
+  }
+}
 #endif
 

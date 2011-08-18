@@ -329,3 +329,16 @@
 #define REMOTE_do_trace_primitives(wid) REMOTE(wid)->do_trace_primitives_
 #endif
 
+#define LOCAL_ExportAtomHashChain LOCAL->ExportAtomHashChain_
+#define REMOTE_ExportAtomHashChain(wid) REMOTE(wid)->ExportAtomHashChain_
+#define LOCAL_ExportAtomHashTableSize LOCAL->ExportAtomHashTableSize_
+#define REMOTE_ExportAtomHashTableSize(wid) REMOTE(wid)->ExportAtomHashTableSize_
+#define LOCAL_ExportAtomHashTableNum LOCAL->ExportAtomHashTableNum_
+#define REMOTE_ExportAtomHashTableNum(wid) REMOTE(wid)->ExportAtomHashTableNum_
+#define LOCAL_ExportFunctorHashChain LOCAL->ExportFunctorHashChain_
+#define REMOTE_ExportFunctorHashChain(wid) REMOTE(wid)->ExportFunctorHashChain_
+#define LOCAL_ExportFunctorHashTableSize LOCAL->ExportFunctorHashTableSize_
+#define REMOTE_ExportFunctorHashTableSize(wid) REMOTE(wid)->ExportFunctorHashTableSize_
+#define LOCAL_ExportFunctorHashTableNum LOCAL->ExportFunctorHashTableNum_
+#define REMOTE_ExportFunctorHashTableNum(wid) REMOTE(wid)->ExportFunctorHashTableNum_
+

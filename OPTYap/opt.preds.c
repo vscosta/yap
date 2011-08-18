@@ -393,17 +393,17 @@ static Int p_show_tabled_predicates( USES_REGS1 ) {
   IOSTREAM *out;
   tab_ent_ptr tab_ent;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   tab_ent = GLOBAL_root_tab_ent;
   Sfprintf(out, "Tabled predicates\n");
   if (tab_ent == NULL)
     Sfprintf(out, "  NONE\n");
-  else
-    while(tab_ent) {
-      Sfprintf(out, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
-      tab_ent = TabEnt_next(tab_ent);
-    }
+  else while(tab_ent) {
+    Sfprintf(out, "  %s/%d\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    tab_ent = TabEnt_next(tab_ent);
+  }
+  PL_release_stream(out);
   return (TRUE);
 }
 
@@ -413,7 +413,7 @@ static Int p_show_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   mod = Deref(ARG2);
   t = Deref(ARG3);
@@ -421,9 +421,12 @@ static Int p_show_table( USES_REGS1 ) {
     tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
-  else
+  else {
+    PL_release_stream(out);
     return (FALSE);
+  }
   show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
+  PL_release_stream(out);
   return (TRUE);
 }
 
@@ -432,20 +435,31 @@ static Int p_show_all_tables( USES_REGS1 ) {
   IOSTREAM *out;
   tab_ent_ptr tab_ent;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   tab_ent = GLOBAL_root_tab_ent;
   while(tab_ent) {
     show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
     tab_ent = TabEnt_next(tab_ent);
   }
+  PL_release_stream(out);
   return (TRUE);
 }
 
 
 static Int p_show_all_local_tables( USES_REGS1 ) {
 #ifdef THREADS
+  IOSTREAM *out;
+  tab_ent_ptr tab_ent;
 
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
+    return (FALSE);  
+  tab_ent = GLOBAL_root_tab_ent;
+  while(tab_ent) {
+    show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
+    tab_ent = TabEnt_next(tab_ent);
+  }
+  PL_release_stream(out);
 #else
   p_show_all_tables();
 #endif /* THREADS */
@@ -456,9 +470,10 @@ static Int p_show_all_local_tables( USES_REGS1 ) {
 static Int p_show_global_trie( USES_REGS1 ) {
   IOSTREAM *out;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   show_global_trie(SHOW_MODE_STRUCTURE, out);
+  PL_release_stream(out);
   return (TRUE);
 }
 
@@ -468,7 +483,7 @@ static Int p_show_statistics_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   mod = Deref(ARG2);
   t = Deref(ARG3);
@@ -476,9 +491,12 @@ static Int p_show_statistics_table( USES_REGS1 ) {
     tab_ent = RepPredProp(PredPropByAtom(AtomOfTerm(t), mod))->TableOfPred;
   else if (IsApplTerm(t))
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
-  else
+  else {
+    PL_release_stream(out);
     return (FALSE);
+  }
   show_table(tab_ent, SHOW_MODE_STATISTICS, out);
+  PL_release_stream(out);
   return (TRUE);
 }
 
@@ -487,7 +505,7 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
   IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   aux_bytes = 0;
   Sfprintf(out, "Execution data structures\n");
@@ -518,15 +536,17 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
 #else 
   Sfprintf(out, "Total memory in use (I+II+III):    %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
+  PL_release_stream(out);
   return (TRUE);
 }
 
 static Int p_show_statistics_global_trie( USES_REGS1 ) {
   IOSTREAM *out;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   show_global_trie(SHOW_MODE_STATISTICS, out);
+  PL_release_stream(out);
   return (TRUE);
 }
 #endif /* TABLING */
@@ -592,7 +612,7 @@ static Int p_yapor_workers( USES_REGS1 ) {
   return Yap_unify(MkIntegerTerm(GLOBAL_number_workers),ARG1);
 #else
   return FALSE;
-#endif
+#endif /* YAPOR_THREADS */
 }
 
 
@@ -628,7 +648,7 @@ static Int p_show_statistics_or( USES_REGS1 ) {
   IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   aux_bytes = 0;
   Sfprintf(out, "Execution data structures\n");
@@ -649,6 +669,7 @@ static Int p_show_statistics_or( USES_REGS1 ) {
 #else 
   Sfprintf(out, "Total memory in use (I+II):        %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
+  PL_release_stream(out);
   return (TRUE);
 }
 #endif /* YAPOR */
@@ -664,7 +685,7 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
   IOSTREAM *out;
   long total_bytes = 0, aux_bytes;
 
-  if ((out = YAP_TermToStream(Deref(ARG1))) == NULL)
+  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
     return (FALSE);
   aux_bytes = 0;
   Sfprintf(out, "Execution data structures\n");
@@ -707,6 +728,7 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 #else 
   Sfprintf(out, "Total memory in use (I+II+III+IV): %10ld bytes\n", total_bytes);
 #endif /* USE_PAGES_MALLOC */
+  PL_release_stream(out);
   return (TRUE);
 }
 #endif /* YAPOR && TABLING */

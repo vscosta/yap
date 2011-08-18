@@ -74,7 +74,9 @@ too much.
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 #ifndef __YAP_PROLOG__
 static void setArgvPrologFlag(void);
+#endif
 static void setTZPrologFlag(void);
+#ifndef __YAP_PROLOG__
 static void setVersionPrologFlag(void);
 #endif
 static atom_t lookupAtomFlag(atom_t key);
@@ -1111,7 +1113,9 @@ initPrologFlags(void)
 
 #ifndef __YAP_PROLOG__
   setArgvPrologFlag();
+#endif /* YAP_PROLOG */
   setTZPrologFlag();
+#ifndef __YAP_PROLOG__
   setOSPrologFlags();
   setVersionPrologFlag();
 #endif /* YAP_PROLOG */
@@ -1141,6 +1145,8 @@ setArgvPrologFlag()
   PL_discard_foreign_frame(fid);
 }
 
+#endif
+
 static void
 setTZPrologFlag()
 { tzset();
@@ -1148,6 +1154,7 @@ setTZPrologFlag()
   setPrologFlag("timezone", FT_INTEGER|FF_READONLY, timezone);
 }
 
+#ifndef __YAP_PROLOG__
 
 static void
 setVersionPrologFlag(void)

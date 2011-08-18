@@ -693,7 +693,7 @@ typedef struct yami {
       struct pred_entry  *p;
       Int		  i;
       CELL next;
-    } Osbpi;
+    } Osbpa;
     struct {
 #ifdef YAPOR
       unsigned int        or_arg;

@@ -143,8 +143,8 @@ true :- true.
 */
 
 /* main execution loop							*/
-'$read_vars'(user_input, Goal, Mod, Pos, Bindings, Prompt, ReadComments) :-
-	'$swi_current_prolog_flag'(readline, true),
+'$read_toplevel'(Goal, Bindings) :-
+	'$swi_current_prolog_flag'(readline, true), !,
 	read_history(h, '!h',
                          [trace, end_of_file],
                          Prompt, Goal, Bindings), !,
@@ -153,13 +153,28 @@ true :- true.
 	;
 	 true
 	).
-'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
-	'$read'(true, T, Mod, V, Pos, Err, ReadComments, Stream),
-	(nonvar(Err) ->
-	 print_message(error,Err), fail
-	;
-	 true
-	).
+'$read_toplevel'(Goal, Bindings) :-
+	prompt(_,'?- '),
+	prompt1('|: '),
+	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
+	      (print_message(error, E),
+	       (   E = error(syntax_error(_), _)
+	       ->  fail
+	       ;   throw(E)
+	       ))),
+	(   current_predicate(_, user:rl_add_history(_))
+	->  format(atom(CompleteLine), '~W~W',
+		   [ Line, [partial(true)],
+		     '.', [partial(true)]
+		   ]),
+	    call(user:rl_add_history(CompleteLine))
+	;   true
+	),
+	'$system_catch'(atom_to_term(Line, Goal, Bindings), prolog, E,
+	      (   print_message(error, E),
+		  fail
+	      )), !.
+
 
 % reset alarms when entering top-level.
 '$enter_top_level' :-
@@ -187,19 +202,19 @@ true :- true.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
+	format('hello1 ~w~n',[GA]),
 	'$run_atom_goal'(GA),
 	set_value('$live','$false').
 '$enter_top_level' :-
 	'$disable_docreep',
-	prompt(_,'| '),
 	'$run_toplevel_hooks',
-	prompt1('|: '),
-	'$read_vars'(user_input,Command,_,Pos,Varnames, ' ?- ', no),
+	prompt1(' ?- '),
+	'$read_toplevel'(Command,Varnames),
 	nb_setval('$spy_gn',1),
-				% stop at spy-points if debugging is on.
+	% stop at spy-points if debugging is on.
 	nb_setval('$debug_run',off),
 	nb_setval('$debug_jump',off),
-	'$command'(Command,Varnames,Pos,top),
+	'$command'(Command,Varnames,_Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
 
@@ -1102,6 +1117,13 @@ bootstrap(F) :-
 	!,
 	close(Stream).
 
+'$read_vars'(Stream, T, Mod, Pos, V, _Prompt, ReadComments) :-
+       '$read'(true, T, Mod, V, Pos, Err, ReadComments, Stream),
+       (nonvar(Err) ->
+        print_message(error,Err), fail
+       ;
+        true
+       ).
 
 '$init_path_extensions' :-
 	get_value('$extend_file_search_path',P), !,

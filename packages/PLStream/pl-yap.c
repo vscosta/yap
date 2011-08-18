@@ -993,6 +993,14 @@ int Yap_getInputStream(term_t t, IOSTREAM **s)
   return getInputStream(t, s);
 }
 
+extern int Yap_getOutputStream(term_t t, IOSTREAM **s);
+
+int Yap_getOutputStream(term_t t, IOSTREAM **s)
+{
+  GET_LD
+  return getOutputStream(t, s);
+}
+
 #ifdef _WIN32
 
 #include <windows.h>
@@ -1157,6 +1165,20 @@ Yap_dowrite(Term t, IOSTREAM *stream, int flags, int priority)
   return res;
 }
 
+int
+isWideAtom(atom_t atom)
+{
+  Atom a = (Atom)atomValue(atom);
+  return IsWideAtom(a);
+}
+
+wchar_t *
+nameOfWideAtom(atom_t atom)
+{
+  Atom a = (Atom)atomValue(atom);
+  return RepAtom(a)->WStrOfAE;
+}
+
 
 #if THREADS
 
@@ -1206,7 +1228,6 @@ error:
   PL_UNLOCK(L_THREAD);
   return rc;
 }
-
 
 int
 recursiveMutexInit(recursiveMutex *m)

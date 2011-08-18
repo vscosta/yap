@@ -248,6 +248,7 @@ C_SOURCES= \
 	$(srcdir)/C/load_shl.c $(srcdir)/C/load_dyld.c \
 	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
 	$(srcdir)/C/parser.c \
+	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
 	$(srcdir)/C/threads.c \
@@ -315,6 +316,7 @@ PL_SOURCES= \
 	$(srcdir)/pl/modules.yap $(srcdir)/pl/preds.yap \
 	$(srcdir)/pl/profile.yap \
 	$(srcdir)/pl/protect.yap \
+	$(srcdir)/pl/qly.yap \
 	$(srcdir)/pl/save.yap \
 	$(srcdir)/pl/setof.yap \
 	$(srcdir)/pl/signals.yap \
@@ -356,7 +358,7 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
-	parser.o save.o scanner.o sort.o stdpreds.o \
+	parser.o qlyw.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -441,6 +443,9 @@ init.o: $(srcdir)/C/init.c config.h
 
 load_foreign.o: $(srcdir)/C/load_foreign.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
+
+qlyw.o: $(srcdir)/C/qlyw.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/C/qlyw.c -o $@
 
 save.o: $(srcdir)/C/save.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/save.c -o $@
@@ -672,6 +677,7 @@ mycb: $(srcdir)/mycb.c
 	$(CC) $(CFLAGS) $(srcdir)/mycb.c -o mycb
 
 all: startup.yss
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE))
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE))
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE))
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE))
@@ -744,6 +750,7 @@ install_unix: startup.yss libYap.a
 	@INSTALL_DLLS@ (cd library/rltree; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/system; $(MAKE) install)
 	@INSTALL_DLLS@ (cd library/tries; $(MAKE) install)
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) install)
 	@ENABLE_CLIB@ @INSTALL_DLLS@ (cd packages/clib; $(MAKE) install)
 	@ENABLE_HTTP@ @INSTALL_DLLS@ (cd packages/http; $(MAKE) install)
 	@ENABLE_PLDOC@ @INSTALL_DLLS@ (cd packages/pldoc; $(MAKE) install)
@@ -851,6 +858,7 @@ depend: $(HEADERS) $(C_SOURCES)
 
 clean: clean_docs
 	rm -f *.o *~ *.BAK *.a
+	@ENABLE_GECODE@ @INSTALL_DLLS@ (cd library/gecode; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/lammpi; $(MAKE) clean)
 	@INSTALL_MATLAB@ (cd library/matlab; $(MAKE) clean)
 	@INSTALL_DLLS@ (cd library/matrix; $(MAKE) clean)

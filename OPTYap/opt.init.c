@@ -140,7 +140,9 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_last_sg_fr = NULL;
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
+#ifdef YAPOR
   new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
+#endif /* YAPOR */
   for (i = 0; i < MAX_TABLE_VARS; i++) {
     CELL *pt = GLOBAL_table_var_enumerator_addr(i);
     RESET_VARIABLE(pt);
@@ -175,10 +177,12 @@ void Yap_init_local_optyap_data(int wid) {
   /* local data related to tabling */
   REMOTE_next_free_ans_node(wid) = NULL;
   REMOTE_top_sg_fr(wid) = NULL; 
-  REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
 #ifdef YAPOR
+  REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
   Set_REMOTE_top_cp_on_stack(wid, (choiceptr) LOCAL_LocalBase); /* ??? */
   REMOTE_top_susp_or_fr(wid) = GLOBAL_root_or_fr;
+#else
+  new_dependency_frame(REMOTE_top_dep_fr(wid), FALSE, NULL, NULL, NULL, NULL, NULL);
 #endif /* YAPOR */
 #endif /* TABLING */
   return;
@@ -214,7 +218,11 @@ void Yap_init_root_frames(void) {
 
 #ifdef TABLING
   /* root dependency frame */
+#ifdef YAPOR
   DepFr_cons_cp(GLOBAL_root_dep_fr) = B;
+#else
+  DepFr_cons_cp(LOCAL_top_dep_fr) = B;
+#endif /* YAPOR */
 #endif /* TABLING */
 }
 

@@ -61,11 +61,7 @@ int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
 
 Int	STD_PROTO(Yap_InitSlot,(Term CACHE_TYPE));
 Int     STD_PROTO(Yap_NewSlots,(int CACHE_TYPE));
-Term    STD_PROTO(Yap_GetFromSlot,(Int CACHE_TYPE));
 int     STD_PROTO(Yap_RecoverSlots,(int CACHE_TYPE));
-Term    STD_PROTO(Yap_GetPtrFromSlot,(Int CACHE_TYPE));
-Term   *STD_PROTO(Yap_AddressFromSlot,(Int CACHE_TYPE));
-void    STD_PROTO(Yap_PutInSlot,(Int, Term CACHE_TYPE));
 
 
 #ifdef SFUNC
@@ -311,6 +307,9 @@ Term	STD_PROTO(Yap_Parse,(void));
 /* readutil.c */
 void	STD_PROTO(Yap_InitReadUtil,(void));
 
+/* qly.c */
+void	STD_PROTO(Yap_InitQLY,(void));
+
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
 int 	STD_PROTO(Yap_Restore,(char *, char *));
@@ -491,3 +490,9 @@ gc_P(yamop *p, yamop *cp)
 {
   return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
 }
+
+#ifdef _PL_STREAM_H
+extern int Yap_getInputStream(Int t, IOSTREAM **s);
+extern int Yap_getOutputStream(Int t, IOSTREAM **s);
+#endif
+

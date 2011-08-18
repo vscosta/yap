@@ -33,8 +33,6 @@
 	'$check_opt_read'(Opt, G).
 '$check_opt'(stream_property(_,_),Opt,G) :-
 	'$check_opt_sp'(Opt, G).
-'$check_opt'(yap_flag(_,_),Opt,G) :-
-	'$check_opt_write'(Opt, G).
 
 '$check_opt_read'(variables(_), _) :- !.
 '$check_opt_read'(variable_names(_), _) :- !.
@@ -94,7 +92,8 @@ fileerrors :- 	'$swi_set_prolog_flag'(fileerrors, true).
 
 nofileerrors :- '$swi_set_prolog_flag'(fileerrors, false).
 
-exists(F) :- access_file(F,exist).
+exists(F) :-
+	absolute_file_name(F, _, [file_errors(fail),access(exist),expand(true)]).
 
 /* Term IO	*/
 

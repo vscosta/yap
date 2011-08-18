@@ -72,8 +72,7 @@ GetModuleEntry(Atom at)
   new->NextME = CurrentModules;
   CurrentModules = new;
   new->AtomOfME = ae;
-  new->NextOfPE = ae->PropsOfAE;
-  ae->PropsOfAE = AbsModProp(new);
+  AddPropToAtom(ae, (PropEntry *)new);
   return new;
 }
 

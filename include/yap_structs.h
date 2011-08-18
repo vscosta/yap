@@ -205,12 +205,14 @@ typedef int  (*YAP_agc_hook)(void *_Atom);
 
 typedef void  (*YAP_halt_hook)(int exit_code, void *closure);
 
-typedef int YAP_opaque_tag_t;
+typedef YAP_Int YAP_opaque_tag_t;
 
 typedef int (*YAP_Opaque_CallOnFail)(void *);
+typedef int (*YAP_Opaque_CallOnWrite)(void *, YAP_opaque_tag_t, void *, int);
 
 typedef struct YAP_opaque_handler_struct {
-  YAP_Opaque_CallOnFail fail_handler;
+  YAP_Opaque_CallOnFail  fail_handler;
+  YAP_Opaque_CallOnWrite write_handler;
 } YAP_opaque_handler_t;
 
 /********* execution mode ***********************/

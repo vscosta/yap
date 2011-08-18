@@ -209,7 +209,9 @@ struct global_optyap_data {
   struct subgoal_frame *last_subgoal_frame;
   struct subgoal_frame *check_subgoal_frame;
 #endif /* LIMIT_TABLING */
+#ifdef YAPOR
   struct dependency_frame *root_dependency_frame;
+#endif /* YAPOR */
   CELL table_var_enumerator[MAX_TABLE_VARS];
 #ifdef TABLE_LOCK_AT_WRITE_LEVEL
   lockvar table_lock[TABLE_LOCK_BUCKETS];
