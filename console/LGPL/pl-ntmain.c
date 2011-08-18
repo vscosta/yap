@@ -193,7 +193,18 @@ Srlc_write(void *handle, char *buffer, size_t size)
 { rlc_console c = handle;
   ssize_t n;
 
-  n = rlc_write(c, (TCHAR*)buffer, size/sizeof(TCHAR));
+  if (size==1) {
+    TCHAR buf ='\0';
+    char *bufp = (char *)&buf;
+
+    if (!buffer[0]) return 1;
+    bufp[0] = buffer[0];
+    size = sizeof(TCHAR);
+    n = rlc_write(c, &buf, size/sizeof(TCHAR));
+    return (n ? 1 : 0);
+  } else {
+    n = rlc_write(c, (TCHAR*)buffer, size/sizeof(TCHAR));
+  }
   n *= sizeof(TCHAR);
 
   if ( n < (ssize_t)size && size-n < sizeof(TCHAR) )
@@ -760,7 +771,7 @@ HiddenFrameClass()
   HINSTANCE instance = rlc_hinstance();
 
   if ( !winclassname[0] )
-  { _stprintf(winclassname, _T("SWI-Prolog-hidden-win%d"), instance);
+  { _stprintf(winclassname, _T("YAP-hidden-win%d"), instance);
 
     wndClass.style		= 0;
     wndClass.lpfnWndProc	= (LPVOID) pl_wnd_proc;
@@ -794,7 +805,7 @@ create_prolog_hidden_window(rlc_console c)
     return (HWND)hwnd;
 
   hwnd = (uintptr_t)CreateWindow(HiddenFrameClass(),
-				     _T("SWI-Prolog hidden window"),
+				     _T("YAP hidden window"),
 				     0,
 				     0, 0, 32, 32,
 				     NULL, NULL, rlc_hinstance(), NULL);
@@ -914,7 +925,7 @@ set_window_title(rlc_console c)
   TCHAR *w64 = _T("");
 #endif
 
-  _stprintf(title, _T("SWI-Prolog (%s%sversion %d.%d.%d)"),
+  _stprintf(title, _T("YAP (%s%sversion %d.%d.%d)"),
 	    w64, mt, major, minor, patch);
 
   rlc_title(c, title, NULL, 0);
