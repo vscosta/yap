@@ -841,9 +841,14 @@ initEncoding(void)
       } else if ( (enc = setlocale(LC_CTYPE, NULL)) )
       { LD->encoding = ENC_ANSI;		/* text encoding */
 
-	if ( (enc = strchr(enc, '.')) )
+	/* this does not work on the mac for some reason */
+	if (strchr(enc, '.')) {
+	  enc = strchr(enc, '.');
+	  /* skip '.' */
+	  enc++;
+	}
+	if ( enc )
 	{ const enc_map *m;
-	  enc++;				/* skip '.' */
 
 	  for ( m=map; m->name; m++ )
 	  { if ( strcmp(enc, m->name) == 0 )
