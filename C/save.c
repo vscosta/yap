@@ -1437,6 +1437,8 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   CACHE_REGS
   int mode = FAIL_RESTORE;
   char save_buffer[YAP_FILENAME_MAX+1];
+
+  save_buffer[0] = '\0';
   //  LOCAL_ErrorMessage = NULL;
   if (inpf == NULL) {
 #if _MSC_VER || defined(__MINGW32__)
