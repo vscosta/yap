@@ -8,7 +8,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		stdpreds.c						 *
+* File:		qlyw.c							 *
 * comments:	quick saver/loader					 *
 *									 *
 * Last rev:     $Date: 2011-08-29$,$Author: vsc $			 *
@@ -18,6 +18,7 @@
 
 #if DEBUG
 
+#include <SWI-Stream.h>
 #include "absmi.h"
 #include "Foreign.h"
 #include "alloc.h"
@@ -27,18 +28,11 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
-#include <SWI-Stream.h>
+
+#include "qly.h"
 
 STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
 STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
-
-#define EXPORT_ATOM_TABLE_SIZE (16*4096)
-#define EXPORT_FUNCTOR_TABLE_SIZE (16*4096)
-
-typedef struct export_atom_hash_entry_struct {
-  Atom val;
-  struct  export_atom_hash_entry_struct *next;
-} export_atom_hash_entry_t;
 
 static void
 LookupAtom(Atom at)
@@ -59,17 +53,10 @@ LookupAtom(Atom at)
     return;
   }
   a->val = at;
-  fprintf(stderr,"+%s\n",RepAtom(at)->StrOfAE);
   a->next = LOCAL_ExportAtomHashChain[hash];
   LOCAL_ExportAtomHashChain[hash] = a;
   LOCAL_ExportAtomHashTableNum++;
 }
-
-typedef struct export_functor_hash_entry_struct {
-  Atom name;
-  UInt arity;
-  struct  export_functor_hash_entry_struct *next;
-} export_functor_hash_entry_t;
 
 static void
 LookupFunctor(Functor fun)
@@ -91,11 +78,48 @@ LookupFunctor(Functor fun)
     return;
   }
   LookupAtom(name);
+  f->val = fun;
   f->name = name;
   f->arity = arity;
   f->next = LOCAL_ExportFunctorHashChain[hash];
   LOCAL_ExportFunctorHashChain[hash] = f;
   LOCAL_ExportFunctorHashTableNum++;
+}
+
+static void
+LookupPredEntry(PredEntry *pe)
+{
+  CELL hash = (CELL)(pe) % LOCAL_ExportFunctorHashTableSize;
+  export_pred_entry_hash_entry_t *p;
+  UInt arity  = pe->ArityOfPE;
+
+  p = LOCAL_ExportPredEntryHashChain[hash];
+  while (p) {
+    if (p->val == pe) {
+      return;
+    }
+    p = p->next;
+  }
+  p = (export_pred_entry_hash_entry_t *)malloc(sizeof(export_pred_entry_hash_entry_t));
+  if (!p) {
+    return;
+  }
+  p->arity = arity;
+  if (arity) {
+    p->u.f = pe->FunctorOfPred;
+    LookupFunctor(pe->FunctorOfPred);
+  } else {
+    p->u.a = (Atom)(pe->FunctorOfPred);
+    LookupAtom((Atom)(pe->FunctorOfPred));
+  }
+  if (pe->ModuleOfPred) {
+    p->module = AtomOfTerm(pe->ModuleOfPred);
+  } else {
+    p->module = AtomProlog;
+  }
+  p->next = LOCAL_ExportPredEntryHashChain[hash];
+  LOCAL_ExportPredEntryHashChain[hash] = p;
+  LOCAL_ExportPredEntryHashTableNum++;
 }
 
 static void
@@ -105,6 +129,19 @@ InitHash(void)
   LOCAL_ExportFunctorHashChain = (export_functor_hash_entry_t **)calloc(1, sizeof(export_functor_hash_entry_t *)* LOCAL_ExportFunctorHashTableSize);
   LOCAL_ExportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
   LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t **)calloc(1, sizeof(export_atom_hash_entry_t *)* LOCAL_ExportAtomHashTableSize);
+  LOCAL_ExportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
+  LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t **)calloc(1, sizeof(export_pred_entry_hash_entry_t *)* LOCAL_ExportPredEntryHashTableSize);
+}
+
+static void
+CloseHash(void)
+{
+  LOCAL_ExportFunctorHashTableSize = 0L;
+  free(LOCAL_ExportFunctorHashChain);
+  LOCAL_ExportAtomHashTableSize = 0L;
+  free(LOCAL_ExportAtomHashChain);
+  LOCAL_ExportPredEntryHashTableSize = 0L;
+  free(LOCAL_ExportPredEntryHashChain);
 }
 
 static inline Atom
@@ -166,7 +203,22 @@ TermToGlobalOrAtomAdjust(Term t)
 #define DoubleInCodeAdjust(P) 
 #define IntegerInCodeAdjust(P) 
 #define OpcodeAdjust(P) (P)
-#define ModuleAdjust(P) (P)
+
+static inline Term
+ModuleAdjust(Term t)
+{
+  if (!t) return t;
+  return AtomTermAdjust(t);
+}
+
+static inline PredEntry *
+PredEntryAdjust(PredEntry *pe)
+{
+  LookupPredEntry(pe);
+  return pe;
+}
+
+
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)
 #define PredEntryAdjust(P) (P)
@@ -232,40 +284,10 @@ RestoreHashPreds( USES_REGS1 )
 }
 
 
-static void init_reg_copies(USES_REGS1)
-{
-}
-
-
 static void
 RestoreAtomList(Atom atm USES_REGS)
 {
 }
-
-static void
-mark_trail(USES_REGS1)
-{
-}
-
-static void
-mark_registers(USES_REGS1)
-{
-}
-
-#define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
-
-typedef enum {
-  QLY_START_PREDICATE,
-  QLY_END_PREDICATE,
-  QLY_START_CLAUSE,
-  QLY_END_CLAUSES,
-  QLY_FUNCTORS,
-  QLY_ATOMS,
-  QLY_ATOM_WIDE,
-  QLY_ATOM
-} qlf_tag_t;
-
-#define CHECK(F) { size_t r = (F); if (!r) return r; }
 
 static size_t save_bytes(IOSTREAM *stream, void *ptr, size_t sz)
 {
@@ -274,13 +296,20 @@ static size_t save_bytes(IOSTREAM *stream, void *ptr, size_t sz)
 
 static size_t save_byte(IOSTREAM *stream, int byte)
 {
-  return Sputc(byte, stream);
+  Sputc(byte, stream);
+  return 1;
 }
 
 static size_t save_uint(IOSTREAM *stream, UInt val)
 {
   UInt v = val;
   return save_bytes(stream, &v, sizeof(UInt));
+}
+
+static size_t save_int(IOSTREAM *stream, int val)
+{
+  UInt v = val;
+  return save_bytes(stream, &v, sizeof(int));
 }
 
 static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
@@ -292,8 +321,17 @@ static int
 SaveHash(IOSTREAM *stream)
 {
   UInt i;
-  CHECK(save_tag(stream, QLY_ATOMS));
+  /* first, current opcodes */
+  CHECK(save_tag(stream, QLY_START_X));
+  save_uint(stream, (UInt)&ARG1);
+  CHECK(save_tag(stream, QLY_START_OPCODES));
+  save_int(stream, _std_top);
+  for (i= 0; i < _std_top; i++) {
+    save_uint(stream, (UInt)Yap_opcode(i));
+  }
+  CHECK(save_tag(stream, QLY_START_ATOMS));
   CHECK(save_uint(stream, LOCAL_ExportAtomHashTableNum));
+  fprintf(stderr,"num=%ld\n",LOCAL_ExportAtomHashTableNum);
   for (i = 0; i < LOCAL_ExportAtomHashTableSize; i++) {
     export_atom_hash_entry_t *a = LOCAL_ExportAtomHashChain[i];
     while (a) {
@@ -303,7 +341,7 @@ SaveHash(IOSTREAM *stream)
       if (IsWideAtom(at)) {
 	CHECK(save_tag(stream, QLY_ATOM_WIDE));
 	CHECK(save_uint(stream, wcslen(RepAtom(at)->WStrOfAE)));
-	CHECK(save_bytes(stream, at->WStrOfAE, wcslen(at->WStrOfAE)*sizeof(wchar_t)));
+	CHECK(save_bytes(stream, at->WStrOfAE, (wcslen(at->WStrOfAE)+1)*sizeof(wchar_t)));
       } else {
 	CHECK(save_tag(stream, QLY_ATOM));
 	CHECK(save_uint(stream, strlen(RepAtom(at)->StrOfAE)));
@@ -313,18 +351,34 @@ SaveHash(IOSTREAM *stream)
       free(a0);
     }
   }
-  save_tag(stream, QLY_FUNCTORS);
+  save_tag(stream, QLY_START_FUNCTORS);
   save_uint(stream, LOCAL_ExportFunctorHashTableNum);
   for (i = 0; i < LOCAL_ExportFunctorHashTableSize; i++) {
     export_functor_hash_entry_t *f = LOCAL_ExportFunctorHashChain[i];
     while (f) {
       export_functor_hash_entry_t *f0 = f;
+      CHECK(save_uint(stream, (UInt)(f->val)));
       CHECK(save_uint(stream, f->arity));
       CHECK(save_uint(stream, (CELL)(f->name)));
       f = f->next;
       free(f0);
     }
   }
+  save_tag(stream, QLY_START_PRED_ENTRIES);
+  save_uint(stream, LOCAL_ExportPredEntryHashTableNum);
+  for (i = 0; i < LOCAL_ExportPredEntryHashTableSize; i++) {
+    export_pred_entry_hash_entry_t *p = LOCAL_ExportPredEntryHashChain[i];
+    while (p) {
+      export_pred_entry_hash_entry_t *p0 = p;
+      CHECK(save_uint(stream, (UInt)(p->val)));
+      CHECK(save_uint(stream, p->arity));
+      CHECK(save_uint(stream, (UInt)p->module));
+      CHECK(save_uint(stream, (UInt)p->u.f));
+      p = p->next;
+      free(p0);
+    }
+  }
+  return 1;
 }
 
 static size_t
@@ -334,13 +388,15 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
   FirstC = pp->cs.p_code.FirstClause;
   LastC = pp->cs.p_code.LastClause;
   if (FirstC == NULL && LastC == NULL) {
-    return save_tag(stream, QLY_END_CLAUSES);
+    return 1;
   }
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(FirstC);
 
     while (cl != NULL) {
       UInt size = cl->ClSize;
+      CHECK(save_uint(stream, (UInt)cl));
+      CHECK(save_uint(stream, size));
       CHECK(save_bytes(stream, cl, size));
       cl = cl->ClNext;
     }
@@ -348,6 +404,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     MegaClause *cl = ClauseCodeToMegaClause(FirstC);
     UInt size = cl->ClSize;
 
+    CHECK(save_uint(stream, (UInt)cl));
+    CHECK(save_uint(stream, size));
     CHECK(save_bytes(stream, cl, size));
   } else if (pp->PredFlags & DynamicPredFlag) {
     yamop *cl = FirstC;
@@ -356,6 +414,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
       DynamicClause *dcl = ClauseCodeToDynamicClause(cl);
       UInt size = dcl->ClSize;
 
+      CHECK(save_uint(stream, (UInt)cl));
+      CHECK(save_uint(stream, size));
       CHECK(save_bytes(stream, dcl, size));
       if (cl == LastC) return 1;
       cl = NextDynamicClause(cl);
@@ -366,18 +426,20 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     do {
       UInt size = cl->ClSize;
 
+      CHECK(save_uint(stream, (UInt)cl));
+      CHECK(save_uint(stream, size));
       CHECK(save_bytes(stream, cl, size));
       if (cl->ClCode == LastC) return 1;
       cl = cl->ClNext;
     } while (TRUE);
   }
-  return save_tag(stream, QLY_END_CLAUSES);
+  return 1;
 }
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
-  CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
   CHECK(save_uint(stream, ap->ArityOfPE));
+  CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
   CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   return save_clauses(stream, ap);
@@ -402,7 +464,6 @@ save_module(IOSTREAM *stream, Term mod) {
   PredEntry *ap = Yap_ModulePred(mod);
   InitHash();
   while (ap) {
-    fprintf(stderr,"P %s\n",RepAtom(NameOfFunctor(ap->FunctorOfPred))->StrOfAE);
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);
     } else {
@@ -412,11 +473,16 @@ save_module(IOSTREAM *stream, Term mod) {
     ap = ap->NextPredOfModule;
   }
   SaveHash(stream);
+  CHECK(save_tag(stream, QLY_START_MODULE));
+  CHECK(save_uint(stream, (UInt)mod));
   ap = Yap_ModulePred(mod);
   while (ap) {
+    CHECK(save_tag(stream, QLY_START_PREDICATE));
     CHECK(save_pred(stream, ap));
     ap = ap->NextPredOfModule;
   }
+  CHECK(save_tag(stream, QLY_END_PREDICATES));
+  CloseHash();
   return 1;
 }
 

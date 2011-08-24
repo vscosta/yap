@@ -195,4 +195,18 @@ static void InitWorker(int wid) {
   REMOTE_ExportFunctorHashChain(wid) = NULL;
   REMOTE_ExportFunctorHashTableSize(wid) = 0;
   REMOTE_ExportFunctorHashTableNum(wid) = 0;
+  REMOTE_ExportPredEntryHashChain(wid) = NULL;
+  REMOTE_ExportPredEntryHashTableSize(wid) = 0;
+  REMOTE_ExportPredEntryHashTableNum(wid) = 0;
+  REMOTE_ImportAtomHashChain(wid) = NULL;
+  REMOTE_ImportAtomHashTableSize(wid) = 0;
+  REMOTE_ImportAtomHashTableNum(wid) = 0;
+  REMOTE_ImportFunctorHashChain(wid) = NULL;
+  REMOTE_ImportFunctorHashTableSize(wid) = 0;
+  REMOTE_ImportFunctorHashTableNum(wid) = 0;
+  REMOTE_ImportOPCODEHashChain(wid) = NULL;
+  REMOTE_ImportOPCODEHashTableSize(wid) = 0;
+  REMOTE_ImportPredEntryHashChain(wid) = NULL;
+  REMOTE_ImportPredEntryHashTableSize(wid) = 0;
+  REMOTE_ImportPredEntryHashTableNum(wid) = 0;
 }
