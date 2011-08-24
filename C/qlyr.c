@@ -127,7 +127,7 @@ LookupPredEntry(PredEntry *op)
     }
     p = p->next;
   }
-  ERROR(UNKNOWN_FUNCTOR);
+  ERROR(UNKNOWN_PRED_ENTRY);
   return NIL;
 }
 
@@ -157,7 +157,7 @@ InsertPredEntry(PredEntry *op, PredEntry *pe)
 static OPCODE
 LookupOPCODE(OPCODE op)
 {
-  CELL hash = (CELL)(op) % LOCAL_ImportFunctorHashTableSize;
+  CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
 
   f = LOCAL_ImportOPCODEHashChain[hash];
@@ -174,7 +174,7 @@ LookupOPCODE(OPCODE op)
 static int
 OpcodeID(OPCODE op)
 {
-  CELL hash = (CELL)(op) % LOCAL_ImportFunctorHashTableSize;
+  CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
 
   f = LOCAL_ImportOPCODEHashChain[hash];
@@ -189,14 +189,13 @@ OpcodeID(OPCODE op)
 }
 
 static void
-InsertOPCODE(OPCODE op, int i, OPCODE o)
+InsertOPCODE(OPCODE op0, int i, OPCODE op)
 {
-  CELL hash = (CELL)(op) % LOCAL_ImportFunctorHashTableSize;
+  CELL hash = (CELL)(op0) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
-
   f = LOCAL_ImportOPCODEHashChain[hash];
   while (f) {
-    if (f->oval == op) {
+    if (f->oval == op0) {
       return;
     }
     f = f->next;
@@ -205,8 +204,8 @@ InsertOPCODE(OPCODE op, int i, OPCODE o)
   if (!f) {
     return;
   }
-  f->val = o;
-  f->oval = op;
+  f->val = op;
+  f->oval = op0;
   f->id = i;
   f->next = LOCAL_ImportOPCODEHashChain[hash];
   LOCAL_ImportOPCODEHashChain[hash] = f;
@@ -337,6 +336,12 @@ PtoPredAdjust(PredEntry *p)
   return LookupPredEntry(p);
 }
 
+static inline PredEntry *
+PredEntryAdjust(PredEntry *p)
+{
+  return LookupPredEntry(p);
+}
+
 static inline OPCODE
 OpcodeAdjust(OPCODE OP) {
   return LookupOPCODE(OP);
@@ -351,7 +356,6 @@ ModuleAdjust(Term M) {
 
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)
-#define PredEntryAdjust(P) (P)
 #define ModEntryPtrAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
@@ -628,6 +632,7 @@ read_pred(IOSTREAM *stream, Term mod) {
     }
   } else {
     Atom a = LookupAtom((Atom)read_uint(stream));
+
     if ((ap = RepPredProp(PredPropByAtom(a,mod))) == NULL) {
       ERROR(OUT_OF_CODE_SPACE);
     }
@@ -640,12 +645,15 @@ read_pred(IOSTREAM *stream, Term mod) {
 }
 
 static void
-save_module(IOSTREAM *stream, Term mod) {
+read_module(IOSTREAM *stream) {
   CACHE_REGS
+  Term mod;
+
   InitHash();
   ReadHash(stream);
   RCHECK(read_tag(stream) == QLY_START_MODULE);
   mod = (Term)read_uint(stream);
+  mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
   while (read_tag(stream) == QLY_START_PREDICATE) {
     read_pred(stream, mod);
   }
@@ -657,20 +665,11 @@ static Int
 p_read_module_preds( USES_REGS1 )
 {
   IOSTREAM *stream;
-  Term tmod = Deref(ARG2);
 
   if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
     return FALSE;
   }
-  if (IsVarTerm(tmod)) {
-    Yap_Error(INSTANTIATION_ERROR,tmod,"save_module/2");
-    return FALSE;
-  }
-  if (!IsAtomTerm(tmod)) {
-    Yap_Error(TYPE_ERROR_ATOM,tmod,"save_module/2");
-    return FALSE;
-  }
-  save_module(stream, tmod);
+  read_module(stream);
   return TRUE;
 }
 
@@ -679,7 +678,7 @@ p_read_module_preds( USES_REGS1 )
 void Yap_InitQLYR(void)
 {
 #if DEBUG
-  Yap_InitCPred("$read_module_preds", 2, p_read_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred("$read_module_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
 #endif
 }
 

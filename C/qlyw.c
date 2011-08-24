@@ -89,7 +89,7 @@ LookupFunctor(Functor fun)
 static void
 LookupPredEntry(PredEntry *pe)
 {
-  CELL hash = (CELL)(pe) % LOCAL_ExportFunctorHashTableSize;
+  CELL hash = (CELL)(pe) % LOCAL_ExportPredEntryHashTableSize;
   export_pred_entry_hash_entry_t *p;
   UInt arity  = pe->ArityOfPE;
 
@@ -105,6 +105,7 @@ LookupPredEntry(PredEntry *pe)
     return;
   }
   p->arity = arity;
+  p->val = pe;
   if (arity) {
     p->u.f = pe->FunctorOfPred;
     LookupFunctor(pe->FunctorOfPred);
@@ -117,6 +118,7 @@ LookupPredEntry(PredEntry *pe)
   } else {
     p->module = AtomProlog;
   }
+  LookupAtom(p->module);
   p->next = LOCAL_ExportPredEntryHashChain[hash];
   LOCAL_ExportPredEntryHashChain[hash] = p;
   LOCAL_ExportPredEntryHashTableNum++;
@@ -125,10 +127,13 @@ LookupPredEntry(PredEntry *pe)
 static void
 InitHash(void)
 {
+  LOCAL_ExportFunctorHashTableNum = 0;
   LOCAL_ExportFunctorHashTableSize = EXPORT_FUNCTOR_TABLE_SIZE;
   LOCAL_ExportFunctorHashChain = (export_functor_hash_entry_t **)calloc(1, sizeof(export_functor_hash_entry_t *)* LOCAL_ExportFunctorHashTableSize);
+  LOCAL_ExportAtomHashTableNum = 0;
   LOCAL_ExportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
   LOCAL_ExportAtomHashChain = (export_atom_hash_entry_t **)calloc(1, sizeof(export_atom_hash_entry_t *)* LOCAL_ExportAtomHashTableSize);
+  LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
   LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t **)calloc(1, sizeof(export_pred_entry_hash_entry_t *)* LOCAL_ExportPredEntryHashTableSize);
 }
@@ -136,10 +141,13 @@ InitHash(void)
 static void
 CloseHash(void)
 {
+  LOCAL_ExportFunctorHashTableNum = 0;
   LOCAL_ExportFunctorHashTableSize = 0L;
   free(LOCAL_ExportFunctorHashChain);
+  LOCAL_ExportAtomHashTableNum = 0;
   LOCAL_ExportAtomHashTableSize = 0L;
   free(LOCAL_ExportAtomHashChain);
+  LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = 0L;
   free(LOCAL_ExportPredEntryHashChain);
 }
@@ -218,6 +226,13 @@ PredEntryAdjust(PredEntry *pe)
   return pe;
 }
 
+static inline PredEntry *
+PtoPredAdjust(PredEntry *pe)
+{
+  LookupPredEntry(pe);
+  return pe;
+}
+
 
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)
@@ -257,7 +272,6 @@ PredEntryAdjust(PredEntry *pe)
 #define PtoLUClauseAdjust(P) (P)
 #define PtoLUIndexAdjust(P) (P)
 #define PtoDBTLAdjust(P) (P)
-#define PtoPredAdjust(P) (P)
 #define PtoPtoPredAdjust(P) (P)
 #define OpRTableAdjust(P) (P)
 #define OpEntryAdjust(P) (P)
@@ -331,7 +345,6 @@ SaveHash(IOSTREAM *stream)
   }
   CHECK(save_tag(stream, QLY_START_ATOMS));
   CHECK(save_uint(stream, LOCAL_ExportAtomHashTableNum));
-  fprintf(stderr,"num=%ld\n",LOCAL_ExportAtomHashTableNum);
   for (i = 0; i < LOCAL_ExportAtomHashTableSize; i++) {
     export_atom_hash_entry_t *a = LOCAL_ExportAtomHashChain[i];
     while (a) {
@@ -463,6 +476,7 @@ save_module(IOSTREAM *stream, Term mod) {
   CACHE_REGS
   PredEntry *ap = Yap_ModulePred(mod);
   InitHash();
+  ModuleAdjust(mod);
   while (ap) {
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);

@@ -25,6 +25,6 @@ save_module(Mod) :-
 read_module(Mod) :-
 	atom_concat(Mod,'.qly',F),
 	open(F, read, S, [type(binary)]),
-	'$read_module_preds'(S, Mod),
+	'$read_module_preds'(S),
 	close(S).
 
