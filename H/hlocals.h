@@ -195,4 +195,18 @@ typedef struct worker_local {
   struct export_functor_hash_entry_struct  **ExportFunctorHashChain_;
   UInt  ExportFunctorHashTableSize_;
   UInt  ExportFunctorHashTableNum_;
+  struct export_pred_entry_hash_entry_struct  **ExportPredEntryHashChain_;
+  UInt  ExportPredEntryHashTableSize_;
+  UInt  ExportPredEntryHashTableNum_;
+  struct import_atom_hash_entry_struct  **ImportAtomHashChain_;
+  UInt  ImportAtomHashTableSize_;
+  UInt  ImportAtomHashTableNum_;
+  struct import_functor_hash_entry_struct  **ImportFunctorHashChain_;
+  UInt  ImportFunctorHashTableSize_;
+  UInt  ImportFunctorHashTableNum_;
+  struct import_opcode_hash_entry_struct  **ImportOPCODEHashChain_;
+  UInt  ImportOPCODEHashTableSize_;
+  struct import_pred_entry_hash_entry_struct  **ImportPredEntryHashChain_;
+  UInt  ImportPredEntryHashTableSize_;
+  UInt  ImportPredEntryHashTableNum_;
 } w_local;

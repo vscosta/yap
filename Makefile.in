@@ -174,6 +174,7 @@ HEADERS = \
 	$(srcdir)/H/index.h \
 	$(srcdir)/H/iopreds.h \
 	$(srcdir)/H/iswiatoms.h \
+	$(srcdir)/H/qly.h \
 	$(srcdir)/H/rclause.h \
 	$(srcdir)/H/rglobals.h \
 	$(srcdir)/H/rlocals.h \
@@ -248,6 +249,7 @@ C_SOURCES= \
 	$(srcdir)/C/load_shl.c $(srcdir)/C/load_dyld.c \
 	$(srcdir)/C/mavar.c $(srcdir)/C/modules.c $(srcdir)/C/other.c       \
 	$(srcdir)/C/parser.c \
+	$(srcdir)/C/qlyr.c \
 	$(srcdir)/C/qlyw.c \
 	$(srcdir)/C/save.c $(srcdir)/C/scanner.c \
 	$(srcdir)/C/sort.c $(srcdir)/C/stdpreds.c $(srcdir)/C/sysbits.c \
@@ -358,7 +360,7 @@ ENGINE_OBJECTS = \
 	myddas_mysql.o myddas_odbc.o myddas_shared.o myddas_initialization.o \
 	myddas_util.o myddas_statistics.o myddas_top_level.o \
 	myddas_wkb2prolog.o modules.o other.o   \
-	parser.o qlyw.o save.o scanner.o sort.o stdpreds.o \
+	parser.o qlyr.o qlyw.o save.o scanner.o sort.o stdpreds.o \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
@@ -443,6 +445,9 @@ init.o: $(srcdir)/C/init.c config.h
 
 load_foreign.o: $(srcdir)/C/load_foreign.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/load_foreign.c -o $@
+
+qlyr.o: $(srcdir)/C/qlyr.c config.h
+	$(CC) -c $(CFLAGS) $(srcdir)/C/qlyr.c -o $@
 
 qlyw.o: $(srcdir)/C/qlyw.c config.h
 	$(CC) -c $(CFLAGS) $(srcdir)/C/qlyw.c -o $@

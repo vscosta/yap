@@ -22,3 +22,9 @@ save_module(Mod) :-
 	'$save_module_preds'(S, Mod),
 	close(S).
 
+read_module(Mod) :-
+	atom_concat(Mod,'.qly',F),
+	open(F, read, S, [type(binary)]),
+	'$read_module_preds'(S, Mod),
+	close(S).
+

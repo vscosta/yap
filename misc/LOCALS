@@ -221,5 +221,19 @@ UInt				ExportAtomHashTableNum			=0
 struct export_functor_hash_entry_struct **ExportFunctorHashChain	=NULL
 UInt				ExportFunctorHashTableSize		=0
 UInt				ExportFunctorHashTableNum		=0
+struct export_pred_entry_hash_entry_struct **ExportPredEntryHashChain	=NULL
+UInt				ExportPredEntryHashTableSize		=0
+UInt				ExportPredEntryHashTableNum		=0
+struct import_atom_hash_entry_struct **ImportAtomHashChain		=NULL
+UInt				ImportAtomHashTableSize			=0
+UInt				ImportAtomHashTableNum			=0
+struct import_functor_hash_entry_struct **ImportFunctorHashChain	=NULL
+UInt				ImportFunctorHashTableSize		=0
+UInt				ImportFunctorHashTableNum		=0
+struct import_opcode_hash_entry_struct **ImportOPCODEHashChain		=NULL
+UInt				ImportOPCODEHashTableSize		=0
+struct import_pred_entry_hash_entry_struct **ImportPredEntryHashChain	=NULL
+UInt				ImportPredEntryHashTableSize		=0
+UInt				ImportPredEntryHashTableNum		=0
 
 END_WORKER_LOCAL

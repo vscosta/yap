@@ -1938,6 +1938,24 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
   p->cs.p_code.NOfClauses++;
 }
 
+void 
+Yap_AssertzClause(PredEntry *p, yamop *cp)
+{
+  if (p->PredFlags & DynamicPredFlag) {
+    if (p->cs.p_code.FirstClause == NULL) {
+      add_first_dynamic(p, cp, FALSE);
+    } else {
+      assertz_dynam_clause(p, cp);
+    }
+  } else {
+    if (p->cs.p_code.FirstClause == NULL) {
+      add_first_static(p, cp, FALSE);
+    } else {
+      assertz_stat_clause(p, cp, FALSE);
+    }
+  }
+}
+
 static void  expand_consult( void )
 {
   CACHE_REGS
@@ -2069,7 +2087,6 @@ mark_preds_with_this_func(Functor f, Prop p0)
     }
   }
 }
-
 
 static int
 addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
