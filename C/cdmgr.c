@@ -1631,6 +1631,19 @@ retract_all(PredEntry *p, int in_use)
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
 }
 
+static int
+source_pred(PredEntry *p, yamop *q)
+{
+  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))
+    return FALSE;
+  if (p->PredFlags & MultiFileFlag)
+    return TRUE;
+  if (yap_flags[SOURCE_MODE_FLAG]) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
 /* p is already locked */
 static void 
 add_first_static(PredEntry *p, yamop *cp, int spy_flag)
@@ -1682,12 +1695,8 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
-  if ((yap_flags[SOURCE_MODE_FLAG] ||
-      (p->PredFlags & MultiFileFlag)) &&
-      !(p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
+  if (source_pred(p, cp)) {
     p->PredFlags |= SourcePredFlag;
-  } else {
-    p->PredFlags &= ~SourcePredFlag;
   }
 }
 
