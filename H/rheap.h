@@ -547,10 +547,16 @@ RestoreStaticClause(StaticClause *cl USES_REGS)
  * clause for this predicate or not 
  */
 {
-  if (cl->ClFlags & FactMask) {
-    cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
-  } else {
-    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+  if (cl->usc.ClSource) {
+    char *x = (char *)DBTermAdjust(cl->usc.ClSource);
+    char *base = (char *)cl;
+
+    if (x < base || x > base+cl->ClSize) {
+      cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
+    } else {
+      cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+      RestoreDBTerm(cl->usc.ClSource, TRUE PASS_REGS);
+    }
   }
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
