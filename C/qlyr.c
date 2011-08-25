@@ -324,7 +324,16 @@ TermToGlobalOrAtomAdjust(Term t)
 #define IntegerAdjust(D)  (D)
 #define AddrAdjust(P) (P)
 #define MFileAdjust(P) (P)
-#define CodeVarAdjust(P) (P)
+
+#define CodeVarAdjust(P) CodeVarAdjust__(P PASS_REGS)
+static inline Term
+CodeVarAdjust__ (Term var USES_REGS)
+{
+  if (var == 0L)
+    return var;
+  return (Term)(CharP(var) + LOCAL_HDiff);
+}
+
 #define ConstantAdjust(P) (P)
 #define ArityAdjust(P) (P)
 #define DoubleInCodeAdjust(P) 
@@ -373,6 +382,12 @@ BlobTermInCodeAdjust__ (Term t USES_REGS)
   return (Term) ((char *)(t) + LOCAL_HDiff);
 }
 #endif
+#define DBTermAdjust(P) DBTermAdjust__(P PASS_REGS)
+static inline DBTerm *
+DBTermAdjust__ (DBTerm * dbtp USES_REGS)
+{
+  return (DBTerm *) ((DBTerm *) (CharP (dbtp) + LOCAL_HDiff));
+}
 #define CellPtoHeapAdjust(P) (P)
 #define PtoAtomHashEntryAdjust(P) (P)
 #define CellPtoHeapCellAdjust(P) (P)
@@ -384,7 +399,6 @@ BlobTermInCodeAdjust__ (Term t USES_REGS)
 #define GlobalAdjust(P) (P)
 #define DBRefAdjust(P) (P)
 #define DBRefPAdjust(P) (P)
-#define DBTermAdjust(P) (P)
 #define LUIndexAdjust(P) (P)
 #define SIndexAdjust(P) (P)
 #define LocalAddrAdjust(P) (P)
@@ -398,7 +412,14 @@ BlobTermInCodeAdjust__ (Term t USES_REGS)
 #define PtoDelayAdjust(P) (P)
 #define PtoGloAdjust(P) (P)
 #define PtoLocAdjust(P) (P)
-#define PtoHeapCellAdjust(P) (P)
+
+#define PtoHeapCellAdjust(P) PtoHeapCellAdjust__(P PASS_REGS)
+static inline CELL *
+PtoHeapCellAdjust__ (CELL * ptr USES_REGS)
+{
+  return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_HDiff)));
+}
+
 #define TermToGlobalAdjust(P) (P)
 #define PtoOpAdjust(P) PtoOpAdjust__(P PASS_REGS)
 static inline yamop *PtoOpAdjust__(yamop *ptr USES_REGS) {
@@ -570,7 +591,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       LogUpdClause *cl = (LogUpdClause *)Yap_AllocCodeSpace(size);
 
       read_bytes(stream, cl, size);
-      LOCAL_HDiff = (char *)cl-base;
+      LOCAL_HDiff = base-(char *)cl;
       RestoreLUClause(cl, pp);
       Yap_AssertzClause(pp, cl->ClCode);
     }
@@ -620,7 +641,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 static void
 read_pred(IOSTREAM *stream, Term mod) {
   UInt arity = read_uint(stream);
-  UInt nclauses, flags;
+  UInt nclauses, flags, fl1;
   PredEntry *ap;
 
   if (arity) {
@@ -641,6 +662,8 @@ read_pred(IOSTREAM *stream, Term mod) {
   flags = ap->PredFlags = read_uint(stream);
   nclauses = read_uint(stream);
   ap->cs.p_code.NOfClauses = 0;
+  fl1 = flags & (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag);
+  ap->PredFlags |= fl1;
   read_clauses(stream, ap, nclauses, flags);
 }
 
