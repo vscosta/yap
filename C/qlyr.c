@@ -34,6 +34,26 @@
 STATIC_PROTO(void  RestoreEntries, (PropEntry *, int USES_REGS));
 STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
 
+typedef enum {
+  OUT_OF_TEMP_SPACE = 0,
+  OUT_OF_ATOM_SPACE = 1,
+  OUT_OF_CODE_SPACE = 2,
+  UNKNOWN_ATOM = 3,
+  UNKNOWN_FUNCTOR = 4,
+  UNKNOWN_PRED_ENTRY = 5,
+  UNKNOWN_OPCODE = 6,
+  BAD_ATOM = 7,
+  MISMATCH = 8,
+  INCONSISTENT_CPRED = 8
+} qlfr_err_t;
+
+static void
+ERROR(qlfr_err_t my_err)
+{
+  fprintf(stderr,"Error %d\n", my_err);
+  exit(1);
+}
+
 static Atom
 LookupAtom(Atom oat)
 {
@@ -151,6 +171,7 @@ InsertPredEntry(PredEntry *op, PredEntry *pe)
   p->val = pe;
   p->oval = op;
   p->next = LOCAL_ImportPredEntryHashChain[hash];
+  fprintf(stderr,"+op = %lx\n", op);
   LOCAL_ImportPredEntryHashChain[hash] = p;
 }
 
@@ -184,6 +205,7 @@ OpcodeID(OPCODE op)
     }
     f = f->next;
   }
+  fprintf(stderr,"-op = %lx\n", op);
   ERROR(UNKNOWN_OPCODE);
   return NIL;
 }
@@ -484,6 +506,14 @@ read_byte(IOSTREAM *stream)
   return Sgetc(stream);
 }
 
+static BITS16
+read_bits16(IOSTREAM *stream)
+{
+  BITS16 v;
+  return read_bytes(stream, &v, sizeof(BITS16));
+  return v;
+}
+
 static UInt
 read_uint(IOSTREAM *stream)
 {
@@ -566,14 +596,29 @@ ReadHash(IOSTREAM *stream)
     UInt arity = read_uint(stream);
     Atom omod = (Atom)read_uint(stream);
     Term mod = MkAtomTerm(AtomAdjust(omod));
-    if (arity) {
-      Functor of = (Functor)read_uint(stream);
-      Functor f = LookupFunctor(of);
-      pe = RepPredProp(PredPropByFunc(f,mod));
+    if (mod != IDB_MODULE) {
+      if (arity) {
+	Functor of = (Functor)read_uint(stream);
+	Functor f = LookupFunctor(of);
+	pe = RepPredProp(PredPropByFunc(f,mod));
+      } else {
+	Atom oa = (Atom)read_uint(stream);
+	Atom a = LookupAtom(oa);
+	pe = RepPredProp(PredPropByAtom(a,mod));
+      }
     } else {
-      Atom oa = (Atom)read_uint(stream);
-      Atom a = LookupAtom(oa);
-      pe = RepPredProp(PredPropByAtom(a,mod));
+      if (arity == (UInt)-1) {
+	UInt i = read_uint(stream);
+	pe = Yap_FindLUIntKey(i);
+      }	else if (arity == (UInt)(-2)) {
+	Atom oa = (Atom)read_uint(stream);
+	Atom a = LookupAtom(oa);
+	pe = RepPredProp(PredPropByAtom(a,mod));
+      } else {
+	Functor of = (Functor)read_uint(stream);
+	Functor f = LookupFunctor(of);
+	pe = RepPredProp(PredPropByFunc(f,mod));
+      }
     }
     InsertPredEntry(ope, pe);
   }
@@ -581,10 +626,21 @@ ReadHash(IOSTREAM *stream)
 
 static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
-  
   if (pp->PredFlags & LogUpdatePredFlag) {
     UInt i;
 
+    /* first, clean up whatever was there */
+    if (pp->cs.p_code.NOfClauses) {
+      LogUpdClause *cl;
+      if (pp->PredFlags & IndexedPredFlag)
+      Yap_RemoveIndexation(pp);
+      cl = ClauseCodeToLogUpdClause(pp->cs.p_code.FirstClause);
+      do {
+	LogUpdClause *ncl = cl->ClNext;
+	Yap_ErLogUpdCl(cl);
+	cl = ncl;
+      } while (cl != NULL);
+    }
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_uint(stream);
       UInt size = read_uint(stream);
@@ -595,13 +651,15 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       RestoreLUClause(cl, pp);
       Yap_AssertzClause(pp, cl->ClCode);
     }
-
   } else if (pp->PredFlags & MegaClausePredFlag) {
     CACHE_REGS
     char *base = (void *)read_uint(stream);
     UInt size = read_uint(stream);
     MegaClause *cl = (MegaClause *)Yap_AllocCodeSpace(size);
 
+    if (nclauses) {
+      Yap_Abolish(pp);
+    }
     LOCAL_HDiff = (char *)cl-base;
     read_bytes(stream, cl, size);
     RestoreMegaClause(cl PASS_REGS);
@@ -625,6 +683,14 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   } else {
     UInt i;
 
+
+    if (pp->PredFlags & (UserCPredFlag|CArgsPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) {
+      if (nclauses) {
+	ERROR(INCONSISTENT_CPRED);	
+      }
+      return;
+    }
+    Yap_Abolish(pp);
     for (i = 0; i < nclauses; i++) {
       char *base = (void *)read_uint(stream);
       UInt size = read_uint(stream);
@@ -662,25 +728,56 @@ read_pred(IOSTREAM *stream, Term mod) {
   flags = ap->PredFlags = read_uint(stream);
   nclauses = read_uint(stream);
   ap->cs.p_code.NOfClauses = 0;
-  fl1 = flags & (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag);
+  fl1 = flags & (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag);
   ap->PredFlags |= fl1;
+  if (flags & NumberDBPredFlag) {
+    ap->src.IndxId = read_uint(stream);
+  } else {
+    ap->src.OwnerFile = (Atom)read_uint(stream);
+    if (ap->src.OwnerFile && !(flags & MultiFileFlag)) {
+      ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
+    }
+  }
   read_clauses(stream, ap, nclauses, flags);
 }
 
 static void
+read_ops(IOSTREAM *stream)  {
+  Int x;
+  while ((x = read_tag(stream)) != QLY_END_OPS) {
+    Atom at = (Atom)read_uint(stream);
+    Term mod;
+    OpEntry *op;
+
+    at = AtomAdjust(at);
+    mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
+    op = Yap_OpPropForModule(at, mod);
+    op->Prefix =   read_bits16(stream);
+    op->Infix =   read_bits16(stream);
+    op->Posfix =   read_bits16(stream);
+  }
+}
+
+
+static void
 read_module(IOSTREAM *stream) {
   CACHE_REGS
-  Term mod;
-
+    Int x;
   InitHash();
   ReadHash(stream);
-  RCHECK(read_tag(stream) == QLY_START_MODULE);
-  mod = (Term)read_uint(stream);
-  mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
-  while (read_tag(stream) == QLY_START_PREDICATE) {
-    read_pred(stream, mod);
+  while ((x = read_tag(stream)) == QLY_START_MODULE) {
+  fprintf(stderr,"x0 = %ld\n", x);
+    Term mod = (Term)read_uint(stream);
+
+    mod = MkAtomTerm(AtomAdjust(AtomOfTerm(mod)));
+    while ((x = read_tag(stream)) == QLY_START_PREDICATE) {
+      fprintf(stderr,"x1 = %ld\n", x);
+      read_pred(stream, mod);
+    }
+    fprintf(stderr,"xa = %ld\n", x);
   }
-  RCHECK(read_tag(stream) == QLY_END_PREDICATES);
+  fprintf(stderr,"xb = %ld\n", x);
+  read_ops(stream);
   CloseHash();
 }
 
@@ -701,7 +798,7 @@ p_read_module_preds( USES_REGS1 )
 void Yap_InitQLYR(void)
 {
 #if DEBUG
-  Yap_InitCPred("$read_module_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
 #endif
 }
 

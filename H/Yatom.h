@@ -727,7 +727,6 @@ typedef struct pred_entry
   {
     Atom OwnerFile;		/* File where the predicate was defined */
     Int IndxId;			/* Index for a certain key */
-    struct mfile *file_srcs;	/* for multifile predicates */
   } src;
 #if defined(YAPOR) || defined(THREADS)
   lockvar PELock;		/* a simple lock to protect expansion */

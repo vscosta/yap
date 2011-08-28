@@ -70,16 +70,19 @@ typedef struct import_pred_entry_hash_entry_struct {
 } import_pred_entry_hash_entry_t;
 
 typedef enum {
-  QLY_START_X,
-  QLY_START_OPCODES,
-  QLY_START_ATOMS,
-  QLY_START_FUNCTORS,
-  QLY_START_PRED_ENTRIES,
-  QLY_START_MODULE,
-  QLY_START_PREDICATE,
-  QLY_END_PREDICATES,
-  QLY_ATOM_WIDE,
-  QLY_ATOM
+  QLY_START_X = 0,
+  QLY_START_OPCODES = 1,
+  QLY_START_ATOMS = 2,
+  QLY_START_FUNCTORS = 3,
+  QLY_START_PRED_ENTRIES = 4,
+  QLY_START_MODULE = 5,
+  QLY_END_MODULES = 6,
+  QLY_NEW_OP = 7,
+  QLY_END_OPS = 8,
+  QLY_START_PREDICATE = 9,
+  QLY_END_PREDICATES = 10,
+  QLY_ATOM_WIDE = 11,
+  QLY_ATOM = 12
 } qlf_tag_t;
 
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
@@ -89,6 +92,5 @@ typedef enum {
 
 #define AllocTempSpace() (H)
 #define EnoughTempSpace(sz) ((ASP-H)*sizeof(CELL) > sz)
-#define ERROR(E) 
 
 

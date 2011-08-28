@@ -1116,9 +1116,10 @@ RestoreDB(DBEntry *pp USES_REGS)
 static void 
 CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
 {
+    if (!First)
+      return;
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
-
     while (cl != NULL) {
       RestoreLUClause(cl, pp PASS_REGS);
       cl = cl->ClNext;
@@ -1338,12 +1339,8 @@ CleanCode(PredEntry *pp USES_REGS)
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   }
   if (!(pp->PredFlags & NumberDBPredFlag)) {
-    if (pp->PredFlags & MultiFileFlag) {
-      if (pp->src.file_srcs)
-	pp->src.file_srcs = MFileAdjust(pp->src.file_srcs);
-    } else {
-      if (pp->src.OwnerFile)
-	pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+    if (pp->src.OwnerFile) {
+      pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
     }
   }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));
