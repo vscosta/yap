@@ -106,12 +106,26 @@ LookupPredEntry(PredEntry *pe)
   }
   p->arity = arity;
   p->val = pe;
-  if (arity) {
-    p->u.f = pe->FunctorOfPred;
-    LookupFunctor(pe->FunctorOfPred);
+  if (pe->ModuleOfPred != IDB_MODULE) {
+    if (arity) {
+      p->u.f = pe->FunctorOfPred;
+      LookupFunctor(pe->FunctorOfPred);
+    } else {
+      p->u.a = (Atom)(pe->FunctorOfPred);
+      LookupAtom((Atom)(pe->FunctorOfPred));
+    }
   } else {
-    p->u.a = (Atom)(pe->FunctorOfPred);
-    LookupAtom((Atom)(pe->FunctorOfPred));
+    if (pe->PredFlags & AtomDBPredFlag) {
+      p->u.a = (Atom)(pe->FunctorOfPred);
+      p->arity = (CELL)(-2);
+      LookupAtom((Atom)(pe->FunctorOfPred));
+    } else if (!(pe->PredFlags & NumberDBPredFlag)) {
+      p->u.f = pe->FunctorOfPred;
+      p->arity = (CELL)(-1);
+      LookupFunctor(pe->FunctorOfPred);
+    } else {
+      p->u.f = pe->FunctorOfPred;
+    }
   }
   if (pe->ModuleOfPred) {
     p->module = AtomOfTerm(pe->ModuleOfPred);
@@ -314,6 +328,12 @@ static size_t save_byte(IOSTREAM *stream, int byte)
   return 1;
 }
 
+static size_t save_bits16(IOSTREAM *stream, BITS16 val)
+{
+  BITS16 v = val;
+  return save_bytes(stream, &v, sizeof(BITS16));
+}
+
 static size_t save_uint(IOSTREAM *stream, UInt val)
 {
   UInt v = val;
@@ -407,10 +427,13 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(FirstC);
 
     while (cl != NULL) {
-      UInt size = cl->ClSize;
-      CHECK(save_uint(stream, (UInt)cl));
-      CHECK(save_uint(stream, size));
-      CHECK(save_bytes(stream, cl, size));
+      if (pp->TimeStampOfPred >= cl->ClTimeStart &&
+	  pp->TimeStampOfPred <= cl->ClTimeEnd) {
+	UInt size = cl->ClSize;
+	CHECK(save_uint(stream, (UInt)cl));
+	CHECK(save_uint(stream, size));
+	CHECK(save_bytes(stream, cl, size));
+      }
       cl = cl->ClNext;
     }
   } else if (pp->PredFlags & MegaClausePredFlag) {
@@ -455,6 +478,7 @@ save_pred(IOSTREAM *stream, PredEntry *ap) {
   CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
   CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
+  CHECK(save_uint(stream, ap->src.IndxId));
   return save_clauses(stream, ap);
 }
 
@@ -472,20 +496,73 @@ clean_pred(PredEntry *pp USES_REGS) {
 }
 
 static size_t
+mark_pred(PredEntry *ap)
+{
+  if (ap->ModuleOfPred != IDB_MODULE) {
+    if (ap->ArityOfPE) {
+      FuncAdjust(ap->FunctorOfPred);
+    } else {
+      AtomAdjust((Atom)(ap->FunctorOfPred));
+    }
+  } else {
+    if (ap->PredFlags & AtomDBPredFlag) {
+      AtomAdjust((Atom)(ap->FunctorOfPred));
+    } else if (!(ap->PredFlags & NumberDBPredFlag)) {
+      FuncAdjust(ap->FunctorOfPred);
+    }
+  }
+  if (!(ap->PredFlags & (MultiFileFlag|NumberDBPredFlag)) &&
+      ap->src.OwnerFile) {
+    AtomAdjust(ap->src.OwnerFile);
+  }
+  CHECK(clean_pred(ap PASS_REGS));
+  return 1;
+}
+
+static size_t
+mark_ops(IOSTREAM *stream, Term mod) {
+  OpEntry *op = OpList;
+  while (op) {
+    if (!mod || op->OpModule == mod) {
+      AtomAdjust(op->OpName);
+      if (op->OpModule)
+	AtomTermAdjust(op->OpModule);
+    }
+    op = op->OpNext;
+  }
+  return 1;
+}
+
+static size_t
+save_ops(IOSTREAM *stream, Term mod) {
+  OpEntry *op = OpList;
+  while (op) {
+    if (!mod || op->OpModule == mod) {
+      CHECK(save_tag(stream, QLY_NEW_OP));
+      save_uint(stream, (UInt)op->OpName);
+      save_uint(stream, (UInt)op->OpModule);
+      save_bits16(stream, op->Prefix);
+      save_bits16(stream, op->Infix);
+      save_bits16(stream, op->Posfix);
+    }
+    op = op->OpNext;
+  }
+  CHECK(save_tag(stream, QLY_END_OPS));
+  return 1;
+}
+
+static size_t
 save_module(IOSTREAM *stream, Term mod) {
   CACHE_REGS
   PredEntry *ap = Yap_ModulePred(mod);
   InitHash();
   ModuleAdjust(mod);
   while (ap) {
-    if (ap->ArityOfPE) {
-      FuncAdjust(ap->FunctorOfPred);
-    } else {
-      AtomAdjust((Atom)(ap->FunctorOfPred));
-    }
-    CHECK(clean_pred(ap PASS_REGS));
+    CHECK(mark_pred(ap));
     ap = ap->NextPredOfModule;
   }
+  /* just to make sure */
+  mark_ops(stream, mod);
   SaveHash(stream);
   CHECK(save_tag(stream, QLY_START_MODULE));
   CHECK(save_uint(stream, (UInt)mod));
@@ -496,6 +573,49 @@ save_module(IOSTREAM *stream, Term mod) {
     ap = ap->NextPredOfModule;
   }
   CHECK(save_tag(stream, QLY_END_PREDICATES));
+  CHECK(save_tag(stream, QLY_END_MODULES));
+  save_ops(stream, mod);
+  CloseHash();
+  return 1;
+}
+
+static size_t
+save_program(IOSTREAM *stream) {
+  CACHE_REGS
+  ModEntry *me = CurrentModules;
+
+  InitHash();
+  /* should we allow the user to see hidden predicates? */
+  while (me) {
+    PredEntry *pp;
+    AtomAdjust(me->AtomOfME);
+    pp = me->PredForME;
+    while (pp != NULL) {
+      CHECK(mark_pred(pp));
+      pp = pp->NextPredOfModule;
+    }
+    me = me->NextME;
+  }
+
+  /* just to make sure */
+  mark_ops(stream, 0);
+  SaveHash(stream);
+  me = CurrentModules;
+  while (me) {
+    PredEntry *pp;
+    pp = me->PredForME;
+    CHECK(save_tag(stream, QLY_START_MODULE));
+    CHECK(save_uint(stream, (UInt)MkAtomTerm(me->AtomOfME)));
+    while (pp != NULL) {
+      CHECK(save_tag(stream, QLY_START_PREDICATE));
+      CHECK(save_pred(stream, pp));
+      pp = pp->NextPredOfModule;
+    }
+    CHECK(save_tag(stream, QLY_END_PREDICATES));
+    me = me->NextME;
+  }
+  CHECK(save_tag(stream, QLY_END_MODULES));
+  save_ops(stream, 0);
   CloseHash();
   return 1;
 }
@@ -520,12 +640,24 @@ p_save_module_preds( USES_REGS1 )
   return save_module(stream, tmod) != 0;
 }
 
+static Int
+p_save_program( USES_REGS1 )
+{
+  IOSTREAM *stream;
+
+  if (!Yap_getOutputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+    return FALSE;
+  }
+  return save_program(stream) != 0;
+}
+
 #endif
 
 void Yap_InitQLY(void)
 {
 #if DEBUG
-  Yap_InitCPred("$save_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
 #endif
 }
 

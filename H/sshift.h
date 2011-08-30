@@ -49,7 +49,6 @@
 // #define IntegerAdjust(D)  IntegerAdjust__(P PASS_REGS)
 #define AddrAdjust(P) AddrAdjust__(P PASS_REGS)
 #define BlockAdjust(P) BlockAdjust__(P PASS_REGS)
-#define MFileAdjust(P) MFileAdjust__(P PASS_REGS)
 #define CodeVarAdjust(P) CodeVarAdjust__(P PASS_REGS)
 #define ConstantAdjust(P) ConstantAdjust__(P PASS_REGS)
 #define ArityAdjust(P) ArityAdjust__(P PASS_REGS)
@@ -605,14 +604,6 @@ inline EXTERN AtomEntry *
 AtomEntryAdjust__ (AtomEntry * at USES_REGS)
 {
   return (AtomEntry *) ((AtomEntry *) (CharP (at) + LOCAL_HDiff));
-}
-
-inline EXTERN struct mfile *MFileAdjust__ (struct mfile * CACHE_TYPE);
-
-inline EXTERN struct mfile *
-MFileAdjust__ (struct mfile * at USES_REGS)
-{
-  return (struct mfile *) (CharP (at) + LOCAL_HDiff);
 }
 
 inline EXTERN GlobalEntry *GlobalEntryAdjust__ (GlobalEntry * CACHE_TYPE);

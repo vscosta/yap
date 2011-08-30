@@ -11,6 +11,7 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
     op_numbers op;
     if (max && pc >= max) return;
     op = Yap_op_from_opcode(pc->opc);
+    fprintf(stderr,"op=%d\n", op);
     pc->opc = Yap_opcode(op);
 #ifdef DEBUG_RESTORE2
     fprintf(stderr, "%s ", Yap_op_names[op]);

@@ -488,6 +488,48 @@ Yap_HasOp(Atom a)
 }
 
 OpEntry *
+Yap_OpPropForModule(Atom a, Term mod)
+{				/* look property list of atom a for kind  */
+  CACHE_REGS
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+  OpEntry *info;
+
+  if (mod == TermProlog)
+    mod = PROLOG_MODULE;
+  WRITE_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)) {
+    OpEntry *info = NULL;
+    if ( pp->KindOfPE == OpProperty) {
+      info = (OpEntry *)pp;
+      if (info->OpModule == mod) 
+	return info;
+    }
+  }
+  if (EndOfPAEntr(info)) {
+    info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
+    info->KindOfPE = Ord(OpProperty);
+    info->OpModule = mod;
+    info->OpName = a;
+    LOCK(OpListLock);
+    info->OpNext = OpList;
+    OpList = info;
+    UNLOCK(OpListLock);
+    AddPropToAtom(ae, (PropEntry *)info);
+    INIT_RWLOCK(info->OpRWLock);
+    WRITE_LOCK(info->OpRWLock);
+    WRITE_UNLOCK(ae->ARWLock);
+    info->Prefix = info->Infix = info->Posfix = 0;
+  } else {
+    WRITE_LOCK(info->OpRWLock);
+    WRITE_UNLOCK(ae->ARWLock);
+  }
+  return NULL;
+    
+}
+
+OpEntry *
 Yap_GetOpProp(Atom a, op_type type USES_REGS)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);

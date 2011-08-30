@@ -58,7 +58,7 @@ Term	STD_PROTO(Yap_NWideStringToListOfAtoms,(wchar_t *, size_t));
 Term	STD_PROTO(Yap_NWideStringToDiffListOfAtoms,(wchar_t *, Term, size_t));
 int     STD_PROTO(Yap_AtomIncreaseHold,(Atom));
 int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
-
+struct operator_entry *STD_PROTO(Yap_OpPropForModule,(Atom, Term));
 Int	STD_PROTO(Yap_InitSlot,(Term CACHE_TYPE));
 Int     STD_PROTO(Yap_NewSlots,(int CACHE_TYPE));
 int     STD_PROTO(Yap_RecoverSlots,(int CACHE_TYPE));
