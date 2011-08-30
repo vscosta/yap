@@ -10,3 +10,4 @@
 *.so
 *.dylib
 docs/yap.info*
+.build
