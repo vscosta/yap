@@ -494,7 +494,7 @@ BlobTermInCodeAdjust__ (Term t USES_REGS)
 static inline DBTerm *
 DBTermAdjust__ (DBTerm * dbtp USES_REGS)
 {
-  return (DBTerm *) ((DBTerm *) (CharP (dbtp) + LOCAL_HDiff));
+  return (DBTerm *) (CharP (dbtp) + LOCAL_HDiff);
 }
 
 #define CellPtoHeapAdjust(P) CellPtoHeapAdjust__(P PASS_REGS)
@@ -556,7 +556,7 @@ PtoHeapCellAdjust__ (CELL * ptr USES_REGS)
   LogUpdClause *out;
   if ((out = LookupMayFailDBRef((DBRef)ptr)))
     return (CELL *)out;
-  return (CELL *) (((CELL *) (CharP (ptr) + LOCAL_HDiff)));
+  return (CELL *) (CharP (ptr) + LOCAL_HDiff);
 }
 
 #define TermToGlobalAdjust(P) (P)
