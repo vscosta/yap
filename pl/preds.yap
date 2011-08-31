@@ -311,28 +311,42 @@ clause(V,Q,R) :-
 	'$continue_log_update_clause'(A,B,C,D,E).
 '$do_log_upd_clause'(_,_,_,_,_,_).
 
-:- '$do_log_upd_clause'(_,_,_,_,_,_), !.
 
 '$do_log_upd_clause_erase'(_,_,_,_,_,_).
 '$do_log_upd_clause_erase'(A,B,C,D,E,_) :-
 	'$continue_log_update_clause_erase'(A,B,C,D,E).
 '$do_log_upd_clause_erase'(_,_,_,_,_,_).
 
-:- '$do_log_upd_clause_erase'(_,_,_,_,_,_), !.
-
 '$do_log_upd_clause0'(_,_,_,_,_,_).
 '$do_log_upd_clause0'(A,B,C,D,_,_) :-
 	'$continue_log_update_clause'(A,B,C,D).
 '$do_log_upd_clause0'(_,_,_,_,_,_).
 
-:- '$do_log_upd_clause0'(_,_,_,_,_,_), !.
 
 '$do_static_clause'(_,_,_,_,_).
 '$do_static_clause'(A,B,C,D,E) :-
 	'$continue_static_clause'(A,B,C,D,E).
 '$do_static_clause'(_,_,_,_,_).
 
-:- '$do_static_clause'(_,_,_,_,_), !.
+
+'$init_preds' :- 
+	once('$handle_throw'(_,_,_)),
+	fail.
+'$init_preds' :- 
+	once('$do_static_clause'(_,_,_,_,_)),
+	fail.
+'$init_preds' :- 
+	once('$do_log_upd_clause0'(_,_,_,_,_,_)),
+	fail.
+'$init_preds' :- 
+	once('$do_log_upd_clause'(_,_,_,_,_,_)),
+	fail.
+'$init_preds' :- 
+	once('$do_log_upd_clause_erase'(_,_,_,_,_,_)),
+	fail.
+'$init_preds'.
+
+:- '$init_preds'.
 
 nth_clause(V,I,R) :- var(V), var(R), !,
 	'$do_error'(instantiation_error,nth_clause(V,I,R)).

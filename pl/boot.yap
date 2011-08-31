@@ -36,6 +36,13 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
+	(
+	  '$undefined'('$init_preds',prolog)
+	 ->
+	  true
+	 ;
+	 '$init_state'
+        ),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0),
@@ -202,7 +209,6 @@ true :- true.
 '$enter_top_level' :-
 	get_value('$top_level_goal',GA), GA \= [], !,
 	set_value('$top_level_goal',[]),
-	format('hello1 ~w~n',[GA]),
 	'$run_atom_goal'(GA),
 	set_value('$live','$false').
 '$enter_top_level' :-
@@ -221,23 +227,24 @@ true :- true.
 %
 % first, recover what we need from the saved state...
 %
-'$startup_saved_state' :-
+'$startup_saved_state' :- !.
+'$do_saved_state' :-
 	'$init_path_extensions',
 	fail.
 % use if we come from a save_program and we have SWI's shlib
-'$startup_saved_state' :-
+'$do_saved_state' :-
 	recorded('$reload_foreign_libraries',G,R),
 	erase(R),
 	shlib:reload_foreign_libraries,
 	fail.
 % use if we come from a save_program and we have a goal to execute
-'$startup_saved_state' :-
+'$do_saved_state' :-
 	recorded('$restore_goal',G,R),
 	erase(R),
 	prompt(_,'| '),
 	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
 	fail.
-'$startup_saved_state'.
+'$do_saved_state'.
 
 % then recover program.
 '$startup_reconsult' :-

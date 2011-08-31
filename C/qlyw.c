@@ -16,8 +16,6 @@
 *									 *
 *************************************************************************/
 
-#if DEBUG
-
 #include <SWI-Stream.h>
 #include "absmi.h"
 #include "Foreign.h"
@@ -139,6 +137,32 @@ LookupPredEntry(PredEntry *pe)
 }
 
 static void
+LookupDBRef(DBRef ref)
+{
+  CELL hash = Unsigned(ref) % LOCAL_ExportDBRefHashTableSize;
+  export_dbref_hash_entry_t *a;
+
+  a = LOCAL_ExportDBRefHashChain[hash];
+  while (a) {
+    if (a->val == ref) {
+      a->refs++;
+      return;
+    }
+    a = a->next;
+  }
+  a = (export_dbref_hash_entry_t *)malloc(sizeof(export_dbref_hash_entry_t));
+  if (!a) {
+    return;
+  }
+  a->val = ref;
+  a->sz = ((LogUpdClause *)ref)->ClSize;
+  a->refs = 1;
+  a->next = LOCAL_ExportDBRefHashChain[hash];
+  LOCAL_ExportDBRefHashChain[hash] = a;
+  LOCAL_ExportDBRefHashTableNum++;
+}
+
+static void
 InitHash(void)
 {
   LOCAL_ExportFunctorHashTableNum = 0;
@@ -150,6 +174,9 @@ InitHash(void)
   LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = EXPORT_PRED_ENTRY_TABLE_SIZE;
   LOCAL_ExportPredEntryHashChain = (export_pred_entry_hash_entry_t **)calloc(1, sizeof(export_pred_entry_hash_entry_t *)* LOCAL_ExportPredEntryHashTableSize);
+  LOCAL_ExportDBRefHashTableNum = 0;
+  LOCAL_ExportDBRefHashTableSize = EXPORT_DBREF_TABLE_SIZE;
+  LOCAL_ExportDBRefHashChain = (export_dbref_hash_entry_t **)calloc(1, sizeof(export_dbref_hash_entry_t *)* LOCAL_ExportDBRefHashTableSize);
 }
 
 static void
@@ -164,6 +191,9 @@ CloseHash(void)
   LOCAL_ExportPredEntryHashTableNum = 0;
   LOCAL_ExportPredEntryHashTableSize = 0L;
   free(LOCAL_ExportPredEntryHashChain);
+  LOCAL_ExportDBRefHashTableNum = 0;
+  LOCAL_ExportDBRefHashTableSize = 0L;
+  free(LOCAL_ExportDBRefHashChain);
 }
 
 static inline Atom
@@ -264,7 +294,15 @@ PtoPredAdjust(PredEntry *pe)
 #define DelayAddrAdjust(P) (P)
 #define DelayAdjust(P) (P)
 #define GlobalAdjust(P) (P)
-#define DBRefAdjust(P) (P)
+
+#define DBRefAdjust(P) DBRefAdjust__(P PASS_REGS)
+static inline DBRef
+DBRefAdjust__ (DBRef dbt USES_REGS)
+{
+  LookupDBRef(dbt);
+  return dbt;
+}
+
 #define DBRefPAdjust(P) (P)
 #define DBTermAdjust(P) (P)
 #define LUIndexAdjust(P) (P)
@@ -360,7 +398,7 @@ SaveHash(IOSTREAM *stream)
   save_uint(stream, (UInt)&ARG1);
   CHECK(save_tag(stream, QLY_START_OPCODES));
   save_int(stream, _std_top);
-  for (i= 0; i < _std_top; i++) {
+  for (i= 0; i <= _std_top; i++) {
     save_uint(stream, (UInt)Yap_opcode(i));
   }
   CHECK(save_tag(stream, QLY_START_ATOMS));
@@ -411,6 +449,21 @@ SaveHash(IOSTREAM *stream)
       free(p0);
     }
   }
+  save_tag(stream, QLY_START_DBREFS);
+  save_uint(stream, LOCAL_ExportDBRefHashTableNum);
+  for (i = 0; i < LOCAL_ExportDBRefHashTableSize; i++) {
+    export_dbref_hash_entry_t *p = LOCAL_ExportDBRefHashChain[i];
+    while (p) {
+      export_dbref_hash_entry_t *p0 = p;
+      CHECK(save_uint(stream, (UInt)(p->val)));
+      CHECK(save_uint(stream, p->sz));
+      CHECK(save_uint(stream, p->refs));
+      p = p->next;
+      free(p0);
+    }
+  }
+  save_tag(stream, QLY_FAILCODE);
+  save_uint(stream, (UInt)FAILCODE);
   return 1;
 }
 
@@ -430,12 +483,14 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
       if (pp->TimeStampOfPred >= cl->ClTimeStart &&
 	  pp->TimeStampOfPred <= cl->ClTimeEnd) {
 	UInt size = cl->ClSize;
+	CHECK(save_tag(stream, QLY_START_LU_CLAUSE));
 	CHECK(save_uint(stream, (UInt)cl));
 	CHECK(save_uint(stream, size));
 	CHECK(save_bytes(stream, cl, size));
       }
       cl = cl->ClNext;
     }
+    CHECK(save_tag(stream, QLY_END_LU_CLAUSES));
   } else if (pp->PredFlags & MegaClausePredFlag) {
     MegaClause *cl = ClauseCodeToMegaClause(FirstC);
     UInt size = cl->ClSize;
@@ -459,6 +514,9 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
   } else {
     StaticClause *cl = ClauseCodeToStaticClause(FirstC);
 
+    if (pp->PredFlags & SYSTEM_PRED_FLAGS) {
+      return 1;
+    }
     do {
       UInt size = cl->ClSize;
 
@@ -474,9 +532,9 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
+  CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->ArityOfPE));
   CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
-  CHECK(save_uint(stream, ap->PredFlags));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_uint(stream, ap->src.IndxId));
   return save_clauses(stream, ap);
@@ -579,12 +637,22 @@ save_module(IOSTREAM *stream, Term mod) {
   return 1;
 }
 
+int
+save_header(IOSTREAM *stream)
+{
+  char     msg[256];
+
+  sprintf(msg, "#!/bin/sh\nexec_dir=${YAPBINDIR:-%s}\nexec $exec_dir/yap $0 \"$@\"\n%s", YAP_BINDIR, YAP_SVERSION);
+  return save_bytes(stream, msg, strlen(msg)+1);
+}
+
 static size_t
 save_program(IOSTREAM *stream) {
   CACHE_REGS
   ModEntry *me = CurrentModules;
 
   InitHash();
+  save_header( stream );
   /* should we allow the user to see hidden predicates? */
   while (me) {
     PredEntry *pp;
@@ -651,13 +719,9 @@ p_save_program( USES_REGS1 )
   return save_program(stream) != 0;
 }
 
-#endif
-
 void Yap_InitQLY(void)
 {
-#if DEBUG
   Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
-#endif
 }
 

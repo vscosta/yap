@@ -2378,10 +2378,18 @@ YAP_RunGoalOnce(Term t)
   CACHE_REGS
   Term out;
   yamop *old_CP = CP;
+  Int oldPrologMode = LOCAL_PrologMode;
+
   BACKUP_MACHINE_REGS();
   LOCAL_PrologMode = UserMode;
   out = Yap_RunTopGoal(t);
-  LOCAL_PrologMode = UserCCallMode;
+  LOCAL_PrologMode = oldPrologMode;
+  if (!(oldPrologMode & UserCCallMode)) {
+    /* called from top-level */
+    LOCAL_AllowRestart = FALSE;
+    RECOVER_MACHINE_REGS();
+    return out;
+  }
   if (out) {
     choiceptr cut_pt, ob;
 
@@ -2810,7 +2818,7 @@ construct_init_file(char *boot_file, char *BootFile)
 /* this routine is supposed to be called from an external program
    that wants to control Yap */
 
-#if defined(USE_SYSTEM_MALLOC)
+#if defined(USE_SYSTEM_MALLOC) && FALSE
 #define  BOOT_FROM_SAVED_STATE FALSE
 #else
 #define  BOOT_FROM_SAVED_STATE TRUE
@@ -2840,8 +2848,8 @@ YAP_Init(YAP_init_args *yap_init)
     yap_init->SavedState = NULL;
   }    
 #endif
-  if (BOOT_FROM_SAVED_STATE && !do_bootstrap) {
-    if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap) != 1) {
+  if (FALSE && BOOT_FROM_SAVED_STATE && !do_bootstrap) {
+    if (Yap_SavedInfo (yap_init->SavedState, yap_init->YapLibDir, &Trail, &Stack, &Heap)) {
       yap_init->ErrorNo = LOCAL_Error_TYPE;
       yap_init->ErrorCause = LOCAL_ErrorMessage;
       return YAP_BOOT_ERROR;
@@ -3146,9 +3154,14 @@ YAP_Reset(void)
   if (B != NULL) {
     while (B->cp_b != NULL)
       B = B->cp_b;
-    P = (yamop *)FAILCODE;
-    if (Yap_exec_absmi(0) != 0)
-      return(FALSE);
+    P = FAILCODE;
+    if (Yap_exec_absmi(0) != 0) {
+      GLOBAL_Initialised = TRUE;
+
+      Yap_InitYaamRegs();
+      RECOVER_MACHINE_REGS();
+      return FALSE;
+    }
   }
   /* reinitialise the engine */
   Yap_InitYaamRegs();

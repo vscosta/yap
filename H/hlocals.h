@@ -198,6 +198,9 @@ typedef struct worker_local {
   struct export_pred_entry_hash_entry_struct  **ExportPredEntryHashChain_;
   UInt  ExportPredEntryHashTableSize_;
   UInt  ExportPredEntryHashTableNum_;
+  struct export_dbref_hash_entry_struct  **ExportDBRefHashChain_;
+  UInt  ExportDBRefHashTableSize_;
+  UInt  ExportDBRefHashTableNum_;
   struct import_atom_hash_entry_struct  **ImportAtomHashChain_;
   UInt  ImportAtomHashTableSize_;
   UInt  ImportAtomHashTableNum_;
@@ -209,4 +212,8 @@ typedef struct worker_local {
   struct import_pred_entry_hash_entry_struct  **ImportPredEntryHashChain_;
   UInt  ImportPredEntryHashTableSize_;
   UInt  ImportPredEntryHashTableNum_;
+  struct import_dbref_hash_entry_struct  **ImportDBRefHashChain_;
+  UInt  ImportDBRefHashTableSize_;
+  UInt  ImportDBRefHashTableNum_;
+  yamop  *ImportFAILCODE_;
 } w_local;

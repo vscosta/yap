@@ -347,6 +347,12 @@
 #define REMOTE_ExportPredEntryHashTableSize(wid) REMOTE(wid)->ExportPredEntryHashTableSize_
 #define LOCAL_ExportPredEntryHashTableNum LOCAL->ExportPredEntryHashTableNum_
 #define REMOTE_ExportPredEntryHashTableNum(wid) REMOTE(wid)->ExportPredEntryHashTableNum_
+#define LOCAL_ExportDBRefHashChain LOCAL->ExportDBRefHashChain_
+#define REMOTE_ExportDBRefHashChain(wid) REMOTE(wid)->ExportDBRefHashChain_
+#define LOCAL_ExportDBRefHashTableSize LOCAL->ExportDBRefHashTableSize_
+#define REMOTE_ExportDBRefHashTableSize(wid) REMOTE(wid)->ExportDBRefHashTableSize_
+#define LOCAL_ExportDBRefHashTableNum LOCAL->ExportDBRefHashTableNum_
+#define REMOTE_ExportDBRefHashTableNum(wid) REMOTE(wid)->ExportDBRefHashTableNum_
 #define LOCAL_ImportAtomHashChain LOCAL->ImportAtomHashChain_
 #define REMOTE_ImportAtomHashChain(wid) REMOTE(wid)->ImportAtomHashChain_
 #define LOCAL_ImportAtomHashTableSize LOCAL->ImportAtomHashTableSize_
@@ -369,4 +375,12 @@
 #define REMOTE_ImportPredEntryHashTableSize(wid) REMOTE(wid)->ImportPredEntryHashTableSize_
 #define LOCAL_ImportPredEntryHashTableNum LOCAL->ImportPredEntryHashTableNum_
 #define REMOTE_ImportPredEntryHashTableNum(wid) REMOTE(wid)->ImportPredEntryHashTableNum_
+#define LOCAL_ImportDBRefHashChain LOCAL->ImportDBRefHashChain_
+#define REMOTE_ImportDBRefHashChain(wid) REMOTE(wid)->ImportDBRefHashChain_
+#define LOCAL_ImportDBRefHashTableSize LOCAL->ImportDBRefHashTableSize_
+#define REMOTE_ImportDBRefHashTableSize(wid) REMOTE(wid)->ImportDBRefHashTableSize_
+#define LOCAL_ImportDBRefHashTableNum LOCAL->ImportDBRefHashTableNum_
+#define REMOTE_ImportDBRefHashTableNum(wid) REMOTE(wid)->ImportDBRefHashTableNum_
+#define LOCAL_ImportFAILCODE LOCAL->ImportFAILCODE_
+#define REMOTE_ImportFAILCODE(wid) REMOTE(wid)->ImportFAILCODE_
 

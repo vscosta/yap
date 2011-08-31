@@ -18,6 +18,7 @@
 static char     SccsId[] = "@(#)save.c	1.3 3/15/90";
 #endif
 
+#include "SWI-Stream.h"
 #if _MSC_VER || defined(__MINGW32__)
 #include <windows.h>
 #include <psapi.h>
@@ -122,7 +123,7 @@ STATIC_PROTO(void  restore_heap, (void));
 STATIC_PROTO(void  ShowAtoms, (void));
 STATIC_PROTO(void  ShowEntries, (PropEntry *));
 #endif
-STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *));
+STATIC_PROTO(int   OpenRestore, (char *, char *, CELL *, CELL *, CELL *, CELL *, IOSTREAM **));
 STATIC_PROTO(void  CloseRestore, (void));
 #ifndef _WIN32
 STATIC_PROTO(int  check_opcodes, (OPCODE []));
@@ -1414,10 +1415,14 @@ cat_file_name(char *s, char *prefix, char *name, unsigned int max_length)
   strncat(s, name, max_length-1);
 }
 
-static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, char *buf) {
+static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, char *buf, IOSTREAM **streamp) {
   int mode;
 
-  
+  if (streamp) {
+    if ((*streamp = Sopen_file(inpf, "rb")))
+      return FAIL_RESTORE;    
+    return DO_ONLY_CODE;
+  }
   if ((splfild = open_file(inpf, O_RDONLY)) < 0) {
     return FAIL_RESTORE;
   }
@@ -1432,7 +1437,7 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
 }
 
 static int 
-OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap)
+OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *AHeap, IOSTREAM **streamp)
 {
   CACHE_REGS
   int mode = FAIL_RESTORE;
@@ -1464,7 +1469,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     strncat(LOCAL_FileNameBuf, inpf, YAP_FILENAME_MAX-1);
   }
   if (inpf != NULL && (splfild = open_file(inpf, O_RDONLY)) > 0) {
-    if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+    if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
       return mode;
     }
   }
@@ -1475,11 +1480,11 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     */
     if (YapLibDir != NULL) {
       cat_file_name(LOCAL_FileNameBuf, Yap_LibDir, inpf, YAP_FILENAME_MAX);
-      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	return mode;
       }
     } else {
-      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+      if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	return mode;
       }
     }
@@ -1488,7 +1493,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       char *yap_env = getenv("YAPLIBDIR");
       if (yap_env != NULL) {
 	cat_file_name(LOCAL_FileNameBuf, yap_env, inpf, YAP_FILENAME_MAX);
-	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	  return mode;
 	}
       }
@@ -1497,7 +1502,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     if (YAP_LIBDIR != NULL) {
       cat_file_name(LOCAL_FileNameBuf, YAP_LIBDIR, inpf, YAP_FILENAME_MAX);
       if ((splfild = open_file(LOCAL_FileNameBuf, O_RDONLY)) > 0) {
-	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+	if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
 	  return mode;
 	}
       }
@@ -1537,7 +1542,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
       pt[1] = '\0';
       strncat(LOCAL_FileNameBuf,"lib/Yap/startup.yss",YAP_FILENAME_MAX);
     }
-    if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer)) != FAIL_RESTORE) {
+    if ((mode = try_open(LOCAL_FileNameBuf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
       return mode;
     }
   }
@@ -1555,6 +1560,15 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     }
   }
   return FAIL_RESTORE;
+}
+
+IOSTREAM * 
+Yap_OpenRestore(char *inpf, char *YapLibDir)
+{
+  IOSTREAM *stream = NULL;
+
+  OpenRestore(inpf, YapLibDir, NULL, NULL, NULL, NULL, &stream);
+  return stream;
 }
 
 static void 
@@ -1636,10 +1650,12 @@ RestoreHeap(OPCODE old_ops[] USES_REGS)
 int 
 Yap_SavedInfo(char *FileName, char *YapLibDir, CELL *ATrail, CELL *AStack, CELL *AHeap)
 {
+  return DO_ONLY_CODE;
+
   CELL MyTrail, MyStack, MyHeap, MyState;
   int             mode;
 
-  mode = OpenRestore(FileName, YapLibDir, &MyState, &MyTrail, &MyStack, &MyHeap);
+  mode = OpenRestore(FileName, YapLibDir, &MyState, &MyTrail, &MyStack, &MyHeap, NULL);
   if (mode == FAIL_RESTORE) {
     return -1;
   }
@@ -1730,7 +1746,7 @@ Restore(char *s, char *lib_dir USES_REGS)
   OPCODE old_ops[_std_top+1];
   CELL MyTrail, MyStack, MyHeap, MyState;
 
-  if ((restore_mode = OpenRestore(s, lib_dir, &MyState, &MyTrail, &MyStack, &MyHeap)) == FAIL_RESTORE)
+  if ((restore_mode = OpenRestore(s, lib_dir, &MyState, &MyTrail, &MyStack, &MyHeap, NULL)) == FAIL_RESTORE)
     return(FALSE);
   Yap_ShutdownLoadForeign();
   in_limbo = TRUE;
@@ -1784,7 +1800,7 @@ Restore(char *s, char *lib_dir USES_REGS)
 }
 
 int 
-Yap_Restore(char *s, char *lib_dir)
+Yap_SavedStateRestore(char *s, char *lib_dir)
 {
   CACHE_REGS
   return Restore(s, lib_dir PASS_REGS);

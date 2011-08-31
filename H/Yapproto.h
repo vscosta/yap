@@ -310,11 +310,13 @@ void	STD_PROTO(Yap_InitReadUtil,(void));
 
 /* qly.c */
 void	STD_PROTO(Yap_InitQLY,(void));
+int 	STD_PROTO(Yap_Restore,(char *, char *));
 void	STD_PROTO(Yap_InitQLYR,(void));
 
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
-int 	STD_PROTO(Yap_Restore,(char *, char *));
+int 	STD_PROTO(Yap_SavedStateRestore,(char *, char *));
+struct io_stream *STD_PROTO(Yap_OpenRestore,(char *, char *));
 void	STD_PROTO(Yap_InitSavePreds,(void));
 
 /* scanner.c */

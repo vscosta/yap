@@ -674,7 +674,7 @@ typedef enum
   TabledPredFlag = 0x00000040L,	/* is tabled */
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
-  /* MyddasPredFlag = 0x00000008L,	Myddas Imported pred  */
+  BackCPredFlag = 0x00000008L,    /*	Myddas Imported pred  */
   ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
   SWIEnvPredFlag = 0x00000002L,	/* new SWI interface */
   UDIPredFlag = 0x00000001L	/* User Defined Indexing */

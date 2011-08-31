@@ -224,6 +224,9 @@ UInt				ExportFunctorHashTableNum		=0
 struct export_pred_entry_hash_entry_struct **ExportPredEntryHashChain	=NULL
 UInt				ExportPredEntryHashTableSize		=0
 UInt				ExportPredEntryHashTableNum		=0
+struct export_dbref_hash_entry_struct **ExportDBRefHashChain		=NULL
+UInt				ExportDBRefHashTableSize		=0
+UInt				ExportDBRefHashTableNum			=0
 struct import_atom_hash_entry_struct **ImportAtomHashChain		=NULL
 UInt				ImportAtomHashTableSize			=0
 UInt				ImportAtomHashTableNum			=0
@@ -235,5 +238,9 @@ UInt				ImportOPCODEHashTableSize		=0
 struct import_pred_entry_hash_entry_struct **ImportPredEntryHashChain	=NULL
 UInt				ImportPredEntryHashTableSize		=0
 UInt				ImportPredEntryHashTableNum		=0
+struct import_dbref_hash_entry_struct **ImportDBRefHashChain		=NULL
+UInt				ImportDBRefHashTableSize		=0
+UInt				ImportDBRefHashTableNum			=0
+yamop			       *ImportFAILCODE				=NULL
 
 END_WORKER_LOCAL

@@ -23,6 +23,7 @@
 #include "YapHeap.h"
 #include "attvar.h"
 #include "yapio.h"
+#include "clause.h"
 #include "tracer.h"
 
 STATIC_PROTO(int  TracePutchar, (int, int));
@@ -167,6 +168,13 @@ low_level_trace(yap_low_level_port port, PredEntry *pred, CELL *args)
   LOCAL_ThreadHandle.thread_inst_count++;
 #endif  
 #ifdef COMMENTED
+  {
+    choiceptr b_p = B;
+    while (b_p) {
+      fprintf(stderr,"%p %ld\n",b_p,Yap_op_from_opcode(b_p->cp_ap->opc));
+      b_p = b_p->cp_b;
+    }
+  }
   { choiceptr myB = B;
     while (myB) myB = myB->cp_b;
   }

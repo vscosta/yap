@@ -712,7 +712,7 @@ all: startup.yss
 
 startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 	-rm -f startup.yss
-	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). save_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap -b $(srcdir)/pl/boot.yap
+	echo "bootstrap('$(srcdir)/pl/init.yap'). module(user). qsave_program('startup.yss')." |  @PRE_INSTALL_ENV@ ./yap -b $(srcdir)/pl/boot.yap
 
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@

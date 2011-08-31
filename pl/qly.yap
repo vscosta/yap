@@ -17,9 +17,40 @@
 *************************************************************************/
 
 qsave_program(File) :-
+	'$save_program_status',
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	close(S).	
+
+'$save_program_status' :-
+	findall(F:V,yap_flag(F,V),L),
+	recordz('$program_state',L,_).
+
+'$init_state' :-
+	recorded('$program_state', _, _), !,
+	'$do_init_state'.
+'$init_state'.
+
+'$do_init_state' :-
+	 '$init_preds',
+	 fail.
+'$do_init_state' :-
+	recorded('$program_state',L,R),
+	erase(R),
+	lists:member(F:V,L),
+	catch(yap_flag(F,V),_,fail),
+	fail.
+'$do_init_state' :-
+	set_value('$user_module',user), '$protect'.
+'$do_init_state' :-
+	'$current_module'(prolog),
+	module(user),
+	fail.
+'$do_init_state' :-
+	'$init_system',
+	fail.
+'$do_init_state'.
+
 
 qsave_module(Mod) :-
 	recorded('$module', '$module'(F,Mod,Exps), _),
@@ -39,7 +70,7 @@ qsave_module(_).
 
 qload_program(File) :-
 	open(File, read, S, [type(binary)]),
-	'$qload_module_preds'(S),
+	'$qload_program'(S),
 	close(S).
 
 qload_module(Mod) :-

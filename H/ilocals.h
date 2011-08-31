@@ -198,6 +198,9 @@ static void InitWorker(int wid) {
   REMOTE_ExportPredEntryHashChain(wid) = NULL;
   REMOTE_ExportPredEntryHashTableSize(wid) = 0;
   REMOTE_ExportPredEntryHashTableNum(wid) = 0;
+  REMOTE_ExportDBRefHashChain(wid) = NULL;
+  REMOTE_ExportDBRefHashTableSize(wid) = 0;
+  REMOTE_ExportDBRefHashTableNum(wid) = 0;
   REMOTE_ImportAtomHashChain(wid) = NULL;
   REMOTE_ImportAtomHashTableSize(wid) = 0;
   REMOTE_ImportAtomHashTableNum(wid) = 0;
@@ -209,4 +212,8 @@ static void InitWorker(int wid) {
   REMOTE_ImportPredEntryHashChain(wid) = NULL;
   REMOTE_ImportPredEntryHashTableSize(wid) = 0;
   REMOTE_ImportPredEntryHashTableNum(wid) = 0;
+  REMOTE_ImportDBRefHashChain(wid) = NULL;
+  REMOTE_ImportDBRefHashTableSize(wid) = 0;
+  REMOTE_ImportDBRefHashTableNum(wid) = 0;
+  REMOTE_ImportFAILCODE(wid) = NULL;
 }

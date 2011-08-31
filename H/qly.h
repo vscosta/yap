@@ -20,6 +20,7 @@
 #define EXPORT_FUNCTOR_TABLE_SIZE (16*4096)
 #define EXPORT_OPCODE_TABLE_SIZE (4096)
 #define EXPORT_PRED_ENTRY_TABLE_SIZE (128)
+#define EXPORT_DBREF_TABLE_SIZE (128)
 
 typedef struct export_atom_hash_entry_struct {
   Atom val;
@@ -69,21 +70,43 @@ typedef struct import_pred_entry_hash_entry_struct {
   struct  import_pred_entry_hash_entry_struct *next;
 } import_pred_entry_hash_entry_t;
 
+typedef struct export_dbref_hash_entry_struct {
+  DBRef val;
+  UInt sz;
+  UInt refs;
+  struct  export_dbref_hash_entry_struct *next;
+} export_dbref_hash_entry_t;
+
+typedef struct import_dbref_hash_entry_struct {
+  DBRef val;
+  DBRef oval;
+  int count;
+  struct  import_dbref_hash_entry_struct *next;
+} import_dbref_hash_entry_t;
+
 typedef enum {
   QLY_START_X = 0,
   QLY_START_OPCODES = 1,
   QLY_START_ATOMS = 2,
   QLY_START_FUNCTORS = 3,
   QLY_START_PRED_ENTRIES = 4,
-  QLY_START_MODULE = 5,
-  QLY_END_MODULES = 6,
-  QLY_NEW_OP = 7,
-  QLY_END_OPS = 8,
-  QLY_START_PREDICATE = 9,
-  QLY_END_PREDICATES = 10,
-  QLY_ATOM_WIDE = 11,
-  QLY_ATOM = 12
+  QLY_START_DBREFS = 5,
+  QLY_START_MODULE = 6,
+  QLY_END_MODULES = 7,
+  QLY_START_LU_CLAUSE = 8,
+  QLY_END_LU_CLAUSES = 9,
+  QLY_NEW_OP = 10,
+  QLY_END_OPS = 11,
+  QLY_START_PREDICATE = 12,
+  QLY_END_PREDICATES = 13,
+  QLY_ATOM_WIDE = 14,
+  QLY_FAILCODE = 15,
+  QLY_ATOM = 16
 } qlf_tag_t;
+
+#define STATIC_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|BackCPredFlag)
+
+#define SYSTEM_PRED_FLAGS (BackCPredFlag|UserCPredFlag|CArgsPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)
 
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
