@@ -5979,7 +5979,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
     }
 #endif
     ap->OpcodeOfPred = Yap_opcode(_op_fail);
-  } else {
+  } else if (ap->PredFlags & IndexedPredFlag)  {
     remove_from_index(ap, sp, &cl, beg, last, &cint); 
   }
 }
