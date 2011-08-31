@@ -493,40 +493,37 @@ Yap_OpPropForModule(Atom a, Term mod)
   CACHE_REGS
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
-  OpEntry *info;
+  OpEntry *info = NULL;
 
   if (mod == TermProlog)
     mod = PROLOG_MODULE;
   WRITE_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
   while (!EndOfPAEntr(pp)) {
-    OpEntry *info = NULL;
     if ( pp->KindOfPE == OpProperty) {
       info = (OpEntry *)pp;
-      if (info->OpModule == mod) 
+      if (info->OpModule == mod) {
+	WRITE_LOCK(info->OpRWLock);
+	WRITE_UNLOCK(ae->ARWLock);
 	return info;
+      }
     }
+    pp = pp->NextOfPE;
   }
-  if (EndOfPAEntr(info)) {
-    info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
-    info->KindOfPE = Ord(OpProperty);
-    info->OpModule = mod;
-    info->OpName = a;
-    LOCK(OpListLock);
-    info->OpNext = OpList;
-    OpList = info;
-    UNLOCK(OpListLock);
-    AddPropToAtom(ae, (PropEntry *)info);
-    INIT_RWLOCK(info->OpRWLock);
-    WRITE_LOCK(info->OpRWLock);
-    WRITE_UNLOCK(ae->ARWLock);
-    info->Prefix = info->Infix = info->Posfix = 0;
-  } else {
-    WRITE_LOCK(info->OpRWLock);
-    WRITE_UNLOCK(ae->ARWLock);
-  }
-  return NULL;
-    
+  info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
+  info->KindOfPE = Ord(OpProperty);
+  info->OpModule = mod;
+  info->OpName = a;
+  LOCK(OpListLock);
+  info->OpNext = OpList;
+  OpList = info;
+  UNLOCK(OpListLock);
+  AddPropToAtom(ae, (PropEntry *)info);
+  INIT_RWLOCK(info->OpRWLock);
+  WRITE_LOCK(info->OpRWLock);
+  WRITE_UNLOCK(ae->ARWLock);
+  info->Prefix = info->Infix = info->Posfix = 0;
+  return info;
 }
 
 OpEntry *
