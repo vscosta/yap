@@ -3037,7 +3037,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  cl_u->luc.ClFlags |= HasCutMask;	  
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
-	cl_u->luc.ClSize = size;
 	/* Support for timestamps */
 	if (cip->CurrentPred->LastCallOfPred != LUCALL_ASSERT) {
 	  if (cip->CurrentPred->TimeStampOfPred >= TIMESTAMP_RESET)
@@ -3948,8 +3947,10 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     if (mode == ASSEMBLING_CLAUSE) {
       if (ap->PredFlags & LogUpdatePredFlag) {
+	((LogUpdClause *)(cip->code_addr))->ClSize = size;
 	Yap_LUClauseSpace += size;
       } else
+	((StaticClause *)(cip->code_addr))->ClSize = size;
 	Yap_ClauseSpace += size;
     } else {
       if (ap->PredFlags & LogUpdatePredFlag) {
