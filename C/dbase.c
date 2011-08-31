@@ -1221,19 +1221,22 @@ CreateDBWithDBRef(Term Tm, DBProp p, struct db_globs *dbg)
   DBTerm *ppt;
 
   if (p == NULL) {
-    ppt = (DBTerm *)AllocDBSpace(sizeof(DBTerm)+2*sizeof(CELL));
+    UInt sz = sizeof(DBTerm)+2*sizeof(CELL);
+    ppt = (DBTerm *)AllocDBSpace(sz);
     if (ppt == NULL) {
-      return generate_dberror_msg(OUT_OF_HEAP_ERROR, TermNil, "could not allocate space");
+      return generate_dberror_msg(OUT_OF_HEAP_ERROR, TermNil, "could not allocate heap");
     }
-    dbg->sz = sizeof(DBTerm)+2*sizeof(CELL);
-    Yap_LUClauseSpace += sizeof(DBTerm)+2*sizeof(CELL);
+    dbg->sz = sz;
+    Yap_LUClauseSpace += sz;
     pp = (DBRef)ppt;
   } else {
-    pp = AllocDBSpace(DBLength(2*sizeof(DBRef)));
+    UInt sz = DBLength(2*sizeof(DBRef));
+    pp = AllocDBSpace(sz);
     if (pp == NULL) {
       return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
     }
-    Yap_LUClauseSpace += DBLength(2*sizeof(DBRef));
+    Yap_LUClauseSpace += sz;
+    dbg->sz = sz;
     pp->id = FunctorDBRef;
     pp->Flags = DBNoVars|DBComplex|DBWithRefs;
     INIT_LOCK(pp->lock);
@@ -1261,13 +1264,14 @@ static DBTerm *
 CreateDBTermForAtom(Term Tm, UInt extra_size, struct db_globs *dbg) {
   DBTerm *ppt;
   ADDR ptr;
+  UInt sz = extra_size+sizeof(DBTerm);
 
-  ptr = (ADDR)AllocDBSpace(extra_size+sizeof(DBTerm));
+  ptr = (ADDR)AllocDBSpace(sz);
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
-  Yap_LUClauseSpace += extra_size+sizeof(DBTerm);
-  dbg->sz = extra_size+sizeof(DBTerm);
+  Yap_LUClauseSpace += sz;
+  dbg->sz = sz;
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
@@ -1284,13 +1288,14 @@ CreateDBTermForVar(UInt extra_size, struct db_globs *dbg)
 {
   DBTerm *ppt;
   ADDR ptr;
+  UInt sz = extra_size+sizeof(DBTerm);
 
-  ptr = (ADDR)AllocDBSpace(extra_size+sizeof(DBTerm));
+  ptr = (ADDR)AllocDBSpace(sz);
   if (ptr == NULL) {
     return (DBTerm *)generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
-  Yap_LUClauseSpace += extra_size+sizeof(DBTerm);
-  dbg->sz = extra_size+sizeof(DBTerm);
+  Yap_LUClauseSpace += sz;
+  dbg->sz = sz;
   ppt = (DBTerm *)(ptr+extra_size);
   ppt->NOfCells = 0;
   ppt->DBRefs = NULL;
@@ -1306,16 +1311,17 @@ static DBRef
 CreateDBRefForAtom(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   Register DBRef  pp;
   SMALLUNSGN      flag;
+  UInt sz = DBLength(NIL);
 
   flag = DBAtomic;
   if (InFlag & MkIfNot && (dbg->found_one = check_if_cons(p->First, Tm)))
     return dbg->found_one;
-  pp = AllocDBSpace(DBLength(NIL));
+  pp = AllocDBSpace(sz);
   if (pp == NIL) {
     return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
-  Yap_LUClauseSpace += DBLength(NIL);
-  dbg->sz = DBLength(NIL);
+  Yap_LUClauseSpace += sz;
+  dbg->sz = sz;
   pp->id = FunctorDBRef;
   INIT_LOCK(pp->lock);
   INIT_DBREF_COUNT(pp);
@@ -1333,15 +1339,16 @@ CreateDBRefForAtom(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
 static DBRef
 CreateDBRefForVar(Term Tm, DBProp p, int InFlag, struct db_globs *dbg) {
   Register DBRef  pp;
+  UInt sz = DBLength(NULL);
 
   if (InFlag & MkIfNot && (dbg->found_one = check_if_var(p->First)))
     return dbg->found_one;
-  pp = AllocDBSpace(DBLength(NULL));
+  pp = AllocDBSpace(sz);
   if (pp == NULL) {
     return generate_dberror_msg(OUT_OF_HEAP_ERROR, 0, "could not allocate space");
   }
-  Yap_LUClauseSpace += DBLength(NULL);
-  dbg->sz = DBLength(NULL);
+  Yap_LUClauseSpace += sz;
+  dbg->sz = sz;
   pp->id = FunctorDBRef;
   pp->Flags = DBVar;
   pp->DBT.Entry = (CELL) Tm;
@@ -1549,23 +1556,25 @@ CreateDBStruct(Term Tm, DBProp p, int InFlag, int *pstat, UInt extra_size, struc
     }
 #endif
     if (p == NULL) {
-      ADDR ptr = Yap_AllocCodeSpace((CELL)CodeAbs+extra_size+sizeof(DBTerm));
+      UInt sz  = (CELL)CodeAbs+extra_size+sizeof(DBTerm);
+      ADDR ptr = Yap_AllocCodeSpace(sz);
       ppt = (DBTerm *)(ptr+extra_size);
       if (ptr == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+	return generate_dberror_msg(OUT_OF_HEAP_ERROR, sz, "heap crashed against stacks");
       }
-      Yap_LUClauseSpace += (CELL)CodeAbs+extra_size+sizeof(DBTerm);
-      dbg->sz = (CELL)CodeAbs+extra_size+sizeof(DBTerm);
+      Yap_LUClauseSpace += sz;
+      dbg->sz = sz;
       pp = (DBRef)ppt;
     } else {
-      pp = AllocDBSpace(DBLength(CodeAbs));
+      UInt sz = DBLength(CodeAbs);
+      pp = AllocDBSpace(sz);
       if (pp == NULL) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)pp0);
-	return generate_dberror_msg(OUT_OF_HEAP_ERROR, (UInt)DBLength(CodeAbs), "heap crashed against stacks");
+	return generate_dberror_msg(OUT_OF_HEAP_ERROR, sz, "heap crashed against stacks");
       }
-      Yap_LUClauseSpace += DBLength(CodeAbs);
-      dbg->sz = DBLength(CodeAbs);
+      Yap_LUClauseSpace += sz;
+      dbg->sz = sz;
       pp->id = FunctorDBRef;
       pp->Flags = flag;
       INIT_LOCK(pp->lock);
