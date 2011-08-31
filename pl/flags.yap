@@ -335,7 +335,7 @@ yap_flag(version,X) :-
 yap_flag(version_data,X) :-
 	var(X), !,
 	'$get_version_codes'(Major,Minor,Patch),
-	X = yap(Major, Minor, Patch, _).
+	X = yap(Major, Minor, Patch, 0).
 yap_flag(version_data,X) :-
 	'$do_error'(permission_error(modify,flag,version),yap_flag(version_data,X)).
 
@@ -513,7 +513,8 @@ yap_flag(language,X) :-
 
 yap_flag(debug,X) :-
 	var(X), !,
-	('$debug_on'(true)
+	'$debug_on'(Val),
+	(Val == true
 	->
 	 X = on
 	;
@@ -653,9 +654,9 @@ yap_flag(update_semantics,immediate) :- !,
 yap_flag(update_semantics,X) :-
 	'$do_error'(domain_error(flag_value,update_semantics+X),yap_flag(update_semantics,X)).
 
-yap_flag(toplevel_hook,X) :-
-	var(X), !,
-	( recorded('$toplevel_hooks',G,_) -> G ; true ).
+yap_flag(toplevel_hook,G) :-
+	var(G), !,
+	( recorded('$toplevel_hooks',G,_) -> G ; G = false ).
 yap_flag(toplevel_hook,G) :- !,
 	'$set_toplevel_hook'(G).
 
