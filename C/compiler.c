@@ -737,7 +737,7 @@ c_arg(Int argno, Term t, unsigned int arity, unsigned int level, compiler_struct
     if (optimizer_on && level < 6) {
 #if !defined(THREADS) && !defined(YAPOR)
       /* discard code sharing because we cannot write on shared stuff */
-      if (!(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
+      if (FALSE && !(cglobs->cint.CurrentPred->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
 	if (try_store_as_dbterm(t, argno, arity, level, cglobs))
 	  return;
       }     
