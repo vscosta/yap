@@ -161,8 +161,8 @@ true :- true.
 	 true
 	).
 '$read_toplevel'(Goal, Bindings) :-
-	prompt(_,'?- '),
-	prompt1('|: '),
+	prompt1('?- '),
+	prompt(_,'|: '),
 	'$system_catch'('$raw_read'(user_input, Line), prolog, E,
 	      (print_message(error, E),
 	       (   E = error(syntax_error(_), _)
