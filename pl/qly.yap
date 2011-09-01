@@ -23,8 +23,14 @@ qsave_program(File) :-
 	close(S).	
 
 '$save_program_status' :-
-	findall(F:V,yap_flag(F,V),L),
+	findall(F:V,'$x_yap_flag'(F,V),L),
 	recordz('$program_state',L,_).
+
+% there is some ordering between flags.
+'$x_yap_flag'(language, V).
+'$x_yap_flag'(X, V) :-
+	yap_flag(X, V),
+	X \= language.
 
 '$init_state' :-
 	recorded('$program_state', _, _), !,
