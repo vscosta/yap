@@ -7,7 +7,7 @@ ENUMS = gecode-enums-$(GECODEVERSION).py
 all: $(PROTOTYPES) $(ENUMS)
 
 $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
-	cat notice.hh > $@
+	cat notice.hh > $@ || { rm -f $@; exit 1; }
 	xsltproc extract-prototypes.xsl $<  \
 	| sed 's/Gecode:://g' \
 	| sed 's/< /</g' \
@@ -17,17 +17,17 @@ $(PROTOTYPES): % : xml/namespaceGecode.xml extract-prototypes.xsl
 	| sed 's/forceinline //g' \
 	| sed 's/GECODE_INT_EXPORT //g' \
 	| sed 's/GECODE_SET_EXPORT //g' \
-	| grep -v '*' | sort >> $@
+	| grep -v '*' | sort >> $@ || { rm -f $@; exit 1; }
 
 $(ENUMS): % : xml/namespaceGecode.xml extract-enums.xsl
-	cat notice.py > $@
-	xsltproc extract-enums.xsl $< >> $@
+	cat notice.py > $@ || { rm -f $@; exit 1; }
+	xsltproc extract-enums.xsl $< >> $@ || { rm -f $@; exit 1; }
 
 xml/namespaceGecode.xml: Doxyfile
 	doxygen Doxyfile
 
 Doxyfile: Doxyfile.in
-	cat $< | sed "s#@GECODEDIR@#$(GECODEDIR)#" > $@
+	cat $< | sed "s#@GECODEDIR@#$(GECODEDIR)#" > $@ || { rm -f $@; exit 1; }
 
 clean:
 	-rm -rf *~ gecode-prototypes-*.hh gecode-enums-*.py Doxyfile xml

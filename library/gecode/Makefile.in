@@ -44,7 +44,7 @@ SOBJS=gecode_yap.@SO@
 
 CODEGEN=$(srcdir)/code-generator.py
 DISJUNCTOR = -DDISJUNCTOR
-PYTHON = @PYTHON@
+PYTHON = @PYTHON@ -B
 export PYTHONPATH:=$(srcdir):$(PYTHONPATH)
 
 all: $(SOBJS) gecode.yap

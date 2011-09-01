@@ -360,179 +360,179 @@ get_for_vars([V|Vs],Space,[V2|V2s],F) :-
 
 get_assigned(Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_assigned(Space_,Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_assigned(Space_,Var_)
 	; is_SetVar(Var,Var_)
 	-> gecode_setvar_assigned(Space_,Var_)
-	; throw(gecode_error(expected(variable))).
+	; throw(gecode_error(expected(variable)))).
 
 get_min(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_min(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_min(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_min).
+	; get_for_vars(X, Space, Var, gecode:get_min)).
 
 get_max(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_max(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_max(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_max).
+	; get_for_vars(X, Space, Var, gecode:get_max)).
 
 get_med(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_med(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_med(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_med).
+	; get_for_vars(X, Space, Var, gecode:get_med)).
 
 get_val(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_val(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_val(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_val).
+	; get_for_vars(X, Space, Var, gecode:get_val)).
 
 get_size(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_size(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_size(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_size).
+	; get_for_vars(X, Space, Var, gecode:get_size)).
 
 get_width(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_width(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_width(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_width).
+	; get_for_vars(X, Space, Var, gecode:get_width)).
 
 get_regret_min(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_regret_min(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_regret_min(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_regret_min).
+	; get_for_vars(X, Space, Var, gecode:get_regret_min)).
 
 get_regret_max(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_regret_max(X, Space_, Var_)
 	; is_BoolVar(Var,Var_)
 	-> gecode_boolvar_regret_max(X, Space_, Var_)
-	; get_for_vars(X, Space, Var, gecode:get_regret_max).
+	; get_for_vars(X, Space, Var, gecode:get_regret_max)).
 
 get_glbSize(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_glbSize(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_glbSize).
+	; get_for_vars(X, Space, Var, gecode:get_glbSize)).
 
 get_lubSize(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_lubSize(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_lubSize).
+	; get_for_vars(X, Space, Var, gecode:get_lubSize)).
 
 get_unknownSize(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_unknownSize(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_unknownSize).
+	; get_for_vars(X, Space, Var, gecode:get_unknownSize)).
 
 get_cardMin(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_cardMin(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_cardMin).
+	; get_for_vars(X, Space, Var, gecode:get_cardMin)).
 
 get_cardMax(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_cardMax(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_cardMax).
+	; get_for_vars(X, Space, Var, gecode:get_cardMax)).
 
 get_lubMin(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_lubMin(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_lubMin).
+	; get_for_vars(X, Space, Var, gecode:get_lubMin)).
 
 get_lubMax(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_lubMax(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_lubMax).
+	; get_for_vars(X, Space, Var, gecode:get_lubMax)).
 
 get_glbMin(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_glbMin(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_glbMin).
+	; get_for_vars(X, Space, Var, gecode:get_glbMin)).
 
 get_glbMax(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_glbMax(X,Space_,Var_)
-	; get_for_vars(X, Space, Var, gecode:get_glbMax).
+	; get_for_vars(X, Space, Var, gecode:get_glbMax)).
 
 get_glb_ranges(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_glb_ranges(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_glb_ranges).
+	; get_for_vars(X,Space,Var,gecode:get_glb_ranges)).
 
 get_lub_ranges(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_lub_ranges(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_lub_ranges).
+	; get_for_vars(X,Space,Var,gecode:get_lub_ranges)).
 
 get_unknown_ranges(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_unknown_ranges(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_unknown_ranges).
+	; get_for_vars(X,Space,Var,gecode:get_unknown_ranges)).
 
 get_glb_values(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_glb_values(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_glb_values).
+	; get_for_vars(X,Space,Var,gecode:get_glb_values)).
 
 get_lub_values(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_lub_values(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_lub_values).
+	; get_for_vars(X,Space,Var,gecode:get_lub_values)).
 
 get_unknown_values(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_SetVar(Var,Var_)
+	(is_SetVar(Var,Var_)
 	-> gecode_setvar_unknown_values(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_unknown_values).
+	; get_for_vars(X,Space,Var,gecode:get_unknown_values)).
 
 get_ranges(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_ranges(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_ranges).
+	; get_for_vars(X,Space,Var,gecode:get_ranges)).
 
 get_values(X, Space, Var) :-
 	assert_is_Space(Space,Space_),
-	is_IntVar(Var,Var_)
+	(is_IntVar(Var,Var_)
 	-> gecode_intvar_values(X,Space_,Var_)
-	; get_for_vars(X,Space,Var,gecode:get_values).
+	; get_for_vars(X,Space,Var,gecode:get_values)).
 
 new_disjunctor(X, Space) :-
 	assert_is_Space(Space,Space_),
