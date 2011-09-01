@@ -637,7 +637,7 @@ save_module(IOSTREAM *stream, Term mod) {
   return 1;
 }
 
-int
+static int
 save_header(IOSTREAM *stream)
 {
   char     msg[256];
@@ -723,5 +723,8 @@ void Yap_InitQLY(void)
 {
   Yap_InitCPred("$qsave_module_preds", 2, p_save_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred("$qsave_program", 1, p_save_program, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  if (FALSE) {
+    restore_codes();
+  }
 }
 

@@ -43,7 +43,8 @@ typedef enum {
   UNKNOWN_DBREF = 7,
   BAD_ATOM = 8,
   MISMATCH = 9,
-  INCONSISTENT_CPRED = 10
+  INCONSISTENT_CPRED = 10,
+  BAD_READ = 11
 } qlfr_err_t;
 
 static char *
@@ -616,7 +617,11 @@ RestoreAtomList(Atom atm USES_REGS)
 static size_t
 read_bytes(IOSTREAM *stream, void *ptr, size_t sz)
 {
-  return Sfread(ptr, sz, 1, stream);
+  size_t bytes_read;
+  if ((bytes_read = Sfread(ptr, sz, 1, stream)) < sz) {
+    ERROR(BAD_READ);
+  }
+  return sz;
 }
 
 static unsigned char
@@ -1024,5 +1029,8 @@ void Yap_InitQLYR(void)
 {
   Yap_InitCPred("$qload_module_preds", 1, p_read_module_preds, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
   Yap_InitCPred("$qload_program", 1, p_read_program, SyncPredFlag|HiddenPredFlag|UserCPredFlag);
+  if (FALSE) {
+    restore_codes();
+  }
 }
 
