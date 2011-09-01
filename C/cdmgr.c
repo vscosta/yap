@@ -838,7 +838,9 @@ Yap_BuildMegaClause(PredEntry *ap)
   required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
 #ifdef DEBUG
   total_megaclause += required;
-  total_released += ap->cs.p_code.NOfClauses*(sz+sizeof(StaticClause));
+  cl =
+    ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  total_released += ap->cs.p_code.NOfClauses*cl->ClSize;
   nof_megaclauses++;
 #endif
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
@@ -850,7 +852,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
   mcl->ClFlags = MegaMask | has_blobs;
-  mcl->ClSize = sz*ap->cs.p_code.NOfClauses;
+  mcl->ClSize = required;
   mcl->ClPred = ap;
   mcl->ClItemSize = sz;
   mcl->ClNext = NULL;

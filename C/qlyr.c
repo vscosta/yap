@@ -828,10 +828,16 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     }
     LOCAL_HDiff = (char *)cl-base;
     read_bytes(stream, cl, size);
-    RestoreMegaClause(cl PASS_REGS);
     pp->cs.p_code.FirstClause =
       pp->cs.p_code.LastClause =
       cl->ClCode;
+    pp->PredFlags |= MegaClausePredFlag;
+    /* enter index mode */
+    pp->OpcodeOfPred = INDEX_OPCODE;
+    pp->CodeOfPred = pp->cs.p_code.TrueCodeOfPred = (yamop *)(&(pp->OpcodeOfPred)); 
+    /* This must be set for restoremegaclause */
+    pp->cs.p_code.NOfClauses = nclauses;
+    RestoreMegaClause(cl PASS_REGS);
   } else if (pp->PredFlags & DynamicPredFlag) {
     UInt i;
 
@@ -923,7 +929,7 @@ read_pred(IOSTREAM *stream, Term mod) {
     ap->src.IndxId = read_uint(stream);
   } else {
     ap->src.OwnerFile = (Atom)read_uint(stream);
-    if (ap->src.OwnerFile && !(flags & MultiFileFlag)) {
+    if (ap->src.OwnerFile) {
       ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
     }
   }

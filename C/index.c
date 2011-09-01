@@ -2671,7 +2671,8 @@ init_clauses(ClauseDef *cl, PredEntry *ap)
 {
   if (ap->PredFlags & MegaClausePredFlag) {
     MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
-    yamop *end = (yamop *)((char *)mcl->ClCode+mcl->ClSize);
+    UInt nclauses = mcl->ClPred->cs.p_code.NOfClauses;
+    yamop *end = (yamop *)((char *)mcl->ClCode+nclauses*mcl->ClItemSize);
     yamop *cd = mcl->ClCode;
     while (cd < end) {
       cl->Code = cl->CurrentCode = cd;
@@ -2926,7 +2927,8 @@ install_clauses(ClauseDef *cls, PredEntry *ap, istack_entry *stack, yamop *beg, 
   istack_entry *sp = stack;
   if (ap->PredFlags & MegaClausePredFlag) {
     MegaClause *mcl = ClauseCodeToMegaClause(beg);
-    yamop *end = (yamop *)((char *)mcl->ClCode+mcl->ClSize);
+    UInt nclauses = mcl->ClPred->cs.p_code.NOfClauses;
+    yamop *end = (yamop *)((char *)mcl->ClCode+nclauses*mcl->ClItemSize);
     yamop *cd = mcl->ClCode;
 
     if (stack[0].pos == 0) {
@@ -3211,7 +3213,7 @@ count_clauses_left(yamop *cl, PredEntry *ap)
     return i;
   } else if (ap->PredFlags & MegaClausePredFlag) {
     MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
-    UInt ncls = mcl->ClSize/mcl->ClItemSize;
+    UInt ncls = mcl->ClPred->cs.p_code.NOfClauses;
 
     return (ncls-1)-((char *)cl-(char *)mcl->ClCode)/mcl->ClItemSize;
   } else {
