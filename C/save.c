@@ -1419,9 +1419,10 @@ static int try_open(char *inpf, CELL *Astate, CELL *ATrail, CELL *AStack, CELL *
   int mode;
 
   if (streamp) {
-    if ((*streamp = Sopen_file(inpf, "rb")))
-      return FAIL_RESTORE;    
-    return DO_ONLY_CODE;
+    if ((*streamp = Sopen_file(inpf, "rb"))) {
+      return DO_ONLY_CODE;
+    }
+    return FAIL_RESTORE;
   }
   if ((splfild = open_file(inpf, O_RDONLY)) < 0) {
     return FAIL_RESTORE;
