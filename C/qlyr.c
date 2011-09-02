@@ -617,11 +617,7 @@ RestoreAtomList(Atom atm USES_REGS)
 static size_t
 read_bytes(IOSTREAM *stream, void *ptr, size_t sz)
 {
-  size_t bytes_read;
-  if ((bytes_read = Sfread(ptr, sz, 1, stream)) < sz) {
-    ERROR(BAD_READ);
-  }
-  return sz;
+  return Sfread(ptr, sz, 1, stream);
 }
 
 static unsigned char
