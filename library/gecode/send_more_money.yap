@@ -16,7 +16,7 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
-:- use_module(gecode).
+:- use_module(library(gecode)).
 
 %   S E N D
 % + M O R E
