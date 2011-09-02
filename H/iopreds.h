@@ -76,7 +76,6 @@ typedef struct stream_desc
     int (* stream_wgetc_for_read)(int);
     int (* stream_wgetc)(int);
     int (* stream_wputc)(int,wchar_t);
-    encoding_t encoding;
     mbstate_t mbstate;
   }
 StreamDesc;

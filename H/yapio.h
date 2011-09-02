@@ -221,28 +221,6 @@ typedef struct AliasDescS {
 /************ SWI compatible support for different encodings ************/
 
 
-#ifndef _PL_STREAM_H
-typedef enum {
-  ENC_OCTET      = 0,
-  ENC_ISO_LATIN1 = 1,
-  ENC_ISO_ASCII  = 2,
-  ENC_ISO_ANSI   = 4,
-  ENC_ISO_UTF8   = 8,
-  ENC_UNICODE_BE = 16,
-  ENC_UNICODE_LE = 32,
-  ENC_ISO_UTF32_BE = 64,
-  ENC_ISO_UTF32_LE = 128
-} encoding_t;
-#else
-#define ENC_ISO_LATIN1 ENC_ISO_LATIN_1
-#define ENC_ISO_UTF32_BE ENC_UNKNOWN //bogus
-#define ENC_ISO_UTF32_LE ENC_WCHAR // bogus
-#define ENC_ISO_UTF8    ENC_UTF8
-#define ENC_ISO_ASCII    ENC_ASCII
-#define ENC_ISO_ANSI    ENC_ANSI
-typedef IOENC encoding_t;
-#endif
-
 #define MAX_ISO_LATIN1 255
 
 /****************** character definition table **************************/

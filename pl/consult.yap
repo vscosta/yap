@@ -90,15 +90,8 @@ load_files(Files,Opts) :-
 	( atom(Files) -> true ;  '$do_error'(type_error(atom,Files),Call) ),
 	/* call make */
 	'$do_error'(domain_error(unimplemented_option,derived_from),Call).
-'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,EncCode,_,_,_,Call) :-
-	( var(Encoding) ->
-	    '$do_error'(instantiation_error,Call)
-	;
-	    '$valid_encoding'(Encoding, EncCode) ->
-	    true
-	;	
-	    '$do_error'(domain_error(io_mode,encoding(Encoding)),Call)
-	).
+'$process_lf_opt'(encoding(Encoding),_,_,_,_,_,_,_,_,Encoding,_,_,_,Call) :-
+	atom(Encoding).
 '$process_lf_opt'(expand(true),_,_,true,_,_,_,_,_,_,_,_,_,Call) :-
 	'$do_error'(domain_error(unimplemented_option,expand),Call).
 '$process_lf_opt'(expand(false),_,_,false,_,_,_,_,_,_,_,_,_,_).
@@ -152,14 +145,13 @@ load_files(Files,Opts) :-
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
 '$lf'(user_input, Mod, _,InfLevel,_,_,CompilationMode,Imports,_,_,SkipUnixComments,CompMode,Reconsult,UseModule) :- !,
 	'$do_lf'(Mod, user_input, InfLevel, CompilationMode,Imports,SkipUnixComments,CompMode,Reconsult,UseModule).
-'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Enc,SkipUnixComments,CompMode,Reconsult,UseModule) :-
+'$lf'(X, Mod, Call, InfLevel,_,Changed,CompilationMode,Imports,_,Encoding,SkipUnixComments,CompMode,Reconsult,UseModule) :-
 	'$full_filename'(X, Y, Call),
 	(
 	  var(Encoding)
 	 ->
 	  Opts = []
         ;
-	 '$valid_encoding'(Encoding, Enc),
 	  Opts = [encoding(Encoding)]
         ),
 	open(Y, read, Stream, Opts), !,
@@ -624,48 +616,9 @@ remove_from_path(New) :- '$check_path'(New,Path),
 	fail.
 '$record_loaded'(_, _, _).
 
-%
-% encoding stuff: what I believe SWI does.
-%
-% 8-bit binaries
-'$valid_encoding'(octet, 0).
-% 7-bit ASCII as America originally intended
-'$valid_encoding'(ascii, 2).
-% Ye europeaners made it 8 bits
-'$valid_encoding'(iso_latin_1, 3).
-% UTF-8: default 8 bits but 80 extends to 16bits
-'$valid_encoding'(utf8, 5).
-% UNICODE: 16 bits throughout, the way it was supposed to be!
-'$valid_encoding'(unicode_be, 6).
-'$valid_encoding'(unicode_le, 7).
-% whatever the system tell us to do.
-'$valid_encoding'(text, 8).
-
-'$default_encoding'(DefCode) :- nonvar(DefCode), !,
-	'$encoding'('$stream'(0),DefCode),
-	'$encoding'('$stream'(1),DefCode),
-	'$encoding'('$stream'(2),DefCode),
-	set_value('$default_encoding',DefCode).
-'$default_encoding'(DefCode) :-
-	get_value('$default_encoding',DefCode0),
-	( DefCode0 == [] -> 
-	    '$get_default_encoding'(DefCode)
-	 ;
-	    DefCode = DefCode0
-	).
-
-
-'$set_encoding'(V) :- var(V), !,
-	'$do_error'(instantiation_error, encoding(V)).
-'$set_encoding'(EncAtom) :-
-	'$valid_encoding'(EncAtom, Enc), !,
+'$set_encoding'(Encoding) :-
 	'$current_loop_stream'(Stream),
-	'$encoding'(Stream, Enc).
-'$set_encoding'(EncAtom) :-
-	atom(EncAtom), !,
-        '$do_error'(domain_error(encoding,EncAtom),encoding(EncAtom)).
-'$set_encoding'(EncAtom) :-
-	'$do_error'(type_error(atom,V),encoding(EncAtom)).
+	( Encoding == default -> true ; set_stream(Stream, encoding(Encoding)) ).
 
 absolute_file_name(V,Out) :- var(V), !,
 	'$do_error'(instantiation_error, absolute_file_name(V, Out)).
