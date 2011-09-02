@@ -567,6 +567,11 @@ writeAtom(atom_t a, write_options *options)
     return (*atomBlobType(atom)->write)(options->out, a, options->flags);
   if ( false(atomBlobType(atom), PL_BLOB_TEXT) )
     return writeBlob(a, options);
+#if __YAP_PROLOG__
+    if (isWideAtom(atom)) {
+      return writeUCSAtom(options->out, a, options->flags);
+    }
+#endif
 
   if ( true(options, PL_WRT_QUOTED) )
   { switch( atomType(a, options->out) )
@@ -574,11 +579,6 @@ writeAtom(atom_t a, write_options *options)
       case AT_SYMBOL:
       case AT_SOLO:
       case AT_SPECIAL:
-#if __YAP_PROLOG__
-	if (isWideAtom(atom)) {
-	  return PutWideToken(nameOfWideAtom(atom), options->out);
-	}
-#endif
 	return PutToken(nameOfAtom(atom), options->out);
       case AT_QUOTE:
       case AT_FULLSTOP:
@@ -594,11 +594,6 @@ writeAtom(atom_t a, write_options *options)
       }
     }
   } else {
-#if __YAP_PROLOG__
-    if (isWideAtom(atom)) {
-      return PutWideTokenN(nameOfWideAtom(atom), atomLength(atom), options->out);
-    }
-#endif
     return PutTokenN(nameOfAtom(atom), atomLength(atom), options->out);
   }
 }
