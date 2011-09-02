@@ -1,10 +1,8 @@
 USING THE GECODE MODULE
 =======================
 
-:- use_module(gecode).
-or
 :- use_module(library(gecode)).
-if it is installed as a library module
+
 
 CREATING A SPACE
 ================

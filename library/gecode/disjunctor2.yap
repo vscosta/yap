@@ -16,7 +16,7 @@
 %% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %%=============================================================================
 
-:- use_module(gecode).
+:- use_module(library(gecode)).
 
 disjunctor2(X_,Y_) :-
 	Space := space,
