@@ -168,7 +168,7 @@ Yap_ShutdownLoadForeign(void)
     objs = f_code->objs;
     while (objs != NULL) {
       if (dlclose(objs->handle) != 0)
-	return; /* ERROR */
+      	return; /* ERROR */
       objs = objs->next;
     }
     libs = f_code->libs;
