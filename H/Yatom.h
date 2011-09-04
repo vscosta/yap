@@ -1565,6 +1565,64 @@ PredPropByFunc (Functor fe, Term cur_mod)
 }
 
 EXTERN inline Prop
+GetPredPropByFuncAndModHavingLock (FunctorEntry *fe, Term cur_mod)
+{
+  PredEntry *p;
+
+  if (!(p = RepPredProp(fe->PropsOfFE))) {
+    return NIL;
+  }
+  if (p->ModuleOfPred == cur_mod) {
+#ifdef THREADS
+    /* Thread Local Predicates */
+    if (p->PredFlags & ThreadLocalPredFlag) {
+      return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
+    }
+#endif
+    return AbsPredProp(p);
+  }
+  if (p->NextOfPE) {
+    UInt hash = PRED_HASH(fe,cur_mod,PredHashTableSize);
+    READ_LOCK(PredHashRWLock);
+    p = PredHash[hash];
+    
+    while (p) {
+      if (p->FunctorOfPred == fe &&
+	  p->ModuleOfPred == cur_mod)
+	{
+#ifdef THREADS
+	  /* Thread Local Predicates */
+	  if (p->PredFlags & ThreadLocalPredFlag) {
+	    READ_UNLOCK(PredHashRWLock);
+	    return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
+	  }
+#endif
+	  READ_UNLOCK(PredHashRWLock);
+	  return AbsPredProp(p);
+	}
+      p = RepPredProp(p->NextOfPE);
+    }
+    READ_UNLOCK(PredHashRWLock);
+  }
+  return NIL;
+}
+
+EXTERN inline Prop
+PredPropByFuncAndMod (Functor fe, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+
+  WRITE_LOCK (fe->FRWLock);
+  p0 = GetPredPropByFuncAndModHavingLock(fe, cur_mod);
+  if (p0) {
+    WRITE_UNLOCK (fe->FRWLock);
+    return p0;
+  }
+  return Yap_NewPredPropByFunctor (fe, cur_mod);
+}
+
+EXTERN inline Prop
 PredPropByAtom (Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
@@ -1578,6 +1636,37 @@ PredPropByAtom (Atom at, Term cur_mod)
       PredEntry *pe = RepPredProp (p0);
       if (pe->KindOfPE == PEProp &&
 	  (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred))
+	{
+#ifdef THREADS
+	  /* Thread Local Predicates */
+	  if (pe->PredFlags & ThreadLocalPredFlag)
+	    {
+	      WRITE_UNLOCK (ae->ARWLock);
+	      return AbsPredProp (Yap_GetThreadPred (pe INIT_REGS));
+	    }
+#endif
+	  WRITE_UNLOCK (ae->ARWLock);
+	  return (p0);
+	}
+      p0 = pe->NextOfPE;
+    }
+  return Yap_NewPredPropByAtom (ae, cur_mod);
+}
+
+EXTERN inline Prop
+PredPropByAtomAndMod (Atom at, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom (at);
+
+  WRITE_LOCK (ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0)
+    {
+      PredEntry *pe = RepPredProp (p0);
+      if (pe->KindOfPE == PEProp &&
+	  (pe->ModuleOfPred == cur_mod))
 	{
 #ifdef THREADS
 	  /* Thread Local Predicates */

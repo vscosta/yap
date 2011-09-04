@@ -785,7 +785,6 @@ ReadHash(IOSTREAM *stream)
 static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
   if (pp->PredFlags & LogUpdatePredFlag) {
-
     pp->TimeStampOfPred = 0L; 
     /* first, clean up whatever was there */
     if (pp->cs.p_code.NOfClauses) {
@@ -887,7 +886,7 @@ read_pred(IOSTREAM *stream, Term mod) {
   if (mod == IDB_MODULE) {
     if (flags & AtomDBPredFlag) {
       Atom a = LookupAtom((Atom)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByAtom(a,mod))) == NULL) {
+      if ((ap = RepPredProp(PredPropByAtomAndMod(a,mod))) == NULL) {
 	ERROR(OUT_OF_CODE_SPACE);
       }
     } else  if (flags & NumberDBPredFlag) {
@@ -897,23 +896,25 @@ read_pred(IOSTREAM *stream, Term mod) {
       }
     } else {
       Functor f = LookupFunctor((Functor)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByFunc(f,mod))) == NULL) {
+      if ((ap = RepPredProp(PredPropByFuncAndMod(f,mod))) == NULL) {
 	ERROR(OUT_OF_CODE_SPACE);
       }
     }
   } else {
+    if (mod == TermProlog)
+      mod = PROLOG_MODULE;
     if (arity) {
       Functor f;
 
       f = LookupFunctor((Functor)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByFunc(f,mod))) == NULL) {
+      if ((ap = RepPredProp(PredPropByFuncAndMod(f,mod))) == NULL) {
 	ERROR(OUT_OF_CODE_SPACE);
       }
     } else {
       Atom a;
 
       a = LookupAtom((Atom)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByAtom(a,mod))) == NULL) {
+      if ((ap = RepPredProp(PredPropByAtomAndMod(a,mod))) == NULL) {
 	ERROR(OUT_OF_CODE_SPACE);
       }
     }
