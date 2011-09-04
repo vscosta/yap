@@ -414,5 +414,5 @@ wait_reply(Value) :-
 prolog:message(thread_pool(Message)) -->
 	message(Message).
 
-message(manager_died(Status)) -->
+prolog:message(manager_died(Status)) -->
 	[ 'Thread-pool: manager died on status ~p; restarting'-[Status] ].
