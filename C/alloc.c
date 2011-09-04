@@ -1065,7 +1065,7 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 #else
      char file[YAP_FILENAME_MAX];
      strcpy(file,"/tmp/mapfile");
-    itos(getpid(), &file[12]);
+     itos(getpid(), &file[12]);
 #endif /* HAVE_TMPNAM */
 #endif /* HAVE_MKSTEMP */
     fd = open(file, O_CREAT|O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
