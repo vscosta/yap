@@ -41,7 +41,7 @@ PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 CC=@CC@
 LD=@SHLIB_LD@
 SO=@SOT@
-COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
+COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os @CPPFLAGS@
 CWFLAGS=
 CMFLAGS=@SHLIB_CFLAGS@ 
 CIFLAGS=
