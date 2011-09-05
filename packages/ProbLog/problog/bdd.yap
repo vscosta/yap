@@ -1,9 +1,8 @@
 %%% -*- Mode: Prolog; -*-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-07-28 15:19:56 +0200 (Thu, 28 Jul 2011) $
-%  $Revision: 6462 $
+%  $Date: 2011-07-27 17:38:26 +0200 (Wed, 27 Jul 2011) $
+%  $Revision: 6461 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -13,8 +12,8 @@
 %  Copyright 2008, 2009, 2010
 %  Katholieke Universiteit Leuven
 %
-%  Main authors of this file:
-%  Theofrastos Mantadelis, Bernd Gutmann
+%  Main author of this file:
+%  Theofrastos Mantadelis
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -204,177 +203,135 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%%%%
-% Collected OS depended instructions
-%%%%%%%%
-:- module(os, [set_problog_path/1,
-	       problog_path/1,
-	       convert_filename_to_working_path/2,
-	       convert_filename_to_problog_path/2,
-	       concat_path_with_filename/3,
-	       concat_path_with_filename2/3,
-	       split_path_file/3,
-	       check_existance/1,
-	       calc_md5/2]).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Prolog interface for problogbdd
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+:-use_module(library(system)).
+:- dynamic bdd_curinter/1.
 
-% load library modules
-:- use_module(library(system), [exec/3, file_exists/1,wait/2]).
-:- use_module(library(lists), [memberchk/2]).
+bdd_init(FDO, PID):-
+  pid(MYPID),
+  convert_filename_to_problog_path('problogbdd', ProblogBDD),
+  atomic_concat([ProblogBDD, ' -o -pid ', MYPID], C),
+  exec(C, [pipe(FDO), std, std], PID).
 
-% load our own modules
-:- use_module(gflags, _, [flag_get/2]).
+bdd_init(FDO, FDI, PID):-
+  pid(MYPID),
+  convert_filename_to_problog_path('problogbdd', ProblogBDD),
+  atomic_concat([ProblogBDD, ' -o -m o -pid ', MYPID], C),
+  exec(C, [pipe(FDO), pipe(FDI), std], PID).
 
-:- dynamic(problog_path/1).
-:- dynamic(problog_working_path/1).
+bdd_commit(FDO, LINE):-
+  write(FDO, LINE),
+  write(FDO, '\n'),
+  flush_output(FDO).
 
+bdd_kill(FDO, PID, S):-
+  bdd_commit(FDO, '@e'),
+  wait(PID, S),
+  close(FDO).
 
-%========================================================================
-%=
-%=
-%=
-%========================================================================
+bdd_kill(FDO, FDI, PID, S):-
+  bdd_commit(FDO, '@e'),
+  wait(PID, S),
+  close(FDO),
+  close(FDI).
 
-set_problog_path(Path):-
-	retractall(problog_path(_)),
-	assertz(problog_path(Path)).
+bdd_line([], X, _, L):-
+  atomic(X),
+  X \= [],
+  (bdd_curinter(N) ->
+    retract(bdd_curinter(N))
+  ;
+    N = 1
+  ),
+  M is N + 1,
+  assert(bdd_curinter(M)),
+  atomic_concat(['L', N, '=', X], L).
 
-%========================================================================
-%=
-%=
-%=
-%========================================================================
+bdd_line(L, X, O, NL):-
+  atomic(X),
+  X \= [],
+  atom(L),
+  L \= [],
+  atomic_concat([L, O, X], NL).
 
-convert_filename_to_working_path(File_Name, Path):-
-	flag_get(dir, Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
+bdd_line(L, [], _, L):-!.
 
-convert_filename_to_problog_path(File_Name, Path):-
-	problog_path(Dir),
-	concat_path_with_filename(Dir, File_Name, Path).
+bdd_line(L, [X|T], O, R):-
+  bdd_line(L, X, O, NL),
+  bdd_line(NL, T, O, R).
 
+bdd_AND(L, X, NL):-
+  bdd_line(L, X, '*', NL).
+bdd_OR(L, X, NL):-
+  bdd_line(L, X, '+', NL).
+bdd_XOR(L, X, NL):-
+  bdd_line(L, X, '#', NL).
+bdd_NAND(L, X, NL):-
+  bdd_line(L, X, '~*', NL).
+bdd_NOR(L, X, NL):-
+  bdd_line(L, X, '~+', NL).
+bdd_XNOR(L, X, NL):-
+  bdd_line(L, X, '~#', NL).
 
-%========================================================================
-%=
-%=
-%=
-%========================================================================
+bdd_not(X, NX):-
+  atomic(X),
+  atomic_concat(['~', X], NX).
 
-concat_path_with_filename(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
-  
-				% make sure, that there is no path delimiter at the end
-	prolog_file_name(Path,Path_Absolute),
+bdd_laststep(L):-
+  bdd_curinter(N),
+  M is N - 1,
+  atomic_concat(['L', M], L),
+  !.
 
-	path_seperator(Path_Seperator),
-	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+bdd_nextDFS(FDO):-
+  bdd_commit(FDO, '@n').
 
-concat_path_with_filename2(Path, File_Name, Result):-
-	nonvar(File_Name),
-	nonvar(Path),
-	path_seperator(Path_Seperator),
-	(atomic_concat(Path_Absolute, Path_Seperator, Path) ; Path_Absolute = Path),
-	atomic_concat([Path_Absolute, Path_Seperator, File_Name], Result).
+bdd_reset(FDO):-
+  bdd_commit(FDO, '@r').
 
+bdd_nextBFS(FDO):-
+  bdd_commit(FDO, '@n,BFS').
 
-%========================================================================
-%= Calculate the MD5 checksum of +Filename by calling md5sum
-%= in case m5sum is not installed, try md5, otherwise fail
-%= +Filename, -MD5
-%========================================================================
+bdd_ignoreDFS(FDO) :-
+  bdd_commit(FDO, '@t').
 
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
-	!.
-calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5 -r',MD5),_,fail),
-	% used in Mac OS
-	% the -r makes the output conform with md5sum
-	!.
-calc_md5(Filename,MD5):-
-	throw(md5error(calc_md5(Filename,MD5))).
+bdd_current(FDO, FDI, N, Qcnt, NodeId):-
+  bdd_commit(FDO, '@c'),
+  read(FDI, F),
+  assert(F),
+  bdd_temp_value(N, Qcnt, NodeId),
+  retract(F).
 
-calc_md5_intern(Filename,Command,MD5) :-
-	( file_exists(Filename) -> true ; throw(md5_file(Filename)) ),
+bdd_highnodeof(FDO, FDI, H):-
+  bdd_commit(FDO, '@h'),
+  read(FDI, F),
+  assert(F),
+  bdd_temp_value(H),
+  retract(F).
 
-	atomic_concat([Command,' "',Filename,'"'],Call),
+bdd_lownodeof(FDO, FDI, L):-
+  bdd_commit(FDO, '@l'),
+  read(FDI, F),
+  assert(F),
+  bdd_temp_value(L),
+  retract(F).
 
-	% execute the md5 command
-	exec(Call,[null,pipe(S),null],PID),
-	bb_put(calc_md5_temp,End-End),  % use difference list
-	bb_put(calc_md5_temp2,0),
+bdd_nodevaluesof(FDO, FDI, N, V):-
+  atomic_concat(['@v,', N], Q),
+  bdd_commit(FDO, Q),
+  read(FDI, F),
+  assert(F),
+  bdd_temp_value(V),
+  retract(F).
 
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	(	% read 32 Bytes from stdout of process
-		repeat,
-		get_code(S,C),
+nodevalues(_, _, 'TRUE', [1.0, 1, '(null)']):-!.
+nodevalues(_, _, 'FALSE', [0.0, 0, '(null)']):-!.
+nodevalues(FDO, FDI, N, V):-
+  bdd_nodevaluesof(FDO, FDI, N, V).
 
-		(
-		 C== -1
-		->
-		 (
-		  close(S),
-		  wait(PID,_Status),
-		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
-		 );
-		 true
-		),
+bdd_leaf('TRUE'):-!.
+bdd_leaf('FALSE'):-!.
 
-		bb_get(calc_md5_temp,List-[C|NewEnd]),
-		bb_put(calc_md5_temp,List-NewEnd),
-		bb_get(calc_md5_temp2,OldLength),
-		NewLength is OldLength+1,
-		bb_put(calc_md5_temp2,NewLength),
-		NewLength=32
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	!,
-	
-	close(S),
-	wait(PID,_Status),
-	bb_delete(calc_md5_temp, FinalList-[]),
-	bb_delete(calc_md5_temp2,_),
-	atom_codes(MD5,FinalList).
-
-
-%========================================================================
-%=
-%=
-%=
-%========================================================================
-
-path_seperator('\\'):-
-   yap_flag(windows, true), !.
-path_seperator('/').
-
-
-%========================================================================
-%= 
-%= 
-%= 
-%========================================================================
-
-split_path_file(PathFile, Path, File):-
-	path_seperator(PathSeperator),
-	name(PathSeperator, [PathSeperatorName]),
-
-	atomic_concat(Path, File, PathFile),
-	name(File, FileName),
-	\+ memberchk(PathSeperatorName, FileName),
-	!.
-
-%========================================================================
-%= 
-%= 
-%= 
-%========================================================================
-
-
-check_existance(FileName):-
-	convert_filename_to_problog_path(FileName, Path),
-	catch(file_exists(Path), _, fail).
-check_existance(FileName):-
-	problog_path(PD),
-	write(user_error, 'WARNING: Can not find file: '), write(user_error, FileName),
-	write(user_error, ', please place file in problog path: '), write(user_error, PD), nl(user_error).
