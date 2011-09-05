@@ -23,8 +23,8 @@ PLARCH=@ARCH@
 PLINCL=$(PLBASE)/include
 PLLIBDIR=$(PLBASE)/share/Yap
 SOLIBDIR=$(PLBASE)/lib/Yap
-PKGDOCDIR=$(PLBASE)/share/doc/packages
-PKGEXDIR=$(PLBASE)/share/doc/packages/examples
+PKGDOCDIR=$(PLBASE)/share/doc/Yap/packages
+PKGEXDIR=$(PLBASE)/share/doc/Yap//packages/examples
 PKGCFLAGS=
 
 #
