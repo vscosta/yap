@@ -1605,7 +1605,7 @@ retract_all(PredEntry *p, int in_use)
   }
   p->cs.p_code.FirstClause = NULL;
   p->cs.p_code.LastClause = NULL;
-  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) {
     p->OpcodeOfPred = FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
@@ -2637,8 +2637,6 @@ purge_clauses(PredEntry *pred)
     retract_all(pred, static_in_use(pred,TRUE));
   }
   pred->src.OwnerFile = AtomNil;
-  if (pred->PredFlags & MultiFileFlag)
-    pred->PredFlags ^= MultiFileFlag;
 }
 
 void
