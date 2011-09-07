@@ -906,6 +906,9 @@ read_pred(IOSTREAM *stream, Term mod) {
       ap->src.OwnerFile = AtomAdjust(ap->src.OwnerFile);
     }
   }
+  /* multifile predicates cannot reside in module 0 */
+  if (flags & MultiFileFlag && ap->ModuleOfPred == PROLOG_MODULE)
+    ap->ModuleOfPred = TermProlog;
   read_clauses(stream, ap, nclauses, flags);
 }
 

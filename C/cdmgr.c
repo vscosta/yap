@@ -2136,9 +2136,9 @@ addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
   PELOCK(20,p);
   pflags = p->PredFlags;
   /* we are redefining a prolog module predicate */
-  if ((pflags &
-       (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
-      (p->ModuleOfPred == PROLOG_MODULE && mod != TermProlog && mod && !(p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)))) {
+  if ((pflags & (UserCPredFlag|CArgsPredFlag|NumberDBPredFlag|AtomDBPredFlag|TestPredFlag|AsmPredFlag|CPredFlag|BinaryPredFlag)) ||
+      (p->ModuleOfPred == PROLOG_MODULE && 
+       mod != TermProlog && mod) ) {
     addcl_permission_error(RepAtom(at), Arity, FALSE);
     UNLOCKPE(30,p);
     return TermNil;
@@ -2884,6 +2884,9 @@ p_new_multifile( USES_REGS1 )
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   PELOCK(26,pe);
   pe->PredFlags |= MultiFileFlag;
+  /* mutifile-predicates are weird, they do not seat really on the default module */
+  if (pe->ModuleOfPred == PROLOG_MODULE)
+    pe->ModuleOfPred = TermProlog;
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
     /* static */
     pe->PredFlags |= (SourcePredFlag|CompiledPredFlag);

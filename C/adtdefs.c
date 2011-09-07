@@ -991,8 +991,14 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
     return Yap_NewPredPropByFunctor(f,cur_mod);
 
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-    WRITE_UNLOCK(f->FRWLock);
-    return AbsPredProp(p);
+    /* don't match multi-files */
+    if (!(p->PredFlags & MultiFileFlag) ||
+	p->ModuleOfPred ||
+	!cur_mod ||
+	cur_mod == TermProlog) {
+      WRITE_UNLOCK(f->FRWLock);
+      return AbsPredProp(p);
+    }
   }
   if (p->NextOfPE) {
     UInt hash = PRED_HASH(f,cur_mod,PredHashTableSize);
@@ -1027,8 +1033,14 @@ Yap_PredPropByAtomNonThreadLocal(Atom at, Term cur_mod)
     PredEntry *pe = RepPredProp(p0);
     if ( pe->KindOfPE == PEProp && 
 	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
-      WRITE_UNLOCK(ae->ARWLock);
-      return(p0);
+      /* don't match multi-files */
+      if (!(pe->PredFlags & MultiFileFlag) ||
+	  pe->ModuleOfPred ||
+	  !cur_mod ||
+	  cur_mod == TermProlog) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return(p0);
+      }
     }
     p0 = pe->NextOfPE;
   }
