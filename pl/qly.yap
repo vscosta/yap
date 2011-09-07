@@ -38,6 +38,7 @@ qsave_program(File) :-
 '$init_state'.
 
 '$do_init_state' :-
+	compile_expressions,
 	 '$init_preds',
 	 fail.
 '$do_init_state' :-
