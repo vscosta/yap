@@ -280,7 +280,6 @@ PtoPredAdjust(PredEntry *pe)
 
 #define ExternalFunctionAdjust(P) (P)
 #define DBRecordAdjust(P) (P)
-#define PredEntryAdjust(P) (P)
 #define ModEntryPtrAdjust(P) (P)
 #define AtomEntryAdjust(P) (P)
 #define GlobalEntryAdjust(P) (P)
@@ -532,9 +531,8 @@ save_clauses(IOSTREAM *stream, PredEntry *pp) {
 
 static size_t
 save_pred(IOSTREAM *stream, PredEntry *ap) {
+  CHECK(save_uint(stream, (UInt)ap));
   CHECK(save_uint(stream, ap->PredFlags));
-  CHECK(save_uint(stream, ap->ArityOfPE));
-  CHECK(save_uint(stream, (UInt)(ap->FunctorOfPred)));
   CHECK(save_uint(stream, ap->cs.p_code.NOfClauses));
   CHECK(save_uint(stream, ap->src.IndxId));
   return save_clauses(stream, ap);
@@ -616,6 +614,7 @@ save_module(IOSTREAM *stream, Term mod) {
   InitHash();
   ModuleAdjust(mod);
   while (ap) {
+    ap = PredEntryAdjust(ap);
     CHECK(mark_pred(ap));
     ap = ap->NextPredOfModule;
   }
@@ -656,9 +655,10 @@ save_program(IOSTREAM *stream) {
   /* should we allow the user to see hidden predicates? */
   while (me) {
     PredEntry *pp;
-    AtomAdjust(me->AtomOfME);
     pp = me->PredForME;
+    AtomAdjust(me->AtomOfME);
     while (pp != NULL) {
+      pp = PredEntryAdjust(pp);
       CHECK(mark_pred(pp));
       pp = pp->NextPredOfModule;
     }

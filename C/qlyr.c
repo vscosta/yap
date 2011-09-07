@@ -736,12 +736,18 @@ ReadHash(IOSTREAM *stream)
     PredEntry *ope = (PredEntry *)read_uint(stream), *pe;
     UInt arity = read_uint(stream);
     Atom omod = (Atom)read_uint(stream);
-    Term mod = MkAtomTerm(AtomAdjust(omod));
+    Term mod;
+    
+    if (omod) {
+      mod = MkAtomTerm(AtomAdjust(omod));
+      if (mod == TermProlog) mod = 0;
+    }
+
     if (mod != IDB_MODULE) {
       if (arity) {
 	Functor of = (Functor)read_uint(stream);
 	Functor f = LookupFunctor(of);
-	while(!(pe = RepPredProp(PredPropByFunc(f,mod)))) {
+	while(!(pe = RepPredProp(PredPropByFuncAndMod(f,mod)))) {
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
 	    exit(1);
 	  }
@@ -749,7 +755,7 @@ ReadHash(IOSTREAM *stream)
       } else {
 	Atom oa = (Atom)read_uint(stream);
 	Atom a = LookupAtom(oa);
-	pe = RepPredProp(PredPropByAtom(a,mod));
+	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
       }
     } else {
       if (arity == (UInt)-1) {
@@ -758,12 +764,13 @@ ReadHash(IOSTREAM *stream)
       }	else if (arity == (UInt)(-2)) {
 	Atom oa = (Atom)read_uint(stream);
 	Atom a = LookupAtom(oa);
-	pe = RepPredProp(PredPropByAtom(a,mod));
+	pe = RepPredProp(PredPropByAtomAndMod(a,mod));
       } else {
 	Functor of = (Functor)read_uint(stream);
 	Functor f = LookupFunctor(of);
-	pe = RepPredProp(PredPropByFunc(f,mod));
+	pe = RepPredProp(PredPropByFuncAndMod(f,mod));
       }
+      pe->ArityOfPE = 3;
     }
     InsertPredEntry(ope, pe);
   }
@@ -878,48 +885,12 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 
 static void
 read_pred(IOSTREAM *stream, Term mod) {
-  UInt flags = read_uint(stream);
-  UInt arity = read_uint(stream);
+  UInt flags;
   UInt nclauses, fl1;
   PredEntry *ap;
 
-  if (mod == IDB_MODULE) {
-    if (flags & AtomDBPredFlag) {
-      Atom a = LookupAtom((Atom)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByAtomAndMod(a,mod))) == NULL) {
-	ERROR(OUT_OF_CODE_SPACE);
-      }
-    } else  if (flags & NumberDBPredFlag) {
-      Int i = (Int)read_uint(stream);
-      if ((ap = Yap_FindLUIntKey(i)) == NULL) {
-	ERROR(OUT_OF_CODE_SPACE);
-      }
-    } else {
-      Functor f = LookupFunctor((Functor)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByFuncAndMod(f,mod))) == NULL) {
-	ERROR(OUT_OF_CODE_SPACE);
-      }
-    }
-  } else {
-    if (mod == TermProlog)
-      mod = PROLOG_MODULE;
-    if (arity) {
-      Functor f;
-
-      f = LookupFunctor((Functor)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByFuncAndMod(f,mod))) == NULL) {
-	ERROR(OUT_OF_CODE_SPACE);
-      }
-    } else {
-      Atom a;
-
-      a = LookupAtom((Atom)read_uint(stream));
-      if ((ap = RepPredProp(PredPropByAtomAndMod(a,mod))) == NULL) {
-	ERROR(OUT_OF_CODE_SPACE);
-      }
-    }
-  }
-  ap->ArityOfPE = arity;
+  ap = LookupPredEntry((PredEntry *)read_uint(stream));
+  flags = read_uint(stream);
   nclauses = read_uint(stream);
   if (ap->PredFlags & IndexedPredFlag) {
     Yap_RemoveIndexation(ap);
