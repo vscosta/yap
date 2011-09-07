@@ -1480,6 +1480,9 @@ PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
   return (((CELL)fe+cur_mod)>>2) % size;
 }
 
+EXTERN inline Prop STD_PROTO(GetPredPropByFuncAndModHavingLock, (FunctorEntry *, Term));
+EXTERN inline Prop STD_PROTO(PredPropByFuncAndMod, (FunctorEntry *, Term));
+EXTERN inline Prop STD_PROTO(PredPropByAtomAndMod, (Atom, Term));
 EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
 
 #ifdef THREADS
