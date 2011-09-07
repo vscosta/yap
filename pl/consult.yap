@@ -434,7 +434,7 @@ initialization(G,OPT) :-
 
 '$do_startup_reconsult'(X) :-
 	( '$access_yap_flags'(15, 0) ->
-	  '$system_catch'(load_files(X, [silent(true)]),Module,Error,'$Error'(Error))
+	  '$system_catch'(load_files(X, [silent(true)]),Module, Error, '$Error'(Error))
 	;
 	  set_value('$verbose',off),
 	  '$system_catch'(load_files(X, [silent(true),skip_unix_comments]),Module,_,fail)
@@ -443,6 +443,7 @@ initialization(G,OPT) :-
 	),
 	!,
 	( '$access_yap_flags'(15, 0) -> true ; halt).
+'$do_startup_reconsult'(_).
 
 '$skip_unix_comments'(Stream) :-
 	peek_code(Stream, 0'#), !, % 35 is ASCII for '#
