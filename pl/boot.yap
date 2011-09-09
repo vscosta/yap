@@ -36,13 +36,6 @@ true :- true.
 		'$system_catch'('$enter_top_level',Module,Error,user:'$Error'(Error)).
 
 '$init_system' :-
-	(
-	  '$undefined'('$init_preds',prolog)
-	 ->
-	  true
-	 ;
-	 '$init_state'
-        ),
         % do catch as early as possible
 	(
 	 '$access_yap_flags'(15, 0),
@@ -75,26 +68,17 @@ true :- true.
 	prompt1(' ?- '),
 	'$debug_on'(false),
 	% simple trick to find out if this is we are booting from Prolog.
-	get_value('$user_module',V),
+	% boot from a saved state
 	(
-	  V == []
-	->
-	  '$current_module'(_,prolog)
-	  ;
-	  '$current_module'(_,V), '$compile_mode'(_,0),
-	  ('$access_yap_flags'(16,0) ->
-	      ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
-	      ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
-	      ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true )
-	  ;
-	      true
-	  )
-	),
+	  '$undefined'('$init_preds',prolog)
+	 ->
+	  true
+	 ;
+	 '$init_state'
+        ),
 	'$db_clean_queues'(0),
 % this must be executed from C-code.
 %	'$startup_saved_state',
-	'$startup_reconsult',
-	'$startup_goals',
 	set_input(user_input),
 	set_output(user_output),
 	'$init_or_threads',
@@ -223,86 +207,6 @@ true :- true.
 	'$command'(Command,Varnames,_Pos,top),
 	'$sync_mmapped_arrays',
 	set_value('$live','$false').
-
-%
-% first, recover what we need from the saved state...
-%
-'$startup_saved_state' :- !.
-'$do_saved_state' :-
-	'$init_path_extensions',
-	fail.
-% use if we come from a save_program and we have SWI's shlib
-'$do_saved_state' :-
-	recorded('$reload_foreign_libraries',G,R),
-	erase(R),
-	shlib:reload_foreign_libraries,
-	fail.
-% use if we come from a save_program and we have a goal to execute
-'$do_saved_state' :-
-	recorded('$restore_goal',G,R),
-	erase(R),
-	prompt(_,'| '),
-	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
-	fail.
-'$do_saved_state'.
-
-% then recover program.
-'$startup_reconsult' :-
-	get_value('$consult_on_boot',X), X \= [], !,
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X).
-'$startup_reconsult'.
-
-
-% then we can execute the programs.
-'$startup_goals' :-
-	recorded('$startup_goal',G,_),
-	'$current_module'(Module),
-	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
-	fail.
-'$startup_goals' :-
-	get_value('$init_goal',GA),
-	GA \= [],
-	set_value('$init_goal',[]),
-	'$run_atom_goal'(GA),
-	fail.
-'$startup_goals' :-
-	get_value('$myddas_goal',GA), GA \= [],
-	set_value('$myddas_goal',[]),
-	get_value('$myddas_user',User), User \= [],
-	set_value('$myddas_user',[]),
-	get_value('$myddas_db',Db), Db \= [],
-	set_value('$myddas_db',[]),
-	get_value('$myddas_host',HostT),
-	( HostT \= [] ->
-	  Host = HostT,
-	  set_value('$myddas_host',[])
-	;
-	  Host = localhost
-	),
-	get_value('$myddas_pass',PassT),
-	( PassT \= [] ->
-	  Pass = PassT,
-	  set_value('$myddas_pass',[])
-	;
-	  Pass = ''
-	),
-	use_module(library(myddas)),
-	call(db_open(mysql,myddas,Host/Db,User,Pass)),
-	'$myddas_import_all',
-	fail.
-'$startup_goals'.
-
- %
- % MYDDAS: Import all the tables from one database
- %
-
- '$myddas_import_all':-
-	 call(db_my_show_tables(myddas,table(Table))),
-	 call(db_import(myddas,Table,Table)),
-	 fail.
- '$myddas_import_all'.
-	 
 
 
  '$erase_sets' :- 
@@ -1091,7 +995,6 @@ break :-
 	set_value('$lf_verbose',silent),
 	bootstrap(F),
 	% -p option must be processed after initializing the system
-	'$init_path_extensions',
 	set_value('$lf_verbose', OldSilent).
 
 bootstrap(F) :-
@@ -1131,13 +1034,6 @@ bootstrap(F) :-
        ;
         true
        ).
-
-'$init_path_extensions' :-
-	get_value('$extend_file_search_path',P), !,
-	P \= [],
-	set_value('$extend_file_search_path',[]),
-	'$extend_file_search_path'(P).
-'$init_path_extensions'.
 
 '$loop'(Stream,Status) :-
 	(

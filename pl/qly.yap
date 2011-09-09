@@ -48,15 +48,110 @@ qsave_program(File) :-
 	catch(yap_flag(F,V),_,fail),
 	fail.
 '$do_init_state' :-
-	set_value('$user_module',user), '$protect'.
+	set_value('$user_module',user),
+	'$protect',
+	fail.
 '$do_init_state' :-
 	'$current_module'(prolog),
 	module(user),
 	fail.
 '$do_init_state' :-
-	'$init_system',
-	fail.
+	'$init_from_saved_state_and_args',
+	 fail.
 '$do_init_state'.
+
+%
+% first, recover what we need from the saved state...
+%
+'$init_from_saved_state_and_args' :-
+	'$init_path_extensions',
+	fail.
+% use if we come from a save_program and we have SWI's shlib
+'$init_from_saved_state_and_args' :-
+	recorded('$reload_foreign_libraries',G,R),
+	erase(R),
+	shlib:reload_foreign_libraries,
+	fail.
+% use if we come from a save_program and we have a goal to execute
+'$init_from_saved_state_and_args' :-
+	get_value('$consult_on_boot',X), X \= [],
+	set_value('$consult_on_boot',[]),
+	'$do_startup_reconsult'(X),
+	fail.
+'$init_from_saved_state_and_args' :-
+	  '$access_yap_flags'(16,0),
+	  ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
+	  ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
+	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
+	  fail.
+'$init_from_saved_state_and_args' :-
+	'$startup_goals',
+	fail.
+'$init_from_saved_state_and_args' :-
+	recorded('$restore_goal',G,R),
+	erase(R),
+	prompt(_,'| '),
+	'$system_catch'('$do_yes_no'((G->true),user),user,Error,user:'$Error'(Error)),
+	fail.
+'$init_from_saved_state_and_args'.
+
+'$init_path_extensions' :-
+	get_value('$extend_file_search_path',P), !,
+	P \= [],
+	set_value('$extend_file_search_path',[]),
+	'$extend_file_search_path'(P).
+'$init_path_extensions'.
+ 
+% then we can execute the programs.
+'$startup_goals' :-
+	recorded('$startup_goal',G,_),
+	'$current_module'(Module),
+	'$system_catch'('$query'(once(G), []),Module,Error,user:'$Error'(Error)),
+	fail.
+'$startup_goals' :-
+	get_value('$init_goal',GA),
+	GA \= [],
+	set_value('$init_goal',[]),
+	'$run_atom_goal'(GA),
+	fail.
+'$startup_goals' :-
+	get_value('$myddas_goal',GA), GA \= [],
+	set_value('$myddas_goal',[]),
+	get_value('$myddas_user',User), User \= [],
+	set_value('$myddas_user',[]),
+	get_value('$myddas_db',Db), Db \= [],
+	set_value('$myddas_db',[]),
+	get_value('$myddas_host',HostT),
+	( HostT \= [] ->
+	  Host = HostT,
+	  set_value('$myddas_host',[])
+	;
+	  Host = localhost
+	),
+	get_value('$myddas_pass',PassT),
+	( PassT \= [] ->
+	  Pass = PassT,
+	  set_value('$myddas_pass',[])
+	;
+	  Pass = ''
+	),
+	use_module(library(myddas)),
+	call(db_open(mysql,myddas,Host/Db,User,Pass)),
+	'$myddas_import_all',
+	fail.
+'$startup_goals'.
+
+ %
+ % MYDDAS: Import all the tables from one database
+ %
+
+ '$myddas_import_all':-
+	 call(db_my_show_tables(myddas,table(Table))),
+	 call(db_import(myddas,Table,Table)),
+	 fail.
+ '$myddas_import_all'.
+	 
+
 
 
 qsave_module(Mod) :-
