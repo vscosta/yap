@@ -754,8 +754,10 @@ p_read2 ( USES_REGS1 )
   Int out;
 
   if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG8) PASS_REGS), &inp_stream)) {
+    Yap_RecoverSlots(1 PASS_REGS);
     return(FALSE);
   }
+  Yap_RecoverSlots(1 PASS_REGS);
   out = do_read(inp_stream, 8 PASS_REGS);
   return out;
 }
@@ -1077,33 +1079,6 @@ p_float_format( USES_REGS1 )
   return TRUE;
 }
 
-extern IOENC Yap_DefaultEncoding(void);
-extern void  Yap_SetDefaultEncoding(IOENC);
-extern int   PL_get_stream_handle(Int, IOSTREAM **);
-
-static Int
-p_get_default_encoding( USES_REGS1 )
-{
-  Term out = MkIntegerTerm(Yap_DefaultEncoding());
-  return Yap_unify(ARG1, out);
-}
-
-static Int
-p_encoding ( USES_REGS1 )
-{				/* '$encoding'(Stream,N)                      */
-  IOSTREAM *st;
-  Term t = Deref(ARG2);
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &st)) {
-    return FALSE;
-  }
-  if (IsVarTerm(t)) {
-    return Yap_unify(ARG2, MkIntegerTerm(st->encoding));
-  }
-  st->encoding = IntegerOfTerm(Deref(ARG2));
-  return TRUE;
-}
-
-
 void
 Yap_InitBackIO (void)
 {
@@ -1128,8 +1103,6 @@ Yap_InitIOPreds(void)
   Yap_InitCPred ("$all_char_conversions", 1, p_all_char_conversions, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$force_char_conversion", 0, p_force_char_conversion, SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred ("$disable_char_conversion", 0, p_disable_char_conversion, SyncPredFlag|HiddenPredFlag);
-  Yap_InitCPred ("$get_default_encoding", 1, p_get_default_encoding, SafePredFlag|TestPredFlag);
-  Yap_InitCPred ("$encoding", 2, p_encoding, SafePredFlag|SyncPredFlag),
 #if HAVE_SELECT
     //  Yap_InitCPred ("stream_select", 3, p_stream_select, SafePredFlag|SyncPredFlag);
 #endif

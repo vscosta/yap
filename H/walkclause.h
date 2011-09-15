@@ -34,9 +34,9 @@
     case _p_execute:
       pc = NEXTOP(pc,Osbmp);
       break;
-      /* instructions type Osbpi */
+      /* instructions type Osbpa */
     case _ensure_space:
-      pc = NEXTOP(pc,Osbpi);
+      pc = NEXTOP(pc,Osbpa);
       break;
       /* instructions type Osbpp */
     case _call_cpred:

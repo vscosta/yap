@@ -16,7 +16,7 @@
       cl = NEXTOP(cl,N);
       break;
     case _ensure_space:
-      cl = NEXTOP(cl,Osbpi);
+      cl = NEXTOP(cl,Osbpa);
       break;
     case _native_me:
       cl = NEXTOP(cl,aFlp);

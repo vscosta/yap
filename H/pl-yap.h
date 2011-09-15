@@ -129,7 +129,15 @@ void PL_license(const char *license, const char *module);
 #define atomFromTerm(term) YAP_SWIAtomFromAtom(YAP_AtomOfTerm(term))
 #define atomName(atom) ((char *)YAP_AtomName(atom))
 #define nameOfAtom(atom) ((char *)YAP_AtomName(atom))
-#define atomLength(atom) YAP_AtomNameLength(atom)
+
+inline static size_t
+atomLength(Atom atom)
+{
+  if (YAP_IsWideAtom(atom)) 
+    return wcslen(atom->WStrOfAE)*sizeof(wchar_t);
+  return(strlen(atom->StrOfAE));
+}
+
 #define atomBlobType(at) YAP_find_blob_type(at)
 #define argTermP(w,i) ((Word)((YAP_ArgsOfTerm(w)+(i))))
 #define deRef(t) while (IsVarTerm(*(t)) && !IsUnboundVar(t)) { t = (CELL *)(*(t)); }
@@ -147,6 +155,9 @@ void PL_license(const char *license, const char *module);
 extern term_t Yap_CvtTerm(term_t ts);
 
 #define clearNumber(n)
+
+wchar_t *nameOfWideAtom(atom_t atom);
+int isWideAtom(atom_t atom);
 
 inline static int
 charCode(Term w)

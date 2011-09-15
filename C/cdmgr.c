@@ -838,7 +838,9 @@ Yap_BuildMegaClause(PredEntry *ap)
   required = sz*ap->cs.p_code.NOfClauses+sizeof(MegaClause)+(UInt)NEXTOP((yamop *)NULL,l);
 #ifdef DEBUG
   total_megaclause += required;
-  total_released += ap->cs.p_code.NOfClauses*(sz+sizeof(StaticClause));
+  cl =
+    ClauseCodeToStaticClause(ap->cs.p_code.FirstClause);
+  total_released += ap->cs.p_code.NOfClauses*cl->ClSize;
   nof_megaclauses++;
 #endif
   while (!(mcl = (MegaClause *)Yap_AllocCodeSpace(required))) {
@@ -850,7 +852,7 @@ Yap_BuildMegaClause(PredEntry *ap)
   Yap_ClauseSpace += required;
   /* cool, it's our turn to do the conversion */
   mcl->ClFlags = MegaMask | has_blobs;
-  mcl->ClSize = sz*ap->cs.p_code.NOfClauses;
+  mcl->ClSize = required;
   mcl->ClPred = ap;
   mcl->ClItemSize = sz;
   mcl->ClNext = NULL;
@@ -1603,7 +1605,7 @@ retract_all(PredEntry *p, int in_use)
   }
   p->cs.p_code.FirstClause = NULL;
   p->cs.p_code.LastClause = NULL;
-  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag)) {
+  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag|MultiFileFlag)) {
     p->OpcodeOfPred = FAIL_OPCODE;
   } else {
     p->OpcodeOfPred = UNDEF_OPCODE;
@@ -1629,6 +1631,19 @@ retract_all(PredEntry *p, int in_use)
   } else
     p->PredFlags &= ~CountPredFlag;
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomTrue));
+}
+
+static int
+source_pred(PredEntry *p, yamop *q)
+{
+  if (p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))
+    return FALSE;
+  if (p->PredFlags & MultiFileFlag)
+    return TRUE;
+  if (yap_flags[SOURCE_MODE_FLAG]) {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /* p is already locked */
@@ -1682,12 +1697,8 @@ add_first_static(PredEntry *p, yamop *cp, int spy_flag)
     p->OpcodeOfPred = Yap_opcode(_spy_pred);
     p->CodeOfPred = (yamop *)(&(p->OpcodeOfPred)); 
   }
-  if ((yap_flags[SOURCE_MODE_FLAG] ||
-      (p->PredFlags & MultiFileFlag)) &&
-      !(p->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {
+  if (source_pred(p, cp)) {
     p->PredFlags |= SourcePredFlag;
-  } else {
-    p->PredFlags &= ~SourcePredFlag;
   }
 }
 
@@ -1938,6 +1949,24 @@ assertz_dynam_clause(PredEntry *p, yamop *cp)
   p->cs.p_code.NOfClauses++;
 }
 
+void 
+Yap_AssertzClause(PredEntry *p, yamop *cp)
+{
+  if (p->PredFlags & DynamicPredFlag) {
+    if (p->cs.p_code.FirstClause == NULL) {
+      add_first_dynamic(p, cp, FALSE);
+    } else {
+      assertz_dynam_clause(p, cp);
+    }
+  } else {
+    if (p->cs.p_code.FirstClause == NULL) {
+      add_first_static(p, cp, FALSE);
+    } else {
+      assertz_stat_clause(p, cp, FALSE);
+    }
+  }
+}
+
 static void  expand_consult( void )
 {
   CACHE_REGS
@@ -2069,7 +2098,6 @@ mark_preds_with_this_func(Functor f, Prop p0)
     }
   }
 }
-
 
 static int
 addclause(Term t, yamop *cp, int mode, Term mod, Term *t4ref)
@@ -2609,8 +2637,6 @@ purge_clauses(PredEntry *pred)
     retract_all(pred, static_in_use(pred,TRUE));
   }
   pred->src.OwnerFile = AtomNil;
-  if (pred->PredFlags & MultiFileFlag)
-    pred->PredFlags ^= MultiFileFlag;
 }
 
 void
@@ -2856,6 +2882,7 @@ p_new_multifile( USES_REGS1 )
     pe = RepPredProp(PredPropByFunc(Yap_MkFunctor(at, arity),mod));
   PELOCK(26,pe);
   pe->PredFlags |= MultiFileFlag;
+  /* mutifile-predicates are weird, they do not seat really on the default module */
   if (pe->ModuleOfPred == PROLOG_MODULE)
     pe->ModuleOfPred = TermProlog;
   if (!(pe->PredFlags & (DynamicPredFlag|LogUpdatePredFlag))) {

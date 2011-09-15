@@ -32,6 +32,7 @@ PROGRAMS= \
 	$(srcdir)/problog.yap \
 	$(srcdir)/problog_lfi.yap \
 	$(srcdir)/dtproblog.yap \
+	$(srcdir)/aproblog.yap \
 	$(srcdir)/problog_learning.yap
 
 PROBLOG_PROGRAMS= \
@@ -58,6 +59,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/termhandling.yap \
 	$(srcdir)/problog/completion.yap \
 	$(srcdir)/problog/discrete.yap \
+	$(srcdir)/problog/bdd.yap \
 	$(srcdir)/problog/variables.yap
 
 PROBLOG_EXAMPLES = \
@@ -67,6 +69,7 @@ PROBLOG_EXAMPLES = \
 	$(srcdir)/problog_examples/learn_graph.pl \
 	$(srcdir)/problog_examples/office.pl \
 	$(srcdir)/problog_examples/viralmarketing.pl \
+	$(srcdir)/problog_examples/aProbLog_examples.pl \
 	$(srcdir)/problog_examples/viralmarketing_tabled.pl
 
 MANUAL_NAME = problog

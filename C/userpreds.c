@@ -686,9 +686,8 @@ p_softfunctor()
   WRITE_LOCK(RepAtom(a)->ARWLock);
   if ((p0 = Yap_GetAProp(a, SFProperty)) == NIL) {
     pe = (SFEntry *) Yap_AllocAtomSpace(sizeof(*pe));
-    pe->NextOfPE = RepAtom(a)->PropsOfAE;
     pe->KindOfPE = SFProperty;
-    RepAtom(a)->PropsOfAE = AbsSFProp(pe);
+    AddPropToAtom(RepAtom(a), (PropEntry *)pe);
   } else
     pe = RepSFProp(p0);
   WRITE_UNLOCK(RepAtom(a)->ARWLock);

@@ -984,7 +984,7 @@ exec_absmi(int top USES_REGS)
       break;
     case 3:
       { /* saved state */
-	return(FALSE);
+	return FALSE;
       }
     default:
       /* do nothing */

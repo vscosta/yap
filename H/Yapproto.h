@@ -58,7 +58,7 @@ Term	STD_PROTO(Yap_NWideStringToListOfAtoms,(wchar_t *, size_t));
 Term	STD_PROTO(Yap_NWideStringToDiffListOfAtoms,(wchar_t *, Term, size_t));
 int     STD_PROTO(Yap_AtomIncreaseHold,(Atom));
 int     STD_PROTO(Yap_AtomDecreaseHold,(Atom));
-
+struct operator_entry *STD_PROTO(Yap_OpPropForModule,(Atom, Term));
 Int	STD_PROTO(Yap_InitSlot,(Term CACHE_TYPE));
 Int     STD_PROTO(Yap_NewSlots,(int CACHE_TYPE));
 int     STD_PROTO(Yap_RecoverSlots,(int CACHE_TYPE));
@@ -136,6 +136,7 @@ void	STD_PROTO(Yap_Abolish,(struct pred_entry *));
 void	STD_PROTO(Yap_BuildMegaClause,(struct pred_entry *));
 void	STD_PROTO(Yap_EraseMegaClause,(yamop *,struct pred_entry *));
 void	STD_PROTO(Yap_ResetConsultStack,(void));
+void	STD_PROTO(Yap_AssertzClause,(struct pred_entry *, yamop *));
 
 
 /* cmppreds.c */
@@ -307,9 +308,15 @@ Term	STD_PROTO(Yap_Parse,(void));
 /* readutil.c */
 void	STD_PROTO(Yap_InitReadUtil,(void));
 
+/* qly.c */
+void	STD_PROTO(Yap_InitQLY,(void));
+int 	STD_PROTO(Yap_Restore,(char *, char *));
+void	STD_PROTO(Yap_InitQLYR,(void));
+
 /* save.c */
 int	STD_PROTO(Yap_SavedInfo,(char *,char *,CELL *,CELL *,CELL *));
-int 	STD_PROTO(Yap_Restore,(char *, char *));
+int 	STD_PROTO(Yap_SavedStateRestore,(char *, char *));
+struct io_stream *STD_PROTO(Yap_OpenRestore,(char *, char *));
 void	STD_PROTO(Yap_InitSavePreds,(void));
 
 /* scanner.c */
@@ -487,3 +494,9 @@ gc_P(yamop *p, yamop *cp)
 {
   return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
 }
+
+#ifdef _PL_STREAM_H
+extern int Yap_getInputStream(Int t, IOSTREAM **s);
+extern int Yap_getOutputStream(Int t, IOSTREAM **s);
+#endif
+

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 15:20:15 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5043 $
+%  $Date: 2011-07-28 15:19:56 +0200 (Thu, 28 Jul 2011) $
+%  $Revision: 6462 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -288,7 +288,9 @@ calc_md5(Filename,MD5):-
 	catch(calc_md5_intern(Filename,'md5sum',MD5),_,fail),
 	!.
 calc_md5(Filename,MD5):-
-	catch(calc_md5_intern(Filename,'md5',MD5),_,fail),
+	catch(calc_md5_intern(Filename,'md5 -r',MD5),_,fail),
+	% used in Mac OS
+	% the -r makes the output conform with md5sum
 	!.
 calc_md5(Filename,MD5):-
 	throw(md5error(calc_md5(Filename,MD5))).
@@ -313,6 +315,7 @@ calc_md5_intern(Filename,Command,MD5) :-
 		->
 		 (
 		  close(S),
+		  wait(PID,_Status),
 		  throw(md5error('premature end of output stream, please check os.yap calc_md5/2'))
 		 );
 		 true

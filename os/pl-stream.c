@@ -3335,9 +3335,12 @@ static const IOSTREAM S__iob0[] =
 };
 
 
+/* vsc: Scleanup should reset init done */
+static int done;
+
 void
 SinitStreams(void)
-{ static int done;
+{
 
   if ( !done++ )
   { int i;
@@ -3464,4 +3467,5 @@ Scleanup(void)
 
     *s = S__iob0[i];			/* re-initialise */
   }
+  done = 0;
 }

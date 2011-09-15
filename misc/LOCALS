@@ -206,7 +206,7 @@ Int 				total_atom_table_overflow_time 		=0
 
 //load_dyld
 #ifdef LOAD_DYLD
-static 				dl_errno				=0
+int 				dl_errno				=0
 #endif
 
 //tracer.c
@@ -214,7 +214,33 @@ static 				dl_errno				=0
 int 				do_trace_primitives 			=TRUE
 #endif
 
+//quick loader
+struct export_atom_hash_entry_struct **ExportAtomHashChain		=NULL
+UInt				ExportAtomHashTableSize			=0
+UInt				ExportAtomHashTableNum			=0
+struct export_functor_hash_entry_struct **ExportFunctorHashChain	=NULL
+UInt				ExportFunctorHashTableSize		=0
+UInt				ExportFunctorHashTableNum		=0
+struct export_pred_entry_hash_entry_struct **ExportPredEntryHashChain	=NULL
+UInt				ExportPredEntryHashTableSize		=0
+UInt				ExportPredEntryHashTableNum		=0
+struct export_dbref_hash_entry_struct **ExportDBRefHashChain		=NULL
+UInt				ExportDBRefHashTableSize		=0
+UInt				ExportDBRefHashTableNum			=0
+struct import_atom_hash_entry_struct **ImportAtomHashChain		=NULL
+UInt				ImportAtomHashTableSize			=0
+UInt				ImportAtomHashTableNum			=0
+struct import_functor_hash_entry_struct **ImportFunctorHashChain	=NULL
+UInt				ImportFunctorHashTableSize		=0
+UInt				ImportFunctorHashTableNum		=0
+struct import_opcode_hash_entry_struct **ImportOPCODEHashChain		=NULL
+UInt				ImportOPCODEHashTableSize		=0
+struct import_pred_entry_hash_entry_struct **ImportPredEntryHashChain	=NULL
+UInt				ImportPredEntryHashTableSize		=0
+UInt				ImportPredEntryHashTableNum		=0
+struct import_dbref_hash_entry_struct **ImportDBRefHashChain		=NULL
+UInt				ImportDBRefHashTableSize		=0
+UInt				ImportDBRefHashTableNum			=0
+yamop			       *ImportFAILCODE				=NULL
+
 END_WORKER_LOCAL
-
-
-

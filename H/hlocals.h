@@ -182,10 +182,38 @@ typedef struct worker_local {
   Int  total_atom_table_overflow_time_;
 
 #ifdef LOAD_DYLD
-  static  dl_errno_;
+  int  dl_errno_;
 #endif
 
 #ifdef LOW_LEVEL_TRACER
   int  do_trace_primitives_;
 #endif
+
+  struct export_atom_hash_entry_struct  **ExportAtomHashChain_;
+  UInt  ExportAtomHashTableSize_;
+  UInt  ExportAtomHashTableNum_;
+  struct export_functor_hash_entry_struct  **ExportFunctorHashChain_;
+  UInt  ExportFunctorHashTableSize_;
+  UInt  ExportFunctorHashTableNum_;
+  struct export_pred_entry_hash_entry_struct  **ExportPredEntryHashChain_;
+  UInt  ExportPredEntryHashTableSize_;
+  UInt  ExportPredEntryHashTableNum_;
+  struct export_dbref_hash_entry_struct  **ExportDBRefHashChain_;
+  UInt  ExportDBRefHashTableSize_;
+  UInt  ExportDBRefHashTableNum_;
+  struct import_atom_hash_entry_struct  **ImportAtomHashChain_;
+  UInt  ImportAtomHashTableSize_;
+  UInt  ImportAtomHashTableNum_;
+  struct import_functor_hash_entry_struct  **ImportFunctorHashChain_;
+  UInt  ImportFunctorHashTableSize_;
+  UInt  ImportFunctorHashTableNum_;
+  struct import_opcode_hash_entry_struct  **ImportOPCODEHashChain_;
+  UInt  ImportOPCODEHashTableSize_;
+  struct import_pred_entry_hash_entry_struct  **ImportPredEntryHashChain_;
+  UInt  ImportPredEntryHashTableSize_;
+  UInt  ImportPredEntryHashTableNum_;
+  struct import_dbref_hash_entry_struct  **ImportDBRefHashChain_;
+  UInt  ImportDBRefHashTableSize_;
+  UInt  ImportDBRefHashTableNum_;
+  yamop  *ImportFAILCODE_;
 } w_local;

@@ -674,7 +674,7 @@ typedef enum
   TabledPredFlag = 0x00000040L,	/* is tabled */
   SequentialPredFlag = 0x00000020L,	/* may not create parallel choice points! */
   ProfiledPredFlag = 0x00000010L,	/* pred is being profiled   */
-  MyddasPredFlag = 0x00000008L,	/* Myddas Imported pred  */
+  BackCPredFlag = 0x00000008L,    /*	Myddas Imported pred  */
   ModuleTransparentPredFlag = 0x00000004L,	/* ModuleTransparent pred  */
   SWIEnvPredFlag = 0x00000002L,	/* new SWI interface */
   UDIPredFlag = 0x00000001L	/* User Defined Indexing */
@@ -708,7 +708,7 @@ typedef struct pred_entry
   struct yami *CodeOfPred;
   OPCODE OpcodeOfPred;		/* undefcode, indexcode, spycode, ....  */
   CELL PredFlags;
-  unsigned int ArityOfPE;	/* arity of property                    */
+  UInt ArityOfPE;		/* arity of property                    */
   union
   {
     struct
@@ -727,7 +727,6 @@ typedef struct pred_entry
   {
     Atom OwnerFile;		/* File where the predicate was defined */
     Int IndxId;			/* Index for a certain key */
-    struct mfile *file_srcs;	/* for multifile predicates */
   } src;
 #if defined(YAPOR) || defined(THREADS)
   lockvar PELock;		/* a simple lock to protect expansion */
@@ -1481,6 +1480,9 @@ PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
   return (((CELL)fe+cur_mod)>>2) % size;
 }
 
+EXTERN inline Prop STD_PROTO(GetPredPropByFuncAndModHavingLock, (FunctorEntry *, Term));
+EXTERN inline Prop STD_PROTO(PredPropByFuncAndMod, (FunctorEntry *, Term));
+EXTERN inline Prop STD_PROTO(PredPropByAtomAndMod, (Atom, Term));
 EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
 
 #ifdef THREADS
@@ -1566,6 +1568,64 @@ PredPropByFunc (Functor fe, Term cur_mod)
 }
 
 EXTERN inline Prop
+GetPredPropByFuncAndModHavingLock (FunctorEntry *fe, Term cur_mod)
+{
+  PredEntry *p;
+
+  if (!(p = RepPredProp(fe->PropsOfFE))) {
+    return NIL;
+  }
+  if (p->ModuleOfPred == cur_mod) {
+#ifdef THREADS
+    /* Thread Local Predicates */
+    if (p->PredFlags & ThreadLocalPredFlag) {
+      return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
+    }
+#endif
+    return AbsPredProp(p);
+  }
+  if (p->NextOfPE) {
+    UInt hash = PRED_HASH(fe,cur_mod,PredHashTableSize);
+    READ_LOCK(PredHashRWLock);
+    p = PredHash[hash];
+    
+    while (p) {
+      if (p->FunctorOfPred == fe &&
+	  p->ModuleOfPred == cur_mod)
+	{
+#ifdef THREADS
+	  /* Thread Local Predicates */
+	  if (p->PredFlags & ThreadLocalPredFlag) {
+	    READ_UNLOCK(PredHashRWLock);
+	    return AbsPredProp (Yap_GetThreadPred (p INIT_REGS));
+	  }
+#endif
+	  READ_UNLOCK(PredHashRWLock);
+	  return AbsPredProp(p);
+	}
+      p = RepPredProp(p->NextOfPE);
+    }
+    READ_UNLOCK(PredHashRWLock);
+  }
+  return NIL;
+}
+
+EXTERN inline Prop
+PredPropByFuncAndMod (Functor fe, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+
+  WRITE_LOCK (fe->FRWLock);
+  p0 = GetPredPropByFuncAndModHavingLock(fe, cur_mod);
+  if (p0) {
+    WRITE_UNLOCK (fe->FRWLock);
+    return p0;
+  }
+  return Yap_NewPredPropByFunctor (fe, cur_mod);
+}
+
+EXTERN inline Prop
 PredPropByAtom (Atom at, Term cur_mod)
 /* get predicate entry for ap/arity; create it if neccessary.              */
 {
@@ -1596,6 +1656,37 @@ PredPropByAtom (Atom at, Term cur_mod)
   return Yap_NewPredPropByAtom (ae, cur_mod);
 }
 
+EXTERN inline Prop
+PredPropByAtomAndMod (Atom at, Term cur_mod)
+/* get predicate entry for ap/arity; create it if neccessary.              */
+{
+  Prop p0;
+  AtomEntry *ae = RepAtom (at);
+
+  WRITE_LOCK (ae->ARWLock);
+  p0 = ae->PropsOfAE;
+  while (p0)
+    {
+      PredEntry *pe = RepPredProp (p0);
+      if (pe->KindOfPE == PEProp &&
+	  (pe->ModuleOfPred == cur_mod))
+	{
+#ifdef THREADS
+	  /* Thread Local Predicates */
+	  if (pe->PredFlags & ThreadLocalPredFlag)
+	    {
+	      WRITE_UNLOCK (ae->ARWLock);
+	      return AbsPredProp (Yap_GetThreadPred (pe INIT_REGS));
+	    }
+#endif
+	  WRITE_UNLOCK (ae->ARWLock);
+	  return (p0);
+	}
+      p0 = pe->NextOfPE;
+    }
+  return Yap_NewPredPropByAtom (ae, cur_mod);
+}
+
 #if DEBUG_PELOCKING
 #define PELOCK(I,Z)						\
   { LOCK((Z)->PELock); (Z)->StatisticsForPred.NOfEntries=(I);(Z)->StatisticsForPred.NOfHeadSuccesses=pthread_self(); }
@@ -1606,5 +1697,22 @@ PredPropByAtom (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
 #endif
 
+EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p));
+
+EXTERN inline void
+AddPropToAtom(AtomEntry *ae, PropEntry *p)
+{
+  /* old properties should be always last, and wide atom properties 
+     should always be first */
+  if (ae->PropsOfAE != NIL &&
+      RepProp(ae->PropsOfAE)->KindOfPE == WideAtomProperty) {
+    PropEntry *pp = RepProp(ae->PropsOfAE);    
+    p->NextOfPE = pp->NextOfPE;
+    pp->NextOfPE = AbsProp(p);
+  } else {
+    p->NextOfPE = ae->PropsOfAE;
+    ae->PropsOfAE = AbsProp(p);
+  }
+}
 #endif
 

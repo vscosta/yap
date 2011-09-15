@@ -43,8 +43,7 @@ PutBBProp(AtomEntry *ae, Term mod USES_REGS)		/* get BBentry for at; */
       Yap_Error(OUT_OF_HEAP_ERROR,ARG1,"could not allocate space in bb_put/2");
       return(NULL);
     }
-    p->NextOfPE = ae->PropsOfAE;
-    ae->PropsOfAE = AbsBBProp(p);
+    AddPropToAtom(ae, (PropEntry *)p);
     p->ModuleOfBB = mod;
     p->Element = 0L;
     p->KeyOfBB = AbsAtom(ae);

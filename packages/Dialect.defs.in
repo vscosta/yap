@@ -23,8 +23,9 @@ PLARCH=@ARCH@
 PLINCL=$(PLBASE)/include
 PLLIBDIR=$(PLBASE)/share/Yap
 SOLIBDIR=$(PLBASE)/lib/Yap
-PKGDOCDIR=$(PLBASE)/share/doc/packages
-PKGEXDIR=$(PLBASE)/share/doc/packages/examples
+PKGDOCDIR=$(PLBASE)/share/doc/Yap/packages
+PKGEXDIR=$(PLBASE)/share/doc/Yap//packages/examples
+PKGCFLAGS=
 
 #
 # YAP internal stuff
@@ -40,8 +41,8 @@ PL=@INSTALL_ENV@ $(DESTDIR)$(BINDIR)/yap $(DESTDIR)$(YAPLIBDIR)/startup.yss
 
 CC=@CC@
 LD=@SHLIB_LD@
-SO=@SOT@
-COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include @CPPFLAGS@
+SO=@SO@
+COFLAGS=$(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../.. -I$(srcdir)/../../include -I$(srcdir)/../../os @CPPFLAGS@
 CWFLAGS=
 CMFLAGS=@SHLIB_CFLAGS@ 
 CIFLAGS=

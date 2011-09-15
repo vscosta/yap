@@ -24,7 +24,7 @@
   OPCODE(alloc_for_logical_pred     ,L),
   OPCODE(copy_idb_term              ,e),
   OPCODE(unify_idb_term             ,e),
-  OPCODE(ensure_space               ,Osbpi),
+  OPCODE(ensure_space               ,Osbpa),
   OPCODE(spy_or_trymark             ,Otapl),
   OPCODE(try_and_mark               ,Otapl),
   OPCODE(count_retry_and_mark       ,Otapl),

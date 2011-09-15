@@ -69,9 +69,9 @@ InlinedUnlockedMkFunctor(AtomEntry *ae, unsigned int arity)
   p->NameOfFE = AbsAtom(ae);
   p->ArityOfFE = arity;
   p->PropsOfFE = NIL;
-  p->NextOfPE = ae->PropsOfAE;
   INIT_RWLOCK(p->FRWLock);
-  ae->PropsOfAE = AbsProp((PropEntry *) p);
+  /* respect the first property, in case this is a wide atom */
+  AddPropToAtom(ae, (PropEntry *)p);
   return ((Functor) p);
 }
 
@@ -104,8 +104,7 @@ Yap_MkFunctorWithAddress(Atom ap, unsigned int arity, FunctorEntry *p)
   p->KindOfPE = FunctorProperty;
   p->NameOfFE = ap;
   p->ArityOfFE = arity;
-  p->NextOfPE = RepAtom(ap)->PropsOfAE;
-  ae->PropsOfAE = AbsProp((PropEntry *) p);
+  AddPropToAtom(ae, (PropEntry *)p);
   WRITE_UNLOCK(ae->ARWLock);
 }
 
@@ -489,10 +488,50 @@ Yap_HasOp(Atom a)
 }
 
 OpEntry *
+Yap_OpPropForModule(Atom a, Term mod)
+{				/* look property list of atom a for kind  */
+  CACHE_REGS
+  AtomEntry *ae = RepAtom(a);
+  PropEntry *pp;
+  OpEntry *info = NULL;
+
+  if (mod == TermProlog)
+    mod = PROLOG_MODULE;
+  WRITE_LOCK(ae->ARWLock);
+  pp = RepProp(ae->PropsOfAE);
+  while (!EndOfPAEntr(pp)) {
+    if ( pp->KindOfPE == OpProperty) {
+      info = (OpEntry *)pp;
+      if (info->OpModule == mod) {
+	WRITE_LOCK(info->OpRWLock);
+	WRITE_UNLOCK(ae->ARWLock);
+	return info;
+      }
+    }
+    pp = pp->NextOfPE;
+  }
+  info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
+  info->KindOfPE = Ord(OpProperty);
+  info->OpModule = mod;
+  info->OpName = a;
+  LOCK(OpListLock);
+  info->OpNext = OpList;
+  OpList = info;
+  UNLOCK(OpListLock);
+  AddPropToAtom(ae, (PropEntry *)info);
+  INIT_RWLOCK(info->OpRWLock);
+  WRITE_LOCK(info->OpRWLock);
+  WRITE_UNLOCK(ae->ARWLock);
+  info->Prefix = info->Infix = info->Posfix = 0;
+  return info;
+}
+
+OpEntry *
 Yap_GetOpProp(Atom a, op_type type USES_REGS)
 {				/* look property list of atom a for kind  */
   AtomEntry *ae = RepAtom(a);
   PropEntry *pp;
+  OpEntry *oinfo = NULL;
 
   READ_LOCK(ae->ARWLock);
   pp = RepProp(ae->PropsOfAE);
@@ -524,9 +563,21 @@ Yap_GetOpProp(Atom a, op_type type USES_REGS)
 	continue;
       }
     }
-    READ_LOCK(info->OpRWLock);
+    /* if it is not the latest module */
+    if (info->OpModule == PROLOG_MODULE) {
+      /* cannot commit now */
+      oinfo = info;
+      pp = RepProp(pp->NextOfPE);
+    } else {
+      READ_LOCK(info->OpRWLock);
+      READ_UNLOCK(ae->ARWLock);
+      return info;
+    }
+  }
+  if (oinfo) {
+    READ_LOCK(oinfo->OpRWLock);
     READ_UNLOCK(ae->ARWLock);
-    return info;
+    return oinfo;
   }
   READ_UNLOCK(ae->ARWLock);
   return NULL;
@@ -898,7 +949,6 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p->beamTable = NULL;
 #endif 
   /* careful that they don't cross MkFunctor */
-  p->NextOfPE = ae->PropsOfAE;
   if (PRED_GOAL_EXPANSION_FUNC) {
     Prop p1 = ae->PropsOfAE;
 
@@ -914,7 +964,8 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
       p1 = pe->NextOfPE;
     }
   }
-  ae->PropsOfAE = p0 = AbsPredProp(p);
+  AddPropToAtom(ae, (PropEntry *)p);
+  p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
 #ifdef LOW_PROF
@@ -940,8 +991,14 @@ Yap_PredPropByFunctorNonThreadLocal(Functor f, Term cur_mod)
     return Yap_NewPredPropByFunctor(f,cur_mod);
 
   if ((p->ModuleOfPred == cur_mod || !(p->ModuleOfPred))) {
-    WRITE_UNLOCK(f->FRWLock);
-    return AbsPredProp(p);
+    /* don't match multi-files */
+    if (!(p->PredFlags & MultiFileFlag) ||
+	p->ModuleOfPred ||
+	!cur_mod ||
+	cur_mod == TermProlog) {
+      WRITE_UNLOCK(f->FRWLock);
+      return AbsPredProp(p);
+    }
   }
   if (p->NextOfPE) {
     UInt hash = PRED_HASH(f,cur_mod,PredHashTableSize);
@@ -976,8 +1033,14 @@ Yap_PredPropByAtomNonThreadLocal(Atom at, Term cur_mod)
     PredEntry *pe = RepPredProp(p0);
     if ( pe->KindOfPE == PEProp && 
 	 (pe->ModuleOfPred == cur_mod || !pe->ModuleOfPred)) {
-      WRITE_UNLOCK(ae->ARWLock);
-      return(p0);
+      /* don't match multi-files */
+      if (!(pe->PredFlags & MultiFileFlag) ||
+	  pe->ModuleOfPred ||
+	  !cur_mod ||
+	  cur_mod == TermProlog) {
+	WRITE_UNLOCK(ae->ARWLock);
+	return(p0);
+      }
     }
     p0 = pe->NextOfPE;
   }
@@ -1033,10 +1096,9 @@ Yap_PutValue(Atom a, Term v)
       WRITE_UNLOCK(ae->ARWLock);
       return;
     }
-    p->NextOfPE = RepAtom(a)->PropsOfAE;
-    RepAtom(a)->PropsOfAE = AbsValProp(p);
     p->KindOfPE = ValProperty;
     p->ValueOfVE = TermNil;
+    AddPropToAtom(RepAtom(a), (PropEntry *)p);
     /* take care that the lock for the property will be inited even
        if someone else searches for the property */
     INIT_RWLOCK(p->VRWLock);

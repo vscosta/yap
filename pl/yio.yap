@@ -33,8 +33,6 @@
 	'$check_opt_read'(Opt, G).
 '$check_opt'(stream_property(_,_),Opt,G) :-
 	'$check_opt_sp'(Opt, G).
-'$check_opt'(yap_flag(_,_),Opt,G) :-
-	'$check_opt_write'(Opt, G).
 
 '$check_opt_read'(variables(_), _) :- !.
 '$check_opt_read'(variable_names(_), _) :- !.

@@ -547,10 +547,16 @@ RestoreStaticClause(StaticClause *cl USES_REGS)
  * clause for this predicate or not 
  */
 {
-  if (cl->ClFlags & FactMask) {
-    cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
-  } else {
-    cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+  if (cl->usc.ClSource) {
+    char *x = (char *)DBTermAdjust(cl->usc.ClSource);
+    char *base = (char *)cl;
+
+    if (x < base || x > base+cl->ClSize) {
+      cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
+    } else {
+      cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
+      RestoreDBTerm(cl->usc.ClSource, TRUE PASS_REGS);
+    }
   }
   if (cl->ClNext) {
     cl->ClNext = PtoStCAdjust(cl->ClNext);
@@ -1110,9 +1116,10 @@ RestoreDB(DBEntry *pp USES_REGS)
 static void 
 CleanClauses(yamop *First, yamop *Last, PredEntry *pp USES_REGS)
 {
+    if (!First)
+      return;
   if (pp->PredFlags & LogUpdatePredFlag) {
     LogUpdClause *cl = ClauseCodeToLogUpdClause(First);
-
     while (cl != NULL) {
       RestoreLUClause(cl, pp PASS_REGS);
       cl = cl->ClNext;
@@ -1332,12 +1339,8 @@ CleanCode(PredEntry *pp USES_REGS)
     pp->FunctorOfPred = (Functor)AtomAdjust((Atom)(pp->FunctorOfPred));
   }
   if (!(pp->PredFlags & NumberDBPredFlag)) {
-    if (pp->PredFlags & MultiFileFlag) {
-      if (pp->src.file_srcs)
-	pp->src.file_srcs = MFileAdjust(pp->src.file_srcs);
-    } else {
-      if (pp->src.OwnerFile)
-	pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
+    if (pp->src.OwnerFile) {
+      pp->src.OwnerFile = AtomAdjust(pp->src.OwnerFile);
     }
   }
   pp->OpcodeOfPred = Yap_opcode(Yap_op_from_opcode(pp->OpcodeOfPred));

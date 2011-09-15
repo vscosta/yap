@@ -858,8 +858,7 @@ GetGlobalEntry(Atom at USES_REGS)
   new->NextGE = LOCAL_GlobalVariables;
   LOCAL_GlobalVariables = new;
   new->AtomOfGE = ae;
-  new->NextOfPE = ae->PropsOfAE;
-  ae->PropsOfAE = AbsGlobalProp(new);
+  AddPropToAtom(ae, (PropEntry *)new);
   RESET_VARIABLE(&new->global);
   WRITE_UNLOCK(ae->ARWLock);
   return new;

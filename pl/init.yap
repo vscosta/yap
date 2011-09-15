@@ -38,7 +38,30 @@ otherwise.
 
 :- set_value('$doindex',true).
 
-% force having indexing code for throw.
+% just create a choice-point
+% the 6th argument marks the time-stamp.
+'$do_log_upd_clause'(_,_,_,_,_,_).
+'$do_log_upd_clause'(A,B,C,D,E,_) :-
+	'$continue_log_update_clause'(A,B,C,D,E).
+'$do_log_upd_clause'(_,_,_,_,_,_).
+
+
+'$do_log_upd_clause_erase'(_,_,_,_,_,_).
+'$do_log_upd_clause_erase'(A,B,C,D,E,_) :-
+	'$continue_log_update_clause_erase'(A,B,C,D,E).
+'$do_log_upd_clause_erase'(_,_,_,_,_,_).
+
+'$do_log_upd_clause0'(_,_,_,_,_,_).
+'$do_log_upd_clause0'(A,B,C,D,_,_) :-
+	'$continue_log_update_clause'(A,B,C,D).
+'$do_log_upd_clause0'(_,_,_,_,_,_).
+
+
+'$do_static_clause'(_,_,_,_,_).
+'$do_static_clause'(A,B,C,D,E) :-
+	'$continue_static_clause'(A,B,C,D,E).
+'$do_static_clause'(_,_,_,_,_).
+
 :- '$handle_throw'(_,_,_), !.
 
 :- bootstrap('errors.yap').
@@ -82,6 +105,7 @@ otherwise.
 	 'eam.yap',
 	 'chtypes.yap',
 	 'yapor.yap',
+         'qly.yap',
          'udi.yap'].
 
 :- dynamic prolog:'$user_defined_flag'/4.
@@ -214,6 +238,8 @@ user:prolog_file_type(A, executable) :-
 :- dynamic user:message_hook/3.
 
 :- multifile user:portray_message/2.
+
+:- dynamic user:portray_message/2.
 
 :- multifile user:exception/3.
 

@@ -1,6 +1,9 @@
 
 #include "parms.h"
 
+/* are dynamic arrays supported? */
+#undef HAVE_DYNARRAY
+
 /* are we using gcc */
 #undef HAVE_GCC
 

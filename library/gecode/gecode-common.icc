@@ -1,0 +1,259 @@
+// -*- c++ -*-
+//=============================================================================
+// Copyright (C) 2011 by Denys Duchier
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//=============================================================================
+
+#ifndef GECODE_COMMON
+#define GECODE_COMMON
+
+#include "gecode/int.hh"
+#include "gecode/set.hh"
+#include "gecode/search.hh"
+#include <vector>
+
+namespace generic_gecode
+{
+  using namespace std;
+  using namespace Gecode;
+
+  // description of the optimization criterion
+  struct Optimizing
+  {
+    enum What { OPT_NONE, OPT_INT, OPT_RATIO };
+    enum How { OPT_MIN, OPT_MAX };
+    int num;
+    int den;
+    What what;
+    How how;
+    Optimizing(): num(-1), den(-1), what(OPT_NONE), how(OPT_MAX) {}
+    Optimizing(Optimizing& o)
+      : num(o.num), den(o.den), what(o.what), how(o.how) {}
+    void maximize(int i)
+    { what = OPT_INT; how = OPT_MAX; num = i; };
+    void maximize(int i,int j)
+    { what = OPT_RATIO; how = OPT_MAX; num = i; den = j; };
+    void minimize(int i)
+    { what = OPT_INT; how = OPT_MIN; num = i; };
+    void minimize(int i,int j)
+    { what = OPT_RATIO; how = OPT_MIN; num = i; den = j; };
+  };
+
+  struct GenericSpace;
+
+  struct GenericEngine
+  {
+    virtual GenericSpace* next(void)=0;
+    virtual ~GenericEngine() {};
+  };
+
+  struct GenericDFS: GenericEngine
+  {
+    DFS<GenericSpace> engine;
+    GenericDFS(GenericSpace* s) : engine(s) {}
+    virtual GenericSpace* next(void) { return engine.next(); }
+  };
+
+  struct GenericBAB: GenericEngine
+  {
+    BAB<GenericSpace> engine;
+    GenericBAB(GenericSpace* s) : engine(s) {}
+    virtual GenericSpace* next(void) { return engine.next(); }
+  };
+
+  struct GenericSpace: Space
+  {
+    Optimizing optim;
+    IntVarArray ivars;
+    BoolVarArray bvars;
+    SetVarArray svars;
+    vector<IntVar>* _ivars;
+    vector<BoolVar>* _bvars;
+    vector<SetVar>* _svars;
+
+    Space* space() { return this; }
+
+    GenericSpace(bool share, GenericSpace& s)
+      : Space(share, s), optim(s.optim),
+	_ivars(NULL), _bvars(NULL), _svars(NULL)
+    {
+      ivars.update(*this, share, s.ivars);
+      bvars.update(*this, share, s.bvars);
+      svars.update(*this, share, s.svars);
+    }
+
+    Space* copy(bool share)
+    { freeze(); return new GenericSpace(share, *this); }
+
+    GenericSpace() : _ivars(NULL), _bvars(NULL), _svars(NULL) {}
+
+    // freeze the space before handing it off to a search engine
+    void freeze()
+    {
+      if (_ivars)
+	{
+	  int n = _ivars->size();
+	  ivars = IntVarArray(*this, n);
+	  vector<IntVar>& v(*_ivars);
+	  for (; n--;) ivars[n] = v[n];
+	  delete _ivars;
+	  _ivars = NULL;
+	}
+
+      if (_bvars)
+	{
+	  int n = _bvars->size();
+	  bvars = BoolVarArray(*this, n);
+	  vector<BoolVar>& v(*_bvars);
+	  for (; n--;) bvars[n] = v[n];
+	  delete _bvars;
+	  _bvars = NULL;
+	}
+
+      if (_svars)
+	{
+	  int n = _svars->size();
+	  svars = SetVarArray(*this, n);
+	  vector<SetVar>& v(*_svars);
+	  for (; n--;) svars[n] = v[n];
+	  delete _svars;
+	  _svars = NULL;
+	}
+    }
+
+    IntVar get_ivar(int i) const { return (_ivars) ? (*_ivars)[i] : ivars[i]; }
+    BoolVar get_bvar(int i) const { return (_bvars) ? (*_bvars)[i] : bvars[i]; }
+    SetVar get_svar(int i) const { return (_svars) ? (*_svars)[i] : svars[i]; }
+
+    GenericEngine* new_engine()
+    {
+      freeze();
+      return (optim.what == Optimizing::OPT_NONE)
+	? static_cast<GenericEngine*>(new GenericDFS(this))
+	: static_cast<GenericEngine*>(new GenericBAB(this));
+    }
+
+    int _new_ivar(IntVar& v)
+    {
+      if (!_ivars) _ivars = new vector<IntVar>;
+      int i = _ivars->size();
+      _ivars->push_back(v);
+      return i;
+    }
+
+    int new_ivar(int lo, int hi)
+    {
+      IntVar v(*this, lo, hi);
+      return _new_ivar(v);
+    }
+
+    int new_ivar(IntSet& s)
+    {
+      IntVar v(*this, s);
+      return _new_ivar(v);
+    }
+
+    int _new_bvar(BoolVar& v)
+    {
+      if (!_bvars) _bvars = new vector<BoolVar>;
+      int i = _bvars->size();
+      _bvars->push_back(v);
+      return i;
+    }
+
+    int new_bvar()
+    {
+      BoolVar v(*this, 0, 1);
+      return _new_bvar(v);
+    }
+
+    int _new_svar(SetVar& v)
+    {
+      if (!_svars) _svars = new vector<SetVar>;
+      int i = _svars->size();
+      _svars->push_back(v);
+      return i;
+    }
+
+    int new_svar(int glbMin, int glbMax, int lubMin, int lubMax,
+		 unsigned int cardMin=0,
+		 unsigned int cardMax=Set::Limits::card)
+    {
+      SetVar v(*this, glbMin, glbMax, lubMin, lubMax, cardMin, cardMax);
+      return _new_svar(v);
+    }
+
+    int new_svar(IntSet glb, int lubMin, int lubMax,
+		 unsigned int cardMin=0,
+		 unsigned int cardMax=Set::Limits::card)
+    {
+      SetVar v(*this, glb, lubMin, lubMax, cardMin, cardMax);
+      return _new_svar(v);
+    }
+
+    int new_svar(int glbMin, int glbMax, IntSet lub,
+		 unsigned int cardMin=0,
+		 unsigned int cardMax=Set::Limits::card)
+    {
+      SetVar v(*this, glbMin, glbMax, lub, cardMin, cardMax);
+      return _new_svar(v);
+    }
+
+    int new_svar(IntSet glb, IntSet lub,
+		 unsigned int cardMin=0,
+		 unsigned int cardMax=Set::Limits::card)
+    {
+      SetVar v(*this, glb, lub, cardMin, cardMax);
+      return _new_svar(v);
+    }
+
+    void minimize(int i) { optim.minimize(i); }
+    void minimize(int i, int j) { optim.minimize(i,j); }
+    void maximize(int i) { optim.maximize(i); }
+    void maximize(int i, int j) { optim.maximize(i,j); }
+
+    virtual void constrain(const Space& s)
+    {
+      const GenericSpace& sol = static_cast<const GenericSpace&>(s);
+      switch (optim.what)
+	{
+	case Optimizing::OPT_NONE:
+	  break;
+	case Optimizing::OPT_INT:
+	  rel(*this, ivars[optim.num],
+	      ((optim.how==Optimizing::OPT_MIN) ? IRT_LE : IRT_GR),
+	      sol.ivars[optim.num].val());
+	  break;
+	case Optimizing::OPT_RATIO:
+	  {
+	    IntArgs c(2, sol.ivars[optim.den].val(),
+		      -  sol.ivars[optim.num].val());
+	    IntVarArgs v(2);
+	    v[0] = ivars[optim.num];
+	    v[1] = ivars[optim.den];
+	    linear(*this, c, v,
+		   ((optim.how==Optimizing::OPT_MIN) ? IRT_LE : IRT_GR), 0);
+	    break;
+	  }
+	}
+    }
+  };
+}
+
+#ifdef DISJUNCTOR
+#include "disjunctor.icc"
+#endif
+
+#endif

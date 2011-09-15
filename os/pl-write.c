@@ -276,7 +276,6 @@ PutToken(const char *s, IOSTREAM *stream)
   return TRUE;
 }
 
-
 static int
 PutTokenN(const char *s, size_t len, IOSTREAM *stream)
 { if ( len > 0 )
@@ -290,6 +289,63 @@ PutTokenN(const char *s, size_t len, IOSTREAM *stream)
 
   return TRUE;
 }
+
+#if __YAP_PROLOG__
+static bool
+PutWideStringN(const wchar_t *str, size_t length, IOSTREAM *s)
+{ size_t i;
+  const wchar_t *q = (const wchar_t *)str;
+
+  for(i=0; i<length; i++, q++)
+  { if ( Sputcode(*q, s) == EOF )
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+static bool
+PutWideString(const wchar_t *str, IOSTREAM *s)
+{ const wchar_t *q = (const wchar_t *)str;
+
+  for( ; *q != EOS; q++ )
+  { if ( Sputcode(*q, s) == EOF )
+      return FALSE;
+  }
+
+  return TRUE;
+}
+
+
+static int
+PutWideToken(const wchar_t *s, IOSTREAM *stream)
+{ if ( s[0] )
+  { int rc;
+
+    TRY(rc=PutOpenToken(s[0]&0xff, stream));
+    TRY(PutWideString(s, stream));
+
+    return rc;
+  }
+
+  return TRUE;
+}
+
+static int
+PutWideTokenN(const wchar_t *s, size_t len, IOSTREAM *stream)
+{ if ( len > 0 )
+  { int rc;
+
+    TRY(rc=PutOpenToken(s[0]&0xff, stream));
+    TRY(PutWideStringN(s, len, stream));
+
+    return rc;
+  }
+
+  return TRUE;
+}
+
+#endif
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -511,6 +567,11 @@ writeAtom(atom_t a, write_options *options)
     return (*atomBlobType(atom)->write)(options->out, a, options->flags);
   if ( false(atomBlobType(atom), PL_BLOB_TEXT) )
     return writeBlob(a, options);
+#if __YAP_PROLOG__
+    if (isWideAtom(atom)) {
+      return writeUCSAtom(options->out, a, options->flags);
+    }
+#endif
 
   if ( true(options, PL_WRT_QUOTED) )
   { switch( atomType(a, options->out) )
@@ -532,8 +593,9 @@ writeAtom(atom_t a, write_options *options)
 	return rc;
       }
     }
-  } else
+  } else {
     return PutTokenN(nameOfAtom(atom), atomLength(atom), options->out);
+  }
 }
 
 
@@ -886,10 +948,16 @@ writePrimitive(term_t t, write_options *options)
 
 #if __YAP_PROLOG__
   {
-    number n;
-    n.type = V_INTEGER;
-    n.value.i = 0;
-    return WriteNumber(&n, options);
+    Opaque_CallOnWrite f;
+
+    if ( (f = Yap_blob_write_handler_from_slot(t)) ) {
+      return (f)(options->out, Yap_blob_tag_from_slot(t), Yap_blob_info_from_slot(t), options->flags);
+    } else {
+      number n;
+      n.type = V_INTEGER;
+      n.value.i = 0;
+      return WriteNumber(&n, options);
+    }
   }
 #endif
 

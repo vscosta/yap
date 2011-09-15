@@ -1217,8 +1217,7 @@ Yap_InitBinaryExps(void)
     p->ArityOfEE = 2;
     p->ENoOfEE = 2;
     p->FOfEE = InitBinTab[i].f;
-    p->NextOfPE = ae->PropsOfAE;
-    ae->PropsOfAE = AbsExpProp(p);
+    AddPropToAtom(ae, (PropEntry *)p);
     WRITE_UNLOCK(ae->ARWLock);
   }
   Yap_InitCPred("is", 4, p_binary_is, TestPredFlag | SafePredFlag);

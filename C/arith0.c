@@ -198,8 +198,7 @@ Yap_InitConstExps(void)
     p->ArityOfEE = 0;
     p->ENoOfEE = 0;
     p->FOfEE = InitConstTab[i].f;
-    p->NextOfPE = ae->PropsOfAE;
-    ae->PropsOfAE = AbsExpProp(p);
+    AddPropToAtom(ae, (PropEntry *)p);
     WRITE_UNLOCK(ae->ARWLock);
   }
 }

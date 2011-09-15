@@ -20,6 +20,12 @@
 #define O_XOS 1
 #endif
 
+#ifndef __unix__
+#if defined(_AIX) || defined(__APPLE__) || defined(__unix) || defined(__BEOS__) || defined(__NetBSD__)
+#define __unix__ 1
+#endif
+#endif
+
 #ifdef THREADS
 #define O_PLMT 1
 #endif

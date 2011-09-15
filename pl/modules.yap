@@ -124,6 +124,11 @@ module(N) :-
 	integer(K), atom(N), !,
 	'$do_import'(N, K, M, T),
 	'$import'(L,M,T).
+'$import'([N//K|L],M,T) :-
+	integer(K), atom(N), !,
+	N1 is N+2,
+	'$do_import'(N1, K, M, T),
+	'$import'(L,M,T).
 '$import'([PS|L],_,_) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 

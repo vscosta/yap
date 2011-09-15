@@ -60,14 +60,14 @@ restore_opcodes(yamop *pc, yamop *max USES_REGS)
       pc->u.Osbmp.p0 = PtoPredAdjust(pc->u.Osbmp.p0);
       pc = NEXTOP(pc,Osbmp);
       break;
-      /* instructions type Osbpi */
+      /* instructions type Osbpa */
     case _ensure_space:
-      OrArgAdjust(pc->u.Osbpi.or_arg);
-      pc->u.Osbpi.s = ConstantAdjust(pc->u.Osbpi.s);
-      pc->u.Osbpi.bmap = CellPtoHeapAdjust(pc->u.Osbpi.bmap);
-      pc->u.Osbpi.p = PtoPredAdjust(pc->u.Osbpi.p);
-      IntegerInCodeAdjust(pc->u.Osbpi.i);
-      pc = NEXTOP(pc,Osbpi);
+      OrArgAdjust(pc->u.Osbpa.or_arg);
+      pc->u.Osbpa.s = ConstantAdjust(pc->u.Osbpa.s);
+      pc->u.Osbpa.bmap = CellPtoHeapAdjust(pc->u.Osbpa.bmap);
+      pc->u.Osbpa.p = PtoPredAdjust(pc->u.Osbpa.p);
+      pc->u.Osbpa.i = ArityAdjust(pc->u.Osbpa.i);
+      pc = NEXTOP(pc,Osbpa);
       break;
       /* instructions type Osbpp */
     case _call:

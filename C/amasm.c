@@ -1104,12 +1104,12 @@ a_ensure_space(op_numbers opcode, yamop *code_p, int pass_no, struct intermediat
   if (cip->cpc->rnd1 > 4096) {
     if (pass_no) {
       code_p->opc = emit_op(opcode);
-      code_p->u.Osbpi.i = sizeof(CELL) * cip->cpc->rnd1;
-      code_p->u.Osbpi.p = clinfo->CurrentPred;
-      code_p->u.Osbpi.bmap = NULL;
-      code_p->u.Osbpi.s = emit_count(-Signed(RealEnvSize));
+      code_p->u.Osbpa.i = sizeof(CELL) * cip->cpc->rnd1;
+      code_p->u.Osbpa.p = clinfo->CurrentPred;
+      code_p->u.Osbpa.bmap = NULL;
+      code_p->u.Osbpa.s = emit_count(-Signed(RealEnvSize));
     }
-    GONEXT(Osbpi);
+    GONEXT(Osbpa);
   }
   return code_p;
 }
@@ -3037,7 +3037,6 @@ do_pass(int pass_no, yamop **entry_codep, int assembling, int *clause_has_blobsp
 	  cl_u->luc.ClFlags |= HasCutMask;	  
 	cl_u->luc.ClRefCount = 0;
 	cl_u->luc.ClPred = cip->CurrentPred;
-	cl_u->luc.ClSize = size;
 	/* Support for timestamps */
 	if (cip->CurrentPred->LastCallOfPred != LUCALL_ASSERT) {
 	  if (cip->CurrentPred->TimeStampOfPred >= TIMESTAMP_RESET)
@@ -3948,8 +3947,10 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
     if (mode == ASSEMBLING_CLAUSE) {
       if (ap->PredFlags & LogUpdatePredFlag) {
+	((LogUpdClause *)(cip->code_addr))->ClSize = size;
 	Yap_LUClauseSpace += size;
       } else
+	((StaticClause *)(cip->code_addr))->ClSize = size;
 	Yap_ClauseSpace += size;
     } else {
       if (ap->PredFlags & LogUpdatePredFlag) {

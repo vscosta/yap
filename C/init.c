@@ -151,14 +151,13 @@ OpDec(int p, char *type, Atom a, Term m)
   if (EndOfPAEntr(info)) {
     info = (OpEntry *) Yap_AllocAtomSpace(sizeof(OpEntry));
     info->KindOfPE = Ord(OpProperty);
-    info->NextOfPE = RepAtom(a)->PropsOfAE;
     info->OpModule = m;
     info->OpName = a;
     LOCK(OpListLock);
     info->OpNext = OpList;
     OpList = info;
     UNLOCK(OpListLock);
-    RepAtom(a)->PropsOfAE = AbsOpProp(info);
+    AddPropToAtom(ae, (PropEntry *)info);
     INIT_RWLOCK(info->OpRWLock);
     WRITE_LOCK(info->OpRWLock);
     WRITE_UNLOCK(ae->ARWLock);
@@ -391,8 +390,6 @@ update_flags_from_prolog(UInt flags, PredEntry *pe)
     flags |= SourcePredFlag;
   if (pe->PredFlags & SequentialPredFlag)
     flags |= SequentialPredFlag;
-  if (pe->PredFlags & MyddasPredFlag)
-    flags |= MyddasPredFlag;
   if (pe->PredFlags & UDIPredFlag)
     flags |= UDIPredFlag;
   if (pe->PredFlags & ModuleTransparentPredFlag)
@@ -799,9 +796,9 @@ Yap_InitCPredBack(char *Name, unsigned long int Arity,
     StaticClause *cl;
     yamop      *code = ((StaticClause *)NULL)->ClCode;
     if (flags &  UserCPredFlag) 
-      pe->PredFlags = UserCPredFlag | CompiledPredFlag | StandardPredFlag | flags;
+      pe->PredFlags = UserCPredFlag | BackCPredFlag| CompiledPredFlag | StandardPredFlag | flags;
     else
-      pe->PredFlags = CompiledPredFlag | StandardPredFlag;
+      pe->PredFlags = CompiledPredFlag | StandardPredFlag | BackCPredFlag;
 
 #ifdef YAPOR
     pe->PredFlags |= SequentialPredFlag;

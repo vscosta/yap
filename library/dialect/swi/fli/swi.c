@@ -2681,32 +2681,6 @@ PL_foreign_context_address(control_t ctx)
   }
 }
 
-static int
-SWI_ctime(void)
-{
-#if HAVE_CTIME
-  time_t tim;
-#endif
-  YAP_Term t1 = YAP_ARG1;
-
-  if (YAP_IsVarTerm(t1)) {
-    YAP_Error(0,t1,"bad argumento to ctime");
-    return FALSE;
-  }
-#if HAVE_CTIME
-  if (YAP_IsIntTerm(t1))
-    tim = (time_t)YAP_IntOfTerm(t1);
-  else if (YAP_IsFloatTerm(t1))
-    tim = (time_t)YAP_FloatOfTerm(t1);
-  else
-    return FALSE;
-  return YAP_Unify(YAP_BufferToString(ctime(&tim)), YAP_ARG2);
-#else
-  YAP_Error(0,0L,"convert_time requires ctime");
-  return FALSE;
-#endif
-}
-
 X_API int
 PL_get_signum_ex(term_t sig, int *n)
 {
@@ -2805,7 +2779,6 @@ void
 Yap_swi_install(void)
 {
   Yap_install_blobs();
-  YAP_UserCPredicate("ctime", SWI_ctime, 2);
 }
 
 int Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs);

@@ -835,8 +835,7 @@ Yap_InitUnaryExps(void)
     p->ArityOfEE = 1;
     p->ENoOfEE = 1;
     p->FOfEE = InitUnTab[i].f;
-    p->NextOfPE = ae->PropsOfAE;
-    ae->PropsOfAE = AbsExpProp(p);
+    AddPropToAtom(ae, (PropEntry *)p);
     WRITE_UNLOCK(ae->ARWLock);
   }
   Yap_InitCPred("is", 3, p_unary_is, TestPredFlag | SafePredFlag);

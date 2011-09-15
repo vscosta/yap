@@ -22,7 +22,7 @@ YAPLIBDIR=@libdir@/Yap
 DEFS=@DEFS@ -D_YAP_NOT_INSTALLED_=1
 CC=@CC@
 CXX=@CXX@
-CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../include  @CPPFLAGS@
+CXXFLAGS= @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../.. -I$(srcdir)/../../../os -I$(srcdir)/../../../include  @CPPFLAGS@
 LDFLAGS=@LDFLAGS@
 #
 #

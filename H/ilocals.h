@@ -188,4 +188,32 @@ static void InitWorker(int wid) {
 #ifdef LOW_LEVEL_TRACER
   REMOTE_do_trace_primitives(wid) = TRUE;
 #endif
+
+  REMOTE_ExportAtomHashChain(wid) = NULL;
+  REMOTE_ExportAtomHashTableSize(wid) = 0;
+  REMOTE_ExportAtomHashTableNum(wid) = 0;
+  REMOTE_ExportFunctorHashChain(wid) = NULL;
+  REMOTE_ExportFunctorHashTableSize(wid) = 0;
+  REMOTE_ExportFunctorHashTableNum(wid) = 0;
+  REMOTE_ExportPredEntryHashChain(wid) = NULL;
+  REMOTE_ExportPredEntryHashTableSize(wid) = 0;
+  REMOTE_ExportPredEntryHashTableNum(wid) = 0;
+  REMOTE_ExportDBRefHashChain(wid) = NULL;
+  REMOTE_ExportDBRefHashTableSize(wid) = 0;
+  REMOTE_ExportDBRefHashTableNum(wid) = 0;
+  REMOTE_ImportAtomHashChain(wid) = NULL;
+  REMOTE_ImportAtomHashTableSize(wid) = 0;
+  REMOTE_ImportAtomHashTableNum(wid) = 0;
+  REMOTE_ImportFunctorHashChain(wid) = NULL;
+  REMOTE_ImportFunctorHashTableSize(wid) = 0;
+  REMOTE_ImportFunctorHashTableNum(wid) = 0;
+  REMOTE_ImportOPCODEHashChain(wid) = NULL;
+  REMOTE_ImportOPCODEHashTableSize(wid) = 0;
+  REMOTE_ImportPredEntryHashChain(wid) = NULL;
+  REMOTE_ImportPredEntryHashTableSize(wid) = 0;
+  REMOTE_ImportPredEntryHashTableNum(wid) = 0;
+  REMOTE_ImportDBRefHashChain(wid) = NULL;
+  REMOTE_ImportDBRefHashTableSize(wid) = 0;
+  REMOTE_ImportDBRefHashTableNum(wid) = 0;
+  REMOTE_ImportFAILCODE(wid) = NULL;
 }
