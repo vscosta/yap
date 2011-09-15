@@ -453,6 +453,3 @@ Yap_InitLowLevelTrace(void)
 }
 
 #endif
-
-
-

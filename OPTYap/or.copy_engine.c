@@ -57,11 +57,11 @@ static void share_private_nodes(int worker_q);
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 #else
 #define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
-        REMOTE_start_global_copy(Q) = (CELL) (H0);   \
-        REMOTE_end_global_copy(Q)   = (CELL) (H);                  \
+        REMOTE_start_global_copy(Q) = (CELL) (H0);                       \
+        REMOTE_end_global_copy(Q)   = (CELL) (H);                        \
         REMOTE_start_local_copy(Q)  = (CELL) (B);                        \
-        REMOTE_end_local_copy(Q)    = (CELL) (LCL0);         \
-        REMOTE_start_trail_copy(Q)  = (CELL) (LOCAL_TrailBase);  \
+        REMOTE_end_local_copy(Q)    = (CELL) (GLOBAL_root_cp);           \
+        REMOTE_start_trail_copy(Q)  = (CELL) (GLOBAL_root_cp->cp_tr);    \
         REMOTE_end_trail_copy(Q)    = (CELL) (TR)
 #endif
 
@@ -702,3 +702,4 @@ void share_private_nodes(int worker_q) {
   return;
 }
 #endif /* YAPOR_COPY */
+

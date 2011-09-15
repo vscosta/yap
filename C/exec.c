@@ -961,7 +961,7 @@ exec_absmi(int top USES_REGS)
 	restore_H();
 	/* set stack */
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
-	Yap_PopSlots();
+	Yap_PopSlots( PASS_REGS1 );
 	LOCK(LOCAL_SignalLock);
 	/* forget any signals active, we're reborne */
 	LOCAL_ActiveSignals = 0;
