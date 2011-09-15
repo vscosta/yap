@@ -26,7 +26,7 @@
 :- dynamic
 	user:term_expansion/2.
 
-:- attribute key/1, dist/2, evidence/1, starter/0.
+:- attribute key/1, dist/2, evidence/1.
 
 
 :- use_module('clpbn/ve',
@@ -163,14 +163,18 @@ clpbn_flag(parameter_softening,Before,After) :-
 %
 % make sure a query variable is reachable by the garbage collector.
 %
+% we use a mutable variable to avoid unnecessary trailing.
+%
 store_var(El) :- 
-	catch(b_getval(clpbn_qvars,Q.Tail), _, init_clpbn_vars(El, Q, Tail)),
-	Tail = [El|NewTail],
-	b_setval(clpbn_qvars, [Q|NewTail]).
+	nb_current(clpbn_qvars, Mutable), !,
+	get_mutable(Tail, Mutable),
+	update_mutable(El.Tail, Mutable).
+store_var(El) :- 
+       init_clpbn_vars(El).
 	
-init_clpbn_vars(El, Q, Tail) :-
-	Q = [El|Tail],
-	b_setval(clpbn_qvars, [Q|Tail]).
+init_clpbn_vars(El) :-
+	create_mutable(El, Mutable),
+	b_setval(clpbn_qvars, Mutable).
 
 check_constraint(Constraint, _, _, Constraint) :- var(Constraint), !.
 check_constraint((A->D), _, _, (A->D)) :- var(A), !.
@@ -273,16 +277,11 @@ get_bnode(Var, Goal) :-
 	get_dist(Dist,_,Domain,CPT),
 	(Parents = [] -> X = tab(Domain,CPT) ; X = tab(Domain,CPT,Parents)),
 	dist_goal(X, Key, Goal0),
-	include_evidence(Var, Goal0, Key, Goali),
-	include_starter(Var, Goali, Key, Goal).
+	include_evidence(Var, Goal0, Key, Goal).
 
 include_evidence(Var, Goal0, Key, ((Key:-Ev),Goal0)) :-
 	get_atts(Var, [evidence(Ev)]), !.
 include_evidence(_, Goal0, _, Goal0).
-
-include_starter(Var, Goal0, Key, ((:-Key),Goal0)) :-
-	get_atts(Var, [starter]), !.
-include_starter(_, Goal0, _, Goal0).
 
 dist_goal(Dist, Key, (Key=NDist)) :-
 	term_variables(Dist, DVars),
