@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-08 19:30:08 +0200 (Fri, 08 Apr 2011) $
-%  $Revision: 5887 $
+%  $Date: 2011-09-02 11:23:22 +0200 (Fri, 02 Sep 2011) $
+%  $Revision: 6475 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -229,7 +229,10 @@
                     problog_kbest/4,
                     problog_kbest_save/6,
                     problog_max/3,
+                    problog_kbest_explanations/3,
                     problog_exact/3,
+                    problog_all_explanations/2,
+                    problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
                     problog_montecarlo/3,
                     problog_dnf_sampling/3,
@@ -302,7 +305,7 @@
 :- yap_flag(unknown,error).
 
 % general yap modules
-:- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4]).
+:- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2]).
 :- use_module(library(terms), [variable_in_term/2,variant/2] ).
 :- use_module(library(random), [random/1]).
 :- use_module(library(system), [tmpnam/1,shell/2,delete_file/1,delete_file/2]).
@@ -1274,6 +1277,8 @@ print_ad_intern((A1;B1),[A2|B2],Mass,Handle) :-
 print_ad_intern(_::Fact,[],Mass,Handle) :-
 	P2 is 1.0 - Mass,
 	format(Handle,'~10f :: ~q',[P2,Fact]).
+print_ad_intern(P::A1,[A2],Mass,Handle) :-
+	once(print_ad_intern_one(P::A1,A2,Mass,_NewMass,Handle)).
 print_ad_intern_one(_::Fact,_::AuxFact,Mass,NewMass,Handle) :-
 	% ask problog to get the fact_id
 	once(probabilistic_fact(P,AuxFact,_FactID)),
@@ -2099,6 +2104,40 @@ init_problog_low(Threshold) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
 
+
+% generalizing problog_max to return all explanations, sorted by non-increasing probability
+problog_all_explanations(Goal,Expl) :-
+	problog_all_explanations_unsorted(Goal,Unsorted),
+	keysort(Unsorted,Decreasing),
+	reverse(Decreasing,Expl).
+
+problog_all_explanations_unsorted(Goal, _) :-
+	init_problog_low(0.0),
+	problog_control(off, up),
+	timer_start(sld_time),
+	problog_call(Goal),
+	add_solution,
+	fail.
+problog_all_explanations_unsorted(_,Expl) :-
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	explanations_from_trie(Trie_Completed_Proofs,Expl).
+
+% catch basecases
+explanations_from_trie(Trie,[]) :-
+	empty_ptree(Trie),!.
+explanations_from_trie(Trie,[1.0-[]]) :-
+	traverse_ptree(Trie,[true]),!.
+explanations_from_trie(Trie_Completed_Proofs,Expl) :-
+	findall(Prob-Facts,
+		(traverse_ptree(Trie_Completed_Proofs,L),
+		 findall(P,(member(A,L),get_fact_log_probability(A,P)),Ps),
+		 sum_list(Ps,LS),
+		 Prob is exp(LS),
+		 get_fact_list(L,Facts)
+		),Expl).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % approximate inference: bounds by iterative deepening up to interval width Delta
 % problog_delta(+Goal,+Delta,-LowerBound,-UpperBound,-Status)
@@ -2351,6 +2390,15 @@ problog_kbest(Goal, K, Prob, Status) :-
 	eval_dnf(Trie_Completed_Proofs,Prob,Status),
 	delete_ptree(Trie_Completed_Proofs).
 
+% generalizes problog_max to return the k best explanations
+problog_kbest_explanations(Goal, K, Explanations) :-
+	problog_flag(first_threshold,InitT),
+	init_problog_kbest(InitT),
+	problog_control(off,up),
+	problog_kbest_id(Goal, K),
+	retract(current_kbest(_,ListFound,_NumFound)),
+	to_external_format_with_reverse(ListFound,Explanations).	
+
 problog_real_kbest(Goal, K, Prob, Status) :-
 	problog_flag(first_threshold,InitT),
 	init_problog_kbest(InitT),
@@ -2462,6 +2510,15 @@ take_k_best(In,K,OutOf,Out) :-
 	 OutOf2 is OutOf-1,
 	 take_k_best(R,K,OutOf2,Out)
 	).
+
+to_external_format_with_reverse(Intern,Extern) :-
+	to_external_format_with_reverse(Intern,[],Extern).
+to_external_format_with_reverse([],Extern,Extern).
+to_external_format_with_reverse([LogP-FactIDs|Intern],Acc,Extern) :-
+	Prob is exp(LogP),
+	( FactIDs = [_|_] -> get_fact_list(FactIDs, Facts);
+	    Facts = FactIDs),
+	to_external_format_with_reverse(Intern,[Prob-Facts|Acc],Extern).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % exact probability
@@ -3073,6 +3130,7 @@ problog_bdd_forest(Goals) :-
       unrequire(keep_ground_ids),
       reset_non_ground_facts,
       bdd_par_file(BDDParFile),
+% 	  format('Vars: ~w~n',[Vars]),
       tell(BDDParFile),
       bdd_vars_script(Vars),
       flush_output, % isnt this called by told/0?
@@ -3089,8 +3147,8 @@ problog_bdd_forest(Goals) :-
 problog_bdd_forest_supported :- build_trie_supported.
 
 % Iterate over all Goals, write BDD scripts and collect variables used.
-write_bdd_forest([],VarsTot,VarsTot,_).
-write_bdd_forest([Goal|Rest],VarsAcc,VarsTot,N):-
+write_bdd_forest([],AtomsTot,AtomsTot,_).
+write_bdd_forest([Goal|Rest],AtomsAcc,AtomsTot,N) :-
   build_trie(Goal, Trie),
   write_nth_bdd_struct_script(N, Trie, Vars),
   (problog_flag(verbose, true)->
@@ -3100,9 +3158,15 @@ write_bdd_forest([Goal|Rest],VarsAcc,VarsTot,N):-
   ),
   delete_ptree(Trie),
   N2 is N+1,
-  list_to_ord_set(Vars,VarsSet),
-  ord_union(VarsAcc,VarsSet,VarsAcc2),
-  once(write_bdd_forest(Rest,VarsAcc2,VarsTot,N2)).
+  % map 'not id' to id in Vars
+  findall(ID,(member((not ID),Vars)) ,NegativeAtoms),
+  findall(ID,(member(ID,Vars),ID \= (not _)),PositiveAtoms),
+%   format('PositiveAtoms: ~w~n',[PositiveAtoms]),
+%   format('NegativeAtoms: ~w~n',[NegativeAtoms]),
+  append(PositiveAtoms,NegativeAtoms,Atoms),
+  list_to_ord_set(Atoms,AtomsSet),
+  ord_union(AtomsAcc,AtomsSet,AtomsAcc2),
+  once(write_bdd_forest(Rest,AtomsAcc2,AtomsTot,N2)).
 
 % Write files
 write_nth_bdd_struct_script(N,Trie,Vars) :-

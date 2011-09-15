@@ -70,7 +70,8 @@ CPLINT_PROGRAMS= \
 	$(CPLINT_SRCDIR)/approx/params.pl \
 	$(CPLINT_SRCDIR)/approx/parsing.pl \
 	$(CPLINT_SRCDIR)/approx/tptreefile.pl \
-	$(CPLINT_SRCDIR)/approx/utility.pl
+	$(CPLINT_SRCDIR)/approx/utility.pl \
+	$(CPLINT_SRCDIR)/approx/tptree_lpad.pl
 
 CPLINT_SEMANTICS_PROGRAMS= \
 	$(CPLINT_SRCDIR)/semlpadsld.pl \
@@ -143,6 +144,10 @@ CPLINT_DOCS=\
 	$(CPLINT_DOCDIR)/manual0x.png \
 	$(CPLINT_DOCDIR)/Makefile
 
+CPLINT_LEARNING_PROGRAMS=\
+	$(CPLINT_SRCDIR)/em \
+	$(CPLINT_SRCDIR)/rib
+	
 
 all: $(SOBJS)
 
@@ -171,6 +176,8 @@ install: all
 	for h in $(CPLINT_SEMANTICS_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) approx/simplecuddLPADs/LPADBDD $(SHAREDIR)
+	cp -R $(CPLINT_LEARNING_PROGRAMS) $(DESTDIR)$(SHAREDIR)/cplint
+
 
 installcheck: 
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
