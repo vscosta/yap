@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-26 15:48:52 +0200 (Tue, 26 Apr 2011) $
-%  $Revision: 6371 $
+%  $Date: 2011-08-19 13:13:56 +0200 (Fri, 19 Aug 2011) $
+%  $Revision: 6471 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -210,15 +210,15 @@
 		       ]).
 
 % general yap modules
-:- use_module(library(lists),[reverse/2,member/2,memberchk/2,append/3]).
-
+:- use_module(library(lists),[member/2,append/3]).
 :- use_module(flags).
 
 :- style_check(all).
 :- yap_flag(unknown,error).
 
 :- discontiguous user:(<--)/2, problog:(<--)/2.
-
+:- discontiguous user:myclause/1, problog:myclause/1. % notation of ADs in LFI-ProbLog
+	
 :- op( 550, yfx, :: ).
 
 % for annotated disjunctions
@@ -230,48 +230,70 @@
 
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-term_expansion_intern_ad( (Head<--Body),Module,Mode,Result) :-
-	problog_flag(ad_cpl_semantics,AD_CPL_Semantics),
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% term_expansion_intern_ad( +AD, +Module, +Mode, -ListOfAtoms)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+:- bb_put(ad_converter_unique_id,1).
+
+term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Body),ID,Aux_Facts)|Result]) :-
+	% the internal ID for the annotated disjunction
+	bb_get(ad_converter_unique_id,ID),
+	ID2 is ID+1,
+	bb_put(ad_converter_unique_id,ID2),
+
+	% if CPL semantics is on we need to add all body variables to the
+	% auxilliary probabilistic facts to ensure that each grounding
+	% of an AD "triggers" a new CP event
 	(
-	 proper_tunable_annotated_disjunction(Head)
-	->
-	 compile_tunable_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics,Mode);
-	 (
-	  proper_annotated_disjunction(Head,Sum_of_P_in_Head)
-	 ->
-	  compile_annotated_disjunction(Head,Body,Facts,Bodies,ID,AD_CPL_Semantics,Mode,Sum_of_P_in_Head);
-	  throw(error(invalid_annotated_disjunction,(Head<--Body)))
-	 )
+	 problog_flag(ad_cpl_semantics,true) ->
+	 term_variables(Body,Body_Vars)
+	;
+	 Body_Vars=[]
 	),
 
+	% construct the auxilliary facts we need to represent the AD
+	(
+	 % if it's a tunable AD create tunable auxilliary facts
+	 proper_tunable_ad_head(Head) ->
+	 create_tunable_ad_aux_facts(Head,Body_Vars,ID,1,Aux_Facts)
+	;
+	 % if it's a regular AD create auxilliary facts
+	 proper_ad_head(Head,0.0) ->
+	 create_ad_aux_facts(Head,Body_Vars,ID,1,0.0,Aux_Facts)
+	;
+	 % neither nor, let's complain
+	 throw(error(invalid_annotated_disjunction,(Head<--Body)))
+	),
+
+	% call term_expansion for the aux facts, this has the same effect
+	% as if the use had defined the facts in the original file
 	findall(problog:Atom,(
-			      member(F,Facts),
+			      member(F,Aux_Facts),
 			      once(problog:term_expansion_intern(F,Module,Atom))
 			     ),Result_Atoms),
 
+	% construct the auxilliary clauses
+
+	create_aux_bodies(Head,Body_Vars,Body,ID,1,Aux_Facts,Mode,Aux_Clauses),
+
 	(
-	 Mode==lfi_learning
-	->
-	 findall(Module:myclause(H,B),member((H:-B),Bodies),Result_Bodies);
-	 findall(Module:B,member(B,Bodies),Result_Bodies)
+	 Mode==lfi_learning ->
+	 findall(Module:myclause(H,B),member((H:-B),Aux_Clauses),Result,Result_Atoms)
+	;
+	 findall(Module:B,member(B,Aux_Clauses),Result,Result_Atoms)
 	),
 
-	append(Result_Atoms,Result_Bodies,Result),
-
 	
-	problog_flag(show_ad_compilation,Show_AD_compilation),
 	(
-	 Show_AD_compilation==true
+	 problog_flag(show_ad_compilation,true)
 	->
 	 (
 	  format('Compiling the annotated disjunction~n  ~q~ninto the following code~n',[(Head<--Body)]),
 	  format('================================================~n',[]),
-	  forall(member(F,Facts),format('   ~q.~n',[F])),
+	  forall(member(F,Aux_Facts),format('   ~q.~n',[F])),
 	  format('    - - - - - - - - - - - - - - - - - - - - - - ~n',[]),
-	  forall(member(B,Bodies),format('   ~q.~n',[B])),
+	  forall(member(B,Aux_Clauses),format('   ~q.~n',[B])),
 	  format('================================================~2n',[])
 	 );
 	 true
@@ -283,167 +305,155 @@ term_expansion_intern_ad( (Head<--Body),_,_) :-
 	fail.
 
 
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
+% proper_ad_head(+Head, +Acc)
+%
+% this predicate succeeds if Head is valid disjunction
+% of probabilistic facts as used in the head of an AD
+% in particular, it checks that all probabilities are
+% valid and the sum does not exceed 1.0
+%
+% if will throw an exception if any of the probabilties P
+%  P::A
+% can not be evaluated using is/2
+%
+%   ?- proper_ad_head( 0.1::a, 0.1).
+% yes
+%   ?- proper_ad_head( (0.1::a,0.8::b), 0.1).
+% no
+%   ?- proper_ad_head( (0.1::a;0.8::b), 0.1).
+% yes
+%   ?- proper_ad_head( (0.1::a;0.8::b;0.2::c), 0.1).
+% no
+%   ?- proper_ad_head( (0.1::a;0.4::true), 0.1).
+% no
+%   ?- ad_converter:proper_ad_head( (1/2::a;0.4::foo(X)), 0.1).
+% true
+%   ?- ad_converter:proper_ad_head( (goo::a;0.4::foo(X)), 0.1).
+%     ERROR at  clause 2 of ad_converter:proper_ad_head/2 !!
+%     TYPE ERROR
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-get_next_unique_id(ID) :-
+
+proper_ad_head( P :: A, Acc) :-
+	P>=0.0,
+	P+Acc=<1.0,
+	\+ var(A),
+	\+ system_predicate(_,A),
+	once((atom(A);compound(A))).
+
+proper_ad_head((P :: A;T),Acc) :-
+	\+ var(A),
+	\+ system_predicate(_,A),
+	once((atom(A);compound(A))),
+	P>=0.0,
+	Acc2 is P+Acc,
+	proper_ad_head(T,Acc2).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% proper_tunable_ad_head(+Head)
+%
+% this predicate succeeds if Head is valid disjunction of
+% tunable probabilistic facts as used in the head of an AD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+proper_tunable_ad_head( t(_)::A ) :-
+	\+ var(A),
+	\+ system_predicate(_,A),
+	once((atom(A);compound(A))).
+
+proper_tunable_ad_head( ( t(_)::A ;T) ) :-
+	\+ var(A),
+	\+ system_predicate(_,A),
+	once((atom(A);compound(A))),
+	proper_tunable_ad_head(T).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create_mws_atom(+Atom,+Body_Vars,+ID,+Pos,-A2)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+create_mws_atom(A,Body_Vars,ID,Pos,A2) :-
+	A =.. [_F|Args],
+	append(Args,Body_Vars,Args2),
+	atomic_concat([mvs_fact_,ID,'_',Pos],F2),
+	A2 =.. [F2|Args2].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% create_ad_aux_facts(+Head,+Vars,+ID,+POS,+Acc,-Facts)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+create_ad_aux_facts(P::_, _, _, _, Acc, []) :-
+	% if the probabilities in the head of the AD
+	% sum up to 1.0 drop the last aux fact 
+	abs(Acc+P-1.0) < 0.0000001,
+	!.
+create_ad_aux_facts(P::Atom, Body_Vars, ID, Pos, Acc, [P1::ProbFact]) :-
+	create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact),
 	(
-	    bb_get(mvs_unique_id,ID)
-	->
-	    true;
-	    ID=1
-	),
-	ID2 is ID+1,
-	bb_put(mvs_unique_id,ID2).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-proper_annotated_disjunction(AD,Sum) :-
-	proper_annotated_disjunction(AD,0.0,Sum),
-	Sum=<1.
-
-proper_annotated_disjunction( P :: _, OldSum,NewSum) :-
-	% evaluate P
-	P2 is P,
-	P2>=0,
-	P2=<1,
-	NewSum is OldSum+P.
-proper_annotated_disjunction((X;Y),OldSum,Sum) :-
-	proper_annotated_disjunction(X,OldSum,NewSum),
-	proper_annotated_disjunction(Y,NewSum,Sum).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-proper_tunable_annotated_disjunction( t(_) :: _).
-proper_tunable_annotated_disjunction((X;Y)) :-
-	proper_tunable_annotated_disjunction(X),
-	proper_tunable_annotated_disjunction(Y).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-compile_tunable_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics,Mode) :-
-	get_next_unique_id(Extra_ID),
-
-	(
-	 AD_CPL_Semantics==true
-	->
-	 term_variables(Body,Body_Vars);
-	 Body_Vars=[]
-	),
-
-
-	
-	convert_a_tunable(Head,Extra_ID,[],Facts0,Body_Vars),
-	
-	problog_flag(ad_sumto1_learning,AD_SumTo1_Learning),
-	(
-	 AD_SumTo1_Learning==true
-	->
-	 Facts0=[_|Facts1];
-	 Facts1=Facts0
-	),
-
-	reverse(Facts1,Facts2),	 
-	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars,Mode,Facts2),
-
-
-	reverse(Bodies,Bodies2).
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-compile_annotated_disjunction(Head,Body,Facts2,Bodies2,Extra_ID,AD_CPL_Semantics,Mode,ProbSum) :-
-	get_next_unique_id(Extra_ID),
-
-	(
-	 AD_CPL_Semantics==true
-	->
-	 term_variables(Body,Body_Vars);
-	 Body_Vars=[]
-	),
-	
-	convert_a(Head,0.0,_Acc,Extra_ID,[],Facts0,Body_Vars),
-
-	(
-	 abs(ProbSum-1.0) < 0.0000001
-	->
-	 Facts0=[_|Facts1];
-	 Facts1=Facts0
-	),
-
- 
-	reverse(Facts1,Facts2),
-	convert_b(Head,Body,_NewBody,Extra_ID,[],Bodies,Body_Vars,Mode,Facts2),
-
-
-	reverse(Bodies,Bodies2).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-convert_a((X;Y),OldAcc,Acc,Extra_ID,OldFacts,Facts,Body_Vars) :-
-	convert_a(X,OldAcc,NewAcc,Extra_ID,OldFacts,NewFacts,Body_Vars),
-	convert_a(Y,NewAcc,Acc,Extra_ID,NewFacts,Facts,Body_Vars).
-convert_a(P::Atom,OldAcc,NewAcc,Extra_ID,OldFacts,[P1::ProbFact|OldFacts],Body_Vars) :-
-	Atom =.. [Functor|AllArguments],
-	append(AllArguments,Body_Vars,NewAllArguments),
-	length(AllArguments,Arity),
-
-	atomic_concat([mvs_fact_,Functor,'_',Arity,'_',Extra_ID],NewAtom),
-
-	ProbFact =.. [NewAtom|NewAllArguments],
-	(
-	 (P=:=0; OldAcc=:=0)
-	->
-	  P1 is P;
-	  P1 is  min(P/(1-OldAcc),1.0)
-	),
-	NewAcc is OldAcc+P.
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-convert_a_tunable((X;Y),Extra_ID,OldFacts,Facts,Body_Vars) :-
-	convert_a_tunable(X,Extra_ID,OldFacts,NewFacts,Body_Vars),
-	convert_a_tunable(Y,Extra_ID,NewFacts,Facts,Body_Vars).
-convert_a_tunable(t(_)::Atom,Extra_ID,OldFacts,[t(_)::ProbFact|OldFacts],Body_Vars) :-
-	Atom =.. [Functor|AllArguments],
-	append(AllArguments,Body_Vars,NewAllArguments),
-	length(AllArguments,Arity),
-
-	atomic_concat([mvs_fact_,Functor,'_',Arity,'_',Extra_ID],NewAtom),
-
-	ProbFact =.. [NewAtom|NewAllArguments].
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-convert_b((X;Y),OldBody,Body,ExtraID,OldBodies,Bodies,Body_Vars,Mode,Facts) :-
-	convert_b(X,OldBody,NewBody,ExtraID,OldBodies,NewBodies,Body_Vars,Mode,Facts),
-	convert_b(Y,NewBody,Body,ExtraID,NewBodies,Bodies,Body_Vars,Mode,Facts).
-convert_b(_::Atom,OldBody,NewBody,Extra_ID,OldBodies,[(Atom:-ThisBody)|OldBodies],Body_Vars,Mode,Facts) :-
-	Atom =.. [Functor|AllArguments],
-	append(AllArguments,Body_Vars,NewAllArguments),
-
-	length(AllArguments,Arity),
-	atomic_concat([mvs_fact_,Functor,'_',Arity,'_',Extra_ID],NewFunctor),
-
-	ProbFact =.. [NewFunctor|NewAllArguments],
-	(
-	 memberchk(_::ProbFact,Facts)
-	->
-	 tuple_append(OldBody,ProbFact,ThisBody);
-	 ThisBody=OldBody
-	),
-	
-	(
-	 Mode==lfi_learning
-	->
-	 tuple_append(OldBody,\+ProbFact,NewBody);
-	 tuple_append(OldBody,problog_not(ProbFact),NewBody)
+	 (P=:=0; Acc=:=0)->
+	 P1 is P
+	;
+	 P1 is  min(P/(1-Acc),1.0)
 	).
+create_ad_aux_facts((P::Atom;T), Body_Vars, ID, Pos, Acc, [P1::ProbFact|T2]) :-
+	create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact),
+	(
+	 (P=:=0; Acc=:=0)->
+	 P1 is P
+	;
+	 P1 is  min(P/(1-Acc),1.0)
+	),
+	Acc2 is Acc+P,
+	Pos2 is Pos+1,
+	create_ad_aux_facts(T,Body_Vars,ID,Pos2,Acc2,T2).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+create_tunable_ad_aux_facts(t(_)::_,_,_,Pos,[]) :-
+	Pos>1,
+	problog_flag(ad_sumto1_learning,true),
+	!.
+create_tunable_ad_aux_facts(t(_)::Atom,Body_Vars,ID,Pos,[t(_)::ProbFact]) :-
+	create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact).
+create_tunable_ad_aux_facts((t(_)::Atom;T),Body_Vars,ID,Pos,[t(_)::ProbFact|T2]) :-
+	create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact),
+	Pos2 is Pos+1,
+	create_tunable_ad_aux_facts(T,Body_Vars,ID,Pos2,T2).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+create_aux_bodies(_::Atom, Body_Vars, Body, ID, Pos, Aux_Facts , _, [(Atom:-Body2)]) :-
+        create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact),
+	(
+	 member(_::ProbFact,Aux_Facts)->
+	 tuple_append(Body,ProbFact,Body2)
+	;
+	 Body2=Body
+	).
+
+create_aux_bodies((_::Atom; T), Body_Vars, Body, ID, Pos, Aux_Facts , Mode, [(Atom:-Body2)|T2]) :-
+        create_mws_atom(Atom,Body_Vars,ID,Pos,ProbFact),
+	tuple_append(Body,ProbFact,Body2),
+	(
+	 Mode==lfi_learning ->
+	 tuple_append(Body,\+ProbFact,Body3)
+	;
+	 tuple_append(Body,problog_not(ProbFact),Body3)
+	),
+
+	Pos2 is Pos+1,
+	create_aux_bodies(T,Body_Vars,Body3,ID,Pos2,Aux_Facts,Mode,T2).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 

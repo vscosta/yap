@@ -120,7 +120,7 @@ test((s([on(4,1)],P),close_to(P,0.0658436213991769)),threesideddice,_).
 
 test((sc([on(2,1)],[on(0,1)],P),close_to(P,0.222222222222222)),threesideddice,_).
 test((sc([on(2,1)],[on(1,1)],P),close_to(P,0.333333333333333)),threesideddice,_).
-test((sc([on(4,1)],[on(1,1)],P),close_to(P, 0.148148148148148)),threesideddice,_).
+/*test((sc([on(4,1)],[on(1,1)],P),close_to(P, 0.148148148148148)),threesideddice,_). */
 test((sc([on(5,1)],[on(2,1)],P),close_to(P, 0.148148148148148)),threesideddice,_).
 
 

@@ -4,8 +4,11 @@
 	Goal oriented interpreter for LPADs based on SLDNF
 	Copyright (c) 2007, Fabrizio Riguzzi
 */
-
-:-dynamic rule/4,def_rule/2,setting/2.
+%:- set_prolog_flag(debug,on).
+%:- set_prolog_flag(discontiguous_warnings,on).
+%:- set_prolog_flag(single_var_warnings,on).
+%:- source.
+:-dynamic rule/5,rule_by_num/8,rule_uniform/8,def_rule/2,setting/2.
 
 :-use_module(library(lists)).
 :-use_module(library(ugraphs)).
@@ -16,14 +19,17 @@
 set(Parameter,Value) */
 setting(epsilon_parsing,0.00001).
 setting(save_dot,false).
-setting(ground_body,false). 
+setting(ground_body,true). 
 /* available values: true, false
 if true, both the head and the body of each clause will be grounded, otherwise
 only the head is grounded. In the case in which the body contains variables 
 not appearing in the head, the body represents an existential event */
 setting(min_error,0.01).
+setting(initial_depth_bound,4).
 setting(depth_bound,4).
 setting(prob_threshold,0.00001).
+setting(prob_bound,0.01).
+
 /* end of list of parameters */
 
 /* s(GoalsLIst,Prob) compute the probability of a list of goals 
@@ -101,39 +107,43 @@ solve(GoalsList,Prob,CPUTime1,CPUTime2,WallTime1,WallTime2):-
 	format(user_error,"~nMemory after inference~n",[]),
 	print_mem.*/
 
+/* iterative deepening, depth bounded
+for negative goals, if their derivation is cut, then they are
+added to the head of the list of goals to be resolved at the next depth bound*/
 si(GoalsList,ProbL,ProbU,CPUTime):-
         statistics(cputime,[_,_]),
-	setting(depth_bound,D),
+	setting(initial_depth_bound,D),
         solve_i([(GoalsList,[])],[],D,ProbL,ProbU),
 	statistics(cputime,[_,CT]),
 	CPUTime is CT/1000.
 
 
-
+/* solve_i(L0,Succ,D,ProbL0,ProbU0): L0 is a list of couples (G,Der) where
+G is a list of goals to be resolved and Der is an explanation, D is the 
+current depth, ProbL0 is the lower bound of the prob and ProbU0 is the upper
+bound 
+*/
 solve_i(L0,Succ,D,ProbL0,ProbU0):-
-	(findall((G1,Deriv),(member((G0,C0),L0),solvei(G0,D,C0,Deriv,G1)),L)->
+	findall((G1,Deriv),(member((G0,C0),L0),solvei(G0,D,C0,Deriv,G1)),L),
 	%	print_mem,
-		separate_ulbi(L,[],LL0,[],LU,[],Incomplete),
-		append(Succ,LL0,LL),
-		compute_prob_deriv(LL,ProbL),
-		append(Succ,LU,LU1),
-		compute_prob_deriv(LU1,ProbU),
-		Err is ProbU-ProbL,
-		setting(min_error,ME),
-		(Err<ME->
-			ProbU0=ProbU,
-			ProbL0=ProbL
-		;
-			setting(depth_bound,DB),
-			D1 is D+DB,
-			solve_i(Incomplete,LL,D1,ProbL0,ProbU0)
-		)
+	separate_ulbi(L,[],LL0,[],LU,[],Incomplete),
+	append(Succ,LL0,LL),
+	compute_prob_deriv(LL,ProbL),
+	append(Succ,LU,LU1),
+	compute_prob_deriv(LU1,ProbU),
+	Err is ProbU-ProbL,
+	setting(min_error,ME),
+	(Err<ME->
+		ProbU0=ProbU,
+		ProbL0=ProbL
 	;
-	%	print_mem,
-		ProbL0=0.0,
-		ProbU0=0.0
+		setting(depth_bound,DB),
+		D1 is D+DB,
+		solve_i(Incomplete,LL,D1,ProbL0,ProbU0)
 	).
 
+/* iterative deepening, problog style: each time
+the derivation is restarted from the original goal */
 sir(GoalsList,ProbL,ProbU,CPUTime):-
         statistics(cputime,[_,_]),
 	setting(depth_bound,D),
@@ -142,7 +152,11 @@ sir(GoalsList,ProbL,ProbU,CPUTime):-
 	CPUTime is CT/1000.
 
 
-
+/* solveir(GoalsList,D,ProbL0,ProbU0) GoalsLIst is the list
+of goals to be derived, D is the depth bound, ProbL0,ProbU0 are the lower
+and upper bound. If for a certain depth bound the error is not smaller
+than the threshold, the depth bound is increased and the derivation is 
+restarted from the beginning */
 solveir(GoalsList,D,ProbL0,ProbU0):-
 	(setof(Deriv,find_derivr(GoalsList,D,Deriv),LDup)->
 		rem_dup_lists(LDup,[],L),
@@ -166,15 +180,14 @@ solveir(GoalsList,D,ProbL0,ProbU0):-
 		ProbU0=0.0
 	).
 
-
+/* approximate algorithm cilog2 style: the explanations with a prob below the
+threshold are cut  */
 sic(GoalsList,ProbL,ProbU,CPUTime):-
         statistics(cputime,[_,_]),
 	setting(depth_bound,D),
         solveic(GoalsList,D,ProbL,ProbU),
 	statistics(cputime,[_,CT]),
 	CPUTime is CT/1000.
-
-
 
 solveic(GoalsList,D,ProbL0,ProbU0):-
 	(setof((Deriv,P,Pruned),solvec(GoalsList,D,[],Deriv,1.0,P,Pruned),L)->
@@ -194,16 +207,24 @@ solveic(GoalsList,D,ProbL0,ProbU0):-
 	).
 
 compute_prob_deriv(LL,ProbL):-
-	build_formula(LL,FormulaL,[],VarL,0,ConjL),
-	length(LL,NDL),
-	length(VarL,NVL),
+	build_formula(LL,FormulaL,[],VarL,0,_ConjL),
+	%length(LL,NDL),
+	%length(VarL,NVL),
 	%format(user_error,"Disjunctions :~d~nConjunctions: ~d~nVariables ~d~n",[NDL,ConjL,NVL]),
 	var2numbers(VarL,0,NewVarL),
-	(setting(save_dot,true)->
-	%	format("Variables: ~p~n",[VarL]),
-		compute_prob(NewVarL,FormulaL,ProbL,1)
+	(FormulaL=[]->
+		ProbL=0.0
 	;
-		compute_prob(NewVarL,FormulaL,ProbL,0)
+		(FormulaL=[[]|_]->
+			ProbL=1.0
+		;
+			(setting(save_dot,true)->
+			%	format("Variables: ~p~n",[VarL]),
+				compute_prob(NewVarL,FormulaL,ProbL,1)
+			;
+				compute_prob(NewVarL,FormulaL,ProbL,0)
+			)
+		)
 	).
 
 print_mem:-
@@ -313,7 +334,7 @@ solve_condi(LGoals,LEvidence,SuccGE,SuccE,D,ProbL0,ProbU0):-
 		ProbU0=undefined
 	).
 
-
+/* iterative deepening, problog style */
 scir(Goals,Evidence,ProbL,ProbU,CPUTime):-
 	statistics(cputime,[_,_]),
 	setting(depth_bound,D),
@@ -363,6 +384,7 @@ solve_condir(Goals,Evidence,D,ProbL0,ProbU0):-
 		ProbU0=undefined
 	).
 
+/* approximate algorithm cilog2 style */
 scic(Goals,Evidence,ProbL,ProbU,CPUTime):-
 	statistics(cputime,[_,_]),
 	setting(depth_bound,D),
@@ -468,11 +490,19 @@ solve_cond_goals(Goals,LE,0,Time1,0):-
 	Time1 is T1/1000.
 
 call_compute_prob(NewVarGE,FormulaGE,ProbGE):-
-	(setting(save_dot,true)->
-		format("Variables: ~p~n",[NewVarGE]),
-		compute_prob(NewVarGE,FormulaGE,ProbGE,1)
+	(FormulaGE=[]->
+		ProbGE=0.0
 	;
-		compute_prob(NewVarGE,FormulaGE,ProbGE,0)
+		(FormulaGE=[[]|_]->
+                	ProbGE=1.0
+		;
+			(setting(save_dot,true)->
+				format("Variables: ~p~n",[NewVarGE]),
+				compute_prob(NewVarGE,FormulaGE,ProbGE,1)
+			;
+				compute_prob(NewVarGE,FormulaGE,ProbGE,0)
+			)
+		)
 	).
 
 find_deriv_GE(LD,GoalsList,Deriv):-
@@ -572,7 +602,7 @@ solvei(G,0,C,C,G):-!.
 solvei([\+ H |T],DB,CIn,COut,G):-!,
         list2and(HL,H),
 	(findall((GH,D),solvei(HL,DB,CIn,D,GH),L)->
-		separate_ulbi(L,[],LB,[],UB,[],I),
+		separate_ulbi(L,[],LB,[],_UB,[],I),
 		(I\=[]->
 			C1=CIn,
 			G=[\+ H|G1]
@@ -680,7 +710,6 @@ solvec([H|T],DB,CIn,COut,P0,P1,Pruned):-
 	solve_presc(R,S,N,B,T,DB1,CIn,COut,P,P0,P1,Pruned).
 
 
-
 solve_pres(R,S,N,B,T,CIn,COut):-
 	member_eq((N,R,S),CIn),!,
 	append(B,T,NG),
@@ -782,16 +811,16 @@ returns the index R of a disjunctive rule resolving with G together with
 the index N of the resolving head, the substitution S and the Body of the 
 rule */
 find_rule(H,(R,S,N),Body,C):-
-	rule(R,S,_,Head,Body),
+	rule(H,_P,N,R,S,_,Head,Body),
 	member_head(H,Head,0,N),
 	not_already_present_with_a_different_head(N,R,S,C).
 
 find_rule(H,(R,S,Number),Body,C):-
-	rule(R,S,_,uniform(H:1/_Num,_P,Number),Body),
+	rule_uniform(H,R,S,_,1/_Num,_L,Number,Body),
 	not_already_present_with_a_different_head(Number,R,S,C).
 
 find_rulec(H,(R,S,N),Body,C,P):-
-	rule(R,S,_,Head,Body),
+	rule(H,_P,N,R,S,_,Head,Body),
 	member_headc(H,Head,0,N,P),
 	not_already_present_with_a_different_head(N,R,S,C).
 
@@ -864,7 +893,7 @@ choose_clausesc(CIn,[D|T],COut,P0,P1):-
 	new_head(N,R,S,N1),
 	\+ already_present(N1,R,S,CIn),
 	impose_dif_cons(R,S,CIn),
-	rule(R,S,_Numbers,Head,_Body),
+	rule_by_num(R,S,_Numbers,Head,_Body),
 	nth0(N1, Head, (_H:P), _Rest),
 	P2 is P0*P,
 	choose_clausesc([(N1,R,S)|CIn],T,COut,P2,P1).
@@ -931,7 +960,7 @@ choose_a_headc(N,R,S,[(NH,R,SH)|T],[(NH,R,S),(NH,R,SH)|T],P0,P1):-
 	\+ \+ S=SH, S\==SH, 
 	dif(N,NH),
 	dif(S,SH),
-	rule(R,S,_Numbers,Head,_Body),
+	rule_by_num(R,S,_Numbers,Head,_Body),
 	nth0(NH, Head, (_H:P), _Rest),
 	P1 is P0*P.
 
@@ -959,13 +988,13 @@ choose_a_head(N,R,S,[H|T],[H|T1]):-
 /* select a head different from N for rule R with
 substitution S, return it in N1 */
 new_head(N,R,S,N1):-
-	rule(R,S,Numbers,Head,_Body),
+	rule_by_num(R,S,Numbers,Head,_Body),
 	Head\=uniform(_,_,_),!,
 	nth0(N, Numbers, _Elem, Rest),
 	member(N1,Rest).
 
 new_head(N,R,S,N1):-
-	rule(R,S,Numbers,uniform(_A:1/Tot,_L,_Number),_Body),
+	rule_by_num(R,S,Numbers,uniform(_A:1/Tot,_L,_Number),_Body),
 	listN(0,Tot,Numbers),
 	nth0(N, Numbers, _Elem, Rest),
 	member(N1,Rest).
@@ -1005,11 +1034,7 @@ member_subset(E,[_H|T]):-
 	member_subset(E,T).
 
 separate_ulbi([],L,L,U,U,I,I):-!.
-/*
-separate_ulb([H|T],L0,L1,U0,[H|U1]):-
-        member(pruned,H),!,
-	separate_ulb(T,L0,L1,U0,U1).
-*/		
+
 separate_ulbi([([],H)|T],L0,[H|L1],U0,[H|U1],I0,I1):-
 	!,
 	separate_ulbi(T,L0,L1,U0,U1,I0,I1).
@@ -1020,11 +1045,7 @@ separate_ulbi([(G,H)|T],L0,L1,U0,[H1|U1],I0,[(G,H)|I1]):-
 
 
 separate_ulb([],L,L,U,U):-!.
-/*
-separate_ulb([H|T],L0,L1,U0,[H|U1]):-
-        member(pruned,H),!,
-	separate_ulb(T,L0,L1,U0,U1).
-*/		
+
 separate_ulb([H|T],L0,[H|L1],U0,[H|U1]):-
 	ground(H),!,
 	separate_ulb(T,L0,L1,U0,U1).
@@ -1036,13 +1057,12 @@ separate_ulb([H|T],L0,L1,U0,[H1|U1]):-
 
 separate_ulbc([],L,L,P,P):-!.
 
-separate_ulbc([(H,P,true)|T],L0,L1,P0,P1):-!,
+separate_ulbc([(_H,P,true)|T],L0,L1,P0,P1):-!,
 	P2 is P0+P,
 	separate_ulbc(T,L0,L1,P2,P1).
 
 separate_ulbc([(H,_P,false)|T],L0,[H|L1],P0,P1):-
 	separate_ulbc(T,L0,L1,P0,P1).
-
 
 get_ground([],[]):-!.
 
@@ -1050,7 +1070,7 @@ get_ground([H|T],[H|T1]):-
 	ground(H),!,
 	get_ground(T,T1).
 
-get_ground([H|T],T1):-
+get_ground([_H|T],T1):-
 	get_ground(T,T1).
 
 
@@ -1116,7 +1136,7 @@ var2numbers([(R,S)|T],N,[[N,ValNumber,Probs]|TNV]):-
 	var2numbers(T,N1,TNV).
 
 find_probs(R,S,Probs):-
-	rule(R,S,_N,Head,_Body),
+	rule_by_num(R,S,_N,Head,_Body),
 	get_probs(Head,Probs).
 	
 get_probs(uniform(_A:1/Num,_P,_Number),ListP):-
@@ -1150,11 +1170,13 @@ parse(File):-
 	open(FilePl,read,S),
 	read_clauses(S,C),
 	close(S),
-	retractall(rule(_,_,_,_,_)),
-	retractall(def_rule(_,_)),
+        retractall(rule_by_num(_,_,_,_,_)),
+        retractall(rule(_,_,_,_,_,_,_,_)),
+        retractall(def_rule(_,_)),
+	retractall(rule_uniform(_,_,_,_,_,_,_,_)),
 	process_clauses(C,1).
 
-process_clauses([(end_of_file,[])],_N).
+process_clauses([(end_of_file,[])],_N):-!.
 
 process_clauses([((H:-B),V)|T],N):-
 	H=uniform(A,P,L),!,
@@ -1163,7 +1185,8 @@ process_clauses([((H:-B),V)|T],N):-
 	remove_vars([P],V1,V2),
 	append(BL,[length(L,Tot),nth0(Number,L,P)],BL1),
 	append(V2,['Tot'=Tot],V3),
-	assertz(rule(N,V3,_NH,uniform(A:1/Tot,L,Number),BL1)),
+	assertz(rule_by_num(N,V3,_NH,uniform(A:1/Tot,L,Number),BL1)),
+	assertz(rule_uniform(A,N,V3,_NH,1/Tot,L,Number,BL1)),
 	N1 is N+1,
 	process_clauses(T,N1).
 
@@ -1175,7 +1198,8 @@ process_clauses([((H:-B),V)|T],N):-
 	process_body(BL,V,V1),
 	length(HL,LH),
 	listN(0,LH,NH),
-	assertz(rule(N,V1,NH,HL,BL)),
+	assert_rules(HL,0,HL,BL,NH,N,V1),
+	assertz(rule_by_num(N,V1,NH,HL,BL)),
 	N1 is N+1,
 	process_clauses(T,N1).
 
@@ -1187,7 +1211,8 @@ process_clauses([((H:-B),V)|T],N):-
 	process_body(BL,V,V1),
 	length(HL,LH),
 	listN(0,LH,NH),
-	assertz(rule(N,V1,NH,HL,BL)),
+	assert_rules(HL,0,HL,BL,NH,N,V1),
+	assertz(rule_by_num(N,V1,NH,HL,BL)),
 	N1 is N+1,
 	process_clauses(T,N1).
 	
@@ -1202,7 +1227,8 @@ process_clauses([(H,V)|T],N):-
 	process_head(HL1,HL),
 	length(HL,LH),
 	listN(0,LH,NH),
-	assertz(rule(N,V,NH,HL,[])),
+	assert_rules(HL,0,HL,[],NH,N,V),
+	assertz(rule_by_num(N,V,NH,HL,[])),
 	N1 is N+1,
 	process_clauses(T,N1).
 
@@ -1212,13 +1238,24 @@ process_clauses([(H,V)|T],N):-
 	process_head(HL1,HL),
 	length(HL,LH),
 	listN(0,LH,NH),
-	assertz(rule(N,V,NH,HL,[])),
+	assert_rules(HL,0,HL,[],NH,N,V),
+	assertz(rule_by_num(N,V,NH,HL,[])),
 	N1 is N+1,
 	process_clauses(T,N1).
 	
 process_clauses([(H,_V)|T],N):-
 	assert(def_rule(H,[])),
 	process_clauses(T,N).
+
+assert_rules([],_Pos,_HL,_BL,_Nh,_N,_V1):-!.
+
+assert_rules(['':_P],_Pos,_HL,_BL,_Nh,_N,_V1):-!.
+
+assert_rules([H:P|T],Pos,HL,BL,NH,N,V1):-
+	assertz(rule(H,P,Pos,N,V1,NH,HL,BL)),
+	Pos1 is Pos+1,
+	assert_rules(T,Pos1,HL,BL,NH,N,V1).
+
 
 /* if the annotation in the head are not ground, the null atom is not added
 and the eventual formulas are not evaluated */

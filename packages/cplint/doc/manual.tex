@@ -1,5 +1,5 @@
 \ifnum\pdfoutput>0 % pdflatex compilation
-\documentclass[a4paper,12pt]{article}
+\documentclass[a4paper,10pt]{article}
 \usepackage[pdftex]{graphicx}
 \DeclareGraphicsExtensions{.pdf,.png,.jpg}
 \RequirePackage[hyperindex]{hyperref}
@@ -7,16 +7,16 @@
 \documentclass{article}
 \usepackage{graphicx}
 \DeclareGraphicsExtensions{.png, .gif, .jpg}
-\newcommand{\url}[1]{\Link[#1]{}{} #1 \EndLink}
 \newcommand{\href}[2]{\Link[#1]{}{} #2 \EndLink}
 \newcommand{\hypertarget}[2]{\Link[]{}{#1} #2 \EndLink}
 \newcommand{\hyperlink}[2]{\Link[]{#1}{} #2 \EndLink}
+\newcommand{\url}[1]{\Link[#1]{}{} #1 \EndLink}
 \fi
 
 
 
 \begin{document}
-\title{\texttt{cplint} Version 2.0 Manual}
+\title{\texttt{cplint} Manual}
 
 
 \author{Fabrizio Riguzzi\\
@@ -28,69 +28,41 @@ fabrizio.riguzzi@unife.it}
 \section{Introduction}
 
 
-\texttt{cplint} is a suite of programs for reasoning with LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,CP-logic-unp}. 
-
-It consists of three Prolog modules  for answering queries using goal-oriented procedures plus
- three
-Prolog modules for answering queries using the definition of the semantics of LPADs and CP-logic.
-
-The modules for answering queries using using goal-oriented procedures are \texttt{lpadsld.pl}, \texttt{lpad.pl} and
-\texttt{cpl.pl}:
-\begin{itemize}
-\item \texttt{lpadsld.pl}: computes the probability of a query using the top-down procedure described in 
-in \cite{Rig-AIIA07-IC} and \cite{Rig-RCRA07-IC}. It is based on SLDNF resolution and is an adaptation of the interpreter for ProbLog \cite{DBLP:conf/ijcai/RaedtKT07}.
-
-It was proved correct \cite{Rig-RCRA07-IC} with respect to the semantics of LPADs for range restricted acyclic programs \cite{DBLP:journals/ngc/AptB91} without function symbols.
-
-It is also able to deal with extensions of LPADs and CP-logic: the clause bodies can contain \texttt{setof} and \texttt{bagof}, the probabilities in the head may be depend on variables in the body and it is possible to specify a uniform distribution in the head with reference to a \texttt{setof} or \texttt{bagof} operator. These extended features have been introduced in order to represent CLP(BN) \cite{SanPagQaz03-UAI-IC} programs and PRM models \cite{Getoor+al:JMLR02}:
-\texttt{setof} and \texttt{bagof} allow to express dependency of an attribute from an aggregate function of another attribute, as in CLP(BN)  and PRM, while the possibility of specifying a uniform distribution allows the use of the reference uncertainty feature of PRM.
-\item \texttt{lpad.pl}: computes the probability of a query using a top-down procedure based on SLG resolution \cite{DBLP:journals/jacm/ChenW96}. As a consequence, it works for any sound LPADs, i.e., any LPAD such that each of its instances has a two valued well founded model. 
-\item \texttt{cpl.pl}: computes the probability of a query using a top-down procedure based on SLG resolution and moreover checks that the CP-logic program is valid, i.e., that it has at least an execution model.
-\end{itemize}
-
-The modules for answering queries using the definition of the semantics of LPADs and CP-logic are \texttt{semlpadsld.pl}, \texttt{semlpad.pl} and
-\texttt{semcpl.pl}:
-\begin{itemize}
-\item \texttt{semlpadsld.pl}: given an LPAD $P$, it generates all the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLDNF resolution.
-\item \texttt{semlpad.pl}: given an LPAD $P$, it generates all  the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLG resolution.
-\item \texttt{semlcpl.pl}: given an LPAD $P$,  it builds an execution model of $P$, i.e., a probabilistic process that satisfy the principles of universal causation, sufficient causation, independent causation, no deus ex machina events and temporal precedence. It uses the definition of the semantics given in \cite{CP-logic-unp}.
-\end{itemize}
-%For program with function symbols, the semantics of LPADs and CP-logic are not defined. However, the interpreter accepts programs with function symbols and, if it does not go into a loop, it returns an answer. What is the meaning of this answer is subject of current study. 
+\texttt{cplint} is a suite of programs for reasoning with ICL \cite{DBLP:journals/ai/Poole97}, LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,DBLP:journals/tplp/VennekensDB09}. It contains programs both for inference and learning.
 
 \section{Installation}
-\texttt{cplint} is distributed in source code in the git version of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
+\texttt{cplint} is distributed in source code in the CVS version of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
 
-\texttt{cplint} requires cudd  and glib-2.0.
-You can download cudd from \url{http://vlsi.colorado.edu/~fabio/CUDD/}.
+\texttt{cplint} requires \href{http://vlsi.colorado.edu/~fabio/CUDD/}{CUDD} and glib-2.0.
+You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz}.
 You can download glib-2.0 (version $\geq 2.0$) from \url{http://www.gtk.org/}. This is a standard GNU package 
 so it is easy to install it using the package management software of your Linux or Cygwin 
 distribution.
 
-Compile cudd:
+Compile CUDD:
 \begin{enumerate}
-\item downlad \texttt{cudd-2.4.2.tar.gz}
-\item decompress it
+\item decompress cudd-2.4.2.tar.gz
 \item \texttt{cd cudd-2.4.2}
-\item check makefile options
-\item \texttt{make}
+\item see the \texttt{README} file for instructions on compilation
 \end{enumerate}
 
 Install Yap together with \texttt{cplint}:
-when compiling Yap following the instuction of the \texttt{INSTALL} file in the root of the Yap folder, use
+when compiling Yap following the instruction of the \texttt{INSTALL} file in the root of the Yap folder, use
 \begin{verbatim}
 configure --enable-cplint=DIR
 \end{verbatim}
-Under Windows, you have to use Cygwin (glu does not compile under MinGW), so\\
+where \verb|DIR| is the directory where CUDD is, i.e., the directory ending with \texttt{cudd-2.4.2}.
+Under Windows, you have to use Cygwin (CUDD does not compile under MinGW), so\\
 \begin{verbatim}
 configure --enable-cplint=DIR --enable-cygwin
 \end{verbatim}
-where \texttt{DIR} is the path to the directory \texttt{cudd-2.4.2} (including  \texttt{cudd-2.4.2}).
 
 After having performed \texttt{make install} you can do \texttt{make installcheck} that will execute a suite of tests of the various programs. If no error is reported you have a working installation of \texttt{cplint}.
 
 
 \section{Syntax}
 
+LPAD and CP-logic programs consist of a set of annotated disjunctive clauses.
 Disjunction in the head is represented with a semicolon and atoms in the head are separated from probabilities by a colon. For the rest, the usual syntax of Prolog is used.
 For example, the  CP-logic clause
 $$h_1:p_1\vee \ldots \vee h_n:p_n\leftarrow b_1,\dots,b_m ,\neg c_1,\ldots,\neg c_l$$
@@ -127,10 +99,68 @@ toss(coin).
 \end{verbatim}
 The first clause states that if we toss a coin that is not biased it has equal probability of landing heads and tails. The second states that if the coin is biased it has a slightly higher probability of landing heads. The third states that the coin is fair with probability 0.9 and biased with probability 0.1 and the last clause states that we toss a coin with certainty.
 
+Moreover, the bodies of rules can contain the built-in predicates:
+\begin{verbatim}
+is/2, >/2, </2, >=/2 ,=</2,
+=:=/2, =\=/2, true/0, false/0,
+=/2, ==/2, \=/2 ,\==/2, length/2
+\end{verbatim}
+The bodies can also contain the following
+ library predicates:
+\begin{verbatim}
+member/2, max_list/2, min_list/2
+nth0/3, nth/3
+\end{verbatim}
+plus the predicate
+\begin{verbatim}
+average/2
+\end{verbatim}
+that, given a list of numbers, computes its arithmetic mean.
+
+The syntax of ICL program is the one used by the  \href{http://www.cs.ubc.ca/~poole/aibook/code/ailog/ailog2.html}{AILog 2} system.
+\section{Inference}
+\texttt{cplint} contains various modules for answering queries.
+
+%It consists of three Prolog modules  for answering queries using goal-oriented procedures plus
+% three
+%Prolog modules for answering queries using the definition of the semantics of LPADs and CP-logic.
+
+These modules answer queries using using goal-oriented procedures:
+\begin{itemize}
+\item \texttt{lpadsld.pl}: uses the top-down procedure described in 
+in \cite{Rig-AIIA07-IC} and \cite{Rig-RCRA07-IC}. It is based on SLDNF resolution and is an adaptation of the interpreter for ProbLog \cite{DBLP:conf/ijcai/RaedtKT07}.
+
+It was proved correct \cite{Rig-RCRA07-IC} with respect to the semantics of LPADs for range restricted acyclic programs \cite{DBLP:journals/ngc/AptB91} without function symbols.
+
+It is also able to deal with extensions of LPADs and CP-logic: the clause bodies can contain \texttt{setof} and \texttt{bagof}, the probabilities in the head may be depend on variables in the body and it is possible to specify a uniform distribution in the head with reference to a \texttt{setof} or \texttt{bagof} operator. These extended features have been introduced in order to represent CLP(BN) \cite{SanPagQaz03-UAI-IC} programs and PRM models \cite{Getoor+al:JMLR02}:
+\texttt{setof} and \texttt{bagof} allow to express dependency of an attribute from an aggregate function of another attribute, as in CLP(BN)  and PRM, while the possibility of specifying a uniform distribution allows the use of the reference uncertainty feature of PRM.
+\item \texttt{picl.pl}: performs inference on ICL programs \cite{Rig09-LJIGPL-IJ}
+\item \texttt{lpad.pl}: uses  a top-down procedure based on SLG resolution \cite{DBLP:journals/jacm/ChenW96}. As a consequence, it works for any sound LPADs, i.e., any LPAD such that each of its instances has a two valued well founded model. 
+\item \texttt{cpl.pl}: uses a top-down procedure based on SLG resolution and moreover checks that the CP-logic program is valid, i.e., that it has at least an execution model.
+\item Modules for approximate inference:
+\begin{itemize}
+\item \texttt{deepit.pl} performs iterative deepening \cite{BraRig10-ILP10-IC}
+\item \texttt{deepdyn.pl} performs  dynamic iterative deepening \cite{BraRig10-ILP10-IC}
+\item \texttt{bestk.pl} performs  k-Best \cite{BraRig10-ILP10-IC}
+\item \texttt{bestfirst.pl} performs  best first \cite{BraRig10-ILP10-IC}
+\item \texttt{montecarlo.pl} performs  Monte Carlo \cite{BraRig10-ILP10-IC}
+\item \texttt{mcintyre.pl}: implements the algorithm MCINTYRE (Monte Carlo INference wiTh Yap REcord) \cite{Rig11-CILC11-NC}
+\end{itemize}
+\item \texttt{approx/exact.pl} as \texttt{lpadsld.pl} but uses  SimplecuddLPADs, a modification of the \href{www.cs.kuleuven.be/~theo/tools/simplecudd.html}{Simplecudd} instead of the \texttt{cplint} library for building BDDs and computing the probability.
+\end{itemize}
+
+These modules answer queries using the definition of the semantics of LPADs and CP-logic:
+\begin{itemize}
+\item \texttt{semlpadsld.pl}: given an LPAD $P$, it generates all the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLDNF resolution.
+\item \texttt{semlpad.pl}: given an LPAD $P$, it generates all  the instances of $P$. The probability of a query $Q$ is computed by identifying all the instances where $Q$ is derivable by SLG resolution.
+\item \texttt{semlcpl.pl}: given an LPAD $P$,  it builds an execution model of $P$, i.e., a probabilistic process that satisfy the principles of universal causation, sufficient causation, independent causation, no deus ex machina events and temporal precedence. It uses the definition of the semantics given in \cite{DBLP:journals/tplp/VennekensDB09}.
+\end{itemize}
+%For program with function symbols, the semantics of LPADs and CP-logic are not defined. However, the interpreter accepts programs with function symbols and, if it does not go into a loop, it returns an answer. What is the meaning of this answer is subject of current study. 
 
 
-\section{Commands}
-All six modules accept the same commands for reading in files and answering queries.
+
+\subsection{Commands}
+%All six modules accept the same commands for reading in files and answering queries.
 The LPAD or CP-logic program must be stored in a text file with extension \texttt{.cpl}. Suppose you have stored the example above in file \texttt{coin.cpl}. 
 In order to answer queries from this program, you have to run Yap,
 load one of the modules (such as for example \texttt{lpad.pl}) by issuing  the command
@@ -168,7 +198,52 @@ after \texttt{p(file).} Moreover, you can build an execution process given a con
 
 When using \texttt{cpl.pl} you can print a partial execution model including all the clauses involved in the query issued with \texttt{print.} \texttt{cpl.pl} can print the messages ``Uunsound program'', ``It requires the choice of a head atom from a non ground head'' and ``Invalid program''.
 
+For \texttt{approx/deepit.pl} and \texttt{approx/deepdyn.pl} the command 
+\begin{verbatim}
+solve(GoalsList, ProbLow, ProbUp, ResTime, BddTime)
+\end{verbatim}
+takes as input a list of goals \texttt{GoalsList} and returns a lower bound on the probability \texttt{ProbLow}, an upper bound on the probability \texttt{ProbUp}, the CPU time spent on performing resolution \texttt{ResTime} and the CPU time spent on handling BDDs \texttt{BddTime}.
 
+For \texttt{approx/bestk.pl} the command 
+\begin{verbatim}
+solve(GoalsList, ProbLow,  ResTime, BddTime)
+\end{verbatim}
+takes as input a list of goals \texttt{GoalsList} and returns a lower bound on the probability \texttt{ProbLow}, the CPU time spent on performing resolution \texttt{ResTime} and the CPU time spent on handling BDDs \texttt{BddTime}.
+
+For \texttt{approx/bestfirst.pl}  the command 
+\begin{verbatim}
+solve(GoalsList, ProbLow, ProbUp, Count, ResTime, BddTime)
+\end{verbatim}
+takes as input a list of goals \texttt{GoalsList} and returns a lower bound on the probability \texttt{ProbLow}, an upper bound on the probability \texttt{ProbUp}, the number of BDDs generated by the algorithm \texttt{Count}, the CPU time spent on performing resolution \texttt{ResTime} and the CPU time spent on handling BDDs \texttt{BddTime}.
+
+
+For \texttt{approx/montecarlo.pl} 
+the command 
+\begin{verbatim}
+solve(GoalsList, Samples, Time, Low, Prob, Up)
+\end{verbatim}
+takes as input a list of goals \texttt{GoalsList} and returns the number of samples taken \texttt{Samples}, 
+the time required to solve the problem \texttt{Time}, the
+lower end of the confidence interval \texttt{Lower}, the estimated probability \texttt{Prob} and the upper end of the confidence interval \texttt{Up}.
+
+
+For \texttt{mcintyre.pl}:
+the command 
+\begin{verbatim}
+solve(Goals, Samples, CPUTime, WallTime, Lower, Prob, Upper) :-
+\end{verbatim}
+takes as input a conjunction of goals \texttt{Goals} and returns the number of samples taken \texttt{Samples}, 
+the CPU time required to solve the problem \texttt{CPUTime}, the wall time required to solve the problem \texttt{CPUTime}, the
+lower end of the confidence interval \texttt{Lower}, the estimated probability \texttt{Prob} and the upper end of the confidence interval \texttt{Up}.
+
+For \texttt{approx/exact.pl}
+the command 
+\begin{verbatim}
+solve(GoalsList, Prob, ResTime, BddTime) 
+\end{verbatim}
+takes as input a conjunction of goals \texttt{Goals} and returns the probability \texttt{Prob}, the CPU time spent on performing resolution \texttt{ResTime} and the CPU time spent on handling BDDs \texttt{BddTime}.
+
+\subsubsection{Parameters}
 The modules make use of a number of parameters in order to control their behavior. They that can be set with the command
 \begin{verbatim}
 set(parameter,value).
@@ -182,7 +257,7 @@ from the Yap prompt.
 The available parameters are:
 \begin{itemize}
 \item 
-	 \verb|epsilon_parsing| (valid for all six modules): if (1 - the sum of the probabilities of all the head atoms) is smaller than 
+	 \verb|epsilon_parsing| (valid for all modules): if (1 - the sum of the probabilities of all the head atoms) is smaller than 
     \verb|epsilon_parsing|
 		then \texttt{cplint} adds the null events to the head. Default value 0.00001
 \item 	\verb|save_dot| (valid for all goal-oriented modules): if \texttt{true} a graph representing the BDD is saved in the file \texttt{cpl.dot} in the current directory in dot format.
@@ -196,15 +271,20 @@ Variables: [(2,[X=2,X1=1]),(2,[X=1,X1=0]),(1,[])]
 		In the example above variable \texttt{X0} corresponds to clause \texttt{2} with the substitutions \texttt{X=2,X1=1},
 		variable \texttt{X1} corresponds to clause \texttt{2} with the substitutions \texttt{X=1,X1=0} and
 		variable \texttt{X2} corresponds to clause \texttt{1} with the empty substitution.
-		You can view the graph with \texttt{graphviz} (\url{www.graphviz.org}) using the
+		You can view the graph with  \href{www.graphviz.org}{\texttt{graphviz}} using the
 		command
 \begin{verbatim}
 dotty cpl.dot &
 \end{verbatim}
-\item \verb|ground_body| (valid for \texttt{lpadsld.pl} and all semantic modules): determines how non ground clauses are treated: if \texttt{true}, ground clauses are obtained from a non ground clause by replacing each variable with a constant, if \texttt{false}, ground clauses are obtained by replacing only variables in the head with a constant. In the case where the body contains variables not in the head, setting it to false means that the body represents an existential event.
+\item \verb|ground_body|: (valid for \texttt{lpadsld.pl} and all semantic modules) determines how non ground clauses are treated: if \texttt{true}, ground clauses are obtained from a non ground clause by replacing each variable with a constant, if \texttt{false}, ground clauses are obtained by replacing only variables in the head with a constant. In the case where the body contains variables not in the head, setting it to false means that the body represents an existential event.
+\item \verb|min_error|: (valid for \texttt{approx/deepit.pl}, \texttt{approx/deepdyn.pl}, \texttt{approx/bestk.pl}, \texttt{approx/bestfirst.pl}, \texttt{approx/montecarlo.pl} and \texttt{mcintyre.pl}) is the threshold under which the difference between upper and lower bounds on probability must fall for the algorithm to stop.
+\item \verb|k|: maximum number of explanations  for \texttt{approx/bestk.pl} and \texttt{approx/bestfirst.pl} and number of samples to take at each iteration for \texttt{approx/montecarlo.pl} and \texttt{mcintyre.pl}
+\item \verb|prob_bound|: (valid for \texttt{approx/deepit.pl}, \texttt{approx/deepdyn.pl}, \texttt{approx/bestk.pl} and \texttt{approx/bestfirst.pl}) is the initial bound on the probability of explanations when iteratively building explanations
+\item \verb|prob_step|: (valid for \texttt{approx/deepit.pl}, \texttt{approx/deepdyn.pl}, \texttt{approx/bestk.pl} and \texttt{approx/bestfirst.pl}) is the increment on the bound on the probability of explanations when iteratively building explanations
+\item \verb|timeout|: (valid for \texttt{approx/deepit.pl}, \texttt{approx/deepdyn.pl}, \texttt{approx/bestk.pl}, \texttt{approx/bestfirst.pl} and \texttt{approx/exact.pl}) timeout for builduing BDDs
 \end{itemize}
 
-\section{Semantic Modules}
+\subsection{Semantic Modules}
 The three semantic modules need to produce a grounding of the program in order to compute the semantics.
 They require an extra file with extension \texttt{.uni} (for universe) in the same directory where the \texttt{.cpl} file is.
 
@@ -228,42 +308,8 @@ The file \texttt{.uni} can contain both universe and mode declaration, the ones 
 With \texttt{semcpl.pl} only mode declarations can be used.
 
 
-
-\section{Extensions}
-In this section we will present the extensions to the syntax of LPADs and CP-logic programs that \texttt{cplint} can handle.
-
-The first is the use of some standard Prolog predicates.
-The bodies can contain the built-in predicates:
-\begin{verbatim}
-is/2
->/2
-</2
->=/2
-=</2
-=:=/2
-=\=/2
-true/0
-false/0
-=/2
-==/2
-\=/2
-\==/2
-length/2
-\end{verbatim}
-The bodies can also contain the following
- library predicates:
-\begin{verbatim}
-member/2
-max_list/2
-min_list/2
-nth0/3
-nth/3
-\end{verbatim}
-plus the predicate
-\begin{verbatim}
-average/2
-\end{verbatim}
-that, given a list of numbers, computes its arithmetic mean.
+\subsection{Extensions}
+In this section we will present the extensions to the syntax of LPADs and CP-logic programs that \texttt{lpadsld} can handle.
 
 When using \texttt{lpadsld.pl}, the bodies can contain the predicates \texttt{setof/3} and \texttt{bagof/3} with the same meaning as in Prolog. Existential quantifiers are allowed in both, so for example the query
 \begin{verbatim}
@@ -284,13 +330,9 @@ male(C):M/P ; female(C):F/P:-
 person(f).
 
 known_female(a).
-
 known_female(b).
-
 known_female(c).
-
 known_male(d).
-
 known_male(e).
 \end{verbatim}
 The disjunctive rule expresses the probability of a person of unknown sex of being male or female depending on the number of males and females that are known.
@@ -364,11 +406,11 @@ This is an example where the probabilities in the head do not sum up to one so t
 The first clause states that, if the topic of a paper \texttt{X} is theory and  of  paper \texttt{Y} is theory, there is a probability of 0.005 that there is a citation from \texttt{X} to \texttt{Y}. The other clauses consider the remaining cases for the topics.
 
 
-\section{Additional Files}
+\subsection{Files}
 In the directory where Yap keeps the library files (usually \texttt{/usr/local/share/ Yap}) you can find the directory \texttt{cplint} that contains the files:
 \begin{itemize}
-\item \verb|testlpadsld_gbtrue.pl, testlpadsld_gbfalse.pl, testlpad.pl,| 
-\verb|testcpl.pl, testsemlpadsld.pl, testsemlpad.pl testsemcpl.pl|: Prolog programs for testing the modules. They are executed when issuing the command \texttt{make installcheck} during the installation. To execute them afterwords, load the file and issue the command \texttt{t.} 
+\item \texttt{testlpadsld\_gbtrue.pl, testlpadsld\_gbfalse.pl, testlpad.pl,
+testcpl.pl, testsemlpadsld.pl, testsemlpad.pl testsemcpl.pl}: Prolog programs for testing the modules. They are executed when issuing the command \texttt{make installcheck} during the installation. To execute them afterwords, load the file and issue the command \texttt{t.} 
 \item Subdirectory \texttt{examples}:
 \begin{itemize}
 \item \texttt{alarm.cpl}: representation of the Bayesian network in Figure 2 of
@@ -388,22 +430,149 @@ In the directory where Yap keeps the library files (usually \texttt{/usr/local/s
 source distribution of Yap in the \texttt{CLPBN} directory.
 \item \verb|school_simple.cpl|: simplified version of \texttt{school.cpl}.
 \item \verb|student.cpl|: student example from Figure 1.3 of \cite{GetFri01-BC}.
-\item \texttt{win.cpl, light.cpl, trigger.cpl, throws.cpl, hiv.cpl,}\\ \texttt{ invalid.cpl}: programs taken from \cite{CP-logic-unp}. \texttt{invalid.cpl} is an example of a  program that is invalid but sound.
+\item \texttt{win.cpl, light.cpl, trigger.cpl, throws.cpl, hiv.cpl,}\\ \texttt{ invalid.cpl}: programs taken from \cite{DBLP:journals/tplp/VennekensDB09}. \texttt{invalid.cpl} is an example of a  program that is invalid but sound.
 \end{itemize}
 The files \texttt{*.uni} that are present for some of the examples are used  by the semantical modules. Some of the example files contain in an initial comment some queries together with their result.
 \item Subdirectory \texttt{doc}: contains this manual in latex, html and pdf.
 \end{itemize}
+
+\section{Learning}
+\texttt{cplint} contains the following learning algorithms:
+\begin{itemize}
+\item CEM (\texttt{cplint} EM): an implementation of EM for learning parameters that is based on \texttt{lpadsld.pl} \cite{RigDiM11-ML-IJ}
+\item RIB (Relational Information Bottleneck): an algorithm for learning parameters based on the Information Bottleneck \cite{RigDiM11-ML-IJ}
+\item EMBLEM (EM over Bdds for probabilistic Logic programs Efficient Mining): an implementation of EM for learning parameters that computes expectations directly on BDDs \cite{BelRig11-CILC11-NC,BelRig11-TR}
+\item SLIPCASE (Structure LearnIng of ProbabilistiC logic progrAmS with Em over bdds): an algorithm for learning the structure of program that is based on EMBLEM \cite{BelRig11-ILP11-IC}
+\end{itemize}
+
+\subsection{Input}
+To execute the learning algorithms, prepare four files in the same folder: 
+\begin{itemize}
+\item \texttt{<stem>.kb}: contains the example interpretations 
+\item \texttt{<stem>.bg}: contains the background knowledge, i.e., knowledge valid for all interpretations
+\item \texttt{<stem>.l}: contains language bias information
+\item \texttt{<stem>.cpl}: contains the LPAD for you which you want to learn the parameters or the initial LPAD for SLIPCASE
+\end{itemize}
+where \texttt{<stem>} is your dataset name. Examples of these files can be found in the dataset pages.
+
+In \texttt{<stem>.kb} the example interpretations have to be given as a list of Prolog facts initiated by 
+\texttt{begin(model(<name>)).} and terminated by \texttt{end(model(<name>)).} as in
+\begin{verbatim}
+begin(model(b1)).
+sameperson(1,2).
+movie(f1,1).
+movie(f1,2).
+workedunder(1,w1).
+workedunder(2,w1).
+gender(1,female).
+gender(2,female).
+actor(1).
+actor(2).
+end(model(b1)).
+\end{verbatim}
+The interpretations may contain a fact of the form
+\begin{verbatim}
+prob(0.3).
+\end{verbatim}
+assigning a probability (0.3 in this case) to the interpretations. If this is omitted, the probability of each interpretation is considered equal to $1/n$ where $n$ is the total number of interpretations. \verb|prob/1| can be used to set different multiplicity for the different interpretations.
+
+In order for RIB to work, the input interpretations must share the Herbrand universe. If this is not the case, you have to translate the interpretations in this was, see for example the \texttt{sp1} files in RIB's folder, that are the results of the conversion of the first fold of the IMDB dataset.
+
+\texttt{<stem>.bg} can contain Prolog clauses that can be used to derive additional conclusions from the atoms in 
+the interpretations.
+
+\texttt{<stem>.l} contains the declarations of the input and output predicates, of the unseen predicates and the commands for setting the algorithms' parameters.
+Output predicates are declared as
+\begin{verbatim}
+output(<predicate>/<arity>).
+\end{verbatim}
+and define the predicates whose atoms in the input interpretations are used as the goals for the prediction of which you want to optimize the parameters. Derivations for these goals are built by the systems.
+
+Input predicates are those for the predictions of which you do not want to optimize the parameters. You can declare closed world input predicates with
+\begin{verbatim}
+input_cw(<predicate>/<arity>).
+\end{verbatim}
+For these predicates, the only true atoms are those in the interpretations, the clauses in the input program are not used to derive atoms not present in the interpretations.
+
+Open world input predicates are declared with
+\begin{verbatim}
+input(<predicate>/<arity>).
+\end{verbatim}
+In this case, if a subgoal for such a predicate is encountered when deriving the atoms for the output predicates, 
+both the facts in the interpretations and the clauses of the input program are used.
+
+For RIB, if there are unseen predicates, i.e., predicates that are present in the input program but not in the interpretations, you have to declare them with
+\begin{verbatim}
+unseen(<predicate>/<arity>).
+\end{verbatim}
+
+For SLIPCASE, you have to specify the language bias by means of mode declarations in the style of 
+\href{http://www.doc.ic.ac.uk/~shm/progol.html}{Progol}.
+\begin{verbatim}
+modeh(<recall>,<predicate>(<arg1>,...).
+\end{verbatim}
+specifies the atoms that can appear in the head of clauses, while
+\begin{verbatim}
+modeb(<recall>,<predicate>(<arg1>,...).
+\end{verbatim}
+specifies the atoms that can appear in the body of clauses.
+\texttt{<recall>} can be an integer or \texttt{*} (currently unused).
+
+The arguments are of the form
+\begin{verbatim}
++<type>
+\end{verbatim}
+for specifying an input variable of type \texttt{<type>}, or 
+\begin{verbatim}
+-<type>
+\end{verbatim}
+for specifying an output variable of type \texttt{<type>}. 
+\subsection{Parameters}
+In order to set the algorithms' parameters, you have to insert in \texttt{<stem>.l}  commands of the form
+\begin{verbatim}
+:- set(<parameter>,<value>).
+\end{verbatim}
+The available parameters are:
+\begin{itemize}
+\item \verb|depth| (values: integer or \verb|inf|, default value: 3): depth of derivations if  \verb|depth_bound|  is set to \verb|true|
+\item \verb|single_var| (values: \verb|{true,false}|, default value: \verb|false|, valid for CEM only): if set to \verb|true|, there is a random variable for each clauses, instead of a separate random variable for each grounding of a clause
+\item \verb|sample_size| (values: integer, default value: 1000): total number of examples in case in which the models in the \verb|.kb| file contain a \verb|prob(P).| fact. In that case, one model corresponds to \verb|sample_size*P| examples
+\item \verb|epsilon_em| (values: real, default value: 0.1, valid for CEM only): if the difference in the log likelihood in two successive EM iteration is smaller
+than \verb|epsilon_em|, then EM stops 
+\item \verb|epsilon_em_fraction| (values: real, default value: 0.01, valid for CEM only): if the difference in the log likelihood in two successive EM iteration is smaller
+than \verb|epsilon_em_fraction|*(-current log likelihood), then EM stops
+\item \verb|random_restarts_number| (values: integer, default value: 1, valid for CEM only): number of random restarts
+\item \verb|setrand| (values: rand(integer,integer,integer)): seed for the random functions, see Yap manual for allowed values
+\item \verb|minimal_step| (values: [0,1], default value: 0.005, valid for RIB only): minimal increment of $\gamma$
+\item \verb|maximal_step| (values: [0,1], default value: 0.1, valid for RIB only): maximal increment of $\gamma$
+\item \verb|logsize_fraction| (values: [0,1], default value 0.9, valid for RIB only): RIB stops when $\mathbf{I}(CH,T;Y)$ is above \verb|logsize_fraction| times its maximum value ($\log |CH,T|$, see \cite{DBLP:journals/jmlr/ElidanF05})
+\item \verb|delta| (values: negative integer, default value -10, valid for RIB only): value assigned to $\log 0$
+\item \verb|epsilon_fraction| (values: integer, default value 100, valid for RIB only): in the computation of the step, the value of $\epsilon$ of \cite{DBLP:journals/jmlr/ElidanF05} is obtained as $\log |CH,T|\times$\verb|epsilon_fraction|
+\item \verb|max_rules| (values: integer, default value: 6000, valid for RIB only): maximum number of ground rules. Used to set the size of arrays for storing internal statistics. Can be increased as much as memory allows.
+\end{itemize}
+\subsection{Commands}
+To execute CEM, load \texttt{em.pl} and call:
+\begin{verbatim}
+?:- em(stem).
+\end{verbatim}
+To execute RIB, load \texttt{rib.pl} and call:
+\begin{verbatim}
+?:- ib_par(stem).
+\end{verbatim}
+
+
 \section{License}
 \label{license}
 
 
 
 \texttt{cplint}, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root dir. The copyright is by Fabrizio Riguzzi.
-
-
 \vspace{3mm}
 
-The program uses the library \href{http://vlsi.colorado.edu/~fabio/}{CUDD} for manipulating BDDs that is included in glu.
+The modules in the approx subdirectory use SimplecuddLPADs, a modification of the \href{www.cs.kuleuven.be/~theo/tools/simplecudd.html}{Simplecudd} library whose copyright is by Katholieke Universiteit Leuven  and that follows the Artistic License 2.0.
+\vspace{3mm}
+
+Some modules use the library \href{http://vlsi.colorado.edu/~fabio/}{CUDD} for manipulating BDDs that is included in glu.
 For the use of CUDD, the following license must be accepted:
 
 \vspace{3mm}
