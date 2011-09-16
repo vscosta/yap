@@ -128,9 +128,12 @@ store_cl(Cl) :-
 
 add_new_clause(_,(_ :- true),_,_) :- !.
 add_new_clause(_,(H :- B),_,_) :-
+%trace,
 %	user:db_usage,
 %	user:db_dynamic,
 	domain(H, K, V, D),
+	user:cost((H :- B), _, Cost),
+	format(user_error,'Current Cost: ~w.~n', [Cost]),
 	rewrite_body(B, IB, Vs, _, ( !, { V = K with p(D, CPTList, Vs) })),
 	% need to remember which CPT we want
 	get_dist_key(Id, K),
