@@ -166,7 +166,8 @@ clpbn_flag(parameter_softening,Before,After) :-
 % we use a mutable variable to avoid unnecessary trailing.
 %
 store_var(El) :- 
-	nb_current(clpbn_qvars, Mutable), !,
+	nb_current(clpbn_qvars, Mutable), 
+	nonvar(Mutable), !,
 	get_mutable(Tail, Mutable),
 	update_mutable(El.Tail, Mutable).
 store_var(El) :- 
