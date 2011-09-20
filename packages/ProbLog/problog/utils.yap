@@ -229,7 +229,7 @@
 %========================================================================
 
 delete_file_silently(File) :-
-	delete_file(File),
+	catch(delete_file(File),_,fail),
 	!.
 delete_file_silently(_).
 
