@@ -209,8 +209,10 @@ IsPrefixOp(Atom op,int  *pptr, int *rpptr USES_REGS)
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
-      opp->OpModule != CurrentModule)
+      opp->OpModule != CurrentModule) {
+    READ_UNLOCK(opp->OpRWLock);
     return FALSE;
+  }
   if ((p = opp->Prefix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
     *pptr = *rpptr = p & MaskPrio;
@@ -239,8 +241,10 @@ IsInfixOp(Atom op, int *pptr, int *lpptr, int *rpptr USES_REGS)
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
-      opp->OpModule != CurrentModule)
+      opp->OpModule != CurrentModule) {
+    READ_UNLOCK(opp->OpRWLock);
     return FALSE;
+  }
   if ((p = opp->Infix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
     *pptr = *rpptr = *lpptr = p & MaskPrio;
@@ -271,8 +275,10 @@ IsPosfixOp(Atom op, int *pptr, int *lpptr USES_REGS)
   if (!opp)
     return FALSE;
   if (opp->OpModule &&
-      opp->OpModule != CurrentModule)
+      opp->OpModule != CurrentModule) {
+    READ_UNLOCK(opp->OpRWLock);
     return FALSE;
+  }
   if ((p = opp->Posfix) != 0) {
     READ_UNLOCK(opp->OpRWLock);
     *pptr = *lpptr = p & MaskPrio;

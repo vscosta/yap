@@ -855,6 +855,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
     
       LOCAL_HDiff = (char *)cl-base;
       read_bytes(stream, cl, size);
+      INIT_LOCK(cl->ClLock);
       RestoreDynamicClause(cl, pp);
       Yap_AssertzClause(pp, cl->ClCode);
     }
@@ -927,6 +928,7 @@ read_ops(IOSTREAM *stream)  {
     op->Prefix =   read_bits16(stream);
     op->Infix =   read_bits16(stream);
     op->Posfix =   read_bits16(stream);
+    WRITE_UNLOCK(op->OpRWLock);
   }
 }
 
