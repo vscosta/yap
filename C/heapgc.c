@@ -3696,6 +3696,11 @@ compaction_phase(tr_fr_ptr old_TR, CELL *current_env, yamop *curp USES_REGS)
     }
   if (CurrentH0) {
     H0 = CurrentH0;
+#ifdef TABLING
+    /* make sure that we have the correct H_FZ if we're not tabling */
+    if (B_FZ == (choiceptr)LCL0)
+      H_FZ = H0;
+#endif /* TABLING */
   }
 }
 

@@ -897,7 +897,7 @@ AllAttVars( USES_REGS1 ) {
   CELL *pt = H0;
   CELL *myH = H;
   
-  while (pt < H) {
+  while (pt < myH) {
     switch(*pt) {
     case (CELL)FunctorAttVar:
       if (IsUnboundVar(pt+1)) {
