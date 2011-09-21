@@ -2145,7 +2145,7 @@ Yap_absmi(int inp)
 
 		  PELOCK(9,ap);
 		  DEC_CLREF_COUNT(cl);
-		  fprintf(stderr,"%d %p=%lx\n",worker_id, cl, cl->ClRefCount);
+//		  fprintf(stderr,"%d %p=%lx\n",worker_id, cl, cl->ClRefCount);
 		  erase = (cl->ClFlags & ErasedMask) && !(cl->ClRefCount);
 		  if (erase) {
 		    saveregs();

@@ -35,6 +35,7 @@ STATIC_PROTO(void  CleanCode, (PredEntry * USES_REGS));
 static void
 LookupAtom(Atom at)
 {
+  CACHE_REGS
   char *p = RepAtom(at)->StrOfAE;
   CELL hash = HashFunction((unsigned char *)p) % LOCAL_ExportAtomHashTableSize;
   export_atom_hash_entry_t *a;
@@ -59,6 +60,7 @@ LookupAtom(Atom at)
 static void
 LookupFunctor(Functor fun)
 {
+  CACHE_REGS
   CELL hash = (CELL)(fun) % LOCAL_ExportFunctorHashTableSize;
   export_functor_hash_entry_t *f;
   Atom name = NameOfFunctor(fun);
@@ -87,6 +89,7 @@ LookupFunctor(Functor fun)
 static void
 LookupPredEntry(PredEntry *pe)
 {
+  CACHE_REGS
   CELL hash = (CELL)(pe) % LOCAL_ExportPredEntryHashTableSize;
   export_pred_entry_hash_entry_t *p;
   UInt arity  = pe->ArityOfPE;
@@ -139,6 +142,7 @@ LookupPredEntry(PredEntry *pe)
 static void
 LookupDBRef(DBRef ref)
 {
+  CACHE_REGS
   CELL hash = Unsigned(ref) % LOCAL_ExportDBRefHashTableSize;
   export_dbref_hash_entry_t *a;
 
@@ -165,6 +169,7 @@ LookupDBRef(DBRef ref)
 static void
 InitHash(void)
 {
+  CACHE_REGS
   LOCAL_ExportFunctorHashTableNum = 0;
   LOCAL_ExportFunctorHashTableSize = EXPORT_FUNCTOR_TABLE_SIZE;
   LOCAL_ExportFunctorHashChain = (export_functor_hash_entry_t **)calloc(1, sizeof(export_functor_hash_entry_t *)* LOCAL_ExportFunctorHashTableSize);
@@ -182,6 +187,7 @@ InitHash(void)
 static void
 CloseHash(void)
 {
+  CACHE_REGS
   LOCAL_ExportFunctorHashTableNum = 0;
   LOCAL_ExportFunctorHashTableSize = 0L;
   free(LOCAL_ExportFunctorHashChain);
@@ -391,6 +397,7 @@ static size_t save_tag(IOSTREAM *stream, qlf_tag_t tag)
 static int
 SaveHash(IOSTREAM *stream)
 {
+  CACHE_REGS
   UInt i;
   /* first, current opcodes */
   CHECK(save_tag(stream, QLY_START_X));
@@ -554,6 +561,7 @@ clean_pred(PredEntry *pp USES_REGS) {
 static size_t
 mark_pred(PredEntry *ap)
 {
+  CACHE_REGS
   if (ap->ModuleOfPred != IDB_MODULE) {
     if (ap->ArityOfPE) {
       FuncAdjust(ap->FunctorOfPred);

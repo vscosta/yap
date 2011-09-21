@@ -69,7 +69,8 @@ ERROR(qlfr_err_t my_err)
 static Atom
 LookupAtom(Atom oat)
 {
-  CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
+ CACHE_REGS 
+ CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
  import_atom_hash_entry_t *a;
 
   a = LOCAL_ImportAtomHashChain[hash];
@@ -86,6 +87,7 @@ LookupAtom(Atom oat)
 static void
 InsertAtom(Atom oat, Atom at)
 {
+  CACHE_REGS
   CELL hash = (CELL)(oat) % LOCAL_ImportAtomHashTableSize;
   import_atom_hash_entry_t *a;
 
@@ -109,6 +111,7 @@ InsertAtom(Atom oat, Atom at)
 static Functor
 LookupFunctor(Functor ofun)
 {
+  CACHE_REGS
   CELL hash = (CELL)(ofun) % LOCAL_ImportFunctorHashTableSize;
   import_functor_hash_entry_t *f;
 
@@ -126,6 +129,7 @@ LookupFunctor(Functor ofun)
 static void
 InsertFunctor(Functor ofun, Functor fun)
 {
+  CACHE_REGS
   CELL hash = (CELL)(ofun) % LOCAL_ImportFunctorHashTableSize;
   import_functor_hash_entry_t *f;
 
@@ -149,6 +153,7 @@ InsertFunctor(Functor ofun, Functor fun)
 static PredEntry *
 LookupPredEntry(PredEntry *op)
 {
+  CACHE_REGS
   CELL hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
   import_pred_entry_hash_entry_t *p;
 
@@ -166,6 +171,7 @@ LookupPredEntry(PredEntry *op)
 static void
 InsertPredEntry(PredEntry *op, PredEntry *pe)
 {
+  CACHE_REGS
   CELL hash = (CELL)(op) % LOCAL_ImportPredEntryHashTableSize;
   import_pred_entry_hash_entry_t *p;
 
@@ -189,6 +195,7 @@ InsertPredEntry(PredEntry *op, PredEntry *pe)
 static OPCODE
 LookupOPCODE(OPCODE op)
 {
+  CACHE_REGS
   CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
 
@@ -206,6 +213,7 @@ LookupOPCODE(OPCODE op)
 static int
 OpcodeID(OPCODE op)
 {
+  CACHE_REGS
   CELL hash = (CELL)(op) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
 
@@ -223,6 +231,7 @@ OpcodeID(OPCODE op)
 static void
 InsertOPCODE(OPCODE op0, int i, OPCODE op)
 {
+  CACHE_REGS
   CELL hash = (CELL)(op0) % LOCAL_ImportOPCODEHashTableSize;
   import_opcode_hash_entry_t *f;
   f = LOCAL_ImportOPCODEHashChain[hash];
@@ -246,6 +255,7 @@ InsertOPCODE(OPCODE op0, int i, OPCODE op)
 static DBRef
 LookupDBRef(DBRef dbr)
 {
+  CACHE_REGS
   CELL hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
   import_dbref_hash_entry_t *p;
 
@@ -264,6 +274,7 @@ LookupDBRef(DBRef dbr)
 static LogUpdClause *
 LookupMayFailDBRef(DBRef dbr)
 {
+  CACHE_REGS
   CELL hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
   import_dbref_hash_entry_t *p;
 
@@ -281,6 +292,7 @@ LookupMayFailDBRef(DBRef dbr)
 static void
 InsertDBRef(DBRef dbr0, DBRef dbr)
 {
+  CACHE_REGS
   CELL hash = (CELL)(dbr0) % LOCAL_ImportDBRefHashTableSize;
   import_dbref_hash_entry_t *p;
 
@@ -305,6 +317,7 @@ InsertDBRef(DBRef dbr0, DBRef dbr)
 static void
 InitHash(void)
 {
+  CACHE_REGS
   LOCAL_ImportFunctorHashTableSize = EXPORT_FUNCTOR_TABLE_SIZE;
   LOCAL_ImportFunctorHashChain = (import_functor_hash_entry_t **)calloc(1, sizeof(import_functor_hash_entry_t *)* LOCAL_ImportFunctorHashTableSize);
   LOCAL_ImportAtomHashTableSize = EXPORT_ATOM_TABLE_SIZE;
@@ -320,6 +333,7 @@ InitHash(void)
 static void
 CloseHash(void)
 {
+  CACHE_REGS
   UInt i;
   for (i=0; i < LOCAL_ImportFunctorHashTableSize; i++) {
     import_functor_hash_entry_t *a = LOCAL_ImportFunctorHashChain[i];
@@ -667,6 +681,7 @@ read_header(IOSTREAM *stream)
 static void
 ReadHash(IOSTREAM *stream)
 {
+  CACHE_REGS
   UInt i;
   RCHECK(read_tag(stream) == QLY_START_X);
   LOCAL_XDiff = (char *)(&ARG1) - (char *)read_uint(stream);
@@ -791,6 +806,7 @@ ReadHash(IOSTREAM *stream)
 
 static void
 read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
+  CACHE_REGS
   if (pp->PredFlags & LogUpdatePredFlag) {
     pp->TimeStampOfPred = 0L; 
     /* first, clean up whatever was there */
@@ -821,7 +837,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       cl->ClFlags &= ~InUseMask;
       cl->ClRefCount = nrefs;
       LOCAL_HDiff = (char *)cl-base;
-      RestoreLUClause(cl, pp);
+      RestoreLUClause(cl, pp PASS_REGS);
       Yap_AssertzClause(pp, cl->ClCode);
     }
   } else if (pp->PredFlags & MegaClausePredFlag) {
@@ -856,7 +872,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
       LOCAL_HDiff = (char *)cl-base;
       read_bytes(stream, cl, size);
       INIT_LOCK(cl->ClLock);
-      RestoreDynamicClause(cl, pp);
+      RestoreDynamicClause(cl, pp PASS_REGS);
       Yap_AssertzClause(pp, cl->ClCode);
     }
 
@@ -979,7 +995,7 @@ p_read_program( USES_REGS1 )
   read_module(stream);
   Sclose( stream );
   /* back to the top level we go */
-  Yap_CloseSlots();
+  Yap_CloseSlots(PASS_REGS1);
 
   siglongjmp(LOCAL_RestartEnv, 3);  
   return TRUE;
