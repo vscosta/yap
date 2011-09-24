@@ -1578,5 +1578,9 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
     ASP = (CELL *)PROTECT_FROZEN_B(B);
 }
 
-
+#if YAPOR
+#define INITIALIZE_PERMVAR(PTR, V) Bind_Local((PTR), (V))
+#else
+#define INITIALIZE_PERMVAR(PTR, V) *(PTR) = (V)
+#endif
 

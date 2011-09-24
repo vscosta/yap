@@ -186,9 +186,10 @@ int Yap_CleanOpaqueVariable(CELL *pt)
 Opaque_CallOnWrite
 Yap_blob_write_handler_from_slot(Int slot)
 {
+  CACHE_REGS
   CELL blob_info, blob_tag;
   MP_INT *blobp;
-  Term t = Yap_GetFromSlot(slot);
+  Term t = Yap_GetFromSlot(slot PASS_REGS);
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -213,7 +214,8 @@ Yap_blob_write_handler_from_slot(Int slot)
 
 extern Int Yap_blob_tag_from_slot(Int slot)
 {
-  Term t = Yap_GetFromSlot(slot);
+  CACHE_REGS
+  Term t = Yap_GetFromSlot(slot PASS_REGS);
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -229,9 +231,10 @@ extern Int Yap_blob_tag_from_slot(Int slot)
 void *
 Yap_blob_info_from_slot(Int slot)
 {
+  CACHE_REGS
   CELL blob_info, blob_tag;
   MP_INT *blobp;
-  Term t = Yap_GetFromSlot(slot);
+  Term t = Yap_GetFromSlot(slot PASS_REGS);
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
