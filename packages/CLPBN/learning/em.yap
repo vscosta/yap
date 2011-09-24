@@ -203,6 +203,8 @@ compute_parameters([], [], _, Lik, Lik, _).
 compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, Lik, LPs:MargVars) :-
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
+%matrix_to_list(Table0,Mat), 
+%format(user_error, 'FINAL ~d ~w~n', [Id,Mat]),
 	soften_sample(Table0, SoftenedTable),
 %	matrix:matrix_sum(Table0,TotM),
 	normalise_counts(SoftenedTable, NewTable),
@@ -218,6 +220,7 @@ add_samples([i(_,_,[Case],[])|Samples], Table, MDistTable) :- !,
 add_samples([i(_,_,Cases,Hiddens)|Samples], Table, MDistTable) :-
 	rb_lookup(Hiddens, Ps, MDistTable),
 	run_sample(Cases, Ps, Table),
+%matrix_to_list(Table,M), format(user_error, '~w ~w~n', [Cases,Ps]),
 	add_samples(Samples, Table, MDistTable).
 
 run_sample([], [], _).
