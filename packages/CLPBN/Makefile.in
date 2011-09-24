@@ -56,7 +56,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/xbif.yap
 
 CLPBN_LEARNING_PROGRAMS= \
-	$(CLPBN_LEARNING_SRCDIR)/aleph_parms.yap \
+	$(CLPBN_LEARNING_SRCDIR)/aleph_params.yap \
 	$(CLPBN_LEARNING_SRCDIR)/bnt_parms.yap \
 	$(CLPBN_LEARNING_SRCDIR)/em.yap \
 	$(CLPBN_LEARNING_SRCDIR)/learn_utils.yap \
