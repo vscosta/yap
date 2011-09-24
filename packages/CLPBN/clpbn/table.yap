@@ -44,6 +44,10 @@
 			       variant/2
 			       ]).
 
+:- use_module(evidence, [
+			       put_evidence/2
+			       ]).
+
 :- dynamic clpbn_table/3.
 
 :- meta_predicate clpbn_table(:), clpbn_table_all_args(:).
@@ -92,23 +96,32 @@ clpbn_table((P1,P2),M) :- !,
 clpbn_table(F/N,M) :-
 	functor(S,F,N),
 	S =.. L0,
-	take_tail(L0, V, L1, V, L2),
+	take_tail(L0, A0, L1, V2, L2),
 	Key =.. L1,
 	atom_concat(F, '___tabled', NF),
-	L2 = [_|Args],
-	_S1 =.. [NF|Args],
-	L0 = [_|OArgs],
-	S2 =.. [NF|OArgs],
-	asserta(clpbn_table(S, M, S2)),
+	L2 = [_|Args2],
+	Goal =.. [NF|Args2],
+	L0 = [_|Args0],
+	IGoal =.. [NF|Args0],
+	asserta(clpbn_table(S, M, IGoal)),
 	assert(
 	       (M:S :-
+	        !,
+%		write(S: ' ' ),
 	        b_getval(clpbn_tables, Tab),
-		( b_hash_lookup(Key, V1, Tab) ->
-		  V1=V
+		% V2 is unbound.
+		( b_hash_lookup(Key, V2, Tab) ->
+%		 (attvar(V2) -> writeln(ok:A0:V2) ; writeln(error(V2:should_be_attvar(S)))),
+		 ( var(A0) -> A0 = V2 ; put_evidence(A0, V2) )
 		;
-		  b_hash_insert(Tab, Key, V, NewTab),
+%		writeln(new),
+		  b_hash_insert(Tab, Key, V2, NewTab),
 		  b_setval(clpbn_tables,NewTab),
-		  once(M:S2)
+		  once(M:Goal), !,
+		  % enter evidence after binding.
+		  ( var(A0) -> A0 = V2 ; put_evidence(A0, V2) )
+		;
+		  throw(error(tabled_clpbn_predicate_should_never_fail,S))
 		)
 	       )
 	      ).
@@ -136,6 +149,7 @@ clpbn_tableallargs(F/N,M) :-
 	asserta(clpbn_table(Key, M, NKey)),
 	assert(
 	       (M:Key :-
+	        !,
 	        b_getval(clpbn_tables, Tab),
 		( b_hash_lookup(Key, Out, Tab) ->
 		  true
