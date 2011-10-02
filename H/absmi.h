@@ -682,10 +682,10 @@ Macros to check the limits of stacks
 
 #else
 
-#define check_trail(x) if (Unsigned(LOCAL_TrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail(x) if (Unsigned(CurrentTrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft
 
-#define check_trail_in_indexing(x) if (Unsigned(LOCAL_TrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail_in_indexing(x) if (Unsigned(CurrentTrailTop) - Unsigned(x) < MinTrailGap) \
 			goto notrailleft_from_index
 
 #endif
@@ -733,7 +733,7 @@ Macros to check the limits of stacks
 		 while ( pt0 > XREGS );                           \
                  ENDP(pt0)
 
-#if LOW_LEVEL_TRACER
+#if LOW_LEVEL_TRACER && 0
 #define COUNT_CPS() LOCAL_total_choicepoints++
 #else
 #define COUNT_CPS()

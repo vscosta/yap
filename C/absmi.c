@@ -902,9 +902,9 @@ Yap_absmi(int inp)
 #ifdef YAPOR
       SCH_set_load(B_YREG);
 #endif	/* YAPOR */
+      PREG = NEXTOP(PREG, Otapl);
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
@@ -2023,7 +2023,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
 #ifdef YAPOR_SBA
-	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)LOCAL_TrailTop)
+	  if (pt0 < TR_FZ || pt0 > CurrentTrailTop)
 #else
 	  if (pt0 < TR_FZ)
 #endif /* YAPOR_SBA */
@@ -2073,7 +2073,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR_SBA
 		(ADDR) pt1 >= HeapTop
 #else
-		IN_BETWEEN(LOCAL_TrailBase, pt1, LOCAL_TrailTop)
+		IN_BETWEEN(LOCAL_TrailBase, pt1, CurrentTrailTop)
 #endif /* YAPOR_SBA */
 		)
             {

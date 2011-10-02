@@ -1630,6 +1630,7 @@ Yap_InitYaamRegs(void)
   H = H0 = ((CELL *) LOCAL_GlobalBase)+ Yap_AttsSize/sizeof(CELL);
   RESET_VARIABLE(H0-1);
   LCL0 = ASP = (CELL *) LOCAL_LocalBase;
+  CurrentTrailTop = (tr_fr_ptr)LOCAL_TrailTop;
   /* notice that an initial choice-point and environment
    *must* be created since for the garbage collector to work */
   B = NULL;

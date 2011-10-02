@@ -113,6 +113,7 @@ typedef struct regstore_t
     CELL  *ENV_;		/* 1 current environment                      */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
+    tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
     ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
@@ -630,6 +631,7 @@ EXTERN inline void restore_B(void) {
 #define	AuxBase       Yap_REGS.AuxBase_
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_
+#define	CurrentTrailTop      Yap_REGS.CurrentTrailTop_
 #define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
 #if defined(YAPOR_SBA) || defined(TABLING)
