@@ -125,7 +125,7 @@ SetHeapRegs(int copying_threads USES_REGS)
   /* Adjust stack addresses */
   LOCAL_TrailBase = TrailAddrAdjust(LOCAL_TrailBase);
   LOCAL_TrailTop = TrailAddrAdjust(LOCAL_TrailTop);
-  CurrentTrailTop = (tr_fr_ptr)LOCAL_TrailTop;
+  CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
   if (LOCAL_GDiff) {
     /* make sure we are not just expanding the delay stack */
     LOCAL_GlobalBase = BaseAddrAdjust(LOCAL_GlobalBase);
@@ -1851,7 +1851,7 @@ Yap_CopyThreadStacks(int worker_q, int worker_p, int incremental)
   LOCAL_LocalBase = REMOTE_LocalBase(worker_p);
   LOCAL_TrailBase = REMOTE_TrailBase(worker_p);
   LOCAL_TrailTop = REMOTE_TrailTop(worker_p);
-  CurrentTrailTop = (tr_fr_ptr)LOCAL_TrailTop;
+  CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
   size = REMOTE_ThreadHandle(worker_q).stack_address-REMOTE_ThreadHandle(worker_p).stack_address;
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;

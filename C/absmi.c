@@ -1544,7 +1544,7 @@ Yap_absmi(int inp)
       }
 #endif
       PREG = NEXTOP(PREG, L);
-      GONext();
+      JMPNext();
       ENDBOp();
 
       /* copy database term               */
@@ -1618,7 +1618,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
       DEPTH = YREG[E_DEPTH];
 #endif
-      GONext();
+      JMPNext();
       ENDBOp();
 
 
@@ -1670,7 +1670,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
       DEPTH = YREG[E_DEPTH];
 #endif
-      GONext();
+      JMPNext();
       ENDBOp();
 
 
@@ -2023,7 +2023,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
 #ifdef YAPOR_SBA
-	  if (pt0 < TR_FZ || pt0 > CurrentTrailTop)
+	  if (pt0 < TR_FZ || pt0 > CurrentTrailTop+MinTrailGap)
 #else
 	  if (pt0 < TR_FZ)
 #endif /* YAPOR_SBA */
@@ -2073,7 +2073,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR_SBA
 		(ADDR) pt1 >= HeapTop
 #else
-		IN_BETWEEN(LOCAL_TrailBase, pt1, CurrentTrailTop)
+		IN_BETWEEN(LOCAL_TrailBase, pt1, CurrentTrailTop+MinTrailGap)
 #endif /* YAPOR_SBA */
 		)
             {
@@ -2646,7 +2646,7 @@ Yap_absmi(int inp)
 	      !(LOCAL_ActiveSignals & ~YAP_CREEP_SIGNAL))  ||
 	    (PREG->opc != Yap_opcode(_procceed) &&
 	     PREG->opc != Yap_opcode(_cut_e))) {
-	  GONext();
+	  JMPNext();
 	}  
 	PP = PREVOP(PREG,p)->u.p.p;
 	ASP = YREG+E_CB;
@@ -7902,7 +7902,7 @@ Yap_absmi(int inp)
 	}
 #endif
       }
-      GONext();
+      JMPNext();
       ENDBOp();
 
       BOp(try_logical, OtaLl);
@@ -8559,7 +8559,7 @@ Yap_absmi(int inp)
         }
 
       PREG = NEXTOP(PREG, aFlp);
-      GONext();
+      JMPNext();
       
       ENDBOp();
 

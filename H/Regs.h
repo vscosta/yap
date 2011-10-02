@@ -37,7 +37,7 @@
 #endif
 
 #ifdef __x86_64__
-#undef  PUSH_REGS
+#define  PUSH_REGS 1
 #undef  PUSH_X
 #endif
 

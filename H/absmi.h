@@ -96,13 +96,12 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 #ifdef BP_FREE
 #undef BP_FREE
 #endif
-#define SHADOW_REGS    1
 #define SHADOW_S       1
 //#define SHADOW_Y       1
 #define S_IN_MEM       1
 #define      Y_IN_MEM  1
 #define     TR_IN_MEM  1
-#define USE_PREFETCH   1
+#define LIMITED_PREFETCH   1
 #endif /* __x86_64__ */
 
 #else /* other compilers */
@@ -361,7 +360,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 
 #define DO_PREFETCH_W(TYPE) to_go = (void *)(NEXTOP(PREG,TYPE)->u.o.opcw)
 
-#if LIMITED_PREFETCH
+#if LIMITED_PREFETCH||USE_PREFETCH
 
 #define ALWAYS_START_PREFETCH(TYPE) \
  { register void *to_go; DO_PREFETCH(TYPE)
@@ -448,7 +447,7 @@ restore_absmi_regs(REGSTORE * old_regs)
 #define JMPNextW()						\
 	JMP((void *)(PREG->u.o.opcw))
 
-#if USE_THREADED_CODE && LIMITED_PREFETCH
+#if USE_THREADED_CODE && (LIMITED_PREFETCH || USE_PREFETCH)
 
 #define ALWAYS_GONext() JMP(to_go)
 
@@ -682,10 +681,10 @@ Macros to check the limits of stacks
 
 #else
 
-#define check_trail(x) if (Unsigned(CurrentTrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail(x) if (Unsigned(CurrentTrailTop) > Unsigned(x)) \
 			goto notrailleft
 
-#define check_trail_in_indexing(x) if (Unsigned(CurrentTrailTop) - Unsigned(x) < MinTrailGap) \
+#define check_trail_in_indexing(x) if (Unsigned(CurrentTrailTop) < Unsigned(x)) \
 			goto notrailleft_from_index
 
 #endif
@@ -725,7 +724,7 @@ Macros to check the limits of stacks
 #define store_at_least_one_arg(arity)                             \
                  BEGP(pt0);                                       \
 		 pt0 = XREGS+(arity);                             \
-                 do { register CELL x = pt0[0];                   \
+                 do { CELL x = pt0[0];                   \
                      S_YREG = (S_YREG)-1;			          \
                      --pt0;                                       \
                      (S_YREG)[0] = x;	                          \
