@@ -3755,7 +3755,6 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   effectiveness = 0;
   gc_trace = FALSE;
   LOCAL_GcCalls++;
-  if (LOCAL_GcCalls == 89) jmp_deb(1);
 #ifdef INSTRUMENT_GC
   {
     int i;
