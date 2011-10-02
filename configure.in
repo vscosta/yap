@@ -187,7 +187,7 @@ AC_ARG_WITH(gmp,
 	[yap_cv_gmp=yes])
 
 AC_ARG_WITH(yapr,
-	[ --with-yapr[=DIR]           use GNU Multiple Precision in DIR],
+	[ --with-yapr[=DIR]           interface to R language, R installed in DIR],
 	if test "$withval" = yes; then
 		YAPR_INCLUDES="-I/usr/share/R/include"
 		yap_cv_yapr=yes
@@ -195,7 +195,6 @@ AC_ARG_WITH(yapr,
 		yap_cv_yapr=no
 	else
 		yap_cv_yapr=$with_yapr
-		YAPR_INCLUDES="-I${yap_cv_yapr}/share/R/include"
 	fi,
 	[yap_cv_yapr=no])
 
@@ -466,9 +465,9 @@ then
   ENABLE_YAPR="@# "
 elif test -e "$srcdir"/packages/YapR/Makefile.in
 then
-  ENABLE_YAPR="@# "
-else
   ENABLE_YAPR=""
+else
+  ENABLE_YAPR="@# "
 fi
 
 if test "$yap_cv_clpbn_bp" = no 
@@ -693,8 +692,19 @@ fi
 
 if test "$yap_cv_yapr" != "no"
 then
-  AC_CHECK_LIB(R,main)
-  AC_CHECK_LIB(Rmath,main)
+   if test "$yap_cv_yapr" = "yes"
+   then
+       case "$target_os" in
+	*darwin*)
+	YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
+	EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -framework R -L /Library/Frameworks/R.framework/Libraries"
+	;;
+	**)		
+dnl one of the two may work (Fedora vs Ubuntu)
+	YAPR_INCLUDES="-I/usr/include/R -I/usr/share/R/include"
+	esac
+   fi
+   AC_CHECK_LIB(R,main)
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -739,7 +749,7 @@ then
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
                 case "$target_os" in
-			*darwin9*)
+			*darwin*)
 			LIBS="$LIBS -lodbc -framework CoreFoundation"
 			;;
 			**)		
