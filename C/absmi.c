@@ -5445,9 +5445,11 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(unify_void, o);
-      SREG++;
+      START_PREFETCH(o);
       PREG = NEXTOP(PREG, o);
+      SREG++;
       GONext();
+      END_PREFETCH();
       ENDOp();
 
       OpW(unify_void_write, o);
