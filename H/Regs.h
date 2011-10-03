@@ -97,20 +97,20 @@ typedef struct regstore_t
     tr_fr_ptr TR_;		/* 24 top of trail                            */
     CELL   *H_;			/* 25 top of heap (global)  stack             */
     choiceptr B_;		/* 26 latest choice point                     */
+#ifdef  DEPTH_LIMIT
+    CELL   DEPTH_;		/* 27                                         */
+#endif  /* DEPTH_LIMIT */
+    yamop *CP_;			/* 28 continuation program counter            */
+    CELL  *ENV_;		/* 1 current environment                      */
 #ifdef CUT_C
     cut_c_str_ptr CUT_C_TOP;
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
     MYDDAS_GLOBAL MYDDAS_GLOBAL_POINTER;
 #endif
-#ifdef  DEPTH_LIMIT
-    CELL   DEPTH_;		/* 27                                         */
-#endif  /* DEPTH_LIMIT */
-    yamop *CP_;			/* 28 continuation program counter            */
     yamop *P_;			/* 7 prolog machine program counter           */
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
     CELL  *S_;			/* 6 structure pointer                        */
-    CELL  *ENV_;		/* 1 current environment                      */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
     tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */

@@ -681,20 +681,20 @@ Macros to check the limits of stacks
 
 #else
 
-#define check_trail(x) if (Unsigned(CurrentTrailTop) > Unsigned(x)) \
+#define check_trail(x) if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)),0)) \
 			goto notrailleft
 
-#define check_trail_in_indexing(x) if (Unsigned(CurrentTrailTop) < Unsigned(x)) \
+#define check_trail_in_indexing(x) if (__builtin_expect((Unsigned(CurrentTrailTop) < Unsigned(x)),0)) \
 			goto notrailleft_from_index
 
 #endif
 
 #if (defined(YAPOR_SBA) && defined(YAPOR)) || defined(TABLING)
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CreepFlag  ) goto Label
+  if (__builtin_expect( ((Int)(Unsigned(YOUNGEST_CP((choiceptr)ENV_YREG,B_FZ)) - Unsigned(YOUNGEST_H(H_FZ,GLOB))) < CreepFlag), 0)  ) goto Label
 #else
 #define check_stack(Label, GLOB)                             \
- if ( (Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CreepFlag ) goto Label
+  if  (__builtin_expect(((Int)(Unsigned(ENV_YREG) - Unsigned(GLOB)) < CreepFlag ), 0) ) goto Label
 #endif /* YAPOR_SBA && YAPOR */
 
 /***************************************************************
