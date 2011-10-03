@@ -5017,10 +5017,6 @@ then
            CFLAGS="-march=i486 $CFLAGS"
            CXXFLAGS="-march=i486 $CXXFLAGS"
           ;;
-          i386*)
-           CFLAGS="-march=i386 $CFLAGS"
-           CXXFLAGS="-march=i386 $CXXFLAGS"
-          ;;
          esac
        fi
    fi
