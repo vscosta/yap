@@ -28,6 +28,10 @@ static char     SccsId[] = "%W% %G%";
 #endif /* !TABLING */
 #define HYBRID_SCHEME 1
 
+#define DEBUG_printf0(A,B)
+#define DEBUG_printf1(A,B,C)
+#define DEBUG_printf20(A,B)
+#define DEBUG_printf21(A,B,C)
 
 /* global variables for garbage collection */
 
@@ -1124,6 +1128,8 @@ mark_variable(CELL_PTR current USES_REGS)
     LOCAL_total_marked++;
     if (current < LOCAL_HGEN) {
       LOCAL_total_oldies++;
+    } else {
+      DEBUG_printf0("%p 1\n", current);
     }
   }
   PUSH_POINTER(current PASS_REGS);
@@ -1137,6 +1143,8 @@ mark_variable(CELL_PTR current USES_REGS)
 	LOCAL_total_marked++;
 	if (next-1 < LOCAL_HGEN) {
 	  LOCAL_total_oldies++;
+	} else {
+	  DEBUG_printf0("%p 1\n", next-1);
 	}
 	PUSH_POINTER(next-1 PASS_REGS);
       }
@@ -1177,6 +1185,8 @@ mark_variable(CELL_PTR current USES_REGS)
 	      LOCAL_total_marked--;
 	      if (current < LOCAL_HGEN) {
 		LOCAL_total_oldies--;
+	      } else {
+		DEBUG_printf0("%p-1\n", next-1);
 	      }
 	    }
 	    POP_POINTER( PASS_REGS1 );
@@ -1199,6 +1209,8 @@ mark_variable(CELL_PTR current USES_REGS)
 	  LOCAL_total_marked--;
 	  if (current < LOCAL_HGEN) {
 	    LOCAL_total_oldies--;
+	  } else {
+	    DEBUG_printf0("%p-1\n", next-1);
 	  }
 	}
 	POP_POINTER( PASS_REGS1 );
@@ -1244,6 +1256,8 @@ mark_variable(CELL_PTR current USES_REGS)
 	  LOCAL_total_marked++;
 	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies++;
+	  } else {
+	    DEBUG_printf0("%p 1\n", next);
 	  }
 	  PUSH_POINTER(next PASS_REGS);
 	}
@@ -1294,6 +1308,9 @@ mark_variable(CELL_PTR current USES_REGS)
 	MARK(next+2);
 	if (next < LOCAL_HGEN) {
 	  LOCAL_total_oldies+=3;
+	} else {
+	  DEBUG_printf0("%p 1\n", next);
+	  DEBUG_printf0("%p 3\n", next);
 	}
 	LOCAL_total_marked += 3;
 	PUSH_POINTER(next PASS_REGS);
@@ -1306,6 +1323,9 @@ mark_variable(CELL_PTR current USES_REGS)
 	  UInt sz = 1+SIZEOF_DOUBLE/SIZEOF_LONG_INT;
 	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies+= 1+sz;
+	  } else {
+	    DEBUG_printf0("%p 1\n", next);
+	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+1));
 	  }
 	  LOCAL_total_marked += 1+sz;
 	  PUSH_POINTER(next+sz PASS_REGS);
@@ -1318,8 +1338,12 @@ mark_variable(CELL_PTR current USES_REGS)
 		     ((MP_INT *)(next+2))->_mp_alloc*sizeof(mp_limb_t))/CellSize;
 	  MARK(next);
 	  /* size is given by functor + friends */
-	  if (next < LOCAL_HGEN)
+	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies += 2+sz;
+	  } else {
+	    DEBUG_printf0("%p 1\n", next);
+	    DEBUG_printf1("%p %ld\n", next, (long int)(sz+2));
+	  }
 	  LOCAL_total_marked += 2+sz;
 	  PUSH_POINTER(next PASS_REGS);
 	  sz++;
@@ -1328,7 +1352,7 @@ mark_variable(CELL_PTR current USES_REGS)
 	    fprintf(stderr,"[ Error: could not find EndSpecials at blob %p type " UInt_FORMAT " ]\n", next, next[1]);
 	}
 #endif
-	  MARK(next+sz);
+ 	  MARK(next+sz);
 	  PUSH_POINTER(next+sz PASS_REGS);
 	}
       default:
@@ -1344,6 +1368,8 @@ mark_variable(CELL_PTR current USES_REGS)
     ++LOCAL_total_marked;
     if (next < LOCAL_HGEN) {
       ++LOCAL_total_oldies;
+    } else {
+      DEBUG_printf0("%p 1\n", next);
     }
     PUSH_POINTER(next PASS_REGS);
     next++;
@@ -1353,6 +1379,8 @@ mark_variable(CELL_PTR current USES_REGS)
 	LOCAL_total_marked++;
 	if (next < LOCAL_HGEN) {
 	  LOCAL_total_oldies++;
+	} else {
+	  DEBUG_printf0("%p 1\n", next);
 	}
 	PUSH_POINTER(next PASS_REGS);
       }
@@ -1625,6 +1653,8 @@ mark_trail(tr_fr_ptr trail_ptr, tr_fr_ptr trail_base, CELL *gc_H, choiceptr gc_B
 	    PUSH_POINTER(hp-1 PASS_REGS);
 	    if (hp-1 < LOCAL_HGEN) {
 	      LOCAL_total_oldies++;
+	    } else {
+	      DEBUG_printf0("%p 1\n", hp-1);
 	    }
 	    mark_variable(hp+1 PASS_REGS);
 	    mark_variable(hp+2 PASS_REGS);
@@ -2728,7 +2758,6 @@ sweep_environments(CELL_PTR gc_ENV, OPREG size, CELL *pvbmap USES_REGS)
       bmap = (Int)(((CELL)bmap) << currv);
     }
     for (saved_var = gc_ENV - size; saved_var < gc_ENV - EnvSizeInCells; saved_var++) {
-      
       if (currv == sizeof(CELL)*8) {
 	if (pvbmap != NULL) {
 	  pvbmap--;
@@ -3239,6 +3268,7 @@ compact_heap( USES_REGS1 )
 #endif /* TABLING */
 		    );
   for (current = H - 1; current >= start_from; current--) {
+
     if (MARKED_PTR(current)) {
       CELL ccell = UNMARK_CELL(*current);
 
@@ -3261,7 +3291,9 @@ compact_heap( USES_REGS1 )
 	CELL *ptr = current-1;
 	UInt nofcells;
 
-	while (!MARKED_PTR(ptr)) ptr--;
+	while (!MARKED_PTR(ptr)) {
+	  ptr--;
+	}
 	nofcells = current-ptr;
 	ptr++;
 	MARK(ptr);
@@ -3273,8 +3305,11 @@ compact_heap( USES_REGS1 )
 	ptr[0] = EndSpecials;
 	dest -= nofcells;
 	current = ptr;
-	continue;
 	/* process the functor on a separate cycle */
+	DEBUG_printf21("%p %ld\n", current-1, (long int)(nofcells+1));
+	continue;
+      } else {
+	DEBUG_printf20("%p 1\n", current);
       }
 #ifdef DEBUG
       found_marked++;

@@ -165,6 +165,7 @@ void	STD_PROTO(Yap_InitDBPreds,(void));
 /* errors.c */
 void	STD_PROTO(Yap_exit,(int));
 yamop  *STD_PROTO(Yap_Error,(yap_error_number,Term,char *msg, ...));
+yamop  *STD_PROTO(Yap_NilError,(yap_error_number,char *msg, ...));
 
 /* eval.c */
 void	STD_PROTO(Yap_InitEval,(void));

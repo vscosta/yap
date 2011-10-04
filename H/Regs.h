@@ -37,7 +37,7 @@
 #endif
 
 #ifdef __x86_64__
-#undef  PUSH_REGS
+#define  PUSH_REGS 1
 #undef  PUSH_X
 #endif
 
@@ -97,22 +97,23 @@ typedef struct regstore_t
     tr_fr_ptr TR_;		/* 24 top of trail                            */
     CELL   *H_;			/* 25 top of heap (global)  stack             */
     choiceptr B_;		/* 26 latest choice point                     */
+#ifdef  DEPTH_LIMIT
+    CELL   DEPTH_;		/* 27                                         */
+#endif  /* DEPTH_LIMIT */
+    yamop *CP_;			/* 28 continuation program counter            */
+    CELL  *ENV_;		/* 1 current environment                      */
 #ifdef CUT_C
     cut_c_str_ptr CUT_C_TOP;
 #endif
 #if defined CUT_C && (defined MYDDAS_ODBC || defined MYDDAS_MYSQL)
     MYDDAS_GLOBAL MYDDAS_GLOBAL_POINTER;
 #endif
-#ifdef  DEPTH_LIMIT
-    CELL   DEPTH_;		/* 27                                         */
-#endif  /* DEPTH_LIMIT */
-    yamop *CP_;			/* 28 continuation program counter            */
     yamop *P_;			/* 7 prolog machine program counter           */
     CELL  *YENV_;		/* 5 current environment (may differ from ENV)*/
     CELL  *S_;			/* 6 structure pointer                        */
-    CELL  *ENV_;		/* 1 current environment                      */
     CELL  *ASP_;		/* 8 top of local       stack                 */
     CELL  *LCL0_;		/* 3 local stack base                         */
+    tr_fr_ptr   CurrentTrailTop_;	/* 10 Auxiliary stack top                     */
     ADDR   AuxBase_;		/* 9 Auxiliary base  pointer                  */
     CELL  *AuxSp_;		/* 9 Auxiliary stack pointer                  */
     ADDR   AuxTop_;		/* 10 Auxiliary stack top                     */
@@ -630,6 +631,7 @@ EXTERN inline void restore_B(void) {
 #define	AuxBase       Yap_REGS.AuxBase_
 #define	AuxSp         Yap_REGS.AuxSp_
 #define	AuxTop        Yap_REGS.AuxTop_
+#define	CurrentTrailTop      Yap_REGS.CurrentTrailTop_
 #define EX            Yap_REGS.EX_
 #define DEPTH	      Yap_REGS.DEPTH_
 #if defined(YAPOR_SBA) || defined(TABLING)

@@ -24,15 +24,14 @@
 
 %   length of a list.
 
-length(L,M) :- var(M), !, '$$_length1'(L,0,M).
-length(L,M) :- '$$_length2'(M,L).
+length(L,M) :- ( var(M) -> '$$_length1'(L,M,0) ; '$$_length2'(L, M) ).
 
 '$$_length1'([], M, M).
-'$$_length1'([_|L], N, O) :-
+'$$_length1'([_|L], O, N) :-
 	M is N + 1,
-	'$$_length1'(L, M, O).
+	'$$_length1'(L, O, M).
 
-'$$_length2'(N, L) :-
+'$$_length2'(L, N) :-
 	( N =:= 0
 		->
           L = []
@@ -40,7 +39,7 @@ length(L,M) :- '$$_length2'(M,L).
 	  N > 0,
 	  N1 is N - 1,
 	  L = [_|L1],
-	  '$$_length2'(N1, L1)
+	  '$$_length2'(L1, N1)
         ).
 
 

@@ -1481,7 +1481,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
- --with-yapr=DIR           use GNU Multiple Precision in DIR
+ --with-yapr=DIR           interface to R language, R installed in DIR
  --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
@@ -4432,7 +4432,6 @@ if test "${with_yapr+set}" = set; then :
 		yap_cv_yapr=no
 	else
 		yap_cv_yapr=$with_yapr
-		YAPR_INCLUDES="-I${yap_cv_yapr}/share/R/include"
 	fi
 else
   yap_cv_yapr=no
@@ -4931,9 +4930,9 @@ then
   ENABLE_YAPR="@# "
 elif test -e "$srcdir"/packages/YapR/Makefile.in
 then
-  ENABLE_YAPR="@# "
-else
   ENABLE_YAPR=""
+else
+  ENABLE_YAPR="@# "
 fi
 
 if test "$yap_cv_clpbn_bp" = no
@@ -5017,10 +5016,6 @@ then
           i486*)
            CFLAGS="-march=i486 $CFLAGS"
            CXXFLAGS="-march=i486 $CXXFLAGS"
-          ;;
-          i386*)
-           CFLAGS="-march=i386 $CFLAGS"
-           CXXFLAGS="-march=i386 $CXXFLAGS"
           ;;
          esac
        fi
@@ -6276,7 +6271,18 @@ fi
 
 if test "$yap_cv_yapr" != "no"
 then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lR" >&5
+   if test "$yap_cv_yapr" = "yes"
+   then
+       case "$target_os" in
+	*darwin*)
+	YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
+	EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -framework R -L /Library/Frameworks/R.framework/Libraries"
+	;;
+	**)
+	YAPR_INCLUDES="-I/usr/include/R -I/usr/share/R/include"
+	esac
+   fi
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lR" >&5
 $as_echo_n "checking for main in -lR... " >&6; }
 if ${ac_cv_lib_R_main+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -6312,45 +6318,6 @@ if test "x$ac_cv_lib_R_main" = xyes; then :
 _ACEOF
 
   LIBS="-lR $LIBS"
-
-fi
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lRmath" >&5
-$as_echo_n "checking for main in -lRmath... " >&6; }
-if ${ac_cv_lib_Rmath_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lRmath  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_Rmath_main=yes
-else
-  ac_cv_lib_Rmath_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Rmath_main" >&5
-$as_echo "$ac_cv_lib_Rmath_main" >&6; }
-if test "x$ac_cv_lib_Rmath_main" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIBRMATH 1
-_ACEOF
-
-  LIBS="-lRmath $LIBS"
 
 fi
 
@@ -6432,7 +6399,7 @@ $as_echo "$yap_cv_odbc" >&6; }
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
                 case "$target_os" in
-			*darwin9*)
+			*darwin*)
 			LIBS="$LIBS -lodbc -framework CoreFoundation"
 			;;
 			**)

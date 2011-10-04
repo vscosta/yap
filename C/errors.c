@@ -381,6 +381,20 @@ Yap_bug_location(yamop *pc)
 static char tmpbuf[YAP_BUF_SIZE];
 
 yamop *
+Yap_NilError(yap_error_number type, char *format,...)
+{
+  va_list ap;
+  yamop *res;
+
+  va_start (ap, format);
+  /* now build the error string */
+  res = Yap_Error(type, TermNil, format, ap);
+  va_end (ap);
+
+  return res;
+}
+
+yamop *
 Yap_Error(yap_error_number type, Term where, char *format,...)
 {
   CACHE_REGS

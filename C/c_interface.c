@@ -545,17 +545,19 @@ X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 
 static int
-dogc(void)
+dogc( USES_REGS1 )
 {
-  CACHE_REGS
   UInt arity;
+  yamop *nextpc;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
     arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    nextpc = P;
   } else {
     arity = 0;
+    nextpc = CP;
   }
-  if (!Yap_gc(arity, ENV, CP)) {
+  if (!Yap_gc(arity, ENV, nextpc)) {
     return FALSE;
   }
   return TRUE;
@@ -943,10 +945,11 @@ YAP_MkPairTerm(Term t1, Term t2)
   if (H > ASP-1024) {
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
-    if (!dogc()) {
-      RECOVER_H();
+    RECOVER_H();
+    if (!dogc( PASS_REGS1 )) {
       return TermNil;
     }
+    BACKUP_H();
     t1 =  Yap_GetFromSlot(sl1 PASS_REGS);
     t2 =  Yap_GetFromSlot(sl2 PASS_REGS);
     Yap_RecoverSlots(2 PASS_REGS);
@@ -1942,7 +1945,7 @@ YAP_ReadBuffer(char *s, Term *tp)
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
-	if (!dogc()) {
+	if (!dogc( PASS_REGS1 )) {
 	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
 	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
@@ -3462,7 +3465,7 @@ YAP_OpenList(int n)
   BACKUP_H();
 
   if (H+2*n > ASP-1024) {
-    if (!dogc()) {
+    if (!dogc( PASS_REGS1 )) {
       RECOVER_H();
       return FALSE;
     }

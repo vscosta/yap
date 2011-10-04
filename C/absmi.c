@@ -806,7 +806,7 @@ Yap_absmi(int inp)
 	saveregs();
 	/* do a garbage collection first to check if we can recover memory */
 	if (!Yap_growheap(FALSE, 0, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
 	  setregs();
 	  FAIL();
 	}
@@ -838,7 +838,7 @@ Yap_absmi(int inp)
 	cut_b = LCL0-(CELL *)(ASP[E_CB]);
 	saveregs();
 	if(!Yap_growtrail (0, FALSE)) {
-	  Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
+	  Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	  setregs();
 	  FAIL();
 	}
@@ -902,9 +902,9 @@ Yap_absmi(int inp)
 #ifdef YAPOR
       SCH_set_load(B_YREG);
 #endif	/* YAPOR */
+      PREG = NEXTOP(PREG, Otapl);
       SET_BB(B_YREG);
       ENDCACHE_Y();
-      PREG = NEXTOP(PREG, Otapl);
       GONext();
       ENDOp();
 
@@ -1189,14 +1189,14 @@ Yap_absmi(int inp)
       LOCAL_ReductionsCounter--;
       if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	saveregs();
-	Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -1214,7 +1214,7 @@ Yap_absmi(int inp)
 	/* act as if we had backtracked */
 	ENV = B->cp_env;
 	saveregs();
-	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -1222,7 +1222,7 @@ Yap_absmi(int inp)
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	ENV = B->cp_env;
 	saveregs();
-	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -1251,14 +1251,14 @@ Yap_absmi(int inp)
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0 && LOCAL_RetriesCounterOn) {
 	saveregs();
-	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	saveregs();
-	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -1295,14 +1295,14 @@ Yap_absmi(int inp)
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
 	saveregs();
-	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -1330,14 +1330,14 @@ Yap_absmi(int inp)
 	LOCAL_RetriesCounter--;
 	if (LOCAL_RetriesCounter == 0) {
 	  saveregs();
-	  Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	  Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	  setregs();
 	  JMPNext();
 	} 
 	LOCAL_PredEntriesCounter--;
 	if (LOCAL_PredEntriesCounter == 0) {
 	  saveregs();
-	  Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	  Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	  setregs();
 	  JMPNext();
 	} 
@@ -1375,14 +1375,14 @@ Yap_absmi(int inp)
 	  LOCAL_RetriesCounter--;
 	  if (LOCAL_RetriesCounter == 0) {
 	    saveregs();
-	    Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	    Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
 	  } 
 	  LOCAL_PredEntriesCounter--;
 	  if (LOCAL_PredEntriesCounter == 0) {
 	    saveregs();
-	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
 	  } 
@@ -1544,7 +1544,7 @@ Yap_absmi(int inp)
       }
 #endif
       PREG = NEXTOP(PREG, L);
-      GONext();
+      JMPNext();
       ENDBOp();
 
       /* copy database term               */
@@ -1563,7 +1563,7 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_Error(OUT_OF_ATTVARS_ERROR, TermNil, LOCAL_ErrorMessage);
+	      Yap_NilError(OUT_OF_ATTVARS_ERROR, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  } else {
@@ -1573,7 +1573,7 @@ Yap_absmi(int inp)
 #if defined(YAPOR) || defined(THREADS)
 	      PP = NULL;
 #endif
-	      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+	      Yap_NilError(OUT_OF_STACK_ERROR, LOCAL_ErrorMessage);
 	      FAIL();
 	    }
 	  }
@@ -1618,7 +1618,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
       DEPTH = YREG[E_DEPTH];
 #endif
-      GONext();
+      JMPNext();
       ENDBOp();
 
 
@@ -1670,7 +1670,7 @@ Yap_absmi(int inp)
 #ifdef DEPTH_LIMIT
       DEPTH = YREG[E_DEPTH];
 #endif
-      GONext();
+      JMPNext();
       ENDBOp();
 
 
@@ -1693,7 +1693,7 @@ Yap_absmi(int inp)
 	  PREG = NEXTOP(PREG,Osbpa);
 	  saveregs();
 	  if (!Yap_gcl(sz, arity, YENV, PREG)) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    FAIL();
 	  } else {
@@ -1783,14 +1783,14 @@ Yap_absmi(int inp)
       LOCAL_RetriesCounter--;
       if (LOCAL_RetriesCounter == 0) {
 	saveregs();
-	Yap_Error(RETRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(RETRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
       LOCAL_PredEntriesCounter--;
       if (LOCAL_PredEntriesCounter == 0) {
 	saveregs();
-	Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	setregs();
 	JMPNext();
       } 
@@ -2023,7 +2023,7 @@ Yap_absmi(int inp)
 #endif	/* LOW_LEVEL_TRACER */
 #ifdef FROZEN_STACKS
 #ifdef YAPOR_SBA
-	  if (pt0 < TR_FZ || pt0 > (tr_fr_ptr)LOCAL_TrailTop)
+	  if (pt0 < TR_FZ || pt0 > (ADDR)CurrentTrailTop+MinTrailGap)
 #else
 	  if (pt0 < TR_FZ)
 #endif /* YAPOR_SBA */
@@ -2073,7 +2073,7 @@ Yap_absmi(int inp)
 #ifdef YAPOR_SBA
 		(ADDR) pt1 >= HeapTop
 #else
-		IN_BETWEEN(LOCAL_TrailBase, pt1, LOCAL_TrailTop)
+		IN_BETWEEN(LOCAL_TrailBase, pt1, (ADDR)CurrentTrailTop+MinTrailGap)
 #endif /* YAPOR_SBA */
 		)
             {
@@ -2617,7 +2617,7 @@ Yap_absmi(int inp)
       SET_ASP(YREG, PREG->u.Osbpp.s);
       saveregs();
       if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, YREG, NEXTOP(PREG, Osbpp))) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       }
       setregs();
 
@@ -2646,7 +2646,7 @@ Yap_absmi(int inp)
 	      !(LOCAL_ActiveSignals & ~YAP_CREEP_SIGNAL))  ||
 	    (PREG->opc != Yap_opcode(_procceed) &&
 	     PREG->opc != Yap_opcode(_cut_e))) {
-	  GONext();
+	  JMPNext();
 	}  
 	PP = PREVOP(PREG,p)->u.p.p;
 	ASP = YREG+E_CB;
@@ -2671,7 +2671,7 @@ Yap_absmi(int inp)
 	}
 	saveregs();
 	if (!Yap_gc(0, ENV, CPREG)) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs();
 	SREG = ASP;
@@ -2850,7 +2850,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(0, YREG, NEXTOP(PREG, Osbpp))) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       }
       setregs();
       JMPNext();
@@ -2975,7 +2975,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, (CELL *)YREG[E_E], (yamop *)YREG[E_CP])) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -2997,7 +2997,7 @@ Yap_absmi(int inp)
 	ASP = (CELL *)PROTECT_FROZEN_B(B);
       saveregs();
       if (!Yap_gc(((PredEntry *)(SREG))->ArityOfPE, ENV, CPREG)) {
-	Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
       }
       setregs();
       /* hopefully, gc will succeeded, and we will retry
@@ -3122,7 +3122,7 @@ Yap_absmi(int inp)
 	ARG2 = Yap_ListOfWokenGoals();
 	SREG = (CELL *) (WakeUpCode);
 	/* no more goals to wake up */
-	Yap_UpdateTimedVar(LOCAL_WokenGoals, TermNil);
+	Yap_UpdateTimedVar(LOCAL_WokenGoals,TermNil);
       } else	
 #endif
 	{
@@ -5445,9 +5445,11 @@ Yap_absmi(int inp)
       ENDOp();
 
       Op(unify_void, o);
-      SREG++;
+      START_PREFETCH(o);
       PREG = NEXTOP(PREG, o);
+      SREG++;
       GONext();
+      END_PREFETCH();
       ENDOp();
 
       OpW(unify_void_write, o);
@@ -7570,7 +7572,7 @@ Yap_absmi(int inp)
 	  if (LOCAL_ReductionsCounter == 0 && LOCAL_ReductionsCounterOn) {
 	    UNLOCKPE(20,pe);
 	    saveregs();
-	    Yap_Error(CALL_COUNTER_UNDERFLOW,TermNil,"");
+	    Yap_NilError(CALL_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
 	  } 
@@ -7578,7 +7580,7 @@ Yap_absmi(int inp)
 	  if (LOCAL_PredEntriesCounter == 0 && LOCAL_PredEntriesCounterOn) {
 	    UNLOCKPE(21,pe);
 	    saveregs();
-	    Yap_Error(PRED_ENTRY_COUNTER_UNDERFLOW,TermNil,"");
+	    Yap_NilError(PRED_ENTRY_COUNTER_UNDERFLOW,"");
 	    setregs();
 	    JMPNext();
 	  } 
@@ -7902,7 +7904,7 @@ Yap_absmi(int inp)
 	}
 #endif
       }
-      GONext();
+      JMPNext();
       ENDBOp();
 
       BOp(try_logical, OtaLl);
@@ -8164,7 +8166,7 @@ Yap_absmi(int inp)
 	deref_head(d0, swlnl_unk_p);
 	/* non variable */
       swlnl_nvar_p:
-	if (IsPairTerm(d0)) {
+	if (__builtin_expect(IsPairTerm(d0),1)) {
 	  /* pair */
 #endif
 	  copy_jmp_address(PREG->u.ollll.l1);
@@ -8559,7 +8561,7 @@ Yap_absmi(int inp)
         }
 
       PREG = NEXTOP(PREG, aFlp);
-      GONext();
+      JMPNext();
       
       ENDBOp();
 
@@ -9117,7 +9119,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vv_unk, plus_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is _+B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is _+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9125,7 +9127,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, plus_vv_nvar_unk, plus_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9163,7 +9165,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+ " Int_FORMAT, PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+ " Int_FORMAT, PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9206,7 +9208,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vv_unk, plus_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9214,7 +9216,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, plus_y_vv_nvar_unk, plus_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9255,7 +9257,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A+ " Int_FORMAT, PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A+ " Int_FORMAT, PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9295,7 +9297,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_vv_unk, minus_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9303,7 +9305,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, minus_vv_nvar_unk, minus_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9341,7 +9343,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_cv_unk, minus_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "-A", PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9384,7 +9386,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_vv_unk, minus_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9392,7 +9394,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, minus_y_vv_nvar_unk, minus_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A-B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A-B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9433,7 +9435,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, minus_y_cv_unk, minus_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "-A", PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "-A", PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9473,7 +9475,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_vv_unk, times_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9481,7 +9483,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, times_vv_nvar_unk, times_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9519,7 +9521,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_vc_unk, times_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A* " Int_FORMAT, PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9562,7 +9564,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vv_unk, times_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9570,7 +9572,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, times_y_vv_nvar_unk, times_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A*B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A*B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9611,7 +9613,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, times_y_vc_unk, times_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A* " Int_FORMAT, PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A* " Int_FORMAT, PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9634,7 +9636,7 @@ Yap_absmi(int inp)
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
 	  saveregs();
-	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	  setregs();
 	  FAIL();
 	}
@@ -9658,7 +9660,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_vv_unk, div_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9666,7 +9668,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, div_vv_nvar_unk, div_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9704,7 +9706,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_vc_unk, div_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9723,7 +9725,7 @@ Yap_absmi(int inp)
 	  Int div = IntOfTerm(d0);
 	  if (div == 0){
 	    saveregs();
-	    Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	    setregs();
 	    FAIL();
 	  }
@@ -9747,7 +9749,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_cv_unk, div_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "// A", PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9770,7 +9772,7 @@ Yap_absmi(int inp)
 	Int div = IntOfTerm(d1);
 	if (div == 0) {
 	  saveregs();
-	  Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	  Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	  setregs();
 	  FAIL();
 	}
@@ -9797,7 +9799,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vv_unk, div_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9805,7 +9807,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, div_y_vv_nvar_unk, div_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9846,7 +9848,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_vc_unk, div_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A//B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A//B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9865,7 +9867,7 @@ Yap_absmi(int inp)
 	  Int div = IntOfTerm(d0);
 	  if (div == 0) {
 	    saveregs();
-	    Yap_Error(EVALUATION_ERROR_ZERO_DIVISOR,TermNil,"// /2");
+	    Yap_NilError(EVALUATION_ERROR_ZERO_DIVISOR,"// /2");
 	    setregs();
 	    FAIL();
 	  }
@@ -9893,7 +9895,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, div_y_cv_unk, div_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is " Int_FORMAT "// A", PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is " Int_FORMAT "// A", PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9934,7 +9936,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_vv_unk, and_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9942,7 +9944,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, and_vv_nvar_unk, and_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9980,7 +9982,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_vc_unk, and_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A /\\ " Int_FORMAT , PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10023,7 +10025,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vv_unk, and_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10031,7 +10033,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, and_y_vv_nvar_unk, and_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A/\\B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A/\\B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10072,7 +10074,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, and_y_vc_unk, and_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A /\\ " Int_FORMAT , PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A /\\ " Int_FORMAT , PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10113,7 +10115,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_vv_unk, or_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10121,7 +10123,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, or_vv_nvar_unk, or_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10158,7 +10160,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_vc_unk, or_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A \\/ " Int_FORMAT , PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10201,7 +10203,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vv_unk, or_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10209,7 +10211,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, or_y_vv_nvar_unk, or_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A\\/B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A\\/B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10250,7 +10252,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, or_y_vc_unk, or_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A \\/ " Int_FORMAT , PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A \\/ " Int_FORMAT , PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10294,7 +10296,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_vv_unk, sll_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10302,7 +10304,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, sll_vv_nvar_unk, sll_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10340,7 +10342,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_vc_unk, sll_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10381,7 +10383,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_cv_unk, sll_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10428,7 +10430,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vv_unk, sll_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10436,7 +10438,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, sll_y_vv_nvar_unk, sll_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10477,7 +10479,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_vc_unk, sll_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10522,7 +10524,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, sll_y_cv_unk, sll_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A<<B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A<<B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10566,7 +10568,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_vv_unk, slr_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10574,7 +10576,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, slr_vv_nvar_unk, slr_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10612,7 +10614,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_vc_unk, slr_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10653,7 +10655,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_cv_unk, slr_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10700,7 +10702,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vv_unk, slr_y_vv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10708,7 +10710,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d1, pt0, slr_y_vv_nvar_unk, slr_y_vv_nvar_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -10749,7 +10751,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_vc_unk, slr_y_vc_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       ENDP(pt0);
       ENDD(d0);
@@ -10792,7 +10794,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, slr_y_cv_unk, slr_y_cv_nvar);
       saveregs();
-      Yap_Error(INSTANTIATION_ERROR, TermNil, "X is A>>B");
+      Yap_NilError(INSTANTIATION_ERROR, "X is A>>B");
       setregs();
       FAIL();
       ENDP(pt0);
@@ -11856,7 +11858,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxx),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -11973,7 +11975,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,xxc),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12083,7 +12085,7 @@ Yap_absmi(int inp)
 	/* make sure we have something to show for our trouble */
 	saveregs();
 	if (!Yap_gc(0, YREG, NEXTOP(NEXTOP(PREG,xxn),Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -12190,7 +12192,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxx),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12317,7 +12319,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -12445,7 +12447,7 @@ Yap_absmi(int inp)
 	/* make sure we have something to show for our trouble */
 	saveregs();
 	if (!Yap_gcl((1+d1)*sizeof(CELL), 0, YREG, NEXTOP(NEXTOP(PREG,yxn),Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	  setregs();
 	  JMPNext();
 	} else {
@@ -12821,7 +12823,7 @@ Yap_absmi(int inp)
 	  /* make sure we have something to show for our trouble */
 	  saveregs();
 	  if (!Yap_gcl((1+d1)*sizeof(CELL), 3, YREG, NEXTOP(NEXTOP(PREG,e),Osbmp))) {
-	    Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	    setregs();
 	    JMPNext();
 	  } else {
@@ -13066,7 +13068,7 @@ Yap_absmi(int inp)
 	}
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute2_end;
@@ -13271,7 +13273,7 @@ Yap_absmi(int inp)
 	}
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute_end;
@@ -13501,7 +13503,7 @@ Yap_absmi(int inp)
 	  UNLOCK(LOCAL_SignalLock);
 	  saveregs_and_ycache();
 	  if (!Yap_growheap(FALSE, 0, NULL)) {
-	    Yap_Error(OUT_OF_HEAP_ERROR, TermNil, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
+	    Yap_NilError(OUT_OF_HEAP_ERROR, "YAP failed to grow heap: %s", LOCAL_ErrorMessage);
 	    setregs_and_ycache();
 	    FAIL();
 	  }
@@ -13521,7 +13523,7 @@ Yap_absmi(int inp)
 #endif
 	  saveregs_and_ycache();
 	  if(!Yap_growtrail (0, FALSE)) {
-	    Yap_Error(OUT_OF_TRAIL_ERROR,TermNil,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
+	    Yap_NilError(OUT_OF_TRAIL_ERROR,"YAP failed to reserve %ld bytes in growtrail",sizeof(CELL) * K16);
 	    setregs_and_ycache();
 	    FAIL();
 	  }
@@ -13545,7 +13547,7 @@ Yap_absmi(int inp)
 	UNLOCK(LOCAL_SignalLock);
 	saveregs_and_ycache();
 	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
-	  Yap_Error(OUT_OF_STACK_ERROR,TermNil,LOCAL_ErrorMessage);
+	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
 	goto execute_after_comma;
