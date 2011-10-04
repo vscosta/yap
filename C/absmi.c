@@ -8166,7 +8166,7 @@ Yap_absmi(int inp)
 	deref_head(d0, swlnl_unk_p);
 	/* non variable */
       swlnl_nvar_p:
-	if (IsPairTerm(d0)) {
+	if (__builtin_expect(IsPairTerm(d0),1)) {
 	  /* pair */
 #endif
 	  copy_jmp_address(PREG->u.ollll.l1);
