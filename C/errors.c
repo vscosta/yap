@@ -370,6 +370,7 @@ Yap_bug_location(yamop *pc)
   CACHE_REGS
   detect_bug_location(pc, FIND_PRED_FROM_ANYWHERE, (char *)H, 256);
   fprintf(stderr,"%s\n",(char *)H);
+  dump_stack( PASS_REGS1 );
 }
 
 #endif
