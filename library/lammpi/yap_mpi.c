@@ -260,8 +260,10 @@ static int mpi_error(int errcode){
 static int 
 mpi_init(void){
   int thread_level;
+  char ** my_argv;
+  int my_argc = YAP_Argv(&my_argv);
   //  MPI_Init(&GLOBAL_argc, &GLOBAL_argv);
-  MPI_Init_thread(&GLOBAL_argc, &GLOBAL_argv,MPI_THREAD_SINGLE,&thread_level);
+  MPI_Init_thread(&my_argc, &my_argv, MPI_THREAD_SINGLE, &thread_level);
 #ifdef DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"Thread level: %d\n",thread_level);
 #endif
