@@ -756,6 +756,8 @@ ReadHash(IOSTREAM *stream)
     if (omod) {
       mod = MkAtomTerm(AtomAdjust(omod));
       if (mod == TermProlog) mod = 0;
+    } else {
+      mod = TermProlog;
     }
 
     if (mod != IDB_MODULE) {
