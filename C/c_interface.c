@@ -2839,7 +2839,6 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
-  LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits();  /* init signal handling and time, required by later functions */

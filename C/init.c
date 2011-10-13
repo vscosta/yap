@@ -1264,6 +1264,9 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_regp = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
   LOCAL = REMOTE(0);
 #endif /* THREADS */
+#if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
+  LOCAL = REMOTE(0);
+#endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
   if (Heap < MinHeapSpace)
     Heap = MinHeapSpace;
   Heap = AdjustPageSize(Heap * K);
