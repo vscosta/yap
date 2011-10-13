@@ -566,6 +566,8 @@ extern X_API YAP_Term PROTO(YAP_NewOpaqueObject,(YAP_opaque_tag_t, size_t));
 
 extern X_API void *PROTO(YAP_OpaqueObjectFromTerm,(YAP_Term));
 
+extern X_API int *PROTO(YAP_Argv,(char ***));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS
