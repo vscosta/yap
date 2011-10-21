@@ -732,7 +732,7 @@ libYap.a: $(LIB_OBJECTS)
 @DYNYAPLIB@: $(LIB_OBJECTS)
 	@YAPLIB_LD@ -o @YAPLIB@ $(LIB_OBJECTS) $(LIBS) $(LDFLAGS) $(SONAMEFLAG)
 
-install: install_bin install_data @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
+install: install_bin install_data
 
 install_bin: @INSTALL_COMMAND@
 
@@ -783,7 +783,7 @@ install_unix: startup.yss libYap.a
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 
 
-install_win32: startup.yss
+install_win32: startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
