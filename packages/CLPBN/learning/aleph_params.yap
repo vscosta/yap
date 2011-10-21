@@ -35,6 +35,7 @@
 	 clpbn_tabled_clause/2,
 	 clpbn_tabled_number_of_clauses/2,
 	 clpbn_is_tabled/1,
+	 clpbn_reset_tables/0,
 	 clpbn_tabled_dynamic/1]).
 
 %
@@ -90,7 +91,9 @@ store_theory(_,_,_) :-
 store_theory(_,(H:-_),_) :-
 	clpbn_is_tabled(user:H), !,
 	store_tabled_theory(H).
-store_theory(_,(H:-_),_) :-
+store_theory(_,(H:-_),_) :- !,
+	store_theory(H).
+store_theory(_,H,_) :-
 	store_theory(H).
 
 store_tabled_theory(H) :-
@@ -163,6 +166,7 @@ user:cost((H :- B),Inf,Score) :- !,
 	(
 	    clpbn_is_tabled(user:H)
 	->
+	    clpbn_reset_tables,
 	    clpbn_tabled_asserta(user:(H :- IB), R)
 	;
 	    asserta(user:(H :- IB), R)
@@ -251,7 +255,7 @@ key_from_head(H,K,V) :-
 rewrite_body((A,B), (user:NA,NB), [V|Vs], [D|Ds], Tail) :-
 	rewrite_goal(A, V, D, NA), !,
 	rewrite_body(B, NB, Vs, Ds, Tail).
-rewrite_body((A,B), (user:A,NB), Vs, Ds, Tail) :-
+rewrite_body((A,B), (user:A,NB), Vs, Ds, Tail) :- !,
 	rewrite_body(B,NB, Vs, Ds, Tail).
 rewrite_body(A,(user:NA,Tail), [V], [D], Tail) :- 
 	rewrite_goal(A, V, D, NA), !.

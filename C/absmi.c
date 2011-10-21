@@ -6279,8 +6279,8 @@ Yap_absmi(int inp)
 #endif
 	XREG(PREVOP(PREG,yyxx)->u.yyxx.x2) = d1;
       ENDD(d1);
+      ALWAYS_GONext();
       ALWAYS_END_PREFETCH();
-      GONext();
       ENDOp();
 
       Op(put_unsafe, yx);
@@ -6607,8 +6607,8 @@ Yap_absmi(int inp)
       H += 2;
       ENDCACHE_S();
       ENDD(d0);
+      ALWAYS_GONext();
       ALWAYS_END_PREFETCH();
-      GONext();
       ENDOp();
 
       Op(write_struct, fa);

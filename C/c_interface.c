@@ -543,6 +543,7 @@ X_API void    *STD_PROTO(YAP_ExternalDataInStackFromTerm,(Term));
 X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
 X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
+X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
 
 static int
 dogc( USES_REGS1 )
@@ -1942,6 +1943,7 @@ YAP_ReadBuffer(char *s, Term *tp)
   Term t; 
   BACKUP_H();
 
+  LOCAL_ErrorMessage=NULL;
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
@@ -2839,7 +2841,6 @@ YAP_Init(YAP_init_args *yap_init)
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_init_yapor_global_local_memory();
-  LOCAL = REMOTE(0);
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
   GLOBAL_PrologShouldHandleInterrupts = yap_init->PrologShouldHandleInterrupts;
   Yap_InitSysbits();  /* init signal handling and time, required by later functions */
@@ -3716,7 +3717,8 @@ int YAP_MaxOpPriority(Atom at, Term module)
   return ret;
 }
 
-int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
+int
+YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
 {
   AtomEntry      *ae = RepAtom(at);
   OpEntry        *info;
@@ -3780,4 +3782,11 @@ int YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
 }
 
 
-
+int
+YAP_Argv(char ***argvp)
+{
+  if (argvp) {
+    *argvp = GLOBAL_argv;
+  }
+  return GLOBAL_argc;
+}

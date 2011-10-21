@@ -139,6 +139,9 @@ int p_share_work() {
 
 int q_share_work(int worker_p) {
   CACHE_REGS
+  register tr_fr_ptr aux_tr;
+  register CELL aux_cell;
+
   LOCK_OR_FRAME(LOCAL_top_or_fr);
   if (Get_REMOTE_prune_request(worker_p)) {
     /* worker p with prune request */
@@ -151,6 +154,32 @@ int q_share_work(int worker_p) {
   Set_LOCAL_prune_request(NULL);
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 
+ /* unbind variables */
+  aux_tr = Get_LOCAL_top_cp()->cp_tr;
+  TABLING_ERROR_CHECKING(q_share_work, TR < aux_tr);
+  while (aux_tr != TR) {
+    aux_cell = TrailTerm(--TR);
+    /* check for global or local variables */
+    if (IsVarTerm(aux_cell)) {
+      RESET_VARIABLE(aux_cell);
+#ifdef TABLING
+    } else if (IsPairTerm(aux_cell)) {
+      aux_cell = (CELL) RepPair(aux_cell);
+      if (IN_BETWEEN(LOCAL_TrailBase, aux_cell, LOCAL_TrailTop)) {
+        /* avoid frozen segments */
+        TR = (tr_fr_ptr) aux_cell;
+        TABLING_ERROR_CHECKING(q_share_work, TR > (tr_fr_ptr) LOCAL_TrailTop);
+        TABLING_ERROR_CHECKING(q_share_work, TR < aux_tr);
+      }
+#endif /* TABLING */
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+    } else if (IsApplTerm(aux_cell)) {
+      CELL *aux_ptr = RepAppl(aux_cell);
+      Term aux_val = TrailTerm(--aux_tr);
+      *aux_ptr = aux_val;
+#endif /* MULTI_ASSIGNMENT_VARIABLES */
+    }
+  }
   OPTYAP_ERROR_CHECKING(q_share_work, Get_LOCAL_top_cp() != Get_LOCAL_top_cp_on_stack());
   OPTYAP_ERROR_CHECKING(q_share_work, YOUNGER_CP(B_FZ, Get_LOCAL_top_cp()));
   YAPOR_ERROR_CHECKING(q_share_work, LOCAL_reply_signal != worker_ready);

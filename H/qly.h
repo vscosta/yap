@@ -111,7 +111,7 @@ typedef enum {
 #define NEXTOP(V,TYPE)    ((yamop *)(&((V)->u.TYPE.next)))
 
 #define CHECK(F) { size_t r = (F); if (!r) return r; }
-#define RCHECK(F)  if(!(F)) { ERROR(MISMATCH); return; }
+#define RCHECK(F)  if(!(F)) { QLYR_ERROR(MISMATCH); return; }
 
 #define AllocTempSpace() (H)
 #define EnoughTempSpace(sz) ((ASP-H)*sizeof(CELL) > sz)

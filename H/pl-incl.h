@@ -7,7 +7,7 @@
 
 #ifdef __WINDOWS__
 #include <windows.h>
-#include <uxnt.h>
+#include <windows/uxnt.h>
 #define O_HASDRIVES 1
 #define O_HASSHARES 1
 #endif

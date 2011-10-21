@@ -208,8 +208,8 @@ YAP_Term
 string2term(char *const ptr,const size_t *size) {
   YAP_Term t;
   struct buffer_ds b;
-  b.size=b.len=b.pos=0;
 
+  b.size=b.len=b.pos=0;
   if (BUFFER_PTR!=ptr) {    //
 #ifdef DEBUG
     write_msg(__FUNCTION__,__FILE__,__LINE__,"copy buffer string2term\n");
@@ -222,7 +222,6 @@ string2term(char *const ptr,const size_t *size) {
     b.ptr=NULL;
   }
   BUFFER_POS=0;
-  LOCAL_ErrorMessage=NULL;
   t = YAP_ReadBuffer( BUFFER_PTR , NULL );
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),LOCAL_ErrorMessage);
