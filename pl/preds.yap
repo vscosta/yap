@@ -1019,3 +1019,35 @@ current_key(A,K) :-
 	;
 	     Pred = Na
 	 ).
+
+
+compile_predicates(Ps) :-
+	'$current_module'(Mod),
+	'$compile_predicates'(Ps, Mod, compile_predicates(Ps)).
+
+'$compile_predicates'(V, _, Call) :-
+	var(V), !,
+	'$do_error'(instantiation_error,Call).
+'$compile_predicates'(M:Ps, _, Call) :-
+	'$compile_predicates'(Ps, M, Call).
+'$compile_predicates'([], _, _).
+'$compile_predicates'(P.Ps, M, Call) :-
+	'$compile_predicate'(P, M, Call).
+	'$compile_predicates'(Ps, M, Call).
+
+'$compile_predicate'(P, M, Call) :-
+	var(P), !,
+	'$do_error'(instantiation_error,Call).
+'$compile_predicate'(M:P, _, Call) :-
+	'$compile_predicate'(P, M, Call).
+'$compile_predicate'(Na/Ar, Mod, _Call) :-
+	functor(G, Na, Ar),
+	findall((G.B),clause(Mod:G,B),Cls),
+	abolish(Mod:Na,Ar),
+	'$add_all'(Cls, Mod).
+
+'$add_all'([], _).
+'$add_all'((G.B).Cls, Mod) :-
+	assert_static(Mod:(G:-B)),
+	'$add_all'(Cls, Mod).
+

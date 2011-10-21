@@ -5900,6 +5900,19 @@ asserted before being defined.
 Declares predicate @var{P} or list of predicates [@var{P1},...,@var{Pn}]
 as a dynamic predicate following either @code{logical} or
 @code{immediate} semantics.
+               
+@item compile_predicates(:@var{ListOfNameArity})
+@findex compile_predicates/1
+@snindex compile_predicates/1
+@cnindex compile_predicates/1
+
+Compile a list of specified dynamic predicates (see @code{dynamic/1} and
+@code{assert/1} into normal static predicates. This call tells the
+Prolog environment the definition will not change anymore and further
+calls to @code{assert/1} or @code{retract/1} on the named predicates
+raise a permission error. This predicate is designed to deal with parts
+of the program that is generated at runtime but does not change during
+the remainder of the program execution.
 
 @menu
 
