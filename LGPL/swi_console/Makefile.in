@@ -39,10 +39,10 @@ OBJECTS=	complete.o console.o edit.o history.o menu.o
 
 LIBS=-lgdi32 -lcomdlg32
 
-all: plterm.dll
+all: ../../plterm.dll
 
-plterm.dll:  libplterm.a
-	$(CC) $(CFLAGS) -shared -o plterm.dll \
+../../plterm.dll:  libplterm.a
+	$(CC) $(CFLAGS) -shared -o ../../plterm.dll \
 	-Wl,--export-all-symbols \
 	-Wl,--enable-auto-import \
 	-Wl,--whole-archive libplterm.a \

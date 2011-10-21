@@ -1,4 +1,4 @@
-# YAP install-script (from SWI-Prolog)
+; YAP install-script (from SWI-Prolog)
 
 !define TEMP1 $R0 ; Temp variable
 !define EXT    $3 ; Filename extension for Prolog sources
@@ -6,31 +6,26 @@
 !define GRP    $5 ; Startmenu group
 !define SHCTX  $6 ; Shell context (current/all)
 !define ARCH   $7 ; Architecture (x86, ia64 or amd64)
-
-!ifdef WIN64
 !define REGKEY SOFTWARE\YAP\Prolog64
-!else
-!define REGKEY SOFTWARE\YAP\Prolog
-!endif
-
 
 RequestExecutionLevel admin
 SetCompressor bzip2
 MiscButtonText "<back" "next>" "abort" "finished"
 
-# Preload files that are needed by the installer itself
+; Preload files that are needed by the installer itself
 ReserveFile "${NSISDIR}\Plugins\UserInfo.dll"
 ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 ReserveFile "options.ini"
 
-InstallDir $PROGRAMFILES\Yap
+
+InstallDir $PROGRAMFILES64\Yap64
 InstallDirRegKey HKLM ${REGKEY} "home"
-ComponentText "This will install YAP on your computer."
-DirText "This program will install YAP on your computer.\
+ComponentText "This will install YAP64 on your computer."
+DirText "This program will install YAP64 on your computer.\
          Choose a directory"
 
-LicenseData c:\Yap\share\doc\Yap\Artistic
-LicenseText "YAP is governed by the Artistic License,\
+LicenseData c:\Yap64\share\doc\Yap\Artistic
+LicenseText "YAP64 is governed by the Artistic License,\
 	but includes code under the GPL and LGPL."
 
 InstType "Typical (all except debug symbols)"	# 1
@@ -44,43 +39,45 @@ Page instfiles
 
 Section "Base system (required)"
   SectionIn RO			# do not allow to delete this
+  ; make sure we use 64 bits registry
+  SetRegView 64
 
   Delete $INSTDIR\bin\*.pdb
 
   SetOutPath $INSTDIR\bin
-  File c:\Yap\bin\yap.exe
-  File c:\Yap\bin\yap.dll
-  File c:\Yap\bin\pl-yap.exe
-  File c:\Yap\bin\plterm.dll
+  File c:\Yap64\bin\yap.exe
+  File c:\Yap64\bin\yap.dll
+  File c:\Yap64\bin\pl-yap.exe
+  File c:\Yap64\bin\plterm.dll
 
   SetOutPath $INSTDIR\bin
 ; SYSTEM STUFF
-  File c:\Yap\lib\Yap\*.dll
+  File c:\Yap64\lib\Yap\*.dll
 
   SetOutPath $INSTDIR\lib
 
   SetOutPath $INSTDIR\lib
 ; SYSTEM STUFF
-  File c:\Yap\lib\Yap\startup.yss
+  File c:\Yap64\lib\Yap\startup.yss
 
   SetOutPath $INSTDIR\share
 ; SYSTEM STUFF
-  File /r c:\Yap\share\Yap\*
+  File /r c:\Yap64\share\Yap\*
 
   SetOutPath $INSTDIR\doc\Yap
-  File c:\Yap\share\doc\Yap\yap.html
-  File c:\Yap\share\doc\Yap\yap.pdf
-  File c:\Yap\share\doc\Yap\Artistic
-  File c:\Yap\share\doc\Yap\README.TXT
-  File c:\Yap\share\doc\Yap\COPYING.TXT
+  File c:\Yap64\share\doc\Yap\yap.html
+  File c:\Yap64\share\doc\Yap\yap.pdf
+  File c:\Yap64\share\doc\Yap\Artistic
+  File c:\Yap64\share\doc\Yap\README.TXT
+  File c:\Yap64\share\doc\Yap\COPYING.TXT
 
   WriteRegStr HKLM ${REGKEY} "home" "$INSTDIR"
   WriteRegStr HKLM ${REGKEY} "startup" "$INSTDIR\lib\startup.yss"
   WriteRegStr HKLM ${REGKEY} "library" "$INSTDIR\share"
 
   ; Write uninstaller
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP" "DisplayName" "YAP (remove only)"
-  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP" "UninstallString" '"$INSTDIR\uninstall.exe"'
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP64" "DisplayName" "YAP64 (remove only)"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP64" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteUninstaller "uninstall.exe"
 SectionEnd
 
@@ -127,12 +124,12 @@ SectionEnd
 # The uninstaller
 ################################################################
 
-UninstallText "This will uninstall YAP. Hit Uninstall to continue."
+UninstallText "This will uninstall YAP.64 Hit Uninstall to continue."
 
 Section "Uninstall"
-  ReadRegStr ${EXT}   HKLM Software\YAP\Prolog fileExtension
-  ReadRegStr ${GRP}   HKLM Software\YAP\Prolog group
-  ReadRegStr ${SHCTX} HKLM Software\YAP\Prolog context
+  ReadRegStr ${EXT}   HKLM Software\YAP\Prolog64 fileExtension
+  ReadRegStr ${GRP}   HKLM Software\YAP\Prolog64 group
+  ReadRegStr ${SHCTX} HKLM Software\YAP\Prolog64 context
 
   StrCmp ${SHCTX} "all" 0 +2
     SetShellVarContext all
@@ -169,7 +166,7 @@ Section "Uninstall"
     MessageBox MB_OK "Folder $INSTDIR doesn't seem to contain Prolog"
 
   Done:
-    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP"
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\YAP64"
     DeleteRegKey HKLM ${REGKEY}
 SectionEnd
 
@@ -211,7 +208,7 @@ Function SetCustom
 # Startmenu program group
   ReadRegStr ${GRP} HKLM ${REGKEY} group
   StrCmp ${GRP} "" 0 HasGroup
-    StrCpy ${GRP} "YAP"
+    StrCpy ${GRP} "YAP64"
   HasGroup:
   WriteINIStr $PLUGINSDIR\options.ini "Field 6" "State" ${GRP}  
 
@@ -273,4 +270,4 @@ Function .onInstFailed
 		    installer, please contact yap-users@sf.net"
 FunctionEnd
 
-outfile "yap-6.3.0-installer.exe"
+outfile "yap64-6.3.0-installer.exe"
