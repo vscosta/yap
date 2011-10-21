@@ -23,7 +23,7 @@
 */
 
 #if defined(__WINDOWS__)||defined(__WIN32)
-#include <uxnt.h>
+#include <windows/uxnt.h>
 #ifndef _YAP_NOT_INSTALLED_
 #ifdef WIN64
 #define MD "config/win64.h"
