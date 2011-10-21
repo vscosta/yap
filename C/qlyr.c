@@ -60,7 +60,7 @@ Yap_AlwaysAllocCodeSpace(UInt size)
 }
 
 static void
-ERROR(qlfr_err_t my_err)
+QLYR_ERROR(qlfr_err_t my_err)
 {
   fprintf(stderr,"Error %d\n", my_err);
   exit(1);
@@ -80,7 +80,7 @@ LookupAtom(Atom oat)
     }
     a = a->next;
   }
-  ERROR(UNKNOWN_ATOM);
+  QLYR_ERROR(UNKNOWN_ATOM);
   return NIL;
 }
 
@@ -122,7 +122,7 @@ LookupFunctor(Functor ofun)
     }
     f = f->next;
   }
-  ERROR(UNKNOWN_FUNCTOR);
+  QLYR_ERROR(UNKNOWN_FUNCTOR);
   return NIL;
 }
 
@@ -164,7 +164,7 @@ LookupPredEntry(PredEntry *op)
     }
     p = p->next;
   }
-  ERROR(UNKNOWN_PRED_ENTRY);
+  QLYR_ERROR(UNKNOWN_PRED_ENTRY);
   return NIL;
 }
 
@@ -206,7 +206,7 @@ LookupOPCODE(OPCODE op)
     }
     f = f->next;
   }
-  ERROR(UNKNOWN_OPCODE);
+  QLYR_ERROR(UNKNOWN_OPCODE);
   return NIL;
 }
 
@@ -224,7 +224,7 @@ OpcodeID(OPCODE op)
     }
     f = f->next;
   }
-  ERROR(UNKNOWN_OPCODE);
+  QLYR_ERROR(UNKNOWN_OPCODE);
   return NIL;
 }
 
@@ -267,7 +267,7 @@ LookupDBRef(DBRef dbr)
     }
     p = p->next;
   }
-  ERROR(UNKNOWN_DBREF);
+  QLYR_ERROR(UNKNOWN_DBREF);
   return NIL;
 }
 
@@ -702,29 +702,29 @@ ReadHash(IOSTREAM *stream)
       UInt len;
 
       len = read_uint(stream);
-      if (!EnoughTempSpace(len)) ERROR(OUT_OF_TEMP_SPACE);
+      if (!EnoughTempSpace(len)) QLYR_ERROR(OUT_OF_TEMP_SPACE);
       read_bytes(stream, rep, (len+1)*sizeof(wchar_t));
       while (!(at = Yap_LookupWideAtom(rep))) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  exit(1);
 	}
       }
-      if (at == NIL) ERROR(OUT_OF_ATOM_SPACE);
+      if (at == NIL) QLYR_ERROR(OUT_OF_ATOM_SPACE);
     } else if (tg == QLY_ATOM) {
       char *rep = (char *)AllocTempSpace();
       UInt len;
 
       len = read_uint(stream);
-      if (!EnoughTempSpace(len)) ERROR(OUT_OF_TEMP_SPACE);
+      if (!EnoughTempSpace(len)) QLYR_ERROR(OUT_OF_TEMP_SPACE);
       read_bytes(stream, rep, (len+1)*sizeof(char));
       while (!(at = Yap_FullLookupAtom(rep))) {
 	if (!Yap_growheap(FALSE, 0, NULL)) {
 	  exit(1);
 	}
       }
-      if (at == NIL) ERROR(OUT_OF_ATOM_SPACE);
+      if (at == NIL) QLYR_ERROR(OUT_OF_ATOM_SPACE);
     } else {
-      ERROR(BAD_ATOM);
+      QLYR_ERROR(BAD_ATOM);
       return;
     }
     InsertAtom(oat, at);
@@ -884,7 +884,7 @@ read_clauses(IOSTREAM *stream, PredEntry *pp, UInt nclauses, UInt flags) {
 
     if (pp->PredFlags & SYSTEM_PRED_FLAGS) {
       if (nclauses) {
-	ERROR(INCONSISTENT_CPRED);	
+	QLYR_ERROR(INCONSISTENT_CPRED);	
       }
       return;
     }
