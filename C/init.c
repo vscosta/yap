@@ -29,6 +29,7 @@ static char     SccsId[] = "%W% %G%";
 #include "alloc.h"
 #include "clause.h"
 #include "Foreign.h"
+#include "SWI-Prolog.h"
 
 #ifdef LOW_LEVEL_TRACER
 #include "tracer.h"
