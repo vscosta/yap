@@ -1,0 +1,25 @@
+
+failure(L) :- hmmf(L,[r0],C,2), C >= 1000.
+success(L) :- hmmf(L,[r0],C,2), C<1000.
+
+hmmf([p|L],S,C1,N):0.4 ; hmmf([s|L],S,C2,N):0.6 :- N>0,
+	S=[r0|_],
+	tr(S,R2),
+	 N2 is N-1,
+	hmmf(L,[R2|S],C,N2),
+	C1 is C+900,
+	C2 is C+400.
+
+hmmf([s|L],S,C1,N):0.5 ; hmmf([h|L],S,C2,N):0.5 :- N>0,
+	S=[r1|_],
+	tr(S,R2),
+	N2 is N-1,
+	hmmf(L,[R2|S],C,N2),
+	C1 is C+500,
+	C2 is C+400.
+			
+
+hmmf([],S,0,0).
+
+tr([r0|T],r0): 0.7 ; tr([r0|T],r1) : 0.3.
+tr([r1|T],r0): 0.3 ; tr([r1|T],r1) : 0.7.

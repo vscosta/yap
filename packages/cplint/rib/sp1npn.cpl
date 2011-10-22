@@ -1,0 +1,19 @@
+sameperson(X,Y):0.2:-
+	movie(M,X),
+	movie(M,Y).
+	
+sameperson(X,Y):0.2:-
+	actor(X),
+	actor(Y),
+	workedunder(X,Z),
+	workedunder(Y,Z).
+
+sameperson(X,Y):0.2:-
+	gender(X,Z),
+	gender(Y,Z).
+
+sameperson(X,Y):0.2:-
+	director(X),
+	director(Y),
+	genre(X,Z),
+	genre(Y,Z).

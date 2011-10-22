@@ -1,0 +1,47 @@
+sameperson_pos(X,Y):0.05:-
+	movie(M,X),
+	movie(M,Y).
+	
+sameperson_pos(X,Y):0.3:-
+	actor(X),
+	actor(Y),
+	workedunder(X,Z),
+	workedunder(Y,Z).
+
+sameperson_pos(X,Y):0.5:-
+	director(X),
+	director(Y),
+	genre(X,Z),
+	genre(Y,Z).
+
+sameperson_neg(X,Y):0.05:-
+	movie(M,X),
+	movie(M,Y).
+	
+sameperson_neg(X,Y):0.3:-
+	actor(X),
+	actor(Y),
+	workedunder(X,Z),
+	workedunder(Y,Z).
+
+sameperson_neg(X,Y):0.5:-
+	director(X),
+	director(Y),
+	genre(X,Z),
+	genre(Y,Z).
+
+sameperson(X,Y):0.3:-
+	\+ sameperson_pos(X,Y),
+	sameperson_neg(X,Y).
+
+sameperson(X,Y):0.3:-
+	\+ sameperson_pos(X,Y),
+	\+ sameperson_neg(X,Y).
+
+sameperson(X,Y):0.3:-
+	sameperson_pos(X,Y),
+	sameperson_neg(X,Y).
+
+sameperson(X,Y):0.3:-
+	sameperson_pos(X,Y),
+	\+ sameperson_neg(X,Y).

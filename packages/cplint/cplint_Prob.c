@@ -1,19 +1,20 @@
 /*
-	LPAD and CP-Logic interpreter
-	
+  LPAD and CP-Logic interpreter
+  
 Copyright (c) 2007, Fabrizio Riguzzi
 
 This package uses the library cudd, see http://vlsi.colorado.edu/~fabio/CUDD/
 for the relative license.
 
 
-	This file contains the definition of Prob and ProbBool plus the functions
-	for building the BDD
+This file contains the definition of Prob and ProbBool plus the functions
+for building the BDD
 */
 
 
 #include "cplint.h"
 #include <stdlib.h>
+
 
 int correctPosition(int index,variable v, DdNode * node,int posBVar);
 
@@ -87,7 +88,8 @@ DdNode * retFactor(DdManager * mgr, factor f, variables vars)
   node=Cudd_ReadOne(mgr);
   Cudd_Ref(node);
   /* booelan var with index 0 in v.booleanVars is the most significant */
-  do {
+  do 
+  {
     booleanVar=booleanVars[i];
     bit=value & 01;
     if (bit)
@@ -96,22 +98,21 @@ DdNode * retFactor(DdManager * mgr, factor f, variables vars)
       Cudd_Ref(tmp);
     }
     else
-      {
+    {
       tmp=Cudd_bddAnd(mgr,node,Cudd_Not(booleanVar));
       Cudd_Ref(tmp);
-      }
+    }
     value=value>>1;
     i--;
     Cudd_RecursiveDeref(mgr,node);
     node=tmp;
   } while (i>=0);
   return node;
-
 }
 
 
 
-double Prob(DdNode *node, variables vars, GHashTable * nodes)
+double Prob(DdNode *node, variables vars, tablerow * nodes)
 /* compute the probability of the expression rooted at node
 nodes is used to store nodes for which the probability has alread been computed
 so that it is not recomputed
@@ -122,48 +123,45 @@ so that it is not recomputed
   double res;
   double * value_p;
   DdNode *nodereg;
-  double *rp;
 
   index=Cudd_NodeReadIndex(node);
   comp=Cudd_IsComplement(node);
   if (Cudd_IsConstant(node))
   {
-	if (comp)
-   		return 0.0;
- 	else
-		return 1.0;
+    if (comp)
+      return 0.0;
+    else
+      return 1.0;
   }
   else
-{
-	nodereg=Cudd_Regular(node);
-	value_p=g_hash_table_lookup(nodes,nodereg);
-	if (value_p!=NULL)
-	{
-		if (comp)
-			return 1-*value_p;
-		else
-			return *value_p;
-	}
-	else
-  	{
-    		mVarIndex=vars.bVar2mVar[index];
-    		v=vars.varar[mVarIndex];
-    		nBit=v.nBit;
-    		res=ProbBool(node,0,nBit,0,v,mVarIndex,vars,nodes,0);
-		rp=(double *)malloc(sizeof(double));
-		*rp=res;
-		g_hash_table_insert(nodes, nodereg, rp);
-		if (comp)
-			return 1-res;
-		else
-    			return res;
-  	}
-}
+  {
+    nodereg=Cudd_Regular(node);
+    value_p=get_value(nodes,nodereg);
+    if (value_p!=NULL)
+    {
+      if (comp)
+        return 1-*value_p;
+      else
+        return *value_p;
+    }
+    else
+    {
+      mVarIndex=vars.bVar2mVar[index];
+      v=vars.varar[mVarIndex];
+      nBit=v.nBit;
+      res=ProbBool(node,0,nBit,0,v,mVarIndex,vars,nodes,0);
+      add_node(nodes,nodereg,res);
+      if (comp)
+        return 1-res;
+      else
+        return res;
+    }
+  }
 }
 
 double ProbBool(DdNode *node, int bits, int nBit,int posBVar,variable v,
-int mVarIndex,
-variables vars, GHashTable * nodes,int comp)
+  int mVarIndex,
+  variables vars, tablerow * nodes,int comp)
 /* explores a group of binary variables making up the multivalued variable v */
 {
   DdNode *T,*F;
@@ -180,15 +178,15 @@ variables vars, GHashTable * nodes,int comp)
     {
       p=probs[bits];
       if (comp)
-       	res=p*(1-Prob(node,vars,nodes));
-     else
-      	res=p*Prob(node,vars,nodes);
+        res=p*(1-Prob(node,vars,nodes));
+      else
+        res=p*Prob(node,vars,nodes);
       return res;
     }
   }
   else
   {
-  	index=Cudd_NodeReadIndex(node);
+    index=Cudd_NodeReadIndex(node);
     if (correctPosition(index,v,node,posBVar))
     {
       T = Cudd_T(node);
@@ -197,23 +195,22 @@ variables vars, GHashTable * nodes,int comp)
       comp1=Cudd_IsComplement(F);
       res=ProbBool(T,bits+1,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp);
       indexF=Cudd_NodeReadIndex(F);
-    if (Cudd_IsConstant(F))
-    	mVarIndexF=-1;
-	else
-   	 mVarIndexF=vars.bVar2mVar[indexF];	
-	if (mVarIndexF==mVarIndex)
-	      comp2=(comp1 && !comp) || (!comp1 && comp);
-	else
-		comp2=comp;
-	res=res+ ProbBool(F,bits,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp2);
-
+      if (Cudd_IsConstant(F))
+        mVarIndexF=-1;
+      else
+        mVarIndexF=vars.bVar2mVar[indexF];  
+      if (mVarIndexF==mVarIndex)
+        comp2=(comp1 && !comp) || (!comp1 && comp);
+      else
+        comp2=comp;
+      res=res+ ProbBool(F,bits,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp2);
       return res;
     }
     else
     {
       bits=bits<<1;
       res=ProbBool(node,bits+1,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp)+ 
-        ProbBool(node,bits,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp);
+      ProbBool(node,bits,nBit-1,posBVar+1,v,mVarIndex,vars,nodes,comp);
       return res;
     }
   }
@@ -225,7 +222,57 @@ currently explored by ProbBool */
 {
   DdNode * bvar;
   int ind;
+
   bvar=v.booleanVars[posBVar];
   ind=Cudd_NodeReadIndex(bvar);
- return ind==index;
+  return ind==index;
 }
+
+double * get_value(tablerow *tab,  DdNode *node) {
+  int i;
+  int index = Cudd_NodeReadIndex(node);
+
+  for(i = 0; i < tab[index].cnt; i++) 
+  {
+    if (tab[index].row[i].key == node)
+    {
+      return &tab[index].row[i].value;
+    }
+  }
+  return NULL;
+}
+
+void destroy_table(tablerow *tab, int boolVars)
+{
+  int i;
+  for (i = 0; i < boolVars; i++) 
+  {
+    free(tab[i].row);
+  }
+  free(tab);
+}
+tablerow* init_table(int boolVars) {
+  int i;
+
+  tablerow *tab;
+  tab = (tablerow *) malloc(sizeof(rowel) * boolVars);
+  for (i = 0; i < boolVars; i++) 
+  {
+    tab[i].row = NULL;
+    tab[i].cnt = 0;
+  }
+  return tab;
+}
+
+
+void add_node(tablerow *tab, DdNode *node, double value) 
+{
+  int index = Cudd_NodeReadIndex(node);
+
+  tab[index].row = (rowel *) realloc(tab[index].row, 
+    (tab[index].cnt + 1) * sizeof(rowel));
+  tab[index].row[tab[index].cnt].key = node;
+  tab[index].row[tab[index].cnt].value = value;
+  tab[index].cnt += 1;                                        
+}
+

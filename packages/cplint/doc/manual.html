@@ -7,7 +7,7 @@
 <meta name="originator" content="TeX4ht (http://www.cse.ohio-state.edu/~gurari/TeX4ht/)"> 
 <!-- html --> 
 <meta name="src" content="manual.tex"> 
-<meta name="date" content="2011-07-25 20:35:00"> 
+<meta name="date" content="2011-10-10 19:58:00"> 
 <link rel="stylesheet" type="text/css" href="manual.css"> 
 </head><body 
 >
@@ -21,39 +21,33 @@ class="cmr-12">Fabrizio Riguzzi</span>
 <br /><span 
 class="cmr-12">fabrizio.riguzzi@unife.it</span></div><br />
 <div class="date" ><span 
-class="cmr-12">July 25, 2011</span></div>
+class="cmr-12">October 10, 2011</span></div>
    </div>
    <h3 class="sectionHead"><span class="titlemark">1   </span> <a 
  id="x1-10001"></a>Introduction</h3>
 <!--l. 31--><p class="noindent" ><span 
 class="cmtt-10">cplint </span>is a suite of programs for reasoning with ICL <span class="cite">[<a 
-href="#XDBLP:journals/ai/Poole97">12</a>]</span>, LPADs <span class="cite">[<a 
-href="#XVenVer03-TR">21</a>,&#x00A0;<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span> and
+href="#XDBLP:journals/ai/Poole97">13</a>]</span>, LPADs <span class="cite">[<a 
+href="#XVenVer03-TR">22</a>,&#x00A0;<a 
+href="#XVenVer04-ICLP04-IC">23</a>]</span> and
 CP-logic programs <span class="cite">[<a 
-href="#XVenDenBru-JELIA06">19</a>,&#x00A0;<a 
-href="#XDBLP:journals/tplp/VennekensDB09">20</a>]</span>. It contains programs both for inference and
+href="#XVenDenBru-JELIA06">20</a>,&#x00A0;<a 
+href="#XDBLP:journals/tplp/VennekensDB09">21</a>]</span>. It contains programs both for inference and
 learning.
 <!--l. 33--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">2   </span> <a 
  id="x1-20002"></a>Installation</h3>
 <!--l. 34--><p class="noindent" ><span 
-class="cmtt-10">cplint </span>is distributed in source code in the CVS version of Yap. It
+class="cmtt-10">cplint </span>is distributed in source code in the source code development tree of Yap. It
 includes Prolog and C files. Download it by following the instruction in <a 
 href="http://www.ncc.up.pt/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}vsc/Yap/downloads.html" >
 http://www.ncc.up.pt/&#x00A0;vsc/Yap/downloads.html </a>.
 <!--l. 36--><p class="indent" >   <span 
 class="cmtt-10">cplint </span>requires <a 
-href="http://vlsi.colorado.edu/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}fabio/CUDD/" > CUDD </a> and glib-2.0. You can download CUDD from <a 
+href="http://vlsi.colorado.edu/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}fabio/CUDD/" > CUDD </a>. You can download CUDD from <a 
 href="ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz" >
-ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz </a>. You can download glib-2.0 (version
-<span 
-class="cmsy-10">&#x2265; </span>2<span 
-class="cmmi-10">.</span>0) from <a 
-href="http://www.gtk.org/" > http://www.gtk.org/ </a>. This is a standard GNU package so it is easy to
-install it using the package management software of your Linux or Cygwin
-distribution.
-<!--l. 42--><p class="indent" >   Compile CUDD:
+ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz </a>.
+<!--l. 39--><p class="indent" >   Compile CUDD:
      <ol  class="enumerate1" >
      <li 
   class="enumerate" id="x1-2002x1">decompress cudd-2.4.2.tar.gz
@@ -65,7 +59,7 @@ class="cmtt-10">cd cudd-2.4.2</span>
      <li 
   class="enumerate" id="x1-2006x3">see the <span 
 class="cmtt-10">README </span>file for instructions on compilation</li></ol>
-<!--l. 49--><p class="indent" >   Install Yap together with <span 
+<!--l. 46--><p class="indent" >   Install Yap together with <span 
 class="cmtt-10">cplint</span>: when compiling Yap following the instruction of
 the <span 
 class="cmtt-10">INSTALL </span>file in the root of the Yap folder, use
@@ -73,7 +67,7 @@ class="cmtt-10">INSTALL </span>file in the root of the Yap folder, use
    <div class="verbatim" id="verbatim-1">
 configure&#x00A0;--enable-cplint=DIR
 </div>
-<!--l. 53--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 50--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">DIR</span></span></span> is the directory where CUDD is, i.e., the directory ending with
 <span 
 class="cmtt-10">cudd-2.4.2</span>. Under Windows, you have to use Cygwin (CUDD does not compile
@@ -83,17 +77,17 @@ class="newline" />
    <div class="verbatim" id="verbatim-2">
 configure&#x00A0;--enable-cplint=DIR&#x00A0;--enable-cygwin
 </div>
-<!--l. 58--><p class="nopar" >
-<!--l. 60--><p class="indent" >   After having performed <span 
+<!--l. 55--><p class="nopar" >
+<!--l. 57--><p class="indent" >   After having performed <span 
 class="cmtt-10">make install </span>you can do <span 
 class="cmtt-10">make installcheck </span>that will
 execute a suite of tests of the various programs. If no error is reported you have a
 working installation of <span 
 class="cmtt-10">cplint</span>.
-<!--l. 63--><p class="noindent" >
+<!--l. 60--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">3   </span> <a 
  id="x1-30003"></a>Syntax</h3>
-<!--l. 65--><p class="noindent" >LPAD and CP-logic programs consist of a set of annotated disjunctive clauses.
+<!--l. 62--><p class="noindent" >LPAD and CP-logic programs consist of a set of annotated disjunctive clauses.
 Disjunction in the head is represented with a semicolon and atoms in the head are
 separated from probabilities by a colon. For the rest, the usual syntax of Prolog is
 used. For example, the CP-logic clause
@@ -105,29 +99,29 @@ represented by
    <div class="verbatim" id="verbatim-3">
 h1:p1&#x00A0;;&#x00A0;...&#x00A0;;&#x00A0;hn:pn&#x00A0;:-&#x00A0;b1,...,bm,\+&#x00A0;c1,....,\+&#x00A0;cl
 </div>
-<!--l. 72--><p class="nopar" > No parentheses are necessary. The <span 
+<!--l. 69--><p class="nopar" > No parentheses are necessary. The <span 
 class="cmtt-10">pi </span>are numeric expressions. It is up to the user to
 ensure that the numeric expressions are legal, i.e. that they sum up to less than
 one.
-<!--l. 75--><p class="indent" >   If the clause has an empty body, it can be represented like this
+<!--l. 72--><p class="indent" >   If the clause has an empty body, it can be represented like this
 
    <div class="verbatim" id="verbatim-4">
 h1:p1&#x00A0;;&#x00A0;...&#x00A0;;hn:pn.
 </div>
-<!--l. 78--><p class="nopar" > If the clause has a single head with probability 1, the annotation can be omitted and
+<!--l. 75--><p class="nopar" > If the clause has a single head with probability 1, the annotation can be omitted and
 the clause takes the form of a normal prolog clause, i.e.
 
    <div class="verbatim" id="verbatim-5">
 h1:-&#x00A0;b1,...,bm,\+&#x00A0;c1,...,\+&#x00A0;cl.
 </div>
-<!--l. 82--><p class="nopar" > stands for
+<!--l. 79--><p class="nopar" > stands for
 
    <div class="verbatim" id="verbatim-6">
 h1:1&#x00A0;:-&#x00A0;b1,...,bm,\+&#x00A0;c1,...,\+&#x00A0;cl.
 </div>
-<!--l. 86--><p class="nopar" >
-<!--l. 88--><p class="indent" >   The coin example of <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span> is represented as (see file <span 
+<!--l. 83--><p class="nopar" >
+<!--l. 85--><p class="indent" >   The coin example of <span class="cite">[<a 
+href="#XVenVer04-ICLP04-IC">23</a>]</span> is represented as (see file <span 
 class="cmtt-10">coin.cpl</span>)
 
    <div class="verbatim" id="verbatim-7">
@@ -141,50 +135,50 @@ heads(Coin):1/2&#x00A0;;&#x00A0;tails(Coin):1/2:-
 &#x00A0;<br />
 &#x00A0;<br />toss(coin).
 </div>
-<!--l. 99--><p class="nopar" > The first clause states that if we toss a coin that is not biased it has equal
+<!--l. 96--><p class="nopar" > The first clause states that if we toss a coin that is not biased it has equal
 probability of landing heads and tails. The second states that if the coin is biased it
 has a slightly higher probability of landing heads. The third states that the coin is
 fair with probability 0.9 and biased with probability 0.1 and the last clause states
 that we toss a coin with certainty.
-<!--l. 102--><p class="indent" >   Moreover, the bodies of rules can contain the built-in predicates:
+<!--l. 99--><p class="indent" >   Moreover, the bodies of rules can contain the built-in predicates:
 
    <div class="verbatim" id="verbatim-8">
 is/2,&#x00A0;&#x003E;/2,&#x00A0;&#x003C;/2,&#x00A0;&#x003E;=/2&#x00A0;,=&#x003C;/2,
 &#x00A0;<br />=:=/2,&#x00A0;=\=/2,&#x00A0;true/0,&#x00A0;false/0,
 &#x00A0;<br />=/2,&#x00A0;==/2,&#x00A0;\=/2&#x00A0;,\==/2,&#x00A0;length/2
 </div>
-<!--l. 107--><p class="nopar" > The bodies can also contain the following library predicates:
+<!--l. 104--><p class="nopar" > The bodies can also contain the following library predicates:
 
    <div class="verbatim" id="verbatim-9">
 member/2,&#x00A0;max_list/2,&#x00A0;min_list/2
 &#x00A0;<br />nth0/3,&#x00A0;nth/3
 </div>
-<!--l. 113--><p class="nopar" > plus the predicate
+<!--l. 110--><p class="nopar" > plus the predicate
 
    <div class="verbatim" id="verbatim-10">
 average/2
 </div>
-<!--l. 117--><p class="nopar" > that, given a list of numbers, computes its arithmetic mean.
-<!--l. 120--><p class="indent" >   The syntax of ICL program is the one used by the <a 
+<!--l. 114--><p class="nopar" > that, given a list of numbers, computes its arithmetic mean.
+<!--l. 117--><p class="indent" >   The syntax of ICL program is the one used by the <a 
 href="http://www.cs.ubc.ca/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}poole/aibook/code/ailog/ailog2.html" > AILog 2 </a> system.
    <h3 class="sectionHead"><span class="titlemark">4   </span> <a 
  id="x1-40004"></a>Inference</h3>
-<!--l. 122--><p class="noindent" ><span 
+<!--l. 119--><p class="noindent" ><span 
 class="cmtt-10">cplint </span>contains various modules for answering queries.
-<!--l. 128--><p class="indent" >   These modules answer queries using using goal-oriented procedures:
+<!--l. 125--><p class="indent" >   These modules answer queries using using goal-oriented procedures:
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmtt-10">lpadsld.pl</span>: uses the top-down procedure described in in <span class="cite">[<a 
-href="#XRig-AIIA07-IC">13</a>]</span> and <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span>. It
+href="#XRig-AIIA07-IC">14</a>]</span> and <span class="cite">[<a 
+href="#XRig-RCRA07-IC">15</a>]</span>. It
      is based on SLDNF resolution and is an adaptation of the interpreter for
      ProbLog <span class="cite">[<a 
-href="#XDBLP:conf/ijcai/RaedtKT07">8</a>]</span>.
-     <!--l. 133--><p class="noindent" >It was proved correct <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span> with respect to the semantics of LPADs for
+href="#XDBLP:conf/ijcai/RaedtKT07">9</a>]</span>.
+     <!--l. 130--><p class="noindent" >It was proved correct <span class="cite">[<a 
+href="#XRig-RCRA07-IC">15</a>]</span> with respect to the semantics of LPADs for
      range restricted acyclic programs <span class="cite">[<a 
 href="#XDBLP:journals/ngc/AptB91">1</a>]</span> without function symbols.
-     <!--l. 135--><p class="noindent" >It is also able to deal with extensions of LPADs and CP-logic: the clause
+     <!--l. 132--><p class="noindent" >It is also able to deal with extensions of LPADs and CP-logic: the clause
      bodies can contain <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof</span>, the probabilities in the head may
@@ -194,8 +188,8 @@ class="cmtt-10">setof </span>or <span
 class="cmtt-10">bagof </span>operator.
      These  extended  features  have  been  introduced  in  order  to  represent
      CLP(BN) <span class="cite">[<a 
-href="#XSanPagQaz03-UAI-IC">18</a>]</span> programs and PRM models <span class="cite">[<a 
-href="#XGetoor+al:JMLR02">11</a>]</span>: <span 
+href="#XSanPagQaz03-UAI-IC">19</a>]</span> programs and PRM models <span class="cite">[<a 
+href="#XGetoor+al:JMLR02">12</a>]</span>: <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>allow to
      express dependency of an attribute from an aggregate function of another
@@ -205,11 +199,11 @@ class="cmtt-10">bagof </span>allow to
      </li>
      <li class="itemize"><span 
 class="cmtt-10">picl.pl</span>: performs inference on ICL programs <span class="cite">[<a 
-href="#XRig09-LJIGPL-IJ">15</a>]</span>
+href="#XRig09-LJIGPL-IJ">16</a>]</span>
      </li>
      <li class="itemize"><span 
 class="cmtt-10">lpad.pl</span>: uses a top-down procedure based on SLG resolution <span class="cite">[<a 
-href="#XDBLP:journals/jacm/ChenW96">7</a>]</span>. As a
+href="#XDBLP:journals/jacm/ChenW96">8</a>]</span>. As a
      consequence, it works for any sound LPADs, i.e., any LPAD such that
      each of its instances has a two valued well founded model.
      </li>
@@ -223,28 +217,28 @@ class="cmtt-10">cpl.pl</span>: uses a top-down procedure based on SLG resolution
          <ul class="itemize2">
          <li class="itemize"><span 
 class="cmtt-10">deepit.pl </span>performs iterative deepening <span class="cite">[<a 
-href="#XBraRig10-ILP10-IC">6</a>]</span>
+href="#XBraRig10-ILP10-IC">7</a>]</span>
          </li>
          <li class="itemize"><span 
 class="cmtt-10">deepdyn.pl </span>performs dynamic iterative deepening <span class="cite">[<a 
-href="#XBraRig10-ILP10-IC">6</a>]</span>
+href="#XBraRig10-ILP10-IC">7</a>]</span>
          </li>
          <li class="itemize"><span 
 class="cmtt-10">bestk.pl </span>performs k-Best <span class="cite">[<a 
-href="#XBraRig10-ILP10-IC">6</a>]</span>
+href="#XBraRig10-ILP10-IC">7</a>]</span>
          </li>
          <li class="itemize"><span 
 class="cmtt-10">bestfirst.pl </span>performs best first <span class="cite">[<a 
-href="#XBraRig10-ILP10-IC">6</a>]</span>
+href="#XBraRig10-ILP10-IC">7</a>]</span>
          </li>
          <li class="itemize"><span 
 class="cmtt-10">montecarlo.pl </span>performs Monte Carlo <span class="cite">[<a 
-href="#XBraRig10-ILP10-IC">6</a>]</span>
+href="#XBraRig10-ILP10-IC">7</a>]</span>
          </li>
          <li class="itemize"><span 
 class="cmtt-10">mcintyre.pl</span>: implements the algorithm MCINTYRE (Monte Carlo
          INference wiTh Yap REcord) <span class="cite">[<a 
-href="#XRig11-CILC11-NC">16</a>]</span></li></ul>
+href="#XRig11-CILC11-NC">17</a>]</span></li></ul>
      </li>
      <li class="itemize"><span 
 class="cmtt-10">approx/exact.pl </span>as <span 
@@ -253,7 +247,7 @@ class="cmtt-10">lpadsld.pl </span>but uses SimplecuddLPADs, a modification
 href="www.cs.kuleuven.be/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}theo/tools/simplecudd.html" > Simplecudd </a> instead of the <span 
 class="cmtt-10">cplint </span>library for building BDDs and
      computing the probability.</li></ul>
-<!--l. 152--><p class="indent" >   These modules answer queries using the definition of the semantics of LPADs and
+<!--l. 149--><p class="indent" >   These modules answer queries using the definition of the semantics of LPADs and
 CP-logic:
      <ul class="itemize1">
      <li class="itemize"><span 
@@ -282,11 +276,11 @@ class="cmmi-10">P</span>, i.e.,
      sufficient causation, independent causation, no deus ex machina events
      and temporal precedence. It uses the definition of the semantics given in
      <span class="cite">[<a 
-href="#XDBLP:journals/tplp/VennekensDB09">20</a>]</span>.</li></ul>
-<!--l. 162--><p class="noindent" >
+href="#XDBLP:journals/tplp/VennekensDB09">21</a>]</span>.</li></ul>
+<!--l. 159--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.1   </span> <a 
  id="x1-50004.1"></a>Commands</h4>
-<!--l. 164--><p class="noindent" >The LPAD or CP-logic program must be stored in a text file with extension <span 
+<!--l. 161--><p class="noindent" >The LPAD or CP-logic program must be stored in a text file with extension <span 
 class="cmtt-10">.cpl</span>.
 Suppose you have stored the example above in file <span 
 class="cmtt-10">coin.cpl</span>. In order to answer
@@ -297,20 +291,20 @@ class="cmtt-10">lpad.pl</span>) by issuing the command
    <div class="verbatim" id="verbatim-11">
 use_module(library(lpad)).
 </div>
-<!--l. 169--><p class="nopar" > at the command prompt. Then you must parse the source file <span 
+<!--l. 166--><p class="nopar" > at the command prompt. Then you must parse the source file <span 
 class="cmtt-10">coin.cpl </span>with the
 command
 
    <div class="verbatim" id="verbatim-12">
 p(coin).
 </div>
-<!--l. 174--><p class="nopar" > if <span 
+<!--l. 171--><p class="nopar" > if <span 
 class="cmtt-10">coin.cpl </span>is in the current directory, or
 
    <div class="verbatim" id="verbatim-13">
 p(&#8217;path_to_coin/coin&#8217;).
 </div>
-<!--l. 178--><p class="nopar" > if <span 
+<!--l. 175--><p class="nopar" > if <span 
 class="cmtt-10">coin.cpl </span>is in a different directory. At this point you can pose query to the
 program by using the predicate <span 
 class="cmtt-10">s/2 </span>(for solve) that takes as its first argument a
@@ -322,7 +316,7 @@ class="cmtt-10">head(coin),biased(coin) </span>can be asked with the query
    <div class="verbatim" id="verbatim-14">
 s([head(coin),biased(coin)],P).
 </div>
-<!--l. 183--><p class="nopar" > For computing the probability of a conjunction given another conjunction you can
+<!--l. 180--><p class="nopar" > For computing the probability of a conjunction given another conjunction you can
 use the predicate <span 
 class="cmtt-10">sc/3 </span>(for solve conditional) that take takes as input the query
 conjunction as its first argument, the evidence conjunction as its second argument
@@ -335,19 +329,19 @@ query
    <div class="verbatim" id="verbatim-15">
 sc([heads(coin)],[biased(coin)],P).
 </div>
-<!--l. 188--><p class="nopar" > After having parsed a program, in order to read in a new program you must restart
+<!--l. 185--><p class="nopar" > After having parsed a program, in order to read in a new program you must restart
 Yap when using <span 
 class="cmtt-10">semlpadsld.pl </span>and <span 
 class="cmtt-10">semlpad.pl</span>. With the other modules, you can
 directly parse a new program.
-<!--l. 192--><p class="indent" >   When using <span 
+<!--l. 189--><p class="indent" >   When using <span 
 class="cmtt-10">lpad.pl</span>, the system can print the message &#8220;Uunsound program&#8221; in
 the case in which an instance with a three valued well founded model is found.
 Moreover, it can print the message &#8220;It requires the choice of a head atom from a non
 ground head&#8221;: in this case, in order to answer the query, all the groundings of the
 culprit clause must be generated, which may be impossible for programs with
 function symbols.
-<!--l. 194--><p class="indent" >   When using <span 
+<!--l. 191--><p class="indent" >   When using <span 
 class="cmtt-10">semcpl.pl</span>, you can print the execution process by using the
 command <span 
 class="cmtt-10">print. </span>after <span 
@@ -360,20 +354,20 @@ class="cmtt-10">context </span>is a list of atoms that are true in the context.
 <span 
 class="cmtt-10">semcpl.pl </span>can print &#8220;Invalid program&#8221; in the case in which no execution process
 exists.
-<!--l. 199--><p class="indent" >   When using <span 
+<!--l. 196--><p class="indent" >   When using <span 
 class="cmtt-10">cpl.pl </span>you can print a partial execution model including all the
 clauses involved in the query issued with <span 
 class="cmtt-10">print. cpl.pl </span>can print the messages
 &#8220;Uunsound program&#8221;, &#8220;It requires the choice of a head atom from a non ground
 head&#8221; and &#8220;Invalid program&#8221;.
-<!--l. 201--><p class="indent" >   For <span 
+<!--l. 198--><p class="indent" >   For <span 
 class="cmtt-10">approx/deepit.pl </span>and <span 
 class="cmtt-10">approx/deepdyn.pl </span>the command
 
    <div class="verbatim" id="verbatim-16">
 solve(GoalsList,&#x00A0;ProbLow,&#x00A0;ProbUp,&#x00A0;ResTime,&#x00A0;BddTime)
 </div>
-<!--l. 204--><p class="nopar" > takes as input a list of goals <span 
+<!--l. 201--><p class="nopar" > takes as input a list of goals <span 
 class="cmtt-10">GoalsList </span>and returns a lower bound on the
 probability <span 
 class="cmtt-10">ProbLow</span>, an upper bound on the probability <span 
@@ -382,26 +376,26 @@ on performing resolution <span
 class="cmtt-10">ResTime </span>and the CPU time spent on handling BDDs
 <span 
 class="cmtt-10">BddTime</span>.
-<!--l. 207--><p class="indent" >   For <span 
+<!--l. 204--><p class="indent" >   For <span 
 class="cmtt-10">approx/bestk.pl </span>the command
 
    <div class="verbatim" id="verbatim-17">
 solve(GoalsList,&#x00A0;ProbLow,&#x00A0;&#x00A0;ResTime,&#x00A0;BddTime)
 </div>
-<!--l. 210--><p class="nopar" > takes as input a list of goals <span 
+<!--l. 207--><p class="nopar" > takes as input a list of goals <span 
 class="cmtt-10">GoalsList </span>and returns a lower bound on the
 probability <span 
 class="cmtt-10">ProbLow</span>, the CPU time spent on performing resolution <span 
 class="cmtt-10">ResTime </span>and the
 CPU time spent on handling BDDs <span 
 class="cmtt-10">BddTime</span>.
-<!--l. 213--><p class="indent" >   For <span 
+<!--l. 210--><p class="indent" >   For <span 
 class="cmtt-10">approx/bestfirst.pl </span>the command
 
    <div class="verbatim" id="verbatim-18">
 solve(GoalsList,&#x00A0;ProbLow,&#x00A0;ProbUp,&#x00A0;Count,&#x00A0;ResTime,&#x00A0;BddTime)
 </div>
-<!--l. 216--><p class="nopar" > takes as input a list of goals <span 
+<!--l. 213--><p class="nopar" > takes as input a list of goals <span 
 class="cmtt-10">GoalsList </span>and returns a lower bound on the
 probability <span 
 class="cmtt-10">ProbLow</span>, an upper bound on the probability <span 
@@ -411,13 +405,13 @@ class="cmtt-10">Count</span>, the CPU time spent on performing
 resolution <span 
 class="cmtt-10">ResTime </span>and the CPU time spent on handling BDDs <span 
 class="cmtt-10">BddTime</span>.
-<!--l. 220--><p class="indent" >   For <span 
+<!--l. 217--><p class="indent" >   For <span 
 class="cmtt-10">approx/montecarlo.pl </span>the command
 
    <div class="verbatim" id="verbatim-19">
 solve(GoalsList,&#x00A0;Samples,&#x00A0;Time,&#x00A0;Low,&#x00A0;Prob,&#x00A0;Up)
 </div>
-<!--l. 224--><p class="nopar" > takes as input a list of goals <span 
+<!--l. 221--><p class="nopar" > takes as input a list of goals <span 
 class="cmtt-10">GoalsList </span>and returns the number of samples taken
 <span 
 class="cmtt-10">Samples</span>, the time required to solve the problem <span 
@@ -427,13 +421,13 @@ class="cmtt-10">Lower</span>, the estimated probability <span
 class="cmtt-10">Prob </span>and the upper end of the
 confidence interval <span 
 class="cmtt-10">Up</span>.
-<!--l. 230--><p class="indent" >   For <span 
+<!--l. 227--><p class="indent" >   For <span 
 class="cmtt-10">mcintyre.pl</span>: the command
 
    <div class="verbatim" id="verbatim-20">
 solve(Goals,&#x00A0;Samples,&#x00A0;CPUTime,&#x00A0;WallTime,&#x00A0;Lower,&#x00A0;Prob,&#x00A0;Upper)&#x00A0;:-
 </div>
-<!--l. 234--><p class="nopar" > takes as input a conjunction of goals <span 
+<!--l. 231--><p class="nopar" > takes as input a conjunction of goals <span 
 class="cmtt-10">Goals </span>and returns the number of samples taken
 <span 
 class="cmtt-10">Samples</span>, the CPU time required to solve the problem <span 
@@ -445,35 +439,35 @@ class="cmtt-10">Lower</span>, the estimated probability <span
 class="cmtt-10">Prob </span>and the upper end of the confidence interval
 <span 
 class="cmtt-10">Up</span>.
-<!--l. 239--><p class="indent" >   For <span 
+<!--l. 236--><p class="indent" >   For <span 
 class="cmtt-10">approx/exact.pl </span>the command
 
    <div class="verbatim" id="verbatim-21">
 solve(GoalsList,&#x00A0;Prob,&#x00A0;ResTime,&#x00A0;BddTime)
 </div>
-<!--l. 243--><p class="nopar" > takes as input a conjunction of goals <span 
+<!--l. 240--><p class="nopar" > takes as input a conjunction of goals <span 
 class="cmtt-10">Goals </span>and returns the probability <span 
 class="cmtt-10">Prob</span>, the
 CPU time spent on performing resolution <span 
 class="cmtt-10">ResTime </span>and the CPU time spent on
 handling BDDs <span 
 class="cmtt-10">BddTime</span>.
-<!--l. 246--><p class="noindent" >
+<!--l. 243--><p class="noindent" >
    <h5 class="subsubsectionHead"><span class="titlemark">4.1.1   </span> <a 
  id="x1-60004.1.1"></a>Parameters</h5>
-<!--l. 247--><p class="noindent" >The modules make use of a number of parameters in order to control their behavior.
+<!--l. 244--><p class="noindent" >The modules make use of a number of parameters in order to control their behavior.
 They that can be set with the command
 
    <div class="verbatim" id="verbatim-22">
 set(parameter,value).
 </div>
-<!--l. 250--><p class="nopar" > from the Yap prompt after having loaded the module. The current value can be read
+<!--l. 247--><p class="nopar" > from the Yap prompt after having loaded the module. The current value can be read
 with
 
    <div class="verbatim" id="verbatim-23">
 setting(parameter,Value).
 </div>
-<!--l. 255--><p class="nopar" > from the Yap prompt. The available parameters are:
+<!--l. 252--><p class="nopar" > from the Yap prompt. The available parameters are:
      <ul class="itemize1">
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">epsilon_parsing</span></span></span> (valid  for  all  modules):  if  (1  -  the  sum  of  the
@@ -498,7 +492,7 @@ class="cmtt-10">m </span>is the number of the binary variable. The correspondenc
      <div class="verbatim" id="verbatim-24">
      Variables:&#x00A0;[(2,[X=2,X1=1]),(2,[X=1,X1=0]),(1,[])]
 </div>
-     <!--l. 269--><p class="nopar" > where the first element of each couple is the clause number of the input file
+     <!--l. 266--><p class="nopar" > where the first element of each couple is the clause number of the input file
      (starting from 1). In the example above variable <span 
 class="cmtt-10">X0 </span>corresponds to clause <span 
 class="cmtt-10">2</span>
@@ -518,7 +512,7 @@ class="cmtt-10">graphviz </span></a> using the
      <div class="verbatim" id="verbatim-25">
      dotty&#x00A0;cpl.dot&#x00A0;&amp;
 </div>
-     <!--l. 278--><p class="nopar" >
+     <!--l. 275--><p class="nopar" >
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">ground_body</span></span></span>: (valid for <span 
@@ -583,15 +577,15 @@ class="cmtt-10">approx/bestfirst.pl </span>and <span
 class="cmtt-10">approx/exact.pl</span>) timeout for builduing
      BDDs</li></ul>
 
-<!--l. 287--><p class="noindent" >
+<!--l. 284--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.2   </span> <a 
  id="x1-70004.2"></a>Semantic Modules</h4>
-<!--l. 288--><p class="noindent" >The three semantic modules need to produce a grounding of the program in order to
+<!--l. 285--><p class="noindent" >The three semantic modules need to produce a grounding of the program in order to
 compute the semantics. They require an extra file with extension <span 
 class="cmtt-10">.uni </span>(for universe)
 in the same directory where the <span 
 class="cmtt-10">.cpl </span>file is.
-<!--l. 291--><p class="indent" >   There are two ways to specify how to ground a program. The first consists in
+<!--l. 288--><p class="indent" >   There are two ways to specify how to ground a program. The first consists in
 providing the list of constants to which each variable can be instantiated. For
 example, in our case the current directory will contain a file <span 
 class="cmtt-10">coin.uni </span>that is a
@@ -600,7 +594,7 @@ Prolog file containing facts of the form
    <div class="verbatim" id="verbatim-26">
 universe(var_list,const_list).
 </div>
-<!--l. 294--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 291--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">var_list</span></span></span> is a list of variables names (each must be included in single quotes)
 and <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">const_list</span></span></span> is a list of constants. The semantic modules generate the grounding
@@ -610,7 +604,7 @@ class="cmtt-10">var_list</span></span></span> with the constants of
 class="cmtt-10">const_list</span></span></span>. Note that the variables are identified by name, so a variable with
 the same name in two different clauses will be instantiated with the same
 constants.
-<!--l. 297--><p class="indent" >   The other way to specify how to ground a program consists in using mode and
+<!--l. 294--><p class="indent" >   The other way to specify how to ground a program consists in using mode and
 type information. For each predicate, the file <span 
 class="cmtt-10">.uni </span>must contain a fact of the
 form
@@ -618,7 +612,7 @@ form
    <div class="verbatim" id="verbatim-27">
 mode(predicate(t1,...,tn)).
 </div>
-<!--l. 300--><p class="nopar" > that specifies the number and types of each argument of the predicate. Then, the list
+<!--l. 297--><p class="nopar" > that specifies the number and types of each argument of the predicate. Then, the list
 of constants that are in the domain of each type <span 
 class="cmtt-10">ti </span>must be specified with a fact of
 the form
@@ -626,7 +620,7 @@ the form
    <div class="verbatim" id="verbatim-28">
 type(ti,list_of_constants).
 </div>
-<!--l. 305--><p class="nopar" > The file <span 
+<!--l. 302--><p class="nopar" > The file <span 
 class="cmtt-10">.uni </span>can contain both universe and mode declaration, the ones to be used
 depend on the value of the parameter <span 
 class="cmtt-10">grounding</span>: with value <span 
@@ -634,15 +628,15 @@ class="cmtt-10">variables</span>, the
 universe declarations are used, with value <span 
 class="cmtt-10">modes </span>the mode declarations are
 used.
-<!--l. 308--><p class="indent" >   With <span 
+<!--l. 305--><p class="indent" >   With <span 
 class="cmtt-10">semcpl.pl </span>only mode declarations can be used.
-<!--l. 311--><p class="noindent" >
+<!--l. 308--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.3   </span> <a 
  id="x1-80004.3"></a>Extensions</h4>
-<!--l. 312--><p class="noindent" >In this section we will present the extensions to the syntax of LPADs and CP-logic
+<!--l. 309--><p class="noindent" >In this section we will present the extensions to the syntax of LPADs and CP-logic
 programs that <span 
 class="cmtt-10">lpadsld </span>can handle.
-<!--l. 314--><p class="indent" >   When using <span 
+<!--l. 311--><p class="indent" >   When using <span 
 class="cmtt-10">lpadsld.pl</span>, the bodies can contain the predicates <span 
 class="cmtt-10">setof/3 </span>and
 <span 
@@ -652,13 +646,13 @@ both, so for example the query
    <div class="verbatim" id="verbatim-29">
 setof(Z,&#x00A0;(term(X,Y))^foo(X,Y,Z),&#x00A0;L).
 </div>
-<!--l. 317--><p class="nopar" > returns all the instantiations of <span 
+<!--l. 314--><p class="nopar" > returns all the instantiations of <span 
 class="cmtt-10">Z </span>such that there exists an instantiation of <span 
 class="cmtt-10">X </span>and <span 
 class="cmtt-10">Y</span>
 for which <span 
 class="cmtt-10">foo(X,Y,Z) </span>is true.
-<!--l. 320--><p class="indent" >   An example of the use of <span 
+<!--l. 317--><p class="indent" >   An example of the use of <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>is in the file <span 
 class="cmtt-10">female.cpl</span>:
@@ -680,18 +674,18 @@ male(C):M/P&#x00A0;;&#x00A0;female(C):F/P:-
 &#x00A0;<br />known_male(d).
 &#x00A0;<br />known_male(e).
 </div>
-<!--l. 337--><p class="nopar" > The disjunctive rule expresses the probability of a person of unknown sex of being
+<!--l. 334--><p class="nopar" > The disjunctive rule expresses the probability of a person of unknown sex of being
 male or female depending on the number of males and females that are known. This
 is an example of the use of expressions in the probabilities in the head that depend
 on variables in the body. The probabilities are well defined because they always sum
 to 1 (unless <span 
 class="cmtt-10">P </span>is 0).
-<!--l. 341--><p class="indent" >   Another use of <span 
+<!--l. 338--><p class="indent" >   Another use of <span 
 class="cmtt-10">setof </span>and <span 
 class="cmtt-10">bagof </span>is to have an attribute depend on an
 aggregate function of another attribute, similarly to what is done in PRM and
 CLP(BN).
-<!--l. 343--><p class="indent" >   So, in the classical school example (available in <span 
+<!--l. 340--><p class="indent" >   So, in the classical school example (available in <span 
 class="cmtt-10">student.cpl</span>) you can find the
 following clauses:
 
@@ -704,7 +698,7 @@ student_rank(S,h):0.6&#x00A0;;&#x00A0;student_rank(S,l):0.4:-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;bagof(G,R^(registr_stu(R,S),registr_gr(R,G)),L),
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;average(L,Av),Av&#x00A0;=&#x003C;&#x00A0;1.5.
 </div>
-<!--l. 353--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
+<!--l. 350--><p class="nopar" > where <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">registr_stu(R,S)</span></span></span> expresses that registration <span 
 class="cmtt-10">R </span>refers to student <span 
 class="cmtt-10">S </span>and
@@ -714,7 +708,7 @@ class="cmtt-10">R </span>reports grade <span
 class="cmtt-10">G </span>which is a natural
 number. The two clauses express a dependency of the rank of the student from the
 average of her grades.
-<!--l. 356--><p class="indent" >   Another extension can be used with <span 
+<!--l. 353--><p class="indent" >   Another extension can be used with <span 
 class="cmtt-10">lpadsld.pl </span>in order to be able to represent
 reference uncertainty of PRMs. Reference uncertainty means that the link structure
 of a relational model is not fixed but is uncertain: this is represented by having the
@@ -733,18 +727,18 @@ uniform(cites_cited(C,P),P,L):-
 &#x00A0;<br />uniform(cites_citing(C,P),P,L):-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;bagof(Pap,paper_topic(Pap,ai),L).
 </div>
-<!--l. 363--><p class="nopar" > The first clauses states that the paper <span 
+<!--l. 360--><p class="nopar" > The first clauses states that the paper <span 
 class="cmtt-10">P </span>cited in a citation <span 
 class="cmtt-10">C </span>is selected
 uniformly from the set of all papers with topic theory. The second clauses
 expresses that the citing paper is selected uniformly from the papers with topic
 ai.
-<!--l. 368--><p class="indent" >   These clauses make use of the predicate
+<!--l. 365--><p class="indent" >   These clauses make use of the predicate
 
    <div class="verbatim" id="verbatim-33">
 uniform(Atom,Variable,List)
 </div>
-<!--l. 371--><p class="nopar" > in the head, where <span 
+<!--l. 368--><p class="nopar" > in the head, where <span 
 class="cmtt-10">Atom </span>must contain <span 
 class="cmtt-10">Variable</span>. The meaning is the following:
 the set of all the atoms obtained by instantiating <span 
@@ -757,7 +751,7 @@ class="cmmi-10">&#x2215;N </span>where <span
 class="cmmi-10">N </span>is the length of
 <span 
 class="cmtt-10">List</span>.
-<!--l. 375--><p class="indent" >   A more elaborate example is present in file <span class="obeylines-h"><span class="verb"><span 
+<!--l. 372--><p class="indent" >   A more elaborate example is present in file <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">paper_ref.cpl</span></span></span>:
 
    <div class="verbatim" id="verbatim-34">
@@ -773,13 +767,13 @@ uniform(cites_citing(C,P),P,L):-
 &#x00A0;<br />uniform(cites_cited(C,P),P,L):-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;cites_cited_group(C,T),bagof(Pap,paper_topic(Pap,T),L).
 </div>
-<!--l. 388--><p class="nopar" > where the cited paper depends on the topic of the citing paper. In particular, if the
+<!--l. 385--><p class="nopar" > where the cited paper depends on the topic of the citing paper. In particular, if the
 topic is theory, the cited paper is selected uniformly from the papers about theory
 with probability 0.9 and from the papers about ai with probability 0.1. if
 the topic is ai, the cited paper is selected uniformly from the papers about
 theory with probability 0.01 and from the papers about ai with probability
 0.99.
-<!--l. 391--><p class="indent" >   PRMs take into account as well existence uncertainty, where the existence of
+<!--l. 388--><p class="indent" >   PRMs take into account as well existence uncertainty, where the existence of
 instances is also probabilistic. For example, in the paper domain, the total number of
 citations may be unknown and a citation between any two paper may have a
 probability of existing. For example, a citation between two paper may be more
@@ -798,7 +792,7 @@ cites(X,Y):0.005&#x00A0;:-
 &#x00A0;<br />cites(X,Y):0.008&#x00A0;:-
 &#x00A0;<br />&#x00A0;&#x00A0;&#x00A0;&#x00A0;paper_topic(X,ai),paper_topic(Y,ai).
 </div>
-<!--l. 404--><p class="nopar" > This is an example where the probabilities in the head do not sum up to one so the
+<!--l. 401--><p class="nopar" > This is an example where the probabilities in the head do not sum up to one so the
 null event is automatically added to the head. The first clause states that, if the topic
 of a paper <span 
 class="cmtt-10">X </span>is theory and of paper <span 
@@ -807,10 +801,10 @@ there is a citation from <span
 class="cmtt-10">X </span>to <span 
 class="cmtt-10">Y</span>. The other clauses consider the remaining cases for the
 topics.
-<!--l. 409--><p class="noindent" >
+<!--l. 406--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">4.4   </span> <a 
  id="x1-90004.4"></a>Files</h4>
-<!--l. 410--><p class="noindent" >In the directory where Yap keeps the library files (usually <span 
+<!--l. 407--><p class="noindent" >In the directory where Yap keeps the library files (usually <span 
 class="cmtt-10">/usr/local/share/ Yap</span>)
 you can find the directory <span 
 class="cmtt-10">cplint </span>that contains the files:
@@ -833,55 +827,55 @@ class="cmtt-10">examples</span>:
          <li class="itemize"><span 
 class="cmtt-10">alarm.cpl</span>: representation of the Bayesian network in Figure 2 of
          <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span>.
+href="#XVenVer04-ICLP04-IC">23</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">coin.cpl</span>: coin example from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span>.
+href="#XVenVer04-ICLP04-IC">23</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">coin2.cpl</span>: coin example with two coins.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">dice.cpl</span>: dice example from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span>.
+href="#XVenVer04-ICLP04-IC">23</a>]</span>.
 
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">twosideddice.cpl,</span><span 
 class="cmtt-10">&#x00A0;threesideddice.cpl</span></span></span> game with idealized dice
          with two or three sides. Used in the experiments in <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span>.
+href="#XRig-RCRA07-IC">15</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">ex.cpl</span>: first example in <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span>.
+href="#XRig-RCRA07-IC">15</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">exapprox.cpl</span>:  example  showing  the  problems  of  approximate
          inference (see <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span>).
+href="#XRig-RCRA07-IC">15</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">exrange.cpl</span>:  example  showing  the  problems  with  non  range
          restricted programs (see <span class="cite">[<a 
-href="#XRig-RCRA07-IC">14</a>]</span>).
+href="#XRig-RCRA07-IC">15</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">female.cpl</span>: example showing the dependence of probabilities in the
          head from variables in the body (from <span class="cite">[<a 
-href="#XVenVer04-ICLP04-IC">22</a>]</span>).
+href="#XVenVer04-ICLP04-IC">23</a>]</span>).
          </li>
          <li class="itemize"><span 
 class="cmtt-10">mendel.cpl, mendels.cpl</span>:  programs  describing  the  Mendelian
          rules of inheritance, taken from <span class="cite">[<a 
-href="#XBlo04-ILP04WIP-IC">5</a>]</span>.
+href="#XBlo04-ILP04WIP-IC">6</a>]</span>.
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">paper_ref.cpl,</span><span 
 class="cmtt-10">&#x00A0;paper_ref_simple.cpl</span></span></span>: paper citations examples,
          showing reference uncertainty, inspired by <span class="cite">[<a 
-href="#XGetoor+al:JMLR02">11</a>]</span>.
+href="#XGetoor+al:JMLR02">12</a>]</span>.
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">paper_ref_not.cpl</span></span></span>: paper citations example showing that negation
@@ -901,16 +895,16 @@ class="cmtt-10">school.cpl</span>.
          </li>
          <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">student.cpl</span></span></span>: student example from Figure 1.3 of <span class="cite">[<a 
-href="#XGetFri01-BC">10</a>]</span>.
+href="#XGetFri01-BC">11</a>]</span>.
          </li>
          <li class="itemize"><span 
 class="cmtt-10">win.cpl, light.cpl, trigger.cpl, throws.cpl, hiv.cpl,</span><br 
 class="newline" /> <span 
 class="cmtt-10">invalid.cpl</span>: programs taken from <span class="cite">[<a 
-href="#XDBLP:journals/tplp/VennekensDB09">20</a>]</span>. <span 
+href="#XDBLP:journals/tplp/VennekensDB09">21</a>]</span>. <span 
 class="cmtt-10">invalid.cpl </span>is an example
          of a program that is invalid but sound.</li></ul>
-     <!--l. 435--><p class="noindent" >The files <span 
+     <!--l. 432--><p class="noindent" >The files <span 
 class="cmtt-10">*.uni </span>that are present for some of the examples are used by the
      semantical modules. Some of the example files contain in an initial comment
      some queries together with their result.
@@ -918,25 +912,26 @@ class="cmtt-10">*.uni </span>that are present for some of the examples are used 
      <li class="itemize">Subdirectory <span 
 class="cmtt-10">doc</span>: contains this manual in latex, html and pdf.</li></ul>
 
-<!--l. 439--><p class="noindent" >
+<!--l. 436--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">5   </span> <a 
  id="x1-100005"></a>Learning</h3>
-<!--l. 440--><p class="noindent" ><span 
+<!--l. 437--><p class="noindent" ><span 
 class="cmtt-10">cplint </span>contains the following learning algorithms:
      <ul class="itemize1">
      <li class="itemize">CEM (<span 
 class="cmtt-10">cplint </span>EM): an implementation of EM for learning parameters
      that is based on <span 
 class="cmtt-10">lpadsld.pl </span><span class="cite">[<a 
-href="#XRigDiM11-ML-IJ">17</a>]</span>
+href="#XRigDiM11-ML-IJ">18</a>]</span>
      </li>
      <li class="itemize">RIB  (Relational  Information  Bottleneck):  an  algorithm  for  learning
      parameters based on the Information Bottleneck <span class="cite">[<a 
-href="#XRigDiM11-ML-IJ">17</a>]</span>
+href="#XRigDiM11-ML-IJ">18</a>]</span>
      </li>
      <li class="itemize">EMBLEM  (EM  over  Bdds  for  probabilistic  Logic  programs  Efficient
      Mining): an implementation of EM for learning parameters that computes
      expectations directly on BDDs <span class="cite">[<a 
+href="#XBelRig11-IDA">5</a>,&#x00A0;<a 
 href="#XBelRig11-CILC11-NC">2</a>,&#x00A0;<a 
 href="#XBelRig11-TR">3</a>]</span>
      </li>
@@ -944,10 +939,10 @@ href="#XBelRig11-TR">3</a>]</span>
      over bdds): an algorithm for learning the structure of program that is
      based on EMBLEM <span class="cite">[<a 
 href="#XBelRig11-ILP11-IC">4</a>]</span></li></ul>
-<!--l. 448--><p class="noindent" >
+<!--l. 445--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.1   </span> <a 
  id="x1-110005.1"></a>Input</h4>
-<!--l. 449--><p class="noindent" >To execute the learning algorithms, prepare four files in the same folder:
+<!--l. 446--><p class="noindent" >To execute the learning algorithms, prepare four files in the same folder:
      <ul class="itemize1">
      <li class="itemize"><span 
 class="cmtt-10">&#x003C;stem&#x003E;.kb</span>: contains the example interpretations
@@ -962,10 +957,10 @@ class="cmtt-10">&#x003C;stem&#x003E;.l</span>: contains language bias informatio
      <li class="itemize"><span 
 class="cmtt-10">&#x003C;stem&#x003E;.cpl</span>: contains the LPAD for you which you want to learn the
      parameters or the initial LPAD for SLIPCASE</li></ul>
-<!--l. 456--><p class="noindent" >where <span 
+<!--l. 453--><p class="noindent" >where <span 
 class="cmtt-10">&#x003C;stem&#x003E; </span>is your dataset name. Examples of these files can be found in the dataset
 pages.
-<!--l. 458--><p class="indent" >   In <span 
+<!--l. 455--><p class="indent" >   In <span 
 class="cmtt-10">&#x003C;stem&#x003E;.kb </span>the example interpretations have to be given as a list of Prolog
 facts initiated by <span 
 class="cmtt-10">begin(model(&#x003C;name&#x003E;)). </span>and terminated by <span 
@@ -985,27 +980,27 @@ begin(model(b1)).
 &#x00A0;<br />actor(2).
 &#x00A0;<br />end(model(b1)).
 </div>
-<!--l. 472--><p class="nopar" > The interpretations may contain a fact of the form
+<!--l. 469--><p class="nopar" > The interpretations may contain a fact of the form
 
    <div class="verbatim" id="verbatim-37">
 prob(0.3).
 </div>
-<!--l. 476--><p class="nopar" > assigning a probability (0.3 in this case) to the interpretations. If this is omitted, the
+<!--l. 473--><p class="nopar" > assigning a probability (0.3 in this case) to the interpretations. If this is omitted, the
 probability of each interpretation is considered equal to 1<span 
 class="cmmi-10">&#x2215;n </span>where <span 
 class="cmmi-10">n </span>is the total
 number of interpretations. <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">prob/1</span></span></span> can be used to set different multiplicity for the
 different interpretations.
-<!--l. 479--><p class="indent" >   In order for RIB to work, the input interpretations must share the Herbrand
+<!--l. 476--><p class="indent" >   In order for RIB to work, the input interpretations must share the Herbrand
 universe. If this is not the case, you have to translate the interpretations in this was,
 see for example the <span 
 class="cmtt-10">sp1 </span>files in RIB&#8217;s folder, that are the results of the conversion of
 the first fold of the IMDB dataset.
-<!--l. 481--><p class="indent" >   <span 
+<!--l. 478--><p class="indent" >   <span 
 class="cmtt-10">&#x003C;stem&#x003E;.bg </span>can contain Prolog clauses that can be used to derive additional
 conclusions from the atoms in the interpretations.
-<!--l. 484--><p class="indent" >   <span 
+<!--l. 481--><p class="indent" >   <span 
 class="cmtt-10">&#x003C;stem&#x003E;.l </span>contains the declarations of the input and output predicates, of the
 unseen predicates and the commands for setting the algorithms&#8217; parameters. Output
 predicates are declared as
@@ -1013,74 +1008,80 @@ predicates are declared as
    <div class="verbatim" id="verbatim-38">
 output(&#x003C;predicate&#x003E;/&#x003C;arity&#x003E;).
 </div>
-<!--l. 488--><p class="nopar" > and define the predicates whose atoms in the input interpretations are used as the
+<!--l. 485--><p class="nopar" > and define the predicates whose atoms in the input interpretations are used as the
 goals for the prediction of which you want to optimize the parameters. Derivations
 for these goals are built by the systems.
-<!--l. 491--><p class="indent" >   Input predicates are those for the predictions of which you do not want to
+<!--l. 488--><p class="indent" >   Input predicates are those for the predictions of which you do not want to
 optimize the parameters. You can declare closed world input predicates
 with
 
    <div class="verbatim" id="verbatim-39">
 input_cw(&#x003C;predicate&#x003E;/&#x003C;arity&#x003E;).
 </div>
-<!--l. 494--><p class="nopar" > For these predicates, the only true atoms are those in the interpretations, the
+<!--l. 491--><p class="nopar" > For these predicates, the only true atoms are those in the interpretations, the
 clauses in the input program are not used to derive atoms not present in the
 interpretations.
-<!--l. 497--><p class="indent" >   Open world input predicates are declared with
+<!--l. 494--><p class="indent" >   Open world input predicates are declared with
 
    <div class="verbatim" id="verbatim-40">
 input(&#x003C;predicate&#x003E;/&#x003C;arity&#x003E;).
 </div>
-<!--l. 500--><p class="nopar" > In this case, if a subgoal for such a predicate is encountered when deriving the atoms
+<!--l. 497--><p class="nopar" > In this case, if a subgoal for such a predicate is encountered when deriving the atoms
 for the output predicates, both the facts in the interpretations and the clauses of the
 input program are used.
-<!--l. 504--><p class="indent" >   For RIB, if there are unseen predicates, i.e., predicates that are present in the
+<!--l. 501--><p class="indent" >   For RIB, if there are unseen predicates, i.e., predicates that are present in the
 input program but not in the interpretations, you have to declare them
 with
 
    <div class="verbatim" id="verbatim-41">
 unseen(&#x003C;predicate&#x003E;/&#x003C;arity&#x003E;).
 </div>
-<!--l. 507--><p class="nopar" >
-<!--l. 509--><p class="indent" >   For SLIPCASE, you have to specify the language bias by means of mode
+<!--l. 504--><p class="nopar" >
+<!--l. 506--><p class="indent" >   For SLIPCASE, you have to specify the language bias by means of mode
 declarations in the style of <a 
 href="http://www.doc.ic.ac.uk/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}shm/progol.html" > Progol </a>.
 
    <div class="verbatim" id="verbatim-42">
 modeh(&#x003C;recall&#x003E;,&#x003C;predicate&#x003E;(&#x003C;arg1&#x003E;,...).
 </div>
-<!--l. 513--><p class="nopar" > specifies the atoms that can appear in the head of clauses, while
+<!--l. 510--><p class="nopar" > specifies the atoms that can appear in the head of clauses, while
 
    <div class="verbatim" id="verbatim-43">
 modeb(&#x003C;recall&#x003E;,&#x003C;predicate&#x003E;(&#x003C;arg1&#x003E;,...).
 </div>
-<!--l. 517--><p class="nopar" > specifies the atoms that can appear in the body of clauses. <span 
+<!--l. 514--><p class="nopar" > specifies the atoms that can appear in the body of clauses. <span 
 class="cmtt-10">&#x003C;recall&#x003E; </span>can be an
 integer or <span 
 class="cmtt-10">* </span>(currently unused).
-<!--l. 521--><p class="indent" >   The arguments are of the form
+<!--l. 518--><p class="indent" >   The arguments are of the form
 
    <div class="verbatim" id="verbatim-44">
 +&#x003C;type&#x003E;
 </div>
-<!--l. 524--><p class="nopar" > for specifying an input variable of type <span 
+<!--l. 521--><p class="nopar" > for specifying an input variable of type <span 
 class="cmtt-10">&#x003C;type&#x003E;</span>, or
 
    <div class="verbatim" id="verbatim-45">
 -&#x003C;type&#x003E;
 </div>
-<!--l. 528--><p class="nopar" > for specifying an output variable of type <span 
-class="cmtt-10">&#x003C;type&#x003E;</span>.
+<!--l. 525--><p class="nopar" > for specifying an output variable of type <span 
+class="cmtt-10">&#x003C;type&#x003E;</span>. or
+
+   <div class="verbatim" id="verbatim-46">
+&#x003C;constant&#x003E;
+</div>
+<!--l. 529--><p class="nopar" > for specifying a constant.
+<!--l. 532--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.2   </span> <a 
  id="x1-120005.2"></a>Parameters</h4>
-<!--l. 531--><p class="noindent" >In order to set the algorithms&#8217; parameters, you have to insert in <span 
+<!--l. 533--><p class="noindent" >In order to set the algorithms&#8217; parameters, you have to insert in <span 
 class="cmtt-10">&#x003C;stem&#x003E;.l </span>commands
 of the form
 
-   <div class="verbatim" id="verbatim-46">
+   <div class="verbatim" id="verbatim-47">
 :-&#x00A0;set(&#x003C;parameter&#x003E;,&#x003C;value&#x003E;).
 </div>
-<!--l. 534--><p class="nopar" > The available parameters are:
+<!--l. 536--><p class="nopar" > The available parameters are:
      <ul class="itemize1">
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">depth</span></span></span> (values: integer or <span class="obeylines-h"><span class="verb"><span 
@@ -1092,10 +1093,11 @@ class="cmtt-10">true</span></span></span>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">single_var</span></span></span> (values: <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">{true,false}</span></span></span>, default value: <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">false</span></span></span>, valid for CEM
-     only): if set to <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">true</span></span></span>, there is a random variable for each clauses, instead
-     of a separate random variable for each grounding of a clause
+class="cmtt-10">false</span></span></span>, valid for CEM,
+     EMBLEM and SLIPCASE): if set to <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">true</span></span></span>, there is a random variable for
+     each clauses, instead of a separate random variable for each grounding of
+     a clause
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">sample_size</span></span></span> (values:  integer,  default  value:  1000):  total  number  of
@@ -1106,59 +1108,74 @@ class="cmtt-10">prob(P).</span></span></span>
 class="cmtt-10">sample_size*P</span></span></span> examples
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">epsilon_em</span></span></span> (values: real, default value: 0.1, valid for CEM only): if the
-     difference in the log likelihood in two successive EM iteration is smaller
-     than <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">epsilon_em</span></span></span> (values: real, default value: 0.1, valid for CEM, EMBLEM
+     and SLIPCASE): if the difference in the log likelihood in two successive
+     EM iteration is smaller than <span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">epsilon_em</span></span></span>, then EM stops
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">epsilon_em_fraction</span></span></span> (values: real, default value: 0.01, valid for CEM
-     only): if the difference in the log likelihood in two successive EM iteration
-     is smaller than <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">epsilon_em_fraction</span></span></span>*(-current log likelihood), then EM
-     stops
+class="cmtt-10">epsilon_em_fraction</span></span></span> (values: real, default value: 0.01, valid for CEM,
+     EMBLEM and SLIPCASE): if the difference in the log likelihood in two
+     successive EM iteration is smaller than <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">epsilon_em_fraction</span></span></span>*(-current
+     log likelihood), then EM stops
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">random_restarts_number</span></span></span> (values: integer, default value: 1, valid for CEM
-     only): number of random restarts
+class="cmtt-10">iter</span></span></span>  (values:   integer,   defualt   value:   1,   valid   for   EMBLEM   and
+     SLIPCASE): maximum number of iteration of EM parameter learning. If
+     set to -1, no maximum number of iterations is imposed
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">iterREF</span></span></span> (values: integer, defualt value: 1, valid for SLIPCASE): maximum
+     number of iteration of EM parameter learning for refinements. If set to -1,
+     no maximum number of iterations is imposed.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">random_restarts_number</span></span></span> (values:  integer,  default  value:  1,  valid  for
+     CEM,  EMBLEM  and  SLIPCASE):  number  of  random  restarts  of  EM
+     learning
+
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">random_restarts_REFnumber</span></span></span> (values: integer, default value: 1, valid for
+     SLIPCASE): number of random restarts of EM learning for refinements
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
 class="cmtt-10">setrand</span></span></span> (values:  rand(integer,integer,integer)):  seed  for  the  random
      functions, see Yap manual for allowed values
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">minimal_step</span></span></span> (values:  [0,1],  default  value:  0.005,  valid  for  RIB  only):
-     minimal increment of <span 
+class="cmtt-10">minimal_step</span></span></span> (values: [0,1], default value: 0.005, valid for RIB): minimal
+     increment of <span 
 class="cmmi-10">&#x03B3;</span>
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">maximal_step</span></span></span> (values:  [0,1],  default  value:  0.1,  valid  for  RIB  only):
-     maximal increment of <span 
+class="cmtt-10">maximal_step</span></span></span> (values: [0,1], default value: 0.1, valid for RIB): maximal
+     increment of <span 
 class="cmmi-10">&#x03B3;</span>
-
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">logsize_fraction</span></span></span> (values: [0,1], default value 0.9, valid for RIB only):
-     RIB  stops  when  <span 
+class="cmtt-10">logsize_fraction</span></span></span> (values: [0,1], default value 0.9, valid for RIB): RIB
+     stops when <span 
 class="cmbx-10">I</span>(<span 
 class="cmmi-10">CH,T</span>;<span 
-class="cmmi-10">Y </span>)  is  above  <span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">logsize_fraction</span></span></span> times  its
-     maximum value (log <span 
+class="cmmi-10">Y </span>) is above <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">logsize_fraction</span></span></span> times its maximum
+     value (log <span 
 class="cmsy-10">|</span><span 
 class="cmmi-10">CH,T</span><span 
 class="cmsy-10">|</span>, see <span class="cite">[<a 
-href="#XDBLP:journals/jmlr/ElidanF05">9</a>]</span>)
+href="#XDBLP:journals/jmlr/ElidanF05">10</a>]</span>)
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">delta</span></span></span> (values: negative integer, default value -10, valid for RIB only):
-     value assigned to log 0
+class="cmtt-10">delta</span></span></span> (values: negative integer, default value -10, valid for RIB): value
+     assigned to log 0
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">epsilon_fraction</span></span></span> (values: integer, default value 100, valid for RIB only):
+class="cmtt-10">epsilon_fraction</span></span></span> (values:  integer,  default  value  100,  valid  for  RIB):
      in  the  computation  of  the  step,  the  value  of  <span 
 class="cmmi-10">&#x03F5; </span>of  <span class="cite">[<a 
-href="#XDBLP:journals/jmlr/ElidanF05">9</a>]</span>  is  obtained  as
+href="#XDBLP:journals/jmlr/ElidanF05">10</a>]</span>  is  obtained  as
      log <span 
 class="cmsy-10">|</span><span 
 class="cmmi-10">CH,T</span><span 
@@ -1166,41 +1183,115 @@ class="cmsy-10">|&#x00D7;</span><span class="obeylines-h"><span class="verb"><sp
 class="cmtt-10">epsilon_fraction</span></span></span>
      </li>
      <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
-class="cmtt-10">max_rules</span></span></span> (values:  integer,  default  value:  6000,  valid  for  RIB  only):
-     maximum number of ground rules. Used to set the size of arrays for storing
-     internal statistics. Can be increased as much as memory allows.</li></ul>
-<!--l. 553--><p class="noindent" >
+class="cmtt-10">max_rules</span></span></span> (values:  integer,  default  value:  6000,  valid  for  RIB  and
+     SLIPCASE): maximum number of ground rules. Used to set the size of
+     arrays for storing internal statistics. Can be increased as much as memory
+     allows.
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">logzero</span></span></span> (values:  negative  real,  default  value  log(0<span 
+class="cmmi-10">.</span>000001),  valid  for
+     SLIPCASE): value assigned to log 0
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">examples</span></span></span> (values: <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">atoms</span></span></span>,<span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">interpretations</span></span></span>, default value <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">atoms</span></span></span>, valid for
+     SLIPCASE): determines how BDDs are built: if set to <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">interpretations</span></span></span>,
+     a BDD for the conjunction of all the atoms for the target predicates in each
+     interpretations is built. If set to <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">atoms</span></span></span>, a BDD is built for the conjunction
+     of a group of atoms for the target predicates in each interpretations. The
+     number of atoms in each group is determined by the parameter <span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">group</span></span></span>
+
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">group</span></span></span> (values: integer, default value: 1, valid for SLIPCASE): number of
+     target atoms in the groups that are used to build BDDs
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">nax_iter</span></span></span> (values: integer, default value: 10, valid for SLIPCASE): number
+     of interations of beam search
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">max_var</span></span></span> (values: integer, default value: 1, valid for SLIPCASE): maximum
+     number of distinct variables in a clause
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">verbosity</span></span></span> (values: integer in [1,3], default value: 1): level of verbosity of
+     the algorithms
+     </li>
+     <li class="itemize"><span class="obeylines-h"><span class="verb"><span 
+class="cmtt-10">beamsize</span></span></span> (values: integer, default value: 20, valid for SLIPCASE): size of
+     the beam in SLIPCASE
+     </li></ul>
+<!--l. 571--><p class="noindent" >
    <h4 class="subsectionHead"><span class="titlemark">5.3   </span> <a 
  id="x1-130005.3"></a>Commands</h4>
-<!--l. 554--><p class="noindent" >To execute CEM, load <span 
-class="cmtt-10">em.pl </span>and call:
-
-   <div class="verbatim" id="verbatim-47">
-?:-&#x00A0;em(stem).
-</div>
-<!--l. 557--><p class="nopar" > To execute RIB, load <span 
-class="cmtt-10">rib.pl </span>and call:
+<!--l. 572--><p class="noindent" >To execute CEM, load <span 
+class="cmtt-10">em.pl </span>with
 
    <div class="verbatim" id="verbatim-48">
+?:-&#x00A0;use_module(library(&#8217;cplint/em&#8217;)).
+</div>
+<!--l. 575--><p class="nopar" > and call:
+
+   <div class="verbatim" id="verbatim-49">
+?:-&#x00A0;em(stem).
+</div>
+<!--l. 579--><p class="nopar" > To execute RIB, load <span 
+class="cmtt-10">rib.pl </span>with
+
+   <div class="verbatim" id="verbatim-50">
+?:-&#x00A0;use_module(library(&#8217;cplint/rib&#8217;)).
+</div>
+<!--l. 583--><p class="nopar" > and call:
+
+   <div class="verbatim" id="verbatim-51">
 ?:-&#x00A0;ib_par(stem).
 </div>
-<!--l. 561--><p class="nopar" >
-<!--l. 564--><p class="noindent" >
+<!--l. 587--><p class="nopar" > To execute EMBLEM, load <span 
+class="cmtt-10">slipcase.pl </span>with
+
+   <div class="verbatim" id="verbatim-52">
+?:-&#x00A0;use_module(library(&#8217;cplint/slipcase&#8217;)).
+</div>
+<!--l. 591--><p class="nopar" > and call
+
+   <div class="verbatim" id="verbatim-53">
+?:-&#x00A0;em(stem).
+</div>
+<!--l. 595--><p class="nopar" > To execute SLIPCASE, load <span 
+class="cmtt-10">slipcase.pl </span>with
+
+   <div class="verbatim" id="verbatim-54">
+?:-&#x00A0;use_module(library(&#8217;cplint/slipcase&#8217;)).
+</div>
+<!--l. 599--><p class="nopar" > and call
+
+   <div class="verbatim" id="verbatim-55">
+?:-&#x00A0;sl(stem).
+</div>
+<!--l. 603--><p class="nopar" >
+<!--l. 605--><p class="noindent" >
    <h3 class="sectionHead"><span class="titlemark">6   </span> <a 
  id="x1-140006"></a>License</h3>
-<!--l. 569--><p class="noindent" ><span 
+<!--l. 610--><p class="noindent" ><span 
 class="cmtt-10">cplint</span>, as Yap, follows the Artistic License 2.0 that you can find in Yap CVS root
 dir. The copyright is by Fabrizio Riguzzi.
-<!--l. 572--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
+<!--l. 613--><p class="indent" >   The modules in the approx subdirectory use SimplecuddLPADs, a modification of
 the <a 
 href="www.cs.kuleuven.be/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}theo/tools/simplecudd.html" > Simplecudd </a> library whose copyright is by Katholieke Universiteit Leuven and
 that follows the Artistic License 2.0.
-<!--l. 575--><p class="indent" >   Some modules use the library <a 
+<!--l. 616--><p class="indent" >   Some modules use the library <a 
 href="http://vlsi.colorado.edu/\protect \unhbox \voidb@x \penalty \@M \relax \unhbox \voidb@x \special {t4ht@+&{35}x00A0{59}}x{}fabio/" > CUDD </a> for manipulating BDDs that is included in
 glu. For the use of CUDD, the following license must be accepted:
-<!--l. 580--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
-<!--l. 582--><p class="indent" >   All rights reserved.
-<!--l. 584--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
+<!--l. 621--><p class="indent" >   Copyright (c) 1995-2004, Regents of the University of Colorado
+<!--l. 623--><p class="indent" >   All rights reserved.
+<!--l. 625--><p class="indent" >   Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
      <ul class="itemize1">
      <li class="itemize">Redistributions of source code must retain the above copyright notice, this
@@ -1213,7 +1304,7 @@ are permitted provided that the following conditions are met:
      <li class="itemize">Neither  the  name  of  the  University  of  Colorado  nor  the  names  of  its
      contributors may be used to endorse or promote products derived from
      this software without specific prior written permission.</li></ul>
-<!--l. 601--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
+<!--l. 642--><p class="noindent" >THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS <br 
 class="newline" />AND CONTRIBUTORS &#8221;AS IS&#8221; AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -1228,7 +1319,7 @@ class="newline" />AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-<!--l. 615--><p class="indent" >   <span 
+<!--l. 656--><p class="indent" >   <span 
 class="cmtt-10">lpad.pl</span>, <span 
 class="cmtt-10">semlpad.pl </span>and <span 
 class="cmtt-10">cpl.pl </span>are based on the SLG system by <a 
@@ -1275,15 +1366,22 @@ class="cmti-10">International Conference, ILP 2011, London, UK, 31 July-3 August
     </p>
     <p class="bibitem" ><span class="biblabel">
   [5]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
- id="XBlo04-ILP04WIP-IC"></a>H.&#x00A0;Blockeel. Probabilistic logical models for mendel&#8217;s experiments: An
+ id="XBelRig11-IDA"></a>Elena Bellodi and Fabrizio Riguzzi.  Expectation Maximization over
 
+    binary decision diagrams for probabilistic logic programs. <span 
+class="cmti-10">Intel. Data Anal.</span>,
+    16(6), 2012.
+    </p>
+    <p class="bibitem" ><span class="biblabel">
+  [6]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XBlo04-ILP04WIP-IC"></a>H.&#x00A0;Blockeel. Probabilistic logical models for mendel&#8217;s experiments: An
     exercise.  In <span 
 class="cmti-10">Inductive Logic Programming (ILP 2004), Work in Progress</span>
     <span 
 class="cmti-10">Track</span>, 2004.
     </p>
     <p class="bibitem" ><span class="biblabel">
-  [6]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+  [7]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XBraRig10-ILP10-IC"></a>Stefano Bragaglia and Fabrizio Riguzzi. Approximate inference for logic
     programs with annotated disjunctions.  In Paolo Frasconi and Francesca
     Lisi, editors, <span 
@@ -1294,13 +1392,13 @@ class="cmti-10">ILP 2010, Florence, Italy, June 27-30, 2010. Revised Papers</spa
 class="cmti-10">LNCS</span>, pages 30&#8211;37. Springer, 2011.
     </p>
     <p class="bibitem" ><span class="biblabel">
-  [7]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+  [8]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/jacm/ChenW96"></a>Weidong  Chen  and  David&#x00A0;Scott  Warren.    Tabled  evaluation  with
     delaying for general logic programs. <span 
 class="cmti-10">Journal of the ACM</span>, 43(1):20&#8211;74, 1996.
     </p>
     <p class="bibitem" ><span class="biblabel">
-  [8]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+  [9]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:conf/ijcai/RaedtKT07"></a>L.&#x00A0;De&#x00A0;Raedt, A.&#x00A0;Kimmig, and H.&#x00A0;Toivonen. ProbLog: A probabilistic
     Prolog  and  its  application  in  link  discovery.    In  <span 
 class="cmti-10">International  Joint</span>
@@ -1308,36 +1406,36 @@ class="cmti-10">International  Joint</span>
 class="cmti-10">Conference on Artificial Intelligence</span>, pages 2462&#8211;2467, 2007.
     </p>
     <p class="bibitem" ><span class="biblabel">
-  [9]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [10]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/jmlr/ElidanF05"></a>G.&#x00A0;Elidan and N.&#x00A0;Friedman.  Learning hidden variable networks: The
     information bottleneck approach.  <span 
 class="cmti-10">Journal of Machine Learning Research</span>,
     6:81&#8211;127, 2005.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [10]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [11]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XGetFri01-BC"></a>L.&#x00A0;Getoor,   N.&#x00A0;Friedman,   D.&#x00A0;Koller,   and   A.&#x00A0;Pfeffer.      Learning
     probabilistic relational models. In Saso Dzeroski and Nada Lavrac, editors,
     <span 
 class="cmti-10">Relational Data Mining</span>. Springer-Verlag, Berlin, 2001.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [11]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [12]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XGetoor+al:JMLR02"></a>L.&#x00A0;Getoor,   N.&#x00A0;Friedman,   D.&#x00A0;Koller,   and   B.&#x00A0;Taskar.      Learning
     probabilistic models of relational structure.  <span 
 class="cmti-10">Journal of Machine Learning</span>
     <span 
 class="cmti-10">Research</span>, 3:679&#8211;707, December 2002.
-    </p>
-    <p class="bibitem" ><span class="biblabel">
- [12]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
- id="XDBLP:journals/ai/Poole97"></a>David Poole. The independent choice logic for modelling multiple agents
-    under uncertainty. <span 
-class="cmti-10">Artificial Intelligence</span>, 94(1-2):7&#8211;56, 1997.
 
     </p>
     <p class="bibitem" ><span class="biblabel">
  [13]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ id="XDBLP:journals/ai/Poole97"></a>David Poole. The independent choice logic for modelling multiple agents
+    under uncertainty. <span 
+class="cmti-10">Artificial Intelligence</span>, 94(1-2):7&#8211;56, 1997.
+    </p>
+    <p class="bibitem" ><span class="biblabel">
+ [14]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig-AIIA07-IC"></a>Fabrizio Riguzzi.  A top down interpreter for LPAD and CP-logic.  In
     <span 
 class="cmti-10">Congress of the Italian Association for Artificial Intelligence</span>, volume 4733
@@ -1345,7 +1443,7 @@ class="cmti-10">Congress of the Italian Association for Artificial Intelligence<
 class="cmti-10">LNAI</span>, pages 109&#8211;120. Springer, 2007.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [14]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [15]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig-RCRA07-IC"></a>Fabrizio  Riguzzi.   A  top  down  interpreter  for  LPAD  and  CP-logic.
     In <span 
 class="cmti-10">Proceedings of the 14th RCRA workshop Experimental Evaluation of</span>
@@ -1353,13 +1451,13 @@ class="cmti-10">Proceedings of the 14th RCRA workshop Experimental Evaluation of
 class="cmti-10">Algorithms for Solving Problems with Combinatorial Explosion</span>, 2007.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [15]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [16]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig09-LJIGPL-IJ"></a>Fabrizio Riguzzi. Extended semantics and inference for the Independent
     Choice Logic. <span 
 class="cmti-10">Logic Journal of the IGPL</span>, 17(6):589&#8211;629, 2009.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [16]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [17]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRig11-CILC11-NC"></a>Fabrizio  Riguzzi.     MCINTYRE:  A  Monte  Carlo  algorithm  for
     probabilistic  logic  programming.    In  <span 
 class="cmti-10">Proceedings  of  the  26th  Italian</span>
@@ -1369,14 +1467,14 @@ class="cmti-10">Conference  on  Computational  Logic  (CILC2011),  Pescara,  Ita
 class="cmti-10">August-2 September, 2011</span>, 2011.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [17]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [18]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XRigDiM11-ML-IJ"></a>Fabrizio  Riguzzi  and  Nicola&#x00A0;Di  Mauro.   Applying  the  information
     bottleneck to statistical relational learning.  <span 
 class="cmti-10">Machine Learning</span>, 2011.  To
     appear.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [18]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [19]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XSanPagQaz03-UAI-IC"></a>V.&#x00A0;Santos&#x00A0;Costa,  D.&#x00A0;Page,  M.&#x00A0;Qazi,  and  J.&#x00A0;Cussens.    CLP(<span 
 class="cmsy-10"><img 
 src="cmsy10-42.png" alt="B" class="10x-x-42" /><img 
@@ -1387,29 +1485,29 @@ class="cmti-10">Uncertainty</span>
 class="cmti-10">in Artificial Intelligence</span>. Morgan Kaufmann, 2003.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [19]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [20]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenDenBru-JELIA06"></a>J.&#x00A0;Vennekens, M.&#x00A0;Denecker, and M.&#x00A0;Bruynooghe. Representing causal
     information  about  a  probabilistic  process.   In  <span 
 class="cmti-10">Proceedings  of  the  10th</span>
     <span 
 class="cmti-10">European Conference on Logics in Artificial Intelligence</span>, LNAI. Springer,
     September 2006.
-    </p>
 
+    </p>
     <p class="bibitem" ><span class="biblabel">
- [20]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [21]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XDBLP:journals/tplp/VennekensDB09"></a>J.&#x00A0;Vennekens,  Marc  Denecker,  and  Maurice  Bruynooghe.   CP-logic:
     A  language  of  causal  probabilistic  events  and  its  relation  to  logic
     programming. <span 
 class="cmti-10">Theory Pract. Log. Program.</span>, 9(3):245&#8211;308, 2009.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [21]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [22]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenVer03-TR"></a>J.&#x00A0;Vennekens  and  S.&#x00A0;Verbaeten.    Logic  programs  with  annotated
     disjunctions. Technical Report CW386, K. U. Leuven, 2003.
     </p>
     <p class="bibitem" ><span class="biblabel">
- [22]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
+ [23]<span class="bibsp">&#x00A0;&#x00A0;&#x00A0;</span></span><a 
  id="XVenVer04-ICLP04-IC"></a>J.&#x00A0;Vennekens,  S.&#x00A0;Verbaeten,  and  M.&#x00A0;Bruynooghe.   Logic  programs
     with  annotated  disjunctions.     In  <span 
 class="cmti-10">International  Conference  on  Logic</span>

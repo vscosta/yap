@@ -1,0 +1,72 @@
+/* Execution time 40.627000 LogSize 28.339593 Final I 5.235925
+setting(setrand,rand(1230,45,123)).
+setting(cll_sample_size,1000).
+setting(equivalent_sample_size,100).
+setting(large_equivalent_sample_size,10000).
+setting(large_equivalent_sample_size_factor,100).
+setting(equivalent_sample_size_factor,0.25).
+setting(epsilon_em,0.1).
+setting(epsilon_sem,2).
+setting(random_restarts_number,10).
+setting(inference,cplint).
+setting(new_head_atoms_zero_prob,false).
+setting(depth_bound,4).
+setting(logsize_fraction,0.9).
+setting(maximum_instantiations,20).
+setting(delta,-10).
+setting(epsilon_fraction,100).
+setting(max_rules,6000).
+setting(max_var,2).
+setting(minimal_step,0.005).
+setting(maximal_step,0.1).
+setting(sample_size,840).
+setting(verbosity,3).
+*/
+sameperson_pos(B,C):0.500393 :-
+	movie(D,B),
+	movie(D,C).
+
+sameperson_pos(B,C):0.485303 :-
+	actor(B),
+	actor(C),
+	workedunder(B,D),
+	workedunder(C,D).
+
+sameperson_pos(B,C):0.556762 :-
+	director(B),
+	director(C),
+	genre(B,D),
+	genre(C,D).
+
+sameperson_neg(B,C):0.414274 :-
+	movie(D,B),
+	movie(D,C).
+
+sameperson_neg(B,C):0.524811 :-
+	actor(B),
+	actor(C),
+	workedunder(B,D),
+	workedunder(C,D).
+
+sameperson_neg(B,C):0.682189 :-
+	director(B),
+	director(C),
+	genre(B,D),
+	genre(C,D).
+
+sameperson(B,C):0.377641 :-
+	\+ sameperson_pos(B,C),
+	sameperson_neg(B,C).
+
+sameperson(B,C):0.040523 :-
+	\+ sameperson_pos(B,C),
+	\+ sameperson_neg(B,C).
+
+sameperson(B,C):0.784373 :-
+	sameperson_pos(B,C),
+	sameperson_neg(B,C).
+
+sameperson(B,C):0.461804 :-
+	sameperson_pos(B,C),
+	\+ sameperson_neg(B,C).
+

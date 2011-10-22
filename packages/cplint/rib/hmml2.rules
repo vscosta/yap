@@ -1,0 +1,44 @@
+/* Execution time 72.732000 LogSize 26.931472 Final I 14.929189
+setting(setrand,rand(1230,45,123)).
+setting(logsize_fraction,0.9).
+setting(delta,-10).
+setting(epsilon_fraction,100).
+setting(max_rules,6000).
+setting(depth_bound,inf).
+setting(minimal_step,0.005).
+setting(maximal_step,0.1).
+setting(sample_size,478).
+setting(verbosity,3).
+*/
+failure(B) :- 
+	hmmf(B,[r0],C,2),
+	C>=1000.
+
+success(B) :- 
+	hmmf(B,[r0],C,2),
+	C<1000.
+
+hmmf([p|B],C,D,E):0.280793 ; hmmf([s|B],C,F,E):0.719207 :-
+	E>0,
+	C=[r0|G],
+	tr(C,H),
+	I is E-1,
+	hmmf(B,[H|C],J,I),
+	D is J+900,
+	F is J+400.
+
+hmmf([s|B],C,D,E):0.550416 ; hmmf([h|B],C,F,E):0.449584 :-
+	E>0,
+	C=[r1|G],
+	tr(C,H),
+	I is E-1,
+	hmmf(B,[H|C],J,I),
+	D is J+500,
+	F is J+400.
+
+hmmf([],B,0,0).
+
+tr([r0|B],r0):0.459350 ; tr([r0|B],r1):0.540650.
+
+tr([r1|B],r0):0.508370 ; tr([r1|B],r1):0.491630.
+

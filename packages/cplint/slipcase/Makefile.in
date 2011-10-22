@@ -1,0 +1,53 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = ${prefix}
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=$(EROOTDIR)/lib/Yap
+DESTDIR=$(prefix)/share/Yap
+#
+#
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS)  -I$(srcdir)/../../../include  @CPPFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=ranlib
+SHLIB_CFLAGS=-shared -fPIC
+SHLIB_SUFFIX=.so
+CWD=$(PWD)
+srcdir=@srcdir@
+CPLINT_CFLAGS=@CPLINT_CFLAGS@
+CPLINT_LDFLAGS=@CPLINT_LDFLAGS@
+CPLINT_LIBS=@CPLINT_LIBS@
+
+#
+
+
+default:  bddem.so
+
+bddem.so: bddem.o
+	$(CC) -shared -export-dynamic  $(CPLINT_LDFLAGS) bddem.o  $(CPLINT_LIBS) -o bddem.so  -Wl,-R,$(YAPLIBDIR) -Wl,-R,$(LIBDIR)
+
+bddem.o : $(srcdir)/bddem.c
+	$(CC) -c $(CFLAGS) $(CPLINT_CFLAGS)  $(srcdir)/bddem.c -o bddem.o
+
+clean: 
+	rm -f *.o bddem.so
+
+install: default
+	$(INSTALL_PROGRAM) bddem.so $(DESTDIR)

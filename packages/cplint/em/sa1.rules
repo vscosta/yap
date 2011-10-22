@@ -1,0 +1,268 @@
+/* Final CLL -6.445209
+Execution time 39.202000
+setting(depth_bound,true).
+setting(depth,inf).
+setting(single_var,true).
+setting(sample_size,1000).
+setting(equivalent_sample_size,100).
+setting(epsilon_em,0.1).
+setting(epsilon_em_fraction,0.01).
+setting(epsilon_sem,2).
+setting(random_restarts_number,1).
+setting(verbosity,3).
+Suff stats
+1,[23.4908206261811,23.5091793738189],47.000000,1
+2,[3.39086467470101,0.609135325298986],4.000000,1
+3,[0.999999094618424,9.05381576345798e-07],1.000000,1
+4,[0.768367876737893,0.231632123262107],1.000000,1
+5,[1.0,0.0],1.000000,1
+6,[2.84828911045281,10.1517108895472],13.000000,1
+7,[3.99999999998435,1.56503698889962e-11],4.000000,1
+8,[12.983279534159,0.0167204658409756],13.000000,1
+10,[0.152431257895486,73.8475687421045],74.000000,1
+11,[0.00870788648018717,20.9912921135198],21.000000,1
+12,[24.9999999999997,3.33399974294944e-13],25.000000,1
+13,[15.9999980910651,1.90893491658722e-06],16.000000,1
+14,[25.4554988733455,0.54450112665451],26.000000,1
+15,[19.9999999760067,2.39933335687255e-08],20.000000,1
+16,[0.129766303992798,0.870233696007202],1.000000,1
+17,[0.986807293994297,0.0131927060057027],1.000000,1
+18,[50.0,0.0],50.000000,1
+19,[2.1618207056,4.8381792944],7.000000,1
+20,[2.45227441607431,1.54772558392569],4.000000,1
+21,[40.9926219216609,0.00737807833914405],41.000000,1
+22,[18.0241407877925,1.97585921220751],20.000000,1
+23,[3.8141749972431,0.185825002756899],4.000000,1
+24,[33.0,0.0],33.000000,1
+25,[36.9999999149436,8.5056436989299e-08],37.000000,1
+26,[7.9214828182491,1.0785171817509],9.000000,1
+27,[0.599995367350068,30.4000046326499],31.000000,1
+28,[48.999894203847,0.000105796152974403],49.000000,1
+29,[141.999997152113,2.84788728515184e-06],142.000000,1
+30,[15.3660357895144,9.63396421048556],25.000000,1
+31,[36.0,0.0],36.000000,1
+32,[0.551614828005467,0.448385171994533],1.000000,1
+33,[49.988295006549,8.011704993451],58.000000,1
+34,[0.381351770285117,0.618648229714883],1.000000,1
+35,[12.0636240733763,0.936375926623662],13.000000,1
+36,[8.92658418455131,0.073415815448688],9.000000,1
+37,[0.964298970277856,0.0357010297221435],1.000000,1
+38,[7.19128052926487,21.8087194707351],29.000000,1
+39,[26.0670114688815,44.9329885311185],71.000000,1
+40,[47.9999512860607,4.87139392888923e-05],48.000000,1
+41,[4.76277270190422,4.23722729809578],9.000000,1
+42,[1.24513461973704,3.75486538026296],5.000000,1
+43,[19.4361776045177,2.56382239548234],22.000000,1
+44,[2.25940297799937,0.740597022000632],3.000000,1
+45,[81.9999280086304,7.19913695467996e-05],82.000000,1
+46,[2.15974474331903,13.840255256681],16.000000,1
+47,[0.95955961688869,0.0404403831113106],1.000000,1
+48,[0.159066986286089,0.840933013713911],1.000000,1
+51,[1.49504948167805,14.5049505183219],16.000000,1
+
+
+*/
+sameauthor(B,C):0.499788 :-
+	haswordauthor(B,word_a),
+	haswordauthor(C,word_a).
+
+sameauthor(B,C):0.847716 :-
+	haswordauthor(B,word_andrzej),
+	haswordauthor(C,word_andrzej).
+
+sameauthor(B,C):0.999997 :-
+	haswordauthor(B,word_auer),
+	haswordauthor(C,word_auer).
+
+sameauthor(B,C):0.768368 :-
+	haswordauthor(B,word_avrim),
+	haswordauthor(C,word_avrim).
+
+sameauthor(B,C) :-
+	haswordauthor(B,word_bauer),
+	haswordauthor(C,word_bauer).
+
+sameauthor(B,C):0.219007 :-
+	haswordauthor(B,word_bianchi),
+	haswordauthor(C,word_bianchi).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_blum),
+	haswordauthor(C,word_blum).
+
+sameauthor(B,C):0.998293 :-
+	haswordauthor(B,word_cesa),
+	haswordauthor(C,word_cesa).
+
+sameauthor(B,C):0.905260 :-
+	haswordauthor(B,word_cohen),
+	haswordauthor(C,word_cohen).
+
+sameauthor(B,C):0.002722 :-
+	haswordauthor(B,word_d),
+	haswordauthor(C,word_d).
+
+sameauthor(B,C):0.000581 :-
+	haswordauthor(B,word_david),
+	haswordauthor(C,word_david).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_dietterich),
+	haswordauthor(C,word_dietterich).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_druker),
+	haswordauthor(C,word_druker).
+
+sameauthor(B,C):0.979058 :-
+	haswordauthor(B,word_e),
+	haswordauthor(C,word_e).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_ehrenfeucht),
+	haswordauthor(C,word_ehrenfeucht).
+
+sameauthor(B,C):0.129766 :-
+	haswordauthor(B,word_eric),
+	haswordauthor(C,word_eric).
+
+sameauthor(B,C):0.984725 :-
+	haswordauthor(B,word_feder),
+	haswordauthor(C,word_feder).
+
+sameauthor(B,C) :-
+	haswordauthor(B,word_freund),
+	haswordauthor(C,word_freund).
+
+sameauthor(B,C):0.308832 :-
+	haswordauthor(B,word_fyoav),
+	haswordauthor(C,word_fyoav).
+
+sameauthor(B,C):0.613069 :-
+	haswordauthor(B,word_g),
+	haswordauthor(C,word_g).
+
+sameauthor(B,C):0.999733 :-
+	haswordauthor(B,word_goldman),
+	haswordauthor(C,word_goldman).
+
+sameauthor(B,C):0.901207 :-
+	haswordauthor(B,word_h),
+	haswordauthor(C,word_h).
+
+sameauthor(B,C):0.953544 :-
+	haswordauthor(B,word_harris),
+	haswordauthor(C,word_harris).
+
+sameauthor(B,C) :-
+	haswordauthor(B,word_haussler),
+	haswordauthor(C,word_haussler).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_helmbold),
+	haswordauthor(C,word_helmbold).
+
+sameauthor(B,C):0.880164 :-
+	haswordauthor(B,word_henry),
+	haswordauthor(C,word_henry).
+
+sameauthor(B,C):0.019355 :-
+	haswordauthor(B,word_j),
+	haswordauthor(C,word_j).
+
+sameauthor(B,C):0.999996 :-
+	haswordauthor(B,word_kautz),
+	haswordauthor(C,word_kautz).
+
+sameauthor(B,C):1.000000 :-
+	haswordauthor(B,word_kearns),
+	haswordauthor(C,word_kearns).
+
+sameauthor(B,C):0.614641 :-
+	haswordauthor(B,word_l),
+	haswordauthor(C,word_l).
+
+sameauthor(B,C) :-
+	haswordauthor(B,word_lewis),
+	haswordauthor(C,word_lewis).
+
+sameauthor(B,C):0.549479 :-
+	haswordauthor(B,word_littlestone),
+	haswordauthor(C,word_littlestone).
+
+sameauthor(B,C):0.861836 :-
+	haswordauthor(B,word_m),
+	haswordauthor(C,word_m).
+
+sameauthor(B,C):0.381352 :-
+	haswordauthor(B,word_micahel),
+	haswordauthor(C,word_micahel).
+
+sameauthor(B,C):0.927971 :-
+	haswordauthor(B,word_michael),
+	haswordauthor(C,word_michael).
+
+sameauthor(B,C):0.991404 :-
+	haswordauthor(B,word_n),
+	haswordauthor(C,word_n).
+
+sameauthor(B,C):0.964253 :-
+	haswordauthor(B,word_nicolo),
+	haswordauthor(C,word_nicolo).
+
+sameauthor(B,C):0.266344 :-
+	haswordauthor(B,word_p),
+	haswordauthor(C,word_p).
+
+sameauthor(B,C):0.372048 :-
+	haswordauthor(B,word_r),
+	haswordauthor(C,word_r).
+
+sameauthor(B,C):0.999998 :-
+	haswordauthor(B,word_rivest),
+	haswordauthor(C,word_rivest).
+
+sameauthor(B,C):0.529197 :-
+	haswordauthor(B,word_robert),
+	haswordauthor(C,word_robert).
+
+sameauthor(B,C):0.249027 :-
+	haswordauthor(B,word_ronald),
+	haswordauthor(C,word_ronald).
+
+sameauthor(B,C):0.883441 :-
+	haswordauthor(B,word_s),
+	haswordauthor(C,word_s).
+
+sameauthor(B,C):0.753109 :-
+	haswordauthor(B,word_sally),
+	haswordauthor(C,word_sally).
+
+sameauthor(B,C):0.999998 :-
+	haswordauthor(B,word_shapire),
+	haswordauthor(C,word_shapire).
+
+sameauthor(B,C):0.134984 :-
+	haswordauthor(B,word_t),
+	haswordauthor(C,word_t).
+
+sameauthor(B,C):0.959560 :-
+	haswordauthor(B,word_tom),
+	haswordauthor(C,word_tom).
+
+sameauthor(B,C):0.159067 :-
+	haswordauthor(B,word_v),
+	haswordauthor(C,word_v).
+
+sameauthor(B,C):0.190517 :-
+	haswordauthor(B,word_w),
+	haswordauthor(C,word_w).
+
+sameauthor(B,C):0.099437 :-
+	haswordauthor(B,word_william),
+	haswordauthor(C,word_william).
+
+sameauthor(B,C):0.093441 :-
+	haswordauthor(B,word_y),
+	haswordauthor(C,word_y).
+

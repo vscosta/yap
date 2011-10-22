@@ -146,7 +146,7 @@ CPLINT_DOCS=\
 
 CPLINT_LEARNING_PROGRAMS=\
 	$(CPLINT_SRCDIR)/em \
-	$(CPLINT_SRCDIR)/rib
+	$(CPLINT_SRCDIR)/rib 
 	
 
 all: $(SOBJS)
@@ -177,7 +177,10 @@ install: all
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 	$(INSTALL_PROGRAM) approx/simplecuddLPADs/LPADBDD $(SHAREDIR)
 	cp -R $(CPLINT_LEARNING_PROGRAMS) $(DESTDIR)$(SHAREDIR)/cplint
-
+	cp $(CPLINT_SRCDIR)/em/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
+	cp $(CPLINT_SRCDIR)/rib/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
+	cp $(CPLINT_SRCDIR)/slipcase/*.pl $(DESTDIR)$(SHAREDIR)/cplint/
+	$(INSTALL_PROGRAM) slipcase/bddem.so $(DESTDIR)$(YAPLIBDIR)
 
 installcheck: 
 	for h in ${CPLINT_TEST_PROGRAMS}; do echo "t. halt." | $(BINDIR)/yap -l $$h; done
