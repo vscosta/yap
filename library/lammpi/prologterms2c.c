@@ -150,9 +150,15 @@ write_term_to_stream(const int fd,const YAP_Term term) {
 
   RESET_BUFFER;
   
-  YAP_Write( term, p2c_putc,3);               // 3=canonical
-  write(fd,(void*)&BUFFER_LEN,sizeof(size_t));// write size of term
-  write(fd,(void*)BUFFER_PTR,BUFFER_LEN);     // write term
+  YAP_Write( term, p2c_putc, 3);               // 3=canonical
+  if (write(fd,(void*)&BUFFER_LEN,sizeof(size_t)) < 0) {// write size of term
+    YAP_Error(0,0,"Prolog2Term: IO error in write term size.\n");
+    return -1;
+  }
+  if (write(fd,(void*)BUFFER_PTR,BUFFER_LEN) < 0) {     // write term
+    YAP_Error(0,0,"Prolog2Term: IO error in write.\n");
+    return -1;
+  }
   return BUFFER_LEN;
 }
 /*
@@ -170,7 +176,9 @@ read_term_from_stream(const int fd) {
 #endif
   if ( size> BUFFER_SIZE)
     expand_buffer(size-BUFFER_SIZE);
-  read(fd,BUFFER_PTR,size);            // read term from stream
+  if (!read(fd,BUFFER_PTR,size)) {
+    YAP_Error(0,0,"Prolog2Term: IO error in read.\n");
+  };            // read term from stream
   return YAP_ReadBuffer( BUFFER_PTR , NULL);
 }
 /*********************************************************************************************
@@ -224,7 +232,7 @@ string2term(char *const ptr,const size_t *size) {
   BUFFER_POS=0;
   t = YAP_ReadBuffer( BUFFER_PTR , NULL );
   if ( t==FALSE ) {
-    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),LOCAL_ErrorMessage);
+    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),NULL);
     exit(1);
   }
 

@@ -1530,6 +1530,7 @@ execute_growstack(long size0, int from_trail, int in_parser, tr_fr_ptr *old_trp,
   SetHeapRegs(FALSE PASS_REGS);
   if (from_trail) {
     LOCAL_TrailTop += size0;
+    CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
   }
   if (LOCAL_LDiff) {
     MoveLocalAndTrail( PASS_REGS1 );
@@ -1717,6 +1718,7 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
       AdjustScannerStacks(tksp, vep PASS_REGS);
     }
     LOCAL_TrailTop += size;
+    CurrentTrailTop = (tr_fr_ptr)(LOCAL_TrailTop-MinTrailGap);
     YAPLeaveCriticalSection();
   }
 #endif

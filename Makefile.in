@@ -402,7 +402,7 @@ PLCONS_OBJECTS = \
 	pl-ntconsole.o \
 	pl-ntmain.o
 
-all: parms.h startup.yss
+all: parms.h startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 
 Makefile: $(srcdir)/Makefile.in
 
@@ -718,9 +718,11 @@ yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 
 plyap: pl-yap@EXEC_SUFFIX@
 
-pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@ LGPL/swi_console/plterm.dll
+pl-yap: pl-yap@EXEC_SUFFIX@
+
+pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd LGPL/swi_console; $(MAKE))
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o pl-yap $(PLCONS_OBJECTS) LGPL/swi_console/plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o pl-yap $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
@@ -781,13 +783,15 @@ install_unix: startup.yss libYap.a
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 
 
-install_win32: startup.yss
+install_win32: startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
+	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 pl-yap.exe $(DESTDIR)$(BINDIR)/pl-yap.exe
+	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
 	$(INSTALL_PROGRAM) -m 755 @YAPLIB@ $(DESTDIR)$(YAPLIBDIR)/@YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
@@ -906,12 +910,12 @@ libWYap.a: yap.dll
 	--dllname yap.dll \
 	--output-lib libWYap.a
 
-yap.dll:  libYap.a
-	$(CC) $(CFLAGS) -shared -o yap.dll \
-	-Wl,--export-all-symbols \
-	-Wl,--enable-auto-import \
-	-Wl,--whole-archive libYap.a \
-	-Wl,--no-whole-archive $(LIBS) $(LDFLAGS)
+# yap.dll:  libYap.a
+# 	$(CC) $(CFLAGS) -shared -o yap.dll \
+# 	-Wl,--export-all-symbols \
+# 	-Wl,--enable-auto-import \
+# 	-Wl,--whole-archive libYap.a \
+# 	-Wl,--no-whole-archive $(LIBS) $(LDFLAGS)
 
 install_info:
 	$(MAKE) info; \

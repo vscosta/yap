@@ -1608,7 +1608,7 @@ Yap_ExtendWorkSpaceThroughHole(UInt s)
 #elif SIZEOF_INT_P==8
   {
     int n = 1024*1024;
-    while (n) {
+    while (n--) {
       /* progress 1 MB */
       WorkSpaceTop += 512*1024;
       if (ExtendWorkSpace(s, MAP_FIXED)) {
