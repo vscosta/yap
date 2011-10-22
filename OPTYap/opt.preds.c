@@ -39,6 +39,9 @@ static Int p_wake_choice_point( USES_REGS1 );
 static Int p_abolish_frozen_choice_points_until( USES_REGS1 );
 static Int p_abolish_frozen_choice_points_all( USES_REGS1 );
 static Int p_table( USES_REGS1 );
+#ifdef MODE_DIRECTED_TABLING
+static Int p_table_mode_directed( USES_REGS1 );
+#endif /*MODE_DIRECTED_TABLING*/
 static Int p_tabling_mode( USES_REGS1 );
 static Int p_abolish_table( USES_REGS1 );
 static Int p_abolish_all_tables( USES_REGS1 );
@@ -122,6 +125,9 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("abolish_frozen_choice_points", 1, p_abolish_frozen_choice_points_until, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("abolish_frozen_choice_points", 0, p_abolish_frozen_choice_points_all, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_table", 2, p_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+#ifdef MODE_DIRECTED_TABLING
+  Yap_InitCPred("$c_table_mode_directed", 3, p_table_mode_directed, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+#endif /*MODE_DIRECTED_TABLING*/
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
@@ -221,11 +227,147 @@ static Int p_table( USES_REGS1 ) {
   if (pe->cs.p_code.FirstClause)
     return (FALSE);  /* predicate already compiled */
   pe->PredFlags |= TabledPredFlag;
+#ifdef MODE_DIRECTED_TABLING
+  new_table_entry(tab_ent, pe, at, arity, NULL);
+#else 
   new_table_entry(tab_ent, pe, at, arity);
+#endif /*MODE_DIRECTED_TABLING*/
   pe->TableOfPred = tab_ent;
   return (TRUE);
 }
 
+#ifdef MODE_DIRECTED_TABLING
+
+static Int p_table_mode_directed( USES_REGS1 ) {
+
+
+  Term mod, t, list;
+  PredEntry *pe;
+  Atom at;
+  int arity;
+  tab_ent_ptr tab_ent;
+
+  mod = Deref(ARG1);
+  t = Deref(ARG2);
+  list = ARG3;
+
+  Functor f = FunctorOfTerm(t);  
+  arity=ArityOfFunctor(f);
+
+  int* aux;
+  int* vec;
+ 
+
+  int i=0,n_index=0,n_agreg=0,n_nindex=0,n_all=0,n_last=0;
+  
+
+  ALLOC_BLOCK(vec,arity*sizeof(int),int);
+  ALLOC_BLOCK(aux,arity*sizeof(int),int);
+
+  while(IsPairTerm(list)){
+    char *str_val = &RepAtom(AtomOfTerm(HeadOfTerm(list)))->StrOfAE;
+        //printf("----2 %s   %d\n",str_val,i);
+    if(! strcmp(str_val ,"index")){
+	vec[i] = MODE_DIRECTED_INDEX;
+	n_index++;
+    }
+    else if (! strcmp(str_val ,"all")){
+        vec[i] = MODE_DIRECTED_ALL;
+	n_all++;
+    }
+    else if(!strcmp(str_val,"last")){
+        vec[i] = MODE_DIRECTED_LAST;
+	n_last++;
+    }
+    else if(!strcmp(str_val,"min")){
+        vec[i] = MODE_DIRECTED_MIN;
+	n_agreg++;
+    }
+    else if(!strcmp(str_val,"max")){
+        vec[i] = MODE_DIRECTED_MAX;
+	n_agreg++;
+    }
+    else if(!strcmp(str_val,"first")){
+	vec[i] = MODE_DIRECTED_NINDEX;
+    }
+    list=TailOfTerm(list);
+    i++;
+  }
+
+  n_nindex = n_index + n_agreg + n_all + n_last;
+  n_last = n_index + n_agreg + n_all;
+  n_all = n_index + n_agreg;
+  n_agreg = n_index;
+  n_index = 0;
+
+
+  
+  for(i = 0;i < arity; i++){
+	if(vec[i]==MODE_DIRECTED_MAX){	
+		aux[n_agreg]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_agreg]= aux[n_agreg] + MODE_DIRECTED_MAX;
+		n_agreg++;
+	}
+	else if(vec[i]==MODE_DIRECTED_MIN){			
+		aux[n_agreg]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_agreg]= aux[n_agreg] + MODE_DIRECTED_MIN;
+		n_agreg++;	
+	}
+
+	else if(vec[i]==MODE_DIRECTED_INDEX){	
+		aux[n_index]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_index]= aux[n_index] + MODE_DIRECTED_INDEX;
+		n_index++;	
+	}
+
+	else if(vec[i]==MODE_DIRECTED_NINDEX){			
+		aux[n_nindex]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_nindex]= aux[n_nindex] + MODE_DIRECTED_NINDEX;
+		n_nindex++;	
+	}
+	else if(vec[i]==MODE_DIRECTED_ALL){			
+		aux[n_all]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_all]= aux[n_all] + MODE_DIRECTED_ALL;
+		n_all++;		
+	}
+	else if(vec[i]==MODE_DIRECTED_LAST){			
+		aux[n_last]= i << MODE_DIRECTED_TAGBITS;
+		aux[n_last]= aux[n_last] + MODE_DIRECTED_LAST;
+		n_last++;	
+	}
+   }
+
+/*
+i=0;
+  while(i < arity){
+     printf("aux[%d]  %p \n",i,aux[i]);
+     i ++;
+  }
+*/
+
+
+  if (IsAtomTerm(t)) {
+    at = AtomOfTerm(t);
+    pe = RepPredProp(PredPropByAtom(at, mod));
+    arity = 0;
+  } else if (IsApplTerm(t)) {
+    at = NameOfFunctor(FunctorOfTerm(t));
+    pe = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod));
+    arity = ArityOfFunctor(FunctorOfTerm(t));
+  } else
+    return (FALSE);
+  if (pe->PredFlags & TabledPredFlag)
+    return (TRUE);  /* predicate already tabled */
+  if (pe->cs.p_code.FirstClause)
+    return (FALSE);  /* predicate already compiled */
+  pe->PredFlags |= TabledPredFlag;
+  new_table_entry(tab_ent, pe, at, arity, aux);
+  pe->TableOfPred = tab_ent;
+  return (TRUE);
+
+}
+
+#endif /*MODE_DIRECTED_TABLING*/
 
 static Int p_tabling_mode( USES_REGS1 ) {
   Term mod, t, tvalue;

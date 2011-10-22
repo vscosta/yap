@@ -111,6 +111,17 @@ table(Pred) :-
    integer(PredArity),
    functor(PredFunctor,PredName,PredArity), !,
    '$set_table'(Mod,PredFunctor).
+%MODE_DIRECTED_TABLING
+'$do_table'(Mod,Pred) :- 
+    Pred=.. L,
+    L = [X|XS],
+    %writeln(X),
+    %writeln(XS),
+    length(XS,Len),
+    functor(PredFunctor,X,Len), !,
+    %writeln('antes'),
+   '$c_table_mode_directed'(Mod,PredFunctor,XS).
+%MODE_DIRECTED_TABLING
 '$do_table'(Mod,Pred) :-
    '$do_error'(type_error(callable,Mod:Pred),table(Mod:Pred)).
 
