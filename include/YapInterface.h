@@ -190,6 +190,8 @@ extern X_API int PROTO(YAP_SkipList,(YAP_Term *, YAP_Term **));
 /*    Term  TailOfTerm(Term)  */
 extern X_API YAP_Term PROTO(YAP_TermNil,(void));
 
+extern X_API int PROTO(YAP_IsTermNil,(YAP_Term));
+
 /*    YAP_Term     MkApplTerm(YAP_Functor f, unsigned int n, YAP_Term[] args) */
 extern X_API YAP_Term PROTO(YAP_MkApplTerm,(YAP_Functor,unsigned int,YAP_Term *));
 

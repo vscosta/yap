@@ -513,6 +513,7 @@ X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
 X_API Term     STD_PROTO(YAP_MkBlobTerm,(unsigned int));
 X_API void    *STD_PROTO(YAP_BlobOfTerm,(Term));
 X_API Term     STD_PROTO(YAP_TermNil,(void));
+X_API int      STD_PROTO(YAP_IsTermNil,(Term));
 X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
@@ -3414,6 +3415,12 @@ X_API Term
 YAP_TermNil(void)
 {
   return TermNil;
+} 
+
+X_API int
+YAP_IsTermNil(Term t)
+{
+  return t == TermNil;
 } 
 
 X_API int
