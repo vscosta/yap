@@ -17,7 +17,13 @@ It relies on dynamic array code.
 		      b_hash_update/3,
 		      b_hash_update/4,
 		      b_hash_insert_new/4,
-		      b_hash_insert/4
+		      b_hash_insert/4,
+		      b_hash_size/2,
+		      b_hash_code/2,
+		      is_b_hash/1,
+        	      b_hash_to_list/2,
+		      b_hash_values_to_list/2,
+		      b_hash_keys_to_list/2
 		    ]).
 
 :- use_module(library(terms), [ term_hash/4 ]).
@@ -26,6 +32,9 @@ It relies on dynamic array code.
 :- meta_predicate(b_hash_new(-,+,3,2)).
 
 array_default_size(2048).
+
+is_b_hash(V) :- !, fail.
+is_b_hash(hash(_,_,_,_,_)).
 
 b_hash_new(hash(Keys, Vals, Size, N, _, _)) :-
 	array_default_size(Size),
@@ -42,6 +51,8 @@ b_hash_new(hash(Keys,Vals, Size, N, HashF, CmpF), Size, HashF, CmpF) :-
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
+
+b_hash_size(hash(_, _, Size, _, _, _), Size).
 
 b_hash_lookup(Key, Val, hash(Keys, Vals, Size, _, F, CmpF)):-
 	hash_f(Key, Size, Index, F),
@@ -187,4 +198,38 @@ cmp_f(F, A, B) :-
 	A == B.
 cmp_f(F, A, B) :-
 	call(F, A, B).
+
+b_hash_to_list(hash(Keys, Vals, _, _, _, _), LKeyVals) :-
+	Keys =.. LKs,
+	Vals =.. LVs,
+	mklistpairs(LKs, LVs, LKeyVals).
+
+b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
+	Keys =.. LKs,
+	mklistels(LKs, LKeys).
+
+b_hash_keys_to_list(hash(_, Vals, _, _, _, _), LVals) :-
+	Vals =.. LVs,
+	mklisvals(LVs, LVals).
+
+mklistpairs([], [], []).
+mklistpairs(V.LKs, _.LVs, KeyVals) :- var(V), !,
+	mklistpairs(LKs, LVs, KeyVals).
+mklistpairs(K.LKs, V.LVs, (K-VV).KeyVals) :- 
+        get_mutable(VV, V),
+	mklistpairs(LKs, LVs, KeyVals).
+
+mklistels([],  []).
+mklistels(V.Es, NEls) :- var(V), !,
+	mklistels(Els, Nels).
+mklistels(K.Els, K.NEls) :- 
+	mklistels(Els, NEls).
+
+mklistvals([],  []).
+mklistvals(V.Es, NVals) :- var(V), !,
+	mklistvals(Vals, Nvals).
+mklistvals(K.Vals, KK.NVals) :- 
+	get_mutable(KK, K),
+	mklistvals(Vals, NVals).
+
 
