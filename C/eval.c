@@ -34,7 +34,54 @@ static char     SccsId[] = "%W% %G%";
 #include <unistd.h>
 #endif
 
+static Term Eval(Term t1 USES_REGS);
 
+static Term
+get_matrix_element(Term t1, Term t2 USES_REGS)
+{
+  if (!IsPairTerm(t2)) {
+    if (t2 == MkAtomTerm(AtomLength)) {
+      Int sz = 1;
+      while (IsApplTerm(t1)) {
+	Functor f = FunctorOfTerm(t1);
+	if (NameOfFunctor(f) != AtomNil) {
+	  return MkIntegerTerm(sz);
+	}
+	sz *= ArityOfFunctor(f);
+	t1 = ArgOfTerm(1, t1);
+      }
+      return MkIntegerTerm(sz);
+    }
+    Yap_ArithError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
+    return FALSE;      
+  }
+  while (IsPairTerm(t2)) {
+    Int indx;
+    Term indxt = Eval(HeadOfTerm(t2) PASS_REGS);
+    if (!IsIntegerTerm(indxt)) {
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
+      return FALSE;      
+    }
+    indx = IntegerOfTerm(indxt);
+    if (!IsApplTerm(t1)) {
+      Yap_ArithError(TYPE_ERROR_EVALUABLE, t1, "X is Y^[A]");
+      return FALSE;      
+    } else {
+      Functor f = FunctorOfTerm(t1);
+      if (ArityOfFunctor(f) < indx) {
+	Yap_ArithError(TYPE_ERROR_EVALUABLE, t1, "X is Y^[A]");
+	return FALSE;      
+      }
+    }
+    t1 = ArgOfTerm(indx, t1);
+    t2 = TailOfTerm(t2);
+  }
+  if (t2 != TermNil) {
+    Yap_ArithError(TYPE_ERROR_EVALUABLE, t2, "X is Y^[A]");
+    return FALSE;
+  }
+  return Eval(t1 PASS_REGS);
+}
 
 static Term
 Eval(Term t USES_REGS)
@@ -76,6 +123,12 @@ Eval(Term t USES_REGS)
 	return Yap_ArithError(TYPE_ERROR_EVALUABLE, t,
 			      "functor %s/%d for arithmetic expression",
 			      RepAtom(name)->StrOfAE,n);
+      }
+      if (p->FOfEE == op_power && p->ArityOfEE == 2) {
+	t2 = ArgOfTerm(2, t);
+	if (IsPairTerm(t2)) {
+	  return get_matrix_element(ArgOfTerm(1, t), t2 PASS_REGS);
+	}
       }
       *RepAppl(t) = (CELL)AtomFoundVar;
       t1 = Eval(ArgOfTerm(1,t) PASS_REGS);
