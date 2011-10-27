@@ -425,6 +425,7 @@ X_API Int     STD_PROTO(YAP_ArityOfFunctor,(Functor));
 X_API void   *STD_PROTO(YAP_ExtraSpace,(void));
 X_API void    STD_PROTO(YAP_cut_up,(void));
 X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
+X_API int     STD_PROTO(YAP_Unifiable,(Term,Term));
 X_API int     STD_PROTO(YAP_Reset,(void));
 X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
 X_API Int     STD_PROTO(YAP_FastInit,(char *));
@@ -545,6 +546,7 @@ X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
 X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
+X_API YAP_tag_t    STD_PROTO(YAP_TagOfTerm,(Term));
 
 static int
 dogc( USES_REGS1 )
@@ -1175,6 +1177,18 @@ YAP_Unify(Term t1, Term t2)
   BACKUP_MACHINE_REGS();
 
   out = Yap_unify(t1, t2);
+
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+X_API int
+YAP_Unifiable(Term t1, Term t2)
+{
+  int out;
+  BACKUP_MACHINE_REGS();
+
+  out = Yap_unifiable(t1, t2);
 
   RECOVER_MACHINE_REGS();
   return out;
@@ -3788,7 +3802,6 @@ YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
   return 1;
 }
 
-
 int
 YAP_Argv(char ***argvp)
 {
@@ -3796,4 +3809,48 @@ YAP_Argv(char ***argvp)
     *argvp = GLOBAL_argv;
   }
   return GLOBAL_argc;
+}
+
+YAP_tag_t
+YAP_TagOfTerm(Term t)
+{
+  if (IsVarTerm(t)) {
+    CELL *pt = VarOfTerm(t);
+    if (IsUnboundVar(pt)) {
+      if (IsAttVar(pt))
+	return YAP_TAG_ATT;
+      return YAP_TAG_UNBOUND;
+    }
+    return YAP_TAG_REF;
+  }
+  if (IsPairTerm(t))
+    return YAP_TAG_PAIR;
+  if (IsAtomOrIntTerm(t)) {
+    if (IsAtomTerm(t))
+      return YAP_TAG_ATOM;
+    return YAP_TAG_INT;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    
+    if (IsExtensionFunctor(f)) {
+      if (f == FunctorDBRef) {
+	return YAP_TAG_DBREF;
+      }
+      if (f == FunctorLongInt) {
+	return YAP_TAG_LONG_INT;
+      }
+      if (f == FunctorBigInt) {
+	big_blob_type bt = RepAppl(t)[1];
+	switch (bt) {
+	case BIG_INT:
+	  return YAP_TAG_BIG_INT;
+	case BIG_RATIONAL:
+	  return YAP_TAG_RATIONAL;
+	default:
+	  return YAP_TAG_OPAQUE;
+	}
+      }
+    }
+    return YAP_TAG_APPL;
+  }
 }
