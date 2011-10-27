@@ -379,6 +379,7 @@ int          STD_PROTO(Yap_rational_tree_loop, (CELL *, CELL *, CELL **, CELL **
 void         STD_PROTO(Yap_InitAbsmi,(void));
 void         STD_PROTO(Yap_InitUnify,(void));
 void         STD_PROTO(Yap_TrimTrail,(void));
+void         STD_PROTO(Yap_Unifiable,(Term d0, Term d1));
 int          STD_PROTO(Yap_IUnify,(register CELL d0,register CELL d1));
 
 /* userpreds.c */
