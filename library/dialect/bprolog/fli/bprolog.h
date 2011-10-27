@@ -1,7 +1,13 @@
 
 #include <YapInterface.h>
 
-#define TERM YAP_Term
+typedef YAP_Term TERM;
+typedef YAP_Int BPLONG;
+typedef YAP_UInt BPULONG;
+typedef BPLONG *BPLONG_PTR;
+
+#define BP_TRUE TRUE
+#define BP_FALSE FALSE
 
 //extern TERM bp_get_call_arg(int i, int arity);
 #define bp_get_call_arg( i,  arity) YAP_A(i)
@@ -19,13 +25,13 @@
 #define bp_is_nil(t) YAP_IsTermNil(t)
 
 //extern int bp_is_list(TERM t)
-#define bp_is_nil(t) YAP_IsPairTerm(t)
+#define bp_is_list(t) YAP_IsPairTerm(t)
 
 //extern int bp_is_structure(TERM t)
-#define bp_is_nil(t) YAP_IsApplTerm(t)
+#define bp_is_structure(t) YAP_IsApplTerm(t)
 
 //extern int bp_is_compound(TERM t)
-#define bp_is_nil(t) ( YAP_IsApplTerm(t) || YAP_IsPairTerm(t) )
+#define bp_is_compound(t) ( YAP_IsApplTerm(t) || YAP_IsPairTerm(t) )
 
 //extern int bp_is_unifiable(TERM t1, Term t2)
 #define bp_is_unifiable(t1, t2) YAP_unifiable_NOT_IMPLEMENTED(t1, t2)
@@ -40,7 +46,7 @@
 #define bp_get_float(t)  YAP_FloatOfTerm(t)
 
 // char *bp_get_name(TERM t)
-static inline char *
+inline static const char *
 bp_get_name(TERM t)
 {
   if (YAP_IsAtomTerm(t)) {
@@ -62,10 +68,10 @@ bp_get_arity(TERM t)
     return 0;
   }
   if (YAP_IsApplTerm(t)) {
-    return (int)YAP_ArityOfFunctor(YAP_FunctorOfTerm(t)));
+    return (int)YAP_ArityOfFunctor(YAP_FunctorOfTerm(t));
   }
   // exception = illegal_arguments;
-  return NULL;
+  return 0;
 }
 
 //extern int bp_unify(TERM t1, TERM t2)
@@ -119,23 +125,18 @@ bp_get_arity(TERM t)
 // void bp_mount_query_term(TERM goal)
 // #define bp_mount_query_term(goal) bp_t = t;
 
+TERM bp_t;
+
 // TERM bp_next_solution()
 static int bp_next_solution(void) 
 {
   if (bp_t) {
-    Term t = bp_t;
-    bp_t = NULL;
-    return YAP_RunGoal(YAP_ReadBuffer(goal, NULL));
+    TERM goal = bp_t;
+    bp_t = 0L;
+    return YAP_RunGoal(goal);
   }
   return YAP_RestartGoal();
 }
-
-
-
-
-
-
-
 
 
 
