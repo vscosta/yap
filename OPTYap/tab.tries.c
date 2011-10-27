@@ -132,8 +132,8 @@ static inline ans_node_ptr answer_search_loop2(sg_fr_ptr sg_fr, ans_node_ptr cur
 #define in_pair 0
 #endif /* TRIE_COMPACT_PAIRS */
 #ifdef MODE_DIRECTED_TABLING
-  ans_node_ptr childnode;
-  Term childterm;
+  ans_node_ptr child_node;
+  Term child_term;
 #endif /*MODE_DIRECTED_TABLING*/  
   AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);  /* + 1 because initially we stiil haven't done any STACK_POP_DOWN */
   STACK_PUSH_UP(NULL, stack_terms);
@@ -172,27 +172,64 @@ static inline ans_node_ptr answer_search_loop2(sg_fr_ptr sg_fr, ans_node_ptr cur
 #endif /* TRIE_COMPACT_PAIRS */
     } else if (IsAtomOrIntTerm(t)) {
 #ifdef MODE_DIRECTED_TABLING
-	//printf("++++++++++++ operador %d   \n", mode); 
-	childnode = TrNode_child(current_node);
-	if(childnode && IsIntTerm(t) &&  (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){
-	  Int it = IntOfTerm(t);
-	  if(IsIntTerm(TrNode_entry(childnode))){
-	    childterm = TrNode_entry(childnode);
-	    Int tt = IntOfTerm(childterm);
-	    if((mode ==MODE_DIRECTED_MIN && it < tt ) || (mode ==MODE_DIRECTED_MAX && it > tt) ){
-	      invalidate_answer(childnode,sg_fr);
+      child_node = TrNode_child(current_node);
+      if(child_node && IsIntTerm(t) &&  (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){
+	Int it = IntOfTerm(t);
+	if(IsIntTerm(TrNode_entry(child_node))){
+	  child_term = TrNode_entry(child_node);
+	  Int tt = IntOfTerm(child_term);
+	  if((mode == MODE_DIRECTED_MIN && it < tt ) || (mode == MODE_DIRECTED_MAX && it > tt) ){
+	    invalidate_answer(child_node,sg_fr);
+	    TrNode_child(current_node) = NULL;
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
+	  }
+	  else if((mode == MODE_DIRECTED_MIN && it > tt) || (mode == MODE_DIRECTED_MAX && it < tt) ){
+	    return NULL;
+	  }
+	  else if (it == tt){
+	    current_node = TrNode_child(current_node);
+	  }
+	}
+	if(IsApplTerm(TrNode_entry(child_node))){	 
+	  if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
+	    Int tt = TrNode_entry(TrNode_child(child_node));
+	    if((mode == MODE_DIRECTED_MIN && it < tt ) || (mode == MODE_DIRECTED_MAX && it > tt)){
+	      invalidate_answer(child_node,sg_fr);
 	      TrNode_child(current_node) = NULL;
 	      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
-	      }
-	    else if((mode ==MODE_DIRECTED_MIN && it > tt) || (mode ==MODE_DIRECTED_MAX && it < tt) ){
-	    	   printf("NULL\n");
-		   return NULL;
-		}
-	    else if(it == tt){
-		   current_node = TrNode_child(current_node);
-		   }
-	   }
+	    }
+	    else if(it == tt){		
+	      current_node = TrNode_child(TrNode_child(child_node));
+	    }
+	    else if((mode == MODE_DIRECTED_MIN && it > tt) || (mode == MODE_DIRECTED_MAX && it < tt) )	
+	      return NULL;
+	  }
+	  else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
+	      union {
+		  Term t_dbl[sizeof(Float)/sizeof(Term)];
+		  Float dbl;
+	      } u;
+	      u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	      u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	    if((mode ==  MODE_DIRECTED_MIN && it < u.dbl ) || (mode == MODE_DIRECTED_MAX && it > u.dbl)){
+	      invalidate_answer(child_node,sg_fr);
+	      TrNode_child(current_node) = NULL;
+	      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
+	    }
+	    else if(it == u.dbl){		
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
+#else
+		current_node = TrNode_child(TrNode_child(child_node));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	    }	
+	    else if((mode == MODE_DIRECTED_MIN && it > u.dbl) || (mode == MODE_DIRECTED_MAX && it < u.dbl))
+	      return NULL;
+	  }
 	}
+      }
       else
 #endif /*MODE_DIRECTED_TABLING*/
       ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
@@ -283,41 +320,184 @@ static inline ans_node_ptr answer_search_loop2(sg_fr_ptr sg_fr, ans_node_ptr cur
 	  Float dbl;
 	} u;
 	u.dbl = FloatOfTerm(t);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+#ifdef MODE_DIRECTED_TABLING
+	child_node = TrNode_child(current_node);
+	if(child_node && (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){
+	  if(IsApplTerm(TrNode_entry(child_node))){
+	    if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
+	      Int tt = TrNode_entry(TrNode_child(child_node));
+	      if(( mode == MODE_DIRECTED_MIN && u.dbl < tt) || ( mode == MODE_DIRECTED_MAX && u.dbl > tt)){
+		invalidate_answer(child_node,sg_fr);
+		TrNode_child(current_node) = NULL;
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
-      } else if (f == FunctorLongInt) {
-	Int li = LongIntOfTerm (t);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-      } else if (f == FunctorDBRef) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
-      } else if (f == FunctorBigInt) {
-	Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorBigInt");
-      } else {
-	int i;
-	CELL *aux_appl = RepAppl(t);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_appl + in_pair);
-	AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
-	for (i = ArityOfFunctor(f); i >= 1; i--)
-	  STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
-      }
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+	      }
+	      else if(tt == u.dbl){		
+		current_node = TrNode_child(TrNode_child(child_node));
+	      }
+	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > tt) || ( mode == MODE_DIRECTED_MAX && u.dbl < tt))	
+		return NULL;
+	    }
+	    else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
+	      union {
+		  Term t_dbl[sizeof(Float)/sizeof(Term)];
+		  Float dbl;
+	      } ans_u;
+	      ans_u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	      ans_u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	      if(( mode == MODE_DIRECTED_MIN && u.dbl < ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && u.dbl > ans_u.dbl)){
+		invalidate_answer(child_node,sg_fr);
+		TrNode_child(current_node) = NULL;
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+	      }
+	      else if(ans_u.dbl == u.dbl){	
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
+#else
+		current_node = TrNode_child(TrNode_child(child_node));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	      }	
+	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && u.dbl < ans_u.dbl))	
+		return NULL;
+	    }
+	  }
+	  else if(IsIntTerm(TrNode_entry(child_node))){
+	    Int tt = IntOfTerm(child_node);
+	      if(( mode == MODE_DIRECTED_MIN && u.dbl < tt) || ( mode == MODE_DIRECTED_MAX && u.dbl > tt)){
+		invalidate_answer(child_node,sg_fr);
+		TrNode_child(current_node) = NULL;
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+	      }
+	      else if(IntOfTerm(child_node) == u.dbl){			
+		current_node = TrNode_child(TrNode_child(child_node));	
+	      }
+	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > tt) || ( mode == MODE_DIRECTED_MAX && u.dbl < tt))
+		return NULL;
+	  }	  
+	}
+	else {
+#endif /*MODE_DIRECTED_TABLING*/	  
+	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+#ifdef MODE_DIRECTED_TABLING
+	}
+#endif /*MODE_DIRECTED_TABLING*/
+	} else if (f == FunctorLongInt) {
+	  Int li = LongIntOfTerm (t);
+	  child_node = TrNode_child(current_node);
+#ifdef MODE_DIRECTED_TABLING  
+	  if(child_node && (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){ 	
+	      if(IsApplTerm(TrNode_entry(child_node))){
+		if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
+		  Int tt = TrNode_entry(TrNode_child(child_node));
+		  if(( mode == MODE_DIRECTED_MIN && li < tt) || ( mode == MODE_DIRECTED_MAX  && li > tt)){
+		    invalidate_answer(child_node,sg_fr);
+		    TrNode_child(current_node) = NULL;
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+		    
+		  }
+		  else if(li ==  tt){		
+		    current_node = TrNode_child(TrNode_child(child_node));
+		  }
+		  else if(( mode == MODE_DIRECTED_MIN && li > tt) || ( mode == MODE_DIRECTED_MAX && li < tt))
+		    return NULL;	
+		}
+		else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
+		  union {
+		    Term t_dbl[sizeof(Float)/sizeof(Term)];
+		    Float dbl;
+		  } ans_u;
+		  ans_u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		  ans_u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+		  if(( mode == MODE_DIRECTED_MIN && li < ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && li > ans_u.dbl)){
+		    invalidate_answer(child_node,sg_fr);
+		    TrNode_child(current_node) = NULL;
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
+	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+		  }
+		  else if(ans_u.dbl == li){		
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
+#else
+		current_node = TrNode_child(TrNode_child(child_node));
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+		  }	
+		  else if(( mode == MODE_DIRECTED_MIN && li > ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && li < ans_u.dbl))
+		    return NULL;
+		}
+	      }
+	      else if(IsIntTerm(TrNode_entry(child_node))){
+		Int tt = IntOfTerm(child_node);
+		if(( mode == MODE_DIRECTED_MIN && li < tt) || ( mode == MODE_DIRECTED_MAX && li > tt)){
+		  invalidate_answer(child_node,sg_fr);
+		  TrNode_child(current_node) = NULL;
+	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
+	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+		}
+		else if(li == tt){			
+		  current_node = TrNode_child(TrNode_child(child_node));	
+		}
+		else if(( mode == MODE_DIRECTED_MIN && li > tt) || ( mode == MODE_DIRECTED_MAX && li < tt))
+		  return NULL;
+	      }
+	  }else{
+#endif /*MODE_DIRECTED_TABLING*/
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+#ifdef MODE_DIRECTED_TABLING
+	  }
+#endif/*MODE_DIRECTED_TABLING*/
+	  } else if (f == FunctorDBRef) {
+	    Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
+	  } else if (f == FunctorBigInt) {
+	    Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorBigInt");
+	  } else {
+	    int i;
+	    CELL *aux_appl = RepAppl(t);
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_appl + in_pair);
+	    AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
+	    for (i = ArityOfFunctor(f); i >= 1; i--)
+	      STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
+	  }
 #ifdef TRIE_COMPACT_PAIRS
-      in_pair = 0;
+	  in_pair = 0;
 #endif /* TRIE_COMPACT_PAIRS */
-    } else {
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unknown type tag");
+	} else {
+	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unknown type tag");
 #endif /* MODE_TERMS_LOOP */
-    }
-    t = STACK_POP_DOWN(stack_terms);
-  } while (t);
-
-  *vars_arity_ptr = vars_arity;
-  return current_node;
+	}
+	t = STACK_POP_DOWN(stack_terms);
+      } while (t);
+      
+      *vars_arity_ptr = vars_arity;
+      return current_node;
 
 #undef stack_terms_limit
 #ifndef TRIE_COMPACT_PAIRS
@@ -1370,7 +1550,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
       }
       current_ans_node = answer_search_loop2(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity, mode);
       if(current_ans_node == NULL)
-      	break;
+	break;
 #else 
       current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
 #endif /*MODE_DIRECTED_TABLING*/
