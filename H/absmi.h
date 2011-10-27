@@ -1583,3 +1583,16 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
 #define INITIALIZE_PERMVAR(PTR, V) *(PTR) = (V)
 #endif
 
+/* l1: bind a, l2 bind b, l3 no binding */
+#define UnifyAndTrailCells(a, b)                                            \
+     if((a) > (b)) {                                                        \
+       if ((a) < H) { *(a) = (CELL)(b); DO_TRAIL((a),(CELL)(b)); }	    \
+       else if ((b) <= H) { *(a) =(CELL)(b); DO_TRAIL((a),(CELL)(b));}	   \
+       else { *(b) = (CELL)(a);  DO_TRAIL((b),(CELL)(a)); }		    \
+     } else if((a) < (b)){                                                  \
+       if ((b) <= H) { *(b) = (CELL)(a); DO_TRAIL((b),(CELL)(a)); }         \
+       else if ((a) <= H) { *(b) = (CELL) (a); DO_TRAIL((b),(CELL)(a));}    \
+       else { *(a) = (CELL) (b);  DO_TRAIL((a),(CELL)(b));}                 \
+     }
+
+

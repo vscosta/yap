@@ -534,6 +534,7 @@ extern X_API int        PROTO(YAP_Erase,(void *));
 
 /*  term utilities */
 extern X_API int        PROTO(YAP_Variant,(YAP_Term,YAP_Term));
+extern X_API int        PROTO(YAP_Unifiable,(YAP_Term,YAP_Term));
 extern X_API int        PROTO(YAP_ExactlyEqual,(YAP_Term,YAP_Term));
 extern X_API YAP_Int    PROTO(YAP_TermHash,(YAP_Term, YAP_Int, YAP_Int, int));
 
@@ -569,6 +570,8 @@ extern X_API YAP_Term PROTO(YAP_NewOpaqueObject,(YAP_opaque_tag_t, size_t));
 extern X_API void *PROTO(YAP_OpaqueObjectFromTerm,(YAP_Term));
 
 extern X_API int *PROTO(YAP_Argv,(char ***));
+
+extern X_API YAP_tag_t PROTO(YAP_TagOfTerm,(YAP_Term));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

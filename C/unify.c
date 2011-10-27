@@ -605,11 +605,13 @@ InitReverseLookupOpcode(void)
 }
 #endif
 
-#define UnifiableGlobalCells(a, b)                                    \
-     if((a) > (b)) {                                              \
-	Bind_Global_NonAtt((a),(CELL)(b));                           \
-     } else if((a) < (b)){                                        \
-	Bind_Global_NonAtt((b),(CELL) (a));                          \
+#define UnifyAndTrailGlobalCells(a, b)                                \
+     if((a) > (b)) {                                                  \
+       *(a) = (CELL)(b);                                              \
+        DO_TRAIL((a), (CELL)(b));                                     \
+     } else if((a) < (b)){                                            \
+       *(b) = (CELL)(a);                                              \
+        DO_TRAIL((b), (CELL)(a));                                     \
      }
 
 static int 
@@ -736,7 +738,8 @@ loop:
 
       derefa_body(d1, ptd1, unifiable_comp_nvar_unk, unifiable_comp_nvar_nvar);
 	/* d1 and pt2 have the unbound value, whereas d0 is bound */
-      Bind(ptd1, d0);
+      *(ptd1) = d0;
+      DO_TRAIL(ptd1, d0);
       continue;
     }
 
@@ -752,12 +755,13 @@ loop:
       deref_head(d1, unifiable_comp_var_unk);
     unifiable_comp_var_nvar:
       /* pt2 is unbound and d1 is bound */
-      Bind(ptd0, d1);
+      *ptd0 = d1;
+       DO_TRAIL(ptd0, d1);
       continue;
 
       derefa_body(d1, ptd1, unifiable_comp_var_unk, unifiable_comp_var_nvar);
       /* ptd0 and ptd1 are unbound */
-      UnifiableGlobalCells(ptd0, ptd1);
+      UnifyAndTrailGlobalCells(ptd0, ptd1);
     }
   }
   /* Do we still have compound terms to visit */
@@ -879,7 +883,8 @@ unifiable_nvar_nvar:
 
   deref_body(d1, pt1, unifiable_nvar_unk, unifiable_nvar_nvar);
   /* d0 is bound and d1 is unbound */
-  Bind(pt1, d0);
+  *(pt1) = d0;
+  DO_TRAIL(pt1, d0);
   return (TRUE);
 
   deref_body(d0, pt0, unifiable_unk, unifiable_nvar);
@@ -887,18 +892,13 @@ unifiable_nvar_nvar:
   deref_head(d1, unifiable_var_unk);
 unifiable_var_nvar:
   /* pt0 is unbound and d1 is bound */
-  Bind(pt0, d1);
+  *pt0 = d1;
+   DO_TRAIL(pt0, d1);
   return TRUE;
-
-#if TRAILING_REQUIRES_BRANCH
-unifiable_var_nvar_trail:
-  DO_TRAIL(pt0);
-  return TRUE;
-#endif
 
   deref_body(d1, pt1, unifiable_var_unk, unifiable_var_nvar);
   /* d0 and pt1 are unbound */
-  UnifyCells(pt0, pt1);
+  UnifyAndTrailCells(pt0, pt1);
   return (TRUE);
 #if THREADS
 #undef Yap_REGS
@@ -914,13 +914,13 @@ unifiable_var_nvar_trail:
 static Int
 p_unifiable( USES_REGS1 )
 {
-  tr_fr_ptr trp;
+  tr_fr_ptr trp, trp0 = TR;
   Term tf = TermNil;
   if (!unifiable(ARG1,ARG2)) {
     return FALSE;
   }
   trp = TR;
-  while (trp != B->cp_tr) {
+  while (trp != trp0) {
     Term t[2];
     --trp;
     t[0] = TrailTerm(trp);
@@ -929,6 +929,26 @@ p_unifiable( USES_REGS1 )
     RESET_VARIABLE(t[0]);
   }
   return Yap_unify(ARG3, tf);
+}
+
+int
+Yap_unifiable( Term d0, Term d1 )
+{
+  CACHE_REGS
+  tr_fr_ptr trp, trp0 = TR;
+  Term tf = TermNil;
+  if (!unifiable(d0,d1)) {
+    return FALSE;
+  }
+  trp = TR;
+  while (trp != trp0) {
+    Term t;
+
+    --trp;
+    t = TrailTerm(trp);
+    RESET_VARIABLE(t);
+  }
+  return TRUE;
 }
 
 void 
@@ -940,7 +960,7 @@ Yap_InitUnify(void)
   Yap_InitCPred("acyclic_term", 1, p_acyclic, SafePredFlag|TestPredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("cyclic_term", 1, p_cyclic, SafePredFlag|TestPredFlag);
-  Yap_InitCPred("protected_unifiable", 3, p_unifiable, 0);
+  Yap_InitCPred("unifiable", 3, p_unifiable, 0);
   CurrentModule = cm;
 }
 
