@@ -115,6 +115,7 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/yap_structs.h \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
+	$(srcdir)/library/dialect/bprolog/fli/bprolog.h \
 	$(srcdir)/os/SWI-Stream.h
 
 IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
