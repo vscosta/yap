@@ -12,7 +12,7 @@
 #include "rtree_udi_i.h"
 #include "rtree_udi.h"
 
-static int YAP_IsNumberTerm (Term term, YAP_Float *n)
+static int YAP_IsNumberTermToFloat (Term term, YAP_Float *n)
 {
   if (YAP_IsIntTerm (term) != FALSE)
   {
@@ -41,7 +41,7 @@ static rect_t RectOfTerm (Term term)
   for (i = 0; YAP_IsPairTerm(term) && i < 4; i++)
     {
       tmp = YAP_HeadOfTerm (term);
-      if (!YAP_IsNumberTerm(tmp,&(rect.coords[i])))
+      if (!YAP_IsNumberTermToFloat(tmp,&(rect.coords[i])))
         return (RectInit());
       term = YAP_TailOfTerm (term);
     }
