@@ -124,6 +124,9 @@ void PL_license(const char *license, const char *module);
 #define isVar(A) YAP_IsVarTerm((A))
 #define valReal(w) YAP_FloatOfTerm((w))
 #define valFloat(w) YAP_FloatOfTerm((w))
+#ifdef AtomLength /* there is another AtomLength in the system */
+#undef AtomLength
+#endif
 #define AtomLength(w) YAP_AtomNameLength(w)
 #define atomValue(atom) YAP_AtomFromSWIAtom(atom)
 #define atomFromTerm(term) YAP_SWIAtomFromAtom(YAP_AtomOfTerm(term))
