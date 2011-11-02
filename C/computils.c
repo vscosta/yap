@@ -428,6 +428,8 @@ write_functor(Functor f)
       Yap_DebugPlWrite(MkAtomTerm(AtomDBREF));
     } else if (f == FunctorLongInt) {
       Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
+    } else if (f == FunctorBigInt) {
+      Yap_DebugPlWrite(MkAtomTerm(AtomLONGINT));
     } else if (f == FunctorDouble) {
       Yap_DebugPlWrite(MkAtomTerm(AtomDOUBLE));
     }

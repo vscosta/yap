@@ -562,7 +562,8 @@
       break;
     case _get_bigint:
       if (iarg == cl->u.xN.x) {
-	clause->Tag = cl->u.xN.b;
+	clause->Tag = AbsAppl((CELL *)FunctorBigInt);
+	clause->u.t_ptr = (CELL)NULL;
 	return;
       }
       cl = NEXTOP(cl,xN);
