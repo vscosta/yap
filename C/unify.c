@@ -932,11 +932,11 @@ p_unifiable( USES_REGS1 )
 }
 
 int
-Yap_unifiable( Term d0, Term d1 )
+Yap_Unifiable( Term d0, Term d1 )
 {
   CACHE_REGS
   tr_fr_ptr trp, trp0 = TR;
-  Term tf = TermNil;
+
   if (!unifiable(d0,d1)) {
     return FALSE;
   }
