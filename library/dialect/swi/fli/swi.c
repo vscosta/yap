@@ -931,7 +931,10 @@ X_API int PL_put_integer(term_t t, long n)
 X_API int PL_put_int64(term_t t, int64_t n)
 {
   CACHE_REGS
-#if USE_GMP
+#if SIZEOF_INT_P==8
+  Yap_PutInSlot(t,MkIntegerTerm(n));
+  return TRUE;
+#elif USE_GMP
   char s[64];
   MP_INT rop;
 
@@ -1176,6 +1179,8 @@ X_API int PL_unify_int64(term_t t, int64_t n)
   iterm = YAP_MkBigNumTerm((void *)&rop);
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 #else
+  if ((long)n == n)
+    return PL_unify_integer(t, n);
   fprintf(stderr,"Error in PL_unify_int64: please install GMP\n");
   return FALSE;
 #endif
