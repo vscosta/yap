@@ -45,6 +45,7 @@ dnl EXTRA_LIBS_FOR_SWIDLLS= libs that are required when lding a SWI so
 
 AC_INIT(console/yap.c)
 AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER(YapTermConfig.h)
 
 dnl store the environment's compilation flags
 mycflags="$CFLAGS"

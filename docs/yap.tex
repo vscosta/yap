@@ -3272,6 +3272,12 @@ compound term.
 Instantiates each variable in term @var{T} to a term of the form:
 @code{'$VAR'(@var{I})}, with @var{I} increasing from @var{N1} to @var{Nn}.
 
+@item unnumbervars(@var{T},+@var{NT})
+@findex unnumbervars/2
+@syindex unnumbervars/2
+@cnindex unnumbervars/2
+Replace every @code{'$VAR'(@var{I})} by a free variable.
+
 @item ground(@var{T})
 @findex ground/1
 @syindex ground/1
@@ -16171,6 +16177,7 @@ The user can create a new uninstantiated variable using the primitive
 @findex YAP_IsAtomTerm (C-Interface function)
 @findex YAP_IsPairTerm (C-Interface function)
 @findex YAP_IsApplTerm (C-Interface function)
+@findex YAP_IsCompoundTerm (C-Interface function)
 The following primitives can be used to discriminate among the different types
 of non-variable terms:
 @example
@@ -16180,6 +16187,7 @@ of non-variable terms:
       YAP_Bool YAP_IsAtomTerm(YAP_Term @var{t})
       YAP_Bool YAP_IsPairTerm(YAP_Term @var{t})
       YAP_Bool YAP_IsApplTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsCompoundTerm(YAP_Term @var{t})
 @end example
 
 The next primitive gives the type of a Prolog term:
@@ -16602,6 +16610,22 @@ The next function succeeds if two terms are variant terms, and returns
       int      YAP_Variant(YAP_Term t1, YAP_Term t2)
 @end example
 @noindent
+
+The next functions deal with numbering variables in terms:
+@example
+      int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)
+      YAP_Term YAP_UnNumberVars(YAP_Term t)
+      int      YAP_IsNumberedVariable(YAP_Term t)
+@end example
+@noindent
+
+The next one returns the length of a well-formed list @var{t}, or
+@code{-1} otherwise:
+@example
+      Int      YAP_ListLength(YAP_Term t)
+@end example
+@noindent
+
 
 Last, this function succeeds if two terms are unifiable:
 @code{=@=/2}:
