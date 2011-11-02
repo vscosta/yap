@@ -31,30 +31,4 @@ max_var_numberl(I0,Ar,T,Max0,Max) :-
 	).
 
 varnumbers(GT, VT) :-
-	max_var_number(GT,0,Max),
-	Max1 is Max+1,
-	functor(Vars,vars,Max1),
-	varnumbers(GT, Vars, VT).
-
-varnumbers(V,_,V) :- var(V), !.
-varnumbers('$VAR'(I),Vs,V) :- !,
-	I1 is I+1,
-	arg(I1,Vs,V).
-varnumbers(S,Vs,NS) :-
-	functor(S,N,Ar),
-	functor(NS,N,Ar),
-	varnumbersl(0,Ar,Vs,S,NS).
-
-varnumbersl(I0,Ar,Vs,S,NS) :-
-	(I0 =:= Ar ->
-	    true
-	;
-	    I is I0+1,
-	    arg(I,S,A),
-	    arg(I,NS,NA),
-	    varnumbers(A,Vs,NA),
-	    varnumbersl(I,Ar,Vs,S,NS)
-	).
-
-
-
+	unnumber_vars(GT, VT).
