@@ -409,7 +409,10 @@ Yap_InitCPred(char *Name, unsigned long int Arity, CPredicate code, UInt flags)
   Functor           f = NULL;
 
   while (atom == NIL) {
-    atom = Yap_FullLookupAtom(Name);
+    if (flags & UserCPredFlag)
+      atom = Yap_LookupAtom(Name);
+    else
+      atom = Yap_FullLookupAtom(Name);
     if (atom == NIL && !Yap_growheap(FALSE, 0L, NULL)) {
       Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"while initialising %s", Name);
       return;
