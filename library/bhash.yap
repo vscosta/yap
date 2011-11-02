@@ -1,3 +1,5 @@
+%% -*- Prolog -*-
+
 /* 
 
 This code implements hash-arrays.
@@ -33,7 +35,7 @@ It relies on dynamic array code.
 
 array_default_size(2048).
 
-is_b_hash(V) :- !, fail.
+is_b_hash(V) :- var(V), !, fail.
 is_b_hash(hash(_,_,_,_,_)).
 
 b_hash_new(hash(Keys, Vals, Size, N, _, _)) :-
@@ -133,17 +135,29 @@ add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash, NewHash) :-
 	get_mutable(NEls, N),
 	NN is NEls+1,
 	update_mutable(NN, N),
+	array_element(Keys, Index, Key),
+	update_mutable(NN, N),
+	array_element(Vals, Index, Mutable),
+	create_mutable(NewVal, Mutable),
 	(
 	    NN > Size/3
 	->
 	    expand_array(Hash, NewHash)
 	;
 	    Hash = NewHash
-	),
-	array_element(Keys, Index, Key),
-	update_mutable(NN, N),
-	array_element(Vals, Index, Mutable),
-	create_mutable(NewVal, Mutable).
+	).
+
+expand_array(Hash, NewHash) :-
+	Hash == NewHash, !,
+	Hash = hash(Keys, Vals, Size, _X, F, _CmpF),
+	new_size(Size, NewSize),
+	array(NewKeys, NewSize),
+	array(NewVals, NewSize),
+	copy_hash_table(Size, Keys, Vals, F, NewSize, NewKeys, NewVals),
+	/* overwrite in place */
+	setarg(1, Hash, NewKeys),
+	setarg(2, Hash, NewVals),
+	setarg(3, Hash, NewSize).
 
 expand_array(Hash, hash(NewKeys, NewVals, NewSize, X, F, CmpF)) :-
 	Hash = hash(Keys, Vals, Size, X, F, CmpF),
@@ -200,17 +214,17 @@ cmp_f(F, A, B) :-
 	call(F, A, B).
 
 b_hash_to_list(hash(Keys, Vals, _, _, _, _), LKeyVals) :-
-	Keys =.. LKs,
-	Vals =.. LVs,
+	Keys =.. (_.LKs),
+	Vals =.. (_.LVs),
 	mklistpairs(LKs, LVs, LKeyVals).
 
 b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
-	Keys =.. LKs,
+	Keys =.. (_.LKs),
 	mklistels(LKs, LKeys).
 
-b_hash_keys_to_list(hash(_, Vals, _, _, _, _), LVals) :-
-	Vals =.. LVs,
-	mklisvals(LVs, LVals).
+b_hash_values_to_list(hash(_, Vals, _, _, _, _), LVals) :-
+	Vals =.. (_.LVs),
+	mklistvals(LVs, LVals).
 
 mklistpairs([], [], []).
 mklistpairs(V.LKs, _.LVs, KeyVals) :- var(V), !,
@@ -220,14 +234,14 @@ mklistpairs(K.LKs, V.LVs, (K-VV).KeyVals) :-
 	mklistpairs(LKs, LVs, KeyVals).
 
 mklistels([],  []).
-mklistels(V.Es, NEls) :- var(V), !,
-	mklistels(Els, Nels).
+mklistels(V.Els, NEls) :- var(V), !,
+	mklistels(Els, NEls).
 mklistels(K.Els, K.NEls) :- 
 	mklistels(Els, NEls).
 
 mklistvals([],  []).
-mklistvals(V.Es, NVals) :- var(V), !,
-	mklistvals(Vals, Nvals).
+mklistvals(V.Vals, NVals) :- var(V), !,
+	mklistvals(Vals, NVals).
 mklistvals(K.Vals, KK.NVals) :- 
 	get_mutable(KK, K),
 	mklistvals(Vals, NVals).
