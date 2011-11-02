@@ -48,8 +48,6 @@ ground(Term) :-
 	ground(ArgN),
 	'$ground'(M, Term).
 
-*/
-
 numbervars(Term, M, N) :-
 	'$variables_in_term'(Term, [], L),
 	'$numbermarked_vars'(L, M, N).
@@ -61,4 +59,6 @@ numbervars(Term, M, N) :-
 '$numbermarked_vars'(['$VAR'(M)|L], M, N) :-
 	M1 is M+1,
 	'$numbermarked_vars'(L, M1, N).
+
+*/
 
