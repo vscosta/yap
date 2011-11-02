@@ -1,5 +1,5 @@
 
-:- module(bparrays, [new_array/2, a2_new/3, a3_new/4. is_array/1, '$aget'/3]).
+:- module(bparrays, [new_array/2, a2_new/3, a3_new/4, is_array/1, '$aget'/3]).
 
 :- use_module(library(lists), [flatten/2]).
 

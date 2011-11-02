@@ -33,6 +33,7 @@
 :- module(actionrules,[op(1200,xfx,=>),
 		       op(1200,xfx,?=>),
 		       op(1000,xfy,:::),
+		       op(900,xfy,<=),
 		       post/1,
 		       post_event/2,
 		       post_event_df/2,
@@ -41,6 +42,8 @@
 		       ]).
 
 :- use_module(library(lists)).
+
+:- dynamic ar_term/2, extra_ar_term/2.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %  the built-ins and the preds needed in the transformation    %
@@ -332,7 +335,8 @@ ar_translate([AR|ARs],Module,Program,Errors) :-
 	get_head(AR,ARHead),
 	collect_ars_same_head(ARs,ARHead,ActionPredRest,RestARs),
 	ars2p([AR|ActionPredRest],det,ARHead,Program,Errors,TailProgram,TailErrors),
-	ar_translate(RestARs,Module,TailProgram,TailErrors).
+        extra_ars(AR, TailProgram, NTailProgram),
+	ar_translate(RestARs,Module,NTailProgram,TailErrors).
 
 nondet_ar_translate([],_,Program,Program,[]).
 nondet_ar_translate([AR|ARs],Module,Program,EndProgram,Errors) :-
@@ -375,6 +379,20 @@ ar_expand(Term, []) :-
 	prolog_load_context(file,File),
 	get_arinfo(Term,ARInfo,_),
 	assert(nondet_ar_term(File,ARInfo)).
+ar_expand(Term, []) :-
+	Term = (Head :- Body ),
+	prolog_load_context(file,File),
+        functor(Head, Na, Ar),
+        functor(Empty, Na, Ar),
+        ar_term(File,ar(Empty,_,_,_)), !,
+	assert(extra_ar_term(File,ar(Head, Body))).
+ar_expand(Head, []) :-
+	prolog_load_context(file,File),
+        functor(Head, Na, Ar),
+        functor(Empty, Na, Ar),
+        ar_term(File,ar(Empty,_,_,_)), !,
+	assert(extra_ar_term(File,ar(Head, true))).
+
 ar_expand(end_of_file, FinalProgram) :-
 	prolog_load_context(file,File),
         compile_ar(File, DetProgram),
@@ -404,6 +422,12 @@ compile_nondet_ar(File, FinalProgram, StartProgram) :-
 	).
 
 report_errors(Errors) :- throw(action_rule_error(Errors)). % for now
+
+extra_ars(ar(Head,_,_,_), LF, L0) :-
+       functor(Head, N, A),
+       functor(Empty, N, A),
+       findall((Empty :- B), extra_ar_term(_,ar(Empty, B)), LF, L0).
+
 
 /*******************************
 *         MUST BE LAST!        *

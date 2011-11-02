@@ -1,5 +1,10 @@
 
+#ifndef BPROLOG_H
+
+#define BPROLOG_H 1
+
 #include <YapInterface.h>
+#include <math.h>
 
 typedef YAP_Term TERM;
 typedef YAP_Int BPLONG;
@@ -31,10 +36,10 @@ typedef BPLONG *BPLONG_PTR;
 #define bp_is_structure(t) YAP_IsApplTerm(t)
 
 //extern int bp_is_compound(TERM t)
-#define bp_is_compound(t) ( YAP_IsApplTerm(t) || YAP_IsPairTerm(t) )
+#define bp_is_compound(t)  YAP_IsCompoundTerm(t)
 
 //extern int bp_is_unifiable(TERM t1, Term t2)
-#define bp_is_unifiable(t1, t2) YAP_unifiable_NOT_IMPLEMENTED(t1, t2)
+#define bp_is_unifiable(t1, t2) YAP_unifiable(t1, t2)
 
 //extern int bp_is_identical(TERM t1, Term t2)
 #define bp_is_identical(t1, t2) YAP_ExactlyEqual(t1, t2)
@@ -81,10 +86,10 @@ bp_get_arity(TERM t)
 #define bp_get_arg(i, t) YAP_ArgOfTerm(i, t)
 
 //TERM bp_get_car(Term t)
-#define bp_get_car(t) YAP_HeadOfTerm(i, t)
+#define bp_get_car(t) YAP_HeadOfTerm(t)
 
 //TERM bp_get_cdr(Term t)
-#define bp_get_cdr(t) YAP_TailOfTerm(i, t)
+#define bp_get_cdr(t) YAP_TailOfTerm(t)
 
 // void bp_write(TERM t)
 #define bp_write(t) YAP_WriteTerm(t, NULL, 0)
@@ -99,7 +104,7 @@ bp_get_arity(TERM t)
 #define bp_build_float(f) YAP_MkFloatTerm(f)
 
 // TERM bp_build_atom(char *name)
-#define bp_build_atom(name) YAP_MkAtomTerm(YAP_LookupAtom(name))
+#define bp_build_atom(name) YAP_MkAtomTerm(YAP_LookupAtom((name)))
 
 // TERM bp_build_nil()
 #define bp_build_nil() YAP_TermNil()
@@ -114,29 +119,51 @@ bp_get_arity(TERM t)
 #define bp_insert_pred(name, arity, func) YAP_UserCPredicate(name, func, arity)
 
 // int bp_call_string(char *goal)
-#define bp_call_string(goal) YAP_RunGoal(YAP_ReadBuffer(goal, NULL))
+extern inline int
+bp_call_string(const char *goal) {
+  return YAP_RunGoal(YAP_ReadBuffer(goal, NULL));
+}
 
 // int bp_call_term(TERM goal)
-#define bp_call_term(goal) YAP_RunGoal(goal)
+extern inline int
+bp_call_term(TERM t) {
+  return YAP_RunGoal(t);
+}
 
-// void bp_mount_query_string(char *goal)
-#define bp_mount_query_string(goal) bp_t = YAP_ReadBuffer(goal, NULL);
+#define TOAM_NOTSET 0L
 
-// void bp_mount_query_term(TERM goal)
-// #define bp_mount_query_term(goal) bp_t = t;
+#define curr_out stdout
 
-TERM bp_t;
+#define BP_ERROR (-1)
+
+#define INTERRUPT 0x2L
+
+#define exception  YAP_BPROLOG_exception
+#define curr_toam_status  YAP_BPROLOG_curr_toam_status
+
+extern YAP_Term YAP_BPROLOG_curr_toam_status;
+extern YAP_Int YAP_BPROLOG_exception;
 
 // TERM bp_next_solution()
-static int bp_next_solution(void) 
+extern inline int bp_next_solution(void) 
 {
-  if (bp_t) {
-    TERM goal = bp_t;
-    bp_t = 0L;
+  if (curr_toam_status) {
+    TERM goal = curr_toam_status;
+    curr_toam_status = TOAM_NOTSET;
     return YAP_RunGoal(goal);
   }
   return YAP_RestartGoal();
 }
 
+// void bp_mount_query_string(char *goal)
+#define bp_mount_query_string(goal) (curr_toam_status = YAP_ReadBuffer(goal, NULL))
 
+// void bp_mount_query_term(TERM goal)
+extern inline int
+bp_mount_query_term(TERM goal)
+{
+  curr_toam_status = goal;
+  return TRUE;
+}
 
+#endif /* BPROLOG_H */
