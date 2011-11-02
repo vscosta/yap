@@ -7,7 +7,7 @@
 *									 *
 **************************************************************************
 *									 *
-* File:		Yap.h.m4						 *
+* File:		Yap.h   						 *
 * mods:									 *
 * comments:	main header file for YAP				 *
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
@@ -120,6 +120,15 @@
 #define DUMMY_FILLER_FOR_ABS_TYPE int dummy;
 #endif /* HAVE_GCC */
 
+#ifdef THREADS
+#if USE_PTHREAD_LOCKING
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif  /* !_XOPEN_SOURCE */
+#endif /* USE_PTHREAD_LOCKING */
+#include <pthread.h>
+#endif /* THREADS */
+
 #ifndef ADTDEFS_C
 #define EXTERN  static
 #else
@@ -134,109 +143,9 @@
 /* null pointer	*/
 #define	 NIL	0
 
-
 /* Basic types */
 
-/* defines integer  types Int and UInt (unsigned) with the same size as a ptr
-** and integer types Short and UShort with half the size of a ptr */
-
-#ifdef THREADS
-#if USE_PTHREAD_LOCKING
-#ifndef _XOPEN_SOURCE
-#define _XOPEN_SOURCE 600
-#endif  /* !_XOPEN_SOURCE */
-#endif /* USE_PTHREAD_LOCKING */
-#include <pthread.h>
-#endif /* THREADS */
-
-#if SIZEOF_INT_P==4
-
-#if SIZEOF_INT==4
-/*   */ typedef int Int;
-/*   */ typedef unsigned int UInt;
-
-#define Int_FORMAT "%d"
-#define UInt_FORMAT "%u"
-
-#elif SIZEOF_LONG_INT==4
-/*   */ typedef long int Int;
-/*   */ typedef unsigned long int UInt;
-
-#define Int_FORMAT "%ld"
-#define UInt_FORMAT "%lu"
-
-#else
-#error Yap require integer types of the same size as a pointer
-#endif
-
-#if SIZEOF_SHORT_INT==2
-/*   */ typedef short int Short;
-/*   */ typedef unsigned short int UShort;
-
-#else
-#	error Yap requires integer types half the size of a pointer
-#endif
-
-#elif SIZEOF_INT_P==8
-
-#if SIZEOF_INT==8
-/*   */ typedef int Int;
-/*   */ typedef unsigned int UInt;
-
-#define Int_FORMAT "%d"
-#define UInt_FORMAT "%u"
-
-#elif SIZEOF_LONG_INT==8
-/*   */ typedef long int Int;
-/*   */ typedef unsigned long int UInt;
-
-#define Int_FORMAT "%ld"
-#define UInt_FORMAT "%lu"
-
-#   elif SIZEOF_LONG_LONG_INT==8
-/*   */ typedef long long int Int;
-/*   */ typedef unsigned long long int UInt;
-
-#define Int_FORMAT "%I64d"
-#define UInt_FORMAT "%I64u"
-
-#   else
-#	error Yap requires integer types of the same size as a pointer
-#   endif
-
-#   if SIZEOF_SHORT_INT==4
-/*   */ typedef short int Short;
-/*   */ typedef unsigned short int UShort;
-
-#   elif SIZEOF_INT==4
-/*   */ typedef int Short;
-/*   */ typedef unsigned int UShort;
-
-#   else
-#	error Yap requires integer types half the size of a pointer
-#   endif
-
-#else
-
-#  error Yap requires pointers of size 4 or 8
-
-#endif
-
-/*   */ typedef double Float;
-
-#if SIZEOF_INT<SIZEOF_INT_P
-#define SHORT_INTS 1
-#else
-#define SHORT_INTS 0
-#endif
-
-#ifdef __GNUC__
-typedef long long int YAP_LONG_LONG;
-typedef unsigned long long int YAP_ULONG_LONG;
-#else
-typedef long int YAP_LONG_LONG;
-typedef unsigned long int YAP_ULONG_LONG;
-#endif
+#include "YapTerm.h"
 
 #if HAVE_SIGPROF && (defined(__linux__)  || defined(__APPLE__))
 #define LOW_PROF 1
@@ -284,12 +193,6 @@ typedef unsigned long int YAP_ULONG_LONG;
 
 
 
-#ifndef SHORT_ADDRESSES
-#	define LONG_ADDRESSES	1
-#else
-#	define LONG_ADDRESSES	0
-#endif
-
 #ifndef ALIGN_LONGS
 #define ALIGN_LONGS 1
 #endif
@@ -299,15 +202,6 @@ typedef unsigned long int YAP_ULONG_LONG;
 #define K64  ((CELL)(1024*64))
 #define M1   ((CELL)(1024*1024))
 #define M2   ((CELL)(2048*1024))
-
-/*************************************************************************************************
-                                        basic data types
-*************************************************************************************************/
-
-typedef UInt CELL;
-typedef UShort BITS16;
-typedef Short SBITS16;
-typedef UInt BITS32;
 
 #if ALIGN_LONGS
 typedef CELL SFLAGS;
@@ -319,19 +213,10 @@ typedef char *ADDR;
 typedef CELL OFFSET;
 typedef unsigned char *CODEADDR;
 
-#define WordSize     sizeof(BITS16)
-#define CellSize     sizeof(CELL)
-#define SmallSize    sizeof(SMALLUNSGN)
-
 #define ALIGN_YAPTYPE(X,TYPE) (((CELL)(X)+(sizeof(TYPE)-1)) & ~(sizeof(TYPE)-1))
 
-/*************************************************************************************************
-                                        type casting macros
-*************************************************************************************************/
-
+#define TermPtr(V)	((Term *) (V))
 #define	Addr(V)		((ADDR) (V))
-#define	Unsigned(V)	((CELL) (V))
-#define	Signed(V)	((Int) (V))
 
 #define CodePtr(V)	((CODEADDR)(V))
 #define	CellPtr(V) 	((CELL *)(V))
@@ -340,13 +225,6 @@ typedef unsigned char *CODEADDR;
 #define SmallPtr(V)	((SMALLUNSGN *)(V))
 #define	WordPtr(V)	((BITS16 *)(V))
 #define DisplPtr(V)	((DISPREG *)(V))
-#define TermPtr(V)	((Term *) (V))
-
-/*************************************************************************************************
-                              Abstract Type Definitions for YAPProlog	
-*************************************************************************************************/
-
-typedef CELL Term;
 
 #if !defined(YAPOR) && !defined(THREADS)
 #include <nolocks.h>
@@ -631,123 +509,7 @@ typedef enum
 
 #include "Yapproto.h"
 
-/***********************************************************************/
-
-     /*
-        absrectype Term = Int + Float + Atom + Pair + Appl + Ref + Var
-
-        with AbsAppl(t) : *CELL -> Term
-        and  RepAppl(t) : Term -> *CELL
-
-        and  AbsPair(t) : *CELL -> Term
-        and  RepPair(t) : Term -> *CELL
-
-        and  IsIntTerm(t) = ...
-        and  IsAtomTerm(t) = ...
-        and  IsVarTerm(t) = ...
-        and  IsPairTerm(t) = ...
-        and  IsApplTerm(t) = ...
-        and  IsFloatTerm(t) = ...
-        and  IsRefTerm(t) = ...
-        and  IsNonVarTerm(t) = ! IsVar(t)
-        and  IsNumterm(t) = IsIntTerm(t) || IsFloatTerm(t)
-        and  IsAtomicTerm(t) = IsNumTerm(t) || IsAtomTerm(t)
-        and  IsPrimitiveTerm(t) = IsAtomicTerm(t) || IsRefTerm(t)
-
-        and  MkIntTerm(n) = ...
-        and  MkFloatTerm(f) = ...
-        and  MkAtomTerm(a) = ...
-        and  MkVarTerm(r) = ...
-        and  MkApplTerm(f,n,args) = ...
-        and  MkPairTerm(hd,tl) = ...
-        and  MkRefTerm(R) = ...
-
-        and  PtrOfTerm(t) : Term -> CELL * = ...
-        and  IntOfTerm(t) : Term -> int = ...
-        and  FloatOfTerm(t) : Term -> flt = ...
-        and  AtomOfTerm(t) : Term -> Atom = ...
-        and  VarOfTerm(t) : Term -> *Term = ....
-        and  HeadOfTerm(t) : Term -> Term = ...
-        and  TailOfTerm(t) : Term -> Term = ...
-        and  FunctorOfTerm(t) : Term -> Functor = ...
-        and  ArgOfTerm(i,t)  : Term -> Term= ...
-        and  RefOfTerm(t) : Term -> DBRef = ...
-
-      */
-
-/* 
-   YAP can use several different tag schemes, according to the kind of
-   machine we are experimenting with.
-*/
-
-#if LONG_ADDRESSES && defined(OLD_TAG_SCHEME)
-
-#include "Tags_32bits.h"
-
-#endif /* LONG_ADDRESSES && defined(OLD_TAG_SCHEME) */
-
-/* AIX will by default place mmaped segments at 0x30000000. This is
-	incompatible with the high tag scheme. Linux-ELF also does not like
-	if you place things in the lower addresses (power to the libc people).
-*/
-
-#if defined(__APPLE__)
-/* mmap on __APPLE__ is not the greatest idea. It overwrites memory allocated by malloc */
-#undef USE_DL_MALLOC
-#ifndef USE_SYSTEM_MALLOC
-#define USE_SYSTEM_MALLOC 1
-#endif
-#elif (defined(_AIX) || (defined(__APPLE__) && !defined(__LP64__)) || defined(_WIN32) || defined(sparc) || defined(__sparc) || defined(mips) || defined(__FreeBSD__) || defined(_POWER) || defined(__POWERPC__) || defined(__linux__) || defined(IN_SECOND_QUADRANT) || defined(__CYGWIN__)) || defined(__NetBSD__) || defined(__DragonFly__)
-#define USE_LOW32_TAGS 1
-#endif
-
-#if LONG_ADDRESSES && SIZEOF_INT_P==4 && !defined(OLD_TAG_SCHEME) && !defined(USE_LOW32_TAGS)
-
-#include "Tags_32Ops.h"
-
-#endif /* LONG_ADDRESSES && !defined(OLD_TAG_SCHEME) && !defined(USE_LOW32_TAGS) */
-
-#if LONG_ADDRESSES && SIZEOF_INT_P==4 && !defined(OLD_TAG_SCHEME) && defined(USE_LOW32_TAGS)
-
-#include "Tags_32LowTag.h"
-
-#endif /* LONG_ADDRESSES && !defined(OLD_TAG_SCHEME) */
-
-#if LONG_ADDRESSES && SIZEOF_INT_P==8 && !defined(OLD_TAG_SCHEME)
-
-#include "Tags_64bits.h"
-
-#endif /* LONG_ADDRESSES && SIZEOF_INT_P==8 && !defined(OLD_TAG_SCHEME) */
-
-#if !LONG_ADDRESSES
-
-#include "Tags_24bits.h"
-
-#endif /* !LONG_ADDRESSES */
-
-#ifdef TAG_LOW_BITS_32
-
-#if !GC_NO_TAGS
-#define MBIT     0x80000000
-#define RBIT     0x40000000
-
-#if IN_SECOND_QUADRANT
-#define INVERT_RBIT 1		/* RBIT is 1 by default */
-#endif
-#endif /* !GC_NO_TAGS  */
-
-#else
-
-#if !GC_NO_TAGS
-#if defined(YAPOR_SBA) && defined(__linux__)
-#define MBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* mark bit */
-#else
-#define RBIT     /* 0x20000000 */ MKTAG(0x1,0)	/* relocation chain bit */
-#define MBIT     /* 0x40000000 */ MKTAG(0x2,0)	/* mark bit */
-#endif
-#endif /* !GC_NO_TAGS */
-
-#endif
+#include "YapTags.h"
 
 #define	TermSize    sizeof(Term)
 
@@ -770,259 +532,6 @@ extern ADDR Yap_HeapBase;
 #ifdef DEBUG
 extern int Yap_output_msg;
 #endif
-
-/*************************************************************************************************
-                                              ???
-*************************************************************************************************/
-
-#define MkVarTerm() MkVarTerm__( PASS_REGS1 )
-#define MkPairTerm(A,B) MkPairTerm__( A, B PASS_REGS )
-
-/*************************************************************************************************
-                                   applies to unbound variables
-*************************************************************************************************/
-
-inline EXTERN Term *VarOfTerm (Term t);
-
-inline EXTERN Term *
-VarOfTerm (Term t)
-{
-  return (Term *) (t);
-}
-
-
-#ifdef YAPOR_SBA
-
-inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
-
-inline EXTERN Term
-MkVarTerm__ ( USES_REGS1 )
-{
-  return (Term) ((*H = 0, H++));
-}
-
-
-
-inline EXTERN int IsUnboundVar (Term *);
-
-inline EXTERN int
-IsUnboundVar (Term * t)
-{
-  return (int) (*(t) == 0);
-}
-
-
-#else
-
-inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
-
-inline EXTERN Term
-MkVarTerm__ ( USES_REGS1 )
-{
-  return (Term) ((*H = (CELL) H, H++));
-}
-
-
-
-inline EXTERN int IsUnboundVar (Term *);
-
-inline EXTERN int
-IsUnboundVar (Term * t)
-{
-  return (int) (*(t) == (Term) (t));
-}
-
-
-#endif
-
-inline EXTERN CELL *PtrOfTerm (Term);
-
-inline EXTERN CELL *
-PtrOfTerm (Term t)
-{
-  return (CELL *) (*(CELL *) (t));
-}
-
-
-
-
-inline EXTERN Functor FunctorOfTerm (Term);
-
-inline EXTERN Functor
-FunctorOfTerm (Term t)
-{
-  return (Functor) (*RepAppl (t));
-}
-
-
-#if USE_LOW32_TAGS
-
-inline EXTERN Term MkAtomTerm (Atom);
-
-inline EXTERN Term
-MkAtomTerm (Atom a)
-{
-  return (Term) (AtomTag | (CELL) (a));
-}
-
-
-
-inline EXTERN Atom AtomOfTerm (Term t);
-
-inline EXTERN Atom
-AtomOfTerm (Term t)
-{
-  return (Atom) ((~AtomTag & (CELL) (t)));
-}
-
-
-#else
-
-inline EXTERN Term MkAtomTerm (Atom);
-
-inline EXTERN Term
-MkAtomTerm (Atom a)
-{
-  return (Term) (TAGGEDA ((CELL)AtomTag, (CELL) (a)));
-}
-
-
-
-inline EXTERN Atom AtomOfTerm (Term t);
-
-inline EXTERN Atom
-AtomOfTerm (Term t)
-{
-  return (Atom) (NonTagPart (t));
-}
-
-
-#endif
-
-inline EXTERN int IsAtomTerm (Term);
-
-inline EXTERN int
-IsAtomTerm (Term t)
-{
-  return (int) (CHKTAG ((t), AtomTag));
-}
-
-
-
-
-inline EXTERN Term MkIntTerm (Int);
-
-inline EXTERN Term
-MkIntTerm (Int n)
-{
-  return (Term) (TAGGED (NumberTag, (n)));
-}
-
-
-/*
-  A constant to subtract or add to a well-known term, we assume no
-  overflow problems are possible
-*/
-
-inline EXTERN Term MkIntConstant (Int);
-
-inline EXTERN Term
-MkIntConstant (Int n)
-{
-  return (Term) (NONTAGGED (NumberTag, (n)));
-}
-
-
-
-inline EXTERN int IsIntTerm (Term);
-
-inline EXTERN int
-IsIntTerm (Term t)
-{
-  return (int) (CHKTAG ((t), NumberTag));
-}
-
-
-
-EXTERN inline Term STD_PROTO (MkPairTerm__, (Term, Term CACHE_TYPE) );
-
-EXTERN inline Term
-MkPairTerm__ (Term head, Term tail USES_REGS)
-{
-  register CELL *p = H;
-
-  H[0] = head;
-  H[1] = tail;
-  H += 2;
-  return (AbsPair (p));
-}
-
-
-/* Needed to handle numbers:
-   	these two macros are fundamental in the integer/float conversions */
-
-#ifdef M_WILLIAMS
-#define IntInBnd(X)	(TRUE)
-#else
-#ifdef TAGS_FAST_OPS
-#define IntInBnd(X)	(Unsigned( ( (Int)(X) >> (32-7) ) + 1) <= 1)
-#else
-#define IntInBnd(X)	( (X) < MAX_ABS_INT && \
-                          (X) > -MAX_ABS_INT-1L )
-#endif
-#endif
-#ifdef C_PROLOG
-#define FlIsInt(X)	( (X) == (Int)(X) && IntInBnd((X)) )
-#else
-#define FlIsInt(X)	( FALSE )
-#endif
-
-
-/*
-  There are two types of functors:
-
-  o Special functors mark special terms
-  on the heap that should be seen as constants.
-
-  o Standard functors mark normal applications.
-
-*/
-
-#include "TermExt.h"
-
-#define IsAccessFunc(func)		((func) == FunctorAccess)
-
-
-inline EXTERN Term MkIntegerTerm (Int);
-
-inline EXTERN Term
-MkIntegerTerm (Int n)
-{
-  return (Term) (IntInBnd (n) ? MkIntTerm (n) : MkLongIntTerm (n));
-}
-
-
-
-inline EXTERN int IsIntegerTerm (Term);
-
-inline EXTERN int
-IsIntegerTerm (Term t)
-{
-  return (int) (IsIntTerm (t) || IsLongIntTerm (t));
-}
-
-
-
-inline EXTERN Int IntegerOfTerm (Term);
-
-inline EXTERN Int
-IntegerOfTerm (Term t)
-{
-
-  return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
-}
-
-
 
 /*************************************************************************************************
                                 variables concerned with atoms table
