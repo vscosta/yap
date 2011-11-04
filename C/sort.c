@@ -267,14 +267,14 @@ Int compact_mergesort(CELL *pt, Int size, int my_p)
     while (pt_left < end_pt_left && pt_right < end_pt_right) {
       /* if the element to the left is larger than the one to the right */
       Int cmp = Yap_compare_terms(pt_left[0], pt_right[0]);
-      if (cmp < 0) {
+      if (cmp < (Int)0) {
 	/* copy the one to the left */
 	pt[0] = pt_left[0];
 	/* and avance the two pointers */
 	pt += 2;
 	size ++;
 	pt_left += 2;
-      } else if (cmp == 0) {
+      } else if (cmp == (Int)0) {
 	/* otherwise, just skip one of them, anyone */
 	pt_left += 2;
       } else {

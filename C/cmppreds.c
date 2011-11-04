@@ -317,8 +317,9 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
 	return 1;
       return -1;
     } else {
-      if (IsIntTerm(t2))
+      if (IsIntTerm(t2)) {
 	return IntOfTerm(t1) - IntOfTerm(t2);
+      }
       if (IsFloatTerm(t2)) {
 	return 1;
       }
@@ -441,9 +442,9 @@ compare(Term t1, Term t2) /* compare terms t1 and t2	 */
   }
 }
 
-int Yap_compare_terms(CELL d0, CELL d1)
+Int Yap_compare_terms(Term d0, Term d1)
 {
-  return (compare(Deref(d0),Deref(d1)));
+  return compare(Deref(d0),Deref(d1));
 }
 
 static Int 

@@ -140,7 +140,7 @@ void	STD_PROTO(Yap_AssertzClause,(struct pred_entry *, yamop *));
 
 
 /* cmppreds.c */
-int	STD_PROTO(Yap_compare_terms,(Term,Term));
+Int	STD_PROTO(Yap_compare_terms,(Term,Term));
 void	STD_PROTO(Yap_InitCmpPreds,(void));
 
 /* compiler.c */
