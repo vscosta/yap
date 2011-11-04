@@ -3898,7 +3898,8 @@ YAP_NumberVars(Term t, Int nbv) {
 
 Term
 YAP_UnNumberVars(Term t) {
-  return Yap_UnNumberTerm(t);
+  /* don't allow sharing of ground terms */
+  return Yap_UnNumberTerm(t, FALSE);
 }
 
 int

@@ -398,7 +398,7 @@ int	STD_PROTO(Yap_IsGroundTerm,(Term));
 void	STD_PROTO(Yap_InitUtilCPreds,(void));
 Int     STD_PROTO(Yap_TermHash,(Term, Int, Int, int));
 Int     STD_PROTO(Yap_NumberVars,(Term, Int));
-Term    STD_PROTO(Yap_UnNumberTerm,(Term));
+Term    STD_PROTO(Yap_UnNumberTerm,(Term, int));
 /* yap.c */
 
 

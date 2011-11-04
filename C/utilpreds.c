@@ -4406,7 +4406,7 @@ Yap_NumberVars( Term inp, Int numbv )	/* numbervariables in term t	 */
 }
 
 static Int
-p_numbervars(void)
+p_numbervars( USES_REGS1 )
 {
   Term t2 = Deref(ARG2);
   Int out;
@@ -4425,13 +4425,13 @@ p_numbervars(void)
 }
 
 static int
-unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USES_REGS)
+unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share USES_REGS)
 {
 
   struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
-  int ground = TRUE;
+  int ground = share;
   Int max = -1;
 
   HB = HLow;
@@ -4479,7 +4479,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USES_REGS)
 	  to_visit ++;
 	}
 #endif
-	ground = TRUE;
+	ground = share;
 	pt0 = ap2 - 1;
 	pt0_end = ap2 + 1;
 	ptf = H;
@@ -4555,7 +4555,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USES_REGS)
 	  to_visit ++;
 	}
 #endif
-	ground = (f != FunctorMutable);
+	ground = (f != FunctorMutable) && share;
 	d0 = ArityOfFunctor(f);
 	pt0 = ap2;
 	pt0_end = ap2 + d0;
@@ -4574,6 +4574,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USES_REGS)
     }
 
     derefa_body(d0, ptd0, unnumber_term_unk, unnumber_term_nvar);
+    /* this should never happen ? */
     ground = FALSE;
     *ptf++ = (CELL) ptd0;
   }
@@ -4647,7 +4648,7 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow USES_REGS)
 
 
 static Term
-UnnumberTerm(Term inp, UInt arity USES_REGS) {
+UnnumberTerm(Term inp, UInt arity, int share USES_REGS) {
   Term t = Deref(inp);
   tr_fr_ptr TR0 = TR;
 
@@ -4667,7 +4668,7 @@ UnnumberTerm(Term inp, UInt arity USES_REGS) {
     H += 2;
     {
       int res;
-      if ((res = unnumber_complex_term(ap-1, ap+1, Hi, Hi PASS_REGS)) < 0) {
+      if ((res = unnumber_complex_term(ap-1, ap+1, Hi, Hi, share PASS_REGS)) < 0) {
 	H = Hi;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
@@ -4699,7 +4700,7 @@ UnnumberTerm(Term inp, UInt arity USES_REGS) {
     } else {
       int res;
 
-      if ((res = unnumber_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0 PASS_REGS)) < 0) {
+      if ((res = unnumber_complex_term(ap, ap+ArityOfFunctor(f), HB0+1, HB0, share PASS_REGS)) < 0) {
 	H = HB0;
 	if ((t = handle_cp_overflow(res, TR0, arity, t))== 0L)
 	  return FALSE;
@@ -4714,14 +4715,15 @@ UnnumberTerm(Term inp, UInt arity USES_REGS) {
 }
  
 Term
-Yap_UnNumberTerm(Term inp) {
+Yap_UnNumberTerm(Term inp, int share) {
   CACHE_REGS
-  return UnnumberTerm(inp, 0 PASS_REGS);
+  return UnnumberTerm(inp, 0, share PASS_REGS);
 }
 
-static int
-p_unnumbervars(void) {
-  return Yap_unify(Yap_UnNumberTerm(ARG1), ARG2);
+static Int
+p_unnumbervars( USES_REGS1 ) {
+  /* this should be a standard Prolog term, so we allow sharing? */
+  return Yap_unify(Yap_UnNumberTerm(ARG1, FALSE PASS_REGS), ARG2);
 }
 
 void Yap_InitUtilCPreds(void)
