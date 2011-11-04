@@ -705,6 +705,7 @@ all: startup.yss
 	@ENABLE_ZLIB@ @INSTALL_DLLS@ (cd packages/zlib; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
+	@ENABLE_CPLINT@ (cd packages/cplint/slipcase; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))

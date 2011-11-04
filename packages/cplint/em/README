@@ -1,0 +1,23 @@
+
+This folder contains an EM algorithm based on cplint
+
+To execute it, load em.pl with
+
+:- use_module(library('cplint/em')).
+
+and run
+
+:- em(filestem).
+
+in a directory containing filestem.kb, filestem.bg and filestem.l.
+You will find the output in filestem.rules.
+
+See the files sa1 and sp1 in the folder as examples (they are the first fold of IMDB for target predicates sameauthor and sameperson)
+
+In the .l file you should specify input and output (taget predicates) in the form
+
+input(pred/arity).
+
+output(pred/arity).
+
+See also http://sites.unife.it/rib/

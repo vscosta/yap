@@ -1,11 +1,10 @@
-This directory contains the code of the LPAD anc CP-logic interpreter cplint
+This directory contains the code of the cplint suite
+All the code in this directory is distributed under the terms of the 
+The Artistic License 2.0, see the file Artistic.
 
 COMPILATION:
-This package requires CUDD and GLIB version 1.2.
+This package requires CUDD
 You can download CUDD from http://vlsi.colorado.edu/~fabio/CUDD/ 
-You can download GLIB from http://www.gtk.org/. This is a standard Linux package 
-so it is easy to install using the package management software of your Linux 
-distribution
 
 INSTALLATION:
 Compile CUDD:

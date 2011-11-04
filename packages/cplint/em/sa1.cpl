@@ -1,0 +1,102 @@
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_a),  haswordauthor(B,word_a).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_andrzej),  haswordauthor(B,word_andrzej).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_auer),  haswordauthor(B,word_auer).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_avrim),  haswordauthor(B,word_avrim).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_bauer),  haswordauthor(B,word_bauer).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_bianchi),  haswordauthor(B,word_bianchi).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_blum),  haswordauthor(B,word_blum).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_cesa),  haswordauthor(B,word_cesa).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_cohen),  haswordauthor(B,word_cohen).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_d),  haswordauthor(B,word_d).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_david),  haswordauthor(B,word_david).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_dietterich),  haswordauthor(B,word_dietterich).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_druker),  haswordauthor(B,word_druker).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_e),  haswordauthor(B,word_e).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_ehrenfeucht),  haswordauthor(B,word_ehrenfeucht).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_eric),  haswordauthor(B,word_eric).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_feder),  haswordauthor(B,word_feder).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_freund),  haswordauthor(B,word_freund).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_fyoav),  haswordauthor(B,word_fyoav).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_g),  haswordauthor(B,word_g).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_goldman),  haswordauthor(B,word_goldman).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_h),  haswordauthor(B,word_h).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_harris),  haswordauthor(B,word_harris).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_haussler),  haswordauthor(B,word_haussler).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_helmbold),  haswordauthor(B,word_helmbold).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_henry),  haswordauthor(B,word_henry).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_j),  haswordauthor(B,word_j).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_kautz),  haswordauthor(B,word_kautz).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_kearns),  haswordauthor(B,word_kearns).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_l),  haswordauthor(B,word_l).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_lewis),  haswordauthor(B,word_lewis).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_littlestone),  haswordauthor(B,word_littlestone).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_m),  haswordauthor(B,word_m).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_micahel),  haswordauthor(B,word_micahel).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_michael),  haswordauthor(B,word_michael).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_n),  haswordauthor(B,word_n).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_nicolo),  haswordauthor(B,word_nicolo).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_p),  haswordauthor(B,word_p).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_r),  haswordauthor(B,word_r).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_rivest),  haswordauthor(B,word_rivest).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_robert),  haswordauthor(B,word_robert).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_ronald),  haswordauthor(B,word_ronald).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_s),  haswordauthor(B,word_s).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_sally),  haswordauthor(B,word_sally).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_shapire),  haswordauthor(B,word_shapire).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_t),  haswordauthor(B,word_t).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_tom),  haswordauthor(B,word_tom).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_v),  haswordauthor(B,word_v).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_w),  haswordauthor(B,word_w).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_william),  haswordauthor(B,word_william).
+
+sameauthor(A,B) :0.3 :-  haswordauthor(A,word_y),  haswordauthor(B,word_y).
+

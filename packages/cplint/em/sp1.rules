@@ -1,0 +1,38 @@
+/* Final CLL -239.829763
+Execution time 39.458000
+setting(sample_size,1000).
+setting(equivalent_sample_size,100).
+setting(epsilon_em,0.1).
+setting(epsilon_em_fraction,0.01).
+setting(epsilon_sem,2).
+setting(random_restarts_number,1).
+setting(inference,cplint).
+setting(verbosity,3).
+Suff stats
+1,[161.602233313471,216.561766686529],378.000000,1
+2,[85.4594299534467,432.807154859118],518.000000,1
+3,[1.03319019220731,444.410117853292],445.000000,1
+4,[23.1330023694224,18.8596251037636],42.000000,1
+
+
+*/
+sameperson(B,C):0.423997 :-
+	movie(D,B),
+	movie(D,C).
+
+sameperson(B,C):0.168873 :-
+	actor(B),
+	actor(C),
+	workedunder(B,D),
+	workedunder(C,D).
+
+sameperson(B,C):0.002385 :-
+	gender(B,D),
+	gender(C,D).
+
+sameperson(B,C):0.553398 :-
+	director(B),
+	director(C),
+	genre(B,D),
+	genre(C,D).
+

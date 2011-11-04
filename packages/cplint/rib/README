@@ -1,0 +1,25 @@
+
+This folder cotains RIB, a parameter learning algorithm based on the information bottleneck
+
+To execute rib, load ib.pl with
+
+:- use_module(library('cplint/rib')).
+
+and run
+
+:- ib_par(filestem).
+
+in a directory containing filestem.kb, filestem.bg and filestem.l.
+You will find the output in filestem.rules.
+
+The folder contains the following examples 
+sp1 and sp1npn (first fold of IMDB for target predicate sameperson)
+hmml2: hidden markov model
+
+In the .l file you should specify input and output (taget predicates) in the form
+
+input(pred/arity).
+
+output(pred/arity).
+
+See also http://sites.unife.it/rib/

@@ -31,13 +31,10 @@ fabrizio.riguzzi@unife.it}
 \texttt{cplint} is a suite of programs for reasoning with ICL \cite{DBLP:journals/ai/Poole97}, LPADs \cite{VenVer03-TR,VenVer04-ICLP04-IC} and CP-logic programs \cite{VenDenBru-JELIA06,DBLP:journals/tplp/VennekensDB09}. It contains programs both for inference and learning.
 
 \section{Installation}
-\texttt{cplint} is distributed in source code in the CVS version of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
+\texttt{cplint} is distributed in source code in the source code development tree of Yap. It includes Prolog and C files. Download it by following the instruction in \url{http://www.ncc.up.pt/~vsc/Yap/downloads.html}.
 
-\texttt{cplint} requires \href{http://vlsi.colorado.edu/~fabio/CUDD/}{CUDD} and glib-2.0.
+\texttt{cplint} requires \href{http://vlsi.colorado.edu/~fabio/CUDD/}{CUDD}.
 You can download CUDD from \url{ftp://vlsi.colorado.edu/pub/cudd-2.4.2.tar.gz}.
-You can download glib-2.0 (version $\geq 2.0$) from \url{http://www.gtk.org/}. This is a standard GNU package 
-so it is easy to install it using the package management software of your Linux or Cygwin 
-distribution.
 
 Compile CUDD:
 \begin{enumerate}
@@ -441,7 +438,7 @@ The files \texttt{*.uni} that are present for some of the examples are used  by 
 \begin{itemize}
 \item CEM (\texttt{cplint} EM): an implementation of EM for learning parameters that is based on \texttt{lpadsld.pl} \cite{RigDiM11-ML-IJ}
 \item RIB (Relational Information Bottleneck): an algorithm for learning parameters based on the Information Bottleneck \cite{RigDiM11-ML-IJ}
-\item EMBLEM (EM over Bdds for probabilistic Logic programs Efficient Mining): an implementation of EM for learning parameters that computes expectations directly on BDDs \cite{BelRig11-CILC11-NC,BelRig11-TR}
+\item EMBLEM (EM over Bdds for probabilistic Logic programs Efficient Mining): an implementation of EM for learning parameters that computes expectations directly on BDDs \cite{BelRig11-IDA,BelRig11-CILC11-NC,BelRig11-TR}
 \item SLIPCASE (Structure LearnIng of ProbabilistiC logic progrAmS with Em over bdds): an algorithm for learning the structure of program that is based on EMBLEM \cite{BelRig11-ILP11-IC}
 \end{itemize}
 
@@ -526,7 +523,12 @@ for specifying an input variable of type \texttt{<type>}, or
 \begin{verbatim}
 -<type>
 \end{verbatim}
-for specifying an output variable of type \texttt{<type>}. 
+for specifying an output variable of type \texttt{<type>}. or
+\begin{verbatim}
+<constant>
+\end{verbatim}
+for specifying a constant.
+
 \subsection{Parameters}
 In order to set the algorithms' parameters, you have to insert in \texttt{<stem>.l}  commands of the form
 \begin{verbatim}
@@ -535,31 +537,70 @@ In order to set the algorithms' parameters, you have to insert in \texttt{<stem>
 The available parameters are:
 \begin{itemize}
 \item \verb|depth| (values: integer or \verb|inf|, default value: 3): depth of derivations if  \verb|depth_bound|  is set to \verb|true|
-\item \verb|single_var| (values: \verb|{true,false}|, default value: \verb|false|, valid for CEM only): if set to \verb|true|, there is a random variable for each clauses, instead of a separate random variable for each grounding of a clause
+\item \verb|single_var| (values: \verb|{true,false}|, default value: \verb|false|, valid for CEM, EMBLEM and SLIPCASE): if set to \verb|true|, there is a random variable for each clauses, instead of a separate random variable for each grounding of a clause
 \item \verb|sample_size| (values: integer, default value: 1000): total number of examples in case in which the models in the \verb|.kb| file contain a \verb|prob(P).| fact. In that case, one model corresponds to \verb|sample_size*P| examples
-\item \verb|epsilon_em| (values: real, default value: 0.1, valid for CEM only): if the difference in the log likelihood in two successive EM iteration is smaller
+\item \verb|epsilon_em| (values: real, default value: 0.1, valid for CEM, EMBLEM and SLIPCASE): if the difference in the log likelihood in two successive EM iteration is smaller
 than \verb|epsilon_em|, then EM stops 
-\item \verb|epsilon_em_fraction| (values: real, default value: 0.01, valid for CEM only): if the difference in the log likelihood in two successive EM iteration is smaller
+\item \verb|epsilon_em_fraction| (values: real, default value: 0.01, valid for CEM, EMBLEM and SLIPCASE): if the difference in the log likelihood in two successive EM iteration is smaller
 than \verb|epsilon_em_fraction|*(-current log likelihood), then EM stops
-\item \verb|random_restarts_number| (values: integer, default value: 1, valid for CEM only): number of random restarts
+\item \verb|iter| (values: integer, defualt value: 1, valid for EMBLEM and SLIPCASE): maximum number of iteration of EM parameter learning. If set to -1, no maximum number of iterations is imposed
+\item \verb|iterREF| (values: integer, defualt value: 1, valid for  SLIPCASE):
+ maximum number of iteration of EM parameter learning for refinements. If set to -1, no maximum number of iterations is imposed.
+
+\item \verb|random_restarts_number| (values: integer, default value: 1, valid for CEM, EMBLEM and SLIPCASE): number of random restarts of EM learning
+\item \verb|random_restarts_REFnumber| (values: integer, default value: 1, valid for  SLIPCASE): number of random restarts of EM learning for refinements
+
+
 \item \verb|setrand| (values: rand(integer,integer,integer)): seed for the random functions, see Yap manual for allowed values
-\item \verb|minimal_step| (values: [0,1], default value: 0.005, valid for RIB only): minimal increment of $\gamma$
-\item \verb|maximal_step| (values: [0,1], default value: 0.1, valid for RIB only): maximal increment of $\gamma$
-\item \verb|logsize_fraction| (values: [0,1], default value 0.9, valid for RIB only): RIB stops when $\mathbf{I}(CH,T;Y)$ is above \verb|logsize_fraction| times its maximum value ($\log |CH,T|$, see \cite{DBLP:journals/jmlr/ElidanF05})
-\item \verb|delta| (values: negative integer, default value -10, valid for RIB only): value assigned to $\log 0$
-\item \verb|epsilon_fraction| (values: integer, default value 100, valid for RIB only): in the computation of the step, the value of $\epsilon$ of \cite{DBLP:journals/jmlr/ElidanF05} is obtained as $\log |CH,T|\times$\verb|epsilon_fraction|
-\item \verb|max_rules| (values: integer, default value: 6000, valid for RIB only): maximum number of ground rules. Used to set the size of arrays for storing internal statistics. Can be increased as much as memory allows.
+\item \verb|minimal_step| (values: [0,1], default value: 0.005, valid for RIB): minimal increment of $\gamma$
+\item \verb|maximal_step| (values: [0,1], default value: 0.1, valid for RIB): maximal increment of $\gamma$
+\item \verb|logsize_fraction| (values: [0,1], default value 0.9, valid for RIB): RIB stops when $\mathbf{I}(CH,T;Y)$ is above \verb|logsize_fraction| times its maximum value ($\log |CH,T|$, see \cite{DBLP:journals/jmlr/ElidanF05})
+\item \verb|delta| (values: negative integer, default value -10, valid for RIB): value assigned to $\log 0$
+\item \verb|epsilon_fraction| (values: integer, default value 100, valid for RIB): in the computation of the step, the value of $\epsilon$ of \cite{DBLP:journals/jmlr/ElidanF05} is obtained as $\log |CH,T|\times$\verb|epsilon_fraction|
+\item \verb|max_rules| (values: integer, default value: 6000, valid for RIB and SLIPCASE): maximum number of ground rules. Used to set the size of arrays for storing internal statistics. Can be increased as much as memory allows.
+\item \verb|logzero| (values: negative real, default value $\log(0.000001)$, valid for SLIPCASE): value assigned to $\log 0$
+\item \verb|examples| (values: \verb|atoms|,\verb|interpretations|, default value \verb|atoms|, valid for SLIPCASE): determines how BDDs are built: if set to \verb|interpretations|, a BDD for the conjunction of all the atoms for the target predicates in each interpretations is built. 
+If set to \verb|atoms|, a BDD is built for the conjunction of a group of atoms for the target predicates in each interpretations. The number of atoms in each group is determined by the parameter \verb|group|
+\item \verb|group| (values: integer, default value: 1, valid for SLIPCASE): number of target atoms in the groups that are used to build BDDs
+\item \verb|nax_iter| (values: integer, default value: 10, valid for SLIPCASE): number of interations of beam search
+\item \verb|max_var| (values: integer, default value: 1, valid for SLIPCASE): maximum number of distinct variables in a clause
+\item \verb|verbosity| (values: integer in [1,3], default value: 1): level of verbosity of the algorithms
+\item \verb|beamsize|  (values: integer, default value: 20, valid for SLIPCASE): size of the beam in SLIPCASE
+ 
 \end{itemize}
 \subsection{Commands}
-To execute CEM, load \texttt{em.pl} and call:
+To execute CEM, load \texttt{em.pl} with
+\begin{verbatim}
+?:- use_module(library('cplint/em')).
+\end{verbatim}
+and call:
 \begin{verbatim}
 ?:- em(stem).
 \end{verbatim}
-To execute RIB, load \texttt{rib.pl} and call:
+To execute RIB, load \texttt{rib.pl} with
+\begin{verbatim}
+?:- use_module(library('cplint/rib')).
+\end{verbatim}
+and call:
 \begin{verbatim}
 ?:- ib_par(stem).
 \end{verbatim}
-
+To execute EMBLEM, load \texttt{slipcase.pl} with
+\begin{verbatim}
+?:- use_module(library('cplint/slipcase')).
+\end{verbatim}
+and call
+\begin{verbatim}
+?:- em(stem).
+\end{verbatim}
+To execute SLIPCASE, load \texttt{slipcase.pl} with
+\begin{verbatim}
+?:- use_module(library('cplint/slipcase')).
+\end{verbatim}
+and call
+\begin{verbatim}
+?:- sl(stem).
+\end{verbatim}
 
 \section{License}
 \label{license}

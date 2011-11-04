@@ -1,0 +1,44 @@
+/* Execution time 133.240000 LogSize 13.169796 Final I 2.364892
+setting(setrand,rand(1230,45,123)).
+setting(cll_sample_size,1000).
+setting(equivalent_sample_size,100).
+setting(large_equivalent_sample_size,10000).
+setting(large_equivalent_sample_size_factor,100).
+setting(equivalent_sample_size_factor,0.25).
+setting(epsilon_em,0.1).
+setting(epsilon_sem,2).
+setting(random_restarts_number,10).
+setting(inference,cplint).
+setting(new_head_atoms_zero_prob,false).
+setting(depth_bound,4).
+setting(logsize_fraction,0.9).
+setting(maximum_instantiations,20).
+setting(delta,-10).
+setting(epsilon_fraction,100).
+setting(max_rules,5000).
+setting(max_var,2).
+setting(maximal_step,0.1).
+setting(minimal_step,0.005).
+setting(sample_size,840).
+setting(verbosity,3).
+*/
+sameperson(B,C):0.507542 :-
+	movie(D,B),
+	movie(D,C).
+
+sameperson(B,C):0.566586 :-
+	actor(B),
+	actor(C),
+	workedunder(B,D),
+	workedunder(C,D).
+
+sameperson(B,C):0.355943 :-
+	gender(B,D),
+	gender(C,D).
+
+sameperson(B,C):0.853257 :-
+	director(B),
+	director(C),
+	genre(B,D),
+	genre(C,D).
+

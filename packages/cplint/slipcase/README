@@ -1,0 +1,24 @@
+
+This folder cotains EMBLEM, an EM parameter learning algorithm, and SLIPCASE, a structure  learning algorithm
+
+To execute EMBLEM, load slicpase.pl with
+:- use_module(library('cplint/slipcase')).
+
+and run
+
+:- em(filestem).
+
+in a directory containing filestem.kb, filestem.bg and filestem.l.
+You will find the output in filestem.rules.
+
+To execute SLIPCASE, load slicpase.pl with
+:- use_module(library('cplint/slipcase')).
+
+and run
+
+:- sl(filestem).
+
+in a directory containing filestem.kb, filestem.bg and filestem.l.
+You will find the output in filestem.rules.
+
+See also http://sites.unife.it/ml/emblem and http://sites.unife.it/ml/slipcase
