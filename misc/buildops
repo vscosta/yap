@@ -877,7 +877,7 @@ opinfo("gl_void_vary",[bind("y","AbsPair(NULL)",workpc=currentop),new("y")]).
 opinfo("get_struct",[bind("x","AbsAppl((CELL *)cl->u.xfa.f)",workpc=nextop)]).
 opinfo("get_float",[bind("x","AbsAppl((CELL *)FunctorDouble)",t_ptr="d")]).
 opinfo("get_longint",[bind("x","AbsAppl((CELL *)FunctorLongInt)",t_ptr="i")]).
-opinfo("get_bigint",[bind("x","b",[])]).
+opinfo("get_bigint",[bind("x","AbsAppl((CELL *)FunctorBigInt)",t_ptr=[])]).
 opinfo("copy_idb_term",[logical]).
 opinfo("unify_idb_term",[logical]).
 opinfo("put_atom",[new("x")]).
