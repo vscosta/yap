@@ -619,7 +619,7 @@ currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
 
 int
 numberVars(term_t t, nv_options *opts, int n ARG_LD) {
-  return 0;
+  return Yap_NumberVars(YAP_GetFromSlot(t), n);
 }
 
 		 /*******************************

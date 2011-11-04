@@ -58,13 +58,19 @@ blob_type;
 #define   FunctorDouble   ((Functor)(double_e))
 #define   EndSpecials     (double_e+sizeof(Functor *))
 
+
 inline EXTERN int IsAttVar (CELL *pt);
 
 inline EXTERN int
 IsAttVar (CELL *pt)
 {
+#ifdef _YAP_NOT_INSTALLED_
   CACHE_REGS
-  return (pt)[-1] == (CELL)attvar_e && pt < H;
+  return (pt)[-1] == (CELL)attvar_e
+    && pt < H;
+#else
+  return (pt)[-1] == (CELL)attvar_e;
+#endif
 }
 
 inline EXTERN int GlobalIsAttVar (CELL *pt);
@@ -142,6 +148,8 @@ exts;
 
 #endif
 
+#ifdef _YAP_NOT_INSTALLED_
+
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
 #ifdef THREADS
@@ -170,6 +178,7 @@ special_functors;
 inline EXTERN Float STD_PROTO (CpFloatUnaligned, (CELL *));
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
+
 
 inline EXTERN Term MkFloatTerm (Float);
 
@@ -246,7 +255,6 @@ MkFloatTerm (Float dbl)
 }
 
 
-
 inline EXTERN Float FloatOfTerm (Term t);
 
 inline EXTERN Float
@@ -264,6 +272,14 @@ FloatOfTerm (Term t)
 #endif
 #endif
 
+Term STD_PROTO (Yap_MkBlobStringTerm, (const char *, size_t len));
+Term STD_PROTO (Yap_MkBlobWideStringTerm, (const wchar_t *, size_t len));
+char *STD_PROTO (Yap_BlobStringOfTerm, (Term));
+wchar_t *STD_PROTO (Yap_BlobWideStringOfTerm, (Term));
+char *STD_PROTO (Yap_BlobStringOfTermAndLength, (Term, size_t *));
+
+#endif /* YAP_NOT_INSTALLED */
+
 
 inline EXTERN int IsFloatTerm (Term);
 
@@ -278,6 +294,7 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
+#ifdef _YAP_NOT_INSTALLED_
 inline EXTERN Term MkLongIntTerm (Int);
 
 inline EXTERN Term
@@ -290,6 +307,8 @@ MkLongIntTerm (Int i)
   H += 3;
   return AbsAppl(H - 3);
 }
+
+#endif
 
 inline EXTERN Int LongIntOfTerm (Term t);
 
@@ -401,12 +420,6 @@ IsLargeIntTerm (Term t)
 typedef struct string_struct {
   UInt len;
 }  blob_string_t;
-
-Term STD_PROTO (Yap_MkBlobStringTerm, (const char *, size_t len));
-Term STD_PROTO (Yap_MkBlobWideStringTerm, (const wchar_t *, size_t len));
-char *STD_PROTO (Yap_BlobStringOfTerm, (Term));
-wchar_t *STD_PROTO (Yap_BlobWideStringOfTerm, (Term));
-char *STD_PROTO (Yap_BlobStringOfTermAndLength, (Term, size_t *));
 
 inline EXTERN int IsBlobStringTerm (Term);
 
@@ -591,6 +604,8 @@ IsAttachedTerm (Term t)
 
 #endif
 
+#ifdef _YAP_NOT_INSTALLED_
+
 inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
 
 EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
@@ -664,3 +679,4 @@ CELL Yap_Double_key(Term t)
   return Yap_DoubleP_key(RepAppl(t)+1);
 }
 
+#endif

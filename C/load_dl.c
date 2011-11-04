@@ -25,6 +25,28 @@
 #include <string.h>
 #include <stdio.h>
 
+typedef void (*prismf)(void);
+
+/* only works for dlls */
+int
+Yap_CallFunctionByName(const char *thing_string);
+
+int
+Yap_CallFunctionByName(const char *thing_string)
+{
+  void * handle = dlopen(NULL, RTLD_LAZY | RTLD_NOLOAD);
+  // you could do RTLD_NOW as well.  shouldn't matter
+  if (!handle) {
+    CACHE_REGS
+    Yap_Error(SYSTEM_ERROR, ARG1, "Dynamic linking on main module : %s\n", dlerror());
+  }
+  prismf * addr = (prismf *)dlsym(handle, thing_string);
+  fprintf(stderr, "%s is at %p\n", thing_string, addr);
+  if (addr)
+    (*addr)();
+  return TRUE;
+}
+
 /*
  *   YAP_FindExecutable(argv[0]) should be called on yap initialization to
  *   locate the executable of Yap

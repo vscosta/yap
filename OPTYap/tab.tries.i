@@ -51,7 +51,7 @@
 #ifdef MODE_GLOBAL_TRIE_LOOP
 #define SUBGOAL_CHECK_INSERT_ENTRY(TAB_ENT, NODE, ENTRY)                  \
         NODE = global_trie_check_insert_entry(NODE, ENTRY)
-#define ANSWER_CHECK_INSERT_ENTRY(SG_FR, NODE, ENTRY, INSTR)              \
+#define ANSWER_CHECK_INSERT_ENTRY(SG_FR, NODE, ENTRY, INSTR)     	  \
         NODE = global_trie_check_insert_entry(NODE, ENTRY)
 #else
 #define SUBGOAL_CHECK_INSERT_ENTRY(TAB_ENT, NODE, ENTRY)                  \
@@ -1061,14 +1061,14 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
       t = Deref(t);
       if (IsTableVarTerm(t)) {
 	t = MakeTableVarTerm(VarIndexOfTerm(t));
-	 ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
       } else {
 	if (vars_arity == MAX_TABLE_VARS)
 	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
 	stack_vars_base[vars_arity] = t;
 	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
 	t = MakeTableVarTerm(vars_arity);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
 	vars_arity = vars_arity + 1;
       }
 #ifdef TRIE_COMPACT_PAIRS

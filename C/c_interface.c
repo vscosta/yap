@@ -384,12 +384,14 @@ X_API Bool    STD_PROTO(YAP_IsNonVarTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsIntTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsLongIntTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsBigNumTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsNumberTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsRationalTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsFloatTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsDbRefTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsAtomTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsPairTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsApplTerm,(Term));
+X_API Bool    STD_PROTO(YAP_IsCompoundTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsExternalDataInStackTerm,(Term));
 X_API Bool    STD_PROTO(YAP_IsOpaqueObjectTerm,(Term, int));
 X_API Term    STD_PROTO(YAP_MkIntTerm,(Int));
@@ -425,7 +427,9 @@ X_API Int     STD_PROTO(YAP_ArityOfFunctor,(Functor));
 X_API void   *STD_PROTO(YAP_ExtraSpace,(void));
 X_API void    STD_PROTO(YAP_cut_up,(void));
 X_API Int     STD_PROTO(YAP_Unify,(Term,Term));
+X_API int     STD_PROTO(YAP_Unifiable,(Term,Term));
 X_API int     STD_PROTO(YAP_Reset,(void));
+X_API Int     STD_PROTO(YAP_ListLength,(Term));
 X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
 X_API Int     STD_PROTO(YAP_FastInit,(char *));
 X_API PredEntry *STD_PROTO(YAP_FunctorToPred,(Functor));
@@ -513,6 +517,7 @@ X_API int      STD_PROTO(YAP_ThreadDestroyEngine,(int));
 X_API Term     STD_PROTO(YAP_MkBlobTerm,(unsigned int));
 X_API void    *STD_PROTO(YAP_BlobOfTerm,(Term));
 X_API Term     STD_PROTO(YAP_TermNil,(void));
+X_API int      STD_PROTO(YAP_IsTermNil,(Term));
 X_API int      STD_PROTO(YAP_AtomGetHold,(Atom));
 X_API int      STD_PROTO(YAP_AtomReleaseHold,(Atom));
 X_API Agc_hook STD_PROTO(YAP_AGCRegisterHook,(Agc_hook));
@@ -529,6 +534,9 @@ X_API void    *STD_PROTO(YAP_Record,(Term));
 X_API Term     STD_PROTO(YAP_Recorded,(void *));
 X_API int      STD_PROTO(YAP_Erase,(void *));
 X_API int      STD_PROTO(YAP_Variant,(Term, Term));
+X_API Int      STD_PROTO(YAP_NumberVars,(Term, Int));
+X_API Term     STD_PROTO(YAP_UnNumberVars,(Term));
+X_API int      STD_PROTO(YAP_IsNumberedVariable,(Term));
 X_API int      STD_PROTO(YAP_ExactlyEqual,(Term, Term));
 X_API Int      STD_PROTO(YAP_TermHash,(Term, Int, Int, int));
 X_API void     STD_PROTO(YAP_signal,(int));
@@ -544,6 +552,7 @@ X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
 X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
+X_API YAP_tag_t    STD_PROTO(YAP_TagOfTerm,(Term));
 
 static int
 dogc( USES_REGS1 )
@@ -598,6 +607,12 @@ X_API Bool
 YAP_IsIntTerm(Term t)
 {
   return IsIntegerTerm(t);
+}
+
+X_API Bool 
+YAP_IsNumberTerm(Term t)
+{
+  return IsIntegerTerm(t) || IsIntTerm(t) || IsFloatTerm(t) || IsBigIntTerm(t);
 }
 
 X_API Bool 
@@ -678,6 +693,13 @@ X_API Bool
 YAP_IsApplTerm(Term t)
 {
   return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t)));
+}
+
+X_API Bool 
+YAP_IsCompoundTerm(Term t)
+{
+  return (IsApplTerm(t) && !IsExtensionFunctor(FunctorOfTerm(t))) ||
+    IsPairTerm(t);
 }
 
 
@@ -1174,6 +1196,18 @@ YAP_Unify(Term t1, Term t2)
   BACKUP_MACHINE_REGS();
 
   out = Yap_unify(t1, t2);
+
+  RECOVER_MACHINE_REGS();
+  return out;
+}
+
+X_API int
+YAP_Unifiable(Term t1, Term t2)
+{
+  int out;
+  BACKUP_MACHINE_REGS();
+
+  out = Yap_Unifiable(t1, t2);
 
   RECOVER_MACHINE_REGS();
   return out;
@@ -3417,6 +3451,12 @@ YAP_TermNil(void)
 } 
 
 X_API int
+YAP_IsTermNil(Term t)
+{
+  return t == TermNil;
+} 
+
+X_API int
 YAP_AtomGetHold(Atom at)
 {
   return Yap_AtomIncreaseHold(at);
@@ -3781,7 +3821,6 @@ YAP_OpInfo(Atom at, Term module, int opkind, int *yap_type, int *prio)
   return 1;
 }
 
-
 int
 YAP_Argv(char ***argvp)
 {
@@ -3790,3 +3829,82 @@ YAP_Argv(char ***argvp)
   }
   return GLOBAL_argc;
 }
+
+YAP_tag_t
+YAP_TagOfTerm(Term t)
+{
+  if (IsVarTerm(t)) {
+    CELL *pt = VarOfTerm(t);
+    if (IsUnboundVar(pt)) {
+      if (IsAttVar(pt))
+	return YAP_TAG_ATT;
+      return YAP_TAG_UNBOUND;
+    }
+    return YAP_TAG_REF;
+  }
+  if (IsPairTerm(t))
+    return YAP_TAG_PAIR;
+  if (IsAtomOrIntTerm(t)) {
+    if (IsAtomTerm(t))
+      return YAP_TAG_ATOM;
+    return YAP_TAG_INT;
+  } else {
+    Functor f = FunctorOfTerm(t);
+    
+    if (IsExtensionFunctor(f)) {
+      if (f == FunctorDBRef) {
+	return YAP_TAG_DBREF;
+      }
+      if (f == FunctorLongInt) {
+	return YAP_TAG_LONG_INT;
+      }
+      if (f == FunctorBigInt) {
+	big_blob_type bt = RepAppl(t)[1];
+	switch (bt) {
+	case BIG_INT:
+	  return YAP_TAG_BIG_INT;
+	case BIG_RATIONAL:
+	  return YAP_TAG_RATIONAL;
+	default:
+	  return YAP_TAG_OPAQUE;
+	}
+      }
+    }
+    return YAP_TAG_APPL;
+  }
+}
+
+int YAP_BPROLOG_exception;
+Term YAP_BPROLOG_curr_toam_status;
+
+Int
+YAP_ListLength(Term t) {
+  Int l = 0;
+  while (TRUE) {
+    if (IsVarTerm(t)) return -1;
+    if (t == TermNil)
+      return l;
+    if (!IsPairTerm(t)) 
+      return -1;
+    l++;
+    t = TailOfTerm(t);
+  }
+}
+
+Int
+YAP_NumberVars(Term t, Int nbv) {
+  return Yap_NumberVars(t, nbv);
+}
+
+Term
+YAP_UnNumberVars(Term t) {
+  return Yap_UnNumberTerm(t);
+}
+
+int
+YAP_IsNumberedVariable(Term t) {
+  return IsApplTerm(t) &&
+    FunctorOfTerm(t) == FunctorVar &&
+    IsIntegerTerm(ArgOfTerm(1,t));
+}
+

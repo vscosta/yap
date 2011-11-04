@@ -115,6 +115,16 @@ INTERFACE_HEADERS = \
 	$(srcdir)/include/yap_structs.h \
 	$(srcdir)/include/YapInterface.h \
 	$(srcdir)/include/SWI-Prolog.h \
+	$(srcdir)/H/TermExt.h \
+	$(srcdir)/H/YapTags.h \
+	$(srcdir)/H/Tags_32bits.h \
+	$(srcdir)/H/Tags_32Ops.h \
+	$(srcdir)/H/Tags_32LowTag.h \
+	$(srcdir)/H/Tags_64bits.h \
+	$(srcdir)/H/Tags_24bits.h \
+	$(srcdir)/H/YapTerm.h \
+	$(srcdir)/include/YapRegs.h \
+	$(srcdir)/library/dialect/bprolog/fli/bprolog.h \
 	$(srcdir)/os/SWI-Stream.h
 
 IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
@@ -135,13 +145,7 @@ IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
 	$(srcdir)/H/pl-yap.h @ENABLE_WINCONSOLE@ $(srcdir)/os/windows/dirent.h $(srcdir)/os/windows/utf8.h $(srcdir)/os/windows/utf8.c $(srcdir)/os/windows/uxnt.h  $(srcdir)/os/windows/mswchar.h  $(srcdir)/os/windows/popen.c 
 
 HEADERS = \
-	$(srcdir)/H/TermExt.h \
 	$(srcdir)/H/Atoms.h \
-	$(srcdir)/H/Tags_32bits.h \
-	$(srcdir)/H/Tags_32Ops.h \
-	$(srcdir)/H/Tags_32LowTag.h \
-	$(srcdir)/H/Tags_64bits.h \
-	$(srcdir)/H/Tags_24bits.h \
 	$(srcdir)/H/sshift.h \
 	$(srcdir)/H/Yap.h \
 	$(srcdir)/H/Yatom.h \
@@ -406,7 +410,7 @@ all: parms.h startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 
 Makefile: $(srcdir)/Makefile.in
 
-$(srcdir)/H/Yap.h: config.h
+$(srcdir)/H/Yap.h: config.h YapTermConfig.h $(srcdir)/H/YapTags.h
 
 config.h:	parms.h
 
@@ -774,10 +778,12 @@ install_unix: startup.yss libYap.a
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) install)
 	#@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/pyswip; $(MAKE) install)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
-	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)
+	mkdir -p $(DESTDIR)$(INCLUDEDIR)/src
+	$(INSTALL) $(HEADERS) $(DESTDIR)$(INCLUDEDIR)/src
 	for h in $(INTERFACE_HEADERS); do $(INSTALL) $$h $(DESTDIR)$(INCLUDEDIR); done
-	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/config.h
-	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/parms.h
+	$(INSTALL) config.h $(DESTDIR)$(INCLUDEDIR)/src/config.h
+	$(INSTALL) parms.h $(DESTDIR)$(INCLUDEDIR)/src/parms.h
+	$(INSTALL) YapTermConfig.h $(DESTDIR)$(INCLUDEDIR)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
@@ -859,7 +865,7 @@ TAGS: $(C_SOURCES) $(PL_SOURCES) $(HEADERS)
 
 depend: $(HEADERS) $(C_SOURCES)
 	-@if test "$(GCC)" = yes; then\
-	  $(CC) -MM $(CFLAGS) -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(C_SOURCES) >> Makefile;\
+	  $(CC) -MM $(CFLAGS) -D__YAP_NOT_INSTALLED__=1 -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os $(C_SOURCES) >> Makefile;\
 	else\
           makedepend -f - -- $(CFLAGS) -I$(srcdir)/include -- $(C_SOURCES) |\
           sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
