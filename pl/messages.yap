@@ -281,6 +281,7 @@ system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
 system_message(error(syntax_error(G,_,Msg,[],_,0,File), _)) -->
 	[ 'SYNTAX ERROR at "~a", goal ~q: ~a' - [File,G,Msg] ].
+% SWI like I/O error message.
 system_message(error(syntax_error(end_of_clause), stream(Stream, Line, _, _))) -->
 	[ 'SYNTAX ERROR ~a, stream ~w, near line ~d.' - ['Unexpected end of clause',Stream,Line] ].
 system_message(error(syntax_error(read(_),_,_,Term,Pos,Start,File), Where)) -->
