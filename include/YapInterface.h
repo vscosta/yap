@@ -109,6 +109,9 @@ extern X_API YAP_Bool PROTO(YAP_IsRationalTerm,(YAP_Term));
 /*  YAP_Bool IsFloatTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsFloatTerm,(YAP_Term));
 
+/*  YAP_Bool IsNumberTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsNumberTerm,(YAP_Term));
+
 /*  YAP_Bool IsDbRefTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsDbRefTerm,(YAP_Term));
 
@@ -120,6 +123,9 @@ extern X_API YAP_Bool PROTO(YAP_IsPairTerm,(YAP_Term));
 
 /*  YAP_Bool IsApplTerm(YAP_Term)  */
 extern X_API YAP_Bool PROTO(YAP_IsApplTerm,(YAP_Term));
+
+/*  YAP_Bool IsCompoundTerm(YAP_Term)  */
+extern X_API YAP_Bool PROTO(YAP_IsCompoundTerm,(YAP_Term));
 
 /*    Term MkIntTerm(YAP_Int)  */
 extern X_API YAP_Term PROTO(YAP_MkIntTerm,(YAP_Int));
@@ -190,6 +196,8 @@ extern X_API int PROTO(YAP_SkipList,(YAP_Term *, YAP_Term **));
 /*    Term  TailOfTerm(Term)  */
 extern X_API YAP_Term PROTO(YAP_TermNil,(void));
 
+extern X_API int PROTO(YAP_IsTermNil,(YAP_Term));
+
 /*    YAP_Term     MkApplTerm(YAP_Functor f, unsigned int n, YAP_Term[] args) */
 extern X_API YAP_Term PROTO(YAP_MkApplTerm,(YAP_Functor,unsigned int,YAP_Term *));
 
@@ -234,6 +242,9 @@ extern X_API void PROTO(YAP_UserCPredicateWithArgs,(CONST char *, YAP_Bool (*)(v
 /*  void UserBackCPredicate(const char *name, int *init(), int *cont(), int
     arity, int extra) */
 extern X_API void PROTO(YAP_UserBackCPredicate,(CONST char *, YAP_Bool (*)(void), YAP_Bool (*)(void), YAP_Arity, unsigned int));
+
+/*   YAP_Int      YAP_ListLength(YAP_Term t) */
+extern X_API YAP_Int PROTO(YAP_ListLength,(YAP_Term));
 
 /*  void UserBackCPredicate(char *name, int *init(), int *cont(), int *cut(), int
     arity, int extra) */
@@ -308,7 +319,7 @@ extern X_API void PROTO(YAP_Error,(int, YAP_Term, CONST char *, ...));
 extern X_API YAP_Term PROTO(YAP_Read,(void *));
 
 /*  void YAP_Write(YAP_Term,void (*)(int),int) */
-extern X_API void PROTO(YAP_Write,(YAP_Term,void (*)(int),int));
+extern X_API void PROTO(YAP_Write,(YAP_Term,void *,int));
 
 /*  void YAP_WriteBufffer(YAP_Term,char *,unsgined int,int) */
 extern X_API void PROTO(YAP_WriteBuffer,(YAP_Term,char *,unsigned int,int));
@@ -532,6 +543,10 @@ extern X_API int        PROTO(YAP_Erase,(void *));
 
 /*  term utilities */
 extern X_API int        PROTO(YAP_Variant,(YAP_Term,YAP_Term));
+extern X_API YAP_Int    PROTO(YAP_NumberVars,(YAP_Term,YAP_Int));
+extern X_API YAP_Term   PROTO(YAP_UnNumberVars,(YAP_Term));
+extern X_API int        PROTO(YAP_IsNumberedVariable,(YAP_Term));
+extern X_API int        PROTO(YAP_Unifiable,(YAP_Term,YAP_Term));
 extern X_API int        PROTO(YAP_ExactlyEqual,(YAP_Term,YAP_Term));
 extern X_API YAP_Int    PROTO(YAP_TermHash,(YAP_Term, YAP_Int, YAP_Int, int));
 
@@ -567,6 +582,8 @@ extern X_API YAP_Term PROTO(YAP_NewOpaqueObject,(YAP_opaque_tag_t, size_t));
 extern X_API void *PROTO(YAP_OpaqueObjectFromTerm,(YAP_Term));
 
 extern X_API int *PROTO(YAP_Argv,(char ***));
+
+extern X_API YAP_tag_t PROTO(YAP_TagOfTerm,(YAP_Term));
 
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 

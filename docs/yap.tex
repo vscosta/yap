@@ -3272,6 +3272,12 @@ compound term.
 Instantiates each variable in term @var{T} to a term of the form:
 @code{'$VAR'(@var{I})}, with @var{I} increasing from @var{N1} to @var{Nn}.
 
+@item unnumbervars(@var{T},+@var{NT})
+@findex unnumbervars/2
+@syindex unnumbervars/2
+@cnindex unnumbervars/2
+Replace every @code{'$VAR'(@var{I})} by a free variable.
+
 @item ground(@var{T})
 @findex ground/1
 @syindex ground/1
@@ -16171,6 +16177,7 @@ The user can create a new uninstantiated variable using the primitive
 @findex YAP_IsAtomTerm (C-Interface function)
 @findex YAP_IsPairTerm (C-Interface function)
 @findex YAP_IsApplTerm (C-Interface function)
+@findex YAP_IsCompoundTerm (C-Interface function)
 The following primitives can be used to discriminate among the different types
 of non-variable terms:
 @example
@@ -16180,7 +16187,29 @@ of non-variable terms:
       YAP_Bool YAP_IsAtomTerm(YAP_Term @var{t})
       YAP_Bool YAP_IsPairTerm(YAP_Term @var{t})
       YAP_Bool YAP_IsApplTerm(YAP_Term @var{t})
+      YAP_Bool YAP_IsCompoundTerm(YAP_Term @var{t})
 @end example
+
+The next primitive gives the type of a Prolog term:
+@example
+      YAP_tag_t YAP_TagOfTerm(YAP_Term @var{t})
+@end example
+The set of possible values is an enumerated type, with the following values:
+@table @i
+@item  @code{YAP_TAG_ATT}: an attributed variable
+@item  @code{YAP_TAG_UNBOUND}: an unbound variable
+@item  @code{YAP_TAG_REF}: a reference to a term
+@item  @code{YAP_TAG_PAIR}: a list
+@item  @code{YAP_TAG_ATOM}: an atom
+@item  @code{YAP_TAG_INT}: a small integer
+@item  @code{YAP_TAG_LONG_INT}: a word sized integer
+@item  @code{YAP_TAG_BIG_INT}: a very large integer
+@item  @code{YAP_TAG_RATIONAL}: a rational number
+@item  @code{YAP_TAG_FLOAT}: a floating point number
+@item  @code{YAP_TAG_OPAQUE}: an opaque term
+@item  @code{YAP_TAG_APPL}: a compound term
+@end table
+
 
 Next, we mention the primitives that allow one to destruct and construct
 terms. All the above primitives ensure that their result is
@@ -16567,18 +16596,41 @@ lead to a crash.
 The following functions are often required to compare terms.
 
 @findex YAP_ExactlyEqual (C-Interface function)
-The first function succeeds if two terms are actually the same term, as
+Succeed if two terms are actually the same term, as in
 @code{==/2}:
 @example
       int      YAP_ExactlyEqual(YAP_Term t1, YAP_Term t2)
 @end example
 @noindent
 
-The second function succeeds if two terms are variant terms, and returns
+The next function succeeds if two terms are variant terms, and returns
 0 otherwise, as
 @code{=@=/2}:
 @example
       int      YAP_Variant(YAP_Term t1, YAP_Term t2)
+@end example
+@noindent
+
+The next functions deal with numbering variables in terms:
+@example
+      int      YAP_NumberVars(YAP_Term t, YAP_Int first_number)
+      YAP_Term YAP_UnNumberVars(YAP_Term t)
+      int      YAP_IsNumberedVariable(YAP_Term t)
+@end example
+@noindent
+
+The next one returns the length of a well-formed list @var{t}, or
+@code{-1} otherwise:
+@example
+      Int      YAP_ListLength(YAP_Term t)
+@end example
+@noindent
+
+
+Last, this function succeeds if two terms are unifiable:
+@code{=@=/2}:
+@example
+      int      YAP_Unifiable(YAP_Term t1, YAP_Term t2)
 @end example
 @noindent
 

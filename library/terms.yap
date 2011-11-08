@@ -38,9 +38,5 @@ term_hash(T,H) :-
 subsumes_chk(X,Y) :-
 	\+ \+ subsumes(X,Y).
 
-unifiable(X,Y,Z) :-
-	protected_unifiable(X,Y,Z), !.
-unifiable(_,_,_) :- fail.
-
 
 

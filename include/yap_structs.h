@@ -95,6 +95,22 @@ typedef double YAP_Float;
 
 #endif
 
+typedef enum {
+  YAP_TAG_ATT = 0x1,
+  YAP_TAG_UNBOUND = 0x2,
+  YAP_TAG_REF = 0x4,
+  YAP_TAG_PAIR = 0x8,
+  YAP_TAG_ATOM = 0x10,
+  YAP_TAG_INT = 0x20,
+  YAP_TAG_LONG_INT = 0x40,
+  YAP_TAG_BIG_INT = 0x80,
+  YAP_TAG_RATIONAL = 0x100,
+  YAP_TAG_FLOAT = 0x200,
+  YAP_TAG_OPAQUE = 0x400,
+  YAP_TAG_APPL = 0x800,
+  YAP_TAG_DBREF = 0x1000
+} YAP_tag_t;
+
 #define YAP_BOOT_FROM_PROLOG       0
 #define YAP_BOOT_FROM_SAVED_CODE   1
 #define YAP_BOOT_FROM_SAVED_STACKS 2

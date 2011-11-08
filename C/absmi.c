@@ -2267,23 +2267,6 @@ Yap_absmi(int inp)
       prune((choiceptr)YREG[E_CB]);
       setregs();
       PREG = NEXTOP(NEXTOP(NEXTOP(PREG, s),Osbpp),l);
-#ifdef FROZEN_STACKS
-      { 
-	choiceptr top_b = PROTECT_FROZEN_B(B);
-#ifdef YAPOR_SBA
-	if (ENV > (CELL *) top_b || ENV < H) YREG = (CELL *) top_b;
-#else
-	if (ENV > (CELL *) top_b) YREG = (CELL *) top_b;
-#endif /* YAPOR_SBA */
-	else YREG = (CELL *)((CELL)ENV + ENV_Size(CPREG));
-      }
-#else
-      if (ENV > (CELL *)B) {
-	YREG = (CELL *)B;
-      } else {
-	YREG = (CELL *) ((CELL) ENV + ENV_Size(CPREG));
-      }
-#endif
       GONext();
       ENDOp();
 

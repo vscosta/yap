@@ -2607,6 +2607,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 ac_config_headers="$ac_config_headers config.h"
 
+ac_config_headers="$ac_config_headers YapTermConfig.h"
+
 
 mycflags="$CFLAGS"
 
@@ -10865,6 +10867,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
+    "YapTermConfig.h") CONFIG_HEADERS="$CONFIG_HEADERS YapTermConfig.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "GPL/Makefile") CONFIG_FILES="$CONFIG_FILES GPL/Makefile" ;;
     "library/Makefile") CONFIG_FILES="$CONFIG_FILES library/Makefile" ;;

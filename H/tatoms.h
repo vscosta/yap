@@ -298,6 +298,8 @@
 #define AtomLastExecuteWithin Yap_heap_regs->AtomLastExecuteWithin_
   Atom AtomLeash_;
 #define AtomLeash Yap_heap_regs->AtomLeash_
+  Atom AtomLength_;
+#define AtomLength Yap_heap_regs->AtomLength_
   Atom AtomList_;
 #define AtomList Yap_heap_regs->AtomList_
   Atom AtomLive_;

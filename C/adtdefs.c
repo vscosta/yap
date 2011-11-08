@@ -115,7 +115,7 @@ SearchInInvisible(char *atom)
 
   READ_LOCK(INVISIBLECHAIN.AERWLock);
   chain = RepAtom(INVISIBLECHAIN.Entry);
-  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, atom) != 0) {
+  while (!EndOfPAEntr(chain) && strcmp(chain->StrOfAE, atom)) {
     chain = RepAtom(chain->NextOfAE);
   }
   READ_UNLOCK(INVISIBLECHAIN.AERWLock);

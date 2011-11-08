@@ -1,3 +1,5 @@
+%% -*- Prolog -*-
+
 /* 
 
 This code implements hash-arrays.
@@ -17,7 +19,13 @@ It relies on dynamic array code.
 		      b_hash_update/3,
 		      b_hash_update/4,
 		      b_hash_insert_new/4,
-		      b_hash_insert/4
+		      b_hash_insert/4,
+		      b_hash_size/2,
+		      b_hash_code/2,
+		      is_b_hash/1,
+        	      b_hash_to_list/2,
+		      b_hash_values_to_list/2,
+		      b_hash_keys_to_list/2
 		    ]).
 
 :- use_module(library(terms), [ term_hash/4 ]).
@@ -26,6 +34,9 @@ It relies on dynamic array code.
 :- meta_predicate(b_hash_new(-,+,3,2)).
 
 array_default_size(2048).
+
+is_b_hash(V) :- var(V), !, fail.
+is_b_hash(hash(_,_,_,_,_)).
 
 b_hash_new(hash(Keys, Vals, Size, N, _, _)) :-
 	array_default_size(Size),
@@ -42,6 +53,8 @@ b_hash_new(hash(Keys,Vals, Size, N, HashF, CmpF), Size, HashF, CmpF) :-
 	array(Keys, Size),
 	array(Vals, Size),
 	create_mutable(0, N).
+
+b_hash_size(hash(_, _, Size, _, _, _), Size).
 
 b_hash_lookup(Key, Val, hash(Keys, Vals, Size, _, F, CmpF)):-
 	hash_f(Key, Size, Index, F),
@@ -122,17 +135,29 @@ add_element(Keys, Index, Size, N, Vals, Key, NewVal, Hash, NewHash) :-
 	get_mutable(NEls, N),
 	NN is NEls+1,
 	update_mutable(NN, N),
+	array_element(Keys, Index, Key),
+	update_mutable(NN, N),
+	array_element(Vals, Index, Mutable),
+	create_mutable(NewVal, Mutable),
 	(
 	    NN > Size/3
 	->
 	    expand_array(Hash, NewHash)
 	;
 	    Hash = NewHash
-	),
-	array_element(Keys, Index, Key),
-	update_mutable(NN, N),
-	array_element(Vals, Index, Mutable),
-	create_mutable(NewVal, Mutable).
+	).
+
+expand_array(Hash, NewHash) :-
+	Hash == NewHash, !,
+	Hash = hash(Keys, Vals, Size, _X, F, _CmpF),
+	new_size(Size, NewSize),
+	array(NewKeys, NewSize),
+	array(NewVals, NewSize),
+	copy_hash_table(Size, Keys, Vals, F, NewSize, NewKeys, NewVals),
+	/* overwrite in place */
+	setarg(1, Hash, NewKeys),
+	setarg(2, Hash, NewVals),
+	setarg(3, Hash, NewSize).
 
 expand_array(Hash, hash(NewKeys, NewVals, NewSize, X, F, CmpF)) :-
 	Hash = hash(Keys, Vals, Size, X, F, CmpF),
@@ -187,4 +212,38 @@ cmp_f(F, A, B) :-
 	A == B.
 cmp_f(F, A, B) :-
 	call(F, A, B).
+
+b_hash_to_list(hash(Keys, Vals, _, _, _, _), LKeyVals) :-
+	Keys =.. (_.LKs),
+	Vals =.. (_.LVs),
+	mklistpairs(LKs, LVs, LKeyVals).
+
+b_hash_keys_to_list(hash(Keys, _, _, _, _, _), LKeys) :-
+	Keys =.. (_.LKs),
+	mklistels(LKs, LKeys).
+
+b_hash_values_to_list(hash(_, Vals, _, _, _, _), LVals) :-
+	Vals =.. (_.LVs),
+	mklistvals(LVs, LVals).
+
+mklistpairs([], [], []).
+mklistpairs(V.LKs, _.LVs, KeyVals) :- var(V), !,
+	mklistpairs(LKs, LVs, KeyVals).
+mklistpairs(K.LKs, V.LVs, (K-VV).KeyVals) :- 
+        get_mutable(VV, V),
+	mklistpairs(LKs, LVs, KeyVals).
+
+mklistels([],  []).
+mklistels(V.Els, NEls) :- var(V), !,
+	mklistels(Els, NEls).
+mklistels(K.Els, K.NEls) :- 
+	mklistels(Els, NEls).
+
+mklistvals([],  []).
+mklistvals(V.Vals, NVals) :- var(V), !,
+	mklistvals(Vals, NVals).
+mklistvals(K.Vals, KK.NVals) :- 
+	get_mutable(KK, K),
+	mklistvals(Vals, NVals).
+
 

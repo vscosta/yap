@@ -150,6 +150,7 @@
   AtomLT = Yap_LookupAtom("<");
   AtomLastExecuteWithin = Yap_FullLookupAtom("$last_execute_within");
   AtomLeash = Yap_FullLookupAtom("$leash");
+  AtomLength = Yap_FullLookupAtom("length");
   AtomList = Yap_LookupAtom("list");
   AtomLive = Yap_FullLookupAtom("$live");
   AtomLoadAnswers = Yap_LookupAtom("load_answers");
