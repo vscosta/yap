@@ -106,6 +106,19 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TRAVERSE_POSITION_FIRST    1
 #define TRAVERSE_POSITION_LAST     2
 
+/* mode directed tabling */
+#define MODE_DIRECTED_TAGBITS         0xF
+#define MODE_DIRECTED_NUMBER_TAGBITS  4
+#define MODE_DIRECTED_INDEX           1
+#define MODE_DIRECTED_FIRST           2
+#define MODE_DIRECTED_ALL             3
+#define MODE_DIRECTED_MAX             4
+#define MODE_DIRECTED_MIN             5
+#define MODE_DIRECTED_LAST            6
+#define MODE_DIRECTED_SET(ARG,MODE)   (((ARG) << MODE_DIRECTED_NUMBER_TAGBITS) + MODE)
+#define MODE_DIRECTED_GET_ARG(X)      ((X) >> MODE_DIRECTED_NUMBER_TAGBITS)
+#define MODE_DIRECTED_GET_MODE(X)     ((X) & MODE_DIRECTED_TAGBITS)
+
 /* LowTagBits is 3 for 32 bit-machines and 7 for 64 bit-machines */
 #define NumberOfLowTagBits         (LowTagBits == 3 ? 2 : 3)
 #define MakeTableVarTerm(INDEX)    ((INDEX) << NumberOfLowTagBits)
@@ -141,6 +154,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TAG_AS_ANSWER_LEAF_NODE(NODE)   TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
 #define UNTAG_ANSWER_LEAF_NODE(NODE)    ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x1)))
 #define IS_ANSWER_LEAF_NODE(NODE)       ((unsigned long int) TrNode_parent(NODE) & 0x1)
+#define TAG_AS_INVALID_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
+#define IS_INVALID_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x2)
 
 #define MAX_NODES_PER_TRIE_LEVEL    8
 #define MAX_NODES_PER_BUCKET        (MAX_NODES_PER_TRIE_LEVEL / 2)
@@ -239,15 +254,32 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR)
 #endif /* YAPOR */
 
+#ifdef MODE_DIRECTED_TABLING
+#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)   \
+        TabEnt_mode_directed(TAB_ENT) = MODE_ARRAY
+#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)       \
+        SgFr_invalid_chain(SG_FR) = NULL;                \
+        SgFr_mode_directed(SG_FR) = MODE_ARRAY
+#define AnsHash_init_previous_field(HASH, SG_FR)         \
+        if (SgFr_hash_chain(SG_FR))                      \
+          Hash_previous(SgFr_hash_chain(SG_FR)) = HASH;  \
+        Hash_previous(HASH) = NULL
+#else
+#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)
+#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)
+#define AnsHash_init_previous_field(HASH, SG_FR)
+#endif /* MODE_DIRECTED_TABLING */
+
 #ifdef TABLE_LOCK_AT_ENTRY_LEVEL
 #define TabEnt_init_lock_field(TAB_ENT)                \
         INIT_LOCK(TabEnt_lock(TAB_ENT))
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH
-#define AnsHash_init_next_field(HASH, SG_FR)           \
+#define AnsHash_init_chain_fields(HASH, SG_FR)         \
+        AnsHash_init_previous_field(HASH, SG_FR);      \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
-        SgFr_hash_chain(SG_FR) = HASH
+	SgFr_hash_chain(SG_FR) = HASH
 #else
 #define TabEnt_init_lock_field(TAB_ENT)
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
@@ -255,8 +287,9 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH;             \
         UNLOCK(TabEnt_lock(TAB_ENT))
-#define AnsHash_init_next_field(HASH, SG_FR)           \
+#define AnsHash_init_chain_fields(HASH, SG_FR)         \
         LOCK(SgFr_lock(SG_FR));                        \
+        AnsHash_init_previous_field(HASH, SG_FR);      \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
         SgFr_hash_chain(SG_FR) = HASH;                 \
         UNLOCK(SgFr_lock(SG_FR))
@@ -269,81 +302,33 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TrNode_init_lock_field(NODE)
 #endif /* TABLE_LOCK_AT_NODE_LEVEL */
 
-#ifdef MODE_DIRECTED_TABLING 
-
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_DIRECTED_ARRAY)\
-        { register sg_node_ptr sg_node;                          \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);   \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                            \
-          TabEnt_init_lock_field(TAB_ENT);                       \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                       \
-          TabEnt_atom(TAB_ENT) = ATOM;                           \
-          TabEnt_arity(TAB_ENT) = ARITY;                         \
-          TabEnt_flags(TAB_ENT) = 0;                             \
-          SetMode_Batched(TabEnt_flags(TAB_ENT));                \
-          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));            \
-          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));              \
-          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);          \
-          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))        \
-            SetMode_Local(TabEnt_mode(TAB_ENT));                 \
-          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))  \
-            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));           \
-          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))   \
-            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                     \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
-          GLOBAL_root_tab_ent = TAB_ENT;                         \
-          TabEnt_mode_directed_array(TAB_ENT) = MODE_DIRECTED_ARRAY; \
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
+        { register sg_node_ptr sg_node;                                \
+          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);         \
+          ALLOC_TABLE_ENTRY(TAB_ENT);                                  \
+          TabEnt_init_lock_field(TAB_ENT);                             \
+          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                             \
+          TabEnt_atom(TAB_ENT) = ATOM;                                 \
+          TabEnt_arity(TAB_ENT) = ARITY;                               \
+          TabEnt_flags(TAB_ENT) = 0;                                   \
+          SetMode_Batched(TabEnt_flags(TAB_ENT));                      \
+          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));                  \
+          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));                    \
+          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);                \
+          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))              \
+            SetMode_Local(TabEnt_mode(TAB_ENT));                       \
+          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))        \
+            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));                 \
+          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))         \
+            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));                  \
+          TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY);              \
+          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                      \
+          TabEnt_hash_chain(TAB_ENT) = NULL;                           \
+          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                  \
+          GLOBAL_root_tab_ent = TAB_ENT;                               \
         }
 
-#else
-
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)        \
-        { register sg_node_ptr sg_node;                          \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);   \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                            \
-          TabEnt_init_lock_field(TAB_ENT);                       \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                       \
-          TabEnt_atom(TAB_ENT) = ATOM;                           \
-          TabEnt_arity(TAB_ENT) = ARITY;                         \
-          TabEnt_flags(TAB_ENT) = 0;                             \
-          SetMode_Batched(TabEnt_flags(TAB_ENT));                \
-          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));            \
-          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));              \
-          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);          \
-          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))        \
-            SetMode_Local(TabEnt_mode(TAB_ENT));                 \
-          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))  \
-            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));           \
-          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))   \
-            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                     \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
-          GLOBAL_root_tab_ent = TAB_ENT;                         \
-        }
-
-#endif /*MODE_DIRECTED_TABLING*/
-
-#ifdef MODE_DIRECTED_TABLING
-
-#define new_subgoal_frame(SG_FR, CODE, N_VARS_OPERATOR_ARRAY)      \
-        { register ans_node_ptr ans_node;                          \
-          new_answer_trie_node(ans_node, 0,N_VARS_OPERATOR_ARRAY, NULL, NULL, NULL);  \
-          ALLOC_SUBGOAL_FRAME(SG_FR);                              \
-          INIT_LOCK(SgFr_lock(SG_FR));                             \
-          SgFr_code(SG_FR) = CODE;                                 \
-          SgFr_state(SG_FR) = ready;                               \
-          SgFr_hash_chain(SG_FR) = NULL;                           \
-          SgFr_answer_trie(SG_FR) = ans_node;                      \
-          SgFr_first_answer(SG_FR) = NULL;                         \
-          SgFr_last_answer(SG_FR) = NULL;                          \
-          SgFr_del_node(SG_FR) = NULL;                             \
-	}
-#else
-
-#define new_subgoal_frame(SG_FR, CODE)                             \
+#define new_subgoal_frame(SG_FR, CODE, MODE_ARRAY)		   \
         { register ans_node_ptr ans_node;                          \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
@@ -354,8 +339,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
           SgFr_answer_trie(SG_FR) = ans_node;                      \
           SgFr_first_answer(SG_FR) = NULL;                         \
           SgFr_last_answer(SG_FR) = NULL;                          \
+	  SgFr_init_mode_directed(SG_FR, MODE_ARRAY);		   \
 	}
-#endif /*MODE_DIRECTED_TABLING*/
 
 #define init_subgoal_frame(SG_FR)               \
         { SgFr_init_yapor_fields(SG_FR);        \
@@ -434,7 +419,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;                 \
         ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
         Hash_num_nodes(HASH) = NUM_NODES;                           \
-        AnsHash_init_next_field(HASH, SG_FR)
+        AnsHash_init_chain_fields(HASH, SG_FR)
 
 #define new_global_trie_hash(HASH, NUM_NODES)                       \
         ALLOC_GLOBAL_TRIE_HASH(HASH);                               \
@@ -534,39 +519,33 @@ static inline void adjust_freeze_registers(void) {
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
   LOCK(SgFr_lock(sg_fr));
 #ifdef MODE_DIRECTED_TABLING
-  
-  //printf("complete\n");
-  ans_node_ptr answer, valid_answer, elim_answer;
-  answer = SgFr_first_answer(sg_fr);
-  
-  while(answer && IS_INVALID_ANSWER_LEAF_NODE(answer))
-    answer = TrNode_child(answer);
-  SgFr_first_answer(sg_fr) = answer;
-  valid_answer = answer;
-
-  if(answer!= NULL)
-    answer = TrNode_child(valid_answer);
-  
-  while(answer != NULL){
-    if (!IS_INVALID_ANSWER_LEAF_NODE(answer)){
-      TrNode_child(valid_answer) = answer;
-      valid_answer = answer;   
+  if (SgFr_mode_directed(sg_fr) && SgFr_invalid_chain(sg_fr)) {
+    ans_node_ptr current_answer, next_answer;
+    /* first first valid answer */
+    current_answer = SgFr_first_answer(sg_fr);
+    while (IS_INVALID_LEAF_NODE(current_answer))
+      current_answer = TrNode_child(current_answer);
+    SgFr_first_answer(sg_fr) = current_answer;
+    /* chain next valid answers */
+    next_answer = TrNode_child(current_answer);
+    while (next_answer) {
+      if (! IS_INVALID_LEAF_NODE(next_answer)) {
+	TrNode_child(current_answer) = next_answer;
+	current_answer = next_answer;   
+      }
+      next_answer = TrNode_child(next_answer);
     }
-      answer = TrNode_child(answer);
+    SgFr_last_answer(sg_fr) = current_answer;
+    /* free invalid answer nodes */    
+    current_answer = SgFr_invalid_chain(sg_fr);
+    SgFr_invalid_chain(sg_fr) = NULL;
+    while (current_answer) {
+      next_answer = TrNode_next(current_answer);	
+      FREE_ANSWER_TRIE_NODE(current_answer);
+      current_answer = next_answer;
+    }
   }
-  
-  //TrNode_child(valid_answer) = NULL;
-  SgFr_last_answer(sg_fr) = valid_answer;
-  
-  elim_answer = SgFr_del_node(sg_fr);
-  
- while(elim_answer){
-    answer= TrNode_next(elim_answer);	
-    FREE_ANSWER_TRIE_NODE(elim_answer);
-    elim_answer = answer;
-  }
-  
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
   SgFr_state(sg_fr) = complete;
   UNLOCK(SgFr_lock(sg_fr));
   return;

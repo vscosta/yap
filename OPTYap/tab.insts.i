@@ -870,9 +870,9 @@
 #endif /* TABLE_LOCK_LEVEL */
     ans_node = answer_search(sg_fr, subs_ptr);
 #ifdef MODE_DIRECTED_TABLING
-    if(ans_node == NULL)
+    if (ans_node == NULL)  /* no answer inserted */
       goto fail;
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
 #if defined(TABLE_LOCK_AT_NODE_LEVEL)
     LOCK(TrNode_lock(ans_node));
 #elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
@@ -1107,18 +1107,23 @@
     dep_fr = CONS_CP(B)->cp_dep_fr;
     LOCK(DepFr_lock(dep_fr));
     ans_node = DepFr_last_answer(dep_fr);
-#ifdef MODE_DIRECTED_TABLING
-    ans_node_ptr aux_ans_node = ans_node; 
-    do {
-	ans_node=TrNode_child(ans_node);
-    } while(ans_node != NULL && IS_INVALID_ANSWER_LEAF_NODE(ans_node));
-    if (ans_node){ 
-      TrNode_child(aux_ans_node)=ans_node;
-#else
     if (TrNode_child(ans_node)) {
-      /* unconsumed answer */
-      ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-#endif /*MODE_DIRECTED_TABLING*/
+      /* unconsumed answers */
+#ifdef MODE_DIRECTED_TABLING
+      ans_node_ptr first_ans_node, aux_ans_node;
+      first_ans_node = ans_node;
+      do {
+	ans_node = TrNode_child(ans_node);
+      } while (IS_INVALID_LEAF_NODE(ans_node));
+      aux_ans_node = TrNode_child(first_ans_node);
+      while (aux_ans_node != ans_node) {
+	TrNode_child(first_ans_node) = ans_node;
+	first_ans_node = aux_ans_node;
+        aux_ans_node = TrNode_child(first_ans_node);
+      }
+#else
+      ans_node = TrNode_child(ans_node);
+#endif /* MODE_DIRECTED_TABLING */
       DepFr_last_answer(dep_fr) = ans_node;
       UNLOCK(DepFr_lock(dep_fr));
       consume_answer_and_procceed(dep_fr, ans_node);
@@ -1164,18 +1169,24 @@
       while (YOUNGER_CP(DepFr_cons_cp(dep_fr), chain_cp)) {
         LOCK(DepFr_lock(dep_fr));
         ans_node = DepFr_last_answer(dep_fr);
+	if (TrNode_child(ans_node)) {
+          /* dependency frame with unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
-        ans_node_ptr aux_ans_node = ans_node; 
-        do {
-	    ans_node=TrNode_child(ans_node);
-        } while(ans_node != NULL && IS_INVALID_ANSWER_LEAF_NODE(ans_node));
-        if (ans_node){ 
-            TrNode_child(aux_ans_node)=ans_node;
+	  ans_node_ptr first_ans_node, aux_ans_node;
+	  first_ans_node = ans_node;
+	  do {
+	    ans_node = TrNode_child(ans_node);
+	  } while (IS_INVALID_LEAF_NODE(ans_node));
+	  aux_ans_node = TrNode_child(first_ans_node);
+	  while (aux_ans_node != ans_node) {
+	    TrNode_child(first_ans_node) = ans_node;
+	    first_ans_node = aux_ans_node;
+	    aux_ans_node = TrNode_child(first_ans_node);
+	  }
 #else
-        if (TrNode_child(ans_node)) 
-           /* dependency frame with unconsumed answers */
-            ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-#endif /*MODE_DIRECTED_TABLING*/
+          ans_node = TrNode_child(ans_node);
+#endif /* MODE_DIRECTED_TABLING */
+          DepFr_last_answer(dep_fr) = ans_node;
 #ifdef YAPOR
           if (YOUNGER_CP(DepFr_backchain_cp(dep_fr), top_chain_cp))
 #endif /* YAPOR */
@@ -1415,18 +1426,24 @@
     while (YOUNGER_CP(DepFr_cons_cp(dep_fr), B)) {
       LOCK(DepFr_lock(dep_fr));
       ans_node = DepFr_last_answer(dep_fr);
+      if (TrNode_child(ans_node)) {
+        /* dependency frame with unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
-      ans_node_ptr aux_ans_node = ans_node; 
-      do {
-	 ans_node=TrNode_child(ans_node);
-      } while(ans_node != NULL && IS_INVALID_ANSWER_LEAF_NODE(ans_node));
-      if (ans_node){ 
-          TrNode_child(aux_ans_node)=ans_node;
+	ans_node_ptr first_ans_node, aux_ans_node;
+	first_ans_node = ans_node;
+	do {
+	  ans_node = TrNode_child(ans_node);
+	} while (IS_INVALID_LEAF_NODE(ans_node));
+	aux_ans_node = TrNode_child(first_ans_node);
+	while (aux_ans_node != ans_node) {
+	  TrNode_child(first_ans_node) = ans_node;
+	  first_ans_node = aux_ans_node;
+	  aux_ans_node = TrNode_child(first_ans_node);
+	}
 #else
-      if (TrNode_child(ans_node)) 
-          /* dependency frame with unconsumed answers */
-          ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-#endif /*MODE_DIRECTED_TABLING*/
+        ans_node = TrNode_child(ans_node);
+#endif /* MODE_DIRECTED_TABLING */
+        DepFr_last_answer(dep_fr) = ans_node;
         if (B->cp_ap) {
 #ifdef YAPOR
           if (YOUNGER_CP(DepFr_backchain_cp(dep_fr), B))
@@ -1581,20 +1598,25 @@
         LOCK_OR_FRAME(LOCAL_top_or_fr);
         LOCK(DepFr_lock(LOCAL_top_dep_fr));
         ans_node = DepFr_last_answer(LOCAL_top_dep_fr);
-#ifdef MODE_DIRECTED_TABLING
-        ans_node_ptr aux_ans_node = ans_node; 
-        do {
-	  ans_node=TrNode_child(ans_node);
-        } while(ans_node != NULL && IS_INVALID_ANSWER_LEAF_NODE(ans_node));
-        if (ans_node){ 
-          TrNode_child(aux_ans_node)=ans_node;
-#else
         if (TrNode_child(ans_node)) {
-           /* unconsumed answer */
-          ans_node = DepFr_last_answer(dep_fr) = TrNode_child(ans_node);
-#endif /*MODE_DIRECTED_TABLING*/
+          /* unconsumed answers */
           UNLOCK_OR_FRAME(LOCAL_top_or_fr);
-          ans_node = DepFr_last_answer(LOCAL_top_dep_fr) = TrNode_child(ans_node);
+#ifdef MODE_DIRECTED_TABLING
+	  ans_node_ptr first_ans_node, aux_ans_node;
+	  first_ans_node = ans_node;
+	  do {
+	    ans_node = TrNode_child(ans_node);
+	  } while (IS_INVALID_LEAF_NODE(ans_node));
+	  aux_ans_node = TrNode_child(first_ans_node);
+	  while (aux_ans_node != ans_node) {
+	    TrNode_child(first_ans_node) = ans_node;
+	    first_ans_node = aux_ans_node;
+	    aux_ans_node = TrNode_child(first_ans_node);
+	  }
+#else
+          ans_node = TrNode_child(ans_node);
+#endif /* MODE_DIRECTED_TABLING */
+          DepFr_last_answer(LOCAL_top_dep_fr) = ans_node;
           UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
           consume_answer_and_procceed(LOCAL_top_dep_fr, ans_node);
         }
