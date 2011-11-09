@@ -3113,7 +3113,7 @@ p_undefined( USES_REGS1 )
   if (EndOfPAEntr(pe))
     return TRUE;
   PELOCK(36,pe);
-  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag|LogUpdatePredFlag)) {
+  if (pe->PredFlags & (CPredFlag|UserCPredFlag|TestPredFlag|AsmPredFlag|DynamicPredFlag|LogUpdatePredFlag|TabledPredFlag)) {
     UNLOCKPE(57,pe);
     return FALSE;
   }
