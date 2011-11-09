@@ -271,7 +271,7 @@ static Int p_table( USES_REGS1 ) {
       mode_directed[aux_pos] = MODE_DIRECTED_SET(i, aux_mode_directed[i]);
     }
     free(aux_mode_directed);
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
   }
   if (pe->PredFlags & TabledPredFlag)
     return (TRUE);  /* predicate already tabled */

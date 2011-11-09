@@ -1377,10 +1377,37 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
 #endif /* TABLING_INNER_CUTS */
     TrStat_ans_nodes = 0;
     TrStat_gt_refs = 0;
-    Sfprintf(TrStat_out, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table statistics for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
   } else {  /* SHOW_MODE_STRUCTURE */
-    Sfprintf(TrStat_out, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table structure for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
   }
+#ifdef MODE_DIRECTED_TABLING
+  if (TabEnt_mode_directed(tab_ent)) {
+    int i, *mode_directed = TabEnt_mode_directed(tab_ent);
+    Sfprintf(TrStat_out, "(");
+    for (i = 0; i < TabEnt_arity(tab_ent); i++) {
+      int mode = MODE_DIRECTED_GET_MODE(mode_directed[i]);
+      if (mode == MODE_DIRECTED_INDEX) {
+	Sfprintf(TrStat_out, "index");
+      } else if (mode == MODE_DIRECTED_FIRST) {
+	Sfprintf(TrStat_out, "first");
+      } else if (mode == MODE_DIRECTED_ALL) {
+	Sfprintf(TrStat_out, "all");
+      } else if (mode == MODE_DIRECTED_MAX) {
+	Sfprintf(TrStat_out, "max");
+      } else if (mode == MODE_DIRECTED_MIN) {
+	Sfprintf(TrStat_out, "min");
+      } else /* MODE_DIRECTED_LAST */
+	Sfprintf(TrStat_out, "last");
+      if (i != MODE_DIRECTED_GET_ARG(mode_directed[i]))
+	Sfprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
+      if (i + 1 != TabEnt_arity(tab_ent))
+	Sfprintf(TrStat_out, ",");
+    }
+    Sfprintf(TrStat_out, ")'\n");
+  } else
+#endif /* MODE_DIRECTED_TABLING */
+    Sfprintf(TrStat_out, "/%d'\n", TabEnt_arity(tab_ent));
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
     if (TabEnt_arity(tab_ent)) {
