@@ -47,7 +47,7 @@ static void share_private_nodes(int worker_q);
 #if INCREMENTAL_COPY
 #define COMPUTE_SEGMENTS_TO_COPY_TO(Q)                                   \
 	if (REMOTE_top_cp(Q) == GLOBAL_root_cp)	                         \
-          REMOTE_start_global_copy(Q) = (CELL) (H0);                     \ 
+          REMOTE_start_global_copy(Q) = (CELL) (H0);                     \
 	else                                                             \
           REMOTE_start_global_copy(Q) = (CELL) (REMOTE_top_cp(Q)->cp_h); \
         REMOTE_end_global_copy(Q)   = (CELL) (B->cp_h);                  \
