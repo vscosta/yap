@@ -1038,8 +1038,11 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
   if (TrNode_sg_fr(current_sg_node) == NULL) {
     /* new tabled subgoal */
 #ifdef MODE_DIRECTED_TABLING
-    ALLOC_BLOCK(mode_directed, subs_pos*sizeof(int), int);
-    memcpy((void *)mode_directed, (void *)aux_mode_directed, subs_pos*sizeof(int));
+    if (subs_pos) {
+      ALLOC_BLOCK(mode_directed, subs_pos*sizeof(int), int);
+      memcpy((void *)mode_directed, (void *)aux_mode_directed, subs_pos*sizeof(int));
+    } else
+      mode_directed = NULL;
 #endif /* MODE_DIRECTED_TABLING */
     new_subgoal_frame(sg_fr, preg, mode_directed);
     TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
