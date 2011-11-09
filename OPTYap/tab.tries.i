@@ -1215,7 +1215,7 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
   if (IsIntTerm(child_term)) {
     trie_value = (Float) IntOfTerm(child_term);
   } else if (IsApplTerm(child_term)) {
-    Functor f = FunctorOfTerm(child_term);
+    Functor f = (Functor) RepAppl(child_term);
     child_node = TrNode_child(child_node);
     if (f == FunctorLongInt) {
       trie_value = (Float) TrNode_entry(child_node);
@@ -1255,7 +1255,7 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
   if (term_value == trie_value)
     return child_node;
   /* better answer */
-  invalidate_answer_trie(child_node, sg_fr, TRAVERSE_POSITION_FIRST);
+  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
   TrNode_child(current_node) = NULL;
   if (IsAtomOrIntTerm(t)) {
     ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
