@@ -796,6 +796,13 @@ else
 fi
 AC_SUBST(ENABLE_GECODE)
 
+if test "$use_prism" = no; then
+  ENABLE_PRISM="@# "
+else
+  ENABLE_PRISM=""
+fi
+AC_SUBST(ENABLE_PRISM)
+
 if test "$use_chr" = no; then
   ENABLE_CHR="@# "
 elif test -e "$srcdir"/packages/chr/Makefile.in; then
@@ -2163,6 +2170,13 @@ mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
 mkdir -p  packages/pldoc
 mkdir -p  packages/plunit
+mkdir -p  packages/prism
+mkdir -p  packages/prism/src
+mkdir -p  packages/prism/src/c
+mkdir -p  packages/prism/src/c/core
+mkdir -p  packages/prism/src/c/mp
+mkdir -p  packages/prism/src/c/up
+mkdir -p  packages/prism/src/prolog
 mkdir -p  packages/ProbLog
 mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/ProbLog/simplecudd_lfi
@@ -2268,6 +2282,11 @@ fi
 
 if test "$ENABLE_GECODE" = ""; then
 AC_CONFIG_FILES([library/gecode/Makefile])
+fi
+
+if test "$ENABLE_PRISM" = ""; then
+AC_CONFIG_FILES([packages/prism/src/c/Makefile])
+AC_CONFIG_FILES([packages/prism/src/prolog/Makefile])
 fi
 
 AC_OUTPUT()
