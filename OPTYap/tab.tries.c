@@ -21,9 +21,6 @@
 #include "YapHeap.h"
 #include "tab.macros.h"
 
-#ifdef MODE_DIRECTED_TABLING
-static inline ans_node_ptr answer_search_loop2(sg_fr_ptr, ans_node_ptr, Term, int *,int);
-#endif /*MODE_DIRECTED_TABLING*/
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term);
 static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr, sg_node_ptr, Term);
 static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr, ans_node_ptr, Term, int);
@@ -35,6 +32,10 @@ static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr, Term);
 static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL **);
 static inline sg_node_ptr subgoal_search_terms_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL **);
 static inline ans_node_ptr answer_search_loop(sg_fr_ptr, ans_node_ptr, Term, int *);
+#ifdef MODE_DIRECTED_TABLING
+static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr, ans_node_ptr, Term, int);
+static void invalidate_answer_trie(ans_node_ptr, sg_fr_ptr, int);
+#endif /* MODE_DIRECTED_TABLING */
 static inline ans_node_ptr answer_search_terms_loop(sg_fr_ptr, ans_node_ptr, Term, int *);
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
 static inline gt_node_ptr subgoal_search_global_trie_terms_loop(Term, int *, CELL **, CELL *);
@@ -62,7 +63,6 @@ static void free_global_trie_branch(gt_node_ptr, int);
 static void free_global_trie_branch(gt_node_ptr);
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 
-
 static void traverse_subgoal_trie(sg_node_ptr, char *, int, int *, int, int);
 static void traverse_answer_trie(ans_node_ptr, char *, int, int *, int, int, int);
 static void traverse_global_trie(gt_node_ptr, char *, int, int *, int, int);
@@ -70,446 +70,8 @@ static void traverse_global_trie_for_term(gt_node_ptr, char *, int *, int *, int
 static inline void traverse_trie_node(Term, char *, int *, int *, int *, int);
 static inline void traverse_update_arity(char *, int *, int *);
 
-//----------------------------------------------------------------------------------
-
-#ifdef MODE_DIRECTED_TABLING
-//#define INCLUDE_ANSWER_TRIE_CHECK_INSERT
-//#define INCLUDE_ANSWER_SEARCH_LOOP
 
 
-#define ANSWER_CHECK_INSERT_ENTRY(SG_FR, NODE, ENTRY, INSTR)	   \
-        NODE = answer_trie_check_insert_entry(SG_FR, NODE, ENTRY, INSTR)
-
-void invalidate_answer(ans_node_ptr node,sg_fr_ptr sg_fr) {
-  
-  if(node == NULL)
-    return;
-  
-  if(IS_ANSWER_LEAF_NODE(node)){
-    TAG_AS_INVALID_ANSWER_LEAF_NODE(node,sg_fr);
-    return;
-  } 
-  
-  if( IS_ANSWER_TRIE_HASH(node)){
-    ans_hash_ptr hash;
-    ans_node_ptr *bucket, *last_bucket, *first_bucket;
-    hash = (ans_hash_ptr) node;
-    first_bucket = bucket = Hash_buckets(hash);
-    last_bucket = bucket + Hash_num_buckets(hash);
-    do {
-      invalidate_answer(*bucket,sg_fr);
-    } while (++bucket != last_bucket); 
-    Hash_next(Hash_previous(hash)) = Hash_next(hash);
-    FREE_HASH_BUCKETS(first_bucket);
-    FREE_ANSWER_TRIE_HASH(hash);
-  }
- 
-  else{
-    if (! IS_ANSWER_LEAF_NODE(node))
-      invalidate_answer(TrNode_child(node),sg_fr);
-    if (TrNode_next(node))
-      invalidate_answer(TrNode_next(node),sg_fr);
-    FREE_ANSWER_TRIE_NODE(node);
-    return;
-  }  
-}
-
-
-static inline ans_node_ptr answer_search_loop2(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int *vars_arity_ptr,int mode) {
-  CACHE_REGS
-#ifdef MODE_GLOBAL_TRIE_LOOP
-  gt_node_ptr current_node = GLOBAL_root_gt;
-#endif /* MODE_GLOBAL_TRIE_LOOP */
-  int vars_arity = *vars_arity_ptr;
-#if ! defined(MODE_GLOBAL_TRIE_LOOP) || ! defined(GLOBAL_TRIE_FOR_SUBTERMS)
-  CELL *stack_terms = (CELL *) LOCAL_TrailTop;
-#endif /* ! MODE_GLOBAL_TRIE_LOOP || ! GLOBAL_TRIE_FOR_SUBTERMS */
-  CELL *stack_vars_base = (CELL *) TR;
-#define stack_terms_limit (stack_vars_base + vars_arity)
-#ifdef TRIE_COMPACT_PAIRS
-  int in_pair = 0;
-#else
-#define in_pair 0
-#endif /* TRIE_COMPACT_PAIRS */
-#ifdef MODE_DIRECTED_TABLING
-  ans_node_ptr child_node;
-  Term child_term;
-#endif /*MODE_DIRECTED_TABLING*/  
-  AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);  /* + 1 because initially we stiil haven't done any STACK_POP_DOWN */
-  STACK_PUSH_UP(NULL, stack_terms);
-
-#if defined(MODE_GLOBAL_TRIE_LOOP)
-  /* for the global trie, it is safe to skip the IsVarTerm() and IsAtomOrIntTerm() tests in the first iteration */
-  goto answer_search_loop_non_atomic;
-#endif /* MODE_GLOBAL_TRIE_LOOP */
-  
-  if(mode == MODE_DIRECTED_NINDEX && TrNode_child(current_node))
-       return NULL;      
-
-
-   if(mode == MODE_DIRECTED_LAST && TrNode_child(current_node)){
-	invalidate_answer(TrNode_child(current_node),sg_fr);
-	TrNode_child(current_node) = NULL;	 
-   }
-
-  do {
-    if (IsVarTerm(t)) {
-      t = Deref(t);
-      if (IsTableVarTerm(t)) {
-	t = MakeTableVarTerm(VarIndexOfTerm(t));
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
-      } else {
-	if (vars_arity == MAX_TABLE_VARS)
-	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: MAX_TABLE_VARS exceeded");
-	stack_vars_base[vars_arity] = t;
-	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
-	t = MakeTableVarTerm(vars_arity);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
-	vars_arity = vars_arity + 1;
-      }
-#ifdef TRIE_COMPACT_PAIRS
-      in_pair = 0;
-#endif /* TRIE_COMPACT_PAIRS */
-    } else if (IsAtomOrIntTerm(t)) {
-#ifdef MODE_DIRECTED_TABLING
-      child_node = TrNode_child(current_node);
-      if(child_node && IsIntTerm(t) &&  (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){
-	Int it = IntOfTerm(t);
-	if(IsIntTerm(TrNode_entry(child_node))){
-	  child_term = TrNode_entry(child_node);
-	  Int tt = IntOfTerm(child_term);
-	  if((mode == MODE_DIRECTED_MIN && it < tt ) || (mode == MODE_DIRECTED_MAX && it > tt) ){
-	    invalidate_answer(child_node,sg_fr);
-	    TrNode_child(current_node) = NULL;
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
-	  }
-	  else if((mode == MODE_DIRECTED_MIN && it > tt) || (mode == MODE_DIRECTED_MAX && it < tt) ){
-	    return NULL;
-	  }
-	  else if (it == tt){
-	    current_node = TrNode_child(current_node);
-	  }
-	}
-	if(IsApplTerm(TrNode_entry(child_node))){	 
-	  if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
-	    Int tt = TrNode_entry(TrNode_child(child_node));
-	    if((mode == MODE_DIRECTED_MIN && it < tt ) || (mode == MODE_DIRECTED_MAX && it > tt)){
-	      invalidate_answer(child_node,sg_fr);
-	      TrNode_child(current_node) = NULL;
-	      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
-	    }
-	    else if(it == tt){		
-	      current_node = TrNode_child(TrNode_child(child_node));
-	    }
-	    else if((mode == MODE_DIRECTED_MIN && it > tt) || (mode == MODE_DIRECTED_MAX && it < tt) )	
-	      return NULL;
-	  }
-	  else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
-	      union {
-		  Term t_dbl[sizeof(Float)/sizeof(Term)];
-		  Float dbl;
-	      } u;
-	      u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	      u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	    if((mode ==  MODE_DIRECTED_MIN && it < u.dbl ) || (mode == MODE_DIRECTED_MAX && it > u.dbl)){
-	      invalidate_answer(child_node,sg_fr);
-	      TrNode_child(current_node) = NULL;
-	      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
-	    }
-	    else if(it == u.dbl){		
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
-#else
-		current_node = TrNode_child(TrNode_child(child_node));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	    }	
-	    else if((mode == MODE_DIRECTED_MIN && it > u.dbl) || (mode == MODE_DIRECTED_MAX && it < u.dbl))
-	      return NULL;
-	  }
-	}
-      }
-      else
-#endif /*MODE_DIRECTED_TABLING*/
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
-#ifdef TRIE_COMPACT_PAIRS
-      in_pair = 0;
-#endif /* TRIE_COMPACT_PAIRS */
-#ifdef MODE_TERMS_LOOP
-    } else {
-      gt_node_ptr entry_node;
-#ifdef GLOBAL_TRIE_FOR_SUBTERMS
-      entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
-#else
-      entry_node = answer_search_global_trie_loop(t, &vars_arity);
-#endif /*  GLOBAL_TRIE_FOR_SUBTERMS */
-      current_node = answer_trie_check_insert_gt_entry(sg_fr, current_node, (Term) entry_node, _trie_retry_gterm + in_pair);
-#else /* ! MODE_TERMS_LOOP */
-    } else 
-#if defined(MODE_GLOBAL_TRIE_LOOP)
-      /* for the global trie, it is safe to start here in the first iteration */
-      answer_search_loop_non_atomic:
-#endif /* MODE_GLOBAL_TRIE_LOOP */
-#ifdef TRIE_COMPACT_PAIRS
-    if (IsPairTerm(t)) {
-      CELL *aux_pair = RepPair(t);
-      if (aux_pair == PairTermMark) {
-	t = STACK_POP_DOWN(stack_terms);
-	if (IsPairTerm(t)) {
-	  aux_pair = RepPair(t);
-	  t = Deref(aux_pair[1]);
-	  if (t == TermNil) {
-	     ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
-	  } else {
-	    /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
-	    /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
-	    ** up 3 terms has already initially checked for the CompactPairInit term         */
-	    STACK_PUSH_UP(t, stack_terms);
-	    STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	    in_pair = 4;
-	  }
-	  STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
-	} else {
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndTerm, _trie_retry_null);
-	  STACK_PUSH_UP(t, stack_terms);
-	}
-#if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-      } else if (current_node != GLOBAL_root_gt) {
-	gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
-	current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
-#endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
-      } else {
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairInit, _trie_retry_null + in_pair);
-	t = Deref(aux_pair[1]);
-	if (t == TermNil) {
-	   ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
-	   in_pair = 0;
-	} else {
-	  AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);
-	  STACK_PUSH_UP(t, stack_terms);
-	  STACK_PUSH_UP(AbsPair(PairTermMark), stack_terms);
-	  in_pair = 4;
-	}
-	STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
-      }
-#if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    } else if (current_node != GLOBAL_root_gt) {
-      gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
-      current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
-#endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
-#else /* ! TRIE_COMPACT_PAIRS */
-#if defined(MODE_GLOBAL_TRIE_LOOP) && defined(GLOBAL_TRIE_FOR_SUBTERMS)
-    if (current_node != GLOBAL_root_gt) {
-      gt_node_ptr entry_node = answer_search_global_trie_terms_loop(t, &vars_arity, stack_terms);
-      current_node = global_trie_check_insert_gt_entry(current_node, (Term) entry_node);
-    } else 
-#endif /* MODE_GLOBAL_TRIE_LOOP && GLOBAL_TRIE_FOR_SUBTERMS */
-    if (IsPairTerm(t)) {
-      CELL *aux_pair = RepPair(t);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsPair(NULL), _trie_retry_pair);
-      AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 1);
-      STACK_PUSH_UP(Deref(aux_pair[1]), stack_terms);
-      STACK_PUSH_UP(Deref(aux_pair[0]), stack_terms);
-#endif /* TRIE_COMPACT_PAIRS */
-    } else if (IsApplTerm(t)) {
-      Functor f = FunctorOfTerm(t);
-      if (f == FunctorDouble) {
-	union {
-	  Term t_dbl[sizeof(Float)/sizeof(Term)];
-	  Float dbl;
-	} u;
-	u.dbl = FloatOfTerm(t);
-#ifdef MODE_DIRECTED_TABLING
-	child_node = TrNode_child(current_node);
-	if(child_node && (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){
-	  if(IsApplTerm(TrNode_entry(child_node))){
-	    if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
-	      Int tt = TrNode_entry(TrNode_child(child_node));
-	      if(( mode == MODE_DIRECTED_MIN && u.dbl < tt) || ( mode == MODE_DIRECTED_MAX && u.dbl > tt)){
-		invalidate_answer(child_node,sg_fr);
-		TrNode_child(current_node) = NULL;
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
-	      }
-	      else if(tt == u.dbl){		
-		current_node = TrNode_child(TrNode_child(child_node));
-	      }
-	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > tt) || ( mode == MODE_DIRECTED_MAX && u.dbl < tt))	
-		return NULL;
-	    }
-	    else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
-	      union {
-		  Term t_dbl[sizeof(Float)/sizeof(Term)];
-		  Float dbl;
-	      } ans_u;
-	      ans_u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	      ans_u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	      if(( mode == MODE_DIRECTED_MIN && u.dbl < ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && u.dbl > ans_u.dbl)){
-		invalidate_answer(child_node,sg_fr);
-		TrNode_child(current_node) = NULL;
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
-	      }
-	      else if(ans_u.dbl == u.dbl){	
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
-#else
-		current_node = TrNode_child(TrNode_child(child_node));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	      }	
-	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && u.dbl < ans_u.dbl))	
-		return NULL;
-	    }
-	  }
-	  else if(IsIntTerm(TrNode_entry(child_node))){
-	    Int tt = IntOfTerm(child_node);
-	      if(( mode == MODE_DIRECTED_MIN && u.dbl < tt) || ( mode == MODE_DIRECTED_MAX && u.dbl > tt)){
-		invalidate_answer(child_node,sg_fr);
-		TrNode_child(current_node) = NULL;
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-		ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
-	      }
-	      else if(IntOfTerm(child_node) == u.dbl){			
-		current_node = TrNode_child(TrNode_child(child_node));	
-	      }
-	      else if(( mode == MODE_DIRECTED_MIN && u.dbl > tt) || ( mode == MODE_DIRECTED_MAX && u.dbl < tt))
-		return NULL;
-	  }	  
-	}
-	else {
-#endif /*MODE_DIRECTED_TABLING*/	  
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-	  ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
-#ifdef MODE_DIRECTED_TABLING
-	}
-#endif /*MODE_DIRECTED_TABLING*/
-	} else if (f == FunctorLongInt) {
-	  Int li = LongIntOfTerm (t);
-	  child_node = TrNode_child(current_node);
-#ifdef MODE_DIRECTED_TABLING  
-	  if(child_node && (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)){ 	
-	      if(IsApplTerm(TrNode_entry(child_node))){
-		if(RepAppl(TrNode_entry(child_node))==FunctorLongInt){
-		  Int tt = TrNode_entry(TrNode_child(child_node));
-		  if(( mode == MODE_DIRECTED_MIN && li < tt) || ( mode == MODE_DIRECTED_MAX  && li > tt)){
-		    invalidate_answer(child_node,sg_fr);
-		    TrNode_child(current_node) = NULL;
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-		    
-		  }
-		  else if(li ==  tt){		
-		    current_node = TrNode_child(TrNode_child(child_node));
-		  }
-		  else if(( mode == MODE_DIRECTED_MIN && li > tt) || ( mode == MODE_DIRECTED_MAX && li < tt))
-		    return NULL;	
-		}
-		else if(RepAppl(TrNode_entry(child_node))==FunctorDouble){
-		  union {
-		    Term t_dbl[sizeof(Float)/sizeof(Term)];
-		    Float dbl;
-		  } ans_u;
-		  ans_u.t_dbl[0] = TrNode_entry(TrNode_child(child_node));
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		  ans_u.t_dbl[1] = TrNode_entry(TrNode_child(TrNode_child(child_node)));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-		  if(( mode == MODE_DIRECTED_MIN && li < ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && li > ans_u.dbl)){
-		    invalidate_answer(child_node,sg_fr);
-		    TrNode_child(current_node) = NULL;
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-	            ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-		  }
-		  else if(ans_u.dbl == li){		
-#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-		current_node = TrNode_child(TrNode_child(TrNode_child(child_node)));
-#else
-		current_node = TrNode_child(TrNode_child(child_node));
-#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-		  }	
-		  else if(( mode == MODE_DIRECTED_MIN && li > ans_u.dbl) || ( mode == MODE_DIRECTED_MAX && li < ans_u.dbl))
-		    return NULL;
-		}
-	      }
-	      else if(IsIntTerm(TrNode_entry(child_node))){
-		Int tt = IntOfTerm(child_node);
-		if(( mode == MODE_DIRECTED_MIN && li < tt) || ( mode == MODE_DIRECTED_MAX && li > tt)){
-		  invalidate_answer(child_node,sg_fr);
-		  TrNode_child(current_node) = NULL;
-	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-	          ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-		}
-		else if(li == tt){			
-		  current_node = TrNode_child(TrNode_child(child_node));	
-		}
-		else if(( mode == MODE_DIRECTED_MIN && li > tt) || ( mode == MODE_DIRECTED_MAX && li < tt))
-		  return NULL;
-	      }
-	  }else{
-#endif /*MODE_DIRECTED_TABLING*/
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
-#ifdef MODE_DIRECTED_TABLING
-	  }
-#endif/*MODE_DIRECTED_TABLING*/
-	  } else if (f == FunctorDBRef) {
-	    Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorDBRef");
-	  } else if (f == FunctorBigInt) {
-	    Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unsupported type tag FunctorBigInt");
-	  } else {
-	    int i;
-	    CELL *aux_appl = RepAppl(t);
-	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_appl + in_pair);
-	    AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + ArityOfFunctor(f) - 1);
-	    for (i = ArityOfFunctor(f); i >= 1; i--)
-	      STACK_PUSH_UP(Deref(aux_appl[i]), stack_terms);
-	  }
-#ifdef TRIE_COMPACT_PAIRS
-	  in_pair = 0;
-#endif /* TRIE_COMPACT_PAIRS */
-	} else {
-	  Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_loop: unknown type tag");
-#endif /* MODE_TERMS_LOOP */
-	}
-	t = STACK_POP_DOWN(stack_terms);
-      } while (t);
-      
-      *vars_arity_ptr = vars_arity;
-      return current_node;
-
-#undef stack_terms_limit
-#ifndef TRIE_COMPACT_PAIRS
-#undef in_pair
-#endif /* TRIE_COMPACT_PAIRS */
-}
-
-//#undef INCLUDE_ANSWER_TRIE_CHECK_INSERT
-//#undef INCLUDE_ANSWER_SEARCH_LOOP
-#endif /* MODE_DIRECTED_TABLING*/
-
-//-----------------------------------------------------------------------------------------------------------------
 /*******************************
 **      Structs & Macros      **
 *******************************/
@@ -596,7 +158,7 @@ static struct trie_statistics{
 #undef MODE_GLOBAL_TRIE_ENTRY
 
 #define INCLUDE_SUBGOAL_SEARCH_LOOP        /* subgoal_search_loop */
-#define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_loop */
+#define INCLUDE_ANSWER_SEARCH_LOOP         /* answer_search_loop + answer_search_mode_directed_min_max + invalidate_answer_trie */
 #define INCLUDE_LOAD_ANSWER_LOOP           /* load_answer_loop */
 #include "tab.tries.i"
 #undef INCLUDE_LOAD_ANSWER_LOOP
@@ -1413,13 +975,16 @@ static inline void traverse_update_arity(char *str, int *str_index_ptr, int *ari
 *******************************/
 
 sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
-//  printf("subgoal_search\n");
   CACHE_REGS
   CELL *stack_vars;
   int i, subs_arity, pred_arity;
   tab_ent_ptr tab_ent;
   sg_fr_ptr sg_fr;
   sg_node_ptr current_sg_node;
+#ifdef MODE_DIRECTED_TABLING
+  int *mode_directed, aux_mode_directed[MAX_TABLE_VARS];
+  int subs_pos = 0;
+#endif /* MODE_DIRECTED_TABLING */
 
   stack_vars = *Yaddr;
   subs_arity = 0;
@@ -1431,40 +996,30 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #endif /* TABLE_LOCK_LEVEL */
 
 #ifdef MODE_DIRECTED_TABLING
-  int* mode_directed_array = TabEnt_mode_directed_array(tab_ent);
-  int* n_vars_operator_array = NULL;
-  int j, old_subs_arity=0;
-  if(mode_directed_array)
-    ALLOC_BLOCK(n_vars_operator_array,pred_arity*sizeof(int),int);
-  
- // ALLOC_BLOCK(number_vars,sizeof(int),int);
-  //for(i=0;i<pred_arity;i++)
-  //  printf("sub_search  %p\n",mode_directed_array[i]);
-#endif /*MODE_DIRECTED_TABLING*/
-  
-  
+  mode_directed = TabEnt_mode_directed(tab_ent);
+  if (mode_directed) {
+    int old_subs_arity = subs_arity;
+    for (i = 1; i <= pred_arity; i++) {
+      int j = MODE_DIRECTED_GET_ARG(mode_directed[i-1]) + 1;
+      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[j]), &subs_arity, &stack_vars);
+      if (subs_arity != old_subs_arity) {
+	if (subs_pos && MODE_DIRECTED_GET_MODE(aux_mode_directed[subs_pos-1]) == MODE_DIRECTED_GET_MODE(mode_directed[i-1])) {
+	  aux_mode_directed[subs_pos-1] += MODE_DIRECTED_SET(subs_arity - old_subs_arity, 0);
+	} else {
+	  aux_mode_directed[subs_pos] = MODE_DIRECTED_SET(subs_arity - old_subs_arity, MODE_DIRECTED_GET_MODE(mode_directed[i-1]));
+	  subs_pos++;
+	}
+	old_subs_arity = subs_arity;
+      }
+    }
+  } else
+#endif /* MODE_DIRECTED_TABLING */
   if (IsMode_GlobalTrie(TabEnt_mode(tab_ent))) {
     for (i = 1; i <= pred_arity; i++)
       current_sg_node = subgoal_search_terms_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars);
   } else {
-    for (i = 1; i <= pred_arity; i++){
-#ifdef MODE_DIRECTED_TABLING
-      if(mode_directed_array){
-	j = MODE_DIRECTED_index(mode_directed_array[i-1])+1;
-      }
-      else
-	j = i;
-      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[j]), &subs_arity, &stack_vars);
-      if(mode_directed_array){
-	n_vars_operator_array[i-1] = subs_arity - old_subs_arity;
-	//printf("vars %d\n", subs_arity);
-	old_subs_arity = subs_arity;
-	n_vars_operator_array[i-1] = (n_vars_operator_array[i-1]<< MODE_DIRECTED_TAGBITS) + MODE_DIRECTED_operator(mode_directed_array[i-1]);
-      }
-#else 
+    for (i = 1; i <= pred_arity; i++)
       current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars);
-#endif /*MODE_DIRECTED_TABLING*/
-    }
   }
 
   STACK_PUSH_UP(subs_arity, stack_vars);
@@ -1474,8 +1029,6 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     Term t = STACK_POP_DOWN(stack_vars);
     RESET_VARIABLE(t);
   }
-  // for(i=0;i<pred_arity;i++)
-    //printf("2sub_search  %p\n",n_vars_operator_array[i]);
    
 #if defined(TABLE_LOCK_AT_NODE_LEVEL)
   LOCK(TrNode_lock(current_sg_node));
@@ -1485,8 +1038,13 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
   if (TrNode_sg_fr(current_sg_node) == NULL) {
     /* new tabled subgoal */
 #ifdef MODE_DIRECTED_TABLING
-    new_subgoal_frame(sg_fr, preg,n_vars_operator_array);
-#endif /*MODE_DIRECTED_TABLING*/
+    if (subs_pos) {
+      ALLOC_BLOCK(mode_directed, subs_pos*sizeof(int), int);
+      memcpy((void *)mode_directed, (void *)aux_mode_directed, subs_pos*sizeof(int));
+    } else
+      mode_directed = NULL;
+#endif /* MODE_DIRECTED_TABLING */
+    new_subgoal_frame(sg_fr, preg, mode_directed);
     TrNode_sg_fr(current_sg_node) = (sg_node_ptr) sg_fr;
     TAG_AS_SUBGOAL_LEAF_NODE(current_sg_node);
   } else {
@@ -1514,18 +1072,42 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   CELL *stack_vars;
   int i, vars_arity;
   ans_node_ptr current_ans_node;
+#ifdef MODE_DIRECTED_TABLING
+  int *mode_directed;
+#endif /* MODE_DIRECTED_TABLING */
 
   vars_arity = 0;
   current_ans_node = SgFr_answer_trie(sg_fr);
-
 #ifdef MODE_DIRECTED_TABLING
-  int* n_vars_operator_array = TrNode_mode_directed_array(current_ans_node);
-  int j=0,n_vars=0, mode=-1;
-   // for(i=0;i<3;i++)
-    //printf("sub_search  %p\n",n_vars_operator_array[i]);
-  
-#endif /*MODE_DIRECTED_TABLING*/
-
+  mode_directed = SgFr_mode_directed(sg_fr);
+  if (mode_directed) {
+    int i = subs_arity, j = 0;
+    while (i) {
+      int mode = MODE_DIRECTED_GET_MODE(mode_directed[j]);
+      int n_subs = MODE_DIRECTED_GET_ARG(mode_directed[j]);
+      do {
+	TABLING_ERROR_CHECKING(answer search, IsNonVarTerm(subs_ptr[i]));
+	if (TrNode_child(current_ans_node) == NULL || mode == MODE_DIRECTED_INDEX || mode == MODE_DIRECTED_ALL)
+	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	else {  /* TrNode_child(current_node) != NULL && mode != MODE_DIRECTED_INDEX && mode != MODE_DIRECTED_ALL */
+	  if (mode == MODE_DIRECTED_FIRST)
+	    current_ans_node = NULL;
+	  else if (mode == MODE_DIRECTED_LAST) {
+	    invalidate_answer_trie(TrNode_child(current_ans_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	    TrNode_child(current_ans_node) = NULL;	 
+	    current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	  } else  /* mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX */
+	    current_ans_node = answer_search_mode_directed_min_max(sg_fr, current_ans_node, Deref(subs_ptr[i]), mode);
+	}
+	n_subs--;
+	i--;
+      } while (n_subs && current_ans_node);
+      if (current_ans_node == NULL)  /* no answer inserted */
+	break;
+      j++;
+    }
+  } else
+#endif /* MODE_DIRECTED_TABLING */
   if (IsMode_GlobalTrie(TabEnt_mode(SgFr_tab_ent(sg_fr)))) {
     for (i = subs_arity; i >= 1; i--) {
       TABLING_ERROR_CHECKING(answer search, IsNonVarTerm(subs_ptr[i]));
@@ -1534,26 +1116,7 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   } else {
     for (i = subs_arity; i >= 1; i--) {
       TABLING_ERROR_CHECKING(answer search, IsNonVarTerm(subs_ptr[i]));
-#ifdef MODE_DIRECTED_TABLING
-      if(n_vars_operator_array){
-	while(!MODE_DIRECTED_n_vars(n_vars_operator_array[j]))   
-	  j++;
-	if(!(n_vars < MODE_DIRECTED_n_vars(n_vars_operator_array[j]))){
-	  j++;
-	  while(!MODE_DIRECTED_n_vars(n_vars_operator_array[j]))   
-	    j++;
-	  n_vars = 0;
-	}
-	mode = MODE_DIRECTED_operator(n_vars_operator_array[j]);
-	//printf("operador   %d\n",mode);
-	n_vars++;
-      }
-      current_ans_node = answer_search_loop2(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity, mode);
-      if(current_ans_node == NULL)
-	break;
-#else 
       current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
-#endif /*MODE_DIRECTED_TABLING*/
     }
   }
 
@@ -1814,10 +1377,37 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
 #endif /* TABLING_INNER_CUTS */
     TrStat_ans_nodes = 0;
     TrStat_gt_refs = 0;
-    Sfprintf(TrStat_out, "Table statistics for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table statistics for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
   } else {  /* SHOW_MODE_STRUCTURE */
-    Sfprintf(TrStat_out, "Table structure for predicate '%s/%d'\n", AtomName(TabEnt_atom(tab_ent)), TabEnt_arity(tab_ent));
+    Sfprintf(TrStat_out, "Table structure for predicate '%s", AtomName(TabEnt_atom(tab_ent)));
   }
+#ifdef MODE_DIRECTED_TABLING
+  if (TabEnt_mode_directed(tab_ent)) {
+    int i, *mode_directed = TabEnt_mode_directed(tab_ent);
+    Sfprintf(TrStat_out, "(");
+    for (i = 0; i < TabEnt_arity(tab_ent); i++) {
+      int mode = MODE_DIRECTED_GET_MODE(mode_directed[i]);
+      if (mode == MODE_DIRECTED_INDEX) {
+	Sfprintf(TrStat_out, "index");
+      } else if (mode == MODE_DIRECTED_FIRST) {
+	Sfprintf(TrStat_out, "first");
+      } else if (mode == MODE_DIRECTED_ALL) {
+	Sfprintf(TrStat_out, "all");
+      } else if (mode == MODE_DIRECTED_MAX) {
+	Sfprintf(TrStat_out, "max");
+      } else if (mode == MODE_DIRECTED_MIN) {
+	Sfprintf(TrStat_out, "min");
+      } else /* MODE_DIRECTED_LAST */
+	Sfprintf(TrStat_out, "last");
+      if (i != MODE_DIRECTED_GET_ARG(mode_directed[i]))
+	Sfprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
+      if (i + 1 != TabEnt_arity(tab_ent))
+	Sfprintf(TrStat_out, ",");
+    }
+    Sfprintf(TrStat_out, ")'\n");
+  } else
+#endif /* MODE_DIRECTED_TABLING */
+    Sfprintf(TrStat_out, "/%d'\n", TabEnt_arity(tab_ent));
   sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
   if (sg_node) {
     if (TabEnt_arity(tab_ent)) {

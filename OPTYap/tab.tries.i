@@ -15,15 +15,6 @@
 **      Macros      **
 *********************/
 
-#undef INCREMENT_GLOBAL_TRIE_REFERENCE
-#undef NEW_SUBGOAL_TRIE_NODE
-#undef NEW_ANSWER_TRIE_NODE
-#undef NEW_GLOBAL_TRIE_NODE
-#undef SUBGOAL_CHECK_INSERT_ENTRY
-#undef ANSWER_CHECK_INSERT_ENTRY
-#undef LOCK_NODE
-#undef UNLOCK_NODE
-
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 #define INCREMENT_GLOBAL_TRIE_REFERENCE(ENTRY)                                                          \
         { register gt_node_ptr entry_node = (gt_node_ptr) (ENTRY);                                      \
@@ -1068,7 +1059,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	stack_vars_base[vars_arity] = t;
 	*((CELL *)t) = GLOBAL_table_var_enumerator(vars_arity);
 	t = MakeTableVarTerm(vars_arity);
-	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_val + in_pair);
+	ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_var + in_pair);
 	vars_arity = vars_arity + 1;
       }
 #ifdef TRIE_COMPACT_PAIRS
@@ -1103,7 +1094,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	  aux_pair = RepPair(t);
 	  t = Deref(aux_pair[1]);
 	  if (t == TermNil) {
-	     ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
+	    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, CompactPairEndList, _trie_retry_pair);
 	  } else {
 	    /* AUX_STACK_CHECK_EXPAND(stack_terms, stack_terms_limit + 2);                   */
 	    /* AUX_STACK_CHECK_EXPAND is not necessary here because the situation of pushing **
@@ -1204,6 +1195,165 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 #undef in_pair
 #endif /* TRIE_COMPACT_PAIRS */
 }
+
+
+
+/****************************************************************************
+**                   answer_search_mode_directed_min_max                   **
+****************************************************************************/
+
+#if defined(MODE_DIRECTED_TABLING) && ! defined(MODE_TERMS_LOOP) && ! defined(MODE_GLOBAL_TRIE_LOOP)
+static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode) {
+#define in_pair 0
+  ans_node_ptr child_node;
+  Term child_term;
+  Float trie_value, term_value;
+
+  /* start by computing the current value on the trie (trie_value) */
+  child_node = TrNode_child(current_node);
+  child_term = TrNode_entry(child_node);
+  if (IsIntTerm(child_term)) {
+    trie_value = (Float) IntOfTerm(child_term);
+  } else if (IsApplTerm(child_term)) {
+    Functor f = (Functor) RepAppl(child_term);
+    child_node = TrNode_child(child_node);
+    if (f == FunctorLongInt) {
+      trie_value = (Float) TrNode_entry(child_node);
+    } else if (f == FunctorDouble) {
+      union {
+	Term t_dbl[sizeof(Float)/sizeof(Term)];
+	Float dbl;
+      } u;
+      u.t_dbl[0] = TrNode_entry(child_node);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+      child_node = TrNode_child(child_node);
+      u.t_dbl[1] = TrNode_entry(child_node);
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+      trie_value = u.dbl;
+    } else
+      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_mode_directed_min_max: invalid arithmetic value");
+    child_node = TrNode_child(child_node);
+  }
+
+  /* then compute the value for the new term (term_value) */
+  if (IsAtomOrIntTerm(t))
+    term_value = (Float) IntOfTerm(t);
+  else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorLongInt)
+      term_value = (Float) LongIntOfTerm(t);
+    else if (f == FunctorDouble)
+      term_value = FloatOfTerm(t);
+    else
+      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_mode_directed_min_max: invalid arithmetic value");
+  }
+
+  /* worse answer */
+  if ((mode == MODE_DIRECTED_MIN && term_value > trie_value) || (mode == MODE_DIRECTED_MAX && term_value < trie_value))
+    return NULL;
+  /* equal answer */
+  if (term_value == trie_value)
+    return child_node;
+  /* better answer */
+  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+  TrNode_child(current_node) = NULL;
+  if (IsAtomOrIntTerm(t)) {
+    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
+  } else if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (f == FunctorDouble) {
+      union {
+	Term t_dbl[sizeof(Float)/sizeof(Term)];
+	Float dbl;
+      } u;
+      u.dbl = FloatOfTerm(t);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+#if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+#endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+    } else if (f == FunctorLongInt) {
+      Int li = LongIntOfTerm(t);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
+      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+    }
+  }
+  return current_node;
+#undef in_pair
+}
+
+
+
+/***************************************************************
+**                   invalidate_answer_trie                   **
+***************************************************************/
+
+static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, int position) {
+  if (IS_ANSWER_TRIE_HASH(current_node)) {
+    ans_hash_ptr hash;
+    ans_node_ptr *bucket, *last_bucket;
+    hash = (ans_hash_ptr) current_node;
+    bucket = Hash_buckets(hash);
+    last_bucket = bucket + Hash_num_buckets(hash);
+    do {
+      current_node = *bucket;
+      if (current_node) {
+	ans_node_ptr next_node = TrNode_next(current_node);
+	if (! IS_ANSWER_LEAF_NODE(current_node)) {
+	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	  FREE_ANSWER_TRIE_NODE(current_node);
+	} else {
+	  TAG_AS_INVALID_LEAF_NODE(current_node);
+	  TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
+	  SgFr_invalid_chain(sg_fr) = current_node;
+	}
+	while (next_node) {
+	  current_node = next_node;
+	  next_node = TrNode_next(current_node);
+	  invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT);
+	}
+      }
+    } while (++bucket != last_bucket); 
+    if (Hash_next(hash))
+      Hash_previous(Hash_next(hash)) = Hash_previous(hash);
+    if (Hash_previous(hash))
+      Hash_next(Hash_previous(hash)) = Hash_next(hash);
+    else
+      SgFr_hash_chain(sg_fr) = Hash_next(hash);
+    FREE_HASH_BUCKETS(Hash_buckets(hash));
+    FREE_ANSWER_TRIE_HASH(hash);
+  } else {
+    if (position == TRAVERSE_POSITION_FIRST) {
+      ans_node_ptr next_node = TrNode_next(current_node);
+      if (! IS_ANSWER_LEAF_NODE(current_node)) {
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	FREE_ANSWER_TRIE_NODE(current_node);
+      } else {
+	TAG_AS_INVALID_LEAF_NODE(current_node);
+	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
+	SgFr_invalid_chain(sg_fr) = current_node;
+      }
+      while (next_node) {
+	current_node = next_node;
+	next_node = TrNode_next(current_node);
+	invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT);
+      }
+    } else {
+      if (! IS_ANSWER_LEAF_NODE(current_node)) {
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	FREE_ANSWER_TRIE_NODE(current_node);
+      } else {
+	TAG_AS_INVALID_LEAF_NODE(current_node);
+	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
+	SgFr_invalid_chain(sg_fr) = current_node;
+      }
+    }
+  }
+  return;
+}
+#endif /* MODE_DIRECTED_TABLING && ! MODE_TERMS_LOOP && ! MODE_GLOBAL_TRIE_LOOP */
 #endif /* INCLUDE_ANSWER_SEARCH_LOOP */
 
 
@@ -1358,3 +1508,18 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #endif /* TRIE_COMPACT_PAIRS */
 }
 #endif /* INCLUDE_LOAD_ANSWER_LOOP */
+
+
+
+/***************************
+**      Undef Macros      **
+***************************/
+
+#undef INCREMENT_GLOBAL_TRIE_REFERENCE
+#undef NEW_SUBGOAL_TRIE_NODE
+#undef NEW_ANSWER_TRIE_NODE
+#undef NEW_GLOBAL_TRIE_NODE
+#undef SUBGOAL_CHECK_INSERT_ENTRY
+#undef ANSWER_CHECK_INSERT_ENTRY
+#undef LOCK_NODE
+#undef UNLOCK_NODE
