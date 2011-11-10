@@ -1,0 +1,11 @@
+===================== README (src/c/makefiles) =====================
+
+This directory contains the Makefiles which are included into the
+Makefiles in the above directory:
+
+  Makefile.opts.gmake ... settings for GNU make
+  Makefile.opts.nmake ... settings for nmake (MSVC++)
+  Makefile.files      ... source file names
+
+If you would like to change the default settings, please modify
+these Makefiles.

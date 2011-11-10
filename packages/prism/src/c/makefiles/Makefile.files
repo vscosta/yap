@@ -1,0 +1,56 @@
+# -*- Makefile -*-
+
+##----------------------------------------------------------------------
+
+CORE_OBJS = core$(S)glue.$(O)           \
+            core$(S)bpx.$(O)            \
+            core$(S)idtable.$(O)        \
+            core$(S)idtable_preds.$(O)  \
+            core$(S)termpool.$(O)       \
+            core$(S)vector.$(O)         \
+            core$(S)random.$(O)         \
+            core$(S)gamma.$(O)          \
+            core$(S)xmalloc.$(O)        \
+            core$(S)fputil.$(O)         \
+            core$(S)error.$(O)
+
+UP_OBJS   = up$(S)graph.$(O)            \
+            up$(S)graph_aux.$(O)        \
+            up$(S)em_preds.$(O)         \
+            up$(S)em_ml.$(O)            \
+            up$(S)em_vb.$(O)            \
+            up$(S)em_aux.$(O)           \
+            up$(S)em_aux_ml.$(O)        \
+            up$(S)em_aux_vb.$(O)        \
+            up$(S)viterbi.$(O)          \
+            up$(S)hindsight.$(O)        \
+            up$(S)flags.$(O)            \
+            up$(S)util.$(O)
+
+MP_OBJS   = mp$(S)mp_core.$(O)          \
+            mp$(S)mp_em_aux.$(O)        \
+            mp$(S)mp_em_ml.$(O)         \
+            mp$(S)mp_em_preds.$(O)      \
+            mp$(S)mp_em_vb.$(O)         \
+            mp$(S)mp_flags.$(O)         \
+            mp$(S)mp_preds.$(O)         \
+            mp$(S)mp_sw.$(O)
+
+OBJS    = $(CORE_OBJS) $(UP_OBJS)
+
+##----------------------------------------------------------------------
+
+INSTALLDIR = ..$(S)..$(S)bin
+
+CORE_DIR   = core
+UP_DIR     = up
+MP_DIR     = mp
+
+SUBDIRS    = $(CORE_DIR) $(UP_DIR)
+
+##----------------------------------------------------------------------
+
+#BP4P_A     = bp4prism$(S)lib$(S)bp4prism-$(PLATFORM).$(A)
+BP4P_A     = 
+
+##----------------------------------------------------------------------

@@ -1,0 +1,215 @@
+%%%%
+%%%%  Probablistic left corner grammar --- plc.psm
+%%%%
+%%%%  Copyright (C) 2004,2006,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  This is a PRISM program modeling a probabilistic left-corner
+%%  parser (stack version) described in
+%%
+%%     "Probabilistic Parsing using left corner language models",
+%%     C.D.Manning,
+%%     Proc. of the 5th Int'l Conf. on Parsing Technologies (IWPT-97),
+%%     MIT Press, pp.147-158.
+%%
+%%  Note that this program defines a distribution over sentences
+%%  procedurally, i.e. the derivation process is described in terms
+%%  of stack operations. Also note that we automatically get
+%%  a correctness-guaranteed EM procedure for probablistic
+%%  left-corner grammars.
+
+%%-------------------------------------
+%%  Quick start : sample session with Grammar_1 (attached below)
+%% 
+%%  (1) Move to a directory where this program is placed.
+%%  (2) Start PRISM (no options needed since 1.10)
+%%
+%%     > prism
+%%
+%%  (3) Load this program (by default, every msw is given a uniform
+%%      distribution)
+%%
+%%     ?- prism(plc).
+%%
+%%  (4) Use uitilities, e.g.
+%%  (4-1) Computing explanation (support) graphs and probabilities
+%%
+%%     ?- prob(pslc([n,p,v])).
+%%     ?- probf(pslc([n,p,v])).
+%%     ?- probf(pslc([n,p,v]),E),print_graph(E).
+%%     ?- prob(pslc([adv,adv,n,c,n,p,v])).
+%%     ?- probf(pslc([adv,adv,n,c,n,p,v])).
+%%     ?- probf(pslc([adv,adv,n,c,n,p,v]),E),print_graph(E).
+%%
+%%     Pv is prob. of a most likely explanation E for pslc([adv,...,v])
+%%     ?- viterbif(pslc([adv,adv,n,c,n,p,v]),Pv,E).
+%%     ?- viterbi(pslc([adv,adv,n,c,n,p,v]),Pv). 
+%%
+%%  (4-2) Sampling
+%%
+%%     ?- sample(pslc(X)), sample(pslc(Y)), sample(pslc(Z)).
+%%
+%%  (4-3) Graphical EM learning for Grammar_1 (wait for some time)
+%%
+%%     ?- go.
+
+go:- plc_learn(50).             % Generate randomly 50 sentences and learn
+max_str_len(30).                % Sentence length <= 30
+
+%%------------------------------------
+%%  Modeling part:
+
+pslc(Ws) :-
+   start_symbol(C),             % asserted in Grammar_1
+   pslc(Ws,[g(C)]).             % C is a top-goal category
+
+pslc([],[]).
+pslc(L0,Stack0) :-
+   process(Stack0,Stack,L0,L),
+   pslc(L,Stack).
+
+%% shift operation                    
+process([g(A)|Rest],Stack,[Wd|L],L):-  % g(A) is a goal category
+ ( terminal(A),                      % Stack given  = [g(A),g(F),D...] created
+     A = Wd, Stack = Rest            % by e.g. projection using E -> D,A,F
+ ; \+ terminal(A),                   % Select probabilistically one of first(A)
+     ( get_values(first(A),[Wd])     % No choice if the first set is a singleton
+     ; get_values(first(A),[_,_|_]), % Select 1st word by msw
+          msw(first(A),Wd) ),
+     Stack = [Wd,g(A)|Rest]
+ ).
+
+%% projection and attachment
+process([A|Rest],Stack,L,L):-      % a subtree with top=A is completed
+   \+ A = g(_),                    % A's right neighbor has the form g(_)
+   Rest = [g(C)|Stack0],           %  => A is not a terminal
+   ( A == C,                       % g(A) is waiting for an A-tree
+       ( get_values(lc(A,A),_),    % lc(X,Y) means X - left-corner -> Y
+           msw(attach(A),Op),      % A must have a chance of not attaching
+           ( Op == attach,  Stack = Stack0               % attachment
+           ; Op == project, next_Stack(A,Rest,Stack) )   % projection
+       ; \+ get_values(lc(A,A),_),
+             Stack = Stack0 )      % forcible attachment for nonterminal
+   ; A \== C,
+       next_Stack(A,Rest,Stack) ).
+
+%% projection                       % subtree A completed, waited for by g(C)
+next_Stack(A,[g(C)|Rest2],Stack) :- % rule I -> A J K
+   ( get_values(lc(C,A),[_,_|_]),   % => Stack=[g(J),g(K),I,g(C)...]
+        msw(lc(C,A),rule(LHS,[A|RHS2]))          % if C - left-corner -> A
+   ; get_values(lc(C,A),[rule(LHS,[A|RHS2])]) ), % no other rules for projection
+   predict(RHS2,[LHS,g(C)|Rest2],Stack).
+
+predict([],L,L).
+predict([A|Ls],L2,[g(A)|NewLs]):-
+   predict(Ls,L2,NewLs).
+
+%%------------------------------------
+%%  Utility part:
+
+plc_learn(N):-
+   gen_plc(N,Goals),
+   learn(Goals).
+
+gen_plc(0,[]).
+gen_plc(N,Goals):-
+   N > 0,
+   N1 is N-1,
+   sample(pslc(L)),
+   length(L,K),
+   max_str_len(StrL),
+   ( K > StrL,
+       Goals = G2
+   ; Goals=[pslc(L)|G2],
+       format("  G = ~w~n",[pslc(L)])
+   ),!,
+   gen_plc(N1,G2).
+
+
+%%---------------  Grammar_1 -----------------
+
+start_symbol(s).
+
+rule(s,[pp,v]).
+rule(s,[ap,vp]).
+rule(vp,[pp,v]).
+rule(vp,[ap,v]).
+rule(np,[vp,n]).
+rule(np,[v,n]).
+rule(np,[n]).
+rule(np,[np,c,np]).
+rule(np,[ap,np]).
+rule(pp,[np,p]).
+rule(pp,[n,p]).
+rule(ap,[adv,adv]).
+rule(ap,[adv]).
+rule(ap,[adv,np]).
+
+terminal(v).
+terminal(n).
+terminal(c).
+terminal(p).
+terminal(adv).
+
+%% first set computed from Grammar_1
+first(vp,v).
+first(np,v).
+first(pp,v).
+first(s,v).
+first(vp,n).
+first(np,n).
+first(pp,n).
+first(s,n).
+first(vp,adv).
+first(ap,adv).
+first(np,adv).
+first(pp,adv).
+first(s,adv).
+
+%%------------------------------------
+%%  Declarations:
+%%
+%% created from Grammar_1
+
+values(lc(s,pp),[rule(s,[pp,v]),rule(vp,[pp,v])]).
+values(lc(s,np),[rule(np,[np,c,np]),rule(pp,[np,p])]).
+values(lc(s,vp),[rule(np,[vp,n])]).
+values(lc(pp,np),[rule(np,[np,c,np]),rule(pp,[np,p])]).
+values(lc(pp,vp),[rule(np,[vp,n])]).
+values(lc(pp,pp),[rule(vp,[pp,v])]).
+values(lc(np,vp),[rule(np,[vp,n])]).
+values(lc(np,pp),[rule(vp,[pp,v])]).
+values(lc(np,np),[rule(np,[np,c,np]),rule(pp,[np,p])]).
+values(lc(vp,pp),[rule(vp,[pp,v])]).
+values(lc(vp,np),[rule(np,[np,c,np]),rule(pp,[np,p])]).
+values(lc(vp,vp),[rule(np,[vp,n])]).
+values(lc(vp,ap),[rule(np,[ap,np]),rule(vp,[ap,v])]).
+values(lc(vp,adv),[rule(ap,[adv]),rule(ap,[adv,adv]),rule(ap,[adv,np])]).
+values(lc(ap,adv),[rule(ap,[adv]),rule(ap,[adv,adv]),rule(ap,[adv,np])]).
+values(lc(vp,v),[rule(np,[v,n])]).
+values(lc(vp,n),[rule(np,[n]),rule(pp,[n,p])]).
+values(lc(np,v),[rule(np,[v,n])]).
+values(lc(np,n),[rule(np,[n]),rule(pp,[n,p])]).
+values(lc(np,ap),[rule(np,[ap,np]),rule(vp,[ap,v])]).
+values(lc(np,adv),[rule(ap,[adv]),rule(ap,[adv,adv]),rule(ap,[adv,np])]).
+values(lc(pp,n),[rule(np,[n]),rule(pp,[n,p])]).
+values(lc(pp,ap),[rule(np,[ap,np]),rule(vp,[ap,v])]).
+values(lc(pp,adv),[rule(ap,[adv]),rule(ap,[adv,adv]),rule(ap,[adv,np])]).
+values(lc(pp,v),[rule(np,[v,n])]).
+values(lc(s,ap),[rule(np,[ap,np]),rule(s,[ap,vp]),rule(vp,[ap,v])]).
+values(lc(s,adv),[rule(ap,[adv]),rule(ap,[adv,adv]),rule(ap,[adv,np])]).
+values(lc(s,v),[rule(np,[v,n])]).
+values(lc(s,n),[rule(np,[n]),rule(pp,[n,p])]).
+
+values(first(s),[adv,n,v]).
+values(first(vp),[adv,n,v]).
+values(first(np),[adv,n,v]).
+values(first(pp),[adv,n,v]).
+values(first(ap),[adv]).
+
+values(attach(s),[attach,project]).
+values(attach(vp),[attach,project]).
+values(attach(np),[attach,project]).
+values(attach(pp),[attach,project]).
+values(attach(ap),[attach,project]).

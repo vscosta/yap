@@ -1,0 +1,46 @@
+%%%%
+%%%% Decision of the direction by a coin tossing -- direction.psm
+%%%%
+%%%% This program has just one random switch named `coin'.
+%%%%
+%%%%  Copyright (C) 2004,2006,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%-------------------------------------
+%%  Sample session
+%%
+%%  (1) Load this program:
+%%  ?- prism(direction).
+%% 
+%%  (2) Get a sample:
+%%  ?- sample(direction(D)).
+%%
+%%  (3) Display the information about the switch `coin':
+%%  ?- show_sw.
+%%
+%%  (4) Set the probability distribution to the switch `coin':
+%%  ?- set_sw(coin,[0.7,0.3]).
+%%
+%%  (5) Display the switch information again with the distribution set
+%%      at step 4:
+%%  ?- show_sw.
+%%
+%%  (6) Get a sample again with the distribution set at step 4:
+%%  ?- sample(direction(D)).
+%%
+%%  [Note1]
+%%  Since 1.9, without any extra settings, the probability distribution
+%%  of every switch is set to a uniform distribution.
+%%
+%%  [Note2]
+%%  If you go (3) with skipping (2), nothing should be displayed.  This
+%%  is because any random switch will not be registered by the system until
+%%  it is explicitly used or referred to.
+
+values(coin,[head,tail]).  % The switch `coin' takes `head' or `tail' as its value
+
+direction(D):-
+    msw(coin,Face),                     % Make a coin tossing
+    ( Face==head -> D=left ; D=right).  % Decide the direction according to
+                                        %   the result of coin tossing
