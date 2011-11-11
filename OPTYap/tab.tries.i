@@ -56,7 +56,7 @@
 #define LOCK_NODE(NODE)    LOCK_TABLE(NODE)
 #define UNLOCK_NODE(NODE)  UNLOCK_TABLE(NODE)
 #elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-#define LOCK_NODE(NODE)    TRIE_LOCK(TrNode_lock(NODE))
+#define LOCK_NODE(NODE)    LOCK(TrNode_lock(NODE))
 #define UNLOCK_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
 #else /* TABLE_LOCK_AT_ENTRY_LEVEL || ! YAPOR */
 #define LOCK_NODE(NODE)
@@ -1308,7 +1308,9 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
 	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
 	  FREE_ANSWER_TRIE_NODE(current_node);
 	} else {
+	  LOCK_NODE(current_ans_node);
 	  TAG_AS_INVALID_LEAF_NODE(current_node);
+	  UNLOCK_NODE(current_ans_node);
 	  TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
 	  SgFr_invalid_chain(sg_fr) = current_node;
 	}

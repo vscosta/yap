@@ -220,13 +220,13 @@ typedef struct subgoal_frame {
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
   struct answer_trie_node *last_answer;
+#ifdef MODE_DIRECTED_TABLING
+  int* mode_directed_array;
+  struct answer_trie_node *invalid_chain;
+#endif /*MODE_DIRECTED_TABLING*/
 #ifdef INCOMPLETE_TABLING
   struct answer_trie_node *try_answer;
 #endif /* INCOMPLETE_TABLING */
-#ifdef MODE_DIRECTED_TABLING
-  struct answer_trie_node *invalid_chain;
-  int* mode_directed_array;
-#endif /*MODE_DIRECTED_TABLING*/
 #ifdef LIMIT_TABLING
   struct subgoal_frame *previous;
 #endif /* LIMIT_TABLING */
@@ -245,9 +245,9 @@ typedef struct subgoal_frame {
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
-#define SgFr_try_answer(X)     ((X)->try_answer)
-#define SgFr_invalid_chain(X)  ((X)->invalid_chain)
 #define SgFr_mode_directed(X)  ((X)->mode_directed_array)
+#define SgFr_invalid_chain(X)  ((X)->invalid_chain)
+#define SgFr_try_answer(X)     ((X)->try_answer)
 #define SgFr_previous(X)       ((X)->previous)
 #define SgFr_next(X)           ((X)->next)
 
@@ -269,11 +269,11 @@ typedef struct subgoal_frame {
                       It is used to check for/insert new answers.
   SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
   SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
+  SgFr_mode_directed: a pointer to the mode directed array.
+  SgFr_invalid_chain: a pointer to the first invalid leaf node when using mode directed tabling.
   SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
                       It is used when a subgoal was not completed during the previous evaluation.
                       Not completed subgoals start by trying the answers already found.
-  SgFr_invalid_chain: a pointer to the first invalid leaf node when using mode directed tabling.
-  SgFr_mode_directed: a pointer to the mode directed array.
   SgFr_previous:      a pointer to the previous subgoal frame on the chain.
   SgFr_next:          a pointer to the next subgoal frame on the chain.
 
