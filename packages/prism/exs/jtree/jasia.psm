@@ -1,0 +1,153 @@
+%%%%
+%%%%  Join-tree PRISM program for Asia network -- jasia.psm
+%%%%
+%%%%  Copyright (C) 2007,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  This example is known as the Asia network, and was borrowed from:
+%%    S. L. Lauritzen and D. J. Spiegelhalter (1988).
+%%    Local computations with probabilities on graphical structures
+%%    and their application to expert systems.
+%%    Journal of Royal Statistical Society, Vol.B50, No.2, pp.157-194. 
+%%
+%%                                    ((Smoking[S]))   
+%%   ((Visit to Asia[A]))                 /   \
+%%           |                           /     \
+%%           v                          v       \
+%%   (Tuberculosis[T])       (Lang cancer[L])    \
+%%             \                    /             \
+%%              \                  /               v
+%%               v                v           (Bronchinitis[B])
+%%          (Tuberculosis or lang cancer[TL])    /
+%%             /                      \         /              
+%%            /                        \       /
+%%           v                          \     /
+%%      ((X-ray[X]))                     v   v
+%%                                   ((Dyspnea[D]))
+%%
+%%  We assume that the nodes A, S, X and D are observable.  One may
+%%  notice that this network is multiply-connected (there are undirected
+%%  loop: S-L-TL-D-B-S).  To perform efficient probabilistic inferences,
+%%  one popular method is the join-tree (JT) algorithm.  In the JT
+%%  algorithm, we first convert the original network (DAG) into a tree-
+%%  structured undirected graph, called join tree (junction tree), in
+%%  which a node corresponds to a set of nodes in the original network.
+%%  Then we compute the conditional probabilities based on the join
+%%  tree.  For example, the above network is converted into the
+%%  following join tree:
+%%
+%%           node4(A,T)       node2(S,L,B)
+%%                  \                 \
+%%                  [T]              [L,B]
+%%                    \                 \   node1
+%%             node3(T,L,TL)--[L,TL]--(L,TL,B)
+%%                                      /
+%%                                   [TL,B]
+%%                node6               /
+%%                 (TL,X)--[TL]--(TL,B,D)
+%%                                  node5
+%%
+%%  where (...) corresponds to a node and [...] corresponds to a
+%%  separator. In this join tree, node2 corresponds to a set {S,L,B} of
+%%  the original nodes. We consider that node1 is the root of this join
+%%  tree.
+%%
+%%  Here we write a PRISM program that represents the above join tree.
+%%  The predicate named msg_i_j corresponds to the edge from node i to
+%%  node j in the join tree.  The predicate named node_i corresponds to
+%%  node i.
+%%
+%%  The directory `bn2prism' in the same directory contains BN2Prism, a
+%%  Java translator from a Bayesian network to a PRISM program in join-
+%%  tree style, like the one shown here.
+
+%%-------------------------------------
+%%  Quick start:
+%%
+%%  ?- prism(jasia),go.
+
+go:- chindsight_agg(world([(a,f),(d,t)]),node_4(_,query,_)).
+     % we compute a conditional distribution P(T | A=false, D=true) 
+
+go2:- prob(world([(a,f),(d,t)])).
+     % we compute a marginal probability P(A=false, D=true) 
+
+%%-------------------------------------
+%%  Declarations:
+
+values(bn(_,_),[t,f]). % each switch takes on true or false
+
+%%-------------------------------------
+%%  Modeling part:
+%%
+%%  [Note]
+%%    Evidences are kept in a difference list in the last argument of
+%%    the msg_i_j and the node_i predicates.  For simplicity, it is
+%%    assumed that the evidences are given in the same order as that
+%%    of appearances of msw/2 in the top-down execution of world/1.
+
+world(E):- msg_1_0(E-[]).
+
+msg_1_0(E0-E1)     :- node_1(_L,_TL,_B,E0-E1).
+msg_2_1(L,B,E0-E1 ):- node_2(_S,L,B,E0-E1).
+msg_3_1(L,TL,E0-E1):- node_3(_T,L,TL,E0-E1).
+msg_4_3(T,E0-E1)   :- node_4(_A,T,E0-E1).
+msg_5_1(TL,B,E0-E1):- node_5(TL,B,_D,E0-E1).
+msg_6_5(TL,E0-E1)  :- node_6(TL,_X,E0-E1).
+
+node_1(L,TL,B,E0-E1):-
+    msg_2_1(L,B,E0-E2),
+    msg_3_1(L,TL,E2-E3),
+    msg_5_1(TL,B,E3-E1).
+
+node_2(S,L,B,E0-E1):-
+    cpt(s,[],S,E0-E2),
+    cpt(l,[S],L,E2-E3),
+    cpt(b,[S],B,E3-E1).
+
+node_3(T,L,TL,E0-E1):-
+    incl_or(L,T,TL),
+    msg_4_3(T,E0-E1).
+
+node_4(A,T,E0-E1):-
+    cpt(a,[],A,E0-E2),
+    cpt(t,[A],T,E2-E1).
+
+node_5(TL,B,D,E0-E1):-
+    cpt(d,[TL,B],D,E0-E2),
+    msg_6_5(TL,E2-E1).
+
+node_6(TL,X,E0-E1):-
+    cpt(x,[TL],X,E0-E1).
+
+cpt(X,Par,V,E0-E1):-
+    ( E0=[(X,V)|E1] -> true ; E0=E1 ),
+    msw(bn(X,Par),V).
+
+% inclusive OR
+incl_or(t,t,t).
+incl_or(t,f,t).
+incl_or(f,t,t).
+incl_or(f,f,f).
+
+%%-------------------------------------
+%%  Utility part:
+
+:- set_params.
+
+set_params:-
+  set_sw(bn(a,[]),[0.01,0.99]),
+  set_sw(bn(t,[t]),[0.05,0.95]),
+  set_sw(bn(t,[f]),[0.01,0.99]),
+  set_sw(bn(s,[]),[0.5,0.5]),
+  set_sw(bn(l,[t]),[0.1,0.9]),
+  set_sw(bn(l,[f]),[0.01,0.99]),
+  set_sw(bn(x,[t]),[0.98,0.02]),
+  set_sw(bn(x,[f]),[0.05,0.95]),
+  set_sw(bn(b,[t]),[0.60,0.40]),
+  set_sw(bn(b,[f]),[0.30,0.70]),
+  set_sw(bn(d,[t,t]),[0.90,0.10]),
+  set_sw(bn(d,[t,f]),[0.70,0.30]),
+  set_sw(bn(d,[f,t]),[0.80,0.20]),
+  set_sw(bn(d,[f,f]),[0.10,0.90]).

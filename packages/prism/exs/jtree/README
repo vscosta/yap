@@ -1,0 +1,8 @@
+================== README (exs/jtree) ==========================
+
+Files:
+  README      ... This file
+  asia.psm    ... BN for Asia network (naive)
+  jasia.psm   ... BN for Asia network (junction-tree; evidences kept in D-list)
+  jasia_a.psm ... BN for Asia network (junction-tree; evidences asserted first)
+  bn2prism/   ... Java translator from BNs to join-tree PRISM programs

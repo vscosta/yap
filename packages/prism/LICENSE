@@ -1,0 +1,93 @@
+LICENSE AGREEMENT OF THE PRISM SYSTEM
+
+Copyright (c) 2009,
+Taisuke Sato, Neng-Fa Zhou, Yoshitaka Kameya, Yusuke Izumi
+All rights reserved.
+
+The PRISM system ("the Software") is built on top of B-Prolog
+(http://www.probp.com/), which is provided by Afany Software.
+The Software is developed subject to the C source code license
+of B-Prolog (http://www.probp.com/license.htm) and distributed
+with the permission from Afany Software.
+
+The PRISM development team, which consists of the members from
+Tokyo Institute of Technology and from Afany Software, hereby
+grants a non-exclusive and non-transferable license to the
+person who uses the Software ("the User"), subject to this
+agreement.
+
+1.  RELATION WITH B-PROLOG.  The Software consists of the
+standard routines of B-Prolog ("the B-Prolog part") and the
+extensional routines by the PRISM development team ("the PRISM
+part").  The User must agree that the use of the B-Prolog part
+is also restricted by the license agreement of B-Prolog with
+the exception stated in Paragraphs 3 and 4.
+
+2.  RIGHT TO USE.  The User may use the Software provided
+that the User has right to use B-Prolog according to the User's
+license agreement of B-Prolog.  Given the license agreement of
+B-Prolog as of the release date of the Software, the User may
+use the Software free of charge for academic and non-commercial
+purposes, and must purchase a license for other use.
+
+3.  DISTRIBUTION.  The User may distribute the Software, only
+for non-commercial purposes, provided that the Software is
+distributed along with this agreement.
+
+4.  SOURCE CODE AND DERIVED SOFTWARE.  The PRISM development
+team may make the source code of the PRISM part ("the Public
+Source Code") publicly available under a separate license ("the
+Additional License"), along with a minimal set of source and
+binary files coming from the B-Prolog part and required to build
+the Software ("the Build Kit").  The User may use and distribute
+the Public Source Code and the Build Kit subject to the
+following subparagraphs.
+
+  4.1.  SOURCE CODE.  The User may use and distribute the
+Public Source Code, entirely or in part, subject to the
+Additional License.
+
+  4.2.  BUILD KIT.  The User may use and distribute the Build
+Kit according to the remaining subparagraphs, provided that
+the User has right to use B-Prolog the User's license agreement
+of B-Prolog.  The Additional License shall not apply to the
+Build Kit.
+
+  4.3.  DERIVED SOFTWARE.  The User may build software ("the
+Derived Software") from the Public Source Code, modified or
+unmodified, along with the Build Kit provided that (a) the User
+has right to use the Build Kit as stated in Subparagraph 4.2,
+and that (b) the Derived Software presents the following
+message in the same way as the Software.
+
+    This edition of B-Prolog is for evaluation, learning, and
+    non-profit research purposes only, and a license is needed for
+    any other uses.  Please visit http://www.probp.com/license.htm
+    for the detail.
+
+  4.4.  DISTRIBUTION OF DERIVED SOFTWARE.  The User may distribute
+the Derived Software built according to Subparagraph 4.3, only
+for non-commercial purposes, provided that the Derived Software
+is distributed (a) along with this agreement and (b) under the
+license consistent with this agreement.
+
+5.  COPYRIGHT.  The B-Prolog part is copyrighted by Afany
+Software and the PRISM part is copyrighted by the PRISM
+development team.  The Software contains several public domain
+modules as listed in the B-Prolog's manual and the implementation
+of Mersenne Twister copyrighted by its authors
+(http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/emt.html), and
+some portion of code in the PRISM part is based on the SPECFUN
+library available in the NETLIB repository (http://www.netlib.org/).
+The User shall own the copyright for the modified part of the
+Software according to Subparagraph 3.3.
+
+6.  NO WARRANTY.  The Software is provided "as-is", without
+any warranties express or implied.  The User may report any
+defects of the Software to the PRISM development team, but
+there is no guarantee for those defects to be fixed.  The User
+who purchased a license from Afany Software might receive a
+warranty according to the license agreement of B-Prolog, only
+when the defects obviously originate from the B-Prolog part.
+Neither Afany Software nor the PRISM development team is
+responsible for any damages caused by the use of the Software.

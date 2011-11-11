@@ -1,0 +1,121 @@
+%%%%
+%%%%  Probabilistic DCG for Charniak's example --- pdcg_c.psm
+%%%%
+%%%%  Copyright (C) 2007,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%% As described in the comments in pdcg.psm, PCFGs (probabilistic context-
+%% free grammars) are a stochastic extension of CFG grammar such that in a
+%% (leftmost) derivation, each production rule is selected probabilistically
+%% and applied. This program presents an implementation of an example from
+%% Charniak's textbook (Statistical Language Learning, The MIT Press, 1993):
+%%
+%%    s --> np vp        (0.8)  |  verb --> swat  (0.2)
+%%    s --> vp           (0.2)  |  verb --> flies (0.4)
+%%   np --> noun         (0.4)  |  verb --> like  (0.4)
+%%   np --> noun pp      (0.4)  |  noun --> swat  (0.05) 
+%%   np --> noun np      (0.2)  |  noun --> flies (0.45) 
+%%   vp --> verb         (0.3)  |  noun --> ants  (0.5)
+%%   vp --> verb np      (0.3)  |  prep --> like  (1.0)
+%%   vp --> verb pp      (0.2)  |
+%%   vp --> verb np pp   (0.2)  |
+%%   pp --> prep np      (1.0)  |
+%%   (`s' is the start symbol)
+%%
+%% This program has a grammar-independent part (pcfg/1-2 and proj/2),
+%% which can work with any underlying CFG which has no epsilon rules
+%% and produces no unit cycles.
+
+%%----------------------------------
+%%  Quick start:
+%%  
+%%  ?- prism(pdcg_c).
+%%
+%%  ?- prob(pcfg([swat,flies,like,ants])).
+%%         % get the generative probability of a sentence
+%%         % "swat flies like ants"
+%%
+%%  ?- sample(pcfg(_X)),viterbif(pcfg(_X)).
+%%         % parse a sampled sentence
+%%
+%%  ?- get_samples(50,pcfg(X),_Gs),learn(_Gs),show_sw. 
+%%         % conduct an artificial learning experiments
+%%
+%%  ?- viterbif(pcfg([swat,flies,like,ants])).
+%%         % get the most probabile parse for "swat flies like ants"
+%% 
+%%  ?- n_viterbif(3,pcfg([swat,flies,like,ants])).
+%%         % get top 3 ranked parses for "swat flies like ants"
+%% 
+%%  ?- viterbit(pcfg([swat,flies,like,ants])).
+%%         % print the most probabile parse for "swat flies like ants" in
+%%         % a tree form.
+%%
+%%  ?- viterbit(pcfg([swat,flies,like,ants]),P,E), build_tree(E,T).
+%%         % get the most probabile parse for "swat flies like ants" in a
+%%         % tree form, and convert it to a more readable Prolog term.
+%%
+%%  ?- probfi(pcfg([swat,flies,like,ants])).
+%%         % print the parse forest with inside probabilities
+%%
+
+%%----------------------------------
+%%  Declarations:
+
+values(s,[[np,vp],[vp]]).
+values(np,[[noun],[noun,pp],[noun,np]]).
+values(vp,[[verb],[verb,np],[verb,pp],[verb,np,pp]]).
+values(pp,[[prep,np]]).
+values(verb,[[swat],[flies],[like]]).
+values(noun,[[swat],[flies],[ants]]).
+values(prep,[[like]]).
+
+:- p_not_table proj/2. % This declaration is introduced just for
+                       % making the results of probabilistic inferences
+                       % simple and readable. 
+
+%%----------------------------------
+%%  Modeling part:
+
+pcfg(L):- pcfg(s,L-[]).
+pcfg(LHS,L0-L1):-
+  ( nonterminal(LHS) -> msw(LHS,RHS),proj(RHS,L0-L1)
+  ; L0 = [LHS|L1]
+  ).
+
+proj([],L-L).
+proj([X|Xs],L0-L1):-
+  pcfg(X,L0-L2),proj(Xs,L2-L1).
+
+nonterminal(s).
+nonterminal(np).
+nonterminal(vp).
+nonterminal(pp).
+nonterminal(verb).
+nonterminal(noun).
+nonterminal(prep).
+
+%%----------------------------------
+%%  Utility part:
+
+% set the rule probabilities:
+:- set_sw(s,[0.8,0.2]).
+:- set_sw(np,[0.4,0.4,0.2]).
+:- set_sw(vp,[0.3,0.3,0.2,0.2]).
+:- set_sw(pp,[1.0]).
+:- set_sw(verb,[0.2,0.4,0.4]).
+:- set_sw(noun,[0.05,0.45,0.5]).
+:- set_sw(prep,[1.0]).
+
+% build_tree(E,T):-
+%    Build a parse tree T from a tree-formed explanation E.
+
+build_tree([],[]).
+build_tree([pcfg(_),Gs],T) :- build_tree(Gs,T).
+build_tree([pcfg(Sym,_)|Gs],T) :- build_tree1(Gs,T0),T=..[Sym|T0].
+
+build_tree1([],[]).
+build_tree1([pcfg(Sym,_)|Gs],[Sym|T]) :- !,build_tree1(Gs,T).
+build_tree1([msw(_,_)|Gs],T) :- !, build_tree1(Gs,T).
+build_tree1([G|Gs],[T0|T]) :- build_tree(G,T0),!,build_tree1(Gs,T).

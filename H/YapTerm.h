@@ -13,12 +13,11 @@
 * version:      $Id: Yap.h,v 1.38 2008-06-18 10:02:27 vsc Exp $	 *
 *************************************************************************/
 
-#ifndef _YAP_NOT_INSTALLED_
+#ifndef YAP_H
 #include "YapTermConfig.h"
 
 typedef void *Functor;
 typedef void *Atom;
-
 #endif
 
 #ifndef EXTERN

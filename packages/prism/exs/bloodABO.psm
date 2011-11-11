@@ -1,0 +1,111 @@
+%%%%
+%%%%  ABO blood type --- bloodABO.psm
+%%%%
+%%%%  Copyright (C) 2004,2006,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  ABO blood type consists of A, B, O and AB. They are observable
+%%  (phenotypes) and determined by a pair of blood type genes (geneotypes).
+%%  There are three ABO genes, namely a, b and o located on the 9th
+%%  chromosome of a human being. There are 6 geneotypes ({a,a},{a,b},{a,o},
+%%  {b,b},{b,o},{o,o}) and each determines a blood type. For example {a,b}
+%%  gives blood type AB etc. Our task is to estimate frequencies of ABO
+%%  genes from a random sample of ABO blood type, assuming random mate.
+
+%%-------------------------------------
+%%  Quick start : sample session
+%%
+%%  ?- prism(bloodABO),go,print_blood.
+%%                           % Learn parameters from randomly generated
+%%                           % 100 samples with A:B:O:AB = 38:22:31:9
+%%
+%%  ?- sample(bloodtype(X)).
+%%                           % Pick up a person with blood type X randomly
+%%                           % acccording to the currrent parameter settings
+%%
+%%  ?- get_samples(100,bloodtype(X),_Gs),countlist(_Gs,Cs).
+%%                           % Pick up 100 persons and get the frequencies
+%%                           % of their blood types
+%%
+%%  ?- probf(bloodtype(ab),E),print_graph(E).
+%%                           % Print all explanations for blooodtype(ab) in
+%%                           % a compressed form
+%%
+%%  ?- prob(bloodtype(ab),P).
+%%                           % P is the probability of bloodtype(ab) being true
+%%
+%%  ?- viterbif(bloodtype(ab)).
+%%  ?- viterbif(bloodtype(ab),P,E),print_graph(E).
+%%  ?- viterbi(bloodtype(ab),P).
+%%                           % P is the probability of a most likely
+%%                           % explanation E for bloodtype(ab).
+%%
+%%  ?- viterbit(bloodtype(ab)).
+%%                           % Print the most likely explanation for
+%%                           % bloodtype(ab) in a tree form.
+
+go:- learn_bloodtype(100).
+
+%%-------------------------------------
+%%  Declarations:
+
+:- set_prism_flag(data_source,file('bloodtype.dat')).
+                             % When we run learn/0, the data are supplied
+                             % by `bloodtype.dat'.
+
+values(gene,[a,b,o],[0.5,0.2,0.3]).
+                             % We declare msw(gene,V) s.t. V takes on
+                             % one of the genes {a,b,o} when executed,
+                             % with the freq.: a 50%, b 20%, o 30%.
+
+%%------------------------------------
+%%  Modeling part:
+
+bloodtype(P) :-
+   genotype(X,Y),
+   ( X=Y -> P=X
+   ; X=o -> P=Y
+   ; Y=o -> P=X
+   ; P=ab
+   ).
+
+genotype(X,Y) :- msw(gene,X),msw(gene,Y).
+                             % We assume random mate. Note that msw(gene,X)
+                             % and msw(gene,Y) are i.i.d. (independent and
+                             % identically distributed) random variables
+                             % in Prism because they have the same id but
+                             % different subgoals.
+
+%%------------------------------------
+%%  Utility part:
+
+learn_bloodtype(N) :-        % Learn parameters from N observations
+   random_set_seed(214857),  %   Set seed of the random number generator
+   gen_bloodtype(N,Gs),!,    %   Sample bloodtype/1 of size N
+   learn(Gs).                %   Perform search and graphical EM learning
+%  learn.                    % <= when using the file `bloodtype.dat'
+
+gen_bloodtype(N,Gs) :-
+   N > 0,
+   random_select([a,b,o,ab],[0.38,0.22,0.31,0.09],X),
+   Gs = [bloodtype(X)|Gs1],  % Sample a blood type with an empirical
+   N1 is N-1,!,              % ratio for Japanese people.
+   gen_bloodtype(N1,Gs1).
+gen_bloodtype(0,[]).
+
+print_blood :-
+   prob(bloodtype(a),PA),prob(bloodtype(b),PB),
+   prob(bloodtype(o),PO),prob(bloodtype(ab),PAB),
+   nl,
+   format("P(A)  = ~6f~n",[PA]),
+   format("P(B)  = ~6f~n",[PB]),
+   format("P(O)  = ~6f~n",[PO]),
+   format("P(AB) = ~6f~n",[PAB]).
+
+print_gene :-
+   get_sw(gene,[_,[a,b,o],[GA,GB,GO]]),
+   nl,
+   format("P(a) = ~6f~n",[GA]),
+   format("P(b) = ~6f~n",[GB]),
+   format("P(o) = ~6f~n",[GO]).

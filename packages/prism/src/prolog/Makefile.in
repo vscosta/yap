@@ -1,0 +1,108 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
+
+# -*- Makefile -*-
+
+##----------------------------------------------------------------------
+
+TARGETS     = prism.pl
+
+PRISM_VERSION     = 2.0
+
+PL_CORE  = $(srcdir)/core/message.pl      \
+           $(srcdir)/core/error.pl        \
+           $(srcdir)/core/random.pl       \
+           $(srcdir)/core/format.pl
+
+PL_TRANS = $(srcdir)/trans/trans.pl       \
+           $(srcdir)/trans/dump.pl        \
+           $(srcdir)/trans/verify.pl      \
+           $(srcdir)/trans/bpif.pl
+
+PL_UP    = $(srcdir)/up/dynamic.pl        \
+           $(srcdir)/up/main.pl           \
+           $(srcdir)/up/switch.pl         \
+           $(srcdir)/up/learn.pl          \
+           $(srcdir)/up/prob.pl           \
+           $(srcdir)/up/viterbi.pl        \
+           $(srcdir)/up/hindsight.pl      \
+           $(srcdir)/up/expl.pl           \
+           $(srcdir)/up/sample.pl         \
+           $(srcdir)/up/dist.pl           \
+           $(srcdir)/up/list.pl           \
+           $(srcdir)/up/hash.pl           \
+           $(srcdir)/up/flags.pl          \
+           $(srcdir)/up/util.pl           \
+           $(srcdir)/up/bigarray.pl
+
+PL_BAT   = $(srcdir)/up/batch.pl
+
+PL_MP    = $(srcdir)/mp/mp_main.pl        \
+           $(srcdir)/mp/mp_learn.pl
+
+PL_BP    = $(srcdir)/bp/eval.pl
+
+PL_UP_ALL   = $(PL_CORE) $(PL_UP) $(PL_TRANS) $(PL_BP) $(srcdir)/prism.yap
+PL_MP_ALL   = $(PL_MP)
+PL_BAT_ALL  = $(PL_BAT)
+
+##----------------------------------------------------------------------
+
+all: $(TARGETS)
+
+install: $(TARGETS)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/bp
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/core
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/mp
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/trans
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/up
+	$(INSTALL_DATA) $(srcdir)/prism.yap $(DESTDIR)$(SHAREDIR)/Yap
+	for p in $(PL_BAT); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/up; done
+	for p in $(PL_BP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/bp; done
+	for p in $(PL_CORE); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/core; done
+	for p in $(PL_MP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/mp; done
+	for p in $(PL_TRANS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/trans; done
+	for p in $(PL_UP); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/prism/up; done
+
+clean:
+	rm -f prism.pl mpprism.pl batch.pl
+
+prism.pl: $(PL_UP_ALL)
+	cat $^ > $@
+
+mpprism.pl: $(PL_MP_ALL)
+	cat $^ > $@
+
+batch.pl: $(PL_BAT_ALL)
+	cat $^ > $@
+
+%.out: %.pl $(COMPILER)
+	sh $(COMPILER) $<
+
+.PHONY: all install clean
+

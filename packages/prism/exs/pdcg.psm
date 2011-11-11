@@ -1,0 +1,89 @@
+%%%%
+%%%%  Probabilistic DCG --- pdcg.psm
+%%%%
+%%%%  Copyright (C) 2004,2006,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  PCFGs (probabilistic contex free grammars) are a stochastic extension
+%%  of CFG grammar such that in a (leftmost) derivation, each production
+%%  rule is selected probabilistically and applied. Look at the following
+%%  sample PCFG in which S is a start symbol and {a,b} are terminals.
+%%
+%%     Rule 1: S -> SS (0.4)
+%%     Rule 2: S ->  a (0.5)
+%%     Rule 3: S ->  b (0.1)
+%%
+%%  When S is expanded, three rules, Rule 1, 2 and 3 are applicable.
+%%  To determine a rule to apply, probabilistic selection is made in
+%%  such a way that Rule 1 is selected with probability 0.4, Rule 2
+%%  with probability 0.5 and Rule 3 with probability 0.1, respectively.
+%%  The probability of a derivation tree is defined to be the product
+%%  of probabilities associated with rules used in the derivation,
+%%  and that of a sentence is defined to be the sum of proabibities of
+%%  derivations for the sentence.
+%%
+%%  When modeling PCFGs, we follow DCG (definite clause grammar)
+%%  formalism.  So we write down a top-down parser using difference
+%%  list which represents the rest of the sentence to parse. Note that
+%%  the grammar is left-recursive, and hence running the program below
+%%  without a tabling mechanism goes into an infinite loop.
+
+%%-------------------------------------
+%%  Quick start : learning experiment with the sample grammar
+%%
+%%  ?- prism(pdcg),go.          % Learn parameters of the PCFG above from
+%%                              % randomly generated 100 samples
+%%
+%%  ?- prob(pdcg([a,b,b])).
+%%  ?- prob(pdcg([a,b,b]),P).
+%%  ?- probf(pdcg([a,b,b])).
+%%  ?- probf(pdcg([a,b,b]),E),print_graph(E).
+%%  ?- sample(pdcg(X)).
+%%
+%%  ?- viterbi(pdcg([a,b,b]),P).    % P is the prob. of the most likely
+%%  ?- viterbif(pdcg([a,b,b]),P,E). % explanation E for pdcg([a,b,b])
+%%  ?- viterbif(pdcg([a,b,b]),P,E),print_graph(E).
+
+go:- pdcg_learn(100).
+max_str_len(20).                % Maximum string length is 20.
+
+%%------------------------------------
+%%  Declarations:
+
+values('S',[['S','S'],a,b],[0.4,0.5,0.1]).
+                                % We use a msw of the form msw('S',V) such
+                                % that V is one of { ['S','S'], a, b },
+                                % and when msw('S',V) is executed, the prob.
+                                % of V=['S','S'] is 0.4, that of V=a is 0.5
+                                % and that of V=b is 0.1.
+
+%%------------------------------------
+%%  Modeling part:
+
+start_symbol('S').              % Start symbol is S
+
+pdcg(L):-
+   start_symbol(I),
+   pdcg2(I,L-[]).
+                                % I is a category to expand.
+pdcg2(I,L0-L2):-                % L0-L2 is a list for I to span. 
+   msw(I,RHS),                  % Choose a rule I -> RHS probabilistically.
+   ( RHS == ['S','S'],
+       pdcg2('S',L0-L1),
+       pdcg2('S',L1-L2)
+   ; RHS == a,
+       L0 = [RHS | L2]
+   ; RHS == b,
+       L0 = [RHS | L2] ).
+
+%%------------------------------------
+%%  Utility part:
+
+pdcg_learn(N):-
+   max_str_len(MaxStrL),
+   get_samples_c(N,pdcg(X),(length(X,Y),Y =< MaxStrL),Goals,[Ns,_]),
+   format("#sentences= ~d~n",[Ns]),
+   unfix_sw('S'),               % Make parameters of msw('S',.) changable
+   learn(Goals).                % Conduct ML estimation by graphical EM learning
+

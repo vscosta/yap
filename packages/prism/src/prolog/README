@@ -1,0 +1,40 @@
+======================= README (src/prolog) ======================
+
+This directory contains the Prolog source files of the PRISM part,
+along with a minimal set of source files from B-Prolog, required
+to build the PRISM system.  It is assumed that the compilation is
+done on Linux, Mac OS X or Cygwin and that GNU make is used.
+
+  Makefile   ... Makefile
+  Compile.sh ... auxiliary shell script called by Makefile
+  core/      ... base components of the PRISM's Prolog part
+  trans/     ... translator from PRISM to Prolog
+  up/        ... probabilistic inferences
+  mp/        ... parallel EM learning
+  bp/        ... source file(s) from B-Prolog 
+
+`up' and `mp' stands for uni-processor and multi-processor,
+respectively.  The source code of the First Order Compiler is
+not available, and currently we have no plan for releasing it
+to public.
+
+
+[How to compile the Prolog part]
+
+  Since the compiled code of the C part is used for the compilation
+  of the Prolog part, please make compilation and installation at
+  $(TOP)/src/c/ (for instruction, please see README in the directory)
+  in advance.
+
+  Then, just type at the shell:
+
+    make
+
+  The compiled byte code will be installed (copied) into $(TOP)/bin
+  by typing:
+
+    make install
+
+  You can clean up the compiled byte codes by:
+
+    make clean

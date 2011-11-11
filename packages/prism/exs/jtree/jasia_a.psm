@@ -1,0 +1,167 @@
+%%%%
+%%%%  Join-tree PRISM program for Asia network -- jasia.psm
+%%%%
+%%%%  Copyright (C) 2009
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  This example is known as the Asia network, and was borrowed from:
+%%    S. L. Lauritzen and D. J. Spiegelhalter (1988).
+%%    Local computations with probabilities on graphical structures
+%%    and their application to expert systems.
+%%    Journal of Royal Statistical Society, Vol.B50, No.2, pp.157-194. 
+%%
+%%                                    ((Smoking[S]))   
+%%   ((Visit to Asia[A]))                 /   \
+%%           |                           /     \
+%%           v                          v       \
+%%   (Tuberculosis[T])       (Lang cancer[L])    \
+%%             \                    /             \
+%%              \                  /               v
+%%               v                v           (Bronchinitis[B])
+%%          (Tuberculosis or lang cancer[TL])    /
+%%             /                      \         /              
+%%            /                        \       /
+%%           v                          \     /
+%%      ((X-ray[X]))                     v   v
+%%                                   ((Dyspnea[D]))
+%%
+%%  We assume that the nodes A, S, X and D are observable.  One may
+%%  notice that this network is multiply-connected (there are undirected
+%%  loop: S-L-TL-D-B-S).  To perform efficient probabilistic inferences,
+%%  one popular method is the join-tree (JT) algorithm.  In the JT
+%%  algorithm, we first convert the original network (DAG) into a tree-
+%%  structured undirected graph, called join tree (junction tree), in
+%%  which a node corresponds to a set of nodes in the original network.
+%%  Then we compute the conditional probabilities based on the join
+%%  tree.  For example, the above network is converted into the
+%%  following join tree:
+%%
+%%           node4(A,T)       node2(S,L,B)
+%%                  \                 \
+%%                  [T]              [L,B]
+%%                    \                 \   node1
+%%             node3(T,L,TL)--[L,TL]--(L,TL,B)
+%%                                      /
+%%                                   [TL,B]
+%%                node6               /
+%%                 (TL,X)--[TL]--(TL,B,D)
+%%                                  node5
+%%
+%%  where (...) corresponds to a node and [...] corresponds to a
+%%  separator. In this join tree, node2 corresponds to a set {S,L,B} of
+%%  the original nodes. We consider that node1 is the root of this join
+%%  tree.
+%%
+%%  Here we write a PRISM program that represents the above join tree.
+%%  The predicate named msg_i_j corresponds to the edge from node i to
+%%  node j in the join tree.  The predicate named node_i corresponds to
+%%  node i.
+%%
+%%  The directory `bn2prism' in the same directory contains BN2Prism, a
+%%  Java translator from a Bayesian network to a PRISM program in join-
+%%  tree style, like the one shown here.
+
+%%-------------------------------------
+%%  Quick start:
+%%
+%%  ?- prism(jasia_a),go.
+
+go:- chindsight_agg(world([(a,f),(d,t)]),node_4(_,query)).
+     % we compute a conditional distribution P(T | A=false, D=true) 
+
+go2:- prob(world([(a,f),(d,t)])).
+     % we compute a marginal probability P(A=false, D=true) 
+
+%%-------------------------------------
+%%  Declarations:
+
+values(bn(_,_),[t,f]). % each switch takes on true or false
+
+%%-------------------------------------
+%%  Modeling part:
+%%
+%%  [Note]
+%%    Evidences are added first into the Prolog database.  This is a
+%%    simpler method than keeping the evidences in difference list
+%%    (as done in jasia.psm).  However, in learning, the subgoals are
+%%    inappropriately shared among the observed goals, each of which
+%%    is associated with a different set of evidences (This optimization
+%%    is called inter-goal sharing, and unconditionally enabled in the
+%%    current PRISM system).  An ad-hoc workaround is to introduce an
+%%    ID for each set of evidences and keep the ID through the arguments
+%%    (e.g. we define world(ID,E), msg_2_1(ID,L,B), and so on).
+
+world(E):- assert_evid(E),msg_1_0.
+
+msg_1_0      :- node_1(_L,_TL,_B).
+msg_2_1(L,B) :- node_2(_S,L,B).
+msg_3_1(L,TL):- node_3(_T,L,TL).
+msg_4_3(T)   :- node_4(_A,T).
+msg_5_1(TL,B):- node_5(TL,B,_D).
+msg_6_5(TL)  :- node_6(TL,_X).
+
+node_1(L,TL,B):-
+    msg_2_1(L,B),
+    msg_3_1(L,TL),
+    msg_5_1(TL,B).
+
+node_2(S,L,B):-
+    cpt(s,[],S),
+    cpt(l,[S],L),
+    cpt(b,[S],B).
+
+node_3(T,L,TL):-
+    incl_or(L,T,TL),
+    msg_4_3(T).  
+
+node_4(A,T):-
+    cpt(a,[],A),
+    cpt(t,[A],T).
+
+node_5(TL,B,D):-
+    cpt(d,[TL,B],D),
+    msg_6_5(TL).
+
+node_6(TL,X):-
+    cpt(x,[TL],X).
+
+cpt(X,Par,V):-
+    ( evid(X,V) -> true ; true ),
+    msw(bn(X,Par),V).
+
+% inclusive OR
+incl_or(t,t,t).
+incl_or(t,f,t).
+incl_or(f,t,t).
+incl_or(f,f,f).
+
+% adding evidences to Prolog database
+assert_evid(Es):-
+    retractall(evid(_,_)),
+    assert_evid0(Es).
+assert_evid0([]).
+assert_evid0([(X,V)|Es]):-
+    assert(evid(X,V)),!,
+    assert_evid0(Es).
+
+%%-------------------------------------
+%%  Utility part:
+
+:- set_params.
+
+set_params:-
+  set_sw(bn(a,[]),[0.01,0.99]),
+  set_sw(bn(t,[t]),[0.05,0.95]),
+  set_sw(bn(t,[f]),[0.01,0.99]),
+  set_sw(bn(s,[]),[0.5,0.5]),
+  set_sw(bn(l,[t]),[0.1,0.9]),
+  set_sw(bn(l,[f]),[0.01,0.99]),
+  set_sw(bn(x,[t]),[0.98,0.02]),
+  set_sw(bn(x,[f]),[0.05,0.95]),
+  set_sw(bn(b,[t]),[0.60,0.40]),
+  set_sw(bn(b,[f]),[0.30,0.70]),
+  set_sw(bn(d,[t,t]),[0.90,0.10]),
+  set_sw(bn(d,[t,f]),[0.70,0.30]),
+  set_sw(bn(d,[f,t]),[0.80,0.20]),
+  set_sw(bn(d,[f,f]),[0.10,0.90]).

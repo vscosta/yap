@@ -1,0 +1,24 @@
+========================== README (top) ==========================
+
+This is a software package of PRISM version 2.0, a logic-based
+programming system for statistical modeling, which is built
+on top of B-Prolog (http://www.probp.com/).  Since version 2.0,
+the source code of the PRISM part is included in the released
+package.  Please use PRISM based on the agreement described in
+LICENSE and LICENSE.src.
+
+  LICENSE     ... license agreement of PRISM
+  LICENSE.src ... additional license agreement on the source
+                  code of PRISM
+  bin/        ... executables
+  doc/        ... documents
+  src/        ... source code
+  exs/        ... example programs
+  exs_fail/   ... example programs for generative modeling
+                  with failure
+  exs_foc/    ... additional examples that demonstrate the
+                  First Order Compiler
+
+For the files under each directory, please read the README file
+in the directory.  For the papers or additional information
+on PRISM, please visit http://sato-www.cs.titech.ac.jp/prism/ .

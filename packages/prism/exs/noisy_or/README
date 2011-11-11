@@ -1,0 +1,7 @@
+================== README (exs/noisy_or) ==========================
+
+Files:
+  README                ... this file
+  alarm_nor_basic.psm   ... BN program using noisy OR (network-specific)
+  alarm_nor_generic.psm ... BN program using noisy OR (network-independent)
+  noisy_or.psm          ... library for noisy OR
