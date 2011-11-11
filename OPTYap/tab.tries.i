@@ -1203,8 +1203,14 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 ****************************************************************************/
 
 #if defined(MODE_DIRECTED_TABLING) && ! defined(MODE_TERMS_LOOP) && ! defined(MODE_GLOBAL_TRIE_LOOP)
+#define ANSWER_SAFE_INSERT_ENTRY(NODE, ENTRY, INSTR)                       \
+        { ans_node_ptr new_node;                                           \
+          NEW_ANSWER_TRIE_NODE(new_node, INSTR, ENTRY, NULL, NODE, NULL);  \
+	  TrNode_child(NODE) = new_node;                                   \
+          NODE = new_node;                                                 \
+	}
+
 static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode) {
-#define in_pair 0
   ans_node_ptr child_node;
   Term child_term;
   Float trie_value, term_value;
@@ -1255,10 +1261,8 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
   if (term_value == trie_value)
     return child_node;
   /* better answer */
-  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-  TrNode_child(current_node) = NULL;
   if (IsAtomOrIntTerm(t)) {
-    ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, t, _trie_retry_atom + in_pair);
+    ANSWER_SAFE_INSERT_ENTRY(current_node, t, _trie_retry_atom);
   } else if (IsApplTerm(t)) {
     Functor f = FunctorOfTerm(t);
     if (f == FunctorDouble) {
@@ -1267,21 +1271,20 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
 	Float dbl;
       } u;
       u.dbl = FloatOfTerm(t);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
 #if SIZEOF_DOUBLE == 2 * SIZEOF_INT_P
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[1], _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[1], _trie_retry_extension);
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, u.t_dbl[0], _trie_retry_extension);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_double);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, u.t_dbl[0], _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_double);
     } else if (f == FunctorLongInt) {
       Int li = LongIntOfTerm(t);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_null + in_pair);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, li, _trie_retry_extension);
-      ANSWER_CHECK_INSERT_ENTRY(sg_fr, current_node, AbsAppl((Term *)f), _trie_retry_longint);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_null);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, li, _trie_retry_extension);
+      ANSWER_SAFE_INSERT_ENTRY(current_node, AbsAppl((Term *)f), _trie_retry_longint);
     }
   }
   return current_node;
-#undef in_pair
 }
 
 
