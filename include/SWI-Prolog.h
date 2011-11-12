@@ -19,7 +19,7 @@ extern "C" {
 
 //=== includes ===============================================================
 #ifdef          _YAP_NOT_INSTALLED_
-#include	"config.h"
+#include	"src/config.h"
 
 #ifdef __cplusplus
 }
