@@ -19,7 +19,7 @@ extern "C" {
 
 //=== includes ===============================================================
 #ifdef          _YAP_NOT_INSTALLED_
-#include	"src/config.h"
+#include	"config.h"
 
 #ifdef __cplusplus
 }
@@ -35,7 +35,7 @@ extern "C" {
 
 #include	"YapInterface.h"
 #else
-#include	<Yap/config.h>
+#include	<Yap/src/config.h>
 #if USE_GMP
 #include <gmp.h>
 #endif
