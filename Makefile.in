@@ -129,7 +129,7 @@ INTERFACE_HEADERS = \
 
 IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
 	$(srcdir)/os/pl-ctype.h  \
-	$(srcdir)/H/pl-codelist.h \
+	$(srcdir)/os/pl-codelist.h \
 	$(srcdir)/os/pl-dtoa.h \
 	$(srcdir)/os/dtoa.c  \
 	$(srcdir)/H/pl-incl.h \
@@ -138,7 +138,6 @@ IOLIB_HEADERS=$(srcdir)/os/pl-buffer.h \
 	$(srcdir)/os/pl-option.h  \
 	$(srcdir)/os/pl-os.h \
 	$(srcdir)/os/pl-privitf.h \
-	$(srcdir)/os/pl-stream.h \
 	$(srcdir)/os/pl-table.h \
 	$(srcdir)/os/pl-text.h \
 	$(srcdir)/os/pl-utf8.h \

@@ -518,36 +518,38 @@ static inline void adjust_freeze_registers(void) {
 
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
   LOCK(SgFr_lock(sg_fr));
-#ifdef MODE_DIRECTED_TABLING
-  if (SgFr_mode_directed(sg_fr) && SgFr_invalid_chain(sg_fr)) {
-    ans_node_ptr current_answer, next_answer;
-    /* first first valid answer */
-    current_answer = SgFr_first_answer(sg_fr);
-    while (IS_INVALID_LEAF_NODE(current_answer))
-      current_answer = TrNode_child(current_answer);
-    SgFr_first_answer(sg_fr) = current_answer;
-    /* chain next valid answers */
-    next_answer = TrNode_child(current_answer);
-    while (next_answer) {
-      if (! IS_INVALID_LEAF_NODE(next_answer)) {
-	TrNode_child(current_answer) = next_answer;
-	current_answer = next_answer;   
-      }
-      next_answer = TrNode_child(next_answer);
-    }
-    SgFr_last_answer(sg_fr) = current_answer;
-    /* free invalid answer nodes */    
-    current_answer = SgFr_invalid_chain(sg_fr);
-    SgFr_invalid_chain(sg_fr) = NULL;
-    while (current_answer) {
-      next_answer = TrNode_next(current_answer);	
-      FREE_ANSWER_TRIE_NODE(current_answer);
-      current_answer = next_answer;
-    }
-  }
-#endif /* MODE_DIRECTED_TABLING */
   SgFr_state(sg_fr) = complete;
   UNLOCK(SgFr_lock(sg_fr));
+#ifdef MODE_DIRECTED_TABLING
+  if (SgFr_invalid_chain(sg_fr)) {
+    ans_node_ptr current_node, next_node;
+    /* find first valid answer */
+    current_node = SgFr_first_answer(sg_fr);
+    while (IS_INVALID_LEAF_NODE(current_node))
+      current_node = TrNode_child(current_node);
+    SgFr_first_answer(sg_fr) = current_node;
+    /* chain next valid answers */
+    next_node = TrNode_child(current_node);
+    while (next_node) {
+      if (! IS_INVALID_LEAF_NODE(next_node)) {
+	TrNode_child(current_node) = next_node;
+	current_node = next_node;   
+      }
+      next_node = TrNode_child(next_node);
+    }
+    SgFr_last_answer(sg_fr) = current_node;
+#ifndef YAPOR
+    /* free invalid answer nodes */
+    current_node = SgFr_invalid_chain(sg_fr);
+    SgFr_invalid_chain(sg_fr) = NULL;
+    while (current_node) {
+      next_node = TrNode_next(current_node);	
+      FREE_ANSWER_TRIE_NODE(current_node);
+      current_node = next_node;
+    }
+#endif /* ! YAPOR */
+  }
+#endif /* MODE_DIRECTED_TABLING */
   return;
 }
 
@@ -753,8 +755,42 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #ifdef INCOMPLETE_TABLING
       SgFr_state(sg_fr) = incomplete;
       UNLOCK(SgFr_lock(sg_fr));
+#ifdef MODE_DIRECTED_TABLING
+      if (SgFr_invalid_chain(sg_fr)) {
+	ans_node_ptr current_node, next_node;
+	/* find first valid answer */
+	current_node = SgFr_first_answer(sg_fr);
+	while (IS_INVALID_LEAF_NODE(current_node))
+	  current_node = TrNode_child(current_node);
+	SgFr_first_answer(sg_fr) = current_node;
+	/* chain next valid answers */
+	next_node = TrNode_child(current_node);
+	while (next_node) {
+	  if (! IS_INVALID_LEAF_NODE(next_node)) {
+	    TrNode_child(current_node) = next_node;
+	    current_node = next_node;   
+	  }
+	  next_node = TrNode_child(next_node);
+	}
+	SgFr_last_answer(sg_fr) = current_node;
+#ifndef YAPOR
+	/* free invalid answer nodes */
+	current_node = SgFr_invalid_chain(sg_fr);
+	SgFr_invalid_chain(sg_fr) = NULL;
+	while (current_node) {
+	  next_node = TrNode_next(invalid_node);	
+	  FREE_ANSWER_TRIE_NODE(current_node);
+	  current_node = node_node;
+	}
+#endif /* ! YAPOR */
+      }
+#endif /* MODE_DIRECTED_TABLING */
 #else
       ans_node_ptr node;
+#ifdef MODE_DIRECTED_TABLING
+      ans_node_ptr invalid_node = SgFr_invalid_chain(sg_fr);
+      SgFr_invalid_chain(sg_fr) = NULL;
+#endif /* MODE_DIRECTED_TABLING */
       SgFr_state(sg_fr) = ready;
       free_answer_hash_chain(SgFr_hash_chain(sg_fr));
       SgFr_hash_chain(sg_fr) = NULL;
@@ -764,6 +800,14 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
       TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
       UNLOCK(SgFr_lock(sg_fr));
       free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+#if defined(MODE_DIRECTED_TABLING) && ! defined(YAPOR)
+      /* free invalid answer nodes */
+      while (invalid_node) {
+	node = TrNode_next(invalid_node);	
+	FREE_ANSWER_TRIE_NODE(invalid_node);
+	invalid_node = node;
+      }
+#endif /* MODE_DIRECTED_TABLING && ! YAPOR */
 #endif /* INCOMPLETE_TABLING */
     }
 #ifdef LIMIT_TABLING
