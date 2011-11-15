@@ -58,9 +58,9 @@ typedef struct subgoal_trie_node {
   struct subgoal_trie_node *parent;
   struct subgoal_trie_node *child;
   struct subgoal_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL */
 } *sg_node_ptr;
 
 typedef struct answer_trie_node {
@@ -72,9 +72,9 @@ typedef struct answer_trie_node {
   struct answer_trie_node *parent;
   struct answer_trie_node *child;
   struct answer_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* ANSWER_TRIE_LOCK_AT_NODE_LEVEL */
 } *ans_node_ptr;
 
 typedef struct global_trie_node {
@@ -82,9 +82,9 @@ typedef struct global_trie_node {
   struct global_trie_node *parent;
   struct global_trie_node *child;
   struct global_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* GLOBAL_TRIE_LOCK_AT_NODE_LEVEL */
 } *gt_node_ptr;
 
 #define TrNode_instr(X)   ((X)->trie_instruction)

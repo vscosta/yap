@@ -865,19 +865,19 @@
       }
     }
 #endif /* DEBUG_TABLING && !DETERMINISTIC_TABLING */
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-    LOCK(SgFr_lock(sg_fr));
-#endif /* TABLE_LOCK_LEVEL */
-    ans_node = answer_search(sg_fr, subs_ptr);
+    LOCK_ANSWER_TRIE(sg_fr);
 #ifdef MODE_DIRECTED_TABLING
-    if (ans_node == NULL)  /* no answer inserted */
-      goto fail;
+    if (SgFr_mode_directed(sg_fr)) {
+      ans_node = mode_directed_answer_search(sg_fr, subs_ptr);
+      if (ans_node == NULL) {
+	/* no answer inserted */
+	UNLOCK_ANSWER_TRIE(sg_fr);
+	goto fail;
+      }
+    } else
 #endif /* MODE_DIRECTED_TABLING */
-#if defined(TABLE_LOCK_AT_NODE_LEVEL)
-    LOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-    LOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+      ans_node = answer_search(sg_fr, subs_ptr);
+    LOCK_ANSWER_NODE(ans_node);
     if (! IS_ANSWER_LEAF_NODE(ans_node)) {
       /* new answer */
 #ifdef TABLING_INNER_CUTS
@@ -903,13 +903,8 @@
                   EQUAL_OR_YOUNGER_CP(Get_LOCAL_top_cp(), REMOTE_pruning_scope(i))) {
                 leftmost_or_fr = LOCAL_top_or_fr;
   pending_table_new_answer:
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-                UNLOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-                UNLOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-                UNLOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+		UNLOCK_ANSWER_NODE(ans_node);
+                UNLOCK_ANSWER_TRIE(sg_fr);
                 LOCK_OR_FRAME(leftmost_or_fr);
                 if (Get_LOCAL_prune_request()) {
                   UNLOCK_OR_FRAME(leftmost_or_fr);
@@ -996,24 +991,16 @@
 
       /* check for prune requests */
       if (Get_LOCAL_prune_request()) {
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-        UNLOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-        UNLOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-        UNLOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+	UNLOCK_ANSWER_NODE(ans_node);
+	UNLOCK_ANSWER_TRIE(sg_fr);
         SCHEDULER_GET_WORK();
       }
 #endif /* TABLING_INNER_CUTS */
       TAG_AS_ANSWER_LEAF_NODE(ans_node);
-#if defined(TABLE_LOCK_AT_NODE_LEVEL)
-      UNLOCK(TrNode_lock(ans_node));
+      UNLOCK_ANSWER_NODE(ans_node);
+#ifndef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
       LOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-      UNLOCK_TABLE(ans_node);
-      LOCK(SgFr_lock(sg_fr));
-#endif /* TABLE_LOCK_LEVEL */
+#endif /* ! ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
       if (SgFr_first_answer(sg_fr) == NULL)
 	SgFr_first_answer(sg_fr) = ans_node;
       else
@@ -1072,13 +1059,8 @@
       }
     } else {
       /* repeated answer */
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-      UNLOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-      UNLOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-      UNLOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+      UNLOCK_ANSWER_NODE(ans_node);
+      UNLOCK_ANSWER_TRIE(sg_fr);
       goto fail;
     }
   ENDPBOp();

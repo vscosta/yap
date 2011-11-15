@@ -113,32 +113,38 @@
 /****************************
 **      default sizes      **
 ****************************/
-#define TABLE_LOCK_BUCKETS 512
+#define LOCK_AT_WRITE_LEVEL_BUCKETS 512
 #define TG_ANSWER_SLOTS    20
 
-/***********************************************************
-**      tries locking scheme (mandatory, define one)      **
-************************************************************
-** The TABLE_LOCK_AT_ENTRY_LEVEL scheme locks the access  **
-** to the table space in the entry data structure. It     **
-** restricts the number of lock operations needed to go   **
-** through the table data structures.                     **
-**                                                        **
-** The TABLE_LOCK_AT_NODE_LEVEL scheme locks each data    **
-** structure before accessing it. It decreases            **
-** concurrrency for workers accessing commom parts of the **
-** table space.                                           **
-**                                                        **
-** The TABLE_LOCK_AT_WRITE_LEVEL scheme is an hibrid      **
-** scheme, it only locks a table data structure when it   **
-** is going to update it. You can use ALLOC_BEFORE_CHECK  **
-** with this scheme to allocate a node before checking    **
-** if it will be necessary.                               **
-***********************************************************/
-/* #define TABLE_LOCK_AT_ENTRY_LEVEL 1 */
-/* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
-#define TABLE_LOCK_AT_WRITE_LEVEL 1
-/* #define ALLOC_BEFORE_CHECK        1 */
+/*************************************************************************
+**      tries locking scheme (mandatory, define one per trie type)      **
+**************************************************************************
+** The (TRIE_TYPE)_LOCK_AT_ENTRY_LEVEL scheme locks the access to the   **
+** table space in the entry data structure. It restricts the number of  **
+** lock operations needed to go through the table data structures.      **
+**                                                                      **
+** The (TRIE_TYPE)_LOCK_AT_NODE_LEVEL scheme locks each data structure  **
+** before accessing it. It decreases concurrrency for workers accessing **
+** commom parts of the table space.                                     **
+**                                                                      **
+** The (TRIE_TYPE)_LOCK_AT_WRITE_LEVEL scheme is an hibrid scheme, it   **
+** only locks a table data structure when it is going to update it. You **
+** can use (TRIE_TYPE)_ALLOC_BEFORE_CHECK with this scheme to allocate  **
+** a node before checking if it will be necessary.                      **
+*************************************************************************/
+/* #define SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL 1 */
+#define SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define SUBGOAL_TRIE_ALLOC_BEFORE_CHECK  1 */
+
+/* #define ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL 1 */
+#define ANSWER_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define ANSWER_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define ANSWER_TRIE_ALLOC_BEFORE_CHECK  1 */
+
+#define GLOBAL_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define GLOBAL_TRIE_ALLOC_BEFORE_CHECK  1 */
 
 /**********************************************
 **      support inner cuts ? (optional)      **
@@ -184,25 +190,60 @@
 #endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
-#if !defined(TABLE_LOCK_AT_ENTRY_LEVEL) && !defined(TABLE_LOCK_AT_NODE_LEVEL) && !defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Define a table lock scheme
-#endif /* !TABLE_LOCK_AT_ENTRY_LEVEL && !TABLE_LOCK_AT_NODE_LEVEL && !TABLE_LOCK_AT_WRITE_LEVEL */
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-#if defined(TABLE_LOCK_AT_NODE_LEVEL) || defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Do not define multiple table lock schemes
-#endif /* TABLE_LOCK_AT_NODE_LEVEL || TABLE_LOCK_AT_WRITE_LEVEL */
-#endif /* TABLE_LOCK_AT_ENTRY_LEVEL */
-#if defined(TABLE_LOCK_AT_NODE_LEVEL) && defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Do not define multiple table lock schemes
-#endif /* TABLE_LOCK_AT_NODE_LEVEL || TABLE_LOCK_AT_WRITE_LEVEL */
-#ifndef TABLE_LOCK_AT_WRITE_LEVEL
-#undef ALLOC_BEFORE_CHECK
-#endif /* !TABLE_LOCK_AT_WRITE_LEVEL */
+/* SUBGOAL_TRIE_LOCK_LEVEL */
+#if !defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && !defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) && !defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a subgoal trie lock scheme
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#ifndef SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
+#endif 
+/* ANSWER_TRIE_LOCK_LEVEL */
+#if !defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && !defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) && !defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a answer trie lock scheme
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#ifndef ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
+#undef ANSWER_TRIE_ALLOC_BEFORE_CHECK
+#endif 
+/* GLOBAL_TRIE_LOCK_LEVEL */
+#if !defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) && !defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a global trie lock scheme
+#endif
+#if defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) && defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple global trie lock schemes
+#endif
+#ifndef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+#endif 
 #else
-#undef TABLE_LOCK_AT_ENTRY_LEVEL
-#undef TABLE_LOCK_AT_NODE_LEVEL
-#undef TABLE_LOCK_AT_WRITE_LEVEL
-#undef ALLOC_BEFORE_CHECK
+#undef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
+#undef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
+#undef SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
+#undef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
+#undef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
+#undef ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
+#undef ANSWER_TRIE_ALLOC_BEFORE_CHECK
+#undef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
+#undef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
 #endif /* YAPOR && TABLING */
 
 #if !defined(TABLING) || !defined(YAPOR)

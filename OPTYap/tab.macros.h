@@ -135,6 +135,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define CompactPairEndList  AbsPair((Term *) (2*(LowTagBits + 1)))
 #endif /* TRIE_COMPACT_PAIRS */
 
+/* choice points */
 #define NORM_CP(CP)                 ((choiceptr)(CP))
 #define GEN_CP(CP)                  ((struct generator_choicept *)(CP))
 #define CONS_CP(CP)                 ((struct consumer_choicept *)(CP))
@@ -148,6 +149,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_BATCHED_GEN_CP(CP)       (GEN_CP(CP)->cp_dep_fr == NULL)
 #endif /* DETERMINISTIC_TABLING */
 
+/* leaf nodes */
 #define TAG_AS_SUBGOAL_LEAF_NODE(NODE)  TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
 #define UNTAG_SUBGOAL_LEAF_NODE(NODE)   ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
 #define IS_SUBGOAL_LEAF_NODE(NODE)      ((unsigned long int) TrNode_child(NODE) & 0x1)
@@ -157,6 +159,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TAG_AS_INVALID_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
 #define IS_INVALID_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x2)
 
+/* trie hashes */
 #define MAX_NODES_PER_TRIE_LEVEL    8
 #define MAX_NODES_PER_BUCKET        (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define BASE_HASH_BUCKETS           64
@@ -168,25 +171,24 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
 
-#define HASH_TABLE_LOCK(NODE)  ((((unsigned long int) (NODE)) >> 5) & (TABLE_LOCK_BUCKETS - 1))
-#define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
-#define UNLOCK_TABLE(NODE)     UNLOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
-
-#define STACK_PUSH_UP(ITEM, STACK)                  *--(STACK) = (CELL)(ITEM)
-#define STACK_POP_UP(STACK)                         *--(STACK)
-#define STACK_PUSH_DOWN(ITEM, STACK)                *(STACK)++ = (CELL)(ITEM)
-#define STACK_POP_DOWN(STACK)                       *(STACK)++
-#define STACK_NOT_EMPTY(STACK, STACK_BASE)          (STACK) != (STACK_BASE)
-#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)) EXPAND_AUX_STACK(STACK)
-#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)+4096) EXPAND_STACK(STACK)
+/* auxiliary stack */
+#define STACK_PUSH_UP(ITEM, STACK)          *--(STACK) = (CELL)(ITEM)
+#define STACK_POP_UP(STACK)                 *--(STACK)
+#define STACK_PUSH_DOWN(ITEM, STACK)        *(STACK)++ = (CELL)(ITEM)
+#define STACK_POP_DOWN(STACK)               *(STACK)++
+#define STACK_NOT_EMPTY(STACK, STACK_BASE)  (STACK) != (STACK_BASE)
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
-#define EXPAND_AUX_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)");
-#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
+        if ((STACK_LIMIT) >= (STACK))                                               \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)")
 #else /* YAPOR_THREADS */
-#define EXPAND_AUX_STACK(STACK)    STACK = expand_auxiliary_stack(STACK)
-#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
+        if ((STACK_LIMIT) >= (STACK))                                               \
+          STACK = expand_auxiliary_stack(STACK)
 #endif /* YAPOR */
-#define OPTYAP_ERROR_MESSAGE(OP, COND)  
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                      \
+        if ((STACK_LIMIT) >= (STACK) + 4096)                                        \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
 
 
 
@@ -270,43 +272,106 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define AnsHash_init_previous_field(HASH, SG_FR)
 #endif /* MODE_DIRECTED_TABLING */
 
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-#define TabEnt_init_lock_field(TAB_ENT)                \
-        INIT_LOCK(TabEnt_lock(TAB_ENT))
+#define HASH_WRITE_LEVEL_LOCK(NODE)  GLOBAL_write_level_locks((((unsigned long int) (NODE)) >> 5) & (LOCK_AT_WRITE_LEVEL_BUCKETS - 1))
+
+#ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
+#define LOCK_SUBGOAL_TRIE(TAB_ENT)    LOCK(TabEnt_lock(TAB_ENT))
+#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)  UNLOCK(TabEnt_lock(TAB_ENT))
+#else
+#define LOCK_SUBGOAL_TRIE(TAB_ENT)
+#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)
+#endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
+
+#ifdef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
+#define LOCK_SUBGOAL_NODE(NODE)    LOCK(TrNode_lock(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
+#elif SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
+#define LOCK_SUBGOAL_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#else
+#define LOCK_SUBGOAL_NODE(NODE)
+#define UNLOCK_SUBGOAL_NODE(NODE)
+#endif /* SUBGOAL_TRIE_LOCK_LEVEL */
+
+#ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
+#define LOCK_ANSWER_TRIE(SG_FR)    LOCK(SgFr_lock(SG_FR))
+#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK(SgFr_lock(SG_FR))
+#else
+#define LOCK_ANSWER_TRIE(SG_FR)
+#define UNLOCK_ANSWER_TRIE(SG_FR)
+#endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
+
+#ifdef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
+#define LOCK_ANSWER_NODE(NODE)    LOCK(TrNode_lock(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
+#elif ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
+#define LOCK_ANSWER_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#else
+#define LOCK_ANSWER_NODE(NODE)
+#define UNLOCK_ANSWER_NODE(NODE)
+#endif /* ANSWER_TRIE_LOCK_LEVEL */
+
+#ifdef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
+#define LOCK_GLOBAL_NODE(NODE)    LOCK(TrNode_lock(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
+#elif GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
+#define LOCK_GLOBAL_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
+#else
+#define LOCK_GLOBAL_NODE(NODE)
+#define UNLOCK_GLOBAL_NODE(NODE)
+#endif /* GLOBAL_TRIE_LOCK_LEVEL */
+
+#ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH
-#define AnsHash_init_chain_fields(HASH, SG_FR)         \
-        AnsHash_init_previous_field(HASH, SG_FR);      \
-        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
-	SgFr_hash_chain(SG_FR) = HASH
 #else
-#define TabEnt_init_lock_field(TAB_ENT)
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         LOCK(TabEnt_lock(TAB_ENT));                    \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH;             \
         UNLOCK(TabEnt_lock(TAB_ENT))
+#endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
+
+#ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
+#define AnsHash_init_chain_fields(HASH, SG_FR)         \
+        AnsHash_init_previous_field(HASH, SG_FR);      \
+        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
+	SgFr_hash_chain(SG_FR) = HASH
+#else
 #define AnsHash_init_chain_fields(HASH, SG_FR)         \
         LOCK(SgFr_lock(SG_FR));                        \
         AnsHash_init_previous_field(HASH, SG_FR);      \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
         SgFr_hash_chain(SG_FR) = HASH;                 \
         UNLOCK(SgFr_lock(SG_FR))
-#endif /* TABLE_LOCK_AT_ENTRY_LEVEL */
+#endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
 
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-#define TrNode_init_lock_field(NODE)                   \
-        INIT_LOCK(TrNode_lock(NODE))
+#ifdef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
+#define SgNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
 #else
-#define TrNode_init_lock_field(NODE)
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#define SgNode_init_lock_field(NODE)
+#endif /* SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL */
+
+#ifdef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
+#define AnsNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#else
+#define AnsNode_init_lock_field(NODE)
+#endif /* ANSWER_TRIE_LOCK_AT_NODE_LEVEL */
+
+#ifdef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
+#define GtNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#else
+#define GtNode_init_lock_field(NODE)
+#endif /* GLOBAL_TRIE_LOCK_AT_NODE_LEVEL */
 
 #define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
         { register sg_node_ptr sg_node;                                \
           new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);         \
           ALLOC_TABLE_ENTRY(TAB_ENT);                                  \
-          TabEnt_init_lock_field(TAB_ENT);                             \
+	  INIT_LOCK(TabEnt_lock(TAB_ENT));                             \
           TabEnt_pe(TAB_ENT) = PRED_ENTRY;                             \
           TabEnt_atom(TAB_ENT) = ATOM;                                 \
           TabEnt_arity(TAB_ENT) = ARITY;                               \
@@ -362,48 +427,49 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
                                     (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));        \
         DepFr_next(DEP_FR) = NEXT
 
-#define new_suspension_frame(SUSP_FR, TOP_OR_FR_ON_STACK, TOP_DEP, TOP_SG,         \
-                             H_REG, B_REG, TR_REG, H_SIZE, B_SIZE, TR_SIZE)        \
-        ALLOC_SUSPENSION_FRAME(SUSP_FR);                                           \
-        SuspFr_top_or_fr_on_stack(SUSP_FR) = TOP_OR_FR_ON_STACK;                   \
-        SuspFr_top_dep_fr(SUSP_FR) = TOP_DEP;                                      \
-        SuspFr_top_sg_fr(SUSP_FR) = TOP_SG;                                        \
-        SuspFr_global_reg(SUSP_FR) = (void *) (H_REG);                             \
-        SuspFr_local_reg(SUSP_FR) = (void *) (B_REG);                              \
-        SuspFr_trail_reg(SUSP_FR) = (void *) (TR_REG);                             \
-        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE, void *); \
-        SuspFr_local_start(SUSP_FR) = SuspFr_global_start(SUSP_FR) + H_SIZE;       \
-        SuspFr_trail_start(SUSP_FR) = SuspFr_local_start(SUSP_FR) + B_SIZE;        \
-        SuspFr_global_size(SUSP_FR) = H_SIZE;                                      \
-        SuspFr_local_size(SUSP_FR) = B_SIZE;                                       \
-        SuspFr_trail_size(SUSP_FR) = TR_SIZE;                                      \
-        memcpy(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);  \
-        memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);    \
+#define new_suspension_frame(SUSP_FR, TOP_OR_FR_ON_STACK, TOP_DEP, TOP_SG,             \
+                             H_REG, B_REG, TR_REG, H_SIZE, B_SIZE, TR_SIZE)            \
+        ALLOC_SUSPENSION_FRAME(SUSP_FR);                                               \
+        SuspFr_top_or_fr_on_stack(SUSP_FR) = TOP_OR_FR_ON_STACK;                       \
+        SuspFr_top_dep_fr(SUSP_FR) = TOP_DEP;                                          \
+        SuspFr_top_sg_fr(SUSP_FR) = TOP_SG;                                            \
+        SuspFr_global_reg(SUSP_FR) = (void *) (H_REG);                                 \
+        SuspFr_local_reg(SUSP_FR) = (void *) (B_REG);                                  \
+        SuspFr_trail_reg(SUSP_FR) = (void *) (TR_REG);                                 \
+        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE, void *);  \
+        SuspFr_local_start(SUSP_FR) = SuspFr_global_start(SUSP_FR) + H_SIZE;           \
+        SuspFr_trail_start(SUSP_FR) = SuspFr_local_start(SUSP_FR) + B_SIZE;            \
+        SuspFr_global_size(SUSP_FR) = H_SIZE;                                          \
+        SuspFr_local_size(SUSP_FR) = B_SIZE;                                           \
+        SuspFr_trail_size(SUSP_FR) = TR_SIZE;                                          \
+        memcpy(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);      \
+        memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);        \
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 #define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_SUBGOAL_TRIE_NODE(NODE);                           \
         TrNode_entry(NODE) = ENTRY;				 \
-        TrNode_init_lock_field(NODE);                            \
 	TrNode_child(NODE) = CHILD;	                         \
         TrNode_parent(NODE) = PARENT;                            \
-	TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                                \
+        SgNode_init_lock_field(NODE)
 
 #define new_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_ANSWER_TRIE_NODE(NODE);                                  \
         TrNode_instr(NODE) = INSTR;                                    \
         TrNode_entry(NODE) = ENTRY;                                    \
-        TrNode_init_lock_field(NODE);                                  \
         TrNode_child(NODE) = CHILD;                                    \
         TrNode_parent(NODE) = PARENT;                                  \
-        TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                                      \
+        AnsNode_init_lock_field(NODE)
 
 #define new_global_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_GLOBAL_TRIE_NODE(NODE);                           \
         TrNode_entry(NODE) = ENTRY;                             \
         TrNode_child(NODE) = CHILD;                             \
         TrNode_parent(NODE) = PARENT;                           \
-        TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                               \
+        GtNode_init_lock_field(NODE)
 
 #define new_subgoal_trie_hash(HASH, NUM_NODES, TAB_ENT)             \
         ALLOC_SUBGOAL_TRIE_HASH(HASH);                              \
@@ -1009,13 +1075,8 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
         slots = TgAnsFr_free_slot(valid_answers);
         do {
           ans_node = TgAnsFr_answer(valid_answers, --slots);
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-          LOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-          LOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-          LOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+	  LOCK_ANSWER_TRIE(sg_fr);
+	  LOCK_ANSWER_NODE(ans_node);
           if (! IS_ANSWER_LEAF_NODE(ans_node)) {
             TAG_AS_ANSWER_LEAF_NODE(ans_node);
             if (first_answer == NULL)
@@ -1024,13 +1085,8 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
               TrNode_child(last_answer) = ans_node;
 	    last_answer = ans_node;
 	  }
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-          UNLOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-          UNLOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-          UNLOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+          UNLOCK_ANSWER_NODE(ans_node);	  
+	  UNLOCK_ANSWER_TRIE(sg_fr);
         } while (slots);
         free_answer = valid_answers;
         valid_answers = TgAnsFr_next(valid_answers);
