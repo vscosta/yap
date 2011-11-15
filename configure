@@ -4230,7 +4230,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 if test "${enable_tabling+set}" = set; then :
   enableval=$enable_tabling; tabling="$enableval"
 else
-  tabling=no
+  tabling=yes
 fi
 
 # Check whether --enable-or-parallelism was given.
@@ -4342,7 +4342,7 @@ fi
 if test "${enable_use_malloc+set}" = set; then :
   enableval=$enable_use_malloc; use_malloc="$enableval"
 else
-  use_malloc=no
+  use_malloc=yes
 fi
 
 # Check whether --enable-condor was given.
