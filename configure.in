@@ -732,6 +732,21 @@ then
 	  fi
         ;;
 	esac
+   else
+       case "$target_os" in
+	  *cygwin*|*mingw*)
+            YAPR_INCLUDES="-I\"$yap_cv_yapr/include\""
+	    if test "$YAP_TARGET" = i386; then
+	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/i386/R.dll\""
+	    else
+	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/x64/R.dll\""
+	    fi
+	   ;;
+	  *)
+            YAPR_INCLUDES="-I$yap_cv_yapr/include"
+	    EXTRA_LIBS_FOR_R="-L $yap_cv_yapr/lib -lR"
+	   ;;
+         esac
    fi
    AC_CHECK_LIB(R,main)
 fi
