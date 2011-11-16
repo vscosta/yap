@@ -255,7 +255,7 @@ static Int p_table( USES_REGS1 ) {
     pos_agreg = pos_index;
     pos_index = 0;
     for (i = 0; i < arity; i++) {
-      int aux_pos;
+      int aux_pos = 0;
       if (aux_mode_directed[i] == MODE_DIRECTED_MAX)
 	aux_pos = pos_agreg++;
       else if (aux_mode_directed[i] == MODE_DIRECTED_MIN)

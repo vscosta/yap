@@ -52,25 +52,13 @@
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
 
-#if defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#define LOCK_NODE(NODE)    LOCK_TABLE(NODE)
-#define UNLOCK_NODE(NODE)  UNLOCK_TABLE(NODE)
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-#define LOCK_NODE(NODE)    LOCK(TrNode_lock(NODE))
-#define UNLOCK_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
-#else /* TABLE_LOCK_AT_ENTRY_LEVEL || ! YAPOR */
-#define LOCK_NODE(NODE)
-#define UNLOCK_NODE(NODE)
-#endif /* TABLE_LOCK_LEVEL */
-
-
 
 /************************************************************************
 **                 subgoal_trie_check_insert_(gt)_entry                **
 ************************************************************************/
 
 #ifdef INCLUDE_SUBGOAL_TRIE_CHECK_INSERT
-#ifndef TABLE_LOCK_AT_WRITE_LEVEL /* TABLE_LOCK_AT_ENTRY_LEVEL || TABLE_LOCK_AT_NODE_LEVEL || ! YAPOR */
+#ifndef SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL || SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL || ! YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node, Term t) {
 #else
@@ -78,12 +66,12 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
   sg_node_ptr child_node;
 
-  LOCK_NODE(parent_node);
+  LOCK_SUBGOAL_NODE(parent_node);
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
     NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
     TrNode_child(parent_node) = child_node;
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   }
 
@@ -91,7 +79,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     int count_nodes = 0;
     do {
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_SUBGOAL_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -116,7 +104,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     } else {
       TrNode_child(parent_node) = child_node;
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   }
 
@@ -129,7 +117,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     child_node = *bucket;
     while (child_node) {
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_SUBGOAL_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -162,11 +150,11 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
       } while (old_bucket != first_old_bucket);
       FREE_HASH_BUCKETS(first_old_bucket);
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   }
 }
-#else /*  TABLE_LOCK_AT_WRITE_LEVEL */
+#else /* SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node, Term t) {
 #else
@@ -177,40 +165,40 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
 
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
     NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_SUBGOAL_NODE(parent_node);
     if (TrNode_child(parent_node)) {
       sg_node_ptr chain_node = TrNode_child(parent_node);
       if (IS_SUBGOAL_TRIE_HASH(chain_node)) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
         FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-        UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_SUBGOAL_NODE(parent_node);
         hash = (sg_hash_ptr) chain_node;
         goto subgoal_trie_hash;
       }
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
           FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_SUBGOAL_NODE(parent_node);
           return chain_node;
         }
         chain_node = TrNode_next(chain_node);
       } while (chain_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = TrNode_child(parent_node);
 #else
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, TrNode_child(parent_node));
     } else {
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
     }
     TrNode_child(parent_node) = child_node;
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   } 
 
@@ -218,44 +206,43 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     sg_node_ptr first_node = child_node;
     int count_nodes = 0;
     do {
-      if (TrNode_entry(child_node) == t) {
+      if (TrNode_entry(child_node) == t)
         return child_node;
-      }
       count_nodes++;
       child_node = TrNode_next(child_node);
     } while (child_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
     NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_SUBGOAL_NODE(parent_node);
     if (first_node != TrNode_child(parent_node)) {
       sg_node_ptr chain_node = TrNode_child(parent_node);
       if (IS_SUBGOAL_TRIE_HASH(chain_node)) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
         FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-        UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_SUBGOAL_NODE(parent_node);
         hash = (sg_hash_ptr) chain_node;
         goto subgoal_trie_hash;
       }
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
           FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_SUBGOAL_NODE(parent_node);
           return chain_node;
         }
         count_nodes++;
         chain_node = TrNode_next(chain_node);
       } while (chain_node != first_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = TrNode_child(parent_node);
 #else
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, TrNode_child(parent_node));
     } else {
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
     }
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
@@ -274,7 +261,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     } else {
       TrNode_child(parent_node) = child_node;
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   }
 
@@ -288,44 +275,43 @@ subgoal_trie_hash:
     bucket = Hash_bucket(hash, HASH_ENTRY(t, seed));
     first_node = child_node = *bucket;
     while (child_node) {
-      if (TrNode_entry(child_node) == t) {
+      if (TrNode_entry(child_node) == t)
         return child_node;
-      }
       count_nodes++;
       child_node = TrNode_next(child_node);
     }
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
     NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_SUBGOAL_NODE(parent_node);
     if (seed != Hash_seed(hash)) {
       /* the hash has been expanded */ 
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
       FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-      UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+      UNLOCK_SUBGOAL_NODE(parent_node);
       goto subgoal_trie_hash;
     }
     if (first_node != *bucket) {
       sg_node_ptr chain_node = *bucket;
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
           FREE_SUBGOAL_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_SUBGOAL_NODE(parent_node);
           return chain_node;
         }
         count_nodes++;
         chain_node = TrNode_next(chain_node);
       } while (chain_node != first_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = *bucket;
 #else
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, *bucket);
     } else {
       NEW_SUBGOAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* SUBGOAL_TRIE_ALLOC_BEFORE_CHECK */
     }
     *bucket = child_node;
     Hash_num_nodes(hash)++;
@@ -352,11 +338,11 @@ subgoal_trie_hash:
       } while (old_bucket != first_old_bucket);
       FREE_HASH_BUCKETS(first_old_bucket);
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
   }
 }
-#endif /* TABLE_LOCK_LEVEL */
+#endif /* SUBGOAL_TRIE_LOCK_LEVEL */
 #endif /* INCLUDE_SUBGOAL_TRIE_CHECK_INSERT */
 
 
@@ -366,7 +352,7 @@ subgoal_trie_hash:
 ************************************************************************/
 
 #ifdef INCLUDE_ANSWER_TRIE_CHECK_INSERT
-#ifndef TABLE_LOCK_AT_WRITE_LEVEL /* TABLE_LOCK_AT_ENTRY_LEVEL || TABLE_LOCK_AT_NODE_LEVEL || ! YAPOR */
+#ifndef ANSWER_TRIE_LOCK_AT_WRITE_LEVEL /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL || ANSWER_TRIE_LOCK_AT_NODE_LEVEL || ! YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node, Term t, int instr) {
 #else
@@ -375,12 +361,12 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
   ans_node_ptr child_node;
 
   TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));
-  LOCK_NODE(parent_node);
+  LOCK_ANSWER_NODE(parent_node);
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
     NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, NULL);
     TrNode_child(parent_node) = child_node;
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   }
 
@@ -388,7 +374,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     int count_nodes = 0;
     do {
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_ANSWER_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -413,7 +399,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     } else {
       TrNode_child(parent_node) = child_node;
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   }
 
@@ -426,7 +412,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     child_node = *bucket;
     while (child_node) {
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_ANSWER_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -459,11 +445,11 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
       } while (old_bucket != first_old_bucket);
       FREE_HASH_BUCKETS(first_old_bucket);
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   }
 }
-#else
+#else /* ANSWER_TRIE_LOCK_AT_WRITE_LEVEL */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node, Term t, int instr) {
 #else
@@ -475,40 +461,40 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
   TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
     NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, NULL);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_ANSWER_NODE(parent_node);
     if (TrNode_child(parent_node)) {
       ans_node_ptr chain_node = TrNode_child(parent_node);
       if (IS_ANSWER_TRIE_HASH(chain_node)) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
         FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-        UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_ANSWER_NODE(parent_node);
         hash = (ans_hash_ptr) chain_node;
         goto answer_trie_hash;
       }
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
           FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_ANSWER_NODE(parent_node);
           return chain_node;
         }
         chain_node = TrNode_next(chain_node);
       } while (chain_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = TrNode_child(parent_node);
 #else
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, TrNode_child(parent_node));
     } else {
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, NULL);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
     }
     TrNode_child(parent_node) = child_node;
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   } 
 
@@ -516,44 +502,43 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     ans_node_ptr first_node = child_node;
     int count_nodes = 0;
     do {
-      if (TrNode_entry(child_node) == t) {
+      if (TrNode_entry(child_node) == t)
         return child_node;
-      }
       count_nodes++;
       child_node = TrNode_next(child_node);
     } while (child_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
     NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_ANSWER_NODE(parent_node);
     if (first_node != TrNode_child(parent_node)) {
       ans_node_ptr chain_node = TrNode_child(parent_node);
       if (IS_ANSWER_TRIE_HASH(chain_node)) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
         FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-        UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_ANSWER_NODE(parent_node);
         hash = (ans_hash_ptr) chain_node; 
         goto answer_trie_hash;
       }
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
           FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_ANSWER_NODE(parent_node);
           return chain_node;
         }
         count_nodes++;
         chain_node = TrNode_next(chain_node);
       } while (chain_node != first_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = TrNode_child(parent_node);
 #else
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, TrNode_child(parent_node));
     } else {
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
     }
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
@@ -572,7 +557,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     } else {
       TrNode_child(parent_node) = child_node;
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   }
 
@@ -586,44 +571,43 @@ answer_trie_hash:
     bucket = Hash_bucket(hash, HASH_ENTRY(t, seed));
     first_node = child_node = *bucket;
     while (child_node) {
-      if (TrNode_entry(child_node) == t) {
+      if (TrNode_entry(child_node) == t)
         return child_node;
-      }
       count_nodes++;
       child_node = TrNode_next(child_node);
     }
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
     NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
-    LOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_ANSWER_NODE(parent_node);
     if (seed != Hash_seed(hash)) {
       /* the hash has been expanded */ 
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
       FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-      UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+      UNLOCK_ANSWER_NODE(parent_node);
       goto answer_trie_hash;
     }
     if (first_node != *bucket) {
       ans_node_ptr chain_node = *bucket;
       do {
         if (TrNode_entry(chain_node) == t) {
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
           FREE_ANSWER_TRIE_NODE(child_node);
-#endif /* ALLOC_BEFORE_CHECK */
-          UNLOCK_NODE(parent_node);
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_ANSWER_NODE(parent_node);
           return chain_node;
         }
         count_nodes++;
         chain_node = TrNode_next(chain_node);
       } while (chain_node != first_node);
-#ifdef ALLOC_BEFORE_CHECK
+#ifdef ANSWER_TRIE_ALLOC_BEFORE_CHECK
       TrNode_next(child_node) = *bucket;
 #else
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, *bucket);
     } else {
       NEW_ANSWER_TRIE_NODE(child_node, instr, t, NULL, parent_node, first_node);
-#endif /* ALLOC_BEFORE_CHECK */
+#endif /* ANSWER_TRIE_ALLOC_BEFORE_CHECK */
     }
     *bucket = child_node;
     Hash_num_nodes(hash)++;
@@ -650,11 +634,11 @@ answer_trie_hash:
       } while (old_bucket != first_old_bucket);
       FREE_HASH_BUCKETS(first_old_bucket);
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
   }
 }
-#endif /* TABLE_LOCK_LEVEL */
+#endif /* ANSWER_TRIE_LOCK_LEVEL */
 #endif /* INCLUDE_ANSWER_TRIE_CHECK_INSERT */
 
 
@@ -664,6 +648,7 @@ answer_trie_hash:
 ************************************************************************/
 
 #ifdef INCLUDE_GLOBAL_TRIE_CHECK_INSERT
+#ifndef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL /* GLOBAL_TRIE_LOCK_AT_NODE_LEVEL || ! YAPOR */
 #ifdef MODE_GLOBAL_TRIE_ENTRY
 static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr parent_node, Term t) {   
 #else
@@ -671,12 +656,12 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
   gt_node_ptr child_node;
     
-  LOCK_NODE(parent_node);
+  LOCK_GLOBAL_NODE(parent_node);
   child_node = TrNode_child(parent_node);
   if (child_node == NULL) {
     NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
     TrNode_child(parent_node) = child_node;
-    UNLOCK_NODE(parent_node);
+    UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
   }
 
@@ -684,7 +669,7 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
     int count_nodes = 0;
     do {
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_GLOBAL_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -709,7 +694,7 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
     } else {
       TrNode_child(parent_node) = child_node;
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
   }
 
@@ -722,7 +707,7 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
     child_node = *bucket;
     while (child_node) { 
       if (TrNode_entry(child_node) == t) {
-        UNLOCK_NODE(parent_node);
+        UNLOCK_GLOBAL_NODE(parent_node);
         return child_node;
       }
       count_nodes++;
@@ -755,10 +740,199 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
       } while (old_bucket != first_old_bucket);
       FREE_HASH_BUCKETS(first_old_bucket);
     }
-    UNLOCK_NODE(parent_node);
+    UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
   }
 }
+#else /* GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL */
+#ifdef MODE_GLOBAL_TRIE_ENTRY
+static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr parent_node, Term t) {   
+#else
+static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node, Term t) {   
+#endif /* MODE_GLOBAL_TRIE_ENTRY */
+  gt_node_ptr child_node;
+  gt_hash_ptr hash;
+
+  child_node = TrNode_child(parent_node);
+  if (child_node == NULL) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+    NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_GLOBAL_NODE(parent_node);
+    if (TrNode_child(parent_node)) {
+      gt_node_ptr chain_node = TrNode_child(parent_node);
+      if (IS_GLOBAL_TRIE_HASH(chain_node)) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+        FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_GLOBAL_NODE(parent_node);
+        hash = (gt_hash_ptr) chain_node;
+        goto global_trie_hash;
+      }
+      do {
+        if (TrNode_entry(chain_node) == t) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+          FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_GLOBAL_NODE(parent_node);
+          return chain_node;
+        }
+        chain_node = TrNode_next(chain_node);
+      } while (chain_node);
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+      TrNode_next(child_node) = TrNode_child(parent_node);
+#else
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, TrNode_child(parent_node));
+    } else {
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, NULL);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    }
+    TrNode_child(parent_node) = child_node;
+    UNLOCK_GLOBAL_NODE(parent_node);
+    return child_node;
+  } 
+
+  if (! IS_GLOBAL_TRIE_HASH(child_node)) {
+    gt_node_ptr first_node = child_node;
+    int count_nodes = 0;
+    do {
+      if (TrNode_entry(child_node) == t)
+        return child_node;
+      count_nodes++;
+      child_node = TrNode_next(child_node);
+    } while (child_node);
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+    NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_GLOBAL_NODE(parent_node);
+    if (first_node != TrNode_child(parent_node)) {
+      gt_node_ptr chain_node = TrNode_child(parent_node);
+      if (IS_GLOBAL_TRIE_HASH(chain_node)) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+        FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+        UNLOCK_GLOBAL_NODE(parent_node);
+        hash = (gt_hash_ptr) chain_node; 
+        goto global_trie_hash;
+      }
+      do {
+        if (TrNode_entry(chain_node) == t) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+          FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_GLOBAL_NODE(parent_node);
+          return chain_node;
+        }
+        count_nodes++;
+        chain_node = TrNode_next(chain_node);
+      } while (chain_node != first_node);
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+      TrNode_next(child_node) = TrNode_child(parent_node);
+#else
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, TrNode_child(parent_node));
+    } else {
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    }
+    count_nodes++;
+    if (count_nodes >= MAX_NODES_PER_TRIE_LEVEL) {
+      /* alloc a new hash */
+      gt_node_ptr chain_node, next_node, *bucket;
+      new_answer_trie_hash(hash, count_nodes, sg_fr);
+      chain_node = child_node;
+      do {
+        bucket = Hash_bucket(hash, HASH_ENTRY(TrNode_entry(chain_node), BASE_HASH_BUCKETS - 1));
+        next_node = TrNode_next(chain_node);
+        TrNode_next(chain_node) = *bucket;
+        *bucket = chain_node;
+        chain_node = next_node;
+      } while (chain_node);
+      TrNode_child(parent_node) = (gt_node_ptr) hash;
+    } else {
+      TrNode_child(parent_node) = child_node;
+    }
+    UNLOCK_GLOBAL_NODE(parent_node);
+    return child_node;
+  }
+
+  hash = (gt_hash_ptr) child_node;
+global_trie_hash:
+  { /* trie nodes with hashing */
+    gt_node_ptr *bucket, first_node;
+    int seed, count_nodes = 0;
+
+    seed = Hash_seed(hash);
+    bucket = Hash_bucket(hash, HASH_ENTRY(t, seed));
+    first_node = child_node = *bucket;
+    while (child_node) {
+      if (TrNode_entry(child_node) == t)
+        return child_node;
+      count_nodes++;
+      child_node = TrNode_next(child_node);
+    }
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+    NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    LOCK_GLOBAL_NODE(parent_node);
+    if (seed != Hash_seed(hash)) {
+      /* the hash has been expanded */ 
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+      FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+      UNLOCK_GLOBAL_NODE(parent_node);
+      goto global_trie_hash;
+    }
+    if (first_node != *bucket) {
+      gt_node_ptr chain_node = *bucket;
+      do {
+        if (TrNode_entry(chain_node) == t) {
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+          FREE_GLOBAL_TRIE_NODE(child_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+          UNLOCK_GLOBAL_NODE(parent_node);
+          return chain_node;
+        }
+        count_nodes++;
+        chain_node = TrNode_next(chain_node);
+      } while (chain_node != first_node);
+#ifdef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+      TrNode_next(child_node) = *bucket;
+#else
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, *bucket);
+    } else {
+      NEW_GLOBAL_TRIE_NODE(child_node, t, NULL, parent_node, first_node);
+#endif /* GLOBAL_TRIE_ALLOC_BEFORE_CHECK */
+    }
+    *bucket = child_node;
+    Hash_num_nodes(hash)++;
+    count_nodes++;
+    if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
+      /* expand current hash */ 
+      gt_node_ptr chain_node, next_node, *first_old_bucket, *old_bucket;
+      first_old_bucket = Hash_buckets(hash);
+      old_bucket = first_old_bucket + Hash_num_buckets(hash);
+      Hash_num_buckets(hash) *= 2;
+      ALLOC_HASH_BUCKETS(Hash_buckets(hash), Hash_num_buckets(hash));
+      seed = Hash_seed(hash);
+      do {
+        if (*--old_bucket) {
+          chain_node = *old_bucket;
+          do {
+            bucket = Hash_bucket(hash, HASH_ENTRY(TrNode_entry(chain_node), seed));
+            next_node = TrNode_next(chain_node);
+            TrNode_next(chain_node) = *bucket;
+            *bucket = chain_node;
+            chain_node = next_node;
+          } while (chain_node);
+        }
+      } while (old_bucket != first_old_bucket);
+      FREE_HASH_BUCKETS(first_old_bucket);
+    }
+    UNLOCK_GLOBAL_NODE(parent_node);
+    return child_node;
+  }
+}
+#endif /* GLOBAL_TRIE_LOCK_LEVEL */
 #endif /* INCLUDE_GLOBAL_TRIE_CHECK_INSERT */
 
 
@@ -1195,14 +1369,15 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 #undef in_pair
 #endif /* TRIE_COMPACT_PAIRS */
 }
+#endif /* INCLUDE_ANSWER_SEARCH_LOOP */
 
 
 
-/****************************************************************************
-**                   answer_search_mode_directed_min_max                   **
-****************************************************************************/
+/**************************************************************
+**                   answer_search_min_max                   **
+**************************************************************/
 
-#if defined(MODE_DIRECTED_TABLING) && ! defined(MODE_TERMS_LOOP) && ! defined(MODE_GLOBAL_TRIE_LOOP)
+#ifdef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
 #define ANSWER_SAFE_INSERT_ENTRY(NODE, ENTRY, INSTR)                       \
         { ans_node_ptr new_node;                                           \
           NEW_ANSWER_TRIE_NODE(new_node, INSTR, ENTRY, NULL, NODE, NULL);  \
@@ -1210,7 +1385,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
           NODE = new_node;                                                 \
 	}
 
-static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode) {
+static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode) {
   ans_node_ptr child_node;
   Term child_term;
   Float trie_value, term_value;
@@ -1237,7 +1412,7 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
 #endif /* SIZEOF_DOUBLE x SIZEOF_INT_P */
       trie_value = u.dbl;
     } else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_mode_directed_min_max: invalid arithmetic value");
+      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
     child_node = TrNode_child(child_node);
   }
 
@@ -1251,7 +1426,7 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
     else if (f == FunctorDouble)
       term_value = FloatOfTerm(t);
     else
-      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_mode_directed_min_max: invalid arithmetic value");
+      Yap_Error(INTERNAL_ERROR, TermNil, "answer_search_min_max: invalid arithmetic value");
   }
 
   /* worse answer */
@@ -1286,12 +1461,27 @@ static inline ans_node_ptr answer_search_mode_directed_min_max(sg_fr_ptr sg_fr, 
   }
   return current_node;
 }
+#endif /* INCLUDE_ANSWER_SEARCH_MODE_DIRECTED */
 
 
 
 /***************************************************************
 **                   invalidate_answer_trie                   **
 ***************************************************************/
+
+#ifdef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
+#ifdef YAPOR
+#define INVALIDATE_ANSWER_TRIE_NODE(NODE, SG_FR)        \
+        TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
+        SgFr_invalid_chain(SG_FR) = NODE
+#else
+#define INVALIDATE_ANSWER_TRIE_NODE(NODE, SG_FR)        \
+        FREE_ANSWER_TRIE_NODE(NODE)
+#endif /* YAPOR */
+#define INVALIDATE_ANSWER_TRIE_LEAF_NODE(NODE, SG_FR)   \
+        TAG_AS_INVALID_LEAF_NODE(NODE);                 \
+        TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
+        SgFr_invalid_chain(SG_FR) = NODE
 
 static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, int position) {
   if (IS_ANSWER_TRIE_HASH(current_node)) {
@@ -1304,15 +1494,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
       current_node = *bucket;
       if (current_node) {
 	ans_node_ptr next_node = TrNode_next(current_node);
-	if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	  FREE_ANSWER_TRIE_NODE(current_node);
+	if (IS_ANSWER_LEAF_NODE(current_node)) {
+	  INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
 	} else {
-	  LOCK_NODE(current_ans_node);
-	  TAG_AS_INVALID_LEAF_NODE(current_node);
-	  UNLOCK_NODE(current_ans_node);
-	  TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	  SgFr_invalid_chain(sg_fr) = current_node;
+	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	  INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
 	}
 	while (next_node) {
 	  current_node = next_node;
@@ -1332,13 +1518,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
   } else {
     if (position == TRAVERSE_POSITION_FIRST) {
       ans_node_ptr next_node = TrNode_next(current_node);
-      if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	FREE_ANSWER_TRIE_NODE(current_node);
+      if (IS_ANSWER_LEAF_NODE(current_node)) {
+	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	TAG_AS_INVALID_LEAF_NODE(current_node);
-	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	SgFr_invalid_chain(sg_fr) = current_node;
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
       while (next_node) {
 	current_node = next_node;
@@ -1346,20 +1530,17 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
 	invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT);
       }
     } else {
-      if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	FREE_ANSWER_TRIE_NODE(current_node);
+      if (IS_ANSWER_LEAF_NODE(current_node)) {
+	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	TAG_AS_INVALID_LEAF_NODE(current_node);
-	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	SgFr_invalid_chain(sg_fr) = current_node;
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
     }
   }
   return;
 }
-#endif /* MODE_DIRECTED_TABLING && ! MODE_TERMS_LOOP && ! MODE_GLOBAL_TRIE_LOOP */
-#endif /* INCLUDE_ANSWER_SEARCH_LOOP */
+#endif /* INCLUDE_ANSWER_SEARCH_MODE_DIRECTED */
 
 
 
@@ -1526,5 +1707,3 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #undef NEW_GLOBAL_TRIE_NODE
 #undef SUBGOAL_CHECK_INSERT_ENTRY
 #undef ANSWER_CHECK_INSERT_ENTRY
-#undef LOCK_NODE
-#undef UNLOCK_NODE

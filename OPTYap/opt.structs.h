@@ -213,9 +213,9 @@ struct global_optyap_data {
   struct dependency_frame *root_dependency_frame;
 #endif /* YAPOR */
   CELL table_var_enumerator[MAX_TABLE_VARS];
-#ifdef TABLE_LOCK_AT_WRITE_LEVEL
-  lockvar table_lock[TABLE_LOCK_BUCKETS];
-#endif /* TABLE_LOCK_AT_WRITE_LEVEL */
+#ifdef TRIE_LOCK_USING_GLOBAL_ARRAY
+  lockvar trie_locks[TRIE_LOCK_BUCKETS];
+#endif /* TRIE_LOCK_USING_GLOBAL_ARRAY */
 #ifdef TIMESTAMP_CHECK
   long timestamp;
 #endif /* TIMESTAMP_CHECK */
@@ -282,7 +282,7 @@ struct global_optyap_data {
 #define GLOBAL_root_dep_fr                      (GLOBAL_optyap_data.root_dependency_frame)
 #define GLOBAL_table_var_enumerator(index)      (GLOBAL_optyap_data.table_var_enumerator[index])
 #define GLOBAL_table_var_enumerator_addr(index) (GLOBAL_optyap_data.table_var_enumerator + (index))
-#define GLOBAL_table_lock(index)                (GLOBAL_optyap_data.table_lock[index])
+#define GLOBAL_trie_locks(index)                (GLOBAL_optyap_data.trie_locks[index])
 #define GLOBAL_timestamp                        (GLOBAL_optyap_data.timestamp)
 
 

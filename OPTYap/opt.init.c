@@ -147,10 +147,10 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
     CELL *pt = GLOBAL_table_var_enumerator_addr(i);
     RESET_VARIABLE(pt);
   }
-#ifdef TABLE_LOCK_AT_WRITE_LEVEL
-  for (i = 0; i < TABLE_LOCK_BUCKETS; i++)
-    INIT_LOCK(GLOBAL_table_lock(i));
-#endif /* TABLE_LOCK_AT_WRITE_LEVEL */
+#ifdef TRIE_LOCK_USING_GLOBAL_ARRAY
+  for (i = 0; i < TRIE_LOCK_BUCKETS; i++)
+    INIT_LOCK(GLOBAL_trie_locks(i));
+#endif /* TRIE_LOCK_USING_GLOBAL_ARRAY */
 #endif /* TABLING */
 
   return;
