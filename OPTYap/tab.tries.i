@@ -1470,6 +1470,19 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
 ***************************************************************/
 
 #ifdef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
+#ifdef YAPOR
+#define INVALIDATE_ANSWER_TRIE_NODE(NODE, SG_FR)        \
+        TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
+        SgFr_invalid_chain(SG_FR) = NODE
+#else
+#define INVALIDATE_ANSWER_TRIE_NODE(NODE, SG_FR)        \
+        FREE_ANSWER_TRIE_NODE(NODE)
+#endif /* YAPOR */
+#define INVALIDATE_ANSWER_TRIE_LEAF_NODE(NODE, SG_FR)   \
+        TAG_AS_INVALID_LEAF_NODE(NODE);                 \
+        TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
+        SgFr_invalid_chain(SG_FR) = NODE
+
 static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, int position) {
   if (IS_ANSWER_TRIE_HASH(current_node)) {
     ans_hash_ptr hash;
@@ -1481,15 +1494,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
       current_node = *bucket;
       if (current_node) {
 	ans_node_ptr next_node = TrNode_next(current_node);
-	if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	  FREE_ANSWER_TRIE_NODE(current_node);
+	if (IS_ANSWER_LEAF_NODE(current_node)) {
+	  INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
 	} else {
-	  LOCK_ANSWER_NODE(current_node);
-	  TAG_AS_INVALID_LEAF_NODE(current_node);
-	  UNLOCK_ANSWER_NODE(current_node);
-	  TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	  SgFr_invalid_chain(sg_fr) = current_node;
+	  invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	  INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
 	}
 	while (next_node) {
 	  current_node = next_node;
@@ -1509,13 +1518,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
   } else {
     if (position == TRAVERSE_POSITION_FIRST) {
       ans_node_ptr next_node = TrNode_next(current_node);
-      if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	FREE_ANSWER_TRIE_NODE(current_node);
+      if (IS_ANSWER_LEAF_NODE(current_node)) {
+	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	TAG_AS_INVALID_LEAF_NODE(current_node);
-	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	SgFr_invalid_chain(sg_fr) = current_node;
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
       while (next_node) {
 	current_node = next_node;
@@ -1523,13 +1530,11 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
 	invalidate_answer_trie(current_node, sg_fr, TRAVERSE_POSITION_NEXT);
       }
     } else {
-      if (! IS_ANSWER_LEAF_NODE(current_node)) {
-	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
-	FREE_ANSWER_TRIE_NODE(current_node);
+      if (IS_ANSWER_LEAF_NODE(current_node)) {
+	INVALIDATE_ANSWER_TRIE_LEAF_NODE(current_node, sg_fr);
       } else {
-	TAG_AS_INVALID_LEAF_NODE(current_node);
-	TrNode_next(current_node) = SgFr_invalid_chain(sg_fr);
-	SgFr_invalid_chain(sg_fr) = current_node;
+	invalidate_answer_trie(TrNode_child(current_node), sg_fr, TRAVERSE_POSITION_FIRST);
+	INVALIDATE_ANSWER_TRIE_NODE(current_node, sg_fr);
       }
     }
   }

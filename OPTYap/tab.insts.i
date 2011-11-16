@@ -1093,18 +1093,13 @@
       /* unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
       if (IS_INVALID_LEAF_NODE(TrNode_child(ans_node))) {
-	ans_node_ptr first_ans_node, aux_ans_node;
-	first_ans_node = ans_node;
+	ans_node_ptr old_ans_node;
+	old_ans_node = ans_node;
 	ans_node = TrNode_child(ans_node);
 	do {
 	  ans_node = TrNode_child(ans_node);
 	} while (IS_INVALID_LEAF_NODE(ans_node));
-	aux_ans_node = TrNode_child(first_ans_node);
-        do {
-	  TrNode_child(first_ans_node) = ans_node;
-	  first_ans_node = aux_ans_node;
-	  aux_ans_node = TrNode_child(first_ans_node);
-	} while (aux_ans_node != ans_node);
+	TrNode_child(old_ans_node) = ans_node;
       } else
 #endif /* MODE_DIRECTED_TABLING */
 	ans_node = TrNode_child(ans_node);
@@ -1157,18 +1152,13 @@
           /* dependency frame with unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
 	  if (IS_INVALID_LEAF_NODE(TrNode_child(ans_node))) {
-	    ans_node_ptr first_ans_node, aux_ans_node;
-	    first_ans_node = ans_node;
+	    ans_node_ptr old_ans_node;
+	    old_ans_node = ans_node;
 	    ans_node = TrNode_child(ans_node);
 	    do {
 	      ans_node = TrNode_child(ans_node);
 	    } while (IS_INVALID_LEAF_NODE(ans_node));
-	    aux_ans_node = TrNode_child(first_ans_node);
-	    do {
-	      TrNode_child(first_ans_node) = ans_node;
-	      first_ans_node = aux_ans_node;
-	      aux_ans_node = TrNode_child(first_ans_node);
-	    } while (aux_ans_node != ans_node);
+	    TrNode_child(old_ans_node) = ans_node;
 	  } else
 #endif /* MODE_DIRECTED_TABLING */
 	    ans_node = TrNode_child(ans_node);
@@ -1416,18 +1406,13 @@
         /* dependency frame with unconsumed answers */
 #ifdef MODE_DIRECTED_TABLING
 	if (IS_INVALID_LEAF_NODE(TrNode_child(ans_node))) {
-	  ans_node_ptr first_ans_node, aux_ans_node;
-	  first_ans_node = ans_node;
+	  ans_node_ptr old_ans_node;
+	  old_ans_node = ans_node;
 	  ans_node = TrNode_child(ans_node);
 	  do {
 	    ans_node = TrNode_child(ans_node);
 	  } while (IS_INVALID_LEAF_NODE(ans_node));
-	  aux_ans_node = TrNode_child(first_ans_node);
-	  do {
-	    TrNode_child(first_ans_node) = ans_node;
-	    first_ans_node = aux_ans_node;
-	    aux_ans_node = TrNode_child(first_ans_node);
-	  } while (aux_ans_node != ans_node);
+	  TrNode_child(old_ans_node) = ans_node;
 	} else
 #endif /* MODE_DIRECTED_TABLING */
 	  ans_node = TrNode_child(ans_node);
@@ -1591,18 +1576,13 @@
           UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 #ifdef MODE_DIRECTED_TABLING
 	  if (IS_INVALID_LEAF_NODE(TrNode_child(ans_node))) {
-	    ans_node_ptr first_ans_node, aux_ans_node;
-	    first_ans_node = ans_node;
+	    ans_node_ptr old_ans_node;
+	    old_ans_node = ans_node;
 	    ans_node = TrNode_child(ans_node);
 	    do {
 	      ans_node = TrNode_child(ans_node);
 	    } while (IS_INVALID_LEAF_NODE(ans_node));
-	    aux_ans_node = TrNode_child(first_ans_node);
-	    do {
-	      TrNode_child(first_ans_node) = ans_node;
-	      first_ans_node = aux_ans_node;
-	      aux_ans_node = TrNode_child(first_ans_node);
-	    } while (aux_ans_node != ans_node);
+	    TrNode_child(old_ans_node) = ans_node;
 	  } else
 #endif /* MODE_DIRECTED_TABLING */
 	    ans_node = TrNode_child(ans_node);
