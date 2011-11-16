@@ -10257,7 +10257,7 @@ Yap_absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	Int i2 = IntOfTerm(d1);
 	if (i2 < 0)
-	  d0 = MkIntegerTerm(IntOfTerm(d0) >> -i2);
+	  d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
 	else
 	  d0 = do_sll(IntOfTerm(d0),i2);
       }
@@ -10343,7 +10343,7 @@ Yap_absmi(int inp)
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
-	    d0 = MkIntegerTerm(d1 >> -i2);
+	    d0 = MkIntegerTerm(SLR(d1, -i2));
 	  else
 	    d0 = do_sll(d1,i2);
 	}
@@ -10388,7 +10388,7 @@ Yap_absmi(int inp)
       if (IsIntTerm(d0) && IsIntTerm(d1)) {
 	Int i2 = IntOfTerm(d1);
 	if (i2 < 0)
-	  d0 = MkIntegerTerm(IntOfTerm(d0) >> -i2);
+	  d0 = MkIntegerTerm(SLR(IntOfTerm(d0), -i2));
 	else
 	  d0 = do_sll(IntOfTerm(d0),i2);
       }
@@ -10481,7 +10481,7 @@ Yap_absmi(int inp)
 	if (IsIntTerm(d0)) {
 	  Int i2 = IntOfTerm(d0);
 	  if (i2 < 0)
-	    d0 = MkIntegerTerm(d1 >> -i2);
+	    d0 = MkIntegerTerm(SLR(d1, -i2));
 	  else
 	    d0 = do_sll(d1,i2);
 	}
@@ -10531,7 +10531,7 @@ Yap_absmi(int inp)
 	if (i2 < 0)
 	  d0 = do_sll(IntOfTerm(d0), -i2);
 	else
-	  d0 = MkIntTerm(IntOfTerm(d0) >> i2);
+	  d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
       }
       else {
 	saveregs();
@@ -10576,7 +10576,7 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.xxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
+	  d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
 	}
 	else {
 	  saveregs();
@@ -10617,7 +10617,7 @@ Yap_absmi(int inp)
 	 if (i2 < 0)
 	   d0 = do_sll(d1, -i2);
 	 else
-	   d0 = MkIntegerTerm(d1 >> i2);
+	   d0 = MkIntegerTerm(SLR(d1, i2));
 	}
 	else {
 	  saveregs();
@@ -10662,7 +10662,7 @@ Yap_absmi(int inp)
 	 if (i2 < 0)
 	   d0 = do_sll(IntOfTerm(d0), -i2);
 	 else
-	   d0 = MkIntTerm(IntOfTerm(d0) >> i2);
+	   d0 = MkIntTerm(SLR(IntOfTerm(d0), i2));
       }
       else {
 	saveregs();
@@ -10710,7 +10710,7 @@ Yap_absmi(int inp)
       {
 	Int d1 = PREG->u.yxn.c;
 	if (IsIntTerm(d0)) {
-	  d0 = MkIntTerm(IntOfTerm(d0) >> d1);
+	  d0 = MkIntTerm(SLR(IntOfTerm(d0), d1));
 	}
 	else {
 	  saveregs();
@@ -10753,7 +10753,7 @@ Yap_absmi(int inp)
 	 if (i2 < 0)
 	   d0 = do_sll(d1, -i2);
 	 else
-	   d0 = MkIntegerTerm(d1 >> i2);
+	   d0 = MkIntegerTerm(SLR(d1, i2));
 	}
 	else {
 	  saveregs();
