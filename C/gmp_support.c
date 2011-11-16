@@ -377,16 +377,16 @@ Yap_gmp_sll_big_int(Term t, Int i)
     MP_INT *b = Yap_BigIntOfTerm(t);
 
     if (i > 0) {
-      mpz_init_set(&new, b);
-      mpz_mul_2exp(&new, &new, i);
+      mpz_init(&new);
+      mpz_mul_2exp(&new, b, i);
     } else if (i == 0) {
       return t;
     } else {
-      mpz_init_set(&new, b);
+      mpz_init(&new);
       if (i == Int_MIN) {
 	return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, MkIntegerTerm(i), "<</2");
       }
-      mpz_tdiv_q_2exp(&new, &new, -i);
+      mpz_fdiv_q_2exp(&new, b, -i);
     }
     return MkBigAndClose(&new);
   } else {

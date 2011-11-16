@@ -58,6 +58,25 @@ AC_SUBST(C_INTERF_FLAGS)
 AC_SUBST(C_PARSER_FLAGS)
 AC_LANG(C)
 
+AC_CANONICAL_SYSTEM
+
+AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
+
+case "$target_cpu" in
+    i*86*)
+     YAP_TARGET=i386
+    ;;
+    x86*)
+      YAP_TARGET=amd64
+    ;;
+    sparc*)
+      YAP_TARGET=sparc
+    ;;
+    *)
+      YAP_TARGET=unknown
+    ;;
+ esac
+
 dnl Gecode support
 AC_CHECK_HEADER(gecode/support/config.hpp,
 	have_gecode=yes, have_gecode=no)
@@ -94,7 +113,7 @@ AC_COMPILE_IFELSE([
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],
-	tabling="$enableval", tabling=no)
+	tabling="$enableval", tabling=yes)
 AC_ARG_ENABLE(or-parallelism,
 	[ --enable-or-parallelism    support or-parallelism as: copy,sba,a-cow,threads ],
 	orparallelism="$enableval", orparallelism=no)
@@ -142,7 +161,7 @@ AC_ARG_ENABLE(static_compilation,
 	static_compilation="$enableval", static_compilation=no)
 AC_ARG_ENABLE(use-malloc,
 	[ --enable-use-malloc        use malloc to allocate memory ],
-	use_malloc="$enableval", use_malloc=no)
+	use_malloc="$enableval", use_malloc=yes)
 AC_ARG_ENABLE(condor,
 	[ --enable-condor            allow YAP to be used from condor ],
 	use_condor="$enableval", use_condor=no)
@@ -190,7 +209,6 @@ AC_ARG_WITH(gmp,
 AC_ARG_WITH(yapr,
 	[ --with-yapr[=DIR]           interface to R language, R installed in DIR],
 	if test "$withval" = yes; then
-		YAPR_INCLUDES="-I/usr/share/R/include"
 		yap_cv_yapr=yes
 	elif test "$withval" = no; then
 		yap_cv_yapr=no
@@ -419,10 +437,6 @@ AC_DEFINE_UNQUOTED(DefTrailSpace,$yap_cv_trail_space)
 AC_SUBST(DefHeapSpace)
 AC_SUBST(DefStackSpace)
 AC_SUBST(DefTrailSpace)
-
-AC_CANONICAL_SYSTEM
-
-AC_DEFINE_UNQUOTED(HOST_ALIAS,"${target}")
 
 if test "$or-parallelism" = no
 then
@@ -693,13 +707,46 @@ then
    then
        case "$target_os" in
 	*darwin*)
-	YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
-	EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -framework R -L /Library/Frameworks/R.framework/Libraries"
+	  YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
+	  EXTRA_LIBS_FOR_R="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
 	;;
 	**)		
-dnl one of the two may work (Fedora vs Ubuntu)
-	YAPR_INCLUDES="-I/usr/include/R -I/usr/share/R/include"
+          dnl R is spread all over the place
+	  dnl one of the two may work (Fedora/Ubuntu)
+          if test -n "$R_HOME" ; then
+	    YAPR_INCLUDES="-I$R_HOME/include"
+          elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/include ; then
+	    YAPR_INCLUDES="-I/usr/lib64/R/include"
+          elif test -d /usr/include/R; then
+	    YAPR_INCLUDES="-I/usr/include/R"
+          elif test -d /usr/share/R/include; then
+	    YAPR_INCLUDES="-I/usr/share/R/include"
+	  fi	
+	  echo $YAP_TARGET
+          if test -n "$R_HOME" ; then
+	    EXTRA_LIBS_FOR_R="-I$R_HOME/lib -lR"
+          elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
+	    EXTRA_LIBS_FOR_R="-L /usr/lib64/R/lib -lR"
+          elif test -d /usr/lib/R; then
+	    EXTRA_LIBS_FOR_R="-L /usr/lib/R/lib -lR"
+	  fi
+        ;;
 	esac
+   else
+       case "$target_os" in
+	  *cygwin*|*mingw*)
+            YAPR_INCLUDES="-I\"$yap_cv_yapr/include\""
+	    if test "$YAP_TARGET" = i386; then
+	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/i386/R.dll\""
+	    else
+	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/x64/R.dll\""
+	    fi
+	   ;;
+	  *)
+            YAPR_INCLUDES="-I$yap_cv_yapr/include"
+	    EXTRA_LIBS_FOR_R="-L $yap_cv_yapr/lib -lR"
+	   ;;
+         esac
    fi
    AC_CHECK_LIB(R,main)
 fi
@@ -905,18 +952,7 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	        JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
                 ;;
               esac
-              case "$target_cpu" in
-	        i*86*)
-                JAVA_TARGET=i386
-                ;;
-                x86*)
-                JAVA_TARGET=amd64
-               ;;
-               sparc*)
-               JAVA_TARGET=sparc
-                ;;
-               esac
-	       JAVALIBPATH="-L$JAVA_HOME/jre/lib/$JAVA_TARGET -L$JAVA_HOME/jre/lib/$JAVA_TARGET/client  -L$JAVA_HOME/jre/lib/$JAVA_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$JAVA_TARGET -ljava -lverify -ljvm "
+	       JAVALIBPATH="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
 	       	  ;;
 	esac
 	if test "$yap_cv_java" = ""; then
@@ -1672,6 +1708,7 @@ AC_SUBST(CUDD_CPPFLAGS)
 AC_SUBST(ENABLE_MINISAT)
 AC_SUBST(ENABLE_YAPR)
 AC_SUBST(YAPR_INCLUDES)
+AC_SUBST(EXTRA_LIBS_FOR_R)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 
