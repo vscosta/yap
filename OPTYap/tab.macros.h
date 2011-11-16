@@ -170,6 +170,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_ANSWER_TRIE_HASH(NODE)   (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
 #define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
+#define HASH_TRIE_LOCK(NODE)        GLOBAL_trie_locks((((unsigned long int) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
 
 /* auxiliary stack */
 #define STACK_PUSH_UP(ITEM, STACK)          *--(STACK) = (CELL)(ITEM)
@@ -272,62 +273,15 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define AnsHash_init_previous_field(HASH, SG_FR)
 #endif /* MODE_DIRECTED_TABLING */
 
-#define HASH_WRITE_LEVEL_LOCK(NODE)  GLOBAL_write_level_locks((((unsigned long int) (NODE)) >> 5) & (LOCK_AT_WRITE_LEVEL_BUCKETS - 1))
-
 #ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
 #define LOCK_SUBGOAL_TRIE(TAB_ENT)    LOCK(TabEnt_lock(TAB_ENT))
 #define UNLOCK_SUBGOAL_TRIE(TAB_ENT)  UNLOCK(TabEnt_lock(TAB_ENT))
-#else
-#define LOCK_SUBGOAL_TRIE(TAB_ENT)
-#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)
-#endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
-
-#ifdef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
-#define LOCK_SUBGOAL_NODE(NODE)    LOCK(TrNode_lock(NODE))
-#define UNLOCK_SUBGOAL_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
-#elif SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
-#define LOCK_SUBGOAL_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#define UNLOCK_SUBGOAL_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#else
-#define LOCK_SUBGOAL_NODE(NODE)
-#define UNLOCK_SUBGOAL_NODE(NODE)
-#endif /* SUBGOAL_TRIE_LOCK_LEVEL */
-
-#ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
-#define LOCK_ANSWER_TRIE(SG_FR)    LOCK(SgFr_lock(SG_FR))
-#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK(SgFr_lock(SG_FR))
-#else
-#define LOCK_ANSWER_TRIE(SG_FR)
-#define UNLOCK_ANSWER_TRIE(SG_FR)
-#endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
-
-#ifdef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
-#define LOCK_ANSWER_NODE(NODE)    LOCK(TrNode_lock(NODE))
-#define UNLOCK_ANSWER_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
-#elif ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
-#define LOCK_ANSWER_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#define UNLOCK_ANSWER_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#else
-#define LOCK_ANSWER_NODE(NODE)
-#define UNLOCK_ANSWER_NODE(NODE)
-#endif /* ANSWER_TRIE_LOCK_LEVEL */
-
-#ifdef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
-#define LOCK_GLOBAL_NODE(NODE)    LOCK(TrNode_lock(NODE))
-#define UNLOCK_GLOBAL_NODE(NODE)  UNLOCK(TrNode_lock(NODE))
-#elif GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
-#define LOCK_GLOBAL_NODE(NODE)    LOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#define UNLOCK_GLOBAL_NODE(NODE)  UNLOCK(HASH_WRITE_LEVEL_LOCK(NODE))
-#else
-#define LOCK_GLOBAL_NODE(NODE)
-#define UNLOCK_GLOBAL_NODE(NODE)
-#endif /* GLOBAL_TRIE_LOCK_LEVEL */
-
-#ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH
 #else
+#define LOCK_SUBGOAL_TRIE(TAB_ENT)
+#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         LOCK(TabEnt_lock(TAB_ENT));                    \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
@@ -336,36 +290,64 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
 
 #ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
-#define AnsHash_init_chain_fields(HASH, SG_FR)         \
-        AnsHash_init_previous_field(HASH, SG_FR);      \
-        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
+#define LOCK_ANSWER_TRIE(SG_FR)    LOCK(SgFr_lock(SG_FR))
+#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK(SgFr_lock(SG_FR))
+#define AnsHash_init_chain_fields(HASH, SG_FR)     \
+        AnsHash_init_previous_field(HASH, SG_FR);  \
+        Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
 	SgFr_hash_chain(SG_FR) = HASH
 #else
-#define AnsHash_init_chain_fields(HASH, SG_FR)         \
-        LOCK(SgFr_lock(SG_FR));                        \
-        AnsHash_init_previous_field(HASH, SG_FR);      \
-        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
-        SgFr_hash_chain(SG_FR) = HASH;                 \
+#define LOCK_ANSWER_TRIE(SG_FR)
+#define UNLOCK_ANSWER_TRIE(SG_FR)
+#define AnsHash_init_chain_fields(HASH, SG_FR)     \
+        LOCK(SgFr_lock(SG_FR));                    \
+        AnsHash_init_previous_field(HASH, SG_FR);  \
+        Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
+        SgFr_hash_chain(SG_FR) = HASH;             \
         UNLOCK(SgFr_lock(SG_FR))
 #endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
 
-#ifdef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
+#ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_SUBGOAL_NODE(NODE)       LOCK(TrNode_lock(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(TrNode_lock(NODE))
 #define SgNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
-#else
+#elif SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_SUBGOAL_NODE(NODE)       LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(HASH_TRIE_LOCK(NODE))
 #define SgNode_init_lock_field(NODE)
-#endif /* SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL */
+#else
+#define LOCK_SUBGOAL_NODE(NODE)
+#define UNLOCK_SUBGOAL_NODE(NODE)
+#define SgNode_init_lock_field(NODE)
+#endif /* SUBGOAL_TRIE_LOCK_LEVEL */
 
-#ifdef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
+#ifdef ANSWER_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_ANSWER_NODE(NODE)         LOCK(TrNode_lock(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(TrNode_lock(NODE))
 #define AnsNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
-#else
+#elif ANSWER_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_ANSWER_NODE(NODE)         LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(HASH_TRIE_LOCK(NODE))
 #define AnsNode_init_lock_field(NODE)
-#endif /* ANSWER_TRIE_LOCK_AT_NODE_LEVEL */
-
-#ifdef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
-#define GtNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
 #else
+#define LOCK_ANSWER_NODE(NODE)
+#define UNLOCK_ANSWER_NODE(NODE)
+#define AnsNode_init_lock_field(NODE)
+#endif /* ANSWER_TRIE_LOCK_LEVEL */
+
+#ifdef GLOBAL_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_GLOBAL_NODE(NODE)        LOCK(TrNode_lock(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(TrNode_lock(NODE))
+#define GtNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#elif GLOBAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_GLOBAL_NODE(NODE)        LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(HASH_TRIE_LOCK(NODE))
 #define GtNode_init_lock_field(NODE)
-#endif /* GLOBAL_TRIE_LOCK_AT_NODE_LEVEL */
+#else
+#define LOCK_GLOBAL_NODE(NODE)
+#define UNLOCK_GLOBAL_NODE(NODE)
+#define GtNode_init_lock_field(NODE)
+#endif /* GLOBAL_TRIE_LOCK_LEVEL */
 
 #define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
         { register sg_node_ptr sg_node;                                \
