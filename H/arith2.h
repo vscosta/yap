@@ -72,7 +72,7 @@ sub_int(Int i, Int j)
 inline static Int
 SLR(Int i, Int shift)
 {
-  return (shift <  sizeof(Int)*8-1 ? shift : (i >= 0 ?  0 : -1));
+  return (shift <  sizeof(Int)*8-1 ? i >> shift : (i >= 0 ?  0 : -1));
 }
 
 #ifdef __GNUC__
