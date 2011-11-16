@@ -111,33 +111,11 @@ static void
 UserCPredicate(char *a, CPredicate def, unsigned long int arity, Term mod, int flags)
 {
   CACHE_REGS
-  PredEntry *pe;
+
   Term cm = CurrentModule;
   /* fprintf(stderr,"doing %s:%s/%d\n", RepAtom(AtomOfTerm(mod))->StrOfAE, a,arity); */
   CurrentModule = mod;
   Yap_InitCPred(a, arity, def, (UserCPredFlag|CArgsPredFlag|flags));
-  if (arity == 0) {
-    Atom at;
-    while ((at = Yap_LookupAtom(a)) == NULL) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return;
-      }
-    }
-    pe = RepPredProp(PredPropByAtom(at,mod));
-  } else {
-    Atom at;
-    Functor f;
-
-    while ((at = Yap_LookupAtom(a)) == NULL) {
-      if (!Yap_growheap(FALSE, 0L, NULL)) {
-	Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
-	return;
-      }
-    }
-    f = Yap_MkFunctor(at, arity);
-    pe = RepPredProp(PredPropByFunc(f,mod));
-  }
   CurrentModule = cm;
 } 
 
@@ -932,7 +910,7 @@ X_API int PL_put_int64(term_t t, int64_t n)
 {
   CACHE_REGS
 #if SIZEOF_INT_P==8
-  Yap_PutInSlot(t,MkIntegerTerm(n));
+  Yap_PutInSlot(t,MkIntegerTerm(n) PASS_REGS);
   return TRUE;
 #elif USE_GMP
   char s[64];
@@ -2032,10 +2010,9 @@ PL_strip_module(term_t raw, module_t *m, term_t plain)
 
 X_API atom_t PL_module_name(module_t m)
 {
-  Term t;
   Atom at = AtomOfTerm((Term)m);
   WRITE_LOCK(RepAtom(at)->ARWLock);  
-  t = Yap_Module(MkAtomTerm(at));
+  Yap_Module(MkAtomTerm(at));
   WRITE_UNLOCK(RepAtom(at)->ARWLock);  
   return AtomToSWIAtom(at);
 }
