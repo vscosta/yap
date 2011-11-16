@@ -4723,7 +4723,7 @@ Yap_UnNumberTerm(Term inp, int share) {
 static Int
 p_unnumbervars( USES_REGS1 ) {
   /* this should be a standard Prolog term, so we allow sharing? */
-  return Yap_unify(Yap_UnNumberTerm(ARG1, FALSE PASS_REGS), ARG2);
+  return Yap_unify(UnnumberTerm(ARG1, 2, FALSE PASS_REGS), ARG2);
 }
 
 void Yap_InitUtilCPreds(void)
