@@ -47,7 +47,7 @@ extern int Yap_page_size;
 
 #ifdef USE_SYSTEM_MALLOC
 /****************************************************************************************
-**                                       USE_SYSTEM_MALLOC                             **
+**                                   USE_SYSTEM_MALLOC                                 **
 ****************************************************************************************/
 #define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                \
         if ((STR = (STR_TYPE *) malloc(SIZE)) == NULL)                                  \
@@ -56,7 +56,7 @@ extern int Yap_page_size;
         free(STR)
 #else
 /****************************************************************************************
-**                                     ! USE_SYSTEM_MALLOC                             **
+**                                 ! USE_SYSTEM_MALLOC                                 **
 ****************************************************************************************/
 #define ALLOC_BLOCK(STR, SIZE, STR_TYPE)                                                \
         { char *block_ptr;                                                              \
@@ -81,10 +81,72 @@ extern int Yap_page_size;
 
 
 
-#ifdef USE_PAGES_MALLOC
+#ifndef USE_PAGES_MALLOC
+/****************************************************************************************
+**                                 ! USE_PAGES_MALLOC                                  **
+****************************************************************************************/
+#define ALLOC_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                              \
+        LOCK(Pg_lock(STR_PAGES));                                                       \
+        UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                      \
+        UNLOCK(Pg_lock(STR_PAGES));                                                     \
+        ALLOC_BLOCK(STR, sizeof(STR_TYPE), STR_TYPE)
+#define ALLOC_NEXT_FREE_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                    \
+        ALLOC_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)
+#define FREE_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                               \
+        LOCK(Pg_lock(STR_PAGES));                                                       \
+        UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
+        UNLOCK(Pg_lock(STR_PAGES));                                                     \
+        FREE_BLOCK(STR)
+#else
 /****************************************************************************************
 **                               USE_PAGES_MALLOC                                      **
 ****************************************************************************************/
+#define ALLOC_VOID_PAGES(PG_HD, VOID_PAGES)	                                        \
+        { int i, shmid;                                                                 \
+          pg_hd_ptr aux_pg_hd;                                                          \
+          if ((shmid = shmget(IPC_PRIVATE, SHMMAX, SHM_R|SHM_W)) == -1)                 \
+            Yap_Error(FATAL_ERROR, TermNil, "shmget error (ALLOC_VOID_PAGES)");         \
+          if ((PG_HD = (pg_hd_ptr) shmat(shmid, NULL, 0)) == (void *) -1)               \
+            Yap_Error(FATAL_ERROR, TermNil, "shmat error (ALLOC_VOID_PAGES)");          \
+          if (shmctl(shmid, IPC_RMID, 0) != 0)                                          \
+            Yap_Error(FATAL_ERROR, TermNil, "shmctl error (ALLOC_VOID_PAGES)");         \
+          aux_pg_hd = (pg_hd_ptr)(((void *)PG_HD) + Yap_page_size);                     \
+          Pg_free_pg(VOID_PAGES) = aux_pg_hd;                                           \
+          for (i = 2; i < SHMMAX / Yap_page_size; i++) {                                \
+            PgHd_next(aux_pg_hd) = (pg_hd_ptr)(((void *)aux_pg_hd) + Yap_page_size);    \
+            aux_pg_hd = PgHd_next(aux_pg_hd);                                           \
+          }                                                                             \
+          PgHd_next(aux_pg_hd) = NULL;                                                  \
+          UPDATE_STATS(Pg_pg_alloc(VOID_PAGES), SHMMAX / Yap_page_size);                \
+          UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                                   \
+        }
+
+#define ALLOC_PAGE(PG_HD, VOID_PAGES)	                                               	\
+        LOCK(Pg_lock(VOID_PAGES));                                                      \
+        PG_HD = Pg_free_pg(VOID_PAGES);                                                 \
+        if (PG_HD == NULL) {                                                            \
+          ALLOC_VOID_PAGES(PG_HD, VOID_PAGES);                                          \
+        } else {                          						\
+          Pg_free_pg(VOID_PAGES) = PgHd_next(PG_HD);                                    \
+          UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                                   \
+        }                                						\
+        UNLOCK(Pg_lock(VOID_PAGES))
+
+#define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                           \
+        { int i;                                                                        \
+          STR_TYPE *aux_str;                                                            \
+          PgHd_str_in_use(PG_HD) = 0;                                                   \
+          PgHd_previous(PG_HD) = NULL;                                                  \
+          PgHd_next(PG_HD) = NULL;                                                      \
+          PgHd_free_str(PG_HD) = (void *) (PG_HD + 1);                                  \
+          aux_str = (STR_TYPE *) PgHd_free_str(PG_HD);                                  \
+          for (i = 1; i < Pg_str_per_pg(STR_PAGES); i++) {                              \
+            STRUCT_NEXT(aux_str) = aux_str + 1;                                         \
+            aux_str++;                                                                  \
+          }                                                                             \
+          STRUCT_NEXT(aux_str) = NULL;                                                  \
+        }
+
 #define FREE_PAGE(PG_HD, VOID_PAGES)					                \
         LOCK(Pg_lock(VOID_PAGES));                                                      \
         UPDATE_STATS(Pg_str_in_use(VOID_PAGES), -1);                                    \
@@ -121,46 +183,8 @@ extern int Yap_page_size;
         }
 #ifdef LIMIT_TABLING
 /****************************************************************************************
-**                      USE_PAGES_MALLOC && LIMIT_TABLING                              **
+**                          USE_PAGES_MALLOC && LIMIT_TABLING                          **
 ****************************************************************************************/
-#define INIT_PAGE(PG_HD, STR_PAGES, STR_TYPE)                                           \
-        { int i;                                                                        \
-          STR_TYPE *aux_str;                                                            \
-          PgHd_str_in_use(PG_HD) = 0;                                                   \
-          PgHd_previous(PG_HD) = NULL;                                                  \
-          aux_str = (STR_TYPE *) (PG_HD + 1);                                           \
-          PgHd_free_str(PG_HD) = (void *) aux_str;                                      \
-          for (i = 1; i < Pg_str_per_pg(STR_PAGES); i++) {                              \
-            STRUCT_NEXT(aux_str) = aux_str + 1;                                         \
-            aux_str++;                                                                  \
-          }                                                                             \
-          STRUCT_NEXT(aux_str) = NULL;                                                  \
-          LOCK(Pg_lock(STR_PAGES));                                                     \
-          if ((PgHd_next(PG_HD) = Pg_free_pg(STR_PAGES)) != NULL)                       \
-            PgHd_previous(PgHd_next(PG_HD)) = PG_HD;                                    \
-          Pg_free_pg(STR_PAGES) = PG_HD;                                                \
-          UPDATE_STATS(Pg_pg_alloc(STR_PAGES), 1);                                      \
-        }
-
-#define ALLOC_PAGE(PG_HD, VOID_PAGES)	                                                \
-        { int i, shmid;                                                                 \
-          pg_hd_ptr aux_pg_hd;                                                          \
-          if ((shmid = shmget(IPC_PRIVATE, SHMMAX, SHM_R|SHM_W)) == -1)                 \
-            Yap_Error(FATAL_ERROR, TermNil, "shmget error (ALLOC_PAGE)");               \
-          if ((PG_HD = (pg_hd_ptr) shmat(shmid, NULL, 0)) == (void *) -1)               \
-            Yap_Error(FATAL_ERROR, TermNil, "shmat error (ALLOC_PAGE)");                \
-          if (shmctl(shmid, IPC_RMID, 0) != 0)                                          \
-            Yap_Error(FATAL_ERROR, TermNil, "shmctl error (ALLOC_PAGE)");               \
-          aux_pg_hd = (pg_hd_ptr)(((void *)PG_HD) + Yap_page_size);                     \
-          Pg_free_pg(VOID_PAGES) = aux_pg_hd;                                           \
-          for (i = 2; i < SHMMAX / Yap_page_size; i++) {                                \
-            PgHd_next(aux_pg_hd) = (pg_hd_ptr)(((void *)aux_pg_hd) + Yap_page_size);    \
-            aux_pg_hd = PgHd_next(aux_pg_hd);                                           \
-          }                                                                             \
-          PgHd_next(aux_pg_hd) = NULL;                                                  \
-          UPDATE_STATS(Pg_pg_alloc(VOID_PAGES), SHMMAX / Yap_page_size);                \
-        }
-
 #define RECOVER_UNUSED_SPACE(STR_PAGES, VOID_PAGES)                                    	\
         { sg_fr_ptr sg_fr = GLOBAL_check_sg_fr;                                         \
           do {                                                                          \
@@ -171,9 +195,9 @@ extern int Yap_page_size;
             if (sg_fr == NULL)                                                          \
               Yap_Error(FATAL_ERROR, TermNil, "no space left (RECOVER_UNUSED_SPACE)");  \
               /* see function 'InteractSIGINT' in file 'sysbits.c' */                   \
-              /* Yap_Error(PURE_ABORT, TermNil, "");               */                   \
-              /* restore_absmi_regs(&Yap_standard_regs);           */                   \
-              /* siglongjmp (LOCAL_RestartEnv, 1);                   */                 \
+              /*   Yap_Error(PURE_ABORT, TermNil, "");             */                   \
+              /*   restore_absmi_regs(&Yap_standard_regs);         */                   \
+              /*   siglongjmp (LOCAL_RestartEnv, 1);               */                   \
             if (SgFr_first_answer(sg_fr) &&                                             \
                 SgFr_first_answer(sg_fr) != SgFr_answer_trie(sg_fr)) {                  \
               SgFr_state(sg_fr) = ready;                                                \
@@ -202,11 +226,20 @@ extern int Yap_page_size;
               UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                               \
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               INIT_PAGE(pg_hd, STR_PAGES, STR_TYPE);                                    \
-            } else if ( GLOBAL_max_pages != Pg_pg_alloc(VOID_PAGES)) {                  \
-              ALLOC_PAGE(pg_hd, VOID_PAGES);                                            \
-              UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                               \
+              LOCK(Pg_lock(STR_PAGES));                                                 \
+              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                   \
+                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                \
+              Pg_free_pg(STR_PAGES) = pg_hd;                                            \
+              UPDATE_STATS(Pg_pg_alloc(STR_PAGES), 1);                                  \
+            } else if (GLOBAL_max_pages != Pg_pg_alloc(VOID_PAGES)) {                   \
+              ALLOC_VOID_PAGES(pg_hd, VOID_PAGES);                                      \
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               INIT_PAGE(pg_hd, STR_PAGES, STR_TYPE);                                    \
+              LOCK(Pg_lock(STR_PAGES));                                                 \
+              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                   \
+                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                \
+              Pg_free_pg(STR_PAGES) = pg_hd;                                            \
+              UPDATE_STATS(Pg_pg_alloc(STR_PAGES), 1);                                  \
             } else {                                                                    \
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               RECOVER_UNUSED_SPACE(STR_PAGES, VOID_PAGES);				\
@@ -237,11 +270,20 @@ extern int Yap_page_size;
               UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                               \
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               INIT_PAGE(pg_hd, STR_PAGES, STR_TYPE);                                    \
+              LOCK(Pg_lock(STR_PAGES));                                                 \
+              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                   \
+                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                \
+              Pg_free_pg(STR_PAGES) = pg_hd;                                            \
+              UPDATE_STATS(Pg_pg_alloc(STR_PAGES), 1);                                  \
             } else if ( GLOBAL_max_pages != Pg_pg_alloc(VOID_PAGES)) {                  \
-              ALLOC_PAGE(pg_hd, VOID_PAGES);                                           	\
-              UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                               \
+              ALLOC_VOID_PAGES(pg_hd, VOID_PAGES);                                   	\
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               INIT_PAGE(pg_hd, STR_PAGES, STR_TYPE);                                    \
+              LOCK(Pg_lock(STR_PAGES));                                                 \
+              if ((PgHd_next(pg_hd) = Pg_free_pg(STR_PAGES)) != NULL)                   \
+                PgHd_previous(PgHd_next(pg_hd)) = pg_hd;                                \
+              Pg_free_pg(STR_PAGES) = pg_hd;                                            \
+              UPDATE_STATS(Pg_pg_alloc(STR_PAGES), 1);                                  \
             } else {                                                                    \
               UNLOCK(Pg_lock(VOID_PAGES));                                              \
               RECOVER_UNUSED_SPACE(STR_PAGES, VOID_PAGES);				\
@@ -260,33 +302,8 @@ extern int Yap_page_size;
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
 #else
 /****************************************************************************************
-**                      USE_PAGES_MALLOC && ! LIMIT_TABLING                            **
+**                         USE_PAGES_MALLOC && ! LIMIT_TABLING                         **
 ****************************************************************************************/
-#define ALLOC_PAGE(PG_HD, VOID_PAGES)	                                               	\
-        LOCK(Pg_lock(VOID_PAGES));                                                      \
-        if (Pg_free_pg(VOID_PAGES) == NULL) {                                           \
-          int i, shmid;                                                                 \
-          pg_hd_ptr pg_hd, aux_pg_hd;                                                   \
-          if ((shmid = shmget(IPC_PRIVATE, SHMMAX, SHM_R|SHM_W)) == -1)                 \
-            Yap_Error(FATAL_ERROR, TermNil, "shmget error (ALLOC_PAGE)");               \
-          if ((pg_hd = (pg_hd_ptr) shmat(shmid, NULL, 0)) == (void *) -1)               \
-            Yap_Error(FATAL_ERROR, TermNil, "shmat error (ALLOC_PAGE)");                \
-          if (shmctl(shmid, IPC_RMID, 0) != 0)                                          \
-            Yap_Error(FATAL_ERROR, TermNil, "shmctl error (ALLOC_PAGE)");               \
-          Pg_free_pg(VOID_PAGES) = pg_hd;                                               \
-          for (i = 1; i < SHMMAX / Yap_page_size; i++) {                                \
-            aux_pg_hd = (pg_hd_ptr)(((void *)pg_hd) + Yap_page_size);                   \
-            PgHd_next(pg_hd) = aux_pg_hd;                                               \
-            pg_hd = aux_pg_hd;                                                          \
-          }                                                                             \
-          PgHd_next(pg_hd) = NULL;                                                      \
-          UPDATE_STATS(Pg_pg_alloc(VOID_PAGES), SHMMAX / Yap_page_size);                \
-        }                                                                               \
-        UPDATE_STATS(Pg_str_in_use(VOID_PAGES), 1);                                     \
-        PG_HD = Pg_free_pg(VOID_PAGES);                                                 \
-        Pg_free_pg(VOID_PAGES) = PgHd_next(PG_HD);                                      \
-        UNLOCK(Pg_lock(VOID_PAGES))
-
 #define ALLOC_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                              \
         { pg_hd_ptr pg_hd;                                                              \
           LOCK(Pg_lock(STR_PAGES));                                                     \
@@ -354,19 +371,7 @@ extern int Yap_page_size;
           }                                                                             \
 	}                                                                               \
         LOCAL_next_free_ans_node = STRUCT_NEXT(STR)
-#endif /* LIMIT_TABLING */
-#else /* ! USE_PAGES_MALLOC */
-/****************************************************************************************
-**                                ! USE_PAGES_MALLOC                                   **
-****************************************************************************************/
-#define ALLOC_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                              \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), 1);                                      \
-        ALLOC_BLOCK(STR, sizeof(STR_TYPE), STR_TYPE)
-#define ALLOC_NEXT_FREE_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                    \
-        ALLOC_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)
-#define FREE_STRUCT(STR, STR_TYPE, STR_PAGES, VOID_PAGES)                               \
-        UPDATE_STATS(Pg_str_in_use(STR_PAGES), -1);                                     \
-        FREE_BLOCK(STR)
+#endif
 #endif /********************************************************************************/
 
 
