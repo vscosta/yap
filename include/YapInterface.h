@@ -181,6 +181,8 @@ extern X_API CONST wchar_t *PROTO(YAP_WideAtomName,(YAP_Atom));
 /*    YAP_Term  MkPairTerm(YAP_Term Head, YAP_Term Tail) */
 extern X_API YAP_Term PROTO(YAP_MkPairTerm,(YAP_Term,YAP_Term));
 
+extern X_API YAP_Term PROTO(YAP_MkListFromTerms,(YAP_Term *,YAP_Int));
+
 /*    YAP_Term  MkNewPairTerm(void) */
 extern X_API YAP_Term PROTO(YAP_MkNewPairTerm,(void));
 
