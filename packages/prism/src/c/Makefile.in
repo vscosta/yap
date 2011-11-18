@@ -16,6 +16,7 @@ BINDIR = $(EROOTDIR)/bin
 #
 # where YAP should look for libraries
 #
+TARGETS=	prism.@SO@
 LIBDIR=@libdir@
 YAPLIBDIR=@libdir@/Yap
 YAP_EXTRAS=@YAP_EXTRAS@ -D_YAP_NOT_INSTALLED_=1  -D__YAP_PROLOG__=1
@@ -38,6 +39,7 @@ SO=@SO@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
+RM=rm -f
 
 ##----------------------------------------------------------------------
 
@@ -71,9 +73,9 @@ mp/%.o: $(srcdir)/mp/%.c
 @DO_SECOND_LD@prism.@SO@: $(OBJS)
 @DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
 
-all: $(TARGET)
+all: $(TARGETS)
 
-install: $(TARGET)
+install: $(TARGETS)
 	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
 
 clean: clean_subdirs
@@ -81,7 +83,7 @@ clean: clean_subdirs
 
 clean_subdirs:
 	for i in $(SUBDIRS); do                     \
-	  ($(MAKE) -f $(MAKEFILE) -C $$i clean )    \
+	  $(RM) $$i/*.o;                            \
 	done
 
 ##----------------------------------------------------------------------
