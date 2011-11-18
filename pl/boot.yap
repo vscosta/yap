@@ -279,15 +279,13 @@ true :- true.
  '$execute_commands'([],_,_,_,_) :- !.
  '$execute_commands'([C|Cs],VL,Pos,Con,Source) :- !,
 	 (
-	   '$execute_command'(C,VL,Pos,Con,Source),
+	   '$system_catch'('$execute_command'(C,VL,Pos,Con,C),prolog,Error,user:'$LoopError'(Error, Con)),
 	   fail	
 	 ;
 	   '$execute_commands'(Cs,VL,Pos,Con,Source)
 	 ).
  '$execute_commands'(C,VL,Pos,Con,Source) :-
 	 '$execute_command'(C,VL,Pos,Con,Source).
-
-
 
 				%
  %
@@ -1111,11 +1109,12 @@ bootstrap(F) :-
 	
 
 expand_term(Term,Expanded) :-
-	( '$current_module'(Mod), \+ '$undefined'(term_expansion(_,_), Mod),
+	'$current_module'(Mod), 
+	( \+ '$undefined'(term_expansion(_,_), Mod),
 	  '$notrace'(Mod:term_expansion(Term,Expanded))
         ; \+ '$undefined'(term_expansion(_,_), system),
 	  '$notrace'(system:term_expansion(Term,Expanded))
-        ; \+ '$undefined'(term_expansion(_,_), user),
+        ;  Mod \= user, \+ '$undefined'(term_expansion(_,_), user),
 	  '$notrace'(user:term_expansion(Term,Expanded))
         ;
 	  '$expand_term_grammar'(Term,Expanded)

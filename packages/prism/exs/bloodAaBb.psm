@@ -1,0 +1,114 @@
+%%%%
+%%%%  Another hypothesis on ABO blood type inheritance --- bloodAaBb.psm
+%%%%
+%%%%  Copyright (C) 2007,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  ABO blood type consists of A, B, O and AB. They are observable
+%%  (phenotypes) and determined by a pair of blood type genes (geneotypes).
+%%  At present, it is known that there are three ABO genes, namely a, b and
+%%  o located on the 9th chromosome of a human being, but in early 20th
+%%  century, there was another hypothesis that we have two loci for ABO
+%%  blood type with dominant alleles A/a and B/b.  That is, genotypes aabb,
+%%  A*bb, aaB* and A*B* correspond to the blood types (phenotypes) O, A, B
+%%  and AB, respectively, where * stands for a don't care symbol.  We call
+%%  this hypothesis the AaBb gene model, and assume random mating.
+
+%%-------------------------------------
+%%  Quick start : sample session -- the same as that of bloodABO.psm
+%%
+%%  ?- prism(bloodAaBb),go,print_blood.
+%%                              % Learn parameters from randomly generated
+%%                              % 100 samples with A:B:O:AB = 38:22:31:9
+%%
+%%  ?- probf(bloodtype(ab),E),print_graph(E).
+%%  ?- prob(bloodtype(ab),P).
+%%
+%%  ?- viterbif(bloodtype(ab),P,E),print_graph(E).
+%%  ?- viterbi(bloodtype(ab),P).
+%%                              % P is the probability of a most likely
+%%                              % explanation E for bloodtype(ab).
+
+go:- learn_bloodtype(100).
+
+%%-------------------------------------
+%%  Session for model selection:
+%%
+%%  -- we try to evaluate the plausibilities of the correct model (ABO
+%%     gene model) and this AaBb gene model according to the data in
+%%     `bloodtype.dat'.  The data file `bloodtype.dat' contains 38
+%%     persons of blood type A, 22 persons of blood type B, 31 persons
+%%     of blood type O, and 9 persons of blood type AB (the ratio is
+%%     almost the same as that in Japanese people).
+%%
+%%  1. Modify bloodABO.psm and bloodAaBb.psm:  
+%%     - Use learn/0 instead of learn/1.
+%%
+%%  2. Get the BIC value for the ABO gene model (bloodABO.psm)
+%%     ?- prism(bloodABO).
+%%     ?- learn.
+%%     ?- learn_statistics(bic,BIC).
+%%
+%%  3. Get the BIC value for the AaBb gene model (this file)
+%%     ?- prism(bloodAaBb).
+%%     ?- learn.
+%%     ?- learn_statistics(bic,BIC).
+%%
+
+:- set_prism_flag(data_source,file('bloodtype.dat')).
+                             % When we run learn/0, the data are supplied
+                             % by `bloodtype.dat'.
+
+values(locus1,['A',a]).
+values(locus2,['B',b]).
+
+%%------------------------------------
+%%  Modeling part:
+
+bloodtype(P) :-
+   genotype(locus1,X1,Y1),
+   genotype(locus2,X2,Y2),
+   ( X1=a, Y1=a, X2=b, Y2=b -> P=o 
+   ; ( X1='A' ; Y1='A' ), X2=b, Y2=b -> P=a
+   ; X1=a, Y1=a, ( X2='B' ; Y2='B')  -> P=b
+   ; P=ab
+   ).
+
+genotype(L,X,Y) :- msw(L,X),msw(L,Y).
+
+%%------------------------------------
+%%  Utility part:
+%%   (the same as that in bloodABO.psm)
+
+learn_bloodtype(N) :-           % Learn parameters from N observations
+   random_set_seed(214857),     %   Set seed of the random number generator
+   gen_bloodtype(N,Gs),!,       %   Sample bloodtype/1 of size N
+   learn(Gs).                   %   Perform search and graphical EM learning
+%  learn.                       % <= when using the file `bloodtype.dat'
+
+gen_bloodtype(N,Gs) :-
+   N > 0,
+   random_select([a,b,o,ab],[0.38,0.22,0.31,0.09],X),
+   Gs = [bloodtype(X)|Gs1],     % Sample a blood type with an empirical
+   N1 is N-1,!,                 % ratio for Japanese people.
+   gen_bloodtype(N1,Gs1).
+gen_bloodtype(0,[]).
+
+print_blood :-
+   prob(bloodtype(a),PA),prob(bloodtype(b),PB),
+   prob(bloodtype(o),PO),prob(bloodtype(ab),PAB),
+   nl,
+   format("P(A)  = ~6f~n",[PA]),
+   format("P(B)  = ~6f~n",[PB]),
+   format("P(O)  = ~6f~n",[PO]),
+   format("P(AB) = ~6f~n",[PAB]).
+
+print_gene :-
+   get_sw(locus1,[_,['A',a],[GA,Ga]]),
+   get_sw(locus2,[_,['B',b],[GB,Gb]]),
+   nl,
+   format("P(A) = ~6f~n",[GA]),
+   format("P(a) = ~6f~n",[Ga]),
+   format("P(B) = ~6f~n",[GB]),
+   format("P(b) = ~6f~n",[Gb]).

@@ -1,0 +1,16 @@
+========================== README (src) ==========================
+
+This directory contains the source files of the PRISM part, along
+with a minimal set of source and binary files from B-Prolog,
+required to build the PRISM system:
+
+  c/      ... C code 
+  prolog/ ... Prolog code
+
+Please use/modify/distribute the source code based on the license
+agreements described $(TOP)/LICENSE and $(TOP)/LICENSE.src, where
+$(TOP) is the top directory in the unfolded package.
+
+To build the PRISM system, we need to compile both C and Prolog
+source files.  Please follow the instructions described in READMEs
+at the `c' and `prolog' directories.

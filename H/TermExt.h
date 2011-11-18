@@ -64,7 +64,7 @@ inline EXTERN int IsAttVar (CELL *pt);
 inline EXTERN int
 IsAttVar (CELL *pt)
 {
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
   CACHE_REGS
   return (pt)[-1] == (CELL)attvar_e
     && pt < H;
@@ -148,7 +148,7 @@ exts;
 
 #endif
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
@@ -294,7 +294,7 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 inline EXTERN Term MkLongIntTerm (Int);
 
 inline EXTERN Term
@@ -604,7 +604,7 @@ IsAttachedTerm (Term t)
 
 #endif
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 
 inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
 

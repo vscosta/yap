@@ -45,6 +45,9 @@ void finish_yapor(void);
 #ifdef TABLING
 sg_fr_ptr subgoal_search(yamop *, CELL **);
 ans_node_ptr answer_search(sg_fr_ptr, CELL *);
+#ifdef MODE_DIRECTED_TABLING
+ans_node_ptr mode_directed_answer_search(sg_fr_ptr, CELL *);
+#endif /* MODE_DIRECTED_TABLING */
 void load_answer(ans_node_ptr, CELL *);
 CELL *exec_substitution(gt_node_ptr, CELL *);
 void update_answer_trie(sg_fr_ptr);

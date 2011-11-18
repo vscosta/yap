@@ -69,6 +69,12 @@ sub_int(Int i, Int j)
 #endif
 }
 
+inline static Int
+SLR(Int i, Int shift)
+{
+  return (shift <  sizeof(Int)*8-1 ? i >> shift : (i >= 0 ?  0 : -1));
+}
+
 #ifdef __GNUC__
 #ifdef __i386__
 #define DO_MULTI() { Int tmp1;						\
@@ -114,28 +120,56 @@ times_int(Int i1, Int i2) {
 }
 
 
-#if USE_GMP
-static inline int
-sl_overflow(Int i,Int j)
+#ifndef __GNUC__X
+static int
+clrsb(Int i)
 {
-  Int x = (8*sizeof(CELL)-2)-j;
-  CELL t = (1<<x)-1;
+  Int j=0;
 
-  if (x < 0) return TRUE;
-  t = (1<<x)-1;
-  return (t & i) != i;
+  if (i < 0) {
+    if (i == Int_MIN)
+      return 1;
+    i = -i;
+  }
+#if SIZEOF_INT_P == 8
+  if (i < (Int)(0x100000000)) { j += 32;}
+  else i >>= 32;
+#endif
+  if (i <     (Int)(0x10000)) {j += 16;}
+  else i >>= 16;
+  if (i <       (Int)(0x100)) {j +=  8;}
+  else i >>= 8;
+  if (i <	  (Int)(0x10)) {j +=  4;}
+  else i >>= 4;
+  if (i <         (Int)(0x4)) {j +=  2;}
+  else i >>= 2;
+  if (i <         (Int)(0x2)) j++;
+  return j;
 }
 #endif
 
+
 inline static Term
-do_sll(Int i, Int j)
+do_sll(Int i, Int j) /* j > 0 */
 {
+  Int k;
 #ifdef USE_GMP
-  if (sl_overflow(i,j)) {
-    return Yap_gmp_sll_ints(i, j);
-  }
+  if (
+#ifdef __GNUC__X
+#if SIZEOF_LONG_INT < SIZEOF_INT_P
+      __builtin_clrsbll(i)
+#else
+      __builtin_clrsbl(i)
 #endif
+#else
+      clrsb(i)
+#endif
+      > j)
+    RINT(i << j);
+  return Yap_gmp_sll_ints(i, j);
+#else
   RINT(i << j);
+#endif
 }
 
 
@@ -459,14 +493,16 @@ p_sll(Term t1, Term t2) {
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      if (IntegerOfTerm(t2) < 0) {
-	Int i2 = IntegerOfTerm(t2);
-	if (i2 == Int_MIN) {
-	  return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+      { Int i2 = IntegerOfTerm(t2);
+
+	if (i2 <= 0) {
+	  if (i2 == Int_MIN) {
+	    return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+	  }
+	  RINT(SLR(IntegerOfTerm(t1), -i2));
 	}
-	RINT(IntegerOfTerm(t1) >> -i2);
+	return do_sll(IntegerOfTerm(t1),i2);
       }
-      return do_sll(IntegerOfTerm(t1),IntegerOfTerm(t2));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, "<</2");
     case big_int_e:
@@ -505,14 +541,16 @@ p_slr(Term t1, Term t2) {
     switch (ETypeOfTerm(t2)) {
     case long_int_e:
       /* two integers */
-      if (IntegerOfTerm(t2) < 0) {
-	Int i2 = IntegerOfTerm(t2);
-	if (i2 == Int_MIN) {
-	  return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+      { Int i2 = IntegerOfTerm(t2);
+
+	if (i2 < 0) {
+	  if (i2 == Int_MIN) {
+	    return Yap_ArithError(RESOURCE_ERROR_HUGE_INT, t2, ">>/2");
+	  }
+	  return do_sll(IntegerOfTerm(t1), -i2);
 	}
-	return do_sll(IntegerOfTerm(t1), -i2);
+	RINT(SLR(IntegerOfTerm(t1), i2));
       }
-      RINT(IntegerOfTerm(t1) >> IntegerOfTerm(t2));
     case double_e:
       return Yap_ArithError(TYPE_ERROR_INTEGER, t2, ">>/2");
     case big_int_e:

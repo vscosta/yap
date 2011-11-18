@@ -16351,6 +16351,7 @@ hook on garbage collection:
 @findex YAP_MkNewPairTerm (C-Interface function)
 @findex YAP_HeadOfTerm (C-Interface function)
 @findex YAP_TailOfTerm (C-Interface function)
+@findex YAP_MkListFromTerms (C-Interface function)
 A @i{pair} is a Prolog term which consists of a tuple of two Prolog
 terms designated as the @i{head} and the @i{tail} of the term. Pairs are
 most often used to build @emph{lists}. The following primitives can be
@@ -16360,10 +16361,17 @@ used to manipulate pairs:
       YAP_Term  YAP_MkNewPairTerm(void)
       YAP_Term  YAP_HeadOfTerm(YAP_Term @var{t})
       YAP_Term  YAP_TailOfTerm(YAP_Term @var{t})
+      YAP_Term  YAP_MkListFromTerms(YAP_Term *@var{pt}, YAP_Int *@var{sz})
 @end example
 One can construct a new pair from two terms, or one can just build a
 pair whose head and tail are new unbound variables. Finally, one can
 fetch the head or the tail.
+
+The last function supports the common operation of constructing a list from an
+array of terms of size @var{sz} in a simple sweep.
+
+Notice that the list constructors can call the garbage collector if
+there is not enough space in the global stack. 
 
 @findex YAP_MkApplTerm (C-Interface function)
 @findex YAP_MkNewApplTerm (C-Interface function)
@@ -16391,6 +16399,9 @@ arguments are unbound variables. @code{YAP_ArgOfTerm} gives an argument
 to a compound term. @code{argno} should be greater or equal to 1 and
 less or equal to the arity of the functor.  @code{YAP_ArgsOfTerm}
 returns a pointer to an array of arguments.
+
+Notice that the compound term constructors can call the garbage
+collector if there is not enough space in the global stack.
 
 YAP allows one to manipulate the functors of compound term. The function
 @code{YAP_FunctorOfTerm} allows one to obtain a variable of type

@@ -396,7 +396,8 @@ ar_expand(Head, []) :-
 ar_expand(end_of_file, FinalProgram) :-
 	prolog_load_context(file,File),
         compile_ar(File, DetProgram),
-        compile_nondet_ar(File, FinalProgram, DetProgram).
+        compile_nondet_ar(File, FinalProgram, DetProgram),
+	FinalProgram = [_|_].
 
 compile_ar(File, FinalProgram) :-
 	findall(T, retract(ar_term(File,T)), ARs),
@@ -404,11 +405,14 @@ compile_ar(File, FinalProgram) :-
 	prolog_load_context(module, Module),
 	ar_translate(ARs, Module, FinalProgram, Errors),
 	!, % just to make sure there are no choice points left
+	% vsc: also, allow for nondet rules.
 	(Errors == [] ->
 	    true
 	;
 	    report_errors(Errors)
 	).
+compile_ar(_File, []).
+
 compile_nondet_ar(File, FinalProgram, StartProgram) :-
 	findall(T, retract(nondet_ar_term(File,T)), ARs),
 	ARs \== [],
@@ -420,6 +424,8 @@ compile_nondet_ar(File, FinalProgram, StartProgram) :-
 	;
 	    report_errors(Errors)
 	).
+compile_nondet_ar(_File, FinalProgram, FinalProgram).
+
 
 report_errors(Errors) :- throw(action_rule_error(Errors)). % for now
 

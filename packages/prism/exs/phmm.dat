@@ -1,0 +1,44 @@
+%% This data was created by Rose.
+%% see http://bibiserv.techfak.uni-bielefeld.de/rose
+
+%% Rose
+%% Copyright (c) 1997-2000 University of Bielefeld, Germany and
+%% Deutsches Krebsforschungszentrum (DKFZ) Heidelberg, Germany.
+%% All rights reserved.
+
+%% 
+%% correct alignments
+%%
+%% HLKIANRKDK----HHNKEFGGHHLA
+%% HLKATHRKDQ----HHNREFGGHHLA
+%% VLKFANRKSK----HHNKEMGAHHLA
+%% HKKGAT---------------PVNVS
+%% HKKGATATG-----------NPKHVC
+%% QFKVAAAVGK----HQDASRGVHHID
+%% SFKGQGAVSK----HQDPEWGVHHID
+%% SFKGQGAVSV----PQAPAWGINHID
+%% HFKSQAEVNK----HDRPEWGLNQID
+%% HFRSQAEVNQRQFNHHRPQWSFNQIG
+%% SFNVVKGASK----RENGGMGAEPVD
+%% KFKKVDGLGK----KEHPALGVH---
+%% KFMVGGKDGK----NRKDAHAHRKVE
+%% KYKVPEKDGK----KRTNAHSHRKVE
+%% RYKIPESDGK----KRTNSHRHRKVE
+%% RYKIASMDGK----KRYAEHKHKKLE
+
+observe( ['H','L','K','I','A','N','R','K','D','K','H','H','N','K','E','F','G','G','H','H','L','A'] ).
+observe( ['H','L','K','A','T','H','R','K','D','Q','H','H','N','R','E','F','G','G','H','H','L','A'] ).
+observe( ['V','L','K','F','A','N','R','K','S','K','H','H','N','K','E','M','G','A','H','H','L','A'] ).
+observe( ['H','K','K','G','A','T','P','V','N','V','S'] ).
+observe( ['H','K','K','G','A','T','A','T','G','N','P','K','H','V','C'] ).
+observe( ['Q','F','K','V','A','A','A','V','G','K','H','Q','D','A','S','R','G','V','H','H','I','D'] ).
+observe( ['S','F','K','G','Q','G','A','V','S','K','H','Q','D','P','E','W','G','V','H','H','I','D'] ).
+observe( ['S','F','K','G','Q','G','A','V','S','V','P','Q','A','P','A','W','G','I','N','H','I','D'] ).
+observe( ['H','F','K','S','Q','A','E','V','N','K','H','D','R','P','E','W','G','L','N','Q','I','D'] ).
+observe( ['H','F','R','S','Q','A','E','V','N','Q','R','Q','F','N','H','H','R','P','Q','W','S','F','N','Q','I','G'] ).
+observe( ['S','F','N','V','V','K','G','A','S','K','R','E','N','G','G','M','G','A','E','P','V','D'] ).
+observe( ['K','F','K','K','V','D','G','L','G','K','K','E','H','P','A','L','G','V','H'] ).
+observe( ['K','F','M','V','G','G','K','D','G','K','N','R','K','D','A','H','A','H','R','K','V','E'] ).
+observe( ['K','Y','K','V','P','E','K','D','G','K','K','R','T','N','A','H','S','H','R','K','V','E'] ).
+observe( ['R','Y','K','I','P','E','S','D','G','K','K','R','T','N','S','H','R','H','R','K','V','E'] ).
+observe( ['R','Y','K','I','A','S','M','D','G','K','K','R','Y','A','E','H','K','H','K','K','L','E'] ).

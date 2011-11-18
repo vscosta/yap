@@ -1,0 +1,160 @@
+%%%%
+%%%%  Bayesian networks using noisy OR (1) -- alarm_nor_basic.psm
+%%%%
+%%%%  Copyright (C) 2004,2006,2007,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  This example is borrowed from:
+%%    Poole, D., Probabilistic Horn abduction and Bayesian networks,
+%%    In Proc. of Artificial Intelligence 64, pp.81-129, 1993.
+%%
+%%                (Fire)  (Tampering)
+%%                /    \   /
+%%          ((Smoke)) (Alarm)
+%%                       |
+%%                   (Leaving)       ((  )) -- observable node
+%%                       |            (  )  -- hidden node
+%%                   ((Report))
+%%
+%%  In this network, we assume that all rvs (random variables) take on
+%%  {yes,no} and also assume that only two nodes, `Smoke' and `Report', are
+%%  observable.
+%%
+%%  Furthermore, in this program, we consider that the Alarm variable's CPT
+%%  (conditional probability table) given through the noisy-OR rule. That is,
+%%  let us assume that we have the following inhibition probabilities:
+%%
+%%      P(Alarm=no | Fire=yes, Tampering=no)  = 0.3
+%%      P(Alarm=no | Fire=no,  Tampering=yes) = 0.2
+%%
+%%  The CPT for the Alarm variable is then constructed from these inhibition
+%%  probabilities and the noisy-OR rule:
+%%
+%%    +------+-----------+--------------------+----------------+
+%%    | Fire | Tampering |    P(Alarm=yes)    |  P(Alarm=no)   |
+%%    +------+-----------+--------------------+----------------+
+%%    | yes  |    yes    | 0.94 = 1 - 0.3*0.2 | 0.06 = 0.3*0.2 |
+%%    | yes  |     no    | 0.7  = 1 - 0.3     | 0.3            |
+%%    |  no  |    yes    | 0.8  = 1 - 0.2     | 0.2            |
+%%    |  no  |     no    | 0                  | 1.0            |
+%%    +------+-----------+--------------------+----------------+
+%%
+%%  cpt_al/3 in this program implements the above CPT with random switches.
+%%  The key step is to consider the generation process underlying the noisy-OR
+%%  rule.  One may notice that this program is written in a network-specific
+%%  form, but a more generic, network-independent program is given in
+%%  alarm_nor_generic.psm.
+%%
+%%  Please note that this program shares a considerably large part with
+%%  ../alarm.psm, so some comments are omitted for simplicity.
+
+%%-------------------------------------
+%%  Quick start: 
+%%
+%%  ?- prism(alarm_nor_basic).
+%%
+%%  Print the CPT of the Alarm variable constructed from the noisy OR rule:
+%%  ?- print_dist_al.
+%%
+%%  Print logical formulas that express the probabilistic behavior of
+%%  the noisy OR rule for Alarm:
+%%  ?- print_expl_al.
+%%
+%%  Get the probability and the explanation graph:
+%%  ?- prob(world(yes,no)).
+%%  ?- probf(world(yes,no)).
+%%
+%%  Get the most likely explanation and its probability:
+%%  ?- viterbif(world(yes,no)).
+%%  ?- viterbi(world(yes,no)).
+%%
+%%  Compute conditional hindsight probabilities:
+%%  ?- chindsight(world(yes,no),world(_,_,_,_,_,_)).
+%%  ?- chindsight_agg(world(yes,no),world(_,_,query,yes,_,no)).
+%%
+%%  Learn parameters from randomly generated 100 samples
+%%  ?- alarm_learn(100).
+
+go:- alarm_learn(100).
+
+%%-------------------------------------
+%%  Declarations:
+
+values(_,[yes,no]).
+
+%%------------------------------------
+%%  Modeling part:
+
+world(Sm,Re):- world(_,_,_,Sm,_,Re).
+
+world(Fi,Ta,Al,Sm,Le,Re) :-
+   cpt_fi(Fi),              % P(Fire)
+   cpt_ta(Ta),              % P(Tampering)
+   cpt_sm(Fi,Sm),           % CPT P(Smoke | Fire)
+   cpt_al(Fi,Ta,Al),        % CPT P(Alarm | Fire,Tampering)
+   cpt_le(Al,Le),           % CPT P(Leaving | Alarm)
+   cpt_re(Le,Re).           % CPT P(Report | Leaving)
+
+cpt_fi(Fi):- msw(fi,Fi).
+cpt_ta(Ta):- msw(ta,Ta).
+cpt_sm(Fi,Sm):- msw(sm(Fi),Sm).
+cpt_al(Fi,Ta,Al):-          % implementation of noisy OR:
+   ( Fi = yes, Ta = yes ->
+       msw(cause_al_fi,N_Al_Fi),
+       msw(cause_al_ta,N_Al_Ta),
+       ( N_Al_Fi = no, N_Al_Ta = no -> Al = no
+       ; Al = yes
+       )
+   ; Fi = yes, Ta = no  -> msw(cause_al_fi,Al)
+   ; Fi = no,  Ta = yes -> msw(cause_al_ta,Al)
+   ; Fi = no,  Ta = no  -> Al = no
+   ).
+cpt_le(Al,Le):- msw(le(Al),Le).
+cpt_re(Le,Re):- msw(re(Le),Re).
+
+%%------------------------------------
+%%  Utility part:
+
+alarm_learn(N) :-
+   unfix_sw(_),                    % Make all parameters changeable
+   set_params,                     % Set parameters as you specified
+   get_samples(N,world(_,_),Gs),   % Get N samples
+   fix_sw(fi),                     % Preserve the parameter values
+   learn(Gs).                      %   for {msw(fi,yes), msw(fi,no)}
+
+set_params :-
+   set_sw(fi,[0.1,0.9]),
+   set_sw(ta,[0.15,0.85]),
+   set_sw(sm(yes),[0.95,0.05]),
+   set_sw(sm(no),[0.05,0.95]),
+   set_sw(le(yes),[0.88,0.12]),
+   set_sw(le(no),[0.01,0.99]),
+   set_sw(re(yes),[0.75,0.25]),
+   set_sw(re(no),[0.10,0.90]),
+   set_sw(cause_al_fi,[0.7,0.3]),  % switch for an inhibition prob
+   set_sw(cause_al_ta,[0.8,0.2]).  % switch for an inhibition prob
+
+:- set_params.
+
+%% Check routine for Noisy-OR
+print_dist_al:-
+   set_params,
+   ( member(Fi,[yes,no]),
+     member(Ta,[yes,no]),
+     member(Al,[yes,no]),
+     prob(cpt_al(Fi,Ta,Al),P),
+     format("P(al=~w | fi=~w, ta=~w):~t~6f~n",[Al,Fi,Ta,P]),
+     fail
+   ; true
+   ).
+
+print_expl_al:-
+   set_params,
+   ( member(Fi,[yes,no]),
+     member(Ta,[yes,no]),
+     member(Al,[yes,no]),
+     probf(cpt_al(Fi,Ta,Al)),
+     fail
+   ; true
+   ).

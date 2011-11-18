@@ -106,6 +106,19 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define TRAVERSE_POSITION_FIRST    1
 #define TRAVERSE_POSITION_LAST     2
 
+/* mode directed tabling */
+#define MODE_DIRECTED_TAGBITS         0xF
+#define MODE_DIRECTED_NUMBER_TAGBITS  4
+#define MODE_DIRECTED_INDEX           1
+#define MODE_DIRECTED_FIRST           2
+#define MODE_DIRECTED_ALL             3
+#define MODE_DIRECTED_MAX             4
+#define MODE_DIRECTED_MIN             5
+#define MODE_DIRECTED_LAST            6
+#define MODE_DIRECTED_SET(ARG,MODE)   (((ARG) << MODE_DIRECTED_NUMBER_TAGBITS) + MODE)
+#define MODE_DIRECTED_GET_ARG(X)      ((X) >> MODE_DIRECTED_NUMBER_TAGBITS)
+#define MODE_DIRECTED_GET_MODE(X)     ((X) & MODE_DIRECTED_TAGBITS)
+
 /* LowTagBits is 3 for 32 bit-machines and 7 for 64 bit-machines */
 #define NumberOfLowTagBits         (LowTagBits == 3 ? 2 : 3)
 #define MakeTableVarTerm(INDEX)    ((INDEX) << NumberOfLowTagBits)
@@ -122,6 +135,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define CompactPairEndList  AbsPair((Term *) (2*(LowTagBits + 1)))
 #endif /* TRIE_COMPACT_PAIRS */
 
+/* choice points */
 #define NORM_CP(CP)                 ((choiceptr)(CP))
 #define GEN_CP(CP)                  ((struct generator_choicept *)(CP))
 #define CONS_CP(CP)                 ((struct consumer_choicept *)(CP))
@@ -135,13 +149,17 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_BATCHED_GEN_CP(CP)       (GEN_CP(CP)->cp_dep_fr == NULL)
 #endif /* DETERMINISTIC_TABLING */
 
+/* leaf nodes */
 #define TAG_AS_SUBGOAL_LEAF_NODE(NODE)  TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
 #define UNTAG_SUBGOAL_LEAF_NODE(NODE)   ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
 #define IS_SUBGOAL_LEAF_NODE(NODE)      ((unsigned long int) TrNode_child(NODE) & 0x1)
 #define TAG_AS_ANSWER_LEAF_NODE(NODE)   TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
 #define UNTAG_ANSWER_LEAF_NODE(NODE)    ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x1)))
 #define IS_ANSWER_LEAF_NODE(NODE)       ((unsigned long int) TrNode_parent(NODE) & 0x1)
+#define TAG_AS_INVALID_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
+#define IS_INVALID_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x2)
 
+/* trie hashes */
 #define MAX_NODES_PER_TRIE_LEVEL    8
 #define MAX_NODES_PER_BUCKET        (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define BASE_HASH_BUCKETS           64
@@ -152,26 +170,26 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_ANSWER_TRIE_HASH(NODE)   (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
 #define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
+#define HASH_TRIE_LOCK(NODE)        GLOBAL_trie_locks((((unsigned long int) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
 
-#define HASH_TABLE_LOCK(NODE)  ((((unsigned long int) (NODE)) >> 5) & (TABLE_LOCK_BUCKETS - 1))
-#define LOCK_TABLE(NODE)         LOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
-#define UNLOCK_TABLE(NODE)     UNLOCK(GLOBAL_table_lock(HASH_TABLE_LOCK(NODE)))
-
-#define STACK_PUSH_UP(ITEM, STACK)                  *--(STACK) = (CELL)(ITEM)
-#define STACK_POP_UP(STACK)                         *--(STACK)
-#define STACK_PUSH_DOWN(ITEM, STACK)                *(STACK)++ = (CELL)(ITEM)
-#define STACK_POP_DOWN(STACK)                       *(STACK)++
-#define STACK_NOT_EMPTY(STACK, STACK_BASE)          (STACK) != (STACK_BASE)
-#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)) EXPAND_AUX_STACK(STACK)
-#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)  if ((STACK_LIMIT) >= (STACK)+4096) EXPAND_STACK(STACK)
+/* auxiliary stack */
+#define STACK_PUSH_UP(ITEM, STACK)          *--(STACK) = (CELL)(ITEM)
+#define STACK_POP_UP(STACK)                 *--(STACK)
+#define STACK_PUSH_DOWN(ITEM, STACK)        *(STACK)++ = (CELL)(ITEM)
+#define STACK_POP_DOWN(STACK)               *(STACK)++
+#define STACK_NOT_EMPTY(STACK, STACK_BASE)  (STACK) != (STACK_BASE)
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
-#define EXPAND_AUX_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)");
-#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
+        if ((STACK_LIMIT) >= (STACK))                                               \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (AUX_STACK_CHECK_EXPAND)")
 #else /* YAPOR_THREADS */
-#define EXPAND_AUX_STACK(STACK)    STACK = expand_auxiliary_stack(STACK)
-#define EXPAND_STACK(STACK)    Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)");
+#define AUX_STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                  \
+        if ((STACK_LIMIT) >= (STACK))                                               \
+          STACK = expand_auxiliary_stack(STACK)
 #endif /* YAPOR */
-#define OPTYAP_ERROR_MESSAGE(OP, COND)  
+#define STACK_CHECK_EXPAND(STACK, STACK_LIMIT)                                      \
+        if ((STACK_LIMIT) >= (STACK) + 4096)                                        \
+          Yap_Error(INTERNAL_ERROR, TermNil, "stack full (STACK_CHECK_EXPAND)")
 
 
 
@@ -239,111 +257,125 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR)
 #endif /* YAPOR */
 
-#ifdef TABLE_LOCK_AT_ENTRY_LEVEL
-#define TabEnt_init_lock_field(TAB_ENT)                \
-        INIT_LOCK(TabEnt_lock(TAB_ENT))
+#ifdef MODE_DIRECTED_TABLING
+#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)   \
+        TabEnt_mode_directed(TAB_ENT) = MODE_ARRAY
+#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)       \
+        SgFr_invalid_chain(SG_FR) = NULL;                \
+        SgFr_mode_directed(SG_FR) = MODE_ARRAY
+#define AnsHash_init_previous_field(HASH, SG_FR)         \
+        if (SgFr_hash_chain(SG_FR))                      \
+          Hash_previous(SgFr_hash_chain(SG_FR)) = HASH;  \
+        Hash_previous(HASH) = NULL
+#else
+#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)
+#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)
+#define AnsHash_init_previous_field(HASH, SG_FR)
+#endif /* MODE_DIRECTED_TABLING */
+
+#ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
+#define LOCK_SUBGOAL_TRIE(TAB_ENT)    LOCK(TabEnt_lock(TAB_ENT))
+#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)  UNLOCK(TabEnt_lock(TAB_ENT))
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH
-#define AnsHash_init_next_field(HASH, SG_FR)           \
-        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
-        SgFr_hash_chain(SG_FR) = HASH
 #else
-#define TabEnt_init_lock_field(TAB_ENT)
+#define LOCK_SUBGOAL_TRIE(TAB_ENT)
+#define UNLOCK_SUBGOAL_TRIE(TAB_ENT)
 #define SgHash_init_next_field(HASH, TAB_ENT)          \
         LOCK(TabEnt_lock(TAB_ENT));                    \
         Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
         TabEnt_hash_chain(TAB_ENT) = HASH;             \
         UNLOCK(TabEnt_lock(TAB_ENT))
-#define AnsHash_init_next_field(HASH, SG_FR)           \
-        LOCK(SgFr_lock(SG_FR));                        \
-        Hash_next(HASH) = SgFr_hash_chain(SG_FR);      \
-        SgFr_hash_chain(SG_FR) = HASH;                 \
+#endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
+
+#ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
+#define LOCK_ANSWER_TRIE(SG_FR)    LOCK(SgFr_lock(SG_FR))
+#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK(SgFr_lock(SG_FR))
+#define AnsHash_init_chain_fields(HASH, SG_FR)     \
+        AnsHash_init_previous_field(HASH, SG_FR);  \
+        Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
+	SgFr_hash_chain(SG_FR) = HASH
+#else
+#define LOCK_ANSWER_TRIE(SG_FR)
+#define UNLOCK_ANSWER_TRIE(SG_FR)
+#define AnsHash_init_chain_fields(HASH, SG_FR)     \
+        LOCK(SgFr_lock(SG_FR));                    \
+        AnsHash_init_previous_field(HASH, SG_FR);  \
+        Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
+        SgFr_hash_chain(SG_FR) = HASH;             \
         UNLOCK(SgFr_lock(SG_FR))
-#endif /* TABLE_LOCK_AT_ENTRY_LEVEL */
+#endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
 
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
-#define TrNode_init_lock_field(NODE)                   \
-        INIT_LOCK(TrNode_lock(NODE))
+#ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_SUBGOAL_NODE(NODE)       LOCK(TrNode_lock(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(TrNode_lock(NODE))
+#define SgNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#elif SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_SUBGOAL_NODE(NODE)       LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(HASH_TRIE_LOCK(NODE))
+#define SgNode_init_lock_field(NODE)
 #else
-#define TrNode_init_lock_field(NODE)
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#define LOCK_SUBGOAL_NODE(NODE)
+#define UNLOCK_SUBGOAL_NODE(NODE)
+#define SgNode_init_lock_field(NODE)
+#endif /* SUBGOAL_TRIE_LOCK_LEVEL */
 
-#ifdef MODE_DIRECTED_TABLING 
+#ifdef ANSWER_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_ANSWER_NODE(NODE)         LOCK(TrNode_lock(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(TrNode_lock(NODE))
+#define AnsNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#elif ANSWER_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_ANSWER_NODE(NODE)         LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(HASH_TRIE_LOCK(NODE))
+#define AnsNode_init_lock_field(NODE)
+#else
+#define LOCK_ANSWER_NODE(NODE)
+#define UNLOCK_ANSWER_NODE(NODE)
+#define AnsNode_init_lock_field(NODE)
+#endif /* ANSWER_TRIE_LOCK_LEVEL */
 
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_DIRECTED_ARRAY)\
-        { register sg_node_ptr sg_node;                          \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);   \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                            \
-          TabEnt_init_lock_field(TAB_ENT);                       \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                       \
-          TabEnt_atom(TAB_ENT) = ATOM;                           \
-          TabEnt_arity(TAB_ENT) = ARITY;                         \
-          TabEnt_flags(TAB_ENT) = 0;                             \
-          SetMode_Batched(TabEnt_flags(TAB_ENT));                \
-          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));            \
-          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));              \
-          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);          \
-          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))        \
-            SetMode_Local(TabEnt_mode(TAB_ENT));                 \
-          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))  \
-            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));           \
-          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))   \
-            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                     \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
-          GLOBAL_root_tab_ent = TAB_ENT;                         \
-          TabEnt_mode_directed_array(TAB_ENT) = MODE_DIRECTED_ARRAY; \
+#ifdef GLOBAL_TRIE_LOCK_USING_NODE_FIELD
+#define LOCK_GLOBAL_NODE(NODE)        LOCK(TrNode_lock(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(TrNode_lock(NODE))
+#define GtNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
+#elif GLOBAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#define LOCK_GLOBAL_NODE(NODE)        LOCK(HASH_TRIE_LOCK(NODE))
+#define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(HASH_TRIE_LOCK(NODE))
+#define GtNode_init_lock_field(NODE)
+#else
+#define LOCK_GLOBAL_NODE(NODE)
+#define UNLOCK_GLOBAL_NODE(NODE)
+#define GtNode_init_lock_field(NODE)
+#endif /* GLOBAL_TRIE_LOCK_LEVEL */
+
+#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
+        { register sg_node_ptr sg_node;                                \
+          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);         \
+          ALLOC_TABLE_ENTRY(TAB_ENT);                                  \
+	  INIT_LOCK(TabEnt_lock(TAB_ENT));                             \
+          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                             \
+          TabEnt_atom(TAB_ENT) = ATOM;                                 \
+          TabEnt_arity(TAB_ENT) = ARITY;                               \
+          TabEnt_flags(TAB_ENT) = 0;                                   \
+          SetMode_Batched(TabEnt_flags(TAB_ENT));                      \
+          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));                  \
+          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));                    \
+          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);                \
+          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))              \
+            SetMode_Local(TabEnt_mode(TAB_ENT));                       \
+          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))        \
+            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));                 \
+          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))         \
+            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));                  \
+          TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY);              \
+          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                      \
+          TabEnt_hash_chain(TAB_ENT) = NULL;                           \
+          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                  \
+          GLOBAL_root_tab_ent = TAB_ENT;                               \
         }
 
-#else
-
-#define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY)        \
-        { register sg_node_ptr sg_node;                          \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);   \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                            \
-          TabEnt_init_lock_field(TAB_ENT);                       \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                       \
-          TabEnt_atom(TAB_ENT) = ATOM;                           \
-          TabEnt_arity(TAB_ENT) = ARITY;                         \
-          TabEnt_flags(TAB_ENT) = 0;                             \
-          SetMode_Batched(TabEnt_flags(TAB_ENT));                \
-          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));            \
-          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));              \
-          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);          \
-          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))        \
-            SetMode_Local(TabEnt_mode(TAB_ENT));                 \
-          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))  \
-            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));           \
-          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))   \
-            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));            \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                     \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;            \
-          GLOBAL_root_tab_ent = TAB_ENT;                         \
-        }
-
-#endif /*MODE_DIRECTED_TABLING*/
-
-#ifdef MODE_DIRECTED_TABLING
-
-#define new_subgoal_frame(SG_FR, CODE, N_VARS_OPERATOR_ARRAY)      \
-        { register ans_node_ptr ans_node;                          \
-          new_answer_trie_node(ans_node, 0,N_VARS_OPERATOR_ARRAY, NULL, NULL, NULL);  \
-          ALLOC_SUBGOAL_FRAME(SG_FR);                              \
-          INIT_LOCK(SgFr_lock(SG_FR));                             \
-          SgFr_code(SG_FR) = CODE;                                 \
-          SgFr_state(SG_FR) = ready;                               \
-          SgFr_hash_chain(SG_FR) = NULL;                           \
-          SgFr_answer_trie(SG_FR) = ans_node;                      \
-          SgFr_first_answer(SG_FR) = NULL;                         \
-          SgFr_last_answer(SG_FR) = NULL;                          \
-          SgFr_del_node(SG_FR) = NULL;                             \
-	}
-#else
-
-#define new_subgoal_frame(SG_FR, CODE)                             \
+#define new_subgoal_frame(SG_FR, CODE, MODE_ARRAY)		   \
         { register ans_node_ptr ans_node;                          \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
@@ -354,8 +386,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
           SgFr_answer_trie(SG_FR) = ans_node;                      \
           SgFr_first_answer(SG_FR) = NULL;                         \
           SgFr_last_answer(SG_FR) = NULL;                          \
+	  SgFr_init_mode_directed(SG_FR, MODE_ARRAY);		   \
 	}
-#endif /*MODE_DIRECTED_TABLING*/
 
 #define init_subgoal_frame(SG_FR)               \
         { SgFr_init_yapor_fields(SG_FR);        \
@@ -377,48 +409,49 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
                                     (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));        \
         DepFr_next(DEP_FR) = NEXT
 
-#define new_suspension_frame(SUSP_FR, TOP_OR_FR_ON_STACK, TOP_DEP, TOP_SG,         \
-                             H_REG, B_REG, TR_REG, H_SIZE, B_SIZE, TR_SIZE)        \
-        ALLOC_SUSPENSION_FRAME(SUSP_FR);                                           \
-        SuspFr_top_or_fr_on_stack(SUSP_FR) = TOP_OR_FR_ON_STACK;                   \
-        SuspFr_top_dep_fr(SUSP_FR) = TOP_DEP;                                      \
-        SuspFr_top_sg_fr(SUSP_FR) = TOP_SG;                                        \
-        SuspFr_global_reg(SUSP_FR) = (void *) (H_REG);                             \
-        SuspFr_local_reg(SUSP_FR) = (void *) (B_REG);                              \
-        SuspFr_trail_reg(SUSP_FR) = (void *) (TR_REG);                             \
-        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE, void *); \
-        SuspFr_local_start(SUSP_FR) = SuspFr_global_start(SUSP_FR) + H_SIZE;       \
-        SuspFr_trail_start(SUSP_FR) = SuspFr_local_start(SUSP_FR) + B_SIZE;        \
-        SuspFr_global_size(SUSP_FR) = H_SIZE;                                      \
-        SuspFr_local_size(SUSP_FR) = B_SIZE;                                       \
-        SuspFr_trail_size(SUSP_FR) = TR_SIZE;                                      \
-        memcpy(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);  \
-        memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);    \
+#define new_suspension_frame(SUSP_FR, TOP_OR_FR_ON_STACK, TOP_DEP, TOP_SG,             \
+                             H_REG, B_REG, TR_REG, H_SIZE, B_SIZE, TR_SIZE)            \
+        ALLOC_SUSPENSION_FRAME(SUSP_FR);                                               \
+        SuspFr_top_or_fr_on_stack(SUSP_FR) = TOP_OR_FR_ON_STACK;                       \
+        SuspFr_top_dep_fr(SUSP_FR) = TOP_DEP;                                          \
+        SuspFr_top_sg_fr(SUSP_FR) = TOP_SG;                                            \
+        SuspFr_global_reg(SUSP_FR) = (void *) (H_REG);                                 \
+        SuspFr_local_reg(SUSP_FR) = (void *) (B_REG);                                  \
+        SuspFr_trail_reg(SUSP_FR) = (void *) (TR_REG);                                 \
+        ALLOC_BLOCK(SuspFr_global_start(SUSP_FR), H_SIZE + B_SIZE + TR_SIZE, void *);  \
+        SuspFr_local_start(SUSP_FR) = SuspFr_global_start(SUSP_FR) + H_SIZE;           \
+        SuspFr_trail_start(SUSP_FR) = SuspFr_local_start(SUSP_FR) + B_SIZE;            \
+        SuspFr_global_size(SUSP_FR) = H_SIZE;                                          \
+        SuspFr_local_size(SUSP_FR) = B_SIZE;                                           \
+        SuspFr_trail_size(SUSP_FR) = TR_SIZE;                                          \
+        memcpy(SuspFr_global_start(SUSP_FR), SuspFr_global_reg(SUSP_FR), H_SIZE);      \
+        memcpy(SuspFr_local_start(SUSP_FR), SuspFr_local_reg(SUSP_FR), B_SIZE);        \
         memcpy(SuspFr_trail_start(SUSP_FR), SuspFr_trail_reg(SUSP_FR), TR_SIZE)
 
 #define new_subgoal_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_SUBGOAL_TRIE_NODE(NODE);                           \
         TrNode_entry(NODE) = ENTRY;				 \
-        TrNode_init_lock_field(NODE);                            \
 	TrNode_child(NODE) = CHILD;	                         \
         TrNode_parent(NODE) = PARENT;                            \
-	TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                                \
+        SgNode_init_lock_field(NODE)
 
 #define new_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_ANSWER_TRIE_NODE(NODE);                                  \
         TrNode_instr(NODE) = INSTR;                                    \
         TrNode_entry(NODE) = ENTRY;                                    \
-        TrNode_init_lock_field(NODE);                                  \
         TrNode_child(NODE) = CHILD;                                    \
         TrNode_parent(NODE) = PARENT;                                  \
-        TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                                      \
+        AnsNode_init_lock_field(NODE)
 
 #define new_global_trie_node(NODE, ENTRY, CHILD, PARENT, NEXT)  \
         ALLOC_GLOBAL_TRIE_NODE(NODE);                           \
         TrNode_entry(NODE) = ENTRY;                             \
         TrNode_child(NODE) = CHILD;                             \
         TrNode_parent(NODE) = PARENT;                           \
-        TrNode_next(NODE) = NEXT
+        TrNode_next(NODE) = NEXT;                               \
+        GtNode_init_lock_field(NODE)
 
 #define new_subgoal_trie_hash(HASH, NUM_NODES, TAB_ENT)             \
         ALLOC_SUBGOAL_TRIE_HASH(HASH);                              \
@@ -434,7 +467,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;                 \
         ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
         Hash_num_nodes(HASH) = NUM_NODES;                           \
-        AnsHash_init_next_field(HASH, SG_FR)
+        AnsHash_init_chain_fields(HASH, SG_FR)
 
 #define new_global_trie_hash(HASH, NUM_NODES)                       \
         ALLOC_GLOBAL_TRIE_HASH(HASH);                               \
@@ -533,42 +566,38 @@ static inline void adjust_freeze_registers(void) {
 
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
   LOCK(SgFr_lock(sg_fr));
-#ifdef MODE_DIRECTED_TABLING
-  
-  //printf("complete\n");
-  ans_node_ptr answer, valid_answer, elim_answer;
-  answer = SgFr_first_answer(sg_fr);
-  
-  while(answer && IS_INVALID_ANSWER_LEAF_NODE(answer))
-    answer = TrNode_child(answer);
-  SgFr_first_answer(sg_fr) = answer;
-  valid_answer = answer;
-
-  if(answer!= NULL)
-    answer = TrNode_child(valid_answer);
-  
-  while(answer != NULL){
-    if (!IS_INVALID_ANSWER_LEAF_NODE(answer)){
-      TrNode_child(valid_answer) = answer;
-      valid_answer = answer;   
-    }
-      answer = TrNode_child(answer);
-  }
-  
-  //TrNode_child(valid_answer) = NULL;
-  SgFr_last_answer(sg_fr) = valid_answer;
-  
-  elim_answer = SgFr_del_node(sg_fr);
-  
- while(elim_answer){
-    answer= TrNode_next(elim_answer);	
-    FREE_ANSWER_TRIE_NODE(elim_answer);
-    elim_answer = answer;
-  }
-  
-#endif /*MODE_DIRECTED_TABLING*/
   SgFr_state(sg_fr) = complete;
   UNLOCK(SgFr_lock(sg_fr));
+#ifdef MODE_DIRECTED_TABLING
+  if (SgFr_invalid_chain(sg_fr)) {
+    ans_node_ptr current_node, next_node;
+    /* find first valid answer */
+    current_node = SgFr_first_answer(sg_fr);
+    while (IS_INVALID_LEAF_NODE(current_node))
+      current_node = TrNode_child(current_node);
+    SgFr_first_answer(sg_fr) = current_node;
+    /* chain next valid answers */
+    next_node = TrNode_child(current_node);
+    while (next_node) {
+      if (! IS_INVALID_LEAF_NODE(next_node)) {
+	TrNode_child(current_node) = next_node;
+	current_node = next_node;   
+      }
+      next_node = TrNode_child(next_node);
+    }
+    SgFr_last_answer(sg_fr) = current_node;
+#ifndef YAPOR
+    /* free invalid answer nodes */
+    current_node = SgFr_invalid_chain(sg_fr);
+    SgFr_invalid_chain(sg_fr) = NULL;
+    while (current_node) {
+      next_node = TrNode_next(current_node);	
+      FREE_ANSWER_TRIE_NODE(current_node);
+      current_node = next_node;
+    }
+#endif /* ! YAPOR */
+  }
+#endif /* MODE_DIRECTED_TABLING */
   return;
 }
 
@@ -774,8 +803,42 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #ifdef INCOMPLETE_TABLING
       SgFr_state(sg_fr) = incomplete;
       UNLOCK(SgFr_lock(sg_fr));
+#ifdef MODE_DIRECTED_TABLING
+      if (SgFr_invalid_chain(sg_fr)) {
+	ans_node_ptr current_node, next_node;
+	/* find first valid answer */
+	current_node = SgFr_first_answer(sg_fr);
+	while (IS_INVALID_LEAF_NODE(current_node))
+	  current_node = TrNode_child(current_node);
+	SgFr_first_answer(sg_fr) = current_node;
+	/* chain next valid answers */
+	next_node = TrNode_child(current_node);
+	while (next_node) {
+	  if (! IS_INVALID_LEAF_NODE(next_node)) {
+	    TrNode_child(current_node) = next_node;
+	    current_node = next_node;   
+	  }
+	  next_node = TrNode_child(next_node);
+	}
+	SgFr_last_answer(sg_fr) = current_node;
+#ifndef YAPOR
+	/* free invalid answer nodes */
+	current_node = SgFr_invalid_chain(sg_fr);
+	SgFr_invalid_chain(sg_fr) = NULL;
+	while (current_node) {
+	  next_node = TrNode_next(invalid_node);	
+	  FREE_ANSWER_TRIE_NODE(current_node);
+	  current_node = node_node;
+	}
+#endif /* ! YAPOR */
+      }
+#endif /* MODE_DIRECTED_TABLING */
 #else
       ans_node_ptr node;
+#ifdef MODE_DIRECTED_TABLING
+      ans_node_ptr invalid_node = SgFr_invalid_chain(sg_fr);
+      SgFr_invalid_chain(sg_fr) = NULL;
+#endif /* MODE_DIRECTED_TABLING */
       SgFr_state(sg_fr) = ready;
       free_answer_hash_chain(SgFr_hash_chain(sg_fr));
       SgFr_hash_chain(sg_fr) = NULL;
@@ -785,6 +848,14 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
       TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
       UNLOCK(SgFr_lock(sg_fr));
       free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+#if defined(MODE_DIRECTED_TABLING) && ! defined(YAPOR)
+      /* free invalid answer nodes */
+      while (invalid_node) {
+	node = TrNode_next(invalid_node);	
+	FREE_ANSWER_TRIE_NODE(invalid_node);
+	invalid_node = node;
+      }
+#endif /* MODE_DIRECTED_TABLING && ! YAPOR */
 #endif /* INCOMPLETE_TABLING */
     }
 #ifdef LIMIT_TABLING
@@ -986,13 +1057,8 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
         slots = TgAnsFr_free_slot(valid_answers);
         do {
           ans_node = TgAnsFr_answer(valid_answers, --slots);
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-          LOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-          LOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-          LOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+	  LOCK_ANSWER_TRIE(sg_fr);
+	  LOCK_ANSWER_NODE(ans_node);
           if (! IS_ANSWER_LEAF_NODE(ans_node)) {
             TAG_AS_ANSWER_LEAF_NODE(ans_node);
             if (first_answer == NULL)
@@ -1001,13 +1067,8 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
               TrNode_child(last_answer) = ans_node;
 	    last_answer = ans_node;
 	  }
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-          UNLOCK(SgFr_lock(sg_fr));
-#elif defined(TABLE_LOCK_AT_NODE_LEVEL)
-          UNLOCK(TrNode_lock(ans_node));
-#elif defined(TABLE_LOCK_AT_WRITE_LEVEL)
-          UNLOCK_TABLE(ans_node);
-#endif /* TABLE_LOCK_LEVEL */
+          UNLOCK_ANSWER_NODE(ans_node);	  
+	  UNLOCK_ANSWER_TRIE(sg_fr);
         } while (slots);
         free_answer = valid_answers;
         valid_answers = TgAnsFr_next(valid_answers);

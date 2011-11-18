@@ -4514,17 +4514,27 @@ unnumber_complex_term(CELL *pt0, CELL *pt0_end, CELL *ptf, CELL *HLow, int share
 	    if (ASP-(max+1) <= H) {
 	      goto overflow;
 	    }
-	    /* we found this before */
-	    *ptf++ = ASP[-id-1];
+	    /* we found this before? */
+	    if (ASP[-id-1])
+	      *ptf++ = ASP[-id-1];
+	    else {
+	      RESET_VARIABLE(ptf);
+	      ASP[-id-1] = (CELL)ptf;
+	      ptf++;
+	    }
 	    continue;
 	  }
-	  max = id;
-	  if (ASP-(max+1) <= H) {
+	  /* alloc more space */
+	  if (ASP-(id+1) <= H) {
 	    goto overflow;
+	  }
+	  while (id > max) {
+	    ASP[-(id+1)] = 0L;
+	    max++;
 	  }
 	  /* new variable */
 	  RESET_VARIABLE(ptf);
-	  ASP[-id-1] = (CELL)ptf;
+	  ASP[-(id+1)] = (CELL)ptf;
 	  ptf++;
 	  continue;
 	}
@@ -4723,7 +4733,7 @@ Yap_UnNumberTerm(Term inp, int share) {
 static Int
 p_unnumbervars( USES_REGS1 ) {
   /* this should be a standard Prolog term, so we allow sharing? */
-  return Yap_unify(Yap_UnNumberTerm(ARG1, FALSE PASS_REGS), ARG2);
+  return Yap_unify(UnnumberTerm(ARG1, 2, FALSE PASS_REGS), ARG2);
 }
 
 void Yap_InitUtilCPreds(void)

@@ -1,0 +1,65 @@
+========================== README (exs) ==========================
+
+Files/Directories:
+  README          ... this file
+  direction.psm   ... the first example in the user's manual
+  dcoin.psm       ... simple program modeling two Bernoulli trial processes
+  bloodABO.psm    ... ABO blood type program (ABO gene model)
+  bloodAaBb.psm   ... ABO blood type program (AaBb gene model)
+  bloodtype.dat   ... data file for bloodABO.psm and bloodAaBb.psm
+  alarm.psm       ... Bayesian network program
+  sbn.psm         ... Singly connected Bayesian network program
+  hmm.psm         ... discrete hidden Markov model
+  phmm.psm        ... profile hmm for the alignment of amino-acid sequences
+  phmm.dat        ... data file for phmm.psm
+  pdcg.psm        ... PCFG program for top-down parsing
+  pdcg_c.psm      ... PCFG program for Charniak's example
+  plc.psm         ... probabilistic left-corner parsing
+  votes.psm       ... cross-validation of naive Bayes with the `votes' data
+  jtree/          ... Bayesian network program in a junction-tree form
+  noisy_or/       ... Bayesian network program using noisy OR
+
+How to use:
+  All programs are self-contained, hopefully.  Try first a sample
+  session in each program to get familiar with a model.
+
+Comment:
+  The above programs contain no negation. When a program contains
+  negation, you have to compile away negation by FOC (first order
+  compiler).  For PRISM programs with negation, see ../exs_fail.
+
+References:
+
+(PRISM)
+  Parameter Learning of Logic Programs for Symbolic-statistical Modeling,
+  Sato,T. and Kameya,Y.,
+  Journal of Artificial Intelligence Research 15, pp.391-454, 2001.
+
+  New advances in logic-based probabilistic modeling by PRISM,
+  Sato,T. and Kameya,Y.,
+  Probabilistic Inductive Logic Programming, LNCS 4911, Springer,
+  pp.118-155, 2008.
+
+(PCFGs)
+  Foundations of Statistical Natural Language Processing,
+  Manning,C.D. and Schutze,H.,
+  The MIT Press, 1999.
+
+  A Separate-and-Learn Approach to EM Learning of PCFGs
+  Sato,T., Abe,S., Kameya,Y. and Shirai,K.,
+  Proc. of the 6th Natural Language Processing Pacific Rim Symposium
+  (NLRPS-2001), pp.255-262, 2001.
+
+(BNs)
+  Probabilistic Reasoning in Intelligent Systems,
+  Pearl,J.,
+  Morgan Kaufmann, 1988.
+
+  Expert Systems and Probabilistic Network Models,
+  Castillo,E., Gutierrez,J.M. and Hadi,A.S.,
+  Springer-Verlag, 1997.
+
+(HMMs)
+  Foundations of Speech Recognition,
+  Rabiner,L.R. and Juang,B.,
+  Prentice-Hall, 1993.

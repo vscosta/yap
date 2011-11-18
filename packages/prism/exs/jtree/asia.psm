@@ -1,0 +1,84 @@
+%%%%
+%%%%  Bayesian networks for Asia network -- asia.psm
+%%%%
+%%%%  Copyright (C) 2007,2008
+%%%%    Sato Laboratory, Dept. of Computer Science,
+%%%%    Tokyo Institute of Technology
+
+%%  This example is known as the Asia network, and was borrowed from:
+%%    S. L. Lauritzen and D. J. Spiegelhalter (1988).
+%%    Local computations with probabilities on graphical structures
+%%    and their application to expert systems.
+%%    Journal of Royal Statistical Society, Vol.B50, No.2, pp.157-194. 
+%%
+%%                                    ((Smoking[S]))   
+%%   ((Visit to Asia[A]))                 /   \
+%%           |                           /     \
+%%           v                          v       \
+%%   (Tuberculosis[T])       (Lang cancer[L])    \
+%%           \                      /             \
+%%            \                    /               v
+%%             v                  v           (Bronchinitis[B])
+%%          (Tuberculosis or lang cancer[TL])    /
+%%             /                      \         /              
+%%            /                        \       /
+%%           v                          \     /
+%%      ((X-ray[X]))                     v   v
+%%                                   ((Dyspnea[D]))
+%%
+%%  We assume that the nodes A, S, X and D are observable.  This
+%%  program provides a naive representation of the Asia network, as
+%%  shown in ../alarm.psm.  The junction-tree version of the Asia
+%%  network program is given in jasia.psm
+
+%%-------------------------------------
+%%  Quick start:
+%%
+%%  ?- prism(asia),go.
+
+go:- chindsight_agg(world(f,_,_,t),world(f,query,_,_,_,_,_,t)).
+     % we compute a conditional distribution P(T | A=false, D=true) 
+
+%%-------------------------------------
+%%  Declarations:
+
+values(bn(_,_),[t,f]). % each switch takes on true or false
+
+%%-------------------------------------
+%%  Modeling part:
+
+world(A,S,X,D):- world(A,_,S,_,_,X,_,D).
+
+world(A,T,S,L,TL,X,B,D) :-
+   msw(bn(a,[]),A),msw(bn(t,[A]),T),
+   msw(bn(s,[]),S),msw(bn(l,[S]),L),
+   incl_or(T,L,TL),
+   msw(bn(x,[TL]),X),msw(bn(b,[S]),B),
+   msw(bn(d,[TL,B]),D).
+
+% inclusive OR
+incl_or(t,t,t).
+incl_or(t,f,t).
+incl_or(f,t,t).
+incl_or(f,f,f).
+
+%%-------------------------------------
+%%  Utility part:
+
+:- set_params.
+
+set_params:-
+  set_sw(bn(a,[]),[0.01,0.99]),
+  set_sw(bn(t,[t]),[0.05,0.95]),
+  set_sw(bn(t,[f]),[0.01,0.99]),
+  set_sw(bn(s,[]),[0.5,0.5]),
+  set_sw(bn(l,[t]),[0.1,0.9]),
+  set_sw(bn(l,[f]),[0.01,0.99]),
+  set_sw(bn(x,[t]),[0.98,0.02]),
+  set_sw(bn(x,[f]),[0.05,0.95]),
+  set_sw(bn(b,[t]),[0.60,0.40]),
+  set_sw(bn(b,[f]),[0.30,0.70]),
+  set_sw(bn(d,[t,t]),[0.90,0.10]),
+  set_sw(bn(d,[t,f]),[0.70,0.30]),
+  set_sw(bn(d,[f,t]),[0.80,0.20]),
+  set_sw(bn(d,[f,f]),[0.10,0.90]).

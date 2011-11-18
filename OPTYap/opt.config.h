@@ -16,17 +16,16 @@
 /************************************************************************
 **                   General Configuration Parameters                  **
 ************************************************************************/
-#define MODE_DIRECTED_TABLING
+
 /******************************************************************************************
 **      use shared pages memory alloc scheme for OPTYap data structures? (optional)      **
 ******************************************************************************************/
-
 /* #define USE_PAGES_MALLOC 1 */
 
 
 
 /************************************************************************
-**                   TABLING Configuration Parameters                  **
+**                   Tabling Configuration Parameters                  **
 ************************************************************************/
 
 /****************************
@@ -39,6 +38,11 @@
 **********************************************************/
 #define BFZ_TRAIL_SCHEME 1
 /* #define BBREG_TRAIL_SCHEME 1 */
+
+/*********************************************************
+**      support mode directed tabling ? (optional)      **
+*********************************************************/
+#define MODE_DIRECTED_TABLING 1
 
 /****************************************************
 **      support early completion ? (optional)      **
@@ -78,7 +82,7 @@
 
 
 /************************************************************************
-**                    YAPOR Configuration Parameters                   **
+**                    YapOr Configuration Parameters                   **
 ************************************************************************/
 
 /****************************
@@ -102,42 +106,57 @@
 
 
 /************************************************************************
-**                   OPTYAP Configuration Parameters                   **
+**                   OPTYap Configuration Parameters                   **
 ************************************************************************/
 
 /****************************
 **      default sizes      **
 ****************************/
-#define TABLE_LOCK_BUCKETS 512
 #define TG_ANSWER_SLOTS    20
+#define TRIE_LOCK_BUCKETS 512
 
-/***********************************************************
-**      tries locking scheme (mandatory, define one)      **
-************************************************************
-** The TABLE_LOCK_AT_ENTRY_LEVEL scheme locks the access  **
-** to the table space in the entry data structure. It     **
-** restricts the number of lock operations needed to go   **
-** through the table data structures.                     **
-**                                                        **
-** The TABLE_LOCK_AT_NODE_LEVEL scheme locks each data    **
-** structure before accessing it. It decreases            **
-** concurrrency for workers accessing commom parts of the **
-** table space.                                           **
-**                                                        **
-** The TABLE_LOCK_AT_WRITE_LEVEL scheme is an hibrid      **
-** scheme, it only locks a table data structure when it   **
-** is going to update it. You can use ALLOC_BEFORE_CHECK  **
-** with this scheme to allocate a node before checking    **
-** if it will be necessary.                               **
-***********************************************************/
-/* #define TABLE_LOCK_AT_ENTRY_LEVEL 1 */
-/* #define TABLE_LOCK_AT_NODE_LEVEL  1 */
-#define TABLE_LOCK_AT_WRITE_LEVEL 1
-/* #define ALLOC_BEFORE_CHECK        1 */
+/*************************************************************************
+**      tries locking scheme (mandatory, define one per trie type)      **
+**************************************************************************
+** The (TRIE_TYPE)_LOCK_AT_ENTRY_LEVEL scheme locks the access to the   **
+** table space in the entry data structure. It restricts the number of  **
+** lock operations needed to go through the table data structures.      **
+**                                                                      **
+** The (TRIE_TYPE)_LOCK_AT_NODE_LEVEL scheme locks each data structure  **
+** before accessing it. It decreases concurrrency for workers accessing **
+** commom parts of the table space.                                     **
+**                                                                      **
+** The (TRIE_TYPE)_LOCK_AT_WRITE_LEVEL scheme is an hibrid scheme, it   **
+** only locks a table data structure when it is going to update it. You **
+** can use (TRIE_TYPE)_ALLOC_BEFORE_CHECK with this scheme to allocate  **
+** a node before checking if it will be necessary.                      **
+*************************************************************************/
+/* #define SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL 1 */
+#define SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define SUBGOAL_TRIE_ALLOC_BEFORE_CHECK  1 */
 
-/**********************************************
-**      support inner cuts ? (optional)      **
-**********************************************/
+/* #define ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL 1 */
+#define ANSWER_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define ANSWER_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define ANSWER_TRIE_ALLOC_BEFORE_CHECK  1 */
+
+#define GLOBAL_TRIE_LOCK_AT_NODE_LEVEL  1
+/* #define GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL 1 */
+/* #define GLOBAL_TRIE_ALLOC_BEFORE_CHECK  1 */
+
+/*******************************************************************
+**      tries locking data structure (mandatory, define one)      **
+********************************************************************
+** Data structure to be used for locking the trie when using the  **
+** (TRIE_TYPE)_LOCK_AT_[NODE|WRITE]_LEVEL schemes                 **
+*******************************************************************/
+#define TRIE_LOCK_USING_NODE_FIELD   1
+/* #define TRIE_LOCK_USING_GLOBAL_ARRAY 1 */
+
+/******************************************************
+**      support tabling inner cuts ? (optional)      **
+******************************************************/
 #define TABLING_INNER_CUTS 1
 
 /*********************************************************
@@ -153,73 +172,138 @@
 
 #ifndef USE_PAGES_MALLOC
 #undef LIMIT_TABLING
-#endif /* !USE_PAGES_MALLOC */
+#endif /* ! USE_PAGES_MALLOC */
+
+
+#ifdef TABLING
+#if !defined(BFZ_TRAIL_SCHEME) && !defined(BBREG_TRAIL_SCHEME)
+#error Define a trail scheme
+#endif
+#if defined(BFZ_TRAIL_SCHEME) && defined(BBREG_TRAIL_SCHEME)
+#error Do not define multiple trail schemes
+#endif
+#else /* ! TABLING */
+#undef BFZ_TRAIL_SCHEME
+#undef BBREG_TRAIL_SCHEME
+#undef MODE_DIRECTED_TABLING
+#undef TABLING_EARLY_COMPLETION
+#undef TRIE_COMPACT_PAIRS
+#undef GLOBAL_TRIE_FOR_SUBTERMS
+#undef INCOMPLETE_TABLING
+#undef LIMIT_TABLING
+#undef DETERMINISTIC_TABLING
+#undef DEBUG_TABLING
+#endif /* TABLING */
+
 
 #ifdef YAPOR
 #ifdef i386 /* For i386 machines we use shared memory segments */
 #undef MMAP_MEMORY_MAPPING_SCHEME
 #define SHM_MEMORY_MAPPING_SCHEME
-#endif /* i386 */
+#endif
 #if !defined(MMAP_MEMORY_MAPPING_SCHEME) && !defined(SHM_MEMORY_MAPPING_SCHEME)
 #error Define a memory mapping scheme
-#endif /* !MMAP_MEMORY_MAPPING_SCHEME && !SHM_MEMORY_MAPPING_SCHEME */
+#endif
 #if defined(MMAP_MEMORY_MAPPING_SCHEME) && defined(SHM_MEMORY_MAPPING_SCHEME)
 #error Do not define multiple memory mapping schemes
-#endif /* MMAP_MEMORY_MAPPING_SCHEME && SHM_MEMORY_MAPPING_SCHEME */
+#endif
 #undef LIMIT_TABLING
+#else /* ! YAPOR */
+#undef MMAP_MEMORY_MAPPING_SCHEME
+#undef SHM_MEMORY_MAPPING_SCHEME
+#undef DEBUG_YAPOR
 #endif /* YAPOR */
 
-#ifdef TABLING
-#if !defined(BFZ_TRAIL_SCHEME) && !defined(BBREG_TRAIL_SCHEME)
-#error Define a trail scheme
-#endif /* !BFZ_TRAIL_SCHEME && !BBREG_TRAIL_SCHEME */
-#if defined(BFZ_TRAIL_SCHEME) && defined(BBREG_TRAIL_SCHEME)
-#error Do not define multiple trail schemes
-#endif /* BFZ_TRAIL_SCHEME && BBREG_TRAIL_SCHEME */
-#endif /* TABLING */
 
 #if defined(YAPOR) && defined(TABLING)
-#if !defined(TABLE_LOCK_AT_ENTRY_LEVEL) && !defined(TABLE_LOCK_AT_NODE_LEVEL) && !defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Define a table lock scheme
-#endif /* !TABLE_LOCK_AT_ENTRY_LEVEL && !TABLE_LOCK_AT_NODE_LEVEL && !TABLE_LOCK_AT_WRITE_LEVEL */
-#if defined(TABLE_LOCK_AT_ENTRY_LEVEL)
-#if defined(TABLE_LOCK_AT_NODE_LEVEL) || defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Do not define multiple table lock schemes
-#endif /* TABLE_LOCK_AT_NODE_LEVEL || TABLE_LOCK_AT_WRITE_LEVEL */
-#endif /* TABLE_LOCK_AT_ENTRY_LEVEL */
-#if defined(TABLE_LOCK_AT_NODE_LEVEL) && defined(TABLE_LOCK_AT_WRITE_LEVEL)
-#error Do not define multiple table lock schemes
-#endif /* TABLE_LOCK_AT_NODE_LEVEL || TABLE_LOCK_AT_WRITE_LEVEL */
-#ifndef TABLE_LOCK_AT_WRITE_LEVEL
-#undef ALLOC_BEFORE_CHECK
-#endif /* !TABLE_LOCK_AT_WRITE_LEVEL */
-#else
-#undef TABLE_LOCK_AT_ENTRY_LEVEL
-#undef TABLE_LOCK_AT_NODE_LEVEL
-#undef TABLE_LOCK_AT_WRITE_LEVEL
-#undef ALLOC_BEFORE_CHECK
-#endif /* YAPOR && TABLING */
-
-#if !defined(TABLING) || !defined(YAPOR)
+/* SUBGOAL_TRIE_LOCK_LEVEL */
+#if !defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && !defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) && !defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a subgoal trie lock scheme
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#if defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) && defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple subgoal trie lock schemes
+#endif
+#ifndef SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
+#endif 
+/* ANSWER_TRIE_LOCK_LEVEL */
+#if !defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && !defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) && !defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a answer trie lock scheme
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) && defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple answer trie lock schemes
+#endif
+#ifndef ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
+#undef ANSWER_TRIE_ALLOC_BEFORE_CHECK
+#endif 
+/* GLOBAL_TRIE_LOCK_LEVEL */
+#if !defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) && !defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Define a global trie lock scheme
+#endif
+#if defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) && defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#error Do not define multiple global trie lock schemes
+#endif
+#ifndef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+#endif
+/* TRIE_LOCK_USING_NODE_FIELD / TRIE_LOCK_USING_GLOBAL_ARRAY */
+#if !defined(TRIE_LOCK_USING_NODE_FIELD) && !defined(TRIE_LOCK_USING_GLOBAL_ARRAY)
+#error Define a trie lock data structure
+#endif
+#if defined(TRIE_LOCK_USING_NODE_FIELD) && defined(TRIE_LOCK_USING_GLOBAL_ARRAY)
+#error Do not define multiple trie lock data structures
+#endif
+#ifdef TRIE_LOCK_USING_NODE_FIELD
+#if defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) || defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#define SUBGOAL_TRIE_LOCK_USING_NODE_FIELD   1
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) || defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#define ANSWER_TRIE_LOCK_USING_NODE_FIELD    1
+#endif
+#if defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) || defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#define GLOBAL_TRIE_LOCK_USING_NODE_FIELD    1
+#endif
+#elif TRIE_LOCK_USING_GLOBAL_ARRAY
+#if defined(SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL) || defined(SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#define SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY 1
+#endif
+#if defined(ANSWER_TRIE_LOCK_AT_NODE_LEVEL) || defined(ANSWER_TRIE_LOCK_AT_WRITE_LEVEL)
+#define ANSWER_TRIE_LOCK_USING_GLOBAL_ARRAY  1
+#endif
+#if defined(GLOBAL_TRIE_LOCK_AT_NODE_LEVEL) || defined(GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL)
+#define GLOBAL_TRIE_LOCK_USING_GLOBAL_ARRAY  1
+#endif
+#endif
+#else /* ! TABLING || ! YAPOR */
+#undef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
+#undef SUBGOAL_TRIE_LOCK_AT_NODE_LEVEL
+#undef SUBGOAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef SUBGOAL_TRIE_ALLOC_BEFORE_CHECK
+#undef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
+#undef ANSWER_TRIE_LOCK_AT_NODE_LEVEL
+#undef ANSWER_TRIE_LOCK_AT_WRITE_LEVEL
+#undef ANSWER_TRIE_ALLOC_BEFORE_CHECK
+#undef GLOBAL_TRIE_LOCK_AT_NODE_LEVEL
+#undef GLOBAL_TRIE_LOCK_AT_WRITE_LEVEL
+#undef GLOBAL_TRIE_ALLOC_BEFORE_CHECK
+#undef TRIE_LOCK_USING_NODE_FIELD
+#undef TRIE_LOCK_USING_GLOBAL_ARRAY
 #undef TABLING_INNER_CUTS
 #undef TIMESTAMP_CHECK
-#endif /* !TABLING || !YAPOR */
+#endif /* YAPOR && TABLING */
 
-#ifndef YAPOR
-#undef DEBUG_YAPOR
-#endif /* !YAPOR */
-
-#ifndef TABLING
-#undef BFZ_TRAIL_SCHEME
-#undef BBREG_TRAIL_SCHEME
-#undef TABLING_EARLY_COMPLETION
-#undef TRIE_COMPACT_PAIRS
-#undef GLOBAL_TRIE_FOR_SUBTERMS
-#undef DETERMINISTIC_TABLING
-#undef LIMIT_TABLING
-#undef INCOMPLETE_TABLING
-#undef DEBUG_TABLING
-#endif /* !TABLING */
 
 #if defined(DEBUG_YAPOR) && defined(DEBUG_TABLING)
 #define DEBUG_OPTYAP

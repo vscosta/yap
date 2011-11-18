@@ -184,7 +184,7 @@ IsUnboundVar (Term * t)
 
 #else
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 
 inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
@@ -316,7 +316,7 @@ IsIntTerm (Term t)
 }
 
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 EXTERN inline Term STD_PROTO (MkPairTerm__, (Term, Term CACHE_TYPE) );
 
 EXTERN inline Term
@@ -367,7 +367,7 @@ MkPairTerm__ (Term head, Term tail USES_REGS)
 
 #define IsAccessFunc(func)		((func) == FunctorAccess)
 
-#ifdef _YAP_NOT_INSTALLED_
+#ifdef YAP_H
 inline EXTERN Term MkIntegerTerm (Int);
 
 inline EXTERN Term

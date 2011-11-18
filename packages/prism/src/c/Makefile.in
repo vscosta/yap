@@ -1,0 +1,93 @@
+# -*- Makefile -*-
+
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+TARGETS=	prism.@SO@
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+YAP_EXTRAS=@YAP_EXTRAS@ -D_YAP_NOT_INSTALLED_=1  -D__YAP_PROLOG__=1
+#
+#
+CC=@CC@
+CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H -I$(srcdir)/../../../../library/dialect/bprolog/fli
+LDFLAGS=@LDFLAGS@
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+#
+RM=rm -f
+
+##----------------------------------------------------------------------
+
+ifeq ($(PROCTYPE),mp)
+SUBDIRS += $(MP_DIR)
+OBJS    += $(MP_OBJS)
+endif
+
+##----------------------------------------------------------------------
+
+include $(srcdir)/makefiles/Makefile.files
+S=/
+O=o
+
+SOBJS=prism.@SO@
+
+#in some systems we just create a single object, in others we need to
+# create a libray
+
+all: $(SOBJS)
+
+core/%.o: $(srcdir)/core/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+up/%.o: $(srcdir)/up/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+mp/%.o: $(srcdir)/mp/%.c
+	$(CC) -c $(CFLAGS) $< -o $@
+
+@DO_SECOND_LD@prism.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_LD@ $(LDFLAGS) -o $@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
+
+all: $(TARGETS)
+
+install: $(TARGETS)
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR)
+
+clean: clean_subdirs
+	$(RM) $(TARGET)
+
+clean_subdirs:
+	for i in $(SUBDIRS); do                     \
+	  $(RM) $$i/*.o;                            \
+	done
+
+##----------------------------------------------------------------------
+
+.PHONY: all install clean $(SUBDIRS)
+
+##----------------------------------------------------------------------

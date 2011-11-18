@@ -28,26 +28,24 @@ typedef struct table_entry {
   int pred_arity;
   short pred_flags;
   short execution_mode;  /* combines yap_flags with pred_flags */
-  struct subgoal_trie_node *subgoal_trie;
-  struct subgoal_trie_hash *hash_chain;
 #ifdef MODE_DIRECTED_TABLING
   int* mode_directed_array;
 #endif /*MODE_DIRECTED_TABLING*/
+  struct subgoal_trie_node *subgoal_trie;
+  struct subgoal_trie_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
 
-#define TabEnt_lock(X)          ((X)->lock)
-#define TabEnt_pe(X)            ((X)->pred_entry)
-#define TabEnt_atom(X)          ((X)->pred_atom)
-#define TabEnt_arity(X)         ((X)->pred_arity)
-#define TabEnt_flags(X)         ((X)->pred_flags)
-#define TabEnt_mode(X)          ((X)->execution_mode)
-#define TabEnt_subgoal_trie(X)  ((X)->subgoal_trie)
-#define TabEnt_hash_chain(X)    ((X)->hash_chain)
-#ifdef MODE_DIRECTED_TABLING
-#define TabEnt_mode_directed_array(X) ((X)->mode_directed_array)
-#endif /*MODE_DIRECTED_TABLING*/
-#define TabEnt_next(X)          ((X)->next)
+#define TabEnt_lock(X)           ((X)->lock)
+#define TabEnt_pe(X)             ((X)->pred_entry)
+#define TabEnt_atom(X)           ((X)->pred_atom)
+#define TabEnt_arity(X)          ((X)->pred_arity)
+#define TabEnt_flags(X)          ((X)->pred_flags)
+#define TabEnt_mode(X)           ((X)->execution_mode)
+#define TabEnt_mode_directed(X)  ((X)->mode_directed_array)
+#define TabEnt_subgoal_trie(X)   ((X)->subgoal_trie)
+#define TabEnt_hash_chain(X)     ((X)->hash_chain)
+#define TabEnt_next(X)           ((X)->next)
 
 
 
@@ -60,9 +58,9 @@ typedef struct subgoal_trie_node {
   struct subgoal_trie_node *parent;
   struct subgoal_trie_node *child;
   struct subgoal_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* SUBGOAL_TRIE_LOCK_USING_NODE_FIELD */
 } *sg_node_ptr;
 
 typedef struct answer_trie_node {
@@ -74,9 +72,9 @@ typedef struct answer_trie_node {
   struct answer_trie_node *parent;
   struct answer_trie_node *child;
   struct answer_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef ANSWER_TRIE_LOCK_USING_NODE_FIELD
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* ANSWER_TRIE_LOCK_USING_NODE_FIELD */
 } *ans_node_ptr;
 
 typedef struct global_trie_node {
@@ -84,9 +82,9 @@ typedef struct global_trie_node {
   struct global_trie_node *parent;
   struct global_trie_node *child;
   struct global_trie_node *next;
-#ifdef TABLE_LOCK_AT_NODE_LEVEL
+#ifdef GLOBAL_TRIE_LOCK_USING_NODE_FIELD
   lockvar lock;
-#endif /* TABLE_LOCK_AT_NODE_LEVEL */
+#endif /* GLOBAL_TRIE_LOCK_USING_NODE_FIELD */
 } *gt_node_ptr;
 
 #define TrNode_instr(X)   ((X)->trie_instruction)
@@ -97,9 +95,7 @@ typedef struct global_trie_node {
 #define TrNode_sg_fr(X)   ((X)->child)
 #define TrNode_next(X)    ((X)->next)
 #define TrNode_lock(X)    ((X)->lock)
-#ifdef MODE_DIRECTED_TABLING  
-#define TrNode_mode_directed_array(X)           ((X)->entry)
-#endif /*MODE_DIRECTED_TABLING */
+
 
 
 /***********************************************************************
@@ -123,10 +119,10 @@ typedef struct answer_trie_hash {
   int number_of_buckets;
   struct answer_trie_node **buckets;
   int number_of_nodes;
-  struct answer_trie_hash *next;
 #ifdef MODE_DIRECTED_TABLING
   struct answer_trie_hash *previous;	
 #endif /*MODE_DIRECTED_TABLING*/
+  struct answer_trie_hash *next;
 } *ans_hash_ptr;
 
 typedef struct global_trie_hash {
@@ -147,10 +143,9 @@ typedef struct global_trie_hash {
 #define Hash_buckets(X)      ((X)->buckets)
 #define Hash_bucket(X,N)     ((X)->buckets + N)
 #define Hash_num_nodes(X)    ((X)->number_of_nodes)
+#define Hash_previous(X)     ((X)->previous)
 #define Hash_next(X)         ((X)->next)
-#ifdef MODE_DIRECTED_TABLING
-#define Hash_previous(X)         ((X)->previous)
-#endif /*MODE_DIRECTED_TABLING*/
+
 
 
 /************************************************************************
@@ -225,6 +220,10 @@ typedef struct subgoal_frame {
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
   struct answer_trie_node *last_answer;
+#ifdef MODE_DIRECTED_TABLING
+  int* mode_directed_array;
+  struct answer_trie_node *invalid_chain;
+#endif /*MODE_DIRECTED_TABLING*/
 #ifdef INCOMPLETE_TABLING
   struct answer_trie_node *try_answer;
 #endif /* INCOMPLETE_TABLING */
@@ -232,9 +231,6 @@ typedef struct subgoal_frame {
   struct subgoal_frame *previous;
 #endif /* LIMIT_TABLING */
   struct subgoal_frame *next;
-#ifdef MODE_DIRECTED_TABLING
-struct answer_trie_node *del_node;
-#endif /*MODE_DIRECTED_TABLING*/
 } *sg_fr_ptr;
 
 #define SgFr_lock(X)           ((X)->lock)
@@ -249,12 +245,12 @@ struct answer_trie_node *del_node;
 #define SgFr_answer_trie(X)    ((X)->answer_trie)
 #define SgFr_first_answer(X)   ((X)->first_answer)
 #define SgFr_last_answer(X)    ((X)->last_answer)
+#define SgFr_mode_directed(X)  ((X)->mode_directed_array)
+#define SgFr_invalid_chain(X)  ((X)->invalid_chain)
 #define SgFr_try_answer(X)     ((X)->try_answer)
 #define SgFr_previous(X)       ((X)->previous)
 #define SgFr_next(X)           ((X)->next)
-#ifdef MODE_DIRECTED_TABLING
-#define SgFr_del_node(X)           ((X)->del_node)
-#endif /*MODE_DIRECTED_TABLING*/
+
 /**************************************************************************************************
 
   SgFr_lock:          spin-lock to modify the frame fields.
@@ -273,6 +269,8 @@ struct answer_trie_node *del_node;
                       It is used to check for/insert new answers.
   SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
   SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
+  SgFr_mode_directed: a pointer to the mode directed array.
+  SgFr_invalid_chain: a pointer to the first invalid leaf node when using mode directed tabling.
   SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
                       It is used when a subgoal was not completed during the previous evaluation.
                       Not completed subgoals start by trying the answers already found.
@@ -369,35 +367,3 @@ typedef struct suspension_frame {
 #define SuspFr_trail_start(X)         ((X)->trail_block.block_start)
 #define SuspFr_trail_size(X)          ((X)->trail_block.block_size)
 #define SuspFr_next(X)                ((X)->next)
-
-
-/* ---------------------------- **
-** MODE_DIRECTED_TABLING flags  **
-** ---------------------------- */
-#ifdef MODE_DIRECTED_TABLING 
-
-#define MODE_DIRECTED_TAGBITS	4
-
-/*indexing*/
-#define MODE_DIRECTED_INDEX		6
-#define MODE_DIRECTED_NINDEX		1
-#define MODE_DIRECTED_ALL		2
-
-/*agregation*/
-#define MODE_DIRECTED_MAX		3
-#define MODE_DIRECTED_MIN		4
-#define MODE_DIRECTED_SUM		5
-#define MODE_DIRECTED_LAST		0
-
-/* Macros */
-
-#define MODE_DIRECTED_index(X)  ((X) >> MODE_DIRECTED_TAGBITS)
-#define MODE_DIRECTED_n_vars(X)  ((X) >> MODE_DIRECTED_TAGBITS)
-#define MODE_DIRECTED_operator(X)   ((((X) >> MODE_DIRECTED_TAGBITS) << MODE_DIRECTED_TAGBITS) ^ (X))
-
-#define TAG_AS_INVALID_ANSWER_LEAF_NODE(NODE,SG_FR)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int)TrNode_parent(NODE) | 0x2); \
-						     TrNode_next(NODE) = SgFr_del_node(SG_FR);\
-						     SgFr_del_node(SG_FR) = NODE
-
-#define IS_INVALID_ANSWER_LEAF_NODE(NODE)      ((unsigned long int)TrNode_parent(NODE) & 0x2)
-#endif /*MODE_DIRECTED_TABLING*/

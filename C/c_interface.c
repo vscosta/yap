@@ -412,6 +412,7 @@ X_API int     STD_PROTO(YAP_IsWideAtom,(Atom));
 X_API char   *STD_PROTO(YAP_AtomName,(Atom));
 X_API wchar_t *STD_PROTO(YAP_WideAtomName,(Atom));
 X_API Term    STD_PROTO(YAP_MkPairTerm,(Term,Term));
+X_API Term    STD_PROTO(YAP_MkListFromTerms,(Term *,Int));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_TailOfTerm,(Term));
@@ -978,6 +979,44 @@ YAP_MkPairTerm(Term t1, Term t2)
     Yap_RecoverSlots(2 PASS_REGS);
   }
   t = MkPairTerm(t1, t2);
+  RECOVER_H();
+  return t;
+}
+
+X_API Term
+YAP_MkListFromTerms(Term *ta, Int sz)
+{
+  CACHE_REGS
+  Term t; 
+  CELL *h;
+  if (sz == 0)
+    return TermNil;
+  BACKUP_H();
+  if (H+sz*2 > ASP-1024) {
+    Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
+    RECOVER_H();
+    if (!dogc( PASS_REGS1 )) {
+      return TermNil;
+    }
+    BACKUP_H();
+    ta =  (CELL *)Yap_GetFromSlot(sl1 PASS_REGS);
+    Yap_RecoverSlots(1 PASS_REGS);
+  }
+  h = H;
+  t = AbsPair(h);
+  while (sz--) {
+    Term ti = *ta++;
+    if (IsVarTerm(ti)) {
+      RESET_VARIABLE(h);
+      Yap_unify(ti, h[0]);
+    } else {
+      h[0] = ti;
+    }
+    h[1] = AbsPair(h+2);
+    h += 2;
+  }
+  h[-1] = TermNil;
+  H = h;
   RECOVER_H();
   return t;
 }
