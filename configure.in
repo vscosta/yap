@@ -153,6 +153,9 @@ AC_ARG_ENABLE(eam,
 AC_ARG_ENABLE(cygwin,
 	[ --enable-cygwin            use cygwin library in WIN32 ],
 	cygwin="$enableval", cygwin=no)
+AC_ARG_ENABLE(prism,
+	[ --enable-prism            use PRISM system in YAP ],
+	prism="$enableval", prism=yes)
 AC_ARG_ENABLE(dynamic_loading,
 	[ --enable-dynamic-loading   compile YAP as a DLL ],
 	dynamic_loading="$enableval", dynamic_loading=no)
@@ -452,6 +455,13 @@ else
  AC_DEFINE_UNQUOTED(MAX_THREADS,$yap_cv_max_threads)
 fi
 
+
+if test "$yap_cv_prism" = no 
+then
+  INSTALL_PRISM="@# "
+else
+  INSTALL_PRISM=""
+fi
 
 dnl condor does not like dynamic linking on Linux, DEC, and HP-UX platforms.
 if test "$yap_cv_matlab" = no 
@@ -1711,6 +1721,7 @@ AC_SUBST(YAPR_INCLUDES)
 AC_SUBST(EXTRA_LIBS_FOR_R)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
+AC_SUBST(INSTALL_PRISM)
 
 dnl check for threaded code
 AC_MSG_CHECKING(for gcc threaded code)
