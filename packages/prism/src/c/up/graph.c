@@ -797,7 +797,7 @@ int pc_import_occ_switches_3(void)
 	  /* running out of stack */
 	  extern int Yap_gcl(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop);
 
-	  Yap_gcl(4*64*1024, 3, ENV, P);
+	  Yap_gcl(4*64*1024, 3, ENV, CP);
 	  goto restart;
 	}
 #endif
