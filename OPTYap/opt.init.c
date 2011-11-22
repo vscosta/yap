@@ -219,7 +219,7 @@ void Yap_init_root_frames(void) {
 #ifdef TABLING
   /* root dependency frame */
 #ifdef YAPOR
-  DepFr_cons_cp(GLOBAL_root_dep_fr) = B;
+  DepFr_cons_cp(GLOBAL_root_dep_fr) = B;  /* with YAPOR, at that point, LOCAL_top_dep_fr shouldn't be the same as GLOBAL_root_dep_fr ? */
 #else
   DepFr_cons_cp(LOCAL_top_dep_fr) = B;
 #endif /* YAPOR */
