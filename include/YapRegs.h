@@ -2,6 +2,15 @@
 
 #define YAP_REGS_H 1
 
+#ifdef THREADS
+#if USE_PTHREAD_LOCKING
+#ifndef _XOPEN_SOURCE
+#define _XOPEN_SOURCE 600
+#endif  /* !_XOPEN_SOURCE */
+#endif /* USE_PTHREAD_LOCKING */
+#include <pthread.h>
+#endif
+
 #if defined(TABLING) || defined(YAPOR_SBA)
 typedef struct trail_frame {
   Term term;
