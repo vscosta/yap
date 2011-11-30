@@ -21,7 +21,7 @@ typedef struct trail_frame {
 #else
 typedef Term *tr_fr_ptr;
 
-#define TrailTerm(X)   ((X)->term)
+#define TrailTerm(X)   (*(CELL*)(X))
 #endif
 
 typedef void *choiceptr;

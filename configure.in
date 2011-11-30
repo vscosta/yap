@@ -441,11 +441,16 @@ AC_SUBST(DefHeapSpace)
 AC_SUBST(DefStackSpace)
 AC_SUBST(DefTrailSpace)
 
-if test "$or-parallelism" = no
+if test "$orparallelism" = no
 then
   AC_DEFINE(MAX_WORKERS,1)
 else
   AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers)
+  if test "$orparallelism" = copy
+  then
+    use_malloc="no"
+  fi
+  tabling="no"
 fi
 
 if test "$threads" = no

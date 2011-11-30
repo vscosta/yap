@@ -4909,7 +4909,7 @@ _ACEOF
 
 
 
-if test "$or-parallelism" = no
+if test "$orparallelism" = no
 then
   $as_echo "#define MAX_WORKERS 1" >>confdefs.h
 
@@ -4918,6 +4918,11 @@ else
 #define MAX_WORKERS $yap_cv_max_workers
 _ACEOF
 
+  if test "$orparallelism" = copy
+  then
+    use_malloc="no"
+  fi
+  tabling="no"
 fi
 
 if test "$threads" = no
@@ -10771,8 +10776,8 @@ esac
 
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
 # Files that config.status was made for.
-config_files="$ac_config_files"
-config_headers="$ac_config_headers"
+config_files="`echo $ac_config_files`"
+config_headers="`echo $ac_config_headers`"
 
 _ACEOF
 
