@@ -49,7 +49,7 @@ typedef struct table_entry {
 #define TabEnt_mode_directed(X)   ((X)->mode_directed_array)
 #ifdef THREADS_NO_SHARING
 #define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie[worker_id])
-#define TabEnt_subgoal_trie(X,I)  ((X)->subgoal_trie[I])
+//#define TabEnt_subgoal_trie(X,I)  ((X)->subgoal_trie[I])
 #else
 #define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie)
 #endif /*THREADS_NO_SHARING */
@@ -242,7 +242,7 @@ typedef enum {          /* do not change order !!! */
 ****************************/
 
 typedef struct subgoal_entry {
-#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#if defined(YAPOR) || defined(THREADS)
   lockvar lock;
 #endif /* YAPOR || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
   yamop *code_of_subgoal;
@@ -301,6 +301,8 @@ typedef struct subgoal_frame {
 #ifdef THREADS
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   struct subgoal_entry *subgoal_entry;
+#else
+  struct subgoal_entry subgoal_entry;
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 #ifdef THREADS_FULL_SHARING
   struct answer_trie_node *batched_last_answer;
@@ -315,7 +317,7 @@ typedef struct subgoal_frame {
 } *sg_fr_ptr;
 
 /* subgoal_entry fields */
-#ifdef THREADS
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
 #define SUBGOAL_ENTRY(X)                SgFr_subgoal_entry(X)->
 #else
 #define SUBGOAL_ENTRY(X)                (X)->subgoal_entry.
@@ -385,7 +387,7 @@ typedef struct subgoal_frame {
 *******************************/
 
 typedef struct dependency_frame {
-#ifdef YAPOR
+#if defined(YAPOR)||defined(THREADS)
   lockvar lock;
 #endif /* YAPOR */
 #ifdef YAPOR

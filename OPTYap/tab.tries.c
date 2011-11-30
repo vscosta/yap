@@ -1419,6 +1419,7 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
 
 
 void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
+  CACHE_REGS
   sg_node_ptr sg_node;
 
   TrStat_out = out;
