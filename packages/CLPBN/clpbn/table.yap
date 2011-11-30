@@ -12,6 +12,8 @@
 	 clpbn_tableallargs/1,
 	 clpbn_table_nondet/1,
 	 clpbn_tabled_clause/2,
+	 clpbn_tabled_clause_ref/3,
+	 clpbn_tabled_retract/2,
 	 clpbn_tabled_abolish/1,
 	 clpbn_tabled_asserta/1,
 	 clpbn_tabled_assertz/1,
@@ -31,6 +33,8 @@
 
 :- meta_predicate clpbn_table(:),
 	clpbn_tabled_clause(:.?),
+	clpbn_tabled_clause_ref(:.?,?),
+	clpbn_tabled_retract(:),
 	clpbn_tabled_abolish(:),
 	clpbn_tabled_asserta(:), 
 	clpbn_tabled_assertz(:), 
@@ -121,6 +125,9 @@ clpbn_table(F/N,M) :-
 		  % enter evidence after binding.
 		  ( var(A0) -> A0 = V2 ; put_evidence(A0, V2) )
 		;
+		  clpbn:clpbn_flag(solver,none) ->
+		  true
+	        ;
 		  throw(error(tabled_clpbn_predicate_should_never_fail,S))
 		)
 	       )
@@ -179,7 +186,7 @@ clpbn_table_nondet(F/N,M) :-
 	NKey =.. [NF|Args],
 	asserta(clpbn_table(Key, M, NKey)),
 	assert(
-	       (M:Key :- writeln(in:Key),
+	       (M:Key :- % writeln(in:Key),
 	        b_getval(clpbn_tables, Tab),
 		( b_hash_lookup(Key, Out, Tab) ->
 		  fail
@@ -216,6 +223,31 @@ clpbn_tabled_clause(M:Head, _, Body) :- !,
 clpbn_tabled_clause(Head, M, Body) :-
 	clpbn_table(Head, M, THead),
 	clause(M:THead, Body).
+
+clpbn_tabled_clause_ref(M:Head, Body, Ref) :- !,
+	clpbn_tabled_clause_ref(Head, M, Body, Ref).
+clpbn_tabled_clause_ref(Head, Body, Ref) :-
+	prolog_load_context(module, M),
+	clpbn_tabled_clause_ref(Head, M, Body, Ref).
+
+clpbn_tabled_clause_ref(M:Head, _, Body, Ref) :- !,
+	clpbn_tabled_clause_ref(Head, M, Body, Ref).
+clpbn_tabled_clause_ref(Head, M, Body, Ref) :-
+	clpbn_table(Head, M, THead),
+	clause(M:THead, Body, Ref).
+
+
+clpbn_tabled_retract(M:Head) :- !,
+	clpbn_tabled_retract(Head, M).
+clpbn_tabled_retract(Head) :-
+	prolog_load_context(module, M),
+	clpbn_tabled_retract(Head, M).
+
+clpbn_tabled_retract(M:Head, _) :- !,
+	clpbn_tabled_retract(Head, M).
+clpbn_tabled_retract(Head, M) :-
+	clpbn_table(Head, M, THead),
+	retract(M:THead).
 
 
 clpbn_tabled_assertz(M:Clause) :- !,

@@ -1,8 +1,13 @@
 %
 % Interface the Aleph ILP system to CLP(BN)
 %
-% Relies on the Aleph cost function.
-% It assumes Aleph work as usual,  but some variables are of type random.
+% Aleph was written by Ashwin Srinivasan
+%
+% this code relies on hacked version of Aleph, contact
+% vsc@dcc.fc.up.pt
+%
+% Aleph generates clauses as usual,
+% but some variables are of special type random.
 %
 :- module(clpbn_aleph,
 	  [init_clpbn_cost/0,
@@ -33,6 +38,7 @@
 	 clpbn_tabled_asserta/2,
 	 clpbn_tabled_assertz/1,
 	 clpbn_tabled_clause/2,
+	 clpbn_tabled_clause_ref/3,
 	 clpbn_tabled_number_of_clauses/2,
 	 clpbn_is_tabled/1,
 	 clpbn_reset_tables/0,
@@ -42,7 +48,7 @@
 % Tell Aleph not to use default solver during saturation
 %
 % all work will be done by EM 
-:- set_clpbn_flag(solver,none).
+%:- set_clpbn_flag(solver,none).
 
 %
 % This is the Aleph interface
@@ -58,85 +64,50 @@
 :- user:set(skolem_examples, false).
 
 % avoid doing CLP(BN) stuff except at start
-:- user:set(sat_start_hook, clpbn_aleph:disable_solver).
-:- user:set(sat_stop_hook, clpbn_aleph:enable_solver).
+:- user:set(sat_begin_hook, clpbn_aleph:disable_solver).
+:- user:set(sat_end_hook, clpbn_aleph:enable_solver).
 
-:- user:set(reduce_start_hook, clpbn_aleph:disable_solver).
-:- user:set(reduce_stop_hook, clpbn_aleph:enable_solver).
+:- user:set(reduce_begin_hook, clpbn_aleph:disable_solver).
+:- user:set(reduce_end_hook, clpbn_aleph:enable_solver).
 
-:- user:set(record_testclause_hook, clpbn_aleph:do_nothing).
+:- user:set(best_clause_hook, clpbn_aleph:add_new_clause).
 
-:- user:set(newbest_hook, clpbn_aleph:store_theory).
-
-disable_solver(_) :-
-	clpbn_flag(solver, Old, none),
-	nb_setval(old_clpbn_solver, Old).
 disable_solver(_,_) :-
+	disable_solver.
+disable_solver(_) :-
+	disable_solver.
+
+disable_solver :-
 	clpbn_flag(solver, Old, none),
 	nb_setval(old_clpbn_solver, Old).
+
+enable_solver(_) :-
+	enable_solver.
+enable_solver(_,_) :-
+	enable_solver.
 
 enable_solver :-
 	nb_getval(old_clpbn_solver, Old),
 	set_clpbn_flag(solver, Old).
-enable_solver(_,_) :-
-	nb_getval(old_clpbn_solver, Old),
-	set_clpbn_flag(solver, Old).
 
-do_nothing(_).
-
-% backup current best theory in DB.
-store_theory(_,_,_) :-
-	eraseall(best_theory),
+% step 1: update distributions to better values.
+add_new_clause(_,(H :- _),_,_) :-
+	(
+	  clpbn_is_tabled(user:H)
+	 ->
+	  update_tabled_theory(H)
+        ;
+	  update_theory(H)
+        ),
 	fail.
-store_theory(_,(H:-_),_) :-
-	clpbn_is_tabled(user:H), !,
-	store_tabled_theory(H).
-store_theory(_,(H:-_),_) :- !,
-	store_theory(H).
-store_theory(_,H,_) :-
-	store_theory(H).
-
-store_tabled_theory(H) :-
-	clpbn_tabled_clause(user:H,B),
-	add_correct_cpt(B,NB),
-	store_cl((H:-NB)),
-	fail.
-store_tabled_theory(_).
-	
-store_theory(H) :-
-	clause(user:H,B),
-	add_correct_cpt(B,NB),
-	store_cl((H:-NB)),
-	fail.
-store_theory(_).
-
-add_correct_cpt((G,B),(G,NB)) :- !,
-	add_correct_cpt(B,NB).
-add_correct_cpt((clpbn:{V = K with Tab }), ({V = K with NTab})) :-
-	correct_tab(Tab,K,NTab).
-add_correct_cpt(({V = K with Tab }), ({V = K with NTab})) :-
-	correct_tab(Tab,K,NTab).
-
-correct_tab(p(Vs,_),K,p(Vs,TDist)) :-
-	get_dist_key(Id, K),
-	get_dist_params(Id, TDist).
-correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
-	get_dist_key(Id, K),
-	get_dist_params(Id, TDist).
-
-store_cl(Cl) :-
-	recordz(best_theory, Cl, _).
-
-:- user:set(best_clause_hook, clpbn_aleph:add_new_clause).
-
+% step 2: add clause
 add_new_clause(_,(_ :- true),_,_) :- !.
 add_new_clause(_,(H :- B),_,_) :-
 %trace,
 %	user:db_usage,
 %	user:db_dynamic,
 	domain(H, K, V, D),
-	user:cost((H :- B), _, Cost),
-	format(user_error,'Current Cost: ~w.~n', [Cost]),
+	user:cost((H :- B), _, _Cost),
 	rewrite_body(B, IB, Vs, _, ( !, { V = K with p(D, CPTList, Vs) })),
 	% need to remember which CPT we want
 	get_dist_key(Id, K),
@@ -157,8 +128,38 @@ add_new_clause(_,(H :- B),_,_) :-
 	).
 
 
+update_tabled_theory(H) :-
+	clpbn_tabled_clause_ref(user:H,B,Ref),
+	add_correct_cpt(B,NB),
+	erase(Ref),
+	clpbn_tabled_assertz((user:(H:-NB))),
+	fail.
+update_tabled_theory(_).
+	
+update_theory(H) :-
+	clause(user:H,B,Ref),
+	add_correct_cpt(B,NB),
+	erase(Ref),
+	assert((user:H:-NB)),
+	fail.
+update_theory(_).
+
+add_correct_cpt((G,B),(G,NB)) :-
+	add_correct_cpt(B,NB).
+add_correct_cpt((clpbn:{V = K with Tab }), ({V = K with NTab})) :-
+	correct_tab(Tab,K,NTab).
+add_correct_cpt(({V = K with Tab }), ({V = K with NTab})) :-
+	correct_tab(Tab,K,NTab).
+
+correct_tab(p(Vs,_),K,p(Vs,TDist)) :-
+	get_dist_key(Id, K),
+	get_dist_params(Id, TDist).
+correct_tab(p(Vs,_,Ps),K,p(Vs,TDist,Ps)) :-
+	get_dist_key(Id, K),
+	get_dist_params(Id, TDist).
+
 % user-defined cost function, Aleph knows about this (and only about this). 
-user:cost((H :- B),Inf,Score) :- !,
+user:cost((H :- B),Inf,Score) :-
 	domain(H, K, V, D),
 	check_info(Inf),
 	rewrite_body(B, IB, Vs, Ds, ( !, { V = K with p(D, CPTList, Vs) })),

@@ -58,8 +58,7 @@ init_bp_solver(_, AllVars, _, (BayesNet, DistIds)) :-
     sort(DistIds0, DistIds),
     %(num_bayes_nets(0) -> writeln(vars:VarsInfo) ; true),
     %(num_bayes_nets(0) -> writeln(dists:DistsInfo) ; true),
-    create_network(VarsInfo, BayesNet),
-    get_extra_vars_info(AllVars, ExtraVarsInfo).
+    create_network(VarsInfo, BayesNet).
     %set_extra_vars_info(BayesNet, ExtraVarsInfo).
     
 
@@ -99,17 +98,10 @@ get_evidence(_V, -1). % no evidence !!!
 get_extra_vars_info([], []).
 get_extra_vars_info([V|Vs], [v(VarId, Label, Domain)|VarsInfo]) :-
     get_atts(V, [id(VarId)]), !,
-writeln(k:V),
     clpbn:get_atts(V, [key(Key),dist(DistId, _)]),
-writeln(j:Key),
     term_to_atom(Key, Label),
-writeln(i:Label),
     get_dist_domain(DistId, Domain0),
-writeln(a:Domain0),
     numbers2atoms(Domain0, Domain),
-writeln(b:Domain),
-    get_extra_vars_info(Vs, VarsInfo).
-get_extra_vars_info([_|Vs], VarsInfo) :-
     get_extra_vars_info(Vs, VarsInfo).
 
 
