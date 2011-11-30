@@ -88,6 +88,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 **      Tabling defines      **
 ******************************/
 
+/* traverse macros */
 #define SHOW_MODE_STRUCTURE        0
 #define SHOW_MODE_STATISTICS       1
 #define TRAVERSE_MODE_NORMAL       0
@@ -134,6 +135,24 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define CompactPairEndTerm  AbsPair((Term *) (LowTagBits + 1))
 #define CompactPairEndList  AbsPair((Term *) (2*(LowTagBits + 1)))
 #endif /* TRIE_COMPACT_PAIRS */
+
+/* threads */
+#if (_trie_retry_gterm - _trie_do_var + 1) + 1 <= 64  /* 60 (trie instructions) + 1 (ANSWER_TRIE_HASH_MARK) <= 64 */
+#define ANSWER_LEAF_NODE_INSTR_BITS   6               /* 2^6 = 64 */
+#define ANSWER_LEAF_NODE_INSTR_MASK   0x3F
+#endif
+#if SIZEOF_INT_P == 4
+#define ANSWER_LEAF_NODE_MAX_THREADS  (32 - ANSWER_LEAF_NODE_INSTR_BITS)
+#elif SIZEOF_INT_P == 8
+#define ANSWER_LEAF_NODE_MAX_THREADS  (64 - ANSWER_LEAF_NODE_INSTR_BITS)
+#else
+#define ANSWER_LEAF_NODE_MAX_THREADS  OOOOPPS!!! Unknown Pointer Sizeof
+#endif /* SIZEOF_INT_P */
+#define ANSWER_LEAF_NODE_INSTR_RELATIVE(NODE)  TrNode_instr(NODE) = TrNode_instr(NODE) - _trie_do_var + 1
+#define ANSWER_LEAF_NODE_INSTR_ABSOLUTE(NODE)  TrNode_instr(NODE) = (TrNode_instr(NODE) & ANSWER_LEAF_NODE_INSTR_MASK) + _trie_do_var - 1
+#define ANSWER_LEAF_NODE_SET_WID(NODE,WID)     BITMAP_insert(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
+#define ANSWER_LEAF_NODE_DEL_WID(NODE,WID)     BITMAP_delete(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
+#define ANSWER_LEAF_NODE_CHECK_WID(NODE,WID)   BITMAP_member(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
 
 /* choice points */
 #define NORM_CP(CP)                 ((choiceptr)(CP))

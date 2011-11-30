@@ -78,10 +78,10 @@ typedef struct page_header {
 ***************************/
 
 struct pages {
-#ifdef USE_PAGES_MALLOC
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;
-#endif /* YAPOR */
+#endif /* YAPOR || THREADS */
+#ifdef USE_PAGES_MALLOC
   int structs_per_page;
   struct page_header *first_free_page;
   volatile long pages_allocated;
@@ -127,6 +127,12 @@ struct global_pages {
   struct pages answer_trie_hash_pages;
   struct pages global_trie_hash_pages;
 #endif /* TABLING */
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  struct pages subgoal_entry_pages;
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+#ifdef THREADS_FULL_SHARING
+  struct pages answer_ref_node_pages;
+#endif /* THREADS_FULL_SHARING */
 #if defined(YAPOR) && defined(TABLING)
   struct pages suspension_frame_pages;
 #endif /* YAPOR && TABLING */
@@ -155,6 +161,30 @@ struct global_optyap_locks {
   lockvar alloc_block;
 };
 #endif /* YAPOR */
+
+
+
+/***************************************
+**      threads_dependency_frame      **
+***************************************/
+
+#ifdef THREADS_CONSUMER_SHARING
+struct threads_dependency_frame {
+  lockvar lock;
+  enum {
+    working,
+    idle,
+    completing
+  } state;
+  int terminator;
+  int next;
+};
+#endif /* THREADS_CONSUMER_SHARING */
+
+#define ThDepFr_lock(X)        ((X).lock)
+#define ThDepFr_state(X)       ((X).state)
+#define ThDepFr_terminator(X)  ((X).terminator)
+#define ThDepFr_next(X)        ((X).next)
 
 
 
@@ -212,6 +242,9 @@ struct global_optyap_data {
 #ifdef YAPOR
   struct dependency_frame *root_dependency_frame;
 #endif /* YAPOR */
+#ifdef THREADS_CONSUMER_SHARING
+  struct threads_dependency_frame threads_dependency_frame[MAX_THREADS];
+#endif /*THREADS_CONSUMER_SHARING*/
   CELL table_var_enumerator[MAX_TABLE_VARS];
 #ifdef TRIE_LOCK_USING_GLOBAL_ARRAY
   lockvar trie_locks[TRIE_LOCK_BUCKETS];
@@ -238,6 +271,8 @@ struct global_optyap_data {
 #define GLOBAL_pages_sg_hash                    (GLOBAL_optyap_data.pages.subgoal_trie_hash_pages)
 #define GLOBAL_pages_ans_hash                   (GLOBAL_optyap_data.pages.answer_trie_hash_pages)
 #define GLOBAL_pages_gt_hash                    (GLOBAL_optyap_data.pages.global_trie_hash_pages)
+#define GLOBAL_pages_sg_ent                     (GLOBAL_optyap_data.pages.subgoal_entry_pages)
+#define GLOBAL_pages_ans_ref                    (GLOBAL_optyap_data.pages.answer_ref_node_pages)
 #define GLOBAL_pages_susp_fr                    (GLOBAL_optyap_data.pages.suspension_frame_pages)
 #define GLOBAL_scheduler_loop                   (GLOBAL_optyap_data.scheduler_loop)
 #define GLOBAL_delayed_release_load             (GLOBAL_optyap_data.delayed_release_load)
@@ -280,6 +315,7 @@ struct global_optyap_data {
 #define GLOBAL_last_sg_fr                       (GLOBAL_optyap_data.last_subgoal_frame)
 #define GLOBAL_check_sg_fr                      (GLOBAL_optyap_data.check_subgoal_frame)
 #define GLOBAL_root_dep_fr                      (GLOBAL_optyap_data.root_dependency_frame)
+#define GLOBAL_th_dep_fr(wid)                   (GLOBAL_optyap_data.threads_dependency_frame[wid])
 #define GLOBAL_table_var_enumerator(index)      (GLOBAL_optyap_data.table_var_enumerator[index])
 #define GLOBAL_table_var_enumerator_addr(index) (GLOBAL_optyap_data.table_var_enumerator + (index))
 #define GLOBAL_trie_locks(index)                (GLOBAL_optyap_data.trie_locks[index])

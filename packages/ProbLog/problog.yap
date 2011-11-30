@@ -2099,6 +2099,398 @@ problog_low(_, _, LP, Status) :-
 	(problog_flag(retain_tables, true) -> retain_tabling; true),
 	clear_tabling.
 
+:- ensure_loaded(library(tries)).
+:- ensure_loaded(library(rbtrees)).
+:- ensure_loaded(library(readutil)).
+:- ensure_loaded(library(lineutils)).
+problog_cnf(Goal,  _) :-
+	init_problog_low(0.0),
+	problog_control(off, up),
+	timer_start(sld_time),
+	problog_call(Goal),
+	add_solution,
+	fail.
+problog_cnf(_,Prob) :-
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
+%	randomize_cnf_varids(CNF, RandomVNameCNF),
+%	invert_cnf_varids(CNF, RandomVNameCNF),
+	CNF = RandomVNameCNF,
+	cnf_to_dimacs(RandomVNameCNF, _File),
+	% should generate a tmp file.
+	unix(system('./c2d_linux -in dimacs')),
+	nnf_to_probability(_NNFFile, RB, CompProb),
+	Prob is 1-CompProb,
+	delete_ptree(Trie_Completed_Proofs),
+	(problog_flag(retain_tables, true) -> retain_tabling; true),
+	clear_tabling.
+
+problog_wcnf(Goal,  _) :-
+	init_problog_low(0.0),
+	problog_control(off, up),
+	timer_start(sld_time),
+	problog_call(Goal),
+	add_solution,
+	fail.
+problog_wcnf(_,Prob) :-
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
+%	randomize_cnf_varids(CNF, RandomVNameCNF),
+%	invert_cnf_varids(CNF, RandomVNameCNF),
+	CNF = RandomVNameCNF,
+	cnf_to_wdimacs(RandomVNameCNF, RB, _File),
+	% should generate a tmp file.
+	unix(system('./c2d_linux -in dimacs')),
+	nnf_to_probability(_NNFFile, RB, CompProb),
+	Prob is 1-CompProb,
+	delete_ptree(Trie_Completed_Proofs),
+	(problog_flag(retain_tables, true) -> retain_tabling; true),
+	clear_tabling.
+
+trie_to_cnf(Trie, CNF, RB) :-
+	trie_traverse_first(Trie, RefFirst),
+	rb_new(RB0),
+	nb_setval(cnf_nodes, 0),
+	trie_to_list_of_numbers(Trie, RB0, RefFirst, CNF, RB).
+
+trie_to_list_of_numbers(Trie, RB0, CurrentRef, Proof.Proofs, RB) :-
+	trie_get_entry(CurrentRef, Entry),
+	convert_trie_entry_to_numbers(Entry, RB0, Proof, RBI),
+	continue_processing_trie(Trie, RBI, CurrentRef, Proofs, RB).
+
+continue_processing_trie(Trie, RB0, CurrentRef, Proofs, RB) :-
+	trie_traverse_next(CurrentRef, NextRef), !,
+	trie_to_list_of_numbers(Trie, RB0, NextRef, Proofs, RB).
+continue_processing_trie(_, RB, _CurrentRef, [], RB).
+
+convert_trie_entry_to_numbers([], RB, [], RB).
+convert_trie_entry_to_numbers(not(Val).Entry, RB0, Numb.Proof, RB) :- !,
+	convert_goal_to_number(Val, RB0, Numb, RBI),
+	convert_trie_entry_to_numbers(Entry, RBI, Proof, RB).
+convert_trie_entry_to_numbers(Val.Entry, RB0, NegNumb.Proof, RB) :- !,
+	convert_goal_to_number(Val, RB0, Numb, RBI),
+	NegNumb is -Numb,
+	convert_trie_entry_to_numbers(Entry, RBI, Proof, RB).
+
+convert_goal_to_number(Val, RB0, Numb, RBI) :-
+	rb_lookup(Val, Numb, RB0), !,
+	RB0 = RBI.
+convert_goal_to_number(Val, RB0, I, RBI) :-
+	nb_getval(cnf_nodes, I0),
+	I is I0+1,
+	nb_setval(cnf_nodes, I),
+	rb_insert(RB0, Val, I, RBI).
+
+invert_cnf_varids(CNF, InvVNameCNF) :-
+	nb_getval(cnf_nodes,Nodes),
+	invert_cnf_varids(CNF, Nodes, InvVNameCNF, []).
+
+invert_cnf_varids([], _) --> [].
+invert_cnf_varids(C.CNF, Nodes) --> [NC],
+	{ invert_c_varids(C, Nodes, NC, []) },
+	invert_cnf_varids(CNF, Nodes).
+
+invert_c_varids([], _Nodes) --> [].
+invert_c_varids(N.CNF, Nodes) -->
+	[NN],
+	{ inv_node(N,Nodes,NN) },
+	invert_c_varids(CNF, Nodes).
+
+inv_node(N,Nodes,NN) :-
+	( N > 0 -> NN is (Nodes-N)+1 ; NN is -(Nodes+N+1) ).
+
+randomize_cnf_varids(CNF, RandomVNameCNF) :-
+	nb_getval(cnf_nodes,Nodes),
+	generate_numbers(Nodes, Numbers),
+	randomize_list(Numbers, RandomNumbers).
+
+cnf_to_wdimacs(CNF, RB, File) :-
+	File = dimacs,
+	open(dimacs,write,Stream),
+	length(CNF,M),
+	nb_getval(cnf_nodes,N),
+	format(Stream,'p cnf ~d ~d~n',[N,M]),
+	output_probs(Stream, RB),
+	cnf_lines_to_dimacs(CNF, Stream),
+	close(Stream).
+
+output_probs(Stream, RB) :-
+	rb_in(K, V, RB),
+	dump_weight(Stream, K, V),
+	fail.
+output_probs(_Stream, _RB).
+
+dump_weight(Stream, K, V) :-
+	get_fact_probability(K,ProbFact),
+	format(Stream,'w ~d ~f~n',[V,ProbFact]).
+
+cnf_to_dimacs(CNF, File) :-
+	File = dimacs,
+	open(dimacs,write,Stream),
+	length(CNF,M),
+	nb_getval(cnf_nodes,N),
+	format(Stream,'p cnf ~d ~d~n',[N,M]),
+	cnf_lines_to_dimacs(CNF, Stream),
+	close(Stream).
+
+cnf_lines_to_dimacs([], _Stream).
+cnf_lines_to_dimacs([Line|CNF], Stream) :-
+	cnf_line_to_dimacs(Line,Stream),
+	cnf_lines_to_dimacs(CNF, Stream).	
+
+cnf_line_to_dimacs([],Stream) :-
+	format(Stream,'0~n',[]).
+cnf_line_to_dimacs([L|Line],Stream) :-
+	format(Stream,'~w ',[L]),	
+	cnf_line_to_dimacs(Line,Stream).
+
+nnf_to_probability(File, RBTree, Result) :-
+	File = 'dimacs.nnf',
+	open(File, read, Stream),
+	process_nnf(Stream, RBTree, Result),
+	close(Stream).
+
+process_nnf(Stream, RevRBTree, Result) :-
+	rb_visit(RevRBTree, ListOfPairs),
+	swap_key_values(ListOfPairs, SwappedList),
+	list_to_rbtree(SwappedList, RBTree),
+	read_line_to_codes(Stream, Header),
+	split(Header, ["nnf",VS,_ES,_NS]),
+	number_codes(V, VS),
+	%trace,
+	call(functor(TempResults, nnf, V)),
+	process_nnf_lines(Stream, RBTree, 1, TempResults),
+	arg(V, TempResults, Result).
+
+swap_key_values([], []).
+swap_key_values((K-V).ListOfPairs, (V-K).SwappedList) :-
+	swap_key_values(ListOfPairs, SwappedList).
+
+
+process_nnf_lines(Stream, RBTree, LineNumber, TempResults) :-
+	read_line_to_codes(Stream, Codes),
+	( Codes = end_of_file -> true ;
+%	(LineNumber > 1 -> N is LineNumber-1, arg(N,TempResults,P), format("~w ",[P]);true),
+%	format("~s~n",[Codes]),
+	  process_nnf_line(RBTree, LineNumber, TempResults, Codes, []),
+	  NewLine is LineNumber+1,
+	  process_nnf_lines(Stream, RBTree, NewLine, TempResults)
+	).
+
+process_nnf_line(RBTree, Line, TempResults) --> "L ",
+	nnf_leaf(RBTree, Line, TempResults).
+process_nnf_line(_RBTree, Line, TempResults) --> "A ",
+	nnf_and_node(Line, TempResults).
+process_nnf_line(_RBTree, Line, TempResults) --> "O ",
+	nnf_or_node(Line, TempResults).
+
+nnf_leaf(RBTree, LineNumber, TempResults, Codes, []) :-
+	number_codes(Number, Codes),
+	Abs is abs(Number),
+	rb_lookup(Abs, Node, RBTree),
+%	get_fact_probability(Node, ProbFact),
+%	(Number < 0 -> Prob is 1-ProbFact ; Prob = ProbFact),
+	(get_fact_probability(Node,ProbFact) -> (Number < 0 -> Prob is 1-ProbFact ; Prob = ProbFact) ; Prob = special),
+	arg(LineNumber, TempResults, Prob).
+
+nnf_and_node(LineNumber, TempResults, Codes, []) :-
+	split(Codes, [_|NumberAsStrings]),
+	multiply_nodes(NumberAsStrings, 1.0, TempResults, Product),
+	arg(LineNumber, TempResults, Product).
+
+multiply_nodes([], Product, _, Product).
+multiply_nodes(NumberAsString.NumberAsStrings, Product0, TempResults, Product) :-
+	number_codes(Pos, NumberAsString),
+	Pos1 is Pos+1,
+	arg(Pos1, TempResults, P),
+	( P == special -> ProductI=Product0; ProductI is P*Product0 ),
+	multiply_nodes(NumberAsStrings, ProductI, TempResults, Product).
+
+nnf_or_node(LineNumber, TempResults, Codes, []) :-
+	split(Codes, [_,_|NumberAsStrings]),
+	add_nodes(NumberAsStrings, 0.0, TempResults, Product),
+	arg(LineNumber, TempResults, Product).
+
+add_nodes([], Product, _, Product).
+add_nodes(NumberAsString.NumberAsStrings, Product0, TempResults, Product) :-
+	number_codes(Pos, NumberAsString),
+	Pos1 is Pos+1,
+	arg(Pos1, TempResults, P),
+	( P == special -> ProductI=Product0; ProductI is P+Product0 ),
+	add_nodes(NumberAsStrings, ProductI, TempResults, Product).
+
+problog_cnf_positive(Goal,  _) :-
+	init_problog_low(0.0),
+	problog_control(off, up),
+	timer_start(sld_time),
+	problog_call(Goal),
+	add_solution,
+	fail.
+problog_cnf_positive(_,Prob) :-
+	timer_stop(sld_time,SLD_Time),
+	problog_var_set(sld_time, SLD_Time),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+%	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
+%	cnf_to_dimacs(CNF, _File),
+	trie_to_dimacs(Trie_Completed_Proofs, RB, _File),
+	unix(system('./c2d_linux -in dimacs')),
+				% execute c2d at this point, but we're lazy
+	nnf_to_probability(_NNFFile, RB, Prob),
+	delete_ptree(Trie_Completed_Proofs),
+	(problog_flag(retain_tables, true) -> retain_tabling; true),
+	clear_tabling.
+
+trie_to_dimacs(Trie_Completed_Proofs, RB, File) :-
+	problog_flag(db_trie_opt_lvl, OptimizationLevel),
+	trie_to_depth_breadth_trie(Trie_Completed_Proofs, DBTrie, LL, OptimizationLevel),
+	dbtrie_to_cnf(DBTrie, LL, RB, CNF),
+	File = dimacs,
+	open(dimacs,write,Stream),
+	length(CNF,M), 
+	nb_getval(cnf_nodes,N),
+	format(Stream,'p cnf ~d ~d~n',[N,M]),
+	cnf_lines_to_dimacs(CNF, Stream),
+	close(Stream).
+
+
+dbtrie_to_cnf(DBTrie, LL, RB, CNF) :-
+  % tricky way to find the number of intermediate nodes.
+  (atomic_concat('L', _InterStep, LL) -> 
+    % cleanup
+    retractall(deref(_,_)),
+    (problog_flag(deref_terms, true) ->
+      asserta(deref(LL,no)),
+      mark_for_deref(DBTrie),
+      V = 3
+    ;
+      V = 1
+    ),
+    % do the real work
+    bdd_defs_to_cnf(DBTrie, CNF, LL, RB)
+  ;
+   % cases true, false, single literal
+   ( LL == true -> CNF = [[1,-1]]
+   ;
+     LL == false -> CNF = [[1],[-1]]
+   ;
+     convert_goal_to_number(LL, RB, NN, _RBI),
+     CNF = [[NN]]	       
+   )
+ ).
+
+bdd_defs_to_cnf(DBTrie, [[NN]|CNF], LL, RB) :- fail,
+	findall(Node, in_trie(DBTrie, Node), Nodes0),
+%	reverse(Nodes0, Nodes),
+%	depth_first(Nodes0, LL, Nodes),
+	Nodes0 = Nodes,
+	rb_new(RB0),
+	nb_setval(cnf_nodes, 0),
+	convert_goal_to_number(LL, RB0, NN, RB1),
+	xnodes_to_cnf(Nodes, RB1, RB, CNF, []).
+bdd_defs_to_cnf(Trie, [[NN]|CNF], LL, RB) :-
+	trie_traverse_first(Trie, RefFirst),
+	rb_new(RB0),
+	nb_setval(cnf_nodes, 0),
+	convert_goal_to_number(LL, RB0, NN, RB1),
+	bdd_defs_to_list_of_numbers(Trie, RB1, RefFirst, [], CNF, RB).
+
+
+depth_first(Nodes0, LL, Nodes) :-
+	rb_new(RB0),
+	insert_all(Nodes0, RB0, RB),
+	pick_nodes(LL, RB, _, Nodes, []).
+
+insert_all([], RB, RB).
+insert_all(Node.Nodes0, RB0, RB) :-
+	arg(2, Node, Key),
+	rb_insert(RB0, Key, Node, RBI),
+	insert_all(Nodes0, RBI, RB).
+	
+pick_nodes(Key, RB0, RBF) -->
+	{ rb_delete(RB0, Key, Node, RBI) },
+	!,
+	[Node],
+	{ arg(1, Node, Children) },
+	pick_recursively(Children, RBI, RBF).
+pick_nodes(_, RB, RB) --> [].
+
+pick_recursively([], RB, RB) --> [].
+pick_recursively(Key.Keys, RB0, RBF) -->
+	pick_nodes(Key, RB0, RBI),
+	pick_recursively(Keys, RBI, RBF).
+
+in_trie(Trie, Entry) :-
+	trie_traverse(Trie, Ref),
+	trie_get_entry(Ref, Entry).
+
+xnodes_to_cnf([], RB, RB) --> [].
+xnodes_to_cnf(Node.Nodes, RB0, RB) -->
+	xnode_to_cnf(Node, RB0, RBI),
+	xnodes_to_cnf(Nodes, RBI, RB).
+
+xnode_to_cnf(Node, RB0, RBI, CNF, PartialCNF) :-
+	convert_dbtrie_entry_to_numbers(Node, RB0, PartialCNF, CNF, RBI).
+
+bdd_defs_to_list_of_numbers(Trie, RB0, CurrentRef, PartialCNF, FinalCNF, RB) :-
+	trie_get_entry(CurrentRef, Entry),
+writeln(Entry),
+	convert_dbtrie_entry_to_numbers(Entry, RB0, PartialCNF, NextCNF, RBI),
+	continue_processing_dbtrie(Trie, RBI, CurrentRef, NextCNF, FinalCNF, RB).
+
+continue_processing_dbtrie(Trie, RB0, CurrentRef, PartialCNF, FinalCNF, RB) :-
+	trie_traverse_next(CurrentRef, NextRef), !,
+	bdd_defs_to_list_of_numbers(Trie, RB0, NextRef, PartialCNF, FinalCNF, RB).
+continue_processing_dbtrie(_, RB, _CurrentRef, CNF, CNF, RB).
+
+convert_dbtrie_entry_to_numbers(depth(List,Name), RB0, PartialCNF, CNF, RBI) :-
+	convert_trie_entry_to_numbers_positive(List, RB0, NumList, NextRB),
+	convert_goal_to_number(Name, NextRB, NumName, RBI),
+	add_conjunction_to_cnf(NumList, NumName, PartialCNF, CNF).%,format(user_error,'conj ~q gives ~q~n',[NumList-NumName, CNF]).
+convert_dbtrie_entry_to_numbers(breadth(List,Name), RB0, PartialCNF, CNF, RBI) :-
+	convert_trie_entry_to_numbers_positive(List, RB0, NumList, NextRB),
+	convert_goal_to_number(Name, NextRB, NumName, RBI),
+	add_disjunction_to_cnf(NumList, NumName, PartialCNF, CNF).%,format(user_error,'disj ~q  gives ~q~n',[NumList-NumName, CNF]).
+
+convert_trie_entry_to_numbers_positive([], RB, [], RB).
+convert_trie_entry_to_numbers_positive(not(Val).Entry, RB0, (-Numb).Proof, RB) :- !,
+	convert_goal_to_number(Val, RB0, Numb, RBI),
+	convert_trie_entry_to_numbers_positive(Entry, RBI, Proof, RB).
+convert_trie_entry_to_numbers_positive(Val.Entry, RB0, Numb.Proof, RB) :- !,
+	convert_goal_to_number(Val, RB0, Numb, RBI),
+	convert_trie_entry_to_numbers_positive(Entry, RBI, Proof, RB).
+
+add_conjunction_to_cnf(NumList, NumName, PartialCNF, CNF) :-
+	neg_numbers(NumList,NegList),
+	add_conj_to_cnf(NumList, NumName, [[NumName|NegList]|PartialCNF], CNF).
+
+add_conj_to_cnf([],_,CNF,CNF).
+add_conj_to_cnf([Num|List],NumName,CNF0,CNF) :-
+	NegNumName is -NumName,
+	add_conj_to_cnf(List,NumName,[[NegNumName,Num]|CNF0],CNF).
+
+add_disjunction_to_cnf(NumList, NumName, PartialCNF, CNF) :-
+	NegNumName is -NumName,
+	add_disj_to_cnf(NumList, NumName, [[NegNumName|NumList]|PartialCNF], CNF).
+
+add_disj_to_cnf([],_,CNF,CNF).
+add_disj_to_cnf([Num|List],NumName,CNF0,CNF) :-
+	neg_num(Num,NegNum),
+	add_disj_to_cnf(List,NumName,[[NumName,NegNum]|CNF0],CNF).
+
+neg_num(Y,X) :- X is -Y.
+
+neg_numbers([],[]).
+neg_numbers([Y|List],[X|ListN]) :- 
+	neg_num(Y,X),
+	neg_numbers(List,ListN).
+
+
+%%%%
+
 init_problog_low(Threshold) :-
 	init_ptree(Trie_Completed_Proofs),
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
