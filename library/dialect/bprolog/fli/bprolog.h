@@ -118,6 +118,11 @@ bp_get_arity(TERM t)
 // TERM bp_insert_pred(char *name, int arity, int (*func)())
 #define bp_insert_pred(name, arity, func) YAP_UserCPredicate(name, func, arity)
 
+extern inline int bp_call_string(const char *goal);
+extern inline int bp_call_term(TERM t);
+extern inline int bp_next_solution(void);
+extern inline int bp_mount_query_term(TERM goal);
+
 // int bp_call_string(char *goal)
 extern inline int
 bp_call_string(const char *goal) {
