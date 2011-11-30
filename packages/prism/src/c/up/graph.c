@@ -770,6 +770,7 @@ int pc_get_snode_expectation_2(void)
 
 int pc_import_occ_switches_3(void)
 {
+  CACHE_REGS
     TERM p_sw_list,p_sw_list0,p_sw_list1;
     TERM p_sw_ins_list0,p_sw_ins_list1,sw,sw_ins;
     TERM p_num_sw, p_num_sw_ins;

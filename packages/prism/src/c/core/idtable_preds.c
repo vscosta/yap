@@ -15,6 +15,38 @@ char * bp_term_2_string(TERM);
 /* unify.c */
 int    unify(TERM, TERM);
 
+int prism_goal_id_register(TERM term);
+int prism_sw_id_register(TERM term);
+int prism_sw_ins_id_register(TERM term);
+int prism_goal_id_get(TERM term);
+int prism_sw_id_get(TERM term);
+int prism_sw_ins_id_get(TERM term);
+int prism_goal_count(void);
+int prism_sw_count(void);
+int prism_sw_ins_count(void);
+TERM prism_goal_term(IDNUM i);
+TERM prism_sw_term(IDNUM i);
+TERM prism_sw_ins_term(IDNUM i);
+char * prism_goal_string(IDNUM i);
+char * prism_sw_string(IDNUM i);
+char * prism_sw_ins_string(IDNUM i);
+char * copy_prism_goal_string(IDNUM i);
+char * copy_prism_sw_string(IDNUM i);
+char * copy_prism_sw_ins_string(IDNUM i);
+int pc_prism_id_table_init_0(void);
+int pc_prism_goal_id_register_2(void);
+int pc_prism_sw_id_register_2(void);
+int pc_prism_sw_ins_id_register_2(void);
+int pc_prism_goal_id_get_2(void);
+int pc_prism_sw_id_get_2(void);
+int pc_prism_sw_ins_id_get_2(void);
+int pc_prism_goal_count_1(void);
+int pc_prism_sw_count_1(void);
+int pc_prism_sw_ins_count_1(void);
+int pc_prism_goal_term_2(void);
+int pc_prism_sw_term_2(void);
+int pc_prism_sw_ins_term_2(void);
+
 /*--------------------------------------------------------------------*/
 
 int prism_goal_id_register(TERM term)
@@ -125,6 +157,7 @@ int pc_prism_id_table_init_0(void)
 
 int pc_prism_goal_id_register_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -137,6 +170,7 @@ int pc_prism_goal_id_register_2(void)
 
 int pc_prism_sw_id_register_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -149,6 +183,7 @@ int pc_prism_sw_id_register_2(void)
 
 int pc_prism_sw_ins_id_register_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -161,6 +196,7 @@ int pc_prism_sw_ins_id_register_2(void)
 
 int pc_prism_goal_id_get_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -175,6 +211,7 @@ int pc_prism_goal_id_get_2(void)
 
 int pc_prism_sw_id_get_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -188,6 +225,7 @@ int pc_prism_sw_id_get_2(void)
 
 int pc_prism_sw_ins_id_get_2(void)
 {
+  CACHE_REGS
     TERM term;
     IDNUM id;
 
@@ -201,21 +239,25 @@ int pc_prism_sw_ins_id_get_2(void)
 
 int pc_prism_goal_count_1(void)
 {
+  CACHE_REGS
     return unify(MAKEINT(prism_goal_count()), ARG(1,1));
 }
 
 int pc_prism_sw_count_1(void)
 {
+  CACHE_REGS
     return unify(MAKEINT(prism_sw_count()), ARG(1,1));
 }
 
 int pc_prism_sw_ins_count_1(void)
 {
+  CACHE_REGS
     return unify(MAKEINT(prism_sw_ins_count()), ARG(1,1));
 }
 
 int pc_prism_goal_term_2(void)
 {
+  CACHE_REGS
     TERM id, term;
 
     id = ARG(1,2);
@@ -227,6 +269,7 @@ int pc_prism_goal_term_2(void)
 
 int pc_prism_sw_term_2(void)
 {
+  CACHE_REGS
     TERM id, term;
 
     id = ARG(1,2);
@@ -239,6 +282,7 @@ int pc_prism_sw_term_2(void)
 
 int pc_prism_sw_ins_term_2(void)
 {
+  CACHE_REGS
     TERM id, term;
 
     id = ARG(1,2);

@@ -170,6 +170,7 @@ int id_table_count(const ID_TABLE *this)
 
 TERM unnumber_var_term(TERM term)
 {
+  CACHE_REGS
     BPLONG mvn = -1;
     return unnumberVarTerm(term, local_top, &mvn);
 }

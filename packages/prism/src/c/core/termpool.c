@@ -62,6 +62,7 @@ static ptrdiff_t trail_pos0 = 0;
 
 static void number_vars(TERM term)
 {
+  CACHE_REGS
     assert(trail_pos0 == 0);
 
     trail_pos0 = trail_up_addr - trail_top;
@@ -75,6 +76,7 @@ static void number_vars(TERM term)
 
 static void revert_vars(void)
 {
+  CACHE_REGS
     BPLONG_PTR trail_top0;
 
     assert(trail_pos0 != 0);
@@ -90,6 +92,7 @@ static void revert_vars(void)
  */
 static BPULONG prism_hash_value(TERM term)
 {
+  CACHE_REGS
     TERM    t, *rest;
     BPLONG  i, n;
     SYM_REC_PTR sym;
