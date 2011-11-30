@@ -114,6 +114,8 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
   REMOTE_ThreadHandle(new_worker_id).texit =
     Yap_StoreTermInDB(tgoal,7);
+  REMOTE_ThreadHandle(new_worker_id).local_preds =
+    NULL;
   return TRUE;
 }
 
