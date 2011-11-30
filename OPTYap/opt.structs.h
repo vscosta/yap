@@ -79,7 +79,7 @@ typedef struct page_header {
 
 struct pages {
 #ifdef USE_PAGES_MALLOC
-#ifdef YAPOR
+#if defined(YAPOR) || defined(THREADS)
   lockvar lock;
 #endif /* YAPOR */
   int structs_per_page;

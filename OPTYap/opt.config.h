@@ -20,7 +20,9 @@
 /******************************************************************************************
 **      use shared pages memory alloc scheme for OPTYap data structures? (optional)      **
 ******************************************************************************************/
-/* #define USE_PAGES_MALLOC 1 */
+#ifdef THREADS
+#define USE_PAGES_MALLOC 1
+#endif
 
 
 
