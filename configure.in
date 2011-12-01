@@ -80,16 +80,6 @@ case "$target_cpu" in
 dnl Gecode support
 AC_CHECK_HEADER(gecode/support/config.hpp,
 	have_gecode=yes, have_gecode=no)
-use_gecode_default=no
-AC_SUBST(PYTHON)
-if test "$have_gecode" = yes; then
-   AC_CHECK_PROGS(PYTHON, [python2.78 python], [none])
-   if test "$PYTHON" != none; then
-      use_gecode_default=yes
-   fi
-else
-   PYTHON=none
-fi
 AC_ARG_ENABLE(gecode,
 	[ --enable-gecode            install gecode library],
         [use_gecode="$enableval"
@@ -97,10 +87,7 @@ AC_ARG_ENABLE(gecode,
 	    if test "$have_gecode" = no; then
 	       AC_MSG_ERROR([cannot enable gecode: gecode library not found])
 	    fi
-	    if test "$PYTHON" = none; then
-	       AC_MSG_ERROR([cannot enable gecode: python not found])
-	    fi
-         fi], use_gecode=$use_gecode_default)
+         fi], use_gecode=$have_gecode)
 AC_MSG_CHECKING([if dynamic arrays are supported])
 AC_COMPILE_IFELSE([
   AC_LANG_PROGRAM([[void foo(int n) { int a[n]; a[1]=0; }]],[[foo(3);]])
@@ -110,6 +97,22 @@ AC_COMPILE_IFELSE([
   ],[
   AC_MSG_RESULT([no])
   ])
+GECODE_VERSION=unknown-gecode-version
+AC_SUBST(GECODE_VERSION)
+if test "$use_gecode" = yes; then
+  AC_MSG_CHECKING([determining gecode version])
+  AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+#include "gecode/support/config.hpp"
+#include <stdio.h>
+]],[[
+  FILE* out = fopen("conftest.out","w");
+  fprintf(out,"%s\n",GECODE_VERSION);
+  fclose(out);
+  return 0;
+]])],[GECODE_VERSION=$(cat conftest.out)
+    AC_MSG_RESULT([$GECODE_VERSION])],
+   [AC_MSG_ERROR([cannot determine gecode version])])
+fi
 
 AC_ARG_ENABLE(tabling,
 	[ --enable-tabling           support tabling ],

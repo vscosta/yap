@@ -13,7 +13,7 @@
 # details.
 # 
 # You should have received a copy of the GNU General Public License along with
-# this program.  If not, see <http:##www.gnu.org/licenses/>.
+# this program.  If not, see <http://www.gnu.org/licenses/>.
 #==============================================================================
 
 import re
@@ -515,16 +515,13 @@ ENUM_CLASSES_AVOID = ('ScriptMode','ViewSelStatus','ExecStatus',
 
 def enum_classes():
     global ENUM_CLASSES
-    filename = "gecode-enums-%s.py" % gecode_version()
-    if SRCDIR is not None:
-        import os.path
-        filename = os.path.join(SRCDIR,filename)
     if ENUM_CLASSES is None:
+        filename = "gecode-enums-%s.py" % gecode_version()
         import imp
         ENUM_CLASSES = imp.load_source(
             "gecode_enums",
             filename).ENUM_CLASSES
-        ENUM_CLASSES = (x for x in ENUM_CLASSES if x.TYPE not in ENUM_CLASSES_AVOID)
+        ENUM_CLASSES = tuple(x for x in ENUM_CLASSES if x.TYPE not in ENUM_CLASSES_AVOID)
     return ENUM_CLASSES
 
 class YAPEnumImpl(object):
@@ -668,42 +665,40 @@ def gecode_version():
     GECODE_VERSION = version
     return version
 
-SRCDIR = None
-
-if __name__ == '__main__':
-    import argparse
-    parser = argparse.ArgumentParser(
-        description="code generator for gecode bindings")
-    parser.add_argument(
-        "-t", "--target", choices=("yap-prolog","yap-cc-impl","yap-cc-init",
-                                   "yap-cc-forward"),
-        default=None, metavar="TARGET", required=True,
-        help="type of code to generate")
-    parser.add_argument(
-        "-s", "--srcdir", metavar="DIR", default=None,
-        help="source directory")
-
-    args = parser.parse_args()
-    if args.srcdir is not None:
-        import os.path
-        SRCDIR = os.path.abspath(args.srcdir)
+def generate_files():
+    DIR = "../%s" % gecode_version()
+    import os, os.path
+    DIR = os.path.abspath(DIR)
+    if not os.path.exists(DIR):
+        os.mkdir(DIR)
     filename = "gecode-prototypes-%s.hh" % gecode_version()
-    if SRCDIR is not None:
-        filename = os.path.join(SRCDIR,filename)
-    if args.target == "yap-prolog":
+    import sys
+    stdout = sys.stdout
+    try:
+        sys.stdout = file(os.path.join(DIR,"gecode-version.txt"),"w")
+        print gecode_version()
+        sys.stdout.close()
+        sys.stdout = file(os.path.join(DIR,"gecode_yap_auto_generated.yap"),"w")
         prolog_print_notice()
         YAPEnumPrologGenerator().generate()
         YAPConstraintPrologGenerator(filename).generate()
-    elif args.target == "yap-cc-impl":
+        sys.stdout.close()
+        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_impl_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumImplGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_impl()
-    elif args.target == "yap-cc-init":
+        sys.stdout.close()
+        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_init_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumInitGenerator().generate()
         YAPConstraintCCGenerator(filename).generate_init()
-    elif args.target == "yap-cc-forward":
+        sys.stdout.close()
+        sys.stdout = file(os.path.join(DIR,"gecode_yap_cc_forward_auto_generated.icc"),"w")
         cc_print_notice()
         YAPEnumForwardGenerator().generate()
-    else:
-        raise NotImplementedError("target not yet suported: %s" % args.target)
+        sys.stdout.close()
+    finally:
+        sys.stdout = stdout
+
+if __name__ == '__main__':
+    generate_files()
