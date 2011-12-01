@@ -156,8 +156,10 @@ extern "C"
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    bool restart = YAP_IntOfTerm(YAP_ArgOfTerm(1, arg3));
     GenericSpace* space = gecode_Space_from_term(arg1);
-    GenericEngine* engine = space->new_engine();
+    GenericEngine* engine = space->new_engine(restart);
     YAP_Term y_engine =
       YAP_NewOpaqueObject(gecode_engine_tag, sizeof(GenericEngine*));
     GenericEngine** ptr =
@@ -1045,7 +1047,7 @@ extern "C"
     gecode_engine_handler.fail_handler = gecode_engine_fail_handler;
     gecode_engine_handler.write_handler = gecode_engine_write_handler;
     gecode_engine_tag = YAP_NewOpaqueType(&gecode_engine_handler);
-    YAP_UserCPredicate("gecode_new_engine", gecode_new_engine, 2);
+    YAP_UserCPredicate("gecode_new_engine", gecode_new_engine, 3);
 #ifdef DISJUNCTOR
     // opaque disjunctors and clauses
     gecode_disjunctor_handler.write_handler = gecode_disjunctor_write_handler;

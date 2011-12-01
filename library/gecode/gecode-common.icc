@@ -73,6 +73,13 @@ namespace generic_gecode
     virtual GenericSpace* next(void) { return engine.next(); }
   };
 
+  struct GenericRestart: GenericEngine
+  {
+    Restart<GenericSpace> engine;
+    GenericRestart(GenericSpace* s): engine(s) {}
+    virtual GenericSpace* next(void) { return engine.next(); }
+  };
+
   struct GenericSpace: Space
   {
     Optimizing optim;
@@ -137,12 +144,14 @@ namespace generic_gecode
     BoolVar get_bvar(int i) const { return (_bvars) ? (*_bvars)[i] : bvars[i]; }
     SetVar get_svar(int i) const { return (_svars) ? (*_svars)[i] : svars[i]; }
 
-    GenericEngine* new_engine()
+    GenericEngine* new_engine(bool restart=false)
     {
       freeze();
       return (optim.what == Optimizing::OPT_NONE)
 	? static_cast<GenericEngine*>(new GenericDFS(this))
-	: static_cast<GenericEngine*>(new GenericBAB(this));
+	: (restart
+	   ? static_cast<GenericEngine*>(new GenericRestart(this))
+	   : static_cast<GenericEngine*>(new GenericBAB(this)));
     }
 
     int _new_ivar(IntVar& v)
