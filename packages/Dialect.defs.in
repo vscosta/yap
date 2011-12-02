@@ -50,7 +50,7 @@ CFLAGS=$(COFLAGS) $(CWFLAGS) $(CMFLAGS) $(CIFLAGS) $(PKGCFLAGS) @DEFS@
 LDSOFLAGS=@LDFLAGS@ @EXTRA_LIBS_FOR_SWIDLLS@
 LDFLAGS=$(PKGLDFLAGS)
 
-MKINDEX=$(PL) -f none -g make -t halt
+MKINDEX=(cd $(srcdir) ; $(PL) -f none -g make -t halt)
 
 .txt.tex:
 	swipl -f script.pl -g "doc_latex('$*.txt','$*.tex',[stand_alone(false)]),halt" -t "halt(1)"
