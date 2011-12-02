@@ -705,6 +705,7 @@ LN_S
 DefTrailSpace
 DefStackSpace
 DefHeapSpace
+GECODE_EXTRALIBS
 GECODE_VERSION
 EGREP
 GREP
@@ -4336,10 +4337,12 @@ $as_echo "no" >&6; }
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 GECODE_VERSION=unknown-gecode-version
+GECODE_EXTRALIBS=
+
 
 if test "$use_gecode" = yes; then
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking determining gecode version" >&5
-$as_echo_n "checking determining gecode version... " >&6; }
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking gecode version" >&5
+$as_echo_n "checking gecode version... " >&6; }
   if test "$cross_compiling" = yes; then :
   { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
 $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
@@ -4376,6 +4379,53 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
   conftest.$ac_objext conftest.beam conftest.$ac_ext
 fi
 
+   case "$target_os" in
+     *darwin*)
+     { $as_echo "$as_me:${as_lineno-$LINENO}: checking if -framework gecode is required" >&5
+$as_echo_n "checking if -framework gecode is required... " >&6; }
+     ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+     saved_CXXFLAGS="$CXXFLAGS"
+     CXXFLAGS="$CXXFLAGS -framework gecode"
+
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include "gecode/int.hh"
+
+int
+main ()
+{
+
+Gecode::Exception e("","");
+return 0;
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_compile "$LINENO"; then :
+  GECODE_EXTRALIBS="-framework gecode"
+      { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+     CXXFLAGS="$saved_CXXFLAGS"
+     ;;
+   esac
 fi
 
 # Check whether --enable-tabling was given.
