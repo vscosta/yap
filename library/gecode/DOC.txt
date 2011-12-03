@@ -38,6 +38,16 @@ for an interval of themselves).  It might be tempting to simply represent an
 IntSet as a list of specs, but this would be ambiguous with IntArgs which,
 here, are represented as lists of ints.
 
+   Space += keep(Var)
+   Space += keep(Vars)
+
+Variables can be marked as "kept".  In this case, only such variables will be
+explicitly copied during search.  This could bring substantial benefits in
+memory usage.  Of course, in a solution, you can then only look at variables
+that have been "kept".  If no variable is marked as "kept", then they are all
+kept.  Thus marking variables as "kept" is purely an optimization.
+
+
 CONSTRAINTS AND BRANCHINGS
 ==========================
 
