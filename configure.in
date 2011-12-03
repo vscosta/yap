@@ -98,7 +98,7 @@ AC_COMPILE_IFELSE([
   AC_MSG_RESULT([no])
   ])
 GECODE_VERSION=unknown-gecode-version
-GECODE_EXTRALIBS=
+GECODE_EXTRALIBS=-lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch
 AC_SUBST(GECODE_VERSION)
 AC_SUBST(GECODE_EXTRALIBS)
 if test "$use_gecode" = yes; then

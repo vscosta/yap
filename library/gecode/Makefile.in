@@ -44,7 +44,7 @@ SOBJS=gecode_yap.@SO@
 
 GECODE_VERSION = @GECODE_VERSION@
 DISJUNCTOR = -DDISJUNCTOR
-GECODE_LIBS = @GECODE_EXTRALIBS@ -lgecodesupport -lgecodekernel -lgecodeint -lgecodeset -lgecodesearch
+GECODE_LIBS = @GECODE_EXTRALIBS@ 
 
 all: $(SOBJS) gecode.yap
 
@@ -59,7 +59,7 @@ gecode_yap.o: \
 	$(CXX) -c -I$(srcdir)/$(GECODE_VERSION) $(CXXFLAGS) $(DISJUNCTOR) -o $@ $<
 
 @DO_SECOND_LD@gecode_yap.@SO@: gecode_yap.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) $(GECODE_LIBS) @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) $(GECODE_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
 gecode.yap: $(srcdir)/gecode_yap_hand_written.yap $(srcdir)/$(GECODE_VERSION)/gecode_yap_auto_generated.yap
 	cat $^ > $@

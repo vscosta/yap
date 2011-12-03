@@ -30,8 +30,18 @@ PL_get_chars_ex(term_t t, char **s, unsigned int flags)
 }
 
 
+#undef PL_get_atom_ex
+
 int
 PL_get_atom_ex__LD(term_t t, atom_t *a ARG_LD)
+{ if ( PL_get_atom(t, a) )
+    succeed;
+
+  return PL_error(NULL, 0, NULL, ERR_TYPE, ATOM_atom, t);
+}
+
+int
+PL_get_atom_ex(term_t t, atom_t *a)
 { if ( PL_get_atom(t, a) )
     succeed;
 
