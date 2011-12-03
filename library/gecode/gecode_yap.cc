@@ -651,6 +651,48 @@ extern "C"
     cerr << "this should never happen" << endl; exit(1);
   }
 
+  static int gecode_space_use_keep_index(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    return YAP_Unify(arg2,(space->use_keep_index()
+			   ?gecode_TRUE:gecode_FALSE));
+  }
+
+  static int gecode_intvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_ivar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
+  static int gecode_boolvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_bvar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
+  static int gecode_setvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_svar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
   // INFO ON INTVARS
   static int gecode_intvar_assigned(void)
   {
@@ -1133,5 +1175,9 @@ extern "C"
     YAP_UserCPredicate("gecode_setvar_glb_values", gecode_setvar_glb_values, 3);
     YAP_UserCPredicate("gecode_setvar_lub_values", gecode_setvar_lub_values, 3);
     YAP_UserCPredicate("gecode_setvar_unknown_values", gecode_setvar_unknown_values, 3);
+    YAP_UserCPredicate("gecode_space_use_keep_index", gecode_space_use_keep_index, 2);
+    YAP_UserCPredicate("gecode_intvar_keep", gecode_intvar_keep, 3);
+    YAP_UserCPredicate("gecode_boolvar_keep", gecode_boolvar_keep, 3);
+    YAP_UserCPredicate("gecode_setvar_keep", gecode_setvar_keep, 3);
   }
 }
