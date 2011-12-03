@@ -60,10 +60,24 @@ represented by atoms with the same name as the Gecode constant
 SEARCHING FOR SOLUTIONS
 =======================
 
-   SolSpace := search(Space)
+    SolSpace := search(Space)
 
 This is a backtrackable predicate that enumerates all solution spaces
-(SolSpace).
+(SolSpace).  It may also take options:
+
+    SolSpace := search(Space,Options)
+
+Options is a list whose elements maybe:
+
+restart
+    to select the Restart search engine
+threads=N
+    to activate the parallel search engine and control the number of
+    workers (see Gecode doc)
+c_d=N
+    to set the commit distance for recomputation
+a_d=N
+    to set the adaptive distance for recomputation
 
 EXTRACTING INFO FROM A SOLUTION
 ===============================

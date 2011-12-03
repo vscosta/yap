@@ -158,8 +158,15 @@ extern "C"
     YAP_Term arg2 = YAP_ARG2;
     YAP_Term arg3 = YAP_ARG3;
     bool restart = YAP_IntOfTerm(YAP_ArgOfTerm(1, arg3));
+    double threads = YAP_FloatOfTerm(YAP_ArgOfTerm(2, arg3));
+    unsigned int c_d = YAP_IntOfTerm(YAP_ArgOfTerm(3, arg3));
+    unsigned int a_d = YAP_IntOfTerm(YAP_ArgOfTerm(4, arg3));
+    Search::Options opt;
+    opt.threads = threads;
+    opt.c_d = c_d;
+    opt.a_d = a_d;
     GenericSpace* space = gecode_Space_from_term(arg1);
-    GenericEngine* engine = space->new_engine(restart);
+    GenericEngine* engine = space->new_engine(restart,opt);
     YAP_Term y_engine =
       YAP_NewOpaqueObject(gecode_engine_tag, sizeof(GenericEngine*));
     GenericEngine** ptr =

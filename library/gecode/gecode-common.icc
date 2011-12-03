@@ -62,21 +62,21 @@ namespace generic_gecode
   struct GenericDFS: GenericEngine
   {
     DFS<GenericSpace> engine;
-    GenericDFS(GenericSpace* s) : engine(s) {}
+    GenericDFS(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
     virtual GenericSpace* next(void) { return engine.next(); }
   };
 
   struct GenericBAB: GenericEngine
   {
     BAB<GenericSpace> engine;
-    GenericBAB(GenericSpace* s) : engine(s) {}
+    GenericBAB(GenericSpace* s,Search::Options& opt) : engine(s,opt) {}
     virtual GenericSpace* next(void) { return engine.next(); }
   };
 
   struct GenericRestart: GenericEngine
   {
     Restart<GenericSpace> engine;
-    GenericRestart(GenericSpace* s): engine(s) {}
+    GenericRestart(GenericSpace* s,Search::Options& opt): engine(s,opt) {}
     virtual GenericSpace* next(void) { return engine.next(); }
   };
 
@@ -144,14 +144,14 @@ namespace generic_gecode
     BoolVar get_bvar(int i) const { return (_bvars) ? (*_bvars)[i] : bvars[i]; }
     SetVar get_svar(int i) const { return (_svars) ? (*_svars)[i] : svars[i]; }
 
-    GenericEngine* new_engine(bool restart=false)
+    GenericEngine* new_engine(bool restart, Search::Options& opt)
     {
       freeze();
       return (optim.what == Optimizing::OPT_NONE)
-	? static_cast<GenericEngine*>(new GenericDFS(this))
+	? static_cast<GenericEngine*>(new GenericDFS(this,opt))
 	: (restart
-	   ? static_cast<GenericEngine*>(new GenericRestart(this))
-	   : static_cast<GenericEngine*>(new GenericBAB(this)));
+	   ? static_cast<GenericEngine*>(new GenericRestart(this,opt))
+	   : static_cast<GenericEngine*>(new GenericBAB(this,opt)));
     }
 
     int _new_ivar(IntVar& v)

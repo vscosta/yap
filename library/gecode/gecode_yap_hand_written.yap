@@ -344,25 +344,42 @@ maximize(Space,IVar1,IVar2) :-
 	assert_is_IntVar(IVar2,IVar2_),
 	gecode_space_maximize_ratio(Space_,IVar1_,IVar2_).
 
-gecode_search_options_init(search_options(0)).
+gecode_search_options_init(search_options(0,1.0,8,2)).
+gecode_search_options_offset(restart,1).
+gecode_search_options_offset(threads,2).
+gecode_search_options_offset(c_d    ,3).
+gecode_search_options_offset(a_d    ,4).
 
-gecode_search_options_offset(restart,0).
+gecode_search_option_set(O,V,R) :-
+    gecode_search_options_offset(O,I),
+    setarg(I,R,V).
 
-gecode_search_options_from_alist(L,O) :-
-    gecode_search_options_init(O),
-    gecode_search_options_process_alist(L,O).
+gecode_search_options_from_alist(L,R) :-
+    gecode_search_options_init(R),
+    gecode_search_options_process_alist(L,R).
 
-gecode_search_options_process_alist([],O).
-gecode_search_options_process_alist([F=V|L],O) :- !,
-    gecode_search_options_set(F,V,O),
-    gecode_search_options_process_alist(L,O).
-gecode_search_options_process_alist([F|L],O) :- !,
-    gecode_search_options_set(F,1,O),
-    gecode_search_options_process_alist(L,O).
+gecode_search_options_process_alist([],R).
+gecode_search_options_process_alist([H|T],R) :- !,
+    gecode_search_options_process1(H,R),
+    gecode_search_options_process_alist(T,R).
 
-gecode_search_options_set(F,V,O) :-
-    gecode_search_options_offset(F,I),
-    setarg(I,O,V).
+gecode_search_options_process1(restart,R) :- !,
+    gecode_search_option_set(restart,1,R).
+gecode_search_options_process1(threads=N,R) :- !,
+    (integer(N) -> V is float(N)
+    ; (float(N) -> V=N
+      ; throw(bad_search_option_value(threads=N)))),
+    gecode_search_option_set(threads,V,R).
+gecode_search_options_process1(c_d=N,R) :- !,
+    (integer(N) -> V=N
+    ; throw(bad_search_option_value(c_d=N))),
+    gecode_search_option_set(c_d,V,R).
+gecode_search_options_process1(a_d=N,R) :- !,
+    (integer(N) -> V=N
+    ; throw(bad_search_option_value(a_d=N))),
+    gecode_search_option_set(a_d,V,R).
+gecode_search_options_process1(O,_) :-
+    throw(gecode_error(unrecognized_search_option(O))).
 
 search(Space, Solution) :-
     search(Space, Solution, []).
