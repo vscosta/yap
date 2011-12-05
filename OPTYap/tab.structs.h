@@ -49,7 +49,6 @@ typedef struct table_entry {
 #define TabEnt_mode_directed(X)   ((X)->mode_directed_array)
 #ifdef THREADS_NO_SHARING
 #define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie[worker_id])
-// ricroc: error tabling+threads
 //#define TabEnt_subgoal_trie(X,I)  ((X)->subgoal_trie[I])
 #else
 #define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie)
@@ -243,9 +242,7 @@ typedef enum {          /* do not change order !!! */
 ****************************/
 
 typedef struct subgoal_entry {
-// ricroc: error tabling+threads
-//#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-#if defined(YAPOR) || defined(THREADS)
+#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   lockvar lock;
 #endif /* YAPOR || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
   yamop *code_of_subgoal;
@@ -386,12 +383,8 @@ typedef struct subgoal_frame {
 *******************************/
 
 typedef struct dependency_frame {
-// ricroc: error tabling+threads
-//#ifdef YAPOR
-#if defined(YAPOR) || defined(THREADS)
-  lockvar lock;
-#endif /* YAPOR */
 #ifdef YAPOR
+  lockvar lock;
   int leader_dependency_is_on_stack;
   struct or_frame *top_or_frame;
 #ifdef TIMESTAMP_CHECK

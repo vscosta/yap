@@ -412,7 +412,7 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
   sg_node_ptr sg_node;
 
   tab_ent = GLOBAL_root_tab_ent;
-  while(tab_ent) {
+  while (tab_ent) {
     hash = TabEnt_hash_chain(tab_ent);
     TabEnt_hash_chain(tab_ent) = NULL;
     free_subgoal_hash_chain(hash);
@@ -438,7 +438,7 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 
 static Int p_abolish_all_local_tables( USES_REGS1 ) {
 #ifdef THREADS
-
+  p_abolish_all_tables( PASS_REGS1 );
 #else
   p_abolish_all_tables();
 #endif /* THREADS */

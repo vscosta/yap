@@ -38,7 +38,7 @@
 #ifdef MMAP_MEMORY_MAPPING_SCHEME
 #define PATH_MAX 1000
 char mapfile_path[PATH_MAX];
-#elif SHM_MEMORY_MAPPING_SCHEME
+#elif defined(SHM_MEMORY_MAPPING_SCHEME)
 int shm_mapid[MAX_WORKERS + 2];
 #endif /* MEMORY_MAPPING_SCHEME */
 
@@ -82,7 +82,7 @@ void Yap_init_yapor_global_local_memory(void) {
     if (close(fd_mapfile) == -1)
       Yap_Error(FATAL_ERROR, TermNil, "close error (Yap_init_yapor_global_local_memory)");
   }
-#elif SHM_MEMORY_MAPPING_SCHEME
+#elif defined(SHM_MEMORY_MAPPING_SCHEME)
   /* place as segment MAX_WORKERS (0..MAX_WORKERS-1 reserved for worker areas) */
   shm_map_memory(MAX_WORKERS, GLOBAL_LOCAL_STRUCTS_AREA, (void *) Yap_local);
 #endif /* MEMORY_MAPPING_SCHEME */
@@ -121,7 +121,7 @@ void Yap_init_yapor_stacks_memory(UInt TrailStackArea, UInt HeapStackArea, UInt 
     if (close(fd_mapfile) == -1)
       Yap_Error(FATAL_ERROR, TermNil, "close error (Yap_init_yapor_stacks_memory)");
   }
-#elif SHM_MEMORY_MAPPING_SCHEME
+#elif defined(SHM_MEMORY_MAPPING_SCHEME)
   /* place heap stack segment as MAX_WORKERS+1 */
   shm_map_memory(MAX_WORKERS + 1, HeapStackArea, (void *) Yap_HeapBase);
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
@@ -225,7 +225,7 @@ void Yap_unmap_yapor_memory (void) {
     INFORMATION_MESSAGE("Removing mapfile \"%s\"", mapfile_path);
   else
     INFORMATION_MESSAGE("Can't remove mapfile \"%s\"", mapfile_path);
-#elif SHM_MEMORY_MAPPING_SCHEME
+#elif defined(SHM_MEMORY_MAPPING_SCHEME)
 #if defined(YAPOR_COPY) || defined(YAPOR_SBA)
   shm_unmap_memory(MAX_WORKERS);
   shm_unmap_memory(MAX_WORKERS + 1);
