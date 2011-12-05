@@ -353,7 +353,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define LOCK_SUBGOAL_NODE(NODE)       LOCK(TrNode_lock(NODE))
 #define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(TrNode_lock(NODE))
 #define SgNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
-#elif SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#elif defined(SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY)
 #define LOCK_SUBGOAL_NODE(NODE)       LOCK(HASH_TRIE_LOCK(NODE))
 #define UNLOCK_SUBGOAL_NODE(NODE)     UNLOCK(HASH_TRIE_LOCK(NODE))
 #define SgNode_init_lock_field(NODE)
@@ -367,7 +367,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define LOCK_ANSWER_NODE(NODE)         LOCK(TrNode_lock(NODE))
 #define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(TrNode_lock(NODE))
 #define AnsNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
-#elif ANSWER_TRIE_LOCK_USING_GLOBAL_ARRAY
+#elif defined(ANSWER_TRIE_LOCK_USING_GLOBAL_ARRAY)
 #define LOCK_ANSWER_NODE(NODE)         LOCK(HASH_TRIE_LOCK(NODE))
 #define UNLOCK_ANSWER_NODE(NODE)       UNLOCK(HASH_TRIE_LOCK(NODE))
 #define AnsNode_init_lock_field(NODE)
@@ -381,7 +381,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define LOCK_GLOBAL_NODE(NODE)        LOCK(TrNode_lock(NODE))
 #define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(TrNode_lock(NODE))
 #define GtNode_init_lock_field(NODE)  INIT_LOCK(TrNode_lock(NODE))
-#elif GLOBAL_TRIE_LOCK_USING_GLOBAL_ARRAY
+#elif defined(GLOBAL_TRIE_LOCK_USING_GLOBAL_ARRAY)
 #define LOCK_GLOBAL_NODE(NODE)        LOCK(HASH_TRIE_LOCK(NODE))
 #define UNLOCK_GLOBAL_NODE(NODE)      UNLOCK(HASH_TRIE_LOCK(NODE))
 #define GtNode_init_lock_field(NODE)
