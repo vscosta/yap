@@ -254,6 +254,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         SgFr_gen_worker(SG_FR) = worker_id;                                       \
         SgFr_gen_top_or_fr(SG_FR) = LOCAL_top_or_fr
 #define DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR)                  \
+        INIT_LOCK_DEP_FR(DEP_FR);                                                 \
         DepFr_leader_dep_is_on_stack(DEP_FR) = DEP_ON_STACK;                      \
         DepFr_top_or_fr(DEP_FR) = TOP_OR_FR;                                      \
         DepFr_init_timestamp_field(DEP_FR)
@@ -292,6 +293,28 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define AnsHash_init_previous_field(HASH, SG_FR)
 #endif /* MODE_DIRECTED_TABLING */
 
+#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define INIT_LOCK_SG_FR(SG_FR)  INIT_LOCK(SgFr_lock(SG_FR))
+#define LOCK_SG_FR(SG_FR)       LOCK(SgFr_lock(SG_FR))
+#define UNLOCK_SG_FR(SG_FR)     UNLOCK(SgFr_lock(SG_FR))
+#else
+#define INIT_LOCK_SG_FR(SG_FR)
+#define LOCK_SG_FR(SG_FR)
+#define UNLOCK_SG_FR(SG_FR)
+#endif /* YAPOR || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+
+#ifdef YAPOR
+#define INIT_LOCK_DEP_FR(DEP_FR)    INIT_LOCK(DepFr_lock(DEP_FR))
+#define LOCK_DEP_FR(DEP_FR)         LOCK(DepFr_lock(DEP_FR))
+#define UNLOCK_DEP_FR(DEP_FR)       UNLOCK(DepFr_lock(DEP_FR))
+#define IS_UNLOCKED_DEP_FR(DEP_FR)  IS_UNLOCKED(DepFr_lock(DEP_FR))
+#else
+#define INIT_LOCK_DEP_FR(DEF_FR)
+#define LOCK_DEP_FR(DEP_FR)
+#define UNLOCK_DEP_FR(DEP_FR)
+#define IS_UNLOCKED_DEP_FR(DEP_FR)
+#endif /* YAPOR */
+
 #ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
 #define LOCK_SUBGOAL_TRIE(TAB_ENT)    LOCK(TabEnt_lock(TAB_ENT))
 #define UNLOCK_SUBGOAL_TRIE(TAB_ENT)  UNLOCK(TabEnt_lock(TAB_ENT))
@@ -309,8 +332,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
 
 #ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
-#define LOCK_ANSWER_TRIE(SG_FR)    LOCK(SgFr_lock(SG_FR))
-#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK(SgFr_lock(SG_FR))
+#define LOCK_ANSWER_TRIE(SG_FR)    LOCK_SG_FR(SG_FR)
+#define UNLOCK_ANSWER_TRIE(SG_FR)  UNLOCK_SG_FR(SG_FR)
 #define AnsHash_init_chain_fields(HASH, SG_FR)     \
         AnsHash_init_previous_field(HASH, SG_FR);  \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
@@ -319,11 +342,11 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define LOCK_ANSWER_TRIE(SG_FR)
 #define UNLOCK_ANSWER_TRIE(SG_FR)
 #define AnsHash_init_chain_fields(HASH, SG_FR)     \
-        LOCK(SgFr_lock(SG_FR));                    \
+        LOCK_SG_FR(SG_FR);                         \
         AnsHash_init_previous_field(HASH, SG_FR);  \
         Hash_next(HASH) = SgFr_hash_chain(SG_FR);  \
         SgFr_hash_chain(SG_FR) = HASH;             \
-        UNLOCK(SgFr_lock(SG_FR))
+        UNLOCK_SG_FR(SG_FR)
 #endif /* ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
 
 #ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
@@ -398,7 +421,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         { register ans_node_ptr ans_node;                          \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
-          INIT_LOCK(SgFr_lock(SG_FR));                             \
+          INIT_LOCK_SG_FR(SG_FR);                                  \
           SgFr_code(SG_FR) = CODE;                                 \
           SgFr_state(SG_FR) = ready;                               \
           SgFr_hash_chain(SG_FR) = NULL;                           \
@@ -417,7 +440,6 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 
 #define new_dependency_frame(DEP_FR, DEP_ON_STACK, TOP_OR_FR, LEADER_CP, CONS_CP, SG_FR, NEXT)         \
         ALLOC_DEPENDENCY_FRAME(DEP_FR);                                                                \
-        INIT_LOCK(DepFr_lock(DEP_FR));                                                                 \
         DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR);                                      \
         DepFr_backchain_cp(DEP_FR) = NULL;                                                             \
         DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                                  \
@@ -584,9 +606,9 @@ static inline void adjust_freeze_registers(void) {
 
 
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
-  LOCK(SgFr_lock(sg_fr));
+  LOCK_SG_FR(sg_fr);
   SgFr_state(sg_fr) = complete;
-  UNLOCK(SgFr_lock(sg_fr));
+  UNLOCK_SG_FR(sg_fr);
 #ifdef MODE_DIRECTED_TABLING
   if (SgFr_invalid_chain(sg_fr)) {
     ans_node_ptr current_node, next_node;
@@ -805,23 +827,23 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #endif /* YAPOR */
     sg_fr = LOCAL_top_sg_fr;
     LOCAL_top_sg_fr = SgFr_next(sg_fr);
-    LOCK(SgFr_lock(sg_fr));
+    LOCK_SG_FR(sg_fr);
     if (SgFr_first_answer(sg_fr) == NULL) {
       /* no answers --> ready */
       SgFr_state(sg_fr) = ready;
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
     } else if (SgFr_first_answer(sg_fr) == SgFr_answer_trie(sg_fr)) {
       /* yes answer --> complete */
 #ifndef TABLING_EARLY_COMPLETION
       /* with early completion, at this point the subgoal should be already completed */
       SgFr_state(sg_fr) = complete;
 #endif /* TABLING_EARLY_COMPLETION */
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
     } else {
       /* answers --> incomplete/ready */
 #ifdef INCOMPLETE_TABLING
       SgFr_state(sg_fr) = incomplete;
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
 #ifdef MODE_DIRECTED_TABLING
       if (SgFr_invalid_chain(sg_fr)) {
 	ans_node_ptr current_node, next_node;
@@ -865,7 +887,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
       SgFr_last_answer(sg_fr) = NULL;
       node = TrNode_child(SgFr_answer_trie(sg_fr));
       TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
 #if defined(MODE_DIRECTED_TABLING) && ! defined(YAPOR)
       /* free invalid answer nodes */
@@ -1098,14 +1120,14 @@ static inline void CUT_validate_tg_answers(tg_sol_fr_ptr valid_solutions) {
       FREE_TG_SOLUTION_FRAME(free_solution);
     } while (ltt_valid_solutions);
     if (first_answer) {
-      LOCK(SgFr_lock(sg_fr));
+      LOCK_SG_FR(sg_fr);
       if (SgFr_first_answer(sg_fr) == NULL) {
         SgFr_first_answer(sg_fr) = first_answer;
       } else {
         TrNode_child(SgFr_last_answer(sg_fr)) = first_answer;
       }
       SgFr_last_answer(sg_fr) = last_answer;
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
     }
   }
   return;
