@@ -86,6 +86,10 @@ opt_statistics(table_subgoal_solution_frames,[BytesInUse,StructsInUse]) :-
    '$c_get_optyap_statistics'(14,BytesInUse,StructsInUse).
 opt_statistics(table_subgoal_answer_frames,[BytesInUse,StructsInUse]) :-
    '$c_get_optyap_statistics'(15,BytesInUse,StructsInUse).
+opt_statistics(subgoal_entries,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(16,BytesInUse,StructsInUse).
+opt_statistics(answer_ref_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(17,BytesInUse,StructsInUse).
 
 
 

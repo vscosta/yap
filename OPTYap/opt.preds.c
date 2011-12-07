@@ -78,8 +78,8 @@ static inline long show_statistics_table_entries(IOSTREAM *out);
 static inline long show_statistics_subgoal_frames(IOSTREAM *out);
 static inline long show_statistics_dependency_frames(IOSTREAM *out);
 static inline long show_statistics_subgoal_trie_nodes(IOSTREAM *out);
-static inline long show_statistics_answer_trie_nodes(IOSTREAM *out);
 static inline long show_statistics_subgoal_trie_hashes(IOSTREAM *out);
+static inline long show_statistics_answer_trie_nodes(IOSTREAM *out);
 static inline long show_statistics_answer_trie_hashes(IOSTREAM *out);
 static inline long show_statistics_global_trie_nodes(IOSTREAM *out);
 static inline long show_statistics_global_trie_hashes(IOSTREAM *out);
@@ -108,6 +108,83 @@ static inline long show_statistics_table_subgoal_answer_frames(IOSTREAM *out);
 static int length_answer;
 static qg_ans_fr_ptr actual_answer;
 #endif /* YAPOR */
+
+struct page_statistics {
+#ifdef USE_PAGES_MALLOC
+  long pages_allocated;  /* same as struct pages (opt.structs.h) */
+#endif /* USE_PAGES_MALLOC */
+  long structs_in_use;  /* same as struct pages (opt.structs.h) */
+};
+
+#ifdef USE_PAGES_MALLOC
+#ifdef DEBUG_TABLING
+#define CHECK_PAGE_FREE_STRUCTS(STR_TYPE, STR_PAGES)                                        \
+        { pg_hd_ptr pg_hd;                                                             \
+          STR_TYPE *aux_ptr;                                                           \
+          long cont = 0;                                                               \
+          pg_hd = Pg_free_pg(STR_PAGES);                                               \
+          while (pg_hd) {                                                              \
+            aux_ptr = PgHd_free_str(pg_hd);                                            \
+            while (aux_ptr) {                                                          \
+	      cont++;                                                                  \
+	      aux_ptr = aux_ptr->next;                                                 \
+	    }                                                                          \
+	    pg_hd = PgHd_next(pg_hd);                                                  \
+	  }                                                                            \
+ if(Pg_str_free(STR_PAGES) != cont)printf("ERRRO!!!!!!!!\n");\
+	  TABLING_ERROR_CHECKING(CHECK_PAGE_FREE_STRUCTS, Pg_str_free(STR_PAGES) != cont);  \
+	}
+#else
+#define CHECK_PAGE_FREE_STRUCTS(STR_TYPE,STR_PAGES)
+#endif /* DEBUG_TABLING */
+#define INIT_PAGE_STATS(STATS)                       \
+        Pg_pg_alloc(STATS) = 0;		             \
+        Pg_str_in_use(STATS) = 0
+#define INCREMENT_PAGE_STATS(STATS,PAGE)             \
+        Pg_pg_alloc(STATS) += Pg_pg_alloc(PAGE);     \
+        Pg_str_in_use(STATS) += Pg_str_in_use(PAGE)
+#define SHOW_PAGE_STATS_MSG(STR_NAME)                "  " STR_NAME "  %10ld bytes (%ld pages and %ld structs in use)\n"
+#define SHOW_PAGE_STATS_ARGS(STATS,STR_TYPE)         Pg_str_in_use(STATS) * sizeof(STR_TYPE), Pg_pg_alloc(STATS), Pg_str_in_use(STATS)
+#else /* !USE_PAGES_MALLOC */
+#define INIT_PAGE_STATS(STATS)                       \
+        Pg_str_in_use(STATS) = 0
+#define INCREMENT_PAGE_STATS(STATS,PAGE)             \
+        Pg_str_in_use(STATS) += Pg_str_in_use(PAGE)
+#define CHECK_PAGE_FREE_STRUCTS(STR_TYPE,STR_PAGES)
+#define SHOW_PAGE_STATS_MSG(STR_NAME)                "  " STR_NAME "  %10ld bytes (%ld structs in use)\n"
+#define SHOW_PAGE_STATS_ARGS(STATS,STR_TYPE)         Pg_str_in_use(STATS) * sizeof(STR_TYPE), Pg_str_in_use(STATS)
+#endif
+
+#define GET_GLOBAL_PAGE_STATS(STATS,STR_PAGES)             \
+        INIT_PAGE_STATS(STATS);                            \
+          CHECK_PAGE_FREE_STRUCTS(STR_TYPE,STR_PAGES);                                              \
+        INCREMENT_PAGE_STATS(STATS,STR_PAGES)
+#define GET_REMOTE_PAGE_STATS(STATS,STR_PAGES)             \
+        INIT_PAGE_STATS(STATS);                            \
+        LOCK(GLOBAL_ThreadHandlesLock);                    \
+        { int wid;                                         \
+          for (wid = 0; wid < MAX_THREADS; wid++) {        \
+            if (!Yap_local[wid])                           \
+              break;                                       \
+            if (REMOTE_ThreadHandle(wid).in_use) {         \
+          CHECK_PAGE_FREE_STRUCTS(STR_TYPE,STR_PAGES);                                              \
+              INCREMENT_PAGE_STATS(STATS,STR_PAGES(wid));  \
+            }                                              \
+          }                                                \
+        }                                                  \
+        UNLOCK(GLOBAL_ThreadHandlesLock)
+#define SHOW_GLOBAL_PAGE_STATS(OUT_STREAM,STR_TYPE,STR_PAGES,STR_NAME)	                            \
+        { struct page_statistics stats;                                                             \
+          GET_GLOBAL_PAGE_STATS(stats,STR_PAGES);                                                   \
+	  Sfprintf(OUT_STREAM,SHOW_PAGE_STATS_MSG(STR_NAME),SHOW_PAGE_STATS_ARGS(stats,STR_TYPE));  \
+          return Pg_str_in_use(stats) * sizeof(STR_TYPE);                                           \
+        }
+#define SHOW_REMOTE_PAGE_STATS(OUT_STREAM,STR_TYPE,STR_PAGES,STR_NAME)	                            \
+        { struct page_statistics stats;                                                             \
+          GET_REMOTE_PAGE_STATS(stats,STR_PAGES);                                                   \
+	  Sfprintf(OUT_STREAM,SHOW_PAGE_STATS_MSG(STR_NAME),SHOW_PAGE_STATS_ARGS(stats,STR_TYPE));  \
+          return Pg_str_in_use(stats) * sizeof(STR_TYPE);                                           \
+        }
 
 
 
@@ -412,7 +489,7 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
   sg_node_ptr sg_node;
 
   tab_ent = GLOBAL_root_tab_ent;
-  while(tab_ent) {
+  while (tab_ent) {
     hash = TabEnt_hash_chain(tab_ent);
     TabEnt_hash_chain(tab_ent) = NULL;
     free_subgoal_hash_chain(hash);
@@ -438,7 +515,7 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 
 static Int p_abolish_all_local_tables( USES_REGS1 ) {
 #ifdef THREADS
-
+  p_abolish_all_tables( PASS_REGS1 );
 #else
   p_abolish_all_tables();
 #endif /* THREADS */
@@ -792,110 +869,141 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 
 
 static Int p_get_optyap_statistics( USES_REGS1 ) {
+  struct page_statistics stats;
+  Int value, bytes = 0, structs = -1;
   Term tbytes, tstructs;
-  Int value, bytes = -1, structs = -1;
 
   value = IntOfTerm(Deref(ARG1));
-  if (value == 0) {  /* total_memory */
-    bytes = 0;
 #ifdef TABLING
-    bytes += Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry);
-    bytes += Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame);
-    bytes += Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame);
-    bytes += Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node);
-    bytes += Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node);
-    bytes += Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash);
-    bytes += Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash);
-    bytes += Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node);
-    bytes += Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash);
+  if (value == 0 || value == 1) {  /* table_entries */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_tab_ent);
+    bytes += Pg_str_in_use(stats) * sizeof(struct table_entry);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  if (value == 0 || value == 16) {  /* subgoal_entries */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_sg_entry);
+    bytes += Pg_str_in_use(stats) * sizeof(struct subgoal_entry);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+  if (value == 0 || value == 2) {  /* subgoal_frames */
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_sg_fr);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_sg_fr);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct subgoal_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 3) {  /* dependency_frames */
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_dep_fr);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_dep_fr);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct dependency_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 6) {  /* subgoal_trie_nodes */
+#if !defined(THREADS_NO_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_sg_node);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_sg_node);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct subgoal_trie_node);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 8) {  /* subgoal_trie_hashes */
+#if !defined(THREADS_NO_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_sg_hash);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_sg_hash);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct subgoal_trie_hash);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 7) {  /* answer_trie_nodes */
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_ans_node);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_ans_node);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct answer_trie_node);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 9) {  /* answer_trie_hashes */
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_ans_hash);
+#else
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_ans_hash);
+#endif
+    bytes += Pg_str_in_use(stats) * sizeof(struct answer_trie_hash);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+#if defined(THREADS_FULL_SHARING)
+  if (value == 0 || value == 17) {  /* answer_ref_nodes */
+    GET_REMOTE_PAGE_STATS(stats, REMOTE_pages_ans_ref_node);
+    bytes += Pg_str_in_use(stats) * sizeof(struct answer_ref_node);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+#endif /* THREADS_FULL_SHARING */
+  if (value == 0 || value == 10) {  /* global_trie_nodes */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_gt_node);
+    bytes += Pg_str_in_use(stats) * sizeof(struct global_trie_node);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 11) {  /* global_trie_hashes */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_gt_hash);
+    bytes += Pg_str_in_use(stats) * sizeof(struct global_trie_hash);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
 #endif /* TABLING */
 #ifdef YAPOR
-    bytes += Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame);
-    bytes += Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame);
-    bytes += Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
+  if (value == 0 || value == 4) {  /* or_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_or_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct or_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 12) {  /* query_goal_solution_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_qg_sol_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct query_goal_solution_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 13) {  /* query_goal_answer_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_qg_ans_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct query_goal_answer_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-    bytes += Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame);
+  if (value == 0 || value == 5) {  /* suspension_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_susp_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct suspension_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
 #ifdef TABLING_INNER_CUTS
-    bytes += Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
-    bytes += Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
+  if (value == 0 || value == 14) {  /* table_subgoal_solution_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_tg_sol_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct table_subgoal_solution_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
+  if (value == 0 || value == 15) {  /* table_subgoal_answer_frames */
+    GET_GLOBAL_PAGE_STATS(stats, GLOBAL_pages_tg_ans_fr);
+    bytes += Pg_str_in_use(stats) * sizeof(struct table_subgoal_answer_frame);
+    if (value != 0) structs = Pg_str_in_use(stats);
+  }
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */
+
+  if (value == 0) {  /* total_memory */
 #ifdef USE_PAGES_MALLOC
     structs = Pg_pg_alloc(GLOBAL_pages_void) * Yap_page_size;
 #else
     structs = bytes;
 #endif /* USE_PAGES_MALLOC */
   }
-#ifdef TABLING
-  if (value == 1) {  /* table_entries */
-    bytes = Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry);
-    structs = Pg_str_in_use(GLOBAL_pages_tab_ent);
-  }
-  if (value == 2) {  /* subgoal_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_sg_fr);
-  }
-  if (value == 3) {  /* dependency_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_dep_fr);
-  }
-  if (value == 6) {  /* subgoal_trie_nodes */
-    bytes = Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node);
-    structs = Pg_str_in_use(GLOBAL_pages_sg_node);
-  }
-  if (value == 7) {  /* answer_trie_nodes */
-    bytes = Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node);
-    structs = Pg_str_in_use(GLOBAL_pages_ans_node);
-  }
-  if (value == 8) {  /* subgoal_trie_hashes */
-    bytes = Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash);
-    structs = Pg_str_in_use(GLOBAL_pages_sg_hash);
-  }
-  if (value == 9) {  /* answer_trie_hashes */
-    bytes = Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash);
-    structs = Pg_str_in_use(GLOBAL_pages_ans_hash);
-  }
-  if (value == 10) {  /* global_trie_nodes */
-    bytes = Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node);
-    structs = Pg_str_in_use(GLOBAL_pages_gt_node);
-  }
-  if (value == 11) {  /* global_trie_hashes */
-    bytes = Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash);
-    structs = Pg_str_in_use(GLOBAL_pages_gt_hash);
-  }
-#endif /* TABLING */
-#ifdef YAPOR
-  if (value == 4) {  /* or_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_or_fr );
-  }
-  if (value == 12) {  /* query_goal_solution_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_qg_sol_fr );
-  }
-  if (value == 13) {  /* query_goal_answer_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_qg_ans_fr);
-  }
-#endif /* YAPOR */
-#if defined(YAPOR) && defined(TABLING)
-  if (value == 5) {  /* suspension_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_susp_fr);
-  }
-#ifdef TABLING_INNER_CUTS
-  if (value == 14) {  /* table_subgoal_solution_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_tg_sol_fr);
-  }
-  if (value == 15) {  /* table_subgoal_answer_frames */
-    bytes = Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
-    structs = Pg_str_in_use(GLOBAL_pages_tg_ans_fr);
-  }
-#endif /* TABLING_INNER_CUTS */
-#endif /* YAPOR && TABLING */
-  if (bytes == -1)
+  if (structs == -1)
     return (FALSE);
   tbytes = Deref(ARG2);
   tstructs = Deref(ARG3);
@@ -1013,429 +1121,94 @@ static inline void answer_to_stdout(char *answer) {
 
 #ifdef TABLING
 static inline long show_statistics_table_entries(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  tab_ent_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_tab_ent);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = TabEnt_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_table_entries, Pg_str_free(GLOBAL_pages_tab_ent) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Table entries:                   %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry), Pg_pg_alloc(GLOBAL_pages_tab_ent), Pg_str_in_use(GLOBAL_pages_tab_ent));
-#else
-  Sfprintf(out, "  Table entries:                   %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry), Pg_str_in_use(GLOBAL_pages_tab_ent));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_tab_ent) * sizeof(struct table_entry);
+  SHOW_GLOBAL_PAGE_STATS(out, struct table_entry, GLOBAL_pages_tab_ent, "Table entries:                ");
 }
-
 
 static inline long show_statistics_subgoal_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  sg_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_sg_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = SgFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_subgoal_frames, Pg_str_free(GLOBAL_pages_sg_fr) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Subgoal frames:                  %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame), Pg_pg_alloc(GLOBAL_pages_sg_fr), Pg_str_in_use(GLOBAL_pages_sg_fr));
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct subgoal_frame, GLOBAL_pages_sg_fr, "Subgoal frames:               ");
 #else
-  Sfprintf(out, "  Subgoal frames:                  %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame), Pg_str_in_use(GLOBAL_pages_sg_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_sg_fr) * sizeof(struct subgoal_frame);
+  SHOW_REMOTE_PAGE_STATS(out, struct subgoal_frame, REMOTE_pages_sg_fr, "Subgoal frames:               ");
+#endif
 }
-
 
 static inline long show_statistics_dependency_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  dep_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_dep_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = DepFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_dependency_frames, Pg_str_free(GLOBAL_pages_dep_fr) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Dependency frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame), Pg_pg_alloc(GLOBAL_pages_dep_fr), Pg_str_in_use(GLOBAL_pages_dep_fr));
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct dependency_frame, GLOBAL_pages_dep_fr, "Dependency frames:            ");
 #else
-  Sfprintf(out, "  Dependency frames:               %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame), Pg_str_in_use(GLOBAL_pages_dep_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_dep_fr) * sizeof(struct dependency_frame);
+  SHOW_REMOTE_PAGE_STATS(out, struct dependency_frame, REMOTE_pages_dep_fr, "Dependency frames:            ");
+#endif
 }
-
 
 static inline long show_statistics_subgoal_trie_nodes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  sg_node_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_sg_node);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = TrNode_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_subgoal_trie_nodes, Pg_str_free(GLOBAL_pages_sg_node) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Subgoal trie nodes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node), Pg_pg_alloc(GLOBAL_pages_sg_node), Pg_str_in_use(GLOBAL_pages_sg_node));
+#if !defined(THREADS_NO_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct subgoal_trie_node, GLOBAL_pages_sg_node, "Subgoal trie nodes:           ");
 #else
-  Sfprintf(out, "  Subgoal trie nodes:              %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node), Pg_str_in_use(GLOBAL_pages_sg_node));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_sg_node) * sizeof(struct subgoal_trie_node);
+  SHOW_REMOTE_PAGE_STATS(out, struct subgoal_trie_node, REMOTE_pages_sg_node, "Subgoal trie nodes:           ");
+#endif
 }
-
-
-static inline long show_statistics_answer_trie_nodes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  ans_node_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_ans_node);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = TrNode_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_answer_trie_nodes, Pg_str_free(GLOBAL_pages_ans_node) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Answer trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node), Pg_pg_alloc(GLOBAL_pages_ans_node), Pg_str_in_use(GLOBAL_pages_ans_node));
-#else
-  Sfprintf(out, "  Answer trie nodes:               %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node), Pg_str_in_use(GLOBAL_pages_ans_node));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_ans_node) * sizeof(struct answer_trie_node);
-}
-
 
 static inline long show_statistics_subgoal_trie_hashes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  sg_hash_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_sg_hash);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = Hash_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_subgoal_trie_hashes, Pg_str_free(GLOBAL_pages_sg_hash) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Subgoal trie hashes:             %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash), Pg_pg_alloc(GLOBAL_pages_sg_hash), Pg_str_in_use(GLOBAL_pages_sg_hash));
+#if !defined(THREADS_NO_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, "Subgoal trie hashes:          ");
 #else
-  Sfprintf(out, "  Subgoal trie hashes:             %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash), Pg_str_in_use(GLOBAL_pages_sg_hash));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_sg_hash) * sizeof(struct subgoal_trie_hash);
+  SHOW_REMOTE_PAGE_STATS(out, struct subgoal_trie_hash, REMOTE_pages_sg_hash, "Subgoal trie hashes:          ");
+#endif
 }
 
+static inline long show_statistics_answer_trie_nodes(IOSTREAM *out) {
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct answer_trie_node, GLOBAL_pages_ans_node, "Answer trie nodes:            ");
+#else
+  SHOW_REMOTE_PAGE_STATS(out, struct answer_trie_node, REMOTE_pages_ans_node, "Answer trie nodes:            ");
+#endif
+}
 
 static inline long show_statistics_answer_trie_hashes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  ans_hash_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_ans_hash);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = Hash_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_answer_trie_hashes, Pg_str_free(GLOBAL_pages_ans_hash) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Answer trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash), Pg_pg_alloc(GLOBAL_pages_ans_hash), Pg_str_in_use(GLOBAL_pages_ans_hash));
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+  SHOW_GLOBAL_PAGE_STATS(out, struct answer_trie_hash, GLOBAL_pages_ans_hash, "Answer trie hashes:           ");
 #else
-  Sfprintf(out, "  Answer trie hashes:              %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash), Pg_str_in_use(GLOBAL_pages_ans_hash));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_ans_hash) * sizeof(struct answer_trie_hash);
+  SHOW_REMOTE_PAGE_STATS(out, struct answer_trie_hash, REMOTE_pages_ans_hash, "Answer trie hashes:           ");
+#endif
 }
-
 
 static inline long show_statistics_global_trie_nodes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  pg_hd_ptr pg_hd;
-  gt_node_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_gt_node);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = TrNode_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_global_trie_nodes, Pg_str_free(GLOBAL_pages_gt_node) != cont);
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Global trie nodes:               %10ld bytes (%ld pages and %ld structs in use)\n", 
-	  Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node), Pg_pg_alloc(GLOBAL_pages_gt_node), Pg_str_in_use(GLOBAL_pages_gt_node));
-#else
-  Sfprintf(out, "  Global trie nodes:               %10ld bytes (%ld structs in use)\n", 
-	  Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node), Pg_str_in_use(GLOBAL_pages_gt_node));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_gt_node) * sizeof(struct global_trie_node);
+  SHOW_GLOBAL_PAGE_STATS(out, struct global_trie_node, GLOBAL_pages_gt_node, "Global trie nodes:            ");
 }
 
-
 static inline long show_statistics_global_trie_hashes(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_TABLING
-  /* suport not yet implemented :(
-  pg_hd_ptr pg_hd;
-  gt_hash_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_gt_hash);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = Hash_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  TABLING_ERROR_CHECKING(statistics_global_trie_hashes, Pg_str_free(GLOBAL_pages_gt_hash) != cont);
-  */
-#endif /* DEBUG_TABLING */
-  Sfprintf(out, "  Global trie hashes:              %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_pg_alloc(GLOBAL_pages_gt_hash), Pg_str_in_use(GLOBAL_pages_gt_hash));
-#else
-  Sfprintf(out, "  Global trie hashes:              %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash), Pg_str_in_use(GLOBAL_pages_gt_hash));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_gt_hash) * sizeof(struct global_trie_hash);
+  SHOW_GLOBAL_PAGE_STATS(out, struct global_trie_hash, GLOBAL_pages_gt_hash, "Global trie hashes:           ");
 }
 #endif /* TABLING */
 
 
 #ifdef YAPOR
 static inline long show_statistics_or_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_YAPOR
-  pg_hd_ptr pg_hd;
-  or_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_or_fr );
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = OrFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  YAPOR_ERROR_CHECKING(statistics_or_frames, Pg_str_free(GLOBAL_pages_or_fr ) != cont);
-#endif /* DEBUG_YAPOR */
-  Sfprintf(out, "  Or-frames:                       %10ld bytes (%ld pages and %ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame), Pg_pg_alloc(GLOBAL_pages_or_fr ), Pg_str_in_use(GLOBAL_pages_or_fr ));
-#else
-  Sfprintf(out, "  Or-frames:                       %10ld bytes (%ld structs in use)\n", 
-          Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame), Pg_str_in_use(GLOBAL_pages_or_fr ));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_or_fr ) * sizeof(struct or_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct or_frame, GLOBAL_pages_or_fr, "Or-frames:                    ");
 }
-
 
 static inline long show_statistics_query_goal_solution_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_YAPOR
-  pg_hd_ptr pg_hd;
-  qg_sol_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_qg_sol_fr );
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = SolFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  YAPOR_ERROR_CHECKING(statistics_query_goal_solution_frames, Pg_str_free(GLOBAL_pages_qg_sol_fr ) != cont);
-#endif /* DEBUG_YAPOR */
-  Sfprintf(out, "  Query goal solution frames:      %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame), Pg_pg_alloc(GLOBAL_pages_qg_sol_fr ), Pg_str_in_use(GLOBAL_pages_qg_sol_fr ));
-#else
-  Sfprintf(out, "  Query goal solution frames:      %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame), Pg_str_in_use(GLOBAL_pages_qg_sol_fr ));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_qg_sol_fr ) * sizeof(struct query_goal_solution_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, "Query goal solution frames:   ");
 }
 
-
 static inline long show_statistics_query_goal_answer_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_YAPOR
-  pg_hd_ptr pg_hd;
-  qg_ans_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_qg_ans_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = AnsFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  YAPOR_ERROR_CHECKING(statistics_query_goal_answer_frames, Pg_str_free(GLOBAL_pages_qg_ans_fr) != cont);
-#endif /* DEBUG_YAPOR */
-  Sfprintf(out, "  Query goal answer frames:        %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame), Pg_pg_alloc(GLOBAL_pages_qg_ans_fr), Pg_str_in_use(GLOBAL_pages_qg_ans_fr));
-#else
-  Sfprintf(out, "  Query goal answer frames:        %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame), Pg_str_in_use(GLOBAL_pages_qg_ans_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_qg_ans_fr) * sizeof(struct query_goal_answer_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, "Query goal answer frames:     ");
 }
 #endif /* YAPOR */
 
 
 #if defined(YAPOR) && defined(TABLING)
 static inline long show_statistics_suspension_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_OPTYAP
-  pg_hd_ptr pg_hd;
-  susp_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_susp_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = SuspFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  OPTYAP_ERROR_CHECKING(statistics_suspension_frames, Pg_str_free(GLOBAL_pages_susp_fr) != cont);
-#endif /* DEBUG_OPTYAP */
-  Sfprintf(out, "  Suspension frames:               %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame), Pg_pg_alloc(GLOBAL_pages_susp_fr), Pg_str_in_use(GLOBAL_pages_susp_fr));
-#else
-  Sfprintf(out, "  Suspension frames:               %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame), Pg_str_in_use(GLOBAL_pages_susp_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_susp_fr) * sizeof(struct suspension_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct suspension_frame, GLOBAL_pages_susp_fr, "Suspension frames:            ");
 }
-
 
 #ifdef TABLING_INNER_CUTS
 static inline long show_statistics_table_subgoal_solution_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_OPTYAP
-  pg_hd_ptr pg_hd;
-  tg_sol_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_tg_sol_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = SolFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  OPTYAP_ERROR_CHECKING(statistics_table_subgoal_solution_frames, Pg_str_free(GLOBAL_pages_tg_sol_fr) != cont);
-#endif /* DEBUG_OPTYAP */
-  Sfprintf(out, "  Table subgoal solution frames:   %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame), Pg_pg_alloc(GLOBAL_pages_tg_sol_fr), Pg_str_in_use(GLOBAL_pages_tg_sol_fr));
-#else
-  Sfprintf(out, "  Table subgoal solution frames:   %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame), Pg_str_in_use(GLOBAL_pages_tg_sol_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_tg_sol_fr) * sizeof(struct table_subgoal_solution_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, "Table subgoal solution frames:");
 }
 
-
 static inline long show_statistics_table_subgoal_answer_frames(IOSTREAM *out) {
-#ifdef USE_PAGES_MALLOC
-#ifdef DEBUG_OPTYAP
-  pg_hd_ptr pg_hd;
-  tg_ans_fr_ptr aux_ptr;
-  long cont = 0;
-
-  pg_hd = Pg_free_pg(GLOBAL_pages_tg_ans_fr);
-  while (pg_hd) {
-    aux_ptr = PgHd_free_str(pg_hd);
-    while (aux_ptr) {
-      cont++;
-      aux_ptr = AnsFr_next(aux_ptr);
-    }
-    pg_hd = PgHd_next(pg_hd);
-  }
-  OPTYAP_ERROR_CHECKING(statistics_table_subgoal_answer_frames, Pg_str_free(GLOBAL_pages_tg_ans_fr) != cont);
-#endif /* DEBUG_OPTYAP */
-  Sfprintf(out, "  Table subgoal answer frames:     %10ld bytes (%ld pages and %ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame), Pg_pg_alloc(GLOBAL_pages_tg_ans_fr), Pg_str_in_use(GLOBAL_pages_tg_ans_fr));
-#else
-  Sfprintf(out, "  Table subgoal answer frames:     %10ld bytes (%ld structs in use)\n",
-          Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame), Pg_str_in_use(GLOBAL_pages_tg_ans_fr));
-#endif /* USE_PAGES_MALLOC */
-  return Pg_str_in_use(GLOBAL_pages_tg_ans_fr) * sizeof(struct table_subgoal_answer_frame);
+  SHOW_GLOBAL_PAGE_STATS(out, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, "Table subgoal answer frames:  ");
 }
 #endif /* TABLING_INNER_CUTS */
 #endif /* YAPOR && TABLING */

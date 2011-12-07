@@ -11,6 +11,8 @@
 		  clpbn_init_solver/5,
 		  clpbn_run_solver/4,
 		  clpbn_init_graph/1,
+		  probability/2,
+		  conditional_probability/3,
 		  op( 500, xfy, with)]).
 
 :- use_module(library(atts)).
@@ -112,6 +114,8 @@
 
 solver(ve).
 em_solver(ve).
+
+:- meta_predicate probability(:,-), conditional_probability(:,:,-).
 
 %output(xbif(user_error)).
 %output(gviz(user_error)).
@@ -468,3 +472,49 @@ clpbn_finalize_solver(State) :-
 	arg(Last, State, Info),
 	finalize_bp_solver(Info).
 clpbn_finalize_solver(_State).
+
+probability(Goal, Prob) :-
+	findall(Prob, do_probability(Goal, [], Prob), [Prob]).
+	
+conditional_probability(Goal, ListOfGoals, Prob) :-
+	\+ ground(ListOfGoals), !,
+	throw(error(ground(ListOfGoals),conditional_probability(Goal, ListOfGoals, Prob))).
+conditional_probability(Goal, ListOfGoals, Prob) :-
+	findall(Prob, do_probability(Goal, ListOfGoals, Prob), [Prob]).
+
+do_probability(Goal, ListOfGoals, Prob) :-
+	evidence_to_var(Goal, C, NGoal, V),
+	call_residue(run( ListOfGoals, NGoal), Vars), !,
+	match_probability(Vars, C, V, Prob).
+
+run(ListOfGoals,Goal) :-
+	do(ListOfGoals),
+	call(Goal).
+
+do(M:ListOfGoals) :-
+	do(ListOfGoals, M).
+do([]).
+
+do([], _M).
+do(G.ListOfGoals, M) :-
+	M:G,
+	do(ListOfGoals, M).
+
+evidence_to_var(M:Goal, C, M:VItem, V) :- !,
+	evidence_to_var(Goal, C, VItem, V).
+evidence_to_var(Goal, C, VItem, V) :-
+	Goal =.. [L|Args],
+	variabilise_last(Args, C, NArgs, V),
+	VItem =.. [L|NArgs].
+	
+variabilise_last([Arg], Arg, [V], V).
+variabilise_last([Arg1,Arg2|Args], Arg, Arg1.NArgs, V) :-
+	variabilise_last(Arg2.Args, Arg, NArgs, V).
+
+match_probability([p(V0=C)=Prob|_], C, V, Prob) :-
+	V0 == V,
+	!.
+match_probability([_|Probs], C, V, Prob) :-
+	match_probability(Probs, C, V, Prob).
+
+

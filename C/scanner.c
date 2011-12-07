@@ -1392,8 +1392,10 @@ Yap_clean_tokenizer(TokEntry *tokstart, VarEntry *vartable, VarEntry *anonvartab
   }
   LOCAL_Comments = TermNil;
   LOCAL_CommentsNextChar = LOCAL_CommentsTail = NULL;
-  free(LOCAL_CommentsBuff);
-  LOCAL_CommentsBuff = NULL;
+  if (LOCAL_CommentsBuff) {
+    free(LOCAL_CommentsBuff);
+    LOCAL_CommentsBuff = NULL;
+  }
   LOCAL_CommentsBuffLim = 0;
 }
 

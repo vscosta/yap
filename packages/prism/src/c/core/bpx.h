@@ -80,6 +80,27 @@ long int XTAG(TERM t)
   }
 }
 
+extern inline TERM ADDTAG(void * t,int tag);
+extern inline int is_UNIFIABLE(TERM t1, TERM t2);
+extern inline int is_IDENTICAL(TERM t1, TERM t2);
+extern inline char *bp_term_2_string(TERM t);
+extern inline int bp_string_2_term(const char *s, TERM to, TERM tv);
+extern inline SYM_REC_PTR insert(const char *name, int size, int arity);
+extern inline int compare(TERM t1, TERM t2);
+extern inline void write_term(TERM t);
+extern inline void numberVarTermOpt(TERM t);
+extern inline TERM unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2);
+extern inline int unifyNumberedTerms(TERM t1, TERM t2);
+
+int bpx_call_term(TERM t);
+int bpx_call_string(const char *s);
+int bpx_call_string(const char *s);
+int bpx_mount_query_string(const char *s);
+int bpx_next_solution(void);
+void bpx_write(TERM t);
+int bpx_printf(const char *fmt, ...);
+
+
 extern inline TERM ADDTAG(void * t,int tag) {
   if (tag == ATM) 
     return MkAtomTerm((Atom)t);
@@ -210,13 +231,13 @@ list_length(BPLONG t1, BPLONG t2)
 
 #define PRE_NUMBER_VAR(X) 
 
-static inline void
+extern inline void
 numberVarTermOpt(TERM t)
 {
   YAP_NumberVars(t, 0);
 }
 
-static inline TERM
+extern inline TERM
 unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2)
 {
   return YAP_UnNumberVars(t);

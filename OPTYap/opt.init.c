@@ -63,36 +63,39 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   int i;
 
   /* global data related to memory management */
-#ifdef LIMIT_TABLING
-  if (max_table_size)
-    GLOBAL_max_pages = ((max_table_size - 1) * 1024 * 1024 / SHMMAX + 1) * SHMMAX / Yap_page_size;
-  else
-    GLOBAL_max_pages = -1;
-#endif /* LIMIT_TABLING */
-  INIT_PAGES(GLOBAL_pages_void, void *);      
+  INIT_PAGES(GLOBAL_pages_void, void *);
+#ifdef TABLING
+  INIT_PAGES(GLOBAL_pages_tab_ent, struct table_entry);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  INIT_PAGES(GLOBAL_pages_sg_ent, struct subgoal_entry);
+#endif
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+  INIT_PAGES(GLOBAL_pages_sg_fr, struct subgoal_frame);
+  INIT_PAGES(GLOBAL_pages_dep_fr, struct dependency_frame);
+#endif
+#if !defined(THREADS_NO_SHARING)
+  INIT_PAGES(GLOBAL_pages_sg_node, struct subgoal_trie_node);
+  INIT_PAGES(GLOBAL_pages_sg_hash, struct subgoal_trie_hash);
+#endif
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+  INIT_PAGES(GLOBAL_pages_ans_node, struct answer_trie_node);
+  INIT_PAGES(GLOBAL_pages_ans_hash, struct answer_trie_hash);
+#endif
+  INIT_PAGES(GLOBAL_pages_gt_node, struct global_trie_node);
+  INIT_PAGES(GLOBAL_pages_gt_hash, struct global_trie_hash);
+#endif /* TABLING */
 #ifdef YAPOR
   INIT_PAGES(GLOBAL_pages_or_fr, struct or_frame);
   INIT_PAGES(GLOBAL_pages_qg_sol_fr, struct query_goal_solution_frame);
   INIT_PAGES(GLOBAL_pages_qg_ans_fr, struct query_goal_answer_frame);
 #endif /* YAPOR */
+#if defined(YAPOR) && defined(TABLING)
+  INIT_PAGES(GLOBAL_pages_susp_fr, struct suspension_frame);
+#endif /* YAPOR && TABLING */
 #ifdef TABLING_INNER_CUTS
   INIT_PAGES(GLOBAL_pages_tg_sol_fr, struct table_subgoal_solution_frame);
   INIT_PAGES(GLOBAL_pages_tg_ans_fr, struct table_subgoal_answer_frame);
 #endif /* TABLING_INNER_CUTS */
-#ifdef TABLING
-  INIT_PAGES(GLOBAL_pages_tab_ent, struct table_entry);
-  INIT_PAGES(GLOBAL_pages_sg_fr, struct subgoal_frame);
-  INIT_PAGES(GLOBAL_pages_dep_fr, struct dependency_frame);
-  INIT_PAGES(GLOBAL_pages_sg_node, struct subgoal_trie_node);
-  INIT_PAGES(GLOBAL_pages_ans_node, struct answer_trie_node);
-  INIT_PAGES(GLOBAL_pages_gt_node, struct global_trie_node);
-  INIT_PAGES(GLOBAL_pages_sg_hash, struct subgoal_trie_hash);
-  INIT_PAGES(GLOBAL_pages_ans_hash, struct answer_trie_hash);
-  INIT_PAGES(GLOBAL_pages_gt_hash, struct global_trie_hash);
-#endif /* TABLING */
-#if defined(YAPOR) && defined(TABLING)
-  INIT_PAGES(GLOBAL_pages_susp_fr, struct suspension_frame);
-#endif /* YAPOR && TABLING */
 
 #ifdef YAPOR
   /* global static data */
@@ -136,6 +139,10 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   new_global_trie_node(GLOBAL_root_gt, 0, NULL, NULL, NULL);
   GLOBAL_root_tab_ent = NULL;
 #ifdef LIMIT_TABLING
+  if (max_table_size)
+    GLOBAL_max_pages = ((max_table_size - 1) * 1024 * 1024 / SHMMAX + 1) * SHMMAX / Yap_page_size;
+  else
+    GLOBAL_max_pages = -1;
   GLOBAL_first_sg_fr = NULL;
   GLOBAL_last_sg_fr = NULL;
   GLOBAL_check_sg_fr = NULL;
@@ -158,8 +165,37 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 
 
 void Yap_init_local_optyap_data(int wid) {
-#ifdef YAPOR
   CACHE_REGS
+
+#if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
+  /* local data related to memory management */
+#if defined(YAPOR)
+  REMOTE_next_free_ans_node(wid) = NULL;
+#elif defined(THREADS)
+  INIT_PAGES(REMOTE_pages_void(wid), void *);
+  INIT_PAGES(REMOTE_pages_sg_fr(wid), struct subgoal_frame);
+  INIT_PAGES(REMOTE_pages_dep_fr(wid), struct dependency_frame);
+#if defined(THREADS_NO_SHARING)
+  INIT_PAGES(REMOTE_pages_sg_node(wid), struct subgoal_trie_node);
+  INIT_PAGES(REMOTE_pages_sg_hash(wid), struct subgoal_trie_hash);
+#elif defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  REMOTE_next_free_sg_node(wid) = NULL;
+  REMOTE_next_free_sg_hash(wid) = NULL;
+#endif
+#if defined(THREADS_NO_SHARING) || defined(THREADS_SUBGOAL_SHARING)
+  INIT_PAGES(REMOTE_pages_ans_node(wid), struct answer_trie_node);
+  INIT_PAGES(REMOTE_pages_ans_hash(wid), struct answer_trie_hash);
+#elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  REMOTE_next_free_ans_node(wid) = NULL;
+  REMOTE_next_free_ans_hash(wid) = NULL;
+#endif
+#if defined(THREADS_FULL_SHARING)
+  INIT_PAGES(REMOTE_pages_ans_ref_node(wid), struct answer_ref_node);
+#endif
+#endif /* YAPOR - THREADS */
+#endif /* TABLING && (YAPOR || THREADS) */
+
+#ifdef YAPOR
   /* local data related to or-parallelism */
   Set_REMOTE_top_cp(wid, (choiceptr) LOCAL_LocalBase);
   REMOTE_top_or_fr(wid) = GLOBAL_root_or_fr;
@@ -175,7 +211,6 @@ void Yap_init_local_optyap_data(int wid) {
 
 #ifdef TABLING
   /* local data related to tabling */
-  REMOTE_next_free_ans_node(wid) = NULL;
   REMOTE_top_sg_fr(wid) = NULL; 
 #ifdef YAPOR
   REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
@@ -219,7 +254,7 @@ void Yap_init_root_frames(void) {
 #ifdef TABLING
   /* root dependency frame */
 #ifdef YAPOR
-  DepFr_cons_cp(GLOBAL_root_dep_fr) = B;
+  DepFr_cons_cp(GLOBAL_root_dep_fr) = B;  /* with YAPOR, at that point, LOCAL_top_dep_fr shouldn't be the same as GLOBAL_root_dep_fr ? */
 #else
   DepFr_cons_cp(LOCAL_top_dep_fr) = B;
 #endif /* YAPOR */

@@ -1,0 +1,32 @@
+// -*- c++ -*-
+//=============================================================================
+// Copyright (C) 2011 by Denys Duchier
+//
+// This program is free software: you can redistribute it and/or modify it
+// under the terms of the GNU Lesser General Public License as published by the
+// Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version.
+// 
+// This program is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+// FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+// more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//=============================================================================
+
+static ReifyMode gecode_ReifyMode_from_term(YAP_Term);
+static IntRelType gecode_IntRelType_from_term(YAP_Term);
+static BoolOpType gecode_BoolOpType_from_term(YAP_Term);
+static IntConLevel gecode_IntConLevel_from_term(YAP_Term);
+static TaskType gecode_TaskType_from_term(YAP_Term);
+static ExtensionalPropKind gecode_ExtensionalPropKind_from_term(YAP_Term);
+static IntVarBranch gecode_IntVarBranch_from_term(YAP_Term);
+static IntValBranch gecode_IntValBranch_from_term(YAP_Term);
+static IntAssign gecode_IntAssign_from_term(YAP_Term);
+static SetRelType gecode_SetRelType_from_term(YAP_Term);
+static SetOpType gecode_SetOpType_from_term(YAP_Term);
+static SetVarBranch gecode_SetVarBranch_from_term(YAP_Term);
+static SetValBranch gecode_SetValBranch_from_term(YAP_Term);
+static SetAssign gecode_SetAssign_from_term(YAP_Term);

@@ -156,8 +156,17 @@ extern "C"
   {
     YAP_Term arg1 = YAP_ARG1;
     YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    bool restart = YAP_IntOfTerm(YAP_ArgOfTerm(1, arg3));
+    double threads = YAP_FloatOfTerm(YAP_ArgOfTerm(2, arg3));
+    unsigned int c_d = YAP_IntOfTerm(YAP_ArgOfTerm(3, arg3));
+    unsigned int a_d = YAP_IntOfTerm(YAP_ArgOfTerm(4, arg3));
+    Search::Options opt;
+    opt.threads = threads;
+    opt.c_d = c_d;
+    opt.a_d = a_d;
     GenericSpace* space = gecode_Space_from_term(arg1);
-    GenericEngine* engine = space->new_engine();
+    GenericEngine* engine = space->new_engine(restart,opt);
     YAP_Term y_engine =
       YAP_NewOpaqueObject(gecode_engine_tag, sizeof(GenericEngine*));
     GenericEngine** ptr =
@@ -642,6 +651,48 @@ extern "C"
     cerr << "this should never happen" << endl; exit(1);
   }
 
+  static int gecode_space_use_keep_index(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    return YAP_Unify(arg2,(space->use_keep_index()
+			   ?gecode_TRUE:gecode_FALSE));
+  }
+
+  static int gecode_intvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_ivar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
+  static int gecode_boolvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_bvar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
+  static int gecode_setvar_keep(void)
+  {
+    YAP_Term arg1 = YAP_ARG1;
+    YAP_Term arg2 = YAP_ARG2;
+    YAP_Term arg3 = YAP_ARG3;
+    GenericSpace* space = gecode_Space_from_term(arg1);
+    int idx = YAP_IntOfTerm(arg2);
+    int kidx = space->keep_svar(idx);
+    return YAP_Unify(arg3,YAP_MkIntTerm(kidx));
+  }
+
   // INFO ON INTVARS
   static int gecode_intvar_assigned(void)
   {
@@ -1045,7 +1096,7 @@ extern "C"
     gecode_engine_handler.fail_handler = gecode_engine_fail_handler;
     gecode_engine_handler.write_handler = gecode_engine_write_handler;
     gecode_engine_tag = YAP_NewOpaqueType(&gecode_engine_handler);
-    YAP_UserCPredicate("gecode_new_engine", gecode_new_engine, 2);
+    YAP_UserCPredicate("gecode_new_engine", gecode_new_engine, 3);
 #ifdef DISJUNCTOR
     // opaque disjunctors and clauses
     gecode_disjunctor_handler.write_handler = gecode_disjunctor_write_handler;
@@ -1124,5 +1175,9 @@ extern "C"
     YAP_UserCPredicate("gecode_setvar_glb_values", gecode_setvar_glb_values, 3);
     YAP_UserCPredicate("gecode_setvar_lub_values", gecode_setvar_lub_values, 3);
     YAP_UserCPredicate("gecode_setvar_unknown_values", gecode_setvar_unknown_values, 3);
+    YAP_UserCPredicate("gecode_space_use_keep_index", gecode_space_use_keep_index, 2);
+    YAP_UserCPredicate("gecode_intvar_keep", gecode_intvar_keep, 3);
+    YAP_UserCPredicate("gecode_boolvar_keep", gecode_boolvar_keep, 3);
+    YAP_UserCPredicate("gecode_setvar_keep", gecode_setvar_keep, 3);
   }
 }

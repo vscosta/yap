@@ -42,45 +42,32 @@ CWD=$(PWD)
 OBJS=gecode_yap.o
 SOBJS=gecode_yap.@SO@
 
-CODEGEN=$(srcdir)/code-generator.py
+GECODE_VERSION = @GECODE_VERSION@
 DISJUNCTOR = -DDISJUNCTOR
-PYTHON = @PYTHON@ -B
-export PYTHONPATH:=$(srcdir):$(PYTHONPATH)
+GECODE_LIBS = @GECODE_EXTRALIBS@ 
 
 all: $(SOBJS) gecode.yap
 
 gecode_yap.o: \
 	$(srcdir)/gecode_yap.cc \
 	$(srcdir)/gecode-common.icc \
-	gecode_yap_cc_impl_auto_generated.icc \
-	gecode_yap_cc_init_auto_generated.icc \
-	gecode_yap_cc_forward_auto_generated.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_impl_auto_generated.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_init_auto_generated.icc \
+	$(srcdir)/$(GECODE_VERSION)/gecode_yap_cc_forward_auto_generated.icc \
 	$(srcdir)/disjunctor.icc \
 	$(srcdir)/disjunctor.hh
-	$(CXX) -c $(CXXFLAGS) $(DISJUNCTOR) -o $@ $<
+	$(CXX) -c -I$(srcdir)/$(GECODE_VERSION) $(CXXFLAGS) $(DISJUNCTOR) -o $@ $<
 
 @DO_SECOND_LD@gecode_yap.@SO@: gecode_yap.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) -lgecodeint -lgecodeset -lgecodesearch @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o gecode_yap.@SO@ gecode_yap.o $(LDFLAGS) $(GECODE_LIBS) @EXTRA_LIBS_FOR_DLLS@
 
-gecode_yap_cc_init_auto_generated.icc: $(CODEGEN)
-	$(PYTHON) $< -t yap-cc-init -s $(srcdir) > $@
-
-gecode_yap_cc_impl_auto_generated.icc: $(CODEGEN)
-	$(PYTHON) $< -t yap-cc-impl -s $(srcdir) > $@
-
-gecode_yap_cc_forward_auto_generated.icc: $(CODEGEN)
-	$(PYTHON) $< -t yap-cc-forward -s $(srcdir) > $@
-
-gecode_yap_auto_generated.yap: $(CODEGEN)
-	$(PYTHON) $< -t yap-prolog -s $(srcdir) > $@
-
-gecode.yap: $(srcdir)/gecode_yap_hand_written.yap gecode_yap_auto_generated.yap
+gecode.yap: $(srcdir)/gecode_yap_hand_written.yap $(srcdir)/$(GECODE_VERSION)/gecode_yap_auto_generated.yap
 	cat $^ > $@
 
 .PHONY: all clean install
 
 clean:
-	-rm -f *.o *.so *~ *_auto_generated* gecode.yap *.pyc
+	-rm -f *.o *.so *~ gecode.yap
 
 install: all
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)

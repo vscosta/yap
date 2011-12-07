@@ -1,8 +1,8 @@
 GECODEDIR := $(shell g++ -q $(CPPFLAGS) $(CXXFLAGS) -H -E gecodedir.hh 2>&1 >/dev/null | grep gecode/kernel.hh | awk '{print $$2}' | sed 's|/kernel.hh||')
 GECODECONFIG := $(GECODEDIR)/support/config.hpp
-GECODEVERSION := $(shell cat $(GECODECONFIG) | egrep GECODE_VERSION | awk '{print $$3}' | sed 's/"//g')
-PROTOTYPES = gecode-prototypes-$(GECODEVERSION).hh
-ENUMS = gecode-enums-$(GECODEVERSION).py
+GECODEVERSION := $(shell cat $(GECODECONFIG) | egrep '\<GECODE_VERSION\>' | awk '{print $$3}' | sed 's/"//g')
+PROTOTYPES = ../gecode-prototypes-$(GECODEVERSION).hh
+ENUMS = ../gecode-enums-$(GECODEVERSION).py
 
 all: $(PROTOTYPES) $(ENUMS)
 

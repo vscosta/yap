@@ -103,6 +103,7 @@ solve_ve([LVs|_], [NVs0|_], Ps) :-
 	sort(LV0, LV),
 	% construct the graph
 	find_all_table_deps(Tables0, LV),
+%writeln((Li: LVs: LV)),
 	process(LVi, LVs, tab(Dist,_,_)),
 %writeln(m:Dist),matrix:matrix_to_list(Dist,LD),writeln(LD),
 %exps(LD,LDE),writeln(LDE),

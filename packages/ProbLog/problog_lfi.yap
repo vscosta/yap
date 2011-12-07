@@ -239,6 +239,8 @@
 :- dynamic(query_all_scripts/2).
 :- dynamic(last_llh/1).
 
+:- dynamic(user:myclause/2).
+
 :- discontiguous(user:myclause/1).
 :- discontiguous(user:myclause/2).
 :- discontiguous(user:known/3).

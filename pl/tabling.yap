@@ -83,6 +83,10 @@ tabling_statistics(global_trie_nodes,[BytesInUse,StructsInUse]) :-
    '$c_get_optyap_statistics'(10,BytesInUse,StructsInUse).
 tabling_statistics(global_trie_hashes,[BytesInUse,StructsInUse]) :-
    '$c_get_optyap_statistics'(11,BytesInUse,StructsInUse).
+tabling_statistics(subgoal_entries,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(16,BytesInUse,StructsInUse).
+tabling_statistics(answer_ref_nodes,[BytesInUse,StructsInUse]) :-
+   '$c_get_optyap_statistics'(17,BytesInUse,StructsInUse).
 
 
 

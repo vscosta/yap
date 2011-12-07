@@ -5,13 +5,15 @@
 :- module(clpbn_em, [em/5]).
 
 :- use_module(library(lists),
-	      [append/3]).
+	      [append/3,
+	       delete/3]).
 
 :- use_module(library(clpbn),
 	      [clpbn_init_graph/1,
 	       clpbn_init_solver/5,
 	       clpbn_run_solver/4,
 	       clpbn_finalize_solver/1,
+	       conditional_probability/3,
 	       clpbn_flag/2]).
 
 :- use_module(library('clpbn/dists'),
@@ -203,8 +205,7 @@ compute_parameters([], [], _, Lik, Lik, _).
 compute_parameters([Id-Samples|Dists], [Id-NewTable|Tables],  MDistTable, Lik0, Lik, LPs:MargVars) :-
 	empty_dist(Id, Table0),
 	add_samples(Samples, Table0, MDistTable),
-%matrix_to_list(Table0,Mat), 
-%format(user_error, 'FINAL ~d ~w~n', [Id,Mat]),
+%matrix_to_list(Table0,Mat), lists:sumlist(Mat, Sum), format(user_error, 'FINAL ~d ~w ~w~n', [Id,Sum,Mat]),
 	soften_sample(Table0, SoftenedTable),
 %	matrix:matrix_sum(Table0,TotM),
 	normalise_counts(SoftenedTable, NewTable),
@@ -240,3 +241,4 @@ backtrack_run_all([Item|_], Mod) :-
 backtrack_run_all([_|Items], Mod) :-
 	backtrack_run_all(Items, Mod).
 backtrack_run_all([], _).
+

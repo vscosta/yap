@@ -152,7 +152,6 @@ clrsb(Int i)
 inline static Term
 do_sll(Int i, Int j) /* j > 0 */
 {
-  Int k;
 #ifdef USE_GMP
   if (
 #ifdef __GNUC__X

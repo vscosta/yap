@@ -992,7 +992,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
   if (sz == 0)
     return TermNil;
   BACKUP_H();
-  if (H+sz*2 > ASP-1024) {
+  while (H+sz*2 > ASP-1024) {
     Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
     RECOVER_H();
     if (!dogc( PASS_REGS1 )) {

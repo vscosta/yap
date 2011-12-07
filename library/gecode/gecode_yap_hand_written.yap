@@ -31,9 +31,21 @@ is_bool_(false,false).
 is_bool(X,Y) :- nonvar(X), Y=X.
 is_bool(X) :- is_bool(X,_).
 
-is_IntVar_('IntVar'(I),I) :- integer(I).
-is_BoolVar_('BoolVar'(I),I) :- integer(I).
-is_SetVar_('SetVar'(I),I) :- integer(I).
+is_IntVar_('IntVar'(I,K),N) :-
+    integer(I),
+    integer(K),
+    nb_getval(gecode_space_use_keep_index,B),
+    (B=true -> N=K ; N=I).
+is_BoolVar_('BoolVar'(I,K),N) :-
+    integer(I),
+    integer(K),
+    nb_getval(gecode_space_use_keep_index,B),
+    (B=true -> N=K ; N=I).
+is_SetVar_('SetVar'(I,K),N) :-
+    integer(I),
+    integer(K),
+    nb_getval(gecode_space_use_keep_index,B),
+    (B=true -> N=K ; N=I).
 
 is_IntVar(X,I) :- nonvar(X), is_IntVar_(X,I).
 is_BoolVar(X,I) :- nonvar(X), is_BoolVar_(X,I).
@@ -142,7 +154,18 @@ new_space(Space) :-
 	gecode_new_space(Space_),
 	Space='Space'(Space_).
 
-is_Space_('Space'(X),X).
+%% checking that an argument is a space sets a global variable
+%% indicating whether variables need to be translated to their
+%% original index or to their "keep" index.
+%%
+%% these bindings are going to take advantage of the fact that,
+%% when a space is involved, it is checked first, thus setting
+%% this global variable. subsequent accesses to variables are
+%% then correctly translated.
+
+is_Space_('Space'(X),X) :-
+    gecode_space_use_keep_index(X,B),
+    nb_setval(gecode_space_use_keep_index,B).
 is_Space(X,Y) :- nonvar(X), is_Space_(X,Y).
 is_Space(X) :- is_Space(X,_).
 
@@ -198,19 +221,19 @@ new_intvar(IVar, Space, Lo, Hi) :- !,
 	assert_integer(Lo),
 	assert_integer(Hi),
 	gecode_new_intvar_from_bounds(Idx,Space_,Lo,Hi),
-	IVar='IntVar'(Idx).
+	IVar='IntVar'(Idx,-1).
 new_intvar(IVar, Space, IntSet) :- !,
 	assert_var(IVar),
 	assert_is_Space_or_Clause(Space,Space_),
 	assert_is_IntSet(IntSet, L),
 	gecode_new_intvar_from_intset(Idx,Space_,L),
-	IVar='IntVar'(Idx).
+	IVar='IntVar'(Idx,-1).
 
 new_boolvar(BVar, Space) :- !,
 	assert_var(BVar),
 	assert_is_Space_or_Clause(Space,Space_),
 	gecode_new_boolvar(Idx,Space_),
-	BVar='BoolVar'(Idx).
+	BVar='BoolVar'(Idx,-1).
 
 %% (GlbMin,GlbMax,LubMin,LubMax,CardMin,CardMax) 6 new_setvar_1
 %% (GlbMin,GlbMax,LubMin,LubMax,CardMin)         5 new_setvar_2
@@ -237,7 +260,7 @@ new_setvar(SVar, Space, GlbMin, GlbMax, LubMin, LubMax, CardMin, CardMax) :-
 	assert_integer(CardMin),
 	assert_integer(CardMax),
 	gecode_new_setvar(Idx, Space_, GlbMin, GlbMax, LubMib, LubMax, CardMin, CardMax),
-	SVar='SetVar'(Idx).
+	SVar='SetVar'(Idx,-1).
 
 %% 5 arguments
 %% (GlbMin,GlbMax,LubMin,LubMax,CardMin)         5 new_setvar_2
@@ -344,12 +367,54 @@ maximize(Space,IVar1,IVar2) :-
 	assert_is_IntVar(IVar2,IVar2_),
 	gecode_space_maximize_ratio(Space_,IVar1_,IVar2_).
 
+gecode_search_options_init(search_options(0,1.0,8,2)).
+gecode_search_options_offset(restart,1).
+gecode_search_options_offset(threads,2).
+gecode_search_options_offset(c_d    ,3).
+gecode_search_options_offset(a_d    ,4).
+
+gecode_search_option_set(O,V,R) :-
+    gecode_search_options_offset(O,I),
+    setarg(I,R,V).
+
+gecode_search_options_from_alist(L,R) :-
+    gecode_search_options_init(R),
+    gecode_search_options_process_alist(L,R).
+
+gecode_search_options_process_alist([],R).
+gecode_search_options_process_alist([H|T],R) :- !,
+    gecode_search_options_process1(H,R),
+    gecode_search_options_process_alist(T,R).
+
+gecode_search_options_process1(restart,R) :- !,
+    gecode_search_option_set(restart,1,R).
+gecode_search_options_process1(threads=N,R) :- !,
+    (integer(N) -> V is float(N)
+    ; (float(N) -> V=N
+      ; throw(bad_search_option_value(threads=N)))),
+    gecode_search_option_set(threads,V,R).
+gecode_search_options_process1(c_d=N,R) :- !,
+    (integer(N) -> V=N
+    ; throw(bad_search_option_value(c_d=N))),
+    gecode_search_option_set(c_d,V,R).
+gecode_search_options_process1(a_d=N,R) :- !,
+    (integer(N) -> V=N
+    ; throw(bad_search_option_value(a_d=N))),
+    gecode_search_option_set(a_d,V,R).
+gecode_search_options_process1(O,_) :-
+    throw(gecode_error(unrecognized_search_option(O))).
+
 search(Space, Solution) :-
+    search(Space, Solution, []).
+
+search(Space, Solution, Alist) :-
 	assert_is_Space(Space,Space_),
 	assert_var(Solution),
-	gecode_new_engine(Space_,Engine_),
+	gecode_search_options_from_alist(Alist,O),
+	gecode_new_engine(Space_,Engine_,O),
 	gecode_engine_search(Engine_,Solution_),
 	Solution='Space'(Solution_).
+
 
 %% INSPECTING VARIABLES
 
@@ -551,7 +616,9 @@ new_clause(X, Disj) :-
 	gecode_new_clause(C, Disj_),
 	X='Clause'(C).
 
-is_Clause_('Clause'(C),C).
+is_Clause_('Clause'(C),C) :-
+    gecode_space_use_keep_index(C,B),
+    nb_setval(gecode_space_use_keep_index,B).
 is_Clause(X,Y) :- nonvar(X), is_Clause_(X,Y).
 is_Clause(X) :- is_Clause(X,_).
 
@@ -593,6 +660,24 @@ new_setvars_(L,Space,N,X1,X2,X3,X4,X5) :- length(L,N), new_setvars(L,Space,X1,X2
 new_setvars_(L,Space,N,X1,X2,X3,X4) :- length(L,N), new_setvars(L,Space,X1,X2,X3,X4).
 new_setvars_(L,Space,N,X1,X2,X3) :- length(L,N), new_setvars(L,Space,X1,X2,X3).
 new_setvars_(L,Space,N,X1,X2) :- length(L,N), new_setvars(L,Space,X1,X2).
+
+keep_(Space, Var) :-
+    (Var = 'IntVar'(I,J)
+    -> (J = -1 -> (gecode_intvar_keep(Space,I,K),setarg(2,Var,K))
+       ; throw(gecode_error(variable_already_kept(Var))))
+    ; (Var = 'BoolVar'(I,J)
+      -> (J = -1 -> (gecode_boolvar_keep(Space,I,K),setarg(2,Var,K))
+	 ; throw(gecode_error(variable_already_kept(Var))))
+      ; (Var = 'SetVar'(I,J)
+	-> (J = -1 -> (gecode_setvar_keep(Space,I,K),setarg(2,Var,K))
+	   ; throw(gecode_error(variable_already_kept(Var))))
+	; keep_list_(Space,Var)))).
+
+keep_list_(Space, []) :- !.
+keep_list_(Space, [H|T]) :- !,
+    keep_(Space,H), keep_list_(Space,T).
+keep_list_(_, X) :-
+    throw(gecode_error(not_a_variable(X))).
 
 %% more concise interface:
 (X := Y) :- var(Y), !, throw(gecode_error((X := Y))).
@@ -647,6 +732,7 @@ new_setvars_(L,Space,N,X1,X2) :- length(L,N), new_setvars(L,Space,X1,X2).
 (X := clause(Disj)) :- !, new_clause(X,Disj).
 
 (X := search(Y)) :- !, search(Y,X).
+(X := search(Y,L)) :- !, search(Y,X,L).
 
 % these should be autogenerated:
 (C += forward(X,Y)) :- !, new_forward(C,X,Y).
@@ -758,3 +844,5 @@ new_setvars_(L,Space,N,X1,X2) :- length(L,N), new_setvars(L,Space,X1,X2).
 (Space += maximize(X)) :- !, maximize(Space,X).
 (Space += minimize(X,Y)) :- !, minimize(Space,X,Y).
 (Space += maximize(X,Y)) :- !, maximize(Space,X,Y).
+
+(Space += keep(X)) :- !, keep_(Space,X).

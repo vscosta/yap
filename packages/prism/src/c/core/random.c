@@ -247,18 +247,21 @@ double random_gaussian(void)
 
 int pc_random_auto_seed_1(void)
 {
+  CACHE_REGS
     BPLONG seed = (BPLONG)(time(NULL));
     return bpx_unify(ARG(1,1), bpx_build_integer(seed));
 }
 
 int pc_random_init_by_seed_1(void)
 {
+  CACHE_REGS
     init_genrand((unsigned long)(bpx_get_integer(ARG(1,1))));
     return BP_TRUE;
 }
 
 int pc_random_init_by_list_1(void)
 {
+  CACHE_REGS
     unsigned long *seed;
     TERM t, u;
 
@@ -278,16 +281,19 @@ int pc_random_init_by_list_1(void)
 
 int pc_random_float_1(void)
 {
+  CACHE_REGS
     return bpx_unify(ARG(1,1), bpx_build_float(random_float()));
 }
 
 int pc_random_gaussian_1(void)
 {
+  CACHE_REGS
     return bpx_unify(ARG(1,1), bpx_build_float(random_gaussian(0.0,1.0)));
 }
 
 int pc_random_int_2(void)
 {
+  CACHE_REGS
     int n_max = bpx_get_integer(ARG(1,2));
     int n_out = random_int(n_max);
     return bpx_unify(ARG(2,2), bpx_build_integer((BPLONG)(n_out)));
@@ -295,6 +301,7 @@ int pc_random_int_2(void)
 
 int pc_random_int_3(void)
 {
+  CACHE_REGS
     int n_min = bpx_get_integer(ARG(1,3));
     int n_max = bpx_get_integer(ARG(2,3));
     int n_out = random_int(n_max - n_min + 1) + n_min;
@@ -305,6 +312,7 @@ int pc_random_int_3(void)
 
 int pc_random_get_state_1(void)
 {
+  CACHE_REGS
     int  i, j;
     TERM t, u;
     unsigned long temp;
@@ -333,6 +341,7 @@ int pc_random_get_state_1(void)
 
 int pc_random_set_state_1(void)
 {
+  CACHE_REGS
     int  i, j;
     TERM term;
     unsigned long temp;

@@ -114,6 +114,14 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
   REMOTE_ThreadHandle(new_worker_id).texit_mod = tmod;
   REMOTE_ThreadHandle(new_worker_id).texit =
     Yap_StoreTermInDB(tgoal,7);
+  REMOTE_ThreadHandle(new_worker_id).local_preds =
+    NULL;
+  REMOTE_ThreadHandle(new_worker_id).start_of_timesp =
+    NULL;
+  REMOTE_ThreadHandle(new_worker_id).last_timep =
+    NULL;
+  REMOTE_ScratchPad(new_worker_id).ptr =
+    NULL;
   return TRUE;
 }
 
@@ -121,12 +129,11 @@ store_specs(int new_worker_id, UInt ssize, UInt tsize, UInt sysize, Term *tpgoal
 static void
 kill_thread_engine (int wid, int always_die)
 {
-  CACHE_REGS
   Prop p0 = AbsPredProp(REMOTE_ThreadHandle(wid).local_preds);
-  GlobalEntry *gl = LOCAL_GlobalVariables;
+  GlobalEntry *gl = REMOTE_GlobalVariables(wid);
 
   REMOTE_ThreadHandle(wid).local_preds = NIL;
-  LOCAL_GlobalVariables = NULL;
+  REMOTE_GlobalVariables(wid) = NULL;
   /* kill all thread local preds */
   while(p0) {
     PredEntry *ap = RepPredProp(p0);
@@ -140,12 +147,19 @@ kill_thread_engine (int wid, int always_die)
   }
   Yap_KillStacks(wid);
   REMOTE_ActiveSignals(wid) = 0L;
-  free(REMOTE_ScratchPad(wid).ptr);
-  free(REMOTE_ThreadHandle(wid).default_yaam_regs);
+  if (REMOTE_ScratchPad(wid).ptr)
+    free(REMOTE_ScratchPad(wid).ptr);
   REMOTE_ThreadHandle(wid).current_yaam_regs = NULL;
-  free(REMOTE_ThreadHandle(wid).start_of_timesp);
-  free(REMOTE_ThreadHandle(wid).last_timep);
-  Yap_FreeCodeSpace((ADDR)REMOTE_ThreadHandle(wid).texit);
+  if (REMOTE_ThreadHandle(wid).start_of_timesp)
+    free(REMOTE_ThreadHandle(wid).start_of_timesp);
+  if (REMOTE_ThreadHandle(wid).last_timep)
+    free(REMOTE_ThreadHandle(wid).last_timep);
+  if (REMOTE_ThreadHandle(wid).texit) {
+    Yap_FreeCodeSpace((ADDR)REMOTE_ThreadHandle(wid).texit);
+  }
+  /* FreeCodeSpace requires LOCAL requires yaam_regs */
+  free(REMOTE_ThreadHandle(wid).default_yaam_regs);
+  REMOTE_ThreadHandle(wid).default_yaam_regs = NULL;
   LOCK(GLOBAL_ThreadHandlesLock);
   if (REMOTE_ThreadHandle(wid).tdetach == MkAtomTerm(AtomTrue) ||
       always_die) {
@@ -167,13 +181,15 @@ thread_die(int wid, int always_die)
   kill_thread_engine(wid, always_die);
 }
 
-static void
+static int
 setup_engine(int myworker_id, int init_thread)
 {
   CACHE_REGS
   REGSTORE *standard_regs;
   
   standard_regs = (REGSTORE *)calloc(1,sizeof(REGSTORE));
+  if (!standard_regs)
+    return FALSE;
   regcache = standard_regs;
   /* create the YAAM descriptor */
   REMOTE_ThreadHandle(myworker_id).default_yaam_regs = standard_regs;
@@ -194,6 +210,7 @@ setup_engine(int myworker_id, int init_thread)
 #ifdef TABLING
   DepFr_cons_cp(LOCAL_top_dep_fr) = B;  /* same as in Yap_init_root_frames() */
 #endif /* TABLING */
+  return TRUE;
 }
 
 static void
@@ -418,7 +435,8 @@ Yap_thread_create_engine(thread_attr *ops)
   REMOTE_ThreadHandle(new_id).pthread_handle = 0L;
   REMOTE_ThreadHandle(new_id).id = new_id;
   REMOTE_ThreadHandle(new_id).ref_count = 0;
-  setup_engine(new_id, FALSE);
+  if (!setup_engine(new_id, FALSE))
+    return -1;
   if (pthread_self() != GLOBAL_master_thread) {
     pthread_setspecific(Yap_yaamregs_key, NULL);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(0).tlock));

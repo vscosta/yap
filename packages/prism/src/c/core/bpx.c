@@ -127,10 +127,12 @@ bool bpx_is_identical(TERM t1, TERM t2)
 
 TERM bpx_get_call_arg(BPLONG i, BPLONG arity)
 {
-    if (i < 1 || i > arity) {
-        bpx_raise("index out of range");
-    }
-    return ARG(i, arity);
+  CACHE_REGS
+
+  if (i < 1 || i > arity) {
+    bpx_raise("index out of range");
+  }
+  return ARG(i, arity);
 }
 
 BPLONG bpx_get_integer(TERM t)
@@ -245,6 +247,7 @@ TERM bpx_get_cdr(TERM t)
 
 TERM bpx_build_var(void)
 {
+  CACHE_REGS
     TERM term;
 
     REQUIRE_HEAP(1);
@@ -260,6 +263,7 @@ TERM bpx_build_integer(BPLONG n)
 
 TERM bpx_build_float(double x)
 {
+  CACHE_REGS
     REQUIRE_HEAP(4);
     return encodefloat1(x);
 }
@@ -274,6 +278,7 @@ TERM bpx_build_atom(const char *name)
 
 TERM bpx_build_list(void)
 {
+  CACHE_REGS
     TERM term;
 
     REQUIRE_HEAP(2);
@@ -290,6 +295,7 @@ TERM bpx_build_nil(void)
 
 TERM bpx_build_structure(const char *name, BPLONG arity)
 {
+  CACHE_REGS
     SYM_REC_PTR sym;
     TERM term;
 
@@ -314,6 +320,7 @@ bool bpx_unify(TERM t1, TERM t2)
 
 TERM bpx_string_2_term(const char *s)
 {
+  CACHE_REGS
     TERM term, vars;
     int  result;
 

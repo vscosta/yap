@@ -30,22 +30,31 @@ typedef struct table_entry {
   short execution_mode;  /* combines yap_flags with pred_flags */
 #ifdef MODE_DIRECTED_TABLING
   int* mode_directed_array;
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
+#ifdef THREADS_NO_SHARING
+  struct subgoal_trie_node *subgoal_trie[THREADS_FIRST_LEVEL_BUCKETS];
+#else
   struct subgoal_trie_node *subgoal_trie;
+#endif /* THREADS_NO_SHARING */
   struct subgoal_trie_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
 
-#define TabEnt_lock(X)           ((X)->lock)
-#define TabEnt_pe(X)             ((X)->pred_entry)
-#define TabEnt_atom(X)           ((X)->pred_atom)
-#define TabEnt_arity(X)          ((X)->pred_arity)
-#define TabEnt_flags(X)          ((X)->pred_flags)
-#define TabEnt_mode(X)           ((X)->execution_mode)
-#define TabEnt_mode_directed(X)  ((X)->mode_directed_array)
-#define TabEnt_subgoal_trie(X)   ((X)->subgoal_trie)
-#define TabEnt_hash_chain(X)     ((X)->hash_chain)
-#define TabEnt_next(X)           ((X)->next)
+#define TabEnt_lock(X)            ((X)->lock)
+#define TabEnt_pe(X)              ((X)->pred_entry)
+#define TabEnt_atom(X)            ((X)->pred_atom)
+#define TabEnt_arity(X)           ((X)->pred_arity)
+#define TabEnt_flags(X)           ((X)->pred_flags)
+#define TabEnt_mode(X)            ((X)->execution_mode)
+#define TabEnt_mode_directed(X)   ((X)->mode_directed_array)
+#ifdef THREADS_NO_SHARING
+#define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie[worker_id])
+//#define TabEnt_subgoal_trie(X,I)  ((X)->subgoal_trie[I])
+#else
+#define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie)
+#endif /* THREADS_NO_SHARING */
+#define TabEnt_hash_chain(X)      ((X)->hash_chain)
+#define TabEnt_next(X)            ((X)->next)
 
 
 
@@ -148,6 +157,24 @@ typedef struct global_trie_hash {
 
 
 
+/******************************
+**      answer_ref_node      **
+******************************/
+
+#ifdef THREADS_FULL_SHARING
+typedef struct answer_ref_node {
+  struct answer_trie_node *ans_node;
+  struct answer_ref_node *next;
+  struct answer_ref_node *previous;
+} *ans_ref_ptr;
+#endif /* THREADS_FULL_SHARING */
+
+#define RefNode_answer(X)    ((X)->ans_node)
+#define RefNode_next(X)      ((X)->next)
+#define RefNode_previous(X)  ((X)->previous)
+
+
+
 /************************************************************************
 **                      Execution Data Structures                      **
 ************************************************************************/
@@ -193,29 +220,32 @@ struct loader_choicept {
 
 
 
+/*********************************
+**      subgoal_state_flag      **
+*********************************/
+
+typedef enum {          /* do not change order !!! */
+  incomplete      = 0,  /* INCOMPLETE_TABLING */
+  ready_external  = 1,  /* THREADS_CONSUMER_SHARING */
+  ready           = 2,
+  evaluating      = 3,
+  complete        = 4,
+  complete_in_use = 5,  /* LIMIT_TABLING */
+  compiled        = 6,
+  compiled_in_use = 7   /* LIMIT_TABLING */
+} subgoal_state_flag;
+
+
+
 /****************************
-**      subgoal_frame      **
+**      subgoal_entry      **
 ****************************/
 
-typedef struct subgoal_frame {
-#if defined(YAPOR) || defined(THREADS)
+typedef struct subgoal_entry {
+#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   lockvar lock;
-#endif /* YAPOR || THREADS */
-#ifdef YAPOR
-  int generator_worker;
-  struct or_frame *top_or_frame_on_generator_branch;
-#endif /* YAPOR */
+#endif /* YAPOR || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
   yamop *code_of_subgoal;
-  enum {  /* do not change order !!! */
-    incomplete      = 0,  /* INCOMPLETE_TABLING */
-    ready           = 1,
-    evaluating      = 2,
-    complete        = 3,
-    complete_in_use = 4,  /* LIMIT_TABLING */
-    compiled        = 5,
-    compiled_in_use = 6   /* LIMIT_TABLING */
-  } state_flag;
-  choiceptr generator_choice_point;
   struct answer_trie_hash *hash_chain;
   struct answer_trie_node *answer_trie;
   struct answer_trie_node *first_answer;
@@ -223,61 +253,128 @@ typedef struct subgoal_frame {
 #ifdef MODE_DIRECTED_TABLING
   int* mode_directed_array;
   struct answer_trie_node *invalid_chain;
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
 #ifdef INCOMPLETE_TABLING
   struct answer_trie_node *try_answer;
 #endif /* INCOMPLETE_TABLING */
 #ifdef LIMIT_TABLING
   struct subgoal_frame *previous;
 #endif /* LIMIT_TABLING */
+#ifdef YAPOR
+  struct or_frame *top_or_frame_on_generator_branch;
+#endif /* YAPOR */
+#if defined(YAPOR) || defined(THREADS_CONSUMER_SHARING)
+  int generator_worker;
+#endif /* YAPOR || THREADS_CONSUMER_SHARING */
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  subgoal_state_flag state_flag;
+  int active_workers;
+  struct subgoal_frame *subgoal_frame[THREADS_FIRST_LEVEL_BUCKETS];
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+}* sg_ent_ptr;
+
+#define SgEnt_lock(X)            ((X)->lock)
+#define SgEnt_code(X)            ((X)->code_of_subgoal)
+#define SgEnt_tab_ent(X)         (((X)->code_of_subgoal)->u.Otapl.te)
+#define SgEnt_arity(X)           (((X)->code_of_subgoal)->u.Otapl.s)
+#define SgEnt_hash_chain(X)      ((X)->hash_chain)
+#define SgEnt_answer_trie(X)     ((X)->answer_trie)
+#define SgEnt_first_answer(X)    ((X)->first_answer)
+#define SgEnt_last_answer(X)     ((X)->last_answer)
+#define SgEnt_mode_directed(X)   ((X)->mode_directed_array)
+#define SgEnt_invalid_chain(X)   ((X)->invalid_chain)
+#define SgEnt_try_answer(X)      ((X)->try_answer)
+#define SgEnt_previous(X)        ((X)->previous)
+#define SgEnt_gen_top_or_fr(X)   ((X)->top_or_frame_on_generator_branch)
+#define SgEnt_gen_worker(X)      ((X)->generator_worker)
+#define SgEnt_sg_ent_state(X)    ((X)->state_flag)
+#define SgEnt_active_workers(X)  ((X)->active_workers)
+#define SgEnt_sg_fr(X,I)         ((X)->subgoal_frame[I])
+
+
+
+/****************************
+**      subgoal_frame      **
+****************************/
+
+typedef struct subgoal_frame {
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  struct subgoal_entry *subgoal_entry;
+#ifdef THREADS_FULL_SHARING
+  struct answer_trie_node *batched_last_answer;
+  struct answer_ref_node *batched_cached_answers;
+#endif /* THREADS_FULL_SHARING */
+#else
+  struct subgoal_entry subgoal_entry;
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+  subgoal_state_flag state_flag;
+  choiceptr generator_choice_point;
   struct subgoal_frame *next;
 } *sg_fr_ptr;
 
-#define SgFr_lock(X)           ((X)->lock)
-#define SgFr_gen_worker(X)     ((X)->generator_worker)
-#define SgFr_gen_top_or_fr(X)  ((X)->top_or_frame_on_generator_branch)
-#define SgFr_code(X)           ((X)->code_of_subgoal)
-#define SgFr_tab_ent(X)        (((X)->code_of_subgoal)->u.Otapl.te)
-#define SgFr_arity(X)          (((X)->code_of_subgoal)->u.Otapl.s)
-#define SgFr_state(X)          ((X)->state_flag)
-#define SgFr_gen_cp(X)         ((X)->generator_choice_point)
-#define SgFr_hash_chain(X)     ((X)->hash_chain)
-#define SgFr_answer_trie(X)    ((X)->answer_trie)
-#define SgFr_first_answer(X)   ((X)->first_answer)
-#define SgFr_last_answer(X)    ((X)->last_answer)
-#define SgFr_mode_directed(X)  ((X)->mode_directed_array)
-#define SgFr_invalid_chain(X)  ((X)->invalid_chain)
-#define SgFr_try_answer(X)     ((X)->try_answer)
-#define SgFr_previous(X)       ((X)->previous)
-#define SgFr_next(X)           ((X)->next)
+/* subgoal_entry fields */
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define SUBGOAL_ENTRY(X)                SgFr_subgoal_entry(X)->
+#else
+#define SUBGOAL_ENTRY(X)                (X)->subgoal_entry.
+#endif /* THREADS */
+#define SgFr_lock(X)                    (SUBGOAL_ENTRY(X) lock)
+#define SgFr_code(X)                    (SUBGOAL_ENTRY(X) code_of_subgoal)
+#define SgFr_tab_ent(X)                 ((SUBGOAL_ENTRY(X) code_of_subgoal)->u.Otapl.te)
+#define SgFr_arity(X)                   ((SUBGOAL_ENTRY(X) code_of_subgoal)->u.Otapl.s)
+#define SgFr_hash_chain(X)              (SUBGOAL_ENTRY(X) hash_chain)
+#define SgFr_answer_trie(X)             (SUBGOAL_ENTRY(X) answer_trie)
+#define SgFr_first_answer(X)            (SUBGOAL_ENTRY(X) first_answer)
+#define SgFr_last_answer(X)             (SUBGOAL_ENTRY(X) last_answer)
+#define SgFr_mode_directed(X)           (SUBGOAL_ENTRY(X) mode_directed_array)
+#define SgFr_invalid_chain(X)           (SUBGOAL_ENTRY(X) invalid_chain)
+#define SgFr_try_answer(X)              (SUBGOAL_ENTRY(X) try_answer)
+#define SgFr_previous(X)                (SUBGOAL_ENTRY(X) previous)
+#define SgFr_gen_top_or_fr(X)           (SUBGOAL_ENTRY(X) top_or_frame_on_generator_branch)
+#define SgFr_gen_worker(X)              (SUBGOAL_ENTRY(X) generator_worker)
+#define SgFr_sg_ent_state(X)            (SUBGOAL_ENTRY(X) state_flag)
+#define SgFr_active_workers(X)          (SUBGOAL_ENTRY(X) active_workers)
+/* subgoal_frame fields */
+#define SgFr_subgoal_entry(X)           ((X)->subgoal_entry)
+#define SgFr_batched_last_answer(X)     ((X)->batched_last_answer)
+#define SgFr_batched_cached_answers(X)  ((X)->batched_cached_answers)
+#define SgFr_state(X)                   ((X)->state_flag)
+#define SgFr_gen_cp(X)                  ((X)->generator_choice_point)
+#define SgFr_next(X)                    ((X)->next)
 
-/**************************************************************************************************
+/**********************************************************************************************************
 
-  SgFr_lock:          spin-lock to modify the frame fields.
-  SgFr_gen_worker:    the id of the worker that had allocated the frame.
-  SgFr_gen_top_or_fr: a pointer to the top or-frame in the generator choice point branch. 
-                      When the generator choice point is shared the pointer is updated 
-                      to its or-frame. It is used to find the direct dependency node for 
-                      consumer nodes in other workers branches.
-  SgFr_code           initial instruction of the subgoal's compiled code.
-  SgFr_tab_ent        a pointer to the correspondent table entry.
-  SgFr_arity          the arity of the subgoal.
-  SgFr_state:         a flag that indicates the subgoal state.
-  SgFr_gen_cp:        a pointer to the correspondent generator choice point.
-  SgFr_hash_chain:    a pointer to the first answer_trie_hash struct for the subgoal in hand.
-  SgFr_answer_trie:   a pointer to the top answer trie node.
-                      It is used to check for/insert new answers.
-  SgFr_first_answer:  a pointer to the bottom answer trie node of the first available answer.
-  SgFr_last_answer:   a pointer to the bottom answer trie node of the last available answer.
-  SgFr_mode_directed: a pointer to the mode directed array.
-  SgFr_invalid_chain: a pointer to the first invalid leaf node when using mode directed tabling.
-  SgFr_try_answer:    a pointer to the bottom answer trie node of the last tried answer.
-                      It is used when a subgoal was not completed during the previous evaluation.
-                      Not completed subgoals start by trying the answers already found.
-  SgFr_previous:      a pointer to the previous subgoal frame on the chain.
-  SgFr_next:          a pointer to the next subgoal frame on the chain.
+  SgFr_lock:                    spin-lock to modify the frame fields.
+  SgFr_code                     initial instruction of the subgoal's compiled code.
+  SgFr_tab_ent                  a pointer to the corresponding table entry.
+  SgFr_arity                    the arity of the subgoal.
+  SgFr_hash_chain:              a pointer to the first answer_trie_hash struct.
+  SgFr_answer_trie:             a pointer to the top answer trie node.
+  SgFr_first_answer:            a pointer to the leaf answer trie node of the first answer.
+  SgFr_last_answer:             a pointer to the leaf answer trie node of the last answer.
+  SgFr_mode_directed:           a pointer to the mode directed array.
+  SgFr_invalid_chain:           a pointer to the first invalid leaf node when using mode directed tabling.
+  SgFr_try_answer:              a pointer to the leaf answer trie node of the last tried answer.
+                                It is used when a subgoal was not completed during the previous evaluation.
+                                Not completed subgoals start by trying the answers already found.
+  SgFr_previous:                a pointer to the previous subgoal frame on the chain.
+  SgFr_gen_top_or_fr:           a pointer to the top or-frame in the generator choice point branch. 
+                                When the generator choice point is shared the pointer is updated 
+                                to its or-frame. It is used to find the direct dependency node for 
+                                consumer nodes in other workers branches.
+  SgFr_gen_worker:              the id of the worker that had allocated the frame.
+  SgFr_sg_ent_state:            a flag that indicates the subgoal entry state.
+  SgFr_active_workers:          the number of workers evaluating the subgoal.
+  SgFr_subgoal_entry:           a pointer to the corresponding subgoal entry.
+  SgFr_batched_last_answer:     a pointer to the leaf answer trie node of the last checked answer 
+                                when using batched scheduling.
+  SgFr_batched_cached_answers:  a pointer to the chain of answers already inserted in the trie, but not 
+                                yet found when using batched scheduling.
+  SgFr_state:                   a flag that indicates the subgoal frame state.
+  SgFr_gen_cp:                  a pointer to the correspondent generator choice point.
+  SgFr_next:                    a pointer to the next subgoal frame on the chain.
 
-**************************************************************************************************/
+**********************************************************************************************************/
 
 
 
@@ -286,10 +383,8 @@ typedef struct subgoal_frame {
 *******************************/
 
 typedef struct dependency_frame {
-#if defined(YAPOR) || defined(THREADS)
-  lockvar lock;
-#endif /* YAPOR || THREADS */
 #ifdef YAPOR
+  lockvar lock;
   int leader_dependency_is_on_stack;
   struct or_frame *top_or_frame;
 #ifdef TIMESTAMP_CHECK
@@ -300,6 +395,9 @@ typedef struct dependency_frame {
   choiceptr leader_choice_point;
   choiceptr consumer_choice_point;
   struct answer_trie_node *last_consumed_answer;
+#ifdef THREADS_CONSUMER_SHARING
+  int generator_is_external;
+#endif /* THREADS_CONSUMER_SHARING */
   struct dependency_frame *next;
 } *dep_fr_ptr;
 
@@ -311,9 +409,10 @@ typedef struct dependency_frame {
 #define DepFr_leader_cp(X)               ((X)->leader_choice_point)
 #define DepFr_cons_cp(X)                 ((X)->consumer_choice_point)
 #define DepFr_last_answer(X)             ((X)->last_consumed_answer)
+#define DepFr_external(X)                ((X)->generator_is_external)
 #define DepFr_next(X)                    ((X)->next)
 
-/*******************************************************************************************************
+/*********************************************************************************************************
 
   DepFr_lock:                   lock variable to modify the frame fields.
   DepFr_leader_dep_is_on_stack: the generator choice point for the correspondent consumer choice point 
@@ -330,9 +429,10 @@ typedef struct dependency_frame {
   DepFr_leader_cp:              a pointer to the leader choice point.
   DepFr_cons_cp:                a pointer to the correspondent consumer choice point.
   DepFr_last_answer:            a pointer to the last consumed answer.
+  DepFr_external:               the generator choice point is external to the current thread (FALSE/TRUE).
   DepFr_next:                   a pointer to the next dependency frame on the chain.  
 
-*******************************************************************************************************/
+*********************************************************************************************************/
 
 
 
