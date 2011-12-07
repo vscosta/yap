@@ -637,7 +637,7 @@ CreateStaticArray(AtomEntry *ae, Int dim, static_array_types type, CODEADDR star
   p->ArrayEArity = -dim;
   p->ArrayType = type;
   if (start_addr == NULL) {
-    int i;
+    Int i;
 
     AllocateStaticArraySpace(p, type, dim PASS_REGS);
     if (p->ValueOfVE.ints == NULL) {
@@ -790,7 +790,7 @@ ClearStaticArray(StaticArrayEntry *pp)
   WRITE_LOCK(pp->ArRWLock);
   switch(type) {
   case array_of_ints:
-    memset((void *)pp->ValueOfVE.ints,0,sizeof(int)*dim);
+    memset((void *)pp->ValueOfVE.ints,0,sizeof(Int)*dim);
     break;
   case array_of_chars:
     memset((void *)pp->ValueOfVE.chars,0,sizeof(char)*dim);

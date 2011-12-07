@@ -60,10 +60,10 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
   }
 
   /* chain dependency frames to release (using DepFr_next) */
-  while (IS_UNLOCKED(DepFr_lock(aux_dep_fr)) && 
+  while (IS_UNLOCKED_DEP_FR(aux_dep_fr) && 
          YOUNGER_CP(DepFr_cons_cp(aux_dep_fr), top_cp)) {
     dep_fr_ptr next_dep_fr;
-    LOCK(DepFr_lock(aux_dep_fr));
+    LOCK_DEP_FR(aux_dep_fr);
     next_dep_fr = DepFr_next(aux_dep_fr);
     DepFr_next(aux_dep_fr) = *chain_dep_fr;
     *chain_dep_fr = aux_dep_fr;
@@ -192,7 +192,7 @@ void public_completion(void) {
     /* chain dependency frames to release */
     chain_dep_fr = NULL;
     while (YOUNGER_CP(DepFr_cons_cp(LOCAL_top_dep_fr), Get_LOCAL_top_cp())) {
-      LOCK(DepFr_lock(LOCAL_top_dep_fr));
+      LOCK_DEP_FR(LOCAL_top_dep_fr);
       next_dep_fr = DepFr_next(LOCAL_top_dep_fr);
       DepFr_next(LOCAL_top_dep_fr) = chain_dep_fr;
       chain_dep_fr = LOCAL_top_dep_fr;

@@ -401,11 +401,11 @@
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
-    LOCK(SgFr_lock(sg_fr));
+    LOCK_SG_FR(sg_fr);
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
 #ifdef DETERMINISTIC_TABLING
       if (IsMode_Batched(TabEnt_mode(tab_ent))) {
 	store_deterministic_generator_node(tab_ent, sg_fr);
@@ -424,7 +424,7 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -438,7 +438,7 @@
       choiceptr leader_cp;
       int leader_dep_on_stack;
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
@@ -460,11 +460,11 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       if (ans_node == NULL) {
 	/* no answers --> fail */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	goto fail;
       } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
@@ -480,7 +480,7 @@
 #endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  if(TrNode_child(ans_node) != NULL) {
 	    store_loader_node(tab_ent, ans_node);
 	  }
@@ -493,7 +493,7 @@
 	  /* execute compiled code from the trie */
 	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
@@ -519,11 +519,11 @@
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
-    LOCK(SgFr_lock(sg_fr));
+    LOCK_SG_FR(sg_fr);
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, PREG->u.Otapl.d);
       PREG = NEXTOP(PREG, Otapl);
       PREFETCH_OP(PREG);
@@ -535,7 +535,7 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -549,7 +549,7 @@
       choiceptr leader_cp;
       int leader_dep_on_stack;
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
@@ -571,11 +571,11 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       if (ans_node == NULL) {
 	/* no answers --> fail */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	goto fail;
       } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
@@ -591,7 +591,7 @@
 #endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  if(TrNode_child(ans_node) != NULL) {
 	    store_loader_node(tab_ent, ans_node);
 	  }
@@ -604,7 +604,7 @@
 	  /* execute compiled code from the trie */
 	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
@@ -630,11 +630,11 @@
     YENV2MEM;
     sg_fr = subgoal_search(PREG, YENV_ADDRESS);
     MEM2YENV;
-    LOCK(SgFr_lock(sg_fr));
+    LOCK_SG_FR(sg_fr);
     if (SgFr_state(sg_fr) == ready) {
       /* subgoal new */
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, NEXTOP(PREG,Otapl));
       PREG = PREG->u.Otapl.d;
       PREFETCH_OP(PREG);
@@ -646,7 +646,7 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       CELL *subs_ptr = YENV;
       init_subgoal_frame(sg_fr);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       SgFr_try_answer(sg_fr) = ans_node;
       store_generator_node(tab_ent, sg_fr, PREG->u.Otapl.s, TRY_ANSWER);
       PREG = (yamop *) CPREG;
@@ -660,7 +660,7 @@
       choiceptr leader_cp;
       int leader_dep_on_stack;
       find_dependency_node(sg_fr, leader_cp, leader_dep_on_stack);
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       find_leader_node(leader_cp, leader_dep_on_stack);
       store_consumer_node(tab_ent, sg_fr, leader_cp, leader_dep_on_stack);
 #ifdef DEBUG_OPTYAP
@@ -682,11 +682,11 @@
       ans_node_ptr ans_node = SgFr_first_answer(sg_fr);
       if (ans_node == NULL) {
 	/* no answers --> fail */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	goto fail;
       } else if (ans_node == SgFr_answer_trie(sg_fr)) {
 	/* yes answer --> procceed */
-	UNLOCK(SgFr_lock(sg_fr));
+	UNLOCK_SG_FR(sg_fr);
 	PREG = (yamop *) CPREG;
 	PREFETCH_OP(PREG);
 	YENV = ENV;
@@ -702,7 +702,7 @@
 #endif /* LIMIT_TABLING */
 	if (IsMode_LoadAnswers(TabEnt_mode(tab_ent))) {
           /* load answers from the trie */
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  if(TrNode_child(ans_node) != NULL) {
 	    store_loader_node(tab_ent, ans_node);
 	  }
@@ -715,7 +715,7 @@
 	  /* execute compiled code from the trie */
 	  if (SgFr_state(sg_fr) < compiled)
 	    update_answer_trie(sg_fr);
-	  UNLOCK(SgFr_lock(sg_fr));
+	  UNLOCK_SG_FR(sg_fr);
 	  PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	  PREFETCH_OP(PREG);
 	  *--YENV = 0;  /* vars_arity */
@@ -999,7 +999,7 @@
       TAG_AS_ANSWER_LEAF_NODE(ans_node);
       UNLOCK_ANSWER_NODE(ans_node);
 #ifndef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
-      LOCK(SgFr_lock(sg_fr));
+      LOCK_SG_FR(sg_fr);
 #endif /* ! ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL */
       if (SgFr_first_answer(sg_fr) == NULL)
 	SgFr_first_answer(sg_fr) = ans_node;
@@ -1015,7 +1015,7 @@
         }
       }
 #endif /* DEBUG_TABLING */
-      UNLOCK(SgFr_lock(sg_fr));
+      UNLOCK_SG_FR(sg_fr);
       if (IS_BATCHED_GEN_CP(gcp)) {
 #ifdef TABLING_EARLY_COMPLETION
 	if (gcp == PROTECT_FROZEN_B(B) && (*subs_ptr == 0 || gcp->cp_ap == COMPLETION)) {
@@ -1087,7 +1087,7 @@
     OPTYAP_ERROR_CHECKING(answer_resolution, SCH_top_shared_cp(B) && B->cp_or_fr->alternative != ANSWER_RESOLUTION);
     OPTYAP_ERROR_CHECKING(answer_resolution, !SCH_top_shared_cp(B) && B->cp_ap != ANSWER_RESOLUTION);
     dep_fr = CONS_CP(B)->cp_dep_fr;
-    LOCK(DepFr_lock(dep_fr));
+    LOCK_DEP_FR(dep_fr);
     ans_node = DepFr_last_answer(dep_fr);
     if (TrNode_child(ans_node)) {
       /* unconsumed answers */
@@ -1104,10 +1104,10 @@
 #endif /* MODE_DIRECTED_TABLING */
 	ans_node = TrNode_child(ans_node);
       DepFr_last_answer(dep_fr) = ans_node;
-      UNLOCK(DepFr_lock(dep_fr));
+      UNLOCK_DEP_FR(dep_fr);
       consume_answer_and_procceed(dep_fr, ans_node);
     }
-    UNLOCK(DepFr_lock(dep_fr));
+    UNLOCK_DEP_FR(dep_fr);
 
 #ifdef YAPOR
     if (B == DepFr_leader_cp(LOCAL_top_dep_fr)) {
@@ -1146,7 +1146,7 @@
       /* check for dependency frames with unconsumed answers */
       dep_fr = DepFr_next(dep_fr);
       while (YOUNGER_CP(DepFr_cons_cp(dep_fr), chain_cp)) {
-        LOCK(DepFr_lock(dep_fr));
+        LOCK_DEP_FR(dep_fr);
         ans_node = DepFr_last_answer(dep_fr);
 	if (TrNode_child(ans_node)) {
           /* dependency frame with unconsumed answers */
@@ -1167,7 +1167,7 @@
           if (YOUNGER_CP(DepFr_backchain_cp(dep_fr), top_chain_cp))
 #endif /* YAPOR */
             DepFr_backchain_cp(dep_fr) = top_chain_cp;
-          UNLOCK(DepFr_lock(dep_fr));
+          UNLOCK_DEP_FR(dep_fr);
 
           chain_cp = DepFr_cons_cp(dep_fr);
 #ifdef YAPOR
@@ -1243,7 +1243,7 @@
           TRAIL_LINK(B->cp_tr);
           consume_answer_and_procceed(dep_fr, ans_node);
 	}
-        UNLOCK(DepFr_lock(dep_fr));
+        UNLOCK_DEP_FR(dep_fr);
         dep_fr = DepFr_next(dep_fr);
       }
 
@@ -1400,7 +1400,7 @@
     /* check for dependency frames with unconsumed answers */
     dep_fr = LOCAL_top_dep_fr;
     while (YOUNGER_CP(DepFr_cons_cp(dep_fr), B)) {
-      LOCK(DepFr_lock(dep_fr));
+      LOCK_DEP_FR(dep_fr);
       ans_node = DepFr_last_answer(dep_fr);
       if (TrNode_child(ans_node)) {
         /* dependency frame with unconsumed answers */
@@ -1428,7 +1428,7 @@
 #endif /* YAPOR */
             DepFr_backchain_cp(dep_fr) = B->cp_b;
 	}
-        UNLOCK(DepFr_lock(dep_fr));
+        UNLOCK_DEP_FR(dep_fr);
 
 #ifdef DEBUG_OPTYAP
         if (GLOBAL_parallel_mode == PARALLEL_MODE_RUNNING) {
@@ -1479,7 +1479,7 @@
           TRAIL_LINK(B->cp_tr);
         consume_answer_and_procceed(dep_fr, ans_node);
       }
-      UNLOCK(DepFr_lock(dep_fr));
+      UNLOCK_DEP_FR(dep_fr);
 #ifdef TIMESTAMP_CHECK
       DepFr_timestamp(dep_fr) = timestamp;
 #endif /* TIMESTAMP_CHECK */
@@ -1569,7 +1569,7 @@
         TR = B->cp_tr;
         SET_BB(B);
         LOCK_OR_FRAME(LOCAL_top_or_fr);
-        LOCK(DepFr_lock(LOCAL_top_dep_fr));
+        LOCK_DEP_FR(LOCAL_top_dep_fr);
         ans_node = DepFr_last_answer(LOCAL_top_dep_fr);
         if (TrNode_child(ans_node)) {
           /* unconsumed answers */
@@ -1587,11 +1587,11 @@
 #endif /* MODE_DIRECTED_TABLING */
 	    ans_node = TrNode_child(ans_node);
           DepFr_last_answer(LOCAL_top_dep_fr) = ans_node;
-          UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
+          UNLOCK_DEP_FR(LOCAL_top_dep_fr);
           consume_answer_and_procceed(LOCAL_top_dep_fr, ans_node);
         }
         /* no unconsumed answers */
-        UNLOCK(DepFr_lock(LOCAL_top_dep_fr));
+        UNLOCK_DEP_FR(LOCAL_top_dep_fr);
         if (OrFr_owners(LOCAL_top_or_fr) > 1) {
           /* more owners -> move up one node */
           Set_LOCAL_top_cp_on_stack( GetOrFr_node(OrFr_next_on_stack(LOCAL_top_or_fr)) );
@@ -1679,10 +1679,10 @@
             GONext();
 	  } else {
 	    /* execute compiled code from the trie */
-	    LOCK(SgFr_lock(sg_fr));
+	    LOCK_SG_FR(sg_fr);
 	    if (SgFr_state(sg_fr) < compiled)
 	      update_answer_trie(sg_fr);
-	    UNLOCK(SgFr_lock(sg_fr));
+	    UNLOCK_SG_FR(sg_fr);
 	    PREG = (yamop *) TrNode_child(SgFr_answer_trie(sg_fr));
 	    PREFETCH_OP(PREG);
 	    *--YENV = 0;  /* vars_arity */
