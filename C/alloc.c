@@ -410,7 +410,7 @@ Yap_KillStacks(int wid)
 }
 #else
 void
-Yap_KillStacks(void)
+Yap_KillStacks(int wid)
 {
   if (LOCAL_GlobalBase) {
     free(LOCAL_GlobalBase);
