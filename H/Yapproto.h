@@ -242,7 +242,7 @@ void    STD_PROTO(Yap_init_yapor_workers, (void));
 #if defined(YAPOR) || defined(THREADS)
 void	STD_PROTO(Yap_KillStacks,(int));
 #else
-void	STD_PROTO(Yap_KillStacks,(void));
+void	STD_PROTO(Yap_KillStacks,(int));
 #endif
 void	STD_PROTO(Yap_InitYaamRegs,(void));
 void    STD_PROTO(Yap_ReInitWallTime, (void));
