@@ -469,7 +469,7 @@ then
   AC_DEFINE(MAX_WORKERS,1)
 else
   AC_DEFINE_UNQUOTED(MAX_WORKERS,$yap_cv_max_workers)
-  if test "$orparallelism" = copy
+  if test "$orparallelism" = copy -o "$orparallelism" = yes
   then
     use_malloc="no"
   fi
@@ -2073,8 +2073,8 @@ AC_SUBST(CHR_TARGETS)
 
 dnl clib
 if test "$ENABLE_CLIB" = ""; then
-CLIB_TARGETS="random.$SO socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO $CRYPT_TARGETS"
-CLIB_PLTARGETS="random.pl socket.pl cgi.pl memfile.pl filesex.pl mime.pl $CRYPT_TARGETS"
+CLIB_TARGETS="socket.$SO cgi.$SO memfile.$SO files.$SO mime.$SO $CRYPT_TARGETS"
+CLIB_PLTARGETS="socket.pl cgi.pl memfile.pl filesex.pl mime.pl $CRYPT_TARGETS"
 
 if test "$ac_cv_func_setitimer" = "yes"; then
   CLIB_TARGETS="$CLIB_TARGETS time.$SO"
