@@ -30,12 +30,12 @@ typedef struct table_entry {
   short execution_mode;  /* combines yap_flags with pred_flags */
 #ifdef MODE_DIRECTED_TABLING
   int* mode_directed_array;
-#endif /*MODE_DIRECTED_TABLING*/
+#endif /* MODE_DIRECTED_TABLING */
 #ifdef THREADS_NO_SHARING
   struct subgoal_trie_node *subgoal_trie[THREADS_FIRST_LEVEL_BUCKETS];
 #else
   struct subgoal_trie_node *subgoal_trie;
-#endif /*THREADS_NO_SHARING */
+#endif /* THREADS_NO_SHARING */
   struct subgoal_trie_hash *hash_chain;
   struct table_entry *next;
 } *tab_ent_ptr;
@@ -52,7 +52,7 @@ typedef struct table_entry {
 //#define TabEnt_subgoal_trie(X,I)  ((X)->subgoal_trie[I])
 #else
 #define TabEnt_subgoal_trie(X)    ((X)->subgoal_trie)
-#endif /*THREADS_NO_SHARING */
+#endif /* THREADS_NO_SHARING */
 #define TabEnt_hash_chain(X)      ((X)->hash_chain)
 #define TabEnt_next(X)            ((X)->next)
 

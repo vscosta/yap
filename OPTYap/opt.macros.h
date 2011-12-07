@@ -280,55 +280,104 @@ extern int Yap_page_size;
         }
 #endif /******************************************************************************/
 
-#define ALLOC_OR_FRAME(STR)            ALLOC_STRUCT(STR, struct or_frame, GLOBAL_pages_or_fr, GLOBAL_pages_void)
-#define FREE_OR_FRAME(STR)             FREE_STRUCT(STR, struct or_frame, GLOBAL_pages_or_fr, GLOBAL_pages_void)
-
-#define ALLOC_QG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, GLOBAL_pages_void)
-#define FREE_QG_SOLUTION_FRAME(STR)    FREE_STRUCT(STR, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, GLOBAL_pages_void)
-
-#define ALLOC_QG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, GLOBAL_pages_void)
-#define FREE_QG_ANSWER_FRAME(STR)      FREE_STRUCT(STR, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, GLOBAL_pages_void)
-
-#define ALLOC_TG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, GLOBAL_pages_void)
-#define FREE_TG_SOLUTION_FRAME(STR)    FREE_STRUCT(STR, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, GLOBAL_pages_void)
-
-#define ALLOC_TG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, GLOBAL_pages_void)
-#define FREE_TG_ANSWER_FRAME(STR)      FREE_STRUCT(STR, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, GLOBAL_pages_void)
 
 #define ALLOC_TABLE_ENTRY(STR)         ALLOC_STRUCT(STR, struct table_entry, GLOBAL_pages_tab_ent, GLOBAL_pages_void)
-#define FREE_TABLE_ENTRY(STR)          FREE_STRUCT(STR, struct table_entry, GLOBAL_pages_tab_ent, GLOBAL_pages_void)
+#define FREE_TABLE_ENTRY(STR)           FREE_STRUCT(STR, struct table_entry, GLOBAL_pages_tab_ent, GLOBAL_pages_void)
 
+#define ALLOC_SUBGOAL_ENTRY(STR)       ALLOC_STRUCT(STR, struct subgoal_entry, GLOBAL_pages_sg_ent, GLOBAL_pages_void)
+#define FREE_SUBGOAL_ENTRY(STR)         FREE_STRUCT(STR, struct subgoal_entry, GLOBAL_pages_sg_ent, GLOBAL_pages_void)
+
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
 #define ALLOC_SUBGOAL_FRAME(STR)       ALLOC_STRUCT(STR, struct subgoal_frame, GLOBAL_pages_sg_fr, GLOBAL_pages_void)
-#define FREE_SUBGOAL_FRAME(STR)        FREE_STRUCT(STR, struct subgoal_frame, GLOBAL_pages_sg_fr, GLOBAL_pages_void)
+#define FREE_SUBGOAL_FRAME(STR)         FREE_STRUCT(STR, struct subgoal_frame, GLOBAL_pages_sg_fr, GLOBAL_pages_void)
+#else
+#define ALLOC_SUBGOAL_FRAME(STR)       ALLOC_STRUCT(STR, struct subgoal_frame, LOCAL_pages_sg_fr, LOCAL_pages_void)
+#define FREE_SUBGOAL_FRAME(STR)         FREE_STRUCT(STR, struct subgoal_frame, LOCAL_pages_sg_fr, LOCAL_pages_void)
+#endif
 
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
 #define ALLOC_DEPENDENCY_FRAME(STR)    ALLOC_STRUCT(STR, struct dependency_frame, GLOBAL_pages_dep_fr, GLOBAL_pages_void)
-#define FREE_DEPENDENCY_FRAME(STR)     FREE_STRUCT(STR, struct dependency_frame, GLOBAL_pages_dep_fr, GLOBAL_pages_void)
+#define FREE_DEPENDENCY_FRAME(STR)      FREE_STRUCT(STR, struct dependency_frame, GLOBAL_pages_dep_fr, GLOBAL_pages_void)
+#else
+#define ALLOC_DEPENDENCY_FRAME(STR)    ALLOC_STRUCT(STR, struct dependency_frame, LOCAL_pages_dep_fr, LOCAL_pages_void)
+#define FREE_DEPENDENCY_FRAME(STR)      FREE_STRUCT(STR, struct dependency_frame, LOCAL_pages_dep_fr, LOCAL_pages_void)
+#endif
 
-#define ALLOC_SUSPENSION_FRAME(STR)    ALLOC_STRUCT(STR, struct suspension_frame, GLOBAL_pages_susp_fr, GLOBAL_pages_void)
-#define FREE_SUSPENSION_FRAME(STR)     FREE_BLOCK(SuspFr_global_start(STR));                                          \
-                                       FREE_STRUCT(STR, struct suspension_frame, GLOBAL_pages_susp_fr, GLOBAL_pages_void)
+#if !defined(THREADS_NO_SHARING)
+#if defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define ALLOC_SUBGOAL_TRIE_NODE(STR)   LOCAL_NEXT_ALLOC_STRUCT(STR, LOCAL_next_free_sg_node, struct subgoal_trie_node, GLOBAL_pages_sg_node, GLOBAL_pages_void)
+#else
+#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_node, GLOBAL_pages_sg_node, GLOBAL_pages_void)
+#endif
+#define FREE_SUBGOAL_TRIE_NODE(STR)     FREE_STRUCT(STR, struct subgoal_trie_node, GLOBAL_pages_sg_node, GLOBAL_pages_void)
+#else
+#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_node, LOCAL_pages_sg_node, LOCAL_pages_void)
+#define FREE_SUBGOAL_TRIE_NODE(STR)     FREE_STRUCT(STR, struct subgoal_trie_node, LOCAL_pages_sg_node, LOCAL_pages_void)
+#endif
+
+#if !defined(THREADS_NO_SHARING)
+#if defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define ALLOC_SUBGOAL_TRIE_HASH(STR)   LOCAL_NEXT_ALLOC_STRUCT(STR, LOCAL_next_free_sg_hash, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, GLOBAL_pages_void)
+#else
+#define ALLOC_SUBGOAL_TRIE_HASH(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, GLOBAL_pages_void)
+#endif
+#define FREE_SUBGOAL_TRIE_HASH(STR)     FREE_STRUCT(STR, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, GLOBAL_pages_void)
+#else
+#define ALLOC_SUBGOAL_TRIE_HASH(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_hash, LOCAL_pages_sg_hash, LOCAL_pages_void)
+#define FREE_SUBGOAL_TRIE_HASH(STR)     FREE_STRUCT(STR, struct subgoal_trie_hash, LOCAL_pages_sg_hash, LOCAL_pages_void)
+#endif
+
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define ALLOC_ANSWER_TRIE_NODE(STR)    LOCAL_NEXT_ALLOC_STRUCT(STR, LOCAL_next_free_ans_node, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
+#else
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
+#endif
+#define FREE_ANSWER_TRIE_NODE(STR)      FREE_STRUCT(STR, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
+#else
+#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, struct answer_trie_node, LOCAL_pages_ans_node, LOCAL_pages_void)
+#define FREE_ANSWER_TRIE_NODE(STR)      FREE_STRUCT(STR, struct answer_trie_node, LOCAL_pages_ans_node, LOCAL_pages_void)
+#endif
+
+#if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define ALLOC_ANSWER_TRIE_HASH(STR)    LOCAL_NEXT_ALLOC_STRUCT(STR, LOCAL_next_free_ans_hash, struct answer_trie_hash, GLOBAL_pages_ans_hash, GLOBAL_pages_void)
+#else
+#define ALLOC_ANSWER_TRIE_HASH(STR)    ALLOC_STRUCT(STR, struct answer_trie_hash, GLOBAL_pages_ans_hash, GLOBAL_pages_void)
+#endif
+#define FREE_ANSWER_TRIE_HASH(STR)      FREE_STRUCT(STR, struct answer_trie_hash, GLOBAL_pages_ans_hash, GLOBAL_pages_void)
+#else
+#define ALLOC_ANSWER_TRIE_HASH(STR)    ALLOC_STRUCT(STR, struct answer_trie_hash, LOCAL_pages_ans_hash, LOCAL_pages_void)
+#define FREE_ANSWER_TRIE_HASH(STR)      FREE_STRUCT(STR, struct answer_trie_hash, LOCAL_pages_ans_hash, LOCAL_pages_void)
+#endif
+
+#define ALLOC_ANSWER_REF_NODE(STR)    ALLOC_STRUCT(STR, struct answer_ref_node, LOCAL_pages_ans_ref_node, LOCAL_pages_void)
+#define FREE_ANSWER_REF_NODE(STR)      FREE_STRUCT(STR, struct answer_ref_node, LOCAL_pages_ans_ref_node, LOCAL_pages_void)
 
 #define ALLOC_GLOBAL_TRIE_NODE(STR)    ALLOC_STRUCT(STR, struct global_trie_node, GLOBAL_pages_gt_node, GLOBAL_pages_void)
-#define FREE_GLOBAL_TRIE_NODE(STR)     FREE_STRUCT(STR, struct global_trie_node, GLOBAL_pages_gt_node, GLOBAL_pages_void)
-
-#define ALLOC_SUBGOAL_TRIE_NODE(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_node, GLOBAL_pages_sg_node, GLOBAL_pages_void)
-#define FREE_SUBGOAL_TRIE_NODE(STR)    FREE_STRUCT(STR, struct subgoal_trie_node, GLOBAL_pages_sg_node, GLOBAL_pages_void)
-
-#ifdef YAPOR
-#define ALLOC_ANSWER_TRIE_NODE(STR)    LOCAL_NEXT_ALLOC_STRUCT(STR, LOCAL_next_free_ans_node, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
-#else /* TABLING */
-#define ALLOC_ANSWER_TRIE_NODE(STR)    ALLOC_STRUCT(STR, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
-#endif /* YAPOR - TABLING */
-#define FREE_ANSWER_TRIE_NODE(STR)     FREE_STRUCT(STR, struct answer_trie_node, GLOBAL_pages_ans_node, GLOBAL_pages_void)
+#define FREE_GLOBAL_TRIE_NODE(STR)      FREE_STRUCT(STR, struct global_trie_node, GLOBAL_pages_gt_node, GLOBAL_pages_void)
 
 #define ALLOC_GLOBAL_TRIE_HASH(STR)    ALLOC_STRUCT(STR, struct global_trie_hash, GLOBAL_pages_gt_hash, GLOBAL_pages_void)
-#define FREE_GLOBAL_TRIE_HASH(STR)     FREE_STRUCT(STR, struct global_trie_hash, GLOBAL_pages_gt_hash, GLOBAL_pages_void)
+#define FREE_GLOBAL_TRIE_HASH(STR)      FREE_STRUCT(STR, struct global_trie_hash, GLOBAL_pages_gt_hash, GLOBAL_pages_void)
 
-#define ALLOC_SUBGOAL_TRIE_HASH(STR)   ALLOC_STRUCT(STR, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, GLOBAL_pages_void)
-#define FREE_SUBGOAL_TRIE_HASH(STR)    FREE_STRUCT(STR, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, GLOBAL_pages_void)
+#define ALLOC_OR_FRAME(STR)            ALLOC_STRUCT(STR, struct or_frame, GLOBAL_pages_or_fr, GLOBAL_pages_void)
+#define FREE_OR_FRAME(STR)              FREE_STRUCT(STR, struct or_frame, GLOBAL_pages_or_fr, GLOBAL_pages_void)
 
-#define ALLOC_ANSWER_TRIE_HASH(STR)    ALLOC_STRUCT(STR, struct answer_trie_hash, GLOBAL_pages_ans_hash, GLOBAL_pages_void)
-#define FREE_ANSWER_TRIE_HASH(STR)     FREE_STRUCT(STR, struct answer_trie_hash, GLOBAL_pages_ans_hash, GLOBAL_pages_void)
+#define ALLOC_QG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, GLOBAL_pages_void)
+#define FREE_QG_SOLUTION_FRAME(STR)     FREE_STRUCT(STR, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, GLOBAL_pages_void)
+
+#define ALLOC_QG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, GLOBAL_pages_void)
+#define FREE_QG_ANSWER_FRAME(STR)       FREE_STRUCT(STR, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, GLOBAL_pages_void)
+
+#define ALLOC_SUSPENSION_FRAME(STR)    ALLOC_STRUCT(STR, struct suspension_frame, GLOBAL_pages_susp_fr, GLOBAL_pages_void)
+#define FREE_SUSPENSION_FRAME(STR)      FREE_BLOCK(SuspFr_global_start(STR));                                            \
+                                        FREE_STRUCT(STR, struct suspension_frame, GLOBAL_pages_susp_fr, GLOBAL_pages_void)
+
+#define ALLOC_TG_SOLUTION_FRAME(STR)   ALLOC_STRUCT(STR, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, GLOBAL_pages_void)
+#define FREE_TG_SOLUTION_FRAME(STR)     FREE_STRUCT(STR, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, GLOBAL_pages_void)
+
+#define ALLOC_TG_ANSWER_FRAME(STR)     ALLOC_STRUCT(STR, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, GLOBAL_pages_void)
+#define FREE_TG_ANSWER_FRAME(STR)       FREE_STRUCT(STR, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, GLOBAL_pages_void)
 
 
 

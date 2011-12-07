@@ -64,6 +64,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent
 #else
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node, Term t) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+  CACHE_REGS
   sg_node_ptr child_node;
 
   LOCK_SUBGOAL_NODE(parent_node);
@@ -358,6 +359,7 @@ static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, an
 #else
 static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node, Term t, int instr) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+  CACHE_REGS
   ans_node_ptr child_node;
 
   TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));

@@ -1246,6 +1246,8 @@ void update_answer_trie(sg_fr_ptr sg_fr) {
 
 
 void free_subgoal_trie(sg_node_ptr current_node, int mode, int position) {
+  CACHE_REGS
+
   if (! IS_SUBGOAL_LEAF_NODE(current_node)) {
     int child_mode;
     if (mode == TRAVERSE_MODE_NORMAL) {
@@ -1315,6 +1317,8 @@ void free_subgoal_trie(sg_node_ptr current_node, int mode, int position) {
 
 
 void free_answer_trie(ans_node_ptr current_node, int mode, int position) {
+  CACHE_REGS
+
 #ifdef TABLING_INNER_CUTS
   if (! IS_ANSWER_LEAF_NODE(current_node) && TrNode_child(current_node)) {
 #else
@@ -1363,6 +1367,8 @@ void free_answer_trie(ans_node_ptr current_node, int mode, int position) {
 
 
 void free_subgoal_hash_chain(sg_hash_ptr hash) {
+  CACHE_REGS
+
   while (hash) {
     sg_node_ptr chain_node, *bucket, *last_bucket;
     sg_hash_ptr next_hash;
@@ -1391,6 +1397,8 @@ void free_subgoal_hash_chain(sg_hash_ptr hash) {
 
 
 void free_answer_hash_chain(ans_hash_ptr hash) {
+  CACHE_REGS
+
   while (hash) {
     ans_node_ptr chain_node, *bucket, *last_bucket;
     ans_hash_ptr next_hash;
