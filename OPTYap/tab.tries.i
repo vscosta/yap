@@ -1388,6 +1388,7 @@ static inline ans_node_ptr answer_search_loop(sg_fr_ptr sg_fr, ans_node_ptr curr
 	}
 
 static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr current_node, Term t, int mode) {
+  CACHE_REGS
   ans_node_ptr child_node;
   Term child_term;
   Float trie_value, term_value;
@@ -1486,6 +1487,8 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
         SgFr_invalid_chain(SG_FR) = NODE
 
 static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, int position) {
+  CACHE_REGS
+
   if (IS_ANSWER_TRIE_HASH(current_node)) {
     ans_hash_ptr hash;
     ans_node_ptr *bucket, *last_bucket;

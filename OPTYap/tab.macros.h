@@ -606,6 +606,7 @@ static inline void adjust_freeze_registers(void) {
 
 
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
+  CACHE_REGS
   LOCK_SG_FR(sg_fr);
   SgFr_state(sg_fr) = complete;
   UNLOCK_SG_FR(sg_fr);
