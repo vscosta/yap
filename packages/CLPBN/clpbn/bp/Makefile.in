@@ -26,10 +26,7 @@ CXX=@CXX@
 CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -g -O0
-
-# profiling (callgrind)
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -g -DNDEBUG
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../../.. -I$(srcdir)/../../../../include @CPPFLAGS@ -g -O0 -Wextra
 
 
 #
@@ -49,33 +46,37 @@ CWD=$(PWD)
 
 HEADERS = \
 	$(srcdir)/GraphicalModel.h \
-	$(srcdir)/Variable.h \
+	$(srcdir)/VarNode.h \
 	$(srcdir)/Distribution.h \
 	$(srcdir)/BayesNet.h \
 	$(srcdir)/BayesNode.h \
-	$(srcdir)/LiftedFG.h \
+	$(srcdir)/ElimGraph.h \
+	$(srcdir)/CFactorGraph.h \
 	$(srcdir)/CptEntry.h \
 	$(srcdir)/FactorGraph.h \
-	$(srcdir)/FgVarNode.h \
 	$(srcdir)/Factor.h \
 	$(srcdir)/Solver.h \
-	$(srcdir)/BPSolver.h \
-	$(srcdir)/BPNodeInfo.h \
-	$(srcdir)/SPSolver.h \
-  	$(srcdir)/CountingBP.h \
+	$(srcdir)/VarElimSolver.h \
+	$(srcdir)/BnBpSolver.h \
+	$(srcdir)/FgBpSolver.h \
+	$(srcdir)/CbpSolver.h \
 	$(srcdir)/Shared.h \
+	$(srcdir)/StatesIndexer.h \
 	$(srcdir)/xmlParser/xmlParser.h
 	
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesNode.cpp \
+	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/FactorGraph.cpp \
 	$(srcdir)/Factor.cpp \
-	$(srcdir)/LiftedFG.cpp \
-	$(srcdir)/BPSolver.cpp \
-	$(srcdir)/BPNodeInfo.cpp \
-	$(srcdir)/SPSolver.cpp \
-	$(srcdir)/CountingBP.cpp \
+	$(srcdir)/CFactorGraph.cpp \
+	$(srcdir)/VarNode.cpp \
+	$(srcdir)/Solver.cpp \
+	$(srcdir)/VarElimSolver.cpp \
+	$(srcdir)/BnBpSolver.cpp \
+	$(srcdir)/FgBpSolver.cpp \
+	$(srcdir)/CbpSolver.cpp \
 	$(srcdir)/Util.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/HorusCli.cpp \
@@ -84,29 +85,35 @@ CPP_SOURCES = \
 OBJS = \
 	BayesNet.o \
 	BayesNode.o \
+	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
-	BPSolver.o \
-	BPNodeInfo.o \
-	SPSolver.o \
+	CFactorGraph.o \
+	VarNode.o \
+	Solver.o \
+	VarElimSolver.o \
+	BnBpSolver.o \
+	FgBpSolver.o \
+	CbpSolver.o \
 	Util.o \
-	LiftedFG.o \
-	CountingBP.o \
 	HorusYap.o
 
 HCLI_OBJS = \
 	BayesNet.o \
 	BayesNode.o \
+	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
-	BPSolver.o \
-  BPNodeInfo.o \
-	SPSolver.o \
+	CFactorGraph.o \
+	VarNode.o \
+	Solver.o \
+	VarElimSolver.o \
+	BnBpSolver.o \
+	FgBpSolver.o \
+	CbpSolver.o \
 	Util.o \
-	LiftedFG.o \
-	CountingBP.o \
-	HorusCli.o \
-	xmlParser/xmlParser.o
+	xmlParser/xmlParser.o \
+	HorusCli.o
 
 SOBJS=horus.@SO@
 
@@ -118,7 +125,7 @@ all: $(SOBJS) hcli
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
-xmlParser/xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
+xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
