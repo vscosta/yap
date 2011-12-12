@@ -63,7 +63,7 @@ HEADERS = \
 	$(srcdir)/Shared.h \
 	$(srcdir)/StatesIndexer.h \
 	$(srcdir)/xmlParser/xmlParser.h
-	
+
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesNode.cpp \
@@ -125,7 +125,7 @@ all: $(SOBJS) hcli
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
-xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
+xmlParser/xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 

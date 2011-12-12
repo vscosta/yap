@@ -1,34 +1,30 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <iomanip>
 #include <iostream>
 #include <sstream>
-#include <iomanip>
 
 #include "BayesNode.h"
 
 
-BayesNode::BayesNode (Vid vid,
+BayesNode::BayesNode (VarId vid,
                       unsigned dsize,
                       int evidence,
-                      const BnNodeSet& parents,
-                      Distribution* dist) : Variable (vid, dsize, evidence)
+                      Distribution* dist) 
+    : VarNode (vid, dsize, evidence)
 {
-  parents_  = parents;
-  dist_     = dist;
-  for (unsigned int i = 0; i < parents.size(); i++) {
-    parents[i]->addChild (this);
-  }
+  dist_ = dist;
 }
 
 
 
-BayesNode::BayesNode (Vid vid,
-                      string label,
-                      const Domain& domain,
+BayesNode::BayesNode (VarId vid,
+                      unsigned dsize,
+                      int evidence,
                       const BnNodeSet& parents,
-                      Distribution* dist) : Variable (vid, domain,
-                                                      NO_EVIDENCE, label)
+                      Distribution* dist) 
+    : VarNode (vid, dsize, evidence)
 {
   parents_  = parents;
   dist_     = dist;
@@ -40,18 +36,12 @@ BayesNode::BayesNode (Vid vid,
 
 
 void
-BayesNode::setData (unsigned dsize,
-                    int evidence,
-                    const BnNodeSet& parents,
-                    Distribution* dist)
+BayesNode::setParents (const BnNodeSet& parents)
 {
-  setDomainSize (dsize);
-  setEvidence (evidence);
-  parents_   = parents;
-  dist_      = dist;
+  parents_ = parents;
   for (unsigned int i = 0; i < parents.size(); i++) {
     parents[i]->addChild (this);
-  } 
+  }
 }
 
 
@@ -60,6 +50,15 @@ void
 BayesNode::addChild (BayesNode* node)
 {
   childs_.push_back (node);
+}
+
+
+
+void
+BayesNode::setDistribution (Distribution* dist)
+{
+  assert (dist);
+  dist_ = dist;
 }
 
 
@@ -140,14 +139,14 @@ BayesNode::getCptEntries (void)
     for (int i = parents_.size() - 1; i >= 0; i--) {
       unsigned index = 0;
       while (index < rowSize) {
-        for (unsigned j = 0; j < parents_[i]->getDomainSize(); j++) {
+        for (unsigned j = 0; j < parents_[i]->nrStates(); j++) {
           for (unsigned r = 0; r < nReps; r++) {
             confs[index][i] = j;
             index++;
           }
         }
       }
-      nReps *= parents_[i]->getDomainSize();
+      nReps *= parents_[i]->nrStates();
     }
   
     dist_->entries.reserve (rowSize);
@@ -180,14 +179,14 @@ BayesNode::cptEntryToString (const CptEntry& entry) const
   ss << "p(" ;
   const DConf& conf = entry.getDomainConfiguration();
   int row = entry.getParameterIndex() / getRowSize();
-  ss << getDomain()[row]; 
+  ss << states()[row]; 
   if (parents_.size() > 0) {
     ss << "|" ;
     for (unsigned int i = 0; i < conf.size(); i++) {
       if (i != 0) {
         ss << ",";
       }
-      ss << parents_[i]->getDomain()[conf[i]];
+      ss << parents_[i]->states()[conf[i]];
     }
   }
   ss << ")" ;
@@ -202,14 +201,14 @@ BayesNode::cptEntryToString (int row, const CptEntry& entry) const
   stringstream ss;
   ss << "p(" ;
   const DConf& conf = entry.getDomainConfiguration();
-  ss << getDomain()[row]; 
+  ss << states()[row]; 
   if (parents_.size() > 0) {
     ss << "|" ;
     for (unsigned int i = 0; i < conf.size(); i++) {
       if (i != 0) {
         ss << ",";
       }
-      ss << parents_[i]->getDomain()[conf[i]];
+      ss << parents_[i]->states()[conf[i]];
     }
   }
   ss << ")" ;
@@ -226,21 +225,21 @@ BayesNode::getDomainHeaders (void) const
   unsigned nReps     = 1;
   vector<string> headers (rowSize);
   for (int i = nParents - 1; i >= 0; i--) {
-    Domain domain = parents_[i]->getDomain();
+    States states = parents_[i]->states();
     unsigned index = 0;
     while (index < rowSize) {
-      for (unsigned j = 0; j < parents_[i]->getDomainSize(); j++) {
+      for (unsigned j = 0; j < parents_[i]->nrStates(); j++) {
         for (unsigned r = 0; r < nReps; r++) {
           if (headers[index] != "") {
-            headers[index] = domain[j] + "," + headers[index];
+            headers[index] = states[j] + "," + headers[index];
           } else {
-            headers[index] = domain[j];
+            headers[index] = states[j];
           }
           index++;
         }
       }
     }
-    nReps *= parents_[i]->getDomainSize();
+    nReps *= parents_[i]->nrStates();
   }
   return headers;
 }
@@ -251,8 +250,8 @@ ostream&
 operator << (ostream& o, const BayesNode& node)
 {
   o << "variable " << node.getIndex() << endl;
-  o << "Var Id:   " << node.getVarId() << endl;
-  o << "Label:    " << node.getLabel() << endl;
+  o << "Var Id:   " << node.varId() << endl;
+  o << "Label:    " << node.label() << endl;
   
   o << "Evidence: " ;
   if (node.hasEvidence()) {
@@ -267,9 +266,9 @@ operator << (ostream& o, const BayesNode& node)
   const BnNodeSet& parents = node.getParents();
   if (parents.size() != 0) {
     for (unsigned int i = 0; i < parents.size() - 1; i++) {
-      o << parents[i]->getLabel() << ", " ;
+      o << parents[i]->label() << ", " ;
     }
-    o << parents[parents.size() - 1]->getLabel();
+    o << parents[parents.size() - 1]->label();
   }
   o << endl;
   
@@ -277,19 +276,19 @@ operator << (ostream& o, const BayesNode& node)
   const BnNodeSet& childs = node.getChilds();
   if (childs.size() != 0) {
     for (unsigned int i = 0; i < childs.size() - 1; i++) {
-      o << childs[i]->getLabel() << ", " ;
+      o << childs[i]->label() << ", " ;
     }
-    o << childs[childs.size() - 1]->getLabel();
+    o << childs[childs.size() - 1]->label();
   }
   o << endl;
 
   o << "Domain:   " ;
-  Domain domain = node.getDomain();
-  for (unsigned int i = 0; i < domain.size() - 1; i++) {
-    o << domain[i] << ", " ;
+  States states = node.states();
+  for (unsigned int i = 0; i < states.size() - 1; i++) {
+    o << states[i] << ", " ;
   }
-  if (domain.size() != 0) {
-    o << domain[domain.size() - 1];
+  if (states.size() != 0) {
+    o << states[states.size() - 1];
   }
   o << endl;
 
@@ -298,10 +297,10 @@ operator << (ostream& o, const BayesNode& node)
   // min width of following columns
   const unsigned int MIN_COMBO_WIDTH = 12;
 
-  unsigned int domainWidth = domain[0].length();
-  for (unsigned int i = 1; i < domain.size(); i++) {
-    if (domain[i].length() > domainWidth) {
-      domainWidth = domain[i].length();
+  unsigned int domainWidth = states[0].length();
+  for (unsigned int i = 1; i < states.size(); i++) {
+    if (states[i].length() > domainWidth) {
+      domainWidth = states[i].length();
     }
   }
   domainWidth = (domainWidth < MIN_DOMAIN_WIDTH) 
@@ -334,9 +333,9 @@ operator << (ostream& o, const BayesNode& node)
   }
   o << endl;
 
-  for (unsigned int i = 0; i < domain.size(); i++) {   
+  for (unsigned int i = 0; i < states.size(); i++) {   
     ParamSet row = node.getRow (i);
-    o << left << setw (domainWidth) << domain[i] << right;
+    o << left << setw (domainWidth) << states[i] << right;
     for (unsigned j = 0; j < node.getRowSize(); j++) {
       o << setw (widths[j]) << row[j];
     }

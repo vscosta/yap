@@ -1,9 +1,9 @@
-#ifndef BP_BAYES_NODE_H
-#define BP_BAYES_NODE_H
+#ifndef HORUS_BAYESNODE_H
+#define HORUS_BAYESNODE_H
 
 #include <vector>
 
-#include "Variable.h"
+#include "VarNode.h"
 #include "CptEntry.h"
 #include "Distribution.h"
 #include "Shared.h"
@@ -11,16 +11,16 @@
 using namespace std;
 
 
-class BayesNode : public Variable
+class BayesNode : public VarNode
 {
   public:
-    BayesNode (Vid vid) : Variable (vid) {}
-    BayesNode (Vid, unsigned, int, const BnNodeSet&, Distribution*);
-    BayesNode (Vid, string, const Domain&, const BnNodeSet&, Distribution*);
+    BayesNode (const VarNode& v) : VarNode (v) {}
+    BayesNode (VarId, unsigned, int, Distribution*);
+    BayesNode (VarId, unsigned, int, const BnNodeSet&, Distribution*);
 
-    void                     setData (unsigned, int, const BnNodeSet&,
-                                      Distribution*);
+    void                     setParents (const BnNodeSet&);
     void                     addChild (BayesNode*);
+    void                     setDistribution (Distribution*);
     Distribution*            getDistribution (void);
     const ParamSet&          getParameters (void);
     ParamSet                 getRow (int) const;
@@ -34,12 +34,12 @@ class BayesNode : public Variable
     string                   cptEntryToString (const CptEntry&) const;
     string                   cptEntryToString (int, const CptEntry&) const;
 
-    const BnNodeSet& getParents (void) const { return parents_; }
-    const BnNodeSet& getChilds (void) const  { return childs_; }
+    const BnNodeSet& getParents (void) const  { return parents_; }
+    const BnNodeSet& getChilds  (void) const  { return childs_;  }
 
     unsigned getRowSize (void) const
     { 
-      return dist_->params.size() / getDomainSize();
+      return dist_->params.size() / nrStates();
     }
 
     double getProbability (int row, const CptEntry& entry)
@@ -52,7 +52,7 @@ class BayesNode : public Variable
   private:
     DISALLOW_COPY_AND_ASSIGN (BayesNode);
 
-    Domain                   getDomainHeaders (void) const;
+    States                   getDomainHeaders (void) const;
     friend ostream&          operator << (ostream&, const BayesNode&);
 
     BnNodeSet                parents_;
@@ -62,5 +62,5 @@ class BayesNode : public Variable
 
 ostream& operator << (ostream&, const BayesNode&);
 
-#endif //BP_BAYES_NODE_H
+#endif // HORUS_BAYESNODE_H
 
