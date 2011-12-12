@@ -1,5 +1,5 @@
-#ifndef BP_CPT_ENTRY_H
-#define BP_CPT_ENTRY_H
+#ifndef HORUS_CPTENTRY_H
+#define HORUS_CPTENTRY_H
 
 #include <vector>
 
@@ -39,5 +39,5 @@ class CptEntry
     DConf      conf_;
 };
 
-#endif //BP_CPT_ENTRY_H
+#endif // HORUS_CPTENTRY_H
 

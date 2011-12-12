@@ -1,48 +1,69 @@
-#ifndef BP_FACTOR_H
-#define BP_FACTOR_H
+#ifndef HORUS_FACTOR_H
+#define HORUS_FACTOR_H
 
 #include <vector>
 
 #include "Distribution.h"
 #include "CptEntry.h"
+#include "VarNode.h"
+
 
 using namespace std;
 
-class FgVarNode;
 class Distribution;
+
 
 class Factor
 {
   public:
     Factor (void) { }
     Factor (const Factor&);
-    Factor (FgVarNode*);
-    Factor (CFgVarSet);
-    Factor (FgVarNode*, const ParamSet&);
-    Factor (FgVarSet&, Distribution*);
-    Factor (CFgVarSet, CParamSet);
+    Factor (VarId, unsigned);
+    Factor (const VarNodes&);
+    Factor (VarId, unsigned, const ParamSet&);
+    Factor (VarNodes&, Distribution*);
+    Factor (const VarNodes&, const ParamSet&);
+    Factor (const VarIdSet&, const Ranges&, const ParamSet&);
 
-    void      setParameters (CParamSet);
-    void      copyFactor (const Factor& f);
-    void      multiplyByFactor (const Factor& f, const vector<CptEntry>* = 0);
-    void      insertVariable (FgVarNode* index);
-    void      removeVariable (const FgVarNode* var);
-    const vector<CptEntry>& getCptEntries (void) const;
+    void      setParameters (const ParamSet&);
+    void      copyFromFactor (const Factor& f);
+    void      multiplyByFactor (const Factor&, const vector<CptEntry>* = 0);
+    void      insertVariable (VarId, unsigned);
+    void      removeAllVariablesExcept (VarId);
+    void      removeVariable (VarId);
+    void      removeFirstVariable (void);
+    void      removeLastVariable (void);
+    void      orderVariables (void);
+    void      orderVariables (const VarIdSet&);
+    void      removeInconsistentEntries (VarId, unsigned);
     string    getLabel (void) const;
-    void      printFactor (void);
+    void      printFactor (void) const;
+    int       getPositionOf (VarId) const;
+    const vector<CptEntry>& getCptEntries (void) const;
 
-    CFgVarSet getFgVarNodes (void) const        { return vars_; }
-    CParamSet getParameters (void) const        { return dist_->params; }
-    Distribution* getDistribution (void) const  { return dist_; }
-    unsigned getIndex (void) const              { return index_; }
-    void setIndex (unsigned index)              { index_ = index; }
-    void freeDistribution (void)                { delete dist_; dist_ = 0;}
-    int                       getIndexOf (const FgVarNode*) const;
+    const VarIdSet&  getVarIds (void) const        { return varids_; }
+    const Ranges&    getRanges (void) const        { return ranges_; }
+    const ParamSet&  getParameters (void) const    { return dist_->params; }
+    Distribution*    getDistribution (void) const  { return dist_; }
+    unsigned     nrVariables (void) const     { return varids_.size(); }
+    unsigned     nrParameters() const         { return dist_->params.size(); }
+
+    void setDistribution (Distribution* dist)
+    { 
+      dist_ = dist;
+    }
+    void freeDistribution (void) 
+    {
+      delete dist_;
+      dist_ = 0;
+    }
 
   private:
-    FgVarSet                  vars_;
-    Distribution*             dist_;
-    unsigned                  index_;
+
+    VarIdSet         varids_;
+    Ranges         ranges_;
+    Distribution*  dist_;
 };
 
-#endif //BP_FACTOR_H
+#endif // HORUS_FACTOR_H
+
