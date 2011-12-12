@@ -344,7 +344,6 @@
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
-#undef MODE_DIRECTED_TABLING
 #undef TABLING_EARLY_COMPLETION
 #undef INCOMPLETE_TABLING
 #undef LIMIT_TABLING
