@@ -148,9 +148,7 @@ typedef struct global_trie_hash {
 
 #define Hash_mark(X)         ((X)->mark)
 #define Hash_num_buckets(X)  ((X)->number_of_buckets)
-#define Hash_seed(X)         ((X)->number_of_buckets - 1)
 #define Hash_buckets(X)      ((X)->buckets)
-#define Hash_bucket(X,N)     ((X)->buckets + N)
 #define Hash_num_nodes(X)    ((X)->number_of_nodes)
 #define Hash_previous(X)     ((X)->previous)
 #define Hash_next(X)         ((X)->next)
