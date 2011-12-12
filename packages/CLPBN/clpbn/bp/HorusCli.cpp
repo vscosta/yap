@@ -5,15 +5,18 @@
 
 #include "BayesNet.h"
 #include "FactorGraph.h"
-#include "SPSolver.h"
-#include "BPSolver.h"
-#include "CountingBP.h"
+#include "VarElimSolver.h"
+#include "BnBpSolver.h"
+#include "FgBpSolver.h"
+#include "CbpSolver.h"
+
+#include "StatesIndexer.h"
 
 using namespace std;
 
-void BayesianNetwork (int, const char* []);
-void markovNetwork (int, const char* []);
-void runSolver (Solver*, const VarSet&);
+void processArguments (BayesNet&, int, const char* []);
+void processArguments (FactorGraph&, int, const char* []);
+void runSolver (Solver*, const VarNodes&);
 
 const string USAGE = "usage: \
 ./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
@@ -21,33 +24,7 @@ const string USAGE = "usage: \
 
 int
 main (int argc, const char* argv[])
-{ 
-  /*
-  FactorGraph fg;
-  FgVarNode* varNode1 = new FgVarNode (0, 2);
-  FgVarNode* varNode2 = new FgVarNode (1, 2);
-  FgVarNode* varNode3 = new FgVarNode (2, 2);
-  fg.addVariable (varNode1);
-  fg.addVariable (varNode2);
-  fg.addVariable (varNode3);
-  Distribution* dist = new Distribution (ParamSet() = {1.2, 1.4, 2.0, 0.4});
-  fg.addFactor (new Factor (FgVarSet() = {varNode1, varNode2}, dist));
-  fg.addFactor (new Factor (FgVarSet() = {varNode3, varNode2}, dist));
-  //fg.printGraphicalModel();
-  //SPSolver sp (fg);
-  //sp.runSolver();
-  //sp.printAllPosterioris();
-  //ParamSet p = sp.getJointDistributionOf (VidSet() = {0, 1, 2});
-  //cout << Util::parametersToString (p) << endl;
-  CountingBP cbp (fg);
-  //cbp.runSolver();
-  //cbp.printAllPosterioris();
-  ParamSet p2 = cbp.getJointDistributionOf (VidSet() = {0, 1, 2});
-  cout << Util::parametersToString (p2) << endl;
-  fg.freeDistributions();
-  Statistics::printCompressingStats ("compressing.stats");
-  return 0;
-  */
+{
   if (!argv[1]) {
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
@@ -56,12 +33,20 @@ main (int argc, const char* argv[])
   const string& fileName  = argv[1];
   const string& extension = fileName.substr (fileName.find_last_of ('.') + 1);
   if (extension == "xml") {
-    BayesianNetwork (argc, argv);
+    BayesNet bn;
+    bn.readFromBifFormat (argv[1]);
+    processArguments (bn, argc, argv);
   } else if (extension == "uai") {
-    markovNetwork (argc, argv);
+    FactorGraph fg;
+    fg.readFromUaiFormat (argv[1]);
+    processArguments (fg, argc, argv);
+  } else if (extension == "fg") {
+    FactorGraph fg;
+    fg.readFromLibDaiFormat (argv[1]);
+    processArguments (fg, argc, argv);
   } else {
     cerr << "error: the graphical model must be defined either " ; 
-    cerr << "in a xml file or uai file" << endl;
+    cerr << "in a xml, uai or libDAI file" << endl;
     exit (0);
   }
   return 0;
@@ -70,12 +55,9 @@ main (int argc, const char* argv[])
 
 
 void
-BayesianNetwork (int argc, const char* argv[])
+processArguments (BayesNet& bn, int argc, const char* argv[])
 {
-  BayesNet bn (argv[1]);
-  //bn.printGraphicalModel();
-
-  VarSet queryVars;
+  VarNodes queryVars;
   for (int i = 2; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
@@ -86,6 +68,7 @@ BayesianNetwork (int argc, const char* argv[])
         cerr << "error: there isn't a variable labeled of " ;
         cerr << "`" << arg << "'" ;
         cerr << endl;
+        bn.freeDistributions();
         exit (0);
       }
     } else {
@@ -95,11 +78,13 @@ BayesianNetwork (int argc, const char* argv[])
       if (label.empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
+        bn.freeDistributions();
         exit (0);
       }
       if (state.empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
+        bn.freeDistributions();
         exit (0);
       }
       BayesNode* node = bn.getBayesNode (label);
@@ -109,42 +94,54 @@ BayesianNetwork (int argc, const char* argv[])
         } else {
           cerr << "error: `" << state << "' " ;
           cerr << "is not a valid state for " ;
-          cerr << "`" << node->getLabel() << "'" ;
+          cerr << "`" << node->label() << "'" ;
           cerr << endl;
+          bn.freeDistributions();
           exit (0);
         }
       } else {
         cerr << "error: there isn't a variable labeled of " ;
         cerr << "`" << label << "'" ;
         cerr << endl;
+        bn.freeDistributions();
         exit (0);
       }
     }
   }
 
-  Solver* solver;
-  if (SolverOptions::convertBn2Fg) {
-    FactorGraph* fg = new FactorGraph (bn);
-    fg->printGraphicalModel();
-    solver = new SPSolver (*fg);
-    runSolver (solver, queryVars);
-    delete fg;
-  } else {
-    solver = new BPSolver (bn);
-    runSolver (solver, queryVars);
+  Solver* solver = 0;
+  FactorGraph* fg = 0;
+  switch (InfAlgorithms::infAlgorithm) {
+    case InfAlgorithms::VE:
+      fg = new FactorGraph (bn);
+      solver = new VarElimSolver (*fg);
+      break;
+    case InfAlgorithms::BN_BP:
+      solver = new BnBpSolver (bn);
+      break;
+    case InfAlgorithms::FG_BP:
+      fg = new FactorGraph (bn);
+      fg->printGraphicalModel();
+      solver = new FgBpSolver (*fg);
+      break;
+    case InfAlgorithms::CBP:
+      fg = new FactorGraph (bn);
+      solver = new CbpSolver (*fg);
+      break;
+    default:
+      assert (false);
   }
+  runSolver (solver, queryVars);
+  delete fg;
   bn.freeDistributions();
 }
 
 
 
 void
-markovNetwork (int argc, const char* argv[])
+processArguments (FactorGraph& fg, int argc, const char* argv[])
 {
-  FactorGraph fg (argv[1]);
-  //fg.printGraphicalModel();
-  
-  VarSet queryVars;
+  VarNodes queryVars;
   for (int i = 2; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
@@ -152,19 +149,21 @@ markovNetwork (int argc, const char* argv[])
         cerr << "error: `" << arg << "' " ;
         cerr << "is not a valid variable id" ;
         cerr << endl;
+        fg.freeDistributions();
         exit (0);
       }
-      Vid vid;
+      VarId vid;
       stringstream ss;
       ss << arg;
       ss >> vid;
-      Variable* queryVar = fg.getFgVarNode (vid);
+      VarNode* queryVar = fg.getFgVarNode (vid);
       if (queryVar) {
         queryVars.push_back (queryVar);
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
+        fg.freeDistributions();
         exit (0);
       }
     } else {
@@ -172,53 +171,73 @@ markovNetwork (int argc, const char* argv[])
       if (arg.substr (0, pos).empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
+        fg.freeDistributions();
         exit (0);
       }
       if (arg.substr (pos + 1).empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
+        fg.freeDistributions();
         exit (0);
       }
       if (!Util::isInteger (arg.substr (0, pos))) {
         cerr << "error: `" << arg.substr (0, pos) << "' " ;
         cerr << "is not a variable id" ;
         cerr << endl;
+        fg.freeDistributions();
         exit (0);
       }
-      Vid vid;
+      VarId vid;
       stringstream ss; 
       ss << arg.substr (0, pos);
       ss >> vid;
-      Variable* var = fg.getFgVarNode (vid);
+      VarNode* var = fg.getFgVarNode (vid);
       if (var) {
         if (!Util::isInteger (arg.substr (pos + 1))) {
           cerr << "error: `" << arg.substr (pos + 1) << "' " ;
           cerr << "is not a state index" ;
           cerr << endl;
+          fg.freeDistributions();
           exit (0);
         }
         int stateIndex;
         stringstream ss; 
         ss << arg.substr (pos + 1);
         ss >> stateIndex;
-        if (var->isValidStateIndex (stateIndex)) {
+        if (var->isValidState (stateIndex)) {
           var->setEvidence (stateIndex);
         } else {
           cerr << "error: `" << stateIndex << "' " ;
           cerr << "is not a valid state index for variable " ;
-          cerr << "`" << var->getVarId() << "'" ;
+          cerr << "`" << var->varId() << "'" ;
           cerr << endl;
+          fg.freeDistributions();
           exit (0);
         }
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
+        fg.freeDistributions();
         exit (0);
       }
     }
   }
-  Solver* solver = new SPSolver (fg);
+  Solver* solver = 0;
+  switch (InfAlgorithms::infAlgorithm) {
+    case InfAlgorithms::VE:
+      solver = new VarElimSolver (fg);
+      break;
+    case InfAlgorithms::BN_BP:
+    case InfAlgorithms::FG_BP:
+      solver = new FgBpSolver (fg);
+      break;
+    case InfAlgorithms::CBP:
+      solver = new CbpSolver (fg);
+      break;
+    default:
+      assert (false);
+  }
   runSolver (solver, queryVars);
   fg.freeDistributions();
 }
@@ -226,11 +245,11 @@ markovNetwork (int argc, const char* argv[])
 
 
 void
-runSolver (Solver* solver, const VarSet& queryVars)
+runSolver (Solver* solver, const VarNodes& queryVars)
 {
-  VidSet vids;
+  VarIdSet vids;
   for (unsigned i = 0; i < queryVars.size(); i++) {
-    vids.push_back (queryVars[i]->getVarId());
+    vids.push_back (queryVars[i]->varId());
   }
   if (queryVars.size() == 0) {
     solver->runSolver();
@@ -239,6 +258,7 @@ runSolver (Solver* solver, const VarSet& queryVars)
     solver->runSolver();
     solver->printPosterioriOf (vids[0]);
   } else {
+    solver->runSolver();
     solver->printJointDistributionOf (vids);
   }
   delete solver;

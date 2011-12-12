@@ -1,15 +1,15 @@
-#ifndef BP_SHARED_H
-#define BP_SHARED_H
+#ifndef HORUS_SHARED_H
+#define HORUS_SHARED_H
 
 #include <cmath>
 #include <cassert>
+#include <limits>
+
 #include <vector>
-#include <map>
 #include <unordered_map>
 
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName) \
   TypeName(const TypeName&);               \
@@ -17,34 +17,29 @@
 
 using namespace std;
 
-class Variable;
+class VarNode;
+class BayesNet;
 class BayesNode;
-class FgVarNode;
 class Factor;
-class Link;
-class Edge;
+class FgVarNode;
+class FgFacNode;
+class SpLink;
+class BpLink;
 
-typedef double                             Param;
-typedef vector<Param>                      ParamSet;
-typedef const ParamSet&                    CParamSet;
-typedef unsigned                           Vid;
-typedef vector<Vid>                        VidSet;
-typedef const VidSet&                      CVidSet;
-typedef vector<Variable*>                  VarSet;
-typedef vector<BayesNode*>                 BnNodeSet;
-typedef const BnNodeSet&                   CBnNodeSet;
-typedef vector<FgVarNode*>                 FgVarSet;
-typedef const FgVarSet&                    CFgVarSet;
-typedef vector<Factor*>                    FactorSet;
-typedef const FactorSet&                   CFactorSet;
-typedef vector<Link*>                      LinkSet;
-typedef const LinkSet&                     CLinkSet;
-typedef vector<Edge*>                      EdgeSet;
-typedef const EdgeSet&                     CEdgeSet;
-typedef vector<string>                     Domain;
-typedef vector<unsigned>                   DConf;
-typedef pair<unsigned, unsigned>           DConstraint;
-typedef map<unsigned, unsigned> IndexMap;
+typedef double                    Param;
+typedef vector<Param>             ParamSet;
+typedef unsigned                  VarId;
+typedef vector<VarId>             VarIdSet;
+typedef vector<VarNode*>          VarNodes;
+typedef vector<BayesNode*>        BnNodeSet;
+typedef vector<FgVarNode*>        FgVarSet;
+typedef vector<FgFacNode*>        FgFacSet;
+typedef vector<Factor*>           FactorSet;
+typedef vector<string>            States;
+typedef vector<unsigned>          Ranges;
+typedef vector<unsigned>          DConf;
+typedef pair<unsigned, unsigned>  DConstraint;
+
 
 // level of debug information
 static const unsigned DL = 0;
@@ -54,197 +49,260 @@ static const int NO_EVIDENCE = -1;
 // number of digits to show when printing a parameter
 static const unsigned PRECISION = 5;
 
-static const bool     EXPORT_TO_DOT   = false;
-static const unsigned EXPORT_MIN_SIZE = 30;
+static const bool COLLECT_STATISTICS = false;
+
+static const bool EXPORT_TO_GRAPHVIZ = false;
+static const unsigned EXPORT_MINIMAL_SIZE = 100;
+
+static const double INF = -numeric_limits<Param>::infinity();
 
 
-namespace SolverOptions
-{
-  enum Schedule
-  {
-    S_SEQ_FIXED,
-    S_SEQ_RANDOM,
-    S_PARALLEL,
-    S_MAX_RESIDUAL
+namespace NumberSpace {
+  enum ns {
+    NORMAL,
+    LOGARITHM
   };
-  extern bool      runBayesBall;
-  extern bool      convertBn2Fg;
-  extern bool      compressFactorGraph;
+};
+
+
+
+extern NumberSpace::ns NSPACE;
+
+
+namespace InfAlgorithms {
+  enum InfAlgs
+  {
+    VE,     // variable elimination
+    BN_BP,  // bayesian network belief propagation
+    FG_BP,  // factor graph belief propagation
+    CBP     // counting bp solver
+  };
+  extern InfAlgs infAlgorithm;
+};
+
+
+namespace BpOptions
+{
+  enum Schedule {
+    SEQ_FIXED,
+    SEQ_RANDOM,
+    PARALLEL,
+    MAX_RESIDUAL
+  };
   extern Schedule  schedule;
   extern double    accuracy;
   extern unsigned  maxIter;
+  extern bool      useAlwaysLoopySolver;
 }
 
 
 namespace Util
 {
-  void normalize (ParamSet&);
-  void pow (ParamSet&, unsigned);
-  double getL1dist (CParamSet, CParamSet);
-  double getMaxNorm (CParamSet, CParamSet);
-  bool isInteger (const string&);
-  string parametersToString (CParamSet);
-  vector<DConf> getDomainConfigurations (const VarSet&);
-  vector<string> getInstantiations (const VarSet&);
+  void            toLog (ParamSet&);
+  void            fromLog (ParamSet&);
+  void            normalize (ParamSet&);
+  void            logSum (Param&, Param);
+  void            multiply (ParamSet&, const ParamSet&);
+  void            multiply (ParamSet&, const ParamSet&, unsigned);
+  void            add (ParamSet&, const ParamSet&);
+  void            add (ParamSet&, const ParamSet&, unsigned);
+  void            pow (ParamSet&, unsigned);
+  Param           pow (Param, unsigned);
+  double          getL1Distance (const ParamSet&, const ParamSet&);
+  double          getMaxNorm (const ParamSet&, const ParamSet&);
+  unsigned        getNumberOfDigits (int);
+  bool            isInteger (const string&);
+  string          parametersToString (const ParamSet&, unsigned = PRECISION);
+  BayesNet*       generateBayesianNetworkTreeWithLevel (unsigned);
+  vector<DConf>   getDomainConfigurations (const VarNodes&);
+  vector<string>  getJointStateStrings (const VarNodes&);
+  double          tl (Param v);
+  double          fl (Param v);
+  double          multIdenty();
+  double          addIdenty();
+  double          withEvidence();
+  double          noEvidence();
+  double          one();
+  double          zero();
 };
+
+
+
+inline void
+Util::logSum (Param& x, Param y)
+{
+  // x = log (exp (x) + exp (y)); return;
+  assert (isfinite (x) && finite (y));
+  // If one value is much smaller than the other, keep the larger value.
+  if (x < (y - log (1e200))) {
+    x = y;
+    return;
+  }
+  if (y < (x - log (1e200))) {
+    return;
+  }
+  double diff = x - y;
+  assert (isfinite (diff) && finite (x) && finite (y));
+  if (!isfinite (exp (diff))) { // difference is too large
+    x = x > y ? x : y;
+  } else { // otherwise return the sum.
+    x = y + log (static_cast<double>(1.0) + exp (diff));
+  }
+}
+
+
+
+inline void
+Util::multiply (ParamSet& v1, const ParamSet& v2)
+{
+  assert (v1.size() == v2.size());
+  for (unsigned i = 0; i < v1.size(); i++) {
+    v1[i] *= v2[i];
+  }
+}
+
+
+
+inline void
+Util::multiply (ParamSet& v1, const ParamSet& v2, unsigned repetitions)
+{
+  for (unsigned count = 0; count < v1.size(); ) {
+    for (unsigned i = 0; i < v2.size(); i++) {
+      for (unsigned r = 0; r < repetitions; r++) {
+        v1[count] *= v2[i];
+        count ++;
+      }
+    }
+  }
+}
+
+
+
+inline void
+Util::add (ParamSet& v1, const ParamSet& v2)
+{
+  assert (v1.size() == v2.size());
+  for (unsigned i = 0; i < v1.size(); i++) {
+    v1[i] += v2[i];
+  }
+}
+
+
+
+inline void
+Util::add (ParamSet& v1, const ParamSet& v2, unsigned repetitions)
+{
+  for (unsigned count = 0; count < v1.size(); ) {
+    for (unsigned i = 0; i < v2.size(); i++) {
+      for (unsigned r = 0; r < repetitions; r++) {
+        v1[count] += v2[i];
+        count ++;
+      }
+    }
+  }
+}
+
+
+
+inline double
+Util::tl (Param v)
+{
+  return NSPACE == NumberSpace::NORMAL ? v : log(v);
+}
+
+inline double
+Util::fl (Param v) 
+{
+  return NSPACE == NumberSpace::NORMAL ? v : exp(v);
+}
+
+inline double
+Util::multIdenty() {
+  return NSPACE == NumberSpace::NORMAL ? 1.0 : 0.0;
+}
+
+inline double
+Util::addIdenty()
+{
+  return NSPACE == NumberSpace::NORMAL ? 0.0 : INF;
+}
+
+inline double
+Util::withEvidence()
+{
+  return NSPACE == NumberSpace::NORMAL ? 1.0 : 0.0;
+}
+
+inline double
+Util::noEvidence() {
+  return NSPACE == NumberSpace::NORMAL ? 0.0 : INF;
+}
+
+inline double
+Util::one()
+{
+  return NSPACE == NumberSpace::NORMAL ? 1.0 : 0.0;
+}
+
+inline double
+Util::zero() {
+  return NSPACE == NumberSpace::NORMAL ? 0.0 : INF;
+}
 
 
 struct NetInfo
 {
-  NetInfo (void)
+  NetInfo (unsigned size, bool loopy, unsigned nIters, double time)
   { 
-    counting    = 0;
-    nIters      = 0;
-    solvingTime = 0.0;
+    this->size   = size;
+    this->loopy  = loopy;
+    this->nIters = nIters;
+    this->time   = time;
   }
-  unsigned  counting;
-  double    solvingTime;
+  unsigned  size;
+  bool      loopy;
   unsigned  nIters;
+  double    time;
 };
 
 
 struct CompressInfo
 { 
-  CompressInfo (unsigned a, unsigned b, unsigned c,
-                unsigned d, unsigned e) {
-    nUncVars     = a; 
-    nUncFactors  = b; 
-    nCompVars    = c;
-    nCompFactors = d;
-    nNeighborlessVars = e;
+  CompressInfo (unsigned a, unsigned b, unsigned c, unsigned d, unsigned e)
+  {
+    nGroundVars     = a; 
+    nGroundFactors  = b; 
+    nClusterVars    = c;
+    nClusterFactors = d;
+    nWithoutNeighs  = e;
   }
-  unsigned nUncVars;
-  unsigned nUncFactors;
-  unsigned nCompVars;
-  unsigned nCompFactors;
-  unsigned nNeighborlessVars;
+  unsigned nGroundVars;
+  unsigned nGroundFactors;
+  unsigned nClusterVars;
+  unsigned nClusterFactors;
+  unsigned nWithoutNeighs;
 };
 
 
-typedef map<unsigned, NetInfo> StatisticMap; 
 class Statistics
 {
   public:
-
-    static void updateStats (unsigned size, unsigned nIters, double time)
-    {
-      StatisticMap::iterator it  = stats_.find (size);
-      if (it == stats_.end()) {
-        it = (stats_.insert (make_pair (size, NetInfo()))).first;
-      } else {
-        it->second.counting ++;
-        it->second.nIters += nIters;
-        it->second.solvingTime += time;
-        totalOfIterations += nIters;
-          if (nIters > maxIterations) { 
-          maxIterations = nIters;
-        }
-      }
-    }
-
-    static void updateCompressingStats (unsigned nUncVars,
-                                        unsigned nUncFactors,
-                                        unsigned nCompVars, 
-                                        unsigned nCompFactors,
-                                        unsigned nNeighborlessVars) {
-      compressInfo_.push_back (CompressInfo (
-          nUncVars, nUncFactors, nCompVars, nCompFactors, nNeighborlessVars));
-    }
-
-    static void printCompressingStats (const char* fileName)
-    {
-      ofstream out (fileName);
-      if (!out.is_open()) {
-        cerr << "error: cannot open file to write at " ;
-        cerr << "BayesNet::printCompressingStats()" << endl;
-        abort();
-      }
-      out << "--------------------------------------" ;
-      out << "--------------------------------------" << endl;
-      out << " Compression Stats" << endl;
-      out << "--------------------------------------" ;
-      out << "--------------------------------------" << endl;
-      out << left;
-      out << "Uncompress   Compressed   Uncompress   Compressed   Neighborless";
-      out << endl;
-      out << "Vars         Vars         Factors      Factors      Vars" ;
-      out << endl;
-      for (unsigned i = 0; i < compressInfo_.size(); i++) {
-        out << setw (13) << compressInfo_[i].nUncVars;
-        out << setw (13) << compressInfo_[i].nCompVars;
-        out << setw (13) << compressInfo_[i].nUncFactors;
-        out << setw (13) << compressInfo_[i].nCompFactors;
-        out << setw (13) << compressInfo_[i].nNeighborlessVars;
-        out << endl;
-      }
-    }
-
-    static unsigned getCounting (unsigned size)
-    {
-      StatisticMap::iterator it = stats_.find(size);
-      assert (it != stats_.end());
-      return it->second.counting;
-    }
-
-    static void writeStats (void)
-    {
-      ofstream out ("../../stats.txt");
-      if (!out.is_open()) {
-        cerr << "error: cannot open file to write at " ;
-        cerr << "Statistics::updateStats()" << endl;
-        abort();
-      }
-      unsigned avgIterations = 0;
-      if (numSolvedLoopyNets > 0) {
-        avgIterations = totalOfIterations / numSolvedLoopyNets;
-      }
-      double totalSolvingTime = 0.0;
-      for (StatisticMap::iterator it = stats_.begin();
-          it != stats_.end(); it++) {
-        totalSolvingTime += it->second.solvingTime;
-      }
-      out << "created networks:              " << numCreatedNets     << endl;
-      out << "solver runs on polytrees:      " << numSolvedPolyTrees << endl;
-      out << "solver runs on loopy networks: " << numSolvedLoopyNets << endl;
-      out << "   unconverged:                " << numUnconvergedRuns << endl;
-      out << "   max iterations:             " << maxIterations      << endl;
-      out << "   average iterations:         " << avgIterations      << endl;
-      out << "total solving time             " << totalSolvingTime   << endl;
-      out << endl;
-      out << left << endl;
-      out << setw (15) << "Network Size" ;
-      out << setw (15) << "Counting" ;
-      out << setw (15) << "Solving Time" ;
-      out << setw (15) << "Average Time" ;
-      out << setw (15) << "#Iterations" ;
-      out << endl;
-      for (StatisticMap::iterator it = stats_.begin();
-          it != stats_.end(); it++) {
-        out << setw (15) << it->first;
-        out << setw (15) << it->second.counting;
-        out << setw (15) << it->second.solvingTime;
-        if (it->second.counting > 0) {
-          out << setw (15) << it->second.solvingTime / it->second.counting;
-        } else {
-          out << setw (15) << "0.0" ;
-        }
-        out << setw (15) << it->second.nIters;
-        out << endl;
-      }
-      out.close();
-    }
-
-    static unsigned numCreatedNets;
-    static unsigned numSolvedPolyTrees;
-    static unsigned numSolvedLoopyNets;
-    static unsigned numUnconvergedRuns;
+    static unsigned getSolvedNetworksCounting (void);
+    static void incrementPrimaryNetworksCounting (void);
+    static unsigned getPrimaryNetworksCounting (void);
+    static void updateStatistics (unsigned, bool, unsigned, double);
+    static void printStatistics (void);
+    static void writeStatisticsToFile (const char*);
+    static void updateCompressingStatistics (
+        unsigned, unsigned, unsigned, unsigned, unsigned);
 
   private:
-    static StatisticMap stats_;
-    static unsigned maxIterations;
-    static unsigned totalOfIterations;
+    static string getStatisticString (void);
+
+    static vector<NetInfo> netInfo_;
     static vector<CompressInfo> compressInfo_;
+    static unsigned primaryNetCount_;
 };
 
-#endif //BP_SHARED_H
+#endif // HORUS_SHARED_H
 

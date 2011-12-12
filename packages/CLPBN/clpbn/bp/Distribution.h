@@ -1,5 +1,5 @@
-#ifndef BP_DISTRIBUTION_H
-#define BP_DISTRIBUTION_H
+#ifndef HORUS_DISTRIBUTION_H
+#define HORUS_DISTRIBUTION_H
 
 #include <vector>
 
@@ -11,18 +11,16 @@ using namespace std;
 struct Distribution
 {
   public:
-    Distribution (unsigned id, bool shared = false)
+    Distribution (unsigned id)
     {
       this->id     = id;
       this->params = params;
-      this->shared = shared;
     }
 
-    Distribution (const ParamSet& params, bool shared = false)
+    Distribution (const ParamSet& params, unsigned id = -1)
     {
-      this->id     = -1;
+      this->id     = id;
       this->params = params;
-      this->shared = shared;
     }
 
     void updateParameters (const ParamSet& params)
@@ -33,11 +31,10 @@ struct Distribution
     unsigned          id;
     ParamSet          params;
     vector<CptEntry>  entries;
-    bool              shared;
 
   private:
     DISALLOW_COPY_AND_ASSIGN (Distribution);
 };
 
-#endif //BP_DISTRIBUTION_H
+#endif // HORUS_DISTRIBUTION_H
 
