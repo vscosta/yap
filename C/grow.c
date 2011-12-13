@@ -572,16 +572,48 @@ AdjustGlobal(long sz, int thread_copying USES_REGS)
 	  pt += 2;
 #endif
 	  break;
-#if USE_GMP
 	case (CELL)FunctorBigInt:
 	  {
 	    Int sz = 2+
 	      (sizeof(MP_INT)+
 	       (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/CellSize;
+	    Opaque_CallOnGCMark f;
+	    Opaque_CallOnGCRellocate f2;
+
+	    if ( (f = Yap_blob_gc_mark_handler(reg)) ) {
+	      CELL ar[256];
+	      Int i,n = (f)(Yap_BlobTag(reg), Yap_BlobInfo(reg), ar, 256);
+	      if (n < 0) {
+		Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for slot internal variables");
+	      }
+	      for (i = 0; i< n; i++) {
+		CELL *pt = ar+i;
+		CELL reg = *pt;
+		if (IsVarTerm(reg)) {
+		  if (IsOldGlobal(reg))
+		    *pt = GlobalAdjust(reg);
+		  else if (IsOldLocal(reg))
+		    *pt = LocalAdjust(reg);
+#ifdef MULTI_ASSIGNMENT_VARIABLES
+		  else if (IsOldTrail(reg))
+		    *pt = TrailAdjust(reg);
+#endif
+		} else if (IsApplTerm(reg))
+		  *pt = AdjustAppl(reg PASS_REGS);
+		else if (IsPairTerm(reg))
+		  *pt = AdjustPair(reg PASS_REGS);
+		else if (IsAtomTerm(reg))
+		  *pt = AtomTermAdjust(reg);
+	      }
+	      if ( (f2 = Yap_blob_gc_rellocate_handler(reg)) < 0 ) {
+		int out = (f2)(Yap_BlobTag(reg), Yap_BlobInfo(reg), ar, n);
+		if (out < 0)
+		Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables");
+	      }
+	    }
 	    pt += sz;
 	  }
 	  break;
-#endif
 	case (CELL)0L:
 	  break;
 	case (CELL)FunctorLongInt:
