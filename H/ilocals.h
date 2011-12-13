@@ -101,6 +101,10 @@ static void InitWorker(int wid) {
   REMOTE_db_root(wid) = NULL;
   REMOTE_db_nil(wid) = NULL;
 
+
+
+
+  REMOTE_extra_gc_cells_size(wid) = 256;
   REMOTE_DynamicArrays(wid) = NULL;
   REMOTE_StaticArrays(wid) = NULL;
   REMOTE_GlobalVariables(wid) = NULL;

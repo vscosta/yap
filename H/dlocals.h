@@ -183,6 +183,14 @@
 #define REMOTE_db_nil(wid) REMOTE(wid)->db_nil_
 #define LOCAL_gc_restore LOCAL->gc_restore_
 #define REMOTE_gc_restore(wid) REMOTE(wid)->gc_restore_
+#define LOCAL_extra_gc_cells LOCAL->extra_gc_cells_
+#define REMOTE_extra_gc_cells(wid) REMOTE(wid)->extra_gc_cells_
+#define LOCAL_extra_gc_cells_base LOCAL->extra_gc_cells_base_
+#define REMOTE_extra_gc_cells_base(wid) REMOTE(wid)->extra_gc_cells_base_
+#define LOCAL_extra_gc_cells_top LOCAL->extra_gc_cells_top_
+#define REMOTE_extra_gc_cells_top(wid) REMOTE(wid)->extra_gc_cells_top_
+#define LOCAL_extra_gc_cells_size LOCAL->extra_gc_cells_size_
+#define REMOTE_extra_gc_cells_size(wid) REMOTE(wid)->extra_gc_cells_size_
 #define LOCAL_DynamicArrays LOCAL->DynamicArrays_
 #define REMOTE_DynamicArrays(wid) REMOTE(wid)->DynamicArrays_
 #define LOCAL_StaticArrays LOCAL->StaticArrays_

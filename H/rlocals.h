@@ -101,6 +101,10 @@ static void RestoreWorker(int wid USES_REGS) {
 
 
 
+
+
+
+
   REMOTE_DynamicArrays(wid) = PtoArrayEAdjust(REMOTE_DynamicArrays(wid));
   REMOTE_StaticArrays(wid) = PtoArraySAdjust(REMOTE_StaticArrays(wid));
   REMOTE_GlobalVariables(wid) = PtoGlobalEAdjust(REMOTE_GlobalVariables(wid));
