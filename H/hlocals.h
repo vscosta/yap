@@ -101,6 +101,10 @@ typedef struct worker_local {
   struct RB_red_blk_node*  db_root_;
   struct RB_red_blk_node*  db_nil_;
   sigjmp_buf  gc_restore_;
+  CELL*  extra_gc_cells_;
+  CELL*  extra_gc_cells_base_;
+  CELL*  extra_gc_cells_top_;
+  UInt  extra_gc_cells_size_;
   struct array_entry*  DynamicArrays_;
   struct static_array_entry*  StaticArrays_;
   struct global_entry*  GlobalVariables_;

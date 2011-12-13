@@ -604,6 +604,27 @@ IsAttachedTerm (Term t)
 
 #endif
 
+inline EXTERN Int Yap_BlobTag(Term t);
+
+inline EXTERN Int Yap_BlobTag(Term t)
+{
+  CELL *pt = RepAppl(t);
+
+  return pt[1];
+}
+
+
+inline EXTERN void *Yap_BlobInfo(Term t);
+
+inline EXTERN void *Yap_BlobInfo(Term t)
+{
+  MP_INT *blobp;
+  CELL *pt = RepAppl(t);
+
+  blobp = (MP_INT *)(pt+2);
+  return (void *)(blobp+1);
+}
+
 #ifdef YAP_H
 
 inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));

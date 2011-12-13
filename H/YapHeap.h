@@ -35,13 +35,19 @@ typedef int (*SWI_PLGetStreamPositionFunction)(void *);
 
 typedef int (*Opaque_CallOnFail)(void *);
 typedef int (*Opaque_CallOnWrite)(void *, int, void *, int);
+typedef Int (*Opaque_CallOnGCMark)(int, void *, Term *, Int);
+typedef int (*Opaque_CallOnGCRellocate)(int, void *, Term *, Int);
 
 typedef struct opaque_handler_struct {
   Opaque_CallOnFail fail_handler;
   Opaque_CallOnWrite write_handler;
+  Opaque_CallOnGCMark gc_mark_handler;
+  Opaque_CallOnGCRellocate gc_rellocate_handler;
 } opaque_handler_t;
 
 extern Opaque_CallOnWrite Yap_blob_write_handler_from_slot(Int slot);
+extern Opaque_CallOnGCMark Yap_blob_gc_mark_handler(Term t);
+extern Opaque_CallOnGCRellocate Yap_blob_gc_rellocate_handler(Term t);
 extern Int Yap_blob_tag_from_slot(Int slot);
 extern void *Yap_blob_info_from_slot(Int slot);
 

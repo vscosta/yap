@@ -329,6 +329,30 @@ mark_global_cell(CELL *pt)
 	Int sz = 3 +
 	  (sizeof(MP_INT)+
 	   (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
+	Opaque_CallOnGCMark f;
+	Opaque_CallOnGCRellocate f2;
+	Term t = AbsAppl(pt);
+
+	if ( (f = Yap_blob_gc_mark_handler(t)) ) {
+	  CELL ar[256];
+	  Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
+	  if (n < 0) {
+	    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for slot internal variables in agc");
+	      }
+	  for (i = 0; i< n; i++) {
+	    CELL *pt = ar+i;
+	    CELL reg = *pt;
+	    if (!IsVarTerm(reg) && IsAtomTerm(reg)) {
+	      *pt = AtomTermAdjust(reg);
+	    }
+	  }
+	  if ( (f2 = Yap_blob_gc_rellocate_handler(t)) < 0 ) {
+	    int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
+	    if (out < 0)
+	      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables in agc");
+	  }
+	}
+
 	return pt + sz;
       }
     case (CELL)FunctorLongInt:

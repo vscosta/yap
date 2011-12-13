@@ -107,6 +107,10 @@ struct RB_red_blk_node*		db_root					=NULL
 struct RB_red_blk_node*		db_nil					=NULL
 
 sigjmp_buf			gc_restore				void
+CELL*				extra_gc_cells				void
+CELL*				extra_gc_cells_base			void
+CELL*				extra_gc_cells_top			void
+UInt				extra_gc_cells_size			=256
 struct array_entry*		DynamicArrays				=NULL 		PtoArrayEAdjust
 struct static_array_entry*	StaticArrays				=NULL 		PtoArraySAdjust
 struct global_entry*		GlobalVariables				=NULL 		PtoGlobalEAdjust

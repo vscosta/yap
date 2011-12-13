@@ -179,17 +179,17 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_INVALID_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x2)
 
 /* trie hashes */
-#define MAX_NODES_PER_TRIE_LEVEL    8
-#define MAX_NODES_PER_BUCKET        (MAX_NODES_PER_TRIE_LEVEL / 2)
-#define BASE_HASH_BUCKETS           64
-#define HASH_ENTRY(ENTRY, SEED)     ((((unsigned long int) ENTRY) >> NumberOfLowTagBits) & (SEED))
-#define SUBGOAL_TRIE_HASH_MARK      ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
-#define IS_SUBGOAL_TRIE_HASH(NODE)  (TrNode_entry(NODE) == SUBGOAL_TRIE_HASH_MARK)
-#define ANSWER_TRIE_HASH_MARK       0
-#define IS_ANSWER_TRIE_HASH(NODE)   (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
-#define GLOBAL_TRIE_HASH_MARK       ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
-#define IS_GLOBAL_TRIE_HASH(NODE)   (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
-#define HASH_TRIE_LOCK(NODE)        GLOBAL_trie_locks((((unsigned long int) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
+#define MAX_NODES_PER_TRIE_LEVEL        8
+#define MAX_NODES_PER_BUCKET            (MAX_NODES_PER_TRIE_LEVEL / 2)
+#define BASE_HASH_BUCKETS               64
+#define HASH_ENTRY(ENTRY, NUM_BUCKETS)  ((((unsigned long int) ENTRY) >> NumberOfLowTagBits) & (NUM_BUCKETS - 1))
+#define SUBGOAL_TRIE_HASH_MARK          ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
+#define IS_SUBGOAL_TRIE_HASH(NODE)      (TrNode_entry(NODE) == SUBGOAL_TRIE_HASH_MARK)
+#define ANSWER_TRIE_HASH_MARK           0
+#define IS_ANSWER_TRIE_HASH(NODE)       (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
+#define GLOBAL_TRIE_HASH_MARK           ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
+#define IS_GLOBAL_TRIE_HASH(NODE)       (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
+#define HASH_TRIE_LOCK(NODE)            GLOBAL_trie_locks((((unsigned long int) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
 
 /* auxiliary stack */
 #define STACK_PUSH_UP(ITEM, STACK)          *--(STACK) = (CELL)(ITEM)
