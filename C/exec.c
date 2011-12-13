@@ -1264,7 +1264,7 @@ Yap_RunTopGoal(Term t)
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
        might skip a svar */
-    pe = PredPropByFunc(f, CurrentModule);
+    pe = PredPropByFunc(f, mod);
     pt = RepAppl(t)+1;
     arity = ArityOfFunctor(f); 
   } else {
