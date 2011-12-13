@@ -331,10 +331,11 @@ mark_global_cell(CELL *pt)
 	   (((MP_INT *)(pt+2))->_mp_alloc*sizeof(mp_limb_t)))/sizeof(CELL);
 	Opaque_CallOnGCMark f;
 	Opaque_CallOnGCRellocate f2;
+	Term t = AbsAppl(pt);
 
-	if ( (f = Yap_blob_gc_mark_handler(reg)) ) {
+	if ( (f = Yap_blob_gc_mark_handler(t)) ) {
 	  CELL ar[256];
-	  Int i,n = (f)(Yap_BlobTag(reg), Yap_BlobInfo(reg), ar, 256);
+	  Int i,n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, 256);
 	  if (n < 0) {
 	    Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"not enough space for slot internal variables in agc");
 	      }
@@ -345,8 +346,8 @@ mark_global_cell(CELL *pt)
 	      *pt = AtomTermAdjust(reg);
 	    }
 	  }
-	  if ( (f2 = Yap_blob_gc_rellocate_handler(reg)) < 0 ) {
-	    int out = (f2)(Yap_BlobTag(reg), Yap_BlobInfo(reg), ar, n);
+	  if ( (f2 = Yap_blob_gc_rellocate_handler(t)) < 0 ) {
+	    int out = (f2)(Yap_BlobTag(t), Yap_BlobInfo(t), ar, n);
 	    if (out < 0)
 	      Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"bad restore of slot internal variables in agc");
 	  }
