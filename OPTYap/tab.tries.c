@@ -456,7 +456,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
   child_node  = TrNode_child(parent_node);
   if (IS_GLOBAL_TRIE_HASH(child_node)) {
     gt_hash_ptr hash = (gt_hash_ptr) child_node;
-    gt_node_ptr *bucket = Hash_bucket(hash, HASH_ENTRY(TrNode_entry(current_node), Hash_seed(hash)));
+    gt_node_ptr *bucket = Hash_buckets(hash) + HASH_ENTRY(TrNode_entry(current_node), Hash_num_buckets(hash));
     int num_nodes = --Hash_num_nodes(hash);
     child_node = *bucket;
     if (child_node != current_node) {
