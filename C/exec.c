@@ -941,7 +941,7 @@ p_pred_goal_expansion_on( USES_REGS1 ) {
 }
 
 
-static int
+static Int
 exec_absmi(int top USES_REGS)
 {
   int lval, out;
@@ -1052,11 +1052,11 @@ init_stack(int arity, CELL *pt, int top, choiceptr saved_b USES_REGS)
   CP = YESCODE;
 }
 
-static Term
+static Int
 do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
 {
   choiceptr saved_b = B;
-  Term out = 0L;
+  Int out;
 
   init_stack(arity, pt, top, saved_b PASS_REGS);
   P = (yamop *) CodeAdr;
@@ -1070,7 +1070,7 @@ do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
   return out;
 }
 
-int
+Int
 Yap_exec_absmi(int top)
 {
   CACHE_REGS
@@ -1287,7 +1287,7 @@ Yap_RunTopGoal(Term t)
   }
 #endif
   goal_out = do_goal(t, CodeAdr, arity, pt, TRUE PASS_REGS);
-  return(goal_out);
+  return goal_out;
 }
 
 static void

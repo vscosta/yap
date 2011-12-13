@@ -455,8 +455,8 @@ X_API Term    STD_PROTO(YAP_NBufferToDiffList, (char *, Term, size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToDiffList, (wchar_t *, Term));
 X_API Term    STD_PROTO(YAP_NWideBufferToDiffList, (wchar_t *, Term, size_t));
 X_API void    STD_PROTO(YAP_Error,(int, Term, char *, ...));
-X_API Term    STD_PROTO(YAP_RunGoal,(Term));
-X_API Term    STD_PROTO(YAP_RunGoalOnce,(Term));
+X_API Int     STD_PROTO(YAP_RunGoal,(Term));
+X_API Int     STD_PROTO(YAP_RunGoalOnce,(Term));
 X_API int     STD_PROTO(YAP_RestartGoal,(void));
 X_API int     STD_PROTO(YAP_ShutdownGoal,(int));
 X_API int     STD_PROTO(YAP_EnterGoal,(PredEntry *, Term *, YAP_dogoalinfo *));
@@ -2364,7 +2364,7 @@ YAP_LeaveGoal(int backtrack, YAP_dogoalinfo *dgi)
   return TRUE;
 }
 
-X_API Term
+X_API Int
 YAP_RunGoal(Term t)
 {
   CACHE_REGS
@@ -2388,7 +2388,7 @@ YAP_RunGoal(Term t)
   }
   
   RECOVER_MACHINE_REGS();
-  return(out);
+  return out;
 }
 
 X_API Term
@@ -2450,7 +2450,7 @@ YAP_OpaqueObjectFromTerm(Term t)
   return ExternalBlobFromTerm (t);
 }
 
-X_API Term
+X_API Int
 YAP_RunGoalOnce(Term t)
 {
   CACHE_REGS
@@ -2502,7 +2502,7 @@ YAP_RunGoalOnce(Term t)
   CP = old_CP;
   LOCAL_AllowRestart = FALSE;
   RECOVER_MACHINE_REGS();
-  return(out);
+  return out;
 }
 
 X_API int
