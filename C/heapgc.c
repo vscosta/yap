@@ -478,12 +478,12 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
 
   /* pop info on opaque variables */
   while (LOCAL_extra_gc_cells > LOCAL_extra_gc_cells_base) {
-    Opaque_CallOnGCRellocate f;
+    Opaque_CallOnGCRelocate f;
     CELL *ptr = LOCAL_extra_gc_cells-1;
     size_t n = ptr[0], t = ptr[-1];
 
     LOCAL_extra_gc_cells -= (n+1);
-    if ( (f = Yap_blob_gc_rellocate_handler(t)) ) {
+    if ( (f = Yap_blob_gc_relocate_handler(t)) ) {
       int out = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, n);
       if (out < 0) {
 	/* error: we don't have enough room */

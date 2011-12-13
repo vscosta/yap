@@ -235,8 +235,8 @@ Yap_blob_gc_mark_handler(Term t)
   return GLOBAL_OpaqueHandlers[blob_info].gc_mark_handler;
 }
 
-Opaque_CallOnGCRellocate
-Yap_blob_gc_rellocate_handler(Term t)
+Opaque_CallOnGCRelocate
+Yap_blob_gc_relocate_handler(Term t)
 {
   CELL blob_info, blob_tag;
   CELL *pt = RepAppl(t);
@@ -257,7 +257,7 @@ Yap_blob_gc_rellocate_handler(Term t)
   blob_info = blob_tag - USER_BLOB_START;
   if (!GLOBAL_OpaqueHandlers)
     return NULL;
-  return GLOBAL_OpaqueHandlers[blob_info].gc_rellocate_handler;
+  return GLOBAL_OpaqueHandlers[blob_info].gc_relocate_handler;
 }
 
 extern Int Yap_blob_tag_from_slot(Int slot)

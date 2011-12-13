@@ -226,13 +226,13 @@ typedef YAP_Int YAP_opaque_tag_t;
 typedef int (*YAP_Opaque_CallOnFail)(void *);
 typedef int (*YAP_Opaque_CallOnWrite)(void *, YAP_opaque_tag_t, void *, int);
 typedef YAP_Int (*YAP_Opaque_CallOnGCMark)(YAP_opaque_tag_t, void *, YAP_Term *, YAP_Int);
-typedef int (*YAP_Opaque_CallOnGCRellocate)(YAP_opaque_tag_t, void *, YAP_Term *, YAP_Int);
+typedef int (*YAP_Opaque_CallOnGCRelocate)(YAP_opaque_tag_t, void *, YAP_Term *, YAP_Int);
 
 typedef struct YAP_opaque_handler_struct {
   YAP_Opaque_CallOnFail  fail_handler;
   YAP_Opaque_CallOnWrite write_handler;
   YAP_Opaque_CallOnGCMark mark_handler;
-  YAP_Opaque_CallOnGCRellocate rellocate_handler;
+  YAP_Opaque_CallOnGCRelocate relocate_handler;
 } YAP_opaque_handler_t;
 
 /********* execution mode ***********************/
