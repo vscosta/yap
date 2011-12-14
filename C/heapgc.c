@@ -40,6 +40,7 @@ STATIC_PROTO(Int  p_gc, ( CACHE_TYPE1 ));
 STATIC_PROTO(void marking_phase, (tr_fr_ptr, CELL *, yamop * CACHE_TYPE));
 STATIC_PROTO(void compaction_phase, (tr_fr_ptr, CELL *, yamop * CACHE_TYPE));
 STATIC_PROTO(void init_dbtable, (tr_fr_ptr CACHE_TYPE));
+STATIC_PROTO(void mark_external_reference, (CELL * CACHE_TYPE));
 STATIC_PROTO(void mark_db_fixed, (CELL *  CACHE_TYPE));
 STATIC_PROTO(void mark_regs, (tr_fr_ptr CACHE_TYPE));
 STATIC_PROTO(void mark_trail, (tr_fr_ptr, tr_fr_ptr, CELL *, choiceptr CACHE_TYPE));
@@ -475,6 +476,24 @@ pop_registers(Int num_regs, yamop *nextop USES_REGS)
   tr_fr_ptr ptr = TR;
   StaticArrayEntry *sal = LOCAL_StaticArrays;
 
+  /* pop info on opaque variables */
+  while (LOCAL_extra_gc_cells > LOCAL_extra_gc_cells_base) {
+    Opaque_CallOnGCRelocate f;
+    CELL *ptr = LOCAL_extra_gc_cells-1;
+    size_t n = ptr[0], t = ptr[-1];
+
+    LOCAL_extra_gc_cells -= (n+1);
+    if ( (f = Yap_blob_gc_relocate_handler(t)) ) {
+      int out = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, n);
+      if (out < 0) {
+	/* error: we don't have enough room */
+	/* could not find more trail */
+	save_machine_regs();
+	siglongjmp(LOCAL_gc_restore, 4);
+      }     
+    }
+  }
+
   /* pop array entries first */
   ArrayEntry *al = LOCAL_DynamicArrays;
   GlobalEntry *gl = LOCAL_GlobalVariables;
@@ -875,7 +894,13 @@ init_dbtable(tr_fr_ptr trail_ptr USES_REGS) {
   MegaClause *mc = DeadMegaClauses;
   StaticIndex *si = DeadStaticIndices;
 
-  LOCAL_db_vec0 = LOCAL_db_vec = (ADDR)TR;
+  LOCAL_extra_gc_cells =
+    LOCAL_extra_gc_cells_base = (CELL *)TR;
+  LOCAL_extra_gc_cells_top = LOCAL_extra_gc_cells_base+
+    LOCAL_extra_gc_cells_size;
+  if ((char *)LOCAL_extra_gc_cells_top > LOCAL_TrailTop-1024)
+    gc_growtrail(FALSE, NULL, NULL PASS_REGS);
+  LOCAL_db_vec0 = LOCAL_db_vec = (ADDR)LOCAL_extra_gc_cells_top;
   LOCAL_db_root = RBTreeCreate();
   while (trail_ptr > (tr_fr_ptr)LOCAL_TrailBase) {
     register CELL trail_cell;
@@ -1334,9 +1359,30 @@ mark_variable(CELL_PTR current USES_REGS)
 	POP_CONTINUATION();
       case (CELL)FunctorBigInt:
 	{
+	  Opaque_CallOnGCMark f;
+	  Term t = AbsAppl(next);
 	  UInt sz = (sizeof(MP_INT)+CellSize+
 		     ((MP_INT *)(next+2))->_mp_alloc*sizeof(mp_limb_t))/CellSize;
+
 	  MARK(next);
+	  if ( (f = Yap_blob_gc_mark_handler(t)) ) {
+	    Int n = (f)(Yap_BlobTag(t), Yap_BlobInfo(t), LOCAL_extra_gc_cells, LOCAL_extra_gc_cells_top - (LOCAL_extra_gc_cells+2));
+	    if (n < 0) {
+	      /* error: we don't have enough room */
+	      /* could not find more trail */
+	      save_machine_regs();
+	      siglongjmp(LOCAL_gc_restore, 3);
+	    } else if (n > 0) {
+	      CELL *ptr = LOCAL_extra_gc_cells;
+
+	      LOCAL_extra_gc_cells += n+2;      
+	      PUSH_CONTINUATION(ptr, n+1 PASS_REGS);
+	      ptr += n;
+	      ptr[0] = t;
+	      ptr[1] = n+1;
+	    }
+	  }
+
 	  /* size is given by functor + friends */
 	  if (next < LOCAL_HGEN) {
 	    LOCAL_total_oldies += 2+sz;
@@ -2392,6 +2438,23 @@ sweep_trail(choiceptr gc_B, tr_fr_ptr old_TR USES_REGS)
   Int hp_entrs = 0, hp_erased = 0, hp_not_in_use = 0,
     hp_in_use_erased = 0, code_entries = 0;
 #endif
+  CELL *ptr = LOCAL_extra_gc_cells;
+  
+  while (ptr > LOCAL_extra_gc_cells_base) {
+    Int k = ptr[-1], i;
+    ptr = ptr-1;
+
+    for (i = 0; i < k; i++) {
+      ptr--;
+      if (IN_BETWEEN(LOCAL_GlobalBase,ptr[0],LOCAL_TrailTop) &&
+	  MARKED_PTR(ptr)) {
+	UNMARK(ptr);
+	if (HEAP_PTR(ptr[0])) {
+	  into_relocation_chain(ptr, GET_NEXT(ptr[0]) PASS_REGS);
+	}
+      }
+    }
+  }
 
 #ifndef FROZEN_STACKS
   { 
@@ -3750,6 +3813,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   int           gc_trace;
   UInt		gc_phase;
   UInt		alloc_sz;
+  int jmp_res;
+
   heap_cells = H-H0;
   gc_verbose = is_gc_verbose();
   effectiveness = 0;
@@ -3804,7 +3869,8 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   }
 #endif
   time_start = Yap_cputime();
-  if (sigsetjmp(LOCAL_gc_restore, 0) == 2) {
+  jmp_res = sigsetjmp(LOCAL_gc_restore, 0);
+  if (jmp_res == 2) {
     UInt sz;
 
     /* we cannot recover, fail system */
@@ -3830,6 +3896,25 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
       current_env = (CELL *)*ASP;
       ASP++;
     }
+  } else if (jmp_res == 3) {
+    /* we cannot recover, fail system */
+    restore_machine_regs();    
+    TR = LOCAL_OldTR;
+  
+    LOCAL_total_marked = 0;
+    LOCAL_total_oldies = 0;
+#ifdef COROUTING
+    LOCAL_total_smarked = 0;
+#endif
+    LOCAL_discard_trail_entries = 0;
+    if (LOCAL_extra_gc_cells_size < 1024 *104) {
+      LOCAL_extra_gc_cells_size <<= 1;
+    } else {
+      LOCAL_extra_gc_cells_size += 1024*1024;
+    }
+  } else if (jmp_res == 4) {
+    /* we cannot recover, fail completely */
+    Yap_exit(1);
   }
 #if EASY_SHUNTING
   LOCAL_sTR0 = LOCAL_sTR = NULL;

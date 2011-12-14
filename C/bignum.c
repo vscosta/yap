@@ -188,8 +188,57 @@ Yap_blob_write_handler_from_slot(Int slot)
 {
   CACHE_REGS
   CELL blob_info, blob_tag;
-  MP_INT *blobp;
   Term t = Yap_GetFromSlot(slot PASS_REGS);
+  CELL *pt = RepAppl(t);
+
+#ifdef DEBUG
+  /* sanity checking */
+  if (pt[0] != (CELL)FunctorBigInt) {
+    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    return FALSE;
+  }
+#endif
+  blob_tag = pt[1];
+  if (blob_tag < USER_BLOB_START ||
+      blob_tag >= USER_BLOB_END) {
+    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
+    return FALSE;
+  }
+  blob_info = blob_tag - USER_BLOB_START;
+  if (!GLOBAL_OpaqueHandlers) {
+    return NULL;
+  }
+  return GLOBAL_OpaqueHandlers[blob_info].write_handler;
+}
+
+Opaque_CallOnGCMark
+Yap_blob_gc_mark_handler(Term t)
+{
+  CELL blob_info, blob_tag;
+  CELL *pt = RepAppl(t);
+
+#ifdef DEBUG
+  /* sanity checking */
+  if (pt[0] != (CELL)FunctorBigInt) {
+    Yap_Error(SYSTEM_ERROR, TermNil, "CleanOpaqueVariable bad call");
+    return FALSE;
+  }
+#endif
+  blob_tag = pt[1];
+  if (blob_tag < USER_BLOB_START ||
+      blob_tag >= USER_BLOB_END) {
+    return NULL;
+  }
+  blob_info = blob_tag - USER_BLOB_START;
+  if (!GLOBAL_OpaqueHandlers)
+    return NULL;
+  return GLOBAL_OpaqueHandlers[blob_info].gc_mark_handler;
+}
+
+Opaque_CallOnGCRelocate
+Yap_blob_gc_relocate_handler(Term t)
+{
+  CELL blob_info, blob_tag;
   CELL *pt = RepAppl(t);
 
 #ifdef DEBUG
@@ -208,8 +257,7 @@ Yap_blob_write_handler_from_slot(Int slot)
   blob_info = blob_tag - USER_BLOB_START;
   if (!GLOBAL_OpaqueHandlers)
     return NULL;
-  blobp = (MP_INT *)(pt+2);
-  return GLOBAL_OpaqueHandlers[blob_info].write_handler;
+  return GLOBAL_OpaqueHandlers[blob_info].gc_relocate_handler;
 }
 
 extern Int Yap_blob_tag_from_slot(Int slot)
@@ -232,7 +280,6 @@ void *
 Yap_blob_info_from_slot(Int slot)
 {
   CACHE_REGS
-  CELL blob_info, blob_tag;
   MP_INT *blobp;
   Term t = Yap_GetFromSlot(slot PASS_REGS);
   CELL *pt = RepAppl(t);
@@ -244,13 +291,6 @@ Yap_blob_info_from_slot(Int slot)
     return FALSE;
   }
 #endif
-  blob_tag = pt[1];
-  if (blob_tag < USER_BLOB_START ||
-      blob_tag >= USER_BLOB_END) {
-    Yap_Error(SYSTEM_ERROR, AbsAppl(pt), "clean opaque: bad blob with tag " UInt_FORMAT ,blob_tag);
-    return FALSE;
-  }
-  blob_info = blob_tag - USER_BLOB_START;
   if (!GLOBAL_OpaqueHandlers)
     return FALSE;
   blobp = (MP_INT *)(pt+2);
