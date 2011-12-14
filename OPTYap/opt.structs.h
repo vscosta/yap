@@ -12,7 +12,7 @@
 ************************************************************************/
 
 /**********************
-**      Typedefs     **
+**      typedefs     **
 **********************/
 
 typedef double realtime;
@@ -53,9 +53,9 @@ cptr_to_offset_with_null(choiceptr node)
 
 
 
-/**********************************************************
-**      Structs ma_h_inner_struct and ma_hash_entry      **
-**********************************************************/
+/**************************************************
+**      ma_h_inner_struct and ma_hash_entry      **
+**************************************************/
 
 #if (defined(TABLING) || !defined(YAPOR_COW)) && defined(MULTI_ASSIGNMENT_VARIABLES)
 #define MAVARS_HASH_SIZE 512
@@ -97,9 +97,9 @@ struct threads_dependency_frame {
 
 
 
-/*********************************
-**      Struct page_header      **
-*********************************/
+/**************************
+**      page_header      **
+**************************/
 
 #ifdef USE_PAGES_MALLOC
 typedef struct page_header {
@@ -117,101 +117,113 @@ typedef struct page_header {
 
 
 
-/***************************
-**      Struct pages      **
-***************************/
+/*****************************************
+**      global_page and local_page      **
+*****************************************/
 
-struct pages {
+struct global_page_entry {
 #if defined(YAPOR) || defined(THREADS)
   lockvar lock;
 #endif /* YAPOR || THREADS */
 #ifdef USE_PAGES_MALLOC
-  int structs_per_page;
   struct page_header *first_free_page;
+  int structs_per_page;
+  volatile long pages_allocated;
+#endif /* USE_PAGES_MALLOC */
+  volatile long structs_in_use;
+};
+
+struct local_page_entry {
+#if defined(YAPOR) || defined(THREADS)
+  lockvar lock;
+#endif /* YAPOR || THREADS */
+#ifdef USE_PAGES_MALLOC
+  struct page_header *first_free_page;
+  int structs_per_page;
   volatile long pages_allocated;
 #endif /* USE_PAGES_MALLOC */
   volatile long structs_in_use;
 };
 
 #define Pg_lock(X)        ((X).lock)
-#define Pg_str_per_pg(X)  ((X).structs_per_page)
 #define Pg_free_pg(X)     ((X).first_free_page)
+#define Pg_str_per_pg(X)  ((X).structs_per_page)
 #define Pg_pg_alloc(X)    ((X).pages_allocated)
 #define Pg_str_in_use(X)  ((X).structs_in_use)
 #define Pg_str_free(X)    (Pg_pg_alloc(X) * Pg_str_per_pg(X) - Pg_str_in_use(X))
 
 
 
-/**********************************
-**      Struct global_pages      **
-**********************************/
+/***************************
+**      global_pages      **
+***************************/
 
 struct global_pages {
-  struct pages void_pages;
+  struct global_page_entry void_pages;
 #ifdef TABLING
-  struct pages table_entry_pages;
+  struct global_page_entry table_entry_pages;
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-  struct pages subgoal_entry_pages;
+  struct global_page_entry subgoal_entry_pages;
 #endif
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
-  struct pages subgoal_frame_pages;
-  struct pages dependency_frame_pages;
+  struct global_page_entry subgoal_frame_pages;
+  struct global_page_entry dependency_frame_pages;
 #endif
 #if !defined(THREADS_NO_SHARING)
-  struct pages subgoal_trie_node_pages;
-  struct pages subgoal_trie_hash_pages;
+  struct global_page_entry subgoal_trie_node_pages;
+  struct global_page_entry subgoal_trie_hash_pages;
 #endif
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
-  struct pages answer_trie_node_pages;
-  struct pages answer_trie_hash_pages;
+  struct global_page_entry answer_trie_node_pages;
+  struct global_page_entry answer_trie_hash_pages;
 #endif
-  struct pages global_trie_node_pages;
-  struct pages global_trie_hash_pages;
+  struct global_page_entry global_trie_node_pages;
+  struct global_page_entry global_trie_hash_pages;
 #endif /* TABLING */
 #ifdef YAPOR
-  struct pages or_frame_pages;
-  struct pages query_goal_solution_frame_pages;
-  struct pages query_goal_answer_frame_pages;
+  struct global_page_entry or_frame_pages;
+  struct global_page_entry query_goal_solution_frame_pages;
+  struct global_page_entry query_goal_answer_frame_pages;
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
-  struct pages suspension_frame_pages;
+  struct global_page_entry suspension_frame_pages;
 #endif /* YAPOR && TABLING */
 #ifdef TABLING_INNER_CUTS
-  struct pages table_subgoal_solution_frame_pages;
-  struct pages table_subgoal_answer_frame_pages;
+  struct global_page_entry table_subgoal_solution_frame_pages;
+  struct global_page_entry table_subgoal_answer_frame_pages;
 #endif /* TABLING_INNER_CUTS */
 };
 
 
  
-/*********************************
-**      Struct local_pages      **
-*********************************/
+/**************************
+**      local_pages      **
+**************************/
 
 #if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
 struct local_pages {
 #if defined(YAPOR)
   struct answer_trie_node *next_free_answer_trie_node;
 #elif defined(THREADS)
-  struct pages void_pages;
-  struct pages subgoal_frame_pages;
-  struct pages dependency_frame_pages;
+  struct local_page_entry void_pages;
+  struct local_page_entry subgoal_frame_pages;
+  struct local_page_entry dependency_frame_pages;
 #if defined(THREADS_NO_SHARING)
-  struct pages subgoal_trie_node_pages;
-  struct pages subgoal_trie_hash_pages;
+  struct local_page_entry subgoal_trie_node_pages;
+  struct local_page_entry subgoal_trie_hash_pages;
 #elif defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   struct subgoal_trie_node *next_free_subgoal_trie_node;
   struct subgoal_trie_hash *next_free_subgoal_trie_hash;
 #endif
 #if defined(THREADS_NO_SHARING) || defined(THREADS_SUBGOAL_SHARING)
-  struct pages answer_trie_node_pages;
-  struct pages answer_trie_hash_pages;
+  struct local_page_entry answer_trie_node_pages;
+  struct local_page_entry answer_trie_hash_pages;
 #elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   struct answer_trie_node *next_free_answer_trie_node;
   struct answer_trie_hash *next_free_answer_trie_hash;
 #endif
 #if defined(THREADS_FULL_SHARING)
-  struct pages answer_ref_node_pages;
+  struct local_page_entry answer_ref_node_pages;
 #endif
 #endif /* YAPOR - THREADS */
 };
@@ -219,9 +231,9 @@ struct local_pages {
 
 
 
-/*****************************************
-**      Struct global_optyap_locks      **
-*****************************************/
+/**********************************
+**      global_optyap_locks      **
+**********************************/
 
 #ifdef YAPOR
 struct global_optyap_locks {
@@ -243,9 +255,9 @@ struct global_optyap_locks {
 
 
 
-/******************************************
-**      Struct local_optyap_signals      **
-******************************************/
+/***********************************
+**      local_optyap_signals      **
+***********************************/
 
 #ifdef YAPOR
 struct local_optyap_signals {
@@ -272,7 +284,7 @@ struct local_optyap_signals {
 
 
 /*********************************
-*   Struct global_optyap_data   **
+**      global_optyap_data      **
 *********************************/
 
 struct global_optyap_data {
@@ -406,9 +418,9 @@ struct global_optyap_data {
 
 
 
-/***************************************
-**      Struct local_optyap_data      **
-***************************************/
+/********************************
+**      local_optyap_data      **
+********************************/
 
 struct local_optyap_data {
 #if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
