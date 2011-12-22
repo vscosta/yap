@@ -2421,7 +2421,6 @@ X_API int PL_thread_attach_engine(const PL_thread_attr_t *attr)
     /* we do not have an engine */
     if (attr) {
       YAP_thread_attr yapt;
-      int wid; 
 
       yapt.ssize = attr->local_size;
       yapt.tsize = attr->global_size;

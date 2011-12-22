@@ -51,11 +51,25 @@ PL_is_blob(term_t t, PL_blob_t **type)
   return TRUE;
 }
 
+void check_chain(void);
+
+void check_chain(void) {
+  AtomEntry *ae, *old;
+    ae = SWI_Blobs;
+    old = NULL;
+    while (ae) {
+      old = ae;
+      ae = RepAtom(ae->NextOfAE);
+    }
+}
+
 static AtomEntry *
 lookupBlob(void *blob, size_t len, PL_blob_t *type)
 {
   BlobPropEntry *b;
   AtomEntry *ae;
+
+  LOCK(SWI_Blobs_Lock);
   if (type->flags & PL_BLOB_UNIQUE) {
     /* just keep a linked chain for now */
     ae = SWI_Blobs;
@@ -63,26 +77,37 @@ lookupBlob(void *blob, size_t len, PL_blob_t *type)
       if (ae->PropsOfAE &&
 	  RepBlobProp(ae->PropsOfAE)->blob_t == type &&
 	  ae->rep.blob->length == len &&
-	  !memcmp(ae->rep.blob->data, blob, len))
+	  !memcmp(ae->rep.blob->data, blob, len)) {
+	UNLOCK(SWI_Blobs_Lock);
 	return ae;
+      }
       ae = RepAtom(ae->NextOfAE);
     }
   }
   b = (BlobPropEntry *)Yap_AllocCodeSpace(sizeof(BlobPropEntry));
-  if (!b)
+  if (!b) {
+    UNLOCK(SWI_Blobs_Lock);
     return NULL;
+  }
   b->NextOfPE = NIL;
   b->KindOfPE = BlobProperty;
   b->blob_t = type;
   ae = (AtomEntry *)Yap_AllocCodeSpace(sizeof(AtomEntry)+len+sizeof(size_t));
-  if (!ae)
+  if (!ae) {
+    UNLOCK(SWI_Blobs_Lock);
     return NULL;
+  }
+  NOfBlobs++;
   INIT_RWLOCK(ae->ARWLock);
   ae->PropsOfAE = AbsBlobProp(b);
   ae->NextOfAE = AbsAtom(SWI_Blobs);
   ae->rep.blob->length = len;
   memcpy(ae->rep.blob->data, blob, len);
   SWI_Blobs = ae;
+  UNLOCK(SWI_Blobs_Lock);
+  if (NOfBlobs > NOfBlobsMax) {
+    Yap_signal(YAP_CDOVF_SIGNAL);
+  }
   return ae;
 }
 

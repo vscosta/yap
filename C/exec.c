@@ -1120,20 +1120,20 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   if (pe == NIL) {
     return(CallMetaCall(mod PASS_REGS));
   }
-  PELOCK(81,ppe);
+  PELOCK(81,RepPredProp(pe));
   if (IsAtomTerm(t)) {
-    CodeAdr = RepPredProp (pe)->CodeOfPred;
+    CodeAdr = ppe->CodeOfPred;
     UNLOCK(ppe->PELock);
     out = do_goal(t, CodeAdr, 0, pt, FALSE PASS_REGS);
   } else {
     Functor f = FunctorOfTerm(t);
-    CodeAdr = RepPredProp (pe)->CodeOfPred;
+    CodeAdr = ppe->CodeOfPred;
     UNLOCK(ppe->PELock);
     out = do_goal(t, CodeAdr, ArityOfFunctor(f), pt, FALSE PASS_REGS);
   }
 
   if (out == 1) {
-    choiceptr cut_B, old_B;
+    choiceptr cut_B;
     /* we succeeded, let's prune */
     /* restore the old environment */
     /* get to previous environment */
@@ -1162,8 +1162,6 @@ Yap_execute_goal(Term t, int nargs, Term mod)
     }
 #endif /* TABLING */
     B = cut_B;
-    /* find out where we have the old arguments */
-    old_B = ((choiceptr)(ENV-(EnvSizeInCells+nargs+1)))-1;
     CP   = saved_cp;
     P    = saved_p;
     ASP  = ENV;

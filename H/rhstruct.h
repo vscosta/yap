@@ -302,3 +302,8 @@
 
   RestoreSWIBlobTypes();
   RestoreSWIBlobs();
+
+
+#if defined(YAPOR) || defined(THREADS)
+  REINIT_LOCK(SWI_Blobs_Lock);
+#endif
