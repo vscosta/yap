@@ -348,3 +348,8 @@ struct swi_reverse_hash	swi_reverse_hash[N_SWI_HASH] SWI_ReverseHash	void void
 /* SWI blobs */
 struct PL_blob_t	*swi_blob_types	SWI_BlobTypes		=NULL		RestoreSWIBlobTypes()
 struct AtomEntryStruct	*swi_blobs	SWI_Blobs		=NULL		RestoreSWIBlobs()
+UInt   			nofblobs	NOfBlobs		=0
+UInt   			nofblobsmax	NOfBlobsMax		=256
+#if defined(YAPOR) || defined(THREADS)
+lockvar         swi_blobs_lock		SWI_Blobs_Lock		MkLock
+#endif

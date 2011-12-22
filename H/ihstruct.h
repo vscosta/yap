@@ -305,3 +305,8 @@
 
   SWI_BlobTypes = NULL;
   SWI_Blobs = NULL;
+  NOfBlobs = 0;
+  NOfBlobsMax = 256;
+#if defined(YAPOR) || defined(THREADS)
+  INIT_LOCK(SWI_Blobs_Lock);
+#endif

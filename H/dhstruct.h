@@ -305,3 +305,8 @@
 
 #define SWI_BlobTypes Yap_heap_regs->swi_blob_types
 #define SWI_Blobs Yap_heap_regs->swi_blobs
+#define NOfBlobs Yap_heap_regs->nofblobs
+#define NOfBlobsMax Yap_heap_regs->nofblobsmax
+#if defined(YAPOR) || defined(THREADS)
+#define SWI_Blobs_Lock Yap_heap_regs->swi_blobs_lock
+#endif

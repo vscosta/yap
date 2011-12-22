@@ -305,3 +305,8 @@
 
   struct PL_blob_t  *swi_blob_types;
   struct AtomEntryStruct  *swi_blobs;
+  UInt  nofblobs;
+  UInt  nofblobsmax;
+#if defined(YAPOR) || defined(THREADS)
+  lockvar  swi_blobs_lock;
+#endif

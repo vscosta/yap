@@ -398,13 +398,25 @@ clean_atom_list(AtomHashEntry *HashPtr)
   while (atm != NIL) {
     AtomEntry *at =  RepAtom(atm);
     if (AtomResetMark(at) ||
-	at->PropsOfAE != NIL ||
+	( at->PropsOfAE != NIL && !IsBlob(at) ) ||
 	(GLOBAL_AGCHook != NULL && !GLOBAL_AGCHook(atm))) {
       patm = &(at->NextOfAE);
       atm = at->NextOfAE;
     } else {
       NOfAtoms--;
-      if (IsWideAtom(atm)) {
+      if (IsBlob(atm)) {
+	BlobPropEntry *b = RepBlobProp(at->PropsOfAE);
+	if (b->NextOfPE != NIL) {
+	  patm = &(at->NextOfAE);
+	  atm = at->NextOfAE;
+	  continue;
+	}
+	NOfAtoms++;
+	NOfBlobs--;
+	Yap_FreeCodeSpace((char *)b);
+	GLOBAL_agc_collected += sizeof(BlobPropEntry);
+	GLOBAL_agc_collected += sizeof(AtomEntry)+sizeof(size_t)+at->rep.blob->length;
+      } else if (IsWideAtom(atm)) {
 #ifdef DEBUG_RESTORE3
 	fprintf(stderr, "Purged %p:%S\n", at, at->WStrOfAE);
 #endif
@@ -478,6 +490,7 @@ atom_gc(USES_REGS1)
   mark_stacks(PASS_REGS1);
   restore_codes();
   clean_atoms();
+  NOfBlobsMax = NOfBlobs+(NOfBlobs/2+256< 1024 ? NOfBlobs/2+256 : 1024);
   YAPLeaveCriticalSection();
   agc_time = Yap_cputime()-time_start;
   GLOBAL_tot_agc_time += agc_time;

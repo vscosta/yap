@@ -1361,9 +1361,13 @@ static int
 growatomtable( USES_REGS1 )
 {
   AtomHashEntry *ntb;
-  UInt nsize = 4*AtomHashTableSize-1;
+  UInt diff = 3*AtomHashTableSize-1, nsize;
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
+  if (diff > 4*1024*1024)
+    diff =  4*1024*1024+7919;
+  else
+    nsize =  nsize+7919;
 
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {
@@ -1421,15 +1425,17 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
 {
   CACHE_REGS
   int res;
+  int blob_overflow = (NOfBlobs > NOfBlobsMax);
 
-  if (NOfAtoms > 2*AtomHashTableSize) {
+  if (NOfAtoms > 2*AtomHashTableSize || blob_overflow) {
     UInt n = NOfAtoms;
     if (GLOBAL_AGcThreshold)
       Yap_atom_gc( PASS_REGS1 );
     /* check if we have a significant improvement from agc */
-    if (n > NOfAtoms+ NOfAtoms/10 ||
-	/* +1 = make sure we didn't lose the current atom */
-	NOfAtoms+1 > 2*AtomHashTableSize) {
+    if (!blob_overflow &&
+	(n > NOfAtoms+ NOfAtoms/10 ||
+	 /* +1 = make sure we didn't lose the current atom */
+	 NOfAtoms+1 > 2*AtomHashTableSize)) {
       res  = growatomtable( PASS_REGS1 );
     } else {
       LOCK(LOCAL_SignalLock);
@@ -1444,7 +1450,12 @@ Yap_growheap(int fix_code, UInt in_size, void *cip)
     if (res)
       return res;
   }
+#if USE_SYSTEM_MALLOC
+  P = Yap_Error(OUT_OF_HEAP_ERROR,TermNil,"malloc failed");
+  res = -1;
+#else
   res=do_growheap(fix_code, in_size, (struct intermediates *)cip, NULL, NULL, NULL PASS_REGS);
+#endif
   LeaveGrowMode(GrowHeapMode);
   return res;
 }

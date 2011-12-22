@@ -16664,7 +16664,7 @@ There are several ways to call Prolog code from C-code. By default, the
 has been initialised before:
 
 @example
-  YAP_RunGoal(YAP_Term Goal)
+  YAP_Int YAP_RunGoal(YAP_Term Goal)
 @end example
 Execute query @var{Goal} and return 1 if the query succeeds, and 0
 otherwise. The predicate returns 0 if failure, otherwise it will return
@@ -16673,7 +16673,7 @@ an @var{YAP_Term}.
 Quite often, one wants to run a query once. In this case you should use
 @var{Goal}:
 @example
-  YAP_RunGoalOnce(YAP_Term Goal)
+  YAP_Int YAP_RunGoalOnce(YAP_Term Goal)
 @end example
 The  @code{YAP_RunGoal()} function makes sure to recover stack space at
 the end of execution.
