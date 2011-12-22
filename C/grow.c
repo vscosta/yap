@@ -1361,9 +1361,13 @@ static int
 growatomtable( USES_REGS1 )
 {
   AtomHashEntry *ntb;
-  UInt nsize = 4*AtomHashTableSize-1;
+  UInt diff = 3*AtomHashTableSize-1, nsize;
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
+  if (diff > 4*1024*1024)
+    diff =  4*1024*1024+7919;
+  else
+    nsize =  nsize+7919;
 
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {

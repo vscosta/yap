@@ -1930,25 +1930,26 @@ YAP_StringToBuffer(Term t, char *buf, unsigned int bufsize)
       return(FALSE);
     } else if (!IsIntTerm(Head)) {
       Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return(FALSE);		
+      return FALSE;		
     }
     i = IntOfTerm(Head);
     if (i < 0 || i > 255) {
       Yap_Error(REPRESENTATION_ERROR_CHARACTER_CODE,Head,"user defined procedure");
-      return(FALSE);		
+      return FALSE;		
     }
-    buf[j++] = i;
-    if (j > bufsize) {
-      buf[j-1] = '\0';
-      return(FALSE);
+    if (j == bufsize) {
+      buf[bufsize-1] = '\0';
+      return FALSE;
+    } else {
+      buf[j++] = i;
     }
     t = TailOfTerm(t);
     if (IsVarTerm(t)) {
       Yap_Error(INSTANTIATION_ERROR,t,"user defined procedure");
-      return(FALSE);
+      return FALSE;
     } else if (!IsPairTerm(t) && t != TermNil) {
       Yap_Error(TYPE_ERROR_LIST, t, "user defined procedure");
-      return(FALSE);
+      return FALSE;
     }
   }
   buf[j] = '\0';
