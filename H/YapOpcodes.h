@@ -344,6 +344,9 @@
   OPCODE(table_new_answer           ,s),
   OPCODE(table_answer_resolution    ,Otapl),
   OPCODE(table_completion           ,Otapl),
+#ifdef THREADS_CONSUMER_SHARING
+  OPCODE(table_answer_resolution_completion,Otapl),
+#endif
   OPCODE(trie_do_var                ,e),
   OPCODE(trie_trust_var             ,e),
   OPCODE(trie_try_var               ,e),

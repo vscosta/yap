@@ -179,6 +179,9 @@
   RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail);
   RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail);
   RestoreOtaplInst(COMPLETION,_table_completion,PredFail);
+#ifdef THREADS_CONSUMER_SHARING
+  RestoreOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail);
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
 
 

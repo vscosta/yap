@@ -64,7 +64,9 @@ static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent
 #else
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node, Term t) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+#ifdef THREADS_NO_SHARING
   CACHE_REGS
+#endif /* THREADS_NO_SHARING */
   sg_node_ptr child_node;
 
   LOCK_SUBGOAL_NODE(parent_node);
@@ -133,7 +135,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
       sg_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -150,7 +152,7 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
@@ -162,6 +164,9 @@ static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr tab_ent
 #else
 static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, sg_node_ptr parent_node, Term t) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+#ifdef THREADS_NO_SHARING
+  CACHE_REGS
+#endif /* THREADS_NO_SHARING */
   sg_node_ptr child_node;
   sg_hash_ptr hash;
 
@@ -325,7 +330,7 @@ subgoal_trie_hash:
       /* expand current hash */ 
       sg_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -342,7 +347,7 @@ subgoal_trie_hash:
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
@@ -434,7 +439,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
       ans_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -451,7 +456,7 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
@@ -463,6 +468,7 @@ static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, an
 #else
 static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node, Term t, int instr) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+  CACHE_REGS
   ans_node_ptr child_node;
   ans_hash_ptr hash;
 
@@ -627,7 +633,7 @@ answer_trie_hash:
       /* expand current hash */
       ans_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -644,7 +650,7 @@ answer_trie_hash:
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
@@ -734,7 +740,7 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
       gt_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -751,7 +757,7 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
@@ -927,7 +933,7 @@ global_trie_hash:
       /* expand current hash */ 
       gt_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      ALLOC_BUCKETS(new_hash_buckets, num_buckets);
       old_hash_buckets = Hash_buckets(hash);
       old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
@@ -944,7 +950,7 @@ global_trie_hash:
       } while (old_bucket != old_hash_buckets);
       Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
-      FREE_HASH_BUCKETS(old_hash_buckets);
+      FREE_BUCKETS(old_hash_buckets);
     }
     UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
@@ -1498,7 +1504,7 @@ static inline ans_node_ptr answer_search_min_max(sg_fr_ptr sg_fr, ans_node_ptr c
         FREE_ANSWER_TRIE_NODE(NODE)
 #endif /* YAPOR */
 #define INVALIDATE_ANSWER_TRIE_LEAF_NODE(NODE, SG_FR)   \
-        TAG_AS_INVALID_LEAF_NODE(NODE);                 \
+        TAG_AS_ANSWER_INVALID_NODE(NODE);               \
         TrNode_next(NODE) = SgFr_invalid_chain(SG_FR);  \
         SgFr_invalid_chain(SG_FR) = NODE
 
@@ -1534,7 +1540,7 @@ static void invalidate_answer_trie(ans_node_ptr current_node, sg_fr_ptr sg_fr, i
       Hash_next(Hash_previous(hash)) = Hash_next(hash);
     else
       SgFr_hash_chain(sg_fr) = Hash_next(hash);
-    FREE_HASH_BUCKETS(Hash_buckets(hash));
+    FREE_BUCKETS(Hash_buckets(hash));
     FREE_ANSWER_TRIE_HASH(hash);
   } else {
     if (position == TRAVERSE_POSITION_FIRST) {
@@ -1619,7 +1625,7 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #ifdef MODE_GLOBAL_TRIE_LOOP
   current_node = TrNode_parent(current_node);
 #else
-  current_node = UNTAG_ANSWER_LEAF_NODE(TrNode_parent(current_node));
+  current_node = UNTAG_ANSWER_NODE(TrNode_parent(current_node));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
   do {

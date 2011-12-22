@@ -105,6 +105,7 @@ static void complete_suspension_branch(susp_fr_ptr susp_fr, choiceptr top_cp, or
 
 void private_completion(sg_fr_ptr sg_fr) {
   CACHE_REGS
+
   /* complete subgoals */
 #ifdef LIMIT_TABLING
   sg_fr_ptr aux_sg_fr;
@@ -137,6 +138,11 @@ void private_completion(sg_fr_ptr sg_fr) {
   /* adjust freeze registers */
   adjust_freeze_registers();
 
+  /* adjust thread dependency */
+#ifdef THREADS_CONSUMER_SHARING
+  ThDepFr_state(GLOBAL_th_dep_fr(worker_id)) = working;
+  ThDepFr_next(GLOBAL_th_dep_fr(worker_id)) = worker_id;
+#endif /* THREADS_CONSUMER_SHARING */
   return;
 }
 

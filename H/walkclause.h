@@ -614,6 +614,9 @@
       /* instructions type Otapl */
     case _table_answer_resolution:
     case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+    case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
     case _table_load_answer:
     case _table_retry:
     case _table_retry_me:

@@ -189,10 +189,13 @@ yamop		getwork_seq_code[1]	GETWORK_SEQ		InitOtaplInst(GETWORK_SEQ,_getwork_seq,P
 yamop		getwork_first_time[1]	GETWORK_FIRST_TIME	MkInstE _getwork_first_time
 #endif /* YAPOR */
 #ifdef TABLING
-  yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail)
-  yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer,PredFail) RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail)
-  yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail)
+yamop		table_load_answer_code[1] LOAD_ANSWER		InitOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail) RestoreOtaplInst(LOAD_ANSWER,_table_load_answer,PredFail)
+yamop		table_try_answer_code[1] TRY_ANSWER		InitOtaplInst(TRY_ANSWER,_table_try_answer,PredFail) RestoreOtaplInst(TRY_ANSWER,_table_try_answer,PredFail)
+yamop		table_answer_resolution_code[1]	ANSWER_RESOLUTION InitOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION,_table_answer_resolution,PredFail)
 yamop		table_completion_code[1]	COMPLETION	InitOtaplInst(COMPLETION,_table_completion,PredFail) RestoreOtaplInst(COMPLETION,_table_completion,PredFail)
+#ifdef THREADS_CONSUMER_SHARING
+yamop           table_answer_resolution_completion_code[1]      ANSWER_RESOLUTION_COMPLETION InitOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail) RestoreOtaplInst(ANSWER_RESOLUTION_COMPLETION,_table_answer_resolution_completion,PredFail)
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
 
 /*  */

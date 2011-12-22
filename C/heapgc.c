@@ -2112,6 +2112,9 @@ mark_choicepoints(register choiceptr gc_B, tr_fr_ptr saved_TR, int very_verbose 
 	nargs = 0;
 	break;
       case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+      case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
 	{
 	  CELL *vars_ptr, vars;
 #ifdef DETERMINISTIC_TABLING
@@ -3035,6 +3038,9 @@ sweep_choicepoints(choiceptr gc_B USES_REGS)
       }
       break;
     case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+    case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
       {
 	int nargs;
 	CELL *vars_ptr, vars;

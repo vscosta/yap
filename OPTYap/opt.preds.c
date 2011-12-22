@@ -42,11 +42,9 @@ static Int p_table( USES_REGS1 );
 static Int p_tabling_mode( USES_REGS1 );
 static Int p_abolish_table( USES_REGS1 );
 static Int p_abolish_all_tables( USES_REGS1 );
-static Int p_abolish_all_local_tables( USES_REGS1 );
 static Int p_show_tabled_predicates( USES_REGS1 );
 static Int p_show_table( USES_REGS1 );
 static Int p_show_all_tables( USES_REGS1 );
-static Int p_show_all_local_tables( USES_REGS1 );
 static Int p_show_global_trie( USES_REGS1 );
 static Int p_show_statistics_table( USES_REGS1 );
 static Int p_show_statistics_tabling( USES_REGS1 );
@@ -185,7 +183,7 @@ struct page_statistics {
               INCREMENT_PAGE_STATS(STATS, STR_PAGES(wid));                \
             }                                                             \
           }                                                               \
-        }                                                                 \
+	}                                                                 \
         UNLOCK(GLOBAL_ThreadHandlesLock);                                 \
         Pg_bytes_in_use(STATS) = Pg_str_in_use(STATS) * sizeof(STR_TYPE)
 
@@ -218,11 +216,9 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_tabling_mode", 3, p_tabling_mode, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_abolish_table", 2, p_abolish_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("abolish_all_tables", 0, p_abolish_all_tables, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("abolish_all_local_tables", 0, p_abolish_all_local_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_tabled_predicates", 1, p_show_tabled_predicates, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_show_table", 3, p_show_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("show_all_tables", 1, p_show_all_tables, SafePredFlag|SyncPredFlag);
-  Yap_InitCPred("show_all_local_tables", 1, p_show_all_local_tables, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("show_global_trie", 1, p_show_global_trie, SafePredFlag|SyncPredFlag);
   Yap_InitCPred("$c_table_statistics", 3, p_show_statistics_table, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("tabling_statistics", 1, p_show_statistics_tabling, SafePredFlag|SyncPredFlag);
@@ -467,8 +463,6 @@ static Int p_tabling_mode( USES_REGS1 ) {
 static Int p_abolish_table( USES_REGS1 ) {
   Term mod, t;
   tab_ent_ptr tab_ent;
-  sg_hash_ptr hash;
-  sg_node_ptr sg_node;
 
   mod = Deref(ARG1);
   t = Deref(ARG2);
@@ -478,63 +472,19 @@ static Int p_abolish_table( USES_REGS1 ) {
     tab_ent = RepPredProp(PredPropByFunc(FunctorOfTerm(t), mod))->TableOfPred;
   else
     return (FALSE);
-  hash = TabEnt_hash_chain(tab_ent);
-  TabEnt_hash_chain(tab_ent) = NULL;
-  free_subgoal_hash_chain(hash);
-  sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
-  if (sg_node) {
-    if (TabEnt_arity(tab_ent)) {
-      free_subgoal_trie(sg_node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
-    } else {
-      sg_fr_ptr sg_fr = UNTAG_SUBGOAL_LEAF_NODE(sg_node);
-      FREE_ANSWER_TRIE_NODE(SgFr_answer_trie(sg_fr));
-#ifdef LIMIT_TABLING
-      remove_from_global_sg_fr_list(sg_fr);
-#endif /* LIMIT_TABLING */
-      FREE_SUBGOAL_FRAME(sg_fr);
-    }
-    TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-  }
+  abolish_table(tab_ent);
   return (TRUE);
 }
 
 
 static Int p_abolish_all_tables( USES_REGS1 ) {
   tab_ent_ptr tab_ent;
-  sg_hash_ptr hash;
-  sg_node_ptr sg_node;
 
   tab_ent = GLOBAL_root_tab_ent;
   while (tab_ent) {
-    hash = TabEnt_hash_chain(tab_ent);
-    TabEnt_hash_chain(tab_ent) = NULL;
-    free_subgoal_hash_chain(hash);
-    sg_node = TrNode_child(TabEnt_subgoal_trie(tab_ent));
-    if (sg_node) {
-      if (TabEnt_arity(tab_ent)) {
-	free_subgoal_trie(sg_node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
-      } else {
-	sg_fr_ptr sg_fr = UNTAG_SUBGOAL_LEAF_NODE(sg_node);
-	FREE_ANSWER_TRIE_NODE(SgFr_answer_trie(sg_fr));
-#ifdef LIMIT_TABLING
-	remove_from_global_sg_fr_list(sg_fr);
-#endif /* LIMIT_TABLING */
-	FREE_SUBGOAL_FRAME(sg_fr);
-      }
-      TrNode_child(TabEnt_subgoal_trie(tab_ent)) = NULL;
-    }
+    abolish_table(tab_ent);
     tab_ent = TabEnt_next(tab_ent);
   }
-  return (TRUE);
-}
-
-
-static Int p_abolish_all_local_tables( USES_REGS1 ) {
-#ifdef THREADS
-  p_abolish_all_tables( PASS_REGS1 );
-#else
-  p_abolish_all_tables();
-#endif /* THREADS */
   return (TRUE);
 }
 
@@ -593,26 +543,6 @@ static Int p_show_all_tables( USES_REGS1 ) {
     tab_ent = TabEnt_next(tab_ent);
   }
   PL_release_stream(out);
-  return (TRUE);
-}
-
-
-static Int p_show_all_local_tables( USES_REGS1 ) {
-#ifdef THREADS
-  IOSTREAM *out;
-  tab_ent_ptr tab_ent;
-
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);  
-  tab_ent = GLOBAL_root_tab_ent;
-  while(tab_ent) {
-    show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
-    tab_ent = TabEnt_next(tab_ent);
-  }
-  PL_release_stream(out);
-#else
-  p_show_all_tables();
-#endif /* THREADS */
   return (TRUE);
 }
 
@@ -1197,11 +1127,13 @@ static inline struct page_statistics show_statistics_table_entries(IOSTREAM *out
   SHOW_GLOBAL_PAGE_STATS(out, struct table_entry, GLOBAL_pages_tab_ent, "Table entries:                ");
 }
 
+
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
 static inline struct page_statistics show_statistics_subgoal_entries(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct subgoal_entry, GLOBAL_pages_sg_ent, "Subgoal entries:              ");
 }
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+
 
 static inline struct page_statistics show_statistics_subgoal_frames(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
@@ -1211,6 +1143,7 @@ static inline struct page_statistics show_statistics_subgoal_frames(IOSTREAM *ou
 #endif
 }
 
+
 static inline struct page_statistics show_statistics_dependency_frames(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
   SHOW_GLOBAL_PAGE_STATS(out, struct dependency_frame, GLOBAL_pages_dep_fr, "Dependency frames:            ");
@@ -1218,6 +1151,7 @@ static inline struct page_statistics show_statistics_dependency_frames(IOSTREAM 
   SHOW_REMOTE_PAGE_STATS(out, struct dependency_frame, REMOTE_pages_dep_fr, "Dependency frames:            ");
 #endif
 }
+
 
 static inline struct page_statistics show_statistics_subgoal_trie_nodes(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING)
@@ -1227,6 +1161,7 @@ static inline struct page_statistics show_statistics_subgoal_trie_nodes(IOSTREAM
 #endif
 }
 
+
 static inline struct page_statistics show_statistics_subgoal_trie_hashes(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING)
   SHOW_GLOBAL_PAGE_STATS(out, struct subgoal_trie_hash, GLOBAL_pages_sg_hash, "Subgoal trie hashes:          ");
@@ -1234,6 +1169,7 @@ static inline struct page_statistics show_statistics_subgoal_trie_hashes(IOSTREA
   SHOW_REMOTE_PAGE_STATS(out, struct subgoal_trie_hash, REMOTE_pages_sg_hash, "Subgoal trie hashes:          ");
 #endif
 }
+
 
 static inline struct page_statistics show_statistics_answer_trie_nodes(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
@@ -1243,6 +1179,7 @@ static inline struct page_statistics show_statistics_answer_trie_nodes(IOSTREAM 
 #endif
 }
 
+
 static inline struct page_statistics show_statistics_answer_trie_hashes(IOSTREAM *out) {
 #if !defined(THREADS_NO_SHARING) && !defined(THREADS_SUBGOAL_SHARING)
   SHOW_GLOBAL_PAGE_STATS(out, struct answer_trie_hash, GLOBAL_pages_ans_hash, "Answer trie hashes:           ");
@@ -1251,15 +1188,18 @@ static inline struct page_statistics show_statistics_answer_trie_hashes(IOSTREAM
 #endif
 }
 
+
 #if defined(THREADS_FULL_SHARING)
 static inline struct page_statistics show_statistics_answer_ref_nodes(IOSTREAM *out) {
-  SHOW_GLOBAL_PAGE_STATS(out, struct answer_ref_node, REMOTE_pages_ans_ref_node, "Answer ref nodes:             ");
+  SHOW_REMOTE_PAGE_STATS(out, struct answer_ref_node, REMOTE_pages_ans_ref_node, "Answer ref nodes:             ");
 }
 #endif /* THREADS_FULL_SHARING */
+
 
 static inline struct page_statistics show_statistics_global_trie_nodes(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct global_trie_node, GLOBAL_pages_gt_node, "Global trie nodes:            ");
 }
+
 
 static inline struct page_statistics show_statistics_global_trie_hashes(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct global_trie_hash, GLOBAL_pages_gt_hash, "Global trie hashes:           ");
@@ -1272,9 +1212,11 @@ static inline struct page_statistics show_statistics_or_frames(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct or_frame, GLOBAL_pages_or_fr, "Or-frames:                    ");
 }
 
+
 static inline struct page_statistics show_statistics_query_goal_solution_frames(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct query_goal_solution_frame, GLOBAL_pages_qg_sol_fr, "Query goal solution frames:   ");
 }
+
 
 static inline struct page_statistics show_statistics_query_goal_answer_frames(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct query_goal_answer_frame, GLOBAL_pages_qg_ans_fr, "Query goal answer frames:     ");
@@ -1287,10 +1229,12 @@ static inline struct page_statistics show_statistics_suspension_frames(IOSTREAM 
   SHOW_GLOBAL_PAGE_STATS(out, struct suspension_frame, GLOBAL_pages_susp_fr, "Suspension frames:            ");
 }
 
+
 #ifdef TABLING_INNER_CUTS
 static inline struct page_statistics show_statistics_table_subgoal_solution_frames(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct table_subgoal_solution_frame, GLOBAL_pages_tg_sol_fr, "Table subgoal solution frames:");
 }
+
 
 static inline struct page_statistics show_statistics_table_subgoal_answer_frames(IOSTREAM *out) {
   SHOW_GLOBAL_PAGE_STATS(out, struct table_subgoal_answer_frame, GLOBAL_pages_tg_ans_fr, "Table subgoal answer frames:  ");

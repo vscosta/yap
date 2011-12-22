@@ -179,6 +179,9 @@
   yamop  table_try_answer_code[1];
   yamop  table_answer_resolution_code[1];
   yamop  table_completion_code[1];
+#ifdef THREADS_CONSUMER_SHARING
+  yamop  table_answer_resolution_completion_code[1];
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
 
 

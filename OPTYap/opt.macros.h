@@ -76,14 +76,19 @@ extern int Yap_page_size;
             free(block_ptr);                                                          \
         }
 #endif /******************************************************************************/
-#define ALLOC_HASH_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                   \
-        { int i; void **bucket_ptr;                                                   \
-          ALLOC_BLOCK(bucket_ptr, NUM_BUCKETS * sizeof(void *), void *);              \
-          BUCKET_PTR = (void *) bucket_ptr;                                           \
+#define INIT_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                         \
+        { int i; void **init_bucket_ptr; 		                              \
+	  init_bucket_ptr = (void **) BUCKET_PTR;	                              \
           for (i = NUM_BUCKETS; i != 0; i--)                                          \
-            *bucket_ptr++ = NULL;                                                     \
+            *init_bucket_ptr++ = NULL;                                                \
         }
-#define FREE_HASH_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
+#define ALLOC_BUCKETS(BUCKET_PTR, NUM_BUCKETS)                                        \
+        { void **alloc_bucket_ptr;                                                    \
+          ALLOC_BLOCK(alloc_bucket_ptr, NUM_BUCKETS * sizeof(void *), void *);        \
+          INIT_BUCKETS(alloc_bucket_ptr, NUM_BUCKETS);                                \
+          BUCKET_PTR = (void *) alloc_bucket_ptr;                                     \
+        }
+#define FREE_BUCKETS(BUCKET_PTR)  FREE_BLOCK(BUCKET_PTR)
 
 
 
@@ -435,3 +440,13 @@ extern int Yap_page_size;
 #else
 #define OPTYAP_ERROR_CHECKING(PROCEDURE,TEST)
 #endif /* DEBUG_OPTYAP */
+
+#ifdef OUTPUT_THREADS_TABLING
+#define INFO_THREADS(MESSAGE, ARGS...)                                  \
+        fprintf(LOCAL_thread_output, "[ " MESSAGE " ]\n", ##ARGS)
+#define INFO_THREADS_MAIN_THREAD(MESSAGE, ARGS...)                      \
+        Sfprintf(Serror, "[ " MESSAGE " ]\n", ##ARGS)
+#else
+#define INFO_THREADS(MESG, ARGS...)
+#define INFO_THREADS_MAIN_THREAD(MESSAGE, ARGS...)
+#endif /* OUTPUT_THREADS_TABLING */

@@ -22,8 +22,9 @@
 ****************************/
 #define MAX_TABLE_VARS     1000
 #define TRIE_LOCK_BUCKETS  512
-#define THREADS_FIRST_LEVEL_BUCKETS   16
-#define THREADS_SECOND_LEVEL_BUCKETS  (MAX_THREADS / THREADS_FIRST_LEVEL_BUCKETS)  /* 64 (1024/16) */
+#define THREADS_DIRECT_BUCKETS    32
+#define THREADS_INDIRECT_BUCKETS  ((MAX_THREADS - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS)  /* (1024 - 32) / 32 = 31 */
+#define THREADS_NUM_BUCKETS       (THREADS_DIRECT_BUCKETS + THREADS_INDIRECT_BUCKETS)
 #define TG_ANSWER_SLOTS    20
 #define MAX_LENGTH_ANSWER  1000
 #define MAX_BRANCH_DEPTH   1000
@@ -48,9 +49,9 @@
 /************************************************************************
 **      multithreading design for tabling (mandatory, define one)      **
 ************************************************************************/
-#define THREADS_NO_SHARING 1
-/* #define THREADS_SUBGOAL_SHARING 1 */
-/* #define THREADS_FULL_SHARING 1 */
+//#define THREADS_NO_SHARING 1
+#define THREADS_SUBGOAL_SHARING 1
+//#define THREADS_FULL_SHARING 1
 /* #define THREADS_CONSUMER_SHARING 1 */
 
 /*************************************************************************
@@ -327,11 +328,7 @@
 #undef TIMESTAMP_CHECK
 #endif
 
-#if defined(TABLING) && defined(THREADS)
-#if THREADS_FIRST_LEVEL_BUCKETS > THREADS_SECOND_LEVEL_BUCKETS
-#error THREADS_FIRST_LEVEL_BUCKETS cannot exceed THREADS_SECOND_LEVEL_BUCKETS
-#endif
-#else
+#if !defined(TABLING) || !defined(THREADS)
 #undef OUTPUT_THREADS_TABLING
 #endif
 
@@ -344,10 +341,9 @@
 #endif
 
 #if defined(YAPOR) || defined(THREADS)
+#undef MODE_DIRECTED_TABLING
 #undef TABLING_EARLY_COMPLETION
 #undef INCOMPLETE_TABLING
 #undef LIMIT_TABLING
 #undef DETERMINISTIC_TABLING
 #endif
-
-

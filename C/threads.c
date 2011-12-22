@@ -27,6 +27,9 @@ static char     SccsId[] = "%W% %G%";
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#ifdef TABLING
+#include "tab.macros.h"
+#endif /* TABLING */
 
 #if THREADS
 
@@ -174,6 +177,20 @@ kill_thread_engine (int wid, int always_die)
 static void
 thread_die(int wid, int always_die)
 {
+#ifdef TABLING
+  CACHE_REGS
+  tab_ent_ptr tab_ent;
+
+  tab_ent = GLOBAL_root_tab_ent;
+  while (tab_ent) {
+    abolish_table(tab_ent);
+    tab_ent = TabEnt_next(tab_ent);
+  }
+  FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
+#endif /* TABLING */
+#ifdef OUTPUT_THREADS_TABLING 
+  fclose(LOCAL_thread_output);
+#endif /* OUTPUT_THREADS_TABLING */
   if (!always_die) {
     /* called by thread itself */
     GLOBAL_ThreadsTotalTime += Yap_cputime();
@@ -208,7 +225,7 @@ setup_engine(int myworker_id, int init_thread)
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
-  DepFr_cons_cp(LOCAL_top_dep_fr) = B;  /* same as in Yap_init_root_frames() */
+  new_dependency_frame(LOCAL_top_dep_fr, FALSE, NULL, NULL, B, NULL, FALSE, NULL);  /* same as in Yap_init_root_frames() */
 #endif /* TABLING */
   return TRUE;
 }
@@ -226,7 +243,14 @@ thread_run(void *widp)
   Term tgoal, t;
   Term tgs[2];
   int myworker_id = *((int *)widp); 
-
+#ifdef OUTPUT_THREADS_TABLING
+  char thread_name[25];
+  char filename[YAP_FILENAME_MAX]; 
+  sprintf(thread_name, "/thread_output_%d", myworker_id);
+  strcpy(filename, YAP_BINDIR);
+  strncat(filename, thread_name, 25);
+  LOCAL_thread_output = fopen(filename, "w");
+#endif /* OUTPUT_THREADS_TABLING */
   start_thread(myworker_id);
   regcache = ((REGSTORE *)pthread_getspecific(Yap_yaamregs_key));
   do {
@@ -772,8 +796,8 @@ p_thread_stacks( USES_REGS1 )
   Int status= TRUE;
 
   LOCK(GLOBAL_ThreadHandlesLock);
-  if (!REMOTE_ThreadHandle(tid).in_use &&
-      !REMOTE_ThreadHandle(tid).zombie) {
+  if (!Yap_local[tid] || 
+      (!REMOTE_ThreadHandle(tid).in_use && !REMOTE_ThreadHandle(tid).zombie)) {
     UNLOCK(GLOBAL_ThreadHandlesLock);
     return FALSE;
   }

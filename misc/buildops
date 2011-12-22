@@ -164,6 +164,7 @@ end_special(Name, W) :-
 end_special(_, _).
 
 special_op("clause_with_cut","TABLING_INNER_CUTS").
+special_op("table_answer_resolution_completion","THREADS_CONSUMER_SHARING").
 special_op("cut_c","CUT_C").
 special_op("cut_userc","CUT_C").
 special_op("run_eam","BEAM").

@@ -148,7 +148,7 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   GLOBAL_check_sg_fr = NULL;
 #endif /* LIMIT_TABLING */
 #ifdef YAPOR
-  new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, NULL);
+  new_dependency_frame(GLOBAL_root_dep_fr, FALSE, NULL, NULL, NULL, NULL, FALSE, NULL);
 #endif /* YAPOR */
   for (i = 0; i < MAX_TABLE_VARS; i++) {
     CELL *pt = GLOBAL_table_var_enumerator_addr(i);
@@ -165,7 +165,9 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 
 
 void Yap_init_local_optyap_data(int wid) {
+#ifdef THREADS_CONSUMER_SHARING
   CACHE_REGS
+#endif /* THREADS_CONSUMER_SHARING */
 
 #if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
   /* local data related to memory management */
@@ -216,9 +218,13 @@ void Yap_init_local_optyap_data(int wid) {
   REMOTE_top_dep_fr(wid) = GLOBAL_root_dep_fr; 
   Set_REMOTE_top_cp_on_stack(wid, (choiceptr) LOCAL_LocalBase); /* ??? */
   REMOTE_top_susp_or_fr(wid) = GLOBAL_root_or_fr;
-#else
-  new_dependency_frame(REMOTE_top_dep_fr(wid), FALSE, NULL, NULL, NULL, NULL, NULL);
 #endif /* YAPOR */
+#ifdef THREADS_CONSUMER_SHARING
+  ThDepFr_terminator(GLOBAL_th_dep_fr(wid)) = 0;
+  ThDepFr_next(GLOBAL_th_dep_fr(wid)) = wid;
+  ThDepFr_state(GLOBAL_th_dep_fr(wid)) = working;
+  INIT_LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid)));
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
   return;
 }
@@ -256,7 +262,7 @@ void Yap_init_root_frames(void) {
 #ifdef YAPOR
   DepFr_cons_cp(GLOBAL_root_dep_fr) = B;  /* with YAPOR, at that point, LOCAL_top_dep_fr shouldn't be the same as GLOBAL_root_dep_fr ? */
 #else
-  DepFr_cons_cp(LOCAL_top_dep_fr) = B;
+  new_dependency_frame(LOCAL_top_dep_fr, FALSE, NULL, NULL, B, NULL, FALSE, NULL); 
 #endif /* YAPOR */
 #endif /* TABLING */
 }

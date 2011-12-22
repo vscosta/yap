@@ -466,6 +466,9 @@ struct local_optyap_data {
 #endif /* YAPOR_THREADS */
   struct or_frame *top_or_frame_with_suspensions;
 #endif /* YAPOR */
+#ifdef OUTPUT_THREADS_TABLING
+  FILE *thread_output;
+#endif /* OUTPUT_THREADS_TABLING */
 #endif /* TABLING */
 
 #if (defined(TABLING) || !defined(YAPOR_COW)) && defined(MULTI_ASSIGNMENT_VARIABLES)
@@ -529,6 +532,7 @@ struct local_optyap_data {
 #define Set_LOCAL_top_cp_on_stack(cpt)	   (LOCAL_optyap_data.top_choice_point_on_stack =  cpt)
 #endif /* YAPOR_THREADS */
 #define LOCAL_top_susp_or_fr               (LOCAL_optyap_data.top_or_frame_with_suspensions)
+#define LOCAL_thread_output                (LOCAL_optyap_data.thread_output)
 #define LOCAL_ma_timestamp                 (LOCAL_optyap_data.ma_timestamp)
 #define LOCAL_ma_h_top                     (LOCAL_optyap_data.ma_h_top)
 #define LOCAL_ma_hash_table                (LOCAL_optyap_data.ma_hash_table)
@@ -585,7 +589,10 @@ struct local_optyap_data {
 #define Set_REMOTE_top_cp_on_stack(wid, bptr)  (REMOTE(wid)->optyap_data_.top_choice_point_on_stack = (bptr))
 #endif /* YAPOR_THREADS */
 #define REMOTE_top_susp_or_fr(wid)             (REMOTE(wid)->optyap_data_.top_or_frame_with_suspensions)
-
+#define REMOTE_thread_output(wid)              (REMOTE(wid)->optyap_data_.thread_output)
+#define REMOTE_ma_timestamp(wid)               (REMOTE(wid)->optyap_data_.ma_timestamp)
+#define REMOTE_ma_h_top(wid)                   (REMOTE(wid)->optyap_data_.ma_h_top)
+#define REMOTE_ma_hash_table(wid)              (REMOTE(wid)->optyap_data_.ma_hash_table)
 
 #ifdef YAPOR
 #include "or.structs.h"

@@ -21,6 +21,26 @@
 #endif /* HAVE_STRING_H */
 #include "opt.mavar.h"
 
+#ifdef THREADS
+static inline void **get_insert_thread_bucket(void **, lockvar *);
+static inline void **get_thread_bucket(void **);
+static inline void abolish_thread_buckets(void **);
+#endif /* THREADS */
+static inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr USES_REGS);
+static inline sg_node_ptr get_subgoal_trie(tab_ent_ptr);
+static inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr USES_REGS);
+static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr USES_REGS);
+static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr);
+static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr USES_REGS);
+#ifdef THREADS_FULL_SHARING
+static inline void SgFr_batched_cached_answers_check_insert(sg_fr_ptr, ans_node_ptr);
+static inline int SgFr_batched_cached_answers_check_remove(sg_fr_ptr, ans_node_ptr);
+#endif /* THREADS_FULL_SHARING */
+#ifdef THREADS_CONSUMER_SHARING
+static inline void add_to_tdv(int, int);
+static inline void check_for_deadlock(sg_fr_ptr);
+static inline sg_fr_ptr deadlock_detection(sg_fr_ptr);
+#endif /* THREADS_CONSUMER_SHARING */
 static inline Int freeze_current_cp(void);
 static inline void wake_frozen_cp(Int);
 static inline void abolish_frozen_cps_until(Int);
@@ -148,8 +168,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #else
 #define ANSWER_LEAF_NODE_MAX_THREADS  OOOOPPS!!! Unknown Pointer Sizeof
 #endif /* SIZEOF_INT_P */
-#define ANSWER_LEAF_NODE_INSTR_RELATIVE(NODE)  TrNode_instr(NODE) = TrNode_instr(NODE) - _trie_do_var + 1
-#define ANSWER_LEAF_NODE_INSTR_ABSOLUTE(NODE)  TrNode_instr(NODE) = (TrNode_instr(NODE) & ANSWER_LEAF_NODE_INSTR_MASK) + _trie_do_var - 1
+#define ANSWER_LEAF_NODE_INSTR_RELATIVE(NODE)  (TrNode_instr(NODE) = TrNode_instr(NODE) - _trie_do_var + 1)
+#define ANSWER_LEAF_NODE_INSTR_ABSOLUTE(NODE)  (TrNode_instr(NODE) = (TrNode_instr(NODE) & ANSWER_LEAF_NODE_INSTR_MASK) + _trie_do_var - 1)
 #define ANSWER_LEAF_NODE_SET_WID(NODE,WID)     BITMAP_insert(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
 #define ANSWER_LEAF_NODE_DEL_WID(NODE,WID)     BITMAP_delete(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
 #define ANSWER_LEAF_NODE_CHECK_WID(NODE,WID)   BITMAP_member(TrNode_instr(NODE), WID + ANSWER_LEAF_NODE_INSTR_BITS)
@@ -165,18 +185,22 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_BATCHED_NORM_GEN_CP(CP)  (GEN_CP(CP)->cp_dep_fr == NULL)
 #define IS_BATCHED_GEN_CP(CP)       (IS_DET_GEN_CP(CP) || IS_BATCHED_NORM_GEN_CP(CP))
 #else
+#ifdef THREADS_CONSUMER_SHARING
+#define IS_BATCHED_GEN_CP(CP)       (IsMode_Batched(TabEnt_mode(SgFr_tab_ent(GEN_CP(CP)->cp_sg_fr))))
+#else
 #define IS_BATCHED_GEN_CP(CP)       (GEN_CP(CP)->cp_dep_fr == NULL)
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* DETERMINISTIC_TABLING */
 
-/* leaf nodes */
-#define TAG_AS_SUBGOAL_LEAF_NODE(NODE)  TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
-#define UNTAG_SUBGOAL_LEAF_NODE(NODE)   ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
-#define IS_SUBGOAL_LEAF_NODE(NODE)      ((unsigned long int) TrNode_child(NODE) & 0x1)
-#define TAG_AS_ANSWER_LEAF_NODE(NODE)   TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
-#define UNTAG_ANSWER_LEAF_NODE(NODE)    ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x1)))
-#define IS_ANSWER_LEAF_NODE(NODE)       ((unsigned long int) TrNode_parent(NODE) & 0x1)
-#define TAG_AS_INVALID_LEAF_NODE(NODE)  TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
-#define IS_INVALID_LEAF_NODE(NODE)      ((unsigned long int) TrNode_parent(NODE) & 0x2)
+/* tagging nodes */
+#define TAG_AS_SUBGOAL_LEAF_NODE(NODE)       TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
+#define IS_SUBGOAL_LEAF_NODE(NODE)           ((unsigned long int) TrNode_child(NODE) & 0x1)
+#define TAG_AS_ANSWER_LEAF_NODE(NODE)        TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
+#define IS_ANSWER_LEAF_NODE(NODE)            ((unsigned long int) TrNode_parent(NODE) & 0x1)
+#define TAG_AS_ANSWER_INVALID_NODE(NODE)     TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
+#define IS_ANSWER_INVALID_NODE(NODE)         ((unsigned long int) TrNode_parent(NODE) & 0x2)
+#define UNTAG_SUBGOAL_NODE(NODE)             ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
+#define UNTAG_ANSWER_NODE(NODE)              ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x3)))
 
 /* trie hashes */
 #define MAX_NODES_PER_TRIE_LEVEL        8
@@ -278,18 +302,21 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #endif /* YAPOR */
 
 #ifdef MODE_DIRECTED_TABLING
-#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)   \
+#define TabEnt_init_mode_directed_field(TAB_ENT, MODE_ARRAY)  \
         TabEnt_mode_directed(TAB_ENT) = MODE_ARRAY
-#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)       \
-        SgFr_invalid_chain(SG_FR) = NULL;                \
+#define SgEnt_init_mode_directed_fields(SG_ENT, MODE_ARRAY)   \
+        SgEnt_invalid_chain(SG_ENT) = NULL;                   \
+        SgEnt_mode_directed(SG_ENT) = MODE_ARRAY
+#define SgFr_init_mode_directed_fields(SG_FR, MODE_ARRAY)     \
+        SgFr_invalid_chain(SG_FR) = NULL;                     \
         SgFr_mode_directed(SG_FR) = MODE_ARRAY
-#define AnsHash_init_previous_field(HASH, SG_FR)         \
-        if (SgFr_hash_chain(SG_FR))                      \
-          Hash_previous(SgFr_hash_chain(SG_FR)) = HASH;  \
+#define AnsHash_init_previous_field(HASH, SG_FR)              \
+        if (SgFr_hash_chain(SG_FR))                           \
+          Hash_previous(SgFr_hash_chain(SG_FR)) = HASH;       \
         Hash_previous(HASH) = NULL
 #else
-#define TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY)
-#define SgFr_init_mode_directed(SG_FR, MODE_ARRAY)
+#define TabEnt_init_mode_directed_field(TAB_ENT, MODE_ARRAY)
+#define SgFr_init_mode_directed_fields(SG_FR, MODE_ARRAY)
 #define AnsHash_init_previous_field(HASH, SG_FR)
 #endif /* MODE_DIRECTED_TABLING */
 
@@ -315,20 +342,18 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_UNLOCKED_DEP_FR(DEP_FR)
 #endif /* YAPOR */
 
+#if defined(SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL) || defined(THREADS_NO_SHARING)
+#define INIT_LOCK_TAB_ENT(TAB_ENT)  INIT_LOCK(TabEnt_lock(TAB_ENT))
+#else
+#define INIT_LOCK_TAB_ENT(TAB_ENT)
+#endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL || THREADS_NO_SHARING */
+
 #ifdef SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL
 #define LOCK_SUBGOAL_TRIE(TAB_ENT)    LOCK(TabEnt_lock(TAB_ENT))
 #define UNLOCK_SUBGOAL_TRIE(TAB_ENT)  UNLOCK(TabEnt_lock(TAB_ENT))
-#define SgHash_init_next_field(HASH, TAB_ENT)          \
-        Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
-        TabEnt_hash_chain(TAB_ENT) = HASH
 #else
 #define LOCK_SUBGOAL_TRIE(TAB_ENT)
 #define UNLOCK_SUBGOAL_TRIE(TAB_ENT)
-#define SgHash_init_next_field(HASH, TAB_ENT)          \
-        LOCK(TabEnt_lock(TAB_ENT));                    \
-        Hash_next(HASH) = TabEnt_hash_chain(TAB_ENT);  \
-        TabEnt_hash_chain(TAB_ENT) = HASH;             \
-        UNLOCK(TabEnt_lock(TAB_ENT))
 #endif /* SUBGOAL_TRIE_LOCK_AT_ENTRY_LEVEL */
 
 #ifdef ANSWER_TRIE_LOCK_AT_ENTRY_LEVEL
@@ -391,63 +416,137 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define GtNode_init_lock_field(NODE)
 #endif /* GLOBAL_TRIE_LOCK_LEVEL */
 
+#ifdef THREADS_NO_SHARING
+#define TabEnt_init_subgoal_trie_field(TAB_ENT)                           \
+        INIT_BUCKETS(&TabEnt_subgoal_trie(TAB_ENT), THREADS_NUM_BUCKETS)
+#else
+#define TabEnt_init_subgoal_trie_field(TAB_ENT)                           \
+        { register sg_node_ptr sg_node;                                   \
+          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);            \
+          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                         \
+	}
+#endif /* THREADS_NO_SHARING */
+
+#if defined(THREADS_FULL_SHARING)
+#define SgFr_init_batched_fields(SG_FR)             \
+        SgFr_batched_last_answer(SG_FR) = NULL;     \
+        SgFr_batched_cached_answers(SG_FR) = NULL;
+#else
+#define SgFr_init_batched_fields(SG_FR)
+#endif /* THREADS_FULL_SHARING */
+
+#ifdef THREADS_CONSUMER_SHARING
+#define DepFr_init_external_field(DEP_FR, IS_EXTERNAL)          \
+        DepFr_external(DEP_FR) = IS_EXTERNAL
+#else
+#define DepFr_init_external_field(DEP_FR, IS_EXTERNAL)
+#endif /* THREADS_CONSUMER_SHARING */
+
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define DepFr_init_last_answer_field(DEP_FR, SG_FR)                                               \
+        /* start with TrNode_child(DepFr_last_answer(DEP_FR)) ... */                              \
+        /* ... pointing to SgEnt_first_answer(SgFr_sg_ent(SG_FR)) */	                          \
+        if (SG_FR)                                                                                \
+          DepFr_last_answer(DEP_FR) = (ans_node_ptr) (                                            \
+                                 (unsigned long int) (SgFr_sg_ent((sg_fr_ptr)SG_FR)) +            \
+ 	                         (unsigned long int) (&SgEnt_first_answer((sg_ent_ptr)DEP_FR)) -  \
+				 (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
+        else                                                                                      \
+          DepFr_last_answer(DEP_FR) = NULL
+#else
+#define DepFr_init_last_answer_field(DEP_FR, SG_FR)                                               \
+        /* start with TrNode_child(DepFr_last_answer(DEP_FR)) ... */                              \
+        /* ... pointing to SgFr_first_answer(SG_FR) */                                            \
+        if (SG_FR)                                                                                \
+          DepFr_last_answer(DEP_FR) = (ans_node_ptr) (                                            \
+                                 (unsigned long int) (SG_FR) +                                    \
+                                 (unsigned long int) (&SgFr_first_answer((sg_fr_ptr)DEP_FR)) -    \
+				 (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
+        else                                                                                      \
+          DepFr_last_answer(DEP_FR) = NULL
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+
+
+
 #define new_table_entry(TAB_ENT, PRED_ENTRY, ATOM, ARITY, MODE_ARRAY)  \
-        { register sg_node_ptr sg_node;                                \
-          new_subgoal_trie_node(sg_node, 0, NULL, NULL, NULL);         \
-          ALLOC_TABLE_ENTRY(TAB_ENT);                                  \
-	  INIT_LOCK(TabEnt_lock(TAB_ENT));                             \
-          TabEnt_pe(TAB_ENT) = PRED_ENTRY;                             \
-          TabEnt_atom(TAB_ENT) = ATOM;                                 \
-          TabEnt_arity(TAB_ENT) = ARITY;                               \
-          TabEnt_flags(TAB_ENT) = 0;                                   \
-          SetMode_Batched(TabEnt_flags(TAB_ENT));                      \
-          SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));                  \
-          SetMode_LocalTrie(TabEnt_flags(TAB_ENT));                    \
-          TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);                \
-          if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))              \
-            SetMode_Local(TabEnt_mode(TAB_ENT));                       \
-          if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))        \
-            SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));                 \
-          if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))         \
-            SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));                  \
-          TabEnt_init_mode_directed(TAB_ENT, MODE_ARRAY);              \
-          TabEnt_subgoal_trie(TAB_ENT) = sg_node;                      \
-          TabEnt_hash_chain(TAB_ENT) = NULL;                           \
-          TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                  \
-          GLOBAL_root_tab_ent = TAB_ENT;                               \
+        ALLOC_TABLE_ENTRY(TAB_ENT);                                    \
+        INIT_LOCK_TAB_ENT(TAB_ENT);                                    \
+        TabEnt_pe(TAB_ENT) = PRED_ENTRY;                               \
+        TabEnt_atom(TAB_ENT) = ATOM;                                   \
+        TabEnt_arity(TAB_ENT) = ARITY;                                 \
+        TabEnt_flags(TAB_ENT) = 0;                                     \
+        SetMode_Batched(TabEnt_flags(TAB_ENT));                        \
+        SetMode_ExecAnswers(TabEnt_flags(TAB_ENT));                    \
+        SetMode_LocalTrie(TabEnt_flags(TAB_ENT));                      \
+        TabEnt_mode(TAB_ENT) = TabEnt_flags(TAB_ENT);                  \
+        if (IsMode_Local(yap_flags[TABLING_MODE_FLAG]))                \
+          SetMode_Local(TabEnt_mode(TAB_ENT));                         \
+        if (IsMode_LoadAnswers(yap_flags[TABLING_MODE_FLAG]))          \
+          SetMode_LoadAnswers(TabEnt_mode(TAB_ENT));                   \
+        if (IsMode_GlobalTrie(yap_flags[TABLING_MODE_FLAG]))           \
+          SetMode_GlobalTrie(TabEnt_mode(TAB_ENT));                    \
+        TabEnt_init_mode_directed_field(TAB_ENT, MODE_ARRAY);          \
+        TabEnt_init_subgoal_trie_field(TAB_ENT);                       \
+        TabEnt_next(TAB_ENT) = GLOBAL_root_tab_ent;                    \
+        GLOBAL_root_tab_ent = TAB_ENT
+
+#define new_subgoal_entry(SG_ENT)                                   \
+        { register ans_node_ptr ans_node;                           \
+          new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);   \
+          ALLOC_SUBGOAL_ENTRY(SG_ENT);                              \
+          INIT_LOCK(SgEnt_lock(SG_ENT));		            \
+          SgEnt_hash_chain(SG_ENT) = NULL;		 	    \
+          SgEnt_answer_trie(SG_ENT) = ans_node;                     \
+          SgEnt_first_answer(SG_ENT) = NULL;                        \
+          SgEnt_last_answer(SG_ENT) = NULL;		            \
+          SgEnt_sg_ent_state(SG_ENT) = ready;		 	    \
+          SgEnt_active_workers(SG_ENT) = 0;                         \
+          INIT_BUCKETS(&SgEnt_sg_fr(SG_ENT), THREADS_NUM_BUCKETS);  \
         }
 
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#define new_subgoal_frame(SG_FR, SG_ENT)		           \
+        { ALLOC_SUBGOAL_FRAME(SG_FR);    	     	           \
+          SgFr_sg_ent(SG_FR) = SG_ENT ; 		           \
+          SgFr_init_batched_fields(SG_FR);		           \
+        }
+
+#define init_subgoal_frame(SG_FR)                                  \
+        { SgFr_state(SG_FR) = evaluating;			   \
+          SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
+          LOCAL_top_sg_fr = SG_FR;                                 \
+	}
+#else
 #define new_subgoal_frame(SG_FR, CODE, MODE_ARRAY)		   \
         { register ans_node_ptr ans_node;                          \
           new_answer_trie_node(ans_node, 0, 0, NULL, NULL, NULL);  \
           ALLOC_SUBGOAL_FRAME(SG_FR);                              \
           INIT_LOCK_SG_FR(SG_FR);                                  \
           SgFr_code(SG_FR) = CODE;                                 \
-          SgFr_state(SG_FR) = ready;                               \
           SgFr_hash_chain(SG_FR) = NULL;                           \
           SgFr_answer_trie(SG_FR) = ans_node;                      \
           SgFr_first_answer(SG_FR) = NULL;                         \
           SgFr_last_answer(SG_FR) = NULL;                          \
-	  SgFr_init_mode_directed(SG_FR, MODE_ARRAY);		   \
+	  SgFr_init_mode_directed_fields(SG_FR, MODE_ARRAY);	   \
+          SgFr_state(SG_FR) = ready;                               \
 	}
 
-#define init_subgoal_frame(SG_FR)               \
-        { SgFr_init_yapor_fields(SG_FR);        \
-          SgFr_state(SG_FR) = evaluating;       \
-          SgFr_next(SG_FR) = LOCAL_top_sg_fr;   \
-          LOCAL_top_sg_fr = SG_FR;              \
+#define init_subgoal_frame(SG_FR)                                  \
+        { SgFr_init_yapor_fields(SG_FR);                           \
+          SgFr_state(SG_FR) = evaluating;                          \
+          SgFr_next(SG_FR) = LOCAL_top_sg_fr;                      \
+          LOCAL_top_sg_fr = SG_FR;                                 \
 	}
+#endif /* THREADS_FULL_SHARING) || THREADS_CONSUMER_SHARING */
 
-#define new_dependency_frame(DEP_FR, DEP_ON_STACK, TOP_OR_FR, LEADER_CP, CONS_CP, SG_FR, NEXT)         \
-        ALLOC_DEPENDENCY_FRAME(DEP_FR);                                                                \
-        DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR);                                      \
-        DepFr_backchain_cp(DEP_FR) = NULL;                                                             \
-        DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                                  \
-        DepFr_cons_cp(DEP_FR) = NORM_CP(CONS_CP);                                                      \
-        /* start with TrNode_child(DepFr_last_answer(DEP_FR)) pointing to SgFr_first_answer(SG_FR) */  \
-        DepFr_last_answer(DEP_FR) = (ans_node_ptr) ((unsigned long int) (SG_FR) +                      \
-                                    (unsigned long int) (&SgFr_first_answer((sg_fr_ptr)DEP_FR)) -      \
-                                    (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));        \
+#define new_dependency_frame(DEP_FR, DEP_ON_STACK, TOP_OR_FR, LEADER_CP, CONS_CP, SG_FR, IS_EXTERNAL, NEXT)  \
+        ALLOC_DEPENDENCY_FRAME(DEP_FR);                                                                      \
+        DepFr_init_yapor_fields(DEP_FR, DEP_ON_STACK, TOP_OR_FR);                                            \
+        DepFr_init_external_field(DEP_FR, IS_EXTERNAL);                                                      \
+        DepFr_backchain_cp(DEP_FR) = NULL;                                                                   \
+        DepFr_leader_cp(DEP_FR) = NORM_CP(LEADER_CP);                                                        \
+        DepFr_cons_cp(DEP_FR) = NORM_CP(CONS_CP);                                                            \
+        DepFr_init_last_answer_field(DEP_FR, SG_FR);                                                         \
         DepFr_next(DEP_FR) = NEXT
 
 #define new_suspension_frame(SUSP_FR, TOP_OR_FR_ON_STACK, TOP_DEP, TOP_SG,             \
@@ -478,7 +577,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         SgNode_init_lock_field(NODE)
 
 #define new_answer_trie_node(NODE, INSTR, ENTRY, CHILD, PARENT, NEXT)  \
-        ALLOC_ANSWER_TRIE_NODE(NODE);                                  \
+        ALLOC_ANSWER_TRIE_NODE(NODE);				       \
         TrNode_instr(NODE) = INSTR;                                    \
         TrNode_entry(NODE) = ENTRY;                                    \
         TrNode_child(NODE) = CHILD;                                    \
@@ -494,27 +593,32 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         TrNode_next(NODE) = NEXT;                               \
         GtNode_init_lock_field(NODE)
 
-#define new_subgoal_trie_hash(HASH, NUM_NODES, TAB_ENT)             \
-        ALLOC_SUBGOAL_TRIE_HASH(HASH);                              \
-        Hash_mark(HASH) = SUBGOAL_TRIE_HASH_MARK;                   \
-        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;                 \
-        ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
-        Hash_num_nodes(HASH) = NUM_NODES;                           \
-        SgHash_init_next_field(HASH, TAB_ENT)      
+#define new_answer_ref_node(NODE, ANSWER, NEXT, PREVIOUS)  \
+        ALLOC_ANSWER_REF_NODE(NODE);			   \
+        RefNode_answer(NODE) = ANSWER;	                   \
+        RefNode_next(NODE) = NEXT;                         \
+        RefNode_previous(NODE) = PREVIOUS
 
-#define new_answer_trie_hash(HASH, NUM_NODES, SG_FR)                \
-        ALLOC_ANSWER_TRIE_HASH(HASH);                               \
-        Hash_mark(HASH) = ANSWER_TRIE_HASH_MARK;                    \
-        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;                 \
-        ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
-        Hash_num_nodes(HASH) = NUM_NODES;                           \
+#define new_subgoal_trie_hash(HASH, NUM_NODES, TAB_ENT)         \
+        ALLOC_SUBGOAL_TRIE_HASH(HASH);                          \
+        Hash_mark(HASH) = SUBGOAL_TRIE_HASH_MARK;               \
+        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;             \
+        ALLOC_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);   \
+        Hash_num_nodes(HASH) = NUM_NODES
+
+#define new_answer_trie_hash(HASH, NUM_NODES, SG_FR)            \
+        ALLOC_ANSWER_TRIE_HASH(HASH);                           \
+        Hash_mark(HASH) = ANSWER_TRIE_HASH_MARK;                \
+        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;             \
+        ALLOC_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);   \
+        Hash_num_nodes(HASH) = NUM_NODES;                       \
         AnsHash_init_chain_fields(HASH, SG_FR)
 
-#define new_global_trie_hash(HASH, NUM_NODES)                       \
-        ALLOC_GLOBAL_TRIE_HASH(HASH);                               \
-        Hash_mark(HASH) = GLOBAL_TRIE_HASH_MARK;                    \
-        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;                 \
-        ALLOC_HASH_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);  \
+#define new_global_trie_hash(HASH, NUM_NODES)                   \
+        ALLOC_GLOBAL_TRIE_HASH(HASH);                           \
+        Hash_mark(HASH) = GLOBAL_TRIE_HASH_MARK;                \
+        Hash_num_buckets(HASH) = BASE_HASH_BUCKETS;             \
+        ALLOC_BUCKETS(Hash_buckets(HASH), BASE_HASH_BUCKETS);   \
 	Hash_num_nodes(HASH) = NUM_NODES
 
 #ifdef LIMIT_TABLING
@@ -550,6 +654,327 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 /******************************
 **      Inline funcions      **
 ******************************/
+
+#ifdef THREADS
+static inline void **get_insert_thread_bucket(void **buckets, lockvar *buckets_lock) {
+  CACHE_REGS
+
+  /* direct bucket */
+  if (worker_id < THREADS_DIRECT_BUCKETS)
+    return buckets + worker_id;
+
+  /* indirect bucket */
+  buckets = buckets + THREADS_DIRECT_BUCKETS + (worker_id - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS;
+  if (*buckets)
+    return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+
+  /* insert indirect bucket */
+  LOCK(*buckets_lock);
+  if (*buckets == NULL)
+    ALLOC_BUCKETS(*buckets, THREADS_DIRECT_BUCKETS);
+  UNLOCK(*buckets_lock);
+  return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+}
+
+
+static inline void **get_thread_bucket(void **buckets) {
+  CACHE_REGS
+
+  /* direct bucket */
+  if (worker_id < THREADS_DIRECT_BUCKETS)
+    return buckets + worker_id;
+
+  /* indirect bucket */
+  buckets = buckets + THREADS_DIRECT_BUCKETS + (worker_id - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS;
+  if (*buckets)
+    return *buckets + (worker_id - THREADS_DIRECT_BUCKETS) % THREADS_DIRECT_BUCKETS;
+
+  /* empty indirect bucket */
+  return buckets;
+}
+
+
+static inline void abolish_thread_buckets(void **buckets) {
+  int i;
+
+  /* abolish indirect buckets */
+  buckets += THREADS_NUM_BUCKETS;
+  for (i = 0; i < THREADS_INDIRECT_BUCKETS; i++) {
+    if (*--buckets) {
+      FREE_BUCKETS(*buckets);
+      *buckets = NULL;
+    }
+  }
+
+#if defined(THREADS_SUBGOAL_SHARING)
+  /* abolish direct buckets */
+  buckets -= THREADS_DIRECT_BUCKETS;
+  FREE_BUCKETS(buckets);
+#endif /* THREADS_SUBGOAL_SHARING */
+}
+#endif /* THREADS */
+
+
+static inline sg_node_ptr get_insert_subgoal_trie(tab_ent_ptr tab_ent USES_REGS) {
+#ifdef THREADS_NO_SHARING
+  sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_insert_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent), &TabEnt_lock(tab_ent));
+  if (*sg_node_addr == NULL) {
+    new_subgoal_trie_node(*sg_node_addr, 0, NULL, NULL, NULL);
+  }
+  return *sg_node_addr;
+#else
+  return TabEnt_subgoal_trie(tab_ent);
+#endif /* THREADS_NO_SHARING */
+}
+
+
+static inline sg_node_ptr get_subgoal_trie(tab_ent_ptr tab_ent) {
+#ifdef THREADS_NO_SHARING
+  sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent));
+  return *sg_node_addr;
+#else
+  return TabEnt_subgoal_trie(tab_ent);
+#endif /* THREADS_NO_SHARING */
+}
+
+
+static inline sg_node_ptr get_subgoal_trie_for_abolish(tab_ent_ptr tab_ent USES_REGS) {
+#ifdef THREADS_NO_SHARING
+  sg_node_ptr *sg_node_addr = (sg_node_ptr *) get_thread_bucket((void **) &TabEnt_subgoal_trie(tab_ent));
+  sg_node_ptr sg_node = *sg_node_addr;
+  *sg_node_addr = NULL;
+  if (worker_id == 0)
+    abolish_thread_buckets((void **) &TabEnt_subgoal_trie(tab_ent));
+  return sg_node;
+#else
+  return TabEnt_subgoal_trie(tab_ent);
+#endif /* THREADS_NO_SHARING */
+}
+
+
+static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr sg_node USES_REGS) {
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) &TrNode_sg_fr(sg_node);
+#if defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  if (*sg_fr_addr == NULL) {
+    LOCK_SUBGOAL_NODE(sg_node);
+    if (*sg_fr_addr == NULL) {
+#if defined(THREADS_SUBGOAL_SHARING)
+      ALLOC_BUCKETS(TrNode_sg_fr(sg_node), THREADS_NUM_BUCKETS);
+#elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+      sg_ent_ptr sg_ent;
+      new_subgoal_entry(sg_ent);
+      TrNode_sg_ent(sg_node) = (sg_node_ptr) sg_ent;
+#endif
+      TAG_AS_SUBGOAL_LEAF_NODE(sg_node);
+    }
+    UNLOCK_SUBGOAL_NODE(sg_node);
+  }
+  sg_fr_addr = (sg_fr_ptr *) get_insert_thread_bucket(
+#if defined(THREADS_SUBGOAL_SHARING)
+                                (void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)),
+#elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+                                (void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))),
+#endif
+#ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
+                                   &TrNode_lock(sg_node)
+#elif defined(SUBGOAL_TRIE_LOCK_USING_GLOBAL_ARRAY)
+                                   &HASH_TRIE_LOCK(sg_node)
+#endif
+                             );
+#endif /* THREADS_SUBGOAL_SHARING || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+  return sg_fr_addr;
+}
+
+
+static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr sg_node) {
+#if defined(THREADS_SUBGOAL_SHARING)
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
+  return *sg_fr_addr;
+#elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+  return *sg_fr_addr;
+#else
+  return UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
+#endif
+}
+
+
+static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr sg_node USES_REGS) {
+#if defined(THREADS_SUBGOAL_SHARING)
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
+  sg_fr_ptr sg_fr = *sg_fr_addr;
+  if (worker_id == 0)
+    abolish_thread_buckets((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
+  else
+    *sg_fr_addr = NULL;
+  return sg_fr;
+#elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+  sg_fr_ptr sg_fr = *sg_fr_addr;
+  if (worker_id == 0)
+    abolish_thread_buckets((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+  else
+    *sg_fr_addr = NULL;
+  return sg_fr;
+#else
+  return UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
+#endif
+}
+
+
+#ifdef THREADS_FULL_SHARING
+static inline void SgFr_batched_cached_answers_check_insert(sg_fr_ptr sg_fr, ans_node_ptr ans_node) {
+  CACHE_REGS
+
+  if (SgFr_batched_last_answer(sg_fr) == NULL)
+    SgFr_batched_last_answer(sg_fr) = SgFr_first_answer(sg_fr);
+  else
+    SgFr_batched_last_answer(sg_fr) = TrNode_child(SgFr_batched_last_answer(sg_fr)) ;
+
+  while (SgFr_batched_last_answer(sg_fr) != ans_node) {
+    struct answer_ref_node *ref_node = NULL;
+    if (SgFr_batched_cached_answers(sg_fr) == NULL) {
+      new_answer_ref_node(ref_node, SgFr_batched_last_answer(sg_fr), NULL, NULL);
+    } else {
+      new_answer_ref_node(ref_node, SgFr_batched_last_answer(sg_fr), SgFr_batched_cached_answers(sg_fr), NULL);
+      RefNode_previous(SgFr_batched_cached_answers(sg_fr)) = ref_node;
+    }
+    SgFr_batched_cached_answers(sg_fr) = ref_node;
+    SgFr_batched_last_answer(sg_fr) = TrNode_child(SgFr_batched_last_answer(sg_fr)) ;			
+  }
+  if (ans_node != NULL)
+    /* new answer */
+    SgFr_batched_last_answer(sg_fr) = ans_node;
+  else
+    /* repeated answer */
+    SgFr_batched_last_answer(sg_fr) = SgFr_last_answer(sg_fr);
+
+  return;
+}
+
+static inline int SgFr_batched_cached_answers_check_remove(sg_fr_ptr sg_fr, ans_node_ptr ans_node) {
+  CACHE_REGS
+  struct answer_ref_node *local_uncons_ans;
+
+  local_uncons_ans = SgFr_batched_cached_answers(sg_fr) ; 
+  while ( local_uncons_ans != NULL ) {				 	                
+    if ( RefNode_answer(local_uncons_ans) == ans_node )			                
+      break;								                
+    local_uncons_ans = RefNode_next(local_uncons_ans) ;			                
+  }									                
+  if ( local_uncons_ans == NULL )                                                       
+    return 1; 
+
+  /*remove node from buffer */		
+  if (RefNode_previous(local_uncons_ans) == NULL)	{
+    SgFr_batched_cached_answers(sg_fr) = RefNode_next(local_uncons_ans) ; 
+    if (SgFr_batched_cached_answers(sg_fr) != NULL) 
+      RefNode_previous(SgFr_batched_cached_answers(sg_fr)) = NULL;
+  } else{
+    RefNode_next(RefNode_previous(local_uncons_ans)) = RefNode_next(local_uncons_ans);
+    if (RefNode_next(local_uncons_ans) != NULL) 
+      RefNode_previous(RefNode_next(local_uncons_ans)) = RefNode_previous(local_uncons_ans);
+  }
+  FREE_ANSWER_REF_NODE(local_uncons_ans);
+  return 0;
+}
+#endif /* THREADS_FULL_SHARING */
+
+
+#ifdef THREADS_CONSUMER_SHARING
+static inline void add_to_tdv(int wid, int wid_dep) {
+#ifdef OUTPUT_THREADS_TABLING
+  CACHE_REGS
+#endif /* OUTPUT_THREADS_TABLING */
+  // thread wid next of thread wid_dep
+  /* check before insert */
+  int c_wid = ThDepFr_next(GLOBAL_th_dep_fr(wid));
+  do {
+    if (c_wid == wid_dep)
+      break;
+    c_wid = ThDepFr_next(GLOBAL_th_dep_fr(c_wid));
+  } while( c_wid != wid );
+  if (c_wid == wid_dep)
+    return;
+
+  if (wid < wid_dep) {
+    LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid)));
+    LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid_dep)));
+  } else {
+    LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid_dep)));
+    LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid)));
+  }
+  
+  c_wid = ThDepFr_next(GLOBAL_th_dep_fr(wid));
+  do {
+    if (c_wid == wid_dep)
+      break;
+    c_wid = ThDepFr_next(GLOBAL_th_dep_fr(c_wid));
+  } while( c_wid != wid );
+  if ( c_wid == wid ){
+    // joining the two different SCCs
+    int t = ThDepFr_next(GLOBAL_th_dep_fr(wid));
+    ThDepFr_next(GLOBAL_th_dep_fr(wid)) = ThDepFr_next(GLOBAL_th_dep_fr(wid_dep));
+    ThDepFr_next(GLOBAL_th_dep_fr(wid_dep)) = t;
+  }
+
+  INFO_THREADS("add_to_tdv (2) :tdv_next[%d] = %d tdv_next[%d]= %d", wid, ThDepFr_next(GLOBAL_th_dep_fr(wid)), wid_dep, ThDepFr_next(GLOBAL_th_dep_fr(wid_dep)));
+
+  UNLOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid)));
+  UNLOCK(ThDepFr_lock(GLOBAL_th_dep_fr(wid_dep)));
+  return;
+}
+
+
+static inline void check_for_deadlock(sg_fr_ptr sg_fr) {
+  CACHE_REGS
+  sg_fr_ptr local_sg_fr = deadlock_detection(sg_fr);
+
+  if (local_sg_fr){
+    LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(worker_id)));
+    if (YOUNGER_CP(DepFr_leader_cp(LOCAL_top_dep_fr),SgFr_gen_cp(local_sg_fr)))
+      DepFr_leader_cp(LOCAL_top_dep_fr) = SgFr_gen_cp(local_sg_fr);
+
+    UNLOCK(ThDepFr_lock(GLOBAL_th_dep_fr(worker_id)));
+  }
+  return; 
+}
+
+
+static inline sg_fr_ptr deadlock_detection(sg_fr_ptr sg_fr) {
+  CACHE_REGS
+  sg_fr_ptr remote_sg_fr = REMOTE_top_sg_fr(SgFr_gen_worker(sg_fr));
+
+  while( SgFr_sg_ent(remote_sg_fr) != SgFr_sg_ent(sg_fr)){
+    sg_fr_ptr local_sg_fr = SgFr_next(LOCAL_top_sg_fr);
+    while(local_sg_fr){
+      if (      SgFr_sg_ent(local_sg_fr)   == SgFr_sg_ent(remote_sg_fr) || 
+         (      SgFr_gen_worker(remote_sg_fr) != SgFr_gen_worker(sg_fr)       &&  /* jump to other chain */
+                SgFr_gen_worker(remote_sg_fr) != worker_id                      &&  /* not jumping to the chain of the thread that is detecting the deadlock */
+	        deadlock_detection(remote_sg_fr))){
+	
+	sg_fr_ptr leader_remote_sg_fr;
+	do 
+	  leader_remote_sg_fr = SgFr_next(remote_sg_fr);
+	while(SgFr_sg_ent(leader_remote_sg_fr) != SgFr_sg_ent(sg_fr));
+	LOCK(ThDepFr_lock(GLOBAL_th_dep_fr(SgFr_gen_worker(leader_remote_sg_fr)))); 
+
+	if (YOUNGER_CP(DepFr_leader_cp(REMOTE_top_dep_fr(SgFr_gen_worker(leader_remote_sg_fr))),SgFr_gen_cp(leader_remote_sg_fr)))
+	  DepFr_leader_cp(REMOTE_top_dep_fr(SgFr_gen_worker(leader_remote_sg_fr))) = SgFr_gen_cp(leader_remote_sg_fr);
+	UNLOCK(ThDepFr_lock(GLOBAL_th_dep_fr(SgFr_gen_worker(leader_remote_sg_fr))));
+	
+	add_to_tdv(SgFr_gen_worker(local_sg_fr),SgFr_gen_worker(leader_remote_sg_fr));
+
+      	return local_sg_fr;
+      }
+      local_sg_fr = SgFr_next(local_sg_fr);
+    }
+    remote_sg_fr = SgFr_next(remote_sg_fr);
+  }
+  return NULL;
+}
+#endif /* THREADS_CONSUMER_SHARING */
+
 
 static inline Int freeze_current_cp(void) {
   CACHE_REGS
@@ -606,8 +1031,17 @@ static inline void adjust_freeze_registers(void) {
 
 
 static inline void mark_as_completed(sg_fr_ptr sg_fr) {
+#ifdef OUTPUT_THREADS_TABLING
   CACHE_REGS
+#endif /* OUTPUT_THREADS_TABLING */
+
   LOCK_SG_FR(sg_fr);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  INFO_THREADS(" mark_as_completed sgfr=%p ", SgFr_sg_ent(sg_fr));
+  TABLING_ERROR_CHECKING(mark_as_completed, SgFr_sg_ent_state(sg_fr) > complete);
+  SgFr_active_workers(sg_fr)--;
+  SgFr_sg_ent_state(sg_fr) = complete;
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
   SgFr_state(sg_fr) = complete;
   UNLOCK_SG_FR(sg_fr);
 #ifdef MODE_DIRECTED_TABLING
@@ -615,13 +1049,13 @@ static inline void mark_as_completed(sg_fr_ptr sg_fr) {
     ans_node_ptr current_node, next_node;
     /* find first valid answer */
     current_node = SgFr_first_answer(sg_fr);
-    while (IS_INVALID_LEAF_NODE(current_node))
+    while (IS_ANSWER_INVALID_NODE(current_node))
       current_node = TrNode_child(current_node);
     SgFr_first_answer(sg_fr) = current_node;
     /* chain next valid answers */
     next_node = TrNode_child(current_node);
     while (next_node) {
-      if (! IS_INVALID_LEAF_NODE(next_node)) {
+      if (! IS_ANSWER_INVALID_NODE(next_node)) {
 	TrNode_child(current_node) = next_node;
 	current_node = next_node;   
       }
@@ -850,13 +1284,13 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 	ans_node_ptr current_node, next_node;
 	/* find first valid answer */
 	current_node = SgFr_first_answer(sg_fr);
-	while (IS_INVALID_LEAF_NODE(current_node))
+	while (IS_ANSWER_INVALID_NODE(current_node))
 	  current_node = TrNode_child(current_node);
 	SgFr_first_answer(sg_fr) = current_node;
 	/* chain next valid answers */
 	next_node = TrNode_child(current_node);
 	while (next_node) {
-	  if (! IS_INVALID_LEAF_NODE(next_node)) {
+	  if (! IS_ANSWER_INVALID_NODE(next_node)) {
 	    TrNode_child(current_node) = next_node;
 	    current_node = next_node;   
 	  }
@@ -882,14 +1316,50 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
       SgFr_invalid_chain(sg_fr) = NULL;
 #endif /* MODE_DIRECTED_TABLING */
       SgFr_state(sg_fr) = ready;
-      free_answer_hash_chain(SgFr_hash_chain(sg_fr));
-      SgFr_hash_chain(sg_fr) = NULL;
-      SgFr_first_answer(sg_fr) = NULL;
-      SgFr_last_answer(sg_fr) = NULL;
-      node = TrNode_child(SgFr_answer_trie(sg_fr));
-      TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
-      UNLOCK_SG_FR(sg_fr);
-      free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+      if (SgFr_active_workers(sg_fr) == 0) {
+	SgFr_sg_ent_state(sg_fr) = ready;
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+	free_answer_hash_chain(SgFr_hash_chain(sg_fr));
+	SgFr_hash_chain(sg_fr) = NULL;
+	SgFr_first_answer(sg_fr) = NULL;
+	SgFr_last_answer(sg_fr) = NULL;
+	node = TrNode_child(SgFr_answer_trie(sg_fr));
+	TrNode_child(SgFr_answer_trie(sg_fr)) = NULL;
+	UNLOCK_SG_FR(sg_fr);
+	free_answer_trie(node, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+#ifdef THREADS_FULL_SHARING
+        if (IsMode_Batched(TabEnt_mode(SgFr_tab_ent(sg_fr)))) {
+	  SgFr_batched_last_answer(sg_fr) = NULL;
+	  struct answer_ref_node *local_uncons_ans = SgFr_batched_cached_answers(sg_fr) ; 
+	  while ( local_uncons_ans ) {
+	    SgFr_batched_cached_answers(sg_fr) = RefNode_next(SgFr_batched_cached_answers(sg_fr));
+	    FREE_ANSWER_REF_NODE(local_uncons_ans);
+	    local_uncons_ans = SgFr_batched_cached_answers(sg_fr);
+	  }
+	}
+      } else{ /* SgFr_active_workers(sg_fr) != 0 */
+	if (IsMode_Batched(TabEnt_mode(SgFr_tab_ent(sg_fr)))){
+	  SgFr_batched_last_answer(sg_fr) = NULL;
+	  if ( worker_id >= ANSWER_LEAF_NODE_MAX_THREADS ) {
+	    struct answer_ref_node *local_uncons_ans = SgFr_batched_cached_answers(sg_fr) ; 
+	    while ( local_uncons_ans ) {
+	      SgFr_batched_cached_answers(sg_fr) = RefNode_next(SgFr_batched_cached_answers(sg_fr));
+	      FREE_ANSWER_REF_NODE(local_uncons_ans);
+	      local_uncons_ans = SgFr_batched_cached_answers(sg_fr);
+	    }	
+	  } else { /* worker_id < ANSWER_LEAF_NODE_MAX_THREADS */
+	    ans_node_ptr leaf_ans_trie_node = SgFr_first_answer(sg_fr);
+	    while( leaf_ans_trie_node ){
+	      ANSWER_LEAF_NODE_DEL_WID(leaf_ans_trie_node,worker_id);
+	      leaf_ans_trie_node = TrNode_child(leaf_ans_trie_node);
+	    }
+	  }
+	}
+#endif /* THREADS_FULL_SHARING */
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+      }
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 #if defined(MODE_DIRECTED_TABLING) && ! defined(YAPOR)
       /* free invalid answer nodes */
       while (invalid_node) {

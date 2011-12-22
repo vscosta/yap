@@ -53,8 +53,8 @@ CELL *exec_substitution(gt_node_ptr, CELL *);
 void update_answer_trie(sg_fr_ptr);
 void free_subgoal_trie(sg_node_ptr, int, int);
 void free_answer_trie(ans_node_ptr, int, int);
-void free_subgoal_hash_chain(sg_hash_ptr);
 void free_answer_hash_chain(ans_hash_ptr);
+void abolish_table(tab_ent_ptr);
 void show_table(tab_ent_ptr, int, IOSTREAM *);
 void show_global_trie(int, IOSTREAM *);
 #endif /* TABLING */

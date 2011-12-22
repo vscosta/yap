@@ -179,6 +179,9 @@
 #define TRY_ANSWER Yap_heap_regs->table_try_answer_code
 #define ANSWER_RESOLUTION Yap_heap_regs->table_answer_resolution_code
 #define COMPLETION Yap_heap_regs->table_completion_code
+#ifdef THREADS_CONSUMER_SHARING
+#define ANSWER_RESOLUTION_COMPLETION Yap_heap_regs->table_answer_resolution_completion_code
+#endif /* THREADS_CONSUMER_SHARING */
 #endif /* TABLING */
 
 

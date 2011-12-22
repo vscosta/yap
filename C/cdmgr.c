@@ -588,6 +588,9 @@ PredForChoicePt(yamop *p_code) {
     case _table_try_answer:
     case _table_answer_resolution:
     case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+    case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
       return NULL; /* ricroc: is this OK? */
       /* compile error --> return ENV_ToP(gc_B->cp_cp); */
 #endif /* TABLING */
@@ -5486,6 +5489,9 @@ p_choicepoint_info( USES_REGS1 )
     case _table_retry:
     case _table_trust:
     case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+    case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
 #ifdef LOW_LEVEL_TRACER
 #ifdef DETERMINISTIC_TABLING
       if (IS_DET_GEN_CP(cptr)) {

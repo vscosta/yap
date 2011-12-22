@@ -1924,6 +1924,9 @@ Yap_absmi(int inp)
 	      case _table_retry:
 	      case _table_trust:
 	      case _table_completion:
+#ifdef THREADS_CONSUMER_SHARING
+	      case _table_answer_resolution_completion:
+#endif /* THREADS_CONSUMER_SHARING */
 #ifdef DETERMINISTIC_TABLING
 		if (IS_DET_GEN_CP(B))
 		  low_level_trace(retry_table_generator, DET_GEN_CP(B)->cp_pred_entry, NULL);
