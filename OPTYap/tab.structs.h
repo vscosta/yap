@@ -59,7 +59,7 @@ typedef struct table_entry {
 
 
 /***********************************************************************
-**      global_trie_node, subgoal_trie_node and answer_trie_node      **
+**      subgoal_trie_node, answer_trie_node and global_trie_node      **
 ***********************************************************************/
 
 typedef struct subgoal_trie_node {
@@ -108,7 +108,7 @@ typedef struct global_trie_node {
 
 
 /***********************************************************************
-**      global_trie_hash, subgoal_trie_hash and answer_trie_hash      **
+**      subgoal_trie_hash, answer_trie_hash and global_trie_hash      **
 ***********************************************************************/
 
 typedef struct subgoal_trie_hash {

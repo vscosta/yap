@@ -41,7 +41,7 @@
 *********************/
 
 #ifdef USE_PAGES_MALLOC
-#define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - STRUCT_SIZE(struct page_header)) / STRUCT_SIZE(STR_TYPE))
+#define STRUCTS_PER_PAGE(STR_TYPE)  ((Yap_page_size - ADJUST_SIZE(sizeof(struct page_header))) / ADJUST_SIZE(sizeof(STR_TYPE)))
 
 #define INIT_PAGES(PG, STR_TYPE)                         \
         INIT_LOCK(Pg_lock(PG));                          \

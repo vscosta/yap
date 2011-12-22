@@ -38,7 +38,6 @@ extern int Yap_page_size;
 
 #define ADJUST_SIZE(SIZE)          ((SIZE + ALIGN) & ALIGNMASK)
 #define ADJUST_SIZE_TO_PAGE(SIZE)  ((SIZE) - (SIZE) % Yap_page_size + Yap_page_size)
-#define STRUCT_SIZE(STR_TYPE)      ADJUST_SIZE(sizeof(STR_TYPE))
 #define PAGE_HEADER(STR)           (pg_hd_ptr)((unsigned long int)STR - (unsigned long int)STR % Yap_page_size)
 #define STRUCT_NEXT(STR)           ((STR)->next)
 

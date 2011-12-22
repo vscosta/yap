@@ -130,27 +130,27 @@ static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr tab_ent, s
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */
-      sg_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      sg_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
@@ -273,9 +273,12 @@ subgoal_trie_hash:
     sg_node_ptr *bucket, first_node;
     int num_buckets, count_nodes = 0;
 
-    num_buckets = Hash_num_buckets(hash);
-    bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
-    first_node = child_node = *bucket;
+    do {
+      num_buckets = Hash_num_buckets(hash);
+      // __sync_synchronize();
+      bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
+      first_node = child_node = *bucket;
+    } while (num_buckets != Hash_num_buckets(hash));
     while (child_node) {
       if (TrNode_entry(child_node) == t)
         return child_node;
@@ -320,26 +323,26 @@ subgoal_trie_hash:
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
-      sg_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      sg_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_SUBGOAL_NODE(parent_node);
     return child_node;
@@ -428,27 +431,27 @@ static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_n
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
-      ans_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      ans_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
@@ -572,9 +575,12 @@ answer_trie_hash:
     ans_node_ptr *bucket, first_node;
     int num_buckets, count_nodes = 0;
 
-    num_buckets = Hash_num_buckets(hash);
-    bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
-    first_node = child_node = *bucket;
+    do {
+      num_buckets = Hash_num_buckets(hash);
+      // __sync_synchronize();
+      bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
+      first_node = child_node = *bucket;
+    } while (num_buckets != Hash_num_buckets(hash));
     while (child_node) {
       if (TrNode_entry(child_node) == t)
         return child_node;
@@ -619,26 +625,26 @@ answer_trie_hash:
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */
-      ans_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      ans_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_ANSWER_NODE(parent_node);
     return child_node;
@@ -725,27 +731,27 @@ static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr parent_node
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */
-      gt_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      gt_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       int num_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
@@ -869,9 +875,12 @@ global_trie_hash:
     gt_node_ptr *bucket, first_node;
     int num_buckets, count_nodes = 0;
 
-    num_buckets = Hash_num_buckets(hash);
-    bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
-    first_node = child_node = *bucket;
+    do {
+      num_buckets = Hash_num_buckets(hash);
+      // __sync_synchronize();
+      bucket = Hash_buckets(hash) + HASH_ENTRY(t, num_buckets);
+      first_node = child_node = *bucket;
+    } while (num_buckets != Hash_num_buckets(hash));
     while (child_node) {
       if (TrNode_entry(child_node) == t)
         return child_node;
@@ -916,26 +925,26 @@ global_trie_hash:
     count_nodes++;
     if (count_nodes >= MAX_NODES_PER_BUCKET && Hash_num_nodes(hash) > Hash_num_buckets(hash)) {
       /* expand current hash */ 
-      gt_node_ptr chain_node, next_node, *old_bucket, *hash_old_buckets, *hash_new_buckets;
+      gt_node_ptr chain_node, next_node, *old_bucket, *old_hash_buckets, *new_hash_buckets;
       num_buckets = Hash_num_buckets(hash) * 2;
-      ALLOC_HASH_BUCKETS(hash_new_buckets, num_buckets);
-      hash_old_buckets = Hash_buckets(hash);
-      old_bucket = hash_old_buckets + Hash_num_buckets(hash);
+      ALLOC_HASH_BUCKETS(new_hash_buckets, num_buckets);
+      old_hash_buckets = Hash_buckets(hash);
+      old_bucket = old_hash_buckets + Hash_num_buckets(hash);
       do {
         if (*--old_bucket) {
           chain_node = *old_bucket;
           do {
-            bucket = hash_new_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
+            bucket = new_hash_buckets + HASH_ENTRY(TrNode_entry(chain_node), num_buckets);
             next_node = TrNode_next(chain_node);
             TrNode_next(chain_node) = *bucket;
             *bucket = chain_node;
             chain_node = next_node;
           } while (chain_node);
         }
-      } while (old_bucket != hash_old_buckets);
-      FREE_HASH_BUCKETS(hash_old_buckets);
-      Hash_buckets(hash) = hash_new_buckets;
+      } while (old_bucket != old_hash_buckets);
+      Hash_buckets(hash) = new_hash_buckets;
       Hash_num_buckets(hash) = num_buckets;
+      FREE_HASH_BUCKETS(old_hash_buckets);
     }
     UNLOCK_GLOBAL_NODE(parent_node);
     return child_node;
