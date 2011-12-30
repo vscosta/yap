@@ -1286,7 +1286,7 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
 {
   /* decrease all reference counters */
   yamop *beg = c->ClCode, *end, *ipc;
-  op_numbers op;
+
   if (c->ClFlags & SwitchTableMask) {
     CELL *end = (CELL *)((char *)c+c->ClSize);
     CELL *beg = (CELL *)(c->ClCode);
@@ -1299,7 +1299,6 @@ decrease_log_indices(LogUpdIndex *c, yamop *suspend_code)
     }
     return;
   }
-  op = Yap_op_from_opcode(beg->opc);
   end = (yamop *)((CODEADDR)c+c->ClSize);
   ipc = beg;
   cleanup_dangling_indices(ipc, beg, end, suspend_code);
@@ -5428,7 +5427,6 @@ ClauseId(yamop *ipc, PredEntry *pe)
 static Int
 p_env_info( USES_REGS1 )
 {
-  PredEntry *pe;
   CELL *env = LCL0-IntegerOfTerm(Deref(ARG1));
   yamop *env_cp;
   Term env_b, taddr;
@@ -5438,7 +5436,7 @@ p_env_info( USES_REGS1 )
   env_b = MkIntegerTerm((Int)(LCL0-(CELL *)env[E_CB]));
   env_cp = (yamop *)env[E_CP];
   
-  pe = PREVOP(env_cp,Osbpp)->u.Osbpp.p0;
+  /* pe = PREVOP(env_cp,Osbpp)->u.Osbpp.p0; */
   taddr = MkIntegerTerm((Int)env);
   return Yap_unify(ARG3,MkIntegerTerm((Int)env_cp)) &&
     Yap_unify(ARG2, taddr) &&
