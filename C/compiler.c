@@ -2759,7 +2759,7 @@ c_layout(compiler_struct *cglobs)
 {
   PInstr *savepc = cglobs->BodyStart->nextInst;
   register Ventry *v = cglobs->vtable;
-  Int *up = cglobs->Uses, Arity;
+  Int *up = cglobs->Uses;
   CELL *cop = cglobs->Contents;
   /* tell put_values used in bip optimisation */
   int rn_kills = 0;
@@ -3024,11 +3024,13 @@ c_layout(compiler_struct *cglobs)
       checktemp(arg, rn, ic, cglobs);
       break;
     case safe_call_op:
-      Arity = RepPredProp((Prop) arg)->ArityOfPE;
       /*
 	vsc: The variables will be in use after this!!!!
-	for (rn = 1; rn <= Arity; ++rn)
-	--cglobs->Uses[rn];
+	{ 
+	  UInt Arity = RepPredProp((Prop) arg)->ArityOfPE;
+	  for (rn = 1; rn <= Arity; ++rn)
+	  --cglobs->Uses[rn];
+	}
       */
       break;
     case call_op:

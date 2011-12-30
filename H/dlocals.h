@@ -136,6 +136,8 @@
 #define REMOTE_LastGcTime(wid) REMOTE(wid)->LastGcTime_
 #define LOCAL_LastSSTime LOCAL->LastSSTime_
 #define REMOTE_LastSSTime(wid) REMOTE(wid)->LastSSTime_
+#define LOCAL_OpenArray LOCAL->OpenArray_
+#define REMOTE_OpenArray(wid) REMOTE(wid)->OpenArray_
 
 #define LOCAL_total_marked LOCAL->total_marked_
 #define REMOTE_total_marked(wid) REMOTE(wid)->total_marked_

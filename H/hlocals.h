@@ -76,6 +76,7 @@ typedef struct worker_local {
   YAP_ULONG_LONG  TotGcRecovered_;
   Int  LastGcTime_;
   Int  LastSSTime_;
+  CELL*  OpenArray_;
 
   Int  total_marked_;
   Int  total_oldies_;

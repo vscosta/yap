@@ -79,6 +79,7 @@ Int				TotGcTime				=0L
 YAP_ULONG_LONG			TotGcRecovered				=0L
 Int				LastGcTime				=0L
 Int				LastSSTime				=0L
+CELL*				OpenArray				=NULL
 
 /* in a single gc */
 Int				total_marked				=0L

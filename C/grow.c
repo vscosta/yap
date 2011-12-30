@@ -158,6 +158,8 @@ SetHeapRegs(int copying_threads USES_REGS)
 #endif
   if (HB)
     HB = PtoGloAdjust(HB);
+  if (LOCAL_OpenArray)
+    LOCAL_OpenArray = PtoGloAdjust(LOCAL_OpenArray);
   if (B)
     B = ChoicePtrAdjust(B);
 #ifdef TABLING

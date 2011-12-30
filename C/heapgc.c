@@ -3432,6 +3432,16 @@ compact_heap( USES_REGS1 )
 	  *dest++ = *current++;
 	}
 	*old_dest = *current;
+	/* if we have are calling from the C-interface, 
+	   we may have an open array when we start the gc */
+	if (LOCAL_OpenArray) {
+	  CELL *start = current + (dest-old_dest);
+	  if (LOCAL_OpenArray < current &&
+	      LOCAL_OpenArray > start) {
+	    UInt off = LOCAL_OpenArray-start;
+	    LOCAL_OpenArray = old_dest+off;
+	  }
+	}
 	*dest++ = EndSpecials;
 #ifdef DEBUG
 	found_marked += (dest-old_dest);
