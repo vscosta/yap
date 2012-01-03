@@ -158,6 +158,8 @@ SetHeapRegs(int copying_threads USES_REGS)
 #endif
   if (HB)
     HB = PtoGloAdjust(HB);
+  if (LOCAL_OpenArray)
+    LOCAL_OpenArray = PtoGloAdjust(LOCAL_OpenArray);
   if (B)
     B = ChoicePtrAdjust(B);
 #ifdef TABLING
@@ -1361,13 +1363,11 @@ static int
 growatomtable( USES_REGS1 )
 {
   AtomHashEntry *ntb;
-  UInt diff = 3*AtomHashTableSize-1, nsize;
+  UInt nsize = 3*AtomHashTableSize-1;
   UInt start_growth_time = Yap_cputime(), growth_time;
   int gc_verbose = Yap_is_gc_verbose();
-  if (diff > 4*1024*1024)
-    diff =  4*1024*1024+7919;
-  else
-    nsize =  nsize+7919;
+  if (nsize -AtomHashTableSize  > 4*1024*1024)
+    nsize =  AtomHashTableSize+4*1024*1024+7919;
 
   LOCK(LOCAL_SignalLock);
   if (LOCAL_ActiveSignals == YAP_CDOVF_SIGNAL) {

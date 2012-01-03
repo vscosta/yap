@@ -4173,11 +4173,9 @@ static void
 MyEraseClause(DynamicClause *clau USES_REGS)
 {
   DBRef           ref;
-  SMALLUNSGN      clmask;
 
   if (CL_IN_USE(clau))
     return;
-  clmask = clau->ClFlags;
   /*
     I don't need to lock the clause at this point because 
     I am the last one using it anyway.
@@ -5123,7 +5121,6 @@ static Int
 p_enqueue( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
-  Term t;
   QueueEntry *x;
   db_queue *father_key;
 
@@ -5142,7 +5139,6 @@ p_enqueue( USES_REGS1 )
     }
   }
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
-  t = Deref(ARG1);
   x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
   if (x->DBT == NULL) {
     return FALSE;
@@ -5163,7 +5159,6 @@ static Int
 p_enqueue_unlocked( USES_REGS1 )
 {
   Term Father = Deref(ARG1);
-  Term t;
   QueueEntry *x;
   db_queue *father_key;
 
@@ -5182,7 +5177,6 @@ p_enqueue_unlocked( USES_REGS1 )
     }
   }
   /* Yap_LUClauseSpace += sizeof(QueueEntry); */
-  t = Deref(ARG1);
   x->DBT = StoreTermInDB(Deref(ARG2), 2 PASS_REGS);
   if (x->DBT == NULL) {
     return FALSE;

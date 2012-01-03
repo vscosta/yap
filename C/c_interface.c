@@ -441,6 +441,7 @@ X_API void   *STD_PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
 X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
+X_API Term    STD_PROTO(YAP_FloatsToList, (double *, size_t));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_NBufferToString, (char *, size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToString, (wchar_t *));
@@ -966,7 +967,7 @@ YAP_MkPairTerm(Term t1, Term t2)
   Term t; 
   BACKUP_H();
 
-  if (H > ASP-1024) {
+  while (H > ASP-1024) {
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     RECOVER_H();
@@ -3539,13 +3540,48 @@ YAP_cwd(void)
 }
 
 X_API Term
+YAP_FloatsToList(double *dblp, size_t sz)
+{
+  CACHE_REGS
+  Term t;
+  CELL *oldH;
+  BACKUP_H();
+
+  if (!sz)
+    return TermNil;
+  while (ASP-1024 < H + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_LONG_INT)) {
+    if (dblp > H0 && dblp < H) {
+      /* we are in trouble */
+      LOCAL_OpenArray =  dblp;
+    }
+    if (!dogc( PASS_REGS1 )) {
+      RECOVER_H();
+      return 0L;
+    }
+    dblp = LOCAL_OpenArray;
+    LOCAL_OpenArray = NULL;
+  }
+  t = AbsPair(H);
+  while (sz) {
+    oldH = H;
+    H +=2;
+    oldH[0] = MkFloatTerm(*dblp++);
+    oldH[1] = AbsPair(H);
+    sz--;
+  }
+  oldH[1] = TermNil;
+  RECOVER_H();
+  return t;
+}
+
+X_API Term
 YAP_OpenList(int n)
 {
   CACHE_REGS
   Term t;
   BACKUP_H();
 
-  if (H+2*n > ASP-1024) {
+  while (H+2*n > ASP-1024) {
     if (!dogc( PASS_REGS1 )) {
       RECOVER_H();
       return FALSE;

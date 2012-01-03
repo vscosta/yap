@@ -76,6 +76,7 @@ static void InitWorker(int wid) {
   REMOTE_TotGcRecovered(wid) = 0L;
   REMOTE_LastGcTime(wid) = 0L;
   REMOTE_LastSSTime(wid) = 0L;
+  REMOTE_OpenArray(wid) = NULL;
 
   REMOTE_total_marked(wid) = 0L;
   REMOTE_total_oldies(wid) = 0L;

@@ -177,7 +177,6 @@ p_rem(Term t1, Term t2) {
       {
 	Int i1 = IntegerOfTerm(t1);
 	Int i2 = IntegerOfTerm(t2);
-	Int mod;
 
 	if (i2 == 0)
 	  return Yap_ArithError(EVALUATION_ERROR_ZERO_DIVISOR, t2, "X is " Int_FORMAT " rem 0", i1);
@@ -189,7 +188,6 @@ p_rem(Term t1, Term t2) {
 		    "rem/2 with %d and %d", i1, i2);
 #endif
 	}
-	mod = i1%i2;
 	RINT(i1%i2);
       }
     case (CELL)double_e:

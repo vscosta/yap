@@ -16493,6 +16493,14 @@ The user-provided string must include a terminating null
 character. Syntax errors will cause returning @code{FALSE} and binding
 @var{error} to a Prolog term.
 
+@findex YAP_FloatsToList (C-Interface function)
+These C-interface functions are useful when converting chunks of data to Prolog:
+@example
+      YAP_Term YAP_FloatsToList(double *@var{buf},size_t @var{sz})
+@end example
+@noindent
+Notice that they are unsafe, and may call the garbage collector.
+
 @node Memory Allocation, Controlling Streams, Manipulating Strings, C-Interface
 @section Memory Allocation
 
