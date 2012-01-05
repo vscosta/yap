@@ -129,7 +129,9 @@ parallel_findall(Template,Goal,Answers) :-
    (
       '$parallel_findall_query'(Template,Goal)
    ;
-      findall(X,'$parallel_findall_recorded'(X), Answers)
+      '$c_parallel_get_answers'(Refs),
+      '$parallel_findall_recorded'(Refs,Answers),     
+      eraseall(parallel_findall)
    ).
 parallel_findall(Template,Goal,Answers) :-
    findall(Template,Goal,Answers).
@@ -137,14 +139,15 @@ parallel_findall(Template,Goal,Answers) :-
 '$parallel_findall_query'(Template,Goal) :-
    '$c_yapor_start', 
    '$execute'(Goal),
-   recordz(parallel_findall,Template,_),
-%%   '$c_parallel_new_answer'(Ref),
+   recordz(parallel_findall,Template,Ref),
+   '$c_parallel_new_answer'(Ref),
    fail.
 '$parallel_findall_query'(_,_).
 
-'$parallel_findall_recorded'(Template) :-
+'$parallel_findall_recorded'([],[]) :- !.
+'$parallel_findall_recorded'([Ref|Refs],[Template|Answers]):-
    recorded(parallel_findall,Template,Ref),
-   erase(Ref).
+   '$parallel_findall_recorded'(Refs,Answers).
 
 
 

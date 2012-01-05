@@ -57,6 +57,7 @@ static Int p_yapor_start( USES_REGS1 );
 static Int p_yapor_workers( USES_REGS1 );
 static Int p_worker( USES_REGS1 );
 static Int p_parallel_new_answer( USES_REGS1 );
+static Int p_parallel_get_answers( USES_REGS1 );
 static Int p_show_statistics_or( USES_REGS1 );
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
@@ -66,9 +67,6 @@ static Int p_get_optyap_statistics( USES_REGS1 );
 
 #ifdef YAPOR
 static inline realtime current_time(void);
-static inline int parallel_new_answer_putchar(int sno, int ch);
-static inline void show_answers(void);
-static inline void answer_to_stdout(char *answer);
 #endif /* YAPOR */
 
 #ifdef TABLING
@@ -106,12 +104,6 @@ static inline struct page_statistics show_statistics_table_subgoal_answer_frames
 /************************************
 **      Macros & Declarations      **
 ************************************/
-
-#ifdef YAPOR
-#define TIME_RESOLUTION 1000000
-static int length_answer;
-static qg_ans_fr_ptr actual_answer;
-#endif /* YAPOR */
 
 struct page_statistics {
 #ifdef USE_PAGES_MALLOC
@@ -230,6 +222,7 @@ void Yap_init_optyap_preds(void) {
   Yap_InitCPred("$c_yapor_workers", 1, p_yapor_workers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_worker", 0, p_worker, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("$c_parallel_new_answer", 1, p_parallel_new_answer, SafePredFlag|SyncPredFlag|HiddenPredFlag);
+  Yap_InitCPred("$c_parallel_get_answers", 1, p_parallel_get_answers, SafePredFlag|SyncPredFlag|HiddenPredFlag);
   Yap_InitCPred("or_statistics", 1, p_show_statistics_or, SafePredFlag|SyncPredFlag);
 #endif /* YAPOR */
 #if defined(YAPOR) && defined(TABLING)
@@ -243,7 +236,6 @@ void Yap_init_optyap_preds(void) {
 void finish_yapor(void) {
   GLOBAL_execution_time = current_time() - GLOBAL_execution_time;
   GLOBAL_parallel_mode = PARALLEL_MODE_ON;
-  /*  show_answers(); */
   return;
 }
 #endif /* YAPOR */
@@ -727,12 +719,11 @@ static Int p_worker( USES_REGS1 ) {
 
 
 static Int p_parallel_new_answer( USES_REGS1 ) {
+  qg_ans_fr_ptr actual_answer;
   or_fr_ptr leftmost_or_fr;
 
-  length_answer = 0;
   ALLOC_QG_ANSWER_FRAME(actual_answer);
-  Yap_plwrite(ARG1, parallel_new_answer_putchar, 4, 1200);
-  AnsFr_answer(actual_answer)[length_answer] = 0;
+  AnsFr_answer(actual_answer) = Deref(ARG1);
   AnsFr_next(actual_answer) = NULL;
   leftmost_or_fr = CUT_leftmost_or_frame();
   LOCK_OR_FRAME(leftmost_or_fr);
@@ -743,6 +734,26 @@ static Int p_parallel_new_answer( USES_REGS1 ) {
     CUT_store_answer(leftmost_or_fr, actual_answer);
     UNLOCK_OR_FRAME(leftmost_or_fr);
   }
+  return (TRUE);
+}
+
+
+static Int p_parallel_get_answers( USES_REGS1 ){
+  Term t = TermNil;
+
+  if (OrFr_qg_solutions(LOCAL_top_or_fr)) {
+    qg_ans_fr_ptr aux_answer1, aux_answer2;
+    aux_answer1 = SolFr_first(OrFr_qg_solutions(LOCAL_top_or_fr));
+    while (aux_answer1) {
+      t = MkPairTerm(AnsFr_answer(aux_answer1), t);
+      aux_answer2 = aux_answer1;
+      aux_answer1 = AnsFr_next(aux_answer1);
+      FREE_QG_ANSWER_FRAME(aux_answer2);
+    }
+    FREE_QG_SOLUTION_FRAME(OrFr_qg_solutions(LOCAL_top_or_fr));
+    OrFr_qg_solutions(LOCAL_top_or_fr) = NULL;
+  }
+  Yap_unify(ARG1, t);
   return (TRUE);
 }
 
@@ -1029,95 +1040,16 @@ static Int p_get_optyap_statistics( USES_REGS1 ) {
 
 #ifdef YAPOR
 static inline realtime current_time(void) {
+#define TIME_RESOLUTION 1000000
+  struct timeval tempo;
+  gettimeofday(&tempo, NULL);
+  return ((realtime)tempo.tv_sec + (realtime)tempo.tv_usec / TIME_RESOLUTION);
   /* to get time as Yap */
   /*
   double now, interval;
   Yap_cputime_interval(&now, &interval);
   return ((realtime)now);
   */
-  struct timeval tempo;
-  gettimeofday(&tempo, NULL);
-  return ((realtime)tempo.tv_sec + (realtime)tempo.tv_usec / TIME_RESOLUTION);
-}
-
-static inline int parallel_new_answer_putchar(int sno, int ch) {
-  AnsFr_answer(actual_answer)[length_answer++] = ch;
-  return ch;
-}
-
-
-static inline void show_answers(void) {
-  CACHE_REGS
-  int i, answers = 0;
-  if (OrFr_qg_solutions(LOCAL_top_or_fr)) {
-    qg_ans_fr_ptr aux_answer1, aux_answer2;
-    aux_answer1 = SolFr_first(OrFr_qg_solutions(LOCAL_top_or_fr));
-    while (aux_answer1) {
-      answer_to_stdout(AnsFr_answer(aux_answer1));
-      aux_answer2 = aux_answer1;
-      aux_answer1 = AnsFr_next(aux_answer1);
-      FREE_QG_ANSWER_FRAME(aux_answer2);
-      answers++;
-    }
-    FREE_QG_SOLUTION_FRAME(OrFr_qg_solutions(LOCAL_top_or_fr));
-    OrFr_qg_solutions(LOCAL_top_or_fr) = NULL;
-  }
-  switch(answers) {
-    case 0:  
-      Sfprintf(Serror, "[ no answers found");
-      break;
-    case 1:
-      Sfprintf(Serror, "[ 1 answer found");
-      break;
-    default:
-         Sfprintf(Serror, "[ %d answers found", answers);
-      break;
-  }
-  Sfprintf(Serror, " (in %f seconds) ]\n\n", GLOBAL_execution_time);
-  Sflush(Serror);
-
-  return;
-}
-
-
-static inline void answer_to_stdout(char *answer) {
-  int length_answer = 0, length_output = 0, caracter, list, par_rectos;
-  char output[MAX_LENGTH_ANSWER];
-  while (1) {
-    length_answer += 2;
-    while (answer[length_answer] != ']') {
-      length_answer++;
-      caracter = 0;
-      while (answer[length_answer] != ',' && answer[length_answer] != ']')
-	caracter = caracter * 10 + answer[length_answer++] - '0';
-      output[length_output++] = caracter;
-    }
-    length_answer++;
-    output[length_output++] = ' ';
-    output[length_output++] = '=';
-    output[length_output++] = ' '; 
-    if (answer[length_answer++] == ',') {
-      list = 1;
-      output[length_output++] = '[';
-    } else list = 0;
-    par_rectos = 1;
-    while (1) {
-      if (answer[length_answer] == '[') par_rectos++;
-      else if (answer[length_answer] == ']' && --par_rectos == 0) break;
-      output[length_output++] = answer[length_answer++];
-    }
-    if (list) output[length_output++] = ']';
-    if (answer[++length_answer] != ']') {
-      output[length_output++] = ' ';
-      output[length_output++] = ';';
-      output[length_output++] = ' ';
-    }
-    else break;
-  }
-  output[length_output] = 0;
-  Sfprintf(Serror, "  %s\n", output);
-  Sflush(Serror);
-  return;
 }
 #endif /* YAPOR */
 

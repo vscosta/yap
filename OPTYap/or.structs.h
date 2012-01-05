@@ -108,7 +108,7 @@ typedef struct query_goal_solution_frame{
 ** ---------------------------------------- */
 
 typedef struct query_goal_answer_frame{
-  char answer[MAX_LENGTH_ANSWER];
+  Term answer;
   struct query_goal_answer_frame *next;
 } *qg_ans_fr_ptr;
 

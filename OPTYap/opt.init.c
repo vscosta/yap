@@ -165,9 +165,9 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
 
 
 void Yap_init_local_optyap_data(int wid) {
-#ifdef THREADS_CONSUMER_SHARING
+#if defined(YAPOR_THREADS) || defined(THREADS_CONSUMER_SHARING)
   CACHE_REGS
-#endif /* THREADS_CONSUMER_SHARING */
+#endif /* YAPOR_THREADS || THREADS_CONSUMER_SHARING */
 
 #if defined(TABLING) && (defined(YAPOR) || defined(THREADS))
   /* local data related to memory management */

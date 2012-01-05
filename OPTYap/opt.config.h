@@ -26,7 +26,6 @@
 #define THREADS_INDIRECT_BUCKETS  ((MAX_THREADS - THREADS_DIRECT_BUCKETS) / THREADS_DIRECT_BUCKETS)  /* (1024 - 32) / 32 = 31 */
 #define THREADS_NUM_BUCKETS       (THREADS_DIRECT_BUCKETS + THREADS_INDIRECT_BUCKETS)
 #define TG_ANSWER_SLOTS    20
-#define MAX_LENGTH_ANSWER  1000
 #define MAX_BRANCH_DEPTH   1000
 
 /**********************************************************************
