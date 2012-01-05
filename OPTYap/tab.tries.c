@@ -1081,12 +1081,12 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     } else
       mode_directed = NULL;
 #endif /* MODE_DIRECTED_TABLING */
-#ifndef THREADS
+#if !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
     new_subgoal_frame(sg_fr, preg, mode_directed);
     *sg_fr_end = sg_fr;
     TAG_AS_SUBGOAL_LEAF_NODE(current_sg_node);
     UNLOCK_SUBGOAL_NODE(current_sg_node);
-#else /* THREADS */
+#else /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
     sg_ent_ptr sg_ent = (sg_ent_ptr) TrNode_sg_ent(current_sg_node);
     new_subgoal_frame(sg_fr, sg_ent);
 #ifdef THREADS_CONSUMER_SHARING
@@ -1094,27 +1094,27 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #else
     SgFr_state(sg_fr) = ready;
 #endif /* THREADS_CONSUMER_SHARING */
-    if (SgEnt_state(sg_ent) == ready) {
+    if (SgEnt_sg_ent_state(sg_ent) == ready) {
       LOCK(SgEnt_lock(sg_ent));
-      if (SgEnt_state(sg_ent) == ready) {
-	SgEnt_gen_worker(sg_ent) = worker_id;
+      if (SgEnt_sg_ent_state(sg_ent) == ready) {
 	SgEnt_code(sg_ent) = preg;
 	SgEnt_init_mode_directed_fields(sg_ent, mode_directed);
-	SgEnt_state(sg_ent) = evaluating;
+	SgEnt_sg_ent_state(sg_ent) = evaluating;
 #ifdef THREADS_CONSUMER_SHARING
+	SgEnt_gen_worker(sg_ent) = worker_id;
 	SgFr_state(sg_fr) = ready;
 #endif /* THREADS_CONSUMER_SHARING */
       }
       UNLOCK(SgEnt_lock(sg_ent));
     }
     *sg_fr_end = sg_fr;
-#endif /* !THREADS */
+#endif /* !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
   } else {
     /* repeated tabled subgoal */
 #ifndef THREADS
     UNLOCK_SUBGOAL_NODE(current_sg_node);
 #endif /* !THREADS */
-    sg_fr = UNTAG_SUBGOAL_NODE(*sg_fr_end);
+    sg_fr = (sg_fr_ptr) UNTAG_SUBGOAL_NODE(*sg_fr_end);
 #ifdef LIMIT_TABLING
     if (SgFr_state(sg_fr) <= ready) {  /* incomplete or ready */
       remove_from_global_sg_fr_list(sg_fr);
@@ -1485,7 +1485,9 @@ void free_answer_trie(ans_node_ptr current_node, int mode, int position) {
 
 
 void free_answer_hash_chain(ans_hash_ptr hash) {
+#if defined(THREADS_NO_SHARING) || defined(THREADS_SUBGOAL_SHARING)
   CACHE_REGS
+#endif /* THREADS_NO_SHARING || THREADS_SUBGOAL_SHARING */
 
   while (hash) {
     ans_node_ptr chain_node, *bucket, *last_bucket;
@@ -1496,7 +1498,7 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
     while (! *bucket)
       bucket++;
     chain_node = *bucket;
-    TrNode_child(UNTAG_ANSWER_NODE(TrNode_parent(chain_node))) = chain_node;
+    TrNode_child((ans_node_ptr) UNTAG_ANSWER_NODE(TrNode_parent(chain_node))) = chain_node;
     while (++bucket != last_bucket) {
       if (*bucket) {
         while (TrNode_next(chain_node))

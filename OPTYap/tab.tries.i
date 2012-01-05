@@ -369,7 +369,9 @@ static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr sg_fr, an
 #else
 static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr sg_fr, ans_node_ptr parent_node, Term t, int instr) {
 #endif /* MODE_GLOBAL_TRIE_ENTRY */
+#if defined(THREADS_NO_SHARING) || defined(THREADS_SUBGOAL_SHARING)
   CACHE_REGS
+#endif /* THREADS_NO_SHARING || THREADS_SUBGOAL_SHARING */
   ans_node_ptr child_node;
 
   TABLING_ERROR_CHECKING(answer_trie_check_insert_(gt)_entry, IS_ANSWER_LEAF_NODE(parent_node));
@@ -1625,7 +1627,7 @@ static inline CELL *load_answer_loop(ans_node_ptr current_node) {
 #ifdef MODE_GLOBAL_TRIE_LOOP
   current_node = TrNode_parent(current_node);
 #else
-  current_node = UNTAG_ANSWER_NODE(TrNode_parent(current_node));
+  current_node = (ans_node_ptr) UNTAG_ANSWER_NODE(TrNode_parent(current_node));
 #endif /* MODE_GLOBAL_TRIE_LOOP */
 
   do {

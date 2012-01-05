@@ -199,8 +199,8 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define IS_ANSWER_LEAF_NODE(NODE)            ((unsigned long int) TrNode_parent(NODE) & 0x1)
 #define TAG_AS_ANSWER_INVALID_NODE(NODE)     TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
 #define IS_ANSWER_INVALID_NODE(NODE)         ((unsigned long int) TrNode_parent(NODE) & 0x2)
-#define UNTAG_SUBGOAL_NODE(NODE)             ((sg_fr_ptr)((unsigned long int) (NODE) & ~(0x1)))
-#define UNTAG_ANSWER_NODE(NODE)              ((ans_node_ptr)((unsigned long int) (NODE) & ~(0x3)))
+#define UNTAG_SUBGOAL_NODE(NODE)             ((unsigned long int) (NODE) & ~(0x1))
+#define UNTAG_ANSWER_NODE(NODE)              ((unsigned long int) (NODE) & ~(0x3))
 
 /* trie hashes */
 #define MAX_NODES_PER_TRIE_LEVEL        8
@@ -316,6 +316,7 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         Hash_previous(HASH) = NULL
 #else
 #define TabEnt_init_mode_directed_field(TAB_ENT, MODE_ARRAY)
+#define SgEnt_init_mode_directed_fields(SG_ENT, MODE_ARRAY)
 #define SgFr_init_mode_directed_fields(SG_FR, MODE_ARRAY)
 #define AnsHash_init_previous_field(HASH, SG_FR)
 #endif /* MODE_DIRECTED_TABLING */
@@ -773,7 +774,7 @@ static inline sg_fr_ptr *get_insert_subgoal_frame_addr(sg_node_ptr sg_node USES_
 #if defined(THREADS_SUBGOAL_SHARING)
                                 (void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)),
 #elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-                                (void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))),
+                                (void **) &SgEnt_sg_fr((sg_ent_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))),
 #endif
 #ifdef SUBGOAL_TRIE_LOCK_USING_NODE_FIELD
                                    &TrNode_lock(sg_node)
@@ -791,10 +792,10 @@ static inline sg_fr_ptr get_subgoal_frame(sg_node_ptr sg_node) {
   sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node)));
   return *sg_fr_addr;
 #elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr((sg_ent_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
   return *sg_fr_addr;
 #else
-  return UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
+  return (sg_fr_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
 #endif
 }
 
@@ -809,15 +810,15 @@ static inline sg_fr_ptr get_subgoal_frame_for_abolish(sg_node_ptr sg_node USES_R
     *sg_fr_addr = NULL;
   return sg_fr;
 #elif defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+  sg_fr_ptr *sg_fr_addr = (sg_fr_ptr *) get_thread_bucket((void **) &SgEnt_sg_fr((sg_ent_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
   sg_fr_ptr sg_fr = *sg_fr_addr;
   if (worker_id == 0)
-    abolish_thread_buckets((void **) &SgEnt_sg_fr(UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
+    abolish_thread_buckets((void **) &SgEnt_sg_fr((sg_ent_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node))));
   else
     *sg_fr_addr = NULL;
   return sg_fr;
 #else
-  return UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
+  return (sg_fr_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_fr(sg_node));
 #endif
 }
 
