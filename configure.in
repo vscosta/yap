@@ -258,7 +258,13 @@ AC_ARG_WITH(minisat,
 AC_ARG_WITH(cudd,
 	[ --with-cudd[=DIR]           use CUDD package in DIR],
 	if test "$withval" = yes; then
-		yap_cv_cudd=yes
+	    if test "$prefix" = "NONE"; then
+	      yap_cv_cudd=/usr/local/cudd
+	    else
+	      yap_cv_cudd=$prefix/cudd;
+            fi
+	    CUDD_LDFLAGS="-L $yap_cv_cudd/lib -lcudd -lmtr -lst -lutil -lepd"
+	    CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
 	elif test "$withval" = no; then
 		yap_cv_cudd=no
 	elif test "$withval" = /opt/local; then
@@ -2258,9 +2264,9 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
+mkdir -p  packages/YapR
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
-mkdir -p  packages/YapR
 mkdir -p  packages/zlib
 
 AC_CONFIG_FILES([Makefile])
