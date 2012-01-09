@@ -24,7 +24,12 @@
 
 %   length of a list.
 
-length(L,M) :- ( var(M) -> '$$_length1'(L,M,0) ; '$$_length2'(L, M) ).
+length(L, M) :-
+	  '$skip_list'(M0, L, R),
+	  ( R == [] -> M = M0 ;
+	    var(R) -> '$$_length1'(R, M, M0) ;
+	    '$do_error'(type_error(list,L),length(L,M))
+	  ).
 
 '$$_length1'([], M, M).
 '$$_length1'([_|L], O, N) :-
