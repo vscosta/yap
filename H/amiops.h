@@ -44,6 +44,18 @@ Dereferencing macros
                    (D) = *(CELL *)(D);                       \
 		   } while (Unsigned(A) != (D))
 
+#define do_derefa(D,A,LabelUnk,LabelDone)		  \
+                (D) = *(CELL *)(A);                       \
+		if (IsNonVarTerm(D))    goto LabelDone;	     \
+		goto LabelUnk; \
+		do {                                         \
+                   (A) = (CELL *)(D);                        \
+                   (D) = *(CELL *)(D);                       \
+                   if(!IsVarTerm(D)) goto LabelDone;       \
+		LabelUnk: ;				   \
+		} while (Unsigned(A) != (D));\
+             LabelDone:
+
 #define derefa_body(D,A,LabelUnk,LabelNonVar)                \
 		do {                                         \
                    (A) = (CELL *)(D);                        \
