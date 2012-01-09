@@ -416,7 +416,7 @@ X_API Term    STD_PROTO(YAP_MkListFromTerms,(Term *,Int));
 X_API Term    STD_PROTO(YAP_MkNewPairTerm,(void));
 X_API Term    STD_PROTO(YAP_HeadOfTerm,(Term));
 X_API Term    STD_PROTO(YAP_TailOfTerm,(Term));
-X_API int     STD_PROTO(YAP_SkipList,(Term *, Term **));
+X_API Int     STD_PROTO(YAP_SkipList,(Term *, Term **));
 X_API Term    STD_PROTO(YAP_MkApplTerm,(Functor,UInt,Term *));
 X_API Term    STD_PROTO(YAP_MkNewApplTerm,(Functor,UInt));
 X_API Functor STD_PROTO(YAP_FunctorOfTerm,(Term));
@@ -1050,14 +1050,15 @@ YAP_TailOfTerm(Term t)
   return (TailOfTerm(t));
 }
 
-X_API int
+X_API Int
 YAP_SkipList(Term *l, Term **tailp)
 {
+  return Yap_SkipList(l, tailp);
   Int length = 0;
   Term *s; /* slow */
   Term v; /* temporary */
 
-  v = Derefa(l);
+  do_derefa(v,l,derefa_unk,derefa_nonvar);
   s = l;
 
   if ( IsPairTerm(*l) )
@@ -1070,7 +1071,8 @@ YAP_SkipList(Term *l, Term **tailp)
       }
       lam++;
       length++;
-      l = RepPair(*l)+1; v = Derefa(l);
+      l = RepPair(*l)+1; 
+      do_derefa(v,l,derefa2_unk,derefa2_nonvar);
     } while ( *l != *s && IsPairTerm(*l) );
   }
   *tailp = l;
@@ -3550,15 +3552,15 @@ YAP_FloatsToList(double *dblp, size_t sz)
   if (!sz)
     return TermNil;
   while (ASP-1024 < H + sz*(2+2+SIZEOF_DOUBLE/SIZEOF_LONG_INT)) {
-    if (dblp > H0 && dblp < H) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
       /* we are in trouble */
-      LOCAL_OpenArray =  dblp;
+      LOCAL_OpenArray =  (CELL *)dblp;
     }
     if (!dogc( PASS_REGS1 )) {
       RECOVER_H();
       return 0L;
     }
-    dblp = LOCAL_OpenArray;
+    dblp = (double *)LOCAL_OpenArray;
     LOCAL_OpenArray = NULL;
   }
   t = AbsPair(H);

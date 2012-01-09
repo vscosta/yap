@@ -215,6 +215,10 @@ typedef void *PL_engine_t;
 #define PL_CHAR          (38)           /* int */
 #define PL_CODE          (39)           /* int */
 #define PL_BYTE          (40)           /* int */
+					/* PL_skip_list() */
+#define PL_PARTIAL_LIST	 (41)		/* a partial list */
+#define PL_CYCLIC_TERM	 (42)		/* a cyclic list/term */
+#define PL_NOT_A_LIST	 (43)		/* Object is not a list */
 
 #define CVT_ATOM	0x0001
 #define CVT_STRING	0x0002
@@ -502,11 +506,19 @@ extern X_API  int PL_unify_list_chars(term_t, const char *);
 extern X_API  int PL_unify_list_ncodes(term_t, size_t, const char *);
 extern X_API  int PL_unify_nil(term_t);
 extern X_API  int PL_unify_pointer(term_t, void *);
+extern X_API  int PL_unify_bool(term_t, int);
 extern X_API  int PL_unify_string_chars(term_t, const char *);
 extern X_API  int PL_unify_string_nchars(term_t, size_t, const char *);
 extern X_API  int PL_unify_term(term_t,...);
 extern X_API  int PL_unify_chars(term_t, int, size_t, const char *);
 extern X_API  int PL_unify_chars_diff(term_t, term_t, int, size_t, const char *);
+		 /*******************************
+		 *	       LISTS		*
+		 *******************************/
+
+PL_EXPORT(int)		PL_skip_list(term_t list, term_t tail, size_t *len);
+
+
 extern X_API  int PL_unify_wchars(term_t, int, size_t, const pl_wchar_t *);
 extern X_API  int PL_unify_wchars_diff(term_t, term_t, int, size_t, const pl_wchar_t *);
 extern X_API  int PL_chars_to_term(const char *,term_t);

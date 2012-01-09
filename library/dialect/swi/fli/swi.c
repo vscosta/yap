@@ -460,6 +460,13 @@ X_API int PL_get_int64(term_t ts, int64_t *i)
 #endif
 }
 
+X_API int PL_unify_bool(term_t t, int a)
+{
+  CACHE_REGS
+  Term iterm = (a ? MkAtomTerm(AtomTrue) : MkAtomTerm(AtomFalse) );
+  return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
+}
+
 
 #if USE_GMP
 
@@ -1765,6 +1772,34 @@ X_API int PL_is_list(term_t ts)
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
   return Yap_IsListTerm(t);
 }
+
+X_API int
+PL_skip_list(term_t list, term_t tail, size_t *len)
+{ 
+  CACHE_REGS
+  Term *l = Yap_AddressFromSlot(list PASS_REGS);
+  Term *t;
+  intptr_t length;
+
+  length = Yap_SkipList(l, &t);
+  if ( len )
+    *len = length;
+  if ( tail )
+  { Term t2 = Yap_GetFromSlot(tail);
+
+    Yap_unify(t2, *t);
+  }
+
+  if ( *t == TermNil )
+    return PL_LIST;
+  else if ( IsVarTerm(*t) )
+    return PL_PARTIAL_LIST;
+  else if ( IsPairTerm(*t) )
+    return PL_CYCLIC_TERM;
+  else
+    return PL_NOT_A_LIST;
+}
+
 
 X_API int PL_is_number(term_t ts)
 {
