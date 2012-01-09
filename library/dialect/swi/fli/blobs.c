@@ -51,17 +51,18 @@ PL_is_blob(term_t t, PL_blob_t **type)
   return TRUE;
 }
 
-void check_chain(void);
 
-void check_chain(void) {
-  AtomEntry *ae, *old;
-    ae = SWI_Blobs;
-    old = NULL;
-    while (ae) {
-      old = ae;
-      ae = RepAtom(ae->NextOfAE);
-    }
-}
+/* void check_chain(void); */
+
+/* void check_chain(void) { */
+/*   AtomEntry *ae, *old; */
+/*     ae = SWI_Blobs; */
+/*     old = NULL; */
+/*     while (ae) { */
+/*       old = ae; */
+/*       ae = RepAtom(ae->NextOfAE); */
+/*     } */
+/* } */
 
 static AtomEntry *
 lookupBlob(void *blob, size_t len, PL_blob_t *type)
