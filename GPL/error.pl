@@ -246,24 +246,3 @@ is_list_or_partial_list(L0) :-
 	'$skip_list'(_, L0,L),
 	( var(L) -> true ; L == [] ).
 
-:- if(current_prolog_flag(dialect, yap)).
-
-% UWN: only an approximation
-'$skip_list'(N, Xs0,Xs) :-
-       '$skip_list_i'(0,N, Xs0,Xs).
-
-'$skip_list_i'(N0,N, Xs0,Xs) :-
-       var(Xs0), !,
-       N0 = N,
-       Xs0 = Xs.
-'$skip_list_i'(N0,N, [],Xs) :- !,
-       N0 = N,
-       Xs = [].
-'$skip_list_i'(N0,N, [_|Xs0],Xs) :- !,
-       N1 is N0 + 1,
-       '$skip_list_i'(N1,N, Xs0,Xs).
-'$skip_list_i'(N,N, Xs,Xs).
-
-:- endif.
-
-
