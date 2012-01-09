@@ -3315,7 +3315,6 @@ static CELL *
 AddAtomToHash(CELL *st, Atom at)
 {
   unsigned int len;
-  CELL * start;
 
   if (IsWideAtom(at)) {
     wchar_t *c = RepAtom(at)->WStrOfAE;
@@ -3336,7 +3335,6 @@ AddAtomToHash(CELL *st, Atom at)
     if (!ulen) {
       return st;
     }
-    start = (CELL *)c;
     if (ulen % CellSize == 0) {
       len = ulen/CellSize;
     } else {
@@ -4736,6 +4734,43 @@ p_unnumbervars( USES_REGS1 ) {
   return Yap_unify(UnnumberTerm(ARG1, 2, FALSE PASS_REGS), ARG2);
 }
 
+Int
+Yap_SkipList(Term *l, Term **tailp)
+{
+  Int length = 0;
+  Term *s; /* slow */
+  Term v; /* temporary */
+
+  do_derefa(v,l,derefa_unk,derefa_nonvar);
+  s = l;
+
+  if ( IsPairTerm(*l) )
+  { intptr_t power = 1, lam = 0;
+    do
+    { if ( power == lam )
+      { s = l;
+	power *= 2;
+	lam = 0;
+      }
+      lam++;
+      length++;
+      l = RepPair(*l)+1; 
+      do_derefa(v,l,derefa2_unk,derefa2_nonvar);
+    } while ( *l != *s && IsPairTerm(*l) );
+  }
+  *tailp = l;
+
+  return length;
+}
+
+static Int 
+p_skip_list( USES_REGS1 ) {
+  Term *tail;
+  Int len = Yap_SkipList(XREGS+2, &tail);
+  return Yap_unify(MkIntegerTerm(len), ARG1) &&
+    Yap_unify(*tail, ARG3);
+}
+
 void Yap_InitUtilCPreds(void)
 {
   CACHE_REGS
@@ -4759,6 +4794,8 @@ void Yap_InitUtilCPreds(void)
 #endif
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
   Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
+  /* use this carefully */
+  Yap_InitCPred("$skip_list", 3, p_skip_list, SafePredFlag|TestPredFlag);
   CurrentModule = TERMS_MODULE;
   Yap_InitCPred("variable_in_term", 2, p_var_in_term, 0);
   Yap_InitCPred("term_hash", 4, p_term_hash, 0);
