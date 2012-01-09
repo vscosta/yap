@@ -76,7 +76,7 @@ Yap_LoadForeignFile(char *file, int flags)
   out = (void *)dlopen(file,dlflag);
   if (!out) {
     CACHE_REGS
-    Yap_Error(SYSTEM_ERROR, ARG1, "dlopen error %s\n", dlerror());
+    Yap_Error(SYSTEM_ERROR, ARG1, "dlopen error for %s: %s\n", file, dlerror());
   }
   return out;
 }
