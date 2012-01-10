@@ -2420,7 +2420,7 @@ matrix_column(void)
 static int
 matrix_sum_out(void)
 {
-  int ndims, i, j, *dims, newdims, prdim;
+  int ndims, i, j, newdims, prdim;
   int indx[MAX_DIMS], nindx[MAX_DIMS];
   YAP_Term tpdim, tf;
   int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
@@ -2431,7 +2431,6 @@ matrix_sum_out(void)
   /* we now have our target matrix, let us grab our conversion arguments */
   tpdim = YAP_ARG2;
   ndims = mat[MAT_NDIMS];
-  dims = mat+MAT_DIMS;
   if (!YAP_IsIntTerm(tpdim)) {
     return FALSE;
   }
@@ -2604,7 +2603,7 @@ static int
 matrix_sum_out_logs(void)
 {
   int ndims, i, j, *dims, newdims, prdim;
-  int indx[MAX_DIMS], nindx[MAX_DIMS];
+  int nindx[MAX_DIMS];
   YAP_Term tpdim, tf;
   int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
   if (!mat) {
@@ -2668,18 +2667,17 @@ matrix_sum_out_logs(void)
     nmat = (int *)YAP_BlobOfTerm(tf);  
     data = matrix_double_data(mat,ndims);
     ndata = matrix_double_data(nmat,newdims);
-    while (j < prdim) {
+    
+    j = ndims-1;
+    while (j > prdim) {
       d = d*dims[j];
-      j++;
+      j--;
     }
     dd = d*dims[prdim];
-    for (i=0;i<nmat[MAT_SIZE];i++) {
-      int j = i % d + (i/dd)*d;
-      ndata[j] = exp(data[i]);
-    }
-    for (; i< mat[MAT_SIZE]; i++) {
-      int j = i % d + (i/dd)*d;
-      ndata[j] += exp(data[i]);
+    bzero(ndata, sizeof(double)*nmat[MAT_SIZE]);
+    for (i=0; i< mat[MAT_SIZE]; i++) {
+      YAP_Int k = i % d + (i/dd)*d;
+      ndata[k] += exp(data[i]);
     }
     for (i=0; i< nmat[MAT_SIZE]; i++) {
       ndata[i] = log(ndata[i]);
@@ -2697,6 +2695,7 @@ matrix_sum_out_logs_several(void)
   int indx[MAX_DIMS], nindx[MAX_DIMS], conv[MAX_DIMS];
   YAP_Term tf, tconv;
   int *mat = (int *)YAP_BlobOfTerm(YAP_ARG1), *nmat;
+
   if (!mat) {
     /* Error */
     return FALSE;
