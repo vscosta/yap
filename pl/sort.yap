@@ -27,26 +27,31 @@
 length(L, M) :-
 	  '$skip_list'(M0, L, R),
 	  ( R == [] -> M = M0 ;
-	    var(R) -> '$$_length1'(R, M, M0) ;
+	    var(R) -> '$$_length'(R, M, M0) ;
 	    '$do_error'(type_error(list,L),length(L,M))
 	  ).
 
+%
+% in case A1 is unbound or a difference list, things get tricky
+%
+'$$_length'(R, M, M0) :-
+	( var(M) -> '$$_length1'(R,M,M0)
+	; M >= M0 -> '$$_length2'(R,M,M0) ).
+
+%
+% Size is unbound, generate lists
+%
 '$$_length1'([], M, M).
 '$$_length1'([_|L], O, N) :-
 	M is N + 1,
 	'$$_length1'(L, O, M).
 
-'$$_length2'(L, N) :-
-	( N =:= 0
-		->
-          L = []
-        ;
-	  N > 0,
-	  N1 is N - 1,
-	  L = [_|L1],
-	  '$$_length2'(L1, N1)
-        ).
-
+%
+% Size is bound, generate single list
+%
+'$$_length2'(NL, O, N) :-
+	( N =:= O -> NL = [];
+          M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
 sort(L,O) :-
 	'$sort'(L,O).
