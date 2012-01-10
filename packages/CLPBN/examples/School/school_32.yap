@@ -15,9 +15,7 @@ total_students(256).
 
 :- yap_flag(write_strings,on).
 
-:- use_module(library(clpbn)).
-
-:- [-schema].
+:- [-parschema].
 
 professor(p0).
 professor(p1).

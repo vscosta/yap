@@ -1,5 +1,5 @@
 
-:- [school_128].
+:- ensure_loaded(school_128).
 
 professor_popularity(p0,h) :- {}.
 professor_popularity(p3,h) :- {}.

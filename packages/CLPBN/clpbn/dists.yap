@@ -180,6 +180,10 @@ add_dist(Domain, Type, CPT, Parents, Key, Id) :-
 record_parent_sizes([], Id, [], DSizes) :-
 	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
 record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+	integer(P), !,
+	Size = P,
+	record_parent_sizes(Parents, Id, Sizes, DSizes).
+record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	clpbn:get_atts(P,dist(Dist,_)), !,
 	get_dist_domain_size(Dist, Size),
 	record_parent_sizes(Parents, Id, Sizes, DSizes).

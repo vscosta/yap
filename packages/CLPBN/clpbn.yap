@@ -46,6 +46,14 @@
 	       finalize_bp_solver/1
 	      ]).
 
+:- use_module('clpbn/fove',
+	      [fove/3,
+               check_if_fove_done/1,
+	       init_fove_solver/4,
+	       run_fove_solver/3,
+	       finalize_fove_solver/1
+	      ]).
+
 
 :- use_module('clpbn/jt',
 	      [jt/3,
@@ -63,14 +71,6 @@
 	       check_if_gibbs_done/1,
 	       init_gibbs_solver/4,
 	       run_gibbs_solver/3
-	      ]).
-
-:- use_module('clpbn/bp',
-	      [bp/3,
-	       check_if_bp_done/1,
-	       init_bp_solver/4,
-	       run_bp_solver/3,
-	       finalize_bp_solver/1
 	      ]).
 
 :- use_module('clpbn/pgrammar',
@@ -96,7 +96,7 @@
 :- use_module('clpbn/evidence',
 	      [
 	       store_evidence/1,
-	       add_evidence/2,
+	       add_stored_evidence/2,
 	       incorporate_evidence/2,
 	       check_stored_evidence/2,
 	       put_evidence/2
@@ -110,7 +110,11 @@
 :- use_module('clpbn/graphviz',
 	[clpbn2gviz/4]).
 
-:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1.
+:- use_module(clpbn/ground_factors,
+	[generate_bn/2]).
+
+
+:- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
 
 solver(ve).
 em_solver(ve).
@@ -122,6 +126,7 @@ em_solver(ve).
 output(no).
 suppress_attribute_display(false).
 parameter_softening(m_estimate(10)).
+use_parfactors(off).
 
 clpbn_flag(Flag,Option) :-
 	clpbn_flag(Flag, Option, Option).
@@ -153,7 +158,9 @@ clpbn_flag(suppress_attribute_display,Before,After) :-
 clpbn_flag(parameter_softening,Before,After) :-
 	retract(parameter_softening(Before)),
 	assert(parameter_softening(After)).
-
+clpbn_flag(use_factors,Before,After) :-
+	retract(use_parfactors(Before)),
+	assert(use_parfactors(After)).
 
 {_} :-
 	solver(none), !.
@@ -204,8 +211,8 @@ add_evidence(V,Key,Distinfo,NV) :-
 	store_var(NV),
 	clpbn:put_atts(NV,evidence(Pos)).
 add_evidence(V,K,_,V) :-
-	store_var(V),
-	add_evidence(K,V).
+	add_stored_evidence(K,V),
+	store_var(V).
 
 clpbn_marginalise(V, Dist) :-
 	attributes:all_attvars(AVars),
@@ -216,8 +223,9 @@ clpbn_marginalise(V, Dist) :-
 % called by top-level
 % or by call_residue/2
 %
-project_attributes(GVars, AVars) :-
+project_attributes(GVars, AVars0) :-
 	suppress_attribute_display(false),
+	generate_vars(GVars, AVars0, AVars),
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
@@ -235,9 +243,20 @@ project_attributes(GVars, AVars) :-
 	).
 project_attributes(_, _).
 
+generate_vars(GVars, _, NewAVars) :-
+	use_parfactors(on), !,
+	generate_bn(GVars, NewAVars).
+generate_vars(_GVars, AVars, AVars).
+
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
 	incorporate_evidence(SortedAVars, AllVars).
+
+get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
+	get_atts(V, [key(_)]), !,
+	get_clpbn_vars(GVars,CLPBNGVars).
+get_clpbn_vars([_|GVars],CLPBNGVars) :-
+	get_clpbn_vars(GVars,CLPBNGVars).
 
 get_clpbn_vars([],[]).
 get_clpbn_vars([V|GVars],[V|CLPBNGVars]) :-
@@ -276,6 +295,8 @@ write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
 	do_bnt(GVars, AVars, DiffVars).
+write_out(fove, GVars, AVars, DiffVars) :-
+	fove(GVars, AVars, DiffVars).
 
 get_bnode(Var, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]),

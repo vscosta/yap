@@ -36,6 +36,7 @@
 	       matrix_dims/2,
 	       matrix_sum/2,
 	       matrix_sum_logs_out/3,
+	       matrix_sum_out/3,
 	       matrix_sum_logs_out_several/3,
 	       matrix_op_to_all/4,
 	       matrix_to_exps2/1,
@@ -61,7 +62,9 @@ project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	matrix_dims(NewTable, NSzs).
 project_from_CPT(V,tab(Table,Deps,_),tab(NewTable,NDeps,NSzs)) :-
 	vnth(Deps, 0, V, N, NDeps),
+%	matrix_to_exps2(Table),
 	matrix_sum_logs_out(Table, N, NewTable),
+%	matrix_to_logs(NewTable),
 	matrix_dims(NewTable, NSzs).
 
 evidence(V, Pos) :-

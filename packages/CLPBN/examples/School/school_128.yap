@@ -18428,5 +18428,5 @@ registration(r13919,c221,s4095).
 registration(r13920,c39,s4095).
 
 
-% :- [evidence_128].
+ :- [evidence_128].
 

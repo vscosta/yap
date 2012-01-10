@@ -24,7 +24,8 @@ INSTALL_DATA=@INSTALL_DATA@
 INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 
-CLPBN_TOP= $(srcdir)/clpbn.yap
+CLPBN_TOP= $(srcdir)/clpbn.yap \
+	$(srcdir)/pfl.yap
 
 CLPBN_SRCDIR = $(srcdir)/clpbn
 
@@ -41,9 +42,11 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/display.yap \
 	$(CLPBN_SRCDIR)/dists.yap \
 	$(CLPBN_SRCDIR)/evidence.yap \
+	$(CLPBN_SRCDIR)/fove.yap \
 	$(CLPBN_SRCDIR)/gibbs.yap \
 	$(CLPBN_SRCDIR)/graphs.yap \
 	$(CLPBN_SRCDIR)/graphviz.yap \
+	$(CLPBN_SRCDIR)/ground_factors.yap \
 	$(CLPBN_SRCDIR)/hmm.yap \
 	$(CLPBN_SRCDIR)/jt.yap \
 	$(CLPBN_SRCDIR)/matrix_cpt_utils.yap \
@@ -66,6 +69,7 @@ CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/README \
 	$(CLPBN_EXDIR)/School/evidence_128.yap \
 	$(CLPBN_EXDIR)/School/schema.yap \
+	$(CLPBN_EXDIR)/School/parschema.yap \
 	$(CLPBN_EXDIR)/School/school_128.yap \
 	$(CLPBN_EXDIR)/School/school_32.yap \
 	$(CLPBN_EXDIR)/School/school_64.yap \
