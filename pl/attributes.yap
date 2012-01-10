@@ -183,11 +183,13 @@ prolog:copy_term(Term, Copy, Gs) :-
 	->  Gs = [],
 	    copy_term(Term, Copy)
 	;   findall(Term-Gs,
-		    ( attvars_residuals(Vs, Gs, []),
-		      delete_attributes(Term)
-		    ),
+	            '$attributes':residuals_and_delete_attributes(Vs, Gs, Term),
 		    [Copy-Gs])
 	).
+
+residuals_and_delete_attributes(Vs, Gs, Term) :-
+	attvars_residuals(Vs, Gs, []),
+	delete_attributes(Term).
 
 attvars_residuals([]) --> [].
 attvars_residuals([V|Vs]) -->
