@@ -39,6 +39,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/extlists.yap \
 	$(srcdir)/problog/flags.yap \
 	$(srcdir)/problog/gflags.yap \
+	$(srcdir)/problog/grounder.yap \
 	$(srcdir)/problog/hash_table.yap \
 	$(srcdir)/problog/intervals.yap \
 	$(srcdir)/problog/logger.yap \

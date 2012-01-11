@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-09 12:00:00 +0200 (Sat, 09 Apr 2011) $
-%  $Revision: 5890 $
+%  $Date: 2011-12-05 14:07:19 +0100 (Mon, 05 Dec 2011) $
+%  $Revision: 6766 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -13,7 +13,7 @@
 %  Copyright 2009
 %  Angelika Kimmig, Vitor Santos Costa, Bernd Gutmann
 %                                                              
-%  Main authors of this file:
+%  Main author of this file:
 %  Bernd Gutmann
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -204,7 +204,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+:-source.
 :- module(problog_lfi,[do_learning/1,
 		       do_learning/2,
 		       create_ground_tunable_fact/2,
@@ -238,8 +238,6 @@
 :- dynamic(current_iteration/1).
 :- dynamic(query_all_scripts/2).
 :- dynamic(last_llh/1).
-
-:- dynamic(user:myclause/2).
 
 :- discontiguous(user:myclause/1).
 :- discontiguous(user:myclause/2).
@@ -958,7 +956,7 @@ my_load_intern_allinone(query_probability(QueryID,Prob),Handle,QueryID,Count,Old
 	 true;
 	 throw(error(bdd_output_contains_prob_twice(query_probability(QueryID,Prob))))
 	),
-	Prob2 is Prob,   % this is will throw an exception if simplecudd delivers non-number garbage
+	Prob2 is Prob*Count,   % this is will throw an exception if simplecudd delivers non-number garbage
 	read(Handle,X),
 	my_load_intern_allinone(X,Handle,QueryID,Count,Prob2,BDD_Probability).
 my_load_intern_allinone(ec(QueryID,VarName,Value),Handle,QueryID,Count,Old_BDD_Probability,BDD_Probability) :-
@@ -978,10 +976,26 @@ my_load_intern_allinone(X,Handle,QueryID,Count,Old_BDD_Probability,BDD_Probabili
 %= Perform one iteration of EM
 %========================================================================
 
+my_reset_static_array(Name) :-
+  %%% DELETE ME AFTER VITOR FIXED HIS BUG
+        static_array_properties(Name,Size,Type),
+	LastPos is Size-1,
+	(
+	    Type==int
+	->
+	    forall(between(0,LastPos,Pos), update_array(Name,Pos,0))
+	;
+	    Type==float
+	->
+  	    forall(between(0,LastPos,Pos), update_array(Name,Pos,0.0))
+	;
+	    fail
+	).
+
 em_one_iteration :-
 	write_probabilities_file,
-	reset_static_array(factprob_temp),
-	reset_static_array(factusage),
+	my_reset_static_array(factprob_temp),
+	my_reset_static_array(factusage),
 
 	current_iteration(Iteration),
 	create_training_predictions_file_name(Iteration,Name),
@@ -1010,7 +1024,7 @@ em_one_iteration :-
 		    % add counts
 		    add_to_array_element(factprob_temp,FactID,KK_True,_NewValue),
 		    add_to_array_element(factusage,FactID,KK_Sum,_NewCount),
-		    		    
+
 		    % for LLH training set
 
 		    (
@@ -1052,6 +1066,7 @@ em_one_iteration :-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% start copy new values
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
 	problog_flag(pc_numerator,Pseudo_Counts_Numerator),
 	problog_flag(pc_denominator,Pseudo_Counts_Denominator),
 

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-21 14:18:59 +0200 (Thu, 21 Apr 2011) $
-%  $Revision: 6364 $
+%  $Date: 2011-12-05 14:07:19 +0100 (Mon, 05 Dec 2011) $
+%  $Revision: 6766 $
 %                                                              
 %  Main authors of this file:
 %  Bernd Gutmann
@@ -211,6 +211,7 @@
 
 % load our own modules
 :- use_module('../problog').
+:- use_module(grounder).
 :- use_module(logger).
 :- use_module(termhandling).
 :- use_module(flags).
@@ -226,13 +227,6 @@
 :- initialization(problog_define_flag(output_dot_files,problog_flag_validate_boolean,'Output .dot files for BDD scripts',true,learning_bdd_generation)).
 :- initialization(problog_define_flag(split_bdds,problog_flag_validate_boolean,'Split BDD scripts when possible',true,learning_bdd_generation)).
 
-%========================================================================
-%=
-%========================================================================
-
-user:myclause(_InterpretationID,Head,Body) :-
-	current_predicate(user:myclause/2),
-	user:myclause(Head,Body).
 
 %========================================================================
 %=
@@ -261,7 +255,7 @@ propagate_evidence(InterpretationID,Query_Type) :-
 	eraseall(rules),
 	eraseall(unpropagated_rules),
 	eraseall(known_atoms),
-	eraseall(reachable),
+	grounder_reset,
 
 	(
 	 Query_Type==test
@@ -297,10 +291,14 @@ propagate_evidence(InterpretationID,Query_Type) :-
         % iterate over all evidence atoms
 	forall(user:known(InterpretationID,Atom,Value),
 	       (
-		(calculate_dep_atom_outer(Atom,InterpretationID);Value==false)
-	       ->
-		true;
-		throw(unprovable_evidence(Atom))
+		grounder_compute_reachable_atoms(Atom,InterpretationID,Success),
+		(
+		    (Success==true; Value==false)
+		->
+		    true
+		;
+		    throw(unprovable_evidence(Atom))
+		)
 	       )
 	      ),
 	logger_stop_timer(Key_BDD_script_generation_grounding),
@@ -315,8 +313,8 @@ propagate_evidence(InterpretationID,Query_Type) :-
 
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	%% Bring out intermediate garbage               %%%
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
-	eraseall(reachable),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        grounder_reset,
 	!,
 	garbage_collect_atoms,
 
@@ -376,7 +374,7 @@ propagate_evidence(InterpretationID,Query_Type) :-
 	eraseall(rules),
 	eraseall(unpropagated_rules),
 	eraseall(known_atoms),
-	eraseall(reachable),
+	grounder_reset,
 	logger_stop_timer(Key_BDD_script_generation).
 
 
@@ -402,8 +400,8 @@ completion(InterpretationID) :-
 	% iterate over all reachable atoms where the completion
 	% can be computed. This will skip reachable probabilistic facts.
 	forall((
-		recorded(reachable,Head,_),
-		completion_for_atom(Head,Rule,InterpretationID)
+	        grounder_reachable_atom(Head),
+		grounder_completion_for_atom(Head,InterpretationID,Rule)
 	       ),
 	       (
 		once(propagate_interpretation(Rule,InterpretationID,Rule2)),
@@ -426,7 +424,7 @@ completion(InterpretationID) :-
 	       )
 	      ),
 
-		print_theory,
+%	print_theory,
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Store known Atoms %%
@@ -436,15 +434,6 @@ completion(InterpretationID) :-
 	      ).
 
 	
-completion_for_atom(Head,'$atom'(Head)<=>Disjunction,InterpretationID) :-
-	% find all clauses
-	findall(Body2,(
-		       user:myclause(InterpretationID,Head,Body),
-		       ground_term_with_known_atoms(Body,Body2)
-		      ),Bodies),
-	Bodies\==[],
-	list_to_disjunction(Bodies,Disjunction).
-
 
 %========================================================================
 %= find rule which makes sense to propagate
@@ -474,7 +463,7 @@ propagate_intern_known(true) :-
 	forall(
 	       (
 		recorded(rules,Rule,Key2),
-		once(propagate(Rule,'$atom'(Atom),AtomValue,NewRule,true)) % will succeed only when Atom appears in Rule
+		once(propagate(Rule,Atom,AtomValue,NewRule,true)) % will succeed only when Atom appears in Rule
 	       ),
 	       (
 		erase(Key2),
@@ -620,26 +609,21 @@ know_atom_expected_count(false,0).
 %========================================================================
 
 print_theory :-
-	format_learning(5,'== Unpropagated Rules ==~n',[]),
+	format_learning(5,'~n  Current Theory~n  == Unpropagated Rules ==~n',[]),
 	forall(recorded(unpropagated_rules,Rule,Key),
-	       format_learning(6,'~q.  (~q)~n',[Rule,Key])
-	      ),
-	forall(recorded(unpropagated_rules,Rule,Key),
-	       format_learning_rule(5,Rule,Key)
+	       format_learning(5,'   ~q.  (~q)~n',[Rule,Key])
 	      ),
 	
-	format_learning(6,'== Rules ==~n',[]),
+	format_learning(5,'  == Rules ==~n',[]),
 	forall(recorded(rules,Rule,Key),
-	       format_learning(6,'~q.  (~q)~n',[Rule,Key])),
-	format_learning(5,'== Prettyprint Rules ==~n',[]),
-	forall(recorded(rules,Rule,Key),
-	       (format_learning_rule(5,Rule,Key))
+	       format_learning(5,'   ~q.  (~q)~n',[Rule,Key])),
+
+	format_learning(5,'  == Known and Propagated Atoms ==~n',[]),
+	forall(recorded(known_atoms,Head <=> Bodies,Key),
+	       format_learning(5,'   ~q <=> ~q.  (~q)~n',[Head,Bodies,Key])
 	      ),
 
-	format_learning(5,'== Known and Propagated Atoms ==~n',[]),
-	forall(recorded(known_atoms,Head <=> Bodies,Key),
-	       format('~q <=> ~q.  (~q)~n',[Head,Bodies,Key])
-	      ).
+	format_learning(5,'~3n',[]).
 
 
 %========================================================================
@@ -968,155 +952,4 @@ next_counter(ID) :-
 	atomic_concat(['L',N2],ID),
 	bb_put(counter,N2).
 
-%========================================================================
-%= calculate_dep_atom(+Atom)
-%========================================================================
-
-
-calculate_dep_atom_outer(Atom,InterpretationID) :-
-	bb_put(dep_proven,false),
-	
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	( % go over all proofs for atom
-	 calculate_dep_atom(Atom,InterpretationID),
-	 bb_put(dep_proven,true),
-	  
-	 fail; % go to next proof
-	 true
-	),
-	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-	bb_delete(dep_proven,Result),
-	Result==true.
-
-
-calculate_dep_atom(true,_) :-
-	!.
-calculate_dep_atom(false,_) :-
-	!.
-calculate_dep_atom( (X is Y),_ ) :-
-	!,
-	call(X is Y).
-calculate_dep_atom( (X > Y),_ ) :-
-	!,
-	call(X > Y).
-calculate_dep_atom( (X < Y),_ ) :-
-	!,
-	call(X < Y).
-calculate_dep_atom( (X == Y),_ ) :-
-	!,
-	call(X == Y).
-calculate_dep_atom( (X = Y),_ ) :-
-	!,
-	call(X = Y).
-calculate_dep_atom( (X > Y),_ ) :-
-	!,
-	call(X > Y).
-calculate_dep_atom( (X < Y),_ ) :-
-	!,
-	call(X < Y).
-calculate_dep_atom( (X =< Y),_ ) :-
-	!,
-	call(X =< Y).
-calculate_dep_atom( (X >= Y),_ ) :-
-	!,
-	call(X >= Y).
-calculate_dep_atom(call(X),_) :-
-	!,
-	call(X).
-calculate_dep_atom( Atom,_ ) :-
-	recorded(reachable,Atom,_),
-        % FIXME, could this cut prune away too much? what if Atom is non-ground?
-	!.
-calculate_dep_atom( Atom,InterpretationID ) :-
-	ground(Atom),
-	!,
-	recorda(reachable,Atom,_),
-	if(user:myclause(InterpretationID,Atom,Body),(calculate_dep_atom_intern(Body,InterpretationID)),probabilistic_fact(_,Atom,_)).
-calculate_dep_atom( Atom,InterpretationID ) :-
-	if(user:myclause(InterpretationID,Atom,Body),(calculate_dep_atom_intern(Body,InterpretationID)),probabilistic_fact(_,Atom,_)),
-	(
-	 ground(Atom)
-	->
-	 (
-	  recorded(reachable,Atom,_)
-	 ->
-	  true;
-	  recorda(reachable,Atom,_)
-	 );
-	 (
-	  format(user_error,'Error at running the meta interpreter.~n',[]),
-	  format(user_error,'The clauses defined by myclause/2 have to be written in a way such that~n',[]),
-	  format(user_error,'each atom in the body of a clause gets fully grounded when it is called.~n',[]),
-	  format(user_error,'    This is not the case for the atom ~w~3n',[Atom]),
-	  throw(meta_interpreter_error(Atom))
-	 )
-	).
-
-
-calculate_dep_atom_intern((X,Y),InterpretationID) :-
-	!,
-	calculate_dep_atom_intern(X,InterpretationID),
-	calculate_dep_atom_intern(Y,InterpretationID).
-calculate_dep_atom_intern((X;Y),InterpretationID) :-
-	!,
-	(
-	 calculate_dep_atom_intern(X,InterpretationID);
-	 calculate_dep_atom_intern(Y,InterpretationID)
-	).
-calculate_dep_atom_intern(\+X,InterpretationID) :-
-	!,
-	calculate_dep_atom_intern(X,InterpretationID).
-calculate_dep_atom_intern(X,InterpretationID) :-
-	calculate_dep_atom(X,InterpretationID).
-
-%========================================================================
-%=
-%========================================================================
-
-
-
-ground_term_with_known_atoms( (X,Y),  (X2,Y2)) :-
-	!,
-	ground_term_with_known_atoms(X,X2),
-	ground_term_with_known_atoms(Y,Y2).
-ground_term_with_known_atoms( (X;Y),  (X2;Y2)) :-
-	!,
-	ground_term_with_known_atoms(X,X2),
-	ground_term_with_known_atoms(Y,Y2).
-
-ground_term_with_known_atoms( \+ X,  \+ X2) :-
-	!,
-	ground_term_with_known_atoms(X,X2).
-ground_term_with_known_atoms( true,  true) :-
-	!.
-ground_term_with_known_atoms( false,  false) :-
-	!.
-ground_term_with_known_atoms( (X is Y), true) :-
-	!,
-	call(X is Y).
-ground_term_with_known_atoms( (X < Y), true) :-
-	!,
-	call(X < Y).
-ground_term_with_known_atoms( (X > Y), true) :-
-	!,
-	call(X > Y).
-ground_term_with_known_atoms( (X >= Y),  true) :-
-	!,
-	call(X >= Y).
-ground_term_with_known_atoms( (X =< Y),  true) :-
-	!,
-	call(X =< Y).
-ground_term_with_known_atoms( (X = Y),  true) :-
-	!,
-	call(X = Y).
-ground_term_with_known_atoms( (X == Y),  true) :-
-	!,
-	call(X == Y).
-ground_term_with_known_atoms( call(X), '$atom'(X)) :-
-	!,
-	call(X).
-ground_term_with_known_atoms( X,  '$atom'(X)) :-
-	!,
-	recorded(reachable,X,_).
 

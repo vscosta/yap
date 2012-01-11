@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-02-08 16:00:57 +0100 (Tue, 08 Feb 2011) $
-%  $Revision: 5614 $
+%  $Date: 2011-12-08 16:20:16 +0100 (Thu, 08 Dec 2011) $
+%  $Revision: 6775 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -297,8 +297,8 @@ bdd_file_handler(validate, Value):-
 bdd_file_handler(validate, Value):-
   convert_filename_to_working_path(Value, Path),
   catch((\+ file_exists(Path), tell(Path)), _, fail),
-  told,
-  delete_file(Path).
+  told, 
+  catch(delete_file(Path),_, fail).
 bdd_file_handler(validated, _Value).
 bdd_file_handler(stored, Value):-
   atomic_concat(Value, '_probs', ParValue),
@@ -314,8 +314,8 @@ working_file_handler(validate, Value):-
 working_file_handler(validate, Value):-
   convert_filename_to_working_path(Value, Path),
   catch((\+ file_exists(Path), tell(Path)), _, fail),
-  told,
-  delete_file(Path).
+  told, 
+  catch(delete_file(Path),_, fail).
 working_file_handler(validated, _Value).
 working_file_handler(stored, _Value).
 
@@ -354,6 +354,8 @@ learning_prob_init_handler(validating, N) :-
 	number(N),
 	N>0,
 	N =< 1.
+learning_prob_init_handler(validating, A) :-
+       atom(A), !.
 %learning_prob_init_handler(validate, V_).
 learning_prob_init_handler(validated, _Value).
 learning_prob_init_handler(stored, _Value).

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-11 17:23:11 +0200 (Mon, 11 Apr 2011) $
-%  $Revision: 5920 $
+%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6764 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -697,7 +697,8 @@ bdd_vars_script_intern(A, NameA) :-
         problog:get_fact_probability(A,P),
         format('@~w~n~12f~n~w~n',[NameA,P,1])
       ;
-        format('@~w~n~12f~n~w~n',[NameA,0,1])
+		dtproblog:initial_probability(P),
+        format('@~w~n~12f~n~w~n',[NameA,P,1])
       )
     ; % it's a normal ProbLog fact
       problog:get_fact_probability(A,P),
@@ -730,7 +731,8 @@ bdd_vars_script_intern2(A, NameA) :-
             problog:dynamic_probability_fact_extract(Goal,P),
             format('@~w~n~12f~n~w~n',[NameA,P,1])
           ;
-            format('@~w~n~12f~n~w~n',[NameA,0,1])
+			dtproblog:initial_probability(P),
+            format('@~w~n~12f~n~w~n',[NameA,P,1])
           )
         ;
           (problog:dynamic_probability_fact(ID) ->

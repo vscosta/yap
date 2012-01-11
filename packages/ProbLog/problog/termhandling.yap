@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-09 12:00:00 +0200 (Sat, 09 Apr 2011) $
-%  $Revision: 5890 $
+%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6764 $
 %                                                              
 %  Main authors of this file:
 %  Bernd Gutmann
@@ -269,6 +269,8 @@ propagate_interpretation('$atom'(X),ID,Value) :-
 	 true;
 	 Value='$atom'(X)
 	).
+propagate_interpretation(true,_,true).
+propagate_interpretation(false,_,false).
 
 %========================================================================
 %=
@@ -290,18 +292,15 @@ propagate((X <=> Y),A,AValue,(X2 <=> Y2),Result) :-
 	or(Result1,Result2,Result).
 propagate((\+ X), A, AValue,\+ X2,Result) :-
 	propagate(X,A,AValue,X2,Result).
-propagate('$atom'(X),'$atom'(A),AValue,X2,Result) :-
+propagate('$atom'(X),'$atom'(A),AValue,ResultTerm,Propagated) :-
 	(
-	 X==A
+	    X==A
 	->
-	 (
-	  X2=AValue,
-	  Result=true
-	 );
-	 (
-	  X2=X,
-	  Result=false
-	 )
+	    ResultTerm=AValue,
+	    Propagated=true
+	;
+	    ResultTerm='$atom'(X),
+	    Propagated=false
 	).
 propagate(true,_,_,true,false).
 propagate(false,_,_,false,false).

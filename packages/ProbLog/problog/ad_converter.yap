@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-08-19 13:13:56 +0200 (Fri, 19 Aug 2011) $
-%  $Revision: 6471 $
+%  $Date: 2011-11-28 16:17:25 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6765 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -267,7 +267,7 @@ term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Bo
 	),
 
 	% call term_expansion for the aux facts, this has the same effect
-	% as if the use had defined the facts in the original file
+	% as if the user had defined the facts in the original file
 	findall(problog:Atom,(
 			      member(F,Aux_Facts),
 			      once(problog:term_expansion_intern(F,Module,Atom))
@@ -278,7 +278,8 @@ term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Bo
 	create_aux_bodies(Head,Body_Vars,Body,ID,1,Aux_Facts,Mode,Aux_Clauses),
 
 	(
-	 Mode==lfi_learning ->
+	 Mode==lfi_learning
+        ->
 	 findall(Module:myclause(H,B),member((H:-B),Aux_Clauses),Result,Result_Atoms)
 	;
 	 findall(Module:B,member(B,Aux_Clauses),Result,Result_Atoms)
@@ -295,7 +296,8 @@ term_expansion_intern_ad((Head<--Body), Module, Mode, [user:ad_intern((Head<--Bo
 	  format('    - - - - - - - - - - - - - - - - - - - - - - ~n',[]),
 	  forall(member(B,Aux_Clauses),format('   ~q.~n',[B])),
 	  format('================================================~2n',[])
-	 );
+	 )
+        ;
 	 true
 	).
 

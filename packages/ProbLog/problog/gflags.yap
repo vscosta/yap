@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-02 15:20:15 +0100 (Thu, 02 Dec 2010) $
-%  $Revision: 5043 $
+%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6764 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -444,7 +444,8 @@ flag_validate_file(Value):-
   atomic(Value),
   catch((\+ file_exists(Value), tell(Value)), _, fail),
   told,
-  delete_file(Value).
+  catch(delete_file(Value),_, fail).
+
 
 
 flag_validate_in_list(Domain):-

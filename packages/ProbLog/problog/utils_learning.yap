@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-14 20:30:07 +0100 (Tue, 14 Dec 2010) $
-%  $Revision: 5134 $
+%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6764 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2010-12-15 15:52:58 +0100 (Wed, 15 Dec 2010) $
-%  $Revision: 5144 $
+%  $Date: 2011-12-06 21:50:45 +0100 (Tue, 06 Dec 2011) $
+%  $Revision: 6772 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -229,7 +229,7 @@
 %========================================================================
 
 delete_file_silently(File) :-
-	catch(delete_file(File),_,fail),
+	catch(delete_file(File),_, fail),
 	!.
 delete_file_silently(_).
 

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-04-11 17:23:11 +0200 (Mon, 11 Apr 2011) $
-%  $Revision: 5920 $
+%  $Date: 2011-11-28 14:41:26 +0100 (Mon, 28 Nov 2011) $
+%  $Revision: 6764 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog

@@ -2,8 +2,8 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
-%  $Date: 2011-09-02 11:23:22 +0200 (Fri, 02 Sep 2011) $
-%  $Revision: 6475 $
+%  $Date: 2011-12-08 16:20:16 +0100 (Thu, 08 Dec 2011) $
+%  $Revision: 6775 $
 %
 %  This file is part of ProbLog
 %  http://dtai.cs.kuleuven.be/problog
@@ -223,7 +223,9 @@
 %
 % angelika.kimmig@cs.kuleuven.be
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-:- module(problog, [problog_delta/5,
+:- module(problog, [problog_koptimal/3,
+						  problog_koptimal/4,
+						  problog_delta/5,
                     problog_threshold/5,
                     problog_low/4,
                     problog_kbest/4,
@@ -308,8 +310,12 @@
 :- use_module(library(lists), [append/3,member/2,memberchk/2,reverse/2,select/3,nth1/3,nth1/4,nth0/4,sum_list/2]).
 :- use_module(library(terms), [variable_in_term/2,variant/2] ).
 :- use_module(library(random), [random/1]).
-:- use_module(library(system), [tmpnam/1,shell/2,delete_file/1,delete_file/2]).
+:- use_module(library(system), [tmpnam/1,shell/2,delete_file/1]).
 :- use_module(library(ordsets), [list_to_ord_set/2, ord_insert/3, ord_union/3]).
+%Joris
+:- use_module(library(lineutils)).
+%Joris
+
 
 % problog related modules
 :- use_module('problog/variables').
@@ -403,6 +409,13 @@
 % for storing continuous parts of proofs (Hybrid ProbLog)
 :- dynamic([hybrid_proof/3, hybrid_proof/4]).
 :- dynamic(hybrid_proof_disjoint/4).
+% local to problog_koptimal
+:- dynamic optimal_proof/2.
+:- dynamic current_prob/1.
+:- dynamic possible_proof/2.
+:- dynamic impossible_proof/1.
+	
+:- table conditional_prob/4.
 
 % ProbLog files declare prob. facts as P::G
 % and this module provides the predicate X::Y to iterate over them
@@ -413,6 +426,8 @@
 % directory where problogbdd executable is located
 % automatically set during loading -- assumes it is in same place as this file (problog.yap)
 :- getcwd(PD), set_problog_path(PD).
+
+
 
 %%%%%%%%%%%%
 % iterative deepening on minimal probabilities (delta, max, kbest):
@@ -460,6 +475,17 @@
 	problog_define_flag(save_bdd,        problog_flag_validate_boolean, 'save BDD files for (last) lower bound', false, bdd),
 	problog_define_flag(dynamic_reorder, problog_flag_validate_boolean, 'use dynamic re-ordering for BDD', true, bdd),
 	problog_define_flag(bdd_static_order,    problog_flag_validate_boolean, 'use a static order', false, bdd)
+)).
+
+
+%%%%%%%%%%%%
+% Storing the calculated BDD for later reuse in koptimal
+% - nodedump bdd of the last constructed bdd
+% - nodedump bdd file where the nodedump should be stored
+%%%%%%%%%%%%
+:- initialization((
+	problog_define_flag(nodedump_bdd, problog_flag_validate_boolean, 'store the calculated BDD', false, bdd),
+	problog_define_flag(nodedump_file, problog_flag_validate_file, 'file to store the nodedump of the BDD', nodedump_bdd, bdd)
 )).
 
 %%%%%%%%%%%%
@@ -607,7 +633,10 @@ term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
 term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClause) :-
 	(
 	 Annotation == '?' ->
-    % It's a decision with a body
+     % It's a decision with a body
+	 (decision_fact(_,Head) ->
+	  throw(error('New decision unifies with already defined decision!', (Head))) ; true
+	 ),
 	 copy_term((Head,Body),(HeadCopy,_BodyCopy)),
 	 functor(Head, Functor, Arity),
 	 atomic_concat([problog_,Functor],LongFunctor),
@@ -640,7 +669,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 				% format('Expanding annotated fact ~q :: ~q :- ~q in other clause.~n',[Annotation,Head,Body]),
 	  fail
 	 ;
-	  throw(error('We do not support annotated clauses (yet)!', (Annotation :: Head :- Body)))
+	  throw(error('Please use an annoted disjunction P :: Head <-- Body instead of the annated clause.', (Annotation :: Head :- Body)))
 	 )
 	).
 
@@ -722,7 +751,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	->
 	 (
 	  assertz(tunable_fact(ID,TrueProb)),
-	  sample_initial_value_for_tunable_fact(LProb)
+	  sample_initial_value_for_tunable_fact(Goal,LProb)
 	 );
 	 (
 	  ground(P)
@@ -757,7 +786,7 @@ term_expansion_intern(P :: Goal,Module,problog:ProbFact) :-
 	problog_predicate(Name, Arity, ProblogName,Module).
 
 
-sample_initial_value_for_tunable_fact(LogP) :-
+sample_initial_value_for_tunable_fact(Goal,LogP) :-
 	problog_flag(tunable_fact_start_value,Initializer),
 
 	(
@@ -779,7 +808,12 @@ sample_initial_value_for_tunable_fact(LogP) :-
 	 (
 	  number(Initializer)
 	 ->
-	  P=Initializer;
+	  P=Initializer
+         ;
+	  atom(Initializer)
+         -> 
+          call(user:Initializer,Goal,P)
+         ;
 	  throw(unkown_probability_initializer(Initializer))
 	 )
 	),
@@ -1836,9 +1870,9 @@ eval_dnf(OriTrie1, Prob, Status) :-
 
   (problog_control(check, remember) ->
     convert_filename_to_working_path('save_script', SaveBDDFile),
-    rename_file(BDDFile, SaveBDDFile),
+    copy_file(BDDFile, SaveBDDFile),
     convert_filename_to_working_path('save_params', SaveBDDParFile),
-    rename_file(BDDParFile, SaveBDDParFile)
+    copy_file(BDDParFile, SaveBDDParFile)
   ;
     true
   ),
@@ -1882,10 +1916,17 @@ generate_ints(Start, End, [Start|Rest]):-
 execute_bdd_tool(BDDFile, BDDParFile, Prob, Status):-
   problog_flag(bdd_time, BDDTime),
   problog_flag(bdd_result, ResultFileFlag),
+	(problog_flag(nodedump_bdd,true) ->
+		problog_flag(nodedump_file,NodeDumpFile),
+    convert_filename_to_working_path(NodeDumpFile, SONodeDumpFile),
+		atomic_concat([' -sd ', SONodeDumpFile],ParamB)
+	;
+		ParamB = ''
+	),
   (problog_flag(dynamic_reorder, true) ->
-    ParamD = ''
+    ParamD = ParamB
   ;
-    ParamD = ' -dreorder'
+    atomic_concat([ParamB, ' -dreorder'], ParamD)
   ),
   (problog_flag(bdd_static_order, true) ->
     problog_flag(static_order_file, FileName),
@@ -1904,7 +1945,7 @@ execute_bdd_tool(BDDFile, BDDParFile, Prob, Status):-
     see(ResultFile),
     read(probability(Prob)),
     seen,
-    delete_file(ResultFile),
+    catch(delete_file(ResultFile),_, fail),
     Status = ok
   ).
 
@@ -2098,398 +2139,6 @@ problog_low(_, _, LP, Status) :-
 	delete_ptree(Trie_Completed_Proofs),
 	(problog_flag(retain_tables, true) -> retain_tabling; true),
 	clear_tabling.
-
-:- ensure_loaded(library(tries)).
-:- ensure_loaded(library(rbtrees)).
-:- ensure_loaded(library(readutil)).
-:- ensure_loaded(library(lineutils)).
-problog_cnf(Goal,  _) :-
-	init_problog_low(0.0),
-	problog_control(off, up),
-	timer_start(sld_time),
-	problog_call(Goal),
-	add_solution,
-	fail.
-problog_cnf(_,Prob) :-
-	timer_stop(sld_time,SLD_Time),
-	problog_var_set(sld_time, SLD_Time),
-	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
-%	randomize_cnf_varids(CNF, RandomVNameCNF),
-%	invert_cnf_varids(CNF, RandomVNameCNF),
-	CNF = RandomVNameCNF,
-	cnf_to_dimacs(RandomVNameCNF, _File),
-	% should generate a tmp file.
-	unix(system('./c2d_linux -in dimacs')),
-	nnf_to_probability(_NNFFile, RB, CompProb),
-	Prob is 1-CompProb,
-	delete_ptree(Trie_Completed_Proofs),
-	(problog_flag(retain_tables, true) -> retain_tabling; true),
-	clear_tabling.
-
-problog_wcnf(Goal,  _) :-
-	init_problog_low(0.0),
-	problog_control(off, up),
-	timer_start(sld_time),
-	problog_call(Goal),
-	add_solution,
-	fail.
-problog_wcnf(_,Prob) :-
-	timer_stop(sld_time,SLD_Time),
-	problog_var_set(sld_time, SLD_Time),
-	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
-%	randomize_cnf_varids(CNF, RandomVNameCNF),
-%	invert_cnf_varids(CNF, RandomVNameCNF),
-	CNF = RandomVNameCNF,
-	cnf_to_wdimacs(RandomVNameCNF, RB, _File),
-	% should generate a tmp file.
-	unix(system('./c2d_linux -in dimacs')),
-	nnf_to_probability(_NNFFile, RB, CompProb),
-	Prob is 1-CompProb,
-	delete_ptree(Trie_Completed_Proofs),
-	(problog_flag(retain_tables, true) -> retain_tabling; true),
-	clear_tabling.
-
-trie_to_cnf(Trie, CNF, RB) :-
-	trie_traverse_first(Trie, RefFirst),
-	rb_new(RB0),
-	nb_setval(cnf_nodes, 0),
-	trie_to_list_of_numbers(Trie, RB0, RefFirst, CNF, RB).
-
-trie_to_list_of_numbers(Trie, RB0, CurrentRef, Proof.Proofs, RB) :-
-	trie_get_entry(CurrentRef, Entry),
-	convert_trie_entry_to_numbers(Entry, RB0, Proof, RBI),
-	continue_processing_trie(Trie, RBI, CurrentRef, Proofs, RB).
-
-continue_processing_trie(Trie, RB0, CurrentRef, Proofs, RB) :-
-	trie_traverse_next(CurrentRef, NextRef), !,
-	trie_to_list_of_numbers(Trie, RB0, NextRef, Proofs, RB).
-continue_processing_trie(_, RB, _CurrentRef, [], RB).
-
-convert_trie_entry_to_numbers([], RB, [], RB).
-convert_trie_entry_to_numbers(not(Val).Entry, RB0, Numb.Proof, RB) :- !,
-	convert_goal_to_number(Val, RB0, Numb, RBI),
-	convert_trie_entry_to_numbers(Entry, RBI, Proof, RB).
-convert_trie_entry_to_numbers(Val.Entry, RB0, NegNumb.Proof, RB) :- !,
-	convert_goal_to_number(Val, RB0, Numb, RBI),
-	NegNumb is -Numb,
-	convert_trie_entry_to_numbers(Entry, RBI, Proof, RB).
-
-convert_goal_to_number(Val, RB0, Numb, RBI) :-
-	rb_lookup(Val, Numb, RB0), !,
-	RB0 = RBI.
-convert_goal_to_number(Val, RB0, I, RBI) :-
-	nb_getval(cnf_nodes, I0),
-	I is I0+1,
-	nb_setval(cnf_nodes, I),
-	rb_insert(RB0, Val, I, RBI).
-
-invert_cnf_varids(CNF, InvVNameCNF) :-
-	nb_getval(cnf_nodes,Nodes),
-	invert_cnf_varids(CNF, Nodes, InvVNameCNF, []).
-
-invert_cnf_varids([], _) --> [].
-invert_cnf_varids(C.CNF, Nodes) --> [NC],
-	{ invert_c_varids(C, Nodes, NC, []) },
-	invert_cnf_varids(CNF, Nodes).
-
-invert_c_varids([], _Nodes) --> [].
-invert_c_varids(N.CNF, Nodes) -->
-	[NN],
-	{ inv_node(N,Nodes,NN) },
-	invert_c_varids(CNF, Nodes).
-
-inv_node(N,Nodes,NN) :-
-	( N > 0 -> NN is (Nodes-N)+1 ; NN is -(Nodes+N+1) ).
-
-randomize_cnf_varids(CNF, RandomVNameCNF) :-
-	nb_getval(cnf_nodes,Nodes),
-	generate_numbers(Nodes, Numbers),
-	randomize_list(Numbers, RandomNumbers).
-
-cnf_to_wdimacs(CNF, RB, File) :-
-	File = dimacs,
-	open(dimacs,write,Stream),
-	length(CNF,M),
-	nb_getval(cnf_nodes,N),
-	format(Stream,'p cnf ~d ~d~n',[N,M]),
-	output_probs(Stream, RB),
-	cnf_lines_to_dimacs(CNF, Stream),
-	close(Stream).
-
-output_probs(Stream, RB) :-
-	rb_in(K, V, RB),
-	dump_weight(Stream, K, V),
-	fail.
-output_probs(_Stream, _RB).
-
-dump_weight(Stream, K, V) :-
-	get_fact_probability(K,ProbFact),
-	format(Stream,'w ~d ~f~n',[V,ProbFact]).
-
-cnf_to_dimacs(CNF, File) :-
-	File = dimacs,
-	open(dimacs,write,Stream),
-	length(CNF,M),
-	nb_getval(cnf_nodes,N),
-	format(Stream,'p cnf ~d ~d~n',[N,M]),
-	cnf_lines_to_dimacs(CNF, Stream),
-	close(Stream).
-
-cnf_lines_to_dimacs([], _Stream).
-cnf_lines_to_dimacs([Line|CNF], Stream) :-
-	cnf_line_to_dimacs(Line,Stream),
-	cnf_lines_to_dimacs(CNF, Stream).	
-
-cnf_line_to_dimacs([],Stream) :-
-	format(Stream,'0~n',[]).
-cnf_line_to_dimacs([L|Line],Stream) :-
-	format(Stream,'~w ',[L]),	
-	cnf_line_to_dimacs(Line,Stream).
-
-nnf_to_probability(File, RBTree, Result) :-
-	File = 'dimacs.nnf',
-	open(File, read, Stream),
-	process_nnf(Stream, RBTree, Result),
-	close(Stream).
-
-process_nnf(Stream, RevRBTree, Result) :-
-	rb_visit(RevRBTree, ListOfPairs),
-	swap_key_values(ListOfPairs, SwappedList),
-	list_to_rbtree(SwappedList, RBTree),
-	read_line_to_codes(Stream, Header),
-	split(Header, ["nnf",VS,_ES,_NS]),
-	number_codes(V, VS),
-	%trace,
-	call(functor(TempResults, nnf, V)),
-	process_nnf_lines(Stream, RBTree, 1, TempResults),
-	arg(V, TempResults, Result).
-
-swap_key_values([], []).
-swap_key_values((K-V).ListOfPairs, (V-K).SwappedList) :-
-	swap_key_values(ListOfPairs, SwappedList).
-
-
-process_nnf_lines(Stream, RBTree, LineNumber, TempResults) :-
-	read_line_to_codes(Stream, Codes),
-	( Codes = end_of_file -> true ;
-%	(LineNumber > 1 -> N is LineNumber-1, arg(N,TempResults,P), format("~w ",[P]);true),
-%	format("~s~n",[Codes]),
-	  process_nnf_line(RBTree, LineNumber, TempResults, Codes, []),
-	  NewLine is LineNumber+1,
-	  process_nnf_lines(Stream, RBTree, NewLine, TempResults)
-	).
-
-process_nnf_line(RBTree, Line, TempResults) --> "L ",
-	nnf_leaf(RBTree, Line, TempResults).
-process_nnf_line(_RBTree, Line, TempResults) --> "A ",
-	nnf_and_node(Line, TempResults).
-process_nnf_line(_RBTree, Line, TempResults) --> "O ",
-	nnf_or_node(Line, TempResults).
-
-nnf_leaf(RBTree, LineNumber, TempResults, Codes, []) :-
-	number_codes(Number, Codes),
-	Abs is abs(Number),
-	rb_lookup(Abs, Node, RBTree),
-%	get_fact_probability(Node, ProbFact),
-%	(Number < 0 -> Prob is 1-ProbFact ; Prob = ProbFact),
-	(get_fact_probability(Node,ProbFact) -> (Number < 0 -> Prob is 1-ProbFact ; Prob = ProbFact) ; Prob = special),
-	arg(LineNumber, TempResults, Prob).
-
-nnf_and_node(LineNumber, TempResults, Codes, []) :-
-	split(Codes, [_|NumberAsStrings]),
-	multiply_nodes(NumberAsStrings, 1.0, TempResults, Product),
-	arg(LineNumber, TempResults, Product).
-
-multiply_nodes([], Product, _, Product).
-multiply_nodes(NumberAsString.NumberAsStrings, Product0, TempResults, Product) :-
-	number_codes(Pos, NumberAsString),
-	Pos1 is Pos+1,
-	arg(Pos1, TempResults, P),
-	( P == special -> ProductI=Product0; ProductI is P*Product0 ),
-	multiply_nodes(NumberAsStrings, ProductI, TempResults, Product).
-
-nnf_or_node(LineNumber, TempResults, Codes, []) :-
-	split(Codes, [_,_|NumberAsStrings]),
-	add_nodes(NumberAsStrings, 0.0, TempResults, Product),
-	arg(LineNumber, TempResults, Product).
-
-add_nodes([], Product, _, Product).
-add_nodes(NumberAsString.NumberAsStrings, Product0, TempResults, Product) :-
-	number_codes(Pos, NumberAsString),
-	Pos1 is Pos+1,
-	arg(Pos1, TempResults, P),
-	( P == special -> ProductI=Product0; ProductI is P+Product0 ),
-	add_nodes(NumberAsStrings, ProductI, TempResults, Product).
-
-problog_cnf_positive(Goal,  _) :-
-	init_problog_low(0.0),
-	problog_control(off, up),
-	timer_start(sld_time),
-	problog_call(Goal),
-	add_solution,
-	fail.
-problog_cnf_positive(_,Prob) :-
-	timer_stop(sld_time,SLD_Time),
-	problog_var_set(sld_time, SLD_Time),
-	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
-%	trie_to_cnf(Trie_Completed_Proofs, CNF, RB),
-%	cnf_to_dimacs(CNF, _File),
-	trie_to_dimacs(Trie_Completed_Proofs, RB, _File),
-	unix(system('./c2d_linux -in dimacs')),
-				% execute c2d at this point, but we're lazy
-	nnf_to_probability(_NNFFile, RB, Prob),
-	delete_ptree(Trie_Completed_Proofs),
-	(problog_flag(retain_tables, true) -> retain_tabling; true),
-	clear_tabling.
-
-trie_to_dimacs(Trie_Completed_Proofs, RB, File) :-
-	problog_flag(db_trie_opt_lvl, OptimizationLevel),
-	trie_to_depth_breadth_trie(Trie_Completed_Proofs, DBTrie, LL, OptimizationLevel),
-	dbtrie_to_cnf(DBTrie, LL, RB, CNF),
-	File = dimacs,
-	open(dimacs,write,Stream),
-	length(CNF,M), 
-	nb_getval(cnf_nodes,N),
-	format(Stream,'p cnf ~d ~d~n',[N,M]),
-	cnf_lines_to_dimacs(CNF, Stream),
-	close(Stream).
-
-
-dbtrie_to_cnf(DBTrie, LL, RB, CNF) :-
-  % tricky way to find the number of intermediate nodes.
-  (atomic_concat('L', _InterStep, LL) -> 
-    % cleanup
-    retractall(deref(_,_)),
-    (problog_flag(deref_terms, true) ->
-      asserta(deref(LL,no)),
-      mark_for_deref(DBTrie),
-      V = 3
-    ;
-      V = 1
-    ),
-    % do the real work
-    bdd_defs_to_cnf(DBTrie, CNF, LL, RB)
-  ;
-   % cases true, false, single literal
-   ( LL == true -> CNF = [[1,-1]]
-   ;
-     LL == false -> CNF = [[1],[-1]]
-   ;
-     convert_goal_to_number(LL, RB, NN, _RBI),
-     CNF = [[NN]]	       
-   )
- ).
-
-bdd_defs_to_cnf(DBTrie, [[NN]|CNF], LL, RB) :- fail,
-	findall(Node, in_trie(DBTrie, Node), Nodes0),
-%	reverse(Nodes0, Nodes),
-%	depth_first(Nodes0, LL, Nodes),
-	Nodes0 = Nodes,
-	rb_new(RB0),
-	nb_setval(cnf_nodes, 0),
-	convert_goal_to_number(LL, RB0, NN, RB1),
-	xnodes_to_cnf(Nodes, RB1, RB, CNF, []).
-bdd_defs_to_cnf(Trie, [[NN]|CNF], LL, RB) :-
-	trie_traverse_first(Trie, RefFirst),
-	rb_new(RB0),
-	nb_setval(cnf_nodes, 0),
-	convert_goal_to_number(LL, RB0, NN, RB1),
-	bdd_defs_to_list_of_numbers(Trie, RB1, RefFirst, [], CNF, RB).
-
-
-depth_first(Nodes0, LL, Nodes) :-
-	rb_new(RB0),
-	insert_all(Nodes0, RB0, RB),
-	pick_nodes(LL, RB, _, Nodes, []).
-
-insert_all([], RB, RB).
-insert_all(Node.Nodes0, RB0, RB) :-
-	arg(2, Node, Key),
-	rb_insert(RB0, Key, Node, RBI),
-	insert_all(Nodes0, RBI, RB).
-	
-pick_nodes(Key, RB0, RBF) -->
-	{ rb_delete(RB0, Key, Node, RBI) },
-	!,
-	[Node],
-	{ arg(1, Node, Children) },
-	pick_recursively(Children, RBI, RBF).
-pick_nodes(_, RB, RB) --> [].
-
-pick_recursively([], RB, RB) --> [].
-pick_recursively(Key.Keys, RB0, RBF) -->
-	pick_nodes(Key, RB0, RBI),
-	pick_recursively(Keys, RBI, RBF).
-
-in_trie(Trie, Entry) :-
-	trie_traverse(Trie, Ref),
-	trie_get_entry(Ref, Entry).
-
-xnodes_to_cnf([], RB, RB) --> [].
-xnodes_to_cnf(Node.Nodes, RB0, RB) -->
-	xnode_to_cnf(Node, RB0, RBI),
-	xnodes_to_cnf(Nodes, RBI, RB).
-
-xnode_to_cnf(Node, RB0, RBI, CNF, PartialCNF) :-
-	convert_dbtrie_entry_to_numbers(Node, RB0, PartialCNF, CNF, RBI).
-
-bdd_defs_to_list_of_numbers(Trie, RB0, CurrentRef, PartialCNF, FinalCNF, RB) :-
-	trie_get_entry(CurrentRef, Entry),
-writeln(Entry),
-	convert_dbtrie_entry_to_numbers(Entry, RB0, PartialCNF, NextCNF, RBI),
-	continue_processing_dbtrie(Trie, RBI, CurrentRef, NextCNF, FinalCNF, RB).
-
-continue_processing_dbtrie(Trie, RB0, CurrentRef, PartialCNF, FinalCNF, RB) :-
-	trie_traverse_next(CurrentRef, NextRef), !,
-	bdd_defs_to_list_of_numbers(Trie, RB0, NextRef, PartialCNF, FinalCNF, RB).
-continue_processing_dbtrie(_, RB, _CurrentRef, CNF, CNF, RB).
-
-convert_dbtrie_entry_to_numbers(depth(List,Name), RB0, PartialCNF, CNF, RBI) :-
-	convert_trie_entry_to_numbers_positive(List, RB0, NumList, NextRB),
-	convert_goal_to_number(Name, NextRB, NumName, RBI),
-	add_conjunction_to_cnf(NumList, NumName, PartialCNF, CNF).%,format(user_error,'conj ~q gives ~q~n',[NumList-NumName, CNF]).
-convert_dbtrie_entry_to_numbers(breadth(List,Name), RB0, PartialCNF, CNF, RBI) :-
-	convert_trie_entry_to_numbers_positive(List, RB0, NumList, NextRB),
-	convert_goal_to_number(Name, NextRB, NumName, RBI),
-	add_disjunction_to_cnf(NumList, NumName, PartialCNF, CNF).%,format(user_error,'disj ~q  gives ~q~n',[NumList-NumName, CNF]).
-
-convert_trie_entry_to_numbers_positive([], RB, [], RB).
-convert_trie_entry_to_numbers_positive(not(Val).Entry, RB0, (-Numb).Proof, RB) :- !,
-	convert_goal_to_number(Val, RB0, Numb, RBI),
-	convert_trie_entry_to_numbers_positive(Entry, RBI, Proof, RB).
-convert_trie_entry_to_numbers_positive(Val.Entry, RB0, Numb.Proof, RB) :- !,
-	convert_goal_to_number(Val, RB0, Numb, RBI),
-	convert_trie_entry_to_numbers_positive(Entry, RBI, Proof, RB).
-
-add_conjunction_to_cnf(NumList, NumName, PartialCNF, CNF) :-
-	neg_numbers(NumList,NegList),
-	add_conj_to_cnf(NumList, NumName, [[NumName|NegList]|PartialCNF], CNF).
-
-add_conj_to_cnf([],_,CNF,CNF).
-add_conj_to_cnf([Num|List],NumName,CNF0,CNF) :-
-	NegNumName is -NumName,
-	add_conj_to_cnf(List,NumName,[[NegNumName,Num]|CNF0],CNF).
-
-add_disjunction_to_cnf(NumList, NumName, PartialCNF, CNF) :-
-	NegNumName is -NumName,
-	add_disj_to_cnf(NumList, NumName, [[NegNumName|NumList]|PartialCNF], CNF).
-
-add_disj_to_cnf([],_,CNF,CNF).
-add_disj_to_cnf([Num|List],NumName,CNF0,CNF) :-
-	neg_num(Num,NegNum),
-	add_disj_to_cnf(List,NumName,[[NumName,NegNum]|CNF0],CNF).
-
-neg_num(Y,X) :- X is -Y.
-
-neg_numbers([],[]).
-neg_numbers([Y|List],[X|ListN]) :- 
-	neg_num(Y,X),
-	neg_numbers(List,ListN).
-
-
-%%%%
 
 init_problog_low(Threshold) :-
 	init_ptree(Trie_Completed_Proofs),
@@ -3169,6 +2818,328 @@ transform_loglist_to_result([LogP-G|List],Acc,Result) :-
 	P is exp(LogP),
 	transform_loglist_to_result(List,[P-G|Acc],Result).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%
+% koptimal
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+problog_koptimal(Goal,K,Prob) :-
+  problog_flag(last_threshold, InitT),
+	problog_koptimal(Goal,K,InitT,Prob).
+
+problog_koptimal(Goal,K,Theta,Prob) :-
+	init_problog_koptimal,
+	problog_koptimal_it(Goal,K,Theta),
+	nb_getval(problog_completed_proofs,Trie_Completed_Proofs),
+	optimal_proof(_,Prob),
+	set_problog_flag(save_bdd, false),
+	set_problog_flag(nodedump_bdd, false),
+	delete_ptree(Trie_Completed_Proofs),
+	nb_getval(dtproblog_completed_proofs,DT_Trie_Completed_Proofs),
+	delete_ptree(DT_Trie_Completed_Proofs),
+	clear_tabling.
+
+init_problog_koptimal :-
+	%Set the reuse flag on true in order to retain the calculated bdd's
+	set_problog_flag(save_bdd, true),
+	set_problog_flag(nodedump_bdd, true),
+	%Initialise the trie
+	init_ptree(Trie_Completed_Proofs),
+	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
+	init_ptree(Trie_DT_Completed_Proofs),
+	nb_setval(dtproblog_completed_proofs,Trie_DT_Completed_Proofs),
+	problog_control(off,up),
+	%Initialise the control parameters
+	retractall(possible_proof(_,_)),
+	retractall(impossible_proof(_)).
+
+problog_koptimal_it(Goal,K,Theta) :-
+	K > 0,
+	init_problog_koptimal_it(Theta),
+	%add optimal proof, this fails when no new proofs can be found
+	(add_optimal_proof(Goal,Theta) -> Knew is K - 1; Knew = 0),!,
+	problog_koptimal_it(Goal,Knew,Theta).
+problog_koptimal_it(_,0,_).
+
+init_problog_koptimal_it(Theta) :-
+	%Clear the tables
+	abolish_table(conditional_prob/4),
+	%initialise problog
+	init_problog(Theta),
+
+	%retract control parameters for last iteration
+	retractall(optimal_proof(_,_)),
+	retractall(current_prob(_)),
+
+	%calculate the bdd with the additional found proof
+	nb_getval(problog_completed_proofs,Trie_Completed_Proofs),
+	eval_dnf(Trie_Completed_Proofs,PCurr,_),
+
+	%set the current probability
+	assert(current_prob(PCurr)),
+	assert(optimal_proof(unprovable,PCurr)),
+
+	%use the allready found proofs to initialise the threshold
+	findall(Proof-MaxAddedP,possible_proof(Proof,MaxAddedP),PossibleProofs),
+	sort_possible_proofs(PossibleProofs,SortedPossibleProofs),
+	initialise_optimal_proof(SortedPossibleProofs,Theta).
+
+sort_possible_proofs(List,Sorted):-sort_possible_proofs(List,[],Sorted).
+sort_possible_proofs([],Acc,Acc).
+sort_possible_proofs([H|T],Acc,Sorted):-
+	pivoting(H,T,L1,L2),
+	sort_possible_proofs(L1,Acc,Sorted1),sort_possible_proofs(L2,[H|Sorted1],Sorted).
+
+pivoting(_,[],[],[]).
+pivoting(Pivot-PPivot,[Proof-P|T],[Proof-P|G],L):-P=<PPivot,pivoting(Pivot-PPivot,T,G,L).
+pivoting(Pivot-PPivot,[Proof-P|T],G,[Proof-P|L]):-P>PPivot,pivoting(Pivot-PPivot,T,G,L).
+
+
+initialise_optimal_proof([],_).
+initialise_optimal_proof([Proof-MaxAdded|Rest],Theta) :-
+	optimal_proof(_,Popt),
+	current_prob(Pcurr),
+	OptAdded is Popt - Pcurr,
+	(MaxAdded > OptAdded ->
+		calculate_added_prob(Proof, P,ok),
+		
+		%update the maximal added probability
+		retractall(possible_proof(Proof,_)),
+		AddedP is P - Pcurr,
+		(AddedP > Theta ->
+			%the proof can still add something
+			assert(possible_proof(Proof,AddedP)),
+		
+			%Check whether to change the optimal proof
+			(P > Popt ->
+				retractall(optimal_proof(_,_)),
+				assert(optimal_proof(Proof,P)),
+				NewT is log(AddedP),
+				nb_setval(problog_threshold,NewT)
+			;
+				true
+			)
+		;
+			%the proof cannot add anything anymore
+			assert(impossible_proof(Proof))
+		),
+		initialise_optimal_proof(Rest,Theta)
+	;
+		%The rest of the proofs have a maximal added probability smaller then the current found optimal added probability
+		true
+	).
+
+add_optimal_proof(Goal,Theta) :-
+	problog_call(Goal),
+	update_koptimal(Theta).
+add_optimal_proof(_,_) :-
+	optimal_proof(Proof,_),
+	((Proof = unprovable) ->
+		%No possible proof is present
+		fail
+	;
+		%We add the found to the trie
+		remove_decision_facts(Proof, PrunedProof),
+		nb_setval(problog_current_proof, PrunedProof-[]),
+		(PrunedProof = [] -> true ; add_solution),
+		nb_getval(dtproblog_completed_proofs,DT_Trie_Completed_Proofs),
+		insert_ptree(Proof, DT_Trie_Completed_Proofs),
+		retract(possible_proof(Proof,_)),
+		assert(impossible_proof(Proof))
+	).
+
+update_koptimal(Theta) :-
+	%We get the found proof	and the already found proofs
+	b_getval(problog_current_proof, OpenProof),
+	open_end_close_end(OpenProof, Proof),
+	((possible_proof(Proof,_); impossible_proof(Proof))  ->
+		%The proof is already treated in the initialization step
+		fail
+	;
+		%The proof isn't yet treated
+		calculate_added_prob(Proof,P,ok),
+		optimal_proof(_,Popt),
+		current_prob(PCurr),
+		AddedP is P - PCurr,
+		(AddedP > Theta ->
+			assert(possible_proof(Proof,AddedP))
+		;
+			%The proof has an additional probability smaller than theta so gets blacklisted
+			assert(impossible_proof(Proof)),
+			fail
+		),
+		(P > Popt ->
+			%We change the curret optimal proof with the found proof
+			retractall(optimal_proof(_,_)),
+			assert(optimal_proof(Proof,P)),
+			NewT is log(AddedP),
+			nb_setval(problog_threshold,NewT),
+			fail
+		;
+			%The proof isn't better then the current optimal proof so we stop searching
+			fail
+		)
+	).
+
+remove_decision_facts([Fact|Proof], PrunedProof) :-
+	remove_decision_facts(Proof,RecPruned),
+	catch((get_fact_probability(Fact,_),PrunedProof = [Fact|RecPruned]),_,PrunedProof = RecPruned).
+remove_decision_facts([],[]).
+
+calculate_added_prob([],P,ok) :-
+	current_prob(P).
+calculate_added_prob(Proof,P,S) :-
+	Proof \= [],
+	remove_decision_facts(Proof,PrunedProof),
+	remove_used_facts(PrunedProof,Used,New),
+	bubblesort(Used,SortedUsed),
+	calculate_added_prob(SortedUsed,New,[],PAdded,S),
+	round_added_prob(PAdded,P).
+
+calculate_added_prob([],[],_,1,ok).
+calculate_added_prob([UsedFact|UsedProof],[],Conditions,P,S) :-
+	calculate_added_prob(UsedProof,[],[UsedFact|Conditions],Prec,Srec),
+	problog_flag(nodedump_file,NodeDumpFile),
+  convert_filename_to_working_path(NodeDumpFile, SONodeDumpFile),
+	convert_filename_to_working_path('save_params', ParFile),
+	negate(UsedFact,NegatedFact),
+	conditional_prob(SONodeDumpFile,ParFile,[NegatedFact|Conditions],Pcond,Scond),
+	( Srec = ok -> 
+		( Scond = ok ->
+			S = ok,
+			get_fact_probability(UsedFact,Pfact),
+			P is Pfact*Prec + (1 - Pfact)*Pcond
+		;
+			S = Scond
+		)
+	;
+		S = Srec
+	).
+calculate_added_prob(UsedProof,[NewFact|NewFacts],[],P,S) :-
+	calculate_added_prob(UsedProof,NewFacts,[],Prec,S),
+	(	S = ok ->
+		get_fact_probability(NewFact,Pfact),
+		current_prob(Pcurr),
+		P is Pfact*Prec + (1 - Pfact)*Pcurr
+	;
+		true
+	).
+
+bubblesort(List,Sorted):-
+ swap(List,List1),!,
+ bubblesort(List1,Sorted).
+bubblesort(Sorted,Sorted).
+ 
+swap([X,Y|Rest], [Y,X|Rest]):- bigger(X,Y).
+swap([Z|Rest],[Z|Rest1]):- swap(Rest,Rest1).
+
+bigger(not(X), X) :-
+	!.
+bigger(not(X), not(Y)) :-
+	!,
+	bigger(X,Y).
+bigger(not(X),Y) :-
+	!,
+	bigger(X,Y).
+bigger(X, not(Y)) :-
+	!,
+	bigger(X,Y).
+bigger(X,Y) :-
+	split_grounding_id(X,IDX,GIDX),
+	split_grounding_id(Y,IDY,GIDY),!,
+	(
+		IDX > IDY
+	;
+		IDX == IDY,
+		GIDX > GIDY
+	).
+bigger(X,Y) :-
+	split_grounding_id(X,IDX,_),!,
+	IDX > Y.
+bigger(X,Y) :-
+	split_grounding_id(Y,IDY,_),!,
+	X > IDY.
+bigger(X,Y) :-
+	X > Y.
+	
+round_added_prob(P,RoundedP) :-
+	P < 1,
+	Pnew is P*10,
+	round_added_prob(Pnew,RoundedPnew),
+	RoundedP is RoundedPnew/10.
+round_added_prob(P,RoundedP) :-
+	P >= 1,
+	RoundedP is round(P*1000000)/1000000.
+
+negate(not(Fact),Fact).
+negate(Fact,not(Fact)) :-
+	Fact \= not(_).
+
+remove_used_facts([],[],[]).
+remove_used_facts([Fact|Rest],Used,New) :-
+	remove_used_facts(Rest,RecUsed,RecNew),
+	used_facts(Facts),
+	(member(Fact,Facts) ->
+		Used = [Fact|RecUsed],
+		New = RecNew
+	;
+		
+		Used = RecUsed,
+		New = [Fact|RecNew]
+	).
+
+
+used_fact(Fact) :-
+	used_facts(Facts),
+	member(Fact,Facts).
+used_facts(Facts) :-
+	convert_filename_to_working_path('save_map', MapFile),
+	see(MapFile),
+	read(mapping(L)),
+	findall(Var,member(m(Var,_,_),L),Facts),
+	seen.
+
+conditional_prob(_,_,[],P,ok) :-
+	current_prob(P).
+conditional_prob(NodeDump,ParFile,Conditions,P,S) :-
+	problog_flag(save_bdd,Old_Save),
+	problog_flag(nodedump_bdd,Old_File),
+	set_problog_flag(save_bdd, false),
+	set_problog_flag(nodedump_bdd, false),
+	convert_filename_to_working_path('temp_par_file', ChangedParFile),
+	change_par_file(ParFile,Conditions,ChangedParFile),
+	execute_bdd_tool(NodeDump,ChangedParFile,P,S),
+	%delete_file(ChangedParFile),
+	set_problog_flag(save_bdd,Old_Save),
+	set_problog_flag(nodedump_bdd,Old_File).
+
+change_par_file(ParFile,[],ChangedParFile) :-
+	%atomic_concat(['cp ', ParFile, ' ', ChangedParFile],Command),
+	%statistics(walltime,[T1,_]),
+	%shell(Command,_),
+	copy_file(ParFile,ChangedParFile).
+	%statistics(walltime,[T2,_]),
+	%T is T2 - T1,
+	%format("copy time: ~w\n",[T]).
+change_par_file(ParFile,[ID|Rest],ChangedParFile) :-
+	ID \= not(_),
+	change_par_file(ParFile,Rest,ChangedParFile),
+	open(ChangedParFile,'append',S),
+	tell(S),
+	format('@x~w\n1\n',[ID]),
+	told.
+change_par_file(ParFile,[not(ID)|Rest],ChangedParFile) :-
+	change_par_file(ParFile,Rest,ChangedParFile),
+	open(ChangedParFile,'append',S),
+	tell(S),
+	format('@x~w\n0\n',[ID]),
+	told. 
+
+% Copies a file
+copy_file(From,To) :-
+	file_filter(From,To,copy_aux).
+copy_aux(In,In).
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % GENERAL PURPOSE PREDICATES FOR DTPROBLOG
@@ -3199,6 +3170,10 @@ problog_infer(low(Threshold),Goal,Prob) :-
 problog_infer(threshold(Threshold),Goal,Prob) :-
 	problog_threshold(Goal,Threshold,Bound_low,Bound_up,ok),
 	Prob is 0.5*(Bound_low+Bound_up).
+problog_infer(K-optimal,Goal,Prob) :-
+	problog_koptimal(Goal,K,Prob).
+problog_infer(K-T-optimal,Goal,Prob) :-
+	problog_koptimal(Goal,K,T,Prob).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Do inference of a set of queries, using the default inference method
@@ -3218,6 +3193,7 @@ problog_infer_forest_supported :- problog_bdd_forest_supported.
 
 eval_bdd_forest(N,Probs,Status) :-
 	bdd_files(BDDFile,BDDParFile),
+	writeln(BDDFile),
 	problog_flag(bdd_time,BDDTime),
     (problog_flag(dynamic_reorder, true) ->
       ParamD = ''
@@ -3251,9 +3227,9 @@ eval_bdd_forest(N,Probs,Status) :-
 		(problog_flag(save_bdd,true) ->
 			true
 		;
-            delete_file(BDDFile),
-		    delete_file(BDDParFile),
-		    delete_file(ResultFile),
+		catch(delete_file(BDDFile),_, fail),
+		catch(delete_file(BDDParFile),_, fail),
+		catch(delete_file(ResultFile),_, fail),
 		    delete_bdd_forest_files(N)
         )
 	).
@@ -3273,7 +3249,7 @@ delete_bdd_forest_files(N) :-
 		true
 	;
 		bdd_forest_file(N,BDDFile),
-		delete_file(BDDFile,[]),
+		catch(delete_file(BDDFile),_, fail),
 		N2 is N-1,
 		delete_bdd_forest_files(N2)
 	).
@@ -3294,6 +3270,8 @@ build_trie_supported :- problog_flag(inference,exact).
 build_trie_supported :- problog_flag(inference,low(_)).
 build_trie_supported :- problog_flag(inference,atleast-_-best).
 build_trie_supported :- problog_flag(inference,_-best).
+build_trie_supported :- problog_flag(inference,_-optimal).
+build_trie_supported :- problog_flag(inference,_-_-optimal).
 
 build_trie(exact, Goal, Trie) :-
   problog_control(on, exact),
@@ -3341,6 +3319,29 @@ build_trie(K-best, Goal, Trie) :-
   build_prefixtree(ListFound),
   nb_getval(problog_completed_proofs, Trie),
   clear_tabling. % clear tabling because tables cannot be reused by other query
+
+build_trie(K-optimal, Goal, Trie) :-
+	number(K),
+	init_problog_koptimal,
+  problog_flag(last_threshold, InitT),
+	problog_koptimal_it(Goal,K,InitT),
+	set_problog_flag(save_bdd, false),
+	set_problog_flag(nodedump_bdd, false),
+	nb_getval(problog_completed_proofs,Trie_Completed_Proofs),
+	delete_ptree(Trie_Completed_Proofs),
+	nb_getval(dtproblog_completed_proofs,Trie),
+	clear_tabling.
+
+build_trie(K-T-optimal, Goal, Trie) :-
+	number(K),
+	init_problog_koptimal,
+	problog_koptimal_it(Goal,K,T),
+	set_problog_flag(save_bdd, false),
+	set_problog_flag(nodedump_bdd, false),
+	nb_getval(problog_completed_proofs,Trie_Completed_Proofs),
+	delete_ptree(Trie_Completed_Proofs),
+	nb_getval(dtproblog_completed_proofs,Trie),
+	clear_tabling.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Write BDD structure script for a trie and list all variables used
@@ -3527,6 +3528,7 @@ problog_bdd_forest(Goals) :-
       bdd_vars_script(Vars),
       flush_output, % isnt this called by told/0?
       told,
+%       false,
       length(Goals,L),
       length(Vars,NbVars),
       write_global_bdd_file(NbVars,L),
