@@ -663,7 +663,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
       /* we will need to link afterwards */
       ap2 = RepAppl(d0);
 #ifdef RATIONAL_TREES
-      if (ap2 >= tbase && ap2 < StoPoint) {
+      if (ap2 >= tbase && ap2 <= StoPoint) {
 	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
 	*StoPoint++ = d0;
@@ -759,10 +759,10 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
     else if (IsPairTerm(d0)) {
       /* we will need to link afterwards */
       CELL *ap2 = RepPair(d0);
-      if (ap2 >= tbase && ap2 < StoPoint) {
-	*StoPoint++ = d0;
+      if (ap2 >= tbase && ap2 <= StoPoint) {
 	db_check_trail(dbg->lr+1);
 	*dbg->lr++ = ToSmall((CELL)(StoPoint)-(CELL)(tbase));
+	*StoPoint++ = d0;
 	++pt0;
 	continue;
       }
@@ -786,7 +786,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 	do {
 	  lp =  RepPair(tt);
 	  
-	  if (lp >= tbase && lp < StoPoint) {
+	  if (lp >= tbase && lp <= StoPoint) {
 	    break;
 	  }
 	  CheckDBOverflow(2);
@@ -801,7 +801,7 @@ static CELL *MkDBTerm(register CELL *pt0, register CELL *pt0_end,
 		 IsPairTerm(tt) &&
 		 /* have same direction to avoid infinite terms X = [a|X] */
 		 (RepPair(tt)-lp)*direction > 0);
-	if (lp >= tbase && lp < StoPoint) {
+	if (lp >= tbase && lp <= StoPoint) {
 	  CodeMax[-1] = tt;
 	  break;
 	}
