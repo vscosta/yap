@@ -72,18 +72,19 @@ qsave_program(File) :-
 	erase(R),
 	shlib:reload_foreign_libraries,
 	fail.
-% use if we come from a save_program and we have a goal to execute
-'$init_from_saved_state_and_args' :-
-	get_value('$consult_on_boot',X), X \= [],
-	set_value('$consult_on_boot',[]),
-	'$do_startup_reconsult'(X),
-	fail.
+% this should be done before -l kicks in.
 '$init_from_saved_state_and_args' :-
 	  '$access_yap_flags'(16,0),
 	  ( exists('~/.yaprc') -> load_files('~/.yaprc', []) ; true ),
 	  ( exists('~/.prologrc') -> load_files('~/.prologrc', []) ; true ),
 	  ( exists('~/prolog.ini') -> load_files('~/prolog.ini', []) ; true ),
 	  fail.
+% use if we come from a save_program and we have a goal to execute
+'$init_from_saved_state_and_args' :-
+	get_value('$consult_on_boot',X), X \= [],
+	set_value('$consult_on_boot',[]),
+	'$do_startup_reconsult'(X),
+	fail.
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
