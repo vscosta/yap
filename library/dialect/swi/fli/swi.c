@@ -704,6 +704,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
 	return 0;
       }
     }
+    Yap_AtomIncreaseHold(at0);
     at = AtomToSWIAtom(at0);
     YAP_FreeSpaceFromYap(nbf);
   }
@@ -844,6 +845,7 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
       return FALSE;
     }
   }
+  Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
   return TRUE;
 }
@@ -872,6 +874,7 @@ X_API int PL_put_atom_nchars(term_t t, size_t len, const char *s)
       return FALSE;
     }
   }
+  Yap_AtomIncreaseHold(at);
   Yap_PutInSlot(t,MkAtomTerm(at) PASS_REGS);
   return TRUE;
 }
@@ -1072,6 +1075,7 @@ X_API int PL_unify_atom_chars(term_t t, const char *s)
       return FALSE;
     }
   }
+  Yap_AtomIncreaseHold(catom);
   cterm = MkAtomTerm(catom);
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
@@ -1095,6 +1099,7 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
       return FALSE;
     }
   }
+  Yap_AtomIncreaseHold(catom);
   free(buf);
   cterm = MkAtomTerm(catom);
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
@@ -1391,6 +1396,7 @@ LookupMaxAtom(size_t n, char *s)
       return NULL;
     }
   }
+  Yap_AtomIncreaseHold(catom);
   Yap_FreeCodeSpace(buf);
   return catom;
 }
@@ -1495,6 +1501,7 @@ X_API int PL_unify_term(term_t l,...)
 	      return FALSE;
 	    }
 	  }
+	  Yap_AtomIncreaseHold(at);
 	  *pt++ = MkAtomTerm(at);
 	}
 	break;
@@ -1590,6 +1597,7 @@ X_API int PL_unify_term(term_t l,...)
 		return FALSE;
 	      }
 	    }
+	    Yap_AtomIncreaseHold(at);
 	    *pt++ = MkAtomTerm(at);
 	  } else {
 	    Atom at;
