@@ -682,6 +682,7 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
       }
     }
     at = AtomToSWIAtom(at0);
+    Yap_AtomIncreaseHold(at0);
     YAP_FreeSpaceFromYap(nbf);
   } else {
     char *nbf;
@@ -704,8 +705,8 @@ X_API atom_t PL_new_atom_wchars(size_t len, const wchar_t *c)
 	return 0;
       }
     }
-    Yap_AtomIncreaseHold(at0);
     at = AtomToSWIAtom(at0);
+    Yap_AtomIncreaseHold(at0);
     YAP_FreeSpaceFromYap(nbf);
   }
   return at;
@@ -1099,8 +1100,8 @@ X_API int PL_unify_atom_nchars(term_t t, size_t len, const char *s)
       return FALSE;
     }
   }
-  Yap_AtomIncreaseHold(catom);
   free(buf);
+  Yap_AtomIncreaseHold(catom);
   cterm = MkAtomTerm(catom);
   return YAP_Unify(Yap_GetFromSlot(t PASS_REGS),cterm);
 }
@@ -1337,6 +1338,7 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
 	  return FALSE;
 	}
       }
+      Yap_AtomIncreaseHold(at);
       chterm = MkAtomTerm(at);
     }
     break;
@@ -1418,6 +1420,7 @@ LookupMaxWideAtom(size_t n, wchar_t *s)
       return NULL;
     }
   }
+  Yap_AtomIncreaseHold(catom);
   Yap_FreeAtomSpace((ADDR)buf);
   return catom;
 }

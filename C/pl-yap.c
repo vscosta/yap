@@ -293,39 +293,43 @@ _PL_unify_string(term_t t, word w)
 
 word lookupAtom(const char *s, size_t len)
 {
+  YAP_Atom at;
+
   /* dirty trick to ensure s is null terminated */
   char *st = (char *)s;
   st[len] = '\0';
   if (len >= strlen(s)) {
-    return (word)YAP_LookupAtom(s);
+    at = YAP_LookupAtom(st);
   } else {
     char * buf = PL_malloc(len+1);
-    word out;
 
     if (!buf)
       return 0;
     strncpy(buf,s,len);
-    out = (word)YAP_LookupAtom(buf);
+    at = YAP_LookupAtom(buf);
     PL_free(buf);
-    return out;
-  }
+  }  
+  Yap_AtomIncreaseHold(at);  
+  return (word)at;
 }
 
 atom_t lookupUCSAtom(const pl_wchar_t *s, size_t len)
 {
+  YAP_Atom at;
+
   if (len >= wcslen(s)) {
-    return (atom_t)YAP_LookupWideAtom(s);
+    at = YAP_LookupWideAtom(s);
   } else {
     pl_wchar_t * buf = PL_malloc((len+1)*sizeof(pl_wchar_t));
-    word out;
 
     if (!buf)
       return 0;
     wcsncpy(buf,s,len);
-    out = (word)YAP_LookupWideAtom(buf);
+    at = YAP_LookupWideAtom(buf);
     PL_free(buf);
-    return out;
   }
+  Yap_AtomIncreaseHold(at);
+  return (atom_t)at;
 }
 
 
