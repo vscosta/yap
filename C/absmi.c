@@ -7298,6 +7298,8 @@ Yap_absmi(int inp)
        when we put this instruction, cut_userc, after retry_userc*/
       printf ("ERROR: Should not print this message FILE: absmi.c %d\n",__LINE__);
 #endif /*DEBUG*/
+      CACHE_A1();
+      JMPNext();
       ENDBOp();
 #endif
 
@@ -7307,7 +7309,6 @@ Yap_absmi(int inp)
 \************************************************************************/
 
       BOp(lock_pred, e);
-#if defined(YAPOR) || defined(THREADS)
       {
 	PredEntry *ap = PredFromDefCode(PREG);
  	PELOCK(10,ap);
@@ -7334,7 +7335,6 @@ Yap_absmi(int inp)
 	}
 	PREG = ap->cs.p_code.TrueCodeOfPred;
       }
-#endif
       JMPNext();
       ENDBOp();
 
