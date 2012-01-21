@@ -578,6 +578,7 @@ InitReverseLookupOpcode(void)
       }
     }
   }
+  bzero(OP_RTABLE, sz);
   opeptr = OP_RTABLE;
   /* clear up table */
   {
