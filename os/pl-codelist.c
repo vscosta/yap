@@ -19,11 +19,15 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
+#if __YAP_PROLOG__
 #include "pl-codelist.h"
+#else
+#include "../pl-codelist.h"
+#endif
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 codes_or_chars_to_buffer(term_t l, unsigned int flags, int wide, CVT_code *status)
