@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #ifndef BUFFER_H_INCLUDED
@@ -39,14 +39,16 @@ typedef struct
   char *	top;			/* pointer to top */
   char *	max;			/* current location */
   char		static_buffer[sizeof(char *)];
-} buffer, *Buffer;
+} MAY_ALIAS buffer, *Buffer;
 
-void	growBuffer(Buffer b, size_t minfree);
+int	growBuffer(Buffer b, size_t minfree);
 
 #define addBuffer(b, obj, type) \
 	do \
 	{ if ( (b)->top + sizeof(type) > (b)->max ) \
-	    growBuffer((Buffer)b, sizeof(type)); \
+	  { if ( !growBuffer((Buffer)b, sizeof(type)) ) \
+	      outOfCore(); \
+	  } \
  	  *((type *)(b)->top) = obj; \
           (b)->top += sizeof(type); \
 	} while(0)
@@ -57,7 +59,9 @@ void	growBuffer(Buffer b, size_t minfree);
           size_t _len = _tms * sizeof(type); \
           type *_d, *_s = (type *)ptr; \
 	  if ( (b)->top + _len > (b)->max ) \
-	    growBuffer((Buffer)b, _len); \
+	  { if ( !growBuffer((Buffer)b, _len) ) \
+	      outOfCore(); \
+	  } \
           _d = (type *)(b)->top; \
           while ( _tms-- ) \
 	    *_d++ = *_s++; \
