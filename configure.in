@@ -232,16 +232,16 @@ AC_ARG_WITH(gmp,
 	fi,
 	[yap_cv_gmp=yes])
 
-AC_ARG_WITH(yapr,
-	[ --with-yapr[=DIR]           interface to R language, R installed in DIR],
+AC_ARG_WITH(real,
+	[ --with-real[=DIR]           interface to R language],
 	if test "$withval" = yes; then
-		yap_cv_yapr=yes
+	    yap_cv_real=yes
 	elif test "$withval" = no; then
-		yap_cv_yapr=no
+	    yap_cv_real=no
 	else
-		yap_cv_yapr=$with_yapr
+	    yap_cv_real=$with_real
 	fi,
-	[yap_cv_yapr=no])
+	[yap_cv_real=yes])
 
 dnl best test we could do.
 AC_ARG_WITH(minisat,
@@ -519,16 +519,6 @@ else
   INSTALL_MATLAB=""
 fi
 
-if test "$yap_cv_yapr" = no 
-then
-  ENABLE_YAPR="@# "
-elif test -e "$srcdir"/packages/YapR/Makefile.in
-then
-  ENABLE_YAPR=""
-else
-  ENABLE_YAPR="@# "
-fi
-
 if test "$yap_cv_clpbn_bp" = no 
 then
   ENABLE_CLPBN_BP="@# "
@@ -745,54 +735,68 @@ then
   AC_CHECK_LIB(gmp,main)
 fi
 
-if test "$yap_cv_yapr" != "no"
-then
-   if test "$yap_cv_yapr" = "yes"
+if test "$yap_cv_real" = "no"; then
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
+elif test -e "$srcdir"/packages/real/Makefile.in ; then
+   REAL_TARGET="ritf"
+   ENABLE_REAL=""
+   AC_CHECK_PROGS(REXE, R, "none")
+   if test "$yap_cv_yapr" != "yes"
    then
-       case "$target_os" in
+     case "$target_os" in
 	*darwin*)
-	  YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
-	  EXTRA_LIBS_FOR_R="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
+	  REAL_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
+	  REAL_LIBS="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
 	;;
+	  *cygwin*|*mingw*)
+            REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
+            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
+        ;;
 	**)		
           dnl R is spread all over the place
 	  dnl one of the two may work (Fedora/Ubuntu)
           if test -n "$R_HOME" ; then
-	    YAPR_INCLUDES="-I$R_HOME/include"
+	    REAL_INCLUDES="-I$R_HOME/include"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/include ; then
-	    YAPR_INCLUDES="-I/usr/lib64/R/include"
+	    REAL_INCLUDES="-I/usr/lib64/R/include"
           elif test -d /usr/include/R; then
-	    YAPR_INCLUDES="-I/usr/include/R"
+	    REAL_INCLUDES="-I/usr/include/R"
           elif test -d /usr/share/R/include; then
-	    YAPR_INCLUDES="-I/usr/share/R/include"
+	    REAL_INCLUDES="-I/usr/share/R/include"
+          else
+	    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
 	  fi	
-	  echo $YAP_TARGET
           if test -n "$R_HOME" ; then
-	    EXTRA_LIBS_FOR_R="-I$R_HOME/lib -lR"
+	    REAL_LIBS="-I$R_HOME/lib -lR"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
-	    EXTRA_LIBS_FOR_R="-L /usr/lib64/R/lib -lR"
+	    REAL_LIBS="-L /usr/lib64/R/lib -lR"
           elif test -d /usr/lib/R; then
-	    EXTRA_LIBS_FOR_R="-L /usr/lib/R/lib -lR"
+	    REAL_LIBS="-L /usr/lib/R/lib -lR"
+          else
+            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
 	  fi
         ;;
 	esac
    else
        case "$target_os" in
 	  *cygwin*|*mingw*)
-            YAPR_INCLUDES="-I\"$yap_cv_yapr/include\""
+            REAL_INCLUDES="-I\"$yap_cv_real/include\""
 	    if test "$YAP_TARGET" = i386; then
-	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/i386/R.dll\""
+	      REAL_LIBS="\"$yap_cv_real/bin/i386/R.dll\""
 	    else
-	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/x64/R.dll\""
+	      REAL_LIBS="\"$yap_cv_real/bin/x64/R.dll\""
 	    fi
 	   ;;
 	  *)
-            YAPR_INCLUDES="-I$yap_cv_yapr/include"
-	    EXTRA_LIBS_FOR_R="-L $yap_cv_yapr/lib -lR"
+            REAL_INCLUDES="-I$yap_cv_real/include"
+	    REAL_LIBS="-L $yap_cv_real/lib -lR"
 	   ;;
          esac
-   fi
-   AC_CHECK_LIB(R,main)
+  fi
+else
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -1750,9 +1754,10 @@ AC_SUBST(ENABLE_CUDD)
 AC_SUBST(CUDD_LDFLAGS)
 AC_SUBST(CUDD_CPPFLAGS)
 AC_SUBST(ENABLE_MINISAT)
-AC_SUBST(ENABLE_YAPR)
-AC_SUBST(YAPR_INCLUDES)
-AC_SUBST(EXTRA_LIBS_FOR_R)
+AC_SUBST(ENABLE_REAL)
+AC_SUBST(REAL_TARGET)
+AC_SUBST(REAL_INCLUDES)
+AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
@@ -2264,7 +2269,7 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
-mkdir -p  packages/YapR
+mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 mkdir -p  packages/zlib
@@ -2354,8 +2359,8 @@ AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
 AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
 fi
 
-if test "$ENABLE_YAPR" = ""; then
-AC_CONFIG_FILES([packages/YapR/Makefile])
+if test "$ENABLE_REAL" = ""; then
+AC_CONFIG_FILES([packages/real/Makefile])
 fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
