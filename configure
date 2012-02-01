@@ -6417,7 +6417,7 @@ test -n "$REXE" || REXE=""none""
 	    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
 	  fi
           if test -n "$R_HOME" ; then
-	    REAL_LIBS="-I$R_HOME/lib -lR"
+	    REAL_LIBS="-L $R_HOME/lib -lR"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
 	    REAL_LIBS="-L /usr/lib64/R/lib -lR"
           elif test -d /usr/lib/R; then
@@ -7624,6 +7624,12 @@ if test "x$ac_cv_header_mpi_h" = xyes; then :
   LAMOBJS=yap_mpi."$SO"
 else
   LAMOBJS=""
+fi
+
+
+  ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
+if test "x$ac_cv_header_mpi_h" = xyes; then :
+
 fi
 
 

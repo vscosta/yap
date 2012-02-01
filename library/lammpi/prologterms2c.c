@@ -129,15 +129,15 @@ change_buffer_size(const size_t newsize) {
  * Function used by YAP to write a char to a string
  */
 static void
-p2c_putc(const int c) {
+p2c_putt(const YAP_Term t) {
   //  if( buffer.size==buffer.len+1 ) 
-  if( BUFFER_SIZE==BUFFER_LEN ) { 
+
+  while ((BUFFER_LEN=YAP_ExportTerm(t, BUFFER_PTR, BUFFER_SIZE)) <= 0) {
 #ifdef DEBUG
-  write_msg(__FUNCTION__,__FILE__,__LINE__,"p2c_putc:buffer expanded: size=%u pos=%u len=%u\n",BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
+     write_msg(__FUNCTION__,__FILE__,__LINE__,"p2c_putc:buffer expanded: size=%u pos=%u len=%u\n",BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);  
 #endif
      expand_buffer( BLOCK_SIZE );    
   }
-  BUFFER_PTR[BUFFER_LEN++] = c;   
 }
 /*
  * Function used by YAP to read a char from a string
@@ -149,12 +149,7 @@ size_t
 write_term_to_stream(const int fd,const YAP_Term term) {
 
   RESET_BUFFER;
-  
-  YAP_Write( term, p2c_putc, 3);               // 3=canonical
-  if (write(fd,(void*)&BUFFER_LEN,sizeof(size_t)) < 0) {// write size of term
-    YAP_Error(0,0,"Prolog2Term: IO error in write term size.\n");
-    return -1;
-  }
+  p2c_putt(term);
   if (write(fd,(void*)BUFFER_PTR,BUFFER_LEN) < 0) {     // write term
     YAP_Error(0,0,"Prolog2Term: IO error in write.\n");
     return -1;
@@ -170,7 +165,9 @@ read_term_from_stream(const int fd) {
   size_t size; 
 
   RESET_BUFFER;    
-  read(fd,(void*)&size,sizeof(size_t)); // read the size of the term
+  if (!read(fd,(void*)&size,sizeof(size_t))) { // read the size of the term
+    YAP_Error(0,0,"Prolog2Term: IO error in read.\n");
+  }
 #ifdef DEBUG
   write_msg(__FUNCTION__,__FILE__,__LINE__,"read_term_from_stream>>>>size:%d\n",size);  
 #endif
@@ -179,7 +176,7 @@ read_term_from_stream(const int fd) {
   if (!read(fd,BUFFER_PTR,size)) {
     YAP_Error(0,0,"Prolog2Term: IO error in read.\n");
   };            // read term from stream
-  return YAP_ReadBuffer( BUFFER_PTR , NULL);
+  return YAP_ImportTerm( BUFFER_PTR);
 }
 /*********************************************************************************************
  * Conversion: Prolog Term->char[] and char[]->Prolog Term
@@ -195,8 +192,8 @@ term2string(char *const ptr,size_t *size, const YAP_Term t) {
 
   RESET_BUFFER;
 
-  YAP_Write( t, p2c_putc, 3 );// canonical
-  p2c_putc('\0');             //add terminator
+  
+  BUFFER_LEN = YAP_ExportTerm( t, ptr, *size );// canonical
 
   if (BUFFER_LEN<=*size) {    // user allocated buffer size is ok
     memcpy(ptr,BUFFER_PTR,BUFFER_LEN); // copy data to user block
@@ -230,7 +227,7 @@ string2term(char *const ptr,const size_t *size) {
     b.ptr=NULL;
   }
   BUFFER_POS=0;
-  t = YAP_ReadBuffer( BUFFER_PTR , NULL );
+  t = YAP_ImportTerm( BUFFER_PTR );
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),NULL);
     exit(1);

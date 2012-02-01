@@ -1467,6 +1467,7 @@ if  test "$yap_cv_lam" != "no" ; then
   OLD_CC=${CC}	
   CC=${LAM_MPI_CC}
   AC_CHECK_HEADER(mpi.h, LAMOBJS=yap_mpi."$SO", LAMOBJS="")
+  AC_CHECK_HEADER(mpi.h)
   CC=${OLD_CC}
 fi
 
@@ -2357,7 +2358,7 @@ fi
 
 if test "$ENABLE_ZLIB" = ""; then
 AC_CONFIG_FILES([packages/zlib/Makefile])
-fi
+fi
 
 if test "$ENABLE_CUDD" = ""; then
 AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
