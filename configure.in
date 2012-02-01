@@ -357,10 +357,6 @@ AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use MPI library in DIR],
 	if test "$withval" = yes; then
         dnl handle UBUNTU systems
-	        if test -e /usr/lib/openmpi; then
-		  CPPFLAGS="$CPPFLAGS -I/usr/openmpi/include"
-		  LDFLAGS="$LDFLAGS -L/usr/openmpi/lib"
-                fi
 		yap_cv_mpi=yes
 	elif test "$withval" = no; then
 		yap_cv_mpi=no
@@ -388,7 +384,7 @@ AC_ARG_WITH(mpe,
 AC_ARG_WITH(lam,
 	[ --with-lam[=DIR]           use LAM MPI library in DIR],
 	if test "$withval" = yes; then
-		yap_cv_lam=yes
+	        yap_cv_lam=yes
 	elif test "$withval" = no; then
 		yap_cv_lam=no
 	else
@@ -396,7 +392,7 @@ AC_ARG_WITH(lam,
 		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib/lam"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
 	fi,
-	[yap_cv_lam=no])
+	[yap_cv_lam=yes])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -773,7 +769,7 @@ elif test -e "$srcdir"/packages/real/Makefile.in ; then
 	    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
 	  fi	
           if test -n "$R_HOME" ; then
-	    REAL_LIBS="-I$R_HOME/lib -lR"
+	    REAL_LIBS="-L $R_HOME/lib -lR"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
 	    REAL_LIBS="-L /usr/lib64/R/lib -lR"
           elif test -d /usr/lib/R; then
@@ -1022,63 +1018,6 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 else
       ENABLE_JPL="@#"
 fi
-
-LAM_MPI_CC=${MPI_CC}
-MPI_OBJS=
-if test "$yap_cv_mpi" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
-  AC_CHECK_LIB(mpi,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPI, 1)],
-		[AC_DEFINE(HAVE_LIBMPI, 0)])
-  if test "$ac_cv_lib_mpi_MPI_Init" = yes
-  then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-  else
-    AC_CHECK_LIB(mpich,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPICH, 1)],
-		[AC_DEFINE(HAVE_LIBMPICH, 0)])
-    if test "$ac_cv_lib_mpich_MPI_Init" = yes
-    then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-    else
-	#YAPMPILIB=
-	MPI_CC=${CC}
-    fi
-  fi
-  CC=${OLD_CC}
-else
-#   MPI_CC=${MPI_CC}
-  MPI_CC=${CC}
-fi
-
-
-MPI_LIBS=
-if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
-  AC_CHECK_LIB(mpe,MPE_Init_log,
-		[AC_DEFINE(HAVE_LIBMPE, 1)],
-		[AC_DEFINE(HAVE_LIBMPE, 0)])
-  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
-  then
-	MPI_LIBS="-lmpe"
-	MPI_OBJS="$MPI_OBJS mpe.o"
-  fi
-  CC=${OLD_CC}
-fi
-
-dnl LAM
-OLD_CC=${CC}	
-CC=${LAM_MPI_CC}
-AC_CHECK_LIB([lam], [main],
-	LAMOBJS=yap_mpi."$SO",
-	LAMOBJS=no)
-CC=${OLD_CC}
 
 AC_PROG_CPP
 
@@ -1515,6 +1454,74 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
+dnl LAM/MPI interface
+
+LAM_MPI_CC=${MPI_CC}
+if test "$yap_cv_lam" = "yes" ; then
+ if test -e /usr/lib/openmpi; then
+		  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
+		  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
+ fi
+fi
+if  test "$yap_cv_lam" != "no" ; then
+  OLD_CC=${CC}	
+  CC=${LAM_MPI_CC}
+  AC_CHECK_HEADER(mpi.h, LAMOBJS=yap_mpi."$SO", LAMOBJS="")
+  CC=${OLD_CC}
+fi
+
+MPI_OBJS=
+if test "$yap_cv_mpi" != "no"
+then
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpi,MPI_Init,
+		[AC_DEFINE(HAVE_LIBMPI, 1)],
+		[AC_DEFINE(HAVE_LIBMPI, 0)])
+  if test "$ac_cv_lib_mpi_MPI_Init" = yes
+  then
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
+  else
+    AC_CHECK_LIB(mpich,MPI_Init,
+		[AC_DEFINE(HAVE_LIBMPICH, 1)],
+		[AC_DEFINE(HAVE_LIBMPICH, 0)])
+    if test "$ac_cv_lib_mpich_MPI_Init" = yes
+    then
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
+    else
+	#YAPMPILIB=
+	MPI_CC=${CC}
+    fi
+  fi
+  AC_CHECK_HEADERS(mpi.h)
+  CC=${OLD_CC}
+else
+#   MPI_CC=${MPI_CC}
+  MPI_CC=${CC}
+fi
+
+
+MPI_LIBS=
+if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
+then
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpe,MPE_Init_log,
+		[AC_DEFINE(HAVE_LIBMPE, 1)],
+		[AC_DEFINE(HAVE_LIBMPE, 0)])
+  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
+  then
+	MPI_LIBS="-lmpe"
+	MPI_OBJS="$MPI_OBJS mpe.o"
+  fi
+  AC_CHECK_HEADERS(mpe.h)
+  CC=${OLD_CC}
+fi
+
+
+
 if test ! "$yap_cv_cplint" = "no"
   then	
 	if test ! "$yap_cv_cplint" = "yes"
@@ -1585,7 +1592,7 @@ AC_CHECK_HEADERS(arpa/inet.h alloca.h crypt.h)
 AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
 AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
-AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h mpi.h)
+AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h stdint.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
@@ -1615,8 +1622,6 @@ then
   AC_CHECK_HEADERS( readline/history.h)
   AC_CHECK_FUNCS( rl_completion_matches  rl_clear_pending_input  rl_cleanup_after_signal rl_event_hook rl_filename_completion_function rl_free_line_state rl_insert_close rl_set_prompt rl_state_initialized )
 fi
-AC_CHECK_HEADERS(mpi.h)
-AC_CHECK_HEADERS(mpe.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
