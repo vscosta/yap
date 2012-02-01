@@ -1549,125 +1549,6 @@ ac_abs_builddir=$ac_pwd$ac_dir_suffix
 # for backward compatibility:
 ac_top_builddir=$ac_top_build_prefix
 
-	  if test ${have_dl} = yes
-	  then
-	    LIBS="$LIBS -ldl"
-	  fi
-	fi
-	SO="dylib"
-        DO_SECOND_LD=""
-        if test "$dynamic_loading" = "yes"
-        then
-	   SHLIB_LD="$CC  -dynamiclib"
-           SHLIB_CXX_LD="$CXX  -dynamiclib"
-           EXTRA_LIBS_FOR_DLLS="-L\$(abs_top_builddir) $LIBS $EXTRA_LIBS_FOR_DLLS -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
-           INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-	   LDFLAGS="-L\$(abs_top_builddir) $LDFLAGS "
-        else
-	   SHLIB_LD="$CC  -dynamiclib -Wl,-undefined,dynamic_lookup"
-           SHLIB_CXX_LD="$CXX  -dynamiclib -Wl,-undefined,dynamic_lookup"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
-           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-        fi
-	if test "$ac_cv_c_compiler_gnu" = "yes"
-	then
-	   SHLIB_CFLAGS="-shared -fPIC $CFLAGS"
-	   SHLIB_CXXFLAGS="-shared -fPIC $CXXFLAGS"
-	   INSTALL_DLLS=""
-        fi
-        CC="$CC -fstrict-aliasing -freorder-blocks -fsched-interblock -Wall -Wstrict-aliasing=2"
-        DYNYAPLIB=libYap."$SO"
-	SONAMEFLAG=""
-        YAPLIB_LD="$CC -dynamiclib -Wl,-install_name,$prefix/lib/libYap.$SO"
-        PRE_INSTALL_ENV="DYLD_LIBRARY_PATH=\$(abs_top_builddir)"
-	;;
-      *netbsd*|*openbsd*|*freebsd*|*dragonfly*)
-	if echo __ELF__ | ${CC:-cc} -E - | grep -q __ELF__
-        then
-	  #an a.out system
-	  SHLIB_CFLAGS="$CFLAGS"
-	  SHLIB_CXXFLAGS="$CXXFLAGS"
-	  SO="o"
-        else
-	  #an elf system
-	  LDFLAGS="-Wl,--export-dynamic $LDFLAGS"
-	  SHLIB_CFLAGS="-fPIC $CFLAGS"
-	  SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
-	  SHLIB_LD="$CC -shared -export-dynamic"
-          SHLIB_CXX_LD="$CXX -shared -export-dynamic"
-          DO_SECOND_LD=""
-	  SO="so"
-	  INSTALL_DLLS=""
-        fi
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR)"
-        DYNYAPLIB=libYap."$SO"
-        SONAMEFLAG="-Wl,--soname=$DYNYAPLIB"
-        EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -Wl,-R,\$(YAPLIBDIR)"
-        PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
-        INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-	;;
-      *solaris*)
-       #an elf system
-        LDFLAGS="-dynamic $LDFLAGS"
-	SHLIB_CFLAGS="-fPIC $CFLAGS"
-	SHLIB_CXXFLAGS="-fPIC $CXXFLAGS"
-	SHLIB_LD="$CC -shared"
-        SHLIB_CXX_LD="$CXX -shared"
-        DO_SECOND_LD=""
-	SO="so"
-	INSTALL_DLLS=""
-	LDFLAGS="$LDFLAGS -L\$(abs_top_builddir) -Wl,-R,\$(LIBDIR) -Wl,-R,\$(YAPLIBDIR)"
-        DYNYAPLIB=libYap."$SO"
-	SONAMEFLAG="-Wl,--soname=$DYNYAPLIB"
-        if test "$dynamic_loading" = "yes"
-        then
-           YAPLIB_LD="\$(CC)"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           PRE_INSTALL_ENV="LD_LIBRARY_PATH=\$(abs_top_builddir)"
-           INSTALL_ENV="LD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-        else
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -Wl,-R,\$(YAPLIBDIR) -Wl,-R,\$(LIBDIR)"
-           PRE_INSTALL_ENV=""
-           YAPLIB_LD="\$(CC) -shared"
-           INSTALL_ENV="YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
-        fi
-	;;
-      *cyg*|*mingw*)
-	# gcc on cygwin seems to have trouble with longjmp
-        # and -fomit-frame-point -DBP_FREE
-	YAPLIB="yap.dll"
-	DYNYAPLIB="yap.dll"
-	SONAMEFLAG=""
-	SHLIB_CFLAGS="$CFLAGS"
-	SHLIB_CXXFLAGS="$CXXFLAGS"
-        if test "$target_win64" = no
-        then
-	  LDFLAGS="-Wl,--large-address-aware $LDFLAGS"
-        fi
-        SHLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
-        SHLIB_CXX_LD="\$(CXX) -shared -Wl,--export-all-symbols"
-	SO="dll"
-	C_PARSER_FLAGS="$C_INTERF_FLAGS"
-	EXEC_SUFFIX=".exe"
-	INSTALL_DLLS=""
-	DO_SECOND_LD=""
-	MERGE_DLL_OBJS=""
-        IN_UNIX="#"
-        YAPLIB_LD="\$(CC) -shared -Wl,--export-all-symbols"
-        PRE_INSTALL_ENV=""
-        INSTALL_ENV=""
-	;;
-      *)
-	{ echo "$as_me:$LINENO: checking for dlopen in -ldl" >&5
-echo $ECHO_N "checking for dlopen in -ldl... $ECHO_C" >&6; }
-if test "${ac_cv_lib_dl_dlopen+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ldl  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-=======
 case $srcdir in
   .)  # We are building in place.
     ac_srcdir=.
@@ -7448,8 +7329,9 @@ fi
         then
 	   SHLIB_LD="$CC  -dynamiclib"
            SHLIB_CXX_LD="$CXX  -dynamiclib"
-           EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS -L\$(abs_top_builddir) -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
+           EXTRA_LIBS_FOR_DLLS="-L\$(abs_top_builddir) $LIBS $EXTRA_LIBS_FOR_DLLS -lYap   -Wl,-install_name,\$(YAPLIBDIR)/\$@"
            INSTALL_ENV="DYLD_LIBRARY_PATH=\$(DESTDIR)\$(LIBDIR):\$(DESTDIR)\$(YAPLIBDIR): YAPSHAREDIR=\$(DESTDIR)\$(SHAREDIR) YAPLIBDIR=\$(DESTDIR)\$(YAPLIBDIR)"
+	   LDFLAGS="-L\$(abs_top_builddir) $LDFLAGS "
         else
 	   SHLIB_LD="$CC  -dynamiclib -Wl,-undefined,dynamic_lookup"
            SHLIB_CXX_LD="$CXX  -dynamiclib -Wl,-undefined,dynamic_lookup"
