@@ -356,6 +356,11 @@ AC_ARG_WITH(matlab,
 AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use MPI library in DIR],
 	if test "$withval" = yes; then
+        dnl handle UBUNTU systems
+	        if test -e /usr/lib/openmpi; then
+		  CPPFLAGS="$CPPFLAGS -I/usr/openmpi/include"
+		  LDFLAGS="$LDFLAGS -L/usr/openmpi/lib"
+                fi
 		yap_cv_mpi=yes
 	elif test "$withval" = no; then
 		yap_cv_mpi=no
@@ -1067,6 +1072,14 @@ then
   CC=${OLD_CC}
 fi
 
+dnl LAM
+OLD_CC=${CC}	
+CC=${LAM_MPI_CC}
+AC_CHECK_LIB([lam], [main],
+	LAMOBJS=yap_mpi."$SO",
+	LAMOBJS=no)
+CC=${OLD_CC}
+
 AC_PROG_CPP
 
 if test "$cross_compiling" = "yes"
@@ -1564,14 +1577,6 @@ AC_SUBST(ZLIB_PLTARGETS)
 AC_SUBST(ZLIB_INSTALL)
 
 fi
-
-dnl LAM
-OLD_CC=${CC}	
-CC=${LAM_MPI_CC}
-AC_CHECK_LIB([lam], [main],
-	LAMOBJS=yap_mpi."$SO",
-	LAMOBJS=no)
-CC=${OLD_CC}
 
 dnl Checks for header files.
 AC_HEADER_STDC

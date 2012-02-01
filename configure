@@ -4793,6 +4793,10 @@ fi
 # Check whether --with-mpi was given.
 if test "${with_mpi+set}" = set; then :
   withval=$with_mpi; if test "$withval" = yes; then
+        	        if test -e /usr/lib/openmpi; then
+		  CPPFLAGS="$CPPFLAGS -I/usr/openmpi/include"
+		  LDFLAGS="$LDFLAGS -L/usr/openmpi/lib"
+                fi
 		yap_cv_mpi=yes
 	elif test "$withval" = no; then
 		yap_cv_mpi=no
@@ -6937,6 +6941,46 @@ fi
   CC=${OLD_CC}
 fi
 
+OLD_CC=${CC}
+CC=${LAM_MPI_CC}
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -llam" >&5
+$as_echo_n "checking for main in -llam... " >&6; }
+if ${ac_cv_lib_lam_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llam  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_lam_main=yes
+else
+  ac_cv_lib_lam_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lam_main" >&5
+$as_echo "$ac_cv_lib_lam_main" >&6; }
+if test "x$ac_cv_lib_lam_main" = xyes; then :
+  LAMOBJS=yap_mpi."$SO"
+else
+  LAMOBJS=no
+fi
+
+CC=${OLD_CC}
+
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -7880,46 +7924,6 @@ fi
 
 
 fi
-
-OLD_CC=${CC}
-CC=${LAM_MPI_CC}
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -llam" >&5
-$as_echo_n "checking for main in -llam... " >&6; }
-if ${ac_cv_lib_lam_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-llam  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_lam_main=yes
-else
-  ac_cv_lib_lam_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_lam_main" >&5
-$as_echo "$ac_cv_lib_lam_main" >&6; }
-if test "x$ac_cv_lib_lam_main" = xyes; then :
-  LAMOBJS=yap_mpi."$SO"
-else
-  LAMOBJS=no
-fi
-
-CC=${OLD_CC}
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ANSI C header files" >&5
 $as_echo_n "checking for ANSI C header files... " >&6; }
