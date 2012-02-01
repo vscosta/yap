@@ -555,6 +555,8 @@ X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
 X_API YAP_tag_t    STD_PROTO(YAP_TagOfTerm,(Term));
+X_API int     STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
+X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
 
 static int
 dogc( USES_REGS1 )
@@ -3985,5 +3987,15 @@ YAP_IsNumberedVariable(Term t) {
   return IsApplTerm(t) &&
     FunctorOfTerm(t) == FunctorVar &&
     IsIntegerTerm(ArgOfTerm(1,t));
+}
+
+X_API int
+YAP_ExportTerm(Term inp, char * buf, size_t len) {
+  return Yap_ExportTerm(inp, buf, len);
+}
+
+X_API Term
+YAP_ImportTerm(char * buf) {
+  return Yap_ImportTerm(buf);
 }
 
