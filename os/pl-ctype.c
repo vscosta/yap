@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include "pl-incl.h"
@@ -54,7 +54,7 @@ typedef struct
 typedef struct
 { int		current;		/* current character */
   const char_type   *class;		/* current class */
-  int   	do_enum;		/* what to enumerate */
+  int		do_enum;		/* what to enumerate */
 } generator;
 
 
@@ -366,7 +366,7 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
 	}
       }
 
-      gen = allocHeap(sizeof(*gen));
+      gen = allocForeignState(sizeof(*gen));
       gen->do_enum = do_enum;
 
       if ( do_enum & ENUM_CHAR )
@@ -385,10 +385,11 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
     case FRG_CUTTED:
       gen = ForeignContextPtr(h);
       if ( gen )
-	freeHeap(gen, sizeof(*gen));
+	freeForeignState(gen, sizeof(*gen));
     default:
       succeed;
   }
+
   if ( !(fid = PL_open_foreign_frame()) )
     goto error;
 
@@ -411,9 +412,9 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
       }
 
       if ( advanceGen(gen) )		/* ok, found one */
-	ForeignRedoPtr(gen);
-      else
-      { freeHeap(gen, sizeof(*gen));	/* the only one */
+      { ForeignRedoPtr(gen);
+      } else
+      { freeForeignState(gen, sizeof(*gen));	/* the only one */
 	succeed;
       }
     }
@@ -425,7 +426,7 @@ do_char_type(term_t chr, term_t class, control_t h, int how)
   }
 
 error:
-  freeHeap(gen, sizeof(*gen));
+  freeForeignState(gen, sizeof(*gen));
   fail;
 }
 
@@ -451,7 +452,7 @@ PRED_IMPL("iswctype", 2, iswctype, 0)
   wctype_t t;
 
   if ( !PL_get_char_ex(A1, &chr, FALSE) ||
-       !PL_get_chars_ex(A2, &s, CVT_ATOM) )
+       !PL_get_chars(A2, &s, CVT_ATOM|CVT_EXCEPTION) )
     return FALSE;
 
   if ( !(t=wctype(s)) )
@@ -725,11 +726,11 @@ PRED_IMPL("setlocale", 3, setlocale, 0)
   const lccat *lcp;
 
 
-  if ( !PL_get_chars_ex(A1, &what, CVT_ATOM) )
+  if ( !PL_get_chars(A1, &what, CVT_ATOM|CVT_EXCEPTION) )
     fail;
   if ( PL_is_variable(A3) )
     locale = NULL;
-  else if ( !PL_get_chars_ex(A3, &locale, CVT_ATOM) )
+  else if ( !PL_get_chars(A3, &locale, CVT_ATOM|CVT_EXCEPTION) )
     fail;
 
   for ( lcp = lccats; lcp->name; lcp++ )
@@ -748,8 +749,7 @@ PRED_IMPL("setlocale", 3, setlocale, 0)
     }
   }
 
-  return PL_error(NULL, 0, NULL, ERR_DOMAIN,
-		  PL_new_atom("category"), A1);
+  return PL_domain_error("category", A1);
 }
 
 #else
@@ -784,7 +784,7 @@ EndPredDefs
 
 const char _PL_char_types[] = {
 /* ^@  ^A  ^B  ^C  ^D  ^E  ^F  ^G  ^H  ^I  ^J  ^K  ^L  ^M  ^N  ^O    0-15 */
-   CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
+   CT, CT, CT, CT, CT, CT, CT, CT, CT, SP, SP, SP, SP, SP, CT, CT,
 /* ^P  ^Q  ^R  ^S  ^T  ^U  ^V  ^W  ^X  ^Y  ^Z  ^[  ^\  ^]  ^^  ^_   16-31 */
    CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
 /* sp   !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /   32-47 */
@@ -803,13 +803,14 @@ const char _PL_char_types[] = {
    CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
    CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT, CT,
 			  /* 160-255 (G1 graphics) */
-			  /* ISO Latin 1 is assumed */
-   SP, SO, SO, SO, SO, SO, SO, SO, SO, SO, LC, SO, SO, SO, SO, SO,
-   SO, SO, SO, SO, SO, SO, SO, SO, SO, SO, LC, SO, SO, SO, SO, SO,
-   UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC,
-   UC, UC, UC, UC, UC, UC, UC, SO, UC, UC, UC, UC, UC, UC, UC, LC,
-   LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC,
-   LC, LC, LC, LC, LC, LC, LC, SO, LC, LC, LC, LC, LC, LC, LC, LC
+			  /* ISO Latin 1 (=Unicode) is assumed */
+/*  0   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F */
+   SP, SY, SY, SY, SY, SY, SY, SY, SY, SY, LC, SY, SY, SO, SY, SY, /*00AX*/
+   SY, SY, SO, SO, SY, LC, SY, SY, SY, SO, LC, SY, SO, SO, SO, SY, /*00BX*/
+   UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, UC, /*00CX*/
+   UC, UC, UC, UC, UC, UC, UC, SY, UC, UC, UC, UC, UC, UC, UC, LC, /*00DX*/
+   LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, LC, /*00EX*/
+   LC, LC, LC, LC, LC, LC, LC, SY, LC, LC, LC, LC, LC, LC, LC, LC  /*00FX*/
 };
 
 
@@ -841,14 +842,9 @@ initEncoding(void)
       } else if ( (enc = setlocale(LC_CTYPE, NULL)) )
       { LD->encoding = ENC_ANSI;		/* text encoding */
 
-	/* this does not work on the mac for some reason */
-	if (strchr(enc, '.')) {
-	  enc = strchr(enc, '.');
-	  /* skip '.' */
-	  enc++;
-	}
-	if ( enc )
+	if ( (enc = strchr(enc, '.')) )
 	{ const enc_map *m;
+	  enc++;				/* skip '.' */
 
 	  for ( m=map; m->name; m++ )
 	  { if ( strcmp(enc, m->name) == 0 )

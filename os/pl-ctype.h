@@ -19,7 +19,7 @@
 
     You should have received a copy of the GNU Lesser General Public
     License along with this library; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 extern const char _PL_char_types[];	/* array of character types */
@@ -37,7 +37,8 @@ extern const char _PL_char_types[];	/* array of character types */
 #define DI 10			/* Digit */
 
 #define isControl(c)	(_PL_char_types[(unsigned)(c) & 0xff] == CT)
-#define isBlank(c)	(_PL_char_types[(unsigned)(c) & 0xff] <= SP)
+#define isBlank(c)	(_PL_char_types[(unsigned)(c) & 0xff] == SP)
+#define isGraph(c)	(_PL_char_types[(unsigned)(c) & 0xff]  > SP)
 #define isDigit(c)	(_PL_char_types[(unsigned)(c) & 0xff] == DI)
 #define isLower(c)	(_PL_char_types[(unsigned)(c) & 0xff] == LC)
 #define isUpper(c)	(_PL_char_types[(unsigned)(c) & 0xff] == UC)
@@ -68,7 +69,7 @@ extern const char _PL_char_types[];	/* array of character types */
 	((unsigned)(c) <= 0xff ? (_PL_char_types[(unsigned char)(c)] t) : w)
 
 #define isControlW(c)	PlCharType(c, == CT, iswcntrl((wint_t)c))
-#define isBlankW(c)	PlCharType(c, <= SP, iswspace((wint_t)c))
+#define isBlankW(c)	PlCharType(c, == SP, iswspace((wint_t)c))
 #define isDigitW(c)	PlCharType(c, == DI, FALSE)
 #define isLowerW(c)	PlCharType(c, == LC, iswlower((wint_t)c))
 #define isUpperW(c)	PlCharType(c, == UC, iswupper((wint_t)c))

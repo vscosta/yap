@@ -85,6 +85,9 @@ typedef uintptr_t		word;		/* Anonymous 4 byte object */
 #define WORDS_PER_DOUBLE 2
 #endif
 
+#define allocForeignState(size)                 ((void *)Yap_AllocCodeSpace(size))
+#define freeForeignState(ptr, size)             Yap_FreeCodeSpace((void*)(ptr))
+
 // numbers
 
 typedef enum
