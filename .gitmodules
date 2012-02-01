@@ -31,12 +31,13 @@
 [submodule "packages/R"]
 	path = packages/R
 	url = git://yap.git.sourceforge.net/gitroot/yap/R
-[submodule "packages/YapR"]
-	path = packages/YapR
-	url = git://yap.git.sourceforge.net/gitroot/yap/YapR
 [submodule "packages/pldoc"]
 	path = packages/pldoc
 	url = git://yap.git.sourceforge.net/gitroot/yap/pldoc
 [submodule "packages/real"]
 	path = packages/real
+<<<<<<< HEAD
 	url = vsc@www.swi-prolog.org:/home/pl/git/packages/real.git
+=======
+	url = git://www.swi-prolog.org/home/pl/git/packages/real.git
+>>>>>>> 7e73c781b06cb917d5a065ead5f872c28da619f1

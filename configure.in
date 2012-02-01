@@ -232,16 +232,16 @@ AC_ARG_WITH(gmp,
 	fi,
 	[yap_cv_gmp=yes])
 
-AC_ARG_WITH(yapr,
-	[ --with-yapr[=DIR]           interface to R language, R installed in DIR],
+AC_ARG_WITH(real,
+	[ --with-real[=DIR]           interface to R language],
 	if test "$withval" = yes; then
-		yap_cv_yapr=yes
+	    yap_cv_real=yes
 	elif test "$withval" = no; then
-		yap_cv_yapr=no
+	    yap_cv_real=no
 	else
-		yap_cv_yapr=$with_yapr
+	    yap_cv_real=$with_real
 	fi,
-	[yap_cv_yapr=no])
+	[yap_cv_real=yes])
 
 dnl best test we could do.
 AC_ARG_WITH(minisat,
@@ -356,6 +356,7 @@ AC_ARG_WITH(matlab,
 AC_ARG_WITH(mpi,
 	[ --with-mpi[=DIR]           use MPI library in DIR],
 	if test "$withval" = yes; then
+        dnl handle UBUNTU systems
 		yap_cv_mpi=yes
 	elif test "$withval" = no; then
 		yap_cv_mpi=no
@@ -383,7 +384,7 @@ AC_ARG_WITH(mpe,
 AC_ARG_WITH(lam,
 	[ --with-lam[=DIR]           use LAM MPI library in DIR],
 	if test "$withval" = yes; then
-		yap_cv_lam=yes
+	        yap_cv_lam=yes
 	elif test "$withval" = no; then
 		yap_cv_lam=no
 	else
@@ -391,7 +392,7 @@ AC_ARG_WITH(lam,
 		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib/lam"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
 	fi,
-	[yap_cv_lam=no])
+	[yap_cv_lam=yes])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
@@ -517,16 +518,6 @@ else
   ;;
   esac
   INSTALL_MATLAB=""
-fi
-
-if test "$yap_cv_yapr" = no 
-then
-  ENABLE_YAPR="@# "
-elif test -e "$srcdir"/packages/YapR/Makefile.in
-then
-  ENABLE_YAPR=""
-else
-  ENABLE_YAPR="@# "
 fi
 
 if test "$yap_cv_clpbn_bp" = no 
@@ -745,54 +736,68 @@ then
   AC_CHECK_LIB(gmp,main)
 fi
 
-if test "$yap_cv_yapr" != "no"
-then
-   if test "$yap_cv_yapr" = "yes"
+if test "$yap_cv_real" = "no"; then
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
+elif test -e "$srcdir"/packages/real/Makefile.in ; then
+   REAL_TARGET="ritf"
+   ENABLE_REAL=""
+   AC_CHECK_PROGS(REXE, R, "none")
+   if test "$yap_cv_yapr" != "yes"
    then
-       case "$target_os" in
+     case "$target_os" in
 	*darwin*)
-	  YAPR_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
-	  EXTRA_LIBS_FOR_R="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
+	  REAL_INCLUDES="-I/Library/Frameworks/R.framework/Headers"
+	  REAL_LIBS="-framework R -L /Library/Frameworks/R.framework/Libraries -lR"
 	;;
+	  *cygwin*|*mingw*)
+            REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
+            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
+        ;;
 	**)		
           dnl R is spread all over the place
 	  dnl one of the two may work (Fedora/Ubuntu)
           if test -n "$R_HOME" ; then
-	    YAPR_INCLUDES="-I$R_HOME/include"
+	    REAL_INCLUDES="-I$R_HOME/include"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/include ; then
-	    YAPR_INCLUDES="-I/usr/lib64/R/include"
+	    REAL_INCLUDES="-I/usr/lib64/R/include"
           elif test -d /usr/include/R; then
-	    YAPR_INCLUDES="-I/usr/include/R"
+	    REAL_INCLUDES="-I/usr/include/R"
           elif test -d /usr/share/R/include; then
-	    YAPR_INCLUDES="-I/usr/share/R/include"
+	    REAL_INCLUDES="-I/usr/share/R/include"
+          else
+	    REAL_INCLUDES="$($REXE CMD config --cppflags | grep -v ^WARNING)"
 	  fi	
-	  echo $YAP_TARGET
           if test -n "$R_HOME" ; then
-	    EXTRA_LIBS_FOR_R="-I$R_HOME/lib -lR"
+	    REAL_LIBS="-L $R_HOME/lib -lR"
           elif test "$YAP_TARGET" = amd64 -a -d /usr/lib64/R/lib; then
-	    EXTRA_LIBS_FOR_R="-L /usr/lib64/R/lib -lR"
+	    REAL_LIBS="-L /usr/lib64/R/lib -lR"
           elif test -d /usr/lib/R; then
-	    EXTRA_LIBS_FOR_R="-L /usr/lib/R/lib -lR"
+	    REAL_LIBS="-L /usr/lib/R/lib -lR"
+          else
+            REAL_LIBS="$($REXE CMD config --ldflags | grep -v ^WARNING)"
 	  fi
         ;;
 	esac
    else
        case "$target_os" in
 	  *cygwin*|*mingw*)
-            YAPR_INCLUDES="-I\"$yap_cv_yapr/include\""
+            REAL_INCLUDES="-I\"$yap_cv_real/include\""
 	    if test "$YAP_TARGET" = i386; then
-	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/i386/R.dll\""
+	      REAL_LIBS="\"$yap_cv_real/bin/i386/R.dll\""
 	    else
-	      EXTRA_LIBS_FOR_R="\"$yap_cv_yapr/bin/x64/R.dll\""
+	      REAL_LIBS="\"$yap_cv_real/bin/x64/R.dll\""
 	    fi
 	   ;;
 	  *)
-            YAPR_INCLUDES="-I$yap_cv_yapr/include"
-	    EXTRA_LIBS_FOR_R="-L $yap_cv_yapr/lib -lR"
+            REAL_INCLUDES="-I$yap_cv_real/include"
+	    REAL_LIBS="-L $yap_cv_real/lib -lR"
 	   ;;
          esac
-   fi
-   AC_CHECK_LIB(R,main)
+  fi
+else
+    REAL_TARGET="dummy"
+    ENABLE_REAL="@# "
 fi
 
 dnl if test "$yap_cv_cudd" != "no"
@@ -1012,55 +1017,6 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
         fi
 else
       ENABLE_JPL="@#"
-fi
-
-LAM_MPI_CC=${MPI_CC}
-MPI_OBJS=
-if test "$yap_cv_mpi" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
-  AC_CHECK_LIB(mpi,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPI, 1)],
-		[AC_DEFINE(HAVE_LIBMPI, 0)])
-  if test "$ac_cv_lib_mpi_MPI_Init" = yes
-  then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-  else
-    AC_CHECK_LIB(mpich,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPICH, 1)],
-		[AC_DEFINE(HAVE_LIBMPICH, 0)])
-    if test "$ac_cv_lib_mpich_MPI_Init" = yes
-    then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-    else
-	#YAPMPILIB=
-	MPI_CC=${CC}
-    fi
-  fi
-  CC=${OLD_CC}
-else
-#   MPI_CC=${MPI_CC}
-  MPI_CC=${CC}
-fi
-
-
-MPI_LIBS=
-if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
-  AC_CHECK_LIB(mpe,MPE_Init_log,
-		[AC_DEFINE(HAVE_LIBMPE, 1)],
-		[AC_DEFINE(HAVE_LIBMPE, 0)])
-  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
-  then
-	MPI_LIBS="-lmpe"
-	MPI_OBJS="$MPI_OBJS mpe.o"
-  fi
-  CC=${OLD_CC}
 fi
 
 AC_PROG_CPP
@@ -1499,6 +1455,75 @@ if test "$tabling" = "yes"
   then
   YAP_EXTRAS="$YAP_EXTRAS -DTABLING=1"
 fi
+dnl LAM/MPI interface
+
+LAM_MPI_CC=${MPI_CC}
+if test "$yap_cv_lam" = "yes" ; then
+ if test -e /usr/lib/openmpi; then
+		  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
+		  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
+ fi
+fi
+if  test "$yap_cv_lam" != "no" ; then
+  OLD_CC=${CC}	
+  CC=${LAM_MPI_CC}
+  AC_CHECK_HEADER(mpi.h, LAMOBJS=yap_mpi."$SO", LAMOBJS="")
+  AC_CHECK_HEADER(mpi.h)
+  CC=${OLD_CC}
+fi
+
+MPI_OBJS=
+if test "$yap_cv_mpi" != "no"
+then
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpi,MPI_Init,
+		[AC_DEFINE(HAVE_LIBMPI, 1)],
+		[AC_DEFINE(HAVE_LIBMPI, 0)])
+  if test "$ac_cv_lib_mpi_MPI_Init" = yes
+  then
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
+  else
+    AC_CHECK_LIB(mpich,MPI_Init,
+		[AC_DEFINE(HAVE_LIBMPICH, 1)],
+		[AC_DEFINE(HAVE_LIBMPICH, 0)])
+    if test "$ac_cv_lib_mpich_MPI_Init" = yes
+    then
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
+    else
+	#YAPMPILIB=
+	MPI_CC=${CC}
+    fi
+  fi
+  AC_CHECK_HEADERS(mpi.h)
+  CC=${OLD_CC}
+else
+#   MPI_CC=${MPI_CC}
+  MPI_CC=${CC}
+fi
+
+
+MPI_LIBS=
+if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
+then
+  OLD_CC=${CC}
+  CC=${MPI_CC}
+  AC_CHECK_LIB(mpe,MPE_Init_log,
+		[AC_DEFINE(HAVE_LIBMPE, 1)],
+		[AC_DEFINE(HAVE_LIBMPE, 0)])
+  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
+  then
+	MPI_LIBS="-lmpe"
+	MPI_OBJS="$MPI_OBJS mpe.o"
+  fi
+  AC_CHECK_HEADERS(mpe.h)
+  CC=${OLD_CC}
+fi
+
+
+
 if test ! "$yap_cv_cplint" = "no"
   then	
 	if test ! "$yap_cv_cplint" = "yes"
@@ -1562,14 +1587,6 @@ AC_SUBST(ZLIB_INSTALL)
 
 fi
 
-dnl LAM
-OLD_CC=${CC}	
-CC=${LAM_MPI_CC}
-AC_CHECK_LIB([lam], [main],
-	LAMOBJS=yap_mpi."$SO",
-	LAMOBJS=no)
-CC=${OLD_CC}
-
 dnl Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
@@ -1577,7 +1594,7 @@ AC_CHECK_HEADERS(arpa/inet.h alloca.h crypt.h)
 AC_CHECK_HEADERS(ctype.h direct.h dirent.h dlfcn.h)
 AC_CHECK_HEADERS(errno.h execinfo.h fcntl.h fenv.h)
 AC_CHECK_HEADERS(float.h fpu_control.h ieeefp.h io.h limits.h)
-AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h mpi.h)
+AC_CHECK_HEADERS(locale.h malloc.h math.h memory.h)
 AC_CHECK_HEADERS(netdb.h netinet/in.h netinet/tcp.h pwd.h regex.h)
 AC_CHECK_HEADERS(siginfo.h signal.h stdarg.h stdint.h string.h stropts.h)
 AC_CHECK_HEADERS(sys/conf.h sys/dir.h sys/file.h)
@@ -1607,8 +1624,6 @@ then
   AC_CHECK_HEADERS( readline/history.h)
   AC_CHECK_FUNCS( rl_completion_matches  rl_clear_pending_input  rl_cleanup_after_signal rl_event_hook rl_filename_completion_function rl_free_line_state rl_insert_close rl_set_prompt rl_state_initialized )
 fi
-AC_CHECK_HEADERS(mpi.h)
-AC_CHECK_HEADERS(mpe.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -1751,9 +1766,10 @@ AC_SUBST(ENABLE_CUDD)
 AC_SUBST(CUDD_LDFLAGS)
 AC_SUBST(CUDD_CPPFLAGS)
 AC_SUBST(ENABLE_MINISAT)
-AC_SUBST(ENABLE_YAPR)
-AC_SUBST(YAPR_INCLUDES)
-AC_SUBST(EXTRA_LIBS_FOR_R)
+AC_SUBST(ENABLE_REAL)
+AC_SUBST(REAL_TARGET)
+AC_SUBST(REAL_INCLUDES)
+AC_SUBST(REAL_LIBS)
 AC_SUBST(INSTALL_MATLAB)
 AC_SUBST(MATLAB_INCLUDE)
 AC_SUBST(INSTALL_PRISM)
@@ -2265,7 +2281,7 @@ mkdir -p  packages/ProbLog/simplecudd
 mkdir -p  packages/ProbLog/simplecudd_lfi
 mkdir -p  packages/R
 mkdir -p  packages/RDF
-mkdir -p  packages/YapR
+mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
 mkdir -p  packages/zlib
@@ -2343,7 +2359,7 @@ fi
 
 if test "$ENABLE_ZLIB" = ""; then
 AC_CONFIG_FILES([packages/zlib/Makefile])
-fi
+fi
 
 if test "$ENABLE_CUDD" = ""; then
 AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
@@ -2355,8 +2371,8 @@ AC_CONFIG_FILES([packages/swi-minisat2/Makefile])
 AC_CONFIG_FILES([packages/swi-minisat2/C/Makefile])
 fi
 
-if test "$ENABLE_YAPR" = ""; then
-AC_CONFIG_FILES([packages/YapR/Makefile])
+if test "$ENABLE_REAL" = ""; then
+AC_CONFIG_FILES([packages/real/Makefile])
 fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
