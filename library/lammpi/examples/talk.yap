@@ -12,14 +12,31 @@ main :-
 
 do_comm(0) :-
 	   between(1,10,I),
-	   gen_list(I,List),
+	   NI is I*1000,
+	   gen_list(NI,List),
 	   mpi_send(List, 1, I),
+	   T =.. [f|List],
+	   mpi_send(T, 1, I),
+	   writeln(sent:I),
+	   fail.
+do_comm(0) :-
+	   between(1,10,I),
+	   NI is 2.3*I,
+	   mpi_send(NI, 1, I),
 	   fail.
 do_comm(0).
 do_comm(1) :-
 	   between(1,10,I),
 	   mpi_recv(0, I, List),
-	   writeln(I:List),
+%	   writeln(I:List),
+	   mpi_recv(0, I, T),
+%	   writeln(I:T),
+	   writeln(received:I),
+	   fail.
+do_comm(1) :-
+	   between(1,10,I),
+	   mpi_recv(0, I, T),
+	   writeln(I:T),
 	   fail.
 do_comm(1).
 

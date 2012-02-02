@@ -51,7 +51,7 @@ SOBJS=@LAMOBJS@
 all: $(SOBJS)
 
 yap_mpi.o: $(srcdir)/yap_mpi.c   $(srcdir)/yap_mpi.c  
-	$(MPI_CC)  $(CFLAGS) $(MPICF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o 
+	$(CC)  $(CFLAGS) $(MPICF)  -c $(srcdir)/yap_mpi.c -o yap_mpi.o 
 
 prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
 	$(CC) -c $(CFLAGS) $(srcdir)/prologterms2c.c -o prologterms2c.o
@@ -59,11 +59,8 @@ prologterms2c.o: $(srcdir)/prologterms2c.c $(srcdir)/prologterms2c.h
 hash.o: $(srcdir)/hash.c $(srcdir)/hash.h
 	$(CC) -c $(CFLAGS) $(srcdir)/hash.c -o hash.o
 
-@DO_SECOND_LD@%.@SO@: %.o
-@DO_SECOND_LD@	@SHLIB_LD@ -o $@ $<  @EXTRA_LIBS_FOR_DLLS@
-
 @DO_SECOND_LD@yap_mpi.@SO@: $(OBJS)
-@DO_SECOND_LD@	@SHLIB_LD@ $(MPILDF)  -o yap_mpi.@SO@ $(OBJS)  @EXTRA_LIBS_FOR_DLLS@
+@DO_SECOND_LD@	@SHLIB_LD@  -o yap_mpi.@SO@ $(OBJS)  $(MPILDF) @EXTRA_LIBS_FOR_DLLS@
 
 install: all
 	@if test "$(SOBJS)" = "no"; then echo ""; else $(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR)$(YAPLIBDIR); fi

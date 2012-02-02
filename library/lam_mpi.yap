@@ -13,7 +13,7 @@
 		  mpi_recv/3,
 		  mpi_irecv/3,
 		  mpi_wait/2,
-		  mpi_wait_rcv/3,
+		  mpi_wait_recv/3,
 		  mpi_test/2,
 		  mpi_test_recv/3,
 		  mpi_bcast/2,

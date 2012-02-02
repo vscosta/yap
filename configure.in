@@ -1461,9 +1461,10 @@ MPI_OBJS=
 LAM_MPI_CC=${MPI_CC}
 if  test "$yap_cv_lam" != "no" ; then	
   if test "$yap_cv_lam" = "yes" ; then
+   dnl ubuntu support
    if test -e /usr/lib/openmpi; then
-		  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
-		  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
+	  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
+	  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
    fi
   else
     LAM_MPI_CC="$yap_cv_lam"/bin/mpicc

@@ -411,7 +411,7 @@ mpi_isend(void) {
   new_request(handle,str);
   USED_BUFFER(); //  informs the prologterm2c module that the buffer is now used and should not be messed
   PAUSE_TIMER();
-  RETURN(YAP_Unify(t4,YAP_MkIntTerm(HANDLE2INT(handle))));// it should always succeed
+  RETURN(YAP_Unify(YAP_ARG4,YAP_MkIntTerm(HANDLE2INT(handle))));// it should always succeed
 }
 /*
  * Blocking communication function. The message is sent immediatly.
@@ -995,7 +995,7 @@ init_mpi(void) {
   YAP_UserCPredicate( "mpi_recv", mpi_recv,3);                             // mpi_recv(?Source,?Tag,-Data).
   YAP_UserCPredicate( "mpi_irecv", mpi_irecv,3);                           // mpi_irecv(?Source,?Tag,-Handle).
   YAP_UserCPredicate( "mpi_wait", mpi_wait,2);                             // mpi_wait(+Handle,-Status).
-  YAP_UserCPredicate( "mpi_wait_rcv", mpi_wait_recv,3);                    // mpi_wait_recv(+Handle,-Status,-Data).
+  YAP_UserCPredicate( "mpi_wait_recv", mpi_wait_recv,3);                    // mpi_wait_recv(+Handle,-Status,-Data).
   YAP_UserCPredicate( "mpi_test", mpi_test,2);                             // mpi_test(+Handle,-Status).
   YAP_UserCPredicate( "mpi_test_rcv", mpi_test_recv,3);                    // mpi_test(+Handle,-Status,-Data).
   YAP_UserCPredicate( "mpi_bcast", mpi_bcast,2);                           // mpi_bcast(Root,Term)

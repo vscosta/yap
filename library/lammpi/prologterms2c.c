@@ -83,11 +83,7 @@ write_msg(const char *fun,const char *file, int line,
  */
 static void
 expand_buffer(const size_t space ) {
-  char *oldblock;
-  
-  // BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
-  oldblock= BUFFER_PTR;
-  BUFFER_PTR = (char*)malloc( BUFFER_SIZE + space );
+  BUFFER_PTR = realloc( BUFFER_PTR, BUFFER_SIZE + space );
   if( BUFFER_PTR == NULL ) {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
 #ifdef MPI
@@ -95,11 +91,6 @@ expand_buffer(const size_t space ) {
 #endif
     YAP_Exit( 1 );
   }
-  memcpy(BUFFER_PTR,oldblock,BUFFER_SIZE);
-
-  if(oldblock!=NULL)
-    free(oldblock);
-	   
   BUFFER_SIZE+=space;
 }
 /*
@@ -110,8 +101,9 @@ change_buffer_size(const size_t newsize) {
 
   if ( BUFFER_SIZE>=BLOCK_SIZE && BUFFER_SIZE>newsize)
     return;
-  if(BUFFER_PTR!=NULL)
+  if(BUFFER_PTR) {
     free(BUFFER_PTR);
+  }
   BUFFER_PTR = (char*)malloc(newsize);
   if( BUFFER_PTR == NULL ) {
     YAP_Error(0,0,"Prolog2Term: Out of memory.\n");
@@ -189,23 +181,21 @@ read_term_from_stream(const int fd) {
 char* 
 term2string(char *const ptr, size_t *size, const YAP_Term t) {
   char *ret;
-  size_t needed_bytes = 0;
   RESET_BUFFER;
 
   do {
-    if (*size <= needed_bytes) {
-      if (needed_bytes >= BUFFER_SIZE) {
-	expand_buffer(BLOCK_SIZE);
-      }
+    if (*size == 0) {
       BUFFER_LEN = YAP_ExportTerm( t, BUFFER_PTR, BUFFER_SIZE );// canonical
       ret=BUFFER_PTR;
     } else {
       BUFFER_LEN = YAP_ExportTerm( t, ptr, BUFFER_SIZE );// canonical
       ret=ptr;
     }
+    *size = BUFFER_LEN;
+    if (BUFFER_LEN == 0) {
+      expand_buffer(BLOCK_SIZE);
+    }
   } while (BUFFER_LEN <= 0);
-  *size = BUFFER_LEN;
-  fprintf(stderr,"<< ptr=%p size=%ld\n", ret, BUFFER_LEN);
   return ret;
 }
 /*
@@ -230,7 +220,6 @@ string2term(char *const ptr,const size_t *size) {
   }
   BUFFER_POS=0;
   t = YAP_ImportTerm( BUFFER_PTR );
-  fprintf(stderr,">> ptr=%p size=%ld\n", ptr, *size);
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),NULL);
     exit(1);

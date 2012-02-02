@@ -34,7 +34,7 @@ Comments: This file provides a set of functions to convert a prolog term to a C 
 #include <stdarg.h>
 /*
  * Converts a term t into a string.  
- * The ascii representation of t is
+ * An internal representation of t is
  * copied to ptr if it occupies less than size. Otherwise the
  * necessary memory is aloccated (dyn_ptr) and the ascii
  * representation of the term is copied to there.
