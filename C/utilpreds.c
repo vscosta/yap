@@ -1239,15 +1239,14 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
 }
 
 
-static int
+static size_t
 export_complex_term(Term tf, CELL *pt0, CELL *pt0_end, char * buf, size_t len0, int newattvs, CELL *ptf, CELL *HLow USES_REGS)
 {
-
   struct cp_frame *to_visit0, *to_visit = (struct cp_frame *)Yap_PreAllocCodeSpace();
   CELL *HB0 = HB;
   tr_fr_ptr TR0 = TR;
   int ground = TRUE;
-  char *bptr = buf+ 3*sizeof(CELL);
+  char *bptr = buf+ 3*sizeof(CELL), *bptr_end;
   size_t len = len0;
 
   HB = HLow;
@@ -1505,11 +1504,11 @@ trail_overflow:
   return -3;
 }
 
-static int
+static size_t
 ExportTerm(Term inp, char * buf, size_t len, UInt arity, int newattvs USES_REGS) {
   Term t = Deref(inp);
   tr_fr_ptr TR0 = TR;
-  int res;
+  size_t res;
   CELL *Hi;
 
  restart:
@@ -1523,7 +1522,7 @@ ExportTerm(Term inp, char * buf, size_t len, UInt arity, int newattvs USES_REGS)
   return res;
 }
  
-int
+size_t
 Yap_ExportTerm(Term inp, char * buf, size_t len) {
   CACHE_REGS
   return ExportTerm(inp, buf, len, 0, TRUE PASS_REGS);
@@ -1571,17 +1570,20 @@ static CELL *
 import_arg(CELL *hp, char *abase, CELL *amax)
 {
   Term t = *hp;
+    fprintf(stderr,"t = %lx\n", t);
   if (IsVarTerm(t)) {
     hp[0] = (CELL)ShiftPtr(t, abase);
   } else if (IsAtomTerm(t)) {
     hp[0] = MkAtomTerm(AddAtom(AtomOfTerm(t)));
   } else if (IsPairTerm(t)) {
+    fprintf(stderr,"amax = %p newp=%p\n", amax, RepPair(t));
     CELL *newp = ShiftPtr((CELL)RepPair(t), abase);
     hp[0] = AbsPair(newp);
     if (newp > amax) {
       amax = import_pair(newp, abase, newp);
     }
-  } else {
+  } else if (IsApplTerm(t)) {
+    fprintf(stderr,"amax = %p newp=%p\n", amax, RepAppl(t));
     CELL *newp = ShiftPtr((CELL)RepAppl(t), abase);
     hp[0] = AbsAppl(newp);
     if (newp > amax) {
@@ -3472,7 +3474,6 @@ hash_complex_term(register CELL *pt0,
     
 
     deref_body(d0, ptd0, hash_complex_unk, hash_complex_nvar);
-    fprintf(stderr,"found variable\n");
     if (!variant)
       return NULL;
     else

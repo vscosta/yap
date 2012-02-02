@@ -389,7 +389,7 @@ AC_ARG_WITH(lam,
 		yap_cv_lam=no
 	else
 		yap_cv_lam=$with_lam
-		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib/lam"
+		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
 	fi,
 	[yap_cv_lam=yes])
@@ -1457,71 +1457,74 @@ if test "$tabling" = "yes"
 fi
 dnl LAM/MPI interface
 
+MPI_OBJS=
 LAM_MPI_CC=${MPI_CC}
-if test "$yap_cv_lam" = "yes" ; then
- if test -e /usr/lib/openmpi; then
+if  test "$yap_cv_lam" != "no" ; then	
+  if test "$yap_cv_lam" = "yes" ; then
+   if test -e /usr/lib/openmpi; then
 		  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
 		  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
- fi
-fi
-if  test "$yap_cv_lam" != "no" ; then
+   fi
+  else
+    LAM_MPI_CC="$yap_cv_lam"/bin/mpicc
+    MPI_CC="$yap_cv_lam"/bin/mpicc
+    CPPFLAGS="$CPPFLAGS -I ${yap_cv_lam}/include"
+    LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
+  fi
   OLD_CC=${CC}	
   CC=${LAM_MPI_CC}
-  AC_CHECK_HEADER(mpi.h, LAMOBJS=yap_mpi."$SO", LAMOBJS="")
-  AC_CHECK_HEADER(mpi.h)
-  CC=${OLD_CC}
-fi
-
-MPI_OBJS=
-if test "$yap_cv_mpi" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
+  AC_CHECK_HEADERS(mpi.h)
   AC_CHECK_LIB(mpi,MPI_Init,
+		[LAMOBJS=yap_mpi."$SO"
+                 AC_DEFINE(HAVE_LIBMPI, 1)],
+		[LAMOBJS=""
+                 AC_DEFINE(HAVE_LIBMPI, 0)])
+  CC=${OLD_CC}
+  dnl use mpich library
+elif test "$yap_cv_mpi" != "no"; then
+    OLD_CC=${CC}
+    CC=${MPI_CC}
+    AC_CHECK_LIB(mpi,MPI_Init,
 		[AC_DEFINE(HAVE_LIBMPI, 1)],
 		[AC_DEFINE(HAVE_LIBMPI, 0)])
-  if test "$ac_cv_lib_mpi_MPI_Init" = yes
-  then
-	#YAPMPILIB=YapMPI.a
-	MPI_OBJS=mpi.o
-  else
-    AC_CHECK_LIB(mpich,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPICH, 1)],
-		[AC_DEFINE(HAVE_LIBMPICH, 0)])
-    if test "$ac_cv_lib_mpich_MPI_Init" = yes
+    if test "$ac_cv_lib_mpi_MPI_Init" = yes
     then
 	#YAPMPILIB=YapMPI.a
 	MPI_OBJS=mpi.o
     else
+      AC_CHECK_LIB(mpich,MPI_Init,
+		[AC_DEFINE(HAVE_LIBMPICH, 1)],
+		[AC_DEFINE(HAVE_LIBMPICH, 0)])
+      if test "$ac_cv_lib_mpich_MPI_Init" = yes
+      then
+	#YAPMPILIB=YapMPI.a
+	MPI_OBJS=mpi.o
+      else
 	#YAPMPILIB=
 	MPI_CC=${CC}
+      fi
     fi
-  fi
-  AC_CHECK_HEADERS(mpi.h)
-  CC=${OLD_CC}
-else
-#   MPI_CC=${MPI_CC}
-  MPI_CC=${CC}
-fi
-
-
-MPI_LIBS=
-if test "$yap_cv_mpi" != "no" -a "$yap_cv_mpe" != "no"
-then
-  OLD_CC=${CC}
-  CC=${MPI_CC}
-  AC_CHECK_LIB(mpe,MPE_Init_log,
+    AC_CHECK_HEADERS(mpi.h)
+    CC=${OLD_CC}
+    MPI_LIBS=
+    if test "$yap_cv_mpe" != "no"
+    then
+     OLD_CC=${CC}
+     CC=${MPI_CC}
+     AC_CHECK_LIB(mpe,MPE_Init_log,
 		[AC_DEFINE(HAVE_LIBMPE, 1)],
 		[AC_DEFINE(HAVE_LIBMPE, 0)])
-  if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
-  then
+     if test "$ac_cv_lib_mpe_MPE_Init_log" = yes
+     then
 	MPI_LIBS="-lmpe"
 	MPI_OBJS="$MPI_OBJS mpe.o"
-  fi
-  AC_CHECK_HEADERS(mpe.h)
-  CC=${OLD_CC}
+     fi
+     AC_CHECK_HEADERS(mpe.h)
+     CC=${OLD_CC}
+   fi
+else
+    MPI_CC=${CC}
 fi
-
 
 
 if test ! "$yap_cv_cplint" = "no"

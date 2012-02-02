@@ -23,7 +23,7 @@ YAPLIBDIR=@libdir@/Yap
 #
 #
 CC=@CC@
-MPI_CC=mpicc
+MPI_CC=@LAM_MPI_CC@
 CFLAGS= @SHLIB_CFLAGS@ $(YAP_EXTRAS) $(DEFS) -I$(srcdir) -I../.. -I$(srcdir)/../../include
 #
 #

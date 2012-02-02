@@ -554,8 +554,8 @@ X_API int      STD_PROTO(YAP_NewOpaqueType,(void *));
 X_API Term     STD_PROTO(YAP_NewOpaqueObject,(int, size_t));
 X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
-X_API YAP_tag_t    STD_PROTO(YAP_TagOfTerm,(Term));
-X_API int     STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
+X_API YAP_tag_t STD_PROTO(YAP_TagOfTerm,(Term));
+X_API size_t   STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
 X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
 
 static int
@@ -3006,9 +3006,6 @@ YAP_Init(YAP_init_args *yap_init)
   { BACKUP_MACHINE_REGS();
     Yap_InitYaamRegs();
 
-#if HAVE_MPI
-    Yap_InitMPI ();
-#endif
 #if HAVE_MPE
     Yap_InitMPE ();
 #endif
@@ -3989,8 +3986,10 @@ YAP_IsNumberedVariable(Term t) {
     IsIntegerTerm(ArgOfTerm(1,t));
 }
 
-X_API int
+X_API size_t
 YAP_ExportTerm(Term inp, char * buf, size_t len) {
+  if (!len)
+    return 0;
   return Yap_ExportTerm(inp, buf, len);
 }
 

@@ -589,7 +589,7 @@ extern X_API int *PROTO(YAP_Argv,(char ***));
 
 extern X_API YAP_tag_t PROTO(YAP_TagOfTerm,(YAP_Term));
 
-extern X_API int     PROTO(YAP_ExportTerm,(YAP_Term, char *, size_t));
+extern X_API size_t     PROTO(YAP_ExportTerm,(YAP_Term, char *, size_t));
 
 extern X_API YAP_Term     PROTO(YAP_ImportTerm,(char *));
 

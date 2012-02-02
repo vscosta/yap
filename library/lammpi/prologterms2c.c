@@ -187,23 +187,25 @@ read_term_from_stream(const int fd) {
  * copied to ptr if it occupies less than size. 
  */
 char* 
-term2string(char *const ptr,size_t *size, const YAP_Term t) {
+term2string(char *const ptr, size_t *size, const YAP_Term t) {
   char *ret;
-
+  size_t needed_bytes = 0;
   RESET_BUFFER;
 
-  
-  BUFFER_LEN = YAP_ExportTerm( t, ptr, *size );// canonical
-
-  if (BUFFER_LEN<=*size) {    // user allocated buffer size is ok
-    memcpy(ptr,BUFFER_PTR,BUFFER_LEN); // copy data to user block
-    ret=ptr;
-    *size=BUFFER_LEN;
-  } else {                    // user buffer is too small
-    ret=BUFFER_PTR;
-    *size=BUFFER_LEN; 
-    //DEL_BUFFER;
-  }
+  do {
+    if (*size <= needed_bytes) {
+      if (needed_bytes >= BUFFER_SIZE) {
+	expand_buffer(BLOCK_SIZE);
+      }
+      BUFFER_LEN = YAP_ExportTerm( t, BUFFER_PTR, BUFFER_SIZE );// canonical
+      ret=BUFFER_PTR;
+    } else {
+      BUFFER_LEN = YAP_ExportTerm( t, ptr, BUFFER_SIZE );// canonical
+      ret=ptr;
+    }
+  } while (BUFFER_LEN <= 0);
+  *size = BUFFER_LEN;
+  fprintf(stderr,"<< ptr=%p size=%ld\n", ret, BUFFER_LEN);
   return ret;
 }
 /*
@@ -228,6 +230,7 @@ string2term(char *const ptr,const size_t *size) {
   }
   BUFFER_POS=0;
   t = YAP_ImportTerm( BUFFER_PTR );
+  fprintf(stderr,">> ptr=%p size=%ld\n", ptr, *size);
   if ( t==FALSE ) {
     write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),NULL);
     exit(1);
