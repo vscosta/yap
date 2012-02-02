@@ -558,11 +558,22 @@ X_API YAP_tag_t STD_PROTO(YAP_TagOfTerm,(Term));
 X_API size_t   STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
 X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
 
+static UInt
+current_arity(void)
+{
+ if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
+    return PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+  } else {
+    return 0;
+  }
+}
+
 static int
-dogc( USES_REGS1 )
+dogc( int extra_args, Term *tp USES_REGS )
 {
   UInt arity;
   yamop *nextpc;
+  int i;
 
   if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
     arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
@@ -571,8 +582,14 @@ dogc( USES_REGS1 )
     arity = 0;
     nextpc = CP;
   }
-  if (!Yap_gc(arity, ENV, nextpc)) {
+  for (i=0; i < extra_args; i++) {
+    XREGS[arity+i+1] = tp[i];
+  }
+  if (!Yap_gc(arity+extra_args, ENV, nextpc)) {
     return FALSE;
+  }
+  for (i=0; i < extra_args; i++) {
+     tp[i] = XREGS[arity+i+1];
   }
   return TRUE;
 }
@@ -973,7 +990,7 @@ YAP_MkPairTerm(Term t1, Term t2)
     Int sl1 = Yap_InitSlot(t1 PASS_REGS);
     Int sl2 = Yap_InitSlot(t2 PASS_REGS);
     RECOVER_H();
-    if (!dogc( PASS_REGS1 )) {
+    if (!dogc( 0, NULL PASS_REGS )) {
       return TermNil;
     }
     BACKUP_H();
@@ -998,7 +1015,7 @@ YAP_MkListFromTerms(Term *ta, Int sz)
   while (H+sz*2 > ASP-1024) {
     Int sl1 = Yap_InitSlot((CELL)ta PASS_REGS);
     RECOVER_H();
-    if (!dogc( PASS_REGS1 )) {
+    if (!dogc( 0, NULL PASS_REGS )) {
       return TermNil;
     }
     BACKUP_H();
@@ -2026,7 +2043,7 @@ YAP_ReadBuffer(char *s, Term *tp)
   while ((t = Yap_StringToTerm(s,tp)) == 0L) {
     if (LOCAL_ErrorMessage) {
       if (!strcmp(LOCAL_ErrorMessage,"Stack Overflow")) {
-	if (!dogc( PASS_REGS1 )) {
+	if (!dogc( 0, NULL PASS_REGS )) {
 	  *tp = MkAtomTerm(Yap_LookupAtom(LOCAL_ErrorMessage));
 	  LOCAL_ErrorMessage = NULL;
 	  RECOVER_H();
@@ -3555,7 +3572,7 @@ YAP_FloatsToList(double *dblp, size_t sz)
       /* we are in trouble */
       LOCAL_OpenArray =  (CELL *)dblp;
     }
-    if (!dogc( PASS_REGS1 )) {
+    if (!dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return 0L;
     }
@@ -3583,7 +3600,7 @@ YAP_OpenList(int n)
   BACKUP_H();
 
   while (H+2*n > ASP-1024) {
-    if (!dogc( PASS_REGS1 )) {
+    if (!dogc( 0, NULL PASS_REGS )) {
       RECOVER_H();
       return FALSE;
     }
@@ -3988,9 +4005,13 @@ YAP_IsNumberedVariable(Term t) {
 
 X_API size_t
 YAP_ExportTerm(Term inp, char * buf, size_t len) {
+  size_t res;
   if (!len)
     return 0;
-  return Yap_ExportTerm(inp, buf, len);
+  if ((res = Yap_ExportTerm(inp, buf, len, current_arity())) < 0) {
+    exit(1);
+  }
+  return res;
 }
 
 X_API Term

@@ -1853,7 +1853,7 @@ PL_record_external
   while(TRUE) {
     if (!(s = Yap_AllocCodeSpace(len)))
       return NULL;
-    if ((nsz = Yap_ExportTerm(t, s, len))) {
+    if ((nsz = Yap_ExportTerm(t, s, len, 0))) {
       *sz = nsz;
       return s;
     } else {
