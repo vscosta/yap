@@ -390,6 +390,7 @@ void	STD_PROTO(Yap_InitUserBacks,(void));
 Term	STD_PROTO(Yap_CopyTerm,(Term));
 int	STD_PROTO(Yap_Variant,(Term, Term));
 size_t	STD_PROTO(Yap_ExportTerm,(Term, char *, size_t, UInt));
+size_t	STD_PROTO(Yap_SizeOfExportedTerm,(char *));
 Term	STD_PROTO(Yap_ImportTerm,(char *));
 int	STD_PROTO(Yap_IsListTerm,(Term));
 Term	STD_PROTO(Yap_CopyTermNoShare,(Term));

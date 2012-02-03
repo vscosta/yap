@@ -1168,7 +1168,7 @@ CELL *CellDifH(CELL *hptr, CELL *hlow)
   return (CELL *)((char *)hptr-(char *)hlow);
 }
 
-#define AdjustSizeAtom(X)	((char *)(((CELL)X+7) & (CELL)(-8)))
+#define AdjustSizeAtom(X)	((char *)(((CELL)(X)+(8-1)) & ~(8-1)))
 
 static inline 
 Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
@@ -1646,6 +1646,13 @@ Yap_ImportTerm(char * buf) {
   }
   H += sz;
   return tret;
+}
+
+size_t
+Yap_SizeOfExportedTerm(char * buf) {
+  CELL *bc = (CELL *)buf;
+
+  return bc[0]+bc[1]*sizeof(CELL);
 }
 
 #define DEBUG_IMPORT 1

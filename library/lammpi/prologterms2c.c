@@ -99,9 +99,9 @@ expand_buffer(const size_t space ) {
 void
 change_buffer_size(const size_t newsize) {
 
-  if ( BUFFER_SIZE>=BLOCK_SIZE && BUFFER_SIZE>newsize)
+  if ( BUFFER_SIZE>=BLOCK_SIZE && BUFFER_SIZE>=newsize)
     return;
-  if(BUFFER_PTR) {
+  if (BUFFER_PTR) {
     free(BUFFER_PTR);
   }
   BUFFER_PTR = (char*)malloc(newsize);
@@ -185,17 +185,16 @@ term2string(char *const ptr, size_t *size, const YAP_Term t) {
 
   do {
     if (*size == 0) {
-      BUFFER_LEN = YAP_ExportTerm( t, BUFFER_PTR, BUFFER_SIZE );// canonical
+      *size = BUFFER_LEN = YAP_ExportTerm( t, BUFFER_PTR, BUFFER_SIZE );// canonical
       ret=BUFFER_PTR;
+      if (BUFFER_LEN == 0) {
+	expand_buffer(BLOCK_SIZE);
+      }
     } else {
-      BUFFER_LEN = YAP_ExportTerm( t, ptr, BUFFER_SIZE );// canonical
+      *size = YAP_ExportTerm( t, ptr, BUFFER_SIZE );// canonical
       ret=ptr;
     }
-    *size = BUFFER_LEN;
-    if (BUFFER_LEN == 0) {
-      expand_buffer(BLOCK_SIZE);
-    }
-  } while (BUFFER_LEN <= 0);
+  } while (*size <= 0);
   return ret;
 }
 /*
@@ -206,31 +205,10 @@ string2term(char *const ptr,const size_t *size) {
   YAP_Term t;
   struct buffer_ds b;
 
-  b.size=b.len=b.pos=0;
-  if (BUFFER_PTR!=ptr) {    //
-#ifdef DEBUG
-    write_msg(__FUNCTION__,__FILE__,__LINE__,"copy buffer string2term\n");
-#endif
-    COPY_BUFFER_DS(buffer,b); // keep a copy of buffer_ds
-    BUFFER_PTR=ptr;           // make the buffer use the buffer provided
-    BUFFER_LEN=*size;
-    BUFFER_SIZE=BUFFER_LEN;
-  } else {   // b aux. struct. not needed
-    b.ptr=NULL;
-  }
-  BUFFER_POS=0;
-  t = YAP_ImportTerm( BUFFER_PTR );
+  t = YAP_ImportTerm( ptr );
   if ( t==FALSE ) {
-    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%d %d %s\n",BUFFER_SIZE,strlen(BUFFER_PTR),NULL);
+    write_msg(__FUNCTION__,__FILE__,__LINE__,"FAILED string2term>>>>size:%lx %d\n",t,*size);
     exit(1);
   }
-
-  if (b.ptr!=NULL)
-    COPY_BUFFER_DS(b,buffer);
-  
-#ifdef DEBUG
-  write_msg(__FUNCTION__,__FILE__,__LINE__,"ending: buffer(ptr=%p;size=%d;pos=%d;len=%d)\n",BUFFER_PTR,BUFFER_SIZE,BUFFER_POS,BUFFER_LEN);
-#endif
-
   return t;
 }                                                                                   

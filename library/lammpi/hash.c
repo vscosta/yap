@@ -53,7 +53,7 @@ __ptr_t get_next_object(hashtable table,ulong key)
 }
 
 
-/* removes the element with key 'key' and returns the object stored on him */
+/* removes the element with key 'key' and returns the object stored on it */
 __ptr_t delete(hashtable table,ulong key)
 {
   __ptr_t obj;

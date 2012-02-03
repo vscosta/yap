@@ -70,7 +70,7 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 #define BLOCK_SIZE 4*1024
 
 // deletes the buffer (all fields) but does not release the memory of the buffer.ptr
-#define DEL_BUFFER   {buffer.ptr=NULL;buffer.size=0;buffer.len=0;}
+#define DEL_BUFFER   {buffer.ptr=NULL;buffer.size=0;buffer.len=0;buffer.pos=0;}
 //  informs the prologterm2c module that the buffer is now used and should not be messed
 #define USED_BUFFER()  DEL_BUFFER
 // initialize buffer

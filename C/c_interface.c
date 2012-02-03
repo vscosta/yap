@@ -556,6 +556,7 @@ X_API void    *STD_PROTO(YAP_OpaqueObjectFromTerm,(Term));
 X_API int      STD_PROTO(YAP_Argv,(char *** argvp));
 X_API YAP_tag_t STD_PROTO(YAP_TagOfTerm,(Term));
 X_API size_t   STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
+X_API size_t   STD_PROTO(YAP_SizeOfExportedTerm,(char *));
 X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
 
 static UInt
@@ -4008,10 +4009,14 @@ YAP_ExportTerm(Term inp, char * buf, size_t len) {
   size_t res;
   if (!len)
     return 0;
-  if ((res = Yap_ExportTerm(inp, buf, len, current_arity())) < 0) {
-    exit(1);
-  }
-  return res;
+  return Yap_ExportTerm(inp, buf, len, current_arity());
+}
+
+X_API size_t
+YAP_SizeOfExportedTerm(char * buf) {
+  if (!buf)
+    return 0;
+  return Yap_SizeOfExportedTerm(buf);
 }
 
 X_API Term
