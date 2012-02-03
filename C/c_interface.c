@@ -4006,7 +4006,6 @@ YAP_IsNumberedVariable(Term t) {
 
 X_API size_t
 YAP_ExportTerm(Term inp, char * buf, size_t len) {
-  size_t res;
   if (!len)
     return 0;
   return Yap_ExportTerm(inp, buf, len, current_arity());

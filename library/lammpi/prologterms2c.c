@@ -203,7 +203,6 @@ term2string(char *const ptr, size_t *size, const YAP_Term t) {
 YAP_Term 
 string2term(char *const ptr,const size_t *size) {
   YAP_Term t;
-  struct buffer_ds b;
 
   t = YAP_ImportTerm( ptr );
   if ( t==FALSE ) {
