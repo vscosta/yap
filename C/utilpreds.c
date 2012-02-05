@@ -1655,25 +1655,34 @@ Yap_SizeOfExportedTerm(char * buf) {
   return bc[0]+bc[1]*sizeof(CELL);
 }
 
-#define DEBUG_IMPORT 1
-
-#if DEBUG_IMPORT
-
-static char export_debug_buf[2048];
-
 static Int
 p_export_term( USES_REGS1 )
 {
-  Yap_ExportTerm(ARG1, export_debug_buf, 2048, 1);
-  return TRUE;
+  size_t sz = 4096, osz;
+  char *export_buf;
+  do {
+    export_buf  = malloc(sz);
+    if (!export_buf)
+      return FALSE;
+    if (!(osz = Yap_ExportTerm(ARG1, export_buf, sz, 1))) {
+      sz += 4096;
+      free(export_buf);
+    }
+  } while (osz);
+  return Yap_unify(ARG2,MkIntegerTerm(osz)) &&
+    Yap_unify(ARG3, MkIntegerTerm((Int)export_buf));
 }
 
 static Int
 p_import_term( USES_REGS1 )
 {
-  return Yap_unify(ARG1,Yap_ImportTerm(export_debug_buf));
+  char *export_buf = (char *)IntegerOfTerm(Deref(ARG1));
+  if (!export_buf)
+    return FALSE;
+  Int out = Yap_unify(ARG2,Yap_ImportTerm(export_buf));
+  free(export_buf);
+  return out;						 
 }
-#endif
 
 
 static Term vars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Term inp USES_REGS)
@@ -4797,10 +4806,6 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("rational_term_to_tree", 2, p_break_rational, 0);
   Yap_InitCPred("tree_to_rational_term", 2, p_restore_rational, 0);
   Yap_InitCPred("=@=", 2, p_variant, 0);
-#ifdef DEBUG_IMPORT
-  Yap_InitCPred("import_term", 1, p_import_term, 0);
-  Yap_InitCPred("export_term", 1, p_export_term, 0);
-#endif
   Yap_InitCPred("numbervars", 3, p_numbervars, 0);
   Yap_InitCPred("unnumbervars", 2, p_unnumbervars, 0);
   /* use this carefully */
@@ -4813,6 +4818,8 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("subsumes", 2, p_subsumes, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
+  Yap_InitCPred("import_term", 2, p_import_term, 0);
+  Yap_InitCPred("export_term", 3, p_export_term, 0);
   CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag|HiddenPredFlag);

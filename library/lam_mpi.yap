@@ -22,7 +22,14 @@
 		  mpi_bcast2/2,
 		  mpi_bcast2/3,
 		  mpi_barrier/0,
+		  mpi_msg_buffer_size/2,
+		  mpi_msg_size/2,
 		  mpi_gc/0
           ]).
 
 :- load_foreign_files([yap_mpi], [], init_mpi).
+
+mpi_msg_size(Term, Size) :-
+	terms:export_term(Term, Buf, Size),
+	terms:import_term(Buf, _).
+

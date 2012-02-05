@@ -66,9 +66,6 @@ typedef struct broadcast_req BroadcastRequest;
 
 #ifdef USE_THREADS
 #include <pthread.h>
-//int  pthread_create(pthread_t  *  thread, pthread_attr_t * attr, void *
-//       (*start_routine)(void *), void * arg);
-//pthread_exit()
 #endif
 
 /********************************************************************
@@ -741,19 +738,28 @@ mpi_bcast(void) {
   int root,val;
   size_t len=0;
   char *str;
+  int  rank;
   //The arguments should be bound
-  if(YAP_IsVarTerm(t2) || !YAP_IsIntTerm(t1)) {
+  if(!YAP_IsIntTerm(t1)) {
     return FALSE;
   }
+  MPI_CALL(MPI_Comm_rank(MPI_COMM_WORLD, &rank));
 
   CONT_TIMER();
   root = YAP_IntOfTerm(t1);
-  str=term2string(NULL,&len,t2);
+  if (root == rank) {
+    str=term2string(NULL,&len,t2);
 #ifdef DEBUG
-  write_msg(__FUNCTION__,__FILE__,__LINE__,"mpi_bcast(%s,%u, MPI_CHAR,%d)\n",str,len,root);
+    write_msg(__FUNCTION__,__FILE__,__LINE__,"mpi_bcast(%s,%u, MPI_CHAR,%d)\n",str,len,root);
 #endif
+  } else {
+    RESET_BUFFER;
+    str = BUFFER_PTR;
+    len = BLOCK_SIZE;
+  }
   // send the data 
   val=(MPI_CALL(MPI_Bcast( str, len, MPI_CHAR, root, MPI_COMM_WORLD))==MPI_SUCCESS?TRUE:FALSE);
+
 
 #ifdef MPISTATS
   {
@@ -763,8 +769,18 @@ mpi_bcast(void) {
   }
 #endif
   PAUSE_TIMER();
+  if (root != rank) {
+    YAP_Term out;
+    len=YAP_SizeOfExportedTerm(str);
+    // make sure we only fetch ARG3 after constructing the term
+    out = string2term(str,(size_t*)&len);
+    MSG_RECV(len);
+    if (!YAP_Unify(YAP_ARG2, out))
+      return FALSE;
+  }
   RETURN(val);
 }
+
 /*
  * Broadcasts a message from the process with rank "root" to
  *      all other processes of the group.
@@ -953,6 +969,28 @@ mpi_gc(void) {
   PAUSE_TIMER();
   RETURN(TRUE);
 }
+
+int BLOCK_SIZE=4*1024;
+
+static int
+mpi_default_buffer_size(void)
+{
+  YAP_Term t2;
+  if (!YAP_Unify(YAP_ARG1,YAP_MkIntTerm(BLOCK_SIZE)))
+    return FALSE;
+  t2 = YAP_ARG2;
+  if (YAP_IsVarTerm(t2))
+    return TRUE;
+  if (!YAP_IsIntTerm(t2))
+    return FALSE;
+  BLOCK_SIZE= YAP_IntOfTerm(t2);
+  if (BLOCK_SIZE < 0) {
+    BLOCK_SIZE=4*1024;
+    return FALSE;
+  }
+  return TRUE;
+}
+
 /********************************************************************
  * Init
  *******************************************************************/
@@ -982,11 +1020,11 @@ init_mpi(void) {
   YAP_UserCPredicate( "mpi_bcast", mpi_bcast,2);                           // mpi_bcast(Root,Term)
   YAP_UserCPredicate( "mpi_bcast2", mpi_bcast2,2);                         // mpi_bcast2(Root,Term)
   YAP_UserCPredicate( "mpi_bcast2", mpi_bcast3,3);                         // mpi_bcast2(Root,Term,Tag)
-
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast2,2);                         // mpi_ibcast(Root,Term)
   YAP_UserCPredicate( "mpi_ibcast", mpi_ibcast3,3);                         // mpi_ibcast(Root,Term,Tag)
   YAP_UserCPredicate( "mpi_barrier", mpi_barrier,0);                       // mpi_barrier/0
   YAP_UserCPredicate( "mpi_gc", mpi_gc,0);                                 // mpi_gc/0
+  YAP_UserCPredicate( "mpi_default_buffer_size", mpi_default_buffer_size,2);        // buffer size
 #ifdef MPISTATS
   YAP_UserCPredicate( "mpi_stats", mpi_stats,7);                            // mpi_stats(-Time,#MsgsRecv,BytesRecv,MaxRecev,#MsgSent,BytesSent,MaxSent)
   YAP_UserCPredicate( "mpi_reset_stats", mpi_reset_stats,0);                // cleans the timers

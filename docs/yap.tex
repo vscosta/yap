@@ -12928,7 +12928,7 @@ able to use a regular @code{mpi_recv} to receive the messages, one
 should use @code{mpi_bcast2}.
 
 
-@item mpi_bcast2(+@var{Root}, +@var{Data})
+@item mpi_bcast2(+@var{Root}, ?@var{Data})
 @findex mpi_bcast/2
 @snindex mpi_bcast/2
 @cnindex mpi_bcast/2
@@ -12951,6 +12951,25 @@ to all other processes.
 
 Non-blocking operation. Broadcasts the message @var{Data} with tag @var{Tag}
 from the process with rank @var{Root} to all other processes.
+
+@item mpi_default_buffer_size(-@var{OldBufferSize}, ?@var{NewBufferSize})
+@findex mpi_default_buffer_size/1
+@snindex mpi_default_buffer_size/1
+@cnindex mpi_default_buffer_size/1
+
+The @var{OldBufferSize} argument unifies with the current size of the
+MPI communication buffer size and sets the communication buffer size
+@var{NewBufferSize}. The buffer is used for assynchronous waiting and
+for broadcast receivers. Notice that buffer is local at each MPI
+process.
+
+
+@item mpi_msg_size(@var{Msg}, -@var{MsgSize})
+@findex mpi_msg_size/2
+@snindex mpi_msg_size/2
+@cnindex mpi_msg_size/2
+Unify @var{MsgSize} with the number of bytes YAP would need to send the
+message @var{Msg}.
 
 @item mpi_gc
 @findex mpi_gc/0

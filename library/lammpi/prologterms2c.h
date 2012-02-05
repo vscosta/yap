@@ -67,7 +67,8 @@ void write_msg(const char *fun,const char *file, int line,const char *format, ..
 /*********************************************************************************************
  * Macros to manipulate the buffer
  *********************************************************************************************/
-#define BLOCK_SIZE 4*1024
+
+extern int BLOCK_SIZE;
 
 // deletes the buffer (all fields) but does not release the memory of the buffer.ptr
 #define DEL_BUFFER   {buffer.ptr=NULL;buffer.size=0;buffer.len=0;buffer.pos=0;}
