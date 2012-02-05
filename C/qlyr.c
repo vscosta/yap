@@ -999,6 +999,9 @@ p_read_program( USES_REGS1 )
   /* back to the top level we go */
   Yap_CloseSlots(PASS_REGS1);
 
+#if PUSH_REGS
+  restore_absmi_regs(&Yap_standard_regs);
+#endif
   siglongjmp(LOCAL_RestartEnv, 3);  
   return TRUE;
 }

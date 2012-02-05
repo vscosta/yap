@@ -1822,6 +1822,9 @@ E);
     if (LOCAL_PrologMode & UserCCallMode) {
       if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
 	/* fat chance */
+#if PUSH_REGS
+	restore_absmi_regs(&Yap_standard_regs);
+#endif
 	siglongjmp(LOCAL_RestartEnv,1);
       }
     } else {
