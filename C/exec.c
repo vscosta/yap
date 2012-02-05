@@ -1472,11 +1472,7 @@ JumpToEnv(Term t USES_REGS) {
     return FALSE;
   /* just keep the throwed object away, we don't need to care about it */
   if (!(LOCAL_BallTerm = Yap_StoreTermInDB(t, 0))) {
-    /* fat chance */
-#if PUSH_REGS
-    restore_absmi_regs(&Yap_standard_regs);
-#endif
-    siglongjmp(LOCAL_RestartEnv,1);
+    Yap_RestartYap( 1 );
   }
   /* careful, previous step may have caused a stack shift, 
      so get pointers here */
@@ -1534,10 +1530,7 @@ JumpToEnv(Term t USES_REGS) {
     /* uncaught throw */
     if (handler == NULL) {
       LOCAL_UncaughtThrow = TRUE;
-#if PUSH_REGS
-      restore_absmi_regs(&Yap_standard_regs);
-#endif
-      siglongjmp(LOCAL_RestartEnv,1);
+      Yap_RestartYap( 1 );
     }
     /* is it a continuation? */
     env = handler->cp_env;

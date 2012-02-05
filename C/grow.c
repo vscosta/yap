@@ -83,10 +83,7 @@ LeaveGrowMode(prolog_exec_mode grow_mode)
 #if  _MSC_VER || defined(__MINGW32__)
     /* don't even think about trying this */
 #else
-#if PUSH_REGS
-    restore_absmi_regs(&Yap_standard_regs);
-#endif
-    siglongjmp (LOCAL_RestartEnv, 1);
+    Yap_RestartYap( 1 );
 #endif
   }
 }

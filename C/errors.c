@@ -30,6 +30,15 @@
 #include "Foreign.h"
 
 
+void
+Yap_RestartYap ( int flag )
+{
+#if PUSH_REGS
+      restore_absmi_regs(&Yap_standard_regs);
+#endif
+      siglongjmp(LOCAL_RestartEnv,1);      
+}
+
 #ifdef DEBUG
 STATIC_PROTO (int hidden, (Atom));
 STATIC_PROTO (int legal_env, (CELL * CACHE_TYPE));
@@ -1810,10 +1819,7 @@ E);
       LOCAL_InterruptsDisabled = 0;
       LOCAL_UncaughtThrow = TRUE;
       UNLOCK(LOCAL_SignalLock);
-#if PUSH_REGS
-      restore_absmi_regs(&Yap_standard_regs);
-#endif
-      siglongjmp(LOCAL_RestartEnv,1);      
+      Yap_RestartYap( 1 );
     }
     UNLOCK(LOCAL_SignalLock);
     /* wait if we we are in user code,
@@ -1822,10 +1828,7 @@ E);
     if (LOCAL_PrologMode & UserCCallMode) {
       if (!(EX = Yap_StoreTermInDB(Yap_MkApplTerm(fun, 2, nt), 0))) {
 	/* fat chance */
-#if PUSH_REGS
-	restore_absmi_regs(&Yap_standard_regs);
-#endif
-	siglongjmp(LOCAL_RestartEnv,1);
+	Yap_RestartYap( 1 );
       }
     } else {
       if (type == PURE_ABORT) {

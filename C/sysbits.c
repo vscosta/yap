@@ -1564,10 +1564,7 @@ InteractSIGINT(int ch) {
       /* in case someone mangles the P register */
     }
     LOCAL_PrologMode &= ~AsyncIntMode;
-#if PUSH_REGS
-    restore_absmi_regs(&Yap_standard_regs);
-#endif
-    siglongjmp(LOCAL_RestartEnv,1);
+    Yap_RestartYap( 1 );
     return -1;
   case 'b':
     /* continue */

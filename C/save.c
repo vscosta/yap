@@ -1831,11 +1831,7 @@ p_restore( USES_REGS1 )
     return(FALSE);
   }
   if ((mode = Restore(s, NULL PASS_REGS)) == DO_ONLY_CODE) {
-#if PUSH_REGS
-    restore_absmi_regs(&Yap_standard_regs);
-#endif
-    /* back to the top level we go */
-    siglongjmp(LOCAL_RestartEnv,3);
+    Yap_RestartYap( 3 );
   }
   return(mode != FAIL_RESTORE);
 }
