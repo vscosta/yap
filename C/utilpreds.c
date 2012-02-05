@@ -1668,9 +1668,9 @@ p_export_term( USES_REGS1 )
       sz += 4096;
       free(export_buf);
     }
-  } while (osz);
-  return Yap_unify(ARG2,MkIntegerTerm(osz)) &&
-    Yap_unify(ARG3, MkIntegerTerm((Int)export_buf));
+  } while (!osz);
+  return Yap_unify(ARG3,MkIntegerTerm(osz)) &&
+    Yap_unify(ARG2, MkIntegerTerm((Int)export_buf));
 }
 
 static Int
@@ -1680,8 +1680,17 @@ p_import_term( USES_REGS1 )
   if (!export_buf)
     return FALSE;
   Int out = Yap_unify(ARG2,Yap_ImportTerm(export_buf));
-  free(export_buf);
   return out;						 
+}
+
+static Int
+p_kill_exported_term( USES_REGS1 )
+{
+  char *export_buf = (char *)IntegerOfTerm(Deref(ARG1));
+  if (!export_buf)
+    return FALSE;
+  free(export_buf);
+  return TRUE;						 
 }
 
 
@@ -4818,8 +4827,9 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("subsumes", 2, p_subsumes, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
-  Yap_InitCPred("import_term", 2, p_import_term, 0);
   Yap_InitCPred("export_term", 3, p_export_term, 0);
+  Yap_InitCPred("kill_exported_term", 1, p_kill_exported_term, SafePredFlag);
+  Yap_InitCPred("import_term", 2, p_import_term, 0);
   CurrentModule = cm;
 #ifdef DEBUG
   Yap_InitCPred("$force_trail_expansion", 1, p_force_trail_expansion, SafePredFlag|HiddenPredFlag);

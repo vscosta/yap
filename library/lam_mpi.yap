@@ -31,5 +31,4 @@
 
 mpi_msg_size(Term, Size) :-
 	terms:export_term(Term, Buf, Size),
-	terms:import_term(Buf, _).
-
+	terms:kill_exported_term(Buf).
