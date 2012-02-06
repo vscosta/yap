@@ -654,7 +654,7 @@ AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_CHECK_TOOL(INDENT,indent,:)
 AC_CHECK_TOOL(AR,ar,:)
-AC_CHECK_TOOL(MPI_CC,mpicc,$(CC))
+AC_CHECK_TOOL(MPI_CC,mpicc,${CC})
 AC_PATH_PROG(INSTALL_INFO,install-info,true,$PATH:/sbin:/usr/sbin:/usr/etc:/usr/local/sbin)
 AC_PATH_PROG(SHELL,sh)
 
