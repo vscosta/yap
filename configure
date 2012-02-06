@@ -5714,6 +5714,7 @@ _ACEOF
 fi
 
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
+      LIBS="$LIBS -lws2_32"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
