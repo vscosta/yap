@@ -670,6 +670,8 @@ then
   then
     if test "$target_win64" = yes
     then
+      @dnl configure messes up badly on this.
+      target_cpu=x86_64
       AC_CHECK_LIB(ws2_32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"
