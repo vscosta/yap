@@ -680,7 +680,7 @@ then
     else
       AC_CHECK_LIB(wsock32,main)
     fi
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/yap.dll"
+    EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
     yap_cv_readline=no
     CLIB_NETLIBS="-lws2_32 -lpsapi -lgdi32"

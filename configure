@@ -5850,7 +5850,7 @@ _ACEOF
 fi
 
     fi
-    EXTRA_LIBS_FOR_DLLS="$EXTRA_LIBS_FOR_DLLS \$(abs_top_builddir)/yap.dll"
+    EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
 
 { echo "$as_me:$LINENO: checking for main in -lpsapi" >&5
 echo $ECHO_N "checking for main in -lpsapi... $ECHO_C" >&6; }
