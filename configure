@@ -7603,12 +7603,7 @@ LAMOBJS=""
 MPI_OBJS=
 LAM_MPI_CC=${MPI_CC}
 if  test "$yap_cv_lam" != "no" ; then
-  if test "$yap_cv_lam" = "yes" ; then
-      if test -e /usr/lib/openmpi; then
-	  CPPFLAGS="$CPPFLAGS -I/usr/lib/openmpi/include"
-	  LDFLAGS="$LDFLAGS -L/usr/lib/openmpi/lib"
-   fi
-  else
+  if test "$yap_cv_lam" != "yes" ; then
     LAM_MPI_CC="$yap_cv_lam"/bin/mpicc
     MPI_CC="$yap_cv_lam"/bin/mpicc
     CPPFLAGS="$CPPFLAGS -I ${yap_cv_lam}/include"
@@ -7616,55 +7611,8 @@ if  test "$yap_cv_lam" != "no" ; then
   fi
   OLD_CC=${CC}
   CC=${LAM_MPI_CC}
-  for ac_header in mpi.h
-do :
   ac_fn_c_check_header_mongrel "$LINENO" "mpi.h" "ac_cv_header_mpi_h" "$ac_includes_default"
 if test "x$ac_cv_header_mpi_h" = x""yes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_MPI_H 1
-_ACEOF
-
-fi
-
-done
-
-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for MPI_Init in -lmpi" >&5
-$as_echo_n "checking for MPI_Init in -lmpi... " >&6; }
-if test "${ac_cv_lib_mpi_MPI_Init+set}" = set; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lmpi  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char MPI_Init ();
-int
-main ()
-{
-return MPI_Init ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_mpi_MPI_Init=yes
-else
-  ac_cv_lib_mpi_MPI_Init=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_mpi_MPI_Init" >&5
-$as_echo "$ac_cv_lib_mpi_MPI_Init" >&6; }
-if test "x$ac_cv_lib_mpi_MPI_Init" = x""yes; then :
   LAMOBJS=yap_mpi."$SO"
                  $as_echo "#define HAVE_LIBMPI 1" >>confdefs.h
 
@@ -7673,6 +7621,7 @@ else
                  $as_echo "#define HAVE_LIBMPI 0" >>confdefs.h
 
 fi
+
 
   CC=${OLD_CC}
   elif test "$yap_cv_mpi" != "no"; then
