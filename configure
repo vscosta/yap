@@ -5649,6 +5649,7 @@ then
     if test "$target_win64" = yes
     then
             target_cpu=x86_64
+      YAP_TARGET=amd64
 
 { echo "$as_me:$LINENO: checking for main in -lws2_32" >&5
 echo $ECHO_N "checking for main in -lws2_32... $ECHO_C" >&6; }
