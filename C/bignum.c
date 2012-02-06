@@ -39,12 +39,17 @@ Yap_MkBigIntTerm(MP_INT *big)
   Int nlimbs;
   MP_INT *dst = (MP_INT *)(H+2);
   CELL *ret = H;
+  Int bytes;
 
   if (mpz_fits_slong_p(big)) {
     long int out = mpz_get_si(big);
     return MkIntegerTerm((Int)out);
   }
-  nlimbs = (big->_mp_alloc)*(sizeof(mp_limb_t)/CellSize);
+  //  bytes = big->_mp_alloc * sizeof(mp_limb_t);
+  //  nlimbs = ALIGN_YAPTYPE(bytes,CELL)/CellSize;
+  // this works, but it shouldn't need to do this...
+  nlimbs = big->_mp_alloc;
+  bytes = nlimbs*sizeof(CELL);
   if (nlimbs > (ASP-ret)-1024) {
     return TermNil;
   }
@@ -52,8 +57,8 @@ Yap_MkBigIntTerm(MP_INT *big)
   H[1] = BIG_INT;
 
   dst->_mp_size = big->_mp_size;
-  dst->_mp_alloc = big->_mp_alloc;
-  memmove((void *)(dst+1), (const void *)(big->_mp_d), nlimbs*CellSize);
+  dst->_mp_alloc = nlimbs*(CellSize/sizeof(mp_limb_t));
+  memmove((void *)(dst+1), (const void *)(big->_mp_d), bytes);
   H = (CELL *)(dst+1)+nlimbs;
   H[0] = EndSpecials;
   H++;
