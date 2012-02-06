@@ -5539,7 +5539,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
   if test "x$ac_ct_MPI_CC" = x; then
-    MPI_CC="$(CC)"
+    MPI_CC="${CC}"
   else
     case $cross_compiling:$ac_tool_warned in
 yes:)
