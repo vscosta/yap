@@ -2129,13 +2129,6 @@ c_head(Term t, compiler_struct *cglobs)
   c_args(t, 0, cglobs);
 }
 
-/* number of permanent variables in the clause */
-#ifdef BEAM
-int nperm;
-#else
-static int nperm;
-#endif
-
 
 inline static int
 usesvar(compiler_vm_op ic)
@@ -2233,7 +2226,7 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
 #ifdef BEAM
    if (EAM) {
       if (v->NoOfVE == Unassigned || v->KindOfVE!=PermVar) {
-	v->NoOfVE = PermVar | (nperm++);
+	v->NoOfVE = PermVar | (LOCAL_nperm++);
 	v->KindOfVE = PermVar;
 	v->FlagsOfVE |= PermFlag;	
       }
@@ -2245,7 +2238,7 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
 					 * * || (v->FlagsOfVE & NonVoid && !(v->FlagsOfVE &
 					 * * OnHeadFlag)) 
 					 */ ) {
-	  v->NoOfVE = PermVar | (nperm++);
+	  v->NoOfVE = PermVar | (LOCAL_nperm++);
 	  v->KindOfVE = PermVar;
 	  v->FlagsOfVE |= PermFlag;
 	} else {
@@ -2253,23 +2246,23 @@ AssignPerm(PInstr *pc, compiler_struct *cglobs)
 	}
       }
     } else if (pc->op == empty_call_op) {
-      pc->rnd2 = nperm;
+      pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == call_op || pc->op == either_op || pc->op == orelse_op || pc->op == push_or_op) {
 #ifdef LOCALISE_VOIDS
       EnvTmps = (EnvTmp *)(pc->ops.opseqt[1]);
       while (EnvTmps) {
 	Ventry *v = EnvTmps->Var;
-	v->NoOfVE = PermVar | (nperm++);
+	v->NoOfVE = PermVar | (LOCAL_nperm++);
 	v->KindOfVE = PermVar;
 	v->FlagsOfVE |= (PermFlag|SafeVar);
 	EnvTmps = EnvTmps->Next;
       }
 #endif
-      pc->rnd2 = nperm;
+      pc->rnd2 = LOCAL_nperm;
     } else if (pc->op == cut_op ||
 	       pc->op == cutexit_op ||
 	       pc->op == commit_b_op) {
-      pc->rnd2 = nperm;
+      pc->rnd2 = LOCAL_nperm;
     }
     opc = pc;
     pc = npc;
@@ -2417,9 +2410,9 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
   int pending = 0;
 
   /* say that all variables are yet to initialise */
-  CELL *vstat = init_bvarray(nperm, cglobs);
+  CELL *vstat = init_bvarray(LOCAL_nperm, cglobs);
   UnsafeEntry *UnsafeStack =
-    (UnsafeEntry *) Yap_AllocCMem(nperm * sizeof(UnsafeEntry), &cglobs->cint);
+    (UnsafeEntry *) Yap_AllocCMem(LOCAL_nperm * sizeof(UnsafeEntry), &cglobs->cint);
   /* keep a copy of previous cglobs->cint.cpc and CodeStart */
   PInstr *opc = cglobs->cint.cpc;
   PInstr *OldCodeStart = cglobs->cint.CodeStart;
@@ -2476,7 +2469,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
       break;
     case pushpop_or_op:
-      reset_bvmap(vstat, nperm, cglobs);
+      reset_bvmap(vstat, LOCAL_nperm, cglobs);
       goto reset_safe_map;
     case orelse_op:
       Yap_emit(label_op, ++cglobs->labelno, Zero, &cglobs->cint);
@@ -2484,7 +2477,7 @@ CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
       add_bvarray_op(pc, vstat, pc->rnd2, cglobs);
       break;
     case pop_or_op:
-      pop_bvmap(vstat, nperm, cglobs);
+      pop_bvmap(vstat, LOCAL_nperm, cglobs);
       goto reset_safe_map;
       break;
     case empty_call_op:
@@ -2791,14 +2784,14 @@ c_layout(compiler_struct *cglobs)
 #else
     if (cglobs->needs_env) {
 #endif
-      nperm = 0;
+      LOCAL_nperm = 0;
       AssignPerm(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
       cglobs->pbvars = 0;
 #endif
       CheckUnsafe(cglobs->cint.CodeStart, cglobs);
 #ifdef DEBUG
-      if (cglobs->pbvars != nperm) {
+      if (cglobs->pbvars != LOCAL_nperm) {
 	CACHE_REGS
 	LOCAL_Error_TYPE = INTERNAL_COMPILER_ERROR;
 	LOCAL_Error_Term = TermNil;
@@ -2867,7 +2860,7 @@ c_layout(compiler_struct *cglobs)
 	  cglobs->cint.cpc->op = nop_op;
 	else
 #endif /* TABLING */
-	  if (cglobs->goalno == 1 && !cglobs->or_found && nperm == 0)
+	  if (cglobs->goalno == 1 && !cglobs->or_found && LOCAL_nperm == 0)
 	    cglobs->cint.cpc->op = nop_op;
 #ifdef TABLING
 	UNLOCK(cglobs->cint.CurrentPred->PELock);

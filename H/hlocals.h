@@ -114,6 +114,8 @@ typedef struct worker_local {
   struct mem_blk*  CMemFirstBlock_;
   UInt  CMemFirstBlockSz_;
 
+  int  nperm_;
+
   Int*  LabelFirstArray_;
   UInt  LabelFirstArraySz_;
 

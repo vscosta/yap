@@ -207,6 +207,9 @@
 #define LOCAL_CMemFirstBlockSz LOCAL->CMemFirstBlockSz_
 #define REMOTE_CMemFirstBlockSz(wid) REMOTE(wid)->CMemFirstBlockSz_
 
+#define LOCAL_nperm LOCAL->nperm_
+#define REMOTE_nperm(wid) REMOTE(wid)->nperm_
+
 #define LOCAL_LabelFirstArray LOCAL->LabelFirstArray_
 #define REMOTE_LabelFirstArray(wid) REMOTE(wid)->LabelFirstArray_
 #define LOCAL_LabelFirstArraySz LOCAL->LabelFirstArraySz_

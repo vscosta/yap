@@ -121,6 +121,9 @@ int				AllowRestart				=FALSE
 struct mem_blk*			CMemFirstBlock				=NULL
 UInt				CMemFirstBlockSz			=0L
 
+// Variable used by the compiler to store number of permanent vars in a clause
+int				nperm					=0L
+
 // Thread Local Area for Labels
 Int*				LabelFirstArray				=NULL
 UInt				LabelFirstArraySz			=0L
