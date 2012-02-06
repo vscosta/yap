@@ -672,7 +672,6 @@ then
     then
       AC_CHECK_LIB(ws2_32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
-      LIBS="$LIBS -lws2_32"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
@@ -690,7 +689,7 @@ then
       if test "$target_win64" = yes
       then
         prefix="\${SYSTEMDRIVE}/Yap64"
-	CLIB_NETLIBS="-lwsock32 -lpsapi -lgdi32"
+	CLIB_NETLIBS="-lws2_32 -lwsock32 -lpsapi -lgdi32"
       else
         prefix="\${SYSTEMDRIVE}/Yap"
       fi
