@@ -1460,6 +1460,7 @@ if test "$tabling" = "yes"
 fi
 dnl LAM/MPI interface
 
+LAMOBJS=""
 MPI_OBJS=
 LAM_MPI_CC=${MPI_CC}
 if  test "$yap_cv_lam" != "no" ; then	
@@ -1489,8 +1490,10 @@ elif test "$yap_cv_mpi" != "no"; then
     OLD_CC=${CC}
     CC=${MPI_CC}
     AC_CHECK_LIB(mpi,MPI_Init,
-		[AC_DEFINE(HAVE_LIBMPI, 1)],
-		[AC_DEFINE(HAVE_LIBMPI, 0)])
+		[LAMOBJS=yap_mpi."$SO"
+                 AC_DEFINE(HAVE_LIBMPI, 1)],
+		[LAMOBJS=yap_mpi."$SO"
+                 AC_DEFINE(HAVE_LIBMPI, 0)])
     if test "$ac_cv_lib_mpi_MPI_Init" = yes
     then
 	#YAPMPILIB=YapMPI.a
