@@ -55,7 +55,7 @@ static char SccsId[] = "%W% %G%";
 static UInt
 big2arena_sz(CELL *arena_base)
 {
-  return ((MP_INT*)(arena_base+2))->_mp_alloc + (sizeof(MP_INT) + sizeof(Functor)+2*sizeof(CELL))/sizeof(CELL);
+  return (((MP_INT*)(arena_base+2))->_mp_alloc*sizeof(mp_limb_t) + sizeof(MP_INT) + sizeof(Functor)+2*sizeof(CELL))/sizeof(CELL);
 }
 
 static UInt
@@ -97,7 +97,7 @@ CreateNewArena(CELL *ptr, UInt size)
   ptr[1] = EMPTY_ARENA;
   dst = (MP_INT *)(ptr+2);
   dst->_mp_size = 0L;
-  dst->_mp_alloc = arena2big_sz(size);
+  dst->_mp_alloc = (sizeof(CELL)/sizeof(mp_limb_t))*arena2big_sz(size);
   ptr[size-1] = EndSpecials;
   return t;
 }
