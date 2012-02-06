@@ -83,9 +83,10 @@ CallPredicate(PredEntry *pen, choiceptr cut_pt, yamop *code USES_REGS) {
 }
 
 inline static Int
-CallMetaCall(Term mod USES_REGS) {
+CallMetaCall(Term t, Term mod USES_REGS) {
+  ARG1 = t;
   ARG2 = cp_as_integer(B PASS_REGS); /* p_save_cp */
-  ARG3 = ARG1;
+  ARG3 = t;
   if (mod) {
     ARG4 = mod;
   } else {
@@ -106,12 +107,12 @@ Yap_ExecuteCallMetaCall(Term mod) {
 }
 
 static Int
-CallError(yap_error_number err, Term mod USES_REGS)
+CallError(yap_error_number err, Term t, Term mod USES_REGS)
 {
   if (yap_flags[LANGUAGE_MODE_FLAG] == 1) {
-    return(CallMetaCall(mod PASS_REGS));
+    return(CallMetaCall(t, mod PASS_REGS));
   } else {
-    Yap_Error(err, ARG1, "call/1");
+    Yap_Error(err, t, "call/1");
     return(FALSE);
   }
 }
@@ -157,6 +158,7 @@ p_trail_suspension_marker( USES_REGS1 )
 inline static Int
 do_execute(Term t, Term mod USES_REGS)
 {
+  Term t0 = t;
   /* first do predicate expansion, even before you process signals.
      This way you don't get to spy goal_expansion(). */
   if (PRED_GOAL_EXPANSION_ALL) {
@@ -167,13 +169,13 @@ do_execute(Term t, Term mod USES_REGS)
       CreepFlag = CalculateStackGap();
     }
     UNLOCK(LOCAL_SignalLock);
-    return CallMetaCall(mod PASS_REGS);
+    return CallMetaCall(ARG1, mod PASS_REGS);
   } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(t, mod PASS_REGS);
   }
  restart_exec:
   if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR, mod PASS_REGS);
+    return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
   } else if (IsApplTerm(t)) {
     register Functor f = FunctorOfTerm(t);
     register CELL *pt;
@@ -182,11 +184,11 @@ do_execute(Term t, Term mod USES_REGS)
 
     f = FunctorOfTerm(t);
     if (IsExtensionFunctor(f)) {
-      return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
     }
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
     }    
     pen = RepPredProp(PredPropByFunc(f, mod));
     /* You thought we would be over by now */
@@ -200,13 +202,13 @@ do_execute(Term t, Term mod USES_REGS)
 	  goto restart_exec;
 	} else {
 	  if (IsVarTerm(tmod)) {
-	    return CallError(INSTANTIATION_ERROR,t PASS_REGS);
+	    return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
 	  } else {
-	    return CallError(TYPE_ERROR_ATOM,t PASS_REGS);
+	    return CallError(TYPE_ERROR_ATOM, t0, mod PASS_REGS);
 	  }
 	}
       } else {
-	return CallMetaCall(mod PASS_REGS);
+	return CallMetaCall(t, mod PASS_REGS);
       }
     }
     /* now let us do what we wanted to do from the beginning !! */
@@ -240,10 +242,10 @@ do_execute(Term t, Term mod USES_REGS)
     pe = RepPredProp(PredPropByAtom(a, mod));
     return (CallPredicate(pe, B, pe->CodeOfPred PASS_REGS));
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   } else {
     /* Is Pair Term */
-    return(CallMetaCall(mod PASS_REGS));
+    return(CallMetaCall(t, mod PASS_REGS));
   }
 }
 
@@ -292,16 +294,17 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   PredEntry *pen;
   unsigned int i, arity;
   int j = -n;
+  Term t0 = t;
 
  restart_exec:
   if (IsVarTerm(t)) {
-    return CallError(INSTANTIATION_ERROR, mod PASS_REGS);
+    return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
   } else if (IsAtomTerm(t)) {
     arity = n;
     Name = AtomOfTerm(t);
     pt = NULL;
   } else if (IsIntTerm(t)) {
-    return CallError(TYPE_ERROR_CALLABLE, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   } else if (IsPairTerm(t)) {
     arity = n+2;
     pt = RepPair(t);
@@ -316,9 +319,9 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
 	goto restart_exec;
       } else {
 	if (IsVarTerm(tmod)) {
-	  return CallError(INSTANTIATION_ERROR,t PASS_REGS);
+	  return CallError(INSTANTIATION_ERROR, t0, tmod PASS_REGS);
 	} else {
-	  return CallError(TYPE_ERROR_ATOM,t PASS_REGS);
+	  return CallError(TYPE_ERROR_ATOM, t0, tmod PASS_REGS);
 	}
       }
     }
@@ -328,7 +331,7 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
   }
   f = Yap_MkFunctor(Name,arity);
   if (IsExtensionFunctor(f)) {
-    return CallError(TYPE_ERROR_CALLABLE, mod PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   }
   if (PRED_GOAL_EXPANSION_ALL) {
     LOCK(LOCAL_SignalLock);
@@ -338,20 +341,20 @@ do_execute_n(Term t, Term mod, unsigned int n USES_REGS)
       CreepFlag = CalculateStackGap();
     }
     UNLOCK(LOCAL_SignalLock);
-    ARG1 = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-    return CallMetaCall(mod PASS_REGS);
+    t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
+    return CallMetaCall(t, mod PASS_REGS);
   } else if (LOCAL_ActiveSignals  && !LOCAL_InterruptsDisabled) {
     return EnterCreepMode(copy_execn_to_heap(f, pt, n, arity, CurrentModule PASS_REGS), mod PASS_REGS);
   }
   if (arity > MaxTemps) {
-    return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+    return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
   }
   pen = RepPredProp(PredPropByFunc(f, mod));
   /* You thought we would be over by now */
   /* but no meta calls require special preprocessing */
   if (pen->PredFlags & (GoalExPredFlag|MetaPredFlag)) {
-    ARG1 = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
-    return(CallMetaCall(mod PASS_REGS));
+    Term t = copy_execn_to_heap(f, pt, n, arity, mod PASS_REGS);
+    return(CallMetaCall(t, mod PASS_REGS));
   }
   /* now let us do what we wanted to do from the beginning !! */
   /* I cannot use the standard macro here because
@@ -570,7 +573,7 @@ p_execute12( USES_REGS1 )
 static Int
 p_execute_clause( USES_REGS1 )
 {				/* '$execute_clause'(Goal)	 */
-  Term            t = Deref(ARG1);
+  Term            t = Deref(ARG1), t0 = t;
   Term            mod = Deref(ARG2);
   choiceptr       cut_cp = cp_from_integer(Deref(ARG4) PASS_REGS);
   unsigned int    arity;
@@ -603,7 +606,7 @@ p_execute_clause( USES_REGS1 )
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -646,7 +649,7 @@ p_execute_in_mod( USES_REGS1 )
 static Int
 p_execute0( USES_REGS1 )
 {				/* '$execute0'(Goal,Mod)	 */
-  Term            t = Deref(ARG1);
+  Term            t = Deref(ARG1), t0 = t;
   Term            mod = Deref(ARG2);
   unsigned int    arity;
   Prop            pe;
@@ -676,9 +679,9 @@ p_execute0( USES_REGS1 )
 	goto restart_exec;
       } else {
 	if (IsVarTerm(tmod)) {
-	  return CallError(INSTANTIATION_ERROR,t PASS_REGS);
+	  return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
 	} else {
-	  return CallError(TYPE_ERROR_ATOM,t PASS_REGS);
+	  return CallError(TYPE_ERROR_ATOM, t0, mod PASS_REGS);
 	}
       }
     }
@@ -686,7 +689,7 @@ p_execute0( USES_REGS1 )
     //    Yap_DebugPlWrite(mod);fprintf(stderr,"\n");
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -715,7 +718,7 @@ p_execute0( USES_REGS1 )
 static Int
 p_execute_nonstop( USES_REGS1 )
 {				/* '$execute_nonstop'(Goal,Mod)	 */
-  Term            t = Deref(ARG1);
+  Term            t = Deref(ARG1), t0 = t;
   Term            mod = Deref(ARG2);
   unsigned int    arity;
   Prop            pe;
@@ -748,16 +751,16 @@ p_execute_nonstop( USES_REGS1 )
 	goto restart_exec;
       } else {
 	if (IsVarTerm(tmod)) {
-	  return CallError(INSTANTIATION_ERROR,t PASS_REGS);
+	  return CallError(INSTANTIATION_ERROR, t0, mod PASS_REGS);
 	} else {
-	  return CallError(TYPE_ERROR_ATOM,t PASS_REGS);
+	  return CallError(TYPE_ERROR_ATOM, t0, mod PASS_REGS);
 	}
       }
     }
     pe = PredPropByFunc(f, mod);
     arity = ArityOfFunctor(f);
     if (arity > MaxTemps) {
-      return CallError(TYPE_ERROR_CALLABLE, t PASS_REGS);
+      return CallError(TYPE_ERROR_CALLABLE, t0, mod PASS_REGS);
     }
     /* I cannot use the standard macro here because
        otherwise I would dereference the argument and
@@ -1118,7 +1121,7 @@ Yap_execute_goal(Term t, int nargs, Term mod)
   }
   ppe = RepPredProp(pe);
   if (pe == NIL) {
-    return(CallMetaCall(mod PASS_REGS));
+    return CallMetaCall(t, mod PASS_REGS);
   }
   PELOCK(81,RepPredProp(pe));
   if (IsAtomTerm(t)) {
