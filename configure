@@ -1411,7 +1411,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
  --with-gmp=DIR           use GNU Multiple Precision in DIR
- --with-real=DIR           interface to R language
+ --with-R=DIR              interface to R language
  --enable-minisat           use minisat interface
  --with-cudd=DIR           use CUDD package in DIR
  --with-java=JAVA_HOME       use Java instalation in JAVA_HOME
@@ -4574,17 +4574,17 @@ fi
 
 
 
-# Check whether --with-real was given.
-if test "${with_real+set}" = set; then
-  withval=$with_real; if test "$withval" = yes; then
-	    yap_cv_real=yes
+# Check whether --with-R was given.
+if test "${with_R+set}" = set; then
+  withval=$with_R; if test "$withval" = yes; then
+	    yap_cv_R=yes
 	elif test "$withval" = no; then
-	    yap_cv_real=no
+	    yap_cv_R=no
 	else
-	    yap_cv_real=$with_real
+	    yap_cv_R=$with_R
 	fi
 else
-  yap_cv_real=yes
+  yap_cv_R=yes
 fi
 
 
@@ -6687,7 +6687,7 @@ fi
 
 fi
 
-if test "$yap_cv_real" = "no"; then
+if test "$yap_cv_R" = "no"; then
     REAL_TARGET="dummy"
     ENABLE_REAL="@# "
 elif test -e "$srcdir"/packages/real/Makefile.in ; then
@@ -6736,7 +6736,7 @@ fi
 done
 test -n "$REXE" || REXE=""none""
 
-   if test "$yap_cv_yapr" != "yes"
+   if test "$yap_cv_R" = "yes"
    then
      case "$target_os" in
 	*darwin*)
@@ -6773,16 +6773,16 @@ test -n "$REXE" || REXE=""none""
    else
        case "$target_os" in
 	  *cygwin*|*mingw*)
-            REAL_INCLUDES="-I\"$yap_cv_real/include\""
+            REAL_INCLUDES="-I\"$yap_cv_R/include\""
 	    if test "$YAP_TARGET" = i386; then
-	      REAL_LIBS="\"$yap_cv_real/bin/i386/R.dll\""
+	      REAL_LIBS="\"$yap_cv_R/bin/i386/R.dll\""
 	    else
-	      REAL_LIBS="\"$yap_cv_real/bin/x64/R.dll\""
+	      REAL_LIBS="\"$yap_cv_R/bin/x64/R.dll\""
 	    fi
 	   ;;
 	  *)
-            REAL_INCLUDES="-I$yap_cv_real/include"
-	    REAL_LIBS="-L $yap_cv_real/lib -lR"
+            REAL_INCLUDES="-I$yap_cv_R/include"
+	    REAL_LIBS="-L $yap_cv_R/lib -lR"
 	   ;;
          esac
   fi
