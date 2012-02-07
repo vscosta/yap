@@ -2174,6 +2174,7 @@ typedef  struct env_tmp {
 static void
 AssignPerm(PInstr *pc, compiler_struct *cglobs)
 {
+  CACHE_REGS
   int uses_var;
   PInstr *opc = NULL;
 #ifdef LOCALISE_VOIDS
@@ -2407,6 +2408,7 @@ typedef struct {
 static void
 CheckUnsafe(PInstr *pc, compiler_struct *cglobs)
 {
+  CACHE_REGS
   int pending = 0;
 
   /* say that all variables are yet to initialise */
@@ -2750,6 +2752,7 @@ copy_live_temps_bmap(int max, compiler_struct *cglobs)
 static void
 c_layout(compiler_struct *cglobs)
 {
+  CACHE_REGS
   PInstr *savepc = cglobs->BodyStart->nextInst;
   register Ventry *v = cglobs->vtable;
   Int *up = cglobs->Uses;

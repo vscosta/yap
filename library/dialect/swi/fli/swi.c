@@ -1796,7 +1796,7 @@ PL_skip_list(term_t list, term_t tail, size_t *len)
   if ( len )
     *len = length;
   if ( tail )
-  { Term t2 = Yap_GetFromSlot(tail);
+  { Term t2 = Yap_GetFromSlot(tail PASS_REGS);
 
     Yap_unify(t2, *t);
   }
