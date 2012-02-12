@@ -33,6 +33,7 @@
 void
 Yap_RestartYap ( int flag )
 {
+  CACHE_REGS
 #if PUSH_REGS
       restore_absmi_regs(&Yap_standard_regs);
 #endif

@@ -562,6 +562,7 @@ X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
 static UInt
 current_arity(void)
 {
+  CACHE_REGS
  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
     return PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
   } else {
