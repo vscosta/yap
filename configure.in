@@ -984,27 +984,27 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	case "$target_os" in
 	    *cygwin*|*mingw*)
 	       if test $threads = yes; then
-	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
                else
-	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib"
+	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
                fi
-	       JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
+	       JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
 	       LIBS="$LIBS -framework JavaVM"
-	       JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
+	       JAVACFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	       	  ;;
 	       *)
               case "$target_os" in
 	         *linux*)
-		   JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
+		   JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
                 ;;
 	         *solaris*)
-	        JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
+	        JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
                 ;;
               esac
-	       JAVALIBPATH="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
+	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
 	       	  ;;
 	esac
 	if test "$yap_cv_java" = ""; then
@@ -1757,8 +1757,8 @@ AC_SUBST(MPI_OBJS)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(INSTALL_COMMAND)
 AC_SUBST(INSTALLCLP)
-AC_SUBST(JAVALIBPATH)
-AC_SUBST(JAVAINCPATH)
+AC_SUBST(JAVALIBS)
+AC_SUBST(JAVACFLAGS)
 AC_SUBST(LAMOBJS)
 AC_SUBST(MAX_WORKERS)
 AC_SUBST(STATIC_MODE)
@@ -2261,6 +2261,8 @@ mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
 mkdir -p  packages/http
 mkdir -p  packages/jpl
+mkdir -p  packages/jpl/src
+mkdir -p  packages/jpl/src/c
 mkdir -p  packages/jpl/src/java
 mkdir -p  packages/jpl/src/java/jpl
 mkdir -p  packages/jpl/src/java/jpl/fli

@@ -207,16 +207,16 @@ X_API int _PL_get_arg(int index, term_t ts, term_t a)
   if ( !YAP_IsApplTerm(t) ) {
     if (YAP_IsPairTerm(t)) {
       if (index == 1){
-	Yap_PutInSlot(a,YAP_HeadOfTerm(t) PASS_REGS);
+	Yap_PutInSlot(a,HeadOfTerm(t) PASS_REGS);
 	return 1;
       } else if (index == 2) {
-	Yap_PutInSlot(a,YAP_TailOfTerm(t) PASS_REGS);
+	Yap_PutInSlot(a,TailOfTerm(t) PASS_REGS);
 	return 1;
       }
     }
     return 0;
   }
-  Yap_PutInSlot(a,YAP_ArgOfTerm(index, t) PASS_REGS);
+  Yap_PutInSlot(a,ArgOfTerm(index, t) PASS_REGS);
   return 1;
 }
    
@@ -585,9 +585,9 @@ X_API int PL_get_pointer(term_t ts, void **i)
 {
   CACHE_REGS
   YAP_Term t = Yap_GetFromSlot(ts PASS_REGS);
-  if (!YAP_IsIntTerm(t) )
+  if (IsVarTerm(t) || !IsIntegerTerm(t) )
     return 0;
-  *i = (void *)YAP_IntOfTerm(t);
+  *i = (void *)IntegerOfTerm(t);
   return 1;
 }
 
