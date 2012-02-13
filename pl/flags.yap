@@ -543,6 +543,13 @@ yap_flag(discontiguous_warnings,X) :-
 yap_flag(discontiguous_warnings,X) :-
 	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
+yap_flag(occurs_check,X) :-
+	X = false, !.
+yap_flag(occurs_check,true) :- !,
+	fail.
+yap_flag(occurs_check,X) :-
+	'$do_error'(domain_error(flag_value,occurs_check+X),yap_flag(occurs_check,X)).
+
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
 	('$syntax_check_mode'(on,_), '$syntax_check_multiple'(on,_) ->
@@ -876,6 +883,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(min_integer).
 '$yap_system_flag'(min_tagged_integer).
 '$yap_system_flag'(n_of_integer_keys_in_db).
+'$yap_system_flag'(occurs_check).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
 '$yap_system_flag'(optimise).
