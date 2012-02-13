@@ -31,6 +31,11 @@
 	setrand/1
     ]).
 
+:- use_module(library(pairs)).
+:- use_module(library(error)).
+:- use_module(library(lists)).
+
+
 :- load_foreign_files([yap_random], [], init_random).
 
 
@@ -40,13 +45,17 @@
 %   when L and U are integers (note that U will NEVER be generated),
 %   or to a random floating number in [L,U) otherwise.
 
-random(L, U, R) :- integer(L), integer(U), !,
-	random(X),
-	R is L+integer((U-L)*X).
 random(L, U, R) :-
-	number(L), number(U), !,
-	random(X),
-	R is L+((U-L)*X).
+	( integer(L), integer(U) ->
+	    U > L,
+	    random(X),
+	    R is L+integer((U-L)*X)
+        ;
+	    number(L), number(U),
+	    U > L,
+	    random(X),
+	    R is L+((U-L)*X)
+	).
 
 /*  There are two versions of this operation.
  
