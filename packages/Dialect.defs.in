@@ -24,7 +24,8 @@ PLINCL=$(PLBASE)/include
 PLLIBDIR=$(PLBASE)/share/Yap
 SOLIBDIR=$(PLBASE)/lib/Yap
 PKGDOCDIR=$(PLBASE)/share/doc/Yap/packages
-PKGEXDIR=$(PLBASE)/share/doc/Yap//packages/examples
+PKGEXDIR=$(PLBASE)/share/doc/Yap/packages/examples
+XPCEBASE=$(PLBASE)/xpce
 
 #
 # YAP internal stuff
@@ -53,11 +54,11 @@ LDFLAGS=$(PKGLDFLAGS)
 MKINDEX=(cd $(srcdir) ; $(PL) -f none -g make -t halt)
 
 .txt.tex:
-	swipl -f script.pl -g "doc_latex('$*.txt','$*.tex',[stand_alone(false)]),halt" -t "halt(1)"
+	$(PUBLICPL)  -L $(SHAREDIR)/doc_latex -g "doc_latex('$*.txt','$*.tex',[stand_alone(false)]),halt" -t "halt(1)"
 
 
 PUBLICPL=$(PL)
-PLTOTEX=$(PUBLICPL) -q -l $(srcdir)/pltotex.pl -g pltotex --
+PLTOTEX=$(PUBLICPL) -q -l $(srcdir)/pltotex -g pltotex --
 
 #
 # find out how to generate .o files from $(scrdir)

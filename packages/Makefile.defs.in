@@ -57,12 +57,18 @@ $(PDF):		$(TEX)
 		$(DOC2TEX) $< > $@
 
 %.tex : $(srcdir)/%.txt 
-		$(PUBLICPL) -f none -g "doc_latex('$<','$@',[stand_alone(false)]),halt" -t "halt(1)"
+		$(PUBLICPL) -f $(PLLIBDIR)/doc_latex -g "doc_latex('$<','$@',[stand_alone(false)]),halt" -t "halt(1)"
 
 %.tex : $(srcdir)/%.pl 
 		$(PLTOTEX) $< > $@ 
 
 # Get the Prolog dialect specific part of the Makefiles
+
+LIBSRCPL=$(addprefix $(srcdir)/, $(LIBPL))
+
+LIBSRCALL=$(addprefix $(srcdir)/, $(LIBALL))
+
+SRCXPCEPL=$(addprefix $(srcdir)/, $(XPCEPL))
 
 include ../Dialect.defs
 
