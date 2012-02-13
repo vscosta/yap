@@ -2110,8 +2110,8 @@ else
 fi
 
 if test "$IN_UNIX" = ""; then
-CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
-CLIB_PLTARGETS="unix.pl $CLIB_PLTARGETS"
+CLIB_TARGETS="uid.$SO unix.$SO $CLIB_TARGETS"
+CLIB_PLTARGETS="uid.pl unix.pl $CLIB_PLTARGETS"
 CLIB_NETLIBS=
 else
 AC_CHECK_FUNC(socket, [], [
