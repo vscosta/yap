@@ -4,14 +4,11 @@ LGPL. We would like to thank the authors of the packages and the
 developers of the ciao and swi-prolog systems for their help and
 kindness in supporting us in distributing this software with YAP.
 
-The packages we include is currently:
+The packages we include:
 
 The Pillow web library versio 1.1 developed by the CLIP group. 
 
-SWI-Prolog's JPL Prolog/Java interface and Java/Prolog interface
-developed by Paul Singleton, Fred Dushin and Jan Wielemaker: only the
-Prolog/Java is currently experimented with.
+SWI-Prolog's library utilities, developed by Jan Wielemaker and others.
 
-SWI-Prolog's clpr implementation, developed by Leslie De Koninck, Tom
-Schrijvers, Bart Demoen, and based on CLP(Q,R) by Christian Holzbaur.
+
 
