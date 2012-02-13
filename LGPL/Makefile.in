@@ -33,6 +33,11 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/nb_set.pl \
 	$(srcdir)/operators.pl \
 	$(srcdir)/option.pl \
+	$(srcdir)/pairs.pl \
+	$(srcdir)/predicate_options.pl \
+	$(srcdir)/predopts.pl \
+	$(srcdir)/prolog_clause.pl \
+	$(srcdir)/prolog_colour.pl \
 	$(srcdir)/prolog_source.pl \
 	$(srcdir)/prolog_xref.pl \
 	$(srcdir)/quintus.pl \
