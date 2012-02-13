@@ -823,7 +823,7 @@ Start a new (source-)module
 @param  Line is the line-number of the :- module/2 directive.
 @param	Redefine If =true=, allow associating the module to a new file
 */
-'$declare_module'(Name, Context, _, _, _) :-
+'$declare_module'(Name, _Test, Context, _File, _Line, _) :-
 	add_import_module(Name, Context, start).
 
 module_property(Mod, file(F)) :-
