@@ -631,7 +631,7 @@ absolute_file_name(File0,File) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
 absolute_file_name(File,TrueFileName,Opts) :-
-	var(TrueFileName), !,
+	( var(TrueFileName) ; atom(TrueFileName) ), !,
 	absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
 	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
@@ -665,7 +665,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
 '$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
-	'$do_error'(type_error(list,T),G).
+	'$do_error'(type_error(list,Opts),G).
 
 '$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- var(Opt), !,
 	'$do_error'(instantiation_error, G).
@@ -1037,4 +1037,7 @@ make_library_index(_Directory).
 	    
 '$current_loop_stream'(Stream) :-
 	catch(nb_getval('$loop_stream',Stream), _, fail).
+
+exists_source(File) :-
+	'$full_filename'(File, AbsFile, exists_source(File)).
 
