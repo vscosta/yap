@@ -148,7 +148,7 @@ atomLength(Atom atom)
 #define MODULE_user YAP_ModuleUser()
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
-#define lookupModule(A) ((Module)PL_new_module(A))
+#define lookupModule(A) Yap_Module(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)

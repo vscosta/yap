@@ -194,6 +194,8 @@ typedef	struct VARSTRUCT {
 } VarEntry;
 */
 
+#ifndef _PL_WRITE_
+
 /* Character types for tokenizer and write.c */
 
 #define UC      1       /* Upper case */
@@ -211,6 +213,7 @@ typedef	struct VARSTRUCT {
 
 #define EOFCHAR EOF
 
+#endif
 
 /* info on aliases */
 typedef struct AliasDescS {
@@ -300,6 +303,11 @@ Atom	STD_PROTO(Yap_LookupWideAtom,(wchar_t *));
 #define	To_heap_f	        0x10
 #define	Unfold_cyclics_f        0x20
 #define	Use_SWI_Stream_f        0x40
+#define	BackQuote_String_f      0x80
+#define	AttVar_None_f	        0x100
+#define	AttVar_Dots_f	        0x200
+#define	AttVar_Portray_f        0x400
+#define	Blob_Portray_f	        0x800
 
 
 

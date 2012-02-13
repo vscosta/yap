@@ -199,7 +199,7 @@ Yap_DebugPutc(int sno, wchar_t ch)
 void
 Yap_DebugPlWrite(Term t)
 {
-  Yap_plwrite(t, Yap_DebugPutc, 0, 1200);
+  Yap_plwrite(t, NULL, 0, 1200);
 }
 
 void 
@@ -238,7 +238,7 @@ typedef struct stream_ref
 int beam_write (void)
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, Stream[LOCAL_c_output_stream].stream_wputc, 0, 1200);
+  Yap_plwrite (ARG1, NULL, 0, 1200);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);

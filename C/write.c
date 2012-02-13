@@ -45,7 +45,7 @@ typedef enum {
 
 static wtype lastw;
 
-typedef  int      (*wrf) (int, wchar_t);
+typedef  void      *wrf;
 
 typedef struct union_slots {
   Int old;
@@ -67,10 +67,11 @@ typedef  struct  rewind_term {
 } rwts;
 
 typedef struct write_globs {
-  wrf      writewch;
+  void     *stream;
   int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
   int      keep_terms;
   int      Write_Loops;
+  int      Write_strings;
   UInt     MaxDepth, MaxArgs;
 } wglbs;
 
@@ -85,20 +86,20 @@ STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
 STATIC_PROTO(void putAtom, (Atom, int, wrf));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
 
-#define wrputc(X,WF)	((*WF)(LOCAL_c_output_stream,X))	/* writes a character */
+#define wrputc(X,WF)	Sputcode(X,WF)	/* writes a character */
 
 static void 
-wrputn(Int n, wrf writewch)	/* writes an integer	 */
-	                  
+wrputn(Int n, wrf stream)	/* writes an integer	 */
+                
 {
   CACHE_REGS
   char s[256], *s1=s; /* that should be enough for most integers */
   if (n < 0) {
     if (lastw == symbol)
-      wrputc(' ', writewch);  
+      wrputc(' ', stream);  
   } else {
     if (lastw == alphanum)
-      wrputc(' ', writewch);
+      wrputc(' ', stream);
   }
 #if HAVE_SNPRINTF
   snprintf(s, 256, Int_FORMAT, n);
@@ -106,25 +107,18 @@ wrputn(Int n, wrf writewch)	/* writes an integer	 */
   sprintf(s, Int_FORMAT, n);
 #endif
   while (*s1)
-    wrputc(*s1++, writewch);
+    wrputc(*s1++, stream);
   lastw = alphanum;
 }
 
-static void 
-wrputs(char *s, wrf writewch)		/* writes a string	 */
-{
-  CACHE_REGS
-  while (*s) {
-    wrputc((unsigned char)(*s++), writewch);
-  }
-}
+#define wrputs(s, stream) Sfputs(s, stream)
 
 static void 
-wrputws(wchar_t *s, wrf writewch)		/* writes a string	 */
+wrputws(wchar_t *s, wrf stream)		/* writes a string	 */
 {
   CACHE_REGS
   while (*s)
-    wrputc(*s++, writewch);
+    wrputc(*s++, stream);
 }
 
 #ifdef USE_GMP
@@ -168,27 +162,27 @@ ensure_space(size_t sz) {
 }
 
 static void
-write_mpint(MP_INT *big, wrf writewch) {
+write_mpint(MP_INT *big, wrf stream) {
   CACHE_REGS
   char *s;
 
   s = ensure_space(3+mpz_sizeinbase(big, 10));
   if (mpz_sgn(big) < 0) {
     if (lastw == symbol)
-      wrputc(' ', writewch);  
+      wrputc(' ', stream);  
   } else {
     if (lastw == alphanum)
-      wrputc(' ', writewch);
+      wrputc(' ', stream);
   }
   if (!s) {
     s = mpz_get_str(NULL, 10, big);
     if (!s)
       return;
-    wrputs(s,writewch);
+    wrputs(s,stream);
     free(s);
   } else {
     mpz_get_str(s, 10, big);
-    wrputs(s,writewch);
+    wrputs(s,stream);
   }
 }
 #endif
@@ -203,7 +197,7 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
   if (pt[0] == BIG_INT) 
   {
     MP_INT *big = Yap_BigIntOfTerm(t);
-    write_mpint(big, wglb->writewch);
+    write_mpint(big, wglb->stream);
     return;
   } else if (pt[0] == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
@@ -212,103 +206,62 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
   }
 #endif
   if (pt[0] == BLOB_STRING) {
-    wrputc('"',wglb->writewch);
-    wrputs(Yap_BlobStringOfTerm(t),wglb->writewch);
-    wrputc('"',wglb->writewch);
+    if (wglb->Write_strings)
+      wrputc('`',wglb->stream);
+    else
+      wrputc('"',wglb->stream);
+    wrputs(Yap_BlobStringOfTerm(t),wglb->stream);
+    if (wglb->Write_strings)
+      wrputc('`',wglb->stream);
+    else
+      wrputc('"',wglb->stream);
     return;
-  } else if  (pt[0] == BLOB_STRING) {
+  } else if  (pt[0] == BLOB_WIDE_STRING) {
     wchar_t *s = Yap_BlobWideStringOfTerm(t);
-    wrputc('"', wglb->writewch);
+    if (wglb->Write_strings)
+      wrputc('`',wglb->stream);
+    else
+      wrputc('"', wglb->stream);
     while (*s) {
-      wrputc(*s++, wglb->writewch);
+      wrputc(*s++, wglb->stream);
     }
-    wrputc('"',wglb->writewch);
+    if (wglb->Write_strings)
+      wrputc('`',wglb->stream);
+    else
+      wrputc('"',wglb->stream);
     return;
   }
-  wrputs("0",wglb->writewch);
+  wrputs("0",wglb->stream);
 }	                  
 
 static void 
-wrputf(Float f, wrf writewch)		/* writes a float	 */
+wrputf(Float f, wrf stream)		/* writes a float	 */
 	                  
 {
+  char *format_float(double f, char *buf);
   CACHE_REGS
-  char            s[256], *pt = s, ch;
-  int found_dot = FALSE, found_exp = FALSE;
+    char            s[256];
+  char *buf;
 
-#if HAVE_ISNAN || defined(__WIN32)
-  if (isnan(f)) {
-    wrputs("(nan)", writewch);
-    lastw = separator;
-    return;
-  }
-#endif
-  if (f < 0) {
-#if HAVE_ISINF || defined(_WIN32)
-    if (isinf(f)) {
-      wrputs("(-inf)", writewch);
-      lastw = separator;
-      return;
-    }
-#endif
-    if (lastw == symbol)
-      wrputc(' ', writewch);  
-  } else {
-#if HAVE_ISINF || defined(_WIN32)
-    if (isinf(f)) {
-      wrputs("(+inf)", writewch);
-      lastw = separator;
-      return;
-    }
-#endif
-    if (lastw == alphanum)
-      wrputc(' ', writewch);
-  }
-  lastw = alphanum;
-  //  sprintf(s, "%.15g", f);
-  sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
-  while (*pt == ' ')
-    pt++;
-  if (*pt == '-') {
-    wrputc('-', writewch);
-    pt++;
-  }
-  while ((ch = *pt) != '\0') {
-    switch (ch) {
-    case '.':
-      found_dot = TRUE;
-      wrputc('.', writewch);    
-      break;
-    case 'e':
-    case 'E':
-      if (!found_dot) {
-	found_dot = TRUE;
-	wrputs(".0", writewch);
-      }
-      found_exp = TRUE;
-    default:
-      wrputc(ch, writewch);
-    }
-    pt++;
-  }
-  if (!found_dot) {
-    wrputs(".0", writewch);    
-  }
+  /* use SWI's format_float */
+  buf = format_float(f, s);
+  if (!buf) return;
+  wrputs(buf, stream);
 }
 
 static void 
-wrputref(CODEADDR ref, int Quote_illegal, wrf writewch)			/* writes a data base reference */
+wrputref(CODEADDR ref, int Quote_illegal, wrf stream)			/* writes a data base reference */
 	                    
 {
   char            s[256];
 
-  putAtom(AtomDBref, Quote_illegal, writewch);
+  putAtom(AtomDBref, Quote_illegal, stream);
 #if defined(__linux__) || defined(__APPLE__)
   sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause*)ref)->ClRefCount);
 #else
   sprintf(s, "(0x%p," UInt_FORMAT ")", ref, ((LogUpdClause*)ref)->ClRefCount);
 #endif
-  wrputs(s, writewch);
+  wrputs(s, stream);
   lastw = alphanum;
 }
 
@@ -361,55 +314,55 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 }
 
 static void
-write_quoted(int ch, int quote, wrf writewch)
+write_quoted(int ch, int quote, wrf stream)
 {
   CACHE_REGS
   if (yap_flags[CHARACTER_ESCAPE_FLAG] == CPROLOG_CHARACTER_ESCAPES) {
-    wrputc(ch, writewch);
+    wrputc(ch, stream);
     if (ch == '\'')
-      wrputc('\'', writewch);	/* be careful about quotes */
+      wrputc('\'', stream);	/* be careful about quotes */
     return;
   }
   if (!(ch < 0xff  && chtype(ch) == BS) && ch != '\'' && ch != '\\') {
-    wrputc(ch, writewch);
+    wrputc(ch, stream);
   } else {
     switch (ch) {
     case '\\':
     case '\'':
-      wrputc('\\', writewch);	
-      wrputc(ch, writewch);	
+      wrputc('\\', stream);	
+      wrputc(ch, stream);	
       break;
     case 7:
-      wrputc('\\', writewch);	
-      wrputc('a', writewch);	
+      wrputc('\\', stream);	
+      wrputc('a', stream);	
       break;
     case '\b':
-      wrputc('\\', writewch);
-      wrputc('b', writewch);	
+      wrputc('\\', stream);
+      wrputc('b', stream);	
       break;
     case '\t':
-      wrputc('\\', writewch);
-      wrputc('t', writewch);	
+      wrputc('\\', stream);
+      wrputc('t', stream);	
       break;
     case ' ':
     case 160:
-      wrputc(' ', writewch);
+      wrputc(' ', stream);
       break;
     case '\n':
-      wrputc('\\', writewch);
-      wrputc('n', writewch);	
+      wrputc('\\', stream);
+      wrputc('n', stream);	
       break;
     case 11:
-      wrputc('\\', writewch);
-      wrputc('v', writewch);	
+      wrputc('\\', stream);
+      wrputc('v', stream);	
       break;
     case '\r':
-      wrputc('\\', writewch);
-      wrputc('r', writewch);	
+      wrputc('\\', stream);
+      wrputc('r', stream);	
       break;
     case '\f':
-      wrputc('\\', writewch);
-      wrputc('f', writewch);	
+      wrputc('\\', stream);
+      wrputc('f', stream);	
       break;
     default:
       if ( ch <= 0xff ) {
@@ -421,7 +374,7 @@ write_quoted(int ch, int quote, wrf writewch)
 	  /* last backslash in ISO mode */
 	  sprintf(esc, "\\%03o\\", ch);
 	}
-	wrputs(esc, writewch);
+	wrputs(esc, stream);
       }
     }
   }
@@ -429,7 +382,7 @@ write_quoted(int ch, int quote, wrf writewch)
 
 
 static void 
-putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
+putAtom(Atom atom, int Quote_illegal, wrf stream)			/* writes an atom	 */
 	                     
 {
   CACHE_REGS
@@ -441,41 +394,41 @@ putAtom(Atom atom, int Quote_illegal, wrf writewch)			/* writes an atom	 */
   if (Yap_GetValue(AtomCryptAtoms) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
     char s[16];
     sprintf(s,"x%x", (CELL)s);
-    wrputs(s, writewch);
+    wrputs(s, stream);
     return;
   }
 #endif
   if (IsBlob(atom)) {
-    wrputref((CODEADDR)RepAtom(atom),1,writewch);
+    wrputref((CODEADDR)RepAtom(atom),1,stream);
     return;
   }
   if (IsWideAtom(atom)) {
     wchar_t *ws = (wchar_t *)s;
 
     if (Quote_illegal) {
-      wrputc('\'', writewch);
+      wrputc('\'', stream);
       while (*ws) {
 	wchar_t ch = *ws++;
-	write_quoted(ch, '\'', writewch);
+	write_quoted(ch, '\'', stream);
       }
-      wrputc('\'', writewch);
+      wrputc('\'', stream);
     } else {
-      wrputws(ws, writewch);
+      wrputws(ws, stream);
     }
     return;
   }
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
-    wrputc(' ', writewch);
+    wrputc(' ', stream);
   lastw = atom_or_symbol;
   if (Quote_illegal && !legalAtom(s)) {
-    wrputc('\'', writewch);
+    wrputc('\'', stream);
     while (*s) {
       wchar_t ch = *s++;
-      write_quoted(ch, '\'', writewch);
+      write_quoted(ch, '\'', stream);
     }
-    wrputc('\'', writewch);
+    wrputc('\'', stream);
   } else {
-    wrputs((char *)s, writewch);
+    wrputs((char *)s, stream);
   }
 }
 
@@ -502,28 +455,28 @@ IsStringTerm(Term string)	/* checks whether this is a string */
 }
 
 static void 
-putString(Term string, wrf writewch)		/* writes a string	 */
+putString(Term string, wrf stream)		/* writes a string	 */
 	                     
 {
   CACHE_REGS
-  wrputc('"', writewch);
+  wrputc('"', stream);
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
-    write_quoted(ch, '"', writewch);
+    write_quoted(ch, '"', stream);
     string = TailOfTerm(string);
   }
-  wrputc('"', writewch);
+  wrputc('"', stream);
   lastw = alphanum;
 }
 
 static void 
-putUnquotedString(Term string, wrf writewch)	/* writes a string	 */
+putUnquotedString(Term string, wrf stream)	/* writes a string	 */
 	                     
 {
   CACHE_REGS
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
-    wrputc(ch, writewch);
+    wrputc(ch, stream);
     string = TailOfTerm(string);
   }
   lastw = alphanum;
@@ -535,9 +488,9 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 {
   CACHE_REGS
   if (lastw == alphanum) {
-    wrputc(' ', wglb->writewch);
+    wrputc(' ', wglb->stream);
   }
-  wrputc('_', wglb->writewch);
+  wrputc('_', wglb->stream);
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (IsAttVar(t)) {
@@ -553,31 +506,31 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 	Int sl = 0;
 	Term l = attv->Atts;
 
-	wrputs("$AT(",wglb->writewch);
+	wrputs("$AT(",wglb->stream);
 	write_var(t, wglb, rwt);
-	wrputc(',', wglb->writewch);      
+	wrputc(',', wglb->stream);      
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)attv PASS_REGS);
 	}
 	writeTerm((Term)&(attv->Value), 999, 1, FALSE, wglb, rwt);
-	wrputc(',', wglb->writewch);
+	wrputc(',', wglb->stream);
 	writeTerm(l, 999, 1, FALSE, wglb, rwt);
 	if (wglb->keep_terms) {
 	  attv = (attvar_record *)Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
 	}
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
       }
       Yap_Portray_delays = TRUE;
       return;
     }
 #endif
-    wrputc('D', wglb->writewch);
-    wrputn(vcount,wglb->writewch);
+    wrputc('D', wglb->stream);
+    wrputn(vcount,wglb->stream);
 #endif
   } else {
-    wrputn(((Int) (t- H0)),wglb->writewch);
+    wrputn(((Int) (t- H0)),wglb->stream);
   }
 }
 
@@ -689,16 +642,16 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     if (ndirection > 0) {
       do_jump = (direction <= 0);
     } else if (ndirection == 0) {
-      wrputc(',', wglb->writewch);
-      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb->writewch);
+      wrputc(',', wglb->stream);
+      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb->stream);
       lastw = separator;
       return;
     } else {
       do_jump = (direction >= 0);
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
-      wrputc('|', wglb->writewch);
-      putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
+      wrputc('|', wglb->stream);
+      putAtom(Atom3Dots, wglb->Quote_illegal, wglb->stream);
       return;
     }
     lastw = separator;
@@ -706,23 +659,23 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     depth++;
     if (do_jump)
       break;
-    wrputc(',', wglb->writewch);
+    wrputc(',', wglb->stream);
     t = ti;
   }
   if (IsPairTerm(ti)) {
     Term nt = from_pointer(RepPair(t)+1, &nrwt, wglb);
     /* we found an infinite loop */
     if (IsAtomTerm(nt)) {
-      wrputc('|', wglb->writewch);      
+      wrputc('|', wglb->stream);      
       writeTerm(nt, 999, depth, FALSE, wglb, rwt);
     } else {
       /* keep going on the list */
-      wrputc(',', wglb->writewch);      
+      wrputc(',', wglb->stream);      
       write_list(nt, direction, depth, wglb, &nrwt);
     }
     restore_from_write(&nrwt, wglb);
   } else if (ti != MkAtomTerm(AtomNil)) {
-    wrputc('|', wglb->writewch);
+    wrputc('|', wglb->stream);
     lastw = separator;
     writeTerm(from_pointer(RepPair(t)+1, &nrwt, wglb), 999, depth, FALSE, wglb, &nrwt);
     restore_from_write(&nrwt, wglb);
@@ -741,7 +694,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   nrwt.u.s.ptr = 0;
 
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
-    putAtom(Atom3Dots, wglb->Quote_illegal, wglb->writewch);
+    putAtom(Atom3Dots, wglb->Quote_illegal, wglb->stream);
     return;
   }
   if (EX)
@@ -750,14 +703,14 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
   } else if (IsIntTerm(t)) {
-    wrputn((Int) IntOfTerm(t),wglb->writewch);
+    wrputn((Int) IntOfTerm(t),wglb->stream);
   } else if (IsAtomTerm(t)) {
-    putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->writewch);
+    putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->stream);
   } else if (IsPairTerm(t)) {
     if (wglb->Ignore_ops) {
       Int sl = 0;
 
-      wrputs("'.'(",wglb->writewch);
+      wrputs("'.'(",wglb->stream);
       lastw = separator;
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
@@ -770,7 +723,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
       }
-      wrputs(",",wglb->writewch);	
+      wrputs(",",wglb->stream);	
       if (wglb->keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t PASS_REGS);      
@@ -782,7 +735,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
       }
-      wrputc(')', wglb->writewch);
+      wrputc(')', wglb->stream);
       lastw = separator;
       return;
     } 
@@ -803,13 +756,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
-      putString(t, wglb->writewch);
+      putString(t, wglb->stream);
     } else {
-      wrputc('[', wglb->writewch);
+      wrputc('[', wglb->stream);
       lastw = separator;
       /* we assume t was already saved in the stack */ 
       write_list(t, 0, depth, wglb, rwt);
-      wrputc(']', wglb->writewch);
+      wrputc(']', wglb->stream);
       lastw = separator;
     }
   } else {		/* compound term */
@@ -821,16 +774,16 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (IsExtensionFunctor(functor)) {
       switch((CELL)functor) {
       case (CELL)FunctorDouble:
-	wrputf(FloatOfTerm(t),wglb->writewch);
+	wrputf(FloatOfTerm(t),wglb->stream);
 	return;
       case (CELL)FunctorAttVar:	
 	write_var(RepAppl(t)+1, wglb, &nrwt);
 	return;
       case (CELL)FunctorDBRef:
-	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->writewch);
+	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->stream);
 	return;
       case (CELL)FunctorLongInt:
-	wrputn(LongIntOfTerm(t),wglb->writewch);
+	wrputn(LongIntOfTerm(t),wglb->stream);
 	return;
 	/* case (CELL)FunctorBigInt: */
       default:
@@ -844,14 +797,14 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (Arity == SFArity) {
       int             argno = 1;
       CELL           *p = ArgsOfSFTerm(t);
-      putAtom(atom, wglb->Quote_illegal, wglb->writewch);
-      wrputc('(', wglb->writewch);
+      putAtom(atom, wglb->Quote_illegal, wglb->stream);
+      wrputc('(', wglb->stream);
       lastw = separator;
       while (*p) {
 	Int sl = 0;
 
 	while (argno < *p) {
-	  wrputc('_', wglb->writewch), wrputc(',', wglb->writewch);
+	  wrputc('_', wglb->stream), wrputc(',', wglb->stream);
 	  ++argno;
 	}
 	*p++;
@@ -869,10 +822,10 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  Yap_RecoverSlots(1);
 	}
 	if (*p)
-	  wrputc(',', wglb->writewch);
+	  wrputc(',', wglb->stream);
 	argno++;
       }
-      wrputc(')', wglb->writewch);
+      wrputc(')', wglb->stream);
       lastw = separator;
       return;
     }
@@ -911,23 +864,23 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->writewch);
-	wrputc('(', wglb->writewch);
+	  wrputc(' ', wglb->stream);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
-      putAtom(atom, wglb->Quote_illegal, wglb->writewch);
+      putAtom(atom, wglb->Quote_illegal, wglb->stream);
       if (bracket_right) {
-	wrputc('(', wglb->writewch);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_right) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
       if (op > p) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
     } else if (!wglb->Ignore_ops &&
@@ -941,12 +894,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->writewch);
-	wrputc('(', wglb->writewch);
+	  wrputc(' ', wglb->stream);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       if (bracket_left) {
-	wrputc('(', wglb->writewch);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       if (wglb->keep_terms) {
@@ -961,12 +914,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	Yap_RecoverSlots(1 PASS_REGS);
       }
       if (bracket_left) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
-      putAtom(atom, wglb->Quote_illegal, wglb->writewch);
+      putAtom(atom, wglb->Quote_illegal, wglb->stream);
       if (op > p) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
     } else if (!wglb->Ignore_ops &&
@@ -985,12 +938,12 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
 	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->writewch);
-	wrputc('(', wglb->writewch);
+	  wrputc(' ', wglb->stream);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       if (bracket_left) {
-	wrputc('(', wglb->writewch);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       if (wglb->keep_terms) {
@@ -1005,58 +958,58 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	Yap_RecoverSlots(1 PASS_REGS);
       }
       if (bracket_left) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
       /* avoid quoting commas */
       if (strcmp(RepAtom(atom)->StrOfAE,","))
-	putAtom(atom, wglb->Quote_illegal, wglb->writewch);
+	putAtom(atom, wglb->Quote_illegal, wglb->stream);
       else {
-	wrputc(',', wglb->writewch);
+	wrputc(',', wglb->stream);
 	lastw = separator;
       }
       if (bracket_right) {
-	wrputc('(', wglb->writewch);
+	wrputc('(', wglb->stream);
 	lastw = separator;
       }
       writeTerm(from_pointer(RepAppl(t)+2, &nrwt, wglb), rp, depth + 1, TRUE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_right) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
       if (op > p) {
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
     } else if (wglb->Handle_vars && functor == FunctorVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
-	wrputc(' ', wglb->writewch);
+	wrputc(' ', wglb->stream);
       }
       if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti))) {
 	if (IsIntTerm(ti)) {
 	  Int k = IntOfTerm(ti);
 	  if (k == -1)  {
-	    wrputc('_', wglb->writewch);
+	    wrputc('_', wglb->stream);
 	    lastw = alphanum;
 	    return;
 	  } else {
-	    wrputc((k % 26) + 'A', wglb->writewch);
+	    wrputc((k % 26) + 'A', wglb->stream);
 	    if (k >= 26) {
 	      /* make sure we don't get confused about our context */
 	      lastw = separator;
-	      wrputn( k / 26 ,wglb->writewch);
+	      wrputn( k / 26 ,wglb->stream);
 	    } else
 	      lastw = alphanum;
 	  }
 	} else {
-	  putUnquotedString(ti, wglb->writewch);
+	  putUnquotedString(ti, wglb->stream);
 	}
       } else {
 	Int sl = 0;
 
-	wrputs("'$VAR'(",wglb->writewch);
+	wrputs("'$VAR'(",wglb->stream);
 	lastw = separator;
 	if (wglb->keep_terms) {
 	  /* garbage collection may be called */
@@ -1069,26 +1022,24 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  t = Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
 	}
-	wrputc(')', wglb->writewch);
+	wrputc(')', wglb->stream);
 	lastw = separator;
       }
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
-      wrputc('{', wglb->writewch);
+      wrputc('{', wglb->stream);
       lastw = separator;
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), 1200, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      wrputc('}', wglb->writewch);
+      wrputc('}', wglb->stream);
       lastw = separator;
     } else  if (atom == AtomArray) {
       Int sl = 0;
 
-      wrputc('{', wglb->writewch);
+      wrputc('{', wglb->stream);
       lastw = separator;
       for (op = 1; op <= Arity; ++op) {
 	if (op == wglb->MaxArgs) {
-	  wrputc('.', wglb->writewch);
-	  wrputc('.', wglb->writewch);
-	  wrputc('.', wglb->writewch);
+	  wrputs('...', wglb->stream);
 	  break;
 	}
 	if (wglb->keep_terms) {
@@ -1103,23 +1054,23 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  Yap_RecoverSlots(1 PASS_REGS);
 	}
 	if (op != Arity) {
-	  wrputc(',', wglb->writewch);
+	  wrputc(',', wglb->stream);
 	  lastw = separator;
 	}
       }
-      wrputc('}', wglb->writewch);
+      wrputc('}', wglb->stream);
       lastw = separator;
     } else {
-      putAtom(atom, wglb->Quote_illegal, wglb->writewch);
+      putAtom(atom, wglb->Quote_illegal, wglb->stream);
       lastw = separator;
-      wrputc('(', wglb->writewch);
+      wrputc('(', wglb->stream);
       for (op = 1; op <= Arity; ++op) {
 	Int sl = 0;
 
 	if (op == wglb->MaxArgs) {
-	  wrputc('.', wglb->writewch);
-	  wrputc('.', wglb->writewch);
-	  wrputc('.', wglb->writewch);
+	  wrputc('.', wglb->stream);
+	  wrputc('.', wglb->stream);
+	  wrputc('.', wglb->stream);
 	  break;
 	}
 	if (wglb->keep_terms) {
@@ -1134,18 +1085,18 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  Yap_RecoverSlots(1 PASS_REGS);
 	}
 	if (op != Arity) {
-	  wrputc(',', wglb->writewch);
+	  wrputc(',', wglb->stream);
 	  lastw = separator;
 	}
       }
-      wrputc(')', wglb->writewch);
+      wrputc(')', wglb->stream);
       lastw = separator;
     }
   }
 }
 
 void 
-Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
+Yap_plwrite(Term t, void *mywrite, int flags, int priority)
      /* term to be written			 */
      /* consumer				 */
      /* write options			 */
@@ -1153,19 +1104,24 @@ Yap_plwrite(Term t, int (*mywrite) (int, wchar_t), int flags, int priority)
   struct write_globs wglb;
   struct rewind_term rwt;
 
-  wglb.writewch = mywrite;
+  if (!mywrite)
+    wglb.stream = Serror;
+  else
+    wglb.stream = mywrite;
+
   lastw = separator;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
   wglb.MaxDepth = 15L;
-  wglb.MaxArgs = 15L;
+  wglb.MaxArgs = 60L;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   /* initialise wglb */
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;
+  wglb.Write_strings = flags & BackQuote_String_f;
   /* protect slots for portray */
   writeTerm(from_pointer(&t, &rwt, &wglb), priority, 1, FALSE, &wglb, &rwt);
   restore_from_write(&rwt, &wglb);

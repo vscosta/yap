@@ -26,16 +26,7 @@
 #include "clause.h"
 #include "tracer.h"
 
-STATIC_PROTO(int  TracePutchar, (int, int));
 STATIC_PROTO(void  send_tracer_message, (char *, char *, Int, char *, CELL *));
-
-
-
-static int
-TracePutchar(int sno, int ch)
-{
-  return(putc(ch, GLOBAL_stderr)); /* use standard error stream, which is supposed to be 2*/
-}
 
 static void
 send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
@@ -66,7 +57,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 	Yap_Portray_delays = TRUE;
 #endif
 #endif
-	Yap_plwrite(args[i], TracePutchar, Handle_vars_f, 1200);
+	Yap_plwrite(args[i], NULL, Handle_vars_f, 1200);
 #if DEBUG
 #if COROUTINING
 	Yap_Portray_delays = FALSE;
