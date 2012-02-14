@@ -168,7 +168,9 @@ format_float(double f, char *buf)
 
 char *
 varName(term_t t, char *name)
-{ CELL *adr = (CELL *)Yap_GetFromSlot(t);
+{ 
+  CACHE_REGS
+  CELL *adr = (CELL *)Yap_GetFromSlot(t PASS_REGS);
 
   if (IsAttVar(adr)) {
     Ssprintf(name, "_D%ld", (CELL)adr - (CELL)H0);
@@ -183,6 +185,7 @@ varName(term_t t, char *name)
 static bool
 writeTerm(term_t t, int prec, write_options *options)
 {
+  CACHE_REGS
   UInt yap_flag = Use_SWI_Stream_f;
   int flags = options->flags;
   Term old_module;
@@ -207,7 +210,7 @@ writeTerm(term_t t, int prec, write_options *options)
     yap_flag |= Blob_Portray_f;
   old_module = CurrentModule;
   CurrentModule = options->module;
-  Yap_plwrite(Yap_GetFromSlot(t), options->out, options->max_depth, yap_flag, prec);
+  Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
   CurrentModule = old_module;
   return TRUE;
 }
