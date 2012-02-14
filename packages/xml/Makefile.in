@@ -1,0 +1,71 @@
+#
+# default base directory for YAP installation
+#
+ROOTDIR = @prefix@
+#
+# where the binary should be
+#
+BINDIR = $(ROOTDIR)/bin
+#
+# where YAP should look for binary libraries
+#
+LIBDIR=@libdir@/Yap
+#
+# where YAP should look for architecture-independent Prolog libraries
+#
+SHAREDIR=$(ROOTDIR)/share
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+srcdir=@srcdir@
+YAP_EXTRAS=@YAP_EXTRAS@ 
+
+EXDIR=$(srcdir)/examples
+
+XML_PROGRAMS= \
+	$(srcdir)/xml_acquisition.pl \
+	$(srcdir)/xml_diagnosis.pl \
+	$(srcdir)/xml_driver.pl \
+	$(srcdir)/xml_generation.pl \
+	$(srcdir)/xml.iso.pl \
+	$(srcdir)/xml_pp.pl \
+	$(srcdir)/xml_utilities.pl
+
+XML_EXAMPLES= \
+	$(srcdir)/xml_example/bib.xml \
+	$(srcdir)/xml_example/books.xml \
+	$(srcdir)/xml_example/misc.pl \
+	$(srcdir)/xml_example/prices.xml \
+	$(srcdir)/xml_example/q1.xml \
+	$(srcdir)/xml_example/q2.xml \
+	$(srcdir)/xml_example/q3.xml \
+	$(srcdir)/xml_example/q4.xml \
+	$(srcdir)/xml_example/q5.xml \
+	$(srcdir)/xml_example/q6.xml \
+	$(srcdir)/xml_example/q7.xml \
+	$(srcdir)/xml_example/q8.xml \
+	$(srcdir)/xml_example/q9.xml \
+	$(srcdir)/xml_example/q10.xml \
+	$(srcdir)/xml_example/q11.xml \
+	$(srcdir)/xml_example/q12.xml \
+	$(srcdir)/xml_example/reviews.xml \
+	$(srcdir)/xml_example/xml_example.pl
+
+PROGRAMS= \
+	$(srcdir)/xml.pl \
+	$(XML_PROGRAMS)
+
+all:
+
+install: $(PROGRAMS) $(EXAMPLES)
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
+	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/xml
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/examples/xml
+	$(INSTALL_DATA) $(srcdir)/xml.pl $(DESTDIR)$(SHAREDIR)/Yap
+	for p in $(XML_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/xml; done
+	for p in $(XML_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/examples/xml; done
+

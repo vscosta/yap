@@ -861,6 +861,7 @@ install_copied_files:
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	(cd packages/meld; $(MAKE) install)
+	(cd packages/xml; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
 
 ##########

@@ -10124,6 +10124,7 @@ mkdir -p  packages/RDF
 mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/xml
 mkdir -p  packages/zlib
 
 ac_config_files="$ac_config_files Makefile"
@@ -10169,6 +10170,8 @@ ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefil
 ac_config_files="$ac_config_files packages/cplint/slipcase/Makefile"
 
 ac_config_files="$ac_config_files packages/meld/Makefile"
+
+ac_config_files="$ac_config_files packages/xml/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/Makefile"
 
@@ -11002,6 +11005,7 @@ do
     "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
     "packages/cplint/slipcase/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/slipcase/Makefile" ;;
     "packages/meld/Makefile") CONFIG_FILES="$CONFIG_FILES packages/meld/Makefile" ;;
+    "packages/xml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/xml/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clib/Makefile" ;;

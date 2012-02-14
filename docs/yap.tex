@@ -2309,6 +2309,25 @@ file into a module which is not the working one, prefix the file name
 with the module name, in the form @code{@var{Module}:@var{File}}, when
 loading the file.
 
+@item export(+@var{PredicateIndicator})
+@findex export/1
+@snindex export/1
+@cnindex export/1
+
+Add predicates to the public list of the context module. This implies
+the predicate will be imported into another module if this module is
+imported with @code{use_module/[1,2]}. Note that predicates are normally
+exported using the directive @code{module/2}. @code{export/1} is meant
+to handle export from dynamically created modules.
+
+@item export_list(?@var{Mod},?@var{ListOfPredicateIndicator})
+@findex export_list/2
+@snindex export_list/2
+@cnindex export_list/2
+
+The list @var{ListOfPredicateIndicator} contains all predicates exported
+by module @var{Mod}.
+
 @end table
 
 @node Using Modules, Meta-Predicates in Modules, Defining Modules, Modules

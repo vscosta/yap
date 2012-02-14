@@ -49,7 +49,8 @@ all:
 install: $(PROGRAMS) $(EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/meld
+	mkdir -p $(DESTDIR)$(SHAREDIR)/share/Yap/examples/meld
 	$(INSTALL_DATA) $(srcdir)/meld.yap $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(MELD_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/meld; done
-	for p in $(MELD_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/meld; done
+	for p in $(MELD_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/share/Yap/examples/meld; done
 

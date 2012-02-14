@@ -2289,6 +2289,7 @@ mkdir -p  packages/RDF
 mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/xml
 mkdir -p  packages/zlib
 
 AC_CONFIG_FILES([Makefile])
@@ -2313,6 +2314,7 @@ AC_CONFIG_FILES([packages/cplint/Makefile])
 AC_CONFIG_FILES([packages/cplint/approx/simplecuddLPADs/Makefile])
 AC_CONFIG_FILES([packages/cplint/slipcase/Makefile])
 AC_CONFIG_FILES([packages/meld/Makefile])
+AC_CONFIG_FILES([packages/xml/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/Makefile ])
 
 if test "$ENABLE_CHR" = ""; then
