@@ -3029,10 +3029,7 @@ reinstall_clauses(ClauseDef *cls, ClauseDef *end, PredEntry *ap, istack_entry *s
 static istack_entry *
 install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 {
-  int last_arg = TRUE;
-
   istack_entry *sp = stack;
-  last_arg = TRUE;
   while (sp->pos) {
     if ((Int)(sp->pos) > 0) {
       add_head_info(cls, sp->pos);
@@ -3077,9 +3074,6 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	      arity = 0;
 	  else
 	    arity = ArityOfFunctor((Functor)f);
-	}
-	if (arity != argno+1) {
-	  last_arg = FALSE;
 	}
       }
     }
@@ -6648,9 +6642,13 @@ Yap_NthClause(PredEntry *ap, Int ncls)
     return NULL;
   else if (ncls == 1)
     return to_clause(ap->cs.p_code.FirstClause,ap);
-  else if (ncls == ap->cs.p_code.NOfClauses)
+  else if (ap->PredFlags & MegaClausePredFlag) {
+    MegaClause *mcl = ClauseCodeToMegaClause(ap->cs.p_code.FirstClause);
+    /* fast access to nth element, all have same size */
+    return (LogUpdClause *)((char *)mcl->ClCode+(ncls-1)*mcl->ClItemSize);
+  } else if (ncls == ap->cs.p_code.NOfClauses) {
     return to_clause(ap->cs.p_code.LastClause,ap);
-  else if (ncls < 0)
+  } else if (ncls < 0)
     return NULL;
   
   if (ap->ModuleOfPred != IDB_MODULE) {
