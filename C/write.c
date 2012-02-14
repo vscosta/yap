@@ -69,7 +69,7 @@ typedef  struct  rewind_term {
 typedef struct write_globs {
   void     *stream;
   int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
-  int      keep_terms;
+  int      Keep_terms;
   int      Write_Loops;
   int      Write_strings;
   UInt     MaxDepth, MaxArgs;
@@ -519,14 +519,14 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 	wrputs("$AT(",wglb->stream);
 	write_var(t, wglb, rwt);
 	wrputc(',', wglb->stream);      
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)attv PASS_REGS);
 	}
 	writeTerm((Term)&(attv->Value), 999, 1, FALSE, wglb, rwt);
 	wrputc(',', wglb->stream);
 	writeTerm(l, 999, 1, FALSE, wglb, rwt);
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  attv = (attvar_record *)Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
 	}
@@ -555,7 +555,7 @@ from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
   t = *ptr;
   if (!IsVarTerm(t) && !IsAtomOrIntTerm(t)) {
     struct rewind_term *x = rwt->parent;
-    if (wglb->keep_terms) {
+    if (wglb->Keep_terms) {
       rwt->u.s.old = Yap_InitSlot(t PASS_REGS);
       rwt->u.s.ptr = Yap_InitSlot((CELL)ptr PASS_REGS);
       while (x) {
@@ -582,7 +582,7 @@ static Term
 check_infinite_loop(Term t, struct rewind_term *x, struct write_globs *wglb)
 {
   CACHE_REGS
-  if (wglb->keep_terms) {
+  if (wglb->Keep_terms) {
     while (x) {
       if (Yap_GetFromSlot(x->u.s.old PASS_REGS) == t)
 	return TermFoundVar;
@@ -605,7 +605,7 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
   Term t;
   if (rwt->u.s.ptr) {
     CELL *ptr;
-    if (wglb->keep_terms) {
+    if (wglb->Keep_terms) {
       ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u.s.ptr PASS_REGS);
       t = Yap_GetPtrFromSlot(rwt->u.s.old PASS_REGS);
       Yap_RecoverSlots(2 PASS_REGS);
@@ -631,13 +631,13 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     int ndirection;
     int do_jump;
 
-    if (wglb->keep_terms) {
+    if (wglb->Keep_terms) {
       /* garbage collection may be called */
       sl = Yap_InitSlot(t PASS_REGS);
     }
     writeTerm(from_pointer(RepPair(t), &nrwt, wglb), 999, depth+1, FALSE, wglb, &nrwt);
     restore_from_write(&nrwt, wglb);
-    if (wglb->keep_terms) {
+    if (wglb->Keep_terms) {
       t = Yap_GetFromSlot(sl PASS_REGS);
       Yap_RecoverSlots(1 PASS_REGS);
     }
@@ -722,25 +722,25 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 
       wrputs("'.'(",wglb->stream);
       lastw = separator;
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(HeadOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
       }
       wrputs(",",wglb->stream);	
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(TailOfTerm(t), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
@@ -820,13 +820,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	*p++;
 	lastw = separator;
 	/* cannot use the term directly with the SBA */
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot((CELL)p);
 	}
 	writeTerm(from_pointer(p++, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  p = (CELL *)Yap_GetFromSlot(sl);
 	  Yap_RecoverSlots(1);
@@ -912,13 +912,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc('(', wglb->stream);
 	lastw = separator;
       }
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
@@ -956,13 +956,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc('(', wglb->stream);
 	lastw = separator;
       }
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	sl = Yap_InitSlot(t PASS_REGS);      
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      if (wglb->keep_terms) {
+      if (wglb->Keep_terms) {
 	/* garbage collection may be called */
 	t = Yap_GetFromSlot(sl PASS_REGS);
 	Yap_RecoverSlots(1 PASS_REGS);
@@ -1023,13 +1023,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 
 	wrputs("'$VAR'(",wglb->stream);
 	lastw = separator;
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t PASS_REGS);      
 	}
 	writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
@@ -1054,13 +1054,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  wrputs("...", wglb->stream);
 	  break;
 	}
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t PASS_REGS);      
 	}
 	writeTerm(from_pointer(RepAppl(t)+op, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
@@ -1085,13 +1085,13 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  wrputc('.', wglb->stream);
 	  break;
 	}
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  sl = Yap_InitSlot(t PASS_REGS);      
 	}
 	writeTerm(from_pointer(RepAppl(t)+op, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	if (wglb->keep_terms) {
+	if (wglb->Keep_terms) {
 	  /* garbage collection may be called */
 	  t = Yap_GetFromSlot(sl PASS_REGS);
 	  Yap_RecoverSlots(1 PASS_REGS);
@@ -1129,7 +1129,7 @@ Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
   wglb.MaxArgs = max_depth;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
-  wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 
+  wglb.Keep_terms = (flags & (Use_portray_f|To_heap_f)); 
   /* initialise wglb */
   rwt.parent = NULL;
   wglb.Ignore_ops = flags & Ignore_ops_f;

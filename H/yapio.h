@@ -67,7 +67,6 @@
 #define YP_FILE		FILE
 
 int     STD_PROTO(YP_putc,(int, int));
-void    STD_PROTO(Yap_dowrite, (Term, IOSTREAM *, int, int));
 
 #else
 

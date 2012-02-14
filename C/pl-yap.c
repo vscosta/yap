@@ -1134,39 +1134,12 @@ Yap_StreamPosition(IOSTREAM *st)
 }
 
 IOSTREAM   *STD_PROTO(Yap_Scurin, (void));
-int    STD_PROTO(Yap_dowrite, (Term, IOSTREAM *, int, int));
 
 IOSTREAM *
 Yap_Scurin(void)
 {
   GET_LD
   return Scurin;
-}
-
-int 
-Yap_dowrite(Term t, IOSTREAM *stream, int flags, int priority)
-     /* term to be written			 */
-     /* consumer				 */
-     /* write options			 */
-{			
-  CACHE_REGS
-    int swi_flags;
-  int res;
-  Int slot = Yap_InitSlot(t PASS_REGS);  
-
-  swi_flags = 0;
-  if (flags & Quote_illegal_f)
-    swi_flags |= PL_WRT_QUOTED;
-  if (flags & Handle_vars_f)
-    swi_flags |= PL_WRT_NUMBERVARS;
-  if (flags & Use_portray_f)
-    swi_flags |= PL_WRT_PORTRAY;
-  if (flags & Ignore_ops_f)
-    swi_flags |= PL_WRT_IGNOREOPS;
-  
-  res =  PL_write_term(stream, slot, priority, swi_flags);
-  Yap_RecoverSlots(1 PASS_REGS);
-  return res;
 }
 
 int

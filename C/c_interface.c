@@ -2761,7 +2761,7 @@ YAP_Write(Term t, IOSTREAM *stream, int flags)
 {
   BACKUP_MACHINE_REGS();
 
-  Yap_dowrite (t, stream, flags, 1200);
+  Yap_plwrite (t, stream, 0, flags, 1200);
 
   RECOVER_MACHINE_REGS();
 }
