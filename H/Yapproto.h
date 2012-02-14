@@ -406,7 +406,7 @@ Int     STD_PROTO(Yap_SkipList,(Term *, Term **));
 
 
 /* write.c */
-void	STD_PROTO(Yap_plwrite,(Term, void *, int, int));
+void	STD_PROTO(Yap_plwrite,(Term, void *, int, int, int));
 
 
 /* MYDDAS */

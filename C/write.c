@@ -76,7 +76,6 @@ typedef struct write_globs {
 } wglbs;
 
 STATIC_PROTO(void wrputn, (Int, wrf));
-STATIC_PROTO(void wrputs, (char *, wrf));
 STATIC_PROTO(void wrputf, (Float, wrf));
 STATIC_PROTO(void wrputref, (CODEADDR, int, wrf));
 STATIC_PROTO(int legalAtom, (unsigned char *));
@@ -193,19 +192,21 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
 {
   CACHE_REGS
   CELL *pt = RepAppl(t)+1;
+  CELL big_tag = pt[0];
+
 #ifdef USE_GMP
-  if (pt[0] == BIG_INT) 
+  if (big_tag == BIG_INT) 
   {
     MP_INT *big = Yap_BigIntOfTerm(t);
     write_mpint(big, wglb->stream);
     return;
-  } else if (pt[0] == BIG_RATIONAL) {
+  } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
     writeTerm(trat, p, depth, rinfixarg, wglb, rwt);
     return;
   }
 #endif
-  if (pt[0] == BLOB_STRING) {
+  if (big_tag == BLOB_STRING) {
     if (wglb->Write_strings)
       wrputc('`',wglb->stream);
     else
@@ -216,7 +217,7 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     else
       wrputc('"',wglb->stream);
     return;
-  } else if  (pt[0] == BLOB_WIDE_STRING) {
+  } else if (big_tag == BLOB_WIDE_STRING) {
     wchar_t *s = Yap_BlobWideStringOfTerm(t);
     if (wglb->Write_strings)
       wrputc('`',wglb->stream);
@@ -230,6 +231,15 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
     else
       wrputc('"',wglb->stream);
     return;
+  } else if (big_tag >= USER_BLOB_START && big_tag < USER_BLOB_END) {
+    Opaque_CallOnWrite f;
+    CELL blob_info;
+
+    blob_info = big_tag - USER_BLOB_START;
+    if (GLOBAL_OpaqueHandlers &&
+	(f= GLOBAL_OpaqueHandlers[blob_info].write_handler)) {
+      (f)(wglb->stream, big_tag, (void *)((MP_INT *)(pt+1)), 0);
+    }
   }
   wrputs("0",wglb->stream);
 }	                  
@@ -987,7 +997,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (lastw == alphanum) {
 	wrputc(' ', wglb->stream);
       }
-      if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti)) || IsAtomTerm(ti)) {
+      if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti) || IsAtomTerm(ti))) {
 	if (IsIntTerm(ti)) {
 	  Int k = IntOfTerm(ti);
 	  if (k == -1)  {
@@ -1041,7 +1051,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       lastw = separator;
       for (op = 1; op <= Arity; ++op) {
 	if (op == wglb->MaxArgs) {
-	  wrputs('...', wglb->stream);
+	  wrputs("...", wglb->stream);
 	  break;
 	}
 	if (wglb->keep_terms) {
@@ -1098,7 +1108,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 }
 
 void 
-Yap_plwrite(Term t, void *mywrite, int flags, int priority)
+Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
      /* term to be written			 */
      /* consumer				 */
      /* write options			 */
@@ -1115,8 +1125,8 @@ Yap_plwrite(Term t, void *mywrite, int flags, int priority)
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
-  wglb.MaxDepth = 15L;
-  wglb.MaxArgs = 60L;
+  wglb.MaxDepth = max_depth;
+  wglb.MaxArgs = max_depth;
   /* notice: we must have ASP well set when using portray, otherwise
      we cannot make recursive Prolog calls */
   wglb.keep_terms = (flags & (Use_portray_f|To_heap_f)); 

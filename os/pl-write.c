@@ -207,17 +207,16 @@ writeTerm(term_t t, int prec, write_options *options)
     yap_flag |= Blob_Portray_f;
   old_module = CurrentModule;
   CurrentModule = options->module;
-  Yap_plwrite(Yap_GetFromSlot(t), options->out, yap_flag, prec);
+  Yap_plwrite(Yap_GetFromSlot(t), options->out, options->max_depth, yap_flag, prec);
   CurrentModule = old_module;
   return TRUE;
 }
 
 int
 writeAtomToStream(IOSTREAM *s, atom_t atom)
-{ Yap_plwrite(MkAtomTerm(YAP_AtomFromSWIAtom(atom)), s, 0, 1200);
+{ Yap_plwrite(MkAtomTerm(YAP_AtomFromSWIAtom(atom)), s, 0, 0, 1200);
   return 1;
 }
-
 
 int
 writeAttributeMask(atom_t a)

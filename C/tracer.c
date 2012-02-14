@@ -57,7 +57,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
 	Yap_Portray_delays = TRUE;
 #endif
 #endif
-	Yap_plwrite(args[i], NULL, Handle_vars_f, 1200);
+	Yap_plwrite(args[i], NULL, 15, Handle_vars_f, 1200);
 #if DEBUG
 #if COROUTINING
 	Yap_Portray_delays = FALSE;
