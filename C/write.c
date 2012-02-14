@@ -987,7 +987,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (lastw == alphanum) {
 	wrputc(' ', wglb->stream);
       }
-      if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti))) {
+      if (!IsVarTerm(ti) && (IsIntTerm(ti) || IsStringTerm(ti)) || IsAtomTerm(ti)) {
 	if (IsIntTerm(ti)) {
 	  Int k = IntOfTerm(ti);
 	  if (k == -1)  {
@@ -1003,6 +1003,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	    } else
 	      lastw = alphanum;
 	  }
+	} else if (IsAtomTerm(ti)) {
+	  putAtom(AtomOfTerm(ti), FALSE, wglb->stream);
 	} else {
 	  putUnquotedString(ti, wglb->stream);
 	}
