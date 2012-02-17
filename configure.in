@@ -392,7 +392,7 @@ AC_ARG_WITH(lam,
 		LDFLAGS="$LDFLAGS -L${yap_cv_lam}/lib"
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
 	fi,
-	[yap_cv_lam=yes])
+	[yap_cv_lam=no])
 
 AC_ARG_WITH(heap-space,
 	[ --with-heap-space[=space]  default heap size in Kbytes],
