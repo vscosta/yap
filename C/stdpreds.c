@@ -2550,14 +2550,14 @@ p_atom_number( USES_REGS1 )
 
   if (IsVarTerm(t)) {
     char   *String; /* alloc temp space on Trail */
-    char  *s;
+
     if (IsVarTerm(t2)) {
       Yap_Error(INSTANTIATION_ERROR, t2, "atom_number/2");
       return FALSE;
     }
     String = Yap_PreAllocCodeSpace();
     if (String+1024 > (char *)AuxSp) {
-      s = String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
+      String = Yap_ExpandPreAllocCodeSpace(0, NULL, TRUE);
       if (String + 1024 > (char *)AuxSp) {
 	/* crash in flames */
 	Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in number_codes/2");
