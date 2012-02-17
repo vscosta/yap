@@ -43,8 +43,6 @@ typedef enum {
   symbol        /* the previous term was a symbol like +, -, *, .... */
 } wtype;
 
-static wtype lastw;
-
 typedef  void      *wrf;
 
 typedef struct union_slots {
@@ -73,25 +71,28 @@ typedef struct write_globs {
   int      Write_Loops;
   int      Write_strings;
   UInt     MaxDepth, MaxArgs;
+  wtype    lw;
 } wglbs;
 
-STATIC_PROTO(void wrputn, (Int, wrf));
-STATIC_PROTO(void wrputf, (Float, wrf));
-STATIC_PROTO(void wrputref, (CODEADDR, int, wrf));
+#define lastw wglb->lw
+
+STATIC_PROTO(void wrputn, (Int, struct write_globs *));
+STATIC_PROTO(void wrputf, (Float, struct write_globs *));
+STATIC_PROTO(void wrputref, (CODEADDR, int, struct write_globs *));
 STATIC_PROTO(int legalAtom, (unsigned char *));
 /*STATIC_PROTO(int LeftOpToProtect, (Atom, int));
   STATIC_PROTO(int RightOpToProtect, (Atom, int));*/
 STATIC_PROTO(wtype AtomIsSymbols, (unsigned char *));
-STATIC_PROTO(void putAtom, (Atom, int, wrf));
+STATIC_PROTO(void putAtom, (Atom, int, struct write_globs *));
 STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct rewind_term *));
 
 #define wrputc(X,WF)	Sputcode(X,WF)	/* writes a character */
 
 static void 
-wrputn(Int n, wrf stream)	/* writes an integer	 */
+wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
                 
 {
-  CACHE_REGS
+  wrf stream = wglb->stream;
   char s[256], *s1=s; /* that should be enough for most integers */
   if (n < 0) {
     if (lastw == symbol)
@@ -115,7 +116,6 @@ wrputn(Int n, wrf stream)	/* writes an integer	 */
 static void 
 wrputws(wchar_t *s, wrf stream)		/* writes a string	 */
 {
-  CACHE_REGS
   while (*s)
     wrputc(*s++, stream);
 }
@@ -161,27 +161,26 @@ ensure_space(size_t sz) {
 }
 
 static void
-write_mpint(MP_INT *big, wrf stream) {
-  CACHE_REGS
+write_mpint(MP_INT *big, struct write_globs *wglb) {
   char *s;
 
   s = ensure_space(3+mpz_sizeinbase(big, 10));
   if (mpz_sgn(big) < 0) {
     if (lastw == symbol)
-      wrputc(' ', stream);  
+      wrputc(' ', wglb->stream);  
   } else {
     if (lastw == alphanum)
-      wrputc(' ', stream);
+      wrputc(' ', wglb->stream);
   }
   if (!s) {
     s = mpz_get_str(NULL, 10, big);
     if (!s)
       return;
-    wrputs(s,stream);
+    wrputs(s,wglb->stream);
     free(s);
   } else {
     mpz_get_str(s, 10, big);
-    wrputs(s,stream);
+    wrputs(s,wglb->stream);
   }
 }
 #endif
@@ -190,7 +189,6 @@ write_mpint(MP_INT *big, wrf stream) {
 static void 
 writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 {
-  CACHE_REGS
   CELL *pt = RepAppl(t)+1;
   CELL big_tag = pt[0];
 
@@ -198,7 +196,7 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
   if (big_tag == BIG_INT) 
   {
     MP_INT *big = Yap_BigIntOfTerm(t);
-    write_mpint(big, wglb->stream);
+    write_mpint(big, wglb);
     return;
   } else if (big_tag == BIG_RATIONAL) {
     Term trat = Yap_RatTermToApplTerm(t);
@@ -245,27 +243,90 @@ writebig(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, stru
 }	                  
 
 static void 
-wrputf(Float f, wrf stream)		/* writes a float	 */
+wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
 	                  
 {
+  char            s[256];
+  wrf stream = wglb->stream;
+
+#if HAVE_ISNAN || defined(__WIN32)
+  if (isnan(f)) {
+    wrputs("(nan)", stream);
+    lastw = separator;
+    return;
+  }
+#endif
+#if HAVE_ISINF || defined(_WIN32)
+    if (isinf(f)) {
+      if (f < 0) {
+	wrputs("(-inf)", stream);
+      } else {
+	wrputs("(+inf)", stream);
+      }
+      lastw = separator;
+      return;
+    }
+#endif
+#if THREADS
+  /* old style writing */
+  int found_dot = FALSE, found_exp = FALSE;
+  char            *pt = s;
+  int ch;
+
+  if (lastw == symbol) {
+    wrputc(' ', stream);  
+  } else if (lastw == alphanum) {
+    wrputc(' ', stream);
+  }
+  lastw = alphanum;
+  //  sprintf(s, "%.15g", f);
+  sprintf(s, RepAtom(AtomFloatFormat)->StrOfAE, f);
+  while (*pt == ' ')
+    pt++;
+  if (*pt == '-') {
+    wrputc('-', stream);
+    pt++;
+  }
+  while ((ch = *pt) != '\0') {
+    switch (ch) {
+    case '.':
+      found_dot = TRUE;
+      wrputc('.', stream);    
+      break;
+    case 'e':
+    case 'E':
+      if (!found_dot) {
+        found_dot = TRUE;
+        wrputs(".0", stream);
+      }
+      found_exp = TRUE;
+    default:
+      wrputc(ch, stream);
+    }
+    pt++;
+  }
+  if (!found_dot) {
+    wrputs(".0", stream);    
+  }
+#else
   char *format_float(double f, char *buf);
-  CACHE_REGS
-    char            s[256];
   char *buf;
 
   /* use SWI's format_float */
   buf = format_float(f, s);
   if (!buf) return;
   wrputs(buf, stream);
+#endif
 }
 
+/* writes a data base reference */
 static void 
-wrputref(CODEADDR ref, int Quote_illegal, wrf stream)			/* writes a data base reference */
-	                    
+wrputref(CODEADDR ref, int Quote_illegal, struct write_globs *wglb)
 {
   char            s[256];
+  wrf  stream = wglb->stream;
 
-  putAtom(AtomDBref, Quote_illegal, stream);
+  putAtom(AtomDBref, Quote_illegal, wglb);
 #if defined(__linux__) || defined(__APPLE__)
   sprintf(s, "(%p," UInt_FORMAT ")", ref, ((LogUpdClause*)ref)->ClRefCount);
 #else
@@ -326,7 +387,6 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
 static void
 write_quoted(int ch, int quote, wrf stream)
 {
-  CACHE_REGS
   if (yap_flags[CHARACTER_ESCAPE_FLAG] == CPROLOG_CHARACTER_ESCAPES) {
     wrputc(ch, stream);
     if (ch == '\'')
@@ -391,13 +451,13 @@ write_quoted(int ch, int quote, wrf stream)
 }
 
 
+/* writes an atom	 */
 static void 
-putAtom(Atom atom, int Quote_illegal, wrf stream)			/* writes an atom	 */
-	                     
+putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
 {
-  CACHE_REGS
   unsigned char           *s = (unsigned char *)RepAtom(atom)->StrOfAE;
   wtype          atom_or_symbol = AtomIsSymbols(s);
+  wrf stream = wglb->stream;
 
   /* #define CRYPT_FOR_STEVE 1*/
 #ifdef CRYPT_FOR_STEVE
@@ -464,11 +524,12 @@ IsStringTerm(Term string)	/* checks whether this is a string */
   return(TRUE);
 }
 
+/* writes a string	 */
 static void 
-putString(Term string, wrf stream)		/* writes a string	 */
+putString(Term string, struct write_globs *wglb)
 	                     
 {
-  CACHE_REGS
+  wrf stream = wglb->stream;
   wrputc('"', stream);
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
@@ -479,11 +540,12 @@ putString(Term string, wrf stream)		/* writes a string	 */
   lastw = alphanum;
 }
 
+/* writes a string	 */
 static void 
-putUnquotedString(Term string, wrf stream)	/* writes a string	 */
+putUnquotedString(Term string, struct write_globs *wglb)
 	                     
 {
-  CACHE_REGS
+  wrf stream = wglb->stream;
   while (string != TermNil) {
     int ch = IntOfTerm(HeadOfTerm(string));
     wrputc(ch, stream);
@@ -493,6 +555,7 @@ putUnquotedString(Term string, wrf stream)	/* writes a string	 */
 }
 
 
+/* writes an unbound variable	 */
 static void
 write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt) 
 {
@@ -537,10 +600,10 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
     }
 #endif
     wrputc('D', wglb->stream);
-    wrputn(vcount,wglb->stream);
+    wrputn(vcount,wglb);
 #endif
   } else {
-    wrputn(((Int) (t- H0)),wglb->stream);
+    wrputn(((Int) (t- H0)),wglb);
   }
 }
 
@@ -653,7 +716,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
       do_jump = (direction <= 0);
     } else if (ndirection == 0) {
       wrputc(',', wglb->stream);
-      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb->stream);
+      putAtom(AtomFoundVar, wglb->Quote_illegal, wglb);
       lastw = separator;
       return;
     } else {
@@ -661,7 +724,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
     }
     if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
       wrputc('|', wglb->stream);
-      putAtom(Atom3Dots, wglb->Quote_illegal, wglb->stream);
+      putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
       return;
     }
     lastw = separator;
@@ -704,7 +767,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   nrwt.u.s.ptr = 0;
 
   if (wglb->MaxDepth != 0 && depth > wglb->MaxDepth) {
-    putAtom(Atom3Dots, wglb->Quote_illegal, wglb->stream);
+    putAtom(Atom3Dots, wglb->Quote_illegal, wglb);
     return;
   }
   if (EX)
@@ -713,9 +776,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
   if (IsVarTerm(t)) {
     write_var((CELL *)t, wglb, &nrwt);
   } else if (IsIntTerm(t)) {
-    wrputn((Int) IntOfTerm(t),wglb->stream);
+    wrputn((Int) IntOfTerm(t),wglb);
   } else if (IsAtomTerm(t)) {
-    putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb->stream);
+    putAtom(AtomOfTerm(t), wglb->Quote_illegal, wglb);
   } else if (IsPairTerm(t)) {
     if (wglb->Ignore_ops) {
       Int sl = 0;
@@ -766,7 +829,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	return;
     }
     if (yap_flags[WRITE_QUOTED_STRING_FLAG] && IsStringTerm(t)) {
-      putString(t, wglb->stream);
+      putString(t, wglb);
     } else {
       wrputc('[', wglb->stream);
       lastw = separator;
@@ -784,7 +847,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (IsExtensionFunctor(functor)) {
       switch((CELL)functor) {
       case (CELL)FunctorDouble:
-	wrputf(FloatOfTerm(t),wglb->stream);
+	wrputf(FloatOfTerm(t),wglb);
 	return;
       case (CELL)FunctorAttVar:	
 	write_var(RepAppl(t)+1, wglb, &nrwt);
@@ -793,7 +856,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->stream);
 	return;
       case (CELL)FunctorLongInt:
-	wrputn(LongIntOfTerm(t),wglb->stream);
+	wrputn(LongIntOfTerm(t),wglb);
 	return;
 	/* case (CELL)FunctorBigInt: */
       default:
@@ -807,7 +870,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     if (Arity == SFArity) {
       int             argno = 1;
       CELL           *p = ArgsOfSFTerm(t);
-      putAtom(atom, wglb->Quote_illegal, wglb->stream);
+      putAtom(atom, wglb->Quote_illegal, wglb);
       wrputc('(', wglb->stream);
       lastw = separator;
       while (*p) {
@@ -878,7 +941,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc('(', wglb->stream);
 	lastw = separator;
       }
-      putAtom(atom, wglb->Quote_illegal, wglb->stream);
+      putAtom(atom, wglb->Quote_illegal, wglb);
       if (bracket_right) {
 	wrputc('(', wglb->stream);
 	lastw = separator;
@@ -927,7 +990,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc(')', wglb->stream);
 	lastw = separator;
       }
-      putAtom(atom, wglb->Quote_illegal, wglb->stream);
+      putAtom(atom, wglb->Quote_illegal, wglb);
       if (op > p) {
 	wrputc(')', wglb->stream);
 	lastw = separator;
@@ -973,7 +1036,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       }
       /* avoid quoting commas */
       if (strcmp(RepAtom(atom)->StrOfAE,","))
-	putAtom(atom, wglb->Quote_illegal, wglb->stream);
+	putAtom(atom, wglb->Quote_illegal, wglb);
       else {
 	wrputc(',', wglb->stream);
 	lastw = separator;
@@ -1009,14 +1072,14 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	    if (k >= 26) {
 	      /* make sure we don't get confused about our context */
 	      lastw = separator;
-	      wrputn( k / 26 ,wglb->stream);
+	      wrputn( k / 26 ,wglb);
 	    } else
 	      lastw = alphanum;
 	  }
 	} else if (IsAtomTerm(ti)) {
-	  putAtom(AtomOfTerm(ti), FALSE, wglb->stream);
+	  putAtom(AtomOfTerm(ti), FALSE, wglb);
 	} else {
-	  putUnquotedString(ti, wglb->stream);
+	  putUnquotedString(ti, wglb);
 	}
       } else {
 	Int sl = 0;
@@ -1073,7 +1136,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrputc('}', wglb->stream);
       lastw = separator;
     } else {
-      putAtom(atom, wglb->Quote_illegal, wglb->stream);
+      putAtom(atom, wglb->Quote_illegal, wglb);
       lastw = separator;
       wrputc('(', wglb->stream);
       for (op = 1; op <= Arity; ++op) {
@@ -1121,7 +1184,7 @@ Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
   else
     wglb.stream = mywrite;
 
-  lastw = separator;
+  wglb.lw = separator;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
