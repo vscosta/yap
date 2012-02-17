@@ -496,6 +496,12 @@ static char     SccsId[] = "%W% %G%";
 #include "cut_c.h"
 #endif
 
+#if defined(YAPOR) || defined(THREADS)
+#define SET_JLBL(X) jlbl = &(ipc->u.X)
+#else
+#define SET_JLBL(X)
+#endif
+
 UInt STATIC_PROTO(do_index, (ClauseDef *,ClauseDef *,struct intermediates *,UInt,UInt,int,int,CELL *));
 UInt STATIC_PROTO(do_compound_index, (ClauseDef *,ClauseDef *,Term *t,struct intermediates *,UInt,UInt,UInt,UInt,int,int,int,CELL *,int));
 UInt STATIC_PROTO(do_dbref_index, (ClauseDef *,ClauseDef *,Term,struct intermediates *,UInt,UInt,int,int,CELL *));
@@ -3064,17 +3070,8 @@ install_log_upd_clause(ClauseDef *cls, PredEntry *ap, istack_entry *stack)
 	move_next(cls, sp->pos);
       } else if (sp->pos) {
 	UInt argno = -sp->pos;
-	UInt arity;
+
 	skip_to_arg(cls, ap, argno, FALSE);
-	if (IsPairTerm(sp[-1].val))
-	  arity = 2;
-	else {
-	  Functor f = (Functor)RepAppl(sp[-1].val);
-	  if (IsExtensionFunctor(f))
-	      arity = 0;
-	  else
-	    arity = ArityOfFunctor((Functor)f);
-	}
       }
     }
     sp++;
@@ -3325,7 +3322,6 @@ expand_index(struct intermediates *cint) {
   UInt arity = 0;
   UInt lab, fail_l, clleft, i = 0;
   int is_lu = ap->PredFlags & LogUpdatePredFlag;
-  yamop *eblk = NULL;
   yamop *e_code = (yamop *)&(ap->cs.p_code.ExpandCode);
 
   ipc = ap->cs.p_code.TrueCodeOfPred;
@@ -3473,6 +3469,7 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.xll.l1);
 	ipc = ipc->u.xll.l1;
 	parentcl = index_jmp(parentcl, parentcl, ipc, is_lu, e_code);
+
       } else {
 	ipc = NEXTOP(ipc,xll);
       }
@@ -3738,7 +3735,7 @@ expand_index(struct intermediates *cint) {
     COUNT nclauses = ipc->u.sssllp.s1;
     yamop **clp = (yamop **)NEXTOP(ipc,sssllp);
 
-    eblk = cint->expand_block = ipc;
+    cint->expand_block = ipc;
 #if USE_SYSTEM_MALLOC
     if (!cint->cls) {
       cint->cls = (ClauseDef *)Yap_AllocCodeSpace(nclauses*sizeof(ClauseDef));
@@ -3900,7 +3897,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
 	StaticIndex *cl;
 
 	cl = ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred);
-	Yap_kill_iblock((ClauseUnion *)ClauseCodeToStaticIndex(ap->cs.p_code.TrueCodeOfPred),NULL, ap);
+	Yap_kill_iblock((ClauseUnion *)cl,NULL, ap);
       }
 #if defined(YAPOR) || defined(THREADS)
       if (ap->PredFlags & LogUpdatePredFlag &&
@@ -4948,7 +4945,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
   int group1 = TRUE;
   yamop *alt = NULL;
   UInt current_arity = 0;
-  int last_arg = TRUE;
   LogUpdIndex *icl = NULL;
 
   sp = init_block_stack(sp, ipc, ap);
@@ -5208,9 +5204,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
 	yamop *nipc = ipc->u.sllll.l1;
 	current_arity = 2;
 	skip_to_arg(cls, ap, ipc->u.sllll.s, current_arity);
-	if (current_arity != ipc->u.sllll.s+1) {
-	  last_arg = FALSE;
-	}
 	if (nipc == FAILCODE) {
 	  /* jump straight to clause */
 	  if (ap->PredFlags & LogUpdatePredFlag) {
@@ -5227,9 +5220,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       } else if (IsAtomOrIntTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l2;
 	skip_to_arg(cls, ap, ipc->u.sllll.s, current_arity);
-	if (current_arity != ipc->u.sllll.s+1) {
-	  last_arg = FALSE;
-	}
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
@@ -5241,9 +5231,6 @@ add_to_index(struct intermediates *cint, int first, path_stack_entry *sp, Clause
       } else if (IsApplTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l3;
 	skip_to_arg(cls, ap, ipc->u.sllll.s, current_arity);
-	if (current_arity != ipc->u.sllll.s+1) {
-	  last_arg = FALSE;
-	}
 	if (nipc == FAILCODE) {
 	  /* need to expand the block */
 	  sp = kill_block(sp, ap);
@@ -5502,7 +5489,6 @@ static void
 remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg, yamop *lt, struct intermediates *cint) {
   /* last clause to experiment with */
   yamop *ipc = ap->cs.p_code.TrueCodeOfPred;
-  UInt current_arity = 0;
 
   if (ap->cs.p_code.NOfClauses == 1) {
     if (ap->PredFlags & IndexedPredFlag) {
@@ -5633,7 +5619,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       }
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.llll.l1;
-	current_arity = 2;
 	if (IN_BETWEEN(bg,nipc,lt)) {
 	  /* jump straight to clause */
 	  ipc->u.llll.l1 = FAILCODE;
@@ -5677,7 +5662,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _switch_on_arg_type:
       sp = push_path(sp, &(ipc->u.xllll.l4), cls, cint);
-      current_arity = 2;
       if (ap->PredFlags & LogUpdatePredFlag) {
 	add_head_info(cls, Yap_regtoregno(ipc->u.xllll.x));
       } else {
@@ -5724,7 +5708,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
       break;
     case _switch_on_sub_arg_type:
       sp = push_path(sp, &(ipc->u.sllll.l4), cls, cint);
-      current_arity = 2;
       add_arg_info(cls, ap, ipc->u.sllll.s+1);
       if (IsPairTerm(cls->Tag)) {
 	yamop *nipc = ipc->u.sllll.l1;
@@ -5781,9 +5764,6 @@ remove_from_index(PredEntry *ap, path_stack_entry *sp, ClauseDef *cls, yamop *bg
 	  fe = lookup_f_hash(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	} else {
 	  fe = lookup_f(f, ipc->u.sssl.l, ipc->u.sssl.s);
-	}
-	if (!IsExtensionFunctor(f)) {
-	  current_arity = ArityOfFunctor(f);
 	}
 	newpc = fe->u.labp;
 
@@ -6040,9 +6020,10 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
   CELL *s_reg = NULL;
   Term t = TermNil;
   int blob_term = FALSE;
-  yamop *start_pc = ipc;
   choiceptr b0 = NULL;
+#if defined(YAPOR) || defined(THREADS)
   yamop **jlbl = NULL;
+#endif
   int lu_pred = ap->PredFlags & LogUpdatePredFlag;
   int unbounded = TRUE;
 
@@ -6334,7 +6315,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       {
 	Term t = Deref(ARG1);
 	if (IsVarTerm(t)) {
-	  jlbl = &(ipc->u.l.l);
+	  SET_JLBL(l.l);
 	  ipc = ipc->u.l.l;
 	} else {
 	  ipc = NEXTOP(ipc,l);
@@ -6345,7 +6326,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       {
 	Term t = Deref(XREGS[arg_from_x(ipc->u.xll.x)]);
 	if (!IsVarTerm(t)) {
-	  jlbl = &(ipc->u.xll.l1);
+	  SET_JLBL(xll.l1);
 	  ipc = ipc->u.xll.l1;
 	} else {
 	  ipc = NEXTOP(ipc,xll);
@@ -6360,18 +6341,18 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       t = Deref(ARG1);
       blob_term = FALSE;
       if (IsVarTerm(t)) {
-	jlbl = &(ipc->u.llll.l4);
+	SET_JLBL(llll.l4);
 	ipc = ipc->u.llll.l4;
       } else if (IsPairTerm(t)) {
 	unbounded = FALSE;
-	jlbl = &(ipc->u.llll.l1);
+	SET_JLBL(llll.l1);
 	ipc = ipc->u.llll.l1;
 	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
-	jlbl = &(ipc->u.llll.l2);
+	SET_JLBL(llll.l2);
 	ipc = ipc->u.llll.l2;
       } else {
-	jlbl = &(ipc->u.llll.l3);
+	SET_JLBL(llll.l3);
 	ipc = ipc->u.llll.l3;
 	S = RepAppl(t);
       }
@@ -6380,19 +6361,19 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       t = Deref(ARG1);
       blob_term = FALSE;
       if (IsVarTerm(t)) {
-	jlbl = &(ipc->u.ollll.l4);
+	SET_JLBL(ollll.l4);
 	ipc = ipc->u.ollll.l4;
       } else if (IsPairTerm(t)) {
 	unbounded = FALSE;
-	jlbl = &(ipc->u.ollll.l1);
+	SET_JLBL(ollll.l1);
 	ipc = ipc->u.ollll.l1;
 	S = s_reg = RepPair(t);
       } else if (t == TermNil) {
 	unbounded = FALSE;
-	jlbl = &(ipc->u.ollll.l2);
+	SET_JLBL(ollll.l2);
 	ipc = ipc->u.ollll.l2;
       } else {
-	jlbl = &(ipc->u.ollll.l3);
+	SET_JLBL(ollll.l3);
 	ipc = ipc->u.ollll.l3;
 	S = RepAppl(t);
       }
@@ -6401,18 +6382,18 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       t = Deref(XREGS[arg_from_x(ipc->u.xllll.x)]);
       blob_term = FALSE;
       if (IsVarTerm(t)) {
-	jlbl = &(ipc->u.xllll.l4);
+	SET_JLBL(xllll.l4);
 	ipc = ipc->u.xllll.l4;
       } else if (IsPairTerm(t)) {
 	unbounded = FALSE;
-	jlbl = &(ipc->u.xllll.l1);
+	SET_JLBL(xllll.l1);
 	ipc = ipc->u.xllll.l1;
 	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
-	jlbl = &(ipc->u.xllll.l1);
+	SET_JLBL(xllll.l2);
 	ipc = ipc->u.xllll.l2;
       } else {
-	jlbl = &(ipc->u.xllll.l3);
+	SET_JLBL(xllll.l3);
 	ipc = ipc->u.xllll.l3;
 	S = RepAppl(t);
       }
@@ -6421,18 +6402,17 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       t = Deref(s_reg[ipc->u.sllll.s]);
       blob_term = FALSE;
       if (IsVarTerm(t)) {
-	jlbl = &(ipc->u.sllll.l4);
+	SET_JLBL(sllll.l4);
 	ipc = ipc->u.sllll.l4;
       } else if (IsPairTerm(t)) {
 	unbounded = FALSE;
-	jlbl = &(ipc->u.sllll.l1);
-	ipc = ipc->u.sllll.l1;
+	SET_JLBL(sllll.l1);
 	S = s_reg = RepPair(t);
       } else if (IsAtomOrIntTerm(t)) {
-	jlbl = &(ipc->u.sllll.l2);
+	SET_JLBL(sllll.l2);
 	ipc = ipc->u.sllll.l2;
       } else {
-	jlbl = &(ipc->u.sllll.l3);
+	SET_JLBL(sllll.l3);
 	ipc = ipc->u.sllll.l3;
 	S = RepAppl(t);
       }
@@ -6441,13 +6421,13 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       t = Deref(ARG1);
       blob_term = FALSE;
       if (IsVarTerm(t)) {
-	jlbl = &(ipc->u.clll.l3);
+	SET_JLBL(clll.l3);
 	ipc = ipc->u.clll.l3;
       } else if (!IsVarTerm(t) && t != ipc->u.clll.c) {
-	jlbl = &(ipc->u.clll.l1);
+	SET_JLBL(clll.l1);
 	ipc = ipc->u.clll.l1;
       } else {
-	jlbl = &(ipc->u.clll.l2);
+	SET_JLBL(clll.l2);
 	ipc = ipc->u.clll.l2;
       }
       break;
@@ -6469,7 +6449,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  fe = lookup_f(f, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
+#if defined(YAPOR) || defined(THREADS)
 	jlbl = &(fe->u.labp);
+#endif
 	ipc = fe->u.labp;
       }
       break;
@@ -6500,7 +6482,9 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	} else {
 	  ae = lookup_c(t, ipc->u.sssl.l, ipc->u.sssl.s);
 	}
+#if defined(YAPOR) || defined(THREADS)
 	jlbl = &(ae->u.labp);
+#endif
 	ipc = ae->u.labp;
       }
       break;
@@ -6562,7 +6546,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
       XREGS[ap->ArityOfPE+4] = Terms[1];
       XREGS[ap->ArityOfPE+5] = Terms[2];
       Yap_IPred(ap, 5, cp_pc);
-      start_pc = ipc = ap->cs.p_code.TrueCodeOfPred;
+      ipc = ap->cs.p_code.TrueCodeOfPred;
       if (!blob_term) { /* protect garbage collector */
 	s_reg = (CELL *)XREGS[ap->ArityOfPE+1];
 	t = XREGS[ap->ArityOfPE+2];
@@ -6635,7 +6619,9 @@ Yap_NthClause(PredEntry *ap, Int ncls)
   yamop
     *ipc = ap->cs.p_code.TrueCodeOfPred,
     *alt = NULL;
+#if defined(YAPOR) || defined(THREADS)
   yamop **jlbl = NULL;
+#endif
 
   /* search every clause */
   if (ncls > ap->cs.p_code.NOfClauses)
@@ -6764,44 +6750,46 @@ Yap_NthClause(PredEntry *ap, Int ncls)
       }
       return NULL;
     case _enter_lu_pred:
+      SET_JLBL(Illss.l1);
       ipc = ipc->u.Illss.l1;
       break;
     case _lock_lu:
       ipc = NEXTOP(ipc,p);
       break;
     case _jump:
-      jlbl = &(ipc->u.l.l);
+      SET_JLBL(l.l);
       ipc = ipc->u.l.l;
       break;
     case _jump_if_var:
-      jlbl = &(ipc->u.l.l);
+      SET_JLBL(l.l);
       ipc = ipc->u.l.l;
       break;
     case _jump_if_nonvar:
       ipc = NEXTOP(ipc,xll);
       break;
     case _user_switch:
+      SET_JLBL(l.l);
       ipc = ipc->u.lp.l;
       break;
       /* instructions type e */
     case _switch_on_type:
-      jlbl = &(ipc->u.llll.l4);
+      SET_JLBL(llll.l4);
       ipc = ipc->u.llll.l4;
       break;
     case _switch_list_nl:
-      jlbl = &(ipc->u.ollll.l4);
+      SET_JLBL(ollll.l4);
       ipc = ipc->u.ollll.l4;
       break;
     case _switch_on_arg_type:
-      jlbl = &(ipc->u.xllll.l4);
+      SET_JLBL(xllll.l4);
       ipc = ipc->u.xllll.l4;
       break;
     case _switch_on_sub_arg_type:
-      jlbl = &(ipc->u.sllll.l4);
+      SET_JLBL(sllll.l4);
       ipc = ipc->u.sllll.l4;
       break;
     case _if_not_then:
-      jlbl = &(ipc->u.clll.l3);
+      SET_JLBL(clll.l3);
       ipc = ipc->u.clll.l3;
       break;
     case _expand_index:
@@ -6835,7 +6823,7 @@ void
 Yap_CleanUpIndex(LogUpdIndex *blk)
 {
   /* just compact the code */
-  yamop *start = blk->ClCode, *codep;
+  yamop *start = blk->ClCode;
   op_numbers op = Yap_op_from_opcode(start->opc);
 
   blk->ClFlags &= ~DirtyMask;
@@ -6847,7 +6835,6 @@ Yap_CleanUpIndex(LogUpdIndex *blk)
     start = NEXTOP(start, xll);
     op = Yap_op_from_opcode(start->opc);
   }
-  codep = start->u.Illss.l1;
   remove_dirty_clauses_from_index(start);
 }
 
