@@ -989,21 +989,6 @@ int PL_unify_integer__LD(term_t t, intptr_t i ARG_LD)
   return Yap_unify(Yap_GetFromSlot(t PASS_REGS),iterm);
 }
 
-extern int Yap_getInputStream(term_t t, IOSTREAM **s);
-
-int Yap_getInputStream(term_t t, IOSTREAM **s)
-{
-  GET_LD
-  return getInputStream(t, s);
-}
-
-extern int Yap_getOutputStream(term_t t, IOSTREAM **s);
-
-int Yap_getOutputStream(term_t t, IOSTREAM **s)
-{
-  GET_LD
-  return getOutputStream(t, s);
-}
 
 #ifdef _WIN32
 

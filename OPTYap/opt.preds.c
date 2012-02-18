@@ -484,9 +484,12 @@ static Int p_abolish_all_tables( USES_REGS1 ) {
 static Int p_show_tabled_predicates( USES_REGS1 ) {
   IOSTREAM *out;
   tab_ent_ptr tab_ent;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   tab_ent = GLOBAL_root_tab_ent;
   Sfprintf(out, "Tabled predicates\n");
   if (tab_ent == NULL)
@@ -504,9 +507,12 @@ static Int p_show_table( USES_REGS1 ) {
   IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
+  Term t1 = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t1))))
+    return FALSE;
   mod = Deref(ARG2);
   t = Deref(ARG3);
   if (IsAtomTerm(t))
@@ -526,9 +532,12 @@ static Int p_show_table( USES_REGS1 ) {
 static Int p_show_all_tables( USES_REGS1 ) {
   IOSTREAM *out;
   tab_ent_ptr tab_ent;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   tab_ent = GLOBAL_root_tab_ent;
   while(tab_ent) {
     show_table(tab_ent, SHOW_MODE_STRUCTURE, out);
@@ -541,9 +550,12 @@ static Int p_show_all_tables( USES_REGS1 ) {
 
 static Int p_show_global_trie( USES_REGS1 ) {
   IOSTREAM *out;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   show_global_trie(SHOW_MODE_STRUCTURE, out);
   PL_release_stream(out);
   return (TRUE);
@@ -554,9 +566,12 @@ static Int p_show_statistics_table( USES_REGS1 ) {
   IOSTREAM *out;
   Term mod, t;
   tab_ent_ptr tab_ent;
+  Term t1 = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t1) || !IsAtomTerm(t1))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t1))))
+    return FALSE;
   mod = Deref(ARG2);
   t = Deref(ARG3);
   if (IsAtomTerm(t))
@@ -580,9 +595,12 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
   IOSTREAM *out;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   bytes = 0;
   Sfprintf(out, "Execution data structures\n");
   stats = show_statistics_table_entries(out);
@@ -636,9 +654,12 @@ static Int p_show_statistics_tabling( USES_REGS1 ) {
 
 static Int p_show_statistics_global_trie( USES_REGS1 ) {
   IOSTREAM *out;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   show_global_trie(SHOW_MODE_STATISTICS, out);
   PL_release_stream(out);
   return (TRUE);
@@ -765,9 +786,12 @@ static Int p_show_statistics_or( USES_REGS1 ) {
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
   IOSTREAM *out;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   bytes = 0;
   Sfprintf(out, "Execution data structures\n");
   stats = show_statistics_or_frames(out);
@@ -808,10 +832,12 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 #ifdef USE_PAGES_MALLOC
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
-  IOSTREAM *out;
+  Term t = Deref(ARG1);
 
-  if (!PL_get_stream_handle(Yap_InitSlot(Deref(ARG1) PASS_REGS), &out))
-    return (FALSE);
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return FALSE;
+  if (!(out = Yap_GetStreamHandle(AtomOfTerm(t))))
+    return FALSE;
   bytes = 0;
   Sfprintf(out, "Execution data structures\n");
   stats = show_statistics_table_entries(out);

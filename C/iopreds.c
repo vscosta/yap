@@ -745,19 +745,24 @@ p_read ( USES_REGS1 )
   return do_read(Yap_Scurin(), 7 PASS_REGS);
 }
 
-extern int Yap_getInputStream(Int, IOSTREAM **);
-
 static Int
 p_read2 ( USES_REGS1 )
 {				/* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   IOSTREAM *inp_stream;
   Int out;
+  Term t8 = Deref(ARG8);
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG8) PASS_REGS), &inp_stream)) {
-    Yap_RecoverSlots(1 PASS_REGS);
+  if (IsVarTerm(t8)) {
+    Yap_Error(INSTANTIATION_ERROR,t8,"read_term/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t8)) {
+    Yap_Error(TYPE_ERROR_LIST,t8,"read_term/3");
     return(FALSE);
   }
-  Yap_RecoverSlots(1 PASS_REGS);
+  if (!(inp_stream = Yap_GetInputStream(AtomOfTerm(t8))) ) {
+    return(FALSE);
+  }
   out = do_read(inp_stream, 8 PASS_REGS);
   return out;
 }

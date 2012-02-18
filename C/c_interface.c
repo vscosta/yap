@@ -2704,11 +2704,11 @@ YAP_TermToStream(Term t)
 {
   CACHE_REGS
   IOSTREAM *s;
-  int rc;
-  extern int PL_get_stream_handle(Int t, IOSTREAM **s);
   BACKUP_MACHINE_REGS();
 
-  if ( (rc=PL_get_stream_handle(Yap_InitSlot(t PASS_REGS), &s)) ) {
+  if (IsVarTerm(t) || !IsAtomTerm(t))
+    return NULL;
+  if ( (s=Yap_GetStreamHandle(AtomOfTerm(t))) ) {
     RECOVER_MACHINE_REGS();
     return s;
   }

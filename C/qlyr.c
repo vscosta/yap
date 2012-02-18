@@ -976,8 +976,17 @@ static Int
 p_read_module_preds( USES_REGS1 )
 {
   IOSTREAM *stream;
+  Term t1 = Deref(ARG1);
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"read_qly/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"read_qly/3");
+    return(FALSE);
+  }
+  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
   read_module(stream);
@@ -989,8 +998,17 @@ p_read_program( USES_REGS1 )
 {
   IOSTREAM *stream;
   void YAP_Reset(void);
+  Term t1 = Deref(ARG1);
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"read_program/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"read_program/3");
+    return(FALSE);
+  }
+  if (!(stream = Yap_GetInputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
   YAP_Reset();
