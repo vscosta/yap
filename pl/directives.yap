@@ -167,7 +167,7 @@ user_defined_directive(Dir,Action) :-
         functor(NDir,Na,Ar),
         '$current_module'(M, prolog),
 	assert_static('$directive'(NDir)),
-	assert_static(('$exec_directive'(Dir, _, _) :- Action)),
+	assert_static(('$exec_directive'(Dir, _, _, _, _) :- Action)),
         '$current_module'(_, M).
 
 '$thread_initialization'(M:D) :-
