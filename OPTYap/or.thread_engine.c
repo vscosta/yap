@@ -128,6 +128,8 @@ int p_share_work() {
   LOCAL_reply_signal = sharing;
   REMOTE_reply_signal(worker_q) = sharing;
   share_private_nodes(worker_q);
+  if(Get_LOCAL_prune_request())
+    CUT_send_prune_request(worker_q, Get_LOCAL_prune_request()); 
   REMOTE_reply_signal(worker_q) = nodes_shared;
   while (LOCAL_reply_signal == sharing);
   while (REMOTE_reply_signal(worker_q) != worker_ready);
@@ -150,8 +152,12 @@ int q_share_work(int worker_p) {
   }
   YAPOR_ERROR_CHECKING(q_share_work, Get_OrFr_pend_prune_cp(LOCAL_top_or_fr) && BRANCH_LTT(worker_p, OrFr_depth(LOCAL_top_or_fr)) < OrFr_pend_prune_ltt(LOCAL_top_or_fr));
   /* there is no pending prune with worker p at right --> safe move to worker p branch */
+  CUT_reset_prune_request();
+  if(Get_LOCAL_prune_request()){
+   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+   return FALSE;
+  }
   BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = BRANCH(worker_p, OrFr_depth(LOCAL_top_or_fr));
-  Set_LOCAL_prune_request(NULL);
   UNLOCK_OR_FRAME(LOCAL_top_or_fr);
 
  /* unbind variables */
@@ -482,6 +488,13 @@ void share_private_nodes(int worker_q) {
       UNLOCK_OR_FRAME(or_frame);
       or_frame = OrFr_next_on_stack(or_frame);
     }
+    
+    LOCK_OR_FRAME(REMOTE_top_or_fr(worker_q));
+    or_fr_ptr old_top = REMOTE_top_or_fr(worker_q);
+    Set_REMOTE_top_cp(worker_q,B);
+    Set_LOCAL_top_cp(B);
+    REMOTE_top_or_fr(worker_q) = LOCAL_top_or_fr = Get_LOCAL_top_cp()->cp_or_fr;
+    UNLOCK_OR_FRAME(old_top);    
 
 #ifdef TABLING
     /* update subgoal frames in the maintained private branches */

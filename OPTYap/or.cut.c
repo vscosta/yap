@@ -30,7 +30,7 @@
 **      Global functions      **
 ** -------------------------- */
 
-void prune_shared_branch(choiceptr prune_cp) {
+void prune_shared_branch(choiceptr prune_cp, int* pend_ltt) {
   CACHE_REGS
   int i, ltt, depth;
   bitmap members;
@@ -41,6 +41,8 @@ void prune_shared_branch(choiceptr prune_cp) {
   tg_sol_fr_ptr tg_solutions, aux_tg_solutions;
 #endif /* TABLING_INNER_CUTS */
   leftmost_or_fr = CUT_leftmost_or_frame();
+  if (Get_LOCAL_prune_request())
+    return;
   leftmost_cp = GetOrFr_node(leftmost_or_fr);
   qg_solutions = NULL;
 #ifdef TABLING_INNER_CUTS
@@ -50,13 +52,35 @@ void prune_shared_branch(choiceptr prune_cp) {
     /* pruning being leftmost */
     or_fr_ptr prune_or_fr;
 
+
+    bitmap members2;
+    or_fr_ptr old_LOCAL_top_or_fr =  LOCAL_top_or_fr;
+    
+    if(pend_ltt){
+    LOCK_OR_FRAME(LOCAL_top_or_fr);
+    int depth2 = OrFr_depth(LOCAL_top_or_fr);
+    members2 = OrFr_members(LOCAL_top_or_fr);
+      for (i = 0; i < GLOBAL_number_workers; i++) {
+	if (BITMAP_member(members2, i) && *pend_ltt != BRANCH_LTT(i,depth2)){
+	  BITMAP_delete(members2,i);
+	}
+      }
+    }
+
     /* send prune requests */
     prune_or_fr = prune_cp->cp_or_fr;
     depth = OrFr_depth(prune_or_fr);
     ltt = BRANCH_LTT(worker_id, depth);
     LOCK_OR_FRAME(prune_or_fr);
     members = OrFr_members(prune_or_fr);
+
+    if(pend_ltt){
+      BITMAP_minus(members,members2);
+    }
+
+
     BITMAP_delete(members, worker_id);
+    
     for (i = 0; i < GLOBAL_number_workers; i++) {
       if (BITMAP_member(members, i) && ltt == BRANCH_LTT(i, depth)) {
         CUT_send_prune_request(i, prune_cp);
@@ -67,7 +91,11 @@ void prune_shared_branch(choiceptr prune_cp) {
     /* move up to prune_cp */
     do {
       ltt = BRANCH_LTT(worker_id, OrFr_depth(LOCAL_top_or_fr));
-      LOCK_OR_FRAME(LOCAL_top_or_fr);
+      if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr)
+         LOCK_OR_FRAME(LOCAL_top_or_fr);
+      if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr)){
+        Set_OrFr_pend_prune_cp(LOCAL_top_or_fr, NULL);
+      }
       aux_qg_solutions = OrFr_qg_solutions(LOCAL_top_or_fr);
 #ifdef TABLING_INNER_CUTS
       aux_tg_solutions = OrFr_tg_solutions(LOCAL_top_or_fr);
@@ -77,7 +105,9 @@ void prune_shared_branch(choiceptr prune_cp) {
         if (OrFr_suspensions(LOCAL_top_or_fr) || OrFr_owners(LOCAL_top_or_fr) != 1)
           pruning_over_tabling_data_structures();
 #endif /* TABLING */
-        FREE_OR_FRAME(LOCAL_top_or_fr);
+        if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr){
+          FREE_OR_FRAME(LOCAL_top_or_fr);
+	}
       } else {
         OrFr_qg_solutions(LOCAL_top_or_fr) = NULL;
 #ifdef TABLING_INNER_CUTS
@@ -88,6 +118,7 @@ void prune_shared_branch(choiceptr prune_cp) {
 #ifdef TABLING
         OrFr_owners(LOCAL_top_or_fr)--;
 #endif /* TABLING */
+       if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr)
         UNLOCK_OR_FRAME(LOCAL_top_or_fr);
       }
       if ((aux_qg_solutions = CUT_prune_solution_frames(aux_qg_solutions, ltt))) {
@@ -102,6 +133,15 @@ void prune_shared_branch(choiceptr prune_cp) {
 #endif /* TABLING_INNER_CUTS */
       SCH_update_local_or_tops();
     } while (Get_LOCAL_top_cp() != prune_cp);
+
+    
+    if(pend_ltt){
+      UNLOCK_OR_FRAME(old_LOCAL_top_or_fr);
+      if (BITMAP_alone(OrFr_members(old_LOCAL_top_or_fr), worker_id)){
+	FREE_OR_FRAME(old_LOCAL_top_or_fr);
+      }
+    }
+
 
     YAPOR_ERROR_CHECKING(prune_shared_branch, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
     /* store answers not pruned */
@@ -132,11 +172,33 @@ void prune_shared_branch(choiceptr prune_cp) {
     int prune_more;
     prune_more = 1;
 
+    bitmap members2;
+    or_fr_ptr old_LOCAL_top_or_fr =  LOCAL_top_or_fr;
+    
+    if(pend_ltt){
+    LOCK_OR_FRAME(LOCAL_top_or_fr);
+    int depth2 = OrFr_depth(LOCAL_top_or_fr);
+    members2 = OrFr_members(LOCAL_top_or_fr);
+      for (i = 0; i < GLOBAL_number_workers; i++) {
+	if (BITMAP_member(members2, i) && *pend_ltt != BRANCH_LTT(i,depth2)){
+	  BITMAP_delete(members2,i);
+	}
+      }
+    }
+
+
     /* send prune requests */
     depth = OrFr_depth(leftmost_or_fr);
     ltt = BRANCH_LTT(worker_id, depth);
-    LOCK_OR_FRAME(leftmost_or_fr);
+    if(!pend_ltt || LOCAL_top_or_fr != leftmost_or_fr)
+    	LOCK_OR_FRAME(leftmost_or_fr);
     members = OrFr_members(leftmost_or_fr);
+
+    if(pend_ltt){
+      BITMAP_minus(members,members2);
+    }
+
+
     BITMAP_delete(members, worker_id);
     for (i = 0; i < GLOBAL_number_workers; i++) {
       if (BITMAP_member(members, i)) {
@@ -147,14 +209,19 @@ void prune_shared_branch(choiceptr prune_cp) {
         }
       }
     }
+    if(!pend_ltt || LOCAL_top_or_fr != leftmost_or_fr)
     UNLOCK_OR_FRAME(leftmost_or_fr);
 
     /* move up to leftmost_cp */
     while (Get_LOCAL_top_cp() != leftmost_cp) {
       ltt = BRANCH_LTT(worker_id, OrFr_depth(LOCAL_top_or_fr));
-      LOCK_OR_FRAME(LOCAL_top_or_fr);
+      if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr)
+      	LOCK_OR_FRAME(LOCAL_top_or_fr);
       if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr))
         prune_more = 0;
+      if (Get_OrFr_pend_prune_cp(LOCAL_top_or_fr)){
+        Set_OrFr_pend_prune_cp(LOCAL_top_or_fr, NULL);
+      }
       aux_qg_solutions = OrFr_qg_solutions(LOCAL_top_or_fr);
 #ifdef TABLING_INNER_CUTS
       aux_tg_solutions = OrFr_tg_solutions(LOCAL_top_or_fr);
@@ -164,7 +231,9 @@ void prune_shared_branch(choiceptr prune_cp) {
         if (OrFr_suspensions(LOCAL_top_or_fr) || OrFr_owners(LOCAL_top_or_fr) != 1)
           pruning_over_tabling_data_structures();
 #endif /* TABLING */
+       if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr){
         FREE_OR_FRAME(LOCAL_top_or_fr);
+       }
       } else {
         OrFr_qg_solutions(LOCAL_top_or_fr) = NULL;
 #ifdef TABLING_INNER_CUTS
@@ -175,7 +244,8 @@ void prune_shared_branch(choiceptr prune_cp) {
 #ifdef TABLING
         OrFr_owners(LOCAL_top_or_fr)--;
 #endif /* TABLING */
-        UNLOCK_OR_FRAME(LOCAL_top_or_fr);
+        if(!pend_ltt || LOCAL_top_or_fr != old_LOCAL_top_or_fr)
+          UNLOCK_OR_FRAME(LOCAL_top_or_fr);
       }
       if ((aux_qg_solutions = CUT_prune_solution_frames(aux_qg_solutions, ltt))) {
         CUT_join_answers_in_an_unique_frame(aux_qg_solutions);
@@ -188,6 +258,13 @@ void prune_shared_branch(choiceptr prune_cp) {
       }
 #endif /* TABLING_INNER_CUTS */
       SCH_update_local_or_tops();
+    }
+
+    if(pend_ltt){
+      UNLOCK_OR_FRAME(old_LOCAL_top_or_fr);    
+      if (BITMAP_alone(OrFr_members(old_LOCAL_top_or_fr), worker_id)){
+	FREE_OR_FRAME(old_LOCAL_top_or_fr);
+      }
     }
 
     YAPOR_ERROR_CHECKING(prune_shared_branch, Get_LOCAL_prune_request() && EQUAL_OR_YOUNGER_CP(Get_LOCAL_prune_request(), Get_LOCAL_top_cp()));
@@ -213,8 +290,10 @@ void prune_shared_branch(choiceptr prune_cp) {
       if (Get_OrFr_pend_prune_cp(leftmost_or_fr))
         prune_more = 0;
       OrFr_alternative(leftmost_or_fr) = NULL;
-      Set_OrFr_pend_prune_cp(leftmost_or_fr, prune_cp);
-      OrFr_pend_prune_ltt(leftmost_or_fr) = ltt;
+      if (!Get_LOCAL_prune_request()){
+        Set_OrFr_pend_prune_cp(leftmost_or_fr, prune_cp);
+        OrFr_pend_prune_ltt(leftmost_or_fr) = ltt;
+      }
       UNLOCK_OR_FRAME(leftmost_or_fr);
 #ifdef TABLING_INNER_CUTS
       CUT_validate_tg_answers(tg_solutions);
@@ -254,7 +333,6 @@ end_prune_more:
 #ifdef TABLING
   Set_LOCAL_top_cp_on_stack(Get_LOCAL_top_cp());
 #endif /* TABLING */
-
   return;
 }
 #endif /* YAPOR */

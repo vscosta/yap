@@ -118,5 +118,5 @@ int get_work(void);
 ***********************/
 
 #ifdef YAPOR
-void prune_shared_branch(choiceptr);
+void prune_shared_branch(choiceptr, int*);
 #endif /* YAPOR */

@@ -172,7 +172,7 @@ STD_PROTO(static inline qg_sol_fr_ptr CUT_prune_solution_frames, (qg_sol_fr_ptr,
 #define CUT_prune_to(PRUNE_CP)                           \
         if (YOUNGER_CP(Get_LOCAL_top_cp(), PRUNE_CP)) {  \
           if (! Get_LOCAL_prune_request())               \
-	    prune_shared_branch(PRUNE_CP);               \
+	    prune_shared_branch(PRUNE_CP, NULL);         \
 	  PRUNE_CP = Get_LOCAL_top_cp();	         \
         }
 

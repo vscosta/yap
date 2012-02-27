@@ -291,7 +291,7 @@ int move_up_one_node(or_fr_ptr nearest_livenode) {
     Set_OrFr_pend_prune_cp(LOCAL_top_or_fr, NULL);
     BRANCH(worker_id, OrFr_depth(LOCAL_top_or_fr)) = OrFr_pend_prune_ltt(LOCAL_top_or_fr);
     UNLOCK_OR_FRAME(LOCAL_top_or_fr);
-    prune_shared_branch(prune_cp);
+    prune_shared_branch(prune_cp, &OrFr_pend_prune_ltt(LOCAL_top_or_fr));
 #ifdef TABLING
     while (YOUNGER_CP(aux_cp->cp_b, Get_LOCAL_top_cp()))
       aux_cp = aux_cp->cp_b;
