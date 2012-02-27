@@ -42,6 +42,14 @@
 #define HAVE_FPCLASSIFY 1
 #endif
 
+#if __YAP_PROLOG__
+
+#define _PL_WRITE_ 1
+
+#include "yapio.h"
+
+#endif
+
 typedef struct visited
 { Word address;				/* we have done this address */
   struct visited *next;			/* next already visited */
@@ -52,666 +60,27 @@ typedef struct
   int   max_depth;			/* depth limit */
   int   depth;				/* current depth */
   atom_t spacing;			/* Where to insert spaces */
-  Module module;			/* Module for operators */
+  Term   module;			/* Module for operators */
   IOSTREAM *out;			/* stream to write to */
   visited *visited;			/* visited (attributed-) variables */
 } write_options;
 
-static bool	writeTerm2(term_t term, int prec,
-			   write_options *options, bool arg) WUNUSED;
-static bool	writeTerm(term_t t, int prec,
-			  write_options *options) WUNUSED;
-static bool	writeArgTerm(term_t t, int prec,
-			     write_options *options, bool arg) WUNUSED;
+word
+pl_nl1(term_t stream)
+{ IOSTREAM *s;
 
-#if __YAP_PROLOG__
-static Word
-address_of(term_t t)
-{
-   return YAP_AddressFromSlot(t);			/* non-recursive structure */
-}
-#else
-static Word
-address_of(term_t t)
-{ GET_LD
-  Word adr = valTermRef(t);
-
-  deRef(adr);
-  switch(tag(*adr))
-  { case TAG_ATTVAR:
-      return adr;
-    case TAG_COMPOUND:
-      return valPtr(*adr);
-    default:
-      return NULL;			/* non-recursive structure */
-  }
-}
-#endif
-
-
-static int
-has_visited(visited *v, Word addr)
-{ for( ; v; v=v->next )
-  { if ( v->address == addr )
-      succeed;
+  if ( getOutputStream(stream, &s) )
+  { Sputcode('\n', s);
+    return streamStatus(s);
   }
 
   fail;
 }
 
-
-char *
-varName(term_t t, char *name)
-#if __YAP_PROLOG__
-{ 
-  YAP_Int adr = YAP_VarSlotToNumber(t);
-
-  if (adr < 0)
-    Ssprintf(name, "_L%ld", -adr);
-  else
-    Ssprintf(name, "_G%ld", adr);
-
-  return name;
+word
+pl_nl(void)
+{ return pl_nl1(0);
 }
-#else
-{ GET_LD
-  Word adr = valTermRef(t);
-
-  deRef(adr);
-
-  if (adr > (Word) lBase)
-    Ssprintf(name, "_L%ld", (Word)adr - (Word)lBase);
-  else
-    Ssprintf(name, "_G%ld", (Word)adr - (Word)gBase);
-
-  return name;
-}
-#endif
-
-
-#define AT_LOWER	0
-#define AT_QUOTE	1
-#define AT_FULLSTOP	2
-#define AT_SYMBOL	3
-#define AT_SOLO		4
-#define AT_SPECIAL	5
-
-/* Note: this only deals with ISO Latin-1 atoms; wide atoms are handled
-   by writeUCSAtom()
-*/
-
-static int
-atomType(atom_t a, IOSTREAM *fd)
-{ Atom atom = atomValue(a);
-  char *s = atomName(atom);
-  size_t len = atomLength(atom);
-
-  if ( len == 0 )
-    return AT_QUOTE;
-
-  if ( isLower(*s) )
-  { for(++s; --len > 0 && isAlpha(*s) && Scanrepresent(*s, fd)==0; s++)
-      ;
-    return len == 0 ? AT_LOWER : AT_QUOTE;
-  }
-
-  if ( a == ATOM_dot )
-    return AT_FULLSTOP;
-
-  if ( isSymbol(*s) )
-  { if ( len >= 2 && s[0] == '/' && s[1] == '*' )
-      return AT_QUOTE;
-
-    for(++s; --len > 0 && isSymbol(*s) && Scanrepresent(*s, fd)==0; s++)
-      ;
-
-    return len == 0 ? AT_SYMBOL : AT_QUOTE;
-  }
-
-					/* % should be quoted! */
-  if ( len == 1 && *s != '%' )
-  { if ( isSolo(*s) )
-      return AT_SOLO;
-  }
-
-  if ( a == ATOM_nil || a == ATOM_curl )
-    return AT_SPECIAL;
-
-  return AT_QUOTE;
-}
-
-
-		 /*******************************
-		 *	 PRIMITIVE WRITES	*
-		 *******************************/
-
-#define TRUE_WITH_SPACE 2		/* OK, and emitted leading space before token */
-
-static bool
-Putc(int c, IOSTREAM *s)
-{ return Sputcode(c, s) == EOF ? FALSE : TRUE;
-}
-
-
-static bool
-PutString(const char *str, IOSTREAM *s)
-{ const unsigned char *q = (const unsigned char *)str;
-
-  for( ; *q != EOS; q++ )
-  { if ( Sputcode(*q, s) == EOF )
-      return FALSE;
-  }
-
-  return TRUE;
-}
-
-
-static bool
-PutComma(write_options *options)
-{ if ( options->spacing == ATOM_next_argument )
-    return PutString(", ", options->out);
-  else
-    return PutString(",", options->out);
-}
-
-
-static bool
-PutStringN(const char *str, size_t length, IOSTREAM *s)
-{ size_t i;
-  const unsigned char *q = (const unsigned char *)str;
-
-  for(i=0; i<length; i++, q++)
-  { if ( Sputcode(*q, s) == EOF )
-      return FALSE;
-  }
-
-  return TRUE;
-}
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PutOpenToken() inserts a space in the output stream if the last-written
-and given character require a space to ensure a token-break.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-static bool
-needSpace(int c, IOSTREAM *s)
-{ if ( c == EOF )
-  { s->lastc = EOF;
-    return FALSE;
-  } else if ( s->lastc != EOF &&
-	      ((isAlphaW(s->lastc) && isAlphaW(c)) ||
-	       (isSymbolW(s->lastc) && isSymbolW(c)) ||
-	       (s->lastc != '(' && !isBlank(s->lastc) && c == '(') ||
-	       (c == '\'' && isDigit(s->lastc))) )
-  { return TRUE;
-  }
-
-  return FALSE;
-}
-
-
-static int
-PutOpenToken(int c, IOSTREAM *s)
-{ if ( needSpace(c, s) )
-  { TRY(Putc(' ', s));
-    return TRUE_WITH_SPACE;
-  }
-
-  return TRUE;
-}
-
-
-static int
-PutToken(const char *s, IOSTREAM *stream)
-{ if ( s[0] )
-  { int rc;
-
-    TRY(rc=PutOpenToken(s[0]&0xff, stream));
-    TRY(PutString(s, stream));
-
-    return rc;
-  }
-
-  return TRUE;
-}
-
-static int
-PutTokenN(const char *s, size_t len, IOSTREAM *stream)
-{ if ( len > 0 )
-  { int rc;
-
-    TRY(rc=PutOpenToken(s[0]&0xff, stream));
-    TRY(PutStringN(s, len, stream));
-
-    return rc;
-  }
-
-  return TRUE;
-}
-
-#if __YAP_PROLOG__
-static bool
-PutWideStringN(const wchar_t *str, size_t length, IOSTREAM *s)
-{ size_t i;
-  const wchar_t *q = (const wchar_t *)str;
-
-  for(i=0; i<length; i++, q++)
-  { if ( Sputcode(*q, s) == EOF )
-      return FALSE;
-  }
-
-  return TRUE;
-}
-
-static bool
-PutWideString(const wchar_t *str, IOSTREAM *s)
-{ const wchar_t *q = (const wchar_t *)str;
-
-  for( ; *q != EOS; q++ )
-  { if ( Sputcode(*q, s) == EOF )
-      return FALSE;
-  }
-
-  return TRUE;
-}
-
-
-static int
-PutWideToken(const wchar_t *s, IOSTREAM *stream)
-{ if ( s[0] )
-  { int rc;
-
-    TRY(rc=PutOpenToken(s[0]&0xff, stream));
-    TRY(PutWideString(s, stream));
-
-    return rc;
-  }
-
-  return TRUE;
-}
-
-static int
-PutWideTokenN(const wchar_t *s, size_t len, IOSTREAM *stream)
-{ if ( len > 0 )
-  { int rc;
-
-    TRY(rc=PutOpenToken(s[0]&0xff, stream));
-    TRY(PutWideStringN(s, len, stream));
-
-    return rc;
-  }
-
-  return TRUE;
-}
-
-#endif
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PutOpenBrace()/PutCloseBrace() are used to put  additional braces around
-a term to avoid an operator  precedence   problem.  If  the last emitted
-character  is  alphanumerical,  there  should  be  a  space  before  the
-openbrace to avoid interpretation as a term.   E.g. not (a,b) instead of
-not(a,b).  Reported by Stefan.Mueller@dfki.de.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-static int
-PutOpenBrace(IOSTREAM *s)
-{ int rc;
-
-  TRY(rc=PutOpenToken('(', s));
-  TRY(Putc('(', s));
-
-  return rc;
-}
-
-
-static bool
-PutCloseBrace(IOSTREAM *s)
-{ return Putc(')', s);
-}
-
-
-static bool
-putQuoted(int c, int quote, int flags, IOSTREAM *stream)
-{ if ( (flags & PL_WRT_CHARESCAPES) )
-  { if ( !(c < 0xff && isControl(c)) && c != quote && c != '\\' )
-    { TRY(Putc(c, stream));
-    } else
-    { char esc[8];
-
-      esc[1] = EOS;
-
-      if ( c == quote )
-      { esc[0] = c;
-      } else
-      { switch(c)
-	{ case 7:
-	    esc[0] = 'a';
-	    break;
-	  case '\b':
-	    esc[0] = 'b';
-	    break;
-	  case '\t':
-	    esc[0] = 't';
-	    break;
-	  case '\n':
-	    esc[0] = 'n';
-	    break;
-	  case 11:
-	    esc[0] = 'v';
-	    break;
-	  case '\r':
-	    esc[0] = 'r';
-	    break;
-	  case '\f':
-	    esc[0] = 'f';
-	    break;
-	  case '\\':
-	    esc[0] = '\\';
-	    break;
-	  default:
-	    if ( c <= 0xff )
-	      Ssprintf(esc, "%03o\\", c);
-	    else
-	      assert(0);			/* to be done */
-	}
-      }
-      if ( !Putc('\\', stream) ||
-	   !PutString(esc, stream) )
-	fail;
-    }
-  } else
-  { if ( !Putc(c, stream) )
-      fail;
-    if ( c == quote || c == '\\' )	/* write '' or \\ */
-    { if ( !Putc(c, stream) )
-	fail;
-    }
-  }
-
-  return TRUE;
-}
-
-
-
-static bool
-writeQuoted(IOSTREAM *stream, const char *text, size_t len, int quote,
-	    write_options *options)
-{ const unsigned char *s = (const unsigned char *)text;
-
-  TRY(Putc(quote, stream));
-
-  while(len-- > 0)
-  { TRY(putQuoted(*s++, quote, options->flags, stream));
-  }
-
-  return Putc(quote, stream);
-}
-
-
-#if O_ATTVAR
-static bool
-writeAttVar(term_t av, write_options *options)
-{ GET_LD
-  char buf[32];
-
-  TRY(PutToken(varName(av, buf), options->out));
-
-  if ( (options->flags & PL_WRT_ATTVAR_DOTS) )
-  { return PutString("{...}", options->out);
-  } else if ( (options->flags & PL_WRT_ATTVAR_WRITE) )
-  { fid_t fid;
-    term_t a;
-    visited v;
-
-    if ( !(fid = PL_open_foreign_frame()) )
-      return FALSE;
-
-    v.address = address_of(av);
-    if ( has_visited(options->visited, v.address) )
-      succeed;
-    v.next = options->visited;
-    options->visited = &v;
-    Sputcode('{', options->out);
-    a = PL_new_term_ref();
-    PL_get_attr__LD(av, a PASS_LD);
-    if ( !writeTerm(a, 1200, options) )
-      goto error;
-    Sputcode('}', options->out);
-    PL_discard_foreign_frame(fid);
-
-    options->visited = v.next;
-    succeed;
-
-  error:
-    options->visited = v.next;
-    fail;
-  } else if ( (options->flags & PL_WRT_ATTVAR_PORTRAY) &&
-	      GD->cleaning <= CLN_PROLOG )
-  { fid_t fid;
-    predicate_t pred;
-    IOSTREAM *old;
-
-    if ( !(fid = PL_open_foreign_frame()) )
-      return FALSE;
-
-    pred = _PL_predicate("portray_attvar", 1, "$attvar",
-			 &GD->procedures.portray_attvar1);
-
-    old = Scurout;
-    Scurout = options->out;
-    PL_call_predicate(NULL, PL_Q_NODEBUG, pred, av);
-    Scurout = old;
-
-    PL_discard_foreign_frame(fid);
-  }
-
-  succeed;
-}
-#endif
-
-
-static bool
-writeBlob(atom_t a, write_options *options)
-{ Atom atom = atomValue(a);
-  unsigned char const *s, *e;
-
-  TRY(PutString("<#", options->out));
-  s = (unsigned char const *)atomName(atom);
-  for (e = s + atomLength(atom); s != e; s++)
-  { static char *digits = "0123456789abcdef";
-
-    TRY(Putc(digits[(*s >> 4) & 0xf], options->out));
-    TRY(Putc(digits[(*s     ) & 0xf], options->out));
-  }
-
-  return PutString(">", options->out);
-}
-
-
-static int				/* FALSE, TRUE or TRUE_WITH_SPACE */
-writeAtom(atom_t a, write_options *options)
-{ Atom atom = atomValue(a);
-
-  if ( (options->flags & PL_WRT_BLOB_PORTRAY) &&
-       false(atomBlobType(atom), PL_BLOB_TEXT) &&
-       GD->cleaning <= CLN_PROLOG )
-  { GET_LD
-    int rc;
-    fid_t fid;
-    predicate_t pred;
-    IOSTREAM *old;
-    term_t av;
-
-    if ( !(fid = PL_open_foreign_frame()) )
-      return FALSE;
-    av = PL_new_term_ref();
-    PL_put_atom(av, a);
-
-    pred = _PL_predicate("portray", 1, "user",
-			 &GD->procedures.portray);
-
-    old = Scurout;
-    Scurout = options->out;
-    rc = PL_call_predicate(NULL, PL_Q_NODEBUG, pred, av);
-    Scurout = old;
-
-    PL_discard_foreign_frame(fid);
-    if ( rc == TRUE )
-      return TRUE;
-  }
-
-  if ( atomBlobType(atom)->write )
-    return (*atomBlobType(atom)->write)(options->out, a, options->flags);
-  if ( false(atomBlobType(atom), PL_BLOB_TEXT) )
-    return writeBlob(a, options);
-#if __YAP_PROLOG__
-    if (isWideAtom(atom)) {
-      return writeUCSAtom(options->out, a, options->flags);
-    }
-#endif
-
-  if ( true(options, PL_WRT_QUOTED) )
-  { switch( atomType(a, options->out) )
-    { case AT_LOWER:
-      case AT_SYMBOL:
-      case AT_SOLO:
-      case AT_SPECIAL:
-	return PutToken(nameOfAtom(atom), options->out);
-      case AT_QUOTE:
-      case AT_FULLSTOP:
-      default:
-      { int rc;
-
-	TRY(rc=PutOpenToken('\'', options->out));
-	TRY(writeQuoted(options->out,
-			nameOfAtom(atom),
-			atomLength(atom),
-			'\'', options));
-	return rc;
-      }
-    }
-  } else {
-    return PutTokenN(nameOfAtom(atom), atomLength(atom), options->out);
-  }
-}
-
-
-int
-writeAtomToStream(IOSTREAM *s, atom_t atom)
-{ write_options options;
-
-  memset(&options, 0, sizeof(options));
-  options.out = s;
-  options.module = MODULE_user;
-
-  return writeAtom(atom, &options);
-}
-
-
-int
-writeUCSAtom(IOSTREAM *fd, atom_t atom, int flags)
-{ Atom a = atomValue(atom);
-  pl_wchar_t *s = (pl_wchar_t*)atomName(a);
-  size_t len = atomLength(a)/sizeof(pl_wchar_t);
-  pl_wchar_t *e = &s[len];
-
-  if ( flags & PL_WRT_QUOTED )
-  { pl_wchar_t quote = L'\'';
-    int rc;
-
-    if ( isLowerW(*s) )
-    { pl_wchar_t *q;
-
-      for(q=s; q<e; q++)
-      { if ( !isAlphaW(*q) || Scanrepresent(*q, fd) < 0 )
-	  break;
-      }
-      if ( q == e )
-        goto unquoted;
-    }
-
-    TRY(Putc(quote, fd));
-
-    while(s < e)
-    { TRY(putQuoted(*s++, quote, flags, fd));
-    }
-
-    rc = Putc(quote, fd);
-
-    return rc;
-  }
-
-unquoted:
-  if ( s < e && !PutOpenToken(s[0], fd) )
-    return FALSE;
-  for( ; s<e; s++)
-  { if ( !Putc(*s, fd) )
-      return FALSE;
-  }
-
-  return TRUE;
-}
-
-
-#if O_STRING
-
-static inline int
-get_chr_from_text(const PL_chars_t *t, int index)
-{ switch(t->encoding)
-  { case ENC_ISO_LATIN_1:
-      return t->text.t[index]&0xff;
-    case ENC_WCHAR:
-      return t->text.w[index];
-    default:
-      assert(0);
-    return 0;
-  }
-}
-
-
-static int
-writeString(term_t t, write_options *options)
-{ GET_LD
-  PL_chars_t txt;
-
-  PL_get_text(t, &txt, CVT_STRING);
-
-  if ( true(options, PL_WRT_QUOTED) )
-  { int quote;
-    unsigned int i;
-
-    if ( true(options, PL_WRT_BACKQUOTED_STRING) )
-      quote = '`';
-    else
-      quote = '"';
-
-    TRY(Putc(quote, options->out));
-
-    for(i=0; i<txt.length; i++)
-    { int chr = get_chr_from_text(&txt, i);
-
-      TRY(putQuoted(chr, quote, options->flags, options->out));
-    }
-
-    return Putc(quote, options->out);
-  } else
-  { unsigned int i;
-
-    for(i=0; i<txt.length; i++)
-    { int chr = get_chr_from_text(&txt, i);
-
-      TRY(Putc(chr, options->out));
-    }
-  }
-
-  succeed;
-}
-
-#endif /*O_STRING*/
-
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 Formatting a float. This used  to  use   sprintf(),  but  there  are two
@@ -797,527 +166,60 @@ format_float(double f, char *buf)
 }
 
 
-static bool
-WriteNumber(Number n, write_options *options)
-{ GET_LD
+char *
+varName(term_t t, char *name)
+{ 
+  CACHE_REGS
+  CELL *adr = (CELL *)Yap_GetFromSlot(t PASS_REGS);
 
-  switch(n->type)
-  { case V_INTEGER:
-    { char buf[32];
-
-      sprintf(buf, INT64_FORMAT, n->value.i);
-      return PutToken(buf, options->out);
-    }
-#ifdef O_GMP
-    case V_MPZ:
-    { char tmp[1024];
-      char *buf;
-      size_t sz = mpz_sizeinbase(n->value.mpz, 10) + 2;
-      bool rc;
-
-      if ( sz <= sizeof(tmp) )
-	buf = tmp;
-      else
-	buf = PL_malloc(sz);
-
-      /* mpz_get_str() can perform large intermediate allocations :-( */
-      EXCEPTION_GUARDED({ LD->gmp.persistent++;
-			  mpz_get_str(buf, 10, n->value.mpz);
-			  LD->gmp.persistent--;
-			},
-			{ LD->gmp.persistent--;
-			  rc = PL_rethrow();
-			})
-      rc = PutToken(buf, options->out);
-      if ( buf != tmp )
-	PL_free(buf);
-
-      return rc;
-    }
-    case V_MPQ:				/* should not get here */
-#endif
-    case V_FLOAT:
-      assert(0);
+  if (IsAttVar(adr)) {
+    Ssprintf(name, "_D%ld", (CELL)adr - (CELL)H0);
+  } else {
+    Ssprintf(name, "_%ld", (CELL)adr - (CELL)H0);
   }
 
-  fail;
+  return name;
 }
 
-
-
-static bool
-writePrimitive(term_t t, write_options *options)
-{ GET_LD
-  double f;
-  atom_t a;
-  char buf[32];
-  IOSTREAM *out = options->out;
-
-#if O_ATTVAR
-  if ( PL_is_attvar(t) )
-    return writeAttVar(t, options);
-#endif
-
-  if ( PL_is_variable(t) )
-    return PutToken(varName(t, buf), out);
-
-  if ( PL_get_atom(t, &a) )
-    return writeAtom(a, options);
-
-  if ( PL_is_integer(t) )		/* beware of automatic conversion */
-  { number n;
-
-    PL_get_number(t, &n);
-
-    return WriteNumber(&n, options);
-  }
-
-  if ( PL_get_float(t, &f) )
-  { char *s = NULL;
-
-#ifdef HAVE_FPCLASSIFY
-    switch(fpclassify(f))
-    { case FP_NAN:
-	s = (true(options, PL_WRT_QUOTED) ? "'$NaN'" : "NaN");
-        break;
-      case FP_INFINITE:
-	s = (true(options, PL_WRT_QUOTED) ? "'$Infinity'" : "Infinity");
-        break;
-    }
-#else
-#ifdef HAVE_FPCLASS
-    switch(fpclass(f))
-    { case FP_SNAN:
-      case FP_QNAN:
-	s = (true(options, PL_WRT_QUOTED) ? "'$NaN'" : "NaN");
-        break;
-      case FP_NINF:
-      case FP_PINF:
-	s = (true(options, PL_WRT_QUOTED) ? "'$Infinity'" : "Infinity");
-        break;
-      case FP_NDENORM:			/* pos/neg denormalized non-zero */
-      case FP_PDENORM:
-      case FP_NNORM:			/* pos/neg normalized non-zero */
-      case FP_PNORM:
-      case FP_NZERO:			/* pos/neg zero */
-      case FP_PZERO:
-	break;
-    }
-#else
-#ifdef HAVE__FPCLASS
-    switch(_fpclass(f))
-    { case _FPCLASS_SNAN:
-      case _FPCLASS_QNAN:
-	s = (true(options, PL_WRT_QUOTED) ? "'$NaN'" : "NaN");
-        break;
-      case _FPCLASS_NINF:
-      case _FPCLASS_PINF:
-	s = (true(options, PL_WRT_QUOTED) ? "'$Infinity'" : "Infinity");
-        break;
-    }
-#else
-#ifdef HAVE_ISINF
-    if ( isinf(f) )
-    { s = (true(options, PL_WRT_QUOTED) ? "'$Infinity'" : "Infinity");
-    } else
-#endif
-#ifdef HAVE_ISNAN
-    if ( isnan(f) )
-    { s = (true(options, PL_WRT_QUOTED) ? "'$NaN'" : "NaN");
-    }
-#endif
-#endif /*HAVE__FPCLASS*/
-#endif /*HAVE_FPCLASS*/
-#endif /*HAVE_FPCLASSIFY*/
-
-    if ( s )
-    { return PutToken(s, out);
-    } else
-    { char buf[100];
-
-      format_float(f, buf);
-
-      return PutToken(buf, out);
-    }
-  }
-
-#if O_STRING
-  if ( PL_is_string(t) )
-    return writeString(t, options);
-#endif /* O_STRING */
-
-#if __YAP_PROLOG__
-  {
-    Opaque_CallOnWrite f;
-
-    if ( (f = Yap_blob_write_handler_from_slot(t)) ) {
-      return (f)(options->out, Yap_blob_tag_from_slot(t), Yap_blob_info_from_slot(t), options->flags);
-    } else {
-      number n;
-      n.type = V_INTEGER;
-      n.value.i = 0;
-      return WriteNumber(&n, options);
-    }
-  }
-#endif
-
-  assert(0);
-  fail;
-}
-
-
-word
-pl_nl1(term_t stream)
-{ IOSTREAM *s;
-
-  if ( getOutputStream(stream, &s) )
-  { Sputcode('\n', s);
-    return streamStatus(s);
-  }
-
-  fail;
-}
-
-word
-pl_nl(void)
-{ return pl_nl1(0);
-}
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-Call user:portray/1 if defined.
-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-
-static int
-callPortray(term_t arg, write_options *options)
-{ predicate_t portray;
-
-  if ( GD->cleaning > CLN_PROLOG )
-    fail;				/* avoid dangerous callbacks */
-
-  portray = _PL_predicate("portray", 1, "user", &GD->procedures.portray);
-
-  if ( predicateHasClauses(portray) )
-  { GET_LD
-    wakeup_state wstate;
-    IOSTREAM *old = Scurout;
-    int rval;
-
-    if ( !saveWakeup(&wstate, TRUE PASS_LD) )
-      return FALSE;
-    Scurout = options->out;
-    rval = PL_call_predicate(NULL, PL_Q_NODEBUG|PL_Q_PASS_EXCEPTION,
-			     portray, arg);
-    if ( !rval && PL_exception(0) )
-      rval = -1;
-    Scurout = old;
-    restoreWakeup(&wstate PASS_LD);
-
-    return rval;
-  }
-
-  fail;
-}
-
-
-static bool
-writeArgTerm(term_t t, int prec, write_options *options, bool arg)
-{ int rval;
-  int levelSave = options->depth;
-  fid_t fid;
-
-  if ( !(fid = PL_open_foreign_frame()) )
-    return FALSE;
-
-  if ( PL_handle_signals() < 0 )
-  { rval = FALSE;
-    goto out;
-  }
-
-  if ( ++options->depth > options->max_depth && options->max_depth )
-    rval = PutString("...", options->out);
-  else if ( PL_is_compound(t) )
-  { visited v;
-
-    v.address = address_of(t);
-    if ( has_visited(options->visited, v.address) )
-    { rval = PutString("**", options->out);
-    } else
-    { v.next = options->visited;
-      options->visited = &v;
-      rval = writeTerm2(t, prec, options, arg);
-      options->visited = v.next;
-    }
-  } else
-  { rval = writeTerm2(t, prec, options, arg);
-  }
-
-out:
-  options->depth = levelSave;
-  PL_close_foreign_frame(fid);
-
-  return rval;
-}
 
 static bool
 writeTerm(term_t t, int prec, write_options *options)
 {
-  return writeArgTerm(t, prec, options, FALSE);
+  CACHE_REGS
+  UInt yap_flag = Use_SWI_Stream_f;
+  int flags = options->flags;
+  Term old_module;
+  
+  if (flags & PL_WRT_QUOTED)
+    yap_flag |= Quote_illegal_f;
+  if (options->flags & PL_WRT_NUMBERVARS)
+    yap_flag |=  Handle_vars_f;
+  if (options->flags & PL_WRT_IGNOREOPS)
+    yap_flag |= Ignore_ops_f;
+  if (flags & PL_WRT_PORTRAY)
+    yap_flag |= Use_portray_f;
+  if (flags & PL_WRT_BACKQUOTED_STRING)
+    yap_flag |= BackQuote_String_f;
+  if (flags & PL_WRT_ATTVAR_IGNORE)
+    yap_flag |= 0L;
+  if (flags & PL_WRT_ATTVAR_DOTS)
+    yap_flag |= AttVar_Dots_f;
+  if (flags & PL_WRT_ATTVAR_PORTRAY)
+    yap_flag |= AttVar_Portray_f;
+  if (flags & PL_WRT_BLOB_PORTRAY)
+    yap_flag |= Blob_Portray_f;
+  old_module = CurrentModule;
+  CurrentModule = options->module;
+  Yap_plwrite(Yap_GetFromSlot(t PASS_REGS), options->out, options->max_depth, yap_flag, prec);
+  CurrentModule = old_module;
+  return TRUE;
 }
 
-static bool
-writeList2(term_t list, write_options *options, int cyclic)
-{ GET_LD
-  term_t head = PL_new_term_ref();
-  term_t l    = PL_copy_term_ref(list);
-
-  TRY(Putc('[', options->out));
-  for(;;)
-  { PL_get_list(l, head, l);
-    TRY(writeArgTerm(head, 999, options, TRUE));
-
-    if ( PL_get_nil(l) )
-      break;
-    if ( ++options->depth >= options->max_depth && options->max_depth )
-      return PutString("|...]", options->out);
-    if ( !PL_is_functor(l, FUNCTOR_dot2) )
-    { TRY(Putc('|', options->out));
-      TRY(writeArgTerm(l, 999, options, TRUE));
-      break;
-    }
-
-					/* cycle detection */
-    { Word addr =  address_of(l);
-
-      if ( has_visited(options->visited, addr) )
-      { return PutString("|**]", options->out);
-      } else if ( cyclic )
-      { visited *v = alloca(sizeof(*v));
-	v->address = addr;
-	v->next = options->visited;
-	options->visited = v;
-      }
-    }
-
-    TRY(PutComma(options));
-  }
-
-  return Putc(']', options->out);
+int
+writeAtomToStream(IOSTREAM *s, atom_t atom)
+{ Yap_plwrite(MkAtomTerm(YAP_AtomFromSWIAtom(atom)), s, 0, 0, 1200);
+  return 1;
 }
-
-
-static bool
-writeList(term_t list, write_options *options)
-{ GET_LD
-  visited *v = options->visited;
-  Word tail;
-  int rc;
-
-  skip_list(valTermRef(list), &tail PASS_LD);
-  rc = writeList2(list, options, isList(*tail));
-  options->visited = v;
-
-  return rc;
-}
-
-
-
-static bool
-writeTerm2(term_t t, int prec, write_options *options, bool arg)
-{ GET_LD
-  atom_t functor;
-  int arity, n;
-  int op_type, op_pri;
-  atom_t a;
-  IOSTREAM *out = options->out;
-
-  if ( !PL_is_variable(t) &&
-       true(options, PL_WRT_PORTRAY) )
-  { switch( callPortray(t, options) )
-    { case TRUE:
-	return TRUE;
-      case FALSE:
-	break;
-      default:
-	return FALSE;
-    }
-  }
-
-#if __YAP_PROLOG__
-  t = Yap_CvtTerm(t);
-#endif
-  if ( PL_get_atom(t, &a) )
-    { if ( !arg && prec < 1200 && priorityOperator((Module)NULL, a) > 0 )
-    { if ( PutOpenBrace(out) &&
-	   writeAtom(a, options) &&
-	   PutCloseBrace(out) )
-	succeed;
-    } else
-      return writeAtom(a, options);
-  }
-
-  if ( !PL_get_name_arity(t, &functor, &arity) )
-  { return writePrimitive(t, options);
-  } else
-  { if ( arity == 1 &&
-	 functor == ATOM_isovar &&			/* $VAR/1 */
-	 true(options, PL_WRT_NUMBERVARS) )
-    { int n;
-      atom_t a;
-      term_t arg = PL_new_term_ref();
-
-      _PL_get_arg(1, t, arg);
-#if __YAP_PROLOG__
-      /* YAP supports $VAR(-1) as a quick hack to write singleton variables */
-#define MIN_DOLLAR_VAR -1
-#else
-#define MIN_DOLLAR_VAR 0      
-#endif
-      if ( PL_get_integer(arg, &n) && n >= MIN_DOLLAR_VAR )
-      { int i = n % 26;
-	int j = n / 26;
-	char buf[16];
-
-#if __YAP_PROLOG__
-	if ( n == -1 ) {
-	  buf[0] = '_';
-	  buf[1] = EOS;
-	} else
-#endif
-	if ( j == 0 )
-	{ buf[0] = i+'A';
-	  buf[1] = EOS;
-	} else
-	{ sprintf(buf, "%c%d", i+'A', j);
-	}
-
-	return PutToken(buf, out);
-      }
-      if ( PL_get_atom(arg, &a) )
-      { write_options o2 = *options;
-	clear(&o2, PL_WRT_QUOTED);
-
-	return writeAtom(a, &o2);
-      }
-    }
-
-
-    if ( false(options, PL_WRT_IGNOREOPS) )
-    { term_t arg = PL_new_term_ref();
-
-      if ( arity == 1 )
-      { if ( functor == ATOM_curl )	/* {a,b,c} */
-	{ _PL_get_arg(1, t, arg);
-	  TRY(Putc('{', out));
-	  TRY(writeTerm(arg, 1200, options) &&
-	      Putc('}', out));
-
-	  succeed;
-	}
-
-					  /* op <term> */
-	if ( currentOperator(options->module, functor, OP_PREFIX,
-			     &op_type, &op_pri) )
-	{ term_t arg = PL_new_term_ref();
-	  int embrace;
-
-	  embrace = ( op_pri > prec );
-
-	  _PL_get_arg(1, t, arg);
-	  if ( embrace )
-	  { TRY(PutOpenBrace(out));
-	  }
-	  TRY(writeAtom(functor, options));
-
-				/* +/-(Number) : avoid parsing as number */
-	  if ( (functor == ATOM_minus || functor == ATOM_plus) &&
-	       PL_is_number(arg) )
-	  { TRY(Putc('(', out));
-	    TRY(writeTerm(arg, 999, options));
-	    TRY(Putc(')', out));
-	  } else
-	  { TRY(writeTerm(arg,
-			  op_type == OP_FX ? op_pri-1 : op_pri,
-			  options));
-	  }
-	  if ( embrace )
-	  { TRY(PutCloseBrace(out));
-	  }
-
-	  succeed;
-	}
-
-					  /* <term> op */
-	if ( currentOperator(options->module, functor, OP_POSTFIX,
-			     &op_type, &op_pri) )
-	{ term_t arg = PL_new_term_ref();
-
-	  _PL_get_arg(1, t, arg);
-	  if ( op_pri > prec )
-	    TRY(PutOpenBrace(out));
-	  TRY(writeTerm(arg,
-			op_type == OP_XF ? op_pri-1 : op_pri,
-			options));
-	  TRY(writeAtom(functor, options));
-	  if (op_pri > prec)
-	    TRY(PutCloseBrace(out));
-
-	  succeed;
-	}
-      } else if ( arity == 2 )
-      { if ( functor == ATOM_dot )	/* [...] */
-	  return writeList(t, options);
-
-					  /* <term> op <term> */
-	if ( currentOperator(options->module, functor, OP_INFIX,
-			     &op_type, &op_pri) )
-	{ term_t l = PL_new_term_ref();
-	  term_t r = PL_new_term_ref();
-
-	  _PL_get_arg(1, t, l);
-	  _PL_get_arg(2, t, r);
-
-	  if ( op_pri > prec )
-	    TRY(PutOpenBrace(out));
-	  TRY(writeTerm(l,
-			op_type == OP_XFX || op_type == OP_XFY
-				? op_pri-1 : op_pri,
-			options));
-	  if ( functor == ATOM_comma )
-	  { TRY(PutComma(options));
-	  } else
-	  { switch(writeAtom(functor, options))
-	    { case FALSE:
-		fail;
-	      case TRUE_WITH_SPACE:
-		TRY(Putc(' ', out));
-	    }
-	  }
-	  TRY(writeTerm(r,
-			op_type == OP_XFX || op_type == OP_YFX
-				? op_pri-1 : op_pri,
-			options));
-	  if ( op_pri > prec )
-	    TRY(PutCloseBrace(out));
-	  succeed;
-	}
-      }
-    }
-					/* functor(<args> ...) */
-    { term_t a = PL_new_term_ref();
-
-      TRY(writeAtom(functor, options) &&
-	  Putc('(', out));
-      for(n=0; n<arity; n++)
-      { if (n > 0)
-	  TRY(PutComma(options));
-	_PL_get_arg(n+1, t, a);
-	TRY(writeArgTerm(a, 999, options, TRUE));
-      }
-      return Putc(')', out);
-    }
-  }
-}
-
 
 int
 writeAttributeMask(atom_t a)
@@ -1361,6 +263,59 @@ static const opt_spec write_term_options[] =
   { ATOM_blobs,		    OPT_ATOM },
   { NULL_ATOM,	     	    0 }
 };
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PutOpenToken() inserts a space in the output stream if the last-written
+and given character require a space to ensure a token-break.
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+#define TRUE_WITH_SPACE 2		/* OK, and emitted leading space before token */
+
+static bool
+Putc(int c, IOSTREAM *s)
+{ return Sputcode(c, s) == EOF ? FALSE : TRUE;
+}
+
+#define LAST_C_RESERVED		0x110000 /* Above Unicode range */
+#define PREFIX_SIGN		(LAST_C_RESERVED+1)
+
+#define isquote(c) ((c) == '\'' || (c) == '"')
+
+static bool
+needSpace(int c, IOSTREAM *s)
+{ if ( c == EOF )
+  { s->lastc = EOF;
+    return FALSE;
+  }
+
+  if ( s->lastc == PREFIX_SIGN )	/* avoid passing to is*W() functions */
+  { if ( isDigit(c) || isSymbolW(c) )
+      return TRUE;
+    return FALSE;
+  }
+
+  if ( s->lastc != EOF &&
+       ((isAlphaW(s->lastc) && isAlphaW(c)) ||
+	(isSymbolW(s->lastc) && isSymbolW(c)) ||
+	(s->lastc != '(' && !isBlank(s->lastc) && c == '(') ||
+	(c == '\'' && (isDigit(s->lastc))) ||
+	(isquote(c) && s->lastc == c)
+       ) )
+    return TRUE;
+
+  return FALSE;
+}
+
+
+static int
+PutOpenToken(int c, IOSTREAM *s)
+{ if ( needSpace(c, s) )
+  { TRY(Putc(' ', s));
+    return TRUE_WITH_SPACE;
+  }
+
+  return TRUE;
+}
 
 word
 pl_write_term3(term_t stream, term_t term, term_t opts)
@@ -1471,7 +426,7 @@ PL_write_term(IOSTREAM *s, term_t term, int precedence, int flags)
   memset(&options, 0, sizeof(options));
   options.flags	    = flags;
   options.out	    = s;
-  options.module    = MODULE_user;
+  options.module    = USER_MODULE; //MODULE_user;
 
   PutOpenToken(EOF, s);			/* reset this */
   return writeTerm(term, precedence, &options);
@@ -1490,7 +445,7 @@ do_write2(term_t stream, term_t term, int flags)
     memset(&options, 0, sizeof(options));
     options.flags     = flags;
     options.out	      = s;
-    options.module    = MODULE_user;
+    options.module    = USER_MODULE; // MODULE_user;
     //    if ( options.module && true(options.module, CHARESCAPE) )
     if (charEscapeWriteOption(options))
       options.flags |= PL_WRT_CHARESCAPES;
@@ -1574,30 +529,10 @@ pl_writeln(term_t term)
 }
 
 
-static
-PRED_IMPL("$put_token", 2, put_token, 0)
-{ char *s;
-  size_t len;
-  IOSTREAM *out;
-
-  if ( !PL_get_stream_handle(A1, &out) )
-    fail;
-  if ( !PL_get_nchars(A2, &len, &s, CVT_ATOM|CVT_STRING|CVT_EXCEPTION) )
-    fail;
-
-  if ( PutTokenN(s, len, out) )
-    return PL_release_stream(out);
-
-  PL_release_stream(out);
-  fail;
-}
-
-
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
 
 BeginPredDefs(write)
-  PRED_DEF("$put_token", 2, put_token, 0)
 EndPredDefs
 

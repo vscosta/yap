@@ -140,12 +140,14 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('history.pl').
 :- use_module('dbload.yap').
 :- use_module('swi.yap').
+:- use_module('../LGPL/predopts.pl').
 
-'$system_module'('$messages').
-'$system_module'('$hacks').
 '$system_module'('$attributes').
 '$system_module'('$coroutining').
+'$system_module'('$hacks').
 '$system_module'('$history').
+'$system_module'('$messages').
+'$system_module'('$predopts').
 '$system_module'('$swi').
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).

@@ -97,7 +97,8 @@ DIALECT_PROGRAMS= \
 
 DIALECT_SWI= \
 	$(srcdir)/dialect/swi/INDEX.pl \
-	$(srcdir)/dialect/swi/listing.pl
+	$(srcdir)/dialect/swi/listing.pl \
+	$(srcdir)/dialect/swi/syspred_options.pl
 
 DIALECT_BP= \
 	$(srcdir)/dialect/bprolog/actionrules.pl \

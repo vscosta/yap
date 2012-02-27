@@ -307,6 +307,7 @@ static Opdef    Ops[] = {
   {"#", yfx, 500},
   {"rdiv", yfx, 400},
   {"div", yfx, 400},
+  {"xor", yfx, 400},
   {"*", yfx, 400},
   {"/", yfx, 400},
   {"//", yfx, 400},

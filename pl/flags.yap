@@ -543,6 +543,13 @@ yap_flag(discontiguous_warnings,X) :-
 yap_flag(discontiguous_warnings,X) :-
 	'$do_error'(domain_error(flag_value,discontiguous_warnings+X),yap_flag(discontiguous_warnings,X)).
 
+yap_flag(occurs_check,X) :-
+	X = false, !.
+yap_flag(occurs_check,true) :- !,
+	fail.
+yap_flag(occurs_check,X) :-
+	'$do_error'(domain_error(flag_value,occurs_check+X),yap_flag(occurs_check,X)).
+
 yap_flag(redefine_warnings,X) :-
 	var(X), !,
 	('$syntax_check_mode'(on,_), '$syntax_check_multiple'(on,_) ->
@@ -734,23 +741,21 @@ yap_flag(stack_dump_on_error,X) :-
 
 yap_flag(user_input,OUT) :-
 	var(OUT), !,
-	'$flag_check_alias'(OUT, user_input).
-	
+	stream_property(OUT,alias(user_input)).
 yap_flag(user_input,Stream) :-
-	'$change_alias_to_stream'(user_input,Stream).
+	set_stream(Stream, alias(user_input).
 
 yap_flag(user_output,OUT) :-
 	var(OUT), !,
-	'$flag_check_alias'(OUT, user_output).
+	stream_property(OUT,alias(user_output)).
 yap_flag(user_output,Stream) :-
-	'$change_alias_to_stream'(user_output,Stream).
-
+	set_stream(Stream, alias(user_output).
 
 yap_flag(user_error,OUT) :-
 	var(OUT), !,
-	'$flag_check_alias'(OUT, user_error).
+	stream_property(OUT,alias(user_error)).
 yap_flag(user_error,Stream) :-
-	'$change_alias_to_stream'(user_error,Stream).
+	set_stream(Stream, alias(user_error).
 
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
@@ -876,6 +881,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(min_integer).
 '$yap_system_flag'(min_tagged_integer).
 '$yap_system_flag'(n_of_integer_keys_in_db).
+'$yap_system_flag'(occurs_check).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
 '$yap_system_flag'(optimise).

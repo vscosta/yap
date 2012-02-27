@@ -701,8 +701,17 @@ p_save_module_preds( USES_REGS1 )
 {
   IOSTREAM *stream;
   Term tmod = Deref(ARG2);
+  Term t1 = Deref(ARG1);
 
-  if (!Yap_getOutputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"save_module/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"save_module/3");
+    return(FALSE);
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
   if (IsVarTerm(tmod)) {
@@ -720,8 +729,17 @@ static Int
 p_save_program( USES_REGS1 )
 {
   IOSTREAM *stream;
+  Term t1 = Deref(ARG1);
 
-  if (!Yap_getOutputStream(Yap_InitSlot(Deref(ARG1) PASS_REGS), &stream)) {
+  if (IsVarTerm(t1)) {
+    Yap_Error(INSTANTIATION_ERROR,t1,"save_program/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t1)) {
+    Yap_Error(TYPE_ERROR_ATOM,t1,"save_program/3");
+    return(FALSE);
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
     return FALSE;
   }
   return save_program(stream) != 0;

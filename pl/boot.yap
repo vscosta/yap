@@ -311,7 +311,7 @@ true :- true.
 	 (
 	     O = (:- G1)
 	 ->
-	   '$process_directive'(G1, Option, M)
+	   '$process_directive'(G1, Option, M, VL, Pos)
           ;
 	    '$execute_commands'(O,VL,Pos,Option,O)
 	 ).
@@ -328,33 +328,33 @@ true :- true.
  % SICStus accepts everything in files
  % YAP accepts everything everywhere
  % 
- '$process_directive'(G, top, M) :-
+ '$process_directive'(G, top, M, VL, Pos) :-
 	 '$access_yap_flags'(8, 0), !, % YAP mode, go in and do it,
-	 '$process_directive'(G, consult, M).
- '$process_directive'(G, top, _) :- !,
+	 '$process_directive'(G, consult, M, VL, Pos).
+ '$process_directive'(G, top, _, _, _) :- !,
 	 '$do_error'(context_error((:- G),clause),query).
  %
  % allow modules
  %
- '$process_directive'(M:G, Mode, _) :- !,
-	 '$process_directive'(G, Mode, M).
+ '$process_directive'(M:G, Mode, _, VL, Pos) :- !,
+	 '$process_directive'(G, Mode, M, VL, Pos).
  %
  % default case
  %
- '$process_directive'(Gs, Mode, M) :-
+ '$process_directive'(Gs, Mode, M, VL, Pos) :-
 	 '$all_directives'(Gs), !,
-	 '$exec_directives'(Gs, Mode, M).
+	 '$exec_directives'(Gs, Mode, M, VL, Pos).
 
  %
  % ISO does not allow goals (use initialization).
  %
- '$process_directive'(D, _, M) :-
+ '$process_directive'(D, _, M, VL, Pos) :-
 	 '$access_yap_flags'(8, 1), !, % ISO Prolog mode, go in and do it,
 	 '$do_error'(context_error((:- M:D),query),directive).
  %
  % but YAP and SICStus does.
  %
- '$process_directive'(G, _, M) :-
+ '$process_directive'(G, _, M, VL, Pos) :-
 	 '$exit_system_mode',
 	 ( '$notrace'(M:G) -> true ; format(user_error,':- ~w:~w failed.~n',[M,G]) ),
 	 '$enter_system_mode'.

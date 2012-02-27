@@ -580,11 +580,23 @@ ParseTerm(int prio, JMPBUFF *FailBuff USES_REGS)
       break;
     case '[':
       NextToken;
+      if (LOCAL_tokptr->Tok == Ponctuation_tok &&
+	  (int) LOCAL_tokptr->TokInfo == ']') {
+	t = TermNil;
+	NextToken;
+	break;
+      }
       t = ParseList(FailBuff PASS_REGS);
       checkfor((Term) ']', FailBuff PASS_REGS);
       break;
     case '{':
       NextToken;
+      if (LOCAL_tokptr->Tok == Ponctuation_tok &&
+	  (int) LOCAL_tokptr->TokInfo == '}') {
+	t = MkAtomTerm(AtomBraces);
+	NextToken;
+	break;
+      }
       t = ParseTerm(1200, FailBuff PASS_REGS);
       t = Yap_MkApplTerm(FunctorBraces, 1, &t);
       /* check for possible overflow against local stack */

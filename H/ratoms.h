@@ -272,6 +272,7 @@
   AtomStaticClause = AtomAdjust(AtomStaticClause);
   AtomStaticProcedure = AtomAdjust(AtomStaticProcedure);
   AtomStream = AtomAdjust(AtomStream);
+  AtomSWIStream = AtomAdjust(AtomSWIStream);
   AtomVStream = AtomAdjust(AtomVStream);
   AtomStreams = AtomAdjust(AtomStreams);
   AtomStreamOrAlias = AtomAdjust(AtomStreamOrAlias);

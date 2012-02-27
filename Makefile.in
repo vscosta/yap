@@ -101,7 +101,7 @@ SONAMEFLAG=@SONAMEFLAG@
 #4.1VPATH=@srcdir@:@srcdir@/OPTYap
 CWD=$(PWD)
 #
-VERSION=6.3.1
+VERSION=6.3.2
 MYDDAS_VERSION=MYDDAS-0.9.1
 #
 
@@ -861,6 +861,7 @@ install_copied_files:
 	@INSTALLCLP@(cd LGPL/clp ; $(MAKE) install)
 	(cd packages/CLPBN ; $(MAKE) install)
 	(cd packages/meld; $(MAKE) install)
+	(cd packages/xml; $(MAKE) install)
 	(cd  packages/ProbLog ; $(MAKE) install)
 
 ##########

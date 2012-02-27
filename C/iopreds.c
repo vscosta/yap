@@ -199,7 +199,7 @@ Yap_DebugPutc(int sno, wchar_t ch)
 void
 Yap_DebugPlWrite(Term t)
 {
-  Yap_plwrite(t, Yap_DebugPutc, 0, 1200);
+  Yap_plwrite(t, NULL, 15, 0, 1200);
 }
 
 void 
@@ -238,7 +238,7 @@ typedef struct stream_ref
 int beam_write (void)
 {
   Yap_StartSlots();
-  Yap_plwrite (ARG1, Stream[LOCAL_c_output_stream].stream_wputc, 0, 1200);
+  Yap_plwrite (ARG1, NULL, 0, 0, 1200);
   Yap_CloseSlots();
   if (EX != 0L) {
     Term ball = Yap_PopTermFromDB(EX);
@@ -745,19 +745,24 @@ p_read ( USES_REGS1 )
   return do_read(Yap_Scurin(), 7 PASS_REGS);
 }
 
-extern int Yap_getInputStream(Int, IOSTREAM **);
-
 static Int
 p_read2 ( USES_REGS1 )
 {				/* '$read2'(+Flag,?Term,?Module,?Vars,-Pos,-Err,+Stream)  */
   IOSTREAM *inp_stream;
   Int out;
+  Term t8 = Deref(ARG8);
 
-  if (!Yap_getInputStream(Yap_InitSlot(Deref(ARG8) PASS_REGS), &inp_stream)) {
-    Yap_RecoverSlots(1 PASS_REGS);
+  if (IsVarTerm(t8)) {
+    Yap_Error(INSTANTIATION_ERROR,t8,"read_term/3");
+    return FALSE;
+  }
+  if (!IsAtomTerm(t8)) {
+    Yap_Error(TYPE_ERROR_LIST,t8,"read_term/3");
     return(FALSE);
   }
-  Yap_RecoverSlots(1 PASS_REGS);
+  if (!(inp_stream = Yap_GetInputStream(AtomOfTerm(t8))) ) {
+    return(FALSE);
+  }
   out = do_read(inp_stream, 8 PASS_REGS);
   return out;
 }

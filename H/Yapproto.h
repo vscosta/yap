@@ -257,11 +257,13 @@ int      STD_PROTO(Yap_eq,(Term, Term));
 /* iopreds.c */
 void	STD_PROTO(Yap_InitBackIO,(void));
 void	STD_PROTO(Yap_InitIOPreds,(void));
+void   *Yap_GetStreamHandle(Atom at);
+void   *Yap_GetInputStream(Atom at);
+void   *Yap_GetOutputStream(Atom at);
 #ifdef DEBUG
 extern void Yap_DebugPlWrite (Term t);
 extern void Yap_DebugErrorPutc (int n);
 #endif
-int	STD_PROTO(Yap_LookupSWIStream,(void *));
 int     STD_PROTO(Yap_readTerm, (void *, Term *, Term *, Term *, Term *));
 void    STD_PROTO(Yap_PlWriteToStream, (Term, int, int));
 /* depth_lim.c */
@@ -406,7 +408,7 @@ Int     STD_PROTO(Yap_SkipList,(Term *, Term **));
 
 
 /* write.c */
-void	STD_PROTO(Yap_plwrite,(Term,int (*)(int, wchar_t), int, int));
+void	STD_PROTO(Yap_plwrite,(Term, void *, int, int, int));
 
 
 /* MYDDAS */
@@ -502,8 +504,4 @@ gc_P(yamop *p, yamop *cp)
   return (p->opc == Yap_opcode(_execute_cpred) ? cp : p);
 }
 
-#ifdef _PL_STREAM_H
-extern int Yap_getInputStream(Int t, IOSTREAM **s);
-extern int Yap_getOutputStream(Int t, IOSTREAM **s);
-#endif
 

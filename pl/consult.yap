@@ -229,8 +229,7 @@ use_module(M,F,Is) :-
 '$csult'([F|L], M) :- '$consult'(F, M), '$csult'(L, M).
 
 '$do_lf'(ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, CompMode, Reconsult, UseModule) :-
-	nb_getval('$if_level',OldIncludeLevel),
-	nb_setval('$if_level',0),
+	'$reset_if'(OldIfLevel),
 	( nb_getval('$system_mode', OldMode) -> true ; OldMode = off),
         ( OldMode == off -> '$enter_system_mode' ; true ),
 	'$record_loaded'(Stream, ContextModule, Reconsult),
@@ -285,13 +284,19 @@ use_module(M,F,Is) :-
 	% surely, we were in run mode or we would not have included the file!
 	nb_setval('$if_skip_mode',run),
 	% back to include mode!
-	nb_setval('$if_level',OldIncludeLevel),
+	nb_setval('$if_level',OldIfLevel),
 	'$bind_module'(Mod, UseModule),
 	'$import_to_current_module'(File, ContextModule, Imports),
 	( LC == 0 -> prompt(_,'   |: ') ; true),
         ( OldMode == off -> '$exit_system_mode' ; true ),
 	'$exec_initialisation_goals',
 	!.
+
+'$reset_if'(OldIfLevel) :-
+	catch(nb_getval('$if_level',OldIncludeLevel),_,fail), !,
+	nb_setval('$if_level',0).
+'$reset_if'(0) :-
+	nb_setval('$if_level',0).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -631,7 +636,7 @@ absolute_file_name(File0,File) :-
 	'$absolute_file_name'(F0,[access(read),file_type(source),file_errors(fail),solutions(first),expand(true)],F,G).
 
 absolute_file_name(File,TrueFileName,Opts) :-
-	var(TrueFileName), !,
+	( var(TrueFileName) ; atom(TrueFileName) ), !,
 	absolute_file_name(File,Opts,TrueFileName).
 absolute_file_name(File,Opts,TrueFileName) :-
 	'$absolute_file_name'(File,Opts,TrueFileName,absolute_file_name(File,Opts,TrueFileName)).
@@ -665,7 +670,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G),
 	'$process_fn_opts'(Opts,Extensions0,RelTo0,Type0,Access0,FErrors0,Solutions0,Expand0,Debug0,G).
 '$process_fn_opts'(Opts,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- !,
-	'$do_error'(type_error(list,T),G).
+	'$do_error'(type_error(list,Opts),G).
 
 '$process_fn_opt'(Opt,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,Extensions,RelTo,Type,Access,FErrors,Solutions,Expand,Debug,G) :- var(Opt), !,
 	'$do_error'(instantiation_error, G).
@@ -1037,4 +1042,7 @@ make_library_index(_Directory).
 	    
 '$current_loop_stream'(Stream) :-
 	catch(nb_getval('$loop_stream',Stream), _, fail).
+
+exists_source(File) :-
+	'$full_filename'(File, AbsFile, exists_source(File)).
 

@@ -31,10 +31,11 @@ typedef YAP_Term		(*Func)(term_t);	/* foreign functions */
 extern const char *Yap_GetCurrentPredName(void);
 extern YAP_Int     Yap_GetCurrentPredArity(void);
 extern int Yap_read_term(term_t t, IOSTREAM *st, term_t *exc, term_t vs);
-extern int Yap_LookupSWIStream(void *swi_s);
 extern term_t Yap_fetch_module_for_format(term_t args, YAP_Term *modp);
 extern IOENC Yap_DefaultEncoding(void);
 extern void Yap_SetDefaultEncoding(IOENC);
+
+extern void   *Yap_GetStreamHandle(Atom at);
 
 extern atom_t codeToAtom(int chrcode);
 
@@ -148,7 +149,7 @@ atomLength(Atom atom)
 #define MODULE_user YAP_ModuleUser()
 #define _PL_predicate(A,B,C,D) PL_predicate(A,B,C)
 #define predicateHasClauses(A) (YAP_NumberOfClausesForPredicate((YAP_PredEntryPtr)A) != 0)
-#define lookupModule(A) ((Module)PL_new_module(A))
+#define lookupModule(A) Yap_Module(MkAtomTerm(YAP_AtomFromSWIAtom(A)))
 #define charEscapeWriteOption(A) FALSE  // VSC: to implement
 #define wordToTermRef(A) YAP_InitSlot(*(A))
 #define isTaggedInt(A) IsIntegerTerm(A)

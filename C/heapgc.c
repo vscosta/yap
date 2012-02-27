@@ -4136,7 +4136,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   }
   /*
    * debug for(save_total=1; save_total<=N; ++save_total)
-   * plwrite(XREGS[save_total],Yap_DebugPutc,0); 
+   * plwrite(XREGS[save_total],NULL,30,0,0); 
    */
   return TRUE;
 }

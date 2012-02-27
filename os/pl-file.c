@@ -636,7 +636,6 @@ PL_get_stream_handle(term_t t, IOSTREAM **s)
   return term_stream_handle(t, s, SH_ERRORS|SH_ALIAS PASS_LD);
 }
 
-
 static int
 unify_stream_ref(term_t t, IOSTREAM *s)
 { GET_LD
@@ -4671,6 +4670,64 @@ BeginPredDefs(file)
 EndPredDefs
 
 #if __YAP_PROLOG__
+
+void *
+Yap_GetStreamHandle(Atom at)
+{ GET_LD
+  atom_t a;
+  IOSTREAM *s;
+
+  a = YAP_SWIAtomFromAtom(at);
+  if (!get_stream_handle(a, &s, SH_ERRORS|SH_ALIAS))
+    return NULL;
+  return s;
+}
+
+void *Yap_GetInputStream(Atom at)
+{ GET_LD
+  atom_t a;
+  IOSTREAM *s;
+  if ( at == AtomUser ) {
+    if ( (s = getStream(Suser_input)) )
+      return s;
+    return NULL;
+  }
+
+  a = YAP_SWIAtomFromAtom(at);
+  if ( !get_stream_handle(a, &s, SH_ERRORS|SH_ALIAS|SH_INPUT) )
+    return NULL;
+
+  if ( !(s->flags &SIO_INPUT) )
+  { releaseStream(s);
+    return Yap_Error(PERMISSION_ERROR_INPUT_STREAM, MkAtomTerm(at),
+		     "read or ql");
+    return NULL;
+  }
+  return s;
+}
+
+void *Yap_GetOutputStream(Atom at)
+{ GET_LD
+  atom_t a;
+  IOSTREAM *s;
+  if ( at == AtomUser ) {
+    if ( (s = getStream(Suser_output)) )
+      return s;
+    return NULL;
+  }
+
+  a = YAP_SWIAtomFromAtom(at);
+  if ( !get_stream_handle(a, &s, SH_ERRORS|SH_ALIAS|SH_OUTPUT) )
+    return NULL;
+
+  if ( !(s->flags &SIO_OUTPUT) )
+  { releaseStream(s);
+    return Yap_Error(PERMISSION_ERROR_OUTPUT_STREAM, MkAtomTerm(at),
+		     "write or ql");
+    return NULL;
+  }
+  return s;
+}
 
 static int
 pl_get_time(term_t t)

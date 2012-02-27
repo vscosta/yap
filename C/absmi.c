@@ -9151,7 +9151,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_vc_unk, plus_vc_nvar);
       saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A+ " Int_FORMAT, PREG->u.xxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->u.xxn.c);
       setregs();
       FAIL();
       ENDP(pt0);
@@ -9243,7 +9243,7 @@ Yap_absmi(int inp)
       BEGP(pt0);
       deref_body(d0, pt0, plus_y_vc_unk, plus_y_vc_nvar);
       saveregs();
-      Yap_NilError(INSTANTIATION_ERROR, "X is A+ " Int_FORMAT, PREG->u.yxn.c);
+      Yap_NilError(INSTANTIATION_ERROR, "X is A + " Int_FORMAT, PREG->u.yxn.c);
       setregs();
       FAIL();
       ENDP(pt0);

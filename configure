@@ -623,8 +623,8 @@ ENABLE_WINCONSOLE
 STATIC_MODE
 MAX_WORKERS
 LAMOBJS
-JAVAINCPATH
-JAVALIBPATH
+JAVACFLAGS
+JAVALIBS
 INSTALLCLP
 INSTALL_COMMAND
 MPI_LIBS
@@ -4823,7 +4823,7 @@ if test "${with_lam+set}" = set; then :
 		CPPFLAGS="$CPPFLAGS -I${yap_cv_lam}/include"
 	fi
 else
-  yap_cv_lam=yes
+  yap_cv_lam=no
 fi
 
 
@@ -6716,27 +6716,27 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	case "$target_os" in
 	    *cygwin*|*mingw*)
 	       if test $threads = yes; then
-	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
+	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib -lpthread"
                else
-	         JAVALIBPATH="\"$JAVA_HOME\"/lib/jvm.lib"
+	         JAVALIBS="\"$JAVA_HOME\"/lib/jvm.lib"
                fi
-	       JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
+	       JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/win32"
 	       	  ;;
 	       *darwin*)
 	       LIBS="$LIBS -framework JavaVM"
-	       JAVALIBPATH="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
-	       JAVAINCPATH="-I/System/Library/Frameworks/JavaVM.framework/Headers"
+	       JAVALIBS="-L/System/Library/Frameworks/JavaVM.framework/Libraries -Wl,-framework,JavaVM"
+	       JAVACFLAGS="-I/System/Library/Frameworks/JavaVM.framework/Headers"
 	       	  ;;
 	       *)
               case "$target_os" in
 	         *linux*)
-		   JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
+		   JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/linux"
                 ;;
 	         *solaris*)
-	        JAVAINCPATH="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
+	        JAVACFLAGS="-I\"$JAVA_HOME\"/include -I\"$JAVA_HOME\"/include/solaris"
                 ;;
               esac
-	       JAVALIBPATH="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
+	       JAVALIBS="-L$JAVA_HOME/jre/lib/$YAP_TARGET -L$JAVA_HOME/jre/lib/$YAP_TARGET/client  -L$JAVA_HOME/jre/lib/$YAP_TARGET/server   -Wl,-R,$JAVA_HOME/jre/lib/$YAP_TARGET -ljava -lverify -ljvm "
 	       	  ;;
 	esac
 	if test "$yap_cv_java" = ""; then
@@ -9738,8 +9738,8 @@ else
 fi
 
 if test "$IN_UNIX" = ""; then
-CLIB_TARGETS="unix.$SO $CLIB_TARGETS"
-CLIB_PLTARGETS="unix.pl $CLIB_PLTARGETS"
+CLIB_TARGETS="uid.$SO unix.$SO $CLIB_TARGETS"
+CLIB_PLTARGETS="uid.pl unix.pl $CLIB_PLTARGETS"
 CLIB_NETLIBS=
 else
 ac_fn_c_check_func "$LINENO" "socket" "ac_cv_func_socket"
@@ -10127,6 +10127,8 @@ mkdir -p  packages/cplint/approx
 mkdir -p  packages/cplint/approx/simplecuddLPADs
 mkdir -p  packages/http
 mkdir -p  packages/jpl
+mkdir -p  packages/jpl/src
+mkdir -p  packages/jpl/src/c
 mkdir -p  packages/jpl/src/java
 mkdir -p  packages/jpl/src/java/jpl
 mkdir -p  packages/jpl/src/java/jpl/fli
@@ -10153,6 +10155,7 @@ mkdir -p  packages/RDF
 mkdir -p  packages/real
 mkdir -p  packages/semweb
 mkdir -p  packages/sgml
+mkdir -p  packages/xml
 mkdir -p  packages/zlib
 
 ac_config_files="$ac_config_files Makefile"
@@ -10198,6 +10201,8 @@ ac_config_files="$ac_config_files packages/cplint/approx/simplecuddLPADs/Makefil
 ac_config_files="$ac_config_files packages/cplint/slipcase/Makefile"
 
 ac_config_files="$ac_config_files packages/meld/Makefile"
+
+ac_config_files="$ac_config_files packages/xml/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/Makefile"
 
@@ -11012,6 +11017,7 @@ do
     "packages/cplint/approx/simplecuddLPADs/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/approx/simplecuddLPADs/Makefile" ;;
     "packages/cplint/slipcase/Makefile") CONFIG_FILES="$CONFIG_FILES packages/cplint/slipcase/Makefile" ;;
     "packages/meld/Makefile") CONFIG_FILES="$CONFIG_FILES packages/meld/Makefile" ;;
+    "packages/xml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/xml/Makefile" ;;
     "packages/ProbLog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/Makefile" ;;
     "packages/chr/Makefile") CONFIG_FILES="$CONFIG_FILES packages/chr/Makefile" ;;
     "packages/clib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/clib/Makefile" ;;

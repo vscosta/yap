@@ -42,8 +42,8 @@ check_dialect(Dialect) :-
 %	:- endif.
 %	==
 
-exists_source(Source) :-
-	exists_source(Source, _Path).
+%exists_source(Source) :-
+%	exists_source(Source, _Path).
 
 exists_source(Source, Path) :-
 	absolute_file_name(Source, Path,

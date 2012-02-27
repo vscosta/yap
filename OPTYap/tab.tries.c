@@ -1068,7 +1068,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     RESET_VARIABLE(t);
   }
 
-  sg_fr_ptr *sg_fr_end = get_insert_subgoal_frame_addr(current_sg_node PASS_REGS);
+  volatile sg_fr_ptr *sg_fr_end = get_insert_subgoal_frame_addr(current_sg_node PASS_REGS);
 #ifndef THREADS
   LOCK_SUBGOAL_NODE(current_sg_node);
 #endif /* !THREADS */
@@ -1087,7 +1087,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     TAG_AS_SUBGOAL_LEAF_NODE(current_sg_node);
     UNLOCK_SUBGOAL_NODE(current_sg_node);
 #else /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-    sg_ent_ptr sg_ent = (sg_ent_ptr) TrNode_sg_ent(current_sg_node);
+    sg_ent_ptr sg_ent = (sg_ent_ptr) UNTAG_SUBGOAL_NODE(TrNode_sg_ent(current_sg_node));
     new_subgoal_frame(sg_fr, sg_ent);
 #ifdef THREADS_CONSUMER_SHARING
     SgFr_state(sg_fr) = ready_external;

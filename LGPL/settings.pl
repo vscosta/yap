@@ -290,6 +290,8 @@ expr_to_list(setting(Name), Module) --> !,
 expr_to_list(A, _) -->
 	[A].
 
+:- if((\+ current_prolog_flag(version_data,yap(_,_,_,_)))).
+
 %%	env(+Name:atom, -Value:number) is det.
 %%	env(+Name:atom, +Default:number, -Value:number) is det
 %
@@ -310,6 +312,7 @@ env(Name, Default, Value) :-
 	;   Value = Default
 	).
 
+:- endif.
 
 %%	numeric_type(+Type, -BaseType)
 %

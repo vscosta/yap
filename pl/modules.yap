@@ -664,6 +664,37 @@ abolish_module(Mod) :-
 	fail.
 abolish_module(_).
 
+export(P) :-
+	var(P),
+	'$do_error'(instantiation_error,export(P)).	
+export(P) :-
+	P = F/N, atom(F), number(N), N > 0, !,
+	'$current_module'(Mod), 
+	( recorded('$module','$module'(F,Mod,ExportedPreds),R) ->
+	    erase(R), 
+	    recorda('$module','$module'(F,Mod,[P|ExportedPreds]),_)
+	;
+	    recorda('$module','$module'(user_input,Mod,[P]),_)
+	).
+export(P0) :-
+	P0 = F//N, atom(F), number(N), N > 0, !,
+	N1 is N+2, P = F/N1,
+	'$current_module'(Mod), 
+	( recorded('$module','$module'(F,Mod,ExportedPreds),R) ->
+	    erase(R), 
+	    recorda('$module','$module'(F,Mod,[P|ExportedPreds]),_)
+	;
+	    recorda('$module','$module'(user_input,Mod,[P]),_)
+	).
+export(op(Prio,Assoc,Name)) :- !,
+	op(Prio,Assoc,prolog:Name).
+export(P) :-
+	'$do_error'(type_error(predicate_indicator,P),export(P)).
+	
+export_list(Module, List) :-
+	recorded('$module','$module'(_,Module,List),_).
+	
+
 '$reexport'(ModuleSource, Spec, Module) :-
 	nb_getval('$consulting_file',TopFile),
 	(
@@ -823,7 +854,7 @@ Start a new (source-)module
 @param  Line is the line-number of the :- module/2 directive.
 @param	Redefine If =true=, allow associating the module to a new file
 */
-'$declare_module'(Name, Context, _, _, _) :-
+'$declare_module'(Name, _Test, Context, _File, _Line, _) :-
 	add_import_module(Name, Context, start).
 
 module_property(Mod, file(F)) :-

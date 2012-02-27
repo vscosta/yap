@@ -140,7 +140,7 @@ int showTime(void);
 struct AND_BOX *choose_leftmost(void);
 extern Cell BEAM_is(void);
 extern void do_eam_indexing(struct Predicates *);
-extern void Yap_plwrite(Term, int (*mywrite) (int, int), int, int);
+extern void Yap_plwrite(Term, void *, int, int);
 
 #if Debug_Dump_State
    void dump_eam_state(void);
@@ -2511,7 +2511,7 @@ break_debug(contador);
 #endif
 
 #ifdef DEBUG
-			 Yap_plwrite ((Term) beam_X[1], Yap_DebugPutc, 0, 1200);
+			 Yap_plwrite ((Term) beam_X[1], NULL, 0, 1200);
 #else
 			 extern int beam_write (void);
 			 beam_write();

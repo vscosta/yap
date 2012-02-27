@@ -437,6 +437,8 @@ atom_concat(X,Y,At) :-
 	atom_codes(X, Xs),
 	atom_codes(Y, Ys).
 
+callable(A) :-
+	( var(A) -> fail ; number(A) -> fail ; true ).
 
 atomic_list_concat(L,At) :-
 	atomic_concat(L, At).
@@ -547,16 +549,16 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	'$sub_atom_needs_int'(Size,ErrorTerm),
 	'$sub_atom_needs_int'(After,ErrorTerm),
 	atom_codes(SubAt,Atls),
-	'$$_length1'(Atls, 0, Size),
+	length(Atls, 0, Size),
 	'$sub_atom_get_subchars_and_match'(Size, Atl, Atls, NAtl),
-	'$$_length1'(NAtl,0,After).
+	length(NAtl,0,After).
 % SubAt is unbound, but Size is bound
 '$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
 	nonvar(Size), !,
 	'$sub_atom_needs_int'(Size,ErrorTerm),
 	'$sub_atom_needs_int'(After,ErrorTerm),
 	'$sub_atom_get_subchars_and_match'(Size, Atl, SubAts, NAtl),
-	'$$_length1'(NAtl,0,After),
+	length(NAtl,After),
 	atom_codes(SubAt,SubAts).
 % SubAt and Size are unbound, but After is bound.
 '$sub_atom3'(Size, After, SubAt, Atl, ErrorTerm) :-
@@ -567,7 +569,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	atom_codes(SubAt,SubAts).
 % SubAt, Size, and After are unbound.
 '$sub_atom3'(Size, After, SubAt, Atl, _) :-
-	'$$_length1'(Atl,0,Len),
+	length(Atl,Len),
 	'$sub_atom_split'(Atl,Len,SubAts,Size,_,After),
 	atom_codes(SubAt,SubAts).
 
@@ -578,8 +580,8 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	'$sub_atom_needs_atom'(SubAt, ErrorTerm),
 	atom_codes(SubAt,SubAts),
 	'$sub_atom_search'(SubAts, Atl, 0, Bef, AfterS),
-	'$$_length1'(SubAts, 0, Size),
-	'$$_length1'(AfterS, 0, After).
+	length(SubAts, Size),
+	length(AfterS, After).
 % ok: in the second best case we just get rid of the tail
 '$sub_atombv'(Bef, Size, After, SubAt, Atl, ErrorTerm) :-
 	nonvar(After), !,
@@ -590,7 +592,7 @@ sub_atom(At, Bef, Size, After, SubAt) :-
 	atom_codes(SubAt,SubAts).
 % ok: just do everything
 '$sub_atombv'(Bef, Size, After, SubAt, Atl, _) :-
-	'$$_length1'(Atl, 0, Len),
+	length(Atl, Len),
 	'$sub_atom_split'(Atl,Len,_,Bef,Atls2,Len2),
 	'$sub_atom_split'(Atls2,Len2,SubAts,Size,_,After),
 	atom_codes(SubAt,SubAts).
