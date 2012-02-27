@@ -14,6 +14,7 @@
 :- meta_predicate 
    parallel(0),
    parallel_findall(?,0,?),
+   parallel_findfirst(?,0,?),
    parallel_once(0).
 
 
@@ -149,6 +150,13 @@ parallel_findall(Template,Goal,Answers) :-
    recorded(parallel_findall,Template,Ref),
    '$parallel_findall_recorded'(Refs,Answers).
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                      parallel_findfirst/3                           %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+parallel_findfirst(Template,Goal,Answer) :- 
+   parallel_findall(Template,(Goal,!),Answer).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
