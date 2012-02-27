@@ -336,6 +336,23 @@ wrputref(CODEADDR ref, int Quote_illegal, struct write_globs *wglb)
   lastw = alphanum;
 }
 
+/* writes a blob (default) */
+static void 
+wrputblob(CODEADDR ref, int Quote_illegal, struct write_globs *wglb)
+{
+  char            s[256];
+  wrf  stream = wglb->stream;
+
+  putAtom(AtomSWIStream, Quote_illegal, wglb);
+#if defined(__linux__) || defined(__APPLE__)
+  sprintf(s, "(%p)", ref);
+#else
+  sprintf(s, "(0x%p)", ref);
+#endif
+  wrputs(s, stream);
+  lastw = alphanum;
+}
+
 static int 
 legalAtom(unsigned char *s)			/* Is this a legal atom ? */
 {
@@ -455,25 +472,16 @@ write_quoted(int ch, int quote, wrf stream)
 static void 
 putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
 {
-  unsigned char           *s = (unsigned char *)RepAtom(atom)->StrOfAE;
-  wtype          atom_or_symbol = AtomIsSymbols(s);
+  unsigned char           *s;
+  wtype          atom_or_symbol;
   wrf stream = wglb->stream;
 
-  /* #define CRYPT_FOR_STEVE 1*/
-#ifdef CRYPT_FOR_STEVE
-  if (Yap_GetValue(AtomCryptAtoms) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
-    char s[16];
-    sprintf(s,"x%x", (CELL)s);
-    wrputs(s, stream);
-    return;
-  }
-#endif
   if (IsBlob(atom)) {
-    wrputref((CODEADDR)RepAtom(atom),1,stream);
+    wrputblob((CODEADDR)RepAtom(atom),wglb->Quote_illegal,wglb);
     return;
   }
   if (IsWideAtom(atom)) {
-    wchar_t *ws = (wchar_t *)s;
+    wchar_t *ws = RepAtom(atom)->WStrOfAE;
 
     if (Quote_illegal) {
       wrputc('\'', stream);
@@ -487,6 +495,17 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
     }
     return;
   }
+  s  = (unsigned char *)RepAtom(atom)->StrOfAE;
+  /* #define CRYPT_FOR_STEVE 1*/
+#ifdef CRYPT_FOR_STEVE
+  if (Yap_GetValue(AtomCryptAtoms) != TermNil && Yap_GetAProp(atom, OpProperty) == NIL) {
+    char s[16];
+    sprintf(s,"x%x", (CELL)s);
+    wrputs(s, stream);
+    return;
+  }
+#endif
+  atom_or_symbol = AtomIsSymbols(s);
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
     wrputc(' ', stream);
   lastw = atom_or_symbol;
@@ -669,7 +688,6 @@ restore_from_write(struct rewind_term *rwt, struct write_globs *wglb)
   if (rwt->u.s.ptr) {
     CELL *ptr;
     if (wglb->Keep_terms) {
-      ptr = (CELL *)Yap_GetPtrFromSlot(rwt->u.s.ptr PASS_REGS);
       t = Yap_GetPtrFromSlot(rwt->u.s.old PASS_REGS);
       Yap_RecoverSlots(2 PASS_REGS);
     } else {
@@ -853,7 +871,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	write_var(RepAppl(t)+1, wglb, &nrwt);
 	return;
       case (CELL)FunctorDBRef:
-	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb->stream);
+	wrputref(RefOfTerm(t), wglb->Quote_illegal, wglb);
 	return;
       case (CELL)FunctorLongInt:
 	wrputn(LongIntOfTerm(t),wglb);
