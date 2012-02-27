@@ -4673,7 +4673,8 @@ EndPredDefs
 
 void *
 Yap_GetStreamHandle(Atom at)
-{ atom_t a;
+{ GET_LD
+  atom_t a;
   IOSTREAM *s;
 
   a = YAP_SWIAtomFromAtom(at);
@@ -4683,7 +4684,8 @@ Yap_GetStreamHandle(Atom at)
 }
 
 void *Yap_GetInputStream(Atom at)
-{ atom_t a;
+{ GET_LD
+  atom_t a;
   IOSTREAM *s;
   if ( at == AtomUser ) {
     if ( (s = getStream(Suser_input)) )
@@ -4705,7 +4707,8 @@ void *Yap_GetInputStream(Atom at)
 }
 
 void *Yap_GetOutputStream(Atom at)
-{ atom_t a;
+{ GET_LD
+  atom_t a;
   IOSTREAM *s;
   if ( at == AtomUser ) {
     if ( (s = getStream(Suser_output)) )
