@@ -8562,7 +8562,7 @@ Yap_absmi(int inp)
       d0 = XREG(PREG->u.xl.x);
       deref_head(d0, atom_x_unk);
     atom_x_nvar:
-      if (IsAtomTerm(d0)) {
+      if (IsAtomTerm(d0) && !IsBlob(AtomOfTerm(d0))) {
 	PREG = NEXTOP(PREG, xl);
 	GONext();
       }
@@ -8586,7 +8586,7 @@ Yap_absmi(int inp)
       d0 = *pt0;
       deref_head(d0, atom_y_unk);
     atom_y_nvar:
-      if (IsAtomTerm(d0)) {
+      if (IsAtomTerm(d0) && !IsBlob(AtomOfTerm(d0))) {
 	PREG = NEXTOP(PREG, yl);
 	GONext();
       }

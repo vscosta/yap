@@ -47,7 +47,7 @@ p_atom( USES_REGS1 )
       d0 = ARG1;
       deref_head(d0, atom_unk);
     atom_nvar:
-      if (IsAtomTerm(d0)) {
+      if (IsAtomTerm(d0)  && !IsBlob(AtomOfTerm(d0))) {
 	return(TRUE);
       }
       else {
