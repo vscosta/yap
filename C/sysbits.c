@@ -1553,15 +1553,14 @@ void (*handler)(int);
 static int
 InteractSIGINT(int ch) {
   CACHE_REGS
-  LOCAL_PrologMode |= AsyncIntMode;
   switch (ch) {
   case 'a':
     /* abort computation */
-    if (LOCAL_PrologMode & (GCMode|ConsoleGetcMode|GrowStackMode|GrowHeapMode)) {
+    if (LOCAL_PrologMode & (GCMode|ConsoleGetcMode|CritMode)) {
       LOCAL_PrologMode |= AbortMode;
+      return -1;
     } else {
       Yap_Error(PURE_ABORT, TermNil, "abort from console");
-      /* in case someone mangles the P register */
     }
     LOCAL_PrologMode &= ~AsyncIntMode;
     Yap_RestartYap( 1 );
@@ -1569,44 +1568,36 @@ InteractSIGINT(int ch) {
   case 'b':
     /* continue */
     Yap_signal (YAP_BREAK_SIGNAL);
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
   case 'c':
     /* continue */
     return 1;
   case 'd':
     Yap_signal (YAP_DEBUG_SIGNAL);
-    LOCAL_PrologMode &= ~AsyncIntMode;
     /* enter debug mode */
     return 1;
   case 'e':
     /* exit */
-    LOCAL_PrologMode &= ~AsyncIntMode;
     Yap_exit(0);
     return -1;
   case 'g':
     /* exit */
     Yap_signal (YAP_STACK_DUMP_SIGNAL);
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return -1;
   case 't':
     /* start tracing */
     Yap_signal (YAP_TRACE_SIGNAL);
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
 #ifdef LOW_LEVEL_TRACER
   case 'T':
     toggle_low_level_trace();
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
 #endif
   case 's':
     /* show some statistics */
     Yap_signal (YAP_STATISTICS_SIGNAL);
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return 1;
   case EOF:
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return(0);
     break;
   case 'h':
@@ -1617,7 +1608,6 @@ InteractSIGINT(int ch) {
     fprintf(GLOBAL_stderr, "  a for abort\n  c for continue\n  d for debug\n");
     fprintf(GLOBAL_stderr, "  e for exit\n  g for stack dump\n  s for statistics\n  t for trace\n");
     fprintf(GLOBAL_stderr, "  b for break\n");
-    LOCAL_PrologMode &= ~AsyncIntMode;
     return(0);
   }
 }
@@ -1631,18 +1621,14 @@ ProcessSIGINT(void)
 {
   int ch, out;
 
+  LOCAL_PrologMode |= AsyncIntMode;
   do {
     ch = Yap_GetCharForSIGINT();
   } while (!(out = InteractSIGINT(ch)));
+  LOCAL_PrologMode &= ~AsyncIntMode;
+  LOCAL_PrologMode &= ~InterruptMode;
   return(out);
 }
-
-int
-Yap_ProcessSIGINT(void)
-{
-  return ProcessSIGINT();
-}
-
 
 #if !_MSC_VER && !defined(__MINGW32__)
 
@@ -1662,6 +1648,7 @@ HandleSIGINT (int sig)
 #endif
 {
   CACHE_REGS
+    /* fprintf(stderr,"mode = %x\n",LOCAL_PrologMode); */
   my_signal(SIGINT, HandleSIGINT);
   /* do this before we act */
 #if HAVE_ISATTY
@@ -1673,8 +1660,9 @@ HandleSIGINT (int sig)
   if (LOCAL_InterruptsDisabled) {
     return;
   }
-  if (LOCAL_PrologMode & (CritMode|ConsoleGetcMode)) {
+  if (LOCAL_PrologMode & ConsoleGetcMode) {
     LOCAL_PrologMode |= InterruptMode;
+    return;
   }
 #ifdef HAVE_SETBUF
   /* make sure we are not waiting for the end of line */

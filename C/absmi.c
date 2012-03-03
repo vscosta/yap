@@ -3034,14 +3034,6 @@ Yap_absmi(int inp)
       if (LOCAL_PrologMode & (AbortMode|InterruptMode)) {
 	CreepFlag = CalculateStackGap();
 	UNLOCK(LOCAL_SignalLock);
-	/* same instruction */
-	if (LOCAL_PrologMode & InterruptMode) {
-	  LOCAL_PrologMode &= ~InterruptMode;
-	  SET_ASP(YREG, E_CB*sizeof(CELL));
-	  saveregs();
-	  Yap_ProcessSIGINT();
-	  setregs();
-	} 
 	JMPNext();
       }
       UNLOCK(LOCAL_SignalLock);

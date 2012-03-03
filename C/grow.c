@@ -74,18 +74,6 @@ LeaveGrowMode(prolog_exec_mode grow_mode)
 {
   CACHE_REGS
   LOCAL_PrologMode &= ~grow_mode;
-  if (LOCAL_PrologMode & AbortMode) {
-    CACHE_REGS
-    LOCAL_PrologMode &= ~AbortMode;
-    Yap_Error(PURE_ABORT, TermNil, "");
-    /* in case someone mangles the P register */
-    save_machine_regs();
-#if  _MSC_VER || defined(__MINGW32__)
-    /* don't even think about trying this */
-#else
-    Yap_RestartYap( 1 );
-#endif
-  }
 }
 
 
@@ -822,10 +810,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
     UNLOCK(LOCAL_SignalLock);
   }
   ASP -= 256;
-  YAPEnterCriticalSection();
   LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_GDiff0 = LOCAL_DelayDiff = LOCAL_BaseDiff = size;
   LOCAL_XDiff = LOCAL_HDiff = 0;
   LOCAL_GSplit = NULL;
+  YAPEnterCriticalSection();
   SetHeapRegs(FALSE PASS_REGS);
   MoveLocalAndTrail( PASS_REGS1 );
   if (fix_code) {
@@ -849,10 +837,10 @@ static_growheap(long size, int fix_code, struct intermediates *cip, tr_fr_ptr *o
     AdjustStacksAndTrail(0, FALSE PASS_REGS);
   }
   AdjustRegs(MaxTemps PASS_REGS);
-  YAPLeaveCriticalSection();
   ASP += 256;
   if (minimal_request) 
     Yap_AllocHole(minimal_request, size);
+  YAPLeaveCriticalSection();
   growth_time = Yap_cputime()-start_growth_time;
   LOCAL_total_heap_overflow_time += growth_time;
   if (gc_verbose) {
@@ -1406,9 +1394,8 @@ growatomtable( USES_REGS1 )
   if (HeapTop + sizeof(YAP_SEG_SIZE)  > HeapLim - MinHeapGap) {
     /* make sure there is no heap overflow */
     int res;
-    YAPEnterCriticalSection();
+
     res = do_growheap(FALSE, 0, NULL, NULL, NULL, NULL PASS_REGS);
-    YAPLeaveCriticalSection();
     return res;
   } else {
     return TRUE;
@@ -1744,7 +1731,9 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
 #if USE_SYSTEM_MALLOC
   execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
 #else
+  YAPEnterCriticalSection();
   if (!Yap_ExtendWorkSpace(size)) {
+    YAPLeaveCriticalSection();
     LOCAL_ErrorMessage = NULL;
     if (contiguous_only) {
       /* I can't expand in this case */
@@ -1753,7 +1742,6 @@ static int do_growtrail(long size, int contiguous_only, int in_parser, tr_fr_ptr
     }
     execute_growstack(size, TRUE, in_parser, old_trp, tksp, vep PASS_REGS);
   } else {
-    YAPEnterCriticalSection();
     if (in_parser) {
       LOCAL_TrDiff = LOCAL_LDiff = LOCAL_GDiff = LOCAL_BaseDiff = LOCAL_DelayDiff = LOCAL_XDiff = LOCAL_HDiff = LOCAL_GDiff0 = 0;
       AdjustScannerStacks(tksp, vep PASS_REGS);
