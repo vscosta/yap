@@ -4223,10 +4223,9 @@ camacho_dum( USES_REGS1 )
 int
 Yap_IsListTerm(Term t)
 {
-  while (!IsVarTerm(t) && IsPairTerm(t)) {
-    t = TailOfTerm(t);
-  }
-  return t == TermNil;
+  Term *tailp;
+  Yap_SkipList(&t, &tailp);
+  return *tailp == TermNil;
 }
 
 static Int
