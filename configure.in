@@ -241,7 +241,7 @@ AC_ARG_WITH(R,
 	else
 	    yap_cv_R=$with_R
 	fi,
-	[yap_cv_R=yes])
+	[yap_cv_R=no])
 
 dnl best test we could do.
 AC_ARG_WITH(minisat,
@@ -261,15 +261,26 @@ AC_ARG_WITH(cudd,
 	if test "$withval" != no; then
 	    oldlibs="$LIBS"
 	    if test "$withval" != "yes"; then
-	       CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-	       cudd_dir="$withval"
+	       if test -d "$yap_cv_cudd"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
+               fi
+	       cudd_dir="$yap_cv_cudd"
 	    elif test -e /usr/include/cudd; then
 	       CUDD_CPPFLAGS="-I /usr/include/cudd"
 	       cudd_dir="$withval"
 	    elif test "$prefix" != "NONE"; then
-	       CUDD_CPPFLAGS="-I $prefix/include"
+	       if test -d "$prefix"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $prefix/include"
+	       fi 
 	       cudd_dir="$prefix"
 	    else
+	       if test -d /usr/local/include/cudd; then
+	         CUDD_CPPFLAGS="-I /usr/local/include/cudd"
+               fi
 	       cudd_dir=/usr/local
 	    fi
             dnl cudd can be most everywhere
@@ -841,60 +852,37 @@ dnl fi
 if test "$yap_cv_myddas" != "no"
 then
 	dnl check for mysql
-	AC_MSG_CHECKING(for main in -lmysqlclient)
-	AC_CACHE_VAL(yap_cv_mysql,[
-	AC_TRY_COMPILE(
-		#include <mysql/mysql.h>
-		#include <stdio.h>
-		,
-		MYSQL *conn;
-		conn = mysql_init(NULL);	
-		,
-		yap_cv_mysql=yes,yap_cv_mysql=no)])
-	AC_MSG_RESULT($yap_cv_mysql)
+	AC_SEARCH_LIBS(mysql_init, [mysqlclient], [yap_cv_mysql="yes"], [yap_cv_mysql="no"])
 	if test "$yap_cv_mysql" = yes 
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient "
 	fi
 	
 	dnl check for odbc
-	AC_MSG_CHECKING(for main in -lodbc)
-	AC_CACHE_VAL(yap_cv_odbc,[
-	AC_TRY_COMPILE(
-		#include <sql.h>
-		#include <sqlucode.h>
-		#include <stdio.h>
-		,
-		SQLHENV henv;
-  		SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-		,
-		yap_cv_odbc=yes,yap_cv_odbc=no)])
-	AC_MSG_RESULT($yap_cv_odbc)
+        case "$target_os" in
+	  *darwin*)
+	    LIBS="$LIBS -framework CoreFoundation"
+	;;
+	  **)		
+	;;
+	esac
+	AC_SEARCH_LIBS(SQLAllocHandle, [odbc], [yap_cv_odbc="yes"], [yap_cv_odbc="no"])
 	if test "$yap_cv_odbc" = yes 
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
-                case "$target_os" in
-			*darwin*)
-			LIBS="$LIBS -lodbc -framework CoreFoundation"
-			;;
-			**)		
-			LIBS="$LIBS -lodbc"
-			;;
-		esac
 	fi
 	
+	if test "$myddasstats" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
+	fi
+
+	if test "$myddastoplevel" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
+	fi
+
 fi	
-
-if test "$myddasstats" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
-fi
-
-if test "$myddastoplevel" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
-fi
 
 if test "$threads" = yes
 then

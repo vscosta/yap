@@ -4584,7 +4584,7 @@ if test "${with_R+set}" = set; then
 	    yap_cv_R=$with_R
 	fi
 else
-  yap_cv_R=yes
+  yap_cv_R=no
 fi
 
 
@@ -4610,15 +4610,26 @@ if test "${with_cudd+set}" = set; then
 	if test "$withval" != no; then
 	    oldlibs="$LIBS"
 	    if test "$withval" != "yes"; then
-	       CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-	       cudd_dir="$withval"
+	       if test -d "$yap_cv_cudd"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
+               fi
+	       cudd_dir="$yap_cv_cudd"
 	    elif test -e /usr/include/cudd; then
 	       CUDD_CPPFLAGS="-I /usr/include/cudd"
 	       cudd_dir="$withval"
 	    elif test "$prefix" != "NONE"; then
-	       CUDD_CPPFLAGS="-I $prefix/include"
+	       if test -d "$prefix"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $prefix/include"
+	       fi
 	       cudd_dir="$prefix"
 	    else
+	       if test -d /usr/local/include/cudd; then
+	         CUDD_CPPFLAGS="-I /usr/local/include/cudd"
+               fi
 	       cudd_dir=/usr/local
 	    fi
             	    if test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
@@ -7237,39 +7248,49 @@ fi
 
 if test "$yap_cv_myddas" != "no"
 then
-		{ echo "$as_me:$LINENO: checking for main in -lmysqlclient" >&5
-echo $ECHO_N "checking for main in -lmysqlclient... $ECHO_C" >&6; }
-	if test "${yap_cv_mysql+set}" = set; then
+		{ echo "$as_me:$LINENO: checking for library containing mysql_init" >&5
+echo $ECHO_N "checking for library containing mysql_init... $ECHO_C" >&6; }
+if test "${ac_cv_search_mysql_init+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-
-	cat >conftest.$ac_ext <<_ACEOF
+  ac_func_search_save_LIBS=$LIBS
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <mysql/mysql.h>
-		#include <stdio.h>
 
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char mysql_init ();
 int
 main ()
 {
-MYSQL *conn;
-		conn = mysql_init(NULL);
-
+return mysql_init ();
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext
-if { (ac_try="$ac_compile"
+for ac_lib in '' mysqlclient; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
 case "(($ac_try" in
   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
   *) ac_try_echo=$ac_try;;
 esac
 eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_compile") 2>conftest.er1
+  (eval "$ac_link") 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
@@ -7278,60 +7299,95 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
   (exit $ac_status); } && {
 	 test -z "$ac_c_werror_flag" ||
 	 test ! -s conftest.err
-       } && test -s conftest.$ac_objext; then
-  yap_cv_mysql=yes
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_search_mysql_init=$ac_res
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	yap_cv_mysql=no
+
 fi
 
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext
+  if test "${ac_cv_search_mysql_init+set}" = set; then
+  break
+fi
+done
+if test "${ac_cv_search_mysql_init+set}" = set; then
+  :
+else
+  ac_cv_search_mysql_init=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_search_mysql_init" >&5
+echo "${ECHO_T}$ac_cv_search_mysql_init" >&6; }
+ac_res=$ac_cv_search_mysql_init
+if test "$ac_res" != no; then
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  yap_cv_mysql="yes"
+else
+  yap_cv_mysql="no"
 fi
 
-	{ echo "$as_me:$LINENO: result: $yap_cv_mysql" >&5
-echo "${ECHO_T}$yap_cv_mysql" >&6; }
 	if test "$yap_cv_mysql" = yes
 	then
                 YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_MYSQL"
-		LIBS="$LIBS -L${yap_cv_myddas}/lib/mysql -lmysqlclient "
 	fi
 
-		{ echo "$as_me:$LINENO: checking for main in -lodbc" >&5
-echo $ECHO_N "checking for main in -lodbc... $ECHO_C" >&6; }
-	if test "${yap_cv_odbc+set}" = set; then
+	        case "$target_os" in
+	  *darwin*)
+	    LIBS="$LIBS -framework CoreFoundation"
+	;;
+	  **)
+	;;
+	esac
+	{ echo "$as_me:$LINENO: checking for library containing SQLAllocHandle" >&5
+echo $ECHO_N "checking for library containing SQLAllocHandle... $ECHO_C" >&6; }
+if test "${ac_cv_search_SQLAllocHandle+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-
-	cat >conftest.$ac_ext <<_ACEOF
+  ac_func_search_save_LIBS=$LIBS
+cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-#include <sql.h>
-		#include <sqlucode.h>
-		#include <stdio.h>
 
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char SQLAllocHandle ();
 int
 main ()
 {
-SQLHENV henv;
-  		SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
+return SQLAllocHandle ();
   ;
   return 0;
 }
 _ACEOF
-rm -f conftest.$ac_objext
-if { (ac_try="$ac_compile"
+for ac_lib in '' odbc; do
+  if test -z "$ac_lib"; then
+    ac_res="none required"
+  else
+    ac_res=-l$ac_lib
+    LIBS="-l$ac_lib  $ac_func_search_save_LIBS"
+  fi
+  rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
 case "(($ac_try" in
   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
   *) ac_try_echo=$ac_try;;
 esac
 eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_compile") 2>conftest.er1
+  (eval "$ac_link") 2>conftest.er1
   ac_status=$?
   grep -v '^ *+' conftest.er1 >conftest.err
   rm -f conftest.er1
@@ -7340,43 +7396,55 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
   (exit $ac_status); } && {
 	 test -z "$ac_c_werror_flag" ||
 	 test ! -s conftest.err
-       } && test -s conftest.$ac_objext; then
-  yap_cv_odbc=yes
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_search_SQLAllocHandle=$ac_res
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	yap_cv_odbc=no
+
 fi
 
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext
+  if test "${ac_cv_search_SQLAllocHandle+set}" = set; then
+  break
+fi
+done
+if test "${ac_cv_search_SQLAllocHandle+set}" = set; then
+  :
+else
+  ac_cv_search_SQLAllocHandle=no
+fi
+rm conftest.$ac_ext
+LIBS=$ac_func_search_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_search_SQLAllocHandle" >&5
+echo "${ECHO_T}$ac_cv_search_SQLAllocHandle" >&6; }
+ac_res=$ac_cv_search_SQLAllocHandle
+if test "$ac_res" != no; then
+  test "$ac_res" = "none required" || LIBS="$ac_res $LIBS"
+  yap_cv_odbc="yes"
+else
+  yap_cv_odbc="no"
 fi
 
-	{ echo "$as_me:$LINENO: result: $yap_cv_odbc" >&5
-echo "${ECHO_T}$yap_cv_odbc" >&6; }
 	if test "$yap_cv_odbc" = yes
 	then
 		YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_ODBC"
-                case "$target_os" in
-			*darwin*)
-			LIBS="$LIBS -lodbc -framework CoreFoundation"
-			;;
-			**)
-			LIBS="$LIBS -lodbc"
-			;;
-		esac
 	fi
 
-fi
+	if test "$myddasstats" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
+	fi
 
-if test "$myddasstats" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_STATS"
-fi
+	if test "$myddastoplevel" = "yes"
+	  then
+	    YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
+	fi
 
-if test "$myddastoplevel" = "yes"
-  then
-  YAP_EXTRAS="$YAP_EXTRAS -DMYDDAS_TOP_LEVEL"
 fi
 
 if test "$threads" = yes
