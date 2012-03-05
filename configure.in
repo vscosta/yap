@@ -284,8 +284,12 @@ AC_ARG_WITH(cudd,
 	       cudd_dir=/usr/local
 	    fi
             dnl cudd can be most everywhere
-	    if test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
+	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
+	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
+	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
 	      LIBS="$LIBS -L $cudd_dir/lib64"
+	    elif test -d "$cudd_dir/lib/cudd"; then
+	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
 	    elif test -d "$cudd_dir/lib"; then
 	      LIBS="$LIBS -L $cudd_dir/lib"
 	    fi

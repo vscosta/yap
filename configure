@@ -4632,8 +4632,12 @@ if test "${with_cudd+set}" = set; then
                fi
 	       cudd_dir=/usr/local
 	    fi
-            	    if test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
+            	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
+	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
+	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
 	      LIBS="$LIBS -L $cudd_dir/lib64"
+	    elif test -d "$cudd_dir/lib/cudd"; then
+	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
 	    elif test -d "$cudd_dir/lib"; then
 	      LIBS="$LIBS -L $cudd_dir/lib"
 	    fi
