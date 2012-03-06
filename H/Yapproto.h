@@ -395,6 +395,7 @@ size_t	STD_PROTO(Yap_ExportTerm,(Term, char *, size_t, UInt));
 size_t	STD_PROTO(Yap_SizeOfExportedTerm,(char *));
 Term	STD_PROTO(Yap_ImportTerm,(char *));
 int	STD_PROTO(Yap_IsListTerm,(Term));
+int	STD_PROTO(Yap_IsListOrPartialListTerm,(Term));
 Term	STD_PROTO(Yap_CopyTermNoShare,(Term));
 int	STD_PROTO(Yap_SizeGroundTerm,(Term, int));
 int	STD_PROTO(Yap_IsGroundTerm,(Term));

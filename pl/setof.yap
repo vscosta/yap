@@ -32,7 +32,7 @@ _^Goal :-
 
 
 findall(Template, Generator, Answers) :-
-	( '$partial_list_or_list'(Answers) ->
+	( '$is_list_or_partial_list'(Answers) ->
 		true
 	;
 		'$do_error'(type_error(list,Answers), findall(Template, Generator, Answers))
@@ -80,7 +80,7 @@ findall(Template, Generator, Answers, SoFar) :-
 % This is the setof predicate
 
 setof(Template, Generator, Set) :-
-	( '$partial_list_or_list'(Set) ->
+	( '$is_list_or_partial_list'(Set) ->
 		true
 	;
 		'$do_error'(type_error(list,Set), setof(Template, Generator, Set))
@@ -95,7 +95,7 @@ setof(Template, Generator, Set) :-
 % of these variables
 
 bagof(Template, Generator, Bag) :-
-	( '$partial_list_or_list'(Bag) ->
+	( '$is_list_or_partial_list'(Bag) ->
 		true
 	;
 		'$do_error'(type_error(list,Bag), bagof(Template, Generator, Bag))
@@ -234,9 +234,4 @@ all(T,G,S) :-
 '$$split'([T1 same X|Tn],T,X,[T1|S1],S2) :- '$$split'(Tn,T,X,S1,S2).
 '$$split'([T1|Tn],T,X,S1,[T1|S2]) :- '$$split'(Tn,T,X,S1,S2).
 
-
-'$partial_list_or_list'(V) :- var(V), !.
-'$partial_list_or_list'([]) :- !.
-'$partial_list_or_list'([_|B]) :- !,
-	'$partial_list_or_list'(B).
 

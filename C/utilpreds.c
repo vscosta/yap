@@ -4234,10 +4234,19 @@ p_is_list( USES_REGS1 )
   return Yap_IsListTerm(Deref(ARG1));
 }
 
+int
+Yap_IsListOrPartialListTerm(Term t)
+{
+  Term *tailp, tail;
+  Yap_SkipList(&t, &tailp);
+  tail = *tailp;
+  return tail == TermNil || IsVarTerm(tail);
+}
+
 static Int
 p_is_list_or_partial_list( USES_REGS1 )
 {
-  return Yap_IsListTerm(Deref(ARG1));
+  return Yap_IsListOrPartialListTerm(Deref(ARG1));
 }
 
 static Term
@@ -4816,8 +4825,8 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 2, p_term_variables, 0);
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
-  Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
-  Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag);
+  Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag|TestPredFlag);
+  Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag|TestPredFlag);
   Yap_InitCPred("rational_term_to_tree", 2, p_break_rational, 0);
   Yap_InitCPred("tree_to_rational_term", 2, p_restore_rational, 0);
   Yap_InitCPred("=@=", 2, p_variant, 0);
