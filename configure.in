@@ -257,74 +257,7 @@ AC_ARG_WITH(minisat,
 
 AC_ARG_WITH(cudd,
 	[ --with-cudd[=DIR]           use CUDD package in DIR],
-	yap_cv_cudd="$withval"
-	if test "$withval" != no; then
-	    oldlibs="$LIBS"
-	    if test "$withval" != "yes"; then
-	       if test -d "$yap_cv_cudd"/include/cudd; then
-	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
-               else
-	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-               fi
-	       cudd_dir="$yap_cv_cudd"
-	    elif test -e /usr/include/cudd; then
-	       CUDD_CPPFLAGS="-I /usr/include/cudd"
-	       cudd_dir="$withval"
-	    elif test "$prefix" != "NONE"; then
-	       if test -d "$prefix"/include/cudd; then
-	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
-               else
-	         CUDD_CPPFLAGS="-I $prefix/include"
-	       fi 
-	       cudd_dir="$prefix"
-	    else
-	       if test -d /usr/local/include/cudd; then
-	         CUDD_CPPFLAGS="-I /usr/local/include/cudd"
-               fi
-	       cudd_dir=/usr/local
-	    fi
-            dnl cudd can be most everywhere
-	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
-	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
-	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
-	      LIBS="$LIBS -L $cudd_dir/lib64"
-	    elif test -d "$cudd_dir/lib/cudd"; then
-	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
-	    elif test -d "$cudd_dir/lib"; then
-	      LIBS="$LIBS -L $cudd_dir/lib"
-	    fi
-	    if test -d "$cudd_dir/util"; then
-	      LIBS="$LIBS -L $cudd_dir/util"
-	    fi
-	    AC_SEARCH_LIBS(util_print_cpu_stats, [cuddutil util])
-	    if test -d "$cudd_dir/st"; then
-	      LIBS="$LIBS -L $cudd_dir/st"
-	    fi
-	    AC_SEARCH_LIBS(st_insert, [cuddst st])
-	    if test -d "$cudd_dir/epd"; then
-	      LIBS="$LIBS -L $cudd_dir/epd"
-	    fi
-	    AC_SEARCH_LIBS(EpdAdd, epd)
-	    if test -d "$cudd_dir/mtr"; then
-	      LIBS="$LIBS -L $cudd_dir/mtr"
-	    fi
-	    AC_SEARCH_LIBS(Mtr_InitTree, [mtr])
-	    if test -d "$cudd_dir/cudd"; then
-	      LIBS="$LIBS -L $cudd_dir/cudd"
-	    fi
-	    AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
-	    if test "$cudd_installed" = yes; then
-	      CUDD_LDFLAGS="$LIBS"
-	    else
-  cat << EOF
-##################################################################
-# ERROR: Could not find cudd library. Either I don't have the
-# correct path, or CUDD is installed in some strange way
-##################################################################
-EOF
-     	    fi
-	    LIBS="$oldlibs"
-	fi,
+	yap_cv_cudd="$withval",
 	[yap_cv_cudd=no])
 
 AC_ARG_ENABLE(myddas,
@@ -887,6 +820,74 @@ then
 	fi
 
 fi	
+
+if test "$yap_cv_cudd" != no; then
+   	    oldlibs="$LIBS"
+	    if test "$withval" != "yes"; then
+	       if test -d "$yap_cv_cudd"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
+               fi
+	       cudd_dir="$yap_cv_cudd"
+	    elif test -e /usr/include/cudd; then
+	       CUDD_CPPFLAGS="-I /usr/include/cudd"
+	       cudd_dir="$withval"
+	    elif test "$prefix" != "NONE"; then
+	       if test -d "$prefix"/include/cudd; then
+	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
+               else
+	         CUDD_CPPFLAGS="-I $prefix/include"
+	       fi 
+	       cudd_dir="$prefix"
+	    else
+	       if test -d /usr/local/include/cudd; then
+	         CUDD_CPPFLAGS="-I /usr/local/include/cudd"
+               fi
+	       cudd_dir=/usr/local
+	    fi
+            dnl cudd can be most everywhere
+	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
+	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
+	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
+	      LIBS="$LIBS -L $cudd_dir/lib64"
+	    elif test -d "$cudd_dir/lib/cudd"; then
+	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
+	    elif test -d "$cudd_dir/lib"; then
+	      LIBS="$LIBS -L $cudd_dir/lib"
+	    fi
+	    if test -d "$cudd_dir/util"; then
+	      LIBS="$LIBS -L $cudd_dir/util"
+	    fi
+	    AC_SEARCH_LIBS(util_print_cpu_stats, [cuddutil util])
+	    if test -d "$cudd_dir/st"; then
+	      LIBS="$LIBS -L $cudd_dir/st"
+	    fi
+	    AC_SEARCH_LIBS(st_insert, [cuddst st])
+	    if test -d "$cudd_dir/epd"; then
+	      LIBS="$LIBS -L $cudd_dir/epd"
+	    fi
+	    AC_SEARCH_LIBS(EpdAdd, [epd])
+	    if test -d "$cudd_dir/mtr"; then
+	      LIBS="$LIBS -L $cudd_dir/mtr"
+	    fi
+	    AC_SEARCH_LIBS(Mtr_InitTree, [mtr])
+	    if test -d "$cudd_dir/cudd"; then
+	      LIBS="$LIBS -L $cudd_dir/cudd"
+	    fi
+	    AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
+	    if test "$cudd_installed" = yes; then
+	      CUDD_LDFLAGS="$LIBS"
+	    else
+  cat << EOF
+##################################################################
+# ERROR: Could not find cudd library. Either I don't have the
+# correct path, or CUDD is installed in some strange way
+##################################################################
+EOF
+     	    fi
+	    LIBS="$oldlibs"
+fi
 
 if test "$threads" = yes
 then
