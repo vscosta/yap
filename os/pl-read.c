@@ -602,10 +602,13 @@ raw_read2(ReadData _PL_rd ARG_LD)
 			  discardBuffer(cbuf);
 		        setErrorLocation(pos, _PL_rd);
 			rawSyntaxError("end_of_file_in_block_comment");
+#ifndef __YAP_PROLOG__
+			/* YAP does not support comment levels in original scanner */
 		      case '*':
 			if ( last == '/' )
 			  level++;
 			break;
+#endif
 		      case '/':
 			if ( last == '*' &&
 			     (--level == 0 || _PL_rd->strictness) )

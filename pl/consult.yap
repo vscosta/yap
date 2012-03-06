@@ -293,10 +293,15 @@ use_module(M,F,Is) :-
 	!.
 
 '$reset_if'(OldIfLevel) :-
-	catch(nb_getval('$if_level',OldIncludeLevel),_,fail), !,
+	catch(nb_getval('$if_level',OldIfLevel),_,fail), !,
 	nb_setval('$if_level',0).
 '$reset_if'(0) :-
 	nb_setval('$if_level',0).
+
+'$get_if'(Level0) :-
+	catch(nb_getval('$if_level',Level),_,fail), !,
+	Level0 = Level.
+'$get_if'(0).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -894,7 +899,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 %
 '$if'(_,top) :- !, fail.
 '$if'(Goal,_) :-
-	nb_getval('$if_level',Level0),
+	'$get_if'(Level0),
 	Level is Level0 + 1,
 	nb_setval('$if_level',Level),
 	nb_getval('$endif',OldEndif),
@@ -919,7 +924,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 
 '$else'(top) :- !, fail.
 '$else'(_) :-
-	nb_getval('$if_level',0), !,
+	'$get_if'(0), !,
 	'$do_error'(context_error(no_if),(:- else)).
 % we have done an if, so just skip
 '$else'(_) :-
@@ -927,14 +932,14 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$else'(_) :-
-	nb_getval('$if_level',Level),
+	'$get_if'(Level),
 	nb_getval('$endif',elif(Level,OldEndif,Mode)),
 	nb_setval('$endif',endif(Level,OldEndif,Mode)),
 	nb_setval('$if_skip_mode',run).
 
 '$elif'(_,top) :- !, fail.
 '$elif'(Goal,_) :-
-	nb_getval('$if_level',0),
+	'$get_if'(0),
 	'$do_error'(context_error(no_if),(:- elif(Goal))).
 % we have done an if, so just skip
 '$elif'(_,_) :-
@@ -942,7 +947,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	 nb_setval('$if_skip_mode',skip).
 % we can try the elif
 '$elif'(Goal,_) :-
-	nb_getval('$if_level',Level),
+	'$get_if'(Level),
 	nb_getval('$endif',elif(Level,OldEndif,Mode)),
 	('$if_call'(Goal)
 	    ->
@@ -958,11 +963,11 @@ absolute_file_name(File,Opts,TrueFileName) :-
 '$endif'(top) :- !, fail.
 '$endif'(_) :-
 % unmmatched endif.
-	nb_getval('$if_level',0),
+	'$get_if'(0),
 	'$do_error'(context_error(no_if),(:- endif)).
 '$endif'(_) :-
 % back to where you belong.
-	nb_getval('$if_level',Level),
+	'$get_if'(Level),
 	nb_getval('$endif',Endif),
 	Level0 is Level-1,
 	nb_setval('$if_level',Level0),

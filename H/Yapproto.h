@@ -356,7 +356,6 @@ void	STD_PROTO(Yap_InitSysbits,(void));
 void	STD_PROTO(Yap_InitSysPreds,(void));
 void	STD_PROTO(Yap_InitTime,(void));
 int     STD_PROTO(Yap_TrueFileName, (char *, char *, int));
-int	STD_PROTO(Yap_ProcessSIGINT,(void));
 double  STD_PROTO(Yap_random, (void));
 #ifdef _WIN32
 char	*STD_PROTO(Yap_RegistryGetString,(char *));

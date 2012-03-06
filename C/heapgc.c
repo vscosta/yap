@@ -4148,8 +4148,9 @@ LeaveGCMode( USES_REGS1 )
     LOCAL_PrologMode &= ~GCMode;
   if (LOCAL_PrologMode & AbortMode) {
     LOCAL_PrologMode &= ~AbortMode;
-    Yap_Error(PURE_ABORT, TermNil, "");
-    P = FAILCODE;
+    /* in case someone mangles the P register */
+    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+    Yap_RestartYap( 1 );
   }
 }
 

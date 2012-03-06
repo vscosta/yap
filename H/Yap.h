@@ -615,10 +615,6 @@ typedef enum
           LOCAL_CritLocks--;                                              \
           if (!LOCAL_CritLocks) {                                         \
             LOCAL_PrologMode &= ~CritMode;                                \
-            if (LOCAL_PrologMode & InterruptMode) {                       \
-	      LOCAL_PrologMode &= ~InterruptMode;                         \
-	      Yap_ProcessSIGINT();                                      \
-            }                                                            \
             if (LOCAL_PrologMode & AbortMode) {                           \
 	      LOCAL_PrologMode &= ~AbortMode;                             \
 	      Yap_Error(PURE_ABORT, 0, "");                             \
@@ -636,13 +632,10 @@ typedef enum
 #define YAPLeaveCriticalSection()                                        \
 	{                                                                \
           LOCAL_PrologMode &= ~CritMode;                                \
-          if (LOCAL_PrologMode & InterruptMode) {                       \
-	    LOCAL_PrologMode &= ~InterruptMode;                         \
-	    Yap_ProcessSIGINT();                                      \
-          }                                                            \
           if (LOCAL_PrologMode & AbortMode) {                           \
 	    LOCAL_PrologMode &= ~AbortMode;                             \
 	    Yap_Error(PURE_ABORT, 0, "");                             \
+            Yap_RestartYap( 1 );                                      \
           }                                                            \
           /* UNLOCK(BGL); */                                           \
         }
@@ -657,13 +650,9 @@ typedef enum
           LOCAL_CritLocks--;                                              \
           if (!LOCAL_CritLocks) {                                         \
             LOCAL_PrologMode &= ~CritMode;                                \
-            if (LOCAL_PrologMode & InterruptMode) {                       \
-	      LOCAL_PrologMode &= ~InterruptMode;                         \
-	      Yap_ProcessSIGINT();                                      \
-            }                                                            \
             if (LOCAL_PrologMode & AbortMode) {                           \
 	      LOCAL_PrologMode &= ~AbortMode;                             \
-	      Yap_Error(PURE_ABORT, 0, "");                             \
+              Yap_RestartYap( 1 );                                      \
             }                                                            \
           }                                                              \
         }

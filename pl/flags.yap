@@ -743,19 +743,19 @@ yap_flag(user_input,OUT) :-
 	var(OUT), !,
 	stream_property(OUT,alias(user_input)).
 yap_flag(user_input,Stream) :-
-	set_stream(Stream, alias(user_input).
+	set_stream(Stream, alias(user_input)).
 
 yap_flag(user_output,OUT) :-
 	var(OUT), !,
 	stream_property(OUT,alias(user_output)).
 yap_flag(user_output,Stream) :-
-	set_stream(Stream, alias(user_output).
+	set_stream(Stream, alias(user_output)).
 
 yap_flag(user_error,OUT) :-
 	var(OUT), !,
 	stream_property(OUT,alias(user_error)).
 yap_flag(user_error,Stream) :-
-	set_stream(Stream, alias(user_error).
+	set_stream(Stream, alias(user_error)).
 
 yap_flag(debugger_print_options,OUT) :-
 	var(OUT),
