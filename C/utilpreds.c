@@ -4235,6 +4235,12 @@ p_is_list( USES_REGS1 )
   return Yap_IsListTerm(Deref(ARG1));
 }
 
+static Int
+p_is_list_or_partial_list( USES_REGS1 )
+{
+  return Yap_IsListTerm(Deref(ARG1));
+}
+
 static Term
 numbervar(Int id)
 {
@@ -4812,6 +4818,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("term_variables", 3, p_term_variables3, 0);
   Yap_InitCPred("term_attvars", 2, p_term_attvars, 0);
   Yap_InitCPred("is_list", 1, p_is_list, SafePredFlag);
+  Yap_InitCPred("$is_list_or_partial_list", 1, p_is_list_or_partial_list, SafePredFlag);
   Yap_InitCPred("rational_term_to_tree", 2, p_break_rational, 0);
   Yap_InitCPred("tree_to_rational_term", 2, p_restore_rational, 0);
   Yap_InitCPred("=@=", 2, p_variant, 0);
