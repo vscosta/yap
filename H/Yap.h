@@ -914,6 +914,12 @@ Yap_GetFromSlot(Int slot USES_REGS)
 }
 
 static inline Term
+Yap_GetDerefedFromSlot(Int slot USES_REGS)
+{
+  return LCL0[slot];;
+}
+
+static inline Term
 Yap_GetPtrFromSlot(Int slot USES_REGS)
 {
   return(LCL0[slot]);
