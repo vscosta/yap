@@ -575,10 +575,11 @@ putUnquotedString(Term string, struct write_globs *wglb)
 
 
 static Term
-from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
+from_pointer(CELL *ptr0, struct rewind_term *rwt, struct write_globs *wglb)
 {
   CACHE_REGS
   Term t;
+  CELL *ptr = ptr0;
 
   while (IsVarTerm(*ptr) && !IsUnboundVar(ptr))
     ptr = (CELL *)*ptr;
@@ -587,7 +588,7 @@ from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
     struct rewind_term *x = rwt->parent;
 
     rwt->u.s.old = Yap_InitSlot(t PASS_REGS);
-    rwt->u.s.ptr = Yap_InitSlot((CELL)ptr PASS_REGS);
+    rwt->u.s.ptr = Yap_InitSlot((CELL)ptr0 PASS_REGS);
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       while (x) {
 	if (Yap_GetDerefedFromSlot(x->u.s.old PASS_REGS) == t)
@@ -597,7 +598,7 @@ from_pointer(CELL *ptr, struct rewind_term *rwt, struct write_globs *wglb)
     }
   } else {
     rwt->u.d.old = t;
-    rwt->u.d.ptr = ptr;
+    rwt->u.d.ptr = ptr0;
     if (!IsAtomicTerm(t) && !IsVarTerm(t)) {
       struct rewind_term *x = rwt->parent;
       
