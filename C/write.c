@@ -641,7 +641,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   lastw = separator;
   if (IsAttVar(t)) {
     Int vcount = (t-H0);
-#if COROUTINING
+#if defined(COROUTINING) && defined(DEBUG)
     if (Yap_Portray_delays) {
       exts ext = ExtFromCell(t);
       struct rewind_term nrwt;
