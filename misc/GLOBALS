@@ -103,18 +103,6 @@ YP_FILE*			logfile					void
 //int  				output_msg 				=FALSE
 #endif
 
-//gprof.c
-Int 				ProfCalls				void 
-Int				ProfGCs 				void
-Int				ProfHGrows 				void
-Int				ProfSGrows 				void
-Int				ProfMallocs 				void
-Int				ProfOn 					void
-Int				ProfOns					void
-struct RB_red_blk_node* 	ProfilerRoot				void
-struct RB_red_blk_node* 	ProfilerNil				void
-char*				DIRNAME					=NULL
-
 #if defined(COFF)  || defined(A_OUT)
 // loada_coff.c && load_aout.c
 char 				Executable[YAP_FILENAME_MAX]		void

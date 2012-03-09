@@ -503,6 +503,33 @@ typedef enum
 
 #define NUMBER_OF_YAP_FLAGS  LAST_FLAG
 
+typedef enum
+{
+  GPROF_NO_EVENT,
+  GPROF_NEW_PRED_FUNC,
+  GPROF_NEW_PRED_THREAD,
+  GPROF_NEW_PRED_ATOM,
+  GPROF_INDEX,
+  GPROF_INDEX_EXPAND,
+  GPROF_CLAUSE,
+  GPROF_MEGA,
+  GPROF_LU_INDEX,
+  GPROF_STATIC_INDEX,
+  GPROF_INIT_OPCODE,
+  GPROF_INIT_SYSTEM_CODE,
+  GPROF_INIT_EXPAND,
+  GPROF_INIT_LOG_UPD_CLAUSE,
+  GPROF_INIT_DYNAMIC_CLAUSE,
+  GPROF_INIT_STATIC_CLAUSE,
+  GPROF_INIT_COMMA,
+  GPROF_INIT_FAIL,
+  GPROF_NEW_LU_CLAUSE,
+  GPROF_NEW_LU_SWITCH,
+  GPROF_NEW_STATIC_SWITCH,
+  GPROF_NEW_EXPAND_BLOCK
+} gprof_info;
+
+
 /*************************************************************************************************
                                            prototypes
 *************************************************************************************************/

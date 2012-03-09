@@ -283,15 +283,6 @@
 
   LastWtimePtr = CodeVoidPAdjust(LastWtimePtr);
 
-
-#if LOW_PROF
-
-
-
-
-
-#endif /* LOW_PROF */
-
   RestoreForeignCode();
 
 

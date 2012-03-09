@@ -283,15 +283,6 @@
 
   void  *last_wtime;
 
-  int  debugger_output_msg;
-#if LOW_PROF
-  int  profiler_on;
-  int  offline_profiler;
-  FILE  *f_prof;
-  FILE  *f_preds;
-  UInt  prof_preds;
-#endif /* LOW_PROF */
-
   struct ForeignLoadItem  *foreign_code_loaded;
   ADDR  foreign_code_base;
   ADDR  foreign_code_top;

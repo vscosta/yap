@@ -2059,6 +2059,7 @@ a_try(op_numbers opcode, CELL lab, CELL opr, int nofalts, int hascut, yamop *cod
 	save_machine_regs();
 	siglongjmp(cip->CompilerBotch,2);
       }
+      Yap_inform_profiler_of_clause(newcp, (char *)(newcp)+size, ap, GPROF_INDEX); 
       Yap_LUIndexSpace_CP += size;
 #ifdef DEBUG
       Yap_NewCps++;
@@ -3935,6 +3936,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     cl->usc.ClSource = x;
     cl->ClSize = osize;
     LOCAL_ProfEnd=code_p;
+    Yap_inform_profiler_of_clause(cl, LOCAL_ProfEnd, ap, GPROF_CLAUSE);
     return entry_code;
   } else {
     while ((cip->code_addr = (yamop *) Yap_AllocCodeSpace(size)) == NULL) {
@@ -3945,6 +3947,7 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
 	return NULL;
       }
     }
+    Yap_inform_profiler_of_clause(cip->code_addr, (char *)(cip->code_addr)+size, ap, ( mode == ASSEMBLING_INDEX ? GPROF_INDEX : GPROF_CLAUSE )); 
     if (mode == ASSEMBLING_CLAUSE) {
       if (ap->PredFlags & LogUpdatePredFlag) {
 	((LogUpdClause *)(cip->code_addr))->ClSize = size;
@@ -3960,13 +3963,6 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
     }
   }
   code_p = do_pass(1, &entry_code, mode, &clause_has_blobs, &clause_has_dbterm, cip, size PASS_REGS);
-  LOCAL_ProfEnd=code_p;
-#ifdef LOW_PROF
-  if (ProfilerOn &&
-      Yap_OffLineProfiler) {
-    Yap_inform_profiler_of_clause(entry_code, LOCAL_ProfEnd, ap, mode == ASSEMBLING_INDEX); 
-  }
-#endif /* LOW_PROF */
   return entry_code;
 }
 

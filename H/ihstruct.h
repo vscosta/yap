@@ -283,15 +283,6 @@
 
   LastWtimePtr = NULL;
 
-  output_msg = 0L;
-#if LOW_PROF
-  ProfilerOn = FALSE;
-  Yap_OffLineProfiler = FALSE;
-  FProf = NULL;
-  FPreds = NULL;
-  ProfPreds = 0L;
-#endif /* LOW_PROF */
-
   ForeignCodeLoaded = NULL;
   ForeignCodeBase = NULL;
   ForeignCodeTop = NULL;

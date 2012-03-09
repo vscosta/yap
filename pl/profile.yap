@@ -68,9 +68,9 @@ showprofres :-
 	showprofres(-1).
 
 showprofres(A) :-
-	('$proftype'(offline) -> '$offline_showprofres' ; true),
+	'$offline_showprofres',
 	('$profison' -> profoff, Stop = true ; Stop = false),
-	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,ProfOns),
+	'$profglobs'(Tot,GCs,HGrows,SGrows,Mallocs,_Indexing,ProfOns),
 	% root node has no useful info.
 	'$get_all_profinfo'(0,[],ProfInfo0,0,_TotCode),
 	msort(ProfInfo0,ProfInfo),
@@ -84,6 +84,7 @@ showprofres(A) :-
 	;
 	    format(user_error,'~d ticks, ~d accounted for (~d overhead)~n',[Tot,Accounted,ProfOns])
 	),
+%	format(user_error,'     ~d ticks in indexing code~n',[Indexing]),
 	A1 is A+1,
 	'$display_preds'(Preds, Tot, 0, 1, A1),
 	 (Stop = true -> profon ; true).
@@ -123,10 +124,11 @@ showprofres(A) :-
 
 '$display_preds'(_, _, _, N, N) :- !.
 '$display_preds'([], _, _, _, _).
+'$display_preds'([0-_|_], _Tot, _SoFar, _I, N) :- !.
 '$display_preds'([NSum-P|Ps], Tot, SoFar, I, N) :-
 	Sum is -NSum,
 	Perc is (100*Sum)/Tot,
-    Next is SoFar+Sum,
+	Next is SoFar+Sum,
 	NextP is (100*Next)/Tot,
 	(	(	P = M:F/A ->
 			G = M:H

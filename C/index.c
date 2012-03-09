@@ -1592,12 +1592,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     cl->ClSize = sz;
     cl->ClPred = cint->CurrentPred;
     /* insert into code chain */
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause(cl->ClCode, (yamop*)((CODEADDR)cl+sz), ap, 1); 
-    }
-#endif /* LOW_PROF */
+    Yap_inform_profiler_of_clause(cl, (CODEADDR)cl+sz, ap, GPROF_NEW_LU_SWITCH);
     return cl->ClCode;
   } else {
     UInt sz = sizeof(StaticIndex)+n*item_size;
@@ -1612,12 +1607,7 @@ emit_switch_space(UInt n, UInt item_size, struct intermediates *cint, CELL func_
     cl->ClFlags = SwitchTableMask;
     cl->ClSize = sz;
     cl->ClPred = cint->CurrentPred;
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause(cl->ClCode, (yamop*)((CODEADDR)cl+sz), ap, 1); 
-    }
-#endif /* LOW_PROF */
+    Yap_inform_profiler_of_clause(cl, (CODEADDR)cl+sz, ap, GPROF_NEW_STATIC_SWITCH);
     return cl->ClCode;
     /* insert into code chain */
   }  
@@ -1933,12 +1923,7 @@ suspend_indexing(ClauseDef *min, ClauseDef *max, PredEntry *ap, struct intermedi
     } else {
       Yap_IndexSpace_EXT += sz;
     }
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause(ncode, NEXTOP(ncode,sssllp), ap, 1); 
-    }
-#endif /* LOW_PROF */
+    Yap_inform_profiler_of_clause(ncode, (CODEADDR)ncode+sz, ap, GPROF_NEW_EXPAND_BLOCK); 
     /* create an expand_block */
     ncode->opc = Yap_opcode(_expand_clauses);
     ncode->u.sssllp.p = ap;
@@ -1991,7 +1976,7 @@ recover_ecls_block(yamop *ipc)
     Yap_expand_clauses_sz -= (UInt)(NEXTOP((yamop *)NULL,sssllp))+ipc->u.sssllp.s1*sizeof(yamop *);
 #endif
     /* no dangling pointers for gprof */
-    Yap_InformOfRemoval((CODEADDR)ipc);
+    Yap_InformOfRemoval(ipc);
     if (ipc->u.sssllp.p->PredFlags & LogUpdatePredFlag) {
       Yap_LUIndexSpace_EXT -= (UInt)NEXTOP((yamop *)NULL,sssllp)+ipc->u.sssllp.s1*sizeof(yamop *);
     } else
@@ -4259,7 +4244,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       c->ParentIndex = ncl;
       c = c->SiblingIndex;
     }
-    Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_InformOfRemoval(cl);
     Yap_LUIndexSpace_SW -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   } else {
@@ -4277,7 +4262,7 @@ replace_index_block(ClauseUnion *parent_block, yamop *cod, yamop *ncod, PredEntr
       }
       c->SiblingIndex = ncl;
     }
-    Yap_InformOfRemoval((CODEADDR)cl);
+    Yap_InformOfRemoval(cl);
     Yap_IndexSpace_SW -= cl->ClSize;
     Yap_FreeCodeSpace((char *)cl);
   }

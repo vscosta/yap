@@ -87,17 +87,6 @@ typedef struct global_data {
 
 
 #endif
-
-  Int  ProfCalls_;
-  Int  ProfGCs_;
-  Int  ProfHGrows_;
-  Int  ProfSGrows_;
-  Int  ProfMallocs_;
-  Int  ProfOn_;
-  Int  ProfOns_;
-  struct RB_red_blk_node*  ProfilerRoot_;
-  struct RB_red_blk_node*  ProfilerNil_;
-  char*  DIRNAME_;
 #if defined(COFF)  || defined(A_OUT)
 
   char  Executable_[YAP_FILENAME_MAX];

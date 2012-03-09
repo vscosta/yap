@@ -397,3 +397,34 @@
 #define LOCAL_ImportFAILCODE LOCAL->ImportFAILCODE_
 #define REMOTE_ImportFAILCODE(wid) REMOTE(wid)->ImportFAILCODE_
 
+#define LOCAL_ProfCalls LOCAL->ProfCalls_
+#define REMOTE_ProfCalls(wid) REMOTE(wid)->ProfCalls_
+#define LOCAL_ProfGCs LOCAL->ProfGCs_
+#define REMOTE_ProfGCs(wid) REMOTE(wid)->ProfGCs_
+#define LOCAL_ProfHGrows LOCAL->ProfHGrows_
+#define REMOTE_ProfHGrows(wid) REMOTE(wid)->ProfHGrows_
+#define LOCAL_ProfSGrows LOCAL->ProfSGrows_
+#define REMOTE_ProfSGrows(wid) REMOTE(wid)->ProfSGrows_
+#define LOCAL_ProfMallocs LOCAL->ProfMallocs_
+#define REMOTE_ProfMallocs(wid) REMOTE(wid)->ProfMallocs_
+#define LOCAL_ProfIndexing LOCAL->ProfIndexing_
+#define REMOTE_ProfIndexing(wid) REMOTE(wid)->ProfIndexing_
+#define LOCAL_ProfOn LOCAL->ProfOn_
+#define REMOTE_ProfOn(wid) REMOTE(wid)->ProfOn_
+#define LOCAL_ProfOns LOCAL->ProfOns_
+#define REMOTE_ProfOns(wid) REMOTE(wid)->ProfOns_
+#define LOCAL_ProfilerRoot LOCAL->ProfilerRoot_
+#define REMOTE_ProfilerRoot(wid) REMOTE(wid)->ProfilerRoot_
+#define LOCAL_ProfilerNil LOCAL->ProfilerNil_
+#define REMOTE_ProfilerNil(wid) REMOTE(wid)->ProfilerNil_
+#define LOCAL_DIRNAME LOCAL->DIRNAME_
+#define REMOTE_DIRNAME(wid) REMOTE(wid)->DIRNAME_
+#if LOW_PROF
+#define LOCAL_ProfilerOn LOCAL->ProfilerOn_
+#define REMOTE_ProfilerOn(wid) REMOTE(wid)->ProfilerOn_
+#define LOCAL_FProf LOCAL->FProf_
+#define REMOTE_FProf(wid) REMOTE(wid)->FProf_
+#define LOCAL_FPreds LOCAL->FPreds_
+#define REMOTE_FPreds(wid) REMOTE(wid)->FPreds_
+#endif /* LOW_PROF */
+

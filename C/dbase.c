@@ -1892,12 +1892,7 @@ record_lu(PredEntry *pe, Term t, int position)
   if ((cl = new_lu_db_entry(t, pe)) == NULL) {
     return NULL;
   }
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause(cl->ClCode, (yamop *)(cl+cl->ClSize), pe, 0); 
-    }
-#endif /* LOW_PROF */
+  Yap_inform_profiler_of_clause(cl, (char *)cl+cl->ClSize, pe, GPROF_NEW_LU_CLAUSE); 
   Yap_add_logupd_clause(pe, cl, (position == MkFirst ? 2 : 0));
   return cl;
 }
@@ -4086,7 +4081,7 @@ complete_lu_erase(LogUpdClause *clau)
       }
     }
   }
-  Yap_InformOfRemoval((CODEADDR)clau);
+  Yap_InformOfRemoval(clau);
   Yap_LUClauseSpace -= clau->ClSize;
   Yap_FreeCodeSpace((char *)clau);
 }
@@ -4198,7 +4193,7 @@ MyEraseClause(DynamicClause *clau USES_REGS)
       P = np;
     }
   } else {
-    Yap_InformOfRemoval((CODEADDR)clau);
+    Yap_InformOfRemoval(clau);
     Yap_LUClauseSpace -= clau->ClSize;
     Yap_FreeCodeSpace((char *)clau);
 #ifdef DEBUG

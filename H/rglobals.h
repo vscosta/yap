@@ -87,17 +87,6 @@ static void RestoreGlobal(void) {
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
 #if defined(COFF)  || defined(A_OUT)
 
 

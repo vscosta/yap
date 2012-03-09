@@ -321,16 +321,6 @@ char		*yap_lib_dir		Yap_LibDir		=NULL CodeCharPAdjust
 /* time */
 void		*last_wtime		LastWtimePtr		=NULL CodeVoidPAdjust
 
-/* profiling */
-int		debugger_output_msg	output_msg		=0L void
-#if LOW_PROF
-int		profiler_on		ProfilerOn		=FALSE void
-int		offline_profiler	Yap_OffLineProfiler	=FALSE void
-FILE		*f_prof			FProf			=NULL void
-FILE		*f_preds		FPreds			=NULL void
-UInt		prof_preds		ProfPreds		=0L void
-#endif /* LOW_PROF */
-
 /* foreign code loaded */
 struct ForeignLoadItem 	*foreign_code_loaded	ForeignCodeLoaded	=NULL RestoreForeignCode()
 ADDR		foreign_code_base	ForeignCodeBase		=NULL void

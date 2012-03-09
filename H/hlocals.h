@@ -223,4 +223,21 @@ typedef struct worker_local {
   UInt  ImportDBRefHashTableSize_;
   UInt  ImportDBRefHashTableNum_;
   yamop  *ImportFAILCODE_;
+
+  Int  ProfCalls_;
+  Int  ProfGCs_;
+  Int  ProfHGrows_;
+  Int  ProfSGrows_;
+  Int  ProfMallocs_;
+  Int  ProfIndexing_;
+  Int  ProfOn_;
+  Int  ProfOns_;
+  struct RB_red_blk_node*  ProfilerRoot_;
+  struct RB_red_blk_node*  ProfilerNil_;
+  char*  DIRNAME_;
+#if LOW_PROF
+  int  ProfilerOn_;
+  FILE*  FProf_;
+  FILE*  FPreds_;
+#endif /* LOW_PROF */
 } w_local;

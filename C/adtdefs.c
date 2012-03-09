@@ -847,15 +847,10 @@ Yap_NewPredPropByFunctor(FunctorEntry *fe, Term cur_mod)
   }
   p->FunctorOfPred = fe;
   WRITE_UNLOCK(fe->FRWLock);
-#ifdef LOW_PROF
-  if (ProfilerOn &&
-      Yap_OffLineProfiler) {
-    Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
-    if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
-      Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
-    }
+  Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_FUNC);
+  if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+    Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_FUNC);
   }
-#endif /* LOW_PROF */
   return AbsPredProp(p);
 }
 
@@ -896,15 +891,10 @@ Yap_NewThreadPred(PredEntry *ap USES_REGS)
   p->NextOfPE = AbsPredProp(LOCAL_ThreadHandle.local_preds);
   LOCAL_ThreadHandle.local_preds = p;
   p->FunctorOfPred = ap->FunctorOfPred;
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
-      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
-	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
-      }
-    }
-#endif /* LOW_PROF */
+  Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_THREAD);
+  if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+    Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_THREAD);
+  }
   return AbsPredProp(p);
 }
 #endif
@@ -968,15 +958,10 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, 1);
-      if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
-	Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, 1);
-      }
-    }
-#endif /* LOW_PROF */
+  Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, GPROF_NEW_PRED_ATOM);
+  if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
+    Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, GPROF_NEW_PRED_ATOM);
+  }
   return p0;
 }
 

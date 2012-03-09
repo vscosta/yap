@@ -1596,3 +1596,4 @@ void SET_ASP__(CELL *yreg, Int sz USES_REGS) {
      }
 
 
+#define CHECK_ALARM(CONT)

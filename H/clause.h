@@ -339,7 +339,7 @@ void    STD_PROTO(Yap_bug_location,(yamop *));
 #endif
 
 #if  LOW_PROF
-void	STD_PROTO(Yap_InformOfRemoval,(CODEADDR));
+void	STD_PROTO(Yap_InformOfRemoval,(void *));
 void	STD_PROTO(Yap_dump_code_area_for_profiler,(void));
 #else
 #define	Yap_InformOfRemoval(X)

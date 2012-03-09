@@ -185,10 +185,12 @@ Term	STD_PROTO(Yap_GetException,(void));
 /* gprof.c */
 void	STD_PROTO(Yap_InitLowProf,(void));
 #if  LOW_PROF
-void	STD_PROTO(Yap_inform_profiler_of_clause,(struct yami *,struct yami *,struct pred_entry *,int));
+void	STD_PROTO(Yap_inform_profiler_of_clause__,(void *,void *,struct pred_entry *, gprof_info));
+#define Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE) {if (LOCAL_FPreds) Yap_inform_profiler_of_clause__(CODE0,CODEF,AP,MODE);}
 #else
-#define	Yap_inform_profiler_of_clause(A,B,C,D)
+#define	Yap_inform_profiler_of_clause(CODE0,CODEF,AP,MODE)
 #endif
+void    STD_PROTO(Yap_tell_gprof,(yamop *));
 
 /* globals.c */
 Term	STD_PROTO(Yap_NewArena,(UInt,CELL *));

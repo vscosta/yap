@@ -223,4 +223,21 @@ static void InitWorker(int wid) {
   REMOTE_ImportDBRefHashTableSize(wid) = 0;
   REMOTE_ImportDBRefHashTableNum(wid) = 0;
   REMOTE_ImportFAILCODE(wid) = NULL;
+
+
+
+
+
+
+
+
+
+
+
+  REMOTE_DIRNAME(wid) = NULL;
+#if LOW_PROF
+  REMOTE_ProfilerOn(wid) = FALSE;
+  REMOTE_FProf(wid) = NULL;
+  REMOTE_FPreds(wid) = NULL;
+#endif /* LOW_PROF */
 }

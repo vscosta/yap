@@ -3606,13 +3606,7 @@ Yap_cclause(volatile Term inp_clause, Int NOfArgs, Term mod, volatile Term src)
   if (acode == NULL) {
     return NULL;
   } else {
-#ifdef LOW_PROF
-    if (ProfilerOn &&
-	Yap_OffLineProfiler) {
-      Yap_inform_profiler_of_clause(acode, LOCAL_ProfEnd, cglobs.cint.CurrentPred,0);
-    }
-#endif /* LOW_PROF */
-    return(acode);
+    return acode;
   }
 }
 

@@ -87,17 +87,6 @@ static void InitGlobal(void) {
 
 
 #endif
-
-
-
-
-
-
-
-
-
-
-  GLOBAL_DIRNAME = NULL;
 #if defined(COFF)  || defined(A_OUT)
 
 

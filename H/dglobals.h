@@ -87,17 +87,6 @@
 
 
 #endif
-
-#define GLOBAL_ProfCalls Yap_global->ProfCalls_
-#define GLOBAL_ProfGCs Yap_global->ProfGCs_
-#define GLOBAL_ProfHGrows Yap_global->ProfHGrows_
-#define GLOBAL_ProfSGrows Yap_global->ProfSGrows_
-#define GLOBAL_ProfMallocs Yap_global->ProfMallocs_
-#define GLOBAL_ProfOn Yap_global->ProfOn_
-#define GLOBAL_ProfOns Yap_global->ProfOns_
-#define GLOBAL_ProfilerRoot Yap_global->ProfilerRoot_
-#define GLOBAL_ProfilerNil Yap_global->ProfilerNil_
-#define GLOBAL_DIRNAME Yap_global->DIRNAME_
 #if defined(COFF)  || defined(A_OUT)
 
 #define GLOBAL_Executable Yap_global->Executable_

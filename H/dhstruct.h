@@ -283,15 +283,6 @@
 
 #define LastWtimePtr Yap_heap_regs->last_wtime
 
-#define output_msg Yap_heap_regs->debugger_output_msg
-#if LOW_PROF
-#define ProfilerOn Yap_heap_regs->profiler_on
-#define Yap_OffLineProfiler Yap_heap_regs->offline_profiler
-#define FProf Yap_heap_regs->f_prof
-#define FPreds Yap_heap_regs->f_preds
-#define ProfPreds Yap_heap_regs->prof_preds
-#endif /* LOW_PROF */
-
 #define ForeignCodeLoaded Yap_heap_regs->foreign_code_loaded
 #define ForeignCodeBase Yap_heap_regs->foreign_code_base
 #define ForeignCodeTop Yap_heap_regs->foreign_code_top

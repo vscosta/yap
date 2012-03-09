@@ -2436,6 +2436,7 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackExecute:
+      CHECK_ALARM(JMPNext());
       SREG = (CELL *) PREG->u.pp.p;
       PP = PREG->u.pp.p0;
       if (LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
@@ -2578,6 +2579,7 @@ Yap_absmi(int inp)
       ENDBOp();
 
     NoStackCall:
+      CHECK_ALARM(JMPNext());
       PP = PREG->u.Osbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
       if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
@@ -2615,6 +2617,7 @@ Yap_absmi(int inp)
 	 so I don't need to redo it.
        */ 
     NoStackDeallocate:
+      CHECK_ALARM(JMPNext());
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
@@ -2669,6 +2672,7 @@ Yap_absmi(int inp)
 
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCut:
+      CHECK_ALARM(goto do_cut);
       /* find something to fool S */
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut;
@@ -2689,6 +2693,7 @@ Yap_absmi(int inp)
       goto do_cut;
 
     NoStackCutT:
+      CHECK_ALARM(goto do_cut_t);
       /* find something to fool S */
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut_t;
@@ -2709,8 +2714,9 @@ Yap_absmi(int inp)
       goto do_cut_t;
 
     NoStackCutE:
+      CHECK_ALARM(goto do_cut_e);
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
-	goto do_cut_t;
+	goto do_cut_e;
       }
       if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
@@ -2729,6 +2735,7 @@ Yap_absmi(int inp)
 
      /* This is easier: I know there is an environment so I cannot do allocate */
     NoStackCommitY:
+      CHECK_ALARM(goto do_commit_b_y);
       PP = PREG->u.yps.p0;
       /* find something to fool S */
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
@@ -2751,6 +2758,7 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackCommitX:
+      CHECK_ALARM(goto do_commit_b_x);
       PP = PREG->u.xps.p0;
       /* find something to fool S */
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
@@ -2788,6 +2796,7 @@ Yap_absmi(int inp)
 
       /* Problem: have I got an environment or not? */
     NoStackFail:
+      CHECK_ALARM(goto fail);
       if (LOCAL_ActiveSignals && LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	if (!LOCAL_ActiveSignals)
@@ -2811,6 +2820,7 @@ Yap_absmi(int inp)
 
       /* don't forget I cannot creep at ; */
     NoStackEither:
+      CHECK_ALARM(goto either_notest);
       if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	if (!LOCAL_ActiveSignals)
@@ -2893,6 +2903,7 @@ Yap_absmi(int inp)
       goto creep;
 
     NoStackDExecute:
+      CHECK_ALARM(JMPNext());
       if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	if (!LOCAL_ActiveSignals)
@@ -2970,8 +2981,8 @@ Yap_absmi(int inp)
 
     NoStackExec:
 
+      CHECK_ALARM(JMPNext());
       /* try performing garbage collection */
-
       if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	if (!LOCAL_ActiveSignals)
@@ -13027,6 +13038,7 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute2:
+	CHECK_ALARM(goto execute2_end);
 	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	  if (!LOCAL_ActiveSignals)
@@ -13232,6 +13244,7 @@ Yap_absmi(int inp)
 
 	ENDD(d0);
       NoStackPExecute:
+	CHECK_ALARM(goto execute_end);
 	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	  if (!LOCAL_ActiveSignals)
@@ -13464,6 +13477,7 @@ Yap_absmi(int inp)
 	ENDD(d0);
 	ENDP(pt0);
       NoStackPTExecute:
+	CHECK_ALARM(goto execute_after_comma);
 	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
 	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
 	  if (!LOCAL_ActiveSignals)

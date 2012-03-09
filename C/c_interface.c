@@ -2894,7 +2894,7 @@ do_bootfile (char *bootfilename)
     }
   YAP_EndConsult(bootfile);
 #ifdef DEBUG
-  if (output_msg)
+  if (Yap_output_msg)
     fprintf(stderr,"Boot loaded\n");
 #endif
 }
