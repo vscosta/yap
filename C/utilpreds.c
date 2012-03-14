@@ -4257,8 +4257,23 @@ numbervar(Int id)
   return Yap_MkApplTerm(FunctorVar, 1, ts);
 }
 
+static Term
+numbervar_singleton(void)
+{
+  Term ts[1];
+  ts[0] = MkIntegerTerm(-1);
+  return Yap_MkApplTerm(FunctorVar, 1, ts);
+}
 
-static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv USES_REGS)
+static void
+renumbervar(Term t, Int id)
+{
+  Term *ts = RepAppl(t);
+  ts[1] = MkIntegerTerm(id);
+}
+
+
+static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end, Int numbv, int singles USES_REGS)
 {
 
   register CELL **to_visit0, **to_visit = (CELL **)Yap_PreAllocCodeSpace();
@@ -4304,6 +4319,10 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	if (IsExtensionFunctor(f)) {
 	  continue;
 	}
+	if (singles && ap2 >= InitialH && ap2 < H) {
+	  renumbervar(d0, numbv++);
+	  continue;
+	}
 	/* store the terms to visit */
 	if (to_visit + 1024 >= (CELL **)AuxSp) {
 	  goto aux_overflow;
@@ -4331,7 +4350,10 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 
     derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
     /* do or pt2 are unbound  */
-    *ptd0 = numbervar(numbv++);
+    if (singles) 
+      *ptd0 = numbervar_singleton();
+    else
+      *ptd0 = numbervar(numbv++);
     /* leave an empty slot to fill in later */
     if (H+1024 > ASP) {
       goto global_overflow;
@@ -4411,7 +4433,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 }
 
 Int 
-Yap_NumberVars( Term inp, Int numbv )	/* numbervariables in term t	 */
+Yap_NumberVars( Term inp, Int numbv, int handle_singles )	/* numbervariables in term t	 */
 {
   CACHE_REGS
   Int out;
@@ -4421,20 +4443,25 @@ Yap_NumberVars( Term inp, Int numbv )	/* numbervariables in term t	 */
   t = Deref(inp);
   if (IsVarTerm(t)) {
     CELL *ptd0 = VarOfTerm(t);
-    *ptd0 = numbervar(numbv);
     TrailTerm(TR++) = (CELL)ptd0;
-    return numbv+1;
+    if (handle_singles) {
+      *ptd0 = numbervar_singleton();
+      return numbv;
+    } else {
+      *ptd0 = numbervar(numbv);
+      return numbv+1;
+    }
   }  else if (IsPrimitiveTerm(t)) {
     return numbv;
   } else if (IsPairTerm(t)) {
     out = numbervars_in_complex_term(RepPair(t)-1,
-				     RepPair(t)+1, numbv PASS_REGS);
+				     RepPair(t)+1, numbv, handle_singles PASS_REGS);
   } else {
     Functor f = FunctorOfTerm(t);
 
     out = numbervars_in_complex_term(RepAppl(t),
 			       RepAppl(t)+
-			       ArityOfFunctor(f), numbv PASS_REGS);
+				     ArityOfFunctor(f), numbv, handle_singles PASS_REGS);
   }
   if (out < 0) {
     if (!expand_vts( 3 PASS_REGS ))
@@ -4458,7 +4485,7 @@ p_numbervars( USES_REGS1 )
     Yap_Error(TYPE_ERROR_INTEGER,t2,"term_hash/4");
     return(FALSE);
   }
-  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(t2))) < 0)
+  if ((out = Yap_NumberVars(ARG1, IntegerOfTerm(t2), FALSE)) < 0)
     return FALSE;
   return Yap_unify(ARG3, MkIntegerTerm(out));
 }

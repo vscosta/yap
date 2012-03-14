@@ -3989,7 +3989,7 @@ YAP_ListLength(Term t) {
 
 Int
 YAP_NumberVars(Term t, Int nbv) {
-  return Yap_NumberVars(t, nbv);
+  return Yap_NumberVars(t, nbv, FALSE);
 }
 
 Term
