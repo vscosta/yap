@@ -958,9 +958,9 @@ Yap_NewPredPropByAtom(AtomEntry *ae, Term cur_mod)
   p0 = AbsPredProp(p);
   p->FunctorOfPred = (Functor)AbsAtom(ae);
   WRITE_UNLOCK(ae->ARWLock);
-  Yap_inform_profiler_of_clause((yamop *)&(p->OpcodeOfPred), (yamop *)(&(p->OpcodeOfPred)+1), p, GPROF_NEW_PRED_ATOM);
+  Yap_inform_profiler_of_clause(&(p->OpcodeOfPred), &(p->OpcodeOfPred)+1, p, GPROF_NEW_PRED_ATOM);
   if (!(p->PredFlags & (CPredFlag|AsmPredFlag))) {
-    Yap_inform_profiler_of_clause((yamop *)&(p->cs.p_code.ExpandCode), (yamop *)(&(p->cs.p_code.ExpandCode)+1), p, GPROF_NEW_PRED_ATOM);
+    Yap_inform_profiler_of_clause(&(p->cs.p_code.ExpandCode), &(p->cs.p_code.ExpandCode)+1, p, GPROF_NEW_PRED_ATOM);
   }
   return p0;
 }
