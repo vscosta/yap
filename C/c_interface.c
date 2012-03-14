@@ -442,6 +442,9 @@ X_API void    STD_PROTO(YAP_FreeSpaceFromYap,(void *));
 X_API int     STD_PROTO(YAP_StringToBuffer, (Term, char *, unsigned int));
 X_API Term    STD_PROTO(YAP_ReadBuffer, (char *,Term *));
 X_API Term    STD_PROTO(YAP_FloatsToList, (double *, size_t));
+X_API Int     STD_PROTO(YAP_ListToFloats, (Term, double *, size_t));
+X_API Term    STD_PROTO(YAP_IntsToList, (Int *, size_t));
+X_API Int     STD_PROTO(YAP_ListToInts, (Term, Int *, size_t));
 X_API Term    STD_PROTO(YAP_BufferToString, (char *));
 X_API Term    STD_PROTO(YAP_NBufferToString, (char *, size_t));
 X_API Term    STD_PROTO(YAP_WideBufferToString, (wchar_t *));
@@ -3594,6 +3597,89 @@ YAP_FloatsToList(double *dblp, size_t sz)
   return t;
 }
 
+X_API Int
+YAP_ListToFloats(Term t, double *dblp, size_t sz)
+{
+  size_t i = 0;
+
+  t = Deref(t);
+  do {
+    Term hd;
+    if (IsVarTerm(t))
+	return -1;
+    if (t == TermNil)
+      return i;
+    if (!IsPairTerm(t))
+      return -1;
+    hd = HeadOfTerm(t);
+    if (!IsFloatTerm(hd))
+      return -1;
+    dblp[i++] = FloatOfTerm(hd);
+    if (i == sz)
+      return sz;
+    t = TailOfTerm(t);
+  } while (TRUE);
+}
+
+X_API Term
+YAP_IntsToList(Int *dblp, size_t sz)
+{
+  CACHE_REGS
+  Term t;
+  CELL *oldH;
+  BACKUP_H();
+
+  if (!sz)
+    return TermNil;
+  while (ASP-1024 < H + sz*3) {
+    if ((CELL *)dblp > H0 && (CELL *)dblp < H) {
+      /* we are in trouble */
+      LOCAL_OpenArray =  (CELL *)dblp;
+    }
+    if (!dogc( 0, NULL PASS_REGS )) {
+      RECOVER_H();
+      return 0L;
+    }
+    dblp = (Int *)LOCAL_OpenArray;
+    LOCAL_OpenArray = NULL;
+  }
+  t = AbsPair(H);
+  while (sz) {
+    oldH = H;
+    H +=2;
+    oldH[0] = MkIntegerTerm(*dblp++);
+    oldH[1] = AbsPair(H);
+    sz--;
+  }
+  oldH[1] = TermNil;
+  RECOVER_H();
+  return t;
+}
+
+X_API Int
+YAP_ListToInts(Term t, Int *dblp, size_t sz)
+{
+  size_t i = 0;
+
+  t = Deref(t);
+  do {
+    Term hd;
+    if (IsVarTerm(t))
+	return -1;
+    if (t == TermNil)
+      return i;
+    if (!IsPairTerm(t))
+      return -1;
+    hd = HeadOfTerm(t);
+    if (!IsIntTerm(hd))
+      return -1;
+    dblp[i++] = IntOfTerm(hd);
+    if (i == sz)
+      return sz;
+    t = TailOfTerm(t);
+  } while (TRUE);
+}
+
 X_API Term
 YAP_OpenList(int n)
 {
@@ -3975,16 +4061,14 @@ Term YAP_BPROLOG_curr_toam_status;
 
 Int
 YAP_ListLength(Term t) {
-  Int l = 0;
-  while (TRUE) {
-    if (IsVarTerm(t)) return -1;
-    if (t == TermNil)
-      return l;
-    if (!IsPairTerm(t)) 
-      return -1;
-    l++;
-    t = TailOfTerm(t);
-  }
+  Term *aux;
+
+  Int n = Yap_SkipList(&t, &aux);
+  if (IsVarTerm(*aux))
+    return -1;
+  if (*aux == TermNil)
+    return n;
+  return -1;
 }
 
 Int

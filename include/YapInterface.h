@@ -357,6 +357,10 @@ extern X_API void PROTO(YAP_PutValue,(YAP_Atom, YAP_Term));
 extern X_API YAP_Term PROTO(YAP_GetValue,(YAP_Atom));
 
 extern X_API YAP_Term PROTO(YAP_FloatsToList,(YAP_Float *, size_t));
+extern X_API YAP_Int  PROTO(YAP_ListToFloats,(YAP_Term, YAP_Float *, size_t));
+
+extern X_API YAP_Term PROTO(YAP_IntsToList,(YAP_Int *, size_t));
+extern X_API YAP_Int  PROTO(YAP_ListToInts,(YAP_Term, YAP_Int *, size_t));
 
 /*  int StringToBuffer(YAP_Term,char *,unsigned int) */
 extern X_API int PROTO(YAP_StringToBuffer,(YAP_Term,char *,unsigned int));
