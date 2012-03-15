@@ -1150,7 +1150,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -1195,7 +1195,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -1350,7 +1350,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -1395,7 +1395,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;

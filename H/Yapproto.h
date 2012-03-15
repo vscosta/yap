@@ -209,7 +209,7 @@ int     STD_PROTO(Yap_growheap,      (int, UInt, void *));
 int     STD_PROTO(Yap_growstack,     (long));
 int     STD_PROTO(Yap_growtrail,     (long, int));
 int     STD_PROTO(Yap_growglobal,    (CELL **));
-CELL  **STD_PROTO(Yap_shift_visit,   (CELL **, CELL ***));
+CELL  **STD_PROTO(Yap_shift_visit,   (CELL **, CELL ***, CELL ***));
 #ifdef THREADS
 void   STD_PROTO(Yap_CopyThreadStacks, (int, int, int));
 #endif

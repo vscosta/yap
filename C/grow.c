@@ -1783,7 +1783,7 @@ Yap_growtrail_in_parser(tr_fr_ptr *old_trp, TokEntry **tksp, VarEntry **vep)
 }
 
 CELL **
-Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
+Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp, CELL ***to_visit_base)
 {
   CACHE_REGS
   CELL **to_visit_max = *to_visit_maxp;
@@ -1817,6 +1817,9 @@ Yap_shift_visit(CELL **to_visit, CELL ***to_visit_maxp)
   cpcellsd((CELL *)(newb+(dsz+szlow)), (CELL *)(newb+szlow), sz/sizeof(CELL));
   /* base pointer is block start */
   *to_visit_maxp = (CELL **)(newb+szlow);
+  /* base pointer is block start */
+  if (to_visit_base)
+    *to_visit_base = (CELL **)AuxSp;
   /* current top is originall diff + diff size */
   return (CELL **)(newb+(off+dsz));
 }

@@ -54,7 +54,7 @@ rtree_loop:
       if (IsPairTerm(d0)) {
 	to_visit -= 3;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, &to_visit_max);
+	  to_visit = Yap_shift_visit(to_visit, &to_visit_max, &base);
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -76,7 +76,7 @@ rtree_loop:
 	}
 	to_visit -= 3;
 	if (to_visit < to_visit_max) {
-	  to_visit = Yap_shift_visit(to_visit, &to_visit_max);
+	  to_visit = Yap_shift_visit(to_visit, &to_visit_max, &base);
 	}
 	to_visit[0] = pt0;
 	to_visit[1] = pt0_end;
@@ -192,7 +192,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -237,7 +237,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -672,7 +672,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
@@ -717,7 +717,7 @@ loop:
 #endif
 	  if ((void *)to_visit < (void *)unif) {
 	    CELL **urec = (CELL **)unif;
-	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec);
+	    to_visit = (struct v_record *)Yap_shift_visit((CELL **)to_visit, &urec, NULL);
 	    unif = (struct unif_record *)urec;
 	  }
 	  to_visit->start0 = pt0;
