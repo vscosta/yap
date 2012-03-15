@@ -761,6 +761,18 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   }
  }
 
+/* never write '+' and '-' as infix
+   operators */
+static int op_can_be_read_as_number(char *s, Term t)
+{
+  if (s[0] != '+' && s[0] != '-')
+    return FALSE;
+  if (s[1]) 
+    return FALSE;
+  t = ArgOfTerm(1,t);
+  return IsNumTerm(t);
+}
+
 static void 
 writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 /* term to write			 */
@@ -897,15 +909,9 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	return;
     }
     if (!wglb->Ignore_ops &&
-	Arity == 1 &&  Yap_IsPrefixOp(atom, &op, &rp)
-#ifdef DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX
-	&&
-	/* never write '+' and '-' as infix
-	   operators */
-	( (RepAtom(atom)->StrOfAE[0] != '+' &&
-	   RepAtom(atom)->StrOfAE[0] != '-') ||
-	  RepAtom(atom)->StrOfAE[1] )
-#endif /* DO_NOT_WRITE_PLUS_AND_MINUS_AS_PREFIX */
+	Arity == 1 &&
+	Yap_IsPrefixOp(atom, &op, &rp) &&
+	!op_can_be_read_as_number(RepAtom(atom)->StrOfAE, t)
 	) {
       Term  tright = ArgOfTerm(1, t);
       int            bracket_right =
