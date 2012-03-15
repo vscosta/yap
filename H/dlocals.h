@@ -427,4 +427,6 @@
 #define LOCAL_FPreds LOCAL->FPreds_
 #define REMOTE_FPreds(wid) REMOTE(wid)->FPreds_
 #endif /* LOW_PROF */
+#define LOCAL_FunctorVar LOCAL->FunctorVar_
+#define REMOTE_FunctorVar(wid) REMOTE(wid)->FunctorVar_
 

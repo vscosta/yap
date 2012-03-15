@@ -490,9 +490,15 @@ pl_write_canonical2(term_t stream, term_t term)
   options.functor = FUNCTOR_isovar1;
   options.on_attvar = AV_SKIP;
   options.singletons = TRUE;
+#if __YAP_PROLOG__
+  LOCAL_FunctorVar = FunctorHiddenVar;
+#endif
   numberVars(term, &options, 0 PASS_LD);
   rc = do_write2(stream, term,
 		 PL_WRT_QUOTED|PL_WRT_IGNOREOPS|PL_WRT_NUMBERVARS);
+#if __YAP_PROLOG__
+  LOCAL_FunctorVar = FunctorVar;
+#endif
   PL_discard_foreign_frame(fid);
 
   return rc;

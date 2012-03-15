@@ -1013,7 +1013,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc(')', wglb->stream);
 	lastw = separator;
       }
-    } else if (wglb->Handle_vars && functor == FunctorVar) {
+    } else if (wglb->Handle_vars && functor == LOCAL_FunctorVar) {
       Term ti = ArgOfTerm(1, t);
       if (lastw == alphanum) {
 	wrputc(' ', wglb->stream);

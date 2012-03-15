@@ -311,6 +311,7 @@
   AtomUserOut = Yap_LookupAtom("user_output");
   AtomVBar = Yap_LookupAtom("|");
   AtomVar = Yap_FullLookupAtom("$VAR");
+  AtomHiddenVar = Yap_FullLookupAtom("$V");
   AtomVariable = Yap_LookupAtom("variable");
   AtomVersionNumber = Yap_FullLookupAtom("$version_name");
   AtomWakeUpGoal = Yap_FullLookupAtom("$wake_up_goal");
@@ -428,3 +429,4 @@
   FunctorUPlus = Yap_MkFunctor(AtomPlus,1);
   FunctorVBar = Yap_MkFunctor(AtomVBar,2);
   FunctorVar = Yap_MkFunctor(AtomVar,1);
+  FunctorHiddenVar = Yap_MkFunctor(AtomHiddenVar,1);

@@ -311,6 +311,7 @@
   AtomUserOut = AtomAdjust(AtomUserOut);
   AtomVBar = AtomAdjust(AtomVBar);
   AtomVar = AtomAdjust(AtomVar);
+  AtomHiddenVar = AtomAdjust(AtomHiddenVar);
   AtomVariable = AtomAdjust(AtomVariable);
   AtomVersionNumber = AtomAdjust(AtomVersionNumber);
   AtomWakeUpGoal = AtomAdjust(AtomWakeUpGoal);
@@ -428,3 +429,4 @@
   FunctorUPlus = FuncAdjust(FunctorUPlus);
   FunctorVBar = FuncAdjust(FunctorVBar);
   FunctorVar = FuncAdjust(FunctorVar);
+  FunctorHiddenVar = FuncAdjust(FunctorHiddenVar);

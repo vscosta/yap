@@ -620,6 +620,8 @@
 #define AtomVBar Yap_heap_regs->AtomVBar_
   Atom AtomVar_;
 #define AtomVar Yap_heap_regs->AtomVar_
+  Atom AtomHiddenVar_;
+#define AtomHiddenVar Yap_heap_regs->AtomHiddenVar_
   Atom AtomVariable_;
 #define AtomVariable Yap_heap_regs->AtomVariable_
   Atom AtomVersionNumber_;
@@ -854,3 +856,5 @@
 #define FunctorVBar Yap_heap_regs->FunctorVBar_
   Functor FunctorVar_;
 #define FunctorVar Yap_heap_regs->FunctorVar_
+  Functor FunctorHiddenVar_;
+#define FunctorHiddenVar Yap_heap_regs->FunctorHiddenVar_

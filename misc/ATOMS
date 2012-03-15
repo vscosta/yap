@@ -316,6 +316,7 @@ A	UserIn			N	"user_input"
 A	UserOut			N	"user_output"
 A	VBar			N	"|"
 A	Var			F	"$VAR"
+A	HiddenVar		F	"$V"
 A	Variable		N	"variable"
 A	VersionNumber		F	"$version_name"
 A	WakeUpGoal		F	"$wake_up_goal"
@@ -433,4 +434,5 @@ F	UMinus			Minus		1
 F	UPlus			Plus		1
 F	VBar			VBar		2
 F	Var			Var		1
+F	HiddenVar		HiddenVar	1
 

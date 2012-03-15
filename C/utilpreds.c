@@ -4254,7 +4254,7 @@ numbervar(Int id)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(id);
-  return Yap_MkApplTerm(FunctorVar, 1, ts);
+  return Yap_MkApplTerm(LOCAL_FunctorVar, 1, ts);
 }
 
 static Term
@@ -4262,7 +4262,7 @@ numbervar_singleton(void)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(-1);
-  return Yap_MkApplTerm(FunctorVar, 1, ts);
+  return Yap_MkApplTerm(LOCAL_FunctorVar, 1, ts);
 }
 
 static void

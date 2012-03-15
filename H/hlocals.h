@@ -240,4 +240,5 @@ typedef struct worker_local {
   FILE*  FProf_;
   FILE*  FPreds_;
 #endif /* LOW_PROF */
+  Functor  FunctorVar_;
 } w_local;

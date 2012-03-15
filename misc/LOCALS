@@ -269,4 +269,6 @@ FILE*				FProf					=NULL
 FILE*				FPreds					=NULL
 #endif /* LOW_PROF */
 
+Functor				FunctorVar				=FunctorVar
+
 END_WORKER_LOCAL
