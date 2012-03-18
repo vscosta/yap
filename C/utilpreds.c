@@ -1955,6 +1955,11 @@ p_term_variables( USES_REGS1 )	/* variables in term t		 */
 {
   Term out;
 
+  if (!Yap_IsListOrPartialListTerm(ARG2)) {
+    Yap_Error(TYPE_ERROR_LIST,ARG2,"term_variables/2");
+    return FALSE;
+  }
+
   do {
     Term t = Deref(ARG1);
     if (IsVarTerm(t)) {
