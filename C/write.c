@@ -273,9 +273,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   char            *pt = s;
   int ch;
 
-  if (lastw == symbol) {
-    wrputc(' ', stream);  
-  } else if (lastw == alphanum) {
+  if (lastw == symbol || lastw == alphanum) {
     wrputc(' ', stream);
   }
   lastw = alphanum;
@@ -312,6 +310,9 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   char *format_float(double f, char *buf);
   char *buf;
 
+  if (lastw == symbol || lastw == alphanum) {
+    wrputc(' ', stream);
+  }
   /* use SWI's format_float */
   buf = format_float(f, s);
   if (!buf) return;
@@ -640,8 +641,8 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (IsAttVar(t)) {
-    Int vcount = (t-H0);
 #if defined(COROUTINING) && defined(DEBUG)
+    Int vcount = (t-H0);
     if (Yap_Portray_delays) {
       exts ext = ExtFromCell(t);
       struct rewind_term nrwt;
@@ -770,7 +771,40 @@ static int op_can_be_read_as_number(char *s, Term t)
   if (s[1]) 
     return FALSE;
   t = ArgOfTerm(1,t);
-  return IsNumTerm(t);
+  if (IsIntTerm(t)) return IntOfTerm(t) >= 0;
+  if (IsApplTerm(t)) {
+    Functor f = FunctorOfTerm(t);
+    if (IsExtensionFunctor(f)) {
+      switch((CELL)f) {
+      case (CELL)FunctorDouble:
+	return FloatOfTerm(t) >= 0.0;
+      case (CELL)FunctorAttVar:	
+      case (CELL)FunctorDBRef:
+	return FALSE;
+      case (CELL)FunctorLongInt:
+	return LongIntOfTerm(t) >= 0;
+	/* case (CELL)FunctorBigInt: */
+      default:
+	{
+	  CELL *pt = RepAppl(t)+1;
+	  CELL big_tag = pt[0];
+#ifdef USE_GMP
+	  if (big_tag == BIG_INT || big_tag == BIG_RATIONAL) {
+	    extern int Yap_gmp_cmp_big_int(Term t, Int i);
+
+	    return Yap_gmp_cmp_big_int(t, 0) >= 0;
+	  } else
+#endif
+	    if (big_tag == BLOB_STRING || BLOB_WIDE_STRING)
+	      return FALSE;
+	    else
+	      return TRUE;
+	}
+      }
+    }
+  }
+  /* standard Prolog term */
+  return FALSE;
 }
 
 static void 
