@@ -70,11 +70,13 @@ typedef struct write_globs {
   int      Keep_terms;
   int      Write_Loops;
   int      Write_strings;
+  int      last_atom_minus;
   UInt     MaxDepth, MaxArgs;
   wtype    lw;
 } wglbs;
 
 #define lastw wglb->lw
+#define last_minus wglb->last_atom_minus
 
 STATIC_PROTO(void wrputn, (Int, struct write_globs *));
 STATIC_PROTO(void wrputf, (Float, struct write_globs *));
@@ -88,19 +90,39 @@ STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct 
 
 #define wrputc(X,WF)	Sputcode(X,WF)	/* writes a character */
 
+static void
+protect_open_number(struct write_globs *wglb, int minus_required)
+{
+  wrf stream = wglb->stream;
+
+  if (lastw == symbol && last_minus && !minus_required) {
+    wrputc('(', wglb->stream);
+  } else if (lastw == symbol) {
+    wrputc(' ', stream);  
+  }  
+}
+
+static void
+protect_close_number(struct write_globs *wglb, int minus_required)
+{
+  if (lastw == symbol && last_minus && !minus_required) {
+    wrputc(')', wglb->stream);
+    lastw = separator;
+  } else {
+    lastw = alphanum;
+  }
+  last_minus = FALSE;
+}
+
 static void 
 wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
                 
 {
   wrf stream = wglb->stream;
   char s[256], *s1=s; /* that should be enough for most integers */
-  if (n < 0) {
-    if (lastw == symbol)
-      wrputc(' ', stream);  
-  } else {
-    if (lastw == alphanum)
-      wrputc(' ', stream);
-  }
+  int has_minus = (n < 0);
+
+  protect_open_number(wglb, has_minus);
 #if HAVE_SNPRINTF
   snprintf(s, 256, Int_FORMAT, n);
 #else
@@ -108,7 +130,7 @@ wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
 #endif
   while (*s1)
     wrputc(*s1++, stream);
-  lastw = alphanum;
+  protect_close_number(wglb, has_minus);
 }
 
 #define wrputs(s, stream) Sfputs(s, stream)
@@ -163,15 +185,10 @@ ensure_space(size_t sz) {
 static void
 write_mpint(MP_INT *big, struct write_globs *wglb) {
   char *s;
+  int has_minus = mpz_sgn(big);
 
   s = ensure_space(3+mpz_sizeinbase(big, 10));
-  if (mpz_sgn(big) < 0) {
-    if (lastw == symbol)
-      wrputc(' ', wglb->stream);  
-  } else {
-    if (lastw == alphanum)
-      wrputc(' ', wglb->stream);
-  }
+  protect_open_number(wglb, has_minus);
   if (!s) {
     s = mpz_get_str(NULL, 10, big);
     if (!s)
@@ -182,6 +199,7 @@ write_mpint(MP_INT *big, struct write_globs *wglb) {
     mpz_get_str(s, 10, big);
     wrputs(s,wglb->stream);
   }
+  protect_close_number(wglb, has_minus);
 }
 #endif
 
@@ -248,6 +266,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
 {
   char            s[256];
   wrf stream = wglb->stream;
+  int sgn;
 
 #if HAVE_ISNAN || defined(__WIN32)
   if (isnan(f)) {
@@ -256,17 +275,19 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     return;
   }
 #endif
+  sgn  = (f < 0.0);
 #if HAVE_ISINF || defined(_WIN32)
-    if (isinf(f)) {
-      if (f < 0) {
-	wrputs("(-inf)", stream);
-      } else {
-	wrputs("(+inf)", stream);
-      }
-      lastw = separator;
-      return;
+  if (isinf(f)) {
+    if (sgn) {
+      wrputs("(-inf)", stream);
+    } else {
+      wrputs("(+inf)", stream);
     }
+    lastw = separator;
+    return;
+  }
 #endif
+  protect_open_number(wglb, sgn);
 #if THREADS
   /* old style writing */
   int found_dot = FALSE, found_exp = FALSE;
@@ -318,6 +339,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   if (!buf) return;
   wrputs(buf, stream);
 #endif
+  protect_close_number(wglb, sgn);
 }
 
 /* writes a data base reference */
@@ -399,7 +421,7 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
     if (Yap_chtype[ch] != SY)
       return(alphanum);
   }
-  return(symbol);
+  return symbol;
 }
 
 static void
@@ -506,6 +528,8 @@ putAtom(Atom atom, int Quote_illegal,  struct write_globs *wglb)
     return;
   }
 #endif
+  /* if symbol then last_minus is important */
+  last_minus = FALSE;
   atom_or_symbol = AtomIsSymbols(s);
   if (lastw == atom_or_symbol && atom_or_symbol != separator /* solo */)
     wrputc(' ', stream);
@@ -762,51 +786,6 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   }
  }
 
-/* never write '+' and '-' as infix
-   operators */
-static int op_can_be_read_as_number(char *s, Term t)
-{
-  if (s[0] != '+' && s[0] != '-')
-    return FALSE;
-  if (s[1]) 
-    return FALSE;
-  t = ArgOfTerm(1,t);
-  if (IsIntTerm(t)) return IntOfTerm(t) >= 0;
-  if (IsApplTerm(t)) {
-    Functor f = FunctorOfTerm(t);
-    if (IsExtensionFunctor(f)) {
-      switch((CELL)f) {
-      case (CELL)FunctorDouble:
-	return FloatOfTerm(t) >= 0.0;
-      case (CELL)FunctorAttVar:	
-      case (CELL)FunctorDBRef:
-	return FALSE;
-      case (CELL)FunctorLongInt:
-	return LongIntOfTerm(t) >= 0;
-	/* case (CELL)FunctorBigInt: */
-      default:
-	{
-	  CELL *pt = RepAppl(t)+1;
-	  CELL big_tag = pt[0];
-#ifdef USE_GMP
-	  if (big_tag == BIG_INT || big_tag == BIG_RATIONAL) {
-	    extern int Yap_gmp_cmp_big_int(Term t, Int i);
-
-	    return Yap_gmp_cmp_big_int(t, 0) >= 0;
-	  } else
-#endif
-	    if (big_tag == BLOB_STRING || BLOB_WIDE_STRING)
-	      return FALSE;
-	    else
-	      return TRUE;
-	}
-      }
-    }
-  }
-  /* standard Prolog term */
-  return FALSE;
-}
-
 static void 
 writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 /* term to write			 */
@@ -944,8 +923,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     }
     if (!wglb->Ignore_ops &&
 	Arity == 1 &&
-	Yap_IsPrefixOp(atom, &op, &rp) &&
-	!op_can_be_read_as_number(RepAtom(atom)->StrOfAE, t)
+	Yap_IsPrefixOp(atom, &op, &rp)
 	) {
       Term  tright = ArgOfTerm(1, t);
       int            bracket_right =
@@ -962,6 +940,8 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       if (bracket_right) {
 	wrputc('(', wglb->stream);
 	lastw = separator;
+      } else if (atom == AtomMinus) {
+	last_minus = TRUE;
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
@@ -1150,6 +1130,7 @@ Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
     wglb.stream = mywrite;
 
   wglb.lw = separator;
+  wglb.last_atom_minus = FALSE;
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
