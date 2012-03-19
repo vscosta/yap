@@ -96,8 +96,12 @@ protect_open_number(struct write_globs *wglb, int minus_required)
   wrf stream = wglb->stream;
 
   if (lastw == symbol && last_minus && !minus_required) {
+    if (!wglb->Ignore_ops) {
+      /* protect against collating - with number, and getting - 1 ^2 as (-(1))^2 */
+      wrputc(' ', wglb->stream);
+    }
     wrputc('(', wglb->stream);
-  } else if (lastw == symbol) {
+  } else if (lastw == alphanum) {
     wrputc(' ', stream);  
   }  
 }
