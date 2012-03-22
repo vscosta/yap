@@ -52,17 +52,7 @@ send_tracer_message(char *start, char *name, Int arity, char *mname, CELL *args)
     if (args) {
       for (i= 0; i < arity; i++) {
 	if (i > 0) fprintf(GLOBAL_stderr, ",");
-#if DEBUG
-#if COROUTINING
-	Yap_Portray_delays = TRUE;
-#endif
-#endif
-	Yap_plwrite(args[i], NULL, 15, Handle_vars_f, 1200);
-#if DEBUG
-#if COROUTINING
-	Yap_Portray_delays = FALSE;
-#endif
-#endif
+	Yap_plwrite(args[i], NULL, 15, Handle_vars_f|AttVar_Portray_f, 1200);
       }
       if (arity) {
 	fprintf(GLOBAL_stderr, ")");
