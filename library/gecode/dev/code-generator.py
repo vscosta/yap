@@ -326,9 +326,9 @@ class DTree(object):
 
     def _generate_dispatch(self, i, user_vars, lib_vars):
         if i == len(self.subtrees):
-            return PrologLiteral("throw(gecode_argument_error(%s/%d,arg=%d,%s))" \
-                                     % (self.cluster.name, self.cluster.arity,
-                                        self.index+1, user_vars[self.index]))
+            return PrologLiteral("throw(gecode_argument_error(%s(%s),arg=%d))" \
+                                     % (self.cluster.name, ",".join(user_vars),
+                                        self.index+1))
         typ, dtree = self.subtrees[i]
         idx = self.index
         X = user_vars[idx]
