@@ -46,5 +46,6 @@
 '$hide'('$set_source_module') :- !, fail.		
 '$hide'('$declare_module') :- !, fail.		
 '$hide'('$store_clause') :- !, fail.		
+'$hide'('$skip_list') :- !, fail.		
 '$hide'(Name) :- hide(Name), fail.
 
