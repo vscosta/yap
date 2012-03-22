@@ -93,7 +93,7 @@
  '$check_op_name'(_,_,',',G) :- !,
 	  '$do_error'(permission_error(modify,operator,','),G).
  '$check_op_name'(_,_,'[]',G) :- !,
-	  '$do_error'(permispsion_error(create,operator,'[]'),G).
+	  '$do_error'(permission_error(create,operator,'[]'),G).
  '$check_op_name'(_,_,'{}',G) :- !,
 	  '$do_error'(permission_error(create,operator,'{}'),G).
  '$check_op_name'(P,T,'|',G) :-
