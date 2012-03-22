@@ -29,13 +29,10 @@
           ]).
 
 
-:- load_foreign_files(['horus'], [], init_predicates).
-
+:- use_module(horus).
 
 :- set_horus_flag(use_logarithms, false).
 %:- set_horus_flag(use_logarithms, true).
-
-
 
 fove([[]], _, _) :- !.
 fove([QueryVars], AllVars, Output) :-
@@ -45,7 +42,6 @@ fove([QueryVars], AllVars, Output) :-
 	run_fove_solver([QueryVars], LPs, ParfactorGraph),
 	finalize_fove_solver(ParfactorGraph),
 	clpbn_bind_vals([QueryVars], LPs, Output).
-
 
 init_fove_solver(_, AllAttVars, _, fove(ParfactorGraph, DistIds)) :-
   writeln(allattvars:AllAttVars), writeln(''),
@@ -72,10 +68,9 @@ init_fove_solver(_, AllAttVars, _, fove(ParfactorGraph, DistIds)) :-
 get_parfactors(Factors) :-
 	findall(F, is_factor(F), Factors).
 
-
 is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 	factor(Id, Ks, Vs, Table, Constraints),
-  get_ranges(Ks,Rs),
+	get_ranges(Ks,Rs),
 	Table \= avg,
 	gen_table(Table, Phi),
 	all_tuples(Constraints, Vs, Tuples).
@@ -84,8 +79,8 @@ is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
 get_ranges([],[]).
 get_ranges(K.Ks, Range.Rs) :-	!,
 	skolem(K,Domain),
-  length(Domain,Range),
-  get_ranges(Ks, Rs).
+	length(Domain,Range),
+	get_ranges(Ks, Rs).
 
 
 gen_table(Table, Phi) :-
@@ -95,7 +90,6 @@ gen_table(Table, Phi) :-
           ;
 	  call(user:Table, Phi)
 	).
-
 
 all_tuples(Constraints, Tuple, Tuples) :-
 	setof(Tuple, Constraints^run(Constraints), Tuples).
@@ -115,7 +109,8 @@ get_dist_ids(pf(Id, _, _, _, _).Parfactors, Id.DistIds) :-
 get_observed_vars([], []).
 get_observed_vars(V.AllAttVars, [K:E|ObservedVars]) :-
   writeln('checking ev for':V),
-	clpbn:get_atts(V,[key(K),evidence(E)]), !,
+	clpbn:get_atts(V,[key(K)]),
+	( clpbn:get_atts(V,[evidence(E)]) ; pfl:evidence(K,E) ), !,
   writeln('evidence!!!':K:E),
 	get_observed_vars(AllAttVars, ObservedVars).
 get_observed_vars(V.AllAttVars, ObservedVars) :-
@@ -137,8 +132,8 @@ get_query_vars_2(V.AttVars, [RV|RVs]) :-
 
 
 get_dists_parameters([], []).
-get_dists_parameters([Id|Ids], [dist(Id)|DistsInfo]) :-
-	get_dist_params(Id, Params),
+get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
+	get_pfl_parameters(Id, Params),
 	get_dists_parameters(Ids, DistsInfo).
 
 
