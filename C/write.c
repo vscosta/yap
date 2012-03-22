@@ -1014,13 +1014,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	wrputc(')', wglb->stream);
 	lastw = separator;
       }
-      /* avoid quoting commas */
-      if (strcmp(RepAtom(atom)->StrOfAE,","))
-	putAtom(atom, wglb->Quote_illegal, wglb);
-      else {
+      /* avoid quoting commas and bars */
+      if (!strcmp(RepAtom(atom)->StrOfAE,",")) {
 	wrputc(',', wglb->stream);
 	lastw = separator;
-      }
+      } else if (!strcmp(RepAtom(atom)->StrOfAE,"|")) {
+	wrputc('|', wglb->stream);
+	lastw = separator;
+      } else
+	putAtom(atom, wglb->Quote_illegal, wglb);
       if (bracket_right) {
 	wrputc('(', wglb->stream);
 	lastw = separator;
