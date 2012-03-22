@@ -6,7 +6,8 @@
 
 #include "Solver.h"
 #include "BayesNet.h"
-#include "Shared.h"
+#include "Horus.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -16,7 +17,6 @@ static const string PI_SYMBOL = "pi" ;
 static const string LD_SYMBOL = "ld" ;
 
 enum LinkOrientation  {UP, DOWN};
-enum JointCalcType    {CHAIN_RULE, JUNCTION_NODE};
 
 class BpLink
 {
@@ -27,11 +27,11 @@ class BpLink
       destin_      = d;
       orientation_ = o;
       if (orientation_ == LinkOrientation::DOWN) {
-        v1_.resize (s->nrStates(), Util::tl (1.0/s->nrStates()));
-        v2_.resize (s->nrStates(), Util::tl (1.0/s->nrStates()));
+        v1_.resize (s->nrStates(), Util::tl (1.0 / s->nrStates()));
+        v2_.resize (s->nrStates(), Util::tl (1.0 / s->nrStates()));
       } else {
-        v1_.resize (d->nrStates(), Util::tl (1.0/d->nrStates()));
-        v2_.resize (d->nrStates(), Util::tl (1.0/d->nrStates()));
+        v1_.resize (d->nrStates(), Util::tl (1.0 / d->nrStates()));
+        v2_.resize (d->nrStates(), Util::tl (1.0 / d->nrStates()));
       }
       currMsg_   = &v1_;
       nextMsg_   = &v2_;
@@ -78,8 +78,8 @@ class BpLink
     BayesNode*      getSource (void) const        { return source_;        }
     BayesNode*      getDestination (void) const   { return destin_;        }
     LinkOrientation getOrientation (void) const   { return orientation_;   }
-    const ParamSet& getMessage (void) const       { return *currMsg_;      }
-    ParamSet&       getNextMessage (void)         { return *nextMsg_;      }
+    const Params& getMessage (void) const       { return *currMsg_;      }
+    Params&       getNextMessage (void)         { return *nextMsg_;      }
     bool            messageWasSended (void) const { return msgSended_;     }
     double          getResidual (void) const      { return residual_;      }
     void            clearResidual (void)          { residual_ = 0;}
@@ -88,10 +88,10 @@ class BpLink
     BayesNode*       source_;
     BayesNode*       destin_;
     LinkOrientation  orientation_;
-    ParamSet         v1_;
-    ParamSet         v2_;
-    ParamSet*        currMsg_;
-    ParamSet*        nextMsg_;
+    Params         v1_;
+    Params         v2_;
+    Params*        currMsg_;
+    Params*        nextMsg_;
     bool             msgSended_;
     double           residual_;
 };
@@ -105,22 +105,11 @@ class BpNodeInfo
   public:
     BpNodeInfo (BayesNode*);
 
-    ParamSet   getBeliefs (void) const;
+    Params   getBeliefs (void) const;
     bool       receivedBottomInfluence (void) const;
 
-    ParamSet&  getPiValues (void)                   { return piVals_;     }
-    ParamSet&  getLambdaValues (void)               { return ldVals_;     }
-    void       incNumPiMsgsReceived (void)          { nPiMsgsRcv_ ++;     }
-    void       incNumLambdaMsgsReceived (void)      { nLdMsgsRcv_ ++;     }
-    bool       piValuesCalculated (void)            { return piValsCalc_; }
-    bool       lambdaValuesCalculated (void)        { return ldValsCalc_; }
-
-    void markPiValuesAsCalculated (void);
-    void markLambdaValuesAsCalculated (void);
-    bool receivedAllPiMessages (void);
-    bool receivedAllLambdaMessages (void);
-    bool readyToSendPiMsgTo (const BayesNode*) const ;
-    bool readyToSendLambdaMsgTo (const BayesNode*) const;
+    Params&  getPiValues (void)                   { return piVals_;     }
+    Params&  getLambdaValues (void)               { return ldVals_;     }
 
     const BpLinkSet& getIncomingParentLinks (void)  { return inParentLinks_;  }
     const BpLinkSet& getIncomingChildLinks (void)   { return inChildLinks_;   }
@@ -135,17 +124,13 @@ class BpNodeInfo
   private:
     DISALLOW_COPY_AND_ASSIGN (BpNodeInfo);
 
-    ParamSet               piVals_;     // pi values
-    ParamSet               ldVals_;     // lambda values
-    unsigned               nPiMsgsRcv_;
-    unsigned               nLdMsgsRcv_;
-    bool                   piValsCalc_;
-    bool                   ldValsCalc_;
+    const BayesNode*       node_;
+    Params               piVals_;     // pi values
+    Params               ldVals_;     // lambda values
     BpLinkSet              inParentLinks_;
     BpLinkSet              inChildLinks_;
     BpLinkSet              outParentLinks_;
     BpLinkSet              outChildLinks_;
-    const BayesNode*       node_;
 };
 
 
@@ -157,15 +142,14 @@ class BnBpSolver : public Solver
    ~BnBpSolver (void);
 
     void                runSolver (void);
-    ParamSet            getPosterioriOf (VarId);
-    ParamSet            getJointDistributionOf (const VarIdSet&);
+    Params            getPosterioriOf (VarId);
+    Params            getJointDistributionOf (const VarIds&);
   
 
   private:
     DISALLOW_COPY_AND_ASSIGN (BnBpSolver);
 
     void                initializeSolver (void);
-    void                runPolyTreeSolver (void);
     void                runLoopySolver (void);
     void                maxResidualSchedule (void);
     bool                converged (void) const;
@@ -173,8 +157,8 @@ class BnBpSolver : public Solver
     void                updateLambdaValues (BayesNode*);
     void                calculateLambdaMessage (BpLink*);
     void                calculatePiMessage (BpLink*);
-    ParamSet            getJointByJunctionNode (const VarIdSet&);
-    ParamSet            getJointByChainRule (const VarIdSet&) const;
+    Params            getJointByJunctionNode (const VarIds&);
+    Params            getJointByConditioning (const VarIds&) const;
     void                printPiLambdaValues (const BayesNode*) const;
     void                printAllMessageStatus (void) const;
 
@@ -240,7 +224,6 @@ class BnBpSolver : public Solver
     vector<BpLink*>      links_;
     vector<BpNodeInfo*>  nodesI_;
     unsigned             nIters_;
-    JointCalcType        jointCalcType_;
 
     struct compare
     {

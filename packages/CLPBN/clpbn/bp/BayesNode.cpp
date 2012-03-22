@@ -71,7 +71,7 @@ BayesNode::getDistribution (void)
 
 
 
-const ParamSet&
+const Params&
 BayesNode::getParameters (void)
 {
   return dist_->params;
@@ -79,12 +79,12 @@ BayesNode::getParameters (void)
 
 
 
-ParamSet
+Params
 BayesNode::getRow (int rowIndex) const
 {
   int rowSize = getRowSize();
   int offset  = rowSize * rowIndex;
-  ParamSet row (rowSize);
+  Params row (rowSize);
   for (int i = 0; i < rowSize; i++) {
     row[i] = dist_->params[offset + i] ;
   }
@@ -124,41 +124,6 @@ BayesNode::getCptSize (void)
 
 
 
-const vector<CptEntry>&
-BayesNode::getCptEntries (void)
-{
-  if (dist_->entries.size() == 0) {
-    unsigned rowSize  = getRowSize();
-    vector<DConf> confs (rowSize);
-
-    for (unsigned i = 0; i < rowSize; i++) {  
-      confs[i].resize (parents_.size());
-    }
-
-    unsigned nReps = 1;
-    for (int i = parents_.size() - 1; i >= 0; i--) {
-      unsigned index = 0;
-      while (index < rowSize) {
-        for (unsigned j = 0; j < parents_[i]->nrStates(); j++) {
-          for (unsigned r = 0; r < nReps; r++) {
-            confs[index][i] = j;
-            index++;
-          }
-        }
-      }
-      nReps *= parents_[i]->nrStates();
-    }
-  
-    dist_->entries.reserve (rowSize);
-    for (unsigned i = 0; i < rowSize; i++) {
-      dist_->entries.push_back (CptEntry (i, confs[i]));
-    }
-  }
-  return dist_->entries;
-}
-
-
-
 int
 BayesNode::getIndexOfParent (const BayesNode* parent) const
 {
@@ -173,42 +138,20 @@ BayesNode::getIndexOfParent (const BayesNode* parent) const
 
 
 string
-BayesNode::cptEntryToString (const CptEntry& entry) const
+BayesNode::cptEntryToString (
+    int row,
+    const vector<unsigned>& stateConf) const
 {
   stringstream ss;
   ss << "p(" ;
-  const DConf& conf = entry.getDomainConfiguration();
-  int row = entry.getParameterIndex() / getRowSize();
   ss << states()[row]; 
   if (parents_.size() > 0) {
     ss << "|" ;
-    for (unsigned int i = 0; i < conf.size(); i++) {
+    for (unsigned int i = 0; i < stateConf.size(); i++) {
       if (i != 0) {
         ss << ",";
       }
-      ss << parents_[i]->states()[conf[i]];
-    }
-  }
-  ss << ")" ;
-  return ss.str();
-}
-
-
-
-string
-BayesNode::cptEntryToString (int row, const CptEntry& entry) const
-{
-  stringstream ss;
-  ss << "p(" ;
-  const DConf& conf = entry.getDomainConfiguration();
-  ss << states()[row]; 
-  if (parents_.size() > 0) {
-    ss << "|" ;
-    for (unsigned int i = 0; i < conf.size(); i++) {
-      if (i != 0) {
-        ss << ",";
-      }
-      ss << parents_[i]->states()[conf[i]];
+      ss << parents_[i]->states()[stateConf[i]];
     }
   }
   ss << ")" ;
@@ -334,7 +277,7 @@ operator << (ostream& o, const BayesNode& node)
   o << endl;
 
   for (unsigned int i = 0; i < states.size(); i++) {   
-    ParamSet row = node.getRow (i);
+    Params row = node.getRow (i);
     o << left << setw (domainWidth) << states[i] << right;
     for (unsigned j = 0; j < node.getRowSize(); j++) {
       o << setw (widths[j]) << row[j];

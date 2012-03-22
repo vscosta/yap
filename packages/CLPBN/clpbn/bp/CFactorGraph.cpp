@@ -4,7 +4,7 @@
 #include "Distribution.h"
 
 
-bool CFactorGraph::checkForIdenticalFactors_ = true;
+bool CFactorGraph::checkForIdenticalFactors = true;
 
 CFactorGraph::CFactorGraph (const FactorGraph& fg)
 {
@@ -38,8 +38,8 @@ CFactorGraph::~CFactorGraph (void)
   for (unsigned i = 0; i  < varClusters_.size(); i++) {
     delete varClusters_[i];
   }
-  for (unsigned i = 0; i  < factorClusters_.size(); i++) {
-    delete factorClusters_[i];
+  for (unsigned i = 0; i  < facClusters_.size(); i++) {
+    delete facClusters_[i];
   }
 }
 
@@ -72,33 +72,17 @@ CFactorGraph::setInitialColors (void)
   }
 
   const FgFacSet& facNodes = groundFg_->getFactorNodes();
-  if (checkForIdenticalFactors_) {
-    for (unsigned i = 0; i < facNodes.size() - 1; i++) {
-      // facNodes[i]->factor()->orderFactorVariables();
-      // FIXME
-    }
+  if (checkForIdenticalFactors) {
     for (unsigned i = 0, s = facNodes.size(); i < s; i++) {
       Distribution* dist1 = facNodes[i]->getDistribution();
       for (unsigned j = 0; j < i; j++) {
         Distribution* dist2 = facNodes[j]->getDistribution();
         if (dist1 != dist2 && dist1->params == dist2->params) {
-          facNodes[i]->factor()->setDistribution (dist2);
-          // delete dist2;
-          break;
-        }
-        /*
-        if (ok) {
-          const FgVarSet& fiVars = factors[i]->getFgVarNodes();
-          const FgVarSet& fjVars = factors[j]->getFgVarNodes();
-          if (fiVars.size() != fjVars.size()) continue;
-          for (unsigned k = 0; k < fiVars.size(); k++) {
-            if (fiVars[k]->nrStates() != fjVars[k]->nrStates()) {
-              ok = false;
-              break;
-            }
+          if (facNodes[i]->factor()->getRanges() == 
+              facNodes[j]->factor()->getRanges()) {
+            facNodes[i]->factor()->setDistribution (dist2);
           }
         }
-        */
       }
     }
   }
@@ -194,7 +178,7 @@ CFactorGraph::createClusters (const VarSignMap& varGroups,
     varClusters_.push_back (vc);
   }
 
-  factorClusters_.reserve (factorGroups.size());
+  facClusters_.reserve (factorGroups.size());
   for (FacSignMap::const_iterator it = factorGroups.begin();
       it != factorGroups.end(); it++) {
     FgFacNode* groupFactor = it->second[0];
@@ -205,7 +189,7 @@ CFactorGraph::createClusters (const VarSignMap& varGroups,
       VarId vid = neighs[i]->varId();
       varClusters.push_back (vid2VarCluster_.find (vid)->second);
     }
-    factorClusters_.push_back (new FacCluster (it->second, varClusters));
+    facClusters_.push_back (new FacCluster (it->second, varClusters));
   }
 }
 
@@ -220,7 +204,7 @@ CFactorGraph::getSignature (const FgVarNode* varNode)
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
     it ++;
-    *it = neighs[i]->factor()->getPositionOf (varNode->varId());
+    *it = neighs[i]->factor()->indexOf (varNode->varId());
     it ++;
   }
   *it = getColor (varNode);
@@ -256,8 +240,8 @@ CFactorGraph::getCompressedFactorGraph (void)
     fg->addVariable (newVar);
   }
 
-  for (unsigned i = 0; i < factorClusters_.size(); i++) {
-    const VarClusterSet& myVarClusters = factorClusters_[i]->getVarClusters();
+  for (unsigned i = 0; i < facClusters_.size(); i++) {
+    const VarClusterSet& myVarClusters = facClusters_[i]->getVarClusters();
     VarNodes myGroundVars;
     myGroundVars.reserve (myVarClusters.size());
     for (unsigned j = 0; j < myVarClusters.size(); j++) {
@@ -265,9 +249,9 @@ CFactorGraph::getCompressedFactorGraph (void)
       myGroundVars.push_back (v);
     }
     Factor* newFactor = new Factor (myGroundVars,
-        factorClusters_[i]->getGroundFactors()[0]->getDistribution());
+        facClusters_[i]->getGroundFactors()[0]->getDistribution());
     FgFacNode* fn = new FgFacNode (newFactor);
-    factorClusters_[i]->setRepresentativeFactor (fn);
+    facClusters_[i]->setRepresentativeFactor (fn);
     fg->addFactor (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
       fg->addEdge (fn, static_cast<FgVarNode*> (myGroundVars[j]));
@@ -280,14 +264,15 @@ CFactorGraph::getCompressedFactorGraph (void)
 
 
 unsigned
-CFactorGraph::getGroundEdgeCount (const FacCluster* fc,
-                              const VarCluster* vc) const
+CFactorGraph::getGroundEdgeCount (
+    const FacCluster* fc,
+    const VarCluster* vc) const
 {
   const FgFacSet& clusterGroundFactors = fc->getGroundFactors();
   FgVarNode* varNode = vc->getGroundFgVarNodes()[0];
   unsigned count = 0;
   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-    if (clusterGroundFactors[i]->factor()->getPositionOf (varNode->varId()) != -1) {
+    if (clusterGroundFactors[i]->factor()->indexOf (varNode->varId()) != -1) {
       count ++;
     }
   }
@@ -296,7 +281,7 @@ CFactorGraph::getGroundEdgeCount (const FacCluster* fc,
   //   FgVarNode* var = vc->getGroundFgVarNodes()[i];
   //   unsigned count2 = 0;
   //   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-  //     if (clusterGroundFactors[i]->getPositionOf (var) != -1) {
+  //     if (clusterGroundFactors[i]->getPosition (var) != -1) {
   //       count2 ++;
   //     }
   //   }

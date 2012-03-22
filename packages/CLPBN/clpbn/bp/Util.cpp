@@ -1,14 +1,19 @@
 #include <sstream>
 
-#include "BayesNet.h"
-#include "VarNode.h"
-#include "Shared.h"
-#include "StatesIndexer.h"
+#include "Util.h"
+#include "Indexer.h"
+#include "GraphicalModel.h"
+
+
+namespace Globals {
+  bool logDomain = false;
+};
+
 
 namespace InfAlgorithms {
-InfAlgs infAlgorithm = InfAlgorithms::VE;
+//InfAlgs infAlgorithm = InfAlgorithms::VE;
 //InfAlgs infAlgorithm = InfAlgorithms::BN_BP;
-//InfAlgs infAlgorithm = InfAlgorithms::FG_BP;
+InfAlgs infAlgorithm = InfAlgorithms::FG_BP;
 //InfAlgs infAlgorithm = InfAlgorithms::CBP;
 }
 
@@ -20,12 +25,11 @@ Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
 //Schedule schedule = BpOptions::Schedule::MAX_RESIDUAL;
 double    accuracy              = 0.0001;
 unsigned  maxIter               = 1000;
-bool      useAlwaysLoopySolver  = true;
 }
 
-NumberSpace::ns NSPACE = NumberSpace::NORMAL;
 
 unordered_map<VarId,VariableInfo> GraphicalModel::varsInfo_;
+unordered_map<unsigned,Distribution*> GraphicalModel::distsInfo_;
 
 vector<NetInfo>      Statistics::netInfo_;
 vector<CompressInfo> Statistics::compressInfo_;
@@ -35,7 +39,7 @@ unsigned             Statistics::primaryNetCount_;
 namespace Util {
 
 void
-toLog (ParamSet& v)
+toLog (Params& v)
 {
   for (unsigned i = 0; i < v.size(); i++) {
     v[i] = log (v[i]);
@@ -45,7 +49,7 @@ toLog (ParamSet& v)
 
 
 void
-fromLog (ParamSet& v)
+fromLog (Params& v)
 {
   for (unsigned i = 0; i < v.size(); i++) {
     v[i] = exp (v[i]);
@@ -55,92 +59,113 @@ fromLog (ParamSet& v)
 
 
 void
-normalize (ParamSet& v)
+normalize (Params& v)
 {
   double sum;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      sum = 0.0;
-      for (unsigned i = 0; i < v.size(); i++) {
-        sum += v[i];
-      }
-      assert (sum != 0.0);
-      for (unsigned i = 0; i < v.size(); i++) {
-        v[i] /= sum;
-      }
-      break;
-    case NumberSpace::LOGARITHM:
-      sum = addIdenty();
-      for (unsigned i = 0; i < v.size(); i++) {
-        logSum (sum, v[i]);
-      }
-      assert (sum != -numeric_limits<Param>::infinity());
-      for (unsigned i = 0; i < v.size(); i++) {
-        v[i] -= sum;
-      }
+  if (Globals::logDomain) {
+    sum = addIdenty();
+    for (unsigned i = 0; i < v.size(); i++) {
+      logSum (sum, v[i]);
+    }
+    assert (sum != -numeric_limits<double>::infinity());
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] -= sum;
+    }
+  } else {
+    sum = 0.0;
+    for (unsigned i = 0; i < v.size(); i++) {
+      sum += v[i];
+    }
+    assert (sum != 0.0);
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] /= sum;
+    }
   }
 }
 
 
 
 void
-pow (ParamSet& v, unsigned expoent)
+pow (Params& v, double expoent)
 {
-  if (expoent == 1) {
-    return; // optimization
-  }
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = 0; i < v.size(); i++) {
-        double value = 1.0;
-         for (unsigned j = 0; j < expoent; j++) {
-           value *= v[i];
-         }  
-        v[i] = value;
-      }
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned i = 0; i < v.size(); i++) {
-        v[i] *= expoent;
-      }
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] *= expoent;
+    }
+  } else {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] = std::pow (v[i], expoent);
+    }
   }
 }
 
 
 
-Param
-pow (Param p, unsigned expoent)
+void
+pow (Params& v, unsigned expoent)
 {
-  double value = 1.0;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = 0; i < expoent; i++) {
-        value *= p;
-      }
-      break;
-    case NumberSpace::LOGARITHM:
-      value =  p * expoent;
+  if (expoent == 1) {
+    return;
   }
-  return value;
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] *= expoent;
+    }
+  } else {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] = std::pow (v[i], expoent);
+    }
+  }
 }
 
 
 
 double
-getL1Distance (const ParamSet& v1, const ParamSet& v2)
+pow (double p, unsigned expoent)
+{
+  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
+}
+
+
+
+double
+factorial (double num)
+{
+  double result = 1.0;
+  for (int i = 1; i <= num; i++) {
+    result *= i;
+  }
+  return result;
+}
+
+
+
+unsigned
+nrCombinations (unsigned n, unsigned r)
+{
+  assert (n >= r);
+	unsigned prod = 1;
+  for (int i = (int)n; i > (int)(n - r); i--) {
+    prod *= i;
+  }
+  return (prod / factorial (r));
+}
+
+
+
+double
+getL1Distance (const Params& v1, const Params& v2)
 {
   assert (v1.size() == v2.size());
   double dist = 0.0;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = 0; i < v1.size(); i++) {
-        dist += abs (v1[i] - v2[i]);
-      }
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned i = 0; i < v1.size(); i++) {
-        dist += abs (exp(v1[i]) - exp(v2[i]));
-      }
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v1.size(); i++) {
+      dist += abs (exp(v1[i]) - exp(v2[i]));
+    }
+  } else {
+    for (unsigned i = 0; i < v1.size(); i++) {
+      dist += abs (v1[i] - v2[i]);
+    }
   }
   return dist;
 }
@@ -148,26 +173,24 @@ getL1Distance (const ParamSet& v1, const ParamSet& v2)
 
 
 double
-getMaxNorm (const ParamSet& v1, const ParamSet& v2)
+getMaxNorm (const Params& v1, const Params& v2)
 {
   assert (v1.size() == v2.size());
   double max = 0.0;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = 0; i < v1.size(); i++) {
-        double diff = abs (v1[i] - v2[i]);
-        if (diff > max) {
-          max = diff;
-        }
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v1.size(); i++) {
+      double diff = abs (exp(v1[i]) - exp(v2[i]));
+      if (diff > max) {
+        max = diff;
       }
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned i = 0; i < v1.size(); i++) {
-        double diff = abs (exp(v1[i]) - exp(v2[i]));
-        if (diff > max) {
-          max = diff;
-        }
+    }
+  } else {
+    for (unsigned i = 0; i < v1.size(); i++) {
+      double diff = abs (v1[i] - v2[i]);
+      if (diff > max) {
+        max = diff;
       }
+    }
   }
   return max;
 }
@@ -200,82 +223,17 @@ isInteger (const string& s)
 
 
 string
-parametersToString (const ParamSet& v, unsigned precision)
+parametersToString (const Params& v, unsigned precision)
 {
   stringstream ss;
   ss.precision (precision);
   ss << "[" ; 
-  for (unsigned i = 0; i < v.size() - 1; i++) {
-    ss << v[i] << ", " ;
-  }
-  if (v.size() != 0) {
-    ss << v[v.size() - 1];
+  for (unsigned i = 0; i < v.size(); i++) {
+    if (i != 0) ss << ", " ;
+    ss << v[i];
   }
   ss << "]" ;
   return ss.str();
-}
-
-
-
-BayesNet*
-generateBayesianNetworkTreeWithLevel (unsigned level)
-{
-  BayesNet* bn = new BayesNet();
-  Distribution* dist = new Distribution (ParamSet() = {0.1, 0.5, 0.2, 0.7});
-  BayesNode* root = bn->addNode (0, 2, -1, BnNodeSet() = {},
-      new Distribution (ParamSet() = {0.1, 0.5}));
-  BnNodeSet prevLevel = { root };
-  BnNodeSet currLevel;
-  VarId vidCount = 1;
-  for (unsigned l = 1; l < level; l++) {
-    currLevel.clear();
-    for (unsigned i = 0; i < prevLevel.size(); i++) {
-      currLevel.push_back (
-          bn->addNode (vidCount, 2, -1, BnNodeSet() = {prevLevel[i]}, dist));
-      vidCount ++;
-      currLevel.push_back (
-          bn->addNode (vidCount, 2, -1, BnNodeSet() = {prevLevel[i]}, dist));
-      vidCount ++;
-    }
-    prevLevel = currLevel;
-  }
-  for (unsigned i = 0; i < prevLevel.size(); i++) {
-    prevLevel[i]->setEvidence (0);
-  }
-  bn->setIndexes();
-  return bn;
-}
-
-
-
-vector<DConf>
-getDomainConfigurations (const VarNodes& vars)
-{
-  // TODO this method must die
-  unsigned nConfs = 1;
-  for (unsigned i = 0; i < vars.size(); i++) {
-    nConfs *= vars[i]->nrStates();
-  }
-
-  vector<DConf> confs (nConfs);
-  for (unsigned i = 0; i < nConfs; i++) {
-    confs[i].resize (vars.size());
-  }
-
-  unsigned nReps = 1;
-  for (int i = vars.size() - 1; i >= 0; i--) {
-    unsigned index = 0;
-    while (index < nConfs) {
-      for (unsigned j = 0; j < vars[i]->nrStates(); j++) {
-        for (unsigned r = 0; r < nReps; r++) {
-          confs[index][i] = j; 
-          index++;
-        }
-      }
-    }
-    nReps *= vars[i]->nrStates();
-  }
-  return confs;
 }
 
 
@@ -296,6 +254,7 @@ getJointStateStrings (const VarNodes& vars)
   }
   return jointStrings;
 }
+
 
 
 }
@@ -390,11 +349,6 @@ Statistics::getStatisticString (void)
   }
   ss1 << "max iterations:        " << BpOptions::maxIter  << endl;
   ss1 << "accuracy               " << BpOptions::accuracy << endl;
-  if (BpOptions::useAlwaysLoopySolver) {
-    ss1 << "always loopy solver:   yes" << endl;
-  } else {
-    ss1 << "always loopy solver:   no" << endl;
-  }
   ss1 << endl << endl;
 
   ss2 << "---------------------------------------------------" << endl;

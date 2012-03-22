@@ -1,7 +1,7 @@
 #ifndef HORUS_VARNODE_H
 #define HORUS_VARNODE_H
 
-#include "Shared.h"
+#include "Horus.h"
 
 using namespace std;
 
@@ -30,12 +30,14 @@ class VarNode
 
     bool operator== (const VarNode& var) const
     {
+      cout << "equal operator called" << endl;
       assert (!(varId_ == var.varId() && nrStates_ != var.nrStates()));
       return varId_ == var.varId();
     }
 
     bool operator!= (const VarNode& var) const
     {
+      cout << "diff operator called" << endl;
       assert (!(varId_ == var.varId() && nrStates_ != var.nrStates()));
       return varId_ != var.varId();
     }

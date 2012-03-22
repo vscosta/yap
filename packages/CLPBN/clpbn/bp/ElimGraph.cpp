@@ -65,7 +65,7 @@ void
 ElimGraph::addNode (EgNode* n)
 {
   nodes_.push_back (n);
-  vid2nodes_.insert (make_pair (n->varId(), n));
+ varMap_.insert (make_pair (n->varId(), n));
 }
 
 
@@ -73,8 +73,8 @@ ElimGraph::addNode (EgNode* n)
 EgNode*
 ElimGraph::getEgNode (VarId vid) const
 {
-  unordered_map<VarId,EgNode*>::const_iterator it = vid2nodes_.find (vid);
-  if (it == vid2nodes_.end()) {
+  unordered_map<VarId,EgNode*>::const_iterator it =varMap_.find (vid);
+  if (it ==varMap_.end()) {
     return 0;
   } else {
     return it->second;
@@ -83,10 +83,10 @@ ElimGraph::getEgNode (VarId vid) const
 
 
 
-VarIdSet
-ElimGraph::getEliminatingOrder (const VarIdSet& exclude)
+VarIds
+ElimGraph::getEliminatingOrder (const VarIds& exclude)
 {
-  VarIdSet elimOrder;
+  VarIds elimOrder;
   marked_.resize (nodes_.size(), false);
 
   for (unsigned i = 0; i < exclude.size(); i++) {
@@ -275,7 +275,7 @@ ElimGraph::printGraphicalModel (void) const
 void
 ElimGraph::exportToGraphViz (const char* fileName,
                              bool showNeighborless,
-                             const VarIdSet& highlightVarIds) const
+                             const VarIds& highlightVarIds) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {

@@ -8,6 +8,7 @@
 #include "xmlParser/xmlParser.h"
 
 #include "BayesNet.h"
+#include "Util.h"
 
 
 
@@ -75,7 +76,7 @@ BayesNet::readFromBifFormat (const char* fileName)
     }
     node->setParents (parents);
     unsigned count = 0;
-    ParamSet params (nParams);
+    Params params (nParams);
     stringstream s (def.getChildNode("TABLE").getText());
     while (!s.eof() && count < nParams) {
       s >> params[count];
@@ -93,18 +94,9 @@ BayesNet::readFromBifFormat (const char* fileName)
   }
 
   setIndexes();
-  if (NSPACE == NumberSpace::LOGARITHM) {
+  if (Globals::logDomain) {
     distributionsToLogs();
   } 
-}
-
-
-
-void
-BayesNet::addNode (BayesNode* n)
-{
-  indexMap_.insert (make_pair (n->varId(), nodes_.size()));
-  nodes_.push_back (n);
 }
 
 
@@ -113,7 +105,7 @@ BayesNode*
 BayesNet::addNode (string label, const States& states)
 {
   VarId vid = nodes_.size();
-  indexMap_.insert (make_pair (vid, nodes_.size()));
+  varMap_.insert (make_pair (vid, nodes_.size()));
   GraphicalModel::addVariableInformation (vid, label, states);
   BayesNode* node = new BayesNode (VarNode (vid, states.size()));
   nodes_.push_back (node);
@@ -123,26 +115,9 @@ BayesNet::addNode (string label, const States& states)
 
 
 BayesNode*
-BayesNet::addNode (VarId vid,
-                   unsigned dsize,
-                   int evidence,
-                   BnNodeSet& parents,
-                   Distribution* dist)
+BayesNet::addNode (VarId vid, unsigned dsize, int evidence, Distribution* dist)
 {
-  indexMap_.insert (make_pair (vid, nodes_.size()));
-  nodes_.push_back (new BayesNode (vid, dsize, evidence, parents, dist));
-  return nodes_.back();
-}
-
-
-
-BayesNode*
-BayesNet::addNode (VarId vid,
-                   unsigned dsize,
-                   int evidence,
-                   Distribution* dist)
-{
-  indexMap_.insert (make_pair (vid, nodes_.size()));
+  varMap_.insert (make_pair (vid, nodes_.size()));
   nodes_.push_back (new BayesNode (vid, dsize, evidence, dist));
   return nodes_.back();
 }
@@ -150,29 +125,10 @@ BayesNet::addNode (VarId vid,
 
 
 BayesNode*
-BayesNet::addNode (string label,
-                   States states,
-                   BnNodeSet& parents, 
-                   ParamSet& params)
-{
-  VarId vid = nodes_.size();
-  indexMap_.insert (make_pair (vid, nodes_.size()));
-  GraphicalModel::addVariableInformation (vid, label, states);
-  Distribution* dist = new Distribution (params);
-  BayesNode* node = new BayesNode (
-      vid, states.size(), NO_EVIDENCE, parents, dist);
-  dists_.push_back (dist);
-  nodes_.push_back (node);
-  return node;
-}
-
-
-
-BayesNode*
 BayesNet::getBayesNode (VarId vid) const
 {
-  IndexMap::const_iterator it = indexMap_.find (vid);
-  if (it == indexMap_.end()) {
+  IndexMap::const_iterator it = varMap_.find (vid);
+  if (it == varMap_.end()) {
     return 0;
   } else {
     return nodes_[it->second];
@@ -233,7 +189,7 @@ BayesNet::getDistribution (unsigned distId) const
 {
   Distribution* dist = 0;
   for (unsigned i = 0; i < dists_.size(); i++) {
-    if (dists_[i]->id == distId) {
+    if (dists_[i]->id == (int) distId) {
       dist = dists_[i];
       break;
     }
@@ -290,32 +246,24 @@ BayesNet::getLeafNodes (void) const
 BayesNet*
 BayesNet::getMinimalRequesiteNetwork (VarId vid) const
 {
-  return getMinimalRequesiteNetwork (VarIdSet() = {vid});
+  return getMinimalRequesiteNetwork (VarIds() = {vid});
 }
 
 
 
 BayesNet*
-BayesNet::getMinimalRequesiteNetwork (const VarIdSet& queryVarIds) const
+BayesNet::getMinimalRequesiteNetwork (const VarIds& queryVarIds) const
 {
   BnNodeSet queryVars;
+  Scheduling scheduling;
   for (unsigned i = 0; i < queryVarIds.size(); i++) {
-    assert (getBayesNode (queryVarIds[i]));
-    queryVars.push_back (getBayesNode (queryVarIds[i]));
+    BayesNode* n = getBayesNode (queryVarIds[i]);
+    assert (n);
+    queryVars.push_back (n);
+    scheduling.push (ScheduleInfo (n, false, true));
   }
-  // cout << "query vars: " ;
-  // for (unsigned i = 0; i < queryVars.size(); i++) {
-  //   cout << queryVars[i]->label() << " " ;
-  // }
-  // cout << endl;
 
   vector<StateInfo*> states (nodes_.size(), 0);
-
-  Scheduling scheduling;
-  for (BnNodeSet::const_iterator it = queryVars.begin();
-      it != queryVars.end(); it++) {
-    scheduling.push (ScheduleInfo (*it, false, true));
-  }
 
   while (!scheduling.empty()) {
     ScheduleInfo& sch = scheduling.front();
@@ -385,7 +333,7 @@ BayesNet::constructGraph (BayesNet* bn,
                           const vector<StateInfo*>& states) const
 {
   BnNodeSet mrnNodes;
-  vector<VarIdSet> parents;
+  vector<VarIds> parents;
   for (unsigned i = 0; i < nodes_.size(); i++) {
     bool isRequired = false;
     if (states[i]) {
@@ -394,7 +342,7 @@ BayesNet::constructGraph (BayesNet* bn,
                    states[i]->markedOnTop;
     }
     if (isRequired) {
-      parents.push_back (VarIdSet());
+      parents.push_back (VarIds());
       if (states[i]->markedOnTop) {
         const BnNodeSet& ps = nodes_[i]->getParents();
         for (unsigned j = 0; j < ps.size(); j++) {
@@ -473,7 +421,7 @@ BayesNet::printGraphicalModel (void) const
 void
 BayesNet::exportToGraphViz (const char* fileName,
                             bool showNeighborless,
-                            const VarIdSet& highlightVarIds) const
+                            const VarIds& highlightVarIds) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
@@ -556,7 +504,7 @@ BayesNet::exportToBifFormat (const char* fileName) const
       out << "\t<GIVEN>" << parents[j]->label();
       out << "</GIVEN>" << endl;
     }
-    ParamSet params = revertParameterReorder (nodes_[i]->getParameters(),
+    Params params = revertParameterReorder (nodes_[i]->getParameters(),
                                               nodes_[i]->nrStates());
     out << "\t<TABLE>" ;
     for (unsigned j = 0; j < params.size(); j++) {
@@ -627,8 +575,8 @@ BayesNet::getAdjacentNodes (int v) const
 
 
 
-ParamSet
-BayesNet::reorderParameters (const ParamSet& params, unsigned dsize) const
+Params
+BayesNet::reorderParameters (const Params& params, unsigned dsize) const
 {
   // the interchange format for bayesian networks keeps the probabilities 
   // in the following order:
@@ -640,7 +588,7 @@ BayesNet::reorderParameters (const ParamSet& params, unsigned dsize) const
   // p(a2|b2,c1) p(a2|b2,c2).
   unsigned count    = 0;
   unsigned rowSize  = params.size() / dsize;
-  ParamSet reordered;
+  Params reordered;
   while (reordered.size() < params.size()) {
     unsigned idx = count;
     for (unsigned i = 0; i < rowSize; i++) {
@@ -654,12 +602,12 @@ BayesNet::reorderParameters (const ParamSet& params, unsigned dsize) const
 
 
 
-ParamSet
-BayesNet::revertParameterReorder (const ParamSet& params, unsigned dsize) const
+Params
+BayesNet::revertParameterReorder (const Params& params, unsigned dsize) const
 {
   unsigned count    = 0;
   unsigned rowSize  = params.size() / dsize;
-  ParamSet reordered;
+  Params reordered;
   while (reordered.size() < params.size()) {
     unsigned idx = count;
     for (unsigned i = 0; i < dsize; i++) {

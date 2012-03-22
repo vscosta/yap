@@ -8,7 +8,7 @@
 
 #include "GraphicalModel.h"
 #include "BayesNode.h"
-#include "Shared.h"
+#include "Horus.h"
 
 
 using namespace std;
@@ -53,11 +53,9 @@ class BayesNet : public GraphicalModel
    ~BayesNet (void);
 
     void               readFromBifFormat (const char*);
-    void               addNode (BayesNode*);
     BayesNode*         addNode (string, const States&);
-    BayesNode*         addNode (VarId, unsigned, int, BnNodeSet&, Distribution*);
+//    BayesNode*         addNode (VarId, unsigned, int, BnNodeSet&, Distribution*);
     BayesNode*         addNode (VarId, unsigned, int, Distribution*);
-    BayesNode*         addNode (string, States, BnNodeSet&, ParamSet&);
     BayesNode*         getBayesNode (VarId) const;
     BayesNode*         getBayesNode (string) const;
     VarNode*           getVariableNode (VarId) const;
@@ -69,7 +67,7 @@ class BayesNet : public GraphicalModel
     BnNodeSet          getRootNodes (void) const;
     BnNodeSet          getLeafNodes (void) const;
     BayesNet*          getMinimalRequesiteNetwork (VarId) const;
-    BayesNet*          getMinimalRequesiteNetwork (const VarIdSet&) const;
+    BayesNet*          getMinimalRequesiteNetwork (const VarIds&) const;
     void               constructGraph (
                            BayesNet*, const vector<StateInfo*>&) const;
     bool               isPolyTree (void) const;
@@ -78,7 +76,7 @@ class BayesNet : public GraphicalModel
     void               freeDistributions (void);
     void               printGraphicalModel (void) const;
     void               exportToGraphViz (const char*, bool = true,
-                           const VarIdSet& = VarIdSet()) const;
+                           const VarIds& = VarIds()) const;
     void               exportToBifFormat (const char*) const;
 
   private:
@@ -87,8 +85,8 @@ class BayesNet : public GraphicalModel
     bool               containsUndirectedCycle (void) const;
     bool               containsUndirectedCycle (int, int, vector<bool>&)const;
     vector<int>        getAdjacentNodes (int) const;
-    ParamSet           reorderParameters (const ParamSet&, unsigned) const;
-    ParamSet           revertParameterReorder (const ParamSet&, unsigned) const;
+    Params           reorderParameters (const Params&, unsigned) const;
+    Params           revertParameterReorder (const Params&, unsigned) const;
     void               scheduleParents (const BayesNode*, Scheduling&) const;
     void               scheduleChilds (const BayesNode*, Scheduling&) const;
 
@@ -96,7 +94,7 @@ class BayesNet : public GraphicalModel
     DistSet            dists_;
 
     typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap           indexMap_;
+    IndexMap           varMap_;
 };
 
 

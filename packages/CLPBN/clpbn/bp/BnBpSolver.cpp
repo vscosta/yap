@@ -9,12 +9,11 @@
 #include <iomanip>
 
 #include "BnBpSolver.h"
+#include "Indexer.h"
 
 BnBpSolver::BnBpSolver (const BayesNet& bn) : Solver (&bn)
 { 
   bayesNet_ = &bn;
-  jointCalcType_  = CHAIN_RULE;
-  //jointCalcType_  = JUNCTION_NODE;
 }
 
 
@@ -39,21 +38,18 @@ BnBpSolver::runSolver (void)
     start = clock();
   }
   initializeSolver();
-  if (!BpOptions::useAlwaysLoopySolver && bayesNet_->isPolyTree()) {
-    runPolyTreeSolver();
-  } else {
-    runLoopySolver();
-    if (DL >= 2) {
+  runLoopySolver();
+  if (DL >= 2) {
+    cout << endl;
+    if (nIters_ < BpOptions::maxIter) {
+      cout << "Belief propagation converged in " ; 
+      cout << nIters_ << " iterations" << endl;
+    } else {
+      cout << "The maximum number of iterations was hit, terminating..." ;
       cout << endl;
-      if (nIters_ < BpOptions::maxIter) {
-        cout << "Belief propagation converged in " ; 
-        cout << nIters_ << " iterations" << endl;
-      } else {
-        cout << "The maximum number of iterations was hit, terminating..." ;
-        cout << endl;
-      }
     }
   }
+  
   unsigned size = bayesNet_->nrNodes();
   if (COLLECT_STATISTICS) {
     unsigned nIters = 0;
@@ -71,7 +67,7 @@ BnBpSolver::runSolver (void)
 
 
 
-ParamSet
+Params
 BnBpSolver::getPosterioriOf (VarId vid)
 {
   BayesNode* node = bayesNet_->getBayesNode (vid);
@@ -81,8 +77,8 @@ BnBpSolver::getPosterioriOf (VarId vid)
 
 
 
-ParamSet
-BnBpSolver::getJointDistributionOf (const VarIdSet& jointVarIds)
+Params
+BnBpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 {
   if (DL >= 2) {
     cout << "calculating joint distribution on: " ;
@@ -92,12 +88,7 @@ BnBpSolver::getJointDistributionOf (const VarIdSet& jointVarIds)
     }
     cout << endl;
   }
-
-  if (jointCalcType_ == JUNCTION_NODE) {
-    return getJointByJunctionNode (jointVarIds);
-  } else {
-    return getJointByChainRule (jointVarIds);
-  }
+  return getJointByConditioning (jointVarIds);
 }
 
 
@@ -121,8 +112,8 @@ BnBpSolver::initializeSolver (void)
 
   BnNodeSet roots = bayesNet_->getRootNodes();
   for (unsigned i = 0; i < roots.size(); i++) {
-    const ParamSet& params = roots[i]->getParameters();
-    ParamSet& piVals = ninf(roots[i])->getPiValues();
+    const Params& params = roots[i]->getParameters();
+    Params& piVals = ninf(roots[i])->getPiValues();
     for (unsigned ri = 0; ri < roots[i]->nrStates(); ri++) {
       piVals[ri] = params[ri];
     }
@@ -149,84 +140,14 @@ BnBpSolver::initializeSolver (void)
 
   for (unsigned i = 0; i < nodes.size(); i++) {
     if (nodes[i]->hasEvidence()) {
-      ParamSet& piVals = ninf(nodes[i])->getPiValues();
-      ParamSet& ldVals = ninf(nodes[i])->getLambdaValues();
+      Params& piVals = ninf(nodes[i])->getPiValues();
+      Params& ldVals = ninf(nodes[i])->getLambdaValues();
       for (unsigned xi = 0; xi < nodes[i]->nrStates(); xi++) {
         piVals[xi] = Util::noEvidence();
         ldVals[xi] = Util::noEvidence();
       }
       piVals[nodes[i]->getEvidence()] = Util::withEvidence();
       ldVals[nodes[i]->getEvidence()] = Util::withEvidence();
-    }
-  }
-}
-
-
-
-void
-BnBpSolver::runPolyTreeSolver (void)
-{
-  const BnNodeSet& nodes = bayesNet_->getBayesNodes();
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    if (nodes[i]->isRoot()) {
-      ninf(nodes[i])->markPiValuesAsCalculated();
-    }
-    if (nodes[i]->isLeaf()) {
-      ninf(nodes[i])->markLambdaValuesAsCalculated();
-    }
-  }
-
-  bool finish = false;
-  while (!finish) {
-    finish = true;
-    for (unsigned i = 0; i < nodes.size(); i++) {
-      if (ninf(nodes[i])->piValuesCalculated() == false
-          && ninf(nodes[i])->receivedAllPiMessages()) {
-        if (!nodes[i]->hasEvidence()) {
-          updatePiValues (nodes[i]);
-        }
-        ninf(nodes[i])->markPiValuesAsCalculated();
-        finish = false;
-      }
-
-      if (ninf(nodes[i])->lambdaValuesCalculated() == false
-          && ninf(nodes[i])->receivedAllLambdaMessages()) {
-        if (!nodes[i]->hasEvidence()) {
-          updateLambdaValues (nodes[i]);
-        }
-        ninf(nodes[i])->markLambdaValuesAsCalculated();
-        finish = false;
-      }
-
-      if (ninf(nodes[i])->piValuesCalculated()) {
-        const BpLinkSet& outChildLinks
-            = ninf(nodes[i])->getOutcomingChildLinks();
-        for (unsigned j = 0; j < outChildLinks.size(); j++) {
-          BayesNode* child = outChildLinks[j]->getDestination();
-          if (!outChildLinks[j]->messageWasSended()) {
-            if (ninf(nodes[i])->readyToSendPiMsgTo (child)) {
-              calculateAndUpdateMessage (outChildLinks[j], false);
-              ninf(child)->incNumPiMsgsReceived();
-            }
-            finish = false;
-          }
-        }
-      }
-
-      if (ninf(nodes[i])->lambdaValuesCalculated()) {
-        const BpLinkSet& outParentLinks = 
-            ninf(nodes[i])->getOutcomingParentLinks();
-        for (unsigned j = 0; j < outParentLinks.size(); j++) {
-          BayesNode* parent = outParentLinks[j]->getDestination();
-          if (!outParentLinks[j]->messageWasSended()) {
-            if (ninf(nodes[i])->readyToSendLambdaMsgTo (parent)) {
-              calculateAndUpdateMessage (outParentLinks[j], false);
-              ninf(parent)->incNumLambdaMsgsReceived();
-            }
-            finish = false;
-          }
-        }
-      }
     }
   }
 }
@@ -298,7 +219,7 @@ BnBpSolver::converged (void) const
   }
   bool converged = true;
   if (BpOptions::schedule == BpOptions::Schedule::MAX_RESIDUAL) {
-    Param maxResidual = (*(sortedOrder_.begin()))->getResidual();
+    double maxResidual = (*(sortedOrder_.begin()))->getResidual();
     if (maxResidual < BpOptions::accuracy) {
       converged = true;
     } else {
@@ -306,7 +227,7 @@ BnBpSolver::converged (void) const
     }
   } else {
     for (unsigned i = 0; i < links_.size(); i++) {
-      Param residual = links_[i]->getResidual();
+      double residual = links_[i]->getResidual();
       if (DL >= 2) {
         cout << links_[i]->toString() + " residual change = " ;
         cout << residual << endl;
@@ -395,36 +316,38 @@ BnBpSolver::updatePiValues (BayesNode* x)
   if (DL >= 3) {
     cout << "updating " << PI_SYMBOL << " values for " << x->label() << endl;
   }
-  ParamSet& piValues               = ninf(x)->getPiValues();
-  const BpLinkSet& parentLinks     = ninf(x)->getIncomingParentLinks();
-  const vector<CptEntry>& entries  = x->getCptEntries();
+  Params& piValues           = ninf(x)->getPiValues();
+  const BpLinkSet& parentLinks = ninf(x)->getIncomingParentLinks();
+  const BnNodeSet& ps = x->getParents();
+  Ranges ranges;
+  for (unsigned i = 0; i < ps.size(); i++) {
+    ranges.push_back (ps[i]->nrStates());
+  }
+  StatesIndexer indexer (ranges, false);
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
 
-  ParamSet messageProducts (entries.size());
-  for (unsigned k = 0; k < entries.size(); k++) {
+  Params messageProducts (indexer.size());
+  for (unsigned k = 0; k < indexer.size(); k++) {
     if (DL >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
     double messageProduct = Util::multIdenty();
-    const DConf& conf = entries[k].getDomainConfiguration();
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned i = 0; i < parentLinks.size(); i++) {
-          messageProduct *= parentLinks[i]->getMessage()[conf[i]];
-          if (DL >= 5) {
-            if (i != 0) *calcs1 << " + " ;
-            if (i != 0) *calcs2 << " + " ;
-            *calcs1 << parentLinks[i]->toString (conf[i]);
-            *calcs2 << parentLinks[i]->getMessage()[conf[i]];
-          }
+    if (Globals::logDomain) {
+      for (unsigned i = 0; i < parentLinks.size(); i++) {
+        messageProduct += parentLinks[i]->getMessage()[indexer[i]];
+      }
+    } else {
+      for (unsigned i = 0; i < parentLinks.size(); i++) {
+        messageProduct *= parentLinks[i]->getMessage()[indexer[i]];
+        if (DL >= 5) {
+          if (i != 0) *calcs1 << " + " ;
+          if (i != 0) *calcs2 << " + " ;
+          *calcs1 << parentLinks[i]->toString (indexer[i]);
+          *calcs2 << parentLinks[i]->getMessage()[indexer[i]];
         }
-        break;
-      case NumberSpace::LOGARITHM:
-        for (unsigned i = 0; i < parentLinks.size(); i++) {
-          messageProduct += parentLinks[i]->getMessage()[conf[i]];
-        }
+      }
     }
     messageProducts[k] = messageProduct;
     if (DL >= 5) {
@@ -439,6 +362,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
       delete calcs1;
       delete calcs2;
     }
+    ++ indexer;
   }
 
   for (unsigned xi = 0; xi < x->nrStates(); xi++) {
@@ -447,26 +371,28 @@ BnBpSolver::updatePiValues (BayesNode* x)
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned k = 0; k < entries.size(); k++) {
-          sum += x->getProbability (xi, entries[k]) * messageProducts[k];
-          if (DL >= 5) {
-            if (k != 0) *calcs1 << " + " ;
-            if (k != 0) *calcs2 << " + " ;
-            *calcs1 << x->cptEntryToString (xi, entries[k]); 
-            *calcs1 << ".mp" << k;
-            *calcs2 << Util::fl (x->getProbability (xi, entries[k]));
-            *calcs2 << "*" << messageProducts[k];
-          }
+    indexer.reset();
+    if (Globals::logDomain) {
+      for (unsigned k = 0; k < indexer.size(); k++) {
+        Util::logSum (sum,
+            x->getProbability(xi, indexer.linearIndex()) + messageProducts[k]);
+        ++ indexer;
+      }
+    } else {
+      for (unsigned k = 0; k < indexer.size(); k++) {
+        sum += x->getProbability (xi, indexer.linearIndex()) * messageProducts[k];
+        if (DL >= 5) {
+          if (k != 0) *calcs1 << " + " ;
+          if (k != 0) *calcs2 << " + " ;
+          *calcs1 << x->cptEntryToString (xi, indexer.indices()); 
+          *calcs1 << ".mp" << k;
+          *calcs2 << Util::fl (x->getProbability (xi, indexer.linearIndex()));
+          *calcs2 << "*" << messageProducts[k];
         }
-        break;
-      case NumberSpace::LOGARITHM:
-        for (unsigned k = 0; k < entries.size(); k++) {
-          Util::logSum (sum,
-              x->getProbability(xi,entries[k]) + messageProducts[k]);
-        }
+        ++ indexer;
+      }
     }
+
     piValues[xi] = sum;
     if (DL >= 5) {
       cout << "    " << PI_SYMBOL << "(" << x->label() << ")" ;
@@ -489,7 +415,7 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
   if (DL >= 3) {
     cout << "updating " << LD_SYMBOL << " values for " << x->label() << endl;
   }
-  ParamSet& lambdaValues       = ninf(x)->getLambdaValues();
+  Params& lambdaValues       = ninf(x)->getLambdaValues();
   const BpLinkSet& childLinks  = ninf(x)->getIncomingChildLinks();
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
@@ -500,22 +426,20 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
       calcs2 = new stringstream;
     }
     double product = Util::multIdenty();
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned i = 0; i < childLinks.size(); i++) {
-          product *= childLinks[i]->getMessage()[xi];
-          if (DL >= 5) {
-            if (i != 0) *calcs1 << "." ;
-            if (i != 0) *calcs2 << "*" ;
-            *calcs1 << childLinks[i]->toString (xi);
-            *calcs2 << childLinks[i]->getMessage()[xi];
-          }
+    if (Globals::logDomain) {
+      for (unsigned i = 0; i < childLinks.size(); i++) {
+        product += childLinks[i]->getMessage()[xi];
+      }
+    } else {
+      for (unsigned i = 0; i < childLinks.size(); i++) {
+        product *= childLinks[i]->getMessage()[xi];
+        if (DL >= 5) {
+          if (i != 0) *calcs1 << "." ;
+          if (i != 0) *calcs2 << "*" ;
+          *calcs1 << childLinks[i]->toString (xi);
+          *calcs2 << childLinks[i]->getMessage()[xi];
         }
-        break;
-      case NumberSpace::LOGARITHM:
-        for (unsigned i = 0; i < childLinks.size(); i++) {
-          product += childLinks[i]->getMessage()[xi];
-        }
+      }
     }
     lambdaValues[xi] = product;
     if (DL >= 5) {
@@ -542,12 +466,12 @@ BnBpSolver::calculatePiMessage (BpLink* link)
   // πX(Zi)
   BayesNode* z = link->getSource();
   BayesNode* x = link->getDestination();
-  ParamSet& zxPiNextMessage = link->getNextMessage();
+  Params& zxPiNextMessage = link->getNextMessage();
   const BpLinkSet& zChildLinks = ninf(z)->getIncomingChildLinks();
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
 
-  const ParamSet& zPiValues = ninf(z)->getPiValues();
+  const Params& zPiValues = ninf(z)->getPiValues();
   for (unsigned zi = 0; zi < z->nrStates(); zi++) {
     double product = zPiValues[zi];
     if (DL >= 5) {
@@ -557,24 +481,22 @@ BnBpSolver::calculatePiMessage (BpLink* link)
       *calcs1 << "[" << z->states()[zi] << "]" ;
       *calcs2 << product;
     }
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned i = 0; i < zChildLinks.size(); i++) {
-          if (zChildLinks[i]->getSource() != x) {
-            product *= zChildLinks[i]->getMessage()[zi];
-            if (DL >= 5) {
-              *calcs1 << "." << zChildLinks[i]->toString (zi);
-              *calcs2 << " * " << zChildLinks[i]->getMessage()[zi];
-            }
+    if (Globals::logDomain) {
+      for (unsigned i = 0; i < zChildLinks.size(); i++) {
+        if (zChildLinks[i]->getSource() != x) {
+          product += zChildLinks[i]->getMessage()[zi];
+        }
+      }
+    } else {
+      for (unsigned i = 0; i < zChildLinks.size(); i++) {
+        if (zChildLinks[i]->getSource() != x) {
+          product *= zChildLinks[i]->getMessage()[zi];
+          if (DL >= 5) {
+            *calcs1 << "." << zChildLinks[i]->toString (zi);
+            *calcs2 << " * " << zChildLinks[i]->getMessage()[zi];
           }
         }
-        break;
-      case NumberSpace::LOGARITHM:
-        for (unsigned i = 0; i < zChildLinks.size(); i++) {
-          if (zChildLinks[i]->getSource() != x) {
-            product += zChildLinks[i]->getMessage()[zi];
-          }
-        }
+      }
     }
     zxPiNextMessage[zi] = product;
     if (DL >= 5) {
@@ -605,52 +527,53 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
   if (x->hasEvidence()) {
     return;
   }
-  ParamSet& yxLambdaNextMessage       = link->getNextMessage();
+  Params& yxLambdaNextMessage       = link->getNextMessage();
   const BpLinkSet& yParentLinks       = ninf(y)->getIncomingParentLinks();
-  const ParamSet& yLambdaValues       = ninf(y)->getLambdaValues();
-  const vector<CptEntry>& allEntries  = y->getCptEntries();
+  const Params& yLambdaValues       = ninf(y)->getLambdaValues();
   int parentIndex                     = y->getIndexOfParent (x);
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
- 
-  vector<CptEntry> entries;
-  DConstraint constr = make_pair (parentIndex, 0);
-  for (unsigned i = 0; i < allEntries.size(); i++) {
-    if (allEntries[i].matchConstraints(constr)) {
-      entries.push_back (allEntries[i]);
-    }
-  }
 
-  ParamSet messageProducts (entries.size());
-  for (unsigned k = 0; k < entries.size(); k++) {
+  const BnNodeSet& ps = y->getParents();
+  Ranges ranges;
+  for (unsigned i = 0; i < ps.size(); i++) {
+    ranges.push_back (ps[i]->nrStates());
+  }
+  StatesIndexer indexer (ranges, false);
+
+ 
+  unsigned N = indexer.size() / x->nrStates();
+  Params messageProducts (N);
+  for (unsigned k = 0; k < N; k++) {
+    while (indexer[parentIndex] != 0) {
+      ++ indexer;
+    }
     if (DL >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
     double messageProduct = Util::multIdenty();
-    const DConf& conf = entries[k].getDomainConfiguration();
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned i = 0; i < yParentLinks.size(); i++) {
-          if (yParentLinks[i]->getSource() != x) {
-            if (DL >= 5) {
-              if (messageProduct != Util::multIdenty()) *calcs1 << "*" ;
-              if (messageProduct != Util::multIdenty()) *calcs2 << "*" ;
-              *calcs1 << yParentLinks[i]->toString (conf[i]);
-              *calcs2 << yParentLinks[i]->getMessage()[conf[i]];
-            }
-            messageProduct *= yParentLinks[i]->getMessage()[conf[i]];
-          }
+    if (Globals::logDomain) {
+      for (unsigned i = 0; i < yParentLinks.size(); i++) {
+        if (yParentLinks[i]->getSource() != x) {
+          messageProduct += yParentLinks[i]->getMessage()[indexer[i]];
         }
-        break;
-     case NumberSpace::LOGARITHM:    
-       for (unsigned i = 0; i < yParentLinks.size(); i++) {
-         if (yParentLinks[i]->getSource() != x) {
-           messageProduct += yParentLinks[i]->getMessage()[conf[i]];
-         }
-       }
+      }
+    } else {
+      for (unsigned i = 0; i < yParentLinks.size(); i++) {
+        if (yParentLinks[i]->getSource() != x) {
+          if (DL >= 5) {
+            if (messageProduct != Util::multIdenty()) *calcs1 << "*" ;
+            if (messageProduct != Util::multIdenty()) *calcs2 << "*" ;
+            *calcs1 << yParentLinks[i]->toString (indexer[i]);
+            *calcs2 << yParentLinks[i]->getMessage()[indexer[i]];
+          }
+          messageProduct *= yParentLinks[i]->getMessage()[indexer[i]];
+        }
+      }
     }
     messageProducts[k] = messageProduct;
+    ++ indexer;
     if (DL >= 5) {
       cout << "    mp" << k;
       cout << " = " << (*calcs1).str();
@@ -672,13 +595,6 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    vector<CptEntry> entries;
-    DConstraint constr = make_pair (parentIndex, xi);
-    for (unsigned i = 0; i < allEntries.size(); i++) {
-      if (allEntries[i].matchConstraints(constr)) {
-        entries.push_back (allEntries[i]);
-      }
-    }
     double outerSum = Util::addIdenty();
     for (unsigned yi = 0; yi < y->nrStates(); yi++) {
       if (DL >= 5) {
@@ -686,27 +602,35 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
         (yi != 0) ? *calcs2 << " + {" : *calcs2 << "{" ;
       } 
       double innerSum = Util::addIdenty();
-      switch (NSPACE) {
-        case NumberSpace::NORMAL:
-          for (unsigned k = 0; k < entries.size(); k++) {
-            if (DL >= 5) {
-              if (k != 0) *calcs1 << " + " ;
-              if (k != 0) *calcs2 << " + " ;
-              *calcs1 << y->cptEntryToString (yi, entries[k]);
-              *calcs1 << ".mp" << k;
-              *calcs2 << y->getProbability (yi, entries[k]);
-              *calcs2 << "*" << messageProducts[k];
-            }
-            innerSum += y->getProbability (yi, entries[k]) * messageProducts[k];
+      indexer.reset();
+      if (Globals::logDomain) {
+        for (unsigned k = 0; k < N; k++) {
+          while (indexer[parentIndex] != xi) {
+            ++ indexer;
           }
-          outerSum += innerSum * yLambdaValues[yi];
-          break;
-        case NumberSpace::LOGARITHM:
-          for (unsigned k = 0; k < entries.size(); k++) {
-            Util::logSum (innerSum,
-                y->getProbability(yi, entries[k]) + messageProducts[k]);
-          }
-          Util::logSum (outerSum, innerSum + yLambdaValues[yi]);
+          Util::logSum (innerSum, y->getProbability (
+              yi, indexer.linearIndex()) + messageProducts[k]);
+          ++ indexer;
+        }
+        Util::logSum (outerSum, innerSum + yLambdaValues[yi]);
+      } else {
+        for (unsigned k = 0; k < N; k++) {
+         while (indexer[parentIndex] != xi) {
+           ++ indexer;
+         }
+         if (DL >= 5) {
+           if (k != 0) *calcs1 << " + " ;
+           if (k != 0) *calcs2 << " + " ;
+           *calcs1 << y->cptEntryToString (yi, indexer.indices());
+           *calcs1 << ".mp" << k;
+           *calcs2 << y->getProbability (yi, indexer.linearIndex());
+           *calcs2 << "*" << messageProducts[k];
+         }
+         innerSum += y->getProbability (
+             yi, indexer.linearIndex()) * messageProducts[k];
+          ++ indexer;
+        }
+        outerSum += innerSum * yLambdaValues[yi];
       }
       if (DL >= 5) {
         *calcs1 << "}." << LD_SYMBOL << "(" << y->label() << ")" ;
@@ -730,62 +654,45 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
 
 
 
-ParamSet
-BnBpSolver::getJointByJunctionNode (const VarIdSet& jointVarIds)
-{
-  unsigned msgSize = 1;
-  vector<unsigned> dsizes (jointVarIds.size());
-  for (unsigned i = 0; i < jointVarIds.size(); i++) {
-    dsizes[i] = bayesNet_->getBayesNode (jointVarIds[i])->nrStates(); 
-    msgSize *=  dsizes[i];
-  }
-  unsigned reps = 1;
-  ParamSet jointDist (msgSize, Util::multIdenty());
-  for (int i = jointVarIds.size() - 1 ; i >= 0; i--) {
-    Util::multiply (jointDist, getPosterioriOf (jointVarIds[i]), reps);
-    reps *= dsizes[i] ;
-  }
-  return jointDist;
-}
-
-
-
-ParamSet
-BnBpSolver::getJointByChainRule (const VarIdSet& jointVarIds) const
+Params
+BnBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 {
   BnNodeSet jointVars;
   for (unsigned i = 0; i < jointVarIds.size(); i++) {
+    assert (bayesNet_->getBayesNode (jointVarIds[i]));
     jointVars.push_back (bayesNet_->getBayesNode (jointVarIds[i]));
   }
 
   BayesNet* mrn = bayesNet_->getMinimalRequesiteNetwork (jointVarIds[0]);
   BnBpSolver solver (*mrn);
   solver.runSolver();
-  ParamSet prevBeliefs = solver.getPosterioriOf (jointVarIds[0]);
+  Params prevBeliefs = solver.getPosterioriOf (jointVarIds[0]);
   delete mrn;
 
-  VarNodes observedVars = {jointVars[0]};
+  VarIds observedVids = {jointVars[0]->varId()};
 
   for (unsigned i = 1; i < jointVarIds.size(); i++) {
-    mrn = bayesNet_->getMinimalRequesiteNetwork (jointVarIds[i]);
-    ParamSet newBeliefs;
-    vector<DConf> confs = 
-        Util::getDomainConfigurations (observedVars);
-    for (unsigned j = 0; j < confs.size(); j++) {
-      for (unsigned k = 0; k < observedVars.size(); k++) {
-        if (!observedVars[k]->hasEvidence()) {
-          BayesNode* node = mrn->getBayesNode (observedVars[k]->varId());
-          if (node) {
-            node->setEvidence (confs[j][k]);
-          }
-        }
+    assert (jointVars[i]->hasEvidence() == false);
+    VarIds reqVars = {jointVarIds[i]};
+    reqVars.insert (reqVars.end(), observedVids.begin(), observedVids.end());
+    mrn = bayesNet_->getMinimalRequesiteNetwork (reqVars);
+    Params newBeliefs;
+    VarNodes observedVars;
+    for (unsigned j = 0; j < observedVids.size(); j++) {
+      observedVars.push_back (mrn->getBayesNode (observedVids[j]));
+    }
+    StatesIndexer idx (observedVars, false);
+    while (idx.valid()) {
+      for (unsigned j = 0; j < observedVars.size(); j++) {
+        observedVars[j]->setEvidence (idx[j]);
       }
       BnBpSolver solver (*mrn);
       solver.runSolver();
-      ParamSet beliefs = solver.getPosterioriOf (jointVarIds[i]);
+      Params beliefs = solver.getPosterioriOf (jointVarIds[i]);
       for (unsigned k = 0; k < beliefs.size(); k++) {
         newBeliefs.push_back (beliefs[k]);
       }
+      ++ idx;
     }
 
     int count = -1;
@@ -796,7 +703,7 @@ BnBpSolver::getJointByChainRule (const VarIdSet& jointVarIds) const
       newBeliefs[j] *= prevBeliefs[count];
     }
     prevBeliefs = newBeliefs;
-    observedVars.push_back (jointVars[i]);
+    observedVids.push_back (jointVars[i]->varId());
     delete mrn;
   }
   return prevBeliefs;
@@ -817,9 +724,9 @@ BnBpSolver::printPiLambdaValues (const BayesNode* var) const
   cout << "--------------------------------" ;
   cout << endl;
   const States&    states   = var->states();
-  const ParamSet&  piVals   = ninf(var)->getPiValues();
-  const ParamSet&  ldVals   = ninf(var)->getLambdaValues();
-  const ParamSet&  beliefs  = ninf(var)->getBeliefs();
+  const Params&  piVals   = ninf(var)->getPiValues();
+  const Params&  ldVals   = ninf(var)->getLambdaValues();
+  const Params&  beliefs  = ninf(var)->getBeliefs();
   for (unsigned xi = 0; xi < var->nrStates(); xi++) {
     cout << setw (10) << states[xi];
     cout << setw (19) << piVals[xi];
@@ -847,99 +754,33 @@ BnBpSolver::printAllMessageStatus (void) const
 BpNodeInfo::BpNodeInfo (BayesNode* node)
 {
   node_ = node;
-  piValsCalc_ = false;
-  ldValsCalc_ = false;
-  nPiMsgsRcv_ = 0;
-  nLdMsgsRcv_ = 0;
   piVals_.resize (node->nrStates(), Util::one());
   ldVals_.resize (node->nrStates(), Util::one());
 }
 
 
 
-ParamSet
+Params
 BpNodeInfo::getBeliefs (void) const
 {
   double sum = 0.0;
-  ParamSet beliefs (node_->nrStates());
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
-        beliefs[xi] = piVals_[xi] * ldVals_[xi];
-       sum += beliefs[xi];
-      } 
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
-        beliefs[xi] = exp (piVals_[xi] + ldVals_[xi]);
-        sum += beliefs[xi];
-      }
+  Params beliefs (node_->nrStates());
+  if (Globals::logDomain) {
+    for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
+      beliefs[xi] = exp (piVals_[xi] + ldVals_[xi]);
+      sum += beliefs[xi];
+    }
+  } else {
+    for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
+      beliefs[xi] = piVals_[xi] * ldVals_[xi];
+      sum += beliefs[xi];
+    } 
   }
   assert (sum);
   for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
     beliefs[xi] /= sum;
   }
   return beliefs;
-}
-
-
-
-void 
-BpNodeInfo::markPiValuesAsCalculated (void)
-{
-  piValsCalc_ = true;
-}
-
-
-
-void
-BpNodeInfo::markLambdaValuesAsCalculated (void)
-{
-  ldValsCalc_ = true;
-}
-
-
-
-bool
-BpNodeInfo::receivedAllPiMessages (void)
-{
-  return node_->getParents().size() == nPiMsgsRcv_;
-}
-
-
-
-bool
-BpNodeInfo::receivedAllLambdaMessages (void)
-{
-  return node_->getChilds().size() == nLdMsgsRcv_;
-}
-
-
-
-bool
-BpNodeInfo::readyToSendPiMsgTo (const BayesNode* child) const
-{
-  for (unsigned i = 0; i < inChildLinks_.size(); i++) {
-    if (inChildLinks_[i]->getSource() != child
-        && inChildLinks_[i]->messageWasSended() == false)  {
-      return false;
-    }
-  }
-  return true;
-}
-
-
-
-bool
-BpNodeInfo::readyToSendLambdaMsgTo (const BayesNode* parent) const
-{
-  for (unsigned i = 0; i < inParentLinks_.size(); i++) {
-    if (inParentLinks_[i]->getSource() != parent
-        && inParentLinks_[i]->messageWasSended() == false)  {
-      return false;
-    }
-  }
-  return true;
 }
 
 

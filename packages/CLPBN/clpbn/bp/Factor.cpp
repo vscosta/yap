@@ -7,7 +7,8 @@
 #include <sstream>
 
 #include "Factor.h"
-#include "StatesIndexer.h"
+#include "Indexer.h"
+#include "Util.h"
 
 
 Factor::Factor (const Factor& g)
@@ -21,7 +22,7 @@ Factor::Factor (VarId vid, unsigned nStates)
 {
   varids_.push_back (vid);
   ranges_.push_back (nStates);
-  dist_ = new Distribution (ParamSet (nStates, 1.0));
+  dist_ = new Distribution (Params (nStates, 1.0));
 }
 
 
@@ -36,12 +37,12 @@ Factor::Factor (const VarNodes& vars)
   }
   // create a uniform distribution
   double val = 1.0 / nParams;
-  dist_ = new Distribution (ParamSet (nParams, val));
+  dist_ = new Distribution (Params (nParams, val));
 }
 
 
 
-Factor::Factor (VarId vid, unsigned nStates, const ParamSet& params)
+Factor::Factor (VarId vid, unsigned nStates, const Params& params)
 {
   varids_.push_back (vid);
   ranges_.push_back (nStates);
@@ -61,7 +62,7 @@ Factor::Factor (VarNodes& vars, Distribution* dist)
 
 
 
-Factor::Factor (const VarNodes& vars, const ParamSet& params)
+Factor::Factor (const VarNodes& vars, const Params& params)
 {
   for (unsigned i = 0; i < vars.size(); i++) {
     varids_.push_back (vars[i]->varId());
@@ -72,9 +73,9 @@ Factor::Factor (const VarNodes& vars, const ParamSet& params)
 
 
 
-Factor::Factor (const VarIdSet& vids,
+Factor::Factor (const VarIds& vids,
                 const Ranges& ranges,
-                const ParamSet& params)
+                const Params& params)
 {
   varids_ = vids;
   ranges_ = ranges;
@@ -83,11 +84,20 @@ Factor::Factor (const VarIdSet& vids,
 
 
 
+Factor::~Factor (void)
+{
+  if (dist_->shared() == false) {
+    delete dist_;
+  }
+}
+
+
+
 void
-Factor::setParameters (const ParamSet& params)
+Factor::setParameters (const Params& params)
 {
   assert (dist_->params.size() == params.size());
-  dist_->updateParameters (params);
+  dist_->params = params;
 }
 
 
@@ -97,140 +107,159 @@ Factor::copyFromFactor (const Factor& g)
 {
   varids_ = g.getVarIds();
   ranges_ = g.getRanges();
-  dist_ = new Distribution (g.getDistribution()->params);
+  dist_   = new Distribution (g.getParameters());
 }
 
 
 
 void
-Factor::multiplyByFactor (const Factor& g, const vector<CptEntry>* entries)
+Factor::multiply (const Factor& g)
 {
   if (varids_.size() == 0) {
     copyFromFactor (g);
     return;
   }
 
-  const VarIdSet&  gvarids = g.getVarIds();
-  const Ranges&    granges = g.getRanges();
-  const ParamSet&  gparams = g.getParameters();
+  const VarIds&  g_varids = g.getVarIds();
+  const Ranges&  g_ranges = g.getRanges();
+  const Params&  g_params = g.getParameters();
 
-  if (varids_ == gvarids) {
+  if (varids_ == g_varids) {
     // optimization: if the factors contain the same set of variables,
     // we can do a 1 to 1 operation on the parameters
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        Util::multiply (dist_->params, gparams);
-        break;
-      case NumberSpace::LOGARITHM:
-        Util::add (dist_->params, gparams);
+    if (Globals::logDomain) {
+      Util::add (dist_->params, g_params);
+    } else {
+      Util::multiply (dist_->params, g_params);
     }
   } else {
-    bool hasCommonVars = false;
+    bool sharedVars = false;
     vector<unsigned> gvarpos;
-    for (unsigned i = 0; i < gvarids.size(); i++) {
-      int pos = getPositionOf (gvarids[i]);
-      if (pos == -1) {
-        insertVariable (gvarids[i], granges[i]);
+    for (unsigned i = 0; i < g_varids.size(); i++) {
+      int idx = indexOf (g_varids[i]);
+      if (idx == -1) {
+        insertVariable (g_varids[i], g_ranges[i]);
         gvarpos.push_back (varids_.size() - 1);
       } else {
-        hasCommonVars = true;
-        gvarpos.push_back (pos);
+        sharedVars = true;
+        gvarpos.push_back (idx);
       }
     }
-    if (hasCommonVars) {
-      vector<unsigned> gvaroffsets (gvarids.size());
-      gvaroffsets[gvarids.size() - 1] = 1;
-      for (int i = gvarids.size() - 2; i >= 0; i--) {
-        gvaroffsets[i] = gvaroffsets[i + 1] * granges[i + 1];
-      }
-
-      if (entries == 0) {
-        entries = &getCptEntries();
-      }
-
-      for (unsigned i = 0; i < entries->size(); i++) {
-        unsigned idx = 0;
-        const DConf& conf = (*entries)[i].getDomainConfiguration();
-        for (unsigned j = 0; j < gvarpos.size(); j++) {
-          idx += gvaroffsets[j] * conf[ gvarpos[j] ];
-        }
-        switch (NSPACE) {
-          case NumberSpace::NORMAL:
-            dist_->params[i] *= gparams[idx];
-            break;
-          case NumberSpace::LOGARITHM:
-            dist_->params[i] += gparams[idx];
-        }
-      }
-    } else {
+    if (sharedVars == false) {
       // optimization: if the original factors doesn't have common variables,
       // we don't need to marry the states of the common variables
       unsigned count = 0;
       for (unsigned i = 0; i < dist_->params.size(); i++) {
-        switch (NSPACE) {
-          case NumberSpace::NORMAL:
-            dist_->params[i] *= gparams[count];
-            break;
-          case NumberSpace::LOGARITHM:
-            dist_->params[i] += gparams[count];
+        if (Globals::logDomain) {
+          dist_->params[i] += g_params[count];
+        } else {
+          dist_->params[i] *= g_params[count];
         }
         count ++;
-        if (count >= gparams.size()) {
+        if (count >= g_params.size()) {
           count = 0;
         }
       }
+    } else {
+      StatesIndexer indexer (ranges_, false);
+      while (indexer.valid()) {
+        unsigned g_li = 0;
+        unsigned prod = 1;
+        for (int j = gvarpos.size() - 1; j >= 0; j--) {
+          g_li += indexer[gvarpos[j]] * prod;
+          prod *= g_ranges[j];
+        }
+        if (Globals::logDomain) {
+          dist_->params[indexer] += g_params[g_li];
+        } else {
+          dist_->params[indexer] *= g_params[g_li];
+        }
+        ++ indexer;
+      }
     }
   }
-  dist_->entries.clear();
 }
 
 
 
 void
-Factor::insertVariable (VarId vid, unsigned nStates)
+Factor::insertVariable (VarId varId, unsigned nrStates)
 {
-  assert (getPositionOf (vid) == -1);
-  ParamSet newPs;
-  newPs.reserve (dist_->params.size() * nStates);
-  for (unsigned i = 0; i < dist_->params.size(); i++) {
-    for (unsigned j = 0; j < nStates; j++) {
-      newPs.push_back (dist_->params[i]);
+  assert (indexOf (varId) == -1);
+  Params oldParams = dist_->params;
+  dist_->params.clear();
+  dist_->params.reserve (oldParams.size() * nrStates);
+  for (unsigned i = 0; i < oldParams.size(); i++) {
+    for (unsigned reps = 0; reps < nrStates; reps++) {
+      dist_->params.push_back (oldParams[i]);
     }
   }
-  varids_.push_back (vid);
-  ranges_.push_back (nStates);
-  dist_->updateParameters (newPs);
-  dist_->entries.clear();
+  varids_.push_back (varId);
+  ranges_.push_back (nrStates);
 }
 
 
 
 void
-Factor::removeAllVariablesExcept (VarId vid)
+Factor::insertVariables (const VarIds& varIds, const Ranges& ranges)
 {
-  assert (getPositionOf (vid) != -1);
+  Params oldParams = dist_->params;
+  unsigned nrStates = 1;
+  for (unsigned i = 0; i < varIds.size(); i++) {
+    assert (indexOf (varIds[i]) == -1);
+    varids_.push_back (varIds[i]);
+    ranges_.push_back (ranges[i]);
+    nrStates *= ranges[i];
+  }
+  dist_->params.clear();
+  dist_->params.reserve (oldParams.size() * nrStates);
+  for (unsigned i = 0; i < oldParams.size(); i++) {
+    for (unsigned reps = 0; reps < nrStates; reps++) {
+      dist_->params.push_back (oldParams[i]);
+    }
+  }
+}
+
+
+
+void
+Factor::sumOutAllExcept (VarId vid)
+{
+  assert (indexOf (vid) != -1);
   while (varids_.back() != vid) {
-    removeLastVariable();
+    sumOutLastVariable();
   }
   while (varids_.front() != vid) {
-    removeFirstVariable();
+    sumOutFirstVariable();
   } 
 }
 
 
 
 void
-Factor::removeVariable (VarId vid)
+Factor::sumOutAllExcept (const VarIds& vids)
 {
-  int pos = getPositionOf (vid);
-  assert (pos != -1);
+  for (unsigned i = 0; i < varids_.size(); i++) {
+    if (std::find (vids.begin(), vids.end(), varids_[i]) == vids.end()) {
+      sumOut (varids_[i]);
+    }
+  }
+}
+
+
+
+void
+Factor::sumOut (VarId vid)
+{
+  int idx = indexOf (vid);
+  assert (idx != -1);
 
   if (vid == varids_.back()) {
-    removeLastVariable();  // optimization
+    sumOutLastVariable();  // optimization
     return;
   } 
   if (vid == varids_.front()) {
-    removeFirstVariable(); // optimization
+    sumOutFirstVariable(); // optimization
     return;
   } 
 
@@ -242,36 +271,35 @@ Factor::removeVariable (VarId vid)
   // on the left of `var', with the states of the remaining vars fixed
   unsigned leftVarOffset = 1;
 
-  for (int i = varids_.size() - 1; i > pos; i--) {
+  for (int i = varids_.size() - 1; i > idx; i--) {
     varOffset     *= ranges_[i];
     leftVarOffset *= ranges_[i];
   }
-  leftVarOffset *= ranges_[pos];
+  leftVarOffset *= ranges_[idx];
 
   unsigned offset    = 0;
   unsigned count1    = 0;
   unsigned count2    = 0;
-  unsigned newPsSize = dist_->params.size() / ranges_[pos];
+  unsigned newpsSize = dist_->params.size() / ranges_[idx];
 
-  ParamSet newPs;
-  newPs.reserve (newPsSize);
+  Params newps;
+  newps.reserve (newpsSize);
+  Params& params = dist_->params;
 
-  while (newPs.size() < newPsSize) {
+  while (newps.size() < newpsSize) {
     double sum = Util::addIdenty();
-    for (unsigned i = 0; i < ranges_[pos]; i++) {
-      switch (NSPACE) {
-        case NumberSpace::NORMAL:
-          sum += dist_->params[offset];
-          break;
-        case NumberSpace::LOGARITHM:
-          Util::logSum (sum, dist_->params[offset]);
+    for (unsigned i = 0; i < ranges_[idx]; i++) {
+      if (Globals::logDomain) {
+        Util::logSum (sum, params[offset]);
+      } else {
+        sum += params[offset];
       }
       offset += varOffset;
     }
-    newPs.push_back (sum);
+    newps.push_back (sum);
     count1 ++;
-    if (pos == (int)varids_.size() - 1) {
-      offset = count1 * ranges_[pos];
+    if (idx == (int)varids_.size() - 1) {
+      offset = count1 * ranges_[idx];
     } else {
       if (((offset - varOffset + 1) % leftVarOffset) == 0) {
         count1 = 0;
@@ -280,73 +308,66 @@ Factor::removeVariable (VarId vid)
       offset = (leftVarOffset * count2) + count1;
     }
   }
-  varids_.erase (varids_.begin() + pos);
-  ranges_.erase (ranges_.begin() + pos);
-  dist_->updateParameters (newPs);
-  dist_->entries.clear();
+  varids_.erase (varids_.begin() + idx);
+  ranges_.erase (ranges_.begin() + idx);
+  dist_->params = newps;
 }
 
 
 
 void
-Factor::removeFirstVariable (void)
+Factor::sumOutFirstVariable (void)
 {
-  ParamSet& params = dist_->params;
+  Params& params = dist_->params;
   unsigned nStates = ranges_.front();
   unsigned sep = params.size() / nStates;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = sep; i < params.size(); i++) {
-        params[i % sep] += params[i];
-      }
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned i = sep; i < params.size(); i++) {
-        Util::logSum (params[i % sep], params[i]);
-      }
+  if (Globals::logDomain) {
+    for (unsigned i = sep; i < params.size(); i++) {
+      Util::logSum (params[i % sep], params[i]);
+    }
+  } else {
+    for (unsigned i = sep; i < params.size(); i++) {
+      params[i % sep] += params[i];
+    }
   }
   params.resize (sep);
   varids_.erase (varids_.begin());
   ranges_.erase (ranges_.begin());
-  dist_->entries.clear();
 }
 
 
 
 void
-Factor::removeLastVariable (void)
+Factor::sumOutLastVariable (void)
 {
-  ParamSet& params = dist_->params;
+  Params& params = dist_->params;
   unsigned nStates = ranges_.back();
   unsigned idx1 = 0;
   unsigned idx2 = 0;
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      while (idx1 < params.size()) {
-        params[idx2] = params[idx1];
+  if (Globals::logDomain) {
+    while (idx1 < params.size()) {
+      params[idx2] = params[idx1];
+      idx1 ++;
+      for (unsigned j = 1; j < nStates; j++) {
+        Util::logSum (params[idx2], params[idx1]);
         idx1 ++;
-        for (unsigned j = 1; j < nStates; j++) {
-          params[idx2] += params[idx1];
-          idx1 ++;
-        }
-        idx2 ++;
       }
-      break;
-    case NumberSpace::LOGARITHM:
-      while (idx1 < params.size()) {
-        params[idx2] = params[idx1];
+      idx2 ++;
+    }
+  } else {
+    while (idx1 < params.size()) {
+      params[idx2] = params[idx1];
+      idx1 ++;
+      for (unsigned j = 1; j < nStates; j++) {
+        params[idx2] += params[idx1];
         idx1 ++;
-        for (unsigned j = 1; j < nStates; j++) {
-          Util::logSum (params[idx2], params[idx1]);
-          idx1 ++;
-        }
-        idx2 ++;
       }
+      idx2 ++;
+    }
   }
   params.resize (idx2);
   varids_.pop_back();
   ranges_.pop_back();
-  dist_->entries.clear();
 }
 
 
@@ -354,34 +375,31 @@ Factor::removeLastVariable (void)
 void
 Factor::orderVariables (void)
 {
-  VarIdSet sortedVarIds = varids_;
+  VarIds sortedVarIds = varids_;
   sort (sortedVarIds.begin(), sortedVarIds.end());
-  orderVariables (sortedVarIds);
+  reorderVariables (sortedVarIds);
 }
 
 
 
 void
-Factor::orderVariables (const VarIdSet& newVarIdOrder)
+Factor::reorderVariables (const VarIds& newVarIds)
 {
-  assert (newVarIdOrder.size() == varids_.size());
-  if (newVarIdOrder == varids_) {
+  assert (newVarIds.size() == varids_.size());
+  if (newVarIds == varids_) {
     return;
   }
 
-  Ranges newRangeOrder;
-  for (unsigned i = 0; i < newVarIdOrder.size(); i++) {
-    unsigned pos = getPositionOf (newVarIdOrder[i]);
-    newRangeOrder.push_back (ranges_[pos]);
+  Ranges newRanges;
+  vector<unsigned> positions;
+  for (unsigned i = 0; i < newVarIds.size(); i++) {
+    unsigned idx = indexOf (newVarIds[i]);
+    newRanges.push_back (ranges_[idx]);
+    positions.push_back (idx);
   }
 
-  vector<unsigned> positions;
-  for (unsigned i = 0; i < newVarIdOrder.size(); i++) {
-    positions.push_back (getPositionOf (newVarIdOrder[i]));
-  }
-      
   unsigned N = ranges_.size();
-  ParamSet newPs (dist_->params.size());
+  Params newParams (dist_->params.size());
   for (unsigned i = 0; i < dist_->params.size(); i++) {
     unsigned li = i;
     // calculate vector index corresponding to linear index
@@ -397,35 +415,68 @@ Factor::orderVariables (const VarIdSet& newVarIdOrder)
       new_li += vi[positions[k]] * prod;
       prod *= ranges_[positions[k]];
     }
-    newPs[new_li] = dist_->params[i];
+    newParams[new_li] = dist_->params[i];
   }
-  varids_ = newVarIdOrder;
-  ranges_ = newRangeOrder;
-  dist_->params = newPs;
-  dist_->entries.clear(); 
+  varids_ = newVarIds;
+  ranges_ = newRanges;
+  dist_->params = newParams;
 }
 
 
 
 void
-Factor::removeInconsistentEntries (VarId vid, unsigned evidence)
+Factor::absorveEvidence (VarId vid, unsigned evidence)
 {
-  int pos = getPositionOf (vid);
-  assert (pos != -1);
-  ParamSet newPs;
-  newPs.reserve (dist_->params.size() / ranges_[pos]);
-  StatesIndexer idx (ranges_);
+  int idx = indexOf (vid);
+  assert (idx != -1);
+
+  Params oldParams = dist_->params;
+  dist_->params.clear();
+  dist_->params.reserve (oldParams.size() / ranges_[idx]);
+  StatesIndexer indexer (ranges_);
   for (unsigned i = 0; i < evidence; i++) {
-    idx.incrementState (pos);
+    indexer.increment (idx);
   }
-  while (idx.valid()) {
-    newPs.push_back (dist_->params[idx.getLinearIndex()]);
-    idx.nextSameState (pos);
+  while (indexer.valid()) {
+    dist_->params.push_back (oldParams[indexer]);
+    indexer.incrementExcluding (idx);
   }
-  varids_.erase (varids_.begin() + pos);
-  ranges_.erase (ranges_.begin() + pos);
-  dist_->updateParameters (newPs);
-  dist_->entries.clear();
+  varids_.erase (varids_.begin() + idx);
+  ranges_.erase (ranges_.begin() + idx);
+}
+
+
+
+void
+Factor::normalize (void)
+{
+  Util::normalize (dist_->params);
+}
+
+
+
+bool
+Factor::contains (const VarIds& vars) const
+{
+  for (unsigned i = 0; i < vars.size(); i++) {
+    if (indexOf (vars[i]) == -1) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
+
+int
+Factor::indexOf (VarId vid) const
+{
+  for (unsigned i = 0; i < varids_.size(); i++) {
+    if (varids_[i] == vid) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 
@@ -446,7 +497,7 @@ Factor::getLabel (void) const
 
 
 void
-Factor::printFactor (void) const
+Factor::print (void) const
 {
   VarNodes vars;
   for (unsigned i = 0; i < varids_.size(); i++) {
@@ -457,53 +508,10 @@ Factor::printFactor (void) const
     cout << "f(" << jointStrings[i] << ")" ;
     cout << " = " << dist_->params[i] << endl;
   }
+  cout << endl;
   for (unsigned i = 0; i < vars.size(); i++) {
     delete vars[i];
   }
 }
 
-
-
-int
-Factor::getPositionOf (VarId vid) const
-{
-  for (unsigned i = 0; i < varids_.size(); i++) {
-    if (varids_[i] == vid) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-
-
-const vector<CptEntry>&
-Factor::getCptEntries (void) const
-{
-  if (dist_->entries.size() == 0) {
-    vector<DConf> confs (dist_->params.size());
-    for (unsigned i = 0; i < dist_->params.size(); i++) {
-      confs[i].resize (varids_.size());
-    }
-    unsigned nReps = 1;
-    for (int i = varids_.size() - 1; i >= 0; i--) {
-      unsigned index = 0;
-      while (index < dist_->params.size()) {
-        for (unsigned j = 0; j < ranges_[i]; j++) {
-          for (unsigned r = 0; r < nReps; r++) {
-            confs[index][i] = j;
-            index++;
-          }
-        }
-      }
-      nReps *= ranges_[i];
-    }
-    dist_->entries.clear();
-    dist_->entries.reserve (dist_->params.size());
-    for (unsigned i = 0; i < dist_->params.size(); i++) {
-      dist_->entries.push_back (CptEntry (i, confs[i]));
-    }
-  }
-  return dist_->entries;
-}
 

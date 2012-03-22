@@ -4,7 +4,7 @@
 #include "unordered_map"
 
 #include "FactorGraph.h"
-#include "Shared.h"
+#include "Horus.h"
 
 using namespace std;
 
@@ -45,10 +45,10 @@ class ElimGraph
     }
     void          addNode (EgNode*);
     EgNode*       getEgNode (VarId) const;
-    VarIdSet      getEliminatingOrder (const VarIdSet&);
+    VarIds      getEliminatingOrder (const VarIds&);
     void          printGraphicalModel (void) const;
     void          exportToGraphViz (const char*, bool = true,
-                                    const VarIdSet& = VarIdSet()) const;
+                                    const VarIds& = VarIds()) const;
     void          setIndexes();
 
     static void setEliminationHeuristic (ElimHeuristic h)
@@ -68,7 +68,7 @@ class ElimGraph
 
     vector<EgNode*> nodes_;
     vector<bool>    marked_;
-    unordered_map<VarId,EgNode*> vid2nodes_;
+    unordered_map<VarId,EgNode*> varMap_;
     static ElimHeuristic elimHeuristic_;
 };
 

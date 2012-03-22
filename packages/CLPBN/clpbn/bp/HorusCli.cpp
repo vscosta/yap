@@ -10,7 +10,9 @@
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 
-#include "StatesIndexer.h"
+//#include "TinySet.h"
+#include "LiftedUtils.h"
+
 
 using namespace std;
 
@@ -22,9 +24,38 @@ const string USAGE = "usage: \
 ./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
 
 
+class Cenas
+{
+  public:
+    Cenas (int cc)
+    {
+      c = cc;
+    }
+    //operator int (void) const
+    //{ 
+    //  cout << "return int" << endl;
+    //  return c;
+    //}
+    operator double (void) const
+    {
+      cout << "return double" << endl;
+      return 0.0;
+    }
+  private:
+    int c;
+};
+
+
 int
 main (int argc, const char* argv[])
 {
+  LogVar X = 3;
+  LogVarSet Xs = X;
+  cout << "set: " << X << endl;
+  Cenas c1 (1);
+  Cenas c2 (3);
+  cout << (c1 < c2) << endl;
+  return 0;
   if (!argv[1]) {
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
@@ -121,7 +152,6 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
       break;
     case InfAlgorithms::FG_BP:
       fg = new FactorGraph (bn);
-      fg->printGraphicalModel();
       solver = new FgBpSolver (*fg);
       break;
     case InfAlgorithms::CBP:
@@ -230,6 +260,9 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       break;
     case InfAlgorithms::BN_BP:
     case InfAlgorithms::FG_BP:
+      //cout << "here!" << endl;
+      //fg.printGraphicalModel();
+      //fg.exportToLibDaiFormat ("net.fg");
       solver = new FgBpSolver (fg);
       break;
     case InfAlgorithms::CBP:
@@ -247,7 +280,7 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
 void
 runSolver (Solver* solver, const VarNodes& queryVars)
 {
-  VarIdSet vids;
+  VarIds vids;
   for (unsigned i = 0; i < queryVars.size(); i++) {
     vids.push_back (queryVars[i]->varId());
   }

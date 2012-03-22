@@ -6,7 +6,7 @@
 #include "Solver.h"
 #include "FactorGraph.h"
 #include "BayesNet.h"
-#include "Shared.h"
+#include "Horus.h"
 
 
 using namespace std;
@@ -18,22 +18,22 @@ class VarElimSolver : public Solver
     VarElimSolver (const BayesNet&);
     VarElimSolver (const FactorGraph&);
    ~VarElimSolver (void);
-    void      runSolver (void) { }
-    ParamSet  getPosterioriOf (VarId);
-    ParamSet  getJointDistributionOf (const VarIdSet&);
+    void    runSolver (void) { }
+    Params  getPosterioriOf (VarId);
+    Params  getJointDistributionOf (const VarIds&);
 
   private:
     void createFactorList (void);
     void introduceEvidence (void);
-    void chooseEliminationOrder (const VarIdSet&);
-    void processFactorList (const VarIdSet&);
+    void chooseEliminationOrder (const VarIds&);
+    void processFactorList (const VarIds&);
     void eliminate (VarId);
     void printActiveFactors (void);
 
-    const BayesNet*                  bayesNet_;
-    const FactorGraph*               factorGraph_;
-    vector<Factor*>                  factorList_;
-    VarIdSet                         elimOrder_;
+    const BayesNet*     bayesNet_;
+    const FactorGraph*  factorGraph_;
+    vector<Factor*>     factorList_;
+    VarIds              elimOrder_;
     unordered_map<VarId, vector<unsigned>> varFactors_;
 };
 

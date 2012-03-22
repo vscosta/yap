@@ -1,10 +1,14 @@
 #ifndef HORUS_GRAPHICALMODEL_H
 #define HORUS_GRAPHICALMODEL_H
 
+#include <sstream>
+
 #include "VarNode.h"
-#include "Shared.h"
+#include "Distribution.h"
+#include "Horus.h"
 
 using namespace std; 
+
 
 struct VariableInfo
 {
@@ -45,9 +49,18 @@ class GraphicalModel
     {
       varsInfo_.clear();
     }
+    static void addDistribution (unsigned id, Distribution* dist) 
+    {
+       distsInfo_[id] = dist;
+    }
+    static void updateDistribution (unsigned id, const Params& params) 
+    {
+      distsInfo_[id]->updateParameters (params);
+    }
 
   private:
     static unordered_map<VarId,VariableInfo> varsInfo_;
+    static unordered_map<unsigned,Distribution*> distsInfo_;
 };
 
 #endif // HORUS_GRAPHICALMODEL_H

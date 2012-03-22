@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "Distribution.h"
-#include "CptEntry.h"
 #include "VarNode.h"
 
 
@@ -20,47 +19,46 @@ class Factor
     Factor (const Factor&);
     Factor (VarId, unsigned);
     Factor (const VarNodes&);
-    Factor (VarId, unsigned, const ParamSet&);
+    Factor (VarId, unsigned, const Params&);
     Factor (VarNodes&, Distribution*);
-    Factor (const VarNodes&, const ParamSet&);
-    Factor (const VarIdSet&, const Ranges&, const ParamSet&);
+    Factor (const VarNodes&, const Params&);
+    Factor (const VarIds&, const Ranges&, const Params&);
+   ~Factor (void);
 
-    void      setParameters (const ParamSet&);
+    void      setParameters (const Params&);
     void      copyFromFactor (const Factor& f);
-    void      multiplyByFactor (const Factor&, const vector<CptEntry>* = 0);
+    void      multiply (const Factor&);
     void      insertVariable (VarId, unsigned);
-    void      removeAllVariablesExcept (VarId);
-    void      removeVariable (VarId);
-    void      removeFirstVariable (void);
-    void      removeLastVariable (void);
+    void      insertVariables (const VarIds&, const Ranges&);
+    void      sumOutAllExcept (VarId);
+    void      sumOutAllExcept (const VarIds&);
+    void      sumOut (VarId);
+    void      sumOutFirstVariable (void);
+    void      sumOutLastVariable (void);
     void      orderVariables (void);
-    void      orderVariables (const VarIdSet&);
-    void      removeInconsistentEntries (VarId, unsigned);
+    void      reorderVariables (const VarIds&);
+    void      absorveEvidence (VarId, unsigned);
+    void      normalize (void);
+    bool      contains (const VarIds&) const;
+    int       indexOf (VarId) const;
     string    getLabel (void) const;
-    void      printFactor (void) const;
-    int       getPositionOf (VarId) const;
-    const vector<CptEntry>& getCptEntries (void) const;
+    void      print (void) const;
 
-    const VarIdSet&  getVarIds (void) const        { return varids_; }
+    const VarIds&    getVarIds (void) const        { return varids_; }
     const Ranges&    getRanges (void) const        { return ranges_; }
-    const ParamSet&  getParameters (void) const    { return dist_->params; }
+    const Params&    getParameters (void) const    { return dist_->params; }
     Distribution*    getDistribution (void) const  { return dist_; }
-    unsigned     nrVariables (void) const     { return varids_.size(); }
-    unsigned     nrParameters() const         { return dist_->params.size(); }
+    unsigned         nrVariables (void) const      { return varids_.size(); }
+    unsigned         nrParameters() const          { return dist_->params.size(); }
 
     void setDistribution (Distribution* dist)
     { 
       dist_ = dist;
     }
-    void freeDistribution (void) 
-    {
-      delete dist_;
-      dist_ = 0;
-    }
 
   private:
 
-    VarIdSet         varids_;
+    VarIds         varids_;
     Ranges         ranges_;
     Distribution*  dist_;
 };

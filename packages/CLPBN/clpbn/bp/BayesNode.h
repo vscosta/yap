@@ -4,9 +4,8 @@
 #include <vector>
 
 #include "VarNode.h"
-#include "CptEntry.h"
 #include "Distribution.h"
-#include "Shared.h"
+#include "Horus.h"
 
 using namespace std;
 
@@ -22,17 +21,14 @@ class BayesNode : public VarNode
     void                     addChild (BayesNode*);
     void                     setDistribution (Distribution*);
     Distribution*            getDistribution (void);
-    const ParamSet&          getParameters (void);
-    ParamSet                 getRow (int) const;
-    void                     setProbability (int, const CptEntry&, double);
+    const Params&          getParameters (void);
+    Params                 getRow (int) const;
     bool                     isRoot (void);
     bool                     isLeaf (void);
     bool                     hasNeighbors (void) const;
     int                      getCptSize (void);
-    const vector<CptEntry>&  getCptEntries (void);
     int                      getIndexOfParent (const BayesNode*) const;
-    string                   cptEntryToString (const CptEntry&) const;
-    string                   cptEntryToString (int, const CptEntry&) const;
+    string                   cptEntryToString (int, const vector<unsigned>&) const;
 
     const BnNodeSet& getParents (void) const  { return parents_; }
     const BnNodeSet& getChilds  (void) const  { return childs_;  }
@@ -42,9 +38,8 @@ class BayesNode : public VarNode
       return dist_->params.size() / nrStates();
     }
 
-    double getProbability (int row, const CptEntry& entry)
+    double getProbability (int row, unsigned col)
     {
-      int col = entry.getParameterIndex();
       int idx = (row * getRowSize()) + col;
       return dist_->params[idx];
     }

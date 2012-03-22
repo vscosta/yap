@@ -23,11 +23,11 @@ class CbpSolverLink : public SpLink
       Util::pow (poweredMsg_, edgeCount_);
     }
   
-    unsigned         getNumberOfEdges  (void) const { return edgeCount_; }
-    const ParamSet&  getPoweredMessage (void) const { return poweredMsg_; }
+    unsigned       getNumberOfEdges  (void) const { return edgeCount_; }
+    const Params&  getPoweredMessage (void) const { return poweredMsg_; }
 
   private:
-    ParamSet poweredMsg_;
+    Params poweredMsg_;
     unsigned edgeCount_;
 };
 
@@ -39,15 +39,15 @@ class CbpSolver : public FgBpSolver
     CbpSolver (FactorGraph& fg) : FgBpSolver (fg) { }
    ~CbpSolver (void);
 
-    ParamSet        getPosterioriOf (VarId);
-    ParamSet        getJointDistributionOf (const VarIdSet&);
+    Params        getPosterioriOf (VarId);
+    Params        getJointDistributionOf (const VarIds&);
 
    private:
      void           initializeSolver (void);
      void           createLinks (void);
 
      void           maxResidualSchedule (void);
-     ParamSet       getVar2FactorMsg (const SpLink*) const;
+     Params       getVar2FactorMsg (const SpLink*) const;
      void           printLinkInformation (void) const;
 
 

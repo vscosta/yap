@@ -13,32 +13,31 @@ CbpSolver::~CbpSolver (void)
 
 
 
-ParamSet
+Params
 CbpSolver::getPosterioriOf (VarId vid)
 {
+  assert (lfg_->getEquivalentVariable (vid));
   FgVarNode* var = lfg_->getEquivalentVariable (vid);
-  ParamSet probs;
+  Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->nrStates(), Util::noEvidence());
     probs[var->getEvidence()] = Util::withEvidence();
   } else {
     probs.resize (var->nrStates(), Util::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
-    switch (NSPACE) {
-      case NumberSpace::NORMAL:
-        for (unsigned i = 0; i < links.size(); i++) {
-          CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-          Util::multiply (probs, l->getPoweredMessage());
-        }
-        Util::normalize (probs);
-        break;
-      case NumberSpace::LOGARITHM:
+    if (Globals::logDomain) {
         for (unsigned i = 0; i < links.size(); i++) {
           CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
           Util::add (probs, l->getPoweredMessage());
         }
         Util::normalize (probs);
         Util::fromLog (probs);
+    } else {
+      for (unsigned i = 0; i < links.size(); i++) {
+        CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
+        Util::multiply (probs, l->getPoweredMessage());
+      }
+      Util::normalize (probs);
     }
   }
   return probs;
@@ -46,23 +45,16 @@ CbpSolver::getPosterioriOf (VarId vid)
 
 
 
-ParamSet
-CbpSolver::getJointDistributionOf (const VarIdSet& jointVarIds)
+Params
+CbpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 {
-  unsigned msgSize = 1;
-  vector<unsigned> dsizes (jointVarIds.size());
+  VarIds eqVarIds;
   for (unsigned i = 0; i < jointVarIds.size(); i++) {
-    dsizes[i] = lfg_->getEquivalentVariable (jointVarIds[i])->nrStates();
-    msgSize *= dsizes[i];
+    eqVarIds.push_back (lfg_->getEquivalentVariable (jointVarIds[i])->varId());
   }
-  unsigned reps = 1;
-  ParamSet jointDist (msgSize, Util::multIdenty());
-  for (int i = jointVarIds.size() - 1 ; i >= 0; i--) {
-    Util::multiply (jointDist, getPosterioriOf (jointVarIds[i]), reps);
-    reps *= dsizes[i];
-  }
-  return jointDist;
+  return FgBpSolver::getJointDistributionOf (eqVarIds);
 }
+
 
 
 
@@ -119,7 +111,6 @@ CbpSolver::createLinks (void)
           vcs[j]->getRepresentativeVariable(), c));
     }
   }
-  return;
 }
 
 
@@ -197,10 +188,10 @@ CbpSolver::maxResidualSchedule (void)
 
 
 
-ParamSet
+Params
 CbpSolver::getVar2FactorMsg (const SpLink* link) const
 {
-  ParamSet msg;
+  Params msg;
   const FgVarNode* src = link->getVariable();
   const FgFacNode* dst = link->getFactor();
   const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
@@ -216,27 +207,26 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
     cout << "        " << "init: " << Util::parametersToString (msg) << endl;
   }
   const SpLinkSet& links = ninf(src)->getLinks();
-  switch (NSPACE) {
-    case NumberSpace::NORMAL:
-      for (unsigned i = 0; i < links.size(); i++) {
-        if (links[i]->getFactor() != dst) {
-          CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-          Util::multiply (msg, l->getPoweredMessage());
-          if (DL >= 5) {
-            cout << "        msg from " << l->getFactor()->getLabel() << ": " ;
-            cout << Util::parametersToString (l->getPoweredMessage()) << endl;
-          }
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < links.size(); i++) {
+      if (links[i]->getFactor() != dst) {
+        CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
+        Util::add (msg, l->getPoweredMessage());
+      }
+    }
+  } else {
+    for (unsigned i = 0; i < links.size(); i++) {
+      if (links[i]->getFactor() != dst) {
+        CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
+        Util::multiply (msg, l->getPoweredMessage());
+        if (DL >= 5) {
+          cout << "        msg from " << l->getFactor()->getLabel() << ": " ;
+          cout << Util::parametersToString (l->getPoweredMessage()) << endl;
         }
       }
-      break;
-    case NumberSpace::LOGARITHM:
-      for (unsigned i = 0; i < links.size(); i++) {
-        if (links[i]->getFactor() != dst) {
-          CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-          Util::add (msg, l->getPoweredMessage());
-        }
-      }
+    }
   }
+
   if (DL >= 5) {
     cout << "        result = " << Util::parametersToString (msg) << endl;
   }

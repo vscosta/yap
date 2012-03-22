@@ -5,7 +5,7 @@
 
 #include "FactorGraph.h"
 #include "Factor.h"
-#include "Shared.h"
+#include "Horus.h"
 
 class VarCluster;
 class FacCluster;
@@ -18,15 +18,16 @@ class SignatureHash;
 typedef long                                       Color;
 typedef unordered_map<unsigned, vector<Color> >    VarColorMap;
 typedef unordered_map<const Distribution*, Color>  DistColorMap;
-typedef unordered_map<VarId, VarCluster*>            VarId2VarCluster;
+typedef unordered_map<VarId, VarCluster*>          VarId2VarCluster;
 typedef vector<VarCluster*>                        VarClusterSet;
 typedef vector<FacCluster*>                        FacClusterSet;
-typedef unordered_map<Signature, FgVarSet,    SignatureHash>  VarSignMap;
+typedef unordered_map<Signature, FgVarSet, SignatureHash>  VarSignMap;
 typedef unordered_map<Signature, FgFacSet, SignatureHash>  FacSignMap;
 
 
 
-struct Signature {
+struct Signature
+{
   Signature (unsigned size)
   {
     colors.resize (size);
@@ -90,12 +91,12 @@ class VarCluster
 
     void addFacCluster (FacCluster* fc)
     {
-      factorClusters_.push_back (fc);
+      facClusters_.push_back (fc);
     }
 
     const FacClusterSet& getFacClusters (void) const
     {
-      return factorClusters_;
+      return facClusters_;
     }
 
     FgVarNode* getRepresentativeVariable (void) const { return representVar_; }
@@ -103,9 +104,9 @@ class VarCluster
     const FgVarSet& getGroundFgVarNodes (void) const  { return groundVars_; }
 
   private:
-    FgVarSet          groundVars_;
-    FacClusterSet  factorClusters_;
-    FgVarNode*        representVar_;
+    FgVarSet        groundVars_;
+    FacClusterSet   facClusters_;
+    FgVarNode*      representVar_;
 };
 
 
@@ -151,9 +152,9 @@ class FacCluster
 
  
   private:
-    FgFacSet     groundFactors_;
+    FgFacSet        groundFactors_;
     VarClusterSet   varClusters_;
-    FgFacNode*   representFactor_;
+    FgFacNode*      representFactor_;
 };
 
 
@@ -172,18 +173,10 @@ class CFactorGraph
       return vc->getRepresentativeVariable();
     }
   
-    const VarClusterSet&    getVariableClusters (void) { return varClusters_; }
-    const FacClusterSet& getFacClusters (void) { return factorClusters_; }
+    const VarClusterSet&  getVarClusters (void) { return varClusters_; }
+    const FacClusterSet&  getFacClusters (void) { return facClusters_; }
 
-    static void enableCheckForIdenticalFactors (void)
-    {
-      checkForIdenticalFactors_ = true;
-    }
-
-    static void disableCheckForIdenticalFactors (void)
-    {
-      checkForIdenticalFactors_ = false;
-    }
+    static bool checkForIdenticalFactors;
  
   private:
     void  setInitialColors (void);
@@ -227,10 +220,9 @@ class CFactorGraph
     vector<Signature>   varSignatures_;
     vector<Signature>   factorSignatures_;
     VarClusterSet       varClusters_;
-    FacClusterSet    factorClusters_;
+    FacClusterSet    facClusters_;
     VarId2VarCluster      vid2VarCluster_;
     const FactorGraph*  groundFg_;
-    bool static         checkForIdenticalFactors_;
 };
 
 #endif // HORUS_CFACTORGRAPH_H

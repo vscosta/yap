@@ -8,6 +8,7 @@
 #include "Solver.h"
 #include "Factor.h"
 #include "FactorGraph.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -52,8 +53,8 @@ class SpLink
 
     FgFacNode*       getFactor (void) const         { return fac_; }
     FgVarNode*       getVariable (void) const       { return var_; }
-    const ParamSet&  getMessage (void) const        { return *currMsg_; }
-    ParamSet&        getNextMessage (void)          { return *nextMsg_; }
+    const Params&    getMessage (void) const        { return *currMsg_; }
+    Params&          getNextMessage (void)          { return *nextMsg_; }
     bool             messageWasSended (void) const  { return msgSended_; }
     double           getResidual (void) const       { return residual_; }
     void             clearResidual (void)           { residual_ = 0.0; }
@@ -61,10 +62,10 @@ class SpLink
   protected:
     FgFacNode*    fac_;
     FgVarNode*    var_;
-    ParamSet      v1_;
-    ParamSet      v2_;
-    ParamSet*     currMsg_;
-    ParamSet*     nextMsg_;
+    Params        v1_;
+    Params        v2_;
+    Params*       currMsg_;
+    Params*       nextMsg_;
     bool          msgSended_;
     double        residual_;
 };
@@ -91,15 +92,16 @@ class FgBpSolver : public Solver
     virtual ~FgBpSolver (void);
 
     void              runSolver (void);
-    virtual ParamSet  getPosterioriOf (VarId);
-    virtual ParamSet  getJointDistributionOf (const VarIdSet&);
+    virtual Params    getPosterioriOf (VarId);
+    virtual Params    getJointDistributionOf (const VarIds&);
  
   protected:
     virtual void      initializeSolver (void);
     virtual void      createLinks (void);
     virtual void      maxResidualSchedule (void);
     virtual void      calculateFactor2VariableMsg (SpLink*) const;
-    virtual ParamSet  getVar2FactorMsg (const SpLink*) const;
+    virtual Params    getVar2FactorMsg (const SpLink*) const;
+    virtual Params    getJointByConditioning (const VarIds&) const;
     virtual void      printLinkInformation (void) const;
 
     void calculateAndUpdateMessage (SpLink* link, bool calcResidual = true)
@@ -163,8 +165,6 @@ class FgBpSolver : public Solver
     SpLinkMap linkMap_;
 
   private:
-    void              runTreeSolver (void);
-    bool              readyToSendMessage (const SpLink*) const;
     void              runLoopySolver (void);
     bool              converged (void);
 

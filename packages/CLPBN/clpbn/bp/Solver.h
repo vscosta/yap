@@ -17,12 +17,12 @@ class Solver
     }
     virtual ~Solver() {} // to ensure that subclass destructor is called
     virtual void      runSolver (void) = 0;
-    virtual ParamSet  getPosterioriOf (VarId) = 0;
-    virtual ParamSet  getJointDistributionOf (const VarIdSet&) = 0;
+    virtual Params  getPosterioriOf (VarId) = 0;
+    virtual Params  getJointDistributionOf (const VarIds&) = 0;
 
     void printAllPosterioris (void);
     void printPosterioriOf (VarId vid);
-    void printJointDistributionOf (const VarIdSet& vids);
+    void printJointDistributionOf (const VarIds& vids);
    
   private:
     const GraphicalModel* gm_;
