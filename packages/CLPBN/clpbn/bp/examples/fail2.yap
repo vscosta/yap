@@ -10,6 +10,7 @@ t(dave).
 bayes p(X)::[t,f] ; [0.1, 0.3] ; [t(X)].
 
 
-?- p(ann,X), p(ann,f).
+% use standard Prolog queries: provide evidence first.
+?-  p(ann,f), p(ann,X).
 
 
