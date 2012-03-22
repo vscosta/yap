@@ -58,10 +58,10 @@ assert(C) :-
 	'$assert_clause2'(H, G, M1, Where, R, P).
 
 '$assert_fact'(H,Mod,Where,R) :-
-	'$is_log_updatable'(H, Mod), !,
-	'$compile_dynamic'(H, Where, H, Mod, R).
-'$assert_fact'(H,Mod,Where,R) :-
-	( '$is_dynamic'(H, Mod) ->
+	( '$is_log_updatable'(H, Mod) ->
+	    '$compile_dynamic'(H, Where, H, Mod, R)
+        ;
+	 '$is_dynamic'(H, Mod) ->
 	    '$assertat_d'(Where, H, true, H, Mod, R)
 	;
 	  '$undefined'(H,Mod) -> 
