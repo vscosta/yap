@@ -66,7 +66,7 @@ typedef  struct  rewind_term {
 
 typedef struct write_globs {
   void     *stream;
-  int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray;
+  int      Quote_illegal, Ignore_ops, Handle_vars, Use_portray, Portray_delays;
   int      Keep_terms;
   int      Write_Loops;
   int      Write_strings;
@@ -670,13 +670,13 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   lastw = separator;
   if (IsAttVar(t)) {
     Int vcount = (t-H0);
-    if (Yap_Portray_delays) {
+    if (wglb->Portray_delays) {
       exts ext = ExtFromCell(t);
       struct rewind_term nrwt;
       nrwt.parent = rwt;
       nrwt.u.s.ptr = 0;
 
-      Yap_Portray_delays = FALSE;
+      wglb->Portray_delays = FALSE;
       if (ext == attvars_ext) {
 	attvar_record *attv = RepAttVar(t);
 	CELL *l = &attv->Value; /* dirty low-level hack, check atts.h */
@@ -692,7 +692,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 	restore_from_write(&nrwt, wglb);
 	wrputc(')', wglb->stream);
       }
-      Yap_Portray_delays = TRUE;
+      wglb->Portray_delays = TRUE;
       return;
     }
     wrputc('D', wglb->stream);
@@ -1136,6 +1136,7 @@ Yap_plwrite(Term t, void *mywrite, int max_depth, int flags, int priority)
   wglb.Quote_illegal = flags & Quote_illegal_f;
   wglb.Handle_vars = flags & Handle_vars_f;
   wglb.Use_portray = flags & Use_portray_f;
+  wglb.Portray_delays = flags & AttVar_Portray_f;
   wglb.MaxDepth = max_depth;
   wglb.MaxArgs = max_depth;
   /* notice: we must have ASP well set when using portray, otherwise
