@@ -99,7 +99,7 @@
  '$check_op_name'(P,T,'|',G) :-
 	 (
 	  integer(P),
-	  P < 1001
+	  P < 1001, P > 0
 	 ;
 	  atom_codes(T,[_,_])
 	 ), !,
