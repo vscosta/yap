@@ -122,6 +122,8 @@ system_message(declaration(Args,Action)) -->
 	[ 'declaration ~w ~w.' - [Args,Action] ].
 system_message(defined_elsewhere(P,F)) -->
 	[  'predicate ~q previously defined in file ~w' - [P,F] ].
+system_message(functionality(Library)) -->
+	[  '~q not available' - [Library] ].
 system_message(import(Pred,To,From,private)) -->
 	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
 system_message(leash([])) -->
