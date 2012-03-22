@@ -20,14 +20,6 @@
 	   uniform_CPT_as_list/2,
 	   normalise_CPT_on_lines/3]).
 
-:- writeln(h0).
-
-:- use_module(library(dists),
-	      [get_dist_domain_size/2,
-	       get_dist_domain/2]).
-
-:- writeln(h1).
-
 :- use_module(library(matrix),
 	      [matrix_new/4,
 	       matrix_new_set/4,
@@ -187,12 +179,12 @@ generate_map([V|DimsNew], [V0|Dims0], [0|Map]) :- V == V0, !,
 	generate_map(DimsNew, Dims0, Map).
 generate_map([V|DimsNew], Dims0, [Sz|Map]) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
-	get_dist_domain_size(Id, Sz),	
+	clpbn_dist:get_dist_domain_size(Id, Sz),	
 	generate_map(DimsNew, Dims0, Map).
 	
 unit_CPT(V,CPT) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
-	get_dist_domain_size(Id, Sz),
+	clpbn_dist:get_dist_domain_size(Id, Sz),
 	matrix_new_set(floats,[Sz],1.0,CPT).
 
 reset_CPT_that_disagrees(CPT, Vars, V, Pos, NCPT) :-
