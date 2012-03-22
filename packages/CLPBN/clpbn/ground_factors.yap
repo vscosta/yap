@@ -62,7 +62,7 @@ run_through_factors(V.Vars, H0, HF) -->
 % aggregates are special.
 construct_clpbn_node(K, V, HI) -->
 	% and get the corresponding factor
-	{ factor(Id, [K|Ks], _, avg, Constraints) }, !,
+	{ factor(_Id, [K|Ks], _, avg, Constraints) }, !,
 	{
           skolem(K, Domain),
 	  dist(avg(Domain, Parents), DistId, K, Parents),

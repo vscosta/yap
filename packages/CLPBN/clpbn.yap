@@ -5,6 +5,7 @@
 		  set_clpbn_flag/2,
 		  clpbn_flag/3,
 		  clpbn_key/2,
+		  clpbn_language/1,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
 		  clpbn_finalize_solver/1,
@@ -59,6 +60,12 @@
 	      [jt/3,
 	       init_jt_solver/4,
 	       run_jt_solver/3
+	      ]).
+
+:- use_module('clpbn/bdd',
+	      [bdd/3,
+	       init_bdd_solver/4,
+	       run_bdd_solver/3
 	      ]).
 
 :- use_module('clpbn/bnt',
@@ -140,6 +147,9 @@ clpbn_flag(output,Before,After) :-
 clpbn_flag(solver,Before,After) :-
 	retract(solver(Before)),
 	assert(solver(After)).
+clpbn_flag(language,Before,After) :-
+	retract(clpbn_language(Before)),
+	assert(clpbn_language(After)).
 clpbn_flag(em_solver,Before,After) :-
 	retract(em_solver(Before)),
 	assert(em_solver(After)).
@@ -244,7 +254,8 @@ project_attributes(GVars, AVars0) :-
 project_attributes(_, _).
 
 generate_vars(GVars, _, NewAVars) :-
-	use_parfactors(on), !,
+	use_parfactors(on),
+	clpbn_flag(solver, Solver), Solver \= fove, !,
 	generate_bn(GVars, NewAVars).
 generate_vars(_GVars, AVars, AVars).
 
@@ -289,6 +300,8 @@ write_out(ve, GVars, AVars, DiffVars) :-
 	ve(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
+write_out(bdd, GVars, AVars, DiffVars) :-
+	bdd(GVars, AVars, DiffVars).
 write_out(bp, GVars, AVars, DiffVars) :-
 	bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
@@ -382,6 +395,9 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
 	check_if_ve_done(Var), !.
+bind_clpbn(_, Var, _, _, _, _, []) :-
+	use(bdd),
+	check_if_bdd_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	get_atts(Var, [key(Key)]), !,
 	(
@@ -452,6 +468,8 @@ clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_bdd_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
@@ -477,6 +495,9 @@ clpbn_run_solver(bp, LVs, LPs, State) :-
 
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
+
+clpbn_run_solver(bdd, LVs, LPs, State) :-
+	run_bdd_solver(LVs, LPs, State).
 
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
@@ -538,4 +559,18 @@ match_probability([p(V0=C)=Prob|_], C, V, Prob) :-
 match_probability([_|Probs], C, V, Prob) :-
 	match_probability(Probs, C, V, Prob).
 
+:- dynamic clpbn_language/1.
+
+pfl_not_clpbn :-
+	clpbn_language(clpbn), !,
+	throw(error(pfl('should be called before clpbn'))).
+pfl_not_clpbn :-
+	assert(clpbn_language(pfl)).
+
+clpbn_not_pfl :-
+	clpbn_language(pfl), !.
+clpbn_not_pfl :-
+	assert(clpbn_language(clpbn)).
+
+:- clpbn_not_pfl.
 

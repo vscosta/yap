@@ -6,7 +6,7 @@
 	       member/2
 	      ]).
 
-:- use_module(dists, [get_dist_domain/2]).
+:- use_module(library(clpbn/dists), [get_dist_domain/2]).
 
 :- attribute posterior/4.
 
@@ -60,8 +60,12 @@ get_all_combs(Vs, Vals) :-
 
 get_all_doms([], []).
 get_all_doms([V|Vs], [D|Ds]) :-
-	clpbn:get_atts(V, [dist(Id,_)]),
+	clpbn:get_atts(V, [dist(Id,_)]), !,
 	get_dist_domain(Id,D),
+	get_all_doms(Vs, Ds).
+get_all_doms([V|Vs], [D|Ds]) :-
+	clpbn:get_atts(V, [key(K)]),
+	pfl:skolem(K,D),
 	get_all_doms(Vs, Ds).
 
 ms([], []).

@@ -35,7 +35,7 @@
 :- use_module(library(lists)).
 :- use_module(library(charsio)).
 
-:- load_foreign_files(['horus'], [], init_predicates).
+:- use_module(horus).
 
 :- attribute id/1.
 

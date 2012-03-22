@@ -16,6 +16,11 @@ YAPLIBDIR=@libdir@/Yap
 #
 SHAREDIR=$(ROOTDIR)/share/Yap
 #
+# where YAP should store documentation
+#
+DOCDIR=$(ROOTDIR)/share/doc/Yap
+EXDIR=$(DOCDIR)/examples/CLPBN
+#
 #
 # You shouldn't need to change what follows.
 #
@@ -35,6 +40,7 @@ CLPBN_EXDIR = $(srcdir)/examples
 
 CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/aggregates.yap \
+	$(CLPBN_SRCDIR)/bdd.yap \
 	$(CLPBN_SRCDIR)/bnt.yap \
 	$(CLPBN_SRCDIR)/bp.yap \
 	$(CLPBN_SRCDIR)/connected.yap \
@@ -48,6 +54,7 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/graphviz.yap \
 	$(CLPBN_SRCDIR)/ground_factors.yap \
 	$(CLPBN_SRCDIR)/hmm.yap \
+	$(CLPBN_SRCDIR)/horus.yap \
 	$(CLPBN_SRCDIR)/jt.yap \
 	$(CLPBN_SRCDIR)/matrix_cpt_utils.yap \
 	$(CLPBN_SRCDIR)/pgrammar.yap \
@@ -72,6 +79,8 @@ CLPBN_SCHOOL_EXAMPLES= \
 	$(CLPBN_EXDIR)/School/parschema.yap \
 	$(CLPBN_EXDIR)/School/school_128.yap \
 	$(CLPBN_EXDIR)/School/school_32.yap \
+	$(CLPBN_EXDIR)/School/sch32.yap \
+	$(CLPBN_EXDIR)/School/school32_data.yap \
 	$(CLPBN_EXDIR)/School/school_64.yap \
 	$(CLPBN_EXDIR)/School/tables.yap
 
@@ -92,12 +101,13 @@ CLPBN_EXAMPLES= \
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn
 	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/learning
-	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/School
-	mkdir -p $(DESTDIR)$(SHAREDIR)/clpbn/examples/HMMer
+	mkdir -p $(DESTDIR)$(EXDIR)
+	mkdir -p $(DESTDIR)$(EXDIR)/School
+	mkdir -p $(DESTDIR)$(EXDIR)/HMMer
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
-	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples; done
-	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples/School; done
-	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/examples/HMMer; done
+	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
+	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
+	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
 

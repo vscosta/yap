@@ -20,9 +20,13 @@
 	   uniform_CPT_as_list/2,
 	   normalise_CPT_on_lines/3]).
 
-:- use_module(dists,
+:- writeln(h0).
+
+:- use_module(library(dists),
 	      [get_dist_domain_size/2,
 	       get_dist_domain/2]).
+
+:- writeln(h1).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,

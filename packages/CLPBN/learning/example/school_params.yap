@@ -4,7 +4,7 @@
 
 :- [pos:train].
 
-:- ['../../examples/School/school_32'].
+:- ['../../examples/School/sch32'].
 
 :- use_module(library(clpbn/learning/em)).
 

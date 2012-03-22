@@ -1,4 +1,4 @@
-%
+s%
 % routines to manipulate distributions
 %
 
@@ -224,6 +224,10 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 get_dist_params(Id, Parms) :-
 	recorded(clpbn_dist_db, db(Id, _, Parms, _, _, _, _), _).
 
+get_dist_domain_size(DistId, DSize) :-
+	clpbn:clpbn_language(pfl), !,
+	pfl:get_pfl_parameters(DistId, Dist),
+	length(Dist, DSize).
 get_dist_domain_size(avg(D,_), DSize) :- !,
 	length(D, DSize).
 get_dist_domain_size(ip(D,_,_), DSize) :- !,
@@ -234,6 +238,9 @@ get_dist_domain_size(Id, DSize) :-
 get_dist_domain(Id, Domain) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _).
 
+get_dist_key(Id, Key) :-
+	clpbn:clpbn_language(pfl), !,
+	pfl:get_first_pvariable(Id, Key).
 get_dist_key(Id, Key) :-
 	recorded(clpbn_dist_db, db(Id, Key, _, _, _, _, _), _).
 
@@ -265,11 +272,19 @@ get_evidence_from_position(El, Id, Pos) :-
 dist_to_term(_Id,_Term).
 
 empty_dist(Dist, TAB) :-
+	clpbn:clpbn_language(pfl), !,
+	pfl:get_pfl_factor_sizes(Dist, DSizes),
+	matrix_new(floats, DSizes, TAB).
+empty_dist(Dist, TAB) :-
 	recorded(clpbn_dist_psizes,db(Dist, DSizes),_), !,
 	matrix_new(floats, DSizes, TAB).
 empty_dist(Dist, TAB) :-
 	throw(error(domain_error(no_distribution,Dist),empty_dist(Dist,TAB))).
 
+dist_new_table(DistId, NewMat) :-
+	clpbn:clpbn_language(pfl), !,
+	matrix_to_list(NewMat, List),
+	pfl:set_pfl_parameters(DistId, List).
 dist_new_table(Id, NewMat) :-
 	matrix_to_list(NewMat, List),
 	recorded(clpbn_dist_db, db(Id, Key, _, A, B, C, D), R),
@@ -297,7 +312,13 @@ randomise_all_dists :-
 randomise_all_dists.
 
 randomise_dist(Dist) :-
-	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	(
+	    clpbn:clpbn_language(pfl)
+	->
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
+	;
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	),
 	random_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
 
@@ -307,7 +328,13 @@ uniformise_all_dists :-
 uniformise_all_dists.
 
 uniformise_dist(Dist) :-
-	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	(
+	    clpbn:clpbn_language(pfl)
+	->
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
+	;
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	),
 	uniform_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
 
