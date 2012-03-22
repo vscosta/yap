@@ -625,6 +625,7 @@ ENABLE_REAL
 ENABLE_MINISAT
 CUDD_CPPFLAGS
 CUDD_LDFLAGS
+ENABLE_BDDLIB
 ENABLE_CUDD
 EXTRA_INCLUDES_FOR_WIN32
 ENABLE_WINCONSOLE
@@ -788,6 +789,7 @@ enable_depth_limit
 enable_wam_profile
 enable_low_level_tracer
 enable_threads
+enable_bddlib
 enable_pthread_locking
 enable_max_performance
 enable_max_memory
@@ -1462,6 +1464,7 @@ Optional Features:
  --enable-wam-profile       support low level profiling of abstract machine
  --enable-low-level-tracer  support support for procedure-call tracing
  --enable-threads           support system threads
+ --enable-bddlib           dynamic bdd library
  --enable-pthread-locking   use pthread locking primitives for internal locking (requires threads)
  --enable-max-performance   try using the best flags for specific architecture
  --enable-max-memory        try using the best flags for using the memory to the most
@@ -4486,6 +4489,13 @@ else
   threads=no
 fi
 
+# Check whether --enable-bddlib was given.
+if test "${enable_bddlib+set}" = set; then :
+  enableval=$enable_bddlib; dynamic_bdd="$enableval"
+else
+  dynamic_bdd=no
+fi
+
 # Check whether --enable-pthread-locking was given.
 if test "${enable_pthread_locking+set}" = set; then :
   enableval=$enable_pthread_locking; pthreadlocking="$enableval"
@@ -5000,7 +5010,14 @@ fi
 if test "$yap_cv_cudd" = no
 then
   ENABLE_CUDD="@# "
+  ENABLE_BDDLIB="@# "
 else
+  if test "$dynamic_bdd" = yes
+  then
+    ENABLE_BDDLIB=""
+  else
+    ENABLE_BDDLIB="@# "
+  fi
   ENABLE_CUDD=""
 fi
 
@@ -9222,6 +9239,7 @@ fi
 
 
 
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for gcc threaded code" >&5
 $as_echo_n "checking for gcc threaded code... " >&6; }
 if ${yap_cv_threaded_code+:} false; then :
@@ -10454,6 +10472,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
 mkdir -p  GPL
 mkdir -p  packages/
+mkdir -p  packages/bdd
 mkdir -p  packages/clib
 mkdir -p  packages/clib/sha1
 mkdir -p  packages/clib/maildrop
@@ -10616,6 +10635,8 @@ ac_config_files="$ac_config_files packages/zlib/Makefile"
 fi
 
 if test "$ENABLE_CUDD" = ""; then
+ac_config_files="$ac_config_files packages/bdd/Makefile"
+
 ac_config_files="$ac_config_files packages/ProbLog/simplecudd/Makefile"
 
 ac_config_files="$ac_config_files packages/ProbLog/simplecudd_lfi/Makefile"
@@ -11398,6 +11419,7 @@ do
     "packages/semweb/Makefile") CONFIG_FILES="$CONFIG_FILES packages/semweb/Makefile" ;;
     "packages/sgml/Makefile") CONFIG_FILES="$CONFIG_FILES packages/sgml/Makefile" ;;
     "packages/zlib/Makefile") CONFIG_FILES="$CONFIG_FILES packages/zlib/Makefile" ;;
+    "packages/bdd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/bdd/Makefile" ;;
     "packages/ProbLog/simplecudd/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd/Makefile" ;;
     "packages/ProbLog/simplecudd_lfi/Makefile") CONFIG_FILES="$CONFIG_FILES packages/ProbLog/simplecudd_lfi/Makefile" ;;
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;

@@ -710,6 +710,7 @@ all: startup.yss
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE))
 	@ENABLE_CPLINT@ (cd packages/cplint/slipcase; $(MAKE))
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE))
+	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE))
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE))
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE))
@@ -788,6 +789,7 @@ install_unix: startup.yss libYap.a
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) install)
+	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 
@@ -840,6 +842,7 @@ install_win32: startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/c; $(MAKE) install)
 	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) install)
+	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) install)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 
@@ -904,6 +907,7 @@ clean: clean_docs
 	@ENABLE_PRISM@ (cd packages/prism/src/prolog; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint/approx/simplecuddLPADs; $(MAKE) clean)
 	@ENABLE_CPLINT@ (cd packages/cplint; $(MAKE) clean)
+	@ENABLE_BDDLIB@ (cd packages/bdd; $(MAKE) clean)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd; $(MAKE) clean)
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) clean)
 	@ENABLE_JPL@ @INSTALL_DLLS@ (cd packages/jpl; $(MAKE) clean)
