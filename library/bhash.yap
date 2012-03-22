@@ -105,7 +105,8 @@ find_or_insert(Keys, Index, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash) :-
 	->
 	     % do rb_update
 	    array_element(Vals, Index, Mutable),
-	    update_mutable(NewVal, Mutable)
+	    update_mutable(NewVal, Mutable),
+	    Hash = NewHash
         ;
 	    I1 is (Index+1) mod Size,
 	    find_or_insert(Keys, I1, Size, N, CmpF, Vals, Key, NewVal, Hash, NewHash)
