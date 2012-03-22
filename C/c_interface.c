@@ -3612,9 +3612,20 @@ YAP_ListToFloats(Term t, double *dblp, size_t sz)
     if (!IsPairTerm(t))
       return -1;
     hd = HeadOfTerm(t);
-    if (!IsFloatTerm(hd))
-      return -1;
-    dblp[i++] = FloatOfTerm(hd);
+    if (IsFloatTerm(hd)) {
+      dblp[i++] = FloatOfTerm(hd);
+    } else {
+      extern double Yap_gmp_to_float(Term hd);
+
+      if (IsIntTerm(hd))
+	dblp[i++] = IntOfTerm(hd);
+      else if (IsLongIntTerm(hd))
+	dblp[i++] = LongIntOfTerm(hd);
+      else if (IsBigIntTerm(hd))
+	dblp[i++] = Yap_gmp_to_float(hd);
+      else
+	return -1;
+    }
     if (i == sz)
       return sz;
     t = TailOfTerm(t);
