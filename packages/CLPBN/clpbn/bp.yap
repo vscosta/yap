@@ -7,8 +7,8 @@
 
 :- module(clpbn_bp,
           [bp/3,
-           set_solver_parameter/2,
-           use_log_space/0,
+           check_if_bp_done/1,
+           set_horus_flag/2,
            init_bp_solver/4,
            run_bp_solver/3,
            finalize_bp_solver/1
@@ -26,112 +26,106 @@
 :- use_module(library('clpbn/display'),
          [clpbn_bind_vals/3]).
 
+
 :- use_module(library('clpbn/aggregates'),
 	      [check_for_agg_vars/2]).
 
-:- use_module(library(atts)).
 
+:- use_module(library(atts)).
+:- use_module(library(lists)).
 :- use_module(library(charsio)).
 
 :- load_foreign_files(['horus'], [], init_predicates).
 
 :- attribute id/1.
 
-:- dynamic network_counting/1.
 
+%:- set_horus_flag(inf_alg, ve).
+:- set_horus_flag(inf_alg, bn_bp).
+%:- set_horus_flag(inf_alg, fg_bp).
+%: -set_horus_flag(inf_alg, cbp).
 
-check_if_bp_done(_Var).
+:- set_horus_flag(schedule, seq_fixed).
+%:- set_horus_flag(schedule, seq_random).
+%:- set_horus_flag(schedule, parallel).
+%:- set_horus_flag(schedule, max_residual).
 
-network_counting(0).
+:- set_horus_flag(accuracy, 0.0001).
 
+:- set_horus_flag(max_iter, 1000).
 
-:- set_solver_parameter(run_mode, normal).
-%:- set_solver_parameter(run_mode, convert).
-%: -set_solver_parameter(run_mode, compress).
+:- set_horus_flag(use_logarithms, false).
+%:- set_horus_flag(use_logarithms, true).
 
-:- set_solver_parameter(schedule, seq_fixed).
-%:- set_solver_parameter(schedule, seq_random).
-%:- set_solver_parameter(schedule, parallel).
-%:- set_solver_parameter(schedule, max_residual).
+:- set_horus_flag(order_factor_variables, false).
+%:- set_horus_flag(order_factor_variables, true).
 
-:- set_solver_parameter(accuracy, 0.0001).
-
-:- set_solver_parameter(max_iter, 1000).
-
-:- set_solver_parameter(always_loopy_solver, false).
-
-% :- use_log_space.
 
 
 bp([[]],_,_) :- !.
 bp([QueryVars], AllVars, Output) :-
-	init_bp_solver(_, AllVars, _, BayesNet),
-	run_bp_solver([QueryVars], LPs, BayesNet),
-	finalize_bp_solver(BayesNet),
+	init_bp_solver(_, AllVars, _, Network),
+	run_bp_solver([QueryVars], LPs, Network),
+	finalize_bp_solver(Network),
 	clpbn_bind_vals([QueryVars], LPs, Output).
 
 
-init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds, _AllParFactors)) :-
+init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
 	check_for_agg_vars(AllVars0, AllVars),
-	%inc_network_counting,
-%writeln_clpbn_vars(AllVars),
-	process_ids(AllVars, 0, DistIds0),
-%	generate_parfactors(AllVars, AllParFactors),
-%writeln(AllParFactors),
-	get_vars_info(AllVars, VarsInfo),
+  writeln('clpbn_vars:'),
+	print_clpbn_vars(AllVars),
+	assign_ids(AllVars, 0),
+	get_vars_info(AllVars, VarsInfo, DistIds0),
 	sort(DistIds0, DistIds),
-	%(network_counting(0) -> writeln(vars:VarsInfo) ; true),
-	%(network_counting(0) -> writeln(distsids:DistIds) ; true),
-	create_network(VarsInfo, BayesNet).
+	create_ground_network(VarsInfo, BayesNet).
 	%get_extra_vars_info(AllVars, ExtraVarsInfo),
-	%(network_counting(0) -> writeln(extra:ExtraVarsInfo) ; true),
 	%set_extra_vars_info(BayesNet, ExtraVarsInfo).
 
-writeln_clpbn_vars(Var.AVars) :-
-	clpbn:get_atts(Var, [key(Key),dist(Dist,Parents)]),
-	parents_to_keys(Parents, Keys),
-	writeln(Var:Key:Dist:Keys),
-	writeln_clpbn_vars(AVars).
-writeln_clpbn_vars([]).
 
-parents_to_keys([], []).
-parents_to_keys(Var.Parents, Key.Keys) :-
-	clpbn:get_atts(Var, [key(Key)]),
-	parents_to_keys(Parents, Keys).
+run_bp_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
+	get_dists_parameters(DistIds, DistsParams),
+  set_bayes_net_params(Network, DistsParams),
+	flatten_1_element_sublists(QueryVars, QueryVars1),
+	vars_to_ids(QueryVars1, QueryVarsIds),
+	run_other_solvers(Network, QueryVarsIds, Solutions).
 
 
-
-process_ids([], _, []).
-process_ids([V|Vs], VarId0, [DistId|DistIds]) :-
-	clpbn:get_atts(V, [dist(DistId, _)]), !,
-	put_atts(V, [id(VarId0)]),
-	VarId is VarId0 + 1,
-	process_ids(Vs, VarId, DistIds).
-process_ids([_|Vs], VarId, DistIds) :-
-	process_ids(Vs, VarId, DistIds).
+finalize_bp_solver(bp(Network, _)) :-
+  free_bayesian_network(Network).
 
 
-get_vars_info([], []).
-get_vars_info([V|Vs], [var(VarId, DSize, Ev, ParentIds, DistId)|VarsInfo]) :-
+assign_ids([], _).
+assign_ids([V|Vs], Count) :-
+	put_atts(V, [id(Count)]),
+	Count1 is Count + 1,
+	assign_ids(Vs, Count1).
+
+
+get_vars_info([], [], []).
+get_vars_info(V.Vs,
+              var(VarId,DS,Ev,PIds,DistId).VarsInfo,
+              DistId.DistIds) :-
 	clpbn:get_atts(V, [dist(DistId, Parents)]), !,
 	get_atts(V, [id(VarId)]),
-	get_dist_domain_size(DistId, DSize),
+	get_dist_domain_size(DistId, DS),
 	get_evidence(V, Ev),
-	vars2ids(Parents, ParentIds),
-	get_vars_info(Vs, VarsInfo).
-get_vars_info([_|Vs], VarsInfo) :-
-	get_vars_info(Vs, VarsInfo).
-
-
-vars2ids([], []).
-vars2ids([V|QueryVars], [VarId|Ids]) :-
-	get_atts(V, [id(VarId)]),
-	vars2ids(QueryVars, Ids).
+	vars_to_ids(Parents, PIds),
+	get_vars_info(Vs, VarsInfo, DistIds).
 
 
 get_evidence(V, Ev) :-
 	clpbn:get_atts(V, [evidence(Ev)]), !.
 get_evidence(_V, -1). % no evidence !!!
+
+
+vars_to_ids([], []).
+vars_to_ids([L|Vars], [LIds|Ids]) :-
+	is_list(L), !,
+	vars_to_ids(L, LIds),
+	vars_to_ids(Vars, Ids).
+vars_to_ids([V|Vars], [VarId|Ids]) :-
+	get_atts(V, [id(VarId)]),
+	vars_to_ids(Vars, Ids).
 
 
 get_extra_vars_info([], []).
@@ -140,36 +134,10 @@ get_extra_vars_info([V|Vs], [v(VarId, Label, Domain)|VarsInfo]) :-
 	clpbn:get_atts(V, [key(Key),dist(DistId, _)]),
 	term_to_atom(Key, Label),
 	get_dist_domain(DistId, Domain0),
-	numbers2atoms(Domain0, Domain),
+	numbers_to_atoms(Domain0, Domain),
 	get_extra_vars_info(Vs, VarsInfo).
 get_extra_vars_info([_|Vs], VarsInfo) :-
 	get_extra_vars_info(Vs, VarsInfo).
-
-
-numbers2atoms([], []).
-numbers2atoms([Atom|L0], [Atom|L]) :-
-	atom(Atom), !,
-	numbers2atoms(L0, L).
-numbers2atoms([Number|L0], [Atom|L]) :-
-	number_atom(Number, Atom),
-	numbers2atoms(L0, L).
-
-
-run_bp_solver(QVsL0, LPs, bp(BayesNet, DistIds, _)) :-
-	get_dists_parameters(DistIds, DistsParams),
-	set_parameters(BayesNet, DistsParams),
-	process_query_list(QVsL0, QVsL),
-	%(network_counting(0) -> writeln(qvs:QVsL) ; true),
-	run_solver(BayesNet, QVsL, LPs).
-
-
-process_query_list([], []).
-process_query_list([[V]|QueryVars], [VarId|Ids]) :- !,
-	get_atts(V, [id(VarId)]),
-	process_query_list(QueryVars, Ids).
-process_query_list([Vs|QueryVars], [VarIds|Ids]) :-
-	vars2ids(Vs, VarIds),
-	process_query_list(QueryVars, Ids).
 
 
 get_dists_parameters([],[]).
@@ -178,12 +146,32 @@ get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
 	get_dists_parameters(Ids, DistsInfo).
 
 
-finalize_bp_solver(bp(BayesNet, _, _)) :-
-	free_bayesian_network(BayesNet).
+numbers_to_atoms([], []).
+numbers_to_atoms([Atom|L0], [Atom|L]) :-
+	atom(Atom), !,
+	numbers_to_atoms(L0, L).
+numbers_to_atoms([Number|L0], [Atom|L]) :-
+	number_atom(Number, Atom),
+	numbers_to_atoms(L0, L).
 
 
-inc_network_counting :-
-	retract(network_counting(Count0)),
-	Count is Count0 + 1,
-	assert(network_counting(Count)).
+flatten_1_element_sublists([],[]).
+flatten_1_element_sublists([[H|[]]|T],[H|R]) :- !,
+	flatten_1_element_sublists(T,R).
+flatten_1_element_sublists([H|T],[H|R]) :-
+	flatten_1_element_sublists(T,R).
+
+
+print_clpbn_vars(Var.AllVars) :-
+	clpbn:get_atts(Var, [key(Key),dist(DistId,Parents)]),
+	parents_to_keys(Parents, ParentKeys),
+	writeln(Var:Key:ParentKeys:DistId),
+	print_clpbn_vars(AllVars).
+print_clpbn_vars([]).
+
+
+parents_to_keys([], []).
+parents_to_keys(Var.Parents, Key.Keys) :-
+	clpbn:get_atts(Var, [key(Key)]),
+	parents_to_keys(Parents, Keys).
 
