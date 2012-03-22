@@ -260,20 +260,21 @@ skim_for_theta([[P|Other]], not(P), [Other], _) :- !.
 skim_for_theta([[P|Other]|More], Ps*not(P), [Other|Left], New ) :-
 	skim_for_theta(More, Ps, Left, New ).
 
-get_evidence(V, Tree, Values, F0, F) :-
+get_evidence(V, Tree, Values, F0, (Tree=Outs).F0) :-
 	clpbn:get_atts(V, [evidence(Pos)]), !,
-	zero_pos(0, Pos, Tree, Values, F0, F).
+	zero_pos(0, Pos, Values),
+	get_outs(F0, Outs).
 %% no evidence !!!
 get_evidence(_V, Tree, _Values, F0, (Tree=Outs).F0) :-
 	get_outs(F0, Outs).
 
-zero_pos(_, _Pos, _Tree, [], [], []) :- !.
-zero_pos(Pos, Pos, Tree, 1.Values, [Tree=Vs|F], [Tree=Vs]) :- 
+zero_pos(_, _Pos, []).
+zero_pos(Pos, Pos, 1.Values) :- !, 
 	I is Pos+1,
-	zero_pos(I, Pos, Tree, Values, F, []).
-zero_pos(I0, Pos, Tree, 0.Values, _.F, NF) :- 
+	zero_pos(I, Pos, Values).
+zero_pos(I0, Pos, 0.Values) :- 
 	I is I0+1,
-	zero_pos(I, Pos, Tree, Values, F, NF).
+	zero_pos(I, Pos, Values).
 
 get_outs([V=_F], V) :- !.
 get_outs((V=_F).Outs, (V + F0)) :-

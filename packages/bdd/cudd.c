@@ -163,7 +163,7 @@ term_to_cudd(DdManager *manager, YAP_Term t)
     else if (i==1.0)
       return Cudd_ReadOne(manager);
   } else if (YAP_IsVarTerm(t)) {
-    fprintf(stderr,"Unbound Variable should be input argument to BDD\n");
+    fprintf(stderr,"Unbound Variable should not be input argument to BDD\n");
   }
   return NULL;
 }
