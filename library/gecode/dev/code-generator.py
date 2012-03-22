@@ -296,8 +296,9 @@ class Cluster(object):
 # discriminating tree based on argument types
 class DTree(object):
 
-    def __init__(self, i, preds):
+    def __init__(self, i, preds, cluster):
         self.index = i
+        self.cluster = cluster
         if len(preds) == 1 and len(preds[0].argtypes) == i:
             self.is_leaf = True
             self.pred = preds[0]
@@ -313,7 +314,7 @@ class DTree(object):
                 d = []
                 dispatch[t.type] = d
             d.append(p)
-        self.subtrees = tuple((t2,DTree(i+1,p2))
+        self.subtrees = tuple((t2,DTree(i+1,p2,cluster))
                               for t2,p2 in dispatch.iteritems())
 
     def _generate_body(self, user_vars, lib_vars):
@@ -325,7 +326,9 @@ class DTree(object):
 
     def _generate_dispatch(self, i, user_vars, lib_vars):
         if i == len(self.subtrees):
-            return PrologLiteral("throw(gecode_argument_error)")
+            return PrologLiteral("throw(gecode_argument_error(%s/%d,arg=%d,%s))" \
+                                     % (self.cluster.name, self.cluster.arity,
+                                        self.index+1, user_vars[self.index]))
         typ, dtree = self.subtrees[i]
         idx = self.index
         X = user_vars[idx]
@@ -371,7 +374,7 @@ class YAPConstraintGeneratorBase(PredGenerator):
     def _dtreefy(self):
         dtrees = {}
         for key, cluster in self.clusters.iteritems():
-            dtree = DTree(0, cluster.preds)
+            dtree = DTree(0, cluster.preds, cluster)
             dtrees[key] = dtree
         self.dtrees = dtrees
 
