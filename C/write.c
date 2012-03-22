@@ -669,7 +669,6 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
   /* make sure we don't get no creepy spaces where they shouldn't be */
   lastw = separator;
   if (IsAttVar(t)) {
-#if defined(COROUTINING) && defined(DEBUG)
     Int vcount = (t-H0);
     if (Yap_Portray_delays) {
       exts ext = ExtFromCell(t);
@@ -698,7 +697,6 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
     }
     wrputc('D', wglb->stream);
     wrputn(vcount,wglb);
-#endif
   } else {
     wrputn(((Int) (t- H0)),wglb);
   }
@@ -947,7 +945,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       } else if (atom == AtomMinus) {
 	last_minus = TRUE;
       }
-      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, FALSE, wglb, &nrwt);
+      writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, TRUE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_right) {
 	wrputc(')', wglb->stream);
