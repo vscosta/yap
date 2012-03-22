@@ -32,6 +32,7 @@
 	    dgraph_min_paths/3,
 	    dgraph_isomorphic/4,
 	    dgraph_path/3,
+	    dgraph_leaves/2,
 	    dgraph_reachable/3
 	]).
 
@@ -414,3 +415,13 @@ reachable([V|Vertices], Done0, DoneF, G, [V|EdgesF], Edges0) :-
 	rb_insert(Done0, V, [], Done1),
 	reachable(Kids, Done1, DoneI, G, EdgesF, EdgesI),
 	reachable(Vertices, DoneI, DoneF, G, EdgesI, Edges0).
+
+dgraph_leaves(Graph, Vertices) :-
+	rb_visit(Graph, Pairs),
+	vertices_without_children(Pairs, Vertices).
+
+vertices_without_children([], []).
+vertices_without_children((V-[]).Pairs, V.Vertices) :-
+	vertices_without_children(Pairs, Vertices).
+vertices_without_children(_V-[_|_].Pairs, Vertices) :-
+	vertices_without_children(Pairs, Vertices).
