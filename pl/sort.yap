@@ -54,6 +54,27 @@ length(L, M) :-
           M is N + 1, NL  = [_|L], '$$_length2'(L, O, M) ).
 
 sort(L,O) :-
+	'$skip_list'(L,NL,RL),
+	( RL == [] -> true ;
+	  var(RL) -> '$do_error'(instantiation_error,sort(L,O)) ;
+	 '$do_error'(type_error(list,L),sort(L,O))
+	),
+	(
+         nonvar(O)
+        ->
+	 (
+	   O == []
+         ->
+           L == []
+	 ;
+	   '$skip_list'(O,NO,RO),
+	   ( RO == [] -> NO =< NL ;
+	     var(RO) -> NO =< NL ;
+	     '$do_error'(type_error(list,O),sort(L,O))
+	   )
+         )
+        ; true
+	),
 	'$sort'(L,O).
 
 msort(L,O) :-
