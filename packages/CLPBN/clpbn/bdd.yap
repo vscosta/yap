@@ -234,16 +234,35 @@ apply_last_parent(Parents.PVars, Other, Conj+Disj) :-
 	apply_last_parent(PVars, Remaining, Disj).
 
 apply_middle_parent([Parents], Other, Conj, [ThetaPar]) :- !,
-	parents_to_conj(Parents,(Theta),Conj),
-	skim_for_theta(Other, Theta, _, ThetaPar).
+	skim_for_theta(Other, Theta, _, ThetaPar),
+	parents_to_conj(Parents,Theta,Conj),
+	commit_deterministic(ThetaPar, Theta).
 apply_middle_parent(Parents.PVars, Other, Conj+Disj, ThetaPar.TheseParents) :-
-	parents_to_conj(Parents,(Theta),Conj),
 	skim_for_theta(Other, Theta, Remaining, ThetaPar),
+	parents_to_conj(Parents,(Theta),Conj),
+	commit_deterministic(ThetaPar, Theta),
 	apply_middle_parent(PVars, Remaining, Disj, TheseParents).
 
-parents_to_conj([],Theta,Theta).
-parents_to_conj(P.Parents,Theta,Conj*P) :-
-	parents_to_conj(Parents,Theta,Conj).
+%
+%
+% simplify stuff, removing process that is cancelled by 0s
+%
+parents_to_conj([], Theta, Theta) :- !.
+parents_to_conj(Ps, Theta, Conj*Theta) :-
+	parents_to_conj2(Ps, Conj).
+
+parents_to_conj2([P],P) :- !.
+parents_to_conj2(P.Ps,Conj*P) :-
+	parents_to_conj2(Ps,Conj).
+
+%
+% don't need variables for deterministic parameters of CPTs.
+%
+commit_deterministic(1, 1) :- !.
+commit_deterministic(0, 0) :- !.
+commit_deterministic(1.0, 1) :- !.
+commit_deterministic(0.0, 0) :- !.
+commit_deterministic(_ThetaPar, _Theta).
 
 %
 % first case we haven't reached the end of the list so we need
@@ -298,38 +317,37 @@ find_exp(Leaf, _.Term, Top) :-
 	find_exp(Leaf, Term, Top).
 
 get_prob(Term, Top, V, SP) :-
-	bind_all(Term, V, AllParms, AllParmValues),
-	term_variables(AllParms, NVs),
-	build_bdd(Top, NVs, AllParms, AllParmValues, Bdd),
+	bind_all(Term, [], Bindings, V, AllParms, AllParmValues),
+	term_variables(AllParms, NVs0),
+	reverse(NVs0, NVs),
+	build_bdd(Bindings, NVs, AllParms, AllParmValues, Bdd),
 	bdd_to_probability_sum_product(Bdd, SP),
 	bdd_close(Bdd).
 
-build_bdd(X, NVs, VTheta, Theta, Bdd) :-
-	bdd_new(X, NVs, Bdd),
+build_bdd(Bindings, NVs, VTheta, Theta, Bdd) :-
+	bdd_from_list(Bindings, NVs, Bdd),
 	bdd_tree(Bdd, bdd(_F,Tree,_Vs)), length(Tree, Len),
 	VTheta = Theta,
 	writeln(length=Len).
         
-bind_all([], _V, [], []).
-bind_all(info(V, _Tree, Ev, _Values, Formula, ParmVars, Parms).Term, V0, ParmVars.AllParms, Parms.AllTheta) :-
+bind_all([], Binds, Binds, _V, [], []).
+bind_all(info(V, _Tree, Ev, _Values, Formula, ParmVars, Parms).Term, Binds, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
 	V0 == V, !,
 	set_to_one_zeros(Ev),
-	bind_formula(Formula),
-	bind_all(Term, V0, AllParms, AllTheta).
-bind_all(info(_V, _Tree, Ev, _Values, Formula, ParmVars, Parms).Term, V0, ParmVars.AllParms, Parms.AllTheta) :-
+	bind_formula(Formula, Binds, BindsI),
+	bind_all(Term, BindsI, BindsF, V0, AllParms, AllTheta).
+bind_all(info(_V, _Tree, Ev, _Values, Formula, ParmVars, Parms).Term, Binds, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
 	set_to_ones(Ev),!,
-	bind_formula(Formula),
-	bind_all(Term, V0, AllParms, AllTheta).
+	bind_formula(Formula, Binds, BindsI),
+	bind_all(Term, BindsI, BindsF, V0, AllParms, AllTheta).
 % evidence: no need to add any stuff.
-bind_all(info(_V, _Tree, _Ev, _Values, Formula, ParmVars, Parms).Term, V0, ParmVars.AllParms, Parms.AllTheta) :-
-	bind_formula(Formula),
-	bind_all(Term, V0, AllParms, AllTheta).
+bind_all(info(_V, _Tree, _Ev, _Values, Formula, ParmVars, Parms).Term, Binds, BindsF, V0, ParmVars.AllParms, Parms.AllTheta) :-
+	bind_formula(Formula, Binds, BindsI),
+	bind_all(Term, BindsI, BindsF, V0, AllParms, AllTheta).
 
-
-bind_formula([]).
-bind_formula((A=A).Formula) :-
-	bind_formula(Formula).
-
+bind_formula([], L, L).
+bind_formula(B.Formula, Bs0, BsF) :-
+	bind_formula(Formula, B.Bs0, BsF).
 
 set_to_one_zeros([1|Values]) :-
 	set_to_zeros(Values).
