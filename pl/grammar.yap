@@ -132,19 +132,35 @@
 phrase(PhraseDef, WordList) :-
 	phrase(PhraseDef, WordList, []).
 
+phrase(P, S0, S) :-
+	call(P, S0, S).
+!(S, S).
 
-phrase(P, S0, S) :-
-	var(P), !,
-	'$do_error'(instantiation_error,phrase(P,S0,S)).
-phrase(P, S0, S) :-
-	( primitive(P), \+ atom(P) ),  !,
-	'$do_error'(type_error(callable,P),phrase(P,S0,S)).
-phrase([], S0, S) :- !,
-	S0 = S.
-phrase([H|T], S0, S) :- !,
+[](S, S).
+
+'.'(H,T, S0, S) :-
 	lists:append([H|T], S, S0).
-phrase(Phrase, S0, S) :-
-	'$t_body'(Phrase, _, last, S0, S, Goal), !,
-	'$execute'(Goal).
 
+{}(Goal, S0, S) :-
+	Goal,
+	S0 = S.
 
+','(A,B, S0, S) :-
+	 '$t_body'((A,B), _, last, S0, S, Goal),
+	 '$execute'(Goal).
+
+;(A,B, S0, S) :-
+	 '$t_body'((A;B), _, last, S0, S, Goal),
+	 '$execute'(Goal).
+
+'|'(A,B, S0, S) :-
+	 '$t_body'((A|B), _, last, S0, S, Goal),
+	 '$execute'(Goal).
+
+->(A,B, S0, S) :-
+	 '$t_body'((A->B), _, last, S0, S, Goal),
+	 '$execute'(Goal).
+
+\+(A, S0, S) :-
+	 '$t_body'(\+ A, _, last, S0, S, Goal),
+	 '$execute'(Goal).
