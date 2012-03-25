@@ -413,11 +413,12 @@ fresh_attvar(Var, NVar) :-
 
 % I will now allow two CLPBN variables to be bound together.
 %bind_clpbns(Key, Dist, Parents, Key, Dist, Parents).
-bind_clpbns(Key, Dist, _Parents, Key1, Dist1, _Parents1) :- 
+bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :- 
 	Key == Key1, !,
 	get_dist(Dist,_Type,_Domain,_Table),
 	get_dist(Dist1,_Type1,_Domain1,_Table1),
-	Dist = Dist1.
+	Dist = Dist1,
+	Parents = Parents1.
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-
