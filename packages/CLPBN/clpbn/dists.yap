@@ -1,4 +1,4 @@
-s%
+%
 % routines to manipulate distributions
 %
 
@@ -25,6 +25,7 @@ s%
 	   uniformise_all_dists/0,
 	   uniformise_dist/1,
 	   reset_all_dists/0,
+	   add_dist/6,
 	   additive_dists/6
 	]).
 
