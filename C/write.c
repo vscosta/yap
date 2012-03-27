@@ -101,7 +101,8 @@ protect_open_number(struct write_globs *wglb, int minus_required)
       wrputc(' ', wglb->stream);
     }
     wrputc('(', wglb->stream);
-  } else if (lastw == alphanum) {
+  } else if (lastw == alphanum ||
+	     (lastw == symbol && minus_required)) {
     wrputc(' ', stream);  
   }  
 }
@@ -423,7 +424,7 @@ AtomIsSymbols(unsigned char *s)		/* Is this atom just formed by symbols ? */
     return(separator);
   while ((ch = *s++) != '\0') {
     if (Yap_chtype[ch] != SY)
-      return(alphanum);
+      return alphanum;
   }
   return symbol;
 }
