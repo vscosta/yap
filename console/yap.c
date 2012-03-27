@@ -75,6 +75,9 @@
 #if HAVE_STRING_H
 #include <string.h>
 #endif
+#if HAVE_IEEEFP_H
+#include <ieeefp.h>
+#endif
 
 static void PROTO(do_top_goal,(YAP_Term));
 static void PROTO(exec_top_level,(int, YAP_init_args *));
