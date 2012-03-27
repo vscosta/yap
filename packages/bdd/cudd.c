@@ -5,14 +5,15 @@
 #include "cudd.h"
 
 static YAP_Functor FunctorDollarVar,
+  FunctorCudd,
   FunctorAnd,
   FunctorAnd4,
   FunctorOr, 
   FunctorOr4, 
   FunctorLAnd, 
   FunctorLOr, 
+  FunctorNot, 
   FunctorXor, 
-  FunctorNot,
   FunctorNand,
   FunctorNor,
   FunctorTimes,
@@ -76,6 +77,7 @@ term_to_cudd(DdManager *manager, YAP_Term t)
     if (f == FunctorDollarVar) {
       int i = YAP_IntOfTerm(YAP_ArgOfTerm(1,t));
       DdNode *var = Cudd_bddIthVar(manager,i);
+      Cudd_Ref(var);
       return var;
     } else if (f == FunctorAnd || f == FunctorLAnd || f == FunctorTimes) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
@@ -101,6 +103,11 @@ term_to_cudd(DdManager *manager, YAP_Term t)
       } else {
 	return (DdNode *)YAP_IntOfTerm(t1);
       }
+    } else if (f == FunctorCudd) {
+      YAP_Term t1 = YAP_ArgOfTerm(1, t);
+      DdNode *tmp = (DdNode *)YAP_IntOfTerm(t1);
+      Cudd_Ref(tmp);
+      return tmp;
     } else if (f == FunctorOr || f == FunctorLOr || f == FunctorPlus) {
       DdNode *x1 = term_to_cudd(manager, YAP_ArgOfTerm(1, t));
       DdNode *x2 = term_to_cudd(manager, YAP_ArgOfTerm(2, t));
@@ -171,9 +178,19 @@ term_to_cudd(DdManager *manager, YAP_Term t)
 static int
 p_term_to_cudd(void)
 {
-  DdManager *manager = Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
-  DdNode *t = term_to_cudd(manager, YAP_ARG1);
-  return YAP_Unify(YAP_ARG2, YAP_MkIntTerm((YAP_Int)manager)) &&
+  DdManager *manager;
+  DdNode *t;
+
+  if (YAP_IsVarTerm(YAP_ARG2)) {
+    manager = Cudd_Init(0,0,CUDD_UNIQUE_SLOTS,CUDD_CACHE_SLOTS,0);
+    //Cudd_AutodynEnable(manager, CUDD_REORDER_SIFT);
+    if (!YAP_Unify(YAP_ARG2, YAP_MkIntTerm((YAP_Int)manager)))
+      return FALSE;
+  } else {
+    manager = (DdManager *)YAP_IntOfTerm(YAP_ARG2);
+  }
+  t = term_to_cudd(manager, YAP_ARG1);
+  return 
     YAP_Unify(YAP_ARG3, YAP_MkIntTerm((YAP_Int)t));    
 }
 
@@ -484,9 +501,18 @@ build_prolog_cudd(DdManager *manager, DdNode *n, YAP_Term *ar, hash_table_entry 
   }
 }
 
-static inline max(int a, int b)
+static inline int
+max(int a, int b)
 {
   return a<b ? b : a;
+}
+
+static YAP_Int
+get_vars(YAP_Term t3)
+{
+  if (YAP_IsAtomTerm(t3))
+    return 0;
+  return YAP_ArityOfFunctor(YAP_FunctorOfTerm(t3));
 }
 
 static int
@@ -495,7 +521,7 @@ p_cudd_to_term(void)
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2), *node;
   YAP_Term t, t3 = YAP_ARG3, td;
-  YAP_Int i, vars = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t3));
+  YAP_Int i, vars = get_vars(t3);
   int nodes = max(0,Cudd_ReadNodeCount(manager))+vars+1;
   size_t sz = nodes*4;
   DdGen *dgen = Cudd_FirstNode(manager, n0, &node);
@@ -556,7 +582,7 @@ p_add_to_term(void)
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2), *node;
   YAP_Term t, t3 = YAP_ARG3;
-  YAP_Int i, vars = YAP_ArityOfFunctor(YAP_FunctorOfTerm(t3));
+  YAP_Int i, vars = get_vars(t3);
   int nodes = max(0,Cudd_ReadNodeCount(manager))+vars+1;
   size_t sz = nodes*4;
   DdGen *dgen = Cudd_FirstNode(manager, n0, &node);
@@ -698,6 +724,7 @@ init_cudd(void)
   FunctorOutPos = YAP_MkFunctor(YAP_LookupAtom("pp"), 4);
   FunctorOutNeg = YAP_MkFunctor(YAP_LookupAtom("pn"), 4);
   FunctorOutAdd = YAP_MkFunctor(YAP_LookupAtom("add"), 4);
+  FunctorCudd = YAP_MkFunctor(YAP_LookupAtom("cudd"), 1);
   TermMinusOne = YAP_MkIntTerm(-1);
   TermPlusOne = YAP_MkIntTerm(-1);
   YAP_UserCPredicate("term_to_cudd", p_term_to_cudd, 3);

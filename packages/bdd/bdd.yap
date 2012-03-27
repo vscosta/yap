@@ -1,6 +1,7 @@
 
 :- module(bdd, [bdd_new/2,
 	bdd_new/3,
+	bdd_from_list/3,
 	mtbdd_new/2,
 	mtbdd_new/3,
 	bdd_eval/2, 
@@ -24,6 +25,11 @@ bdd_new(T, Vars, cudd(M,X,VS,TrueVars)) :-
 	VS =.. [vs|TrueVars],
 	findall(Manager-Cudd, set_bdd(T, VS, Manager, Cudd), [M-X]).
 
+bdd_from_list(List, Vars, cudd(M,X,VS,TrueVars)) :-
+	term_variables(Vars, TrueVars),
+	VS =.. [vs|TrueVars],
+	findall(Manager-Cudd, set_bdd_from_list(List, VS, Manager, Cudd), [M-X]).
+
 set_bdd(T, VS, Manager, Cudd) :-
 	numbervars(VS,0,_),
 	( ground(T)
@@ -32,6 +38,45 @@ set_bdd(T, VS, Manager, Cudd) :-
         ;
 	  writeln(throw(error(instantiation_error,T)))
         ).
+
+set_bdd_from_list(T, VS, Manager, Cudd) :-
+	numbervars(VS,0,_),
+%	writeln_list(T),
+	list_to_cudd(T,Manager,_Cudd0,Cudd).
+
+writeln_list([]).
+writeln_list(B.Bindings) :-
+	writeln(B),
+	writeln_list(Bindings).
+
+%list_to_cudd(H.List,_Manager,Cudd,Cudd) :- writeln(l:H), fail.
+list_to_cudd([],_Manager,Cudd,Cudd) :- writeln('.').
+list_to_cudd((V=0*_Par).T, Manager, _Cudd0, CuddF) :- !,
+	write('0'), flush_output,
+	term_to_cudd(0, Manager, Cudd),
+	V = cudd(Cudd),
+	list_to_cudd(T, Manager, Cudd, CuddF).
+list_to_cudd((V=0).T, Manager, _Cudd0, CuddF) :- !,
+	write('0'), flush_output,
+	term_to_cudd(0, Manager, Cudd),
+	V = cudd(Cudd),
+	list_to_cudd(T, Manager, Cudd, CuddF).
+list_to_cudd((V=_Tree*0).T, Manager, _Cudd0, CuddF) :- !,
+	write('0'), flush_output,
+	term_to_cudd(0, Manager, Cudd),
+	V = cudd(Cudd),
+	list_to_cudd(T, Manager, Cudd, CuddF).
+list_to_cudd((V=Tree*1).T, Manager, _Cudd0, CuddF) :- !,
+	write('.'), flush_output,
+	term_to_cudd(Tree, Manager, Cudd),
+	V = cudd(Cudd),
+	list_to_cudd(T, Manager, Cudd, CuddF).
+list_to_cudd((V=Tree).T, Manager, _Cudd0, CuddF) :-
+	write('.'), flush_output,
+	( ground(Tree) -> true ; throw(error(instantiation_error(Tree))) ),
+	term_to_cudd(Tree, Manager, Cudd),
+	V = cudd(Cudd),
+	list_to_cudd(T, Manager, Cudd, CuddF).
 
 mtbdd_new(T, Mtbdd) :-
 	term_variables(T, Vars),
