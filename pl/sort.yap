@@ -81,6 +81,21 @@ msort(L,O) :-
 	'$msort'(L,O).
 
 keysort(L,O) :-
+	'$skip_list'(NL,L,RL),
+	( RL == [] -> true ;
+	  var(RL) -> '$do_error'(instantiation_error,sort(L,O)) ;
+	  '$do_error'(type_error(list,L),sort(L,O))
+	),
+	(
+	 nonvar(O)
+	->
+	 '$skip_list'(NO,O,RO),
+   	 ( RO == [] -> NO =:= NL ;
+	   var(RO) -> NO =< NL ;
+	   '$do_error'(type_error(list,O),sort(L,O))
+	 )
+	; true
+	),
 	'$keysort'(L,O).
 
 :- meta_predicate prolog:predsort(3,+,-).
