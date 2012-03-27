@@ -53,8 +53,6 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 
 :- use_module(library(rbtrees)).
 
-:- attribute id/1.
-
 :- dynamic network_counting/1.
 
 
@@ -346,6 +344,7 @@ eval_outs((V=F).Outs) :-
 	V = NF,
 	get_outs(Outs).
 
+%simplify_exp(V,V) :- !.
 simplify_exp(V,V) :- var(V), !.
 simplify_exp(S1+S2,NS) :- !,
 	simplify_exp(S1, SS1),
@@ -367,7 +366,7 @@ simplify_sum(V1, V2, O) :-
 		( V2 == 0 -> O = V1 ; V2 == 1 -> O = 1 ; O = V1+V2 ) /* var(V1) , nonvar(V2) */
 	    ) ;
 	    ( var(V2) ->
-		( V1 == 0 -> O = V2 ; V1 == 1 -> O = 1 ; O = V2+V1 ) ; /* nonvar(V1) , var(V2) */
+		( V1 == 0 -> O = V2 ; V1 == 1 -> O = 1 ; O = V1+V2 ) ; /* nonvar(V1) , var(V2) */
 		( V2 == 0 -> O = V1 ; V2 == 1 -> O = 1 ; V1 == 0 -> O = V2 ; V1 == 1 -> O = 1; O = V1+V2 ) /* nonvar(V1) , nonvar(V2) */
 	    )
 	).
@@ -379,7 +378,7 @@ simplify_prod(V1, V2, O) :-
 		( V2 == 0 -> O = 0 ; V2 == 1 -> O = V1 ; O = V1*V2 ) /* var(V1) , nonvar(V2) */
 	    ) ;
 	    ( var(V2) ->
-		( V1 == 0 -> O = 0 ; V1 == 1 -> O = V2 ; O = V2*V1 ) ; /* nonvar(V1) , var(V2) */
+		( V1 == 0 -> O = 0 ; V1 == 1 -> O = V2 ; O = V1*V2 ) ; /* nonvar(V1) , var(V2) */
 		( V2 == 0 -> O = 0 ; V2 == 1 -> O = V1 ; V1 == 0 -> O = 0 ; V1 == 1 -> O = V2; V1 == V2 -> O = V1 ; O = V1*V2 ) /* nonvar(V1) , nonvar(V2) */
 	    )
 	).
