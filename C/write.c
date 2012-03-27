@@ -90,29 +90,50 @@ STATIC_PROTO(void writeTerm, (Term, int, int, int, struct write_globs *, struct 
 
 #define wrputc(X,WF)	Sputcode(X,WF)	/* writes a character */
 
+/*
+  protect bracket from merging with previoous character.
+  avoid stuff like not (2,3) -> not(2,3) or
+*/
 static void
-protect_open_number(struct write_globs *wglb, int minus_required)
+wropen_bracket(struct write_globs *wglb, int protect)
 {
   wrf stream = wglb->stream;
 
-  if (lastw == symbol && last_minus && !minus_required) {
-    if (!wglb->Ignore_ops) {
-      /* protect against collating - with number, and getting - 1 ^2 as (-(1))^2 */
-      wrputc(' ', wglb->stream);
-    }
-    wrputc('(', wglb->stream);
+  if (lastw != separator && protect)
+    wrputc(' ', stream);
+  wrputc('(', stream);  
+  lastw = separator;
+}
+
+static void
+wrclose_bracket(struct write_globs *wglb, int protect)
+{
+  wrf stream = wglb->stream;
+
+  wrputc(')', stream);  
+  lastw = separator;
+}
+
+static int
+protect_open_number(struct write_globs *wglb, int lm, int minus_required)
+{
+  wrf stream = wglb->stream;
+
+  if (lastw == symbol && lm && !minus_required) {
+    wropen_bracket(wglb, TRUE);
+    return TRUE;
   } else if (lastw == alphanum ||
 	     (lastw == symbol && minus_required)) {
     wrputc(' ', stream);  
   }  
+  return FALSE;
 }
 
 static void
-protect_close_number(struct write_globs *wglb, int minus_required)
+protect_close_number(struct write_globs *wglb, int used_bracket)
 {
-  if (lastw == symbol && last_minus && !minus_required) {
-    wrputc(')', wglb->stream);
-    lastw = separator;
+  if (used_bracket) {
+    wrclose_bracket(wglb, TRUE);
   } else {
     lastw = alphanum;
   }
@@ -126,8 +147,9 @@ wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
   wrf stream = wglb->stream;
   char s[256], *s1=s; /* that should be enough for most integers */
   int has_minus = (n < 0);
+  int ob;
 
-  protect_open_number(wglb, has_minus);
+  ob = protect_open_number(wglb, last_minus, has_minus);
 #if HAVE_SNPRINTF
   snprintf(s, 256, Int_FORMAT, n);
 #else
@@ -135,7 +157,7 @@ wrputn(Int n, struct write_globs *wglb)	/* writes an integer	 */
 #endif
   while (*s1)
     wrputc(*s1++, stream);
-  protect_close_number(wglb, has_minus);
+  protect_close_number(wglb, ob);
 }
 
 #define wrputs(s, stream) Sfputs(s, stream)
@@ -191,9 +213,10 @@ static void
 write_mpint(MP_INT *big, struct write_globs *wglb) {
   char *s;
   int has_minus = mpz_sgn(big);
+  int ob;
 
   s = ensure_space(3+mpz_sizeinbase(big, 10));
-  protect_open_number(wglb, has_minus);
+  ob = protect_open_number(wglb, last_minus, has_minus);
   if (!s) {
     s = mpz_get_str(NULL, 10, big);
     if (!s)
@@ -204,7 +227,7 @@ write_mpint(MP_INT *big, struct write_globs *wglb) {
     mpz_get_str(s, 10, big);
     wrputs(s,wglb->stream);
   }
-  protect_close_number(wglb, has_minus);
+  protect_close_number(wglb, ob);
 }
 #endif
 
@@ -272,6 +295,8 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   char            s[256];
   wrf stream = wglb->stream;
   int sgn;
+  int ob;
+
 
 #if HAVE_ISNAN || defined(__WIN32)
   if (isnan(f)) {
@@ -292,7 +317,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
     return;
   }
 #endif
-  protect_open_number(wglb, sgn);
+  ob = protect_open_number(wglb, last_minus, sgn);
 #if THREADS
   /* old style writing */
   int found_dot = FALSE, found_exp = FALSE;
@@ -344,7 +369,7 @@ wrputf(Float f, struct write_globs *wglb)	/* writes a float	 */
   if (!buf) return;
   wrputs(buf, stream);
 #endif
-  protect_close_number(wglb, sgn);
+  protect_close_number(wglb, ob);
 }
 
 /* writes a data base reference */
@@ -691,7 +716,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 	l += 2;
 	writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	wrputc(')', wglb->stream);
+	wrclose_bracket(wglb, TRUE);
       }
       wglb->Portray_delays = TRUE;
       return;
@@ -789,6 +814,7 @@ write_list(Term t, int direction, int depth, struct write_globs *wglb, struct re
   }
  }
 
+
 static void 
 writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, struct rewind_term *rwt)
 /* term to write			 */
@@ -822,8 +848,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       wrputs(",",wglb->stream);	
       writeTerm(from_pointer(RepPair(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
-      wrputc(')', wglb->stream);
-      lastw = separator;
+      wrclose_bracket(wglb, TRUE);
       return;
     } 
     if (wglb->Use_portray) {
@@ -885,7 +910,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       int             argno = 1;
       CELL           *p = ArgsOfSFTerm(t);
       putAtom(atom, wglb->Quote_illegal, wglb);
-      wrputc('(', wglb->stream);
+      wropen_bracket(wglb, FALSE);
       lastw = separator;
       while (*p) {
 	Int sl = 0;
@@ -903,8 +928,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  wrputc(',', wglb->stream);
 	argno++;
       }
-      wrputc(')', wglb->stream);
-      lastw = separator;
+      wrclose_bracket(wglb, TRUE);
       return;
     }
 #endif
@@ -933,28 +957,22 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	!IsVarTerm(tright) && IsAtomTerm(tright) &&
 	Yap_IsOp(AtomOfTerm(tright));
       if (op > p) {
-	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
-	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->stream);
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	wropen_bracket(wglb, TRUE);
       }
       putAtom(atom, wglb->Quote_illegal, wglb);
       if (bracket_right) {
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
+	wropen_bracket(wglb, TRUE);
       } else if (atom == AtomMinus) {
 	last_minus = TRUE;
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), rp, depth + 1, TRUE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_right) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
       if (op > p) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops &&
 	       Arity == 1 &&
@@ -962,29 +980,24 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       Term  tleft = ArgOfTerm(1, t);
 
       int            bracket_left =
-	!IsVarTerm(tleft) && IsAtomTerm(tleft) &&
+	!IsVarTerm(tleft) &&
+	IsAtomTerm(tleft) &&
 	Yap_IsOp(AtomOfTerm(tleft)); 
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
-	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->stream);
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	wropen_bracket(wglb, TRUE);
       }
       if (bracket_left) {
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	wropen_bracket(wglb, TRUE);
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_left) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
       putAtom(atom, wglb->Quote_illegal, wglb);
       if (op > p) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops &&
 	       Arity == 2  && Yap_IsInfixOp(atom, &op, &lp,
@@ -1000,20 +1013,16 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 
       if (op > p) {
 	/* avoid stuff such as \+ (a,b) being written as \+(a,b) */
-	if (lastw != separator && !rinfixarg)
-	  wrputc(' ', wglb->stream);
-	wrputc('(', wglb->stream);
+	wropen_bracket(wglb, TRUE);
 	lastw = separator;
       }
       if (bracket_left) {
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	wropen_bracket(wglb, TRUE);
       }
       writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), lp, depth + 1, rinfixarg, wglb, &nrwt);
       t = AbsAppl(restore_from_write(&nrwt, wglb)-1);
       if (bracket_left) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
       /* avoid quoting commas and bars */
       if (!strcmp(RepAtom(atom)->StrOfAE,",")) {
@@ -1025,18 +1034,15 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
       } else
 	putAtom(atom, wglb->Quote_illegal, wglb);
       if (bracket_right) {
-	wrputc('(', wglb->stream);
-	lastw = separator;
+	wropen_bracket(wglb, TRUE);
       }
       writeTerm(from_pointer(RepAppl(t)+2, &nrwt, wglb), rp, depth + 1, TRUE, wglb, &nrwt);
       restore_from_write(&nrwt, wglb);
       if (bracket_right) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
       if (op > p) {
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
     } else if (wglb->Handle_vars && functor == LOCAL_FunctorVar) {
       Term ti = ArgOfTerm(1, t);
@@ -1069,8 +1075,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	lastw = separator;
 	writeTerm(from_pointer(RepAppl(t)+1, &nrwt, wglb), 999, depth + 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
-	wrputc(')', wglb->stream);
-	lastw = separator;
+	wrclose_bracket(wglb, TRUE);
       }
     } else if (!wglb->Ignore_ops && functor == FunctorBraces) {
       wrputc('{', wglb->stream);
@@ -1099,7 +1104,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
     } else {
       putAtom(atom, wglb->Quote_illegal, wglb);
       lastw = separator;
-      wrputc('(', wglb->stream);
+      wropen_bracket(wglb, FALSE);
       for (op = 1; op <= Arity; ++op) {
 	if (op == wglb->MaxArgs) {
 	  wrputc('.', wglb->stream);
@@ -1114,8 +1119,7 @@ writeTerm(Term t, int p, int depth, int rinfixarg, struct write_globs *wglb, str
 	  lastw = separator;
 	}
       }
-      wrputc(')', wglb->stream);
-      lastw = separator;
+      wrclose_bracket(wglb, TRUE);
     }
   }
 }
