@@ -55,6 +55,7 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 
 :- dynamic network_counting/1.
 
+:- attribute order/1.
 
 check_if_bdd_done(_Var).
 
@@ -66,8 +67,8 @@ bdd([QueryVars], AllVars, AllDiffs) :-
 	clpbn_bind_vals([QueryVars], [LPs], AllDiffs).
 
 init_bdd_solver(_, AllVars0, _, bdd(Term, Leaves, Tops)) :-
-	check_for_agg_vars(AllVars0, AllVars1),
-	sort_vars(AllVars1, AllVars, Leaves),
+	sort_vars(AllVars0, AllVars, Leaves),
+	%store_order(AllVars, 0),
 	rb_new(Vars0),
 	rb_new(Pars0),
 	init_tops(Leaves,Tops),
@@ -76,6 +77,16 @@ init_bdd_solver(_, AllVars0, _, bdd(Term, Leaves, Tops)) :-
 init_tops([],[]).
 init_tops(_.Leaves,_.Tops) :-
 	init_tops(Leaves,Tops).
+
+%
+% keep an attribute for sorting variables
+%
+store_order([], _).
+store_order(V.AllVars, I0) :-
+	put_atts(V,[order(I0)]),
+	I is I0+1,
+	store_order(AllVars, I).
+
 
 sort_vars(AllVars0, AllVars, Leaves) :-
 	dgraph_new(Graph0),
@@ -100,21 +111,109 @@ add_parents(V0.Parents, V, Graph0, GraphF) :-
 get_vars_info([], Vs, Vs, Ps, Ps, _, _) --> [].
 get_vars_info([V|MoreVs], Vs, VsF, Ps, PsF, Lvs, Outs) -->
 	{ clpbn:get_atts(V, [dist(DistId, Parents)]) }, !,
-%{ clpbn:get_atts(V, [key(K)]), writeln(V:K:DistId:Parents) },
+%{writeln(v:DistId:Parents)},
 	[DIST],
-	{ check_p(DistId, Parms, _ParmVars, Ps, Ps1),
-	  unbound_parms(Parms, ParmVars),
-	  check_v(V, DistId, DIST, Vs, Vs1),
-	  DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
-	  get_parents(Parents, PVars, Vs1, Vs2),
-	  cross_product(Values, Ev, PVars, ParmVars, Formula0),
-%	  (numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
-	  get_evidence(V, Tree, Ev, Formula0, Formula, Lvs, Outs)
-%,	  (numbervars(Formula,0,_),writeln(formula:Formula), fail ; true)
-        },
+	{  get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) },
 	get_vars_info(MoreVs, Vs2, VsF, Ps1, PsF, Lvs, Outs).
 get_vars_info([_|MoreVs], Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs) :-
 	get_vars_info(MoreVs, Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs).
+
+%
+% let's have some fun with avg
+%
+get_var_info(V, avg(Domain), Parents0, Vs, Vs2, Ps, Ps, Lvs, Outs, DIST) :- !,
+	length(Domain, DSize),
+%	reorder(Parents0, Parents),
+	Parents = Parents0,
+	run_though_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
+% standard random variable
+get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
+% clpbn:get_atts(V, [key(K)]), writeln(V:K:DistId:Parents),
+	check_p(DistId, Parms, _ParmVars, Ps, Ps1),
+	unbound_parms(Parms, ParmVars),
+	check_v(V, DistId, DIST, Vs, Vs1),
+	DIST = info(V, Tree, Ev, Values, Formula, ParmVars, Parms),
+	% get a list of form [[P00,P01], [P10,P11], [P20,P21]]
+	get_parents(Parents, PVars, Vs1, Vs2),
+	cross_product(Values, Ev, PVars, ParmVars, Formula0),
+%	(numbervars(Formula0,0,_),writeln(formula0:Ev:Formula0), fail ; true),
+	get_evidence(V, Tree, Ev, Formula0, Formula, Lvs, Outs).
+%,	(numbervars(Formula,0,_),writeln(formula:Formula), fail ; true)
+
+run_though_avg(V, 3, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST) :-
+	check_v(V, avg(Domain,Parents), DIST, Vs, Vs1),
+	DIST = info(V, Tree, Ev, [V0,V1,V2], Formula, [], []),
+	get_parents(Parents, PVars, Vs1, Vs2),
+	length(Parents, N),
+	generate_3tree(F00, PVars, 0, 0, 0, N, N0, N1, N2, R, (N1+2*N2 =< N/2), (N1+2*(N2+R) > N/2)),
+	simplify_exp(F00, F0),
+	writeln(1:PVars=F0),
+%	generate_3tree(F1, PVars, 0, 0, 0, N, N0, N1, N2, R, ((N1+2*(N2+R) > N/2, N1+2*N2 < (3*N)/2))),
+	generate_3tree(F20, PVars, 0, 0, 0, N, N0, N1, N2, R, (N1+2*(N2+R) >= (3*N)/2), N1+2*N2 < (3*N)/2),
+	simplify_exp(F20, F2),
+	writeln(3:PVars=F2),
+	Formula0 = [V0=F0*Ev0,V2=F2*Ev2,V1=not(F0+F2)*Ev1],
+	Ev = [Ev0,Ev1,Ev2],
+	get_evidence(V, Tree, Ev, Formula0, Formula, Lvs, Outs).
+
+generate_3tree(OUT, _, I00, I10, I20, IR0, N0, N1, N2, R, _Exp, ExpF) :-
+	not_satisf(I00, I10, I20, IR0, N0, N1, N2, R, ExpF),
+	!,
+	OUT = 1.
+generate_3tree(OUT, [[P0,P1,P2]], I00, I10, I20, IR0, N0, N1, N2, R, Exp, ExpF) :-
+	IR is IR0-1,
+	( satisf(I00+1, I10, I20, IR, N0, N1, N2, R, Exp) ->
+	  L0 = [P0|L1]
+	  ;
+	  L0 = L1
+	),
+	( satisf(I00, I10+1, I20, IR, N0, N1, N2, R, Exp) ->
+	  L1 = [P1|L2]
+	  ;
+	  L1 = L2
+	),
+	( satisf(I00, I10, I20+1, IR, N0, N1, N2, R, Exp) ->
+	  L2 = [P2]
+	  ;
+	  L2 = []
+	),
+	to_disj(L0, OUT).
+generate_3tree(OUT, [[P0,P1,P2]|Ps], I00, I10, I20, IR0, N0, N1, N2, R, Exp, ExpF) :-
+	IR is IR0-1,
+	( satisf(I00+1, I10, I20, IR, N0, N1, N2, R, Exp) ->
+	  I0 is I00+1, generate_3tree(O0, Ps, I0, I10, I20, IR, N0, N1, N2, R, Exp, ExpF)
+	  ->
+	  L0 = [P0*O0|L1]
+	  ;
+	  L0 = L1
+	),
+	( satisf(I00, I10+1, I20, IR0, N0, N1, N2, R, Exp) ->
+	  I1 is I10+1, generate_3tree(O1, Ps, I00, I1, I20, IR, N0, N1, N2, R, Exp, ExpF)
+	  ->
+	  L1 = [P1*O1|L2]
+	  ;
+	  L1 = L2
+	),
+	( satisf(I00, I10, I20+1, IR0, N0, N1, N2, R, Exp) ->
+	  I2 is I20+1, generate_3tree(O2, Ps, I00, I10, I2, IR, N0, N1, N2, R, Exp, ExpF)
+	  ->	  
+	  L2 = [P2*O2]
+	  ;
+	  L2 = []
+	),
+	to_disj(L0, OUT).
+
+
+satisf(I0, I1, I2, IR, N0, N1, N2, R, Exp) :-
+	\+ \+  ( I0 = N0, I1=N1, I2=N2, IR=R, call(Exp) ).
+
+not_satisf(I0, I1, I2, IR, N0, N1, N2, R, Exp) :-
+	\+  ( I0 = N0, I1=N1, I2=N2, IR=R, call(Exp) ).
+
+to_disj([], 0).
+to_disj([V], V).
+to_disj([V,V1|Vs], V+Out) :-
+	to_disj([V1|Vs], Out).
 
 %
 % look for parameters in the rb-tree, or add a new.
@@ -299,7 +398,7 @@ get_evidence(V, Tree, Ev, F0, F, Leaves, Finals) :-
 	insert_output(Leaves, V, Finals, Tree, Outs, SendOut),
 	get_outs(F0, F, SendOut, Outs).
 % hidden deterministic node, can be removed.
-get_evidence(_V, _Tree, Ev, F0, [], _Leaves, _Finals) :-
+get_evidence(V, _Tree, Ev, F0, [], _Leaves, _Finals) :-
 	clpbn:get_atts(V, [key(K)]),
 	functor(K, Name, 2),
 	( Name = 'AVG' ; Name = 'MAX' ; Name = 'MIN' ),
@@ -327,7 +426,7 @@ one_list(1.Ev) :-
 % insert a node with the disj of all alternatives, this is only done if node ends up to be in the output 
 %
 insert_output([], _V, [], _Out, _Outs, []).
-insert_output(V.Lvs, V0, [Top|_], Top, Outs, [Top = Outs]) :- V == V0, !.
+insert_output(V._Leaves, V0, [Top|_], Top, Outs, [Top = Outs]) :- V == V0, !.
 insert_output(_.Leaves, V, _.Finals, Top, Outs, SendOut) :-
 	insert_output(Leaves, V, Finals, Top, Outs, SendOut).
 
@@ -390,13 +489,14 @@ simplify_not(1, 0) :- !.
 simplify_not(SS, not(SS)).
 
 
-run_bdd_solver([[V]], LPs, bdd(Term, Leaves, Nodes)) :-
+run_bdd_solver([[V]], LPs, bdd(Term, _Leaves, Nodes)) :-
 	build_out_node(Nodes, Node),
 	findall(Prob, get_prob(Term, Node, V, Prob),TermProbs),
 	sumlist(TermProbs, Sum),
+writeln(TermProbs:Sum),
 	normalise(TermProbs, Sum, LPs).
 
-build_out_node([Top], []).
+build_out_node([_Top], []).
 build_out_node([T,T1|Tops], [Top = T*Top]) :-
 	build_out_node2(T1.Tops, Top).
 

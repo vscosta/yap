@@ -412,7 +412,7 @@ registration(r52,c27,s16).
 registration(r53,c26,s16).
 registration(r54,c6,s17).
 registration(r55,c27,s17).
-registration(r56,c0,s17).
+%registration(r56,c0,s17).
 registration(r57,c51,s18).
 registration(r58,c63,s18).
 registration(r59,c41,s18).
@@ -425,7 +425,7 @@ registration(r65,c22,s20).
 registration(r66,c43,s20).
 registration(r67,c17,s21).
 registration(r68,c34,s21).
-registration(r69,c0,s21).
+%registration(r69,c0,s21).
 registration(r70,c42,s22).
 registration(r71,c7,s22).
 registration(r72,c46,s22).
@@ -515,7 +515,7 @@ registration(r155,c57,s46).
 registration(r156,c25,s46).
 registration(r157,c46,s46).
 registration(r158,c15,s46).
-registration(r159,c0,s47).
+%registration(r159,c0,s47).
 registration(r160,c33,s47).
 registration(r161,c30,s47).
 registration(r162,c55,s47).
@@ -544,7 +544,7 @@ registration(r184,c50,s54).
 registration(r185,c43,s54).
 registration(r186,c55,s54).
 registration(r187,c14,s55).
-registration(r188,c0,s55).
+%registration(r188,c0,s55).
 registration(r189,c31,s55).
 registration(r190,c47,s55).
 registration(r191,c50,s56).
@@ -600,7 +600,7 @@ registration(r240,c20,s71).
 registration(r241,c18,s71).
 registration(r242,c38,s71).
 registration(r243,c37,s72).
-registration(r244,c0,s72).
+%registration(r244,c0,s72).
 registration(r245,c62,s72).
 registration(r246,c47,s73).
 registration(r247,c53,s73).
@@ -619,7 +619,7 @@ registration(r259,c2,s76).
 registration(r260,c7,s77).
 registration(r261,c3,s77).
 registration(r262,c63,s77).
-registration(r263,c0,s78).
+%registration(r263,c0,s78).
 registration(r264,c43,s78).
 registration(r265,c57,s78).
 registration(r266,c46,s79).
@@ -648,7 +648,7 @@ registration(r288,c45,s86).
 registration(r289,c17,s86).
 registration(r290,c2,s86).
 registration(r291,c48,s86).
-registration(r292,c0,s86).
+%registration(r292,c0,s86).
 registration(r293,c40,s87).
 registration(r294,c44,s87).
 registration(r295,c41,s87).
@@ -663,7 +663,7 @@ registration(r303,c50,s90).
 registration(r304,c26,s90).
 registration(r305,c58,s90).
 registration(r306,c45,s90).
-registration(r307,c0,s91).
+%registration(r307,c0,s91).
 registration(r308,c35,s91).
 registration(r309,c4,s91).
 registration(r310,c4,s92).
@@ -677,7 +677,7 @@ registration(r317,c1,s94).
 registration(r318,c18,s94).
 registration(r319,c35,s94).
 registration(r320,c3,s95).
-registration(r321,c0,s95).
+%registration(r321,c0,s95).
 registration(r322,c38,s95).
 registration(r323,c1,s96).
 registration(r324,c30,s96).
@@ -763,7 +763,7 @@ registration(r403,c49,s119).
 registration(r404,c61,s119).
 registration(r405,c38,s120).
 registration(r406,c8,s120).
-registration(r407,c0,s120).
+%registration(r407,c0,s120).
 registration(r408,c60,s121).
 registration(r409,c45,s121).
 registration(r410,c28,s121).
@@ -782,7 +782,7 @@ registration(r422,c29,s125).
 registration(r423,c54,s125).
 registration(r424,c28,s126).
 registration(r425,c22,s126).
-registration(r426,c0,s126).
+%registration(r426,c0,s126).
 registration(r427,c61,s127).
 registration(r428,c7,s127).
 registration(r429,c28,s127).
@@ -1124,7 +1124,7 @@ registration(r764,c10,s227).
 registration(r765,c3,s228).
 registration(r766,c47,s228).
 registration(r767,c54,s228).
-registration(r768,c0,s229).
+%registration(r768,c0,s229).
 registration(r769,c10,s229).
 registration(r770,c37,s229).
 registration(r771,c62,s230).
