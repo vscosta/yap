@@ -142,18 +142,24 @@ module(N) :-
 	'$use_preds'(P,Publics,Mod,M),
 	'$use_preds'(Ps,Publics,Mod,M).
 '$use_preds'(N/K,Publics,M,Mod) :-
-    (  lists:memberchk(N/K,Publics) -> true ;
-	print_message(warning,import(N/K,Mod,M,private))
-    ),
-    '$do_import'(N, K, M, Mod).
-'$use_preds'(N//K0,Publics,M,Mod) :-
-	K is K0+2,
-	(  lists:memberchk(N/K,Publics) -> true ;
+          (  lists:memberchk(N/K,Publics) -> true ;
 	   print_message(warning,import(N/K,Mod,M,private))
-	),
-	'$do_import'(N, K, M, Mod).
+          ),
+          '$do_import'(N, K, M, Mod).
+'$use_preds'(N//K0,Publics,M,Mod) :-
+	  K is K0+2,
+	  (  lists:memberchk(N/K,Publics) -> true ;
+	     print_message(warning,import(N/K,Mod,M,private))
+	  ),
+	  '$do_import'(N, K, M, Mod).
  
 
+%
+% ignore imports that we  do export
+%
+'$do_import'(N, K, M, T) :-
+	recorded('$module','$module'(_F,T,MyExports),_),
+	lists:member(N/K,MyExports), !.
 '$do_import'(N, K, M, T) :-
 	functor(G,N,K),
 	'$follow_import_chain'(M,G,M0,G0),
@@ -169,16 +175,16 @@ module(N) :-
 	).
 
 '$follow_import_chain'(M,G,M0,G0) :-
-	recorded('$import','$import'(M1,M,G1,G,_,_),_), !,
+	recorded('$import','$import'(M1,M,G1,G,_,_),_), M \= M1, !,
 	'$follow_import_chain'(M1,G1,M0,G0).
 '$follow_import_chain'(M,G,M,G).
 
 '$check_import'(M,T,N,K) :-
-   recorded('$import','$import'(MI,T,_,_,N,K),R),
-    \+ '$module_produced by'(M,T,N,K), !,
-    format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
-    format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
-    repeat,
+	recorded('$import','$import'(MI,T,_,_,N,K),R),
+	\+ '$module_produced by'(M,T,N,K), !,
+	format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
+	format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
+	repeat,
 	get0(C), '$skipeol'(C),
 	( C is "y" -> erase(R), !;
 	  C is "n" -> !, fail;
