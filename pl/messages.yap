@@ -126,6 +126,8 @@ system_message(functionality(Library)) -->
 	[  '~q not available' - [Library] ].
 system_message(import(Pred,To,From,private)) -->
 	[ 'Importing private predicate ~w:~w to ~w.' - [From,Pred,To] ].
+system_message(redefine_imported(M,M0,PI)) -->
+	[ 'Module ~w redefines imported predicate ~w:~w.' - [M,M0,PI] ].
 system_message(leash([])) -->
 	[ 'No leashing.' ].
 system_message(leash([A|B])) -->

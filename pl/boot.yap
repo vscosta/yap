@@ -422,11 +422,17 @@ true :- true.
 	  '$compile'(G, L, G0, Mod)
 	 ).
 
+%
+% check if current module redefines an imported predicate.
+% and remove import.
+%
 '$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),_),
-	NM \= Mod, !,
+	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+	NM \= Mod,
 	functor(NH,N,Ar),
-	'$do_error'(permission_error(modify, static_procedure, NM:N/Ar), consult).
+	print_message(warning,redefine_imported(Mod,NM,N/Ar)),
+	erase(R),
+	fail.
 '$not_imported'(_, _).
 
 
