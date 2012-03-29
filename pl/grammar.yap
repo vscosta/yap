@@ -132,15 +132,14 @@
 phrase(PhraseDef, WordList) :-
 	phrase(PhraseDef, WordList, []).
 
-phrase(_:[], S, S) :- !.
-phrase(_:[H|T], S0, S) :- !,
-	lists:append([H|T], S, S0).
 phrase(P, S0, S) :-
 	call(P, S0, S).
 
 !(S, S).
 
 [](S, S).
+
+[](H, T, S0, S) :- lists:append([H|T], S, S0).
 
 '.'(H,T, S0, S) :-
 	lists:append([H|T], S, S0).
