@@ -599,6 +599,8 @@ extern X_API size_t   PROTO(YAP_SizeOfExportedTerm,(char *));
 
 extern X_API YAP_Term     PROTO(YAP_ImportTerm,(char *));
 
+extern X_API int      PROTO(YAP_RequiresExtraStack,(size_t));
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

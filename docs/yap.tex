@@ -16471,6 +16471,21 @@ then allow one to construct functors, and to obtain their name and arity.
 Note that the functor is essentially a pair formed by an atom, and
 arity.
 
+Constructing terms in the stack may lead to overflow. The routine
+@example
+      int          YAP_RequiresExtraStack(size_t @var{min})
+@end example
+verifies whether you have at least @var{min} cells free in the stack,
+and it returns true if it has to ensure enough memory by calling the
+garbage collector and or stack shifter. The routine returns false if no
+memory is needed, and a negative number if it cannot provide enough
+memory.
+
+You can set @var{min} to zero if you do not know how much room you need
+but you do know you do not need a big chunk at a single go. Usually, the routine
+would usually be called together with a long-jump to restart the
+code. Slots can also be used if there is small state.
+
 @node Unifying Terms, Manipulating Strings, Manipulating Terms, C-Interface
 @section Unification
 

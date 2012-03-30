@@ -561,6 +561,7 @@ X_API YAP_tag_t STD_PROTO(YAP_TagOfTerm,(Term));
 X_API size_t   STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
 X_API size_t   STD_PROTO(YAP_SizeOfExportedTerm,(char *));
 X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
+X_API int      STD_PROTO(YAP_RequiresExtraStack,(size_t));
 
 static UInt
 current_arity(void)
@@ -4119,3 +4120,22 @@ YAP_ImportTerm(char * buf) {
   return Yap_ImportTerm(buf);
 }
 
+X_API int
+YAP_RequiresExtraStack(size_t sz) {
+  if (sz < 16*1024) 
+    sz = 16*1024;
+  if (H <= ASP-sz) {
+    return FALSE;
+  }
+  BACKUP_H();
+  while (H > ASP-sz) {
+    CACHE_REGS
+    RECOVER_H();
+    if (!dogc( 0, NULL PASS_REGS )) {
+      return -1;
+    }
+    BACKUP_H();
+  }
+  RECOVER_H();
+  return TRUE;
+}
