@@ -527,17 +527,26 @@ p_cudd_to_term(void)
   DdGen *dgen = Cudd_FirstNode(manager, n0, &node);
   hash_table_entry *hash = (hash_table_entry *)calloc(sz,sizeof(hash_table_entry));
   YAP_Term *ar;
-  
+
   if (!dgen || !hash)
     return FALSE;
-  t = YAP_TermNil();
   ar = (YAP_Term *)malloc(vars*sizeof(YAP_Term));
   if (!ar)
     return FALSE;
+ restart:
+  t = YAP_TermNil();
   for (i= 0; i< vars; i++) {
     ar[i] = YAP_ArgOfTerm(i+1, t3);
   }
   while (node) {
+    /* ensure we have enough memory */
+    if (YAP_RequiresExtraStack(0)) {
+      Cudd_GenFree(dgen);
+      t3 = YAP_ARG3;
+      dgen = Cudd_FirstNode(manager, n0, &node);
+      bzero(hash, sizeof(hash_table_entry)*sz);
+      goto restart;
+    }
     t = build_prolog_cudd(manager, node, ar, hash, t, sz);
     if (!Cudd_NextNode(dgen, &node))
       break;
