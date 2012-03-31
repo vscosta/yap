@@ -11,17 +11,20 @@ using namespace std;
 class Solver
 {
   public:
-    Solver (const GraphicalModel* gm)
-    {
-      gm_ = gm;
-    }
-    virtual ~Solver() {} // to ensure that subclass destructor is called
-    virtual void      runSolver (void) = 0;
-    virtual Params  getPosterioriOf (VarId) = 0;
-    virtual Params  getJointDistributionOf (const VarIds&) = 0;
+    Solver (const GraphicalModel* gm) : gm_(gm) { }
+
+    virtual ~Solver() { } // ensure that subclass destructor is called
+
+    virtual void runSolver (void) = 0;
+
+    virtual Params getPosterioriOf (VarId) = 0;
+
+    virtual Params getJointDistributionOf (const VarIds&) = 0;
 
     void printAllPosterioris (void);
+
     void printPosterioriOf (VarId vid);
+
     void printJointDistributionOf (const VarIds& vids);
    
   private:

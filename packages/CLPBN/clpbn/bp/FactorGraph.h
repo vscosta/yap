@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "GraphicalModel.h"
-#include "Distribution.h"
 #include "Factor.h"
 #include "Horus.h"
 
@@ -13,18 +12,21 @@ using namespace std;
 class BayesNet;
 class FgFacNode;
 
+
 class FgVarNode : public VarNode
 {
   public:
     FgVarNode (VarId varId, unsigned nrStates) : VarNode (varId, nrStates) { }
+
     FgVarNode (const VarNode* v) : VarNode (v) { }
 
-    void            addNeighbor (FgFacNode* fn) { neighs_.push_back (fn); }
-    const FgFacSet& neighbors (void) const      { return neighs_; }
+    void addNeighbor (FgFacNode* fn) { neighs_.push_back (fn); }
+
+    const FgFacSet& neighbors (void) const { return neighs_; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN (FgVarNode);
-    // members
+
     FgFacSet neighs_;
 };
 
@@ -32,13 +34,18 @@ class FgVarNode : public VarNode
 class FgFacNode
 {
   public:
-    FgFacNode (const FgFacNode* fn) {
+    FgFacNode (const FgFacNode* fn)
+    {
       factor_ = new Factor (*fn->factor());
       index_  = -1;
     }
+
     FgFacNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
-    Factor*          factor() const { return factor_; }
-    void             addNeighbor (FgVarNode* vn)  { neighs_.push_back (vn); }
+
+    Factor* factor() const { return factor_; }
+
+    void addNeighbor (FgVarNode* vn) { neighs_.push_back (vn); }
+
     const FgVarSet&  neighbors (void) const  { return neighs_; }
 
     int getIndex (void) const
@@ -46,28 +53,28 @@ class FgFacNode
       assert (index_ != -1);
       return index_;
     }
+
     void setIndex (int index)
     {
       index_ = index;
     }
-    Distribution* getDistribution (void)
+
+    const Params& params (void) const
     {
-      return factor_->getDistribution();
+      return factor_->params();
     }
-    const Params& getParameters (void) const
-    {
-      return factor_->getParameters();
-    }
+
     string getLabel (void)
     {
       return factor_->getLabel();
     }
+
   private:
     DISALLOW_COPY_AND_ASSIGN (FgFacNode);
 
-    Factor* factor_;
-    int index_;
-    FgVarSet neighs_;
+    Factor*   factor_;
+    FgVarSet  neighs_;
+    int       index_;
 };
 
 
@@ -83,29 +90,17 @@ struct CompVarId
 class FactorGraph : public GraphicalModel
 {
   public:
-    FactorGraph (void) {};
+    FactorGraph (void) { };
+
     FactorGraph (const FactorGraph&);
+
     FactorGraph (const BayesNet&);
+
    ~FactorGraph (void);
 
-    void                readFromUaiFormat (const char*);
-    void                readFromLibDaiFormat (const char*);
-    void                addVariable (FgVarNode*);
-    void                addFactor (FgFacNode*);
-    void                addEdge (FgVarNode*, FgFacNode*);
-    void                addEdge (FgFacNode*, FgVarNode*);
-    VarNode*            getVariableNode (unsigned) const;
-    VarNodes            getVariableNodes (void) const;
-    bool                isTree (void) const;
-    void                setIndexes (void);
-    void                freeDistributions (void);
-    void                printGraphicalModel (void) const;
-    void                exportToGraphViz (const char*) const;
-    void                exportToUaiFormat (const char*) const;
-    void                exportToLibDaiFormat (const char*) const;
-                      
-    const FgVarSet&   getVarNodes (void)    const  { return varNodes_; }
-    const FgFacSet&   getFactorNodes (void) const  { return facNodes_; }
+    const FgVarSet& getVarNodes (void) const { return varNodes_; }
+
+    const FgFacSet& getFactorNodes (void) const { return facNodes_; }
 
     FgVarNode* getFgVarNode (VarId vid) const
     {
@@ -117,21 +112,52 @@ class FactorGraph : public GraphicalModel
       }
     }
 
+    void readFromUaiFormat (const char*);
+
+    void readFromLibDaiFormat (const char*);
+
+    void addVariable (FgVarNode*);
+
+    void addFactor (FgFacNode*);
+
+    void addEdge (FgVarNode*, FgFacNode*);
+
+    void addEdge (FgFacNode*, FgVarNode*);
+
+    VarNode* getVariableNode (unsigned) const;
+
+    VarNodes getVariableNodes (void) const;
+
+    bool isTree (void) const;
+
+    void setIndexes (void);
+
+    void printGraphicalModel (void) const;
+
+    void exportToGraphViz (const char*) const;
+
+    void exportToUaiFormat (const char*) const;
+
+    void exportToLibDaiFormat (const char*) const;
+                      
     static bool orderFactorVariables;
 
   private:
-    //DISALLOW_COPY_AND_ASSIGN (FactorGraph);
-    bool                containsCycle (void) const;
-    bool                containsCycle (const FgVarNode*, const FgFacNode*,
-                            vector<bool>&, vector<bool>&) const;
-    bool                containsCycle (const FgFacNode*, const FgVarNode*,
-                            vector<bool>&, vector<bool>&) const;
+    // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
 
-    FgVarSet         varNodes_;
-    FgFacSet         facNodes_;
+    bool containsCycle (void) const;
+
+    bool containsCycle (const FgVarNode*, const FgFacNode*,
+        vector<bool>&, vector<bool>&) const;
+
+    bool containsCycle (const FgFacNode*, const FgVarNode*,
+        vector<bool>&, vector<bool>&) const;
+
+    FgVarSet  varNodes_;
+    FgFacSet  facNodes_;
 
     typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap         varMap_;
+    IndexMap  varMap_;
 };
 
 #endif // HORUS_FACTORGRAPH_H

@@ -9,7 +9,7 @@ OUT_FILE_NAME=results.log
 rm -f $OUT_FILE_NAME
 rm -f ignore.$OUT_FILE_NAME
 
-# yap -g "['../../../../examples/School/school_32'], [missing5], use_module(library(clpbn/learning/em)), graph(L), clpbn:set_clpbn_flag(em_solver,bp), clpbn_bp:set_horus_flag(inf_alg,ve), statistics(runtime, _), em(L,0.01,10,_,Lik), statistics(runtime, [T,_])."
+# yap -g "['../../../../examples/School/sch32'], [missing5], use_module(library(clpbn/learning/em)), graph(L), clpbn:set_clpbn_flag(em_solver,bp), clpbn_horus:set_horus_flag(inf_alg,fg_bp), statistics(runtime, _), em(L,0.01,10,_,Lik), statistics(runtime, [T,_])."
 
 function run_solver
 {
@@ -17,11 +17,11 @@ if [ $2 = bp ]
 then
   if [ $4 = ve ]
   then
-    extra_flag1=clpbn_bp:set_horus_flag\(inf_alg,$4\)
-    extra_flag2=clpbn_bp:set_horus_flag\(elim_heuristic,$5\)
+    extra_flag1=clpbn_horus:set_horus_flag\(inf_alg,$4\)
+    extra_flag2=clpbn_horus:set_horus_flag\(elim_heuristic,$5\)
   else
-    extra_flag1=clpbn_bp:set_horus_flag\(inf_alg,$4\)
-    extra_flag2=clpbn_bp:set_horus_flag\(schedule,$5\)
+    extra_flag1=clpbn_horus:set_horus_flag\(inf_alg,$4\)
+    extra_flag2=clpbn_horus:set_horus_flag\(schedule,$5\)
   fi
 else
   extra_flag1=true
@@ -29,7 +29,7 @@ else
 fi
 /usr/bin/time -o "$OUT_FILE_NAME" -a -f "real:%E\tuser:%U\tsys:%S" $YAP << EOF &>> "ignore.$OUT_FILE_NAME"
 :- [pos:train].
-:- ['../../../../examples/School/school_32'].
+:- ['../../../../examples/School/sch32'].
 :- use_module(library(clpbn/learning/em)).
 :- use_module(library(clpbn/bp)).
 [$1].
@@ -57,12 +57,11 @@ function run_all_graphs
   #run_solver  missing50  $1  missing50  $3  $4  $5
 }
 
-run_solver  missing5   ve  missing5   $3  $4  $5
-exit																											
-run_all_graphs  bp     "hve(min_neighbors)  "  ve     min_neighbors
+					
+#run_all_graphs  bp     "hve(min_neighbors)  "  ve     min_neighbors
 #run_all_graphs  bp     "bn_bp(seq_fixed)    "  bn_bp  seq_fixed
-#run_all_graphs  bp     "fg_bp(seq_fixed)    "  fg_bp  seq_fixed
-#run_all_graphs  bp     "cbp(seq_fixed)    "    cbp    seq_fixed
+run_all_graphs  bp     "fg_bp(seq_fixed)    "  fg_bp  seq_fixed
+#run_all_graphs  bp     "cbp(seq_fixed)      "  cbp    seq_fixed
 exit
 
 

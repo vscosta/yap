@@ -12,23 +12,24 @@ class CbpSolverLink : public SpLink
     CbpSolverLink (FgFacNode* fn, FgVarNode* vn, unsigned c) : SpLink (fn, vn)
     {
       edgeCount_ = c;
-      poweredMsg_.resize (vn->nrStates(), Util::one());
+      poweredMsg_.resize (vn->nrStates(), LogAware::one());
     }
+
+    unsigned getNumberOfEdges  (void) const { return edgeCount_; }
+
+    const Params& getPoweredMessage (void) const { return poweredMsg_; }
 
     void updateMessage (void) 
     {
       poweredMsg_ = *nextMsg_;
       swap (currMsg_, nextMsg_);
       msgSended_  = true;
-      Util::pow (poweredMsg_, edgeCount_);
+      LogAware::pow (poweredMsg_, edgeCount_);
     }
   
-    unsigned       getNumberOfEdges  (void) const { return edgeCount_; }
-    const Params&  getPoweredMessage (void) const { return poweredMsg_; }
-
   private:
-    Params poweredMsg_;
-    unsigned edgeCount_;
+    Params    poweredMsg_;
+    unsigned  edgeCount_;
 };
 
 
@@ -37,21 +38,22 @@ class CbpSolver : public FgBpSolver
 {
   public:
     CbpSolver (FactorGraph& fg) : FgBpSolver (fg) { }
+
    ~CbpSolver (void);
 
-    Params        getPosterioriOf (VarId);
-    Params        getJointDistributionOf (const VarIds&);
+    Params getPosterioriOf (VarId);
+
+    Params getJointDistributionOf (const VarIds&);
 
    private:
-     void           initializeSolver (void);
-     void           createLinks (void);
+     void initializeSolver (void);
+     void createLinks (void);
 
-     void           maxResidualSchedule (void);
-     Params       getVar2FactorMsg (const SpLink*) const;
-     void           printLinkInformation (void) const;
+     void maxResidualSchedule (void);
+     Params getVar2FactorMsg (const SpLink*) const;
+     void printLinkInformation (void) const;
 
-
-     CFactorGraph*      lfg_;
+     CFactorGraph*  lfg_;
 };
 
 #endif // HORUS_CBP_H

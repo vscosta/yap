@@ -1,7 +1,6 @@
 
 #include "CFactorGraph.h"
 #include "Factor.h"
-#include "Distribution.h"
 
 
 bool CFactorGraph::checkForIdenticalFactors = true;
@@ -73,27 +72,34 @@ CFactorGraph::setInitialColors (void)
 
   const FgFacSet& facNodes = groundFg_->getFactorNodes();
   if (checkForIdenticalFactors) {
-    for (unsigned i = 0, s = facNodes.size(); i < s; i++) {
-      Distribution* dist1 = facNodes[i]->getDistribution();
-      for (unsigned j = 0; j < i; j++) {
-        Distribution* dist2 = facNodes[j]->getDistribution();
-        if (dist1 != dist2 && dist1->params == dist2->params) {
-          if (facNodes[i]->factor()->getRanges() == 
-              facNodes[j]->factor()->getRanges()) {
-            facNodes[i]->factor()->setDistribution (dist2);
-          }
+    unsigned groupCount = 1;
+    for (unsigned i = 0; i < facNodes.size(); i++) {
+      Factor* f1 = facNodes[i]->factor();
+      if (f1->distId() != Util::maxUnsigned()) {
+        continue;
+      }
+      f1->setDistId (groupCount);
+      for (unsigned j = i + 1; j < facNodes.size(); j++) {
+        Factor* f2 = facNodes[j]->factor();
+        if (f2->distId() != Util::maxUnsigned()) {
+          continue;
+        }
+        if (f1->size()   == f2->size()   &&
+            f1->ranges() == f2->ranges() &&
+            f1->params() == f2->params()) {
+          f2->setDistId (groupCount);
         }
       }
+      groupCount ++;
     }
   }
-
   // create the initial factor colors
   DistColorMap distColors;
   for (unsigned i = 0; i < facNodes.size(); i++) {
-    const Distribution* dist = facNodes[i]->getDistribution();
-    DistColorMap::iterator it = distColors.find (dist);
+    unsigned distId = facNodes[i]->factor()->distId();
+    DistColorMap::iterator it = distColors.find (distId);
     if (it == distColors.end()) {
-      it = distColors.insert (make_pair (dist, getFreeColor())).first;
+      it = distColors.insert (make_pair (distId, getFreeColor())).first;
     }
     setColor (facNodes[i], it->second);
   }
@@ -104,11 +110,11 @@ CFactorGraph::setInitialColors (void)
 void
 CFactorGraph::createGroups (void)
 {
-  VarSignMap    varGroups;
+  VarSignMap varGroups;
   FacSignMap factorGroups;
   unsigned nIters = 0;
   bool groupsHaveChanged = true;
-  const FgVarSet&    varNodes = groundFg_->getVarNodes();
+  const FgVarSet& varNodes = groundFg_->getVarNodes();
   const FgFacSet& facNodes = groundFg_->getFactorNodes();
 
   while (groupsHaveChanged || nIters == 1) {
@@ -164,8 +170,9 @@ CFactorGraph::createGroups (void)
 
 
 void
-CFactorGraph::createClusters (const VarSignMap& varGroups,
-                          const FacSignMap& factorGroups)
+CFactorGraph::createClusters (
+    const VarSignMap& varGroups,
+    const FacSignMap& factorGroups)
 {
   varClusters_.reserve (varGroups.size());
   for (VarSignMap::const_iterator it = varGroups.begin();
@@ -249,7 +256,7 @@ CFactorGraph::getCompressedFactorGraph (void)
       myGroundVars.push_back (v);
     }
     Factor* newFactor = new Factor (myGroundVars,
-        facClusters_[i]->getGroundFactors()[0]->getDistribution());
+        facClusters_[i]->getGroundFactors()[0]->params());
     FgFacNode* fn = new FgFacNode (newFactor);
     facClusters_[i]->setRepresentativeFactor (fn);
     fg->addFactor (fn);
@@ -293,8 +300,9 @@ CFactorGraph::getGroundEdgeCount (
 
 
 void
-CFactorGraph::printGroups (const VarSignMap&    varGroups,
-                       const FacSignMap& factorGroups) const
+CFactorGraph::printGroups (
+    const VarSignMap& varGroups,
+    const FacSignMap& factorGroups) const
 {
   unsigned count = 1;
   cout << "variable groups:" << endl;

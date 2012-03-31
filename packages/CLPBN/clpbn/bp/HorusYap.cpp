@@ -7,22 +7,26 @@
 
 #include <YapInterface.h>
 
+#include "ParfactorList.h"
 #include "BayesNet.h"
 #include "FactorGraph.h"
+#include "FoveSolver.h"
 #include "VarElimSolver.h"
 #include "BnBpSolver.h"
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
-#include "FoveSolver.h"
-#include "ParfactorList.h"
 
 
 using namespace std;
 
 
+typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
+
 
 Params readParams (YAP_Term);
+void readLiftedEvidence (YAP_Term, ObservedFormulas&);
+Parfactor* readParfactor (YAP_Term);
 
 
 int createLiftedNetwork (void)
@@ -30,107 +34,124 @@ int createLiftedNetwork (void)
   Parfactors parfactors;
   YAP_Term parfactorList = YAP_ARG1;
   while (parfactorList != YAP_TermNil()) {
-    YAP_Term parfactor = YAP_HeadOfTerm (parfactorList);
-
-    // read dist id
-    unsigned distId = YAP_IntOfTerm (YAP_ArgOfTerm (1, parfactor));
-
-    // read the ranges
-    Ranges ranges;
-    YAP_Term rangeList = YAP_ArgOfTerm (3, parfactor);
-    while (rangeList != YAP_TermNil()) {
-      unsigned range = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (rangeList));
-      ranges.push_back (range);
-      rangeList = YAP_TailOfTerm (rangeList);
-    }
-
-    // read parametric random vars
-    ProbFormulas formulas;
-    unsigned count = 0;
-    unordered_map<YAP_Term, LogVar> lvMap;
-    YAP_Term pvList = YAP_ArgOfTerm (2, parfactor);
-    while (pvList != YAP_TermNil()) {
-      YAP_Term formulaTerm = YAP_HeadOfTerm (pvList);
-      if (YAP_IsAtomTerm (formulaTerm)) {
-        string name ((char*) YAP_AtomName (YAP_AtomOfTerm (formulaTerm)));
-        Symbol functor = LiftedUtils::getSymbol (name);
-        formulas.push_back (ProbFormula (functor, ranges[count]));
-      } else {
-        LogVars logVars;
-        YAP_Functor yapFunctor = YAP_FunctorOfTerm (formulaTerm);
-        string name ((char*) YAP_AtomName (YAP_NameOfFunctor (yapFunctor)));
-        Symbol functor = LiftedUtils::getSymbol (name);
-        unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
-        for (unsigned i = 1; i <= arity; i++) {
-          YAP_Term ti = YAP_ArgOfTerm (i, formulaTerm);
-          unordered_map<YAP_Term, LogVar>::iterator it = lvMap.find (ti);
-          if (it != lvMap.end()) {
-            logVars.push_back (it->second);
-          } else {
-            unsigned newLv = lvMap.size();
-            lvMap[ti] = newLv;
-            logVars.push_back (newLv);
-          }
-        }
-        formulas.push_back (ProbFormula (functor, logVars, ranges[count]));
-      }
-      count ++;
-      pvList = YAP_TailOfTerm (pvList);
-    }
-
-    // read the parameters
-    const Params& params = readParams (YAP_ArgOfTerm (4, parfactor)); 
-
-    // read the constraint
-    Tuples tuples;
-    if (lvMap.size() >= 1) {
-      YAP_Term tupleList = YAP_ArgOfTerm (5, parfactor);
-      while (tupleList != YAP_TermNil()) {
-        YAP_Term term = YAP_HeadOfTerm (tupleList);
-        assert (YAP_IsApplTerm (term));
-        YAP_Functor yapFunctor = YAP_FunctorOfTerm (term);
-        unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
-        assert (lvMap.size() == arity);
-        Tuple tuple (arity);
-        for (unsigned i = 1; i <= arity; i++) {
-          YAP_Term ti = YAP_ArgOfTerm (i, term);
-          if (YAP_IsAtomTerm (ti) == false) {
-            cerr << "error: bad formed constraint" << endl;
-            abort();
-          }
-          string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ti)));
-          tuple[i - 1] = LiftedUtils::getSymbol (name);
-        }
-        tuples.push_back (tuple);
-        tupleList = YAP_TailOfTerm (tupleList);
-      }
-    }
-    parfactors.push_back (new Parfactor (formulas, params, tuples, distId));
+    YAP_Term pfTerm = YAP_HeadOfTerm (parfactorList);
+    parfactors.push_back (readParfactor (pfTerm));
 	  parfactorList = YAP_TailOfTerm (parfactorList);
   }
 
   // LiftedUtils::printSymbolDictionary();
-  cout << "*******************************************************" << endl;
-  cout << "INITIAL PARFACTORS" << endl;
-  cout << "*******************************************************" << endl;
-  for (unsigned i = 0; i < parfactors.size(); i++) {
-    parfactors[i]->print();
-    cout << endl;
+  if (Constants::DEBUG > 1) {
+    // Util::printHeader ("INITIAL PARFACTORS");
+    // for (unsigned i = 0; i < parfactors.size(); i++) {
+    //  parfactors[i]->print();
+    //  cout << endl;
+    // }
+    // parfactors[0]->countConvert (LogVar (0));
+    //parfactors[1]->fullExpand (LogVar (1));
+    Util::printHeader ("SHATTERED PARFACTORS");
   }
-  ParfactorList* pfList = new ParfactorList();
-  for (unsigned i = 0; i < parfactors.size(); i++) {
-    pfList->add (parfactors[i]);
-  }
-  cout << endl;
-  cout << "*******************************************************" << endl;
-  cout << "SHATTERED PARFACTORS" << endl;
-  cout << "*******************************************************" << endl;
-  pfList->shatter();
-  pfList->print();
 
-  // insert the evidence
-  ObservedFormulas obsFormulas;
-  YAP_Term observedList = YAP_ARG2;
+  ParfactorList* pfList = new ParfactorList (parfactors);
+
+  if (Constants::DEBUG > 1) {
+    pfList->print();
+  }
+
+  // read evidence
+  ObservedFormulas* obsFormulas = new ObservedFormulas();
+  readLiftedEvidence (YAP_ARG2, *(obsFormulas));
+
+  LiftedNetwork* net = new LiftedNetwork (pfList, obsFormulas);
+  YAP_Int p = (YAP_Int) (net);
+  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG3);
+}
+
+
+
+Parfactor* readParfactor (YAP_Term pfTerm)
+{
+  // read dist id
+  unsigned distId = YAP_IntOfTerm (YAP_ArgOfTerm (1, pfTerm));
+
+  // read the ranges
+  Ranges ranges;
+  YAP_Term rangeList = YAP_ArgOfTerm (3, pfTerm);
+  while (rangeList != YAP_TermNil()) {
+    unsigned range = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (rangeList));
+    ranges.push_back (range);
+    rangeList = YAP_TailOfTerm (rangeList);
+  }
+
+  // read parametric random vars
+  ProbFormulas formulas;
+  unsigned count = 0;
+  unordered_map<YAP_Term, LogVar> lvMap;
+  YAP_Term pvList = YAP_ArgOfTerm (2, pfTerm);
+  while (pvList != YAP_TermNil()) {
+    YAP_Term formulaTerm = YAP_HeadOfTerm (pvList);
+    if (YAP_IsAtomTerm (formulaTerm)) {
+      string name ((char*) YAP_AtomName (YAP_AtomOfTerm (formulaTerm)));
+      Symbol functor = LiftedUtils::getSymbol (name);
+      formulas.push_back (ProbFormula (functor, ranges[count]));
+    } else {
+      LogVars logVars;
+      YAP_Functor yapFunctor = YAP_FunctorOfTerm (formulaTerm);
+      string name ((char*) YAP_AtomName (YAP_NameOfFunctor (yapFunctor)));
+      Symbol functor = LiftedUtils::getSymbol (name);
+      unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
+      for (unsigned i = 1; i <= arity; i++) {
+        YAP_Term ti = YAP_ArgOfTerm (i, formulaTerm);
+        unordered_map<YAP_Term, LogVar>::iterator it = lvMap.find (ti);
+        if (it != lvMap.end()) {
+          logVars.push_back (it->second);
+        } else {
+         unsigned newLv = lvMap.size();
+         lvMap[ti] = newLv;
+         logVars.push_back (newLv);
+        }
+      }
+      formulas.push_back (ProbFormula (functor, logVars, ranges[count]));
+    }
+    count ++;
+    pvList = YAP_TailOfTerm (pvList);
+  }
+
+  // read the parameters
+  const Params& params = readParams (YAP_ArgOfTerm (4, pfTerm)); 
+
+  // read the constraint
+  Tuples tuples;
+  if (lvMap.size() >= 1) {
+    YAP_Term tupleList = YAP_ArgOfTerm (5, pfTerm);
+    while (tupleList != YAP_TermNil()) {
+      YAP_Term term = YAP_HeadOfTerm (tupleList);
+      assert (YAP_IsApplTerm (term));
+      YAP_Functor yapFunctor = YAP_FunctorOfTerm (term);
+      unsigned arity = (unsigned) YAP_ArityOfFunctor (yapFunctor);
+      assert (lvMap.size() == arity);
+      Tuple tuple (arity);
+      for (unsigned i = 1; i <= arity; i++) {
+        YAP_Term ti = YAP_ArgOfTerm (i, term);
+        if (YAP_IsAtomTerm (ti) == false) {
+          cerr << "error: constraint has free variables" << endl;
+          abort();
+        }
+        string name ((char*) YAP_AtomName (YAP_AtomOfTerm (ti)));
+        tuple[i - 1] = LiftedUtils::getSymbol (name);
+      }
+      tuples.push_back (tuple);
+      tupleList = YAP_TailOfTerm (tupleList);
+    }
+  }
+  return new Parfactor (formulas, params, tuples, distId);
+}
+
+
+
+void readLiftedEvidence (
+    YAP_Term observedList,
+    ObservedFormulas& obsFormulas)
+{
   while (observedList != YAP_TermNil()) {
     YAP_Term pair = YAP_HeadOfTerm (observedList);
     YAP_Term ground = YAP_ArgOfTerm (1, pair);
@@ -155,22 +176,18 @@ int createLiftedNetwork (void)
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
-      if (obsFormulas[i]->functor()  == functor &&
-          obsFormulas[i]->arity()    == args.size() &&
-          obsFormulas[i]->evidence() == evidence) {
-        obsFormulas[i]->addTuple (args);
+      if (obsFormulas[i].functor()  == functor &&
+          obsFormulas[i].arity()    == args.size() &&
+          obsFormulas[i].evidence() == evidence) {
+        obsFormulas[i].addTuple (args);
         found = true;
       }
     }
     if (found == false) {
-      obsFormulas.push_back (new ObservedFormula (functor, evidence, args));
+      obsFormulas.push_back (ObservedFormula (functor, evidence, args));
     }
     observedList = YAP_TailOfTerm (observedList);
-  }
-  FoveSolver::absorveEvidence (*pfList, obsFormulas);
-
-  YAP_Int p = (YAP_Int) (pfList);
-  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG3);
+  } 
 }
 
 
@@ -186,7 +203,6 @@ createGroundNetwork (void)
   // }
   BayesNet* bn = new BayesNet();
   YAP_Term varList = YAP_ARG1;
-  BnNodeSet nodes;
   vector<VarIds> parents;
   while (varList != YAP_TermNil()) {
     YAP_Term var     =   YAP_HeadOfTerm (varList);
@@ -201,15 +217,13 @@ createGroundNetwork (void)
       parents.back().push_back (parentId);
       parentL = YAP_TailOfTerm (parentL);
     }
-    Distribution* dist = bn->getDistribution (distId);
-    if (!dist) {
-      dist = new Distribution (distId);
-      bn->addDistribution (dist);
-    }
     assert (bn->getBayesNode (vid) == 0);
-    nodes.push_back (bn->addNode (vid, dsize, evidence, dist));
+    BayesNode* newNode = new BayesNode (
+        vid, dsize, evidence, Params(), distId);
+    bn->addNode (newNode);
     varList = YAP_TailOfTerm (varList);
   }
+  const BnNodeSet& nodes = bn->getBayesNodes();
   for (unsigned i = 0; i < nodes.size(); i++) {
     BnNodeSet ps;
     for (unsigned j = 0; j < parents[i].size(); j++) {
@@ -221,41 +235,6 @@ createGroundNetwork (void)
   bn->setIndexes();
   YAP_Int p = (YAP_Int) (bn);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG2);
-}
-
-
-
-int
-setBayesNetParams (void)
-{
-  BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term distList = YAP_ARG2;
-  while (distList != YAP_TermNil()) {
-    YAP_Term dist    = YAP_HeadOfTerm (distList);
-    unsigned distId  = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
-    const Params params = readParams (YAP_ArgOfTerm (2, dist));
-    bn->getDistribution(distId)->updateParameters (params);
-    distList = YAP_TailOfTerm (distList);
-  }
-  return TRUE;
-}
-
-
-
-int
-setParfactorGraphParams (void)
-{
-  // FIXME
-  // ParfactorGraph* pfg = (ParfactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term distList = YAP_ARG2;
-  while (distList != YAP_TermNil()) {
-    // YAP_Term dist    = YAP_HeadOfTerm (distList);
-    // unsigned distId  = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
-    // const Params params = readParams (YAP_ArgOfTerm (2, dist));
-    // pfg->getDistribution(distId)->setData (params);
-    distList = YAP_TailOfTerm (distList);
-  }
-  return TRUE;
 }
 
 
@@ -279,15 +258,14 @@ readParams (YAP_Term paramL)
 int
 runLiftedSolver (void)
 {
-  ParfactorList* pfList = (ParfactorList*) YAP_IntOfTerm (YAP_ARG1);
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
-
+  ParfactorList pfListCopy (*network->first);
+  FoveSolver::absorveEvidence (pfListCopy, *network->second);
   while (taskList != YAP_TermNil()) {
-    YAP_Term jointList = YAP_HeadOfTerm (taskList);      
     Grounds queryVars;
-    assert (YAP_IsPairTerm (taskList));
-    assert (YAP_IsPairTerm (jointList));
+    YAP_Term jointList = YAP_HeadOfTerm (taskList);
     while (jointList != YAP_TermNil()) {
       YAP_Term ground = YAP_HeadOfTerm (jointList);
       if (YAP_IsAtomTerm (ground)) {
@@ -310,11 +288,11 @@ runLiftedSolver (void)
       }
       jointList = YAP_TailOfTerm (jointList);
     }
-    FoveSolver solver (pfList);
+    FoveSolver solver (pfListCopy);
     if (queryVars.size() == 1) {
       results.push_back (solver.getPosterioriOf (queryVars[0]));
     } else {
-      assert (false); // TODO joint dist
+      results.push_back (solver.getJointDistributionOf (queryVars));
     }
     taskList = YAP_TailOfTerm (taskList);
   }
@@ -339,46 +317,40 @@ runLiftedSolver (void)
 
 
 int
-runOtherSolvers (void)
+runGroundSolver (void)
 {
   BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term taskList = YAP_ARG2;
   vector<VarIds> tasks;
   std::set<VarId> vids;
   while (taskList != YAP_TermNil()) {
-    if (YAP_IsPairTerm (YAP_HeadOfTerm (taskList))) {
-      tasks.push_back (VarIds());
-      YAP_Term jointList = YAP_HeadOfTerm (taskList);      
-      while (jointList != YAP_TermNil()) {
-        VarId vid = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (jointList));
-        assert (bn->getBayesNode (vid));
-        tasks.back().push_back (vid);
-        vids.insert (vid);
-        jointList = YAP_TailOfTerm (jointList);
-      }
-    } else {
-      VarId vid = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (taskList));
+    VarIds queryVars;
+    YAP_Term jointList = YAP_HeadOfTerm (taskList);      
+    while (jointList != YAP_TermNil()) {
+      VarId vid = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (jointList));
       assert (bn->getBayesNode (vid));
-      tasks.push_back (VarIds() = {vid});
+      queryVars.push_back (vid);
       vids.insert (vid);
+      jointList = YAP_TailOfTerm (jointList);
     }
+    tasks.push_back (queryVars);
     taskList = YAP_TailOfTerm (taskList);
   }
   
   Solver* bpSolver = 0;
   GraphicalModel* graphicalModel = 0;
   CFactorGraph::checkForIdenticalFactors = false;
-  if (InfAlgorithms::infAlgorithm != InfAlgorithms::VE) {
+  if (Globals::infAlgorithm != InfAlgorithms::VE) {
     BayesNet* mrn = bn->getMinimalRequesiteNetwork (
         VarIds (vids.begin(), vids.end()));
-    if (InfAlgorithms::infAlgorithm == InfAlgorithms::BN_BP) {
+    if (Globals::infAlgorithm == InfAlgorithms::BN_BP) {
       graphicalModel = mrn;
       bpSolver = new BnBpSolver (*static_cast<BayesNet*> (graphicalModel));
-    } else if (InfAlgorithms::infAlgorithm == InfAlgorithms::FG_BP) {
+    } else if (Globals::infAlgorithm == InfAlgorithms::FG_BP) {
       graphicalModel = new FactorGraph (*mrn);
       bpSolver = new FgBpSolver (*static_cast<FactorGraph*> (graphicalModel));
       delete mrn;
-    } else if (InfAlgorithms::infAlgorithm == InfAlgorithms::CBP) {
+    } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
       graphicalModel = new FactorGraph (*mrn);
       bpSolver = new CbpSolver (*static_cast<FactorGraph*> (graphicalModel));
       delete mrn;
@@ -389,8 +361,7 @@ runOtherSolvers (void)
   vector<Params> results;
   results.reserve (tasks.size());
   for (unsigned i = 0; i < tasks.size(); i++) {
-    //if (i == 1) exit (0);
-    if (InfAlgorithms::infAlgorithm == InfAlgorithms::VE) {
+    if (Globals::infAlgorithm == InfAlgorithms::VE) {
       BayesNet* mrn = bn->getMinimalRequesiteNetwork (tasks[i]);
       VarElimSolver* veSolver = new VarElimSolver (*mrn);
       if (tasks[i].size() == 1) {
@@ -431,6 +402,54 @@ runOtherSolvers (void)
 
 
 int
+setParfactorsParams (void)
+{
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
+  ParfactorList* pfList = network->first;
+  YAP_Term distList = YAP_ARG2;
+  unordered_map<unsigned, Params> paramsMap;
+  while (distList != YAP_TermNil()) {
+    YAP_Term dist     = YAP_HeadOfTerm (distList);
+    unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    assert (Util::contains (paramsMap, distId) == false);
+    paramsMap[distId] = readParams (YAP_ArgOfTerm (2, dist));
+    distList = YAP_TailOfTerm (distList);
+  }
+  ParfactorList::iterator it = pfList->begin();
+  while (it != pfList->end()) {
+    assert (Util::contains (paramsMap, (*it)->distId()));
+    // (*it)->setParams (paramsMap[(*it)->distId()]); 
+    ++ it;
+  }
+  return TRUE;
+}
+
+
+
+int
+setBayesNetParams (void)
+{
+  BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
+  YAP_Term distList = YAP_ARG2;
+  unordered_map<unsigned, Params> paramsMap;
+  while (distList != YAP_TermNil()) {
+    YAP_Term dist     = YAP_HeadOfTerm (distList);
+    unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    assert (Util::contains (paramsMap, distId) == false);
+    paramsMap[distId] = readParams (YAP_ArgOfTerm (2, dist));
+    distList = YAP_TailOfTerm (distList);
+  }
+  const BnNodeSet& nodes = bn->getBayesNodes();
+  for (unsigned i = 0; i < nodes.size(); i++) {
+    assert (Util::contains (paramsMap, nodes[i]->distId()));
+    nodes[i]->setParams (paramsMap[nodes[i]->distId()]);
+  }
+  return TRUE;
+}
+
+
+
+int
 setExtraVarsInfo (void)
 {
   // BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
@@ -463,13 +482,13 @@ setHorusFlag (void)
   if (key == "inf_alg") {
     string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
     if (       value == "ve") {
-      InfAlgorithms::infAlgorithm = InfAlgorithms::VE;
+      Globals::infAlgorithm = InfAlgorithms::VE;
     } else if (value == "bn_bp") {
-      InfAlgorithms::infAlgorithm = InfAlgorithms::BN_BP;
+      Globals::infAlgorithm = InfAlgorithms::BN_BP;
     } else if (value == "fg_bp") {
-      InfAlgorithms::infAlgorithm = InfAlgorithms::FG_BP;
+      Globals::infAlgorithm = InfAlgorithms::FG_BP;
     } else if (value == "cbp") {
-      InfAlgorithms::infAlgorithm = InfAlgorithms::CBP;
+      Globals::infAlgorithm = InfAlgorithms::CBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -543,19 +562,19 @@ setHorusFlag (void)
 int
 freeBayesNetwork (void)
 {
-  //Statistics::writeStatisticsToFile ("stats.txt");
-  BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
-  bn->freeDistributions();
-  delete bn;
+  delete (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
   return TRUE;
 }
 
 
 
 int
-freeParfactorGraph (void)
+freeParfactors (void)
 {
-  delete (ParfactorList*) YAP_IntOfTerm (YAP_ARG1);
+  LiftedNetwork* network = (LiftedNetwork*) YAP_IntOfTerm (YAP_ARG1);
+  delete network->first;
+  delete network->second;
+  delete network;
   return TRUE;
 }
 
@@ -564,15 +583,15 @@ freeParfactorGraph (void)
 extern "C" void
 init_predicates (void)
 {
-  YAP_UserCPredicate ("create_lifted_network",      createLiftedNetwork,     3);
-  YAP_UserCPredicate ("create_ground_network",      createGroundNetwork,     2);
-  YAP_UserCPredicate ("set_parfactor_graph_params", setParfactorGraphParams, 2);
-  YAP_UserCPredicate ("set_bayes_net_params",       setBayesNetParams,       2);
-  YAP_UserCPredicate ("run_lifted_solver",          runLiftedSolver,         3);
-  YAP_UserCPredicate ("run_other_solvers",          runOtherSolvers,         3);
-  YAP_UserCPredicate ("set_extra_vars_info",        setExtraVarsInfo,        2);
-  YAP_UserCPredicate ("set_horus_flag",             setHorusFlag,            2);
-  YAP_UserCPredicate ("free_bayesian_network",      freeBayesNetwork,        1);
-  YAP_UserCPredicate ("free_parfactor_graph",       freeParfactorGraph,      1);
+  YAP_UserCPredicate ("create_lifted_network",  createLiftedNetwork, 3);
+  YAP_UserCPredicate ("create_ground_network",  createGroundNetwork, 2);
+  YAP_UserCPredicate ("run_lifted_solver",      runLiftedSolver,     3);
+  YAP_UserCPredicate ("run_ground_solver",      runGroundSolver,     3);
+  YAP_UserCPredicate ("set_parfactors_params",  setParfactorsParams, 2);
+  YAP_UserCPredicate ("set_bayes_net_params",   setBayesNetParams,   2);
+  YAP_UserCPredicate ("set_extra_vars_info",    setExtraVarsInfo,    2);
+  YAP_UserCPredicate ("set_horus_flag",         setHorusFlag,        2);
+  YAP_UserCPredicate ("free_parfactors",        freeParfactors,      1);
+  YAP_UserCPredicate ("free_bayesian_network",  freeBayesNetwork,    1);
 }
 

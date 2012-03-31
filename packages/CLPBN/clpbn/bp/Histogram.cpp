@@ -84,16 +84,34 @@ HistogramSet::nrHistograms (unsigned N, unsigned R)
 
 unsigned
 HistogramSet::findIndex (
-    const Histogram& hist,
-    const vector<Histogram>& histograms)
+    const Histogram& h,
+    const vector<Histogram>& hists)
 {
   vector<Histogram>::const_iterator it = std::lower_bound (
-       histograms.begin(),
-       histograms.end(),
-       hist,
-       std::greater<Histogram>());
-  assert (it != histograms.end() && *it == hist);
-  return std::distance (histograms.begin(), it);
+       hists.begin(), hists.end(), h, std::greater<Histogram>());
+  assert (it != hists.end() && *it == h);
+  return std::distance (hists.begin(), it);
+}
+
+
+
+vector<double>
+HistogramSet::getNumAssigns (unsigned N, unsigned R)
+{
+  HistogramSet hs (N, R);
+  unsigned N_factorial = Util::factorial (N);
+  unsigned H = hs.nrHistograms();
+  vector<double> numAssigns;
+  numAssigns.reserve (H);
+  for (unsigned h = 0; h < H; h++) {
+    unsigned prod = 1;
+    for (unsigned r = 0; r < R; r++) {
+      prod *= Util::factorial (hs[r]);
+    }
+    numAssigns.push_back (LogAware::tl (N_factorial / prod));
+    hs.nextHistogram();
+  }
+  return numAssigns;
 }
 
 

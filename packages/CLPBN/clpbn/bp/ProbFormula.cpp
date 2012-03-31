@@ -16,8 +16,7 @@ ProbFormula::sameSkeletonAs (const ProbFormula& f) const
 bool
 ProbFormula::contains (LogVar lv) const
 {
-  return std::find (logVars_.begin(), logVars_.end(), lv) != 
-         logVars_.end();
+  return Util::contains (logVars_, lv);
 }
 
 
@@ -77,16 +76,15 @@ ProbFormula::rename (LogVar oldName, LogVar newName)
 }
 
 
-
-bool
-ProbFormula::operator== (const ProbFormula& f) const
+bool operator== (const ProbFormula& f1, const ProbFormula& f2)
 {
-  return functor_ == f.functor_ && logVars_ == f.logVars_ ;
+  return f1.group_ == f2.group_;
+  //return functor_ == f.functor_ && logVars_ == f.logVars_ ;
 }
 
 
 
-ostream& operator<< (ostream &os, const ProbFormula& f)
+std::ostream& operator<< (ostream &os, const ProbFormula& f)
 {
   os << f.functor_;
   if (f.isAtom() == false) {
@@ -111,5 +109,15 @@ ProbFormula::getNewGroup (void)
 {
   freeGroup_ ++;
   return freeGroup_;
+}
+
+
+
+ostream& operator<< (ostream &os, const ObservedFormula& of)
+{
+  os << of.functor_ << "/" << of.arity_;
+  os << "|" << of.constr_.tupleSet();
+  os << " [evidence=" << of.evidence_ << "]";
+  return os;
 }
 

@@ -34,12 +34,12 @@ void
 BnBpSolver::runSolver (void)
 {
   clock_t start;
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     start = clock();
   }
   initializeSolver();
   runLoopySolver();
-  if (DL >= 2) {
+  if (Constants::DEBUG >= 2) {
     cout << endl;
     if (nIters_ < BpOptions::maxIter) {
       cout << "Belief propagation converged in " ; 
@@ -51,17 +51,12 @@ BnBpSolver::runSolver (void)
   }
   
   unsigned size = bayesNet_->nrNodes();
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     unsigned nIters = 0;
     bool loopy = bayesNet_->isPolyTree() == false;
     if (loopy) nIters = nIters_;
     double time = (double (clock() - start)) / CLOCKS_PER_SEC;
     Statistics::updateStatistics (size, loopy, nIters, time);
-  }
-  if (EXPORT_TO_GRAPHVIZ && size > EXPORT_MINIMAL_SIZE) {
-    stringstream ss;
-    ss << Statistics::getSolvedNetworksCounting() << "." << size << ".dot" ;
-    bayesNet_->exportToGraphViz (ss.str().c_str());
   }
 }
 
@@ -80,7 +75,7 @@ BnBpSolver::getPosterioriOf (VarId vid)
 Params
 BnBpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 {
-  if (DL >= 2) {
+  if (Constants::DEBUG >= 2) {
     cout << "calculating joint distribution on: " ;
     for (unsigned i = 0; i < jointVarIds.size(); i++) {
       VarNode* var = bayesNet_->getBayesNode (jointVarIds[i]);
@@ -112,7 +107,7 @@ BnBpSolver::initializeSolver (void)
 
   BnNodeSet roots = bayesNet_->getRootNodes();
   for (unsigned i = 0; i < roots.size(); i++) {
-    const Params& params = roots[i]->getParameters();
+    const Params& params = roots[i]->params();
     Params& piVals = ninf(roots[i])->getPiValues();
     for (unsigned ri = 0; ri < roots[i]->nrStates(); ri++) {
       piVals[ri] = params[ri];
@@ -143,11 +138,11 @@ BnBpSolver::initializeSolver (void)
       Params& piVals = ninf(nodes[i])->getPiValues();
       Params& ldVals = ninf(nodes[i])->getLambdaValues();
       for (unsigned xi = 0; xi < nodes[i]->nrStates(); xi++) {
-        piVals[xi] = Util::noEvidence();
-        ldVals[xi] = Util::noEvidence();
+        piVals[xi] = LogAware::noEvidence();
+        ldVals[xi] = LogAware::noEvidence();
       }
-      piVals[nodes[i]->getEvidence()] = Util::withEvidence();
-      ldVals[nodes[i]->getEvidence()] = Util::withEvidence();
+      piVals[nodes[i]->getEvidence()] = LogAware::withEvidence();
+      ldVals[nodes[i]->getEvidence()] = LogAware::withEvidence();
     }
   }
 }
@@ -161,13 +156,8 @@ BnBpSolver::runLoopySolver()
   while (!converged() && nIters_ < BpOptions::maxIter) {
 
     nIters_++;
-    if (DL >= 2) {
-      cout << "****************************************" ;
-      cout << "****************************************" ;
-      cout << endl;
-      cout << " Iteration " << nIters_ << endl;
-      cout << "****************************************" ;
-      cout << "****************************************" ;
+    if (Constants::DEBUG >= 2) {
+      Util::printHeader ("Iteration " + nIters_);
       cout << endl;
     }
 
@@ -199,7 +189,7 @@ BnBpSolver::runLoopySolver()
         break;
 
     }
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << endl;
     }
   }
@@ -228,7 +218,7 @@ BnBpSolver::converged (void) const
   } else {
     for (unsigned i = 0; i < links_.size(); i++) {
       double residual = links_[i]->getResidual();
-      if (DL >= 2) {
+      if (Constants::DEBUG >= 2) {
         cout << links_[i]->toString() + " residual change = " ;
         cout << residual << endl;
       }
@@ -256,7 +246,7 @@ BnBpSolver::maxResidualSchedule (void)
   }
 
   for (unsigned c = 0; c < sortedOrder_.size(); c++) {
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); it ++) {
@@ -300,9 +290,8 @@ BnBpSolver::maxResidualSchedule (void)
       }
     }
 
-    if (DL >= 2) {
-      cout << "----------------------------------------" ;
-      cout << "----------------------------------------" << endl;
+    if (Constants::DEBUG >= 2) {
+      Util::printDashedLine();
     }
   }
 }
@@ -313,7 +302,7 @@ void
 BnBpSolver::updatePiValues (BayesNode* x)
 {
   // π(Xi)
-  if (DL >= 3) {
+  if (Constants::DEBUG >= 3) {
     cout << "updating " << PI_SYMBOL << " values for " << x->label() << endl;
   }
   Params& piValues           = ninf(x)->getPiValues();
@@ -329,11 +318,11 @@ BnBpSolver::updatePiValues (BayesNode* x)
 
   Params messageProducts (indexer.size());
   for (unsigned k = 0; k < indexer.size(); k++) {
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    double messageProduct = Util::multIdenty();
+    double messageProduct = LogAware::multIdenty();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < parentLinks.size(); i++) {
         messageProduct += parentLinks[i]->getMessage()[indexer[i]];
@@ -341,7 +330,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
     } else {
       for (unsigned i = 0; i < parentLinks.size(); i++) {
         messageProduct *= parentLinks[i]->getMessage()[indexer[i]];
-        if (DL >= 5) {
+        if (Constants::DEBUG >= 5) {
           if (i != 0) *calcs1 << " + " ;
           if (i != 0) *calcs2 << " + " ;
           *calcs1 << parentLinks[i]->toString (indexer[i]);
@@ -350,7 +339,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
       }
     }
     messageProducts[k] = messageProduct;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    mp" << k;
       cout << " = " << (*calcs1).str();
       if (parentLinks.size() == 1) {
@@ -366,27 +355,27 @@ BnBpSolver::updatePiValues (BayesNode* x)
   }
 
   for (unsigned xi = 0; xi < x->nrStates(); xi++) {
-    double sum = Util::addIdenty();
-    if (DL >= 5) {
+    double sum = LogAware::addIdenty();
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
     indexer.reset();
     if (Globals::logDomain) {
       for (unsigned k = 0; k < indexer.size(); k++) {
-        Util::logSum (sum,
-            x->getProbability(xi, indexer.linearIndex()) + messageProducts[k]);
+        sum = Util::logSum (sum, 
+                  x->getProbability(xi, indexer) + messageProducts[k]);
         ++ indexer;
       }
     } else {
       for (unsigned k = 0; k < indexer.size(); k++) {
-        sum += x->getProbability (xi, indexer.linearIndex()) * messageProducts[k];
-        if (DL >= 5) {
+        sum += x->getProbability (xi, indexer) * messageProducts[k];
+        if (Constants::DEBUG >= 5) {
           if (k != 0) *calcs1 << " + " ;
           if (k != 0) *calcs2 << " + " ;
           *calcs1 << x->cptEntryToString (xi, indexer.indices()); 
           *calcs1 << ".mp" << k;
-          *calcs2 << Util::fl (x->getProbability (xi, indexer.linearIndex()));
+          *calcs2 << LogAware::fl (x->getProbability (xi, indexer));
           *calcs2 << "*" << messageProducts[k];
         }
         ++ indexer;
@@ -394,7 +383,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
     }
 
     piValues[xi] = sum;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    " << PI_SYMBOL << "(" << x->label() << ")" ;
       cout << "[" << x->states()[xi] << "]" ;
       cout << " = " << (*calcs1).str();
@@ -412,7 +401,7 @@ void
 BnBpSolver::updateLambdaValues (BayesNode* x)
 {
   // λ(Xi)
-  if (DL >= 3) {
+  if (Constants::DEBUG >= 3) {
     cout << "updating " << LD_SYMBOL << " values for " << x->label() << endl;
   }
   Params& lambdaValues       = ninf(x)->getLambdaValues();
@@ -421,11 +410,11 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
   stringstream* calcs2 = 0;
 
   for (unsigned xi = 0; xi < x->nrStates(); xi++) {
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    double product = Util::multIdenty();
+    double product = LogAware::multIdenty();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < childLinks.size(); i++) {
         product += childLinks[i]->getMessage()[xi];
@@ -433,7 +422,7 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
     } else {
       for (unsigned i = 0; i < childLinks.size(); i++) {
         product *= childLinks[i]->getMessage()[xi];
-        if (DL >= 5) {
+        if (Constants::DEBUG >= 5) {
           if (i != 0) *calcs1 << "." ;
           if (i != 0) *calcs2 << "*" ;
           *calcs1 << childLinks[i]->toString (xi);
@@ -442,7 +431,7 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
       }
     }
     lambdaValues[xi] = product;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    " << LD_SYMBOL << "(" << x->label() << ")" ;
       cout << "[" << x->states()[xi] << "]" ;
       cout << " = " << (*calcs1).str();
@@ -474,7 +463,7 @@ BnBpSolver::calculatePiMessage (BpLink* link)
   const Params& zPiValues = ninf(z)->getPiValues();
   for (unsigned zi = 0; zi < z->nrStates(); zi++) {
     double product = zPiValues[zi];
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
       *calcs1 << PI_SYMBOL << "(" << z->label() << ")";
@@ -491,7 +480,7 @@ BnBpSolver::calculatePiMessage (BpLink* link)
       for (unsigned i = 0; i < zChildLinks.size(); i++) {
         if (zChildLinks[i]->getSource() != x) {
           product *= zChildLinks[i]->getMessage()[zi];
-          if (DL >= 5) {
+          if (Constants::DEBUG >= 5) {
             *calcs1 << "." << zChildLinks[i]->toString (zi);
             *calcs2 << " * " << zChildLinks[i]->getMessage()[zi];
           }
@@ -499,7 +488,7 @@ BnBpSolver::calculatePiMessage (BpLink* link)
       }
     }
     zxPiNextMessage[zi] = product;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    " << link->toString();
       cout << "["  << z->states()[zi] << "]" ;
       cout << " = " << (*calcs1).str();
@@ -513,7 +502,7 @@ BnBpSolver::calculatePiMessage (BpLink* link)
       delete calcs2;
     }
   }
-  Util::normalize (zxPiNextMessage);
+  LogAware::normalize (zxPiNextMessage);
 }
 
 
@@ -527,10 +516,10 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
   if (x->hasEvidence()) {
     return;
   }
-  Params& yxLambdaNextMessage       = link->getNextMessage();
-  const BpLinkSet& yParentLinks       = ninf(y)->getIncomingParentLinks();
-  const Params& yLambdaValues       = ninf(y)->getLambdaValues();
-  int parentIndex                     = y->getIndexOfParent (x);
+  Params& yxLambdaNextMessage   = link->getNextMessage();
+  const BpLinkSet& yParentLinks = ninf(y)->getIncomingParentLinks();
+  const Params& yLambdaValues   = ninf(y)->getLambdaValues();
+  int parentIndex               = y->indexOfParent (x);
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
 
@@ -548,11 +537,11 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
     while (indexer[parentIndex] != 0) {
       ++ indexer;
     }
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    double messageProduct = Util::multIdenty();
+    double messageProduct = LogAware::multIdenty();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < yParentLinks.size(); i++) {
         if (yParentLinks[i]->getSource() != x) {
@@ -562,9 +551,9 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
     } else {
       for (unsigned i = 0; i < yParentLinks.size(); i++) {
         if (yParentLinks[i]->getSource() != x) {
-          if (DL >= 5) {
-            if (messageProduct != Util::multIdenty()) *calcs1 << "*" ;
-            if (messageProduct != Util::multIdenty()) *calcs2 << "*" ;
+          if (Constants::DEBUG >= 5) {
+            if (messageProduct != LogAware::multIdenty()) *calcs1 << "*" ;
+            if (messageProduct != LogAware::multIdenty()) *calcs2 << "*" ;
             *calcs1 << yParentLinks[i]->toString (indexer[i]);
             *calcs2 << yParentLinks[i]->getMessage()[indexer[i]];
           }
@@ -574,7 +563,7 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
     }
     messageProducts[k] = messageProduct;
     ++ indexer;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    mp" << k;
       cout << " = " << (*calcs1).str();
       if  (yParentLinks.size() == 1) {
@@ -591,55 +580,54 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
   }
 
   for (unsigned xi = 0; xi < x->nrStates(); xi++) {
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
-    double outerSum = Util::addIdenty();
+    double outerSum = LogAware::addIdenty();
     for (unsigned yi = 0; yi < y->nrStates(); yi++) {
-      if (DL >= 5) {
+      if (Constants::DEBUG >= 5) {
         (yi != 0) ? *calcs1 << " + {" : *calcs1 << "{" ;
         (yi != 0) ? *calcs2 << " + {" : *calcs2 << "{" ;
       } 
-      double innerSum = Util::addIdenty();
+      double innerSum = LogAware::addIdenty();
       indexer.reset();
       if (Globals::logDomain) {
         for (unsigned k = 0; k < N; k++) {
           while (indexer[parentIndex] != xi) {
             ++ indexer;
           }
-          Util::logSum (innerSum, y->getProbability (
-              yi, indexer.linearIndex()) + messageProducts[k]);
+          innerSum = Util::logSum (innerSum,
+              y->getProbability (yi, indexer) + messageProducts[k]);
           ++ indexer;
         }
-        Util::logSum (outerSum, innerSum + yLambdaValues[yi]);
+        outerSum = Util::logSum (outerSum, innerSum + yLambdaValues[yi]);
       } else {
         for (unsigned k = 0; k < N; k++) {
          while (indexer[parentIndex] != xi) {
            ++ indexer;
          }
-         if (DL >= 5) {
+         if (Constants::DEBUG >= 5) {
            if (k != 0) *calcs1 << " + " ;
            if (k != 0) *calcs2 << " + " ;
            *calcs1 << y->cptEntryToString (yi, indexer.indices());
            *calcs1 << ".mp" << k;
-           *calcs2 << y->getProbability (yi, indexer.linearIndex());
+           *calcs2 << y->getProbability (yi, indexer);
            *calcs2 << "*" << messageProducts[k];
          }
-         innerSum += y->getProbability (
-             yi, indexer.linearIndex()) * messageProducts[k];
+         innerSum += y->getProbability (yi, indexer) * messageProducts[k];
           ++ indexer;
         }
         outerSum += innerSum * yLambdaValues[yi];
       }
-      if (DL >= 5) {
+      if (Constants::DEBUG >= 5) {
         *calcs1 << "}." << LD_SYMBOL << "(" << y->label() << ")" ;
         *calcs1 << "["  << y->states()[yi] << "]";
         *calcs2 << "}*" << yLambdaValues[yi];
       }
     }
     yxLambdaNextMessage[xi] = outerSum;
-    if (DL >= 5) {
+    if (Constants::DEBUG >= 5) {
       cout << "    " << link->toString();
       cout << "[" << x->states()[xi] << "]" ;
       cout << " = " << (*calcs1).str();
@@ -649,7 +637,7 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
       delete calcs2;
     }
   }
-  Util::normalize (yxLambdaNextMessage);
+  LogAware::normalize (yxLambdaNextMessage);
 }
 
 
@@ -674,7 +662,7 @@ BnBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
   for (unsigned i = 1; i < jointVarIds.size(); i++) {
     assert (jointVars[i]->hasEvidence() == false);
     VarIds reqVars = {jointVarIds[i]};
-    reqVars.insert (reqVars.end(), observedVids.begin(), observedVids.end());
+    Util::addToVector (reqVars, observedVids);
     mrn = bayesNet_->getMinimalRequesiteNetwork (reqVars);
     Params newBeliefs;
     VarNodes observedVars;
@@ -720,8 +708,7 @@ BnBpSolver::printPiLambdaValues (const BayesNode* var) const
   cout << setw (20) << LD_SYMBOL << "(" + var->label() + ")" ;
   cout << setw (16) << "belief" ;
   cout << endl;
-  cout << "--------------------------------" ;
-  cout << "--------------------------------" ;
+  Util::printDashedLine();
   cout << endl;
   const States&    states   = var->states();
   const Params&  piVals   = ninf(var)->getPiValues();
@@ -731,7 +718,7 @@ BnBpSolver::printPiLambdaValues (const BayesNode* var) const
     cout << setw (10) << states[xi];
     cout << setw (19) << piVals[xi];
     cout << setw (19) << ldVals[xi];
-    cout.precision (PRECISION);
+    cout.precision (Constants::PRECISION);
     cout << setw (16) << beliefs[xi];
     cout << endl;
   }
@@ -754,8 +741,8 @@ BnBpSolver::printAllMessageStatus (void) const
 BpNodeInfo::BpNodeInfo (BayesNode* node)
 {
   node_ = node;
-  piVals_.resize (node->nrStates(), Util::one());
-  ldVals_.resize (node->nrStates(), Util::one());
+  piVals_.resize (node->nrStates(), LogAware::one());
+  ldVals_.resize (node->nrStates(), LogAware::one());
 }
 
 

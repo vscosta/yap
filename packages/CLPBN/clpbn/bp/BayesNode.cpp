@@ -8,29 +8,10 @@
 #include "BayesNode.h"
 
 
-BayesNode::BayesNode (VarId vid,
-                      unsigned dsize,
-                      int evidence,
-                      Distribution* dist) 
-    : VarNode (vid, dsize, evidence)
+void
+BayesNode::setParams (const Params& params)
 {
-  dist_ = dist;
-}
-
-
-
-BayesNode::BayesNode (VarId vid,
-                      unsigned dsize,
-                      int evidence,
-                      const BnNodeSet& parents,
-                      Distribution* dist) 
-    : VarNode (vid, dsize, evidence)
-{
-  parents_  = parents;
-  dist_     = dist;
-  for (unsigned int i = 0; i < parents.size(); i++) {
-    parents[i]->addChild (this);
-  }
+  params_ = params;
 }
 
 
@@ -54,31 +35,6 @@ BayesNode::addChild (BayesNode* node)
 
 
 
-void
-BayesNode::setDistribution (Distribution* dist)
-{
-  assert (dist);
-  dist_ = dist;
-}
-
-
-
-Distribution*
-BayesNode::getDistribution (void)
-{
-  return dist_;
-}
-
-
-
-const Params&
-BayesNode::getParameters (void)
-{
-  return dist_->params;
-}
-
-
-
 Params
 BayesNode::getRow (int rowIndex) const
 {
@@ -86,7 +42,7 @@ BayesNode::getRow (int rowIndex) const
   int offset  = rowSize * rowIndex;
   Params row (rowSize);
   for (int i = 0; i < rowSize; i++) {
-    row[i] = dist_->params[offset + i] ;
+    row[i] = params_[offset + i] ;
   }
   return row;
 }
@@ -119,13 +75,13 @@ BayesNode::hasNeighbors (void) const
 int 
 BayesNode::getCptSize (void)
 {
-  return dist_->params.size();
+  return params_.size();
 }
 
 
 
 int
-BayesNode::getIndexOfParent (const BayesNode* parent) const
+BayesNode::indexOfParent (const BayesNode* parent) const
 {
   for (unsigned int i = 0; i < parents_.size(); i++) {
     if (parents_[i] == parent) {

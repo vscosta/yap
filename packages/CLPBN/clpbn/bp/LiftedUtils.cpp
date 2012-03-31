@@ -95,26 +95,18 @@ ostream& operator<< (ostream &os, const Ground& gr)
 
 
 
-void
-ObservedFormula::addTuple (const Tuple& t)
+
+ostream& operator<< (ostream &os, const Substitution& theta)
 {
-  if (constr_ == 0) {
-    LogVars lvs (arity_);
-    for (unsigned i = 0; i < arity_; i++) {
-      lvs[i] = i;
-    }
-    constr_ = new ConstraintTree (lvs);
+  unordered_map<LogVar, LogVar>::const_iterator it;
+  os << "[" ;
+  it = theta.subs_.begin();
+  while (it != theta.subs_.end()) {
+    if (it != theta.subs_.begin()) os << ", " ;
+    os << it->first << "->" << it->second ;
+    ++ it;
   }
-  constr_->addTuple (t);
-}
-
-
-
-ostream& operator<< (ostream &os, const ObservedFormula of)
-{
-  os << of.functor_ << "/" << of.arity_;
-  os << "|" << of.constr_->tupleSet();
-  os << " [evidence=" << of.evidence_ << "]";
+  os << "]" ;
   return os;
 }
 

@@ -9,8 +9,9 @@
 #include "LiftedUtils.h"
 #include "Horus.h"
 
+#include "Factor.h"
 
-class Parfactor
+class Parfactor : public TFactor<ProbFormula>
 {
   public:
     Parfactor (
@@ -18,26 +19,14 @@ class Parfactor
         const Params&,
         const Tuples&,
         unsigned);
+
     Parfactor (const Parfactor*, const Tuple&);
+
     Parfactor (const Parfactor*, ConstraintTree*);
+
     Parfactor (const Parfactor&);
+
    ~Parfactor (void);
-
-    ProbFormulas& formulas (void) { return formulas_; }
-
-    const ProbFormulas& formulas (void) const { return formulas_; }
- 
-    unsigned nrFormulas (void) const { return formulas_.size(); }
-
-    Params& params (void) { return params_; }
-
-    const Params& params (void) const { return params_; }
-
-    unsigned size (void) const { return params_.size(); }
-
-    const Ranges& ranges (void) const { return ranges_; }
-  
-    unsigned distId (void) const { return distId_; }
 
     ConstraintTree* constr (void) { return constr_; }
 
@@ -57,23 +46,19 @@ class Parfactor
      
     void setConstraintTree (ConstraintTree*);
 
-    void sumOut (unsigned);
+    void sumOut (unsigned fIdx);
 
     void multiply (Parfactor&);
     
     void countConvert (LogVar);
 
-    void expandPotential (LogVar, LogVar, LogVar);
+    void expand (LogVar, LogVar, LogVar);
 
     void fullExpand (LogVar);
 
     void reorderAccordingGrounds (const Grounds&);
 
-    void reorderFormulas (const ProbFormulas&);
-
-    void absorveEvidence (unsigned, unsigned);
-
-    void normalize (void);
+    void absorveEvidence (const ProbFormula&, unsigned);
 
     void setFormulaGroup (const ProbFormula&, int);
 
@@ -81,40 +66,34 @@ class Parfactor
 
     void applySubstitution (const Substitution&);
 
+    int groupWithGround (const Ground&) const;
+
     bool containsGround (const Ground&) const;
 
     bool containsGroup (unsigned) const;
-   
-    const ProbFormula& formula (unsigned) const;
-   
-    unsigned range (unsigned) const;
-
+  
     unsigned nrFormulas (LogVar) const;
 
-    int indexOf (const ProbFormula&) const;
+    int indexOfLogVar (LogVar) const;
 
-    int indexOfFormulaWithLogVar (LogVar) const;
-
-    int indexOfFormulaWithGroup (unsigned) const;
+    int indexOfGroup (unsigned) const;
 
     vector<unsigned> getAllGroups (void) const;
 
     void print (bool = false) const;
 
-    string getHeaderString (void) const;
+    string getLabel (void) const;
 
   private:
+    void expandPotential (int fIdx, unsigned newRange,
+        const vector<unsigned>& sumIndexes);
+
     static void alignAndExponentiate (Parfactor*, Parfactor*);
+
     static void align (
         Parfactor*, const LogVars&, Parfactor*, const LogVars&);
-
-    void insertDimension (unsigned);
    
-    ProbFormulas       formulas_;
-    Ranges             ranges_;
-    Params             params_;
-    unsigned           distId_;
-    ConstraintTree*    constr_;
+    ConstraintTree*  constr_;
 };
 
 

@@ -53,10 +53,10 @@ FactorGraph::FactorGraph (const BayesNet& bn)
         neighs.push_back (varNodes_[parents[j]->getIndex()]);
       }
       FgFacNode* fn = new FgFacNode (
-          new Factor (neighs, nodes[i]->getDistribution()));
+          new Factor (neighs, nodes[i]->params(), nodes[i]->distId()));
       if (orderFactorVariables) {
         sort (neighs.begin(), neighs.end(), CompVarId()); 
-        fn->factor()->orderVariables();
+        fn->factor()->reorderAccordingVarIds();
       }
       addFactor (fn);
       for (unsigned j = 0; j < neighs.size(); j++) {
@@ -131,10 +131,10 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     while (is.peek() == '#' || is.peek() == '\n') getline (is, line);
     unsigned nParams;
     is >> nParams;
-    if (facNodes_[i]->getParameters().size() != nParams) {
+    if (facNodes_[i]->params().size() != nParams) {
       cerr << "error: invalid number of parameters for factor " ;
       cerr << facNodes_[i]->getLabel() ;
-      cerr << ", expected: " << facNodes_[i]->getParameters().size();
+      cerr << ", expected: " << facNodes_[i]->params().size();
       cerr << ", given: " << nParams << endl;
       abort();
     }
@@ -147,7 +147,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     if (Globals::logDomain) {
       Util::toLog (params);
     }
-    facNodes_[i]->factor()->setParameters (params);
+    facNodes_[i]->factor()->setParams (params);
   }
   is.close();
   setIndexes();
@@ -336,21 +336,6 @@ FactorGraph::setIndexes (void)
 
 
 void
-FactorGraph::freeDistributions (void)
-{
-  set<Distribution*> dists;
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
-    dists.insert (facNodes_[i]->factor()->getDistribution());
-  }
-  for (set<Distribution*>::iterator it = dists.begin();
-      it != dists.end(); it++) {
-    delete *it;
-  }
-}
-
-
-
-void
 FactorGraph::printGraphicalModel (void) const
 {
   for (unsigned i = 0; i < varNodes_.size(); i++) {
@@ -440,7 +425,7 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
   }
 
   for (unsigned i = 0; i < facNodes_.size(); i++) {
-    Params params = facNodes_[i]->getParameters();
+    Params params = facNodes_[i]->params();
     if (Globals::logDomain) {
       Util::fromLog (params);
     }
@@ -477,7 +462,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
       out << factorVars[j]->nrStates() << " " ;
     }
     out << endl;
-    Params params = facNodes_[i]->factor()->getParameters();
+    Params params = facNodes_[i]->factor()->params();
     if (Globals::logDomain) {
       Util::fromLog (params);
     }

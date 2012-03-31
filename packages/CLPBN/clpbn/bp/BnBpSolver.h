@@ -27,17 +27,33 @@ class BpLink
       destin_      = d;
       orientation_ = o;
       if (orientation_ == LinkOrientation::DOWN) {
-        v1_.resize (s->nrStates(), Util::tl (1.0 / s->nrStates()));
-        v2_.resize (s->nrStates(), Util::tl (1.0 / s->nrStates()));
+        v1_.resize (s->nrStates(), LogAware::tl (1.0 / s->nrStates()));
+        v2_.resize (s->nrStates(), LogAware::tl (1.0 / s->nrStates()));
       } else {
-        v1_.resize (d->nrStates(), Util::tl (1.0 / d->nrStates()));
-        v2_.resize (d->nrStates(), Util::tl (1.0 / d->nrStates()));
+        v1_.resize (d->nrStates(), LogAware::tl (1.0 / d->nrStates()));
+        v2_.resize (d->nrStates(), LogAware::tl (1.0 / d->nrStates()));
       }
       currMsg_   = &v1_;
       nextMsg_   = &v2_;
       residual_  = 0;
       msgSended_ = false;
     }
+
+    BayesNode* getSource (void) const { return source_; }
+
+    BayesNode* getDestination (void) const { return destin_; }
+
+    LinkOrientation getOrientation (void) const { return orientation_; }
+
+    const Params& getMessage (void) const { return *currMsg_; }
+
+    Params& getNextMessage (void) { return *nextMsg_;}
+
+    bool messageWasSended (void) const { return msgSended_; }
+
+    double getResidual (void) const { return residual_; }
+
+    void clearResidual (void) { residual_ = 0;}
 
     void updateMessage (void)
     {
@@ -47,7 +63,7 @@ class BpLink
  
     void updateResidual (void)
     {
-      residual_ = Util::getMaxNorm (v1_, v2_);
+      residual_ = LogAware::getMaxNorm (v1_, v2_);
     }
    
     string toString (void) const
@@ -74,28 +90,18 @@ class BpLink
       }
       return ss.str();
     }
-
-    BayesNode*      getSource (void) const        { return source_;        }
-    BayesNode*      getDestination (void) const   { return destin_;        }
-    LinkOrientation getOrientation (void) const   { return orientation_;   }
-    const Params& getMessage (void) const       { return *currMsg_;      }
-    Params&       getNextMessage (void)         { return *nextMsg_;      }
-    bool            messageWasSended (void) const { return msgSended_;     }
-    double          getResidual (void) const      { return residual_;      }
-    void            clearResidual (void)          { residual_ = 0;}
  
   private:
     BayesNode*       source_;
     BayesNode*       destin_;
     LinkOrientation  orientation_;
-    Params         v1_;
-    Params         v2_;
-    Params*        currMsg_;
-    Params*        nextMsg_;
+    Params           v1_;
+    Params           v2_;
+    Params*          currMsg_;
+    Params*          nextMsg_;
     bool             msgSended_;
     double           residual_;
 };
-
 
 typedef vector<BpLink*> BpLinkSet;
 
@@ -105,32 +111,41 @@ class BpNodeInfo
   public:
     BpNodeInfo (BayesNode*);
 
-    Params   getBeliefs (void) const;
-    bool       receivedBottomInfluence (void) const;
+    Params& getPiValues (void) { return piVals_; }
 
-    Params&  getPiValues (void)                   { return piVals_;     }
-    Params&  getLambdaValues (void)               { return ldVals_;     }
+    Params& getLambdaValues (void) { return ldVals_; }
 
-    const BpLinkSet& getIncomingParentLinks (void)  { return inParentLinks_;  }
-    const BpLinkSet& getIncomingChildLinks (void)   { return inChildLinks_;   }
+    const BpLinkSet& getIncomingParentLinks (void) { return inParentLinks_; }
+
+    const BpLinkSet& getIncomingChildLinks (void) { return inChildLinks_; }
+
     const BpLinkSet& getOutcomingParentLinks (void) { return outParentLinks_; }
-    const BpLinkSet& getOutcomingChildLinks (void)  { return outChildLinks_;  }
+
+    const BpLinkSet& getOutcomingChildLinks (void) { return outChildLinks_; }
    
-    void addIncomingParentLink  (BpLink* l)  { inParentLinks_.push_back (l);  }
-    void addIncomingChildLink   (BpLink* l)  { inChildLinks_.push_back (l);   }
+    void addIncomingParentLink  (BpLink* l)  { inParentLinks_.push_back (l); }
+
+    void addIncomingChildLink   (BpLink* l)  { inChildLinks_.push_back (l); }
+
     void addOutcomingParentLink (BpLink* l)  { outParentLinks_.push_back (l); }
-    void addOutcomingChildLink  (BpLink* l)  { outChildLinks_.push_back (l);  }
+
+    void addOutcomingChildLink  (BpLink* l)  { outChildLinks_.push_back (l); }
+
+    Params getBeliefs (void) const;
+
+    bool receivedBottomInfluence (void) const;
+
    
   private:
     DISALLOW_COPY_AND_ASSIGN (BpNodeInfo);
 
-    const BayesNode*       node_;
-    Params               piVals_;     // pi values
-    Params               ldVals_;     // lambda values
-    BpLinkSet              inParentLinks_;
-    BpLinkSet              inChildLinks_;
-    BpLinkSet              outParentLinks_;
-    BpLinkSet              outChildLinks_;
+    const BayesNode*  node_;
+    Params            piVals_;
+    Params            ldVals_;
+    BpLinkSet         inParentLinks_;
+    BpLinkSet         inChildLinks_;
+    BpLinkSet         outParentLinks_;
+    BpLinkSet         outChildLinks_;
 };
 
 
@@ -139,32 +154,43 @@ class BnBpSolver : public Solver
 {
   public:
     BnBpSolver (const BayesNet&);
+
    ~BnBpSolver (void);
 
-    void                runSolver (void);
-    Params            getPosterioriOf (VarId);
-    Params            getJointDistributionOf (const VarIds&);
+    void runSolver (void);
+    Params getPosterioriOf (VarId);
+    Params getJointDistributionOf (const VarIds&);
   
-
   private:
     DISALLOW_COPY_AND_ASSIGN (BnBpSolver);
 
-    void                initializeSolver (void);
-    void                runLoopySolver (void);
-    void                maxResidualSchedule (void);
-    bool                converged (void) const;
-    void                updatePiValues (BayesNode*);
-    void                updateLambdaValues (BayesNode*);
-    void                calculateLambdaMessage (BpLink*);
-    void                calculatePiMessage (BpLink*);
-    Params            getJointByJunctionNode (const VarIds&);
-    Params            getJointByConditioning (const VarIds&) const;
-    void                printPiLambdaValues (const BayesNode*) const;
-    void                printAllMessageStatus (void) const;
+    void initializeSolver (void);
+
+    void runLoopySolver (void);
+
+    void maxResidualSchedule (void);
+
+    bool converged (void) const;
+
+    void updatePiValues (BayesNode*);
+
+    void updateLambdaValues (BayesNode*);
+
+    void calculateLambdaMessage (BpLink*);
+
+    void calculatePiMessage (BpLink*);
+
+    Params getJointByJunctionNode (const VarIds&);
+
+    Params getJointByConditioning (const VarIds&) const;
+
+    void printPiLambdaValues (const BayesNode*) const;
+
+    void printAllMessageStatus (void) const;
 
     void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true)
     {
-      if (DL >= 3) {
+      if (Constants::DEBUG >= 3) {
         cout << "calculating & updating " << link->toString() << endl;
       }
       if (link->getOrientation() == LinkOrientation::DOWN) {
@@ -180,7 +206,7 @@ class BnBpSolver : public Solver
 
     void calculateMessage (BpLink* link, bool calcResidual = true)
     {
-      if (DL >= 3) {
+      if (Constants::DEBUG >= 3) {
         cout << "calculating " << link->toString() << endl;
       }
       if (link->getOrientation() == LinkOrientation::DOWN) {
@@ -195,7 +221,7 @@ class BnBpSolver : public Solver
 
     void updateMessage (BpLink* link)
     {
-      if (DL >= 3) {
+      if (Constants::DEBUG >= 3) {
         cout << "updating " << link->toString() << endl;
       }
       link->updateMessage();

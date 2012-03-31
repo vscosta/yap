@@ -9,10 +9,14 @@ class LiftedOperator
 {
   public:
     virtual unsigned getCost (void) = 0;
+
     virtual void apply (void) = 0;
+
     virtual string toString (void) = 0;
+
     static vector<LiftedOperator*> getValidOps (
         ParfactorList&, const Grounds&);
+
     static void printValidOps (ParfactorList&, const Grounds&);
 };
 
@@ -23,18 +27,26 @@ class SumOutOperator : public LiftedOperator
   public:
     SumOutOperator (unsigned group, ParfactorList& pfList) 
         : group_(group), pfList_(pfList) { }
+
     unsigned getCost (void);
+
     void apply (void);
+
     static vector<SumOutOperator*> getValidOps (
         ParfactorList&, const Grounds&);
+
     string toString (void);
+
   private:
     static bool validOp (unsigned, ParfactorList&, const Grounds&);
+
     static vector<ParfactorList::iterator> parfactorsWithGroup (
         ParfactorList& pfList, unsigned group);
+
     static bool isToEliminate (Parfactor*, unsigned, const Grounds&);
-    unsigned   group_;
-    ParfactorList&    pfList_;
+
+    unsigned        group_;
+    ParfactorList&  pfList_;
 };
 
 
@@ -47,15 +59,21 @@ class CountingOperator : public LiftedOperator
         LogVar X,
         ParfactorList& pfList)
         : pfIter_(pfIter), X_(X), pfList_(pfList) { }
+
     unsigned getCost (void);
+
     void apply (void);
+
     static vector<CountingOperator*> getValidOps (ParfactorList&);
+
     string toString (void);
+
   private:
     static bool validOp (Parfactor*, LogVar);
-    ParfactorList::iterator pfIter_;
-    LogVar X_;
-    ParfactorList& pfList_;
+
+    ParfactorList::iterator  pfIter_;
+    LogVar                   X_;
+    ParfactorList&           pfList_;
 };
 
 
@@ -68,14 +86,19 @@ class GroundOperator : public LiftedOperator
         LogVar X,
         ParfactorList& pfList)
         : pfIter_(pfIter), X_(X), pfList_(pfList) { }
+
     unsigned getCost (void);
+
     void apply (void);
+
     static vector<GroundOperator*> getValidOps (ParfactorList&);
+
     string toString (void);
+
   private:
-    ParfactorList::iterator pfIter_;
-    LogVar X_;
-    ParfactorList& pfList_;
+    ParfactorList::iterator  pfIter_;
+    LogVar                   X_;
+    ParfactorList&           pfList_;
 };
 
 
@@ -83,49 +106,29 @@ class GroundOperator : public LiftedOperator
 class FoveSolver
 {
   public:
-   FoveSolver (const ParfactorList*);
+   FoveSolver (const ParfactorList& pfList) : pfList_(pfList) { }
 
-   Params              getPosterioriOf (const Ground&);
-   Params              getJointDistributionOf (const Grounds&);
+   Params getPosterioriOf (const Ground&);
 
-   static void         absorveEvidence (
-                           ParfactorList& pfList,
-                           const ObservedFormulas& obsFormulas);
+   Params getJointDistributionOf (const Grounds&);
 
-   static Parfactors  countNormalize (Parfactor*, const LogVarSet&);
+   static void absorveEvidence (
+       ParfactorList& pfList, ObservedFormulas& obsFormulas);
+
+   static Parfactors countNormalize (Parfactor*, const LogVarSet&);
 
   private:
-    void               runSolver (const Grounds&);
-    bool               allEliminated (const Grounds&);
-    LiftedOperator*    getBestOperation (const Grounds&);
-    void               shatterAgainstQuery (const Grounds&);
+    void runSolver (const Grounds&);
 
-    static bool        absorved (
-                           ParfactorList& pfList,
-                           ParfactorList::iterator pfIter,
-                           const ObservedFormula*);
+    LiftedOperator* getBestOperation (const Grounds&);
 
-  public:
+    void runWeakBayesBall (const Grounds&); 
 
-    static bool        proper (
-                           const ProbFormula&,
-                           ConstraintTree*,
-                           const ProbFormula&,
-                           ConstraintTree*);
+    void shatterAgainstQuery (const Grounds&);
 
-    static bool        identical (
-                           const ProbFormula&,
-                           ConstraintTree*,
-                           const ProbFormula&,
-                           ConstraintTree*);
+    static Parfactors absorve (ObservedFormula&, Parfactor*);
 
-    static bool        disjoint (
-                           const ProbFormula&,
-                           ConstraintTree*,
-                           const ProbFormula&,
-                           ConstraintTree*);
-
-    ParfactorList      pfList_;
+    ParfactorList pfList_;
 };
 
 #endif // HORUS_FOVESOLVER_H

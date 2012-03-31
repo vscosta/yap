@@ -38,11 +38,11 @@ void
 FgBpSolver::runSolver (void)
 {
   clock_t start;
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     start = clock();
   }
   runLoopySolver();
-  if (DL >= 2) {
+  if (Constants::DEBUG >= 2) {
     cout << endl;
     if (nIters_ < BpOptions::maxIter) {
      cout << "Sum-Product converged in " ; 
@@ -53,17 +53,12 @@ FgBpSolver::runSolver (void)
     }
   }
   unsigned size = factorGraph_->getVarNodes().size();
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     unsigned nIters = 0;
     bool loopy = factorGraph_->isTree() == false;
     if (loopy) nIters = nIters_;
     double time = (double (clock() - start)) / CLOCKS_PER_SEC;
     Statistics::updateStatistics (size, loopy, nIters, time);
-  }
-  if (EXPORT_TO_GRAPHVIZ && size > EXPORT_MINIMAL_SIZE) {
-    stringstream ss;
-    ss << Statistics::getSolvedNetworksCounting() << "." << size << ".dot" ;
-    factorGraph_->exportToGraphViz (ss.str().c_str());
   }
 }
 
@@ -76,22 +71,22 @@ FgBpSolver::getPosterioriOf (VarId vid)
   FgVarNode* var = factorGraph_->getFgVarNode (vid);
   Params probs;
   if (var->hasEvidence()) {
-    probs.resize (var->nrStates(), Util::noEvidence());
-    probs[var->getEvidence()] = Util::withEvidence();
+    probs.resize (var->nrStates(), LogAware::noEvidence());
+    probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
-    probs.resize (var->nrStates(), Util::multIdenty());
+    probs.resize (var->nrStates(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < links.size(); i++) {
         Util::add (probs, links[i]->getMessage());
       }
-      Util::normalize (probs);
+      LogAware::normalize (probs);
       Util::fromLog (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
         Util::multiply (probs, links[i]->getMessage());
       }
-      Util::normalize (probs);
+      LogAware::normalize (probs);
     }
   }
   return probs;
@@ -102,9 +97,9 @@ FgBpSolver::getPosterioriOf (VarId vid)
 Params
 FgBpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 {
+  int idx = -1;  
   FgVarNode* vn = factorGraph_->getFgVarNode (jointVarIds[0]);
   const FgFacSet& factorNodes = vn->neighbors();
-  int idx = -1;  
   for (unsigned i = 0; i < factorNodes.size(); i++) {
     if (factorNodes[i]->factor()->contains (jointVarIds)) {
       idx = i;
@@ -114,18 +109,18 @@ FgBpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   if (idx == -1) {
     return getJointByConditioning (jointVarIds);
   } else {
-    Factor r (*factorNodes[idx]->factor());
+    Factor res (*factorNodes[idx]->factor());
     const SpLinkSet& links = ninf(factorNodes[idx])->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
       Factor msg (links[i]->getVariable()->varId(),
                   links[i]->getVariable()->nrStates(),
                   getVar2FactorMsg (links[i]));
-      r.multiply (msg);
+      res.multiply (msg);
     }
-    r.sumOutAllExcept (jointVarIds);
-    r.reorderVariables (jointVarIds);
-    r.normalize();
-    Params jointDist = r.getParameters();
+    res.sumOutAllExcept (jointVarIds);
+    res.reorderArguments (jointVarIds);
+    res.normalize();
+    Params jointDist = res.params();
     if (Globals::logDomain) {
       Util::fromLog (jointDist);
     }
@@ -144,13 +139,8 @@ FgBpSolver::runLoopySolver (void)
   while (!converged() && nIters_ < BpOptions::maxIter) {
 
     nIters_ ++;
-    if (DL >= 2) {
-      cout << "****************************************" ;
-      cout << "****************************************" ;
-      cout << endl;
-      cout << " Iteration " << nIters_ << endl;
-      cout << "****************************************" ;
-      cout << "****************************************" ;
+    if (Constants::DEBUG >= 2) {
+      Util::printHeader (" Iteration " + nIters_);
       cout << endl;
     }
 
@@ -178,7 +168,7 @@ FgBpSolver::runLoopySolver (void)
         maxResidualSchedule();
         break;
     }
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << endl;
     }
   }
@@ -256,12 +246,12 @@ FgBpSolver::converged (void)
   } else {
     for (unsigned i = 0; i < links_.size(); i++) {
       double residual = links_[i]->getResidual();
-      if (DL >= 2) {
+      if (Constants::DEBUG >= 2) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
       }
       if (residual > BpOptions::accuracy) {
         converged = false;
-        if (DL == 0) break;
+        if (Constants::DEBUG == 0) break;
       }
     }
   }
@@ -283,7 +273,7 @@ FgBpSolver::maxResidualSchedule (void)
   }
 
   for (unsigned c = 0; c < links_.size(); c++) {
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); it ++) {
@@ -317,9 +307,8 @@ FgBpSolver::maxResidualSchedule (void)
         }
       }
     }
-    if (DL >= 2) {
-      cout << "----------------------------------------" ;
-      cout << "----------------------------------------" << endl;
+    if (Constants::DEBUG >= 2) {
+      Util::printDashedLine();
     }
   }
 }
@@ -339,7 +328,7 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
     msgSize *= links[i]->getVariable()->nrStates();
   }
   unsigned repetitions = 1;
-  Params msgProduct (msgSize, Util::multIdenty());
+  Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
@@ -354,7 +343,7 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
   } else {
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
-        if (DL >= 5) {
+        if (Constants::DEBUG >= 5) {
           cout << "    message from " << links[i]->getVariable()->label();
           cout << ": " << endl;
         }
@@ -368,34 +357,29 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
     }
   }
 
-  Factor result (src->factor()->getVarIds(),
-                 src->factor()->getRanges(),
+  Factor result (src->factor()->arguments(),
+                 src->factor()->ranges(),
                  msgProduct);
   result.multiply (*(src->factor()));
-  if (DL >= 5) {
-    cout << "    message product:  " ;
-    cout << Util::parametersToString (msgProduct) << endl;
-    cout << "    original factor:  " ;
-    cout << Util::parametersToString (src->getParameters()) << endl;
-    cout << "    factor product:   " ;
-    cout << Util::parametersToString (result.getParameters()) << endl;
+  if (Constants::DEBUG >= 5) {
+    cout << "    message product:  " << msgProduct << endl;
+    cout << "    original factor:  " << src->params() << endl;
+    cout << "    factor product:   " << result.params() << endl;
   }
   result.sumOutAllExcept (dst->varId());
-  if (DL >= 5) {
+  if (Constants::DEBUG >= 5) {
     cout << "    marginalized:     " ;
-    cout << Util::parametersToString (result.getParameters()) << endl;
+    cout << result.params() << endl;
   }
-  const Params& resultParams = result.getParameters();
+  const Params& resultParams = result.params();
   Params& message = link->getNextMessage();
   for (unsigned i = 0; i < resultParams.size(); i++) {
      message[i] = resultParams[i];
   }
-  Util::normalize (message);
-  if (DL >= 5) {
-    cout << "    curr msg:         " ;
-    cout << Util::parametersToString (link->getMessage()) << endl;
-    cout << "    next msg:         " ;
-    cout << Util::parametersToString (message) << endl;
+  LogAware::normalize (message);
+  if (Constants::DEBUG >= 5) {
+    cout << "    curr msg:         " << link->getMessage() << endl;
+    cout << "    next msg:         " << message << endl;
   }
 }
 
@@ -408,16 +392,16 @@ FgBpSolver::getVar2FactorMsg (const SpLink* link) const
   const FgFacNode* dst = link->getFactor();
   Params msg;
   if (src->hasEvidence()) {
-    msg.resize (src->nrStates(), Util::noEvidence());
-    msg[src->getEvidence()] = Util::withEvidence();
-    if (DL >= 5) {
-      cout << Util::parametersToString (msg);
+    msg.resize (src->nrStates(), LogAware::noEvidence());
+    msg[src->getEvidence()] = LogAware::withEvidence();
+    if (Constants::DEBUG >= 5) {
+      cout << msg;
     }
   } else {
-    msg.resize (src->nrStates(), Util::one());
+    msg.resize (src->nrStates(), LogAware::one());
   }
-  if (DL >= 5) {
-    cout << Util::parametersToString (msg);
+  if (Constants::DEBUG >= 5) {
+    cout << msg;
   }
   const SpLinkSet& links = ninf (src)->getLinks();
   if (Globals::logDomain) {
@@ -430,14 +414,14 @@ FgBpSolver::getVar2FactorMsg (const SpLink* link) const
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
         Util::multiply (msg, links[i]->getMessage());
-        if (DL >= 5) {
-          cout << " x " << Util::parametersToString (links[i]->getMessage());
+        if (Constants::DEBUG >= 5) {
+          cout << " x " << links[i]->getMessage();
         }
       }
     }
   }
-  if (DL >= 5) {
-    cout << " = " << Util::parametersToString (msg);
+  if (Constants::DEBUG >= 5) {
+    cout << " = " << msg;
   }
   return msg;
 }
@@ -503,9 +487,9 @@ FgBpSolver::printLinkInformation (void) const
     SpLink* l = links_[i]; 
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " ;
-    cout << Util::parametersToString (l->getMessage()) << endl;
+    cout << l->getMessage() << endl;
     cout << "    next msg = " ;
-    cout << Util::parametersToString (l->getNextMessage()) << endl;
+    cout << l->getNextMessage() << endl;
     cout << "    residual = " << l->getResidual() << endl;
   }
 }

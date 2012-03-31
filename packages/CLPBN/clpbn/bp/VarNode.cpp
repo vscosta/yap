@@ -40,8 +40,8 @@ VarNode::isValidState (int stateIndex)
 bool
 VarNode::isValidState (const string& stateName)
 {
-  States states = GraphicalModel::getVariableInformation (varId_).states;
-  return find (states.begin(), states.end(), stateName) != states.end();
+  States states = GraphicalModel::getVarInformation (varId_).states;
+  return Util::contains (states, stateName);
 }
 
 
@@ -58,7 +58,7 @@ VarNode::setEvidence (int ev)
 void
 VarNode::setEvidence (const string& ev) 
 { 
-  States states = GraphicalModel::getVariableInformation (varId_).states;
+  States states = GraphicalModel::getVarInformation (varId_).states;
   for (unsigned i = 0; i < states.size(); i++) {
     if (states[i] == ev) {
       evidence_ = i;
@@ -74,7 +74,7 @@ string
 VarNode::label (void) const
 {
   if (GraphicalModel::variablesHaveInformation()) {
-    return GraphicalModel::getVariableInformation (varId_).label;
+    return GraphicalModel::getVarInformation (varId_).label;
   }
   stringstream ss;
   ss << "x" << varId_;
@@ -87,7 +87,7 @@ States
 VarNode::states (void) const
 {
   if (GraphicalModel::variablesHaveInformation()) {
-    return GraphicalModel::getVariableInformation (varId_).states;
+    return GraphicalModel::getVarInformation (varId_).states;
   }
   States states;
   for (unsigned i = 0; i < nrStates_; i++) {

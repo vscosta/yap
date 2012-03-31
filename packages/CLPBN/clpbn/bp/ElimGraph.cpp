@@ -1,5 +1,7 @@
 #include <limits>
 
+#include <fstream>
+
 #include "ElimGraph.h"
 #include "BayesNet.h"
 

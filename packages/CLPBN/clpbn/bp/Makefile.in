@@ -60,7 +60,6 @@ HEADERS = \
 	$(srcdir)/CbpSolver.h \
 	$(srcdir)/FoveSolver.h \
 	$(srcdir)/VarNode.h \
-	$(srcdir)/Distribution.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ProbFormula.h \

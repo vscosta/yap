@@ -56,7 +56,7 @@ VarElimSolver::getJointDistributionOf (const VarIds& vids)
   introduceEvidence();
   chooseEliminationOrder (vids);
   processFactorList (vids);
-  Params params = factorList_.back()->getParameters();
+  Params params = factorList_.back()->params();
   if (Globals::logDomain) {
     Util::fromLog (params);
   }
@@ -98,7 +98,7 @@ VarElimSolver::introduceEvidence (void)
           varFactors_.find (varNodes[i]->varId())->second;
       for (unsigned j = 0; j < idxs.size(); j++) {
         Factor* factor = factorList_[idxs[j]];
-        if (factor->nrVariables() == 1) {
+        if (factor->nrArguments() == 1) {
           factorList_[idxs[j]] = 0;
         } else {
           factorList_[idxs[j]]->absorveEvidence (
@@ -121,8 +121,8 @@ VarElimSolver::chooseEliminationOrder (const VarIds& vids)
     const FgVarSet& varNodes = factorGraph_->getVarNodes();
     for (unsigned i = 0; i < varNodes.size(); i++) {
       VarId vid = varNodes[i]->varId();
-      if (std::find (vids.begin(), vids.end(), vid) == vids.end() 
-          && !varNodes[i]->hasEvidence()) {
+      if (Util::contains (vids, vid) == false &&
+          varNodes[i]->hasEvidence() == false) {
         elimOrder_.push_back (vid);
       }
     }
@@ -154,7 +154,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
     }
   }
 
-  finalFactor->reorderVariables (unobservedVids);
+  finalFactor->reorderArguments (unobservedVids);
   finalFactor->normalize();
   factorList_.push_back (finalFactor);
 }
@@ -179,10 +179,10 @@ VarElimSolver::eliminate (VarId elimVar)
       factorList_[idx] = 0;
     }
   }
-  if (result != 0 && result->nrVariables() != 1) {
+  if (result != 0 && result->nrArguments() != 1) {
     result->sumOut (vn->varId());
     factorList_.push_back (result);
-    const VarIds& resultVarIds = result->getVarIds();
+    const VarIds& resultVarIds = result->arguments();
     for (unsigned i = 0; i < resultVarIds.size(); i++) {
       vector<unsigned>& idxs =
           varFactors_.find (resultVarIds[i])->second;
