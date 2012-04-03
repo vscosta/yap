@@ -8,7 +8,7 @@
 
 
 :- module(clpbn_ground_factors, [
-          generate_network/4]).
+          generate_network/5]).
 
 :- use_module(library(bhash), [
           b_hash_new/1,
@@ -29,25 +29,29 @@
 
 :- dynamic currently_defined/1, f/3.
 
-generate_network(QueryVars, Keys, Factors, Evidence) :-
+generate_network(QueryVars, QueryKeys, Keys, Factors, Evidence) :-
 	attributes:all_attvars(AVars),
-	check_for_evidence(AVars, EVars),
+	check_for_evidence(AVars, EVars, Evidence),
 	retractall(currently_defined(_)),
 	retractall(f(_,_,_)),
 	initialize_evidence(EVars),
-	findall(K, currently_defined(K), Evidence),
+	keys(QueryVars, QueryKeys),
 	run_through_factors(QueryVars),
 	run_through_factors(EVars),
 	findall(K, currently_defined(K), Keys),
-	findall(f(FType,FKeys,FCPT), f(FType,FKeys,FCPT), Factors),
-	listing(f).
+	findall(f(FType,FKeys,FCPT), f(FType,FKeys,FCPT), Factors).
 
-check_for_evidence(V.AVars, V.EVars) :-
-	clpbn:get_atts(V,[evidence(_E)]), !,
-	check_for_evidence(AVars, EVars).
-check_for_evidence(_V.AVars, EVars) :-
-	check_for_evidence(AVars, EVars).
-check_for_evidence([], []).
+check_for_evidence(V.AVars, V.EVars, (K=E).Evidence) :-
+	clpbn:get_atts(V,[key(K),evidence(E)]), !,
+	check_for_evidence(AVars, EVars, Evidence).
+check_for_evidence(_V.AVars, EVars, Evidence) :-
+	check_for_evidence(AVars, EVars, Evidence).
+check_for_evidence([], [], []).
+
+keys([], []).
+keys([Var|QueryVars], [Key|QueryKeys]) :-
+	clpbn:get_atts(Var,[key(Key)]),
+	keys(QueryVars, QueryKeys).
 
 run_through_factors([]).
 run_through_factors([Var|_QueryVars]) :-

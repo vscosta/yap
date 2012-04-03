@@ -10,6 +10,7 @@
            check_if_bp_done/1,
            init_bp_solver/4,
            run_bp_solver/3,
+	   call_bp_ground/5,
            finalize_bp_solver/1
           ]).
 
@@ -32,6 +33,8 @@
 
 :- use_module(library(clpbn/horus)).
 
+:- use_module(library(lists)).
+
 :- use_module(library(atts)).
 
 :- attribute id/1.
@@ -52,6 +55,8 @@
 :- use_module(library(charsio),
           [term_to_atom/2]).
 
+:- use_module(library(bhash)).
+
 
 :- use_module(horus,
           [create_ground_network/2,
@@ -63,6 +68,43 @@
 
 
 :- attribute id/1.
+
+call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
+	b_hash_new(Hash0),
+	keys_to_ids(AllKeys, 0, Hash0, Hash),
+	InvMap =.. [view|AllKeys],
+	list_of_keys_to_ids(QueryKeys, Hash, QueryVarsIds),
+	evidence_to_ids(Evidence, Hash, EvIds, EvIdNames),
+	factors_to_ids(Factors, Hash, FactorIds),
+	set_graphical_model(FactorIds, Network, InvMap, EvIdNames),
+	run_ground_solver(Network, QueryVarsIds, EvIds, Solutions),
+	free_bayesian_network(Network).
+
+keys_to_ids([], _, Hash, Hash).
+keys_to_ids([Key|AllKeys], I0, Hash0, Hash) :-
+	b_hash_insert(Hash0, Key, I0, HashI),
+	I is I0+1,
+	keys_to_ids(AllKeys, I, HashI, Hash).
+
+list_of_keys_to_ids([], _, []).
+list_of_keys_to_ids([Key|QueryKeys], Hash, [Id|QueryIds]) :-
+	b_hash_lookup(Key, Id, Hash),
+	list_of_keys_to_ids(QueryKeys, Hash, QueryIds).
+
+evidence_to_ids([], _, [], []).
+evidence_to_ids([Key=V|QueryKeys], Hash, [Id=V|QueryIds], [Id=Name|QueryNames]) :-
+	b_hash_lookup(Key, Id, Hash),
+	pfl:skolem(Key,Dom),
+	nth0(V, Dom, Name),
+	evidence_to_ids(QueryKeys, Hash, QueryIds, QueryNames).
+
+factors_to_ids([], _, []).
+factors_to_ids([f(markov, Keys, CPT)|Fs], Hash, [markov(Ids, CPT)|NFs]) :-
+	list_of_keys_to_ids(Keys, Hash, Ids),
+	factors_to_ids(Fs, Hash, NFs).
+factors_to_ids([f(bayes, Keys, CPT)|Fs], Hash, [bayes(Ids, CPT)|NFs]) :-
+	list_of_keys_to_ids(Keys, Hash, Ids),
+	factors_to_ids(Fs, Hash, NFs).
 
 
 bp([[]],_,_) :- !.

@@ -25,7 +25,7 @@ patch_things_up :-
 warning :-
 	format(user_error,"Horus library not installed: cannot use bp, fove~n.",[]).
 
-:- catch(load_foreign_files(['horus'], [], init_predicates), _, patch_things_up) -> true ; warning.
+:- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up) -> true ; warning.
 
 
 

@@ -23,7 +23,7 @@
 
 
 :- use_module(library(pfl),
-          [factor/5,
+          [factor/6,
            skolem/2,
            get_pfl_parameters/2
           ]).
@@ -72,19 +72,11 @@ get_parfactors(Factors) :-
 
 
 is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
-<<<<<<< HEAD
-	factor(_Type, Id, Ks, Vs, Table, Constraints),
-	get_ranges(Ks,Rs),
-	Table \= avg,
-	gen_table(Table, Phi),
-	all_tuples(Constraints, Vs, Tuples).
-=======
-  factor(Id, Ks, Vs, Table, Constraints),
+  factor(_Type, Id, Ks, Vs, Table, Constraints),
   get_ranges(Ks,Rs),
   Table \= avg,
   gen_table(Table, Phi),
   all_tuples(Constraints, Vs, Tuples).
->>>>>>> 911b241ad663a911af52babcf5d702c5239b4350
 
 
 get_ranges([],[]).
@@ -124,7 +116,7 @@ get_observed_vars(V.AllAttVars, [K:E|ObservedVars]) :-
   ( clpbn:get_atts(V,[evidence(E)]) ; pfl:evidence(K,E) ), !,
   get_observed_vars(AllAttVars, ObservedVars).
 get_observed_vars(V.AllAttVars, ObservedVars) :-
-  clpbn:get_atts(V,[key(K)]), !,
+  clpbn:get_atts(V,[key(_K)]), !,
   get_observed_vars(AllAttVars, ObservedVars).
 
 

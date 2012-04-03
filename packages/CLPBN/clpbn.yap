@@ -44,6 +44,7 @@
                check_if_bp_done/1,
 	       init_bp_solver/4,
 	       run_bp_solver/3,
+	       call_bp_ground/5,
 	       finalize_bp_solver/1
 	      ]).
 
@@ -118,7 +119,7 @@
 	[clpbn2gviz/4]).
 
 :- use_module(clpbn/ground_factors,
-	[generate_network/4]).
+	[generate_network/5]).
 
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
@@ -230,6 +231,13 @@ clpbn_marginalise(V, Dist) :-
 % called by top-level
 % or by call_residue/2
 %
+project_attributes(GVars, _AVars0) :-
+	use_parfactors(on),
+	clpbn_flag(solver, Solver), Solver \= fove, !,
+	generate_network(GVars, GKeys, Keys, Factors, Evidence),
+	solver(Solver),
+	call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, Answ),
+	writeln(Answ).
 project_attributes(GVars, AVars0) :-
 	suppress_attribute_display(false),
 	generate_vars(GVars, AVars0, AVars),
@@ -249,14 +257,6 @@ project_attributes(GVars, AVars0) :-
 	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
-
-generate_vars(GVars, _, _NewAVars) :-
-	use_parfactors(on),
-	clpbn_flag(solver, Solver), Solver \= fove, !,
-	generate_network(GVars, Keys, Factors, Evidence),
-	writeln(network(GVars, Keys, Factors, Evidence)),
-	halt.
-generate_vars(_GVars, AVars, AVars).
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
@@ -309,6 +309,11 @@ write_out(bnt, GVars, AVars, DiffVars) :-
 	do_bnt(GVars, AVars, DiffVars).
 write_out(fove, GVars, AVars, DiffVars) :-
 	fove(GVars, AVars, DiffVars).
+
+% call a solver with keys, not actual variables
+call_ground_solver(bp, GoalKeys, Keys, Factors, Evidence, Answ) :-
+	call_bp_ground(GoalKeys, Keys, Factors, Evidence, Answ).
+
 
 get_bnode(Var, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]),
