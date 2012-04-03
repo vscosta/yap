@@ -13,8 +13,8 @@ function run_solver
 {
 if [ $2 = bp ]
 then
-    extra_flag1=clpbn_bp:set_horus_flag\(inf_alg,$4\)
-    extra_flag2=clpbn_bp:set_horus_flag\(schedule,$5\)
+    extra_flag1=clpbn_horus:set_horus_flag\(inf_alg,$4\)
+    extra_flag2=clpbn_horus:set_horus_flag\(schedule,$5\)
 else
   extra_flag1=true
   extra_flag2=true
@@ -22,7 +22,7 @@ fi
 /usr/bin/time -o $OUT_FILE_NAME -a -f "real:%E\tuser:%U\tsys:%S" $YAP << EOF >> $OUT_FILE_NAME 2>> ignore.$OUT_FILE_NAME
 [$1].
 clpbn:set_clpbn_flag(solver,$2),
-  clpbn_bp:set_horus_flag(use_logarithms, true),
+  clpbn_horus:set_horus_flag(use_logarithms, true),
   $extra_flag1, $extra_flag2,
   run_query(_R),
   open("$OUT_FILE_NAME", 'append',S),

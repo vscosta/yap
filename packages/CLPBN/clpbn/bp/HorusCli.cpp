@@ -10,10 +10,6 @@
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 
-//#include "TinySet.h"
-#include "LiftedUtils.h"
-
-
 using namespace std;
 
 void processArguments (BayesNet&, int, const char* []);
@@ -24,38 +20,9 @@ const string USAGE = "usage: \
 ./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
 
 
-class Cenas
-{
-  public:
-    Cenas (int cc)
-    {
-      c = cc;
-    }
-    //operator int (void) const
-    //{ 
-    //  cout << "return int" << endl;
-    //  return c;
-    //}
-    operator double (void) const
-    {
-      cout << "return double" << endl;
-      return 0.0;
-    }
-  private:
-    int c;
-};
-
-
 int
 main (int argc, const char* argv[])
 {
-  LogVar X = 3;
-  LogVarSet Xs = X;
-  cout << "set: " << X << endl;
-  Cenas c1 (1);
-  Cenas c2 (3);
-  cout << (c1 < c2) << endl;
-  return 0;
   if (!argv[1]) {
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
@@ -99,7 +66,6 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
         cerr << "error: there isn't a variable labeled of " ;
         cerr << "`" << arg << "'" ;
         cerr << endl;
-        bn.freeDistributions();
         exit (0);
       }
     } else {
@@ -109,13 +75,11 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
       if (label.empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
-        bn.freeDistributions();
         exit (0);
       }
       if (state.empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
-        bn.freeDistributions();
         exit (0);
       }
       BayesNode* node = bn.getBayesNode (label);
@@ -127,14 +91,12 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
           cerr << "is not a valid state for " ;
           cerr << "`" << node->label() << "'" ;
           cerr << endl;
-          bn.freeDistributions();
           exit (0);
         }
       } else {
         cerr << "error: there isn't a variable labeled of " ;
         cerr << "`" << label << "'" ;
         cerr << endl;
-        bn.freeDistributions();
         exit (0);
       }
     }
@@ -142,7 +104,7 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
 
   Solver* solver = 0;
   FactorGraph* fg = 0;
-  switch (InfAlgorithms::infAlgorithm) {
+  switch (Globals::infAlgorithm) {
     case InfAlgorithms::VE:
       fg = new FactorGraph (bn);
       solver = new VarElimSolver (*fg);
@@ -163,7 +125,6 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
   }
   runSolver (solver, queryVars);
   delete fg;
-  bn.freeDistributions();
 }
 
 
@@ -179,7 +140,6 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
         cerr << "error: `" << arg << "' " ;
         cerr << "is not a valid variable id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
       VarId vid;
@@ -193,7 +153,6 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
     } else {
@@ -201,20 +160,17 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       if (arg.substr (0, pos).empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
-        fg.freeDistributions();
         exit (0);
       }
       if (arg.substr (pos + 1).empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
-        fg.freeDistributions();
         exit (0);
       }
       if (!Util::isInteger (arg.substr (0, pos))) {
         cerr << "error: `" << arg.substr (0, pos) << "' " ;
         cerr << "is not a variable id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
       VarId vid;
@@ -227,7 +183,6 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
           cerr << "error: `" << arg.substr (pos + 1) << "' " ;
           cerr << "is not a state index" ;
           cerr << endl;
-          fg.freeDistributions();
           exit (0);
         }
         int stateIndex;
@@ -241,28 +196,23 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
           cerr << "is not a valid state index for variable " ;
           cerr << "`" << var->varId() << "'" ;
           cerr << endl;
-          fg.freeDistributions();
           exit (0);
         }
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
     }
   }
   Solver* solver = 0;
-  switch (InfAlgorithms::infAlgorithm) {
+  switch (Globals::infAlgorithm) {
     case InfAlgorithms::VE:
       solver = new VarElimSolver (fg);
       break;
     case InfAlgorithms::BN_BP:
     case InfAlgorithms::FG_BP:
-      //cout << "here!" << endl;
-      //fg.printGraphicalModel();
-      //fg.exportToLibDaiFormat ("net.fg");
       solver = new FgBpSolver (fg);
       break;
     case InfAlgorithms::CBP:
@@ -272,7 +222,6 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       assert (false);
   }
   runSolver (solver, queryVars);
-  fg.freeDistributions();
 }
 
 

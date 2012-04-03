@@ -16,18 +16,28 @@ class VarElimSolver : public Solver
 {
   public:
     VarElimSolver (const BayesNet&);
+
     VarElimSolver (const FactorGraph&);
+
    ~VarElimSolver (void);
-    void    runSolver (void) { }
-    Params  getPosterioriOf (VarId);
-    Params  getJointDistributionOf (const VarIds&);
+
+    void runSolver (void) { }
+
+    Params getPosterioriOf (VarId);
+
+    Params getJointDistributionOf (const VarIds&);
 
   private:
     void createFactorList (void);
+
     void introduceEvidence (void);
+
     void chooseEliminationOrder (const VarIds&);
+
     void processFactorList (const VarIds&);
+
     void eliminate (VarId);
+
     void printActiveFactors (void);
 
     const BayesNet*     bayesNet_;

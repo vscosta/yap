@@ -1,6 +1,10 @@
 #ifndef HORUS_VARNODE_H
 #define HORUS_VARNODE_H
 
+#include <cassert>
+
+#include <iostream>
+
 #include "Horus.h"
 
 using namespace std;
@@ -9,24 +13,27 @@ class VarNode
 {
   public:
     VarNode (const VarNode*);
-    VarNode (VarId, unsigned, int = NO_EVIDENCE);
-    virtual ~VarNode (void) {};
 
-    bool       isValidState (int);
-    bool       isValidState (const string&);
-    void       setEvidence (int);
-    void       setEvidence (const string&);
-    string     label (void) const;
-    States     states (void) const;
+    VarNode (VarId, unsigned, int = Constants::NO_EVIDENCE);
 
-    unsigned   varId (void) const        { return varId_; }
-    unsigned   nrStates (void) const     { return nrStates_; }
-    bool       hasEvidence (void) const  { return evidence_ != NO_EVIDENCE; }
-    int        getEvidence (void) const  { return evidence_; }
-    unsigned   getIndex (void) const     { return index_; }
-    void       setIndex (unsigned idx)   { index_ = idx; }
+    virtual ~VarNode (void) { };
+
+    unsigned varId (void) const { return varId_; }
+
+    unsigned nrStates (void) const { return nrStates_; }
+
+    int getEvidence (void) const  { return evidence_; }
+
+    unsigned getIndex (void) const { return index_; }
+
+    void setIndex (unsigned idx) { index_ = idx; }
 
     operator unsigned () const { return index_; }
+
+    bool hasEvidence (void) const
+    {
+      return evidence_ != Constants::NO_EVIDENCE;
+    }
 
     bool operator== (const VarNode& var) const
     {
@@ -42,11 +49,23 @@ class VarNode
       return varId_ != var.varId();
     }
 
+    bool isValidState (int);
+
+    bool isValidState (const string&);
+
+    void setEvidence (int);
+
+    void setEvidence (const string&);
+
+    string label (void) const;
+
+    States states (void) const;
+
   private:
-    VarId       varId_;
-    unsigned    nrStates_;
-    int         evidence_;
-    unsigned    index_;
+    VarId     varId_;
+    unsigned  nrStates_;
+    int       evidence_;
+    unsigned  index_;
 
 };
 

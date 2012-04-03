@@ -3,9 +3,32 @@
 #include "ParfactorList.h"
 
 
-ParfactorList::ParfactorList (Parfactors& pfs)
+ParfactorList::ParfactorList (const ParfactorList& pfList)
 {
-  pfList_.insert (pfList_.end(), pfs.begin(), pfs.end());
+  ParfactorList::const_iterator it = pfList.begin();
+  while (it != pfList.end()) {
+    addShattered (new Parfactor (**it));
+    ++ it;
+  }
+  
+}
+
+
+
+ParfactorList::ParfactorList (const Parfactors& pfs)
+{
+  add (pfs);
+}
+
+
+
+ParfactorList::~ParfactorList (void)
+{
+  ParfactorList::const_iterator it = pfList_.begin();
+  while (it != pfList_.end()) {
+    delete *it;
+    ++ it;
+  }
 }
 
 
@@ -14,17 +37,17 @@ void
 ParfactorList::add (Parfactor* pf)
 {
   pf->setNewGroups();
-  pfList_.push_back (pf);
+  addToShatteredList (pf);
 }
 
 
 
 void
-ParfactorList::add (Parfactors& pfs)
+ParfactorList::add (const Parfactors& pfs)
 {
   for (unsigned i = 0; i < pfs.size(); i++) {
     pfs[i]->setNewGroups();
-    pfList_.push_back (pfs[i]);
+    addToShatteredList (pfs[i]);
   }
 }
 
@@ -33,7 +56,20 @@ ParfactorList::add (Parfactors& pfs)
 void
 ParfactorList::addShattered (Parfactor* pf)
 {
+  assert (isAllShattered());
   pfList_.push_back (pf);
+  assert (isAllShattered());
+}
+
+
+
+list<Parfactor*>::iterator
+ParfactorList::insertShattered (
+    list<Parfactor*>::iterator it,
+    Parfactor* pf)
+{
+  return pfList_.insert (it, pf);
+  assert (isAllShattered());
 }
 
 
@@ -47,7 +83,7 @@ ParfactorList::remove (list<Parfactor*>::iterator it)
 
 
 list<Parfactor*>::iterator
-ParfactorList::deleteAndRemove (list<Parfactor*>::iterator it)
+ParfactorList::removeAndDelete (list<Parfactor*>::iterator it)
 {
   delete *it;
   return pfList_.erase (it);
@@ -55,58 +91,21 @@ ParfactorList::deleteAndRemove (list<Parfactor*>::iterator it)
 
 
 
-void
-ParfactorList::shatter (void)
+bool
+ParfactorList::isAllShattered (void) const
 {
-  list<Parfactor*> tempList;
-  Parfactors newPfs;
-  newPfs.insert (newPfs.end(), pfList_.begin(), pfList_.end());
-  while (newPfs.empty() == false) {
-    tempList.insert (tempList.end(), newPfs.begin(), newPfs.end());
-    newPfs.clear();
-    list<Parfactor*>::iterator iter1 = tempList.begin();
-    while (tempList.size() > 1 && iter1 != -- tempList.end()) {
-      list<Parfactor*>::iterator iter2 = iter1;
-      ++ iter2;
-      bool incIter1 = true;
-      while (iter2 != tempList.end()) {
-        assert (iter1 != iter2);
-        std::pair<Parfactors, Parfactors> res = shatter (
-            (*iter1)->formulas(), *iter1, (*iter2)->formulas(), *iter2);
-        bool incIter2 = true;
-        if (res.second.empty() == false) {
-          // cout << "second unshattered" << endl;
-          delete *iter2;
-          iter2 = tempList.erase (iter2);
-          incIter2 = false;
-          newPfs.insert (
-              newPfs.begin(), res.second.begin(), res.second.end());
-        }
-        if (res.first.empty() == false) {
-          // cout << "first unshattered" << endl;
-          delete *iter1;
-          iter1 = tempList.erase (iter1);
-          newPfs.insert (
-              newPfs.begin(), res.first.begin(), res.first.end());
-          incIter1 = false;
-          break;
-        }
-        if (incIter2) {
-          ++ iter2;
-        }
-      }
-      if (incIter1) {
-        ++ iter1;
+  if (pfList_.size() <= 1) {
+    return true;
+  }
+  vector<Parfactor*> pfs (pfList_.begin(), pfList_.end());
+  for (unsigned i = 0; i < pfs.size() - 1; i++) {
+    for (unsigned j = i + 1; j < pfs.size(); j++) {
+      if (isShattered (pfs[i], pfs[j])  == false) {
+        return false;
       }
     }
-    // cout << "|||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
-    // cout << "||||||||||||| SHATTERING ITERATION ||||||||||||||" << endl;
-    // cout << "|||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
-    // printParfactors (newPfs);
-    // cout << "|||||||||||||||||||||||||||||||||||||||||||||||||" << endl;
   }
-  pfList_.clear();
-  pfList_.insert (pfList_.end(), tempList.begin(), tempList.end());
+  return true;
 }
 
 
@@ -123,19 +122,83 @@ ParfactorList::print (void) const
 
 
 
-std::pair<Parfactors, Parfactors>
-ParfactorList::shatter (
-    ProbFormulas& formulas1,
-    Parfactor* g1,
-    ProbFormulas& formulas2,
-    Parfactor* g2)
+bool
+ParfactorList::isShattered (
+    const Parfactor* g1,
+    const Parfactor* g2) const
 {
+  assert (g1 != g2);
+  const ProbFormulas& fms1 = g1->arguments();
+  const ProbFormulas& fms2 = g2->arguments();
+  for (unsigned i = 0; i < fms1.size(); i++) {
+    for (unsigned j = 0; j < fms2.size(); j++) {
+      if (fms1[i].group() == fms2[j].group()) {
+        if (identical (
+            fms1[i], *(g1->constr()),
+            fms2[j], *(g2->constr())) == false) {
+          return false;
+        }
+      } else {
+        if (disjoint (
+            fms1[i], *(g1->constr()),
+            fms2[j], *(g2->constr())) == false) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+
+	
+void
+ParfactorList::addToShatteredList (Parfactor* g)
+{
+  queue<Parfactor*> residuals;
+  residuals.push (g);
+  while (residuals.empty() == false) {
+    Parfactor* pf = residuals.front();
+    bool pfSplitted = false;
+    list<Parfactor*>::iterator pfIter;
+    pfIter = pfList_.begin();
+    while (pfIter != pfList_.end()) {
+      std::pair<Parfactors, Parfactors> shattRes;
+      shattRes = shatter (*pfIter, pf);
+      if (shattRes.first.empty() == false) {
+        pfIter = removeAndDelete (pfIter);
+        Util::addToQueue (residuals, shattRes.first);
+      } else {
+        ++ pfIter;
+      }
+      if (shattRes.second.empty() == false) {
+        delete pf;
+        Util::addToQueue (residuals, shattRes.second);
+        pfSplitted = true;
+        break;
+      }
+    }
+    residuals.pop();
+    if (pfSplitted == false) {
+      addShattered (pf);
+    }
+  }
+  assert (isAllShattered());
+}
+
+
+
+std::pair<Parfactors, Parfactors>
+ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
+{
+  ProbFormulas& formulas1 = g1->arguments();
+  ProbFormulas& formulas2 = g2->arguments();
   assert (g1 != 0 && g2 != 0 && g1 != g2);
   for (unsigned i = 0; i < formulas1.size(); i++) {
     for (unsigned j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {
-        std::pair<Parfactors, Parfactors> res 
-            = shatter (formulas1[i], g1, formulas2[j], g2);
+        std::pair<Parfactors, Parfactors> res;
+        res = shatter (i, g1, j, g2);
         if (res.first.empty()  == false || 
             res.second.empty() == false) {
           return res;
@@ -150,21 +213,22 @@ ParfactorList::shatter (
 
 std::pair<Parfactors, Parfactors>
 ParfactorList::shatter (
-    ProbFormula&  f1,
-    Parfactor*    g1,
-    ProbFormula&  f2,
-    Parfactor*    g2)
+    unsigned fIdx1, Parfactor* g1,
+    unsigned fIdx2, Parfactor* g2)
 {
+  ProbFormula& f1 = g1->argument (fIdx1);
+  ProbFormula& f2 = g2->argument (fIdx2);
   // cout << endl;
-  // cout << "-------------------------------------------------" << endl;
+  // Util::printDashLine();
   // cout << "-> SHATTERING (#" << g1 << ", #" << g2 << ")" << endl;
   // g1->print();
   // cout << "-> WITH" << endl;
   // g2->print();
-  // cout << "-> ON: " << f1.toString (g1->constr()) << endl;
-  // cout << "-> ON: " << f2.toString (g2->constr()) << endl;
-  // cout << "-------------------------------------------------" << endl;
-
+  // cout << "-> ON: " << f1 << "|" ;
+  // cout << g1->constr()->tupleSet (f1.logVars()) << endl;
+  // cout << "-> ON: " << f2 << "|" ;
+  // cout << g2->constr()->tupleSet (f2.logVars()) << endl;
+  // Util::printDashLine();
   if (f1.isAtom()) {
     unsigned group = (f1.group() < f2.group()) ? f1.group() : f2.group();
     f1.setGroup (group);
@@ -174,7 +238,7 @@ ParfactorList::shatter (
   assert (g1->constr()->empty() == false);
   assert (g2->constr()->empty() == false);
   if (f1.group() == f2.group()) {
-    // assert (identical (f1, g1->constr(), f2, g2->constr()));
+    assert (identical (f1, *(g1->constr()), f2, *(g2->constr())));
     return { };
   }
 
@@ -215,7 +279,9 @@ ParfactorList::shatter (
   // exclCt2->exportToGraphViz (ss6.str().c_str(), true);
 
   if (exclCt1->empty() && exclCt2->empty()) {
-    unsigned group = (f1.group() < f2.group()) ? f1.group() : f2.group();
+    unsigned group = (f1.group() < f2.group())
+                   ? f1.group() 
+                   : f2.group();
     // identical
     f1.setGroup (group);
     f2.setGroup (group);
@@ -235,8 +301,8 @@ ParfactorList::shatter (
   } else {
     group = ProbFormula::getNewGroup();
   }
-  Parfactors res1 = shatter (g1, f1, commCt1, exclCt1, group);
-  Parfactors res2 = shatter (g2, f2, commCt2, exclCt2, group);
+  Parfactors res1 = shatter (g1, fIdx1, commCt1, exclCt1, group);
+  Parfactors res2 = shatter (g2, fIdx2, commCt2, exclCt2, group);
   return make_pair (res1, res2);
 }
 
@@ -245,11 +311,19 @@ ParfactorList::shatter (
 Parfactors
 ParfactorList::shatter (
     Parfactor* g,
-    const ProbFormula& f,
+    unsigned fIdx,
     ConstraintTree* commCt,
     ConstraintTree* exclCt,
     unsigned commGroup)
 {
+  ProbFormula& f = g->argument (fIdx);
+  if (exclCt->empty()) {
+    delete commCt;
+    delete exclCt;
+    f.setGroup (commGroup);
+    return { };
+  }
+
   Parfactors result;
   if (f.isCounting()) {
     LogVar X_new1 = g->constr()->logVarSet().back() + 1;
@@ -259,7 +333,7 @@ ParfactorList::shatter (
     for (unsigned i = 0; i < cts.size(); i++) {
       Parfactor* newPf = new Parfactor (g, cts[i]);
       if (cts[i]->nrLogVars() == g->constr()->nrLogVars() + 1) {
-        newPf->expandPotential (f.countedLogVar(), X_new1, X_new2);
+        newPf->expand (f.countedLogVar(), X_new1, X_new2);
         assert (g->constr()->getConditionalCount (f.countedLogVar()) == 
             cts[i]->getConditionalCount (X_new1) +
             cts[i]->getConditionalCount (X_new2));
@@ -270,20 +344,16 @@ ParfactorList::shatter (
       newPf->setNewGroups();
       result.push_back (newPf);
     }
+    delete commCt;
+    delete exclCt;
   } else {
-    if (exclCt->empty()) {
-      delete commCt;
-      delete exclCt;
-      g->setFormulaGroup (f, commGroup);      
-    } else {
-      Parfactor* newPf = new Parfactor (g, commCt);
-      newPf->setNewGroups();
-      newPf->setFormulaGroup (f, commGroup);
-      result.push_back (newPf);
-      newPf = new Parfactor (g, exclCt);
-      newPf->setNewGroups();
-      result.push_back (newPf);
-    }
+    Parfactor* newPf = new Parfactor (g, commCt);
+    newPf->setNewGroups();
+    newPf->argument (fIdx).setGroup (commGroup);
+    result.push_back (newPf);
+    newPf = new Parfactor (g, exclCt);
+    newPf->setNewGroups();
+    result.push_back (newPf);
   }
   return result;
 }
@@ -296,7 +366,7 @@ ParfactorList::unifyGroups (unsigned group1, unsigned group2)
   unsigned newGroup = ProbFormula::getNewGroup();
   for (ParfactorList::iterator it = pfList_.begin();
        it != pfList_.end(); it++) {
-    ProbFormulas& formulas = (*it)->formulas();
+    ProbFormulas& formulas = (*it)->arguments();
     for (unsigned i = 0; i < formulas.size(); i++) {
       if (formulas[i].group() == group1 || 
           formulas[i].group() == group2) {
@@ -304,5 +374,54 @@ ParfactorList::unifyGroups (unsigned group1, unsigned group2)
       }
     }
   }
+}
+
+
+
+bool
+ParfactorList::proper (
+    const ProbFormula& f1, ConstraintTree c1,
+    const ProbFormula& f2, ConstraintTree c2) const
+{
+  return disjoint  (f1, c1, f2, c2)
+      || identical (f1, c1, f2, c2);
+}
+
+
+
+bool
+ParfactorList::identical (
+    const ProbFormula& f1, ConstraintTree c1,
+    const ProbFormula& f2, ConstraintTree c2) const
+{
+  if (f1.sameSkeletonAs (f2) == false) {
+    return false;
+  }
+  if (f1.isAtom()) {
+    return true;
+  }
+  c1.moveToTop (f1.logVars());
+  c2.moveToTop (f2.logVars());
+  return ConstraintTree::identical (
+      &c1, &c2, f1.logVars().size());
+}
+
+
+
+bool
+ParfactorList::disjoint (
+    const ProbFormula& f1, ConstraintTree c1,
+    const ProbFormula& f2, ConstraintTree c2) const
+{
+  if (f1.sameSkeletonAs (f2) == false) {
+    return true;
+  }
+  if (f1.isAtom()) {
+    return true;
+  }
+  c1.moveToTop (f1.logVars());
+  c2.moveToTop (f2.logVars());
+  return ConstraintTree::overlap (
+      &c1, &c2, f1.arity()) == false;
 }
 

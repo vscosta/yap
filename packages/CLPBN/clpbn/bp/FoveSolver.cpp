@@ -8,7 +8,9 @@
 
 
 vector<LiftedOperator*>
-LiftedOperator::getValidOps (ParfactorList& pfList, const Grounds& query)
+LiftedOperator::getValidOps (
+    ParfactorList& pfList,
+    const Grounds& query)
 {
   vector<LiftedOperator*>   validOps;
   vector<SumOutOperator*>   sumOutOps;
@@ -28,12 +30,15 @@ LiftedOperator::getValidOps (ParfactorList& pfList, const Grounds& query)
 
 
 void
-LiftedOperator::printValidOps (ParfactorList& pfList, const Grounds& query)
+LiftedOperator::printValidOps (
+    ParfactorList& pfList,
+    const Grounds& query)
 {
   vector<LiftedOperator*> validOps;
   validOps = LiftedOperator::getValidOps (pfList, query);
   for (unsigned i = 0; i < validOps.size(); i++) {
     cout << "-> " << validOps[i]->toString() << endl;
+    delete validOps[i];
   }
 }
 
@@ -56,14 +61,14 @@ SumOutOperator::getCost (void)
     pfIter = pfList_.begin();
     while (pfIter != pfList_.end()) {
       if ((*pfIter)->containsGroup (groupSet[i])) {
-        int idx = (*pfIter)->indexOfFormulaWithGroup (groupSet[i]);
+        int idx = (*pfIter)->indexOfGroup (groupSet[i]);
         cost *= (*pfIter)->range (idx);
         break;
       }
       ++ pfIter;
     }
   }
- 	return cost;
+  return cost;
 }
 
 
@@ -77,14 +82,13 @@ SumOutOperator::apply (void)
   pfList_.remove (iters[0]);
   for (unsigned i = 1; i < iters.size(); i++) {
     product->multiply (**(iters[i]));
-    delete *(iters[i]);
-    pfList_.remove (iters[i]);
+    pfList_.removeAndDelete (iters[i]);
   }
-  if (product->nrFormulas() == 1) {
+  if (product->nrArguments() == 1) {
     delete product;
     return;
   }
-  int fIdx = product->indexOfFormulaWithGroup (group_);
+  int fIdx = product->indexOfGroup (group_);
   LogVarSet excl = product->exclusiveLogVars (fIdx);
   if (product->constr()->isCountNormalized (excl)) {
     product->sumOut (fIdx);
@@ -96,21 +100,21 @@ SumOutOperator::apply (void)
       pfList_.add (pfs[i]);
     }
     delete product;
-    pfList_.shatter();
   }
 }
 
 
 
 vector<SumOutOperator*>
-SumOutOperator::getValidOps (ParfactorList& pfList, const Grounds& query)
+SumOutOperator::getValidOps (
+    ParfactorList& pfList,
+    const Grounds& query)
 {
   vector<SumOutOperator*> validOps;
   set<unsigned> allGroups;
   ParfactorList::const_iterator it = pfList.begin();
   while (it != pfList.end()) {
-    assert (*it);
-    const ProbFormulas& formulas = (*it)->formulas();
+    const ProbFormulas& formulas = (*it)->arguments();
     for (unsigned i = 0; i < formulas.size(); i++) {
       allGroups.insert (formulas[i].group());
     }
@@ -134,8 +138,8 @@ SumOutOperator::toString (void)
   stringstream ss;
   vector<ParfactorList::iterator> pfIters;
   pfIters = parfactorsWithGroup (pfList_, group_);
-  int idx = (*pfIters[0])->indexOfFormulaWithGroup (group_);
-  ProbFormula f = (*pfIters[0])->formula (idx);
+  int idx = (*pfIters[0])->indexOfGroup (group_);
+  ProbFormula f = (*pfIters[0])->argument (idx);
   TupleSet tupleSet = (*pfIters[0])->constr()->tupleSet (f.logVars());
   ss << "sum out " << f.functor() << "/" << f.arity();
   ss << "|" << tupleSet << " (group " << group_ << ")";
@@ -158,9 +162,9 @@ SumOutOperator::validOp (
   }
   unordered_map<unsigned, unsigned> groupToRange;
   for (unsigned i = 0; i < pfIters.size(); i++) {
-    int fIdx = (*pfIters[i])->indexOfFormulaWithGroup (group);
-    if ((*pfIters[i])->formulas()[fIdx].contains (
-        (*pfIters[i])->elimLogVars()) == false) {
+    int fIdx = (*pfIters[i])->indexOfGroup (group);
+    if ((*pfIters[i])->argument (fIdx).contains (
+            (*pfIters[i])->elimLogVars()) == false) {
       return false;
     }
     vector<unsigned> ranges = (*pfIters[i])->ranges();
@@ -206,8 +210,8 @@ SumOutOperator::isToEliminate (
    unsigned group,
    const Grounds& query)
 {
-  int fIdx = g->indexOfFormulaWithGroup (group);
-  const ProbFormula& formula = g->formula (fIdx);
+  int fIdx = g->indexOfGroup (group);
+  const ProbFormula& formula = g->argument (fIdx);
   bool toElim = true;
   for (unsigned i = 0; i < query.size(); i++) {
     if (formula.functor() == query[i].functor() && 
@@ -228,7 +232,7 @@ unsigned
 CountingOperator::getCost (void)
 {
   unsigned cost = 0;
-  int fIdx = (*pfIter_)->indexOfFormulaWithLogVar (X_);
+  int fIdx = (*pfIter_)->indexOfLogVar (X_);
   unsigned range = (*pfIter_)->range (fIdx);
   unsigned size  = (*pfIter_)->size() / range;
   TinySet<unsigned> counts;
@@ -247,18 +251,19 @@ CountingOperator::apply (void)
   if ((*pfIter_)->constr()->isCountNormalized (X_)) {
     (*pfIter_)->countConvert (X_);
   } else {
-    Parfactors pfs = FoveSolver::countNormalize (*pfIter_, X_);
+    Parfactor* pf = *pfIter_;
+    pfList_.remove (pfIter_);
+    Parfactors pfs = FoveSolver::countNormalize (pf, X_);
     for (unsigned i = 0; i  < pfs.size(); i++) {
       unsigned condCount = pfs[i]->constr()->getConditionalCount (X_);
       bool cartProduct   = pfs[i]->constr()->isCarteesianProduct (
-          (*pfIter_)->countedLogVars() | X_);
+          pfs[i]->countedLogVars() | X_);
       if (condCount > 1 && cartProduct) {
         pfs[i]->countConvert (X_);
       }
       pfList_.add (pfs[i]);
     }
-    pfList_.deleteAndRemove (pfIter_);
-    pfList_.shatter();
+    delete pf;
   }
 }
 
@@ -289,13 +294,16 @@ CountingOperator::toString (void)
 {
   stringstream ss;
   ss << "count convert " << X_ << " in " ;
-  ss << (*pfIter_)->getHeaderString();
+  ss << (*pfIter_)->getLabel();
   ss << " [cost=" << getCost() << "]" << endl;
   Parfactors pfs = FoveSolver::countNormalize (*pfIter_, X_);
   if ((*pfIter_)->constr()->isCountNormalized (X_) == false) {
     for (unsigned i = 0; i < pfs.size(); i++) {
-      ss << "   º " << pfs[i]->getHeaderString() << endl;
+      ss << "   º " << pfs[i]->getLabel() << endl;
     }
+  }
+  for (unsigned i = 0; i < pfs.size(); i++) {
+    delete pfs[i];
   }
   return ss.str();
 }
@@ -308,8 +316,8 @@ CountingOperator::validOp (Parfactor* g, LogVar X)
   if (g->nrFormulas (X) != 1) {
     return false;
   }
-  int fIdx = g->indexOfFormulaWithLogVar (X);
-  if (g->formulas()[fIdx].isCounting()) {
+  int fIdx = g->indexOfLogVar (X);
+  if (g->argument (fIdx).isCounting()) {
     return false;
   }
   bool countNormalized = g->constr()->isCountNormalized (X);
@@ -332,10 +340,10 @@ GroundOperator::getCost (void)
   unsigned cost = 0;
   bool isCountingLv = (*pfIter_)->countedLogVars().contains (X_);
   if (isCountingLv) {
-    int fIdx = (*pfIter_)->indexOfFormulaWithLogVar (X_);
+    int fIdx = (*pfIter_)->indexOfLogVar (X_);
     unsigned currSize  = (*pfIter_)->size();
     unsigned nrHists   = (*pfIter_)->range (fIdx);
-    unsigned range     = (*pfIter_)->formula(fIdx).range();
+    unsigned range     = (*pfIter_)->argument (fIdx).range();
     unsigned nrSymbols = (*pfIter_)->constr()->getConditionalCount (X_);
     cost = (currSize / nrHists) * (std::pow (range, nrSymbols));
   } else {
@@ -350,18 +358,17 @@ void
 GroundOperator::apply (void)
 {
   bool countedLv = (*pfIter_)->countedLogVars().contains (X_);
+  Parfactor* pf = *pfIter_;
+  pfList_.remove (pfIter_);
   if (countedLv) {
-    (*pfIter_)->fullExpand (X_);
-    (*pfIter_)->setNewGroups();
-    pfList_.shatter();
+    pf->fullExpand (X_);
+    pfList_.add (pf);
   } else {
-    ConstraintTrees cts = (*pfIter_)->constr()->ground (X_);
+    ConstraintTrees cts = pf->constr()->ground (X_);
     for (unsigned i = 0; i < cts.size(); i++) {
-      Parfactor* newPf = new Parfactor (*pfIter_, cts[i]);
-      pfList_.add (newPf);
+      pfList_.add (new Parfactor (pf, cts[i]));
     }
-    pfList_.deleteAndRemove (pfIter_);
-    pfList_.shatter();
+    delete pf;
   }
 }
 
@@ -393,20 +400,9 @@ GroundOperator::toString (void)
   ((*pfIter_)->countedLogVars().contains (X_)) 
       ? ss << "full expanding " 
       : ss << "grounding " ;
-  ss << X_ << " in " << (*pfIter_)->getHeaderString();
+  ss << X_ << " in " << (*pfIter_)->getLabel();
   ss << " [cost=" << getCost() << "]" << endl;
   return ss.str();
-}
-
-
-
-FoveSolver::FoveSolver (const ParfactorList* pfList)
-{
-  for (ParfactorList::const_iterator it = pfList->begin();
-       it != pfList->end();
-       it ++) {
-    pfList_.addShattered (new Parfactor (**it));
-  }
 }
 
 
@@ -422,14 +418,12 @@ FoveSolver::getPosterioriOf (const Ground& query)
 Params
 FoveSolver::getJointDistributionOf (const Grounds& query)
 {
-  shatterAgainstQuery (query);
   runSolver (query);
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();
   if (Globals::logDomain) {
     Util::fromLog (params);
   }
-  delete *pfList_.begin();
   return params;
 }
 
@@ -438,32 +432,38 @@ FoveSolver::getJointDistributionOf (const Grounds& query)
 void
 FoveSolver::absorveEvidence (
     ParfactorList& pfList,
-    const ObservedFormulas& obsFormulas)
+    ObservedFormulas& obsFormulas)
 {
-  ParfactorList::iterator it = pfList.begin();
-  while (it != pfList.end()) {
-    bool increment = true;
-    for (unsigned i = 0; i < obsFormulas.size(); i++) {
-      if (absorved (pfList, it, obsFormulas[i])) {
-        it = pfList.deleteAndRemove (it);
-        increment = false;
-        break;
-      }      
+  for (unsigned i = 0; i < obsFormulas.size(); i++) {
+    Parfactors newPfs;
+    ParfactorList::iterator it  = pfList.begin();
+    while (it != pfList.end()) {
+      Parfactor* pf = *it;
+      it = pfList.remove (it);
+      Parfactors absorvedPfs = absorve (obsFormulas[i], pf);
+      if (absorvedPfs.empty() == false) {
+        if (absorvedPfs.size() == 1 && absorvedPfs[0] == 0) {
+          // just remove pf;
+        } else {
+          Util::addToVector (newPfs, absorvedPfs);
+        }
+        delete pf;
+      } else {
+        it = pfList.insertShattered (it, pf);
+        ++ it;
+      }
     }
-    if (increment) {
-      ++ it;
-    }
+    pfList.add (newPfs);
   }
-  pfList.shatter();
-  if (obsFormulas.empty() == false) {
-    cout << "*******************************************************" << endl;
+  if (Constants::DEBUG > 1 && obsFormulas.empty() == false) {
+    Util::printAsteriskLine();
     cout << "AFTER EVIDENCE ABSORVED" << endl;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
-      cout << " -> " << *obsFormulas[i] << endl;
+      cout << " -> " << obsFormulas[i] << endl;
     }
-    cout << "*******************************************************" << endl;
+    Util::printAsteriskLine();
+    pfList.print();
   }
-  pfList.print();
 }
 
 
@@ -473,14 +473,14 @@ FoveSolver::countNormalize (
     Parfactor* g,
     const LogVarSet& set)
 {
-  if (set.empty()) {
-    assert (false); // TODO
-    return {};
-  }
   Parfactors normPfs;
-  ConstraintTrees normCts = g->constr()->countNormalize (set);
-  for (unsigned i = 0; i < normCts.size(); i++) {
-    normPfs.push_back (new Parfactor (g, normCts[i]));
+  if (set.empty()) {
+    normPfs.push_back (new Parfactor (*g));
+  } else {
+    ConstraintTrees normCts = g->constr()->countNormalize (set);
+    for (unsigned i = 0; i < normCts.size(); i++) {
+      normPfs.push_back (new Parfactor (g, normCts[i]));
+    }
   }
   return normPfs;
 }
@@ -490,17 +490,25 @@ FoveSolver::countNormalize (
 void
 FoveSolver::runSolver (const Grounds& query)
 {
+  shatterAgainstQuery (query);
+  runWeakBayesBall (query);
   while (true) {
-    cout << "---------------------------------------------------" << endl;
-    pfList_.print();
-    LiftedOperator::printValidOps (pfList_, query);
+    if (Constants::DEBUG > 1) {
+      Util::printDashedLine();
+      pfList_.print();
+      LiftedOperator::printValidOps (pfList_, query);
+    }
     LiftedOperator* op = getBestOperation (query);
     if (op == 0) {
       break;
     }
-    cout << "best operation: " << op->toString() << endl;
+    if (Constants::DEBUG > 1) {
+      cout << "best operation: " << op->toString() << endl;
+    }
     op->apply();
+    delete op;
   }
+  assert (pfList_.size() > 0);
   if (pfList_.size() > 1) {
     ParfactorList::iterator pfIter = pfList_.begin();
     pfIter ++;
@@ -510,26 +518,6 @@ FoveSolver::runSolver (const Grounds& query)
     }
   }
   (*pfList_.begin())->reorderAccordingGrounds (query);
-}
-
-
-
-bool
-FoveSolver::allEliminated (const Grounds&)
-{
-  ParfactorList::iterator pfIter = pfList_.begin();
-  while (pfIter != pfList_.end()) {
-    const ProbFormulas formulas = (*pfIter)->formulas();
-    for (unsigned i = 0; i < formulas.size(); i++) {
-      //bool toElim = false; 
-      //for (unsigned j = 0; j < queries.size(); j++) {
-      //  if ((*pfIter)->containsGround (queries[i]) == false) {
-      //   return
-      //  }
-    }
-    ++ pfIter;
-  }
-  return false;
 }
 
 
@@ -548,7 +536,68 @@ FoveSolver::getBestOperation (const Grounds& query)
       bestCost = cost;
     } 
   }
+  for (unsigned i = 0; i < validOps.size(); i++) {
+    if (validOps[i] != bestOp) {
+      delete validOps[i];
+    }
+  }
   return bestOp;
+}
+
+
+
+void
+FoveSolver::runWeakBayesBall (const Grounds& query)
+{
+  queue<unsigned> todo; // groups to process
+  set<unsigned> done;   // processed or in queue 
+  for (unsigned i = 0; i < query.size(); i++) {
+    ParfactorList::iterator it = pfList_.begin();
+    while (it != pfList_.end()) {
+      int group = (*it)->findGroup (query[i]);
+      if (group != -1) {
+        todo.push (group);
+        done.insert (group);
+        break;
+      }
+      ++ it;
+    }
+  }
+
+  set<Parfactor*> requiredPfs;
+  while (todo.empty() == false) {
+    unsigned group = todo.front();
+    ParfactorList::iterator it = pfList_.begin();
+    while (it != pfList_.end()) {
+      if (Util::contains (requiredPfs, *it) == false &&
+          (*it)->containsGroup (group)) {
+        vector<unsigned> groups = (*it)->getAllGroups();
+        for (unsigned i = 0; i < groups.size(); i++) {
+          if (Util::contains (done, groups[i]) == false) {
+            todo.push (groups[i]);
+            done.insert (groups[i]);
+          }
+        }
+        requiredPfs.insert (*it);
+      }
+      ++ it;
+    }
+    todo.pop();
+  }
+
+  ParfactorList::iterator it = pfList_.begin();
+  while (it != pfList_.end()) {
+    if (Util::contains (requiredPfs, *it) == false) {
+      it = pfList_.removeAndDelete (it);
+    } else {
+      ++ it;
+    }
+  }
+
+  if (Constants::DEBUG > 1) {
+    Util::printHeader ("REQUIRED PARFACTORS");
+    pfList_.print();
+  }
 }
 
 
@@ -556,148 +605,101 @@ FoveSolver::getBestOperation (const Grounds& query)
 void
 FoveSolver::shatterAgainstQuery (const Grounds& query)
 {
-  // return;
+  return ;
   for (unsigned i = 0; i < query.size(); i++) {
     if (query[i].isAtom()) {
       continue;
     }
-    ParfactorList pfListCopy = pfList_;
-    pfList_.clear();
-    for (ParfactorList::iterator it = pfListCopy.begin(); 
-        it != pfListCopy.end(); ++ it) {
-      Parfactor* pf = *it; 
-      if (pf->containsGround (query[i])) {
+    Parfactors newPfs;
+    ParfactorList::iterator it = pfList_.begin();
+    while (it != pfList_.end()) {
+      if ((*it)->containsGround (query[i])) {
         std::pair<ConstraintTree*, ConstraintTree*> split = 
-            pf->constr()->split (query[i].args(), query[i].arity());
+            (*it)->constr()->split (query[i].args(), query[i].arity());
         ConstraintTree* commCt = split.first;
         ConstraintTree* exclCt = split.second;
-        pfList_.add (new Parfactor (pf, commCt));
+        newPfs.push_back (new Parfactor (*it, commCt));
         if (exclCt->empty() == false) {
-          pfList_.add (new Parfactor (pf, exclCt));
+          newPfs.push_back (new Parfactor (*it, exclCt));
         } else {
           delete exclCt;
         }
-        delete pf;
+        it = pfList_.removeAndDelete (it);
       } else {
-        pfList_.add (pf);
+        ++ it;
       }
     }
-    pfList_.shatter();
+    pfList_.add (newPfs);
   }
-  cout << endl;
-  cout << "*******************************************************" << endl;
-  cout << "SHATTERED AGAINST THE QUERY" << endl;
-  for (unsigned i = 0; i < query.size(); i++) {
-    cout << " -> " << query[i] << endl;
+  if (Constants::DEBUG > 1) {
+    cout << endl;
+    Util::printAsteriskLine();
+    cout << "SHATTERED AGAINST THE QUERY" << endl;
+    for (unsigned i = 0; i < query.size(); i++) {
+      cout << " -> " << query[i] << endl;
+    }
+    Util::printAsteriskLine();
+    pfList_.print();
   }
-  cout << "*******************************************************" << endl;
-  pfList_.print();
 }
 
 
 
-bool
-FoveSolver::absorved (
-    ParfactorList& pfList,
-    ParfactorList::iterator pfIter,
-    const ObservedFormula* obsFormula)
+Parfactors
+FoveSolver::absorve (
+    ObservedFormula& obsFormula,
+    Parfactor* g)
 {
   Parfactors absorvedPfs;
-  Parfactor* g = *pfIter;
-  const ProbFormulas& formulas = g->formulas();
+  const ProbFormulas& formulas = g->arguments();
   for (unsigned i = 0; i < formulas.size(); i++) {
-    if (obsFormula->functor() == formulas[i].functor() &&
-        obsFormula->arity()   == formulas[i].arity()) {
+    if (obsFormula.functor() == formulas[i].functor() &&
+        obsFormula.arity()   == formulas[i].arity()) {
 
-      if (obsFormula->isAtom()) {
+      if (obsFormula.isAtom()) {
         if (formulas.size() > 1) {
-          g->absorveEvidence (i, obsFormula->evidence());
+          g->absorveEvidence (formulas[i], obsFormula.evidence());
         } else {
-          return true;
+          // hack to erase parfactor g
+          absorvedPfs.push_back (0);
         }
+        break;
       } 
 
       g->constr()->moveToTop (formulas[i].logVars());
       std::pair<ConstraintTree*, ConstraintTree*> res
-          = g->constr()->split (obsFormula->constr(), formulas[i].arity());
+          = g->constr()->split (&(obsFormula.constr()), formulas[i].arity());
       ConstraintTree* commCt = res.first;
       ConstraintTree* exclCt = res.second;
 
-      if (commCt->empty()) {
-        delete commCt;
-        delete exclCt;
-        continue;
-      }
-
-      if (exclCt->empty() == false) {
-        pfList.add (new Parfactor (g, exclCt));
-      } else {
-        delete exclCt;
-      }
-
-      if (formulas.size() > 1) {
-        LogVarSet excl = g->exclusiveLogVars (i);
-        Parfactors countNormPfs = countNormalize (g, excl);
-        for (unsigned j = 0; j < countNormPfs.size(); j++) {
-          countNormPfs[j]->absorveEvidence (i, obsFormula->evidence());
-          absorvedPfs.push_back (countNormPfs[j]);
+      if (commCt->empty() == false) {
+        if (formulas.size() > 1) {
+          LogVarSet excl = g->exclusiveLogVars (i);
+          Parfactors countNormPfs = countNormalize (g, excl);
+          for (unsigned j = 0; j < countNormPfs.size(); j++) {
+            countNormPfs[j]->absorveEvidence (
+                formulas[i], obsFormula.evidence());
+            absorvedPfs.push_back (countNormPfs[j]);
+          }
+        } else {
+          delete commCt;
         }
+        if (exclCt->empty() == false) {
+          absorvedPfs.push_back (new Parfactor (g, exclCt));
+        } else {
+          delete exclCt;
+        }
+        if (absorvedPfs.empty()) {
+          // hack to erase parfactor g
+          absorvedPfs.push_back (0);
+        }
+        break;
       } else {
         delete commCt;
+        delete exclCt;
       }
-      return true;
-
     }
   }
-  return false;
-}
-
-
-
-bool
-FoveSolver::proper (
-    const ProbFormula&  f1,
-    ConstraintTree*     c1,
-    const ProbFormula&  f2,
-    ConstraintTree*     c2)
-{
-  return disjoint  (f1, c1, f2, c2)
-      || identical (f1, c1, f2, c2);
-}
-
-
-
-bool
-FoveSolver::identical (
-    const ProbFormula&  f1,
-    ConstraintTree*     c1,
-    const ProbFormula&  f2,
-    ConstraintTree*     c2)
-{
-  if (f1.sameSkeletonAs (f2) == false) {
-    return false;
-  }
-  c1->moveToTop (f1.logVars());
-  c2->moveToTop (f2.logVars());
-  return ConstraintTree::identical (
-      c1, c2, f1.logVars().size());
-}
-
-
-
-bool
-FoveSolver::disjoint (
-    const ProbFormula&  f1,
-    ConstraintTree*     c1,
-    const ProbFormula&  f2,
-    ConstraintTree*     c2)
-{
-  if (f1.sameSkeletonAs (f2) == false) {
-    return true;
-  }
-  c1->moveToTop (f1.logVars());
-  c2->moveToTop (f2.logVars());
-  return ConstraintTree::overlap (
-      c1, c2, f1.arity()) == false;
+  return absorvedPfs;
 }
 

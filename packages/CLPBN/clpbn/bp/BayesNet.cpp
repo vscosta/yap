@@ -88,15 +88,22 @@ BayesNet::readFromBifFormat (const char* fileName)
       abort();
     }
     params = reorderParameters (params, node->nrStates());
-    Distribution* dist = new Distribution (params);
-    node->setDistribution (dist);
-    addDistribution (dist);
+    if (Globals::logDomain) {
+      Util::toLog (params);
+    } 
+    node->setParams (params);
   }
-
   setIndexes();
-  if (Globals::logDomain) {
-    distributionsToLogs();
-  } 
+}
+
+
+
+BayesNode*
+BayesNet::addNode (BayesNode* n)
+{
+  varMap_.insert (make_pair (n->varId(), nodes_.size()));
+  nodes_.push_back (n);
+  return nodes_.back();
 }
 
 
@@ -112,15 +119,6 @@ BayesNet::addNode (string label, const States& states)
   return node;
 }
 
-
-
-BayesNode*
-BayesNet::addNode (VarId vid, unsigned dsize, int evidence, Distribution* dist)
-{
-  varMap_.insert (make_pair (vid, nodes_.size()));
-  nodes_.push_back (new BayesNode (vid, dsize, evidence, dist));
-  return nodes_.back();
-}
 
 
 
@@ -172,29 +170,6 @@ BayesNet::getVariableNodes (void) const
     vars.push_back (nodes_[i]);
   }
   return vars;
-}
-
-
-
-void
-BayesNet::addDistribution (Distribution* dist)
-{
-  dists_.push_back (dist);
-}
-
-
-
-Distribution*
-BayesNet::getDistribution (unsigned distId) const
-{
-  Distribution* dist = 0;
-  for (unsigned i = 0; i < dists_.size(); i++) {
-    if (dists_[i]->id == (int) distId) {
-      dist = dists_[i];
-      break;
-    }
-  }
-  return dist;
 }
 
 
@@ -299,7 +274,7 @@ BayesNet::getMinimalRequesiteNetwork (const VarIds& queryVarIds) const
   /*
   cout << "\t\ttop\tbottom" << endl;
   cout << "variable\t\tmarked\tmarked\tvisited\tobserved" << endl;
-  cout << "----------------------------------------------------------" ;
+  Util::printDashedLine();
   cout << endl;
   for (unsigned i = 0; i < states.size(); i++) {
     cout << nodes_[i]->label() << ":\t\t" ;
@@ -350,10 +325,8 @@ BayesNet::constructGraph (BayesNet* bn,
         }
       }
       assert (bn->getBayesNode (nodes_[i]->varId()) == 0);
-      BayesNode* mrnNode = bn->addNode (nodes_[i]->varId(),
-                                        nodes_[i]->nrStates(),
-                                        nodes_[i]->getEvidence(),
-                                        nodes_[i]->getDistribution());
+      BayesNode* mrnNode = new BayesNode (nodes_[i]);
+      bn->addNode (mrnNode);
       mrnNodes.push_back (mrnNode);
     }
   }
@@ -383,26 +356,6 @@ BayesNet::setIndexes (void)
 {
   for (unsigned i = 0; i < nodes_.size(); i++) {
     nodes_[i]->setIndex (i);
-  }
-}
-
-
-
-void
-BayesNet::distributionsToLogs (void)
-{
-  for (unsigned i = 0; i < dists_.size(); i++) {
-    Util::toLog (dists_[i]->params);
-  }
-}
-
-
-
-void
-BayesNet::freeDistributions (void)
-{
-  for (unsigned i = 0; i < dists_.size(); i++) {
-    delete dists_[i];
   }
 }
 
@@ -504,8 +457,8 @@ BayesNet::exportToBifFormat (const char* fileName) const
       out << "\t<GIVEN>" << parents[j]->label();
       out << "</GIVEN>" << endl;
     }
-    Params params = revertParameterReorder (nodes_[i]->getParameters(),
-                                              nodes_[i]->nrStates());
+    Params params = revertParameterReorder (
+        nodes_[i]->params(), nodes_[i]->nrStates());
     out << "\t<TABLE>" ;
     for (unsigned j = 0; j < params.size(); j++) {
        out << " " << params[j];

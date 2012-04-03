@@ -20,24 +20,24 @@ CbpSolver::getPosterioriOf (VarId vid)
   FgVarNode* var = lfg_->getEquivalentVariable (vid);
   Params probs;
   if (var->hasEvidence()) {
-    probs.resize (var->nrStates(), Util::noEvidence());
-    probs[var->getEvidence()] = Util::withEvidence();
+    probs.resize (var->nrStates(), LogAware::noEvidence());
+    probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
-    probs.resize (var->nrStates(), Util::multIdenty());
+    probs.resize (var->nrStates(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
         for (unsigned i = 0; i < links.size(); i++) {
           CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
           Util::add (probs, l->getPoweredMessage());
         }
-        Util::normalize (probs);
+        LogAware::normalize (probs);
         Util::fromLog (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
         Util::multiply (probs, l->getPoweredMessage());
       }
-      Util::normalize (probs);
+      LogAware::normalize (probs);
     }
   }
   return probs;
@@ -62,7 +62,7 @@ void
 CbpSolver::initializeSolver (void)
 {
   unsigned nGroundVars, nGroundFacs, nWithoutNeighs;
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     nGroundVars = factorGraph_->getVarNodes().size();
     nGroundFacs = factorGraph_->getFactorNodes().size();
     const FgVarSet& vars = factorGraph_->getVarNodes();
@@ -82,7 +82,7 @@ CbpSolver::initializeSolver (void)
   // factorGraph_->exportToGraphViz ("uncompressed_fg.dot");
   factorGraph_  = lfg_->getCompressedFactorGraph();
 
-  if (COLLECT_STATISTICS) {
+  if (Constants::COLLECT_STATS) {
     unsigned nClusterVars = factorGraph_->getVarNodes().size();
     unsigned nClusterFacs = factorGraph_->getFactorNodes().size();
     Statistics::updateCompressingStatistics (nGroundVars,  nGroundFacs,
@@ -123,7 +123,7 @@ CbpSolver::maxResidualSchedule (void)
       calculateMessage (links_[i]);
       SortedOrder::iterator it = sortedOrder_.insert (links_[i]);
       linkMap_.insert (make_pair (links_[i], it));
-      if (DL >= 2 && DL < 5) {
+      if (Constants::DEBUG >= 2 && Constants::DEBUG < 5) {
         cout << "calculating " << links_[i]->toString() << endl;
       }
     }
@@ -131,7 +131,7 @@ CbpSolver::maxResidualSchedule (void)
   }
 
   for (unsigned c = 0; c < links_.size(); c++) {
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << endl << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); it ++) {
@@ -142,7 +142,7 @@ CbpSolver::maxResidualSchedule (void)
 
     SortedOrder::iterator it = sortedOrder_.begin();
     SpLink* link = *it;
-    if (DL >= 2) {
+    if (Constants::DEBUG >= 2) {
       cout << "updating " << (*sortedOrder_.begin())->toString() << endl;
     }
     if (link->getResidual() < BpOptions::accuracy) {
@@ -159,7 +159,7 @@ CbpSolver::maxResidualSchedule (void)
       const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
       for (unsigned j = 0; j < links.size(); j++) {
         if (links[j]->getVariable() != link->getVariable()) {
-          if (DL >= 2 && DL < 5) {
+          if (Constants::DEBUG >= 2 && Constants::DEBUG < 5) {
             cout << "    calculating " << links[j]->toString() << endl;
           }
           calculateMessage (links[j]);
@@ -174,7 +174,7 @@ CbpSolver::maxResidualSchedule (void)
     const SpLinkSet& links = ninf(link->getFactor())->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getVariable() != link->getVariable()) {
-        if (DL >= 2 && DL < 5) {
+        if (Constants::DEBUG >= 2 && Constants::DEBUG < 5) {
           cout << "    calculating " << links[i]->toString() << endl;
         }
         calculateMessage (links[i]);
@@ -196,15 +196,15 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
   const FgFacNode* dst = link->getFactor();
   const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
   if (src->hasEvidence()) {
-    msg.resize (src->nrStates(), Util::noEvidence());
+    msg.resize (src->nrStates(), LogAware::noEvidence());
     double value = link->getMessage()[src->getEvidence()];
-    msg[src->getEvidence()] = Util::pow (value, l->getNumberOfEdges() - 1);
+    msg[src->getEvidence()] = LogAware::pow (value, l->getNumberOfEdges() - 1);
   } else {
     msg = link->getMessage();
-    Util::pow (msg, l->getNumberOfEdges() - 1);
+    LogAware::pow (msg, l->getNumberOfEdges() - 1);
   }
-  if (DL >= 5) {
-    cout << "        " << "init: " << Util::parametersToString (msg) << endl;
+  if (Constants::DEBUG >= 5) {
+    cout << "        " << "init: " << msg << endl;
   }
   const SpLinkSet& links = ninf(src)->getLinks();
   if (Globals::logDomain) {
@@ -219,16 +219,16 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
       if (links[i]->getFactor() != dst) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
         Util::multiply (msg, l->getPoweredMessage());
-        if (DL >= 5) {
+        if (Constants::DEBUG >= 5) {
           cout << "        msg from " << l->getFactor()->getLabel() << ": " ;
-          cout << Util::parametersToString (l->getPoweredMessage()) << endl;
+          cout << l->getPoweredMessage() << endl;
         }
       }
     }
   }
 
-  if (DL >= 5) {
-    cout << "        result = " << Util::parametersToString (msg) << endl;
+  if (Constants::DEBUG >= 5) {
+    cout << "        result = " << msg << endl;
   }
   return msg;
 }
@@ -241,12 +241,9 @@ CbpSolver::printLinkInformation (void) const
   for (unsigned i = 0; i < links_.size(); i++) {
     CbpSolverLink* l = static_cast<CbpSolverLink*> (links_[i]); 
     cout << l->toString() << ":" << endl;
-    cout << "    curr msg = " ;
-    cout << Util::parametersToString (l->getMessage()) << endl;
-    cout << "    next msg = " ;
-    cout << Util::parametersToString (l->getNextMessage()) << endl;
-    cout << "    powered  = " ;
-    cout << Util::parametersToString (l->getPoweredMessage()) << endl;
+    cout << "    curr msg = " << l->getMessage() << endl;
+    cout << "    next msg = " << l->getNextMessage() << endl;
+    cout << "    powered  = " << l->getPoweredMessage() << endl;
     cout << "    residual = " << l->getResidual() << endl;
   }
 }

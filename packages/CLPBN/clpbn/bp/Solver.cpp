@@ -21,7 +21,7 @@ Solver::printPosterioriOf (VarId vid)
   const States& states = var->states();
   for (unsigned i = 0; i < states.size(); i++) {
     cout << "P(" << var->label() << "=" << states[i] << ") = " ;
-    cout << setprecision (PRECISION) << posterioriDist[i];
+    cout << setprecision (Constants::PRECISION) << posterioriDist[i];
     cout << endl;
   }
   cout << endl;
@@ -45,7 +45,7 @@ Solver::printJointDistributionOf (const VarIds& vids)
   vector<string> jointStrings = Util::getJointStateStrings (vars);
   for (unsigned i = 0; i < jointDist.size(); i++) {
     cout << "P(" << jointStrings[i] << ") = " ;
-    cout << setprecision (PRECISION) << jointDist[i];
+    cout << setprecision (Constants::PRECISION) << jointDist[i];
     cout << endl;
   }
   cout << endl;
