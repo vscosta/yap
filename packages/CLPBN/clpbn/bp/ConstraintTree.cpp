@@ -347,6 +347,10 @@ ConstraintTree::rename (LogVar X_old, LogVar X_new)
 void
 ConstraintTree::applySubstitution (const Substitution& theta)
 {
+  LogVars discardedLvs = theta.getDiscardedLogVars();
+  for (unsigned i = 0; i < discardedLvs.size(); i++) {
+    remove(discardedLvs[i]);
+  }
   for (unsigned i = 0; i < logVars_.size(); i++) {
     logVars_[i] = theta.newNameFor (logVars_[i]);
   }

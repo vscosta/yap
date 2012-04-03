@@ -191,7 +191,6 @@ Parfactor::multiply (Parfactor& g)
 {
   alignAndExponentiate (this, &g);
   TFactor<ProbFormula>::multiply (g);
-  cout << "calling lifted mult" << endl;
   constr_->join (g.constr(), true);
 }
 
@@ -378,15 +377,6 @@ Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
 
 
 void
-Parfactor::setFormulaGroup (const ProbFormula& f, int group)
-{
-  assert (indexOf (f) != -1);
-  args_[indexOf (f)].setGroup (group);
-}
-
-
-
-void
 Parfactor::setNewGroups (void)
 {
   for (unsigned i = 0; i < args_.size(); i++) {
@@ -415,7 +405,7 @@ Parfactor::applySubstitution (const Substitution& theta)
 
 
 int
-Parfactor::groupWithGround (const Ground& ground) const
+Parfactor::findGroup (const Ground& ground) const
 {
   int group = -1;
   for (unsigned i = 0; i < args_.size(); i++) {
@@ -436,7 +426,7 @@ Parfactor::groupWithGround (const Ground& ground) const
 bool
 Parfactor::containsGround (const Ground& ground) const
 {
-  return groupWithGround (ground) != -1;
+  return findGroup (ground) != -1;
 }
 
 
@@ -670,7 +660,6 @@ Parfactor::align (
   LogVar freeLogVar = 0;
   Substitution theta1;
   Substitution theta2;
-
   const LogVarSet& allLvs1 = g1->logVarSet();
   for (unsigned i = 0; i < allLvs1.size(); i++) {
     theta1.add (allLvs1[i], freeLogVar);

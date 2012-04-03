@@ -95,6 +95,25 @@ ostream& operator<< (ostream &os, const Ground& gr)
 
 
 
+LogVars
+Substitution::getDiscardedLogVars (void) const
+{
+  LogVars discardedLvs;
+  set<LogVar> doneLvs;
+  unordered_map<LogVar, LogVar>::const_iterator it;
+  it = subs_.begin();
+  while (it != subs_.end()) {
+    if (Util::contains (doneLvs, it->second)) {
+      discardedLvs.push_back (it->first);
+    } else {
+      doneLvs.insert (it->second);
+    }
+    it ++;
+  }
+  return discardedLvs;
+}
+
+
 
 ostream& operator<< (ostream &os, const Substitution& theta)
 {

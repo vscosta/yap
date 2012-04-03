@@ -60,13 +60,11 @@ class Parfactor : public TFactor<ProbFormula>
 
     void absorveEvidence (const ProbFormula&, unsigned);
 
-    void setFormulaGroup (const ProbFormula&, int);
-
     void setNewGroups (void);
 
     void applySubstitution (const Substitution&);
 
-    int groupWithGround (const Ground&) const;
+    int findGroup (const Ground&) const;
 
     bool containsGround (const Ground&) const;
 

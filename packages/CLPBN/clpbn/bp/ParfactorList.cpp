@@ -197,8 +197,8 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
   for (unsigned i = 0; i < formulas1.size(); i++) {
     for (unsigned j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {
-        std::pair<Parfactors, Parfactors> res 
-            = shatter (formulas1[i], g1, formulas2[j], g2);
+        std::pair<Parfactors, Parfactors> res;
+        res = shatter (i, g1, j, g2);
         if (res.first.empty()  == false || 
             res.second.empty() == false) {
           return res;
@@ -213,9 +213,11 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
 
 std::pair<Parfactors, Parfactors>
 ParfactorList::shatter (
-    ProbFormula& f1, Parfactor* g1,
-    ProbFormula& f2, Parfactor* g2)
+    unsigned fIdx1, Parfactor* g1,
+    unsigned fIdx2, Parfactor* g2)
 {
+  ProbFormula& f1 = g1->argument (fIdx1);
+  ProbFormula& f2 = g2->argument (fIdx2);
   // cout << endl;
   // Util::printDashLine();
   // cout << "-> SHATTERING (#" << g1 << ", #" << g2 << ")" << endl;
@@ -299,8 +301,8 @@ ParfactorList::shatter (
   } else {
     group = ProbFormula::getNewGroup();
   }
-  Parfactors res1 = shatter (g1, f1, commCt1, exclCt1, group);
-  Parfactors res2 = shatter (g2, f2, commCt2, exclCt2, group);
+  Parfactors res1 = shatter (g1, fIdx1, commCt1, exclCt1, group);
+  Parfactors res2 = shatter (g2, fIdx2, commCt2, exclCt2, group);
   return make_pair (res1, res2);
 }
 
@@ -309,15 +311,16 @@ ParfactorList::shatter (
 Parfactors
 ParfactorList::shatter (
     Parfactor* g,
-    const ProbFormula& f,
+    unsigned fIdx,
     ConstraintTree* commCt,
     ConstraintTree* exclCt,
     unsigned commGroup)
 {
+  ProbFormula& f = g->argument (fIdx);
   if (exclCt->empty()) {
     delete commCt;
     delete exclCt;
-    g->setFormulaGroup (f, commGroup);
+    f.setGroup (commGroup);
     return { };
   }
 
@@ -346,7 +349,7 @@ ParfactorList::shatter (
   } else {
     Parfactor* newPf = new Parfactor (g, commCt);
     newPf->setNewGroups();
-    newPf->setFormulaGroup (f, commGroup);
+    newPf->argument (fIdx).setGroup (commGroup);
     result.push_back (newPf);
     newPf = new Parfactor (g, exclCt);
     newPf->setNewGroups();

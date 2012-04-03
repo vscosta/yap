@@ -141,10 +141,13 @@ class Substitution
       return subs_.find (X)->second;
     }
 
+    LogVars getDiscardedLogVars (void) const;
+
     friend ostream& operator<< (ostream &os, const Substitution& theta);
 
   private:
     unordered_map<LogVar, LogVar> subs_;
+
 };
 
 

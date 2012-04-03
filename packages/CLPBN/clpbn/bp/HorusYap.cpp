@@ -452,7 +452,6 @@ setBayesNetParams (void)
 int
 setExtraVarsInfo (void)
 {
-  // BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
   GraphicalModel::clearVariablesInformation();
   YAP_Term varsInfoL =  YAP_ARG2;
   while (varsInfoL != YAP_TermNil()) {
@@ -583,15 +582,15 @@ freeParfactors (void)
 extern "C" void
 init_predicates (void)
 {
-  YAP_UserCPredicate ("create_lifted_network",  createLiftedNetwork, 3);
-  YAP_UserCPredicate ("create_ground_network",  createGroundNetwork, 2);
-  YAP_UserCPredicate ("run_lifted_solver",      runLiftedSolver,     3);
-  YAP_UserCPredicate ("run_ground_solver",      runGroundSolver,     3);
-  YAP_UserCPredicate ("set_parfactors_params",  setParfactorsParams, 2);
-  YAP_UserCPredicate ("set_bayes_net_params",   setBayesNetParams,   2);
-  YAP_UserCPredicate ("set_extra_vars_info",    setExtraVarsInfo,    2);
-  YAP_UserCPredicate ("set_horus_flag",         setHorusFlag,        2);
-  YAP_UserCPredicate ("free_parfactors",        freeParfactors,      1);
-  YAP_UserCPredicate ("free_bayesian_network",  freeBayesNetwork,    1);
+  YAP_UserCPredicate ("create_lifted_network", createLiftedNetwork, 3);
+  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 2);
+  YAP_UserCPredicate ("run_lifted_solver",     runLiftedSolver,     3);
+  YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
+  YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);
+  YAP_UserCPredicate ("set_bayes_net_params",  setBayesNetParams,   2);
+  YAP_UserCPredicate ("set_extra_vars_info",   setExtraVarsInfo,    2);
+  YAP_UserCPredicate ("set_horus_flag",        setHorusFlag,        2);
+  YAP_UserCPredicate ("free_parfactors",       freeParfactors,      1);
+  YAP_UserCPredicate ("free_bayesian_network", freeBayesNetwork,    1);
 }
 

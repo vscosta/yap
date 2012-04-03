@@ -67,11 +67,11 @@ class ParfactorList
         Parfactor*, Parfactor*);
 
     std::pair<Parfactors, Parfactors> shatter (
-        ProbFormula&, Parfactor*, ProbFormula&, Parfactor*);
+        unsigned, Parfactor*, unsigned, Parfactor*);
 
     Parfactors shatter (
         Parfactor*,
-        const ProbFormula&,
+        unsigned,
         ConstraintTree*,
         ConstraintTree*,
         unsigned);

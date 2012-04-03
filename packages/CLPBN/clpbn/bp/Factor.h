@@ -62,6 +62,12 @@ class TFactor
       return args_[idx];
     }
 
+    T& argument (unsigned idx)
+    {
+      assert (idx < args_.size());
+      return args_[idx];
+    }
+
     unsigned range (unsigned idx) const
     {
       assert (idx < ranges_.size());

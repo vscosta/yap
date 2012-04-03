@@ -554,7 +554,7 @@ FoveSolver::runWeakBayesBall (const Grounds& query)
   for (unsigned i = 0; i < query.size(); i++) {
     ParfactorList::iterator it = pfList_.begin();
     while (it != pfList_.end()) {
-      int group = (*it)->groupWithGround (query[i]);
+      int group = (*it)->findGroup (query[i]);
       if (group != -1) {
         todo.push (group);
         done.insert (group);

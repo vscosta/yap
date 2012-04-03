@@ -245,7 +245,6 @@ Factor::multiply (Factor& g)
     return;
   }
   TFactor<VarId>::multiply (g);
-  cout << "Factor mult called" << endl;
 }
 
 
