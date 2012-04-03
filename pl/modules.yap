@@ -765,7 +765,7 @@ export_list(Module, List) :-
 	functor(G,N0,K0),
 	G=..[N0|Args],
 	G1=..[N1|Args],
-	recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_), !,
+	( recordaifnot('$import','$import'(ModR,Mod,G,G1,N0,K0),_) -> true ; true ),         
 	'$add_to_imports'(Tab, Mod, ModR).
 
 % I assume the clause has been processed, so the
