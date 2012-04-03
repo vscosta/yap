@@ -17,6 +17,7 @@
 
 :- use_module(library(lists), [
           delete/3,
+	  nth0/3,
 	  member/2]).
 
 :- use_module(library(pfl), [
@@ -29,24 +30,55 @@
 
 :- dynamic currently_defined/1, f/3.
 
-generate_network(QueryVars, QueryKeys, Keys, Factors, Evidence) :-
+generate_network(QueryVars0, QueryKeys0, Keys, Factors, Evidence) :-
 	attributes:all_attvars(AVars),
-	check_for_evidence(AVars, EVars, Evidence),
+	keys(QueryVars0, QueryKeys0),
+	check_for_evidence(AVars, EVars, QueryKeys0, QueryVars0, Evidence),
+	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys),
+	do_network(QueryVars, EVars, Keys, Factors).
+
+do_network([], _, _, _) :- !.
+do_network(QueryVars, EVars, Keys, Factors) :-
 	retractall(currently_defined(_)),
 	retractall(f(_,_,_)),
-	initialize_evidence(EVars),
-	keys(QueryVars, QueryKeys),
 	run_through_factors(QueryVars),
 	run_through_factors(EVars),
 	findall(K, currently_defined(K), Keys),
 	findall(f(FType,FKeys,FCPT), f(FType,FKeys,FCPT), Factors).
 
-check_for_evidence(V.AVars, V.EVars, (K=E).Evidence) :-
+%
+% look for attributed vars with evidence (should also search the DB)
+% verifiy if the evidence overlaps with query
+% bind query if so.
+%
+check_for_evidence(V.AVars, V.EVars, QueryKeys, QueryVars, (K=E).Evidence) :-
 	clpbn:get_atts(V,[key(K),evidence(E)]), !,
-	check_for_evidence(AVars, EVars, Evidence).
-check_for_evidence(_V.AVars, EVars, Evidence) :-
-	check_for_evidence(AVars, EVars, Evidence).
-check_for_evidence([], [], []).
+	check_for_evidence_in_query(K, QueryKeys, QueryVars, E),
+	check_for_evidence(AVars, EVars, QueryKeys, QueryVars, Evidence).
+% ignore no evidence vars
+check_for_evidence(_V.AVars, EVars, QueryKeys, QueryVars, Evidence) :-
+	check_for_evidence(AVars, EVars, QueryKeys, QueryVars, Evidence).
+check_for_evidence([], [], _, _, []).
+
+%
+% do we still have free query variables?
+%
+check_for_extra_bindings([], [], [], []).
+check_for_extra_bindings([V|QueryVars0], QueryVars, [_|QueryKeys0], QueryKeys) :-
+	nonvar(V),!,
+	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys).
+check_for_extra_bindings([V|QueryVars0], [V|QueryVars], [K|QueryKeys0], [K|QueryKeys]) :-
+	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys).
+
+
+check_for_evidence_in_query(Key, [Key|QueryKeys], [V|QueryVars], E) :- !,
+	skolem(Key, Dom),
+	nth0(E, Dom, Val),
+	V = Val,
+	check_for_evidence_in_query(Key, QueryKeys, QueryVars, E).
+check_for_evidence_in_query(Key, [_|QueryKeys], [_|QueryVars], E) :-
+	check_for_evidence_in_query(Key, QueryKeys, QueryVars, E).
+check_for_evidence_in_query(_Key, [], [], _E).
 
 keys([], []).
 keys([Var|QueryVars], [Key|QueryKeys]) :-
@@ -70,6 +102,7 @@ initialize_evidence([V|EVars]) :-
 %
 % gets key K, and collects factors that  define it
 find_factors(K) :-
+	\+ currently_defined(K),
 	assert(currently_defined(K)),
 	defined_in_factor(K, ParFactor),
 	add_factor(ParFactor, Ks),

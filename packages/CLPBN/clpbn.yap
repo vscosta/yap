@@ -235,12 +235,13 @@ project_attributes(GVars, _AVars0) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
 	generate_network(GVars, GKeys, Keys, Factors, Evidence),
-	solver(Solver),
-	call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, Answ),
-	writeln(Answ).
-project_attributes(GVars, AVars0) :-
+	(ground(GVars) ->
+	    true
+	;
+	    call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, Answ)
+	).
+project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
-	generate_vars(GVars, AVars0, AVars),
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,

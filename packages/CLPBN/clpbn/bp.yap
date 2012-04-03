@@ -76,9 +76,9 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
 	list_of_keys_to_ids(QueryKeys, Hash, QueryVarsIds),
 	evidence_to_ids(Evidence, Hash, EvIds, EvIdNames),
 	factors_to_ids(Factors, Hash, FactorIds),
-	set_graphical_model(FactorIds, Network, InvMap, EvIdNames),
+	init_graphical_model(FactorIds, Network, InvMap, EvIdNames),
 	run_ground_solver(Network, QueryVarsIds, EvIds, Solutions),
-	free_bayesian_network(Network).
+	free_graphical_model(Network).
 
 keys_to_ids([], _, Hash, Hash).
 keys_to_ids([Key|AllKeys], I0, Hash0, Hash) :-
