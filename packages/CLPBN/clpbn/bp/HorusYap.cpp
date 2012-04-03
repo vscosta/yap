@@ -24,9 +24,26 @@ using namespace std;
 typedef std::pair<ParfactorList*, ObservedFormulas*> LiftedNetwork;
 
 
-Params readParams (YAP_Term);
+Params readParameters (YAP_Term);
+
+vector<unsigned> readUnsignedList (YAP_Term);
+
 void readLiftedEvidence (YAP_Term, ObservedFormulas&);
+
 Parfactor* readParfactor (YAP_Term);
+
+
+
+vector<unsigned>
+readUnsignedList (YAP_Term list)
+{
+  vector<unsigned> vec;
+  while (list != YAP_TermNil()) {
+    vec.push_back ((unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (list)));
+    list = YAP_TailOfTerm (list);
+  }
+  return vec;
+}
 
 
 int createLiftedNetwork (void)
@@ -117,7 +134,7 @@ Parfactor* readParfactor (YAP_Term pfTerm)
   }
 
   // read the parameters
-  const Params& params = readParams (YAP_ArgOfTerm (4, pfTerm)); 
+  const Params& params = readParameters (YAP_ArgOfTerm (4, pfTerm)); 
 
   // read the constraint
   Tuples tuples;
@@ -202,7 +219,27 @@ createGroundNetwork (void)
   //   Statistics::writeStatisticsToFile ("../../compressing.stats");
   // }
   BayesNet* bn = new BayesNet();
-  YAP_Term varList = YAP_ARG1;
+  
+  string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
+  cout << "factors type: '" << factorsType << "'" << endl;
+
+  YAP_Term factorList = YAP_ARG2;
+  while (factorList != YAP_TermNil()) {
+    YAP_Term factor =  YAP_HeadOfTerm (factorList);
+    // read the var ids
+    VarIds varIds = readUnsignedList (YAP_ArgOfTerm (1, factor));
+    // read the ranges
+    Ranges ranges = readUnsignedList (YAP_ArgOfTerm (2, factor));
+    // read the parameters
+    Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
+    // read dist id
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
+    factorList = YAP_TailOfTerm (factorList);
+    Factor f (varIds, ranges, params, distId);
+    f.print();
+  }
+  assert (false);
+  /*
   vector<VarIds> parents;
   while (varList != YAP_TermNil()) {
     YAP_Term var     =   YAP_HeadOfTerm (varList);
@@ -233,6 +270,7 @@ createGroundNetwork (void)
     nodes[i]->setParents (ps);
   }
   bn->setIndexes();
+  */
   YAP_Int p = (YAP_Int) (bn);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG2);
 }
@@ -240,7 +278,7 @@ createGroundNetwork (void)
 
 
 Params
-readParams (YAP_Term paramL)
+readParameters (YAP_Term paramL)
 {
   Params params;
   while (paramL!= YAP_TermNil()) {
@@ -412,7 +450,7 @@ setParfactorsParams (void)
     YAP_Term dist     = YAP_HeadOfTerm (distList);
     unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParams (YAP_ArgOfTerm (2, dist));
+    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
     distList = YAP_TailOfTerm (distList);
   }
   ParfactorList::iterator it = pfList->begin();
@@ -436,7 +474,7 @@ setBayesNetParams (void)
     YAP_Term dist     = YAP_HeadOfTerm (distList);
     unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
     assert (Util::contains (paramsMap, distId) == false);
-    paramsMap[distId] = readParams (YAP_ArgOfTerm (2, dist));
+    paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
     distList = YAP_TailOfTerm (distList);
   }
   const BnNodeSet& nodes = bn->getBayesNodes();
@@ -559,7 +597,7 @@ setHorusFlag (void)
 
 
 int
-freeBayesNetwork (void)
+freeGroundNetwork (void)
 {
   delete (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
   return TRUE;
@@ -583,7 +621,7 @@ extern "C" void
 init_predicates (void)
 {
   YAP_UserCPredicate ("create_lifted_network", createLiftedNetwork, 3);
-  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 2);
+  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 3);
   YAP_UserCPredicate ("run_lifted_solver",     runLiftedSolver,     3);
   YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
   YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);
@@ -591,6 +629,6 @@ init_predicates (void)
   YAP_UserCPredicate ("set_extra_vars_info",   setExtraVarsInfo,    2);
   YAP_UserCPredicate ("set_horus_flag",        setHorusFlag,        2);
   YAP_UserCPredicate ("free_parfactors",       freeParfactors,      1);
-  YAP_UserCPredicate ("free_bayesian_network", freeBayesNetwork,    1);
+  YAP_UserCPredicate ("free_ground_network",   freeGroundNetwork,   1);
 }
 

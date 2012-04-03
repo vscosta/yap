@@ -570,6 +570,7 @@ Parfactor::print (bool printParams) const
       cout << " = " << params_[i] << endl;
     }
   }
+  cout << endl;
 }
 
 

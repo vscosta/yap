@@ -78,12 +78,13 @@ Factor::Factor (
 Factor::Factor (
     const VarIds& vids,
     const Ranges& ranges,
-    const Params& params)
+    const Params& params,
+    unsigned distId)
 {
-  args_ = vids;
+  args_   = vids;
   ranges_ = ranges;
   params_ = params;
-  distId_ = Util::maxUnsigned();
+  distId_ = distId;
   assert (params_.size() == Util::expectedSize (ranges_));
 }
 

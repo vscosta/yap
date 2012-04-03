@@ -267,7 +267,8 @@ class Factor : public TFactor<VarId>
     Factor (const VarNodes&, const Params&,
         unsigned = Util::maxUnsigned());
 
-    Factor (const VarIds&, const Ranges&, const Params&);
+    Factor (const VarIds&, const Ranges&, const Params&,
+        unsigned = Util::maxUnsigned());
 
     void sumOutAllExcept (VarId);
 
