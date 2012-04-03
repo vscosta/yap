@@ -7,9 +7,15 @@
 	bdd_eval/2, 
 	mtbdd_eval/2, 
 	bdd_tree/2,
+	bdd_size/2,
+	bdd_print/2,
 	bdd_to_probability_sum_product/2,
 	bdd_close/1,
 	mtbdd_close/1]).
+
+:- use_module(library(lists)).
+
+:- use_module(library(rbtrees)).
 
 tell_warning :-
 	print_message(warning,functionality(cudd)).
@@ -39,18 +45,44 @@ set_bdd(T, VS, Manager, Cudd) :-
 	  writeln(throw(error(instantiation_error,T)))
         ).
 
-set_bdd_from_list(T, VS, Manager, Cudd) :-
+set_bdd_from_list(T0, VS, Manager, Cudd) :-
 	numbervars(VS,0,_),
+%	generate_releases(T0, Manager, T),
+	T0 = T,
 %	writeln_list(T),
 	list_to_cudd(T,Manager,_Cudd0,Cudd).
+
+generate_releases(T0, Manager, T) :-
+	rb_empty(RB0),	
+	reverse(T0, [H|R]),
+	add_releases(R, RB0, [H], Manager, T).
+
+add_releases([], _, RR, _M,  RR).
+add_releases([(X = Ts)|R], RB0, RR0, M, RR) :-
+	term_variables(Ts, Vs), !,
+	add_variables(Vs, RB0, RR0, M, RBF, RRI),
+	add_releases(R, RBF, [(X=Ts)|RRI], M, RR).
+
+add_variables([], RB, RR, _M, RB, RR).
+add_variables([V|Vs], RB0, RR0, M, RBF, RRF) :-
+	rb_lookup(V, _, RB0), !,
+	add_variables(Vs, RB0, RR0, M, RBF, RRF).
+add_variables([V|Vs], RB0, RR0, M, RBF, RRF) :-
+	rb_insert(RB0, V, _, RB1),
+	add_variables(Vs, RB1, [release_node(M,V)|RR0], M, RBF, RRF).
+
 
 writeln_list([]).
 writeln_list(B.Bindings) :-
 	writeln(B),
 	writeln_list(Bindings).
 
-%list_to_cudd(H.List,_Manager,Cudd,Cudd) :- writeln(l:H), fail.
-list_to_cudd([],_Manager,Cudd,Cudd) :- writeln('.').
+%list_to_cudd(H._List,_Manager,_Cudd0,_CuddF) :- writeln(l:H), fail.
+list_to_cudd([],_Manager,Cudd,Cudd) :- writeln('X').
+list_to_cudd(release_node(M,cudd(V)).T, Manager, Cudd0, CuddF) :- !,
+	write('-'), flush_output,
+	cudd_release_node(M,V),
+	list_to_cudd(T, Manager, Cudd0, CuddF).
 list_to_cudd((V=0*_Par).T, Manager, _Cudd0, CuddF) :- !,
 	write('0'), flush_output,
 	term_to_cudd(0, Manager, Cudd),
@@ -110,6 +142,16 @@ bdd_close(cudd(M,_,_Vars, _)) :-
 	cudd_die(M).
 bdd_close(add(M,_,_Vars, _)) :-
 	cudd_die(M).
+
+bdd_size(cudd(M,Top,_Vars, _), Sz) :-
+	cudd_size(M,Top,Sz).
+bdd_size(add(M,Top,_Vars, _), Sz) :-
+	cudd_size(M,Top,Sz).
+
+bdd_print(cudd(M,Top,_Vars, _), File) :-
+	cudd_print(M, Top, File).
+bdd_print(add(M,Top,_Vars, _), File) :-
+	cudd_print(M, Top, File).
 
 mtbdd_close(add(M,_,_Vars,_)) :-
 	cudd_die(M).

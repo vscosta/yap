@@ -1,4 +1,6 @@
 
+#include <stdio.h>
+
 #include "YapInterface.h"
 
 #include "util.h"
@@ -600,14 +602,23 @@ p_add_to_term(void)
   
   if (!dgen)
     return FALSE;
-  t = YAP_TermNil();
   ar = (YAP_Term *)malloc(vars*sizeof(YAP_Term));
   if (!ar)
     return FALSE;
+ restart:
+  t = YAP_TermNil();
   for (i= 0; i< vars; i++) {
     ar[i] = YAP_ArgOfTerm(i+1, t3);
   }
   while (node) {
+    /* ensure we have enough memory */
+    if (YAP_RequiresExtraStack(0)) {
+      Cudd_GenFree(dgen);
+      t3 = YAP_ARG3;
+      dgen = Cudd_FirstNode(manager, n0, &node);
+      bzero(hash, sizeof(hash_table_entry)*sz);
+      goto restart;
+    }
     t = build_prolog_add(manager, node, ar, hash, t, sz);
     if (!Cudd_NextNode(dgen, &node))
       break;
@@ -616,6 +627,25 @@ p_add_to_term(void)
   free(hash);
   free(ar);
   return YAP_Unify(YAP_ARG4, t);
+}
+
+static int
+p_cudd_size(void)
+{
+  DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
+  DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2), *node;
+  YAP_Int i = 0;
+  DdGen *dgen = Cudd_FirstNode(manager, n0, &node);
+
+  if (!dgen)
+    return FALSE;
+  while (node) {
+    i++;
+    if (!Cudd_NextNode(dgen, &node))
+      break;
+  }
+  Cudd_GenFree(dgen);
+  return YAP_Unify(YAP_ARG3, YAP_MkIntTerm(i));
 }
 
 typedef struct {
@@ -703,10 +733,31 @@ p_cudd_to_p(void)
 }
 
 static int
+p_cudd_print(void)
+{
+  DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
+  DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
+  const char *s = YAP_AtomName(YAP_AtomOfTerm(YAP_ARG3));
+  FILE *f = fopen(s, "w");
+  Cudd_DumpDot(manager, 1, &n0, NULL, NULL, f);
+  fclose(f);
+  return TRUE;
+}
+
+static int
 p_cudd_die(void)
 {
   DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
   Cudd_Quit(manager);
+  return TRUE;
+}
+
+static int
+p_cudd_release_node(void)
+{
+  DdManager *manager = (DdManager *)YAP_IntOfTerm(YAP_ARG1);
+  DdNode *n0 = (DdNode *)YAP_IntOfTerm(YAP_ARG2);
+  Cudd_RecursiveDeref(manager,n0);
   return TRUE;
 }
 
@@ -743,6 +794,9 @@ init_cudd(void)
   YAP_UserCPredicate("cudd_to_term", p_cudd_to_term, 5);
   YAP_UserCPredicate("add_to_term", p_add_to_term, 4);
   YAP_UserCPredicate("cudd_to_probability_sum_product", p_cudd_to_p, 4);
+  YAP_UserCPredicate("cudd_size", p_cudd_size, 3);
   YAP_UserCPredicate("cudd_die", p_cudd_die, 1);
+  YAP_UserCPredicate("cudd_release_node", p_cudd_release_node, 2);
+  YAP_UserCPredicate("cudd_print", p_cudd_print, 3);
 }
 
