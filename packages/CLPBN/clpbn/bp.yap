@@ -8,7 +8,6 @@
 :- module(clpbn_bp,
           [bp/3,
            check_if_bp_done/1,
-           set_horus_flag/2,
            init_bp_solver/4,
            run_bp_solver/3,
            finalize_bp_solver/1
@@ -31,11 +30,11 @@
 	      [check_for_agg_vars/2]).
 
 
+:- use_module(library(clpbn/horus)).
+
 :- use_module(library(atts)).
 :- use_module(library(lists)).
 :- use_module(library(charsio)).
-
-:- use_module(horus).
 
 :- attribute id/1.
 

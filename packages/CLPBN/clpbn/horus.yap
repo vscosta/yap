@@ -13,4 +13,13 @@
     free_parfactor_graph/1
     ]).
 
-:- load_foreign_files(['horus'], [], init_predicates).
+patch_things_up :-
+	assert_static(clpbn_horus:set_horus_flag(_,_)).
+
+warning :-
+	format(user_error,"Horus library not installed: cannot use bp, fove~n.",[]).
+
+:- catch(load_foreign_files(['horus'], [], init_predicates), _, patch_things_up) -> true ; warning.
+
+
+

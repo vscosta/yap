@@ -5,7 +5,6 @@
 		  set_clpbn_flag/2,
 		  clpbn_flag/3,
 		  clpbn_key/2,
-		  clpbn_language/1,
 		  clpbn_init_solver/4,
 		  clpbn_run_solver/3,
 		  clpbn_finalize_solver/1,
@@ -14,6 +13,7 @@
 		  clpbn_init_graph/1,
 		  probability/2,
 		  conditional_probability/3,
+		  use_parfactors/1,
 		  op( 500, xfy, with)]).
 
 :- use_module(library(atts)).
@@ -118,7 +118,7 @@
 	[clpbn2gviz/4]).
 
 :- use_module(clpbn/ground_factors,
-	[generate_bn/2]).
+	[generate_network/4]).
 
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
@@ -147,9 +147,6 @@ clpbn_flag(output,Before,After) :-
 clpbn_flag(solver,Before,After) :-
 	retract(solver(Before)),
 	assert(solver(After)).
-clpbn_flag(language,Before,After) :-
-	retract(clpbn_language(Before)),
-	assert(clpbn_language(After)).
 clpbn_flag(em_solver,Before,After) :-
 	retract(em_solver(Before)),
 	assert(em_solver(After)).
@@ -253,10 +250,12 @@ project_attributes(GVars, AVars0) :-
 	).
 project_attributes(_, _).
 
-generate_vars(GVars, _, NewAVars) :-
+generate_vars(GVars, _, _NewAVars) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
-	generate_bn(GVars, NewAVars).
+	generate_network(GVars, Keys, Factors, Evidence),
+	writeln(network(GVars, Keys, Factors, Evidence)),
+	halt.
 generate_vars(_GVars, AVars, AVars).
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
@@ -560,18 +559,5 @@ match_probability([p(V0=C)=Prob|_], C, V, Prob) :-
 match_probability([_|Probs], C, V, Prob) :-
 	match_probability(Probs, C, V, Prob).
 
-:- dynamic clpbn_language/1.
-
-pfl_not_clpbn :-
-	clpbn_language(clpbn), !,
-	throw(error(pfl('should be called before clpbn'))).
-pfl_not_clpbn :-
-	assert(clpbn_language(pfl)).
-
-clpbn_not_pfl :-
-	clpbn_language(pfl), !.
-clpbn_not_pfl :-
-	assert(clpbn_language(clpbn)).
-
-:- clpbn_not_pfl.
+:- use_parfactors(on) -> true ; assert(use_parfactors(off)).
 

@@ -8,7 +8,6 @@
 :- module(clpbn_fove,
           [fove/3,
            check_if_fove_done/1,
-           set_horus_flag/2,
            init_fove_solver/4,
            run_fove_solver/3,
            finalize_fove_solver/1
@@ -24,7 +23,7 @@
 
 
 :- use_module(library(pfl),
-          [factor/5,
+          [factor/6,
            skolem/2
           ]).
 
@@ -69,7 +68,7 @@ get_parfactors(Factors) :-
 	findall(F, is_factor(F), Factors).
 
 is_factor(pf(Id, Ks, Rs, Phi, Tuples)) :-
-	factor(Id, Ks, Vs, Table, Constraints),
+	factor(_Type, Id, Ks, Vs, Table, Constraints),
 	get_ranges(Ks,Rs),
 	Table \= avg,
 	gen_table(Table, Phi),
