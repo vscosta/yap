@@ -30,7 +30,7 @@
 
 :- dynamic currently_defined/1, f/3.
 
-generate_network(QueryVars0, QueryKeys0, Keys, Factors, Evidence) :-
+generate_network(QueryVars0, QueryKeys, Keys, Factors, Evidence) :-
 	attributes:all_attvars(AVars),
 	keys(QueryVars0, QueryKeys0),
 	check_for_evidence(AVars, EVars, QueryKeys0, QueryVars0, Evidence),

@@ -238,7 +238,7 @@ project_attributes(GVars, _AVars0) :-
 	(ground(GVars) ->
 	    true
 	;
-	    call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, Answ)
+	    call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, _Avars0)
 	).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),

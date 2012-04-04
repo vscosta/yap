@@ -123,8 +123,8 @@ get_vars_info([_|MoreVs], Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs) :-
 get_var_info(V, avg(Domain), Parents0, Vs, Vs2, Ps, Ps, Lvs, Outs, DIST) :- !,
 	reorder_vars(Parents0, Parents),
 	length(Domain, DSize),
-%	run_though_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
-	bup_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
+	run_though_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
+%	bup_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
 % standard random variable
 get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
 % clpbn:get_atts(V, [key(K)]), writeln(V:K:DistId:Parents),
@@ -142,8 +142,7 @@ get_var_info(V, DistId, Parents, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
 reorder_vars(Vs, OVs) :-
 	add_pos(Vs, PVs),
 	keysort(PVs, SVs),
-	remove_key(SVs, OVs1),
-	reverse(OVs1, OVs).
+	remove_key(SVs, OVs).
 
 add_pos([], []).
 add_pos([V|Vs], [K-V|PVs]) :-
@@ -167,7 +166,8 @@ run_though_avg(V, 3, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST) :-
 	simplify_exp(F00, F0),
 %	generate_3tree(F1, PVars, 0, 0, 0, N, N0, N1, N2, R, ((N1+2*(N2+R) > N/2, N1+2*N2 < (3*N)/2))),
 	generate_3tree(F20, PVars, 0, 0, 0, N, N0, N1, N2, R, (N1+2*(N2+R) >= (3*N)/2), N1+2*N2 >= (3*N)/2),
-	simplify_exp(F20, F2),
+%	simplify_exp(F20, F2),
+	F20=F2,
 	Formula0 = [V0=F0*Ev0,V2=F2*Ev2,V1=not(F0+F2)*Ev1],
 	Ev = [Ev0,Ev1,Ev2],
 	get_evidence(V, Tree, Ev, Formula0, Formula, Lvs, Outs).
@@ -235,15 +235,48 @@ bup_avg(V, Size, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST) :-
 	check_v(V, avg(Domain,Parents), DIST, Vs, Vs1),
 	DIST = info(V, Tree, Ev, OVs, Formula, [], []),
 	get_parents(Parents, PVars, Vs1, Vs2),
-	generate_sums(PVars, Size, Max, Sums, F0),
-%	length(Parents, N),
-%	Max is (Size-1)*N, % This should be true
+%	generate_sums(PVars, Size, Max, Sums, F0),
+	bin_sums(PVars, Sums, F00),
+	reverse(F00,F0),
+	length(Parents, N),
+	Max is (Size-1)*N, % This should be true
 	% easier to do recursion on lists
 	Sums =.. [_|LSums],
 	generate_avg(0, Size, 0, Max, LSums, OVs, Ev, F1, []),
 	reverse(F0, RF0),
 	get_evidence(V, Tree, Ev, F1, F2, Lvs, Outs),
 	append(RF0, F2, Formula).
+
+bin_sums(Vs, Sums, F) :-
+	 vs_to_sums(Vs, Sums0),
+	 writeln(init:Sums0),
+	 bin_sums(Sums0, Sums, F, []).
+	
+vs_to_sums([], []).
+vs_to_sums([V|Vs], [Sum|Sums0]) :-
+	  Sum =.. [sum|V],
+	  vs_to_sums(Vs, Sums0).
+
+bin_sums([Sum], Sum) --> !.
+bin_sums(LSums, Sums) --> 
+	pack_bins(LSums, Sums1),
+	bin_sums(Sums1, Sums).
+
+pack_bins([], []) --> [].
+pack_bins([Sum], [Sum]) --> [].
+pack_bins([Sum1,Sum2|LSums], [Sum|NSums]) -->
+	sum(Sum1, Sum2, Sum),
+	pack_bins(LSums, NSums).
+
+sum(Sum1, Sum2, Sum) -->
+	  { functor(Sum1, _, M1),
+	    functor(Sum2, _, M2),
+	    Max is M1+M2-2,
+	    Max1 is Max+1,
+	    Max0 is M2-1,
+	    functor(Sum, sum, Max1),
+	    Sum1 =.. [_|PVals] },
+	  expand_sums(PVals, 0, Max0, Max1, M2, Sum2, Sum).
 
 generate_sums([PVals], Size, Max, Sum, []) :- !,
 	Max is Size-1,
@@ -259,12 +292,12 @@ generate_sums([PVals|Parents], Size, Max, NewSums, F) :-
 % outer loop: generate array of sums at level j= Sum[j0...jMax]
 %
 expand_sums(_Parents, Max, _, Max, _Size, _Sums, _NewSums, F0, F0) :- !.
-expand_sums(Parents, I0, Max0, Max, Size, Sums, NewSums, F, F0) :-
+expand_sums(Parents, I0, Max0, Max, Size, Sums, NewSums, [O=SUM|F], F0) :-
 	I is I0+1,
 	arg(I, NewSums, O),
 	sum_all(Parents, 0, I0, Max0, Sums, List),
 	to_disj(List, SUM),
-        expand_sums(Parents, I, Max0, Max, Size, Sums, NewSums, F, [O=SUM|F0]).
+        expand_sums(Parents, I, Max0, Max, Size, Sums, NewSums, F, F0).
 
 %
 %inner loop: find all parents that contribute to A_ji,
@@ -283,9 +316,22 @@ sum_all([_V|Vs], Pos, I, Max0, Sums, List) :-
 	Pos1 is Pos+1,
 	sum_all(Vs, Pos1, I, Max0, Sums, List).
 	
+gen_arg(J, Sums, Max, S0) :-
+	gen_arg(0, Max, J, Sums, S0).
+	
+gen_arg(Max, Max, J, Sums, S0) :- !,
+	     I is Max+1,
+	     arg(I, Sums, A),
+	( Max = J -> S0 = A ; S0 = not(A)).
+gen_arg(I0, Max, J, Sums, S) :-
+	     I is I0+1,
+	     arg(I, Sums, A),
+	( I0 = J -> S = A*S0 ; S = not(A)*S0),
+	gen_arg(I, Max, J, Sums, S0).
+
 
 generate_avg(Size, Size, _J, _Max, [], [], [], F, F).
-generate_avg(I0, Size, J0, Max, LSums, [O|OVs], [Ev|Evs], [O=Disj*Ev|F], F0) :-
+generate_avg(I0, Size, J0, Max, LSums, [O|OVs], [Ev|Evs], [O=Ev*Disj|F], F0) :-
 	I is I0+1,
 	Border is (I*Max)/Size,
 	fetch_for_avg(J0, Border, J, LSums, MySums, RSums),
