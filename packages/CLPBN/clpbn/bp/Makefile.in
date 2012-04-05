@@ -56,7 +56,6 @@ HEADERS = \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/Solver.h \
 	$(srcdir)/VarElimSolver.h \
-	$(srcdir)/BnBpSolver.h \
 	$(srcdir)/FgBpSolver.h \
 	$(srcdir)/CbpSolver.h \
 	$(srcdir)/FoveSolver.h \
@@ -84,7 +83,6 @@ CPP_SOURCES = \
 	$(srcdir)/VarNode.cpp \
 	$(srcdir)/Solver.cpp \
 	$(srcdir)/VarElimSolver.cpp \
-	$(srcdir)/BnBpSolver.cpp \
 	$(srcdir)/FgBpSolver.cpp \
 	$(srcdir)/CbpSolver.cpp \
 	$(srcdir)/FoveSolver.cpp \
@@ -110,7 +108,6 @@ OBJS = \
 	VarNode.o \
 	Solver.o \
 	VarElimSolver.o \
-	BnBpSolver.o \
 	FgBpSolver.o \
 	CbpSolver.o \
 	FoveSolver.o \
@@ -134,7 +131,6 @@ HCLI_OBJS = \
 	VarNode.o \
 	Solver.o \
 	VarElimSolver.o \
-	BnBpSolver.o \
 	FgBpSolver.o \
 	CbpSolver.o \
   FoveSolver.o \

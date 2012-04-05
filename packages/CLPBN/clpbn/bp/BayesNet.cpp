@@ -14,8 +14,8 @@
 void
 DAGraph::addNode (DAGraphNode* n)
 {
-  nodes_.push_back (n);
   assert (Util::contains (varMap_, n->varId()) == false);
+  nodes_.push_back (n);
   varMap_[n->varId()] = n;
 }
 

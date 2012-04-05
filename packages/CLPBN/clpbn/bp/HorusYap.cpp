@@ -12,7 +12,6 @@
 #include "FactorGraph.h"
 #include "FoveSolver.h"
 #include "VarElimSolver.h"
-#include "BnBpSolver.h"
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
