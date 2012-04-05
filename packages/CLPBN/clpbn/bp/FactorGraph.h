@@ -97,8 +97,6 @@ class FactorGraph : public GraphicalModel
 
     FactorGraph (const FactorGraph&);
 
-    FactorGraph (const BayesNet&);
-
    ~FactorGraph (void);
 
     const FgVarSet& getVarNodes (void) const { return varNodes_; }

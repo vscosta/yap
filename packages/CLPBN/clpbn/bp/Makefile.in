@@ -48,7 +48,6 @@ HEADERS = \
 	$(srcdir)/GraphicalModel.h \
 	$(srcdir)/BayesNet.h \
 	$(srcdir)/BayesBall.h \
-	$(srcdir)/BayesNode.h \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/FactorGraph.h \
 	$(srcdir)/Factor.h \
@@ -68,13 +67,11 @@ HEADERS = \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/TinySet.h \
 	$(srcdir)/Util.h \
-	$(srcdir)/Horus.h \
-	$(srcdir)/xmlParser/xmlParser.h
+	$(srcdir)/Horus.h
 	
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesBall.cpp \
-	$(srcdir)/BayesNode.cpp \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/FactorGraph.cpp \
 	$(srcdir)/Factor.cpp \
@@ -93,13 +90,11 @@ CPP_SOURCES = \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/Util.cpp \
 	$(srcdir)/HorusYap.cpp \
-	$(srcdir)/HorusCli.cpp \
-	$(srcdir)/xmlParser/xmlParser.cpp
+	$(srcdir)/HorusCli.cpp
 
 OBJS = \
 	BayesNet.o \
 	BayesBall.o \
-	BayesNode.o \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
@@ -122,7 +117,6 @@ OBJS = \
 HCLI_OBJS = \
 	BayesNet.o \
 	BayesBall.o \
-	BayesNode.o \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
@@ -140,7 +134,6 @@ HCLI_OBJS = \
   ParfactorList.o \
 	LiftedUtils.o \
 	Util.o \
-	xmlParser/xmlParser.o \
 	HorusCli.o
 
 SOBJS=horus.@SO@
@@ -150,10 +143,6 @@ all: $(SOBJS) hcli
 
 # default rule
 %.o : $(srcdir)/%.cpp
-	$(CXX) -c $(CXXFLAGS) $< -o $@
-
-
-xmlParser/xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
@@ -170,7 +159,7 @@ install: all
 
 
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli xmlParser/*.o
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli
 
 
 erase_dots:

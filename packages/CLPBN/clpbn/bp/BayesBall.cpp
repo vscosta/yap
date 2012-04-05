@@ -5,8 +5,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "xmlParser/xmlParser.h"
-
 #include "BayesBall.h"
 #include "Util.h"
 

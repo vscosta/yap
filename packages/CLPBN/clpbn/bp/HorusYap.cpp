@@ -8,7 +8,6 @@
 #include <YapInterface.h>
 
 #include "ParfactorList.h"
-#include "BayesNet.h"
 #include "FactorGraph.h"
 #include "FoveSolver.h"
 #include "VarElimSolver.h"
@@ -469,6 +468,8 @@ setParfactorsParams (void)
 int
 setBayesNetParams (void)
 {
+  // TODO FIXME
+  /*
   BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term distList = YAP_ARG2;
   unordered_map<unsigned, Params> paramsMap;
@@ -484,6 +485,7 @@ setBayesNetParams (void)
     assert (Util::contains (paramsMap, nodes[i]->distId()));
     nodes[i]->setParams (paramsMap[nodes[i]->distId()]);
   }
+  */
   return TRUE;
 }
 
@@ -601,7 +603,7 @@ setHorusFlag (void)
 int
 freeGroundNetwork (void)
 {
-  delete (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
+  delete (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
   return TRUE;
 }
 

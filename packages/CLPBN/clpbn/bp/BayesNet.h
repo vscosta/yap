@@ -7,12 +7,10 @@
 #include <map>
 
 #include "GraphicalModel.h"
-#include "BayesNode.h"
 #include "Horus.h"
 
 
 using namespace std;
-
 
 
 class VarNode;
@@ -86,65 +84,5 @@ class DAGraph
     unordered_map<VarId, DAGraphNode*> varMap_;
 };
 
-
-
-class BayesNet : public GraphicalModel
-{
-  public:
-    BayesNet (void) { };
-
-   ~BayesNet (void);
-
-    void readFromBifFormat (const char*);
-
-    BayesNode* addNode (BayesNode*);
-
-    BayesNode* addNode (string, const States&);
-
-    BayesNode* getBayesNode (VarId) const;
-
-    BayesNode* getBayesNode (string) const;
-
-    VarNode* getVariableNode (VarId) const;
-
-    VarNodes getVariableNodes (void) const;
-
-    const BnNodeSet& getBayesNodes (void) const;
-
-    unsigned nrNodes (void) const;
-
-    BnNodeSet getRootNodes (void) const;
-
-    BnNodeSet getLeafNodes (void) const;
-
-    bool isPolyTree (void) const;
-
-    void setIndexes (void);
-
-    void printGraphicalModel (void) const;
-
-    void exportToGraphViz (const char*, bool = true, 
-        const VarIds& = VarIds()) const;
-
-    void exportToBifFormat (const char*) const;
-
-  private:
-    DISALLOW_COPY_AND_ASSIGN (BayesNet);
-
-    bool containsUndirectedCycle (void) const;
-
-    bool containsUndirectedCycle (int, int, vector<bool>&)const;
-
-    vector<int> getAdjacentNodes (int) const;
-
-    Params reorderParameters (const Params&, unsigned) const;
-
-    Params revertParameterReorder (const Params&, unsigned) const;
-
-    BnNodeSet nodes_;
-
-    typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap  varMap_;
-};
 
 #endif // HORUS_BAYESNET_H

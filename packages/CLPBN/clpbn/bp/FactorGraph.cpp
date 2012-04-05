@@ -37,39 +37,6 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
 
 
 
-FactorGraph::FactorGraph (const BayesNet& bn)
-{
-  const BnNodeSet& nodes = bn.getBayesNodes();
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    FgVarNode* varNode = new FgVarNode (nodes[i]);
-    addVariable (varNode);
-  }
-
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    const BnNodeSet& parents = nodes[i]->getParents();
-    if (!(nodes[i]->hasEvidence() && parents.size() == 0)) {
-      VarNodes neighs;
-      neighs.push_back (varNodes_[nodes[i]->getIndex()]);
-      for (unsigned j = 0; j < parents.size(); j++) {
-        neighs.push_back (varNodes_[parents[j]->getIndex()]);
-      }
-      FgFacNode* fn = new FgFacNode (
-          new Factor (neighs, nodes[i]->params(), nodes[i]->distId()));
-      if (orderFactorVariables) {
-        sort (neighs.begin(), neighs.end(), CompVarId()); 
-        fn->factor()->reorderAccordingVarIds();
-      }
-      addFactor (fn);
-      for (unsigned j = 0; j < neighs.size(); j++) {
-        addEdge (fn, static_cast<FgVarNode*> (neighs[j]));
-      }
-    }
-  }
-  setIndexes();
-}
-
-
-
 void
 FactorGraph::readFromUaiFormat (const char* fileName)
 {

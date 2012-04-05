@@ -19,9 +19,10 @@ struct ScheduleInfo
 {
   ScheduleInfo (DAGraphNode* n, bool vfp, bool vfc) : 
       node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
+
   DAGraphNode* node;
-  bool      visitedFromParent;
-  bool      visitedFromChild;
+  bool visitedFromParent;
+  bool visitedFromChild;
 };
 
 
