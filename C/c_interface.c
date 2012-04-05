@@ -3622,8 +3622,10 @@ YAP_ListToFloats(Term t, double *dblp, size_t sz)
 	dblp[i++] = IntOfTerm(hd);
       else if (IsLongIntTerm(hd))
 	dblp[i++] = LongIntOfTerm(hd);
+#if USE_GMP
       else if (IsBigIntTerm(hd))
 	dblp[i++] = Yap_gmp_to_float(hd);
+#endif
       else
 	return -1;
     }
