@@ -20,7 +20,7 @@ class VarNode
 
     unsigned varId (void) const { return varId_; }
 
-    unsigned nrStates (void) const { return nrStates_; }
+    unsigned range (void) const { return range_; }
 
     int getEvidence (void) const  { return evidence_; }
 
@@ -37,15 +37,13 @@ class VarNode
 
     bool operator== (const VarNode& var) const
     {
-      cout << "equal operator called" << endl;
-      assert (!(varId_ == var.varId() && nrStates_ != var.nrStates()));
+      assert (!(varId_ == var.varId() && range_ != var.range()));
       return varId_ == var.varId();
     }
 
     bool operator!= (const VarNode& var) const
     {
-      cout << "diff operator called" << endl;
-      assert (!(varId_ == var.varId() && nrStates_ != var.nrStates()));
+      assert (!(varId_ == var.varId() && range_ != var.range()));
       return varId_ != var.varId();
     }
 
@@ -63,7 +61,7 @@ class VarNode
 
   private:
     VarId     varId_;
-    unsigned  nrStates_;
+    unsigned  range_;
     int       evidence_;
     unsigned  index_;
 

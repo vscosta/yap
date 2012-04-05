@@ -5,6 +5,7 @@
 #include <cassert>
 #include <limits>
 
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <queue>
@@ -22,7 +23,9 @@ namespace Util {
 
 template <typename T> void addToVector (vector<T>&, const vector<T>&);
 
-template <typename T> void addToQueue  (queue<T>&,  const vector<T>&);
+template <typename T> void addToSet (set<T>&,  const vector<T>&);
+
+template <typename T> void addToQueue (queue<T>&,  const vector<T>&);
 
 template <typename T> bool contains (const vector<T>&, const T&);
 
@@ -84,6 +87,14 @@ Util::addToVector (vector<T>& v, const vector<T>& elements)
 
 
 template <typename T> void
+Util::addToSet (set<T>& s, const vector<T>& elements)
+{
+  s.insert (elements.begin(), elements.end());
+}
+
+
+
+template <typename T> void
 Util::addToQueue (queue<T>& q, const vector<T>& elements)
 {
   for (unsigned i = 0; i < elements.size(); i++) {
@@ -110,8 +121,7 @@ Util::contains (const set<T>& s, const T& e)
 
 
 template <typename K, typename V> bool
-Util::contains (
-    const unordered_map<K, V>& m, const K& k)
+Util::contains (const unordered_map<K, V>& m, const K& k)
 {
   return m.find (k) != m.end();
 }

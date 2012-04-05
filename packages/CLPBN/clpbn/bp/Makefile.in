@@ -47,6 +47,7 @@ CWD=$(PWD)
 HEADERS = \
 	$(srcdir)/GraphicalModel.h \
 	$(srcdir)/BayesNet.h \
+	$(srcdir)/BayesBall.h \
 	$(srcdir)/BayesNode.h \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/FactorGraph.h \
@@ -73,6 +74,7 @@ HEADERS = \
 	
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
+	$(srcdir)/BayesBall.cpp \
 	$(srcdir)/BayesNode.cpp \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/FactorGraph.cpp \
@@ -98,6 +100,7 @@ CPP_SOURCES = \
 
 OBJS = \
 	BayesNet.o \
+	BayesBall.o \
 	BayesNode.o \
 	ElimGraph.o \
 	FactorGraph.o \
@@ -121,6 +124,7 @@ OBJS = \
 
 HCLI_OBJS = \
 	BayesNet.o \
+	BayesBall.o \
 	BayesNode.o \
 	ElimGraph.o \
 	FactorGraph.o \

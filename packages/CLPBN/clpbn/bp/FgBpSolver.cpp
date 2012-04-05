@@ -45,7 +45,7 @@ FgBpSolver::runSolver (void)
   if (Constants::DEBUG >= 2) {
     cout << endl;
     if (nIters_ < BpOptions::maxIter) {
-     cout << "Sum-Product converged in " ; 
+      cout << "Sum-Product converged in " ; 
       cout << nIters_ << " iterations" << endl;
     } else {
       cout << "The maximum number of iterations was hit, terminating..." ;
@@ -71,10 +71,10 @@ FgBpSolver::getPosterioriOf (VarId vid)
   FgVarNode* var = factorGraph_->getFgVarNode (vid);
   Params probs;
   if (var->hasEvidence()) {
-    probs.resize (var->nrStates(), LogAware::noEvidence());
+    probs.resize (var->range(), LogAware::noEvidence());
     probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
-    probs.resize (var->nrStates(), LogAware::multIdenty());
+    probs.resize (var->range(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < links.size(); i++) {
@@ -113,7 +113,7 @@ FgBpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     const SpLinkSet& links = ninf(factorNodes[idx])->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
       Factor msg (links[i]->getVariable()->varId(),
-                  links[i]->getVariable()->nrStates(),
+                  links[i]->getVariable()->range(),
                   getVar2FactorMsg (links[i]));
       res.multiply (msg);
     }
@@ -325,7 +325,7 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
   // to factor `src', except from var `dst'
   unsigned msgSize = 1;
   for (unsigned i = 0; i < links.size(); i++) {
-    msgSize *= links[i]->getVariable()->nrStates();
+    msgSize *= links[i]->getVariable()->range();
   }
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
@@ -333,9 +333,9 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
         Util::add (msgProduct, getVar2FactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->getVariable()->nrStates();
+        repetitions *= links[i]->getVariable()->range();
       } else {
-        unsigned ds = links[i]->getVariable()->nrStates();
+        unsigned ds = links[i]->getVariable()->range();
         Util::add (msgProduct, Params (ds, 1.0), repetitions);
         repetitions *= ds;
       }
@@ -348,9 +348,9 @@ FgBpSolver::calculateFactor2VariableMsg (SpLink* link) const
           cout << ": " << endl;
         }
         Util::multiply (msgProduct, getVar2FactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->getVariable()->nrStates();
+        repetitions *= links[i]->getVariable()->range();
       } else {
-        unsigned ds = links[i]->getVariable()->nrStates();
+        unsigned ds = links[i]->getVariable()->range();
         Util::multiply (msgProduct, Params (ds, 1.0), repetitions);
         repetitions *= ds;
       }
@@ -392,13 +392,13 @@ FgBpSolver::getVar2FactorMsg (const SpLink* link) const
   const FgFacNode* dst = link->getFactor();
   Params msg;
   if (src->hasEvidence()) {
-    msg.resize (src->nrStates(), LogAware::noEvidence());
+    msg.resize (src->range(), LogAware::noEvidence());
     msg[src->getEvidence()] = LogAware::withEvidence();
     if (Constants::DEBUG >= 5) {
       cout << msg;
     }
   } else {
-    msg.resize (src->nrStates(), LogAware::one());
+    msg.resize (src->range(), LogAware::one());
   }
   if (Constants::DEBUG >= 5) {
     cout << msg;
@@ -467,7 +467,7 @@ FgBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 
     int count = -1;
     for (unsigned j = 0; j < newBeliefs.size(); j++) {
-      if (j % jointVars[i]->nrStates() == 0) {
+      if (j % jointVars[i]->range() == 0) {
         count ++;
       }
       newBeliefs[j] *= prevBeliefs[count];

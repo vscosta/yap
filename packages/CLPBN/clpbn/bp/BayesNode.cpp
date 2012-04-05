@@ -127,7 +127,7 @@ BayesNode::getDomainHeaders (void) const
     States states = parents_[i]->states();
     unsigned index = 0;
     while (index < rowSize) {
-      for (unsigned j = 0; j < parents_[i]->nrStates(); j++) {
+      for (unsigned j = 0; j < parents_[i]->range(); j++) {
         for (unsigned r = 0; r < nReps; r++) {
           if (headers[index] != "") {
             headers[index] = states[j] + "," + headers[index];
@@ -138,7 +138,7 @@ BayesNode::getDomainHeaders (void) const
         }
       }
     }
-    nReps *= parents_[i]->nrStates();
+    nReps *= parents_[i]->range();
   }
   return headers;
 }

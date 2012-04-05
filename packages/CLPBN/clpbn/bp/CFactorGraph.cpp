@@ -51,7 +51,7 @@ CFactorGraph::setInitialColors (void)
   VarColorMap colorMap;
   const FgVarSet& varNodes = groundFg_->getVarNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
-    unsigned dsize = varNodes[i]->nrStates();
+    unsigned dsize = varNodes[i]->range();
     VarColorMap::iterator it = colorMap.find (dsize);
     if (it == colorMap.end()) {
       it = colorMap.insert (make_pair (

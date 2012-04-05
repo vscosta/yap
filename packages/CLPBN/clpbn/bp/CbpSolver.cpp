@@ -20,10 +20,10 @@ CbpSolver::getPosterioriOf (VarId vid)
   FgVarNode* var = lfg_->getEquivalentVariable (vid);
   Params probs;
   if (var->hasEvidence()) {
-    probs.resize (var->nrStates(), LogAware::noEvidence());
+    probs.resize (var->range(), LogAware::noEvidence());
     probs[var->getEvidence()] = LogAware::withEvidence();
   } else {
-    probs.resize (var->nrStates(), LogAware::multIdenty());
+    probs.resize (var->range(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
         for (unsigned i = 0; i < links.size(); i++) {
@@ -196,7 +196,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
   const FgFacNode* dst = link->getFactor();
   const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
   if (src->hasEvidence()) {
-    msg.resize (src->nrStates(), LogAware::noEvidence());
+    msg.resize (src->range(), LogAware::noEvidence());
     double value = link->getMessage()[src->getEvidence()];
     msg[src->getEvidence()] = LogAware::pow (value, l->getNumberOfEdges() - 1);
   } else {

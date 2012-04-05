@@ -10,6 +10,8 @@
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 
+#include "ElimGraph.h"
+
 using namespace std;
 
 void processArguments (BayesNet&, int, const char* []);
@@ -23,6 +25,31 @@ const string USAGE = "usage: \
 int
 main (int argc, const char* argv[])
 {
+  VarIds vids1 = { 4, 1, 2, 3 } ;
+  VarIds vids2 = { 4, 5 } ;
+  VarIds vids3 = { 4, 6 } ;
+  VarIds vids4 = { 4, 7 } ;
+//  Factor f1 (vids1, {2,2,2,2},{0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.10,0.11,0.12,0.13,0.14,0.15,0.16});
+//  Factor f2 (vids2, {2,2},{0.1,0.2,0.3,0.4});
+//  Factor f3 (vids3, {2,2},{0.1,0.2,0.3,0.4});
+//  Factor f4 (vids4, {2,2},{0.1,0.2,0.3,0.4});
+
+
+  Factor* f1 = new Factor (vids1, {2,2,2,2},{0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.10,0.11,0.12,0.13,0.14,0.15,0.16});
+  Factor* f2 = new Factor (vids2, {2,2},{0.1,0.2,0.3,0.4});
+  Factor* f3 = new Factor (vids3, {2,2},{0.1,0.2,0.3,0.4});
+  Factor* f4 = new Factor (vids4, {2,2},{0.1,0.2,0.3,0.4});
+  Factor* f5 = new Factor (vids4, {2,2},{0.1,0.2,0.3,0.4});
+
+  vector<Factor*> fs = {f1,f2,f3,f4,f5};
+  //FactorGraph fg;
+  //fg.addFactor (f1);
+  //fg.addFactor (f2);
+  //fg.addFactor (f3);
+  //fg.addFactor (f4);
+  ElimGraph eg (fs);
+  eg.exportToGraphViz ("_eg.dot");
+  return 0;
   if (!argv[1]) {
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;

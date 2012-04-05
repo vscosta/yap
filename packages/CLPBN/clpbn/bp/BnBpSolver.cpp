@@ -109,7 +109,7 @@ BnBpSolver::initializeSolver (void)
   for (unsigned i = 0; i < roots.size(); i++) {
     const Params& params = roots[i]->params();
     Params& piVals = ninf(roots[i])->getPiValues();
-    for (unsigned ri = 0; ri < roots[i]->nrStates(); ri++) {
+    for (unsigned ri = 0; ri < roots[i]->range(); ri++) {
       piVals[ri] = params[ri];
     }
   }
@@ -137,7 +137,7 @@ BnBpSolver::initializeSolver (void)
     if (nodes[i]->hasEvidence()) {
       Params& piVals = ninf(nodes[i])->getPiValues();
       Params& ldVals = ninf(nodes[i])->getLambdaValues();
-      for (unsigned xi = 0; xi < nodes[i]->nrStates(); xi++) {
+      for (unsigned xi = 0; xi < nodes[i]->range(); xi++) {
         piVals[xi] = LogAware::noEvidence();
         ldVals[xi] = LogAware::noEvidence();
       }
@@ -310,7 +310,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
   const BnNodeSet& ps = x->getParents();
   Ranges ranges;
   for (unsigned i = 0; i < ps.size(); i++) {
-    ranges.push_back (ps[i]->nrStates());
+    ranges.push_back (ps[i]->range());
   }
   StatesIndexer indexer (ranges, false);
   stringstream* calcs1 = 0;
@@ -354,7 +354,7 @@ BnBpSolver::updatePiValues (BayesNode* x)
     ++ indexer;
   }
 
-  for (unsigned xi = 0; xi < x->nrStates(); xi++) {
+  for (unsigned xi = 0; xi < x->range(); xi++) {
     double sum = LogAware::addIdenty();
     if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
@@ -409,7 +409,7 @@ BnBpSolver::updateLambdaValues (BayesNode* x)
   stringstream* calcs1 = 0;
   stringstream* calcs2 = 0;
 
-  for (unsigned xi = 0; xi < x->nrStates(); xi++) {
+  for (unsigned xi = 0; xi < x->range(); xi++) {
     if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
@@ -461,7 +461,7 @@ BnBpSolver::calculatePiMessage (BpLink* link)
   stringstream* calcs2 = 0;
 
   const Params& zPiValues = ninf(z)->getPiValues();
-  for (unsigned zi = 0; zi < z->nrStates(); zi++) {
+  for (unsigned zi = 0; zi < z->range(); zi++) {
     double product = zPiValues[zi];
     if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
@@ -526,12 +526,12 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
   const BnNodeSet& ps = y->getParents();
   Ranges ranges;
   for (unsigned i = 0; i < ps.size(); i++) {
-    ranges.push_back (ps[i]->nrStates());
+    ranges.push_back (ps[i]->range());
   }
   StatesIndexer indexer (ranges, false);
 
  
-  unsigned N = indexer.size() / x->nrStates();
+  unsigned N = indexer.size() / x->range();
   Params messageProducts (N);
   for (unsigned k = 0; k < N; k++) {
     while (indexer[parentIndex] != 0) {
@@ -579,13 +579,13 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
     }
   }
 
-  for (unsigned xi = 0; xi < x->nrStates(); xi++) {
+  for (unsigned xi = 0; xi < x->range(); xi++) {
     if (Constants::DEBUG >= 5) {
       calcs1 = new stringstream;
       calcs2 = new stringstream;
     }
     double outerSum = LogAware::addIdenty();
-    for (unsigned yi = 0; yi < y->nrStates(); yi++) {
+    for (unsigned yi = 0; yi < y->range(); yi++) {
       if (Constants::DEBUG >= 5) {
         (yi != 0) ? *calcs1 << " + {" : *calcs1 << "{" ;
         (yi != 0) ? *calcs2 << " + {" : *calcs2 << "{" ;
@@ -645,6 +645,7 @@ BnBpSolver::calculateLambdaMessage (BpLink* link)
 Params
 BnBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 {
+/*
   BnNodeSet jointVars;
   for (unsigned i = 0; i < jointVarIds.size(); i++) {
     assert (bayesNet_->getBayesNode (jointVarIds[i]));
@@ -685,7 +686,7 @@ BnBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 
     int count = -1;
     for (unsigned j = 0; j < newBeliefs.size(); j++) {
-      if (j % jointVars[i]->nrStates() == 0) {
+      if (j % jointVars[i]->range() == 0) {
         count ++;
       }
       newBeliefs[j] *= prevBeliefs[count];
@@ -695,6 +696,8 @@ BnBpSolver::getJointByConditioning (const VarIds& jointVarIds) const
     delete mrn;
   }
   return prevBeliefs;
+*/
+  return Params();
 }
 
 
@@ -714,7 +717,7 @@ BnBpSolver::printPiLambdaValues (const BayesNode* var) const
   const Params&  piVals   = ninf(var)->getPiValues();
   const Params&  ldVals   = ninf(var)->getLambdaValues();
   const Params&  beliefs  = ninf(var)->getBeliefs();
-  for (unsigned xi = 0; xi < var->nrStates(); xi++) {
+  for (unsigned xi = 0; xi < var->range(); xi++) {
     cout << setw (10) << states[xi];
     cout << setw (19) << piVals[xi];
     cout << setw (19) << ldVals[xi];
@@ -741,8 +744,8 @@ BnBpSolver::printAllMessageStatus (void) const
 BpNodeInfo::BpNodeInfo (BayesNode* node)
 {
   node_ = node;
-  piVals_.resize (node->nrStates(), LogAware::one());
-  ldVals_.resize (node->nrStates(), LogAware::one());
+  piVals_.resize (node->range(), LogAware::one());
+  ldVals_.resize (node->range(), LogAware::one());
 }
 
 
@@ -751,20 +754,20 @@ Params
 BpNodeInfo::getBeliefs (void) const
 {
   double sum = 0.0;
-  Params beliefs (node_->nrStates());
+  Params beliefs (node_->range());
   if (Globals::logDomain) {
-    for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
+    for (unsigned xi = 0; xi < node_->range(); xi++) {
       beliefs[xi] = exp (piVals_[xi] + ldVals_[xi]);
       sum += beliefs[xi];
     }
   } else {
-    for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
+    for (unsigned xi = 0; xi < node_->range(); xi++) {
       beliefs[xi] = piVals_[xi] * ldVals_[xi];
       sum += beliefs[xi];
     } 
   }
   assert (sum);
-  for (unsigned xi = 0; xi < node_->nrStates(); xi++) {
+  for (unsigned xi = 0; xi < node_->range(); xi++) {
     beliefs[xi] /= sum;
   }
   return beliefs;
@@ -779,7 +782,7 @@ BpNodeInfo::receivedBottomInfluence (void) const
   // this node neither its descendents have evidence,
   // we can use this to don't send lambda messages his parents
   bool childInfluenced = false;
-  for (unsigned xi = 1; xi < node_->nrStates(); xi++) {
+  for (unsigned xi = 1; xi < node_->range(); xi++) {
     if (ldVals_[xi] != ldVals_[0]) {
       childInfluenced = true;
       break;

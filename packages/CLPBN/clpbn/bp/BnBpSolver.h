@@ -27,11 +27,11 @@ class BpLink
       destin_      = d;
       orientation_ = o;
       if (orientation_ == LinkOrientation::DOWN) {
-        v1_.resize (s->nrStates(), LogAware::tl (1.0 / s->nrStates()));
-        v2_.resize (s->nrStates(), LogAware::tl (1.0 / s->nrStates()));
+        v1_.resize (s->range(), LogAware::tl (1.0 / s->range()));
+        v2_.resize (s->range(), LogAware::tl (1.0 / s->range()));
       } else {
-        v1_.resize (d->nrStates(), LogAware::tl (1.0 / d->nrStates()));
-        v2_.resize (d->nrStates(), LogAware::tl (1.0 / d->nrStates()));
+        v1_.resize (d->range(), LogAware::tl (1.0 / d->range()));
+        v2_.resize (d->range(), LogAware::tl (1.0 / d->range()));
       }
       currMsg_   = &v1_;
       nextMsg_   = &v2_;

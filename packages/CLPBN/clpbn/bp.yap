@@ -40,7 +40,7 @@
            get_pfl_parameters/2
           ]).
 
-:- use_module(library(clpbn/horus)).
+% :- use_module(library(clpbn/horus)).
 
 :- use_module(library(lists)).
 
@@ -50,7 +50,7 @@
 
 
 :- use_module(horus,
-          [create_ground_network/2,
+          [create_ground_network/4,
            set_bayes_net_params/2,
            run_ground_solver/3,
            set_extra_vars_info/2,
@@ -75,9 +75,17 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
   writeln(factorIds:FactorIds), writeln(''),
   writeln(evidence:Evidence), writeln(''),
   writeln(evIds:EvIds),
-  create_ground_network(Type, FactorIds, GroundNetwork).
-  %run_ground_solver(Network, QueryIds, EvIds, Solutions),
+  create_ground_network(Type, FactorIds, EvIds, Network),
+  run_ground_fixme_solver(ground(Network,Hash), QueryKeys, Solutions).
   %free_graphical_model(Network).
+
+
+run_ground_fixme_solver(ground(Network,Hash), QueryKeys, Solutions) :-
+  %get_dists_parameters(DistIds, DistsParams),
+  %set_bayes_net_params(Network, DistsParams),
+  %vars_to_ids(QueryVars, QueryVarsIds),
+  list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
+  run_ground_solver(Network, [QueryIds], Solutions).
 
 
 get_factors_type([f(bayes, _, _)|_], bayes) :- ! .

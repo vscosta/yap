@@ -3,13 +3,14 @@
 
 #include <vector>
 
-#include "GraphicalModel.h"
 #include "Factor.h"
+#include "GraphicalModel.h"
+#include "BayesNet.h"
 #include "Horus.h"
 
 using namespace std;
 
-class BayesNet;
+
 class FgFacNode;
 
 
@@ -41,6 +42,8 @@ class FgFacNode
     }
 
     FgFacNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
+
+    FgFacNode (const Factor& f) : factor_(new Factor (f)), index_(-1) { }
 
     Factor* factor() const { return factor_; }
 
@@ -90,7 +93,7 @@ struct CompVarId
 class FactorGraph : public GraphicalModel
 {
   public:
-    FactorGraph (void) { };
+    FactorGraph (void) { }
 
     FactorGraph (const FactorGraph&);
 
@@ -102,14 +105,14 @@ class FactorGraph : public GraphicalModel
 
     const FgFacSet& getFactorNodes (void) const { return facNodes_; }
 
+    void setFromBayesNetwork (void) { fromBayesNet_ = true; }
+ 
+    bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
+
     FgVarNode* getFgVarNode (VarId vid) const
     {
       IndexMap::const_iterator it = varMap_.find (vid);
-      if (it == varMap_.end()) {
-        return 0;
-      } else {
-        return varNodes_[it->second];
-      }
+      return (it != varMap_.end()) ? varNodes_[it->second] : 0;
     }
 
     void readFromUaiFormat (const char*);
@@ -120,6 +123,8 @@ class FactorGraph : public GraphicalModel
 
     void addFactor (FgFacNode*);
 
+    void addFactor (const Factor& factor);
+
     void addEdge (FgVarNode*, FgFacNode*);
 
     void addEdge (FgFacNode*, FgVarNode*);
@@ -129,6 +134,8 @@ class FactorGraph : public GraphicalModel
     VarNodes getVariableNodes (void) const;
 
     bool isTree (void) const;
+
+    DAGraph& getStructure (void);
 
     void setIndexes (void);
 
@@ -155,6 +162,9 @@ class FactorGraph : public GraphicalModel
 
     FgVarSet  varNodes_;
     FgFacSet  facNodes_;
+
+    bool      fromBayesNet_;
+    DAGraph   structure_;
 
     typedef unordered_map<unsigned, unsigned> IndexMap;
     IndexMap  varMap_;

@@ -9,22 +9,22 @@ using namespace std;
 
 VarNode::VarNode (const VarNode* v)
 {
-  varId_     = v->varId();
-  nrStates_  = v->nrStates();
-  evidence_  = v->getEvidence();
-  index_     = std::numeric_limits<unsigned>::max();
+  varId_    = v->varId();
+  range_    = v->range();
+  evidence_ = v->getEvidence();
+  index_    = std::numeric_limits<unsigned>::max();
 }
 
 
 
-VarNode::VarNode (VarId varId, unsigned nrStates, int evidence)
+VarNode::VarNode (VarId varId, unsigned range, int evidence)
 {
-  assert (nrStates != 0);
-  assert (evidence < (int) nrStates);
-  varId_     = varId;
-  nrStates_  = nrStates;
-  evidence_  = evidence;
-  index_     = std::numeric_limits<unsigned>::max();
+  assert (range != 0);
+  assert (evidence < (int) range);
+  varId_    = varId;
+  range_    = range;
+  evidence_ = evidence;
+  index_    = std::numeric_limits<unsigned>::max();
 }
 
 
@@ -32,7 +32,7 @@ VarNode::VarNode (VarId varId, unsigned nrStates, int evidence)
 bool
 VarNode::isValidState (int stateIndex)
 {
-  return stateIndex >= 0 && stateIndex < (int) nrStates_;
+  return stateIndex >= 0 && stateIndex < (int) range_;
 }
 
 
@@ -49,7 +49,7 @@ VarNode::isValidState (const string& stateName)
 void
 VarNode::setEvidence (int ev) 
 {
-  assert (ev < (int) nrStates_);
+  assert (ev < (int) range_);
   evidence_ = ev;
 }
 
@@ -90,7 +90,7 @@ VarNode::states (void) const
     return GraphicalModel::getVarInformation (varId_).states;
   }
   States states;
-  for (unsigned i = 0; i < nrStates_; i++) {
+  for (unsigned i = 0; i < range_; i++) {
     stringstream ss;
     ss << i ;
     states.push_back (ss.str());

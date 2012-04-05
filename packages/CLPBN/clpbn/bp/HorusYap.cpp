@@ -16,6 +16,7 @@
 #include "FgBpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
+#include "BayesBall.h"
 
 
 using namespace std;
@@ -44,6 +45,7 @@ readUnsignedList (YAP_Term list)
   }
   return vec;
 }
+
 
 
 int createLiftedNetwork (void)
@@ -212,20 +214,13 @@ void readLiftedEvidence (
 int
 createGroundNetwork (void)
 {
-  Statistics::incrementPrimaryNetworksCounting();
-  // cout << "creating network number " ;
-  // cout << Statistics::getPrimaryNetworksCounting() << endl;
-  // if (Statistics::getPrimaryNetworksCounting() > 98) {
-  //   Statistics::writeStatisticsToFile ("../../compressing.stats");
-  // }
-  BayesNet* bn = new BayesNet();
-  
+  FactorGraph* fg = new FactorGraph();; 
   string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
   cout << "factors type: '" << factorsType << "'" << endl;
 
   YAP_Term factorList = YAP_ARG2;
   while (factorList != YAP_TermNil()) {
-    YAP_Term factor =  YAP_HeadOfTerm (factorList);
+    YAP_Term factor = YAP_HeadOfTerm (factorList);
     // read the var ids
     VarIds varIds = readUnsignedList (YAP_ArgOfTerm (1, factor));
     // read the ranges
@@ -234,45 +229,27 @@ createGroundNetwork (void)
     Params params = readParameters (YAP_ArgOfTerm (3, factor)); 
     // read dist id
     unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (4, factor));
+    fg->addFactor (Factor (varIds, ranges, params, distId));
     factorList = YAP_TailOfTerm (factorList);
-    Factor f (varIds, ranges, params, distId);
-    f.print();
   }
-  assert (false);
-  /*
-  vector<VarIds> parents;
-  while (varList != YAP_TermNil()) {
-    YAP_Term var     =   YAP_HeadOfTerm (varList);
-    VarId vid        =   (VarId) YAP_IntOfTerm    (YAP_ArgOfTerm (1, var));
-    unsigned dsize   =   (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, var));
-    int evidence     =   (int) YAP_IntOfTerm      (YAP_ArgOfTerm (3, var));
-    YAP_Term parentL =                             YAP_ArgOfTerm (4, var);
-    unsigned distId  =   (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (5, var));
-    parents.push_back (VarIds());
-    while (parentL != YAP_TermNil()) {
-      unsigned parentId = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (parentL));
-      parents.back().push_back (parentId);
-      parentL = YAP_TailOfTerm (parentL);
-    }
-    assert (bn->getBayesNode (vid) == 0);
-    BayesNode* newNode = new BayesNode (
-        vid, dsize, evidence, Params(), distId);
-    bn->addNode (newNode);
-    varList = YAP_TailOfTerm (varList);
+  if (factorsType == "bayes") {
+    fg->setFromBayesNetwork();
   }
-  const BnNodeSet& nodes = bn->getBayesNodes();
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    BnNodeSet ps;
-    for (unsigned j = 0; j < parents[i].size(); j++) {
-      assert (bn->getBayesNode (parents[i][j]) != 0);
-      ps.push_back (bn->getBayesNode (parents[i][j]));
-    }
-    nodes[i]->setParents (ps);
+  fg->setIndexes();
+
+  YAP_Term evidenceList = YAP_ARG3;
+  while (evidenceList != YAP_TermNil()) {
+    YAP_Term evTerm = YAP_HeadOfTerm (evidenceList);
+    unsigned vid = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (1, evTerm)));
+    unsigned ev  = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (2, evTerm)));
+    cout << vid << " == " << ev << endl;
+    assert (fg->getFgVarNode (vid));
+    fg->getFgVarNode (vid)->setEvidence (ev);
+    evidenceList = YAP_TailOfTerm (evidenceList);
   }
-  bn->setIndexes();
-  */
-  YAP_Int p = (YAP_Int) (bn);
-  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG2);
+
+  YAP_Int p = (YAP_Int) (fg);
+  return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG4);
 }
 
 
@@ -354,72 +331,33 @@ runLiftedSolver (void)
 
 
 
+void runVeSolver (FactorGraph* fg, const vector<VarIds>& tasks,
+    vector<Params>& results);
+void runBpSolver (FactorGraph* fg, const vector<VarIds>& tasks,
+   vector<Params>& results);
+
+
+
 int
 runGroundSolver (void)
 {
-  BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
-  YAP_Term taskList = YAP_ARG2;
+  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
+
   vector<VarIds> tasks;
-  std::set<VarId> vids;
+  YAP_Term taskList = YAP_ARG2;
   while (taskList != YAP_TermNil()) {
-    VarIds queryVars;
-    YAP_Term jointList = YAP_HeadOfTerm (taskList);      
-    while (jointList != YAP_TermNil()) {
-      VarId vid = (unsigned) YAP_IntOfTerm (YAP_HeadOfTerm (jointList));
-      assert (bn->getBayesNode (vid));
-      queryVars.push_back (vid);
-      vids.insert (vid);
-      jointList = YAP_TailOfTerm (jointList);
-    }
-    tasks.push_back (queryVars);
+    tasks.push_back (readUnsignedList (YAP_HeadOfTerm (taskList)));
     taskList = YAP_TailOfTerm (taskList);
   }
-  
-  Solver* bpSolver = 0;
-  GraphicalModel* graphicalModel = 0;
-  CFactorGraph::checkForIdenticalFactors = false;
-  if (Globals::infAlgorithm != InfAlgorithms::VE) {
-    BayesNet* mrn = bn->getMinimalRequesiteNetwork (
-        VarIds (vids.begin(), vids.end()));
-    if (Globals::infAlgorithm == InfAlgorithms::BN_BP) {
-      graphicalModel = mrn;
-      bpSolver = new BnBpSolver (*static_cast<BayesNet*> (graphicalModel));
-    } else if (Globals::infAlgorithm == InfAlgorithms::FG_BP) {
-      graphicalModel = new FactorGraph (*mrn);
-      bpSolver = new FgBpSolver (*static_cast<FactorGraph*> (graphicalModel));
-      delete mrn;
-    } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
-      graphicalModel = new FactorGraph (*mrn);
-      bpSolver = new CbpSolver (*static_cast<FactorGraph*> (graphicalModel));
-      delete mrn;
-    }
-    bpSolver->runSolver();
-  }
 
+  fg->printGraphicalModel();
   vector<Params> results;
-  results.reserve (tasks.size());
-  for (unsigned i = 0; i < tasks.size(); i++) {
-    if (Globals::infAlgorithm == InfAlgorithms::VE) {
-      BayesNet* mrn = bn->getMinimalRequesiteNetwork (tasks[i]);
-      VarElimSolver* veSolver = new VarElimSolver (*mrn);
-      if (tasks[i].size() == 1) {
-        results.push_back (veSolver->getPosterioriOf (tasks[i][0]));
-      } else {
-        results.push_back (veSolver->getJointDistributionOf (tasks[i]));
-      }
-      delete mrn;
-      delete veSolver;
-    } else {
-      if (tasks[i].size() == 1) {
-        results.push_back (bpSolver->getPosterioriOf (tasks[i][0]));
-      } else {
-        results.push_back (bpSolver->getJointDistributionOf (tasks[i]));
-      }
-    }
+  if (Globals::infAlgorithm == InfAlgorithms::VE) {
+    runVeSolver (fg, tasks, results);
+  } else {
+    runBpSolver (fg, tasks, results);
   }
-  delete bpSolver;
-  delete graphicalModel;
-
+  cout << "results: " << results << endl;
   YAP_Term list = YAP_TermNil();
   for (int i = results.size() - 1; i >= 0; i--) {
     const Params& beliefs = results[i];
@@ -433,8 +371,73 @@ runGroundSolver (void)
     }
     list = YAP_MkPairTerm (queryBeliefsL, list);
   }
- 
   return YAP_Unify (list, YAP_ARG3);
+}
+
+
+
+void runVeSolver (
+   FactorGraph* fg,
+   const vector<VarIds>& tasks,
+   vector<Params>& results) 
+{
+  results.reserve (tasks.size());
+  for (unsigned i = 0; i < tasks.size(); i++) {
+    FactorGraph* mfg = fg;
+    if (fg->isFromBayesNetwork()) {
+      mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
+    }
+    VarElimSolver solver (*mfg);
+    if (tasks[i].size() == 1) {
+      results.push_back (solver.getPosterioriOf (tasks[i][0]));
+    } else {
+      results.push_back (solver.getJointDistributionOf (tasks[i]));
+    }
+    if (fg->isFromBayesNetwork()) {
+      delete mfg;
+    }
+  }
+}
+
+
+
+void runBpSolver (
+    FactorGraph* fg,
+    const vector<VarIds>& tasks,
+    vector<Params>& results) 
+{
+  std::set<VarId> vids;
+  for (unsigned i = 0; i < tasks.size(); i++) {
+    Util::addToSet (vids, tasks[i]);
+  }
+  Solver* solver = 0;
+  FactorGraph* mfg = fg;
+  if (fg->isFromBayesNetwork()) {
+    mfg = BayesBall::getMinimalFactorGraph (
+        *fg, VarIds (vids.begin(),vids.end()));
+  }
+  if (Globals::infAlgorithm == InfAlgorithms::FG_BP) {
+    solver = new FgBpSolver (*mfg);
+  } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
+    CFactorGraph::checkForIdenticalFactors = false;
+    solver = new CbpSolver (*mfg);
+  } else {
+    cerr << "error: unknow solver" << endl;
+    abort();
+  }
+  solver->runSolver();
+  results.reserve (tasks.size());
+  for (unsigned i = 0; i < tasks.size(); i++) {
+    if (tasks[i].size() == 1) {
+      results.push_back (solver->getPosterioriOf (tasks[i][0]));
+    } else {
+      results.push_back (solver->getJointDistributionOf (tasks[i]));
+    }
+  }
+  if (fg->isFromBayesNetwork()) {
+    delete mfg;
+  }
+  delete solver;
 }
 
 
@@ -447,8 +450,8 @@ setParfactorsParams (void)
   YAP_Term distList = YAP_ARG2;
   unordered_map<unsigned, Params> paramsMap;
   while (distList != YAP_TermNil()) {
-    YAP_Term dist     = YAP_HeadOfTerm (distList);
-    unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    YAP_Term dist   = YAP_HeadOfTerm (distList);
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
     assert (Util::contains (paramsMap, distId) == false);
     paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
     distList = YAP_TailOfTerm (distList);
@@ -621,7 +624,7 @@ extern "C" void
 init_predicates (void)
 {
   YAP_UserCPredicate ("create_lifted_network", createLiftedNetwork, 3);
-  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 3);
+  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 4);
   YAP_UserCPredicate ("run_lifted_solver",     runLiftedSolver,     3);
   YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
   YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);

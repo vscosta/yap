@@ -37,8 +37,8 @@ class StatesIndexer
       indices_.resize (vars.size(), 0);
       ranges_.reserve (vars.size());
       for (unsigned i = 0; i < vars.size(); i++) {
-        ranges_.push_back (vars[i]->nrStates());
-        size_ *= vars[i]->nrStates();
+        ranges_.push_back (vars[i]->range());
+        size_ *= vars[i]->range();
       }
       li_ = 0;
       if (calcOffsets) {

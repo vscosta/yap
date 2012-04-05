@@ -18,11 +18,11 @@ Factor::Factor (const Factor& g)
 
 
 
-Factor::Factor (VarId vid, unsigned nrStates)
+Factor::Factor (VarId vid, unsigned range)
 {
   args_.push_back (vid);
-  ranges_.push_back (nrStates);
-  params_.resize (nrStates, 1.0);
+  ranges_.push_back (range);
+  params_.resize (range, 1.0);
   distId_ = Util::maxUnsigned();
   assert (params_.size() == Util::expectedSize (ranges_));
 }
@@ -34,8 +34,8 @@ Factor::Factor (const VarNodes& vars)
   int nrParams = 1;
   for (unsigned i = 0; i < vars.size(); i++) {
     args_.push_back (vars[i]->varId());
-    ranges_.push_back (vars[i]->nrStates());
-    nrParams *= vars[i]->nrStates();
+    ranges_.push_back (vars[i]->range());
+    nrParams *= vars[i]->range();
   }
   double val = 1.0 / nrParams;
   params_.resize (nrParams, val);
@@ -47,11 +47,11 @@ Factor::Factor (const VarNodes& vars)
 
 Factor::Factor (
     VarId vid,
-    unsigned nrStates,
+    unsigned range,
     const Params& params)
 {
   args_.push_back (vid);
-  ranges_.push_back (nrStates);
+  ranges_.push_back (range);
   params_ = params;
   distId_ = Util::maxUnsigned();
   assert (params_.size() == Util::expectedSize (ranges_));
@@ -66,7 +66,7 @@ Factor::Factor (
 {
   for (unsigned i = 0; i < vars.size(); i++) {
     args_.push_back (vars[i]->varId());
-    ranges_.push_back (vars[i]->nrStates());
+    ranges_.push_back (vars[i]->range());
   }
   params_ = params;
   distId_ = distId;
@@ -186,8 +186,8 @@ Factor::sumOut (VarId vid)
 void
 Factor::sumOutFirstVariable (void)
 {
-  unsigned nStates = ranges_.front();
-  unsigned sep = params_.size() / nStates;
+  unsigned range = ranges_.front();
+  unsigned sep = params_.size() / range;
   if (Globals::logDomain) {
     for (unsigned i = sep; i < params_.size(); i++) {
       params_[i % sep] = Util::logSum (params_[i % sep], params_[i]);
@@ -207,14 +207,14 @@ Factor::sumOutFirstVariable (void)
 void
 Factor::sumOutLastVariable (void)
 {
-  unsigned nStates = ranges_.back();
+  unsigned range = ranges_.back();
   unsigned idx1 = 0;
   unsigned idx2 = 0;
   if (Globals::logDomain) {
     while (idx1 < params_.size()) {
       params_[idx2] = params_[idx1];
       idx1 ++;
-      for (unsigned j = 1; j < nStates; j++) {
+      for (unsigned j = 1; j < range; j++) {
         params_[idx2] = Util::logSum (params_[idx2], params_[idx1]);
         idx1 ++;
       }
@@ -224,7 +224,7 @@ Factor::sumOutLastVariable (void)
     while (idx1 < params_.size()) {
       params_[idx2] = params_[idx1];
       idx1 ++;
-      for (unsigned j = 1; j < nStates; j++) {
+      for (unsigned j = 1; j < range; j++) {
         params_[idx2] += params_[idx1];
         idx1 ++;
       }

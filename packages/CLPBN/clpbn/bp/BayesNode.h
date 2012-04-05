@@ -16,12 +16,12 @@ class BayesNode : public VarNode
     BayesNode (const VarNode& v) : VarNode (v) { }
 
     BayesNode (const BayesNode* n) : 
-        VarNode (n->varId(), n->nrStates(), n->getEvidence()),
+        VarNode (n->varId(), n->range(), n->getEvidence()),
         params_(n->params()), distId_(n->distId()) { }
 
-    BayesNode (VarId vid, unsigned nrStates, int ev,
+    BayesNode (VarId vid, unsigned range, int ev,
                const Params& ps, unsigned id)
-      : VarNode (vid, nrStates, ev) , params_(ps), distId_(id) { }
+      : VarNode (vid, range, ev) , params_(ps), distId_(id) { }
       
     const BnNodeSet& getParents (void) const { return parents_; }
 
@@ -33,7 +33,7 @@ class BayesNode : public VarNode
 
     unsigned getRowSize (void) const
     { 
-      return params_.size() / nrStates();
+      return params_.size() / range();
     }
 
     double getProbability (int row, unsigned col)

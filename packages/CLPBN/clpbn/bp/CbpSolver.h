@@ -12,7 +12,7 @@ class CbpSolverLink : public SpLink
     CbpSolverLink (FgFacNode* fn, FgVarNode* vn, unsigned c) : SpLink (fn, vn)
     {
       edgeCount_ = c;
-      poweredMsg_.resize (vn->nrStates(), LogAware::one());
+      poweredMsg_.resize (vn->range(), LogAware::one());
     }
 
     unsigned getNumberOfEdges  (void) const { return edgeCount_; }
@@ -53,7 +53,7 @@ class CbpSolver : public FgBpSolver
      Params getVar2FactorMsg (const SpLink*) const;
      void printLinkInformation (void) const;
 
-     CFactorGraph*  lfg_;
+     CFactorGraph* lfg_;
 };
 
 #endif // HORUS_CBP_H
