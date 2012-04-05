@@ -10,14 +10,14 @@ CFactorGraph::CFactorGraph (const FactorGraph& fg)
   groundFg_  = &fg;
   freeColor_ = 0;
 
-  const FgVarSet& varNodes = fg.getVarNodes();
+  const VarNodes& varNodes = fg.varNodes();
   varSignatures_.reserve (varNodes.size());
   for (unsigned i = 0; i < varNodes.size(); i++) {
     unsigned c = (varNodes[i]->neighbors().size() * 2) + 1;
     varSignatures_.push_back (Signature (c));
   }
 
-  const FgFacSet& facNodes = fg.getFactorNodes();
+  const FactorNodes& facNodes = fg.factorNodes();
   factorSignatures_.reserve (facNodes.size());
   for (unsigned i = 0; i < facNodes.size(); i++) {
     unsigned c = facNodes[i]->neighbors().size() + 1;
@@ -49,7 +49,7 @@ CFactorGraph::setInitialColors (void)
 {
   // create the initial variable colors
   VarColorMap colorMap;
-  const FgVarSet& varNodes = groundFg_->getVarNodes();
+  const VarNodes& varNodes = groundFg_->varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     unsigned dsize = varNodes[i]->range();
     VarColorMap::iterator it = colorMap.find (dsize);
@@ -70,7 +70,7 @@ CFactorGraph::setInitialColors (void)
     setColor (varNodes[i], stateColors[idx]);
   }
 
-  const FgFacSet& facNodes = groundFg_->getFactorNodes();
+  const FactorNodes& facNodes = groundFg_->factorNodes();
   if (checkForIdenticalFactors) {
     unsigned groupCount = 1;
     for (unsigned i = 0; i < facNodes.size(); i++) {
@@ -114,8 +114,8 @@ CFactorGraph::createGroups (void)
   FacSignMap factorGroups;
   unsigned nIters = 0;
   bool groupsHaveChanged = true;
-  const FgVarSet& varNodes = groundFg_->getVarNodes();
-  const FgFacSet& facNodes = groundFg_->getFactorNodes();
+  const VarNodes& varNodes = groundFg_->varNodes();
+  const FactorNodes& facNodes = groundFg_->factorNodes();
 
   while (groupsHaveChanged || nIters == 1) {
     nIters ++;
@@ -127,14 +127,14 @@ CFactorGraph::createGroups (void)
       const Signature& signature = getSignature (facNodes[i]);
       FacSignMap::iterator it = factorGroups.find (signature);
       if (it == factorGroups.end()) {
-        it = factorGroups.insert (make_pair (signature, FgFacSet())).first;
+        it = factorGroups.insert (make_pair (signature, FactorNodes())).first;
       }
       it->second.push_back (facNodes[i]);
     }
     for (FacSignMap::iterator it = factorGroups.begin();
         it != factorGroups.end(); it++) {
       Color newColor = getFreeColor();
-      FgFacSet& groupMembers = it->second;
+      FactorNodes& groupMembers = it->second;
       for (unsigned i = 0; i < groupMembers.size(); i++) {
         setColor (groupMembers[i], newColor);
       }
@@ -147,14 +147,14 @@ CFactorGraph::createGroups (void)
       const Signature& signature = getSignature (varNodes[i]);
       VarSignMap::iterator it = varGroups.find (signature);
       if (it == varGroups.end()) {
-        it = varGroups.insert (make_pair (signature, FgVarSet())).first;
+        it = varGroups.insert (make_pair (signature, VarNodes())).first;
       }
       it->second.push_back (varNodes[i]);
     }
     for (VarSignMap::iterator it = varGroups.begin();
         it != varGroups.end(); it++) {
       Color newColor = getFreeColor();
-      FgVarSet& groupMembers = it->second;
+      VarNodes& groupMembers = it->second;
       for (unsigned i = 0; i < groupMembers.size(); i++) {
         setColor (groupMembers[i], newColor);
       }
@@ -177,7 +177,7 @@ CFactorGraph::createClusters (
   varClusters_.reserve (varGroups.size());
   for (VarSignMap::const_iterator it = varGroups.begin();
       it != varGroups.end(); it++) {
-    const FgVarSet& groupVars = it->second;
+    const VarNodes& groupVars = it->second;
     VarCluster* vc = new VarCluster (groupVars);
     for (unsigned i = 0; i < groupVars.size(); i++) {
       vid2VarCluster_.insert (make_pair (groupVars[i]->varId(), vc));
@@ -188,8 +188,8 @@ CFactorGraph::createClusters (
   facClusters_.reserve (factorGroups.size());
   for (FacSignMap::const_iterator it = factorGroups.begin();
       it != factorGroups.end(); it++) {
-    FgFacNode* groupFactor = it->second[0];
-    const FgVarSet& neighs = groupFactor->neighbors();
+    FactorNode* groupFactor = it->second[0];
+    const VarNodes& neighs = groupFactor->neighbors();
     VarClusterSet varClusters;
     varClusters.reserve (neighs.size());
     for (unsigned i = 0; i < neighs.size(); i++) {
@@ -203,11 +203,11 @@ CFactorGraph::createClusters (
 
 
 const Signature&
-CFactorGraph::getSignature (const FgVarNode* varNode)
+CFactorGraph::getSignature (const VarNode* varNode)
 {
   Signature& sign = varSignatures_[varNode->getIndex()];
   vector<Color>::iterator it = sign.colors.begin();
-  const FgFacSet& neighs = varNode->neighbors();
+  const FactorNodes& neighs = varNode->neighbors();
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
     it ++;
@@ -221,11 +221,11 @@ CFactorGraph::getSignature (const FgVarNode* varNode)
 
 
 const Signature&
-CFactorGraph::getSignature (const FgFacNode* facNode)
+CFactorGraph::getSignature (const FactorNode* facNode)
 {
   Signature& sign = factorSignatures_[facNode->getIndex()];
   vector<Color>::iterator it = sign.colors.begin();
-  const FgVarSet& neighs = facNode->neighbors();
+  const VarNodes& neighs = facNode->neighbors();
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
     it ++;
@@ -241,27 +241,27 @@ CFactorGraph::getCompressedFactorGraph (void)
 {
   FactorGraph* fg = new FactorGraph();
   for (unsigned i = 0; i < varClusters_.size(); i++) {
-    FgVarNode* var = varClusters_[i]->getGroundFgVarNodes()[0];
-    FgVarNode* newVar = new FgVarNode (var);
+    VarNode* var = varClusters_[i]->getGroundVarNodes()[0];
+    VarNode* newVar = new VarNode (var);
     varClusters_[i]->setRepresentativeVariable (newVar);
     fg->addVariable (newVar);
   }
 
   for (unsigned i = 0; i < facClusters_.size(); i++) {
     const VarClusterSet& myVarClusters = facClusters_[i]->getVarClusters();
-    VarNodes myGroundVars;
+   Vars myGroundVars;
     myGroundVars.reserve (myVarClusters.size());
     for (unsigned j = 0; j < myVarClusters.size(); j++) {
-      FgVarNode* v = myVarClusters[j]->getRepresentativeVariable();
+      VarNode* v = myVarClusters[j]->getRepresentativeVariable();
       myGroundVars.push_back (v);
     }
     Factor* newFactor = new Factor (myGroundVars,
         facClusters_[i]->getGroundFactors()[0]->params());
-    FgFacNode* fn = new FgFacNode (newFactor);
+    FactorNode* fn = new FactorNode (newFactor);
     facClusters_[i]->setRepresentativeFactor (fn);
     fg->addFactor (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
-      fg->addEdge (fn, static_cast<FgVarNode*> (myGroundVars[j]));
+      fg->addEdge (fn, static_cast<VarNode*> (myGroundVars[j]));
     }
   }
   fg->setIndexes();
@@ -275,17 +275,17 @@ CFactorGraph::getGroundEdgeCount (
     const FacCluster* fc,
     const VarCluster* vc) const
 {
-  const FgFacSet& clusterGroundFactors = fc->getGroundFactors();
-  FgVarNode* varNode = vc->getGroundFgVarNodes()[0];
+  const FactorNodes& clusterGroundFactors = fc->getGroundFactors();
+  VarNode* varNode = vc->getGroundVarNodes()[0];
   unsigned count = 0;
   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
     if (clusterGroundFactors[i]->factor()->indexOf (varNode->varId()) != -1) {
       count ++;
     }
   }
-  // CFgVarSet vars = vc->getGroundFgVarNodes();
+  // CVarNodes vars = vc->getGroundVarNodes();
   // for (unsigned i = 1; i < vars.size(); i++) {
-  //   FgVarNode* var = vc->getGroundFgVarNodes()[i];
+  //   VarNode* var = vc->getGroundVarNodes()[i];
   //   unsigned count2 = 0;
   //   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
   //     if (clusterGroundFactors[i]->getPosition (var) != -1) {
@@ -308,7 +308,7 @@ CFactorGraph::printGroups (
   cout << "variable groups:" << endl;
   for (VarSignMap::const_iterator it = varGroups.begin();
       it != varGroups.end(); it++) {
-    const FgVarSet& groupMembers = it->second;
+    const VarNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
       cout << count << ": " ;
       for (unsigned i = 0; i < groupMembers.size(); i++) {
@@ -323,7 +323,7 @@ CFactorGraph::printGroups (
   cout << endl << "factor groups:" << endl;
   for (FacSignMap::const_iterator it = factorGroups.begin();
       it != factorGroups.end(); it++) {
-    const FgFacSet& groupMembers = it->second;
+    const FactorNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
       cout << ++count << ": " ;
       for (unsigned i = 0; i < groupMembers.size(); i++) {

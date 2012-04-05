@@ -17,7 +17,7 @@ Params
 CbpSolver::getPosterioriOf (VarId vid)
 {
   assert (lfg_->getEquivalentVariable (vid));
-  FgVarNode* var = lfg_->getEquivalentVariable (vid);
+  VarNode* var = lfg_->getEquivalentVariable (vid);
   Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->range(), LogAware::noEvidence());
@@ -52,7 +52,7 @@ CbpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   for (unsigned i = 0; i < jointVarIds.size(); i++) {
     eqVarIds.push_back (lfg_->getEquivalentVariable (jointVarIds[i])->varId());
   }
-  return FgBpSolver::getJointDistributionOf (eqVarIds);
+  return BpSolver::getJointDistributionOf (eqVarIds);
 }
 
 
@@ -63,12 +63,12 @@ CbpSolver::initializeSolver (void)
 {
   unsigned nGroundVars, nGroundFacs, nWithoutNeighs;
   if (Constants::COLLECT_STATS) {
-    nGroundVars = factorGraph_->getVarNodes().size();
-    nGroundFacs = factorGraph_->getFactorNodes().size();
-    const FgVarSet& vars = factorGraph_->getVarNodes();
+    nGroundVars = factorGraph_->varNodes().size();
+    nGroundFacs = factorGraph_->factorNodes().size();
+    const VarNodes& vars = factorGraph_->varNodes();
     nWithoutNeighs = 0;
     for (unsigned i = 0; i < vars.size(); i++) {
-      const FgFacSet& factors = vars[i]->neighbors();
+      const FactorNodes& factors = vars[i]->neighbors();
       if (factors.size() == 1 && factors[0]->neighbors().size() == 1) {
         nWithoutNeighs ++;
       }
@@ -78,23 +78,23 @@ CbpSolver::initializeSolver (void)
   lfg_ = new CFactorGraph (*factorGraph_);
 
   // cout << "Uncompressed Factor Graph" << endl;
-  // factorGraph_->printGraphicalModel();
+  // factorGraph_->print();
   // factorGraph_->exportToGraphViz ("uncompressed_fg.dot");
   factorGraph_  = lfg_->getCompressedFactorGraph();
 
   if (Constants::COLLECT_STATS) {
-    unsigned nClusterVars = factorGraph_->getVarNodes().size();
-    unsigned nClusterFacs = factorGraph_->getFactorNodes().size();
+    unsigned nClusterVars = factorGraph_->varNodes().size();
+    unsigned nClusterFacs = factorGraph_->factorNodes().size();
     Statistics::updateCompressingStatistics (nGroundVars,  nGroundFacs,
                                              nClusterVars, nClusterFacs,
                                              nWithoutNeighs);
   }
 
   // cout << "Compressed Factor Graph" << endl;
-  // factorGraph_->printGraphicalModel();
+  // factorGraph_->print();
   // factorGraph_->exportToGraphViz ("compressed_fg.dot");
   // abort();
-  FgBpSolver::initializeSolver();
+  BpSolver::initializeSolver();
 }
 
 
@@ -154,7 +154,7 @@ CbpSolver::maxResidualSchedule (void)
     linkMap_.find (link)->second = sortedOrder_.insert (link);
 
     // update the messages that depend on message source --> destin
-    const FgFacSet& factorNeighbors = link->getVariable()->neighbors();
+    const FactorNodes& factorNeighbors = link->getVariable()->neighbors();
     for (unsigned i = 0; i < factorNeighbors.size(); i++) {
       const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
       for (unsigned j = 0; j < links.size(); j++) {
@@ -192,8 +192,8 @@ Params
 CbpSolver::getVar2FactorMsg (const SpLink* link) const
 {
   Params msg;
-  const FgVarNode* src = link->getVariable();
-  const FgFacNode* dst = link->getFactor();
+  const VarNode* src = link->getVariable();
+  const FactorNode* dst = link->getFactor();
   const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());

@@ -45,7 +45,6 @@ CWD=$(PWD)
 
 
 HEADERS = \
-	$(srcdir)/GraphicalModel.h \
 	$(srcdir)/BayesNet.h \
 	$(srcdir)/BayesBall.h \
 	$(srcdir)/ElimGraph.h \
@@ -55,10 +54,10 @@ HEADERS = \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/Solver.h \
 	$(srcdir)/VarElimSolver.h \
-	$(srcdir)/FgBpSolver.h \
+	$(srcdir)/BpSolver.h \
 	$(srcdir)/CbpSolver.h \
 	$(srcdir)/FoveSolver.h \
-	$(srcdir)/VarNode.h \
+	$(srcdir)/Var.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ProbFormula.h \
@@ -77,10 +76,10 @@ CPP_SOURCES = \
 	$(srcdir)/Factor.cpp \
 	$(srcdir)/CFactorGraph.cpp \
 	$(srcdir)/ConstraintTree.cpp \
-	$(srcdir)/VarNode.cpp \
+	$(srcdir)/Var.cpp \
 	$(srcdir)/Solver.cpp \
 	$(srcdir)/VarElimSolver.cpp \
-	$(srcdir)/FgBpSolver.cpp \
+	$(srcdir)/BpSolver.cpp \
 	$(srcdir)/CbpSolver.cpp \
 	$(srcdir)/FoveSolver.cpp \
 	$(srcdir)/Parfactor.cpp \
@@ -100,10 +99,10 @@ OBJS = \
 	Factor.o \
 	CFactorGraph.o \
 	ConstraintTree.o \
-	VarNode.o \
+	Var.o \
 	Solver.o \
 	VarElimSolver.o \
-	FgBpSolver.o \
+	BpSolver.o \
 	CbpSolver.o \
 	FoveSolver.o \
   Parfactor.o \
@@ -122,10 +121,10 @@ HCLI_OBJS = \
 	Factor.o \
 	CFactorGraph.o \
 	ConstraintTree.o \
-	VarNode.o \
+	Var.o \
 	Solver.o \
 	VarElimSolver.o \
-	FgBpSolver.o \
+	BpSolver.o \
 	CbpSolver.o \
   FoveSolver.o \
   Parfactor.o \

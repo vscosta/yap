@@ -5,13 +5,13 @@
 
 #include "FactorGraph.h"
 #include "VarElimSolver.h"
-#include "FgBpSolver.h"
+#include "BpSolver.h"
 #include "CbpSolver.h"
 
 using namespace std;
 
 void processArguments (FactorGraph&, int, const char* []);
-void runSolver (Solver*, const VarNodes&);
+void runSolver (Solver*, const VarIds&);
 
 const string USAGE = "usage: \
 ./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
@@ -48,7 +48,7 @@ main (int argc, const char* argv[])
 void
 processArguments (FactorGraph& fg, int argc, const char* argv[])
 {
-  VarNodes queryVars;
+  VarIds queryIds;
   for (int i = 2; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
@@ -62,9 +62,9 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       stringstream ss;
       ss << arg;
       ss >> vid;
-      VarNode* queryVar = fg.getFgVarNode (vid);
+      VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar) {
-        queryVars.push_back (queryVar);
+        queryIds.push_back (vid);
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
@@ -93,7 +93,7 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       stringstream ss; 
       ss << arg.substr (0, pos);
       ss >> vid;
-      VarNode* var = fg.getFgVarNode (vid);
+      VarNode* var = fg.getVarNode (vid);
       if (var) {
         if (!Util::isInteger (arg.substr (pos + 1))) {
           cerr << "error: `" << arg.substr (pos + 1) << "' " ;
@@ -127,8 +127,8 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
     case InfAlgorithms::VE:
       solver = new VarElimSolver (fg);
       break;
-    case InfAlgorithms::FG_BP:
-      solver = new FgBpSolver (fg);
+    case InfAlgorithms::BP:
+      solver = new BpSolver (fg);
       break;
     case InfAlgorithms::CBP:
       solver = new CbpSolver (fg);
@@ -136,27 +136,23 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
     default:
       assert (false);
   }
-  runSolver (solver, queryVars);
+  runSolver (solver, queryIds);
 }
 
 
 
 void
-runSolver (Solver* solver, const VarNodes& queryVars)
+runSolver (Solver* solver, const VarIds& queryIds)
 {
-  VarIds vids;
-  for (unsigned i = 0; i < queryVars.size(); i++) {
-    vids.push_back (queryVars[i]->varId());
-  }
-  if (queryVars.size() == 0) {
+  if (queryIds.size() == 0) {
     solver->runSolver();
     solver->printAllPosterioris();
-  } else if (queryVars.size() == 1) {
+  } else if (queryIds.size() == 1) {
     solver->runSolver();
-    solver->printPosterioriOf (vids[0]);
+    solver->printPosterioriOf (queryIds[0]);
   } else {
     solver->runSolver();
-    solver->printJointDistributionOf (vids);
+    solver->printJointDistributionOf (queryIds);
   }
   delete solver;
 }

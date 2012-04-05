@@ -11,7 +11,7 @@
 #include "FactorGraph.h"
 #include "FoveSolver.h"
 #include "VarElimSolver.h"
-#include "FgBpSolver.h"
+#include "BpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
 #include "BayesBall.h"
@@ -241,8 +241,8 @@ createGroundNetwork (void)
     unsigned vid = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (1, evTerm)));
     unsigned ev  = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (2, evTerm)));
     cout << vid << " == " << ev << endl;
-    assert (fg->getFgVarNode (vid));
-    fg->getFgVarNode (vid)->setEvidence (ev);
+    assert (fg->getVarNode (vid));
+    fg->getVarNode (vid)->setEvidence (ev);
     evidenceList = YAP_TailOfTerm (evidenceList);
   }
 
@@ -348,7 +348,6 @@ runGroundSolver (void)
     taskList = YAP_TailOfTerm (taskList);
   }
 
-  fg->printGraphicalModel();
   vector<Params> results;
   if (Globals::infAlgorithm == InfAlgorithms::VE) {
     runVeSolver (fg, tasks, results);
@@ -414,8 +413,8 @@ void runBpSolver (
     mfg = BayesBall::getMinimalFactorGraph (
         *fg, VarIds (vids.begin(),vids.end()));
   }
-  if (Globals::infAlgorithm == InfAlgorithms::FG_BP) {
-    solver = new FgBpSolver (*mfg);
+  if (Globals::infAlgorithm == InfAlgorithms::BP) {
+    solver = new BpSolver (*mfg);
   } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
     CFactorGraph::checkForIdenticalFactors = false;
     solver = new CbpSolver (*mfg);
@@ -494,7 +493,7 @@ setBayesNetParams (void)
 int
 setExtraVarsInfo (void)
 {
-  GraphicalModel::clearVariablesInformation();
+  Var::clearVariablesInformation();
   YAP_Term varsInfoL =  YAP_ARG2;
   while (varsInfoL != YAP_TermNil()) {
     YAP_Term head    = YAP_HeadOfTerm (varsInfoL);
@@ -507,7 +506,7 @@ setExtraVarsInfo (void)
       states.push_back ((char*) YAP_AtomName (atom));
       statesL = YAP_TailOfTerm (statesL);
     }
-    GraphicalModel::addVariableInformation (vid,
+    Var::addVariableInformation (vid,
         (char*) YAP_AtomName (label), states);
     varsInfoL = YAP_TailOfTerm (varsInfoL);
   }
@@ -524,10 +523,8 @@ setHorusFlag (void)
     string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
     if (       value == "ve") {
       Globals::infAlgorithm = InfAlgorithms::VE;
-    } else if (value == "bn_bp") {
-      Globals::infAlgorithm = InfAlgorithms::BN_BP;
-    } else if (value == "fg_bp") {
-      Globals::infAlgorithm = InfAlgorithms::FG_BP;
+    } else if (value == "bp") {
+      Globals::infAlgorithm = InfAlgorithms::BP;
     } else if (value == "cbp") {
       Globals::infAlgorithm = InfAlgorithms::CBP;
     } else {

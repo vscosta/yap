@@ -1,7 +1,7 @@
 #ifndef HORUS_CBP_H
 #define HORUS_CBP_H
 
-#include "FgBpSolver.h"
+#include "BpSolver.h"
 #include "CFactorGraph.h"
 
 class Factor;
@@ -9,7 +9,7 @@ class Factor;
 class CbpSolverLink : public SpLink
 {
   public:
-    CbpSolverLink (FgFacNode* fn, FgVarNode* vn, unsigned c) : SpLink (fn, vn)
+    CbpSolverLink (FactorNode* fn, VarNode* vn, unsigned c) : SpLink (fn, vn)
     {
       edgeCount_ = c;
       poweredMsg_.resize (vn->range(), LogAware::one());
@@ -34,10 +34,10 @@ class CbpSolverLink : public SpLink
 
 
 
-class CbpSolver : public FgBpSolver
+class CbpSolver : public BpSolver
 {
   public:
-    CbpSolver (FactorGraph& fg) : FgBpSolver (fg) { }
+    CbpSolver (FactorGraph& fg) : BpSolver (fg) { }
 
    ~CbpSolver (void);
 

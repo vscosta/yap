@@ -5,7 +5,7 @@
 void
 Solver::printAllPosterioris (void)
 {
-  const VarNodes& vars = gm_->getVariableNodes();
+  const VarNodes& vars = fg_.varNodes();
   for (unsigned i = 0; i < vars.size(); i++) {
     printPosterioriOf (vars[i]->varId());
   }
@@ -16,11 +16,11 @@ Solver::printAllPosterioris (void)
 void
 Solver::printPosterioriOf (VarId vid)
 {
-  VarNode* var = gm_->getVariableNode (vid);
+  VarNode* vn = fg_.getVarNode (vid);
   const Params& posterioriDist = getPosterioriOf (vid);
-  const States& states = var->states();
+  const States& states = vn->states();
   for (unsigned i = 0; i < states.size(); i++) {
-    cout << "P(" << var->label() << "=" << states[i] << ") = " ;
+    cout << "P(" << vn->label() << "=" << states[i] << ") = " ;
     cout << setprecision (Constants::PRECISION) << posterioriDist[i];
     cout << endl;
   }
@@ -32,12 +32,12 @@ Solver::printPosterioriOf (VarId vid)
 void
 Solver::printJointDistributionOf (const VarIds& vids)
 {
-  VarNodes vars;
+  Vars vars;
   VarIds vidsWithoutEvidence;
   for (unsigned i = 0; i < vids.size(); i++) {
-    VarNode* var = gm_->getVariableNode (vids[i]);
-    if (var->hasEvidence() == false) {
-      vars.push_back (var);
+    VarNode* vn = fg_.getVarNode (vids[i]);
+    if (vn->hasEvidence() == false) {
+      vars.push_back (vn);
       vidsWithoutEvidence.push_back (vids[i]);
     }
   }

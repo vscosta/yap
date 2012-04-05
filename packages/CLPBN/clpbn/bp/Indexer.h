@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "VarNode.h"
+#include "Var.h"
 #include "Util.h"
 
 
@@ -31,7 +31,7 @@ class StatesIndexer
       }
     }
 
-    StatesIndexer (const VarNodes& vars, bool calcOffsets = true)
+    StatesIndexer (const Vars& vars, bool calcOffsets = true)
     {
       size_ = 1;
       indices_.resize (vars.size(), 0);

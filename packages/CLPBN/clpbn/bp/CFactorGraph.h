@@ -25,8 +25,8 @@ typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
 typedef vector<VarCluster*> VarClusterSet;
 typedef vector<FacCluster*> FacClusterSet;
 
-typedef unordered_map<Signature, FgVarSet, SignatureHash> VarSignMap;
-typedef unordered_map<Signature, FgFacSet, SignatureHash> FacSignMap;
+typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
+typedef unordered_map<Signature, FactorNodes, SignatureHash> FacSignMap;
 
 
 
@@ -87,7 +87,7 @@ struct SignatureHash
 class VarCluster
 {
   public:
-    VarCluster (const FgVarSet& vs)
+    VarCluster (const VarNodes& vs)
     {
       for (unsigned i = 0; i < vs.size(); i++) {
         groundVars_.push_back (vs[i]);
@@ -104,21 +104,21 @@ class VarCluster
       return facClusters_;
     }
 
-    FgVarNode* getRepresentativeVariable (void) const { return representVar_; }
-    void setRepresentativeVariable (FgVarNode* v)     { representVar_ = v; }
-    const FgVarSet& getGroundFgVarNodes (void) const  { return groundVars_; }
+    VarNode* getRepresentativeVariable (void) const { return representVar_; }
+    void setRepresentativeVariable (VarNode* v)     { representVar_ = v; }
+    const VarNodes& getGroundVarNodes (void) const  { return groundVars_; }
 
   private:
-    FgVarSet        groundVars_;
+    VarNodes        groundVars_;
     FacClusterSet   facClusters_;
-    FgVarNode*      representVar_;
+    VarNode*      representVar_;
 };
 
 
 class FacCluster
 {
   public:
-    FacCluster (const FgFacSet& groundFactors, const VarClusterSet& vcs)
+    FacCluster (const FactorNodes& groundFactors, const VarClusterSet& vcs)
     {
       groundFactors_ = groundFactors;
       varClusters_ = vcs;
@@ -132,7 +132,7 @@ class FacCluster
       return varClusters_;
     }
   
-    bool containsGround (const FgFacNode* fn)
+    bool containsGround (const FactorNode* fn)
     {
       for (unsigned i = 0; i < groundFactors_.size(); i++) {
         if (groundFactors_[i] == fn) {
@@ -142,26 +142,26 @@ class FacCluster
       return false;
     }
 
-    FgFacNode* getRepresentativeFactor (void) const
+    FactorNode* getRepresentativeFactor (void) const
     {
       return representFactor_;
     }
 
-    void setRepresentativeFactor (FgFacNode* fn) 
+    void setRepresentativeFactor (FactorNode* fn) 
     { 
       representFactor_ = fn;
     }
 
-    const FgFacSet& getGroundFactors (void) const
+    const FactorNodes& getGroundFactors (void) const
     {
       return groundFactors_;
     }
 
  
   private:
-    FgFacSet        groundFactors_;
+    FactorNodes        groundFactors_;
     VarClusterSet   varClusters_;
-    FgFacNode*      representFactor_;
+    FactorNode*      representFactor_;
 };
 
 
@@ -176,7 +176,7 @@ class CFactorGraph
 
     const FacClusterSet& getFacClusters (void) { return facClusters_; }
 
-    FgVarNode* getEquivalentVariable (VarId vid)
+    VarNode* getEquivalentVariable (VarId vid)
     {
       VarCluster* vc = vid2VarCluster_.find (vid)->second;
       return vc->getRepresentativeVariable();
@@ -195,20 +195,20 @@ class CFactorGraph
       return freeColor_ - 1;
     }
 
-    Color getColor (const FgVarNode* vn) const
+    Color getColor (const VarNode* vn) const
     {
       return varColors_[vn->getIndex()];
     }
-    Color getColor (const FgFacNode* fn) const  {
+    Color getColor (const FactorNode* fn) const  {
       return factorColors_[fn->getIndex()];
     }
 
-    void setColor (const FgVarNode* vn, Color c)
+    void setColor (const VarNode* vn, Color c)
     {
       varColors_[vn->getIndex()] = c;
     }
 
-    void setColor (const FgFacNode* fn, Color  c)
+    void setColor (const FactorNode* fn, Color  c)
     {
       factorColors_[fn->getIndex()] = c;
     }
@@ -224,9 +224,9 @@ class CFactorGraph
 
     void  createClusters (const VarSignMap&, const FacSignMap&);
 
-    const Signature&  getSignature (const FgVarNode*);
+    const Signature&  getSignature (const VarNode*);
 
-    const Signature&  getSignature (const FgFacNode*);
+    const Signature&  getSignature (const FactorNode*);
 
     void  printGroups (const VarSignMap&, const FacSignMap&) const;
 

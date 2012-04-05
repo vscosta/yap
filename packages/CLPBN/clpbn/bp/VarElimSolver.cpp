@@ -6,7 +6,7 @@
 #include "Util.h"
 
 
-VarElimSolver::VarElimSolver (const FactorGraph& fg) : Solver (&fg)
+VarElimSolver::VarElimSolver (const FactorGraph& fg) : Solver (fg)
 {
   factorGraph_ = &fg;
 }
@@ -23,8 +23,8 @@ VarElimSolver::~VarElimSolver (void)
 Params
 VarElimSolver::getPosterioriOf (VarId vid)
 {
-  assert (factorGraph_->getFgVarNode (vid));
-  FgVarNode* vn = factorGraph_->getFgVarNode (vid);
+  assert (factorGraph_->getVarNode (vid));
+  VarNode* vn = factorGraph_->getVarNode (vid);
   if (vn->hasEvidence()) {
     Params params (vn->range(), 0.0);
     params[vn->getEvidence()] = 1.0;
@@ -57,11 +57,11 @@ VarElimSolver::getJointDistributionOf (const VarIds& vids)
 void
 VarElimSolver::createFactorList (void)
 {
-  const FgFacSet& factorNodes = factorGraph_->getFactorNodes();
+  const FactorNodes& factorNodes = factorGraph_->factorNodes();
   factorList_.reserve (factorNodes.size() * 2);
   for (unsigned i = 0; i < factorNodes.size(); i++) {
     factorList_.push_back (new Factor (*factorNodes[i]->factor()));
-    const FgVarSet& neighs = factorNodes[i]->neighbors();
+    const VarNodes& neighs = factorNodes[i]->neighbors();
     for (unsigned j = 0; j < neighs.size(); j++) {
       unordered_map<VarId,vector<unsigned> >::iterator it 
           = varFactors_.find (neighs[j]->varId());
@@ -79,7 +79,7 @@ VarElimSolver::createFactorList (void)
 void
 VarElimSolver::absorveEvidence (void)
 {
-  const FgVarSet& varNodes = factorGraph_->getVarNodes();
+  const VarNodes& varNodes = factorGraph_->varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       const vector<unsigned>& idxs =
@@ -126,7 +126,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
 
   VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    if (factorGraph_->getFgVarNode (vids[i])->hasEvidence() == false) {
+    if (factorGraph_->getVarNode (vids[i])->hasEvidence() == false) {
       unobservedVids.push_back (vids[i]);
     }
   }

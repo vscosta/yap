@@ -17,10 +17,10 @@ enum ElimHeuristic
 };
 
 
-class EgNode : public VarNode
+class EgNode : public Var
 {
   public:
-    EgNode (VarId vid, unsigned range) : VarNode (vid, range) { }
+    EgNode (VarId vid, unsigned range) : Var (vid, range) { }
 
     void addNeighbor (EgNode* n) { neighs_.push_back (n);  }
 

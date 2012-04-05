@@ -4,52 +4,51 @@
 #include <vector>
 
 #include "Factor.h"
-#include "GraphicalModel.h"
 #include "BayesNet.h"
 #include "Horus.h"
 
 using namespace std;
 
 
-class FgFacNode;
+class FactorNode;
 
 
-class FgVarNode : public VarNode
+class VarNode : public Var
 {
   public:
-    FgVarNode (VarId varId, unsigned nrStates) : VarNode (varId, nrStates) { }
+    VarNode (VarId varId, unsigned nrStates) : Var (varId, nrStates) { }
 
-    FgVarNode (const VarNode* v) : VarNode (v) { }
+    VarNode (const Var* v) : Var (v) { }
 
-    void addNeighbor (FgFacNode* fn) { neighs_.push_back (fn); }
+    void addNeighbor (FactorNode* fn) { neighs_.push_back (fn); }
 
-    const FgFacSet& neighbors (void) const { return neighs_; }
+    const FactorNodes& neighbors (void) const { return neighs_; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FgVarNode);
+    DISALLOW_COPY_AND_ASSIGN (VarNode);
 
-    FgFacSet neighs_;
+    FactorNodes neighs_;
 };
 
 
-class FgFacNode
+class FactorNode
 {
   public:
-    FgFacNode (const FgFacNode* fn)
+    FactorNode (const FactorNode* fn)
     {
       factor_ = new Factor (*fn->factor());
       index_  = -1;
     }
 
-    FgFacNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
+    FactorNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
 
-    FgFacNode (const Factor& f) : factor_(new Factor (f)), index_(-1) { }
+    FactorNode (const Factor& f) : factor_(new Factor (f)), index_(-1) { }
 
     Factor* factor() const { return factor_; }
 
-    void addNeighbor (FgVarNode* vn) { neighs_.push_back (vn); }
+    void addNeighbor (VarNode* vn) { neighs_.push_back (vn); }
 
-    const FgVarSet&  neighbors (void) const  { return neighs_; }
+    const VarNodes&  neighbors (void) const  { return neighs_; }
 
     int getIndex (void) const
     {
@@ -73,24 +72,24 @@ class FgFacNode
     }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FgFacNode);
+    DISALLOW_COPY_AND_ASSIGN (FactorNode);
 
     Factor*   factor_;
-    FgVarSet  neighs_;
+    VarNodes  neighs_;
     int       index_;
 };
 
 
 struct CompVarId
 {
-  bool operator() (const VarNode* vn1, const VarNode* vn2) const
+  bool operator() (const Var* v1, const Var* v2) const
   {
-    return vn1->varId() < vn2->varId();
+    return v1->varId() < v2->varId();
   }
 };
 
 
-class FactorGraph : public GraphicalModel
+class FactorGraph
 {
   public:
     FactorGraph (void) { }
@@ -99,15 +98,15 @@ class FactorGraph : public GraphicalModel
 
    ~FactorGraph (void);
 
-    const FgVarSet& getVarNodes (void) const { return varNodes_; }
+    const VarNodes& varNodes (void) const { return varNodes_; }
 
-    const FgFacSet& getFactorNodes (void) const { return facNodes_; }
+    const FactorNodes& factorNodes (void) const { return facNodes_; }
 
     void setFromBayesNetwork (void) { fromBayesNet_ = true; }
  
     bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
 
-    FgVarNode* getFgVarNode (VarId vid) const
+    VarNode* getVarNode (VarId vid) const
     {
       IndexMap::const_iterator it = varMap_.find (vid);
       return (it != varMap_.end()) ? varNodes_[it->second] : 0;
@@ -117,19 +116,15 @@ class FactorGraph : public GraphicalModel
 
     void readFromLibDaiFormat (const char*);
 
-    void addVariable (FgVarNode*);
+    void addVariable (VarNode*);
 
-    void addFactor (FgFacNode*);
+    void addFactor (FactorNode*);
 
     void addFactor (const Factor& factor);
 
-    void addEdge (FgVarNode*, FgFacNode*);
+    void addEdge (VarNode*, FactorNode*);
 
-    void addEdge (FgFacNode*, FgVarNode*);
-
-    VarNode* getVariableNode (unsigned) const;
-
-    VarNodes getVariableNodes (void) const;
+    void addEdge (FactorNode*, VarNode*);
 
     bool isTree (void) const;
 
@@ -137,7 +132,7 @@ class FactorGraph : public GraphicalModel
 
     void setIndexes (void);
 
-    void printGraphicalModel (void) const;
+    void print (void) const;
 
     void exportToGraphViz (const char*) const;
 
@@ -152,14 +147,14 @@ class FactorGraph : public GraphicalModel
 
     bool containsCycle (void) const;
 
-    bool containsCycle (const FgVarNode*, const FgFacNode*,
+    bool containsCycle (const VarNode*, const FactorNode*,
         vector<bool>&, vector<bool>&) const;
 
-    bool containsCycle (const FgFacNode*, const FgVarNode*,
+    bool containsCycle (const FactorNode*, const VarNode*,
         vector<bool>&, vector<bool>&) const;
 
-    FgVarSet  varNodes_;
-    FgFacSet  facNodes_;
+    VarNodes  varNodes_;
+    FactorNodes  facNodes_;
 
     bool      fromBayesNet_;
     DAGraph   structure_;

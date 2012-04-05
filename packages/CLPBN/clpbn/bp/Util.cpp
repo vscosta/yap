@@ -5,7 +5,6 @@
 
 #include "Util.h"
 #include "Indexer.h"
-#include "GraphicalModel.h"
 
 
 namespace Globals {
@@ -25,12 +24,11 @@ Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
 //Schedule schedule = BpOptions::Schedule::SEQ_RANDOM;
 //Schedule schedule = BpOptions::Schedule::PARALLEL;
 //Schedule schedule = BpOptions::Schedule::MAX_RESIDUAL;
-double    accuracy              = 0.0001;
-unsigned  maxIter               = 1000;
+double    accuracy  = 0.0001;
+unsigned  maxIter   = 1000;
 }
 
 
-unordered_map<VarId, VarInfo> GraphicalModel::varsInfo_;
 
 vector<NetInfo>      Statistics::netInfo_;
 vector<CompressInfo> Statistics::compressInfo_;
@@ -139,7 +137,7 @@ parametersToString (const Params& v, unsigned precision)
 
 
 vector<string>
-getJointStateStrings (const VarNodes& vars)
+getJointStateStrings (const Vars& vars)
 {
   StatesIndexer idx (vars);
   vector<string> jointStrings;
@@ -401,10 +399,9 @@ Statistics::getStatisticString (void)
   stringstream ss2, ss3, ss4, ss1;
   ss1 << "running mode:          " ;
   switch (Globals::infAlgorithm) {
-    case InfAlgorithms::VE:    ss1 << "ve"     << endl;  break;
-    case InfAlgorithms::BN_BP: ss1 << "bn_bp"  << endl;  break;
-    case InfAlgorithms::FG_BP: ss1 << "fg_bp"  << endl;  break;
-    case InfAlgorithms::CBP:   ss1 << "cbp"    << endl;  break;
+    case InfAlgorithms::VE:  ss1 << "ve"  << endl;  break;
+    case InfAlgorithms::BP:  ss1 << "bp"  << endl;  break;
+    case InfAlgorithms::CBP: ss1 << "cbp" << endl;  break;
   }
   ss1 << "message schedule:      " ;
   switch (BpOptions::schedule) {

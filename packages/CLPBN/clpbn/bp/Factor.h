@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "VarNode.h"
+#include "Var.h"
 #include "Indexer.h"
 #include "Util.h"
 
@@ -260,11 +260,11 @@ class Factor : public TFactor<VarId>
 
     Factor (VarId, unsigned);
 
-    Factor (const VarNodes&);
+    Factor (const Vars&);
 
     Factor (VarId, unsigned, const Params&);
 
-    Factor (const VarNodes&, const Params&,
+    Factor (const Vars&, const Params&,
         unsigned = Util::maxUnsigned());
 
     Factor (const VarIds&, const Ranges&, const Params&,

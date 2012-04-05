@@ -3,7 +3,7 @@
 
 %:- set_pfl_flag(solver,ve).
 :- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,ve).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,fg_bp).
+%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,bp).
 %:- set_pfl_flag(solver,fove).
 
 % :- yap_flag(write_strings, off).

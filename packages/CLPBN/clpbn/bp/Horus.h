@@ -11,30 +11,27 @@
 
 using namespace std;
 
-class VarNode;
-class BayesNode;
-class FgVarNode;
-class FgFacNode;
+class Var;
 class Factor;
+class VarNode;
+class FactorNode;
 
 typedef vector<double>       Params;
 typedef unsigned             VarId;
 typedef vector<VarId>        VarIds;
+typedef vector<Var*>         Vars;
 typedef vector<VarNode*>     VarNodes;
-typedef vector<BayesNode*>   BnNodeSet;
-typedef vector<FgVarNode*>   FgVarSet;
-typedef vector<FgFacNode*>   FgFacSet;
-typedef vector<Factor*>      FactorSet;
+typedef vector<FactorNode*>  FactorNodes;
+typedef vector<Factor*>      Factors;
 typedef vector<string>       States;
 typedef vector<unsigned>     Ranges;
 
 
 enum InfAlgorithms
 {
-  VE,     // variable elimination
-  BN_BP,  // bayesian network belief propagation
-  FG_BP,  // factor graph belief propagation
-  CBP     // counting bp solver
+  VE,  // variable elimination
+  BP,  // belief propagation
+  CBP  // counting belief propagation
 };
 
 

@@ -6,19 +6,19 @@
 #include <list>
 #include <map>
 
-#include "GraphicalModel.h"
+#include "Var.h"
 #include "Horus.h"
 
 
 using namespace std;
 
 
-class VarNode;
+class Var;
 
-class DAGraphNode : public VarNode
+class DAGraphNode : public Var
 {
   public:
-    DAGraphNode (VarNode* vn) : VarNode (vn) , visited_(false),
+    DAGraphNode (Var* v) : Var (v) , visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
 
     const vector<DAGraphNode*>& childs (void) const { return childs_;  }

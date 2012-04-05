@@ -29,7 +29,7 @@ Factor::Factor (VarId vid, unsigned range)
 
 
 
-Factor::Factor (const VarNodes& vars)
+Factor::Factor (const Vars& vars)
 {
   int nrParams = 1;
   for (unsigned i = 0; i < vars.size(); i++) {
@@ -60,7 +60,7 @@ Factor::Factor (
 
 
 Factor::Factor (
-    const VarNodes& vars,
+    const Vars& vars,
     const Params& params,
     unsigned distId)
 {
@@ -267,7 +267,7 @@ Factor::getLabel (void) const
   ss << "f(" ;
   for (unsigned i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
-    ss << VarNode (args_[i], ranges_[i]).label();
+    ss << Var (args_[i], ranges_[i]).label();
   }
   ss << ")" ;
   return ss.str();
@@ -278,9 +278,9 @@ Factor::getLabel (void) const
 void
 Factor::print (void) const
 {
-  VarNodes vars;
+  Vars vars;
   for (unsigned i = 0; i < args_.size(); i++) {
-    vars.push_back (new VarNode (args_[i], ranges_[i]));
+    vars.push_back (new Var (args_[i], ranges_[i]));
   }
   vector<string> jointStrings = Util::getJointStateStrings (vars);
   for (unsigned i = 0; i < params_.size(); i++) {

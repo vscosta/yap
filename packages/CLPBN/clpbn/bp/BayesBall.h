@@ -6,11 +6,9 @@
 #include <list>
 #include <map>
 
-#include "GraphicalModel.h"
-#include "Horus.h"
-
 #include "FactorGraph.h"
 #include "BayesNet.h"
+#include "Horus.h"
 
 using namespace std;
 
