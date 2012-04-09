@@ -40,7 +40,6 @@
            get_pfl_parameters/2
           ]).
 
-% :- use_module(library(clpbn/horus)).
 
 :- use_module(library(lists)).
 
@@ -53,43 +52,40 @@
           [create_ground_network/4,
            set_bayes_net_params/2,
            run_ground_solver/3,
-           set_extra_vars_info/2,
+           set_vars_information/2,
            free_ground_network/1
           ]).
 
 
-call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Solutions) :-
+call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Output) :-
   b_hash_new(Hash0),
   keys_to_ids(AllKeys, 0, Hash0, Hash),
-  %InvMap =.. [view|AllKeys],
-  list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
-  evidence_to_ids(Evidence, Hash, EvIds),
-  factors_to_ids(Factors, Hash, FactorIds),
   get_factors_type(Factors, Type),
+  evidence_to_ids(Evidence, Hash, EvidenceIds),
+  factors_to_ids(Factors, Hash, FactorIds),
   writeln(type:Type), writeln(''),
   writeln(allKeys:AllKeys), writeln(''),
-  %writeln(allKeysIds:Hash), writeln(''),
-  writeln(queryKeys:QueryKeys), writeln(''),
-  writeln(queryIds:QueryIds), writeln(''),
   writeln(factors:Factors), writeln(''),
   writeln(factorIds:FactorIds), writeln(''),
   writeln(evidence:Evidence), writeln(''),
-  writeln(evIds:EvIds),
-  create_ground_network(Type, FactorIds, EvIds, Network),
-  run_ground_fixme_solver(ground(Network,Hash), QueryKeys, Solutions).
-  %free_graphical_model(Network).
+  writeln(evidenceIds:EvidenceIds), writeln(''),
+  create_ground_network(Type, FactorIds, EvidenceIds, Network),
+  %get_vars_information(AllKeys, StatesNames),
+  %set_vars_information(AllKeys, StatesNames),
+  run_solver(ground(Network,Hash), QueryKeys, Solutions),
+  writeln(answer:Solutions),
+  %clpbn_bind_vals([QueryKeys], Solutions, Output).
+  free_ground_network(Network).
 
 
-run_ground_fixme_solver(ground(Network,Hash), QueryKeys, Solutions) :-
+run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
   %set_bayes_net_params(Network, DistsParams),
-  %vars_to_ids(QueryVars, QueryVarsIds),
+  list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
+  writeln(queryKeys:QueryKeys), writeln(''),
+  writeln(queryIds:QueryIds), writeln(''),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   run_ground_solver(Network, [QueryIds], Solutions).
-
-
-get_factors_type([f(bayes, _, _)|_], bayes) :- ! .
-get_factors_type([f(markov, _, _)|_], markov) :- ! .
 
 
 keys_to_ids([], _, Hash, Hash).
@@ -99,25 +95,14 @@ keys_to_ids([Key|AllKeys], I0, Hash0, Hash) :-
   keys_to_ids(AllKeys, I, HashI, Hash).
 
 
+get_factors_type([f(bayes, _, _)|_], bayes) :- ! .
+get_factors_type([f(markov, _, _)|_], markov) :- ! .
+
+
 list_of_keys_to_ids([], _, []).
 list_of_keys_to_ids([Key|QueryKeys], Hash, [Id|QueryIds]) :-
   b_hash_lookup(Key, Id, Hash),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds).
-
-
-evidence_to_ids([], _, []).
-evidence_to_ids([Key=Ev|QueryKeys], Hash, [Id=Ev|QueryIds]) :-
-  b_hash_lookup(Key, Id, Hash),
-  evidence_to_ids(QueryKeys, Hash, QueryIds).
-
-
-
-%evidence_to_ids([], _, [], []).
-%evidence_to_ids([Key=V|QueryKeys], Hash, [Id=V|QueryIds], [Id=Name|QueryNames]) :-
-%  b_hash_lookup(Key, Id, Hash),
-%  pfl:skolem(Key,Dom),
-%  nth0(V, Dom, Name),
-%  evidence_to_ids(QueryKeys, Hash, QueryIds, QueryNames).
 
 
 factors_to_ids([], _, []).
@@ -135,6 +120,22 @@ get_ranges(K.Ks, Range.Rs) :-	!,
   get_ranges(Ks, Rs).
 
 
+evidence_to_ids([], _, []).
+evidence_to_ids([Key=Ev|QueryKeys], Hash, [Id=Ev|QueryIds]) :-
+  b_hash_lookup(Key, Id, Hash),
+  evidence_to_ids(QueryKeys, Hash, QueryIds).
+
+
+get_vars_information([], []).
+get_vars_information(Key.QueryKeys, Domain.StatesNames) :-
+  pfl:skolem(Key, Domain),
+  get_vars_information(QueryKeys, StatesNames).
+
+
+finalize_bp_solver(bp(Network, _)) :-
+  free_ground_network(Network).
+
+
 bp([[]],_,_) :- !.
 bp([QueryVars], AllVars, Output) :-
   init_bp_solver(_, AllVars, _, Network),
@@ -144,53 +145,22 @@ bp([QueryVars], AllVars, Output) :-
 
 
 init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
-  %writeln('init_bp_solver'),
   %check_for_agg_vars(AllVars0, AllVars),
-  %writeln('clpbn_vars:'), print_clpbn_vars(AllVars),
   get_vars_info(AllVars, VarsInfo, DistIds0),
   sort(DistIds0, DistIds),
   create_ground_network(VarsInfo, BayesNet),
-  %get_extra_vars_info(AllVars, ExtraVarsInfo),
-  %set_extra_vars_info(BayesNet, ExtraVarsInfo), 
-  %writeln(extravarsinfo:ExtraVarsInfo),
   true.
 
 
 run_bp_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
-  %writeln('-> run_bp_solver'),
   get_dists_parameters(DistIds, DistsParams),
   set_bayes_net_params(Network, DistsParams),
   vars_to_ids(QueryVars, QueryVarsIds),
   run_ground_solver(Network, QueryVarsIds, Solutions).
 
 
-finalize_bp_solver(bp(Network, _)) :-
-  free_ground_network(Network).
-
-
-get_extra_vars_info([], []).
-get_extra_vars_info([V|Vs], [v(VarId, Label, Domain)|VarsInfo]) :-
-  get_atts(V, [id(VarId)]), !,
-  clpbn:get_atts(V, [key(Key), dist(DistId, _)]),
-  term_to_atom(Key, Label),
-  get_dist_domain(DistId, Domain0),
-  numbers_to_atoms(Domain0, Domain),
-  get_extra_vars_info(Vs, VarsInfo).
-get_extra_vars_info([_|Vs], VarsInfo) :-
-  get_extra_vars_info(Vs, VarsInfo).
-
-
 get_dists_parameters([],[]).
 get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
   get_dist_params(Id, Params),
   get_dists_parameters(Ids, DistsInfo).
-
-
-numbers_to_atoms([], []).
-numbers_to_atoms([Atom|L0], [Atom|L]) :-
-  atom(Atom), !,
-  numbers_to_atoms(L0, L).
-numbers_to_atoms([Number|L0], [Atom|L]) :-
-  number_atom(Number, Atom),
-  numbers_to_atoms(L0, L).
 

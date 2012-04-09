@@ -359,7 +359,7 @@ class Statistics
 
     static void printStatistics (void);
 
-    static void writeStatisticsToFile (const char*);
+    static void writeStatistics (const char*);
 
     static void updateCompressingStatistics (
         unsigned, unsigned, unsigned, unsigned, unsigned);

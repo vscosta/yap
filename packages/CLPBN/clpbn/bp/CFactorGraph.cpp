@@ -74,20 +74,20 @@ CFactorGraph::setInitialColors (void)
   if (checkForIdenticalFactors) {
     unsigned groupCount = 1;
     for (unsigned i = 0; i < facNodes.size(); i++) {
-      Factor* f1 = facNodes[i]->factor();
-      if (f1->distId() != Util::maxUnsigned()) {
+      Factor& f1 = facNodes[i]->factor();
+      if (f1.distId() != Util::maxUnsigned()) {
         continue;
       }
-      f1->setDistId (groupCount);
+      f1.setDistId (groupCount);
       for (unsigned j = i + 1; j < facNodes.size(); j++) {
-        Factor* f2 = facNodes[j]->factor();
-        if (f2->distId() != Util::maxUnsigned()) {
+        Factor& f2 = facNodes[j]->factor();
+        if (f2.distId() != Util::maxUnsigned()) {
           continue;
         }
-        if (f1->size()   == f2->size()   &&
-            f1->ranges() == f2->ranges() &&
-            f1->params() == f2->params()) {
-          f2->setDistId (groupCount);
+        if (f1.size()   == f2.size()   &&
+            f1.ranges() == f2.ranges() &&
+            f1.params() == f2.params()) {
+          f2.setDistId (groupCount);
         }
       }
       groupCount ++;
@@ -96,7 +96,7 @@ CFactorGraph::setInitialColors (void)
   // create the initial factor colors
   DistColorMap distColors;
   for (unsigned i = 0; i < facNodes.size(); i++) {
-    unsigned distId = facNodes[i]->factor()->distId();
+    unsigned distId = facNodes[i]->factor().distId();
     DistColorMap::iterator it = distColors.find (distId);
     if (it == distColors.end()) {
       it = distColors.insert (make_pair (distId, getFreeColor())).first;
@@ -211,7 +211,7 @@ CFactorGraph::getSignature (const VarNode* varNode)
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
     it ++;
-    *it = neighs[i]->factor()->indexOf (varNode->varId());
+    *it = neighs[i]->factor().indexOf (varNode->varId());
     it ++;
   }
   *it = getColor (varNode);
@@ -244,7 +244,7 @@ CFactorGraph::getCompressedFactorGraph (void)
     VarNode* var = varClusters_[i]->getGroundVarNodes()[0];
     VarNode* newVar = new VarNode (var);
     varClusters_[i]->setRepresentativeVariable (newVar);
-    fg->addVariable (newVar);
+    fg->addVarNode (newVar);
   }
 
   for (unsigned i = 0; i < facClusters_.size(); i++) {
@@ -255,11 +255,10 @@ CFactorGraph::getCompressedFactorGraph (void)
       VarNode* v = myVarClusters[j]->getRepresentativeVariable();
       myGroundVars.push_back (v);
     }
-    Factor* newFactor = new Factor (myGroundVars,
-        facClusters_[i]->getGroundFactors()[0]->params());
-    FactorNode* fn = new FactorNode (newFactor);
+    FactorNode* fn = new FactorNode (Factor (myGroundVars,
+        facClusters_[i]->getGroundFactors()[0]->params()));
     facClusters_[i]->setRepresentativeFactor (fn);
-    fg->addFactor (fn);
+    fg->addFactorNode (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
       fg->addEdge (fn, static_cast<VarNode*> (myGroundVars[j]));
     }
@@ -279,7 +278,7 @@ CFactorGraph::getGroundEdgeCount (
   VarNode* varNode = vc->getGroundVarNodes()[0];
   unsigned count = 0;
   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-    if (clusterGroundFactors[i]->factor()->indexOf (varNode->varId()) != -1) {
+    if (clusterGroundFactors[i]->factor().indexOf (varNode->varId()) != -1) {
       count ++;
     }
   }

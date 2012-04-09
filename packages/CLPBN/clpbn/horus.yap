@@ -12,7 +12,7 @@
            set_bayes_net_params/2,
            run_lifted_solver/3,
            run_ground_solver/3,
-           set_extra_vars_info/2,
+           set_vars_information/2,
            set_horus_flag/2,
            free_parfactors/1,
            free_ground_network/1

@@ -108,7 +108,7 @@ class BpSolver : public Solver
 
     virtual void maxResidualSchedule (void);
 
-    virtual void calculateFactor2VariableMsg (SpLink*) const;
+    virtual void calculateFactor2VariableMsg (SpLink*);
 
     virtual Params getVar2FactorMsg (const SpLink*) const;
 

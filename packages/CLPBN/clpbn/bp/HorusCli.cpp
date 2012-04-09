@@ -31,15 +31,16 @@ main (int argc, const char* argv[])
   FactorGraph fg;
   if (extension == "uai") {
     fg.readFromUaiFormat (argv[1]);
-    processArguments (fg, argc, argv);
   } else if (extension == "fg") {
     fg.readFromLibDaiFormat (argv[1]);
-    processArguments (fg, argc, argv);
   } else {
     cerr << "error: the graphical model must be defined either " ; 
     cerr << "in a UAI or libDAI file" << endl;
     exit (0);
   }
+  fg.print();
+  assert (false);
+  processArguments (fg, argc, argv);
   return 0;
 }
 

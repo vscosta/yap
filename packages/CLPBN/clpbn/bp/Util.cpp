@@ -366,12 +366,12 @@ Statistics::printStatistics (void)
 
 
 void
-Statistics::writeStatisticsToFile (const char* fileName)
+Statistics::writeStatistics (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
-    cerr << "Statistics::writeStatisticsToFile()" << endl;
+    cerr << "Statistics::writeStats()" << endl;
     abort();
   }
   out << getStatisticString();

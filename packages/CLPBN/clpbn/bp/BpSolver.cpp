@@ -101,7 +101,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   VarNode* vn = factorGraph_->getVarNode (jointVarIds[0]);
   const FactorNodes& factorNodes = vn->neighbors();
   for (unsigned i = 0; i < factorNodes.size(); i++) {
-    if (factorNodes[i]->factor()->contains (jointVarIds)) {
+    if (factorNodes[i]->factor().contains (jointVarIds)) {
       idx = i;
       break;
     }
@@ -109,7 +109,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   if (idx == -1) {
     return getJointByConditioning (jointVarIds);
   } else {
-    Factor res (*factorNodes[idx]->factor());
+    Factor res (factorNodes[idx]->factor());
     const SpLinkSet& links = ninf(factorNodes[idx])->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
       Factor msg (links[i]->getVariable()->varId(),
@@ -316,9 +316,9 @@ BpSolver::maxResidualSchedule (void)
 
 
 void
-BpSolver::calculateFactor2VariableMsg (SpLink* link) const
+BpSolver::calculateFactor2VariableMsg (SpLink* link)
 {
-  const FactorNode* src = link->getFactor();
+  FactorNode* src = link->getFactor();
   const VarNode* dst = link->getVariable();
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
@@ -357,10 +357,9 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link) const
     }
   }
 
-  Factor result (src->factor()->arguments(),
-                 src->factor()->ranges(),
-                 msgProduct);
-  result.multiply (*(src->factor()));
+  Factor result (src->factor().arguments(),
+      src->factor().ranges(), msgProduct);
+  result.multiply (src->factor());
   if (Constants::DEBUG >= 5) {
     cout << "    message product:  " << msgProduct << endl;
     cout << "    original factor:  " << src->params() << endl;

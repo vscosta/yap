@@ -71,25 +71,25 @@ class Var
 
     States states (void) const;
 
-    static void addVariableInformation (
+    static void addVarInfo (
         VarId vid, string label, const States& states)
     {
       assert (Util::contains (varsInfo_, vid) == false);
       varsInfo_.insert (make_pair (vid, VarInfo (label, states)));
     }
 
-    static VarInfo getVarInformation (VarId vid)
+    static VarInfo getVarInfo (VarId vid)
     {
       assert (Util::contains (varsInfo_, vid));
       return varsInfo_.find (vid)->second;
     }
 
-    static bool variablesHaveInformation (void)
+    static bool varsHaveInfo (void)
     {
       return varsInfo_.size() != 0;
     }
 
-    static void clearVariablesInformation (void)
+    static void clearVarsInfo (void)
     {
       varsInfo_.clear();
     }

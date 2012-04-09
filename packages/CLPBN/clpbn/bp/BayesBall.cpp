@@ -63,12 +63,12 @@ BayesBall::constructGraph (FactorGraph* fg) const
   const FactorNodes& facNodes = fg_.factorNodes();
   for (unsigned i = 0; i < facNodes.size(); i++) {
     const DAGraphNode* n = dag_.getNode (
-        facNodes[i]->factor()->argument (0));
+        facNodes[i]->factor().argument (0));
     if (n->isMarkedOnTop()) {
-      fg->addFactor (Factor (*(facNodes[i]->factor())));
+      fg->addFactor (Factor (facNodes[i]->factor()));
     } else if (n->hasEvidence() && n->isVisited()) {
-      VarIds varIds = { facNodes[i]->factor()->argument (0) };
-      Ranges ranges = { facNodes[i]->factor()->range (0) };
+      VarIds varIds = { facNodes[i]->factor().argument (0) };
+      Ranges ranges = { facNodes[i]->factor().range (0) };
       Params params (ranges[0], LogAware::noEvidence());
       params[n->getEvidence()] = LogAware::withEvidence();
       fg->addFactor (Factor (varIds, ranges, params));

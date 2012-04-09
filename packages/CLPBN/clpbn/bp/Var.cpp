@@ -42,7 +42,7 @@ Var::isValidState (int stateIndex)
 bool
 Var::isValidState (const string& stateName)
 {
-  States states = Var::getVarInformation (varId_).states;
+  States states = Var::getVarInfo (varId_).states;
   return Util::contains (states, stateName);
 }
 
@@ -60,7 +60,7 @@ Var::setEvidence (int ev)
 void
 Var::setEvidence (const string& ev) 
 { 
-  States states = Var::getVarInformation (varId_).states;
+  States states = Var::getVarInfo (varId_).states;
   for (unsigned i = 0; i < states.size(); i++) {
     if (states[i] == ev) {
       evidence_ = i;
@@ -75,8 +75,8 @@ Var::setEvidence (const string& ev)
 string
 Var::label (void) const
 {
-  if (Var::variablesHaveInformation()) {
-    return Var::getVarInformation (varId_).label;
+  if (Var::varsHaveInfo()) {
+    return Var::getVarInfo (varId_).label;
   }
   stringstream ss;
   ss << "x" << varId_;
@@ -88,8 +88,8 @@ Var::label (void) const
 States
 Var::states (void) const
 {
-  if (Var::variablesHaveInformation()) {
-    return Var::getVarInformation (varId_).states;
+  if (Var::varsHaveInfo()) {
+    return Var::getVarInfo (varId_).states;
   }
   States states;
   for (unsigned i = 0; i < range_; i++) {

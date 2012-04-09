@@ -84,5 +84,5 @@ class DAGraph
     unordered_map<VarId, DAGraphNode*> varMap_;
 };
 
-
 #endif // HORUS_BAYESNET_H
+

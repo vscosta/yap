@@ -34,47 +34,28 @@ class VarNode : public Var
 class FactorNode
 {
   public:
-    FactorNode (const FactorNode* fn)
-    {
-      factor_ = new Factor (*fn->factor());
-      index_  = -1;
-    }
+    FactorNode (const Factor& f) : factor_(f), index_(-1) { }
 
-    FactorNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
+    const Factor& factor (void) const { return factor_; }
 
-    FactorNode (const Factor& f) : factor_(new Factor (f)), index_(-1) { }
-
-    Factor* factor() const { return factor_; }
+    Factor& factor (void) { return factor_; }
 
     void addNeighbor (VarNode* vn) { neighs_.push_back (vn); }
 
-    const VarNodes&  neighbors (void) const  { return neighs_; }
+    const VarNodes& neighbors (void) const { return neighs_; }
 
-    int getIndex (void) const
-    {
-      assert (index_ != -1);
-      return index_;
-    }
+    int getIndex (void) const { return index_; }
 
-    void setIndex (int index)
-    {
-      index_ = index;
-    }
+    void setIndex (int index) { index_ = index; }
 
-    const Params& params (void) const
-    {
-      return factor_->params();
-    }
+    const Params& params (void) const { return factor_.params(); }
 
-    string getLabel (void)
-    {
-      return factor_->getLabel();
-    }
+    string getLabel (void) { return factor_.getLabel(); }
 
   private:
     DISALLOW_COPY_AND_ASSIGN (FactorNode);
 
-    Factor*   factor_;
+    Factor    factor_;
     VarNodes  neighs_;
     int       index_;
 };
@@ -116,11 +97,11 @@ class FactorGraph
 
     void readFromLibDaiFormat (const char*);
 
-    void addVariable (VarNode*);
-
-    void addFactor (FactorNode*);
-
     void addFactor (const Factor& factor);
+
+    void addVarNode (VarNode*);
+
+    void addFactorNode (FactorNode*);
 
     void addEdge (VarNode*, FactorNode*);
 
@@ -145,6 +126,8 @@ class FactorGraph
   private:
     // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
 
+    void ignoreLines (std::ifstream&) const;
+
     bool containsCycle (void) const;
 
     bool containsCycle (const VarNode*, const FactorNode*,
@@ -153,7 +136,7 @@ class FactorGraph
     bool containsCycle (const FactorNode*, const VarNode*,
         vector<bool>&, vector<bool>&) const;
 
-    VarNodes  varNodes_;
+    VarNodes     varNodes_;
     FactorNodes  facNodes_;
 
     bool      fromBayesNet_;

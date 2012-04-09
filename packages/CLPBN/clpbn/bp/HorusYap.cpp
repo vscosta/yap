@@ -214,8 +214,6 @@ createGroundNetwork (void)
 {
   FactorGraph* fg = new FactorGraph();; 
   string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
-  cout << "factors type: '" << factorsType << "'" << endl;
-
   YAP_Term factorList = YAP_ARG2;
   while (factorList != YAP_TermNil()) {
     YAP_Term factor = YAP_HeadOfTerm (factorList);
@@ -240,7 +238,6 @@ createGroundNetwork (void)
     YAP_Term evTerm = YAP_HeadOfTerm (evidenceList);
     unsigned vid = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (1, evTerm)));
     unsigned ev  = (unsigned) YAP_IntOfTerm ((YAP_ArgOfTerm (2, evTerm)));
-    cout << vid << " == " << ev << endl;
     assert (fg->getVarNode (vid));
     fg->getVarNode (vid)->setEvidence (ev);
     evidenceList = YAP_TailOfTerm (evidenceList);
@@ -354,7 +351,7 @@ runGroundSolver (void)
   } else {
     runBpSolver (fg, tasks, results);
   }
-  cout << "results: " << results << endl;
+
   YAP_Term list = YAP_TermNil();
   for (int i = results.size() - 1; i >= 0; i--) {
     const Params& beliefs = results[i];
@@ -491,24 +488,29 @@ setBayesNetParams (void)
 
 
 int
-setExtraVarsInfo (void)
+setVarsInformation (void)
 {
-  Var::clearVariablesInformation();
-  YAP_Term varsInfoL =  YAP_ARG2;
-  while (varsInfoL != YAP_TermNil()) {
-    YAP_Term head    = YAP_HeadOfTerm (varsInfoL);
-    VarId vid          = YAP_IntOfTerm  (YAP_ArgOfTerm (1, head));
-    YAP_Atom label   = YAP_AtomOfTerm (YAP_ArgOfTerm (2, head));
-    YAP_Term statesL = YAP_ArgOfTerm (3, head);
+  Var::clearVarsInfo();
+  YAP_Term labelsL = YAP_ARG1;
+  vector<string> labels;
+  while (labelsL != YAP_TermNil()) {
+    YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (labelsL));
+    labels.push_back ((char*) YAP_AtomName (atom));
+    labelsL = YAP_TailOfTerm (labelsL);
+  }
+  unsigned count = 0;
+  YAP_Term stateNamesL = YAP_ARG2;
+  while (stateNamesL != YAP_TermNil()) {
     States states;
-    while (statesL != YAP_TermNil()) {
-      YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (statesL));
+    YAP_Term namesL = YAP_HeadOfTerm (stateNamesL);
+    while (namesL != YAP_TermNil()) {
+      YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (namesL));
       states.push_back ((char*) YAP_AtomName (atom));
-      statesL = YAP_TailOfTerm (statesL);
+      namesL = YAP_TailOfTerm (namesL);
     }
-    Var::addVariableInformation (vid,
-        (char*) YAP_AtomName (label), states);
-    varsInfoL = YAP_TailOfTerm (varsInfoL);
+    Var::addVarInfo (count, labels[count], states);
+    count ++;
+    stateNamesL = YAP_TailOfTerm (stateNamesL);
   }
   return TRUE;
 }
@@ -627,7 +629,7 @@ init_predicates (void)
   YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
   YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);
   YAP_UserCPredicate ("set_bayes_net_params",  setBayesNetParams,   2);
-  YAP_UserCPredicate ("set_extra_vars_info",   setExtraVarsInfo,    2);
+  YAP_UserCPredicate ("set_vars_information",  setVarsInformation,  2);
   YAP_UserCPredicate ("set_horus_flag",        setHorusFlag,        2);
   YAP_UserCPredicate ("free_parfactors",       freeParfactors,      1);
   YAP_UserCPredicate ("free_ground_network",   freeGroundNetwork,   1);
