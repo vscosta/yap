@@ -31,6 +31,13 @@ void readLiftedEvidence (YAP_Term, ObservedFormulas&);
 
 Parfactor* readParfactor (YAP_Term);
 
+void runVeSolver (FactorGraph* fg, const vector<VarIds>& tasks,
+    vector<Params>& results);
+
+void runBpSolver (FactorGraph* fg, const vector<VarIds>& tasks,
+   vector<Params>& results);
+
+
 
 
 vector<unsigned>
@@ -212,8 +219,9 @@ void readLiftedEvidence (
 int
 createGroundNetwork (void)
 {
-  FactorGraph* fg = new FactorGraph();; 
   string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
+  bool fromBayesNet = factorsType == "bayes";
+  FactorGraph* fg = new FactorGraph (fromBayesNet);
   YAP_Term factorList = YAP_ARG2;
   while (factorList != YAP_TermNil()) {
     YAP_Term factor = YAP_HeadOfTerm (factorList);
@@ -228,10 +236,6 @@ createGroundNetwork (void)
     fg->addFactor (Factor (varIds, ranges, params, distId));
     factorList = YAP_TailOfTerm (factorList);
   }
-  if (factorsType == "bayes") {
-    fg->setFromBayesNetwork();
-  }
-  fg->setIndexes();
 
   YAP_Term evidenceList = YAP_ARG3;
   while (evidenceList != YAP_TermNil()) {
@@ -323,13 +327,6 @@ runLiftedSolver (void)
  
   return YAP_Unify (list, YAP_ARG3);
 }
-
-
-
-void runVeSolver (FactorGraph* fg, const vector<VarIds>& tasks,
-    vector<Params>& results);
-void runBpSolver (FactorGraph* fg, const vector<VarIds>& tasks,
-   vector<Params>& results);
 
 
 
@@ -462,26 +459,25 @@ setParfactorsParams (void)
 
 
 int
-setBayesNetParams (void)
+setFactorsParams (void)
 {
-  // TODO FIXME
-  /*
-  BayesNet* bn = (BayesNet*) YAP_IntOfTerm (YAP_ARG1);
+  return TRUE; // TODO
+  FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
   YAP_Term distList = YAP_ARG2;
   unordered_map<unsigned, Params> paramsMap;
   while (distList != YAP_TermNil()) {
-    YAP_Term dist     = YAP_HeadOfTerm (distList);
-    unsigned distId   = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
+    YAP_Term dist   = YAP_HeadOfTerm (distList);
+    unsigned distId = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (1, dist));
     assert (Util::contains (paramsMap, distId) == false);
     paramsMap[distId] = readParameters (YAP_ArgOfTerm (2, dist));
     distList = YAP_TailOfTerm (distList);
   }
-  const BnNodeSet& nodes = bn->getBayesNodes();
-  for (unsigned i = 0; i < nodes.size(); i++) {
-    assert (Util::contains (paramsMap, nodes[i]->distId()));
-    nodes[i]->setParams (paramsMap[nodes[i]->distId()]);
+  const FacNodes& facNodes = fg->facNodes();
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    unsigned distId = facNodes[i]->factor().distId();
+    assert (Util::contains (paramsMap, distId));
+    facNodes[i]->factor().setParams (paramsMap[distId]);
   }
-  */
   return TRUE;
 }
 
@@ -628,7 +624,7 @@ init_predicates (void)
   YAP_UserCPredicate ("run_lifted_solver",     runLiftedSolver,     3);
   YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
   YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);
-  YAP_UserCPredicate ("set_bayes_net_params",  setBayesNetParams,   2);
+  YAP_UserCPredicate ("set_factors_params",    setFactorsParams,    2);
   YAP_UserCPredicate ("set_vars_information",  setVarsInformation,  2);
   YAP_UserCPredicate ("set_horus_flag",        setHorusFlag,        2);
   YAP_UserCPredicate ("free_parfactors",       freeParfactors,      1);

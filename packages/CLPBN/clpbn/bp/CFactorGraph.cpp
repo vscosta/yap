@@ -256,14 +256,13 @@ CFactorGraph::getCompressedFactorGraph (void)
       myGroundVars.push_back (v);
     }
     FacNode* fn = new FacNode (Factor (myGroundVars,
-        facClusters_[i]->getGroundFactors()[0]->params()));
+        facClusters_[i]->getGroundFactors()[0]->factor().params()));
     facClusters_[i]->setRepresentativeFactor (fn);
     fg->addFacNode (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
       fg->addEdge (static_cast<VarNode*> (myGroundVars[j]), fn);
     }
   }
-  fg->setIndexes();
   return fg;
 }
 

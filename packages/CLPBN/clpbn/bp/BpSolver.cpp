@@ -112,8 +112,8 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     Factor res (facNodes[idx]->factor());
     const SpLinkSet& links = ninf(facNodes[idx])->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
-      Factor msg (links[i]->getVariable()->varId(),
-                  links[i]->getVariable()->range(),
+      Factor msg ({links[i]->getVariable()->varId()},
+                  {links[i]->getVariable()->range()},
                   getVar2FactorMsg (links[i]));
       res.multiply (msg);
     }
@@ -362,7 +362,7 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   result.multiply (src->factor());
   if (Constants::DEBUG >= 5) {
     cout << "    message product:  " << msgProduct << endl;
-    cout << "    original factor:  " << src->params() << endl;
+    cout << "    original factor:  " << src->factor().params() << endl;
     cout << "    factor product:   " << result.params() << endl;
   }
   result.sumOutAllExcept (dst->varId());

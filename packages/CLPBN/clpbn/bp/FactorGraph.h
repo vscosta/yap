@@ -12,11 +12,11 @@ using namespace std;
 
 class FacNode;
 
-
 class VarNode : public Var
 {
   public:
-    VarNode (VarId varId, unsigned nrStates) : Var (varId, nrStates) { }
+    VarNode (VarId varId, unsigned nrStates) 
+        : Var (varId, nrStates) { }
 
     VarNode (const Var* v) : Var (v) { }
 
@@ -48,15 +48,13 @@ class FacNode
 
     void setIndex (int index) { index_ = index; }
 
-    const Params& params (void) const { return factor_.params(); }
-
     string getLabel (void) { return factor_.getLabel(); }
 
   private:
     DISALLOW_COPY_AND_ASSIGN (FacNode);
 
-    Factor    factor_;
     VarNodes  neighs_;
+    Factor    factor_;
     int       index_;
 };
 
@@ -73,7 +71,7 @@ struct CompVarId
 class FactorGraph
 {
   public:
-    FactorGraph (void) { }
+    FactorGraph (bool fbn = false) : fromBayesNet_(fbn) { }
 
     FactorGraph (const FactorGraph&);
 
@@ -82,15 +80,13 @@ class FactorGraph
     const VarNodes& varNodes (void) const { return varNodes_; }
 
     const FacNodes& facNodes (void) const { return facNodes_; }
-
-    void setFromBayesNetwork (void) { fromBayesNet_ = true; }
  
     bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
 
     VarNode* getVarNode (VarId vid) const
     {
-      IndexMap::const_iterator it = varMap_.find (vid);
-      return (it != varMap_.end()) ? varNodes_[it->second] : 0;
+      VarMap::const_iterator it = varMap_.find (vid);
+      return it != varMap_.end() ? it->second : 0;
     }
 
     void readFromUaiFormat (const char*);
@@ -108,8 +104,6 @@ class FactorGraph
     bool isTree (void) const;
 
     DAGraph& getStructure (void);
-
-    void setIndexes (void);
 
     void print (void) const;
 
@@ -137,11 +131,11 @@ class FactorGraph
     VarNodes  varNodes_;
     FacNodes  facNodes_;
 
-    bool      fromBayesNet_;
     DAGraph   structure_;
+    bool      fromBayesNet_;
 
-    typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap  varMap_;
+    typedef unordered_map<unsigned, VarNode*> VarMap;
+    VarMap varMap_;
 };
 
 #endif // HORUS_FACTORGRAPH_H

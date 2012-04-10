@@ -18,42 +18,16 @@ Factor::Factor (const Factor& g)
 
 
 
-Factor::Factor (VarId vid, unsigned range)
-{
-  args_.push_back (vid);
-  ranges_.push_back (range);
-  params_.resize (range, 1.0);
-  distId_ = Util::maxUnsigned();
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
-Factor::Factor (const Vars& vars)
-{
-  int nrParams = 1;
-  for (unsigned i = 0; i < vars.size(); i++) {
-    args_.push_back (vars[i]->varId());
-    ranges_.push_back (vars[i]->range());
-    nrParams *= vars[i]->range();
-  }
-  double val = 1.0 / nrParams;
-  params_.resize (nrParams, val);
-  distId_ = Util::maxUnsigned();
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
 Factor::Factor (
-    VarId vid,
-    unsigned range,
-    const Params& params)
+    const VarIds& vids,
+    const Ranges& ranges,
+    const Params& params,
+    unsigned distId)
 {
-  args_.push_back (vid);
-  ranges_.push_back (range);
+  args_   = vids;
+  ranges_ = ranges;
   params_ = params;
-  distId_ = Util::maxUnsigned();
+  distId_ = distId;
   assert (params_.size() == Util::expectedSize (ranges_));
 }
 
@@ -68,21 +42,6 @@ Factor::Factor (
     args_.push_back (vars[i]->varId());
     ranges_.push_back (vars[i]->range());
   }
-  params_ = params;
-  distId_ = distId;
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
-Factor::Factor (
-    const VarIds& vids,
-    const Ranges& ranges,
-    const Params& params,
-    unsigned distId)
-{
-  args_   = vids;
-  ranges_ = ranges;
   params_ = params;
   distId_ = distId;
   assert (params_.size() == Util::expectedSize (ranges_));

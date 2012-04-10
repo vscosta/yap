@@ -31,7 +31,6 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
       addEdge (varNodes_[neighs[j]->getIndex()], facNode);
     }
   }
-  setIndexes();
 }
 
 
@@ -105,7 +104,6 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     addFactor (Factor (factorVarIds[i], factorRanges[i], params));
   }
   is.close();
-  setIndexes();
 }
 
 
@@ -165,7 +163,6 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     addFactor (Factor (vids, ranges, params));
   }
   is.close();
-  setIndexes();
 }
 
 
@@ -211,7 +208,7 @@ FactorGraph::addVarNode (VarNode* vn)
 {
   varNodes_.push_back (vn);
   vn->setIndex (varNodes_.size() - 1);
-  varMap_.insert (make_pair (vn->varId(), varNodes_.size() - 1));
+  varMap_.insert (make_pair (vn->varId(), vn));
 }
 
 
@@ -258,19 +255,6 @@ FactorGraph::getStructure (void)
     }
   }
   return structure_;
-}
-
-
-
-void
-FactorGraph::setIndexes (void)
-{
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
-    varNodes_[i]->setIndex (i);
-  }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
-    facNodes_[i]->setIndex (i);
-  }
 }
 
 
@@ -355,7 +339,7 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
     out << endl;
   }
   for (unsigned i = 0; i < facNodes_.size(); i++) {
-    Params params = facNodes_[i]->params();
+    Params params = facNodes_[i]->factor().params();
     if (Globals::logDomain) {
       Util::fromLog (params);
     }

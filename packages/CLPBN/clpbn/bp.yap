@@ -50,7 +50,7 @@
 
 :- use_module(horus,
           [create_ground_network/4,
-           set_bayes_net_params/2,
+           set_factors_params/2,
            run_ground_solver/3,
            set_vars_information/2,
            free_ground_network/1
@@ -80,7 +80,7 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Output) :-
 
 run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
-  %set_bayes_net_params(Network, DistsParams),
+  %set_factors_params(Network, DistsParams),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   writeln(queryKeys:QueryKeys), writeln(''),
   writeln(queryIds:QueryIds), writeln(''),
@@ -154,7 +154,7 @@ init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
 
 run_bp_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
   get_dists_parameters(DistIds, DistsParams),
-  set_bayes_net_params(Network, DistsParams),
+  set_factors_params(Network, DistsParams),
   vars_to_ids(QueryVars, QueryVarsIds),
   run_ground_solver(Network, QueryVarsIds, Solutions).
 

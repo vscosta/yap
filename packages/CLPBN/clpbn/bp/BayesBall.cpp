@@ -52,7 +52,6 @@ BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
   FactorGraph* fg = new FactorGraph();
   constructGraph (fg);
   return fg;
-
 }
 
 
