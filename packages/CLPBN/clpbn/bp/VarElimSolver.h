@@ -14,15 +14,11 @@ using namespace std;
 class VarElimSolver : public Solver
 {
   public:
-    VarElimSolver (const FactorGraph&);
+    VarElimSolver (const FactorGraph& fg) : Solver (fg) { }
 
    ~VarElimSolver (void);
 
-    void runSolver (void) { }
-
-    Params getPosterioriOf (VarId);
-
-    Params getJointDistributionOf (const VarIds&);
+    Params solveQuery (VarIds);
 
   private:
     void createFactorList (void);
@@ -37,7 +33,6 @@ class VarElimSolver : public Solver
 
     void printActiveFactors (void);
 
-    const FactorGraph*  factorGraph_;
     vector<Factor*>     factorList_;
     VarIds              elimOrder_;
     unordered_map<VarId, vector<unsigned>> varFactors_;

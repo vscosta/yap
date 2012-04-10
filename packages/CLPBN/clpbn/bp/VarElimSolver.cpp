@@ -6,13 +6,6 @@
 #include "Util.h"
 
 
-VarElimSolver::VarElimSolver (const FactorGraph& fg) : Solver (fg)
-{
-  factorGraph_ = &fg;
-}
-
-
-
 VarElimSolver::~VarElimSolver (void)
 {
   delete factorList_.back();
@@ -21,30 +14,15 @@ VarElimSolver::~VarElimSolver (void)
 
 
 Params
-VarElimSolver::getPosterioriOf (VarId vid)
-{
-  assert (factorGraph_->getVarNode (vid));
-  VarNode* vn = factorGraph_->getVarNode (vid);
-  if (vn->hasEvidence()) {
-    Params params (vn->range(), 0.0);
-    params[vn->getEvidence()] = 1.0;
-    return params;
-  }
-  return getJointDistributionOf (VarIds() = {vid});
-}
-
-
-
-Params
-VarElimSolver::getJointDistributionOf (const VarIds& vids)
+VarElimSolver::solveQuery (VarIds queryVids)
 {
   factorList_.clear();
   varFactors_.clear();
   elimOrder_.clear();
   createFactorList();
   absorveEvidence();
-  findEliminationOrder (vids);
-  processFactorList (vids);
+  findEliminationOrder (queryVids);
+  processFactorList (queryVids);
   Params params = factorList_.back()->params();
   if (Globals::logDomain) {
     Util::fromLog (params);
@@ -57,10 +35,10 @@ VarElimSolver::getJointDistributionOf (const VarIds& vids)
 void
 VarElimSolver::createFactorList (void)
 {
-  const FacNodes& facNodes = factorGraph_->facNodes();
+  const FacNodes& facNodes = fg_.facNodes();
   factorList_.reserve (facNodes.size() * 2);
   for (unsigned i = 0; i < facNodes.size(); i++) {
-    factorList_.push_back (new Factor (facNodes[i]->factor())); // FIXME
+    factorList_.push_back (new Factor (facNodes[i]->factor()));
     const VarNodes& neighs = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighs.size(); j++) {
       unordered_map<VarId,vector<unsigned> >::iterator it 
@@ -79,7 +57,7 @@ VarElimSolver::createFactorList (void)
 void
 VarElimSolver::absorveEvidence (void)
 {
-  const VarNodes& varNodes = factorGraph_->varNodes();
+  const VarNodes& varNodes = fg_.varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       const vector<unsigned>& idxs =
@@ -125,7 +103,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
 
   VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    if (factorGraph_->getVarNode (vids[i])->hasEvidence() == false) {
+    if (fg_.getVarNode (vids[i])->hasEvidence() == false) {
       unobservedVids.push_back (vids[i]);
     }
   }
@@ -146,7 +124,7 @@ VarElimSolver::eliminate (VarId elimVar)
     unsigned idx = idxs[i];
     if (factorList_[idx]) {
       if (result == 0) {
-        result = new Factor(*factorList_[idx]);
+        result = new Factor (*factorList_[idx]);
       } else {
         result->multiply (*factorList_[idx]);
       }

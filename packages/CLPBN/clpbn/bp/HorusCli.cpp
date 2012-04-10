@@ -11,7 +11,7 @@
 using namespace std;
 
 void processArguments (FactorGraph&, int, const char* []);
-void runSolver (Solver*, const VarIds&);
+void runSolver (const FactorGraph&, const VarIds&);
 
 const string USAGE = "usage: \
 ./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
@@ -25,8 +25,8 @@ main (int argc, const char* argv[])
     cerr << USAGE << endl;
     exit (0);
   }
-  const string& fileName  = argv[1];
-  const string& extension = fileName.substr (
+  string fileName  = argv[1];
+  string extension = fileName.substr (
       fileName.find_last_of ('.') + 1);
   FactorGraph fg;
   if (extension == "uai") {
@@ -38,8 +38,6 @@ main (int argc, const char* argv[])
     cerr << "in a UAI or libDAI file" << endl;
     exit (0);
   }
-  fg.print();
-  assert (false);
   processArguments (fg, argc, argv);
   return 0;
 }
@@ -123,6 +121,14 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       }
     }
   }
+  runSolver (fg, queryIds);
+}
+
+
+
+void
+runSolver (const FactorGraph& fg, const VarIds& queryIds)
+{
   Solver* solver = 0;
   switch (Globals::infAlgorithm) {
     case InfAlgorithms::VE:
@@ -137,23 +143,10 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
     default:
       assert (false);
   }
-  runSolver (solver, queryIds);
-}
-
-
-
-void
-runSolver (Solver* solver, const VarIds& queryIds)
-{
   if (queryIds.size() == 0) {
-    solver->runSolver();
     solver->printAllPosterioris();
-  } else if (queryIds.size() == 1) {
-    solver->runSolver();
-    solver->printPosterioriOf (queryIds[0]);
   } else {
-    solver->runSolver();
-    solver->printJointDistributionOf (queryIds);
+    solver->printAnswer (queryIds);
   }
   delete solver;
 }

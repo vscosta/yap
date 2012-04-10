@@ -62,7 +62,7 @@ bool isInteger (const string&);
 
 string parametersToString (const Params&, unsigned = Constants::PRECISION);
 
-vector<string> getJointStateStrings (const Vars&);
+vector<string> getStateLines (const Vars&);
 
 void printHeader (string, std::ostream& os = std::cout);
 

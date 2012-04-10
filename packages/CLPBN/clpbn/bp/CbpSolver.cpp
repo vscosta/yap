@@ -85,9 +85,8 @@ CbpSolver::initializeSolver (void)
   if (Constants::COLLECT_STATS) {
     unsigned nClusterVars = factorGraph_->varNodes().size();
     unsigned nClusterFacs = factorGraph_->facNodes().size();
-    Statistics::updateCompressingStatistics (nGroundVars,  nGroundFacs,
-                                             nClusterVars, nClusterFacs,
-                                             nWithoutNeighs);
+    Statistics::updateCompressingStatistics (nGroundVars, 
+        nGroundFacs, nClusterVars, nClusterFacs, nWithoutNeighs);
   }
 
   // cout << "Compressed Factor Graph" << endl;

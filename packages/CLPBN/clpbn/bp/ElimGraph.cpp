@@ -34,7 +34,6 @@ ElimGraph::ElimGraph (const vector<Factor*>& factors)
       }
     }
   }
-  setIndexes();
 }
 
 
@@ -148,6 +147,7 @@ void
 ElimGraph::addNode (EgNode* n)
 {
   nodes_.push_back (n);
+  n->setIndex (nodes_.size() - 1);
   varMap_.insert (make_pair (n->varId(), n));
 }
 
@@ -299,15 +299,5 @@ ElimGraph::neighbors (const EgNode* n1, const EgNode* n2) const
     }
   }
   return false;
-}
-
-
-
-void
-ElimGraph::setIndexes (void)
-{
-  for (unsigned i = 0; i < nodes_.size(); i++) {
-    nodes_[i]->setIndex (i);
-  }
 }
 

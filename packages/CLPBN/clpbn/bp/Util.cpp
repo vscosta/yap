@@ -137,7 +137,7 @@ parametersToString (const Params& v, unsigned precision)
 
 
 vector<string>
-getJointStateStrings (const Vars& vars)
+getStateLines (const Vars& vars)
 {
   StatesIndexer idx (vars);
   vector<string> jointStrings;

@@ -78,8 +78,6 @@ class ElimGraph
 
     bool neighbors (const EgNode*, const EgNode*) const;
 
-    void setIndexes (void);
-
     vector<EgNode*> nodes_;
     vector<bool>    marked_;
     unordered_map<VarId, EgNode*> varMap_;

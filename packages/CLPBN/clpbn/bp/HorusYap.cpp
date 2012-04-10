@@ -379,11 +379,7 @@ void runVeSolver (
       mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
     VarElimSolver solver (*mfg);
-    if (tasks[i].size() == 1) {
-      results.push_back (solver.getPosterioriOf (tasks[i][0]));
-    } else {
-      results.push_back (solver.getJointDistributionOf (tasks[i]));
-    }
+    results.push_back (solver.solveQuery (tasks[i]));
     if (fg->isFromBayesNetwork()) {
       delete mfg;
     }
@@ -416,14 +412,9 @@ void runBpSolver (
     cerr << "error: unknow solver" << endl;
     abort();
   }
-  solver->runSolver();
   results.reserve (tasks.size());
   for (unsigned i = 0; i < tasks.size(); i++) {
-    if (tasks[i].size() == 1) {
-      results.push_back (solver->getPosterioriOf (tasks[i][0]));
-    } else {
-      results.push_back (solver->getJointDistributionOf (tasks[i]));
-    }
+    results.push_back (solver->solveQuery (tasks[i]));
   }
   if (fg->isFromBayesNetwork()) {
     delete mfg;

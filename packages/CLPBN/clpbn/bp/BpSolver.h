@@ -95,7 +95,7 @@ class BpSolver : public Solver
 
     virtual ~BpSolver (void);
 
-    void runSolver (void);
+    Params solveQuery (VarIds);
 
     virtual Params getPosterioriOf (VarId);
 
@@ -169,6 +169,7 @@ class BpSolver : public Solver
     unsigned             nIters_;
     vector<SPNodeInfo*>  varsI_;
     vector<SPNodeInfo*>  facsI_;
+    bool                 runned_;
     const FactorGraph*   factorGraph_;
 
     typedef multiset<SpLink*, CompareResidual> SortedOrder;
@@ -178,6 +179,7 @@ class BpSolver : public Solver
     SpLinkMap linkMap_;
 
   private:
+    void runSolver (void);
     void runLoopySolver (void);
     bool converged (void);
 };

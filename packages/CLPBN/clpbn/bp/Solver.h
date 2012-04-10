@@ -16,19 +16,13 @@ class Solver
 
     virtual ~Solver() { } // ensure that subclass destructor is called
 
-    virtual void runSolver (void) = 0;
+    virtual Params solveQuery (VarIds queryVids) = 0;
 
-    virtual Params getPosterioriOf (VarId) = 0;
-
-    virtual Params getJointDistributionOf (const VarIds&) = 0;
+    void printAnswer (const VarIds& vids);
 
     void printAllPosterioris (void);
-
-    void printPosterioriOf (VarId vid);
-
-    void printJointDistributionOf (const VarIds& vids);
    
-  private:
+  protected:
     const FactorGraph& fg_;
 };
 

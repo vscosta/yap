@@ -241,7 +241,7 @@ Factor::print (void) const
   for (unsigned i = 0; i < args_.size(); i++) {
     vars.push_back (new Var (args_[i], ranges_[i]));
   }
-  vector<string> jointStrings = Util::getJointStateStrings (vars);
+  vector<string> jointStrings = Util::getStateLines (vars);
   for (unsigned i = 0; i < params_.size(); i++) {
     cout << "f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;

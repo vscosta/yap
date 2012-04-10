@@ -37,7 +37,7 @@ class CbpSolverLink : public SpLink
 class CbpSolver : public BpSolver
 {
   public:
-    CbpSolver (FactorGraph& fg) : BpSolver (fg) { }
+    CbpSolver (const FactorGraph& fg) : BpSolver (fg) { }
 
    ~CbpSolver (void);
 
@@ -47,13 +47,17 @@ class CbpSolver : public BpSolver
 
    private:
      void initializeSolver (void);
+
      void createLinks (void);
 
      void maxResidualSchedule (void);
+
      Params getVar2FactorMsg (const SpLink*) const;
+
      void printLinkInformation (void) const;
 
      CFactorGraph* lfg_;
+     FactorGraph*  factorGraph_;
 };
 
 #endif // HORUS_CBP_H
