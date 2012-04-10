@@ -8,7 +8,7 @@ Solver::printAnswer (const VarIds& vids)
   Vars   unobservedVars;
   VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    VarNode* vn = fg_.getVarNode (vids[i]);
+    VarNode* vn = fg.getVarNode (vids[i]);
     if (vn->hasEvidence() == false) {
       unobservedVars.push_back (vn);
       unobservedVids.push_back (vids[i]);
@@ -29,7 +29,7 @@ Solver::printAnswer (const VarIds& vids)
 void
 Solver::printAllPosterioris (void)
 {
-  const VarNodes& vars = fg_.varNodes();
+  const VarNodes& vars = fg.varNodes();
   for (unsigned i = 0; i < vars.size(); i++) {
     printAnswer ({vars[i]->varId()});
   }

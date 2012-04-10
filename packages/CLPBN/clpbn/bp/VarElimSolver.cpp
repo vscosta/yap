@@ -35,7 +35,7 @@ VarElimSolver::solveQuery (VarIds queryVids)
 void
 VarElimSolver::createFactorList (void)
 {
-  const FacNodes& facNodes = fg_.facNodes();
+  const FacNodes& facNodes = fg.facNodes();
   factorList_.reserve (facNodes.size() * 2);
   for (unsigned i = 0; i < facNodes.size(); i++) {
     factorList_.push_back (new Factor (facNodes[i]->factor()));
@@ -57,7 +57,7 @@ VarElimSolver::createFactorList (void)
 void
 VarElimSolver::absorveEvidence (void)
 {
-  const VarNodes& varNodes = fg_.varNodes();
+  const VarNodes& varNodes = fg.varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       const vector<unsigned>& idxs =
@@ -103,7 +103,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
 
   VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    if (fg_.getVarNode (vids[i])->hasEvidence() == false) {
+    if (fg.getVarNode (vids[i])->hasEvidence() == false) {
       unobservedVids.push_back (vids[i]);
     }
   }

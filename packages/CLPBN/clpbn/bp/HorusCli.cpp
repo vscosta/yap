@@ -14,25 +14,43 @@ void processArguments (FactorGraph&, int, const char* []);
 void runSolver (const FactorGraph&, const VarIds&);
 
 const string USAGE = "usage: \
-./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
+./hcli ve|bp|cbp NETWORK_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
 
 
 int
 main (int argc, const char* argv[])
 {
-  if (!argv[1]) {
+  if (argc <= 1) {
+    cerr << "error: no solver specified" << endl;
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
     exit (0);
   }
-  string fileName  = argv[1];
+  if (argc <= 2) {
+    cerr << "error: no graphical model specified" << endl;
+    cerr << USAGE << endl;
+    exit (0);
+  }
+  string solver (argv[1]);
+  if (solver == "ve") {
+    Globals::infAlgorithm = InfAlgorithms::VE;
+  } else if (solver == "bp") {
+    Globals::infAlgorithm = InfAlgorithms::BP;
+  } else if (solver == "cbp") {
+    Globals::infAlgorithm = InfAlgorithms::CBP;
+  } else {
+    cerr << "error: unknow solver `" << solver << "'" << endl ;
+    cerr << USAGE << endl;
+    exit(0);
+  }
+  string fileName (argv[2]);
   string extension = fileName.substr (
       fileName.find_last_of ('.') + 1);
   FactorGraph fg;
   if (extension == "uai") {
-    fg.readFromUaiFormat (argv[1]);
+    fg.readFromUaiFormat (fileName.c_str());
   } else if (extension == "fg") {
-    fg.readFromLibDaiFormat (argv[1]);
+    fg.readFromLibDaiFormat (fileName.c_str());
   } else {
     cerr << "error: the graphical model must be defined either " ; 
     cerr << "in a UAI or libDAI file" << endl;
@@ -48,7 +66,7 @@ void
 processArguments (FactorGraph& fg, int argc, const char* argv[])
 {
   VarIds queryIds;
-  for (int i = 2; i < argc; i++) {
+  for (int i = 3; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
       if (!Util::isInteger (arg)) {

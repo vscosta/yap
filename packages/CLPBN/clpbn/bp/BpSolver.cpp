@@ -14,7 +14,7 @@
 
 BpSolver::BpSolver (const FactorGraph& fg) : Solver (fg)
 {
-  factorGraph_ = &fg;
+  fg_ = &fg;
   runned_ = false;
 }
 
@@ -54,8 +54,8 @@ BpSolver::getPosterioriOf (VarId vid)
   if (runned_ == false) {
     runSolver();
   }
-  assert (factorGraph_->getVarNode (vid));
-  VarNode* var = factorGraph_->getVarNode (vid);
+  assert (fg_->getVarNode (vid));
+  VarNode* var = fg_->getVarNode (vid);
   Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->range(), LogAware::noEvidence());
@@ -88,7 +88,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     runSolver();
   }
   int idx = -1;  
-  VarNode* vn = factorGraph_->getVarNode (jointVarIds[0]);
+  VarNode* vn = fg_->getVarNode (jointVarIds[0]);
   const FacNodes& facNodes = vn->neighbors();
   for (unsigned i = 0; i < facNodes.size(); i++) {
     if (facNodes[i]->factor().contains (jointVarIds)) {
@@ -121,37 +121,64 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 
 
 void
-BpSolver::initializeSolver (void)
+BpSolver::runSolver (void)
 {
-  const VarNodes& varNodes = factorGraph_->varNodes();
-  for (unsigned i = 0; i < varsI_.size(); i++) {
-    delete varsI_[i];
+  clock_t start;
+  if (Constants::COLLECT_STATS) {
+    start = clock();
   }
-  varsI_.reserve (varNodes.size());
-  for (unsigned i = 0; i < varNodes.size(); i++) {
-    varsI_.push_back (new SPNodeInfo());
+  initializeSolver();
+  nIters_ = 0;
+  while (!converged() && nIters_ < BpOptions::maxIter) {
+    nIters_ ++;
+    if (Constants::DEBUG >= 2) {
+      Util::printHeader (" Iteration " + nIters_);
+      cout << endl;
+    }
+    switch (BpOptions::schedule) {
+     case BpOptions::Schedule::SEQ_RANDOM:
+       random_shuffle (links_.begin(), links_.end());
+       // no break
+      case BpOptions::Schedule::SEQ_FIXED:
+        for (unsigned i = 0; i < links_.size(); i++) {
+          calculateAndUpdateMessage (links_[i]);
+        }
+        break;
+      case BpOptions::Schedule::PARALLEL:
+        for (unsigned i = 0; i < links_.size(); i++) {
+          calculateMessage (links_[i]);
+        }
+        for (unsigned i = 0; i < links_.size(); i++) {
+          updateMessage(links_[i]);
+        }
+        break;
+      case BpOptions::Schedule::MAX_RESIDUAL:
+        maxResidualSchedule();
+        break;
+    }
+    if (Constants::DEBUG >= 2) {
+      cout << endl;
+    }
   }
-
-  const FacNodes& facNodes = factorGraph_->facNodes();
-  for (unsigned i = 0; i < facsI_.size(); i++) {
-    delete facsI_[i];
+  if (Constants::DEBUG >= 2) {
+    cout << endl;
+    if (nIters_ < BpOptions::maxIter) {
+      cout << "Sum-Product converged in " ; 
+      cout << nIters_ << " iterations" << endl;
+    } else {
+      cout << "The maximum number of iterations was hit, terminating..." ;
+      cout << endl;
+    }
   }
-  facsI_.reserve (facNodes.size());
-  for (unsigned i = 0; i < facNodes.size(); i++) {
-    facsI_.push_back (new SPNodeInfo());
+  unsigned size = fg_->varNodes().size();
+  if (Constants::COLLECT_STATS) {
+    unsigned nIters = 0;
+    bool loopy = fg_->isTree() == false;
+    if (loopy) nIters = nIters_;
+    double time = (double (clock() - start)) / CLOCKS_PER_SEC;
+    Statistics::updateStatistics (size, loopy, nIters, time);
   }
-
-  for (unsigned i = 0; i < links_.size(); i++) {
-    delete links_[i];	
-  }
-  createLinks();
-
-  for (unsigned i = 0; i < links_.size(); i++) {
-    FacNode* src = links_[i]->getFactor();
-    VarNode* dst = links_[i]->getVariable();
-    ninf (dst)->addSpLink (links_[i]);
-    ninf (src)->addSpLink (links_[i]);
-  }
+  runned_ = true;
 }
 
 
@@ -159,7 +186,7 @@ BpSolver::initializeSolver (void)
 void
 BpSolver::createLinks (void)
 {
-  const FacNodes& facNodes = factorGraph_->facNodes();
+  const FacNodes& facNodes = fg_->facNodes();
   for (unsigned i = 0; i < facNodes.size(); i++) {
     const VarNodes& neighbors = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighbors.size(); j++) {
@@ -342,11 +369,11 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 {
   VarNodes jointVars;
   for (unsigned i = 0; i < jointVarIds.size(); i++) {
-    assert (factorGraph_->getVarNode (jointVarIds[i]));
-    jointVars.push_back (factorGraph_->getVarNode (jointVarIds[i]));
+    assert (fg_->getVarNode (jointVarIds[i]));
+    jointVars.push_back (fg_->getVarNode (jointVarIds[i]));
   }
 
-  FactorGraph* fg = new FactorGraph (*factorGraph_);
+  FactorGraph* fg = new FactorGraph (*fg_);
   BpSolver solver (*fg);
   solver.runSolver();
   Params prevBeliefs = solver.getPosterioriOf (jointVarIds[0]);
@@ -390,93 +417,24 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 
 
 void
-BpSolver::printLinkInformation (void) const
+BpSolver::initializeSolver (void)
 {
+  const VarNodes& varNodes = fg_->varNodes();
+  varsI_.reserve (varNodes.size());
+  for (unsigned i = 0; i < varNodes.size(); i++) {
+    varsI_.push_back (new SPNodeInfo());
+  }
+  const FacNodes& facNodes = fg_->facNodes();
+  facsI_.reserve (facNodes.size());
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    facsI_.push_back (new SPNodeInfo());
+  }
+  createLinks();
   for (unsigned i = 0; i < links_.size(); i++) {
-    SpLink* l = links_[i]; 
-    cout << l->toString() << ":" << endl;
-    cout << "    curr msg = " ;
-    cout << l->getMessage() << endl;
-    cout << "    next msg = " ;
-    cout << l->getNextMessage() << endl;
-    cout << "    residual = " << l->getResidual() << endl;
-  }
-}
-
-
-
-void
-BpSolver::runSolver (void)
-{
-  clock_t start;
-  if (Constants::COLLECT_STATS) {
-    start = clock();
-  }
-  runLoopySolver();
-  if (Constants::DEBUG >= 2) {
-    cout << endl;
-    if (nIters_ < BpOptions::maxIter) {
-      cout << "Sum-Product converged in " ; 
-      cout << nIters_ << " iterations" << endl;
-    } else {
-      cout << "The maximum number of iterations was hit, terminating..." ;
-      cout << endl;
-    }
-  }
-  unsigned size = factorGraph_->varNodes().size();
-  if (Constants::COLLECT_STATS) {
-    unsigned nIters = 0;
-    bool loopy = factorGraph_->isTree() == false;
-    if (loopy) nIters = nIters_;
-    double time = (double (clock() - start)) / CLOCKS_PER_SEC;
-    Statistics::updateStatistics (size, loopy, nIters, time);
-  }
-  runned_ = true;
-}
-
-
-
-void
-BpSolver::runLoopySolver (void)
-{
-  initializeSolver();
-  nIters_ = 0;
-
-  while (!converged() && nIters_ < BpOptions::maxIter) {
-
-    nIters_ ++;
-    if (Constants::DEBUG >= 2) {
-      Util::printHeader (" Iteration " + nIters_);
-      cout << endl;
-    }
-
-    switch (BpOptions::schedule) {
-      case BpOptions::Schedule::SEQ_RANDOM:
-        random_shuffle (links_.begin(), links_.end());
-        // no break
-
-      case BpOptions::Schedule::SEQ_FIXED:
-        for (unsigned i = 0; i < links_.size(); i++) {
-          calculateAndUpdateMessage (links_[i]);
-        }
-        break;
-
-      case BpOptions::Schedule::PARALLEL:
-        for (unsigned i = 0; i < links_.size(); i++) {
-          calculateMessage (links_[i]);
-        }
-        for (unsigned i = 0; i < links_.size(); i++) {
-          updateMessage(links_[i]);
-        }
-        break;
-
-      case BpOptions::Schedule::MAX_RESIDUAL:
-        maxResidualSchedule();
-        break;
-    }
-    if (Constants::DEBUG >= 2) {
-      cout << endl;
-    }
+    FacNode* src = links_[i]->getFactor();
+    VarNode* dst = links_[i]->getVariable();
+    ninf (dst)->addSpLink (links_[i]);
+    ninf (src)->addSpLink (links_[i]);
   }
 }
 
@@ -488,7 +446,7 @@ BpSolver::converged (void)
   if (links_.size() == 0) {
     return true;
   }
-  if (nIters_ == 0 || nIters_ == 1) {
+  if (nIters_ <= 1) {
     return false;
   }
   bool converged = true;
@@ -512,5 +470,21 @@ BpSolver::converged (void)
     }
   }
   return converged;
+}
+
+
+
+void
+BpSolver::printLinkInformation (void) const
+{
+  for (unsigned i = 0; i < links_.size(); i++) {
+    SpLink* l = links_[i]; 
+    cout << l->toString() << ":" << endl;
+    cout << "    curr msg = " ;
+    cout << l->getMessage() << endl;
+    cout << "    next msg = " ;
+    cout << l->getNextMessage() << endl;
+    cout << "    residual = " << l->getResidual() << endl;
+  }
 }
 

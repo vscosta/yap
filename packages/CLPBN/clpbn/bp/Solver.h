@@ -12,7 +12,7 @@ using namespace std;
 class Solver
 {
   public:
-    Solver (const FactorGraph& fg) : fg_(fg) { }
+    Solver (const FactorGraph& factorGraph) : fg(factorGraph) { }
 
     virtual ~Solver() { } // ensure that subclass destructor is called
 
@@ -23,7 +23,7 @@ class Solver
     void printAllPosterioris (void);
    
   protected:
-    const FactorGraph& fg_;
+    const FactorGraph& fg;
 };
 
 #endif // HORUS_SOLVER_H

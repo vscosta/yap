@@ -22,8 +22,8 @@ typedef unordered_map<unsigned, vector<Color>> VarColorMap;
 typedef unordered_map<unsigned, Color>    DistColorMap;
 typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
 
-typedef vector<VarCluster*> VarClusterSet;
-typedef vector<FacCluster*> FacClusterSet;
+typedef vector<VarCluster*> VarClusters;
+typedef vector<FacCluster*> FacClusters;
 
 typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
 typedef unordered_map<Signature, FacNodes, SignatureHash> FacSignMap;
@@ -99,18 +99,20 @@ class VarCluster
       facClusters_.push_back (fc);
     }
 
-    const FacClusterSet& getFacClusters (void) const
+    const FacClusters& getFacClusters (void) const
     {
       return facClusters_;
     }
 
     VarNode* getRepresentativeVariable (void) const { return representVar_; }
-    void setRepresentativeVariable (VarNode* v)     { representVar_ = v; }
-    const VarNodes& getGroundVarNodes (void) const  { return groundVars_; }
+
+    void setRepresentativeVariable (VarNode* v) { representVar_ = v; }
+
+    const VarNodes& getGroundVarNodes (void) const { return groundVars_; }
 
   private:
     VarNodes        groundVars_;
-    FacClusterSet   facClusters_;
+    FacClusters   facClusters_;
     VarNode*      representVar_;
 };
 
@@ -118,7 +120,7 @@ class VarCluster
 class FacCluster
 {
   public:
-    FacCluster (const FacNodes& groundFactors, const VarClusterSet& vcs)
+    FacCluster (const FacNodes& groundFactors, const VarClusters& vcs)
     {
       groundFactors_ = groundFactors;
       varClusters_ = vcs;
@@ -127,7 +129,7 @@ class FacCluster
       }
     }
  
-    const VarClusterSet& getVarClusters (void) const
+    const VarClusters& getVarClusters (void) const
     {
       return varClusters_;
     }
@@ -160,7 +162,7 @@ class FacCluster
  
   private:
     FacNodes        groundFactors_;
-    VarClusterSet   varClusters_;
+    VarClusters   varClusters_;
     FacNode*      representFactor_;
 };
 
@@ -172,9 +174,9 @@ class CFactorGraph
 
    ~CFactorGraph (void);
 
-    const VarClusterSet& getVarClusters (void) { return varClusters_; }
+    const VarClusters& getVarClusters (void) { return varClusters_; }
 
-    const FacClusterSet& getFacClusters (void) { return facClusters_; }
+    const FacClusters& getFacClusters (void) { return facClusters_; }
 
     VarNode* getEquivalentVariable (VarId vid)
     {
@@ -182,7 +184,7 @@ class CFactorGraph
       return vc->getRepresentativeVariable();
     }
 
-    FactorGraph* getCompressedFactorGraph (void);
+    FactorGraph* getGroundFactorGraph (void) const;
 
     unsigned getGroundEdgeCount (const FacCluster*, const VarCluster*) const;
  
@@ -200,7 +202,7 @@ class CFactorGraph
       return varColors_[vn->getIndex()];
     }
     Color getColor (const FacNode* fn) const  {
-      return factorColors_[fn->getIndex()];
+      return facColors_[fn->getIndex()];
     }
 
     void setColor (const VarNode* vn, Color c)
@@ -210,7 +212,7 @@ class CFactorGraph
 
     void setColor (const FacNode* fn, Color  c)
     {
-      factorColors_[fn->getIndex()] = c;
+      facColors_[fn->getIndex()] = c;
     }
 
     VarCluster* getVariableCluster (VarId vid) const
@@ -232,11 +234,11 @@ class CFactorGraph
 
     Color               freeColor_;
     vector<Color>       varColors_;
-    vector<Color>       factorColors_;
+    vector<Color>       facColors_;
     vector<Signature>   varSignatures_;
-    vector<Signature>   factorSignatures_;
-    VarClusterSet       varClusters_;
-    FacClusterSet       facClusters_;
+    vector<Signature>   facSignatures_;
+    VarClusters       varClusters_;
+    FacClusters       facClusters_;
     VarId2VarCluster    vid2VarCluster_;
     const FactorGraph*  groundFg_;
 };

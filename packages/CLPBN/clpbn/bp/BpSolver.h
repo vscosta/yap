@@ -1,5 +1,5 @@
-#ifndef HORUS_BpSolver_H
-#define HORUS_BpSolver_H
+#ifndef HORUS_BPSOLVER_H
+#define HORUS_BPSOLVER_H
 
 #include <set>
 #include <vector>
@@ -102,7 +102,7 @@ class BpSolver : public Solver
     virtual Params getJointDistributionOf (const VarIds&);
  
   protected:
-    virtual void initializeSolver (void);
+    void runSolver (void);
 
     virtual void createLinks (void);
 
@@ -113,8 +113,6 @@ class BpSolver : public Solver
     virtual Params getVar2FactorMsg (const SpLink*) const;
 
     virtual Params getJointByConditioning (const VarIds&) const;
-
-    virtual void printLinkInformation (void) const;
 
     SPNodeInfo* ninf (const VarNode* var) const
     {
@@ -170,7 +168,7 @@ class BpSolver : public Solver
     vector<SPNodeInfo*>  varsI_;
     vector<SPNodeInfo*>  facsI_;
     bool                 runned_;
-    const FactorGraph*   factorGraph_;
+    const FactorGraph*   fg_;
 
     typedef multiset<SpLink*, CompareResidual> SortedOrder;
     SortedOrder sortedOrder_;
@@ -179,10 +177,12 @@ class BpSolver : public Solver
     SpLinkMap linkMap_;
 
   private:
-    void runSolver (void);
-    void runLoopySolver (void);
+    void initializeSolver (void);
+
     bool converged (void);
+
+    void printLinkInformation (void) const;
 };
 
-#endif // HORUS_BpSolver_H
+#endif // HORUS_BPSOLVER_H
 

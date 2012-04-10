@@ -9,27 +9,25 @@ class Factor;
 class CbpSolverLink : public SpLink
 {
   public:
-    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned c) : SpLink (fn, vn)
-    {
-      edgeCount_ = c;
-      poweredMsg_.resize (vn->range(), LogAware::one());
-    }
+    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned c) 
+        : SpLink (fn, vn), nrEdges_(c),
+          pwdMsg_(vn->range(), LogAware::one()) { }
 
-    unsigned getNumberOfEdges  (void) const { return edgeCount_; }
+    unsigned nrEdges  (void) const { return nrEdges_; }
 
-    const Params& getPoweredMessage (void) const { return poweredMsg_; }
+    const Params& poweredMessage (void) const { return pwdMsg_; }
 
     void updateMessage (void) 
     {
-      poweredMsg_ = *nextMsg_;
+      pwdMsg_ = *nextMsg_;
       swap (currMsg_, nextMsg_);
       msgSended_  = true;
-      LogAware::pow (poweredMsg_, edgeCount_);
+      LogAware::pow (pwdMsg_, nrEdges_);
     }
   
   private:
-    Params    poweredMsg_;
-    unsigned  edgeCount_;
+    unsigned  nrEdges_;
+    Params    pwdMsg_;
 };
 
 
@@ -37,16 +35,15 @@ class CbpSolverLink : public SpLink
 class CbpSolver : public BpSolver
 {
   public:
-    CbpSolver (const FactorGraph& fg) : BpSolver (fg) { }
+    CbpSolver (const FactorGraph& fg);
 
    ~CbpSolver (void);
-
+  
     Params getPosterioriOf (VarId);
 
     Params getJointDistributionOf (const VarIds&);
 
    private:
-     void initializeSolver (void);
 
      void createLinks (void);
 
@@ -56,8 +53,7 @@ class CbpSolver : public BpSolver
 
      void printLinkInformation (void) const;
 
-     CFactorGraph* lfg_;
-     FactorGraph*  factorGraph_;
+     CFactorGraph* cfg_;
 };
 
 #endif // HORUS_CBP_H
