@@ -10,7 +10,7 @@
 using namespace std;
 
 
-class FactorNode;
+class FacNode;
 
 
 class VarNode : public Var
@@ -20,21 +20,21 @@ class VarNode : public Var
 
     VarNode (const Var* v) : Var (v) { }
 
-    void addNeighbor (FactorNode* fn) { neighs_.push_back (fn); }
+    void addNeighbor (FacNode* fn) { neighs_.push_back (fn); }
 
-    const FactorNodes& neighbors (void) const { return neighs_; }
+    const FacNodes& neighbors (void) const { return neighs_; }
 
   private:
     DISALLOW_COPY_AND_ASSIGN (VarNode);
 
-    FactorNodes neighs_;
+    FacNodes neighs_;
 };
 
 
-class FactorNode
+class FacNode
 {
   public:
-    FactorNode (const Factor& f) : factor_(f), index_(-1) { }
+    FacNode (const Factor& f) : factor_(f), index_(-1) { }
 
     const Factor& factor (void) const { return factor_; }
 
@@ -53,7 +53,7 @@ class FactorNode
     string getLabel (void) { return factor_.getLabel(); }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FactorNode);
+    DISALLOW_COPY_AND_ASSIGN (FacNode);
 
     Factor    factor_;
     VarNodes  neighs_;
@@ -81,7 +81,7 @@ class FactorGraph
 
     const VarNodes& varNodes (void) const { return varNodes_; }
 
-    const FactorNodes& factorNodes (void) const { return facNodes_; }
+    const FacNodes& facNodes (void) const { return facNodes_; }
 
     void setFromBayesNetwork (void) { fromBayesNet_ = true; }
  
@@ -101,11 +101,9 @@ class FactorGraph
 
     void addVarNode (VarNode*);
 
-    void addFactorNode (FactorNode*);
+    void addFacNode (FacNode*);
 
-    void addEdge (VarNode*, FactorNode*);
-
-    void addEdge (FactorNode*, VarNode*);
+    void addEdge (VarNode*, FacNode*);
 
     bool isTree (void) const;
 
@@ -130,14 +128,14 @@ class FactorGraph
 
     bool containsCycle (void) const;
 
-    bool containsCycle (const VarNode*, const FactorNode*,
+    bool containsCycle (const VarNode*, const FacNode*,
         vector<bool>&, vector<bool>&) const;
 
-    bool containsCycle (const FactorNode*, const VarNode*,
+    bool containsCycle (const FacNode*, const VarNode*,
         vector<bool>&, vector<bool>&) const;
 
-    VarNodes     varNodes_;
-    FactorNodes  facNodes_;
+    VarNodes  varNodes_;
+    FacNodes  facNodes_;
 
     bool      fromBayesNet_;
     DAGraph   structure_;

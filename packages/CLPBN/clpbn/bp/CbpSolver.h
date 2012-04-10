@@ -9,7 +9,7 @@ class Factor;
 class CbpSolverLink : public SpLink
 {
   public:
-    CbpSolverLink (FactorNode* fn, VarNode* vn, unsigned c) : SpLink (fn, vn)
+    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned c) : SpLink (fn, vn)
     {
       edgeCount_ = c;
       poweredMsg_.resize (vn->range(), LogAware::one());

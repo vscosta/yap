@@ -22,13 +22,13 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
   for (unsigned i = 0; i < varNodes.size(); i++) {
     addVarNode (new VarNode (varNodes[i]));
   }
-  const FactorNodes& facNodes = fg.factorNodes();
+  const FacNodes& facNodes = fg.facNodes();
   for (unsigned i = 0; i < facNodes.size(); i++) {
-    FactorNode* facNode = new FactorNode (facNodes[i]->factor());
-    addFactorNode (facNode);
+    FacNode* facNode = new FacNode (facNodes[i]->factor());
+    addFacNode (facNode);
     const VarNodes& neighs = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighs.size(); j++) {
-      addEdge (facNode, varNodes_[neighs[j]->getIndex()]);
+      addEdge (varNodes_[neighs[j]->getIndex()], facNode);
     }
   }
   setIndexes();
@@ -39,9 +39,9 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
 void
 FactorGraph::readFromUaiFormat (const char* fileName)
 {
-  ifstream is (fileName);
+  std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "error: cannot read from file " + std::string (fileName) << endl;
+    cerr << "error: cannot read from file " << fileName << endl;
     abort();
   }
   ignoreLines (is);
@@ -113,9 +113,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
 void
 FactorGraph::readFromLibDaiFormat (const char* fileName)
 {
-  ifstream is (fileName);
+  std::ifstream is (fileName);
   if (!is.is_open()) {
-    cerr << "error: cannot read from file " + std::string (fileName) << endl;
+    cerr << "error: cannot read from file " << fileName << endl;
     abort();
   }
   ignoreLines (is);
@@ -185,8 +185,8 @@ FactorGraph::~FactorGraph (void)
 void
 FactorGraph::addFactor (const Factor& factor)
 {
-  FactorNode* fn = new FactorNode (factor);
-  addFactorNode (fn);
+  FacNode* fn = new FacNode (factor);
+  addFacNode (fn);
   const VarIds& vids = factor.arguments();
   for (unsigned i = 0; i < vids.size(); i++) {
     bool found = false;
@@ -217,7 +217,7 @@ FactorGraph::addVarNode (VarNode* vn)
 
 
 void
-FactorGraph::addFactorNode (FactorNode* fn)
+FactorGraph::addFacNode (FacNode* fn)
 {
   facNodes_.push_back (fn);
   fn->setIndex (facNodes_.size() - 1);
@@ -226,19 +226,10 @@ FactorGraph::addFactorNode (FactorNode* fn)
 
 
 void
-FactorGraph::addEdge (VarNode* vn, FactorNode* fn)
+FactorGraph::addEdge (VarNode* vn, FacNode* fn)
 {
   vn->addNeighbor (fn);
   fn->addNeighbor (vn);
-}
-
-
-
-void
-FactorGraph::addEdge (FactorNode* fn, VarNode* vn)
-{
-  fn->addNeighbor (vn);
-  vn->addNeighbor (fn);
 }
 
 
@@ -345,18 +336,15 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "FactorGraph::exportToUaiFormat()" << endl;
+    cerr << "error: cannot open file " << fileName << endl;
     abort();
   }
-
   out << "MARKOV" << endl;
   out << varNodes_.size() << endl;
   for (unsigned i = 0; i < varNodes_.size(); i++) {
     out << varNodes_[i]->range() << " " ;
   }
   out << endl;
-
   out << facNodes_.size() << endl;
   for (unsigned i = 0; i < facNodes_.size(); i++) {
     const VarNodes& factorVars = facNodes_[i]->neighbors();
@@ -366,7 +354,6 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
     }
     out << endl;
   }
-
   for (unsigned i = 0; i < facNodes_.size(); i++) {
     Params params = facNodes_[i]->params();
     if (Globals::logDomain) {
@@ -378,7 +365,6 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
     }
     out << endl;
   }
-
   out.close();
 }
 
@@ -389,8 +375,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
 {
   ofstream out (fileName);
   if (!out.is_open()) {
-    cerr << "error: cannot open file to write at " ;
-    cerr << "FactorGraph::exportToLibDaiFormat()" << endl;
+    cerr << "error: cannot open file " << fileName << endl;
     abort();
   }
   out << facNodes_.size() << endl << endl;
@@ -452,12 +437,12 @@ FactorGraph::containsCycle (void) const
 bool
 FactorGraph::containsCycle (
     const VarNode* v,
-    const FactorNode* p,
+    const FacNode* p,
     vector<bool>& visitedVars,
     vector<bool>& visitedFactors) const
 {
   visitedVars[v->getIndex()] = true;
-  const FactorNodes& adjacencies = v->neighbors();
+  const FacNodes& adjacencies = v->neighbors();
   for (unsigned i = 0; i < adjacencies.size(); i++) {
     int w = adjacencies[i]->getIndex();
     if (!visitedFactors[w]) {
@@ -476,7 +461,7 @@ FactorGraph::containsCycle (
 
 bool
 FactorGraph::containsCycle (
-    const FactorNode* v,
+    const FacNode* v,
     const VarNode* p,
     vector<bool>& visitedVars,
     vector<bool>& visitedFactors) const

@@ -99,9 +99,9 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 {
   int idx = -1;  
   VarNode* vn = factorGraph_->getVarNode (jointVarIds[0]);
-  const FactorNodes& factorNodes = vn->neighbors();
-  for (unsigned i = 0; i < factorNodes.size(); i++) {
-    if (factorNodes[i]->factor().contains (jointVarIds)) {
+  const FacNodes& facNodes = vn->neighbors();
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    if (facNodes[i]->factor().contains (jointVarIds)) {
       idx = i;
       break;
     }
@@ -109,8 +109,8 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   if (idx == -1) {
     return getJointByConditioning (jointVarIds);
   } else {
-    Factor res (factorNodes[idx]->factor());
-    const SpLinkSet& links = ninf(factorNodes[idx])->getLinks();
+    Factor res (facNodes[idx]->factor());
+    const SpLinkSet& links = ninf(facNodes[idx])->getLinks();
     for (unsigned i = 0; i < links.size(); i++) {
       Factor msg (links[i]->getVariable()->varId(),
                   links[i]->getVariable()->range(),
@@ -188,7 +188,7 @@ BpSolver::initializeSolver (void)
     varsI_.push_back (new SPNodeInfo());
   }
 
-  const FactorNodes& facNodes = factorGraph_->factorNodes();
+  const FacNodes& facNodes = factorGraph_->facNodes();
   for (unsigned i = 0; i < facsI_.size(); i++) {
     delete facsI_[i];
   }
@@ -203,7 +203,7 @@ BpSolver::initializeSolver (void)
   createLinks();
 
   for (unsigned i = 0; i < links_.size(); i++) {
-    FactorNode* src = links_[i]->getFactor();
+    FacNode* src = links_[i]->getFactor();
     VarNode* dst = links_[i]->getVariable();
     ninf (dst)->addSpLink (links_[i]);
     ninf (src)->addSpLink (links_[i]);
@@ -215,7 +215,7 @@ BpSolver::initializeSolver (void)
 void
 BpSolver::createLinks (void)
 {
-  const FactorNodes& facNodes = factorGraph_->factorNodes();
+  const FacNodes& facNodes = factorGraph_->facNodes();
   for (unsigned i = 0; i < facNodes.size(); i++) {
     const VarNodes& neighbors = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighbors.size(); j++) {
@@ -293,7 +293,7 @@ BpSolver::maxResidualSchedule (void)
     linkMap_.find (link)->second = sortedOrder_.insert (link);
 
     // update the messages that depend on message source --> destin
-    const FactorNodes& factorNeighbors = link->getVariable()->neighbors();
+    const FacNodes& factorNeighbors = link->getVariable()->neighbors();
     for (unsigned i = 0; i < factorNeighbors.size(); i++) {
       if (factorNeighbors[i] != link->getFactor()) {
         const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
@@ -318,7 +318,7 @@ BpSolver::maxResidualSchedule (void)
 void
 BpSolver::calculateFactor2VariableMsg (SpLink* link)
 {
-  FactorNode* src = link->getFactor();
+  FacNode* src = link->getFactor();
   const VarNode* dst = link->getVariable();
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
@@ -388,7 +388,7 @@ Params
 BpSolver::getVar2FactorMsg (const SpLink* link) const
 {
   const VarNode* src = link->getVariable();
-  const FactorNode* dst = link->getFactor();
+  const FacNode* dst = link->getFactor();
   Params msg;
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());

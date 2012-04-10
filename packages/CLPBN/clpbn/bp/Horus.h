@@ -14,14 +14,14 @@ using namespace std;
 class Var;
 class Factor;
 class VarNode;
-class FactorNode;
+class FacNode;
 
 typedef vector<double>       Params;
 typedef unsigned             VarId;
 typedef vector<VarId>        VarIds;
 typedef vector<Var*>         Vars;
 typedef vector<VarNode*>     VarNodes;
-typedef vector<FactorNode*>  FactorNodes;
+typedef vector<FacNode*>     FacNodes;
 typedef vector<Factor*>      Factors;
 typedef vector<string>       States;
 typedef vector<unsigned>     Ranges;

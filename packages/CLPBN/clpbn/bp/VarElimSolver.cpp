@@ -57,11 +57,11 @@ VarElimSolver::getJointDistributionOf (const VarIds& vids)
 void
 VarElimSolver::createFactorList (void)
 {
-  const FactorNodes& factorNodes = factorGraph_->factorNodes();
-  factorList_.reserve (factorNodes.size() * 2);
-  for (unsigned i = 0; i < factorNodes.size(); i++) {
-    factorList_.push_back (new Factor (factorNodes[i]->factor())); // FIXME
-    const VarNodes& neighs = factorNodes[i]->neighbors();
+  const FacNodes& facNodes = factorGraph_->facNodes();
+  factorList_.reserve (facNodes.size() * 2);
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    factorList_.push_back (new Factor (facNodes[i]->factor())); // FIXME
+    const VarNodes& neighs = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighs.size(); j++) {
       unordered_map<VarId,vector<unsigned> >::iterator it 
           = varFactors_.find (neighs[j]->varId());

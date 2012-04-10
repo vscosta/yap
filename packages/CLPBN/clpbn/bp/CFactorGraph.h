@@ -26,7 +26,7 @@ typedef vector<VarCluster*> VarClusterSet;
 typedef vector<FacCluster*> FacClusterSet;
 
 typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
-typedef unordered_map<Signature, FactorNodes, SignatureHash> FacSignMap;
+typedef unordered_map<Signature, FacNodes, SignatureHash> FacSignMap;
 
 
 
@@ -118,7 +118,7 @@ class VarCluster
 class FacCluster
 {
   public:
-    FacCluster (const FactorNodes& groundFactors, const VarClusterSet& vcs)
+    FacCluster (const FacNodes& groundFactors, const VarClusterSet& vcs)
     {
       groundFactors_ = groundFactors;
       varClusters_ = vcs;
@@ -132,7 +132,7 @@ class FacCluster
       return varClusters_;
     }
   
-    bool containsGround (const FactorNode* fn)
+    bool containsGround (const FacNode* fn)
     {
       for (unsigned i = 0; i < groundFactors_.size(); i++) {
         if (groundFactors_[i] == fn) {
@@ -142,26 +142,26 @@ class FacCluster
       return false;
     }
 
-    FactorNode* getRepresentativeFactor (void) const
+    FacNode* getRepresentativeFactor (void) const
     {
       return representFactor_;
     }
 
-    void setRepresentativeFactor (FactorNode* fn) 
+    void setRepresentativeFactor (FacNode* fn) 
     { 
       representFactor_ = fn;
     }
 
-    const FactorNodes& getGroundFactors (void) const
+    const FacNodes& getGroundFactors (void) const
     {
       return groundFactors_;
     }
 
  
   private:
-    FactorNodes        groundFactors_;
+    FacNodes        groundFactors_;
     VarClusterSet   varClusters_;
-    FactorNode*      representFactor_;
+    FacNode*      representFactor_;
 };
 
 
@@ -199,7 +199,7 @@ class CFactorGraph
     {
       return varColors_[vn->getIndex()];
     }
-    Color getColor (const FactorNode* fn) const  {
+    Color getColor (const FacNode* fn) const  {
       return factorColors_[fn->getIndex()];
     }
 
@@ -208,7 +208,7 @@ class CFactorGraph
       varColors_[vn->getIndex()] = c;
     }
 
-    void setColor (const FactorNode* fn, Color  c)
+    void setColor (const FacNode* fn, Color  c)
     {
       factorColors_[fn->getIndex()] = c;
     }
@@ -218,17 +218,17 @@ class CFactorGraph
       return vid2VarCluster_.find (vid)->second;
     }
 
-    void  setInitialColors (void);
+    void setInitialColors (void);
 
-    void  createGroups (void);
+    void createGroups (void);
 
-    void  createClusters (const VarSignMap&, const FacSignMap&);
+    void createClusters (const VarSignMap&, const FacSignMap&);
 
-    const Signature&  getSignature (const VarNode*);
+    const Signature& getSignature (const VarNode*);
 
-    const Signature&  getSignature (const FactorNode*);
+    const Signature& getSignature (const FacNode*);
 
-    void  printGroups (const VarSignMap&, const FacSignMap&) const;
+    void printGroups (const VarSignMap&, const FacSignMap&) const;
 
     Color               freeColor_;
     vector<Color>       varColors_;

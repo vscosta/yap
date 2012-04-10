@@ -64,11 +64,11 @@ CbpSolver::initializeSolver (void)
   unsigned nGroundVars, nGroundFacs, nWithoutNeighs;
   if (Constants::COLLECT_STATS) {
     nGroundVars = factorGraph_->varNodes().size();
-    nGroundFacs = factorGraph_->factorNodes().size();
+    nGroundFacs = factorGraph_->facNodes().size();
     const VarNodes& vars = factorGraph_->varNodes();
     nWithoutNeighs = 0;
     for (unsigned i = 0; i < vars.size(); i++) {
-      const FactorNodes& factors = vars[i]->neighbors();
+      const FacNodes& factors = vars[i]->neighbors();
       if (factors.size() == 1 && factors[0]->neighbors().size() == 1) {
         nWithoutNeighs ++;
       }
@@ -84,7 +84,7 @@ CbpSolver::initializeSolver (void)
 
   if (Constants::COLLECT_STATS) {
     unsigned nClusterVars = factorGraph_->varNodes().size();
-    unsigned nClusterFacs = factorGraph_->factorNodes().size();
+    unsigned nClusterFacs = factorGraph_->facNodes().size();
     Statistics::updateCompressingStatistics (nGroundVars,  nGroundFacs,
                                              nClusterVars, nClusterFacs,
                                              nWithoutNeighs);
@@ -154,7 +154,7 @@ CbpSolver::maxResidualSchedule (void)
     linkMap_.find (link)->second = sortedOrder_.insert (link);
 
     // update the messages that depend on message source --> destin
-    const FactorNodes& factorNeighbors = link->getVariable()->neighbors();
+    const FacNodes& factorNeighbors = link->getVariable()->neighbors();
     for (unsigned i = 0; i < factorNeighbors.size(); i++) {
       const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
       for (unsigned j = 0; j < links.size(); j++) {
@@ -193,7 +193,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
 {
   Params msg;
   const VarNode* src = link->getVariable();
-  const FactorNode* dst = link->getFactor();
+  const FacNode* dst = link->getFactor();
   const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());

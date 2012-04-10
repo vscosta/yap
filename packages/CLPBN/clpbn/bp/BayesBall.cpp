@@ -60,7 +60,7 @@ BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 void
 BayesBall::constructGraph (FactorGraph* fg) const
 {
-  const FactorNodes& facNodes = fg_.factorNodes();
+  const FacNodes& facNodes = fg_.facNodes();
   for (unsigned i = 0; i < facNodes.size(); i++) {
     const DAGraphNode* n = dag_.getNode (
         facNodes[i]->factor().argument (0));

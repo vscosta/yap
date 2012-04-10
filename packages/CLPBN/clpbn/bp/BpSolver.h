@@ -16,7 +16,7 @@ using namespace std;
 class SpLink
 {
   public:
-    SpLink (FactorNode* fn, VarNode* vn)
+    SpLink (FacNode* fn, VarNode* vn)
     { 
       fac_ = fn;
       var_ = vn;
@@ -30,7 +30,7 @@ class SpLink
 
     virtual ~SpLink (void) { };
 
-    FactorNode* getFactor (void) const { return fac_; }
+    FacNode* getFactor (void) const { return fac_; }
 
     VarNode* getVariable (void) const { return var_; }
 
@@ -65,14 +65,14 @@ class SpLink
     }
  
   protected:
-    FactorNode* fac_;
-    VarNode*    var_;
-    Params      v1_;
-    Params      v2_;
-    Params*     currMsg_;
-    Params*     nextMsg_;
-    bool        msgSended_;
-    double      residual_;
+    FacNode*  fac_;
+    VarNode*  var_;
+    Params    v1_;
+    Params    v2_;
+    Params*   currMsg_;
+    Params*   nextMsg_;
+    bool      msgSended_;
+    double    residual_;
 };
 
 typedef vector<SpLink*> SpLinkSet;
@@ -121,7 +121,7 @@ class BpSolver : public Solver
       return varsI_[var->getIndex()];
     }
 
-    SPNodeInfo* ninf (const FactorNode* fac) const
+    SPNodeInfo* ninf (const FacNode* fac) const
     {
       return facsI_[fac->getIndex()];
     }

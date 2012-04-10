@@ -17,7 +17,7 @@ CFactorGraph::CFactorGraph (const FactorGraph& fg)
     varSignatures_.push_back (Signature (c));
   }
 
-  const FactorNodes& facNodes = fg.factorNodes();
+  const FacNodes& facNodes = fg.facNodes();
   factorSignatures_.reserve (facNodes.size());
   for (unsigned i = 0; i < facNodes.size(); i++) {
     unsigned c = facNodes[i]->neighbors().size() + 1;
@@ -70,7 +70,7 @@ CFactorGraph::setInitialColors (void)
     setColor (varNodes[i], stateColors[idx]);
   }
 
-  const FactorNodes& facNodes = groundFg_->factorNodes();
+  const FacNodes& facNodes = groundFg_->facNodes();
   if (checkForIdenticalFactors) {
     unsigned groupCount = 1;
     for (unsigned i = 0; i < facNodes.size(); i++) {
@@ -115,7 +115,7 @@ CFactorGraph::createGroups (void)
   unsigned nIters = 0;
   bool groupsHaveChanged = true;
   const VarNodes& varNodes = groundFg_->varNodes();
-  const FactorNodes& facNodes = groundFg_->factorNodes();
+  const FacNodes& facNodes = groundFg_->facNodes();
 
   while (groupsHaveChanged || nIters == 1) {
     nIters ++;
@@ -127,14 +127,14 @@ CFactorGraph::createGroups (void)
       const Signature& signature = getSignature (facNodes[i]);
       FacSignMap::iterator it = factorGroups.find (signature);
       if (it == factorGroups.end()) {
-        it = factorGroups.insert (make_pair (signature, FactorNodes())).first;
+        it = factorGroups.insert (make_pair (signature, FacNodes())).first;
       }
       it->second.push_back (facNodes[i]);
     }
     for (FacSignMap::iterator it = factorGroups.begin();
         it != factorGroups.end(); it++) {
       Color newColor = getFreeColor();
-      FactorNodes& groupMembers = it->second;
+      FacNodes& groupMembers = it->second;
       for (unsigned i = 0; i < groupMembers.size(); i++) {
         setColor (groupMembers[i], newColor);
       }
@@ -188,7 +188,7 @@ CFactorGraph::createClusters (
   facClusters_.reserve (factorGroups.size());
   for (FacSignMap::const_iterator it = factorGroups.begin();
       it != factorGroups.end(); it++) {
-    FactorNode* groupFactor = it->second[0];
+    FacNode* groupFactor = it->second[0];
     const VarNodes& neighs = groupFactor->neighbors();
     VarClusterSet varClusters;
     varClusters.reserve (neighs.size());
@@ -207,7 +207,7 @@ CFactorGraph::getSignature (const VarNode* varNode)
 {
   Signature& sign = varSignatures_[varNode->getIndex()];
   vector<Color>::iterator it = sign.colors.begin();
-  const FactorNodes& neighs = varNode->neighbors();
+  const FacNodes& neighs = varNode->neighbors();
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
     it ++;
@@ -221,7 +221,7 @@ CFactorGraph::getSignature (const VarNode* varNode)
 
 
 const Signature&
-CFactorGraph::getSignature (const FactorNode* facNode)
+CFactorGraph::getSignature (const FacNode* facNode)
 {
   Signature& sign = factorSignatures_[facNode->getIndex()];
   vector<Color>::iterator it = sign.colors.begin();
@@ -255,12 +255,12 @@ CFactorGraph::getCompressedFactorGraph (void)
       VarNode* v = myVarClusters[j]->getRepresentativeVariable();
       myGroundVars.push_back (v);
     }
-    FactorNode* fn = new FactorNode (Factor (myGroundVars,
+    FacNode* fn = new FacNode (Factor (myGroundVars,
         facClusters_[i]->getGroundFactors()[0]->params()));
     facClusters_[i]->setRepresentativeFactor (fn);
-    fg->addFactorNode (fn);
+    fg->addFacNode (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
-      fg->addEdge (fn, static_cast<VarNode*> (myGroundVars[j]));
+      fg->addEdge (static_cast<VarNode*> (myGroundVars[j]), fn);
     }
   }
   fg->setIndexes();
@@ -274,7 +274,7 @@ CFactorGraph::getGroundEdgeCount (
     const FacCluster* fc,
     const VarCluster* vc) const
 {
-  const FactorNodes& clusterGroundFactors = fc->getGroundFactors();
+  const FacNodes& clusterGroundFactors = fc->getGroundFactors();
   VarNode* varNode = vc->getGroundVarNodes()[0];
   unsigned count = 0;
   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
@@ -322,7 +322,7 @@ CFactorGraph::printGroups (
   cout << endl << "factor groups:" << endl;
   for (FacSignMap::const_iterator it = factorGroups.begin();
       it != factorGroups.end(); it++) {
-    const FactorNodes& groupMembers = it->second;
+    const FacNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
       cout << ++count << ": " ;
       for (unsigned i = 0; i < groupMembers.size(); i++) {
