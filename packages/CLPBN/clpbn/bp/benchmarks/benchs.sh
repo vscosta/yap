@@ -1,4 +1,11 @@
 
+if [ $1 ] && [ $1 == "clear" ]; then
+  rm *~
+  rm -f school/*.log school/*~
+  rm -f city/*.log city/*~
+  rm -f workshop_attrs/*.log workshop_attrs/*~
+fi
+
 function run_solver
 {
   constraint=$1
@@ -19,7 +26,7 @@ function run_solver
 [$NETWORK].
 [$constraint].
 clpbn_horus:set_solver($SOLVER).
-%clpbn_horus:set_horus_flag(use_logarithms, true).
+clpbn_horus:set_horus_flag(use_logarithms, true).
 $solver_flag.
 $QUERY.
 open("$LOG_FILE", 'append', S), format(S, '$constraint: ~15+ ', []), close(S).

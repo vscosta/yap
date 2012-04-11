@@ -23,5 +23,5 @@ markov attends(P)::[t,f], attr6::[t,f] ;  [0.1, 0.2, 0.3, 0.46] ; [people(P)].
 
 markov attends(P)::[t,f], series::[t,f] ; [0.5, 0.6, 0.7, 0.87] ; [people(P)].
 
-?- series(X).
+% ?- series(X).
 

@@ -74,10 +74,8 @@ CFactorGraph::setInitialColors (void)
   for (unsigned i = 0; i < facNodes.size(); i++) {
     facNodes[i]->factor().setDistId (Util::maxUnsigned());
   }
-  Util::printHeader ("Before check for identical factors");
-  groundFg_->print();
   // FIXME FIXME FIXME : pfl should give correct dist ids.
-  if (checkForIdenticalFactors || false) {
+  if (checkForIdenticalFactors || true) {
     unsigned groupCount = 1;
     for (unsigned i = 0; i < facNodes.size(); i++) {
       Factor& f1 = facNodes[i]->factor();
@@ -99,8 +97,6 @@ CFactorGraph::setInitialColors (void)
       groupCount ++;
     }
   }
-  Util::printHeader ("After check for identical factors");
-  groundFg_->print();
   // create the initial factor colors
   DistColorMap distColors;
   for (unsigned i = 0; i < facNodes.size(); i++) {
