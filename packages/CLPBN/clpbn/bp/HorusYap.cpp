@@ -64,20 +64,17 @@ int createLiftedNetwork (void)
   }
 
   // LiftedUtils::printSymbolDictionary();
-  if (Constants::DEBUG > 1) {
+  if (Constants::DEBUG > 2) {
     // Util::printHeader ("INITIAL PARFACTORS");
     // for (unsigned i = 0; i < parfactors.size(); i++) {
     //  parfactors[i]->print();
-    //  cout << endl;
     // }
-    // parfactors[0]->countConvert (LogVar (0));
-    //parfactors[1]->fullExpand (LogVar (1));
-    Util::printHeader ("SHATTERED PARFACTORS");
   }
 
   ParfactorList* pfList = new ParfactorList (parfactors);
 
-  if (Constants::DEBUG > 1) {
+  if (Constants::DEBUG >= 2) {
+    Util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
   }
 
@@ -257,7 +254,8 @@ Params
 readParameters (YAP_Term paramL)
 {
   Params params;
-  while (paramL!= YAP_TermNil()) {
+  assert (YAP_IsPairTerm (paramL));
+  while (paramL != YAP_TermNil()) {
     params.push_back ((double) YAP_FloatOfTerm (YAP_HeadOfTerm (paramL)));
     paramL = YAP_TailOfTerm (paramL);
   }

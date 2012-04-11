@@ -263,21 +263,22 @@ CFactorGraph::getGroundFactorGraph (void) const
       fg->addEdge (static_cast<VarNode*> (myGroundVars[j]), fn);
     }
   }
+  fg->print();
   return fg;
 }
 
 
 
 unsigned
-CFactorGraph::getGroundEdgeCount (
+CFactorGraph::getEdgeCount (
     const FacCluster* fc,
     const VarCluster* vc) const
 {
-  const FacNodes& clusterGroundFactors = fc->getGroundFactors();
-  VarNode* varNode = vc->getGroundVarNodes()[0];
   unsigned count = 0;
+  VarId vid = vc->getGroundVarNodes().front()->varId();
+  const FacNodes& clusterGroundFactors = fc->getGroundFactors();
   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-    if (clusterGroundFactors[i]->factor().indexOf (varNode->varId()) != -1) {
+    if (clusterGroundFactors[i]->factor().contains (vid)) {
       count ++;
     }
   }

@@ -145,7 +145,7 @@ add_evidence(Sk,Var) :-
 
 get_pfl_parameters(Id,Out) :-
 	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
-	writeln(factor(_Type,Id,_FList,_FV,_Phi,_Constraints)),
+	%writeln(factor(_Type,Id,_FList,_FV,_Phi,_Constraints)),
 	( is_list(Phi) -> Out = Phi ; call(user:Phi, Out) ).
 
 

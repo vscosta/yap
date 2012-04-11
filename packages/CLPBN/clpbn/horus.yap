@@ -28,10 +28,8 @@ warning :-
 :- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up) -> true ; warning.
 
 
-
-%:- set_horus_flag(inf_alg, ve).
-:- set_horus_flag(inf_alg, bn_bp).
-%:- set_horus_flag(inf_alg, fg_bp).
+:- set_horus_flag(inf_alg, ve).
+%:- set_horus_flag(inf_alg, bp).
 %: -set_horus_flag(inf_alg, cbp).
 
 :- set_horus_flag(schedule, seq_fixed).

@@ -528,11 +528,13 @@ Parfactor::print (bool printParams) const
     cout << args_[i];
   }
   cout << endl;
-  vector<string> groups;
-  for (unsigned i = 0; i < args_.size(); i++) {
-    groups.push_back (string ("g") + Util::toString (args_[i].group()));
+  if (args_[0].group() != Util::maxUnsigned()) {
+    vector<string> groups;
+    for (unsigned i = 0; i < args_.size(); i++) {
+      groups.push_back (string ("g") + Util::toString (args_[i].group()));
+    }
+    cout << "Groups:    " << groups  << endl;
   }
-  cout << "Groups:    " << groups  << endl;
   cout << "LogVars:   " << constr_->logVarSet()  << endl;
   cout << "Ranges:    " << ranges_ << endl;
   if (printParams == false) {

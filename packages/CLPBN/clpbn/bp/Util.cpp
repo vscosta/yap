@@ -155,7 +155,8 @@ getStateLines (const Vars& vars)
 
 
 
-void printHeader (string header, std::ostream& os)
+void
+printHeader (string header, std::ostream& os)
 {
   printAsteriskLine (os);
   os << header << endl;
@@ -164,7 +165,8 @@ void printHeader (string header, std::ostream& os)
 
 
 
-void printSubHeader (string header, std::ostream& os)
+void
+printSubHeader (string header, std::ostream& os)
 {
   printDashedLine (os);
   os << header << endl;
@@ -173,7 +175,8 @@ void printSubHeader (string header, std::ostream& os)
 
 
 
-void printAsteriskLine (std::ostream& os)
+void
+printAsteriskLine (std::ostream& os)
 {
   os << "********************************" ;
   os << "********************************" ;
@@ -182,7 +185,8 @@ void printAsteriskLine (std::ostream& os)
 
 
 
-void printDashedLine (std::ostream& os)
+void
+printDashedLine (std::ostream& os)
 {
   os << "--------------------------------" ;
   os << "--------------------------------" ;
@@ -382,13 +386,13 @@ Statistics::writeStatistics (const char* fileName)
 
 void
 Statistics::updateCompressingStatistics (
-    unsigned nGroundVars,
-    unsigned nGroundFactors,
-    unsigned nClusterVars, 
-    unsigned nClusterFactors,
-    unsigned nWithoutNeighs) {
-  compressInfo_.push_back (CompressInfo (nGroundVars, nGroundFactors,
-      nClusterVars, nClusterFactors, nWithoutNeighs));
+    unsigned nrGroundVars,
+    unsigned nrGroundFactors,
+    unsigned nrClusterVars, 
+    unsigned nrClusterFactors,
+    unsigned nrNeighborless) {
+  compressInfo_.push_back (CompressInfo (nrGroundVars, nrGroundFactors,
+      nrClusterVars, nrClusterFactors, nrNeighborless));
 }
 
 
@@ -460,17 +464,17 @@ Statistics::getStatisticString (void)
     ss3 << "Ground   Cluster   Ground    Cluster   Neighborless" << endl;
     ss3 << "Vars     Vars      Factors   Factors   Vars"         << endl;
     for (unsigned i = 0; i < compressInfo_.size(); i++) {
-      ss3 << setw (9) << compressInfo_[i].nGroundVars;
-      ss3 << setw (10) << compressInfo_[i].nClusterVars;
-      ss3 << setw (10) << compressInfo_[i].nGroundFactors;
-      ss3 << setw (10) << compressInfo_[i].nClusterFactors;
-      ss3 << setw (10) << compressInfo_[i].nWithoutNeighs;
+      ss3 << setw (9)  << compressInfo_[i].nrGroundVars;
+      ss3 << setw (10) << compressInfo_[i].nrClusterVars;
+      ss3 << setw (10) << compressInfo_[i].nrGroundFactors;
+      ss3 << setw (10) << compressInfo_[i].nrClusterFactors;
+      ss3 << setw (10) << compressInfo_[i].nrNeighborless;
       ss3 << endl;
-      c1 += compressInfo_[i].nGroundVars - compressInfo_[i].nWithoutNeighs;
-      c2 += compressInfo_[i].nClusterVars;
-      c3 += compressInfo_[i].nGroundFactors - compressInfo_[i].nWithoutNeighs;
-      c4 += compressInfo_[i].nClusterFactors;
-      if (compressInfo_[i].nWithoutNeighs != 0) {
+      c1 += compressInfo_[i].nrGroundVars - compressInfo_[i].nrNeighborless;
+      c2 += compressInfo_[i].nrClusterVars;
+      c3 += compressInfo_[i].nrGroundFactors - compressInfo_[i].nrNeighborless;
+      c4 += compressInfo_[i].nrClusterFactors;
+      if (compressInfo_[i].nrNeighborless != 0) {
         c2 --;
         c4 --;
       } 

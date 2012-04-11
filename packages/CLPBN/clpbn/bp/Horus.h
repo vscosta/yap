@@ -16,15 +16,15 @@ class Factor;
 class VarNode;
 class FacNode;
 
-typedef vector<double>       Params;
-typedef unsigned             VarId;
-typedef vector<VarId>        VarIds;
-typedef vector<Var*>         Vars;
-typedef vector<VarNode*>     VarNodes;
-typedef vector<FacNode*>     FacNodes;
-typedef vector<Factor*>      Factors;
-typedef vector<string>       States;
-typedef vector<unsigned>     Ranges;
+typedef vector<double>    Params;
+typedef unsigned          VarId;
+typedef vector<VarId>     VarIds;
+typedef vector<Var*>      Vars;
+typedef vector<VarNode*>  VarNodes;
+typedef vector<FacNode*>  FacNodes;
+typedef vector<Factor*>   Factors;
+typedef vector<string>    States;
+typedef vector<unsigned>  Ranges;
 
 
 enum InfAlgorithms
@@ -47,7 +47,7 @@ extern InfAlgorithms infAlgorithm;
 namespace Constants {
 
 // level of debug information
-const unsigned DEBUG = 1;
+const unsigned DEBUG = 5;
 
 const int NO_EVIDENCE = -1;
 

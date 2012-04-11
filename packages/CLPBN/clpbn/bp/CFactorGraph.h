@@ -186,7 +186,7 @@ class CFactorGraph
 
     FactorGraph* getGroundFactorGraph (void) const;
 
-    unsigned getGroundEdgeCount (const FacCluster*, const VarCluster*) const;
+    unsigned getEdgeCount (const FacCluster*, const VarCluster*) const;
  
     static bool checkForIdenticalFactors;
  

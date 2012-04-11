@@ -332,17 +332,17 @@ struct CompressInfo
 { 
   CompressInfo (unsigned a, unsigned b, unsigned c, unsigned d, unsigned e)
   {
-    nGroundVars     = a; 
-    nGroundFactors  = b; 
-    nClusterVars    = c;
-    nClusterFactors = d;
-    nWithoutNeighs  = e;
+    nrGroundVars     = a; 
+    nrGroundFactors  = b; 
+    nrClusterVars    = c;
+    nrClusterFactors = d;
+    nrNeighborless   = e;
   }
-  unsigned nGroundVars;
-  unsigned nGroundFactors;
-  unsigned nClusterVars;
-  unsigned nClusterFactors;
-  unsigned nWithoutNeighs;
+  unsigned nrGroundVars;
+  unsigned nrGroundFactors;
+  unsigned nrClusterVars;
+  unsigned nrClusterFactors;
+  unsigned nrNeighborless;
 };
 
 

@@ -455,7 +455,7 @@ FoveSolver::absorveEvidence (
     }
     pfList.add (newPfs);
   }
-  if (Constants::DEBUG > 1 && obsFormulas.empty() == false) {
+  if (Constants::DEBUG >= 2 && obsFormulas.empty() == false) {
     Util::printAsteriskLine();
     cout << "AFTER EVIDENCE ABSORVED" << endl;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
@@ -493,7 +493,7 @@ FoveSolver::runSolver (const Grounds& query)
   shatterAgainstQuery (query);
   runWeakBayesBall (query);
   while (true) {
-    if (Constants::DEBUG > 1) {
+    if (Constants::DEBUG >= 2) {
       Util::printDashedLine();
       pfList_.print();
       LiftedOperator::printValidOps (pfList_, query);
@@ -502,7 +502,7 @@ FoveSolver::runSolver (const Grounds& query)
     if (op == 0) {
       break;
     }
-    if (Constants::DEBUG > 1) {
+    if (Constants::DEBUG >= 2) {
       cout << "best operation: " << op->toString() << endl;
     }
     op->apply();
@@ -594,7 +594,7 @@ FoveSolver::runWeakBayesBall (const Grounds& query)
     }
   }
 
-  if (Constants::DEBUG > 1) {
+  if (Constants::DEBUG >= 2) {
     Util::printHeader ("REQUIRED PARFACTORS");
     pfList_.print();
   }
@@ -605,15 +605,16 @@ FoveSolver::runWeakBayesBall (const Grounds& query)
 void
 FoveSolver::shatterAgainstQuery (const Grounds& query)
 {
-  return ;
   for (unsigned i = 0; i < query.size(); i++) {
     if (query[i].isAtom()) {
       continue;
     }
+    bool found = false;
     Parfactors newPfs;
     ParfactorList::iterator it = pfList_.begin();
     while (it != pfList_.end()) {
       if ((*it)->containsGround (query[i])) {
+        found = true;
         std::pair<ConstraintTree*, ConstraintTree*> split = 
             (*it)->constr()->split (query[i].args(), query[i].arity());
         ConstraintTree* commCt = split.first;
@@ -629,9 +630,14 @@ FoveSolver::shatterAgainstQuery (const Grounds& query)
         ++ it;
       }
     }
+    if (found == false) {
+      cerr << "error: could not find a parfactor with ground " ;
+      cerr << "`" << query[i] << "'" << endl;
+      exit (0);	
+    }
     pfList_.add (newPfs);
   }
-  if (Constants::DEBUG > 1) {
+  if (Constants::DEBUG >= 2) {
     cout << endl;
     Util::printAsteriskLine();
     cout << "SHATTERED AGAINST THE QUERY" << endl;

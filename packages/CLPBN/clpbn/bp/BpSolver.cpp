@@ -132,8 +132,8 @@ BpSolver::runSolver (void)
   while (!converged() && nIters_ < BpOptions::maxIter) {
     nIters_ ++;
     if (Constants::DEBUG >= 2) {
-      Util::printHeader (" Iteration " + nIters_);
-      cout << endl;
+      Util::printHeader (string ("Iteration ") + Util::toString (nIters_));
+      // cout << endl;
     }
     switch (BpOptions::schedule) {
      case BpOptions::Schedule::SEQ_RANDOM:
@@ -467,6 +467,9 @@ BpSolver::converged (void)
         converged = false;
         if (Constants::DEBUG == 0) break;
       }
+    }
+    if (Constants::DEBUG >= 2) {
+      cout << endl;
     }
   }
   return converged;

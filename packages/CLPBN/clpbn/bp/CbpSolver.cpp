@@ -99,7 +99,7 @@ CbpSolver::createLinks (void)
   for (unsigned i = 0; i < fcs.size(); i++) {
     const VarClusters& vcs = fcs[i]->getVarClusters();
     for (unsigned j = 0; j < vcs.size(); j++) {
-      unsigned c = cfg_->getGroundEdgeCount (fcs[i], vcs[j]);
+      unsigned c = cfg_->getEdgeCount (fcs[i], vcs[j]);
       links_.push_back (new CbpSolverLink (
           fcs[i]->getRepresentativeFactor(),
           vcs[j]->getRepresentativeVariable(), c));
