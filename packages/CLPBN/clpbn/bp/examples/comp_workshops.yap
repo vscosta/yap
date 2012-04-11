@@ -1,9 +1,9 @@
 :- use_module(library(pfl)).
 
-:- set_pfl_flag(solver,fove).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,ve).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,bp).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,cbp).
+:- clpbn_horus:set_solver(fove).
+%:- clpbn_horus:set_solver(hve).
+%:- clpbn_horus:set_solver(bp).
+%:- clpbn_horus:set_solver(cbp).
 
 c(p1,w1).
 c(p1,w2).
@@ -25,5 +25,5 @@ markov attends(P)::[t,f] , hot(W)::[t,f] ; [0.1, 0.2, 0.3, 0.4] ; [c(P,W)].
 
 markov attends(P)::[t,f], series::[t,f] ; [0.5, 0.6, 0.7, 0.8] ; [c(P,_)].
 
-?- series(X).
+% ?- series(X).
 

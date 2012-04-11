@@ -1,9 +1,9 @@
 :- use_module(library(pfl)).
 
-:- set_pfl_flag(solver,fove).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,ve).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,bp).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,cbp).
+:- clpbn_horus:set_solver(fove).
+%:- clpbn_horus:set_solver(hve).
+%:- clpbn_horus:set_solver(bp).
+%:- clpbn_horus:set_solver(cbp).
 
 c(p1).
 c(p2).

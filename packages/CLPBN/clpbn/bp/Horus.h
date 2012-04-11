@@ -47,7 +47,7 @@ extern InfAlgorithms infAlgorithm;
 namespace Constants {
 
 // level of debug information
-const unsigned DEBUG = 5;
+const unsigned DEBUG = 0;
 
 const int NO_EVIDENCE = -1;
 

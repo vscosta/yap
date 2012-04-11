@@ -1,9 +1,9 @@
 #!/bin/bash
 
-cp ~/bin/yap ~/bin/city_cbp
-YAP=~/bin/city_cbp
+cp ~/bin/yap ~/bin/city_fove
+YAP=~/bin/city_fove
 
-LOG_FILE=cbp.log
+LOG_FILE=fove.log
 #LOG_FILE=results`date "+ %H:%M:%S %d-%m-%Y"`.log
 
 CITY_LOCATION="'../../examples/city'"
@@ -58,5 +58,5 @@ function run_all_graphs
   #run_solver $1 city_1000000  $3
 }
 
-run_all_graphs cbp "cbp(shedule=seq_fixed)                " seq_fixed
+run_all_graphs fove "fove                                  "
 

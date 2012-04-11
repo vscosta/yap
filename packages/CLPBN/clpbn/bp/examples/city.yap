@@ -1,9 +1,9 @@
 :- use_module(library(pfl)).
 
-:- set_pfl_flag(solver,fove).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,ve).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,bp).
-%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,cbp).
+:- clpbn_horus:set_solver(fove).
+%:- clpbn_horus:set_solver(hve).
+%:- clpbn_horus:set_solver(bp).
+%:- clpbn_horus:set_solver(cbp).
 
 
 people(joe,nyc).
@@ -14,9 +14,7 @@ people(p3, nyc).
 ev(descn(p2, t)).
 ev(descn(p3, t)).
 
-
-:- [city_7].
-
+% :- [city_7].
 
 bayes city_conservativeness(C)::[y,n] ; cons_table(C) ; [people(_,C)].
 
@@ -84,15 +82,21 @@ wit_table([0.2, 0.45, 0.24, 0.34,
 
 
 runall(G, Wrapper) :-
-	findall(G, Wrapper, L),
-	execute_all(L).
+    findall(G, Wrapper, L),
+    execute_all(L).
 
 
 execute_all([]).
 execute_all(G.L) :-
-	call(G),
-	execute_all(L).
+    call(G),
+    execute_all(L).
 
 
-?- witness(nyc, t), runall(X, ev(X)), guilty(joe, Guilty).
+is_joe_guilty(Guilty) :-
+    witness(nyc, t),
+    runall(X, ev(X)),
+    guilty(joe, Guilty).
+
+
+% ?- is_joe_guilty(Guilty)
 

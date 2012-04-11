@@ -6,7 +6,8 @@
 ********************************************************/
 
 :- module(clpbn_horus,
-          [create_lifted_network/3,
+          [set_solver/1,
+           create_lifted_network/3,
            create_ground_network/4,
            set_parfactors_params/2,
            set_factors_params/2,
@@ -19,6 +20,10 @@
           ]).
 
 
+:- use_module(library(pfl),
+          [set_pfl_flag/2]).
+
+
 patch_things_up :-
   assert_static(clpbn_horus:set_horus_flag(_,_)).
 
@@ -28,7 +33,17 @@ warning :-
 :- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up) -> true ; warning.
 
 
-:- set_horus_flag(inf_alg, ve).
+set_solver(ve)    :- set_pfl_flag(solver,ve).
+set_solver(jt)    :- set_pfl_flag(solver,jt).
+set_solver(gibbs) :- set_pfl_flag(solver,gibbs).
+set_solver(fove)  :- set_pfl_flag(solver,fove).
+set_solver(hve)   :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, ve).
+set_solver(bp)    :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, bp).
+set_solver(cbp)   :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, cbp).
+set_solver(S)     :- throw(error('unknow solver ', S)).
+
+
+%:- set_horus_flag(inf_alg, ve).
 %:- set_horus_flag(inf_alg, bp).
 %: -set_horus_flag(inf_alg, cbp).
 
@@ -43,7 +58,6 @@ warning :-
 
 :- set_horus_flag(order_factor_variables, false).
 %:- set_horus_flag(order_factor_variables, true).
-
 
 :- set_horus_flag(use_logarithms, false).
 % :- set_horus_flag(use_logarithms, true).

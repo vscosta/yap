@@ -1,50 +1,61 @@
 #!/bin/bash
 
-cp ~/bin/yap ~/bin/town_bp
-YAP=~/bin/town_bp
+cp ~/bin/yap ~/bin/city_bp
+YAP=~/bin/city_bp
 
-#OUT_FILE_NAME=results`date "+ %H:%M:%S %d-%m-%Y"`.log
-OUT_FILE_NAME=bp.log
-rm -f $OUT_FILE_NAME
-rm -f ignore.$OUT_FILE_NAME
+LOG_FILE=bp.log
+#LOG_FILE=results`date "+ %H:%M:%S %d-%m-%Y"`.log
+
+CITY_LOCATION="'../../examples/city'"
+
+rm -f $LOG_FILE
+rm -f ignore.$LOG_FILE
 
 
 function run_solver
 {
-if [ $2 = bp ]
-then
-    extra_flag1=clpbn_horus:set_horus_flag\(inf_alg,$4\)
-    extra_flag2=clpbn_horus:set_horus_flag\(schedule,$5\)
-else
-  extra_flag1=true
-  extra_flag2=true
-fi
-/usr/bin/time -o $OUT_FILE_NAME -a -f "real:%E\tuser:%U\tsys:%S" $YAP << EOF >> $OUT_FILE_NAME 2>> ignore.$OUT_FILE_NAME
-[$1].
-clpbn:set_clpbn_flag(solver,$2),
-  clpbn_horus:set_horus_flag(use_logarithms, true),
-  $extra_flag1, $extra_flag2,
-  run_query(_R),
-  open("$OUT_FILE_NAME", 'append',S),
-  format(S, '$3: ~15+ ',[]),
-  close(S).
+  solver=$1
+  network=$2
+  solver_flag=true
+  if [ -n "$3" ]; then
+    if [ $solver = hve ]; then
+      extra_flag=clpbn_horus:set_horus_flag\(elim_heuristic,$3\)
+    elif [ $solver = bp  ]; then
+      extra_flag=clpbn_horus:set_horus_flag\(schedule,$3\)
+    elif [ $solver = cbp ]; then
+      extra_flag=clpbn_horus:set_horus_flag\(schedule,$3\)
+    else
+      echo "unknow flag $3"
+    fi
+  fi
+  /usr/bin/time -o $LOG_FILE -a -f "real:%E\tuser:%U\tsys:%S" \
+      $YAP << EOF >> $LOG_FILE 2>> ignore.$LOG_FILE
+[$CITY_LOCATION].
+[$network].
+clpbn_horus:set_solver($solver).
+clpbn_horus:set_horus_flag(use_logarithms, true).
+$solver_flag.
+is_joe_guilty(X).
+open("$LOG_FILE", 'append', S), format(S, '$network: ~15+ ', []), close(S).
 EOF
 }
 
-
 function run_all_graphs
 {
-  echo "*******************************************************************" >> "$OUT_FILE_NAME"
-  echo "results for solver $2" >> $OUT_FILE_NAME
-  echo "*******************************************************************" >> "$OUT_FILE_NAME"
-  run_solver  town_1000     $1  town_1000     $3  $4  $5
-  #run_solver  town_5000     $1  town_5000     $3  $4  $5
-  #run_solver  town_10000    $1  town_10000    $3  $4  $5
-  #run_solver  town_50000    $1  town_50000    $3  $4  $5
-  #run_solver  town_100000   $1  town_100000   $3  $4  $5
-  #run_solver  town_500000   $1  town_500000   $3  $4  $5
-  #run_solver  town_1000000  $1  town_1000000  $3  $4  $5
+  echo -n "**********************************" >> $LOG_FILE
+  echo    "**********************************" >> $LOG_FILE
+  echo    "results for solver $2"              >> $LOG_FILE
+  echo -n "**********************************" >> $LOG_FILE
+  echo    "**********************************" >> $LOG_FILE
+   run_solver $1 city_5        $3
+  #run_solver $1 city_1000     $3
+  #run_solver $1 city_5000     $3
+  #run_solver $1 city_10000    $3
+  #run_solver $1 city_50000    $3
+  #run_solver $1 city_100000   $3
+  #run_solver $1 city_500000   $3
+  #run_solver $1 city_1000000  $3
 }
 
-run_all_graphs  bp     "bp(seq_fixed)       z          "  bp   seq_fixed
+run_all_graphs bp "bp(shedule=seq_fixed)                 " seq_fixed
 
