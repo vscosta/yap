@@ -71,7 +71,13 @@ CFactorGraph::setInitialColors (void)
   }
 
   const FacNodes& facNodes = groundFg_->facNodes();
-  if (checkForIdenticalFactors) {
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    facNodes[i]->factor().setDistId (Util::maxUnsigned());
+  }
+  Util::printHeader ("Before check for identical factors");
+  groundFg_->print();
+  // FIXME FIXME FIXME : pfl should give correct dist ids.
+  if (checkForIdenticalFactors || false) {
     unsigned groupCount = 1;
     for (unsigned i = 0; i < facNodes.size(); i++) {
       Factor& f1 = facNodes[i]->factor();
@@ -93,6 +99,8 @@ CFactorGraph::setInitialColors (void)
       groupCount ++;
     }
   }
+  Util::printHeader ("After check for identical factors");
+  groundFg_->print();
   // create the initial factor colors
   DistColorMap distColors;
   for (unsigned i = 0; i < facNodes.size(); i++) {
@@ -163,7 +171,7 @@ CFactorGraph::createGroups (void)
     groupsHaveChanged = prevVarGroupsSize != varGroups.size()
         || prevFactorGroupsSize != facGroups.size();
   }
-  //printGroups (varGroups, facGroups);
+  printGroups (varGroups, facGroups);
   createClusters (varGroups, facGroups);
 }
 
@@ -263,7 +271,6 @@ CFactorGraph::getGroundFactorGraph (void) const
       fg->addEdge (static_cast<VarNode*> (myGroundVars[j]), fn);
     }
   }
-  fg->print();
   return fg;
 }
 

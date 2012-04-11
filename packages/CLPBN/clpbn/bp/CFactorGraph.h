@@ -237,8 +237,8 @@ class CFactorGraph
     vector<Color>       facColors_;
     vector<Signature>   varSignatures_;
     vector<Signature>   facSignatures_;
-    VarClusters       varClusters_;
-    FacClusters       facClusters_;
+    VarClusters         varClusters_;
+    FacClusters         facClusters_;
     VarId2VarCluster    vid2VarCluster_;
     const FactorGraph*  groundFg_;
 };

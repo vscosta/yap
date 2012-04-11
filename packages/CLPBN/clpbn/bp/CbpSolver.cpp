@@ -24,10 +24,10 @@ CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
     Statistics::updateCompressingStatistics (nGroundVars,
         nGroundFacs, nClusterVars, nClusterFacs, nWithoutNeighs);
   }
-  // Util::printHeader ("Uncompressed Factor Graph");
-  // fg->print();
-  // Util::printHeader ("Compressed Factor Graph");
-  // fg_->print();
+  Util::printHeader ("Uncompressed Factor Graph");
+  fg.print();
+  Util::printHeader ("Compressed Factor Graph");
+  fg_->print();
 }
 
 

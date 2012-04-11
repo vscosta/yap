@@ -243,7 +243,7 @@ Factor::print (void) const
   }
   vector<string> jointStrings = Util::getStateLines (vars);
   for (unsigned i = 0; i < params_.size(); i++) {
-    cout << "f(" << jointStrings[i] << ")" ;
+    cout << "[" << distId_ << "] f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;
   }
   cout << endl;

@@ -9,15 +9,16 @@
 
 
 friends(P1, P2) :-
-    person(P1),
-    person(P2),
+    people(P1),
+    people(P2),
     P1 \= P2.
 
-person @ 3.
+people @ 3.
 
-markov smokes(P)::[t,f] , cancer(P)::[t,f] ; [0.1, 0.2, 0.3, 0.4] ; [person(P)].
+markov smokes(P)::[t,f], cancer(P)::[t,f] ; [0.1, 0.2, 0.3, 0.4] ; [people(P)].
 
-markov friend(P1,P2)::[t,f], smokes(P1)::[t,f], smokes(P2)::[t,f] ; [0.5, 0.6, 0.7, 0.8, 0.5, 0.6, 0.7, 0.8] ; [friends(P1, P2)].
+markov friend(P1,P2)::[t,f], smokes(P1)::[t,f], smokes(P2)::[t,f] ;
+    [0.5, 0.6, 0.7, 0.8, 0.5, 0.6, 0.7, 0.8] ; [friends(P1, P2)].
 
-% ?- smokes(person_1, t), smokes(person_2, f), friend(person_1, person_2, X).
+% ?- smokes(p1, t), smokes(p2, f), friend(p1, p2, X).
 

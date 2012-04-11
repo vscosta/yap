@@ -5,6 +5,8 @@
 %:- clpbn_horus:set_solver(bp).
 %:- clpbn_horus:set_solver(cbp).
 
+:- yap_flag(write_strings, off).
+
 c(p1,w1).
 c(p1,w2).
 c(p1,w3).
