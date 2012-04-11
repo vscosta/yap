@@ -2706,7 +2706,6 @@ YAP_InitConsult(int mode, char *filename)
 X_API IOSTREAM *
 YAP_TermToStream(Term t)
 {
-  CACHE_REGS
   IOSTREAM *s;
   BACKUP_MACHINE_REGS();
 
@@ -4122,6 +4121,8 @@ YAP_ImportTerm(char * buf) {
 
 X_API int
 YAP_RequiresExtraStack(size_t sz) {
+  CACHE_REGS
+
   if (sz < 16*1024) 
     sz = 16*1024;
   if (H <= ASP-sz) {
