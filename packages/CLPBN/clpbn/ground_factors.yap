@@ -28,9 +28,9 @@
 :- use_module(library(clpbn/dists), [
           dist/4]).
 
-:- dynamic currently_defined/1, f/3.
+:- dynamic currently_defined/1, f/4.
 
-generate_network(QueryVars0, QueryKeys0, Keys, Factors, Evidence) :-
+generate_network(QueryVars0, QueryKeys, Keys, Factors, Evidence) :-
 	attributes:all_attvars(AVars),
 	keys(QueryVars0, QueryKeys0),
 	check_for_evidence(AVars, EVars, QueryKeys0, QueryVars0, Evidence),
@@ -40,11 +40,11 @@ generate_network(QueryVars0, QueryKeys0, Keys, Factors, Evidence) :-
 do_network([], _, _, _) :- !.
 do_network(QueryVars, EVars, Keys, Factors) :-
 	retractall(currently_defined(_)),
-	retractall(f(_,_,_)),
+	retractall(f(_,_,_,_)),
 	run_through_factors(QueryVars),
 	run_through_factors(EVars),
 	findall(K, currently_defined(K), Keys),
-	findall(f(FType,FKeys,FCPT), f(FType,FKeys,FCPT), Factors).
+	findall(f(FType,FId,FKeys,FCPT), f(FType,FId,FKeys,FCPT), Factors).
 
 %
 % look for attributed vars with evidence (should also search the DB)
@@ -110,10 +110,11 @@ find_factors(K) :-
 	\+ currently_defined(K1),
 	find_factors(K1).
 
-add_factor(factor(Type, _Id, Ks, _, CPT, Constraints), Ks) :-
-	F = f(Type, Ks, CPT),
+add_factor(factor(Type, Id, Ks, _, Phi, Constraints), Ks) :-
+	F = f(Type, Id, Ks, CPT),
+	( is_list(Phi) -> CPT = Phi ; call(user:Phi, CPT) ),
 	run(Constraints),
-	\+ f(Type, Ks, CPT),
+	\+ f(Type, Id, Ks, CPT),
 	assert(F).
 
 run([Goal|Goals]) :-

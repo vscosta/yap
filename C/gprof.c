@@ -168,6 +168,7 @@ RBfree(rb_red_blk_node *ptr)
 
 static rb_red_blk_node *
 RBTreeCreate(void) {
+  CACHE_REGS
   rb_red_blk_node* temp;
 
   /*  see the comment in the rb_red_blk_tree structure in red_black_tree.h */
@@ -210,6 +211,7 @@ RBTreeCreate(void) {
 
 static void
 LeftRotate(rb_red_blk_node* x) {
+  CACHE_REGS
   rb_red_blk_node* y;
   rb_red_blk_node* nil=LOCAL_ProfilerNil;
 
@@ -266,6 +268,7 @@ LeftRotate(rb_red_blk_node* x) {
 
 static void
 RightRotate(rb_red_blk_node* y) {
+  CACHE_REGS
   rb_red_blk_node* x;
   rb_red_blk_node* nil=LOCAL_ProfilerNil;
 
@@ -318,6 +321,7 @@ RightRotate(rb_red_blk_node* y) {
 
 static void
 TreeInsertHelp(rb_red_blk_node* z) {
+  CACHE_REGS
   /*  This function should only be called by InsertRBTree (see above) */
   rb_red_blk_node* x;
   rb_red_blk_node* y;
@@ -369,6 +373,7 @@ TreeInsertHelp(rb_red_blk_node* z) {
 
 static rb_red_blk_node *
 RBTreeInsert(yamop *key, yamop *lim) {
+  CACHE_REGS
   rb_red_blk_node * y;
   rb_red_blk_node * x;
   rb_red_blk_node * newNode;
@@ -440,6 +445,7 @@ RBTreeInsert(yamop *key, yamop *lim) {
   
 static rb_red_blk_node*
 RBExactQuery(yamop* q) {
+  CACHE_REGS
   rb_red_blk_node* x;
   rb_red_blk_node* nil=LOCAL_ProfilerNil;
 
@@ -460,6 +466,7 @@ RBExactQuery(yamop* q) {
 
 static rb_red_blk_node*
 RBLookup(yamop *entry) {
+  CACHE_REGS
   rb_red_blk_node *current;
 
   if (!LOCAL_ProfilerRoot)
@@ -495,6 +502,7 @@ RBLookup(yamop *entry) {
 /***********************************************************************/
 
 static void RBDeleteFixUp(rb_red_blk_node* x) {
+  CACHE_REGS
   rb_red_blk_node* root=LOCAL_ProfilerRoot->left;
   rb_red_blk_node *w;
 
@@ -574,6 +582,7 @@ static void RBDeleteFixUp(rb_red_blk_node* x) {
   
 static rb_red_blk_node*
 TreeSuccessor(rb_red_blk_node* x) { 
+  CACHE_REGS
   rb_red_blk_node* y;
   rb_red_blk_node* nil=LOCAL_ProfilerNil;
   rb_red_blk_node* root=LOCAL_ProfilerRoot;
@@ -612,6 +621,7 @@ TreeSuccessor(rb_red_blk_node* x) {
 
 static void
 RBDelete(rb_red_blk_node* z){
+  CACHE_REGS
   rb_red_blk_node* y;
   rb_red_blk_node* x;
   rb_red_blk_node* nil=LOCAL_ProfilerNil;
@@ -664,7 +674,8 @@ RBDelete(rb_red_blk_node* z){
 
 char *set_profile_dir(char *);
 char *set_profile_dir(char *name){
-int size=0;
+  CACHE_REGS
+    int size=0;
 
     if (name!=NULL) {
       size=strlen(name)+1;
@@ -687,8 +698,9 @@ return LOCAL_DIRNAME;
 
 char *profile_names(int);
 char *profile_names(int k) {
-static char *FNAME=NULL;
-int size=200;
+  CACHE_REGS
+  static char *FNAME=NULL;
+  int size=200;
    
   if (LOCAL_DIRNAME==NULL) set_profile_dir(NULL);
   size=strlen(LOCAL_DIRNAME)+40;
@@ -709,6 +721,7 @@ int size=200;
 
 void del_profile_files(void);
 void del_profile_files() {
+  CACHE_REGS
   if (LOCAL_DIRNAME!=NULL) {
     remove(profile_names(PROFPREDS_FILE));
     remove(profile_names(PROFILING_FILE));
@@ -717,6 +730,7 @@ void del_profile_files() {
 
 void
 Yap_inform_profiler_of_clause__(void *code_start, void *code_end, PredEntry *pe,gprof_info index_code) {
+  CACHE_REGS
   buf_ptr b;
   buf_extra e;
   LOCAL_ProfOn = TRUE;
@@ -742,6 +756,7 @@ static Int profend( USES_REGS1 );
 
 static void
 clean_tree(rb_red_blk_node* node) {
+  CACHE_REGS
   if (node == LOCAL_ProfilerNil)
     return;
   clean_tree(node->left);
@@ -751,6 +766,7 @@ clean_tree(rb_red_blk_node* node) {
 
 static void
 reset_tree(void) {
+  CACHE_REGS
   clean_tree(LOCAL_ProfilerRoot);
   Yap_FreeCodeSpace((char *)LOCAL_ProfilerNil);
   LOCAL_ProfilerNil = LOCAL_ProfilerRoot = NULL;
@@ -760,6 +776,7 @@ reset_tree(void) {
 static int
 InitProfTree(void)
 {
+  CACHE_REGS
   if (LOCAL_ProfilerRoot) 
     reset_tree();
   while (!(LOCAL_ProfilerRoot = RBTreeCreate())) {
@@ -773,6 +790,7 @@ InitProfTree(void)
 
 static void RemoveCode(CODEADDR clau)
 {
+  CACHE_REGS
   rb_red_blk_node* x, *node;
   PredEntry *pp;
   UInt count;
@@ -958,6 +976,7 @@ prof_alrm(int signo, siginfo_t *si, void *scv)
 void
 Yap_InformOfRemoval(void *clau)
 {
+  CACHE_REGS
   LOCAL_ProfOn = TRUE;
   if (LOCAL_FPreds != NULL) {
     /* just store info about what is going on  */
@@ -1048,6 +1067,7 @@ static Int profinit( USES_REGS1 )
 
 static Int start_profilers(int msec)
 {
+  CACHE_REGS
   struct itimerval t;
   struct sigaction sa;
   
@@ -1157,6 +1177,7 @@ static Int profres0( USES_REGS1 ) {
 void
 Yap_InitLowProf(void)
 {
+  CACHE_REGS
 #if LOW_PROF
   LOCAL_ProfCalls = 0;
   LOCAL_ProfilerOn = FALSE;

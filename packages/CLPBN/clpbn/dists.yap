@@ -15,6 +15,7 @@
 	   get_dist_domain_size/2,
 	   get_dist_params/2,
 	   get_dist_key/2,
+	   get_dist_all_sizes/2,
 	   get_evidence_position/3,
 	   get_evidence_from_position/3,
 	   dist_to_term/2,
@@ -177,21 +178,21 @@ add_dist(Domain, Type, CPT, Parents, Key, Id) :-
 	length(CPT, CPTSize),
 	length(Domain, DSize),
 	new_id(Id),
-	record_parent_sizes(Parents, Id, PSizes, [DSize|PSizes]),
+	find_parent_sizes(Parents, Id, PSizes, [DSize|PSizes]),
 	recordz(clpbn_dist_db,db(Id, Key, CPT, Type, Domain, CPTSize, DSize),_).
 
 
-record_parent_sizes([], Id, [], DSizes) :-
+find_parent_sizes([], Id, [], DSizes) :-
 	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
-record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+find_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	integer(P), !,
 	Size = P,
-	record_parent_sizes(Parents, Id, Sizes, DSizes).
-record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+	find_parent_sizes(Parents, Id, Sizes, DSizes).
+find_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	clpbn:get_atts(P,dist(Dist,_)), !,
 	get_dist_domain_size(Dist, Size),
-	record_parent_sizes(Parents, Id, Sizes, DSizes).
-record_parent_sizes([_|_], _, _, _).
+	find_parent_sizes(Parents, Id, Sizes, DSizes).
+find_parent_sizes([_|_], _, _, _).
 
 %
 % Often, * is used to code empty in HMMs.
@@ -227,6 +228,9 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 
 get_dist_params(Id, Parms) :-
 	recorded(clpbn_dist_db, db(Id, _, Parms, _, _, _, _), _).
+
+get_dist_all_sizes(Id, DSizes) :-
+	recorded(clpbn_dist_psizes,db(Id, DSizes),_).
 
 get_dist_domain_size(DistId, DSize) :-
 	use_parfactors(on), !,

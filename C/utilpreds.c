@@ -4255,7 +4255,7 @@ p_is_list_or_partial_list( USES_REGS1 )
 }
 
 static Term
-numbervar(Int id)
+numbervar(Int id USES_REGS)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(id);
@@ -4263,7 +4263,7 @@ numbervar(Int id)
 }
 
 static Term
-numbervar_singleton(void)
+numbervar_singleton(USES_REGS1)
 {
   Term ts[1];
   ts[0] = MkIntegerTerm(-1);
@@ -4356,9 +4356,9 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     derefa_body(d0, ptd0, vars_in_term_unk, vars_in_term_nvar);
     /* do or pt2 are unbound  */
     if (singles) 
-      *ptd0 = numbervar_singleton();
+      *ptd0 = numbervar_singleton( PASS_REGS1 );
     else
-      *ptd0 = numbervar(numbv++);
+      *ptd0 = numbervar(numbv++ PASS_REGS);
     /* leave an empty slot to fill in later */
     if (H+1024 > ASP) {
       goto global_overflow;
@@ -4450,10 +4450,10 @@ Yap_NumberVars( Term inp, Int numbv, int handle_singles )	/* numbervariables in 
     CELL *ptd0 = VarOfTerm(t);
     TrailTerm(TR++) = (CELL)ptd0;
     if (handle_singles) {
-      *ptd0 = numbervar_singleton();
+      *ptd0 = numbervar_singleton( PASS_REGS1 );
       return numbv;
     } else {
-      *ptd0 = numbervar(numbv);
+      *ptd0 = numbervar(numbv PASS_REGS);
       return numbv+1;
     }
   }  else if (IsPrimitiveTerm(t)) {
