@@ -167,7 +167,7 @@ CFactorGraph::createGroups (void)
     groupsHaveChanged = prevVarGroupsSize != varGroups.size()
         || prevFactorGroupsSize != facGroups.size();
   }
-  printGroups (varGroups, facGroups);
+  // printGroups (varGroups, facGroups);
   createClusters (varGroups, facGroups);
 }
 

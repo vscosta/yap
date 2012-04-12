@@ -20,14 +20,14 @@ function run_all_graphs
   echo    "results for solver $1"              >> $LOG_FILE
   echo -n "**********************************" >> $LOG_FILE
   echo    "**********************************" >> $LOG_FILE
-   run_solver pop_10       $2
-  #run_solver pop_1000     $2
-  #run_solver pop_5000     $2
-  #run_solver pop_10000    $2
-  #run_solver pop_50000    $2
-  #run_solver pop_100000   $2
-  #run_solver pop_500000   $2
-  #run_solver pop_1000000  $2
+  #run_solver pop_10       $2
+  run_solver pop_1000     $2
+  run_solver pop_5000     $2
+  run_solver pop_10000    $2
+  run_solver pop_50000    $2
+  run_solver pop_100000   $2
+  run_solver pop_500000   $2
+  run_solver pop_1000000  $2
 }
 
 

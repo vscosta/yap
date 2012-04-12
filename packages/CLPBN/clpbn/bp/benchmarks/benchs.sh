@@ -1,6 +1,6 @@
 
 if [ $1 ] && [ $1 == "clear" ]; then
-  rm *~
+  rm -f *~
   rm -f school/*.log school/*~
   rm -f city/*.log city/*~
   rm -f workshop_attrs/*.log workshop_attrs/*~

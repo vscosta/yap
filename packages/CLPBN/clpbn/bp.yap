@@ -63,17 +63,17 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Output) :-
   get_factors_type(Factors, Type),
   evidence_to_ids(Evidence, Hash, EvidenceIds),
   factors_to_ids(Factors, Hash, FactorIds),
-  writeln(type:Type), writeln(''),
-  writeln(allKeys:AllKeys), writeln(''),
-  writeln(factors:Factors), writeln(''),
-  writeln(factorIds:FactorIds), writeln(''),
-  writeln(evidence:Evidence), writeln(''),
-  writeln(evidenceIds:EvidenceIds), writeln(''),
+  %writeln(type:Type), writeln(''),
+  %writeln(allKeys:AllKeys), writeln(''),
+  %writeln(factors:Factors), writeln(''),
+  %writeln(factorIds:FactorIds), writeln(''),
+  %writeln(evidence:Evidence), writeln(''),
+  %writeln(evidenceIds:EvidenceIds), writeln(''),
   create_ground_network(Type, FactorIds, EvidenceIds, Network),
   %get_vars_information(AllKeys, StatesNames),
   %set_vars_information(AllKeys, StatesNames),
   run_solver(ground(Network,Hash), QueryKeys, Solutions),
-  writeln(answer:Solutions),
+  %writeln(answer:Solutions),
   %clpbn_bind_vals([QueryKeys], Solutions, Output).
   free_ground_network(Network).
 
@@ -82,8 +82,8 @@ run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
   %set_factors_params(Network, DistsParams),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
-  writeln(queryKeys:QueryKeys), writeln(''),
-  writeln(queryIds:QueryIds), writeln(''),
+  %writeln(queryKeys:QueryKeys), writeln(''),
+  %writeln(queryIds:QueryIds), writeln(''),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   run_ground_solver(Network, [QueryIds], Solutions).
 
