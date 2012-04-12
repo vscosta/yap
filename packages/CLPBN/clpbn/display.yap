@@ -8,6 +8,8 @@
 
 :- use_module(library(clpbn/dists), [get_dist_domain/2]).
 
+:- use_module(library(clpbn), [use_parfactors/1]).
+
 :- attribute posterior/4.
 
 
@@ -44,9 +46,11 @@ clpbn_bind_vals([Vs|MoreVs],[Ps|MorePs],AllDiffs) :-
 
 clpbn_bind_vals2([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
-%bind_vals([V],Ps) :- !,
-%	clpbn:get_atts(V, [dist(Vals,_,_)]),
-%	put_atts(V, posterior([V], Vals, Ps)).
+bind_vals([V],Ps) :- 
+	use_parfactors(on), !,
+	clpbn:get_atts(V, [key(K)]),
+	pfl:skolem(K,Vals),
+	put_atts(V, posterior([V], Vals, Ps)).
 % complex case, we want a joint distribution, do it on a leader.
 % should split on cliques ?
 clpbn_bind_vals2(Vs,Ps,AllDiffs) :-

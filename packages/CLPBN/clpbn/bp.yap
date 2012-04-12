@@ -10,7 +10,7 @@
            check_if_bp_done/1,
            init_bp_solver/4,
            run_bp_solver/3,
-           call_bp_ground/5,
+           call_bp_ground/6,
            finalize_bp_solver/1
           ]).
 
@@ -57,7 +57,8 @@
           ]).
 
 
-call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, _Output) :-
+call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
+writeln(here:Factors),
   b_hash_new(Hash0),
   keys_to_ids(AllKeys, 0, Hash0, Hash),
   get_factors_type(Factors, Type),
@@ -74,7 +75,7 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, _Output) :-
   %set_vars_information(AllKeys, StatesNames),
   run_solver(ground(Network,Hash), QueryKeys, Solutions),
   writeln(answer:Solutions),
-  %clpbn_bind_vals([QueryKeys], Solutions, _Output).
+  clpbn_bind_vals([QueryVars], Solutions, Output),
   free_ground_network(Network).
 
 
@@ -95,8 +96,8 @@ keys_to_ids([Key|AllKeys], I0, Hash0, Hash) :-
   keys_to_ids(AllKeys, I, HashI, Hash).
 
 
-get_factors_type([f(bayes, _, _)|_], bayes) :- ! .
-get_factors_type([f(markov, _, _)|_], markov) :- ! .
+get_factors_type([f(bayes, _, _, _)|_], bayes) :- ! .
+get_factors_type([f(markov, _, _, _)|_], markov) :- ! .
 
 
 list_of_keys_to_ids([], _, []).
@@ -106,9 +107,8 @@ list_of_keys_to_ids([Key|QueryKeys], Hash, [Id|QueryIds]) :-
 
 
 factors_to_ids([], _, []).
-factors_to_ids([f(_, Keys, CPT)|Fs], Hash, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
+factors_to_ids([f(_, DistId, Keys, CPT)|Fs], Hash, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
   list_of_keys_to_ids(Keys, Hash, Ids),
-  DistId = 0,
   get_ranges(Keys, Ranges),
   factors_to_ids(Fs, Hash, NFs).
 
@@ -145,7 +145,7 @@ bp([QueryVars], AllVars, Output) :-
 
 
 init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
-  %check_for_agg_vars(AllVars0, AllVars),
+						%check_for_agg_vars(AllVars0, AllVars),
   get_vars_info(AllVars0, VarsInfo, DistIds0),
   sort(DistIds0, DistIds),
   create_ground_network(VarsInfo, BayesNet),

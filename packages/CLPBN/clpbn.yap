@@ -44,7 +44,7 @@
                check_if_bp_done/1,
 	       init_bp_solver/4,
 	       run_bp_solver/3,
-	       call_bp_ground/5,
+	       call_bp_ground/6,
 	       finalize_bp_solver/1
 	      ]).
 
@@ -69,10 +69,10 @@
 	       run_bdd_solver/3
 	      ]).
 
-:- use_module('clpbn/bnt',
-	      [do_bnt/3,
-	       check_if_bnt_done/1
-	      ]).
+%% :- use_module('clpbn/bnt',
+%% 	      [do_bnt/3,
+%% 	       check_if_bnt_done/1
+%% 	      ]).
 
 :- use_module('clpbn/gibbs',
 	      [gibbs/3,
@@ -238,7 +238,7 @@ project_attributes(GVars, _AVars0) :-
 	(ground(GVars) ->
 	    true
 	;
-	    call_ground_solver(Solver, GKeys, Keys, Factors, Evidence, _Avars0)
+	    call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0)
 	).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
@@ -312,8 +312,8 @@ write_out(fove, GVars, AVars, DiffVars) :-
 	fove(GVars, AVars, DiffVars).
 
 % call a solver with keys, not actual variables
-call_ground_solver(bp, GoalKeys, Keys, Factors, Evidence, Answ) :-
-	call_bp_ground(GoalKeys, Keys, Factors, Evidence, Answ).
+call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence, Answ) :-
+	call_bp_ground(GVars, GoalKeys, Keys, Factors, Evidence, Answ).
 
 
 get_bnode(Var, Goal) :-
