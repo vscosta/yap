@@ -6,127 +6,83 @@
 #include <list>
 #include <map>
 
-#include "GraphicalModel.h"
-#include "BayesNode.h"
+#include "Var.h"
 #include "Horus.h"
 
 
 using namespace std;
 
 
-struct ScheduleInfo
-{
-  ScheduleInfo (BayesNode* n, bool vfp, bool vfc) : 
-      node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
-  BayesNode*  node;
-  bool        visitedFromParent;
-  bool        visitedFromChild;
-};
+class Var;
 
-
-struct StateInfo
-{
-  StateInfo (void) : visited(false), markedOnTop(false), 
-      markedOnBottom(false) { }
-  bool visited;
-  bool markedOnTop;
-  bool markedOnBottom;
-};
-
-
-typedef queue<ScheduleInfo, list<ScheduleInfo> > Scheduling;
-
-
-class BayesNet : public GraphicalModel
+class DAGraphNode : public Var
 {
   public:
-    BayesNet (void) { };
+    DAGraphNode (Var* v) : Var (v) , visited_(false),
+        markedOnTop_(false), markedOnBottom_(false) { }
 
-   ~BayesNet (void);
+    const vector<DAGraphNode*>& childs (void) const { return childs_;  }
 
-    void readFromBifFormat (const char*);
+    vector<DAGraphNode*>& childs  (void) { return childs_;  }
 
-    BayesNode* addNode (BayesNode*);
+    const vector<DAGraphNode*>& parents (void) const { return parents_; }
 
-    BayesNode* addNode (string, const States&);
+    vector<DAGraphNode*>& parents (void) { return parents_; }
 
-    BayesNode* getBayesNode (VarId) const;
+    void addParent (DAGraphNode* p) { parents_.push_back (p); }
 
-    BayesNode* getBayesNode (string) const;
+    void addChild (DAGraphNode* c) { childs_.push_back (c); }
 
-    VarNode* getVariableNode (VarId) const;
+    bool isVisited (void) const { return visited_; }
+ 
+    void setAsVisited (void) { visited_ = true; }
 
-    VarNodes getVariableNodes (void) const;
+    bool isMarkedOnTop (void) const { return markedOnTop_; }
+ 
+    void markOnTop (void) { markedOnTop_ = true; }
 
-    const BnNodeSet& getBayesNodes (void) const;
+    bool isMarkedOnBottom (void) const { return markedOnBottom_; }
+ 
+    void markOnBottom (void) { markedOnBottom_ = true; }
 
-    unsigned nrNodes (void) const;
+    void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }
 
-    BnNodeSet getRootNodes (void) const;
+  private:
+    bool visited_;
+    bool markedOnTop_;
+    bool markedOnBottom_;
 
-    BnNodeSet getLeafNodes (void) const;
+    vector<DAGraphNode*> childs_;
+    vector<DAGraphNode*> parents_;
+};
 
-    BayesNet* getMinimalRequesiteNetwork (VarId) const;
 
-    BayesNet* getMinimalRequesiteNetwork (const VarIds&) const;
+class DAGraph
+{
+  public:
+    DAGraph (void) { }
 
-    void constructGraph (BayesNet*, const vector<StateInfo*>&) const;
+    void addNode (DAGraphNode* n);
 
-    bool isPolyTree (void) const;
+    void addEdge (VarId vid1, VarId vid2);
+
+    const DAGraphNode* getNode (VarId vid) const;
+ 
+    DAGraphNode* getNode (VarId vid);
+
+    bool empty (void) const { return nodes_.empty(); }
 
     void setIndexes (void);
 
-    void printGraphicalModel (void) const;
+    void clear (void);
 
-    void exportToGraphViz (const char*, bool = true, 
-        const VarIds& = VarIds()) const;
-
-    void exportToBifFormat (const char*) const;
+    void exportToGraphViz (const char*);
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (BayesNet);
+    vector<DAGraphNode*> nodes_;
 
-    bool containsUndirectedCycle (void) const;
-
-    bool containsUndirectedCycle (int, int, vector<bool>&)const;
-
-    vector<int> getAdjacentNodes (int) const;
-
-    Params reorderParameters (const Params&, unsigned) const;
-
-    Params revertParameterReorder (const Params&, unsigned) const;
-
-    void scheduleParents (const BayesNode*, Scheduling&) const;
-
-    void scheduleChilds (const BayesNode*, Scheduling&) const;
-
-    BnNodeSet nodes_;
-
-    typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap  varMap_;
+    unordered_map<VarId, DAGraphNode*> varMap_;
 };
-
-
-
-inline void
-BayesNet::scheduleParents (const BayesNode* n, Scheduling& sch) const
-{
-  const BnNodeSet& ps = n->getParents();
-  for (BnNodeSet::const_iterator it = ps.begin(); it != ps.end(); it++) {
-    sch.push (ScheduleInfo (*it, false, true));
-  }
-}
-
-
-
-inline void
-BayesNet::scheduleChilds (const BayesNode* n, Scheduling& sch) const
-{
-  const BnNodeSet& cs = n->getChilds();
-  for (BnNodeSet::const_iterator it = cs.begin(); it != cs.end(); it++) {
-    sch.push (ScheduleInfo (*it, true, false));
-  }
-}
 
 #endif // HORUS_BAYESNET_H
 

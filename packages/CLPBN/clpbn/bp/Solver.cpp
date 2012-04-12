@@ -3,51 +3,35 @@
 
 
 void
-Solver::printAllPosterioris (void)
+Solver::printAnswer (const VarIds& vids)
 {
-  const VarNodes& vars = gm_->getVariableNodes();
-  for (unsigned i = 0; i < vars.size(); i++) {
-    printPosterioriOf (vars[i]->varId());
-  }
-}
-
-
-
-void
-Solver::printPosterioriOf (VarId vid)
-{
-  VarNode* var = gm_->getVariableNode (vid);
-  const Params& posterioriDist = getPosterioriOf (vid);
-  const States& states = var->states();
-  for (unsigned i = 0; i < states.size(); i++) {
-    cout << "P(" << var->label() << "=" << states[i] << ") = " ;
-    cout << setprecision (Constants::PRECISION) << posterioriDist[i];
-    cout << endl;
-  }
-  cout << endl;
-}
-
-
-
-void
-Solver::printJointDistributionOf (const VarIds& vids)
-{
-  VarNodes vars;
-  VarIds vidsWithoutEvidence;
+  Vars   unobservedVars;
+  VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    VarNode* var = gm_->getVariableNode (vids[i]);
-    if (var->hasEvidence() == false) {
-      vars.push_back (var);
-      vidsWithoutEvidence.push_back (vids[i]);
+    VarNode* vn = fg.getVarNode (vids[i]);
+    if (vn->hasEvidence() == false) {
+      unobservedVars.push_back (vn);
+      unobservedVids.push_back (vids[i]);
     }
   }
-  const Params& jointDist = getJointDistributionOf (vidsWithoutEvidence);
-  vector<string> jointStrings = Util::getJointStateStrings (vars);
-  for (unsigned i = 0; i < jointDist.size(); i++) {
-    cout << "P(" << jointStrings[i] << ") = " ;
-    cout << setprecision (Constants::PRECISION) << jointDist[i];
+  Params res = solveQuery (unobservedVids);
+  vector<string> stateLines = Util::getStateLines (unobservedVars);
+  for (unsigned i = 0; i < res.size(); i++) {
+    cout << "P(" << stateLines[i] << ") = " ;
+    cout << std::setprecision (Constants::PRECISION) << res[i];
     cout << endl;
   }
   cout << endl;
+}
+
+
+
+void
+Solver::printAllPosterioris (void)
+{
+  const VarNodes& vars = fg.varNodes();
+  for (unsigned i = 0; i < vars.size(); i++) {
+    printAnswer ({vars[i]->varId()});
+  }
 }
 

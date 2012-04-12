@@ -17,10 +17,10 @@ enum ElimHeuristic
 };
 
 
-class EgNode : public VarNode
+class EgNode : public Var
 {
   public:
-    EgNode (VarNode* var) : VarNode (var) { }
+    EgNode (VarId vid, unsigned range) : Var (vid, range) { }
 
     void addNeighbor (EgNode* n) { neighs_.push_back (n);  }
 
@@ -34,10 +34,26 @@ class EgNode : public VarNode
 class ElimGraph
 {
   public:
-    ElimGraph (const BayesNet&);
+    ElimGraph (const vector<Factor*>&); // TODO
 
    ~ElimGraph (void);
    
+    VarIds getEliminatingOrder (const VarIds&);
+
+    void print (void) const;
+
+    void exportToGraphViz (const char*, bool = true,
+        const VarIds& = VarIds()) const;
+
+    static VarIds getEliminationOrder (const vector<Factor*>, VarIds);
+
+    static void setEliminationHeuristic (ElimHeuristic h)
+    {
+      elimHeuristic_ = h;
+    }
+
+  private:
+
     void addEdge (EgNode* n1, EgNode* n2)
     {
       assert (n1 != n2);
@@ -48,22 +64,6 @@ class ElimGraph
     void addNode (EgNode*);
 
     EgNode* getEgNode (VarId) const;
-
-    VarIds getEliminatingOrder (const VarIds&);
-
-    void printGraphicalModel (void) const;
-
-    void exportToGraphViz (const char*, bool = true,
-        const VarIds& = VarIds()) const;
-
-    void setIndexes();
-
-    static void setEliminationHeuristic (ElimHeuristic h)
-    {
-      elimHeuristic_ = h;
-    }
-
-  private:
     EgNode* getLowestCostNode (void) const;
 
     unsigned getNeighborsCost (const EgNode*) const;
@@ -80,7 +80,7 @@ class ElimGraph
 
     vector<EgNode*> nodes_;
     vector<bool>    marked_;
-    unordered_map<VarId,EgNode*> varMap_;
+    unordered_map<VarId, EgNode*> varMap_;
     static ElimHeuristic elimHeuristic_;
 };
 

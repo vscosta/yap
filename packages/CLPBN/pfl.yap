@@ -41,18 +41,19 @@
 user:term_expansion( bayes((Formula ; Phi ; Constraints)), pfl:factor(bayes,Id,FList,FV,Phi,Constraints)) :-
 	!,
 	term_variables(Formula, FreeVars),
-	FV =.. [fv|FreeVars],
+	FV =.. [''|FreeVars],
 	new_id(Id),
 	process_args(Formula, Id, 0, _, FList, []).
 user:term_expansion( markov((Formula ; Phi ; Constraints)), pfl:factor(markov,Id,FList,FV,Phi,Constraints)) :-
 	!,
 	term_variables(Formula, FreeVars),
-	FV =.. [fv|FreeVars],
+	FV =.. [''|FreeVars],
 	new_id(Id),
 	process_args(Formula, Id, 0, _, FList, []).
 user:term_expansion( Id@N, L ) :-
 	atom(Id), number(N), !,
-	findall(G,generate_entity(0, N, Id, G), L).
+  N1 is N + 1,
+	findall(G,generate_entity(1, N1, Id, G), L).
 user:term_expansion( Goal, [] ) :-
 	preprocess(Goal, Sk,Var), !,
 	(ground(Goal) -> true ; throw(error('non ground evidence',Goal))),
@@ -78,7 +79,7 @@ defined_in_factor(Key, Factor) :-
 
 generate_entity(N, N, _, _) :- !.
 generate_entity(I0, _N, Id, T) :-
-	atomic_concat(person_, I0, P),
+	atomic_concat(p, I0, P),
 	T =.. [Id, P].
 generate_entity(I0, N, Id, T) :-
 	I is I0+1,
@@ -145,7 +146,7 @@ add_evidence(Sk,Var) :-
 
 get_pfl_parameters(Id,Out) :-
 	factor(_Type,Id,_FList,_FV,Phi,_Constraints),
-	writeln(factor(_Type,Id,_FList,_FV,_Phi,_Constraints)),
+	%writeln(factor(_Type,Id,_FList,_FV,_Phi,_Constraints)),
 	( is_list(Phi) -> Out = Phi ; call(user:Phi, Out) ).
 
 

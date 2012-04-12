@@ -5,6 +5,7 @@
 #include <cassert>
 #include <limits>
 
+#include <algorithm>
 #include <vector>
 #include <set>
 #include <queue>
@@ -22,7 +23,9 @@ namespace Util {
 
 template <typename T> void addToVector (vector<T>&, const vector<T>&);
 
-template <typename T> void addToQueue  (queue<T>&,  const vector<T>&);
+template <typename T> void addToSet (set<T>&,  const vector<T>&);
+
+template <typename T> void addToQueue (queue<T>&,  const vector<T>&);
 
 template <typename T> bool contains (const vector<T>&, const T&);
 
@@ -59,7 +62,7 @@ bool isInteger (const string&);
 
 string parametersToString (const Params&, unsigned = Constants::PRECISION);
 
-vector<string> getJointStateStrings (const VarNodes&);
+vector<string> getStateLines (const Vars&);
 
 void printHeader (string, std::ostream& os = std::cout);
 
@@ -79,6 +82,14 @@ template <typename T> void
 Util::addToVector (vector<T>& v, const vector<T>& elements)
 {
   v.insert (v.end(), elements.begin(), elements.end());
+}
+
+
+
+template <typename T> void
+Util::addToSet (set<T>& s, const vector<T>& elements)
+{
+  s.insert (elements.begin(), elements.end());
 }
 
 
@@ -110,8 +121,7 @@ Util::contains (const set<T>& s, const T& e)
 
 
 template <typename K, typename V> bool
-Util::contains (
-    const unordered_map<K, V>& m, const K& k)
+Util::contains (const unordered_map<K, V>& m, const K& k)
 {
   return m.find (k) != m.end();
 }
@@ -322,17 +332,17 @@ struct CompressInfo
 { 
   CompressInfo (unsigned a, unsigned b, unsigned c, unsigned d, unsigned e)
   {
-    nGroundVars     = a; 
-    nGroundFactors  = b; 
-    nClusterVars    = c;
-    nClusterFactors = d;
-    nWithoutNeighs  = e;
+    nrGroundVars     = a; 
+    nrGroundFactors  = b; 
+    nrClusterVars    = c;
+    nrClusterFactors = d;
+    nrNeighborless   = e;
   }
-  unsigned nGroundVars;
-  unsigned nGroundFactors;
-  unsigned nClusterVars;
-  unsigned nClusterFactors;
-  unsigned nWithoutNeighs;
+  unsigned nrGroundVars;
+  unsigned nrGroundFactors;
+  unsigned nrClusterVars;
+  unsigned nrClusterFactors;
+  unsigned nrNeighborless;
 };
 
 
@@ -349,7 +359,7 @@ class Statistics
 
     static void printStatistics (void);
 
-    static void writeStatisticsToFile (const char*);
+    static void writeStatistics (const char*);
 
     static void updateCompressingStatistics (
         unsigned, unsigned, unsigned, unsigned, unsigned);

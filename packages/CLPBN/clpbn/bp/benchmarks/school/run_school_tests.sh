@@ -9,7 +9,7 @@ OUT_FILE_NAME=results.log
 rm -f $OUT_FILE_NAME
 rm -f ignore.$OUT_FILE_NAME
 
-# yap -g "['../../../../examples/School/sch32'], [missing5], use_module(library(clpbn/learning/em)), graph(L), clpbn:set_clpbn_flag(em_solver,bp), clpbn_horus:set_horus_flag(inf_alg,fg_bp), statistics(runtime, _), em(L,0.01,10,_,Lik), statistics(runtime, [T,_])."
+# yap -g "['../../../../examples/School/sch32'], [missing5], use_module(library(clpbn/learning/em)), graph(L), clpbn:set_clpbn_flag(em_solver,bp), clpbn_horus:set_horus_flag(inf_alg, bp), statistics(runtime, _), em(L,0.01,10,_,Lik), statistics(runtime, [T,_])."
 
 function run_solver
 {
@@ -58,24 +58,21 @@ function run_all_graphs
 }
 
 					
-#run_all_graphs  bp     "hve(min_neighbors)  "  ve     min_neighbors
-#run_all_graphs  bp     "bn_bp(seq_fixed)    "  bn_bp  seq_fixed
-run_all_graphs  bp     "fg_bp(seq_fixed)    "  fg_bp  seq_fixed
-#run_all_graphs  bp     "cbp(seq_fixed)      "  cbp    seq_fixed
+#run_all_graphs  bp     "hve(min_neighbors) "  ve   min_neighbors
+#run_all_graphs  bp     "bp(seq_fixed)      "  bp   seq_fixed
+#run_all_graphs  bp     "cbp(seq_fixed)     "  cbp  seq_fixed
 exit
 
 
-run_all_graphs  bp    "hve(min_neighbors)  "  ve     min_neighbors
-run_all_graphs  bp    "hve(min_weight)     "  ve     min_weight
-run_all_graphs  bp    "hve(min_fill)       "  ve     min_fill
-run_all_graphs  bp    "hve(w_min_fill)     "  ve     weighted_min_fill
-run_all_graphs  bp    "bn_bp(seq_fixed)    "  bn_bp  seq_fixed
-run_all_graphs  bp    "bn_bp(max_residual) "  bn_bp  max_residual
-run_all_graphs  bp    "fg_bp(seq_fixed)    "  fg_bp  seq_fixed
-run_all_graphs  bp    "fg_bp(max_residual) "  fg_bp  max_residual
-run_all_graphs  bp    "cbp(seq_fixed)      "  cbp    seq_fixed
-run_all_graphs  bp    "cbp(max_residual)   "  cbp    max_residual
-run_all_graphs  gibbs "gibbs               "
+run_all_graphs  bp    "hve(min_neighbors) "  ve   min_neighbors
+run_all_graphs  bp    "hve(min_weight)    "  ve   min_weight
+run_all_graphs  bp    "hve(min_fill)      "  ve   min_fill
+run_all_graphs  bp    "hve(w_min_fill)    "  ve   weighted_min_fill
+run_all_graphs  bp    "bp(seq_fixed)      "  bp   seq_fixed
+run_all_graphs  bp    "bp(max_residual)   "  bp   max_residual
+run_all_graphs  bp    "cbp(seq_fixed)     "  cbp  seq_fixed
+run_all_graphs  bp    "cbp(max_residual)  "  cbp  max_residual
+run_all_graphs  gibbs "gibbs              "
 echo "************************************************************************" >> "$OUT_FILE_NAME"
 echo "results for solver ve" >> "$OUT_FILE_NAME"
 echo "************************************************************************" >> "$OUT_FILE_NAME"

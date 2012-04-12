@@ -22,11 +22,11 @@ typedef unordered_map<unsigned, vector<Color>> VarColorMap;
 typedef unordered_map<unsigned, Color>    DistColorMap;
 typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
 
-typedef vector<VarCluster*> VarClusterSet;
-typedef vector<FacCluster*> FacClusterSet;
+typedef vector<VarCluster*> VarClusters;
+typedef vector<FacCluster*> FacClusters;
 
-typedef unordered_map<Signature, FgVarSet, SignatureHash> VarSignMap;
-typedef unordered_map<Signature, FgFacSet, SignatureHash> FacSignMap;
+typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
+typedef unordered_map<Signature, FacNodes, SignatureHash> FacSignMap;
 
 
 
@@ -87,7 +87,7 @@ struct SignatureHash
 class VarCluster
 {
   public:
-    VarCluster (const FgVarSet& vs)
+    VarCluster (const VarNodes& vs)
     {
       for (unsigned i = 0; i < vs.size(); i++) {
         groundVars_.push_back (vs[i]);
@@ -99,26 +99,28 @@ class VarCluster
       facClusters_.push_back (fc);
     }
 
-    const FacClusterSet& getFacClusters (void) const
+    const FacClusters& getFacClusters (void) const
     {
       return facClusters_;
     }
 
-    FgVarNode* getRepresentativeVariable (void) const { return representVar_; }
-    void setRepresentativeVariable (FgVarNode* v)     { representVar_ = v; }
-    const FgVarSet& getGroundFgVarNodes (void) const  { return groundVars_; }
+    VarNode* getRepresentativeVariable (void) const { return representVar_; }
+
+    void setRepresentativeVariable (VarNode* v) { representVar_ = v; }
+
+    const VarNodes& getGroundVarNodes (void) const { return groundVars_; }
 
   private:
-    FgVarSet        groundVars_;
-    FacClusterSet   facClusters_;
-    FgVarNode*      representVar_;
+    VarNodes        groundVars_;
+    FacClusters   facClusters_;
+    VarNode*      representVar_;
 };
 
 
 class FacCluster
 {
   public:
-    FacCluster (const FgFacSet& groundFactors, const VarClusterSet& vcs)
+    FacCluster (const FacNodes& groundFactors, const VarClusters& vcs)
     {
       groundFactors_ = groundFactors;
       varClusters_ = vcs;
@@ -127,12 +129,12 @@ class FacCluster
       }
     }
  
-    const VarClusterSet& getVarClusters (void) const
+    const VarClusters& getVarClusters (void) const
     {
       return varClusters_;
     }
   
-    bool containsGround (const FgFacNode* fn)
+    bool containsGround (const FacNode* fn)
     {
       for (unsigned i = 0; i < groundFactors_.size(); i++) {
         if (groundFactors_[i] == fn) {
@@ -142,26 +144,26 @@ class FacCluster
       return false;
     }
 
-    FgFacNode* getRepresentativeFactor (void) const
+    FacNode* getRepresentativeFactor (void) const
     {
       return representFactor_;
     }
 
-    void setRepresentativeFactor (FgFacNode* fn) 
+    void setRepresentativeFactor (FacNode* fn) 
     { 
       representFactor_ = fn;
     }
 
-    const FgFacSet& getGroundFactors (void) const
+    const FacNodes& getGroundFactors (void) const
     {
       return groundFactors_;
     }
 
  
   private:
-    FgFacSet        groundFactors_;
-    VarClusterSet   varClusters_;
-    FgFacNode*      representFactor_;
+    FacNodes        groundFactors_;
+    VarClusters   varClusters_;
+    FacNode*      representFactor_;
 };
 
 
@@ -172,19 +174,19 @@ class CFactorGraph
 
    ~CFactorGraph (void);
 
-    const VarClusterSet& getVarClusters (void) { return varClusters_; }
+    const VarClusters& getVarClusters (void) { return varClusters_; }
 
-    const FacClusterSet& getFacClusters (void) { return facClusters_; }
+    const FacClusters& getFacClusters (void) { return facClusters_; }
 
-    FgVarNode* getEquivalentVariable (VarId vid)
+    VarNode* getEquivalentVariable (VarId vid)
     {
       VarCluster* vc = vid2VarCluster_.find (vid)->second;
       return vc->getRepresentativeVariable();
     }
 
-    FactorGraph* getCompressedFactorGraph (void);
+    FactorGraph* getGroundFactorGraph (void) const;
 
-    unsigned getGroundEdgeCount (const FacCluster*, const VarCluster*) const;
+    unsigned getEdgeCount (const FacCluster*, const VarCluster*) const;
  
     static bool checkForIdenticalFactors;
  
@@ -195,22 +197,22 @@ class CFactorGraph
       return freeColor_ - 1;
     }
 
-    Color getColor (const FgVarNode* vn) const
+    Color getColor (const VarNode* vn) const
     {
       return varColors_[vn->getIndex()];
     }
-    Color getColor (const FgFacNode* fn) const  {
-      return factorColors_[fn->getIndex()];
+    Color getColor (const FacNode* fn) const  {
+      return facColors_[fn->getIndex()];
     }
 
-    void setColor (const FgVarNode* vn, Color c)
+    void setColor (const VarNode* vn, Color c)
     {
       varColors_[vn->getIndex()] = c;
     }
 
-    void setColor (const FgFacNode* fn, Color  c)
+    void setColor (const FacNode* fn, Color  c)
     {
-      factorColors_[fn->getIndex()] = c;
+      facColors_[fn->getIndex()] = c;
     }
 
     VarCluster* getVariableCluster (VarId vid) const
@@ -218,25 +220,25 @@ class CFactorGraph
       return vid2VarCluster_.find (vid)->second;
     }
 
-    void  setInitialColors (void);
+    void setInitialColors (void);
 
-    void  createGroups (void);
+    void createGroups (void);
 
-    void  createClusters (const VarSignMap&, const FacSignMap&);
+    void createClusters (const VarSignMap&, const FacSignMap&);
 
-    const Signature&  getSignature (const FgVarNode*);
+    const Signature& getSignature (const VarNode*);
 
-    const Signature&  getSignature (const FgFacNode*);
+    const Signature& getSignature (const FacNode*);
 
-    void  printGroups (const VarSignMap&, const FacSignMap&) const;
+    void printGroups (const VarSignMap&, const FacSignMap&) const;
 
     Color               freeColor_;
     vector<Color>       varColors_;
-    vector<Color>       factorColors_;
+    vector<Color>       facColors_;
     vector<Signature>   varSignatures_;
-    vector<Signature>   factorSignatures_;
-    VarClusterSet       varClusters_;
-    FacClusterSet       facClusters_;
+    vector<Signature>   facSignatures_;
+    VarClusters         varClusters_;
+    FacClusters         facClusters_;
     VarId2VarCluster    vid2VarCluster_;
     const FactorGraph*  groundFg_;
 };

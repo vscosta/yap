@@ -116,7 +116,6 @@ ParfactorList::print (void) const
   list<Parfactor*>::const_iterator it;
   for (it = pfList_.begin(); it != pfList_.end(); ++it) {
     (*it)->print();
-    cout << endl;
   }
 }
 
@@ -219,7 +218,7 @@ ParfactorList::shatter (
   ProbFormula& f1 = g1->argument (fIdx1);
   ProbFormula& f2 = g2->argument (fIdx2);
   // cout << endl;
-  // Util::printDashLine();
+  // Util::printDashedLine();
   // cout << "-> SHATTERING (#" << g1 << ", #" << g2 << ")" << endl;
   // g1->print();
   // cout << "-> WITH" << endl;
@@ -228,7 +227,7 @@ ParfactorList::shatter (
   // cout << g1->constr()->tupleSet (f1.logVars()) << endl;
   // cout << "-> ON: " << f2 << "|" ;
   // cout << g2->constr()->tupleSet (f2.logVars()) << endl;
-  // Util::printDashLine();
+  // Util::printDashedLine();
   if (f1.isAtom()) {
     unsigned group = (f1.group() < f2.group()) ? f1.group() : f2.group();
     f1.setGroup (group);
@@ -265,18 +264,19 @@ ParfactorList::shatter (
   assert (commCt1->tupleSet (f1.arity()) == 
           commCt2->tupleSet (f2.arity()));
 
-  // stringstream ss1; ss1 << "" << count << "_A.dot" ;
-  // stringstream ss2; ss2 << "" << count << "_B.dot" ;
-  // stringstream ss3; ss3 << "" << count << "_A_comm.dot" ;
-  // stringstream ss4; ss4 << "" << count << "_A_excl.dot" ;
-  // stringstream ss5; ss5 << "" << count << "_B_comm.dot" ;
-  // stringstream ss6; ss6 << "" << count << "_B_excl.dot" ;
-  // ct1->exportToGraphViz     (ss1.str().c_str(), true);
-  // ct2->exportToGraphViz     (ss2.str().c_str(), true);
-  // commCt1->exportToGraphViz (ss3.str().c_str(), true);
-  // exclCt1->exportToGraphViz (ss4.str().c_str(), true);
-  // commCt2->exportToGraphViz (ss5.str().c_str(), true);
-  // exclCt2->exportToGraphViz (ss6.str().c_str(), true);
+   // unsigned static count = 0; count ++;
+   // stringstream ss1; ss1 << "" << count << "_A.dot" ;
+   // stringstream ss2; ss2 << "" << count << "_B.dot" ;
+   // stringstream ss3; ss3 << "" << count << "_A_comm.dot" ;
+   // stringstream ss4; ss4 << "" << count << "_A_excl.dot" ;
+   // stringstream ss5; ss5 << "" << count << "_B_comm.dot" ;
+   // stringstream ss6; ss6 << "" << count << "_B_excl.dot" ;
+   // g1->constr()->exportToGraphViz (ss1.str().c_str(), true);
+   // g2->constr()->exportToGraphViz (ss2.str().c_str(), true);
+   // commCt1->exportToGraphViz (ss3.str().c_str(), true);
+   // exclCt1->exportToGraphViz (ss4.str().c_str(), true);
+   // commCt2->exportToGraphViz (ss5.str().c_str(), true);
+   // exclCt2->exportToGraphViz (ss6.str().c_str(), true);
 
   if (exclCt1->empty() && exclCt2->empty()) {
     unsigned group = (f1.group() < f2.group())

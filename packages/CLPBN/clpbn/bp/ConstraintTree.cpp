@@ -44,6 +44,14 @@ CTNode::removeChild (CTNode* child)
 
 
 void
+CTNode::removeChilds (void)
+{
+  childs_.clear();
+}
+
+
+
+void
 CTNode::removeAndDeleteChild (CTNode* child)
 {
   removeChild (child);
@@ -897,19 +905,19 @@ ConstraintTree::getNodesAtLevel (unsigned level) const
 void
 ConstraintTree::swapLogVar (LogVar X)
 {
+  TupleSet before = tupleSet();
   LogVars::iterator it = 
       std::find (logVars_.begin(),logVars_.end(), X);
   assert (it != logVars_.end());
   unsigned pos = std::distance (logVars_.begin(), it);
-
   const CTNodes& nodes = getNodesAtLevel (pos);
   for (unsigned i = 0; i < nodes.size(); i++) {
-    const CTNodes childs = nodes[i]->childs();
-    for (unsigned j = 0; j < childs.size(); j++) {
-       nodes[i]->removeChild (childs[j]);
-       const CTNodes grandsons = childs[j]->childs();
+    CTNodes childsCopy = nodes[i]->childs();
+    nodes[i]->removeChilds();
+    for (unsigned j = 0; j < childsCopy.size(); j++) {
+       const CTNodes grandsons = childsCopy[j]->childs();
        for (unsigned k = 0; k < grandsons.size(); k++) {
-         CTNode* childCopy = new CTNode (*childs[j]);
+         CTNode* childCopy = new CTNode (*childsCopy[j]);
          const CTNodes greatGrandsons = grandsons[k]->childs();
          for (unsigned t = 0; t < greatGrandsons.size(); t++) {
            grandsons[k]->removeChild (greatGrandsons[t]);
@@ -920,10 +928,9 @@ ConstraintTree::swapLogVar (LogVar X)
          grandsons[k]->setLevel (grandsons[k]->level() - 1);
          nodes[i]->addChild (grandsons[k], false);
        }
-       delete childs[j];
+       delete childsCopy[j];
     }
   }
-
   std::swap (logVars_[pos], logVars_[pos + 1]);
 }
 

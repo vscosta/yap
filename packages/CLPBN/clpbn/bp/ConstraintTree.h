@@ -50,6 +50,8 @@ class CTNode
 
     void removeChild (CTNode*);
 
+    void removeChilds (void);
+
     void removeAndDeleteChild (CTNode*);
 
     void removeAndDeleteAllChilds (void);

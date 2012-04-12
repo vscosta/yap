@@ -1,29 +1,41 @@
 
-:- use_module(library(clpbn)).
+:- use_module(library(pfl)).
 
-:- set_clpbn_flag(solver, bp).
+%:- set_pfl_flag(solver,ve).
+:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,ve).
+%:- set_pfl_flag(solver,bp), clpbn_horus:set_horus_flag(inf_alg,bp).
+%:- set_pfl_flag(solver,fove).
 
-r(R) :- r_cpt(RCpt),
-        { R = r with p([r1, r2], RCpt) }.
+% :- yap_flag(write_strings, off).
 
-t(T) :- t_cpt(TCpt),
-        { T = t with p([t1, t2], TCpt) }.
 
-a(A) :- r(R), t(T), a_cpt(ACpt),
-        { A = a with p([a1, a2], ACpt, [R, T]) }.
+bayes burglary::[b1,b3] ; [0.001, 0.999] ; [].
 
-j(J) :- a(A), j_cpt(JCpt),
-        { J = j with p([j1, j2], JCpt, [A]) }.
+bayes earthquake::[e1,e2] ; [0.002, 0.998]; [].
 
-m(M) :- a(A), m_cpt(MCpt),
-        { M = m with p([m1, m2], MCpt, [A]) }.
-    
-r_cpt([0.001, 0.999]).
-t_cpt([0.002, 0.998]).
+bayes alarm::[a1,a2] , burglary, earthquake ; [0.95, 0.94, 0.29, 0.001, 0.05, 0.06, 0.71, 0.999] ; [].
+
+bayes john_calls::[j1,j2] , alarm ; [0.9, 0.05, 0.1, 0.95] ; [].
+
+bayes mary_calls::[m1,m2] , alarm ; [0.7, 0.01, 0.3, 0.99] ; [].
+
+
+b_cpt([0.001, 0.999]).
+
+e_cpt([0.002, 0.998]).
+
 a_cpt([0.95, 0.94, 0.29, 0.001,
        0.05, 0.06, 0.71, 0.999]).
-j_cpt([0.9, 0.05,
+
+jc_cpt([0.9, 0.05,
        0.1, 0.95]).
-m_cpt([0.7, 0.01,
+
+mc_cpt([0.7, 0.01,
        0.3, 0.99]).
+
+% ?- alarm(A).
+?- john_calls(J), mary_calls(m1).
+%?- john_calls(J), mary_calls(m1), alarm(a1).
+%?- john_calls(J), alarm(a1).
+
 

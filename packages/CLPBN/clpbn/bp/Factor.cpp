@@ -18,56 +18,14 @@ Factor::Factor (const Factor& g)
 
 
 
-Factor::Factor (VarId vid, unsigned nrStates)
-{
-  args_.push_back (vid);
-  ranges_.push_back (nrStates);
-  params_.resize (nrStates, 1.0);
-  distId_ = Util::maxUnsigned();
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
-Factor::Factor (const VarNodes& vars)
-{
-  int nrParams = 1;
-  for (unsigned i = 0; i < vars.size(); i++) {
-    args_.push_back (vars[i]->varId());
-    ranges_.push_back (vars[i]->nrStates());
-    nrParams *= vars[i]->nrStates();
-  }
-  double val = 1.0 / nrParams;
-  params_.resize (nrParams, val);
-  distId_ = Util::maxUnsigned();
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
 Factor::Factor (
-    VarId vid,
-    unsigned nrStates,
-    const Params& params)
-{
-  args_.push_back (vid);
-  ranges_.push_back (nrStates);
-  params_ = params;
-  distId_ = Util::maxUnsigned();
-  assert (params_.size() == Util::expectedSize (ranges_));
-}
-
-
-
-Factor::Factor (
-    const VarNodes& vars,
+    const VarIds& vids,
+    const Ranges& ranges,
     const Params& params,
     unsigned distId)
 {
-  for (unsigned i = 0; i < vars.size(); i++) {
-    args_.push_back (vars[i]->varId());
-    ranges_.push_back (vars[i]->nrStates());
-  }
+  args_   = vids;
+  ranges_ = ranges;
   params_ = params;
   distId_ = distId;
   assert (params_.size() == Util::expectedSize (ranges_));
@@ -76,14 +34,16 @@ Factor::Factor (
 
 
 Factor::Factor (
-    const VarIds& vids,
-    const Ranges& ranges,
-    const Params& params)
+    const Vars& vars,
+    const Params& params,
+    unsigned distId)
 {
-  args_ = vids;
-  ranges_ = ranges;
+  for (unsigned i = 0; i < vars.size(); i++) {
+    args_.push_back (vars[i]->varId());
+    ranges_.push_back (vars[i]->range());
+  }
   params_ = params;
-  distId_ = Util::maxUnsigned();
+  distId_ = distId;
   assert (params_.size() == Util::expectedSize (ranges_));
 }
 
@@ -185,8 +145,8 @@ Factor::sumOut (VarId vid)
 void
 Factor::sumOutFirstVariable (void)
 {
-  unsigned nStates = ranges_.front();
-  unsigned sep = params_.size() / nStates;
+  unsigned range = ranges_.front();
+  unsigned sep = params_.size() / range;
   if (Globals::logDomain) {
     for (unsigned i = sep; i < params_.size(); i++) {
       params_[i % sep] = Util::logSum (params_[i % sep], params_[i]);
@@ -206,14 +166,14 @@ Factor::sumOutFirstVariable (void)
 void
 Factor::sumOutLastVariable (void)
 {
-  unsigned nStates = ranges_.back();
+  unsigned range = ranges_.back();
   unsigned idx1 = 0;
   unsigned idx2 = 0;
   if (Globals::logDomain) {
     while (idx1 < params_.size()) {
       params_[idx2] = params_[idx1];
       idx1 ++;
-      for (unsigned j = 1; j < nStates; j++) {
+      for (unsigned j = 1; j < range; j++) {
         params_[idx2] = Util::logSum (params_[idx2], params_[idx1]);
         idx1 ++;
       }
@@ -223,7 +183,7 @@ Factor::sumOutLastVariable (void)
     while (idx1 < params_.size()) {
       params_[idx2] = params_[idx1];
       idx1 ++;
-      for (unsigned j = 1; j < nStates; j++) {
+      for (unsigned j = 1; j < range; j++) {
         params_[idx2] += params_[idx1];
         idx1 ++;
       }
@@ -266,7 +226,7 @@ Factor::getLabel (void) const
   ss << "f(" ;
   for (unsigned i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
-    ss << VarNode (args_[i], ranges_[i]).label();
+    ss << Var (args_[i], ranges_[i]).label();
   }
   ss << ")" ;
   return ss.str();
@@ -277,13 +237,13 @@ Factor::getLabel (void) const
 void
 Factor::print (void) const
 {
-  VarNodes vars;
+  Vars vars;
   for (unsigned i = 0; i < args_.size(); i++) {
-    vars.push_back (new VarNode (args_[i], ranges_[i]));
+    vars.push_back (new Var (args_[i], ranges_[i]));
   }
-  vector<string> jointStrings = Util::getJointStateStrings (vars);
+  vector<string> jointStrings = Util::getStateLines (vars);
   for (unsigned i = 0; i < params_.size(); i++) {
-    cout << "f(" << jointStrings[i] << ")" ;
+    cout << "[" << distId_ << "] f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;
   }
   cout << endl;

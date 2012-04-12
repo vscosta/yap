@@ -50,7 +50,7 @@ init_fove_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
   get_dist_ids(Parfactors, DistIds0),
   sort(DistIds0, DistIds),
   get_observed_vars(AllAttVars, ObservedVars),
-  writeln(factors:Parfactors:'\n'),
+  writeln(parfactors:Parfactors:'\n'),
   writeln(evidence:ObservedVars:'\n'),
   create_lifted_network(Parfactors,ObservedVars,ParfactorList).
 
@@ -139,11 +139,11 @@ get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
 
 
 run_fove_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
-  get_dists_parameters(DistIds, DistsParams),
-  writeln(distParams:DistsParams),
-  set_parfactors_params(ParfactorList, DistsParams),
   get_query_vars(QueryVarsAtts, QueryVars),
   writeln(queryVars:QueryVars), writeln(''),
+  get_dists_parameters(DistIds, DistsParams),
+  writeln(dists:DistsParams), writeln(''),
+  set_parfactors_params(ParfactorList, DistsParams),
   run_lifted_solver(ParfactorList, QueryVars, Solutions).
 
 

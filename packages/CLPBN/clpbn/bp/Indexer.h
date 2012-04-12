@@ -8,7 +8,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "VarNode.h"
+#include "Var.h"
 #include "Util.h"
 
 
@@ -31,14 +31,14 @@ class StatesIndexer
       }
     }
 
-    StatesIndexer (const VarNodes& vars, bool calcOffsets = true)
+    StatesIndexer (const Vars& vars, bool calcOffsets = true)
     {
       size_ = 1;
       indices_.resize (vars.size(), 0);
       ranges_.reserve (vars.size());
       for (unsigned i = 0; i < vars.size(); i++) {
-        ranges_.push_back (vars[i]->nrStates());
-        size_ *= vars[i]->nrStates();
+        ranges_.push_back (vars[i]->range());
+        size_ *= vars[i]->range();
       }
       li_ = 0;
       if (calcOffsets) {

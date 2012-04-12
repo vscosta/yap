@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "VarNode.h"
+#include "Var.h"
 #include "Indexer.h"
 #include "Util.h"
 
@@ -33,15 +33,12 @@ class TFactor
 
     void setDistId (unsigned id) { distId_ = id; }
 
+    void normalize (void) { LogAware::normalize (params_); }
+
     void setParams (const Params& newParams)
     {
       params_ = newParams;
       assert (params_.size() == Util::expectedSize (ranges_));
-    }
-
-    void normalize (void)
-    {
-      LogAware::normalize (params_);
     }
 
     int indexOf (const T& t) const
@@ -258,16 +255,11 @@ class Factor : public TFactor<VarId>
 
     Factor (const Factor&);
 
-    Factor (VarId, unsigned);
-
-    Factor (const VarNodes&);
-
-    Factor (VarId, unsigned, const Params&);
-
-    Factor (const VarNodes&, const Params&,
+    Factor (const VarIds&, const Ranges&, const Params&,
         unsigned = Util::maxUnsigned());
 
-    Factor (const VarIds&, const Ranges&, const Params&);
+    Factor (const Vars&, const Params&,
+        unsigned = Util::maxUnsigned());
 
     void sumOutAllExcept (VarId);
 

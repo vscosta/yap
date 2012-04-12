@@ -5,7 +5,6 @@
 
 #include "Util.h"
 #include "Indexer.h"
-#include "GraphicalModel.h"
 
 
 namespace Globals {
@@ -25,12 +24,11 @@ Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
 //Schedule schedule = BpOptions::Schedule::SEQ_RANDOM;
 //Schedule schedule = BpOptions::Schedule::PARALLEL;
 //Schedule schedule = BpOptions::Schedule::MAX_RESIDUAL;
-double    accuracy              = 0.0001;
-unsigned  maxIter               = 1000;
+double    accuracy  = 0.0001;
+unsigned  maxIter   = 1000;
 }
 
 
-unordered_map<VarId, VarInfo> GraphicalModel::varsInfo_;
 
 vector<NetInfo>      Statistics::netInfo_;
 vector<CompressInfo> Statistics::compressInfo_;
@@ -139,7 +137,7 @@ parametersToString (const Params& v, unsigned precision)
 
 
 vector<string>
-getJointStateStrings (const VarNodes& vars)
+getStateLines (const Vars& vars)
 {
   StatesIndexer idx (vars);
   vector<string> jointStrings;
@@ -157,7 +155,8 @@ getJointStateStrings (const VarNodes& vars)
 
 
 
-void printHeader (string header, std::ostream& os)
+void
+printHeader (string header, std::ostream& os)
 {
   printAsteriskLine (os);
   os << header << endl;
@@ -166,7 +165,8 @@ void printHeader (string header, std::ostream& os)
 
 
 
-void printSubHeader (string header, std::ostream& os)
+void
+printSubHeader (string header, std::ostream& os)
 {
   printDashedLine (os);
   os << header << endl;
@@ -175,7 +175,8 @@ void printSubHeader (string header, std::ostream& os)
 
 
 
-void printAsteriskLine (std::ostream& os)
+void
+printAsteriskLine (std::ostream& os)
 {
   os << "********************************" ;
   os << "********************************" ;
@@ -184,7 +185,8 @@ void printAsteriskLine (std::ostream& os)
 
 
 
-void printDashedLine (std::ostream& os)
+void
+printDashedLine (std::ostream& os)
 {
   os << "--------------------------------" ;
   os << "--------------------------------" ;
@@ -368,12 +370,12 @@ Statistics::printStatistics (void)
 
 
 void
-Statistics::writeStatisticsToFile (const char* fileName)
+Statistics::writeStatistics (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
-    cerr << "Statistics::writeStatisticsToFile()" << endl;
+    cerr << "Statistics::writeStats()" << endl;
     abort();
   }
   out << getStatisticString();
@@ -384,13 +386,13 @@ Statistics::writeStatisticsToFile (const char* fileName)
 
 void
 Statistics::updateCompressingStatistics (
-    unsigned nGroundVars,
-    unsigned nGroundFactors,
-    unsigned nClusterVars, 
-    unsigned nClusterFactors,
-    unsigned nWithoutNeighs) {
-  compressInfo_.push_back (CompressInfo (nGroundVars, nGroundFactors,
-      nClusterVars, nClusterFactors, nWithoutNeighs));
+    unsigned nrGroundVars,
+    unsigned nrGroundFactors,
+    unsigned nrClusterVars, 
+    unsigned nrClusterFactors,
+    unsigned nrNeighborless) {
+  compressInfo_.push_back (CompressInfo (nrGroundVars, nrGroundFactors,
+      nrClusterVars, nrClusterFactors, nrNeighborless));
 }
 
 
@@ -401,10 +403,9 @@ Statistics::getStatisticString (void)
   stringstream ss2, ss3, ss4, ss1;
   ss1 << "running mode:          " ;
   switch (Globals::infAlgorithm) {
-    case InfAlgorithms::VE:    ss1 << "ve"     << endl;  break;
-    case InfAlgorithms::BN_BP: ss1 << "bn_bp"  << endl;  break;
-    case InfAlgorithms::FG_BP: ss1 << "fg_bp"  << endl;  break;
-    case InfAlgorithms::CBP:   ss1 << "cbp"    << endl;  break;
+    case InfAlgorithms::VE:  ss1 << "ve"  << endl;  break;
+    case InfAlgorithms::BP:  ss1 << "bp"  << endl;  break;
+    case InfAlgorithms::CBP: ss1 << "cbp" << endl;  break;
   }
   ss1 << "message schedule:      " ;
   switch (BpOptions::schedule) {
@@ -463,17 +464,17 @@ Statistics::getStatisticString (void)
     ss3 << "Ground   Cluster   Ground    Cluster   Neighborless" << endl;
     ss3 << "Vars     Vars      Factors   Factors   Vars"         << endl;
     for (unsigned i = 0; i < compressInfo_.size(); i++) {
-      ss3 << setw (9) << compressInfo_[i].nGroundVars;
-      ss3 << setw (10) << compressInfo_[i].nClusterVars;
-      ss3 << setw (10) << compressInfo_[i].nGroundFactors;
-      ss3 << setw (10) << compressInfo_[i].nClusterFactors;
-      ss3 << setw (10) << compressInfo_[i].nWithoutNeighs;
+      ss3 << setw (9)  << compressInfo_[i].nrGroundVars;
+      ss3 << setw (10) << compressInfo_[i].nrClusterVars;
+      ss3 << setw (10) << compressInfo_[i].nrGroundFactors;
+      ss3 << setw (10) << compressInfo_[i].nrClusterFactors;
+      ss3 << setw (10) << compressInfo_[i].nrNeighborless;
       ss3 << endl;
-      c1 += compressInfo_[i].nGroundVars - compressInfo_[i].nWithoutNeighs;
-      c2 += compressInfo_[i].nClusterVars;
-      c3 += compressInfo_[i].nGroundFactors - compressInfo_[i].nWithoutNeighs;
-      c4 += compressInfo_[i].nClusterFactors;
-      if (compressInfo_[i].nWithoutNeighs != 0) {
+      c1 += compressInfo_[i].nrGroundVars - compressInfo_[i].nrNeighborless;
+      c2 += compressInfo_[i].nrClusterVars;
+      c3 += compressInfo_[i].nrGroundFactors - compressInfo_[i].nrNeighborless;
+      c4 += compressInfo_[i].nrClusterFactors;
+      if (compressInfo_[i].nrNeighborless != 0) {
         c2 --;
         c4 --;
       } 
