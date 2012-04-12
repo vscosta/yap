@@ -115,6 +115,7 @@ typedef enum {
 #define YAP_BOOT_FROM_SAVED_CODE   1
 #define YAP_BOOT_FROM_SAVED_STACKS 2
 #define YAP_FULL_BOOT_FROM_PROLOG  4
+#define YAP_BOOT_DONE_BEFOREHAND   8
 #define YAP_BOOT_ERROR            -1
 
 #define YAP_WRITE_QUOTED		1
