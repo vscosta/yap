@@ -1066,6 +1066,7 @@ do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
   out = exec_absmi(top PASS_REGS);
+  Yap_flush();
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }

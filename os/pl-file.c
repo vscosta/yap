@@ -4671,6 +4671,11 @@ EndPredDefs
 
 #if __YAP_PROLOG__
 
+void Yap_flush(void)
+{
+  flush_output(0);
+}
+
 void *
 Yap_GetStreamHandle(Atom at)
 { GET_LD
