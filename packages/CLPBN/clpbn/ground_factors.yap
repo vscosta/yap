@@ -110,8 +110,9 @@ find_factors(K) :-
 	\+ currently_defined(K1),
 	find_factors(K1).
 
-add_factor(factor(Type, _Id, Ks, _, CPT, Constraints), Ks) :-
+add_factor(factor(Type, _Id, Ks, _, Phi, Constraints), Ks) :-
 	F = f(Type, Ks, CPT),
+	( is_list(Phi) -> CPT = Phi ; call(user:Phi, CPT) ),
 	run(Constraints),
 	\+ f(Type, Ks, CPT),
 	assert(F).
