@@ -2,7 +2,7 @@
 
 :- clpbn_horus:set_solver(fove).
 %:- clpbn_horus:set_solver(hve).
-%:- clpbn_horus:set_solver(bp).
+:- clpbn_horus:set_solver(bp).
 %:- clpbn_horus:set_solver(cbp).
 
 

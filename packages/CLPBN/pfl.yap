@@ -27,6 +27,9 @@
 	[clpbn_flag/2 as pfl_flag,
 	 set_clpbn_flag/2 as set_pfl_flag]).
 
+:- reexport(library(clpbn/horus),
+	[set_solver/1]).
+
 :- ( % if clp(bn) has done loading, we're top-level
 	predicate_property(set_pfl_flag(_,_), imported_from(clpbn))
     ->

@@ -57,7 +57,7 @@
           ]).
 
 
-call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Output) :-
+call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, _Output) :-
   b_hash_new(Hash0),
   keys_to_ids(AllKeys, 0, Hash0, Hash),
   get_factors_type(Factors, Type),
@@ -74,7 +74,7 @@ call_bp_ground(QueryKeys, AllKeys, Factors, Evidence, Output) :-
   %set_vars_information(AllKeys, StatesNames),
   run_solver(ground(Network,Hash), QueryKeys, Solutions),
   writeln(answer:Solutions),
-  %clpbn_bind_vals([QueryKeys], Solutions, Output).
+  %clpbn_bind_vals([QueryKeys], Solutions, _Output).
   free_ground_network(Network).
 
 
@@ -146,7 +146,7 @@ bp([QueryVars], AllVars, Output) :-
 
 init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
   %check_for_agg_vars(AllVars0, AllVars),
-  get_vars_info(AllVars, VarsInfo, DistIds0),
+  get_vars_info(AllVars0, VarsInfo, DistIds0),
   sort(DistIds0, DistIds),
   create_ground_network(VarsInfo, BayesNet),
   true.
