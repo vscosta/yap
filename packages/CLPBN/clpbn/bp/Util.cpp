@@ -37,6 +37,17 @@ unsigned             Statistics::primaryNetCount_;
 
 namespace Util {
 
+
+template <> std::string
+toString (const bool& b)
+{
+  std::stringstream ss;
+  ss << std::boolalpha << b;
+  return ss.str();
+}
+
+
+
 void
 toLog (Params& v)
 {

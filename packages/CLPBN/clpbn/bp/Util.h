@@ -36,6 +36,8 @@ template <typename K, typename V> bool contains (
 
 template <typename T> std::string toString (const T&);
 
+template <> std::string toString (const bool&);
+
 void toLog (Params&);
 
 void fromLog (Params&);
@@ -310,6 +312,7 @@ void pow (Params&, unsigned);
 void pow (Params&, double);
 
 };
+
 
 
 struct NetInfo
