@@ -153,30 +153,39 @@ std::ostream& operator << (std::ostream& os, const vector<T>& v)
 
 
 namespace {
-const double INF = -numeric_limits<double>::infinity();
+const double NEG_INF = -numeric_limits<double>::infinity();
 };
 
 
 inline double
 Util::logSum (double x, double y)
 {
-  return log (exp (x) + exp (y));
-  assert (isfinite (x) && isfinite (y));
-  // If one value is much smaller than the other, keep the larger value.
-  if (x < (y - log (1e200))) {
+  // std::log (std::exp (x) + std::exp (y)) can overflow!
+  assert (std::isnan (x) == false);
+  assert (std::isnan (y) == false);
+  if (x == NEG_INF) {
     return y;
   }
-  if (y < (x - log (1e200))) {
+  if (y == NEG_INF) {
     return x;
   }
-  double diff = x - y;
-  assert (isfinite (diff) && isfinite (x) && isfinite (y));
-  if (!isfinite (exp (diff))) {
+  // if one value is much smaller than the other,
+  // keep the larger value
+  const double tol = 460.517; // log (1e200)
+  if (x < y - tol) {
+    return y;
+  }
+  if (y < x - tol) {
+    return x;
+  }
+  assert (std::isnan (x - y) == false);
+  const double exp_diff = std::exp (x - y);
+  if (std::isfinite (exp_diff) == false) {
     // difference is too large
     return x > y ? x : y;
   }
-  // otherwise return the sum.
-  return y + log (static_cast<double>(1.0) + exp (diff));
+  // otherwise return the sum
+  return y + std::log (static_cast<double>(1.0) + exp_diff);
 }
 
 
@@ -252,14 +261,14 @@ one()
 
 inline double
 zero() {
-  return Globals::logDomain ? INF : 0.0 ;
+  return Globals::logDomain ? NEG_INF : 0.0 ;
 }
 
 
 inline double
 addIdenty()
 {
-  return Globals::logDomain ? INF : 0.0;
+  return Globals::logDomain ? NEG_INF : 0.0;
 }
 
 
@@ -279,7 +288,7 @@ withEvidence()
 
 inline double
 noEvidence() {
-  return Globals::logDomain ? INF : 0.0;
+  return Globals::logDomain ? NEG_INF : 0.0;
 }
 
 
