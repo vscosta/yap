@@ -55,7 +55,7 @@ CFactorGraph::setInitialColors (void)
     VarColorMap::iterator it = colorMap.find (dsize);
     if (it == colorMap.end()) {
       it = colorMap.insert (make_pair (
-          dsize, vector<Color> (dsize+1,-1))).first; 
+          dsize, Colors (dsize+1,-1))).first; 
     }
     unsigned idx;
     if (varNodes[i]->hasEvidence()) {
@@ -63,7 +63,7 @@ CFactorGraph::setInitialColors (void)
     } else {
       idx = dsize;
     }
-    vector<Color>& stateColors = it->second;
+    Colors& stateColors = it->second;
     if (stateColors[idx] == -1) {
       stateColors[idx] = getFreeColor();
     }
@@ -210,7 +210,7 @@ const Signature&
 CFactorGraph::getSignature (const VarNode* varNode)
 {
   Signature& sign = varSignatures_[varNode->getIndex()];
-  vector<Color>::iterator it = sign.colors.begin();
+  Colors::iterator it = sign.colors.begin();
   const FacNodes& neighs = varNode->neighbors();
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);
@@ -228,7 +228,7 @@ const Signature&
 CFactorGraph::getSignature (const FacNode* facNode)
 {
   Signature& sign = facSignatures_[facNode->getIndex()];
-  vector<Color>::iterator it = sign.colors.begin();
+  Colors::iterator it = sign.colors.begin();
   const VarNodes& neighs = facNode->neighbors();
   for (unsigned i = 0; i < neighs.size(); i++) {
     *it = getColor (neighs[i]);

@@ -9,25 +9,22 @@
 
 class VarCluster;
 class FacCluster;
-class Distribution;
 class Signature;
-
 class SignatureHash;
 
-
 typedef long Color;
+typedef vector<Color> Colors;
 
-typedef unordered_map<unsigned, vector<Color>> VarColorMap;
-
-typedef unordered_map<unsigned, Color>    DistColorMap;
-typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
-
-typedef vector<VarCluster*> VarClusters;
-typedef vector<FacCluster*> FacClusters;
+typedef unordered_map<unsigned, Color>  DistColorMap;
+typedef unordered_map<unsigned, Colors> VarColorMap;
 
 typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
 typedef unordered_map<Signature, FacNodes, SignatureHash> FacSignMap;
 
+typedef vector<VarCluster*> VarClusters;
+typedef vector<FacCluster*> FacClusters;
+
+typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
 
 
 struct Signature
@@ -65,7 +62,7 @@ struct Signature
     return true;
   }
 
-  vector<Color> colors;
+  Colors colors;
 };
 
 
@@ -111,9 +108,9 @@ class VarCluster
     const VarNodes& getGroundVarNodes (void) const { return groundVars_; }
 
   private:
-    VarNodes        groundVars_;
-    FacClusters   facClusters_;
-    VarNode*      representVar_;
+    VarNodes     groundVars_;
+    FacClusters  facClusters_;
+    VarNode*     representVar_;
 };
 
 
@@ -161,7 +158,7 @@ class FacCluster
 
  
   private:
-    FacNodes        groundFactors_;
+    FacNodes      groundFactors_;
     VarClusters   varClusters_;
     FacNode*      representFactor_;
 };
@@ -233,8 +230,8 @@ class CFactorGraph
     void printGroups (const VarSignMap&, const FacSignMap&) const;
 
     Color               freeColor_;
-    vector<Color>       varColors_;
-    vector<Color>       facColors_;
+    Colors              varColors_;
+    Colors              facColors_;
     vector<Signature>   varSignatures_;
     vector<Signature>   facSignatures_;
     VarClusters         varClusters_;
