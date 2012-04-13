@@ -525,7 +525,7 @@ FoveSolver::runSolver (const Grounds& query)
 LiftedOperator*
 FoveSolver::getBestOperation (const Grounds& query)
 {
-  unsigned bestCost;
+  unsigned bestCost = Util::maxUnsigned();
   LiftedOperator* bestOp = 0;
   vector<LiftedOperator*> validOps;
   validOps = LiftedOperator::getValidOps (pfList_, query);
