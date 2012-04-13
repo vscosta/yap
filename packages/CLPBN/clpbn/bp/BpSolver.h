@@ -97,6 +97,8 @@ class BpSolver : public Solver
 
     Params solveQuery (VarIds);
 
+    virtual void printSolverFlags (void) const;
+
     virtual Params getPosterioriOf (VarId);
 
     virtual Params getJointDistributionOf (const VarIds&);

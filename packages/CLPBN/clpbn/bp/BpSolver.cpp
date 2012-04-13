@@ -48,6 +48,28 @@ BpSolver::solveQuery (VarIds queryVids)
 
 
 
+void
+BpSolver::printSolverFlags (void) const
+{
+  stringstream ss;
+  ss << "belief propagation [" ;
+  ss << "schedule=" ;
+  typedef BpOptions::Schedule Sch;
+  switch (BpOptions::schedule) {
+    case Sch::SEQ_FIXED:    ss << "seq_fixed";    break;
+    case Sch::SEQ_RANDOM:   ss << "seq_random";   break;
+    case Sch::PARALLEL:     ss << "parallel";     break;
+    case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
+  }
+  ss << ",maxiter=" << Util::toString (BpOptions::maxIter);
+  ss << ",accuracy=" << Util::toString (BpOptions::accuracy);
+  ss << ",log_domain=" << Util::toString (Globals::logDomain);
+  ss << "]" ;
+  cout << ss.str() << endl;
+}
+
+
+
 Params
 BpSolver::getPosterioriOf (VarId vid)
 {

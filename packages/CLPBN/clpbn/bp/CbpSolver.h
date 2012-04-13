@@ -38,6 +38,8 @@ class CbpSolver : public BpSolver
     CbpSolver (const FactorGraph& fg);
 
    ~CbpSolver (void);
+
+    void printSolverFlags (void) const;
   
     Params getPosterioriOf (VarId);
 

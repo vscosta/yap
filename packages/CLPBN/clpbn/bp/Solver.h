@@ -18,6 +18,8 @@ class Solver
 
     virtual Params solveQuery (VarIds queryVids) = 0;
 
+    virtual void printSolverFlags (void) const = 0;
+
     void printAnswer (const VarIds& vids);
 
     void printAllPosterioris (void);

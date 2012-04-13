@@ -20,6 +20,8 @@ class VarElimSolver : public Solver
 
     Params solveQuery (VarIds);
 
+    void printSolverFlags (void) const;
+
   private:
     void createFactorList (void);
 

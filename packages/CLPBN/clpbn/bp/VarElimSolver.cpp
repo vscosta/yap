@@ -33,6 +33,26 @@ VarElimSolver::solveQuery (VarIds queryVids)
 
 
 void
+VarElimSolver::printSolverFlags (void) const
+{
+  stringstream ss;
+  ss << "variable elimination [" ;
+  ss << "elim_heuristic=" ;
+  ElimHeuristic eh = ElimGraph::getEliminationHeuristic();
+  switch (eh) {
+    case MIN_NEIGHBORS:     ss << "min_neighbors";     break;
+    case MIN_WEIGHT:        ss << "min_weight";        break;
+    case MIN_FILL:          ss << "min_fill";          break;
+    case WEIGHTED_MIN_FILL: ss << "weighted_min_fill"; break;
+  }
+  ss << ",log_domain=" << Util::toString (Globals::logDomain);
+  ss << "]" ;
+  cout << ss.str() << endl;
+}
+
+
+
+void
 VarElimSolver::createFactorList (void)
 {
   const FacNodes& facNodes = fg.facNodes();
