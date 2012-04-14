@@ -993,6 +993,15 @@ p_read_module_preds( USES_REGS1 )
   return TRUE;
 }
 
+static void
+ReInitCatch(void)
+{
+  Term t = Yap_MkNewApplTerm(PredHandleThrow->FunctorOfPred, PredHandleThrow->ArityOfPE);
+  YAP_RunGoalOnce(t);
+}
+
+
+
 static Int
 p_read_program( USES_REGS1 )
 {
@@ -1016,7 +1025,7 @@ p_read_program( USES_REGS1 )
   Sclose( stream );
   /* back to the top level we go */
   Yap_CloseSlots(PASS_REGS1);
-
+  ReInitCatch();
   Yap_RestartYap( 3 );
   return TRUE;
 }
@@ -1030,6 +1039,7 @@ Yap_Restore(char *s, char *lib_dir)
     return -1;
   read_module(stream);
   Sclose( stream );
+  ReInitCatch();
   return DO_ONLY_CODE;
 }
 
