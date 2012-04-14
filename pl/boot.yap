@@ -412,7 +412,7 @@ true :- true.
 	 ->
 	  '$assertz_dynamic'(L,G,G0,Mod)
 	 ;
-	  nb_getval('$assert_all',on)
+	  catch(nb_getval('$assert_all',on),_,fail)
 	 ->
 	  functor(H,N,A),
 	  '$dynamic'(N/A,Mod),
@@ -1233,7 +1233,7 @@ catch_ball(C, C).
 
 '$exit_system_mode' :-
 	nb_setval('$system_mode',off),
-	( nb_getval('$trace',on) -> '$creep' ; true).
+	( catch(nb_getval('$trace',on),_,fail) -> '$creep' ; true).
 
 %
 % just prevent creeping from going on...
