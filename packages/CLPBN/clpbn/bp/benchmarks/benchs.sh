@@ -1,9 +1,13 @@
 
 if [ $1 ] && [ $1 == "clear" ]; then
   rm -f *~
+  rm -f ../*~
   rm -f school/*.log school/*~
+  rm -f ../school/*.log ../school/*~
   rm -f city/*.log city/*~
+  rm -f ../city/*.log ../city/*~
   rm -f workshop_attrs/*.log workshop_attrs/*~
+  rm -f ../workshop_attrs/*.log ../workshop_attrs/*~
 fi
 
 function run_solver
@@ -23,6 +27,7 @@ function run_solver
   fi
   /usr/bin/time -o $LOG_FILE -a -f "real:%E\tuser:%U\tsys:%S" \
       $YAP << EOF >> $LOG_FILE 2>> ignore.$LOG_FILE
+nogc.
 [$NETWORK].
 [$constraint].
 clpbn_horus:set_solver($SOLVER).
