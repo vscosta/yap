@@ -214,9 +214,8 @@ namespace LogAware {
 void
 normalize (Params& v)
 {
-  double sum;
+  double sum = LogAware::addIdenty();
   if (Globals::logDomain) {
-    sum = LogAware::addIdenty();
     for (unsigned i = 0; i < v.size(); i++) {
       sum = Util::logSum (sum, v[i]);
     }
@@ -225,7 +224,6 @@ normalize (Params& v)
       v[i] -= sum;
     }
   } else {
-    sum = 0.0;
     for (unsigned i = 0; i < v.size(); i++) {
       sum += v[i];
     }
@@ -401,7 +399,8 @@ Statistics::updateCompressingStatistics (
     unsigned nrGroundFactors,
     unsigned nrClusterVars, 
     unsigned nrClusterFactors,
-    unsigned nrNeighborless) {
+    unsigned nrNeighborless)
+{
   compressInfo_.push_back (CompressInfo (nrGroundVars, nrGroundFactors,
       nrClusterVars, nrClusterFactors, nrNeighborless));
 }
