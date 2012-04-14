@@ -13,7 +13,7 @@
 #include "Util.h"
 
 
-bool FactorGraph::orderFactorVariables = false;
+bool FactorGraph::orderVariables = false;
 
 
 FactorGraph::FactorGraph (const FactorGraph& fg)
@@ -31,6 +31,7 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
       addEdge (varNodes_[neighs[j]->getIndex()], facNode);
     }
   }
+  fromBayesNet_ = fg.isFromBayesNetwork();
 }
 
 
@@ -101,6 +102,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     if (Globals::logDomain) {
       Util::toLog (params);
     }
+    // TODO order vars is flag on
     addFactor (Factor (factorVarIds[i], factorRanges[i], params));
   }
   is.close();
@@ -160,6 +162,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     if (Globals::logDomain) {
       Util::toLog (params);
     }
+    // TODO order vars is flag on
     addFactor (Factor (vids, ranges, params));
   }
   is.close();
@@ -186,14 +189,10 @@ FactorGraph::addFactor (const Factor& factor)
   addFacNode (fn);
   const VarIds& vids = factor.arguments();
   for (unsigned i = 0; i < vids.size(); i++) {
-    bool found = false;
-    for (unsigned j = 0; j < varNodes_.size(); j++) {
-      if (varNodes_[j]->varId() == vids[i]) {
-        addEdge (varNodes_[j], fn);
-        found = true;
-      }
-    }
-    if (found == false) {
+    VarMap::const_iterator it = varMap_.find (vids[i]);
+    if (it != varMap_.end()) {
+      addEdge (it->second, fn);      
+    } else {
       VarNode* vn = new VarNode (vids[i], factor.range (i));
       addVarNode (vn);
       addEdge (vn, fn);
