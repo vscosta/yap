@@ -718,6 +718,11 @@ AdjustScannerStacks(TokEntry **tksp, VarEntry **vep USES_REGS)
     TokEntry *tktmp;
 
     switch (tks->Tok) {
+    case Number_tok:
+      if (IsApplTerm(tks->TokInfo)) {
+	tks->TokInfo = AdjustAppl(tks->TokInfo PASS_REGS);
+      }
+      break;      
     case Var_tok:
     case String_tok:
       if (IsOldTrail(tks->TokInfo))
