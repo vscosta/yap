@@ -7,29 +7,23 @@
 
 
 void
-CTNode::addChild (CTNode* child, bool updateLevels)
+CTNode::addChild (CTNode* n, bool updateLevels)
 {
   if (updateLevels) {
-    updateChildLevels (child, level_ + 1);
+    updateChildLevels (n, level_ + 1);
   }
-  bool found = false;
-  for (CTNodes::const_iterator chIt = childs_.begin();
-       chIt != childs_.end(); ++ chIt) {
-    if (child->symbol() == (*chIt)->symbol()) {
-      CTNodes childChildsCopy = child->childs();
-      for (CTNodes::const_iterator ccIt = childChildsCopy.begin();
-           ccIt != childChildsCopy.end(); ++ ccIt) {
-        (*chIt)->addChild (*ccIt, false);
-      }
-      found = true;
-      break;
+  CTChilds::iterator chIt = findChild (n);
+  if (chIt != childs_.end()) {
+    assert ((*chIt)->symbol() == n->symbol());
+    const CTChilds& childsToAdd = n->childs();
+    for (CTChilds::const_iterator it = childsToAdd.begin();
+         it != childsToAdd.end(); ++ it) {
+      (*chIt)->addChild (*it, false);
     }
-  }
-  if (found) {
-    delete child;
+    delete n;
   } else {
-    childs_.push_back (child);
-    // childs_.insert (child);
+    // childs_.push_back (n);
+    childs_.insert (n);
   }
 }
 
@@ -38,8 +32,11 @@ CTNode::addChild (CTNode* child, bool updateLevels)
 void
 CTNode::removeChild (CTNode* child)
 {
-  CTNodes::iterator it;
-  it = std::find (childs_.begin(), childs_.end(), child);
+  CTChilds::iterator it;
+  it = findChild (child);
+  if (it == childs_.end()) {
+    cout << "oops" << endl;
+  }
   assert (it != childs_.end());
   childs_.erase (it);
 }
@@ -66,7 +63,7 @@ CTNode::removeAndDeleteChild (CTNode* child)
 void
 CTNode::removeAndDeleteAllChilds (void)
 {
-  for (CTNodes::const_iterator chIt = childs_.begin();
+  for (CTChilds::const_iterator chIt = childs_.begin();
        chIt != childs_.end(); ++ chIt) {
     deleteSubtree (*chIt);
   }
@@ -79,7 +76,7 @@ SymbolSet
 CTNode::childSymbols (void) const
 {
   SymbolSet symbols;
-  for (CTNodes::const_iterator chIt = childs_.begin();
+  for (CTChilds::const_iterator chIt = childs_.begin();
        chIt != childs_.end(); ++ chIt) {
     symbols.insert ((*chIt)->symbol());
   }
@@ -92,8 +89,8 @@ void
 CTNode::updateChildLevels (CTNode* n, unsigned level)
 {
   n->setLevel (level);
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
     updateChildLevels (*chIt, level + 1);
   }
@@ -105,9 +102,9 @@ CTNode*
 CTNode::copySubtree (const CTNode* n)
 {
   CTNode* newNode = new CTNode (*n);
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
-      chIt != childs.end(); ++ chIt) {
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
+       chIt != childs.end(); ++ chIt) {
     newNode->addChild (copySubtree (*chIt));
   }
   return newNode;
@@ -119,8 +116,8 @@ void
 CTNode::deleteSubtree (CTNode* n)
 {
   assert (n);
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
     deleteSubtree (*chIt);
   }
@@ -158,8 +155,9 @@ ConstraintTree::ConstraintTree (const LogVars& logVars)
 
 
 
-ConstraintTree::ConstraintTree (const LogVars& logVars,
-                                const Tuples&  tuples)
+ConstraintTree::ConstraintTree (
+    const LogVars& logVars,
+    const Tuples&  tuples)
 {
   root_      = new CTNode (0, 0);
   logVars_   = logVars;
@@ -190,10 +188,23 @@ ConstraintTree::~ConstraintTree (void)
 void
 ConstraintTree::addTuple (const Tuple& tuple)
 {
-  CTNode* prevNode  = root_;
-  CTNodes currNodes = root_->childs();
+  CTNode* prevNode = root_;
   for (unsigned i = 0; i < tuple.size(); i++) {
-    CTNodes::const_iterator it = currNodes.begin();
+    CTNode tmp (tuple[i], 0);
+    CTChilds::const_iterator it = prevNode->findChild (&tmp);
+    if (it == prevNode->childs().end()) {
+      CTNode* newNode = new CTNode (tuple[i], i + 1);
+      prevNode->addChild (newNode, false);
+      prevNode = newNode;
+    } else {
+      prevNode  = *it;
+    }
+  }
+/*
+  CTNode* prevNode  = root_;
+  CTChilds currNodes = root_->childs();
+  for (unsigned i = 0; i < tuple.size(); i++) {
+    CTChilds::const_iterator it = currNodes.begin();
     while (it != currNodes.end() && (*it)->symbol() != tuple[i]) {
       ++ it;
     }
@@ -207,6 +218,7 @@ ConstraintTree::addTuple (const Tuple& tuple)
       currNodes = (*it)->childs();
     }
   }
+*/
 }
 
 
@@ -214,24 +226,17 @@ ConstraintTree::addTuple (const Tuple& tuple)
 bool
 ConstraintTree::containsTuple (const Tuple& tuple)
 {
-  queue<CTNode*> queue;
-  queue.push (root_);
-	
-  while (queue.empty() == false) {
-    CTNode* n = queue.front();
-    if (n == root_ || n->symbol() == (tuple[n->level() - 1])) {
-      if (n->level() == tuple.size()) {
-        return true;
-      } else {
-         for (CTNodes::const_iterator chIt = n->childs().begin();
-              chIt != n->childs().end(); ++ chIt) {
-           queue.push (*chIt);
-         }
-      }
+	CTNode* prevNode = root_;
+  for (unsigned i = 0; i < tuple.size(); i++) {
+    CTNode tmp (tuple[i], 0);
+    CTChilds::const_iterator it = prevNode->findChild (&tmp);
+    if (it == prevNode->childs().end()) {
+      return false;
+    } else {
+      prevNode = *it;
     }
-    queue.pop();
   }
-  return false;
+  return true;
 }
 
 
@@ -283,10 +288,10 @@ ConstraintTree::join (ConstraintTree* ct, bool assertWhenNotFound)
   LogVarSet intersect = logVarSet_ & ct->logVarSet_;
   if (intersect.empty()) {
     CTNodes leafs = getNodesAtLevel (getLevel (logVars_.back()));
-    const CTNodes& childs = ct->root()->childs();
+    const CTChilds& childs = ct->root()->childs();
     for (CTNodes::const_iterator leafIt = leafs.begin();
          leafIt != leafs.end(); ++ leafIt) {
-      for (CTNodes::const_iterator chIt = childs.begin();
+      for (CTChilds::const_iterator chIt = childs.begin();
           chIt != childs.end(); ++ chIt) {
         (*leafIt)->addChild (CTNode::copySubtree (*chIt));
       }
@@ -295,29 +300,19 @@ ConstraintTree::join (ConstraintTree* ct, bool assertWhenNotFound)
     logVarSet_ |= ct->logVarSet_;
 
   } else {
-    moveToBottom (intersect.elements());
+    moveToTop (intersect.elements());
     ct->moveToTop (intersect.elements());
-
-    unsigned level = getLevel (intersect.front());
-    CTNodes nodes = getNodesAtLevel (level);
     
     Tuples tuples;
-    CTNodes continNodes;
-    getTuples (ct->root(),
-               Tuples(),
-               intersect.size(),
-               tuples,
-               continNodes);
+    CTNodes appendNodes;
+    getTuples (ct->root(), Tuples(), intersect.size(),
+        tuples, appendNodes);
 
-    CTNodes::const_iterator continIt;
-    continIt = continNodes.begin();
-    for (unsigned i = 0; i < tuples.size(); i++,  ++ continIt) {
-      bool tupleFounded = false;
-      for (CTNodes::const_iterator nodeIt = nodes.begin();
-           nodeIt != nodes.end(); ++ nodeIt) {
-        tupleFounded |= join (*nodeIt, tuples[i], 0, *continIt);
-      }
+    CTNodes::const_iterator appendIt = appendNodes.begin();
+    for (unsigned i = 0; i < tuples.size(); ++ i,  ++ appendIt) {
+      bool tupleFounded = join (root_, tuples[i], 0, *appendIt);
       if (assertWhenNotFound) {
+        tupleFounded; // hack to avoid gcc warning
         assert (tupleFounded);
       }
     }
@@ -409,13 +404,15 @@ ConstraintTree::remove (const LogVarSet& X)
 bool
 ConstraintTree::ConstraintTree::isSingleton (LogVar X)
 {
-  SymbolSet symbols;
-  CTNodes nodes = getNodesAtLevel (getLevel (X));
+  const CTNodes& nodes = getNodesAtLevel (getLevel (X));
+  Symbol symb = nodes.front()->symbol();
   for (CTNodes::const_iterator it = nodes.begin();
        it != nodes.end(); ++ it) {
-    symbols.insert ((*it)->symbol());
+    if ((*it)->symbol() != symb) {
+      return false;
+    }
   }
-  return symbols.size() == 1;
+  return true;
 }
 
 
@@ -484,10 +481,10 @@ ConstraintTree::exportToGraphViz (
   }
   for (CTNodes::const_iterator it = nodes.begin();
        it != nodes.end(); ++ it) {
-    const CTNodes& childs = (*it)->childs();
-    for (CTNodes::const_iterator chIt = childs.begin();
+    const CTChilds& childs = (*it)->childs();
+    for (CTChilds::const_iterator chIt = childs.begin();
          chIt != childs.end(); ++ chIt) {
-      out << "\"" << **it << "\"" ;
+      out << "\"" << *it << "\"" ;
       out << " -> " ;
       out << "\"" << *chIt << "\"" << endl ;
     }
@@ -666,9 +663,9 @@ ConstraintTree::countNormalize (const LogVarSet& Ys)
   ConstraintTrees cts;
   unordered_map<unsigned, ConstraintTree*> countMap;
   unsigned stopLevel = getLevel (Zs.back());
-  const CTNodes& childs = root_->childs();
+  const CTChilds& childs = root_->childs();
 
-  for (CTNodes::const_iterator chIt = childs.begin();
+  for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
     const vector<pair<CTNode*, unsigned>>& res 
         = countNormalize (*chIt, stopLevel);
@@ -750,8 +747,8 @@ ConstraintTree::jointCountNormalize (
     for (j = 0; counts1[i] + counts2[j] != N; j++) ;
     // cout << "joint-count(" << counts1[i] ;
     // cout <<  "," << counts2[j] << ")" << endl;
-    const CTNodes& childs = normCts2[j]->root_->childs();
-    for (CTNodes::const_iterator chIt = childs.begin();
+    const CTChilds& childs = normCts2[j]->root_->childs();
+    for (CTChilds::const_iterator chIt = childs.begin();
          chIt != childs.end(); ++ chIt) {
       normCts1[i]->root_->addChild (CTNode::copySubtree (*chIt));
     }
@@ -798,11 +795,11 @@ ConstraintTree::overlap (
   const ConstraintTree* ct2,
   unsigned stopLevel)
 {
-  const CTNodes& childs1 = ct1->root_->childs();
-  const CTNodes& childs2 = ct2->root_->childs();
-  for (CTNodes::const_iterator chIt1 = childs1.begin();
+  const CTChilds& childs1 = ct1->root_->childs();
+  const CTChilds& childs2 = ct2->root_->childs();
+  for (CTChilds::const_iterator chIt1 = childs1.begin();
        chIt1 != childs1.end(); ++ chIt1) {
-    for (CTNodes::const_iterator chIt2 = childs2.begin();
+    for (CTChilds::const_iterator chIt2 = childs2.begin();
          chIt2 != childs2.end(); ++ chIt2) {
       if (overlap (*chIt1, *chIt2, stopLevel)) {
         return true;
@@ -824,8 +821,8 @@ ConstraintTree::expand (LogVar X)
   for (CTNodes::const_iterator it = nodes.begin();
        it != nodes.end(); ++ it) {
     Symbols symbols;
-    const CTNodes& childs = (*it)->childs();
-    for (CTNodes::const_iterator chIt = childs.begin();
+    const CTChilds& childs = (*it)->childs();
+    for (CTChilds::const_iterator chIt = childs.begin();
          chIt != childs.end(); ++ chIt) {
       symbols.push_back ((*chIt)->symbol());
     }
@@ -856,8 +853,8 @@ ConstraintTree::ground (LogVar X)
 {
   moveToTop ({X});
   ConstraintTrees cts;
-  const CTNodes& nodes = root_->childs();
-  for (CTNodes::const_iterator it = nodes.begin();
+  const CTChilds& nodes = root_->childs();
+  for (CTChilds::const_iterator it = nodes.begin();
        it != nodes.end(); ++ it) {
     CTNode* copy = CTNode::copySubtree (*it);
     copy->setSymbol ((*it)->symbol());
@@ -877,8 +874,8 @@ ConstraintTree::countTuples (const CTNode* n) const
     return 1;
   }
   unsigned sum = 0;
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
       chIt != childs.end(); ++ chIt) {
     sum += countTuples (*chIt);
   }
@@ -896,7 +893,29 @@ ConstraintTree::getNodesBelow (CTNode* fromHere) const
   while (queue.empty() == false) {
     CTNode* node = queue.front();
     nodes.push_back (node);
-    for (CTNodes::const_iterator chIt = node->childs().begin();
+    for (CTChilds::const_iterator chIt = node->childs().begin();
+         chIt != node->childs().end(); ++ chIt) {
+      queue.push (*chIt);
+    }
+    queue.pop();
+  }
+  return nodes;
+}
+
+
+
+CTNodes
+ConstraintTree::getLeafsBelow (CTNode* fromHere) const
+{
+  CTNodes nodes;
+  queue<CTNode*> queue;
+  queue.push (fromHere);
+  while (queue.empty() == false) {
+    CTNode* node = queue.front();
+    if (node->isLeaf()) {
+      nodes.push_back (node);
+    }
+    for (CTChilds::const_iterator chIt = node->childs().begin();
          chIt != node->childs().end(); ++ chIt) {
       queue.push (*chIt);
     }
@@ -919,7 +938,7 @@ ConstraintTree::getNodesAtLevel (unsigned level) const
     if (node->level() == level) {
       nodes.push_back (node);
     } else {
-      for (CTNodes::const_iterator chIt = node->childs().begin();
+      for (CTChilds::const_iterator chIt = node->childs().begin();
            chIt != node->childs().end(); ++ chIt) {
         queue.push (*chIt);
       }
@@ -927,6 +946,24 @@ ConstraintTree::getNodesAtLevel (unsigned level) const
     queue.pop();
   }
   return nodes;
+}
+
+
+
+void
+ConstraintTree::addChildsOnBottom (CTNode* n1, const CTNode* n2)
+{
+  if (n1->isLeaf()) {
+    for (CTChilds::const_iterator chIt = n2->childs().begin();
+         chIt != n2->childs().end(); ++ chIt) {
+      n1->addChild (CTNode::copySubtree (*chIt));
+    }
+  } else {
+    for (CTChilds::const_iterator chIt = n1->childs().begin();
+         chIt != n1->childs().end(); ++ chIt) {
+      addChildsOnBottom (*chIt, n2);
+    }
+  }
 }
 
 
@@ -941,16 +978,16 @@ ConstraintTree::swapLogVar (LogVar X)
   const CTNodes& nodes = getNodesAtLevel (pos);
   for (CTNodes::const_iterator nodeIt = nodes.begin();
        nodeIt != nodes.end(); ++ nodeIt) {
-    CTNodes childsCopy = (*nodeIt)->childs();
+    CTChilds childsCopy = (*nodeIt)->childs();
     (*nodeIt)->removeChilds();
-    for (CTNodes::const_iterator ccIt = childsCopy.begin();
+    for (CTChilds::const_iterator ccIt = childsCopy.begin();
          ccIt != childsCopy.end(); ++ ccIt) {
-       const CTNodes& grandsons = (*ccIt)->childs();
-       for (CTNodes::const_iterator gsIt = grandsons.begin();
+       const CTChilds& grandsons = (*ccIt)->childs();
+       for (CTChilds::const_iterator gsIt = grandsons.begin();
             gsIt != grandsons.end(); ++ gsIt) {
          CTNode* childCopy = new CTNode (**ccIt);
-         const CTNodes& greatGrandsons = (*gsIt)->childs();
-         for (CTNodes::const_iterator ggsIt = greatGrandsons.begin();
+         const CTChilds& greatGrandsons = (*gsIt)->childs();
+         for (CTChilds::const_iterator ggsIt = greatGrandsons.begin();
               ggsIt != greatGrandsons.end(); ++ ggsIt) {
            childCopy->addChild (*ggsIt, false);
          }
@@ -970,27 +1007,22 @@ ConstraintTree::swapLogVar (LogVar X)
 
 bool
 ConstraintTree::join (
-    CTNode* n,
+    CTNode* currNode,
     const Tuple& tuple,
     unsigned currIdx,
     CTNode* appendNode)
 {
   bool tupleFounded = false;
-  if (n->symbol() == tuple[currIdx]) {
+  CTNode tmp (tuple[currIdx], 0);
+  CTChilds::const_iterator it = currNode->findChild (&tmp);
+  if (it != currNode->childs().end()) {
     if (currIdx == tuple.size() - 1) {
-      const CTNodes& childs = appendNode->childs();
-      for (CTNodes::const_iterator chIt = childs.begin();
-           chIt != childs.end(); ++ chIt) {
-        n->addChild (CTNode::copySubtree (*chIt));
-      }
+      addChildsOnBottom (currNode, appendNode);
       return true;
+    } else {
+      tupleFounded = join (*it, tuple, currIdx + 1, appendNode);
     }
-    const CTNodes& childs = n->childs();
-    for (CTNodes::const_iterator chIt = childs.begin();
-         chIt != childs.end(); ++ chIt) {
-      tupleFounded |= join (*chIt, tuple, currIdx + 1, appendNode);
-    }
-  }
+  } 
   return tupleFounded;
 }
 
@@ -1007,13 +1039,13 @@ ConstraintTree::indenticalSubtrees (
       return false;
     }
   }
-  const CTNodes& childs1 = n1->childs();
-  const CTNodes& childs2 = n2->childs();
+  const CTChilds& childs1 = n1->childs();
+  const CTChilds& childs2 = n2->childs();
   if (childs1.size() != childs2.size()) {
     return false;
   }
-  CTNodes::const_iterator chIt1 = childs1.begin();
-  CTNodes::const_iterator chIt2 = childs2.begin();
+  CTChilds::const_iterator chIt1 = childs1.begin();
+  CTChilds::const_iterator chIt2 = childs2.begin();
   while (chIt1 != childs1.end()) {
     if (indenticalSubtrees (*chIt1, *chIt2, true) == false) {
       return false;
@@ -1051,8 +1083,8 @@ ConstraintTree::getTuples (
     }
   }
 
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
       chIt != childs.end(); ++ chIt) {
     getTuples (*chIt, currTuples, stopLevel, tuplesCollected,
         continuationNodes);
@@ -1090,8 +1122,8 @@ ConstraintTree::countNormalize (
   }
 
   vector<pair<CTNode*, unsigned>> res;
-  const CTNodes& childs = n->childs();
-  for (CTNodes::const_iterator chIt = childs.begin();
+  const CTChilds& childs = n->childs();
+  for (CTChilds::const_iterator chIt = childs.begin();
        chIt != childs.end(); ++ chIt) {
     const vector<pair<CTNode*, unsigned>>& lowerRes =
         countNormalize (*chIt, stopLevel);
@@ -1113,12 +1145,13 @@ ConstraintTree::split (
     CTNodes& nodes,
     unsigned stopLevel) 
 {
-  CTNodes& childs1 = n1->childs();
-  CTNodes& childs2 = n2->childs();
-  for (CTNodes::const_iterator chIt1 = childs1.begin();
+  CTChilds& childs1 = n1->childs();
+  CTChilds& childs2 = n2->childs();
+  CTNodes toRemove;
+  for (CTChilds::const_iterator chIt1 = childs1.begin();
        chIt1 != childs1.end(); ++ chIt1) {
     CTNode* intersectNode = 0;
-    for (CTNodes::const_iterator chIt2 = childs2.begin();
+    for (CTChilds::const_iterator chIt2 = childs2.begin();
          chIt2 != childs2.end(); ++ chIt2) {
       if ((*chIt1)->symbol() == (*chIt2)->symbol()) {
         intersectNode = *chIt2;
@@ -1131,7 +1164,7 @@ ConstraintTree::split (
     if ((*chIt1)->level() == stopLevel) {
       CTNode* newNode = CTNode::copySubtree (*chIt1);
       nodes.push_back (newNode);
-      (*chIt1)->setSymbol (Symbol::invalid());
+      toRemove.push_back (*chIt1);
     } else {
       CTNodes lowerNodes;
       split ((*chIt1), intersectNode, lowerNodes, stopLevel);
@@ -1143,24 +1176,15 @@ ConstraintTree::split (
         }
         nodes.push_back (newNode);
       }
+      if ((*chIt1)->isLeaf()) {
+        toRemove.push_back (*chIt1);
+      }
     }
   }
-
-  CTNodes::const_iterator chIt = childs1.begin();
-  while (chIt != childs1.end()) {
-    bool inc = true;
-    if ((*chIt)->symbol() == Symbol::invalid()) {
-      n1->removeAndDeleteChild ((*chIt));
-      inc = false;
-    } else if ((*chIt)->isLeaf() && 
-        (*chIt)->level() != stopLevel) {
-      n1->removeAndDeleteChild ((*chIt));
-      inc = false;
-    }
-    if (inc) {
-      ++ chIt;
-    }
-  }
+  for (CTNodes::const_iterator it = toRemove.begin();
+       it != toRemove.end(); ++ it) {
+    n1->removeAndDeleteChild (*it);
+  }   
 }
 
 
@@ -1179,11 +1203,11 @@ ConstraintTree::overlap (
       return false;
     }
   }
-  const CTNodes& childsI = n1->childs();
-  const CTNodes& childsJ = n2->childs();
-  for (CTNodes::const_iterator chIt1 = childsI.begin();
+  const CTChilds& childsI = n1->childs();
+  const CTChilds& childsJ = n2->childs();
+  for (CTChilds::const_iterator chIt1 = childsI.begin();
        chIt1 != childsI.end(); ++ chIt1) {
-    for (CTNodes::const_iterator chIt2 = childsJ.begin();
+    for (CTChilds::const_iterator chIt2 = childsJ.begin();
          chIt2 != childsJ.end(); ++ chIt2) {
       if (overlap (*chIt1, *chIt2, stopLevel)) {
         return true;

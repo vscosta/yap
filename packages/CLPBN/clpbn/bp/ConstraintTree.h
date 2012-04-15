@@ -24,6 +24,7 @@ typedef vector<ConstraintTree*> ConstraintTrees;
 class CTNode
 {
   public:
+
     CTNode (const CTNode& n) : symbol_(n.symbol()), level_(n.level()) { }
 
     CTNode (Symbol s, unsigned l) : symbol_(s) , level_(l) { }
@@ -36,15 +37,33 @@ class CTNode
 
     void setSymbol (const Symbol s) { symbol_ = s; }
 
-    CTNodes& childs (void) { return childs_; }
+    struct CompareSymbol
+    {
+      bool operator() (const CTNode* n1, const CTNode* n2) const
+      {
+        return n1->symbol() < n2->symbol();
+      }
+    };
 
-    const CTNodes& childs (void) const { return childs_; }
+  private:
+    // typedef set<CTNode*, CompareSymbol> CTChilds_;
+    typedef SortedVector<CTNode*, CompareSymbol> CTChilds_;
+
+  public:
+    CTChilds_& childs (void) { return childs_; }
+
+    const CTChilds_& childs (void) const { return childs_; }
  
     unsigned nrChilds (void) const { return childs_.size(); }
 
     bool isRoot (void) const { return level_ == 0; }
 
     bool isLeaf (void) const { return childs_.empty(); }
+
+    CTChilds_::iterator findChild (CTNode* n)
+    {
+      return childs_.find (n);
+    }
 
     void addChild (CTNode*, bool = true);
 
@@ -66,11 +85,15 @@ class CTNode
     void updateChildLevels (CTNode*, unsigned);
 
     Symbol    symbol_;
-    CTNodes   childs_;
+    CTChilds_ childs_;
     unsigned  level_;
 };
 
 ostream& operator<< (ostream &out, const CTNode&);
+
+
+// typedef set<CTNode*, CTNode::CompareSymbol> CTChilds;
+typedef SortedVector<CTNode*, CTNode::CompareSymbol> CTChilds;
 
 
 class ConstraintTree
@@ -175,7 +198,11 @@ class ConstraintTree
 
     CTNodes getNodesBelow (CTNode*) const;
 
+    CTNodes getLeafsBelow (CTNode*) const;
+
     CTNodes getNodesAtLevel (unsigned) const;
+
+    void addChildsOnBottom (CTNode* n1, const CTNode* n2);
 
     void swapLogVar (LogVar);
 
