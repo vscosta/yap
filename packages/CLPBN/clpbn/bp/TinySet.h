@@ -11,7 +11,7 @@ template <typename T>
 class TinySet
 {
   public:
-    TinySet (void) {}
+    TinySet (void) { }
 
     TinySet (const T& t)
     {
@@ -193,6 +193,61 @@ class TinySet
 
   protected:
     vector<T> elements_;
+};
+
+
+
+template <typename T, typename Compare = std::less<T>>
+class SortedVector
+{
+  public:
+    SortedVector (const Compare& c = Compare()) : vec_(), cmp_(c) { }
+
+    template <class InputIterator>
+    SortedVector (InputIterator first, InputIterator last,
+        const Compare& c = Compare()) : vec_(first, last), cmp_(c)
+    {
+      std::sort (begin(), end(), cmp_);
+    }
+
+    typedef typename vector<T>::iterator iterator;
+    typedef typename vector<T>::const_iterator const_iterator;
+    iterator       begin (void)       { return vec_.begin(); }
+    iterator       end (void)         { return vec_.end(); }
+    const_iterator begin (void) const { return vec_.begin(); }
+    const_iterator end (void)   const { return vec_.end(); }
+
+    iterator insert (const T& t)
+    {
+      iterator i = std::lower_bound (begin(), end(), t, cmp_);
+      if (i == end() || cmp_(t, *i))
+        vec_.insert(i, t);
+      return i;
+    }
+
+    const_iterator find (const T& t) const
+    {
+      const_iterator i = std::lower_bound (begin(), end(), t, cmp_);
+      return i == end() || cmp_(t, *i) ? end() : i;
+    }
+
+    iterator find (const T& t)
+    {
+      iterator i = std::lower_bound (begin(), end(), t, cmp_);
+      return i == end() || cmp_(t, *i) ? end() : i;
+    }
+
+    unsigned size (void) const { return vec_.size(); }
+
+    bool empty (void) const { return vec_.empty(); }
+   
+    void clear (void) { vec_.clear(); }
+  
+    iterator erase (iterator it) { return vec_.erase (it); }
+
+  private:
+    std::vector<T> vec_;
+    Compare cmp_;
 };
 
 
