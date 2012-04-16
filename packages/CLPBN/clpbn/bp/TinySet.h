@@ -30,8 +30,8 @@ class TinySet
 
     void insert (const T& t)
     {
-      typename vector<T>::iterator it =
-          std::lower_bound (elements_.begin(), elements_.end(), t);
+      typename vector<T>::iterator it;
+      it = std::lower_bound (elements_.begin(), elements_.end(), t);
       if (it == elements_.end() || *it != t) {
         elements_.insert (it, t);
       }
@@ -39,8 +39,8 @@ class TinySet
 
     void remove (const T& t)
     {
-      typename vector<T>::iterator it = 
-          std::lower_bound (elements_.begin(), elements_.end(), t);
+      typename vector<T>::iterator it;
+      it = std::lower_bound (elements_.begin(), elements_.end(), t);
       if (it != elements_.end()) {
         elements_.erase (it);
       }
@@ -51,10 +51,8 @@ class TinySet
     {
       TinySet res;
       std::set_union (
-          elements_.begin(),
-          elements_.end(),
-          s.elements_.begin(), 
-          s.elements_.end(),
+          elements_.begin(), elements_.end(),
+          s.elements_.begin(), s.elements_.end(),
           std::back_inserter (res.elements_));
       return res;
     }
@@ -64,10 +62,8 @@ class TinySet
     {
       TinySet res;
       std::set_intersection (
-          elements_.begin(),
-          elements_.end(),
-          s.elements_.begin(),
-          s.elements_.end(),
+          elements_.begin(), elements_.end(),
+          s.elements_.begin(), s.elements_.end(),
           std::back_inserter (res.elements_));
       return res;
     }
@@ -77,10 +73,8 @@ class TinySet
     {
       TinySet res;
       std::set_difference (
-          elements_.begin(),
-          elements_.end(),
-          s.elements_.begin(),
-          s.elements_.end(),
+          elements_.begin(), elements_.end(),
+          s.elements_.begin(), s.elements_.end(),
           std::back_inserter (res.elements_));
       return res;
     }
@@ -236,6 +230,8 @@ class SortedVector
       iterator i = std::lower_bound (begin(), end(), t, cmp_);
       return i == end() || cmp_(t, *i) ? end() : i;
     }
+
+    void reserve (unsigned space) { vec_.reserve (space); }
 
     unsigned size (void) const { return vec_.size(); }
 
