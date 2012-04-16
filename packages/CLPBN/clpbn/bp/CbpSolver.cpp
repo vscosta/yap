@@ -3,27 +3,31 @@
 
 CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
 {
-  unsigned nGroundVars, nGroundFacs, nWithoutNeighs;
+  unsigned nrGroundVars, nrGroundFacs, nrNeighborless;
   if (Constants::COLLECT_STATS) {
-    nGroundVars = fg_->varNodes().size();
-    nGroundFacs = fg_->facNodes().size();
+    nrGroundVars = fg_->varNodes().size();
+    nrGroundFacs = fg_->facNodes().size();
     const VarNodes& vars = fg_->varNodes();
-    nWithoutNeighs = 0;
+    nrNeighborless = 0;
     for (unsigned i = 0; i < vars.size(); i++) {
       const FacNodes& factors = vars[i]->neighbors();
       if (factors.size() == 1 && factors[0]->neighbors().size() == 1) {
-        nWithoutNeighs ++;
+        nrNeighborless ++;
       }
     }
   }
   cfg_ = new CFactorGraph (fg);
   fg_  = cfg_->getGroundFactorGraph();
   if (Constants::COLLECT_STATS) {
-    unsigned nClusterVars = fg_->varNodes().size();
-    unsigned nClusterFacs = fg_->facNodes().size();
-    Statistics::updateCompressingStatistics (nGroundVars,
-        nGroundFacs, nClusterVars, nClusterFacs, nWithoutNeighs);
+    unsigned nrClusterVars = fg_->varNodes().size();
+    unsigned nrClusterFacs = fg_->facNodes().size();
+    Statistics::updateCompressingStatistics (nrGroundVars,
+        nrGroundFacs, nrClusterVars, nrClusterFacs, nrNeighborless);
   }
+  // Util::printHeader ("Compressed Factor Graph");
+  // fg_->print();
+  // Util::printHeader ("Uncompressed Factor Graph");
+  // fg.print();
 }
 
 
@@ -117,14 +121,14 @@ CbpSolver::getJointDistributionOf (const VarIds& jointVids)
 void
 CbpSolver::createLinks (void)
 {
-  const FacClusters& fcs = cfg_->getFacClusters();
+  const FacClusters& fcs = cfg_->facClusters();
   for (unsigned i = 0; i < fcs.size(); i++) {
-    const VarClusters& vcs = fcs[i]->getVarClusters();
+    const VarClusters& vcs = fcs[i]->varClusters();
     for (unsigned j = 0; j < vcs.size(); j++) {
       unsigned c = cfg_->getEdgeCount (fcs[i], vcs[j]);
       links_.push_back (new CbpSolverLink (
-          fcs[i]->getRepresentativeFactor(),
-          vcs[j]->getRepresentativeVariable(), c));
+          fcs[i]->getRepresentative(),
+          vcs[j]->getRepresentative(), c));
     }
   }
 }
@@ -220,7 +224,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* link) const
     LogAware::pow (msg, l->nrEdges() - 1);
   }
   if (Constants::DEBUG >= 5) {
-    cout << "        " << "init: " << msg << endl;
+    cout << "        " << "init: " << msg << " " << src->hasEvidence() << endl;
   }
   const SpLinkSet& links = ninf(src)->getLinks();
   if (Globals::logDomain) {
@@ -259,6 +263,7 @@ CbpSolver::printLinkInformation (void) const
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " << l->getMessage() << endl;
     cout << "    next msg = " << l->getNextMessage() << endl;
+    cout << "    nr edges = " << l->nrEdges() << endl;
     cout << "    powered  = " << l->poweredMessage() << endl;
     cout << "    residual = " << l->getResidual() << endl;
   }

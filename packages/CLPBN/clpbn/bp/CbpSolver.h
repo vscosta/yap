@@ -21,7 +21,7 @@ class CbpSolverLink : public SpLink
     {
       pwdMsg_ = *nextMsg_;
       swap (currMsg_, nextMsg_);
-      msgSended_  = true;
+      msgSended_ = true;
       LogAware::pow (pwdMsg_, nrEdges_);
     }
   
