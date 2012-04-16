@@ -1676,6 +1676,11 @@ Yap_InitYaamRegs(void)
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
 #endif
+#ifdef TABLING
+  /* ensure that LOCAL_top_dep_fr is always valid */
+  if (LOCAL_top_dep_fr)
+    DepFr_cons_cp(LOCAL_top_dep_fr) = NORM_CP(B);
+#endif
 }
 
 static Int
