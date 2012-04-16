@@ -644,7 +644,11 @@ def gecode_version():
     global GECODE_VERSION
     if GECODE_VERSION is not None:
         return GECODE_VERSION
-    from distutils.ccompiler import new_compiler, customize_compiler
+    from distutils.ccompiler import new_compiler
+    try:
+        from distutils.ccompiler import customize_compiler
+    except:
+        from distutils.sysconfig import customize_compiler
     import os
     cxx = new_compiler()
     customize_compiler(cxx)
