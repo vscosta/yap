@@ -17,13 +17,13 @@ using namespace std;
 class Symbol
 {
   public:
-    Symbol (void) : id_(numeric_limits<unsigned>::max()) { }
+    Symbol (void) : id_(Util::maxUnsigned()) { }
 
     Symbol (unsigned id) : id_(id) { }
 
     operator unsigned (void) const { return id_; }
 
-    bool valid (void) const { return id_ != numeric_limits<unsigned>::max(); }
+    bool valid (void) const { return id_ != Util::maxUnsigned(); }
 
     static Symbol invalid (void) { return Symbol(); }
 
