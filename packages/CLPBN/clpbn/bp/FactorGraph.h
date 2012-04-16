@@ -83,6 +83,10 @@ class FactorGraph
  
     bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
 
+    unsigned nrVarNodes (void) const { return varNodes_.size(); }
+
+    unsigned nrFacNodes (void) const { return facNodes_.size(); }
+
     VarNode* getVarNode (VarId vid) const
     {
       VarMap::const_iterator it = varMap_.find (vid);
