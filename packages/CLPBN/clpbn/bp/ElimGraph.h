@@ -17,15 +17,15 @@ enum ElimHeuristic
 };
 
 
-class EgNode : public VarNode {
+class EgNode : public Var
+{
   public:
-    EgNode (VarNode* var) : VarNode (var) { }
-    void addNeighbor (EgNode* n)
-    {
-      neighs_.push_back (n);
-    }
+    EgNode (VarId vid, unsigned range) : Var (vid, range) { }
+
+    void addNeighbor (EgNode* n) { neighs_.push_back (n);  }
 
     const vector<EgNode*>& neighbors (void) const { return neighs_; }
+
   private:
     vector<EgNode*>  neighs_;
 };
@@ -34,22 +34,18 @@ class EgNode : public VarNode {
 class ElimGraph
 {
   public:
-    ElimGraph (const BayesNet&);
+    ElimGraph (const vector<Factor*>&); // TODO
+
    ~ElimGraph (void);
    
-    void addEdge (EgNode* n1, EgNode* n2)
-    {
-      assert (n1 != n2);
-      n1->addNeighbor (n2);
-      n2->addNeighbor (n1);
-    }
-    void          addNode (EgNode*);
-    EgNode*       getEgNode (VarId) const;
-    VarIds      getEliminatingOrder (const VarIds&);
-    void          printGraphicalModel (void) const;
-    void          exportToGraphViz (const char*, bool = true,
-                                    const VarIds& = VarIds()) const;
-    void          setIndexes();
+    VarIds getEliminatingOrder (const VarIds&);
+
+    void print (void) const;
+
+    void exportToGraphViz (const char*, bool = true,
+        const VarIds& = VarIds()) const;
+
+    static VarIds getEliminationOrder (const vector<Factor*>, VarIds);
 
     static void setEliminationHeuristic (ElimHeuristic h)
     {
@@ -57,18 +53,34 @@ class ElimGraph
     }
 
   private:
-    EgNode*       getLowestCostNode (void) const;
-    unsigned      getNeighborsCost (const EgNode*) const;
-    unsigned      getWeightCost (const EgNode*) const;
-    unsigned      getFillCost (const EgNode*) const;
-    unsigned      getWeightedFillCost (const EgNode*) const;
-    void          connectAllNeighbors (const EgNode*);
-    bool          neighbors (const EgNode*, const EgNode*) const;
 
+    void addEdge (EgNode* n1, EgNode* n2)
+    {
+      assert (n1 != n2);
+      n1->addNeighbor (n2);
+      n2->addNeighbor (n1);
+    }
+
+    void addNode (EgNode*);
+
+    EgNode* getEgNode (VarId) const;
+    EgNode* getLowestCostNode (void) const;
+
+    unsigned getNeighborsCost (const EgNode*) const;
+
+    unsigned getWeightCost (const EgNode*) const;
+
+    unsigned getFillCost (const EgNode*) const;
+
+    unsigned getWeightedFillCost (const EgNode*) const;
+
+    void connectAllNeighbors (const EgNode*);
+
+    bool neighbors (const EgNode*, const EgNode*) const;
 
     vector<EgNode*> nodes_;
     vector<bool>    marked_;
-    unordered_map<VarId,EgNode*> varMap_;
+    unordered_map<VarId, EgNode*> varMap_;
     static ElimHeuristic elimHeuristic_;
 };
 

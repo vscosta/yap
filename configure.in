@@ -158,6 +158,9 @@ AC_ARG_ENABLE(low-level-tracer,
 AC_ARG_ENABLE(threads,
 	[ --enable-threads           support system threads ],
 	threads="$enableval", threads=no)
+AC_ARG_ENABLE(bddlib,
+	[ --enable-bddlib           dynamic bdd library ],
+	dynamic_bdd="$enableval", dynamic_bdd=no)
 AC_ARG_ENABLE(pthread-locking,
 	[ --enable-pthread-locking   use pthread locking primitives for internal locking (requires threads)  ],
 	pthreadlocking="$enableval", pthreadlocking=no)
@@ -510,7 +513,14 @@ fi
 if test "$yap_cv_cudd" = no 
 then
   ENABLE_CUDD="@# "
+  ENABLE_BDDLIB="@# "
 else
+  if test "$dynamic_bdd" = yes
+  then
+    ENABLE_BDDLIB=""
+  else
+    ENABLE_BDDLIB="@# "
+  fi
   ENABLE_CUDD=""
 fi
 
@@ -1789,6 +1799,7 @@ AC_SUBST(ENABLE_WINCONSOLE)
 AC_SUBST(EXTRA_INCLUDES_FOR_WIN32)
 
 AC_SUBST(ENABLE_CUDD)
+AC_SUBST(ENABLE_BDDLIB)
 AC_SUBST(CUDD_LDFLAGS)
 AC_SUBST(CUDD_CPPFLAGS)
 AC_SUBST(ENABLE_MINISAT)
@@ -2269,6 +2280,7 @@ mkdir -p  LGPL/clp
 mkdir -p  LGPL/swi_console
 mkdir -p  GPL
 mkdir -p  packages/
+mkdir -p  packages/bdd
 mkdir -p  packages/clib
 mkdir -p  packages/clib/sha1
 mkdir -p  packages/clib/maildrop
@@ -2392,6 +2404,7 @@ AC_CONFIG_FILES([packages/zlib/Makefile])
 fi
 
 if test "$ENABLE_CUDD" = ""; then
+AC_CONFIG_FILES([packages/bdd/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/simplecudd/Makefile])
 AC_CONFIG_FILES([packages/ProbLog/simplecudd_lfi/Makefile])
 fi

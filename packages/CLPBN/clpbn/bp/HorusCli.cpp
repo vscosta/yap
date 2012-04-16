@@ -3,167 +3,61 @@
 #include <iostream>
 #include <sstream>
 
-#include "BayesNet.h"
 #include "FactorGraph.h"
 #include "VarElimSolver.h"
-#include "BnBpSolver.h"
-#include "FgBpSolver.h"
+#include "BpSolver.h"
 #include "CbpSolver.h"
-
-//#include "TinySet.h"
-#include "LiftedUtils.h"
-
 
 using namespace std;
 
-void processArguments (BayesNet&, int, const char* []);
 void processArguments (FactorGraph&, int, const char* []);
-void runSolver (Solver*, const VarNodes&);
+void runSolver (const FactorGraph&, const VarIds&);
 
 const string USAGE = "usage: \
-./hcli  FILE  [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
-
-
-class Cenas
-{
-  public:
-    Cenas (int cc)
-    {
-      c = cc;
-    }
-    //operator int (void) const
-    //{ 
-    //  cout << "return int" << endl;
-    //  return c;
-    //}
-    operator double (void) const
-    {
-      cout << "return double" << endl;
-      return 0.0;
-    }
-  private:
-    int c;
-};
+./hcli ve|bp|cbp NETWORK_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
 
 
 int
 main (int argc, const char* argv[])
 {
-  LogVar X = 3;
-  LogVarSet Xs = X;
-  cout << "set: " << X << endl;
-  Cenas c1 (1);
-  Cenas c2 (3);
-  cout << (c1 < c2) << endl;
-  return 0;
-  if (!argv[1]) {
+  if (argc <= 1) {
+    cerr << "error: no solver specified" << endl;
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
     exit (0);
   }
-  const string& fileName  = argv[1];
-  const string& extension = fileName.substr (fileName.find_last_of ('.') + 1);
-  if (extension == "xml") {
-    BayesNet bn;
-    bn.readFromBifFormat (argv[1]);
-    processArguments (bn, argc, argv);
-  } else if (extension == "uai") {
-    FactorGraph fg;
-    fg.readFromUaiFormat (argv[1]);
-    processArguments (fg, argc, argv);
-  } else if (extension == "fg") {
-    FactorGraph fg;
-    fg.readFromLibDaiFormat (argv[1]);
-    processArguments (fg, argc, argv);
-  } else {
-    cerr << "error: the graphical model must be defined either " ; 
-    cerr << "in a xml, uai or libDAI file" << endl;
+  if (argc <= 2) {
+    cerr << "error: no graphical model specified" << endl;
+    cerr << USAGE << endl;
     exit (0);
   }
+  string solver (argv[1]);
+  if (solver == "ve") {
+    Globals::infAlgorithm = InfAlgorithms::VE;
+  } else if (solver == "bp") {
+    Globals::infAlgorithm = InfAlgorithms::BP;
+  } else if (solver == "cbp") {
+    Globals::infAlgorithm = InfAlgorithms::CBP;
+  } else {
+    cerr << "error: unknow solver `" << solver << "'" << endl ;
+    cerr << USAGE << endl;
+    exit(0);
+  }
+  string fileName (argv[2]);
+  string extension = fileName.substr (
+      fileName.find_last_of ('.') + 1);
+  FactorGraph fg;
+  if (extension == "uai") {
+    fg.readFromUaiFormat (fileName.c_str());
+  } else if (extension == "fg") {
+    fg.readFromLibDaiFormat (fileName.c_str());
+  } else {
+    cerr << "error: the graphical model must be defined either " ; 
+    cerr << "in a UAI or libDAI file" << endl;
+    exit (0);
+  }
+  processArguments (fg, argc, argv);
   return 0;
-}
-
-
-
-void
-processArguments (BayesNet& bn, int argc, const char* argv[])
-{
-  VarNodes queryVars;
-  for (int i = 2; i < argc; i++) {
-    const string& arg = argv[i];
-    if (arg.find ('=') == std::string::npos) {
-      BayesNode* queryVar = bn.getBayesNode (arg);
-      if (queryVar) {
-        queryVars.push_back (queryVar);
-      } else {
-        cerr << "error: there isn't a variable labeled of " ;
-        cerr << "`" << arg << "'" ;
-        cerr << endl;
-        bn.freeDistributions();
-        exit (0);
-      }
-    } else {
-      size_t pos = arg.find ('=');
-      const string& label = arg.substr (0, pos);
-      const string& state = arg.substr (pos + 1);
-      if (label.empty()) {
-        cerr << "error: missing left argument" << endl;
-        cerr << USAGE << endl;
-        bn.freeDistributions();
-        exit (0);
-      }
-      if (state.empty()) {
-        cerr << "error: missing right argument" << endl;
-        cerr << USAGE << endl;
-        bn.freeDistributions();
-        exit (0);
-      }
-      BayesNode* node = bn.getBayesNode (label);
-      if (node) {
-        if (node->isValidState (state)) {
-          node->setEvidence (state);
-        } else {
-          cerr << "error: `" << state << "' " ;
-          cerr << "is not a valid state for " ;
-          cerr << "`" << node->label() << "'" ;
-          cerr << endl;
-          bn.freeDistributions();
-          exit (0);
-        }
-      } else {
-        cerr << "error: there isn't a variable labeled of " ;
-        cerr << "`" << label << "'" ;
-        cerr << endl;
-        bn.freeDistributions();
-        exit (0);
-      }
-    }
-  }
-
-  Solver* solver = 0;
-  FactorGraph* fg = 0;
-  switch (InfAlgorithms::infAlgorithm) {
-    case InfAlgorithms::VE:
-      fg = new FactorGraph (bn);
-      solver = new VarElimSolver (*fg);
-      break;
-    case InfAlgorithms::BN_BP:
-      solver = new BnBpSolver (bn);
-      break;
-    case InfAlgorithms::FG_BP:
-      fg = new FactorGraph (bn);
-      solver = new FgBpSolver (*fg);
-      break;
-    case InfAlgorithms::CBP:
-      fg = new FactorGraph (bn);
-      solver = new CbpSolver (*fg);
-      break;
-    default:
-      assert (false);
-  }
-  runSolver (solver, queryVars);
-  delete fg;
-  bn.freeDistributions();
 }
 
 
@@ -171,29 +65,27 @@ processArguments (BayesNet& bn, int argc, const char* argv[])
 void
 processArguments (FactorGraph& fg, int argc, const char* argv[])
 {
-  VarNodes queryVars;
-  for (int i = 2; i < argc; i++) {
+  VarIds queryIds;
+  for (int i = 3; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
       if (!Util::isInteger (arg)) {
         cerr << "error: `" << arg << "' " ;
         cerr << "is not a valid variable id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
       VarId vid;
       stringstream ss;
       ss << arg;
       ss >> vid;
-      VarNode* queryVar = fg.getFgVarNode (vid);
+      VarNode* queryVar = fg.getVarNode (vid);
       if (queryVar) {
-        queryVars.push_back (queryVar);
+        queryIds.push_back (vid);
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
     } else {
@@ -201,33 +93,29 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
       if (arg.substr (0, pos).empty()) {
         cerr << "error: missing left argument" << endl;
         cerr << USAGE << endl;
-        fg.freeDistributions();
         exit (0);
       }
       if (arg.substr (pos + 1).empty()) {
         cerr << "error: missing right argument" << endl;
         cerr << USAGE << endl;
-        fg.freeDistributions();
         exit (0);
       }
       if (!Util::isInteger (arg.substr (0, pos))) {
         cerr << "error: `" << arg.substr (0, pos) << "' " ;
         cerr << "is not a variable id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
       VarId vid;
       stringstream ss; 
       ss << arg.substr (0, pos);
       ss >> vid;
-      VarNode* var = fg.getFgVarNode (vid);
+      VarNode* var = fg.getVarNode (vid);
       if (var) {
         if (!Util::isInteger (arg.substr (pos + 1))) {
           cerr << "error: `" << arg.substr (pos + 1) << "' " ;
           cerr << "is not a state index" ;
           cerr << endl;
-          fg.freeDistributions();
           exit (0);
         }
         int stateIndex;
@@ -241,29 +129,31 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
           cerr << "is not a valid state index for variable " ;
           cerr << "`" << var->varId() << "'" ;
           cerr << endl;
-          fg.freeDistributions();
           exit (0);
         }
       } else {
         cerr << "error: there isn't a variable with " ;
         cerr << "`" << vid << "' as id" ;
         cerr << endl;
-        fg.freeDistributions();
         exit (0);
       }
     }
   }
+  runSolver (fg, queryIds);
+}
+
+
+
+void
+runSolver (const FactorGraph& fg, const VarIds& queryIds)
+{
   Solver* solver = 0;
-  switch (InfAlgorithms::infAlgorithm) {
+  switch (Globals::infAlgorithm) {
     case InfAlgorithms::VE:
       solver = new VarElimSolver (fg);
       break;
-    case InfAlgorithms::BN_BP:
-    case InfAlgorithms::FG_BP:
-      //cout << "here!" << endl;
-      //fg.printGraphicalModel();
-      //fg.exportToLibDaiFormat ("net.fg");
-      solver = new FgBpSolver (fg);
+    case InfAlgorithms::BP:
+      solver = new BpSolver (fg);
       break;
     case InfAlgorithms::CBP:
       solver = new CbpSolver (fg);
@@ -271,28 +161,10 @@ processArguments (FactorGraph& fg, int argc, const char* argv[])
     default:
       assert (false);
   }
-  runSolver (solver, queryVars);
-  fg.freeDistributions();
-}
-
-
-
-void
-runSolver (Solver* solver, const VarNodes& queryVars)
-{
-  VarIds vids;
-  for (unsigned i = 0; i < queryVars.size(); i++) {
-    vids.push_back (queryVars[i]->varId());
-  }
-  if (queryVars.size() == 0) {
-    solver->runSolver();
+  if (queryIds.size() == 0) {
     solver->printAllPosterioris();
-  } else if (queryVars.size() == 1) {
-    solver->runSolver();
-    solver->printPosterioriOf (vids[0]);
   } else {
-    solver->runSolver();
-    solver->printJointDistributionOf (vids);
+    solver->printAnswer (queryIds);
   }
   delete solver;
 }

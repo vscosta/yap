@@ -1,21 +1,22 @@
+#include <limits>
+
 #include <sstream>
+#include <fstream>
 
 #include "Util.h"
 #include "Indexer.h"
-#include "GraphicalModel.h"
 
 
 namespace Globals {
-  bool logDomain = false;
+bool logDomain = false;
+
+//InfAlgs infAlgorithm = InfAlgorithms::VE;
+//InfAlgs infAlgorithm = InfAlgorithms::BN_BP;
+//InfAlgs infAlgorithm = InfAlgorithms::FG_BP;
+InfAlgorithms infAlgorithm = InfAlgorithms::CBP;
 };
 
 
-namespace InfAlgorithms {
-//InfAlgs infAlgorithm = InfAlgorithms::VE;
-//InfAlgs infAlgorithm = InfAlgorithms::BN_BP;
-InfAlgs infAlgorithm = InfAlgorithms::FG_BP;
-//InfAlgs infAlgorithm = InfAlgorithms::CBP;
-}
 
 
 namespace BpOptions {
@@ -23,13 +24,11 @@ Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
 //Schedule schedule = BpOptions::Schedule::SEQ_RANDOM;
 //Schedule schedule = BpOptions::Schedule::PARALLEL;
 //Schedule schedule = BpOptions::Schedule::MAX_RESIDUAL;
-double    accuracy              = 0.0001;
-unsigned  maxIter               = 1000;
+double    accuracy  = 0.0001;
+unsigned  maxIter   = 1000;
 }
 
 
-unordered_map<VarId,VariableInfo> GraphicalModel::varsInfo_;
-unordered_map<unsigned,Distribution*> GraphicalModel::distsInfo_;
 
 vector<NetInfo>      Statistics::netInfo_;
 vector<CompressInfo> Statistics::compressInfo_;
@@ -58,76 +57,6 @@ fromLog (Params& v)
 
 
 
-void
-normalize (Params& v)
-{
-  double sum;
-  if (Globals::logDomain) {
-    sum = addIdenty();
-    for (unsigned i = 0; i < v.size(); i++) {
-      logSum (sum, v[i]);
-    }
-    assert (sum != -numeric_limits<double>::infinity());
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] -= sum;
-    }
-  } else {
-    sum = 0.0;
-    for (unsigned i = 0; i < v.size(); i++) {
-      sum += v[i];
-    }
-    assert (sum != 0.0);
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] /= sum;
-    }
-  }
-}
-
-
-
-void
-pow (Params& v, double expoent)
-{
-  if (Globals::logDomain) {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] *= expoent;
-    }
-  } else {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] = std::pow (v[i], expoent);
-    }
-  }
-}
-
-
-
-void
-pow (Params& v, unsigned expoent)
-{
-  if (expoent == 1) {
-    return;
-  }
-  if (Globals::logDomain) {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] *= expoent;
-    }
-  } else {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] = std::pow (v[i], expoent);
-    }
-  }
-}
-
-
-
-double
-pow (double p, unsigned expoent)
-{
-  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
-}
-
-
-
 double
 factorial (double num)
 {
@@ -149,6 +78,151 @@ nrCombinations (unsigned n, unsigned r)
     prod *= i;
   }
   return (prod / factorial (r));
+}
+
+
+
+unsigned
+expectedSize (const Ranges& ranges)
+{
+  unsigned prod = 1;
+  for (unsigned i = 0; i < ranges.size(); i++) {
+    prod *= ranges[i];
+  }
+  return prod;
+}
+
+
+
+unsigned
+getNumberOfDigits (int number)
+{
+  unsigned count = 1;
+  while (number >= 10) {
+    number /= 10; 
+    count ++;
+  }
+  return count;
+}
+
+
+
+bool
+isInteger (const string& s)
+{
+  stringstream ss1 (s);
+  stringstream ss2;
+  int integer;
+  ss1 >> integer;
+  ss2 << integer;
+  return (ss1.str() == ss2.str());
+}
+
+
+
+string
+parametersToString (const Params& v, unsigned precision)
+{
+  stringstream ss;
+  ss.precision (precision);
+  ss << "[" ; 
+  for (unsigned i = 0; i < v.size(); i++) {
+    if (i != 0) ss << ", " ;
+    ss << v[i];
+  }
+  ss << "]" ;
+  return ss.str();
+}
+
+
+
+vector<string>
+getStateLines (const Vars& vars)
+{
+  StatesIndexer idx (vars);
+  vector<string> jointStrings;
+  while (idx.valid()) {
+    stringstream ss;
+    for (unsigned i = 0; i < vars.size(); i++) {
+      if (i != 0) ss << ", " ;
+      ss << vars[i]->label() << "=" << vars[i]->states()[(idx[i])];
+    }
+    jointStrings.push_back (ss.str());
+    ++ idx;
+  }
+  return jointStrings;
+}
+
+
+
+void
+printHeader (string header, std::ostream& os)
+{
+  printAsteriskLine (os);
+  os << header << endl;
+  printAsteriskLine (os);
+}
+
+
+
+void
+printSubHeader (string header, std::ostream& os)
+{
+  printDashedLine (os);
+  os << header << endl;
+  printDashedLine (os);
+}
+
+
+
+void
+printAsteriskLine (std::ostream& os)
+{
+  os << "********************************" ;
+  os << "********************************" ;
+  os << endl;
+}
+
+
+
+void
+printDashedLine (std::ostream& os)
+{
+  os << "--------------------------------" ;
+  os << "--------------------------------" ;
+  os << endl;
+}
+
+
+}
+
+
+
+namespace LogAware {
+
+void
+normalize (Params& v)
+{
+  double sum;
+  if (Globals::logDomain) {
+    sum = LogAware::addIdenty();
+    for (unsigned i = 0; i < v.size(); i++) {
+      sum = Util::logSum (sum, v[i]);
+    }
+    assert (sum != -numeric_limits<double>::infinity());
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] -= sum;
+    }
+  } else {
+    sum = 0.0;
+    for (unsigned i = 0; i < v.size(); i++) {
+      sum += v[i];
+    }
+    assert (sum != 0.0);
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] /= sum;
+    }
+  }
 }
 
 
@@ -196,66 +270,56 @@ getMaxNorm (const Params& v1, const Params& v2)
 }
 
 
+double
+pow (double p, unsigned expoent)
+{
+  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
+}
 
-unsigned
-getNumberOfDigits (int number) {
-  unsigned count = 1;
-  while (number >= 10) {
-    number /= 10; 
-    count ++;
+
+
+double
+pow (double p, double expoent)
+{
+  // assumes that `expoent' is never in log domain
+  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
+}
+
+
+
+void
+pow (Params& v, unsigned expoent)
+{
+  if (expoent == 1) {
+    return;
   }
-  return count;
-}
-
-
-
-bool
-isInteger (const string& s)
-{
-  stringstream ss1 (s);
-  stringstream ss2;
-  int integer;
-  ss1 >> integer;
-  ss2 << integer;
-  return (ss1.str() == ss2.str());
-}
-
-
-
-string
-parametersToString (const Params& v, unsigned precision)
-{
-  stringstream ss;
-  ss.precision (precision);
-  ss << "[" ; 
-  for (unsigned i = 0; i < v.size(); i++) {
-    if (i != 0) ss << ", " ;
-    ss << v[i];
-  }
-  ss << "]" ;
-  return ss.str();
-}
-
-
-
-vector<string>
-getJointStateStrings (const VarNodes& vars)
-{
-  StatesIndexer idx (vars);
-  vector<string> jointStrings;
-  while (idx.valid()) {
-    stringstream ss;
-    for (unsigned i = 0; i < vars.size(); i++) {
-      if (i != 0) ss << ", " ;
-      ss << vars[i]->label() << "=" << vars[i]->states()[(idx[i])];
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] *= expoent;
     }
-    jointStrings.push_back (ss.str());
-    ++ idx;
+  } else {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] = std::pow (v[i], expoent);
+    }
   }
-  return jointStrings;
 }
 
 
+
+void
+pow (Params& v, double expoent)
+{
+  // assumes that `expoent' is never in log domain
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] *= expoent;
+    }
+  } else {
+    for (unsigned i = 0; i < v.size(); i++) {
+      v[i] = std::pow (v[i], expoent);
+    }
+  }
+}
 
 }
 
@@ -286,8 +350,11 @@ Statistics::getPrimaryNetworksCounting (void)
 
 
 void
-Statistics::updateStatistics (unsigned size, bool loopy,
-                              unsigned nIters, double time)
+Statistics::updateStatistics (
+    unsigned size,
+    bool loopy,
+    unsigned nIters,
+    double time)
 {
   netInfo_.push_back (NetInfo (size, loopy, nIters, time));
 }
@@ -303,12 +370,12 @@ Statistics::printStatistics (void)
 
 
 void
-Statistics::writeStatisticsToFile (const char* fileName)
+Statistics::writeStatistics (const char* fileName)
 {
   ofstream out (fileName);
   if (!out.is_open()) {
     cerr << "error: cannot open file to write at " ;
-    cerr << "Statistics::writeStatisticsToFile()" << endl;
+    cerr << "Statistics::writeStats()" << endl;
     abort();
   }
   out << getStatisticString();
@@ -318,13 +385,14 @@ Statistics::writeStatisticsToFile (const char* fileName)
 
 
 void
-Statistics::updateCompressingStatistics (unsigned nGroundVars,
-                                         unsigned nGroundFactors,
-                                         unsigned nClusterVars, 
-                                         unsigned nClusterFactors,
-                                         unsigned nWithoutNeighs) {
-  compressInfo_.push_back (CompressInfo (nGroundVars, nGroundFactors,
-      nClusterVars, nClusterFactors, nWithoutNeighs));
+Statistics::updateCompressingStatistics (
+    unsigned nrGroundVars,
+    unsigned nrGroundFactors,
+    unsigned nrClusterVars, 
+    unsigned nrClusterFactors,
+    unsigned nrNeighborless) {
+  compressInfo_.push_back (CompressInfo (nrGroundVars, nrGroundFactors,
+      nrClusterVars, nrClusterFactors, nrNeighborless));
 }
 
 
@@ -334,26 +402,30 @@ Statistics::getStatisticString (void)
 {
   stringstream ss2, ss3, ss4, ss1;
   ss1 << "running mode:          " ;
-  switch (InfAlgorithms::infAlgorithm) {
-    case InfAlgorithms::VE:    ss1 << "ve"     << endl;  break;
-    case InfAlgorithms::BN_BP: ss1 << "bn_bp"  << endl;  break;
-    case InfAlgorithms::FG_BP: ss1 << "fg_bp"  << endl;  break;
-    case InfAlgorithms::CBP:   ss1 << "cbp"    << endl;  break;
+  switch (Globals::infAlgorithm) {
+    case InfAlgorithms::VE:  ss1 << "ve"  << endl;  break;
+    case InfAlgorithms::BP:  ss1 << "bp"  << endl;  break;
+    case InfAlgorithms::CBP: ss1 << "cbp" << endl;  break;
   }
   ss1 << "message schedule:      " ;
   switch (BpOptions::schedule) {
-    case BpOptions::Schedule::SEQ_FIXED:    ss1 << "sequential fixed"  << endl;  break;
-    case BpOptions::Schedule::SEQ_RANDOM:   ss1 << "sequential random" << endl;  break;
-    case BpOptions::Schedule::PARALLEL:     ss1 << "parallel"          << endl;  break;
-    case BpOptions::Schedule::MAX_RESIDUAL: ss1 << "max residual"      << endl;  break;
+    case BpOptions::Schedule::SEQ_FIXED:
+      ss1 << "sequential fixed"  << endl;
+      break;
+    case BpOptions::Schedule::SEQ_RANDOM:
+      ss1 << "sequential random" << endl;
+      break;
+    case BpOptions::Schedule::PARALLEL:
+      ss1 << "parallel"          << endl;
+      break;
+    case BpOptions::Schedule::MAX_RESIDUAL:
+      ss1 << "max residual"      << endl;
+      break;
   }
   ss1 << "max iterations:        " << BpOptions::maxIter  << endl;
   ss1 << "accuracy               " << BpOptions::accuracy << endl;
   ss1 << endl << endl;
-
-  ss2 << "---------------------------------------------------" << endl;
-  ss2 << " Network information" << endl;
-  ss2 << "---------------------------------------------------" << endl;
+  Util::printSubHeader ("Network information", ss2);
   ss2 << left;
   ss2 << setw (15) << "Network Size" ;
   ss2 << setw (9)  << "Loopy" ;
@@ -387,24 +459,22 @@ Statistics::getStatisticString (void)
 
   unsigned c1 = 0, c2 = 0, c3 = 0, c4 = 0;
   if (compressInfo_.size() > 0) {
-    ss3 << "---------------------------------------------------" << endl;
-    ss3 << " Compression information" << endl;
-    ss3 << "---------------------------------------------------" << endl;
+    Util::printSubHeader ("Compress information", ss3);
     ss3 << left;
     ss3 << "Ground   Cluster   Ground    Cluster   Neighborless" << endl;
     ss3 << "Vars     Vars      Factors   Factors   Vars"         << endl;
     for (unsigned i = 0; i < compressInfo_.size(); i++) {
-      ss3 << setw (9) << compressInfo_[i].nGroundVars;
-      ss3 << setw (10) << compressInfo_[i].nClusterVars;
-      ss3 << setw (10) << compressInfo_[i].nGroundFactors;
-      ss3 << setw (10) << compressInfo_[i].nClusterFactors;
-      ss3 << setw (10) << compressInfo_[i].nWithoutNeighs;
+      ss3 << setw (9)  << compressInfo_[i].nrGroundVars;
+      ss3 << setw (10) << compressInfo_[i].nrClusterVars;
+      ss3 << setw (10) << compressInfo_[i].nrGroundFactors;
+      ss3 << setw (10) << compressInfo_[i].nrClusterFactors;
+      ss3 << setw (10) << compressInfo_[i].nrNeighborless;
       ss3 << endl;
-      c1 += compressInfo_[i].nGroundVars - compressInfo_[i].nWithoutNeighs;
-      c2 += compressInfo_[i].nClusterVars;
-      c3 += compressInfo_[i].nGroundFactors - compressInfo_[i].nWithoutNeighs;
-      c4 += compressInfo_[i].nClusterFactors;
-      if (compressInfo_[i].nWithoutNeighs != 0) {
+      c1 += compressInfo_[i].nrGroundVars - compressInfo_[i].nrNeighborless;
+      c2 += compressInfo_[i].nrClusterVars;
+      c3 += compressInfo_[i].nrGroundFactors - compressInfo_[i].nrNeighborless;
+      c4 += compressInfo_[i].nrClusterFactors;
+      if (compressInfo_[i].nrNeighborless != 0) {
         c2 --;
         c4 --;
       } 

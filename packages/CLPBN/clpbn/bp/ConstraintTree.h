@@ -21,7 +21,6 @@ typedef vector<ConstraintTree*> ConstraintTrees;
 
 
 
-
 class CTNode
 {
   public:
@@ -47,19 +46,29 @@ class CTNode
 
     bool isLeaf (void) const { return childs_.empty(); }
 
-    void                addChild (CTNode*, bool = true);
-    void                removeChild (CTNode*);
-    SymbolSet           childSymbols (void) const;
+    void addChild (CTNode*, bool = true);
+
+    void removeChild (CTNode*);
+
+    void removeChilds (void);
+
+    void removeAndDeleteChild (CTNode*);
+
+    void removeAndDeleteAllChilds (void);
+
+    SymbolSet childSymbols (void) const;
+
+    static CTNode* copySubtree (const CTNode*);
+
+    static void deleteSubtree (CTNode*);
 
   private:
-    void                updateChildLevels (CTNode*, unsigned);
+    void updateChildLevels (CTNode*, unsigned);
 
-    Symbol              symbol_;
-    CTNodes             childs_;
-    unsigned            level_;
+    Symbol    symbol_;
+    CTNodes   childs_;
+    unsigned  level_;
 };
-
-
 
 ostream& operator<< (ostream &out, const CTNode&);
 
@@ -67,9 +76,14 @@ ostream& operator<< (ostream &out, const CTNode&);
 class ConstraintTree
 {
   public:
+    ConstraintTree (unsigned);
+
     ConstraintTree (const LogVars&);
+
     ConstraintTree (const LogVars&, const Tuples&);
+
     ConstraintTree (const ConstraintTree&);
+
    ~ConstraintTree (void);
 
     CTNode* root (void) const { return root_; }
@@ -94,94 +108,95 @@ class ConstraintTree
       assert (LogVarSet (logVars_) == logVarSet_);
     }
   
-    void               addTuple (const Tuple&);
-    bool               containsTuple (const Tuple&);
-    void               moveToTop (const LogVars&);
-    void               moveToBottom (const LogVars&);
-    void               join (ConstraintTree*, bool = false);
-    unsigned           getLevel (LogVar) const;
-    void               rename (LogVar, LogVar);
-    void               applySubstitution (const Substitution&);
-    void               project (const LogVarSet&);
-    void               remove (const LogVarSet&);
-    bool               isSingleton (LogVar);
-    LogVarSet          singletons (void);
-    TupleSet           tupleSet (unsigned = 0) const;
-    TupleSet           tupleSet (const LogVars&);
-    unsigned           size (void) const;
-    unsigned           nrSymbols (LogVar);
-    void               exportToGraphViz (const char*, bool = false) const;
-    bool               isCountNormalized (const LogVarSet&);
-    unsigned           getConditionalCount (const LogVarSet&);
-    TinySet<unsigned>  getConditionalCounts (const LogVarSet&);
-    bool               isCarteesianProduct (const LogVarSet&) const;
+    void addTuple (const Tuple&);
+  
+    bool containsTuple (const Tuple&);
+  
+    void moveToTop (const LogVars&);
+
+    void moveToBottom (const LogVars&);
+
+    void join (ConstraintTree*, bool = false);
+
+    unsigned getLevel (LogVar) const;
+
+    void rename (LogVar, LogVar);
+
+    void applySubstitution (const Substitution&);
+
+    void project (const LogVarSet&);
+
+    void remove (const LogVarSet&);
+
+    bool isSingleton (LogVar);
+
+    LogVarSet singletons (void);
+
+    TupleSet tupleSet (unsigned = 0) const;
+
+    TupleSet tupleSet (const LogVars&);
+
+    unsigned size (void) const;
+
+    unsigned nrSymbols (LogVar);
+
+    void exportToGraphViz (const char*, bool = false) const;
+
+    bool isCountNormalized (const LogVarSet&);
+
+    unsigned getConditionalCount (const LogVarSet&);
+
+    TinySet<unsigned> getConditionalCounts (const LogVarSet&);
+
+    bool isCarteesianProduct (const LogVarSet&) const;
 
     std::pair<ConstraintTree*, ConstraintTree*> split (
-                           const Tuple&,
-                           unsigned);
+        const Tuple&, unsigned);
 
     std::pair<ConstraintTree*, ConstraintTree*> split (
-                           const ConstraintTree*,
-                           unsigned) const;
+        const ConstraintTree*, unsigned) const;
 
-    ConstraintTrees    countNormalize (const LogVarSet&);
+    ConstraintTrees countNormalize (const LogVarSet&);
 
     ConstraintTrees jointCountNormalize (
-                           ConstraintTree*,
-                           ConstraintTree*,
-                           LogVar,
-                           LogVar,
-                           LogVar);
+        ConstraintTree*, ConstraintTree*, LogVar, LogVar, LogVar);
 
-    static bool        identical (
-                           const ConstraintTree*,
-                           const ConstraintTree*,
-                           unsigned);
+    static bool identical (
+        const ConstraintTree*, const ConstraintTree*, unsigned);
 
-    static bool        overlap (
-                           const ConstraintTree*,
-                           const ConstraintTree*,
-                           unsigned);
+    static bool overlap (
+        const ConstraintTree*, const ConstraintTree*, unsigned);
 
-    LogVars            expand (LogVar);
-    ConstraintTrees    ground (LogVar);
+    LogVars expand (LogVar);
+    ConstraintTrees ground (LogVar);
    
   private:
-    unsigned           countTuples (const CTNode*) const;
-    CTNodes            getNodesBelow (CTNode*) const;
-    CTNodes            getNodesAtLevel (unsigned) const;
-    void               swapLogVar (LogVar);
-    bool               join (CTNode*, const Tuple&, unsigned, CTNode*);
+    unsigned countTuples (const CTNode*) const;
 
-    bool               indenticalSubtrees (
-                           const CTNode*,
-                           const CTNode*,
-                           bool) const;
+    CTNodes getNodesBelow (CTNode*) const;
 
-    void               getTuples (
-                           CTNode*,
-                           Tuples,
-                           unsigned,
-                           Tuples&,
-                           CTNodes&) const;
+    CTNodes getNodesAtLevel (unsigned) const;
+
+    void swapLogVar (LogVar);
+
+    bool join (CTNode*, const Tuple&, unsigned, CTNode*);
+
+    bool indenticalSubtrees (
+        const CTNode*, const CTNode*, bool) const;
+
+    void getTuples (CTNode*, Tuples, unsigned, Tuples&, CTNodes&) const;
 
     vector<std::pair<CTNode*, unsigned>> countNormalize (
-                           const CTNode*,
-                           unsigned);
+        const CTNode*, unsigned);
 
-    static void        split (
-                           CTNode*,
-                           CTNode*,
-                           CTNodes&,
-                           unsigned);
+    static void split (
+        CTNode*, CTNode*, CTNodes&, unsigned);
 
-    static bool        overlap (const CTNode*, const CTNode*, unsigned);
-    static CTNode*     copySubtree (const CTNode*);
-    static void        deleteSubtree (CTNode*);
+    static bool overlap (const CTNode*, const CTNode*, unsigned);
 
-    CTNode*            root_;
-    LogVars            logVars_;
-    LogVarSet          logVarSet_;
+    CTNode*    root_;
+    LogVars    logVars_;
+    LogVarSet  logVarSet_;
 };
 
 

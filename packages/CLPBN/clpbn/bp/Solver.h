@@ -3,29 +3,27 @@
 
 #include <iomanip>
 
-#include "GraphicalModel.h"
-#include "VarNode.h"
+#include "Var.h"
+#include "FactorGraph.h"
+
 
 using namespace std;
 
 class Solver
 {
   public:
-    Solver (const GraphicalModel* gm)
-    {
-      gm_ = gm;
-    }
-    virtual ~Solver() {} // to ensure that subclass destructor is called
-    virtual void      runSolver (void) = 0;
-    virtual Params  getPosterioriOf (VarId) = 0;
-    virtual Params  getJointDistributionOf (const VarIds&) = 0;
+    Solver (const FactorGraph& factorGraph) : fg(factorGraph) { }
+
+    virtual ~Solver() { } // ensure that subclass destructor is called
+
+    virtual Params solveQuery (VarIds queryVids) = 0;
+
+    void printAnswer (const VarIds& vids);
 
     void printAllPosterioris (void);
-    void printPosterioriOf (VarId vid);
-    void printJointDistributionOf (const VarIds& vids);
    
-  private:
-    const GraphicalModel* gm_;
+  protected:
+    const FactorGraph& fg;
 };
 
 #endif // HORUS_SOLVER_H

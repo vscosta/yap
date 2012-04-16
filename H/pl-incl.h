@@ -159,6 +159,9 @@ typedef enum
 #ifdef HAVE_LOCALE_H
 #include <locale.h>
 #endif
+#ifdef HAVE_LIMITS_H			/* get MAXPATHLEN */
+#include <limits.h>
+#endif
 #include <setjmp.h>
 #include <assert.h>
 #if HAVE_SYS_PARAM_H

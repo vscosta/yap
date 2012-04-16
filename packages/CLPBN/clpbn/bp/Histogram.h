@@ -26,8 +26,9 @@ class HistogramSet
     static unsigned nrHistograms (unsigned, unsigned);
 
     static unsigned findIndex (
-        const Histogram&,
-        const vector<Histogram>&);
+        const Histogram&, const vector<Histogram>&);
+
+    static vector<double> getNumAssigns (unsigned, unsigned);
 
     friend std::ostream& operator<< (ostream &os, const HistogramSet& hs);
    

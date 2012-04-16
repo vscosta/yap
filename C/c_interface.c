@@ -561,6 +561,7 @@ X_API YAP_tag_t STD_PROTO(YAP_TagOfTerm,(Term));
 X_API size_t   STD_PROTO(YAP_ExportTerm,(Term, char *, size_t));
 X_API size_t   STD_PROTO(YAP_SizeOfExportedTerm,(char *));
 X_API Term     STD_PROTO(YAP_ImportTerm,(char *));
+X_API int      STD_PROTO(YAP_RequiresExtraStack,(size_t));
 
 static UInt
 current_arity(void)
@@ -2705,7 +2706,6 @@ YAP_InitConsult(int mode, char *filename)
 X_API IOSTREAM *
 YAP_TermToStream(Term t)
 {
-  CACHE_REGS
   IOSTREAM *s;
   BACKUP_MACHINE_REGS();
 
@@ -2937,7 +2937,13 @@ YAP_Init(YAP_init_args *yap_init)
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-  static char boot_file[256];
+  char boot_file[256];
+  static int initialised = FALSE;
+
+  /* ignore repeated calls to YAP_Init */
+  if (initialised)
+    return YAP_BOOT_DONE_BEFOREHAND;
+  initialised = TRUE;
 
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -3612,9 +3618,22 @@ YAP_ListToFloats(Term t, double *dblp, size_t sz)
     if (!IsPairTerm(t))
       return -1;
     hd = HeadOfTerm(t);
-    if (!IsFloatTerm(hd))
-      return -1;
-    dblp[i++] = FloatOfTerm(hd);
+    if (IsFloatTerm(hd)) {
+      dblp[i++] = FloatOfTerm(hd);
+    } else {
+      extern double Yap_gmp_to_float(Term hd);
+
+      if (IsIntTerm(hd))
+	dblp[i++] = IntOfTerm(hd);
+      else if (IsLongIntTerm(hd))
+	dblp[i++] = LongIntOfTerm(hd);
+#if USE_GMP
+      else if (IsBigIntTerm(hd))
+	dblp[i++] = Yap_gmp_to_float(hd);
+#endif
+      else
+	return -1;
+    }
     if (i == sz)
       return sz;
     t = TailOfTerm(t);
@@ -4108,3 +4127,24 @@ YAP_ImportTerm(char * buf) {
   return Yap_ImportTerm(buf);
 }
 
+X_API int
+YAP_RequiresExtraStack(size_t sz) {
+  CACHE_REGS
+
+  if (sz < 16*1024) 
+    sz = 16*1024;
+  if (H <= ASP-sz) {
+    return FALSE;
+  }
+  BACKUP_H();
+  while (H > ASP-sz) {
+    CACHE_REGS
+    RECOVER_H();
+    if (!dogc( 0, NULL PASS_REGS )) {
+      return -1;
+    }
+    BACKUP_H();
+  }
+  RECOVER_H();
+  return TRUE;
+}

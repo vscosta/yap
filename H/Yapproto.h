@@ -498,6 +498,7 @@ void    STD_PROTO(Yap_init_optyap_preds,(void));
 
 /* pl-file.c */
 struct PL_local_data *Yap_InitThreadIO(int wid); 
+void Yap_flush(void);
 
 static inline
 yamop *

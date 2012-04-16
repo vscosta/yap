@@ -323,12 +323,6 @@ int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **)
 extern int errno;
 #endif
 
-#ifdef DEBUG
-#if COROUTINING
-extern int  Yap_Portray_delays;
-#endif
-#endif
-
 EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
 EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *));
 

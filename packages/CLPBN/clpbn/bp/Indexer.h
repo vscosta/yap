@@ -8,11 +8,13 @@
 #include <sstream>
 #include <iomanip>
 
-#include "VarNode.h"
+#include "Var.h"
 #include "Util.h"
 
 
-class StatesIndexer {
+
+class StatesIndexer
+{
   public:
 
     StatesIndexer (const Ranges& ranges, bool calcOffsets = true)
@@ -29,14 +31,14 @@ class StatesIndexer {
       }
     }
 
-    StatesIndexer (const VarNodes& vars, bool calcOffsets = true)
+    StatesIndexer (const Vars& vars, bool calcOffsets = true)
     {
       size_ = 1;
       indices_.resize (vars.size(), 0);
       ranges_.reserve (vars.size());
       for (unsigned i = 0; i < vars.size(); i++) {
-        ranges_.push_back (vars[i]->nrStates());
-        size_ *= vars[i]->nrStates();
+        ranges_.push_back (vars[i]->range());
+        size_ *= vars[i]->range();
       }
       li_ = 0;
       if (calcOffsets) {
@@ -134,11 +136,11 @@ class StatesIndexer {
       return size_ ;
     }
 
-    friend ostream& operator<< (ostream &out, const StatesIndexer& idx)
+    friend ostream& operator<< (ostream &os, const StatesIndexer& idx)
     {
-      out << "(" << std::setw (2) << std::setfill('0') << idx.li_ << ") " ;
-      out << idx.indices_;
-      return out;
+      os << "(" << std::setw (2) << std::setfill('0') << idx.li_ << ") " ;
+      os << idx.indices_;
+      return os;
     }
 
   private:
@@ -274,21 +276,14 @@ class MapIndexer
       index_ = 0;
     }
 
-    friend ostream& operator<< (ostream &out, const MapIndexer& idx)
+    friend ostream& operator<< (ostream &os, const MapIndexer& idx)
     {
-      out << "(" << std::setw (2) << std::setfill('0') << idx.index_ << ") " ;
-      out << idx.indices_;
-      return out;
+      os << "(" << std::setw (2) << std::setfill('0') << idx.index_ << ") " ;
+      os << idx.indices_;
+      return os;
     }
 
   private:
-    MapIndexer (const Ranges& ranges) : 
-        ranges_(ranges),
-        indices_(ranges.size(), 0),
-        offsets_(ranges.size())
-    {
-      index_ = 0;
-    }
     unsigned          index_;
     bool              valid_;
     vector<unsigned>  ranges_;

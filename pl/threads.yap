@@ -209,7 +209,7 @@ thread_create(Goal, Id, Options) :-
 % vsc: ?????
 thread_defaults(Defaults) :-
 	nonvar(Defaults), !,
-	'$do_error'(uninstantion_error(Defaults), thread_defaults(Defaults)).
+	'$do_error'(uninstantiation_error(Defaults), thread_defaults(Defaults)).
 thread_defaults([stack(Stack), trail(Trail), system(System), detached(Detached), at_exit(AtExit)]) :-
 	recorded('$thread_defaults',[Stack, Trail, System, Detached, AtExit], _).
 

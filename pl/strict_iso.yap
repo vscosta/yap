@@ -96,6 +96,7 @@
 	'$do_error'(domain_error(builtin_procedure,G), G).
 
 '$iso_builtin'(abolish(_)).
+'$iso_builtin'(acylic_term(_)).
 '$iso_builtin'(arg(_,_,_)).
 '$iso_builtin'(_=:=_).
 '$iso_builtin'(_=\=_).
@@ -115,12 +116,21 @@
 '$iso_builtin'(atomic(_)).
 '$iso_builtin'(bagof(_,_,_)).
 '$iso_builtin'(call(_)).
+'$iso_builtin'(call(_,_)).
+'$iso_builtin'(call(_,_,_)).
+'$iso_builtin'(call(_,_,_,_)).
+'$iso_builtin'(call(_,_,_,_,_)).
+'$iso_builtin'(call(_,_,_,_,_,_)).
+'$iso_builtin'(call(_,_,_,_,_,_,_)).
+'$iso_builtin'(call(_,_,_,_,_,_,_,_)).
+'$iso_builtin'(callable(_)).
 '$iso_builtin'(catch(_,_,_)).
 '$iso_builtin'(char_code(_,_)).
 '$iso_builtin'(char_conversion(_,_)).
 '$iso_builtin'(clause(_,_)).
 '$iso_builtin'(close(_)).
 '$iso_builtin'(close(_,_)).
+'$iso_builtin'(compare(_,_,_)).
 '$iso_builtin'(compound(_)).
 '$iso_builtin'((_,_)).
 '$iso_builtin'(copy_term(_,_)).
@@ -133,6 +143,7 @@
 '$iso_builtin'(!).
 '$iso_builtin'((_;_)).
 '$iso_builtin'(fail).
+'$iso_builtin'(false).
 '$iso_builtin'(findall(_,_,_)).
 '$iso_builtin'(float(_)).
 '$iso_builtin'(abort).
@@ -145,11 +156,13 @@
 '$iso_builtin'(get_char(_,_)).
 '$iso_builtin'(get_code(_)).
 '$iso_builtin'(get_code(_,_)).
+'$iso_builtin'(ground(_)).
 '$iso_builtin'(halt).
 '$iso_builtin'(halt(_)).
 '$iso_builtin'((_->_)).
 '$iso_builtin'(integer(_)).
 '$iso_builtin'(_ is _).
+'$iso_builtin'(keysort(_,_)).
 '$iso_builtin'(nl).
 '$iso_builtin'(nl(_)).
 '$iso_builtin'(nonvar(_)).
@@ -179,19 +192,23 @@
 '$iso_builtin'(read_term(_,_,_)).
 '$iso_builtin'(repeat).
 '$iso_builtin'(retract(_)).
+'$iso_builtin'(retractall(_)).
 '$iso_builtin'(set_input(_)).
 '$iso_builtin'(set_output(_)).
 '$iso_builtin'(set_prolog_flag(_,_)).
 '$iso_builtin'(set_stream_position(_,_)).
 '$iso_builtin'(setof(_,_,_)).
+'$iso_builtin'(sort(_,_)).
 '$iso_builtin'(stream_property(_,_)).
 '$iso_builtin'(sub_atom(_,_,_,_,_)).
+'$iso_builtin'(subsumes_term(_,_)).
 '$iso_builtin'(_@>_).
 '$iso_builtin'(_@>=_).
 '$iso_builtin'(_==_).
 '$iso_builtin'(_@<_).
 '$iso_builtin'(_@=<_).
 '$iso_builtin'(_\==_).
+'$iso_builtin'(term_variables(_,_)).
 '$iso_builtin'(throw(_)).
 '$iso_builtin'(true).
 '$iso_builtin'(_\=_).

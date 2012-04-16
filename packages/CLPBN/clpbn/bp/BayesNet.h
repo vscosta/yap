@@ -6,118 +6,83 @@
 #include <list>
 #include <map>
 
-#include "GraphicalModel.h"
-#include "BayesNode.h"
+#include "Var.h"
 #include "Horus.h"
 
 
 using namespace std;
 
-class Distribution;
 
-struct ScheduleInfo
-{
-  ScheduleInfo (BayesNode* n, bool vfp, bool vfc)
-  {
-    node               = n;
-    visitedFromParent  = vfp;
-    visitedFromChild   = vfc;
-  }
-  BayesNode*  node;
-  bool        visitedFromParent;
-  bool        visitedFromChild;
-};
+class Var;
 
-
-struct StateInfo
-{
-  StateInfo (void)
-  {
-    visited         = true;
-    markedOnTop     = false;
-    markedOnBottom  = false;
-  }
-  bool visited;
-  bool markedOnTop;
-  bool markedOnBottom;
-};
-
-typedef vector<Distribution*>  DistSet;
-typedef queue<ScheduleInfo, list<ScheduleInfo> > Scheduling;
-
-
-class BayesNet : public GraphicalModel
+class DAGraphNode : public Var
 {
   public:
-    BayesNet (void) {};
-   ~BayesNet (void);
+    DAGraphNode (Var* v) : Var (v) , visited_(false),
+        markedOnTop_(false), markedOnBottom_(false) { }
 
-    void               readFromBifFormat (const char*);
-    BayesNode*         addNode (string, const States&);
-//    BayesNode*         addNode (VarId, unsigned, int, BnNodeSet&, Distribution*);
-    BayesNode*         addNode (VarId, unsigned, int, Distribution*);
-    BayesNode*         getBayesNode (VarId) const;
-    BayesNode*         getBayesNode (string) const;
-    VarNode*           getVariableNode (VarId) const;
-    VarNodes           getVariableNodes (void) const;
-    void               addDistribution (Distribution*);
-    Distribution*      getDistribution (unsigned) const;
-    const BnNodeSet&   getBayesNodes (void) const;
-    unsigned           nrNodes (void) const;
-    BnNodeSet          getRootNodes (void) const;
-    BnNodeSet          getLeafNodes (void) const;
-    BayesNet*          getMinimalRequesiteNetwork (VarId) const;
-    BayesNet*          getMinimalRequesiteNetwork (const VarIds&) const;
-    void               constructGraph (
-                           BayesNet*, const vector<StateInfo*>&) const;
-    bool               isPolyTree (void) const;
-    void               setIndexes (void);
-    void               distributionsToLogs (void);
-    void               freeDistributions (void);
-    void               printGraphicalModel (void) const;
-    void               exportToGraphViz (const char*, bool = true,
-                           const VarIds& = VarIds()) const;
-    void               exportToBifFormat (const char*) const;
+    const vector<DAGraphNode*>& childs (void) const { return childs_;  }
+
+    vector<DAGraphNode*>& childs  (void) { return childs_;  }
+
+    const vector<DAGraphNode*>& parents (void) const { return parents_; }
+
+    vector<DAGraphNode*>& parents (void) { return parents_; }
+
+    void addParent (DAGraphNode* p) { parents_.push_back (p); }
+
+    void addChild (DAGraphNode* c) { childs_.push_back (c); }
+
+    bool isVisited (void) const { return visited_; }
+ 
+    void setAsVisited (void) { visited_ = true; }
+
+    bool isMarkedOnTop (void) const { return markedOnTop_; }
+ 
+    void markOnTop (void) { markedOnTop_ = true; }
+
+    bool isMarkedOnBottom (void) const { return markedOnBottom_; }
+ 
+    void markOnBottom (void) { markedOnBottom_ = true; }
+
+    void clear (void) { visited_ = markedOnTop_ = markedOnBottom_ = false; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (BayesNet);
+    bool visited_;
+    bool markedOnTop_;
+    bool markedOnBottom_;
 
-    bool               containsUndirectedCycle (void) const;
-    bool               containsUndirectedCycle (int, int, vector<bool>&)const;
-    vector<int>        getAdjacentNodes (int) const;
-    Params           reorderParameters (const Params&, unsigned) const;
-    Params           revertParameterReorder (const Params&, unsigned) const;
-    void               scheduleParents (const BayesNode*, Scheduling&) const;
-    void               scheduleChilds (const BayesNode*, Scheduling&) const;
-
-    BnNodeSet          nodes_;
-    DistSet            dists_;
-
-    typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap           varMap_;
+    vector<DAGraphNode*> childs_;
+    vector<DAGraphNode*> parents_;
 };
 
 
-
-inline void
-BayesNet::scheduleParents (const BayesNode* n, Scheduling& sch) const
+class DAGraph
 {
-  const BnNodeSet& ps = n->getParents();
-  for (BnNodeSet::const_iterator it = ps.begin(); it != ps.end(); it++) {
-    sch.push (ScheduleInfo (*it, false, true));
-  }
-}
+  public:
+    DAGraph (void) { }
 
+    void addNode (DAGraphNode* n);
 
+    void addEdge (VarId vid1, VarId vid2);
 
-inline void
-BayesNet::scheduleChilds (const BayesNode* n, Scheduling& sch) const
-{
-  const BnNodeSet& cs = n->getChilds();
-  for (BnNodeSet::const_iterator it = cs.begin(); it != cs.end(); it++) {
-    sch.push (ScheduleInfo (*it, true, false));
-  }
-}
+    const DAGraphNode* getNode (VarId vid) const;
+ 
+    DAGraphNode* getNode (VarId vid);
+
+    bool empty (void) const { return nodes_.empty(); }
+
+    void setIndexes (void);
+
+    void clear (void);
+
+    void exportToGraphViz (const char*);
+
+  private:
+    vector<DAGraphNode*> nodes_;
+
+    unordered_map<VarId, DAGraphNode*> varMap_;
+};
 
 #endif // HORUS_BAYESNET_H
 

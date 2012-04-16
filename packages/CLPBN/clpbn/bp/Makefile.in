@@ -45,9 +45,8 @@ CWD=$(PWD)
 
 
 HEADERS = \
-	$(srcdir)/GraphicalModel.h \
 	$(srcdir)/BayesNet.h \
-	$(srcdir)/BayesNode.h \
+	$(srcdir)/BayesBall.h \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/FactorGraph.h \
 	$(srcdir)/Factor.h \
@@ -55,12 +54,10 @@ HEADERS = \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/Solver.h \
 	$(srcdir)/VarElimSolver.h \
-	$(srcdir)/BnBpSolver.h \
-	$(srcdir)/FgBpSolver.h \
+	$(srcdir)/BpSolver.h \
 	$(srcdir)/CbpSolver.h \
 	$(srcdir)/FoveSolver.h \
-	$(srcdir)/VarNode.h \
-	$(srcdir)/Distribution.h \
+	$(srcdir)/Var.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/Parfactor.h \
 	$(srcdir)/ProbFormula.h \
@@ -69,22 +66,20 @@ HEADERS = \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/TinySet.h \
 	$(srcdir)/Util.h \
-	$(srcdir)/Horus.h \
-	$(srcdir)/xmlParser/xmlParser.h
+	$(srcdir)/Horus.h
 	
 CPP_SOURCES = \
 	$(srcdir)/BayesNet.cpp \
-	$(srcdir)/BayesNode.cpp \
+	$(srcdir)/BayesBall.cpp \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/FactorGraph.cpp \
 	$(srcdir)/Factor.cpp \
 	$(srcdir)/CFactorGraph.cpp \
 	$(srcdir)/ConstraintTree.cpp \
-	$(srcdir)/VarNode.cpp \
+	$(srcdir)/Var.cpp \
 	$(srcdir)/Solver.cpp \
 	$(srcdir)/VarElimSolver.cpp \
-	$(srcdir)/BnBpSolver.cpp \
-	$(srcdir)/FgBpSolver.cpp \
+	$(srcdir)/BpSolver.cpp \
 	$(srcdir)/CbpSolver.cpp \
 	$(srcdir)/FoveSolver.cpp \
 	$(srcdir)/Parfactor.cpp \
@@ -94,22 +89,20 @@ CPP_SOURCES = \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/Util.cpp \
 	$(srcdir)/HorusYap.cpp \
-	$(srcdir)/HorusCli.cpp \
-	$(srcdir)/xmlParser/xmlParser.cpp
+	$(srcdir)/HorusCli.cpp
 
 OBJS = \
 	BayesNet.o \
-	BayesNode.o \
+	BayesBall.o \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
 	CFactorGraph.o \
 	ConstraintTree.o \
-	VarNode.o \
+	Var.o \
 	Solver.o \
 	VarElimSolver.o \
-	BnBpSolver.o \
-	FgBpSolver.o \
+	BpSolver.o \
 	CbpSolver.o \
 	FoveSolver.o \
   Parfactor.o \
@@ -122,17 +115,16 @@ OBJS = \
 
 HCLI_OBJS = \
 	BayesNet.o \
-	BayesNode.o \
+	BayesBall.o \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
 	CFactorGraph.o \
 	ConstraintTree.o \
-	VarNode.o \
+	Var.o \
 	Solver.o \
 	VarElimSolver.o \
-	BnBpSolver.o \
-	FgBpSolver.o \
+	BpSolver.o \
 	CbpSolver.o \
   FoveSolver.o \
   Parfactor.o \
@@ -141,7 +133,6 @@ HCLI_OBJS = \
   ParfactorList.o \
 	LiftedUtils.o \
 	Util.o \
-	xmlParser/xmlParser.o \
 	HorusCli.o
 
 SOBJS=horus.@SO@
@@ -151,10 +142,6 @@ all: $(SOBJS) hcli
 
 # default rule
 %.o : $(srcdir)/%.cpp
-	$(CXX) -c $(CXXFLAGS) $< -o $@
-
-
-xmlParser/xmlParser.o : $(srcdir)/xmlParser/xmlParser.cpp
 	$(CXX) -c $(CXXFLAGS) $< -o $@
 
 
@@ -171,7 +158,7 @@ install: all
 
 
 clean:
-	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli xmlParser/*.o
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli
 
 
 erase_dots:

@@ -412,7 +412,7 @@ true :- true.
 	 ->
 	  '$assertz_dynamic'(L,G,G0,Mod)
 	 ;
-	  nb_getval('$assert_all',on)
+	  catch(nb_getval('$assert_all',on),_,fail)
 	 ->
 	  functor(H,N,A),
 	  '$dynamic'(N/A,Mod),
@@ -422,11 +422,17 @@ true :- true.
 	  '$compile'(G, L, G0, Mod)
 	 ).
 
+%
+% check if current module redefines an imported predicate.
+% and remove import.
+%
 '$not_imported'(H, Mod) :-
-	recorded('$import','$import'(NM,Mod,NH,H,_,_),_),
-	NM \= Mod, !,
+	recorded('$import','$import'(NM,Mod,NH,H,_,_),R),
+	NM \= Mod,
 	functor(NH,N,Ar),
-	'$do_error'(permission_error(modify, static_procedure, NM:N/Ar), consult).
+	print_message(warning,redefine_imported(Mod,NM,N/Ar)),
+	erase(R),
+	fail.
 '$not_imported'(_, _).
 
 
@@ -1227,7 +1233,7 @@ catch_ball(C, C).
 
 '$exit_system_mode' :-
 	nb_setval('$system_mode',off),
-	( nb_getval('$trace',on) -> '$creep' ; true).
+	( catch(nb_getval('$trace',on),_,fail) -> '$creep' ; true).
 
 %
 % just prevent creeping from going on...

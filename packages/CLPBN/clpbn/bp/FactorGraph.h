@@ -3,135 +3,139 @@
 
 #include <vector>
 
-#include "GraphicalModel.h"
-#include "Distribution.h"
 #include "Factor.h"
+#include "BayesNet.h"
 #include "Horus.h"
 
 using namespace std;
 
-class BayesNet;
-class FgFacNode;
 
-class FgVarNode : public VarNode
+class FacNode;
+
+class VarNode : public Var
 {
   public:
-    FgVarNode (VarId varId, unsigned nrStates) : VarNode (varId, nrStates) { }
-    FgVarNode (const VarNode* v) : VarNode (v) { }
+    VarNode (VarId varId, unsigned nrStates) 
+        : Var (varId, nrStates) { }
 
-    void            addNeighbor (FgFacNode* fn) { neighs_.push_back (fn); }
-    const FgFacSet& neighbors (void) const      { return neighs_; }
+    VarNode (const Var* v) : Var (v) { }
+
+    void addNeighbor (FacNode* fn) { neighs_.push_back (fn); }
+
+    const FacNodes& neighbors (void) const { return neighs_; }
 
   private:
-    DISALLOW_COPY_AND_ASSIGN (FgVarNode);
-    // members
-    FgFacSet neighs_;
+    DISALLOW_COPY_AND_ASSIGN (VarNode);
+
+    FacNodes neighs_;
 };
 
 
-class FgFacNode
+class FacNode
 {
   public:
-    FgFacNode (const FgFacNode* fn) {
-      factor_ = new Factor (*fn->factor());
-      index_  = -1;
-    }
-    FgFacNode (Factor* f) : factor_(new Factor(*f)), index_(-1) { }
-    Factor*          factor() const { return factor_; }
-    void             addNeighbor (FgVarNode* vn)  { neighs_.push_back (vn); }
-    const FgVarSet&  neighbors (void) const  { return neighs_; }
+    FacNode (const Factor& f) : factor_(f), index_(-1) { }
 
-    int getIndex (void) const
-    {
-      assert (index_ != -1);
-      return index_;
-    }
-    void setIndex (int index)
-    {
-      index_ = index;
-    }
-    Distribution* getDistribution (void)
-    {
-      return factor_->getDistribution();
-    }
-    const Params& getParameters (void) const
-    {
-      return factor_->getParameters();
-    }
-    string getLabel (void)
-    {
-      return factor_->getLabel();
-    }
+    const Factor& factor (void) const { return factor_; }
+
+    Factor& factor (void) { return factor_; }
+
+    void addNeighbor (VarNode* vn) { neighs_.push_back (vn); }
+
+    const VarNodes& neighbors (void) const { return neighs_; }
+
+    int getIndex (void) const { return index_; }
+
+    void setIndex (int index) { index_ = index; }
+
+    string getLabel (void) { return factor_.getLabel(); }
+
   private:
-    DISALLOW_COPY_AND_ASSIGN (FgFacNode);
+    DISALLOW_COPY_AND_ASSIGN (FacNode);
 
-    Factor* factor_;
-    int index_;
-    FgVarSet neighs_;
+    VarNodes  neighs_;
+    Factor    factor_;
+    int       index_;
 };
 
 
 struct CompVarId
 {
-  bool operator() (const VarNode* vn1, const VarNode* vn2) const
+  bool operator() (const Var* v1, const Var* v2) const
   {
-    return vn1->varId() < vn2->varId();
+    return v1->varId() < v2->varId();
   }
 };
 
 
-class FactorGraph : public GraphicalModel
+class FactorGraph
 {
   public:
-    FactorGraph (void) {};
+    FactorGraph (bool fbn = false) : fromBayesNet_(fbn) { }
+
     FactorGraph (const FactorGraph&);
-    FactorGraph (const BayesNet&);
+
    ~FactorGraph (void);
 
-    void                readFromUaiFormat (const char*);
-    void                readFromLibDaiFormat (const char*);
-    void                addVariable (FgVarNode*);
-    void                addFactor (FgFacNode*);
-    void                addEdge (FgVarNode*, FgFacNode*);
-    void                addEdge (FgFacNode*, FgVarNode*);
-    VarNode*            getVariableNode (unsigned) const;
-    VarNodes            getVariableNodes (void) const;
-    bool                isTree (void) const;
-    void                setIndexes (void);
-    void                freeDistributions (void);
-    void                printGraphicalModel (void) const;
-    void                exportToGraphViz (const char*) const;
-    void                exportToUaiFormat (const char*) const;
-    void                exportToLibDaiFormat (const char*) const;
-                      
-    const FgVarSet&   getVarNodes (void)    const  { return varNodes_; }
-    const FgFacSet&   getFactorNodes (void) const  { return facNodes_; }
+    const VarNodes& varNodes (void) const { return varNodes_; }
 
-    FgVarNode* getFgVarNode (VarId vid) const
+    const FacNodes& facNodes (void) const { return facNodes_; }
+ 
+    bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
+
+    VarNode* getVarNode (VarId vid) const
     {
-      IndexMap::const_iterator it = varMap_.find (vid);
-      if (it == varMap_.end()) {
-        return 0;
-      } else {
-        return varNodes_[it->second];
-      }
+      VarMap::const_iterator it = varMap_.find (vid);
+      return it != varMap_.end() ? it->second : 0;
     }
 
+    void readFromUaiFormat (const char*);
+
+    void readFromLibDaiFormat (const char*);
+
+    void addFactor (const Factor& factor);
+
+    void addVarNode (VarNode*);
+
+    void addFacNode (FacNode*);
+
+    void addEdge (VarNode*, FacNode*);
+
+    bool isTree (void) const;
+
+    DAGraph& getStructure (void);
+
+    void print (void) const;
+
+    void exportToGraphViz (const char*) const;
+
+    void exportToUaiFormat (const char*) const;
+
+    void exportToLibDaiFormat (const char*) const;
+                      
     static bool orderFactorVariables;
 
   private:
-    //DISALLOW_COPY_AND_ASSIGN (FactorGraph);
-    bool                containsCycle (void) const;
-    bool                containsCycle (const FgVarNode*, const FgFacNode*,
-                            vector<bool>&, vector<bool>&) const;
-    bool                containsCycle (const FgFacNode*, const FgVarNode*,
-                            vector<bool>&, vector<bool>&) const;
+    // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
 
-    FgVarSet         varNodes_;
-    FgFacSet         facNodes_;
+    void ignoreLines (std::ifstream&) const;
 
-    typedef unordered_map<unsigned, unsigned> IndexMap;
-    IndexMap         varMap_;
+    bool containsCycle (void) const;
+
+    bool containsCycle (const VarNode*, const FacNode*,
+        vector<bool>&, vector<bool>&) const;
+
+    bool containsCycle (const FacNode*, const VarNode*,
+        vector<bool>&, vector<bool>&) const;
+
+    VarNodes  varNodes_;
+    FacNodes  facNodes_;
+
+    DAGraph   structure_;
+    bool      fromBayesNet_;
+
+    typedef unordered_map<unsigned, VarNode*> VarMap;
+    VarMap varMap_;
 };
 
 #endif // HORUS_FACTORGRAPH_H

@@ -13,6 +13,7 @@
 		  clpbn_init_graph/1,
 		  probability/2,
 		  conditional_probability/3,
+		  use_parfactors/1,
 		  op( 500, xfy, with)]).
 
 :- use_module(library(atts)).
@@ -43,6 +44,7 @@
                check_if_bp_done/1,
 	       init_bp_solver/4,
 	       run_bp_solver/3,
+	       call_bp_ground/6,
 	       finalize_bp_solver/1
 	      ]).
 
@@ -61,10 +63,16 @@
 	       run_jt_solver/3
 	      ]).
 
-:- use_module('clpbn/bnt',
-	      [do_bnt/3,
-	       check_if_bnt_done/1
+:- use_module('clpbn/bdd',
+	      [bdd/3,
+	       init_bdd_solver/4,
+	       run_bdd_solver/3
 	      ]).
+
+%% :- use_module('clpbn/bnt',
+%% 	      [do_bnt/3,
+%% 	       check_if_bnt_done/1
+%% 	      ]).
 
 :- use_module('clpbn/gibbs',
 	      [gibbs/3,
@@ -111,7 +119,7 @@
 	[clpbn2gviz/4]).
 
 :- use_module(clpbn/ground_factors,
-	[generate_bn/2]).
+	[generate_network/5]).
 
 
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
@@ -223,9 +231,17 @@ clpbn_marginalise(V, Dist) :-
 % called by top-level
 % or by call_residue/2
 %
-project_attributes(GVars, AVars0) :-
+project_attributes(GVars, _AVars0) :-
+	use_parfactors(on),
+	clpbn_flag(solver, Solver), Solver \= fove, !,
+	generate_network(GVars, GKeys, Keys, Factors, Evidence),
+	(ground(GVars) ->
+	    true
+	;
+	    call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0)
+	).
+project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
-	generate_vars(GVars, AVars0, AVars),
 	AVars = [_|_],
 	solver(Solver),
 	( GVars = [_|_] ; Solver = graphs), !,
@@ -242,11 +258,6 @@ project_attributes(GVars, AVars0) :-
 	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
-
-generate_vars(GVars, _, NewAVars) :-
-	use_parfactors(on), !,
-	generate_bn(GVars, NewAVars).
-generate_vars(_GVars, AVars, AVars).
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
@@ -289,6 +300,8 @@ write_out(ve, GVars, AVars, DiffVars) :-
 	ve(GVars, AVars, DiffVars).
 write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
+write_out(bdd, GVars, AVars, DiffVars) :-
+	bdd(GVars, AVars, DiffVars).
 write_out(bp, GVars, AVars, DiffVars) :-
 	bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
@@ -297,6 +310,11 @@ write_out(bnt, GVars, AVars, DiffVars) :-
 	do_bnt(GVars, AVars, DiffVars).
 write_out(fove, GVars, AVars, DiffVars) :-
 	fove(GVars, AVars, DiffVars).
+
+% call a solver with keys, not actual variables
+call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence, Answ) :-
+	call_bp_ground(GVars, GoalKeys, Keys, Factors, Evidence, Answ).
+
 
 get_bnode(Var, Goal) :-
 	get_atts(Var, [key(Key),dist(Dist,Parents)]),
@@ -382,6 +400,9 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
 	check_if_ve_done(Var), !.
+bind_clpbn(_, Var, _, _, _, _, []) :-
+	use(bdd),
+	check_if_bdd_done(Var), !.
 bind_clpbn(T, Var, Key0, _, _, _, []) :-
 	get_atts(Var, [key(Key)]), !,
 	(
@@ -397,11 +418,12 @@ fresh_attvar(Var, NVar) :-
 
 % I will now allow two CLPBN variables to be bound together.
 %bind_clpbns(Key, Dist, Parents, Key, Dist, Parents).
-bind_clpbns(Key, Dist, _Parents, Key1, Dist1, _Parents1) :- 
+bind_clpbns(Key, Dist, Parents, Key1, Dist1, Parents1) :- 
 	Key == Key1, !,
 	get_dist(Dist,_Type,_Domain,_Table),
 	get_dist(Dist1,_Type1,_Domain1,_Table1),
-	Dist = Dist1.
+	Dist = Dist1,
+	Parents = Parents1.
 bind_clpbns(Key, _, _, _, Key1, _, _, _) :-
 	Key\=Key1, !, fail.
 bind_clpbns(_, _, _, _, _, _, _, _) :-
@@ -452,6 +474,8 @@ clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
+	init_bdd_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(pcg, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_pcg_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 
@@ -477,6 +501,9 @@ clpbn_run_solver(bp, LVs, LPs, State) :-
 
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
+
+clpbn_run_solver(bdd, LVs, LPs, State) :-
+	run_bdd_solver(LVs, LPs, State).
 
 clpbn_run_solver(pcg, LVs, LPs, State) :-
 	run_pcg_solver(LVs, LPs, State).
@@ -538,4 +565,5 @@ match_probability([p(V0=C)=Prob|_], C, V, Prob) :-
 match_probability([_|Probs], C, V, Prob) :-
 	match_probability(Probs, C, V, Prob).
 
+:- use_parfactors(on) -> true ; assert(use_parfactors(off)).
 

@@ -27,7 +27,7 @@
 
 :- use_module(library('clpbn/dists'),
 	      [
-	       dist/4,
+	       add_dist/6,
 	       get_dist_domain_size/2]).
 
 :- use_module(library('clpbn/matrix_cpt_utils'),
@@ -44,8 +44,9 @@ check_for_agg_vars([_|Vs0], Vs1) :-
 % transform aggregate distribution into tree
 simplify_dist(avg(Domain), V, Key, Parents, Vs0, VsF) :- !,
 	cpt_average([V|Parents], Key, Domain, NewDist, Vs0, VsF),
-	dist(NewDist, Id, Key, ParentsF),
-	clpbn:put_atts(V, [dist(Id,ParentsF)]).
+	NewDist = p(Dom, Tab, Ps),
+	add_dist(Dom, tab, Tab, Ps, Key, Id),
+	clpbn:put_atts(V, [dist(Id,Ps)]).
 simplify_dist(_, _, _, _, Vs0, Vs0).
 
 cpt_average(AllVars, Key, Els0, Tab, Vs, NewVs) :-

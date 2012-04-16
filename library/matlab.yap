@@ -25,7 +25,10 @@
 
 :- ensure_loaded(library(lists)).
 
-:- load_foreign_files([matlab], ['eng','mx','ut'], init_matlab).
+tell_warning :-
+	print_message(warning,functionality(matlab)).
+
+:- ( catch(load_foreign_files([matlab], ['eng','mx','ut'], init_matlab),_,fail) -> true ; tell_warning).
 
 matlab_eval_sequence(S) :-
 	atomic_concat(S,S1),

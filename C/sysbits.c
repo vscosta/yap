@@ -1619,6 +1619,7 @@ InteractSIGINT(int ch) {
 static int
 ProcessSIGINT(void)
 {
+  CACHE_REGS
   int ch, out;
 
   LOCAL_PrologMode |= AsyncIntMode;

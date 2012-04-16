@@ -15,6 +15,7 @@
 	   get_dist_domain_size/2,
 	   get_dist_params/2,
 	   get_dist_key/2,
+	   get_dist_all_sizes/2,
 	   get_evidence_position/3,
 	   get_evidence_from_position/3,
 	   dist_to_term/2,
@@ -25,10 +26,14 @@
 	   uniformise_all_dists/0,
 	   uniformise_dist/1,
 	   reset_all_dists/0,
+	   add_dist/6,
 	   additive_dists/6
 	]).
 
 :- use_module(library(lists),[nth0/3,append/3]).
+
+:- use_module(library(clpbn),
+	[use_parfactors/1]).
 
 :- use_module(library(matrix),
 	      [matrix_new/4,
@@ -36,7 +41,7 @@
 	       matrix_to_list/2,
 	       matrix_to_logs/1]).
 
-:- use_module(library('clpbn/matrix_cpt_utils'),
+:- use_module(library(clpbn/matrix_cpt_utils),
 	      [random_CPT/2,
 	       uniform_CPT/2]).
 
@@ -173,21 +178,21 @@ add_dist(Domain, Type, CPT, Parents, Key, Id) :-
 	length(CPT, CPTSize),
 	length(Domain, DSize),
 	new_id(Id),
-	record_parent_sizes(Parents, Id, PSizes, [DSize|PSizes]),
+	find_parent_sizes(Parents, Id, PSizes, [DSize|PSizes]),
 	recordz(clpbn_dist_db,db(Id, Key, CPT, Type, Domain, CPTSize, DSize),_).
 
 
-record_parent_sizes([], Id, [], DSizes) :-
+find_parent_sizes([], Id, [], DSizes) :-
 	recordz(clpbn_dist_psizes,db(Id, DSizes),_).
-record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+find_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	integer(P), !,
 	Size = P,
-	record_parent_sizes(Parents, Id, Sizes, DSizes).
-record_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
+	find_parent_sizes(Parents, Id, Sizes, DSizes).
+find_parent_sizes([P|Parents], Id, [Size|Sizes], DSizes) :-
 	clpbn:get_atts(P,dist(Dist,_)), !,
 	get_dist_domain_size(Dist, Size),
-	record_parent_sizes(Parents, Id, Sizes, DSizes).
-record_parent_sizes([_|_], _, _, _).
+	find_parent_sizes(Parents, Id, Sizes, DSizes).
+find_parent_sizes([_|_], _, _, _).
 
 %
 % Often, * is used to code empty in HMMs.
@@ -224,6 +229,13 @@ get_dsizes([P|Parents], [Sz|Sizes], Sizes0) :-
 get_dist_params(Id, Parms) :-
 	recorded(clpbn_dist_db, db(Id, _, Parms, _, _, _, _), _).
 
+get_dist_all_sizes(Id, DSizes) :-
+	recorded(clpbn_dist_psizes,db(Id, DSizes),_).
+
+get_dist_domain_size(DistId, DSize) :-
+	use_parfactors(on), !,
+	pfl:get_pfl_parameters(DistId, Dist),
+	length(Dist, DSize).
 get_dist_domain_size(avg(D,_), DSize) :- !,
 	length(D, DSize).
 get_dist_domain_size(ip(D,_,_), DSize) :- !,
@@ -234,6 +246,9 @@ get_dist_domain_size(Id, DSize) :-
 get_dist_domain(Id, Domain) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _).
 
+get_dist_key(Id, Key) :-
+	use_parfactors(on), !,
+	pfl:get_first_pvariable(Id, Key).
 get_dist_key(Id, Key) :-
 	recorded(clpbn_dist_db, db(Id, Key, _, _, _, _, _), _).
 
@@ -265,11 +280,19 @@ get_evidence_from_position(El, Id, Pos) :-
 dist_to_term(_Id,_Term).
 
 empty_dist(Dist, TAB) :-
+	use_parfactors(on), !,
+	pfl:get_pfl_factor_sizes(Dist, DSizes),
+	matrix_new(floats, DSizes, TAB).
+empty_dist(Dist, TAB) :-
 	recorded(clpbn_dist_psizes,db(Dist, DSizes),_), !,
 	matrix_new(floats, DSizes, TAB).
 empty_dist(Dist, TAB) :-
 	throw(error(domain_error(no_distribution,Dist),empty_dist(Dist,TAB))).
 
+dist_new_table(DistId, NewMat) :-
+	use_parfactors(on), !,
+	matrix_to_list(NewMat, List),
+	pfl:set_pfl_parameters(DistId, List).
 dist_new_table(Id, NewMat) :-
 	matrix_to_list(NewMat, List),
 	recorded(clpbn_dist_db, db(Id, Key, _, A, B, C, D), R),
@@ -297,7 +320,13 @@ randomise_all_dists :-
 randomise_all_dists.
 
 randomise_dist(Dist) :-
-	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	(
+	    use_parfactors(on)
+	->
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
+	;
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	),
 	random_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
 
@@ -307,7 +336,13 @@ uniformise_all_dists :-
 uniformise_all_dists.
 
 uniformise_dist(Dist) :-
-	recorded(clpbn_dist_psizes, db(Dist,DSizes), _),
+	(
+	    use_parfactors(on)
+	->
+	    pfl:get_pfl_factor_sizes(Dist, DSizes)
+	;
+	    recorded(clpbn_dist_psizes, db(Dist,DSizes), _)
+	),
 	uniform_CPT(DSizes, NewCPT),
 	dist_new_table(Dist, NewCPT).
 

@@ -6,61 +6,27 @@
 #include "Util.h"
 
 
-VarElimSolver::VarElimSolver (const BayesNet& bn) : Solver (&bn)
-{
-  bayesNet_     = &bn;
-  factorGraph_  = new FactorGraph (bn);
-}
-
-
-
-VarElimSolver::VarElimSolver (const FactorGraph& fg) : Solver (&fg)
-{
-  bayesNet_    = 0;
-  factorGraph_ = &fg;
-}
-
-
-
 VarElimSolver::~VarElimSolver (void)
 {
-  if (bayesNet_) {
-    delete factorGraph_;
-  }
+  delete factorList_.back();
 }
 
 
 
 Params
-VarElimSolver::getPosterioriOf (VarId vid)
-{
-  assert (factorGraph_->getFgVarNode (vid));
-  FgVarNode* vn = factorGraph_->getFgVarNode (vid);
-  if (vn->hasEvidence()) {
-    Params params (vn->nrStates(), 0.0);
-    params[vn->getEvidence()] = 1.0;
-    return params;
-  }
-  return getJointDistributionOf (VarIds() = {vid});
-}
-
-
-
-Params
-VarElimSolver::getJointDistributionOf (const VarIds& vids)
+VarElimSolver::solveQuery (VarIds queryVids)
 {
   factorList_.clear();
   varFactors_.clear();
   elimOrder_.clear();
   createFactorList();
-  introduceEvidence();
-  chooseEliminationOrder (vids);
-  processFactorList (vids);
-  Params params = factorList_.back()->getParameters();
+  absorveEvidence();
+  findEliminationOrder (queryVids);
+  processFactorList (queryVids);
+  Params params = factorList_.back()->params();
   if (Globals::logDomain) {
     Util::fromLog (params);
   }
-  delete factorList_.back();
   return params;
 }
 
@@ -69,11 +35,11 @@ VarElimSolver::getJointDistributionOf (const VarIds& vids)
 void
 VarElimSolver::createFactorList (void)
 {
-  const FgFacSet& factorNodes = factorGraph_->getFactorNodes();
-  factorList_.reserve (factorNodes.size() * 2);
-  for (unsigned i = 0; i < factorNodes.size(); i++) {
-    factorList_.push_back (new Factor (*factorNodes[i]->factor()));
-    const FgVarSet& neighs = factorNodes[i]->neighbors();
+  const FacNodes& facNodes = fg.facNodes();
+  factorList_.reserve (facNodes.size() * 2);
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    factorList_.push_back (new Factor (facNodes[i]->factor()));
+    const VarNodes& neighs = facNodes[i]->neighbors();
     for (unsigned j = 0; j < neighs.size(); j++) {
       unordered_map<VarId,vector<unsigned> >::iterator it 
           = varFactors_.find (neighs[j]->varId());
@@ -89,16 +55,16 @@ VarElimSolver::createFactorList (void)
 
 
 void
-VarElimSolver::introduceEvidence (void)
+VarElimSolver::absorveEvidence (void)
 {
-  const FgVarSet& varNodes = factorGraph_->getVarNodes();
+  const VarNodes& varNodes = fg.varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       const vector<unsigned>& idxs =
           varFactors_.find (varNodes[i]->varId())->second;
       for (unsigned j = 0; j < idxs.size(); j++) {
         Factor* factor = factorList_[idxs[j]];
-        if (factor->nrVariables() == 1) {
+        if (factor->nrArguments() == 1) {
           factorList_[idxs[j]] = 0;
         } else {
           factorList_[idxs[j]]->absorveEvidence (
@@ -112,21 +78,9 @@ VarElimSolver::introduceEvidence (void)
 
 
 void
-VarElimSolver::chooseEliminationOrder (const VarIds& vids)
+VarElimSolver::findEliminationOrder (const VarIds& vids)
 {
-  if (bayesNet_) {
-    ElimGraph graph (*bayesNet_);
-    elimOrder_ = graph.getEliminatingOrder (vids);
-  } else {
-    const FgVarSet& varNodes = factorGraph_->getVarNodes();
-    for (unsigned i = 0; i < varNodes.size(); i++) {
-      VarId vid = varNodes[i]->varId();
-      if (std::find (vids.begin(), vids.end(), vid) == vids.end() 
-          && !varNodes[i]->hasEvidence()) {
-        elimOrder_.push_back (vid);
-      }
-    }
-  }
+  elimOrder_ = ElimGraph::getEliminationOrder (factorList_, vids);
 }
 
 
@@ -149,12 +103,12 @@ VarElimSolver::processFactorList (const VarIds& vids)
 
   VarIds unobservedVids;
   for (unsigned i = 0; i < vids.size(); i++) {
-    if (factorGraph_->getFgVarNode (vids[i])->hasEvidence() == false) {
+    if (fg.getVarNode (vids[i])->hasEvidence() == false) {
       unobservedVids.push_back (vids[i]);
     }
   }
 
-  finalFactor->reorderVariables (unobservedVids);
+  finalFactor->reorderArguments (unobservedVids);
   finalFactor->normalize();
   factorList_.push_back (finalFactor);
 }
@@ -165,13 +119,12 @@ void
 VarElimSolver::eliminate (VarId elimVar)
 {
   Factor* result = 0;
-  FgVarNode* vn = factorGraph_->getFgVarNode (elimVar);
   vector<unsigned>& idxs = varFactors_.find (elimVar)->second;
   for (unsigned i = 0; i < idxs.size(); i++) {
     unsigned idx = idxs[i];
     if (factorList_[idx]) {
       if (result == 0) {
-        result = new Factor(*factorList_[idx]);
+        result = new Factor (*factorList_[idx]);
       } else {
         result->multiply (*factorList_[idx]);
       }
@@ -179,10 +132,10 @@ VarElimSolver::eliminate (VarId elimVar)
       factorList_[idx] = 0;
     }
   }
-  if (result != 0 && result->nrVariables() != 1) {
-    result->sumOut (vn->varId());
+  if (result != 0 && result->nrArguments() != 1) {
+    result->sumOut (elimVar);
     factorList_.push_back (result);
-    const VarIds& resultVarIds = result->getVarIds();
+    const VarIds& resultVarIds = result->arguments();
     for (unsigned i = 0; i < resultVarIds.size(); i++) {
       vector<unsigned>& idxs =
           varFactors_.find (resultVarIds[i])->second;
@@ -199,7 +152,6 @@ VarElimSolver::printActiveFactors (void)
   for (unsigned i = 0; i < factorList_.size(); i++) {
     if (factorList_[i] != 0) {
       factorList_[i]->print();
-      cout << endl;
     }
   }
 }

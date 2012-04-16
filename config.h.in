@@ -257,6 +257,10 @@
 #undef  HAVE_WAITPID
 #undef  HAVE_MPZ_XOR
 
+#if HAVE_GETHOSTNAME==1
+#define HAS_GETHOSTNAME 1
+#endif
+
 #undef  HAVE_SIGINFO
 #undef  HAVE_SIGSEGV
 #undef  HAVE_SIGPROF
