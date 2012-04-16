@@ -14,7 +14,6 @@ FactorGraph*
 BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 {
   assert (fg_.isFromBayesNetwork());
-  
   Scheduling scheduling;
   for (unsigned i = 0; i < queryIds.size(); i++) {
     assert (dag_.getNode (queryIds[i]));
@@ -64,13 +63,22 @@ BayesBall::constructGraph (FactorGraph* fg) const
     const DAGraphNode* n = dag_.getNode (
         facNodes[i]->factor().argument (0));
     if (n->isMarkedOnTop()) {
-      fg->addFactor (Factor (facNodes[i]->factor()));
+      fg->addFactor (facNodes[i]->factor());
     } else if (n->hasEvidence() && n->isVisited()) {
       VarIds varIds = { facNodes[i]->factor().argument (0) };
       Ranges ranges = { facNodes[i]->factor().range (0) };
       Params params (ranges[0], LogAware::noEvidence());
       params[n->getEvidence()] = LogAware::withEvidence();
       fg->addFactor (Factor (varIds, ranges, params));
+    }
+  }
+  const VarNodes& varNodes = fg_.varNodes();
+  for (unsigned i = 0; i < varNodes.size(); i++) {
+    if (varNodes[i]->hasEvidence()) {
+      VarNode* vn = fg->getVarNode (varNodes[i]->varId());
+      if (vn) {
+        vn->setEvidence (varNodes[i]->getEvidence());
+      }
     }
   }
 }
