@@ -291,12 +291,19 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   if (Globals::logDomain) {
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
+        if (Constants::DEBUG >= 5) {
+          cout << "    message from " << links[i]->getVariable()->label();
+          cout << ": " ;
+        }
         Util::add (msgProduct, getVar2FactorMsg (links[i]), repetitions);
         repetitions *= links[i]->getVariable()->range();
+        if (Constants::DEBUG >= 5) {
+          cout << endl;
+        }
       } else {
-        unsigned ds = links[i]->getVariable()->range();
-        Util::add (msgProduct, Params (ds, 1.0), repetitions);
-        repetitions *= ds;
+        unsigned range = links[i]->getVariable()->range();
+        Util::add (msgProduct, Params (range, 0.0), repetitions);
+        repetitions *= range;
       }
     }
   } else {
@@ -304,14 +311,17 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
       if (links[i]->getVariable() != dst) {
         if (Constants::DEBUG >= 5) {
           cout << "    message from " << links[i]->getVariable()->label();
-          cout << ": " << endl;
+          cout << ": " ;
         }
         Util::multiply (msgProduct, getVar2FactorMsg (links[i]), repetitions);
         repetitions *= links[i]->getVariable()->range();
+        if (Constants::DEBUG >= 5) {
+          cout << endl;
+        }
       } else {
-        unsigned ds = links[i]->getVariable()->range();
-        Util::multiply (msgProduct, Params (ds, 1.0), repetitions);
-        repetitions *= ds;
+        unsigned range = links[i]->getVariable()->range();
+        Util::multiply (msgProduct, Params (range, 1.0), repetitions);
+        repetitions *= range;
       }
     }
   }
@@ -352,9 +362,6 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());
     msg[src->getEvidence()] = LogAware::withEvidence();
-    if (Constants::DEBUG >= 5) {
-      cout << msg;
-    }
   } else {
     msg.resize (src->range(), LogAware::one());
   }
@@ -366,6 +373,9 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
         Util::add (msg, links[i]->getMessage());
+        if (Constants::DEBUG >= 5) {
+          cout << " x " << links[i]->getMessage();
+        }
       }
     }
   } else {
