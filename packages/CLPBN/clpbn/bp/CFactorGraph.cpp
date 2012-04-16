@@ -1,31 +1,27 @@
-
 #include "CFactorGraph.h"
 #include "Factor.h"
 
 
 bool CFactorGraph::checkForIdenticalFactors = true;
 
-CFactorGraph::CFactorGraph (const FactorGraph& fg)
+CFactorGraph::CFactorGraph (const FactorGraph& fg) 
+    : freeColor_(0), groundFg_(&fg)
 {
-  groundFg_  = &fg;
-  freeColor_ = 0;
-
   const VarNodes& varNodes = fg.varNodes();
   varSignatures_.reserve (varNodes.size());
   for (unsigned i = 0; i < varNodes.size(); i++) {
     unsigned c = (varNodes[i]->neighbors().size() * 2) + 1;
     varSignatures_.push_back (Signature (c));
   }
-
   const FacNodes& facNodes = fg.facNodes();
   facSignatures_.reserve (facNodes.size());
   for (unsigned i = 0; i < facNodes.size(); i++) {
     unsigned c = facNodes[i]->neighbors().size() + 1;
     facSignatures_.push_back (Signature (c));
   }
-
   varColors_.resize (varNodes.size());
   facColors_.resize (facNodes.size());
+  findIdenticalFactors();
   setInitialColors();
   createGroups();
 }
@@ -39,6 +35,40 @@ CFactorGraph::~CFactorGraph (void)
   }
   for (unsigned i = 0; i  < facClusters_.size(); i++) {
     delete facClusters_[i];
+  }
+}
+
+
+
+void
+CFactorGraph::findIdenticalFactors()
+{
+  if (checkForIdenticalFactors == false) {
+    return;
+  }
+  const FacNodes& facNodes = groundFg_->facNodes();
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    facNodes[i]->factor().setDistId (Util::maxUnsigned());
+  }
+  unsigned groupCount = 1;
+  for (unsigned i = 0; i < facNodes.size(); i++) {
+    Factor& f1 = facNodes[i]->factor();
+    if (f1.distId() != Util::maxUnsigned()) {
+      continue;
+    }
+    f1.setDistId (groupCount);
+    for (unsigned j = i + 1; j < facNodes.size(); j++) {
+      Factor& f2 = facNodes[j]->factor();
+      if (f2.distId() != Util::maxUnsigned()) {
+        continue;
+      }
+      if (f1.size()   == f2.size()   &&
+          f1.ranges() == f2.ranges() &&
+          f1.params() == f2.params()) {
+        f2.setDistId (groupCount);
+      }
+    }
+    groupCount ++;
   }
 }
 
@@ -69,34 +99,7 @@ CFactorGraph::setInitialColors (void)
     }
     setColor (varNodes[i], stateColors[idx]);
   }
-
   const FacNodes& facNodes = groundFg_->facNodes();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
-    facNodes[i]->factor().setDistId (Util::maxUnsigned());
-  }
-  // FIXME FIXME FIXME : pfl should give correct dist ids.
-  if (checkForIdenticalFactors || true) {
-    unsigned groupCount = 1;
-    for (unsigned i = 0; i < facNodes.size(); i++) {
-      Factor& f1 = facNodes[i]->factor();
-      if (f1.distId() != Util::maxUnsigned()) {
-        continue;
-      }
-      f1.setDistId (groupCount);
-      for (unsigned j = i + 1; j < facNodes.size(); j++) {
-        Factor& f2 = facNodes[j]->factor();
-        if (f2.distId() != Util::maxUnsigned()) {
-          continue;
-        }
-        if (f1.size()   == f2.size()   &&
-            f1.ranges() == f2.ranges() &&
-            f1.params() == f2.params()) {
-          f2.setDistId (groupCount);
-        }
-      }
-      groupCount ++;
-    }
-  }
   // create the initial factor colors
   DistColorMap distColors;
   for (unsigned i = 0; i < facNodes.size(); i++) {
@@ -245,23 +248,24 @@ CFactorGraph::getGroundFactorGraph (void) const
 {
   FactorGraph* fg = new FactorGraph();
   for (unsigned i = 0; i < varClusters_.size(); i++) {
-    VarNode* var = varClusters_[i]->getGroundVarNodes()[0];
-    VarNode* newVar = new VarNode (var);
-    varClusters_[i]->setRepresentativeVariable (newVar);
+    VarNode* newVar = new VarNode (varClusters_[i]->members()[0]);
+    varClusters_[i]->setRepresentative (newVar);
     fg->addVarNode (newVar);
   }
 
   for (unsigned i = 0; i < facClusters_.size(); i++) {
-    const VarClusters& myVarClusters = facClusters_[i]->getVarClusters();
-   Vars myGroundVars;
+    const VarClusters& myVarClusters = facClusters_[i]->varClusters();
+    Vars myGroundVars;
     myGroundVars.reserve (myVarClusters.size());
     for (unsigned j = 0; j < myVarClusters.size(); j++) {
-      VarNode* v = myVarClusters[j]->getRepresentativeVariable();
+      VarNode* v = myVarClusters[j]->getRepresentative();
       myGroundVars.push_back (v);
     }
-    FacNode* fn = new FacNode (Factor (myGroundVars,
-        facClusters_[i]->getGroundFactors()[0]->factor().params()));
-    facClusters_[i]->setRepresentativeFactor (fn);
+    FacNode* fn = new FacNode (Factor (
+        myGroundVars,
+        facClusters_[i]->members()[0]->factor().params(),
+        facClusters_[i]->members()[0]->factor().distId()));
+    facClusters_[i]->setRepresentative (fn);
     fg->addFacNode (fn);
     for (unsigned j = 0; j < myGroundVars.size(); j++) {
       fg->addEdge (static_cast<VarNode*> (myGroundVars[j]), fn);
@@ -278,24 +282,26 @@ CFactorGraph::getEdgeCount (
     const VarCluster* vc) const
 {
   unsigned count = 0;
-  VarId vid = vc->getGroundVarNodes().front()->varId();
-  const FacNodes& clusterGroundFactors = fc->getGroundFactors();
-  for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-    if (clusterGroundFactors[i]->factor().contains (vid)) {
+  VarId vid = vc->members().front()->varId();
+  const FacNodes& members = fc->members();
+  for (unsigned i = 0; i < members.size(); i++) {
+    if (members[i]->factor().contains (vid)) {
       count ++;
     }
   }
-  // CVarNodes vars = vc->getGroundVarNodes();
-  // for (unsigned i = 1; i < vars.size(); i++) {
-  //   VarNode* var = vc->getGroundVarNodes()[i];
-  //   unsigned count2 = 0;
-  //   for (unsigned i = 0; i < clusterGroundFactors.size(); i++) {
-  //     if (clusterGroundFactors[i]->getPosition (var) != -1) {
-  //       count2 ++;
-  //     }
-  //   }
-  //   if (count != count2) { cout << "oops!" << endl; abort(); }
-  // }
+  if (Constants::DEBUG > 0) {
+    const VarNodes& vars = vc->members();
+    for (unsigned i = 1; i < vars.size(); i++) {
+      VarId vid = vars[i]->varId();
+      unsigned count2 = 0;
+      for (unsigned i = 0; i < members.size(); i++) {
+        if (members[i]->factor().contains (vid)) {
+          count2 ++;
+        }
+      }
+      assert (count == count2);
+    }
+  }
   return count;
 }
 

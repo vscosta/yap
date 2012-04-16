@@ -5,6 +5,7 @@
 
 #include "FactorGraph.h"
 #include "Factor.h"
+#include "Util.h"
 #include "Horus.h"
 
 class VarCluster;
@@ -84,83 +85,54 @@ struct SignatureHash
 class VarCluster
 {
   public:
-    VarCluster (const VarNodes& vs)
-    {
-      for (unsigned i = 0; i < vs.size(); i++) {
-        groundVars_.push_back (vs[i]);
-      }
-    }
+    VarCluster (const VarNodes& vs) : members_(vs) { }
 
-    void addFacCluster (FacCluster* fc)
-    {
-      facClusters_.push_back (fc);
-    }
+    const VarNodes& members (void) const { return members_; }
 
-    const FacClusters& getFacClusters (void) const
-    {
-      return facClusters_;
-    }
+    const FacClusters& facClusters (void) const { return facClusters_; }
 
-    VarNode* getRepresentativeVariable (void) const { return representVar_; }
+    void addFacCluster (FacCluster* fc) { facClusters_.push_back (fc); }
 
-    void setRepresentativeVariable (VarNode* v) { representVar_ = v; }
+    VarNode* getRepresentative (void) const { return repr_; }
 
-    const VarNodes& getGroundVarNodes (void) const { return groundVars_; }
+    void setRepresentative (VarNode* vn) { repr_ = vn; }
 
   private:
-    VarNodes     groundVars_;
+    VarNodes     members_;
     FacClusters  facClusters_;
-    VarNode*     representVar_;
+    VarNode*     repr_;
 };
 
 
 class FacCluster
 {
   public:
-    FacCluster (const FacNodes& groundFactors, const VarClusters& vcs)
+    FacCluster (const FacNodes& fcs, const VarClusters& vcs)
+        : members_(fcs), varClusters_(vcs) 
     {
-      groundFactors_ = groundFactors;
-      varClusters_ = vcs;
       for (unsigned i = 0; i < varClusters_.size(); i++) {
         varClusters_[i]->addFacCluster (this);
       }
     }
+
+    const FacNodes& members (void) const { return members_; }
  
-    const VarClusters& getVarClusters (void) const
-    {
-      return varClusters_;
-    }
+    const VarClusters& varClusters (void) const { return varClusters_; }
   
-    bool containsGround (const FacNode* fn)
+    FacNode* getRepresentative (void) const { return repr_; }
+
+    void setRepresentative (FacNode* fn) { repr_ = fn; }
+
+    bool containsGround (const FacNode* fn) const
     {
-      for (unsigned i = 0; i < groundFactors_.size(); i++) {
-        if (groundFactors_[i] == fn) {
-          return true;
-        }
-      }
-      return false;
+      return std::find (members_.begin(), members_.end(), fn) 
+          != members_.end();
     }
-
-    FacNode* getRepresentativeFactor (void) const
-    {
-      return representFactor_;
-    }
-
-    void setRepresentativeFactor (FacNode* fn) 
-    { 
-      representFactor_ = fn;
-    }
-
-    const FacNodes& getGroundFactors (void) const
-    {
-      return groundFactors_;
-    }
-
  
   private:
-    FacNodes      groundFactors_;
-    VarClusters   varClusters_;
-    FacNode*      representFactor_;
+    FacNodes     members_;
+    VarClusters  varClusters_;
+    FacNode*     repr_;
 };
 
 
@@ -171,14 +143,14 @@ class CFactorGraph
 
    ~CFactorGraph (void);
 
-    const VarClusters& getVarClusters (void) { return varClusters_; }
+    const VarClusters& varClusters (void) { return varClusters_; }
 
-    const FacClusters& getFacClusters (void) { return facClusters_; }
+    const FacClusters& facClusters (void) { return facClusters_; }
 
     VarNode* getEquivalentVariable (VarId vid)
     {
       VarCluster* vc = vid2VarCluster_.find (vid)->second;
-      return vc->getRepresentativeVariable();
+      return vc->getRepresentative();
     }
 
     FactorGraph* getGroundFactorGraph (void) const;
@@ -216,6 +188,8 @@ class CFactorGraph
     {
       return vid2VarCluster_.find (vid)->second;
     }
+
+    void findIdenticalFactors (void);
 
     void setInitialColors (void);
 
