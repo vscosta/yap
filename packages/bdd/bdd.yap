@@ -17,6 +17,8 @@
 
 :- use_module(library(rbtrees)).
 
+:- use_module(library(simpbool)).
+
 tell_warning :-
 	print_message(warning,functionality(cudd)).
 
@@ -47,8 +49,8 @@ set_bdd(T, VS, Manager, Cudd) :-
 
 set_bdd_from_list(T0, VS, Manager, Cudd) :-
 	numbervars(VS,0,_),
-%	generate_releases(T0, Manager, T),
-	T0 = T,
+	generate_releases(T0, Manager, T),
+%	T0 = T,
 %	writeln_list(T),
 	list_to_cudd(T,Manager,_Cudd0,Cudd).
 
