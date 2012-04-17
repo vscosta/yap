@@ -52,9 +52,13 @@ void add (Params&, const Params&);
 
 void add (Params&, const Params&, unsigned);
 
-double factorial (double);
+double factorial (unsigned);
 
-unsigned nrCombinations (unsigned, unsigned);
+double logFactorial (unsigned);
+
+unsigned choose (unsigned, unsigned);
+
+unsigned multichoose (unsigned, unsigned);
 
 unsigned expectedSize (const Ranges&);
 

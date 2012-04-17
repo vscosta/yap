@@ -69,10 +69,10 @@ fromLog (Params& v)
 
 
 double
-factorial (double num)
+factorial (unsigned num)
 {
   double result = 1.0;
-  for (int i = 1; i <= num; i++) {
+  for (unsigned i = 1; i <= num; i++) {
     result *= i;
   }
   return result;
@@ -80,15 +80,47 @@ factorial (double num)
 
 
 
-unsigned
-nrCombinations (unsigned n, unsigned r)
+double
+logFactorial (unsigned num)
 {
-  assert (n >= r);
-	unsigned prod = 1;
-  for (int i = (int)n; i > (int)(n - r); i--) {
-    prod *= i;
+  double result = 0.0;
+  for (unsigned i = 1; i <= num; i++) {
+    result += std::log (i);
   }
-  return (prod / factorial (r));
+  return result;
+}
+
+
+
+unsigned
+choose (unsigned n, unsigned k)
+{
+  assert (n >= k);
+  int diff = n - k;
+  unsigned result = 0;
+  if (n < 150) {
+    unsigned prod = 1;
+    for (int i = n; i > diff; i--) {
+      prod *= i;
+    }
+    result = prod / factorial (k);
+  } else {
+    double prod = 0.0;
+    for (int i = n; i > diff; i--) {
+      prod += std::log (i);
+    }
+    prod -= logFactorial (k);
+    result = static_cast<unsigned> (std::exp (prod));
+  }
+  return result;
+}
+
+
+
+unsigned
+multichoose (unsigned n, unsigned k)
+{
+	return choose (n + k - 1, k);
 }
 
 
@@ -106,11 +138,11 @@ expectedSize (const Ranges& ranges)
 
 
 unsigned
-getNumberOfDigits (int number)
+getNumberOfDigits (int num)
 {
   unsigned count = 1;
-  while (number >= 10) {
-    number /= 10; 
+  while (num >= 10) {
+    num /= 10; 
     count ++;
   }
   return count;

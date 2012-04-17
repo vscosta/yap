@@ -44,7 +44,7 @@ HistogramSet::operator[] (unsigned idx) const
 unsigned
 HistogramSet::nrHistograms (void) const
 {
-  return Util::nrCombinations (size_ + hist_.size() - 1, hist_.size() - 1);
+  return Util::multichoose (size_, hist_.size());
 }
 
 
@@ -77,7 +77,7 @@ HistogramSet::getHistograms (unsigned N, unsigned R)
 unsigned
 HistogramSet::nrHistograms (unsigned N, unsigned R)
 {
-  return Util::nrCombinations (N + R - 1, R - 1);
+  return Util::multichoose (N, R);
 }
 
 
