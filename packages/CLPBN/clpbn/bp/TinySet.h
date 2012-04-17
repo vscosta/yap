@@ -196,14 +196,14 @@ class SortedVector
 {
   public:
     SortedVector (const Compare& c = Compare()) : vec_(), cmp_(c) { }
-
+    /*
     template <class InputIterator>
     SortedVector (InputIterator first, InputIterator last,
         const Compare& c = Compare()) : vec_(first, last), cmp_(c)
     {
       std::sort (begin(), end(), cmp_);
     }
-
+    */
     typedef typename vector<T>::iterator iterator;
     typedef typename vector<T>::const_iterator const_iterator;
     iterator       begin (void)       { return vec_.begin(); }
@@ -219,6 +219,12 @@ class SortedVector
       return i;
     }
 
+    void push_back (const T& t)
+    {
+       vec_.push_back (t);
+       assert (consistent());
+    }
+
     const_iterator find (const T& t) const
     {
       const_iterator i = std::lower_bound (begin(), end(), t, cmp_);
@@ -231,6 +237,8 @@ class SortedVector
       return i == end() || cmp_(t, *i) ? end() : i;
     }
 
+    const vector<T>& elements (void) { return vec_; }
+
     void reserve (unsigned space) { vec_.reserve (space); }
 
     unsigned size (void) const { return vec_.size(); }
@@ -242,6 +250,17 @@ class SortedVector
     iterator erase (iterator it) { return vec_.erase (it); }
 
   private:
+
+    bool consistent (void) const
+    {
+      for (unsigned i = 0; i < vec_.size() - 1; i++) {
+        if (cmp_(vec_[i], vec_[i+1]) == false) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     std::vector<T> vec_;
     Compare cmp_;
 };
