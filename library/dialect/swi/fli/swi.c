@@ -53,6 +53,24 @@ extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 extern int	PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
+static int 
+do_gc(void)
+{
+  /* always called from user_call_cpred */
+  UInt arity;
+  yamop *nextpc;
+
+  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    nextpc = P;
+  } else {
+    arity = 0;
+    nextpc = CP;
+  }
+  return Yap_gc(arity, ENV, nextpc);
+}
+
+
 X_API extern Atom
 YAP_AtomFromSWIAtom(atom_t at)
 {
@@ -768,8 +786,8 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -801,8 +819,8 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -901,8 +919,8 @@ X_API int PL_put_functor(term_t t, functor_t f)
       Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);    
     else
       Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
-    if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-      if (!Yap_gc(0, ENV, CP)) {
+    while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+      if (!do_gc()) {
 	return FALSE;
       }
     }
@@ -946,8 +964,8 @@ X_API int PL_put_list(term_t t)
 {
   CACHE_REGS
   Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -958,8 +976,8 @@ X_API int PL_put_list_chars(term_t t, const char *s)
 {
   CACHE_REGS
   Yap_PutInSlot(t,YAP_BufferToString((char *)s) PASS_REGS);
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1133,7 +1151,7 @@ X_API int PL_unify_functor(term_t t, functor_t f)
   Functor ff = SWIFunctorToFunctor(f);
   if (IsVarTerm(tt)) {
     while (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
-      if (!Yap_gc(ArityOfFunctor(ff)*sizeof(CELL), ENV, CP)) {
+      if (!do_gc()) {
 	return FALSE;
       }
     }
@@ -1184,8 +1202,8 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
 {
   CACHE_REGS
   Term t;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1237,8 +1255,8 @@ X_API int PL_unify_list_chars(term_t t, const char *chars)
 {
   CACHE_REGS
   YAP_Term chterm;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1252,8 +1270,8 @@ X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
   Term chterm;
-  if (Unsigned(H) > Unsigned(ASP+len*2)-CreepFlag) {
-    if (!Yap_gc(len*2*sizeof(CELL), ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP+len*2)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1291,8 +1309,8 @@ X_API int PL_unify_string_chars(term_t t, const char *chars)
 {
   CACHE_REGS
   YAP_Term chterm;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1304,8 +1322,9 @@ X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
   YAP_Term chterm;
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       return FALSE;
     }
   }
@@ -1323,10 +1342,8 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
   if (len == (size_t)-1)
     len = wcslen(chars);
 
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
-    }
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) return FALSE;
   }
   switch (type) {
   case PL_ATOM:
@@ -1454,8 +1471,8 @@ X_API int PL_unify_term(term_t l,...)
   stack_el stack[MAX_DEPTH];
   
   BACKUP_MACHINE_REGS();
-  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  while (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc()) {
       RECOVER_MACHINE_REGS();
       return FALSE;
     }
