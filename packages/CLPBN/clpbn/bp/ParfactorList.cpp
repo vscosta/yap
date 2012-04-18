@@ -229,9 +229,8 @@ ParfactorList::shatter (
   // cout << g2->constr()->tupleSet (f2.logVars()) << endl;
   // Util::printDashedLine();
   if (f1.isAtom()) {
-    unsigned group = (f1.group() < f2.group()) ? f1.group() : f2.group();
-    f1.setGroup (group);
-    f2.setGroup (group);
+    f2.setGroup (f1.group());
+    updateGroups (f2.group(), f1.group());
     return { };
   }
   assert (g1->constr()->empty() == false);
@@ -279,13 +278,9 @@ ParfactorList::shatter (
    // exclCt2->exportToGraphViz (ss6.str().c_str(), true);
 
   if (exclCt1->empty() && exclCt2->empty()) {
-    unsigned group = (f1.group() < f2.group())
-                   ? f1.group() 
-                   : f2.group();
     // identical
-    f1.setGroup (group);
-    f2.setGroup (group);
-    // unifyGroups
+    f2.setGroup (f1.group());
+    updateGroups (f2.group(), f1.group());
     delete commCt1;
     delete exclCt1;
     delete commCt2;
@@ -361,15 +356,13 @@ ParfactorList::shatter (
 
 
 void
-ParfactorList::unifyGroups (unsigned group1, unsigned group2)
+ParfactorList::updateGroups (unsigned oldGroup, unsigned newGroup)
 {
-  unsigned newGroup = ProbFormula::getNewGroup();
   for (ParfactorList::iterator it = pfList_.begin();
        it != pfList_.end(); it++) {
     ProbFormulas& formulas = (*it)->arguments();
     for (unsigned i = 0; i < formulas.size(); i++) {
-      if (formulas[i].group() == group1 || 
-          formulas[i].group() == group2) {
+      if (formulas[i].group() == oldGroup) {
         formulas[i].setGroup (newGroup);
       }
     }
@@ -403,7 +396,7 @@ ParfactorList::identical (
   c1.moveToTop (f1.logVars());
   c2.moveToTop (f2.logVars());
   return ConstraintTree::identical (
-      &c1, &c2, f1.logVars().size());
+      &c1, &c2, f1.arity());
 }
 
 
@@ -421,7 +414,7 @@ ParfactorList::disjoint (
   }
   c1.moveToTop (f1.logVars());
   c2.moveToTop (f2.logVars());
-  return ConstraintTree::overlap (
-      &c1, &c2, f1.arity()) == false;
+  return ConstraintTree::disjoint (
+      &c1, &c2, f1.arity());
 }
 

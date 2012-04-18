@@ -76,7 +76,7 @@ class ParfactorList
         ConstraintTree*,
         unsigned);
 
-    void unifyGroups (unsigned group1, unsigned group2);
+    void updateGroups (unsigned group1, unsigned group2);
 
     bool proper (
         const ProbFormula&, ConstraintTree,
