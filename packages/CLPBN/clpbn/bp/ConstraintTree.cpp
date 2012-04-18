@@ -1048,7 +1048,7 @@ ConstraintTree::join (
   CTChilds::const_iterator it = currNode->findSymbol (tuple[currIdx]);
   if (it != currNode->childs().end()) {
     if (currIdx == tuple.size() - 1) {
-      appendOnBottom (currNode, appendNode->childs());
+      appendOnBottom (*it, appendNode->childs());
       return true;
     } else {
       tupleFounded = join (*it, tuple, currIdx + 1, appendNode);
