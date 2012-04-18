@@ -58,7 +58,6 @@
 
 
 call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
-writeln(here:Factors),
   b_hash_new(Hash0),
   keys_to_ids(AllKeys, 0, Hash0, Hash),
   get_factors_type(Factors, Type),
@@ -66,21 +65,17 @@ writeln(here:Factors),
   factors_to_ids(Factors, Hash, FactorIds),
   %writeln(type:Type), writeln(''),
   %writeln(allKeys:AllKeys), writeln(''),
+  %sort(AllKeys,SKeys),writeln(allKeys:SKeys), writeln(''),
   %writeln(factors:Factors), writeln(''),
   %writeln(factorIds:FactorIds), writeln(''),
   %writeln(evidence:Evidence), writeln(''),
   %writeln(evidenceIds:EvidenceIds), writeln(''),
   create_ground_network(Type, FactorIds, EvidenceIds, Network),
   %get_vars_information(AllKeys, StatesNames),
-  %set_vars_information(AllKeys, StatesNames),
+  %terms_to_atoms(AllKeys, KeysAtoms),
+  %set_vars_information(KeysAtoms, StatesNames),
   run_solver(ground(Network,Hash), QueryKeys, Solutions),
-<<<<<<< HEAD
-  %writeln(answer:Solutions),
-  %clpbn_bind_vals([QueryKeys], Solutions, Output).
-=======
-  writeln(answer:Solutions),
   clpbn_bind_vals([QueryVars], Solutions, Output),
->>>>>>> 5a8cc421d2ea7a8135f84d935752e5ecb453fe99
   free_ground_network(Network).
 
 
@@ -137,6 +132,12 @@ get_vars_information(Key.QueryKeys, Domain.StatesNames) :-
   get_vars_information(QueryKeys, StatesNames).
 
 
+terms_to_atoms([], []).
+terms_to_atoms(K.Ks, Atom.As) :-
+  term_to_atom(K,Atom),
+  terms_to_atoms(Ks,As).
+
+
 finalize_bp_solver(bp(Network, _)) :-
   free_ground_network(Network).
 
@@ -150,7 +151,7 @@ bp([QueryVars], AllVars, Output) :-
 
 
 init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
-						%check_for_agg_vars(AllVars0, AllVars),
+  %check_for_agg_vars(AllVars0, AllVars),
   get_vars_info(AllVars0, VarsInfo, DistIds0),
   sort(DistIds0, DistIds),
   create_ground_network(VarsInfo, BayesNet),

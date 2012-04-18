@@ -27,10 +27,13 @@
 patch_things_up :-
   assert_static(clpbn_horus:set_horus_flag(_,_)).
 
+
 warning :-
   format(user_error,"Horus library not installed: cannot use bp, fove~n.",[]).
 
-:- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up) -> true ; warning.
+
+:- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up)
+    -> true ; warning.
 
 
 set_solver(ve)    :- set_pfl_flag(solver,ve).
@@ -56,8 +59,8 @@ set_solver(S)     :- throw(error('unknow solver ', S)).
 
 :- set_horus_flag(max_iter, 1000).
 
-:- set_horus_flag(order_factor_variables, false).
-%:- set_horus_flag(order_factor_variables, true).
+:- set_horus_flag(order_variables, false).
+%:- set_horus_flag(order_variables, true).
 
 :- set_horus_flag(use_logarithms, false).
 % :- set_horus_flag(use_logarithms, true).

@@ -65,10 +65,10 @@ int createLiftedNetwork (void)
 
   // LiftedUtils::printSymbolDictionary();
   if (Constants::DEBUG > 2) {
-    // Util::printHeader ("INITIAL PARFACTORS");
-    // for (unsigned i = 0; i < parfactors.size(); i++) {
-    //  parfactors[i]->print();
-    // }
+    Util::printHeader ("INITIAL PARFACTORS");
+    for (unsigned i = 0; i < parfactors.size(); i++) {
+       parfactors[i]->print();
+    }
   }
 
   ParfactorList* pfList = new ParfactorList (parfactors);
@@ -243,7 +243,6 @@ createGroundNetwork (void)
     fg->getVarNode (vid)->setEvidence (ev);
     evidenceList = YAP_TailOfTerm (evidenceList);
   }
-
   YAP_Int p = (YAP_Int) (fg);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG4);
 }
@@ -332,7 +331,6 @@ int
 runGroundSolver (void)
 {
   FactorGraph* fg = (FactorGraph*) YAP_IntOfTerm (YAP_ARG1);
-
   vector<VarIds> tasks;
   YAP_Term taskList = YAP_ARG2;
   while (taskList != YAP_TermNil()) {
@@ -376,7 +374,9 @@ void runVeSolver (
     if (fg->isFromBayesNetwork()) {
       mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
-    VarElimSolver solver (*mfg);
+    // VarElimSolver solver (*mfg);
+    VarElimSolver solver (*fg); //FIXME
+    // solver.printSolverFlags();
     results.push_back (solver.solveQuery (tasks[i]));
     if (fg->isFromBayesNetwork()) {
       delete mfg;
@@ -410,6 +410,7 @@ void runBpSolver (
     cerr << "error: unknow solver" << endl;
     abort();
   }
+  // solver->printSolverFlags();
   results.reserve (tasks.size());
   for (unsigned i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
@@ -476,8 +477,8 @@ int
 setVarsInformation (void)
 {
   Var::clearVarsInfo();
-  YAP_Term labelsL = YAP_ARG1;
   vector<string> labels;
+  YAP_Term labelsL = YAP_ARG1;
   while (labelsL != YAP_TermNil()) {
     YAP_Atom atom = YAP_AtomOfTerm (YAP_HeadOfTerm (labelsL));
     labels.push_back ((char*) YAP_AtomName (atom));
@@ -564,12 +565,12 @@ setHorusFlag (void)
       cerr << "for `" << key << "'" << endl;
       return FALSE;
     }
-  } else if (key == "order_factor_variables") {
+  } else if (key == "order_variables") {
     string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
     if (       value == "true") {
-      FactorGraph::orderFactorVariables = true;
+      FactorGraph::orderVariables = true;
     } else if (value == "false") {
-      FactorGraph::orderFactorVariables = false;
+      FactorGraph::orderVariables = false;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;

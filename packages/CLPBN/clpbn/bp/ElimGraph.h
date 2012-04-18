@@ -52,6 +52,11 @@ class ElimGraph
       elimHeuristic_ = h;
     }
 
+    static ElimHeuristic getEliminationHeuristic (void)
+    {
+      return elimHeuristic_;
+    }
+
   private:
 
     void addEdge (EgNode* n1, EgNode* n2)

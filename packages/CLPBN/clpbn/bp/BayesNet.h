@@ -23,7 +23,7 @@ class DAGraphNode : public Var
 
     const vector<DAGraphNode*>& childs (void) const { return childs_;  }
 
-    vector<DAGraphNode*>& childs  (void) { return childs_;  }
+    vector<DAGraphNode*>& childs (void) { return childs_;  }
 
     const vector<DAGraphNode*>& parents (void) const { return parents_; }
 
