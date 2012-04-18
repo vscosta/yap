@@ -11,7 +11,7 @@
 friends(P1, P2) :-
     people(P1),
     people(P2),
-    P1 \= P2.
+    P1 @< P2.
 
 people @ 3.
 

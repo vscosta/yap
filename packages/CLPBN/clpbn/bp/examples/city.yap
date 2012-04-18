@@ -2,19 +2,24 @@
 
 :- clpbn_horus:set_solver(fove).
 %:- clpbn_horus:set_solver(hve).
-:- clpbn_horus:set_solver(bp).
+%:- clpbn_horus:set_solver(bp).
 %:- clpbn_horus:set_solver(cbp).
+
+:- multifile people/2.
+:- multifile ev/1.
 
 
 people(joe,nyc).
 people(p2, nyc).
 people(p3, nyc).
+people(p4, nyc).
+people(p5, nyc).
 
-
-ev(descn(p2, t)).
+%ev(descn(p2, t)).
 ev(descn(p3, t)).
+ev(descn(p4, t)).
+ev(descn(p5, t)).
 
-% :- [city_7].
 
 bayes city_conservativeness(C)::[y,n] ; cons_table(C) ; [people(_,C)].
 
@@ -34,12 +39,12 @@ bayes descn(P)::[t,f], car_color(P), hair_color(P), height(P), guilty(P) ; descn
 
 bayes witness(C)::[t,f], descn(Joe), descn(P2) ; wit_table ; [people(_,C), Joe=joe, P2=p2].
 
-
-cons_table(amsterdam, [0.2, 0.8]) :- !.
+% FIXME
+%cons_table(amsterdam, [0.2, 0.8]) :- !.
 cons_table(_, [0.8, 0.2]).
 
 
-gender_table(_, [0.55, 0.44]).
+gender_table(_, [0.55, 0.45]).
 
 
 hair_color_table(_,
@@ -73,8 +78,8 @@ guilty_table(_, [0.23, 0.77]).
 descn_table(_,
      /* color, hair, height, guilt */
      /* ttttt  tttf  ttft  ttff  tfttt tftf  tfft  tfff  ttttt fttf  ftft  ftff  ffttt fftf  ffft  ffff */
-      [ 0.99,  0.5,  0.23, 0.88, 0.41, 0.3, 0.76, 0.87, 0.44, 0.43, 0.29, 0.72, 0.33, 0.91, 0.95, 0.92,
-        0.01,  0.5,  0.77, 0.12, 0.59, 0.7, 0.24, 0.13, 0.56, 0.57, 0.61, 0.28, 0.77, 0.09, 0.05, 0.08]).
+      [ 0.99,  0.5,  0.23, 0.88, 0.41, 0.3, 0.76, 0.87, 0.44, 0.43, 0.29, 0.72, 0.23, 0.91, 0.95, 0.92,
+        0.01,  0.5,  0.77, 0.12, 0.59, 0.7, 0.24, 0.13, 0.56, 0.57, 0.71, 0.28, 0.77, 0.09, 0.05, 0.08]).
 
 
 wit_table([0.2, 0.45, 0.24, 0.34,
