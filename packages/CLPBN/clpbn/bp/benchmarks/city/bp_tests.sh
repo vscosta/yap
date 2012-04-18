@@ -5,13 +5,18 @@ source ../benchs.sh
 
 SOLVER="bp"
 
-YAP=~/bin/$SHORTNAME-$SOLVER
+function run_all_graphs
+{
+  write_header $1
+  run_solver city1000     $2
+  run_solver city5000     $2
+  run_solver city10000    $2
+  run_solver city50000    $2
+  run_solver city100000   $2
+  run_solver city500000   $2
+  run_solver city1000000  $2
+}
 
-LOG_FILE=$SOLVER.log
-#LOG_FILE=results`date "+ %H:%M:%S %d-%m-%Y"`.
-
-rm -f $LOG_FILE
-rm -f ignore.$LOG_FILE
-
+prepare_new_run
 run_all_graphs "bp(shedule=seq_fixed)                 " seq_fixed
 
