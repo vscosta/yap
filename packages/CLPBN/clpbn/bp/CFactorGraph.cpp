@@ -237,6 +237,7 @@ CFactorGraph::getSignature (const FacNode* facNode)
     *it = getColor (neighs[i]);
     it ++;
   }
+  sort (sign.colors.begin(), -- sign.colors.end());
   *it = getColor (facNode);
   return sign;
 }
