@@ -20,22 +20,9 @@ class ConstraintTree;
 typedef vector<ConstraintTree*> ConstraintTrees;
 
 
-
 class CTNode
 {
   public:
-
-    CTNode (const CTNode& n) : symbol_(n.symbol()), level_(n.level()) { }
-
-    CTNode (Symbol s, unsigned l) : symbol_(s) , level_(l) { }
-
-    unsigned level (void) const { return level_; }
-
-    void setLevel (unsigned level) { level_ = level; }
-
-    Symbol symbol (void) const { return symbol_; }
-
-    void setSymbol (const Symbol s) { symbol_ = s; }
 
     struct CompareSymbol
     {
@@ -46,10 +33,27 @@ class CTNode
     };
 
   private:
-    // typedef set<CTNode*, CompareSymbol> CTChilds_;
+
     typedef SortedVector<CTNode*, CompareSymbol> CTChilds_;
 
   public:
+
+    CTNode (const CTNode& n, const CTChilds_& chs = CTChilds_()) 
+        : symbol_(n.symbol()), childs_(chs), level_(n.level()) { }
+
+    CTNode (Symbol s, unsigned l, const CTChilds_& chs = CTChilds_())
+        : symbol_(s), childs_(chs), level_(l) { }
+
+    unsigned level (void) const { return level_; }
+
+    void setLevel (unsigned level) { level_ = level; }
+
+    Symbol symbol (void) const { return symbol_; }
+
+    void setSymbol (const Symbol s) { symbol_ = s; }
+
+  public:
+
     CTChilds_& childs (void) { return childs_; }
 
     const CTChilds_& childs (void) const { return childs_; }
@@ -65,7 +69,13 @@ class CTNode
       return childs_.find (n);
     }
 
-    void addChild (CTNode*, bool = true);
+    CTChilds_::iterator findSymbol (Symbol symb)
+    {
+      CTNode tmp (symb, 0);
+      return childs_.find (&tmp);
+    }
+
+    void mergeSubtree (CTNode*, bool = true);
 
     void removeChild (CTNode*);
 
@@ -92,7 +102,6 @@ class CTNode
 ostream& operator<< (ostream &out, const CTNode&);
 
 
-// typedef set<CTNode*, CTNode::CompareSymbol> CTChilds;
 typedef SortedVector<CTNode*, CTNode::CompareSymbol> CTChilds;
 
 
@@ -106,6 +115,11 @@ class ConstraintTree
     ConstraintTree (const LogVars&, const Tuples&);
 
     ConstraintTree (const ConstraintTree&);
+
+    ConstraintTree (const CTChilds& rootChilds, const LogVars& logVars)
+        : root_(new CTNode (0, 0, rootChilds)),
+          logVars_(logVars),
+          logVarSet_(logVars) { }
 
    ~ConstraintTree (void);
 
@@ -139,7 +153,7 @@ class ConstraintTree
 
     void moveToBottom (const LogVars&);
 
-    void join (ConstraintTree*, bool = false);
+    void join (ConstraintTree*, bool oneTwoOne = false);
 
     unsigned getLevel (LogVar) const;
 
@@ -187,10 +201,11 @@ class ConstraintTree
     static bool identical (
         const ConstraintTree*, const ConstraintTree*, unsigned);
 
-    static bool overlap (
+    static bool disjoint (
         const ConstraintTree*, const ConstraintTree*, unsigned);
 
     LogVars expand (LogVar);
+
     ConstraintTrees ground (LogVar);
    
   private:
@@ -198,18 +213,15 @@ class ConstraintTree
 
     CTNodes getNodesBelow (CTNode*) const;
 
-    CTNodes getLeafsBelow (CTNode*) const;
-
     CTNodes getNodesAtLevel (unsigned) const;
 
-    void addChildsOnBottom (CTNode* n1, const CTNode* n2);
+    unsigned nrNodes (const CTNode* n) const;
+
+    void appendOnBottom (CTNode* n1, const CTChilds&);
 
     void swapLogVar (LogVar);
 
     bool join (CTNode*, const Tuple&, unsigned, CTNode*);
-
-    bool indenticalSubtrees (
-        const CTNode*, const CTNode*, bool) const;
 
     void getTuples (CTNode*, Tuples, unsigned, Tuples&, CTNodes&) const;
 
@@ -217,9 +229,7 @@ class ConstraintTree
         const CTNode*, unsigned);
 
     static void split (
-        CTNode*, CTNode*, CTNodes&, unsigned);
-
-    static bool overlap (const CTNode*, const CTNode*, unsigned);
+        CTNode*, CTNode*, CTChilds&, CTChilds&, unsigned);
 
     CTNode*    root_;
     LogVars    logVars_;
