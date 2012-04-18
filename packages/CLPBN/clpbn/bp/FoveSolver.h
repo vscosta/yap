@@ -8,7 +8,7 @@
 class LiftedOperator
 {
   public:
-    virtual unsigned getCost (void) = 0;
+    virtual double getLogCost (void) = 0;
 
     virtual void apply (void) = 0;
 
@@ -28,7 +28,7 @@ class SumOutOperator : public LiftedOperator
     SumOutOperator (unsigned group, ParfactorList& pfList) 
         : group_(group), pfList_(pfList) { }
 
-    unsigned getCost (void);
+    double getLogCost (void);
 
     void apply (void);
 
@@ -60,7 +60,7 @@ class CountingOperator : public LiftedOperator
         ParfactorList& pfList)
         : pfIter_(pfIter), X_(X), pfList_(pfList) { }
 
-    unsigned getCost (void);
+    double getLogCost (void);
 
     void apply (void);
 
@@ -87,7 +87,7 @@ class GroundOperator : public LiftedOperator
         ParfactorList& pfList)
         : pfIter_(pfIter), X_(X), pfList_(pfList) { }
 
-    unsigned getCost (void);
+    double getLogCost (void);
 
     void apply (void);
 
