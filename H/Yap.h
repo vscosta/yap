@@ -810,6 +810,7 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
 
+#include <stdio.h>
 #define YP_FILE		FILE
 #include "hglobals.h"
 #include "dglobals.h"

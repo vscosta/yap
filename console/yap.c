@@ -79,8 +79,8 @@
 #include <ieeefp.h>
 #endif
 
-static void PROTO(do_top_goal,(YAP_Term));
-static void PROTO(exec_top_level,(int, YAP_init_args *));
+static void do_top_goal(YAP_Term Goal);
+static void exec_top_level(int BootMode, YAP_init_args *iap);
 
 #ifdef DEBUG
 static int output_msg;
