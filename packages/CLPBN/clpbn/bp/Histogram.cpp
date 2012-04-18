@@ -44,7 +44,7 @@ HistogramSet::operator[] (unsigned idx) const
 unsigned
 HistogramSet::nrHistograms (void) const
 {
-  return Util::multichoose (size_, hist_.size());
+  return HistogramSet::nrHistograms (size_, hist_.size());
 }
 
 
@@ -77,7 +77,7 @@ HistogramSet::getHistograms (unsigned N, unsigned R)
 unsigned
 HistogramSet::nrHistograms (unsigned N, unsigned R)
 {
-  return Util::multichoose (N, R);
+  return Util::nrCombinations (N + R - 1, R - 1);
 }
 
 
@@ -99,16 +99,17 @@ vector<double>
 HistogramSet::getNumAssigns (unsigned N, unsigned R)
 {
   HistogramSet hs (N, R);
-  unsigned N_factorial = Util::factorial (N);
+  double N_fac = Util::logFactorial (N);
   unsigned H = hs.nrHistograms();
   vector<double> numAssigns;
   numAssigns.reserve (H);
   for (unsigned h = 0; h < H; h++) {
-    unsigned prod = 1;
+    double prod = 0.0;
     for (unsigned r = 0; r < R; r++) {
-      prod *= Util::factorial (hs[r]);
+      prod += Util::logFactorial (hs[r]);
     }
-    numAssigns.push_back (LogAware::tl (N_factorial / prod));
+    double res = N_fac - prod;
+    numAssigns.push_back (Globals::logDomain ? res : std::exp (res));
     hs.nextHistogram();
   }
   return numAssigns;

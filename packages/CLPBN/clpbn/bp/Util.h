@@ -56,9 +56,7 @@ double factorial (unsigned);
 
 double logFactorial (unsigned);
 
-unsigned choose (unsigned, unsigned);
-
-unsigned multichoose (unsigned, unsigned);
+unsigned nrCombinations (unsigned, unsigned);
 
 unsigned expectedSize (const Ranges&);
 

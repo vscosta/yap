@@ -84,8 +84,12 @@ double
 logFactorial (unsigned num)
 {
   double result = 0.0;
-  for (unsigned i = 1; i <= num; i++) {
-    result += std::log (i);
+  if (num < 150) {
+    result = std::log (factorial (num));
+  } else {
+    for (unsigned i = 1; i <= num; i++) {
+      result += std::log (i);
+    }
   }
   return result;
 }
@@ -93,7 +97,7 @@ logFactorial (unsigned num)
 
 
 unsigned
-choose (unsigned n, unsigned k)
+nrCombinations (unsigned n, unsigned k)
 {
   assert (n >= k);
   int diff = n - k;
@@ -113,14 +117,6 @@ choose (unsigned n, unsigned k)
     result = static_cast<unsigned> (std::exp (prod));
   }
   return result;
-}
-
-
-
-unsigned
-multichoose (unsigned n, unsigned k)
-{
-	return choose (n + k - 1, k);
 }
 
 
