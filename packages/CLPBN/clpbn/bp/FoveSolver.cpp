@@ -84,7 +84,7 @@ SumOutOperator::getLogCost (void)
     ++ pfIter;
   }
   if (nrProdFactors == 1) {
-    return 1.0; // best possible case
+    return std::log (1.0); // best possible case
   }
   double cost = 1.0;
   for (unsigned i = 0; i < groupSet.size(); i++) {
@@ -251,6 +251,9 @@ CountingOperator::getLogCost (void)
   counts = (*pfIter_)->constr()->getConditionalCounts (X_);
   for (unsigned i = 0; i < counts.size(); i++) {
     cost += size * HistogramSet::nrHistograms (counts[i], range);
+  }
+  if ((*pfIter_)->nrArguments() == 1) {
+    cost *= 3; // avoid counting conversion in the beginning
   }
   return std::log (cost);
 }
