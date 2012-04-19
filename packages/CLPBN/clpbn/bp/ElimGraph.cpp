@@ -10,6 +10,9 @@ ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
 ElimGraph::ElimGraph (const vector<Factor*>& factors)
 {
   for (unsigned i = 0; i < factors.size(); i++) {
+    if (factors[i] == 0) { // if contained just one var with evidence
+      continue;
+    }
     const VarIds& vids = factors[i]->arguments();
     for (unsigned j = 0; j < vids.size() - 1; j++) {
       EgNode* n1 = getEgNode (vids[j]);
