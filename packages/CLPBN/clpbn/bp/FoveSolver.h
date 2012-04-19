@@ -18,6 +18,11 @@ class LiftedOperator
         ParfactorList&, const Grounds&);
 
     static void printValidOps (ParfactorList&, const Grounds&);
+
+    static vector<unsigned> getAllGroupss (ParfactorList&);
+
+    static vector<ParfactorList::iterator> getParfactorsWithGroup (
+        ParfactorList&, unsigned group);
 };
 
 
@@ -39,9 +44,6 @@ class SumOutOperator : public LiftedOperator
 
   private:
     static bool validOp (unsigned, ParfactorList&, const Grounds&);
-
-    static vector<ParfactorList::iterator> parfactorsWithGroup (
-        ParfactorList& pfList, unsigned group);
 
     static bool isToEliminate (Parfactor*, unsigned, const Grounds&);
 
@@ -82,10 +84,10 @@ class GroundOperator : public LiftedOperator
 {
   public:
     GroundOperator (
-        ParfactorList::iterator pfIter,
-        LogVar X,
+        unsigned group,
+        unsigned lvIndex,
         ParfactorList& pfList)
-        : pfIter_(pfIter), X_(X), pfList_(pfList) { }
+        : group_(group), lvIndex_(lvIndex), pfList_(pfList) { }
 
     double getLogCost (void);
 
@@ -96,8 +98,8 @@ class GroundOperator : public LiftedOperator
     string toString (void);
 
   private:
-    ParfactorList::iterator  pfIter_;
-    LogVar                   X_;
+    unsigned                 group_;
+    unsigned                 lvIndex_;
     ParfactorList&           pfList_;
 };
 
