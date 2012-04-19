@@ -193,27 +193,27 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #endif /* DETERMINISTIC_TABLING */
 
 /* tagging nodes */
-#define TAG_AS_SUBGOAL_LEAF_NODE(NODE)       TrNode_child(NODE) = (sg_node_ptr)((unsigned long int) TrNode_child(NODE) | 0x1)
-#define IS_SUBGOAL_LEAF_NODE(NODE)           ((unsigned long int) TrNode_child(NODE) & 0x1)
-#define TAG_AS_ANSWER_LEAF_NODE(NODE)        TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x1)
-#define IS_ANSWER_LEAF_NODE(NODE)            ((unsigned long int) TrNode_parent(NODE) & 0x1)
-#define TAG_AS_ANSWER_INVALID_NODE(NODE)     TrNode_parent(NODE) = (ans_node_ptr)((unsigned long int) TrNode_parent(NODE) | 0x2)
-#define IS_ANSWER_INVALID_NODE(NODE)         ((unsigned long int) TrNode_parent(NODE) & 0x2)
-#define UNTAG_SUBGOAL_NODE(NODE)             ((unsigned long int) (NODE) & ~(0x1))
-#define UNTAG_ANSWER_NODE(NODE)              ((unsigned long int) (NODE) & ~(0x3))
+#define TAG_AS_SUBGOAL_LEAF_NODE(NODE)       TrNode_child(NODE) = (sg_node_ptr)((CELL) TrNode_child(NODE) | 0x1)
+#define IS_SUBGOAL_LEAF_NODE(NODE)           ((CELL) TrNode_child(NODE) & 0x1)
+#define TAG_AS_ANSWER_LEAF_NODE(NODE)        TrNode_parent(NODE) = (ans_node_ptr)((CELL) TrNode_parent(NODE) | 0x1)
+#define IS_ANSWER_LEAF_NODE(NODE)            ((CELL) TrNode_parent(NODE) & 0x1)
+#define TAG_AS_ANSWER_INVALID_NODE(NODE)     TrNode_parent(NODE) = (ans_node_ptr)((CELL) TrNode_parent(NODE) | 0x2)
+#define IS_ANSWER_INVALID_NODE(NODE)         ((CELL) TrNode_parent(NODE) & 0x2)
+#define UNTAG_SUBGOAL_NODE(NODE)             ((CELL) (NODE) & ~(0x1))
+#define UNTAG_ANSWER_NODE(NODE)              ((CELL) (NODE) & ~(0x3))
 
 /* trie hashes */
 #define MAX_NODES_PER_TRIE_LEVEL        8
 #define MAX_NODES_PER_BUCKET            (MAX_NODES_PER_TRIE_LEVEL / 2)
 #define BASE_HASH_BUCKETS               64
-#define HASH_ENTRY(ENTRY, NUM_BUCKETS)  ((((unsigned long int) ENTRY) >> NumberOfLowTagBits) & (NUM_BUCKETS - 1))
+#define HASH_ENTRY(ENTRY, NUM_BUCKETS)  ((((CELL) ENTRY) >> NumberOfLowTagBits) & (NUM_BUCKETS - 1))
 #define SUBGOAL_TRIE_HASH_MARK          ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_SUBGOAL_TRIE_HASH(NODE)      (TrNode_entry(NODE) == SUBGOAL_TRIE_HASH_MARK)
 #define ANSWER_TRIE_HASH_MARK           0
 #define IS_ANSWER_TRIE_HASH(NODE)       (TrNode_instr(NODE) == ANSWER_TRIE_HASH_MARK)
 #define GLOBAL_TRIE_HASH_MARK           ((Term) MakeTableVarTerm(MAX_TABLE_VARS))
 #define IS_GLOBAL_TRIE_HASH(NODE)       (TrNode_entry(NODE) == GLOBAL_TRIE_HASH_MARK)
-#define HASH_TRIE_LOCK(NODE)            GLOBAL_trie_locks((((unsigned long int) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
+#define HASH_TRIE_LOCK(NODE)            GLOBAL_trie_locks((((CELL) (NODE)) >> 5) & (TRIE_LOCK_BUCKETS - 1))
 
 /* auxiliary stack */
 #define STACK_PUSH_UP(ITEM, STACK)          *--(STACK) = (CELL)(ITEM)
@@ -449,9 +449,9 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         /* ... pointing to SgEnt_first_answer(SgFr_sg_ent(SG_FR)) */	                          \
         if (SG_FR)                                                                                \
           DepFr_last_answer(DEP_FR) = (ans_node_ptr) (                                            \
-                                 (unsigned long int) (SgFr_sg_ent((sg_fr_ptr)SG_FR)) +            \
- 	                         (unsigned long int) (&SgEnt_first_answer((sg_ent_ptr)DEP_FR)) -  \
-				 (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
+                                 (CELL) (SgFr_sg_ent((sg_fr_ptr)SG_FR)) +            \
+ 	                         (CELL) (&SgEnt_first_answer((sg_ent_ptr)DEP_FR)) -  \
+				 (CELL) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
         else                                                                                      \
           DepFr_last_answer(DEP_FR) = NULL
 #else
@@ -460,9 +460,9 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
         /* ... pointing to SgFr_first_answer(SG_FR) */                                            \
         if (SG_FR)                                                                                \
           DepFr_last_answer(DEP_FR) = (ans_node_ptr) (                                            \
-                                 (unsigned long int) (SG_FR) +                                    \
-                                 (unsigned long int) (&SgFr_first_answer((sg_fr_ptr)DEP_FR)) -    \
-				 (unsigned long int) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
+                                 (CELL) (SG_FR) +                                    \
+                                 (CELL) (&SgFr_first_answer((sg_fr_ptr)DEP_FR)) -    \
+				 (CELL) (&TrNode_child((ans_node_ptr)DEP_FR)));      \
         else                                                                                      \
           DepFr_last_answer(DEP_FR) = NULL
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */

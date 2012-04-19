@@ -81,7 +81,8 @@ static char SccsId[] = "%W% %G%";
 #include <sys/param.h>
 #endif
 #endif
-#if HAVE_FENV_H
+/* CYGWIN seems to include this automatically */
+#if HAVE_FENV_H && !defined(__CYGWIN__)
 #include <fenv.h>
 #endif
 #if HAVE_READLINE_READLINE_H
