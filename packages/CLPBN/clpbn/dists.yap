@@ -244,7 +244,9 @@ get_dist_domain_size(Id, DSize) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, _, DSize), _).
 
 get_dist_domain(Id, Domain) :-
-	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _).
+	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _), !.
+get_dist_domain(avg(Domain), Domain) :-
+	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _), !.
 
 get_dist_key(Id, Key) :-
 	use_parfactors(on), !,
