@@ -583,7 +583,14 @@ Parfactor::expandPotential (
     unsigned newRange,
     const vector<unsigned>& sumIndexes)
 {
-  unsigned newSize = (params_.size() / ranges_[fIdx]) * newRange;
+  Params::size_type newSize = (params_.size() / ranges_[fIdx]) * newRange;
+  if (newSize > Util::maxUnsigned()) {
+    // factor will become to bigger, is not worth to continue
+    cerr << "error: an overflow occurred when performing expansion" ;
+    cerr << endl;
+    abort();
+  }
+
   Params copy = params_;
   params_.clear();
   params_.reserve (newSize);
@@ -599,6 +606,9 @@ Parfactor::expandPotential (
   ranges_[fIdx] = newRange;
   vector<unsigned> indices (ranges_.size(), 0);
   for (unsigned k = 0; k < newSize; k++) {
+    if (index >= copy.size()) {
+      abort();
+    }
     assert (index < copy.size());
     params_.push_back (copy[index]);
     for (int i = ranges_.size() - 1; i >= 0; i--) {
