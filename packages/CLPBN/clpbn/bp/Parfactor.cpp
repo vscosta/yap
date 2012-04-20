@@ -583,10 +583,10 @@ Parfactor::expandPotential (
     unsigned newRange,
     const vector<unsigned>& sumIndexes)
 {
-  unsigned size = (params_.size() / ranges_[fIdx]) * newRange;
+  unsigned newSize = (params_.size() / ranges_[fIdx]) * newRange;
   Params copy = params_;
   params_.clear();
-  params_.reserve (size);
+  params_.reserve (newSize);
 
   unsigned prod = 1;
   vector<unsigned> offsets_ (ranges_.size());
@@ -598,27 +598,29 @@ Parfactor::expandPotential (
   unsigned index = 0;
   ranges_[fIdx] = newRange;
   vector<unsigned> indices (ranges_.size(), 0);
-  for (unsigned k = 0; k < size; k++) {
+  for (unsigned k = 0; k < newSize; k++) {
+    assert (index < copy.size());
     params_.push_back (copy[index]);
     for (int i = ranges_.size() - 1; i >= 0; i--) {
       indices[i] ++;
       if (i == fIdx) {
-        assert (indices[i] - 1 < sumIndexes.size());
-        int diff = sumIndexes[indices[i]] - sumIndexes[indices[i] - 1];
-        index += diff * offsets_[i];
-      } else {
-        index += offsets_[i];
-      }
-      if (indices[i] != ranges_[i]) {
-        break;
-      } else {
-        if (i == fIdx) {
-          int diff = sumIndexes[0] - sumIndexes[indices[i]];
+        if (indices[i] != ranges_[i]) {
+          int diff = sumIndexes[indices[i]] - sumIndexes[indices[i] - 1];
           index += diff * offsets_[i];
+          break;
         } else {
-          index -= offsets_[i] * ranges_[i];
+          // last index contains the old range minus 1
+          index -= sumIndexes.back() * offsets_[i];
+          indices[i] = 0;
         }
-        indices[i] = 0;
+      } else {
+        if (indices[i] != ranges_[i]) {
+          index += offsets_[i];
+          break;
+        } else {
+          index -= (ranges_[i] - 1) * offsets_[i];
+          indices[i] = 0;
+        }
       }
     }
   }
