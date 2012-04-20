@@ -102,7 +102,7 @@ module(N) :-
 % redefining a previously-defined file, no problem.
 '$add_preexisting_module_on_file'(F, F, Mod, Exports, R) :- !,
 	erase(R),
-	( recorded('$import','$import'(Mod,_,_,_,_,_),R), erase(R), fail; true),
+	( recorded('$import','$impovrt'(Mod,_,_,_,_,_),R), erase(R), fail; true),
 	recorda('$module','$module'(F,Mod,Exports),_).
 '$add_preexisting_module_on_file'(F,F0,Mod,Exports,R) :-
 	repeat,
@@ -115,9 +115,14 @@ module(N) :-
 	).
 
 '$mod_scan'(C) :-
+	stream_property(user_input,tty(true)),
+	stream_property(user_error,tty(true)),
+        !,
+	repeat,
 	get0(C),
 	'$skipeol'(C),
-	(C is "y" ; C is "n").
+	(C is "y" ; C is "n" ; C is "h", halt ; format(user_error,  ' Please answer with ''y'', ''n'' or ''h'' ', []), fail), !.
+'$mod_scan'(C) :- C is "n".
 
 '$import'([],_,_) :- !.
 '$import'([N/K|L],M,T) :-
@@ -180,16 +185,16 @@ module(N) :-
 '$follow_import_chain'(M,G,M,G).
 
 '$check_import'(M,T,N,K) :-
-	recorded('$import','$import'(MI,T,_,_,N,K),R),
-	\+ '$module_produced by'(M,T,N,K), !,
-	format(user_error,"NAME CLASH: ~w was already imported to module ~w;~n",[MI:N/K,T]),
-	format(user_error,"            Do you want to import it from ~w ? [y or n] ",M),
-	repeat,
-	get0(C), '$skipeol'(C),
-	( C is "y" -> erase(R), !;
-	  C is "n" -> !, fail;
-	  format(user_error, ' Please answer with ''y'' or ''n'' ',[]), fail
-	).
+	recorded('$import','$import'(MI,T,_,_,N,K),_R),
+	% dereference MI to M1, in order to find who 
+	% is actually generating
+	( '$module_produced by'(M1,MI,N,K) -> true ; MI = M1 ),
+	( '$module_produced by'(M2,T,N,K) -> true ; T = M2 ),
+	M2 \= M1,  !,
+	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,T]),
+	format(user_error,'            Do you want to import it from ~w ? [y, n or h] ',M),
+	'$mod_scan'(C),
+	C =:= "y".
 '$check_import'(_,_,_,_).
 
 '$module_produced by'(M,M0,N,K) :-
