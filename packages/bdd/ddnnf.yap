@@ -1,7 +1,7 @@
 
 :- module(ddnnf,
-	[cnf_to_ddnnf/5,
-         ddnnf/5,
+	[cnf_to_ddnnf/3,
+         ddnnf/3,
 	 ddnnf_is/2]).
 
 :- use_module(library(lists)).
@@ -15,10 +15,10 @@
 % convert a CNF as list with Variables Vars and Existential variables
 % in DDNNF, Exs \in LVars into DDNNF with extra existential vars
 %
-cnf_to_ddnnf(CNF0, Vars, Exs, LVars, DDNNF) :-
+cnf_to_ddnnf(CNF0, PVs, DDNNF) :-
+	term_variables(CNF0, Vars),
 	list2cnf(CNF0, CNF, []),
 	new_variables_in_term(Vars, CNF, LVars),
-	append(Exs, LVars, MVars),
 	append(Vars, LVars, AllVars),
 %	(numbervars(CNF,1,_), writeln(CNF), fail ; true),
 	open(dimacs, write, S),
@@ -26,11 +26,11 @@ cnf_to_ddnnf(CNF0, Vars, Exs, LVars, DDNNF) :-
 	close(S),
 	% execute c2d at this point, but we're lazy%
 %	unix(system('c2d -dt_method 3 -in dimacs')),
-	unix(system('c2d -in dimacs')),
+	unix(system('c2d -visualize -in dimacs')),
 	open('dimacs.nnf',read,R),
 	SVars =.. [v|AllVars],
 %	ones(LVars),
-	input_ddnnf(R, SVars, MVars, DDNNF),
+	input_ddnnf(R, SVars, PVs, DDNNF),
 %	writeln(DDNNF),
 	close(R).
 
@@ -97,14 +97,13 @@ disj(A, NO) -->
 %
 % ex: (A*B+not(B))*(C=B) into something complicated 
 %
-ddnnf(List, Vars, Exs, LVars, DDNNF) :-
+ddnnf(List, PVs, DDNNF) :-
 	exps2conj(List, Conj),
 	cnf(Conj, CNF),
 %	(numbervars(CNF,1,_), writeln(Vars:CNF), fail ; true),
 	open(dimacs, write, S),
-	new_variables_in_term(Vars, CNF, LVars),
-	append(Exs, LVars, MVars),
-	append(Vars, LVars, AllVars),
+	variables_in_term(PVs, CNF, LVars),
+	append(PVs, LVars, AllVars),
 	cnf_to_file(CNF, AllVars, S),
 	close(S),
 	% execute c2d at this point, but we're lazy
@@ -112,7 +111,7 @@ ddnnf(List, Vars, Exs, LVars, DDNNF) :-
 	open('dimacs.nnf',read,R),
 	SVars =.. [v|AllVars],
 %	ones(LVars),
-	input_ddnnf(R, SVars, MVars, DDNNF),
+	input_ddnnf(R, SVars, PVs, DDNNF),
 	close(R).
 
 exps2conj((C1,C2), CC1*CC2) :- !,
@@ -163,47 +162,47 @@ output_cnf([V|CNF], S) :-
 	format(S, '~d ',[V]),
 	output_cnf(CNF, S).
 
-input_ddnnf(Stream, SVars, Exs, ddnnf(Out, SVars, Result)) :-
+input_ddnnf(Stream, SVars, PVs, ddnnf(Out, SVars, Result)) :-
 	read_line_to_codes(Stream, Header),
 	split(Header, ["nnf",VS,_ES,_NS]),
 	number_codes(NVs, VS),
 	functor(TempResults, nnf, NVs),
-	process_nnf_lines(Stream, SVars, Exs, 1, TempResults, Out, Last),
+	process_nnf_lines(Stream, SVars, PVs, 1, TempResults, Out, Last),
 	Last1 is Last-1,
 	arg(Last1, TempResults, Result).
 	
-process_nnf_lines(Stream, SVars, Exs, LineNumber, TempResults, O, LL) :-
+process_nnf_lines(Stream, SVars, PVs, LineNumber, TempResults, O, LL) :-
 	read_line_to_codes(Stream, Codes),
 	( Codes = end_of_file -> O = [], LL = LineNumber ;
 %	(LineNumber > 1 -> N is LineNumber-1, arg(N,TempResults,P), format("~w ",[P]);true),
 %	format("~s~n",[Codes]),
 	  arg(LineNumber, TempResults, P),
-	  process_nnf_line(SVars, Exs, TempResults, Exp0, Codes, []),
+	  process_nnf_line(SVars, PVs, TempResults, Exp0, Codes, []),
 	  simplify_line(P=Exp0, Lines, O),
 	  NewLine is LineNumber+1,
-	  process_nnf_lines(Stream, SVars, Exs, NewLine, TempResults, Lines, LL)
+	  process_nnf_lines(Stream, SVars, PVs, NewLine, TempResults, Lines, LL)
 	).
 
-process_nnf_line(SVars, Exs, _TempResults, Exp) --> "L ",
-	nnf_leaf(SVars, Exs, Exp).
+process_nnf_line(SVars, PVs, _TempResults, Exp) --> "L ",
+	nnf_leaf(SVars, PVs, Exp).
 process_nnf_line(_SVars, _, TempResults, Exp) --> "A ",
 	nnf_and_node(TempResults, Exp).
 process_nnf_line(_SVars, _, TempResults, Exp) --> "O ",
 	nnf_or_node(TempResults, Exp).
 
-nnf_leaf(SVars, Exs, Prob, Codes, []) :-
+nnf_leaf(SVars, PVs, Prob, Codes, []) :-
 	number_codes(Number, Codes),
 	Abs is abs(Number),
 	arg(Abs, SVars, Node),
 	(Number < 0 ->
-	   (existential(Node,Exs) -> Prob = 1 ; Prob = 1-Node )
+	   (parameter(Node,PVs) -> Prob = 1-Node ; Prob = 1  )
         ;
 	    Prob = Node
 	).
 
-existential(F,[F1|Exs]) :- F == F1, !.
-existential(F,[_|Exs]) :-
-	existential(F, Exs).
+parameter(F,[F1|_Exs]) :- F == F1, !.
+parameter(F,[_|Exs]) :-
+	parameter(F, Exs).
 
 nnf_and_node(TempResults, Product, Codes, []) :-
 	split(Codes, [_|NumberAsStrings]),
@@ -246,7 +245,9 @@ propagate_constants(Exp, A, Lines, [(A=Exp)|Lines]).
 % compute the value of a SP
 %
 %
-ddnnf_is(ddnnf(F, _Vs, Out), Out) :-
+ddnnf_is(ddnnf(F, Vs, Out), Out) :-
+	term_variables(Vs,LVs),
+	ones(LVs),
 %(numbervars(F,1,_),writeln(F),fail;true),
 	ddnnf_is_acc(F).
 
