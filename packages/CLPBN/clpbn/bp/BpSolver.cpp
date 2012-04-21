@@ -61,7 +61,7 @@ BpSolver::printSolverFlags (void) const
     case Sch::PARALLEL:     ss << "parallel";     break;
     case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",maxiter=" << Util::toString (BpOptions::maxIter);
+  ss << ",max_iter=" << Util::toString (BpOptions::maxIter);
   ss << ",accuracy=" << Util::toString (BpOptions::accuracy);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
