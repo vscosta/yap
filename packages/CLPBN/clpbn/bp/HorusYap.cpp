@@ -67,12 +67,12 @@ int createLiftedNetwork (void)
   if (Constants::DEBUG > 2) {
     Util::printHeader ("INITIAL PARFACTORS");
     for (unsigned i = 0; i < parfactors.size(); i++) {
-       parfactors[i]->print();
+      parfactors[i]->print();
     }
   }
 
   ParfactorList* pfList = new ParfactorList (parfactors);
-
+  
   if (Constants::DEBUG >= 2) {
     Util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
@@ -402,10 +402,10 @@ void runBpSolver (
         *fg, VarIds (vids.begin(),vids.end()));
   }
   if (Globals::infAlgorithm == InfAlgorithms::BP) {
-    solver = new BpSolver (*mfg);
+    solver = new BpSolver (*fg); // FIXME
   } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
     CFactorGraph::checkForIdenticalFactors = false;
-    solver = new CbpSolver (*mfg);
+    solver = new CbpSolver (*fg); // FIXME
   } else {
     cerr << "error: unknow solver" << endl;
     abort();
@@ -507,80 +507,19 @@ int
 setHorusFlag (void)
 {
   string key ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
-  if (key == "inf_alg") {
-    string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-    if (       value == "ve") {
-      Globals::infAlgorithm = InfAlgorithms::VE;
-    } else if (value == "bp") {
-      Globals::infAlgorithm = InfAlgorithms::BP;
-    } else if (value == "cbp") {
-      Globals::infAlgorithm = InfAlgorithms::CBP;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      return FALSE;
-    }
-  } else if (key == "elim_heuristic") {
-    string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-    if (       value == "min_neighbors") {
-      ElimGraph::setEliminationHeuristic (ElimHeuristic::MIN_NEIGHBORS);
-    } else if (value == "min_weight") {
-      ElimGraph::setEliminationHeuristic (ElimHeuristic::MIN_WEIGHT);
-    } else if (value == "min_fill") {
-      ElimGraph::setEliminationHeuristic (ElimHeuristic::MIN_FILL);
-    } else if (value == "weighted_min_fill") {
-      ElimGraph::setEliminationHeuristic (ElimHeuristic::WEIGHTED_MIN_FILL);
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      return FALSE;
-    }
-  } else if (key == "schedule") {
-    string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-    if (       value == "seq_fixed") {
-      BpOptions::schedule = BpOptions::Schedule::SEQ_FIXED;
-    } else if (value == "seq_random") {
-      BpOptions::schedule = BpOptions::Schedule::SEQ_RANDOM;
-    } else if (value == "parallel") {
-      BpOptions::schedule = BpOptions::Schedule::PARALLEL;
-    } else if (value == "max_residual") {
-      BpOptions::schedule = BpOptions::Schedule::MAX_RESIDUAL;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      return FALSE;
-    }
-  } else if (key == "accuracy") {
-    BpOptions::accuracy = (double) YAP_FloatOfTerm (YAP_ARG2);
+  string value;
+  if (key == "accuracy") {
+    stringstream ss;
+    ss << (float) YAP_FloatOfTerm (YAP_ARG2);
+    ss >> value;
   } else if (key == "max_iter") {
-    BpOptions::maxIter = (int) YAP_IntOfTerm (YAP_ARG2);
-  } else if (key == "use_logarithms") {
-    string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-    if (       value == "true") {
-      Globals::logDomain = true;
-    } else if (value == "false") {
-      Globals::logDomain = false;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      return FALSE;
-    }
-  } else if (key == "order_variables") {
-    string value ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
-    if (       value == "true") {
-      FactorGraph::orderVariables = true;
-    } else if (value == "false") {
-      FactorGraph::orderVariables = false;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      return FALSE;
-    }
+    stringstream ss;
+    ss << (int) YAP_IntOfTerm (YAP_ARG2);
+    ss >> value;
   } else {
-    cerr << "warning: invalid key `" << key << "'" << endl;
-    return FALSE;
+    value = ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG2)));
   }
-  return TRUE;
+  return Util::setHorusFlag (key, value);
 }
 
 

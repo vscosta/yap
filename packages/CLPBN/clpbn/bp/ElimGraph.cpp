@@ -4,7 +4,7 @@
 
 #include "ElimGraph.h"
 
-ElimHeuristic ElimGraph::elimHeuristic_ = MIN_NEIGHBORS;
+ElimHeuristic ElimGraph::elimHeuristic = MIN_NEIGHBORS;
 
 
 ElimGraph::ElimGraph (const vector<Factor*>& factors)
@@ -174,7 +174,7 @@ ElimGraph::getLowestCostNode (void) const
   for (unsigned i = 0; i < nodes_.size(); i++) {
     if (marked_[i]) continue;
     unsigned cost = 0;
-    switch (elimHeuristic_) {
+    switch (elimHeuristic) {
       case MIN_NEIGHBORS:
         cost = getNeighborsCost (nodes_[i]);
         break;

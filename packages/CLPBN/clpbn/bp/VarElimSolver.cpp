@@ -38,7 +38,7 @@ VarElimSolver::printSolverFlags (void) const
   stringstream ss;
   ss << "variable elimination [" ;
   ss << "elim_heuristic=" ;
-  ElimHeuristic eh = ElimGraph::getEliminationHeuristic();
+  ElimHeuristic eh = ElimGraph::elimHeuristic;
   switch (eh) {
     case MIN_NEIGHBORS:     ss << "min_neighbors";     break;
     case MIN_WEIGHT:        ss << "min_weight";        break;

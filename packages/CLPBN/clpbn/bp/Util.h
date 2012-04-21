@@ -38,6 +38,10 @@ template <typename T> std::string toString (const T&);
 
 template <> std::string toString (const bool&);
 
+unsigned stringToUnsigned (string);
+
+double stringToDouble (string);
+
 void toLog (Params&);
 
 void fromLog (Params&);
@@ -51,6 +55,8 @@ void multiply (Params&, const Params&, unsigned);
 void add (Params&, const Params&);
 
 void add (Params&, const Params&, unsigned);
+
+unsigned maxUnsigned (void);
 
 double factorial (unsigned);
 
@@ -68,6 +74,8 @@ string parametersToString (const Params&, unsigned = Constants::PRECISION);
 
 vector<string> getStateLines (const Vars&);
 
+bool setHorusFlag (string key, string value);
+
 void printHeader (string, std::ostream& os = std::cout);
 
 void printSubHeader (string, std::ostream& os = std::cout);
@@ -75,8 +83,6 @@ void printSubHeader (string, std::ostream& os = std::cout);
 void printAsteriskLine (std::ostream& os = std::cout);
 
 void printDashedLine (std::ostream& os = std::cout);
-
-unsigned maxUnsigned (void);
 
 };
 

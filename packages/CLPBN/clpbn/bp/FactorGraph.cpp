@@ -13,7 +13,7 @@
 #include "Util.h"
 
 
-bool FactorGraph::orderVariables = false;
+bool FactorGraph::orderVars = false;
 
 
 FactorGraph::FactorGraph (const FactorGraph& fg)
@@ -186,14 +186,17 @@ void
 FactorGraph::addFactor (const Factor& factor)
 {
   FacNode* fn = new FacNode (factor);
+  if (orderVars) {
+    fn->factor().reorderAccordingVarIds();
+  }
   addFacNode (fn);
-  const VarIds& vids = factor.arguments();
+  const VarIds& vids = fn->factor().arguments();
   for (unsigned i = 0; i < vids.size(); i++) {
     VarMap::const_iterator it = varMap_.find (vids[i]);
     if (it != varMap_.end()) {
       addEdge (it->second, fn);      
     } else {
-      VarNode* vn = new VarNode (vids[i], factor.range (i));
+      VarNode* vn = new VarNode (vids[i], fn->factor().range (i));
       addVarNode (vn);
       addEdge (vn, fn);
     }
@@ -261,6 +264,7 @@ FactorGraph::getStructure (void)
 void
 FactorGraph::print (void) const
 {
+  /*
   for (unsigned i = 0; i < varNodes_.size(); i++) {
     cout << "var id   = " << varNodes_[i]->varId() << endl;
     cout << "label    = " << varNodes_[i]->label() << endl;
@@ -272,6 +276,7 @@ FactorGraph::print (void) const
     }
     cout << endl << endl;
   }
+  */
   for (unsigned i = 0; i < facNodes_.size(); i++) {
     facNodes_[i]->factor().print();
   }

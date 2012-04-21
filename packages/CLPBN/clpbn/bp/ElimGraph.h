@@ -47,15 +47,7 @@ class ElimGraph
 
     static VarIds getEliminationOrder (const vector<Factor*>, VarIds);
 
-    static void setEliminationHeuristic (ElimHeuristic h)
-    {
-      elimHeuristic_ = h;
-    }
-
-    static ElimHeuristic getEliminationHeuristic (void)
-    {
-      return elimHeuristic_;
-    }
+    static ElimHeuristic elimHeuristic;
 
   private:
 
@@ -86,7 +78,6 @@ class ElimGraph
     vector<EgNode*> nodes_;
     vector<bool>    marked_;
     unordered_map<VarId, EgNode*> varMap_;
-    static ElimHeuristic elimHeuristic_;
 };
 
 #endif // HORUS_ELIMGRAPH_H

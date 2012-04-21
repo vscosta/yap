@@ -5,6 +5,7 @@
 
 #include "Util.h"
 #include "Indexer.h"
+#include "ElimGraph.h"
 
 
 namespace Globals {
@@ -44,6 +45,34 @@ toString (const bool& b)
   std::stringstream ss;
   ss << std::boolalpha << b;
   return ss.str();
+}
+
+
+
+unsigned
+stringToUnsigned (string str)
+{
+  int val;
+  stringstream ss;
+  ss << str;
+  ss >> val;
+  if (val < 0) {
+    cerr << "error: the value tried to read is negative" << endl;
+    abort();
+  }
+  return static_cast<unsigned> (val);
+}
+
+
+
+double
+stringToDouble (string str)
+{
+  double val;
+  stringstream ss;
+  ss << str;
+  ss >> val;
+  return val;
 }
 
 
@@ -190,6 +219,87 @@ getStateLines (const Vars& vars)
     ++ idx;
   }
   return jointStrings;
+}
+
+
+
+bool
+setHorusFlag (string key, string value)
+{
+  bool returnVal = true;
+  if (key == "inf_alg") {
+    if (       value == "ve") {
+      Globals::infAlgorithm = InfAlgorithms::VE;
+    } else if (value == "bp") {
+      Globals::infAlgorithm = InfAlgorithms::BP;
+    } else if (value == "cbp") {
+      Globals::infAlgorithm = InfAlgorithms::CBP;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "elim_heuristic") {
+    if (       value == "min_neighbors") {
+      ElimGraph::elimHeuristic = ElimHeuristic::MIN_NEIGHBORS;
+    } else if (value == "min_weight") {
+      ElimGraph::elimHeuristic = ElimHeuristic::MIN_WEIGHT;
+    } else if (value == "min_fill") {
+      ElimGraph::elimHeuristic = ElimHeuristic::MIN_FILL;
+    } else if (value == "weighted_min_fill") {
+      ElimGraph::elimHeuristic = ElimHeuristic::WEIGHTED_MIN_FILL;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "schedule") {
+    if (       value == "seq_fixed") {
+      BpOptions::schedule = BpOptions::Schedule::SEQ_FIXED;
+    } else if (value == "seq_random") {
+      BpOptions::schedule = BpOptions::Schedule::SEQ_RANDOM;
+    } else if (value == "parallel") {
+      BpOptions::schedule = BpOptions::Schedule::PARALLEL;
+    } else if (value == "max_residual") {
+      BpOptions::schedule = BpOptions::Schedule::MAX_RESIDUAL;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "accuracy") {
+    stringstream ss;
+    ss << value;
+    ss >> BpOptions::accuracy;
+  } else if (key == "max_iter") {
+    stringstream ss;
+    ss << value;
+    ss >> BpOptions::maxIter;
+  } else if (key == "use_logarithms") {
+    if (       value == "true") {
+      Globals::logDomain = true;
+    } else if (value == "false") {
+      Globals::logDomain = false;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "order_vars") {
+    if (       value == "true") {
+      FactorGraph::orderVars = true;
+    } else if (value == "false") {
+      FactorGraph::orderVars = false;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else {
+    cerr << "warning: invalid key `" << key << "'" << endl;
+    returnVal = false;
+  }
+  return returnVal;
 }
 
 

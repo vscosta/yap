@@ -24,6 +24,12 @@ CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
     Statistics::updateCompressingStatistics (nrGroundVars,
         nrGroundFacs, nrClusterVars, nrClusterFacs, nrNeighborless);
   }
+  // cout << "uncompressed factor graph:" << endl;
+  // cout << "  " << fg.nrVarNodes() << " variables " << endl;
+  // cout << "  " << fg.nrFacNodes() << " factors "   << endl;
+  // cout << "compressed factor graph:" << endl;
+  // cout << "  " << fg_->nrVarNodes() << " variables " << endl;
+  // cout << "  " << fg_->nrFacNodes() << " factors "   << endl;
   // Util::printHeader ("Compressed Factor Graph");
   // fg_->print();
   // Util::printHeader ("Uncompressed Factor Graph");
@@ -60,13 +66,12 @@ CbpSolver::printSolverFlags (void) const
   ss << ",max_iter=" << BpOptions::maxIter;
   ss << ",accuracy=" << BpOptions::accuracy;
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
-  ss << ",order_vars=" << Util::toString (FactorGraph::orderVariables);
+  ss << ",order_vars=" << Util::toString (FactorGraph::orderVars);
   ss << ",chkif=" << 
       Util::toString (CFactorGraph::checkForIdenticalFactors);
   ss << "]" ;
   cout << ss.str() << endl;
 }
-
 
 
 

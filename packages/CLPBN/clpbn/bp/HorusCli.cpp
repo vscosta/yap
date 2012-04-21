@@ -10,43 +10,68 @@
 
 using namespace std;
 
-void processArguments (FactorGraph&, int, const char* []);
+int readHorusFlags (int, const char* []);
+void readFactorGraph (FactorGraph&, const char*);
+VarIds readQueryAndEvidence (FactorGraph&, int, const char* [], int);
+
 void runSolver (const FactorGraph&, const VarIds&);
 
-const string USAGE = "usage: \
-./hcli ve|bp|cbp NETWORK_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE]..." ;
+const string USAGE = "usage: ./hcli [HORUS_FLAG=VALUE] \
+NETWORK_FILE [VARIABLE | OBSERVED_VARIABLE=EVIDENCE] ..." ;
 
 
 int
 main (int argc, const char* argv[])
 {
   if (argc <= 1) {
-    cerr << "error: no solver specified" << endl;
     cerr << "error: no graphical model specified" << endl;
     cerr << USAGE << endl;
     exit (0);
   }
-  if (argc <= 2) {
-    cerr << "error: no graphical model specified" << endl;
-    cerr << USAGE << endl;
-    exit (0);
-  }
-  string solver (argv[1]);
-  if (solver == "ve") {
-    Globals::infAlgorithm = InfAlgorithms::VE;
-  } else if (solver == "bp") {
-    Globals::infAlgorithm = InfAlgorithms::BP;
-  } else if (solver == "cbp") {
-    Globals::infAlgorithm = InfAlgorithms::CBP;
-  } else {
-    cerr << "error: unknow solver `" << solver << "'" << endl ;
-    cerr << USAGE << endl;
-    exit(0);
-  }
-  string fileName (argv[2]);
-  string extension = fileName.substr (
-      fileName.find_last_of ('.') + 1);
+  int idx = readHorusFlags (argc, argv);
   FactorGraph fg;
+  readFactorGraph (fg, argv[idx]);
+  VarIds queryIds = readQueryAndEvidence (fg, argc, argv, idx + 1);
+  runSolver (fg, queryIds);
+  return 0;
+}
+
+
+
+int
+readHorusFlags (int argc, const char* argv[])
+{
+  int i = 1;
+  for (; i < argc; i++) {
+    const string& arg = argv[i];
+    size_t pos = arg.find ('=');
+    if (pos == std::string::npos) {
+      return i;
+    }
+    string leftArg  = arg.substr (0, pos);
+    string rightArg = arg.substr (pos + 1);
+    if (leftArg.empty()) {
+      cerr << "error: missing left argument" << endl;
+      cerr << USAGE << endl;
+      exit (0);
+    }
+    if (rightArg.empty()) {
+      cerr << "error: missing right argument" << endl;
+      cerr << USAGE << endl;
+      exit (0);
+    }
+    Util::setHorusFlag (leftArg, rightArg);
+  }
+  return i + 1;
+}
+
+
+
+void
+readFactorGraph (FactorGraph& fg, const char* s)
+{
+  string fileName (s);
+  string extension = fileName.substr (fileName.find_last_of ('.') + 1);
   if (extension == "uai") {
     fg.readFromUaiFormat (fileName.c_str());
   } else if (extension == "fg") {
@@ -56,90 +81,78 @@ main (int argc, const char* argv[])
     cerr << "in a UAI or libDAI file" << endl;
     exit (0);
   }
-  processArguments (fg, argc, argv);
-  return 0;
 }
 
 
 
-void
-processArguments (FactorGraph& fg, int argc, const char* argv[])
+VarIds
+readQueryAndEvidence (
+    FactorGraph& fg,
+    int argc,
+    const char* argv[],
+    int start)
 {
   VarIds queryIds;
-  for (int i = 3; i < argc; i++) {
+  for (int i = start; i < argc; i++) {
     const string& arg = argv[i];
     if (arg.find ('=') == std::string::npos) {
-      if (!Util::isInteger (arg)) {
+      if (Util::isInteger (arg) == false) {
         cerr << "error: `" << arg << "' " ;
-        cerr << "is not a valid variable id" ;
-        cerr << endl;
-        exit (0);
-      }
-      VarId vid;
-      stringstream ss;
-      ss << arg;
-      ss >> vid;
-      VarNode* queryVar = fg.getVarNode (vid);
-      if (queryVar) {
-        queryIds.push_back (vid);
-      } else {
-        cerr << "error: there isn't a variable with " ;
-        cerr << "`" << vid << "' as id" ;
-        cerr << endl;
-        exit (0);
-      }
-    } else {
-      size_t pos = arg.find ('=');
-      if (arg.substr (0, pos).empty()) {
-        cerr << "error: missing left argument" << endl;
-        cerr << USAGE << endl;
-        exit (0);
-      }
-      if (arg.substr (pos + 1).empty()) {
-        cerr << "error: missing right argument" << endl;
-        cerr << USAGE << endl;
-        exit (0);
-      }
-      if (!Util::isInteger (arg.substr (0, pos))) {
-        cerr << "error: `" << arg.substr (0, pos) << "' " ;
         cerr << "is not a variable id" ;
         cerr << endl;
         exit (0);
       }
-      VarId vid;
-      stringstream ss; 
-      ss << arg.substr (0, pos);
-      ss >> vid;
-      VarNode* var = fg.getVarNode (vid);
-      if (var) {
-        if (!Util::isInteger (arg.substr (pos + 1))) {
-          cerr << "error: `" << arg.substr (pos + 1) << "' " ;
-          cerr << "is not a state index" ;
-          cerr << endl;
-          exit (0);
-        }
-        int stateIndex;
-        stringstream ss; 
-        ss << arg.substr (pos + 1);
-        ss >> stateIndex;
-        if (var->isValidState (stateIndex)) {
-          var->setEvidence (stateIndex);
-        } else {
-          cerr << "error: `" << stateIndex << "' " ;
-          cerr << "is not a valid state index for variable " ;
-          cerr << "`" << var->varId() << "'" ;
-          cerr << endl;
-          exit (0);
-        }
-      } else {
-        cerr << "error: there isn't a variable with " ;
-        cerr << "`" << vid << "' as id" ;
-        cerr << endl;
+      VarId vid = Util::stringToUnsigned (arg);
+      VarNode* queryVar = fg.getVarNode (vid);
+      if (queryVar == false) {
+        cerr << "error: unknow variable with id " ;
+        cerr << "`" << vid << "'"  << endl;
         exit (0);
       }
+      queryIds.push_back (vid);
+    } else {
+      size_t pos = arg.find ('=');
+      string leftArg  = arg.substr (0, pos);
+      string rightArg = arg.substr (pos + 1);
+      if (leftArg.empty()) {
+        cerr << "error: missing left argument" << endl;
+        cerr << USAGE << endl;
+        exit (0);
+      }
+      if (Util::isInteger (leftArg) == false) {
+        cerr << "error: `" << leftArg << "' " ;
+        cerr << "is not a variable id" << endl ;
+        exit (0);
+        continue;
+      }
+      VarId vid = Util::stringToUnsigned (leftArg);
+      VarNode* observedVar = fg.getVarNode (vid);
+      if (observedVar == false) {
+        cerr << "error: unknow variable with id " ;
+        cerr << "`" << vid << "'"  << endl;
+        exit (0);
+      }
+      if (rightArg.empty()) {
+        cerr << "error: missing right argument" << endl;
+        cerr << USAGE << endl;
+        exit (0);
+      }
+      if (Util::isInteger (rightArg) == false) {
+        cerr << "error: `" << rightArg << "' " ;
+        cerr << "is not a state index" << endl ;
+        exit (0);
+      }
+      unsigned stateIdx = Util::stringToUnsigned (rightArg);
+      if (observedVar->isValidState (stateIdx) == false) {
+        cerr << "error: `" << stateIdx << "' " ;
+        cerr << "is not a valid state index for variable with id " ;
+        cerr << "`" << vid << "'"  << endl;
+        exit (0);
+      }
+      observedVar->setEvidence (stateIdx);
     }
   }
-  runSolver (fg, queryIds);
+  return queryIds;
 }
 
 
@@ -161,6 +174,8 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
     default:
       assert (false);
   }
+  solver->printSolverFlags();
+  cout << endl;
   if (queryIds.size() == 0) {
     solver->printAllPosterioris();
   } else {
