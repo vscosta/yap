@@ -102,7 +102,6 @@ FactorGraph::readFromUaiFormat (const char* fileName)
     if (Globals::logDomain) {
       Util::toLog (params);
     }
-    // TODO order vars is flag on
     addFactor (Factor (factorVarIds[i], factorRanges[i], params));
   }
   is.close();
@@ -158,12 +157,14 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       is >> val;
       params[index] = val;
     }
-    reverse (vids.begin(), vids.end());
     if (Globals::logDomain) {
       Util::toLog (params);
     }
-    // TODO order vars is flag on
-    addFactor (Factor (vids, ranges, params));
+    reverse (vids.begin(), vids.end());
+    Factor f (vids, ranges, params);
+    reverse (vids.begin(), vids.end());
+    f.reorderArguments (vids);
+    addFactor (f);
   }
   is.close();
 }
@@ -264,7 +265,6 @@ FactorGraph::getStructure (void)
 void
 FactorGraph::print (void) const
 {
-  /*
   for (unsigned i = 0; i < varNodes_.size(); i++) {
     cout << "var id   = " << varNodes_[i]->varId() << endl;
     cout << "label    = " << varNodes_[i]->label() << endl;
@@ -276,7 +276,6 @@ FactorGraph::print (void) const
     }
     cout << endl << endl;
   }
-  */
   for (unsigned i = 0; i < facNodes_.size(); i++) {
     facNodes_[i]->factor().print();
   }
