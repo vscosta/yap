@@ -18,11 +18,9 @@
 static char     SccsId[] = "@(#)utilpreds.c	1.3";
 #endif
 
-#include "Yap.h"
-#include "clause.h"
+#include "absmi.h"
 #include "YapHeap.h"
 #include "yapio.h"
-#include "eval.h"
 #include "attvar.h"
 #ifdef HAVE_STRING_H
 #include "string.h"
@@ -4370,6 +4368,10 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
 	goto trail_overflow;
       }
     }
+
+#if defined(TABLING) || defined(YAPOR_SBA)
+    TrailVal(TR) = (CELL)ptd0;
+#endif
     TrailTerm(TR++) = (CELL)ptd0;
   }
   /* Do we still have compound terms to visit */
@@ -4387,6 +4389,7 @@ static Int numbervars_in_complex_term(register CELL *pt0, register CELL *pt0_end
     goto loop;
   }
 
+  prune(B);
   Yap_ReleasePreAllocCodeSpace((ADDR)to_visit0);
   return numbv;
 
