@@ -6,7 +6,7 @@
 :- module(simplify_boolean, 
 	[simplify_exp/2]).
 
-%simplify_exp(V,V) :- !.
+%simplify_exp(V,V) :- writeln(V), fail, !.
 simplify_exp(V,V) :- var(V), !.
 simplify_exp(S1+S2,NS) :- !,
 	simplify_exp(S1, SS1),

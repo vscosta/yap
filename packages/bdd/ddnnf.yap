@@ -16,17 +16,19 @@
 % in DDNNF, Exs \in LVars into DDNNF with extra existential vars
 %
 cnf_to_ddnnf(CNF0, PVs, DDNNF) :-
-	term_variables(CNF0, Vars),
 	list2cnf(CNF0, CNF, []),
-	new_variables_in_term(Vars, CNF, LVars),
-	append(Vars, LVars, AllVars),
+	mkddnnf(CNF, PVs, DDNNF).
+
+mkddnnf(CNF, PVs, DDNNF) :-
+	term_variables(CNF, AllVars),
 %	(numbervars(CNF,1,_), writeln(CNF), fail ; true),
 	open(dimacs, write, S),
 	cnf_to_file(CNF, AllVars, S),
 	close(S),
 	% execute c2d at this point, but we're lazy%
 %	unix(system('c2d -dt_method 3 -in dimacs')),
-	unix(system('c2d -visualize -in dimacs')),
+%	unix(system('c2d -visualize -in dimacs')),
+	unix(system('dsharp -Fnnf dimacs.nnf  dimacs')),
 	open('dimacs.nnf',read,R),
 	SVars =.. [v|AllVars],
 %	ones(LVars),
@@ -100,19 +102,7 @@ disj(A, NO) -->
 ddnnf(List, PVs, DDNNF) :-
 	exps2conj(List, Conj),
 	cnf(Conj, CNF),
-%	(numbervars(CNF,1,_), writeln(Vars:CNF), fail ; true),
-	open(dimacs, write, S),
-	variables_in_term(PVs, CNF, LVars),
-	append(PVs, LVars, AllVars),
-	cnf_to_file(CNF, AllVars, S),
-	close(S),
-	% execute c2d at this point, but we're lazy
-	unix(system('c2d -in dimacs')),
-	open('dimacs.nnf',read,R),
-	SVars =.. [v|AllVars],
-%	ones(LVars),
-	input_ddnnf(R, SVars, PVs, DDNNF),
-	close(R).
+	mkddnnf(CNF, PVs, DDNNF).
 
 exps2conj((C1,C2), CC1*CC2) :- !,
 	exps2conj(C1, CC1),
