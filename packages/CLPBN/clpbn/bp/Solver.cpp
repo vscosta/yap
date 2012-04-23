@@ -29,9 +29,14 @@ Solver::printAnswer (const VarIds& vids)
 void
 Solver::printAllPosterioris (void)
 {
+  VarIds vids;
   const VarNodes& vars = fg.varNodes();
   for (unsigned i = 0; i < vars.size(); i++) {
-    printAnswer ({vars[i]->varId()});
+    vids.push_back (vars[i]->varId());
+  }
+  std::sort (vids.begin(), vids.end());
+  for (unsigned i = 0; i < vids.size(); i++) {
+    printAnswer ({vids[i]});
   }
 }
 
