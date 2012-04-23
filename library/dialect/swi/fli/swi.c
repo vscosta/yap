@@ -57,6 +57,7 @@ static int
 do_gc(UInt sz)
 {
   /* always called from user_call_cpred */
+  CACHE_REGS
   UInt arity;
   yamop *nextpc;
 
