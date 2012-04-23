@@ -832,6 +832,7 @@ static Int p_show_statistics_opt( USES_REGS1 ) {
 #ifdef USE_PAGES_MALLOC
   long total_pages = 0;
 #endif /* USE_PAGES_MALLOC */
+  IOSTREAM *out;
   Term t = Deref(ARG1);
 
   if (IsVarTerm(t) || !IsAtomTerm(t))
