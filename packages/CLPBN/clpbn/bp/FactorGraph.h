@@ -15,8 +15,9 @@ class FacNode;
 class VarNode : public Var
 {
   public:
-    VarNode (VarId varId, unsigned nrStates) 
-        : Var (varId, nrStates) { }
+    VarNode (VarId varId, unsigned nrStates, 
+        int evidence = Constants::NO_EVIDENCE) 
+        : Var (varId, nrStates, evidence) { }
 
     VarNode (const Var* v) : Var (v) { }
 
