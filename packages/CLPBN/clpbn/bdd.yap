@@ -68,7 +68,8 @@ Va <- P*X1*Y1 + Q*X2*Y2 + ...
 :- attribute order/1.
 
 :- dynamic bdds/1.
-bdds(ddnnf).
+%bdds(ddnnf).
+bdds(bdd).
 
 check_if_bdd_done(_Var).
 
@@ -81,7 +82,8 @@ bdd([QueryVars], AllVars, AllDiffs) :-
 
 init_bdd_solver(_, AllVars0, _, bdd(Term, Leaves, Tops)) :-
 %	check_for_agg_vars(AllVars0, AllVars1),
-	sort_vars(AllVars0, AllVars, Leaves),
+	AllVars0 = AllVars1,
+	sort_vars(AllVars1, AllVars, Leaves),
 	order_vars(AllVars, 0),
 	rb_new(Vars0),
 	rb_new(Pars0),
@@ -135,8 +137,8 @@ get_vars_info([_|MoreVs], Vs0, VsF, Ps0, PsF, VarsInfo, Lvs, Outs) :-
 get_var_info(V, avg(Domain), Parents, Vs, Vs2, Ps, Ps, Lvs, Outs, DIST) :- !,
 	length(Domain, DSize),
 %	run_though_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
-	top_down_with_tabling(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
-%	bup_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
+%	top_down_with_tabling(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
+	bup_avg(V, DSize, Domain, Parents, Vs, Vs2, Lvs, Outs, DIST).
 % standard random variable
 get_var_info(V, DistId, Parents0, Vs, Vs2, Ps, Ps1, Lvs, Outs, DIST) :-
 % clpbn:get_atts(V, [key(K)]), writeln(V:K:DistId:Parents),
@@ -406,7 +408,7 @@ protect_avg(I0, Max0, Protected, Domains, ASize, Reach) :-
 % outer loop: generate array of sums at level j= Sum[j0...jMax]
 %
 expand_sums(_Parents, Max, _, Max, _Size, _Sums, _P, _NewSums, F0, F0) :- !.
-expand_sums(Parents, I0, Max0, Max, Size, Sums, Prot, NewSums, [O=SUM|F], F0) :-
+expand_sums(Parents, I0, Max0, Max, Size, Sums, Prot, NewSums, [O=SUM*1|F], F0) :-
 	I is I0+1,
 	arg(I, Prot, P),
 	var(P), !,
@@ -473,7 +475,7 @@ fetch_domain_for_avg(J0, Border, J, I0, [I0|LVals], RLVals) :-
 	fetch_domain_for_avg(J1, Border, J, I0, LVals, RLVals).
 
 generate_avg(Size, Size, _J, _Max, [], [], [], F, F).
-generate_avg(I0, Size, J0, Max, LSums, [O|OVs], [Ev|Evs], [O=Ev*Disj|F], F0) :-
+generate_avg(I0, Size, J0, Max, LSums, [O|OVs], [Ev|Evs], [O=Disj*Ev|F], F0) :-
 	I is I0+1,
 	Border is (I*Max)/Size,
 	fetch_for_avg(J0, Border, J, LSums, MySums, RSums),
