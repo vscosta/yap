@@ -50,6 +50,24 @@ Factor::Factor (
 
 
 void
+Factor::sumOut (VarId vid)
+{
+  int idx = indexOf (vid);
+  assert (idx != -1);
+  if (vid == args_.back()) {
+    sumOutLastVariable();  // optimization
+    return;
+  } 
+  if (vid == args_.front()) {
+    sumOutFirstVariable(); // optimization
+    return;
+  } 
+  sumOutIndex (idx);  
+}
+
+
+
+void
 Factor::sumOutAllExcept (VarId vid)
 {
   assert (indexOf (vid) != -1);
@@ -77,20 +95,8 @@ Factor::sumOutAllExcept (const VarIds& vids)
 
 
 void
-Factor::sumOut (VarId vid)
+Factor::sumOutIndex (unsigned idx)
 {
-  int idx = indexOf (vid);
-  assert (idx != -1);
-
-  if (vid == args_.back()) {
-    sumOutLastVariable();  // optimization
-    return;
-  } 
-  if (vid == args_.front()) {
-    sumOutFirstVariable(); // optimization
-    return;
-  } 
-
   // number of parameters separating a different state of `var', 
   // with the states of the remaining variables fixed
   unsigned varOffset = 1;
@@ -125,7 +131,7 @@ Factor::sumOut (VarId vid)
     }
     newps.push_back (sum);
     count1 ++;
-    if (idx == (int)args_.size() - 1) {
+    if (idx == args_.size() - 1) {
       offset = count1 * ranges_[idx];
     } else {
       if (((offset - varOffset + 1) % leftVarOffset) == 0) {
@@ -138,6 +144,21 @@ Factor::sumOut (VarId vid)
   args_.erase (args_.begin() + idx);
   ranges_.erase (ranges_.begin() + idx);
   params_ = newps;
+}
+
+
+
+void
+Factor::sumOutAllExceptIndex (unsigned idx)
+{
+  int i = idx;
+  while (args_.size() > i + 1) {
+    sumOutLastVariable();
+  }
+  while (i > 0) {
+    sumOutFirstVariable();
+    i -- ;
+  } 
 }
 
 
@@ -243,7 +264,8 @@ Factor::print (void) const
   }
   vector<string> jointStrings = Util::getStateLines (vars);
   for (unsigned i = 0; i < params_.size(); i++) {
-    cout << "[" << distId_ << "] f(" << jointStrings[i] << ")" ;
+    // cout << "[" << distId_ << "] " ;
+    cout << "f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;
   }
   cout << endl;

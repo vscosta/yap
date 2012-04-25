@@ -204,6 +204,13 @@ class TFactor
       return true;
     }
 
+    double& operator[] (unsigned idx)
+    {
+      assert (idx < params_.size());
+      return params_[idx];
+    }
+
+
   protected:
     vector<T>  args_;
     Ranges     ranges_;
@@ -261,11 +268,15 @@ class Factor : public TFactor<VarId>
     Factor (const Vars&, const Params&,
         unsigned = Util::maxUnsigned());
 
+    void sumOut (VarId);
+
     void sumOutAllExcept (VarId);
 
     void sumOutAllExcept (const VarIds&);
 
-    void sumOut (VarId);
+    void sumOutIndex (unsigned idx);
+
+    void sumOutAllExceptIndex (unsigned idx);
 
     void sumOutFirstVariable (void);
 
