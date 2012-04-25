@@ -1,6 +1,5 @@
 #include "CbpSolver.h"
 
-vector<int> CbpSolver::counts;
 
 CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
 {

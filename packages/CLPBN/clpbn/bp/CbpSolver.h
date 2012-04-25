@@ -37,9 +37,7 @@ class CbpSolverLink : public SpLink
 
 class CbpSolver : public BpSolver
 {
-  public:
-    static vector<int> counts;
-   
+  public:   
     CbpSolver (const FactorGraph& fg);
 
    ~CbpSolver (void);
