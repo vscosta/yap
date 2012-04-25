@@ -10,17 +10,19 @@
 
 class VarCluster;
 class FacCluster;
-class Signature;
-class SignatureHash;
+class VarSignatureHash;
+class FacSignatureHash;
 
 typedef long Color;
 typedef vector<Color> Colors;
+typedef vector<std::pair<Color,unsigned>> VarSignature;
+typedef vector<Color> FacSignature;
 
 typedef unordered_map<unsigned, Color>  DistColorMap;
 typedef unordered_map<unsigned, Colors> VarColorMap;
 
-typedef unordered_map<Signature, VarNodes, SignatureHash> VarSignMap;
-typedef unordered_map<Signature, FacNodes, SignatureHash> FacSignMap;
+typedef unordered_map<VarSignature, VarNodes, VarSignatureHash> VarSignMap;
+typedef unordered_map<FacSignature, FacNodes, FacSignatureHash> FacSignMap;
 
 typedef vector<VarCluster*> VarClusters;
 typedef vector<FacCluster*> FacClusters;
@@ -28,53 +30,27 @@ typedef vector<FacCluster*> FacClusters;
 typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
 
 
-struct Signature
+struct VarSignatureHash
 {
-  Signature (unsigned size) : colors(size) {  }
-
-  bool operator< (const Signature& sig) const
+  size_t operator() (const VarSignature &sig) const
   {
-    if (colors.size() < sig.colors.size()) {
-      return true;
-    } else if (colors.size() > sig.colors.size()) {
-      return false;
-    } else {
-      for (unsigned i = 0; i < colors.size(); i++) {
-        if (colors[i] < sig.colors[i]) {
-          return true;
-        } else if (colors[i] > sig.colors[i]) {
-          return false;
-        }
-      }
+    size_t val = hash<size_t>()(sig.size());
+    for (unsigned i = 0; i < sig.size(); i++) {
+      val ^= hash<size_t>()(sig[i].first);
+      val ^= hash<size_t>()(sig[i].second);
     }
-    return false;
+    return val;
   }
-
-  bool operator== (const Signature& sig) const
-  {
-    if (colors.size() != sig.colors.size()) {
-      return false;
-    }
-    for (unsigned i = 0; i < colors.size(); i++) {
-      if (colors[i] != sig.colors[i]) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  Colors colors;
 };
 
 
-
-struct SignatureHash
+struct FacSignatureHash
 {
-  size_t operator() (const Signature &sig) const
+  size_t operator() (const FacSignature &sig) const
   {
-    size_t val = hash<size_t>()(sig.colors.size());
-    for (unsigned i = 0; i < sig.colors.size(); i++) {
-      val ^= hash<size_t>()(sig.colors[i]);
+    size_t val = hash<size_t>()(sig.size());
+    for (unsigned i = 0; i < sig.size(); i++) {
+      val ^= hash<size_t>()(sig[i]);
     }
     return val;
   }
@@ -87,19 +63,16 @@ class VarCluster
   public:
     VarCluster (const VarNodes& vs) : members_(vs) { }
 
+    const VarNode* first (void) const { return members_.front(); }
+
     const VarNodes& members (void) const { return members_; }
 
-    const FacClusters& facClusters (void) const { return facClusters_; }
-
-    void addFacCluster (FacCluster* fc) { facClusters_.push_back (fc); }
-
-    VarNode* getRepresentative (void) const { return repr_; }
+    VarNode* representative (void) const { return repr_; }
 
     void setRepresentative (VarNode* vn) { repr_ = vn; }
 
   private:
     VarNodes     members_;
-    FacClusters  facClusters_;
     VarNode*     repr_;
 };
 
@@ -108,26 +81,17 @@ class FacCluster
 {
   public:
     FacCluster (const FacNodes& fcs, const VarClusters& vcs)
-        : members_(fcs), varClusters_(vcs) 
-    {
-      for (unsigned i = 0; i < varClusters_.size(); i++) {
-        varClusters_[i]->addFacCluster (this);
-      }
-    }
+        : members_(fcs), varClusters_(vcs) { }
+
+    const FacNode* first (void) const { return members_.front(); }
 
     const FacNodes& members (void) const { return members_; }
  
-    const VarClusters& varClusters (void) const { return varClusters_; }
+    VarClusters& varClusters (void) { return varClusters_; }
   
-    FacNode* getRepresentative (void) const { return repr_; }
+    FacNode* representative (void) const { return repr_; }
 
     void setRepresentative (FacNode* fn) { repr_ = fn; }
-
-    bool containsGround (const FacNode* fn) const
-    {
-      return std::find (members_.begin(), members_.end(), fn) 
-          != members_.end();
-    }
  
   private:
     FacNodes     members_;
@@ -147,15 +111,16 @@ class CFactorGraph
 
     const FacClusters& facClusters (void) { return facClusters_; }
 
-    VarNode* getEquivalentVariable (VarId vid)
+    VarNode* getEquivalent (VarId vid)
     {
       VarCluster* vc = vid2VarCluster_.find (vid)->second;
-      return vc->getRepresentative();
+      return vc->representative();
     }
 
-    FactorGraph* getGroundFactorGraph (void) const;
+    FactorGraph* getGroundFactorGraph (void);
 
-    unsigned getEdgeCount (const FacCluster*, const VarCluster*) const;
+    unsigned getEdgeCount (const FacCluster*,
+        const VarCluster*, unsigned index) const;
  
     static bool checkForIdenticalFactors;
  
@@ -184,11 +149,6 @@ class CFactorGraph
       facColors_[fn->getIndex()] = c;
     }
 
-    VarCluster* getVariableCluster (VarId vid) const
-    {
-      return vid2VarCluster_.find (vid)->second;
-    }
-
     void findIdenticalFactors (void);
 
     void setInitialColors (void);
@@ -197,21 +157,19 @@ class CFactorGraph
 
     void createClusters (const VarSignMap&, const FacSignMap&);
 
-    const Signature& getSignature (const VarNode*);
+    VarSignature getSignature (const VarNode*);
 
-    const Signature& getSignature (const FacNode*);
+    FacSignature getSignature (const FacNode*);
 
     void printGroups (const VarSignMap&, const FacSignMap&) const;
 
-    Color               freeColor_;
-    Colors              varColors_;
-    Colors              facColors_;
-    vector<Signature>   varSignatures_;
-    vector<Signature>   facSignatures_;
-    VarClusters         varClusters_;
-    FacClusters         facClusters_;
-    VarId2VarCluster    vid2VarCluster_;
-    const FactorGraph*  groundFg_;
+    Color                 freeColor_;
+    Colors                varColors_;
+    Colors                facColors_;
+    VarClusters           varClusters_;
+    FacClusters           facClusters_;
+    VarId2VarCluster      vid2VarCluster_;
+    const FactorGraph*    groundFg_;
 };
 
 #endif // HORUS_CFACTORGRAPH_H

@@ -1,5 +1,6 @@
 #include "CbpSolver.h"
 
+vector<int> CbpSolver::counts;
 
 CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
 {
@@ -24,16 +25,14 @@ CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
     Statistics::updateCompressingStatistics (nrGroundVars,
         nrGroundFacs, nrClusterVars, nrClusterFacs, nrNeighborless);
   }
-  // cout << "uncompressed factor graph:" << endl;
-  // cout << "  " << fg.nrVarNodes() << " variables " << endl;
-  // cout << "  " << fg.nrFacNodes() << " factors "   << endl;
-  // cout << "compressed factor graph:" << endl;
-  // cout << "  " << fg_->nrVarNodes() << " variables " << endl;
-  // cout << "  " << fg_->nrFacNodes() << " factors "   << endl;
-  // Util::printHeader ("Compressed Factor Graph");
-  // fg_->print();
-  // Util::printHeader ("Uncompressed Factor Graph");
-  // fg.print();
+  if (Constants::DEBUG >= 5) {
+    cout << "uncompressed factor graph:" << endl;
+    cout << "  " << fg.nrVarNodes() << " variables " << endl;
+    cout << "  " << fg.nrFacNodes() << " factors "   << endl;
+    cout << "compressed factor graph:" << endl;
+    cout << "  " << fg_->nrVarNodes() << " variables " << endl;
+    cout << "  " << fg_->nrFacNodes() << " factors "   << endl;
+  }
 }
 
 
@@ -81,8 +80,8 @@ CbpSolver::getPosterioriOf (VarId vid)
   if (runned_ == false) {
     runSolver();
   }
-  assert (cfg_->getEquivalentVariable (vid));
-  VarNode* var = cfg_->getEquivalentVariable (vid);
+  assert (cfg_->getEquivalent (vid));
+  VarNode* var = cfg_->getEquivalent (vid);
   Params probs;
   if (var->hasEvidence()) {
     probs.resize (var->range(), LogAware::noEvidence());
@@ -115,7 +114,7 @@ CbpSolver::getJointDistributionOf (const VarIds& jointVids)
 {
   VarIds eqVarIds;
   for (unsigned i = 0; i < jointVids.size(); i++) {
-    VarNode* vn = cfg_->getEquivalentVariable (jointVids[i]);
+    VarNode* vn = cfg_->getEquivalent (jointVids[i]);
     eqVarIds.push_back (vn->varId());
   }
   return BpSolver::getJointDistributionOf (eqVarIds);
@@ -125,15 +124,20 @@ CbpSolver::getJointDistributionOf (const VarIds& jointVids)
 
 void
 CbpSolver::createLinks (void)
-{
+{  	
   const FacClusters& fcs = cfg_->facClusters();
   for (unsigned i = 0; i < fcs.size(); i++) {
     const VarClusters& vcs = fcs[i]->varClusters();
     for (unsigned j = 0; j < vcs.size(); j++) {
-      unsigned c = cfg_->getEdgeCount (fcs[i], vcs[j]);
+      unsigned count = cfg_->getEdgeCount (fcs[i], vcs[j], j);
+      if (Constants::DEBUG >= 5) {
+        cout << "creating edge " ;
+        cout << fcs[i]->representative()->getLabel() << " -> " ;
+        cout << vcs[j]->representative()->label();
+        cout << " idx=" << j << ", count=" << count << endl;
+      }
       links_.push_back (new CbpSolverLink (
-          fcs[i]->getRepresentative(),
-          vcs[j]->getRepresentative(), c));
+          fcs[i]->representative(), vcs[j]->representative(), j, count));
     }
   }
 }
@@ -213,47 +217,135 @@ CbpSolver::maxResidualSchedule (void)
 
 
 
-Params
-CbpSolver::getVar2FactorMsg (const SpLink* link) const
+void
+CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
 {
-  Params msg;
+  CbpSolverLink* link = static_cast<CbpSolverLink*> (_link);
+  FacNode* src = link->getFactor();
+  const VarNode* dst = link->getVariable();
+  const SpLinkSet& links = ninf(src)->getLinks();
+  // calculate the product of messages that were sent
+  // to factor `src', except from var `dst'
+  unsigned msgSize = 1;
+  for (unsigned i = 0; i < links.size(); i++) {
+    msgSize *= links[i]->getVariable()->range();
+  }
+  unsigned repetitions = 1;
+  Params msgProduct (msgSize, LogAware::multIdenty());
+  if (Globals::logDomain) {
+    for (int i = links.size() - 1; i >= 0; i--) {
+      const CbpSolverLink* cl = static_cast<const CbpSolverLink*> (links[i]);
+      if ( ! (cl->getVariable() == dst && cl->index() == link->index())) {
+        if (Constants::DEBUG >= 5) {
+          cout << "    message from " << links[i]->getVariable()->label();
+          cout << ": " ;
+        }
+        Util::add (msgProduct, getVar2FactorMsg (links[i]), repetitions);
+        repetitions *= links[i]->getVariable()->range();
+        if (Constants::DEBUG >= 5) {
+          cout << endl;
+        }
+      } else {
+        unsigned range = links[i]->getVariable()->range();
+        Util::add (msgProduct, Params (range, 0.0), repetitions);
+        repetitions *= range;
+      }
+    }
+  } else {
+    for (int i = links.size() - 1; i >= 0; i--) {
+      const CbpSolverLink* cl = static_cast<const CbpSolverLink*> (links[i]);
+      if ( ! (cl->getVariable() == dst && cl->index() == link->index())) {
+        if (Constants::DEBUG >= 5) {
+          cout << "    message from " << links[i]->getVariable()->label();
+          cout << ": " ;
+        }
+        Util::multiply (msgProduct, getVar2FactorMsg (links[i]), repetitions);
+        repetitions *= links[i]->getVariable()->range();
+        if (Constants::DEBUG >= 5) {
+          cout << endl;
+        }
+      } else {
+        unsigned range = links[i]->getVariable()->range();
+        Util::multiply (msgProduct, Params (range, 1.0), repetitions);
+        repetitions *= range;
+      }
+    }
+  }
+  Factor result (src->factor().arguments(),
+      src->factor().ranges(), msgProduct);
+  assert (msgProduct.size() == src->factor().size());
+  if (Globals::logDomain) {
+    for (unsigned i = 0; i < result.size(); i++) {
+      result[i] += src->factor()[i];
+    }
+  } else {
+    for (unsigned i = 0; i < result.size(); i++) {
+      result[i] *= src->factor()[i];
+    }
+  }
+  if (Constants::DEBUG >= 5) {
+    cout << "    message product:  " << msgProduct << endl;
+    cout << "    original factor:  " << src->factor().params() << endl;
+    cout << "    factor product:   " << result.params() << endl;
+  }
+  result.sumOutAllExceptIndex (link->index());
+  if (Constants::DEBUG >= 5) {
+    cout << "    marginalized:     "  << result.params() << endl;
+  }
+  link->getNextMessage() = result.params();
+  LogAware::normalize (link->getNextMessage());
+  if (Constants::DEBUG >= 5) {
+    cout << "    curr msg:         " << link->getMessage() << endl;
+    cout << "    next msg:         " << link->getNextMessage() << endl;
+  }
+}
+
+
+
+Params
+CbpSolver::getVar2FactorMsg (const SpLink* _link) const
+{
+  const CbpSolverLink* link = static_cast<const CbpSolverLink*> (_link);
   const VarNode* src = link->getVariable();
   const FacNode* dst = link->getFactor();
-  const CbpSolverLink* l = static_cast<const CbpSolverLink*> (link);
+  Params msg;
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());
     double value = link->getMessage()[src->getEvidence()];
-    msg[src->getEvidence()] = LogAware::pow (value, l->nrEdges() - 1);
+    if (Constants::DEBUG >= 5) {
+      msg[src->getEvidence()] = value;
+      cout << msg << "^" << link->nrEdges() << "-1" ;
+    }
+    msg[src->getEvidence()] = LogAware::pow (value, link->nrEdges() - 1);
   } else {
     msg = link->getMessage();
-    LogAware::pow (msg, l->nrEdges() - 1);
-  }
-  if (Constants::DEBUG >= 5) {
-    cout << "        " << "init: " << msg << " " << src->hasEvidence() << endl;
+    if (Constants::DEBUG >= 5) {
+      cout << msg << "^" << link->nrEdges() << "-1" ;
+    }
+    LogAware::pow (msg, link->nrEdges() - 1);
   }
   const SpLinkSet& links = ninf(src)->getLinks();
   if (Globals::logDomain) {
     for (unsigned i = 0; i < links.size(); i++) {
-      if (links[i]->getFactor() != dst) {
-        CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-        Util::add (msg, l->poweredMessage());
+      CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
+      if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
+        CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
+        Util::add (msg, cl->poweredMessage());
       }
     }
   } else {
     for (unsigned i = 0; i < links.size(); i++) {
-      if (links[i]->getFactor() != dst) {
-        CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-        Util::multiply (msg, l->poweredMessage());
+      CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
+      if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
+        Util::multiply (msg, cl->poweredMessage());
         if (Constants::DEBUG >= 5) {
-          cout << "        msg from " << l->getFactor()->getLabel() << ": " ;
-          cout << l->poweredMessage() << endl;
+          cout << " x " << cl->getNextMessage() << "^" << link->nrEdges(); 
         }
       }
     }
   }
-
   if (Constants::DEBUG >= 5) {
-    cout << "        result = " << msg << endl;
+    cout << " = " << msg;
   }
   return msg;
 }
@@ -264,13 +356,14 @@ void
 CbpSolver::printLinkInformation (void) const
 {
   for (unsigned i = 0; i < links_.size(); i++) {
-    CbpSolverLink* l = static_cast<CbpSolverLink*> (links_[i]); 
-    cout << l->toString() << ":" << endl;
-    cout << "    curr msg = " << l->getMessage() << endl;
-    cout << "    next msg = " << l->getNextMessage() << endl;
-    cout << "    nr edges = " << l->nrEdges() << endl;
-    cout << "    powered  = " << l->poweredMessage() << endl;
-    cout << "    residual = " << l->getResidual() << endl;
+    CbpSolverLink* cl = static_cast<CbpSolverLink*> (links_[i]); 
+    cout << cl->toString() << ":" << endl;
+    cout << "    curr msg = " << cl->getMessage() << endl;
+    cout << "    next msg = " << cl->getNextMessage() << endl;
+    cout << "    index    = " << cl->index() << endl;
+    cout << "    nr edges = " << cl->nrEdges() << endl;
+    cout << "    powered  = " << cl->poweredMessage() << endl;
+    cout << "    residual = " << cl->getResidual() << endl;
   }
 }
 

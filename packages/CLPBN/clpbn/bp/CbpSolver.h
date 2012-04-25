@@ -9,9 +9,11 @@ class Factor;
 class CbpSolverLink : public SpLink
 {
   public:
-    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned c) 
-        : SpLink (fn, vn), nrEdges_(c),
+    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned idx, unsigned count) 
+        : SpLink (fn, vn), index_(idx), nrEdges_(count),
           pwdMsg_(vn->range(), LogAware::one()) { }
+
+    unsigned index (void) const { return index_; }
 
     unsigned nrEdges  (void) const { return nrEdges_; }
 
@@ -26,6 +28,7 @@ class CbpSolverLink : public SpLink
     }
   
   private:
+    unsigned  index_;
     unsigned  nrEdges_;
     Params    pwdMsg_;
 };
@@ -35,6 +38,8 @@ class CbpSolverLink : public SpLink
 class CbpSolver : public BpSolver
 {
   public:
+    static vector<int> counts;
+   
     CbpSolver (const FactorGraph& fg);
 
    ~CbpSolver (void);
@@ -50,6 +55,8 @@ class CbpSolver : public BpSolver
      void createLinks (void);
 
      void maxResidualSchedule (void);
+
+     void calculateFactor2VariableMsg (SpLink*);
 
      Params getVar2FactorMsg (const SpLink*) const;
 

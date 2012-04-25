@@ -163,7 +163,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     reverse (vids.begin(), vids.end());
     Factor f (vids, ranges, params);
     reverse (vids.begin(), vids.end());
-    f.reorderArguments (vids);
+    f.reorderArguments (vids); 
     addFactor (f);
   }
   is.close();

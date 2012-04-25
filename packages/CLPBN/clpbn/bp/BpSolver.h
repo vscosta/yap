@@ -183,7 +183,7 @@ class BpSolver : public Solver
 
     bool converged (void);
 
-    void printLinkInformation (void) const;
+    virtual void printLinkInformation (void) const;
 };
 
 #endif // HORUS_BPSOLVER_H

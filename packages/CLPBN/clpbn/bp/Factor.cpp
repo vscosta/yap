@@ -105,7 +105,7 @@ Factor::sumOutIndex (unsigned idx)
   // on the left of `var', with the states of the remaining vars fixed
   unsigned leftVarOffset = 1;
 
-  for (int i = args_.size() - 1; i > idx; i--) {
+  for (int i = args_.size() - 1; i > (int)idx; i--) {
     varOffset     *= ranges_[i];
     leftVarOffset *= ranges_[i];
   }
@@ -151,7 +151,7 @@ Factor::sumOutIndex (unsigned idx)
 void
 Factor::sumOutAllExceptIndex (unsigned idx)
 {
-  int i = idx;
+  int i = (int)idx;
   while (args_.size() > i + 1) {
     sumOutLastVariable();
   }

@@ -325,7 +325,6 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
       }
     }
   }
-
   Factor result (src->factor().arguments(),
       src->factor().ranges(), msgProduct);
   result.multiply (src->factor());
@@ -336,18 +335,13 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   }
   result.sumOutAllExcept (dst->varId());
   if (Constants::DEBUG >= 5) {
-    cout << "    marginalized:     " ;
-    cout << result.params() << endl;
+    cout << "    marginalized:     " << result.params() << endl;
   }
-  const Params& resultParams = result.params();
-  Params& message = link->getNextMessage();
-  for (unsigned i = 0; i < resultParams.size(); i++) {
-     message[i] = resultParams[i];
-  }
-  LogAware::normalize (message);
+  link->getNextMessage() = result.params();
+  LogAware::normalize (link->getNextMessage());
   if (Constants::DEBUG >= 5) {
     cout << "    curr msg:         " << link->getMessage() << endl;
-    cout << "    next msg:         " << message << endl;
+    cout << "    next msg:         " << link->getNextMessage() << endl;
   }
 }
 
