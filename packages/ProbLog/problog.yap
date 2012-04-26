@@ -233,6 +233,8 @@
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
+		    problog_fl_bdd/2,
+		    problog_kbest_bdd/4,
                     problog_all_explanations/2,
                     problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
@@ -591,6 +593,7 @@ reset_control :-
 
 grow_atom_table(N):-
 	generate_atoms(N, 0),
+        stop_low_level_trace,
 	garbage_collect_atoms.
 generate_atoms(N, N):-!.
 generate_atoms(N, A):-
@@ -2145,6 +2148,7 @@ init_problog_low(Threshold) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
 
+:- include(problog_lbdd).
 
 % generalizing problog_max to return all explanations, sorted by non-increasing probability
 problog_all_explanations(Goal,Expl) :-
@@ -2427,7 +2431,7 @@ problog_kbest(Goal, K, Prob, Status) :-
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
-    nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	eval_dnf(Trie_Completed_Proofs,Prob,Status),
 	delete_ptree(Trie_Completed_Proofs).
 

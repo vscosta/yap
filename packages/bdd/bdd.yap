@@ -10,6 +10,7 @@
 	bdd_size/2,
 	bdd_print/2,
 	bdd_to_probability_sum_product/2,
+	bdd_to_probability_sum_product/3,
 	bdd_close/1,
 	mtbdd_close/1]).
 
@@ -129,7 +130,7 @@ bdd_eval(add(M, X, Vars, _), Val) :-
 mtbdd_eval(add(M,X, Vars, _), Val) :-
 	add_eval(M, X, Vars, Val).
 
-bdd_tree(cudd(M, X, Vars, _), bdd(Dir, Tree, Vars)) :-
+bdd_tree(cudd(M, X, Vars, _Vs), bdd(Dir, Tree, Vars)) :-
 	cudd_to_term(M, X, Vars, Dir, Tree).
 bdd_tree(add(M, X, Vars, _), mtbdd(Tree, Vars)) :-
 	add_to_term(M, X, Vars, Tree).
@@ -138,6 +139,9 @@ mtbdd_tree(add(M,X,Vars, _), mtbdd(Dir, Tree, Vars)) :-
 	add_to_term(M, X, Vars, Dir, Tree).
 
 bdd_to_probability_sum_product(cudd(M,X,_,Probs), Prob) :-
+	cudd_to_probability_sum_product(M, X, Probs, Prob).
+
+bdd_to_probability_sum_product(cudd(M,X,_,_Probs), Probs, Prob) :-
 	cudd_to_probability_sum_product(M, X, Probs, Prob).
 
 bdd_close(cudd(M,_,_Vars, _)) :-

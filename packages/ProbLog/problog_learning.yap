@@ -207,6 +207,7 @@
 
 :- module(learning,[do_learning/1,
 	            do_learning/2,
+		    set_problog_flag/2,
 		    reset_learning/0
 		    ]).
 
@@ -740,7 +741,9 @@ update_query(QueryID,Symbol,What_To_Update) :-
 			 ' > "',
 			 Output_Directory,
 			 'values.pl"'],Command),
+
 	  shell(Command,Error),
+%shell('cat /home/vsc/Yap/bins/devel/outputvalues.pl',_),
 	 
 
 	  (
