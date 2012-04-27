@@ -30,12 +30,12 @@ BIBTEX=bibtex
 
 PROGRAMS= \
 	$(srcdir)/problog.yap \
-	$(srcdir)/problog_bddlib.yap \
+	$(srcdir)/problog_lbdd.yap \
 	$(srcdir)/problog_lfi.yap \
 	$(srcdir)/dtproblog.yap \
 	$(srcdir)/aproblog.yap \
-	$(srcdir)/problog_libbdd_learning.yap\
-	$(srcdir)/problog_learning.yap
+	$(srcdir)/problog_learning.yap\
+	$(srcdir)/problog_learning_lbdd.yap
 
 PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/extlists.yap \
