@@ -538,7 +538,12 @@ Parfactor::print (bool printParams) const
   cout << "LogVars:   " << constr_->logVarSet()  << endl;
   cout << "Ranges:    " << ranges_ << endl;
   if (printParams == false) {
-    cout << "Params:    " << params_ << endl;
+    cout << "Params:    " ;
+    if (params_.size() <= 32) {
+      cout << params_ << endl;
+    } else {
+      cout << "|" << params_.size() << "|" << endl;
+    }
   }
   ConstraintTree copy (*constr_);
   copy.moveToTop (copy.logVarSet().elements());
