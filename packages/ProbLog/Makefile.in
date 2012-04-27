@@ -58,7 +58,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/version_control.yap \
 	$(srcdir)/problog/nestedtries.yap \
 	$(srcdir)/problog/utils.yap \
-	$(srcdir)/problog/utils_libbdd.yap \
+	$(srcdir)/problog/utils_lbdd.yap \
 	$(srcdir)/problog/ad_converter.yap \
 	$(srcdir)/problog/termhandling.yap \
 	$(srcdir)/problog/completion.yap \
