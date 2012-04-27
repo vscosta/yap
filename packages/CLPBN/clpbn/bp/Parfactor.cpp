@@ -138,14 +138,6 @@ Parfactor::sumOut (unsigned fIdx)
   assert (fIdx < args_.size());
   assert (args_[fIdx].contains (elimLogVars()));
 
-  LogVarSet excl = exclusiveLogVars (fIdx);
-  if (args_[fIdx].isCounting()) {
-    LogAware::pow (params_, constr_->getConditionalCount (
-        excl - args_[fIdx].countedLogVar()));
-  } else {
-    LogAware::pow (params_, constr_->getConditionalCount (excl));
-  }
-
   if (args_[fIdx].isCounting()) {
     unsigned N = constr_->getConditionalCount (
         args_[fIdx].countedLogVar());
@@ -179,9 +171,17 @@ Parfactor::sumOut (unsigned fIdx)
     }
   }
 
+  LogVarSet excl = exclusiveLogVars (fIdx);
+  if (args_[fIdx].isCounting()) {
+    LogAware::pow (params_, constr_->getConditionalCount (
+        excl - args_[fIdx].countedLogVar()));
+  } else {
+    LogAware::pow (params_, constr_->getConditionalCount (excl));
+  }
+  constr_->remove (excl);
+
   args_.erase (args_.begin() + fIdx);
   ranges_.erase (ranges_.begin() + fIdx);
-  constr_->remove (excl);
 }
 
 
