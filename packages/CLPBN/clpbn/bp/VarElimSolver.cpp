@@ -109,6 +109,12 @@ void
 VarElimSolver::processFactorList (const VarIds& vids)
 {
   for (unsigned i = 0; i < elimOrder_.size(); i++) {
+    if (Constants::DEBUG >= 3) {
+      printActiveFactors();
+      cout << "-> summing out " ;
+      VarNode* vn = fg.getVarNode (elimOrder_[i]);
+      cout << vn->label() << endl;
+    }
     eliminate (elimOrder_[i]);
   }
 
@@ -169,10 +175,14 @@ VarElimSolver::eliminate (VarId elimVar)
 void
 VarElimSolver::printActiveFactors (void)
 {
+  cout << endl;
+  Util::printDashedLine();
   for (unsigned i = 0; i < factorList_.size(); i++) {
     if (factorList_[i] != 0) {
-      factorList_[i]->print();
+      cout << factorList_[i]->getLabel() << " " ;
+      cout << factorList_[i]->params() << endl;
     }
   }
+  cout << endl;
 }
 
