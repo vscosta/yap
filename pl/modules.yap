@@ -137,7 +137,7 @@ module(N) :-
 '$import'([PS|L],_,_) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 
-% $use_preds(Imports,Publics,Mod,M)
+$use_preds(Imports,Publics,Mod,M) :- writeln(),fail.
 '$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
 	'$import'(Publics,Mod,M).
 '$use_preds'(M:L,Publics,Mod,_) :-
@@ -147,9 +147,9 @@ module(N) :-
 	'$use_preds'(P,Publics,Mod,M),
 	'$use_preds'(Ps,Publics,Mod,M).
 '$use_preds'(N/K,Publics,M,Mod) :-
-          (  lists:memberchk(N/K,Publics) -> true ;
-	   print_message(warning,import(N/K,Mod,M,private))
-          ),
+          (  lists:memberchk(N/K,Publics) -> 
+             true ;
+             print_message(warning,import(N/K,Mod,M,private))
           '$do_import'(N, K, M, Mod).
 '$use_preds'(N//K0,Publics,M,Mod) :-
 	  K is K0+2,
@@ -163,8 +163,11 @@ module(N) :-
 % ignore imports that we  do export
 %
 '$do_import'(N, K, M, T) :-
-	recorded('$module','$module'(_F,T,MyExports),_),
-	lists:member(N/K,MyExports), !.
+       recorded('$module','$module'(_F, T, MyExports),_),
+       once(lists:member(N/K, MyExports)),
+       functor(S, N, K),
+       %  reexport predicates if they are undefined in the current module.
+       \+ '$undefined'(S, T), !.
 '$do_import'(N, K, M, T) :-
 	functor(G,N,K),
 	'$follow_import_chain'(M,G,M0,G0),
