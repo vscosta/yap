@@ -225,7 +225,7 @@
 :- use_module('problog/flags').
 :- use_module('problog/os').
 :- use_module('problog/print_learning').
-:- use_module('problog/utils_libbdd').
+:- use_module('problog/utils_lbdd').
 :- use_module('problog/utils').
 :- use_module('problog/tabling').
 
