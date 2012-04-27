@@ -113,9 +113,10 @@ ParfactorList::isAllShattered (void) const
 void
 ParfactorList::print (void) const
 {
-  list<Parfactor*>::const_iterator it;
-  for (it = pfList_.begin(); it != pfList_.end(); ++it) {
-    (*it)->print();
+  Parfactors pfVec (pfList_.begin(), pfList_.end());
+  std::sort (pfVec.begin(), pfVec.end(), sortByParams());
+  for (unsigned i = 0; i < pfVec.size(); i++) {
+    pfVec[i]->print();
   }
 }
 
