@@ -141,6 +141,11 @@ class Substitution
       return subs_.find (X)->second;
     }
 
+    bool containsReplacementFor (LogVar X) const 
+    {
+      return Util::contains (subs_, X);
+    }
+
     LogVars getDiscardedLogVars (void) const;
 
     friend ostream& operator<< (ostream &os, const Substitution& theta);

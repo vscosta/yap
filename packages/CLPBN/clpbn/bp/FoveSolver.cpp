@@ -352,31 +352,52 @@ CountingOperator::validOp (Parfactor* g, LogVar X)
 double
 GroundOperator::getLogCost (void)
 {
-  double cost = std::log (0.0);
-  vector<ParfactorList::iterator> pfIters;
-  pfIters = getParfactorsWithGroup (pfList_, group_);
-  for (unsigned i = 0; i < pfIters.size(); i++) {
-    Parfactor* pf = *pfIters[i];
-    int idx = pf->indexOfGroup (group_);
-    ProbFormula f = pf->argument (idx);
-    LogVar X      = f.logVars()[lvIndex_];
-    double pfCost = 0.0;
-    bool isCountingLv = pf->countedLogVars().contains (X);
-    if (isCountingLv) {
-      int fIdx = pf->indexOfLogVar (X);
-      unsigned currSize  = pf->size();
-      unsigned nrHists   = pf->range (fIdx);
-      unsigned nrSymbols = pf->constr()->getConditionalCount (X);
-      unsigned range     = pf->argument (fIdx).range();
-      double power = std::log (range) * nrSymbols;
-      pfCost = std::log (currSize / nrHists) + power;
-    } else {
-      unsigned currSize  = pf->size();
-      pfCost = std::log (pf->constr()->nrSymbols (X) * currSize);
+  vector<pair<unsigned, unsigned>> affectedFormulas;
+  affectedFormulas = getAffectedFormulas();
+  // cout << "affected formulas: " ;
+  // for (unsigned i = 0; i < affectedFormulas.size(); i++) {
+  //  cout << affectedFormulas[i].first  << ":" ;
+  //  cout << affectedFormulas[i].second << " " ;
+  // }
+  // cout << "cost =" ;
+  double totalCost = std::log (0.0);
+  ParfactorList::iterator pflIt = pfList_.begin();
+  while (pflIt != pfList_.end()) {
+    Parfactor* pf = *pflIt;
+    double reps   = 0.0;
+    double pfSize = std::log (pf->size());
+    bool willBeAffected = false;
+    LogVarSet lvsToGround;
+    for (unsigned i = 0; i < affectedFormulas.size(); i++) {
+      int fIdx = pf->indexOfGroup (affectedFormulas[i].first);
+      if (fIdx != -1) {
+        ProbFormula f = pf->argument (fIdx);
+        LogVar X      = f.logVars()[affectedFormulas[i].second];
+        bool isCountingLv = pf->countedLogVars().contains (X);
+        if (isCountingLv) {
+          unsigned nrHists   = pf->range (fIdx);
+          unsigned nrSymbols = pf->constr()->getConditionalCount (X);
+          unsigned range     = pf->argument (fIdx).range();
+          double power       = std::log (range) * nrSymbols;
+          pfSize = (pfSize - std::log (nrHists)) + power;
+        } else {
+          if (lvsToGround.contains (X) == false) {
+            reps += std::log (pf->constr()->nrSymbols (X));
+            lvsToGround.insert (X);
+          }
+        }
+        willBeAffected = true;
+      }
     }
-    cost = Util::logSum (cost, pfCost);
+    if (willBeAffected) {
+      // cout << " + " << std::exp (reps) << "x" << std::exp (pfSize);
+      double pfCost = reps + pfSize;
+      totalCost = Util::logSum (totalCost, pfCost);
+    }
+    ++ pflIt;
   }
-  return cost;
+  // cout << endl;
+  return totalCost;
 }
 
 
@@ -459,6 +480,42 @@ GroundOperator::toString (void)
   ss << "|" << tupleSet << " (group " << group_ << ")";
   ss << " [cost=" << std::exp (getLogCost()) << "]" << endl;
   return ss.str();
+}
+
+
+
+vector<pair<unsigned, unsigned>>
+GroundOperator::getAffectedFormulas (void)
+{
+  vector<pair<unsigned, unsigned>> affectedFormulas;
+  affectedFormulas.push_back (make_pair (group_, lvIndex_));
+  queue<pair<unsigned, unsigned>> q;
+  q.push (make_pair (group_, lvIndex_));
+  while (q.empty() == false) {
+    pair<unsigned, unsigned> front = q.front();
+    ParfactorList::iterator pflIt = pfList_.begin();
+    while (pflIt != pfList_.end()) {
+      int idx = (*pflIt)->indexOfGroup (front.first);
+      if (idx != -1) {
+        ProbFormula f = (*pflIt)->argument (idx);
+        LogVar X      = f.logVars()[front.second];
+        const ProbFormulas& fs = (*pflIt)->arguments();
+        for (unsigned i = 0; i < fs.size(); i++) {
+          if ((int)i != idx && fs[i].contains (X)) {
+            pair<unsigned, unsigned> pair = make_pair (
+                fs[i].group(), fs[i].indexOf (X));
+            if (Util::contains (affectedFormulas, pair) == false) {
+              q.push (pair);
+              affectedFormulas.push_back (pair);
+            }
+          }
+        }
+      }
+      ++ pflIt;
+    }
+    q.pop();
+  }
+  return affectedFormulas;
 }
 
 

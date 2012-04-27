@@ -98,6 +98,8 @@ class GroundOperator : public LiftedOperator
     string toString (void);
 
   private:
+     vector<pair<unsigned, unsigned>> getAffectedFormulas (void);
+
     unsigned                 group_;
     unsigned                 lvIndex_;
     ParfactorList&           pfList_;

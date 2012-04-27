@@ -41,6 +41,8 @@ class ProbFormula
 
     bool contains (LogVarSet) const;
 
+    int indexOf (LogVar) const;
+
     bool isAtom (void) const;
 
     bool isCounting (void) const;
