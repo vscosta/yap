@@ -137,7 +137,6 @@ module(N) :-
 '$import'([PS|L],_,_) :-
 	'$do_error'(domain_error(predicate_spec,PS),import([PS|L])).
 
-$use_preds(Imports,Publics,Mod,M) :- writeln(),fail.
 '$use_preds'(Imports,Publics,Mod,M) :- var(Imports), !,
 	'$import'(Publics,Mod,M).
 '$use_preds'(M:L,Publics,Mod,_) :-
@@ -150,6 +149,7 @@ $use_preds(Imports,Publics,Mod,M) :- writeln(),fail.
           (  lists:memberchk(N/K,Publics) -> 
              true ;
              print_message(warning,import(N/K,Mod,M,private))
+	  ),
           '$do_import'(N, K, M, Mod).
 '$use_preds'(N//K0,Publics,M,Mod) :-
 	  K is K0+2,
