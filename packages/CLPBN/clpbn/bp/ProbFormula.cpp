@@ -77,6 +77,14 @@ ProbFormula::setCountedLogVar (LogVar lv)
 
 
 void
+ProbFormula::clearCountedLogVar (void)
+{
+  countedLogVar_ = LogVar();
+}
+
+
+
+void
 ProbFormula::rename (LogVar oldName, LogVar newName)
 {
   for (unsigned i = 0; i < logVars_.size(); i++) {

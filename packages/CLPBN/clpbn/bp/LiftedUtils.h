@@ -37,7 +37,7 @@ class Symbol
 class LogVar
 {
   public:
-    LogVar (void) : id_(numeric_limits<unsigned>::max()) { }
+    LogVar (void) : id_(Util::maxUnsigned()) { }
 
     LogVar (unsigned id) : id_(id) { }
 
@@ -52,7 +52,7 @@ class LogVar
 
     bool valid (void) const
     { 
-      return id_ != numeric_limits<unsigned>::max();
+      return id_ != Util::maxUnsigned();
     }
 
     friend ostream& operator<< (ostream &os, const LogVar& X);

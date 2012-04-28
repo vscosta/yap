@@ -50,6 +50,8 @@ class ProbFormula
     LogVar countedLogVar (void) const;
     
     void setCountedLogVar (LogVar);
+
+    void clearCountedLogVar (void);
  
     void rename (LogVar, LogVar);
     

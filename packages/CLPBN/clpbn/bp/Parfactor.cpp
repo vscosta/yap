@@ -285,6 +285,12 @@ Parfactor::expand (LogVar X, LogVar X_new1, LogVar X_new2)
   args_.insert (args_.begin() + fIdx + 1, args_[fIdx]);
   args_[fIdx].rename (X, X_new1);
   args_[fIdx + 1].rename (X, X_new2);
+  if (H1 == 2) {
+    args_[fIdx].clearCountedLogVar();
+  }
+  if (H2 == 2) {
+    args_[fIdx + 1].clearCountedLogVar();
+  }
   ranges_.insert (ranges_.begin() + fIdx + 1, H2);
   ranges_[fIdx] = H1;
 }
