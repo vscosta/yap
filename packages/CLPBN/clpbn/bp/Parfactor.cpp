@@ -173,6 +173,7 @@ Parfactor::sumOut (unsigned fIdx)
 
   LogVarSet excl = exclusiveLogVars (fIdx);
   if (args_[fIdx].isCounting()) {
+    // counting log vars were already raised on counting conversion
     LogAware::pow (params_, constr_->getConditionalCount (
         excl - args_[fIdx].countedLogVar()));
   } else {
@@ -665,6 +666,9 @@ Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
   }
   LogVarSet Y_1 = g1->logVarSet() - LogVarSet (X_1);
   LogVarSet Y_2 = g2->logVarSet() - LogVarSet (X_2);
+  // counting log vars were already raised on counting conversion
+  Y_1 -= g1->countedLogVars();
+  Y_2 -= g2->countedLogVars();
   assert (g1->constr()->isCountNormalized (Y_1));
   assert (g2->constr()->isCountNormalized (Y_2));
   unsigned condCount1 = g1->constr()->getConditionalCount (Y_1);
