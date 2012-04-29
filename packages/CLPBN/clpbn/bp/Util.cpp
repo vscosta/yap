@@ -11,10 +11,9 @@
 namespace Globals {
 bool logDomain = false;
 
-//InfAlgs infAlgorithm = InfAlgorithms::VE;
-//InfAlgs infAlgorithm = InfAlgorithms::BN_BP;
-//InfAlgs infAlgorithm = InfAlgorithms::FG_BP;
-InfAlgorithms infAlgorithm = InfAlgorithms::CBP;
+unsigned verbosity = 0;
+
+InfAlgorithms infAlgorithm = InfAlgorithms::VE;
 };
 
 
@@ -227,7 +226,11 @@ bool
 setHorusFlag (string key, string value)
 {
   bool returnVal = true;
-  if (key == "inf_alg") {
+  if (key == "verbosity") {
+    stringstream ss;
+    ss << value;
+    ss >> Globals::verbosity;
+  } else if (key == "inf_alg") {
     if (       value == "ve") {
       Globals::infAlgorithm = InfAlgorithms::VE;
     } else if (value == "bp") {

@@ -151,14 +151,12 @@ Factor::sumOutIndex (unsigned idx)
 void
 Factor::sumOutAllExceptIndex (unsigned idx)
 {
-  int i = (int)idx;
-  while (args_.size() > i + 1) {
+  while (args_.size() > idx + 1) {
     sumOutLastVariable();
   }
-  while (i > 0) {
+  for (unsigned i = 0; i < idx; i++) {
     sumOutFirstVariable();
-    i -- ;
-  } 
+  }
 }
 
 

@@ -174,8 +174,10 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
     default:
       assert (false);
   }
-  solver->printSolverFlags();
-  cout << endl;
+  if (Globals::verbosity > 0) {
+    solver->printSolverFlags();
+    cout << endl;
+  }
   if (queryIds.size() == 0) {
     solver->printAllPosterioris();
   } else {

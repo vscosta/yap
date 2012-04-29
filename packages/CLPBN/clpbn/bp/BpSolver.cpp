@@ -153,9 +153,8 @@ BpSolver::runSolver (void)
   nIters_ = 0;
   while (!converged() && nIters_ < BpOptions::maxIter) {
     nIters_ ++;
-    if (Constants::DEBUG >= 2) {
+    if (Globals::verbosity > 1) {
       Util::printHeader (string ("Iteration ") + Util::toString (nIters_));
-      // cout << endl;
     }
     switch (BpOptions::schedule) {
      case BpOptions::Schedule::SEQ_RANDOM:
@@ -178,12 +177,8 @@ BpSolver::runSolver (void)
         maxResidualSchedule();
         break;
     }
-    if (Constants::DEBUG >= 2) {
-      cout << endl;
-    }
   }
-  if (Constants::DEBUG >= 2) {
-    cout << endl;
+  if (Globals::verbosity > 0) {
     if (nIters_ < BpOptions::maxIter) {
       cout << "Sum-Product converged in " ; 
       cout << nIters_ << " iterations" << endl;
@@ -191,6 +186,7 @@ BpSolver::runSolver (void)
       cout << "The maximum number of iterations was hit, terminating..." ;
       cout << endl;
     }
+    cout << endl;
   }
   unsigned size = fg_->varNodes().size();
   if (Constants::COLLECT_STATS) {
@@ -232,7 +228,7 @@ BpSolver::maxResidualSchedule (void)
   }
 
   for (unsigned c = 0; c < links_.size(); c++) {
-    if (Constants::DEBUG >= 2) {
+    if (Globals::verbosity > 1) {
       cout << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); it ++) {
@@ -266,7 +262,7 @@ BpSolver::maxResidualSchedule (void)
         }
       }
     }
-    if (Constants::DEBUG >= 2) {
+    if (Globals::verbosity > 1) {
       Util::printDashedLine();
     }
   }
@@ -291,13 +287,13 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   if (Globals::logDomain) {
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();
           cout << ": " ;
         }
         Util::add (msgProduct, getVar2FactorMsg (links[i]), repetitions);
         repetitions *= links[i]->getVariable()->range();
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
       } else {
@@ -309,13 +305,13 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   } else {
     for (int i = links.size() - 1; i >= 0; i--) {
       if (links[i]->getVariable() != dst) {
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();
           cout << ": " ;
         }
         Util::multiply (msgProduct, getVar2FactorMsg (links[i]), repetitions);
         repetitions *= links[i]->getVariable()->range();
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
       } else {
@@ -328,18 +324,18 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   Factor result (src->factor().arguments(),
       src->factor().ranges(), msgProduct);
   result.multiply (src->factor());
-  if (Constants::DEBUG >= 5) {
+  if (Constants::SHOW_BP_CALCS) {
     cout << "    message product:  " << msgProduct << endl;
     cout << "    original factor:  " << src->factor().params() << endl;
     cout << "    factor product:   " << result.params() << endl;
   }
   result.sumOutAllExcept (dst->varId());
-  if (Constants::DEBUG >= 5) {
+  if (Constants::SHOW_BP_CALCS) {
     cout << "    marginalized:     " << result.params() << endl;
   }
   link->getNextMessage() = result.params();
   LogAware::normalize (link->getNextMessage());
-  if (Constants::DEBUG >= 5) {
+  if (Constants::SHOW_BP_CALCS) {
     cout << "    curr msg:         " << link->getMessage() << endl;
     cout << "    next msg:         " << link->getNextMessage() << endl;
   }
@@ -359,7 +355,7 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   } else {
     msg.resize (src->range(), LogAware::one());
   }
-  if (Constants::DEBUG >= 5) {
+  if (Constants::SHOW_BP_CALCS) {
     cout << msg;
   }
   const SpLinkSet& links = ninf (src)->getLinks();
@@ -367,7 +363,7 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
         Util::add (msg, links[i]->getMessage());
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << " x " << links[i]->getMessage();
         }
       }
@@ -376,13 +372,13 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
         Util::multiply (msg, links[i]->getMessage());
-        if (Constants::DEBUG >= 5) {
+        if (Constants::SHOW_BP_CALCS) {
           cout << " x " << links[i]->getMessage();
         }
       }
     }
   }
-  if (Constants::DEBUG >= 5) {
+  if (Constants::SHOW_BP_CALCS) {
     cout << " = " << msg;
   }
   return msg;
@@ -472,7 +468,16 @@ BpSolver::converged (void)
   if (links_.size() == 0) {
     return true;
   }
-  if (nIters_ <= 1) {
+  if (nIters_ == 0) {
+    return false;
+  }
+  if (Globals::verbosity > 2) {
+    cout << endl;
+  }
+  if (nIters_ == 1) {
+    if (Globals::verbosity > 1) {
+      cout << "no residuals" << endl << endl;
+    }
     return false;
   }
   bool converged = true;
@@ -486,7 +491,7 @@ BpSolver::converged (void)
   } else {
     for (unsigned i = 0; i < links_.size(); i++) {
       double residual = links_[i]->getResidual();
-      if (Constants::DEBUG >= 2) {
+      if (Globals::verbosity > 1) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
       }
       if (residual > BpOptions::accuracy) {
@@ -494,7 +499,7 @@ BpSolver::converged (void)
         if (Constants::DEBUG == 0) break;
       }
     }
-    if (Constants::DEBUG >= 2) {
+    if (Globals::verbosity > 1) {
       cout << endl;
     }
   }

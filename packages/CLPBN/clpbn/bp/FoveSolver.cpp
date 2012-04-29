@@ -543,6 +543,18 @@ FoveSolver::getJointDistributionOf (const Grounds& query)
 
 
 void
+FoveSolver::printSolverFlags (void) const
+{
+  stringstream ss;
+  ss << "fove [" ;
+  ss << "log_domain=" << Util::toString (Globals::logDomain);
+  ss << "]" ;
+  cout << ss.str() << endl;
+}
+
+
+
+void
 FoveSolver::absorveEvidence (
     ParfactorList& pfList,
     ObservedFormulas& obsFormulas)
@@ -568,7 +580,7 @@ FoveSolver::absorveEvidence (
     }
     pfList.add (newPfs);
   }
-  if (Constants::DEBUG >= 2 && obsFormulas.empty() == false) {
+  if (Globals::verbosity > 2 && obsFormulas.empty() == false) {
     Util::printAsteriskLine();
     cout << "AFTER EVIDENCE ABSORVED" << endl;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
@@ -603,20 +615,26 @@ FoveSolver::countNormalize (
 void
 FoveSolver::runSolver (const Grounds& query)
 {
+  largestCost_ = std::log (0);
   shatterAgainstQuery (query);
   runWeakBayesBall (query);
   while (true) {
-    if (Constants::DEBUG >= 2) {
+    if (Globals::verbosity > 2) {
       Util::printDashedLine();
       pfList_.print();
-      LiftedOperator::printValidOps (pfList_, query);
+      if (Globals::verbosity > 3) {
+        LiftedOperator::printValidOps (pfList_, query);
+      }
     }
     LiftedOperator* op = getBestOperation (query);
     if (op == 0) {
       break;
     }
-    if (Constants::DEBUG >= 2) {
-      cout << "best operation: " << op->toString() << endl;
+    if (Globals::verbosity > 1) {
+      cout << "best operation: " << op->toString();
+      if (Globals::verbosity > 2) {
+        cout << endl;
+      }
     }
     op->apply();
     delete op;
@@ -629,6 +647,10 @@ FoveSolver::runSolver (const Grounds& query)
       (*pfList_.begin())->multiply (**pfIter);
       ++ pfIter;
     }
+  }
+  if (Globals::verbosity > 0) {
+    cout << "largest cost = " << std::exp (largestCost_) << endl;
+    cout << endl;
   }
   (*pfList_.begin())->reorderAccordingGrounds (query);
 }
@@ -648,6 +670,9 @@ FoveSolver::getBestOperation (const Grounds& query)
       bestOp   = validOps[i];
       bestCost = cost;
     } 
+  }
+  if (bestCost > largestCost_) {
+    largestCost_ = bestCost;
   }
   for (unsigned i = 0; i < validOps.size(); i++) {
     if (validOps[i] != bestOp) {
@@ -699,17 +724,20 @@ FoveSolver::runWeakBayesBall (const Grounds& query)
   }
 
   ParfactorList::iterator it = pfList_.begin();
+  bool foundNotRequired = false;
   while (it != pfList_.end()) {
     if (Util::contains (requiredPfs, *it) == false) {
+      if (Globals::verbosity > 2) {
+        if (foundNotRequired == false) {
+          Util::printHeader ("PARFACTORS TO DISCARD");
+          foundNotRequired = true;
+        }
+        (*it)->print();
+      }
       it = pfList_.removeAndDelete (it);
     } else {
       ++ it;
     }
-  }
-
-  if (Constants::DEBUG >= 2) {
-    Util::printHeader ("REQUIRED PARFACTORS");
-    pfList_.print();
   }
 }
 
@@ -750,8 +778,7 @@ FoveSolver::shatterAgainstQuery (const Grounds& query)
     }
     pfList_.add (newPfs);
   }
-  if (Constants::DEBUG >= 2) {
-    cout << endl;
+  if (Globals::verbosity > 2) {
     Util::printAsteriskLine();
     cout << "SHATTERED AGAINST THE QUERY" << endl;
     for (unsigned i = 0; i < query.size(); i++) {

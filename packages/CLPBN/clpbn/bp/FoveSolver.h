@@ -116,6 +116,8 @@ class FoveSolver
 
    Params getJointDistributionOf (const Grounds&);
 
+   void printSolverFlags (void) const;
+
    static void absorveEvidence (
        ParfactorList& pfList, ObservedFormulas& obsFormulas);
 
@@ -133,6 +135,8 @@ class FoveSolver
     static Parfactors absorve (ObservedFormula&, Parfactor*);
 
     ParfactorList pfList_;
+
+    double largestCost_;
 };
 
 #endif // HORUS_FOVESOLVER_H

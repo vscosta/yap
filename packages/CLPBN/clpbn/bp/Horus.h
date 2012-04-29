@@ -39,6 +39,8 @@ namespace Globals {
 
 extern bool logDomain;
 
+extern unsigned verbosity;
+
 extern InfAlgorithms infAlgorithm;
 
 };
@@ -47,12 +49,14 @@ extern InfAlgorithms infAlgorithm;
 namespace Constants {
 
 // level of debug information
-const unsigned DEBUG = 0;
+const unsigned DEBUG = 3;
+
+const bool SHOW_BP_CALCS = false;
 
 const int NO_EVIDENCE = -1;
 
 // number of digits to show when printing a parameter
-const unsigned PRECISION = 5;
+const unsigned PRECISION = 6;
 
 const bool COLLECT_STATS = false;
 

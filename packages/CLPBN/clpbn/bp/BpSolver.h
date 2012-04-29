@@ -128,7 +128,7 @@ class BpSolver : public Solver
 
     void calculateAndUpdateMessage (SpLink* link, bool calcResidual = true)
     {
-      if (Constants::DEBUG >= 3) {
+      if (Globals::verbosity > 2) {
         cout << "calculating & updating " << link->toString() << endl;
       }
       calculateFactor2VariableMsg (link);
@@ -140,7 +140,7 @@ class BpSolver : public Solver
 
     void calculateMessage (SpLink* link, bool calcResidual = true)
     {
-      if (Constants::DEBUG >= 3) {
+      if (Globals::verbosity > 2) {
         cout << "calculating " << link->toString() << endl;
       }
       calculateFactor2VariableMsg (link);
@@ -152,7 +152,7 @@ class BpSolver : public Solver
     void updateMessage (SpLink* link)
     {
       link->updateMessage();
-      if (Constants::DEBUG >= 3) {
+      if (Globals::verbosity > 2) {
         cout << "updating " << link->toString() << endl;
       }
     }

@@ -64,7 +64,7 @@ int createLiftedNetwork (void)
   }
 
   // LiftedUtils::printSymbolDictionary();
-  if (Constants::DEBUG > 2) {
+  if (Globals::verbosity > 2) {
     Util::printHeader ("INITIAL PARFACTORS");
     for (unsigned i = 0; i < parfactors.size(); i++) {
       parfactors[i]->print();
@@ -73,7 +73,7 @@ int createLiftedNetwork (void)
 
   ParfactorList* pfList = new ParfactorList (parfactors);
   
-  if (Constants::DEBUG >= 2) {
+  if (Globals::verbosity > 2) {
     Util::printHeader ("SHATTERED PARFACTORS");
     pfList->print();
   }
@@ -300,6 +300,10 @@ runLiftedSolver (void)
       jointList = YAP_TailOfTerm (jointList);
     }
     FoveSolver solver (pfListCopy);
+    if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+      solver.printSolverFlags();
+      cout << endl;
+    }
     if (queryVars.size() == 1) {
       results.push_back (solver.getPosterioriOf (queryVars[0]));
     } else {
@@ -376,7 +380,9 @@ void runVeSolver (
     }
     // VarElimSolver solver (*mfg);
     VarElimSolver solver (*fg); //FIXME
-    // solver.printSolverFlags();
+    if (Globals::verbosity > 0 && i == 0) {
+      solver.printSolverFlags();
+    }
     results.push_back (solver.solveQuery (tasks[i]));
     if (fg->isFromBayesNetwork()) {
       delete mfg;
@@ -410,7 +416,9 @@ void runBpSolver (
     cerr << "error: unknow solver" << endl;
     abort();
   }
-  // solver->printSolverFlags();
+  if (Globals::verbosity > 0) {
+    solver->printSolverFlags();
+  }
   results.reserve (tasks.size());
   for (unsigned i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
@@ -508,7 +516,11 @@ setHorusFlag (void)
 {
   string key ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
   string value;
-  if (key == "accuracy") {
+  if (key == "verbosity") {
+    stringstream ss;
+    ss << (int) YAP_IntOfTerm (YAP_ARG2);
+    ss >> value;
+  } else if (key == "accuracy") {
     stringstream ss;
     ss << (float) YAP_FloatOfTerm (YAP_ARG2);
     ss >> value;

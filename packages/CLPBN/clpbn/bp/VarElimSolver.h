@@ -35,8 +35,10 @@ class VarElimSolver : public Solver
 
     void printActiveFactors (void);
 
-    vector<Factor*>     factorList_;
-    VarIds              elimOrder_;
+    Factors  factorList_;
+    VarIds   elimOrder_;
+    unsigned largestFactorSize_;
+    unsigned totalFactorSize_;
     unordered_map<VarId, vector<unsigned>> varFactors_;
 };
 

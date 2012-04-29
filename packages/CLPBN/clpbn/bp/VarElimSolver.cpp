@@ -16,6 +16,14 @@ VarElimSolver::~VarElimSolver (void)
 Params
 VarElimSolver::solveQuery (VarIds queryVids)
 {
+  if (Globals::verbosity > 1) {
+    cout << "Solving query on " ;
+    for (unsigned i = 0; i < queryVids.size(); i++) {
+      if (i != 0) cout << ", " ;
+      cout << fg.getVarNode (queryVids[i])->label();
+    }
+    cout << endl;
+  }
   factorList_.clear();
   varFactors_.clear();
   elimOrder_.clear();
@@ -77,9 +85,19 @@ VarElimSolver::createFactorList (void)
 void
 VarElimSolver::absorveEvidence (void)
 {
+  if (Globals::verbosity > 2) {
+    Util::printDashedLine();
+    cout << "(initial factor list)" << endl;
+    printActiveFactors();
+  }
   const VarNodes& varNodes = fg.varNodes();
   for (unsigned i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
+      if (Globals::verbosity > 1) {
+        cout << "-> aborving evidence on ";
+        cout << varNodes[i]->label() << " = " ;
+        cout << varNodes[i]->getEvidence() << endl;
+      }
       const vector<unsigned>& idxs =
           varFactors_.find (varNodes[i]->varId())->second;
       for (unsigned j = 0; j < idxs.size(); j++) {
@@ -108,12 +126,16 @@ VarElimSolver::findEliminationOrder (const VarIds& vids)
 void
 VarElimSolver::processFactorList (const VarIds& vids)
 {
+  totalFactorSize_   = 0;
+  largestFactorSize_ = 0;
   for (unsigned i = 0; i < elimOrder_.size(); i++) {
-    if (Constants::DEBUG >= 3) {
-      printActiveFactors();
+    if (Globals::verbosity >= 2) {
+      if (Globals::verbosity >= 3) {
+        Util::printDashedLine();
+        printActiveFactors();
+      }
       cout << "-> summing out " ;
-      VarNode* vn = fg.getVarNode (elimOrder_[i]);
-      cout << vn->label() << endl;
+      cout << fg.getVarNode (elimOrder_[i])->label() << endl;
     }
     eliminate (elimOrder_[i]);
   }
@@ -137,6 +159,11 @@ VarElimSolver::processFactorList (const VarIds& vids)
   finalFactor->reorderArguments (unobservedVids);
   finalFactor->normalize();
   factorList_.push_back (finalFactor);
+  if (Globals::verbosity > 0) {
+    cout << "total factor size:   " << totalFactorSize_ << endl;
+    cout << "largest factor size: " << largestFactorSize_ << endl;
+    cout << endl;
+  }
 }
 
 
@@ -158,6 +185,10 @@ VarElimSolver::eliminate (VarId elimVar)
       factorList_[idx] = 0;
     }
   }
+  totalFactorSize_ += result->size();
+  if (result->size() > largestFactorSize_) {
+    largestFactorSize_ = result->size();
+  }
   if (result != 0 && result->nrArguments() != 1) {
     result->sumOut (elimVar);
     factorList_.push_back (result);
@@ -175,14 +206,11 @@ VarElimSolver::eliminate (VarId elimVar)
 void
 VarElimSolver::printActiveFactors (void)
 {
-  cout << endl;
-  Util::printDashedLine();
   for (unsigned i = 0; i < factorList_.size(); i++) {
     if (factorList_[i] != 0) {
       cout << factorList_[i]->getLabel() << " " ;
       cout << factorList_[i]->params() << endl;
     }
   }
-  cout << endl;
 }
 
