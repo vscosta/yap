@@ -192,9 +192,9 @@ module(N) :-
 	% dereference MI to M1, in order to find who 
 	% is actually generating
 	( '$module_produced by'(M1,MI,N,K) -> true ; MI = M1 ),
-	( '$module_produced by'(M2,T,N,K) -> true ; T = M2 ),
+	( '$module_produced by'(M2,M,N,K) -> true ; M = M2 ),
 	M2 \= M1,  !,
-	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,T]),
+	format(user_error,'NAME CLASH: ~w was already imported to module ~w;~n',[M1:N/K,M2]),
 	format(user_error,'            Do you want to import it from ~w ? [y, n or h] ',M),
 	'$mod_scan'(C),
 	C =:= "y".
