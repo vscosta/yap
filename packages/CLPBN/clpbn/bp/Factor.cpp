@@ -10,7 +10,6 @@
 #include "Indexer.h"
 
 
-
 Factor::Factor (const Factor& g)
 {
   copyFromFactor (g);
@@ -97,6 +96,7 @@ Factor::sumOutAllExcept (const VarIds& vids)
 void
 Factor::sumOutIndex (unsigned idx)
 {
+  assert (idx < args_.size());
   // number of parameters separating a different state of `var', 
   // with the states of the remaining variables fixed
   unsigned varOffset = 1;
@@ -151,6 +151,7 @@ Factor::sumOutIndex (unsigned idx)
 void
 Factor::sumOutAllExceptIndex (unsigned idx)
 {
+  assert (idx < args_.size());
   while (args_.size() > idx + 1) {
     sumOutLastVariable();
   }
@@ -164,6 +165,7 @@ Factor::sumOutAllExceptIndex (unsigned idx)
 void
 Factor::sumOutFirstVariable (void)
 {
+  assert (args_.size() > 1);
   unsigned range = ranges_.front();
   unsigned sep = params_.size() / range;
   if (Globals::logDomain) {
@@ -185,6 +187,7 @@ Factor::sumOutFirstVariable (void)
 void
 Factor::sumOutLastVariable (void)
 {
+  assert (args_.size() > 1);
   unsigned range = ranges_.back();
   unsigned idx1 = 0;
   unsigned idx2 = 0;
