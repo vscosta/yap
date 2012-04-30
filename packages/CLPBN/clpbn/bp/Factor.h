@@ -93,7 +93,7 @@ class TFactor
             Params::size_type newSize = params_.size() * g_ranges[i];
             if (newSize > Util::maxUnsigned()) {
               // factor will become to bigger, is not worth to continue
-              cerr << "error: an overflow occurred when performing expansion" ;
+              cerr << "error: an overflow occurred on factor multiplication" ;
               cerr << endl;
               abort();
             }
