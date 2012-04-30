@@ -39,6 +39,7 @@ namespace Globals {
 
 extern bool logDomain;
 
+// level of debug information
 extern unsigned verbosity;
 
 extern InfAlgorithms infAlgorithm;
@@ -48,9 +49,7 @@ extern InfAlgorithms infAlgorithm;
 
 namespace Constants {
 
-// level of debug information
-const unsigned DEBUG = 3;
-
+// show message calculation for belief propagation
 const bool SHOW_BP_CALCS = false;
 
 const int NO_EVIDENCE = -1;

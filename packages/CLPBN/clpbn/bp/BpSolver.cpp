@@ -496,7 +496,9 @@ BpSolver::converged (void)
       }
       if (residual > BpOptions::accuracy) {
         converged = false;
-        if (Constants::DEBUG == 0) break;
+        if (Globals::verbosity < 2) {
+          break;
+        }
       }
     }
     if (Globals::verbosity > 1) {
