@@ -1,13 +1,12 @@
 :- use_module(library(pfl)).
 
-:- clpbn_horus:set_solver(fove).
-%:- clpbn_horus:set_solver(hve).
-%:- clpbn_horus:set_solver(bp).
-%:- clpbn_horus:set_solver(cbp).
+%:- set_solver(fove).
+%:- set_solver(hve).
+%:- set_solver(bp).
+%:- set_solver(cbp).
 
 :- multifile people/2.
 :- multifile ev/1.
-
 
 people(joe,nyc).
 people(p2, nyc).
@@ -15,11 +14,10 @@ people(p3, nyc).
 people(p4, nyc).
 people(p5, nyc).
 
-%ev(descn(p2, t)).
+ev(descn(p2, t)).
 ev(descn(p3, t)).
 ev(descn(p4, t)).
 ev(descn(p5, t)).
-
 
 bayes city_conservativeness(C)::[y,n] ; cons_table(C) ; [people(_,C)].
 

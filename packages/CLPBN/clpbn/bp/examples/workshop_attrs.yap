@@ -1,11 +1,13 @@
 :- use_module(library(pfl)).
 
-:- clpbn_horus:set_solver(fove).
-%:- clpbn_horus:set_solver(hve).
-%:- clpbn_horus:set_solver(bp).
-%:- clpbn_horus:set_solver(cbp).
+%:- set_solver(fove).
+%:- set_solver(hve).
+%:- set_solver(bp).
+%:- set_solver(cbp).
 
 :- yap_flag(write_strings, off).
+
+:- multifile people/1.
 
 people @ 5.
 

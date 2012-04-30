@@ -1,24 +1,31 @@
 :- use_module(library(pfl)).
 
-:- clpbn_horus:set_solver(fove).
-%:- clpbn_horus:set_solver(hve).
-%:- clpbn_horus:set_solver(bp).
-%:- clpbn_horus:set_solver(cbp).
+%:- set_solver(fove).
+%:- set_solver(hve).
+%:- set_solver(bp).
+%:- set_solver(cbp).
 
 :- yap_flag(write_strings, off).
 
+:- multifile people/1.
 
-friends(P1, P2) :-
-    people(P1),
-    people(P2),
-    P1 @< P2.
+people @ 5.
 
-people @ 3.
+friendship(X,Y) :-
+    people(X),
+    people(Y).
+%    X \== Y.
 
-markov smokes(P)::[t,f], cancer(P)::[t,f] ; [0.1, 0.2, 0.3, 0.4] ; [people(P)].
+markov smokes(X)::[t,f] ; [1.0, 1.4] ; [people(X)].
 
-markov friend(P1,P2)::[t,f], smokes(P1)::[t,f], smokes(P2)::[t,f] ;
-    [0.5, 0.6, 0.7, 0.8, 0.5, 0.6, 0.7, 0.8] ; [friends(P1, P2)].
+markov asthma(X)::[t,f] ; [1.0, 2.3] ; [people(X)].
 
-% ?- smokes(p1, t), smokes(p2, f), friend(p1, p2, X).
+markov friends(X,Y)::[t,f] ; [1.0, 4.6] ; [friendship(X,Y)].
+
+markov asthma(X)::[t,f], smokes(X)::[t,f] ; [1.5, 1.0, 1.5, 1.5] ; [people(X)].
+
+markov asthma(X)::[t,f], friends(X,Y)::[t,f], smokes(Y)::[t,f] ;
+    [1.1, 1.0, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1] ; [friendship(X,Y)].
+
+% ?- smokes(p1,t), smokes(p2,t), friends(p1,p2,X)
 
