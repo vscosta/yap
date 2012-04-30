@@ -118,8 +118,6 @@ class FactorGraph
 
     void exportToLibDaiFormat (const char*) const;
                       
-    static bool orderVars;
-
   private:
     // DISALLOW_COPY_AND_ASSIGN (FactorGraph);
 

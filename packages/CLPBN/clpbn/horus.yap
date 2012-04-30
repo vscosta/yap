@@ -45,7 +45,6 @@ set_solver(bp)    :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, bp).
 set_solver(cbp)   :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, cbp).
 set_solver(S)     :- throw(error('unknow solver ', S)).
 
-
 %:- set_horus_flag(inf_alg, ve).
 %:- set_horus_flag(inf_alg, bp).
 %: -set_horus_flag(inf_alg, cbp).
@@ -58,9 +57,6 @@ set_solver(S)     :- throw(error('unknow solver ', S)).
 :- set_horus_flag(accuracy, 0.0001).
 
 :- set_horus_flag(max_iter, 1000).
-
-:- set_horus_flag(order_vars, false).
-%:- set_horus_flag(order_vars, true).
 
 :- set_horus_flag(use_logarithms, false).
 % :- set_horus_flag(use_logarithms, true).

@@ -13,9 +13,6 @@
 #include "Util.h"
 
 
-bool FactorGraph::orderVars = false;
-
-
 FactorGraph::FactorGraph (const FactorGraph& fg)
 {
   const VarNodes& varNodes = fg.varNodes();
@@ -187,9 +184,6 @@ void
 FactorGraph::addFactor (const Factor& factor)
 {
   FacNode* fn = new FacNode (factor);
-  if (orderVars) {
-    fn->factor().reorderAccordingVarIds();
-  }
   addFacNode (fn);
   const VarIds& vids = fn->factor().arguments();
   for (unsigned i = 0; i < vids.size(); i++) {

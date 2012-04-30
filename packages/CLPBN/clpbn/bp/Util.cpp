@@ -288,16 +288,6 @@ setHorusFlag (string key, string value)
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
-  } else if (key == "order_vars") {
-    if (       value == "true") {
-      FactorGraph::orderVars = true;
-    } else if (value == "false") {
-      FactorGraph::orderVars = false;
-    } else {
-      cerr << "warning: invalid value `" << value << "' " ;
-      cerr << "for `" << key << "'" << endl;
-      returnVal = false;
-    }
   } else {
     cerr << "warning: invalid key `" << key << "'" << endl;
     returnVal = false;

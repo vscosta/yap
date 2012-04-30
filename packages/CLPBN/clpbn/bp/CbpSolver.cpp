@@ -56,7 +56,6 @@ CbpSolver::printSolverFlags (void) const
   ss << ",max_iter=" << BpOptions::maxIter;
   ss << ",accuracy=" << BpOptions::accuracy;
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
-  ss << ",order_vars=" << Util::toString (FactorGraph::orderVars);
   ss << ",chkif=" << 
       Util::toString (CFactorGraph::checkForIdenticalFactors);
   ss << "]" ;
