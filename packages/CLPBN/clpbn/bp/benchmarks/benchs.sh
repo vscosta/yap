@@ -21,11 +21,11 @@ function run_solver
   solver_flag=true
   if [ -n "$2" ]; then
     if [ $SOLVER = hve ]; then
-      extra_flag=clpbn_horus:set_horus_flag\(elim_heuristic,$2\)
+      solver_flag=clpbn_horus:set_horus_flag\(elim_heuristic,$2\)
     elif [ $SOLVER = bp ]; then
-      extra_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
+      solver_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
     elif [ $SOLVER = cbp ]; then
-      extra_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
+      solver_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
     else
       echo "unknow flag $2"
     fi
