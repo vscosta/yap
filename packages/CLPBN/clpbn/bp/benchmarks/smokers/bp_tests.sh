@@ -8,13 +8,12 @@ SOLVER="bp"
 function run_all_graphs
 {
   write_header $1
-  run_solver pop1000     $2
-  run_solver pop5000     $2
-  run_solver pop10000    $2
-  run_solver pop50000    $2
-  run_solver pop100000   $2
-  run_solver pop500000   $2
-  run_solver pop1000000  $2
+  run_solver pop25   $2
+  run_solver pop50   $2
+  run_solver pop75   $2
+  run_solver pop100  $2
+  run_solver pop125  $2
+  run_solver pop150  $2
 }
 
 prepare_new_run

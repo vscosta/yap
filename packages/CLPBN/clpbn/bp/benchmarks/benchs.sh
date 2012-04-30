@@ -31,12 +31,13 @@ function run_solver
     fi
   fi
   /usr/bin/time -o $LOG_FILE -a -f "real:%E\tuser:%U\tsys:%S" \
-      $YAP << EOF >> $LOG_FILE 2>> ignore.$LOG_FILE
+      $YAP << EOF >> $LOG_FILE &>> ignore.$LOG_FILE
 nogc.
 [$NETWORK].
 [$constraint].
 clpbn_horus:set_solver($SOLVER).
 clpbn_horus:set_horus_flag(use_logarithms, true).
+clpbn_horus:set_horus_flag(verbosity, 1).
 $solver_flag.
 $QUERY.
 open("$LOG_FILE", 'append', S), format(S, '$constraint: ~15+ ', []), close(S).

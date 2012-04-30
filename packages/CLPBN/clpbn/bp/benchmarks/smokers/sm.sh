@@ -2,5 +2,5 @@
 
 NETWORK="'../../examples/smokers'"
 SHORTNAME="sm"
-QUERY="friend(p1,p2,X)"
+QUERY="smokes(p1,t), smokes(p2,t), friends(p1,p2,X)"
 

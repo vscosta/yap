@@ -2,7 +2,6 @@
 
 :- use_module(library(lists)).
 
-
 :- initialization(main).
 
 

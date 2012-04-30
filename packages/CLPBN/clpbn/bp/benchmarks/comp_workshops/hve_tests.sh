@@ -11,10 +11,10 @@ function run_all_graphs
   run_solver p1000w$N_WORKSHOPS     $2
   run_solver p5000w$N_WORKSHOPS     $2
   run_solver p10000w$N_WORKSHOPS    $2
+  run_solver p20000w$N_WORKSHOPS    $2
+  run_solver p30000w$N_WORKSHOPS    $2
+  run_solver p40000w$N_WORKSHOPS    $2
   run_solver p50000w$N_WORKSHOPS    $2
-  run_solver p100000w$N_WORKSHOPS   $2
-  run_solver p500000w$N_WORKSHOPS   $2
-  run_solver p1000000w$N_WORKSHOPS  $2
 }
 
 prepare_new_run
