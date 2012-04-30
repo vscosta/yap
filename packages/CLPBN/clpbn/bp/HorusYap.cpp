@@ -376,16 +376,17 @@ void runVeSolver (
   for (unsigned i = 0; i < tasks.size(); i++) {
     FactorGraph* mfg = fg;
     if (fg->isFromBayesNetwork()) {
-      mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
+      // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
     // VarElimSolver solver (*mfg);
     VarElimSolver solver (*fg); //FIXME
     if (Globals::verbosity > 0 && i == 0) {
       solver.printSolverFlags();
+      cout << endl;
     }
     results.push_back (solver.solveQuery (tasks[i]));
     if (fg->isFromBayesNetwork()) {
-      delete mfg;
+      // delete mfg;
     }
   }
 }
@@ -404,8 +405,8 @@ void runBpSolver (
   Solver* solver = 0;
   FactorGraph* mfg = fg;
   if (fg->isFromBayesNetwork()) {
-    mfg = BayesBall::getMinimalFactorGraph (
-        *fg, VarIds (vids.begin(),vids.end()));
+    //mfg = BayesBall::getMinimalFactorGraph (
+    //    *fg, VarIds (vids.begin(),vids.end()));
   }
   if (Globals::infAlgorithm == InfAlgorithms::BP) {
     solver = new BpSolver (*fg); // FIXME
@@ -418,13 +419,14 @@ void runBpSolver (
   }
   if (Globals::verbosity > 0) {
     solver->printSolverFlags();
+    cout << endl;
   }
   results.reserve (tasks.size());
   for (unsigned i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
   }
   if (fg->isFromBayesNetwork()) {
-    delete mfg;
+    //delete mfg;
   }
   delete solver;
 }
