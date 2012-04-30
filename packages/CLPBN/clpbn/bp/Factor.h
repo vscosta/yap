@@ -90,6 +90,13 @@ class TFactor
         for (unsigned i = 0; i < g_args.size(); i++) {
           int idx = indexOf (g_args[i]);
           if (idx == -1) {
+            Params::size_type newSize = params_.size() * g_ranges[i];
+            if (newSize > Util::maxUnsigned()) {
+              // factor will become to bigger, is not worth to continue
+              cerr << "error: an overflow occurred when performing expansion" ;
+              cerr << endl;
+              abort();
+            }
             insertArgument (g_args[i], g_ranges[i]);
             gvarpos.push_back (args_.size() - 1);
           } else {
