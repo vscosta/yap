@@ -84,7 +84,7 @@ SumOutOperator::getLogCost (void)
     ++ pfIter;
   }
   if (nrProdFactors == 1) {
-    return std::log (1.0); // best possible case
+    return std::log (0.0); // best possible case
   }
   double cost = 1.0;
   for (unsigned i = 0; i < groupSet.size(); i++) {

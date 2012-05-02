@@ -278,9 +278,13 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
-  unsigned msgSize = 1;
+  Params::size_type msgSize = 1;
   for (unsigned i = 0; i < links.size(); i++) {
     msgSize *= links[i]->getVariable()->range();
+  }
+  if (msgSize > Util::maxUnsigned()) {
+    cout << "error: an overflow occurred when sending bp message" << endl;
+    abort();
   }
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
