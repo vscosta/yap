@@ -593,7 +593,6 @@ reset_control :-
 
 grow_atom_table(N):-
 	generate_atoms(N, 0),
-        stop_low_level_trace,
 	garbage_collect_atoms.
 generate_atoms(N, N):-!.
 generate_atoms(N, A):-
@@ -628,14 +627,14 @@ term_expansion_intern((Head<--Body), Module, C):-
 
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
-	Annotation == '?',
-	term_expansion_intern((? :: Fact :- true), Module, ExpandedClause).
+	Annotation == ( '?' ),
+	term_expansion_intern(((?) :: Fact :- true), Module, ExpandedClause).
 
 
 % handles decision clauses
 term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClause) :-
 	(
-	 Annotation == '?' ->
+	 Annotation == ('?') ->
      % It's a decision with a body
 	 (decision_fact(_,Head) ->
 	  throw(error('New decision unifies with already defined decision!', (Head))) ; true
@@ -653,7 +652,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 			   (problog_control(check,internal_strategy) ->
 			    dtproblog:strategy_log(ID,Head,LProb)
 			   ;
-			    LProb = '?'
+			    LProb = ('?')
 			   )
 			  ),
 	 assertz(dynamic_probability_fact(ID)),
@@ -1032,7 +1031,7 @@ prove_problog_fact(ClauseID,GroundID,Prob) :-
   (problog_control(check,find_decisions) ->
     signal_decision(ClauseID,GroundID)
   ;
-    (Prob = '?' ->
+    (Prob = ('?') ->
       add_to_proof(GroundID,0) % 0 is log(1)!
     ;
       % Checks needed for LeDTProbLog
@@ -1056,7 +1055,7 @@ prove_problog_fact_negated(ClauseID,GroundID,Prob) :-
   (problog_control(check,find_decisions) ->
       signal_decision(ClauseID,GroundID)
   ;
-      (Prob = '?' ->
+      (Prob = ('?') ->
         add_to_proof_negated(GroundID,-inf) % 0 is log(1)!
       ;
         % Checks needed for LeDTProbLog
@@ -1190,7 +1189,7 @@ get_fact_probability(ID,Prob) :-
     get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
   ),
   arg(ProblogArity,ProblogTerm,Log),
-  (Log = '?' ->
+  (Log = ('?') ->
       throw(error('Why do you want to know the probability of a decision?')) %fail
   ; ground(Log) ->
       Prob is exp(Log)
@@ -1209,7 +1208,7 @@ get_fact_log_probability(ID,Prob) :-
     get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
   ),
   arg(ProblogArity,ProblogTerm,Prob),
-  Prob \== '?'.
+  Prob \== ('?').
 get_fact_log_probability(ID,Prob) :-
 	get_fact_probability(ID,Prob1),
 	Prob is log(Prob1).
