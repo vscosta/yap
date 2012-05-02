@@ -255,8 +255,6 @@ print_message(Severity, Term) :-
 	   '$print_system_message'(Term, Severity, Lines)
 	), !.
 print_message(silent, _) :-  !.
-print_message(_, error(syntax_error(syntax_error(_,between(_,L,_),_,_,_,_,StreamName)),_)) :-  !,
-	format(user_error,'SYNTAX ERROR at ~a, close to ~d~n',[StreamName,L]).
 print_message(_, loading(A, F)) :- !,
 	format(user_error,'  % ~a ~a~n',[A,F]).
 print_message(_, loaded(A, F, _, Time, Space)) :- !,
@@ -284,13 +282,6 @@ print_message(_, Term) :-
 	current_prolog_flag(verbose, silent), !.
 '$print_system_message'(_, banner, _) :-
 	current_prolog_flag(verbose, silent), !.
-'$print_system_message'(Term, Level, Lines) :-
-	Term = error(syntax_error(syntax_error(_,_,_,_,_,_,_)),_), !,
-	flush_output(user_output),
-	flush_output(user_error),
-	'$messages':prefix(Level, LinePrefix, Stream, _, Lines), !,
-	% make sure we don't give a PC.
-	print_message_lines(Stream, LinePrefix, Lines).
 '$print_system_message'(Term, Level, Lines) :-
 	'$messages':prefix(Level, LinePrefix, Stream, Prefix),
 	'$messages':file_location(Prefix, LinesF, Lines), !,
