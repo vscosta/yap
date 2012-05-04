@@ -16,15 +16,17 @@ class Factor;
 class VarNode;
 class FacNode;
 
-typedef vector<double>    Params;
-typedef unsigned          VarId;
-typedef vector<VarId>     VarIds;
-typedef vector<Var*>      Vars;
-typedef vector<VarNode*>  VarNodes;
-typedef vector<FacNode*>  FacNodes;
-typedef vector<Factor*>   Factors;
-typedef vector<string>    States;
-typedef vector<unsigned>  Ranges;
+typedef vector<double>      Params;
+typedef unsigned            VarId;
+typedef vector<VarId>       VarIds;
+typedef vector<Var*>        Vars;
+typedef vector<VarNode*>    VarNodes;
+typedef vector<FacNode*>    FacNodes;
+typedef vector<Factor*>     Factors;
+typedef vector<string>      States;
+typedef vector<unsigned>    Ranges;
+typedef Params::size_type   psize_t;
+typedef unsigned long long  ullong;
 
 
 enum InfAlgorithms

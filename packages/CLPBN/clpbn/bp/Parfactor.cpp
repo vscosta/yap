@@ -547,6 +547,7 @@ Parfactor::print (bool printParams) const
   if (printParams == false) {
     cout << "Params:    " ;
     if (params_.size() <= 32) {
+      cout.precision(10);
       cout << params_ << endl;
     } else {
       cout << "|" << params_.size() << "|" << endl;
@@ -595,9 +596,8 @@ Parfactor::expandPotential (
     unsigned newRange,
     const vector<unsigned>& sumIndexes)
 {
-  Params::size_type newSize = (params_.size() / ranges_[fIdx]) * newRange;
-  if (newSize > Util::maxUnsigned()) {
-    // factor will become to bigger, is not worth to continue
+  ullong newSize = (params_.size() / ranges_[fIdx]) * newRange;
+  if (newSize > params_.max_size()) {
     cerr << "error: an overflow occurred when performing expansion" ;
     cerr << endl;
     abort();
@@ -675,6 +675,10 @@ Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
   unsigned condCount2 = g2->constr()->getConditionalCount (Y_2);
   LogAware::pow (g1->params(), 1.0 / condCount2);
   LogAware::pow (g2->params(), 1.0 / condCount1);
+  //cout << "g1::::::::::::::::::::::::" << endl; 
+  //g1->print();
+  //cout << "g2::::::::::::::::::::::::" << endl;
+  //g2->print();
   // the alignment should be done in the end or else X_1 and X_2 
   // will refer to the old log var names on the code above
   align (g1, X_1, g2, X_2);
@@ -719,8 +723,25 @@ Parfactor::align (
       ++ freeLogVar;
     }
   }
-  // cout << "theta1: " << theta1 << endl;
-  // cout << "theta2: " << theta2 << endl;
+  //cout << "theta1: " << theta1 << endl;
+  //cout << "theta2: " << theta2 << endl;
+  LogVars discardedLvs1 = theta1.getDiscardedLogVars();
+  for (unsigned i = 0; i < discardedLvs1.size(); i++) {
+    unsigned condCount = g1->constr()->getConditionalCount (discardedLvs1[i]);
+    cout << "discarding g1" << discardedLvs1[i];
+    cout << " cc = " << condCount << endl;
+    LogAware::pow (g1->params(), condCount);
+  }
+  LogVars discardedLvs2 = theta2.getDiscardedLogVars();
+  for (unsigned i = 0; i < discardedLvs2.size(); i++) {
+    unsigned condCount = g2->constr()->getConditionalCount (discardedLvs2[i]);
+    cout << "discarding g2" << discardedLvs2[i];
+    cout << " cc = " << condCount << endl;
+    //if (condCount != 1) {
+    //  theta2.rename (discardedLvs2[i], freeLogVar);
+    //}
+    LogAware::pow (g2->params(), condCount);
+  }
   g1->applySubstitution (theta1);
   g2->applySubstitution (theta2);
 }

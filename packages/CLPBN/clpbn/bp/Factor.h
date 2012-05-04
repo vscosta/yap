@@ -90,9 +90,8 @@ class TFactor
         for (unsigned i = 0; i < g_args.size(); i++) {
           int idx = indexOf (g_args[i]);
           if (idx == -1) {
-            Params::size_type newSize = params_.size() * g_ranges[i];
-            if (newSize > Util::maxUnsigned()) {
-              // factor will become to bigger, is not worth to continue
+            ullong newSize = params_.size() * g_ranges[i];
+            if (newSize > params_.max_size()) {
               cerr << "error: an overflow occurred on factor multiplication" ;
               cerr << endl;
               abort();
@@ -211,7 +210,7 @@ class TFactor
       return true;
     }
 
-    double& operator[] (unsigned idx)
+    double& operator[] (psize_t idx)
     {
       assert (idx < params_.size());
       return params_[idx];
