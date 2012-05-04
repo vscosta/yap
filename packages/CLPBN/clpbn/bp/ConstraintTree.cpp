@@ -84,14 +84,6 @@ CTNode::childSymbols (void) const
 void
 CTNode::updateChildLevels (CTNode* n, unsigned level)
 {
-  /*
-  n->setLevel (level);
-  const CTChilds& childs = n->childs();
-  for (CTChilds::const_iterator chIt = childs.begin();
-       chIt != childs.end(); ++ chIt) {
-    updateChildLevels (*chIt, level + 1);
-  }
-  */
   CTNodes stack;
   stack.push_back (n);
   n->setLevel (level);
@@ -134,16 +126,6 @@ CTNode::copySubtree (const CTNode* root1)
     }
   }
   return root2;
-  /*
-  CTNode* newNode = new CTNode (*root1);
-  const CTChilds& childs = root1->childs();
-  newNode->childs().reserve (childs.size());
-  for (CTChilds::const_iterator chIt = childs.begin();
-       chIt != childs.end(); ++ chIt) {
-    newNode->childs().push_back ((copySubtree (*chIt)));
-  }
-  return newNode;
-  */
 }
 
 
@@ -329,9 +311,8 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
     CTNodes::const_iterator appendIt = appendNodes.begin();
     for (unsigned i = 0; i < tuples.size(); ++ i, ++ appendIt) {
       bool tupleFounded = join (root_, tuples[i], 0, *appendIt);
-      if (oneTwoOne) {
-        assert (tupleFounded);
-        tupleFounded = true; // hack to avoid gcc warning 
+      if (oneTwoOne && tupleFounded == false) {
+        assert (false);
       }
     }
 
@@ -422,17 +403,6 @@ ConstraintTree::remove (const LogVarSet& X)
 bool
 ConstraintTree::ConstraintTree::isSingleton (LogVar X)
 {
-  /*
-  const CTNodes& nodes = getNodesAtLevel (getLevel (X));
-  Symbol symb = nodes.front()->symbol();
-  for (CTNodes::const_iterator it = nodes.begin();
-       it != nodes.end(); ++ it) {
-    if ((*it)->symbol() != symb) {
-      return false;
-    }
-  }
-  return true;
-  */
   Symbol symb;
   unsigned level = getLevel (X);
   CTNodes stack;
@@ -930,23 +900,6 @@ ConstraintTree::getNodesAtLevel (unsigned level) const
   if (level == 0) {
     return { root_ };
   }
-  /*
-  CTNodes nodes;
-  queue<CTNode*> queue;
-  queue.push (root_);
-  while (queue.empty() == false) {
-    CTNode* node = queue.front();
-    if (node->level() == level) {
-      nodes.push_back (node);
-    } else {
-      for (CTChilds::const_iterator chIt = node->childs().begin();
-           chIt != node->childs().end(); ++ chIt) {
-        queue.push (*chIt);
-      }
-    }
-    queue.pop();
-  }
-  */
   CTNodes stack;
   CTNodes nodes;
   stack.push_back (root_);
