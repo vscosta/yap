@@ -190,9 +190,22 @@ SumOutOperator::validOp (
   if (isToEliminate (*pfIters[0], group, query) == false) {
     return false;
   }
+
   unordered_map<unsigned, unsigned> groupToRange;
   for (unsigned i = 0; i < pfIters.size(); i++) {
-    int fIdx = (*pfIters[i])->indexOfGroup (group);
+    const ProbFormulas& formulas = (*pfIters[i])->arguments();
+    int fIdx = -1;
+    for (unsigned j = 0; j < formulas.size(); j++) {
+      if (formulas[j].group() == group) {
+        if (fIdx != -1) {
+          // only summout a group of rand vars if they don't
+          // appear in another position on the factor
+          return false;
+        } else {
+          fIdx = j;
+        }
+      }
+    }
     if ((*pfIters[i])->argument (fIdx).contains (
             (*pfIters[i])->elimLogVars()) == false) {
       return false;
