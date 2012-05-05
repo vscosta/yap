@@ -156,7 +156,17 @@ void
 ParfactorList::addToShatteredList (Parfactor* g)
 {
   queue<Parfactor*> residuals;
-  residuals.push (g);
+
+  Parfactors res = shatterAgainstMySelf (g);
+  if (res.empty()) {
+    residuals.push (g);
+  } else {
+    for (unsigned i = 0; i < res.size(); i++) {
+      residuals.push (res[i]);
+    }
+    delete g;
+  }
+
   while (residuals.empty() == false) {
     Parfactor* pf = residuals.front();
     bool pfSplitted = false;
@@ -184,6 +194,97 @@ ParfactorList::addToShatteredList (Parfactor* g)
     }
   }
   assert (isAllShattered());
+}
+
+
+
+Parfactors
+ParfactorList::shatterAgainstMySelf (Parfactor* g)
+{
+  // slip a parfactor with overlapping formulas:
+  // e.g. {s(X),s(Y)}, with (X,Y) in {(p1,p2),(p1,p3),(p4,p1)}
+  const ProbFormulas& formulas = g->arguments();
+  for (unsigned i = 0; i < formulas.size() - 1; i++) {
+    for (unsigned j = i + 1; j < formulas.size(); j++) {
+      if (formulas[i].sameSkeletonAs (formulas[j])) {
+        Parfactors res = shatterAgainstMySelf (g, i, j);
+        if (res.empty() == false) {
+          return res;
+        }
+      }
+    }
+  }
+  return Parfactors();
+}
+
+
+
+Parfactors
+ParfactorList::shatterAgainstMySelf (
+    Parfactor* g,
+    unsigned fIdx1,
+    unsigned fIdx2)
+{
+  ProbFormula& f1 = g->argument (fIdx1);
+  ProbFormula& f2 = g->argument (fIdx2);
+  if (f1.isAtom()) {
+    cerr << "error: a ground occurs twice in a parfactor" << endl;
+    cerr << endl;
+    abort();
+  }
+  assert (g->constr()->empty() == false);
+  ConstraintTree ctCopy (*g->constr());
+  if (f1.group() == f2.group()) {
+    assert (identical (f1, *(g->constr()), f2, ctCopy));
+    return { };
+  }
+
+  g->constr()->moveToTop (f1.logVars());
+  ctCopy.moveToTop (f2.logVars());
+
+  std::pair<ConstraintTree*,ConstraintTree*> split1 =
+      g->constr()->split (&ctCopy, f1.arity());
+  ConstraintTree* commCt1 = split1.first;
+  ConstraintTree* exclCt1 = split1.second;
+
+  if (commCt1->empty()) {
+    // disjoint
+    delete commCt1;
+    delete exclCt1;
+    return { };
+  }
+  unsigned newGroup = ProbFormula::getNewGroup();
+  Parfactors res1 = shatter (g, fIdx1, commCt1, exclCt1, newGroup);
+  if (res1.empty()) {
+    res1.push_back (g);
+  }
+  Parfactors res;
+  ctCopy.moveToTop (f1.logVars());
+  for (unsigned i = 0; i < res1.size(); i++) {
+    res1[i]->constr()->moveToTop (f2.logVars());
+    std::pair<ConstraintTree*, ConstraintTree*> split2;
+    split2 = res1[i]->constr()->split (&ctCopy, f2.arity());
+    ConstraintTree* commCt2 = split2.first;
+    ConstraintTree* exclCt2 = split2.second;
+    newGroup = ProbFormula::getNewGroup();
+    Parfactors res2 = shatter (res1[i], fIdx2, commCt2, exclCt2, newGroup);
+    if (res2.empty()) {
+      if (res1[i] != g) {
+        res.push_back (res1[i]);
+      }
+    } else {
+      Util::addToVector (res, res2);
+      if (res1[i] != g) {
+        delete res1[i];
+      }
+    }
+  }
+
+  if (res.empty()) {
+    g->argument (fIdx2).setGroup (g->argument (fIdx1).group());
+    updateGroups (f2.group(), f1.group());
+  }
+  return res;
 }
 
 
