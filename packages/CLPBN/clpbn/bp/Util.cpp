@@ -56,8 +56,7 @@ stringToUnsigned (string str)
   ss << str;
   ss >> val;
   if (val < 0) {
-    cerr << "error: the value tried to read is negative" << endl;
-    abort();
+    abort ("error: the value tried to read is negative");
   }
   return static_cast<unsigned> (val);
 }
@@ -293,6 +292,15 @@ setHorusFlag (string key, string value)
     returnVal = false;
   }
   return returnVal;
+}
+
+
+
+void
+abort (string msg)
+{
+  cerr << msg << endl;
+  std::abort();
 }
 
 

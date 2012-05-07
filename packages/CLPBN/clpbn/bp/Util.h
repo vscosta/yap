@@ -34,6 +34,8 @@ template <typename T> bool contains (const set<T>&, const T&);
 template <typename K, typename V> bool contains (
     const unordered_map<K, V>&, const K&);
 
+template <typename T> int vectorIndex (const vector<T>&, const T&);
+
 template <typename T> std::string toString (const T&);
 
 template <> std::string toString (const bool&);
@@ -75,6 +77,8 @@ string parametersToString (const Params&, unsigned = Constants::PRECISION);
 vector<string> getStateLines (const Vars&);
 
 bool setHorusFlag (string key, string value);
+
+void abort (string msg);
 
 void printHeader (string, std::ostream& os = std::cout);
 
@@ -134,6 +138,19 @@ template <typename K, typename V> bool
 Util::contains (const unordered_map<K, V>& m, const K& k)
 {
   return m.find (k) != m.end();
+}
+
+
+
+template <typename T> int
+Util::vectorIndex (const vector<T>& v, const T& e)
+{
+  int pos = std::distance (v.begin(),
+      std::find (v.begin(), v.end(), e));
+  if (pos == (int)v.size()) {
+    pos = -1;
+  }
+  return pos;
 }
 
 
