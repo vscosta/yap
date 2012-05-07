@@ -654,7 +654,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       p_code->opc = Yap_opcode(_allocate);
       p_code = NEXTOP(p_code,e);
     }
-    p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
+    p_code->opc = Yap_opcode(_call_cpred);
     p_code->u.Osbpp.bmap = NULL;
     p_code->u.Osbpp.s = -Signed(RealEnvSize);
     p_code->u.Osbpp.p = p_code->u.Osbpp.p0 = pe;
@@ -669,6 +669,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     p_code = NEXTOP(p_code,p);
     p_code->opc = Yap_opcode(_Ystop);
     p_code->u.l.l = cl->ClCode;
+    pe->OpcodeOfPred = pe->CodeOfPred->opc;
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
     pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 
