@@ -78,7 +78,7 @@ vector<string> getStateLines (const Vars&);
 
 bool setHorusFlag (string key, string value);
 
-void abort (string msg);
+void abort (string msg, bool = true);
 
 void printHeader (string, std::ostream& os = std::cout);
 
