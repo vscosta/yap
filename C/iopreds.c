@@ -383,8 +383,9 @@ GenerateSyntaxError(Term *tp, TokEntry *tokstart, IOSTREAM *sno USES_REGS)
   if (tp) {
     Term et[2];
     Term t = MkVarTerm();
-    et[0] = syntax_error(tokstart, sno, &t);
-    et[1] = MkAtomTerm(Yap_LookupAtom("Syntax error"));
+    et[1] = MkPairTerm(syntax_error(tokstart, sno, &t), TermNil);
+    t = MkAtomTerm(AtomSyntaxError);
+    et[0] = Yap_MkApplTerm(FunctorShortSyntaxError,1,&t);
     *tp = Yap_MkApplTerm(FunctorError, 2, et);
   }
 }

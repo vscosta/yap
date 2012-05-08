@@ -2833,9 +2833,14 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 {
   CACHE_REGS
   Term varnames, out, tpos;
-  Term error;
+  Term error, *vp;
 
-  if (!Yap_readTerm(st, &out, &varnames, &error, &tpos)) {
+  if (vs) {
+    vp = & varnames;
+  } else {
+    vp = NULL;
+  }
+  if (!Yap_readTerm(st, &out, vp, &error, &tpos)) {
     if (excep) {
       *excep = Yap_InitSlot(error PASS_REGS);
     }
@@ -2850,7 +2855,8 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
   if (!Yap_unify(out, Yap_GetFromSlot(t PASS_REGS))) {
     return FALSE;
   }
-  if (!Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
+  if (vp &&
+      !Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
     return FALSE;
   }
   return TRUE;
