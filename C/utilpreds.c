@@ -1166,7 +1166,14 @@ CELL *CellDifH(CELL *hptr, CELL *hlow)
   return (CELL *)((char *)hptr-(char *)hlow);
 }
 
-#define AdjustSizeAtom(X)	((char *)(((CELL)(X)+(8-1)) & ~(8-1)))
+#define AdjustSizeAtom(X)	(((CELL)(X)+(8-1)) & ~(8-1))
+
+static inline
+CELL *AdjustSize(CELL *x, char *buf)
+{
+  UInt offset = (char *)x-buf;
+  return (CELL*)(buf+AdjustSizeAtom(offset));
+}
 
 /* export an atom from the symbol table to a buffer */
 static inline 
@@ -1176,7 +1183,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   size_t sz;
 
   ptr = *hpp;
-  ptr = AdjustSizeAtom(ptr);
+  ptr = (char *)AdjustSize((CELL*)ptr, buf);
   
   p0 = ptr;
   if (IsWideAtom(at)) {
@@ -1203,7 +1210,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
 static inline 
 Functor export_functor(Functor f, char **hpp, char *buf, size_t len)
 {
-  CELL *hptr = (UInt *)AdjustSizeAtom(*hpp);
+  CELL *hptr = AdjustSize((CELL *)*hpp, buf);
   UInt arity = ArityOfFunctor(f);
   if (2*sizeof(CELL) >= len)
     return NULL;
@@ -1235,7 +1242,7 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
   if (buf + len < (char *)((CELL *)td + (tf-t0))) {
     return FALSE;
   }
-  memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
+  memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL)); 
   bf[0] = (td-buf);
   bf[1] = (tf-t0);
   bf[2] = inpt;
@@ -1546,6 +1553,7 @@ static Atom
 AddAtom(Atom t, char *buf)
 {
   char *s = buf+(UInt)t;
+
   if (!*s) {
     return Yap_LookupAtom(s+1);
   } else {
@@ -1562,7 +1570,7 @@ FetchFunctor(CELL *pt, char *buf)
   UInt arity = *ptr++;
   Atom name, at;
   // and then an atom
-  ptr = (CELL *)AdjustSizeAtom((char*)ptr);
+  ptr = AdjustSize(ptr, buf);
   name = (Atom)((char *)ptr-buf);
   at = AddAtom(name, buf);
   *pt = (CELL)Yap_MkFunctor(at, arity);
@@ -1632,7 +1640,7 @@ Yap_ImportTerm(char * buf) {
     return MkVarTerm();
   if (IsAtomOrIntTerm(tinp)) {
     if (IsAtomTerm(tinp)) {
-      char *pt = AdjustSizeAtom((char *)(bc+3));
+      char *pt = (char *)AdjustSize(bc+3, buf);
       return MkAtomTerm(Yap_LookupAtom(pt));
     } else
       return tinp;
