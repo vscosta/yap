@@ -1168,6 +1168,7 @@ CELL *CellDifH(CELL *hptr, CELL *hlow)
 
 #define AdjustSizeAtom(X)	((char *)(((CELL)(X)+(8-1)) & ~(8-1)))
 
+/* export an atom from the symbol table to a buffer */
 static inline 
 Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
 {				 
@@ -1189,7 +1190,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   } else {
     *ptr++ = 0;
     sz = strlen(RepAtom(at)->StrOfAE);
-    if (sz +1 >= len)
+    if (sz + 1 + sizeof(wchar_t) >= len)
       return (Atom)NULL;
     strcpy(ptr, RepAtom(at)->StrOfAE);
     *hpp = ptr+(sz+1);
@@ -1198,6 +1199,7 @@ Atom export_atom(Atom at, char **hpp, char *buf, size_t len)
   return (Atom)(p0-buf);
 }
 
+/* place a buffer: first arity then the atom */
 static inline 
 Functor export_functor(Functor f, char **hpp, char *buf, size_t len)
 {
@@ -1209,7 +1211,9 @@ Functor export_functor(Functor f, char **hpp, char *buf, size_t len)
   *hpp = (char *)(hptr+1);
   if (!export_atom(NameOfFunctor(f), hpp, buf, len))
     return NULL;
-  /* increment so that it cannot be mistaken with a standard functor */
+  /* increment so that it cannot be mistaken with a functor on the stack,
+     (increment is used as a tag ........01
+  */
   return (Functor)(((char *)hptr-buf)+1);
 }
 
@@ -1228,8 +1232,9 @@ export_term_to_buffer(Term inpt, char *buf, char *bptr, CELL *t0 , CELL *tf, siz
 {
   char *td = bptr;
   CELL *bf = (CELL *)buf;
-  if (buf + len < (char *)((CELL *)td + (tf-t0)))
+  if (buf + len < (char *)((CELL *)td + (tf-t0))) {
     return FALSE;
+  }
   memcpy((void *)td, (void *)t0, (tf-t0)* sizeof(CELL));
   bf[0] = (td-buf);
   bf[1] = (tf-t0);
