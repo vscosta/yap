@@ -103,7 +103,7 @@ inline EXTERN blob_type BlobOfFunctor (Functor f);
 inline EXTERN blob_type
 BlobOfFunctor (Functor f)
 {
-  return (blob_type) (f);
+  return (blob_type) ((CELL)f);
 }
 
 typedef struct cp_frame {
