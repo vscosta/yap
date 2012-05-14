@@ -4130,7 +4130,7 @@ call_gc(UInt gc_lim, Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   if (ASP - H < gc_margin/sizeof(CELL) ||
       effectiveness < 20) {
     LeaveGCMode( PASS_REGS1 );
-#ifdef YAPOR
+#ifndef YAPOR
     if (gc_margin < 2*CalculateStackGap())
       gc_margin = 2*CalculateStackGap();
     return Yap_growstack(gc_margin);
