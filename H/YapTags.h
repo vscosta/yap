@@ -184,8 +184,6 @@ IsUnboundVar (Term * t)
 
 #else
 
-#ifdef YAP_H
-
 inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
 
 inline EXTERN Term
@@ -193,8 +191,6 @@ MkVarTerm__ ( USES_REGS1 )
 {
   return (Term) ((*H = (CELL) H, H++));
 }
-
-#endif
 
 
 inline EXTERN int IsUnboundVar (Term *);
@@ -316,8 +312,7 @@ IsIntTerm (Term t)
 }
 
 
-#ifdef YAP_H
-EXTERN inline Term STD_PROTO (MkPairTerm__, (Term, Term CACHE_TYPE) );
+EXTERN inline Term MkPairTerm__(Term head, Term  tail CACHE_TYPE );
 
 EXTERN inline Term
 MkPairTerm__ (Term head, Term tail USES_REGS)
@@ -330,7 +325,6 @@ MkPairTerm__ (Term head, Term tail USES_REGS)
   return (AbsPair (p));
 }
 
-#endif
 
 
 /* Needed to handle numbers:
@@ -395,4 +389,6 @@ IntegerOfTerm (Term t)
   return (Int) (IsIntTerm (t) ? IntOfTerm (t) : LongIntOfTerm (t));
 }
 
+#ifndef YAP_H
 
+#endif
