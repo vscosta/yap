@@ -187,10 +187,30 @@ thread_die(int wid, int always_die)
     tab_ent = TabEnt_next(tab_ent);
   }
   FREE_DEPENDENCY_FRAME(LOCAL_top_dep_fr);
-#endif /* TABLING */
+  LOCAL_top_dep_fr = NULL;
+#ifdef USE_PAGES_MALLOC
+  DETACH_PAGES(_pages_void);
+  DETACH_PAGES(_pages_tab_ent);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+  DETACH_PAGES(_pages_sg_ent);
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+  DETACH_PAGES(_pages_sg_fr);
+  DETACH_PAGES(_pages_dep_fr);
+  DETACH_PAGES(_pages_sg_node);
+  DETACH_PAGES(_pages_sg_hash);
+  DETACH_PAGES(_pages_ans_node);
+  DETACH_PAGES(_pages_ans_hash);
+#if defined(THREADS_FULL_SHARING)
+  DETACH_PAGES(_pages_ans_ref_node);
+#endif /* THREADS_FULL_SHARING */
+  DETACH_PAGES(_pages_gt_node);
+  DETACH_PAGES(_pages_gt_hash);
+#endif /* USE_PAGES_MALLOC */
 #ifdef OUTPUT_THREADS_TABLING 
   fclose(LOCAL_thread_output);
 #endif /* OUTPUT_THREADS_TABLING */
+#endif /* TABLING */
+  GLOBAL_NOfThreads--;
   if (!always_die) {
     /* called by thread itself */
     GLOBAL_ThreadsTotalTime += Yap_cputime();
@@ -222,6 +242,7 @@ setup_engine(int myworker_id, int init_thread)
   Yap_ReleasePreAllocCodeSpace(Yap_PreAllocCodeSpace());
   /* I exist */
   GLOBAL_NOfThreadsCreated++;
+  GLOBAL_NOfThreads++;
   DEBUG_TLOCK_ACCESS(2, myworker_id);
   pthread_mutex_unlock(&(REMOTE_ThreadHandle(myworker_id).tlock));  
 #ifdef TABLING
