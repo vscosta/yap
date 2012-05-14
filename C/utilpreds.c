@@ -4202,6 +4202,298 @@ p_subsumes( USES_REGS1 ) /* subsumes terms t1 and t2	 */
   }
 }
 
+
+static int term_subsumer_complex(register CELL *pt0, register CELL *pt0_end, register
+				 CELL *pt1, CELL *npt USES_REGS)
+{
+  register CELL **to_visit = (CELL **)ASP;
+  tr_fr_ptr OLDTR = TR;
+  int out;
+  CELL *bindings = NULL, *tbindings = NULL;
+  HB = H;
+
+ loop:
+  while (pt0 < pt0_end) {
+    register CELL d0, d1;
+
+    ++ pt0;
+    ++ pt1;
+    d0 = Derefa(pt0);
+    d1 = Derefa(pt1);
+    if (d0 == d1) {
+      *npt++ = d0;
+      continue;
+    } else if (IsVarTerm(d0)) {
+      CELL *match, *omatch = NULL;
+
+      match = VarOfTerm(d0); 
+      if (match >= HB) {
+	while (match >= HB) {
+	  /* chained to a sequence */
+	  if (Yap_eq(d1, match[1]) ) {
+	    *npt++ = match[2];
+	    break;
+	  }
+	  omatch = match;
+	  match = (CELL *)match[3];
+	}
+	/* found a match */
+	if (match >= HB)
+	  continue;
+	/* could not find a match, add to end of chain */
+ 	RESET_VARIABLE(H); /* key */
+ 	H[1] = d1; /* comparison value */
+	H[2] = (CELL)npt; /* new value */
+	H[3] = (CELL)match; /* end of chain points back to first cell */
+	omatch[3] = (CELL)H;
+	H+=4;
+	RESET_VARIABLE(npt);
+	npt++;
+	continue;
+      }
+      if (TR > (tr_fr_ptr)LOCAL_TrailTop - 256) {
+	goto trail_overflow;
+      }
+      RESET_VARIABLE(H);
+      H[1] = d1;
+      H[2] = (CELL)npt;
+      H[3] = d0;
+      Bind(VarOfTerm(d0), (CELL)H);
+      H+=4;
+      RESET_VARIABLE(npt);
+      npt++;
+      continue;
+    } else if (IsPairTerm(d0) && IsPairTerm(d1)) {
+      CELL *match = bindings;
+
+      while (match) {
+	if (match[0] == d0 && match[1] == d1) {
+	  *npt++ = match[2];
+	  break;
+	}
+	match = (CELL *)match[3];
+      }
+      if (match) {
+	continue;
+      }
+      if (bindings) {
+	*tbindings = (CELL)H;
+      } else {
+	bindings = H;
+      }
+      H[0] = d0;
+      H[1] = d1;
+      H[2] = AbsPair(H+4);
+      H[3] = (CELL)NULL;
+      tbindings = H+3;
+      H+=4;
+      *npt++ = AbsPair(H);
+#ifdef RATIONAL_TREES
+      /* now link the two structures so that no one else will */
+      /* come here */
+      to_visit -= 5;
+      to_visit[0] = pt0;
+      to_visit[1] = pt0_end;
+      to_visit[2] = pt1;
+      to_visit[3] = tbindings;
+      to_visit[4] = npt;
+#else
+      /* store the terms to visit */
+      if (pt0 < pt0_end) {
+	to_visit -= 4;
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = pt1;
+	to_visit[3] = npt;
+      }
+#endif
+      pt0 = RepPair(d0) - 1;
+      pt0_end = RepPair(d0) + 1;
+      pt1 = RepPair(d1) - 1;
+      npt = H;
+      H += 2;
+      if (H > (CELL *)to_visit -1024)
+	goto stack_overflow;
+      continue;
+    } else if (IsApplTerm(d0) && IsApplTerm(d1)) {
+      CELL *ap2 = RepAppl(d0);
+      CELL *ap3 = RepAppl(d1);
+      Functor f = (Functor)(*ap2);
+      Functor f2 = (Functor)(*ap3);
+      if (f == f2) {
+	CELL *match = bindings;
+
+	if (IsExtensionFunctor(f)) {
+	  if (unify_extension(f, d0, ap2, d1)) {
+	    *npt++ = d0;
+	    continue;
+	  }
+	}
+	while (match) {
+	  if (match[0] == d0 && match[1] == d1) {
+	    *npt++ = match[2];
+	    break;
+	  }
+	  match = (CELL *)match[3];
+	}
+	if (match) {
+	  continue;
+	}
+	if (bindings) {
+	  *tbindings = (CELL)H;
+	} else {
+	  bindings = H;
+	}
+	H[0] = d0;
+	H[1] = d1;
+	H[2] = AbsAppl(H+4);
+	H[3] = (CELL)NULL;
+	tbindings = H+3;
+	H+=4;
+	*npt++ = AbsAppl(H);
+#ifdef RATIONAL_TREES
+	/* now link the two structures so that no one else will */
+	/* come here */
+	to_visit -= 5;
+	to_visit[0] = pt0;
+	to_visit[1] = pt0_end;
+	to_visit[2] = pt1;
+	to_visit[3] = tbindings;
+	to_visit[4] = npt;
+#else
+	/* store the terms to visit */
+	if (pt0 < pt0_end) {
+	  to_visit -= 4;
+	  to_visit[0] = pt0;
+	  to_visit[1] = pt0_end;
+	  to_visit[2] = pt1;
+	  to_visit[3] = npt;
+	}
+#endif
+	d0 = ArityOfFunctor(f);
+	pt0 = ap2;
+	pt0_end = ap2 + d0;
+	pt1 = ap3;
+	npt = H;
+	*npt++ = (CELL)f;
+	H += d0;
+	if (H > (CELL *)to_visit -1024)
+	  goto stack_overflow;
+	continue;
+      }
+    }
+    RESET_VARIABLE(npt);
+    npt++;
+  }
+  /* Do we still have compound terms to visit */
+  if (to_visit < (CELL **)ASP) {
+#ifdef RATIONAL_TREES
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    tbindings = to_visit[3];
+    npt = to_visit[ 4];
+    if (!tbindings) {
+      bindings = NULL;
+    }
+    to_visit += 5;
+#else
+    pt0 = to_visit[0];
+    pt0_end = to_visit[1];
+    pt1 = to_visit[2];
+    npt = to_visit[3];
+    to_visit += 4;
+#endif
+    goto loop;
+  }
+  out = 1;
+
+ complete:
+  /* get rid of intermediate variables  */
+  while (TR != OLDTR) {
+    CELL *pt1 = (CELL *) TrailTerm(--TR);
+    RESET_VARIABLE(pt1);
+  }
+  HBREG = B->cp_h;
+  return out;
+
+ stack_overflow:
+  out = -1;
+  goto complete;
+
+ trail_overflow:
+  out = -2;
+  goto complete;
+
+}
+
+static Int 
+p_term_subsumer( USES_REGS1 ) /* term_subsumer terms t1 and t2	 */
+{
+  int out = 0; 
+
+  while (out != 1) {
+    Term t1 = Deref(ARG1);
+    Term t2 = Deref(ARG2);
+    CELL *oldH = H;
+
+    if (t1 == t2)
+      return Yap_unify(ARG3,t1);
+    if (IsPairTerm(t1) && IsPairTerm(t2)) {
+      Term tf = AbsAppl(H);
+      H += 2;
+      HB = H;
+      if ((out = term_subsumer_complex(RepPair(t1)-1,
+				       RepPair(t1)+1,
+				       RepPair(t2)-1, H-2 PASS_REGS)) > 0) {
+	HB = B->cp_h;
+	return Yap_unify(ARG3,tf);
+      }
+  } else if (IsApplTerm(t1) && IsApplTerm(t2)) {
+      Functor f1;
+
+      if ((f1 = FunctorOfTerm(t1)) == FunctorOfTerm(t2)) {
+	if (IsExtensionFunctor(f1)) {
+	  if (unify_extension(f1, t1, RepAppl(t1), t2)) {
+	    return Yap_unify(ARG3,t1);
+	  }
+	} else {
+	  Term tf = AbsAppl(H);
+	  UInt ar = ArityOfFunctor(f1);
+	  H[0] = (CELL)f1;
+	  H += 1+ar;
+	  HB = H;
+	  if ((out = term_subsumer_complex(RepAppl(t1),
+					   RepAppl(t1)+ArityOfFunctor(f1),
+					   RepAppl(t2), H-ar PASS_REGS)) > 0) {
+	    HB = B->cp_h;
+	    return Yap_unify(ARG3,tf);
+	  }
+	}
+      }
+    }
+    HB = B->cp_h;
+    if (out == 0) {
+      return Yap_unify(ARG3, MkVarTerm());
+    } else {
+      H = oldH;
+      if (out == -1) {
+	if (!Yap_gcl((ASP-H)*sizeof(CELL), 0, ENV, gc_P(P,CP))) {
+	  Yap_Error(OUT_OF_STACK_ERROR, TermNil, "in term_subsumer");
+	  return FALSE;
+	}
+      } else {
+	/* Trail overflow */
+	if (!Yap_growtrail(0, FALSE)) {
+	  Yap_Error(OUT_OF_TRAIL_ERROR, TermNil, "in term_subsumer");
+	  return FALSE;
+	} 
+      }
+    }
+  }
+  return FALSE;
+}
+
 #ifdef DEBUG
 static Int
 p_force_trail_expansion( USES_REGS1 )
@@ -4888,6 +5180,7 @@ void Yap_InitUtilCPreds(void)
   Yap_InitCPred("instantiated_term_hash", 4, p_instantiated_term_hash, 0);
   Yap_InitCPred("variant", 2, p_variant, 0);
   Yap_InitCPred("subsumes", 2, p_subsumes, 0);
+  Yap_InitCPred("term_subsumer", 3, p_term_subsumer, 0);
   Yap_InitCPred("variables_within_term", 3, p_variables_within_term, 0);
   Yap_InitCPred("new_variables_in_term", 3, p_new_variables_in_term, 0);
   Yap_InitCPred("export_term", 3, p_export_term, 0);
