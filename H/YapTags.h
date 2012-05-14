@@ -312,7 +312,7 @@ IsIntTerm (Term t)
 }
 
 
-EXTERN inline Term MkPairTerm__(Term head, Term  tail CACHE_TYPE );
+EXTERN inline Term MkPairTerm__(Term head, Term  tail USES_REGS );
 
 EXTERN inline Term
 MkPairTerm__ (Term head, Term tail USES_REGS)

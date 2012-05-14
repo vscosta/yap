@@ -19,9 +19,6 @@
 typedef void *Functor;
 typedef void *Atom;
 
-#define CACHE_TYPE
-#define CACHE_TYPE1 void
-
 #endif
 
 #ifndef EXTERN
