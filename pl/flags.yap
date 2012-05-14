@@ -617,7 +617,7 @@ yap_flag(system_options,X) :-
 '$system_options'(readline) :-
 	'$swi_current_prolog_flag'(readline, true).
 '$system_options'(tabling) :-
-	\+ '$undefined'('$c_table'(_,_), prolog).
+	\+ '$undefined'('$c_table'(_,_,_), prolog).
 '$system_options'(threads) :-
 	\+ '$no_threads'.
 '$system_options'(wam_profiler) :-

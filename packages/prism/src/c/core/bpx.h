@@ -9,8 +9,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <YapTerm.h>
-#include <YapTags.h>
 #include <YapRegs.h>
+#include <YapTags.h>
 
 typedef void *SYM_REC_PTR;
 

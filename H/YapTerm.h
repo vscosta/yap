@@ -18,6 +18,7 @@
 
 typedef void *Functor;
 typedef void *Atom;
+
 #endif
 
 #ifndef EXTERN
@@ -134,3 +135,4 @@ typedef unsigned long int YAP_ULONG_LONG;
 
 #define	Unsigned(V)	((CELL) (V))
 #define	Signed(V)	((Int) (V))
+
