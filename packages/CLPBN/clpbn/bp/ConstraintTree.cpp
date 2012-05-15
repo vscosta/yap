@@ -12,7 +12,7 @@ CTNode::mergeSubtree (CTNode* n, bool updateLevels)
   if (updateLevels) {
     updateChildLevels (n, level_ + 1);
   }
-  CTChilds::iterator chIt = findChild (n);
+  CTChilds::iterator chIt = childs_.find (n);
   if (chIt != childs_.end()) {
     assert ((*chIt)->symbol() == n->symbol());
     const CTChilds& childsToAdd = n->childs();
@@ -31,10 +31,8 @@ CTNode::mergeSubtree (CTNode* n, bool updateLevels)
 void
 CTNode::removeChild (CTNode* child)
 {
-  CTChilds::iterator it;
-  it = findChild (child);
-  assert (it != childs_.end());
-  childs_.erase (it);
+  assert (childs_.contains (child));
+  childs_.remove (child);
 }
 
 
@@ -119,7 +117,7 @@ CTNode::copySubtree (const CTNode* root1)
     for (CTChilds::const_iterator chIt = n1->childs().begin();
          chIt != n1->childs().end(); ++ chIt) {
       CTNode* chCopy = new CTNode (**chIt);
-      n2->childs().push_back (chCopy);
+      n2->childs().insert_sorted (chCopy);
       if ((*chIt)->nrChilds() != 0) {
         stack.push_back (StackPair (*chIt, chCopy));
       }
@@ -860,7 +858,7 @@ ConstraintTree::copyLogVar (LogVar X_1, LogVar X_2)
   moveToBottom ({X_1});
   CTNodes leafs = getNodesAtLevel (logVars_.size());
   for (unsigned i = 0; i < leafs.size(); i++) {
-    leafs[i]->childs().push_back (
+    leafs[i]->childs().insert_sorted (
         new CTNode (leafs[i]->symbol(), leafs[i]->level() + 1));
   }
   logVars_.push_back (X_2);
@@ -989,7 +987,7 @@ ConstraintTree::swapLogVar (LogVar X)
          CTNode* childCopy = new CTNode (
              (*ccIt)->symbol(), (*ccIt)->level() + 1, (*gsIt)->childs());
          (*gsIt)->removeChilds();
-         (*gsIt)->childs().push_back (childCopy);
+         (*gsIt)->childs().insert_sorted (childCopy);
          (*gsIt)->setLevel ((*gsIt)->level() - 1);
          (*nodeIt)->mergeSubtree ((*gsIt), false);
        }
@@ -1114,18 +1112,18 @@ ConstraintTree::split (
        chIt1 != childs1.end(); ++ chIt1) {
     CTChilds::iterator chIt2 = n2->findSymbol ((*chIt1)->symbol());
     if (chIt2 == n2->childs().end()) {
-      exclChilds.push_back (CTNode::copySubtree (*chIt1));
+      exclChilds.insert_sorted (CTNode::copySubtree (*chIt1));
     } else {
       if ((*chIt1)->level() == stopLevel) {
-        commChilds.push_back (CTNode::copySubtree (*chIt1));
+        commChilds.insert_sorted (CTNode::copySubtree (*chIt1));
       } else {
         CTChilds lowerCommChilds, lowerExclChilds;
         split (*chIt1, *chIt2, lowerCommChilds, lowerExclChilds, stopLevel);
         if (lowerCommChilds.empty() == false) {
-          commChilds.push_back (new CTNode (**chIt1, lowerCommChilds));
+          commChilds.insert_sorted (new CTNode (**chIt1, lowerCommChilds));
         }
         if (lowerExclChilds.empty() == false) {
-          exclChilds.push_back (new CTNode (**chIt1, lowerExclChilds));
+          exclChilds.insert_sorted (new CTNode (**chIt1, lowerExclChilds));
         }
       }
     }

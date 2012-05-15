@@ -34,7 +34,7 @@ class CTNode
 
   private:
 
-    typedef SortedVector<CTNode*, CompareSymbol> CTChilds_;
+    typedef TinySet<CTNode*, CompareSymbol> CTChilds_;
 
   public:
 
@@ -63,11 +63,6 @@ class CTNode
     bool isRoot (void) const { return level_ == 0; }
 
     bool isLeaf (void) const { return childs_.empty(); }
-
-    CTChilds_::iterator findChild (CTNode* n)
-    {
-      return childs_.find (n);
-    }
 
     CTChilds_::iterator findSymbol (Symbol symb)
     {
@@ -102,7 +97,7 @@ class CTNode
 ostream& operator<< (ostream &out, const CTNode&);
 
 
-typedef SortedVector<CTNode*, CTNode::CompareSymbol> CTChilds;
+typedef TinySet<CTNode*, CTNode::CompareSymbol> CTChilds;
 
 
 class ConstraintTree
