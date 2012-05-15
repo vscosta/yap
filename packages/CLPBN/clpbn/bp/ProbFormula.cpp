@@ -99,9 +99,9 @@ ProbFormula::rename (LogVar oldName, LogVar newName)
 
 
 bool operator== (const ProbFormula& f1, const ProbFormula& f2)
-{
-  return f1.group_ == f2.group_;
-  //return functor_ == f.functor_ && logVars_ == f.logVars_ ;
+{ 
+  return f1.group_   == f2.group_ && 
+         f1.logVars_ == f2.logVars_;
 }
 
 

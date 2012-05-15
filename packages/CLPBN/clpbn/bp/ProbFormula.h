@@ -7,7 +7,7 @@
 #include "LiftedUtils.h"
 #include "Horus.h"
 
-
+typedef unsigned PrvGroup;
 
 class ProbFormula
 {
