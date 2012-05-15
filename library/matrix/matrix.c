@@ -387,6 +387,11 @@ static YAP_Term
 float_matrix_to_list(int *mat) {
   double *data = matrix_double_data(mat, mat[MAT_NDIMS]);
 
+  /* prepare for worst case with double taking two cells */
+  if (YAP_RequiresExtraStack(6*mat[MAT_SIZE])) {
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    data = matrix_double_data(mat, mat[MAT_NDIMS]);
+  }
   return YAP_FloatsToList(data, mat[MAT_SIZE]);
 }
 
@@ -429,6 +434,11 @@ static YAP_Term
 long_matrix_to_list(int *mat) {
   long int *data = matrix_long_data(mat, mat[MAT_NDIMS]);
 
+  /* prepare for worst case with longs evrywhere (3cells + 1) */
+  if (YAP_RequiresExtraStack(5*mat[MAT_SIZE])) {
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
+    data = matrix_long_data(mat, mat[MAT_NDIMS]);
+  }
   return mk_long_list(mat[MAT_SIZE], data);
 }
 
@@ -1269,6 +1279,7 @@ matrix_agg_lines(void)
     tf = new_int_matrix(dims-1,mat+(MAT_DIMS+1),NULL);
     if (tf == YAP_TermNil())
       return FALSE;
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
     nmat = (int *)YAP_BlobOfTerm(tf);
     data = matrix_long_data(mat, dims);
     ndata = matrix_long_data(nmat, dims-1);
@@ -1351,6 +1362,7 @@ matrix_agg_cols(void)
     tf = new_int_matrix(1,mat+MAT_DIMS,NULL);
     if (tf == YAP_TermNil())
       return FALSE;
+    mat = (int *)YAP_BlobOfTerm(YAP_ARG1);
     nmat = (int *)YAP_BlobOfTerm(tf);
     data = matrix_long_data(mat, dims);
     ndata = matrix_long_data(nmat, 1);
