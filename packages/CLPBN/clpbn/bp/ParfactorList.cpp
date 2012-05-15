@@ -98,6 +98,9 @@ ParfactorList::isAllShattered (void) const
     return true;
   }
   vector<Parfactor*> pfs (pfList_.begin(), pfList_.end());
+  for (unsigned i = 0; i < pfs.size(); i++) {
+    assert (isShattered (pfs[i]));
+  }
   for (unsigned i = 0; i < pfs.size() - 1; i++) {
     for (unsigned j = i + 1; j < pfs.size(); j++) {
       if (isShattered (pfs[i], pfs[j])  == false) {
@@ -117,7 +120,44 @@ ParfactorList::print (void) const
   std::sort (pfVec.begin(), pfVec.end(), sortByParams());
   for (unsigned i = 0; i < pfVec.size(); i++) {
     pfVec[i]->print();
+    cout << endl;
   }
+}
+
+
+
+bool
+ParfactorList::isShattered (const Parfactor* g) const
+{
+  const ProbFormulas& formulas = g->arguments();
+  if (formulas.size() < 2) {
+    return true;
+  }
+  ConstraintTree ct (*g->constr());
+  for (unsigned i = 0; i < formulas.size() - 1; i++) {
+    for (unsigned j = i + 1; j < formulas.size(); j++) {
+      if (formulas[i].group() == formulas[j].group()) {
+        if (identical (
+            formulas[i], *(g->constr()),
+            formulas[j], *(g->constr())) == false) {
+          g->print();
+          cout << "-> not identical on positions " ;
+          cout << i << " and " << j << endl;
+          return false;
+        }
+      } else {
+        if (disjoint (
+            formulas[i], *(g->constr()),
+            formulas[j], *(g->constr())) == false) {
+          g->print();
+          cout << "-> not disjoint on positions " ;
+          cout << i << " and " << j << endl;
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 
@@ -130,18 +170,28 @@ ParfactorList::isShattered (
   assert (g1 != g2);
   const ProbFormulas& fms1 = g1->arguments();
   const ProbFormulas& fms2 = g2->arguments();
+
   for (unsigned i = 0; i < fms1.size(); i++) {
     for (unsigned j = 0; j < fms2.size(); j++) {
       if (fms1[i].group() == fms2[j].group()) {
         if (identical (
             fms1[i], *(g1->constr()),
             fms2[j], *(g2->constr())) == false) {
+          g1->print();
+          cout << "^" << endl;
+          g2->print();
+          cout << "-> not identical on group " << fms1[i].group() << endl;
           return false;
         }
       } else {
         if (disjoint (
             fms1[i], *(g1->constr()),
             fms2[j], *(g2->constr())) == false) {
+          g1->print();
+          cout << "^" << endl;
+          g2->print();
+          cout << "-> not disjoint on groups " << fms1[i].group();
+          cout << " and " << fms2[j].group() << endl;
           return false;
         }
       }
@@ -156,17 +206,7 @@ void
 ParfactorList::addToShatteredList (Parfactor* g)
 {
   queue<Parfactor*> residuals;
-
-  Parfactors res = shatterAgainstMySelf (g);
-  if (res.empty()) {
-    residuals.push (g);
-  } else {
-    for (unsigned i = 0; i < res.size(); i++) {
-      residuals.push (res[i]);
-    }
-    delete g;
-  }
-
+  residuals.push (g);
   while (residuals.empty() == false) {
     Parfactor* pf = residuals.front();
     bool pfSplitted = false;
@@ -190,7 +230,12 @@ ParfactorList::addToShatteredList (Parfactor* g)
     }
     residuals.pop();
     if (pfSplitted == false) {
-      addShattered (pf);
+      Parfactors res = shatterAgainstMySelf (pf);
+      if (res.empty()) {
+        addShattered (pf);
+      } else {
+        Util::addToQueue (residuals, res);
+      }
     }
   }
   assert (isAllShattered());
@@ -200,6 +245,37 @@ ParfactorList::addToShatteredList (Parfactor* g)
 
 Parfactors
 ParfactorList::shatterAgainstMySelf (Parfactor* g)
+{
+  Parfactors pfs;
+  queue<Parfactor*> residuals;
+  residuals.push (g);
+  bool shattered = true;
+  while (residuals.empty() == false) {
+    Parfactor* pf = residuals.front();
+    Parfactors res = shatterAgainstMySelf2 (pf);
+    if (res.empty()) {
+      assert (isShattered (pf));
+      if (shattered) {
+        return { };
+      }
+      pfs.push_back (pf);
+    } else {
+      shattered = false;
+      for (unsigned i = 0; i < res.size(); i++) {
+        assert (res[i]->constr()->empty() == false);
+        residuals.push (res[i]);
+      }
+      delete pf;
+    }
+    residuals.pop();
+  }
+  return pfs;
+}
+
+
+
+Parfactors
+ParfactorList::shatterAgainstMySelf2 (Parfactor* g)
 {
   // slip a parfactor with overlapping formulas:
   // e.g. {s(X),s(Y)}, with (X,Y) in {(p1,p2),(p1,p3),(p4,p1)}
@@ -225,6 +301,16 @@ ParfactorList::shatterAgainstMySelf (
     unsigned fIdx1,
     unsigned fIdx2)
 {
+  /*
+  Util::printDashedLine();
+  cout << "-> SHATTERING" << endl;
+  g->print();
+  cout << "-> ON: " << g->argument (fIdx1) << "|" ;
+  cout << g->constr()->tupleSet (g->argument (fIdx1).logVars()) << endl;
+  cout << "-> ON: " << g->argument (fIdx2) << "|" ;
+  cout << g->constr()->tupleSet (g->argument (fIdx2).logVars())	<< endl;
+  Util::printDashedLine();
+  */
   ProbFormula& f1 = g->argument (fIdx1);
   ProbFormula& f2 = g->argument (fIdx2);
   if (f1.isAtom()) {
@@ -243,7 +329,7 @@ ParfactorList::shatterAgainstMySelf (
   ctCopy.moveToTop (f2.logVars());
 
   std::pair<ConstraintTree*,ConstraintTree*> split1 =
-      g->constr()->split (&ctCopy, f1.arity());
+      g->constr()->split (f1.logVars(), &ctCopy, f2.logVars());
   ConstraintTree* commCt1 = split1.first;
   ConstraintTree* exclCt1 = split1.second;
 
@@ -253,19 +339,29 @@ ParfactorList::shatterAgainstMySelf (
     delete exclCt1;
     return { };
   }
+
   unsigned newGroup = ProbFormula::getNewGroup();
   Parfactors res1 = shatter (g, fIdx1, commCt1, exclCt1, newGroup);
   if (res1.empty()) {
     res1.push_back (g);
   }
+
   Parfactors res;
   ctCopy.moveToTop (f1.logVars());
   for (unsigned i = 0; i < res1.size(); i++) {
     res1[i]->constr()->moveToTop (f2.logVars());
     std::pair<ConstraintTree*, ConstraintTree*> split2;
-    split2 = res1[i]->constr()->split (&ctCopy, f2.arity());
+    split2 = res1[i]->constr()->split (f2.logVars(), &ctCopy, f1.logVars());
     ConstraintTree* commCt2 = split2.first;
     ConstraintTree* exclCt2 = split2.second;
+    if (commCt2->empty()) {
+      if (res1[i] != g) {
+        res.push_back (res1[i]);
+      }
+      delete commCt2;
+      delete exclCt2;
+      continue;
+    }
     newGroup = ProbFormula::getNewGroup();
     Parfactors res2 = shatter (res1[i], fIdx2, commCt2, exclCt2, newGroup);
     if (res2.empty()) {
@@ -274,6 +370,8 @@ ParfactorList::shatterAgainstMySelf (
       }
     } else {
       Util::addToVector (res, res2);
+      for (unsigned j = 0; j < res2.size(); j++) {
+      }
       if (res1[i] != g) {
         delete res1[i];
       }
@@ -319,17 +417,18 @@ ParfactorList::shatter (
 {
   ProbFormula& f1 = g1->argument (fIdx1);
   ProbFormula& f2 = g2->argument (fIdx2);
-  // cout << endl;
-  // Util::printDashedLine();
-  // cout << "-> SHATTERING (#" << g1 << ", #" << g2 << ")" << endl;
-  // g1->print();
-  // cout << "-> WITH" << endl;
-  // g2->print();
-  // cout << "-> ON: " << f1 << "|" ;
-  // cout << g1->constr()->tupleSet (f1.logVars()) << endl;
-  // cout << "-> ON: " << f2 << "|" ;
-  // cout << g2->constr()->tupleSet (f2.logVars()) << endl;
-  // Util::printDashedLine();
+  /*
+  Util::printDashedLine();
+  cout << "-> SHATTERING" << endl;
+  g1->print();
+  cout << "-> WITH" << endl;
+  g2->print();
+  cout << "-> ON: " << f1 << "|" ;
+  cout << g1->constr()->tupleSet (f1.logVars()) << endl;
+  cout << "-> ON: " << f2 << "|" ;
+  cout << g2->constr()->tupleSet (f2.logVars()) << endl;
+  Util::printDashedLine();
+  */
   if (f1.isAtom()) {
     f2.setGroup (f1.group());
     updateGroups (f2.group(), f1.group());
@@ -346,7 +445,7 @@ ParfactorList::shatter (
   g2->constr()->moveToTop (f2.logVars());
 
   std::pair<ConstraintTree*,ConstraintTree*> split1 =
-      g1->constr()->split (g2->constr(), f1.arity());
+      g1->constr()->split (f1.logVars(), g2->constr(), f2.logVars());
   ConstraintTree* commCt1 = split1.first;
   ConstraintTree* exclCt1 = split1.second;
 
@@ -358,12 +457,12 @@ ParfactorList::shatter (
   }
 
   std::pair<ConstraintTree*,ConstraintTree*> split2 =
-      g2->constr()->split (g1->constr(), f2.arity());
+      g2->constr()->split (f2.logVars(), g1->constr(), f1.logVars());
   ConstraintTree* commCt2 = split2.first;
   ConstraintTree* exclCt2 = split2.second;
 
-  assert (commCt1->tupleSet (f1.arity()) == 
-          commCt2->tupleSet (f2.arity()));
+  assert (commCt1->tupleSet (f1.logVars()) == 
+          commCt2->tupleSet (f2.logVars()));
 
    // unsigned static count = 0; count ++;
    // stringstream ss1; ss1 << "" << count << "_A.dot" ;
@@ -475,19 +574,19 @@ ParfactorList::updateGroups (unsigned oldGroup, unsigned newGroup)
 
 bool
 ParfactorList::proper (
-    const ProbFormula& f1, ConstraintTree c1,
-    const ProbFormula& f2, ConstraintTree c2) const
+    const ProbFormula& f1, ConstraintTree ct1,
+    const ProbFormula& f2, ConstraintTree ct2) const
 {
-  return disjoint  (f1, c1, f2, c2)
-      || identical (f1, c1, f2, c2);
+  return disjoint  (f1, ct1, f2, ct2)
+      || identical (f1, ct1, f2, ct2);
 }
 
 
 
 bool
 ParfactorList::identical (
-    const ProbFormula& f1, ConstraintTree c1,
-    const ProbFormula& f2, ConstraintTree c2) const
+    const ProbFormula& f1, ConstraintTree ct1,
+    const ProbFormula& f2, ConstraintTree ct2) const
 {
   if (f1.sameSkeletonAs (f2) == false) {
     return false;
@@ -495,28 +594,26 @@ ParfactorList::identical (
   if (f1.isAtom()) {
     return true;
   }
-  c1.moveToTop (f1.logVars());
-  c2.moveToTop (f2.logVars());
-  return ConstraintTree::identical (
-      &c1, &c2, f1.arity());
+  TupleSet ts1 = ct1.tupleSet (f1.logVars());
+  TupleSet ts2 = ct2.tupleSet (f2.logVars());
+  return ts1 == ts2;
 }
 
 
 
 bool
 ParfactorList::disjoint (
-    const ProbFormula& f1, ConstraintTree c1,
-    const ProbFormula& f2, ConstraintTree c2) const
+    const ProbFormula& f1, ConstraintTree ct1,
+    const ProbFormula& f2, ConstraintTree ct2) const
 {
   if (f1.sameSkeletonAs (f2) == false) {
     return true;
   }
   if (f1.isAtom()) {
-    return true;
+    return false;
   }
-  c1.moveToTop (f1.logVars());
-  c2.moveToTop (f2.logVars());
-  return ConstraintTree::disjoint (
-      &c1, &c2, f1.arity());
+  TupleSet ts1 = ct1.tupleSet (f1.logVars());
+  TupleSet ts2 = ct2.tupleSet (f2.logVars());
+  return (ts1 & ts2).empty();
 }
 

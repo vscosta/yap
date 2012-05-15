@@ -646,24 +646,29 @@ ConstraintTree::isCarteesianProduct (const LogVarSet& Xs)
 
 
 std::pair<ConstraintTree*,ConstraintTree*>
-ConstraintTree::split (
-    const Tuple& tuple,
-    unsigned stopLevel)
+ConstraintTree::split (const Tuple& tuple)
 {
+  // assumes that my log vars are already on top
+  LogVars lvs (logVars_.begin(), logVars_.begin() + tuple.size());
   ConstraintTree tempCt (logVars_, {tuple});
-  return split (&tempCt, stopLevel);
+  return split (lvs, &tempCt, lvs);
 }
 
 
 
 std::pair<ConstraintTree*, ConstraintTree*>
 ConstraintTree::split (
-    const ConstraintTree* ct,
-    unsigned stopLevel) const
+    const LogVars& lvs1,
+    ConstraintTree* ct,
+    const LogVars& lvs2)
 {
-  assert (stopLevel <= logVars_.size());
-  assert (stopLevel <= ct->logVars_.size());
+  assert (lvs1.size() == lvs2.size());
+  assert (lvs1.size() == LogVarSet (lvs1).size());
+  assert (lvs2.size() == LogVarSet (lvs2).size());
+  assert (logVarSet_.contains (lvs1));
+  assert (ct->logVarSet().contains (lvs2));
   CTChilds commChilds, exclChilds;
+  unsigned stopLevel = lvs1.size();
   split (root_, ct->root(), commChilds, exclChilds, stopLevel);
   ConstraintTree* commCt = new ConstraintTree (commChilds, logVars_);
   ConstraintTree* exclCt = new ConstraintTree (exclChilds, logVars_);
@@ -798,32 +803,6 @@ ConstraintTree::jointCountNormalize (
   }
 
   return cts;
-}
-
-
-
-bool
-ConstraintTree::identical (
-  const ConstraintTree* ct1,
-  const ConstraintTree* ct2,
-  unsigned stopLevel)
-{
-  TupleSet ts1 = ct1->tupleSet (stopLevel);
-  TupleSet ts2 = ct2->tupleSet (stopLevel);
-  return ts1 == ts2;
-}
-
-
-
-bool
-ConstraintTree::disjoint (
-  const ConstraintTree* ct1,
-  const ConstraintTree* ct2,
-  unsigned stopLevel)
-{
-  TupleSet ts1 = ct1->tupleSet (stopLevel);
-  TupleSet ts2 = ct2->tupleSet (stopLevel);
-  return (ts1 & ts2).empty();
 }
 
 
