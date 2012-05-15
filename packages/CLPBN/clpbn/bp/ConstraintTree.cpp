@@ -457,12 +457,39 @@ ConstraintTree::tupleSet (unsigned stopLevel) const
 
 
 TupleSet
-ConstraintTree::tupleSet (const LogVars& lvs)
-{  
+ConstraintTree::tupleSet (const LogVars& originalLvs)
+{
+  LogVars uniqueLvs;
+  for (unsigned i = 0; i < originalLvs.size(); i++) {
+    if (Util::contains (uniqueLvs, originalLvs[i]) == false) {
+      uniqueLvs.push_back (originalLvs[i]);
+    }
+  }
+
   Tuples tuples;
-  moveToTop (lvs);
-  unsigned stopLevel = lvs.size();
+  moveToTop (uniqueLvs);
+  unsigned stopLevel = uniqueLvs.size();
   getTuples (root_, Tuples(), stopLevel, tuples, CTNodes() = {});
+
+  if (originalLvs.size() != uniqueLvs.size()) {
+    vector<int> indexes;
+    indexes.reserve (originalLvs.size());
+    for (unsigned i = 0; i < originalLvs.size(); i++) {
+      indexes.push_back (Util::vectorIndex (uniqueLvs, originalLvs[i]));
+    }
+    Tuples tuples2;
+    tuples2.reserve (tuples.size());
+    for (unsigned i = 0; i < tuples.size(); i++) {
+      Tuple t;
+      t.reserve (originalLvs.size());
+      for (unsigned j = 0; j < originalLvs.size(); j++) {
+        t.push_back (tuples[i][indexes[j]]);
+      }
+      tuples2.push_back (t);
+    }
+    return TupleSet (tuples2);
+  }
+
   return TupleSet (tuples);
 }
 
