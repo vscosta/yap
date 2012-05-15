@@ -137,14 +137,20 @@ class Substitution
 
     LogVar newNameFor (LogVar X) const
     {
-      assert (Util::contains (subs_, X));
-      return subs_.find (X)->second;
+      unordered_map<LogVar, LogVar>::const_iterator it;
+      it = subs_.find (X);
+      if (it != subs_.end()) {
+        return subs_.find (X)->second;
+      }
+      return X;
     }
 
     bool containsReplacementFor (LogVar X) const 
     {
       return Util::contains (subs_, X);
     }
+ 
+    unsigned nrReplacements (void) const { return subs_.size(); }
 
     LogVars getDiscardedLogVars (void) const;
 

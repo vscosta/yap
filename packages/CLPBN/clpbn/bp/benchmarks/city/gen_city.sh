@@ -1,4 +1,4 @@
-#! /home/tiago/bin/yap -L --
+#! /home/tgomes/bin/yap -L --
 
 
 :- initialization(main).

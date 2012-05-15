@@ -19,10 +19,33 @@ class LiftedOperator
 
     static void printValidOps (ParfactorList&, const Grounds&);
 
-    static vector<unsigned> getAllGroupss (ParfactorList&);
-
     static vector<ParfactorList::iterator> getParfactorsWithGroup (
         ParfactorList&, unsigned group);
+};
+
+
+
+class ProductOperator : public LiftedOperator
+{
+  public:
+    ProductOperator (
+        ParfactorList::iterator g1, ParfactorList::iterator g2,
+        ParfactorList& pfList) : g1_(g1), g2_(g2), pfList_(pfList) { }
+
+    double getLogCost (void);
+
+    void apply (void);
+
+    static vector<ProductOperator*> getValidOps (ParfactorList&);
+
+    string toString (void);
+
+  private:
+    static bool validOp (Parfactor*, Parfactor*);
+
+    ParfactorList::iterator g1_;
+    ParfactorList::iterator g2_;
+    ParfactorList&  pfList_;
 };
 
 
@@ -122,6 +145,8 @@ class FoveSolver
        ParfactorList& pfList, ObservedFormulas& obsFormulas);
 
    static Parfactors countNormalize (Parfactor*, const LogVarSet&);
+
+   static Parfactor calcGroundMultiplication (Parfactor pf);
 
   private:
     void runSolver (const Grounds&);

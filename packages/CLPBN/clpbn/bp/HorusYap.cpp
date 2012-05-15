@@ -68,6 +68,7 @@ int createLiftedNetwork (void)
     Util::printHeader ("INITIAL PARFACTORS");
     for (unsigned i = 0; i < parfactors.size(); i++) {
       parfactors[i]->print();
+      cout << endl;
     }
   }
 

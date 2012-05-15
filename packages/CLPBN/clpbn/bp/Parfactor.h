@@ -50,6 +50,8 @@ class Parfactor : public TFactor<ProbFormula>
 
     void multiply (Parfactor&);
     
+    bool canCountConvert (LogVar X);
+
     void countConvert (LogVar);
 
     void expand (LogVar, LogVar, LogVar);
@@ -76,22 +78,40 @@ class Parfactor : public TFactor<ProbFormula>
 
     int indexOfGroup (unsigned) const;
 
+    unsigned nrFormulasWithGroup (unsigned) const;
+
     vector<unsigned> getAllGroups (void) const;
 
     void print (bool = false) const;
 
+    void printParameters (void) const;
+
+    void printProjections (void) const;
+
     string getLabel (void) const;
 
+    void simplifyGrounds (void);
+
+    static bool canMultiply (Parfactor*, Parfactor*);
+
   private:
+ 
+    void simplifyCountingFormulas (int fIdx);
+
+    void simplifyParfactor (unsigned fIdx1, unsigned fIdx2);
+
+    static std::pair<LogVars, LogVars> getAlignLogVars (
+        Parfactor* g1, Parfactor* g2);
+
     void expandPotential (int fIdx, unsigned newRange,
         const vector<unsigned>& sumIndexes);
 
     static void alignAndExponentiate (Parfactor*, Parfactor*);
 
-    static void align (
-        Parfactor*, const LogVars&, Parfactor*, const LogVars&);
+    static void alignLogicalVars (Parfactor*, Parfactor*);
    
     ConstraintTree*  constr_;
+ 
 };
 
 

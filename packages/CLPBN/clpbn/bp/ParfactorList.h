@@ -59,9 +59,18 @@ class ParfactorList
 
   private:
     
+    bool isShattered (const Parfactor*) const;
+
     bool isShattered (const Parfactor*, const Parfactor*) const;
 
     void addToShatteredList (Parfactor*);
+
+    Parfactors shatterAgainstMySelf (Parfactor* g);
+
+    Parfactors shatterAgainstMySelf2 (Parfactor* g);
+
+    Parfactors shatterAgainstMySelf (
+        Parfactor* g, unsigned fIdx1, unsigned fIdx2);
     
     std::pair<Parfactors, Parfactors> shatter (
         Parfactor*, Parfactor*);

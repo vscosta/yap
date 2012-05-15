@@ -84,14 +84,6 @@ CTNode::childSymbols (void) const
 void
 CTNode::updateChildLevels (CTNode* n, unsigned level)
 {
-  /*
-  n->setLevel (level);
-  const CTChilds& childs = n->childs();
-  for (CTChilds::const_iterator chIt = childs.begin();
-       chIt != childs.end(); ++ chIt) {
-    updateChildLevels (*chIt, level + 1);
-  }
-  */
   CTNodes stack;
   stack.push_back (n);
   n->setLevel (level);
@@ -134,16 +126,6 @@ CTNode::copySubtree (const CTNode* root1)
     }
   }
   return root2;
-  /*
-  CTNode* newNode = new CTNode (*root1);
-  const CTChilds& childs = root1->childs();
-  newNode->childs().reserve (childs.size());
-  for (CTChilds::const_iterator chIt = childs.begin();
-       chIt != childs.end(); ++ chIt) {
-    newNode->childs().push_back ((copySubtree (*chIt)));
-  }
-  return newNode;
-  */
 }
 
 
@@ -329,9 +311,8 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
     CTNodes::const_iterator appendIt = appendNodes.begin();
     for (unsigned i = 0; i < tuples.size(); ++ i, ++ appendIt) {
       bool tupleFounded = join (root_, tuples[i], 0, *appendIt);
-      if (oneTwoOne) {
-        assert (tupleFounded);
-        tupleFounded = true; // hack to avoid gcc warning 
+      if (oneTwoOne && tupleFounded == false) {
+        assert (false);
       }
     }
 
@@ -378,10 +359,6 @@ ConstraintTree::rename (LogVar X_old, LogVar X_new)
 void
 ConstraintTree::applySubstitution (const Substitution& theta)
 {
-  LogVars discardedLvs = theta.getDiscardedLogVars();
-  for (unsigned i = 0; i < discardedLvs.size(); i++) {
-    remove(discardedLvs[i]);
-  }
   for (unsigned i = 0; i < logVars_.size(); i++) {
     logVars_[i] = theta.newNameFor (logVars_[i]);
   }
@@ -422,17 +399,6 @@ ConstraintTree::remove (const LogVarSet& X)
 bool
 ConstraintTree::ConstraintTree::isSingleton (LogVar X)
 {
-  /*
-  const CTNodes& nodes = getNodesAtLevel (getLevel (X));
-  Symbol symb = nodes.front()->symbol();
-  for (CTNodes::const_iterator it = nodes.begin();
-       it != nodes.end(); ++ it) {
-    if ((*it)->symbol() != symb) {
-      return false;
-    }
-  }
-  return true;
-  */
   Symbol symb;
   unsigned level = getLevel (X);
   CTNodes stack;
@@ -487,12 +453,39 @@ ConstraintTree::tupleSet (unsigned stopLevel) const
 
 
 TupleSet
-ConstraintTree::tupleSet (const LogVars& lvs)
-{  
+ConstraintTree::tupleSet (const LogVars& originalLvs)
+{
+  LogVars uniqueLvs;
+  for (unsigned i = 0; i < originalLvs.size(); i++) {
+    if (Util::contains (uniqueLvs, originalLvs[i]) == false) {
+      uniqueLvs.push_back (originalLvs[i]);
+    }
+  }
+
   Tuples tuples;
-  moveToTop (lvs);
-  unsigned stopLevel = lvs.size();
+  moveToTop (uniqueLvs);
+  unsigned stopLevel = uniqueLvs.size();
   getTuples (root_, Tuples(), stopLevel, tuples, CTNodes() = {});
+
+  if (originalLvs.size() != uniqueLvs.size()) {
+    vector<int> indexes;
+    indexes.reserve (originalLvs.size());
+    for (unsigned i = 0; i < originalLvs.size(); i++) {
+      indexes.push_back (Util::vectorIndex (uniqueLvs, originalLvs[i]));
+    }
+    Tuples tuples2;
+    tuples2.reserve (tuples.size());
+    for (unsigned i = 0; i < tuples.size(); i++) {
+      Tuple t;
+      t.reserve (originalLvs.size());
+      for (unsigned j = 0; j < originalLvs.size(); j++) {
+        t.push_back (tuples[i][indexes[j]]);
+      }
+      tuples2.push_back (t);
+    }
+    return TupleSet (tuples2);
+  }
+
   return TupleSet (tuples);
 }
 
@@ -625,12 +618,13 @@ ConstraintTree::getConditionalCounts (const LogVarSet& Ys)
 
 
 bool
-ConstraintTree::isCarteesianProduct (const LogVarSet& Xs) const
+ConstraintTree::isCarteesianProduct (const LogVarSet& Xs)
 {
   assert (logVarSet_.contains (Xs));
   if (Xs.size() <= 1) {
     return true;
   }
+  moveToTop (Xs.elements());
   for (unsigned i = 1; i < Xs.size(); i++) {
     CTNodes nodes = getNodesAtLevel (i);
     for (unsigned j = 1; j < nodes.size(); j++) {
@@ -648,24 +642,29 @@ ConstraintTree::isCarteesianProduct (const LogVarSet& Xs) const
 
 
 std::pair<ConstraintTree*,ConstraintTree*>
-ConstraintTree::split (
-    const Tuple& tuple,
-    unsigned stopLevel)
+ConstraintTree::split (const Tuple& tuple)
 {
+  // assumes that my log vars are already on top
+  LogVars lvs (logVars_.begin(), logVars_.begin() + tuple.size());
   ConstraintTree tempCt (logVars_, {tuple});
-  return split (&tempCt, stopLevel);
+  return split (lvs, &tempCt, lvs);
 }
 
 
 
 std::pair<ConstraintTree*, ConstraintTree*>
 ConstraintTree::split (
-    const ConstraintTree* ct,
-    unsigned stopLevel) const
+    const LogVars& lvs1,
+    ConstraintTree* ct,
+    const LogVars& lvs2)
 {
-  assert (stopLevel <= logVars_.size());
-  assert (stopLevel <= ct->logVars_.size());
+  assert (lvs1.size() == lvs2.size());
+  assert (lvs1.size() == LogVarSet (lvs1).size());
+  assert (lvs2.size() == LogVarSet (lvs2).size());
+  assert (logVarSet_.contains (lvs1));
+  assert (ct->logVarSet().contains (lvs2));
   CTChilds commChilds, exclChilds;
+  unsigned stopLevel = lvs1.size();
   split (root_, ct->root(), commChilds, exclChilds, stopLevel);
   ConstraintTree* commCt = new ConstraintTree (commChilds, logVars_);
   ConstraintTree* exclCt = new ConstraintTree (exclChilds, logVars_);
@@ -804,32 +803,6 @@ ConstraintTree::jointCountNormalize (
 
 
 
-bool
-ConstraintTree::identical (
-  const ConstraintTree* ct1,
-  const ConstraintTree* ct2,
-  unsigned stopLevel)
-{
-  TupleSet ts1 = ct1->tupleSet (stopLevel);
-  TupleSet ts2 = ct2->tupleSet (stopLevel);
-  return ts1 == ts2;
-}
-
-
-
-bool
-ConstraintTree::disjoint (
-  const ConstraintTree* ct1,
-  const ConstraintTree* ct2,
-  unsigned stopLevel)
-{
-  TupleSet ts1 = ct1->tupleSet (stopLevel);
-  TupleSet ts2 = ct2->tupleSet (stopLevel);
-  return (ts1 & ts2).empty();
-}
-
-
-
 LogVars
 ConstraintTree::expand (LogVar X)
 {
@@ -886,6 +859,21 @@ ConstraintTree::ground (LogVar X)
 
 
 
+void
+ConstraintTree::copyLogVar (LogVar X_1, LogVar X_2)
+{
+  moveToBottom ({X_1});
+  CTNodes leafs = getNodesAtLevel (logVars_.size());
+  for (unsigned i = 0; i < leafs.size(); i++) {
+    leafs[i]->childs().push_back (
+        new CTNode (leafs[i]->symbol(), leafs[i]->level() + 1));
+  }
+  logVars_.push_back (X_2);
+  logVarSet_.insert (X_2);
+}
+
+
+
 unsigned
 ConstraintTree::countTuples (const CTNode* n) const
 {
@@ -930,23 +918,6 @@ ConstraintTree::getNodesAtLevel (unsigned level) const
   if (level == 0) {
     return { root_ };
   }
-  /*
-  CTNodes nodes;
-  queue<CTNode*> queue;
-  queue.push (root_);
-  while (queue.empty() == false) {
-    CTNode* node = queue.front();
-    if (node->level() == level) {
-      nodes.push_back (node);
-    } else {
-      for (CTChilds::const_iterator chIt = node->childs().begin();
-           chIt != node->childs().end(); ++ chIt) {
-        queue.push (*chIt);
-      }
-    }
-    queue.pop();
-  }
-  */
   CTNodes stack;
   CTNodes nodes;
   stack.push_back (root_);

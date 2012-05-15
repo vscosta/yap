@@ -1,13 +1,4 @@
-- Refactor sum out in factor
-- Add a way to sum out several vars at the same time
-- Receive ranges as a constant reference in Indexer
-- Merge TinySet and SortedVector classes
-- Check if evidence remains in the compressed factor graph
-- Check is this doesn't happen phi(smokes(p1),smokes(p1))
-- Handle {p(X),q(X)} * {p(X),q(Y)}, X={x_1,...,x_n}, Y={x_1,...,x_n}
-- Handle {p(X),p(Y)}, where constraint = (x1,x2),(x2,x1)
-- Add a constant for the maximum factor size
-- Add a lifted multiply operation to FoveSolver
-- Maybe directly hashs instead of vectors of colors to calculate the groups in
-  counting bp
- 
+TODO
+ - add a way to calculate combinations and factorials with large numbers
+ - refactor sumOut in parfactor -> is really ugly code
+ - Indexer: start receiving ranges as constant reference
