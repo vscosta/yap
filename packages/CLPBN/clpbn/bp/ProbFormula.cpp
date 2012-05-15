@@ -32,13 +32,7 @@ ProbFormula::contains (LogVarSet s) const
 int
 ProbFormula::indexOf (LogVar X) const
 {
-  int pos = std::distance (
-      logVars_.begin(),
-      std::find (logVars_.begin(), logVars_.end(), X));
-  if (pos == (int)logVars_.size()) {
-    pos = -1;
-  }
-  return pos;
+  return Util::indexOf (logVars_, X);
 }
 
 

@@ -185,7 +185,7 @@ class ConstraintTree
 
     TinySet<unsigned> getConditionalCounts (const LogVarSet&);
 
-    bool isCarteesianProduct (const LogVarSet&);
+    bool isCartesianProduct (const LogVarSet&);
 
     std::pair<ConstraintTree*, ConstraintTree*> split (const Tuple&);
 

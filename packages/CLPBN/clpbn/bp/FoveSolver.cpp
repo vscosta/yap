@@ -346,7 +346,7 @@ CountingOperator::getLogCost (void)
     cost += size * HistogramSet::nrHistograms (counts[i], range);
   }
   unsigned group = (*pfIter_)->argument (fIdx).group();
-  int lvIndex = Util::vectorIndex (
+  int lvIndex = Util::indexOf (
       (*pfIter_)->argument (fIdx).logVars(), X_);
   assert (lvIndex != -1);
   ParfactorList::iterator pfIter = pfList_.begin();
@@ -379,7 +379,7 @@ CountingOperator::apply (void)
     Parfactors pfs = FoveSolver::countNormalize (pf, X_);
     for (unsigned i = 0; i  < pfs.size(); i++) {
       unsigned condCount = pfs[i]->constr()->getConditionalCount (X_);
-      bool cartProduct   = pfs[i]->constr()->isCarteesianProduct (
+      bool cartProduct   = pfs[i]->constr()->isCartesianProduct (
           pfs[i]->countedLogVars() | X_);
       if (condCount > 1 && cartProduct) {
         pfs[i]->countConvert (X_);

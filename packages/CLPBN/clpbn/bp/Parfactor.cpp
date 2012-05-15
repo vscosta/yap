@@ -194,7 +194,7 @@ Parfactor::multiply (Parfactor& g)
   TFactor<ProbFormula>::multiply (g);
   constr_->join (g.constr(), true);
   simplifyGrounds();
-  assert (constr_->isCarteesianProduct (countedLogVars()));
+  assert (constr_->isCartesianProduct (countedLogVars()));
 }
 
 
@@ -215,7 +215,7 @@ Parfactor::canCountConvert (LogVar X)
   if (constr_->getConditionalCount (X) == 1) {
     return false;
   }
-  if (constr_->isCarteesianProduct (countedLogVars() | X) == false) {
+  if (constr_->isCartesianProduct (countedLogVars() | X) == false) {
     return false;
   }
   return true;

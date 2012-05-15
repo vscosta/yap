@@ -242,11 +242,9 @@ void
 ConstraintTree::moveToTop (const LogVars& lvs)
 {
   for (unsigned i = 0; i < lvs.size(); i++) {
-    LogVars::iterator it = 
-        std::find (logVars_.begin(), logVars_.end(), lvs[i]);
-    assert (it != logVars_.end());
-    unsigned pos = std::distance (logVars_.begin(), it);
-    for (unsigned j = pos; j > i; j--) {
+    int pos = Util::indexOf (logVars_, lvs[i]);
+    assert (pos != -1);
+    for (int j = pos; j > (int)i; j--) {
       swapLogVar (logVars_[j-1]);
     }                                 
   }
@@ -261,9 +259,9 @@ ConstraintTree::moveToBottom (const LogVars& lvs)
     LogVars::iterator it = 
         std::find (logVars_.begin(), logVars_.end(), lvs[i]);
     assert (it != logVars_.end());
-    unsigned pos = std::distance (logVars_.begin(), it);
-    unsigned stop = logVars_.size() - (lvs.size() - i - 1);
-    for (unsigned j = pos; j < stop - 1; j++) {
+    int pos  = Util::indexOf (logVars_, lvs[i]);
+    int stop = logVars_.size() - (lvs.size() - i - 1);
+    for (int j = pos; j < stop - 1; j++) {
       swapLogVar (logVars_[j]);
     }
   }
@@ -328,10 +326,7 @@ ConstraintTree::join (ConstraintTree* ct, bool oneTwoOne)
 unsigned
 ConstraintTree::getLevel (LogVar X) const
 {
-  LogVars::const_iterator it = 
-      std::find (logVars_.begin(), logVars_.end(), X);
-  assert (it != logVars_.end());
-  unsigned level = std::distance (logVars_.begin(), it);
+  unsigned level = Util::indexOf (logVars_, X);
   level += 1; // root is in level 0, first logVar is in level 1
   return level;
 }
@@ -471,7 +466,7 @@ ConstraintTree::tupleSet (const LogVars& originalLvs)
     vector<int> indexes;
     indexes.reserve (originalLvs.size());
     for (unsigned i = 0; i < originalLvs.size(); i++) {
-      indexes.push_back (Util::vectorIndex (uniqueLvs, originalLvs[i]));
+      indexes.push_back (Util::indexOf (uniqueLvs, originalLvs[i]));
     }
     Tuples tuples2;
     tuples2.reserve (tuples.size());
@@ -618,7 +613,7 @@ ConstraintTree::getConditionalCounts (const LogVarSet& Ys)
 
 
 bool
-ConstraintTree::isCarteesianProduct (const LogVarSet& Xs)
+ConstraintTree::isCartesianProduct (const LogVarSet& Xs)
 {
   assert (logVarSet_.contains (Xs));
   if (Xs.size() <= 1) {
@@ -979,10 +974,8 @@ ConstraintTree::appendOnBottom (CTNode* n, const CTChilds& childs)
 void
 ConstraintTree::swapLogVar (LogVar X)
 {
-  LogVars::iterator it;
-  it = std::find (logVars_.begin(),logVars_.end(), X);
-  assert (it != logVars_.end());
-  unsigned pos = std::distance (logVars_.begin(), it);
+  int pos = Util::indexOf (logVars_, X);
+  assert (pos != -1);
   const CTNodes& nodes = getNodesAtLevel (pos);
   for (CTNodes::const_iterator nodeIt = nodes.begin();
        nodeIt != nodes.end(); ++ nodeIt) {
