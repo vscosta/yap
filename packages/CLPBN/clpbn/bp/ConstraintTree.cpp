@@ -622,12 +622,13 @@ ConstraintTree::getConditionalCounts (const LogVarSet& Ys)
 
 
 bool
-ConstraintTree::isCarteesianProduct (const LogVarSet& Xs) const
+ConstraintTree::isCarteesianProduct (const LogVarSet& Xs)
 {
   assert (logVarSet_.contains (Xs));
   if (Xs.size() <= 1) {
     return true;
   }
+  moveToTop (Xs.elements());
   for (unsigned i = 1; i < Xs.size(); i++) {
     CTNodes nodes = getNodesAtLevel (i);
     for (unsigned j = 1; j < nodes.size(); j++) {
