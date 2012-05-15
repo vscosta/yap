@@ -856,6 +856,21 @@ ConstraintTree::ground (LogVar X)
 
 
 
+void
+ConstraintTree::copyLogVar (LogVar X_1, LogVar X_2)
+{
+  moveToBottom ({X_1});
+  CTNodes leafs = getNodesAtLevel (logVars_.size());
+  for (unsigned i = 0; i < leafs.size(); i++) {
+    leafs[i]->childs().push_back (
+        new CTNode (leafs[i]->symbol(), leafs[i]->level() + 1));
+  }
+  logVars_.push_back (X_2);
+  logVarSet_.insert (X_2);
+}
+
+
+
 unsigned
 ConstraintTree::countTuples (const CTNode* n) const
 {
