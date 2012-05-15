@@ -80,6 +80,10 @@ class Parfactor : public TFactor<ProbFormula>
 
     void print (bool = false) const;
 
+    void printParameters (void) const;
+
+    void printProjections (void) const;
+
     string getLabel (void) const;
 
   private:

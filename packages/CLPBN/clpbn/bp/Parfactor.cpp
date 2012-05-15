@@ -557,35 +557,56 @@ Parfactor::print (bool printParams) const
   copy.moveToTop (copy.logVarSet().elements());
   cout << "Tuples:    " << copy.tupleSet() << endl;
   if (printParams) {
-    vector<string> jointStrings;
-    StatesIndexer indexer (ranges_);
-    while (indexer.valid()) {
-      stringstream ss;
-      for (unsigned i = 0; i < args_.size(); i++) {
-        if (i != 0) ss << ", " ;
-        if (args_[i].isCounting()) {
-          unsigned N = constr_->getConditionalCount (
-              args_[i].countedLogVar());
-          HistogramSet hs (N, args_[i].range());
-          unsigned c = 0;
-          while (c < indexer[i]) {
-            hs.nextHistogram();
-            c ++;
-          }
-          ss << hs;
-        } else {
-          ss << indexer[i];
-        }
-      }
-      jointStrings.push_back (ss.str());
-      ++ indexer;
-    }
-    for (unsigned i = 0; i < params_.size(); i++) {
-      cout << "f(" << jointStrings[i] << ")" ;
-      cout << " = " << params_[i] << endl;
-    }
+    printParameters();
   }
-  cout << endl;
+}
+
+
+
+void
+Parfactor::printParameters (void) const
+{
+  vector<string> jointStrings;
+  StatesIndexer indexer (ranges_);
+  while (indexer.valid()) {
+    stringstream ss;
+    for (unsigned i = 0; i < args_.size(); i++) {
+      if (i != 0) ss << ", " ;
+      if (args_[i].isCounting()) {
+        unsigned N = constr_->getConditionalCount (
+            args_[i].countedLogVar());
+        HistogramSet hs (N, args_[i].range());
+        unsigned c = 0;
+        while (c < indexer[i]) {
+          hs.nextHistogram();
+          c ++;
+        }
+        ss << hs;
+      } else {
+        ss << indexer[i];
+      }
+    }
+    jointStrings.push_back (ss.str());
+    ++ indexer;
+  }
+  for (unsigned i = 0; i < params_.size(); i++) {
+    cout << "f(" << jointStrings[i] << ")" ;
+    cout << " = " << params_[i] << endl;
+  }
+}
+
+
+
+void
+Parfactor::printProjections (void) const
+{
+  ConstraintTree copy (*constr_);
+
+  LogVarSet Xs = copy.logVarSet();
+  for (unsigned i = 0; i < Xs.size(); i++) {
+    cout << "-> projection of " << Xs[i] << ": " ;
+    cout << copy.tupleSet ({Xs[i]}) << endl;
+  }
 }
 
 
