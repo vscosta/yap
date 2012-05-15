@@ -1,4 +1,10 @@
-TODO
- - add a way to calculate combinations and factorials with large numbers
- - refactor sumOut in parfactor -> is really ugly code
- - Indexer: start receiving ranges as constant reference
+- Refactor sum out in factor
+- Add a way to sum out several vars at the same time
+- Receive ranges as a constant reference in Indexer
+- Merge TinySet and SortedVector classes
+- Check if evidence remains in the compressed factor graph
+- Consider using hashs instead of vectors of colors to calculate the groups in
+  counting bp
+- use more psize_t instead of unsigned for looping through params
+- use more Util::abort and Util::vectorIndex
+- LogVar should not cast to int

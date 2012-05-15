@@ -193,6 +193,32 @@ Parfactor::multiply (Parfactor& g)
   alignAndExponentiate (this, &g);
   TFactor<ProbFormula>::multiply (g);
   constr_->join (g.constr(), true);
+  simplifyGrounds();
+  assert (constr_->isCarteesianProduct (countedLogVars()));
+}
+
+
+
+bool
+Parfactor::canCountConvert (LogVar X)
+{
+  if (nrFormulas (X) != 1) {
+    return false;
+  }
+  int fIdx = indexOfLogVar (X);
+  if (args_[fIdx].isCounting()) {
+    return false;
+  }
+  if (constr_->isCountNormalized (X) == false) {
+    return false;
+  }
+  if (constr_->getConditionalCount (X) == 1) {
+    return false;
+  }
+  if (constr_->isCarteesianProduct (countedLogVars() | X) == false) {
+    return false;
+  }
+  return true;
 }
 
 
@@ -201,11 +227,10 @@ void
 Parfactor::countConvert (LogVar X)
 {
   int fIdx = indexOfLogVar (X);
-  assert (fIdx != -1);
   assert (constr_->isCountNormalized (X));
   assert (constr_->getConditionalCount (X) > 1);
-  assert (constr_->isCarteesianProduct (countedLogVars() | X));
-
+  assert (canCountConvert (X));
+ 
   unsigned N = constr_->getConditionalCount (X);
   unsigned R = ranges_[fIdx];
   unsigned H = HistogramSet::nrHistograms (N, R);
@@ -245,6 +270,7 @@ Parfactor::countConvert (LogVar X)
     ++ mapIndexer;
   }
   args_[fIdx].setCountedLogVar (X);
+  simplifyCountingFormulas (fIdx);
 }
 
 
@@ -307,10 +333,9 @@ Parfactor::fullExpand (LogVar X)
 
   unsigned N = constr_->getConditionalCount (X);
   unsigned R = args_[fIdx].range();
-
   vector<Histogram> originHists = HistogramSet::getHistograms (N, R);
   vector<Histogram> expandHists = HistogramSet::getHistograms (1, R);
-
+  assert (ranges_[fIdx] == originHists.size());
   vector<unsigned> sumIndexes;
   sumIndexes.reserve (N * R);
 
@@ -496,6 +521,20 @@ Parfactor::indexOfGroup (unsigned group) const
 
 
 
+unsigned
+Parfactor::nrFormulasWithGroup (unsigned group) const
+{
+  unsigned count = 0;
+  for (unsigned i = 0; i < args_.size(); i++) {
+    if (args_[i].group() == group) {
+      count ++;
+    }
+  }
+  return count;
+}
+
+
+
 vector<unsigned>
 Parfactor::getAllGroups (void) const
 {
@@ -672,22 +711,119 @@ Parfactor::expandPotential (
 
 
 void
-Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
+Parfactor::simplifyCountingFormulas (int fIdx)
 {
-  LogVars X_1, X_2;
-  const ProbFormulas& formulas1 = g1->arguments();
-  const ProbFormulas& formulas2 = g2->arguments();
-  for (unsigned i = 0; i < formulas1.size(); i++) {
-    for (unsigned j = 0; j < formulas2.size(); j++) {
-      if (formulas1[i].group() == formulas2[j].group()) {
-        Util::addToVector (X_1, formulas1[i].logVars());
-        Util::addToVector (X_2, formulas2[j].logVars());
+  // check if we can simplify the parfactor
+  for (unsigned i = 0; i < args_.size(); i++) {
+    if ((int)i != fIdx &&
+        args_[i].isCounting() &&
+        args_[i].group() == args_[fIdx].group()) {
+      // if they only differ in the name of the counting log var
+      if ((args_[i].logVarSet() - args_[i].countedLogVar()) ==
+          (args_[fIdx].logVarSet()) - args_[fIdx].countedLogVar() &&
+           ranges_[i] == ranges_[fIdx]) {
+        simplifyParfactor (fIdx, i);
+        break;
       }
     }
   }
-  LogVarSet Y_1 = g1->logVarSet() - LogVarSet (X_1);
-  LogVarSet Y_2 = g2->logVarSet() - LogVarSet (X_2);
-  // counting log vars were already raised on counting conversion
+}
+
+
+
+void
+Parfactor::simplifyGrounds (void)
+{
+  LogVarSet singletons = constr_->singletons();
+  for (int i = 0; i < (int)args_.size() - 1; i++) {
+    for (unsigned j = i + 1; j < args_.size(); j++) {
+      if (args_[i].group() == args_[j].group() &&
+          singletons.contains (args_[i].logVarSet()) &&
+          singletons.contains (args_[j].logVarSet())) {
+        simplifyParfactor (i, j);
+        i --;
+        break;
+      }
+    }
+  }
+}
+
+
+
+bool
+Parfactor::canMultiply (Parfactor* g1, Parfactor* g2)
+{
+  std::pair<LogVars, LogVars> res = getAlignLogVars (g1, g2);
+  LogVarSet Xs_1 (res.first);
+  LogVarSet Xs_2 (res.second);
+  LogVarSet Y_1 = g1->logVarSet() - Xs_1;
+  LogVarSet Y_2 = g2->logVarSet() - Xs_2;
+  Y_1 -= g1->countedLogVars();
+  Y_2 -= g2->countedLogVars();
+  return g1->constr()->isCountNormalized (Y_1) &&
+         g2->constr()->isCountNormalized (Y_2);
+}
+
+
+
+void
+Parfactor::simplifyParfactor (unsigned fIdx1, unsigned fIdx2)
+{
+  Params copy = params_;
+  params_.clear();
+  StatesIndexer indexer (ranges_);
+  while (indexer.valid()) {
+    if (indexer[fIdx1] == indexer[fIdx2]) {
+      params_.push_back (copy[indexer]);
+    }     
+    ++ indexer;
+  }
+  for (unsigned i = 0; i < args_[fIdx2].logVars().size(); i++) {
+    if (nrFormulas (args_[fIdx2].logVars()[i]) == 1) {
+      constr_->remove ({ args_[fIdx2].logVars()[i] });
+    }
+  }
+  args_.erase (args_.begin() + fIdx2);
+  ranges_.erase (ranges_.begin() + fIdx2);
+}
+
+
+
+std::pair<LogVars, LogVars>
+Parfactor::getAlignLogVars (Parfactor* g1, Parfactor* g2)
+{
+  g1->simplifyGrounds();
+  g2->simplifyGrounds();
+  LogVars Xs_1, Xs_2;
+  TinySet<unsigned> matchedI;
+  TinySet<unsigned> matchedJ;
+  ProbFormulas& formulas1 = g1->arguments();
+  ProbFormulas& formulas2 = g2->arguments(); 
+  for (unsigned i = 0; i < formulas1.size(); i++) {
+    for (unsigned j = 0; j < formulas2.size(); j++) {
+      if (formulas1[i].group() == formulas2[j].group() &&
+          g1->range (i) == g2->range (j) &&
+          matchedI.contains (i) == false &&
+          matchedJ.contains (j) == false) {
+        Util::addToVector (Xs_1, formulas1[i].logVars());
+        Util::addToVector (Xs_2, formulas2[j].logVars());
+        matchedI.insert (i);
+        matchedJ.insert (j);
+      }
+    }
+  }
+  return make_pair (Xs_1, Xs_2);
+}
+
+
+
+void
+Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
+{
+  alignLogicalVars (g1, g2);
+  LogVarSet comm = g1->logVarSet() & g2->logVarSet();
+  LogVarSet Y_1 = g1->logVarSet() - comm;
+  LogVarSet Y_2 = g2->logVarSet() - comm;
   Y_1 -= g1->countedLogVars();
   Y_2 -= g2->countedLogVars();
   assert (g1->constr()->isCountNormalized (Y_1));
@@ -696,30 +832,27 @@ Parfactor::alignAndExponentiate (Parfactor* g1, Parfactor* g2)
   unsigned condCount2 = g2->constr()->getConditionalCount (Y_2);
   LogAware::pow (g1->params(), 1.0 / condCount2);
   LogAware::pow (g2->params(), 1.0 / condCount1);
-  //cout << "g1::::::::::::::::::::::::" << endl; 
-  //g1->print();
-  //cout << "g2::::::::::::::::::::::::" << endl;
-  //g2->print();
-  // the alignment should be done in the end or else X_1 and X_2 
-  // will refer to the old log var names on the code above
-  align (g1, X_1, g2, X_2);
 }
 
 
 
 void
-Parfactor::align (
-    Parfactor* g1, const LogVars& alignLvs1,
-    Parfactor* g2, const LogVars& alignLvs2)
+Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
 {
-  LogVar freeLogVar = 0;
+  std::pair<LogVars, LogVars> res = getAlignLogVars (g1, g2);
+  const LogVars& alignLvs1 = res.first;
+  const LogVars& alignLvs2 = res.second;
+  // cout << "ALIGNING :::::::::::::::::" << endl;
+  // g1->print();
+  // cout << "AND" << endl;
+  // g2->print();
+  // cout << "-> align lvs1 = " << alignLvs1 << endl;
+  // cout << "-> align lvs2 = " << alignLvs2 << endl;
+  LogVar freeLogVar (0);
   Substitution theta1, theta2;
   for (unsigned i = 0; i < alignLvs1.size(); i++) {
     bool b1 = theta1.containsReplacementFor (alignLvs1[i]); 
     bool b2 = theta2.containsReplacementFor (alignLvs2[i]);
-    // handle this type of situation:
-    // g1 = p(X), q(X) ; X in {x1} 
-    // g2 = p(X), q(Y) ; X in {x1}, Y in {x1}
     if (b1 == false && b2 == false) {
       theta1.add (alignLvs1[i], freeLogVar);
       theta2.add (alignLvs2[i], freeLogVar);
@@ -730,6 +863,7 @@ Parfactor::align (
       theta2.add (alignLvs2[i], theta1.newNameFor (alignLvs1[i]));
     }
   }
+
   const LogVarSet& allLvs1 = g1->logVarSet();
   for (unsigned i = 0; i < allLvs1.size(); i++) {
     if (theta1.containsReplacementFor (allLvs1[i]) == false) {
@@ -744,25 +878,33 @@ Parfactor::align (
       ++ freeLogVar;
     }
   }
-  //cout << "theta1: " << theta1 << endl;
-  //cout << "theta2: " << theta2 << endl;
+
+  // handle this type of situation:
+  // g1 = p(X), q(X) ;  X    in {(p1),(p2)} 
+  // g2 = p(X), q(Y) ; (X,Y) in {(p1,p2),(p2,p1)}
   LogVars discardedLvs1 = theta1.getDiscardedLogVars();
   for (unsigned i = 0; i < discardedLvs1.size(); i++) {
-    unsigned condCount = g1->constr()->getConditionalCount (discardedLvs1[i]);
-    cout << "discarding g1" << discardedLvs1[i];
-    cout << " cc = " << condCount << endl;
-    LogAware::pow (g1->params(), condCount);
+    if (g1->constr()->isSingleton (discardedLvs1[i]) && 
+        g1->nrFormulas (discardedLvs1[i]) == 1) {
+      g1->constr()->remove (discardedLvs1[i]);
+    } else {
+      LogVar X_new = ++ g1->constr()->logVarSet().back();
+      theta1.rename (discardedLvs1[i], X_new);
+    }
   }
   LogVars discardedLvs2 = theta2.getDiscardedLogVars();
   for (unsigned i = 0; i < discardedLvs2.size(); i++) {
-    unsigned condCount = g2->constr()->getConditionalCount (discardedLvs2[i]);
-    cout << "discarding g2" << discardedLvs2[i];
-    cout << " cc = " << condCount << endl;
-    //if (condCount != 1) {
-    //  theta2.rename (discardedLvs2[i], freeLogVar);
-    //}
-    LogAware::pow (g2->params(), condCount);
+    if (g2->constr()->isSingleton (discardedLvs2[i]) &&
+        g2->nrFormulas (discardedLvs2[i]) == 1) {
+      g2->constr()->remove (discardedLvs2[i]);
+    } else {
+      LogVar X_new = ++ g2->constr()->logVarSet().back();
+      theta2.rename (discardedLvs2[i], X_new);
+    }
   }
+
+  // cout << "theta1: " << theta1 << endl;
+  // cout << "theta2: " << theta2 << endl;
   g1->applySubstitution (theta1);
   g2->applySubstitution (theta2);
 }
