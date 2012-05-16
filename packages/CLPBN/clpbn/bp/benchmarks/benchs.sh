@@ -30,7 +30,7 @@ function run_solver
       echo "unknow flag $2"
     fi
   fi
-  /usr/bin/time -o $LOG_FILE -a -f "real:%E\tuser:%U\tsys:%S" \
+  /usr/bin/time -o $LOG_FILE -a -f "real:%e\tuser:%U\tsys:%S\tmem:%MkB" \
       $YAP << EOF >> $LOG_FILE &>> ignore.$LOG_FILE
 nogc.
 [$NETWORK].
@@ -63,11 +63,11 @@ function clear_log_files
 
 function write_header
 {
-  echo -n "************************************" >> $LOG_FILE
-  echo    "************************************" >> $LOG_FILE
+  echo -n "****************************************" >> $LOG_FILE
+  echo    "****************************************" >> $LOG_FILE
   echo    "results for solver $1"                >> $LOG_FILE
-  echo -n "************************************" >> $LOG_FILE
-  echo    "************************************" >> $LOG_FILE
+  echo -n "****************************************" >> $LOG_FILE
+  echo    "****************************************" >> $LOG_FILE
 }
 
 
