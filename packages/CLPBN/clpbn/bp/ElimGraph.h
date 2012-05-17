@@ -4,7 +4,9 @@
 #include "unordered_map"
 
 #include "FactorGraph.h"
+#include "TinySet.h"
 #include "Horus.h"
+
 
 using namespace std;
 
@@ -17,17 +19,26 @@ enum ElimHeuristic
 };
 
 
+class EgNode;
+
+typedef TinySet<EgNode*> EGNeighs;
+
+
 class EgNode : public Var
 {
   public:
     EgNode (VarId vid, unsigned range) : Var (vid, range) { }
 
-    void addNeighbor (EgNode* n) { neighs_.push_back (n);  }
+    void addNeighbor (EgNode* n) { neighs_.insert (n);  }
 
-    const vector<EgNode*>& neighbors (void) const { return neighs_; }
+    void removeNeighbor (EgNode* n) { neighs_.remove (n); }
+
+    bool isNeighbor (EgNode* n) const { return neighs_.contains (n); }
+
+    const EGNeighs& neighbors (void) const { return neighs_; }
 
   private:
-    vector<EgNode*>  neighs_;
+    EGNeighs neighs_;
 };
 
 
@@ -58,25 +69,68 @@ class ElimGraph
       n2->addNeighbor (n1);
     }
 
+    unsigned getNeighborsCost (const EgNode* n) const
+    {
+      return n->neighbors().size();
+    }
+
+    unsigned getWeightCost (const EgNode* n) const
+    {
+      unsigned cost = 1;
+      const EGNeighs& neighs = n->neighbors();
+      for (unsigned i = 0; i < neighs.size(); i++) {
+        cost *= neighs[i]->range();
+      }
+      return cost;
+    }
+
+    unsigned getFillCost (const EgNode* n) const
+    {
+      unsigned cost = 0;
+      const EGNeighs& neighs = n->neighbors();
+      if (neighs.size() > 0) {
+        for (unsigned i = 0; i < neighs.size() - 1; i++) {
+          for (unsigned j = i + 1; j < neighs.size(); j++) {
+            if ( ! neighbors (neighs[i], neighs[j])) {
+              cost ++;
+            }
+         }
+       }
+     }
+     return cost;
+   }
+
+    unsigned getWeightedFillCost (const EgNode* n) const
+    {
+      unsigned cost = 0;
+      const EGNeighs& neighs = n->neighbors();
+      if (neighs.size() > 0) {
+        for (unsigned i = 0; i < neighs.size() - 1; i++) {
+          for (unsigned j = i+1; j < neighs.size(); j++) {
+            if ( ! neighbors (neighs[i], neighs[j])) {
+              cost += neighs[i]->range() * neighs[j]->range();
+            }
+          }
+        }
+      }
+      return cost;
+    }
+
+    bool neighbors (EgNode* n1, EgNode* n2) const
+    {
+      return n1->isNeighbor (n2);
+    }
+
     void addNode (EgNode*);
 
     EgNode* getEgNode (VarId) const;
+
     EgNode* getLowestCostNode (void) const;
-
-    unsigned getNeighborsCost (const EgNode*) const;
-
-    unsigned getWeightCost (const EgNode*) const;
-
-    unsigned getFillCost (const EgNode*) const;
-
-    unsigned getWeightedFillCost (const EgNode*) const;
 
     void connectAllNeighbors (const EgNode*);
 
-    bool neighbors (const EgNode*, const EgNode*) const;
-
     vector<EgNode*> nodes_;
-    vector<bool>    marked_;
+    TinySet<EgNode*> unmarked_;
     unordered_map<VarId, EgNode*> varMap_;
 };
 

@@ -5,4 +5,8 @@
 - Consider using hashs instead of vectors of colors to calculate the groups in
   counting bp
 - use more psize_t instead of unsigned for looping through params
+- Find a way to decrease the time required to find an
+  elimination order for variable elimination
+- Add a sequential elimination heuristic
+
 
