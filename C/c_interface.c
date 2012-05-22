@@ -3765,7 +3765,6 @@ YAP_AttsOfVar(Term t)
   if(!IsAttVar(VarOfTerm(t)))
     return TermNil;
   attv = RepAttVar(VarOfTerm(t));
-  Yap_DebugPlWrite(attv->Atts);
   return attv->Atts;
 }
 
