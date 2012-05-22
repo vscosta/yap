@@ -190,6 +190,7 @@ thread_die(int wid, int always_die)
   LOCAL_top_dep_fr = NULL;
 #ifdef USE_PAGES_MALLOC
   DETACH_PAGES(_pages_void);
+#endif /* USE_PAGES_MALLOC */
   DETACH_PAGES(_pages_tab_ent);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   DETACH_PAGES(_pages_sg_ent);
@@ -205,7 +206,6 @@ thread_die(int wid, int always_die)
 #endif /* THREADS_FULL_SHARING */
   DETACH_PAGES(_pages_gt_node);
   DETACH_PAGES(_pages_gt_hash);
-#endif /* USE_PAGES_MALLOC */
 #ifdef OUTPUT_THREADS_TABLING 
   fclose(LOCAL_thread_output);
 #endif /* OUTPUT_THREADS_TABLING */

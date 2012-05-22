@@ -71,8 +71,10 @@ void Yap_init_global_optyap_data(int max_table_size, int n_workers, int sch_loop
   int i;
 
   /* global data related to memory management */
+#ifdef USE_PAGES_MALLOC
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_alloc, void *);
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_void, void *);
+#endif /* USE_PAGES_MALLOC */
 #ifdef TABLING
   INIT_GLOBAL_PAGE_ENTRY(GLOBAL_pages_tab_ent, struct table_entry);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
@@ -180,7 +182,9 @@ void Yap_init_local_optyap_data(int wid) {
 #ifdef YAPOR
   REMOTE_next_free_ans_node(wid) = NULL;
 #elif THREADS
+#ifdef USE_PAGES_MALLOC
   INIT_LOCAL_PAGE_ENTRY(REMOTE_pages_void(wid), void *);
+#endif
   INIT_LOCAL_PAGE_ENTRY(REMOTE_pages_tab_ent(wid), struct table_entry);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   INIT_LOCAL_PAGE_ENTRY(REMOTE_pages_sg_ent(wid), struct subgoal_entry);

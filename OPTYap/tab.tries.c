@@ -1524,7 +1524,7 @@ void abolish_table(tab_ent_ptr tab_ent) {
   CACHE_REGS
   sg_node_ptr sg_node;
 
-#if defined(THREADS) && defined(USE_PAGES_MALLOC)
+#ifdef THREADS
   if (GLOBAL_NOfThreads == 1) {
     ATTACH_PAGES(_pages_tab_ent);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
@@ -1542,7 +1542,7 @@ void abolish_table(tab_ent_ptr tab_ent) {
     ATTACH_PAGES(_pages_gt_node);
     ATTACH_PAGES(_pages_gt_hash);
   }
-#endif /* THREADS && USE_PAGES_MALLOC */
+#endif /* THREADS */
   sg_node = get_subgoal_trie_for_abolish(tab_ent PASS_REGS);
   if (sg_node) {
     if (TrNode_child(sg_node)) {

@@ -153,8 +153,10 @@ struct local_page_entry {
 ***************************/
 
 struct global_pages {
+#ifdef USE_PAGES_MALLOC
   struct global_page_entry alloc_pages;
   struct global_page_entry void_pages;
+#endif /* USE_PAGES_MALLOC */
 
 #ifdef TABLING
   struct global_page_entry table_entry_pages;
@@ -199,7 +201,9 @@ struct local_pages {
 #ifdef YAPOR
   struct answer_trie_node *next_free_answer_trie_node;
 #elif THREADS
+#ifdef USE_PAGES_MALLOC
   struct local_page_entry void_pages;
+#endif
   struct local_page_entry table_entry_pages;
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
   struct local_page_entry subgoal_entry_pages;
