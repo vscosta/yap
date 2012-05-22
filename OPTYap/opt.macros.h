@@ -101,6 +101,15 @@ extern int Yap_page_size;
 /*******************************************************************************************
 **                                    ! USE_PAGES_MALLOC                                  **
 *******************************************************************************************/
+#define MOVE_PAGES(FROM_PG_ENT, TO_PG_ENT)                                                 \
+        UPDATE_STATS(PgEnt_strs_in_use(TO_PG_ENT), PgEnt_strs_in_use(FROM_PG_ENT));        \
+        PgEnt_strs_in_use(FROM_PG_ENT) = 0
+#define DETACH_PAGES(_PG_ENT)                                                              \
+        LOCK(PgEnt_lock(GLOBAL##_PG_ENT));                                                 \
+        MOVE_PAGES(LOCAL##_PG_ENT, GLOBAL##_PG_ENT);                                       \
+        UNLOCK(PgEnt_lock(GLOBAL##_PG_ENT))
+#define ATTACH_PAGES(_PG_ENT)                                                              \
+        MOVE_PAGES(GLOBAL##_PG_ENT, LOCAL##_PG_ENT)
 #define GET_FREE_STRUCT(STR, STR_TYPE, PG_ENT, EXTRA_PG_ENT)                               \
         LOCK_PAGE_ENTRY(PG_ENT);                                                           \
         UPDATE_STATS(PgEnt_strs_in_use(PG_ENT), 1);                                        \
@@ -141,14 +150,14 @@ extern int Yap_page_size;
           MOVE_PAGES(GLOBAL##_PG_ENT, LOCAL##_PG_ENT);                                     \
         }
 
-#define GET_PAGE_FIRST_LEVEL(PG_HD)       GET_ALLOC_PAGE(PG_HD)
-#define GET_ALLOC_PAGE_NEXT_LEVEL(PG_HD)  GET_VOID_PAGE(PG_HD)
-#define GET_VOID_PAGE_NEXT_LEVEL(PG_HD)
 /*******************************************************************************************
 #define GET_PAGE_FIRST_LEVEL(PG_HD)       GET_VOID_PAGE(PG_HD)
 #define GET_VOID_PAGE_NEXT_LEVEL(PG_HD)   GET_ALLOC_PAGE(PG_HD)
 #define GET_ALLOC_PAGE_NEXT_LEVEL(PG_HD)
 *******************************************************************************************/
+#define GET_PAGE_FIRST_LEVEL(PG_HD)       GET_ALLOC_PAGE(PG_HD)
+#define GET_ALLOC_PAGE_NEXT_LEVEL(PG_HD)  GET_VOID_PAGE(PG_HD)
+#define GET_VOID_PAGE_NEXT_LEVEL(PG_HD)
 
 #define GET_ALLOC_PAGE(PG_HD)						                   \
         LOCK(PgEnt_lock(GLOBAL_pages_alloc));		                                   \
