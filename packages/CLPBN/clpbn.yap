@@ -1,5 +1,4 @@
 
-
 :- module(clpbn, [{}/1,
 		  clpbn_flag/2,
 		  set_clpbn_flag/2,
@@ -39,23 +38,22 @@
 	       run_ve_solver/3
 	      ]).
 
-:- use_module('clpbn/bp',
+:- use_module('clpbn/horus_ground',
 	      [bp/3,
-               check_if_bp_done/1,
+	       check_if_bp_done/1,
 	       init_bp_solver/4,
 	       run_bp_solver/3,
 	       call_bp_ground/6,
 	       finalize_bp_solver/1
 	      ]).
 
-:- use_module('clpbn/fove',
+:- use_module('clpbn/horus_lifted',
 	      [fove/3,
-               check_if_fove_done/1,
+	       check_if_fove_done/1,
 	       init_fove_solver/4,
 	       run_fove_solver/3,
 	       finalize_fove_solver/1
 	      ]).
-
 
 :- use_module('clpbn/jt',
 	      [jt/3,

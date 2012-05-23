@@ -1,11 +1,11 @@
-
 /*******************************************************
 
- First Order Variable Elimination Interface
+ Interface to Horus Lifted Solvers. Used by:
+   - Lifted Variable Elimination
  
 ********************************************************/
 
-:- module(clpbn_fove,
+:- module(clpbn_horus_lifted,
           [fove/3,
            check_if_fove_done/1,
            init_fove_solver/4,
@@ -13,27 +13,23 @@
            finalize_fove_solver/1
           ]).
 
-
-:- use_module(library('clpbn/display'),
-          [clpbn_bind_vals/3]).
-
-
-:- use_module(library('clpbn/dists'),
-          [get_dist_params/2]).
-
-
-:- use_module(library(pfl),
-          [factor/6,
-           skolem/2,
-           get_pfl_parameters/2
-          ]).
-
-
 :- use_module(horus,
           [create_lifted_network/3,
            set_parfactors_params/2,
            run_lifted_solver/3,
            free_parfactors/1
+          ]).
+
+:- use_module(library('clpbn/display'),
+          [clpbn_bind_vals/3]).
+
+:- use_module(library('clpbn/dists'),
+          [get_dist_params/2]).
+
+:- use_module(library(pfl),
+          [factor/6,
+           skolem/2,
+           get_pfl_parameters/2
           ]).
 
 

@@ -1,11 +1,13 @@
-
 /*******************************************************
 
-  Belief Propagation and Variable Elimination Interface
+ Interface to Horus Ground Solvers. Used by:
+   - Variable Elimination
+   - Belief Propagation
+   - Counting Belief Propagation
  
 ********************************************************/
 
-:- module(clpbn_bp,
+:- module(clpbn_horus_ground,
           [bp/3,
            check_if_bp_done/1,
            init_bp_solver/4,
@@ -14,6 +16,13 @@
            finalize_bp_solver/1
           ]).
 
+:- use_module(horus,
+          [create_ground_network/4,
+           set_factors_params/2,
+           run_ground_solver/3,
+           set_vars_information/2,
+           free_ground_network/1
+          ]).
 
 :- use_module(library('clpbn/dists'),
           [dist/4,
@@ -22,39 +31,25 @@
            get_dist_params/2
           ]).
 
-
 :- use_module(library('clpbn/display'),
           [clpbn_bind_vals/3]).
-
 
 :- use_module(library('clpbn/aggregates'),
           [check_for_agg_vars/2]).
 
-
 :- use_module(library(charsio),
           [term_to_atom/2]).
-
 
 :- use_module(library(pfl),
           [skolem/2,
            get_pfl_parameters/2
           ]).
 
-
 :- use_module(library(lists)).
 
 :- use_module(library(atts)).
 
 :- use_module(library(bhash)).
-
-
-:- use_module(horus,
-          [create_ground_network/4,
-           set_factors_params/2,
-           run_ground_solver/3,
-           set_vars_information/2,
-           free_ground_network/1
-          ]).
 
 
 call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
