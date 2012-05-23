@@ -6,11 +6,11 @@
 ********************************************************/
 
 :- module(clpbn_horus_lifted,
-          [fove/3,
-           check_if_fove_done/1,
-           init_fove_solver/4,
-           run_fove_solver/3,
-           finalize_fove_solver/1
+          [call_horus_lifted_solver/3,
+           check_if_horus_lifted_solver_done/1,
+           init_horus_lifted_solver/4,
+           run_horus_lifted_solver/3,
+           finalize_horus_lifted_solver/1
           ]).
 
 :- use_module(horus,
@@ -33,15 +33,15 @@
           ]).
 
 
-fove([[]], _, _) :- !.
-fove([QueryVars], AllVars, Output) :-
-  init_fove_solver(_, AllVars, _, ParfactorList),
-  run_fove_solver([QueryVars], LPs, ParfactorList),
-  finalize_fove_solver(ParfactorList),
+call_horus_lifted_solver([[]], _, _) :- !.
+call_horus_lifted_solver([QueryVars], AllVars, Output) :-
+  init_horus_lifted_solver(_, AllVars, _, ParfactorList),
+  run_horus_lifted_solver([QueryVars], LPs, ParfactorList),
+  finalize_horus_lifted_solver(ParfactorList),
   clpbn_bind_vals([QueryVars], LPs, Output).
 
 
-init_fove_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
+init_horus_lifted_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
   get_parfactors(Parfactors),
   get_dist_ids(Parfactors, DistIds0),
   sort(DistIds0, DistIds),
@@ -134,7 +134,7 @@ get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
   get_dists_parameters(Ids, DistsInfo).
 
 
-run_fove_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
+run_horus_lifted_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
   get_query_vars(QueryVarsAtts, QueryVars),
   %writeln(queryVars:QueryVars), writeln(''),
   get_dists_parameters(DistIds, DistsParams),
@@ -143,6 +143,6 @@ run_fove_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
   cpp_run_lifted_solver(ParfactorList, QueryVars, Solutions).
 
 
-finalize_fove_solver(fove(ParfactorList, _)) :-
+finalize_horus_lifted_solver(fove(ParfactorList, _)) :-
   cpp_free_parfactors(ParfactorList).
 

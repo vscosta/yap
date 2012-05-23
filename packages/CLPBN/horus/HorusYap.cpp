@@ -572,7 +572,7 @@ extern "C" void
 init_predicates (void)
 {
   YAP_UserCPredicate ("cpp_create_lifted_network",  createLiftedNetwork, 3);
-  YAP_UserCPredicate ("cpp_ground_network",         createGroundNetwork, 4);
+  YAP_UserCPredicate ("cpp_create_ground_network",         createGroundNetwork, 4);
   YAP_UserCPredicate ("cpp_run_lifted_solver",      runLiftedSolver,     3);
   YAP_UserCPredicate ("cpp_run_ground_solver",      runGroundSolver,     3);
   YAP_UserCPredicate ("cpp_set_parfactors_params",  setParfactorsParams, 2);

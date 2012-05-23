@@ -8,16 +8,15 @@
 ********************************************************/
 
 :- module(clpbn_horus_ground,
-          [bp/3,
-           check_if_bp_done/1,
-           init_bp_solver/4,
-           run_bp_solver/3,
-           call_bp_ground/6,
-           finalize_bp_solver/1
+          [call_horus_ground_solver/6,
+           check_if_horus_ground_solver_done/1,
+           init_horus_ground_solver/4,
+           run_horus_ground_solver/3,
+           finalize_horus_ground_solver/1
           ]).
 
 :- use_module(horus,
-          [cpp_ground_network/4,
+          [cpp_create_ground_network/4,
            cpp_set_factors_params/2,
            cpp_run_ground_solver/3,
            cpp_set_vars_information/2,
@@ -52,7 +51,7 @@
 :- use_module(library(bhash)).
 
 
-call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
+call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
   b_hash_new(Hash0),
   keys_to_ids(AllKeys, 0, Hash0, Hash),
   get_factors_type(Factors, Type),
@@ -65,7 +64,7 @@ call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
   %writeln(factorIds:FactorIds), writeln(''),
   %writeln(evidence:Evidence), writeln(''),
   %writeln(evidenceIds:EvidenceIds), writeln(''),
-  cpp_ground_network(Type, FactorIds, EvidenceIds, Network),
+  cpp_create_ground_network(Type, FactorIds, EvidenceIds, Network),
   %get_vars_information(AllKeys, StatesNames),
   %terms_to_atoms(AllKeys, KeysAtoms),
   %cpp_set_vars_information(KeysAtoms, StatesNames),
@@ -109,7 +108,7 @@ factors_to_ids([f(_, DistId, Keys, CPT)|Fs], Hash, [f(Ids, Ranges, CPT, DistId)|
 
 
 get_ranges([],[]).
-get_ranges(K.Ks, Range.Rs) :-	!,
+get_ranges(K.Ks, Range.Rs) :- !,
   skolem(K,Domain),
   length(Domain,Range),
   get_ranges(Ks, Rs).
@@ -133,31 +132,34 @@ terms_to_atoms(K.Ks, Atom.As) :-
   terms_to_atoms(Ks,As).
 
 
-finalize_bp_solver(bp(Network, _)) :-
+finalize_horus_ground_solver(bp(Network, _)) :-
   cpp_free_ground_network(Network).
 
 
-bp([[]],_,_) :- !.
-bp([QueryVars], AllVars, Output) :-
-  init_bp_solver(_, AllVars, _, Network),
-  run_bp_solver([QueryVars], LPs, Network),
-  finalize_bp_solver(Network),
-  clpbn_bind_vals([QueryVars], LPs, Output).
+init_horus_ground_solver(_, _AllVars0, _, bp(_BayesNet, _DistIds)) :- !.
 
+run_horus_ground_solver(_QueryVars, _Solutions, bp(_Network, _DistIds)) :- !.
 
-init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
-  %check_for_agg_vars(AllVars0, AllVars),
-  get_vars_info(AllVars0, VarsInfo, DistIds0),
-  sort(DistIds0, DistIds),
-  cpp_ground_network(VarsInfo, BayesNet),
-  true.
-
-
-run_bp_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
-  get_dists_parameters(DistIds, DistsParams),
-  cpp_set_factors_params(Network, DistsParams),
-  vars_to_ids(QueryVars, QueryVarsIds),
-  cpp_run_ground_solver(Network, QueryVarsIds, Solutions).
+%bp([[]],_,_) :- !.
+%bp([QueryVars], AllVars, Output) :-
+%  init_horus_ground_solver(_, AllVars, _, Network),
+%  run_horus_ground_solver([QueryVars], LPs, Network),
+%  finalize_horus_ground_solver(Network),
+%  clpbn_bind_vals([QueryVars], LPs, Output).
+%
+%init_horus_ground_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
+%  %check_for_agg_vars(AllVars0, AllVars),
+%  get_vars_info(AllVars0, VarsInfo, DistIds0),
+%  sort(DistIds0, DistIds),
+%  cpp_create_ground_network(VarsInfo, BayesNet),
+%  true.
+%
+%
+%run_horus_ground_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
+%  get_dists_parameters(DistIds, DistsParams),
+%  cpp_set_factors_params(Network, DistsParams),
+%  vars_to_ids(QueryVars, QueryVarsIds),
+%  cpp_run_ground_solver(Network, QueryVarsIds, Solutions).
 
 
 get_dists_parameters([],[]).
