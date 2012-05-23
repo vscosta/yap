@@ -343,6 +343,12 @@ learning_init_handler(validating, (_,_,_,_,_)).
 learning_init_handler(validated, _Value).
 learning_init_handler(stored, _Value).
 
+learning_libdd_init_handler(message, '(Q,BDD,Query)').
+learning_libdd_init_handler(validating, (_,_,_)).
+%learning_init_handler(validate, V_).
+learning_libdd_init_handler(validated, _Value).
+learning_libdd_init_handler(stored, _Value).
+
 learning_prob_init_handler(message, '(0,1] or uniform(l,h) ').
 learning_prob_init_handler(validating, uniform(Low,High)) :-
 	number(Low),

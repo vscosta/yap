@@ -1431,9 +1431,11 @@ Yap_Error(yap_error_number type, Term where, char *format,...)
   case SYNTAX_ERROR:
     {
       int i;
+      Term ti[1];
 
       i = strlen(tmpbuf);
-      nt[0] = where;
+      ti[0] = MkAtomTerm(AtomSyntaxError);
+      nt[0] = Yap_MkApplTerm(FunctorShortSyntaxError, 1, ti);
       psize -= i;
       fun = FunctorError;
       serious = TRUE;
@@ -1807,6 +1809,9 @@ E);
 	LOCAL_Error_Size = 0L;
       }
       nt[1] = MkPairTerm(MkAtomTerm(Yap_LookupAtom(tmpbuf)), stack_dump);
+      if (type == SYNTAX_ERROR) {
+	nt[1] = MkPairTerm(where, nt[1]);
+      }
     }
   }
   if (serious) {

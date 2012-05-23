@@ -273,8 +273,10 @@ notImplemented(char *name, int arity)
 X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 {
   GET_LD
+  char msgbuf[50];
   term_t formal, swi, predterm, msgterm, except;
   va_list args;
+  int rc = TRUE;
 
   formal    = PL_new_term_ref();
   swi    = PL_new_term_ref();
@@ -295,6 +297,21 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
   err_instantiation:
     PL_unify_atom(formal, ATOM_instantiation_error);
     break;
+  case ERR_UNINSTANTIATION:
+    { int argn = va_arg(args, int);
+      term_t bound = va_arg(args, term_t);
+
+      if ( !msg && argn > 0 )
+      { Ssprintf(msgbuf, "%d-%s argument",
+		 argn, argn == 1 ? "st" : argn == 2 ? "nd" : "th");
+	msg = msgbuf;
+      }
+
+      rc = PL_unify_term(formal,
+			 PL_FUNCTOR, FUNCTOR_uninstantiation_error1,
+			   PL_TERM, bound);
+      break;
+    }
   case ERR_TYPE:			/* ERR_INSTANTIATION if var(actual) */
     { atom_t expected = va_arg(args, atom_t);
       term_t actual   = va_arg(args, term_t);
@@ -448,7 +465,6 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
     case ERR_STREAM_OP:
     { atom_t action = va_arg(args, atom_t);
       term_t stream = va_arg(args, term_t);
-      int rc;
 
       rc = PL_unify_term(formal,
 			 PL_FUNCTOR, FUNCTOR_io_error2,
@@ -458,7 +474,6 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
     }
     case ERR_FORMAT:
     { const char *s = va_arg(args, const char*);
-      int rc;
 
       rc = PL_unify_term(formal,
 			 PL_FUNCTOR_CHARS, "format", 1,
@@ -468,7 +483,6 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
     case ERR_FORMAT_ARG:
     { const char *s = va_arg(args, const char*);
       term_t arg = va_arg(args, term_t);
-      int rc;
 
       rc = PL_unify_term(formal,
 			 PL_FUNCTOR_CHARS, "format_argument_type", 2,
@@ -491,19 +505,23 @@ X_API int PL_error(const char *pred, int arity, const char *msg, int id, ...)
 		    PL_FUNCTOR, FUNCTOR_divide2,
 		    PL_CHARS, pred,
 		    PL_INT, arity);
-    }   
+    }
+  if (!rc) {
+    fatalError("Cannot report error: no memory");
+  }
   if ( msg )
     {
-      PL_put_atom_chars(msgterm, msg);
+      rc = PL_put_atom_chars(msgterm, msg);
     }
-  PL_unify_term(swi,
+  rc = PL_unify_term(swi,
 		PL_FUNCTOR, FUNCTOR_context2,
 		PL_TERM, predterm,
 		PL_TERM, msgterm);
-  PL_unify_term(except,
+  rc = PL_unify_term(except,
 		PL_FUNCTOR, FUNCTOR_error2,
 		PL_TERM, formal,
 		PL_TERM, swi);
-  return PL_raise_exception(except);
+  rc = PL_raise_exception(except);
+  return rc;
 }
 

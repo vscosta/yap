@@ -713,7 +713,7 @@ write_var(CELL *t,  struct write_globs *wglb, struct rewind_term *rwt)
 	writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
 	l = restore_from_write(&nrwt, wglb);
 	wrputc(',', wglb->stream);
-	l += 2;
+	l ++;
 	writeTerm(from_pointer(l, &nrwt, wglb), 999, 1, FALSE, wglb, &nrwt);
 	restore_from_write(&nrwt, wglb);
 	wrclose_bracket(wglb, TRUE);

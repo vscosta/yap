@@ -34,14 +34,17 @@ Yap_CallFunctionByName(const char *thing_string);
 int
 Yap_CallFunctionByName(const char *thing_string)
 {
-  void * handle = dlopen(NULL, RTLD_LAZY | RTLD_NOLOAD);
+  void * handle = dlopen(NULL, RTLD_LAZY
+#ifndef __CYGWIN__
+			 | RTLD_NOLOAD
+#endif
+			 );
   // you could do RTLD_NOW as well.  shouldn't matter
   if (!handle) {
     CACHE_REGS
     Yap_Error(SYSTEM_ERROR, ARG1, "Dynamic linking on main module : %s\n", dlerror());
   }
   prismf * addr = (prismf *)dlsym(handle, thing_string);
-  fprintf(stderr, "%s is at %p\n", thing_string, addr);
   if (addr)
     (*addr)();
   return TRUE;

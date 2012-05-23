@@ -122,8 +122,9 @@ INTERFACE_HEADERS = \
 	$(srcdir)/H/Tags_32LowTag.h \
 	$(srcdir)/H/Tags_64bits.h \
 	$(srcdir)/H/Tags_24bits.h \
-	$(srcdir)/H/YapTerm.h \
+	$(srcdir)/H/YapCompoundTerm.h \
 	$(srcdir)/include/YapRegs.h \
+	$(srcdir)/H/YapTerm.h \
 	$(srcdir)/library/dialect/bprolog/fli/bprolog.h \
 	$(srcdir)/os/SWI-Stream.h
 
@@ -409,7 +410,9 @@ all: parms.h startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
 
 Makefile: $(srcdir)/Makefile.in
 
-$(srcdir)/H/Yap.h: config.h YapTermConfig.h $(srcdir)/H/YapTags.h
+$(srcdir)/H/Yap.h: config.h YapTermConfig.h \
+		$(srcdir)/H/YapTags.h \
+		$(srcdir)/H/YapCompoundTerm.h
 
 config.h:	parms.h
 

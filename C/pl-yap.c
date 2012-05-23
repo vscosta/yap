@@ -887,7 +887,7 @@ warning(const char *fm, ...)
   return TRUE;
 }
 
-#if defined(HAVE_SELECT) && !defined(__WINDOWS__)
+#if defined(HAVE_SELECT) && !defined(__WINDOWS__) && !defined(__CYGWIN__)
 
 #ifdef __WINDOWS__
 #include <winsock2.h>

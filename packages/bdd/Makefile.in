@@ -39,6 +39,8 @@ CWD=$(PWD)
 
 BDD_PROLOG= \
 	$(srcdir)/bdd.yap \
+	$(srcdir)/simpbool.yap \
+	$(srcdir)/ddnnf.yap \
 	$(srcdir)/trie_sp.yap
 
 OBJS=cudd.o

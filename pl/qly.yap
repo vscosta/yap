@@ -30,7 +30,12 @@ qsave_program(File) :-
 '$x_yap_flag'(language, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
-	X \= language.
+	X \= language,
+	X \= timezone,
+	X \= user_input,
+	X \= user_output,
+	X \= user_error,
+	X \= version.
 
 '$init_state' :-
 	recorded('$program_state', _, _), !,

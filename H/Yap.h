@@ -810,12 +810,19 @@ extern struct worker_local Yap_local;
 #define REMOTE(wid)        (&Yap_local)
 #endif
 
+#include <stdio.h>
 #define YP_FILE		FILE
 #include "hglobals.h"
 #include "dglobals.h"
 #include "hlocals.h"
 #include "dlocals.h"
 
+
+/*************************************************************************************************
+                                       unification support
+*************************************************************************************************/
+
+#include "YapCompoundTerm.h"
 
 /*************************************************************************************************
                                        unification routines
@@ -829,69 +836,6 @@ extern struct worker_local Yap_local;
 #endif /* YAPOR_SBA */
 
 
-
-/*************************************************************************************************
-                           High level macros to access arguments
-*************************************************************************************************/
-
-inline EXTERN Term ArgOfTerm (int i, Term t);
-
-inline EXTERN Term
-ArgOfTerm (int i, Term t)
-{
-  return (Term) (Derefa (RepAppl (t) + (i)));
-}
-
-
-
-inline EXTERN Term HeadOfTerm (Term);
-
-inline EXTERN Term
-HeadOfTerm (Term t)
-{
-  return (Term) (Derefa (RepPair (t)));
-}
-
-
-
-inline EXTERN Term TailOfTerm (Term);
-
-inline EXTERN Term
-TailOfTerm (Term t)
-{
-  return (Term) (Derefa (RepPair (t) + 1));
-}
-
-
-
-
-inline EXTERN Term ArgOfTermCell (int i, Term t);
-
-inline EXTERN Term
-ArgOfTermCell (int i, Term t)
-{
-  return (Term) ((CELL) (RepAppl (t) + (i)));
-}
-
-
-
-inline EXTERN Term HeadOfTermCell (Term);
-
-inline EXTERN Term
-HeadOfTermCell (Term t)
-{
-  return (Term) ((CELL) (RepPair (t)));
-}
-
-
-
-inline EXTERN Term TailOfTermCell (Term);
-
-inline EXTERN Term
-TailOfTermCell (Term t)
-{
-  return (Term) ((CELL) (RepPair (t) + 1));
-}
 
 
 /*************************************************************************************************

@@ -19,7 +19,7 @@
 
 #define INIT_LOCK(LOCK_VAR)    pthread_mutex_init(&(LOCK_VAR), NULL)
 #define DESTROY_LOCK(LOCK_VAR) pthread_mutex_destroy(&(LOCK_VAR))
-#define TRY_LOCK(LOCK_PTR)     pthread_mutex_trylock(&(LOCK_VAR))
+#define TRY_LOCK(LOCK_VAR)     pthread_mutex_trylock(&(LOCK_VAR))
 #define LOCK(LOCK_VAR)         pthread_mutex_lock(&(LOCK_VAR))
 #define UNLOCK(LOCK_VAR)       pthread_mutex_unlock(&(LOCK_VAR))
 static inline int
