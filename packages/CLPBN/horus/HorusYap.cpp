@@ -197,7 +197,6 @@ void readLiftedEvidence (
     }
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
-    cout << "has evidence()" << endl;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
       if (obsFormulas[i].functor()  == functor &&
           obsFormulas[i].arity()    == args.size() &&
@@ -572,15 +571,15 @@ freeParfactors (void)
 extern "C" void
 init_predicates (void)
 {
-  YAP_UserCPredicate ("create_lifted_network", createLiftedNetwork, 3);
-  YAP_UserCPredicate ("create_ground_network", createGroundNetwork, 4);
-  YAP_UserCPredicate ("run_lifted_solver",     runLiftedSolver,     3);
-  YAP_UserCPredicate ("run_ground_solver",     runGroundSolver,     3);
-  YAP_UserCPredicate ("set_parfactors_params", setParfactorsParams, 2);
-  YAP_UserCPredicate ("set_factors_params",    setFactorsParams,    2);
-  YAP_UserCPredicate ("set_vars_information",  setVarsInformation,  2);
-  YAP_UserCPredicate ("set_horus_flag",        setHorusFlag,        2);
-  YAP_UserCPredicate ("free_parfactors",       freeParfactors,      1);
-  YAP_UserCPredicate ("free_ground_network",   freeGroundNetwork,   1);
+  YAP_UserCPredicate ("cpp_create_lifted_network",  createLiftedNetwork, 3);
+  YAP_UserCPredicate ("cpp_ground_network",         createGroundNetwork, 4);
+  YAP_UserCPredicate ("cpp_run_lifted_solver",      runLiftedSolver,     3);
+  YAP_UserCPredicate ("cpp_run_ground_solver",      runGroundSolver,     3);
+  YAP_UserCPredicate ("cpp_set_parfactors_params",  setParfactorsParams, 2);
+  YAP_UserCPredicate ("cpp_cpp_set_factors_params", setFactorsParams,    2);
+  YAP_UserCPredicate ("cpp_set_vars_information",   setVarsInformation,  2);
+  YAP_UserCPredicate ("cpp_set_horus_flag",         setHorusFlag,        2);
+  YAP_UserCPredicate ("cpp_free_parfactors",        freeParfactors,      1);
+  YAP_UserCPredicate ("cpp_free_ground_network",    freeGroundNetwork,   1);
 }
 

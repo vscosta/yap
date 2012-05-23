@@ -14,10 +14,10 @@
           ]).
 
 :- use_module(horus,
-          [create_lifted_network/3,
-           set_parfactors_params/2,
-           run_lifted_solver/3,
-           free_parfactors/1
+          [cpp_create_lifted_network/3,
+           cpp_set_parfactors_params/2,
+           cpp_run_lifted_solver/3,
+           cpp_free_parfactors/1
           ]).
 
 :- use_module(library('clpbn/display'),
@@ -48,7 +48,7 @@ init_fove_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
   get_observed_vars(AllAttVars, ObservedVars),
   %writeln(parfactors:Parfactors:'\n'),
   %writeln(evidence:ObservedVars:'\n'),
-  create_lifted_network(Parfactors,ObservedVars,ParfactorList).
+  cpp_create_lifted_network(Parfactors,ObservedVars,ParfactorList).
 
 
 :- table get_parfactors/1.
@@ -139,10 +139,10 @@ run_fove_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
   %writeln(queryVars:QueryVars), writeln(''),
   get_dists_parameters(DistIds, DistsParams),
   %writeln(dists:DistsParams), writeln(''),
-  set_parfactors_params(ParfactorList, DistsParams),
-  run_lifted_solver(ParfactorList, QueryVars, Solutions).
+  cpp_set_parfactors_params(ParfactorList, DistsParams),
+  cpp_run_lifted_solver(ParfactorList, QueryVars, Solutions).
 
 
 finalize_fove_solver(fove(ParfactorList, _)) :-
-  free_parfactors(ParfactorList).
+  cpp_free_parfactors(ParfactorList).
 

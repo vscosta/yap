@@ -17,11 +17,11 @@
           ]).
 
 :- use_module(horus,
-          [create_ground_network/4,
-           set_factors_params/2,
-           run_ground_solver/3,
-           set_vars_information/2,
-           free_ground_network/1
+          [cpp_ground_network/4,
+           cpp_set_factors_params/2,
+           cpp_run_ground_solver/3,
+           cpp_set_vars_information/2,
+           cpp_free_ground_network/1
           ]).
 
 :- use_module(library('clpbn/dists'),
@@ -65,23 +65,23 @@ call_bp_ground(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
   %writeln(factorIds:FactorIds), writeln(''),
   %writeln(evidence:Evidence), writeln(''),
   %writeln(evidenceIds:EvidenceIds), writeln(''),
-  create_ground_network(Type, FactorIds, EvidenceIds, Network),
+  cpp_ground_network(Type, FactorIds, EvidenceIds, Network),
   %get_vars_information(AllKeys, StatesNames),
   %terms_to_atoms(AllKeys, KeysAtoms),
-  %set_vars_information(KeysAtoms, StatesNames),
+  %cpp_set_vars_information(KeysAtoms, StatesNames),
   run_solver(ground(Network,Hash), QueryKeys, Solutions),
   clpbn_bind_vals([QueryVars], Solutions, Output),
-  free_ground_network(Network).
+  cpp_free_ground_network(Network).
 
 
 run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
-  %set_factors_params(Network, DistsParams),
+  %cpp_set_factors_params(Network, DistsParams),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   %writeln(queryKeys:QueryKeys), writeln(''),
   %writeln(queryIds:QueryIds), writeln(''),
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
-  run_ground_solver(Network, [QueryIds], Solutions).
+  cpp_run_ground_solver(Network, [QueryIds], Solutions).
 
 
 keys_to_ids([], _, Hash, Hash).
@@ -134,7 +134,7 @@ terms_to_atoms(K.Ks, Atom.As) :-
 
 
 finalize_bp_solver(bp(Network, _)) :-
-  free_ground_network(Network).
+  cpp_free_ground_network(Network).
 
 
 bp([[]],_,_) :- !.
@@ -149,15 +149,15 @@ init_bp_solver(_, AllVars0, _, bp(BayesNet, DistIds)) :-
   %check_for_agg_vars(AllVars0, AllVars),
   get_vars_info(AllVars0, VarsInfo, DistIds0),
   sort(DistIds0, DistIds),
-  create_ground_network(VarsInfo, BayesNet),
+  cpp_ground_network(VarsInfo, BayesNet),
   true.
 
 
 run_bp_solver(QueryVars, Solutions, bp(Network, DistIds)) :-
   get_dists_parameters(DistIds, DistsParams),
-  set_factors_params(Network, DistsParams),
+  cpp_set_factors_params(Network, DistsParams),
   vars_to_ids(QueryVars, QueryVarsIds),
-  run_ground_solver(Network, QueryVarsIds, Solutions).
+  cpp_run_ground_solver(Network, QueryVarsIds, Solutions).
 
 
 get_dists_parameters([],[]).
