@@ -2288,8 +2288,7 @@ mkdir -p  packages/clib/maildrop/rfc822
 mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
 mkdir -p  packages/CLPBN/clpbn
-mkdir -p  packages/CLPBN/clpbn/bp
-mkdir -p  packages/CLPBN/clpbn/bp/xmlParser
+mkdir -p  packages/CLPBN/horus
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
@@ -2401,7 +2400,8 @@ fi
 
 if test "$ENABLE_ZLIB" = ""; then
 AC_CONFIG_FILES([packages/zlib/Makefile])
-fi
+fi
+
 
 if test "$ENABLE_CUDD" = ""; then
 AC_CONFIG_FILES([packages/bdd/Makefile])
@@ -2419,7 +2419,7 @@ AC_CONFIG_FILES([packages/real/Makefile])
 fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
-AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
+AC_CONFIG_FILES([packages/CLPBN/horus/Makefile])
 fi
 
 if test "$ENABLE_GECODE" = ""; then
