@@ -120,6 +120,7 @@ times_int(Int i1, Int i2) {
 }
 
 
+#ifdef USE_GMP
 #ifndef __GNUC__X
 static int
 clrsb(Int i)
@@ -147,7 +148,7 @@ clrsb(Int i)
   return j;
 }
 #endif
-
+#endif
 
 inline static Term
 do_sll(Int i, Int j) /* j > 0 */

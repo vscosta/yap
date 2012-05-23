@@ -103,7 +103,7 @@ inline EXTERN blob_type BlobOfFunctor (Functor f);
 inline EXTERN blob_type
 BlobOfFunctor (Functor f)
 {
-  return (blob_type) (f);
+  return (blob_type) ((CELL)f);
 }
 
 typedef struct cp_frame {
@@ -148,8 +148,8 @@ exts;
 
 #endif
 
-#ifdef YAP_H
 
+#ifdef YAP_H
 /* make sure that these data structures are the first thing to be allocated
    in the heap when we start the system */
 #ifdef THREADS
@@ -175,7 +175,9 @@ typedef struct special_functors_struct
 special_functors;
 #endif
 
-inline EXTERN Float STD_PROTO (CpFloatUnaligned, (CELL *));
+#endif /* YAP_H */
+
+inline extern Float CpFloatUnaligned(CELL *ptr);
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
@@ -214,7 +216,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-inline EXTERN void STD_PROTO (AlignGlobalForDouble, ( USES_REGS1 ));
+inline extern void AlignGlobalForDouble( USES_REGS1 );
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
@@ -272,13 +274,16 @@ FloatOfTerm (Term t)
 #endif
 #endif
 
-Term STD_PROTO (Yap_MkBlobStringTerm, (const char *, size_t len));
-Term STD_PROTO (Yap_MkBlobWideStringTerm, (const wchar_t *, size_t len));
-char *STD_PROTO (Yap_BlobStringOfTerm, (Term));
-wchar_t *STD_PROTO (Yap_BlobWideStringOfTerm, (Term));
-char *STD_PROTO (Yap_BlobStringOfTermAndLength, (Term, size_t *));
+#ifndef YAP_H
+#include <stddef.h>
+#endif
 
-#endif /* YAP_NOT_INSTALLED */
+Term Yap_MkBlobStringTerm(const char *, size_t len);
+Term Yap_MkBlobWideStringTerm(const wchar_t *, size_t len);
+char *Yap_BlobStringOfTerm(Term);
+wchar_t *Yap_BlobWideStringOfTerm(Term);
+char *Yap_BlobStringOfTermAndLength(Term, size_t *);
+
 
 
 inline EXTERN int IsFloatTerm (Term);
@@ -294,7 +299,6 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-#ifdef YAP_H
 inline EXTERN Term MkLongIntTerm (Int);
 
 inline EXTERN Term
@@ -308,7 +312,6 @@ MkLongIntTerm (Int i)
   return AbsAppl(H - 3);
 }
 
-#endif
 
 inline EXTERN Int LongIntOfTerm (Term t);
 

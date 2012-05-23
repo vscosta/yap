@@ -2937,7 +2937,13 @@ YAP_Init(YAP_init_args *yap_init)
   int restore_result;
   int do_bootstrap = (yap_init->YapPrologBootFile != NULL);
   CELL Trail = 0, Stack = 0, Heap = 0, Atts = 0;
-  static char boot_file[256];
+  char boot_file[256];
+  static int initialised = FALSE;
+
+  /* ignore repeated calls to YAP_Init */
+  if (initialised)
+    return YAP_BOOT_DONE_BEFOREHAND;
+  initialised = TRUE;
 
   Yap_InitPageSize();  /* init memory page size, required by later functions */
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
@@ -3756,9 +3762,9 @@ YAP_AttsOfVar(Term t)
   t = Deref(t);
   if (!IsVarTerm(t))
     return TermNil;
-  if (IsAttVar(VarOfTerm(t)))
+  if(!IsAttVar(VarOfTerm(t)))
     return TermNil;
-  attv = (attvar_record *)VarOfTerm(t);
+  attv = RepAttVar(VarOfTerm(t));
   return attv->Atts;
 }
 

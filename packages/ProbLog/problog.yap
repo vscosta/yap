@@ -233,6 +233,8 @@
                     problog_max/3,
                     problog_kbest_explanations/3,
                     problog_exact/3,
+		    problog_fl_bdd/2,
+		    problog_kbest_bdd/4,
                     problog_all_explanations/2,
                     problog_all_explanations_unsorted/2,
                     problog_exact_save/5,
@@ -625,14 +627,14 @@ term_expansion_intern((Head<--Body), Module, C):-
 
 % converts ?:: prefix to ? :: infix, as handled by other clause
 term_expansion_intern((Annotation::Fact), Module, ExpandedClause) :-
-	Annotation == '?',
-	term_expansion_intern((? :: Fact :- true), Module, ExpandedClause).
+	Annotation == ( '?' ),
+	term_expansion_intern(((?) :: Fact :- true), Module, ExpandedClause).
 
 
 % handles decision clauses
 term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClause) :-
 	(
-	 Annotation == '?' ->
+	 Annotation == ('?') ->
      % It's a decision with a body
 	 (decision_fact(_,Head) ->
 	  throw(error('New decision unifies with already defined decision!', (Head))) ; true
@@ -650,7 +652,7 @@ term_expansion_intern((Annotation :: Head :- Body), Module, problog:ExpandedClau
 			   (problog_control(check,internal_strategy) ->
 			    dtproblog:strategy_log(ID,Head,LProb)
 			   ;
-			    LProb = '?'
+			    LProb = ('?')
 			   )
 			  ),
 	 assertz(dynamic_probability_fact(ID)),
@@ -1029,7 +1031,7 @@ prove_problog_fact(ClauseID,GroundID,Prob) :-
   (problog_control(check,find_decisions) ->
     signal_decision(ClauseID,GroundID)
   ;
-    (Prob = '?' ->
+    (Prob = ('?') ->
       add_to_proof(GroundID,0) % 0 is log(1)!
     ;
       % Checks needed for LeDTProbLog
@@ -1053,7 +1055,7 @@ prove_problog_fact_negated(ClauseID,GroundID,Prob) :-
   (problog_control(check,find_decisions) ->
       signal_decision(ClauseID,GroundID)
   ;
-      (Prob = '?' ->
+      (Prob = ('?') ->
         add_to_proof_negated(GroundID,-inf) % 0 is log(1)!
       ;
         % Checks needed for LeDTProbLog
@@ -1187,7 +1189,7 @@ get_fact_probability(ID,Prob) :-
     get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
   ),
   arg(ProblogArity,ProblogTerm,Log),
-  (Log = '?' ->
+  (Log = ('?') ->
       throw(error('Why do you want to know the probability of a decision?')) %fail
   ; ground(Log) ->
       Prob is exp(Log)
@@ -1206,7 +1208,7 @@ get_fact_log_probability(ID,Prob) :-
     get_internal_fact(ID,ProblogTerm,_ProblogName,ProblogArity)
   ),
   arg(ProblogArity,ProblogTerm,Prob),
-  Prob \== '?'.
+  Prob \== ('?').
 get_fact_log_probability(ID,Prob) :-
 	get_fact_probability(ID,Prob1),
 	Prob is log(Prob1).
@@ -2145,6 +2147,7 @@ init_problog_low(Threshold) :-
 	nb_setval(problog_completed_proofs, Trie_Completed_Proofs),
 	init_problog(Threshold).
 
+:- include(problog_lbdd).
 
 % generalizing problog_max to return all explanations, sorted by non-increasing probability
 problog_all_explanations(Goal,Expl) :-
@@ -2427,7 +2430,7 @@ problog_kbest(Goal, K, Prob, Status) :-
 	problog_kbest_id(Goal, K),
 	retract(current_kbest(_,ListFound,_NumFound)),
 	build_prefixtree(ListFound),
-    nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
+	nb_getval(problog_completed_proofs, Trie_Completed_Proofs),
 	eval_dnf(Trie_Completed_Proofs,Prob,Status),
 	delete_ptree(Trie_Completed_Proofs).
 

@@ -1066,6 +1066,7 @@ do_goal(Term t, yamop *CodeAdr, int arity, CELL *pt, int top USES_REGS)
   S = CellPtr (RepPredProp (PredPropByFunc (Yap_MkFunctor(AtomCall, 1),0)));	/* A1 mishaps */
 
   out = exec_absmi(top PASS_REGS);
+  Yap_flush();
   //  if (out) {
   //    out = Yap_GetFromSlot(sl);
   //  }
@@ -1674,6 +1675,11 @@ Yap_InitYaamRegs(void)
 #endif
 #if defined MYDDAS_MYSQL || defined MYDDAS_ODBC
   Yap_REGS.MYDDAS_GLOBAL_POINTER = NULL;
+#endif
+#ifdef TABLING
+  /* ensure that LOCAL_top_dep_fr is always valid */
+  if (LOCAL_top_dep_fr)
+    DepFr_cons_cp(LOCAL_top_dep_fr) = NORM_CP(B);
 #endif
 }
 

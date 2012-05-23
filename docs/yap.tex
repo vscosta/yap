@@ -3430,6 +3430,15 @@ Same as @code{variant/2}, succeeds if @var{Term1} and @var{Term2} are variant te
 Succeed if @var{Submuser} subsumes @var{Subsuned} but does not bind any
 variable in @var{Subsumer}.
 
+@item term_subsumer(?@var{T1}, ?@var{T2}, ?@var{Subsumer})
+@findex  term_subsumer/2
+@syindex term_subsumer/2
+@cnindex term_subsumer/2
+
+Succeed if @var{Subsumer} unifies with the least general
+generalization over @var{T1} and
+@var{T2}.
+
 @item acyclic_term(?@var{Term})
 @findex cyclic_term/1
 @syindex cyclic_term/1

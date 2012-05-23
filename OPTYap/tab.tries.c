@@ -21,28 +21,32 @@
 #include "YapHeap.h"
 #include "tab.macros.h"
 
-static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term);
-static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr, sg_node_ptr, Term);
-static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr, ans_node_ptr, Term, int);
-static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr, ans_node_ptr, Term, int);
-static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr, Term);
+static inline sg_node_ptr subgoal_trie_check_insert_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
+static inline sg_node_ptr subgoal_trie_check_insert_gt_entry(tab_ent_ptr, sg_node_ptr, Term USES_REGS);
+static inline ans_node_ptr answer_trie_check_insert_entry(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
+static inline ans_node_ptr answer_trie_check_insert_gt_entry(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
+static inline gt_node_ptr global_trie_check_insert_entry(gt_node_ptr, Term USES_REGS);
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr, Term);
+static inline gt_node_ptr global_trie_check_insert_gt_entry(gt_node_ptr, Term USES_REGS);
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */ 
-static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL **);
-static inline sg_node_ptr subgoal_search_terms_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL **);
-static inline ans_node_ptr answer_search_loop(sg_fr_ptr, ans_node_ptr, Term, int *);
-static inline ans_node_ptr answer_search_terms_loop(sg_fr_ptr, ans_node_ptr, Term, int *);
+static inline sg_node_ptr subgoal_search_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL ** USES_REGS);
+static inline sg_node_ptr subgoal_search_terms_loop(tab_ent_ptr, sg_node_ptr, Term, int *, CELL ** USES_REGS);
+static inline ans_node_ptr answer_search_loop(sg_fr_ptr, ans_node_ptr, Term, int * USES_REGS);
+static inline ans_node_ptr answer_search_terms_loop(sg_fr_ptr, ans_node_ptr, Term, int * USES_REGS);
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static inline gt_node_ptr subgoal_search_global_trie_terms_loop(Term, int *, CELL **, CELL *);
-static inline gt_node_ptr answer_search_global_trie_terms_loop(Term, int *, CELL *);
+static inline gt_node_ptr subgoal_search_global_trie_terms_loop(Term, int *, CELL **, CELL * USES_REGS);
+static inline gt_node_ptr answer_search_global_trie_terms_loop(Term, int *, CELL * USES_REGS);
 #else
-static inline gt_node_ptr subgoal_search_global_trie_loop(Term, int *, CELL **);
-static inline gt_node_ptr answer_search_global_trie_loop(Term, int *);
+static inline gt_node_ptr subgoal_search_global_trie_loop(Term, int *, CELL ** USES_REGS);
+static inline gt_node_ptr answer_search_global_trie_loop(Term, int * USES_REGS);
 #endif /* GLOBAL_TRIE_MODE */ 
-static inline CELL *load_answer_loop(ans_node_ptr);
-static inline CELL *load_substitution_loop(gt_node_ptr, int *, CELL *);
-static inline CELL *exec_substitution_loop(gt_node_ptr, CELL **, CELL *);
+static inline CELL *load_answer_loop(ans_node_ptr USES_REGS);
+static inline CELL *load_substitution_loop(gt_node_ptr, int *, CELL * USES_REGS);
+static inline CELL *exec_substitution_loop(gt_node_ptr, CELL **, CELL * USES_REGS);
+#ifdef MODE_DIRECTED_TABLING
+static inline ans_node_ptr answer_search_min_max(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
+static void invalidate_answer_trie(ans_node_ptr, sg_fr_ptr, int USES_REGS);
+#endif /* MODE_DIRECTED_TABLING */
 
 #ifdef YAPOR
 #ifdef TABLING_INNER_CUTS
@@ -54,15 +58,15 @@ static int update_answer_trie_branch(ans_node_ptr);
 static void update_answer_trie_branch(ans_node_ptr, int);
 #endif
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static void free_global_trie_branch(gt_node_ptr, int);
+static void free_global_trie_branch(gt_node_ptr, int USES_REGS);
 #else
-static void free_global_trie_branch(gt_node_ptr);
+static void free_global_trie_branch(gt_node_ptr USES_REGS);
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
-static void traverse_subgoal_trie(sg_node_ptr, char *, int, int *, int, int);
-static void traverse_answer_trie(ans_node_ptr, char *, int, int *, int, int, int);
-static void traverse_global_trie(gt_node_ptr, char *, int, int *, int, int);
-static void traverse_global_trie_for_term(gt_node_ptr, char *, int *, int *, int *, int);
-static inline void traverse_trie_node(Term, char *, int *, int *, int *, int);
+static void traverse_subgoal_trie(sg_node_ptr, char *, int, int *, int, int USES_REGS);
+static void traverse_answer_trie(ans_node_ptr, char *, int, int *, int, int, int USES_REGS);
+static void traverse_global_trie(gt_node_ptr, char *, int, int *, int, int USES_REGS);
+static void traverse_global_trie_for_term(gt_node_ptr, char *, int *, int *, int *, int USES_REGS);
+static inline void traverse_trie_node(Term, char *, int *, int *, int *, int USES_REGS);
 static inline void traverse_update_arity(char *, int *, int *);
 
 
@@ -123,13 +127,13 @@ static struct trie_statistics{
 #endif /*THREADS */
 
 #if defined(THREADS_SUBGOAL_SHARING) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-#define IF_ABOLISH_SUBGOAL_TRIE_SHARED_DATA_STRUCTURES  if (worker_id == 0)
+#define IF_ABOLISH_SUBGOAL_TRIE_SHARED_DATA_STRUCTURES  if (GLOBAL_NOfThreads == 1)
 #else
 #define IF_ABOLISH_SUBGOAL_TRIE_SHARED_DATA_STRUCTURES
 #endif /* THREADS_SUBGOAL_SHARING || THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
-#define IF_ABOLISH_ANSWER_TRIE_SHARED_DATA_STRUCTURES  if (worker_id == 0)
+#define IF_ABOLISH_ANSWER_TRIE_SHARED_DATA_STRUCTURES  if (GLOBAL_NOfThreads == 1)
 #else
 #define IF_ABOLISH_ANSWER_TRIE_SHARED_DATA_STRUCTURES
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
@@ -151,11 +155,11 @@ static struct trie_statistics{
 #define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)	                                    \
         CHECK_DECREMENT_GLOBAL_TRIE_REFERENCE(REF,MODE)
 #define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
-        free_global_trie_branch(NODE,MODE)
+        free_global_trie_branch(NODE,MODE PASS_REGS)
 #else
 #define CHECK_DECREMENT_GLOBAL_TRIE_FOR_SUBTERMS_REFERENCE(REF,MODE)
 #define FREE_GLOBAL_TRIE_BRANCH(NODE,MODE)                                                                  \
-        free_global_trie_branch(NODE)
+        free_global_trie_branch(NODE PASS_REGS)
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
 
 
@@ -218,7 +222,7 @@ static struct trie_statistics{
 
 
 
-static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stack_vars_ptr, CELL *stack_terms) {
+static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stack_vars_ptr, CELL *stack_terms USES_REGS) {
 /************************************************************************
                      ===========
                      |         |
@@ -256,7 +260,6 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
  LOCAL_TrailTop -->  |         |  <-- stack_terms_base (TRIE_COMPACT_PAIRS)
                      -----------
 ************************************************************************/
-  CACHE_REGS
   CELL *stack_vars = *stack_vars_ptr;
   CELL *stack_terms_limit = (CELL *) TR;
 #ifdef TRIE_COMPACT_PAIRS
@@ -270,7 +273,7 @@ static inline CELL *exec_substitution_loop(gt_node_ptr current_node, CELL **stac
     if (IsVarTerm(t)) {
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
       if (t > VarIndexOfTableTerm(MAX_TABLE_VARS)) {
-	stack_terms = exec_substitution_loop((gt_node_ptr) t, &stack_vars, stack_terms);
+	stack_terms = exec_substitution_loop((gt_node_ptr) t, &stack_vars, stack_terms PASS_REGS);
       } else 
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
       {
@@ -477,10 +480,10 @@ static void update_answer_trie_branch(ans_node_ptr current_node, int position) {
 
 
 #ifdef GLOBAL_TRIE_FOR_SUBTERMS
-static void free_global_trie_branch(gt_node_ptr current_node, int mode) {
+static void free_global_trie_branch(gt_node_ptr current_node, int mode USES_REGS) {
   Term t = TrNode_entry(current_node);
 #else
-static void free_global_trie_branch(gt_node_ptr current_node) {
+static void free_global_trie_branch(gt_node_ptr current_node USES_REGS) {
 #endif /* GLOBAL_TRIE_FOR_SUBTERMS */
   gt_node_ptr parent_node, child_node;
 
@@ -578,8 +581,7 @@ static void free_global_trie_branch(gt_node_ptr current_node) {
 }
 
 
-static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
-  CACHE_REGS
+static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
   int *current_arity = NULL, current_str_index = 0, current_mode = 0;
 
   /* test if hashing */
@@ -593,7 +595,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
-        traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+        traverse_subgoal_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
 	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
@@ -618,7 +620,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
 
   /* process current trie node */
   TrStat_sg_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL);
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_SUBGOAL PASS_REGS);
 
   /* show answers ... */
   if (IS_SUBGOAL_LEAF_NODE(current_node)) {
@@ -641,7 +643,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
 	SHOW_TABLE_STRUCTURE("    TRUE\n");
       } else {
 	arity[0] = 0;
-	traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+	traverse_answer_trie(TrNode_child(SgFr_answer_trie(sg_fr)), &str[str_index], 0, arity, 0, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST PASS_REGS);
 	if (SgFr_state(sg_fr) < complete) {
 	  TrStat_sg_incomplete++;
 	  SHOW_TABLE_STRUCTURE("    ---> INCOMPLETE\n");
@@ -650,7 +652,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
     }
   } else
   /* ... or continue with child node */
-    traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+    traverse_subgoal_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
   /* restore the initial state and continue with sibling nodes */
   if (position == TRAVERSE_POSITION_FIRST) {
     str_index = current_str_index;
@@ -665,7 +667,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
       if (arity[arity[0]] == -1)
 	str[str_index - 1] = '|';
 #endif /* TRIE_COMPACT_PAIRS */
-      traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
+      traverse_subgoal_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
       current_node = TrNode_next(current_node);
     }
     free(current_arity);
@@ -674,8 +676,7 @@ static void traverse_subgoal_trie(sg_node_ptr current_node, char *str, int str_i
 }
 
 
-static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position) {
-  CACHE_REGS
+static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_index, int *arity, int var_index, int mode, int position USES_REGS) {
   int *current_arity = NULL, current_str_index = 0, current_var_index = 0, current_mode = 0;
 
   /* test if hashing */
@@ -689,7 +690,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_i
     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
-        traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
+        traverse_answer_trie(*bucket, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
 	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
@@ -721,7 +722,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_i
 
   /* process current trie node */
   TrStat_ans_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER);
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_ANSWER PASS_REGS);
 
   /* show answer .... */
   if (IS_ANSWER_LEAF_NODE(current_node)) {
@@ -738,7 +739,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_i
 #endif /* TABLING_INNER_CUTS */
   /* ... or continue with child node */
   else
-    traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST);
+    traverse_answer_trie(TrNode_child(current_node), str, str_index, arity, var_index, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
 
   /* restore the initial state and continue with sibling nodes */
   if (position == TRAVERSE_POSITION_FIRST) {
@@ -755,7 +756,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_i
       if (arity[arity[0]] == -1)
 	str[str_index - 1] = '|';
 #endif /* TRIE_COMPACT_PAIRS */
-      traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT);
+      traverse_answer_trie(current_node, str, str_index, arity, var_index, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
       current_node = TrNode_next(current_node);
     }
     free(current_arity);
@@ -765,8 +766,7 @@ static void traverse_answer_trie(ans_node_ptr current_node, char *str, int str_i
 }
 
 
-static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position) {
-  CACHE_REGS
+static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_index, int *arity, int mode, int position USES_REGS) {
   int *current_arity = NULL, current_str_index = 0, current_mode = 0;
 
   /* test if hashing */
@@ -780,7 +780,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
     memcpy(current_arity, arity, sizeof(int) * (arity[0] + 1));
     do {
       if (*bucket) {
-        traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+        traverse_global_trie(*bucket, str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
 	memcpy(arity, current_arity, sizeof(int) * (current_arity[0] + 1));
 #ifdef TRIE_COMPACT_PAIRS
 	if (arity[arity[0]] == -2 && str[str_index - 1] != '[')
@@ -805,11 +805,11 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
 
   /* process current trie node */
   TrStat_gt_nodes++;
-  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_GT_SUBGOAL);
+  traverse_trie_node(TrNode_entry(current_node), str, &str_index, arity, &mode, TRAVERSE_TYPE_GT_SUBGOAL PASS_REGS);
 
   /* continue with child node ... */
   if (arity[0] != 0 || mode != TRAVERSE_MODE_NORMAL)
-    traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST);
+    traverse_global_trie(TrNode_child(current_node), str, str_index, arity, mode, TRAVERSE_POSITION_FIRST PASS_REGS);
   /* ... or show term */
   else {
     TrStat_gt_terms++;
@@ -831,7 +831,7 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
       if (arity[arity[0]] == -1)
 	str[str_index - 1] = '|';
 #endif /* TRIE_COMPACT_PAIRS */
-      traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT);
+      traverse_global_trie(current_node, str, str_index, arity, mode, TRAVERSE_POSITION_NEXT PASS_REGS);
       current_node = TrNode_next(current_node);
     }
     free(current_arity);
@@ -841,16 +841,15 @@ static void traverse_global_trie(gt_node_ptr current_node, char *str, int str_in
 }
 
 
-static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type) {
+static void traverse_global_trie_for_term(gt_node_ptr current_node, char *str, int *str_index, int *arity, int *mode, int type USES_REGS) {
   if (TrNode_parent(current_node) != GLOBAL_root_gt)
-    traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type);
-  traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type);
+    traverse_global_trie_for_term(TrNode_parent(current_node), str, str_index, arity, mode, type PASS_REGS);
+  traverse_trie_node(TrNode_entry(current_node), str, str_index, arity, mode, type PASS_REGS);
   return;
 }
 
 
-static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int *arity, int *mode_ptr, int type) {
-  CACHE_REGS
+static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int *arity, int *mode_ptr, int type USES_REGS) {
   int mode = *mode_ptr;
   int str_index = *str_index_ptr;
 
@@ -903,7 +902,7 @@ static inline void traverse_trie_node(Term t, char *str, int *str_index_ptr, int
       TrStat_gt_refs++;
       /* (type % 2 + 2): TRAVERSE_TYPE_ANSWER  --> TRAVERSE_TYPE_GT_ANSWER  */
       /* (type % 2 + 2): TRAVERSE_TYPE_SUBGOAL --> TRAVERSE_TYPE_GT_SUBGOAL */
-      traverse_global_trie_for_term((gt_node_ptr) t, str, &str_index, arity, &mode, type % 2 + 2);
+      traverse_global_trie_for_term((gt_node_ptr) t, str, &str_index, arity, &mode, type % 2 + 2 PASS_REGS);
     } else {
       if (type == TRAVERSE_TYPE_SUBGOAL || type == TRAVERSE_TYPE_GT_SUBGOAL)
 	str_index += sprintf(& str[str_index], "VAR%d", VarIndexOfTableTerm(t));
@@ -1037,7 +1036,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     int old_subs_arity = subs_arity;
     for (i = 1; i <= pred_arity; i++) {
       int j = MODE_DIRECTED_GET_ARG(mode_directed[i-1]) + 1;
-      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[j]), &subs_arity, &stack_vars);
+      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[j]), &subs_arity, &stack_vars PASS_REGS);
       if (subs_arity != old_subs_arity) {
 	if (subs_pos && MODE_DIRECTED_GET_MODE(aux_mode_directed[subs_pos-1]) == MODE_DIRECTED_GET_MODE(mode_directed[i-1])) {
 	  /* same mode as before -> use the current entry in the aux_mode_directed[] array */
@@ -1054,10 +1053,10 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #endif /* MODE_DIRECTED_TABLING */
   if (IsMode_GlobalTrie(TabEnt_mode(tab_ent))) {
     for (i = 1; i <= pred_arity; i++)
-      current_sg_node = subgoal_search_terms_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars);
+      current_sg_node = subgoal_search_terms_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars PASS_REGS);
   } else {
     for (i = 1; i <= pred_arity; i++)
-      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars);
+      current_sg_node = subgoal_search_loop(tab_ent, current_sg_node, Deref(XREGS[i]), &subs_arity, &stack_vars PASS_REGS);
   }
 
   STACK_PUSH_UP(subs_arity, stack_vars);
@@ -1068,7 +1067,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
     RESET_VARIABLE(t);
   }
 
-  volatile sg_fr_ptr *sg_fr_end = get_insert_subgoal_frame_addr(current_sg_node PASS_REGS);
+  sg_fr_ptr *sg_fr_end = get_insert_subgoal_frame_addr(current_sg_node PASS_REGS);
 #ifndef THREADS
   LOCK_SUBGOAL_NODE(current_sg_node);
 #endif /* !THREADS */
@@ -1084,6 +1083,7 @@ sg_fr_ptr subgoal_search(yamop *preg, CELL **Yaddr) {
 #if !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
     new_subgoal_frame(sg_fr, preg, mode_directed);
     *sg_fr_end = sg_fr;
+    __sync_synchronize();
     TAG_AS_SUBGOAL_LEAF_NODE(current_sg_node);
     UNLOCK_SUBGOAL_NODE(current_sg_node);
 #else /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
@@ -1139,12 +1139,12 @@ ans_node_ptr answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
   if (IsMode_GlobalTrie(TabEnt_mode(SgFr_tab_ent(sg_fr)))) {
     for (i = subs_arity; i >= 1; i--) {
       TABLING_ERROR_CHECKING(answer_search, IsNonVarTerm(subs_ptr[i]));
-      current_ans_node = answer_search_terms_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+      current_ans_node = answer_search_terms_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
     }
   } else {
     for (i = subs_arity; i >= 1; i--) {
       TABLING_ERROR_CHECKING(answer_search, IsNonVarTerm(subs_ptr[i]));
-      current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+      current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
     }
   }
 
@@ -1181,7 +1181,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
     do {
       TABLING_ERROR_CHECKING(answer_search, IsNonVarTerm(subs_ptr[i]));
       if (mode == MODE_DIRECTED_INDEX || mode == MODE_DIRECTED_ALL) {
-	current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
       } else {
 	LOCK_ANSWER_NODE(current_ans_node);
 	if (TrNode_child(current_ans_node) == NULL) {
@@ -1191,15 +1191,15 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  TrNode_init_lock_field(&virtual_ans_node);
 	  TrNode_parent(&virtual_ans_node) = NULL;
 	  TrNode_child(&virtual_ans_node) = NULL;
-	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 	  TrNode_child(parent_ans_node) = TrNode_child(&virtual_ans_node);
 #else
-	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 #endif /* YAPOR */
 	} else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX) {
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);  /* by default, assume a better answer */
-	  current_ans_node = answer_search_min_max(sg_fr, current_ans_node, Deref(subs_ptr[i]), mode);
+	  current_ans_node = answer_search_min_max(sg_fr, current_ans_node, Deref(subs_ptr[i]), mode PASS_REGS);
 	  if (invalid_ans_node == TrNode_child(parent_ans_node))  /* worse or equal answer */
 	    invalid_ans_node = NULL;
 	} else if (mode == MODE_DIRECTED_FIRST)
@@ -1212,12 +1212,12 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  TrNode_init_lock_field(&virtual_ans_node);
 	  TrNode_parent(&virtual_ans_node) = NULL;
 	  TrNode_child(&virtual_ans_node) = NULL;
-	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 	  TrNode_child(parent_ans_node) = TrNode_child(&virtual_ans_node);
 #else
 	  invalid_ans_node = TrNode_child(current_ans_node);
 	  TrNode_child(current_ans_node) = NULL;	 
-	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity);
+	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 #endif /* YAPOR */
 	}
 	UNLOCK_ANSWER_NODE(current_ans_node);
@@ -1230,7 +1230,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
     j++;
   }
   if (invalid_ans_node)
-    invalidate_answer_trie(invalid_ans_node, sg_fr, TRAVERSE_POSITION_FIRST);
+    invalidate_answer_trie(invalid_ans_node, sg_fr, TRAVERSE_POSITION_FIRST PASS_REGS);
  
   /* reset variables */
   stack_vars = (CELL *) TR;
@@ -1255,7 +1255,7 @@ void load_answer(ans_node_ptr current_ans_node, CELL *subs_ptr) {
   if (subs_arity == 0)
     return;
 
-  stack_terms = load_answer_loop(current_ans_node);
+  stack_terms = load_answer_loop(current_ans_node PASS_REGS);
 
   for (i = subs_arity; i >= 1; i--) {
     Term t = STACK_POP_DOWN(stack_terms);
@@ -1275,7 +1275,7 @@ CELL *exec_substitution(gt_node_ptr current_node, CELL *aux_stack) {
   Term t;
 
   ++aux_stack;  /* skip the heap_arity entry */
-  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) LOCAL_TrailTop);
+  stack_terms = exec_substitution_loop(current_node, &aux_stack, (CELL *) LOCAL_TrailTop PASS_REGS);
   *--aux_stack = 0;  /* restore the heap_arity entry */
 
   subs_ptr = aux_stack + aux_stack[1] + 2;
@@ -1516,16 +1516,33 @@ void free_answer_hash_chain(ans_hash_ptr hash) {
 }
 
 
-/***********************************************************************************************************************
-** - main thread (worker_id 0) abolishes its local and all shared data structures.                                    **
-** - all other threads only abolish their local data structures.                                                      **
-** - for the main thread, we assume that all other threads have the table clean (i.e., without local data structures) **
-**   and that they will be not using the table during the abolish operation.                                          **
-***********************************************************************************************************************/
+/*****************************************************************************************
+** all threads abolish their local data structures, and the main thread also abolishes  **
+** all shared data structures, if no other thread is running (GLOBAL_NOfThreads == 1).  **
+*****************************************************************************************/
 void abolish_table(tab_ent_ptr tab_ent) {
   CACHE_REGS
   sg_node_ptr sg_node;
 
+#if defined(THREADS) && defined(USE_PAGES_MALLOC)
+  if (GLOBAL_NOfThreads == 1) {
+    ATTACH_PAGES(_pages_tab_ent);
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+    ATTACH_PAGES(_pages_sg_ent);
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
+    ATTACH_PAGES(_pages_sg_fr);
+    ATTACH_PAGES(_pages_dep_fr);
+    ATTACH_PAGES(_pages_sg_node);
+    ATTACH_PAGES(_pages_sg_hash);
+    ATTACH_PAGES(_pages_ans_node);
+    ATTACH_PAGES(_pages_ans_hash);
+#if defined(THREADS_FULL_SHARING)
+    ATTACH_PAGES(_pages_ans_ref_node);
+#endif /* THREADS_FULL_SHARING */
+    ATTACH_PAGES(_pages_gt_node);
+    ATTACH_PAGES(_pages_gt_hash);
+  }
+#endif /* THREADS && USE_PAGES_MALLOC */
   sg_node = get_subgoal_trie_for_abolish(tab_ent PASS_REGS);
   if (sg_node) {
     if (TrNode_child(sg_node)) {
@@ -1614,7 +1631,7 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
 	arity[0] = 1;
 	arity[1] = TabEnt_arity(tab_ent);
 	int str_index = sprintf(str, "  ?- %s(", AtomName(TabEnt_atom(tab_ent)));
-	traverse_subgoal_trie(TrNode_child(sg_node), str, str_index, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+	traverse_subgoal_trie(TrNode_child(sg_node), str, str_index, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST PASS_REGS);
 	free(str);
 	free(arity);
       } else {
@@ -1676,7 +1693,7 @@ void show_global_trie(int show_mode, IOSTREAM *out) {
     char *str = (char *) malloc(sizeof(char) * SHOW_TABLE_STR_ARRAY_SIZE);
     int *arity = (int *) malloc(sizeof(int) * SHOW_TABLE_ARITY_ARRAY_SIZE);
     arity[0] = 0;
-    traverse_global_trie(TrNode_child(GLOBAL_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST);
+    traverse_global_trie(TrNode_child(GLOBAL_root_gt), str, 0, arity, TRAVERSE_MODE_NORMAL, TRAVERSE_POSITION_FIRST PASS_REGS);
     free(str);
     free(arity);
   } else

@@ -230,18 +230,15 @@ use_module(M,F,Is) :-
 
 '$do_lf'(ContextModule, Stream, InfLevel, _, Imports, SkipUnixComments, CompMode, Reconsult, UseModule) :-
 	'$reset_if'(OldIfLevel),
-	( nb_getval('$system_mode', OldMode) -> true ; OldMode = off),
-        ( OldMode == off -> '$enter_system_mode' ; true ),
+	'$into_system_mode'(OldMode),
 	'$record_loaded'(Stream, ContextModule, Reconsult),
 	'$current_module'(OldModule,ContextModule),
 	working_directory(OldD,OldD),
-	nb_getval('$consulting_file',OldF),
-	'$set_consulting_file'(Stream),
+	'$ensure_consulting_file'(OldF, Stream),
 	H0 is heapused, '$cputime'(T0,_),
 	'$file_name'(Stream,File),
 	'$set_current_loop_stream'(OldStream, Stream),
-	nb_getval('$consulting',Old),
-	nb_setval('$consulting',false),
+	'$ensure_consulting'(Old, false),
 	'$access_yap_flags'(18,GenerateDebug),
 	'$consult_infolevel'(InfLevel),
 	'$comp_mode'(OldCompMode, CompMode),
@@ -302,6 +299,18 @@ use_module(M,F,Is) :-
 	catch(nb_getval('$if_level',Level),_,fail), !,
 	Level0 = Level.
 '$get_if'(0).
+
+'$into_system_mode'(OldMode) :-
+	( catch(nb_getval('$system_mode', OldMode),_,fail) -> true ; OldMode = off),
+        ( OldMode == off -> '$enter_system_mode' ; true ).
+
+'$ensure_consulting_file'(OldF, Stream) :-
+	( catch(nb_getval('$consulting_file',OldF), _, fail) -> true ; OldF = []),
+	'$set_consulting_file'(Stream).
+
+'$ensure_consulting'(Old, New) :-
+	( catch(nb_getval('$consulting',Old), _, fail) -> true ; Old = false ),
+	nb_setval('$consulting', New).
 
 '$bind_module'(_, load_files).
 '$bind_module'(Mod, use_module(Mod)).
@@ -428,7 +437,7 @@ initialization(G,OPT) :-
 '$include'(X, Status) :-
 	get_value('$lf_verbose',Verbosity),
 	'$full_filename'(X,Y,include(X)),
-	nb_getval('$included_file',OY),
+	( catch( nb_getval('$included_file',OY), _, fail ) -> true ; OY = [] ),
 	nb_setval('$included_file', Y),
 	'$current_module'(Mod),
 	H0 is heapused, '$cputime'(T0,_),
@@ -484,7 +493,7 @@ prolog_load_context(_, _) :-
 prolog_load_context(directory, DirName) :- 
 	getcwd(DirName).
 prolog_load_context(file, FileName) :- 
-	nb_getval('$included_file',IncFileName),
+	( catch( nb_getval('$included_file',IncFileName), _, fail ) -> true ; IncFileName = [] ),
 	( IncFileName = [] ->
 	  nb_getval('$consulting_file',FileName),
 	  FileName \= []
@@ -1003,7 +1012,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$set_yap_flags'(11,0).
 
 '$fetch_comp_status'(assert_all) :-
-	nb_getval('$assert_all',on), !.
+	catch(nb_getval('$assert_all',on), _, fail), !.
 '$fetch_comp_status'(source) :-
 	 '$access_yap_flags'(11,1).
 '$fetch_comp_status'(compact).

@@ -284,7 +284,7 @@ new_setvar(SVar, Space, X1, X2, X3, X4, X5) :-
 	 assert_integer(X4),
 	 assert_integer(X5),
 	 gecode_new_setvar_4(Idx,Space_,X1_,X2,X3,X4,X5)),
-	SVar='SetVar'(Idx).
+	SVar='SetVar'(Idx,-1).
 
 %% 4 arguments
 %% (GlbMin,GlbMax,LubMin,LubMax)                 4 new_setvar_3
@@ -313,7 +313,7 @@ new_setvar(SVar,Space,X1,X2,X3,X4) :-
 	 ;
 	  assert_integer(X3),
 	  gecode_new_setvar_3(Idx,Space_,X1,X2,X3,X4))),
-	SVar='SetVar'(Idx).
+	SVar='SetVar'(Idx,-1).
 
 %% 3 arguments
 %% (Glb,LubMin,LubMax)                           3 new_setvar_6
@@ -336,7 +336,7 @@ new_setvar(SVar,Space,X1,X2,X3) :-
 	 assert_integer(X2),
 	 assert_is_IntSet(X3,X3_),
 	 gecode_new_setvar_9(Idx,Space_,X1,X2,X3_)),
-	SVar='SetVar'(Idx).
+	SVar='SetVar'(Idx,-1).
 
 %% 2 arguments
 %% (Glb,Lub)                                     2 new_setvar_12
@@ -346,7 +346,7 @@ new_setvar(SVar,Space,X1,X2) :-
 	assert_is_IntSet(X1,X1_),
 	assert_is_IntSet(X2,X2_),
 	gecode_new_setvar_12(Idx,Space_,X1_,X2_),
-	SVar='SetVar'(Idx).
+	SVar='SetVar'(Idx,-1).
 
 minimize(Space,IVar) :-
 	assert_is_Space(Space,Space_),

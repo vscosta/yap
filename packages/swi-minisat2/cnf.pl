@@ -71,7 +71,7 @@ iff((X==Y),Polarity,B,Acc,Cnf) :- !,
 	    Cnf =  [[-BX,BY,-B],[BX,-BY,-B],[-BX,-BY,B],[BX,BY,B] | AccXY]
 	).
 
-iff((X xor Y),Polarity,B,Acc,Cnf) :- !,
+iff((xor(X, Y)),Polarity,B,Acc,Cnf) :- !,
 	iff(X,*,BX,Acc,AccX),
 	iff(Y,*,BY,AccX,AccXY),
 	(

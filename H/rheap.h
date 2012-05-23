@@ -572,17 +572,16 @@ RestoreMegaClause(MegaClause *cl USES_REGS)
  * clause for this predicate or not 
  */
 {
-  UInt ncls, i;
-  yamop *ptr;
+  yamop *ptr, *max, *nextptr;
 
   cl->ClPred = PtoPredAdjust(cl->ClPred);
   if (cl->ClNext) {
     cl->ClNext = (MegaClause *)AddrAdjust((ADDR)(cl->ClNext));
   }
-  ncls = cl->ClPred->cs.p_code.NOfClauses;
+  max = (yamop *)((CODEADDR)cl+cl->ClSize);
 
-  for (i = 0, ptr = cl->ClCode; i < ncls; i++) {
-    yamop *nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
+  for (ptr = cl->ClCode; ptr < max; ) {
+    nextptr = (yamop *)((char *)ptr + cl->ClItemSize);
     restore_opcodes(ptr, nextptr PASS_REGS);
     ptr = nextptr;
   }
