@@ -94,8 +94,16 @@ CLPBN_HMMER_EXAMPLES= \
 	$(CLPBN_EXDIR)/HMMer/score.yap
 
 CLPBN_EXAMPLES= \
+	$(CLPBN_EXDIR)/burglary-alarm.fg \
+	$(CLPBN_EXDIR)/burglary-alarm.yap \
+	$(CLPBN_EXDIR)/burglary-alarm.uai \
 	$(CLPBN_EXDIR)/cg.yap \
-	$(CLPBN_EXDIR)/sprinkler.yap
+	$(CLPBN_EXDIR)/city.yap \
+	$(CLPBN_EXDIR)/comp_workshops.yap \
+	$(CLPBN_EXDIR)/social_domain1.yap \
+	$(CLPBN_EXDIR)/social_domain2.yap \
+	$(CLPBN_EXDIR)/sprinkler.yap \
+	$(CLPBN_EXDIR)/workshop_attrs.yap
 
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
