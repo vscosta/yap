@@ -197,6 +197,7 @@ void readLiftedEvidence (
     }
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
+    cout << "has evidence()" << endl;
     for (unsigned i = 0; i < obsFormulas.size(); i++) {
       if (obsFormulas[i].functor()  == functor &&
           obsFormulas[i].arity()    == args.size() &&
@@ -235,6 +236,7 @@ createGroundNetwork (void)
     factorList = YAP_TailOfTerm (factorList);
   }
 
+  unsigned nrObservedVars = 0;
   YAP_Term evidenceList = YAP_ARG3;
   while (evidenceList != YAP_TermNil()) {
     YAP_Term evTerm = YAP_HeadOfTerm (evidenceList);
@@ -243,6 +245,13 @@ createGroundNetwork (void)
     assert (fg->getVarNode (vid));
     fg->getVarNode (vid)->setEvidence (ev);
     evidenceList = YAP_TailOfTerm (evidenceList);
+    nrObservedVars ++;
+  }
+  if (Globals::verbosity > 0) {
+    cout << "factor graph contains " ;
+    cout << fg->nrVarNodes() << " variables " ;
+    cout << "(" << nrObservedVars << " observed) and " ;
+    cout << fg->nrFacNodes() << " factors " << endl;
   }
   YAP_Int p = (YAP_Int) (fg);
   return YAP_Unify (YAP_MkIntTerm (p), YAP_ARG4);

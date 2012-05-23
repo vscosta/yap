@@ -116,10 +116,7 @@ void
 CbpSolver::createLinks (void)
 {
   if (Globals::verbosity > 0) {
-    cout << "original factor graph has " ;
-    cout << fg.nrVarNodes() << " variables and " ;
-    cout << fg.nrFacNodes() << " factors " << endl;
-    cout << "compressed factor graph has " ;
+    cout << "compressed factor graph contains " ;
     cout << fg_->nrVarNodes() << " variables and " ;
     cout << fg_->nrFacNodes() << " factors " << endl;
     cout << endl;
