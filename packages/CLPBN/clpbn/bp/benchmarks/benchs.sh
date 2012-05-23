@@ -30,7 +30,7 @@ function run_solver
       echo "unknow flag $2"
     fi
   fi
-  /usr/bin/time -o $LOG_FILE -a -f "real:%e\tuser:%U\tsys:%S\tmem:%MkB" \
+  /usr/bin/time -o $LOG_FILE -a -f "%U\t%S\t%e\t%M" \
       $YAP << EOF >> $LOG_FILE &>> ignore.$LOG_FILE
 nogc.
 [$NETWORK].
@@ -40,7 +40,7 @@ clpbn_horus:set_horus_flag(use_logarithms, true).
 clpbn_horus:set_horus_flag(verbosity, 1).
 $solver_flag.
 $QUERY.
-open("$LOG_FILE", 'append', S), format(S, '$constraint: ~15+ ', []), close(S).
+open("$LOG_FILE", 'append', S), format(S, '$constraint ~15+ ', []), close(S).
 EOF
 }
 
@@ -65,7 +65,7 @@ function write_header
 {
   echo -n "****************************************" >> $LOG_FILE
   echo    "****************************************" >> $LOG_FILE
-  echo    "results for solver $1"                >> $LOG_FILE
+  echo    "results for solver $1 user(s) sys(s) real(s), mem(kB)" >> $LOG_FILE
   echo -n "****************************************" >> $LOG_FILE
   echo    "****************************************" >> $LOG_FILE
 }
