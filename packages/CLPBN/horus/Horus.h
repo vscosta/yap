@@ -59,8 +59,6 @@ const int NO_EVIDENCE = -1;
 // number of digits to show when printing a parameter
 const unsigned PRECISION = 6;
 
-const bool COLLECT_STATS = false;
-
 };
 
 

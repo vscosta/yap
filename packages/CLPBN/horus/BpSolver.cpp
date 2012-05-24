@@ -145,10 +145,6 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 void
 BpSolver::runSolver (void)
 {
-  clock_t start;
-  if (Constants::COLLECT_STATS) {
-    start = clock();
-  }
   initializeSolver();
   nIters_ = 0;
   while (!converged() && nIters_ < BpOptions::maxIter) {
@@ -187,14 +183,6 @@ BpSolver::runSolver (void)
       cout << endl;
     }
     cout << endl;
-  }
-  unsigned size = fg_->varNodes().size();
-  if (Constants::COLLECT_STATS) {
-    unsigned nIters = 0;
-    bool loopy = fg_->isTree() == false;
-    if (loopy) nIters = nIters_;
-    double time = (double (clock() - start)) / CLOCKS_PER_SEC;
-    Statistics::updateStatistics (size, loopy, nIters, time);
   }
   runned_ = true;
 }

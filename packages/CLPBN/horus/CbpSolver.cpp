@@ -3,27 +3,8 @@
 
 CbpSolver::CbpSolver (const FactorGraph& fg) : BpSolver (fg)
 {
-  unsigned nrGroundVars, nrGroundFacs, nrNeighborless;
-  if (Constants::COLLECT_STATS) {
-    nrGroundVars = fg_->varNodes().size();
-    nrGroundFacs = fg_->facNodes().size();
-    const VarNodes& vars = fg_->varNodes();
-    nrNeighborless = 0;
-    for (unsigned i = 0; i < vars.size(); i++) {
-      const FacNodes& factors = vars[i]->neighbors();
-      if (factors.size() == 1 && factors[0]->neighbors().size() == 1) {
-        nrNeighborless ++;
-      }
-    }
-  }
   cfg_ = new CFactorGraph (fg);
   fg_  = cfg_->getGroundFactorGraph();
-  if (Constants::COLLECT_STATS) {
-    unsigned nrClusterVars = fg_->varNodes().size();
-    unsigned nrClusterFacs = fg_->facNodes().size();
-    Statistics::updateCompressingStatistics (nrGroundVars,
-        nrGroundFacs, nrClusterVars, nrClusterFacs, nrNeighborless);
-  }
 }
 
 
