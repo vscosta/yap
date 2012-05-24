@@ -80,12 +80,12 @@ class ParfactorList
 
     Parfactors shatter (
         Parfactor*,
-        unsigned,
+        size_t,
         ConstraintTree*,
         ConstraintTree*,
-        unsigned);
+        PrvGroup);
 
-    void updateGroups (unsigned group1, unsigned group2);
+    void updateGroups (PrvGroup group1, PrvGroup group2);
 
     bool proper (
         const ProbFormula&, ConstraintTree,

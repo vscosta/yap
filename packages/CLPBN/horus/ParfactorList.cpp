@@ -340,7 +340,7 @@ ParfactorList::shatterAgainstMySelf (
     return { };
   }
 
-  unsigned newGroup = ProbFormula::getNewGroup();
+  PrvGroup newGroup = ProbFormula::getNewGroup();
   Parfactors res1 = shatter (g, fIdx1, commCt1, exclCt1, newGroup);
   if (res1.empty()) {
     res1.push_back (g);
@@ -488,7 +488,7 @@ ParfactorList::shatter (
     return { };
   }
 
-  unsigned group;
+  PrvGroup group;
   if (exclCt1->empty()) {
     group = f1.group();
   } else if (exclCt2->empty()) {
@@ -509,7 +509,7 @@ ParfactorList::shatter (
     size_t fIdx,
     ConstraintTree* commCt,
     ConstraintTree* exclCt,
-    unsigned commGroup)
+    PrvGroup commGroup)
 {
   ProbFormula& f = g->argument (fIdx);
   if (exclCt->empty()) {
@@ -556,7 +556,7 @@ ParfactorList::shatter (
 
 
 void
-ParfactorList::updateGroups (unsigned oldGroup, unsigned newGroup)
+ParfactorList::updateGroups (PrvGroup oldGroup, PrvGroup newGroup)
 {
   for (ParfactorList::iterator it = pfList_.begin();
        it != pfList_.end(); it++) {

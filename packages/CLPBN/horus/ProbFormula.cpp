@@ -1,7 +1,7 @@
 #include "ProbFormula.h"
 
 
-int ProbFormula::freeGroup_ = 0;
+PrvGroup ProbFormula::freeGroup_ = 0;
 
 
 
@@ -120,10 +120,11 @@ std::ostream& operator<< (ostream &os, const ProbFormula& f)
 
 
 
-unsigned
+PrvGroup
 ProbFormula::getNewGroup (void)
 {
   freeGroup_ ++;
+  assert (freeGroup_ != numeric_limits<PrvGroup>::max());
   return freeGroup_;
 }
 

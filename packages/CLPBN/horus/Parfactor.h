@@ -18,7 +18,7 @@ class Parfactor : public TFactor<ProbFormula>
         const ProbFormulas&,
         const Params&,
         const Tuples&,
-        unsigned);
+        unsigned distId);
 
     Parfactor (const Parfactor*, const Tuple&);
 
@@ -66,21 +66,21 @@ class Parfactor : public TFactor<ProbFormula>
 
     void applySubstitution (const Substitution&);
 
-    int findGroup (const Ground&) const;
+    PrvGroup findGroup (const Ground&) const;
 
     bool containsGround (const Ground&) const;
 
-    bool containsGroup (unsigned) const;
+    bool containsGroup (PrvGroup) const;
   
     unsigned nrFormulas (LogVar) const;
 
     int indexOfLogVar (LogVar) const;
 
-    int indexOfGroup (unsigned) const;
+    int indexOfGroup (PrvGroup) const;
 
-    unsigned nrFormulasWithGroup (unsigned) const;
+    unsigned nrFormulasWithGroup (PrvGroup) const;
 
-    vector<unsigned> getAllGroups (void) const;
+    vector<PrvGroup> getAllGroups (void) const;
 
     void print (bool = false) const;
 

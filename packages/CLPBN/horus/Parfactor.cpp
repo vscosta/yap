@@ -428,10 +428,10 @@ Parfactor::applySubstitution (const Substitution& theta)
 
 
 
-int
+PrvGroup
 Parfactor::findGroup (const Ground& ground) const
 {
-  int group = -1;
+  PrvGroup group = numeric_limits<PrvGroup>::max();
   for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].functor() == ground.functor() && 
         args_[i].arity()   == ground.arity()) {
@@ -450,13 +450,13 @@ Parfactor::findGroup (const Ground& ground) const
 bool
 Parfactor::containsGround (const Ground& ground) const
 {
-  return findGroup (ground) != -1;
+  return findGroup (ground) != numeric_limits<PrvGroup>::max();
 }
 
 
 
 bool
-Parfactor::containsGroup (unsigned group) const
+Parfactor::containsGroup (PrvGroup group) const
 {
   for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].group() == group) {
@@ -499,7 +499,7 @@ Parfactor::indexOfLogVar (LogVar X) const
 
 
 int
-Parfactor::indexOfGroup (unsigned group) const
+Parfactor::indexOfGroup (PrvGroup group) const
 {
   size_t pos = args_.size();
   for (size_t i = 0; i < args_.size(); i++) {
@@ -514,7 +514,7 @@ Parfactor::indexOfGroup (unsigned group) const
 
 
 unsigned
-Parfactor::nrFormulasWithGroup (unsigned group) const
+Parfactor::nrFormulasWithGroup (PrvGroup group) const
 {
   unsigned count = 0;
   for (size_t i = 0; i < args_.size(); i++) {
@@ -527,10 +527,10 @@ Parfactor::nrFormulasWithGroup (unsigned group) const
 
 
 
-vector<unsigned>
+vector<PrvGroup>
 Parfactor::getAllGroups (void) const
 {
-  vector<unsigned> groups (args_.size());
+  vector<PrvGroup> groups (args_.size());
   for (size_t i = 0; i < args_.size(); i++) {
     groups[i] = args_[i].group();
   }
@@ -726,8 +726,11 @@ Parfactor::simplifyCountingFormulas (size_t fIdx)
 void
 Parfactor::simplifyGrounds (void)
 {
+  if (args_.size() == 1) {
+    return;
+  }
   LogVarSet singletons = constr_->singletons();
-  for (long i = 0; i < (int)args_.size() - 1; i++) {
+  for (long i = 0; i < (long)args_.size() - 1; i++) {
     for (size_t j = i + 1; j < args_.size(); j++) {
       if (args_[i].group() == args_[j].group() &&
           singletons.contains (args_[i].logVarSet()) &&
