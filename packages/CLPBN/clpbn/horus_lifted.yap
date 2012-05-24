@@ -1,26 +1,30 @@
-
 /*******************************************************
 
- First Order Variable Elimination Interface
+ Interface to Horus Lifted Solvers. Used by:
+   - Lifted Variable Elimination
  
 ********************************************************/
 
-:- module(clpbn_fove,
-          [fove/3,
-           check_if_fove_done/1,
-           init_fove_solver/4,
-           run_fove_solver/3,
-           finalize_fove_solver/1
+:- module(clpbn_horus_lifted,
+          [call_horus_lifted_solver/3,
+           check_if_horus_lifted_solver_done/1,
+           init_horus_lifted_solver/4,
+           run_horus_lifted_solver/3,
+           finalize_horus_lifted_solver/1
           ]).
 
+:- use_module(horus,
+          [cpp_create_lifted_network/3,
+           cpp_set_parfactors_params/2,
+           cpp_run_lifted_solver/3,
+           cpp_free_parfactors/1
+          ]).
 
 :- use_module(library('clpbn/display'),
           [clpbn_bind_vals/3]).
 
-
 :- use_module(library('clpbn/dists'),
           [get_dist_params/2]).
-
 
 :- use_module(library(pfl),
           [factor/6,
@@ -29,30 +33,22 @@
           ]).
 
 
-:- use_module(horus,
-          [create_lifted_network/3,
-           set_parfactors_params/2,
-           run_lifted_solver/3,
-           free_parfactors/1
-          ]).
-
-
-fove([[]], _, _) :- !.
-fove([QueryVars], AllVars, Output) :-
-  init_fove_solver(_, AllVars, _, ParfactorList),
-  run_fove_solver([QueryVars], LPs, ParfactorList),
-  finalize_fove_solver(ParfactorList),
+call_horus_lifted_solver([[]], _, _) :- !.
+call_horus_lifted_solver([QueryVars], AllVars, Output) :-
+  init_horus_lifted_solver(_, AllVars, _, ParfactorList),
+  run_horus_lifted_solver([QueryVars], LPs, ParfactorList),
+  finalize_horus_lifted_solver(ParfactorList),
   clpbn_bind_vals([QueryVars], LPs, Output).
 
 
-init_fove_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
+init_horus_lifted_solver(_, AllAttVars, _, fove(ParfactorList, DistIds)) :-
   get_parfactors(Parfactors),
   get_dist_ids(Parfactors, DistIds0),
   sort(DistIds0, DistIds),
   get_observed_vars(AllAttVars, ObservedVars),
   %writeln(parfactors:Parfactors:'\n'),
   %writeln(evidence:ObservedVars:'\n'),
-  create_lifted_network(Parfactors,ObservedVars,ParfactorList).
+  cpp_create_lifted_network(Parfactors,ObservedVars,ParfactorList).
 
 
 :- table get_parfactors/1.
@@ -138,15 +134,15 @@ get_dists_parameters([Id|Ids], [dist(Id, Params)|DistsInfo]) :-
   get_dists_parameters(Ids, DistsInfo).
 
 
-run_fove_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
+run_horus_lifted_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) :-
   get_query_vars(QueryVarsAtts, QueryVars),
   %writeln(queryVars:QueryVars), writeln(''),
   get_dists_parameters(DistIds, DistsParams),
   %writeln(dists:DistsParams), writeln(''),
-  set_parfactors_params(ParfactorList, DistsParams),
-  run_lifted_solver(ParfactorList, QueryVars, Solutions).
+  cpp_set_parfactors_params(ParfactorList, DistsParams),
+  cpp_run_lifted_solver(ParfactorList, QueryVars, Solutions).
 
 
-finalize_fove_solver(fove(ParfactorList, _)) :-
-  free_parfactors(ParfactorList).
+finalize_horus_lifted_solver(fove(ParfactorList, _)) :-
+  cpp_free_parfactors(ParfactorList).
 
