@@ -87,13 +87,13 @@ BpSolver::getPosterioriOf (VarId vid)
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
       for (unsigned i = 0; i < links.size(); i++) {
-        Util::add (probs, links[i]->getMessage());
+        probs += links[i]->getMessage();
       }
       LogAware::normalize (probs);
       Util::fromLog (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
-        Util::multiply (probs, links[i]->getMessage());
+        probs *= links[i]->getMessage();
       }
       LogAware::normalize (probs);
     }
@@ -362,16 +362,16 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   if (Globals::logDomain) {
     SpLinkSet::const_iterator it;
     for (it = links.begin(); it != links.end(); ++ it) {
-      Util::add (msg, (*it)->getMessage());
+      msg += (*it)->getMessage();
       if (Constants::SHOW_BP_CALCS) {
         cout << " x " << (*it)->getMessage();
       }
     }
-    Util::subtract (msg, link->getMessage());
+    msg -= link->getMessage();
   } else {
     for (unsigned i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
-        Util::multiply (msg, links[i]->getMessage());
+        msg *= links[i]->getMessage();
         if (Constants::SHOW_BP_CALCS) {
           cout << " x " << links[i]->getMessage();
         }

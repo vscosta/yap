@@ -79,9 +79,7 @@ stringToDouble (string str)
 void
 toLog (Params& v)
 {
-  for (unsigned i = 0; i < v.size(); i++) {
-    v[i] = log (v[i]);
-  }
+  transform (v.begin(), v.end(), v.begin(), ::log);
 }
 
 
@@ -89,9 +87,7 @@ toLog (Params& v)
 void
 fromLog (Params& v)
 {
-  for (unsigned i = 0; i < v.size(); i++) {
-    v[i] = exp (v[i]);
-  }
+  transform (v.begin(), v.end(), v.begin(), ::exp);
 }
 
 
@@ -152,11 +148,8 @@ nrCombinations (unsigned n, unsigned k)
 unsigned
 expectedSize (const Ranges& ranges)
 {
-  unsigned prod = 1;
-  for (unsigned i = 0; i < ranges.size(); i++) {
-    prod *= ranges[i];
-  }
-  return prod;
+  return std::accumulate (
+      ranges.begin(), ranges.end(), 1, multiplies<unsigned>());
 }
 
 
@@ -410,55 +403,40 @@ getMaxNorm (const Params& v1, const Params& v2)
 }
 
 
+
 double
-pow (double p, unsigned expoent)
+pow (double base, unsigned iexp)
 {
-  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
+  return Globals::logDomain ? base * iexp : std::pow (base, iexp);
 }
 
 
 
 double
-pow (double p, double expoent)
+pow (double base, double exp)
 {
   // assumes that `expoent' is never in log domain
-  return Globals::logDomain ? p * expoent : std::pow (p, expoent);
+  return Globals::logDomain ? base * exp : std::pow (base, exp);
 }
 
 
 
 void
-pow (Params& v, unsigned expoent)
+pow (Params& v, unsigned iexp)
 {
-  if (expoent == 1) {
+  if (iexp == 1) {
     return;
   }
-  if (Globals::logDomain) {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] *= expoent;
-    }
-  } else {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] = std::pow (v[i], expoent);
-    }
-  }
+  Globals::logDomain ? v *= iexp : v ^= (int)iexp;
 }
 
 
 
 void
-pow (Params& v, double expoent)
+pow (Params& v, double exp)
 {
-  // assumes that `expoent' is never in log domain
-  if (Globals::logDomain) {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] *= expoent;
-    }
-  } else {
-    for (unsigned i = 0; i < v.size(); i++) {
-      v[i] = std::pow (v[i], expoent);
-    }
-  }
+  // `expoent' should not be in log domain
+  Globals::logDomain ? v *= exp : v ^= exp;
 }
 
 }

@@ -40,6 +40,14 @@ template <typename T> std::string toString (const T&);
 
 template <> std::string toString (const bool&);
 
+double logSum (double, double);
+
+void add (Params&, const Params&, unsigned);
+
+void multiply (Params&, const Params&, unsigned);
+
+unsigned maxUnsigned (void);
+
 unsigned stringToUnsigned (string);
 
 double stringToDouble (string);
@@ -47,20 +55,6 @@ double stringToDouble (string);
 void toLog (Params&);
 
 void fromLog (Params&);
-
-double logSum (double, double);
-
-void multiply (Params&, const Params&);
-
-void multiply (Params&, const Params&, unsigned);
-
-void add (Params&, const Params&);
-
-void subtract (Params&, const Params&);
-
-void add (Params&, const Params&, unsigned);
-
-unsigned maxUnsigned (void);
 
 double factorial (unsigned);
 
@@ -147,10 +141,7 @@ Util::indexOf (const vector<T>& v, const T& e)
 {
   int pos = std::distance (v.begin(),
        std::find (v.begin(), v.end(), e));
-  if (pos == (int)v.size()) {
-    pos = -1;
-  }
-  return pos;
+  return pos != (int)v.size() ? pos : -1;
 }
 
 
@@ -216,11 +207,15 @@ Util::logSum (double x, double y)
 
 
 inline void
-Util::multiply (Params& v1, const Params& v2)
+Util::add (Params& v1, const Params& v2, unsigned repetitions)
 {
-  assert (v1.size() == v2.size());
-  for (unsigned i = 0; i < v1.size(); i++) {
-    v1[i] *= v2[i];
+  for (unsigned count = 0; count < v1.size(); ) {
+    for (unsigned i = 0; i < v2.size(); i++) {
+      for (unsigned r = 0; r < repetitions; r++) {
+        v1[count] += v2[i];
+        count ++;
+      }
+    }
   }
 }
 
@@ -241,45 +236,104 @@ Util::multiply (Params& v1, const Params& v2, unsigned repetitions)
 
 
 
-inline void
-Util::add (Params& v1, const Params& v2)
-{
-  assert (v1.size() == v2.size());
-  std::transform (v1.begin(), v1.end(), v2.begin(),
-      v1.begin(), plus<double>());
-}
-
-
-
-inline void
-Util::subtract (Params& v1, const Params& v2)
-{
-  assert (v1.size() == v2.size());
-  std::transform (v1.begin(), v1.end(), v2.begin(),
-      v1.begin(), minus<double>());
-}
-
-
-
-inline void
-Util::add (Params& v1, const Params& v2, unsigned repetitions)
-{
-  for (unsigned count = 0; count < v1.size(); ) {
-    for (unsigned i = 0; i < v2.size(); i++) {
-      for (unsigned r = 0; r < repetitions; r++) {
-        v1[count] += v2[i];
-        count ++;
-      }
-    }
-  }
-}
-
-
-
 inline unsigned
 Util::maxUnsigned (void)
 {
   return numeric_limits<unsigned>::max();
+}
+
+
+
+template <typename T>
+void operator+=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (plus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (minus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (multiplies<double>(), val));
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (divides<double>(), val));
+}
+
+
+
+template <typename T>
+void operator+=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      plus<double>());
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      minus<double>());
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      multiplies<double>());
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      divides<double>());
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, double exp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, double, double> (std::pow), exp));
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, int iexp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, int, double> (std::pow), iexp));
 }
 
 

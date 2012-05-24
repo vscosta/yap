@@ -79,11 +79,8 @@ class TFactor
       if (args_ == g_args) {
         // optimization: if the factors contain the same set of args,
         // we can do a 1 to 1 operation on the parameters
-        if (Globals::logDomain) {
-          Util::add (params_, g_params);
-        } else {
-          Util::multiply (params_, g_params);
-        }
+        Globals::logDomain ? params_ += g_params
+                           : params_ *= g_params;
       } else {
         bool sharedArgs = false;
         vector<unsigned> gvarpos;

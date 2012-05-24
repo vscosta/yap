@@ -82,14 +82,14 @@ CbpSolver::getPosterioriOf (VarId vid)
     if (Globals::logDomain) {
       for (unsigned i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-        Util::add (probs, l->poweredMessage());
+        probs += l->poweredMessage();
       }
       LogAware::normalize (probs);
       Util::fromLog (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
-        Util::multiply (probs, l->poweredMessage());
+        probs *= l->poweredMessage();
       }
       LogAware::normalize (probs);
     }
@@ -330,14 +330,14 @@ CbpSolver::getVar2FactorMsg (const SpLink* _link) const
       CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
       if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
         CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
-        Util::add (msg, cl->poweredMessage());
+        msg += cl->poweredMessage();
       }
     }
   } else {
     for (unsigned i = 0; i < links.size(); i++) {
       CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
       if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
-        Util::multiply (msg, cl->poweredMessage());
+        msg *= cl->poweredMessage();
         if (Constants::SHOW_BP_CALCS) {
           cout << " x " << cl->getNextMessage() << "^" << link->nrEdges(); 
         }
