@@ -66,7 +66,7 @@ int createLiftedNetwork (void)
   // LiftedUtils::printSymbolDictionary();
   if (Globals::verbosity > 2) {
     Util::printHeader ("INITIAL PARFACTORS");
-    for (unsigned i = 0; i < parfactors.size(); i++) {
+    for (size_t i = 0; i < parfactors.size(); i++) {
       parfactors[i]->print();
       cout << endl;
     }
@@ -197,7 +197,7 @@ void readLiftedEvidence (
     }
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
-    for (unsigned i = 0; i < obsFormulas.size(); i++) {
+    for (size_t i = 0; i < obsFormulas.size(); i++) {
       if (obsFormulas[i].functor()  == functor &&
           obsFormulas[i].arity()    == args.size() &&
           obsFormulas[i].evidence() == evidence) {
@@ -382,7 +382,7 @@ void runVeSolver (
    vector<Params>& results) 
 {
   results.reserve (tasks.size());
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     FactorGraph* mfg = fg;
     if (fg->isFromBayesNetwork()) {
       // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
@@ -408,7 +408,7 @@ void runBpSolver (
     vector<Params>& results) 
 {
   std::set<VarId> vids;
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     Util::addToSet (vids, tasks[i]);
   }
   Solver* solver = 0;
@@ -431,7 +431,7 @@ void runBpSolver (
     cout << endl;
   }
   results.reserve (tasks.size());
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
   }
   if (fg->isFromBayesNetwork()) {
@@ -482,7 +482,7 @@ setFactorsParams (void)
     distList = YAP_TailOfTerm (distList);
   }
   const FacNodes& facNodes = fg->facNodes();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     unsigned distId = facNodes[i]->factor().distId();
     assert (Util::contains (paramsMap, distId));
     facNodes[i]->factor().setParams (paramsMap[distId]);

@@ -42,11 +42,11 @@ class Parfactor : public TFactor<ProbFormula>
    
     LogVarSet elimLogVars (void) const;
   
-    LogVarSet exclusiveLogVars (unsigned) const;
+    LogVarSet exclusiveLogVars (size_t fIdx) const;
      
     void setConstraintTree (ConstraintTree*);
 
-    void sumOut (unsigned fIdx);
+    void sumOut (size_t fIdx);
 
     void multiply (Parfactor&);
     
@@ -96,14 +96,14 @@ class Parfactor : public TFactor<ProbFormula>
 
   private:
  
-    void simplifyCountingFormulas (int fIdx);
+    void simplifyCountingFormulas (size_t fIdx);
 
-    void simplifyParfactor (unsigned fIdx1, unsigned fIdx2);
+    void simplifyParfactor (size_t fIdx1, size_t fIdx2);
 
     static std::pair<LogVars, LogVars> getAlignLogVars (
         Parfactor* g1, Parfactor* g2);
 
-    void expandPotential (int fIdx, unsigned newRange,
+    void expandPotential (size_t fIdx, unsigned newRange,
         const vector<unsigned>& sumIndexes);
 
     static void alignAndExponentiate (Parfactor*, Parfactor*);

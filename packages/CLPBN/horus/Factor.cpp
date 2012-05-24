@@ -37,7 +37,7 @@ Factor::Factor (
     const Params& params,
     unsigned distId)
 {
-  for (unsigned i = 0; i < vars.size(); i++) {
+  for (size_t i = 0; i < vars.size(); i++) {
     args_.push_back (vars[i]->varId());
     ranges_.push_back (vars[i]->range());
   }
@@ -51,8 +51,6 @@ Factor::Factor (
 void
 Factor::sumOut (VarId vid)
 {
-  int idx = indexOf (vid);
-  assert (idx != -1);
   if (vid == args_.back()) {
     sumOutLastVariable();  // optimization
     return;
@@ -61,7 +59,8 @@ Factor::sumOut (VarId vid)
     sumOutFirstVariable(); // optimization
     return;
   } 
-  sumOutIndex (idx);  
+  assert (indexOf (vid) != args_.size());
+  sumOutIndex (indexOf (vid));  
 }
 
 
@@ -69,7 +68,7 @@ Factor::sumOut (VarId vid)
 void
 Factor::sumOutAllExcept (VarId vid)
 {
-  assert (indexOf (vid) != -1);
+  assert (indexOf (vid) != args_.size());
   while (args_.back() != vid) {
     sumOutLastVariable();
   }
@@ -94,7 +93,7 @@ Factor::sumOutAllExcept (const VarIds& vids)
 
 
 void
-Factor::sumOutIndex (unsigned idx)
+Factor::sumOutIndex (size_t idx)
 {
   assert (idx < args_.size());
   // number of parameters separating a different state of `var', 
@@ -149,13 +148,13 @@ Factor::sumOutIndex (unsigned idx)
 
 
 void
-Factor::sumOutAllExceptIndex (unsigned idx)
+Factor::sumOutAllExceptIndex (size_t idx)
 {
   assert (idx < args_.size());
   while (args_.size() > idx + 1) {
     sumOutLastVariable();
   }
-  for (unsigned i = 0; i < idx; i++) {
+  for (size_t i = 0; i < idx; i++) {
     sumOutFirstVariable();
   }
 }
@@ -169,11 +168,11 @@ Factor::sumOutFirstVariable (void)
   unsigned range = ranges_.front();
   unsigned sep = params_.size() / range;
   if (Globals::logDomain) {
-    for (unsigned i = sep; i < params_.size(); i++) {
+    for (size_t i = sep; i < params_.size(); i++) {
       params_[i % sep] = Util::logSum (params_[i % sep], params_[i]);
     }
   } else {
-    for (unsigned i = sep; i < params_.size(); i++) {
+    for (size_t i = sep; i < params_.size(); i++) {
       params_[i % sep] += params_[i];
     }
   }
@@ -188,9 +187,9 @@ void
 Factor::sumOutLastVariable (void)
 {
   assert (args_.size() > 1);
+  size_t idx1 = 0;
+  size_t idx2 = 0;
   unsigned range = ranges_.back();
-  unsigned idx1 = 0;
-  unsigned idx2 = 0;
   if (Globals::logDomain) {
     while (idx1 < params_.size()) {
       params_[idx2] = params_[idx1];
@@ -246,7 +245,7 @@ Factor::getLabel (void) const
 {
   stringstream ss;
   ss << "f(" ;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
     ss << Var (args_[i], ranges_[i]).label();
   }
@@ -260,17 +259,17 @@ void
 Factor::print (void) const
 {
   Vars vars;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     vars.push_back (new Var (args_[i], ranges_[i]));
   }
   vector<string> jointStrings = Util::getStateLines (vars);
-  for (unsigned i = 0; i < params_.size(); i++) {
+  for (size_t i = 0; i < params_.size(); i++) {
     // cout << "[" << distId_ << "] " ;
     cout << "f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;
   }
   cout << endl;
-  for (unsigned i = 0; i < vars.size(); i++) {
+  for (size_t i = 0; i < vars.size(); i++) {
     delete vars[i];
   }
 }

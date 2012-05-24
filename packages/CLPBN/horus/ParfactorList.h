@@ -26,7 +26,7 @@ class ParfactorList
 
     void clear (void) { pfList_.clear(); }
 
-    unsigned size (void) const { return pfList_.size(); }
+    size_t size (void) const { return pfList_.size(); }
 
     typedef std::list<Parfactor*>::iterator iterator;
 
@@ -70,13 +70,13 @@ class ParfactorList
     Parfactors shatterAgainstMySelf2 (Parfactor* g);
 
     Parfactors shatterAgainstMySelf (
-        Parfactor* g, unsigned fIdx1, unsigned fIdx2);
+        Parfactor* g, size_t fIdx1, size_t fIdx2);
     
     std::pair<Parfactors, Parfactors> shatter (
         Parfactor*, Parfactor*);
 
     std::pair<Parfactors, Parfactors> shatter (
-        unsigned, Parfactor*, unsigned, Parfactor*);
+        size_t, Parfactor*, size_t, Parfactor*);
 
     Parfactors shatter (
         Parfactor*,
@@ -113,7 +113,7 @@ class ParfactorList
       }
     };
 
-    list<Parfactor*>  pfList_;
+    list<Parfactor*> pfList_;
 };
 
 #endif // HORUS_PARFACTORLIST_H

@@ -58,7 +58,7 @@ class CTNode
 
     const CTChilds_& childs (void) const { return childs_; }
  
-    unsigned nrChilds (void) const { return childs_.size(); }
+    size_t nrChilds (void) const { return childs_.size(); }
 
     bool isRoot (void) const { return level_ == 0; }
 
@@ -134,7 +134,7 @@ class ConstraintTree
       return logVarSet_;
     }
    
-    unsigned nrLogVars (void) const
+    size_t nrLogVars (void) const
     {
       return logVars_.size();
       assert (LogVarSet (logVars_) == logVarSet_);
@@ -211,7 +211,7 @@ class ConstraintTree
 
     void swapLogVar (LogVar);
 
-    bool join (CTNode*, const Tuple&, unsigned, CTNode*);
+    bool join (CTNode*, const Tuple&, size_t, CTNode*);
 
     void getTuples (CTNode*, Tuples, unsigned, Tuples&, CTNodes&) const;
 

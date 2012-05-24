@@ -78,7 +78,7 @@ class ElimGraph
     {
       unsigned cost = 1;
       const EGNeighs& neighs = n->neighbors();
-      for (unsigned i = 0; i < neighs.size(); i++) {
+      for (size_t i = 0; i < neighs.size(); i++) {
         cost *= neighs[i]->range();
       }
       return cost;
@@ -89,8 +89,8 @@ class ElimGraph
       unsigned cost = 0;
       const EGNeighs& neighs = n->neighbors();
       if (neighs.size() > 0) {
-        for (unsigned i = 0; i < neighs.size() - 1; i++) {
-          for (unsigned j = i + 1; j < neighs.size(); j++) {
+        for (size_t i = 0; i < neighs.size() - 1; i++) {
+          for (size_t j = i + 1; j < neighs.size(); j++) {
             if ( ! neighbors (neighs[i], neighs[j])) {
               cost ++;
             }
@@ -105,8 +105,8 @@ class ElimGraph
       unsigned cost = 0;
       const EGNeighs& neighs = n->neighbors();
       if (neighs.size() > 0) {
-        for (unsigned i = 0; i < neighs.size() - 1; i++) {
-          for (unsigned j = i+1; j < neighs.size(); j++) {
+        for (size_t i = 0; i < neighs.size() - 1; i++) {
+          for (size_t j = i + 1; j < neighs.size(); j++) {
             if ( ! neighbors (neighs[i], neighs[j])) {
               cost += neighs[i]->range() * neighs[j]->range();
             }

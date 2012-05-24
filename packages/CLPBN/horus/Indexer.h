@@ -19,28 +19,10 @@ class StatesIndexer
 
     StatesIndexer (const Ranges& ranges, bool calcOffsets = true)
     {
-      size_ = 1;
+      li_  = 0;
+      size_ = std::accumulate (ranges.begin(), ranges.end(), 0);
       indices_.resize (ranges.size(), 0);
       ranges_ = ranges;
-      for (unsigned i = 0; i < ranges.size(); i++) {
-        size_ *= ranges[i];
-      }
-      li_ = 0;
-      if (calcOffsets) {
-        calculateOffsets();
-      }
-    }
-
-    StatesIndexer (const Vars& vars, bool calcOffsets = true)
-    {
-      size_ = 1;
-      indices_.resize (vars.size(), 0);
-      ranges_.reserve (vars.size());
-      for (unsigned i = 0; i < vars.size(); i++) {
-        ranges_.push_back (vars[i]->range());
-        size_ *= vars[i]->range();
-      }
-      li_ = 0;
       if (calcOffsets) {
         calculateOffsets();
       }
@@ -48,7 +30,7 @@ class StatesIndexer
 
     void increment (void)
     {
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         indices_[i] ++;
         if (indices_[i] != ranges_[i]) {
           break;
@@ -59,7 +41,7 @@ class StatesIndexer
       li_ ++;
     }
 
-    void increment (unsigned dim)
+    void increment (size_t dim)
     {
       assert (dim < ranges_.size());
       assert (ranges_.size() == offsets_.size());
@@ -68,10 +50,10 @@ class StatesIndexer
       li_ += offsets_[dim];
     }
 
-    void incrementExcluding (unsigned skipDim)
+    void incrementExcluding (size_t skipDim)
     {
       assert (ranges_.size() == offsets_.size());
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         if (i != (int)skipDim) {
           indices_[i] ++;
           li_ += offsets_[i];
@@ -86,7 +68,7 @@ class StatesIndexer
       li_ = size_;
     }
 
-    unsigned linearIndex (void) const
+    size_t linearIndex (void) const
     {
       return li_;
     }
@@ -102,12 +84,12 @@ class StatesIndexer
       return *this;
     }
 
-    operator unsigned (void) const
+    operator size_t (void) const
     {
       return li_;
     }
 
-    unsigned operator[] (unsigned dim) const
+    unsigned operator[] (size_t dim) const
     {
       assert (valid());
       assert (dim < ranges_.size());
@@ -125,13 +107,13 @@ class StatesIndexer
       li_ = 0;
     }
 
-    void reset (unsigned dim)
+    void reset (size_t dim)
     {
       indices_[dim] = 0;
       li_ -= offsets_[dim] * ranges_[dim];
     }
 
-    unsigned size (void) const
+    size_t size (void) const
     {
       return size_ ;
     }
@@ -146,19 +128,19 @@ class StatesIndexer
   private:
     void calculateOffsets (void)
     {
-      unsigned prod = 1;
+      size_t prod = 1;
       offsets_.resize (ranges_.size());
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         offsets_[i] = prod;
         prod *= ranges_[i];
       }
     }
 
-    unsigned          li_;
-    unsigned          size_;
+    size_t            li_;
+    size_t            size_;
     vector<unsigned>  indices_;
     vector<unsigned>  ranges_;
-    vector<unsigned>  offsets_;
+    vector<size_t>    offsets_;
 };
 
 
@@ -169,9 +151,9 @@ class MapIndexer
     MapIndexer (const Ranges& ranges, const vector<bool>& mapDims)
     {
       assert (ranges.size() == mapDims.size());
-      unsigned prod = 1;
+      size_t prod = 1;
       offsets_.resize (ranges.size());
-      for (int i = ranges.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges.size(); i-- > 0; ) {
         if (mapDims[i]) {
           offsets_[i] = prod;
           prod *= ranges[i];
@@ -183,12 +165,12 @@ class MapIndexer
       valid_ = true;
     }
 
-    MapIndexer (const Ranges& ranges, unsigned ignoreDim)
+    MapIndexer (const Ranges& ranges, size_t ignoreDim)
     {
-      unsigned prod = 1;
+      size_t prod = 1;
       offsets_.resize (ranges.size());
-      for (int i = ranges.size() - 1; i >= 0; i--) {
-        if (i != (int)ignoreDim) {
+      for (size_t i = ranges.size(); i-- > 0; ) {
+        if (i != ignoreDim) {
           offsets_[i] = prod;
           prod *= ranges[i];
         }
@@ -208,13 +190,13 @@ class MapIndexer
     {
       unsigned prod = 1;
       vector<unsigned> offsets (mapRanges.size());
-      for (int i = mapRanges.size() - 1; i >= 0; i--) {
+      for (size_t i = mapRanges.size(); i-- > 0; ) {
         offsets[i] = prod;
         prod *= mapRanges[i];
       }
 
       offsets_.reserve (loopVids.size());
-      for (unsigned i = 0; i < loopVids.size(); i++) {
+      for (size_t i = 0; i < loopVids.size(); i++) {
         VarIds::const_iterator it =
             std::find (mapVids.begin(), mapVids.end(), loopVids[i]);
         if (it != mapVids.end()) {
@@ -234,7 +216,7 @@ class MapIndexer
     MapIndexer& operator ++ (void)
     {
       assert (valid_);
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         indices_[i] ++;
         index_ += offsets_[i];
         if (indices_[i] != ranges_[i]) {
@@ -248,17 +230,17 @@ class MapIndexer
       return *this;
     }
 
-    unsigned mappedIndex (void) const
+    size_t mappedIndex (void) const
     {
       return index_;
     }
 
-    operator unsigned (void) const
+    operator size_t (void) const
     {
       return index_;
     }
 
-    unsigned operator[] (unsigned dim) const
+    unsigned operator[] (size_t dim) const
     {
       assert (valid());
       assert (dim < ranges_.size());
@@ -284,11 +266,11 @@ class MapIndexer
     }
 
   private:
-    unsigned          index_;
+    size_t            index_;
     bool              valid_;
     vector<unsigned>  ranges_;
     vector<unsigned>  indices_;
-    vector<unsigned>  offsets_;
+    vector<size_t>    offsets_;
 };
 
 

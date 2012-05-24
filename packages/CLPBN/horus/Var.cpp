@@ -61,7 +61,7 @@ void
 Var::setEvidence (const string& ev) 
 { 
   States states = Var::getVarInfo (varId_).states;
-  for (unsigned i = 0; i < states.size(); i++) {
+  for (size_t i = 0; i < states.size(); i++) {
     if (states[i] == ev) {
       evidence_ = i;
       return;

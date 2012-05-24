@@ -17,10 +17,10 @@ Parfactor::Parfactor (
   distId_ = distId;
 
   LogVars logVars;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     ranges_.push_back (args_[i].range());
     const LogVars& lvs = args_[i].logVars();
-    for (unsigned j = 0; j < lvs.size(); j++) {
+    for (size_t j = 0; j < lvs.size(); j++) {
       if (Util::contains (logVars, lvs[j]) == false) {
         logVars.push_back (lvs[j]);
       }
@@ -79,7 +79,7 @@ LogVarSet
 Parfactor::countedLogVars (void) const
 {
   LogVarSet set;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].isCounting()) {
       set.insert (args_[i].countedLogVar());
     }
@@ -109,11 +109,11 @@ Parfactor::elimLogVars (void) const
 
 
 LogVarSet
-Parfactor::exclusiveLogVars (unsigned fIdx) const
+Parfactor::exclusiveLogVars (size_t fIdx) const
 {
   assert (fIdx < args_.size());
   LogVarSet remaining;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (i != fIdx) {
       remaining |= args_[i].logVarSet();
     }
@@ -133,7 +133,7 @@ Parfactor::setConstraintTree (ConstraintTree* newTree)
 
 
 void
-Parfactor::sumOut (unsigned fIdx)
+Parfactor::sumOut (size_t fIdx)
 {
   assert (fIdx < args_.size());
   assert (args_[fIdx].contains (elimLogVars()));
@@ -160,12 +160,12 @@ Parfactor::sumOut (unsigned fIdx)
   params_.resize (copy.size() / ranges_[fIdx], LogAware::addIdenty());
   MapIndexer indexer (ranges_, fIdx);
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < copy.size(); i++) {
+    for (size_t i = 0; i < copy.size(); i++) {
       params_[indexer] = Util::logSum (params_[indexer], copy[i]);
       ++ indexer;
     }
   } else {
-    for (unsigned i = 0; i < copy.size(); i++) {
+    for (size_t i = 0; i < copy.size(); i++) {
       params_[indexer] += copy[i];
       ++ indexer;
     }
@@ -205,7 +205,7 @@ Parfactor::canCountConvert (LogVar X)
   if (nrFormulas (X) != 1) {
     return false;
   }
-  int fIdx = indexOfLogVar (X);
+  size_t fIdx = indexOfLogVar (X);
   if (args_[fIdx].isCounting()) {
     return false;
   }
@@ -226,7 +226,7 @@ Parfactor::canCountConvert (LogVar X)
 void
 Parfactor::countConvert (LogVar X)
 {
-  int fIdx = indexOfLogVar (X);
+  size_t fIdx = indexOfLogVar (X);
   assert (constr_->isCountNormalized (X));
   assert (constr_->getConditionalCount (X) > 1);
   assert (canCountConvert (X));
@@ -257,7 +257,7 @@ Parfactor::countConvert (LogVar X)
   MapIndexer mapIndexer (ranges_, fIdx);
   while (mapIndexer.valid()) {
     double prod = LogAware::multIdenty();
-    unsigned i = mapIndexer.mappedIndex();
+    size_t i   = mapIndexer.mappedIndex();
     unsigned h = mapIndexer[fIdx];
     for (unsigned r = 0; r < R; r++) {
       if (Globals::logDomain) {
@@ -278,8 +278,8 @@ Parfactor::countConvert (LogVar X)
 void
 Parfactor::expand (LogVar X, LogVar X_new1, LogVar X_new2)
 {
-  int fIdx = indexOfLogVar (X);
-  assert (fIdx != -1);
+  size_t fIdx = indexOfLogVar (X);
+  assert (fIdx != args_.size());
   assert (args_[fIdx].isCounting());
 
   unsigned N1 = constr_->getConditionalCount (X_new1);
@@ -298,11 +298,7 @@ Parfactor::expand (LogVar X, LogVar X_new1, LogVar X_new2)
   for (unsigned i = 0; i < H1; i++) {
     for (unsigned j = 0; j < H2; j++) {
       Histogram hist = histograms1[i];
-      std::transform (
-          hist.begin(), hist.end(),
-          histograms2[j].begin(),
-          hist.begin(),
-          plus<int>());
+      hist += histograms2[j];
       sumIndexes.push_back (HistogramSet::findIndex (hist, histograms));
     }
   }
@@ -327,8 +323,8 @@ Parfactor::expand (LogVar X, LogVar X_new1, LogVar X_new2)
 void
 Parfactor::fullExpand (LogVar X)
 {
-  int fIdx = indexOfLogVar (X);
-  assert (fIdx != -1);
+  size_t fIdx = indexOfLogVar (X);
+  assert (fIdx != args_.size());
   assert (args_[fIdx].isCounting());
 
   unsigned N = constr_->getConditionalCount (X);
@@ -344,11 +340,7 @@ Parfactor::fullExpand (LogVar X)
   while (indexer.valid()) {
     vector<unsigned> hist (R, 0);
     for (unsigned n = 0; n < N; n++) {
-      std::transform (
-          hist.begin(), hist.end(),
-          expandHists[indexer[n]].begin(),
-          hist.begin(),
-          plus<int>());
+      hist += expandHists[indexer[n]];
     }
     sumIndexes.push_back (HistogramSet::findIndex (hist, originHists));
     ++ indexer;
@@ -375,8 +367,8 @@ void
 Parfactor::reorderAccordingGrounds (const Grounds& grounds)
 {
   ProbFormulas newFormulas;
-  for (unsigned i = 0; i < grounds.size(); i++) {
-    for (unsigned j = 0; j < args_.size(); j++) {
+  for (size_t i = 0; i < grounds.size(); i++) {
+    for (size_t j = 0; j < args_.size(); j++) {
       if (grounds[i].functor() == args_[j].functor() && 
           grounds[i].arity()   == args_[j].arity()) {
         constr_->moveToTop (args_[j].logVars());
@@ -396,8 +388,8 @@ Parfactor::reorderAccordingGrounds (const Grounds& grounds)
 void
 Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
 {
-  int fIdx = indexOf (formula);
-  assert (fIdx != -1);
+  size_t fIdx = indexOf (formula);
+  assert (fIdx != args_.size());
   LogVarSet excl = exclusiveLogVars (fIdx);
   assert (args_[fIdx].isCounting() == false);
   assert (constr_->isCountNormalized (excl));
@@ -411,7 +403,7 @@ Parfactor::absorveEvidence (const ProbFormula& formula, unsigned evidence)
 void
 Parfactor::setNewGroups (void)
 {
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     args_[i].setGroup (ProbFormula::getNewGroup());
   }
 }
@@ -421,9 +413,9 @@ Parfactor::setNewGroups (void)
 void
 Parfactor::applySubstitution (const Substitution& theta)
 {
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     LogVars& lvs = args_[i].logVars();
-    for (unsigned j = 0; j < lvs.size(); j++) {
+    for (size_t j = 0; j < lvs.size(); j++) {
       lvs[j] = theta.newNameFor (lvs[j]);
     }
     if (args_[i].isCounting()) {
@@ -440,7 +432,7 @@ int
 Parfactor::findGroup (const Ground& ground) const
 {
   int group = -1;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].functor() == ground.functor() && 
         args_[i].arity()   == ground.arity()) {
       constr_->moveToTop (args_[i].logVars());
@@ -466,7 +458,7 @@ Parfactor::containsGround (const Ground& ground) const
 bool
 Parfactor::containsGroup (unsigned group) const
 {
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].group() == group) {
       return true;
     }
@@ -480,7 +472,7 @@ unsigned
 Parfactor::nrFormulas (LogVar X) const
 {
   unsigned count = 0;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].contains (X)) {
       count ++;
     }
@@ -493,9 +485,9 @@ Parfactor::nrFormulas (LogVar X) const
 int
 Parfactor::indexOfLogVar (LogVar X) const
 {
-  int idx = -1;
+  size_t idx = args_.size();
   assert (nrFormulas (X) == 1);
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].contains (X)) {
       idx = i;
       break;
@@ -509,8 +501,8 @@ Parfactor::indexOfLogVar (LogVar X) const
 int
 Parfactor::indexOfGroup (unsigned group) const
 {
-  int pos = -1;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  size_t pos = args_.size();
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].group() == group) {
       pos = i;
       break;
@@ -525,7 +517,7 @@ unsigned
 Parfactor::nrFormulasWithGroup (unsigned group) const
 {
   unsigned count = 0;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].group() == group) {
       count ++;
     }
@@ -539,7 +531,7 @@ vector<unsigned>
 Parfactor::getAllGroups (void) const
 {
   vector<unsigned> groups (args_.size());
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     groups[i] = args_[i].group();
   }
   return groups;
@@ -552,7 +544,7 @@ Parfactor::getLabel (void) const
 {
   stringstream ss;
   ss << "phi(" ;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (i != 0) ss << "," ;
     ss << args_[i];
   }
@@ -569,14 +561,14 @@ void
 Parfactor::print (bool printParams) const
 {
   cout << "Formulas:  " ;
-  for (unsigned i = 0; i < args_.size(); i++) {
+  for (size_t i = 0; i < args_.size(); i++) {
     if (i != 0) cout << ", " ;
     cout << args_[i];
   }
   cout << endl;
   if (args_[0].group() != Util::maxUnsigned()) {
     vector<string> groups;
-    for (unsigned i = 0; i < args_.size(); i++) {
+    for (size_t i = 0; i < args_.size(); i++) {
       groups.push_back (string ("g") + Util::toString (args_[i].group()));
     }
     cout << "Groups:    " << groups  << endl;
@@ -609,7 +601,7 @@ Parfactor::printParameters (void) const
   StatesIndexer indexer (ranges_);
   while (indexer.valid()) {
     stringstream ss;
-    for (unsigned i = 0; i < args_.size(); i++) {
+    for (size_t i = 0; i < args_.size(); i++) {
       if (i != 0) ss << ", " ;
       if (args_[i].isCounting()) {
         unsigned N = constr_->getConditionalCount (
@@ -628,7 +620,7 @@ Parfactor::printParameters (void) const
     jointStrings.push_back (ss.str());
     ++ indexer;
   }
-  for (unsigned i = 0; i < params_.size(); i++) {
+  for (size_t i = 0; i < params_.size(); i++) {
     cout << "f(" << jointStrings[i] << ")" ;
     cout << " = " << params_[i] << endl;
   }
@@ -642,7 +634,7 @@ Parfactor::printProjections (void) const
   ConstraintTree copy (*constr_);
 
   LogVarSet Xs = copy.logVarSet();
-  for (unsigned i = 0; i < Xs.size(); i++) {
+  for (size_t i = 0; i < Xs.size(); i++) {
     cout << "-> projection of " << Xs[i] << ": " ;
     cout << copy.tupleSet ({Xs[i]}) << endl;
   }
@@ -652,7 +644,7 @@ Parfactor::printProjections (void) const
 
 void
 Parfactor::expandPotential (
-    int fIdx,
+    size_t fIdx,
     unsigned newRange,
     const vector<unsigned>& sumIndexes)
 {
@@ -674,16 +666,16 @@ Parfactor::expandPotential (
     prod *= ranges_[i];
   }
 
-  unsigned index = 0;
+  size_t index = 0;
   ranges_[fIdx] = newRange;
   vector<unsigned> indices (ranges_.size(), 0);
-  for (unsigned k = 0; k < newSize; k++) {
+  for (size_t k = 0; k < newSize; k++) {
     if (index >= copy.size()) {
       abort();
     }
     assert (index < copy.size());
     params_.push_back (copy[index]);
-    for (int i = ranges_.size() - 1; i >= 0; i--) {
+    for (size_t i = ranges_.size(); i-- > 0; ) {
       indices[i] ++;
       if (i == fIdx) {
         if (indices[i] != ranges_[i]) {
@@ -711,11 +703,11 @@ Parfactor::expandPotential (
 
 
 void
-Parfactor::simplifyCountingFormulas (int fIdx)
+Parfactor::simplifyCountingFormulas (size_t fIdx)
 {
   // check if we can simplify the parfactor
-  for (unsigned i = 0; i < args_.size(); i++) {
-    if ((int)i != fIdx &&
+  for (size_t i = 0; i < args_.size(); i++) {
+    if (i != fIdx &&
         args_[i].isCounting() &&
         args_[i].group() == args_[fIdx].group()) {
       // if they only differ in the name of the counting log var
@@ -735,8 +727,8 @@ void
 Parfactor::simplifyGrounds (void)
 {
   LogVarSet singletons = constr_->singletons();
-  for (int i = 0; i < (int)args_.size() - 1; i++) {
-    for (unsigned j = i + 1; j < args_.size(); j++) {
+  for (long i = 0; i < (int)args_.size() - 1; i++) {
+    for (size_t j = i + 1; j < args_.size(); j++) {
       if (args_[i].group() == args_[j].group() &&
           singletons.contains (args_[i].logVarSet()) &&
           singletons.contains (args_[j].logVarSet())) {
@@ -767,7 +759,7 @@ Parfactor::canMultiply (Parfactor* g1, Parfactor* g2)
 
 
 void
-Parfactor::simplifyParfactor (unsigned fIdx1, unsigned fIdx2)
+Parfactor::simplifyParfactor (size_t fIdx1, size_t fIdx2)
 {
   Params copy = params_;
   params_.clear();
@@ -778,7 +770,7 @@ Parfactor::simplifyParfactor (unsigned fIdx1, unsigned fIdx2)
     }     
     ++ indexer;
   }
-  for (unsigned i = 0; i < args_[fIdx2].logVars().size(); i++) {
+  for (size_t i = 0; i < args_[fIdx2].logVars().size(); i++) {
     if (nrFormulas (args_[fIdx2].logVars()[i]) == 1) {
       constr_->remove ({ args_[fIdx2].logVars()[i] });
     }
@@ -795,12 +787,12 @@ Parfactor::getAlignLogVars (Parfactor* g1, Parfactor* g2)
   g1->simplifyGrounds();
   g2->simplifyGrounds();
   LogVars Xs_1, Xs_2;
-  TinySet<unsigned> matchedI;
-  TinySet<unsigned> matchedJ;
+  TinySet<size_t> matchedI;
+  TinySet<size_t> matchedJ;
   ProbFormulas& formulas1 = g1->arguments();
   ProbFormulas& formulas2 = g2->arguments(); 
-  for (unsigned i = 0; i < formulas1.size(); i++) {
-    for (unsigned j = 0; j < formulas2.size(); j++) {
+  for (size_t i = 0; i < formulas1.size(); i++) {
+    for (size_t j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].group() == formulas2[j].group() &&
           g1->range (i) == g2->range (j) &&
           matchedI.contains (i) == false &&
@@ -850,7 +842,7 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   // cout << "-> align lvs2 = " << alignLvs2 << endl;
   LogVar freeLogVar (0);
   Substitution theta1, theta2;
-  for (unsigned i = 0; i < alignLvs1.size(); i++) {
+  for (size_t i = 0; i < alignLvs1.size(); i++) {
     bool b1 = theta1.containsReplacementFor (alignLvs1[i]); 
     bool b2 = theta2.containsReplacementFor (alignLvs2[i]);
     if (b1 == false && b2 == false) {
@@ -865,14 +857,14 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   }
 
   const LogVarSet& allLvs1 = g1->logVarSet();
-  for (unsigned i = 0; i < allLvs1.size(); i++) {
+  for (size_t i = 0; i < allLvs1.size(); i++) {
     if (theta1.containsReplacementFor (allLvs1[i]) == false) {
       theta1.add (allLvs1[i], freeLogVar);
       ++ freeLogVar;
     }
   }
   const LogVarSet& allLvs2 = g2->logVarSet();
-  for (unsigned i = 0; i < allLvs2.size(); i++) {
+  for (size_t i = 0; i < allLvs2.size(); i++) {
     if (theta2.containsReplacementFor (allLvs2[i]) == false) {
       theta2.add (allLvs2[i], freeLogVar);
       ++ freeLogVar;
@@ -883,7 +875,7 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
   // g1 = p(X), q(X) ;  X    in {(p1),(p2)} 
   // g2 = p(X), q(Y) ; (X,Y) in {(p1,p2),(p2,p1)}
   LogVars discardedLvs1 = theta1.getDiscardedLogVars();
-  for (unsigned i = 0; i < discardedLvs1.size(); i++) {
+  for (size_t i = 0; i < discardedLvs1.size(); i++) {
     if (g1->constr()->isSingleton (discardedLvs1[i]) && 
         g1->nrFormulas (discardedLvs1[i]) == 1) {
       g1->constr()->remove (discardedLvs1[i]);
@@ -893,7 +885,7 @@ Parfactor::alignLogicalVars (Parfactor* g1, Parfactor* g2)
     }
   }
   LogVars discardedLvs2 = theta2.getDiscardedLogVars();
-  for (unsigned i = 0; i < discardedLvs2.size(); i++) {
+  for (size_t i = 0; i < discardedLvs2.size(); i++) {
     if (g2->constr()->isSingleton (discardedLvs2[i]) &&
         g2->nrFormulas (discardedLvs2[i]) == 1) {
       g2->constr()->remove (discardedLvs2[i]);

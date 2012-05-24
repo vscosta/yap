@@ -39,7 +39,7 @@ class VarElimSolver : public Solver
     VarIds   elimOrder_;
     unsigned largestFactorSize_;
     unsigned totalFactorSize_;
-    unordered_map<VarId, vector<unsigned>> varFactors_;
+    unordered_map<VarId, vector<size_t>> varFactors_;
 };
 
 #endif // HORUS_VARELIMSOLVER_H

@@ -45,9 +45,9 @@ class FacNode
 
     const VarNodes& neighbors (void) const { return neighs_; }
 
-    int getIndex (void) const { return index_; }
+    size_t getIndex (void) const { return index_; }
 
-    void setIndex (int index) { index_ = index; }
+    void setIndex (size_t index) { index_ = index; }
 
     string getLabel (void) { return factor_.getLabel(); }
 
@@ -56,7 +56,7 @@ class FacNode
 
     VarNodes  neighs_;
     Factor    factor_;
-    int       index_;
+    size_t    index_;
 };
 
 
@@ -84,9 +84,9 @@ class FactorGraph
  
     bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
 
-    unsigned nrVarNodes (void) const { return varNodes_.size(); }
+    size_t nrVarNodes (void) const { return varNodes_.size(); }
 
-    unsigned nrFacNodes (void) const { return facNodes_.size(); }
+    size_t nrFacNodes (void) const { return facNodes_.size(); }
 
     VarNode* getVarNode (VarId vid) const
     {

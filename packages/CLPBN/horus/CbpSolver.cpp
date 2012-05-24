@@ -13,7 +13,7 @@ CbpSolver::~CbpSolver (void)
 {
   delete cfg_;
   delete fg_;
-  for (unsigned i = 0; i < links_.size(); i++) {
+  for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
   }
   links_.clear();
@@ -61,14 +61,14 @@ CbpSolver::getPosterioriOf (VarId vid)
     probs.resize (var->range(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
-      for (unsigned i = 0; i < links.size(); i++) {
+      for (size_t i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
         probs += l->poweredMessage();
       }
       LogAware::normalize (probs);
       Util::exp (probs);
     } else {
-      for (unsigned i = 0; i < links.size(); i++) {
+      for (size_t i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);
         probs *= l->poweredMessage();
       }
@@ -84,7 +84,7 @@ Params
 CbpSolver::getJointDistributionOf (const VarIds& jointVids)
 {
   VarIds eqVarIds;
-  for (unsigned i = 0; i < jointVids.size(); i++) {
+  for (size_t i = 0; i < jointVids.size(); i++) {
     VarNode* vn = cfg_->getEquivalent (jointVids[i]);
     eqVarIds.push_back (vn->varId());
   }
@@ -103,9 +103,9 @@ CbpSolver::createLinks (void)
     cout << endl;
   }
   const FacClusters& fcs = cfg_->facClusters();
-  for (unsigned i = 0; i < fcs.size(); i++) {
+  for (size_t i = 0; i < fcs.size(); i++) {
     const VarClusters& vcs = fcs[i]->varClusters();
-    for (unsigned j = 0; j < vcs.size(); j++) {
+    for (size_t j = 0; j < vcs.size(); j++) {
       unsigned count = cfg_->getEdgeCount (fcs[i], vcs[j], j);
       if (Globals::verbosity > 1) {
         cout << "creating link " ;
@@ -129,7 +129,7 @@ void
 CbpSolver::maxResidualSchedule (void)
 {
   if (nIters_ == 1) {
-    for (unsigned i = 0; i < links_.size(); i++) {
+    for (size_t i = 0; i < links_.size(); i++) {
       calculateMessage (links_[i]);
       SortedOrder::iterator it = sortedOrder_.insert (links_[i]);
       linkMap_.insert (make_pair (links_[i], it));
@@ -140,7 +140,7 @@ CbpSolver::maxResidualSchedule (void)
     return;
   }
 
-  for (unsigned c = 0; c < links_.size(); c++) {
+  for (size_t c = 0; c < links_.size(); c++) {
     if (Globals::verbosity > 1) {
       cout << endl << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
@@ -165,9 +165,9 @@ CbpSolver::maxResidualSchedule (void)
 
     // update the messages that depend on message source --> destin
     const FacNodes& factorNeighbors = link->getVariable()->neighbors();
-    for (unsigned i = 0; i < factorNeighbors.size(); i++) {
+    for (size_t i = 0; i < factorNeighbors.size(); i++) {
       const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
-      for (unsigned j = 0; j < links.size(); j++) {
+      for (size_t j = 0; j < links.size(); j++) {
         if (links[j]->getVariable() != link->getVariable()) {
           if (Globals::verbosity > 1) {
             cout << "    calculating " << links[j]->toString() << endl;
@@ -182,7 +182,7 @@ CbpSolver::maxResidualSchedule (void)
     // in counting bp, the message that a variable X sends to
     // to a factor F depends on the message that F sent to the X 
     const SpLinkSet& links = ninf(link->getFactor())->getLinks();
-    for (unsigned i = 0; i < links.size(); i++) {
+    for (size_t i = 0; i < links.size(); i++) {
       if (links[i]->getVariable() != link->getVariable()) {
         if (Globals::verbosity > 1) {
           cout << "    calculating " << links[i]->toString() << endl;
@@ -208,7 +208,7 @@ CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned msgSize = 1;
-  for (unsigned i = 0; i < links.size(); i++) {
+  for (size_t i = 0; i < links.size(); i++) {
     msgSize *= links[i]->getVariable()->range();
   }
   unsigned repetitions = 1;
@@ -256,11 +256,11 @@ CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
       src->factor().ranges(), msgProduct);
   assert (msgProduct.size() == src->factor().size());
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++) {
       result[i] += src->factor()[i];
     }
   } else {
-    for (unsigned i = 0; i < result.size(); i++) {
+    for (size_t i = 0; i < result.size(); i++) {
       result[i] *= src->factor()[i];
     }
   }
@@ -307,7 +307,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* _link) const
   }
   const SpLinkSet& links = ninf(src)->getLinks();
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < links.size(); i++) {
+    for (size_t i = 0; i < links.size(); i++) {
       CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
       if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
         CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
@@ -315,7 +315,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* _link) const
       }
     }
   } else {
-    for (unsigned i = 0; i < links.size(); i++) {
+    for (size_t i = 0; i < links.size(); i++) {
       CbpSolverLink* cl = static_cast<CbpSolverLink*> (links[i]);
       if ( ! (cl->getFactor() == dst && cl->index() == link->index())) {
         msg *= cl->poweredMessage();
@@ -336,7 +336,7 @@ CbpSolver::getVar2FactorMsg (const SpLink* _link) const
 void
 CbpSolver::printLinkInformation (void) const
 {
-  for (unsigned i = 0; i < links_.size(); i++) {
+  for (size_t i = 0; i < links_.size(); i++) {
     CbpSolverLink* cl = static_cast<CbpSolverLink*> (links_[i]); 
     cout << cl->toString() << ":" << endl;
     cout << "    curr msg = " << cl->getMessage() << endl;

@@ -105,7 +105,7 @@ class Ground
 
     Symbols args (void) const { return args_; }
 
-    unsigned arity (void) const { return args_.size(); }
+    size_t arity (void) const { return args_.size(); }
 
     bool isAtom (void) const { return args_.size() == 0; }
 
@@ -150,7 +150,7 @@ class Substitution
       return Util::contains (subs_, X);
     }
  
-    unsigned nrReplacements (void) const { return subs_.size(); }
+    size_t nrReplacements (void) const { return subs_.size(); }
 
     LogVars getDiscardedLogVars (void) const;
 

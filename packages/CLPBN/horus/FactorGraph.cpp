@@ -16,15 +16,15 @@
 FactorGraph::FactorGraph (const FactorGraph& fg)
 {
   const VarNodes& varNodes = fg.varNodes();
-  for (unsigned i = 0; i < varNodes.size(); i++) {
+  for (size_t i = 0; i < varNodes.size(); i++) {
     addVarNode (new VarNode (varNodes[i]));
   }
   const FacNodes& facNodes = fg.facNodes();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     FacNode* facNode = new FacNode (facNodes[i]->factor());
     addFacNode (facNode);
     const VarNodes& neighs = facNodes[i]->neighbors();
-    for (unsigned j = 0; j < neighs.size(); j++) {
+    for (size_t j = 0; j < neighs.size(); j++) {
       addEdge (varNodes_[neighs[j]->getIndex()], facNode);
     }
   }
@@ -170,10 +170,10 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
 
 FactorGraph::~FactorGraph (void)
 {
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
+  for (size_t i = 0; i < varNodes_.size(); i++) {
     delete varNodes_[i];
   }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     delete facNodes_[i];
   }
 }
@@ -186,7 +186,7 @@ FactorGraph::addFactor (const Factor& factor)
   FacNode* fn = new FacNode (factor);
   addFacNode (fn);
   const VarIds& vids = fn->factor().arguments();
-  for (unsigned i = 0; i < vids.size(); i++) {
+  for (size_t i = 0; i < vids.size(); i++) {
     VarMap::const_iterator it = varMap_.find (vids[i]);
     if (it != varMap_.end()) {
       addEdge (it->second, fn);      
@@ -241,12 +241,12 @@ FactorGraph::getStructure (void)
 {
   assert (fromBayesNet_);
   if (structure_.empty()) {
-    for (unsigned i = 0; i < varNodes_.size(); i++) {
+    for (size_t i = 0; i < varNodes_.size(); i++) {
       structure_.addNode (new DAGraphNode (varNodes_[i]));
     }
-    for (unsigned i = 0; i < facNodes_.size(); i++) {
+    for (size_t i = 0; i < facNodes_.size(); i++) {
       const VarIds& vids = facNodes_[i]->factor().arguments();
-      for (unsigned j = 1; j < vids.size(); j++) {
+      for (size_t j = 1; j < vids.size(); j++) {
         structure_.addEdge (vids[j], vids[0]);
       }
     }
@@ -259,18 +259,18 @@ FactorGraph::getStructure (void)
 void
 FactorGraph::print (void) const
 {
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
+  for (size_t i = 0; i < varNodes_.size(); i++) {
     cout << "var id   = " << varNodes_[i]->varId() << endl;
     cout << "label    = " << varNodes_[i]->label() << endl;
     cout << "range    = " << varNodes_[i]->range() << endl;
     cout << "evidence = " << varNodes_[i]->getEvidence() << endl;
     cout << "factors  = " ;
-    for (unsigned j = 0; j < varNodes_[i]->neighbors().size(); j++) {
+    for (size_t j = 0; j < varNodes_[i]->neighbors().size(); j++) {
       cout << varNodes_[i]->neighbors()[j]->getLabel() << " " ;
     }
     cout << endl << endl;
   }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     facNodes_[i]->factor().print();
   }
 }
@@ -287,20 +287,20 @@ FactorGraph::exportToGraphViz (const char* fileName) const
     abort();
   }
   out << "graph \"" << fileName << "\" {" << endl;
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
+  for (size_t i = 0; i < varNodes_.size(); i++) {
     if (varNodes_[i]->hasEvidence()) {
       out << '"' << varNodes_[i]->label() << '"' ;
       out << " [style=filled, fillcolor=yellow]" << endl;
     }
   }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     out << '"' << facNodes_[i]->getLabel() << '"' ;
     out << " [label=\"" << facNodes_[i]->getLabel(); 
     out << "\"" << ", shape=box]" << endl;
   }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     const VarNodes& myVars = facNodes_[i]->neighbors();
-    for (unsigned j = 0; j < myVars.size(); j++) {
+    for (size_t j = 0; j < myVars.size(); j++) {
       out << '"' << facNodes_[i]->getLabel() << '"' ;
       out << " -- " ;
       out << '"' << myVars[j]->label() << '"' << endl;
@@ -322,26 +322,26 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
   }
   out << "MARKOV" << endl;
   out << varNodes_.size() << endl;
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
+  for (size_t i = 0; i < varNodes_.size(); i++) {
     out << varNodes_[i]->range() << " " ;
   }
   out << endl;
   out << facNodes_.size() << endl;
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     const VarNodes& factorVars = facNodes_[i]->neighbors();
     out << factorVars.size();
-    for (unsigned j = 0; j < factorVars.size(); j++) {
+    for (size_t j = 0; j < factorVars.size(); j++) {
       out << " " << factorVars[j]->getIndex();
     }
     out << endl;
   }
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     Params params = facNodes_[i]->factor().params();
     if (Globals::logDomain) {
       Util::exp (params);
     }
     out << endl << params.size() << endl << " " ;
-    for (unsigned j = 0; j < params.size(); j++) {
+    for (size_t j = 0; j < params.size(); j++) {
       out << params[j] << " " ;
     }
     out << endl;
@@ -360,14 +360,14 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
     abort();
   }
   out << facNodes_.size() << endl << endl;
-  for (unsigned i = 0; i < facNodes_.size(); i++) {
+  for (size_t i = 0; i < facNodes_.size(); i++) {
     const VarNodes& factorVars = facNodes_[i]->neighbors();
     out << factorVars.size() << endl;
     for (int j = factorVars.size() - 1; j >= 0; j--) {
       out << factorVars[j]->varId() << " " ;
     }
     out << endl;
-    for (unsigned j = 0; j < factorVars.size(); j++) {
+    for (size_t j = 0; j < factorVars.size(); j++) {
       out << factorVars[j]->range() << " " ;
     }
     out << endl;
@@ -376,7 +376,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
       Util::exp (params);
     }
     out << params.size() << endl;
-    for (unsigned j = 0; j < params.size(); j++) {
+    for (size_t j = 0; j < params.size(); j++) {
       out << j << " " << params[j] << endl;
     }
     out << endl;
@@ -402,7 +402,7 @@ FactorGraph::containsCycle (void) const
 {
   vector<bool> visitedVars (varNodes_.size(), false);
   vector<bool> visitedFactors (facNodes_.size(), false);
-  for (unsigned i = 0; i < varNodes_.size(); i++) {
+  for (size_t i = 0; i < varNodes_.size(); i++) {
     int v = varNodes_[i]->getIndex();
     if (!visitedVars[v]) {
       if (containsCycle (varNodes_[i], 0, visitedVars, visitedFactors)) {
@@ -424,7 +424,7 @@ FactorGraph::containsCycle (
 {
   visitedVars[v->getIndex()] = true;
   const FacNodes& adjacencies = v->neighbors();
-  for (unsigned i = 0; i < adjacencies.size(); i++) {
+  for (size_t i = 0; i < adjacencies.size(); i++) {
     int w = adjacencies[i]->getIndex();
     if (!visitedFactors[w]) {
       if (containsCycle (adjacencies[i], v, visitedVars, visitedFactors)) {
@@ -449,7 +449,7 @@ FactorGraph::containsCycle (
 {
   visitedFactors[v->getIndex()] = true;
   const VarNodes& adjacencies = v->neighbors();
-  for (unsigned i = 0; i < adjacencies.size(); i++) {
+  for (size_t i = 0; i < adjacencies.size(); i++) {
     int w = adjacencies[i]->getIndex();
     if (!visitedVars[w]) {
       if (containsCycle (adjacencies[i], v, visitedVars, visitedFactors)) {

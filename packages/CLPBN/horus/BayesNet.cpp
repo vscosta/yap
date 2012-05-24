@@ -57,7 +57,7 @@ DAGraph::getNode (VarId vid)
 void
 DAGraph::setIndexes (void)
 {
-  for (unsigned i = 0; i < nodes_.size(); i++) {
+  for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->setIndex (i);
   }
 }
@@ -67,7 +67,7 @@ DAGraph::setIndexes (void)
 void
 DAGraph::clear (void)
 {
-  for (unsigned i = 0; i < nodes_.size(); i++) {
+  for (size_t i = 0; i < nodes_.size(); i++) {
     nodes_[i]->clear();
   }
 }
@@ -85,7 +85,7 @@ DAGraph::exportToGraphViz (const char* fileName)
   }
   out << "digraph {" << endl;
   out << "ranksep=1" << endl;
-  for (unsigned i = 0; i < nodes_.size(); i++) {
+  for (size_t i = 0; i < nodes_.size(); i++) {
     out << nodes_[i]->varId() ;
     out << " [" ;
     out << "label=\"" << nodes_[i]->label() << "\"" ;
@@ -94,9 +94,9 @@ DAGraph::exportToGraphViz (const char* fileName)
     }
     out << "]" << endl;
   }
-  for (unsigned i = 0; i < nodes_.size(); i++) {
+  for (size_t i = 0; i < nodes_.size(); i++) {
     const vector<DAGraphNode*>& childs = nodes_[i]->childs();
-    for (unsigned j = 0; j < childs.size(); j++) {
+    for (size_t j = 0; j < childs.size(); j++) {
       out << nodes_[i]->varId() << " -> " << childs[j]->varId();
       out << " [style=bold]" << endl ;
     }

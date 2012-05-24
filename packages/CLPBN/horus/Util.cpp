@@ -125,7 +125,7 @@ nrCombinations (unsigned n, unsigned k)
 
 
 
-unsigned
+size_t
 sizeExpected (const Ranges& ranges)
 {
   return std::accumulate (
@@ -166,7 +166,7 @@ parametersToString (const Params& v, unsigned precision)
   stringstream ss;
   ss.precision (precision);
   ss << "[" ; 
-  for (unsigned i = 0; i < v.size(); i++) {
+  for (size_t i = 0; i < v.size(); i++) {
     if (i != 0) ss << ", " ;
     ss << v[i];
   }
@@ -179,16 +179,21 @@ parametersToString (const Params& v, unsigned precision)
 vector<string>
 getStateLines (const Vars& vars)
 {
-  StatesIndexer idx (vars);
+  Ranges ranges;
+  for (size_t i = 0; i < vars.size(); i++) {
+    ranges.push_back (vars[i]->range());
+  }
+  StatesIndexer indexer (ranges);
   vector<string> jointStrings;
-  while (idx.valid()) {
+  while (indexer.valid()) {
     stringstream ss;
-    for (unsigned i = 0; i < vars.size(); i++) {
+    for (size_t i = 0; i < vars.size(); i++) {
       if (i != 0) ss << ", " ;
-      ss << vars[i]->label() << "=" << vars[i]->states()[(idx[i])];
+      ss << vars[i]->label() << "=" ;
+      ss << vars[i]->states()[(indexer[i])];
     }
     jointStrings.push_back (ss.str());
-    ++ idx;
+    ++ indexer;
   }
   return jointStrings;
 }
@@ -320,19 +325,19 @@ normalize (Params& v)
 {
   double sum = LogAware::addIdenty();
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       sum = Util::logSum (sum, v[i]);
     }
     assert (sum != -numeric_limits<double>::infinity());
-    for (unsigned i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       v[i] -= sum;
     }
   } else {
-    for (unsigned i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       sum += v[i];
     }
     assert (sum != 0.0);
-    for (unsigned i = 0; i < v.size(); i++) {
+    for (size_t i = 0; i < v.size(); i++) {
       v[i] /= sum;
     }
   }
@@ -346,11 +351,11 @@ getL1Distance (const Params& v1, const Params& v2)
   assert (v1.size() == v2.size());
   double dist = 0.0;
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < v1.size(); i++) {
+    for (size_t i = 0; i < v1.size(); i++) {
       dist += abs (exp(v1[i]) - exp(v2[i]));
     }
   } else {
-    for (unsigned i = 0; i < v1.size(); i++) {
+    for (size_t i = 0; i < v1.size(); i++) {
       dist += abs (v1[i] - v2[i]);
     }
   }
@@ -365,14 +370,14 @@ getMaxNorm (const Params& v1, const Params& v2)
   assert (v1.size() == v2.size());
   double max = 0.0;
   if (Globals::logDomain) {
-    for (unsigned i = 0; i < v1.size(); i++) {
+    for (size_t i = 0; i < v1.size(); i++) {
       double diff = abs (exp(v1[i]) - exp(v2[i]));
       if (diff > max) {
         max = diff;
       }
     }
   } else {
-    for (unsigned i = 0; i < v1.size(); i++) {
+    for (size_t i = 0; i < v1.size(); i++) {
       double diff = abs (v1[i] - v2[i]);
       if (diff > max) {
         max = diff;

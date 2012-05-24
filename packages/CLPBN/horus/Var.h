@@ -30,17 +30,17 @@ class Var
 
     virtual ~Var (void) { };
 
-    unsigned varId (void) const { return varId_; }
+    VarId varId (void) const { return varId_; }
 
     unsigned range (void) const { return range_; }
 
     int getEvidence (void) const  { return evidence_; }
 
-    unsigned getIndex (void) const { return index_; }
+    size_t getIndex (void) const { return index_; }
 
-    void setIndex (unsigned idx) { index_ = idx; }
+    void setIndex (size_t idx) { index_ = idx; }
 
-    operator unsigned () const { return index_; }
+    operator size_t (void) const { return index_; }
 
     bool hasEvidence (void) const
     {
@@ -98,7 +98,7 @@ class Var
     VarId     varId_;
     unsigned  range_;
     int       evidence_;
-    unsigned  index_;
+    size_t    index_;
 
     static unordered_map<VarId, VarInfo> varsInfo_;
 

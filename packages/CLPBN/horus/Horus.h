@@ -25,7 +25,6 @@ typedef vector<FacNode*>    FacNodes;
 typedef vector<Factor*>     Factors;
 typedef vector<string>      States;
 typedef vector<unsigned>    Ranges;
-typedef Params::size_type   psize_t;
 typedef unsigned long long  ullong;
 
 

@@ -134,7 +134,7 @@ template <typename T> bool contains (const set<T>&, const T&);
 template <typename K, typename V> bool contains (
     const unordered_map<K, V>&, const K&);
 
-template <typename T> int indexOf (const vector<T>&, const T&);
+template <typename T> size_t indexOf (const vector<T>&, const T&);
 
 template <typename T> std::string toString (const T&);
 
@@ -162,7 +162,7 @@ double logFactorial (unsigned);
 
 unsigned nrCombinations (unsigned, unsigned);
 
-unsigned sizeExpected (const Ranges&);
+size_t sizeExpected (const Ranges&);
 
 unsigned nrDigits (int);
 
@@ -205,7 +205,7 @@ Util::addToSet (set<T>& s, const vector<T>& elements)
 template <typename T> void
 Util::addToQueue (queue<T>& q, const vector<T>& elements)
 {
-  for (unsigned i = 0; i < elements.size(); i++) {
+  for (size_t i = 0; i < elements.size(); i++) {
     q.push (elements[i]);
   }
 }
@@ -236,12 +236,11 @@ Util::contains (const unordered_map<K, V>& m, const K& k)
 
 
 
-template <typename T> int
+template <typename T> size_t
 Util::indexOf (const vector<T>& v, const T& e)
 {
-  int pos = std::distance (v.begin(),
-       std::find (v.begin(), v.end(), e));
-  return pos != (int)v.size() ? pos : -1;
+  return std::distance (v.begin(),
+      std::find (v.begin(), v.end(), e));
 }
 
 
@@ -260,7 +259,7 @@ template <typename T>
 std::ostream& operator << (std::ostream& os, const vector<T>& v)
 {
   os << "[" ;
-  for (unsigned i = 0; i < v.size(); i++) {
+  for (size_t i = 0; i < v.size(); i++) {
     os << ((i != 0) ? ", " : "") << v[i];
   }
   os << "]" ;
@@ -320,8 +319,8 @@ Util::logSum (double x, double y)
 inline void
 Util::add (Params& v1, const Params& v2, unsigned repetitions)
 {
-  for (unsigned count = 0; count < v1.size(); ) {
-    for (unsigned i = 0; i < v2.size(); i++) {
+  for (size_t count = 0; count < v1.size(); ) {
+    for (size_t i = 0; i < v2.size(); i++) {
       for (unsigned r = 0; r < repetitions; r++) {
         v1[count] += v2[i];
         count ++;
@@ -335,8 +334,8 @@ Util::add (Params& v1, const Params& v2, unsigned repetitions)
 inline void
 Util::multiply (Params& v1, const Params& v2, unsigned repetitions)
 {
-  for (unsigned count = 0; count < v1.size(); ) {
-    for (unsigned i = 0; i < v2.size(); i++) {
+  for (size_t count = 0; count < v1.size(); ) {
+    for (size_t i = 0; i < v2.size(); i++) {
       for (unsigned r = 0; r < repetitions; r++) {
         v1[count] *= v2[i];
         count ++;

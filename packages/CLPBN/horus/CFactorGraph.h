@@ -35,7 +35,7 @@ struct VarSignatureHash
   size_t operator() (const VarSignature &sig) const
   {
     size_t val = hash<size_t>()(sig.size());
-    for (unsigned i = 0; i < sig.size(); i++) {
+    for (size_t i = 0; i < sig.size(); i++) {
       val ^= hash<size_t>()(sig[i].first);
       val ^= hash<size_t>()(sig[i].second);
     }
@@ -49,7 +49,7 @@ struct FacSignatureHash
   size_t operator() (const FacSignature &sig) const
   {
     size_t val = hash<size_t>()(sig.size());
-    for (unsigned i = 0; i < sig.size(); i++) {
+    for (size_t i = 0; i < sig.size(); i++) {
       val ^= hash<size_t>()(sig[i]);
     }
     return val;
@@ -120,7 +120,7 @@ class CFactorGraph
     FactorGraph* getGroundFactorGraph (void);
 
     unsigned getEdgeCount (const FacCluster*,
-        const VarCluster*, unsigned index) const;
+        const VarCluster*, size_t index) const;
  
     static bool checkForIdenticalFactors;
  

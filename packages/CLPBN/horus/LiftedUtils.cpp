@@ -72,7 +72,7 @@ ostream& operator<< (ostream &os, const LogVar& X)
 ostream& operator<< (ostream &os, const Tuple& t)
 {
   os << "(" ;
-  for (unsigned i = 0; i < t.size(); i++) {
+  for (size_t i = 0; i < t.size(); i++) {
     os << ((i != 0) ? "," : "") << t[i];
   }
   os << ")" ;
@@ -85,7 +85,7 @@ ostream& operator<< (ostream &os, const Ground& gr)
 {
   os << gr.functor();
   os << "(" ;
-  for (unsigned i = 0; i < gr.args().size(); i++) {
+  for (size_t i = 0; i < gr.args().size(); i++) {
     if (i != 0) os << ", " ;
     os << gr.args()[i];
   }
