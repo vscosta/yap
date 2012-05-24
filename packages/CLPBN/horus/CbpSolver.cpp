@@ -85,7 +85,7 @@ CbpSolver::getPosterioriOf (VarId vid)
         probs += l->poweredMessage();
       }
       LogAware::normalize (probs);
-      Util::fromLog (probs);
+      Util::exp (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
         CbpSolverLink* l = static_cast<CbpSolverLink*> (links[i]);

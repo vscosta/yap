@@ -20,8 +20,8 @@ class SpLink
     { 
       fac_ = fn;
       var_ = vn;
-      v1_.resize (vn->range(), LogAware::tl (1.0 / vn->range()));
-      v2_.resize (vn->range(), LogAware::tl (1.0 / vn->range()));
+      v1_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
+      v2_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
       currMsg_   = &v1_;
       nextMsg_   = &v2_;
       msgSended_ = false;

@@ -38,7 +38,7 @@ class TFactor
     void setParams (const Params& newParams)
     {
       params_ = newParams;
-      assert (params_.size() == Util::expectedSize (ranges_));
+      assert (params_.size() == Util::sizeExpected (ranges_));
     }
 
     int indexOf (const T& t) const

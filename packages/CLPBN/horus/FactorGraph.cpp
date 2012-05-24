@@ -86,9 +86,9 @@ FactorGraph::readFromUaiFormat (const char* fileName)
   for (unsigned i = 0; i < nrFactors; i++) {
     ignoreLines (is);
     is >> nrParams;
-    if (nrParams != Util::expectedSize (factorRanges[i])) {
+    if (nrParams != Util::sizeExpected (factorRanges[i])) {
       cerr << "error: invalid number of parameters for factor nº " << i ;
-      cerr << ", expected: " << Util::expectedSize (factorRanges[i]);
+      cerr << ", expected: " << Util::sizeExpected (factorRanges[i]);
       cerr << ", given: " << nrParams << endl;
       abort();
     }
@@ -97,7 +97,7 @@ FactorGraph::readFromUaiFormat (const char* fileName)
       is >> params[j];
     }
     if (Globals::logDomain) {
-      Util::toLog (params);
+      Util::log (params);
     }
     addFactor (Factor (factorVarIds[i], factorRanges[i], params));
   }
@@ -144,7 +144,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     ignoreLines (is);
     unsigned nNonzeros;
     is >> nNonzeros;
-    Params params (Util::expectedSize (ranges), 0);
+    Params params (Util::sizeExpected (ranges), 0);
     for (unsigned j = 0; j < nNonzeros; j++) {
       ignoreLines (is);
       unsigned index;
@@ -155,7 +155,7 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
       params[index] = val;
     }
     if (Globals::logDomain) {
-      Util::toLog (params);
+      Util::log (params);
     }
     reverse (vids.begin(), vids.end());
     Factor f (vids, ranges, params);
@@ -338,7 +338,7 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
   for (unsigned i = 0; i < facNodes_.size(); i++) {
     Params params = facNodes_[i]->factor().params();
     if (Globals::logDomain) {
-      Util::fromLog (params);
+      Util::exp (params);
     }
     out << endl << params.size() << endl << " " ;
     for (unsigned j = 0; j < params.size(); j++) {
@@ -373,7 +373,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
     out << endl;
     Params params = facNodes_[i]->factor().params();
     if (Globals::logDomain) {
-      Util::fromLog (params);
+      Util::exp (params);
     }
     out << params.size() << endl;
     for (unsigned j = 0; j < params.size(); j++) {

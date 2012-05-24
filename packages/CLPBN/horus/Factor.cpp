@@ -27,7 +27,7 @@ Factor::Factor (
   ranges_ = ranges;
   params_ = params;
   distId_ = distId;
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 
@@ -43,7 +43,7 @@ Factor::Factor (
   }
   params_ = params;
   distId_ = distId;
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 

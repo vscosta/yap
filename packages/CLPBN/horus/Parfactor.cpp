@@ -27,7 +27,7 @@ Parfactor::Parfactor (
     }
   }
   constr_ = new ConstraintTree (logVars, tuples);
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 
@@ -39,7 +39,7 @@ Parfactor::Parfactor (const Parfactor* g, const Tuple& tuple)
   ranges_  = g->ranges();
   distId_  = g->distId();
   constr_  = new ConstraintTree (g->logVars(), {tuple});
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 
@@ -51,7 +51,7 @@ Parfactor::Parfactor (const Parfactor* g, ConstraintTree* constr)
   ranges_  = g->ranges();
   distId_  = g->distId();
   constr_  = constr;
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 
@@ -63,7 +63,7 @@ Parfactor::Parfactor (const Parfactor& g)
   ranges_  = g.ranges();
   distId_  = g.distId();
   constr_  = new ConstraintTree (*g.constr());
-  assert (params_.size() == Util::expectedSize (ranges_));
+  assert (params_.size() == Util::sizeExpected (ranges_));
 }
 
 

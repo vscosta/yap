@@ -90,7 +90,7 @@ BpSolver::getPosterioriOf (VarId vid)
         probs += links[i]->getMessage();
       }
       LogAware::normalize (probs);
-      Util::fromLog (probs);
+      Util::exp (probs);
     } else {
       for (unsigned i = 0; i < links.size(); i++) {
         probs *= links[i]->getMessage();
@@ -134,7 +134,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     res.normalize();
     Params jointDist = res.params();
     if (Globals::logDomain) {
-      Util::fromLog (jointDist);
+      Util::exp (jointDist);
     }
     return jointDist;
   }

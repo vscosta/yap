@@ -268,7 +268,7 @@ readParameters (YAP_Term paramL)
     paramL = YAP_TailOfTerm (paramL);
   }
   if (Globals::logDomain) {
-    Util::toLog (params);
+    Util::log (params);
   }
   return params;
 }

@@ -19,6 +19,106 @@
 using namespace std;
 
 
+template <typename T>
+void operator+=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (plus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (minus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (multiplies<double>(), val));
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (divides<double>(), val));
+}
+
+
+
+template <typename T>
+void operator+=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      plus<double>());
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      minus<double>());
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      multiplies<double>());
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      divides<double>());
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, double exp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, double, double> (std::pow), exp));
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, int iexp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, int, double> (std::pow), iexp));
+}
+
+
+
+namespace {
+const double NEG_INF = -numeric_limits<double>::infinity();
+};
+
+
+
 namespace Util {
 
 template <typename T> void addToVector (vector<T>&, const vector<T>&);
@@ -40,6 +140,10 @@ template <typename T> std::string toString (const T&);
 
 template <> std::string toString (const bool&);
 
+template <typename T> void log (vector<T>&);
+
+template <typename T> void exp (vector<T>&);
+
 double logSum (double, double);
 
 void add (Params&, const Params&, unsigned);
@@ -52,19 +156,15 @@ unsigned stringToUnsigned (string);
 
 double stringToDouble (string);
 
-void toLog (Params&);
-
-void fromLog (Params&);
-
 double factorial (unsigned);
 
 double logFactorial (unsigned);
 
 unsigned nrCombinations (unsigned, unsigned);
 
-unsigned expectedSize (const Ranges&);
+unsigned sizeExpected (const Ranges&);
 
-unsigned getNumberOfDigits (int);
+unsigned nrDigits (int);
 
 bool isInteger (const string&);
 
@@ -168,9 +268,20 @@ std::ostream& operator << (std::ostream& os, const vector<T>& v)
 }
 
 
-namespace {
-const double NEG_INF = -numeric_limits<double>::infinity();
-};
+template <typename T> void
+Util::log (vector<T>& v)
+{
+  transform (v.begin(), v.end(), v.begin(), ::log);
+}
+
+
+
+template <typename T> void
+Util::exp (vector<T>& v)
+{
+  transform (v.begin(), v.end(), v.begin(), ::exp);
+}
+
 
 
 inline double
@@ -244,154 +355,16 @@ Util::maxUnsigned (void)
 
 
 
-template <typename T>
-void operator+=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (plus<double>(), val));
-}
-
-
-
-template <typename T>
-void operator-=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (minus<double>(), val));
-}
-
-
-
-template <typename T>
-void operator*=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (multiplies<double>(), val));
-}
-
-
-
-template <typename T>
-void operator/=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (divides<double>(), val));
-}
-
-
-
-template <typename T>
-void operator+=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      plus<double>());
-}
-
-
-
-template <typename T>
-void operator-=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      minus<double>());
-}
-
-
-
-template <typename T>
-void operator*=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      multiplies<double>());
-}
-
-
-
-template <typename T>
-void operator/=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      divides<double>());
-}
-
-
-
-template <typename T>
-void operator^=(std::vector<T>& v, double exp)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (ptr_fun<double, double, double> (std::pow), exp));
-}
-
-
-
-template <typename T>
-void operator^=(std::vector<T>& v, int iexp)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (ptr_fun<double, int, double> (std::pow), iexp));
-}
-
-
-
 namespace LogAware {
 
-inline double
-one()
-{
-  return Globals::logDomain ? 0.0 : 1.0;
-}
-
-
-inline double
-zero() {
-  return Globals::logDomain ? NEG_INF : 0.0 ;
-}
-
-
-inline double
-addIdenty()
-{
-  return Globals::logDomain ? NEG_INF : 0.0;
-}
-
-
-inline double
-multIdenty()
-{
-  return Globals::logDomain ? 0.0 : 1.0;
-}
-
-
-inline double
-withEvidence()
-{
-  return Globals::logDomain ? 0.0 : 1.0;
-}
-
-
-inline double
-noEvidence() {
-  return Globals::logDomain ? NEG_INF : 0.0;
-}
-
-
-inline double
-tl (double v)
-{
-  return Globals::logDomain ? log (v) : v;
-}
-
-
-inline double
-fl (double v) 
-{
-  return Globals::logDomain ? exp (v) : v;
-}
+inline double one()          { return Globals::logDomain ? 0.0     : 1.0; }
+inline double zero()         { return Globals::logDomain ? NEG_INF : 0.0; }
+inline double addIdenty()    { return Globals::logDomain ? NEG_INF : 0.0; }
+inline double multIdenty()   { return Globals::logDomain ? 0.0     : 1.0; }
+inline double withEvidence() { return Globals::logDomain ? 0.0     : 1.0; }
+inline double noEvidence()   { return Globals::logDomain ? NEG_INF : 0.0; }
+inline double log (double v) { return Globals::logDomain ? ::log (v) : v; }
+inline double exp (double v) { return Globals::logDomain ? ::exp (v) : v; }
 
 
 void normalize (Params&);

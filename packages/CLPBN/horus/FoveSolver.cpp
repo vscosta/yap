@@ -644,7 +644,7 @@ FoveSolver::getJointDistributionOf (const Grounds& query)
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();
   if (Globals::logDomain) {
-    Util::fromLog (params);
+    Util::exp (params);
   }
   return params;
 }

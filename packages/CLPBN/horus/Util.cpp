@@ -76,21 +76,6 @@ stringToDouble (string str)
 
 
 
-void
-toLog (Params& v)
-{
-  transform (v.begin(), v.end(), v.begin(), ::log);
-}
-
-
-
-void
-fromLog (Params& v)
-{
-  transform (v.begin(), v.end(), v.begin(), ::exp);
-}
-
-
 
 double
 factorial (unsigned num)
@@ -146,7 +131,7 @@ nrCombinations (unsigned n, unsigned k)
 
 
 unsigned
-expectedSize (const Ranges& ranges)
+sizeExpected (const Ranges& ranges)
 {
   return std::accumulate (
       ranges.begin(), ranges.end(), 1, multiplies<unsigned>());
@@ -155,7 +140,7 @@ expectedSize (const Ranges& ranges)
 
 
 unsigned
-getNumberOfDigits (int num)
+nrDigits (int num)
 {
   unsigned count = 1;
   while (num >= 10) {

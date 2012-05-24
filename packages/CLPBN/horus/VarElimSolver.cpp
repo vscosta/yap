@@ -33,7 +33,7 @@ VarElimSolver::solveQuery (VarIds queryVids)
   processFactorList (queryVids);
   Params params = factorList_.back()->params();
   if (Globals::logDomain) {
-    Util::fromLog (params);
+    Util::exp (params);
   }
   return params;
 }
