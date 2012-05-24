@@ -124,15 +124,6 @@ Parfactor::exclusiveLogVars (size_t fIdx) const
 
 
 void
-Parfactor::setConstraintTree (ConstraintTree* newTree)
-{
-  delete constr_;
-  constr_ = newTree;
-}
-
-
-
-void
 Parfactor::sumOut (size_t fIdx)
 {
   assert (fIdx < args_.size());

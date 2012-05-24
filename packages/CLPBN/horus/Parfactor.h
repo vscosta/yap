@@ -43,9 +43,7 @@ class Parfactor : public TFactor<ProbFormula>
     LogVarSet elimLogVars (void) const;
   
     LogVarSet exclusiveLogVars (size_t fIdx) const;
-     
-    void setConstraintTree (ConstraintTree*);
-
+    
     void sumOut (size_t fIdx);
 
     void multiply (Parfactor&);
