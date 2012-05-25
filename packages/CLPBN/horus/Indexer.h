@@ -20,7 +20,8 @@ class StatesIndexer
     StatesIndexer (const Ranges& ranges, bool calcOffsets = true)
     {
       li_  = 0;
-      size_ = std::accumulate (ranges.begin(), ranges.end(), 0);
+      size_ = std::accumulate (ranges.begin(), ranges.end(), 1,
+          std::multiplies<unsigned>());
       indices_.resize (ranges.size(), 0);
       ranges_ = ranges;
       if (calcOffsets) {
