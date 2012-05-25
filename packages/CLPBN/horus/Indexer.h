@@ -146,75 +146,39 @@ class StatesIndexer
 
 
 
-class MapIndexer
+class MappingIndexer
 {
   public:
-    MapIndexer (const Ranges& ranges, const vector<bool>& mapDims)
+    MappingIndexer (const Ranges& ranges, const vector<bool>& mask)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
+          valid_(true)
     {
-      assert (ranges.size() == mapDims.size());
       size_t prod = 1;
       offsets_.resize (ranges.size());
       for (size_t i = ranges.size(); i-- > 0; ) {
-        if (mapDims[i]) {
+        if (mask[i]) {
           offsets_[i] = prod;
           prod *= ranges[i];
         }
       }
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
-      index_ = 0;
-      valid_ = true;
+      assert (ranges.size() == mask.size());
     }
 
-    MapIndexer (const Ranges& ranges, size_t ignoreDim)
+    MappingIndexer (const Ranges& ranges, size_t dim)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
+          valid_(true)
     {
       size_t prod = 1;
       offsets_.resize (ranges.size());
       for (size_t i = ranges.size(); i-- > 0; ) {
-        if (i != ignoreDim) {
+        if (i != dim) {
           offsets_[i] = prod;
           prod *= ranges[i];
         }
       }
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
-      index_ = 0;
-      valid_ = true;
     }
     
-    /*
-    MapIndexer (
-        const VarIds& loopVids,
-        const Ranges& loopRanges,
-        const VarIds& mapVids,
-        const Ranges& mapRanges)
-    {
-      unsigned prod = 1;
-      vector<unsigned> offsets (mapRanges.size());
-      for (size_t i = mapRanges.size(); i-- > 0; ) {
-        offsets[i] = prod;
-        prod *= mapRanges[i];
-      }
-
-      offsets_.reserve (loopVids.size());
-      for (size_t i = 0; i < loopVids.size(); i++) {
-        VarIds::const_iterator it =
-            std::find (mapVids.begin(), mapVids.end(), loopVids[i]);
-        if (it != mapVids.end()) {
-          offsets_.push_back (offsets[it - mapVids.begin()]);
-        } else {
-          offsets_.push_back (0);
-        }
-      }
-
-      indices_.resize (loopVids.size(), 0);
-      ranges_ = loopRanges;
-      index_ = 0;
-      size_ = prod;
-    }
-    */
-
-    MapIndexer& operator ++ (void)
+    MappingIndexer& operator++ (void)
     {
       assert (valid_);
       for (size_t i = ranges_.size(); i-- > 0; ) {
@@ -229,11 +193,6 @@ class MapIndexer
       }
       valid_ = false;
       return *this;
-    }
-
-    size_t mappedIndex (void) const
-    {
-      return index_;
     }
 
     operator size_t (void) const
@@ -259,20 +218,26 @@ class MapIndexer
       index_ = 0;
     }
 
-    friend ostream& operator<< (ostream &os, const MapIndexer& idx)
-    {
-      os << "(" << std::setw (2) << std::setfill('0') << idx.index_ << ") " ;
-      os << idx.indices_;
-      return os;
-    }
+    friend std::ostream& operator<< (std::ostream&, const MappingIndexer&);
 
   private:
-    size_t            index_;
-    bool              valid_;
-    vector<unsigned>  ranges_;
-    vector<unsigned>  indices_;
-    vector<size_t>    offsets_;
+    size_t          index_;
+    Ranges          indices_;
+    const Ranges&   ranges_;
+    bool            valid_;
+    vector<size_t>  offsets_;
 };
+
+
+
+inline std::ostream& operator<< (ostream &os, const MappingIndexer& mi)
+{
+  os << "(" ;
+  os << std::setw (2) << std::setfill('0') << mi.index_;
+  os << ") " ;
+  os << mi.indices_;
+  return os;
+}
 
 
 #endif // HORUS_STATESINDEXER_H

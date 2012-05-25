@@ -44,7 +44,7 @@ class Parfactor : public TFactor<ProbFormula>
   
     LogVarSet exclusiveLogVars (size_t fIdx) const;
     
-    void sumOut (size_t fIdx);
+    void sumOutIndex (size_t fIdx);
 
     void multiply (Parfactor&);
     

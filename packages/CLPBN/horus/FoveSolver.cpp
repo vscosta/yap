@@ -219,12 +219,12 @@ SumOutOperator::apply (void)
   size_t fIdx = product->indexOfGroup (group_);
   LogVarSet excl = product->exclusiveLogVars (fIdx);
   if (product->constr()->isCountNormalized (excl)) {
-    product->sumOut (fIdx);
+    product->sumOutIndex (fIdx);
     pfList_.addShattered (product);
   } else {
     Parfactors pfs = FoveSolver::countNormalize (product, excl);
     for (size_t i = 0; i < pfs.size(); i++) {
-      pfs[i]->sumOut (fIdx);
+      pfs[i]->sumOutIndex (fIdx);
       pfList_.add (pfs[i]);
     }
     delete product;
