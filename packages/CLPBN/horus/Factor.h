@@ -312,7 +312,7 @@ class Factor : public TFactor<VarId>
 
     void sumOutArgs (const vector<bool>& mask);
    
-    void copyFromFactor (const Factor& f);
+    void clone (const Factor& f);
 
 };
 

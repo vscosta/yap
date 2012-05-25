@@ -12,7 +12,7 @@
 
 Factor::Factor (const Factor& g)
 {
-  copyFromFactor (g);
+  clone (g);
 }
 
 
@@ -101,7 +101,7 @@ void
 Factor::multiply (Factor& g)
 {
   if (args_.size() == 0) {
-    copyFromFactor (g);
+    clone (g);
     return;
   }
   TFactor<VarId>::multiply (g);
@@ -237,7 +237,7 @@ Factor::sumOutArgs (const vector<bool>& mask)
 
 
 void
-Factor::copyFromFactor (const Factor& g)
+Factor::clone (const Factor& g)
 {
   args_    = g.arguments();
   ranges_  = g.ranges();
