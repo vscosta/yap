@@ -158,17 +158,17 @@ class TFactor
       size_t idx = indexOf (arg);
       assert (idx != args_.size());
       assert (evidence < ranges_[idx]);
-      Params copy = params_;
-      params_.clear();
-      params_.reserve (copy.size() / ranges_[idx]);
+      Params newps;
+      newps.reserve (params_.size() / ranges_[idx]); 
       Indexer indexer (ranges_);
       for (unsigned i = 0; i < evidence; i++) {
         indexer.incrementDimension (idx);
       }
       while (indexer.valid()) {
-       params_.push_back (copy[indexer]);
+       newps.push_back (params_[indexer]);
        indexer.incrementExceptDimension (idx);
       }
+      params_ = newps;
       args_.erase (args_.begin() + idx);
       ranges_.erase (ranges_.begin() + idx);
     }
