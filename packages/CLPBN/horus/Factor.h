@@ -109,7 +109,7 @@ class TFactor
             }
           }
         } else {
-          StatesIndexer indexer (ranges_, false);
+          Indexer indexer (ranges_, false);
           while (indexer.valid()) {
             size_t g_li = 0;
             size_t prod = 1;
@@ -136,7 +136,7 @@ class TFactor
       Params newps (new_size, LogAware::addIdenty());
       Params::const_iterator first = params_.begin();
       Params::const_iterator last  = params_.end();
-      MappingIndexer indexer (ranges_, idx);
+      CutIndexer indexer (ranges_, idx);
       if (Globals::logDomain) {
         while (first != last) {
           newps[indexer] = Util::logSum (newps[indexer], *first++);
@@ -161,13 +161,13 @@ class TFactor
       Params copy = params_;
       params_.clear();
       params_.reserve (copy.size() / ranges_[idx]);
-      StatesIndexer indexer (ranges_);
+      Indexer indexer (ranges_);
       for (unsigned i = 0; i < evidence; i++) {
-        indexer.increment (idx);
+        indexer.incrementDimension (idx);
       }
       while (indexer.valid()) {
        params_.push_back (copy[indexer]);
-       indexer.incrementExcluding (idx);
+       indexer.incrementExceptDimension (idx);
       }
       args_.erase (args_.begin() + idx);
       ranges_.erase (ranges_.begin() + idx);

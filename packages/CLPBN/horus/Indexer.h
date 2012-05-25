@@ -1,29 +1,23 @@
-#ifndef HORUS_STATESINDEXER_H
-#define HORUS_STATESINDEXER_H
+#ifndef HORUS_INDEXER_H
+#define HORUS_INDEXER_H
 
 #include <algorithm>
-#include <numeric>
 #include <functional>
 
 #include <sstream>
 #include <iomanip>
 
-#include "Var.h"
 #include "Util.h"
 
 
-
-class StatesIndexer
+class Indexer
 {
   public:
-
-    StatesIndexer (const Ranges& ranges, bool calcOffsets = true)
+    Indexer (const Ranges& ranges, bool calcOffsets = true)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges)
     {
-      li_  = 0;
       size_ = std::accumulate (ranges.begin(), ranges.end(), 1,
           std::multiplies<unsigned>());
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
       if (calcOffsets) {
         calculateOffsets();
       }
@@ -39,47 +33,37 @@ class StatesIndexer
           indices_[i] = 0;
         }
       }
-      li_ ++;
+      index_ ++;
     }
 
-    void increment (size_t dim)
+    void incrementDimension (size_t dim)
     {
       assert (dim < ranges_.size());
       assert (ranges_.size() == offsets_.size());
       assert (indices_[dim] < ranges_[dim]);
       indices_[dim] ++;
-      li_ += offsets_[dim];
+      index_ += offsets_[dim];
     }
 
-    void incrementExcluding (size_t skipDim)
+    void incrementExceptDimension (size_t dim)
     {
       assert (ranges_.size() == offsets_.size());
       for (size_t i = ranges_.size(); i-- > 0; ) {
-        if (i != (int)skipDim) {
+        if (i != dim) {
           indices_[i] ++;
-          li_ += offsets_[i];
+          index_ += offsets_[i];
           if (indices_[i] != ranges_[i]) {
             return;
           } else {
             indices_[i] = 0;
-            li_ -= offsets_[i] * ranges_[i];
+            index_ -= offsets_[i] * ranges_[i];
           }
         }
       }
-      li_ = size_;
+      index_ = size_;
     }
 
-    size_t linearIndex (void) const
-    {
-      return li_;
-    }
-
-    const vector<unsigned>& indices (void) const
-    {
-      return indices_;
-    }
-
-    StatesIndexer& operator ++ (void)
+    Indexer& operator++ (void)
     {
       increment();
       return *this;
@@ -87,7 +71,7 @@ class StatesIndexer
 
     operator size_t (void) const
     {
-      return li_;
+      return index_;
     }
 
     unsigned operator[] (size_t dim) const
@@ -99,19 +83,19 @@ class StatesIndexer
 
     bool valid (void) const
     {
-      return li_ < size_;
+      return index_ < size_;
     }
 
     void reset (void)
     {
       std::fill (indices_.begin(), indices_.end(), 0);
-      li_ = 0;
+      index_ = 0;
     }
 
-    void reset (size_t dim)
+    void resetDimension (size_t dim)
     {
       indices_[dim] = 0;
-      li_ -= offsets_[dim] * ranges_[dim];
+      index_ -= offsets_[dim] * ranges_[dim];
     }
 
     size_t size (void) const
@@ -119,12 +103,7 @@ class StatesIndexer
       return size_ ;
     }
 
-    friend ostream& operator<< (ostream &os, const StatesIndexer& idx)
-    {
-      os << "(" << std::setw (2) << std::setfill('0') << idx.li_ << ") " ;
-      os << idx.indices_;
-      return os;
-    }
+    friend std::ostream& operator<< (std::ostream&, const Indexer&);
 
   private:
     void calculateOffsets (void)
@@ -137,19 +116,31 @@ class StatesIndexer
       }
     }
 
-    size_t            li_;
-    size_t            size_;
-    vector<unsigned>  indices_;
-    vector<unsigned>  ranges_;
-    vector<size_t>    offsets_;
+    size_t          index_;
+    Ranges          indices_;
+    const Ranges&   ranges_;
+    size_t          size_;
+    vector<size_t>  offsets_;
 };
 
 
 
-class MappingIndexer
+inline std::ostream&
+operator<< (std::ostream& os, const Indexer& indexer)
+{
+  os << "(" ;
+  os << std::setw (2) << std::setfill('0') << indexer.index_;
+  os << ") " ;
+  os << indexer.indices_;
+  return os;
+}
+
+
+
+class CutIndexer
 {
   public:
-    MappingIndexer (const Ranges& ranges, const vector<bool>& mask)
+    CutIndexer (const Ranges& ranges, const vector<bool>& mask)
         : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
           valid_(true)
     {
@@ -164,7 +155,7 @@ class MappingIndexer
       assert (ranges.size() == mask.size());
     }
 
-    MappingIndexer (const Ranges& ranges, size_t dim)
+    CutIndexer (const Ranges& ranges, size_t dim)
         : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
           valid_(true)
     {
@@ -178,7 +169,7 @@ class MappingIndexer
       }
     }
     
-    MappingIndexer& operator++ (void)
+    CutIndexer& operator++ (void)
     {
       assert (valid_);
       for (size_t i = ranges_.size(); i-- > 0; ) {
@@ -218,7 +209,7 @@ class MappingIndexer
       index_ = 0;
     }
 
-    friend std::ostream& operator<< (std::ostream&, const MappingIndexer&);
+    friend std::ostream& operator<< (std::ostream&, const CutIndexer&);
 
   private:
     size_t          index_;
@@ -230,15 +221,16 @@ class MappingIndexer
 
 
 
-inline std::ostream& operator<< (ostream &os, const MappingIndexer& mi)
+inline std::ostream&
+operator<< (std::ostream &os, const CutIndexer& indexer)
 {
   os << "(" ;
-  os << std::setw (2) << std::setfill('0') << mi.index_;
+  os << std::setw (2) << std::setfill('0') << indexer.index_;
   os << ") " ;
-  os << mi.indices_;
+  os << indexer.indices_;
   return os;
 }
 
 
-#endif // HORUS_STATESINDEXER_H
+#endif // HORUS_INDEXER_H
 

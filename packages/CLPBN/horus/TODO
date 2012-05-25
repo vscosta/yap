@@ -1,4 +1,3 @@
-- Receive ranges as a constant reference in Indexer
 - Check if evidence remains in the compressed factor graph
 - Consider using hashs instead of vectors of colors to calculate the groups in
   counting bp

@@ -183,7 +183,7 @@ getStateLines (const Vars& vars)
   for (size_t i = 0; i < vars.size(); i++) {
     ranges.push_back (vars[i]->range());
   }
-  StatesIndexer indexer (ranges);
+  Indexer indexer (ranges);
   vector<string> jointStrings;
   while (indexer.valid()) {
     stringstream ss;

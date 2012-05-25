@@ -134,7 +134,7 @@ Parfactor::sumOutIndex (size_t fIdx)
         args_[fIdx].countedLogVar());
     unsigned R = args_[fIdx].range();
     vector<double> numAssigns = HistogramSet::getNumAssigns (N, R);
-    StatesIndexer indexer (ranges_, fIdx);
+    Indexer indexer (ranges_, fIdx);
     while (indexer.valid()) {
       if (Globals::logDomain) {
         params_[indexer] += numAssigns[ indexer[fIdx] ];
@@ -210,29 +210,29 @@ Parfactor::countConvert (LogVar X)
   unsigned H = HistogramSet::nrHistograms (N, R);
   vector<Histogram> histograms = HistogramSet::getHistograms (N, R);
 
-  StatesIndexer indexer (ranges_);
+  Indexer indexer (ranges_);
   vector<Params> sumout (params_.size() / R);
   unsigned count = 0;
   while (indexer.valid()) {
     sumout[count].reserve (R);
     for (unsigned r = 0; r < R; r++) {
       sumout[count].push_back (params_[indexer]);
-      indexer.increment (fIdx);
+      indexer.incrementDimension (fIdx);
     }
     count ++;
-    indexer.reset (fIdx);
-    indexer.incrementExcluding (fIdx);
+    indexer.resetDimension (fIdx);
+    indexer.incrementExceptDimension (fIdx);
   }
 
   params_.clear();
   params_.reserve (sumout.size() * H);
 
   ranges_[fIdx] = H;
-  MappingIndexer mapIndexer (ranges_, fIdx);
-  while (mapIndexer.valid()) {
+  CutIndexer cutIndexer (ranges_, fIdx);
+  while (cutIndexer.valid()) {
     double prod = LogAware::multIdenty();
-    size_t i   = mapIndexer;
-    unsigned h = mapIndexer[fIdx];
+    size_t i   = cutIndexer;
+    unsigned h = cutIndexer[fIdx];
     for (unsigned r = 0; r < R; r++) {
       if (Globals::logDomain) {
         prod += LogAware::pow (sumout[i][r], histograms[h][r]);
@@ -241,7 +241,7 @@ Parfactor::countConvert (LogVar X)
       }
     }
     params_.push_back (prod);
-    ++ mapIndexer;
+    ++ cutIndexer;
   }
   args_[fIdx].setCountedLogVar (X);
   simplifyCountingFormulas (fIdx);
@@ -310,7 +310,7 @@ Parfactor::fullExpand (LogVar X)
   sumIndexes.reserve (N * R);
 
   Ranges expandRanges (N, R);
-  StatesIndexer indexer (expandRanges);
+  Indexer indexer (expandRanges);
   while (indexer.valid()) {
     vector<unsigned> hist (R, 0);
     for (unsigned n = 0; n < N; n++) {
@@ -572,7 +572,7 @@ void
 Parfactor::printParameters (void) const
 {
   vector<string> jointStrings;
-  StatesIndexer indexer (ranges_);
+  Indexer indexer (ranges_);
   while (indexer.valid()) {
     stringstream ss;
     for (size_t i = 0; i < args_.size(); i++) {
@@ -740,7 +740,7 @@ Parfactor::simplifyParfactor (size_t fIdx1, size_t fIdx2)
 {
   Params copy = params_;
   params_.clear();
-  StatesIndexer indexer (ranges_);
+  Indexer indexer (ranges_);
   while (indexer.valid()) {
     if (indexer[fIdx1] == indexer[fIdx2]) {
       params_.push_back (copy[indexer]);

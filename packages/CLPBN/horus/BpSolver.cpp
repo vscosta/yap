@@ -399,18 +399,18 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
       observedVars.push_back (fg->getVarNode (observedVids[j]));
       observedRanges.push_back (observedVars.back()->range());
     }
-    StatesIndexer idx (observedRanges, false);
-    while (idx.valid()) {
+    Indexer indexer (observedRanges, false);
+    while (indexer.valid()) {
       for (size_t j = 0; j < observedVars.size(); j++) {
-        observedVars[j]->setEvidence (idx[j]);
+        observedVars[j]->setEvidence (indexer[j]);
       }
-      ++ idx;
       BpSolver solver (*fg);
       solver.runSolver();
       Params beliefs = solver.getPosterioriOf (jointVarIds[i]);
       for (size_t k = 0; k < beliefs.size(); k++) {
         newBeliefs.push_back (beliefs[k]);
       }
+      ++ indexer;
     }
 
     int count = -1;

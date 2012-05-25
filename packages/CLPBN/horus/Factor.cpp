@@ -219,7 +219,7 @@ Factor::sumOutArgs (const vector<bool>& mask)
   Params newps (new_size, LogAware::addIdenty());
   Params::const_iterator first = params_.begin();
   Params::const_iterator last  = params_.end();
-  MappingIndexer indexer (oldRanges, mask);
+  CutIndexer indexer (oldRanges, mask);
   if (Globals::logDomain) {
     while (first != last) {
       newps[indexer] = Util::logSum (newps[indexer], *first++);
