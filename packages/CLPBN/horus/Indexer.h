@@ -145,7 +145,7 @@ class CutIndexer
           valid_(true)
     {
       size_t prod = 1;
-      offsets_.resize (ranges.size());
+      offsets_.resize (ranges.size(), 0);
       for (size_t i = ranges.size(); i-- > 0; ) {
         if (mask[i]) {
           offsets_[i] = prod;
@@ -160,7 +160,7 @@ class CutIndexer
           valid_(true)
     {
       size_t prod = 1;
-      offsets_.resize (ranges.size());
+      offsets_.resize (ranges.size(), 0);
       for (size_t i = ranges.size(); i-- > 0; ) {
         if (i != dim) {
           offsets_[i] = prod;
@@ -169,6 +169,28 @@ class CutIndexer
       }
     }
     
+   template <typename T>
+   CutIndexer (
+        const vector<T>& allArgs,
+        const Ranges&    allRanges,
+        const vector<T>& wantedArgs,
+        const Ranges&    wantedRanges)
+     : index_(0), indices_(allArgs.size(), 0), ranges_(allRanges),
+       valid_(true)
+    {
+      size_t prod = 1;
+      vector<size_t> offsets (wantedRanges.size());
+      for (size_t i = wantedRanges.size(); i-- > 0; ) {
+        offsets[i] = prod;
+        prod *= wantedRanges[i];
+      }
+      offsets_.reserve (allArgs.size());
+      for (size_t i = 0; i < allArgs.size(); i++) {
+        size_t idx = Util::indexOf (wantedArgs, allArgs[i]);
+        offsets_.push_back (idx != wantedArgs.size() ? offsets[idx] : 0);
+      }
+    }
+
     CutIndexer& operator++ (void)
     {
       assert (valid_);
@@ -188,6 +210,7 @@ class CutIndexer
 
     operator size_t (void) const
     {
+      assert (valid());
       return index_;
     }
 
