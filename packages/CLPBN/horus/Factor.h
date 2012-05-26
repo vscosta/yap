@@ -73,63 +73,42 @@ class TFactor
 
     void multiply (TFactor<T>& g)
     {
+      if (args_ == g.arguments()) {
+        // optimization
+        Globals::logDomain
+            ? params_ += g.params()
+            : params_ *= g.params();
+        return;
+      }
+      unsigned range_prod = 1;
+      bool share_arguments = false;
       const vector<T>& g_args = g.arguments();
       const Ranges& g_ranges  = g.ranges();
       const Params& g_params  = g.params();
-      if (args_ == g_args) {
-        // optimization: if the factors contain the same set of args,
-        // we can do a 1 to 1 operation on the parameters
-        Globals::logDomain ? params_ += g_params
-                           : params_ *= g_params;
-      } else {
-        bool sharedArgs = false;
-        vector<size_t> gvarpos;
-        for (size_t i = 0; i < g_args.size(); i++) {
-          size_t idx = indexOf (g_args[i]);
-          if (idx == g_args.size()) {
-            ullong newSize = params_.size() * g_ranges[i];
-            if (newSize > params_.max_size()) {
-              cerr << "error: an overflow occurred on factor multiplication" ;
-              cerr << endl;
-              abort();
-            }
-            insertArgument (g_args[i], g_ranges[i]);
-            gvarpos.push_back (args_.size() - 1);
-          } else {
-            sharedArgs = true;
-            gvarpos.push_back (idx);
-          }
+      for (size_t i = 0; i < g_args.size(); i++) {
+        size_t idx = indexOf (g_args[i]);
+        if (idx == args_.size()) {
+          range_prod *= g_ranges[i];
+          args_.push_back (g_args[i]);
+          ranges_.push_back (g_ranges[i]);
+        } else {
+          share_arguments = true;
         }
-        if (sharedArgs == false) {
-          // optimization: if the original factors doesn't have common args,
-          // we don't need to marry the states of the common args
-          size_t count = 0;
-          for (size_t i = 0; i < params_.size(); i++) {
-            if (Globals::logDomain) {
-              params_[i] += g_params[count];
-            } else {
-              params_[i] *= g_params[count];
-            }
-            count ++;
-            if (count >= g_params.size()) {
-              count = 0;
-            }
+      }
+      if (share_arguments == false) {
+        // optimization
+        cartesianProduct (g_params.begin(), g_params.end());
+      } else {
+        extend (range_prod);
+        Params::iterator it = params_.begin();
+        CutIndexer indexer (args_, ranges_, g_args, g_ranges);
+        if (Globals::logDomain) {
+          for (; indexer.valid(); ++indexer) {
+            *it++ += g_params[indexer];
           }
         } else {
-          Indexer indexer (ranges_, false);
-          while (indexer.valid()) {
-            size_t g_li = 0;
-            size_t prod = 1;
-            for (size_t j = gvarpos.size(); j-- > 0; ) {
-              g_li += indexer[gvarpos[j]] * prod;
-              prod *= g_ranges[j];
-            }
-            if (Globals::logDomain) {
-              params_[indexer] += g_params[g_li];
-            } else {
-              params_[indexer] *= g_params[g_li];
-            }
-            ++ indexer;
+          for (; indexer.valid(); ++indexer) {
+            *it++ *= g_params[indexer];
           }
         }
       }
@@ -145,14 +124,12 @@ class TFactor
       Params::const_iterator last  = params_.end();
       CutIndexer indexer (ranges_, idx);
       if (Globals::logDomain) {
-        while (first != last) {
+        for (; first != last; ++indexer) {
           newps[indexer] = Util::logSum (newps[indexer], *first++);
-          ++ indexer;
         }
       } else {
-        while (first != last) {
+        for (; first != last; ++indexer) {
           newps[indexer] += *first++;
-          ++ indexer;
         }
       }
       params_ = newps;
@@ -160,15 +137,15 @@ class TFactor
       ranges_.erase (ranges_.begin() + idx);
     }
 
-    void absorveEvidence (const T& arg, unsigned evidence)
+    void absorveEvidence (const T& arg, unsigned obsIdx)
     {
       size_t idx = indexOf (arg);
       assert (idx != args_.size());
-      assert (evidence < ranges_[idx]);
+      assert (obsIdx < ranges_[idx]);
       Params newps;
       newps.reserve (params_.size() / ranges_[idx]); 
       Indexer indexer (ranges_);
-      for (unsigned i = 0; i < evidence; i++) {
+      for (unsigned i = 0; i < obsIdx; ++i) {
         indexer.incrementDimension (idx);
       }
       while (indexer.valid()) {
@@ -199,7 +176,7 @@ class TFactor
         size_t li = i;
         // calculate vector index corresponding to linear index
         vector<unsigned> vi (N);
-        for (int k = N-1; k >= 0; k--) {
+        for (unsigned k = N; k-- > 0; ) {
           vi[k] = li % ranges_[k];
           li /= ranges_[k];
         }
@@ -246,39 +223,45 @@ class TFactor
     unsigned   distId_;
   
   private:
-    void insertArgument (const T& arg, unsigned range)
+    void extend (unsigned range_prod)
     {
-      assert (indexOf (arg) == args_.size());
-      Params copy = params_;
+      Params backup = params_;
       params_.clear();
-      params_.reserve (copy.size() * range);
-      for (size_t i = 0; i < copy.size(); i++) {
-        for (unsigned reps = 0; reps < range; reps++) {
-          params_.push_back (copy[i]);
+      params_.reserve (backup.size() * range_prod);
+      Params::const_iterator first = backup.begin();
+      Params::const_iterator last  = backup.end();
+      for (; first != last; ++first) {
+        for (unsigned reps = 0; reps < range_prod; ++reps) {
+          params_.push_back (*first);
         }
       }
-      args_.push_back (arg);
-      ranges_.push_back (range);
     }
 
-    void insertArguments (const vector<T>& args, const Ranges& ranges)
+    void cartesianProduct (
+        Params::const_iterator first2,
+        Params::const_iterator last2)
     {
-      Params copy = params_;
-      unsigned nrStates = 1;
-      for (size_t i = 0; i < args.size(); i++) {
-        assert (indexOf (args[i]) == args_.size());
-        args_.push_back (args[i]);
-        ranges_.push_back (ranges[i]);
-        nrStates *= ranges[i];
-      }
+      Params backup = params_;
       params_.clear();
-      params_.reserve (copy.size() * nrStates);
-      for (size_t i = 0; i < copy.size(); i++) {
-        for (unsigned reps = 0; reps < nrStates; reps++) {
-          params_.push_back (copy[i]);
+      params_.reserve (params_.size() * (last2 - first2));
+      Params::const_iterator first1 = backup.begin();
+      Params::const_iterator last1  = backup.end();
+      Params::const_iterator tmp;
+      if (Globals::logDomain) {
+        for (; first1 != last1; ++first1) {
+          for (tmp = first2; tmp != last2; ++tmp) {
+            params_.push_back ((*first1) + (*tmp));
+          }
+        }
+      } else {
+        for (; first1 != last1; ++first1) {
+          for (tmp = first2; tmp != last2; ++tmp) {
+            params_.push_back ((*first1) * (*tmp));
+          }
         }
       }
     }
+
 };
 
 
