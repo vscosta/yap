@@ -34,6 +34,13 @@ class TFactor
     void setDistId (unsigned id) { distId_ = id; }
 
     void normalize (void) { LogAware::normalize (params_); }
+  
+    void randomize (void)
+    {
+      for (size_t i = 0; i < params_.size(); ++i) {
+        params_[i] = (double) std::rand() / RAND_MAX;
+      }
+    }
 
     void setParams (const Params& newParams)
     {
