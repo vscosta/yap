@@ -7,17 +7,17 @@
 #include "LiftedUtils.h"
 #include "Horus.h"
 
-typedef unsigned PrvGroup;
+typedef unsigned long PrvGroup;
 
 class ProbFormula
 {
   public:
     ProbFormula (Symbol f, const LogVars& lvs, unsigned range) 
         : functor_(f), logVars_(lvs), range_(range),
-          countedLogVar_(), group_(Util::maxUnsigned()) { }
+          countedLogVar_(), group_(numeric_limits<PrvGroup>::max()) { }
 
     ProbFormula (Symbol f, unsigned r) 
-        : functor_(f), range_(r), group_(Util::maxUnsigned()) { }
+        : functor_(f), range_(r), group_(numeric_limits<PrvGroup>::max()) { }
 
     Symbol functor (void) const { return functor_; }
 
@@ -31,9 +31,9 @@ class ProbFormula
 
     LogVarSet logVarSet (void) const { return LogVarSet (logVars_); }
   
-    unsigned group (void) const { return group_; }
+    PrvGroup group (void) const { return group_; }
 
-    void setGroup (unsigned g) { group_ = g; }
+    void setGroup (PrvGroup g) { group_ = g; }
    
     bool sameSkeletonAs (const ProbFormula&) const;
 
@@ -41,7 +41,7 @@ class ProbFormula
 
     bool contains (LogVarSet) const;
 
-    int indexOf (LogVar) const;
+    size_t indexOf (LogVar) const;
 
     bool isAtom (void) const;
 
@@ -55,7 +55,7 @@ class ProbFormula
  
     void rename (LogVar, LogVar);
     
-    static unsigned getNewGroup (void);
+    static PrvGroup getNewGroup (void);
 
     friend std::ostream& operator<< (ostream &os, const ProbFormula& f);
 
@@ -66,8 +66,8 @@ class ProbFormula
     LogVars    logVars_;
     unsigned   range_;
     LogVar     countedLogVar_;
-    unsigned   group_;
-    static int freeGroup_;
+    PrvGroup   group_;
+    static PrvGroup freeGroup_;
 };
 
 typedef vector<ProbFormula> ProbFormulas;

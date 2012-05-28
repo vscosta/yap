@@ -25,47 +25,47 @@ class TFactor
 
     Params& params (void) { return params_; }
 
-    unsigned nrArguments (void) const { return args_.size(); }
+    size_t nrArguments (void) const { return args_.size(); }
 
-    unsigned size (void) const { return params_.size(); }
+    size_t size (void) const { return params_.size(); }
 
     unsigned distId (void) const { return distId_; }
 
     void setDistId (unsigned id) { distId_ = id; }
 
     void normalize (void) { LogAware::normalize (params_); }
+  
+    void randomize (void)
+    {
+      for (size_t i = 0; i < params_.size(); ++i) {
+        params_[i] = (double) std::rand() / RAND_MAX;
+      }
+    }
 
     void setParams (const Params& newParams)
     {
       params_ = newParams;
-      assert (params_.size() == Util::expectedSize (ranges_));
+      assert (params_.size() == Util::sizeExpected (ranges_));
     }
 
-    int indexOf (const T& t) const
+    size_t indexOf (const T& t) const
     {
-      int idx = -1;
-      for (unsigned i = 0; i < args_.size(); i++) {
-        if (args_[i] == t) {
-          idx = i;
-          break;
-        }
-      }
-      return idx;
+      return Util::indexOf (args_, t);
     }
 
-    const T& argument (unsigned idx) const
+    const T& argument (size_t idx) const
     {
       assert (idx < args_.size());
       return args_[idx];
     }
 
-    T& argument (unsigned idx)
+    T& argument (size_t idx)
     {
       assert (idx < args_.size());
       return args_[idx];
     }
 
-    unsigned range (unsigned idx) const
+    unsigned range (size_t idx) const
     {
       assert (idx < ranges_.size());
       return ranges_[idx];
@@ -73,126 +73,111 @@ class TFactor
 
     void multiply (TFactor<T>& g)
     {
+      if (args_ == g.arguments()) {
+        // optimization
+        Globals::logDomain
+            ? params_ += g.params()
+            : params_ *= g.params();
+        return;
+      }
+      unsigned range_prod = 1;
+      bool share_arguments = false;
       const vector<T>& g_args = g.arguments();
       const Ranges& g_ranges  = g.ranges();
       const Params& g_params  = g.params();
-      if (args_ == g_args) {
-        // optimization: if the factors contain the same set of args,
-        // we can do a 1 to 1 operation on the parameters
-        if (Globals::logDomain) {
-          Util::add (params_, g_params);
+      for (size_t i = 0; i < g_args.size(); i++) {
+        size_t idx = indexOf (g_args[i]);
+        if (idx == args_.size()) {
+          range_prod *= g_ranges[i];
+          args_.push_back (g_args[i]);
+          ranges_.push_back (g_ranges[i]);
         } else {
-          Util::multiply (params_, g_params);
+          share_arguments = true;
         }
+      }
+      if (share_arguments == false) {
+        // optimization
+        cartesianProduct (g_params.begin(), g_params.end());
       } else {
-        bool sharedArgs = false;
-        vector<unsigned> gvarpos;
-        for (unsigned i = 0; i < g_args.size(); i++) {
-          int idx = indexOf (g_args[i]);
-          if (idx == -1) {
-            ullong newSize = params_.size() * g_ranges[i];
-            if (newSize > params_.max_size()) {
-              cerr << "error: an overflow occurred on factor multiplication" ;
-              cerr << endl;
-              abort();
-            }
-            insertArgument (g_args[i], g_ranges[i]);
-            gvarpos.push_back (args_.size() - 1);
-          } else {
-            sharedArgs = true;
-            gvarpos.push_back (idx);
-          }
-        }
-        if (sharedArgs == false) {
-          // optimization: if the original factors doesn't have common args,
-          // we don't need to marry the states of the common args
-          unsigned count = 0;
-          for (unsigned i = 0; i < params_.size(); i++) {
-            if (Globals::logDomain) {
-              params_[i] += g_params[count];
-            } else {
-              params_[i] *= g_params[count];
-            }
-            count ++;
-            if (count >= g_params.size()) {
-              count = 0;
-            }
+        extend (range_prod);
+        Params::iterator it = params_.begin();
+        MapIndexer indexer (args_, ranges_, g_args, g_ranges);
+        if (Globals::logDomain) {
+          for (; indexer.valid(); ++it, ++indexer) {
+            *it += g_params[indexer];
           }
         } else {
-          StatesIndexer indexer (ranges_, false);
-          while (indexer.valid()) {
-            unsigned g_li = 0;
-            unsigned prod = 1;
-            for (int j = gvarpos.size() - 1; j >= 0; j--) {
-              g_li += indexer[gvarpos[j]] * prod;
-              prod *= g_ranges[j];
-            }
-            if (Globals::logDomain) {
-              params_[indexer] += g_params[g_li];
-            } else {
-              params_[indexer] *= g_params[g_li];
-            }
-            ++ indexer;
+          for (; indexer.valid(); ++it, ++indexer) {
+            *it *= g_params[indexer];
           }
         }
       }
     }
 
-    void absorveEvidence (const T& arg, unsigned evidence)
+    void sumOutIndex (size_t idx)
     {
-      int idx = indexOf (arg);
-      assert (idx != -1);
-      assert (evidence < ranges_[idx]);
-      Params copy = params_;
-      params_.clear();
-      params_.reserve (copy.size() / ranges_[idx]);
-      StatesIndexer indexer (ranges_);
-      for (unsigned i = 0; i < evidence; i++) {
-        indexer.increment (idx);
+      assert (idx < args_.size());
+      assert (args_.size() > 1);
+      size_t new_size = params_.size() / ranges_[idx];
+      Params newps (new_size, LogAware::addIdenty());
+      Params::const_iterator first = params_.begin();
+      Params::const_iterator last  = params_.end();
+      MapIndexer indexer (ranges_, idx);
+      if (Globals::logDomain) {
+        for (; first != last; ++indexer) {
+          newps[indexer] = Util::logSum (newps[indexer], *first++);
+        }
+      } else {
+        for (; first != last; ++indexer) {
+          newps[indexer] += *first++;
+        }
       }
-      while (indexer.valid()) {
-       params_.push_back (copy[indexer]);
-       indexer.incrementExcluding (idx);
-      }
+      params_ = newps;
       args_.erase (args_.begin() + idx);
       ranges_.erase (ranges_.begin() + idx);
     }
 
-    void reorderArguments (const vector<T> newArgs)
+    void absorveEvidence (const T& arg, unsigned obsIdx)
     {
-      assert (newArgs.size() == args_.size());
-      if (newArgs == args_) {
-        return; // already in the wanted order
+      size_t idx = indexOf (arg);
+      assert (idx != args_.size());
+      assert (obsIdx < ranges_[idx]);
+      Params newps;
+      newps.reserve (params_.size() / ranges_[idx]); 
+      Indexer indexer (ranges_);
+      for (unsigned i = 0; i < obsIdx; ++i) {
+        indexer.incrementDimension (idx);
       }
-      Ranges newRanges;
-      vector<unsigned> positions;
-      for (unsigned i = 0; i < newArgs.size(); i++) {
-        unsigned idx = indexOf (newArgs[i]);
-        newRanges.push_back (ranges_[idx]);
-        positions.push_back (idx);
+      while (indexer.valid()) {
+       newps.push_back (params_[indexer]);
+       indexer.incrementExceptDimension (idx);
       }
-      unsigned N = ranges_.size();
-      Params newParams (params_.size());
-      for (unsigned i = 0; i < params_.size(); i++) {
-        unsigned li = i;
-        // calculate vector index corresponding to linear index
-        vector<unsigned> vi (N);
-        for (int k = N-1; k >= 0; k--) {
-          vi[k] = li % ranges_[k];
-          li /= ranges_[k];
-        }
-        // convert permuted vector index to corresponding linear index
-        unsigned prod = 1;
-        unsigned new_li = 0;
-        for (int k = N - 1; k >= 0; k--) {
-          new_li += vi[positions[k]] * prod;
-          prod   *= ranges_[positions[k]];
-        }
-        newParams[new_li] = params_[i];
+      params_ = newps;
+      args_.erase (args_.begin() + idx);
+      ranges_.erase (ranges_.begin() + idx);
+    }
+
+    void reorderArguments (const vector<T> new_args)
+    {
+      assert (new_args.size() == args_.size());
+      if (new_args == args_) {
+        return; // already on the desired order
       }
-      args_    = newArgs;
-      ranges_  = newRanges;
-      params_  = newParams;
+      Ranges new_ranges;
+      for (size_t i = 0; i < new_args.size(); i++) {
+        size_t idx = indexOf (new_args[i]);
+        assert (idx != args_.size());
+        new_ranges.push_back (ranges_[idx]);
+      }
+      Params newps;
+      newps.reserve (params_.size());
+      MapIndexer indexer (new_args, new_ranges, args_, ranges_);
+      for (; indexer.valid(); ++indexer) {
+        newps.push_back (params_[indexer]);
+      }
+      params_ = newps;
+      args_   = new_args;
+      ranges_ = new_ranges;
     }
 
     bool contains (const T& arg) const
@@ -202,7 +187,7 @@ class TFactor
 
     bool contains (const vector<T>& args) const
     {
-      for (unsigned i = 0; i < args_.size(); i++) {
+      for (size_t i = 0; i < args_.size(); i++) {
         if (contains (args[i]) == false) {
           return false;
         }
@@ -210,7 +195,7 @@ class TFactor
       return true;
     }
 
-    double& operator[] (psize_t idx)
+    double& operator[] (size_t idx)
     {
       assert (idx < params_.size());
       return params_[idx];
@@ -224,39 +209,45 @@ class TFactor
     unsigned   distId_;
   
   private:
-    void insertArgument (const T& arg, unsigned range)
+    void extend (unsigned range_prod)
     {
-      assert (indexOf (arg) == -1);
-      Params copy = params_;
+      Params backup = params_;
       params_.clear();
-      params_.reserve (copy.size() * range);
-      for (unsigned i = 0; i < copy.size(); i++) {
-        for (unsigned reps = 0; reps < range; reps++) {
-          params_.push_back (copy[i]);
+      params_.reserve (backup.size() * range_prod);
+      Params::const_iterator first = backup.begin();
+      Params::const_iterator last  = backup.end();
+      for (; first != last; ++first) {
+        for (unsigned reps = 0; reps < range_prod; ++reps) {
+          params_.push_back (*first);
         }
       }
-      args_.push_back (arg);
-      ranges_.push_back (range);
     }
 
-    void insertArguments (const vector<T>& args, const Ranges& ranges)
+    void cartesianProduct (
+        Params::const_iterator first2,
+        Params::const_iterator last2)
     {
-      Params copy = params_;
-      unsigned nrStates = 1;
-      for (unsigned i = 0; i < args.size(); i++) {
-        assert (indexOf (args[i]) == -1);
-        args_.push_back (args[i]);
-        ranges_.push_back (ranges[i]);
-        nrStates *= ranges[i];
-      }
+      Params backup = params_;
       params_.clear();
-      params_.reserve (copy.size() * nrStates);
-      for (unsigned i = 0; i < copy.size(); i++) {
-        for (unsigned reps = 0; reps < nrStates; reps++) {
-          params_.push_back (copy[i]);
+      params_.reserve (params_.size() * (last2 - first2));
+      Params::const_iterator first1 = backup.begin();
+      Params::const_iterator last1  = backup.end();
+      Params::const_iterator tmp;
+      if (Globals::logDomain) {
+        for (; first1 != last1; ++first1) {
+          for (tmp = first2; tmp != last2; ++tmp) {
+            params_.push_back ((*first1) + (*tmp));
+          }
+        }
+      } else {
+        for (; first1 != last1; ++first1) {
+          for (tmp = first2; tmp != last2; ++tmp) {
+            params_.push_back ((*first1) * (*tmp));
+          }
         }
       }
-   }
+    }
+
 };
 
 
@@ -280,24 +271,22 @@ class Factor : public TFactor<VarId>
 
     void sumOutAllExcept (const VarIds&);
 
-    void sumOutIndex (unsigned idx);
-
-    void sumOutAllExceptIndex (unsigned idx);
-
-    void sumOutFirstVariable (void);
-
-    void sumOutLastVariable (void);
+    void sumOutAllExceptIndex (size_t idx);
 
     void multiply (Factor&);
-
-    void reorderAccordingVarIds (void);
 
     string getLabel (void) const;
 
     void print (void) const;
 
   private:
-    void copyFromFactor (const Factor& f);
+    void sumOutFirstVariable (void);
+
+    void sumOutLastVariable (void);
+
+    void sumOutArgs (const vector<bool>& mask);
+   
+    void clone (const Factor& f);
 
 };
 

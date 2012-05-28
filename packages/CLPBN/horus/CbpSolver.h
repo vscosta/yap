@@ -9,13 +9,13 @@ class Factor;
 class CbpSolverLink : public SpLink
 {
   public:
-    CbpSolverLink (FacNode* fn, VarNode* vn, unsigned idx, unsigned count) 
+    CbpSolverLink (FacNode* fn, VarNode* vn, size_t idx, unsigned count) 
         : SpLink (fn, vn), index_(idx), nrEdges_(count),
           pwdMsg_(vn->range(), LogAware::one()) { }
 
-    unsigned index (void) const { return index_; }
+    size_t index (void) const { return index_; }
 
-    unsigned nrEdges  (void) const { return nrEdges_; }
+    unsigned nrEdges (void) const { return nrEdges_; }
 
     const Params& poweredMessage (void) const { return pwdMsg_; }
 
@@ -28,7 +28,7 @@ class CbpSolverLink : public SpLink
     }
   
   private:
-    unsigned  index_;
+    size_t    index_;
     unsigned  nrEdges_;
     Params    pwdMsg_;
 };

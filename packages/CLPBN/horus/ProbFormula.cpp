@@ -1,7 +1,7 @@
 #include "ProbFormula.h"
 
 
-int ProbFormula::freeGroup_ = 0;
+PrvGroup ProbFormula::freeGroup_ = 0;
 
 
 
@@ -29,7 +29,7 @@ ProbFormula::contains (LogVarSet s) const
 
 
 
-int
+size_t
 ProbFormula::indexOf (LogVar X) const
 {
   return Util::indexOf (logVars_, X);
@@ -81,7 +81,7 @@ ProbFormula::clearCountedLogVar (void)
 void
 ProbFormula::rename (LogVar oldName, LogVar newName)
 {
-  for (unsigned i = 0; i < logVars_.size(); i++) {
+  for (size_t i = 0; i < logVars_.size(); i++) {
     if (logVars_[i] == oldName) {
       logVars_[i] = newName;
     }
@@ -105,7 +105,7 @@ std::ostream& operator<< (ostream &os, const ProbFormula& f)
   os << f.functor_;
   if (f.isAtom() == false) {
     os << "(" ;
-    for (unsigned i = 0; i < f.logVars_.size(); i++) {
+    for (size_t i = 0; i < f.logVars_.size(); i++) {
      if (i != 0) os << ",";
       if (f.isCounting() && f.logVars_[i] == f.countedLogVar_) {
         os << "#" ;
@@ -120,10 +120,11 @@ std::ostream& operator<< (ostream &os, const ProbFormula& f)
 
 
 
-unsigned
+PrvGroup
 ProbFormula::getNewGroup (void)
 {
   freeGroup_ ++;
+  assert (freeGroup_ != numeric_limits<PrvGroup>::max());
   return freeGroup_;
 }
 

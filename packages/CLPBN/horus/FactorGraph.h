@@ -32,6 +32,7 @@ class VarNode : public Var
 };
 
 
+
 class FacNode
 {
   public:
@@ -45,9 +46,9 @@ class FacNode
 
     const VarNodes& neighbors (void) const { return neighs_; }
 
-    int getIndex (void) const { return index_; }
+    size_t getIndex (void) const { return index_; }
 
-    void setIndex (int index) { index_ = index; }
+    void setIndex (size_t index) { index_ = index; }
 
     string getLabel (void) { return factor_.getLabel(); }
 
@@ -56,17 +57,9 @@ class FacNode
 
     VarNodes  neighs_;
     Factor    factor_;
-    int       index_;
+    size_t    index_;
 };
 
-
-struct CompVarId
-{
-  bool operator() (const Var* v1, const Var* v2) const
-  {
-    return v1->varId() < v2->varId();
-  }
-};
 
 
 class FactorGraph
@@ -84,9 +77,9 @@ class FactorGraph
  
     bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
 
-    unsigned nrVarNodes (void) const { return varNodes_.size(); }
+    size_t nrVarNodes (void) const { return varNodes_.size(); }
 
-    unsigned nrFacNodes (void) const { return facNodes_.size(); }
+    size_t nrFacNodes (void) const { return facNodes_.size(); }
 
     VarNode* getVarNode (VarId vid) const
     {
@@ -140,6 +133,16 @@ class FactorGraph
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
 };
+
+
+
+struct sortByVarId
+{ 
+  bool operator()(VarNode* vn1, VarNode* vn2) { 
+    return vn1->varId() < vn2->varId();
+  }
+};
+
 
 #endif // HORUS_FACTORGRAPH_H
 

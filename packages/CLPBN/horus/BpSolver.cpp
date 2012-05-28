@@ -22,13 +22,13 @@ BpSolver::BpSolver (const FactorGraph& fg) : Solver (fg)
 
 BpSolver::~BpSolver (void)
 {
-  for (unsigned i = 0; i < varsI_.size(); i++) {
+  for (size_t i = 0; i < varsI_.size(); i++) {
     delete varsI_[i];
   }
-  for (unsigned i = 0; i < facsI_.size(); i++) {
+  for (size_t i = 0; i < facsI_.size(); i++) {
     delete facsI_[i];
   }
-  for (unsigned i = 0; i < links_.size(); i++) {
+  for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
   }
 }
@@ -86,14 +86,14 @@ BpSolver::getPosterioriOf (VarId vid)
     probs.resize (var->range(), LogAware::multIdenty());
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
-      for (unsigned i = 0; i < links.size(); i++) {
-        Util::add (probs, links[i]->getMessage());
+      for (size_t i = 0; i < links.size(); i++) {
+        probs += links[i]->getMessage();
       }
       LogAware::normalize (probs);
-      Util::fromLog (probs);
+      Util::exp (probs);
     } else {
-      for (unsigned i = 0; i < links.size(); i++) {
-        Util::multiply (probs, links[i]->getMessage());
+      for (size_t i = 0; i < links.size(); i++) {
+        probs *= links[i]->getMessage();
       }
       LogAware::normalize (probs);
     }
@@ -109,21 +109,21 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   if (runned_ == false) {
     runSolver();
   }
-  int idx = -1;  
   VarNode* vn = fg_->getVarNode (jointVarIds[0]);
   const FacNodes& facNodes = vn->neighbors();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  size_t idx = facNodes.size();
+  for (size_t i = 0; i < facNodes.size(); i++) {
     if (facNodes[i]->factor().contains (jointVarIds)) {
       idx = i;
       break;
     }
   }
-  if (idx == -1) {
+  if (idx == facNodes.size()) {
     return getJointByConditioning (jointVarIds);
   } else {
     Factor res (facNodes[idx]->factor());
     const SpLinkSet& links = ninf(facNodes[idx])->getLinks();
-    for (unsigned i = 0; i < links.size(); i++) {
+    for (size_t i = 0; i < links.size(); i++) {
       Factor msg ({links[i]->getVariable()->varId()},
                   {links[i]->getVariable()->range()},
                   getVar2FactorMsg (links[i]));
@@ -134,7 +134,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     res.normalize();
     Params jointDist = res.params();
     if (Globals::logDomain) {
-      Util::fromLog (jointDist);
+      Util::exp (jointDist);
     }
     return jointDist;
   }
@@ -145,10 +145,6 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 void
 BpSolver::runSolver (void)
 {
-  clock_t start;
-  if (Constants::COLLECT_STATS) {
-    start = clock();
-  }
   initializeSolver();
   nIters_ = 0;
   while (!converged() && nIters_ < BpOptions::maxIter) {
@@ -161,15 +157,15 @@ BpSolver::runSolver (void)
        random_shuffle (links_.begin(), links_.end());
        // no break
       case BpOptions::Schedule::SEQ_FIXED:
-        for (unsigned i = 0; i < links_.size(); i++) {
+        for (size_t i = 0; i < links_.size(); i++) {
           calculateAndUpdateMessage (links_[i]);
         }
         break;
       case BpOptions::Schedule::PARALLEL:
-        for (unsigned i = 0; i < links_.size(); i++) {
+        for (size_t i = 0; i < links_.size(); i++) {
           calculateMessage (links_[i]);
         }
-        for (unsigned i = 0; i < links_.size(); i++) {
+        for (size_t i = 0; i < links_.size(); i++) {
           updateMessage(links_[i]);
         }
         break;
@@ -188,14 +184,6 @@ BpSolver::runSolver (void)
     }
     cout << endl;
   }
-  unsigned size = fg_->varNodes().size();
-  if (Constants::COLLECT_STATS) {
-    unsigned nIters = 0;
-    bool loopy = fg_->isTree() == false;
-    if (loopy) nIters = nIters_;
-    double time = (double (clock() - start)) / CLOCKS_PER_SEC;
-    Statistics::updateStatistics (size, loopy, nIters, time);
-  }
   runned_ = true;
 }
 
@@ -205,9 +193,9 @@ void
 BpSolver::createLinks (void)
 {
   const FacNodes& facNodes = fg_->facNodes();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     const VarNodes& neighbors = facNodes[i]->neighbors();
-    for (unsigned j = 0; j < neighbors.size(); j++) {
+    for (size_t j = 0; j < neighbors.size(); j++) {
       links_.push_back (new SpLink (facNodes[i], neighbors[j]));
     }
   }
@@ -219,7 +207,7 @@ void
 BpSolver::maxResidualSchedule (void)
 {
   if (nIters_ == 1) {
-    for (unsigned i = 0; i < links_.size(); i++) {
+    for (size_t i = 0; i < links_.size(); i++) {
       calculateMessage (links_[i]);
       SortedOrder::iterator it = sortedOrder_.insert (links_[i]);
       linkMap_.insert (make_pair (links_[i], it));
@@ -227,11 +215,11 @@ BpSolver::maxResidualSchedule (void)
     return;
   }
 
-  for (unsigned c = 0; c < links_.size(); c++) {
+  for (size_t c = 0; c < links_.size(); c++) {
     if (Globals::verbosity > 1) {
       cout << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
-          it != sortedOrder_.end(); it ++) {
+          it != sortedOrder_.end(); ++it) {
         cout << "    " << setw (30) << left << (*it)->toString();
         cout << "residual = " << (*it)->getResidual() << endl;
       }
@@ -249,10 +237,10 @@ BpSolver::maxResidualSchedule (void)
 
     // update the messages that depend on message source --> destin
     const FacNodes& factorNeighbors = link->getVariable()->neighbors();
-    for (unsigned i = 0; i < factorNeighbors.size(); i++) {
+    for (size_t i = 0; i < factorNeighbors.size(); i++) {
       if (factorNeighbors[i] != link->getFactor()) {
         const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
-        for (unsigned j = 0; j < links.size(); j++) {
+        for (size_t j = 0; j < links.size(); j++) {
           if (links[j]->getVariable() != link->getVariable()) {
             calculateMessage (links[j]);
             SpLinkMap::iterator iter = linkMap_.find (links[j]);
@@ -279,13 +267,13 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned msgSize = 1;
-  for (unsigned i = 0; i < links.size(); i++) {
+  for (size_t i = 0; i < links.size(); i++) {
     msgSize *= links[i]->getVariable()->range();
   }
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->getVariable() != dst) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();
@@ -303,7 +291,7 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
       }
     }
   } else {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->getVariable() != dst) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();
@@ -362,16 +350,16 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   if (Globals::logDomain) {
     SpLinkSet::const_iterator it;
     for (it = links.begin(); it != links.end(); ++ it) {
-      Util::add (msg, (*it)->getMessage());
+      msg += (*it)->getMessage();
       if (Constants::SHOW_BP_CALCS) {
         cout << " x " << (*it)->getMessage();
       }
     }
-    Util::subtract (msg, link->getMessage());
+    msg -= link->getMessage();
   } else {
-    for (unsigned i = 0; i < links.size(); i++) {
+    for (size_t i = 0; i < links.size(); i++) {
       if (links[i]->getFactor() != dst) {
-        Util::multiply (msg, links[i]->getMessage());
+        msg *= links[i]->getMessage();
         if (Constants::SHOW_BP_CALCS) {
           cout << " x " << links[i]->getMessage();
         }
@@ -390,7 +378,7 @@ Params
 BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 {
   VarNodes jointVars;
-  for (unsigned i = 0; i < jointVarIds.size(); i++) {
+  for (size_t i = 0; i < jointVarIds.size(); i++) {
     assert (fg_->getVarNode (jointVarIds[i]));
     jointVars.push_back (fg_->getVarNode (jointVarIds[i]));
   }
@@ -402,29 +390,31 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 
   VarIds observedVids = {jointVars[0]->varId()};
 
-  for (unsigned i = 1; i < jointVarIds.size(); i++) {
+  for (size_t i = 1; i < jointVarIds.size(); i++) {
     assert (jointVars[i]->hasEvidence() == false);
     Params newBeliefs;
     Vars observedVars;
-    for (unsigned j = 0; j < observedVids.size(); j++) {
+    Ranges observedRanges;
+    for (size_t j = 0; j < observedVids.size(); j++) {
       observedVars.push_back (fg->getVarNode (observedVids[j]));
+      observedRanges.push_back (observedVars.back()->range());
     }
-    StatesIndexer idx (observedVars, false);
-    while (idx.valid()) {
-      for (unsigned j = 0; j < observedVars.size(); j++) {
-        observedVars[j]->setEvidence (idx[j]);
+    Indexer indexer (observedRanges, false);
+    while (indexer.valid()) {
+      for (size_t j = 0; j < observedVars.size(); j++) {
+        observedVars[j]->setEvidence (indexer[j]);
       }
-      ++ idx;
       BpSolver solver (*fg);
       solver.runSolver();
       Params beliefs = solver.getPosterioriOf (jointVarIds[i]);
-      for (unsigned k = 0; k < beliefs.size(); k++) {
+      for (size_t k = 0; k < beliefs.size(); k++) {
         newBeliefs.push_back (beliefs[k]);
       }
+      ++ indexer;
     }
 
     int count = -1;
-    for (unsigned j = 0; j < newBeliefs.size(); j++) {
+    for (size_t j = 0; j < newBeliefs.size(); j++) {
       if (j % jointVars[i]->range() == 0) {
         count ++;
       }
@@ -443,16 +433,16 @@ BpSolver::initializeSolver (void)
 {
   const VarNodes& varNodes = fg_->varNodes();
   varsI_.reserve (varNodes.size());
-  for (unsigned i = 0; i < varNodes.size(); i++) {
+  for (size_t i = 0; i < varNodes.size(); i++) {
     varsI_.push_back (new SPNodeInfo());
   }
   const FacNodes& facNodes = fg_->facNodes();
   facsI_.reserve (facNodes.size());
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     facsI_.push_back (new SPNodeInfo());
   }
   createLinks();
-  for (unsigned i = 0; i < links_.size(); i++) {
+  for (size_t i = 0; i < links_.size(); i++) {
     FacNode* src = links_[i]->getFactor();
     VarNode* dst = links_[i]->getVariable();
     ninf (dst)->addSpLink (links_[i]);
@@ -489,7 +479,7 @@ BpSolver::converged (void)
       converged = true;
     }
   } else {
-    for (unsigned i = 0; i < links_.size(); i++) {
+    for (size_t i = 0; i < links_.size(); i++) {
       double residual = links_[i]->getResidual();
       if (Globals::verbosity > 1) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
@@ -513,7 +503,7 @@ BpSolver::converged (void)
 void
 BpSolver::printLinkInformation (void) const
 {
-  for (unsigned i = 0; i < links_.size(); i++) {
+  for (size_t i = 0; i < links_.size(); i++) {
     SpLink* l = links_[i]; 
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " ;

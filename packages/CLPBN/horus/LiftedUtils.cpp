@@ -36,7 +36,7 @@ printSymbolDictionary (void)
       = symbolDict.begin();
   while (it != symbolDict.end()) {
     cout << it->first << " -> " << it->second << endl;
-    it ++;
+    ++ it;
   }
 }
 
@@ -49,7 +49,7 @@ ostream& operator<< (ostream &os, const Symbol& s)
   unordered_map<string, unsigned>::const_iterator it
       = LiftedUtils::symbolDict.begin();
   while (it != LiftedUtils::symbolDict.end() && it->second != s) {
-    it ++;
+    ++ it;
   }
   assert (it != LiftedUtils::symbolDict.end());
   os << it->first;
@@ -72,7 +72,7 @@ ostream& operator<< (ostream &os, const LogVar& X)
 ostream& operator<< (ostream &os, const Tuple& t)
 {
   os << "(" ;
-  for (unsigned i = 0; i < t.size(); i++) {
+  for (size_t i = 0; i < t.size(); i++) {
     os << ((i != 0) ? "," : "") << t[i];
   }
   os << ")" ;
@@ -85,7 +85,7 @@ ostream& operator<< (ostream &os, const Ground& gr)
 {
   os << gr.functor();
   os << "(" ;
-  for (unsigned i = 0; i < gr.args().size(); i++) {
+  for (size_t i = 0; i < gr.args().size(); i++) {
     if (i != 0) os << ", " ;
     os << gr.args()[i];
   }
@@ -108,7 +108,7 @@ Substitution::getDiscardedLogVars (void) const
     } else {
       doneLvs.insert (it->second);
     }
-    it ++;
+    ++ it;
   }
   return discardedLvs;
 }

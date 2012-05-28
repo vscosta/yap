@@ -19,7 +19,7 @@ HistogramSet::HistogramSet (unsigned size, unsigned range)
 void
 HistogramSet::nextHistogram (void)
 {
-  for (int i = hist_.size() - 2; i >= 0; i--) {
+  for (size_t i = hist_.size() - 1; i-- > 0; ) {
     if (hist_[i] > 0) {
       hist_[i] --;
       hist_[i + 1] = maxCount (i + 1);
@@ -27,13 +27,14 @@ HistogramSet::nextHistogram (void)
       break;
     }
   }
-  assert (std::accumulate (hist_.begin(), hist_.end(), 0) == (int)size_);
+  assert (std::accumulate (hist_.begin(), hist_.end(), 0)
+      == (int) size_);
 }
 
 
 
 unsigned
-HistogramSet::operator[] (unsigned idx) const
+HistogramSet::operator[] (size_t idx) const
 {
   assert (idx < hist_.size());
   return hist_[idx];
@@ -82,7 +83,7 @@ HistogramSet::nrHistograms (unsigned N, unsigned R)
 
 
 
-unsigned
+size_t
 HistogramSet::findIndex (
     const Histogram& h,
     const vector<Histogram>& hists)
@@ -126,10 +127,10 @@ ostream& operator<< (ostream &os, const HistogramSet& hs)
 
 
 unsigned
-HistogramSet::maxCount (unsigned idx) const
+HistogramSet::maxCount (size_t idx) const
 {
   unsigned sum = 0;
-  for (unsigned i = 0; i < idx; i++) {
+  for (size_t i = 0; i < idx; i++) {
     sum += hist_[i];
   }
   return size_ - sum;
@@ -138,7 +139,7 @@ HistogramSet::maxCount (unsigned idx) const
 
 
 void
-HistogramSet::clearAfter (unsigned idx)
+HistogramSet::clearAfter (size_t idx)
 {
   std::fill (hist_.begin() + idx + 1, hist_.end(), 0);
 }

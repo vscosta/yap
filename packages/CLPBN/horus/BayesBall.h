@@ -64,7 +64,7 @@ BayesBall::scheduleParents (const DAGraphNode* n, Scheduling& sch) const
 {
   const vector<DAGraphNode*>& ps = n->parents();
   for (vector<DAGraphNode*>::const_iterator it = ps.begin(); 
-      it != ps.end(); it++) {
+      it != ps.end(); ++it) {
     sch.push (ScheduleInfo (*it, false, true));
   }
 }
@@ -76,7 +76,7 @@ BayesBall::scheduleChilds (const DAGraphNode* n, Scheduling& sch) const
 {
   const vector<DAGraphNode*>& cs = n->childs();
   for (vector<DAGraphNode*>::const_iterator it = cs.begin();
-      it != cs.end(); it++) {
+      it != cs.end(); ++it) {
     sch.push (ScheduleInfo (*it, true, false));
   }
 }

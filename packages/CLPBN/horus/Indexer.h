@@ -1,46 +1,23 @@
-#ifndef HORUS_STATESINDEXER_H
-#define HORUS_STATESINDEXER_H
+#ifndef HORUS_INDEXER_H
+#define HORUS_INDEXER_H
 
 #include <algorithm>
-#include <numeric>
 #include <functional>
 
 #include <sstream>
 #include <iomanip>
 
-#include "Var.h"
 #include "Util.h"
 
 
-
-class StatesIndexer
+class Indexer
 {
   public:
-
-    StatesIndexer (const Ranges& ranges, bool calcOffsets = true)
+    Indexer (const Ranges& ranges, bool calcOffsets = true)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges)
     {
-      size_ = 1;
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
-      for (unsigned i = 0; i < ranges.size(); i++) {
-        size_ *= ranges[i];
-      }
-      li_ = 0;
-      if (calcOffsets) {
-        calculateOffsets();
-      }
-    }
-
-    StatesIndexer (const Vars& vars, bool calcOffsets = true)
-    {
-      size_ = 1;
-      indices_.resize (vars.size(), 0);
-      ranges_.reserve (vars.size());
-      for (unsigned i = 0; i < vars.size(); i++) {
-        ranges_.push_back (vars[i]->range());
-        size_ *= vars[i]->range();
-      }
-      li_ = 0;
+      size_ = std::accumulate (ranges.begin(), ranges.end(), 1,
+          std::multiplies<unsigned>());
       if (calcOffsets) {
         calculateOffsets();
       }
@@ -48,7 +25,7 @@ class StatesIndexer
 
     void increment (void)
     {
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         indices_[i] ++;
         if (indices_[i] != ranges_[i]) {
           break;
@@ -56,58 +33,48 @@ class StatesIndexer
           indices_[i] = 0;
         }
       }
-      li_ ++;
+      index_ ++;
     }
 
-    void increment (unsigned dim)
+    void incrementDimension (size_t dim)
     {
       assert (dim < ranges_.size());
       assert (ranges_.size() == offsets_.size());
       assert (indices_[dim] < ranges_[dim]);
       indices_[dim] ++;
-      li_ += offsets_[dim];
+      index_ += offsets_[dim];
     }
 
-    void incrementExcluding (unsigned skipDim)
+    void incrementExceptDimension (size_t dim)
     {
       assert (ranges_.size() == offsets_.size());
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
-        if (i != (int)skipDim) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
+        if (i != dim) {
           indices_[i] ++;
-          li_ += offsets_[i];
+          index_ += offsets_[i];
           if (indices_[i] != ranges_[i]) {
             return;
           } else {
             indices_[i] = 0;
-            li_ -= offsets_[i] * ranges_[i];
+            index_ -= offsets_[i] * ranges_[i];
           }
         }
       }
-      li_ = size_;
+      index_ = size_;
     }
 
-    unsigned linearIndex (void) const
-    {
-      return li_;
-    }
-
-    const vector<unsigned>& indices (void) const
-    {
-      return indices_;
-    }
-
-    StatesIndexer& operator ++ (void)
+    Indexer& operator++ (void)
     {
       increment();
       return *this;
     }
 
-    operator unsigned (void) const
+    operator size_t (void) const
     {
-      return li_;
+      return index_;
     }
 
-    unsigned operator[] (unsigned dim) const
+    unsigned operator[] (size_t dim) const
     {
       assert (valid());
       assert (dim < ranges_.size());
@@ -116,125 +83,118 @@ class StatesIndexer
 
     bool valid (void) const
     {
-      return li_ < size_;
+      return index_ < size_;
     }
 
     void reset (void)
     {
       std::fill (indices_.begin(), indices_.end(), 0);
-      li_ = 0;
+      index_ = 0;
     }
 
-    void reset (unsigned dim)
+    void resetDimension (size_t dim)
     {
       indices_[dim] = 0;
-      li_ -= offsets_[dim] * ranges_[dim];
+      index_ -= offsets_[dim] * ranges_[dim];
     }
 
-    unsigned size (void) const
+    size_t size (void) const
     {
       return size_ ;
     }
 
-    friend ostream& operator<< (ostream &os, const StatesIndexer& idx)
-    {
-      os << "(" << std::setw (2) << std::setfill('0') << idx.li_ << ") " ;
-      os << idx.indices_;
-      return os;
-    }
+    friend std::ostream& operator<< (std::ostream&, const Indexer&);
 
   private:
     void calculateOffsets (void)
     {
-      unsigned prod = 1;
+      size_t prod = 1;
       offsets_.resize (ranges_.size());
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         offsets_[i] = prod;
         prod *= ranges_[i];
       }
     }
 
-    unsigned          li_;
-    unsigned          size_;
-    vector<unsigned>  indices_;
-    vector<unsigned>  ranges_;
-    vector<unsigned>  offsets_;
+    size_t          index_;
+    Ranges          indices_;
+    const Ranges&   ranges_;
+    size_t          size_;
+    vector<size_t>  offsets_;
 };
+
+
+
+inline std::ostream&
+operator<< (std::ostream& os, const Indexer& indexer)
+{
+  os << "(" ;
+  os << std::setw (2) << std::setfill('0') << indexer.index_;
+  os << ") " ;
+  os << indexer.indices_;
+  return os;
+}
 
 
 
 class MapIndexer
 {
   public:
-    MapIndexer (const Ranges& ranges, const vector<bool>& mapDims)
+    MapIndexer (const Ranges& ranges, const vector<bool>& mask)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
+          valid_(true)
     {
-      assert (ranges.size() == mapDims.size());
-      unsigned prod = 1;
-      offsets_.resize (ranges.size());
-      for (int i = ranges.size() - 1; i >= 0; i--) {
-        if (mapDims[i]) {
+      size_t prod = 1;
+      offsets_.resize (ranges.size(), 0);
+      for (size_t i = ranges.size(); i-- > 0; ) {
+        if (mask[i]) {
           offsets_[i] = prod;
           prod *= ranges[i];
         }
       }
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
-      index_ = 0;
-      valid_ = true;
+      assert (ranges.size() == mask.size());
     }
 
-    MapIndexer (const Ranges& ranges, unsigned ignoreDim)
+    MapIndexer (const Ranges& ranges, size_t dim)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
+          valid_(true)
     {
-      unsigned prod = 1;
-      offsets_.resize (ranges.size());
-      for (int i = ranges.size() - 1; i >= 0; i--) {
-        if (i != (int)ignoreDim) {
+      size_t prod = 1;
+      offsets_.resize (ranges.size(), 0);
+      for (size_t i = ranges.size(); i-- > 0; ) {
+        if (i != dim) {
           offsets_[i] = prod;
           prod *= ranges[i];
         }
       }
-      indices_.resize (ranges.size(), 0);
-      ranges_ = ranges;
-      index_ = 0;
-      valid_ = true;
     }
     
-    /*
-    MapIndexer (
-        const VarIds& loopVids,
-        const Ranges& loopRanges,
-        const VarIds& mapVids,
-        const Ranges& mapRanges)
+   template <typename T>
+   MapIndexer (
+        const vector<T>& allArgs,
+        const Ranges&    allRanges,
+        const vector<T>& wantedArgs,
+        const Ranges&    wantedRanges)
+     : index_(0), indices_(allArgs.size(), 0), ranges_(allRanges),
+       valid_(true)
     {
-      unsigned prod = 1;
-      vector<unsigned> offsets (mapRanges.size());
-      for (int i = mapRanges.size() - 1; i >= 0; i--) {
+      size_t prod = 1;
+      vector<size_t> offsets (wantedRanges.size());
+      for (size_t i = wantedRanges.size(); i-- > 0; ) {
         offsets[i] = prod;
-        prod *= mapRanges[i];
+        prod *= wantedRanges[i];
       }
-
-      offsets_.reserve (loopVids.size());
-      for (unsigned i = 0; i < loopVids.size(); i++) {
-        VarIds::const_iterator it =
-            std::find (mapVids.begin(), mapVids.end(), loopVids[i]);
-        if (it != mapVids.end()) {
-          offsets_.push_back (offsets[it - mapVids.begin()]);
-        } else {
-          offsets_.push_back (0);
-        }
+      offsets_.reserve (allArgs.size());
+      for (size_t i = 0; i < allArgs.size(); i++) {
+        size_t idx = Util::indexOf (wantedArgs, allArgs[i]);
+        offsets_.push_back (idx != wantedArgs.size() ? offsets[idx] : 0);
       }
-
-      indices_.resize (loopVids.size(), 0);
-      ranges_ = loopRanges;
-      index_ = 0;
-      size_ = prod;
     }
-    */
 
-    MapIndexer& operator ++ (void)
+    MapIndexer& operator++ (void)
     {
       assert (valid_);
-      for (int i = ranges_.size() - 1; i >= 0; i--) {
+      for (size_t i = ranges_.size(); i-- > 0; ) {
         indices_[i] ++;
         index_ += offsets_[i];
         if (indices_[i] != ranges_[i]) {
@@ -248,17 +208,13 @@ class MapIndexer
       return *this;
     }
 
-    unsigned mappedIndex (void) const
+    operator size_t (void) const
     {
+      assert (valid());
       return index_;
     }
 
-    operator unsigned (void) const
-    {
-      return index_;
-    }
-
-    unsigned operator[] (unsigned dim) const
+    unsigned operator[] (size_t dim) const
     {
       assert (valid());
       assert (dim < ranges_.size());
@@ -276,21 +232,28 @@ class MapIndexer
       index_ = 0;
     }
 
-    friend ostream& operator<< (ostream &os, const MapIndexer& idx)
-    {
-      os << "(" << std::setw (2) << std::setfill('0') << idx.index_ << ") " ;
-      os << idx.indices_;
-      return os;
-    }
+    friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
 
   private:
-    unsigned          index_;
-    bool              valid_;
-    vector<unsigned>  ranges_;
-    vector<unsigned>  indices_;
-    vector<unsigned>  offsets_;
+    size_t          index_;
+    Ranges          indices_;
+    const Ranges&   ranges_;
+    bool            valid_;
+    vector<size_t>  offsets_;
 };
 
 
-#endif // HORUS_STATESINDEXER_H
+
+inline std::ostream&
+operator<< (std::ostream &os, const MapIndexer& indexer)
+{
+  os << "(" ;
+  os << std::setw (2) << std::setfill('0') << indexer.index_;
+  os << ") " ;
+  os << indexer.indices_;
+  return os;
+}
+
+
+#endif // HORUS_INDEXER_H
 

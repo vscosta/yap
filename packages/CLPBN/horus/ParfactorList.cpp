@@ -45,7 +45,7 @@ ParfactorList::add (Parfactor* pf)
 void
 ParfactorList::add (const Parfactors& pfs)
 {
-  for (unsigned i = 0; i < pfs.size(); i++) {
+  for (size_t i = 0; i < pfs.size(); i++) {
     pfs[i]->setNewGroups();
     addToShatteredList (pfs[i]);
   }
@@ -98,11 +98,11 @@ ParfactorList::isAllShattered (void) const
     return true;
   }
   vector<Parfactor*> pfs (pfList_.begin(), pfList_.end());
-  for (unsigned i = 0; i < pfs.size(); i++) {
+  for (size_t i = 0; i < pfs.size(); i++) {
     assert (isShattered (pfs[i]));
   }
-  for (unsigned i = 0; i < pfs.size() - 1; i++) {
-    for (unsigned j = i + 1; j < pfs.size(); j++) {
+  for (size_t i = 0; i < pfs.size() - 1; i++) {
+    for (size_t j = i + 1; j < pfs.size(); j++) {
       if (isShattered (pfs[i], pfs[j])  == false) {
         return false;
       }
@@ -118,7 +118,7 @@ ParfactorList::print (void) const
 {
   Parfactors pfVec (pfList_.begin(), pfList_.end());
   std::sort (pfVec.begin(), pfVec.end(), sortByParams());
-  for (unsigned i = 0; i < pfVec.size(); i++) {
+  for (size_t i = 0; i < pfVec.size(); i++) {
     pfVec[i]->print();
     cout << endl;
   }
@@ -134,8 +134,8 @@ ParfactorList::isShattered (const Parfactor* g) const
     return true;
   }
   ConstraintTree ct (*g->constr());
-  for (unsigned i = 0; i < formulas.size() - 1; i++) {
-    for (unsigned j = i + 1; j < formulas.size(); j++) {
+  for (size_t i = 0; i < formulas.size() - 1; i++) {
+    for (size_t j = i + 1; j < formulas.size(); j++) {
       if (formulas[i].group() == formulas[j].group()) {
         if (identical (
             formulas[i], *(g->constr()),
@@ -171,8 +171,8 @@ ParfactorList::isShattered (
   const ProbFormulas& fms1 = g1->arguments();
   const ProbFormulas& fms2 = g2->arguments();
 
-  for (unsigned i = 0; i < fms1.size(); i++) {
-    for (unsigned j = 0; j < fms2.size(); j++) {
+  for (size_t i = 0; i < fms1.size(); i++) {
+    for (size_t j = 0; j < fms2.size(); j++) {
       if (fms1[i].group() == fms2[j].group()) {
         if (identical (
             fms1[i], *(g1->constr()),
@@ -261,7 +261,7 @@ ParfactorList::shatterAgainstMySelf (Parfactor* g)
       pfs.push_back (pf);
     } else {
       shattered = false;
-      for (unsigned i = 0; i < res.size(); i++) {
+      for (size_t i = 0; i < res.size(); i++) {
         assert (res[i]->constr()->empty() == false);
         residuals.push (res[i]);
       }
@@ -280,8 +280,8 @@ ParfactorList::shatterAgainstMySelf2 (Parfactor* g)
   // slip a parfactor with overlapping formulas:
   // e.g. {s(X),s(Y)}, with (X,Y) in {(p1,p2),(p1,p3),(p4,p1)}
   const ProbFormulas& formulas = g->arguments();
-  for (unsigned i = 0; i < formulas.size() - 1; i++) {
-    for (unsigned j = i + 1; j < formulas.size(); j++) {
+  for (size_t i = 0; i < formulas.size() - 1; i++) {
+    for (size_t j = i + 1; j < formulas.size(); j++) {
       if (formulas[i].sameSkeletonAs (formulas[j])) {
         Parfactors res = shatterAgainstMySelf (g, i, j);
         if (res.empty() == false) {
@@ -298,8 +298,8 @@ ParfactorList::shatterAgainstMySelf2 (Parfactor* g)
 Parfactors
 ParfactorList::shatterAgainstMySelf (
     Parfactor* g,
-    unsigned fIdx1,
-    unsigned fIdx2)
+    size_t fIdx1,
+    size_t fIdx2)
 {
   /*
   Util::printDashedLine();
@@ -340,7 +340,7 @@ ParfactorList::shatterAgainstMySelf (
     return { };
   }
 
-  unsigned newGroup = ProbFormula::getNewGroup();
+  PrvGroup newGroup = ProbFormula::getNewGroup();
   Parfactors res1 = shatter (g, fIdx1, commCt1, exclCt1, newGroup);
   if (res1.empty()) {
     res1.push_back (g);
@@ -348,7 +348,7 @@ ParfactorList::shatterAgainstMySelf (
 
   Parfactors res;
   ctCopy.moveToTop (f1.logVars());
-  for (unsigned i = 0; i < res1.size(); i++) {
+  for (size_t i = 0; i < res1.size(); i++) {
     res1[i]->constr()->moveToTop (f2.logVars());
     std::pair<ConstraintTree*, ConstraintTree*> split2;
     split2 = res1[i]->constr()->split (f2.logVars(), &ctCopy, f1.logVars());
@@ -370,7 +370,7 @@ ParfactorList::shatterAgainstMySelf (
       }
     } else {
       Util::addToVector (res, res2);
-      for (unsigned j = 0; j < res2.size(); j++) {
+      for (size_t j = 0; j < res2.size(); j++) {
       }
       if (res1[i] != g) {
         delete res1[i];
@@ -393,8 +393,8 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
   ProbFormulas& formulas1 = g1->arguments();
   ProbFormulas& formulas2 = g2->arguments();
   assert (g1 != 0 && g2 != 0 && g1 != g2);
-  for (unsigned i = 0; i < formulas1.size(); i++) {
-    for (unsigned j = 0; j < formulas2.size(); j++) {
+  for (size_t i = 0; i < formulas1.size(); i++) {
+    for (size_t j = 0; j < formulas2.size(); j++) {
       if (formulas1[i].sameSkeletonAs (formulas2[j])) {
         std::pair<Parfactors, Parfactors> res;
         res = shatter (i, g1, j, g2);
@@ -412,8 +412,8 @@ ParfactorList::shatter (Parfactor* g1, Parfactor* g2)
 
 std::pair<Parfactors, Parfactors>
 ParfactorList::shatter (
-    unsigned fIdx1, Parfactor* g1,
-    unsigned fIdx2, Parfactor* g2)
+    size_t fIdx1, Parfactor* g1,
+    size_t fIdx2, Parfactor* g2)
 {
   ProbFormula& f1 = g1->argument (fIdx1);
   ProbFormula& f2 = g2->argument (fIdx2);
@@ -464,7 +464,6 @@ ParfactorList::shatter (
   assert (commCt1->tupleSet (f1.logVars()) == 
           commCt2->tupleSet (f2.logVars()));
 
-   // unsigned static count = 0; count ++;
    // stringstream ss1; ss1 << "" << count << "_A.dot" ;
    // stringstream ss2; ss2 << "" << count << "_B.dot" ;
    // stringstream ss3; ss3 << "" << count << "_A_comm.dot" ;
@@ -489,7 +488,7 @@ ParfactorList::shatter (
     return { };
   }
 
-  unsigned group;
+  PrvGroup group;
   if (exclCt1->empty()) {
     group = f1.group();
   } else if (exclCt2->empty()) {
@@ -507,10 +506,10 @@ ParfactorList::shatter (
 Parfactors
 ParfactorList::shatter (
     Parfactor* g,
-    unsigned fIdx,
+    size_t fIdx,
     ConstraintTree* commCt,
     ConstraintTree* exclCt,
-    unsigned commGroup)
+    PrvGroup commGroup)
 {
   ProbFormula& f = g->argument (fIdx);
   if (exclCt->empty()) {
@@ -526,7 +525,7 @@ ParfactorList::shatter (
     LogVar X_new2 = g->constr()->logVarSet().back() + 2;
     ConstraintTrees cts = g->constr()->jointCountNormalize (
         commCt, exclCt, f.countedLogVar(), X_new1, X_new2);
-    for (unsigned i = 0; i < cts.size(); i++) {
+    for (size_t i = 0; i < cts.size(); i++) {
       Parfactor* newPf = new Parfactor (g, cts[i]);
       if (cts[i]->nrLogVars() == g->constr()->nrLogVars() + 1) {
         newPf->expand (f.countedLogVar(), X_new1, X_new2);
@@ -557,12 +556,12 @@ ParfactorList::shatter (
 
 
 void
-ParfactorList::updateGroups (unsigned oldGroup, unsigned newGroup)
+ParfactorList::updateGroups (PrvGroup oldGroup, PrvGroup newGroup)
 {
   for (ParfactorList::iterator it = pfList_.begin();
-       it != pfList_.end(); it++) {
+       it != pfList_.end(); ++it) {
     ProbFormulas& formulas = (*it)->arguments();
-    for (unsigned i = 0; i < formulas.size(); i++) {
+    for (size_t i = 0; i < formulas.size(); i++) {
       if (formulas[i].group() == oldGroup) {
         formulas[i].setGroup (newGroup);
       }

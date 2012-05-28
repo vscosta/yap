@@ -18,7 +18,7 @@ class Parfactor : public TFactor<ProbFormula>
         const ProbFormulas&,
         const Params&,
         const Tuples&,
-        unsigned);
+        unsigned distId);
 
     Parfactor (const Parfactor*, const Tuple&);
 
@@ -42,11 +42,9 @@ class Parfactor : public TFactor<ProbFormula>
    
     LogVarSet elimLogVars (void) const;
   
-    LogVarSet exclusiveLogVars (unsigned) const;
-     
-    void setConstraintTree (ConstraintTree*);
-
-    void sumOut (unsigned fIdx);
+    LogVarSet exclusiveLogVars (size_t fIdx) const;
+    
+    void sumOutIndex (size_t fIdx);
 
     void multiply (Parfactor&);
     
@@ -66,21 +64,21 @@ class Parfactor : public TFactor<ProbFormula>
 
     void applySubstitution (const Substitution&);
 
-    int findGroup (const Ground&) const;
+    PrvGroup findGroup (const Ground&) const;
 
     bool containsGround (const Ground&) const;
 
-    bool containsGroup (unsigned) const;
+    bool containsGroup (PrvGroup) const;
   
     unsigned nrFormulas (LogVar) const;
 
     int indexOfLogVar (LogVar) const;
 
-    int indexOfGroup (unsigned) const;
+    int indexOfGroup (PrvGroup) const;
 
-    unsigned nrFormulasWithGroup (unsigned) const;
+    unsigned nrFormulasWithGroup (PrvGroup) const;
 
-    vector<unsigned> getAllGroups (void) const;
+    vector<PrvGroup> getAllGroups (void) const;
 
     void print (bool = false) const;
 
@@ -96,14 +94,14 @@ class Parfactor : public TFactor<ProbFormula>
 
   private:
  
-    void simplifyCountingFormulas (int fIdx);
+    void simplifyCountingFormulas (size_t fIdx);
 
-    void simplifyParfactor (unsigned fIdx1, unsigned fIdx2);
+    void simplifyParfactor (size_t fIdx1, size_t fIdx2);
 
     static std::pair<LogVars, LogVars> getAlignLogVars (
         Parfactor* g1, Parfactor* g2);
 
-    void expandPotential (int fIdx, unsigned newRange,
+    void expandPotential (size_t fIdx, unsigned newRange,
         const vector<unsigned>& sumIndexes);
 
     static void alignAndExponentiate (Parfactor*, Parfactor*);

@@ -18,7 +18,7 @@ VarElimSolver::solveQuery (VarIds queryVids)
 {
   if (Globals::verbosity > 1) {
     cout << "Solving query on " ;
-    for (unsigned i = 0; i < queryVids.size(); i++) {
+    for (size_t i = 0; i < queryVids.size(); i++) {
       if (i != 0) cout << ", " ;
       cout << fg.getVarNode (queryVids[i])->label();
     }
@@ -33,7 +33,7 @@ VarElimSolver::solveQuery (VarIds queryVids)
   processFactorList (queryVids);
   Params params = factorList_.back()->params();
   if (Globals::logDomain) {
-    Util::fromLog (params);
+    Util::exp (params);
   }
   return params;
 }
@@ -65,15 +65,15 @@ VarElimSolver::createFactorList (void)
 {
   const FacNodes& facNodes = fg.facNodes();
   factorList_.reserve (facNodes.size() * 2);
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     factorList_.push_back (new Factor (facNodes[i]->factor()));
     const VarNodes& neighs = facNodes[i]->neighbors();
-    for (unsigned j = 0; j < neighs.size(); j++) {
-      unordered_map<VarId,vector<unsigned> >::iterator it 
+    for (size_t j = 0; j < neighs.size(); j++) {
+      unordered_map<VarId, vector<size_t>>::iterator it 
           = varFactors_.find (neighs[j]->varId());
       if (it == varFactors_.end()) {
         it = varFactors_.insert (make_pair (
-            neighs[j]->varId(), vector<unsigned>())).first;
+            neighs[j]->varId(), vector<size_t>())).first;
       }
       it->second.push_back (i);
     }
@@ -91,16 +91,16 @@ VarElimSolver::absorveEvidence (void)
     printActiveFactors();
   }
   const VarNodes& varNodes = fg.varNodes();
-  for (unsigned i = 0; i < varNodes.size(); i++) {
+  for (size_t i = 0; i < varNodes.size(); i++) {
     if (varNodes[i]->hasEvidence()) {
       if (Globals::verbosity > 1) {
         cout << "-> aborving evidence on ";
         cout << varNodes[i]->label() << " = " ;
         cout << varNodes[i]->getEvidence() << endl;
       }
-      const vector<unsigned>& idxs =
+      const vector<size_t>& idxs =
           varFactors_.find (varNodes[i]->varId())->second;
-      for (unsigned j = 0; j < idxs.size(); j++) {
+      for (size_t j = 0; j < idxs.size(); j++) {
         Factor* factor = factorList_[idxs[j]];
         if (factor->nrArguments() == 1) {
           factorList_[idxs[j]] = 0;
@@ -128,7 +128,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
 {
   totalFactorSize_   = 0;
   largestFactorSize_ = 0;
-  for (unsigned i = 0; i < elimOrder_.size(); i++) {
+  for (size_t i = 0; i < elimOrder_.size(); i++) {
     if (Globals::verbosity >= 2) {
       if (Globals::verbosity >= 3) {
         Util::printDashedLine();
@@ -141,7 +141,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
   }
 
   Factor* finalFactor = new Factor();
-  for (unsigned i = 0; i < factorList_.size(); i++) {
+  for (size_t i = 0; i < factorList_.size(); i++) {
     if (factorList_[i]) {
       finalFactor->multiply (*factorList_[i]);
       delete factorList_[i];
@@ -150,7 +150,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
   }
 
   VarIds unobservedVids;
-  for (unsigned i = 0; i < vids.size(); i++) {
+  for (size_t i = 0; i < vids.size(); i++) {
     if (fg.getVarNode (vids[i])->hasEvidence() == false) {
       unobservedVids.push_back (vids[i]);
     }
@@ -172,9 +172,9 @@ void
 VarElimSolver::eliminate (VarId elimVar)
 {
   Factor* result = 0;
-  vector<unsigned>& idxs = varFactors_.find (elimVar)->second;
-  for (unsigned i = 0; i < idxs.size(); i++) {
-    unsigned idx = idxs[i];
+  vector<size_t>& idxs = varFactors_.find (elimVar)->second;
+  for (size_t i = 0; i < idxs.size(); i++) {
+    size_t idx = idxs[i];
     if (factorList_[idx]) {
       if (result == 0) {
         result = new Factor (*factorList_[idx]);
@@ -193,8 +193,8 @@ VarElimSolver::eliminate (VarId elimVar)
     result->sumOut (elimVar);
     factorList_.push_back (result);
     const VarIds& resultVarIds = result->arguments();
-    for (unsigned i = 0; i < resultVarIds.size(); i++) {
-      vector<unsigned>& idxs =
+    for (size_t i = 0; i < resultVarIds.size(); i++) {
+      vector<size_t>& idxs =
           varFactors_.find (resultVarIds[i])->second;
       idxs.push_back (factorList_.size() - 1);
     }
@@ -206,7 +206,7 @@ VarElimSolver::eliminate (VarId elimVar)
 void
 VarElimSolver::printActiveFactors (void)
 {
-  for (unsigned i = 0; i < factorList_.size(); i++) {
+  for (size_t i = 0; i < factorList_.size(); i++) {
     if (factorList_[i] != 0) {
       cout << factorList_[i]->getLabel() << " " ;
       cout << factorList_[i]->params() << endl;

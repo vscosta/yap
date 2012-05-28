@@ -66,7 +66,7 @@ int createLiftedNetwork (void)
   // LiftedUtils::printSymbolDictionary();
   if (Globals::verbosity > 2) {
     Util::printHeader ("INITIAL PARFACTORS");
-    for (unsigned i = 0; i < parfactors.size(); i++) {
+    for (size_t i = 0; i < parfactors.size(); i++) {
       parfactors[i]->print();
       cout << endl;
     }
@@ -197,7 +197,7 @@ void readLiftedEvidence (
     }
     unsigned evidence = (unsigned) YAP_IntOfTerm (YAP_ArgOfTerm (2, pair));
     bool found = false;
-    for (unsigned i = 0; i < obsFormulas.size(); i++) {
+    for (size_t i = 0; i < obsFormulas.size(); i++) {
       if (obsFormulas[i].functor()  == functor &&
           obsFormulas[i].arity()    == args.size() &&
           obsFormulas[i].evidence() == evidence) {
@@ -268,7 +268,7 @@ readParameters (YAP_Term paramL)
     paramL = YAP_TailOfTerm (paramL);
   }
   if (Globals::logDomain) {
-    Util::toLog (params);
+    Util::log (params);
   }
   return params;
 }
@@ -322,10 +322,10 @@ runLiftedSolver (void)
   }
 
   YAP_Term list = YAP_TermNil();
-  for (int i = results.size() - 1; i >= 0; i--) {
+  for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
-    for (int j = beliefs.size() - 1; j >= 0; j--) {
+    for (size_t j = beliefs.size(); j-- > 0; ) {
       YAP_Int sl1      = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
@@ -359,10 +359,10 @@ runGroundSolver (void)
   }
 
   YAP_Term list = YAP_TermNil();
-  for (int i = results.size() - 1; i >= 0; i--) {
+  for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
-    for (int j = beliefs.size() - 1; j >= 0; j--) {
+    for (size_t j = beliefs.size(); j-- > 0; ) {
       YAP_Int sl1      = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
@@ -382,7 +382,7 @@ void runVeSolver (
    vector<Params>& results) 
 {
   results.reserve (tasks.size());
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     FactorGraph* mfg = fg;
     if (fg->isFromBayesNetwork()) {
       // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
@@ -408,7 +408,7 @@ void runBpSolver (
     vector<Params>& results) 
 {
   std::set<VarId> vids;
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     Util::addToSet (vids, tasks[i]);
   }
   Solver* solver = 0;
@@ -431,7 +431,7 @@ void runBpSolver (
     cout << endl;
   }
   results.reserve (tasks.size());
-  for (unsigned i = 0; i < tasks.size(); i++) {
+  for (size_t i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
   }
   if (fg->isFromBayesNetwork()) {
@@ -482,7 +482,7 @@ setFactorsParams (void)
     distList = YAP_TailOfTerm (distList);
   }
   const FacNodes& facNodes = fg->facNodes();
-  for (unsigned i = 0; i < facNodes.size(); i++) {
+  for (size_t i = 0; i < facNodes.size(); i++) {
     unsigned distId = facNodes[i]->factor().distId();
     assert (Util::contains (paramsMap, distId));
     facNodes[i]->factor().setParams (paramsMap[distId]);
@@ -572,7 +572,7 @@ extern "C" void
 init_predicates (void)
 {
   YAP_UserCPredicate ("cpp_create_lifted_network",  createLiftedNetwork, 3);
-  YAP_UserCPredicate ("cpp_create_ground_network",         createGroundNetwork, 4);
+  YAP_UserCPredicate ("cpp_create_ground_network",  createGroundNetwork, 4);
   YAP_UserCPredicate ("cpp_run_lifted_solver",      runLiftedSolver,     3);
   YAP_UserCPredicate ("cpp_run_ground_solver",      runGroundSolver,     3);
   YAP_UserCPredicate ("cpp_set_parfactors_params",  setParfactorsParams, 2);
