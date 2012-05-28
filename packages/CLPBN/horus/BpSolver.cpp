@@ -333,7 +333,6 @@ Params
 BpSolver::getVar2FactorMsg (const SpLink* link) const
 {
   const VarNode* src = link->getVariable();
-  const FacNode* dst = link->getFactor();
   Params msg;
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());
@@ -344,10 +343,10 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   if (Constants::SHOW_BP_CALCS) {
     cout << msg;
   }
+  SpLinkSet::const_iterator it;
   const SpLinkSet& links = ninf (src)->getLinks();
   if (Globals::logDomain) {
-    SpLinkSet::const_iterator it;
-    for (it = links.begin(); it != links.end(); ++ it) {
+    for (it = links.begin(); it != links.end(); ++it) {
       msg += (*it)->getMessage();
       if (Constants::SHOW_BP_CALCS) {
         cout << " x " << (*it)->getMessage();
@@ -355,14 +354,13 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
     }
     msg -= link->getMessage();
   } else {
-    for (size_t i = 0; i < links.size(); i++) {
-      if (links[i]->getFactor() != dst) {
-        msg *= links[i]->getMessage();
-        if (Constants::SHOW_BP_CALCS) {
-          cout << " x " << links[i]->getMessage();
-        }
+    for (it = links.begin(); it != links.end(); ++it) {
+      msg *= (*it)->getMessage();
+      if (Constants::SHOW_BP_CALCS) {
+        cout << " x " << (*it)->getMessage();
       }
     }
+    msg /= link->getMessage();
   }
   if (Constants::SHOW_BP_CALCS) {
     cout << " = " << msg;
