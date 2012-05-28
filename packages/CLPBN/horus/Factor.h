@@ -169,12 +169,13 @@ class TFactor
         assert (idx != args_.size());
         new_ranges.push_back (ranges_[idx]);
       }
-      Params backup = params_;
-      params_.clear();
+      Params newps;
+      newps.reserve (params_.size());
       CutIndexer indexer (new_args, new_ranges, args_, ranges_);
       for (; indexer.valid(); ++indexer) {
-        params_.push_back (backup[indexer]);
+        newps.push_back (params_[indexer]);
       }
+      params_ = newps;
       args_   = new_args;
       ranges_ = new_ranges;
     }
