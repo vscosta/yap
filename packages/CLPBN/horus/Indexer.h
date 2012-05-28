@@ -2,7 +2,7 @@
 #define HORUS_INDEXER_H
 
 #include <algorithm>
-#include <functional>
+#include <numeric>
 
 #include <sstream>
 #include <iomanip>
