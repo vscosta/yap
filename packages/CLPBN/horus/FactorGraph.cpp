@@ -363,7 +363,7 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
   for (size_t i = 0; i < facNodes_.size(); i++) {
     const VarNodes& factorVars = facNodes_[i]->neighbors();
     out << factorVars.size() << endl;
-    for (int j = factorVars.size() - 1; j >= 0; j--) {
+    for (size_t j = factorVars.size(); j-- > 0; ) {
       out << factorVars[j]->varId() << " " ;
     }
     out << endl;

@@ -214,7 +214,7 @@ CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       const CbpSolverLink* cl = static_cast<const CbpSolverLink*> (links[i]);
       if ( ! (cl->getVariable() == dst && cl->index() == link->index())) {
         if (Constants::SHOW_BP_CALCS) {
@@ -233,7 +233,7 @@ CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
       }
     }
   } else {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       const CbpSolverLink* cl = static_cast<const CbpSolverLink*> (links[i]);
       if ( ! (cl->getVariable() == dst && cl->index() == link->index())) {
         if (Constants::SHOW_BP_CALCS) {

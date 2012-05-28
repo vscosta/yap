@@ -273,7 +273,7 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->getVariable() != dst) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();
@@ -291,7 +291,7 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
       }
     }
   } else {
-    for (int i = links.size() - 1; i >= 0; i--) {
+    for (size_t i = links.size(); i-- > 0; ) {
       if (links[i]->getVariable() != dst) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->getVariable()->label();

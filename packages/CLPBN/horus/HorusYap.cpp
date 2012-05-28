@@ -322,10 +322,10 @@ runLiftedSolver (void)
   }
 
   YAP_Term list = YAP_TermNil();
-  for (int i = results.size() - 1; i >= 0; i--) {
+  for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
-    for (int j = beliefs.size() - 1; j >= 0; j--) {
+    for (size_t j = beliefs.size(); j-- > 0; ) {
       YAP_Int sl1      = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);
@@ -359,10 +359,10 @@ runGroundSolver (void)
   }
 
   YAP_Term list = YAP_TermNil();
-  for (int i = results.size() - 1; i >= 0; i--) {
+  for (size_t i = results.size(); i-- > 0; ) {
     const Params& beliefs = results[i];
     YAP_Term queryBeliefsL = YAP_TermNil();
-    for (int j = beliefs.size() - 1; j >= 0; j--) {
+    for (size_t j = beliefs.size(); j-- > 0; ) {
       YAP_Int sl1      = YAP_InitSlot (list);
       YAP_Term belief  = YAP_MkFloatTerm (beliefs[j]);
       queryBeliefsL    = YAP_MkPairTerm (belief, queryBeliefsL);

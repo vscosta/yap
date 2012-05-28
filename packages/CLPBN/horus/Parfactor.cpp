@@ -633,10 +633,10 @@ Parfactor::expandPotential (
   params_.clear();
   params_.reserve (newSize);
 
-  unsigned prod = 1;
-  vector<unsigned> offsets_ (ranges_.size());
-  for (int i = ranges_.size() - 1; i >= 0; i--) {
-    offsets_[i] = prod;
+  size_t prod = 1;
+  vector<size_t> offsets (ranges_.size());
+  for (size_t i = ranges_.size(); i-- > 0; ) {
+    offsets[i] = prod;
     prod *= ranges_[i];
   }
 
@@ -651,19 +651,19 @@ Parfactor::expandPotential (
       if (i == fIdx) {
         if (indices[i] != ranges_[i]) {
           int diff = sumIndexes[indices[i]] - sumIndexes[indices[i] - 1];
-          index += diff * offsets_[i];
+          index += diff * offsets[i];
           break;
         } else {
           // last index contains the old range minus 1
-          index -= sumIndexes.back() * offsets_[i];
+          index -= sumIndexes.back() * offsets[i];
           indices[i] = 0;
         }
       } else {
         if (indices[i] != ranges_[i]) {
-          index += offsets_[i];
+          index += offsets[i];
           break;
         } else {
-          index -= (ranges_[i] - 1) * offsets_[i];
+          index -= (ranges_[i] - 1) * offsets[i];
           indices[i] = 0;
         }
       }
