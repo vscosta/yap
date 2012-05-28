@@ -629,7 +629,7 @@ Parfactor::expandPotential (
     abort();
   }
 
-  Params copy = params_;
+  Params backup = params_;
   params_.clear();
   params_.reserve (newSize);
 
@@ -644,11 +644,8 @@ Parfactor::expandPotential (
   ranges_[fIdx] = newRange;
   vector<unsigned> indices (ranges_.size(), 0);
   for (size_t k = 0; k < newSize; k++) {
-    if (index >= copy.size()) {
-      abort();
-    }
-    assert (index < copy.size());
-    params_.push_back (copy[index]);
+    assert (index < backup.size());
+    params_.push_back (backup[index]);
     for (size_t i = ranges_.size(); i-- > 0; ) {
       indices[i] ++;
       if (i == fIdx) {
@@ -738,12 +735,12 @@ Parfactor::canMultiply (Parfactor* g1, Parfactor* g2)
 void
 Parfactor::simplifyParfactor (size_t fIdx1, size_t fIdx2)
 {
-  Params copy = params_;
+  Params backup = params_;
   params_.clear();
   Indexer indexer (ranges_);
   while (indexer.valid()) {
     if (indexer[fIdx1] == indexer[fIdx2]) {
-      params_.push_back (copy[indexer]);
+      params_.push_back (backup[indexer]);
     }     
     ++ indexer;
   }
