@@ -157,41 +157,26 @@ class TFactor
       ranges_.erase (ranges_.begin() + idx);
     }
 
-    void reorderArguments (const vector<T> newArgs)
+    void reorderArguments (const vector<T> new_args)
     {
-      assert (newArgs.size() == args_.size());
-      if (newArgs == args_) {
-        return; // already in the wanted order
+      assert (new_args.size() == args_.size());
+      if (new_args == args_) {
+        return; // already on the desired order
       }
-      Ranges newRanges;
-      vector<size_t> positions;
-      for (size_t i = 0; i < newArgs.size(); i++) {
-        size_t idx = indexOf (newArgs[i]);
-        newRanges.push_back (ranges_[idx]);
-        positions.push_back (idx);
+      Ranges new_ranges;
+      for (size_t i = 0; i < new_args.size(); i++) {
+        size_t idx = indexOf (new_args[i]);
+        assert (idx != args_.size());
+        new_ranges.push_back (ranges_[idx]);
       }
-      size_t N = ranges_.size();
-      Params newParams (params_.size());
-      for (size_t i = 0; i < params_.size(); i++) {
-        size_t li = i;
-        // calculate vector index corresponding to linear index
-        vector<unsigned> vi (N);
-        for (unsigned k = N; k-- > 0; ) {
-          vi[k] = li % ranges_[k];
-          li /= ranges_[k];
-        }
-        // convert permuted vector index to corresponding linear index
-        size_t prod = 1;
-        size_t new_li = 0;
-        for (int k = N - 1; k >= 0; k--) {
-          new_li += vi[positions[k]] * prod;
-          prod   *= ranges_[positions[k]];
-        }
-        newParams[new_li] = params_[i];
+      Params backup = params_;
+      params_.clear();
+      CutIndexer indexer (new_args, new_ranges, args_, ranges_);
+      for (; indexer.valid(); ++indexer) {
+        params_.push_back (backup[indexer]);
       }
-      args_   = newArgs;
-      ranges_ = newRanges;
-      params_ = newParams;
+      args_   = new_args;
+      ranges_ = new_ranges;
     }
 
     bool contains (const T& arg) const
