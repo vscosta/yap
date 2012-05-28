@@ -322,29 +322,24 @@ FactorGraph::exportToUaiFormat (const char* fileName) const
   }
   out << "MARKOV" << endl;
   out << varNodes_.size() << endl;
-  for (size_t i = 0; i < varNodes_.size(); i++) {
-    out << varNodes_[i]->range() << " " ;
+  VarNodes sortedVns = varNodes_;
+  std::sort (sortedVns.begin(), sortedVns.end(), sortByVarId());
+  for (size_t i = 0; i < sortedVns.size(); i++) {
+    out << ((i != 0) ? " " : "") << sortedVns[i]->range();
+  }
+  out << endl << facNodes_.size() << endl;
+  for (size_t i = 0; i < facNodes_.size(); i++) {
+    VarIds args = facNodes_[i]->factor().arguments();
+    out << args.size() << " " << Util::elementsToString (args) << endl;
   }
   out << endl;
-  out << facNodes_.size() << endl;
-  for (size_t i = 0; i < facNodes_.size(); i++) {
-    const VarNodes& factorVars = facNodes_[i]->neighbors();
-    out << factorVars.size();
-    for (size_t j = 0; j < factorVars.size(); j++) {
-      out << " " << factorVars[j]->getIndex();
-    }
-    out << endl;
-  }
   for (size_t i = 0; i < facNodes_.size(); i++) {
     Params params = facNodes_[i]->factor().params();
     if (Globals::logDomain) {
       Util::exp (params);
     }
-    out << endl << params.size() << endl << " " ;
-    for (size_t j = 0; j < params.size(); j++) {
-      out << params[j] << " " ;
-    }
-    out << endl;
+    out << params.size() << endl << " " ;
+    out << Util::elementsToString (params) << endl << endl;
   }
   out.close();
 }
@@ -363,14 +358,8 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
   for (size_t i = 0; i < facNodes_.size(); i++) {
     Factor f (facNodes_[i]->factor());
     out << f.nrArguments() << endl;
-    for (size_t j = 0; j < f.nrArguments(); j++) {
-      out << f.argument (j) << " " ;
-    }
-    out << endl;
-    for (size_t j = 0; j < f.nrArguments(); j++) {
-      out << f.range (j) << " " ;
-    }
-    out << endl;
+    out << Util::elementsToString (f.arguments()) << endl;
+    out << Util::elementsToString (f.ranges()) << endl;
     VarIds args = f.arguments();
     std::reverse (args.begin(), args.end());
     f.reorderArguments (args);

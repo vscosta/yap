@@ -32,6 +32,7 @@ class VarNode : public Var
 };
 
 
+
 class FacNode
 {
   public:
@@ -59,14 +60,6 @@ class FacNode
     size_t    index_;
 };
 
-
-struct CompVarId
-{
-  bool operator() (const Var* v1, const Var* v2) const
-  {
-    return v1->varId() < v2->varId();
-  }
-};
 
 
 class FactorGraph
@@ -140,6 +133,16 @@ class FactorGraph
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
 };
+
+
+
+struct sortByVarId
+{ 
+  bool operator()(VarNode* vn1, VarNode* vn2) { 
+    return vn1->varId() < vn2->varId();
+  }
+};
+
 
 #endif // HORUS_FACTORGRAPH_H
 
