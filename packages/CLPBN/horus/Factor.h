@@ -274,8 +274,6 @@ class Factor : public TFactor<VarId>
 
     void multiply (Factor&);
 
-    void reorderAccordingVarIds (void);
-
     string getLabel (void) const;
 
     void print (void) const;

@@ -109,16 +109,6 @@ Factor::multiply (Factor& g)
 
 
 
-void
-Factor::reorderAccordingVarIds (void)
-{
-  VarIds sortedVarIds = args_;
-  sort (sortedVarIds.begin(), sortedVarIds.end());
-  reorderArguments (sortedVarIds);
-}
-
-
-
 string
 Factor::getLabel (void) const
 {
