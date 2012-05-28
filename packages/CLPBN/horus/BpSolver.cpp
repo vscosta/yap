@@ -268,7 +268,7 @@ BpSolver::calcFactorToVarMsg (SpLink* link)
   for (size_t i = 0; i < links.size(); i++) {
     msgSize *= links[i]->varNode()->range();
   }
-  unsigned repetitions = 1;
+  unsigned reps = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
     for (size_t i = links.size(); i-- > 0; ) {
@@ -277,16 +277,12 @@ BpSolver::calcFactorToVarMsg (SpLink* link)
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::add (msgProduct, getVarToFactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->varNode()->range();
+        Util::add (msgProduct, getVarToFactorMsg (links[i]), reps);
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
-      } else {
-        unsigned range = links[i]->varNode()->range();
-        Util::add (msgProduct, Params (range, 0.0), repetitions);
-        repetitions *= range;
       }
+      reps *= links[i]->varNode()->range();
     }
   } else {
     for (size_t i = links.size(); i-- > 0; ) {
@@ -295,16 +291,12 @@ BpSolver::calcFactorToVarMsg (SpLink* link)
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::multiply (msgProduct, getVarToFactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->varNode()->range();
+        Util::multiply (msgProduct, getVarToFactorMsg (links[i]), reps);
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
-      } else {
-        unsigned range = links[i]->varNode()->range();
-        Util::multiply (msgProduct, Params (range, 1.0), repetitions);
-        repetitions *= range;
       }
+      reps *= links[i]->varNode()->range();
     }
   }
   Factor result (src->factor().arguments(),
