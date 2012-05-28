@@ -2538,6 +2538,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
   ClauseDef *min, *max;
   PredEntry *ap = cint->CurrentPred;
   int found_index = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  UInt old_last_depth, old_last_depth_size;
 
   newlabp = & ret_lab;
   if (min0 == max0) {
@@ -2549,8 +2550,15 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
       do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
     return ret_lab;
   }
-  if (sreg == NULL) {
+  if (sreg == NULL || cint->term_depth > 20) {
     return suspend_indexing(min0, max0, ap, cint);
+  }
+  cint->term_depth++;
+  old_last_depth = cint->last_index_new_depth;
+  old_last_depth_size = cint->last_depth_size;
+  if (cint->last_depth_size != max0-min0) {
+    cint->last_index_new_depth = cint->term_depth;
+    cint->last_depth_size = max0-min0;
   }
   while (i < arity && !found_index) { 
     ClauseDef *cl;
@@ -2590,6 +2598,9 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     else
       *newlabp = suspend_indexing(min0, max0, ap, cint);
   }
+  cint->last_index_new_depth = old_last_depth;
+  cint->last_depth_size = old_last_depth_size;
+  cint->term_depth--;
   return ret_lab;
 }
 
@@ -2815,6 +2826,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.expand_block = NULL;
   cint.label_offset = NULL;
   LOCAL_ErrorMessage = NULL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
@@ -3922,6 +3934,7 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
  restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
   if (P->opc == Yap_opcode(_expand_clauses)) {
@@ -5381,6 +5394,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   cint.CurrentPred = ap;
   cint.expand_block = NULL;
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -5866,6 +5880,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   }
   LOCAL_Error_Size = 0;
   LOCAL_ErrorMessage = NULL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (cb) {
     /* cannot rely on the code */
     if (ap->PredFlags & LogUpdatePredFlag) {
