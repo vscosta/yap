@@ -137,10 +137,10 @@ operator<< (std::ostream& os, const Indexer& indexer)
 
 
 
-class CutIndexer
+class MapIndexer
 {
   public:
-    CutIndexer (const Ranges& ranges, const vector<bool>& mask)
+    MapIndexer (const Ranges& ranges, const vector<bool>& mask)
         : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
           valid_(true)
     {
@@ -155,7 +155,7 @@ class CutIndexer
       assert (ranges.size() == mask.size());
     }
 
-    CutIndexer (const Ranges& ranges, size_t dim)
+    MapIndexer (const Ranges& ranges, size_t dim)
         : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
           valid_(true)
     {
@@ -170,7 +170,7 @@ class CutIndexer
     }
     
    template <typename T>
-   CutIndexer (
+   MapIndexer (
         const vector<T>& allArgs,
         const Ranges&    allRanges,
         const vector<T>& wantedArgs,
@@ -191,7 +191,7 @@ class CutIndexer
       }
     }
 
-    CutIndexer& operator++ (void)
+    MapIndexer& operator++ (void)
     {
       assert (valid_);
       for (size_t i = ranges_.size(); i-- > 0; ) {
@@ -232,7 +232,7 @@ class CutIndexer
       index_ = 0;
     }
 
-    friend std::ostream& operator<< (std::ostream&, const CutIndexer&);
+    friend std::ostream& operator<< (std::ostream&, const MapIndexer&);
 
   private:
     size_t          index_;
@@ -245,7 +245,7 @@ class CutIndexer
 
 
 inline std::ostream&
-operator<< (std::ostream &os, const CutIndexer& indexer)
+operator<< (std::ostream &os, const MapIndexer& indexer)
 {
   os << "(" ;
   os << std::setw (2) << std::setfill('0') << indexer.index_;

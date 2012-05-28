@@ -101,7 +101,7 @@ class TFactor
       } else {
         extend (range_prod);
         Params::iterator it = params_.begin();
-        CutIndexer indexer (args_, ranges_, g_args, g_ranges);
+        MapIndexer indexer (args_, ranges_, g_args, g_ranges);
         if (Globals::logDomain) {
           for (; indexer.valid(); ++indexer) {
             *it++ += g_params[indexer];
@@ -122,7 +122,7 @@ class TFactor
       Params newps (new_size, LogAware::addIdenty());
       Params::const_iterator first = params_.begin();
       Params::const_iterator last  = params_.end();
-      CutIndexer indexer (ranges_, idx);
+      MapIndexer indexer (ranges_, idx);
       if (Globals::logDomain) {
         for (; first != last; ++indexer) {
           newps[indexer] = Util::logSum (newps[indexer], *first++);
@@ -171,7 +171,7 @@ class TFactor
       }
       Params newps;
       newps.reserve (params_.size());
-      CutIndexer indexer (new_args, new_ranges, args_, ranges_);
+      MapIndexer indexer (new_args, new_ranges, args_, ranges_);
       for (; indexer.valid(); ++indexer) {
         newps.push_back (params_[indexer]);
       }

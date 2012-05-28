@@ -228,11 +228,11 @@ Parfactor::countConvert (LogVar X)
   params_.reserve (sumout.size() * H);
 
   ranges_[fIdx] = H;
-  CutIndexer cutIndexer (ranges_, fIdx);
-  while (cutIndexer.valid()) {
+  MapIndexer mapIndexer (ranges_, fIdx);
+  while (mapIndexer.valid()) {
     double prod = LogAware::multIdenty();
-    size_t i   = cutIndexer;
-    unsigned h = cutIndexer[fIdx];
+    size_t i   = mapIndexer;
+    unsigned h = mapIndexer[fIdx];
     for (unsigned r = 0; r < R; r++) {
       if (Globals::logDomain) {
         prod += LogAware::pow (sumout[i][r], histograms[h][r]);
@@ -241,7 +241,7 @@ Parfactor::countConvert (LogVar X)
       }
     }
     params_.push_back (prod);
-    ++ cutIndexer;
+    ++ mapIndexer;
   }
   args_[fIdx].setCountedLogVar (X);
   simplifyCountingFormulas (fIdx);
