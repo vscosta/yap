@@ -207,10 +207,8 @@ CbpSolver::calcFactorToVarMsg (SpLink* _link)
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
-  unsigned msgSize = 1;
-  for (size_t i = 0; i < links.size(); i++) {
-    msgSize *= links[i]->varNode()->range();
-  }
+  unsigned msgSize = std::accumulate (src->factor().ranges().begin(),
+      src->factor().ranges().end(), 1, std::multiplies<double>());
   unsigned reps = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
