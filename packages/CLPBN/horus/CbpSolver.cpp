@@ -144,7 +144,7 @@ CbpSolver::maxResidualSchedule (void)
     if (Globals::verbosity > 1) {
       cout << endl << "current residuals:" << endl;
       for (SortedOrder::iterator it = sortedOrder_.begin();
-          it != sortedOrder_.end(); it ++) {
+          it != sortedOrder_.end(); ++it) {
         cout << "    " << setw (30) << left << (*it)->toString();
         cout << "residual = " << (*it)->getResidual() << endl;
       }

@@ -36,7 +36,7 @@ printSymbolDictionary (void)
       = symbolDict.begin();
   while (it != symbolDict.end()) {
     cout << it->first << " -> " << it->second << endl;
-    it ++;
+    ++ it;
   }
 }
 
@@ -49,7 +49,7 @@ ostream& operator<< (ostream &os, const Symbol& s)
   unordered_map<string, unsigned>::const_iterator it
       = LiftedUtils::symbolDict.begin();
   while (it != LiftedUtils::symbolDict.end() && it->second != s) {
-    it ++;
+    ++ it;
   }
   assert (it != LiftedUtils::symbolDict.end());
   os << it->first;
@@ -108,7 +108,7 @@ Substitution::getDiscardedLogVars (void) const
     } else {
       doneLvs.insert (it->second);
     }
-    it ++;
+    ++ it;
   }
   return discardedLvs;
 }

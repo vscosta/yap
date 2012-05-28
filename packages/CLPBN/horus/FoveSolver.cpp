@@ -784,7 +784,7 @@ FoveSolver::runSolver (const Grounds& query)
   assert (pfList_.size() > 0);
   if (pfList_.size() > 1) {
     ParfactorList::iterator pfIter = pfList_.begin();
-    pfIter ++;
+    ++ pfIter;
     while (pfIter != pfList_.end()) {
       (*pfList_.begin())->multiply (**pfIter);
       ++ pfIter;

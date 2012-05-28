@@ -126,7 +126,7 @@ CFactorGraph::createGroups (void)
       it->second.push_back (varNodes[i]);
     }
     for (VarSignMap::iterator it = varGroups.begin();
-        it != varGroups.end(); it++) {
+        it != varGroups.end(); ++it) {
       Color newColor = getFreeColor();
       VarNodes& groupMembers = it->second;
       for (size_t i = 0; i < groupMembers.size(); i++) {
@@ -146,7 +146,7 @@ CFactorGraph::createGroups (void)
       it->second.push_back (facNodes[i]);
     }
     for (FacSignMap::iterator it = facGroups.begin();
-        it != facGroups.end(); it++) {
+        it != facGroups.end(); ++it) {
       Color newColor = getFreeColor();
       FacNodes& groupMembers = it->second;
       for (size_t i = 0; i < groupMembers.size(); i++) {
@@ -170,7 +170,7 @@ CFactorGraph::createClusters (
 {
   varClusters_.reserve (varGroups.size());
   for (VarSignMap::const_iterator it = varGroups.begin();
-       it != varGroups.end(); it++) {
+       it != varGroups.end(); ++it) {
     const VarNodes& groupVars = it->second;
     VarCluster* vc = new VarCluster (groupVars);
     for (size_t i = 0; i < groupVars.size(); i++) {
@@ -181,7 +181,7 @@ CFactorGraph::createClusters (
 
   facClusters_.reserve (facGroups.size());
   for (FacSignMap::const_iterator it = facGroups.begin();
-       it != facGroups.end(); it++) {
+       it != facGroups.end(); ++it) {
     FacNode* groupFactor = it->second[0];
     const VarNodes& neighs = groupFactor->neighbors();
     VarClusters varClusters;
@@ -289,7 +289,7 @@ CFactorGraph::printGroups (
   unsigned count = 1;
   cout << "variable groups:" << endl;
   for (VarSignMap::const_iterator it = varGroups.begin();
-      it != varGroups.end(); it++) {
+      it != varGroups.end(); ++it) {
     const VarNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
       cout << count << ": " ;
@@ -303,7 +303,7 @@ CFactorGraph::printGroups (
   count = 1;
   cout << endl << "factor groups:" << endl;
   for (FacSignMap::const_iterator it = facGroups.begin();
-      it != facGroups.end(); it++) {
+      it != facGroups.end(); ++it) {
     const FacNodes& groupMembers = it->second;
     if (groupMembers.size() > 0) {
       cout << ++count << ": " ;

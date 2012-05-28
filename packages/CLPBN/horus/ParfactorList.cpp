@@ -559,7 +559,7 @@ void
 ParfactorList::updateGroups (PrvGroup oldGroup, PrvGroup newGroup)
 {
   for (ParfactorList::iterator it = pfList_.begin();
-       it != pfList_.end(); it++) {
+       it != pfList_.end(); ++it) {
     ProbFormulas& formulas = (*it)->arguments();
     for (size_t i = 0; i < formulas.size(); i++) {
       if (formulas[i].group() == oldGroup) {

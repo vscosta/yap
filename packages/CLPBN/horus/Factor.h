@@ -103,12 +103,12 @@ class TFactor
         Params::iterator it = params_.begin();
         MapIndexer indexer (args_, ranges_, g_args, g_ranges);
         if (Globals::logDomain) {
-          for (; indexer.valid(); ++indexer) {
-            *it++ += g_params[indexer];
+          for (; indexer.valid(); ++it, ++indexer) {
+            *it += g_params[indexer];
           }
         } else {
-          for (; indexer.valid(); ++indexer) {
-            *it++ *= g_params[indexer];
+          for (; indexer.valid(); ++it, ++indexer) {
+            *it *= g_params[indexer];
           }
         }
       }
