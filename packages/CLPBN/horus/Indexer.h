@@ -14,10 +14,9 @@ class Indexer
 {
   public:
     Indexer (const Ranges& ranges, bool calcOffsets = true)
-        : index_(0), indices_(ranges.size(), 0), ranges_(ranges)
+        : index_(0), indices_(ranges.size(), 0), ranges_(ranges),
+          size_(Util::sizeExpected (ranges))
     {
-      size_ = std::accumulate (ranges.begin(), ranges.end(), 1,
-          std::multiplies<unsigned>());
       if (calcOffsets) {
         calculateOffsets();
       }

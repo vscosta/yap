@@ -18,7 +18,6 @@ InfAlgorithms infAlgorithm = InfAlgorithms::VE;
 
 
 
-
 namespace BpOptions {
 Schedule schedule = BpOptions::Schedule::SEQ_FIXED;
 //Schedule schedule = BpOptions::Schedule::SEQ_RANDOM;
@@ -68,7 +67,6 @@ stringToDouble (string str)
   ss >> val;
   return val;
 }
-
 
 
 
@@ -128,8 +126,8 @@ nrCombinations (unsigned n, unsigned k)
 size_t
 sizeExpected (const Ranges& ranges)
 {
-  return std::accumulate (
-      ranges.begin(), ranges.end(), 1, multiplies<unsigned>());
+  return std::accumulate (ranges.begin(),
+      ranges.end(), 1, multiplies<unsigned>());
 }
 
 
@@ -392,7 +390,9 @@ getMaxNorm (const Params& v1, const Params& v2)
 double
 pow (double base, unsigned iexp)
 {
-  return Globals::logDomain ? base * iexp : std::pow (base, iexp);
+  return Globals::logDomain
+      ? base * iexp
+      : std::pow (base, iexp);
 }
 
 
@@ -400,8 +400,10 @@ pow (double base, unsigned iexp)
 double
 pow (double base, double exp)
 {
-  // assumes that `expoent' is never in log domain
-  return Globals::logDomain ? base * exp : std::pow (base, exp);
+  // `expoent' should not be in log domain
+  return Globals::logDomain
+      ? base * exp
+      : std::pow (base, exp);
 }
 
 

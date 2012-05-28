@@ -264,9 +264,8 @@ BpSolver::calcFactorToVarMsg (SpLink* link)
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
-  unsigned msgSize = std::accumulate (src->factor().ranges().begin(),
-      src->factor().ranges().end(), 1, std::multiplies<double>());
-  unsigned reps = 1;
+  unsigned reps    = 1;
+  unsigned msgSize = Util::sizeExpected (src->factor().ranges());
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
     for (size_t i = links.size(); i-- > 0; ) {
