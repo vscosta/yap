@@ -178,7 +178,7 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
     solver->printSolverFlags();
     cout << endl;
   }
-  if (queryIds.size() == 0) {
+  if (queryIds.empty()) {
     solver->printAllPosterioris();
   } else {
     solver->printAnswer (queryIds);

@@ -39,11 +39,9 @@ Params
 BpSolver::solveQuery (VarIds queryVids)
 {
   assert (queryVids.empty() == false);
-  if (queryVids.size() == 1) {
-    return getPosterioriOf (queryVids[0]);
-  } else {
-    return getJointDistributionOf (queryVids);
-  }
+  return queryVids.size() == 1
+      ? getPosterioriOf (queryVids[0])
+      : getJointDistributionOf (queryVids);
 }
 
 
@@ -61,8 +59,8 @@ BpSolver::printSolverFlags (void) const
     case Sch::PARALLEL:     ss << "parallel";     break;
     case Sch::MAX_RESIDUAL: ss << "max_residual"; break;
   }
-  ss << ",max_iter=" << Util::toString (BpOptions::maxIter);
-  ss << ",accuracy=" << Util::toString (BpOptions::accuracy);
+  ss << ",max_iter="   << Util::toString (BpOptions::maxIter);
+  ss << ",accuracy="   << Util::toString (BpOptions::accuracy);
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << "]" ;
   cout << ss.str() << endl;
