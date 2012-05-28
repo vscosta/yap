@@ -17,13 +17,12 @@ class CbpSolverLink : public SpLink
 
     unsigned nrEdges (void) const { return nrEdges_; }
 
-    const Params& poweredMessage (void) const { return pwdMsg_; }
+    const Params& powMessage (void) const { return pwdMsg_; }
 
     void updateMessage (void) 
     {
       pwdMsg_ = *nextMsg_;
       swap (currMsg_, nextMsg_);
-      msgSended_ = true;
       LogAware::pow (pwdMsg_, nrEdges_);
     }
   
@@ -54,9 +53,9 @@ class CbpSolver : public BpSolver
 
      void maxResidualSchedule (void);
 
-     void calculateFactor2VariableMsg (SpLink*);
+     void calcFactorToVarMsg (SpLink*);
 
-     Params getVar2FactorMsg (const SpLink*) const;
+     Params getVarToFactorMsg (const SpLink*) const;
 
      void printLinkInformation (void) const;
 

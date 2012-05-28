@@ -85,13 +85,13 @@ BpSolver::getPosterioriOf (VarId vid)
     const SpLinkSet& links = ninf(var)->getLinks();
     if (Globals::logDomain) {
       for (size_t i = 0; i < links.size(); i++) {
-        probs += links[i]->getMessage();
+        probs += links[i]->message();
       }
       LogAware::normalize (probs);
       Util::exp (probs);
     } else {
       for (size_t i = 0; i < links.size(); i++) {
-        probs *= links[i]->getMessage();
+        probs *= links[i]->message();
       }
       LogAware::normalize (probs);
     }
@@ -122,9 +122,9 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
     Factor res (facNodes[idx]->factor());
     const SpLinkSet& links = ninf(facNodes[idx])->getLinks();
     for (size_t i = 0; i < links.size(); i++) {
-      Factor msg ({links[i]->getVariable()->varId()},
-                  {links[i]->getVariable()->range()},
-                  getVar2FactorMsg (links[i]));
+      Factor msg ({links[i]->varNode()->varId()},
+                  {links[i]->varNode()->range()},
+                  getVarToFactorMsg (links[i]));
       res.multiply (msg);
     }
     res.sumOutAllExcept (jointVarIds);
@@ -152,7 +152,7 @@ BpSolver::runSolver (void)
     }
     switch (BpOptions::schedule) {
      case BpOptions::Schedule::SEQ_RANDOM:
-       random_shuffle (links_.begin(), links_.end());
+       std::random_shuffle (links_.begin(), links_.end());
        // no break
       case BpOptions::Schedule::SEQ_FIXED:
         for (size_t i = 0; i < links_.size(); i++) {
@@ -219,13 +219,13 @@ BpSolver::maxResidualSchedule (void)
       for (SortedOrder::iterator it = sortedOrder_.begin();
           it != sortedOrder_.end(); ++it) {
         cout << "    " << setw (30) << left << (*it)->toString();
-        cout << "residual = " << (*it)->getResidual() << endl;
+        cout << "residual = " << (*it)->residual() << endl;
       }
     }
 
     SortedOrder::iterator it = sortedOrder_.begin();
     SpLink* link = *it;
-    if (link->getResidual() < BpOptions::accuracy) {
+    if (link->residual() < BpOptions::accuracy) {
       return;
     }
     updateMessage (link);
@@ -234,12 +234,12 @@ BpSolver::maxResidualSchedule (void)
     linkMap_.find (link)->second = sortedOrder_.insert (link);
 
     // update the messages that depend on message source --> destin
-    const FacNodes& factorNeighbors = link->getVariable()->neighbors();
+    const FacNodes& factorNeighbors = link->varNode()->neighbors();
     for (size_t i = 0; i < factorNeighbors.size(); i++) {
-      if (factorNeighbors[i] != link->getFactor()) {
+      if (factorNeighbors[i] != link->facNode()) {
         const SpLinkSet& links = ninf(factorNeighbors[i])->getLinks();
         for (size_t j = 0; j < links.size(); j++) {
-          if (links[j]->getVariable() != link->getVariable()) {
+          if (links[j]->varNode() != link->varNode()) {
             calculateMessage (links[j]);
             SpLinkMap::iterator iter = linkMap_.find (links[j]);
             sortedOrder_.erase (iter->second);
@@ -257,51 +257,51 @@ BpSolver::maxResidualSchedule (void)
 
 
 void
-BpSolver::calculateFactor2VariableMsg (SpLink* link)
+BpSolver::calcFactorToVarMsg (SpLink* link)
 {
-  FacNode* src = link->getFactor();
-  const VarNode* dst = link->getVariable();
+  FacNode* src = link->facNode();
+  const VarNode* dst = link->varNode();
   const SpLinkSet& links = ninf(src)->getLinks();
   // calculate the product of messages that were sent
   // to factor `src', except from var `dst'
   unsigned msgSize = 1;
   for (size_t i = 0; i < links.size(); i++) {
-    msgSize *= links[i]->getVariable()->range();
+    msgSize *= links[i]->varNode()->range();
   }
   unsigned repetitions = 1;
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
     for (size_t i = links.size(); i-- > 0; ) {
-      if (links[i]->getVariable() != dst) {
+      if (links[i]->varNode() != dst) {
         if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->getVariable()->label();
+          cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::add (msgProduct, getVar2FactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->getVariable()->range();
+        Util::add (msgProduct, getVarToFactorMsg (links[i]), repetitions);
+        repetitions *= links[i]->varNode()->range();
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
       } else {
-        unsigned range = links[i]->getVariable()->range();
+        unsigned range = links[i]->varNode()->range();
         Util::add (msgProduct, Params (range, 0.0), repetitions);
         repetitions *= range;
       }
     }
   } else {
     for (size_t i = links.size(); i-- > 0; ) {
-      if (links[i]->getVariable() != dst) {
+      if (links[i]->varNode() != dst) {
         if (Constants::SHOW_BP_CALCS) {
-          cout << "    message from " << links[i]->getVariable()->label();
+          cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::multiply (msgProduct, getVar2FactorMsg (links[i]), repetitions);
-        repetitions *= links[i]->getVariable()->range();
+        Util::multiply (msgProduct, getVarToFactorMsg (links[i]), repetitions);
+        repetitions *= links[i]->varNode()->range();
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
       } else {
-        unsigned range = links[i]->getVariable()->range();
+        unsigned range = links[i]->varNode()->range();
         Util::multiply (msgProduct, Params (range, 1.0), repetitions);
         repetitions *= range;
       }
@@ -319,20 +319,20 @@ BpSolver::calculateFactor2VariableMsg (SpLink* link)
   if (Constants::SHOW_BP_CALCS) {
     cout << "    marginalized:     " << result.params() << endl;
   }
-  link->getNextMessage() = result.params();
-  LogAware::normalize (link->getNextMessage());
+  link->nextMessage() = result.params();
+  LogAware::normalize (link->nextMessage());
   if (Constants::SHOW_BP_CALCS) {
-    cout << "    curr msg:         " << link->getMessage() << endl;
-    cout << "    next msg:         " << link->getNextMessage() << endl;
+    cout << "    curr msg:         " << link->message() << endl;
+    cout << "    next msg:         " << link->nextMessage() << endl;
   }
 }
 
 
 
 Params
-BpSolver::getVar2FactorMsg (const SpLink* link) const
+BpSolver::getVarToFactorMsg (const SpLink* link) const
 {
-  const VarNode* src = link->getVariable();
+  const VarNode* src = link->varNode();
   Params msg;
   if (src->hasEvidence()) {
     msg.resize (src->range(), LogAware::noEvidence());
@@ -347,20 +347,20 @@ BpSolver::getVar2FactorMsg (const SpLink* link) const
   const SpLinkSet& links = ninf (src)->getLinks();
   if (Globals::logDomain) {
     for (it = links.begin(); it != links.end(); ++it) {
-      msg += (*it)->getMessage();
+      msg += (*it)->message();
       if (Constants::SHOW_BP_CALCS) {
-        cout << " x " << (*it)->getMessage();
+        cout << " x " << (*it)->message();
       }
     }
-    msg -= link->getMessage();
+    msg -= link->message();
   } else {
     for (it = links.begin(); it != links.end(); ++it) {
-      msg *= (*it)->getMessage();
+      msg *= (*it)->message();
       if (Constants::SHOW_BP_CALCS) {
-        cout << " x " << (*it)->getMessage();
+        cout << " x " << (*it)->message();
       }
     }
-    msg /= link->getMessage();
+    msg /= link->message();
   }
   if (Constants::SHOW_BP_CALCS) {
     cout << " = " << msg;
@@ -439,8 +439,8 @@ BpSolver::initializeSolver (void)
   }
   createLinks();
   for (size_t i = 0; i < links_.size(); i++) {
-    FacNode* src = links_[i]->getFactor();
-    VarNode* dst = links_[i]->getVariable();
+    FacNode* src = links_[i]->facNode();
+    VarNode* dst = links_[i]->varNode();
     ninf (dst)->addSpLink (links_[i]);
     ninf (src)->addSpLink (links_[i]);
   }
@@ -468,7 +468,7 @@ BpSolver::converged (void)
   }
   bool converged = true;
   if (BpOptions::schedule == BpOptions::Schedule::MAX_RESIDUAL) {
-    double maxResidual = (*(sortedOrder_.begin()))->getResidual();
+    double maxResidual = (*(sortedOrder_.begin()))->residual();
     if (maxResidual > BpOptions::accuracy) {
       converged = false;
     } else {
@@ -476,7 +476,7 @@ BpSolver::converged (void)
     }
   } else {
     for (size_t i = 0; i < links_.size(); i++) {
-      double residual = links_[i]->getResidual();
+      double residual = links_[i]->residual();
       if (Globals::verbosity > 1) {
         cout << links_[i]->toString() + " residual = " << residual << endl;
       }
@@ -503,10 +503,10 @@ BpSolver::printLinkInformation (void) const
     SpLink* l = links_[i]; 
     cout << l->toString() << ":" << endl;
     cout << "    curr msg = " ;
-    cout << l->getMessage() << endl;
+    cout << l->message() << endl;
     cout << "    next msg = " ;
-    cout << l->getNextMessage() << endl;
-    cout << "    residual = " << l->getResidual() << endl;
+    cout << l->nextMessage() << endl;
+    cout << "    residual = " << l->residual() << endl;
   }
 }
 

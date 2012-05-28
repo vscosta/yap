@@ -24,23 +24,20 @@ class SpLink
       v2_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
       currMsg_   = &v1_;
       nextMsg_   = &v2_;
-      msgSended_ = false;
       residual_  = 0.0;
     }
 
     virtual ~SpLink (void) { };
 
-    FacNode* getFactor (void) const { return fac_; }
+    FacNode* facNode (void) const { return fac_; }
 
-    VarNode* getVariable (void) const { return var_; }
+    VarNode* varNode (void) const { return var_; }
 
-    const Params& getMessage (void) const { return *currMsg_; }
+    const Params& message (void) const { return *currMsg_; }
 
-    Params& getNextMessage (void) { return *nextMsg_; }
+    Params& nextMessage (void) { return *nextMsg_; }
 
-    bool messageWasSended (void) const { return msgSended_; }
-
-    double getResidual (void) const { return residual_; }
+    double residual (void) const { return residual_; }
 
     void clearResidual (void) { residual_ = 0.0; }
 
@@ -52,7 +49,6 @@ class SpLink
     virtual void updateMessage (void) 
     {
       swap (currMsg_, nextMsg_);
-      msgSended_ = true;
     }
 
     string toString (void) const
@@ -71,7 +67,6 @@ class SpLink
     Params    v2_;
     Params*   currMsg_;
     Params*   nextMsg_;
-    bool      msgSended_;
     double    residual_;
 };
 
@@ -110,9 +105,9 @@ class BpSolver : public Solver
 
     virtual void maxResidualSchedule (void);
 
-    virtual void calculateFactor2VariableMsg (SpLink*);
+    virtual void calcFactorToVarMsg (SpLink*);
 
-    virtual Params getVar2FactorMsg (const SpLink*) const;
+    virtual Params getVarToFactorMsg (const SpLink*) const;
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
@@ -131,7 +126,7 @@ class BpSolver : public Solver
       if (Globals::verbosity > 2) {
         cout << "calculating & updating " << link->toString() << endl;
       }
-      calculateFactor2VariableMsg (link);
+      calcFactorToVarMsg (link);
       if (calcResidual) {
         link->updateResidual();
       }
@@ -143,7 +138,7 @@ class BpSolver : public Solver
       if (Globals::verbosity > 2) {
         cout << "calculating " << link->toString() << endl;
       }
-      calculateFactor2VariableMsg (link);
+      calcFactorToVarMsg (link);
       if (calcResidual) {
         link->updateResidual();
       }
@@ -161,7 +156,7 @@ class BpSolver : public Solver
     {
       inline bool operator() (const SpLink* link1, const SpLink* link2)
       {
-        return link1->getResidual() > link2->getResidual();
+        return link1->residual() > link2->residual();
       }
     };
 
