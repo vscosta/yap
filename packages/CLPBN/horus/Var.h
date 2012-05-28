@@ -1,5 +1,5 @@
-#ifndef HORUS_Var_H
-#define HORUS_Var_H
+#ifndef HORUS_VAR_H
+#define HORUS_VAR_H
 
 #include <cassert>
 
@@ -40,12 +40,12 @@ class Var
 
     void setIndex (size_t idx) { index_ = idx; }
 
-    operator size_t (void) const { return index_; }
-
     bool hasEvidence (void) const
     {
       return evidence_ != Constants::NO_EVIDENCE;
     }
+
+    operator size_t (void) const { return index_; }
 
     bool operator== (const Var& var) const
     {
@@ -104,5 +104,5 @@ class Var
 
 };
 
-#endif // BP_Var_H
+#endif // HORUS_VAR_H
 
