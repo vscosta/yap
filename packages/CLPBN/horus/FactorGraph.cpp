@@ -157,9 +157,9 @@ FactorGraph::readFromLibDaiFormat (const char* fileName)
     if (Globals::logDomain) {
       Util::log (params);
     }
-    reverse (vids.begin(), vids.end());
+    std::reverse (vids.begin(), vids.end());
     Factor f (vids, ranges, params);
-    reverse (vids.begin(), vids.end());
+    std::reverse (vids.begin(), vids.end());
     f.reorderArguments (vids); 
     addFactor (f);
   }
@@ -361,23 +361,25 @@ FactorGraph::exportToLibDaiFormat (const char* fileName) const
   }
   out << facNodes_.size() << endl << endl;
   for (size_t i = 0; i < facNodes_.size(); i++) {
-    const VarNodes& factorVars = facNodes_[i]->neighbors();
-    out << factorVars.size() << endl;
-    for (size_t j = factorVars.size(); j-- > 0; ) {
-      out << factorVars[j]->varId() << " " ;
+    Factor f (facNodes_[i]->factor());
+    out << f.nrArguments() << endl;
+    for (size_t j = 0; j < f.nrArguments(); j++) {
+      out << f.argument (j) << " " ;
     }
     out << endl;
-    for (size_t j = 0; j < factorVars.size(); j++) {
-      out << factorVars[j]->range() << " " ;
+    for (size_t j = 0; j < f.nrArguments(); j++) {
+      out << f.range (j) << " " ;
     }
     out << endl;
-    Params params = facNodes_[i]->factor().params();
+    VarIds args = f.arguments();
+    std::reverse (args.begin(), args.end());
+    f.reorderArguments (args);
     if (Globals::logDomain) {
-      Util::exp (params);
+      Util::exp (f.params());
     }
-    out << params.size() << endl;
-    for (size_t j = 0; j < params.size(); j++) {
-      out << j << " " << params[j] << endl;
+    out << f.size() << endl;
+    for (size_t j = 0; j < f.size(); j++) {
+      out << j << " " << f[j] << endl;
     }
     out << endl;
   }
