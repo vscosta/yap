@@ -41,6 +41,9 @@ template <typename K, typename V> bool contains (
 
 template <typename T> size_t indexOf (const vector<T>&, const T&);
 
+template <class Operation>
+void apply_n_times (Params& v1, const Params& v2, unsigned repetitions, Operation);
+
 template <typename T> void log (vector<T>&);
 
 template <typename T> void exp (vector<T>&);
@@ -53,10 +56,6 @@ template <typename T> std::string toString (const T&);
 template <> std::string toString (const bool&);
 
 double logSum (double, double);
-
-void add (Params&, const Params&, unsigned);
-
-void multiply (Params&, const Params&, unsigned);
 
 unsigned maxUnsigned (void);
 
@@ -153,10 +152,29 @@ Util::indexOf (const vector<T>& v, const T& e)
 
 
 
+template <class Operation> void
+Util::apply_n_times (Params& v1, const Params& v2, unsigned repetitions,
+    Operation unary_op)
+{
+  Params::iterator       first  = v1.begin();
+  Params::const_iterator last   = v1.end();
+  Params::const_iterator first2 = v2.begin();
+  Params::const_iterator last2  = v2.end();
+  while (first != last) {
+    for (first2 = v2.begin(); first2 != last2; ++first2) {
+      std::transform (first, first + repetitions, first,
+          std::bind1st (unary_op, *first2));
+      first += repetitions;
+    }
+  }
+}
+
+
+
 template <typename T> void
 Util::log (vector<T>& v)
 {
-  transform (v.begin(), v.end(), v.begin(), ::log);
+  std::transform (v.begin(), v.end(), v.begin(), ::log);
 }
 
 
@@ -164,7 +182,7 @@ Util::log (vector<T>& v)
 template <typename T> void
 Util::exp (vector<T>& v)
 {
-  transform (v.begin(), v.end(), v.begin(), ::exp);
+  std::transform (v.begin(), v.end(), v.begin(), ::exp);
 }
 
 
@@ -224,36 +242,6 @@ Util::logSum (double x, double y)
 
 
 
-inline void
-Util::add (Params& v1, const Params& v2, unsigned repetitions)
-{
-  for (size_t count = 0; count < v1.size(); ) {
-    for (size_t i = 0; i < v2.size(); i++) {
-      for (unsigned r = 0; r < repetitions; r++) {
-        v1[count] += v2[i];
-        count ++;
-      }
-    }
-  }
-}
-
-
-
-inline void
-Util::multiply (Params& v1, const Params& v2, unsigned repetitions)
-{
-  for (size_t count = 0; count < v1.size(); ) {
-    for (size_t i = 0; i < v2.size(); i++) {
-      for (unsigned r = 0; r < repetitions; r++) {
-        v1[count] *= v2[i];
-        count ++;
-      }
-    }
-  }
-}
-
-
-
 inline unsigned
 Util::maxUnsigned (void)
 {
@@ -272,7 +260,6 @@ inline double withEvidence() { return Globals::logDomain ? 0.0     : 1.0; }
 inline double noEvidence()   { return Globals::logDomain ? NEG_INF : 0.0; }
 inline double log (double v) { return Globals::logDomain ? ::log (v) : v; }
 inline double exp (double v) { return Globals::logDomain ? ::exp (v) : v; }
-
 
 void normalize (Params&);
 

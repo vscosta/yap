@@ -219,7 +219,8 @@ CbpSolver::calcFactorToVarMsg (SpLink* _link)
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::add (msgProduct, getVarToFactorMsg (links[i]), reps);
+        Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
+            reps, std::plus<double>());
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
@@ -234,7 +235,8 @@ CbpSolver::calcFactorToVarMsg (SpLink* _link)
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
         }
-        Util::multiply (msgProduct, getVarToFactorMsg (links[i]), reps);
+        Util::apply_n_times (msgProduct, getVarToFactorMsg (links[i]),
+            reps, std::multiplies<double>());
         if (Constants::SHOW_BP_CALCS) {
           cout << endl;
         }
