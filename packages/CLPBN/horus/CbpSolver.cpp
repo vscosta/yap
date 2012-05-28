@@ -256,13 +256,9 @@ CbpSolver::calculateFactor2VariableMsg (SpLink* _link)
       src->factor().ranges(), msgProduct);
   assert (msgProduct.size() == src->factor().size());
   if (Globals::logDomain) {
-    for (size_t i = 0; i < result.size(); i++) {
-      result[i] += src->factor()[i];
-    }
+    result.params() += src->factor().params();
   } else {
-    for (size_t i = 0; i < result.size(); i++) {
-      result[i] *= src->factor()[i];
-    }
+    result.params() *= src->factor().params();
   }
   if (Constants::SHOW_BP_CALCS) {
     cout << "    message product:  " << msgProduct << endl;
