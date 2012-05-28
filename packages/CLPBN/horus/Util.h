@@ -19,104 +19,9 @@
 using namespace std;
 
 
-template <typename T>
-void operator+=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (plus<double>(), val));
-}
-
-
-
-template <typename T>
-void operator-=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (minus<double>(), val));
-}
-
-
-
-template <typename T>
-void operator*=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (multiplies<double>(), val));
-}
-
-
-
-template <typename T>
-void operator/=(std::vector<T>& v, double val)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (divides<double>(), val));
-}
-
-
-
-template <typename T>
-void operator+=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      plus<double>());
-}
-
-
-
-template <typename T>
-void operator-=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      minus<double>());
-}
-
-
-
-template <typename T>
-void operator*=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      multiplies<double>());
-}
-
-
-
-template <typename T>
-void operator/=(std::vector<T>& a, const std::vector<T>& b)
-{
-  assert (a.size() == b.size());
-  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
-      divides<double>());
-}
-
-
-
-template <typename T>
-void operator^=(std::vector<T>& v, double exp)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (ptr_fun<double, double, double> (std::pow), exp));
-}
-
-
-
-template <typename T>
-void operator^=(std::vector<T>& v, int iexp)
-{
-  std::transform (v.begin(), v.end(), v.begin(),
-      std::bind2nd (ptr_fun<double, int, double> (std::pow), iexp));
-}
-
-
-
 namespace {
 const double NEG_INF = -numeric_limits<double>::infinity();
 };
-
 
 
 namespace Util {
@@ -136,13 +41,16 @@ template <typename K, typename V> bool contains (
 
 template <typename T> size_t indexOf (const vector<T>&, const T&);
 
-template <typename T> std::string toString (const T&);
-
-template <> std::string toString (const bool&);
-
 template <typename T> void log (vector<T>&);
 
 template <typename T> void exp (vector<T>&);
+
+template <typename T> string elementsToString (
+    const vector<T>& v, string sep = " ");
+
+template <typename T> std::string toString (const T&);
+
+template <> std::string toString (const bool&);
 
 double logSum (double, double);
 
@@ -245,28 +153,6 @@ Util::indexOf (const vector<T>& v, const T& e)
 
 
 
-template <typename T> std::string
-Util::toString (const T& t)
-{
-  std::stringstream ss;
-  ss << t;
-  return ss.str();
-}
-
-
-
-template <typename T> 
-std::ostream& operator << (std::ostream& os, const vector<T>& v)
-{
-  os << "[" ;
-  for (size_t i = 0; i < v.size(); i++) {
-    os << ((i != 0) ? ", " : "") << v[i];
-  }
-  os << "]" ;
-  return os;
-}
-
-
 template <typename T> void
 Util::log (vector<T>& v)
 {
@@ -279,6 +165,28 @@ template <typename T> void
 Util::exp (vector<T>& v)
 {
   transform (v.begin(), v.end(), v.begin(), ::exp);
+}
+
+
+
+template <typename T> string
+Util::elementsToString (const vector<T>& v, string sep)
+{
+  stringstream ss;
+  for (size_t i = 0; i < v.size(); i++) {
+    ss << ((i != 0) ? sep : "") << v[i];
+  }
+  return ss.str();
+}
+
+
+
+template <typename T> std::string
+Util::toString (const T& t)
+{
+  std::stringstream ss;
+  ss << t;
+  return ss.str();
 }
 
 
@@ -381,6 +289,111 @@ void pow (Params&, unsigned);
 void pow (Params&, double);
 
 };
+
+
+
+template <typename T>
+void operator+=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (plus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (minus<double>(), val));
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (multiplies<double>(), val));
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& v, double val)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind1st (divides<double>(), val));
+}
+
+
+
+template <typename T>
+void operator+=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      plus<double>());
+}
+
+
+
+template <typename T>
+void operator-=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      minus<double>());
+}
+
+
+
+template <typename T>
+void operator*=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      multiplies<double>());
+}
+
+
+
+template <typename T>
+void operator/=(std::vector<T>& a, const std::vector<T>& b)
+{
+  assert (a.size() == b.size());
+  std::transform (a.begin(), a.end(), b.begin(), a.begin(),
+      divides<double>());
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, double exp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, double, double> (std::pow), exp));
+}
+
+
+
+template <typename T>
+void operator^=(std::vector<T>& v, int iexp)
+{
+  std::transform (v.begin(), v.end(), v.begin(),
+      std::bind2nd (ptr_fun<double, int, double> (std::pow), iexp));
+}
+
+
+
+template <typename T> 
+std::ostream& operator << (std::ostream& os, const vector<T>& v)
+{
+  os << "[" ;
+  os << Util::elementsToString (v, ", ");
+  os << "]" ;
+  return os;
+}
 
 #endif // HORUS_UTIL_H
 
