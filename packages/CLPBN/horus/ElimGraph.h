@@ -12,6 +12,7 @@ using namespace std;
 
 enum ElimHeuristic 
 {
+  SEQUENTIAL,
   MIN_NEIGHBORS,
   MIN_WEIGHT,
   MIN_FILL,
@@ -45,7 +46,7 @@ class EgNode : public Var
 class ElimGraph
 {
   public:
-    ElimGraph (const vector<Factor*>&); // TODO
+    ElimGraph (const Factors&);
 
    ~ElimGraph (void);
    
@@ -56,7 +57,7 @@ class ElimGraph
     void exportToGraphViz (const char*, bool = true,
         const VarIds& = VarIds()) const;
 
-    static VarIds getEliminationOrder (const vector<Factor*>, VarIds);
+    static VarIds getEliminationOrder (const Factors&, VarIds);
 
     static ElimHeuristic elimHeuristic;
 

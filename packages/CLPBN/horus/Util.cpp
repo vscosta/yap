@@ -219,7 +219,9 @@ setHorusFlag (string key, string value)
       returnVal = false;
     }
   } else if (key == "elim_heuristic") {
-    if (       value == "min_neighbors") {
+    if (       value == "sequential") {
+      ElimGraph::elimHeuristic = ElimHeuristic::SEQUENTIAL;
+    } else if (value == "min_neighbors") {
       ElimGraph::elimHeuristic = ElimHeuristic::MIN_NEIGHBORS;
     } else if (value == "min_weight") {
       ElimGraph::elimHeuristic = ElimHeuristic::MIN_WEIGHT;
