@@ -150,9 +150,7 @@ ElimGraph::getEliminationOrder (
       Util::addToVector (allVids, (*first)->arguments());      
     }
     TinySet<VarId> elimOrder (allVids);
-    for (size_t i = 0; i < excludedVids.size(); i++) {
-      elimOrder.remove (excludedVids[i]);
-    }
+    elimOrder -= TinySet<VarId> (excludedVids);
     return elimOrder.elements();
   }
   ElimGraph graph (factors);
