@@ -382,5 +382,41 @@ std::ostream& operator << (std::ostream& os, const vector<T>& v)
   return os;
 }
 
+
+namespace FuncObject {
+
+template<typename T>
+struct max : public std::binary_function<T, T, T>
+{
+  T operator() (const T& x, const T& y) const
+  {
+    return x < y ? y : x;
+  }
+};
+
+
+
+template <typename T>
+struct abs_diff : public std::binary_function<T, T, T>
+{
+  T operator() (const T& x, const T& y) const
+  {
+    return std::abs (x - y);
+  }
+};
+
+
+
+template <typename T>
+struct abs_diff_exp : public std::binary_function<T, T, T>
+{
+  T operator() (const T& x, const T& y) const
+  {
+    return std::abs (std::exp (x) - std::exp (y));
+  }
+};
+
+}
+
 #endif // HORUS_UTIL_H
 
