@@ -65,6 +65,7 @@ HEADERS = \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/TinySet.h \
+	$(srcdir)/LiftedBpSolver.h \
 	$(srcdir)/Util.h \
 	$(srcdir)/Horus.h
 	
@@ -88,6 +89,7 @@ CPP_SOURCES = \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/Util.cpp \
+	$(srcdir)/LiftedBpSolver.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/HorusCli.cpp
 
@@ -111,6 +113,7 @@ OBJS = \
 	ParfactorList.o \
 	LiftedUtils.o \
 	Util.o \
+	LiftedBpSolver.o \
 	HorusYap.o
 
 HCLI_OBJS = \

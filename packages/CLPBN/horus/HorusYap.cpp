@@ -11,6 +11,7 @@
 #include "FactorGraph.h"
 #include "FoveSolver.h"
 #include "VarElimSolver.h"
+#include "LiftedBpSolver.h"
 #include "BpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
@@ -308,15 +309,30 @@ runLiftedSolver (void)
       }
       jointList = YAP_TailOfTerm (jointList);
     }
-    FoveSolver solver (pfListCopy);
-    if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
-      solver.printSolverFlags();
-      cout << endl;
-    }
-    if (queryVars.size() == 1) {
-      results.push_back (solver.getPosterioriOf (queryVars[0]));
+    if (Globals::liftedSolver == LiftedSolvers::FOVE) {
+      FoveSolver solver (pfListCopy);
+      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+        solver.printSolverFlags();
+        cout << endl;
+      }
+      if (queryVars.size() == 1) {
+        results.push_back (solver.getPosterioriOf (queryVars[0]));
+      } else {
+        results.push_back (solver.getJointDistributionOf (queryVars));
+      }
+    } else if (Globals::liftedSolver == LiftedSolvers::LBP) {
+      LiftedBpSolver solver (pfListCopy);
+      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+        solver.printSolverFlags();
+        cout << endl;
+      }
+      if (queryVars.size() == 1) {
+        results.push_back (solver.getPosterioriOf (queryVars[0]));
+      } else {
+        results.push_back (solver.getJointDistributionOf (queryVars));
+      }
     } else {
-      results.push_back (solver.getJointDistributionOf (queryVars));
+      assert (false);
     }
     taskList = YAP_TailOfTerm (taskList);
   }
