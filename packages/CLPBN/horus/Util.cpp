@@ -13,7 +13,10 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-InfAlgorithms infAlgorithm = InfAlgorithms::VE;
+LiftedSolvers liftedSolver = LiftedSolvers::FOVE;
+
+GroundSolvers groundSolver = GroundSolvers::VE;
+
 };
 
 
@@ -208,11 +211,11 @@ setHorusFlag (string key, string value)
     ss >> Globals::verbosity;
   } else if (key == "inf_alg") {
     if (       value == "ve") {
-      Globals::infAlgorithm = InfAlgorithms::VE;
+      Globals::groundSolver = GroundSolvers::VE;
     } else if (value == "bp") {
-      Globals::infAlgorithm = InfAlgorithms::BP;
+      Globals::groundSolver = GroundSolvers::BP;
     } else if (value == "cbp") {
-      Globals::infAlgorithm = InfAlgorithms::CBP;
+      Globals::groundSolver = GroundSolvers::CBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;

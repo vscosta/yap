@@ -161,14 +161,14 @@ void
 runSolver (const FactorGraph& fg, const VarIds& queryIds)
 {
   Solver* solver = 0;
-  switch (Globals::infAlgorithm) {
-    case InfAlgorithms::VE:
+  switch (Globals::groundSolver) {
+    case GroundSolvers::VE:
       solver = new VarElimSolver (fg);
       break;
-    case InfAlgorithms::BP:
+    case GroundSolvers::BP:
       solver = new BpSolver (fg);
       break;
-    case InfAlgorithms::CBP:
+    case GroundSolvers::CBP:
       solver = new CbpSolver (fg);
       break;
     default:

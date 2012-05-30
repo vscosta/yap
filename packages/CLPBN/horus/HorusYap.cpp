@@ -352,7 +352,7 @@ runGroundSolver (void)
   }
 
   vector<Params> results;
-  if (Globals::infAlgorithm == InfAlgorithms::VE) {
+  if (Globals::groundSolver == GroundSolvers::VE) {
     runVeSolver (fg, tasks, results);
   } else {
     runBpSolver (fg, tasks, results);
@@ -417,9 +417,9 @@ void runBpSolver (
     //mfg = BayesBall::getMinimalFactorGraph (
     //    *fg, VarIds (vids.begin(),vids.end()));
   }
-  if (Globals::infAlgorithm == InfAlgorithms::BP) {
+  if (Globals::groundSolver == GroundSolvers::BP) {
     solver = new BpSolver (*fg); // FIXME
-  } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
+  } else if (Globals::groundSolver == GroundSolvers::CBP) {
     CFactorGraph::checkForIdenticalFactors = false;
     solver = new CbpSolver (*fg); // FIXME
   } else {
