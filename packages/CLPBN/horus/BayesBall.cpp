@@ -14,7 +14,7 @@
 FactorGraph*
 BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 {
-  assert (fg_.isFromBayesNetwork());
+  assert (fg_.bayesianFactors());
   Scheduling scheduling;
   for (size_t i = 0; i < queryIds.size(); i++) {
     assert (dag_.getNode (queryIds[i]));

@@ -28,7 +28,7 @@ FactorGraph::FactorGraph (const FactorGraph& fg)
       addEdge (varNodes_[neighs[j]->getIndex()], facNode);
     }
   }
-  fromBayesNet_ = fg.isFromBayesNetwork();
+  bayesFactors_ = fg.bayesianFactors();
 }
 
 
@@ -239,7 +239,7 @@ FactorGraph::isTree (void) const
 DAGraph&
 FactorGraph::getStructure (void)
 {
-  assert (fromBayesNet_);
+  assert (bayesFactors_);
   if (structure_.empty()) {
     for (size_t i = 0; i < varNodes_.size(); i++) {
       structure_.addNode (new DAGraphNode (varNodes_[i]));

@@ -65,7 +65,7 @@ class FacNode
 class FactorGraph
 {
   public:
-    FactorGraph (bool fbn = false) : fromBayesNet_(fbn) { }
+    FactorGraph (void) : bayesFactors_(false) { }
 
     FactorGraph (const FactorGraph&);
 
@@ -74,8 +74,10 @@ class FactorGraph
     const VarNodes& varNodes (void) const { return varNodes_; }
 
     const FacNodes& facNodes (void) const { return facNodes_; }
+
+    void setFactorsAsBayesian (void) { bayesFactors_ = true; }
  
-    bool isFromBayesNetwork (void) const { return fromBayesNet_ ; }
+    bool bayesianFactors (void) const { return bayesFactors_ ; }
 
     size_t nrVarNodes (void) const { return varNodes_.size(); }
 
@@ -128,7 +130,7 @@ class FactorGraph
     FacNodes  facNodes_;
 
     DAGraph   structure_;
-    bool      fromBayesNet_;
+    bool      bayesFactors_;
 
     typedef unordered_map<unsigned, VarNode*> VarMap;
     VarMap varMap_;
