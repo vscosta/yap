@@ -228,9 +228,12 @@ class TinySet
   private:
     iterator unique_cmp (iterator first, iterator last)
     {
+      if (first == last) {
+        return last;
+      }
       iterator result = first;
       while (++first != last) {
-        if ( cmp_(*result, *first)) {
+        if (cmp_(*result, *first)) {
           *(++result) = *first;
         }
       }
