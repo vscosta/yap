@@ -209,7 +209,17 @@ setHorusFlag (string key, string value)
     stringstream ss;
     ss << value;
     ss >> Globals::verbosity;
-  } else if (key == "inf_alg") {
+  } else if (key == "lifted_solver") {
+    if (       value == "fove") {
+      Globals::liftedSolver = LiftedSolvers::FOVE;
+    } else if (value == "lbp") {
+      Globals::liftedSolver = LiftedSolvers::LBP;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "ground_solver") {
     if (       value == "ve") {
       Globals::groundSolver = GroundSolvers::VE;
     } else if (value == "bp") {
