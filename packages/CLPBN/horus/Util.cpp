@@ -332,7 +332,7 @@ normalize (Params& v)
     assert (sum != -numeric_limits<double>::infinity());
     v -= sum;
   } else {
-    double sum = std::accumulate (v.begin(), v.end(), 0);
+    double sum = std::accumulate (v.begin(), v.end(), 0.0);
     assert (sum != 0.0);
     v /= sum;
   }

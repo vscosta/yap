@@ -283,7 +283,7 @@ template <typename T>
 void operator+=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (plus<double>(), val));
+      std::bind2nd (plus<double>(), val));
 }
 
 
@@ -292,7 +292,7 @@ template <typename T>
 void operator-=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (minus<double>(), val));
+      std::bind2nd (minus<double>(), val));
 }
 
 
@@ -301,7 +301,7 @@ template <typename T>
 void operator*=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (multiplies<double>(), val));
+      std::bind2nd (multiplies<double>(), val));
 }
 
 
@@ -310,7 +310,7 @@ template <typename T>
 void operator/=(std::vector<T>& v, double val)
 {
   std::transform (v.begin(), v.end(), v.begin(),
-      std::bind1st (divides<double>(), val));
+      std::bind2nd (divides<double>(), val));
 }
 
 
