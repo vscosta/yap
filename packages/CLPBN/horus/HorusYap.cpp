@@ -436,7 +436,7 @@ void runBpSolver (
   if (Globals::groundSolver == GroundSolvers::BP) {
     solver = new BpSolver (*fg); // FIXME
   } else if (Globals::groundSolver == GroundSolvers::CBP) {
-    CFactorGraph::checkForIdenticalFactors = false;
+    CbpSolver::checkForIdenticalFactors = false;
     solver = new CbpSolver (*fg); // FIXME
   } else {
     cerr << "error: unknow solver" << endl;

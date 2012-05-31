@@ -3,10 +3,14 @@
 
 #include "ParfactorList.h"
 
+class SpLink;
+class FactorGraph;
+class WeightedBpSolver;
+
 class LiftedBpSolver
 {
   public:
-   LiftedBpSolver (const ParfactorList& pfList) : pfList_(pfList) { }
+   LiftedBpSolver (const ParfactorList& pfList);
 
    Params getPosterioriOf (const Ground&);
 
@@ -15,7 +19,18 @@ class LiftedBpSolver
    void printSolverFlags (void) const;
 
   private:
-    ParfactorList pfList_;
+    void refineParfactors (void);
+
+    bool iterate (void);
+
+    vector<PrvGroup> getQueryGroups (const Grounds&);
+
+    FactorGraph* getFactorGraph (void);
+
+    vector<vector<unsigned>> getWeights (void) const;
+
+    ParfactorList      pfList_;
+    WeightedBpSolver*  solver_;
 
 };
 

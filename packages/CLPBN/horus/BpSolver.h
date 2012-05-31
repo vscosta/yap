@@ -13,10 +13,10 @@
 using namespace std;
 
 
-class SpLink
+class BpLink
 {
   public:
-    SpLink (FacNode* fn, VarNode* vn)
+    BpLink (FacNode* fn, VarNode* vn)
     { 
       fac_ = fn;
       var_ = vn;
@@ -27,7 +27,7 @@ class SpLink
       residual_  = 0.0;
     }
 
-    virtual ~SpLink (void) { };
+    virtual ~BpLink (void) { };
 
     FacNode* facNode (void) const { return fac_; }
 
@@ -70,16 +70,16 @@ class SpLink
     double    residual_;
 };
 
-typedef vector<SpLink*> SpLinkSet;
+typedef vector<BpLink*> BpLinks;
 
 
 class SPNodeInfo
 {
   public:
-    void addSpLink (SpLink* link) { links_.push_back (link); }
-    const SpLinkSet& getLinks (void) { return links_; }
+    void addBpLink (BpLink* link) { links_.push_back (link); }
+    const BpLinks& getLinks (void) { return links_; }
   private:
-    SpLinkSet links_;
+    BpLinks links_;
 };
 
 
@@ -105,9 +105,9 @@ class BpSolver : public Solver
 
     virtual void maxResidualSchedule (void);
 
-    virtual void calcFactorToVarMsg (SpLink*);
+    virtual void calcFactorToVarMsg (BpLink*);
 
-    virtual Params getVarToFactorMsg (const SpLink*) const;
+    virtual Params getVarToFactorMsg (const BpLink*) const;
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
@@ -121,7 +121,7 @@ class BpSolver : public Solver
       return facsI_[fac->getIndex()];
     }
 
-    void calculateAndUpdateMessage (SpLink* link, bool calcResidual = true)
+    void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true)
     {
       if (Globals::verbosity > 2) {
         cout << "calculating & updating " << link->toString() << endl;
@@ -133,7 +133,7 @@ class BpSolver : public Solver
       link->updateMessage();
     }
 
-    void calculateMessage (SpLink* link, bool calcResidual = true)
+    void calculateMessage (BpLink* link, bool calcResidual = true)
     {
       if (Globals::verbosity > 2) {
         cout << "calculating " << link->toString() << endl;
@@ -144,7 +144,7 @@ class BpSolver : public Solver
       }
     }
 
-    void updateMessage (SpLink* link)
+    void updateMessage (BpLink* link)
     {
       link->updateMessage();
       if (Globals::verbosity > 2) {
@@ -154,24 +154,24 @@ class BpSolver : public Solver
 
     struct CompareResidual
     {
-      inline bool operator() (const SpLink* link1, const SpLink* link2)
+      inline bool operator() (const BpLink* link1, const BpLink* link2)
       {
         return link1->residual() > link2->residual();
       }
     };
 
-    SpLinkSet            links_;
+    BpLinks            links_;
     unsigned             nIters_;
     vector<SPNodeInfo*>  varsI_;
     vector<SPNodeInfo*>  facsI_;
     bool                 runned_;
     const FactorGraph*   fg_;
 
-    typedef multiset<SpLink*, CompareResidual> SortedOrder;
+    typedef multiset<BpLink*, CompareResidual> SortedOrder;
     SortedOrder sortedOrder_;
 
-    typedef unordered_map<SpLink*, SortedOrder::iterator> SpLinkMap;
-    SpLinkMap linkMap_;
+    typedef unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
+    BpLinkMap linkMap_;
 
   private:
     void initializeSolver (void);

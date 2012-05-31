@@ -1,66 +1,191 @@
-#ifndef HORUS_CBP_H
-#define HORUS_CBP_H
+#ifndef HORUS_CBPSOLVER_H
+#define HORUS_CBPSOLVER_H
 
-#include "BpSolver.h"
-#include "CFactorGraph.h"
+#include <unordered_map>
 
-class Factor;
+#include "Solver.h"
+#include "FactorGraph.h"
+#include "Util.h"
+#include "Horus.h"
 
-class CbpSolverLink : public SpLink
+class VarCluster;
+class FacCluster;
+class VarSignHash;
+class FacSignHash;
+class WeightedBpSolver;
+
+typedef long Color;
+typedef vector<Color> Colors;
+typedef vector<std::pair<Color,unsigned>> VarSignature;
+typedef vector<Color> FacSignature;
+
+typedef unordered_map<unsigned, Color>  DistColorMap;
+typedef unordered_map<unsigned, Colors> VarColorMap;
+
+typedef unordered_map<VarSignature, VarNodes, VarSignHash> VarSignMap;
+typedef unordered_map<FacSignature, FacNodes, FacSignHash> FacSignMap;
+
+typedef vector<VarCluster*> VarClusters;
+typedef vector<FacCluster*> FacClusters;
+
+typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
+
+
+struct VarSignHash
 {
-  public:
-    CbpSolverLink (FacNode* fn, VarNode* vn, size_t idx, unsigned count) 
-        : SpLink (fn, vn), index_(idx), nrEdges_(count),
-          pwdMsg_(vn->range(), LogAware::one()) { }
-
-    size_t index (void) const { return index_; }
-
-    unsigned nrEdges (void) const { return nrEdges_; }
-
-    const Params& powMessage (void) const { return pwdMsg_; }
-
-    void updateMessage (void) 
-    {
-      pwdMsg_ = *nextMsg_;
-      swap (currMsg_, nextMsg_);
-      LogAware::pow (pwdMsg_, nrEdges_);
+  size_t operator() (const VarSignature &sig) const
+  {
+    size_t val = hash<size_t>()(sig.size());
+    for (size_t i = 0; i < sig.size(); i++) {
+      val ^= hash<size_t>()(sig[i].first);
+      val ^= hash<size_t>()(sig[i].second);
     }
-  
-  private:
-    size_t    index_;
-    unsigned  nrEdges_;
-    Params    pwdMsg_;
+    return val;
+  }
+};
+
+
+struct FacSignHash
+{
+  size_t operator() (const FacSignature &sig) const
+  {
+    size_t val = hash<size_t>()(sig.size());
+    for (size_t i = 0; i < sig.size(); i++) {
+      val ^= hash<size_t>()(sig[i]);
+    }
+    return val;
+  }
 };
 
 
 
-class CbpSolver : public BpSolver
+class VarCluster
 {
-  public:   
+  public:
+    VarCluster (const VarNodes& vs) : members_(vs) { }
+
+    const VarNode* first (void) const { return members_.front(); }
+
+    const VarNodes& members (void) const { return members_; }
+
+    VarNode* representative (void) const { return repr_; }
+
+    void setRepresentative (VarNode* vn) { repr_ = vn; }
+
+  private:
+    VarNodes   members_;
+    VarNode*   repr_;
+};
+
+
+
+class FacCluster
+{
+  public:
+    FacCluster (const FacNodes& fcs, const VarClusters& vcs)
+        : members_(fcs), varClusters_(vcs) { }
+
+    const FacNode* first (void) const { return members_.front(); }
+
+    const FacNodes& members (void) const { return members_; }
+ 
+    VarClusters& varClusters (void) { return varClusters_; }
+  
+    FacNode* representative (void) const { return repr_; }
+
+    void setRepresentative (FacNode* fn) { repr_ = fn; }
+ 
+  private:
+    FacNodes     members_;
+    VarClusters  varClusters_;
+    FacNode*     repr_;
+};
+
+
+
+class CbpSolver : public Solver
+{
+  public:
     CbpSolver (const FactorGraph& fg);
 
    ~CbpSolver (void);
 
     void printSolverFlags (void) const;
+
+    Params solveQuery (VarIds);
   
     Params getPosterioriOf (VarId);
 
     Params getJointDistributionOf (const VarIds&);
+ 
+    static bool checkForIdenticalFactors;
+ 
+  private:
 
-   private:
+    Color getNewColor (void)
+    {
+      ++ freeColor_;
+      return freeColor_ - 1;
+    }
 
-     void createLinks (void);
+    Color getColor (const VarNode* vn) const
+    {
+      return varColors_[vn->getIndex()];
+    }
 
-     void maxResidualSchedule (void);
+    Color getColor (const FacNode* fn) const
+    {
+      return facColors_[fn->getIndex()];
+    }
 
-     void calcFactorToVarMsg (SpLink*);
+    void setColor (const VarNode* vn, Color c)
+    {
+      varColors_[vn->getIndex()] = c;
+    }
 
-     Params getVarToFactorMsg (const SpLink*) const;
+    void setColor (const FacNode* fn, Color  c)
+    {
+      facColors_[fn->getIndex()] = c;
+    }
 
-     void printLinkInformation (void) const;
+    void findIdenticalFactors (void);
 
-     CFactorGraph* cfg_;
+    void setInitialColors (void);
+
+    void createGroups (void);
+
+    void createClusters (const VarSignMap&, const FacSignMap&);
+
+    VarSignature getSignature (const VarNode*);
+
+    FacSignature getSignature (const FacNode*);
+
+    void printGroups (const VarSignMap&, const FacSignMap&) const;
+
+    VarId getRepresentative (VarId vid)
+    {
+      assert (Util::contains (vid2VarCluster_, vid));
+      VarCluster* vc = vid2VarCluster_.find (vid)->second;
+      return vc->representative()->varId();
+    }
+
+    FactorGraph* getCompressedFactorGraph (void);
+
+    vector<vector<unsigned>> getWeights (void) const;
+
+    unsigned getWeight (const FacCluster*,
+        const VarCluster*, size_t index) const;
+
+
+    Color               freeColor_;
+    Colors              varColors_;
+    Colors              facColors_;
+    VarClusters         varClusters_;
+    FacClusters         facClusters_;
+    VarId2VarCluster    vid2VarCluster_;
+    const FactorGraph*  compressedFg_;
+    WeightedBpSolver*   solver_;
 };
 
-#endif // HORUS_CBP_H
+#endif // HORUS_CBPSOLVER_H
 
