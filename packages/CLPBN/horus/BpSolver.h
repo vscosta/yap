@@ -160,12 +160,11 @@ class BpSolver : public Solver
       }
     };
 
-    BpLinks            links_;
+    BpLinks              links_;
     unsigned             nIters_;
     vector<SPNodeInfo*>  varsI_;
     vector<SPNodeInfo*>  facsI_;
     bool                 runned_;
-    const FactorGraph*   fg_;
 
     typedef multiset<BpLink*, CompareResidual> SortedOrder;
     SortedOrder sortedOrder_;
