@@ -970,7 +970,8 @@ FoveSolver::absorve (
       if (commCt->empty() == false) {
         if (formulas.size() > 1) {
           LogVarSet excl = g->exclusiveLogVars (i);
-          Parfactors countNormPfs = countNormalize (g, excl);
+          Parfactor tempPf (g, commCt);
+          Parfactors countNormPfs = countNormalize (&tempPf, excl);
           for (size_t j = 0; j < countNormPfs.size(); j++) {
             countNormPfs[j]->absorveEvidence (
                 formulas[i], obsFormula.evidence());
