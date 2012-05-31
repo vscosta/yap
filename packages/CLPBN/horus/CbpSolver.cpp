@@ -59,29 +59,17 @@ Params
 CbpSolver::solveQuery (VarIds queryVids)
 {
   assert (queryVids.empty() == false);
-  return queryVids.size() == 1
-      ? getPosterioriOf (queryVids[0])
-      : getJointDistributionOf (queryVids);
-}
-
-
-
-Params
-CbpSolver::getPosterioriOf (VarId vid)
-{
-  return solver_->getPosterioriOf (getRepresentative (vid));
-}
-
-
-
-Params
-CbpSolver::getJointDistributionOf (const VarIds& jointVids)
-{
-  VarIds representatives;
-  for (size_t i = 0; i < jointVids.size(); i++) {
-   representatives.push_back (getRepresentative (jointVids[i]));
+  Params res;
+  if (queryVids.size() == 1) {
+    res = solver_->getPosterioriOf (getRepresentative (queryVids[0]));
+  } else {
+    VarIds representatives;
+    for (size_t i = 0; i < queryVids.size(); i++) {
+      representatives.push_back (getRepresentative (queryVids[i]));
+    }
+    res = solver_->getJointDistributionOf (representatives);
   }
-  return solver_->getJointDistributionOf (representatives);
+  return res;
 }
 
 

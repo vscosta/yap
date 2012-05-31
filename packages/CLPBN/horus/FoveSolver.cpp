@@ -630,16 +630,9 @@ GroundOperator::getAffectedFormulas (void)
 
 
 Params
-FoveSolver::getPosterioriOf (const Ground& query)
+FoveSolver::solveQuery (const Grounds& query)
 {
-  return getJointDistributionOf ({query});
-}
-
-
-
-Params
-FoveSolver::getJointDistributionOf (const Grounds& query)
-{
+  assert (query.empty() == false);
   runSolver (query);
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();

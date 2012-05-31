@@ -317,22 +317,14 @@ runLiftedSolver (void)
         solver.printSolverFlags();
         cout << endl;
       }
-      if (queryVars.size() == 1) {
-        results.push_back (solver.getPosterioriOf (queryVars[0]));
-      } else {
-        results.push_back (solver.getJointDistributionOf (queryVars));
-      }
+      results.push_back (solver.solveQuery (queryVars));
     } else if (Globals::liftedSolver == LiftedSolvers::LBP) {
       LiftedBpSolver solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
         cout << endl;
       }
-      if (queryVars.size() == 1) {
-        results.push_back (solver.getPosterioriOf (queryVars[0]));
-      } else {
-        results.push_back (solver.getJointDistributionOf (queryVars));
-      }
+      results.push_back (solver.solveQuery (queryVars));
     } else {
       assert (false);
     }

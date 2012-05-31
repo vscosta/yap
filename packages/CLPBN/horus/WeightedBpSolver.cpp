@@ -1,14 +1,6 @@
 #include "WeightedBpSolver.h"
 
 
-WeightedBpSolver::WeightedBpSolver (
-    const FactorGraph& fg, const vector<vector<unsigned>>& weights)
-    : BpSolver (fg), weights_(weights)
-{
-}
-
-
-
 WeightedBpSolver::~WeightedBpSolver (void)
 {
   for (size_t i = 0; i < links_.size(); i++) {
@@ -172,8 +164,8 @@ WeightedBpSolver::calcFactorToVarMsg (BpLink* _link)
   Params msgProduct (msgSize, LogAware::multIdenty());
   if (Globals::logDomain) {
     for (size_t i = links.size(); i-- > 0; ) {
-      const WeightedLink* cl = static_cast<const WeightedLink*> (links[i]);
-      if ( ! (cl->varNode() == dst && cl->index() == link->index())) {
+      const WeightedLink* l = static_cast<const WeightedLink*> (links[i]);
+      if ( ! (l->varNode() == dst && l->index() == link->index())) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
@@ -188,8 +180,8 @@ WeightedBpSolver::calcFactorToVarMsg (BpLink* _link)
     }
   } else {
     for (size_t i = links.size(); i-- > 0; ) {
-      const WeightedLink* cl = static_cast<const WeightedLink*> (links[i]);
-      if ( ! (cl->varNode() == dst && cl->index() == link->index())) {
+      const WeightedLink* l = static_cast<const WeightedLink*> (links[i]);
+      if ( ! (l->varNode() == dst && l->index() == link->index())) {
         if (Constants::SHOW_BP_CALCS) {
           cout << "    message from " << links[i]->varNode()->label();
           cout << ": " ;
@@ -255,19 +247,18 @@ WeightedBpSolver::getVarToFactorMsg (const BpLink* _link) const
   const BpLinks& links = ninf(src)->getLinks();
   if (Globals::logDomain) {
     for (size_t i = 0; i < links.size(); i++) {
-      WeightedLink* cl = static_cast<WeightedLink*> (links[i]);
-      if ( ! (cl->facNode() == dst && cl->index() == link->index())) {
-        WeightedLink* cl = static_cast<WeightedLink*> (links[i]);
-        msg += cl->powMessage();
+      WeightedLink* l = static_cast<WeightedLink*> (links[i]);
+      if ( ! (l->facNode() == dst && l->index() == link->index())) {
+        msg += l->powMessage();
       }
     }
   } else {
     for (size_t i = 0; i < links.size(); i++) {
-      WeightedLink* cl = static_cast<WeightedLink*> (links[i]);
-      if ( ! (cl->facNode() == dst && cl->index() == link->index())) {
-        msg *= cl->powMessage();
+      WeightedLink* l = static_cast<WeightedLink*> (links[i]);
+      if ( ! (l->facNode() == dst && l->index() == link->index())) {
+        msg *= l->powMessage();
         if (Constants::SHOW_BP_CALCS) {
-          cout << " x " << cl->nextMessage() << "^" << link->weight(); 
+          cout << " x " << l->nextMessage() << "^" << link->weight(); 
         }
       }
     }
@@ -284,14 +275,14 @@ void
 WeightedBpSolver::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
-    WeightedLink* cl = static_cast<WeightedLink*> (links_[i]); 
-    cout << cl->toString() << ":" << endl;
-    cout << "    curr msg = " << cl->message() << endl;
-    cout << "    next msg = " << cl->nextMessage() << endl;
-    cout << "    index    = " << cl->index() << endl;
-    cout << "    weight   = " << cl->weight() << endl;
-    cout << "    powered  = " << cl->powMessage() << endl;
-    cout << "    residual = " << cl->residual() << endl;
+    WeightedLink* l = static_cast<WeightedLink*> (links_[i]); 
+    cout << l->toString() << ":" << endl;
+    cout << "    curr msg = " << l->message() << endl;
+    cout << "    next msg = " << l->nextMessage() << endl;
+    cout << "    pow msg  = " << l->powMessage() << endl;
+    cout << "    index    = " << l->index() << endl;
+    cout << "    weight   = " << l->weight() << endl;
+    cout << "    residual = " << l->residual() << endl;
   }
 }
 

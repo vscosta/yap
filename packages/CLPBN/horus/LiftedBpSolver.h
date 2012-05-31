@@ -12,9 +12,7 @@ class LiftedBpSolver
   public:
    LiftedBpSolver (const ParfactorList& pfList);
 
-   Params getPosterioriOf (const Ground&);
-
-   Params getJointDistributionOf (const Grounds&);
+   Params solveQuery (const Grounds&);
 
    void printSolverFlags (void) const;
 

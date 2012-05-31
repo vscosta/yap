@@ -15,23 +15,21 @@ LiftedBpSolver::LiftedBpSolver (const ParfactorList& pfList)
 
 
 Params
-LiftedBpSolver::getPosterioriOf (const Ground& query)
+LiftedBpSolver::solveQuery (const Grounds& query)
 {
-  vector<PrvGroup> groups = getQueryGroups ({query});
-  return solver_->getPosterioriOf (groups[0]);
-}
-
-
-
-Params
-LiftedBpSolver::getJointDistributionOf (const Grounds& query)
-{
+  assert (query.empty() == false);
+  Params res;
   vector<PrvGroup> groups = getQueryGroups (query);
-  VarIds queryVids;
-  for (unsigned i = 0; i < groups.size(); i++) {
-    queryVids.push_back (groups[i]);
+  if (query.size() == 1) {
+    res = solver_->getPosterioriOf (groups[0]);
+  } else {
+    VarIds queryVids;
+    for (unsigned i = 0; i < groups.size(); i++) {
+      queryVids.push_back (groups[i]);
+    }
+    res = solver_->getJointDistributionOf (queryVids);
   }
-  return solver_->getJointDistributionOf (queryVids);
+  return res;
 }
 
 

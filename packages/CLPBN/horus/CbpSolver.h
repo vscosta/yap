@@ -58,7 +58,6 @@ struct FacSignHash
 };
 
 
-
 class VarCluster
 {
   public:
@@ -76,7 +75,6 @@ class VarCluster
     VarNodes   members_;
     VarNode*   repr_;
 };
-
 
 
 class FacCluster
@@ -102,7 +100,6 @@ class FacCluster
 };
 
 
-
 class CbpSolver : public Solver
 {
   public:
@@ -113,15 +110,10 @@ class CbpSolver : public Solver
     void printSolverFlags (void) const;
 
     Params solveQuery (VarIds);
-  
-    Params getPosterioriOf (VarId);
-
-    Params getJointDistributionOf (const VarIds&);
- 
+   
     static bool checkForIdenticalFactors;
  
   private:
-
     Color getNewColor (void)
     {
       ++ freeColor_;

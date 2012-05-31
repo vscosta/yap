@@ -35,7 +35,8 @@ class WeightedBpSolver : public BpSolver
 {
   public:   
     WeightedBpSolver (const FactorGraph& fg,
-        const vector<vector<unsigned>>&);
+        const vector<vector<unsigned>>& weights)
+      : BpSolver (fg), weights_(weights) { }
 
    ~WeightedBpSolver (void);
   
