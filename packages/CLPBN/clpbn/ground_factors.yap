@@ -41,10 +41,21 @@ do_network([], _, _, _) :- !.
 do_network(QueryVars, EVars, Keys, Factors) :-
 	retractall(currently_defined(_)),
 	retractall(f(_,_,_,_)),
+writeln(keys:Keys),
 	run_through_factors(QueryVars),
 	run_through_factors(EVars),
 	findall(K, currently_defined(K), Keys),
+writeln(keys2:Keys),
 	findall(f(FType,FId,FKeys,FCPT), f(FType,FId,FKeys,FCPT), Factors).
+
+match([], _Keys).
+match([V|GVars], Keys) :-
+	clpbn:get_atts(V,[key(GKey)]), !,
+	member(GKey, Keys), ground(GKey),
+	match(GVars, Keys).
+match([_V|GVars], Keys) :-
+	match(GVars, Keys).
+
 
 %
 % look for attributed vars with evidence (should also search the DB)
@@ -84,14 +95,6 @@ keys([], []).
 keys([Var|QueryVars], [Key|QueryKeys]) :-
 	clpbn:get_atts(Var,[key(Key)]),
 	keys(QueryVars, QueryKeys).
-
-run_through_factors([]).
-run_through_factors([Var|_QueryVars]) :-
-          clpbn:get_atts(Var,[key(K)]),
-	  find_factors(K),
-	  fail.
-run_through_factors([_|QueryVars]) :-
-	  run_through_factors(QueryVars).
 
 initialize_evidence([]).
 initialize_evidence([V|EVars]) :-

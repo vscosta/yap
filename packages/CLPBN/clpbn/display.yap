@@ -46,11 +46,11 @@ clpbn_bind_vals([Vs|MoreVs],[Ps|MorePs],AllDiffs) :-
 
 clpbn_bind_vals2([],_,_) :- !.
 % simple case, we want a distribution on a single variable.
-bind_vals([V],Ps) :- 
+clpbn_bind_vals2([V],Ps,AllDiffs) :- 
 	use_parfactors(on), !,
 	clpbn:get_atts(V, [key(K)]),
 	pfl:skolem(K,Vals),
-	put_atts(V, posterior([V], Vals, Ps)).
+	put_atts(V, posterior([V], Vals, Ps, AllDiffs)).
 % complex case, we want a joint distribution, do it on a leader.
 % should split on cliques ?
 clpbn_bind_vals2(Vs,Ps,AllDiffs) :-

@@ -20,9 +20,6 @@
           ]).
 
 
-:- use_module(library(pfl),
-          [set_pfl_flag/2]).
-
 
 patch_things_up :-
   assert_static(clpbn_horus:set_horus_flag(_,_)).
@@ -33,13 +30,13 @@ warning :-
 :- catch(load_foreign_files([horus], [], init_predicates), _, patch_things_up) -> true ; warning.
 
 
-set_solver(ve)    :- set_pfl_flag(solver,ve).
-set_solver(jt)    :- set_pfl_flag(solver,jt).
-set_solver(gibbs) :- set_pfl_flag(solver,gibbs).
-set_solver(fove)  :- set_pfl_flag(solver,fove).
-set_solver(hve)   :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, ve).
-set_solver(bp)    :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, bp).
-set_solver(cbp)   :- set_pfl_flag(solver,bp), set_horus_flag(inf_alg, cbp).
+set_solver(ve)    :- pfl:set_pfl_flag(solver,ve).
+set_solver(jt)    :- pfl:set_pfl_flag(solver,jt).
+set_solver(gibbs) :- pfl:set_pfl_flag(solver,gibbs).
+set_solver(fove)  :- pfl:set_pfl_flag(solver,fove).
+set_solver(hve)   :- pfl:set_pfl_flag(solver,bp), set_horus_flag(inf_alg, ve).
+set_solver(bp)    :- pfl:set_pfl_flag(solver,bp), set_horus_flag(inf_alg, bp).
+set_solver(cbp)   :- pfl:set_pfl_flag(solver,bp), set_horus_flag(inf_alg, cbp).
 set_solver(S)     :- throw(error('unknow solver ', S)).
 
 

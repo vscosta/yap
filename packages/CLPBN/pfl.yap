@@ -131,6 +131,7 @@ interface_predicate(Sk) :-
 	append(SKAs, [Var], ESKAs),
 	ESk =.. ESKAs,
 	assert(preprocess(ESk, Sk, Var)),
+	% transform from PFL to CLP(BN) call
 	assert_static((user:ESk :-
 	     evidence(Sk,Ev) -> Ev = Var;
 	     var(Var) -> insert_atts(Var,Sk) ;

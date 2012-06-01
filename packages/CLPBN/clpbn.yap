@@ -235,11 +235,7 @@ project_attributes(GVars, _AVars0) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
 	generate_network(GVars, GKeys, Keys, Factors, Evidence),
-	(ground(GVars) ->
-	    true
-	;
-	    call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0)
-	).
+	call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
 	AVars = [_|_],
@@ -258,6 +254,14 @@ project_attributes(GVars, AVars) :-
 	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
+
+match([], _Keys).
+match([V|GVars], Keys) :-
+	clpbn:get_atts(V,[key(GKey)]),
+	member(GKey, Keys), ground(GKey), !,
+	match(GVars, Keys).
+match([_V|GVars], Keys) :-
+	match(GVars, Keys).
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
