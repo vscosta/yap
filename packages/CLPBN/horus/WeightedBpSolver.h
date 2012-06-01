@@ -1,5 +1,5 @@
-#ifndef HORUS_HIGHORDERBPSOLVER_H
-#define HORUS_HIGHORDERBPSOLVER_H
+#ifndef HORUS_WEIGHTEDBPSOLVER_H
+#define HORUS_WEIGHTEDBPSOLVER_H
 
 #include "BpSolver.h"
 
@@ -57,5 +57,5 @@ class WeightedBpSolver : public BpSolver
      vector<vector<unsigned>> weights_;
 };
 
-#endif // HORUS_HIGHORDERBPSOLVER_H
+#endif // HORUS_WEIGHTEDBPSOLVER_H
 
