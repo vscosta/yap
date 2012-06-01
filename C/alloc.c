@@ -1121,6 +1121,13 @@ mmap_extension(Int s, MALLOC_T base, int fixed_allocation)
 #endif /* !YAPOR */
 
 
+/*
+   s= how much memory we need; 
+   fixed_alloc = do we need to contiguously extend stack
+   returns TRUE or FALSE
+
+   updates WorkSpaceTop
+*/
 static int
 ExtendWorkSpace(Int s, int fixed_allocation)
 {
