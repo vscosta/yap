@@ -63,6 +63,22 @@ CbpSolver::solveQuery (VarIds queryVids)
   if (queryVids.size() == 1) {
     res = solver_->getPosterioriOf (getRepresentative (queryVids[0]));
   } else {
+    VarNode* vn = fg.getVarNode (queryVids[0]);
+    const FacNodes& facNodes = vn->neighbors();
+    size_t idx = facNodes.size();
+    for (size_t i = 0; i < facNodes.size(); i++) {
+      if (facNodes[i]->factor().contains (queryVids)) {
+        idx = i;
+        break;
+      }
+      cout << endl;
+    }
+    if (idx == facNodes.size()) {
+      cerr << "error: only joint distributions on variables of some " ;
+      cerr << "clique are supported with the current solver" ;
+      cerr << endl;
+      exit (1);
+    }
     VarIds representatives;
     for (size_t i = 0; i < queryVids.size(); i++) {
       representatives.push_back (getRepresentative (queryVids[i]));
