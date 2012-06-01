@@ -3,7 +3,6 @@
 
 #include "ParfactorList.h"
 
-class SpLink;
 class FactorGraph;
 class WeightedBpSolver;
 

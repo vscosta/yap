@@ -9,8 +9,6 @@
 #include "Util.h"
 
 
-
-
 FactorGraph*
 BayesBall::getMinimalFactorGraph (const VarIds& queryIds)
 {

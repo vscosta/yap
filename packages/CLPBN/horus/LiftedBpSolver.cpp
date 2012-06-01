@@ -1,4 +1,3 @@
-
 #include "LiftedBpSolver.h"
 #include "WeightedBpSolver.h"
 #include "FactorGraph.h"
