@@ -915,6 +915,7 @@ InitFlags(void)
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
   yap_flags[TABLING_MODE_FLAG] = 0;
   yap_flags[QUIET_MODE_FLAG] = FALSE;
+  yap_flags[INDEXING_TERM_DEPTH_FLAG] = 0L;
 }
 
 static void
@@ -1316,7 +1317,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_InitTime();
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
-  for (i = 0; i <= LAST_FLAG; i++) {
+  for (i = 0; i <= NUMBER_OF_YAP_FLAGS; i++) {
     yap_flags[i] = 0;
   }
 #ifdef MPW

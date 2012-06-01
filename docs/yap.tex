@@ -8078,8 +8078,13 @@ for which YAP was compiled and Operating System information.
 
 @item  index
 @findex index (yap_flag/2 option)
+@* If @code{on} allow indexing (default), if @code{off} disable it, if
+@code{single} allow on first argument only.
+
+@item  index_sub_term_search_depth
+@findex index (yap_flag/2 option)
 @*
-If @code{on} allow indexing (default), if @code{off} disable it.
+Maximum bound on searching sub-terms for indexing, if @code{0} (default) no bound.
 
 @item  informational_messages
 @findex informational_messages (yap_flag/2 option)

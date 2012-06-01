@@ -236,6 +236,18 @@ yap_flag(index,X)  :-
 yap_flag(index,X) :-
 	'$do_error'(domain_error(flag_value,index+X),yap_flag(index,X)).
 
+% do or do not indexation
+yap_flag(index_sub_term_search_depth,X) :- var(X),
+	'$access_yap_flags'(23, X), !.
+yap_flag(index_sub_term_search_depth,X,X)  :-
+	integer(X), X > 0,
+	'$set_yap_flags'(23,X1).
+yap_flag(index_sub_term_search_depth,X,X)  :-
+	\+ integer(X),
+	'$do_error'(type_error(integer,X),yap_flag(index_sub_term_search_depth,X)).
+yap_flag(index_sub_term_search_depth,X,X) :-
+	'$do_error'(domain_error(out_of_range,index_sub_term_search_depth+X),yap_flag(index_sub_term_search_depth,X)).
+
 yap_flag(home,X) :-
 	'$yap_home'(X).
 
@@ -869,6 +881,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(home ).
 '$yap_system_flag'(host_type ).
 '$yap_system_flag'(index).
+'$yap_system_flag'(index_sub_term_search_depth).
 '$yap_system_flag'(tabling_mode).
 '$yap_system_flag'(informational_messages).
 '$yap_system_flag'(integer_rounding_function).

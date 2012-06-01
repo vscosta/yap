@@ -453,8 +453,9 @@ typedef enum
   TABLING_MODE_FLAG = 20,
   VARS_CAN_HAVE_QUOTE_FLAG = 21,
   QUIET_MODE_FLAG = 22,
+  INDEXING_TERM_DEPTH_FLAG = 23,
   /* let this be the last one */
-  LAST_FLAG = 23
+  NUMBER_OF_YAP_FLAGS = 24
 } yap_flags;
 
 #define STRING_AS_CHARS		0
@@ -500,8 +501,6 @@ typedef enum
   YAP_VTALARM_SIGNAL = 0x80000,	/* received SIGVTALARM */
   YAP_FAIL_SIGNAL = 0x100000	/* P = FAILCODE */
 } yap_signals;
-
-#define NUMBER_OF_YAP_FLAGS  LAST_FLAG
 
 typedef enum
 {

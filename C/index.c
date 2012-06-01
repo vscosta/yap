@@ -2545,12 +2545,13 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     /* base case, just commit to the current code */
     return emit_single_switch_case(min0, cint, first, clleft, fail_l);
   }
-  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) {
+  if ((yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) ||
+      (yap_flags[INDEXING_TERM_DEPTH_FLAG] && cint->term_depth - cint->last_index_new_depth > yap_flags[INDEXING_TERM_DEPTH_FLAG])) {
     *newlabp = 
       do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
-    return ret_lab;
+   return ret_lab;
   }
-  if (sreg == NULL || cint->term_depth > 20) {
+  if (sreg == NULL) {
     return suspend_indexing(min0, max0, ap, cint);
   }
   cint->term_depth++;
