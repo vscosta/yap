@@ -131,11 +131,12 @@ static inline tg_sol_fr_ptr CUT_prune_tg_solution_frames(tg_sol_fr_ptr, int);
 #define MODE_DIRECTED_TAGBITS         0xF
 #define MODE_DIRECTED_NUMBER_TAGBITS  4
 #define MODE_DIRECTED_INDEX           1
-#define MODE_DIRECTED_FIRST           2
-#define MODE_DIRECTED_ALL             3
-#define MODE_DIRECTED_MAX             4
-#define MODE_DIRECTED_MIN             5
+#define MODE_DIRECTED_MIN             2
+#define MODE_DIRECTED_MAX             3
+#define MODE_DIRECTED_ALL             4
+#define MODE_DIRECTED_SUM             5
 #define MODE_DIRECTED_LAST            6
+#define MODE_DIRECTED_FIRST           7
 #define MODE_DIRECTED_SET(ARG,MODE)   (((ARG) << MODE_DIRECTED_NUMBER_TAGBITS) + MODE)
 #define MODE_DIRECTED_GET_ARG(X)      ((X) >> MODE_DIRECTED_NUMBER_TAGBITS)
 #define MODE_DIRECTED_GET_MODE(X)     ((X) & MODE_DIRECTED_TAGBITS)
@@ -1063,7 +1064,7 @@ static inline void mark_as_completed(sg_fr_ptr sg_fr) {
       next_node = TrNode_child(next_node);
     }
     SgFr_last_answer(sg_fr) = current_node;
-#ifndef YAPOR
+#if !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
     /* free invalid answer nodes */
     current_node = SgFr_invalid_chain(sg_fr);
     SgFr_invalid_chain(sg_fr) = NULL;
@@ -1072,7 +1073,7 @@ static inline void mark_as_completed(sg_fr_ptr sg_fr) {
       FREE_ANSWER_TRIE_NODE(current_node);
       current_node = next_node;
     }
-#endif /* ! YAPOR */
+#endif /* !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
   }
 #endif /* MODE_DIRECTED_TABLING */
   return;
@@ -1298,24 +1299,33 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 	  next_node = TrNode_child(next_node);
 	}
 	SgFr_last_answer(sg_fr) = current_node;
-#ifndef YAPOR
+#if !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
 	/* free invalid answer nodes */
 	current_node = SgFr_invalid_chain(sg_fr);
 	SgFr_invalid_chain(sg_fr) = NULL;
 	while (current_node) {
-	  next_node = TrNode_next(invalid_node);	
+	  next_node = TrNode_next(current_node);	
 	  FREE_ANSWER_TRIE_NODE(current_node);
-	  current_node = node_node;
+	  current_node = next_node;
 	}
-#endif /* ! YAPOR */
+#endif /* !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
       }
 #endif /* MODE_DIRECTED_TABLING */
 #else
       ans_node_ptr node;
-#ifdef MODE_DIRECTED_TABLING
-      ans_node_ptr invalid_node = SgFr_invalid_chain(sg_fr);
-      SgFr_invalid_chain(sg_fr) = NULL;
-#endif /* MODE_DIRECTED_TABLING */
+#if defined(MODE_DIRECTED_TABLING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+      if (SgFr_invalid_chain(sg_fr)) {
+	ans_node_ptr current_node, next_node;
+	/* free invalid answer nodes */
+	current_node = SgFr_invalid_chain(sg_fr);
+	SgFr_invalid_chain(sg_fr) = NULL;
+	while (current_node) {
+	  next_node = TrNode_next(current_node);	
+	  FREE_ANSWER_TRIE_NODE(current_node);
+	  current_node = next_node;
+	}
+      }
+#endif /* MODE_DIRECTED_TABLING && !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
       SgFr_state(sg_fr) = ready;
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
       if (SgFr_active_workers(sg_fr) == 0) {
@@ -1339,7 +1349,7 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 	    local_uncons_ans = SgFr_batched_cached_answers(sg_fr);
 	  }
 	}
-      } else{ /* SgFr_active_workers(sg_fr) != 0 */
+      } else { /* SgFr_active_workers(sg_fr) != 0 */
 	if (IsMode_Batched(TabEnt_mode(SgFr_tab_ent(sg_fr)))){
 	  SgFr_batched_last_answer(sg_fr) = NULL;
 	  if ( worker_id >= ANSWER_LEAF_NODE_MAX_THREADS ) {
@@ -1361,14 +1371,6 @@ static inline void abolish_incomplete_subgoals(choiceptr prune_cp) {
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
       }
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
-#if defined(MODE_DIRECTED_TABLING) && ! defined(YAPOR)
-      /* free invalid answer nodes */
-      while (invalid_node) {
-	node = TrNode_next(invalid_node);	
-	FREE_ANSWER_TRIE_NODE(invalid_node);
-	invalid_node = node;
-      }
-#endif /* MODE_DIRECTED_TABLING && ! YAPOR */
 #endif /* INCOMPLETE_TABLING */
     }
 #ifdef LIMIT_TABLING

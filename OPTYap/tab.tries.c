@@ -45,6 +45,7 @@ static inline CELL *load_substitution_loop(gt_node_ptr, int *, CELL * USES_REGS)
 static inline CELL *exec_substitution_loop(gt_node_ptr, CELL **, CELL * USES_REGS);
 #ifdef MODE_DIRECTED_TABLING
 static inline ans_node_ptr answer_search_min_max(sg_fr_ptr, ans_node_ptr, Term, int USES_REGS);
+static inline ans_node_ptr answer_search_sum(sg_fr_ptr, ans_node_ptr, Term USES_REGS);
 static void invalidate_answer_trie(ans_node_ptr, sg_fr_ptr, int USES_REGS);
 #endif /* MODE_DIRECTED_TABLING */
 
@@ -216,7 +217,7 @@ static struct trie_statistics{
 
 #ifdef MODE_DIRECTED_TABLING
 #define INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
-#include "tab.tries.i"                     /* answer_search_min_max + invalidate_answer_trie */
+#include "tab.tries.i"                     /* answer_search_min_max + answer_search_sum + invalidate_answer_trie */
 #undef INCLUDE_ANSWER_SEARCH_MODE_DIRECTED
 #endif /* MODE_DIRECTED_TABLING */
 
@@ -1185,8 +1186,8 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
       } else {
 	LOCK_ANSWER_NODE(current_ans_node);
 	if (TrNode_child(current_ans_node) == NULL) {
-#ifdef YAPOR
-	  struct answer_trie_node virtual_ans_node;
+#ifdef THREADS
+	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  TrNode_init_lock_field(&virtual_ans_node);
 	  TrNode_parent(&virtual_ans_node) = NULL;
@@ -1195,18 +1196,19 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  TrNode_child(parent_ans_node) = TrNode_child(&virtual_ans_node);
 #else
 	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
-#endif /* YAPOR */
+#endif /* THREADS */
 	} else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX) {
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);  /* by default, assume a better answer */
 	  current_ans_node = answer_search_min_max(sg_fr, current_ans_node, Deref(subs_ptr[i]), mode PASS_REGS);
 	  if (invalid_ans_node == TrNode_child(parent_ans_node))  /* worse or equal answer */
 	    invalid_ans_node = NULL;
-	} else if (mode == MODE_DIRECTED_FIRST)
-	  current_ans_node = NULL;
-	else {  /* mode == MODE_DIRECTED_LAST */
-#ifdef YAPOR
-	  struct answer_trie_node virtual_ans_node;
+	} else if (mode == MODE_DIRECTED_SUM) {
+	  invalid_ans_node = TrNode_child(current_ans_node);
+	  current_ans_node = answer_search_sum(sg_fr, current_ans_node, Deref(subs_ptr[i]) PASS_REGS);
+	} else if (mode == MODE_DIRECTED_LAST) {
+#ifdef THREADS
+	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);
 	  TrNode_init_lock_field(&virtual_ans_node);
@@ -1218,8 +1220,11 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  invalid_ans_node = TrNode_child(current_ans_node);
 	  TrNode_child(current_ans_node) = NULL;	 
 	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
-#endif /* YAPOR */
-	}
+#endif /* THREADS */
+	} else if (mode == MODE_DIRECTED_FIRST) {
+	  current_ans_node = NULL;
+	} else
+	  Yap_Error(INTERNAL_ERROR, TermNil, "mode_directed_answer_search: unknown mode");
 	UNLOCK_ANSWER_NODE(current_ans_node);
       }
       n_subs--;
@@ -1388,24 +1393,31 @@ void free_subgoal_trie(sg_node_ptr current_node, int mode, int position) {
       IF_ABOLISH_ANSWER_TRIE_SHARED_DATA_STRUCTURES {
 	FREE_ANSWER_TRIE_NODE(ans_node);
 #if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
+#ifdef MODE_DIRECTED_TABLING
+	if (SgEnt_mode_directed(SgFr_sg_ent(sg_fr)))
+	  FREE_BLOCK(SgEnt_mode_directed(SgFr_sg_ent(sg_fr)));
+	if (SgFr_invalid_chain(sg_fr)) {
+	  ans_node_ptr current_node, next_node;
+	  /* free invalid answer nodes */
+	  current_node = SgFr_invalid_chain(sg_fr);
+	  SgFr_invalid_chain(sg_fr) = NULL;
+	  while (current_node) {
+	    next_node = TrNode_next(current_node);	
+	    FREE_ANSWER_TRIE_NODE(current_node);
+	    current_node = next_node;
+	  }
+	}
+#endif /* MODE_DIRECTED_TABLING */
 	FREE_SUBGOAL_ENTRY(SgFr_sg_ent(sg_fr));
 #endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
       }
-#if defined(MODE_DIRECTED_TABLING) && defined(YAPOR)
-      if (SgFr_invalid_chain(sg_fr)) {
-	ans_node_ptr next_node, invalid_node = SgFr_invalid_chain(sg_fr);
-	SgFr_invalid_chain(sg_fr) = NULL;
-	/* free invalid answer nodes */
-	while (invalid_node) {
-	  next_node = TrNode_next(invalid_node);	
-	  FREE_ANSWER_TRIE_NODE(invalid_node);
-	  invalid_node = next_node;
-	}
-      }
-#endif /* MODE_DIRECTED_TABLING && YAPOR */
 #ifdef LIMIT_TABLING
       remove_from_global_sg_fr_list(sg_fr);
 #endif /* LIMIT_TABLING */
+#if defined(MODE_DIRECTED_TABLING) && !defined(THREADS_FULL_SHARING) && !defined(THREADS_CONSUMER_SHARING)
+      if (SgFr_mode_directed(sg_fr))
+	FREE_BLOCK(SgFr_mode_directed(sg_fr));
+#endif /* MODE_DIRECTED_TABLING && !THREADS_FULL_SHARING && !THREADS_CONSUMER_SHARING */
       FREE_SUBGOAL_FRAME(sg_fr);
     }
   }
@@ -1603,16 +1615,20 @@ void show_table(tab_ent_ptr tab_ent, int show_mode, IOSTREAM *out) {
       int mode = MODE_DIRECTED_GET_MODE(mode_directed[i]);
       if (mode == MODE_DIRECTED_INDEX) {
 	Sfprintf(TrStat_out, "index");
-      } else if (mode == MODE_DIRECTED_FIRST) {
-	Sfprintf(TrStat_out, "first");
-      } else if (mode == MODE_DIRECTED_ALL) {
-	Sfprintf(TrStat_out, "all");
-      } else if (mode == MODE_DIRECTED_MAX) {
-	Sfprintf(TrStat_out, "max");
       } else if (mode == MODE_DIRECTED_MIN) {
 	Sfprintf(TrStat_out, "min");
-      } else /* MODE_DIRECTED_LAST */
+      } else if (mode == MODE_DIRECTED_MAX) {
+	Sfprintf(TrStat_out, "max");
+      } else if (mode == MODE_DIRECTED_ALL) {
+	Sfprintf(TrStat_out, "all");
+      } else if (mode == MODE_DIRECTED_SUM) {
+	Sfprintf(TrStat_out, "sum");
+      } else if (mode == MODE_DIRECTED_LAST) {
 	Sfprintf(TrStat_out, "last");
+      } else if (mode == MODE_DIRECTED_FIRST) {
+	Sfprintf(TrStat_out, "first");
+      } else
+	Yap_Error(INTERNAL_ERROR, TermNil, "show_table: unknown mode");
       if (i != MODE_DIRECTED_GET_ARG(mode_directed[i]))
 	Sfprintf(TrStat_out, "(ARG%d)", MODE_DIRECTED_GET_ARG(mode_directed[i]) + 1);
       if (i + 1 != TabEnt_arity(tab_ent))
