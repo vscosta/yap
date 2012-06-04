@@ -39,18 +39,16 @@ warning :-
 set_solver(ve)    :- set_pfl_flag(solver,ve).
 set_solver(jt)    :- set_pfl_flag(solver,jt).
 set_solver(gibbs) :- set_pfl_flag(solver,gibbs).
-set_solver(fove)  :- set_pfl_flag(solver,fove).
-set_solver(hve)   :- set_pfl_flag(solver,bp), cpp_set_horus_flag(inf_alg, ve).
-set_solver(bp)    :- set_pfl_flag(solver,bp), cpp_set_horus_flag(inf_alg, bp).
-set_solver(cbp)   :- set_pfl_flag(solver,bp), cpp_set_horus_flag(inf_alg, cbp).
+set_solver(fove)  :- set_pfl_flag(solver,fove), set_horus_flag(lifted_solver, fove).
+set_solver(lbp)   :- set_pfl_flag(solver,fove), set_horus_flag(lifted_solver, lbp).
+set_solver(hve)   :- set_pfl_flag(solver,bp),   set_horus_flag(ground_solver, ve).
+set_solver(bp)    :- set_pfl_flag(solver,bp),   set_horus_flag(ground_solver, bp).
+set_solver(cbp)   :- set_pfl_flag(solver,bp),   set_horus_flag(ground_solver, cbp).
 set_solver(S)     :- throw(error('unknow solver ', S)).
 
 
 set_horus_flag(K,V) :- cpp_set_horus_flag(K,V).
 
-%:- cpp_set_horus_flag(inf_alg, ve).
-%:- cpp_set_horus_flag(inf_alg, bp).
-%: -cpp_set_horus_flag(inf_alg, cbp).
 
 :- cpp_set_horus_flag(schedule, seq_fixed).
 %:- cpp_set_horus_flag(schedule, seq_random).

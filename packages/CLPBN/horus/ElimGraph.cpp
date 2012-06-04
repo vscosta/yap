@@ -139,12 +139,21 @@ ElimGraph::exportToGraphViz (
 
 VarIds
 ElimGraph::getEliminationOrder (
-    const vector<Factor*> factors,
+    const Factors& factors,
     VarIds excludedVids)
 {
+  if (elimHeuristic == ElimHeuristic::SEQUENTIAL) {
+    VarIds allVids;
+    Factors::const_iterator first = factors.begin();
+    Factors::const_iterator end   = factors.end();
+    for (; first != end; ++first) {
+      Util::addToVector (allVids, (*first)->arguments());      
+    }
+    TinySet<VarId> elimOrder (allVids);
+    elimOrder -= TinySet<VarId> (excludedVids);
+    return elimOrder.elements();
+  }
   ElimGraph graph (factors);
-  // graph.print();
-  // graph.exportToGraphViz ("_egg.dot");
   return graph.getEliminatingOrder (excludedVids);
 }
 

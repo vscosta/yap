@@ -187,7 +187,7 @@ class TFactor
 
     bool contains (const vector<T>& args) const
     {
-      for (size_t i = 0; i < args_.size(); i++) {
+      for (size_t i = 0; i < args.size(); i++) {
         if (contains (args[i]) == false) {
           return false;
         }

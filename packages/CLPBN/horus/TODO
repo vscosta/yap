@@ -1,8 +1,5 @@
-- Check if evidence remains in the compressed factor graph
-- Consider using hashs instead of vectors of colors to calculate the groups in
-  counting bp
 - Find a way to decrease the time required to find an
   elimination order for variable elimination
-- Add a sequential elimination heuristic
-
+- Consider using hashs instead of vectors of colors to calculate the groups in
+  counting bp
 

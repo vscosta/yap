@@ -48,6 +48,7 @@ VarElimSolver::printSolverFlags (void) const
   ss << "elim_heuristic=" ;
   ElimHeuristic eh = ElimGraph::elimHeuristic;
   switch (eh) {
+    case SEQUENTIAL:        ss << "sequential";        break;
     case MIN_NEIGHBORS:     ss << "min_neighbors";     break;
     case MIN_WEIGHT:        ss << "min_weight";        break;
     case MIN_FILL:          ss << "min_fill";          break;

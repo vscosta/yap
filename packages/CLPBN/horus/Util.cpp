@@ -13,9 +13,11 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-InfAlgorithms infAlgorithm = InfAlgorithms::VE;
-};
+LiftedSolvers liftedSolver = LiftedSolvers::FOVE;
 
+GroundSolvers groundSolver = GroundSolvers::VE;
+
+};
 
 
 
@@ -68,7 +70,6 @@ stringToDouble (string str)
   ss >> val;
   return val;
 }
-
 
 
 
@@ -128,8 +129,8 @@ nrCombinations (unsigned n, unsigned k)
 size_t
 sizeExpected (const Ranges& ranges)
 {
-  return std::accumulate (
-      ranges.begin(), ranges.end(), 1, multiplies<unsigned>());
+  return std::accumulate (ranges.begin(),
+      ranges.end(), 1, multiplies<unsigned>());
 }
 
 
@@ -208,20 +209,32 @@ setHorusFlag (string key, string value)
     stringstream ss;
     ss << value;
     ss >> Globals::verbosity;
-  } else if (key == "inf_alg") {
+  } else if (key == "lifted_solver") {
+    if (       value == "fove") {
+      Globals::liftedSolver = LiftedSolvers::FOVE;
+    } else if (value == "lbp") {
+      Globals::liftedSolver = LiftedSolvers::LBP;
+    } else {
+      cerr << "warning: invalid value `" << value << "' " ;
+      cerr << "for `" << key << "'" << endl;
+      returnVal = false;
+    }
+  } else if (key == "ground_solver") {
     if (       value == "ve") {
-      Globals::infAlgorithm = InfAlgorithms::VE;
+      Globals::groundSolver = GroundSolvers::VE;
     } else if (value == "bp") {
-      Globals::infAlgorithm = InfAlgorithms::BP;
+      Globals::groundSolver = GroundSolvers::BP;
     } else if (value == "cbp") {
-      Globals::infAlgorithm = InfAlgorithms::CBP;
+      Globals::groundSolver = GroundSolvers::CBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
       returnVal = false;
     }
   } else if (key == "elim_heuristic") {
-    if (       value == "min_neighbors") {
+    if (       value == "sequential") {
+      ElimGraph::elimHeuristic = ElimHeuristic::SEQUENTIAL;
+    } else if (value == "min_neighbors") {
       ElimGraph::elimHeuristic = ElimHeuristic::MIN_NEIGHBORS;
     } else if (value == "min_weight") {
       ElimGraph::elimHeuristic = ElimHeuristic::MIN_WEIGHT;
@@ -323,23 +336,15 @@ namespace LogAware {
 void
 normalize (Params& v)
 {
-  double sum = LogAware::addIdenty();
   if (Globals::logDomain) {
-    for (size_t i = 0; i < v.size(); i++) {
-      sum = Util::logSum (sum, v[i]);
-    }
+    double sum = std::accumulate (v.begin(), v.end(),
+        LogAware::addIdenty(), Util::logSum);
     assert (sum != -numeric_limits<double>::infinity());
-    for (size_t i = 0; i < v.size(); i++) {
-      v[i] -= sum;
-    }
+    v -= sum;
   } else {
-    for (size_t i = 0; i < v.size(); i++) {
-      sum += v[i];
-    }
+    double sum = std::accumulate (v.begin(), v.end(), 0.0);
     assert (sum != 0.0);
-    for (size_t i = 0; i < v.size(); i++) {
-      v[i] /= sum;
-    }
+    v /= sum;
   }
 }
 
@@ -351,13 +356,11 @@ getL1Distance (const Params& v1, const Params& v2)
   assert (v1.size() == v2.size());
   double dist = 0.0;
   if (Globals::logDomain) {
-    for (size_t i = 0; i < v1.size(); i++) {
-      dist += abs (exp(v1[i]) - exp(v2[i]));
-    }
+    dist = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
+        std::plus<double>(), FuncObject::abs_diff_exp<double>());
   } else {
-    for (size_t i = 0; i < v1.size(); i++) {
-      dist += abs (v1[i] - v2[i]);
-    }
+    dist = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
+        std::plus<double>(), FuncObject::abs_diff<double>());
   }
   return dist;
 }
@@ -370,19 +373,11 @@ getMaxNorm (const Params& v1, const Params& v2)
   assert (v1.size() == v2.size());
   double max = 0.0;
   if (Globals::logDomain) {
-    for (size_t i = 0; i < v1.size(); i++) {
-      double diff = abs (exp(v1[i]) - exp(v2[i]));
-      if (diff > max) {
-        max = diff;
-      }
-    }
+    max = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
+        FuncObject::max<double>(), FuncObject::abs_diff_exp<double>());
   } else {
-    for (size_t i = 0; i < v1.size(); i++) {
-      double diff = abs (v1[i] - v2[i]);
-      if (diff > max) {
-        max = diff;
-      }
-    }
+    max = std::inner_product (v1.begin(), v1.end(), v2.begin(), 0.0,
+        FuncObject::max<double>(), FuncObject::abs_diff<double>());
   }
   return max;
 }
@@ -392,7 +387,9 @@ getMaxNorm (const Params& v1, const Params& v2)
 double
 pow (double base, unsigned iexp)
 {
-  return Globals::logDomain ? base * iexp : std::pow (base, iexp);
+  return Globals::logDomain
+      ? base * iexp
+      : std::pow (base, iexp);
 }
 
 
@@ -400,8 +397,10 @@ pow (double base, unsigned iexp)
 double
 pow (double base, double exp)
 {
-  // assumes that `expoent' is never in log domain
-  return Globals::logDomain ? base * exp : std::pow (base, exp);
+  // `expoent' should not be in log domain
+  return Globals::logDomain
+      ? base * exp
+      : std::pow (base, exp);
 }
 
 

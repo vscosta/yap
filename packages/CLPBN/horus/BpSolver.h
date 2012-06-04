@@ -13,10 +13,10 @@
 using namespace std;
 
 
-class SpLink
+class BpLink
 {
   public:
-    SpLink (FacNode* fn, VarNode* vn)
+    BpLink (FacNode* fn, VarNode* vn)
     { 
       fac_ = fn;
       var_ = vn;
@@ -24,23 +24,20 @@ class SpLink
       v2_.resize (vn->range(), LogAware::log (1.0 / vn->range()));
       currMsg_   = &v1_;
       nextMsg_   = &v2_;
-      msgSended_ = false;
       residual_  = 0.0;
     }
 
-    virtual ~SpLink (void) { };
+    virtual ~BpLink (void) { };
 
-    FacNode* getFactor (void) const { return fac_; }
+    FacNode* facNode (void) const { return fac_; }
 
-    VarNode* getVariable (void) const { return var_; }
+    VarNode* varNode (void) const { return var_; }
 
-    const Params& getMessage (void) const { return *currMsg_; }
+    const Params& message (void) const { return *currMsg_; }
 
-    Params& getNextMessage (void) { return *nextMsg_; }
+    Params& nextMessage (void) { return *nextMsg_; }
 
-    bool messageWasSended (void) const { return msgSended_; }
-
-    double getResidual (void) const { return residual_; }
+    double residual (void) const { return residual_; }
 
     void clearResidual (void) { residual_ = 0.0; }
 
@@ -52,7 +49,6 @@ class SpLink
     virtual void updateMessage (void) 
     {
       swap (currMsg_, nextMsg_);
-      msgSended_ = true;
     }
 
     string toString (void) const
@@ -71,20 +67,19 @@ class SpLink
     Params    v2_;
     Params*   currMsg_;
     Params*   nextMsg_;
-    bool      msgSended_;
     double    residual_;
 };
 
-typedef vector<SpLink*> SpLinkSet;
+typedef vector<BpLink*> BpLinks;
 
 
 class SPNodeInfo
 {
   public:
-    void addSpLink (SpLink* link) { links_.push_back (link); }
-    const SpLinkSet& getLinks (void) { return links_; }
+    void addBpLink (BpLink* link) { links_.push_back (link); }
+    const BpLinks& getLinks (void) { return links_; }
   private:
-    SpLinkSet links_;
+    BpLinks links_;
 };
 
 
@@ -110,9 +105,9 @@ class BpSolver : public Solver
 
     virtual void maxResidualSchedule (void);
 
-    virtual void calculateFactor2VariableMsg (SpLink*);
+    virtual void calcFactorToVarMsg (BpLink*);
 
-    virtual Params getVar2FactorMsg (const SpLink*) const;
+    virtual Params getVarToFactorMsg (const BpLink*) const;
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
@@ -126,30 +121,30 @@ class BpSolver : public Solver
       return facsI_[fac->getIndex()];
     }
 
-    void calculateAndUpdateMessage (SpLink* link, bool calcResidual = true)
+    void calculateAndUpdateMessage (BpLink* link, bool calcResidual = true)
     {
       if (Globals::verbosity > 2) {
         cout << "calculating & updating " << link->toString() << endl;
       }
-      calculateFactor2VariableMsg (link);
+      calcFactorToVarMsg (link);
       if (calcResidual) {
         link->updateResidual();
       }
       link->updateMessage();
     }
 
-    void calculateMessage (SpLink* link, bool calcResidual = true)
+    void calculateMessage (BpLink* link, bool calcResidual = true)
     {
       if (Globals::verbosity > 2) {
         cout << "calculating " << link->toString() << endl;
       }
-      calculateFactor2VariableMsg (link);
+      calcFactorToVarMsg (link);
       if (calcResidual) {
         link->updateResidual();
       }
     }
 
-    void updateMessage (SpLink* link)
+    void updateMessage (BpLink* link)
     {
       link->updateMessage();
       if (Globals::verbosity > 2) {
@@ -159,24 +154,23 @@ class BpSolver : public Solver
 
     struct CompareResidual
     {
-      inline bool operator() (const SpLink* link1, const SpLink* link2)
+      inline bool operator() (const BpLink* link1, const BpLink* link2)
       {
-        return link1->getResidual() > link2->getResidual();
+        return link1->residual() > link2->residual();
       }
     };
 
-    SpLinkSet            links_;
+    BpLinks              links_;
     unsigned             nIters_;
     vector<SPNodeInfo*>  varsI_;
     vector<SPNodeInfo*>  facsI_;
     bool                 runned_;
-    const FactorGraph*   fg_;
 
-    typedef multiset<SpLink*, CompareResidual> SortedOrder;
+    typedef multiset<BpLink*, CompareResidual> SortedOrder;
     SortedOrder sortedOrder_;
 
-    typedef unordered_map<SpLink*, SortedOrder::iterator> SpLinkMap;
-    SpLinkMap linkMap_;
+    typedef unordered_map<BpLink*, SortedOrder::iterator> BpLinkMap;
+    BpLinkMap linkMap_;
 
   private:
     void initializeSolver (void);

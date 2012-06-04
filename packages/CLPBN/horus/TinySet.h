@@ -12,7 +12,10 @@ class TinySet
 {
   public:
 
-   TinySet (const TinySet& s)
+    typedef typename vector<T>::iterator        iterator;
+    typedef typename vector<T>::const_iterator  const_iterator;
+
+    TinySet (const TinySet& s)
         : vec_(s.vec_), cmp_(s.cmp_) { }
 
     TinySet (const Compare& cmp = Compare())
@@ -25,10 +28,9 @@ class TinySet
         : vec_(elements), cmp_(cmp)
     {
       std::sort (begin(), end(), cmp_);
+      iterator it = unique_cmp (begin(), end());
+      vec_.resize (it - begin());
     }
-
-    typedef typename vector<T>::iterator iterator;
-    typedef typename vector<T>::const_iterator const_iterator;
 
     iterator insert (const T& t)
     {
@@ -224,11 +226,25 @@ class TinySet
     }
 
   private:
+    iterator unique_cmp (iterator first, iterator last)
+    {
+      if (first == last) {
+        return last;
+      }
+      iterator result = first;
+      while (++first != last) {
+        if (cmp_(*result, *first)) {
+          *(++result) = *first;
+        }
+      }
+      return ++result;
+    }
+
     bool consistent (void) const
     {
       typename vector<T>::size_type i;
       for (i = 0; i < vec_.size() - 1; i++) {
-        if (cmp_(vec_[i], vec_[i + 1]) == false) {
+        if ( ! cmp_(vec_[i], vec_[i + 1])) {
           return false;
         }
       }

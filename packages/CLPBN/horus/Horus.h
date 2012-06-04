@@ -28,11 +28,18 @@ typedef vector<unsigned>    Ranges;
 typedef unsigned long long  ullong;
 
 
-enum InfAlgorithms
+enum LiftedSolvers
 {
-  VE,  // variable elimination
-  BP,  // belief propagation
-  CBP  // counting belief propagation
+  FOVE, // first order variable elimination
+  LBP,  // lifted belief propagation
+};
+
+
+enum GroundSolvers
+{
+  VE,   // variable elimination
+  BP,   // belief propagation
+  CBP   // counting belief propagation
 };
 
 
@@ -43,7 +50,8 @@ extern bool logDomain;
 // level of debug information
 extern unsigned verbosity;
 
-extern InfAlgorithms infAlgorithm;
+extern LiftedSolvers liftedSolver;
+extern GroundSolvers groundSolver;
 
 };
 

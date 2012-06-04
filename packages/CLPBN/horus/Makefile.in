@@ -50,7 +50,6 @@ HEADERS = \
 	$(srcdir)/ElimGraph.h \
 	$(srcdir)/FactorGraph.h \
 	$(srcdir)/Factor.h \
-	$(srcdir)/CFactorGraph.h \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/Solver.h \
 	$(srcdir)/VarElimSolver.h \
@@ -65,6 +64,8 @@ HEADERS = \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/TinySet.h \
+	$(srcdir)/LiftedBpSolver.h \
+	$(srcdir)/WeightedBpSolver.h \
 	$(srcdir)/Util.h \
 	$(srcdir)/Horus.h
 	
@@ -74,7 +75,6 @@ CPP_SOURCES = \
 	$(srcdir)/ElimGraph.cpp \
 	$(srcdir)/FactorGraph.cpp \
 	$(srcdir)/Factor.cpp \
-	$(srcdir)/CFactorGraph.cpp \
 	$(srcdir)/ConstraintTree.cpp \
 	$(srcdir)/Var.cpp \
 	$(srcdir)/Solver.cpp \
@@ -88,6 +88,8 @@ CPP_SOURCES = \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/Util.cpp \
+	$(srcdir)/LiftedBpSolver.cpp \
+	$(srcdir)/WeightedBpSolver.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/HorusCli.cpp
 
@@ -97,7 +99,6 @@ OBJS = \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
-	CFactorGraph.o \
 	ConstraintTree.o \
 	Var.o \
 	Solver.o \
@@ -111,6 +112,8 @@ OBJS = \
 	ParfactorList.o \
 	LiftedUtils.o \
 	Util.o \
+	LiftedBpSolver.o \
+	WeightedBpSolver.o \
 	HorusYap.o
 
 HCLI_OBJS = \
@@ -119,7 +122,6 @@ HCLI_OBJS = \
 	ElimGraph.o \
 	FactorGraph.o \
 	Factor.o \
-	CFactorGraph.o \
 	ConstraintTree.o \
 	Var.o \
 	Solver.o \
@@ -131,6 +133,7 @@ HCLI_OBJS = \
 	ProbFormula.o \
 	Histogram.o \
 	ParfactorList.o \
+	WeightedBpSolver.o \
 	LiftedUtils.o \
 	Util.o \
 	HorusCli.o

@@ -14,14 +14,16 @@ Solver::printAnswer (const VarIds& vids)
       unobservedVids.push_back (vids[i]);
     }
   }
-  Params res = solveQuery (unobservedVids);
-  vector<string> stateLines = Util::getStateLines (unobservedVars);
-  for (size_t i = 0; i < res.size(); i++) {
-    cout << "P(" << stateLines[i] << ") = " ;
-    cout << std::setprecision (Constants::PRECISION) << res[i];
+  if (unobservedVids.empty() == false) {
+    Params res = solveQuery (unobservedVids);
+    vector<string> stateLines = Util::getStateLines (unobservedVars);
+    for (size_t i = 0; i < res.size(); i++) {
+      cout << "P(" << stateLines[i] << ") = " ;
+      cout << std::setprecision (Constants::PRECISION) << res[i];
+      cout << endl;
+    }
     cout << endl;
   }
-  cout << endl;
 }
 
 
@@ -29,14 +31,10 @@ Solver::printAnswer (const VarIds& vids)
 void
 Solver::printAllPosterioris (void)
 {
-  VarIds vids;
-  const VarNodes& vars = fg.varNodes();
+  VarNodes vars = fg.varNodes();
+  std::sort (vars.begin(), vars.end(), sortByVarId());
   for (size_t i = 0; i < vars.size(); i++) {
-    vids.push_back (vars[i]->varId());
-  }
-  std::sort (vids.begin(), vids.end());
-  for (size_t i = 0; i < vids.size(); i++) {
-    printAnswer ({vids[i]});
+    printAnswer ({vars[i]->varId()});
   }
 }
 

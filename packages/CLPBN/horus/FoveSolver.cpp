@@ -630,16 +630,9 @@ GroundOperator::getAffectedFormulas (void)
 
 
 Params
-FoveSolver::getPosterioriOf (const Ground& query)
+FoveSolver::solveQuery (const Grounds& query)
 {
-  return getJointDistributionOf ({query});
-}
-
-
-
-Params
-FoveSolver::getJointDistributionOf (const Grounds& query)
-{
+  assert (query.empty() == false);
   runSolver (query);
   (*pfList_.begin())->normalize();
   Params params = (*pfList_.begin())->params();
@@ -970,7 +963,8 @@ FoveSolver::absorve (
       if (commCt->empty() == false) {
         if (formulas.size() > 1) {
           LogVarSet excl = g->exclusiveLogVars (i);
-          Parfactors countNormPfs = countNormalize (g, excl);
+          Parfactor tempPf (g, commCt);
+          Parfactors countNormPfs = countNormalize (&tempPf, excl);
           for (size_t j = 0; j < countNormPfs.size(); j++) {
             countNormPfs[j]->absorveEvidence (
                 formulas[i], obsFormula.evidence());

@@ -11,6 +11,7 @@
 #include "FactorGraph.h"
 #include "FoveSolver.h"
 #include "VarElimSolver.h"
+#include "LiftedBpSolver.h"
 #include "BpSolver.h"
 #include "CbpSolver.h"
 #include "ElimGraph.h"
@@ -218,8 +219,10 @@ int
 createGroundNetwork (void)
 {
   string factorsType ((char*) YAP_AtomName (YAP_AtomOfTerm (YAP_ARG1)));
-  bool fromBayesNet = factorsType == "bayes";
-  FactorGraph* fg = new FactorGraph (fromBayesNet);
+  FactorGraph* fg = new FactorGraph();
+  if (factorsType == "bayes") {
+    fg->setFactorsAsBayesian();
+  }
   YAP_Term factorList = YAP_ARG2;
   while (factorList != YAP_TermNil()) {
     YAP_Term factor = YAP_HeadOfTerm (factorList);
@@ -308,15 +311,22 @@ runLiftedSolver (void)
       }
       jointList = YAP_TailOfTerm (jointList);
     }
-    FoveSolver solver (pfListCopy);
-    if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
-      solver.printSolverFlags();
-      cout << endl;
-    }
-    if (queryVars.size() == 1) {
-      results.push_back (solver.getPosterioriOf (queryVars[0]));
+    if (Globals::liftedSolver == LiftedSolvers::FOVE) {
+      FoveSolver solver (pfListCopy);
+      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+        solver.printSolverFlags();
+        cout << endl;
+      }
+      results.push_back (solver.solveQuery (queryVars));
+    } else if (Globals::liftedSolver == LiftedSolvers::LBP) {
+      LiftedBpSolver solver (pfListCopy);
+      if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
+        solver.printSolverFlags();
+        cout << endl;
+      }
+      results.push_back (solver.solveQuery (queryVars));
     } else {
-      results.push_back (solver.getJointDistributionOf (queryVars));
+      assert (false);
     }
     taskList = YAP_TailOfTerm (taskList);
   }
@@ -352,7 +362,7 @@ runGroundSolver (void)
   }
 
   vector<Params> results;
-  if (Globals::infAlgorithm == InfAlgorithms::VE) {
+  if (Globals::groundSolver == GroundSolvers::VE) {
     runVeSolver (fg, tasks, results);
   } else {
     runBpSolver (fg, tasks, results);
@@ -384,7 +394,7 @@ void runVeSolver (
   results.reserve (tasks.size());
   for (size_t i = 0; i < tasks.size(); i++) {
     FactorGraph* mfg = fg;
-    if (fg->isFromBayesNetwork()) {
+    if (fg->bayesianFactors()) {
       // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
     // VarElimSolver solver (*mfg);
@@ -394,7 +404,7 @@ void runVeSolver (
       cout << endl;
     }
     results.push_back (solver.solveQuery (tasks[i]));
-    if (fg->isFromBayesNetwork()) {
+    if (fg->bayesianFactors()) {
       // delete mfg;
     }
   }
@@ -413,14 +423,14 @@ void runBpSolver (
   }
   Solver* solver = 0;
   FactorGraph* mfg = fg;
-  if (fg->isFromBayesNetwork()) {
+  if (fg->bayesianFactors()) {
     //mfg = BayesBall::getMinimalFactorGraph (
     //    *fg, VarIds (vids.begin(),vids.end()));
   }
-  if (Globals::infAlgorithm == InfAlgorithms::BP) {
+  if (Globals::groundSolver == GroundSolvers::BP) {
     solver = new BpSolver (*fg); // FIXME
-  } else if (Globals::infAlgorithm == InfAlgorithms::CBP) {
-    CFactorGraph::checkForIdenticalFactors = false;
+  } else if (Globals::groundSolver == GroundSolvers::CBP) {
+    CbpSolver::checkForIdenticalFactors = false;
     solver = new CbpSolver (*fg); // FIXME
   } else {
     cerr << "error: unknow solver" << endl;
@@ -434,7 +444,7 @@ void runBpSolver (
   for (size_t i = 0; i < tasks.size(); i++) {
     results.push_back (solver->solveQuery (tasks[i]));
   }
-  if (fg->isFromBayesNetwork()) {
+  if (fg->bayesianFactors()) {
     //delete mfg;
   }
   delete solver;
