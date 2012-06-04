@@ -307,48 +307,60 @@ static Int p_table( USES_REGS1 ) {
     Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (mode directed tabling not enabled)", AtomName(at), arity);
     return(FALSE);
 #else 
+    /*************************************************************************************
+      The mode operator declaration is reordered as follows:
+         1. arguments with mode 'index'         (any number)
+         2. arguments with mode 'min' and 'max' (any number, following the original order)
+         3. arguments with mode 'all'           (any number)
+         4. arguments with mode 'sum' or 'last' (only one of the two is allowed)
+         5. arguments with mode 'first'         (any number)
+    *************************************************************************************/
     int pos_index = 0;
-    int pos_agreg = 0;  /* min/max */
-    int pos_first = 0;
+    int pos_min_max = 0;
     int pos_all = 0;
-    int pos_last = 0;
+    int pos_sum_last = 0;
+    int pos_first = 0;
     int i;
     int *aux_mode_directed;
 
     aux_mode_directed = malloc(arity * sizeof(int));
-    ALLOC_BLOCK(mode_directed, arity * sizeof(int), int);
     for (i = 0; i < arity; i++) {
       int mode = IntOfTerm(HeadOfTerm(list));
       if (mode == MODE_DIRECTED_INDEX)
 	pos_index++;
+      else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)
+	pos_min_max++;
       else if (mode == MODE_DIRECTED_ALL)
 	pos_all++;
-      else if (mode == MODE_DIRECTED_LAST)
-	pos_last++;
-      else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX)
-	pos_agreg++;
+      else if (mode == MODE_DIRECTED_SUM || mode == MODE_DIRECTED_LAST) {
+	if (pos_sum_last) {
+	  free(aux_mode_directed);
+	  Yap_Error(INTERNAL_COMPILER_ERROR, TermNil, "invalid tabling declaration for %s/%d (more than one argument with modes 'sum' and/or 'last')", AtomName(at), arity);
+	  return(FALSE);
+	} else
+	  pos_sum_last = 1;
+      }
       aux_mode_directed[i] = mode;
       list = TailOfTerm(list);
-    }    
-    pos_first = pos_index + pos_agreg + pos_all + pos_last;
-    pos_last = pos_index + pos_agreg + pos_all;
-    pos_all = pos_index + pos_agreg;
-    pos_agreg = pos_index;
+    }
+    pos_first = pos_index + pos_min_max + pos_all + pos_sum_last;
+    pos_sum_last = pos_index + pos_min_max + pos_all;
+    pos_all = pos_index + pos_min_max;
+    pos_min_max = pos_index;
     pos_index = 0;
+    ALLOC_BLOCK(mode_directed, arity * sizeof(int), int);
     for (i = 0; i < arity; i++) {
       int aux_pos = 0;
-      if (aux_mode_directed[i] == MODE_DIRECTED_MAX)
-	aux_pos = pos_agreg++;
-      else if (aux_mode_directed[i] == MODE_DIRECTED_MIN)
-	aux_pos = pos_agreg++;	
-      else if (aux_mode_directed[i] == MODE_DIRECTED_INDEX)
+      if (aux_mode_directed[i] == MODE_DIRECTED_INDEX)
 	aux_pos = pos_index++;	
-      else if(aux_mode_directed[i] == MODE_DIRECTED_FIRST)
-	aux_pos = pos_first++;
+      else if (aux_mode_directed[i] == MODE_DIRECTED_MIN || aux_mode_directed[i] == MODE_DIRECTED_MAX)
+	aux_pos = pos_min_max++;
       else if (aux_mode_directed[i] == MODE_DIRECTED_ALL)
 	aux_pos = pos_all++;		
-      else if (aux_mode_directed[i] == MODE_DIRECTED_LAST)
-	aux_pos = pos_last++;	
+      else if (aux_mode_directed[i] == MODE_DIRECTED_SUM || aux_mode_directed[i] == MODE_DIRECTED_LAST)
+	aux_pos = pos_sum_last++;	
+      else if(aux_mode_directed[i] == MODE_DIRECTED_FIRST)
+	aux_pos = pos_first++;
       mode_directed[aux_pos] = MODE_DIRECTED_SET(i, aux_mode_directed[i]);
     }
     free(aux_mode_directed);

@@ -146,11 +146,16 @@ table(Pred) :-
 
 %% should match with code in OPTYap/tab.macros.h
 '$transl_to_mode_directed_tabling'(index,1).
-'$transl_to_mode_directed_tabling'(first,2).
-'$transl_to_mode_directed_tabling'(all,3).
-'$transl_to_mode_directed_tabling'(max,4).
-'$transl_to_mode_directed_tabling'(min,5).
+'$transl_to_mode_directed_tabling'(min,2).
+'$transl_to_mode_directed_tabling'(max,3).
+'$transl_to_mode_directed_tabling'(all,4).
+'$transl_to_mode_directed_tabling'(sum,5).
 '$transl_to_mode_directed_tabling'(last,6).
+'$transl_to_mode_directed_tabling'(first,7).
+%% B-Prolog compatibility
+'$transl_to_mode_directed_tabling'(+,1).
+'$transl_to_mode_directed_tabling'(@,4).
+'$transl_to_mode_directed_tabling'(-,7).
 
 
 
