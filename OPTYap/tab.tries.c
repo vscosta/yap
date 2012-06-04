@@ -1189,7 +1189,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 #ifdef THREADS
 	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
-	  TrNode_init_lock_field(&virtual_ans_node);
+	  AnsNode_init_lock_field(&virtual_ans_node);
 	  TrNode_parent(&virtual_ans_node) = NULL;
 	  TrNode_child(&virtual_ans_node) = NULL;
 	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
@@ -1211,7 +1211,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);
-	  TrNode_init_lock_field(&virtual_ans_node);
+	  AnsNode_init_lock_field(&virtual_ans_node);
 	  TrNode_parent(&virtual_ans_node) = NULL;
 	  TrNode_child(&virtual_ans_node) = NULL;
 	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
