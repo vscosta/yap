@@ -3298,13 +3298,14 @@ code_to_indexcl(yamop *ipc, int is_lu)
   return ret;    
 }
 
+/* CALLED by expand when entering sub_arg */
 static void
 increase_expand_depth(yamop *ipc, struct intermediates *cint)
 {
   yamop *ncode;
 
   cint->term_depth++;
-  if (/* ipc->opc == Yap_opcode(_switch_on_sub_arg_type) && */
+  if (ipc->opc == Yap_opcode(_switch_on_sub_arg_type) && 
       (ncode = ipc->u.sllll.l4)->opc == Yap_opcode(_expand_clauses)) {
     if (ncode->u.sssllp.s2 != cint->last_depth_size) {
       cint->last_index_new_depth = cint->term_depth;
@@ -3352,6 +3353,7 @@ expand_index(struct intermediates *cint) {
   cint->i_labelno = 1;
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
+  cint->term_depth = cint->last_index_new_depth = cint->last_depth_size = 0L;
 
   parentcl = code_to_indexcl(ipc,is_lu);
   while (ipc != NULL) {
@@ -3533,9 +3535,11 @@ expand_index(struct intermediates *cint) {
 	s_reg = RepPair(t);
 	labp = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.llll.l3;	
+	increase_expand_depth(ipc, cint);
       } else {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.llll.l2;	
@@ -3555,9 +3559,11 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.ollll.l1);
 	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	ipc = ipc->u.ollll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (t == TermNil) {
 	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
+	increase_expand_depth(ipc, cint);
       } else {
 	Term tn;
 
@@ -3584,9 +3590,11 @@ expand_index(struct intermediates *cint) {
 	sp = push_stack(sp, argno, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.xllll.l3;	
+	increase_expand_depth(ipc, cint);
       } else {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.xllll.l2;	
@@ -3603,22 +3611,21 @@ expand_index(struct intermediates *cint) {
 	ipc = ipc->u.sllll.l4;
 	i++;
       } else if (IsPairTerm(t)) {
-	increase_expand_depth(ipc, cint);
 	s_reg = RepPair(t);
 	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
-      } else if (IsApplTerm(t)) {
 	increase_expand_depth(ipc, cint);
+      } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.sllll.l3;
 	i = 0;
+	increase_expand_depth(ipc, cint);
       } else {
 	/* We don't push stack here, instead we go over to next argument
 	   sp = push_stack(sp, -i-1, t, cint);
 	*/
-	increase_expand_depth(ipc, cint);
 	sp = push_stack(sp, -i-1, t, TermNil, cint);
 	ipc = ipc->u.sllll.l2;	
 	i++;
@@ -3963,7 +3970,6 @@ ExpandIndex(PredEntry *ap, int ExtraArgs, yamop *nextop USES_REGS) {
  restart_index:
   cint.CodeStart = cint.cpc = cint.BlobsStart = cint.icpc = NIL;
   cint.CurrentPred = ap;
-  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   LOCAL_ErrorMessage = NULL;
   LOCAL_Error_Size = 0;
   if (P->opc == Yap_opcode(_expand_clauses)) {
