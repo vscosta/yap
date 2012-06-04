@@ -470,11 +470,13 @@ true :- true.
 	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
+	  yap_hacks:current_choice_point(NCP1),
 	  '$delayed_goals'(G, V, NV, LGs),
+	   yap_hacks:current_choice_point(NCP2),
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP ->
+	   '$prompt_alternatives_on'(determinism), CP = NCP, NCP1 = NCP2 ->
 	   nl(user_error),
 	   !
 	  ;
@@ -504,9 +506,13 @@ true :- true.
 '$add_env_and_fail' :- fail.
 
 '$delayed_goals'(G, V, NV, LGs) :-
-	'$attributes':delayed_goals(G, V, NV, LGs), !.
-'$delayed_goals'(_, V, NV, []) :-
-	copy_term_nat(V, NV).
+	(
+	    '$attributes':delayed_goals(G, V, NV, LGs)
+	*->
+	   true
+        ;
+	   copy_term_nat(V, NV), LGs = []
+        ).
 
 '$out_neg_answer' :-
 	 ( '$undefined'(print_message(_,_),prolog) -> 

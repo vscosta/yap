@@ -10519,8 +10519,7 @@ mkdir -p  packages/clib/maildrop/rfc822
 mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
 mkdir -p  packages/CLPBN/clpbn
-mkdir -p  packages/CLPBN/clpbn/bp
-mkdir -p  packages/CLPBN/clpbn/bp/xmlParser
+mkdir -p  packages/CLPBN/horus
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
@@ -10673,6 +10672,7 @@ ac_config_files="$ac_config_files packages/zlib/Makefile"
 
 fi
 
+
 if test "$ENABLE_CUDD" = ""; then
 ac_config_files="$ac_config_files packages/bdd/Makefile"
 
@@ -10695,7 +10695,7 @@ ac_config_files="$ac_config_files packages/real/Makefile"
 fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
-ac_config_files="$ac_config_files packages/CLPBN/clpbn/bp/Makefile"
+ac_config_files="$ac_config_files packages/CLPBN/horus/Makefile"
 
 fi
 
@@ -11464,7 +11464,7 @@ do
     "packages/swi-minisat2/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/Makefile" ;;
     "packages/swi-minisat2/C/Makefile") CONFIG_FILES="$CONFIG_FILES packages/swi-minisat2/C/Makefile" ;;
     "packages/real/Makefile") CONFIG_FILES="$CONFIG_FILES packages/real/Makefile" ;;
-    "packages/CLPBN/clpbn/bp/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/clpbn/bp/Makefile" ;;
+    "packages/CLPBN/horus/Makefile") CONFIG_FILES="$CONFIG_FILES packages/CLPBN/horus/Makefile" ;;
     "library/gecode/Makefile") CONFIG_FILES="$CONFIG_FILES library/gecode/Makefile" ;;
     "packages/prism/src/c/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/c/Makefile" ;;
     "packages/prism/src/prolog/Makefile") CONFIG_FILES="$CONFIG_FILES packages/prism/src/prolog/Makefile" ;;

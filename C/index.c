@@ -3298,6 +3298,28 @@ code_to_indexcl(yamop *ipc, int is_lu)
   return ret;    
 }
 
+static void
+increase_expand_depth(yamop *ipc, struct intermediates *cint)
+{
+  yamop *ncode;
+
+  cint->term_depth++;
+  if (/* ipc->opc == Yap_opcode(_switch_on_sub_arg_type) && */
+      (ncode = ipc->u.sllll.l4)->opc == Yap_opcode(_expand_clauses)) {
+    if (ncode->u.sssllp.s2 != cint->last_depth_size) {
+      cint->last_index_new_depth = cint->term_depth;
+      cint->last_depth_size = ncode->u.sssllp.s2;  
+    }
+  }
+}
+
+static void
+zero_expand_depth(PredEntry *ap, struct intermediates *cint)
+{
+  cint->term_depth = cint->last_index_new_depth;
+  cint->last_depth_size = ap->cs.p_code.NOfClauses;  
+}
+
 static yamop **
 expand_index(struct intermediates *cint) {
   CACHE_REGS
@@ -3499,6 +3521,7 @@ expand_index(struct intermediates *cint) {
       break;
       /* instructions type e */
     case _switch_on_type:
+      zero_expand_depth(ap, cint);
       t = Deref(ARG1);
       argno = 1;
       i = 0;
@@ -3520,6 +3543,7 @@ expand_index(struct intermediates *cint) {
       parentcl = index_jmp(parentcl, parentcl, ipc, is_lu, e_code);
       break;
     case _switch_list_nl:
+      zero_expand_depth(ap, cint);
       t = Deref(ARG1);
       argno = 1;
       i = 0;
@@ -3548,6 +3572,7 @@ expand_index(struct intermediates *cint) {
       parentcl = index_jmp(parentcl, parentcl, ipc, is_lu, e_code);
       break;
     case _switch_on_arg_type:
+      zero_expand_depth(ap, cint);
       argno = arg_from_x(ipc->u.xllll.x);
       i = 0;
       t = Deref(XREGS[argno]);
@@ -3578,12 +3603,14 @@ expand_index(struct intermediates *cint) {
 	ipc = ipc->u.sllll.l4;
 	i++;
       } else if (IsPairTerm(t)) {
+	increase_expand_depth(ipc, cint);
 	s_reg = RepPair(t);
 	sp = push_stack(sp, -i-1, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
       } else if (IsApplTerm(t)) {
+	increase_expand_depth(ipc, cint);
 	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.sllll.l3;
 	i = 0;
@@ -3591,6 +3618,7 @@ expand_index(struct intermediates *cint) {
 	/* We don't push stack here, instead we go over to next argument
 	   sp = push_stack(sp, -i-1, t, cint);
 	*/
+	increase_expand_depth(ipc, cint);
 	sp = push_stack(sp, -i-1, t, TermNil, cint);
 	ipc = ipc->u.sllll.l2;	
 	i++;

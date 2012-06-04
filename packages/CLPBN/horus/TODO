@@ -1,0 +1,5 @@
+- Find a way to decrease the time required to find an
+  elimination order for variable elimination
+- Consider using hashs instead of vectors of colors to calculate the groups in
+  counting bp
+
