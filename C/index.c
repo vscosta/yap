@@ -2529,6 +2529,20 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 }
 
 
+/* make sure that it is worth it to generate indexing code at that point */
+static int
+several_tags(ClauseDef *min, ClauseDef *max)
+{
+  CELL tag = min->Tag;
+  while (min < max) {
+    min++;
+    if (!IsAtomTerm(min->Tag) || min->Tag != tag)
+      return TRUE;
+  }
+  return FALSE;
+}
+
+
 /* execute an index inside a structure */
 static UInt
 do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermediates *cint, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
@@ -2578,7 +2592,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     }
     group = (GroupDef *)top;
     ngroups = groups_in(min, max, group, cint);    
-    if (ngroups == 1 && group->VarClauses == 0) {
+    if (ngroups == 1 && group->VarClauses == 0 && several_tags(min,max)) {
       /* ok, we are doing a sub-argument */
       /* process group */
 
