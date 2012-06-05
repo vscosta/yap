@@ -26,6 +26,8 @@ function run_solver
       solver_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
     elif [ $SOLVER = cbp ]; then
       solver_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
+    elif [ $SOLVER = lbp ]; then
+      solver_flag=clpbn_horus:set_horus_flag\(schedule,$2\)
     else
       echo "unknow flag $2"
     fi
