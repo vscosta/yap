@@ -241,7 +241,7 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 
 #define ConstantTermAdjust(P) ConstantTermAdjust__(P PASS_REGS)
 #define DBGroundTermAdjust(P) DBGroundTermAdjust__(P PASS_REGS)
-#define AdjustDBTerm(P,A) AdjustDBTerm__(P,A PASS_REGS)
+#define AdjustDBTerm(P,A,B) AdjustDBTerm__(P,A,B PASS_REGS)
 #define AdjustSwitchTable(op, table, i) AdjustSwitchTable__(op, table, i PASS_REGS)
 #define RestoreOtaplInst(start, opc, pe)  RestoreOtaplInst__(start, opc, pe PASS_REGS)
 #define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
@@ -460,7 +460,7 @@ RestoreInvisibleAtoms__( USES_REGS1 )
 
 /* adjusts terms stored in the data base, when they have no variables */
 static Term 
-AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
+AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
 {
   if (IsVarTerm(trm))
     return CodeVarAdjust(trm);
@@ -473,8 +473,8 @@ AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
     p = PtoHeapCellAdjust(RepPair(trm));
     out = AbsPair(p);
   loop:
-    if (p >= p_base) {
-      p[0] = AdjustDBTerm(p[0], p);
+    if (p >= p_base || p < p_lim) {
+      p[0] = AdjustDBTerm(p[0], p, p_lim);
       if (IsPairTerm(p[1])) {
 	/* avoid term recursion with very deep lists */
 	Term *newp = PtoHeapCellAdjust(RepPair(p[1]));
@@ -483,7 +483,7 @@ AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
 	p = newp;
 	goto loop;
       } else {
-	p[1] = AdjustDBTerm(p[1], p);
+	p[1] = AdjustDBTerm(p[1], p, p_lim);
       }
     }
     return out;
@@ -494,7 +494,7 @@ AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
     Term *p0 = p = PtoHeapCellAdjust(RepAppl(trm));
     /* if it is before the current position, then we are looking
        at old code */
-    if (p >= p_base) {
+    if (p >= p_base || p < p_lim) {
       f = (Functor)p[0];
       if (!IsExtensionFunctor(f)) {
 	UInt             Arity, i;
@@ -503,7 +503,7 @@ AdjustDBTerm__(Term trm, Term *p_base USES_REGS)
 	*p++ = (Term)f;
 	Arity = ArityOfFunctor(f);
 	for (i = 0; i < Arity; ++i) {
-	  *p = AdjustDBTerm(*p, p0);
+	  *p = AdjustDBTerm(*p, p0, p_lim);
 	  p++;
 	}
       }
@@ -519,7 +519,7 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
   if (attachments) {
 #ifdef COROUTINING
     if (dbr->ag.attachments)
-      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents);
+      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents);
 #endif
   } else {
     if (dbr->ag.NextDBT)
@@ -534,7 +534,7 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
     while ((tm = *--cp) != 0)
       *cp = DBRefAdjust(tm);
   }
-  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents);
+  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents, dbr->Contents);
 }
 
 /* Restoring the heap */
@@ -551,7 +551,7 @@ RestoreStaticClause(StaticClause *cl USES_REGS)
     char *x = (char *)DBTermAdjust(cl->usc.ClSource);
     char *base = (char *)cl;
 
-    if (x < base || x > base+cl->ClSize) {
+    if (x < base || x >= base+cl->ClSize) {
       cl->usc.ClPred = PtoPredAdjust(cl->usc.ClPred);
     } else {
       cl->usc.ClSource = DBTermAdjust(cl->usc.ClSource);
