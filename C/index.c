@@ -2536,7 +2536,7 @@ several_tags(ClauseDef *min, ClauseDef *max)
   CELL tag = min->Tag;
   while (min < max) {
     min++;
-    if (!IsAtomTerm(min->Tag) || min->Tag != tag)
+    if (!IsAtomOrIntTerm(min->Tag) || min->Tag != tag)
       return TRUE;
   }
   return FALSE;
@@ -2592,7 +2592,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     }
     group = (GroupDef *)top;
     ngroups = groups_in(min, max, group, cint);    
-    if (ngroups == 1 && group->VarClauses == 0 && several_tags(min,max)) {
+    if (ngroups == 1 && group->VarClauses == 0 && (i < 8 || several_tags(min,max))) {
       /* ok, we are doing a sub-argument */
       /* process group */
 
