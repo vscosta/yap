@@ -610,7 +610,7 @@ GroundOperator::getAffectedFormulas (void)
         LogVar X      = f.logVars()[front.second];
         const ProbFormulas& fs = (*pflIt)->arguments();
         for (size_t i = 0; i < fs.size(); i++) {
-          if ((int)i != idx && fs[i].contains (X)) {
+          if (i != idx && fs[i].contains (X)) {
             pair<PrvGroup, unsigned> pair = make_pair (
                 fs[i].group(), fs[i].indexOf (X));
             if (Util::contains (affectedFormulas, pair) == false) {
