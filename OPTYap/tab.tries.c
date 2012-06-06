@@ -1186,7 +1186,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
       } else {
 	LOCK_ANSWER_NODE(current_ans_node);
 	if (TrNode_child(current_ans_node) == NULL) {
-#ifdef THREADS
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
 	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  AnsNode_init_lock_field(&virtual_ans_node);
@@ -1194,9 +1194,10 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  TrNode_child(&virtual_ans_node) = NULL;
 	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 	  TrNode_child(parent_ans_node) = TrNode_child(&virtual_ans_node);
+	  TrNode_parent(TrNode_child(&virtual_ans_node)) = parent_ans_node;
 #else
 	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
-#endif /* THREADS */
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 	} else if (mode == MODE_DIRECTED_MIN || mode == MODE_DIRECTED_MAX) {
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);  /* by default, assume a better answer */
@@ -1207,7 +1208,7 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  invalid_ans_node = TrNode_child(current_ans_node);
 	  current_ans_node = answer_search_sum(sg_fr, current_ans_node, Deref(subs_ptr[i]) PASS_REGS);
 	} else if (mode == MODE_DIRECTED_LAST) {
-#ifdef THREADS
+#if defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
 	  struct answer_trie_node virtual_ans_node;  /* necessary because the answer_search_loop() procedure also locks the parent node */
 	  ans_node_ptr parent_ans_node = current_ans_node;
 	  invalid_ans_node = TrNode_child(parent_ans_node);
@@ -1216,11 +1217,12 @@ ans_node_ptr mode_directed_answer_search(sg_fr_ptr sg_fr, CELL *subs_ptr) {
 	  TrNode_child(&virtual_ans_node) = NULL;
 	  current_ans_node = answer_search_loop(sg_fr, &virtual_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
 	  TrNode_child(parent_ans_node) = TrNode_child(&virtual_ans_node);
+	  TrNode_parent(TrNode_child(&virtual_ans_node)) = parent_ans_node;
 #else
 	  invalid_ans_node = TrNode_child(current_ans_node);
 	  TrNode_child(current_ans_node) = NULL;	 
 	  current_ans_node = answer_search_loop(sg_fr, current_ans_node, Deref(subs_ptr[i]), &vars_arity PASS_REGS);
-#endif /* THREADS */
+#endif /* THREADS_FULL_SHARING || THREADS_CONSUMER_SHARING */
 	} else if (mode == MODE_DIRECTED_FIRST) {
 	  current_ans_node = NULL;
 	} else
