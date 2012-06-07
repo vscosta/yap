@@ -271,6 +271,9 @@ FloatOfTerm (Term t)
 #else
      /* OOPS, YAP only understands Floats that are as large as cells or that
         take two cells!!! */
+
+OOPS
+
 #endif
 #endif
 
