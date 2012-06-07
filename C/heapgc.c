@@ -3943,7 +3943,7 @@ do_gc(Int predarity, CELL *current_env, yamop *nextop USES_REGS)
   LOCAL_discard_trail_entries = 0;
   alloc_sz = (CELL *)LOCAL_TrailTop-(CELL*)LOCAL_GlobalBase;
   LOCAL_bp = Yap_PreAllocCodeSpace();
-  while (LOCAL_bp+alloc_sz > (char *)AuxSp) {
+  while (IN_BETWEEN(LOCAL_bp, AuxSp, LOCAL_bp+alloc_sz)) {
     /* not enough space */
     *--ASP = (CELL)current_env;
     LOCAL_bp = (char *)Yap_ExpandPreAllocCodeSpace(alloc_sz, NULL, TRUE);
