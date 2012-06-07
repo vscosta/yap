@@ -724,15 +724,18 @@ fi
 
 if test "$yap_cv_readline" != "no"
 then
+  AC_CHECK_LIB([ncurses], [main],[
+		LIBS="$LIBS -lncurses"
+              ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
-		LIBS="$LIBS -lreadline -lncurses"
+		LIBS="$LIBS -lreadline"
               ],
               [if test "x$with_readline" != xcheck; then
                  AC_MSG_FAILURE(
                    [--with-readline was given, but test for readline failed])
                fi
-              ], -lncurses)
+              ])
 fi
 if test "$yap_cv_gmp" != "no"
 then
@@ -845,7 +848,7 @@ fi
 
 if test "$yap_cv_cudd" != no; then
    	    oldlibs="$LIBS"
-	    if test "$withval" != "yes"; then
+	    if test "$withval" = "yes"; then
 	       if test -d "$yap_cv_cudd"/include/cudd; then
 	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
                else
