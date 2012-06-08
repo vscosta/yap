@@ -194,6 +194,15 @@ user:url_path(swipl_download, swipl('Download.html')).
 user:url_path(swipl_bugs,     swipl('bugzilla')).
 user:url_path(swipl_quick,    swipl('man/quickstart.html')).
 
+user:url_path(yap,	      'http://www.dcc.fc.up.pt/~vsc/Yap').
+
+user:url_path(yap_download,   'http://www.dcc.fc.up.pt/~vsc/Yap/downloads.html').
+user:url_path(yap_man,        yap('documentation.html')).
+user:url_path(yap_bugs,     'http://sourceforge.net/tracker/?group_id=24437&atid=381483').
+user:url_path(yap_git,    'http://yap.git.sourceforge.net/git/gitweb-index.cgi').
+
+
+
 %%	expand_url_path(+Spec, -URL)
 %
 %	Expand URL specifications similar   to absolute_file_name/3. The

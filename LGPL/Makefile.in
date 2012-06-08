@@ -30,6 +30,7 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/debug.pl \
 	$(srcdir)/main.pl \
 	$(srcdir)/maplist.pl \
+	$(srcdir)/menu.pl \
 	$(srcdir)/nb_set.pl \
 	$(srcdir)/operators.pl \
 	$(srcdir)/option.pl \
@@ -48,6 +49,7 @@ PROGRAMS= $(srcdir)/base64.pl \
 	$(srcdir)/thread_pool.pl \
 	$(srcdir)/url.pl \
 	$(srcdir)/utf8.pl \
+	$(srcdir)/win_menu.pl \
 	$(srcdir)/www_browser.pl
 
 
