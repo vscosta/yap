@@ -15,8 +15,8 @@ function run_all_graphs
   run_solver p20000attrs$N_ATTRS  $2
   run_solver p25000attrs$N_ATTRS  $2
   run_solver p30000attrs$N_ATTRS  $2
-  run_solver p35000attrs$N_ATTRS  $2
   return
+  run_solver p35000attrs$N_ATTRS  $2
   run_solver p40000attrs$N_ATTRS  $2
   run_solver p45000attrs$N_ATTRS  $2
   run_solver p50000attrs$N_ATTRS  $2

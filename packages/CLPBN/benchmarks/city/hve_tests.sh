@@ -23,7 +23,7 @@ function run_all_graphs
   run_solver city60000    $2
   run_solver city65000    $2
   run_solver city70000    $2
-
+  return
   run_solver city75000    $2
   run_solver city80000    $2
   run_solver city85000    $2
