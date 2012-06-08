@@ -406,7 +406,7 @@ PLCONS_OBJECTS = \
 	pl-ntconsole.o \
 	pl-ntmain.o
 
-all: parms.h startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
+all: parms.h startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 
 Makefile: $(srcdir)/Makefile.in
 
@@ -725,13 +725,13 @@ startup.yss: yap@EXEC_SUFFIX@ $(PL_SOURCES)
 yap@EXEC_SUFFIX@: $(HEADERS) yap.o @YAPLIB@
 	$(MPI_CC) $(EXECUTABLE_CFLAGS) $(LDFLAGS) -o yap yap.o @YAPLIB@ $(LIBS) @MPI_LIBS@
 
-plyap: pl-yap@EXEC_SUFFIX@
+yap-win: yap-win@EXEC_SUFFIX@
 
-pl-yap: pl-yap@EXEC_SUFFIX@
+yapwin: yap-win@EXEC_SUFFIX@
 
-pl-yap@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
+yap-win@EXEC_SUFFIX@: $(PLCONS_OBJECTS) $(HEADERS) @YAPLIB@
 	(cd LGPL/swi_console; $(MAKE))
-	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o pl-yap $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
+	$(MPI_CC) -municode -DUNICODE -D_UNICODE $(EXECUTABLE_CFLAGS) $(LDFLAGS) -Wl,-subsystem,windows -o yap-win $(PLCONS_OBJECTS) plterm.dll @YAPLIB@ $(LIBS) @MPI_LIBS@
 
 libYap.a: $(LIB_OBJECTS) 
 	-rm -f libYap.a
@@ -797,14 +797,14 @@ install_unix: startup.yss libYap.a
 	@ENABLE_CUDD@ (cd packages/ProbLog/simplecudd_lfi; $(MAKE) install)
 
 
-install_win32: startup.yss @ENABLE_WINCONSOLE@ pl-yap@EXEC_SUFFIX@
+install_win32: startup.yss @ENABLE_WINCONSOLE@ yap-win@EXEC_SUFFIX@
 	mkdir -p $(DESTDIR)$(BINDIR)
 	mkdir -p $(DESTDIR)$(LIBDIR)
 	mkdir -p $(DESTDIR)$(YAPLIBDIR)
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	$(INSTALL_PROGRAM) -m 755 yap.exe $(DESTDIR)$(BINDIR)/yap.exe
 	$(INSTALL_PROGRAM) -m 755 yap.dll $(DESTDIR)$(BINDIR)/yap.dll
-	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 pl-yap.exe $(DESTDIR)$(BINDIR)/pl-yap.exe
+	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 yap-win.exe $(DESTDIR)$(BINDIR)/yap-win.exe
 	@ENABLE_WINCONSOLE@ $(INSTALL_PROGRAM) -m 755 plterm.dll $(DESTDIR)$(BINDIR)/plterm.dll
 	$(INSTALL_PROGRAM) -m 755 @YAPLIB@ $(DESTDIR)$(YAPLIBDIR)/@YAPLIB@
 	$(INSTALL_PROGRAM) -m 755 startup.yss $(DESTDIR)$(YAPLIBDIR)/startup.yss

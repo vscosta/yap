@@ -26,6 +26,18 @@ yap_flag(V,Out) :-
 	'$user_flag_value'(V, Out).
 
 yap_flag(V,Out) :-
+	( var(V) ->
+	  '$swi_current_prolog_flag'(V, Out)
+        ;
+	  '$swi_current_prolog_flag'(V, Current)
+        ->
+	  (var(Out) ->
+	      Current = Out
+	  ;
+	      '$swi_set_prolog_flag'(V, Out)
+	  )
+        ).
+yap_flag(V,Out) :-
 	var(V), !,
 	'$show_yap_flag_opts'(V,Out).
 
@@ -52,34 +64,6 @@ yap_flag(executable,L) :- '$executable'(L).
 % hide/unhide atoms
 yap_flag(hide,Atom) :- !, hide(Atom).
 yap_flag(unhide,Atom) :- !, unhide(Atom).
-
-% character encoding...
-yap_flag(encoding,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(encoding, X).
-yap_flag(encoding,X) :-
-	'$swi_set_prolog_flag'(encoding, X).
-
-% file_name_variables...
-yap_flag(file_name_variables,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(file_name_variables, X).
-yap_flag(file_name_variables,X) :-
-	'$swi_set_prolog_flag'(file_name_variables, X).
-
-% fileerrors...
-yap_flag(fileerrors,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(fileerrors, X).
-yap_flag(fileerrors,X) :-
-	'$swi_set_prolog_flag'(fileerrors, X).
-
-% -O optimisation
-yap_flag(optimise,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(optimise, X).
-yap_flag(optimise,X) :-
-	'$swi_set_prolog_flag'(optimise, X).
 
 % control garbage collection
 yap_flag(gc,V) :-
@@ -259,12 +243,6 @@ yap_flag(home,X) :-
 '$transl_to_index_mode'(3, on). % default is multi argument indexing
 '$transl_to_index_mode'(4, max).
 
-yap_flag(readline,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(readline, X).
-yap_flag(readline,X) :-
-	'$swi_set_prolog_flag'(readline, X).
-
 % tabling mode
 yap_flag(tabling_mode,Options) :- 
    var(Options), !,
@@ -299,12 +277,6 @@ yap_flag(informational_messages,off) :- !,
 	'$set_yap_flags'(22,1).
 yap_flag(informational_messages,X) :-
 	'$do_error'(domain_error(flag_value,informational_messages+X),yap_flag(informational_messages,X)).
-
-yap_flag(timezone,X) :-
-	var(X), !,
-	'$swi_current_prolog_flag'(timezone, X).
-yap_flag(timezone,X) :-
-	'$swi_set_prolog_flag'(timezone, X).
 
 yap_flag(verbose,X) :- var(X), !,
 	 get_value('$verbose',X0),
@@ -863,11 +835,11 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(discontiguous_warnings).
 '$yap_system_flag'(dollar_as_lower_case).
 '$yap_system_flag'(double_quotes).
-'$yap_system_flag'(encoding).
+% '$yap_system_flag'(encoding).
 '$yap_system_flag'(executable).
 %		V = fast  ;
-'$yap_system_flag'(file_name_variables).
-'$yap_system_flag'(fileerrors ).
+% '$yap_system_flag'(file_name_variables).
+% '$yap_system_flag'(fileerrors ).
 '$yap_system_flag'(float_format).
 %		V = float_mantissa_digits ;
 %		V = float_epsilon ;
@@ -897,10 +869,10 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(occurs_check).
 '$yap_system_flag'(open_expands_filename).
 '$yap_system_flag'(open_shared_object).
-'$yap_system_flag'(optimise).
+% '$yap_system_flag'(optimise).
 '$yap_system_flag'(profiling).
 '$yap_system_flag'(prompt_alternatives_on).
-'$yap_system_flag'(readline).
+% '$yap_system_flag'(readline).
 '$yap_system_flag'(redefine_warnings).
 '$yap_system_flag'(shared_object_search_path).
 '$yap_system_flag'(shared_object_extension).
@@ -909,7 +881,7 @@ yap_flag(dialect,yap).
 '$yap_system_flag'(strict_iso).
 '$yap_system_flag'(syntax_errors).
 '$yap_system_flag'(system_options).
-'$yap_system_flag'(timezone).
+% '$yap_system_flag'(timezone).
 '$yap_system_flag'(to_chars_mode).
 '$yap_system_flag'(toplevel_hook).
 '$yap_system_flag'(toplevel_print_options).

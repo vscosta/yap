@@ -47,5 +47,6 @@
 '$hide'('$declare_module') :- !, fail.		
 '$hide'('$store_clause') :- !, fail.		
 '$hide'('$skip_list') :- !, fail.		
+'$hide'('$win_insert_menu_item') :- !, fail.		
 '$hide'(Name) :- hide(Name), fail.
 

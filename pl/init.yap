@@ -141,6 +141,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('dbload.yap').
 :- use_module('swi.yap').
 :- use_module('../LGPL/predopts.pl').
+:- use_module('../LGPL/menu.pl').
+
 
 '$system_module'('$attributes').
 '$system_module'('$coroutining').
@@ -149,6 +151,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 '$system_module'('$messages').
 '$system_module'('$predopts').
 '$system_module'('$swi').
+'$system_module'('$win_menu').
+
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 

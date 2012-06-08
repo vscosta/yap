@@ -73,6 +73,10 @@ qsave_program(File) :-
 	fail.
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
+	current_prolog_flag(hwnd, _HWND),
+	load_files(library(win_menu), [silent(true)]),
+	fail.
+'$init_from_saved_state_and_args' :-
 	recorded('$reload_foreign_libraries',G,R),
 	erase(R),
 	shlib:reload_foreign_libraries,

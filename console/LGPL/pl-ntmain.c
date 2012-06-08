@@ -654,8 +654,8 @@ pl_window_pos(term_t options)
 static void
 call_menu(const TCHAR *name)
 { fid_t fid = PL_open_foreign_frame();
-  predicate_t pred = PL_predicate("on_menu", 1, "prolog");
-  module_t m = PL_new_module(PL_new_atom("prolog"));
+  predicate_t pred = PL_predicate("on_menu", 1, "system");
+  module_t m = PL_new_module(PL_new_atom("system"));
   term_t a0 = PL_new_term_ref();
   size_t len = _tcslen(name);
 
@@ -667,7 +667,7 @@ call_menu(const TCHAR *name)
 
 
 foreign_t
-pl_win_insert_menu_item(foreign_t menu, foreign_t label, foreign_t before)
+pl_win_insert_menu_item(term_t menu, term_t label, term_t before)
 { TCHAR *m, *l, *b;
 
   if ( !PL_get_wchars(menu, NULL, &m, CVT_ATOM) ||
@@ -685,7 +685,7 @@ pl_win_insert_menu_item(foreign_t menu, foreign_t label, foreign_t before)
 
 
 foreign_t
-pl_win_insert_menu(foreign_t label, foreign_t before)
+pl_win_insert_menu(term_t label, term_t before)
 { TCHAR *l, *b;
 
   if ( !PL_get_wchars(label, NULL, &l, CVT_ATOM) ||
@@ -1026,7 +1026,7 @@ win32main(rlc_console c, int argc, TCHAR **argv)
 #if !defined(O_DEBUG) && !defined(_DEBUG)
   initSignals();
 #endif
-  PL_register_foreign_in_module("system", "win_open_console", 5,
+  PL_register_foreign_in_module("prolog", "win_open_console", 5,
 		      pl_win_open_console, 0);
 
   if ( argc > MAX_ARGC )

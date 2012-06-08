@@ -864,7 +864,7 @@ skip_list(Word l, Word *tailp ARG_LD) {
 static inline word
 valHandle__LD(term_t r ARG_LD)
 {
-  return (word)YAP_GetFromSlot(r);
+  return (word)YAP_GetFromSlot((Int)r);
 }
 
 static inline void *allocHeap__LD(size_t n ARG_LD)
@@ -886,4 +886,5 @@ extern const PL_extension PL_predicates_from_read[];
 extern const PL_extension PL_predicates_from_tai[];
 extern const PL_extension PL_predicates_from_write[];
 extern const PL_extension PL_predicates_from_prologflag[];
+extern const PL_extension PL_predicates_from_win[];
 
