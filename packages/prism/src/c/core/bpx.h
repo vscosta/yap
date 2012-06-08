@@ -119,8 +119,17 @@ extern inline TERM ADDTAG(void * t,int tag) {
 #define ISFLOAT(t) IsFloatTerm(t)
 #define ISCOMPOUND(t)  YAP_IsCompoundTerm(t)
 
-#define floatval FloatOfTerm
-#define encodefloat1 MkFloatTerm
+static inline
+double floatval(TERM t)
+{
+  return (Float)FloatOfTerm(t);
+}
+
+static inline
+TERM encodefloat1(double f)
+{
+  return MkFloatTerm((Float)f);
+}
 
 extern inline int is_UNIFIABLE(TERM t1, TERM t2)
 {
