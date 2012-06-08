@@ -470,16 +470,15 @@ true :- true.
 	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
-	  yap_hacks:current_choice_point(NCP1),
-	  '$delayed_goals'(G, V, NV, LGs),
-	   yap_hacks:current_choice_point(NCP2),
+	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP, NCP1 = NCP2 ->
+	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 ->
 	   nl(user_error),
 	   !
 	  ;
+	
 	   '$another',
 	   !
 	  ),
@@ -492,7 +491,7 @@ true :- true.
  '$yes_no'(G,C) :-
 	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
-	 '$delayed_goals'(G, [], NV, LGs),
+	 '$delayed_goals'(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
 	 ( Written = [] ->
 	 !,'$present_answer'(C, yes);
@@ -505,13 +504,15 @@ true :- true.
 
 '$add_env_and_fail' :- fail.
 
-'$delayed_goals'(G, V, NV, LGs) :-
+'$delayed_goals'(G, V, NV, LGs, NCP) :-
 	(
-	    '$attributes':delayed_goals(G, V, NV, LGs)
+	  yap_hacks:current_choice_point(NCP1),
+	  '$attributes':delayed_goals(G, V, NV, LGs),
+	  yap_hacks:current_choice_point(NCP2)
 	*->
-	   true
+	   NCP is NCP2-NCP1
         ;
-	   copy_term_nat(V, NV), LGs = []
+	   copy_term_nat(V, NV), LGs = [], NCP = 0
         ).
 
 '$out_neg_answer' :-
