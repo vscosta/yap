@@ -501,7 +501,7 @@ GroundOperator::getLogCost (void)
     ++ pflIt;
   }
   // cout << endl;
-  return totalCost;
+  return totalCost + 3;
 }
 
 
