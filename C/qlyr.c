@@ -793,6 +793,7 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_DBREFS);
   LOCAL_ImportDBRefHashTableNum = read_uint(stream);
+  fprintf(stderr,"reading %ld\n",LOCAL_ImportDBRefHashTableNum);
   for (i = 0; i < LOCAL_ImportDBRefHashTableNum; i++) {
     LogUpdClause *ocl = (LogUpdClause *)read_uint(stream);
     UInt sz = read_uint(stream);
