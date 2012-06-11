@@ -994,8 +994,9 @@ RestoreForeignCode__( USES_REGS1 )
       libs->name = AtomAdjust(libs->name);
       libs = libs->next;
     }
-    if (f_code->f != NULL)
-      f_code->f = (char *)AddrAdjust((ADDR)f_code->f);
+    if (f_code->f != NULL) {
+      f_code->f = AtomAdjust(f_code->f);
+    }
     if (f_code->next != NULL)
       f_code->next = (ForeignObj *)AddrAdjust((ADDR)f_code->next);
     f_code = f_code->next;

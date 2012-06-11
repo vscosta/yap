@@ -61,6 +61,7 @@ ground_all_keys([], _).
 ground_all_keys([V|GVars], AllKeys) :-
 	clpbn:get_atts(V,[key(Key)]), 
 	\+ ground(Key), !,
+wroteln(g:Key),
 	member(Key, AllKeys),
 	ground_all_keys(GVars, AllKeys).
 ground_all_keys([_V|GVars], AllKeys) :-
