@@ -457,6 +457,7 @@ SaveHash(IOSTREAM *stream)
   }
   save_tag(stream, QLY_START_DBREFS);
   save_uint(stream, LOCAL_ExportDBRefHashTableNum);
+  fprintf(stderr,"exporting %ld\n",LOCAL_ImportDBRefHashTableNum);
   for (i = 0; i < LOCAL_ExportDBRefHashTableSize; i++) {
     export_dbref_hash_entry_t *p = LOCAL_ExportDBRefHashChain[i];
     while (p) {
@@ -738,6 +739,9 @@ p_save_program( USES_REGS1 )
   if (!IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM,t1,"save_program/3");
     return(FALSE);
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+    return FALSE;
   }
   if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
     return FALSE;

@@ -16,17 +16,28 @@
 *									 *
 *************************************************************************/
 
+save_program(File) :-
+	qsave_program(File).
+
 qsave_program(File) :-
 	'$save_program_status',
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	close(S).	
 
+save_program(File, Goal) :-
+	recorda('$restore_goal', Goal ,_R),	
+	fail.
+save_program(File, _Goal) :-
+writeln(here),
+        qsave_program(File).
+
 '$save_program_status' :-
 	findall(F:V,'$x_yap_flag'(F,V),L),
 	recordz('$program_state',L,_).
 
 % there is some ordering between flags.
+'$x_yap_flag'(goal, Goal).
 '$x_yap_flag'(language, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
@@ -162,8 +173,6 @@ qsave_program(File) :-
  '$myddas_import_all'.
 	 
 
-
-
 qsave_module(Mod) :-
 	recorded('$module', '$module'(F,Mod,Exps), _),
 	'$fetch_parents_module'(Mod, Parents),
@@ -180,7 +189,7 @@ qsave_module(Mod) :-
 	fail.
 qsave_module(_).
 
-qload_program(File) :-
+restore(File) :-
 	open(File, read, S, [type(binary)]),
 	'$qload_program'(S),
 	close(S).

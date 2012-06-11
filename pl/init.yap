@@ -95,7 +95,7 @@ otherwise.
 	 'profile.yap',
 	 'callcount.yap',
 	 'load_foreign.yap',
-	 'save.yap',
+%	 'save.yap',
 	 'setof.yap',
 	 'sort.yap',
 	 'statistics.yap',
