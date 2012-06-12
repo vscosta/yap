@@ -23,10 +23,10 @@ CC=@CC@
 CXX=@CXX@
 
 # normal
-#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
+CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
 
 # debug 
-CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
 
 
 #
@@ -52,10 +52,10 @@ HEADERS = \
 	$(srcdir)/Factor.h \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/Solver.h \
-	$(srcdir)/VarElimSolver.h \
-	$(srcdir)/BpSolver.h \
-	$(srcdir)/CbpSolver.h \
-	$(srcdir)/FoveSolver.h \
+	$(srcdir)/VarElim.h \
+	$(srcdir)/BeliefProp.h \
+	$(srcdir)/CountingBp.h \
+	$(srcdir)/LiftedVe.h \
 	$(srcdir)/Var.h \
 	$(srcdir)/Indexer.h \
 	$(srcdir)/Parfactor.h \
@@ -64,8 +64,8 @@ HEADERS = \
 	$(srcdir)/ParfactorList.h \
 	$(srcdir)/LiftedUtils.h \
 	$(srcdir)/TinySet.h \
-	$(srcdir)/LiftedBpSolver.h \
-	$(srcdir)/WeightedBpSolver.h \
+	$(srcdir)/LiftedBp.h \
+	$(srcdir)/WeightedBp.h \
 	$(srcdir)/Util.h \
 	$(srcdir)/Horus.h
 	
@@ -78,18 +78,18 @@ CPP_SOURCES = \
 	$(srcdir)/ConstraintTree.cpp \
 	$(srcdir)/Var.cpp \
 	$(srcdir)/Solver.cpp \
-	$(srcdir)/VarElimSolver.cpp \
-	$(srcdir)/BpSolver.cpp \
-	$(srcdir)/CbpSolver.cpp \
-	$(srcdir)/FoveSolver.cpp \
+	$(srcdir)/VarElim.cpp \
+	$(srcdir)/BeliefProp.cpp \
+	$(srcdir)/CountingBp.cpp \
+	$(srcdir)/LiftedVe.cpp \
 	$(srcdir)/Parfactor.cpp \
 	$(srcdir)/ProbFormula.cpp \
 	$(srcdir)/Histogram.cpp \
 	$(srcdir)/ParfactorList.cpp \
 	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/Util.cpp \
-	$(srcdir)/LiftedBpSolver.cpp \
-	$(srcdir)/WeightedBpSolver.cpp \
+	$(srcdir)/LiftedBp.cpp \
+	$(srcdir)/WeightedBp.cpp \
 	$(srcdir)/HorusYap.cpp \
 	$(srcdir)/HorusCli.cpp
 
@@ -102,18 +102,18 @@ OBJS = \
 	ConstraintTree.o \
 	Var.o \
 	Solver.o \
-	VarElimSolver.o \
-	BpSolver.o \
-	CbpSolver.o \
-	FoveSolver.o \
+	VarElim.o \
+	BeliefProp.o \
+	CountingBp.o \
+	LiftedVe.o \
 	Parfactor.o \
 	ProbFormula.o \
 	Histogram.o \
 	ParfactorList.o \
 	LiftedUtils.o \
 	Util.o \
-	LiftedBpSolver.o \
-	WeightedBpSolver.o \
+	LiftedBp.o \
+	WeightedBp.o \
 	HorusYap.o
 
 HCLI_OBJS = \
@@ -125,15 +125,15 @@ HCLI_OBJS = \
 	ConstraintTree.o \
 	Var.o \
 	Solver.o \
-	VarElimSolver.o \
-	BpSolver.o \
-	CbpSolver.o \
-	FoveSolver.o \
+	VarElim.o \
+	BeliefProp.o \
+	CountingBp.o \
+	LiftedVe.o \
 	Parfactor.o \
 	ProbFormula.o \
 	Histogram.o \
 	ParfactorList.o \
-	WeightedBpSolver.o \
+	WeightedBp.o \
 	LiftedUtils.o \
 	Util.o \
 	HorusCli.o

@@ -1,23 +1,23 @@
-#include "CbpSolver.h"
-#include "WeightedBpSolver.h"
+#include "CountingBp.h"
+#include "WeightedBp.h"
 
 
-bool CbpSolver::checkForIdenticalFactors = true;
+bool CountingBp::checkForIdenticalFactors = true;
 
 
-CbpSolver::CbpSolver (const FactorGraph& fg)
+CountingBp::CountingBp (const FactorGraph& fg)
     : Solver (fg), freeColor_(0)
 {
   findIdenticalFactors();
   setInitialColors();
   createGroups();
   compressedFg_ = getCompressedFactorGraph();
-  solver_ = new WeightedBpSolver (*compressedFg_, getWeights());
+  solver_ = new WeightedBp (*compressedFg_, getWeights());
 }
 
 
 
-CbpSolver::~CbpSolver (void)
+CountingBp::~CountingBp (void)
 {
   delete solver_;
   delete compressedFg_;
@@ -32,7 +32,7 @@ CbpSolver::~CbpSolver (void)
 
 
 void
-CbpSolver::printSolverFlags (void) const
+CountingBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "counting bp [" ;
@@ -48,7 +48,7 @@ CbpSolver::printSolverFlags (void) const
   ss << ",accuracy=" << BpOptions::accuracy;
   ss << ",log_domain=" << Util::toString (Globals::logDomain);
   ss << ",chkif=" << 
-      Util::toString (CbpSolver::checkForIdenticalFactors);
+      Util::toString (CountingBp::checkForIdenticalFactors);
   ss << "]" ;
   cout << ss.str() << endl;
 }
@@ -56,7 +56,7 @@ CbpSolver::printSolverFlags (void) const
 
 
 Params
-CbpSolver::solveQuery (VarIds queryVids)
+CountingBp::solveQuery (VarIds queryVids)
 {
   assert (queryVids.empty() == false);
   Params res;
@@ -91,7 +91,7 @@ CbpSolver::solveQuery (VarIds queryVids)
 
 
 void
-CbpSolver::findIdenticalFactors()
+CountingBp::findIdenticalFactors()
 {
   const FacNodes& facNodes = fg.facNodes();
   if (checkForIdenticalFactors == false ||
@@ -126,7 +126,7 @@ CbpSolver::findIdenticalFactors()
 
 
 void
-CbpSolver::setInitialColors (void)
+CountingBp::setInitialColors (void)
 {
   varColors_.resize (fg.nrVarNodes());
   facColors_.resize (fg.nrFacNodes());
@@ -165,7 +165,7 @@ CbpSolver::setInitialColors (void)
 
 
 void
-CbpSolver::createGroups (void)
+CountingBp::createGroups (void)
 {
   VarSignMap varGroups;
   FacSignMap facGroups;
@@ -227,7 +227,7 @@ CbpSolver::createGroups (void)
 
 
 void
-CbpSolver::createClusters (
+CountingBp::createClusters (
     const VarSignMap& varGroups,
     const FacSignMap& facGroups)
 {
@@ -260,7 +260,7 @@ CbpSolver::createClusters (
 
 
 VarSignature
-CbpSolver::getSignature (const VarNode* varNode)
+CountingBp::getSignature (const VarNode* varNode)
 {
   const FacNodes& neighs = varNode->neighbors();
   VarSignature sign;
@@ -278,7 +278,7 @@ CbpSolver::getSignature (const VarNode* varNode)
 
 
 FacSignature
-CbpSolver::getSignature (const FacNode* facNode)
+CountingBp::getSignature (const FacNode* facNode)
 {
   const VarNodes& neighs = facNode->neighbors();
   FacSignature sign;
@@ -293,7 +293,7 @@ CbpSolver::getSignature (const FacNode* facNode)
 
 
 FactorGraph*
-CbpSolver::getCompressedFactorGraph (void)
+CountingBp::getCompressedFactorGraph (void)
 {
   FactorGraph* fg = new FactorGraph();
   for (size_t i = 0; i < varClusters_.size(); i++) {
@@ -322,7 +322,7 @@ CbpSolver::getCompressedFactorGraph (void)
 
 
 vector<vector<unsigned>>
-CbpSolver::getWeights (void) const
+CountingBp::getWeights (void) const
 {
   vector<vector<unsigned>> weights;
   weights.reserve (facClusters_.size());
@@ -341,7 +341,7 @@ CbpSolver::getWeights (void) const
 
 
 unsigned
-CbpSolver::getWeight (
+CountingBp::getWeight (
     const FacCluster* fc,
     const VarCluster* vc,
     size_t index) const
@@ -364,7 +364,7 @@ CbpSolver::getWeight (
 
 
 void
-CbpSolver::printGroups (
+CountingBp::printGroups (
     const VarSignMap& varGroups,
     const FacSignMap& facGroups) const
 {

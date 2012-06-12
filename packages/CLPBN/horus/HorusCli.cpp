@@ -4,9 +4,9 @@
 #include <sstream>
 
 #include "FactorGraph.h"
-#include "VarElimSolver.h"
-#include "BpSolver.h"
-#include "CbpSolver.h"
+#include "VarElim.h"
+#include "BeliefProp.h"
+#include "CountingBp.h"
 
 using namespace std;
 
@@ -163,13 +163,13 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
   Solver* solver = 0;
   switch (Globals::groundSolver) {
     case GroundSolvers::VE:
-      solver = new VarElimSolver (fg);
+      solver = new VarElim (fg);
       break;
     case GroundSolvers::BP:
-      solver = new BpSolver (fg);
+      solver = new BeliefProp (fg);
       break;
     case GroundSolvers::CBP:
-      solver = new CbpSolver (fg);
+      solver = new CountingBp (fg);
       break;
     default:
       assert (false);

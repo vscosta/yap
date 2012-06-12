@@ -1,12 +1,12 @@
 #include <algorithm>
 
-#include "VarElimSolver.h"
+#include "VarElim.h"
 #include "ElimGraph.h"
 #include "Factor.h"
 #include "Util.h"
 
 
-VarElimSolver::~VarElimSolver (void)
+VarElim::~VarElim (void)
 {
   delete factorList_.back();
 }
@@ -14,7 +14,7 @@ VarElimSolver::~VarElimSolver (void)
 
 
 Params
-VarElimSolver::solveQuery (VarIds queryVids)
+VarElim::solveQuery (VarIds queryVids)
 {
   if (Globals::verbosity > 1) {
     cout << "Solving query on " ;
@@ -41,7 +41,7 @@ VarElimSolver::solveQuery (VarIds queryVids)
 
 
 void
-VarElimSolver::printSolverFlags (void) const
+VarElim::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "variable elimination [" ;
@@ -62,7 +62,7 @@ VarElimSolver::printSolverFlags (void) const
 
 
 void
-VarElimSolver::createFactorList (void)
+VarElim::createFactorList (void)
 {
   const FacNodes& facNodes = fg.facNodes();
   factorList_.reserve (facNodes.size() * 2);
@@ -84,7 +84,7 @@ VarElimSolver::createFactorList (void)
 
 
 void
-VarElimSolver::absorveEvidence (void)
+VarElim::absorveEvidence (void)
 {
   if (Globals::verbosity > 2) {
     Util::printDashedLine();
@@ -117,7 +117,7 @@ VarElimSolver::absorveEvidence (void)
 
 
 void
-VarElimSolver::findEliminationOrder (const VarIds& vids)
+VarElim::findEliminationOrder (const VarIds& vids)
 {
   elimOrder_ = ElimGraph::getEliminationOrder (factorList_, vids);
 }
@@ -125,7 +125,7 @@ VarElimSolver::findEliminationOrder (const VarIds& vids)
 
 
 void
-VarElimSolver::processFactorList (const VarIds& vids)
+VarElim::processFactorList (const VarIds& vids)
 {
   totalFactorSize_   = 0;
   largestFactorSize_ = 0;
@@ -170,7 +170,7 @@ VarElimSolver::processFactorList (const VarIds& vids)
 
 
 void
-VarElimSolver::eliminate (VarId elimVar)
+VarElim::eliminate (VarId elimVar)
 {
   Factor* result = 0;
   vector<size_t>& idxs = varFactors_.find (elimVar)->second;
@@ -205,7 +205,7 @@ VarElimSolver::eliminate (VarId elimVar)
 
 
 void
-VarElimSolver::printActiveFactors (void)
+VarElim::printActiveFactors (void)
 {
   for (size_t i = 0; i < factorList_.size(); i++) {
     if (factorList_[i] != 0) {

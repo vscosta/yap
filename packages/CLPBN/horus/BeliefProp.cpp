@@ -5,21 +5,21 @@
 
 #include <iostream>
 
-#include "BpSolver.h"
+#include "BeliefProp.h"
 #include "FactorGraph.h"
 #include "Factor.h"
 #include "Indexer.h"
 #include "Horus.h"
 
 
-BpSolver::BpSolver (const FactorGraph& fg) : Solver (fg)
+BeliefProp::BeliefProp (const FactorGraph& fg) : Solver (fg)
 {
   runned_ = false;
 }
 
 
 
-BpSolver::~BpSolver (void)
+BeliefProp::~BeliefProp (void)
 {
   for (size_t i = 0; i < varsI_.size(); i++) {
     delete varsI_[i];
@@ -35,7 +35,7 @@ BpSolver::~BpSolver (void)
 
 
 Params
-BpSolver::solveQuery (VarIds queryVids)
+BeliefProp::solveQuery (VarIds queryVids)
 {
   assert (queryVids.empty() == false);
   return queryVids.size() == 1
@@ -46,7 +46,7 @@ BpSolver::solveQuery (VarIds queryVids)
 
 
 void
-BpSolver::printSolverFlags (void) const
+BeliefProp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "belief propagation [" ;
@@ -68,7 +68,7 @@ BpSolver::printSolverFlags (void) const
 
 
 Params
-BpSolver::getPosterioriOf (VarId vid)
+BeliefProp::getPosterioriOf (VarId vid)
 {
   if (runned_ == false) {
     runSolver();
@@ -101,7 +101,7 @@ BpSolver::getPosterioriOf (VarId vid)
 
 
 Params
-BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
+BeliefProp::getJointDistributionOf (const VarIds& jointVarIds)
 {
   if (runned_ == false) {
     runSolver();
@@ -140,7 +140,7 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
 
 
 void
-BpSolver::runSolver (void)
+BeliefProp::runSolver (void)
 {
   initializeSolver();
   nIters_ = 0;
@@ -187,7 +187,7 @@ BpSolver::runSolver (void)
 
 
 void
-BpSolver::createLinks (void)
+BeliefProp::createLinks (void)
 {
   const FacNodes& facNodes = fg.facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -201,7 +201,7 @@ BpSolver::createLinks (void)
 
 
 void
-BpSolver::maxResidualSchedule (void)
+BeliefProp::maxResidualSchedule (void)
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -256,7 +256,7 @@ BpSolver::maxResidualSchedule (void)
 
 
 void
-BpSolver::calcFactorToVarMsg (BpLink* link)
+BeliefProp::calcFactorToVarMsg (BpLink* link)
 {
   FacNode* src = link->facNode();
   const VarNode* dst = link->varNode();
@@ -320,7 +320,7 @@ BpSolver::calcFactorToVarMsg (BpLink* link)
 
 
 Params
-BpSolver::getVarToFactorMsg (const BpLink* link) const
+BeliefProp::getVarToFactorMsg (const BpLink* link) const
 {
   const VarNode* src = link->varNode();
   Params msg;
@@ -361,7 +361,7 @@ BpSolver::getVarToFactorMsg (const BpLink* link) const
 
 
 Params
-BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
+BeliefProp::getJointByConditioning (const VarIds& jointVarIds) const
 {
   VarNodes jointVars;
   for (size_t i = 0; i < jointVarIds.size(); i++) {
@@ -370,7 +370,7 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
   }
 
   FactorGraph* tempFg = new FactorGraph (fg);
-  BpSolver solver (*tempFg);
+  BeliefProp solver (*tempFg);
   solver.runSolver();
   Params prevBeliefs = solver.getPosterioriOf (jointVarIds[0]);
 
@@ -390,7 +390,7 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
       for (size_t j = 0; j < observedVars.size(); j++) {
         observedVars[j]->setEvidence (indexer[j]);
       }
-      BpSolver solver (*tempFg);
+      BeliefProp solver (*tempFg);
       solver.runSolver();
       Params beliefs = solver.getPosterioriOf (jointVarIds[i]);
       for (size_t k = 0; k < beliefs.size(); k++) {
@@ -415,7 +415,7 @@ BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
 
 
 void
-BpSolver::initializeSolver (void)
+BeliefProp::initializeSolver (void)
 {
   const VarNodes& varNodes = fg.varNodes();
   varsI_.reserve (varNodes.size());
@@ -439,7 +439,7 @@ BpSolver::initializeSolver (void)
 
 
 bool
-BpSolver::converged (void)
+BeliefProp::converged (void)
 {
   if (links_.size() == 0) {
     return true;
@@ -487,7 +487,7 @@ BpSolver::converged (void)
 
 
 void
-BpSolver::printLinkInformation (void) const
+BeliefProp::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
     BpLink* l = links_[i]; 

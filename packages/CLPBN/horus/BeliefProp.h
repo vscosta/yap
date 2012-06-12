@@ -1,5 +1,5 @@
-#ifndef HORUS_BPSOLVER_H
-#define HORUS_BPSOLVER_H
+#ifndef HORUS_BELIEFPROP_H
+#define HORUS_BELIEFPROP_H
 
 #include <set>
 #include <vector>
@@ -83,12 +83,12 @@ class SPNodeInfo
 };
 
 
-class BpSolver : public Solver
+class BeliefProp : public Solver
 {
   public:
-    BpSolver (const FactorGraph&);
+    BeliefProp (const FactorGraph&);
 
-    virtual ~BpSolver (void);
+    virtual ~BeliefProp (void);
 
     Params solveQuery (VarIds);
 
@@ -180,5 +180,5 @@ class BpSolver : public Solver
     virtual void printLinkInformation (void) const;
 };
 
-#endif // HORUS_BPSOLVER_H
+#endif // HORUS_BELIEFPROP_H
 

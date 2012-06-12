@@ -1,7 +1,7 @@
-#ifndef HORUS_WEIGHTEDBPSOLVER_H
-#define HORUS_WEIGHTEDBPSOLVER_H
+#ifndef HORUS_WEIGHTEDBP_H
+#define HORUS_WEIGHTEDBP_H
 
-#include "BpSolver.h"
+#include "BeliefProp.h"
 
 class WeightedLink : public BpLink
 {
@@ -31,14 +31,14 @@ class WeightedLink : public BpLink
 
 
 
-class WeightedBpSolver : public BpSolver
+class WeightedBp : public BeliefProp
 {
   public:   
-    WeightedBpSolver (const FactorGraph& fg,
+    WeightedBp (const FactorGraph& fg,
         const vector<vector<unsigned>>& weights)
-      : BpSolver (fg), weights_(weights) { }
+      : BeliefProp (fg), weights_(weights) { }
 
-   ~WeightedBpSolver (void);
+   ~WeightedBp (void);
   
     Params getPosterioriOf (VarId);
 
@@ -57,5 +57,5 @@ class WeightedBpSolver : public BpSolver
      vector<vector<unsigned>> weights_;
 };
 
-#endif // HORUS_WEIGHTEDBPSOLVER_H
+#endif // HORUS_WEIGHTEDBP_H
 

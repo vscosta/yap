@@ -1,5 +1,5 @@
-#ifndef HORUS_CBPSOLVER_H
-#define HORUS_CBPSOLVER_H
+#ifndef HORUS_COUNTINGBP_H
+#define HORUS_COUNTINGBP_H
 
 #include <unordered_map>
 
@@ -12,7 +12,7 @@ class VarCluster;
 class FacCluster;
 class VarSignHash;
 class FacSignHash;
-class WeightedBpSolver;
+class WeightedBp;
 
 typedef long Color;
 typedef vector<Color> Colors;
@@ -100,12 +100,12 @@ class FacCluster
 };
 
 
-class CbpSolver : public Solver
+class CountingBp : public Solver
 {
   public:
-    CbpSolver (const FactorGraph& fg);
+    CountingBp (const FactorGraph& fg);
 
-   ~CbpSolver (void);
+   ~CountingBp (void);
 
     void printSolverFlags (void) const;
 
@@ -176,8 +176,8 @@ class CbpSolver : public Solver
     FacClusters         facClusters_;
     VarId2VarCluster    vid2VarCluster_;
     const FactorGraph*  compressedFg_;
-    WeightedBpSolver*   solver_;
+    WeightedBp*   solver_;
 };
 
-#endif // HORUS_CBPSOLVER_H
+#endif // HORUS_COUNTINGBP_H
 

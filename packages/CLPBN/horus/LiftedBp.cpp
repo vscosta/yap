@@ -1,20 +1,20 @@
-#include "LiftedBpSolver.h"
-#include "WeightedBpSolver.h"
+#include "LiftedBp.h"
+#include "WeightedBp.h"
 #include "FactorGraph.h"
-#include "FoveSolver.h"
+#include "LiftedVe.h"
 
 
-LiftedBpSolver::LiftedBpSolver (const ParfactorList& pfList)
+LiftedBp::LiftedBp (const ParfactorList& pfList)
     : pfList_(pfList)
 {
   refineParfactors();
-  solver_ = new WeightedBpSolver (*getFactorGraph(), getWeights());
+  solver_ = new WeightedBp (*getFactorGraph(), getWeights());
 }
 
 
 
 Params
-LiftedBpSolver::solveQuery (const Grounds& query)
+LiftedBp::solveQuery (const Grounds& query)
 {
   assert (query.empty() == false);
   Params res;
@@ -34,7 +34,7 @@ LiftedBpSolver::solveQuery (const Grounds& query)
 
 
 void
-LiftedBpSolver::printSolverFlags (void) const
+LiftedBp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "lifted bp [" ;
@@ -56,7 +56,7 @@ LiftedBpSolver::printSolverFlags (void) const
 
 
 void
-LiftedBpSolver::refineParfactors (void)
+LiftedBp::refineParfactors (void)
 {
   while (iterate() == false);
 
@@ -69,7 +69,7 @@ LiftedBpSolver::refineParfactors (void)
 
 
 bool
-LiftedBpSolver::iterate (void)
+LiftedBp::iterate (void)
 {
   ParfactorList::iterator it = pfList_.begin();
   while (it != pfList_.end()) {
@@ -77,7 +77,7 @@ LiftedBpSolver::iterate (void)
     for (size_t i = 0; i < args.size(); i++) {
       LogVarSet lvs = (*it)->logVarSet() - args[i].logVars();
       if ((*it)->constr()->isCountNormalized (lvs) == false) {
-        Parfactors pfs = FoveSolver::countNormalize (*it, lvs);
+        Parfactors pfs = LiftedVe::countNormalize (*it, lvs);
         it = pfList_.removeAndDelete (it);
         pfList_.add (pfs);
         return false;
@@ -91,7 +91,7 @@ LiftedBpSolver::iterate (void)
 
 
 vector<PrvGroup>
-LiftedBpSolver::getQueryGroups (const Grounds& query)
+LiftedBp::getQueryGroups (const Grounds& query)
 {
   vector<PrvGroup> queryGroups;
   for (unsigned i = 0; i < query.size(); i++) {
@@ -110,7 +110,7 @@ LiftedBpSolver::getQueryGroups (const Grounds& query)
 
 
 FactorGraph*
-LiftedBpSolver::getFactorGraph (void)
+LiftedBp::getFactorGraph (void)
 {
   FactorGraph* fg = new FactorGraph();
   ParfactorList::const_iterator it = pfList_.begin();
@@ -128,7 +128,7 @@ LiftedBpSolver::getFactorGraph (void)
 
 
 vector<vector<unsigned>>
-LiftedBpSolver::getWeights (void) const
+LiftedBp::getWeights (void) const
 {
   vector<vector<unsigned>> weights;
   weights.reserve (pfList_.size());

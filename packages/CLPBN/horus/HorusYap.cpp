@@ -9,11 +9,11 @@
 
 #include "ParfactorList.h"
 #include "FactorGraph.h"
-#include "FoveSolver.h"
-#include "VarElimSolver.h"
-#include "LiftedBpSolver.h"
-#include "BpSolver.h"
-#include "CbpSolver.h"
+#include "LiftedVe.h"
+#include "VarElim.h"
+#include "LiftedBp.h"
+#include "BeliefProp.h"
+#include "CountingBp.h"
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
@@ -35,7 +35,7 @@ Parfactor* readParfactor (YAP_Term);
 void runVeSolver (FactorGraph* fg, const vector<VarIds>& tasks,
     vector<Params>& results);
 
-void runBpSolver (FactorGraph* fg, const vector<VarIds>& tasks,
+void runBeliefProp (FactorGraph* fg, const vector<VarIds>& tasks,
    vector<Params>& results);
 
 
@@ -285,7 +285,7 @@ runLiftedSolver (void)
   YAP_Term taskList = YAP_ARG2;
   vector<Params> results;
   ParfactorList pfListCopy (*network->first);
-  FoveSolver::absorveEvidence (pfListCopy, *network->second);
+  LiftedVe::absorveEvidence (pfListCopy, *network->second);
   while (taskList != YAP_TermNil()) {
     Grounds queryVars;
     YAP_Term jointList = YAP_HeadOfTerm (taskList);
@@ -312,14 +312,14 @@ runLiftedSolver (void)
       jointList = YAP_TailOfTerm (jointList);
     }
     if (Globals::liftedSolver == LiftedSolvers::FOVE) {
-      FoveSolver solver (pfListCopy);
+      LiftedVe solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
         cout << endl;
       }
       results.push_back (solver.solveQuery (queryVars));
     } else if (Globals::liftedSolver == LiftedSolvers::LBP) {
-      LiftedBpSolver solver (pfListCopy);
+      LiftedBp solver (pfListCopy);
       if (Globals::verbosity > 0 && taskList == YAP_ARG2) {
         solver.printSolverFlags();
         cout << endl;
@@ -365,7 +365,7 @@ runGroundSolver (void)
   if (Globals::groundSolver == GroundSolvers::VE) {
     runVeSolver (fg, tasks, results);
   } else {
-    runBpSolver (fg, tasks, results);
+    runBeliefProp (fg, tasks, results);
   }
 
   YAP_Term list = YAP_TermNil();
@@ -397,8 +397,8 @@ void runVeSolver (
     if (fg->bayesianFactors()) {
       // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
-    // VarElimSolver solver (*mfg);
-    VarElimSolver solver (*fg); //FIXME
+    // VarElim solver (*mfg);
+    VarElim solver (*fg); //FIXME
     if (Globals::verbosity > 0 && i == 0) {
       solver.printSolverFlags();
       cout << endl;
@@ -412,7 +412,7 @@ void runVeSolver (
 
 
 
-void runBpSolver (
+void runBeliefProp (
     FactorGraph* fg,
     const vector<VarIds>& tasks,
     vector<Params>& results) 
@@ -428,10 +428,10 @@ void runBpSolver (
     //    *fg, VarIds (vids.begin(),vids.end()));
   }
   if (Globals::groundSolver == GroundSolvers::BP) {
-    solver = new BpSolver (*fg); // FIXME
+    solver = new BeliefProp (*fg); // FIXME
   } else if (Globals::groundSolver == GroundSolvers::CBP) {
-    CbpSolver::checkForIdenticalFactors = false;
-    solver = new CbpSolver (*fg); // FIXME
+    CountingBp::checkForIdenticalFactors = false;
+    solver = new CountingBp (*fg); // FIXME
   } else {
     cerr << "error: unknow solver" << endl;
     abort();

@@ -1,7 +1,7 @@
-#include "WeightedBpSolver.h"
+#include "WeightedBp.h"
 
 
-WeightedBpSolver::~WeightedBpSolver (void)
+WeightedBp::~WeightedBp (void)
 {
   for (size_t i = 0; i < links_.size(); i++) {
     delete links_[i];
@@ -12,7 +12,7 @@ WeightedBpSolver::~WeightedBpSolver (void)
 
 
 Params
-WeightedBpSolver::getPosterioriOf (VarId vid)
+WeightedBp::getPosterioriOf (VarId vid)
 {
   if (runned_ == false) {
     runSolver();
@@ -47,7 +47,7 @@ WeightedBpSolver::getPosterioriOf (VarId vid)
 
 
 void
-WeightedBpSolver::createLinks (void)
+WeightedBp::createLinks (void)
 {
   if (Globals::verbosity > 0) {
     cout << "compressed factor graph contains " ;
@@ -78,7 +78,7 @@ WeightedBpSolver::createLinks (void)
 
 
 void
-WeightedBpSolver::maxResidualSchedule (void)
+WeightedBp::maxResidualSchedule (void)
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -151,7 +151,7 @@ WeightedBpSolver::maxResidualSchedule (void)
 
 
 void
-WeightedBpSolver::calcFactorToVarMsg (BpLink* _link)
+WeightedBp::calcFactorToVarMsg (BpLink* _link)
 {
   WeightedLink* link = static_cast<WeightedLink*> (_link);
   FacNode* src = link->facNode();
@@ -223,7 +223,7 @@ WeightedBpSolver::calcFactorToVarMsg (BpLink* _link)
 
 
 Params
-WeightedBpSolver::getVarToFactorMsg (const BpLink* _link) const
+WeightedBp::getVarToFactorMsg (const BpLink* _link) const
 {
   const WeightedLink* link = static_cast<const WeightedLink*> (_link);
   const VarNode* src = link->varNode();
@@ -272,7 +272,7 @@ WeightedBpSolver::getVarToFactorMsg (const BpLink* _link) const
 
 
 void
-WeightedBpSolver::printLinkInformation (void) const
+WeightedBp::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
     WeightedLink* l = static_cast<WeightedLink*> (links_[i]); 
