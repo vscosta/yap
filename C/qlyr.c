@@ -253,7 +253,7 @@ InsertOPCODE(OPCODE op0, int i, OPCODE op)
 }
 
 static DBRef
-LookupDBRef(DBRef dbr)
+LookupDBRef(DBRef dbr, int inc_ref)
 {
   CACHE_REGS
   CELL hash = (CELL)(dbr) % LOCAL_ImportDBRefHashTableSize;
@@ -262,7 +262,9 @@ LookupDBRef(DBRef dbr)
   p = LOCAL_ImportDBRefHashChain[hash];
   while (p) {
     if (p->oval == dbr) {
-      p->count++;
+      if (inc_ref) {
+	p->count++;
+      }
       return p->val;
     }
     p = p->next;
@@ -528,11 +530,11 @@ CellPtoHeapAdjust__ (CELL * dbtp USES_REGS)
 #define DelayAdjust(P) (P)
 #define GlobalAdjust(P) (P)
 
-#define DBRefAdjust(P) DBRefAdjust__(P PASS_REGS)
+#define DBRefAdjust(P, Ref) DBRefAdjust__(P, Ref PASS_REGS)
 static inline DBRef
-DBRefAdjust__ (DBRef dbtp USES_REGS)
+DBRefAdjust__ (DBRef dbtp, int do_reference USES_REGS)
 {
-  return LookupDBRef(dbtp);
+  return LookupDBRef(dbtp, do_reference);
 }
 
 #define DBRefPAdjust(P) DBRefPAdjust__(P PASS_REGS)
@@ -793,7 +795,6 @@ ReadHash(IOSTREAM *stream)
   }
   RCHECK(read_tag(stream) == QLY_START_DBREFS);
   LOCAL_ImportDBRefHashTableNum = read_uint(stream);
-  fprintf(stderr,"reading %ld\n",LOCAL_ImportDBRefHashTableNum);
   for (i = 0; i < LOCAL_ImportDBRefHashTableNum; i++) {
     LogUpdClause *ocl = (LogUpdClause *)read_uint(stream);
     UInt sz = read_uint(stream);

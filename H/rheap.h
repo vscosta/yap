@@ -241,7 +241,7 @@ static char     SccsId[] = "@(#)rheap.c	1.3 3/15/90";
 
 #define ConstantTermAdjust(P) ConstantTermAdjust__(P PASS_REGS)
 #define DBGroundTermAdjust(P) DBGroundTermAdjust__(P PASS_REGS)
-#define AdjustDBTerm(P,A,B) AdjustDBTerm__(P,A,B PASS_REGS)
+#define AdjustDBTerm(P,A,B,C) AdjustDBTerm__(P,A,B,C PASS_REGS)
 #define AdjustSwitchTable(op, table, i) AdjustSwitchTable__(op, table, i PASS_REGS)
 #define RestoreOtaplInst(start, opc, pe)  RestoreOtaplInst__(start, opc, pe PASS_REGS)
 #define RestoreDBErasedMarker()  RestoreDBErasedMarker__( PASS_REGS1 )
@@ -460,7 +460,7 @@ RestoreInvisibleAtoms__( USES_REGS1 )
 
 /* adjusts terms stored in the data base, when they have no variables */
 static Term 
-AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
+AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim, Term *p_max USES_REGS)
 {
   if (IsVarTerm(trm))
     return CodeVarAdjust(trm);
@@ -474,7 +474,7 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
     out = AbsPair(p);
   loop:
     if (p >= p_base || p < p_lim) {
-      p[0] = AdjustDBTerm(p[0], p, p_lim);
+      p[0] = AdjustDBTerm(p[0], p, p_lim, p_max);
       if (IsPairTerm(p[1])) {
 	/* avoid term recursion with very deep lists */
 	Term *newp = PtoHeapCellAdjust(RepPair(p[1]));
@@ -483,7 +483,7 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
 	p = newp;
 	goto loop;
       } else {
-	p[1] = AdjustDBTerm(p[1], p, p_lim);
+	p[1] = AdjustDBTerm(p[1], p, p_lim, p_max);
       }
     }
     return out;
@@ -495,6 +495,11 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
     /* if it is before the current position, then we are looking
        at old code */
     if (p >= p_base || p < p_lim) {
+      if (p >= p_max || p < p_lim) {
+	if (DBRefOfTerm(trm)!=DBRefAdjust(DBRefOfTerm(trm),FALSE))
+	/* external term pointer, has to be a DBRef */
+	return MkDBRefTerm(DBRefAdjust(DBRefOfTerm(trm),FALSE));
+      }
       f = (Functor)p[0];
       if (!IsExtensionFunctor(f)) {
 	UInt             Arity, i;
@@ -503,9 +508,10 @@ AdjustDBTerm__(Term trm, Term *p_base, Term *p_lim USES_REGS)
 	*p++ = (Term)f;
 	Arity = ArityOfFunctor(f);
 	for (i = 0; i < Arity; ++i) {
-	  *p = AdjustDBTerm(*p, p0, p_lim);
+	  *p = AdjustDBTerm(*p, p0, p_lim, p_max);
 	  p++;
 	}
+      } else if (f == FunctorDBRef) {
       }
     }
     return AbsAppl(p0);
@@ -519,22 +525,23 @@ RestoreDBTerm(DBTerm *dbr, int attachments USES_REGS)
   if (attachments) {
 #ifdef COROUTINING
     if (dbr->ag.attachments)
-      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents);
+      dbr->ag.attachments = AdjustDBTerm(dbr->ag.attachments, dbr->Contents, dbr->Contents, dbr->Contents+dbr->NOfCells);
 #endif
   } else {
     if (dbr->ag.NextDBT)
       dbr->ag.NextDBT = DBTermAdjust(dbr->ag.NextDBT);
   }    
-  if (dbr->DBRefs !=  NULL) {
+  if (dbr->DBRefs) {
     DBRef          *cp;
     DBRef            tm;
 
     dbr->DBRefs = DBRefPAdjust(dbr->DBRefs);
     cp = dbr->DBRefs;
-    while ((tm = *--cp) != 0)
-      *cp = DBRefAdjust(tm);
+    while ((tm = *--cp) != 0) {
+      *cp = DBRefAdjust(tm,TRUE);
+    }
   }
-  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents, dbr->Contents);
+  dbr->Entry = AdjustDBTerm(dbr->Entry, dbr->Contents, dbr->Contents, dbr->Contents+dbr->NOfCells);
 }
 
 /* Restoring the heap */
@@ -863,7 +870,7 @@ static void
 RestoreDBErasedMarker__( USES_REGS1 )
 {
   Yap_heap_regs->db_erased_marker =
-    DBRefAdjust(Yap_heap_regs->db_erased_marker);
+    DBRefAdjust(Yap_heap_regs->db_erased_marker,TRUE);
   Yap_heap_regs->db_erased_marker->id = FunctorDBRef;
   Yap_heap_regs->db_erased_marker->Flags = ErasedMask;
   Yap_heap_regs->db_erased_marker->Code = NULL;
@@ -1069,9 +1076,9 @@ RestoreDBEntry(DBRef dbr USES_REGS)
   if (dbr->Code != NULL)
     dbr->Code = PtoOpAdjust(dbr->Code);
   if (dbr->Prev != NULL)
-    dbr->Prev = DBRefAdjust(dbr->Prev);
+    dbr->Prev = DBRefAdjust(dbr->Prev,TRUE);
   if (dbr->Next != NULL)
-    dbr->Next = DBRefAdjust(dbr->Next);
+    dbr->Next = DBRefAdjust(dbr->Next,TRUE);
 #ifdef DEBUG_RESTORE2
   fprintf(stderr, "Recomputing masks\n");
 #endif
@@ -1085,26 +1092,26 @@ RestoreDB(DBEntry *pp USES_REGS)
   register DBRef  dbr;
 
   if (pp->First != NULL)
-    pp->First = DBRefAdjust(pp->First);
+    pp->First = DBRefAdjust(pp->First,TRUE);
   if (pp->Last != NULL)
-    pp->Last = DBRefAdjust(pp->Last);
+    pp->Last = DBRefAdjust(pp->Last, TRUE);
   if (pp->ArityOfDB)
     pp->FunctorOfDB = FuncAdjust(pp->FunctorOfDB);
   else
     pp->FunctorOfDB = (Functor) AtomAdjust((Atom)(pp->FunctorOfDB));
   if (pp->F0 != NULL)
-    pp->F0 = DBRefAdjust(pp->F0);
+    pp->F0 = DBRefAdjust(pp->F0, TRUE);
   if (pp->L0 != NULL)
-    pp->L0 = DBRefAdjust(pp->L0);
+    pp->L0 = DBRefAdjust(pp->L0, TRUE);
   /* immediate update semantics */
   dbr = pp->F0;
   /* While we have something in the data base, even if erased, restore it */
   while (dbr) {
     RestoreDBEntry(dbr PASS_REGS);
     if (dbr->n != NULL)
-      dbr->n = DBRefAdjust(dbr->n);
+      dbr->n = DBRefAdjust(dbr->n, TRUE);
     if (dbr->p != NULL)
-      dbr->p = DBRefAdjust(dbr->p);
+      dbr->p = DBRefAdjust(dbr->p, TRUE);
     dbr = dbr->n;
   }
 }

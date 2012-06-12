@@ -300,7 +300,7 @@ PtoPredAdjust(PredEntry *pe)
 #define DelayAdjust(P) (P)
 #define GlobalAdjust(P) (P)
 
-#define DBRefAdjust(P) DBRefAdjust__(P PASS_REGS)
+#define DBRefAdjust(P,DoRef) DBRefAdjust__(P PASS_REGS)
 static inline DBRef
 DBRefAdjust__ (DBRef dbt USES_REGS)
 {
@@ -457,7 +457,6 @@ SaveHash(IOSTREAM *stream)
   }
   save_tag(stream, QLY_START_DBREFS);
   save_uint(stream, LOCAL_ExportDBRefHashTableNum);
-  fprintf(stderr,"exporting %ld\n",LOCAL_ImportDBRefHashTableNum);
   for (i = 0; i < LOCAL_ExportDBRefHashTableSize; i++) {
     export_dbref_hash_entry_t *p = LOCAL_ExportDBRefHashChain[i];
     while (p) {

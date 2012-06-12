@@ -52,14 +52,15 @@ true :- true.
 	;
 	 set_value('$verbose',off)
 	),
-	(
-	 retractall(user:library_directory(_)),
-	 '$system_library_directories'(D),
-	 assertz(user:library_directory(D)),
-	 fail
-	;
-	 true
-	),
+%	'$init_preds', % needs to be done before library_directory
+%	(
+%	 retractall(user:library_directory(_)),
+%	 '$system_library_directories'(D),
+%	 assertz(user:library_directory(D)),
+%	 fail
+%	;
+%	 true
+%	),
 	'$enter_system_mode',
 	'$init_globals',
 	'$swi_set_prolog_flag'(fileerrors, true),

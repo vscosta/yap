@@ -121,7 +121,7 @@ otherwise.
 
 :-	 ['protect.yap'].
 
-version(yap,[6,0]).
+version(yap,[6,3]).
 
 system_mode(verbose,on)  :- set_value('$verbose',on).
 system_mode(verbose,off) :- set_value('$verbose',off).

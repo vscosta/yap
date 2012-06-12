@@ -29,7 +29,6 @@ save_program(File, Goal) :-
 	recorda('$restore_goal', Goal ,_R),	
 	fail.
 save_program(File, _Goal) :-
-writeln(here),
         qsave_program(File).
 
 '$save_program_status' :-

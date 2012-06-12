@@ -223,8 +223,9 @@ beautify_hidden_goal('$call'(G,CP,G0,M),prolog) -->
 	[call(M:G0)].
 beautify_hidden_goal('$current_predicate'(M,Na,Ar),prolog) -->
 	[current_predicate(M,Na/Ar)].
-beautify_hidden_goal('$current_predicate_for_atom'(M,Na,Ar),prolog) -->
-	[current_predicate(M,Na/Ar)].
+beautify_hidden_goal('$current_predicate_for_atom'(Name,M,Ar),prolog) -->
+	{ functor(P, Name, Ar) },
+	[current_predicate(Name,M:P)].
 beautify_hidden_goal('$list_clauses'(Stream,M,Pred),prolog) -->
 	[listing(M:Pred)].
 
