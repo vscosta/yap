@@ -45,98 +45,91 @@ CWD=$(PWD)
 
 
 HEADERS = \
-	$(srcdir)/BayesNet.h \
 	$(srcdir)/BayesBall.h \
-	$(srcdir)/ElimGraph.h \
-	$(srcdir)/FactorGraph.h \
-	$(srcdir)/Factor.h \
-	$(srcdir)/ConstraintTree.h \
-	$(srcdir)/Solver.h \
-	$(srcdir)/VarElim.h \
+	$(srcdir)/BayesNet.h \
 	$(srcdir)/BeliefProp.h \
+	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/CountingBp.h \
-	$(srcdir)/LiftedVe.h \
-	$(srcdir)/Var.h \
-	$(srcdir)/Indexer.h \
-	$(srcdir)/Parfactor.h \
-	$(srcdir)/ProbFormula.h \
+	$(srcdir)/ElimGraph.h \
+	$(srcdir)/Factor.h \
+	$(srcdir)/FactorGraph.h \
 	$(srcdir)/Histogram.h \
-	$(srcdir)/ParfactorList.h \
-	$(srcdir)/LiftedUtils.h \
-	$(srcdir)/TinySet.h \
+	$(srcdir)/Horus.h \
+	$(srcdir)/Indexer.h \
 	$(srcdir)/LiftedBp.h \
-	$(srcdir)/WeightedBp.h \
+	$(srcdir)/LiftedUtils.h \
+	$(srcdir)/LiftedVe.h \
+	$(srcdir)/Parfactor.h \
+	$(srcdir)/ParfactorList.h \
+	$(srcdir)/ProbFormula.h \
+	$(srcdir)/Solver.h \
+	$(srcdir)/TinySet.h \
 	$(srcdir)/Util.h \
-	$(srcdir)/Horus.h
+	$(srcdir)/Var.h \
+	$(srcdir)/VarElim.h \
+	$(srcdir)/WeightedBp.h
 	
 CPP_SOURCES = \
-	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BayesBall.cpp \
-	$(srcdir)/ElimGraph.cpp \
-	$(srcdir)/FactorGraph.cpp \
-	$(srcdir)/Factor.cpp \
-	$(srcdir)/ConstraintTree.cpp \
-	$(srcdir)/Var.cpp \
-	$(srcdir)/Solver.cpp \
-	$(srcdir)/VarElim.cpp \
+	$(srcdir)/BayesNet.cpp \
 	$(srcdir)/BeliefProp.cpp \
+	$(srcdir)/ConstraintTree.cpp \
 	$(srcdir)/CountingBp.cpp \
+	$(srcdir)/ElimGraph.cpp \
+	$(srcdir)/Factor.cpp \
+	$(srcdir)/FactorGraph.cpp \
+	$(srcdir)/Histogram.cpp \
+	$(srcdir)/HorusCli.cpp \
+	$(srcdir)/HorusYap.cpp \
+	$(srcdir)/LiftedBp.cpp \
+	$(srcdir)/LiftedUtils.cpp \
 	$(srcdir)/LiftedVe.cpp \
 	$(srcdir)/Parfactor.cpp \
-	$(srcdir)/ProbFormula.cpp \
-	$(srcdir)/Histogram.cpp \
 	$(srcdir)/ParfactorList.cpp \
-	$(srcdir)/LiftedUtils.cpp \
+	$(srcdir)/ProbFormula.cpp \
+	$(srcdir)/Solver.cpp \
 	$(srcdir)/Util.cpp \
-	$(srcdir)/LiftedBp.cpp \
+	$(srcdir)/Var.cpp \
+	$(srcdir)/VarElim.cpp \
 	$(srcdir)/WeightedBp.cpp \
-	$(srcdir)/HorusYap.cpp \
-	$(srcdir)/HorusCli.cpp
 
 OBJS = \
-	BayesNet.o \
 	BayesBall.o \
-	ElimGraph.o \
-	FactorGraph.o \
-	Factor.o \
-	ConstraintTree.o \
-	Var.o \
-	Solver.o \
-	VarElim.o \
+	BayesNet.o \
 	BeliefProp.o \
+	ConstraintTree.o \
 	CountingBp.o \
-	LiftedVe.o \
-	Parfactor.o \
-	ProbFormula.o \
+	ElimGraph.o \
+	Factor.o \
+	FactorGraph.o \
 	Histogram.o \
-	ParfactorList.o \
-	LiftedUtils.o \
-	Util.o \
+	HorusYap.o \
 	LiftedBp.o \
-	WeightedBp.o \
-	HorusYap.o
+	LiftedUtils.o \
+	LiftedVe.o \
+	ProbFormula.o \
+	Parfactor.o \
+	ParfactorList.o \
+	Solver.o \
+	Util.o \
+	Var.o \
+	VarElim.o \
+	WeightedBp.o
 
 HCLI_OBJS = \
-	BayesNet.o \
 	BayesBall.o \
-	ElimGraph.o \
-	FactorGraph.o \
-	Factor.o \
-	ConstraintTree.o \
-	Var.o \
-	Solver.o \
-	VarElim.o \
+	BayesNet.o \
 	BeliefProp.o \
 	CountingBp.o \
-	LiftedVe.o \
-	Parfactor.o \
-	ProbFormula.o \
-	Histogram.o \
-	ParfactorList.o \
-	WeightedBp.o \
-	LiftedUtils.o \
+	ElimGraph.o \
+	Factor.o \
+	FactorGraph.o \
+	HorusCli.o \
+	Solver.o \
 	Util.o \
-	HorusCli.o
+	Var.o \
+	VarElim.o \
+	WeightedBp.o
 
 SOBJS=horus.@SO@
 
