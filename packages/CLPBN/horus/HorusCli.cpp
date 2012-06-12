@@ -162,13 +162,13 @@ runSolver (const FactorGraph& fg, const VarIds& queryIds)
 {
   Solver* solver = 0;
   switch (Globals::groundSolver) {
-    case GroundSolvers::VE:
+    case GroundSolver::VE:
       solver = new VarElim (fg);
       break;
-    case GroundSolvers::BP:
+    case GroundSolver::BP:
       solver = new BeliefProp (fg);
       break;
-    case GroundSolvers::CBP:
+    case GroundSolver::CBP:
       solver = new CountingBp (fg);
       break;
     default:
