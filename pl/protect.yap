@@ -28,7 +28,8 @@
 '$protect'.
 
 '$hide_predicates'(Name) :-
-	'$current_predicate_for_atom'(Name, prolog, P),
+	'$current_predicate_for_atom'(Name, prolog, Ar),
+	functor(P, Name, Ar),
 	'$hide_predicate'(P,prolog),
 	fail.
 '$hide_predicates'(_).

@@ -3226,26 +3226,51 @@ cont_current_predicate_for_atom( USES_REGS1 )
   while (pf != NIL) {
     FunctorEntry *pp = RepFunctorProp(pf);
     if (IsFunctorProperty(pp->KindOfPE)) {
-      Prop p0 = pp->PropsOfFE;
-      while (p0) {
+      Prop p0;
+      READ_LOCK(pp->RWLock);
+      p0 = pp->PropsOfFE;
+      if (p0) {
 	PredEntry *p = RepPredProp(p0);
 	if (p->ModuleOfPred == mod ||
 	    p->ModuleOfPred == 0) {
+	  UInt ar = p->ArityOfPE;
 	  /* we found the predicate */
 	  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
+	  READ_UNLOCK(pp->RWLock);
 	  return 
-	    Yap_unify(ARG3,Yap_MkNewApplTerm(p->FunctorOfPred,p->ArityOfPE));
+	    Yap_unify(ARG3,MkIntegerTerm(ar));
+	} else if (p->NextOfPE) {
+	  UInt hash = PRED_HASH(pp,mod,PredHashTableSize);
+	  READ_LOCK(PredHashRWLock);
+	  PredEntry *p = PredHash[hash];
+    
+	  while (p) {
+	    if (p->FunctorOfPred == pp &&
+		p->ModuleOfPred == mod)
+	      {
+		READ_UNLOCK(PredHashRWLock);
+		READ_UNLOCK(pp->RWLock);
+		/* we found the predicate */
+		EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(p->NextOfPE));
+		return Yap_unify(ARG3,MkIntegerTerm(p->ArityOfPE));
+	      }
+	    p = RepPredProp(p->NextOfPE);
+	  }
+	  READ_UNLOCK(PredHashRWLock);
 	}
-	p0 = p->NextOfPE;
       }
+      READ_UNLOCK(pp->RWLock);
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
+      READ_LOCK(pp->RWLock);
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
 	EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	return Yap_unify(ARG3,MkAtomTerm((Atom)(pe->FunctorOfPred)));
+	READ_UNLOCK(pp->RWLock);
+	return Yap_unify(ARG3,MkIntTerm(0));
       }
+      READ_UNLOCK(pp->RWLock);
     }
     pf = pp->NextOfPE;
   }
