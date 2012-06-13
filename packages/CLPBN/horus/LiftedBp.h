@@ -11,6 +11,8 @@ class LiftedBp
   public:
    LiftedBp (const ParfactorList& pfList);
 
+  ~LiftedBp (void);
+
    Params solveQuery (const Grounds&);
 
    void printSolverFlags (void) const;

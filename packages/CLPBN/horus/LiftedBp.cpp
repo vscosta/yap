@@ -13,6 +13,13 @@ LiftedBp::LiftedBp (const ParfactorList& pfList)
 
 
 
+LiftedBp::~LiftedBp (void)
+{
+  delete solver_;
+}
+
+
+
 Params
 LiftedBp::solveQuery (const Grounds& query)
 {
