@@ -154,12 +154,9 @@ class CountingBp : public Solver
 
     void printGroups (const VarSignMap&, const FacSignMap&) const;
 
-    VarId getRepresentative (VarId vid)
-    {
-      assert (Util::contains (vid2VarCluster_, vid));
-      VarCluster* vc = vid2VarCluster_.find (vid)->second;
-      return vc->representative()->varId();
-    }
+    VarId getRepresentative (VarId vid);
+
+    FacNode* getRepresentative (FacNode*);
 
     FactorGraph* getCompressedFactorGraph (void);
 

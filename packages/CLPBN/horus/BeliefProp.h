@@ -111,6 +111,10 @@ class BeliefProp : public Solver
 
     virtual Params getJointByConditioning (const VarIds&) const;
 
+  public:
+    Params getFactorJoint (FacNode*, const VarIds&);
+
+  protected:
     SPNodeInfo* ninf (const VarNode* var) const
     {
       return varsI_[var->getIndex()];
