@@ -186,7 +186,7 @@ BeliefProp::runSolver (void)
   }
   if (Globals::verbosity > 0) {
     if (nIters_ < BpOptions::maxIter) {
-      cout << "Sum-Product converged in " ; 
+      cout << "Belief propagation converged in " ; 
       cout << nIters_ << " iterations" << endl;
     } else {
       cout << "The maximum number of iterations was hit, terminating..." ;
