@@ -6458,6 +6458,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	unbounded = FALSE;
 	SET_JLBL(sllll.l1);
 	S = s_reg = RepPair(t);
+	ipc = ipc->u.sllll.l1;
       } else if (IsAtomOrIntTerm(t)) {
 	SET_JLBL(sllll.l2);
 	ipc = ipc->u.sllll.l2;
