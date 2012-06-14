@@ -64,11 +64,17 @@ class Parfactor : public TFactor<ProbFormula>
 
     void applySubstitution (const Substitution&);
 
+    size_t indexOfGround (const Ground&) const;
+
     PrvGroup findGroup (const Ground&) const;
 
     bool containsGround (const Ground&) const;
 
+    bool containsGrounds (const Grounds&) const;
+
     bool containsGroup (PrvGroup) const;
+
+    bool containsGroups (vector<PrvGroup>) const;
   
     unsigned nrFormulas (LogVar) const;
 

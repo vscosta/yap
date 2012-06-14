@@ -77,13 +77,11 @@ CountingBp::solveQuery (VarIds queryVids)
       res = Solver::getJointByConditioning (
           GroundSolver::CBP, fg, queryVids);
     } else {
-      FacNode* reprFn = getRepresentative (facNodes[idx]);
-      assert (reprFn != 0);
       VarIds reprArgs;
       for (size_t i = 0; i < queryVids.size(); i++) {
         reprArgs.push_back (getRepresentative (queryVids[i]));
       }
-      res = solver_->getFactorJoint (reprFn, reprArgs);
+      res = solver_->getFactorJoint (idx, reprArgs);
     }
   }
   return res;

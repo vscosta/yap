@@ -11,7 +11,7 @@ LiftedOperator::getValidOps (
     ParfactorList& pfList,
     const Grounds& query)
 {
-  vector<LiftedOperator*>   validOps;
+  vector<LiftedOperator*>  validOps;
   vector<ProductOperator*> multOps;
 
   multOps = ProductOperator::getValidOps (pfList);

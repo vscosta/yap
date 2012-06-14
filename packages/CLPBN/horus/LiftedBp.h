@@ -27,9 +27,13 @@ class LiftedBp
     FactorGraph* getFactorGraph (void);
 
     vector<vector<unsigned>> getWeights (void) const;
+ 
+    unsigned rangeOfGround (const Ground&);
 
-    ParfactorList      pfList_;
-    WeightedBp*  solver_;
+    Params getJointByConditioning (const ParfactorList&, const Grounds&);
+
+    ParfactorList  pfList_;
+    WeightedBp*    solver_;
 
 };
 

@@ -91,6 +91,8 @@ class ObservedFormula
 
     unsigned evidence (void) const  { return evidence_; }
 
+    void setEvidence (unsigned ev) { evidence_ = ev; }
+
     ConstraintTree& constr (void) { return constr_; }
 
     bool isAtom (void) const { return arity_ == 0; }
