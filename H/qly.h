@@ -101,7 +101,8 @@ typedef enum {
   QLY_END_PREDICATES = 13,
   QLY_ATOM_WIDE = 14,
   QLY_FAILCODE = 15,
-  QLY_ATOM = 16
+  QLY_ATOM = 16,
+  QLY_ATOM_BLOB = 17
 } qlf_tag_t;
 
 #define STATIC_PRED_FLAGS (SourcePredFlag|DynamicPredFlag|LogUpdatePredFlag|CompiledPredFlag|MultiFileFlag|TabledPredFlag|MegaClausePredFlag|CountPredFlag|ProfiledPredFlag|ThreadLocalPredFlag|AtomDBPredFlag|ModuleTransparentPredFlag|NumberDBPredFlag|MetaPredFlag|SyncPredFlag|BackCPredFlag)
