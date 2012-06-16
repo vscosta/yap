@@ -681,9 +681,9 @@ then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
       AC_CHECK_LIB(wsock32,main)
-      AC_CHECK_LIB(comdlg32,main)
     else
       AC_CHECK_LIB(wsock32,main)
+      AC_CHECK_LIB(comdlg32,main)
     fi
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
