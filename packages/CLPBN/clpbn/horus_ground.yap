@@ -79,7 +79,6 @@ run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   %writeln(queryKeys:QueryKeys), writeln(''),
   %writeln(queryIds:QueryIds), writeln(''),
-  list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
   cpp_run_ground_solver(Network, [QueryIds], Solutions).
 
 
