@@ -34,7 +34,7 @@ use the burlgary alarm network as an example. First, we load the model:
 $ yap -l examples/burglary-alarm.yap
 
 Now let's suppose that we want to estimate the probability of a earthquake
-ocurred given that mary called. We do it with the following query:
+ocurred given that mary called. We can do it with the following query:
 
 ?- earthquake(X), mary_calls(t).
 
@@ -56,7 +56,7 @@ are supported:
 - bp:   (ground) belief propagation
 
 For example, if we want to use ground variable elimination to solve some
-query, we need to call the following goal:
+query, we need to call first the following goal:
 
 ?- set_solver(hve).
 
