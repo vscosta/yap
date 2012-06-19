@@ -46,7 +46,7 @@ CWD=$(PWD)
 
 HEADERS = \
 	$(srcdir)/BayesBall.h \
-	$(srcdir)/BayesNet.h \
+	$(srcdir)/BayesBallGraph.h \
 	$(srcdir)/BeliefProp.h \
 	$(srcdir)/ConstraintTree.h \
 	$(srcdir)/CountingBp.h \
@@ -71,7 +71,7 @@ HEADERS = \
 	
 CPP_SOURCES = \
 	$(srcdir)/BayesBall.cpp \
-	$(srcdir)/BayesNet.cpp \
+	$(srcdir)/BayesBallGraph.cpp \
 	$(srcdir)/BeliefProp.cpp \
 	$(srcdir)/ConstraintTree.cpp \
 	$(srcdir)/CountingBp.cpp \
@@ -95,7 +95,7 @@ CPP_SOURCES = \
 
 OBJS = \
 	BayesBall.o \
-	BayesNet.o \
+	BayesBallGraph.o \
 	BeliefProp.o \
 	ConstraintTree.o \
 	CountingBp.o \
@@ -118,7 +118,7 @@ OBJS = \
 
 HCLI_OBJS = \
 	BayesBall.o \
-	BayesNet.o \
+	BayesBallGraph.o \
 	BeliefProp.o \
 	CountingBp.o \
 	ElimGraph.o \

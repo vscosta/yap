@@ -8,7 +8,6 @@
 
 #include "FactorGraph.h"
 #include "Factor.h"
-#include "BayesNet.h"
 #include "BayesBall.h"
 #include "Util.h"
 
@@ -236,13 +235,13 @@ FactorGraph::isTree (void) const
 
 
 
-DAGraph&
+BayesBallGraph&
 FactorGraph::getStructure (void)
 {
   assert (bayesFactors_);
   if (structure_.empty()) {
     for (size_t i = 0; i < varNodes_.size(); i++) {
-      structure_.addNode (new DAGraphNode (varNodes_[i]));
+      structure_.addNode (new BBNode (varNodes_[i]));
     }
     for (size_t i = 0; i < facNodes_.size(); i++) {
       const VarIds& vids = facNodes_[i]->factor().arguments();

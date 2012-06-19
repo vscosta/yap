@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Factor.h"
-#include "BayesNet.h"
+#include "BayesBallGraph.h"
 #include "Horus.h"
 
 using namespace std;
@@ -103,7 +103,7 @@ class FactorGraph
 
     bool isTree (void) const;
 
-    DAGraph& getStructure (void);
+    BayesBallGraph& getStructure (void);
 
     void print (void) const;
 
@@ -129,7 +129,7 @@ class FactorGraph
     VarNodes  varNodes_;
     FacNodes  facNodes_;
 
-    DAGraph   structure_;
+    BayesBallGraph   structure_;
     bool      bayesFactors_;
 
     typedef unordered_map<unsigned, VarNode*> VarMap;

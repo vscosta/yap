@@ -1,5 +1,5 @@
-#ifndef HORUS_BAYESNET_H
-#define HORUS_BAYESNET_H
+#ifndef HORUS_BAYESBALLGRAPH_H
+#define HORUS_BAYESBALLGRAPH_H
 
 #include <vector>
 #include <queue>
@@ -15,23 +15,23 @@ using namespace std;
 
 class Var;
 
-class DAGraphNode : public Var
+class BBNode : public Var
 {
   public:
-    DAGraphNode (Var* v) : Var (v) , visited_(false),
+    BBNode (Var* v) : Var (v) , visited_(false),
         markedOnTop_(false), markedOnBottom_(false) { }
 
-    const vector<DAGraphNode*>& childs (void) const { return childs_;  }
+    const vector<BBNode*>& childs (void) const { return childs_;  }
 
-    vector<DAGraphNode*>& childs (void) { return childs_;  }
+    vector<BBNode*>& childs (void) { return childs_;  }
 
-    const vector<DAGraphNode*>& parents (void) const { return parents_; }
+    const vector<BBNode*>& parents (void) const { return parents_; }
 
-    vector<DAGraphNode*>& parents (void) { return parents_; }
+    vector<BBNode*>& parents (void) { return parents_; }
 
-    void addParent (DAGraphNode* p) { parents_.push_back (p); }
+    void addParent (BBNode* p) { parents_.push_back (p); }
 
-    void addChild (DAGraphNode* c) { childs_.push_back (c); }
+    void addChild (BBNode* c) { childs_.push_back (c); }
 
     bool isVisited (void) const { return visited_; }
  
@@ -52,23 +52,23 @@ class DAGraphNode : public Var
     bool markedOnTop_;
     bool markedOnBottom_;
 
-    vector<DAGraphNode*> childs_;
-    vector<DAGraphNode*> parents_;
+    vector<BBNode*> childs_;
+    vector<BBNode*> parents_;
 };
 
 
-class DAGraph
+class BayesBallGraph
 {
   public:
-    DAGraph (void) { }
+    BayesBallGraph (void) { }
 
-    void addNode (DAGraphNode* n);
+    void addNode (BBNode* n);
 
     void addEdge (VarId vid1, VarId vid2);
 
-    const DAGraphNode* getNode (VarId vid) const;
+    const BBNode* getNode (VarId vid) const;
  
-    DAGraphNode* getNode (VarId vid);
+    BBNode* getNode (VarId vid);
 
     bool empty (void) const { return nodes_.empty(); }
 
@@ -79,10 +79,10 @@ class DAGraph
     void exportToGraphViz (const char*);
 
   private:
-    vector<DAGraphNode*> nodes_;
+    vector<BBNode*> nodes_;
 
-    unordered_map<VarId, DAGraphNode*> varMap_;
+    unordered_map<VarId, BBNode*> varMap_;
 };
 
-#endif // HORUS_BAYESNET_H
+#endif // HORUS_BAYESBALLGRAPH_H
 

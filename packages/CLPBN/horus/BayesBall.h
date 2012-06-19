@@ -7,7 +7,7 @@
 #include <map>
 
 #include "FactorGraph.h"
-#include "BayesNet.h"
+#include "BayesBallGraph.h"
 #include "Horus.h"
 
 using namespace std;
@@ -15,12 +15,12 @@ using namespace std;
 
 struct ScheduleInfo
 {
-  ScheduleInfo (DAGraphNode* n, bool vfp, bool vfc) : 
+  ScheduleInfo (BBNode* n, bool vfp, bool vfc) : 
       node(n), visitedFromParent(vfp), visitedFromChild(vfc) { }
 
-  DAGraphNode* node;
-  bool visitedFromParent;
-  bool visitedFromChild;
+  BBNode*  node;
+  bool     visitedFromParent;
+  bool     visitedFromChild;
 };
 
 
@@ -48,22 +48,22 @@ class BayesBall
 
     void constructGraph (FactorGraph* fg) const;
 
-    void scheduleParents (const DAGraphNode* n, Scheduling& sch) const;
+    void scheduleParents (const BBNode* n, Scheduling& sch) const;
 
-    void scheduleChilds (const DAGraphNode* n, Scheduling& sch) const;
+    void scheduleChilds (const BBNode* n, Scheduling& sch) const;
 
     FactorGraph& fg_;
 
-    DAGraph& dag_;
+    BayesBallGraph& dag_;
 };
 
 
 
 inline void
-BayesBall::scheduleParents (const DAGraphNode* n, Scheduling& sch) const
+BayesBall::scheduleParents (const BBNode* n, Scheduling& sch) const
 {
-  const vector<DAGraphNode*>& ps = n->parents();
-  for (vector<DAGraphNode*>::const_iterator it = ps.begin(); 
+  const vector<BBNode*>& ps = n->parents();
+  for (vector<BBNode*>::const_iterator it = ps.begin(); 
       it != ps.end(); ++it) {
     sch.push (ScheduleInfo (*it, false, true));
   }
@@ -72,10 +72,10 @@ BayesBall::scheduleParents (const DAGraphNode* n, Scheduling& sch) const
 
 
 inline void
-BayesBall::scheduleChilds (const DAGraphNode* n, Scheduling& sch) const
+BayesBall::scheduleChilds (const BBNode* n, Scheduling& sch) const
 {
-  const vector<DAGraphNode*>& cs = n->childs();
-  for (vector<DAGraphNode*>::const_iterator it = cs.begin();
+  const vector<BBNode*>& cs = n->childs();
+  for (vector<BBNode*>::const_iterator it = cs.begin();
       it != cs.end(); ++it) {
     sch.push (ScheduleInfo (*it, true, false));
   }
