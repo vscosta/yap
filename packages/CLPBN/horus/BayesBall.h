@@ -30,19 +30,19 @@ typedef queue<ScheduleInfo, list<ScheduleInfo>> Scheduling;
 class BayesBall
 {
   public:
-   BayesBall (FactorGraph& fg) 
-       : fg_(fg) , dag_(fg.getStructure())
-   {
-     dag_.clear();
-   }
+    BayesBall (FactorGraph& fg) 
+        : fg_(fg) , dag_(fg.getStructure())
+    {
+      dag_.clear();
+    }
 
-   FactorGraph* getMinimalFactorGraph (const VarIds&);
+    FactorGraph* getMinimalFactorGraph (const VarIds&);
 
-   static FactorGraph* getMinimalFactorGraph (FactorGraph& fg, VarIds vids)
-   {
-     BayesBall bb (fg);
-     return bb.getMinimalFactorGraph (vids);
-   }
+    static FactorGraph* getMinimalFactorGraph (FactorGraph& fg, VarIds vids)
+    {
+      BayesBall bb (fg);
+      return bb.getMinimalFactorGraph (vids);
+    }
 
   private:
 
