@@ -19,5 +19,5 @@ bayes john_calls::[t,f], alarm ; [0.9, 0.05, 0.1, 0.95] ; [].
 
 bayes mary_calls::[t,f], alarm ; [0.7, 0.01, 0.3, 0.99] ; [].
 
-% ?- john_calls(J), mary_calls(m1).
+% ?- john_calls(J), mary_calls(t).
 
