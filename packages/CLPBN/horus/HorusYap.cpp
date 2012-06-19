@@ -12,8 +12,8 @@
 #include "LiftedVe.h"
 #include "VarElim.h"
 #include "LiftedBp.h"
-#include "BeliefProp.h"
 #include "CountingBp.h"
+#include "BeliefProp.h"
 #include "ElimGraph.h"
 #include "BayesBall.h"
 
@@ -237,7 +237,6 @@ createGroundNetwork (void)
     fg->addFactor (Factor (varIds, ranges, params, distId));
     factorList = YAP_TailOfTerm (factorList);
   }
-
   unsigned nrObservedVars = 0;
   YAP_Term evidenceList = YAP_ARG3;
   while (evidenceList != YAP_TermNil()) {
@@ -395,17 +394,16 @@ void runVeSolver (
   for (size_t i = 0; i < tasks.size(); i++) {
     FactorGraph* mfg = fg;
     if (fg->bayesianFactors()) {
-      // mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
+      mfg = BayesBall::getMinimalFactorGraph (*fg, tasks[i]);
     }
-    // VarElim solver (*mfg);
-    VarElim solver (*fg); //FIXME
+    VarElim solver (*mfg);
     if (Globals::verbosity > 0 && i == 0) {
       solver.printSolverFlags();
       cout << endl;
     }
     results.push_back (solver.solveQuery (tasks[i]));
     if (fg->bayesianFactors()) {
-      // delete mfg;
+      delete mfg;
     }
   }
 }
@@ -424,14 +422,14 @@ void runBeliefProp (
   Solver* solver = 0;
   FactorGraph* mfg = fg;
   if (fg->bayesianFactors()) {
-    //mfg = BayesBall::getMinimalFactorGraph (
-    //    *fg, VarIds (vids.begin(),vids.end()));
+    mfg = BayesBall::getMinimalFactorGraph (
+        *fg, VarIds (vids.begin(),vids.end()));
   }
   if (Globals::groundSolver == GroundSolver::BP) {
-    solver = new BeliefProp (*fg); // FIXME
+    solver = new BeliefProp (*mfg);
   } else if (Globals::groundSolver == GroundSolver::CBP) {
     CountingBp::checkForIdenticalFactors = false;
-    solver = new CountingBp (*fg); // FIXME
+    solver = new CountingBp (*mfg);
   } else {
     cerr << "error: unknow solver" << endl;
     abort();
@@ -445,7 +443,7 @@ void runBeliefProp (
     results.push_back (solver->solveQuery (tasks[i]));
   }
   if (fg->bayesianFactors()) {
-    //delete mfg;
+    delete mfg;
   }
   delete solver;
 }
