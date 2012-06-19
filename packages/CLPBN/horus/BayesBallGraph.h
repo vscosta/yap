@@ -9,11 +9,7 @@
 #include "Var.h"
 #include "Horus.h"
 
-
 using namespace std;
-
-
-class Var;
 
 class BBNode : public Var
 {

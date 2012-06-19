@@ -17,7 +17,7 @@
           [cpp_create_lifted_network/3,
            cpp_set_parfactors_params/2,
            cpp_run_lifted_solver/3,
-           cpp_free_parfactors/1
+           cpp_free_lifted_network/1
           ]).
 
 :- use_module(library('clpbn/display'),
@@ -144,5 +144,5 @@ run_horus_lifted_solver(QueryVarsAtts, Solutions, fove(ParfactorList, DistIds)) 
 
 
 finalize_horus_lifted_solver(fove(ParfactorList, _)) :-
-  cpp_free_parfactors(ParfactorList).
+  cpp_free_lifted_network(ParfactorList).
 
