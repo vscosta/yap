@@ -850,16 +850,16 @@ fi
 
 if test "$yap_cv_cudd" != no; then
    	    oldlibs="$LIBS"
-	    if test "$withval" = "yes"; then
+	    if test "$yap_cv_cudd" != "NONE"; then
 	       if test -d "$yap_cv_cudd"/include/cudd; then
 	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
                else
 	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-               fi
+	       fi 
 	       cudd_dir="$yap_cv_cudd"
 	    elif test -e /usr/include/cudd; then
 	       CUDD_CPPFLAGS="-I /usr/include/cudd"
-	       cudd_dir="$withval"
+	       cudd_dir="$yap_cv_cudd"
 	    elif test "$prefix" != "NONE"; then
 	       if test -d "$prefix"/include/cudd; then
 	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
