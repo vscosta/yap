@@ -1447,9 +1447,6 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
   save_buffer[0] = '\0';
   //  LOCAL_ErrorMessage = NULL;
   if (inpf == NULL) {
-#if _MSC_VER || defined(__MINGW32__)
-    if (!(inpf = Yap_RegistryGetString("startup")))
-#endif
       inpf = StartUpFile;
   }
   /* careful it starts from the root */
@@ -1510,6 +1507,13 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
     }
   }
 #if _MSC_VER || defined(__MINGW32__)
+  if ((inpf = Yap_RegistryGetString("startup"))) {
+    if ((splfild = open_file(inpf, O_RDONLY)) > 0) {
+      if ((mode = try_open(inpf,Astate,ATrail,AStack,AHeap,save_buffer,streamp)) != FAIL_RESTORE) {
+	return mode;
+      }
+    }
+  }
   {
     DWORD fatts;
     int buflen;
@@ -1525,7 +1529,7 @@ OpenRestore(char *inpf, char *YapLibDir, CELL *Astate, CELL *ATrail, CELL *AStac
 	goto end;
       }
       buflen = strlen(LOCAL_FileNameBuf);
-      pt = LOCAL_FileNameBuf+strlen(LOCAL_FileNameBuf);
+      pt = LOCAL_FileNameBuf+buflen;
       while (*--pt != '\\') {
 	/* skip executable */
 	if (pt == LOCAL_FileNameBuf) {
