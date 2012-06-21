@@ -217,7 +217,7 @@ Yap_InitSysPath(void) {
 	return;
       }
       buflen = strlen(LOCAL_FileNameBuf);
-      pt = LOCAL_FileNameBuf+strlen(LOCAL_FileNameBuf);
+      pt = LOCAL_FileNameBuf+buflen;
       while (*--pt != '\\') {
 	/* skip executable */
 	if (pt == LOCAL_FileNameBuf) {
@@ -3185,9 +3185,15 @@ Yap_RegistryGetString(char *name)
   char *ptr;
   int i;
 
+#if SIZEOF_INT_P == 8
+  if ( !(key=reg_open_key(L"HKEY_LOCAL_MACHINE/SOFTWARE/YAP/Prolog64", FALSE)) ) {
+    return NULL;
+  }
+#else
   if ( !(key=reg_open_key(L"HKEY_LOCAL_MACHINE/SOFTWARE/YAP/Prolog", FALSE)) ) {
     return NULL;
   }
+#endif
   if ( RegQueryValueEx(key, name, NULL, &type, data, &len) == ERROR_SUCCESS ) {
     RegCloseKey(key);
     switch(type) {
