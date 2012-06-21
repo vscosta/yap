@@ -510,7 +510,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
     [yap_cv_clpbn_bp=yes],
     [AC_MSG_RESULT([no])]
 )
-CXXFLAGS="$my_save_cflags"
+CXXFLAGS="$my_save_cxxflags"
 AC_LANG_POP()
 
 if test "$yap_cv_clpbn_bp" = no 
