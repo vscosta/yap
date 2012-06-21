@@ -505,15 +505,18 @@ true :- true.
 
 '$add_env_and_fail' :- fail.
 
+%
+% *-> at this point would require compiler support, which does not exist.
+%
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
-	(
-	  yap_hacks:current_choice_point(NCP1),
+	if(
+	  (yap_hacks:current_choice_point(NCP1),
 	  '$attributes':delayed_goals(G, V, NV, LGs),
-	  yap_hacks:current_choice_point(NCP2)
-	*->
-	   NCP is NCP2-NCP1
-        ;
-	   copy_term_nat(V, NV), LGs = [], NCP = 0
+	  yap_hacks:current_choice_point(NCP2))
+	  ,
+	   (NCP is NCP2-NCP1)
+	  , 
+	   (copy_term_nat(V, NV), LGs = [], NCP = 0)
         ).
 
 '$out_neg_answer' :-

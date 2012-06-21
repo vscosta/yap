@@ -77,6 +77,11 @@ do_not_compile_expressions :- set_value('$c_arith',[]).
 	'$clean_cuts'(NG0, NG),
 	'$do_c_built_in'(A,M,NA),
 	'$do_c_built_in'(B,M,NB).
+'$do_c_built_in'((G*->A;B), M, (yap_hacks:current_choicepoint(DCP),NG,yap_hacks:cut_at(DCP),NA; NB)) :- !,
+	'$do_c_built_in'(G,M,NG0),
+	'$clean_cuts'(NG0, NG),
+	'$do_c_built_in'(A,M,NA),
+	'$do_c_built_in'(B,M,NB).
 '$do_c_built_in'((G*->A), M, (NG,NA)) :- !,
 	'$do_c_built_in'(G,M,NG0),
 	'$clean_cuts'(NG0, NG),
