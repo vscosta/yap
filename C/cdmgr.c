@@ -2633,6 +2633,9 @@ p_endconsult( USES_REGS1 )
 static void
 purge_clauses(PredEntry *pred)
 {
+  if (pred->PredFlags & UDIPredFlag) {
+    Yap_udi_abolish(pred);
+  }
   if (pred->cs.p_code.NOfClauses) {
     if (pred->PredFlags & IndexedPredFlag)
       RemoveIndexation(pred);
