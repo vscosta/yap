@@ -3,7 +3,7 @@
 source city.sh
 source ../benchs.sh
 
-SOLVER="hve"
+SOLVER="lbp"
 
 function run_all_graphs
 {
@@ -23,7 +23,6 @@ function run_all_graphs
   run_solver city60000    $2
   run_solver city65000    $2
   run_solver city70000    $2
-  return
   run_solver city75000    $2
   run_solver city80000    $2
   run_solver city85000    $2
@@ -33,5 +32,5 @@ function run_all_graphs
 }
 
 prepare_new_run
-run_all_graphs "hve(elim_heuristic=min_neighbors)     " min_neighbors
+run_all_graphs "lbp(shedule=seq_fixed)                " seq_fixed
 

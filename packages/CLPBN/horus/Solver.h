@@ -3,8 +3,9 @@
 
 #include <iomanip>
 
-#include "Var.h"
 #include "FactorGraph.h"
+#include "Var.h"
+#include "Horus.h"
 
 
 using namespace std;
@@ -23,6 +24,9 @@ class Solver
     void printAnswer (const VarIds& vids);
 
     void printAllPosterioris (void);
+
+    Params getJointByConditioning (GroundSolver,
+        FactorGraph, const VarIds& jointVarIds) const;
    
   protected:
     const FactorGraph& fg;

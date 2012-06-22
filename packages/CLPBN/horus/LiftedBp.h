@@ -1,15 +1,17 @@
-#ifndef HORUS_LIFTEDBPSOLVER_H
-#define HORUS_LIFTEDBPSOLVER_H
+#ifndef HORUS_LIFTEDBP_H
+#define HORUS_LIFTEDBP_H
 
 #include "ParfactorList.h"
 
 class FactorGraph;
-class WeightedBpSolver;
+class WeightedBp;
 
-class LiftedBpSolver
+class LiftedBp
 {
   public:
-   LiftedBpSolver (const ParfactorList& pfList);
+   LiftedBp (const ParfactorList& pfList);
+
+  ~LiftedBp (void);
 
    Params solveQuery (const Grounds&);
 
@@ -25,10 +27,14 @@ class LiftedBpSolver
     FactorGraph* getFactorGraph (void);
 
     vector<vector<unsigned>> getWeights (void) const;
+ 
+    unsigned rangeOfGround (const Ground&);
 
-    ParfactorList      pfList_;
-    WeightedBpSolver*  solver_;
+    Params getJointByConditioning (const ParfactorList&, const Grounds&);
+
+    ParfactorList  pfList_;
+    WeightedBp*    solver_;
 
 };
 
-#endif // HORUS_LIFTEDBPSOLVER_H
+#endif // HORUS_LIFTEDBP_H

@@ -5,21 +5,21 @@
 
 #include <iostream>
 
-#include "BpSolver.h"
+#include "BeliefProp.h"
 #include "FactorGraph.h"
 #include "Factor.h"
 #include "Indexer.h"
 #include "Horus.h"
 
 
-BpSolver::BpSolver (const FactorGraph& fg) : Solver (fg)
+BeliefProp::BeliefProp (const FactorGraph& fg) : Solver (fg)
 {
   runned_ = false;
 }
 
 
 
-BpSolver::~BpSolver (void)
+BeliefProp::~BeliefProp (void)
 {
   for (size_t i = 0; i < varsI_.size(); i++) {
     delete varsI_[i];
@@ -35,7 +35,7 @@ BpSolver::~BpSolver (void)
 
 
 Params
-BpSolver::solveQuery (VarIds queryVids)
+BeliefProp::solveQuery (VarIds queryVids)
 {
   assert (queryVids.empty() == false);
   return queryVids.size() == 1
@@ -46,7 +46,7 @@ BpSolver::solveQuery (VarIds queryVids)
 
 
 void
-BpSolver::printSolverFlags (void) const
+BeliefProp::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "belief propagation [" ;
@@ -68,7 +68,7 @@ BpSolver::printSolverFlags (void) const
 
 
 Params
-BpSolver::getPosterioriOf (VarId vid)
+BeliefProp::getPosterioriOf (VarId vid)
 {
   if (runned_ == false) {
     runSolver();
@@ -101,7 +101,7 @@ BpSolver::getPosterioriOf (VarId vid)
 
 
 Params
-BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
+BeliefProp::getJointDistributionOf (const VarIds& jointVarIds)
 {
   if (runned_ == false) {
     runSolver();
@@ -117,30 +117,43 @@ BpSolver::getJointDistributionOf (const VarIds& jointVarIds)
   }
   if (idx == facNodes.size()) {
     return getJointByConditioning (jointVarIds);
-  } else {
-    Factor res (facNodes[idx]->factor());
-    const BpLinks& links = ninf(facNodes[idx])->getLinks();
-    for (size_t i = 0; i < links.size(); i++) {
-      Factor msg ({links[i]->varNode()->varId()},
-                  {links[i]->varNode()->range()},
-                  getVarToFactorMsg (links[i]));
-      res.multiply (msg);
-    }
-    res.sumOutAllExcept (jointVarIds);
-    res.reorderArguments (jointVarIds);
-    res.normalize();
-    Params jointDist = res.params();
-    if (Globals::logDomain) {
-      Util::exp (jointDist);
-    }
-    return jointDist;
   }
+  return getFactorJoint (idx, jointVarIds);
+}
+
+
+
+Params
+BeliefProp::getFactorJoint (
+    size_t fnIdx,
+    const VarIds& jointVarIds)
+{
+  if (runned_ == false) {
+    runSolver();
+  }
+  FacNode* fn = fg.facNodes()[fnIdx];
+  Factor res (fn->factor());
+  const BpLinks& links = ninf(fn)->getLinks();
+  for (size_t i = 0; i < links.size(); i++) {
+    Factor msg ({links[i]->varNode()->varId()},
+                {links[i]->varNode()->range()},
+                getVarToFactorMsg (links[i]));
+    res.multiply (msg);
+  }
+  res.sumOutAllExcept (jointVarIds);
+  res.reorderArguments (jointVarIds);
+  res.normalize();
+  Params jointDist = res.params();
+  if (Globals::logDomain) {
+    Util::exp (jointDist);
+  }
+  return jointDist; 
 }
 
 
 
 void
-BpSolver::runSolver (void)
+BeliefProp::runSolver (void)
 {
   initializeSolver();
   nIters_ = 0;
@@ -173,7 +186,7 @@ BpSolver::runSolver (void)
   }
   if (Globals::verbosity > 0) {
     if (nIters_ < BpOptions::maxIter) {
-      cout << "Sum-Product converged in " ; 
+      cout << "Belief propagation converged in " ; 
       cout << nIters_ << " iterations" << endl;
     } else {
       cout << "The maximum number of iterations was hit, terminating..." ;
@@ -187,7 +200,7 @@ BpSolver::runSolver (void)
 
 
 void
-BpSolver::createLinks (void)
+BeliefProp::createLinks (void)
 {
   const FacNodes& facNodes = fg.facNodes();
   for (size_t i = 0; i < facNodes.size(); i++) {
@@ -201,7 +214,7 @@ BpSolver::createLinks (void)
 
 
 void
-BpSolver::maxResidualSchedule (void)
+BeliefProp::maxResidualSchedule (void)
 {
   if (nIters_ == 1) {
     for (size_t i = 0; i < links_.size(); i++) {
@@ -256,7 +269,7 @@ BpSolver::maxResidualSchedule (void)
 
 
 void
-BpSolver::calcFactorToVarMsg (BpLink* link)
+BeliefProp::calcFactorToVarMsg (BpLink* link)
 {
   FacNode* src = link->facNode();
   const VarNode* dst = link->varNode();
@@ -320,7 +333,7 @@ BpSolver::calcFactorToVarMsg (BpLink* link)
 
 
 Params
-BpSolver::getVarToFactorMsg (const BpLink* link) const
+BeliefProp::getVarToFactorMsg (const BpLink* link) const
 {
   const VarNode* src = link->varNode();
   Params msg;
@@ -361,61 +374,15 @@ BpSolver::getVarToFactorMsg (const BpLink* link) const
 
 
 Params
-BpSolver::getJointByConditioning (const VarIds& jointVarIds) const
+BeliefProp::getJointByConditioning (const VarIds& jointVarIds) const
 {
-  VarNodes jointVars;
-  for (size_t i = 0; i < jointVarIds.size(); i++) {
-    assert (fg.getVarNode (jointVarIds[i]));
-    jointVars.push_back (fg.getVarNode (jointVarIds[i]));
-  }
-
-  FactorGraph* tempFg = new FactorGraph (fg);
-  BpSolver solver (*tempFg);
-  solver.runSolver();
-  Params prevBeliefs = solver.getPosterioriOf (jointVarIds[0]);
-
-  VarIds observedVids = {jointVars[0]->varId()};
-
-  for (size_t i = 1; i < jointVarIds.size(); i++) {
-    assert (jointVars[i]->hasEvidence() == false);
-    Params newBeliefs;
-    Vars observedVars;
-    Ranges observedRanges;
-    for (size_t j = 0; j < observedVids.size(); j++) {
-      observedVars.push_back (tempFg->getVarNode (observedVids[j]));
-      observedRanges.push_back (observedVars.back()->range());
-    }
-    Indexer indexer (observedRanges, false);
-    while (indexer.valid()) {
-      for (size_t j = 0; j < observedVars.size(); j++) {
-        observedVars[j]->setEvidence (indexer[j]);
-      }
-      BpSolver solver (*tempFg);
-      solver.runSolver();
-      Params beliefs = solver.getPosterioriOf (jointVarIds[i]);
-      for (size_t k = 0; k < beliefs.size(); k++) {
-        newBeliefs.push_back (beliefs[k]);
-      }
-      ++ indexer;
-    }
-
-    int count = -1;
-    for (size_t j = 0; j < newBeliefs.size(); j++) {
-      if (j % jointVars[i]->range() == 0) {
-        count ++;
-      }
-      newBeliefs[j] *= prevBeliefs[count];
-    }
-    prevBeliefs = newBeliefs;
-    observedVids.push_back (jointVars[i]->varId());
-  }
-  return prevBeliefs;
+  return Solver::getJointByConditioning (GroundSolver::BP, fg, jointVarIds);
 }
 
 
 
 void
-BpSolver::initializeSolver (void)
+BeliefProp::initializeSolver (void)
 {
   const VarNodes& varNodes = fg.varNodes();
   varsI_.reserve (varNodes.size());
@@ -439,7 +406,7 @@ BpSolver::initializeSolver (void)
 
 
 bool
-BpSolver::converged (void)
+BeliefProp::converged (void)
 {
   if (links_.size() == 0) {
     return true;
@@ -487,7 +454,7 @@ BpSolver::converged (void)
 
 
 void
-BpSolver::printLinkInformation (void) const
+BeliefProp::printLinkInformation (void) const
 {
   for (size_t i = 0; i < links_.size(); i++) {
     BpLink* l = links_[i]; 

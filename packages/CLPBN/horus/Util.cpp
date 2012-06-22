@@ -13,9 +13,9 @@ bool logDomain = false;
 
 unsigned verbosity = 0;
 
-LiftedSolvers liftedSolver = LiftedSolvers::FOVE;
+LiftedSolver liftedSolver = LiftedSolver::FOVE;
 
-GroundSolvers groundSolver = GroundSolvers::VE;
+GroundSolver groundSolver = GroundSolver::VE;
 
 };
 
@@ -211,9 +211,9 @@ setHorusFlag (string key, string value)
     ss >> Globals::verbosity;
   } else if (key == "lifted_solver") {
     if (       value == "fove") {
-      Globals::liftedSolver = LiftedSolvers::FOVE;
+      Globals::liftedSolver = LiftedSolver::FOVE;
     } else if (value == "lbp") {
-      Globals::liftedSolver = LiftedSolvers::LBP;
+      Globals::liftedSolver = LiftedSolver::LBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;
@@ -221,11 +221,11 @@ setHorusFlag (string key, string value)
     }
   } else if (key == "ground_solver") {
     if (       value == "ve") {
-      Globals::groundSolver = GroundSolvers::VE;
+      Globals::groundSolver = GroundSolver::VE;
     } else if (value == "bp") {
-      Globals::groundSolver = GroundSolvers::BP;
+      Globals::groundSolver = GroundSolver::BP;
     } else if (value == "cbp") {
-      Globals::groundSolver = GroundSolvers::CBP;
+      Globals::groundSolver = GroundSolver::CBP;
     } else {
       cerr << "warning: invalid value `" << value << "' " ;
       cerr << "for `" << key << "'" << endl;

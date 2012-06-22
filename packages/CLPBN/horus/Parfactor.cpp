@@ -402,21 +402,32 @@ Parfactor::applySubstitution (const Substitution& theta)
 
 
 
-PrvGroup
-Parfactor::findGroup (const Ground& ground) const
+size_t
+Parfactor::indexOfGround (const Ground& ground) const
 {
-  PrvGroup group = numeric_limits<PrvGroup>::max();
+  size_t idx = args_.size();
   for (size_t i = 0; i < args_.size(); i++) {
     if (args_[i].functor() == ground.functor() && 
         args_[i].arity()   == ground.arity()) {
       constr_->moveToTop (args_[i].logVars());
       if (constr_->containsTuple (ground.args())) {
-        group = args_[i].group();
+        idx = i;
         break;
       }
     }
   }
-  return group;
+  return idx;
+}
+
+
+
+PrvGroup
+Parfactor::findGroup (const Ground& ground) const
+{
+  size_t idx = indexOfGround (ground);
+  return idx == args_.size()
+         ? numeric_limits<PrvGroup>::max()
+         : args_[idx].group();
 }
 
 
@@ -430,6 +441,30 @@ Parfactor::containsGround (const Ground& ground) const
 
 
 bool
+Parfactor::containsGrounds (const Grounds& grounds) const
+{
+  Tuple tuple;
+  LogVars tupleLvs;
+  for (size_t i = 0; i < grounds.size(); i++) {
+    size_t idx = indexOfGround (grounds[i]);
+    if (idx == args_.size()) {
+      return false;
+    }
+    LogVars lvs = args_[idx].logVars();
+    for (size_t j = 0; j < lvs.size(); j++) {
+      if (Util::contains (tupleLvs, lvs[j]) == false) {
+        tuple.push_back (grounds[i].args()[j]);
+        tupleLvs.push_back (lvs[j]);
+      }
+    }
+  }
+  constr_->moveToTop (tupleLvs);
+  return constr_->containsTuple (tuple);
+}
+
+
+
+bool
 Parfactor::containsGroup (PrvGroup group) const
 {
   for (size_t i = 0; i < args_.size(); i++) {
@@ -438,6 +473,19 @@ Parfactor::containsGroup (PrvGroup group) const
     }
   }
   return false;
+}
+
+
+
+bool
+Parfactor::containsGroups (vector<PrvGroup> groups) const
+{
+  for (size_t i = 0; i < groups.size(); i++) {
+    if (containsGroup (groups[i]) == false) {
+      return false;
+    }
+  }
+  return true;
 }
 
 

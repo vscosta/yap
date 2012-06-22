@@ -1,5 +1,5 @@
-#ifndef HORUS_FOVESOLVER_H
-#define HORUS_FOVESOLVER_H
+#ifndef HORUS_LIFTEDVE_H
+#define HORUS_LIFTEDVE_H
 
 
 #include "ParfactorList.h"
@@ -130,10 +130,10 @@ class GroundOperator : public LiftedOperator
 
 
 
-class FoveSolver
+class LiftedVe
 {
   public:
-   FoveSolver (const ParfactorList& pfList) : pfList_(pfList) { }
+   LiftedVe (const ParfactorList& pfList) : pfList_(pfList) { }
 
    Params solveQuery (const Grounds&);
 
@@ -162,5 +162,5 @@ class FoveSolver
     double largestCost_;
 };
 
-#endif // HORUS_FOVESOLVER_H
+#endif // HORUS_LIFTEDVE_H
 

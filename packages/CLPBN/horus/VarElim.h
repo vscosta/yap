@@ -1,5 +1,5 @@
-#ifndef HORUS_VARELIMSOLVER_H
-#define HORUS_VARELIMSOLVER_H
+#ifndef HORUS_VARELIM_H
+#define HORUS_VARELIM_H
 
 #include "unordered_map"
 
@@ -11,12 +11,12 @@
 using namespace std;
 
 
-class VarElimSolver : public Solver
+class VarElim : public Solver
 {
   public:
-    VarElimSolver (const FactorGraph& fg) : Solver (fg) { }
+    VarElim (const FactorGraph& fg) : Solver (fg) { }
 
-   ~VarElimSolver (void);
+   ~VarElim (void);
 
     Params solveQuery (VarIds);
 
@@ -42,5 +42,5 @@ class VarElimSolver : public Solver
     unordered_map<VarId, vector<size_t>> varFactors_;
 };
 
-#endif // HORUS_VARELIMSOLVER_H
+#endif // HORUS_VARELIM_H
 

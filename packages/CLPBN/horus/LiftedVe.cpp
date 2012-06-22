@@ -1,8 +1,7 @@
-
 #include <algorithm>
 #include <set>
 
-#include "FoveSolver.h"
+#include "LiftedVe.h"
 #include "Histogram.h"
 #include "Util.h"
 
@@ -12,7 +11,7 @@ LiftedOperator::getValidOps (
     ParfactorList& pfList,
     const Grounds& query)
 {
-  vector<LiftedOperator*>   validOps;
+  vector<LiftedOperator*>  validOps;
   vector<ProductOperator*> multOps;
 
   multOps = ProductOperator::getValidOps (pfList);
@@ -222,7 +221,7 @@ SumOutOperator::apply (void)
     product->sumOutIndex (fIdx);
     pfList_.addShattered (product);
   } else {
-    Parfactors pfs = FoveSolver::countNormalize (product, excl);
+    Parfactors pfs = LiftedVe::countNormalize (product, excl);
     for (size_t i = 0; i < pfs.size(); i++) {
       pfs[i]->sumOutIndex (fIdx);
       pfList_.add (pfs[i]);
@@ -376,7 +375,7 @@ CountingOperator::apply (void)
   } else {
     Parfactor* pf = *pfIter_;
     pfList_.remove (pfIter_);
-    Parfactors pfs = FoveSolver::countNormalize (pf, X_);
+    Parfactors pfs = LiftedVe::countNormalize (pf, X_);
     for (size_t i = 0; i  < pfs.size(); i++) {
       unsigned condCount = pfs[i]->constr()->getConditionalCount (X_);
       bool cartProduct   = pfs[i]->constr()->isCartesianProduct (
@@ -420,7 +419,7 @@ CountingOperator::toString (void)
   ss << "count convert " << X_ << " in " ;
   ss << (*pfIter_)->getLabel();
   ss << " [cost=" << std::exp (getLogCost()) << "]" << endl;
-  Parfactors pfs = FoveSolver::countNormalize (*pfIter_, X_);
+  Parfactors pfs = LiftedVe::countNormalize (*pfIter_, X_);
   if ((*pfIter_)->constr()->isCountNormalized (X_) == false) {
     for (size_t i = 0; i < pfs.size(); i++) {
       ss << "   º " << pfs[i]->getLabel() << endl;
@@ -501,7 +500,7 @@ GroundOperator::getLogCost (void)
     ++ pflIt;
   }
   // cout << endl;
-  return totalCost;
+  return totalCost + 3;
 }
 
 
@@ -610,7 +609,7 @@ GroundOperator::getAffectedFormulas (void)
         LogVar X      = f.logVars()[front.second];
         const ProbFormulas& fs = (*pflIt)->arguments();
         for (size_t i = 0; i < fs.size(); i++) {
-          if ((int)i != idx && fs[i].contains (X)) {
+          if (i != idx && fs[i].contains (X)) {
             pair<PrvGroup, unsigned> pair = make_pair (
                 fs[i].group(), fs[i].indexOf (X));
             if (Util::contains (affectedFormulas, pair) == false) {
@@ -630,7 +629,7 @@ GroundOperator::getAffectedFormulas (void)
 
 
 Params
-FoveSolver::solveQuery (const Grounds& query)
+LiftedVe::solveQuery (const Grounds& query)
 {
   assert (query.empty() == false);
   runSolver (query);
@@ -645,7 +644,7 @@ FoveSolver::solveQuery (const Grounds& query)
 
 
 void
-FoveSolver::printSolverFlags (void) const
+LiftedVe::printSolverFlags (void) const
 {
   stringstream ss;
   ss << "fove [" ;
@@ -657,7 +656,7 @@ FoveSolver::printSolverFlags (void) const
 
 
 void
-FoveSolver::absorveEvidence (
+LiftedVe::absorveEvidence (
     ParfactorList& pfList,
     ObservedFormulas& obsFormulas)
 {
@@ -696,7 +695,7 @@ FoveSolver::absorveEvidence (
 
 
 Parfactors
-FoveSolver::countNormalize (
+LiftedVe::countNormalize (
     Parfactor* g,
     const LogVarSet& set)
 {
@@ -715,7 +714,7 @@ FoveSolver::countNormalize (
 
 
 Parfactor
-FoveSolver::calcGroundMultiplication (Parfactor pf)
+LiftedVe::calcGroundMultiplication (Parfactor pf)
 {
   LogVarSet lvs = pf.constr()->logVarSet();
   lvs -= pf.constr()->singletons();
@@ -748,7 +747,7 @@ FoveSolver::calcGroundMultiplication (Parfactor pf)
 
 
 void
-FoveSolver::runSolver (const Grounds& query)
+LiftedVe::runSolver (const Grounds& query)
 {
   largestCost_ = std::log (0);
   shatterAgainstQuery (query);
@@ -794,7 +793,7 @@ FoveSolver::runSolver (const Grounds& query)
 
 
 LiftedOperator*
-FoveSolver::getBestOperation (const Grounds& query)
+LiftedVe::getBestOperation (const Grounds& query)
 {
   double bestCost = 0.0;
   LiftedOperator* bestOp = 0;
@@ -821,7 +820,7 @@ FoveSolver::getBestOperation (const Grounds& query)
 
 
 void
-FoveSolver::runWeakBayesBall (const Grounds& query)
+LiftedVe::runWeakBayesBall (const Grounds& query)
 {
   queue<PrvGroup> todo; // groups to process
   set<PrvGroup> done;   // processed or in queue 
@@ -880,7 +879,7 @@ FoveSolver::runWeakBayesBall (const Grounds& query)
 
 
 void
-FoveSolver::shatterAgainstQuery (const Grounds& query)
+LiftedVe::shatterAgainstQuery (const Grounds& query)
 {
   for (size_t i = 0; i < query.size(); i++) {
     if (query[i].isAtom()) {
@@ -931,7 +930,7 @@ FoveSolver::shatterAgainstQuery (const Grounds& query)
 
 
 Parfactors
-FoveSolver::absorve (
+LiftedVe::absorve (
     ObservedFormula& obsFormula,
     Parfactor* g)
 {

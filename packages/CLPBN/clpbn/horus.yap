@@ -15,7 +15,7 @@
            cpp_run_ground_solver/3,
            cpp_set_vars_information/2,
            cpp_set_horus_flag/2,
-           cpp_free_parfactors/1,
+           cpp_free_lifted_network/1,
            cpp_free_ground_network/1
           ]).
 
