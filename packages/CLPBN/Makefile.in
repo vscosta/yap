@@ -93,6 +93,11 @@ CLPBN_HMMER_EXAMPLES= \
 	$(CLPBN_EXDIR)/HMMer/scan.yap \
 	$(CLPBN_EXDIR)/HMMer/score.yap
 
+CLPBN_LEARNING_EXAMPLES= \
+	$(CLPBN_EXDIR)/learning/school_params.yap \
+	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
+	$(CLPBN_EXDIR)/learning/train.yap
+
 CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/burglary-alarm.fg \
 	$(CLPBN_EXDIR)/burglary-alarm.yap \
@@ -102,6 +107,7 @@ CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/comp_workshops.yap \
 	$(CLPBN_EXDIR)/social_domain1.yap \
 	$(CLPBN_EXDIR)/social_domain2.yap \
+	$(CLPBN_EXDIR)/sprinkler.pfl \
 	$(CLPBN_EXDIR)/sprinkler.yap \
 	$(CLPBN_EXDIR)/workshop_attrs.yap
 
@@ -112,10 +118,12 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(EXDIR)
 	mkdir -p $(DESTDIR)$(EXDIR)/School
 	mkdir -p $(DESTDIR)$(EXDIR)/HMMer
+	mkdir -p $(DESTDIR)$(EXDIR)/learning
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
+	for h in $(CLPBN_LEARNING_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/learning; done
 

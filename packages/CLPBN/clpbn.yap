@@ -512,6 +512,9 @@ clpbn_run_solver(pcg, LVs, LPs, State) :-
 
 add_keys(Key1+V1,_Key2,Key1+V1).
 
+%
+% only useful for probabilistic context free grammars
+%
 clpbn_init_graph(pcg) :- !,
 	pcg_init_graph.
 clpbn_init_graph(_).

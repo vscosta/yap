@@ -76,15 +76,21 @@ handle_em(error(repeated_parents)) :-
 % and more detailed info on distributions, namely with a list of all instances for the distribution.
 init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 	clpbn_flag(em_solver, Solver),
+	% only used for PCGs
 	clpbn_init_graph(Solver),
+	% create the ground network
 	call_run_all(Items),
 %	randomise_all_dists,
+	% set initial values for distributions
 	uniformise_all_dists,
+	% get all variablews to marginalise
 	attributes:all_attvars(AllVars0),
+	% and order them
 	sort_vars_by_key(AllVars0,AllVars,[]),
 	% remove variables that do not have to do with this query.
 %	check_for_hidden_vars(AllVars1, AllVars1, AllVars),
 	different_dists(AllVars, AllDists, AllDistInstances, MargVars),
+	% setup solver by doing parameter independent work.
 	clpbn_init_solver(Solver, MargVars, AllVars, _, SolverVars).
 
 % loop for as long as you want.
@@ -116,15 +122,32 @@ ltables([Id-T|Tables], [Key-LTable|FTables]) :-
 
 % collect the different dists we are going to learn next.
 different_dists(AllVars, AllDists, AllInfo, MargVars) :-
-	all_dists(AllVars, Dists0),
+	all_dists(AllVars, AllVars, Dists0),
 	sort(Dists0, Dists1),
 	group(Dists1, AllDists, AllInfo, MargVars0, []),
 	sort(MargVars0, MargVars).
 
-all_dists([], []).
-all_dists([V|AllVars], [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
+%
+% V -> to Id defining V. We get:
+% the random variables that are parents
+% the cases that can happen, eg if we have A <- B, C 
+% A and B are boolean w/o evidence, and C is f, the cases could be
+% [0,0,1], [0,1,1], [1,0,0], [1,1,0], 
+% Hiddens will be C
+%
+all_dists([], _, []).
+all_dists([V|AllVars], AllVars0, [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
+	clpbn:use_parfactors(on), !,
+	clpbn:get_atts(V, [key(K)]),
+	pfl:factor(bayes,Id,[K|PKeys],_,_,_),
+	find_variables(PKeys, AllVars0, Parents),
+	generate_hidden_cases([V|Parents], CompactCases, Hiddens),
+	uncompact_cases(CompactCases, Cases),
+	all_dists(AllVars, AllVars0, Dists).
+all_dists([V|AllVars], AllVars0, [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
+	% V is an instance of Id
 	clpbn:get_atts(V, [dist(Id,Parents)]),
-	sort([V|Parents], Sorted),
+ 	sort([V|Parents], Sorted),
 	length(Sorted, LengSorted),
         length(Parents, LengParents),
 	(
@@ -133,15 +156,31 @@ all_dists([V|AllVars], [i(Id, [V|Parents], Cases, Hiddens)|Dists]) :-
 	    true
 	;
 	    throw(error(repeated_parents))
-	),	
+	),
 	generate_hidden_cases([V|Parents], CompactCases, Hiddens),
 	uncompact_cases(CompactCases, Cases),
-	all_dists(AllVars, Dists).
+	all_dists(AllVars, AllVars0, Dists).
+
+find_variables([], _AllVars0, []).
+find_variables([K|PKeys], AllVars0, [Parent|Parents]) :-
+	find_variable(K, AllVars0, Parent),
+	find_variables(PKeys, AllVars0, Parents).
+
+find_variable(K, [Parent|_AllVars0], Parent) :-
+	clpbn:get_atts(Parent, [key(K0)]), K0 =@= K, !.
+find_variable(K, [_|AllVars0], Parent) :-
+	find_variable(K, AllVars0, Parent).
 
 generate_hidden_cases([], [], []).
 generate_hidden_cases([V|Parents], [P|Cases], Hiddens) :-
 	clpbn:get_atts(V, [evidence(P)]), !,
 	generate_hidden_cases(Parents, Cases, Hiddens).
+generate_hidden_cases([V|Parents], [Cases|MoreCases], [V|Hiddens]) :-
+	clpbn:use_parfactors(on), !,
+	clpbn:get_atts(V, [key(K)]),
+	pfl:skolem(K,D), length(D,Sz),
+	gen_cases(0, Sz, Cases),
+	generate_hidden_cases(Parents, MoreCases, Hiddens).
 generate_hidden_cases([V|Parents], [Cases|MoreCases], [V|Hiddens]) :-
 	clpbn:get_atts(V, [dist(Id,_)]),
 	get_dist_domain_size(Id, Sz),

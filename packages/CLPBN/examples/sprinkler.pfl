@@ -1,0 +1,33 @@
+
+:- style_check(all).
+
+:- ensure_loaded(library(pfl)).
+
+% 1. define domain of random variables
+%    not necessary if they are boolean.
+
+% 2. define parfactors
+
+bayes cloudy ; cloudy_table ; [].
+
+bayes sprinkler, cloudy ; sprinkler_table ; [].
+
+bayes rain, cloudy ; rain_table ; [].
+
+bayes wet_grass, sprinkler, rain ; wet_grass_table ; [].
+
+
+% 3. define CPTs.
+
+wet_grass_table([1.0,0.1,0.1,0.01,
+                 0.0,0.9,0.9,0.99]).
+
+sprinkler_table([0.5,0.9,
+		 0.5,0.1]).
+
+rain_table([0.8,0.2,
+	    0.2,0.8]).
+
+cloudy_table([0.5,0.5]).
+
+
