@@ -89,7 +89,7 @@ Section "Start Menu shortcuts"
   SectionIn 1 2 3
   SetOutPath ${CWD}
   CreateDirectory "$SMPROGRAMS\${GRP}"
-  CreateShortCut "$SMPROGRAMS\${GRP}\PLYap.lnk" \
+  CreateShortCut "$SMPROGRAMS\${GRP}\YAP-WIN.lnk" \
 		 "$INSTDIR\bin\yap-win.exe" \
 		 "" \
 		 "$INSTDIR\bin\yap-win.exe" \
