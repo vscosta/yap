@@ -2582,8 +2582,11 @@ Yap_absmi(int inp)
       CHECK_ALARM(JMPNext());
       PP = PREG->u.Osbpp.p0;
       /* on X86 machines S will not actually be holding the pointer to pred */
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
@@ -2621,8 +2624,11 @@ Yap_absmi(int inp)
       {
 	CELL cut_b = LCL0-(CELL *)(SREG[E_CB]);
 
-	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	  }
+	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
@@ -2677,8 +2683,11 @@ Yap_absmi(int inp)
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut;
       }
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
@@ -2698,8 +2707,11 @@ Yap_absmi(int inp)
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut_t;
       }
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
@@ -2718,8 +2730,11 @@ Yap_absmi(int inp)
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_cut_e;
       }
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
@@ -2741,8 +2756,11 @@ Yap_absmi(int inp)
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_y;
       }
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
@@ -2764,8 +2782,11 @@ Yap_absmi(int inp)
       if (!LOCAL_ActiveSignals || LOCAL_ActiveSignals & YAP_CDOVF_SIGNAL) {
 	goto do_commit_b_x;
       }
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	FAIL();
@@ -2797,8 +2818,11 @@ Yap_absmi(int inp)
       /* Problem: have I got an environment or not? */
     NoStackFail:
       CHECK_ALARM(goto fail);
-      if (LOCAL_ActiveSignals && LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	/* we're happy */
@@ -2821,8 +2845,11 @@ Yap_absmi(int inp)
       /* don't forget I cannot creep at ; */
     NoStackEither:
       CHECK_ALARM(goto either_notest);
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
@@ -2904,8 +2931,11 @@ Yap_absmi(int inp)
 
     NoStackDExecute:
       CHECK_ALARM(JMPNext());
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
@@ -2983,8 +3013,11 @@ Yap_absmi(int inp)
 
       CHECK_ALARM(JMPNext());
       /* try performing garbage collection */
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
@@ -3032,8 +3065,11 @@ Yap_absmi(int inp)
       /* and now CREEP */
 
     creep:
-      if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+      if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	  Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	}
+	LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	if (!LOCAL_ActiveSignals)
 	  CreepFlag = CalculateStackGap();
 	goto fail;
@@ -13039,8 +13075,11 @@ Yap_absmi(int inp)
 	ENDD(d0);
       NoStackPExecute2:
 	CHECK_ALARM(goto execute2_end);
-	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	  }
+	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
@@ -13245,8 +13284,11 @@ Yap_absmi(int inp)
 	ENDD(d0);
       NoStackPExecute:
 	CHECK_ALARM(goto execute_end);
-	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	  }
+	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
@@ -13478,8 +13520,11 @@ Yap_absmi(int inp)
 	ENDP(pt0);
       NoStackPTExecute:
 	CHECK_ALARM(goto execute_after_comma);
-	if (LOCAL_ActiveSignals & YAP_FAIL_SIGNAL) {
-	  LOCAL_ActiveSignals &= ~YAP_FAIL_SIGNAL;
+	if (LOCAL_ActiveSignals & (YAP_FAIL_SIGNAL|YAP_INT_SIGNAL)) {
+	  if (LOCAL_ActiveSignals & YAP_INT_SIGNAL) {
+	    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+	  }
+	  LOCAL_ActiveSignals &= ~(YAP_FAIL_SIGNAL|YAP_INT_SIGNAL);
 	  if (!LOCAL_ActiveSignals)
 	    CreepFlag = CalculateStackGap();
 	  goto fail;
