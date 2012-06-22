@@ -1048,7 +1048,7 @@ X_API int
 PL_raise(int sig)
 {
   if (sig < SIG_PROLOG_OFFSET) {
-    Yap_signal(YAP_FAIL_SIGNAL);
+    Yap_signal(YAP_INT_SIGNAL);
     return 1;
   } else if (sig == SIG_PLABORT) {
     YAP_signal(0x40); /* YAP_INT_SIGNAL */

@@ -1005,8 +1005,25 @@ win32main(rlc_console c, int argc, TCHAR **argv)
   set_window_title(c);
   rlc_bind_terminal(c);
 
+  /* YAP has to initialize before doing anything else */
+#ifdef _YAP_NOT_INSTALLED_
+  if ( argc > MAX_ARGC )
+    argc = MAX_ARGC;
+  for(i=0; i<argc; i++)
+  { char *s;
+    TCHAR *q;
+
+    av[i] = alloca(utf8_required_len(argv[i])+1);
+    for(s=av[i], q=argv[i]; *q; q++)
+    { s = utf8_put_char(s, *q);
+    }
+    *s = '\0';
+  }
+  av[i] = NULL;
+
   if ( !PL_initialise(argc, av) )
     PL_halt(1);
+#endif
 
   PL_register_extensions_in_module("system", extensions);
   install_readline(c);
@@ -1028,20 +1045,6 @@ win32main(rlc_console c, int argc, TCHAR **argv)
 #endif
   PL_register_foreign_in_module("prolog", "win_open_console", 5,
 		      pl_win_open_console, 0);
-
-  if ( argc > MAX_ARGC )
-    argc = MAX_ARGC;
-  for(i=0; i<argc; i++)
-  { char *s;
-    TCHAR *q;
-
-    av[i] = alloca(utf8_required_len(argv[i])+1);
-    for(s=av[i], q=argv[i]; *q; q++)
-    { s = utf8_put_char(s, *q);
-    }
-    *s = '\0';
-  }
-  av[i] = NULL;
 
   rlc_bind_terminal(c);
   PL_halt(PL_toplevel() ? 0 : 1);

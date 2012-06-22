@@ -601,6 +601,9 @@ extern X_API YAP_Term     PROTO(YAP_ImportTerm,(char *));
 
 extern X_API int      PROTO(YAP_RequiresExtraStack,(size_t));
 
+extern X_API int
+YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap);
+
 #define YAP_InitCPred(N,A,F)  YAP_UserCPredicate(N,F,A)
 
 __END_DECLS

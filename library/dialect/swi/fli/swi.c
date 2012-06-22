@@ -2037,6 +2037,8 @@ PL_initialise(int myargc, char **myargv)
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
 
+  YAP_parse_yap_arguments(myargc,myargv,&init_args);
+
   GLOBAL_PL_Argc = myargc;
   GLOBAL_PL_Argv = myargv;
   GLOBAL_InitialisedFromPL = TRUE;
@@ -2354,7 +2356,11 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 
 X_API int PL_toplevel(void)
 {
-  return YAP_RunGoal(MkAtomTerm(Yap_FullLookupAtom("$live")));
+  while (TRUE) {
+    if (YAP_RunGoal(MkAtomTerm(Yap_FullLookupAtom("$live")))) {
+      return TRUE;
+    }
+  }
 }
 
 X_API int PL_call(term_t tp, module_t m)

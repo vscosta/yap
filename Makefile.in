@@ -262,6 +262,7 @@ C_SOURCES= \
 	$(srcdir)/packages/udi/rtree.c \
 	$(srcdir)/packages/udi/rtree_udi.c \
 	$(srcdir)/C/utilpreds.c $(srcdir)/C/write.c $(srcdir)/console/yap.c \
+	$(srcdir)/C/yap-args.c \
 	$(srcdir)/C/ypstdio.c \
 	$(srcdir)/BEAM/eam_am.c $(srcdir)/BEAM/eam_showcode.c \
 	$(srcdir)/BEAM/eamindex.c $(srcdir)/BEAM/eamamasm.c \
@@ -367,7 +368,7 @@ ENGINE_OBJECTS = \
 	sysbits.o threads.o tracer.o \
 	udi.o rtree.o rtree_udi.o\
 	unify.o userpreds.o utilpreds.o \
-	write.o \
+	yap-args.o write.o \
 	blobs.o swi.o ypstdio.o $(IOLIB_OBJECTS)  @MPI_OBJS@
 
 LIBTAI_OBJECTS = \
@@ -441,6 +442,9 @@ parms.h:	Makefile
 # interface with the outside world.
 c_interface.o: $(srcdir)/C/c_interface.c $(srcdir)/include/c_interface.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/c_interface.c -o c_interface.o
+
+yap-argss.o: $(srcdir)/C/yap-args.c $(srcdir)/include/c_interface.h config.h
+	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/yap-args.c -o yap-args.o
 
 clause_list.o: $(srcdir)/C/clause_list.c $(srcdir)/include/clause_list.h config.h
 	$(CC) $(C_INTERF_FLAGS) -c $(srcdir)/C/clause_list.c -o clause_list.o
@@ -581,7 +585,7 @@ pl-nt.o: $(srcdir)/os/pl-nt.c config.h
 	$(CC) -c $(CFLAGS) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/os/pl-nt.c -o $@
 
 pl-ntcon.o: $(srcdir)/console/LGPL/pl-ntcon.c config.h
-	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
+	$(CC) -c $(CFLAGS) -DPL_CONSOLE=1 -I$(srcdir)/include $(srcdir)/console/LGPL/pl-ntcon.c -o $@
 
 pl-ntconsole.o: $(srcdir)/console/LGPL/pl-ntconsole.c config.h
 	$(CC) -municode -DUNICODE -D_UNICODE -c $(CFLAGS) -DPL_CONSOLE=1  -I$(srcdir) -I$(srcdir)/include -I$(srcdir)/os @EXTRA_INCLUDES_FOR_WIN32@ $(srcdir)/console/LGPL/pl-ntconsole.c -o $@
