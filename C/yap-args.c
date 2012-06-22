@@ -416,7 +416,6 @@ YAP_parse_yap_arguments(int argc, char *argv[], YAP_init_args *iap)
 #ifdef DEBUG
 	  case 'P':
 	    YAP_SetOutputMessage();
-	    output_msg = TRUE;
 	    break;
 #endif
 	  case 'L':

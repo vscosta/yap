@@ -62,10 +62,6 @@
 static void do_top_goal(YAP_Term Goal);
 static void exec_top_level(int BootMode, YAP_init_args *iap);
 
-#ifdef DEBUG
-static int output_msg;
-#endif
-
 #ifdef lint
 /* VARARGS1 */
 #endif
@@ -85,10 +81,6 @@ myputc (int ch)
 static void
 do_top_goal (YAP_Term Goal)
 {
-#ifdef DEBUG
-  if (output_msg)
-    fprintf(stderr,"Entering absmi\n");
-#endif
   YAP_RunGoalOnce(Goal);
 }
 
