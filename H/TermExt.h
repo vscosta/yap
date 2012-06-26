@@ -177,7 +177,7 @@ special_functors;
 
 #endif /* YAP_H */
 
-inline extern Float CpFloatUnaligned(CELL *ptr);
+inline EXTERN Float CpFloatUnaligned(CELL *ptr);
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
@@ -206,7 +206,7 @@ FloatOfTerm (Term t)
 
 #define InitUnalignedFloat()
 
-inline extern Float
+inline EXTERN Float
 CpFloatUnaligned(CELL *ptr)
 {
   return *((Float *)ptr);
@@ -216,7 +216,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-inline extern void AlignGlobalForDouble( USES_REGS1 );
+inline EXTERN void AlignGlobalForDouble( USES_REGS1 );
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
