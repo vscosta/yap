@@ -2,7 +2,7 @@
 
  Interface to Horus Lifted Solvers. Used by:
    - Lifted Variable Elimination
- 
+   - Lifted First-Order Belief Propagation
 ********************************************************/
 
 :- module(clpbn_horus_lifted,
