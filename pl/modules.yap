@@ -641,6 +641,7 @@ source_module(Mod) :-
 	predicate_property(:,?),
 	predicate_statistics(:,-,-,-),
 	on_exception(+,0,0),
+	qsave_program(+,:),
 	reconsult(:),
 	retract(:),
 	retract(:,?),

@@ -56,6 +56,8 @@
   lockvar  heap_top_lock;
   int  heap_top_owner;
 #endif
+  UInt  MaxStack_;
+  UInt  MaxTrail_;
 
 
 #if USE_THREADED_CODE

@@ -56,6 +56,8 @@
 #define HeapTopLock Yap_heap_regs->heap_top_lock
 #define HeapTopOwner Yap_heap_regs->heap_top_owner
 #endif
+#define MaxStack Yap_heap_regs->MaxStack_
+#define MaxTrail Yap_heap_regs->MaxTrail_
 
 
 #if USE_THREADED_CODE
