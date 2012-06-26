@@ -53,6 +53,12 @@ volatile(P) :-
 	'$new_mutex'(Id),
 	assert_static(prolog:'$with_mutex_mutex'(Id)).
 
+'$reinit_thread0' :-
+	'$create_thread_mq'(0),
+%	abolish(prolog:'$with_mutex_mutex',1),
+	'$new_mutex'(Id),
+	asserta_static((prolog:'$with_mutex_mutex'(Id) :- !)).
+
 '$top_thread_goal'(G, Detached) :-
 	'$thread_self'(Id),
 	(Detached == true -> '$detach_thread'(Id) ; true),
