@@ -92,7 +92,7 @@ typedef struct StringListItem {
 typedef struct ForeignLoadItem {
   StringList objs;
   StringList libs;
-  char *f;
+  Atom f;
   Term module;
   struct ForeignLoadItem *next;
 } ForeignObj;

@@ -50,6 +50,11 @@ SWI-Prolog.h and SWI-Stream.h
 #include <config.h>
 #endif
 
+#if defined(__CYGWIN__) && defined(__YAP_PROLOG__)
+#include <sys/time.h>
+#endif
+
+
 /* Disabled if dmalloc() is used because the readline library is full of
    leaks and freeing the line returned by readline is considered an
    error by the dmalloc library

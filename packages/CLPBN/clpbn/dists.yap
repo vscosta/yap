@@ -244,7 +244,8 @@ get_dist_domain_size(Id, DSize) :-
 	recorded(clpbn_dist_db, db(Id, _, _, _, _, _, DSize), _).
 
 get_dist_domain(Id, Domain) :-
-	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _).
+	recorded(clpbn_dist_db, db(Id, _, _, _, Domain, _, _), _), !.
+get_dist_domain(avg(Domain), Domain).
 
 get_dist_key(Id, Key) :-
 	use_parfactors(on), !,
@@ -292,7 +293,7 @@ empty_dist(Dist, TAB) :-
 dist_new_table(DistId, NewMat) :-
 	use_parfactors(on), !,
 	matrix_to_list(NewMat, List),
-	pfl:set_pfl_parameters(DistId, List).
+	pfl:new_pfl_parameters(DistId, List).
 dist_new_table(Id, NewMat) :-
 	matrix_to_list(NewMat, List),
 	recorded(clpbn_dist_db, db(Id, Key, _, A, B, C, D), R),

@@ -2529,6 +2529,20 @@ copy_clauses(ClauseDef *max0, ClauseDef *min0, CELL *top, struct intermediates *
 }
 
 
+/* make sure that it is worth it to generate indexing code at that point */
+static int
+several_tags(ClauseDef *min, ClauseDef *max)
+{
+  CELL tag = min->Tag;
+  while (min < max) {
+    min++;
+    if (!IsAtomOrIntTerm(min->Tag) || min->Tag != tag)
+      return TRUE;
+  }
+  return FALSE;
+}
+
+
 /* execute an index inside a structure */
 static UInt
 do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermediates *cint, UInt i, UInt arity, UInt argno, UInt fail_l, int first, int last_arg, int clleft, CELL *top, int done_work)
@@ -2538,19 +2552,28 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
   ClauseDef *min, *max;
   PredEntry *ap = cint->CurrentPred;
   int found_index = FALSE, lu_pred = ap->PredFlags & LogUpdatePredFlag;
+  UInt old_last_depth, old_last_depth_size;
 
   newlabp = & ret_lab;
   if (min0 == max0) {
     /* base case, just commit to the current code */
     return emit_single_switch_case(min0, cint, first, clleft, fail_l);
   }
-  if (yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) {
+  if ((yap_flags[INDEXING_MODE_FLAG] == INDEX_MODE_SINGLE && ap->PredFlags & LogUpdatePredFlag) ||
+      (yap_flags[INDEXING_TERM_DEPTH_FLAG] && cint->term_depth - cint->last_index_new_depth > yap_flags[INDEXING_TERM_DEPTH_FLAG])) {
     *newlabp = 
       do_var_clauses(min0, max0, FALSE, cint, first, clleft, fail_l, ap->ArityOfPE+1);
-    return ret_lab;
+   return ret_lab;
   }
   if (sreg == NULL) {
     return suspend_indexing(min0, max0, ap, cint);
+  }
+  cint->term_depth++;
+  old_last_depth = cint->last_index_new_depth;
+  old_last_depth_size = cint->last_depth_size;
+  if (cint->last_depth_size != max0-min0) {
+    cint->last_index_new_depth = cint->term_depth;
+    cint->last_depth_size = max0-min0;
   }
   while (i < arity && !found_index) { 
     ClauseDef *cl;
@@ -2569,7 +2592,7 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     }
     group = (GroupDef *)top;
     ngroups = groups_in(min, max, group, cint);    
-    if (ngroups == 1 && group->VarClauses == 0) {
+    if (ngroups == 1 && group->VarClauses == 0 && (i < 8 || several_tags(min,max))) {
       /* ok, we are doing a sub-argument */
       /* process group */
 
@@ -2590,6 +2613,9 @@ do_compound_index(ClauseDef *min0, ClauseDef* max0, Term* sreg, struct intermedi
     else
       *newlabp = suspend_indexing(min0, max0, ap, cint);
   }
+  cint->last_index_new_depth = old_last_depth;
+  cint->last_depth_size = old_last_depth_size;
+  cint->term_depth--;
   return ret_lab;
 }
 
@@ -2815,6 +2841,7 @@ Yap_PredIsIndexable(PredEntry *ap, UInt NSlots, yamop *next_pc)
   cint.expand_block = NULL;
   cint.label_offset = NULL;
   LOCAL_ErrorMessage = NULL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (compile_index(&cint) == (UInt)FAILCODE) {
     Yap_ReleaseCMem(&cint);
     CleanCls(&cint);
@@ -3285,6 +3312,29 @@ code_to_indexcl(yamop *ipc, int is_lu)
   return ret;    
 }
 
+/* CALLED by expand when entering sub_arg */
+static void
+increase_expand_depth(yamop *ipc, struct intermediates *cint)
+{
+  yamop *ncode;
+
+  cint->term_depth++;
+  if (ipc->opc == Yap_opcode(_switch_on_sub_arg_type) && 
+      (ncode = ipc->u.sllll.l4)->opc == Yap_opcode(_expand_clauses)) {
+    if (ncode->u.sssllp.s2 != cint->last_depth_size) {
+      cint->last_index_new_depth = cint->term_depth;
+      cint->last_depth_size = ncode->u.sssllp.s2;  
+    }
+  }
+}
+
+static void
+zero_expand_depth(PredEntry *ap, struct intermediates *cint)
+{
+  cint->term_depth = cint->last_index_new_depth;
+  cint->last_depth_size = ap->cs.p_code.NOfClauses;  
+}
+
 static yamop **
 expand_index(struct intermediates *cint) {
   CACHE_REGS
@@ -3317,6 +3367,7 @@ expand_index(struct intermediates *cint) {
   cint->i_labelno = 1;
   stack[0].pos = 0;
   /* try to refine the interval using the indexing code */
+  cint->term_depth = cint->last_index_new_depth = cint->last_depth_size = 0L;
 
   parentcl = code_to_indexcl(ipc,is_lu);
   while (ipc != NULL) {
@@ -3486,6 +3537,7 @@ expand_index(struct intermediates *cint) {
       break;
       /* instructions type e */
     case _switch_on_type:
+      zero_expand_depth(ap, cint);
       t = Deref(ARG1);
       argno = 1;
       i = 0;
@@ -3497,9 +3549,11 @@ expand_index(struct intermediates *cint) {
 	s_reg = RepPair(t);
 	labp = &(ipc->u.llll.l1);
 	ipc = ipc->u.llll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, 1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.llll.l3;	
+	increase_expand_depth(ipc, cint);
       } else {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.llll.l2;	
@@ -3507,6 +3561,7 @@ expand_index(struct intermediates *cint) {
       parentcl = index_jmp(parentcl, parentcl, ipc, is_lu, e_code);
       break;
     case _switch_list_nl:
+      zero_expand_depth(ap, cint);
       t = Deref(ARG1);
       argno = 1;
       i = 0;
@@ -3518,9 +3573,11 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.ollll.l1);
 	sp = push_stack(sp, 1, AbsPair(NULL), TermNil, cint);
 	ipc = ipc->u.ollll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (t == TermNil) {
 	sp = push_stack(sp, 1, t, TermNil, cint);
 	ipc = ipc->u.ollll.l2;	
+	increase_expand_depth(ipc, cint);
       } else {
 	Term tn;
 
@@ -3535,6 +3592,7 @@ expand_index(struct intermediates *cint) {
       parentcl = index_jmp(parentcl, parentcl, ipc, is_lu, e_code);
       break;
     case _switch_on_arg_type:
+      zero_expand_depth(ap, cint);
       argno = arg_from_x(ipc->u.xllll.x);
       i = 0;
       t = Deref(XREGS[argno]);
@@ -3546,9 +3604,11 @@ expand_index(struct intermediates *cint) {
 	sp = push_stack(sp, argno, AbsPair(NULL), TermNil, cint);
 	labp = &(ipc->u.xllll.l1);
 	ipc = ipc->u.xllll.l1;	
+	increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, argno, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.xllll.l3;	
+	increase_expand_depth(ipc, cint);
       } else {
 	sp = push_stack(sp, argno, t, TermNil, cint);
 	ipc = ipc->u.xllll.l2;	
@@ -3570,10 +3630,12 @@ expand_index(struct intermediates *cint) {
 	labp = &(ipc->u.sllll.l1);
 	ipc = ipc->u.sllll.l1;
 	i = 0;
+	increase_expand_depth(ipc, cint);
       } else if (IsApplTerm(t)) {
 	sp = push_stack(sp, -i-1, AbsAppl((CELL *)FunctorOfTerm(t)), TermNil, cint);
 	ipc = ipc->u.sllll.l3;
 	i = 0;
+	increase_expand_depth(ipc, cint);
       } else {
 	/* We don't push stack here, instead we go over to next argument
 	   sp = push_stack(sp, -i-1, t, cint);
@@ -5381,6 +5443,7 @@ Yap_AddClauseToIndex(PredEntry *ap, yamop *beg, int first) {
   cint.CurrentPred = ap;
   cint.expand_block = NULL;
   cint.CodeStart = cint.BlobsStart = cint.cpc = cint.icpc = NIL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if ((cb = sigsetjmp(cint.CompilerBotch, 0)) == 3) {
     restore_machine_regs();
     Yap_gcl(LOCAL_Error_Size, ap->ArityOfPE, ENV, CP);
@@ -5866,6 +5929,7 @@ Yap_RemoveClauseFromIndex(PredEntry *ap, yamop *beg) {
   }
   LOCAL_Error_Size = 0;
   LOCAL_ErrorMessage = NULL;
+  cint.term_depth = cint.last_index_new_depth = cint.last_depth_size = 0L;
   if (cb) {
     /* cannot rely on the code */
     if (ap->PredFlags & LogUpdatePredFlag) {
@@ -6394,6 +6458,7 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	unbounded = FALSE;
 	SET_JLBL(sllll.l1);
 	S = s_reg = RepPair(t);
+	ipc = ipc->u.sllll.l1;
       } else if (IsAtomOrIntTerm(t)) {
 	SET_JLBL(sllll.l2);
 	ipc = ipc->u.sllll.l2;

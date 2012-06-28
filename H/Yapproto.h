@@ -377,6 +377,7 @@ void	STD_PROTO(Yap_InitLowLevelTrace,(void));
 
 /* udi.c */
 void	STD_PROTO(Yap_udi_init,(void));
+void	STD_PROTO(Yap_udi_abolish,(struct pred_entry *));
 
 /* unify.c */
 int          STD_PROTO(Yap_rational_tree_loop, (CELL *, CELL *, CELL **, CELL **));

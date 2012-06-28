@@ -52,14 +52,15 @@ true :- true.
 	;
 	 set_value('$verbose',off)
 	),
-	(
-	 retractall(user:library_directory(_)),
-	 '$system_library_directories'(D),
-	 assertz(user:library_directory(D)),
-	 fail
-	;
-	 true
-	),
+%	'$init_preds', % needs to be done before library_directory
+%	(
+%	 retractall(user:library_directory(_)),
+%	 '$system_library_directories'(D),
+%	 assertz(user:library_directory(D)),
+%	 fail
+%	;
+%	 true
+%	),
 	'$enter_system_mode',
 	'$init_globals',
 	'$swi_set_prolog_flag'(fileerrors, true),
@@ -470,14 +471,15 @@ true :- true.
 	  '$execute'(G),
 	  yap_hacks:current_choice_point(NCP),
 	  ( '$enter_system_mode' ; '$exit_system_mode', fail),
-	  '$delayed_goals'(G, V, NV, LGs),
+	  '$delayed_goals'(G, V, NV, LGs, DCP),
 	  '$write_answer'(NV, LGs, Written),
 	  '$write_query_answer_true'(Written),
 	  (
-	   '$prompt_alternatives_on'(determinism), CP = NCP ->
+	   '$prompt_alternatives_on'(determinism), CP = NCP, DCP = 0 ->
 	   nl(user_error),
 	   !
 	  ;
+	
 	   '$another',
 	   !
 	  ),
@@ -490,7 +492,7 @@ true :- true.
  '$yes_no'(G,C) :-
 	 '$current_module'(M),
 	 '$do_yes_no'(G,M),
-	 '$delayed_goals'(G, [], NV, LGs),
+	 '$delayed_goals'(G, [], NV, LGs, _),
 	 '$write_answer'(NV, LGs, Written),
 	 ( Written = [] ->
 	 !,'$present_answer'(C, yes);
@@ -503,10 +505,19 @@ true :- true.
 
 '$add_env_and_fail' :- fail.
 
-'$delayed_goals'(G, V, NV, LGs) :-
-	'$attributes':delayed_goals(G, V, NV, LGs), !.
-'$delayed_goals'(_, V, NV, []) :-
-	copy_term_nat(V, NV).
+%
+% *-> at this point would require compiler support, which does not exist.
+%
+'$delayed_goals'(G, V, NV, LGs, NCP) :-
+	if(
+	  (yap_hacks:current_choice_point(NCP1),
+	  '$attributes':delayed_goals(G, V, NV, LGs),
+	  yap_hacks:current_choice_point(NCP2))
+	  ,
+	   (NCP is NCP2-NCP1)
+	  , 
+	   (copy_term_nat(V, NV), LGs = [], NCP = 0)
+        ).
 
 '$out_neg_answer' :-
 	 ( '$undefined'(print_message(_,_),prolog) -> 

@@ -44,7 +44,29 @@ do_network(QueryVars, EVars, Keys, Factors) :-
 	run_through_factors(QueryVars),
 	run_through_factors(EVars),
 	findall(K, currently_defined(K), Keys),
+	ground_all_keys(QueryVars, Keys),
+	ground_all_keys(EVars, Keys),
 	findall(f(FType,FId,FKeys,FCPT), f(FType,FId,FKeys,FCPT), Factors).
+
+run_through_factors([]).
+run_through_factors([Var|_QueryVars]) :-
+        clpbn:get_atts(Var,[key(K)]),
+        find_factors(K),
+        fail.
+run_through_factors([_|QueryVars]) :-
+	run_through_factors(QueryVars).
+
+
+ground_all_keys([], _).
+ground_all_keys([V|GVars], AllKeys) :-
+	clpbn:get_atts(V,[key(Key)]), 
+	\+ ground(Key), !,
+wroteln(g:Key),
+	member(Key, AllKeys),
+	ground_all_keys(GVars, AllKeys).
+ground_all_keys([_V|GVars], AllKeys) :-
+	ground_all_keys(GVars, AllKeys).
+
 
 %
 % look for attributed vars with evidence (should also search the DB)
@@ -85,17 +107,10 @@ keys([Var|QueryVars], [Key|QueryKeys]) :-
 	clpbn:get_atts(Var,[key(Key)]),
 	keys(QueryVars, QueryKeys).
 
-run_through_factors([]).
-run_through_factors([Var|_QueryVars]) :-
-          clpbn:get_atts(Var,[key(K)]),
-	  find_factors(K),
-	  fail.
-run_through_factors([_|QueryVars]) :-
-	  run_through_factors(QueryVars).
-
 initialize_evidence([]).
 initialize_evidence([V|EVars]) :-
 	clpbn:get_atts(V, [key(K)]),
+	ground(K),
 	assert(currently_defined(K)),
 	initialize_evidence(EVars).
 
@@ -103,7 +118,7 @@ initialize_evidence([V|EVars]) :-
 % gets key K, and collects factors that  define it
 find_factors(K) :-
 	\+ currently_defined(K),
-	assert(currently_defined(K)),
+	( ground(K) -> 	assert(currently_defined(K)) ; true),
 	defined_in_factor(K, ParFactor),
 	add_factor(ParFactor, Ks),
 	member(K1, Ks),

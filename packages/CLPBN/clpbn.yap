@@ -1,5 +1,4 @@
 
-
 :- module(clpbn, [{}/1,
 		  clpbn_flag/2,
 		  set_clpbn_flag/2,
@@ -39,23 +38,21 @@
 	       run_ve_solver/3
 	      ]).
 
-:- use_module('clpbn/bp',
-	      [bp/3,
-               check_if_bp_done/1,
-	       init_bp_solver/4,
-	       run_bp_solver/3,
-	       call_bp_ground/6,
-	       finalize_bp_solver/1
+:- use_module('clpbn/horus_ground',
+	      [call_horus_ground_solver/6,
+	       check_if_horus_ground_solver_done/1,
+	       init_horus_ground_solver/4,
+	       run_horus_ground_solver/3,
+	       finalize_horus_ground_solver/1
 	      ]).
 
-:- use_module('clpbn/fove',
-	      [fove/3,
-               check_if_fove_done/1,
-	       init_fove_solver/4,
-	       run_fove_solver/3,
-	       finalize_fove_solver/1
+:- use_module('clpbn/horus_lifted',
+	      [call_horus_lifted_solver/3,
+	       check_if_horus_lifted_solver_done/1,
+	       init_horus_lifted_solver/4,
+	       run_horus_lifted_solver/3,
+	       finalize_horus_lifted_solver/1
 	      ]).
-
 
 :- use_module('clpbn/jt',
 	      [jt/3,
@@ -235,11 +232,7 @@ project_attributes(GVars, _AVars0) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
 	generate_network(GVars, GKeys, Keys, Factors, Evidence),
-	(ground(GVars) ->
-	    true
-	;
-	    call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0)
-	).
+	call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
 	AVars = [_|_],
@@ -258,6 +251,14 @@ project_attributes(GVars, AVars) :-
 	    write_out(Solver, [CLPBNGVars], AllVars, DiffVars)
 	).
 project_attributes(_, _).
+
+match([], _Keys).
+match([V|GVars], Keys) :-
+	clpbn:get_atts(V,[key(GKey)]),
+	member(GKey, Keys), ground(GKey), !,
+	match(GVars, Keys).
+match([_V|GVars], Keys) :-
+	match(GVars, Keys).
 
 clpbn_vars(AVars, DiffVars, AllVars) :-
 	sort_vars_by_key(AVars,SortedAVars,DiffVars),
@@ -302,18 +303,19 @@ write_out(jt, GVars, AVars, DiffVars) :-
 	jt(GVars, AVars, DiffVars).
 write_out(bdd, GVars, AVars, DiffVars) :-
 	bdd(GVars, AVars, DiffVars).
-write_out(bp, GVars, AVars, DiffVars) :-
-	bp(GVars, AVars, DiffVars).
+write_out(bp, _GVars, _AVars, _DiffVars) :- 
+    writeln('interface not supported anymore').
+	%bp(GVars, AVars, DiffVars).
 write_out(gibbs, GVars, AVars, DiffVars) :-
 	gibbs(GVars, AVars, DiffVars).
 write_out(bnt, GVars, AVars, DiffVars) :-
 	do_bnt(GVars, AVars, DiffVars).
 write_out(fove, GVars, AVars, DiffVars) :-
-	fove(GVars, AVars, DiffVars).
+	call_horus_lifted_solver(GVars, AVars, DiffVars).
 
 % call a solver with keys, not actual variables
 call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence, Answ) :-
-	call_bp_ground(GVars, GoalKeys, Keys, Factors, Evidence, Answ).
+	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, Answ).
 
 
 get_bnode(Var, Goal) :-
@@ -396,7 +398,7 @@ bind_clpbn(_, Var, _, _, _, _, []) :-
 	check_if_ve_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(bp),
-	check_if_bp_done(Var), !.
+	check_if_horus_ground_solver_done(Var), !.
 bind_clpbn(_, Var, _, _, _, _, []) :-
 	use(jt),
 	check_if_ve_done(Var), !.
@@ -471,7 +473,7 @@ clpbn_init_solver(gibbs, LVs, Vs0, VarsWithUnboundKeys, State) :-
 clpbn_init_solver(ve, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_ve_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(bp, LVs, Vs0, VarsWithUnboundKeys, State) :-
-	init_bp_solver(LVs, Vs0, VarsWithUnboundKeys, State).
+	init_horus_ground_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(jt, LVs, Vs0, VarsWithUnboundKeys, State) :-
 	init_jt_solver(LVs, Vs0, VarsWithUnboundKeys, State).
 clpbn_init_solver(bdd, LVs, Vs0, VarsWithUnboundKeys, State) :-
@@ -497,7 +499,7 @@ clpbn_run_solver(ve, LVs, LPs, State) :-
 	run_ve_solver(LVs, LPs, State).
 
 clpbn_run_solver(bp, LVs, LPs, State) :-
-	run_bp_solver(LVs, LPs, State).
+	run_horus_ground_solver(LVs, LPs, State).
 
 clpbn_run_solver(jt, LVs, LPs, State) :-
 	run_jt_solver(LVs, LPs, State).
@@ -510,6 +512,9 @@ clpbn_run_solver(pcg, LVs, LPs, State) :-
 
 add_keys(Key1+V1,_Key2,Key1+V1).
 
+%
+% only useful for probabilistic context free grammars
+%
 clpbn_init_graph(pcg) :- !,
 	pcg_init_graph.
 clpbn_init_graph(_).
@@ -518,7 +523,7 @@ clpbn_finalize_solver(State) :-
 	solver(bp), !,
 	functor(State, _, Last),
 	arg(Last, State, Info),
-	finalize_bp_solver(Info).
+	finalize_horus_ground_solver(Info).
 clpbn_finalize_solver(_State).
 
 probability(Goal, Prob) :-

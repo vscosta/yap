@@ -50,7 +50,7 @@ Section "Base system (required)"
   SetOutPath $INSTDIR\bin
   File c:\Yap\bin\yap.exe
   File c:\Yap\bin\yap.dll
-  File c:\Yap\bin\pl-yap.exe
+  File c:\Yap\bin\yap-win.exe
   File c:\Yap\bin\plterm.dll
 
   SetOutPath $INSTDIR\bin
@@ -89,15 +89,10 @@ Section "Start Menu shortcuts"
   SectionIn 1 2 3
   SetOutPath ${CWD}
   CreateDirectory "$SMPROGRAMS\${GRP}"
-  CreateShortCut "$SMPROGRAMS\${GRP}\Prolog.lnk" \
-		 "$INSTDIR\bin\yap.exe" \
+  CreateShortCut "$SMPROGRAMS\${GRP}\YAP-WIN.lnk" \
+		 "$INSTDIR\bin\yap-win.exe" \
 		 "" \
-		 "$INSTDIR\bin\yap.exe" \
-		 0
-  CreateShortCut "$SMPROGRAMS\${GRP}\PLYap.lnk" \
-		 "$INSTDIR\bin\pl-yap.exe" \
-		 "" \
-		 "$INSTDIR\bin\pl-yap.exe" \
+		 "$INSTDIR\bin\yap-win.exe" \
 		 0
   SetOutPath $INSTDIR
   CreateShortCut "$SMPROGRAMS\${GRP}\Readme.lnk" \

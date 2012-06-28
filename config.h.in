@@ -1,4 +1,8 @@
 
+#ifndef YAP_CONFIG_H
+
+#define YAP_CONFIG_H
+
 #include "parms.h"
 
 /* are dynamic arrays supported? */
@@ -347,5 +351,4 @@
 
 #undef MAX_THREADS
 
-
-
+#endif /* YAP_CONFIG_H */

@@ -4820,6 +4820,9 @@ init_yap(void)
   PL_register_extensions(PL_predicates_from_read);
   PL_register_extensions(PL_predicates_from_tai);
   PL_register_extensions(PL_predicates_from_prologflag);
+#ifdef __WINDOWS__
+  PL_register_extensions(PL_predicates_from_win);
+#endif
   PL_register_extensions(foreigns);
   fileerrors = TRUE;
   SinitStreams();

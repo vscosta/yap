@@ -283,14 +283,14 @@ system_message(error(resource_error(trail), Where)) -->
 	[ 'RESOURCE ERROR- not enough trail space' - [Where] ].
 system_message(error(signal(SIG,_), _)) -->
 	[ 'UNEXPECTED SIGNAL: ~a' - [SIG] ].
-system_message(error(syntax_error(G,_,Msg,[],_,0,File), _)) -->
+system_message(error(syntax_error(_), [syntax_error(G,_,Msg,[],_,0,File)|_])) -->
 	[ 'SYNTAX ERROR at "~a", goal ~q: ~a' - [File,G,Msg] ].
 % SWI like I/O error message.
-system_message(error(syntax_error(end_of_clause), stream(Stream, Line, _, _))) -->
+system_message(error(syntax_error(end_of_clause), [stream(Stream, Line, _, _)|_])) -->
 	[ 'SYNTAX ERROR ~a, stream ~w, near line ~d.' - ['Unexpected end of clause',Stream,Line] ].
-system_message(error(syntax_error(read(_),_,_,Term,Pos,Start,File), Where)) -->
+system_message(error(syntax_error(_), [syntax_error(read(_),_,_,Term,Pos,Start,File)|_])) -->
 	{ Term = [_|_] },
-	['~w' - [Where]],
+	['SYNTAX ERROR' - []],
 	syntax_error_line(File, Start, Pos),
 	syntax_error_term(10, Pos, Term),
 	[ '.' ].

@@ -300,7 +300,7 @@ PtoPredAdjust(PredEntry *pe)
 #define DelayAdjust(P) (P)
 #define GlobalAdjust(P) (P)
 
-#define DBRefAdjust(P) DBRefAdjust__(P PASS_REGS)
+#define DBRefAdjust(P,DoRef) DBRefAdjust__(P PASS_REGS)
 static inline DBRef
 DBRefAdjust__ (DBRef dbt USES_REGS)
 {
@@ -738,6 +738,9 @@ p_save_program( USES_REGS1 )
   if (!IsAtomTerm(t1)) {
     Yap_Error(TYPE_ERROR_ATOM,t1,"save_program/3");
     return(FALSE);
+  }
+  if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
+    return FALSE;
   }
   if (!(stream = Yap_GetOutputStream(AtomOfTerm(t1))) ) {
     return FALSE;

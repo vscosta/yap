@@ -2633,6 +2633,9 @@ p_endconsult( USES_REGS1 )
 static void
 purge_clauses(PredEntry *pred)
 {
+  if (pred->PredFlags & UDIPredFlag) {
+    Yap_udi_abolish(pred);
+  }
   if (pred->cs.p_code.NOfClauses) {
     if (pred->PredFlags & IndexedPredFlag)
       RemoveIndexation(pred);
@@ -2654,6 +2657,7 @@ p_purge_clauses( USES_REGS1 )
   PredEntry      *pred;
   Term            t = Deref(ARG1);
   Term            mod = Deref(ARG2);
+  MegaClause      *before = DeadMegaClauses;
 
   Yap_PutValue(AtomAbol, MkAtomTerm(AtomNil));
   if (IsVarTerm(t))
@@ -2677,7 +2681,15 @@ p_purge_clauses( USES_REGS1 )
   }
   purge_clauses(pred);
   UNLOCKPE(34,pred);
-  return (TRUE);
+  /* try to use the garbage collector to recover the mega clause,
+     in case the objs pointing to it are dead themselves */
+  if (DeadMegaClauses != before) {
+    if (!Yap_gc(2, ENV, gc_P(P,CP))) {
+      Yap_Error(OUT_OF_STACK_ERROR, TermNil, LOCAL_ErrorMessage);
+      return FALSE;
+    }
+  }
+  return TRUE;
 }
 
 /******************************************************************

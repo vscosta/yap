@@ -56,6 +56,8 @@
   INIT_LOCK(HeapTopLock);
   HeapTopOwner = -1;
 #endif
+  MaxStack = 0;
+  MaxTrail = 0;
 
 
 #if USE_THREADED_CODE

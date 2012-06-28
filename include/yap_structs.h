@@ -186,6 +186,14 @@ typedef struct {
   char **Argv;
   /* QuietMode */
   int QuietMode;
+
+/* nf: Begin ypp preprocessor code */
+#define YAP_MAX_YPP_DEFS 100
+  char *def_var[YAP_MAX_YPP_DEFS];
+  char *def_value[YAP_MAX_YPP_DEFS];
+  int  def_c;
+/* End preprocessor code */
+
 #ifdef MYDDAS_MYSQL
   /* If any myddas option was given */
   short myddas;

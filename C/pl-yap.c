@@ -549,8 +549,11 @@ X_API int PL_handle_signals(void)
   GET_LD
   if ( !LD || LD->critical || !LD->signal.pending )
     return 0;
-  fprintf(stderr,"PL_handle_signals not implemented\n");
-  return 0;
+  if (LD->signal.pending == 2) {
+    Yap_Error(PURE_ABORT, TermNil, "abort from console");
+  }
+  //  fprintf(stderr,"PL_handle_signals not implemented\n");
+  return 1;
 }
 
 void
@@ -572,12 +575,10 @@ int
 currentOperator(Module m, atom_t name, int kind, int *type, int *priority)
 {
   YAP_Term mod = (YAP_Term)m;
-  YAP_Atom at;
   int opkind, yap_type;
 
   if (!m) 
     mod = YAP_CurrentModule();
-  at = YAP_AtomFromSWIAtom(name);
   switch (kind) {
   case OP_PREFIX:
     opkind = 2;
@@ -887,7 +888,7 @@ warning(const char *fm, ...)
   return TRUE;
 }
 
-#if defined(HAVE_SELECT) && !defined(__WINDOWS__)
+#if defined(HAVE_SELECT) && !defined(__WINDOWS__) && !defined(__CYGWIN__)
 
 #ifdef __WINDOWS__
 #include <winsock2.h>
@@ -1046,12 +1047,14 @@ PL_w32thread_raise(DWORD id, int sig)
 X_API int
 PL_raise(int sig)
 {
-  if (sig == SIG_PLABORT) {
+  if (sig < SIG_PROLOG_OFFSET) {
+    Yap_signal(YAP_INT_SIGNAL);
+    return 1;
+  } else if (sig == SIG_PLABORT) {
     YAP_signal(0x40); /* YAP_INT_SIGNAL */
     return 1;
-  } else {
-    return 0;
   }
+  return 0;
 }
 
 extern size_t PL_utf8_strlen(const char *s, size_t len);

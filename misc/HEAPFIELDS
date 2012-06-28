@@ -53,7 +53,8 @@ lockvar		heap_used_lock		HeapUsedLock		MkLock
 lockvar		heap_top_lock		HeapTopLock		MkLock
 int		heap_top_owner		HeapTopOwner		=-1 void
 #endif
-
+UInt		MaxStack_		MaxStack		=0 void
+UInt		MaxTrail_		MaxTrail		=0 void
 
 /* execution info */
 /* OPCODE TABLE, needed to recover op tables */

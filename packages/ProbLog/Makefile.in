@@ -30,10 +30,12 @@ BIBTEX=bibtex
 
 PROGRAMS= \
 	$(srcdir)/problog.yap \
+	$(srcdir)/problog_lbdd.yap \
 	$(srcdir)/problog_lfi.yap \
 	$(srcdir)/dtproblog.yap \
 	$(srcdir)/aproblog.yap \
-	$(srcdir)/problog_learning.yap
+	$(srcdir)/problog_learning.yap\
+	$(srcdir)/problog_learning_lbdd.yap
 
 PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/extlists.yap \
@@ -56,6 +58,7 @@ PROBLOG_PROGRAMS= \
 	$(srcdir)/problog/version_control.yap \
 	$(srcdir)/problog/nestedtries.yap \
 	$(srcdir)/problog/utils.yap \
+	$(srcdir)/problog/utils_lbdd.yap \
 	$(srcdir)/problog/ad_converter.yap \
 	$(srcdir)/problog/termhandling.yap \
 	$(srcdir)/problog/completion.yap \

@@ -1,0 +1,173 @@
+#
+# default base directory for YAP installation
+# (EROOT for architecture-dependent files)
+#
+GCC = @GCC@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+ROOTDIR = $(prefix)
+EROOTDIR = @exec_prefix@
+abs_top_builddir = @abs_top_builddir@
+#
+# where the binary should be
+#
+BINDIR = $(EROOTDIR)/bin
+#
+# where YAP should look for libraries
+#
+LIBDIR=@libdir@
+YAPLIBDIR=@libdir@/Yap
+#
+#
+CC=@CC@
+CXX=@CXX@
+
+# normal
+CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -DNDEBUG
+
+# debug 
+#CXXFLAGS= -std=c++0x @SHLIB_CXXFLAGS@ $(YAP_EXTRAS) $(DEFS) -D_YAP_NOT_INSTALLED_=1 -I$(srcdir) -I../../.. -I$(srcdir)/../../../include @CPPFLAGS@ -g -O0 -Wextra
+
+
+#
+#
+# You shouldn't need to change what follows.
+#
+INSTALL=@INSTALL@
+INSTALL_DATA=@INSTALL_DATA@
+INSTALL_PROGRAM=@INSTALL_PROGRAM@
+SHELL=/bin/sh
+RANLIB=@RANLIB@
+srcdir=@srcdir@
+SO=@SO@
+#4.1VPATH=@srcdir@:@srcdir@/OPTYap
+CWD=$(PWD)
+
+
+HEADERS = \
+	$(srcdir)/BayesBall.h \
+	$(srcdir)/BayesBallGraph.h \
+	$(srcdir)/BeliefProp.h \
+	$(srcdir)/ConstraintTree.h \
+	$(srcdir)/CountingBp.h \
+	$(srcdir)/ElimGraph.h \
+	$(srcdir)/Factor.h \
+	$(srcdir)/FactorGraph.h \
+	$(srcdir)/Histogram.h \
+	$(srcdir)/Horus.h \
+	$(srcdir)/Indexer.h \
+	$(srcdir)/LiftedBp.h \
+	$(srcdir)/LiftedUtils.h \
+	$(srcdir)/LiftedVe.h \
+	$(srcdir)/Parfactor.h \
+	$(srcdir)/ParfactorList.h \
+	$(srcdir)/ProbFormula.h \
+	$(srcdir)/Solver.h \
+	$(srcdir)/TinySet.h \
+	$(srcdir)/Util.h \
+	$(srcdir)/Var.h \
+	$(srcdir)/VarElim.h \
+	$(srcdir)/WeightedBp.h
+	
+CPP_SOURCES = \
+	$(srcdir)/BayesBall.cpp \
+	$(srcdir)/BayesBallGraph.cpp \
+	$(srcdir)/BeliefProp.cpp \
+	$(srcdir)/ConstraintTree.cpp \
+	$(srcdir)/CountingBp.cpp \
+	$(srcdir)/ElimGraph.cpp \
+	$(srcdir)/Factor.cpp \
+	$(srcdir)/FactorGraph.cpp \
+	$(srcdir)/Histogram.cpp \
+	$(srcdir)/HorusCli.cpp \
+	$(srcdir)/HorusYap.cpp \
+	$(srcdir)/LiftedBp.cpp \
+	$(srcdir)/LiftedUtils.cpp \
+	$(srcdir)/LiftedVe.cpp \
+	$(srcdir)/Parfactor.cpp \
+	$(srcdir)/ParfactorList.cpp \
+	$(srcdir)/ProbFormula.cpp \
+	$(srcdir)/Solver.cpp \
+	$(srcdir)/Util.cpp \
+	$(srcdir)/Var.cpp \
+	$(srcdir)/VarElim.cpp \
+	$(srcdir)/WeightedBp.cpp \
+
+OBJS = \
+	BayesBall.o \
+	BayesBallGraph.o \
+	BeliefProp.o \
+	ConstraintTree.o \
+	CountingBp.o \
+	ElimGraph.o \
+	Factor.o \
+	FactorGraph.o \
+	Histogram.o \
+	HorusYap.o \
+	LiftedBp.o \
+	LiftedUtils.o \
+	LiftedVe.o \
+	ProbFormula.o \
+	Parfactor.o \
+	ParfactorList.o \
+	Solver.o \
+	Util.o \
+	Var.o \
+	VarElim.o \
+	WeightedBp.o
+
+HCLI_OBJS = \
+	BayesBall.o \
+	BayesBallGraph.o \
+	BeliefProp.o \
+	CountingBp.o \
+	ElimGraph.o \
+	Factor.o \
+	FactorGraph.o \
+	HorusCli.o \
+	Solver.o \
+	Util.o \
+	Var.o \
+	VarElim.o \
+	WeightedBp.o
+
+SOBJS=horus.@SO@
+
+
+all: $(SOBJS) hcli
+
+# default rule
+%.o : $(srcdir)/%.cpp
+	$(CXX) -c $(CXXFLAGS) $< -o $@
+
+
+@DO_SECOND_LD@horus.@SO@: $(OBJS)
+@DO_SECOND_LD@	@SHLIB_CXX_LD@ -o horus.@SO@ $(OBJS) @EXTRA_LIBS_FOR_SWIDLLS@
+
+
+hcli: $(HCLI_OBJS)
+	$(CXX) -o hcli $(HCLI_OBJS)
+
+
+install: all
+	$(INSTALL_PROGRAM) $(SOBJS) $(DESTDIR) $(YAPLIBDIR)
+
+
+clean:
+	rm -f *.o *~ $(OBJS) $(SOBJS) *.BAK hcli
+
+
+erase_dots:
+	rm -f *.dot *.png
+
+
+depend: $(HEADERS) $(CPP_SOURCES)
+	-@if test "$(GCC)" = yes; then\
+	  $(CC) -std=c++0x -MM -MG $(CFLAGS) -I$(srcdir) -I$(srcdir)/../../../../include -I$(srcdir)/../../../../H $(CPP_SOURCES) >> Makefile;\
+	else\
+          makedepend -f - -- $(CFLAGS) -I$(srcdir)/../../../../H -I$(srcdir)/../../../../include -- $(CPP_SOURCES) |\
+          sed 's|.*/\([^:]*\):|\1:|' >> Makefile ;\
+	fi
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+

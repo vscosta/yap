@@ -26,7 +26,14 @@ int         bp_next_solution(void);
 void        write_term(TERM);
 
 /* float1.c */
+
+#ifdef __YAP_PROLOG__
+static inline
+#endif
 double      floatval(TERM);
+#ifdef __YAP_PROLOG__
+static inline
+#endif
 TERM        encodefloat1(double);
 
 /* loader.c */

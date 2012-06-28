@@ -942,6 +942,44 @@ getDefaultsFromRegistry()
   }
 }
 
+static
+PRED_IMPL("win_open_file_name", 3, win_open_file_name, 0)
+{ GET_LD
+    OPENFILENAMEW ofn;
+    wchar_t szFileName[MAX_PATH];
+    void *x;
+    HWND hwnd;
+    wchar_t *yap_cwd;
+
+    if(!PL_get_pointer(A1, &x))
+      return FALSE;
+    if(!PL_get_wchars(A2, NULL, &yap_cwd, CVT_ATOM|CVT_EXCEPTION))
+      return FALSE;
+    hwnd = (HWND)x;
+    ZeroMemory(&ofn, sizeof(ofn));
+
+    ofn.lStructSize = sizeof(ofn); // SEE NOTE BELOW
+    ofn.hwndOwner = hwnd;
+    ofn.lpstrFilter = L"Prolog Files (*.pl;*.yap)\0*.pl;*.yap\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFileName;
+    ofn.lpstrInitialDir = yap_cwd;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST 
+      //| OFN_HIDEREADONLY
+      //|OFN_ALLOWMULTISELECT
+      ;
+    ofn.lpstrDefExt = "pl";
+
+    if(GetOpenFileNameW(&ofn))
+    {
+        // Do something usefull with the filename stored in szFileName 
+	return PL_unify_wchars(A3, PL_ATOM,
+			       MAX_PATH-1, szFileName);
+    }
+    return TRUE;
+}
+
+
 		 /*******************************
 		 *      PUBLISH PREDICATES	*
 		 *******************************/
@@ -949,6 +987,7 @@ getDefaultsFromRegistry()
 BeginPredDefs(win)
   PRED_DEF("win_shell", 2, win_shell2, 0)
   PRED_DEF("win_shell", 3, win_shell3, 0)
+  PRED_DEF("win_open_file_name", 3, win_open_file_name, 0)
   PRED_DEF("win_registry_get_value", 3, win_registry_get_value, 0)
   PRED_DEF("win_folder", 2, win_folder, PL_FA_NONDETERMINISTIC)
 EndPredDefs

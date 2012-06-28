@@ -42,19 +42,19 @@ CLPBN_PROGRAMS= \
 	$(CLPBN_SRCDIR)/aggregates.yap \
 	$(CLPBN_SRCDIR)/bdd.yap \
 	$(CLPBN_SRCDIR)/bnt.yap \
-	$(CLPBN_SRCDIR)/bp.yap \
 	$(CLPBN_SRCDIR)/connected.yap \
 	$(CLPBN_SRCDIR)/discrete_utils.yap \
 	$(CLPBN_SRCDIR)/display.yap \
 	$(CLPBN_SRCDIR)/dists.yap \
 	$(CLPBN_SRCDIR)/evidence.yap \
-	$(CLPBN_SRCDIR)/fove.yap \
 	$(CLPBN_SRCDIR)/gibbs.yap \
 	$(CLPBN_SRCDIR)/graphs.yap \
 	$(CLPBN_SRCDIR)/graphviz.yap \
 	$(CLPBN_SRCDIR)/ground_factors.yap \
 	$(CLPBN_SRCDIR)/hmm.yap \
 	$(CLPBN_SRCDIR)/horus.yap \
+	$(CLPBN_SRCDIR)/horus_ground.yap \
+	$(CLPBN_SRCDIR)/horus_lifted.yap \
 	$(CLPBN_SRCDIR)/jt.yap \
 	$(CLPBN_SRCDIR)/matrix_cpt_utils.yap \
 	$(CLPBN_SRCDIR)/pgrammar.yap \
@@ -93,9 +93,23 @@ CLPBN_HMMER_EXAMPLES= \
 	$(CLPBN_EXDIR)/HMMer/scan.yap \
 	$(CLPBN_EXDIR)/HMMer/score.yap
 
+CLPBN_LEARNING_EXAMPLES= \
+	$(CLPBN_EXDIR)/learning/school_params.yap \
+	$(CLPBN_EXDIR)/learning/sprinkler_params.yap \
+	$(CLPBN_EXDIR)/learning/train.yap
+
 CLPBN_EXAMPLES= \
+	$(CLPBN_EXDIR)/burglary-alarm.fg \
+	$(CLPBN_EXDIR)/burglary-alarm.yap \
+	$(CLPBN_EXDIR)/burglary-alarm.uai \
 	$(CLPBN_EXDIR)/cg.yap \
-	$(CLPBN_EXDIR)/sprinkler.yap
+	$(CLPBN_EXDIR)/city.yap \
+	$(CLPBN_EXDIR)/comp_workshops.yap \
+	$(CLPBN_EXDIR)/social_domain1.yap \
+	$(CLPBN_EXDIR)/social_domain2.yap \
+	$(CLPBN_EXDIR)/sprinkler.pfl \
+	$(CLPBN_EXDIR)/sprinkler.yap \
+	$(CLPBN_EXDIR)/workshop_attrs.yap
 
 
 install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
@@ -104,10 +118,12 @@ install: $(CLBN_TOP) $(CLBN_PROGRAMS) $(CLPBN_PROGRAMS)
 	mkdir -p $(DESTDIR)$(EXDIR)
 	mkdir -p $(DESTDIR)$(EXDIR)/School
 	mkdir -p $(DESTDIR)$(EXDIR)/HMMer
+	mkdir -p $(DESTDIR)$(EXDIR)/learning
 	for h in $(CLPBN_TOP); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR); done
 	for h in $(CLPBN_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn; done
 	for h in $(CLPBN_LEARNING_PROGRAMS); do $(INSTALL_DATA) $$h $(DESTDIR)$(SHAREDIR)/clpbn/learning; done
 	for h in $(CLPBN_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR); done
 	for h in $(CLPBN_SCHOOL_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/School; done
 	for h in $(CLPBN_HMMER_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/HMMer; done
+	for h in $(CLPBN_LEARNING_EXAMPLES); do $(INSTALL_DATA) $$h $(DESTDIR)$(EXDIR)/learning; done
 

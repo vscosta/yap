@@ -824,7 +824,7 @@ $YAPSRC\VC\include, $YAPSRC\include
 
 @example
 ['$YAPSRC\\pl\\init'].
-save_program('startup.yss').
+qsave_program('startup.yss').
 ^Z
 @end example
 
@@ -2154,6 +2154,45 @@ Saves an image of the current state of the YAP database in file
 @var{F}, and guarantee that execution of the restored code will start by
 trying goal @var{G}.
 
+@item qsave_program(+@var{F}, +@var{ListOfOpts})
+@findex qsave_program/2
+@syindex qsave_program/2
+@cnindex qsave_program/2
+
+Saves the current state of the program to the file @var{File}. The
+result is a resource archive containing a saved state that expresses
+all Prolog data from the running program and all user-defined
+resources. Depending on the stand_alone option, the resource is headed
+by the emulator, a Unix shell script or nothing. Options is a list of
+additional options:
+
+@table @code
+@item stack(+@var{KBytes})
+Limit for the local and global stack.
+@item trail(+@var{KBytes})
+Limit for the trail stack.
+@item goal(:@var{Callable})
+Initialization goal for the new executable (see -g).
+@c @item toplevel(:@var{Callable})
+@c Top-level goal for the new executable (see -t).
+@item init_file(+@var{Atom})
+Default initialization file for the new executable. See -f.
+@c class(+Class)
+@c If runtime, only read resources from the state (default). If kernel, lock all predicates as system predicates. If development, save the predicates in their current state and keep reading resources from their source (if present). See also resource/3.
+@c autoload(+Boolean)
+@c If true (default), run autoload/0 first.
+@c map(+File)
+@c Dump a human-readable trace of what has been saved in File.
+@c op(+Action)
+@c One of save (default) to save the current operator table or standard to use the initial table of the emulator.
+@c stand_alone(+Boolean)
+@c If true, the emulator is the first part of the state. If the emulator is started it will test whether a boot-file (state) is attached to the emulator itself and load this state. Provided the application has all libraries loaded, the resulting executable is completely independent of the runtime environment or location where it was built. See also section 2.10.2.4.
+@c emulator(+File)
+@c File to use for the emulator. Default is the running Prolog image.
+@c foreign(+Action)
+@c If save, include shared objects (DLLs) into the saved state. See current_foreign_library/2. If the program strip is available, this is first used to reduce the size of the shared object. If a state is started, use_foreign_library/1 first tries to locate the foreign resource in the executable. When found it copies the content of the resource to a temporary file and loads it. If possible (Unix), the temporary object is deleted immediately after opening.106
+@end table
+
 @item restore(+@var{F})
 @findex restore/1
 @syindex restore/1
@@ -3429,6 +3468,15 @@ Same as @code{variant/2}, succeeds if @var{Term1} and @var{Term2} are variant te
 
 Succeed if @var{Submuser} subsumes @var{Subsuned} but does not bind any
 variable in @var{Subsumer}.
+
+@item term_subsumer(?@var{T1}, ?@var{T2}, ?@var{Subsumer})
+@findex  term_subsumer/2
+@syindex term_subsumer/2
+@cnindex term_subsumer/2
+
+Succeed if @var{Subsumer} unifies with the least general
+generalization over @var{T1} and
+@var{T2}.
 
 @item acyclic_term(?@var{Term})
 @findex cyclic_term/1
@@ -8069,8 +8117,13 @@ for which YAP was compiled and Operating System information.
 
 @item  index
 @findex index (yap_flag/2 option)
+@* If @code{on} allow indexing (default), if @code{off} disable it, if
+@code{single} allow on first argument only.
+
+@item  index_sub_term_search_depth
+@findex index (yap_flag/2 option)
 @*
-If @code{on} allow indexing (default), if @code{off} disable it.
+Maximum bound on searching sub-terms for indexing, if @code{0} (default) no bound.
 
 @item  informational_messages
 @findex informational_messages (yap_flag/2 option)

@@ -3762,9 +3762,9 @@ YAP_AttsOfVar(Term t)
   t = Deref(t);
   if (!IsVarTerm(t))
     return TermNil;
-  if (IsAttVar(VarOfTerm(t)))
+  if(!IsAttVar(VarOfTerm(t)))
     return TermNil;
-  attv = (attvar_record *)VarOfTerm(t);
+  attv = RepAttVar(VarOfTerm(t));
   return attv->Atts;
 }
 

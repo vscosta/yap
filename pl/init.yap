@@ -95,7 +95,7 @@ otherwise.
 	 'profile.yap',
 	 'callcount.yap',
 	 'load_foreign.yap',
-	 'save.yap',
+%	 'save.yap',
 	 'setof.yap',
 	 'sort.yap',
 	 'statistics.yap',
@@ -121,7 +121,7 @@ otherwise.
 
 :-	 ['protect.yap'].
 
-version(yap,[6,0]).
+version(yap,[6,3]).
 
 system_mode(verbose,on)  :- set_value('$verbose',on).
 system_mode(verbose,off) :- set_value('$verbose',off).
@@ -141,6 +141,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 :- use_module('dbload.yap').
 :- use_module('swi.yap').
 :- use_module('../LGPL/predopts.pl').
+:- use_module('../LGPL/menu.pl').
+
 
 '$system_module'('$attributes').
 '$system_module'('$coroutining').
@@ -149,6 +151,8 @@ system_mode(verbose,off) :- set_value('$verbose',off).
 '$system_module'('$messages').
 '$system_module'('$predopts').
 '$system_module'('$swi').
+'$system_module'('$win_menu').
+
 
 yap_hacks:cut_by(CP) :- '$$cut_by'(CP).
 

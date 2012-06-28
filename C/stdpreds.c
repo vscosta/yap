@@ -1530,7 +1530,6 @@ p_atom_concat( USES_REGS1 )
 {
   Term t1;
   int wide_mode = FALSE;
-  UInt sz;
 
  restart:
   t1 = Deref(ARG1);
@@ -1543,8 +1542,9 @@ p_atom_concat( USES_REGS1 )
   if (wide_mode) {
     wchar_t *cptr = (wchar_t *)(((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE), *cpt0;
     wchar_t *top = (wchar_t *)AuxSp;
-    char *atom_str;
+    unsigned char *atom_str;
     Atom ahead;
+    UInt sz;
 
     cpt0 = cptr;
     while (IsPairTerm(t1)) {
@@ -1560,26 +1560,29 @@ p_atom_concat( USES_REGS1 )
 	return(FALSE);
       }
       ahead = AtomOfTerm(thead);
-      atom_str = RepAtom(ahead)->StrOfAE;
       if (IsWideAtom(ahead)) {
 	/* check for overflows */
-	sz = wcslen((wchar_t *)atom_str);
+	sz = wcslen(RepAtom(ahead)->WStrOfAE);
       } else {
-	sz = strlen(atom_str);
+	atom_str = (unsigned char *)RepAtom(ahead)->StrOfAE;
+	sz = strlen((char *)atom_str);
       }
-      if (cptr+sz >= top-1024) {
-	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
-	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
-	  Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
+      if (cptr+sz > top+1024) {
+	cptr = (wchar_t *)Yap_ExpandPreAllocCodeSpace(sz+1024,NULL, TRUE);
+	if (cptr+sz > (wchar_t *)AuxSp+1024) {
+	  /* crash in flames */
+	  Yap_Error(OUT_OF_AUXSPACE_ERROR, ARG1, "allocating temp space in atom_concat/2");
 	  return FALSE;
 	}
+	top = (wchar_t *)AuxSp;
 	goto restart;
       }
       if (IsWideAtom(ahead)) {
-	memcpy((void *)cptr, (void *)atom_str, sz*sizeof(wchar_t));
+	memcpy((void *)cptr, RepAtom(ahead)->WStrOfAE, sz*sizeof(wchar_t));
 	cptr += sz;
       } else {
-	int i;
+	UInt i;
+
 	for (i=0; i < sz; i++) {
 	  *cptr++ = *atom_str++;
 	}
@@ -1607,7 +1610,8 @@ p_atom_concat( USES_REGS1 )
   } else {
     char *cptr = ((AtomEntry *)Yap_PreAllocCodeSpace())->StrOfAE, *cpt0;
     char *top = (char *)AuxSp;
-    char *atom_str;
+    unsigned char *atom_str;
+    UInt sz;
 
     cpt0 = cptr;
     while (IsPairTerm(t1)) {
@@ -1627,9 +1631,9 @@ p_atom_concat( USES_REGS1 )
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	goto restart;
       }
-      atom_str = RepAtom(AtomOfTerm(thead))->StrOfAE;
+      atom_str = (unsigned char *)RepAtom(AtomOfTerm(thead))->StrOfAE;
       /* check for overflows */
-      sz = strlen(atom_str);
+      sz = strlen((char *)atom_str);
       if (cptr+sz >= top-1024) {
 	Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	if (!Yap_growheap(FALSE, sz+1024, NULL)) {
@@ -1725,9 +1729,9 @@ p_atomic_concat( USES_REGS1 )
 	  memcpy((void *)wcptr, (void *)watom_str, sz*sizeof(wchar_t));
 	  wcptr += sz;
 	} else {
-	  char *atom_str = RepAtom(AtomOfTerm(thead))->StrOfAE;
+	  unsigned char *atom_str = (unsigned char *)RepAtom(AtomOfTerm(thead))->StrOfAE;
 	  /* check for overflows */
-	  UInt sz = strlen(atom_str);
+	  UInt sz = strlen((char *)atom_str);
 	  if (wcptr+sz >= wtop-1024) {
 	    Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	    if (!Yap_growheap(FALSE, sz+1024, NULL)) {
@@ -1823,7 +1827,7 @@ p_atomic_concat( USES_REGS1 )
 	return(FALSE);
       }
       if (IsAtomTerm(thead)) {
-	char *atom_str;
+	unsigned char *atom_str;
 	UInt sz;
 
 	if (IsWideAtom(AtomOfTerm(thead))) {
@@ -1831,9 +1835,9 @@ p_atomic_concat( USES_REGS1 )
 	  wide_mode = TRUE;
 	  goto restart;
 	}
-	atom_str = RepAtom(AtomOfTerm(thead))->StrOfAE;
+	atom_str = (unsigned char *)RepAtom(AtomOfTerm(thead))->StrOfAE;
 	/* check for overflows */
-	sz = strlen(atom_str);
+	sz = strlen((char *)atom_str);
 	if (cptr+sz >= top-1024) {
 	  Yap_ReleasePreAllocCodeSpace((ADDR)cpt0);
 	  if (!Yap_growheap(FALSE, sz+1024, NULL)) {
@@ -3222,26 +3226,51 @@ cont_current_predicate_for_atom( USES_REGS1 )
   while (pf != NIL) {
     FunctorEntry *pp = RepFunctorProp(pf);
     if (IsFunctorProperty(pp->KindOfPE)) {
-      Prop p0 = pp->PropsOfFE;
-      while (p0) {
+      Prop p0;
+      READ_LOCK(pp->FRWLock);
+      p0 = pp->PropsOfFE;
+      if (p0) {
 	PredEntry *p = RepPredProp(p0);
 	if (p->ModuleOfPred == mod ||
 	    p->ModuleOfPred == 0) {
+	  UInt ar = p->ArityOfPE;
 	  /* we found the predicate */
 	  EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
+	  READ_UNLOCK(pp->FRWLock);
 	  return 
-	    Yap_unify(ARG3,Yap_MkNewApplTerm(p->FunctorOfPred,p->ArityOfPE));
+	    Yap_unify(ARG3,MkIntegerTerm(ar));
+	} else if (p->NextOfPE) {
+	  UInt hash = PRED_HASH(pp,mod,PredHashTableSize);
+	  READ_LOCK(PredHashRWLock);
+	  PredEntry *p = PredHash[hash];
+    
+	  while (p) {
+	    if (p->FunctorOfPred == pp &&
+		p->ModuleOfPred == mod)
+	      {
+		READ_UNLOCK(PredHashRWLock);
+		READ_UNLOCK(pp->FRWLock);
+		/* we found the predicate */
+		EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(p->NextOfPE));
+		return Yap_unify(ARG3,MkIntegerTerm(p->ArityOfPE));
+	      }
+	    p = RepPredProp(p->NextOfPE);
+	  }
+	  READ_UNLOCK(PredHashRWLock);
 	}
-	p0 = p->NextOfPE;
       }
+      READ_UNLOCK(pp->FRWLock);
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
+      READ_LOCK(pp->FRWLock);
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
 	EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	return Yap_unify(ARG3,MkAtomTerm((Atom)(pe->FunctorOfPred)));
+	READ_UNLOCK(pp->FRWLock);
+	return Yap_unify(ARG3,MkIntTerm(0));
       }
+      READ_UNLOCK(pp->FRWLock);
     }
     pf = pp->NextOfPE;
   }

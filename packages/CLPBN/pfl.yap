@@ -21,7 +21,7 @@
 	 append/3,
 	 member/2]).
 
-:- dynamic factor/5, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
+:- dynamic factor/6, skolem_in/2, skolem/2, preprocess/3, evidence/2, id/1.
 
 :- reexport(library(clpbn),
 	[clpbn_flag/2 as pfl_flag,
@@ -55,7 +55,7 @@ user:term_expansion( markov((Formula ; Phi ; Constraints)), pfl:factor(markov,Id
 	process_args(Formula, Id, 0, _, FList, []).
 user:term_expansion( Id@N, L ) :-
 	atom(Id), number(N), !,
-  N1 is N + 1,
+	N1 is N + 1,
 	findall(G,generate_entity(1, N1, Id, G), L).
 user:term_expansion( Goal, [] ) :-
 	preprocess(Goal, Sk,Var), !,
@@ -112,6 +112,10 @@ process_arg(Sk::D, Id, _I) -->
 process_arg(Sk, Id, _I) -->
 	!,
 	{
+	 % if :: been used before for this skolem
+	 % just keep on using it,
+         % otherwise, assume it is t,f
+         ( \+ \+ skolem(Sk,_D) -> true ; new_skolem(Sk,[t,f]) ),	
 	 assert(skolem_in(Sk, Id))
         },
 	[Sk].
@@ -121,7 +125,7 @@ new_skolem(Sk,D) :-
 	skolem(Sk1, D1),
 	Sk1 =@= Sk,
 	!,
-	D1 = D.
+	( D1 = D -> true ; throw(pfl(permission_error(redefining_domain(Sk),D:D1)))).
 new_skolem(Sk,D) :-
 	interface_predicate(Sk),
 	assert(skolem(Sk, D)).
@@ -131,6 +135,7 @@ interface_predicate(Sk) :-
 	append(SKAs, [Var], ESKAs),
 	ESk =.. ESKAs,
 	assert(preprocess(ESk, Sk, Var)),
+	% transform from PFL to CLP(BN) call
 	assert_static((user:ESk :-
 	     evidence(Sk,Ev) -> Ev = Var;
 	     var(Var) -> insert_atts(Var,Sk) ;
@@ -154,7 +159,7 @@ get_pfl_parameters(Id,Out) :-
 
 
 new_pfl_parameters(Id, NewPhi) :-
-	retract(factor(Type.Id,FList,FV,_Phi,Constraints)),
+	retract(factor(Type,Id,FList,FV,_Phi,Constraints)),
 	assert(factor(Type,Id,FList,FV,NewPhi,Constraints)),
 	fail.
 new_pfl_parameters(_Id, _NewPhi).
@@ -177,6 +182,4 @@ get_first_pvariable(Id,Var) :-
 get_factor_pvariable(Id,Var) :-
 	factor(_Type, Id,FList,_FV,_Phi,_Constraints),
 	member(Var, FList).
-
-
 

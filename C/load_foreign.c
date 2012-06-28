@@ -90,7 +90,7 @@ p_load_foreign( USES_REGS1 )
     ForeignObj *f_code = (ForeignObj *)Yap_AllocCodeSpace(sizeof(ForeignObj));
     f_code->objs = ofiles;
     f_code->libs = libs;
-    f_code->f = InitProcName;
+    f_code->f = AtomOfTerm(t1);
     f_code->next = ForeignCodeLoaded;
     f_code->module = CurrentModule;
     ForeignCodeLoaded = f_code;
@@ -248,7 +248,7 @@ Yap_ReOpenLoadForeign(void)
     YapInitProc InitProc = NULL;
 
     CurrentModule = f_code->module;
-    if(Yap_ReLoadForeign(f_code->objs,f_code->libs,f_code->f,&InitProc)==LOAD_SUCCEEDED) {
+    if(Yap_ReLoadForeign(f_code->objs,f_code->libs,RepAtom(f_code->f)->StrOfAE,&InitProc)==LOAD_SUCCEEDED) {
       if (InitProc)
 	(*InitProc)();
     }

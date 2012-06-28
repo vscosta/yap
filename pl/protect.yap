@@ -28,7 +28,8 @@
 '$protect'.
 
 '$hide_predicates'(Name) :-
-	'$current_predicate_for_atom'(Name, prolog, P),
+	'$current_predicate_for_atom'(Name, prolog, Ar),
+	functor(P, Name, Ar),
 	'$hide_predicate'(P,prolog),
 	fail.
 '$hide_predicates'(_).
@@ -47,5 +48,6 @@
 '$hide'('$declare_module') :- !, fail.		
 '$hide'('$store_clause') :- !, fail.		
 '$hide'('$skip_list') :- !, fail.		
+'$hide'('$win_insert_menu_item') :- !, fail.		
 '$hide'(Name) :- hide(Name), fail.
 

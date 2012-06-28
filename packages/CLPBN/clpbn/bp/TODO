@@ -1,4 +1,0 @@
-TODO
- - add a way to calculate combinations and factorials with large numbers
- - refactor sumOut in parfactor -> is really ugly code
- - Indexer: start receiving ranges as constant reference

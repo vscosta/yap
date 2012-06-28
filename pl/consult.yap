@@ -1012,7 +1012,7 @@ absolute_file_name(File,Opts,TrueFileName) :-
 	'$set_yap_flags'(11,0).
 
 '$fetch_comp_status'(assert_all) :-
-	catch(nb_getval('$assert_all',on), _, fail) !.
+	catch(nb_getval('$assert_all',on), _, fail), !.
 '$fetch_comp_status'(source) :-
 	 '$access_yap_flags'(11,1).
 '$fetch_comp_status'(compact).

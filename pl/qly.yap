@@ -16,21 +16,130 @@
 *									 *
 *************************************************************************/
 
+save_program(File) :-
+	qsave_program(File).
+
 qsave_program(File) :-
-	'$save_program_status',
+	'$save_program_status'([], qsave_program(File)),
 	open(File, write, S, [type(binary)]),
 	'$qsave_program'(S),
 	close(S).	
 
-'$save_program_status' :-
-	findall(F:V,'$x_yap_flag'(F,V),L),
-	recordz('$program_state',L,_).
+qsave_program(File, Opts) :-
+	'$save_program_status'(Opts, qsave_program(File,Opts)),
+	open(File, write, S, [type(binary)]),
+	'$qsave_program'(S),
+	% make sure we're not going to bootstrap from this file.
+	close(S).	
+
+save_program(File, Goal) :-
+	recorda('$restore_goal', Goal ,_R),	
+	fail.
+save_program(File, _Goal) :-
+        qsave_program(File).
+
+'$save_program_status'(Flags, G) :-
+    findall(F:V,'$x_yap_flag'(F,V),L),
+    recordz('$program_state',L,_),
+    '$cvt_qsave_flags'(Flags, G),
+    fail.
+'$save_program_status'(_Flags, _G).
+
+'$cvt_qsave_flags'(Flags, G) :-
+    nonvar(Flags),
+    strip_module(Flags, M, LFlags),
+    '$skip_list'(_Len, LFlags, []),
+    '$cvt_qsave_lflags'(LFlags, G, M).
+'$cvt_qsave_flags'(Flags, G,_OFlags) :-
+    var(Flags),
+    '$do_error'(instantiation_error,G).
+'$cvt_qsave_flags'(Flags, G,_OFlags) :-
+    '$do_error'(type_error(list,Flags),G).
+
+'$cvt_qsave_lflags'([], _, _).
+'$cvt_qsave_lflags'([Flag|Flags], G, M) :-
+    '$cvt_qsave_flag'(Flag, G, M),
+    '$cvt_qsave_lflags'(Flags, G, M).
+
+'$cvt_qsave_flag'(Flag, G, _) :-
+    var(Flag), !,
+    '$do_error'(instantiation_error,G).
+'$cvt_qsave_flag'(local(B), G, _) :- !,
+    ( number(B) -> 
+      (
+       B > 0 -> recordz('$restore_flag',local(B),_) ;
+       B =:= 0 -> true ;
+       '$do_error'(domain_error(not_less_than_zero,B),G))
+    ;
+      '$do_error'(type_error(integer,B),G)
+      ).
+'$cvt_qsave_flag'(global(B), G, _) :- !,
+    ( number(B) -> 
+      (
+       B > 0 -> recordz('$restore_flag',global(B),_) ;
+       B =:= 0 -> true ;
+       '$do_error'(domain_error(not_less_than_zero,B),G))
+    ;
+      '$do_error'(type_error(integer,B),G)
+    ).
+'$cvt_qsave_flag'(stack(B), G, _) :- !,
+    ( number(B) -> 
+      (
+       B > 0 -> recordz('$restore_flag',stack(B),_) ;
+       B =:= 0 -> true ;
+       '$do_error'(domain_error(not_less_than_zero,B),G))
+    ;
+      '$do_error'(type_error(integer,B),G)
+    ).
+'$cvt_qsave_flag'(trail(B), G, _) :- !,
+    ( number(B) -> 
+      (
+       B > 0 -> recordz('$restore_flag',trail(B),_) ;
+       B =:= 0 -> true ;
+       '$do_error'(domain_error(not_less_than_zero,B),G))
+    ;
+      '$do_error'(type_error(integer,B),G)
+    ).
+'$cvt_qsave_flag'(goal(B), G, M) :- !,
+    ( callable(B) -> 
+      strip_module(M:B, M1, G1),
+      recordz('$restore_flag',goal(M1:G1),_)
+    ;
+      '$do_error'(type_error(callable,B),G)
+    ).
+'$cvt_qsave_flag'(toplevel(B), G, M) :- !,
+    ( callable(B) -> 
+      strip_module(M:B, M1, G1),
+      recordz('$restore_flag',toplevel(M1:G1),_)
+    ;
+      '$do_error'(type_error(callable,B),G)
+    ).
+'$cvt_qsave_flag'(init_file(B), G, M) :- !,
+    ( atom(B) -> 
+      recordz('$restore_flag', init_file(M:B), _)
+    ;
+      '$do_error'(type_error(atom,B),G)
+    ).
+%% '$cvt_qsave_flag'(class(_B), G, class(_B)).
+%% '$cvt_qsave_flag'(autoload(_B), G, autoload(_B)).
+%% '$cvt_qsave_flag'(op(_B), G, op(_B)).
+%% '$cvt_qsave_flag'(stand_alone(_B), G, stand_alone(_B)).
+%% '$cvt_qsave_flag'(emulator(_B), G, emulator(_B)).
+%% '$cvt_qsave_flag'(foreign(_B), G, foreign(_B)).
+'$cvt_qsave_flag'(Opt, G, _M) :-
+    '$do_error'(domain_error(qsave_program,Opt), G).
 
 % there is some ordering between flags.
+'$x_yap_flag'(goal, Goal).
 '$x_yap_flag'(language, V).
 '$x_yap_flag'(X, V) :-
 	yap_flag(X, V),
-	X \= language.
+	X \= language,
+	X \= timezone,
+	X \= user_input,
+	X \= user_output,
+	X \= user_error,
+	X \= version.
 
 '$init_state' :-
 	recorded('$program_state', _, _), !,
@@ -68,6 +177,10 @@ qsave_program(File) :-
 	fail.
 % use if we come from a save_program and we have SWI's shlib
 '$init_from_saved_state_and_args' :-
+	current_prolog_flag(hwnd, _HWND),
+	load_files(library(win_menu), [silent(true)]),
+	fail.
+'$init_from_saved_state_and_args' :-
 	recorded('$reload_foreign_libraries',G,R),
 	erase(R),
 	shlib:reload_foreign_libraries,
@@ -85,6 +198,11 @@ qsave_program(File) :-
 	set_value('$consult_on_boot',[]),
 	'$do_startup_reconsult'(X),
 	fail.
+'$init_from_saved_state_and_args' :-
+    recorded('$restore_flag', init_file(M:B), R),
+    erase(R),
+    '$do_startup_reconsult'(M:B),
+    fail.
 '$init_from_saved_state_and_args' :-
 	'$startup_goals',
 	fail.
@@ -115,6 +233,11 @@ qsave_program(File) :-
 	set_value('$init_goal',[]),
 	'$run_atom_goal'(GA),
 	fail.
+'$startup_goals' :-
+    recorded('$restore_flag', goal(Module:GA), R),
+    erase(R),
+    '$system_catch'('$query'(once(GA), []),Module,Error,user:'$Error'(Error)),
+    fail.
 '$startup_goals' :-
 	get_value('$myddas_goal',GA), GA \= [],
 	set_value('$myddas_goal',[]),
@@ -153,8 +276,6 @@ qsave_program(File) :-
  '$myddas_import_all'.
 	 
 
-
-
 qsave_module(Mod) :-
 	recorded('$module', '$module'(F,Mod,Exps), _),
 	'$fetch_parents_module'(Mod, Parents),
@@ -171,7 +292,7 @@ qsave_module(Mod) :-
 	fail.
 qsave_module(_).
 
-qload_program(File) :-
+restore(File) :-
 	open(File, read, S, [type(binary)]),
 	'$qload_program'(S),
 	close(S).

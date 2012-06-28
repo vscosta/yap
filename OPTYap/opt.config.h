@@ -339,10 +339,16 @@
 #error LIMIT_TABLING requires USE_PAGES_MALLOC
 #endif
 
-#if defined(YAPOR) || defined(THREADS)
-#undef MODE_DIRECTED_TABLING
+#if defined(YAPOR) || defined(THREADS_FULL_SHARING) || defined(THREADS_CONSUMER_SHARING)
 #undef TABLING_EARLY_COMPLETION
+#endif
+
+#if defined(YAPOR) || defined(THREADS)
 #undef INCOMPLETE_TABLING
 #undef LIMIT_TABLING
 #undef DETERMINISTIC_TABLING
+#endif
+
+#if defined(YAPOR)
+#undef MODE_DIRECTED_TABLING
 #endif

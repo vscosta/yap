@@ -501,6 +501,18 @@ else
   INSTALL_MATLAB=""
 fi
 
+AC_LANG_PUSH([C++])
+my_save_cxxflags="$CXXFLAGS"
+CXXFLAGS=-std=c++0x
+AC_MSG_CHECKING([whether CXX supports -std-c++0x])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([])],
+    [AC_MSG_RESULT([yes])]
+    [yap_cv_clpbn_bp=yes],
+    [AC_MSG_RESULT([no])]
+)
+CXXFLAGS="$my_save_cxxflags"
+AC_LANG_POP()
+
 if test "$yap_cv_clpbn_bp" = no 
 then
   ENABLE_CLPBN_BP="@# "
@@ -662,6 +674,7 @@ then
       target_cpu=x86_64
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
+      AC_CHECK_LIB(comdlg32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"
     then
@@ -670,6 +683,7 @@ then
       AC_CHECK_LIB(wsock32,main)
     else
       AC_CHECK_LIB(wsock32,main)
+      AC_CHECK_LIB(comdlg32,main)
     fi
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
@@ -712,15 +726,18 @@ fi
 
 if test "$yap_cv_readline" != "no"
 then
+  AC_CHECK_LIB([ncurses], [main],[
+		LIBS="$LIBS -lncurses"
+              ])
   AC_CHECK_LIB([readline], [main],[
                 AC_DEFINE([HAVE_LIBREADLINE], [1],[Define if you have libreadline])
-		LIBS="$LIBS -lreadline -lncurses"
+		LIBS="$LIBS -lreadline"
               ],
               [if test "x$with_readline" != xcheck; then
                  AC_MSG_FAILURE(
                    [--with-readline was given, but test for readline failed])
                fi
-              ], -lncurses)
+              ])
 fi
 if test "$yap_cv_gmp" != "no"
 then
@@ -833,16 +850,16 @@ fi
 
 if test "$yap_cv_cudd" != no; then
    	    oldlibs="$LIBS"
-	    if test "$withval" != "yes"; then
+	    if test "$yap_cv_cudd" != "NONE"; then
 	       if test -d "$yap_cv_cudd"/include/cudd; then
 	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
                else
 	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-               fi
+	       fi 
 	       cudd_dir="$yap_cv_cudd"
 	    elif test -e /usr/include/cudd; then
 	       CUDD_CPPFLAGS="-I /usr/include/cudd"
-	       cudd_dir="$withval"
+	       cudd_dir="$yap_cv_cudd"
 	    elif test "$prefix" != "NONE"; then
 	       if test -d "$prefix"/include/cudd; then
 	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
@@ -2288,8 +2305,7 @@ mkdir -p  packages/clib/maildrop/rfc822
 mkdir -p  packages/clib/maildrop/rfc2045
 mkdir -p  packages/CLPBN
 mkdir -p  packages/CLPBN/clpbn
-mkdir -p  packages/CLPBN/clpbn/bp
-mkdir -p  packages/CLPBN/clpbn/bp/xmlParser
+mkdir -p  packages/CLPBN/horus
 mkdir -p  packages/clpqr
 mkdir -p  packages/cplint
 mkdir -p  packages/cplint/approx
@@ -2401,7 +2417,8 @@ fi
 
 if test "$ENABLE_ZLIB" = ""; then
 AC_CONFIG_FILES([packages/zlib/Makefile])
-fi
+fi
+
 
 if test "$ENABLE_CUDD" = ""; then
 AC_CONFIG_FILES([packages/bdd/Makefile])
@@ -2419,7 +2436,7 @@ AC_CONFIG_FILES([packages/real/Makefile])
 fi
 
 if test "$ENABLE_CLPBN_BP" = ""; then
-AC_CONFIG_FILES([packages/CLPBN/clpbn/bp/Makefile])
+AC_CONFIG_FILES([packages/CLPBN/horus/Makefile])
 fi
 
 if test "$ENABLE_GECODE" = ""; then

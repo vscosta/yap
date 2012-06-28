@@ -879,7 +879,7 @@ static Int
 p_nb_setarg( USES_REGS1 )
 {
   Term wheret = Deref(ARG1);
-  Term dest = Deref(ARG2);
+  Term dest;
   Term to;
   UInt arity, pos;
   CELL *destp;
@@ -893,32 +893,30 @@ p_nb_setarg( USES_REGS1 )
     return FALSE; 
   }
   pos = IntegerOfTerm(wheret);
+  dest = Deref(ARG2);
   if (IsVarTerm(dest)) {
     Yap_Error(INSTANTIATION_ERROR,dest,"nb_setarg");
     return FALSE; 
   } else if (IsPrimitiveTerm(dest)) {
     arity = 0;
-    destp = NULL;
   } else if (IsPairTerm(dest)) {
     arity = 2;
-    destp = RepPair(dest)-1;
   } else {
     arity = ArityOfFunctor(FunctorOfTerm(dest));
-    destp = RepAppl(dest);
   }
   if (pos < 1 || pos > arity)
     return FALSE;
 
   to = Deref(ARG3);
-  to = CopyTermToArena(ARG3, LOCAL_GlobalArena, FALSE, TRUE, 2, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
+  to = CopyTermToArena(ARG3, LOCAL_GlobalArena, FALSE, TRUE, 3, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
 
   dest = Deref(ARG2);
   if (IsPairTerm(dest)) {
-    arity = 2;
+    destp = RepPair(dest)-1;
   } else {
-    arity = ArityOfFunctor(FunctorOfTerm(dest));
+    destp = RepAppl(dest);
   }
   destp[pos] = to;
   return TRUE;
@@ -947,19 +945,21 @@ p_nb_set_shared_arg( USES_REGS1 )
     return FALSE; 
   } else if (IsPrimitiveTerm(dest)) {
     arity = 0;
-    destp = NULL;
   } else if (IsPairTerm(dest)) {
     arity = 2;
-    destp = RepPair(dest)-1;
   } else {
     arity = ArityOfFunctor(FunctorOfTerm(dest));
-    destp = RepAppl(dest);
   }
   if (pos < 1 || pos > arity)
     return FALSE;
   to = CopyTermToArena(ARG3, LOCAL_GlobalArena, TRUE, TRUE, 3, &LOCAL_GlobalArena, garena_overflow_size(ArenaPt(LOCAL_GlobalArena) PASS_REGS) PASS_REGS);
   if (to == 0L)
     return FALSE;
+  if (IsPairTerm(dest)) {
+    destp = RepPair(dest)-1;
+  } else {
+    destp = RepAppl(dest);
+  }
   destp[pos] = to;
   return TRUE;
 }

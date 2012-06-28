@@ -654,7 +654,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
       p_code->opc = Yap_opcode(_allocate);
       p_code = NEXTOP(p_code,e);
     }
-    p_code->opc = pe->OpcodeOfPred = Yap_opcode(_call_cpred);
+    p_code->opc = Yap_opcode(_call_cpred);
     p_code->u.Osbpp.bmap = NULL;
     p_code->u.Osbpp.s = -Signed(RealEnvSize);
     p_code->u.Osbpp.p = p_code->u.Osbpp.p0 = pe;
@@ -669,6 +669,7 @@ Yap_InitAsmPred(char *Name,  unsigned long int Arity, int code, CPredicate def, 
     p_code = NEXTOP(p_code,p);
     p_code->opc = Yap_opcode(_Ystop);
     p_code->u.l.l = cl->ClCode;
+    pe->OpcodeOfPred = pe->CodeOfPred->opc;
   } else {
     pe->OpcodeOfPred = Yap_opcode(_undef_p);
     pe->CodeOfPred =  (yamop *)(&(pe->OpcodeOfPred)); 
@@ -914,6 +915,7 @@ InitFlags(void)
   yap_flags[INDEXING_MODE_FLAG] = INDEX_MODE_MULTI;
   yap_flags[TABLING_MODE_FLAG] = 0;
   yap_flags[QUIET_MODE_FLAG] = FALSE;
+  yap_flags[INDEXING_TERM_DEPTH_FLAG] = 0L;
 }
 
 static void
@@ -1315,7 +1317,7 @@ Yap_InitWorkspace(UInt Heap, UInt Stack, UInt Trail, UInt Atts, UInt max_table_s
   Yap_InitTime();
   /* InitAbsmi must be done before InitCodes */
   /* This must be done before initialising predicates */
-  for (i = 0; i <= LAST_FLAG; i++) {
+  for (i = 0; i <= NUMBER_OF_YAP_FLAGS; i++) {
     yap_flags[i] = 0;
   }
 #ifdef MPW

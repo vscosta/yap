@@ -53,6 +53,25 @@ extern X_API Atom YAP_AtomFromSWIAtom(atom_t at);
 extern X_API atom_t YAP_SWIAtomFromAtom(Atom at);
 extern int	PL_error(const char *pred, int arity, const char *msg, int id, ...);
 
+static int 
+do_gc(UInt sz)
+{
+  /* always called from user_call_cpred */
+  CACHE_REGS
+  UInt arity;
+  yamop *nextpc;
+
+  if (P && PREVOP(P,Osbpp)->opc == Yap_opcode(_call_usercpred)) {
+    arity = PREVOP(P,Osbpp)->u.Osbpp.p->ArityOfPE;
+    nextpc = P;
+  } else {
+    arity = 0;
+    nextpc = CP;
+  }
+  return Yap_gcl(sz, arity, ENV, nextpc);
+}
+
+
 X_API extern Atom
 YAP_AtomFromSWIAtom(atom_t at)
 {
@@ -768,8 +787,8 @@ X_API int PL_cons_functor(term_t d, functor_t f,...)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  if (Unsigned(H)+arity > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc(arity*sizeof(CELL))) {
       return FALSE;
     }
   }
@@ -801,8 +820,8 @@ X_API int PL_cons_functor_v(term_t d, functor_t f, term_t a0)
     return TRUE;
   }
   arity = ArityOfFunctor(ff);
-  while (Unsigned(H+arity) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+  if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -839,7 +858,7 @@ X_API int PL_put_atom_chars(term_t t, const char *s)
 {
   CACHE_REGS
   Atom at;
-  while (!(at = Yap_LookupAtom((char *)s))) {
+  if (!(at = Yap_LookupAtom((char *)s))) {
     if (!Yap_growheap(FALSE, 0L, NULL)) {
       CACHE_REGS
       Yap_Error(OUT_OF_HEAP_ERROR, TermNil, LOCAL_ErrorMessage);
@@ -897,15 +916,15 @@ X_API int PL_put_functor(term_t t, functor_t f)
     Yap_PutInSlot(t,(Term)ff PASS_REGS);
   } else {
     arity = ArityOfFunctor(ff);
+    if (Unsigned(H)+arity > Unsigned(ASP)-CreepFlag) {
+      if (!do_gc(arity*sizeof(CELL))) {
+	return FALSE;
+      }
+    }
     if (arity == 2 && ff == FunctorDot)
       Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);    
     else
       Yap_PutInSlot(t,YAP_MkNewApplTerm((YAP_Functor)ff,arity) PASS_REGS);
-    if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-      if (!Yap_gc(0, ENV, CP)) {
-	return FALSE;
-      }
-    }
   }
   return TRUE;
 }
@@ -947,7 +966,7 @@ X_API int PL_put_list(term_t t)
   CACHE_REGS
   Yap_PutInSlot(t,YAP_MkNewPairTerm() PASS_REGS);
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -959,7 +978,7 @@ X_API int PL_put_list_chars(term_t t, const char *s)
   CACHE_REGS
   Yap_PutInSlot(t,YAP_BufferToString((char *)s) PASS_REGS);
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1132,8 +1151,8 @@ X_API int PL_unify_functor(term_t t, functor_t f)
   Term tt = Yap_GetFromSlot(t PASS_REGS);
   Functor ff = SWIFunctorToFunctor(f);
   if (IsVarTerm(tt)) {
-    while (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
-      if (!Yap_gc(ArityOfFunctor(ff)*sizeof(CELL), ENV, CP)) {
+    if (Unsigned(H)+ArityOfFunctor(ff) > Unsigned(ASP)-CreepFlag) {
+      if (!do_gc(0)) {
 	return FALSE;
       }
     }
@@ -1185,7 +1204,7 @@ X_API int PL_unify_list(term_t tt, term_t h, term_t tail)
   CACHE_REGS
   Term t;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1238,7 +1257,7 @@ X_API int PL_unify_list_chars(term_t t, const char *chars)
   CACHE_REGS
   YAP_Term chterm;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1253,7 +1272,7 @@ X_API int PL_unify_list_ncodes(term_t t, size_t len, const char *chars)
   CACHE_REGS
   Term chterm;
   if (Unsigned(H) > Unsigned(ASP+len*2)-CreepFlag) {
-    if (!Yap_gc(len*2*sizeof(CELL), ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1292,7 +1311,7 @@ X_API int PL_unify_string_chars(term_t t, const char *chars)
   CACHE_REGS
   YAP_Term chterm;
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1304,8 +1323,9 @@ X_API int PL_unify_string_nchars(term_t t, size_t len, const char *chars)
 {
   CACHE_REGS
   YAP_Term chterm;
+
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       return FALSE;
     }
   }
@@ -1324,9 +1344,7 @@ X_API int PL_unify_wchars(term_t t, int type, size_t len, const pl_wchar_t *char
     len = wcslen(chars);
 
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
-      return FALSE;
-    }
+    if (!do_gc(0)) return FALSE;
   }
   switch (type) {
   case PL_ATOM:
@@ -1455,7 +1473,7 @@ X_API int PL_unify_term(term_t l,...)
   
   BACKUP_MACHINE_REGS();
   if (Unsigned(H) > Unsigned(ASP)-CreepFlag) {
-    if (!Yap_gc(0, ENV, CP)) {
+    if (!do_gc(0)) {
       RECOVER_MACHINE_REGS();
       return FALSE;
     }
@@ -2019,6 +2037,8 @@ PL_initialise(int myargc, char **myargv)
   init_args.SchedulerLoop = 10;
   init_args.DelayedReleaseLoad = 3;
 
+  YAP_parse_yap_arguments(myargc,myargv,&init_args);
+
   GLOBAL_PL_Argc = myargc;
   GLOBAL_PL_Argv = myargv;
   GLOBAL_InitialisedFromPL = TRUE;
@@ -2336,7 +2356,11 @@ X_API int PL_call_predicate(module_t ctx, int flags, predicate_t p, term_t t0)
 
 X_API int PL_toplevel(void)
 {
-  return YAP_RunGoal(MkAtomTerm(Yap_FullLookupAtom("$live")));
+  while (TRUE) {
+    if (YAP_RunGoal(MkAtomTerm(Yap_FullLookupAtom("$live")))) {
+      return TRUE;
+    }
+  }
 }
 
 X_API int PL_call(term_t tp, module_t m)
@@ -2815,9 +2839,14 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
 {
   CACHE_REGS
   Term varnames, out, tpos;
-  Term error;
+  Term error, *vp;
 
-  if (!Yap_readTerm(st, &out, &varnames, &error, &tpos)) {
+  if (vs) {
+    vp = & varnames;
+  } else {
+    vp = NULL;
+  }
+  if (!Yap_readTerm(st, &out, vp, &error, &tpos)) {
     if (excep) {
       *excep = Yap_InitSlot(error PASS_REGS);
     }
@@ -2832,7 +2861,8 @@ Yap_read_term(term_t t, IOSTREAM *st, term_t *excep, term_t vs)
   if (!Yap_unify(out, Yap_GetFromSlot(t PASS_REGS))) {
     return FALSE;
   }
-  if (!Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
+  if (vp &&
+      !Yap_unify(varnames, Yap_GetFromSlot(vs PASS_REGS))) {
     return FALSE;
   }
   return TRUE;

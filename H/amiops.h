@@ -87,35 +87,6 @@ Dereferencing macros
 
 #endif /* UNIQUE_TAG_FOR_PAIRS */
 
-EXTERN Term STD_PROTO(Deref,(Term));
-EXTERN Term STD_PROTO(Derefa,(CELL *));
-
-EXTERN inline Term Deref(Term a)
-{
-   while(IsVarTerm(a)) {
-	Term *b = (Term *) a;
-	a = *b;
-	if(a==((Term) b)) return a;
-   }
-   return(a);
-}
-
-EXTERN inline Term
-Derefa(CELL *b)
-{
-  Term a = *b;
- restart:
-  if (!IsVarTerm(a)) {
-    return(a);
-  } else if (a == (CELL)b) {
-    return(a);
-  } else {
-    b = (CELL *)a;
-    a = *b;
-    goto restart;
-  }
-}
-
 /************************************************************
 
 TRAIL VARIABLE
@@ -308,8 +279,6 @@ extern void	Yap_WakeUp(CELL *v);
 Unification Routines
 
 *************************************************************/
-
-EXTERN Int STD_PROTO(Yap_unify,(Term,Term));
 
 inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr));
 

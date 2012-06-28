@@ -125,12 +125,13 @@ void *RtreeUdiSearch (control_t *control)
 
   /*RTreePrint ((*control)[0].tree);*/
 
-  for (i = 0; i < NARGS && (*control)[i].arg != 0 ; i++)
-    if (YAP_IsAttVar(YAP_A((*control)[i].arg)))
+  for (i = 0; i < NARGS && (*control)[i].arg != 0 ; i++) {
+    YAP_Term t = YAP_A((*control)[i].arg);
+    if (YAP_IsAttVar(t))
       {
-
+	fprintf(stderr,"i=%ld\n",i);
         /*get the constraits rect*/
-        Constraints = YAP_AttsOfVar(YAP_A((*control)[i].arg));
+        Constraints = YAP_AttsOfVar(t);
         /*        Yap_DebugPlWrite(Constraints); */
         r = RectOfTerm(YAP_ArgOfTerm(2,Constraints));
 
@@ -155,7 +156,7 @@ void *RtreeUdiSearch (control_t *control)
 
         return Yap_ClauseListCode(c->cl);
       }
-  
+  }
   return NULL; /*YAP FALLBACK*/
 }
 

@@ -277,14 +277,8 @@ create_known_values_file_name(_,_) :-
 %= 
 %========================================================================
 
-create_bdd_file_name(QueryID,ClusterID,Absolute_File_Name) :-
-	problog_flag(bdd_directory,Path),
-	!,
-
-	atomic_concat(['query_',QueryID,'_cluster_',ClusterID],File_Name),
-	concat_path_with_filename(Path,File_Name,Absolute_File_Name).
-create_bdd_file_name(_,_,_) :-
-	throw(error(problog_flag_does_not_exist(bdd_directory))).
+create_bdd_nb_name(QueryID,ClusterID,NB_Name) :-
+	atomic_concat(['query_',QueryID,'_cluster_',ClusterID],NB_Name).
 
 %========================================================================
 %= 
