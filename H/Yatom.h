@@ -1472,7 +1472,7 @@ typedef enum
 #define  PredHashInitialSize      ((UInt)1039)
 #define  PredHashIncrement        ((UInt)7919)
 
-EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt));
+EXTERN inline UInt STD_PROTO(PRED_HASH, (FunctorEntry *, Term, UInt)) INLINE_ONLY;
 
 EXTERN inline UInt
 PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
@@ -1480,16 +1480,16 @@ PRED_HASH(FunctorEntry *fe, Term cur_mod, UInt size)
   return (((CELL)fe+cur_mod)>>2) % size;
 }
 
-EXTERN inline Prop STD_PROTO(GetPredPropByFuncAndModHavingLock, (FunctorEntry *, Term));
-EXTERN inline Prop STD_PROTO(PredPropByFuncAndMod, (FunctorEntry *, Term));
-EXTERN inline Prop STD_PROTO(PredPropByAtomAndMod, (Atom, Term));
-EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term));
+EXTERN inline Prop STD_PROTO(GetPredPropByFuncAndModHavingLock, (FunctorEntry *, Term)) INLINE_ONLY;
+EXTERN inline Prop STD_PROTO(PredPropByFuncAndMod, (FunctorEntry *, Term)) INLINE_ONLY;
+EXTERN inline Prop STD_PROTO(PredPropByAtomAndMod, (Atom, Term)) INLINE_ONLY;
+EXTERN inline Prop STD_PROTO(GetPredPropByFuncHavingLock, (FunctorEntry *, Term)) INLINE_ONLY;
 
 #ifdef THREADS
 
 Prop STD_PROTO(Yap_NewThreadPred, (struct pred_entry * CACHE_TYPE));
 Prop STD_PROTO(Yap_NewPredPropByFunctor, (Functor, Term));
-EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry * CACHE_TYPE));
+EXTERN inline struct pred_entry *STD_PROTO(Yap_GetThreadPred, (struct pred_entry * CACHE_TYPE)) INLINE_ONLY;
 
 EXTERN inline struct pred_entry *
 Yap_GetThreadPred(struct pred_entry *ap USES_REGS)
@@ -1697,7 +1697,7 @@ PredPropByAtomAndMod (Atom at, Term cur_mod)
 #define UNLOCKPE(I,Z)	UNLOCK((Z)->PELock)
 #endif
 
-EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p));
+EXTERN inline void STD_PROTO(AddPropToAtom, (AtomEntry *, PropEntry *p)) INLINE_ONLY;
 
 EXTERN inline void
 AddPropToAtom(AtomEntry *ae, PropEntry *p)

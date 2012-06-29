@@ -5,6 +5,7 @@
 
 #include <YapInterface.h>
 #include <math.h>
+#include "inline-only.h"
 
 typedef YAP_Term TERM;
 typedef YAP_Int BPLONG;
@@ -118,10 +119,10 @@ bp_get_arity(TERM t)
 // TERM bp_insert_pred(char *name, int arity, int (*func)())
 #define bp_insert_pred(name, arity, func) YAP_UserCPredicate(name, func, arity)
 
-extern inline int bp_call_string(const char *goal);
-extern inline int bp_call_term(TERM t);
-extern inline int bp_next_solution(void);
-extern inline int bp_mount_query_term(TERM goal);
+extern inline int bp_call_string(const char *goal) INLINE_ONLY;
+extern inline int bp_call_term(TERM t) INLINE_ONLY;
+extern inline int bp_next_solution(void) INLINE_ONLY;
+extern inline int bp_mount_query_term(TERM goal) INLINE_ONLY;
 
 // int bp_call_string(char *goal)
 extern inline int

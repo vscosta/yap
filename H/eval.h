@@ -176,6 +176,10 @@ Term	STD_PROTO(Yap_eval_binary,(Int,Term,Term));
 Term	STD_PROTO(Yap_InnerEval,(Term));
 Int     STD_PROTO(Yap_ArithError,(yap_error_number,Term,char *msg, ...));
 
+#include "inline-only.h"
+inline EXTERN Term
+Yap_Eval(Term t) INLINE_ONLY;
+
 inline EXTERN Term
 Yap_Eval(Term t)
 {
@@ -312,7 +316,7 @@ int   STD_PROTO(Yap_term_to_existing_big,(Term, MP_INT *));
 int   STD_PROTO(Yap_term_to_existing_rat,(Term, MP_RAT *));
 #endif
 
-inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG);
+inline EXTERN Term Yap_Mk64IntegerTerm(YAP_LONG_LONG) INLINE_ONLY;
 
 inline EXTERN Term
 Yap_Mk64IntegerTerm(YAP_LONG_LONG i)

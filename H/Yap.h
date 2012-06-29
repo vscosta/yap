@@ -38,6 +38,7 @@
 #endif /* THREADS && (YAPOR_COW || YAPOR_SBA || YAPOR_COPY) */
 
 #include "config.h"
+#include "inline-only.h"
 #if defined(YAPOR) || defined(TABLING)
 #include "opt.config.h"
 #endif /* YAPOR || TABLING */

@@ -17,6 +17,8 @@
 #define EXTERN extern
 #endif
 
+#include "inline-only.h"
+
 #ifndef SHORT_ADDRESSES
 #	define LONG_ADDRESSES	1
 #else
@@ -152,7 +154,7 @@
                                    applies to unbound variables
 *************************************************************************************************/
 
-inline EXTERN Term *VarOfTerm (Term t);
+inline EXTERN Term *VarOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Term *
 VarOfTerm (Term t)
@@ -163,7 +165,7 @@ VarOfTerm (Term t)
 
 #ifdef YAPOR_SBA
 
-inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
+inline EXTERN Term MkVarTerm__ ( USES_REGS1 ) INLINE_ONLY;
 
 inline EXTERN Term
 MkVarTerm__ ( USES_REGS1 )
@@ -173,7 +175,7 @@ MkVarTerm__ ( USES_REGS1 )
 
 
 
-inline EXTERN int IsUnboundVar (Term *);
+inline EXTERN int IsUnboundVar (Term *) INLINE_ONLY;
 
 inline EXTERN int
 IsUnboundVar (Term * t)
@@ -184,7 +186,7 @@ IsUnboundVar (Term * t)
 
 #else
 
-inline EXTERN Term MkVarTerm__ ( USES_REGS1 );
+inline EXTERN Term MkVarTerm__ ( USES_REGS1 ) INLINE_ONLY;
 
 inline EXTERN Term
 MkVarTerm__ ( USES_REGS1 )
@@ -193,7 +195,7 @@ MkVarTerm__ ( USES_REGS1 )
 }
 
 
-inline EXTERN int IsUnboundVar (Term *);
+inline EXTERN int IsUnboundVar (Term *) INLINE_ONLY;
 
 inline EXTERN int
 IsUnboundVar (Term * t)
@@ -204,7 +206,7 @@ IsUnboundVar (Term * t)
 
 #endif
 
-inline EXTERN CELL *PtrOfTerm (Term);
+inline EXTERN CELL *PtrOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN CELL *
 PtrOfTerm (Term t)
@@ -215,7 +217,7 @@ PtrOfTerm (Term t)
 
 
 
-inline EXTERN Functor FunctorOfTerm (Term);
+inline EXTERN Functor FunctorOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN Functor
 FunctorOfTerm (Term t)
@@ -226,7 +228,7 @@ FunctorOfTerm (Term t)
 
 #if USE_LOW32_TAGS
 
-inline EXTERN Term MkAtomTerm (Atom);
+inline EXTERN Term MkAtomTerm (Atom) INLINE_ONLY;
 
 inline EXTERN Term
 MkAtomTerm (Atom a)
@@ -236,7 +238,7 @@ MkAtomTerm (Atom a)
 
 
 
-inline EXTERN Atom AtomOfTerm (Term t);
+inline EXTERN Atom AtomOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Atom
 AtomOfTerm (Term t)
@@ -247,7 +249,7 @@ AtomOfTerm (Term t)
 
 #else
 
-inline EXTERN Term MkAtomTerm (Atom);
+inline EXTERN Term MkAtomTerm (Atom) INLINE_ONLY;
 
 inline EXTERN Term
 MkAtomTerm (Atom a)
@@ -257,7 +259,7 @@ MkAtomTerm (Atom a)
 
 
 
-inline EXTERN Atom AtomOfTerm (Term t);
+inline EXTERN Atom AtomOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Atom
 AtomOfTerm (Term t)
@@ -268,7 +270,7 @@ AtomOfTerm (Term t)
 
 #endif
 
-inline EXTERN int IsAtomTerm (Term);
+inline EXTERN int IsAtomTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsAtomTerm (Term t)
@@ -279,7 +281,7 @@ IsAtomTerm (Term t)
 
 
 
-inline EXTERN Term MkIntTerm (Int);
+inline EXTERN Term MkIntTerm (Int) INLINE_ONLY;
 
 inline EXTERN Term
 MkIntTerm (Int n)
@@ -293,7 +295,7 @@ MkIntTerm (Int n)
   overflow problems are possible
 */
 
-inline EXTERN Term MkIntConstant (Int);
+inline EXTERN Term MkIntConstant (Int) INLINE_ONLY;
 
 inline EXTERN Term
 MkIntConstant (Int n)
@@ -303,7 +305,7 @@ MkIntConstant (Int n)
 
 
 
-inline EXTERN int IsIntTerm (Term);
+inline EXTERN int IsIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsIntTerm (Term t)
@@ -312,7 +314,7 @@ IsIntTerm (Term t)
 }
 
 
-EXTERN inline Term MkPairTerm__(Term head, Term  tail USES_REGS );
+EXTERN inline Term MkPairTerm__(Term head, Term  tail USES_REGS ) INLINE_ONLY;
 
 EXTERN inline Term
 MkPairTerm__ (Term head, Term tail USES_REGS)
@@ -362,7 +364,7 @@ MkPairTerm__ (Term head, Term tail USES_REGS)
 #define IsAccessFunc(func)		((func) == FunctorAccess)
 
 #ifdef YAP_H
-inline EXTERN Term MkIntegerTerm (Int);
+inline EXTERN Term MkIntegerTerm (Int) INLINE_ONLY;
 
 inline EXTERN Term
 MkIntegerTerm (Int n)
@@ -372,7 +374,7 @@ MkIntegerTerm (Int n)
 #endif
 
 
-inline EXTERN int IsIntegerTerm (Term);
+inline EXTERN int IsIntegerTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsIntegerTerm (Term t)
@@ -380,7 +382,7 @@ IsIntegerTerm (Term t)
   return (int) (IsIntTerm (t) || IsLongIntTerm (t));
 }
 
-inline EXTERN Int IntegerOfTerm (Term);
+inline EXTERN Int IntegerOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IntegerOfTerm (Term t)

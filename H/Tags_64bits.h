@@ -72,8 +72,8 @@ property list
 #define NONTAGGED(TAG,V)   NonTagPart(Unsigned(V)<<3)	/* SQRT(8) */
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
-
-inline EXTERN int IsVarTerm (Term);
+#include "inline-only.h"
+inline EXTERN int IsVarTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsVarTerm (Term t)
@@ -83,7 +83,7 @@ IsVarTerm (Term t)
 
 
 
-inline EXTERN int IsNonVarTerm (Term);
+inline EXTERN int IsNonVarTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsNonVarTerm (Term t)
@@ -93,7 +93,7 @@ IsNonVarTerm (Term t)
 
 
 
-inline EXTERN Term *RepPair (Term);
+inline EXTERN Term *RepPair (Term) INLINE_ONLY;
 
 inline EXTERN Term *
 RepPair (Term t)
@@ -103,7 +103,7 @@ RepPair (Term t)
 
 
 
-inline EXTERN Term AbsPair (Term *);
+inline EXTERN Term AbsPair (Term *) INLINE_ONLY;
 
 inline EXTERN Term
 AbsPair (Term * p)
@@ -113,7 +113,7 @@ AbsPair (Term * p)
 
 
 
-inline EXTERN Int IsPairTerm (Term);
+inline EXTERN Int IsPairTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsPairTerm (Term t)
@@ -123,7 +123,7 @@ IsPairTerm (Term t)
 
 
 
-inline EXTERN Term *RepAppl (Term);
+inline EXTERN Term *RepAppl (Term) INLINE_ONLY;
 
 inline EXTERN Term *
 RepAppl (Term t)
@@ -133,7 +133,7 @@ RepAppl (Term t)
 
 
 
-inline EXTERN Term AbsAppl (Term *);
+inline EXTERN Term AbsAppl (Term *) INLINE_ONLY;
 
 inline EXTERN Term
 AbsAppl (Term * p)
@@ -143,7 +143,7 @@ AbsAppl (Term * p)
 
 
 
-inline EXTERN Int IsApplTerm (Term);
+inline EXTERN Int IsApplTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsApplTerm (Term t)
@@ -153,7 +153,7 @@ IsApplTerm (Term t)
 
 
 
-inline EXTERN Int IsAtomOrIntTerm (Term);
+inline EXTERN Int IsAtomOrIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsAtomOrIntTerm (Term t)
@@ -164,7 +164,7 @@ IsAtomOrIntTerm (Term t)
 
 
 
-inline EXTERN Term AdjustPtr (Term t, Term off);
+inline EXTERN Term AdjustPtr (Term t, Term off) INLINE_ONLY;
 
 inline EXTERN Term
 AdjustPtr (Term t, Term off)
@@ -174,7 +174,7 @@ AdjustPtr (Term t, Term off)
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off);
+inline EXTERN Term AdjustIDBPtr (Term t, Term off) INLINE_ONLY;
 
 inline EXTERN Term
 AdjustIDBPtr (Term t, Term off)
@@ -185,7 +185,7 @@ AdjustIDBPtr (Term t, Term off)
 
 
 
-inline EXTERN Int IntOfTerm (Term);
+inline EXTERN Int IntOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IntOfTerm (Term t)

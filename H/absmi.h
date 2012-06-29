@@ -178,11 +178,17 @@ register struct yami* P1REG asm ("bp"); /* can't use yamop before Yap.h */
 /* regp is a global variable */
 
 inline EXTERN void
+init_absmi_regs(REGSTORE * absmi_regs) INLINE_ONLY;
+
+inline EXTERN void
 init_absmi_regs(REGSTORE * absmi_regs)
 {
   CACHE_REGS
   memcpy(absmi_regs, Yap_regp, sizeof(REGSTORE));
 }
+
+inline EXTERN void
+restore_absmi_regs(REGSTORE * old_regs) INLINE_ONLY;
 
 inline EXTERN void
 restore_absmi_regs(REGSTORE * old_regs)

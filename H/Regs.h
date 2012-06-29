@@ -73,12 +73,14 @@
 #endif
 #endif
 
-EXTERN void restore_machine_regs(void);
-EXTERN void save_machine_regs(void);
-EXTERN void restore_H(void);
-EXTERN void save_H(void);
-EXTERN void restore_B(void);
-EXTERN void save_B(void);
+#include "inline-only.h"
+
+inline EXTERN void restore_machine_regs(void) INLINE_ONLY;
+inline EXTERN void save_machine_regs(void) INLINE_ONLY;
+inline EXTERN void restore_H(void) INLINE_ONLY;
+inline EXTERN void save_H(void) INLINE_ONLY;
+inline EXTERN void restore_B(void) INLINE_ONLY;
+inline EXTERN void save_B(void) INLINE_ONLY;
 
 #define CACHE_REGS
 #define INIT_REGS

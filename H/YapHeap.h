@@ -221,6 +221,11 @@ UInt STD_PROTO(Yap_givemallinfo, (void));
 ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *, int));
 #define Yap_ReleasePreAllocCodeSpace(x)
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
+
+#include "inline-only.h"
+EXTERN inline ADDR
+Yap_PreAllocCodeSpace(void) INLINE_ONLY;
+
 EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void) 
 {

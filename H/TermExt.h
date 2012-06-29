@@ -58,8 +58,9 @@ blob_type;
 #define   FunctorDouble   ((Functor)(double_e))
 #define   EndSpecials     (double_e+sizeof(Functor *))
 
+#include "inline-only.h"
 
-inline EXTERN int IsAttVar (CELL *pt);
+inline EXTERN int IsAttVar (CELL *pt) INLINE_ONLY;
 
 inline EXTERN int
 IsAttVar (CELL *pt)
@@ -73,7 +74,7 @@ IsAttVar (CELL *pt)
 #endif
 }
 
-inline EXTERN int GlobalIsAttVar (CELL *pt);
+inline EXTERN int GlobalIsAttVar (CELL *pt) INLINE_ONLY;
 
 inline EXTERN int
 GlobalIsAttVar (CELL *pt)
@@ -98,7 +99,7 @@ typedef enum
   } 
 big_blob_type;
 
-inline EXTERN blob_type BlobOfFunctor (Functor f);
+inline EXTERN blob_type BlobOfFunctor (Functor f) INLINE_ONLY;
 
 inline EXTERN blob_type
 BlobOfFunctor (Functor f)
@@ -177,12 +178,12 @@ special_functors;
 
 #endif /* YAP_H */
 
-inline EXTERN Float CpFloatUnaligned(CELL *ptr);
+inline EXTERN Float CpFloatUnaligned(CELL *ptr) INLINE_ONLY;
 
 #if SIZEOF_DOUBLE == SIZEOF_LONG_INT
 
 
-inline EXTERN Term MkFloatTerm (Float);
+inline EXTERN Term MkFloatTerm (Float) INLINE_ONLY;
 
 inline EXTERN Term
 MkFloatTerm (Float dbl)
@@ -194,7 +195,7 @@ MkFloatTerm (Float dbl)
 }
 
 
-inline EXTERN Float FloatOfTerm (Term t);
+inline EXTERN Float FloatOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Float
 FloatOfTerm (Term t)
@@ -216,7 +217,7 @@ CpFloatUnaligned(CELL *ptr)
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
 
-inline EXTERN void AlignGlobalForDouble( USES_REGS1 );
+inline EXTERN void AlignGlobalForDouble( USES_REGS1 ) INLINE_ONLY;
 
 #define DOUBLE_ALIGNED(ADDR) ((CELL)(ADDR) & 0x4)
 
@@ -244,7 +245,7 @@ CpFloatUnaligned (CELL * ptr)
 
 #endif
 
-inline EXTERN Term MkFloatTerm (Float);
+inline EXTERN Term MkFloatTerm (Float) INLINE_ONLY;
 
 inline EXTERN Term
 MkFloatTerm (Float dbl)
@@ -257,7 +258,7 @@ MkFloatTerm (Float dbl)
 }
 
 
-inline EXTERN Float FloatOfTerm (Term t);
+inline EXTERN Float FloatOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Float
 FloatOfTerm (Term t)
@@ -289,7 +290,7 @@ char *Yap_BlobStringOfTermAndLength(Term, size_t *);
 
 
 
-inline EXTERN int IsFloatTerm (Term);
+inline EXTERN int IsFloatTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsFloatTerm (Term t)
@@ -302,7 +303,7 @@ IsFloatTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-inline EXTERN Term MkLongIntTerm (Int);
+inline EXTERN Term MkLongIntTerm (Int) INLINE_ONLY;
 
 inline EXTERN Term
 MkLongIntTerm (Int i)
@@ -316,7 +317,7 @@ MkLongIntTerm (Int i)
 }
 
 
-inline EXTERN Int LongIntOfTerm (Term t);
+inline EXTERN Int LongIntOfTerm (Term t) INLINE_ONLY;
 
 inline EXTERN Int
 LongIntOfTerm (Term t)
@@ -326,7 +327,7 @@ LongIntOfTerm (Term t)
 
 
 
-inline EXTERN int IsLongIntTerm (Term);
+inline EXTERN int IsLongIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsLongIntTerm (Term t)
@@ -358,7 +359,7 @@ typedef struct {
 
 #endif
 
-inline EXTERN int IsBigIntTerm (Term);
+inline EXTERN int IsBigIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsBigIntTerm (Term t)
@@ -374,7 +375,7 @@ MP_INT *STD_PROTO (Yap_BigIntOfTerm, (Term));
 Term STD_PROTO (Yap_MkBigRatTerm, (MP_RAT *));
 MP_RAT *STD_PROTO (Yap_BigRatOfTerm, (Term));
 
-inline EXTERN void MPZ_SET (mpz_t, MP_INT *);
+inline EXTERN void MPZ_SET (mpz_t, MP_INT *) INLINE_ONLY;
 
 inline EXTERN void
 MPZ_SET (mpz_t dest, MP_INT *src)
@@ -384,7 +385,7 @@ MPZ_SET (mpz_t dest, MP_INT *src)
   dest->_mp_d = src->_mp_d;
 }
 
-inline EXTERN int IsLargeIntTerm (Term);
+inline EXTERN int IsLargeIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsLargeIntTerm (Term t)
@@ -395,7 +396,7 @@ IsLargeIntTerm (Term t)
 }
 
 
-inline EXTERN UInt Yap_SizeOfBigInt (Term);
+inline EXTERN UInt Yap_SizeOfBigInt (Term) INLINE_ONLY;
 
 inline EXTERN UInt
 Yap_SizeOfBigInt (Term t)
@@ -411,7 +412,7 @@ Yap_SizeOfBigInt (Term t)
 
 
 
-inline EXTERN int IsLargeIntTerm (Term);
+inline EXTERN int IsLargeIntTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsLargeIntTerm (Term t)
@@ -427,7 +428,7 @@ typedef struct string_struct {
   UInt len;
 }  blob_string_t;
 
-inline EXTERN int IsBlobStringTerm (Term);
+inline EXTERN int IsBlobStringTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsBlobStringTerm (Term t)
@@ -437,7 +438,7 @@ IsBlobStringTerm (Term t)
 		(RepAppl(t)[1] & BLOB_STRING) == BLOB_STRING);
 }
 
-inline EXTERN int IsWideBlobStringTerm (Term);
+inline EXTERN int IsWideBlobStringTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsWideBlobStringTerm (Term t)
@@ -449,7 +450,7 @@ IsWideBlobStringTerm (Term t)
 
 /* extern Functor FunctorLongInt; */
 
-inline EXTERN int IsLargeNumTerm (Term);
+inline EXTERN int IsLargeNumTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsLargeNumTerm (Term t)
@@ -459,7 +460,7 @@ IsLargeNumTerm (Term t)
 		    && (FunctorOfTerm (t) >= FunctorLongInt)));
 }
 
-inline EXTERN int IsExternalBlobTerm (Term, CELL);
+inline EXTERN int IsExternalBlobTerm (Term, CELL) INLINE_ONLY;
 
 inline EXTERN int
 IsExternalBlobTerm (Term t, CELL tag)
@@ -469,7 +470,7 @@ IsExternalBlobTerm (Term t, CELL tag)
 		RepAppl(t)[1] == tag);
 }
 
-inline EXTERN void *ExternalBlobFromTerm (Term);
+inline EXTERN void *ExternalBlobFromTerm (Term) INLINE_ONLY;
 
 inline EXTERN void *
 ExternalBlobFromTerm (Term t)
@@ -481,7 +482,7 @@ ExternalBlobFromTerm (Term t)
 
 
 
-inline EXTERN int IsNumTerm (Term);
+inline EXTERN int IsNumTerm (Term) INLINE_ONLY;
 
 inline EXTERN int
 IsNumTerm (Term t)
@@ -492,7 +493,7 @@ IsNumTerm (Term t)
 
 
 
-inline EXTERN Int IsAtomicTerm (Term);
+inline EXTERN Int IsAtomicTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsAtomicTerm (Term t)
@@ -503,7 +504,7 @@ IsAtomicTerm (Term t)
 
 
 
-inline EXTERN Int IsExtensionFunctor (Functor);
+inline EXTERN Int IsExtensionFunctor (Functor) INLINE_ONLY;
 
 inline EXTERN Int
 IsExtensionFunctor (Functor f)
@@ -513,7 +514,7 @@ IsExtensionFunctor (Functor f)
 
 
 
-inline EXTERN Int IsBlobFunctor (Functor);
+inline EXTERN Int IsBlobFunctor (Functor) INLINE_ONLY;
 
 inline EXTERN Int
 IsBlobFunctor (Functor f)
@@ -523,7 +524,7 @@ IsBlobFunctor (Functor f)
 
 
 
-inline EXTERN Int IsPrimitiveTerm (Term);
+inline EXTERN Int IsPrimitiveTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsPrimitiveTerm (Term t)
@@ -535,7 +536,7 @@ IsPrimitiveTerm (Term t)
 #ifdef TERM_EXTENSIONS
 
 
-inline EXTERN Int IsAttachFunc (Functor);
+inline EXTERN Int IsAttachFunc (Functor) INLINE_ONLY;
 
 inline EXTERN Int
 IsAttachFunc (Functor f)
@@ -546,7 +547,7 @@ IsAttachFunc (Functor f)
 
 
 
-inline EXTERN Int IsAttachedTerm (Term);
+inline EXTERN Int IsAttachedTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsAttachedTerm (Term t)
@@ -554,7 +555,7 @@ IsAttachedTerm (Term t)
   return (Int) ((IsVarTerm (t) && IsAttVar(VarOfTerm(t))));
 }
 
-inline EXTERN Int GlobalIsAttachedTerm (Term);
+inline EXTERN Int GlobalIsAttachedTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 GlobalIsAttachedTerm (Term t)
@@ -562,7 +563,7 @@ GlobalIsAttachedTerm (Term t)
   return (Int) ((IsVarTerm (t) && GlobalIsAttVar(VarOfTerm(t))));
 }
 
-inline EXTERN Int SafeIsAttachedTerm (Term);
+inline EXTERN Int SafeIsAttachedTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 SafeIsAttachedTerm (Term t)
@@ -573,7 +574,7 @@ SafeIsAttachedTerm (Term t)
 
 
 
-inline EXTERN exts ExtFromCell (CELL *);
+inline EXTERN exts ExtFromCell (CELL *) INLINE_ONLY;
 
 inline EXTERN exts
 ExtFromCell (CELL * pt)
@@ -586,7 +587,7 @@ ExtFromCell (CELL * pt)
 #else
 
 
-inline EXTERN Int IsAttachFunc (Functor);
+inline EXTERN Int IsAttachFunc (Functor) INLINE_ONLY;
 
 inline EXTERN Int
 IsAttachFunc (Functor f)
@@ -597,7 +598,7 @@ IsAttachFunc (Functor f)
 
 
 
-inline EXTERN Int IsAttachedTerm (Term);
+inline EXTERN Int IsAttachedTerm (Term) INLINE_ONLY;
 
 inline EXTERN Int
 IsAttachedTerm (Term t)
@@ -610,7 +611,7 @@ IsAttachedTerm (Term t)
 
 #endif
 
-inline EXTERN Int Yap_BlobTag(Term t);
+inline EXTERN Int Yap_BlobTag(Term t) INLINE_ONLY;
 
 inline EXTERN Int Yap_BlobTag(Term t)
 {
@@ -620,7 +621,7 @@ inline EXTERN Int Yap_BlobTag(Term t)
 }
 
 
-inline EXTERN void *Yap_BlobInfo(Term t);
+inline EXTERN void *Yap_BlobInfo(Term t) INLINE_ONLY;
 
 inline EXTERN void *Yap_BlobInfo(Term t)
 {
@@ -633,7 +634,7 @@ inline EXTERN void *Yap_BlobInfo(Term t)
 
 #ifdef YAP_H
 
-inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
+inline EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL)) INLINE_ONLY;
 
 EXTERN int STD_PROTO (unify_extension, (Functor, CELL, CELL *, CELL));
 

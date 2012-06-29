@@ -83,7 +83,8 @@ typedef struct logic_upd_clause {
   yamop            ClCode[MIN_ARRAY];
 } LogUpdClause;
 
-inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
+#include "inline-only.h"
+inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *) INLINE_ONLY;
 
 inline EXTERN int
 VALID_TIMESTAMP(UInt timestamp, struct logic_upd_clause *cl)

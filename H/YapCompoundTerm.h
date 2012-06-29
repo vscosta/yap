@@ -21,9 +21,11 @@
 
 #define YAPCOMPOUNDTERM_H 1
 
+#include "inline-only.h"
+
 EXTERN Int Yap_unify(Term a,Term b);
 
-EXTERN inline Term Deref(Term a);
+EXTERN inline Term Deref(Term a) INLINE_ONLY;
 
 EXTERN inline Term Deref(Term a)
 {
@@ -35,7 +37,7 @@ EXTERN inline Term Deref(Term a)
    return(a);
 }
 
-EXTERN inline Term Derefa(CELL *b);
+EXTERN inline Term Derefa(CELL *b) INLINE_ONLY;
 
 EXTERN inline Term
 Derefa(CELL *b)
@@ -53,7 +55,7 @@ Derefa(CELL *b)
   }
 }
 
-inline EXTERN Term ArgOfTerm (int i, Term t);
+inline EXTERN Term ArgOfTerm (int i, Term t) INLINE_ONLY;
 
 inline EXTERN Term
 ArgOfTerm (int i, Term t)
@@ -63,7 +65,7 @@ ArgOfTerm (int i, Term t)
 
 
 
-inline EXTERN Term HeadOfTerm (Term);
+inline EXTERN Term HeadOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN Term
 HeadOfTerm (Term t)
@@ -73,7 +75,7 @@ HeadOfTerm (Term t)
 
 
 
-inline EXTERN Term TailOfTerm (Term);
+inline EXTERN Term TailOfTerm (Term) INLINE_ONLY;
 
 inline EXTERN Term
 TailOfTerm (Term t)
@@ -84,7 +86,7 @@ TailOfTerm (Term t)
 
 
 
-inline EXTERN Term ArgOfTermCell (int i, Term t);
+inline EXTERN Term ArgOfTermCell (int i, Term t) INLINE_ONLY;
 
 inline EXTERN Term
 ArgOfTermCell (int i, Term t)
@@ -94,7 +96,7 @@ ArgOfTermCell (int i, Term t)
 
 
 
-inline EXTERN Term HeadOfTermCell (Term);
+inline EXTERN Term HeadOfTermCell (Term) INLINE_ONLY;
 
 inline EXTERN Term
 HeadOfTermCell (Term t)
@@ -104,7 +106,7 @@ HeadOfTermCell (Term t)
 
 
 
-inline EXTERN Term TailOfTermCell (Term);
+inline EXTERN Term TailOfTermCell (Term) INLINE_ONLY;
 
 inline EXTERN Term
 TailOfTermCell (Term t)

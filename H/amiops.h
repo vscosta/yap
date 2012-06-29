@@ -20,6 +20,8 @@
 static char     SccsId[] = "%W% %G%";
 #endif /* SCCS */
 
+#include "inline-only.h"
+
 #define  IsArrayReference(a) ((a)->array_access_func == FunctorArrayAccess)
 
 
@@ -99,6 +101,9 @@ A contains the address of the variable that is to be trailed
 #define RESET_VARIABLE(V)       (*(CELL *)(V) = Unsigned(V))
 
 #if SIZEOF_DOUBLE == 2*SIZEOF_LONG_INT
+
+EXTERN inline void
+AlignGlobalForDouble( USES_REGS1 ) INLINE_ONLY;
 
 EXTERN inline void
 AlignGlobalForDouble( USES_REGS1 )
@@ -280,7 +285,7 @@ Unification Routines
 
 *************************************************************/
 
-inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr));
+inline EXTERN void STD_PROTO(reset_trail,(tr_fr_ptr)) INLINE_ONLY;
 
 inline EXTERN void
 reset_trail(tr_fr_ptr TR0) {
@@ -312,7 +317,7 @@ reset_trail(tr_fr_ptr TR0) {
   }
 }
 
-inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax);
+inline EXTERN void reset_attvars(CELL *dvarsmin, CELL *dvarsmax) INLINE_ONLY;
 
 inline EXTERN void
 reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
@@ -330,7 +335,7 @@ reset_attvars(CELL *dvarsmin, CELL *dvarsmax) {
   }
 }
 
-inline EXTERN void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax);
+inline EXTERN void close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) INLINE_ONLY;
 
 inline EXTERN void
 close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
@@ -348,6 +353,9 @@ close_attvar_chain(CELL *dvarsmin, CELL *dvarsmax) {
     } while (TRUE);
   }
 }
+
+EXTERN inline
+Int Yap_unify(Term t0, Term t1) INLINE_ONLY;
 
 EXTERN inline
 Int Yap_unify(Term t0, Term t1)

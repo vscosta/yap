@@ -173,9 +173,10 @@ HEADERS = \
 	$(srcdir)/H/hlocals.h \
 	$(srcdir)/H/hstruct.h \
 	$(srcdir)/H/iglobals.h \
-	$(srcdir)/H/ilocals.h \
 	$(srcdir)/H/ihstruct.h \
+	$(srcdir)/H/ilocals.h \
 	$(srcdir)/H/index.h \
+	$(srcdir)/H/inline-only.h \
 	$(srcdir)/H/iopreds.h \
 	$(srcdir)/H/iswiatoms.h \
 	$(srcdir)/H/qly.h \
