@@ -2595,7 +2595,7 @@ PL_set_engine(PL_engine_t engine, PL_engine_t *old)
   }
 
   pthread_mutex_lock(&(REMOTE_ThreadHandle(nwid).tlock));
-  if (REMOTE_ThreadHandle(nwid).pthread_handle) {
+  if (REMOTE_ThreadHandle(nwid).ref_count) {
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(nwid).tlock));
     if (cwid != nwid) {
       return PL_ENGINE_INUSE;

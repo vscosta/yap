@@ -38,7 +38,7 @@
 
 #include "pl-incl.h"
 #include "pl-utf8.h"
-#include <crtdbg.h>
+//#include <crtdbg.h>
 #include <process.h>
 #include "pl-ctype.h"
 #include <stdio.h>
@@ -234,10 +234,16 @@ Pause(double t)
 
 int
 ftruncate(int fileno, int64_t length)
-{ errno_t e;
+{ int e;
 
+#if HAVE__CHSIZE_S
+  /* not always available in mingw */
   if ( (e=_chsize_s(fileno, length)) == 0 )
     return 0;
+#else
+  if ( (e=_chsize(fileno, (long)length)) == 0 )
+    return 0;
+#endif
 
   errno = e;
   return -1;
@@ -338,7 +344,7 @@ typedef struct
 } showtype;
 
 static int
-get_showCmd(term_t show, int *cmd)
+get_showCmd(term_t show, UINT *cmd)
 { char *s;
   showtype *st;
   static showtype types[] =
@@ -721,7 +727,7 @@ static int
 unify_csidl_path(term_t t, int csidl)
 { wchar_t buf[MAX_PATH];
 
-  if ( SHGetSpecialFolderPathW(0, buf, csidl, FALSE) )
+  if ( SHGetFolderPathW(0, csidl, NULL, FALSE, buf) )
   { wchar_t *p;
 
     for(p=buf; *p; p++)

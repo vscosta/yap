@@ -662,10 +662,12 @@ PL_EXPORT(pl_wchar_t*)  PL_atom_generator_w(const pl_wchar_t *pref,
 		 *	 WINDOWS MESSAGES	*
 		 *******************************/
 
-#ifdef _WINDOWS_			/* <windows.h> is included */
+#if defined(_MSC_VER) || defined(__MINGW32__)	/* <windows.h> is included */
 #define PL_MSG_EXCEPTION_RAISED -1
 #define PL_MSG_IGNORED 0
 #define PL_MSG_HANDLED 1
+
+#include <windows.h>
 
 PL_EXPORT(LRESULT)	PL_win_message_proc(HWND hwnd,
 					    UINT message,

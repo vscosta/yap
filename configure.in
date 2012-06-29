@@ -675,15 +675,19 @@ then
       YAP_TARGET=amd64
       AC_CHECK_LIB(ws2_32,main)
       AC_CHECK_LIB(comdlg32,main)
+      AC_CHECK_LIB(shell32,main)
       EXTRA_LIBS_FOR_DLLS="-lws2_32"
     elif test "$target_os" = "cygwin"
     then
       CC="${CC}  -mno-cygwin"
       CXX="${CXX}  -mno-cygwin"
+      AC_CHECK_LIB(comdlg32,main)
       AC_CHECK_LIB(wsock32,main)
+      AC_CHECK_LIB(shell32,main)
     else
       AC_CHECK_LIB(wsock32,main)
       AC_CHECK_LIB(comdlg32,main)
+      AC_CHECK_LIB(shell32,main)
     fi
     EXTRA_LIBS_FOR_DLLS="\$(abs_top_builddir)/yap.dll $EXTRA_LIBS_FOR_DLLS"
     AC_CHECK_LIB(psapi,main)
@@ -1029,6 +1033,7 @@ if test "$yap_cv_java" = no; then
 	ENABLE_JPL="@#"   
 elif test -e "$srcdir"/packages/jpl/Makefile.in; then
 	ENABLE_JPL=""
+	LIBJPL=libjpl
 	JAVA=java
 	JAVA_HOME="$yap_cv_java"
 	case "$target_os" in
@@ -1063,10 +1068,10 @@ elif test -e "$srcdir"/packages/jpl/Makefile.in; then
           JAVAC=javac
           JAVADOC=javadoc
         else
-	  JAVA="$yap_cv_java"/bin/java
-	  JAR="$yap_cv_java"/bin/jar
-	  JAVAC="$yap_cv_java"/bin/javac
-	  JAVADOC="$yap_cv_java"/bin/javadoc
+	  JAVA=$yap_cv_java/bin/java
+	  JAR=$yap_cv_java/bin/jar
+	  JAVAC=$yap_cv_java/bin/javac
+	  JAVADOC=$yap_cv_java/bin/javadoc
         fi
 else
       ENABLE_JPL="@#"
@@ -1800,6 +1805,7 @@ AC_SUBST(JUNIT)
 AC_SUBST(JAVAC)
 AC_SUBST(JAVADOC)
 AC_SUBST(JAR)
+AC_SUBST(LIBJPL)
 AC_SUBST(IN_UNIX)
 AC_SUBST(YAPMPILIB)
 AC_SUBST(LAM_MPI_CC)
@@ -2004,7 +2010,7 @@ fi
 
 dnl Checks for library functions.
 AC_TYPE_SIGNAL
-AC_CHECK_FUNCS(_NSGetEnviron access acosh)
+AC_CHECK_FUNCS(_NSGetEnviron _chsize_s access acosh)
 AC_CHECK_FUNCS(alloca asinh atanh chdir clock clock_gettime)
 AC_CHECK_FUNCS(ctime dlopen dup2)
 AC_CHECK_FUNCS(erf feclearexcept)

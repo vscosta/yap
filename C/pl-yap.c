@@ -22,6 +22,9 @@
 #include <limits.h>
 #endif
 
+#define LOCK()   PL_LOCK(L_PLFLAG)
+#define UNLOCK() PL_UNLOCK(L_PLFLAG)
+
 int fileerrors;
 
 PL_local_data_t lds;
@@ -1020,7 +1023,7 @@ PL_w32thread_raise(DWORD id, int sig)
   { PL_thread_info_t *info = GD->thread.threads[i];
 
     if ( info && info->w32id == id && info->thread_data )
-    { raiseSignal(info->thread_data, sig);
+      { Yap_signal(sig); //raiseSignal(info->thread_data, sig);
       if ( info->w32id )
 	PostThreadMessage(info->w32id, WM_SIGNALLED, 0, 0L);
       UNLOCK();

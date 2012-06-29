@@ -346,7 +346,7 @@ p_create_thread( USES_REGS1 )
   /* make sure we can proceed */
   if (!init_thread_engine(new_worker_id, ssize, tsize, sysize, &ARG1, &ARG5, &ARG6))
     return FALSE;
-  REMOTE_ThreadHandle(new_worker_id).pthread_handle = 0L;
+  //REMOTE_ThreadHandle(new_worker_id).pthread_handle = 0L;
   REMOTE_ThreadHandle(new_worker_id).id = new_worker_id;
   REMOTE_ThreadHandle(new_worker_id).ref_count = 1;
   if ((REMOTE_ThreadHandle(new_worker_id).ret = pthread_create(&REMOTE_ThreadHandle(new_worker_id).pthread_handle, NULL, thread_run, (void *)(&(REMOTE_ThreadHandle(new_worker_id).id)))) == 0) {
@@ -470,19 +470,19 @@ Yap_thread_create_engine(thread_attr *ops)
     ops->sysize = 0;
     ops->egoal = t;
   }
-  if (pthread_self() != GLOBAL_master_thread) {
+  if (!pthread_equal(pthread_self() , GLOBAL_master_thread) ) {
     /* we are worker_id 0 for now, lock master thread so that no one messes with us */ 
     pthread_setspecific(Yap_yaamregs_key, (const void *)&Yap_standard_regs);
     pthread_mutex_lock(&(REMOTE_ThreadHandle(0).tlock));
   }
   if (!init_thread_engine(new_id, ops->ssize, ops->tsize, ops->sysize, &t, &t, &(ops->egoal)))
     return -1;
-  REMOTE_ThreadHandle(new_id).pthread_handle = 0L;
+  //REMOTE_ThreadHandle(new_id).pthread_handle = 0L;
   REMOTE_ThreadHandle(new_id).id = new_id;
   REMOTE_ThreadHandle(new_id).ref_count = 0;
   if (!setup_engine(new_id, FALSE))
     return -1;
-  if (pthread_self() != GLOBAL_master_thread) {
+  if (!pthread_equal(pthread_self(), GLOBAL_master_thread)) {
     pthread_setspecific(Yap_yaamregs_key, NULL);
     pthread_mutex_unlock(&(REMOTE_ThreadHandle(0).tlock));
   }
@@ -518,7 +518,7 @@ Yap_thread_detach_engine(int wid)
 {
   DEBUG_TLOCK_ACCESS(10, wid);
   pthread_mutex_lock(&(REMOTE_ThreadHandle(wid).tlock));
-  REMOTE_ThreadHandle(wid).pthread_handle = 0;
+  //REMOTE_ThreadHandle(wid).pthread_handle = 0;
   REMOTE_ThreadHandle(wid).ref_count--;
   pthread_setspecific(Yap_yaamregs_key, NULL);
   DEBUG_TLOCK_ACCESS(11, wid);
@@ -678,7 +678,7 @@ p_new_mutex( USES_REGS1 )
 {
   SWIMutex* mutp;
   pthread_mutexattr_t mat;
-#ifdef HAVE_PTHREAD_MUTEXATTR_SETKIND_NP
+#if defined(HAVE_PTHREAD_MUTEXATTR_SETKIND_NP) && !defined(__MINGW32__)
   extern int pthread_mutexattr_setkind_np(pthread_mutexattr_t *attr, int kind);
 #endif
 

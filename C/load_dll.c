@@ -62,7 +62,7 @@ static Int
 LoadForeign(StringList ofiles, StringList libs,
 	       char *proc_name,	YapInitProc *init_proc)
 {
-
+  CACHE_REGS
   while (ofiles) {
     HINSTANCE handle;
 

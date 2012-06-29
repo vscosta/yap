@@ -153,6 +153,7 @@
 /* Define return type for signal	*/
 #undef  RETSIGTYPE
 
+#undef  HAVE__CHSIZE_S
 #undef  HAVE__NSGETENVIRON
 #undef  HAVE_ACCESS
 #undef  HAVE_ACOSH
