@@ -1047,7 +1047,7 @@ extern "C"
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
-    DYNARRAY(YAP_Term,elems,x.glbSize());
+    DYNARRAY(YAP_Term,elems,x.lubSize());
     SetVarLubValues it(x);
     int n = 0;
     while (it()) { elems[n] = YAP_MkIntTerm(it.val()); ++it; ++n; }
@@ -1061,7 +1061,7 @@ extern "C"
     YAP_Term result = YAP_ARG1;
     GenericSpace* space = gecode_Space_from_term(YAP_ARG2);
     SetVar x = gecode_SetVar_from_term(space, YAP_ARG3);
-    DYNARRAY(YAP_Term,elems,x.glbSize());
+    DYNARRAY(YAP_Term,elems,x.unknownSize());
     SetVarUnknownValues it(x);
     int n = 0;
     while (it()) { elems[n] = YAP_MkIntTerm(it.val()); ++it; ++n; }
