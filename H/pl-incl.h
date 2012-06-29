@@ -170,7 +170,9 @@ typedef enum
 #if __YAP_PROLOG__
 #include "pl-yap.h"
 #if _WIN32
+#ifndef THREADS
 typedef int pthread_t;
+#endif
 #define __WINDOWS__ 1
 #else
 #include <pthread.h>
@@ -197,6 +199,21 @@ typedef uintptr_t	PL_atomic_t;	/* same a word */
 #define GLOBAL_OVERFLOW   (-2)
 #define TRAIL_OVERFLOW    (-3)
 #define ARGUMENT_OVERFLOW (-4)
+
+
+		/********************************
+		*       THREADS	             *
+		*********************************/
+
+#include "pl-thread.h"
+
+#if O_PLMT
+                 /*******************************
+                 *             WINDOWS          *
+                 *******************************/
+
+#define WM_SIGNALLED (WM_USER+4201)     /* how to select a good number!? */
+#endif
 
 		/********************************
 		*       UTILITIES               *
