@@ -10,8 +10,6 @@
 
 class VarCluster;
 class FacCluster;
-class VarSignHash;
-class FacSignHash;
 class WeightedBp;
 
 typedef long Color;
@@ -22,40 +20,44 @@ typedef vector<Color> FacSignature;
 typedef unordered_map<unsigned, Color>  DistColorMap;
 typedef unordered_map<unsigned, Colors> VarColorMap;
 
-typedef unordered_map<VarSignature, VarNodes, VarSignHash> VarSignMap;
-typedef unordered_map<FacSignature, FacNodes, FacSignHash> FacSignMap;
+typedef unordered_map<VarSignature, VarNodes> VarSignMap;
+typedef unordered_map<FacSignature, FacNodes> FacSignMap;
+
+typedef unordered_map<VarId, VarCluster*> VarClusterMap;
 
 typedef vector<VarCluster*> VarClusters;
 typedef vector<FacCluster*> FacClusters;
 
-typedef unordered_map<VarId, VarCluster*> VarId2VarCluster;
-
-
-struct VarSignHash
+template <class T>
+inline size_t hash_combine (size_t seed, const T& v)
 {
-  size_t operator() (const VarSignature &sig) const
-  {
-    size_t val = hash<size_t>()(sig.size());
-    for (size_t i = 0; i < sig.size(); i++) {
-      val ^= hash<size_t>()(sig[i].first);
-      val ^= hash<size_t>()(sig[i].second);
-    }
-    return val;
-  }
-};
+  return seed ^ (hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2));
+}
 
 
-struct FacSignHash
-{
-  size_t operator() (const FacSignature &sig) const
+namespace std {
+  template <typename T1, typename T2> struct hash<std::pair<T1,T2>>
   {
-    size_t val = hash<size_t>()(sig.size());
-    for (size_t i = 0; i < sig.size(); i++) {
-      val ^= hash<size_t>()(sig[i]);
+    size_t operator() (const std::pair<T1,T2>& p) const
+    {
+      return hash_combine (std::hash<T1>()(p.first), p.second);
     }
-    return val;
-  }
-};
+  };
+
+  template <typename T> struct hash<std::vector<T>>
+  {
+    size_t operator() (const std::vector<T>& vec) const
+    {
+      size_t h = 0;
+      typename vector<T>::const_iterator first = vec.begin();
+      typename vector<T>::const_iterator last  = vec.end();
+      for (; first != last; ++first) {
+        h = hash_combine (h, *first);
+      }
+      return h;
+    }
+  };
+}
 
 
 class VarCluster
@@ -72,8 +74,8 @@ class VarCluster
     void setRepresentative (VarNode* vn) { repr_ = vn; }
 
   private:
-    VarNodes   members_;
-    VarNode*   repr_;
+    VarNodes  members_;
+    VarNode*  repr_;
 };
 
 
@@ -86,17 +88,17 @@ class FacCluster
     const FacNode* first (void) const { return members_.front(); }
 
     const FacNodes& members (void) const { return members_; }
- 
-    VarClusters& varClusters (void) { return varClusters_; }
-  
+   
     FacNode* representative (void) const { return repr_; }
 
     void setRepresentative (FacNode* fn) { repr_ = fn; }
+
+    VarClusters& varClusters (void) { return varClusters_; }
  
   private:
     FacNodes     members_;
-    VarClusters  varClusters_;
     FacNode*     repr_;
+    VarClusters  varClusters_;
 };
 
 
@@ -171,9 +173,9 @@ class CountingBp : public Solver
     Colors              facColors_;
     VarClusters         varClusters_;
     FacClusters         facClusters_;
-    VarId2VarCluster    vid2VarCluster_;
+    VarClusterMap       varClusterMap_;
     const FactorGraph*  compressedFg_;
-    WeightedBp*   solver_;
+    WeightedBp*         solver_;
 };
 
 #endif // HORUS_COUNTINGBP_H

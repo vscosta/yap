@@ -236,7 +236,7 @@ CountingBp::createClusters (
     const VarNodes& groupVars = it->second;
     VarCluster* vc = new VarCluster (groupVars);
     for (size_t i = 0; i < groupVars.size(); i++) {
-      vid2VarCluster_.insert (make_pair (groupVars[i]->varId(), vc));
+      varClusterMap_.insert (make_pair (groupVars[i]->varId(), vc));
     }
     varClusters_.push_back (vc);
   }
@@ -250,7 +250,7 @@ CountingBp::createClusters (
     varClusters.reserve (neighs.size());
     for (size_t i = 0; i < neighs.size(); i++) {
       VarId vid = neighs[i]->varId();
-      varClusters.push_back (vid2VarCluster_.find (vid)->second);
+      varClusters.push_back (varClusterMap_.find (vid)->second);
     }
     facClusters_.push_back (new FacCluster (it->second, varClusters));
   }
@@ -294,8 +294,8 @@ CountingBp::getSignature (const FacNode* facNode)
 VarId
 CountingBp::getRepresentative (VarId vid)
 {
-  assert (Util::contains (vid2VarCluster_, vid));
-  VarCluster* vc = vid2VarCluster_.find (vid)->second;
+  assert (Util::contains (varClusterMap_, vid));
+  VarCluster* vc = varClusterMap_.find (vid)->second;
   return vc->representative()->varId();
 }
 
