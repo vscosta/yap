@@ -82,17 +82,17 @@ long int XTAG(TERM t)
 
 #include "inline-only.h"
 
-extern inline TERM ADDTAG(void * t,int tag) INLINE_ONLY;
-extern inline int is_UNIFIABLE(TERM t1, TERM t2) INLINE_ONLY;
-extern inline int is_IDENTICAL(TERM t1, TERM t2) INLINE_ONLY;
-extern inline char *bp_term_2_string(TERM t) INLINE_ONLY;
-extern inline int bp_string_2_term(const char *s, TERM to, TERM tv) INLINE_ONLY;
-extern inline SYM_REC_PTR insert(const char *name, int size, int arity) INLINE_ONLY;
-extern inline int compare(TERM t1, TERM t2) INLINE_ONLY;
-extern inline void write_term(TERM t) INLINE_ONLY;
-extern inline void numberVarTermOpt(TERM t) INLINE_ONLY;
-extern inline TERM unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2) INLINE_ONLY;
-extern inline int unifyNumberedTerms(TERM t1, TERM t2) INLINE_ONLY;
+INLINE_ONLY extern inline TERM ADDTAG(void * t,int tag);
+INLINE_ONLY extern inline int is_UNIFIABLE(TERM t1, TERM t2);
+INLINE_ONLY extern inline int is_IDENTICAL(TERM t1, TERM t2);
+INLINE_ONLY extern inline char *bp_term_2_string(TERM t);
+INLINE_ONLY extern inline int bp_string_2_term(const char *s, TERM to, TERM tv);
+INLINE_ONLY extern inline SYM_REC_PTR insert(const char *name, int size, int arity);
+INLINE_ONLY extern inline int compare(TERM t1, TERM t2);
+INLINE_ONLY extern inline void write_term(TERM t);
+INLINE_ONLY extern inline void numberVarTermOpt(TERM t);
+INLINE_ONLY extern inline TERM unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2);
+INLINE_ONLY extern inline int unifyNumberedTerms(TERM t1, TERM t2);
 
 int bpx_call_term(TERM t);
 int bpx_call_string(const char *s);
@@ -103,7 +103,7 @@ void bpx_write(TERM t);
 int bpx_printf(const char *fmt, ...);
 
 
-extern inline TERM ADDTAG(void * t,int tag) {
+INLINE_ONLY extern inline TERM ADDTAG(void * t,int tag) {
   if (tag == ATM) 
     return MkAtomTerm((Atom)t);
   if (tag == LST) 
@@ -133,12 +133,12 @@ TERM encodefloat1(double f)
   return MkFloatTerm((Float)f);
 }
 
-extern inline int is_UNIFIABLE(TERM t1, TERM t2)
+INLINE_ONLY extern inline int is_UNIFIABLE(TERM t1, TERM t2)
 {
   return YAP_Unifiable(t1, t2);
 }
 
-extern inline int is_IDENTICAL(TERM t1, TERM t2)
+INLINE_ONLY extern inline int is_IDENTICAL(TERM t1, TERM t2)
 {
   return YAP_ExactlyEqual(t1, t2);
 }
@@ -180,7 +180,7 @@ extern BPLONG toam_signal_vec;
 
 #define unify YAP_Unify
 
-extern inline char *
+INLINE_ONLY extern inline char *
 bp_term_2_string(TERM t)
 {
   char *buf = malloc(256);
@@ -190,7 +190,7 @@ bp_term_2_string(TERM t)
 }
 
 // char *bp_get_name(TERM t)
-extern inline int
+INLINE_ONLY extern inline int
 bp_string_2_term(const char *s, TERM to, TERM tv)
 {
   TERM t0 = YAP_ReadBuffer(s, NULL);
@@ -198,7 +198,7 @@ bp_string_2_term(const char *s, TERM to, TERM tv)
   return unify(t0, to) && unify(t1,tv);
 }
 
-extern inline SYM_REC_PTR
+INLINE_ONLY extern inline SYM_REC_PTR
 insert(const char *name, int size, int arity)
 {
   if (!arity) {
@@ -207,14 +207,14 @@ insert(const char *name, int size, int arity)
   return (SYM_REC_PTR)YAP_MkFunctor(YAP_LookupAtom(name), arity);
 }
 
-extern inline int
+INLINE_ONLY extern inline int
 compare(TERM t1, TERM t2)
 {
   // compare terms??
   return YAP_CompareTerms(t1,t2);
 }
 
-extern inline void
+INLINE_ONLY extern inline void
 write_term(TERM t)
 {
   YAP_Write(t,NULL,0);
@@ -242,19 +242,19 @@ list_length(BPLONG t1, BPLONG t2)
 
 #define PRE_NUMBER_VAR(X) 
 
-extern inline void
+INLINE_ONLY extern inline void
 numberVarTermOpt(TERM t)
 {
   YAP_NumberVars(t, 0);
 }
 
-extern inline TERM
+INLINE_ONLY extern inline TERM
 unnumberVarTerm(TERM t, BPLONG_PTR pt1, BPLONG_PTR pt2)
 {
   return YAP_UnNumberVars(t);
 }
 
-extern inline int
+INLINE_ONLY extern inline int
 unifyNumberedTerms(TERM t1, TERM t2)
 {
   if (YAP_Unify(t1,t2))

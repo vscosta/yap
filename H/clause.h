@@ -84,9 +84,9 @@ typedef struct logic_upd_clause {
 } LogUpdClause;
 
 #include "inline-only.h"
-inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *) INLINE_ONLY;
+INLINE_ONLY inline EXTERN int VALID_TIMESTAMP(UInt, struct logic_upd_clause *);
 
-inline EXTERN int
+INLINE_ONLY inline EXTERN int
 VALID_TIMESTAMP(UInt timestamp, struct logic_upd_clause *cl)
 {
   return IN_BETWEEN(cl->ClTimeStart, timestamp, cl->ClTimeEnd);
