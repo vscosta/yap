@@ -25,9 +25,9 @@
 
 EXTERN Int Yap_unify(Term a,Term b);
 
-EXTERN inline Term Deref(Term a) INLINE_ONLY;
+INLINE_ONLY EXTERN inline Term Deref(Term a);
 
-EXTERN inline Term Deref(Term a)
+INLINE_ONLY EXTERN inline Term Deref(Term a)
 {
    while(IsVarTerm(a)) {
 	Term *b = (Term *) a;
@@ -37,9 +37,9 @@ EXTERN inline Term Deref(Term a)
    return(a);
 }
 
-EXTERN inline Term Derefa(CELL *b) INLINE_ONLY;
+INLINE_ONLY EXTERN inline Term Derefa(CELL *b);
 
-EXTERN inline Term
+INLINE_ONLY EXTERN inline Term
 Derefa(CELL *b)
 {
   Term a = *b;
@@ -55,9 +55,9 @@ Derefa(CELL *b)
   }
 }
 
-inline EXTERN Term ArgOfTerm (int i, Term t) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term ArgOfTerm (int i, Term t);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 ArgOfTerm (int i, Term t)
 {
   return (Term) (Derefa (RepAppl (t) + (i)));
@@ -65,9 +65,9 @@ ArgOfTerm (int i, Term t)
 
 
 
-inline EXTERN Term HeadOfTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term HeadOfTerm (Term);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 HeadOfTerm (Term t)
 {
   return (Term) (Derefa (RepPair (t)));
@@ -75,9 +75,9 @@ HeadOfTerm (Term t)
 
 
 
-inline EXTERN Term TailOfTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term TailOfTerm (Term);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 TailOfTerm (Term t)
 {
   return (Term) (Derefa (RepPair (t) + 1));
@@ -86,9 +86,9 @@ TailOfTerm (Term t)
 
 
 
-inline EXTERN Term ArgOfTermCell (int i, Term t) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term ArgOfTermCell (int i, Term t);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 ArgOfTermCell (int i, Term t)
 {
   return (Term) ((CELL) (RepAppl (t) + (i)));
@@ -96,9 +96,9 @@ ArgOfTermCell (int i, Term t)
 
 
 
-inline EXTERN Term HeadOfTermCell (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term HeadOfTermCell (Term);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 HeadOfTermCell (Term t)
 {
   return (Term) ((CELL) (RepPair (t)));
@@ -106,9 +106,9 @@ HeadOfTermCell (Term t)
 
 
 
-inline EXTERN Term TailOfTermCell (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term TailOfTermCell (Term);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 TailOfTermCell (Term t)
 {
   return (Term) ((CELL) (RepPair (t) + 1));

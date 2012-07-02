@@ -223,10 +223,10 @@ ADDR    STD_PROTO(Yap_ExpandPreAllocCodeSpace, (UInt, void *, int));
 ADDR    STD_PROTO(Yap_InitPreAllocCodeSpace, (void));
 
 #include "inline-only.h"
-EXTERN inline ADDR
-Yap_PreAllocCodeSpace(void) INLINE_ONLY;
+INLINE_ONLY EXTERN inline ADDR
+Yap_PreAllocCodeSpace(void);
 
-EXTERN inline ADDR
+INLINE_ONLY EXTERN inline ADDR
 Yap_PreAllocCodeSpace(void) 
 {
   CACHE_REGS

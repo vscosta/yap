@@ -231,10 +231,10 @@ typedef struct AliasDescS {
 extern char *Yap_chtype;
 
 #include "inline-only.h"
-EXTERN inline int STD_PROTO(chtype,(Int)) INLINE_ONLY;
+INLINE_ONLY EXTERN inline int STD_PROTO(chtype,(Int));
 int STD_PROTO(Yap_wide_chtype,(Int));
 
-EXTERN inline int
+INLINE_ONLY EXTERN inline int
 chtype(Int ch)
 {
   if (ch < NUMBER_OF_CHARS)
@@ -324,11 +324,16 @@ int  STD_PROTO(Yap_growtrail_in_parser,  (tr_fr_ptr *, TokEntry **, VarEntry **)
 extern int errno;
 #endif
 
-EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *)) INLINE_ONLY;
-EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *)) INLINE_ONLY;
+INLINE_ONLY EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
+INLINE_ONLY EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *));
 
+<<<<<<< HEAD
 EXTERN inline UInt
 HashFunction(unsigned char *CHP) INLINE_ONLY
+=======
+INLINE_ONLY EXTERN inline UInt
+HashFunction(unsigned char *CHP)
+>>>>>>> 97163fa150ba570e4ba2881646363e9877a07bcb
 {
   /* djb2 */
   UInt hash = 5381;
@@ -346,8 +351,8 @@ HashFunction(unsigned char *CHP) INLINE_ONLY
   */
 }
 
-EXTERN inline UInt
-WideHashFunction(wchar_t *CHP) INLINE_ONLY
+INLINE_ONLY EXTERN inline UInt
+WideHashFunction(wchar_t *CHP)
 {
   UInt hash = 5381;
   UInt c;

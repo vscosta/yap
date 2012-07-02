@@ -69,9 +69,9 @@ property list
 #define CHKTAG(t,Tag) 	((Unsigned(t)&TagBits)==Tag)
 
 #include "inline-only.h"
-inline EXTERN int IsVarTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN int IsVarTerm (Term);
 
-inline EXTERN int
+INLINE_ONLY inline EXTERN int
 IsVarTerm (Term t)
 {
   return (int) (Signed (t) >= 0);
@@ -79,9 +79,9 @@ IsVarTerm (Term t)
 
 
 
-inline EXTERN int IsNonVarTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN int IsNonVarTerm (Term);
 
-inline EXTERN int
+INLINE_ONLY inline EXTERN int
 IsNonVarTerm (Term t)
 {
   return (int) (Signed (t) < 0);
@@ -89,9 +89,9 @@ IsNonVarTerm (Term t)
 
 
 
-inline EXTERN Term *RepPair (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term *RepPair (Term);
 
-inline EXTERN Term *
+INLINE_ONLY inline EXTERN Term *
 RepPair (Term t)
 {
   return (Term *) (NonTagPart (t));
@@ -99,9 +99,9 @@ RepPair (Term t)
 
 
 
-inline EXTERN Term AbsPair (Term *) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term AbsPair (Term *);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 AbsPair (Term * p)
 {
   return (Term) (TAGGEDA (PairTag, (p)));
@@ -109,9 +109,9 @@ AbsPair (Term * p)
 
 
 
-inline EXTERN Int IsPairTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Int IsPairTerm (Term);
 
-inline EXTERN Int
+INLINE_ONLY inline EXTERN Int
 IsPairTerm (Term t)
 {
   return (Int) (BitOn (PairBit, (t)));
@@ -119,9 +119,9 @@ IsPairTerm (Term t)
 
 
 
-inline EXTERN Term *RepAppl (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term *RepAppl (Term);
 
-inline EXTERN Term *
+INLINE_ONLY inline EXTERN Term *
 RepAppl (Term t)
 {
   return (Term *) (NonTagPart (t));
@@ -129,9 +129,9 @@ RepAppl (Term t)
 
 
 
-inline EXTERN Term AbsAppl (Term *) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term AbsAppl (Term *);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 AbsAppl (Term * p)
 {
   return (Term) (TAGGEDA (ApplTag, (p)));
@@ -139,9 +139,9 @@ AbsAppl (Term * p)
 
 
 
-inline EXTERN Int IsApplTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Int IsApplTerm (Term);
 
-inline EXTERN Int
+INLINE_ONLY inline EXTERN Int
 IsApplTerm (Term t)
 {
   return (Int) (BitOn (ApplBit, (t)));
@@ -149,9 +149,9 @@ IsApplTerm (Term t)
 
 
 
-inline EXTERN int IsAtomOrIntTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN int IsAtomOrIntTerm (Term);
 
-inline EXTERN int
+INLINE_ONLY inline EXTERN int
 IsAtomOrIntTerm (Term t)
 {
   return (int) (((Unsigned (t) & LowTagBits) == 0));
@@ -160,9 +160,9 @@ IsAtomOrIntTerm (Term t)
 
 
 
-inline EXTERN Term AdjustPtr (Term t, Term off) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term AdjustPtr (Term t, Term off);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 AdjustPtr (Term t, Term off)
 {
   return (Term) ((t) + off);
@@ -170,9 +170,9 @@ AdjustPtr (Term t, Term off)
 
 
 
-inline EXTERN Term AdjustIDBPtr (Term t, Term off) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Term AdjustIDBPtr (Term t, Term off);
 
-inline EXTERN Term
+INLINE_ONLY inline EXTERN Term
 AdjustIDBPtr (Term t, Term off)
 {
   return (Term) ((t) + off);
@@ -181,9 +181,9 @@ AdjustIDBPtr (Term t, Term off)
 
 
 
-inline EXTERN Int IntOfTerm (Term) INLINE_ONLY;
+INLINE_ONLY inline EXTERN Int IntOfTerm (Term);
 
-inline EXTERN Int
+INLINE_ONLY inline EXTERN Int
 IntOfTerm (Term t)
 {
   return (Int) (((Int) (t << 3)) >> (3 + 2));
