@@ -3256,21 +3256,20 @@ cont_current_predicate_for_atom( USES_REGS1 )
 	      }
 	    p = RepPredProp(p->NextOfPE);
 	  }
-	  READ_UNLOCK(PredHashRWLock);
 	}
       }
       READ_UNLOCK(pp->FRWLock);
     } else if (pp->KindOfPE == PEProp) {
       PredEntry *pe = RepPredProp(pf);
-      READ_LOCK(pp->FRWLock);
+      PELOCK(31,pe);
       if (pe->ModuleOfPred == mod ||
 	  pe->ModuleOfPred == 0) {
 	/* we found the predicate */
 	EXTRA_CBACK_ARG(3,1) = MkIntegerTerm((Int)(pp->NextOfPE));
-	READ_UNLOCK(pp->FRWLock);
+	UNLOCKPE(31,pe);
 	return Yap_unify(ARG3,MkIntTerm(0));
       }
-      READ_UNLOCK(pp->FRWLock);
+      UNLOCKPE(31,pe);
     }
     pf = pp->NextOfPE;
   }

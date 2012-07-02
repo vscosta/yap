@@ -328,7 +328,7 @@ EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *)) INLINE_ONLY;
 EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *)) INLINE_ONLY;
 
 EXTERN inline UInt
-HashFunction(unsigned char *CHP)
+HashFunction(unsigned char *CHP) INLINE_ONLY
 {
   /* djb2 */
   UInt hash = 5381;
@@ -347,7 +347,7 @@ HashFunction(unsigned char *CHP)
 }
 
 EXTERN inline UInt
-WideHashFunction(wchar_t *CHP)
+WideHashFunction(wchar_t *CHP) INLINE_ONLY
 {
   UInt hash = 5381;
   UInt c;
