@@ -327,13 +327,8 @@ extern int errno;
 INLINE_ONLY EXTERN inline UInt STD_PROTO(HashFunction, (unsigned char *));
 INLINE_ONLY EXTERN inline UInt STD_PROTO(WideHashFunction, (wchar_t *));
 
-<<<<<<< HEAD
-EXTERN inline UInt
-HashFunction(unsigned char *CHP) INLINE_ONLY
-=======
 INLINE_ONLY EXTERN inline UInt
 HashFunction(unsigned char *CHP)
->>>>>>> 97163fa150ba570e4ba2881646363e9877a07bcb
 {
   /* djb2 */
   UInt hash = 5381;
