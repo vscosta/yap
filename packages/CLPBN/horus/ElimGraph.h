@@ -130,9 +130,9 @@ class ElimGraph
 
     void connectAllNeighbors (const EgNode*);
 
-    vector<EgNode*> nodes_;
-    TinySet<EgNode*> unmarked_;
-    unordered_map<VarId, EgNode*> varMap_;
+    vector<EgNode*>                nodes_;
+    TinySet<EgNode*>               unmarked_;
+    unordered_map<VarId, EgNode*>  varMap_;
 };
 
 #endif // HORUS_ELIMGRAPH_H
