@@ -184,26 +184,43 @@ ElimGraph::getLowestCostNode (void) const
 {
   EgNode* bestNode = 0;
   unsigned minCost = std::numeric_limits<unsigned>::max();
-  unsigned cost = 0;
   EGNeighs::const_iterator it;
   switch (elimHeuristic) {
     case MIN_NEIGHBORS: {
       for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
-        cost = getNeighborsCost (*it);
+        unsigned cost = getNeighborsCost (*it);
         if (cost < minCost) {
           bestNode = *it;
           minCost  = cost;
         }
       }}
       break;
-    case MIN_WEIGHT:
-      //cost = getWeightCost (unmarked_[i]);
+    case MIN_WEIGHT: {
+      for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
+        unsigned cost = getWeightCost (*it);
+        if (cost < minCost) {
+          bestNode = *it;
+          minCost  = cost;
+        }
+      }}
       break;
-    case MIN_FILL:
-      //cost = getFillCost (unmarked_[i]);
+    case MIN_FILL: {
+      for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
+        unsigned cost = getFillCost (*it);
+        if (cost < minCost) {
+          bestNode = *it;
+          minCost  = cost;
+        }
+      }}
       break;
-    case WEIGHTED_MIN_FILL:
-      //cost = getWeightedFillCost (unmarked_[i]);
+    case WEIGHTED_MIN_FILL: {
+      for (it = unmarked_.begin(); it != unmarked_.end(); ++ it) {
+        unsigned cost = getWeightedFillCost (*it);
+        if (cost < minCost) {
+          bestNode = *it;
+          minCost  = cost;
+        }
+      }}
       break;
     default:
       assert (false);
