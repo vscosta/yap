@@ -81,7 +81,6 @@ ve([LVs],Vs0,AllDiffs) :-
 init_ve_solver(Qs, Vs0, _, LVis) :-
 	check_for_agg_vars(Vs0, Vs1),
 	% LVi will have a  list of CLPBN variables
-	% Tables0 will have the full data on each variable
 	init_influences(Vs1, G, RG),
 	init_ve_solver_for_questions(Qs, G, RG, _, LVis).
 

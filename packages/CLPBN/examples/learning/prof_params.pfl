@@ -1,0 +1,56 @@
+% learn distribution for school database.
+
+:- use_module(library(pfl)).
+
+:- use_module(library(clpbn/learning/em)).
+
+bayes abi(K)::[h,m,l] ; abi_table ; [professor(K)].
+
+bayes pop(K)::[h,m,l], abi(K) ; pop_table ; [professor(K)].
+
+abi_table([0.3,0.3,0.4]).
+
+pop_table([0.3,0.3,0.4,0.3,0.3,0.4,0.3,0.3,0.4]).
+
+goal_list([/*abi(p0,h),
+	abi(p1,m),
+	abi(p2,m),
+	abi(p3,m),
+	abi(p4,l),*/
+	pop(p5,h),
+	abi(p5,_),
+	abi(p6,_),
+	pop(p7,_)]).
+
+professor(p1).
+professor(p2).
+professor(p3).
+professor(p4).
+professor(p5).
+professor(p6).
+professor(p7).
+professor(p8).
+
+%:- clpbn:set_clpbn_flag(em_solver,gibbs).
+%:- clpbn:set_clpbn_flag(em_solver,jt).
+:- clpbn:set_clpbn_flag(em_solver,ve).
+%:- clpbn:set_clpbn_flag(em_solver,bp).
+
+timed_main :-
+	statistics(runtime, _),
+	main(Lik),
+	statistics(runtime, [T,_]),
+	format('Took ~d msec and Lik ~3f~n',[T,Lik]).
+
+main(Lik) :-
+	goal_list(L),
+%	run_queries(L),
+        em(L,0.01,10,_,Lik).
+
+run_queries([]).
+run_queries(Q.L) :-
+	call(Q),
+	run_queries(L).
+
+
+
