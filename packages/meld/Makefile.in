@@ -24,6 +24,8 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
+EX_INSTALL_DIR=$(SHAREDIR)/doc/Yap/packages/examples/meld
+
 EXDIR=$(srcdir)/examples
 
 MELD_PROGRAMS= \
@@ -49,8 +51,8 @@ all:
 install: $(PROGRAMS) $(EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/meld
-	mkdir -p $(DESTDIR)$(SHAREDIR)/share/Yap/examples/meld
+	mkdir -p $(DESTDIR)$(EX_INSTALL_DIR)
 	$(INSTALL_DATA) $(srcdir)/meld.yap $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(MELD_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/meld; done
-	for p in $(MELD_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/share/Yap/examples/meld; done
+	for p in $(MELD_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EX_INSTALL_DIR); done
 
