@@ -861,6 +861,7 @@ install_library: @YAPLIB@
 
 install_data: install_copied_files install_bin
 	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install)
+	@ENABLE_CHR@ (cd packages/chr ; $(MAKE) install-examples)
 	@ENABLE_CHR@ (cd packages/clpqr ; $(MAKE) install)
 
 install_copied_files:
