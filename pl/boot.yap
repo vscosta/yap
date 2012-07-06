@@ -109,8 +109,17 @@ true :- true.
 	nb_setval('$consulting_file',[]),
 	nb_setval('$initialization_goals',off),
 	nb_setval('$consulting',false),
-	nb_setval('$included_file',[]).
-	
+	nb_setval('$included_file',[]),
+	fail.
+'$init_consult' :-
+	retractall(user:library_directory(_)),
+	% make sure library_directory is open.
+	\+ clause(user:library_directory(_),_),
+	'$system_library_directories'(D),
+	assert(user:library_directory(D)),
+	fail.
+'$init_consult'.
+
 '$init_or_threads' :-
 	'$c_yapor_workers'(W), !,
 	'$start_orp_threads'(W).
