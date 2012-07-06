@@ -15,7 +15,8 @@ YAPLIBDIR=@libdir@/Yap
 # where YAP should look for architecture-independent Prolog libraries
 #
 SHAREDIR=$(ROOTDIR)/share
-DOCSDIR=$(SHAREDIR)/docs/Yap
+DOCSDIR=$(SHAREDIR)/doc/Yap/packages/problog
+EXDOCSDIR=$(SHAREDIR)/doc/Yap/packages/examples/problog
 #
 #
 # You shouldn't need to change what follows.
@@ -82,10 +83,12 @@ MANUAL = $(srcdir)/$(MANUAL_NAME)
 install: $(PROGRAMS) $(PROBLOG_PROGRAMS) $(PROBLOG_EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples
+	mkdir -p $(DESTDIR)$(DOCSDIR)
+	mkdir -p $(DESTDIR)$(EXDOCSDIR)
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
 	for p in $(PROBLOG_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog; done
-	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/problog_examples; done
+	$(INSTALL_DATA) $(srcdir)/LICENSE $(DESTDIR)$(DOCSDIR)
+	for p in $(PROBLOG_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(EXDOCSDIR); done
 
 pdf: $(MANUAL)
 	$(PDFLATEX) $(MANUAL)
