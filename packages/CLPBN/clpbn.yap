@@ -122,7 +122,7 @@
 :- dynamic solver/1,output/1,use/1,suppress_attribute_display/1, parameter_softening/1, em_solver/1, use_parfactors/1.
 
 solver(ve).
-em_solver(ve).
+em_solver(bp).
 
 :- meta_predicate probability(:,-), conditional_probability(:,:,-).
 

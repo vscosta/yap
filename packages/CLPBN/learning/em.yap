@@ -97,7 +97,7 @@ init_em(Items, state( AllDists, AllDistInstances, MargVars, SolverVars)) :-
 em_loop(Its, Likelihood0, State, MaxError, MaxIts, LikelihoodF, FTables) :-
 	estimate(State, LPs),
 	maximise(State, Tables, LPs, Likelihood),
-%	writeln(Likelihood:Its:Likelihood0:Tables),
+	writeln(iteration:Its:Likelihood:Its:Likelihood0:Tables),
 	(
 	    (
 	     abs((Likelihood - Likelihood0)/Likelihood) < MaxError
@@ -166,6 +166,14 @@ find_variables([K|PKeys], AllVars0, [Parent|Parents]) :-
 	find_variable(K, AllVars0, Parent),
 	find_variables(PKeys, AllVars0, Parents).
 
+%
+% in clp(bn) the whole network is constructed when you evaluate EM. In
+% pfl, we want to delay execution until as late as possible.
+% we just create a new variable and hope for the best.
+%
+%
+find_variable(K, [], Parent) :-
+	clpbn:put_atts(Parent, [key(K)]).
 find_variable(K, [Parent|_AllVars0], Parent) :-
 	clpbn:get_atts(Parent, [key(K0)]), K0 =@= K, !.
 find_variable(K, [_|AllVars0], Parent) :-
