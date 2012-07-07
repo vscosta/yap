@@ -19,7 +19,7 @@ SHAREDIR=$(ROOTDIR)/share/Yap
 # where YAP should store documentation
 #
 DOCDIR=$(ROOTDIR)/share/doc/Yap
-EXDIR=$(DOCDIR)/examples/CLPBN
+EXDIR=$(DOCDIR)/packages/examples/CLPBN
 #
 #
 # You shouldn't need to change what follows.

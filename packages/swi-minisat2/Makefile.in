@@ -36,8 +36,8 @@ EXAMPLE_PROGRAMS= \
 
 install: $(PROGRAMS) 
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
-	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/minisat_examples
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat
 	for p in $(PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap; done
-	for p in $(EXAMPLE_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/minisat_examples; done
+	for p in $(EXAMPLE_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/minisat; done
 
 clean:

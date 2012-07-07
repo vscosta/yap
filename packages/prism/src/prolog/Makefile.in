@@ -24,6 +24,8 @@ INSTALL_PROGRAM=@INSTALL_PROGRAM@
 srcdir=@srcdir@
 YAP_EXTRAS=@YAP_EXTRAS@ 
 
+exdir=@srcdir@/../../exs
+
 # -*- Makefile -*-
 
 ##----------------------------------------------------------------------
@@ -69,11 +71,42 @@ PL_UP_ALL   = $(PL_CORE) $(PL_UP) $(PL_TRANS) $(PL_BP) $(srcdir)/prism.yap
 PL_MP_ALL   = $(PL_MP)
 PL_BAT_ALL  = $(PL_BAT)
 
+EXS    = $(exdir)/README        \
+           $(exdir)/alarm.psm     \
+	   $(exdir)/alarm.psm.out \
+	   $(exdir)/bloodABO.psm \
+	   $(exdir)/bloodAaBb.psm \
+	   $(exdir)/bloodtype.dat \
+	   $(exdir)/dcoin.psm \
+	   $(exdir)/direction.psm \
+	   $(exdir)/hmm.psm \
+	   $(exdir)/jtree \
+	   $(exdir)/noisy_or \
+	   $(exdir)/pdcg.psm \
+	   $(exdir)/pdcg_c.psm \
+	   $(exdir)/phmm.dat \
+	   $(exdir)/phmm.psm \
+	   $(exdir)/plc.dat \
+	   $(exdir)/plc.psm \
+	   $(exdir)/plc.psm.out \
+	   $(exdir)/sbn.psm \
+	   $(exdir)/votes.psm
+
+EXS_JTREE    = $(exdir)/jtree/README        \
+           $(exdir)/jtree/asia.psm     \
+           $(exdir)/jtree/jasia.psm     \
+           $(exdir)/jtree/jasia_a.psm
+
+EXS_NOISY_OR    = $(exdir)/noisy_or/README        \
+           $(exdir)/noisy_or/alarm_nor_basic.psm     \
+           $(exdir)/noisy_or/alarm_nor_generic.psm     \
+           $(exdir)/noisy_or/noisy_or.psm
+
 ##----------------------------------------------------------------------
 
 all: $(TARGETS)
 
-install: $(TARGETS)
+install: $(TARGETS) install-examples
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/prism/bp
@@ -92,6 +125,7 @@ install: $(TARGETS)
 clean:
 	rm -f prism.pl mpprism.pl batch.pl
 
+
 prism.pl: $(PL_UP_ALL)
 	cat $^ > $@
 
@@ -106,3 +140,10 @@ batch.pl: $(PL_BAT_ALL)
 
 .PHONY: all install clean
 
+install-examples:
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/jtree
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/noisy_or
+	for p in $(EXS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism; done
+	for p in $(EXS_JTREE); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/jtree; done
+	for p in $(EXS_NOISY_OR); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/prism/noisy_or; done

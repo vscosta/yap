@@ -2330,6 +2330,7 @@ mkdir -p  packages/meld
 mkdir -p  packages/PLStream
 mkdir -p  packages/PLStream/libtai
 mkdir -p  packages/pldoc
+mkdir -p  packages/pldoc/server
 mkdir -p  packages/plunit
 mkdir -p  packages/prism
 mkdir -p  packages/prism/src
@@ -2399,6 +2400,7 @@ fi
 
 if test "$ENABLE_PLDOC" = ""; then
 AC_CONFIG_FILES([packages/pldoc/Makefile])
+AC_CONFIG_FILES([packages/pldoc/server/man_server.pl])
 fi
 
 if test "$ENABLE_PLUNIT" = ""; then

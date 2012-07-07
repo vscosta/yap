@@ -64,8 +64,8 @@ all:
 install: $(PROGRAMS) $(EXAMPLES)
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap
 	mkdir -p $(DESTDIR)$(SHAREDIR)/Yap/xml
-	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/examples/xml
+	mkdir -p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/xml
 	$(INSTALL_DATA) $(srcdir)/xml.pl $(DESTDIR)$(SHAREDIR)/Yap
 	for p in $(XML_PROGRAMS); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/Yap/xml; done
-	for p in $(XML_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/examples/xml; done
+	for p in $(XML_EXAMPLES); do $(INSTALL_DATA) $$p $(DESTDIR)$(SHAREDIR)/doc/Yap/packages/examples/xml; done
 
