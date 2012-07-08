@@ -855,28 +855,20 @@ fi
 if test "$yap_cv_cudd" != no; then
    	    oldlibs="$LIBS"
 	    if test "$yap_cv_cudd" != "NONE"; then
-	       if test -d "$yap_cv_cudd"/include/cudd; then
-	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include/cudd"
-               else
-	         CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
-	       fi 
-	       cudd_dir="$yap_cv_cudd"
-	    elif test -e /usr/include/cudd; then
-	       CUDD_CPPFLAGS="-I /usr/include/cudd"
+	       CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
 	       cudd_dir="$yap_cv_cudd"
 	    elif test "$prefix" != "NONE"; then
-	       if test -d "$prefix"/include/cudd; then
-	         CUDD_CPPFLAGS="-I $prefix/include/cudd"
-               else
-	         CUDD_CPPFLAGS="-I $prefix/include"
-	       fi 
+	       CUDD_CPPFLAGS="-I $prefix/include"
 	       cudd_dir="$prefix"
 	    else
-	       if test -d /usr/local/include/cudd; then
-	         CUDD_CPPFLAGS="-I /usr/local/include/cudd"
-               fi
+	       CUDD_CPPFLAGS="-I /usr/local/include"
 	       cudd_dir=/usr/local
 	    fi
+	    OLD_CFLAGS="$CPPFLAGS"
+	    CPPFLAGS="$CPPFLAGS $CUDD_CPPFLAGS" 
+	    CPPFLAGS="$OLD_CFLAGS"
+	    AC_CHECK_HEADERS(util.h cudd/util.h cudd.h cudd/cudd.h)
+	    AC_CHECK_HEADERS(cuddInt.h cudd/cuddInt.h)
             dnl cudd can be most everywhere
 	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
 	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
@@ -1667,10 +1659,6 @@ AC_CHECK_HEADERS(mach-o/dyld.h)
 if test "$yap_cv_gmp" != "no"
 then
   AC_CHECK_HEADERS(gmp.h)
-fi
-if test "$yap_cv_cudd" != "no"
-then
-  AC_CHECK_HEADERS(cudd.h)
 fi
 if test "$yap_cv_myddas" != "no"
 then

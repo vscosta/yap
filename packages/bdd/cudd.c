@@ -1,10 +1,21 @@
 
 #include <stdio.h>
 
+#include "config.h"
 #include "YapInterface.h"
 
-#include "util.h"
+#if HAVE_UTIL_H
+#include <util.h>
+#endif
+#if HAVE_CUDD_UTIL_H
+#include <cudd/util.h>
+#endif
+#if HAVE_CUDD_H
 #include "cudd.h"
+#endif
+#if HAVE_CUDD_CUDD_H
+#include "cudd/cudd.h"
+#endif
 
 static YAP_Functor FunctorDollarVar,
   FunctorCudd,
