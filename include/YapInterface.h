@@ -296,6 +296,11 @@ extern X_API YAP_PredEntryPtr PROTO(YAP_FunctorToPred,(YAP_Functor));
 /*  int YAP_AtomToPred(struct pred_entry *, YAP_Term *) */
 extern X_API YAP_PredEntryPtr PROTO(YAP_AtomToPred,(YAP_Atom));
 
+extern X_API YAP_PredEntryPtr PROTO(YAP_FunctorToPredInModule,(YAP_Functor, YAP_Module));
+
+/*  int YAP_AtomToPred(struct pred_entry *, YAP_Term *) */
+extern X_API YAP_PredEntryPtr PROTO(YAP_AtomToPredInModule,(YAP_Atom, YAP_Module));
+
 /*  int YAP_EnterGoal(void) */
 extern X_API YAP_Bool PROTO(YAP_EnterGoal,(YAP_PredEntryPtr, YAP_Term *, YAP_dogoalinfo *));
 

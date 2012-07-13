@@ -16923,6 +16923,19 @@ Return the predicate whose main functor is @var{f}.
 @findex YAP_AtomToPred (C-Interface function)
 Return the arity 0 predicate whose name is @var{at}.
 
+@item  @code{YAP_PredEntryPtr}
+YAP_FunctorToPredInModule(@code{YAP_Functor} @var{f}, @code{YAP_Module} @var{m}),
+@findex YAP_FunctorToPredInModule (C-Interface function)
+Return the predicate in module @var{m} whose main functor is @var{f}.
+
+@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at},
+@findex YAP_AtomToPred (C-Interface function)
+Return the arity 0 predicate whose name is @var{at}.
+
+@item  @code{YAP_PredEntryPtr} YAP_AtomToPred(@code{YAP_Atom} @var{at}, @code{YAP_Module} @var{m}),
+@findex YAP_AtomToPredInModule (C-Interface function)
+Return the arity 0 predicate in module @var{m} whose name is @var{at}.
+
 @item  @code{YAP_Bool} YAP_EnterGoal(@code{YAP_PredEntryPtr} @var{pe},
 @code{YAP_Term *} @var{array}, @code{YAP_dogoalinfo *} @var{infop})
 @findex YAP_EnterGoal (C-Interface function)
