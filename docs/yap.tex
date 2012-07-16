@@ -200,6 +200,7 @@ Subnodes of Library
 * Heaps:: Labelled binary tree where the key of each node is less
     than or equal to the keys of its children.
 * Lambda:: Ulrich Neumerkel's Lambda Library
+* DBUsage:: Information bout data base usage.
 * LineUtilities:: Line Manipulation Utilities
 * Lists:: List Manipulation
 * MapList:: SWI-Compatible Apply library.
@@ -8660,6 +8661,7 @@ Library, Extensions, Built-ins, Top
     than or equal to the keys of its children.
 * LAM:: LAM MPI
 * Lambda:: Ulrich Neumerkel's Lambda Library
+* DBUsage:: Information bout data base usage.
 * Lists:: List Manipulation
 * LineUtilities:: Line Manipulation Utilities
 * MapList:: SWI-Compatible Apply library.
@@ -12697,7 +12699,7 @@ The vertices @var{Vertices} have no outgoing edge in graph
 
 @end table
 
-@node UnDGraphs, Lambda , DGraphs, Library
+@node UnDGraphs, DBUsage , DGraphs, Library
 @section Undirected Graphs
 @cindex undirected graphs
 
@@ -12793,7 +12795,50 @@ directed graph @var{DGraph}.
 
 @end table
 
-@node Lambda, LAM, UnDGraphs, Library
+@node DBUsage, Lambda, UnDGraphs, Library
+@section Memory Usage in Prolog Data-Base
+@cindex DBUsage
+
+This library provides a set of utilities for studying memory usage in YAP.
+The following routines are available once included with the
+@code{use_module(library(dbusage))} command.
+
+@table @code
+@item db_usage
+@findex db_usage/0
+@snindex db_usage/0
+@cnindex db_usage/0
+Give general overview of data-base usage in the system.
+
+@item db_static
+@findex db_static/0
+@snindex db_static/0
+@cnindex db_static/0
+List memory usage for every static predicate.
+
+@item db_static(+@var{Threshold})
+@findex db_static/0
+@snindex db_static/0
+@cnindex db_static/0
+List memory usage for every static predicate. Predicate must use more
+than @var{Threshold} bytes.
+
+@item db_dynamic
+@findex db_dynamic/0
+@snindex db_dynamic/0
+@cnindex db_dynamic/0
+List memory usage for every dynamic predicate.
+
+@item db_dynamic(+@var{Threshold})
+@findex db_dynamic/0
+@snindex db_dynamic/0
+@cnindex db_dynamic/0
+List memory usage for every dynamic predicate. Predicate must use more
+than @var{Threshold} bytes.
+
+@end table
+
+@node Lambda, LAM, DBUsage, Library
 @section Lambda Expressions
 @cindex Lambda Expressions
 
