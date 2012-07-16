@@ -13085,7 +13085,7 @@ Yap_absmi(int inp)
 	  goto fail;
 	}
 	PP = PredMetaCall;
-	SREG = (CELL *) pen;
+	SREG = (CELL *) PP;
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -13096,7 +13096,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
+	if (!Yap_gc(PP->ArityOfPE, ENV, NEXTOP(PREG, Osbpp))) {
 	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
@@ -13294,7 +13294,7 @@ Yap_absmi(int inp)
 	  goto fail;
 	}
 	PP = PredMetaCall;
-	SREG = (CELL *) pen;
+	SREG = (CELL *) PP;
 	ASP = ENV_YREG;
 	if (ASP > (CELL *)PROTECT_FROZEN_B(B))
 	  ASP = (CELL *)PROTECT_FROZEN_B(B);
@@ -13305,7 +13305,7 @@ Yap_absmi(int inp)
 	  goto creep_pe;
 	}
 	saveregs_and_ycache();
-	if (!Yap_gc(((PredEntry *)SREG)->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
+	if (!Yap_gc(PP->ArityOfPE, ENV, NEXTOP(PREG, Osbmp))) {
 	  Yap_NilError(OUT_OF_STACK_ERROR,LOCAL_ErrorMessage);
 	}
 	setregs_and_ycache();
