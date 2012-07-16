@@ -96,7 +96,7 @@ db_dynamic(Min) :-
 		  predicate_statistics(M:P,Cls,CSz,ISz),
 		  predicate_erased_statistics(M:P,ECls,ECSz,EISz),
 		  Sz is (CSz+ISz+ECSz+EISz),
-		  Sz < Min),
+		  Sz > Min),
 	      All),
 	format(user_error,' Dynamic user code~n===========================~n',[]),
 	display_dpreds(All).
