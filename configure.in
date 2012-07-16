@@ -234,7 +234,6 @@ AC_ARG_WITH(gmp,
 		CFLAGS="$CFLAGS -I${yap_cv_gmp}/include"
 	fi,
 	[yap_cv_gmp=yes])
-
 AC_ARG_WITH(R,
 	[ --with-R[=DIR]              interface to R language],
 	if test "$withval" = yes; then
@@ -854,7 +853,7 @@ fi
 
 if test "$yap_cv_cudd" != no; then
    	    oldlibs="$LIBS"
-	    if test "$yap_cv_cudd" != "NONE"; then
+	    if test "$yap_cv_cudd" != "NONE" -a "$yap_cv_cudd" != "yes"; then
 	       CUDD_CPPFLAGS="-I $yap_cv_cudd/include"
 	       cudd_dir="$yap_cv_cudd"
 	    elif test "$prefix" != "NONE"; then
@@ -864,9 +863,8 @@ if test "$yap_cv_cudd" != no; then
 	       CUDD_CPPFLAGS="-I /usr/local/include"
 	       cudd_dir=/usr/local
 	    fi
-	    OLD_CFLAGS="$CPPFLAGS"
+	    OLD_CPPFLAGS="$CPPFLAGS"
 	    CPPFLAGS="$CPPFLAGS $CUDD_CPPFLAGS" 
-	    CPPFLAGS="$OLD_CFLAGS"
 	    AC_CHECK_HEADERS(util.h cudd/util.h cudd.h cudd/cudd.h)
 	    AC_CHECK_HEADERS(cuddInt.h cudd/cuddInt.h)
             dnl cudd can be most everywhere
@@ -899,6 +897,7 @@ if test "$yap_cv_cudd" != no; then
 	      LIBS="$LIBS -L $cudd_dir/cudd"
 	    fi
 	    AC_SEARCH_LIBS(Cudd_Init, [cudd], [cudd_installed="yes"], [cudd_installed="no"])
+	    CPPFLAGS="$OLD_CPPFLAGS"
 	    if test "$cudd_installed" = yes; then
 	      CUDD_LDFLAGS="$LIBS"
 	    else

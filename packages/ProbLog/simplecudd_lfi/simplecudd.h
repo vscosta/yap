@@ -191,7 +191,7 @@
 #include <math.h>
 #include <time.h>
 #include "pqueue.h"
-#include "../../../config.h"
+#include "config.h"
 #if HAVE_UTIL_H
 #include <util.h>
 #endif
