@@ -3953,9 +3953,10 @@ Yap_assemble(int mode, Term t, PredEntry *ap, int is_fact, struct intermediates 
       if (ap->PredFlags & LogUpdatePredFlag) {
 	((LogUpdClause *)(cip->code_addr))->ClSize = size;
 	Yap_LUClauseSpace += size;
-      } else
+      } else {
 	((StaticClause *)(cip->code_addr))->ClSize = size;
 	Yap_ClauseSpace += size;
+      }
     } else {
       if (ap->PredFlags & LogUpdatePredFlag) {
 	Yap_LUIndexSpace_Tree += size;
