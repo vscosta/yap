@@ -871,7 +871,7 @@ if test "$yap_cv_cudd" != no; then
 	    if test -d "$cudd_dir/lib64/cudd" -a "$YAP_TARGET" = amd64; then
 	      LIBS="$LIBS -L $cudd_dir/lib64/cudd"
 	    elif test -d "$cudd_dir/lib64" -a "$YAP_TARGET" = amd64; then
-	      LIBS="$LIBS -L $cudd_dir/lib64"
+	      LIBS="$LIBS -L $cudd_dir/lib64  -L $cudd_dir/lib"
 	    elif test -d "$cudd_dir/lib/cudd"; then
 	      LIBS="$LIBS -L $cudd_dir/lib/cudd"
 	    elif test -d "$cudd_dir/lib"; then
