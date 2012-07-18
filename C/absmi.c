@@ -1131,8 +1131,9 @@ Yap_absmi(int inp)
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
-	      /* make sure we don't erase the clause we are jumping too */
-	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+	      /* make sure we don't erase the clause we are jumping to,
+	       notice that we can erase a number of refs in one go. */
+	      if (!(lcl->ClFlags & InUseMask)) {
 		lcl->ClFlags |= InUseMask;
 		TRAIL_CLREF(lcl);
 	      }
@@ -1439,7 +1440,7 @@ Yap_absmi(int inp)
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
 	      /* make sure we don't erase the clause we are jumping too */
-	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+	      if (!(lcl->ClFlags & InUseMask)) {
 		lcl->ClFlags |= InUseMask;
 		TRAIL_CLREF(lcl);
 	      }
@@ -8066,7 +8067,7 @@ Yap_absmi(int inp)
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    if (PREG != FAILCODE) {
 	      /* make sure we don't erase the clause we are jumping too */
-	      if (lcl->ClRefCount == 1 && !(lcl->ClFlags & InUseMask)) {
+	      if (!(lcl->ClFlags & InUseMask)) {
 		lcl->ClFlags |= InUseMask;
 		TRAIL_CLREF(lcl);
 		B->cp_tr = TR;

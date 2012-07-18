@@ -6306,12 +6306,26 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	/* actually get rid of the code */
 	if (cl->ClRefCount == 0 && cl->ClFlags & (ErasedMask|DirtyMask)) {
 	  /* I am the last one using this clause, hence I don't need a lock
-	     to dispose of it 
+	     to dispose of it. But on the other hand I need to make sure
+	     the clause is still there when I am back.
 	  */
+	  LogUpdClause *lcl = ipc->u.OtILl.d;
+	  if (newpc) {
+	    /* I am the last one using this clause, hence I don't need a lock
+	       to dispose of it 
+	    */
+	    /* make sure the clause isn't destroyed */
+	    /* always add an extra reference */
+	    INC_CLREF_COUNT(lcl);
+	    TRAIL_CLREF(lcl);
+	  }
 	  if (cl->ClFlags & ErasedMask) {
 	    Yap_ErLogUpdIndex(cl);
 	  } else {
 	    Yap_CleanUpIndex(cl);
+	  }
+	  if (newpc) {
+	    DEC_CLREF_COUNT(lcl);	  
 	  }
 	}
 #else
@@ -6324,8 +6338,11 @@ Yap_FollowIndexingCode(PredEntry *ap, yamop *ipc, Term Terms[3], yamop *ap_pc, y
 	  /* next, recover space for the indexing code if it was erased */
 	  if (cl->ClFlags & (ErasedMask|DirtyMask)) {
 	    LogUpdClause *lcl = ipc->u.OtILl.d;
-	    /* make sure we don't erase the clause we are jumping to */
-	    if (lcl->ClRefCount == 1 && !(lcl->ClFlags & (DirtyMask|InUseMask))) {
+	    /* make sure we don't erase the clause we are jumping to, notice that
+	       ErLogUpdIndex may remove several references in one go.
+	       Notice we only need to do this if we´ re jumping to the clause.
+	     */
+	    if (newpc && !(lcl->ClFlags & (DirtyMask|InUseMask))) {
 	      lcl->ClFlags |= InUseMask;
 	      TRAIL_CLREF(lcl);
 	    }
