@@ -435,6 +435,8 @@ X_API Int     STD_PROTO(YAP_Init,(YAP_init_args *));
 X_API Int     STD_PROTO(YAP_FastInit,(char *));
 X_API PredEntry *STD_PROTO(YAP_FunctorToPred,(Functor));
 X_API PredEntry *STD_PROTO(YAP_AtomToPred,(Atom));
+X_API PredEntry *STD_PROTO(YAP_FunctorToPredInModule,(Functor, Term));
+X_API PredEntry *STD_PROTO(YAP_AtomToPredInModule,(Atom, Term));
 X_API Int     STD_PROTO(YAP_CallProlog,(Term));
 X_API void   *STD_PROTO(YAP_AllocSpaceFromYap,(unsigned int));
 X_API void   *STD_PROTO(YAP_ReallocSpaceFromYap,(void*,unsigned int));
@@ -2247,6 +2249,20 @@ YAP_AtomToPred(Atom at)
 {
   CACHE_REGS
   return RepPredProp(PredPropByAtom(at, CurrentModule));  
+}
+
+X_API PredEntry *
+YAP_FunctorToPredInModule(Functor func, Term mod)
+{
+  CACHE_REGS
+  return RepPredProp(PredPropByFunc(func, mod));
+}
+
+X_API PredEntry *
+YAP_AtomToPredInModule(Atom at, Term mod)
+{
+  CACHE_REGS
+  return RepPredProp(PredPropByAtom(at, mod));  
 }
 
 

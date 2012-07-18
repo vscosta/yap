@@ -893,6 +893,7 @@ predicate_statistics(P,NCls,Sz,ISz) :-
 	'$static_pred_statistics'(P,M,NCls,Sz,ISz).
 
 predicate_erased_statistics(P,NCls,Sz,ISz) :-
+        var(P), !, 
 	current_predicate(_,P),
 	predicate_erased_statistics(P,NCls,Sz,ISz).
 predicate_erased_statistics(M:P,NCls,Sz,ISz) :- !,
