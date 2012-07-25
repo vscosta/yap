@@ -2017,7 +2017,7 @@ AC_CHECK_FUNCS(rename rint sbrk select setbuf)
 AC_CHECK_FUNCS(setitimer setlocale setsid setlinebuf sigaction)
 AC_CHECK_FUNCS(siggetmask siginterrupt)
 AC_CHECK_FUNCS(signal sigprocmask socket stat)
-AC_CHECK_FUNCS(strchr strerror stricmp strncat strncpy strtod)
+AC_CHECK_FUNCS(strchr strerror stricmp strlwr strncat strncpy strtod)
 AC_CHECK_FUNCS(time times tmpnam usleep utime vsnprintf)
 
 AC_CHECK_FUNC(regexec, [NO_BUILTIN_REGEXP="#"], [NO_BUILTIN_REGEXP=""])

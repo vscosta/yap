@@ -254,6 +254,7 @@
 #undef  HAVE_STRCHR
 #undef  HAVE_STRERROR
 #undef  HAVE_STRICMP
+#undef  HAVE_STRLWR
 #undef  HAVE_STRNCAT
 #undef  HAVE_STRNCPY
 #undef  HAVE_STRTOD
