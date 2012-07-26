@@ -28,7 +28,6 @@
 	host_id/1,
 	host_name/1,
 	pid/1,
-	kill/2,
 	mktemp/2,
 	make_directory/1,
 	popen/3,
@@ -44,11 +43,13 @@
 	tmpnam/1,
 	tmp_file/2,
         tmpdir/1,
-	wait/2,
 	working_directory/2
           ]).
 
 :- use_module(library(lists), [append/3]).
+
+:- reexport(library(unix), [wait/2,
+			     kill/2]).
 
 :- load_foreign_files([sys], [], init_sys).
 
@@ -317,13 +318,13 @@ system(Command, Status) :-
 	Status = 0,
 	handle_system_error(Error, off, G).
 
-wait(PID,STATUS) :- var(PID), !,
-	throw(error(instantiation_error,wait(PID,STATUS))).
-wait(PID,STATUS) :- integer(PID), !,
-	wait(PID, STATUS, Error),
-	handle_system_error(Error, off, wait(PID,STATUS)).
-wait(PID,STATUS) :-
-	throw(error(type_error(integer,PID),wait(PID,STATUS))).
+%% wait(PID,STATUS) :- var(PID), !,
+%% 	throw(error(instantiation_error,wait(PID,STATUS))).
+%% wait(PID,STATUS) :- integer(PID), !,
+%% 	wait(PID, STATUS, Error),
+%% 	handle_system_error(Error, off, wait(PID,STATUS)).
+%% wait(PID,STATUS) :-
+%% 	throw(error(type_error(integer,PID),wait(PID,STATUS))).
 
 %
 % host info
@@ -342,16 +343,16 @@ pid(X) :-
 	pid(X, Error),
 	handle_system_error(Error, off, pid(X)).
 
-kill(X,Y) :-
-	integer(X), integer(Y), !,
-	kill(X, Y, Error),
-	handle_system_error(Error, off, kill(X,Y)).
-kill(X,Y) :- (var(X) ; var(Y)), !,
-	throw(error(instantiation_error,kill(X,Y))).
-kill(X,Y) :- integer(X), !,
-	throw(error(type_error(integer,Y),kill(X,Y))).
-kill(X,Y) :-
-	throw(error(type_error(integer,X),kill(X,Y))).
+%% kill(X,Y) :-
+%% 	integer(X), integer(Y), !,
+%% 	kill(X, Y, Error),
+%% 	handle_system_error(Error, off, kill(X,Y)).
+%% kill(X,Y) :- (var(X) ; var(Y)), !,
+%% 	throw(error(instantiation_error,kill(X,Y))).
+%% kill(X,Y) :- integer(X), !,
+%% 	throw(error(type_error(integer,Y),kill(X,Y))).
+%% kill(X,Y) :-
+%% 	throw(error(type_error(integer,X),kill(X,Y))).
 
 mktemp(X,Y) :- var(X), !,
 	throw(error(instantiation_error,mktemp(X,Y))).
