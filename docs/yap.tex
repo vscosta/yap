@@ -5887,7 +5887,8 @@ Set buffering for @var{SOCKET} in @code{read} or @code{write}
 receives the new status which may be one of @code{unbuf} or
 @code{fullbuf}.
 
-@item socket_select(+@var{SOCKETS}, -@var{NEWSTREAMS}, +@var{TIMEOUT}, +@var{STREAMS}, -@var{READSTREAMS})
+@item socket_select(+@var{SOCKETS}, -@var{NEWSTREAMS}, +@var{TIMEOUT},
++@var{STREAMS}, -@var{READSTREAMS}) [unsupported in YAP-6.3]
 @findex socket_select/5
 @syindex socket_select/5
 @cnindex socket_select/5
