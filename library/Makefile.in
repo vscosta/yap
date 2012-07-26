@@ -60,6 +60,7 @@ PROGRAMS= \
 	$(srcdir)/rbtrees.yap \
 	$(srcdir)/regexp.yap \
 	$(srcdir)/rltree.yap \
+	$(srcdir)/sockets.yap \
 	$(srcdir)/splay.yap \
 	$(srcdir)/stringutils.yap \
 	$(srcdir)/system.yap \

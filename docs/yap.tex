@@ -5762,12 +5762,13 @@ interactive control from a pipe or a socket.
 @node Sockets, , I/O Control, I/O
 @subsection Using Sockets From YAP
 
-YAP includes a SICStus Prolog compatible socket interface. This
-is a low level interface that provides direct access to the major socket
-system calls. These calls can be used both to open a new connection in
-the network or connect to a networked server. Socket connections are
-described as read/write streams, and standard I/O built-ins can be used
-to write on or read from sockets. The following calls are available:
+YAP includes a SICStus Prolog compatible socket interface. In YAP-6.3
+this uses the @c{clib} package to emulate the old low level interface that
+provides direct access to the major socket system calls. These calls
+can be used both to open a new connection in the network or connect to
+a networked server. Socket connections are described as read/write
+streams, and standard I/O built-ins can be used to write on or read
+from sockets. The following calls are available:
 
 @table @code
 
@@ -5778,13 +5779,15 @@ to write on or read from sockets. The following calls are available:
 Corresponds to the BSD system call @code{socket}. Create a socket for
 domain @var{DOMAIN} of type @var{TYPE} and protocol
 @var{PROTOCOL}. Both @var{DOMAIN} and @var{TYPE} should be atoms,
-whereas @var{PROTOCOL} must be an integer. The new socket object is
+whereas @var{PROTOCOL} must be an integer.
+The new socket object is
 accessible through a descriptor bound to the variable @var{SOCKET}.
 
-The current implementation of YAP only accepts two socket
-domains: @code{'AF_INET'} and @code{'AF_UNIX'}. Socket types depend on the
+The current implementation of YAP only accepts one socket
+domain: @code{'AF_INET'}. @c and @code{'AF_UNIX'}. 
+Socket types depend on the
 underlying operating system, but at least the following types are
-supported: @code{'SOCK_STREAM'} and @code{'SOCK_DGRAM'}.
+supported: @code{'SOCK_STREAM'} and @code{'SOCK_DGRAM'} (untested in 6.3).
 
 @item socket(+@var{DOMAIN},-@var{SOCKET})
 @findex socket/2
@@ -5812,7 +5815,7 @@ corresponding stream is closed with @code{close/1} or @code{close/2}.
 Interface to system call @code{bind}, as used for servers: bind socket
 to a port. Port information depends on the domain:
 @table @code
-@item 'AF_UNIX'(+@var{FILENAME})
+@item 'AF_UNIX'(+@var{FILENAME}) (unsupported)
 @item 'AF_FILE'(+@var{FILENAME})
 use file name @var{FILENAME} for UNIX or local sockets.
 

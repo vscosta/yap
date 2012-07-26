@@ -78,6 +78,26 @@
 '$check_boolean'(X,B,T,G) :-
 	'$do_error'(domain_error(B,T),G).
 
+socket(Domain, Sock) :-
+	(
+	 '$undefined'(ip_socket(_,_),yap_sockets)
+	->
+	 load_files(library(sockets), [silent(true),if(not_loaded)])
+	;
+	 true
+	),
+	yap_sockets:ip_socket(Domain, Sock).
+
+socket(Domain, Type, Protocol, Sock) :-
+	(
+	 '$undefined'(ip_socket(_,_),yap_sockets)
+	->
+	 load_files(library(sockets), [silent(true),if(not_loaded)])
+	;
+	 true
+	),
+	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
+
 open_pipe_streams(Read, Write) :-
 	(
 	 '$undefined'(pipe(_,_),unix)
