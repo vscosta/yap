@@ -8,7 +8,7 @@
 @c @setchapternewpage odd
 @c %**end of header
 
-@set VERSION 6.3.0
+@set VERSION 6.3.2
 @set EDITION 4.2.9
 @set UPDATED Oct 2010
 
@@ -2641,7 +2641,7 @@ Succeeds once.
 @cyindex fail/0
 Fails always.
 
-@item false
+@item false [ISO]
 @findex false/0
 @syindex false/0
 @cnindex false/0
@@ -2807,7 +2807,7 @@ instead of the call to @code{call/1}, except that any "cut" occurring in
 @cnindex incore/1
 The same as @code{call/1}.
 
-@item call(+@var{Closure},...,?@var{Ai},...)
+@item call(+@var{Closure},...,?@var{Ai},...) [ISO]
 @findex call/n
 @snindex call/n
 @cnindex call/n
@@ -3317,7 +3317,7 @@ Checks whether @var{T} is an atomic term or a database reference.
 @cnindex simple/1
 Checks whether @var{T} is unbound, an atom, or a number.
 
-@item callable(@var{T})
+@item callable(@var{T}) [ISO]
 @findex callable/1
 @syindex callable/1
 @cnindex callable/1
@@ -3337,7 +3337,7 @@ Instantiates each variable in term @var{T} to a term of the form:
 @cnindex unnumbervars/2
 Replace every @code{'$VAR'(@var{I})} by a free variable.
 
-@item ground(@var{T})
+@item ground(@var{T}) [ISO]
 @findex ground/1
 @syindex ground/1
 @cnindex ground/1
@@ -3479,13 +3479,13 @@ Succeed if @var{Subsumer} unifies with the least general
 generalization over @var{T1} and
 @var{T2}.
 
-@item acyclic_term(?@var{Term})
+@item acyclic_term(?@var{Term}) [ISO]
 @findex cyclic_term/1
 @syindex cyclic_term/1
 @cnindex cyclic_term/1
 Succeed if the argument @var{Term} is an acyclic term.
 
-@item term_variables(?@var{Term}, -@var{Variables})
+@item term_variables(?@var{Term}, -@var{Variables}) [ISO]
 @findex  term_variables/2
 @syindex term_variables/2
 @cnindex term_variables/2
@@ -3836,7 +3836,7 @@ left-to-right order.
 
 @table @code
 
-@item compare(@var{C},@var{X},@var{Y})
+@item compare(@var{C},@var{X},@var{Y}) [ISO]
 @findex compare/3
 @syindex compare/3
 @cyindex compare/3
@@ -3913,14 +3913,14 @@ Term @var{X} follows term @var{Y} in the standard order.
 @cyindex @@>=/2
 Term @var{X} does not precede term @var{Y} in the standard order.
 
-@item sort(+@var{L},-@var{S})
+@item sort(+@var{L},-@var{S}) [ISO]
 @findex sort/2
 @syindex sort/2
 @cyindex sort/2
 Unifies @var{S} with the list obtained by sorting @var{L} and  merging
 identical (in the sense of @code{==}) elements.
 
-@item keysort(+@var{L},@var{S})
+@item keysort(+@var{L},@var{S}) [ISO]
 @findex keysort/2
 @syindex keysort/2
 @cyindex keysort/2
@@ -4006,7 +4006,7 @@ Arithmetic expressions in YAP may use the following operators or
 
 @table @code
 
-@item +@var{X}
+@item +@var{X} [ISO]
 The value of @var{X} itself.
 
 @item -@var{X} [ISO]
@@ -4056,13 +4056,13 @@ Sine.
 @item cos(@var{X}) [ISO]
 Cosine.
 
-@item tan(@var{X})
+@item tan(@var{X}) [ISO]
 Tangent.
 
-@item asin(@var{X})
+@item asin(@var{X}) [ISO]
 Arc sine.
 
-@item acos(@var{X})
+@item acos(@var{X}) [ISO]
 Arc cosine.
 
 @item atan(@var{X}) [ISO]
@@ -4070,6 +4070,9 @@ Arc tangent.
 
 @item atan(@var{X},@var{Y})
 Four-quadrant arc tangent. Also available as @code{atan2/2}.
+
+@item atan2(@var{X},@var{Y}) [ISO]
+Four-quadrant arc tangent.
 
 @item sinh(@var{X})
 Hyperbolic sine.
@@ -4192,13 +4195,13 @@ A = 1 rdiv 10
 @end example
 
 
-@item max(@var{X},@var{Y})
+@item max(@var{X},@var{Y}) [ISO]
 The greater value of @var{X} and @var{Y}.
 
-@item min(@var{X},@var{Y})
+@item min(@var{X},@var{Y}) [ISO]
 The lesser value of @var{X} and @var{Y}.
 
-@item @var{X} ^ @var{Y}
+@item @var{X} ^ @var{Y} [ISO]
 @var{X} raised to the power of @var{Y}, (from the C-Prolog syntax).
 
 @item exp(@var{X},@var{Y})
@@ -4215,7 +4218,7 @@ Integer bitwise disjunction.
 
 @item @var{X} # @var{Y}
 @item @var{X} >< @var{Y}
-@item xor(@var{X} , @var{Y})
+@item xor(@var{X} , @var{Y}) [ISO]
 Integer bitwise exclusive disjunction.
 
 @item @var{X} << @var{Y}
@@ -4264,7 +4267,7 @@ Besides numbers and the arithmetic operators described above, certain
 atoms have a special meaning when present in arithmetic expressions:
 
 @table @code
-@item pi
+@item pi [ISO]
 The value of @emph{pi}, the ratio of a circle's circumference to its
 diameter.
 
@@ -6139,7 +6142,7 @@ predicate may also be used for the static predicates that have been
 compiled when the source mode was @code{on}. For more information on
 @code{source/0} (@pxref{Setting the Compiler}).
 
-@item retractall(+@var{G})
+@item retractall(+@var{G}) [ISO]
 @findex retractall/1
 @saindex retractall/1
 @cnindex retractall/1
@@ -8142,7 +8145,7 @@ the @code{-L} flag.
 @findex integer_rounding_function (yap_flag/2 option)
 @*
 Read-only flag telling the rounding function used for integers. Takes the value
-@code{down} for the current version of YAP.
+@code{toward_zero} for the current version of YAP.
 
 @item language
 @findex language (yap_flag/2 option)
