@@ -4664,7 +4664,10 @@ will not have a leading dot.
 Defines the relation: The stream @var{S} is opened on the file @var{F}
 in mode @var{M}. It might be used to obtain all open streams (by
 backtracking) or to access the stream for a file @var{F} in mode
-@var{M}, or to find properties for a stream @var{S}.
+@var{M}, or to find properties for a stream @var{S}. Notice that some
+streams might not be associated to a file: in this case YAP tries to
+return the file number. If that is not available, YAP unifies @var{F}
+with @var(S}.
 
 @item is_stream(@var{S})
 @findex is_stream/1

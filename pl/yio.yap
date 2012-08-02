@@ -98,6 +98,16 @@ socket(Domain, Type, Protocol, Sock) :-
 	),
 	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
 
+socket_connect(Sock, Host, Read) :-
+	(
+	 '$undefined'(ip_socket(_,_),yap_sockets)
+	->
+	 load_files(library(sockets), [silent(true),if(not_loaded)])
+	;
+	 true
+	),
+	yap_sockets:ip_socket(Domain, Type, Protocol, Sock).
+
 open_pipe_streams(Read, Write) :-
 	(
 	 '$undefined'(pipe(_,_),unix)
@@ -263,6 +273,7 @@ current_line_number(Stream,N) :-
 
 stream_position(Stream, Position) :-
 	stream_property(Stream, position(Position)).
+
 stream_position(Stream, Position, NewPosition) :-
 	stream_property(Stream, position(Position)),
 	set_stream_position(Stream, NewPosition).
@@ -292,8 +303,15 @@ current_char_conversion(X,Y) :-
 	'$fetch_char_conversion'(List,X,Y).
 
 
-current_stream(File, Opts, Stream) :-
-	'$current_stream'(File, Opts, Stream).
+current_stream(File, Mode, Stream) :-
+    stream_property(Stream, mode(Mode)),
+    '$stream_name'(Stream, File).
+
+'$stream_name'(Stream, File) :-
+    stream_property(Stream, file_name(File)), !.
+'$stream_name'(Stream, file_no(File)) :-
+    stream_property(Stream, file_no(File)), !.
+'$stream_name'(Stream, Stream).
 
 '$extend_file_search_path'(P) :-
 	atom_codes(P,S),
