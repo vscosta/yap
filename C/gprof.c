@@ -213,7 +213,7 @@ static void
 LeftRotate(rb_red_blk_node* x) {
   CACHE_REGS
   rb_red_blk_node* y;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -228,7 +228,7 @@ LeftRotate(rb_red_blk_node* x) {
   y=x->right;
   x->right=y->left;
 
-  if (y->left != nil) y->left->parent=x; /* used to use sentinel here */
+  if (y->left != rb_nil) y->left->parent=x; /* used to use sentinel here */
   /* and do an unconditional assignment instead of testing for nil */
   
   y->parent=x->parent;   
@@ -270,7 +270,7 @@ static void
 RightRotate(rb_red_blk_node* y) {
   CACHE_REGS
   rb_red_blk_node* x;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -285,7 +285,7 @@ RightRotate(rb_red_blk_node* y) {
   x=y->left;
   y->left=x->right;
 
-  if (nil != x->right)  x->right->parent=y; /*used to use sentinel here */
+  if (rb_nil != x->right)  x->right->parent=y; /*used to use sentinel here */
   /* and do an unconditional assignment instead of testing for nil */
 
   /* instead of checking if x->parent is the root as in the book, we */
@@ -325,12 +325,12 @@ TreeInsertHelp(rb_red_blk_node* z) {
   /*  This function should only be called by InsertRBTree (see above) */
   rb_red_blk_node* x;
   rb_red_blk_node* y;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
   
-  z->left=z->right=nil;
+  z->left=z->right=rb_nil;
   y=LOCAL_ProfilerRoot;
   x=LOCAL_ProfilerRoot->left;
-  while( x != nil) {
+  while( x != rb_nil) {
     y=x;
     if (x->key > z->key) { /* x.key > z.key */
       x=x->left;
@@ -447,18 +447,18 @@ static rb_red_blk_node*
 RBExactQuery(yamop* q) {
   CACHE_REGS
   rb_red_blk_node* x;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
 
   if (!LOCAL_ProfilerRoot) return NULL;
   x=LOCAL_ProfilerRoot->left;
-  if (x == nil) return NULL;
+  if (x == rb_nil) return NULL;
   while(x->key != q) {/*assignemnt*/
     if (x->key > q) { /* x->key > q */
       x=x->left;
     } else {
       x=x->right;
     }
-    if ( x == nil) return NULL;
+    if ( x == rb_nil) return NULL;
   }
   return(x);
 }
@@ -584,11 +584,11 @@ static rb_red_blk_node*
 TreeSuccessor(rb_red_blk_node* x) { 
   CACHE_REGS
   rb_red_blk_node* y;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
   rb_red_blk_node* root=LOCAL_ProfilerRoot;
 
-  if (nil != (y = x->right)) { /* assignment to y is intentional */
-    while(y->left != nil) { /* returns the minium of the right subtree of x */
+  if (rb_nil != (y = x->right)) { /* assignment to y is intentional */
+    while(y->left != rb_nil) { /* returns the minium of the right subtree of x */
       y=y->left;
     }
     return(y);
@@ -598,7 +598,7 @@ TreeSuccessor(rb_red_blk_node* x) {
       x=y;
       y=y->parent;
     }
-    if (y == root) return(nil);
+    if (y == root) return(rb_nil);
     return(y);
   }
 }
@@ -624,11 +624,11 @@ RBDelete(rb_red_blk_node* z){
   CACHE_REGS
   rb_red_blk_node* y;
   rb_red_blk_node* x;
-  rb_red_blk_node* nil=LOCAL_ProfilerNil;
+  rb_red_blk_node* rb_nil=LOCAL_ProfilerNil;
   rb_red_blk_node* root=LOCAL_ProfilerRoot;
 
-  y= ((z->left == nil) || (z->right == nil)) ? z : TreeSuccessor(z);
-  x= (y->left == nil) ? y->right : y->left;
+  y= ((z->left == rb_nil) || (z->right == rb_nil)) ? z : TreeSuccessor(z);
+  x= (y->left == rb_nil) ? y->right : y->left;
   if (root == (x->parent = y->parent)) { /* assignment of y->p to x->p is intentional */
     root->left=x;
   } else {
