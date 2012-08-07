@@ -518,14 +518,17 @@ true :- true.
 % *-> at this point would require compiler support, which does not exist.
 %
 '$delayed_goals'(G, V, NV, LGs, NCP) :-
-	if(
-	  (yap_hacks:current_choice_point(NCP1),
+	(
+	  CP is '$last_choice_pt',
+	  yap_hacks:current_choice_point(NCP1),
 	  '$attributes':delayed_goals(G, V, NV, LGs),
-	  yap_hacks:current_choice_point(NCP2))
-	  ,
-	   (NCP is NCP2-NCP1)
-	  , 
-	   (copy_term_nat(V, NV), LGs = [], NCP = 0)
+	  yap_hacks:current_choice_point(NCP2),
+	 '$clean_ifcp'(CP),
+	   NCP is NCP2-NCP1
+	  ;
+	   copy_term_nat(V, NV), 
+	   LGs = [], 
+	   NCP = 0
         ).
 
 '$out_neg_answer' :-
