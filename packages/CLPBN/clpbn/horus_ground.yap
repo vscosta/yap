@@ -58,20 +58,21 @@ call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Outpu
 call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidence, Solutions) :-
 	attributes:all_attvars(AVars),
 	keys(AVars, AllKeys),
+writeln(AllKeys),
 	b_hash_new(Hash0),
-	keys_to_ids(AllKeys, 0, Hash0, Hash),
+	keys_to_ids(AllKeys, 0, Id1, Hash0, Hash1),
 	get_factors_type(Factors, Type),
-	evidence_to_ids(Evidence, Hash, EvidenceIds),
-	factors_to_ids(Factors, Hash, FactorIds),
+	evidence_to_ids(Evidence, Hash1, Hash2, Id1, Id2, EvidenceIds),
+	factors_to_ids(Factors, Hash2, Hash, Id2, _, FactorIds),
 	writeln(queryKeys:QueryKeys), writeln(''),
 	writeln(type:Type), writeln(''),
 	writeln(allKeys:AllKeys), writeln(''),
 	sort(AllKeys,SKeys),writeln(allSortedKeys:SKeys), writeln(''),
-	keys_to_ids(SKeys, 0, Hash0, Hash),
-	writeln(factors:Factors), writeln(''),
-	writeln(factorIds:FactorIds), writeln(''),
-	writeln(evidence:Evidence), writeln(''),
-	writeln(evidenceIds:EvidenceIds), writeln(''),
+	keys_to_ids(SKeys, 0, _, Hash0, Hash),
+% 	writeln(factors:Factors), writeln(''),
+% 	writeln(factorIds:FactorIds), writeln(''),
+% 	writeln(evidence:Evidence), writeln(''),
+% 	writeln(evidenceIds:EvidenceIds), writeln(''),
 	cpp_create_ground_network(Type, FactorIds, EvidenceIds, Network),
 	get_vars_information(AllKeys, StatesNames),
 	terms_to_atoms(AllKeys, KeysAtoms),
@@ -91,51 +92,59 @@ keys([_V|AVars], AllKeys) :-
 run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   %get_dists_parameters(DistIds, DistsParams),
   %cpp_set_factors_params(Network, DistsParams),
-  list_of_keys_to_ids(QueryKeys, Hash, QueryIds),
+  list_of_keys_to_ids(QueryKeys, Hash, _, _, _, QueryIds),
   %writeln(queryKeys:QueryKeys), writeln(''),
   %writeln(queryIds:QueryIds), writeln(''),
   cpp_run_ground_solver(Network, [QueryIds], Solutions).
 
 
-keys_to_ids([], _, Hash, Hash).
-keys_to_ids([Key|AllKeys], I0, Hash0, Hash) :-
+keys_to_ids([], Id, Id, Hash, Hash).
+keys_to_ids([Key|AllKeys], I0, I, Hash0, Hash) :-
   b_hash_insert(Hash0, Key, I0, HashI),
-  I is I0+1,
-  keys_to_ids(AllKeys, I, HashI, Hash).
+  I1 is I0+1,
+  keys_to_ids(AllKeys, I1, I, HashI, Hash).
 
 
 get_factors_type([f(bayes, _, _, _)|_], bayes) :- ! .
 get_factors_type([f(markov, _, _, _)|_], markov) :- ! .
 
 
-list_of_keys_to_ids([], _, []).
-list_of_keys_to_ids([List|Extra], Hash, [IdList|More]) :-
+list_of_keys_to_ids([], H, H, I, I, []).
+list_of_keys_to_ids([List|Extra], Hash0, Hash, I0, I, [IdList|More]) :-
 	List = [_|_], !,
-	list_of_keys_to_ids(List, Hash, IdList),
-	list_of_keys_to_ids(Extra, Hash, More).
-list_of_keys_to_ids([Key|QueryKeys], Hash, [Id|QueryIds]) :-
-	b_hash_lookup(Key, Id, Hash),
-	list_of_keys_to_ids(QueryKeys, Hash, QueryIds).
+	list_of_keys_to_ids(List, Hash0, Hash1, I0, I1, IdList),
+	list_of_keys_to_ids(Extra, Hash1, Hash, I1, I, More).
+list_of_keys_to_ids([Key|QueryKeys], Hash0, Hash, I0, I, [Id|QueryIds]) :-
+	b_hash_lookup(Key, Id, Hash0), !,
+	list_of_keys_to_ids(QueryKeys, Hash0, Hash, I0, I, QueryIds).
+list_of_keys_to_ids([Key|QueryKeys], Hash0, Hash, I0, I, [I0|QueryIds]) :-
+	b_hash_insert(Hash0, Key, I0, Hash1),
+	I1 is I0+1,
+	list_of_keys_to_ids(QueryKeys, Hash1, Hash, I1, I, QueryIds).
 
 
-factors_to_ids([], _, []).
-factors_to_ids([f(_, DistId, Keys, CPT)|Fs], Hash, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
-  list_of_keys_to_ids(Keys, Hash, Ids),
-  get_ranges(Keys, Ranges),
-  factors_to_ids(Fs, Hash, NFs).
+factors_to_ids([], H, H, I, I, []).
+factors_to_ids([f(_, DistId, Keys, CPT)|Fs], Hash0, Hash, I0, I, [f(Ids, Ranges, CPT, DistId)|NFs]) :-
+	list_of_keys_to_ids(Keys, Hash0, Hash1, I0, I1, Ids),
+	get_ranges(Keys, Ranges),
+	factors_to_ids(Fs, Hash1, Hash, I1, I, NFs).
 
 
 get_ranges([],[]).
 get_ranges(K.Ks, Range.Rs) :- !,
-  skolem(K,Domain),
-  length(Domain,Range),
-  get_ranges(Ks, Rs).
+	skolem(K,Domain),
+	length(Domain,Range),
+	get_ranges(Ks, Rs).
 
 
-evidence_to_ids([], _, []).
-evidence_to_ids([Key=Ev|QueryKeys], Hash, [Id=Ev|QueryIds]) :-
-  b_hash_lookup(Key, Id, Hash),
-  evidence_to_ids(QueryKeys, Hash, QueryIds).
+evidence_to_ids([], H, H, I, I, []).
+evidence_to_ids([Key=Ev|QueryKeys], Hash0, Hash, I0, I, [Id=Ev|QueryIds]) :-
+	b_hash_lookup(Key, Id, Hash0),
+	evidence_to_ids(QueryKeys, Hash0, Hash, I0, I, QueryIds).
+evidence_to_ids([Key=Ev|QueryKeys], Hash0, Hash, I0, I, [I=Ev|QueryIds]) :-
+	b_hash_insert(Hash0, Key, I0, Hash1),
+	I1 is I0+1,
+	evidence_to_ids(QueryKeys, Hash1, Hash, I1, I, QueryIds).
 
 
 get_vars_information([], []).

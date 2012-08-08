@@ -100,7 +100,7 @@ CLPBN_LEARNING_EXAMPLES= \
 
 CLPBN_EXAMPLES= \
 	$(CLPBN_EXDIR)/burglary-alarm.fg \
-	$(CLPBN_EXDIR)/burglary-alarm.yap \
+	$(CLPBN_EXDIR)/burglary-alarm.pfl \
 	$(CLPBN_EXDIR)/burglary-alarm.uai \
 	$(CLPBN_EXDIR)/cg.yap \
 	$(CLPBN_EXDIR)/city.yap \

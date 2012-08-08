@@ -16,6 +16,7 @@
 		  op( 500, xfy, with)]).
 
 :- use_module(library(atts)).
+:- use_module(library(bhash)).
 :- use_module(library(lists)).
 :- use_module(library(terms)).
 
@@ -232,7 +233,7 @@ project_attributes(GVars, _AVars0) :-
 	use_parfactors(on),
 	clpbn_flag(solver, Solver), Solver \= fove, !,
 	generate_network(GVars, GKeys, Keys, Factors, Evidence),
-	call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence, _Avars0).
+	call_ground_solver(Solver, GVars, GKeys, Keys, Factors, Evidence).
 project_attributes(GVars, AVars) :-
 	suppress_attribute_display(false),
 	AVars = [_|_],
@@ -314,8 +315,62 @@ write_out(fove, GVars, AVars, DiffVars) :-
 	call_horus_lifted_solver(GVars, AVars, DiffVars).
 
 % call a solver with keys, not actual variables
-call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence, Answ) :-
-	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, Answ).
+call_ground_solver(bp, GVars, GoalKeys, Keys, Factors, Evidence) :- !,
+	call_horus_ground_solver(GVars, GoalKeys, Keys, Factors, Evidence, _Answ).
+call_ground_solver(Solver, GVars, _GoalKeys, Keys, Factors, Evidence) :-
+	% traditional solver
+	b_hash_new(Hash0),
+	gvars_in_hash(GVars,Hash0, HashI), 
+	keys_to_vars(Keys, AllVars, HashI, Hash1),
+	evidence_to_vars(Evidence, _EVars, Hash1, Hash),
+	factors_to_dists(Factors, Hash),
+	% evidence
+	retract(use_parfactors(on)),
+	write_out(Solver, [GVars], AllVars, _),
+	assert(use_parfactors(on)).
+
+%
+% convert a PFL network (without constriants)
+% into CLP(BN) for evaluation
+%
+gvars_in_hash([V|GVars],Hash0, Hash) :-
+	get_atts(V, [key(K)]),
+	b_hash_insert(Hash0, K, V, HashI),
+	gvars_in_hash(GVars,HashI, Hash).
+gvars_in_hash([],Hash, Hash). 
+
+
+keys_to_vars([], [], Hash, Hash).
+keys_to_vars([K|Keys], [V|Vs], Hash0, Hash) :-
+	b_hash_lookup(K, V, Hash0), !,
+	keys_to_vars(Keys, Vs, Hash0, Hash).
+keys_to_vars([K|Keys], [V|Vs],Hash0, Hash) :-
+	b_hash_insert(Hash0, K, V, HashI),
+	keys_to_vars(Keys, Vs, HashI, Hash).
+
+evidence_to_vars([], [], Hash, Hash).
+evidence_to_vars([K=E|Keys], [V|Vs], Hash0, Hash) :-
+	b_hash_lookup(K, V, Hash0), !,
+	clpbn:put_atts(V,[evidence(E)]),
+	evidence_to_vars(Keys, Vs, Hash0, Hash).
+evidence_to_vars([K=E|Keys], [V|Vs],Hash0, Hash) :-
+	b_hash_insert(Hash0, K, V, HashI),
+	clpbn:put_atts(V,[evidence(E)]),
+	evidence_to_vars(Keys, Vs, HashI, Hash).
+
+factors_to_dists([], _Hash).
+factors_to_dists([f(bayes,_Id,Ks,CPT)|Factors], Hash) :-
+	keys_to_vars(Ks, Hash, [V|Parents]),
+	Ks =[Key|_],
+	pfl:skolem(Key, Domain),
+	dist(p(Domain,CPT,Parents), DistInfo, Key, Parents),
+	put_atts(V,[dist(DistInfo,Parents)]),
+	factors_to_dists(Factors, Hash).
+
+keys_to_vars([], _Hash, []).
+keys_to_vars([K|Ks], Hash, [V|Vs]) :-
+	b_hash_lookup(K,V,Hash),
+	keys_to_vars(Ks, Hash, Vs).
 
 
 get_bnode(Var, Goal) :-

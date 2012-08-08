@@ -1368,6 +1368,7 @@ void
 Yap_exit (int value)
 {
   CACHE_REGS
+  void closeFiles(int all);
 #if defined(YAPOR_COPY) || defined(YAPOR_COW) || defined(YAPOR_SBA)
   Yap_unmap_yapor_memory();
 #endif /* YAPOR_COPY || YAPOR_COW || YAPOR_SBA */
@@ -1383,6 +1384,7 @@ Yap_exit (int value)
     run_halt_hooks(value);
     Yap_ShutdownLoadForeign();
   }
+  closeFiles(TRUE);
   exit(value);
 }
 

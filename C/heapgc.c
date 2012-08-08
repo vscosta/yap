@@ -622,7 +622,7 @@ RBTreeCreate(void) {
 static void
 LeftRotate(rb_red_blk_node* x USES_REGS) {
   rb_red_blk_node* y;
-  rb_red_blk_node* nil=LOCAL_db_nil;
+  rb_red_blk_node* rb_nil=LOCAL_db_nil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -637,7 +637,7 @@ LeftRotate(rb_red_blk_node* x USES_REGS) {
   y=x->right;
   x->right=y->left;
 
-  if (y->left != nil) y->left->parent=x; /* used to use sentinel here */
+  if (y->left != rb_nil) y->left->parent=x; /* used to use sentinel here */
   /* and do an unconditional assignment instead of testing for nil */
   
   y->parent=x->parent;   
@@ -678,7 +678,7 @@ LeftRotate(rb_red_blk_node* x USES_REGS) {
 static void
 RightRotate(rb_red_blk_node* y USES_REGS) {
   rb_red_blk_node* x;
-  rb_red_blk_node* nil=LOCAL_db_nil;
+  rb_red_blk_node* rb_nil=LOCAL_db_nil;
 
   /*  I originally wrote this function to use the sentinel for */
   /*  nil to avoid checking for nil.  However this introduces a */
@@ -693,7 +693,7 @@ RightRotate(rb_red_blk_node* y USES_REGS) {
   x=y->left;
   y->left=x->right;
 
-  if (nil != x->right)  x->right->parent=y; /*used to use sentinel here */
+  if (rb_nil != x->right)  x->right->parent=y; /*used to use sentinel here */
   /* and do an unconditional assignment instead of testing for nil */
 
   /* instead of checking if x->parent is the root as in the book, we */
@@ -732,12 +732,12 @@ TreeInsertHelp(rb_red_blk_node* z USES_REGS) {
   /*  This function should only be called by InsertRBTree (see above) */
   rb_red_blk_node* x;
   rb_red_blk_node* y;
-  rb_red_blk_node* nil=LOCAL_db_nil;
+  rb_red_blk_node* rb_nil=LOCAL_db_nil;
   
-  z->left=z->right=nil;
+  z->left=z->right=rb_nil;
   y=LOCAL_db_root;
   x=LOCAL_db_root->left;
-  while( x != nil) {
+  while( x != rb_nil) {
     y=x;
     if (x->key < z->key) { /* x.key > z.key */
       x=x->left;
