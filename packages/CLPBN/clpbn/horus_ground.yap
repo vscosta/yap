@@ -52,22 +52,21 @@
 
 
 call_horus_ground_solver(QueryVars, QueryKeys, AllKeys, Factors, Evidence, Output) :-
-	call_horus_ground_solver_for_probabilities(QueryKeys, AllKeys, Factors, Evidence, Solutions),
+	call_horus_ground_solver_for_probabilities([QueryKeys], AllKeys, Factors, Evidence, Solutions),
 	clpbn_bind_vals([QueryVars], Solutions, Output).
 
 call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidence, Solutions) :-
 	attributes:all_attvars(AVars),
 	keys(AVars, AllKeys),
-writeln(AllKeys),
 	b_hash_new(Hash0),
 	keys_to_ids(AllKeys, 0, Id1, Hash0, Hash1),
 	get_factors_type(Factors, Type),
 	evidence_to_ids(Evidence, Hash1, Hash2, Id1, Id2, EvidenceIds),
 	factors_to_ids(Factors, Hash2, Hash, Id2, _, FactorIds),
-	writeln(queryKeys:QueryKeys), writeln(''),
-	writeln(type:Type), writeln(''),
-	writeln(allKeys:AllKeys), writeln(''),
-	sort(AllKeys,SKeys),writeln(allSortedKeys:SKeys), writeln(''),
+	%% writeln(queryKeys:QueryKeys), writeln(''),
+	%% writeln(type:Type), writeln(''),
+	%% writeln(allKeys:AllKeys), writeln(''),
+	sort(AllKeys,SKeys), %% writeln(allSortedKeys:SKeys), writeln(''),
 	keys_to_ids(SKeys, 0, _, Hash0, Hash),
 % 	writeln(factors:Factors), writeln(''),
 % 	writeln(factorIds:FactorIds), writeln(''),
@@ -95,7 +94,7 @@ run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
   list_of_keys_to_ids(QueryKeys, Hash, _, _, _, QueryIds),
   %writeln(queryKeys:QueryKeys), writeln(''),
   %writeln(queryIds:QueryIds), writeln(''),
-  cpp_run_ground_solver(Network, [QueryIds], Solutions).
+  cpp_run_ground_solver(Network, QueryIds, Solutions).
 
 
 keys_to_ids([], Id, Id, Hash, Hash).
@@ -167,10 +166,9 @@ finalize_horus_ground_solver(bp(Network, _)) :-
 % 
 % 
 init_horus_ground_solver(QueryVars, _AllVars, _, horus(GKeys, Keys, Factors, Evidence)) :-
-	trace,
 	generate_networks(QueryVars, GKeys, [], Keys, [], Factors, [], Evidence),
 	writeln(qvs:QueryVars),
-	writeln(Keys), !.
+	writeln(Keys), writeln(Factors), !.
 
 %
 % as you add query vars the network grows
