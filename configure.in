@@ -806,6 +806,10 @@ elif test -e "$srcdir"/packages/real/Makefile.in ; then
 	   ;;
          esac
   fi
+  OLD_CFLAGS="$CFLAGS"
+  CFLAGS="$CFLAGS $REAL_INCLUDES"
+  AC_CHECK_HEADERS(Rinterface.h)  
+  CFLAGS="$OLD_CFLAGS"
 else
     REAL_TARGET="dummy"
     ENABLE_REAL="@# "

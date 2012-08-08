@@ -117,8 +117,6 @@ ltables([Id-T|Tables], [Key-LTable|FTables]) :-
 	matrix_to_list(T,LTable),
 	get_dist_key(Id, Key),
 	ltables(Tables, FTables).
-	 
-
 
 % collect the different dists we are going to learn next.
 different_dists(AllVars, AllDists, AllInfo, MargVars) :-
