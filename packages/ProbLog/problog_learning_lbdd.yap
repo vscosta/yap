@@ -620,6 +620,7 @@ init_one_query(QueryID,Query,Type) :-
 	  rb_new(H0),
 	  maplist_to_hash(MapList, H0, Hash),
 	  tree_to_grad(Tree, Hash, [], Grad),
+%% %writeln(Call:Tree),
 	  recordz(QueryID,bdd(Grad,MapList),_)
 	 )
 	),
@@ -712,15 +713,10 @@ gradient(QueryID, l, Slope) :-
 	fail.
 gradient(_QueryID, l, _).
 gradient(QueryID, g, Slope) :-
-/*
-   query_gradient(17,x2,p,6.736196e-02).
-   query_probability(17,1.173512e-01).
-*/
         recorded(QueryID, bdd(Tree, MapList), _),
 	bind_maplist(MapList),
         member(I-_, MapList),
 	run_grad(Tree, I, Slope, 0.0, Grad),
-%	writeln(query_gradient_intern(QueryID,I,p,Grad)),
 	assert(query_gradient_intern(QueryID,I,p,Grad)),
 	fail.
 gradient(QueryID, g, Slope) :-
@@ -827,6 +823,8 @@ query_probability(QueryID,Prob) :-
 	  query_probability_intern(OtherQueryID,Prob)
 	 )
 	).
+query_gradient(QueryID,Fact,p,Value) :- !,
+	 query_gradient_intern(QueryID,Fact,p,Value).
 query_gradient(QueryID,Fact,Type,Value) :-
 	(
 	 query_gradient_intern(QueryID,Fact,Type,Value)
@@ -1079,7 +1077,9 @@ add_gradient(Learning_Rate) :-
 	retractall(values_correct).
 
 
+% vsc: avoid silly search
 gradient_descent :-
+	continuous_fact(_), !, 
 	current_iteration(Iteration),
 	create_training_predictions_file_name(Iteration,File_Name),
 	open(File_Name,'write',Handle),
@@ -1217,6 +1217,173 @@ gradient_descent :-
 		
 		once(update_query_cleanup(QueryID))
 	       )),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop calculate gradient
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
+
+	close(Handle),
+	
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start statistics on gradient
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	findall(V, (
+		    tunable_fact(FactID,_),
+		    atomic_concat(['grad_',FactID],Key),
+		    bb_get(Key,V)
+		   ),Gradient_Values),
+
+	(
+	 Gradient_Values==[]
+	->
+	 (
+	  logger_set_variable(gradient_mean,0.0),
+	  logger_set_variable(gradient_min,0.0),
+	  logger_set_variable(gradient_max,0.0)
+	 );
+	 (
+	  sum_list(Gradient_Values,GradSum),
+	  max_list(Gradient_Values,GradMax),
+	  min_list(Gradient_Values,GradMin),
+	  length(Gradient_Values,GradLength),
+	  GradMean is GradSum/GradLength,
+
+	  logger_set_variable(gradient_mean,GradMean),
+	  logger_set_variable(gradient_min,GradMin),
+	  logger_set_variable(gradient_max,GradMax)
+	 )
+	),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop statistics on gradient
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	bb_delete(mse_train_sum,MSE_Train_Sum),
+	bb_delete(mse_train_min,MSE_Train_Min),
+	bb_delete(mse_train_max,MSE_Train_Max),
+	bb_delete(llh_training_queries,LLH_Training_Queries),
+	MSE is MSE_Train_Sum/Example_Count,
+
+	logger_set_variable(mse_trainingset,MSE),
+	logger_set_variable(mse_min_trainingset,MSE_Train_Min),
+	logger_set_variable(mse_max_trainingset,MSE_Train_Max),
+	logger_set_variable(llh_training_queries,LLH_Training_Queries),
+
+	format_learning(2,'~n',[]),
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start add gradient to current probabilities
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	(
+	    problog_flag(line_search,false)
+	->
+	    problog_flag(learning_rate,LearningRate);
+	    lineSearch(LearningRate,_)
+	),
+	format_learning(3,'learning rate:~8f~n',[LearningRate]),
+	add_gradient(LearningRate),
+	logger_set_variable(learning_rate,LearningRate),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop add gradient to current probabilities
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	!,
+	forget_old_probabilities.
+
+% VSC: no continuous facts
+% simplify code
+gradient_descent :-
+	current_iteration(Iteration),
+	create_training_predictions_file_name(Iteration,File_Name),
+	open(File_Name,'write',Handle),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	format(Handle,"% Iteration, train/test, QueryID, Query, GroundTruth, Prediction %~n",[]),
+	format(Handle,"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%~n",[]),
+	
+	format_learning(2,'Gradient ',[]),
+	
+	save_old_probabilities,
+	update_values,
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start set gradient to zero
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	forall(tunable_fact(FactID,_),
+	       (
+		(
+		 atomic_concat(['grad_',FactID],Key),
+		 bb_put(Key,0.0)
+		)
+	       )
+	      ),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% stop gradient to zero
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	% start calculate gradient
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	bb_put(mse_train_sum, 0.0),
+	bb_put(mse_train_min, 0.0),
+	bb_put(mse_train_max, 0.0),
+	bb_put(llh_training_queries, 0.0),
+	
+	problog_flag(alpha,Alpha),
+	logger_set_variable(alpha,Alpha),
+	example_count(Example_Count),
+
+	forall(user:example(QueryID,Query,QueryProb,Type),
+	       (
+		once(update_query(QueryID,'.',all)),
+		query_probability(QueryID,BDDProb),
+		format(Handle,'ex(~q,train,~q,~q,~10f,~10f).~n',[Iteration,QueryID,Query,QueryProb,BDDProb]),
+		(
+		 QueryProb=:=0.0
+		->
+		 Y2=Alpha;
+		 Y2=1.0
+		),
+		(
+		 (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
+		->
+		 Y is Y2*2/Example_Count * (BDDProb-QueryProb);
+		 Y=0.0
+		),
+	  
+	  
+				% first do the calculations for the MSE on training set
+		(
+		 (Type == '='; (Type == '<', BDDProb>QueryProb); (Type=='>',BDDProb<QueryProb))
+		->
+		 Squared_Error is (BDDProb-QueryProb)**2;
+		 Squared_Error=0.0
+		),
+	 
+		bb_get(mse_train_sum,Old_MSE_Train_Sum),
+		bb_get(mse_train_min,Old_MSE_Train_Min),
+		bb_get(mse_train_max,Old_MSE_Train_Max),
+		bb_get(llh_training_queries,Old_LLH_Training_Queries),
+		New_MSE_Train_Sum is Old_MSE_Train_Sum+Squared_Error,
+		New_MSE_Train_Min is min(Old_MSE_Train_Min,Squared_Error),
+		New_MSE_Train_Max is max(Old_MSE_Train_Max,Squared_Error),
+		New_LLH_Training_Queries is Old_LLH_Training_Queries+log(BDDProb),
+		bb_put(mse_train_sum,New_MSE_Train_Sum),
+		bb_put(mse_train_min,New_MSE_Train_Min),
+		bb_put(mse_train_max,New_MSE_Train_Max),
+		bb_put(llh_training_queries,New_LLH_Training_Queries),
+	  
+
+
+		(		% go over all tunable facts
+		  query_gradient(QueryID,FactID,p,GradValue),
+		    atomic_concat(['grad_',FactID],Key),		  
+		    bb_get(Key,OldValue),
+		    NewValue is OldValue + Y*GradValue,
+		    bb_put(Key,NewValue),
+		    fail; % go to next fact
+		    true
+		),
+		
+		once(update_query_cleanup(QueryID))
+	    )),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	% stop calculate gradient
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
