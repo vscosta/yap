@@ -30,11 +30,12 @@ extract_vars((_-V).MapList, V.Vs) :-
 	extract_vars(MapList, Vs).
 
 complex_to_andor(empty, Map, Map, 0).
+complex_to_andor([endlist], Map, Map, 0)  :- !.
 complex_to_andor([list(Els)], Map0, MapF, Tree) :- !,
 	complex_to_andor(Els, Map0, MapF, Tree).
 complex_to_andor([El1,El2|Els], Map0, MapF, or(T1,T2)) :- !,
 	complex_to_and(El1, Map0, MapI, T1),
-	complex_to_andor(El2.Els, MapI, MapF, T2).
+	complex_to_andor([El2|Els], MapI, MapF, T2).
 complex_to_andor([Els], Map0, MapF, V) :-
 	complex_to_and(Els, Map0, MapF, V).
 
