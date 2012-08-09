@@ -30,6 +30,10 @@
            get_dist_params/2
           ]).
 
+:- use_module(library('clpbn/ground_factors'),
+          [generate_networks/5
+          ]).
+
 :- use_module(library('clpbn/display'),
           [clpbn_bind_vals/3]).
 
@@ -62,12 +66,13 @@ call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidenc
 	keys_to_ids(AllKeys, 0, Id1, Hash0, Hash1),
 	get_factors_type(Factors, Type),
 	evidence_to_ids(Evidence, Hash1, Hash2, Id1, Id2, EvidenceIds),
-	factors_to_ids(Factors, Hash2, Hash, Id2, _, FactorIds),
-	%% writeln(queryKeys:QueryKeys), writeln(''),
+	factors_to_ids(Factors, Hash2, Hash3, Id2, Id3, FactorIds),
+	%writeln(queryKeys:QueryKeys), writeln(''),
 	%% writeln(type:Type), writeln(''),
 	%% writeln(allKeys:AllKeys), writeln(''),
 	sort(AllKeys,SKeys), %% writeln(allSortedKeys:SKeys), writeln(''),
-	keys_to_ids(SKeys, 0, _, Hash0, Hash),
+	keys_to_ids(SKeys, Id3, Id4, Hash3, Hash4),
+b_hash:b_hash_to_list(Hash1,_L4), writeln(h1:_L4),
 % 	writeln(factors:Factors), writeln(''),
 % 	writeln(factorIds:FactorIds), writeln(''),
 % 	writeln(evidence:Evidence), writeln(''),
@@ -76,7 +81,8 @@ call_horus_ground_solver_for_probabilities(QueryKeys, _AllKeys, Factors, Evidenc
 	get_vars_information(AllKeys, StatesNames),
 	terms_to_atoms(AllKeys, KeysAtoms),
 	cpp_set_vars_information(KeysAtoms, StatesNames),
-	run_solver(ground(Network,Hash), QueryKeys, Solutions),
+ 	writeln(network:(Type, FactorIds, EvidenceIds, Network)), writeln(''),
+	run_solver(ground(Network,Hash4,Id4), QueryKeys, Solutions),
 	cpp_free_ground_network(Network).
 
 
@@ -88,20 +94,28 @@ keys([_V|AVars], AllKeys) :-
 	keys(AVars, AllKeys).
 
 
-run_solver(ground(Network,Hash), QueryKeys, Solutions) :-
-  %get_dists_parameters(DistIds, DistsParams),
-  %cpp_set_factors_params(Network, DistsParams),
-  list_of_keys_to_ids(QueryKeys, Hash, _, _, _, QueryIds),
-  %writeln(queryKeys:QueryKeys), writeln(''),
-  %writeln(queryIds:QueryIds), writeln(''),
-  cpp_run_ground_solver(Network, QueryIds, Solutions).
+run_solver(ground(Network,Hash,Id), QueryKeys, Solutions) :-
+	%get_dists_parameters(DistIds, DistsParams),
+  	%cpp_set_factors_params(Network, DistsParams),
+        list_of_keys_to_ids(QueryKeys, Hash, _, Id, _, QueryIds),
+        writeln(queryKeys:QueryKeys), writeln(''),
+        writeln(queryIds:QueryIds), writeln(''),
+        cpp_run_ground_solver(Network, QueryIds, Solutions).
 
 
 keys_to_ids([], Id, Id, Hash, Hash).
 keys_to_ids([Key|AllKeys], I0, I, Hash0, Hash) :-
+  b_hash_lookup(Key, _, Hash0), !,
+  keys_to_ids(AllKeys, I0, I, Hash0, Hash).
+keys_to_ids([Key|AllKeys], I0, I, Hash0, Hash) :-
   b_hash_insert(Hash0, Key, I0, HashI),
   I1 is I0+1,
   keys_to_ids(AllKeys, I1, I, HashI, Hash).
+
+
+
+
+
 
 
 get_factors_type([f(bayes, _, _, _)|_], bayes) :- ! .
@@ -166,18 +180,9 @@ finalize_horus_ground_solver(bp(Network, _)) :-
 % 
 % 
 init_horus_ground_solver(QueryVars, _AllVars, _, horus(GKeys, Keys, Factors, Evidence)) :-
-	generate_networks(QueryVars, GKeys, [], Keys, [], Factors, [], Evidence),
+	generate_networks(QueryVars, GKeys, Keys, Factors, Evidence),
 	writeln(qvs:QueryVars),
 	writeln(Keys), writeln(Factors), !.
-
-%
-% as you add query vars the network grows
-% until you reach the last variable.
-%
-generate_networks([QVars|QueryVars], [GK|GKeys], _K0, K, _F0, F, _E0, E) :-
-	clpbn:generate_network(QVars, GK, KI, FI, EI),
-	generate_networks(QueryVars, GKeys, KI, K, FI, F, EI, E).
-generate_networks([], [], K, K, F, F, E, E).
 
 %
 % just call horus solver.

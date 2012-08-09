@@ -8,12 +8,14 @@
 
 
 :- module(clpbn_ground_factors, [
-          generate_network/5]).
+          generate_networks/5,
+	  generate_network/5]).
 
 :- use_module(library(bhash), [
           b_hash_new/1,
           b_hash_lookup/3,
-	  b_hash_insert/4]).
+	  b_hash_insert/4,
+	  b_hash_to_list/2]).
 
 :- use_module(library(lists), [
           delete/3,
@@ -30,77 +32,105 @@
 
 :- dynamic currently_defined/1, f/4.
 
-generate_network(QueryVars0, QueryKeys, Keys, Factors, Evidence) :-
+%
+% as you add query vars the network grows
+% until you reach the last variable.
+%
+generate_networks(QueryVars, QueryKeys, Keys, Factors, EList) :-
+	init_global_search,
 	attributes:all_attvars(AVars),
-	keys(QueryVars0, QueryKeys0),
-	check_for_evidence(AVars, EVars, QueryKeys0, QueryVars0, Evidence),
-	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys),
-	do_network(QueryVars, EVars, Keys, Factors).
+	b_hash_new(Evidence0),
+	include_evidence(AVars, Evidence0, Evidence),
+	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
+	run_through_evidence(EList),
+	run_through_queries(QueryVars, QueryKeys, Evidence),
+	collect(Keys, Factors).
 
-do_network([], _, _, _) :- !.
-do_network(QueryVars, EVars, Keys, Factors) :-
-	retractall(currently_defined(_)),
-	retractall(f(_,_,_,_)),
-	run_through_factors(QueryVars),
-	run_through_factors(EVars),
+%
+% clean global stateq
+%
+init_global_search :-
+	  retractall(currently_defined(_)),
+	  retractall(f(_,_,_,_)).
+
+list_to_evlist([], []).
+list_to_evlist([K-E|EList0], [K=E|EList]) :-
+	list_to_evlist(EList0, EList).
+
+include_evidence([], Evidence0, Evidence) :-
+	findall(Sk=Var, pfl:evidence(Sk,Var), Evs),
+	include_static_evidence(Evs, Evidence0, Evidence).
+include_evidence([V|AVars], Evidence0, Evidence) :-
+	clpbn:get_atts(V,[key(K),evidence(E)]), !,
+	(
+	    b_hash_lookup(K, E1, Evidence0)
+	->
+	    (E \= E1 -> throw(clpbn:incompatible_evidence(K,E,E1)) ; EvidenceI = Evidence0)
+	;
+	    b_hash_insert(Evidence0, K, E, EvidenceI)
+	),
+	include_evidence(AVars, EvidenceI, Evidence).
+include_evidence([_|AVars], Evidence0, Evidence) :-
+	include_evidence(AVars, Evidence0, Evidence).
+
+include_static_evidence([], Evidence, Evidence).
+include_static_evidence([K=E|AVars], Evidence0, Evidence) :-
+	(
+	    b_hash_lookup(K, E1, Evidence0)
+	->
+	    (E \= E1 -> throw(incompatible_evidence(K,E,E1)) ; EvidenceI = Evidence0)
+	;
+	    b_hash_insert(Evidence0, K, E, EvidenceI)
+	),
+	include_evidence(AVars, EvidenceI, Evidence).
+
+
+run_through_queries([QVars|QueryVars], [GKs|GKeys], E) :-
+	run_through_query(QVars, GKs, E),
+	run_through_queries(QueryVars, GKeys, E).
+run_through_queries([], [], _).
+
+generate_network(QueryVars0, QueryKeys, Keys, Factors, EList) :-
+	init_global_search,
+	attributes:all_attvars(AVars),
+	b_hash_new(Evidence0),
+	include_evidence(AVars, Evidence0, Evidence),
+	b_hash_to_list(Evidence, EList0), list_to_evlist(EList0, EList),
+	run_through_evidence(EList),
+	run_through_query(QueryVars0, QueryKeys, Evidence),
+	collect(Keys,Factors),
+	writeln(gn:Keys:QueryKeys:Factors:EList).
+
+run_through_query([], [], _).
+run_through_query([V|QueryVars], QueryKeys, Evidence) :-
+	clpbn:get_atts(V,[key(K)]),
+	b_hash_lookup(K, _, Evidence), !,
+	run_through_query(QueryVars, QueryKeys, Evidence).
+run_through_query([V|QueryVars], [K|QueryKeys], Evidence) :-
+	clpbn:get_atts(V,[key(K)]),
+        ( find_factors(K), fail ; true ),
+	run_through_query(QueryVars, QueryKeys, Evidence).
+
+collect(Keys, Factors) :-
 	findall(K, currently_defined(K), Keys),
-	ground_all_keys(QueryVars, Keys),
-	ground_all_keys(EVars, Keys),
 	findall(f(FType,FId,FKeys,FCPT), f(FType,FId,FKeys,FCPT), Factors).
 
-run_through_factors([]).
-run_through_factors([Var|_QueryVars]) :-
-        clpbn:get_atts(Var,[key(K)]),
+run_through_evidence([]).
+run_through_evidence([K=_|_]) :-
         find_factors(K),
         fail.
-run_through_factors([_|QueryVars]) :-
-	run_through_factors(QueryVars).
-
+run_through_evidence([_|Ev]) :-
+	run_through_evidence(Ev).
 
 ground_all_keys([], _).
 ground_all_keys([V|GVars], AllKeys) :-
 	clpbn:get_atts(V,[key(Key)]), 
 	\+ ground(Key), !,
-writeln(g:Key),
 	member(Key, AllKeys),
 	ground_all_keys(GVars, AllKeys).
 ground_all_keys([_V|GVars], AllKeys) :-
 	ground_all_keys(GVars, AllKeys).
 
-
-%
-% look for attributed vars with evidence (should also search the DB)
-% verifiy if the evidence overlaps with query
-% bind query if so.
-%
-check_for_evidence(V.AVars, V.EVars, QueryKeys, QueryVars, (K=E).Evidence) :-
-	clpbn:get_atts(V,[key(K),evidence(E)]), !,
-	check_for_evidence_in_query(K, QueryKeys, QueryVars, E),
-	check_for_evidence(AVars, EVars, QueryKeys, QueryVars, Evidence).
-% ignore no evidence vars
-check_for_evidence(_V.AVars, EVars, QueryKeys, QueryVars, Evidence) :-
-	check_for_evidence(AVars, EVars, QueryKeys, QueryVars, Evidence).
-check_for_evidence([], [], _, _, []).
-
-%
-% do we still have free query variables?
-%
-check_for_extra_bindings([], [], [], []).
-check_for_extra_bindings([V|QueryVars0], QueryVars, [_|QueryKeys0], QueryKeys) :-
-	nonvar(V),!,
-	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys).
-check_for_extra_bindings([V|QueryVars0], [V|QueryVars], [K|QueryKeys0], [K|QueryKeys]) :-
-	check_for_extra_bindings(QueryVars0, QueryVars, QueryKeys0, QueryKeys).
-
-
-check_for_evidence_in_query(Key, [Key|QueryKeys], [V|QueryVars], E) :- !,
-	skolem(Key, Dom),
-	nth0(E, Dom, Val),
-	V = Val,
-	check_for_evidence_in_query(Key, QueryKeys, QueryVars, E).
-check_for_evidence_in_query(Key, [_|QueryKeys], [_|QueryVars], E) :-
-	check_for_evidence_in_query(Key, QueryKeys, QueryVars, E).
-check_for_evidence_in_query(_Key, [], [], _E).
 
 keys([], []).
 keys([Var|QueryVars], [Key|QueryKeys]) :-
